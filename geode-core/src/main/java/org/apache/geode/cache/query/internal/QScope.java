@@ -55,7 +55,7 @@ class QScope {
   }
 
   CompiledValue resolve(String name) {
-    for (RuntimeIterator _iterator : iterators) {
+    for (var _iterator : iterators) {
       if (_iterator != null && name.equals(_iterator.getName())) {
         return _iterator;
       }

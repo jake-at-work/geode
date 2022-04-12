@@ -320,7 +320,7 @@ public class TcpServer {
   private void processRequest(final Socket socket) {
     executor.execute(() -> {
 
-      final long startTime = nanoTimeSupplier.getAsLong();
+      final var startTime = nanoTimeSupplier.getAsLong();
       DataInputStream input = null;
       try {
         socket.setSoTimeout(readTimeout);
@@ -337,9 +337,9 @@ public class TcpServer {
         }
         // read the first byte & check for an improperly configured client pool trying
         // to contact a cache server
-        int firstByte = input.readUnsignedByte();
+        var firstByte = input.readUnsignedByte();
 
-        boolean handled = protocolChecker.checkProtocol(socket, input, firstByte);
+        var handled = protocolChecker.checkProtocol(socket, input, firstByte);
 
         if (!handled) {
           if (firstByte == GOSSIP_BYTE) {
@@ -351,11 +351,11 @@ public class TcpServer {
       } catch (EOFException | SocketException ignore) {
         // client went away - ignore
       } catch (SocketTimeoutException ex) {
-        final String sender = socket.getInetAddress().getHostAddress();
+        final var sender = socket.getInetAddress().getHostAddress();
         // Do not want the full stack trace to fill up the logs
         logger.info("Exception in processing request from " + sender + ": " + ex.getMessage());
       } catch (ClassNotFoundException ex) {
-        final String sender = socket.getInetAddress().getHostAddress();
+        final var sender = socket.getInetAddress().getHostAddress();
         logger.info("Unable to process request from " + sender + " exception=" + ex.getMessage());
       } catch (Exception ex) {
         String sender = null;
@@ -373,7 +373,7 @@ public class TcpServer {
         }
 
       } catch (Throwable ex) {
-        final String sender = socket.getInetAddress().getHostAddress();
+        final var sender = socket.getInetAddress().getHostAddress();
         try {
           logger.fatal("Exception in processing request from " + sender, ex);
         } catch (Throwable t) {
@@ -398,7 +398,7 @@ public class TcpServer {
 
   private void processOneConnection(Socket socket, final long startTime, DataInputStream input)
       throws IOException, UnsupportedSerializationVersionException, ClassNotFoundException {
-    final int gossipVersion = readGossipVersion(input);
+    final var gossipVersion = readGossipVersion(input);
     if (!(gossipVersion == GOSSIPVERSION || gossipVersion == OLDGOSSIPVERSION)) {
       rejectUnknownProtocolConnection(socket, gossipVersion);
       return;
@@ -417,14 +417,14 @@ public class TcpServer {
       logger.debug("Locator reading request from " + socket.getInetAddress() + " with version "
           + Versioning.getVersion(versionOrdinal));
     }
-    final KnownVersion version = Versioning.getKnownVersionOrDefault(
+    final var version = Versioning.getKnownVersionOrDefault(
         Versioning.getVersion(versionOrdinal), null);
     if (version == null) {
       throw new UnsupportedSerializationVersionException(
           KnownVersion.unsupportedVersionMessage(versionOrdinal));
     }
     input = new VersionedDataInputStream(input, version);
-    final Object request = objectDeserializer.readObject(input);
+    final var request = objectDeserializer.readObject(input);
     if (logger.isDebugEnabled()) {
       logger.debug("Locator received request " + request + " from " + socket.getInetAddress());
     }
@@ -443,9 +443,9 @@ public class TcpServer {
 
     handler.endRequest(request, startTime);
 
-    final long startTime2 = nanoTimeSupplier.getAsLong();
+    final var startTime2 = nanoTimeSupplier.getAsLong();
     if (response != null) {
-      DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+      var output = new DataOutputStream(socket.getOutputStream());
       if (version != KnownVersion.CURRENT) {
         output = new VersionedDataOutputStream(output, version);
       }
@@ -460,8 +460,8 @@ public class TcpServer {
    * Reads the next 3 bytes of the gossip version where first byte was 0.
    */
   private int readGossipVersion(final DataInputStream input) throws IOException {
-    int gossipVersion = 0;
-    for (int i = 0; i < 3; i++) {
+    var gossipVersion = 0;
+    for (var i = 0; i < 3; i++) {
       gossipVersion = (gossipVersion << 8) + (0xff & input.readUnsignedByte());
     }
     return gossipVersion;
@@ -480,7 +480,7 @@ public class TcpServer {
   }
 
   private Object handleVersionRequest() {
-    VersionResponse response = new VersionResponse();
+    var response = new VersionResponse();
     response.setVersionOrdinal(KnownVersion.CURRENT_ORDINAL);
     return response;
   }

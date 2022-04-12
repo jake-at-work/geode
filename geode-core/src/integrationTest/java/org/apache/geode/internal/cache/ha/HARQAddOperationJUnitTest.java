@@ -25,8 +25,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
@@ -108,10 +106,10 @@ public class HARQAddOperationJUnitTest {
    */
   protected HARegionQueue createHARegionQueue(String name)
       throws IOException, ClassNotFoundException, CacheException, InterruptedException {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setScope(Scope.DISTRIBUTED_ACK);
-    HARegionQueue regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache,
+    var regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache,
         HARegionQueue.NON_BLOCKING_HA_QUEUE, false, disabledClock());
     return regionqueue;
   }
@@ -121,7 +119,7 @@ public class HARQAddOperationJUnitTest {
    */
   protected HARegionQueue createHARegionQueue(String name, HARegionQueueAttributes attrs)
       throws IOException, ClassNotFoundException, CacheException, InterruptedException {
-    HARegionQueue regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache, attrs,
+    var regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache, attrs,
         HARegionQueue.NON_BLOCKING_HA_QUEUE, false, disabledClock());
     return regionqueue;
   }
@@ -136,16 +134,16 @@ public class HARQAddOperationJUnitTest {
   public void testQueueAddOperationWithConflation() throws Exception {
     logWriter.info("HARegionQueueJUnitTest : testQueueAddOperationWithConflation BEGIN");
     rq = createHARegionQueue("testQueueAddOperationWithConflation");
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
-    EventID id2 = new EventID(new byte[] {1}, 1, 2);
-    ConflatableObject c1 = new ConflatableObject(KEY1, VALUE1, id1, true, "region1");
-    ConflatableObject c2 = new ConflatableObject(KEY1, VALUE2, id2, true, "region1");
+    var id1 = new EventID(new byte[] {1}, 1, 1);
+    var id2 = new EventID(new byte[] {1}, 1, 2);
+    var c1 = new ConflatableObject(KEY1, VALUE1, id1, true, "region1");
+    var c2 = new ConflatableObject(KEY1, VALUE2, id2, true, "region1");
     rq.put(c1);
     rq.put(c2);
-    Map conflationMap = (Map) rq.getConflationMapForTesting().get("region1");
+    var conflationMap = (Map) rq.getConflationMapForTesting().get("region1");
     assertEquals(1, conflationMap.size());
-    Long cntr = (Long) conflationMap.get(KEY1);
-    ConflatableObject retValue = (ConflatableObject) rq.getRegion().get(cntr);
+    var cntr = (Long) conflationMap.get(KEY1);
+    var retValue = (ConflatableObject) rq.getRegion().get(cntr);
     assertEquals(VALUE2, retValue.getValueToConflate());
     assertEquals(1, rq.getAvailableIds().size());
 
@@ -164,10 +162,10 @@ public class HARQAddOperationJUnitTest {
   public void testQueueAddOperationWithoutConflation() throws Exception {
     logWriter.info("HARegionQueueJUnitTest : testQueueAddOperationWithoutConflation BEGIN");
     rq = createHARegionQueue("testQueueAddOperationWithConflation");
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
-    EventID id2 = new EventID(new byte[] {1}, 1, 2);
-    ConflatableObject c1 = new ConflatableObject(KEY1, VALUE1, id1, false, "region1");
-    ConflatableObject c2 = new ConflatableObject(KEY2, VALUE2, id2, false, "region1");
+    var id1 = new EventID(new byte[] {1}, 1, 1);
+    var id2 = new EventID(new byte[] {1}, 1, 2);
+    var c1 = new ConflatableObject(KEY1, VALUE1, id1, false, "region1");
+    var c2 = new ConflatableObject(KEY2, VALUE2, id2, false, "region1");
     rq.put(c1);
 
     assertNull(rq.getConflationMapForTesting().get("region1"));
@@ -180,16 +178,16 @@ public class HARQAddOperationJUnitTest {
     assertEquals(2, rq.getAvailableIds().size());
     assertEquals(2, rq.getCurrentCounterSet(id1).size());
 
-    Iterator iter = rq.getCurrentCounterSet(id1).iterator();
+    var iter = rq.getCurrentCounterSet(id1).iterator();
     if (iter.hasNext()) {
-      Long cntr = (Long) iter.next();
-      ConflatableObject co = (ConflatableObject) rq.getRegion().get(cntr);
+      var cntr = (Long) iter.next();
+      var co = (ConflatableObject) rq.getRegion().get(cntr);
       assertEquals(KEY1, co.getKeyToConflate());
       assertEquals(VALUE1, co.getValueToConflate());
     }
     if (iter.hasNext()) {
-      Long cntr = (Long) iter.next();
-      ConflatableObject co = (ConflatableObject) rq.getRegion().get(cntr);
+      var cntr = (Long) iter.next();
+      var co = (ConflatableObject) rq.getRegion().get(cntr);
       assertEquals(KEY2, co.getKeyToConflate());
       assertEquals(VALUE2, co.getValueToConflate());
     }
@@ -207,13 +205,13 @@ public class HARQAddOperationJUnitTest {
         .info("HARegionQueueJUnitTest : testQueueAddTakeOperationWithoutConflation BEGIN");
 
     rq = createHARegionQueue("testQueueAddOperationWithConflation");
-    EventID id = new EventID(new byte[] {1}, 1, 1);
-    ConflatableObject obj = new ConflatableObject(KEY1, VALUE1, id, true, "region1");
+    var id = new EventID(new byte[] {1}, 1, 1);
+    var obj = new ConflatableObject(KEY1, VALUE1, id, true, "region1");
     rq.put(obj);
     rq.take();
     assertNull(rq.getRegion().get(KEY1));
     assertEquals(0, rq.getAvailableIds().size());
-    Map eventsMap = rq.getEventsMapForTesting();
+    var eventsMap = rq.getEventsMapForTesting();
     assertEquals(1, eventsMap.size());
     assertEquals(0, rq.getCurrentCounterSet(id).size());
     logWriter.info("HARegionQueueJUnitTest : testQueueAddTakeOperationWithoutConflation END");
@@ -228,14 +226,14 @@ public class HARQAddOperationJUnitTest {
   @Test
   public void testExpiryOnThreadIdentifier() {
     try {
-      HARegionQueueAttributes attrs = new HARegionQueueAttributes();
+      var attrs = new HARegionQueueAttributes();
       attrs.setExpiryTime(2);
-      HARegionQueue regionqueue = createHARegionQueue("testing", attrs);
+      var regionqueue = createHARegionQueue("testing", attrs);
       // create the conflatable object
-      EventID id = new EventID(new byte[] {1}, 1, 1);
-      ConflatableObject obj = new ConflatableObject(KEY1, VALUE1, id, true, "region1");
+      var id = new EventID(new byte[] {1}, 1, 1);
+      var obj = new ConflatableObject(KEY1, VALUE1, id, true, "region1");
 
-      ThreadIdentifier threadId =
+      var threadId =
           new ThreadIdentifier(obj.getEventId().getMembershipID(), obj.getEventId().getThreadID());
       regionqueue.put(obj);
       regionqueue.take();
@@ -244,7 +242,7 @@ public class HARQAddOperationJUnitTest {
           "ThreadIdentifier did not remove itself through expiry.The reqgion queue is of type="
               + regionqueue.getClass(),
           regionqueue.getRegion().containsKey(threadId));
-      Map eventsMap = regionqueue.getEventsMapForTesting();
+      var eventsMap = regionqueue.getEventsMapForTesting();
       assertNull("expiry action on ThreadIdentifier did not remove itself from eventsMap",
           eventsMap.get(threadId));
 
@@ -264,18 +262,18 @@ public class HARQAddOperationJUnitTest {
   @Test
   public void testNoExpiryOnThreadIdentifier() {
     try {
-      HARegionQueueAttributes hqa = new HARegionQueueAttributes();
+      var hqa = new HARegionQueueAttributes();
       hqa.setExpiryTime(8);
-      HARegionQueue regionqueue = createHARegionQueue("testing", hqa);
-      EventID id1 = new EventID(new byte[] {1}, 1, 1);
-      EventID id2 = new EventID(new byte[] {1}, 1, 2);
-      ConflatableObject c1 = new ConflatableObject(KEY1, VALUE1, id1, true, "region1");
-      ConflatableObject c2 = new ConflatableObject(KEY1, VALUE2, id2, true, "region1");
-      ThreadIdentifier threadId =
+      var regionqueue = createHARegionQueue("testing", hqa);
+      var id1 = new EventID(new byte[] {1}, 1, 1);
+      var id2 = new EventID(new byte[] {1}, 1, 2);
+      var c1 = new ConflatableObject(KEY1, VALUE1, id1, true, "region1");
+      var c2 = new ConflatableObject(KEY1, VALUE2, id2, true, "region1");
+      var threadId =
           new ThreadIdentifier(c1.getEventId().getMembershipID(), c1.getEventId().getThreadID());
 
       regionqueue.put(c1);
-      Object o = regionqueue.take();
+      var o = regionqueue.take();
       assertNotNull(o);
       // wait for some time and put second object
       Thread.sleep(3000);
@@ -283,7 +281,7 @@ public class HARQAddOperationJUnitTest {
       // wait for some more time so that C2 has not expired
       Thread.sleep(4000);
 
-      Map eventsMap = regionqueue.getEventsMapForTesting();
+      var eventsMap = regionqueue.getEventsMapForTesting();
 
       // verify that ThreadIdentifier does not remove itself as data is
       // lying
@@ -312,13 +310,13 @@ public class HARQAddOperationJUnitTest {
    */
   @Test
   public void testMultipleQRMArrival() throws Exception {
-    HARegionQueue regionqueue = createHARegionQueue("testNoExpiryOnThreadIdentifier");
+    var regionqueue = createHARegionQueue("testNoExpiryOnThreadIdentifier");
 
-    EventID[] ids = new EventID[10];
-    for (int i = 0; i < 10; i++) {
+    var ids = new EventID[10];
+    for (var i = 0; i < 10; i++) {
       ids[i] = new EventID(new byte[] {1}, 1, i + 1);
     }
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       regionqueue.put(new ConflatableObject("KEY " + i, "VALUE" + i, ids[i], true, "region1"));
     }
 
@@ -330,9 +328,9 @@ public class HARQAddOperationJUnitTest {
     assertEquals(5, regionqueue.getAvailableIds().size());
     assertEquals(5, regionqueue.getCurrentCounterSet(ids[0]).size());
 
-    for (final Object o : regionqueue.getCurrentCounterSet(ids[0])) {
-      Long cntr = (Long) o;
-      ConflatableObject co = (ConflatableObject) regionqueue.getRegion().get(cntr);
+    for (final var o : regionqueue.getCurrentCounterSet(ids[0])) {
+      var cntr = (Long) o;
+      var co = (ConflatableObject) regionqueue.getRegion().get(cntr);
       assertTrue(co.getEventId().getSequenceID() > 5);
     }
 
@@ -351,10 +349,10 @@ public class HARQAddOperationJUnitTest {
   public void testConcurrentPutAndQRM() throws Exception {
     testFailed = false;
     message = new StringBuilder();
-    final HARegionQueue regionqueue = createHARegionQueue("testConcurrentPutAndQRM");
-    final EventID id1 = new EventID(new byte[] {1}, 1, 1);
-    final EventID id2 = new EventID(new byte[] {1}, 1, 2);
-    Thread t1 = new Thread() {
+    final var regionqueue = createHARegionQueue("testConcurrentPutAndQRM");
+    final var id1 = new EventID(new byte[] {1}, 1, 1);
+    final var id2 = new EventID(new byte[] {1}, 1, 2);
+    var t1 = new Thread() {
       @Override
       public void run() {
         try {
@@ -368,7 +366,7 @@ public class HARQAddOperationJUnitTest {
     };
     t1.setPriority(Thread.MAX_PRIORITY);
 
-    Thread t2 = new Thread() {
+    var t2 = new Thread() {
       @Override
       public void run() {
         try {
@@ -403,11 +401,11 @@ public class HARQAddOperationJUnitTest {
   @Test
   public void testConcurrentQRMAndPut() throws Exception {
     testFailed = false;
-    final HARegionQueue regionqueue = createHARegionQueue("testConcurrentQRMAndPut");
-    final EventID id1 = new EventID(new byte[] {1}, 1, 1);
-    final EventID id2 = new EventID(new byte[] {1}, 1, 2);
+    final var regionqueue = createHARegionQueue("testConcurrentQRMAndPut");
+    final var id1 = new EventID(new byte[] {1}, 1, 1);
+    final var id2 = new EventID(new byte[] {1}, 1, 2);
 
-    Thread t1 = new Thread() {
+    var t1 = new Thread() {
       @Override
       public void run() {
         try {
@@ -420,7 +418,7 @@ public class HARQAddOperationJUnitTest {
       }
     };
 
-    Thread t2 = new Thread() {
+    var t2 = new Thread() {
       @Override
       public void run() {
         try {
@@ -454,9 +452,9 @@ public class HARQAddOperationJUnitTest {
    */
   @Test
   public void testEventMapPopulationForQRM() throws Exception {
-    HARegionQueue regionqueue = createHARegionQueue("testEventMapPopulationForQRM");
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
-    EventID id2 = new EventID(new byte[] {1}, 1, 2);
+    var regionqueue = createHARegionQueue("testEventMapPopulationForQRM");
+    var id1 = new EventID(new byte[] {1}, 1, 1);
+    var id2 = new EventID(new byte[] {1}, 1, 2);
 
     logWriter.info("RemoveDispatched event for sequence id : " + id2.getSequenceID());
     regionqueue.removeDispatchedEvents(id2);
@@ -484,23 +482,23 @@ public class HARQAddOperationJUnitTest {
     logWriter.info("HARQAddOperationJUnitTest : testCleanUpForConflation BEGIN");
     testFailed = false;
     message = null;
-    final int numOfThreads = 10;
-    final int numOfPuts = 567;
-    final HARegionQueue regionqueue = createHARegionQueue("testCleanUpForConflation");
+    final var numOfThreads = 10;
+    final var numOfPuts = 567;
+    final var regionqueue = createHARegionQueue("testCleanUpForConflation");
 
     logWriter
         .info("HARQAddOperationJUnitTest : testCleanUpForConflation after regionqueue create");
     /*
      * doing concurrent put operations on different threadIDs but for the same key
      */
-    Thread[] threads = new Thread[10];
-    for (int i = 0; i < numOfThreads; i++) {
+    var threads = new Thread[10];
+    for (var i = 0; i < numOfThreads; i++) {
       final long ids = i;
       threads[i] = new Thread() {
         @Override
         public void run() {
-          for (int j = 0; j < numOfPuts; j++) {
-            EventID id = new EventID(new byte[] {(byte) ids}, ids, j);
+          for (var j = 0; j < numOfPuts; j++) {
+            var id = new EventID(new byte[] {(byte) ids}, ids, j);
             try {
               regionqueue.put(
                   new ConflatableObject(KEY1, id.getThreadID() + "VALUE" + j, id, true, "region1"));
@@ -515,11 +513,11 @@ public class HARQAddOperationJUnitTest {
       };
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       threads[k].start();
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       ThreadUtils.join(threads[k], 180 * 1000);
     }
 
@@ -540,8 +538,8 @@ public class HARQAddOperationJUnitTest {
     assertEquals(
         "size of availableids should 1 but actual size " + regionqueue.getAvailableIds().size(), 1,
         regionqueue.getAvailableIds().size());
-    int count = 0;
-    for (int i = 0; i < numOfThreads; i++) {
+    var count = 0;
+    for (var i = 0; i < numOfThreads; i++) {
       if ((regionqueue.getCurrentCounterSet(new EventID(new byte[] {(byte) i}, i, i))).size() > 0) {
         count++;
       }
@@ -553,7 +551,7 @@ public class HARQAddOperationJUnitTest {
     if (regionqueue.getAvailableIds().size() == 1) {
       position = (Long) regionqueue.getAvailableIds().iterator().next();
     }
-    ConflatableObject id = (ConflatableObject) regionqueue.getRegion().get(position);
+    var id = (ConflatableObject) regionqueue.getRegion().get(position);
     assertEquals(regionqueue.getCurrentCounterSet(id.getEventId()).size(), 1);
     logWriter.info("HARQAddOperationJUnitTest : testCleanUpForConflation END");
   }
@@ -567,18 +565,18 @@ public class HARQAddOperationJUnitTest {
   public void testPeekAndRemoveWithoutConflation() throws Exception {
     testFailed = false;
     message = null;
-    final int numOfThreads = 5;
-    final int numOfPuts = 4;
-    final int batchSize = 20;
-    final HARegionQueue regionqueue = createHARegionQueue("testPeekAndRemoveWithoutConflation");
-    Thread[] threads = new Thread[numOfThreads];
-    for (int i = 0; i < numOfThreads; i++) {
+    final var numOfThreads = 5;
+    final var numOfPuts = 4;
+    final var batchSize = 20;
+    final var regionqueue = createHARegionQueue("testPeekAndRemoveWithoutConflation");
+    var threads = new Thread[numOfThreads];
+    for (var i = 0; i < numOfThreads; i++) {
       final long ids = i;
       threads[i] = new Thread() {
         @Override
         public void run() {
-          for (int j = 0; j < numOfPuts; j++) {
-            EventID id = new EventID(new byte[] {(byte) ids}, ids, j);
+          for (var j = 0; j < numOfPuts; j++) {
+            var id = new EventID(new byte[] {(byte) ids}, ids, j);
             try {
               regionqueue.put(new ConflatableObject(KEY1 + id.getThreadID() + j,
                   id.getThreadID() + "VALUE" + j, id, false, "region1"));
@@ -591,11 +589,11 @@ public class HARQAddOperationJUnitTest {
       };
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       threads[k].start();
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       ThreadUtils.join(threads[k], 180 * 1000);
     }
 
@@ -603,11 +601,11 @@ public class HARQAddOperationJUnitTest {
       fail("Test failed due to " + message);
     }
 
-    List pickObjects = regionqueue.peek(batchSize);
+    var pickObjects = regionqueue.peek(batchSize);
     assertEquals(batchSize, pickObjects.size());
     regionqueue.remove();
 
-    for (int i = 0; i < numOfThreads; i++) {
+    for (var i = 0; i < numOfThreads; i++) {
       assertEquals(3,
           regionqueue.getLastDispatchedSequenceId(new EventID(new byte[] {(byte) i}, i, 1)));
       assertEquals(0,
@@ -628,19 +626,19 @@ public class HARQAddOperationJUnitTest {
   public void testPeekAndRemoveWithConflation() throws Exception {
     testFailed = false;
     message = null;
-    final int numOfThreads = 5;
+    final var numOfThreads = 5;
 
-    final int numOfPuts = 4;
-    final int batchSize = numOfThreads * numOfPuts;
-    final HARegionQueue regionqueue = createHARegionQueue("testPeekAndRemoveWithConflation");
-    Thread[] threads = new Thread[numOfThreads];
-    for (int i = 0; i < numOfThreads; i++) {
+    final var numOfPuts = 4;
+    final var batchSize = numOfThreads * numOfPuts;
+    final var regionqueue = createHARegionQueue("testPeekAndRemoveWithConflation");
+    var threads = new Thread[numOfThreads];
+    for (var i = 0; i < numOfThreads; i++) {
       final long ids = i;
       threads[i] = new Thread() {
         @Override
         public void run() {
-          for (int j = 0; j < numOfPuts; j++) {
-            EventID id = new EventID(new byte[] {(byte) ids}, ids, j);
+          for (var j = 0; j < numOfPuts; j++) {
+            var id = new EventID(new byte[] {(byte) ids}, ids, j);
             try {
               regionqueue.put(new ConflatableObject(KEY1 + ids, id.getThreadID() + "VALUE" + j, id,
                   true, "region1"));
@@ -653,11 +651,11 @@ public class HARQAddOperationJUnitTest {
       };
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       threads[k].start();
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       ThreadUtils.join(threads[k], 180 * 1000);
     }
 
@@ -665,11 +663,11 @@ public class HARQAddOperationJUnitTest {
       fail("Test failed due to " + message);
     }
 
-    List pickObject = regionqueue.peek(batchSize);
+    var pickObject = regionqueue.peek(batchSize);
     assertEquals(numOfThreads, pickObject.size());
     regionqueue.remove();
 
-    for (int i = 0; i < numOfThreads; i++) {
+    for (var i = 0; i < numOfThreads; i++) {
       // assertIndexDetailsEquals(numOfPuts,
       // regionqueue.getLastDispatchedSequenceId(new EventID(
       // new byte[] { (byte)i }, i, 1)));
@@ -695,18 +693,18 @@ public class HARQAddOperationJUnitTest {
     testFailed = false;
     message = null;
     barrierCount = 0;
-    final int numOfThreads = 5;
-    final int numOfPuts = 4;
+    final var numOfThreads = 5;
+    final var numOfPuts = 4;
     // final CountDownLatch mylatch = new CountDownLatch(4);
-    final HARegionQueue regionqueue = createHARegionQueue("testPeekForDiffBatchSizeAndRemoveAll");
-    Thread[] threads = new Thread[numOfThreads];
-    for (int i = 0; i < numOfThreads; i++) {
+    final var regionqueue = createHARegionQueue("testPeekForDiffBatchSizeAndRemoveAll");
+    var threads = new Thread[numOfThreads];
+    for (var i = 0; i < numOfThreads; i++) {
       final long ids = i;
       threads[i] = new Thread() {
         @Override
         public void run() {
-          for (int j = 0; j < numOfPuts; j++) {
-            EventID id = new EventID(new byte[] {(byte) ids}, ids, j);
+          for (var j = 0; j < numOfPuts; j++) {
+            var id = new EventID(new byte[] {(byte) ids}, ids, j);
             try {
               regionqueue.put(new ConflatableObject(KEY1 + id.getThreadID() + j,
                   id.getThreadID() + "VALUE" + j, id, false, "region1"));
@@ -719,11 +717,11 @@ public class HARQAddOperationJUnitTest {
       };
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       threads[k].start();
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       ThreadUtils.join(threads[k], 180 * 1000);
     }
 
@@ -734,15 +732,15 @@ public class HARQAddOperationJUnitTest {
     testFailed = false;
     message = null;
 
-    Thread[] threads_peek_remove = new Thread[numOfPuts];
-    for (int i = 1; i < (numOfPuts + 1); i++) {
-      final int peakBatchSize = i * 5;
+    var threads_peek_remove = new Thread[numOfPuts];
+    for (var i = 1; i < (numOfPuts + 1); i++) {
+      final var peakBatchSize = i * 5;
       threads_peek_remove[i - 1] = new Thread() {
 
         @Override
         public void run() {
           try {
-            List peakObjects = regionqueue.peek(peakBatchSize);
+            var peakObjects = regionqueue.peek(peakBatchSize);
             assertEquals(peakBatchSize, peakObjects.size());
             synchronized (HARQAddOperationJUnitTest.this) {
               ++barrierCount;
@@ -766,11 +764,11 @@ public class HARQAddOperationJUnitTest {
       };
     }
 
-    for (int k = 0; k < numOfPuts; k++) {
+    for (var k = 0; k < numOfPuts; k++) {
       threads_peek_remove[k].start();
     }
 
-    for (int k = 0; k < numOfPuts; k++) {
+    for (var k = 0; k < numOfPuts; k++) {
       ThreadUtils.join(threads_peek_remove[k], 180 * 1000);
     }
 
@@ -778,7 +776,7 @@ public class HARQAddOperationJUnitTest {
       fail("Test failed due to " + message);
     }
 
-    for (int i = 0; i < numOfThreads; i++) {
+    for (var i = 0; i < numOfThreads; i++) {
       assertEquals(3,
           regionqueue.getLastDispatchedSequenceId(new EventID(new byte[] {(byte) i}, i, 1)));
       assertEquals(0,
@@ -801,17 +799,17 @@ public class HARQAddOperationJUnitTest {
     testFailed = false;
     barrierCount = 0;
     message = null;
-    final int numOfThreads = 5;
-    final int numOfPuts = 4;
-    final HARegionQueue regionqueue = createHARegionQueue("testPeekForDiffBatchSizeAndRemoveSome");
-    Thread[] threads = new Thread[numOfThreads];
-    for (int i = 0; i < numOfThreads; i++) {
+    final var numOfThreads = 5;
+    final var numOfPuts = 4;
+    final var regionqueue = createHARegionQueue("testPeekForDiffBatchSizeAndRemoveSome");
+    var threads = new Thread[numOfThreads];
+    for (var i = 0; i < numOfThreads; i++) {
       final long ids = i;
       threads[i] = new Thread() {
         @Override
         public void run() {
-          for (int j = 0; j < numOfPuts; j++) {
-            EventID id = new EventID(new byte[] {(byte) ids}, ids, j);
+          for (var j = 0; j < numOfPuts; j++) {
+            var id = new EventID(new byte[] {(byte) ids}, ids, j);
             try {
               regionqueue.put(new ConflatableObject(KEY1 + id.getThreadID() + j,
                   id.getThreadID() + "VALUE" + j, id, false, "region1"));
@@ -824,11 +822,11 @@ public class HARQAddOperationJUnitTest {
       };
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       threads[k].start();
     }
 
-    for (int k = 0; k < numOfThreads; k++) {
+    for (var k = 0; k < numOfThreads; k++) {
       ThreadUtils.join(threads[k], 180 * 1000);
     }
 
@@ -838,15 +836,15 @@ public class HARQAddOperationJUnitTest {
 
     testFailed = false;
     message = null;
-    Thread[] threads_peek_remove = new Thread[numOfPuts - 1];
-    for (int i = 1; i < numOfPuts; i++) {
-      final int peakBatchSize = i * 5;
+    var threads_peek_remove = new Thread[numOfPuts - 1];
+    for (var i = 1; i < numOfPuts; i++) {
+      final var peakBatchSize = i * 5;
       threads_peek_remove[i - 1] = new Thread() {
 
         @Override
         public void run() {
           try {
-            List peakObjects = regionqueue.peek(peakBatchSize);
+            var peakObjects = regionqueue.peek(peakBatchSize);
             assertEquals(peakBatchSize, peakObjects.size());
             synchronized (HARQAddOperationJUnitTest.this) {
               ++barrierCount;
@@ -870,11 +868,11 @@ public class HARQAddOperationJUnitTest {
       };
     }
 
-    for (int k = 0; k < numOfPuts - 1; k++) {
+    for (var k = 0; k < numOfPuts - 1; k++) {
       threads_peek_remove[k].start();
     }
 
-    for (int k = 0; k < numOfPuts - 1; k++) {
+    for (var k = 0; k < numOfPuts - 1; k++) {
       ThreadUtils.join(threads_peek_remove[k], 180 * 1000);
     }
 
@@ -897,7 +895,7 @@ public class HARQAddOperationJUnitTest {
   @Test
   public void testAddWithQRMAndExpiry() throws Exception {
     try {
-      HARegionQueueAttributes attrs = new HARegionQueueAttributes();
+      var attrs = new HARegionQueueAttributes();
       attrs.setExpiryTime(10);
       final HARegionQueue regionqueue =
           new TestOnlyHARegionQueue("testing", cache, attrs, disabledClock()) {
@@ -922,14 +920,14 @@ public class HARQAddOperationJUnitTest {
               };
             }
           };
-      Conflatable[] cf = new Conflatable[10];
+      var cf = new Conflatable[10];
       // put 10 conflatable objects
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         cf[i] = new ConflatableObject("key" + i, "value", new EventID(new byte[] {1}, 1, i), true,
             "testing");
         regionqueue.put(cf[i]);
       }
-      ThreadIdentifier tID = new ThreadIdentifier(new byte[] {1}, 1);
+      var tID = new ThreadIdentifier(new byte[] {1}, 1);
       // verify that the sequence-id for Thread-identifier is -1 (default value).
       assertEquals((long) -1, regionqueue.getRegion().get(tID));
 
@@ -1004,24 +1002,24 @@ public class HARQAddOperationJUnitTest {
   public void testDispatchedMsgsMapUpdateOnTakes() throws Exception {
     logWriter.info("HARQAddOperationJUnitTest : testDispatchedEventsMapUpdateOnTakes BEGIN");
 
-    String regionName = "testDispatchedEventsMapUpdateOnTakes";
-    HARegionQueue rq = createHARegionQueue(regionName);
+    var regionName = "testDispatchedEventsMapUpdateOnTakes";
+    var rq = createHARegionQueue(regionName);
 
     Conflatable cf = null;
     EventID id = null;
 
-    int totalEvents = 10;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 10;
+    for (var i = 0; i < totalEvents; i++) {
       id = new EventID(new byte[] {1}, 1, i);
       cf = new ConflatableObject("key" + i, "value" + i, id, false, "testing");
       rq.put(cf);
     }
 
-    for (int i = 0; i < totalEvents; i++) {
+    for (var i = 0; i < totalEvents; i++) {
       rq.take();
     }
 
-    Map dispatchedMsgMap = HARegionQueue.getDispatchedMessagesMapForTesting();
+    var dispatchedMsgMap = HARegionQueue.getDispatchedMessagesMapForTesting();
     // verify that map is not null
     assertNotNull("dispatchedMessagesMap found null", dispatchedMsgMap);
 
@@ -1030,15 +1028,15 @@ public class HARQAddOperationJUnitTest {
     assertEquals("size of dispatched msgs should be 1", 1, dispatchedMsgMap.size());
 
     // verify that the map contains an entry for the queue-region name
-    MapWrapper wrapper = (MapWrapper) dispatchedMsgMap.get(regionName);
+    var wrapper = (MapWrapper) dispatchedMsgMap.get(regionName);
     assertNotNull("dispatchedMsgMap should contain an entry with queueregion name as key", wrapper);
 
-    Map dispatchedData = wrapper.map;
+    var dispatchedData = wrapper.map;
     assertEquals("size of wrapper-map should be 1 as all events had same ThreadId", 1,
         dispatchedData.size());
 
-    ThreadIdentifier tid = new ThreadIdentifier(new byte[] {1}, 1);
-    Long seqId = (Long) dispatchedData.get(tid);
+    var tid = new ThreadIdentifier(new byte[] {1}, 1);
+    var seqId = (Long) dispatchedData.get(tid);
 
     assertEquals(
         "sequenceId against the ThreadId in the wrapper-map should be that of the last event taken.",

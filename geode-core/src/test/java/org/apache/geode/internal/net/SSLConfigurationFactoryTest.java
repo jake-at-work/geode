@@ -62,10 +62,10 @@ public class SSLConfigurationFactoryTest {
 
   @Test
   public void getNonSSLConfiguration() {
-    Properties properties = new Properties();
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var properties = new Properties();
+    var distributionConfig = new DistributionConfigImpl(properties);
 
-    for (SecurableCommunicationChannel securableComponent : SecurableCommunicationChannel
+    for (var securableComponent : SecurableCommunicationChannel
         .values()) {
       assertSSLConfig(properties,
           SSLConfigurationFactory.getSSLConfigForComponent(distributionConfig, securableComponent),
@@ -76,7 +76,7 @@ public class SSLConfigurationFactoryTest {
 
   @Test
   public void getSSLConfigForComponentShouldThrowExceptionForUnknownComponents() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(SSL_ENABLED_COMPONENTS, "none");
 
     assertThatThrownBy(() -> new DistributionConfigImpl(properties))
@@ -87,65 +87,65 @@ public class SSLConfigurationFactoryTest {
 
   @Test
   public void getSSLConfigWithCommaDelimitedProtocols() {
-    final Properties properties =
+    final var properties =
         createSSLProperties("all", "Cipher1,Cipher2", "Protocol1,Protocol2");
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
 
     assertSSLConfigForChannels(properties, distributionConfig);
   }
 
   @Test
   public void getSSLConfigWithCommaDelimitedCiphers() {
-    final Properties properties = createSSLProperties("all", "Cipher1,Cipher2", "any");
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    final var properties = createSSLProperties("all", "Cipher1,Cipher2", "any");
+    var distributionConfig = new DistributionConfigImpl(properties);
 
     assertSSLConfigForChannels(properties, distributionConfig);
   }
 
   @Test
   public void getSSLConfigForComponentALL() {
-    final Properties properties = createSSLProperties("all", "any", "any");
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    final var properties = createSSLProperties("all", "any", "any");
+    var distributionConfig = new DistributionConfigImpl(properties);
 
     assertSSLConfigForChannels(properties, distributionConfig);
   }
 
   @Test
   public void getSSLConfigForComponentHTTPService() {
-    final Properties properties =
+    final var properties =
         createSSLProperties(SecurableCommunicationChannel.WEB.getConstant(), "any", "any");
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
 
     assertSSLConfigForChannels(properties, distributionConfig);
   }
 
   @Test
   public void getSSLConfigForComponentHTTPServiceWithAlias() {
-    final Properties properties =
+    final var properties =
         createSSLProperties(SecurableCommunicationChannel.WEB.getConstant(), "any", "any");
     properties.setProperty(SSL_WEB_ALIAS, "httpAlias");
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
 
     assertSSLConfigForChannels(properties, distributionConfig);
   }
 
   @Test
   public void getSSLConfigForComponentHTTPServiceWithMutualAuth() {
-    final Properties properties =
+    final var properties =
         createSSLProperties(SecurableCommunicationChannel.WEB.getConstant(), "any", "any");
     properties.setProperty(SSL_WEB_ALIAS, "httpAlias");
     properties.setProperty(SSL_WEB_SERVICE_REQUIRE_AUTHENTICATION, "true");
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
 
     assertSSLConfigForChannels(properties, distributionConfig);
   }
 
   @Test
   public void getSSLHTTPMutualAuthenticationOffWithDefaultConfiguration() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(SSL_ENABLED_COMPONENTS, "all");
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
-    SSLConfig sslConfig =
+    var distributionConfig = new DistributionConfigImpl(properties);
+    var sslConfig =
         SSLConfigurationFactory.getSSLConfigForComponent(distributionConfig,
             SecurableCommunicationChannel.WEB);
     assertThat(sslConfig.isRequireAuth()).isFalse();
@@ -173,12 +173,12 @@ public class SSLConfigurationFactoryTest {
 
   @Test
   public void setDistributionConfig() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(SSL_ENABLED_COMPONENTS, "all");
     properties.setProperty(SSL_KEYSTORE, "someKeyStore");
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
 
-    SSLConfig sslConfig =
+    var sslConfig =
         SSLConfigurationFactory.getSSLConfigForComponent(distributionConfig,
             SecurableCommunicationChannel.LOCATOR);
     assertThat(sslConfig.isEnabled()).isTrue();
@@ -194,12 +194,12 @@ public class SSLConfigurationFactoryTest {
 
   @Test
   void createSSLConfigBuilderSetsSSLClientProtocols() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(SSL_ENABLED_COMPONENTS, "all");
     properties.setProperty(SSL_CLIENT_PROTOCOLS, "SomeClientProtocol");
-    final DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    final var distributionConfig = new DistributionConfigImpl(properties);
 
-    final SSLConfig sslConfig =
+    final var sslConfig =
         SSLConfigurationFactory.getSSLConfigForComponent(distributionConfig,
             SecurableCommunicationChannel.LOCATOR);
 
@@ -208,12 +208,12 @@ public class SSLConfigurationFactoryTest {
 
   @Test
   void createSSLConfigBuilderSetsSSLServerProtocols() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(SSL_ENABLED_COMPONENTS, "all");
     properties.setProperty(SSL_SERVER_PROTOCOLS, "SomeServerProtocol");
-    final DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    final var distributionConfig = new DistributionConfigImpl(properties);
 
-    final SSLConfig sslConfig =
+    final var sslConfig =
         SSLConfigurationFactory.getSSLConfigForComponent(distributionConfig,
             SecurableCommunicationChannel.LOCATOR);
 
@@ -222,10 +222,10 @@ public class SSLConfigurationFactoryTest {
 
   @Test
   void testLegacyGatewaySSLConfig() {
-    final Properties properties = createLegacyGatewaySSLProperties();
-    final SecurableCommunicationChannel securableComponent = SecurableCommunicationChannel.GATEWAY;
+    final var properties = createLegacyGatewaySSLProperties();
+    final var securableComponent = SecurableCommunicationChannel.GATEWAY;
 
-    final SSLConfig sslConfig =
+    final var sslConfig =
         SSLConfigurationFactory.getSSLConfigForComponent(new DistributionConfigImpl(properties),
             securableComponent);
 
@@ -235,11 +235,11 @@ public class SSLConfigurationFactoryTest {
 
   @Test
   void testLegacyGatewaySSLConfigWithEndpointIdentificationEnabled() {
-    final Properties properties = new Properties();
+    final var properties = new Properties();
     properties.setProperty(SSL_ENDPOINT_IDENTIFICATION_ENABLED, "true");
-    final SecurableCommunicationChannel securableComponent = SecurableCommunicationChannel.GATEWAY;
+    final var securableComponent = SecurableCommunicationChannel.GATEWAY;
 
-    final SSLConfig sslConfig =
+    final var sslConfig =
         SSLConfigurationFactory.getSSLConfigForComponent(new DistributionConfigImpl(properties),
             securableComponent);
 
@@ -247,7 +247,7 @@ public class SSLConfigurationFactoryTest {
   }
 
   private Properties createSSLProperties(String component, String ciphers, String protocols) {
-    final Properties properties = new Properties();
+    final var properties = new Properties();
     properties.setProperty(SSL_ENABLED_COMPONENTS, component);
     properties.setProperty(SSL_KEYSTORE, "someKeyStore");
     properties.setProperty(SSL_KEYSTORE_PASSWORD, "keystorePassword");
@@ -261,7 +261,7 @@ public class SSLConfigurationFactoryTest {
   }
 
   private Properties createLegacyGatewaySSLProperties() {
-    final Properties properties = new Properties();
+    final var properties = new Properties();
     properties.setProperty(GATEWAY_SSL_ENABLED, "true");
     properties.setProperty(GATEWAY_SSL_KEYSTORE, "someKeyStore");
     properties.setProperty(GATEWAY_SSL_KEYSTORE_PASSWORD, "keystorePassword");
@@ -326,7 +326,7 @@ public class SSLConfigurationFactoryTest {
 
   private void assertSSLConfigForChannels(final Properties distributionConfigProperties,
       final DistributionConfigImpl distributionConfig) {
-    for (SecurableCommunicationChannel securableComponent : SecurableCommunicationChannel
+    for (var securableComponent : SecurableCommunicationChannel
         .values()) {
       assertSSLConfig(distributionConfigProperties,
           SSLConfigurationFactory.getSSLConfigForComponent(distributionConfig, securableComponent),
@@ -337,11 +337,11 @@ public class SSLConfigurationFactoryTest {
 
   private boolean requiresAuthentication(final Properties properties,
       final SecurableCommunicationChannel expectedSecurableComponent) {
-    boolean defaultAuthentication =
+    var defaultAuthentication =
         expectedSecurableComponent.equals(SecurableCommunicationChannel.WEB)
             ? DistributionConfig.DEFAULT_SSL_WEB_SERVICE_REQUIRE_AUTHENTICATION
             : DistributionConfig.DEFAULT_SSL_REQUIRE_AUTHENTICATION;
-    String httpRequiresAuthentication =
+    var httpRequiresAuthentication =
         properties.getProperty(SSL_WEB_SERVICE_REQUIRE_AUTHENTICATION);
 
     return httpRequiresAuthentication == null ? defaultAuthentication
@@ -371,7 +371,7 @@ public class SSLConfigurationFactoryTest {
 
   private String getAliasForComponent(final Properties properties,
       final String componentAliasProperty) {
-    String aliasProperty = properties.getProperty(componentAliasProperty);
+    var aliasProperty = properties.getProperty(componentAliasProperty);
     return !StringUtils.isEmpty(aliasProperty) ? aliasProperty
         : properties.getProperty(SSL_DEFAULT_ALIAS);
   }
@@ -379,7 +379,7 @@ public class SSLConfigurationFactoryTest {
   private boolean isSSLComponentEnabled(
       final SecurableCommunicationChannel expectedSecurableComponent,
       final SecurableCommunicationChannel[] securableComponents) {
-    for (SecurableCommunicationChannel securableCommunicationChannel : securableComponents) {
+    for (var securableCommunicationChannel : securableComponents) {
       if (SecurableCommunicationChannel.ALL.equals(securableCommunicationChannel)
           || securableCommunicationChannel.equals(expectedSecurableComponent)) {
         return true;

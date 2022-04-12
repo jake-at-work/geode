@@ -58,7 +58,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.ConfigSource;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.internal.config.ClusterConfigurationNotAvailableException;
-import org.apache.geode.internal.deployment.JarDeploymentService;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.internal.beans.FileUploader;
 import org.apache.geode.management.internal.configuration.domain.Configuration;
@@ -87,7 +86,7 @@ public class ClusterConfigurationLoader {
     }
 
     logger.info("deploying jars received from cluster configuration");
-    List<String> jarFileNames =
+    var jarFileNames =
         response.getJarNames().values().stream()
             .filter(Objects::nonNull)
             .flatMap(Set::stream)
@@ -95,12 +94,12 @@ public class ClusterConfigurationLoader {
 
     if (!jarFileNames.isEmpty()) {
       logger.info("Got response with jars: {}", String.join(",", jarFileNames));
-      JarDeploymentService jarDeploymentService =
+      var jarDeploymentService =
           ClassPathLoader.getLatest().getJarDeploymentService();
 
-      Set<File> stagedJarFiles =
+      var stagedJarFiles =
           getJarsFromLocator(response.getMember(), response.getJarNames());
-      for (File file : stagedJarFiles) {
+      for (var file : stagedJarFiles) {
         logger.info("Removing old versions of {} in cluster configuration.", file.getName());
         jarDeploymentService.undeployByFileName(file.getName());
         jarDeploymentService.deploy(file);
@@ -115,8 +114,8 @@ public class ClusterConfigurationLoader {
       Map<String, Set<String>> jarNames) throws IOException {
     Map<String, File> results = new HashMap<>();
 
-    for (String group : jarNames.keySet()) {
-      for (String jar : jarNames.get(group)) {
+    for (var group : jarNames.keySet()) {
+      for (var jar : jarNames.get(group)) {
         results.put(jar, downloadJar(locator, group, jar));
       }
     }
@@ -127,8 +126,8 @@ public class ClusterConfigurationLoader {
   // the returned File will use use jarName as the fileName
   public File downloadJar(DistributedMember locator, String groupName, String jarName)
       throws IOException {
-    Path tempDir = FileUploader.createSecuredTempDirectory("deploy-");
-    Path tempJar = Paths.get(tempDir.toString(), jarName);
+    var tempDir = FileUploader.createSecuredTempDirectory("deploy-");
+    var tempJar = Paths.get(tempDir.toString(), jarName);
 
     downloadTo(locator, groupName, jarName, tempJar);
 
@@ -137,20 +136,20 @@ public class ClusterConfigurationLoader {
 
   void downloadTo(DistributedMember locator, String groupName, String jarName, Path jarPath)
       throws IOException {
-    ResultCollector<RemoteInputStream, List<RemoteInputStream>> rc =
+    var rc =
         (ResultCollector<RemoteInputStream, List<RemoteInputStream>>) ManagementUtils
             .executeFunction(
                 new DownloadJarFunction(), new Object[] {groupName, jarName},
                 Collections.singleton(locator));
 
-    List<RemoteInputStream> result = rc.getResult();
+    var result = rc.getResult();
     if (result.get(0) instanceof Throwable) {
       throw new IllegalStateException(((Throwable) result.get(0)).getMessage());
     }
 
-    FileOutputStream fos = new FileOutputStream(jarPath.toString());
+    var fos = new FileOutputStream(jarPath.toString());
 
-    InputStream jarStream = RemoteInputStreamClient.wrap(result.get(0));
+    var jarStream = RemoteInputStreamClient.wrap(result.get(0));
     IOUtils.copyLarge(jarStream, fos);
 
     fos.close();
@@ -166,26 +165,26 @@ public class ClusterConfigurationLoader {
       return;
     }
 
-    Set<String> groups = getGroups(groupList);
-    Map<String, Configuration> requestedConfiguration = response.getRequestedConfiguration();
+    var groups = getGroups(groupList);
+    var requestedConfiguration = response.getRequestedConfiguration();
 
     List<String> cacheXmlContentList = new LinkedList<>();
 
     // apply the cluster config first
-    Configuration clusterConfiguration =
+    var clusterConfiguration =
         requestedConfiguration.get(ConfigurationPersistenceService.CLUSTER_CONFIG);
     if (clusterConfiguration != null) {
-      String cacheXmlContent = clusterConfiguration.getCacheXmlContent();
+      var cacheXmlContent = clusterConfiguration.getCacheXmlContent();
       if (StringUtils.isNotBlank(cacheXmlContent)) {
         cacheXmlContentList.add(cacheXmlContent);
       }
     }
 
     // then apply the groups config
-    for (String group : groups) {
-      Configuration groupConfiguration = requestedConfiguration.get(group);
+    for (var group : groups) {
+      var groupConfiguration = requestedConfiguration.get(group);
       if (groupConfiguration != null) {
-        String cacheXmlContent = groupConfiguration.getCacheXmlContent();
+        var cacheXmlContent = groupConfiguration.getCacheXmlContent();
         if (StringUtils.isNotBlank(cacheXmlContent)) {
           cacheXmlContentList.add(cacheXmlContent);
         }
@@ -193,7 +192,7 @@ public class ClusterConfigurationLoader {
     }
 
     // apply the requested cache xml
-    for (String cacheXmlContent : cacheXmlContentList) {
+    for (var cacheXmlContent : cacheXmlContentList) {
       InputStream is = new ByteArrayInputStream(cacheXmlContent.getBytes());
       try {
         cache.loadCacheXml(is);
@@ -218,25 +217,25 @@ public class ClusterConfigurationLoader {
       return;
     }
 
-    Set<String> groups = getGroups(config.getGroups());
-    Map<String, Configuration> requestedConfiguration = response.getRequestedConfiguration();
+    var groups = getGroups(config.getGroups());
+    var requestedConfiguration = response.getRequestedConfiguration();
 
-    final Properties runtimeProps = new Properties();
+    final var runtimeProps = new Properties();
 
     // apply the cluster config first
-    Configuration clusterConfiguration =
+    var clusterConfiguration =
         requestedConfiguration.get(ConfigurationPersistenceService.CLUSTER_CONFIG);
     if (clusterConfiguration != null) {
       runtimeProps.putAll(clusterConfiguration.getGemfireProperties());
     }
 
-    final Properties groupProps = new Properties();
+    final var groupProps = new Properties();
 
     // then apply the group config
-    for (String group : groups) {
-      Configuration groupConfiguration = requestedConfiguration.get(group);
+    for (var group : groups) {
+      var groupConfiguration = requestedConfiguration.get(group);
       if (groupConfiguration != null) {
-        for (Map.Entry<Object, Object> e : groupConfiguration.getGemfireProperties().entrySet()) {
+        for (var e : groupConfiguration.getGemfireProperties().entrySet()) {
           if (groupProps.containsKey(e.getKey())) {
             logger.warn("Conflicting property {} from group {}", e.getKey(), group);
           } else {
@@ -248,10 +247,10 @@ public class ClusterConfigurationLoader {
 
     runtimeProps.putAll(groupProps);
 
-    Set<Object> attNames = runtimeProps.keySet();
-    for (Object attNameObj : attNames) {
-      String attName = (String) attNameObj;
-      String attValue = runtimeProps.getProperty(attName);
+    var attNames = runtimeProps.keySet();
+    for (var attNameObj : attNames) {
+      var attName = (String) attNameObj;
+      var attValue = runtimeProps.getProperty(attName);
       try {
         config.setAttribute(attName, attValue, ConfigSource.runtime());
       } catch (IllegalArgumentException e) {
@@ -273,13 +272,13 @@ public class ClusterConfigurationLoader {
       Set<InternalDistributedMember> locatorList)
       throws ClusterConfigurationNotAvailableException, UnknownHostException {
 
-    Set<String> groups = getGroups(groupList);
+    var groups = getGroups(groupList);
 
     ConfigurationResponse response = null;
 
-    int attempts = 6;
+    var attempts = 6;
     OUTER: while (attempts > 0) {
-      for (InternalDistributedMember locator : locatorList) {
+      for (var locator : locatorList) {
         logger.info("Attempting to retrieve cluster configuration from {} - {} attempts remaining",
             locator.getName(), attempts);
         response = requestConfigurationFromOneLocator(locator, groups);
@@ -311,9 +310,9 @@ public class ClusterConfigurationLoader {
     ConfigurationResponse configResponse = null;
 
     try {
-      ResultCollector resultCollector = FunctionService.onMember(locator).setArguments(groups)
+      var resultCollector = FunctionService.onMember(locator).setArguments(groups)
           .execute(GET_CLUSTER_CONFIG_FUNCTION);
-      Object result = ((ArrayList) resultCollector.getResult()).get(0);
+      var result = ((ArrayList) resultCollector.getResult()).get(0);
       if (result instanceof ConfigurationResponse) {
         configResponse = (ConfigurationResponse) result;
         configResponse.setMember(locator);

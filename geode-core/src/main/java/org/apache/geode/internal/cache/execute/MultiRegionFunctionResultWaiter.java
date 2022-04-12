@@ -42,8 +42,8 @@ public class MultiRegionFunctionResultWaiter extends StreamingFunctionOperation 
   protected DistributionMessage createRequestMessage(Set recipients,
       FunctionStreamingResultCollector processor, boolean isReExecute,
       boolean isFnSerializationReqd) {
-    InternalDistributedMember target = (InternalDistributedMember) recipients.toArray()[0];
-    MemberFunctionStreamingMessage msg = new MemberFunctionStreamingMessage(functionObject,
+    var target = (InternalDistributedMember) recipients.toArray()[0];
+    var msg = new MemberFunctionStreamingMessage(functionObject,
         processor.getProcessorId(), memberArgs.get(target), isFnSerializationReqd,
         memberToRegions.get(target), isReExecute);
     msg.setRecipients(recipients);

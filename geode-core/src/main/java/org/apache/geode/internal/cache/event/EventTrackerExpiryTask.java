@@ -14,13 +14,10 @@
  */
 package org.apache.geode.internal.cache.event;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.geode.internal.SystemTimer;
-import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 
 public class EventTrackerExpiryTask extends SystemTimer.SystemTimerTask {
 
@@ -50,10 +47,10 @@ public class EventTrackerExpiryTask extends SystemTimer.SystemTimerTask {
 
   @Override
   public void run2() {
-    long now = System.currentTimeMillis();
-    long expirationTime = now - lifetimeInMillis;
+    var now = System.currentTimeMillis();
+    var expirationTime = now - lifetimeInMillis;
     synchronized (trackers) {
-      for (EventTracker tracker : trackers) {
+      for (var tracker : trackers) {
         if (traceEnabled) {
           logger.trace("{} sweeper: starting", tracker.getName());
         }
@@ -68,10 +65,10 @@ public class EventTrackerExpiryTask extends SystemTimer.SystemTimerTask {
   }
 
   private void removeExpiredSequenceTracker(EventTracker tracker, long now, long expirationTime) {
-    for (Iterator<Map.Entry<ThreadIdentifier, EventSequenceNumberHolder>> entryIterator =
+    for (var entryIterator =
         tracker.getRecordedEvents().entrySet().iterator(); entryIterator.hasNext();) {
-      Map.Entry<ThreadIdentifier, EventSequenceNumberHolder> entry = entryIterator.next();
-      EventSequenceNumberHolder evh = entry.getValue();
+      var entry = entryIterator.next();
+      var evh = entry.getValue();
       if (evh.expire(now, expirationTime)) {
         if (traceEnabled) {
           logger.trace("{} sweeper: removing {}", tracker.getName(), entry.getKey());
@@ -82,10 +79,10 @@ public class EventTrackerExpiryTask extends SystemTimer.SystemTimerTask {
   }
 
   private void removeExpiredBulkOperations(EventTracker tracker, long now, long expirationTime) {
-    for (Iterator<Map.Entry<ThreadIdentifier, BulkOperationHolder>> entryIterator =
+    for (var entryIterator =
         tracker.getRecordedBulkOpVersionTags().entrySet().iterator(); entryIterator.hasNext();) {
-      Map.Entry<ThreadIdentifier, BulkOperationHolder> entry = entryIterator.next();
-      BulkOperationHolder evh = entry.getValue();
+      var entry = entryIterator.next();
+      var evh = entry.getValue();
       if (evh.expire(now, expirationTime)) {
         if (traceEnabled) {
           logger.trace("{} sweeper: removing bulkOp {}", tracker.getName(), entry.getKey());

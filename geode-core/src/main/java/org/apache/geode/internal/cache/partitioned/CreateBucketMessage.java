@@ -37,7 +37,6 @@ import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.FixedPartitionAttributesImpl;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.Node;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -102,8 +101,8 @@ public class CreateBucketMessage extends PartitionMessage {
   public static NodeResponse send(InternalDistributedMember recipient, PartitionedRegion r,
       int bucketId, int bucketSize) throws ForceReattemptException {
     Assert.assertTrue(recipient != null, "CreateBucketMessage NULL recipient");
-    NodeResponse p = new NodeResponse(r.getSystem(), recipient);
-    CreateBucketMessage m =
+    var p = new NodeResponse(r.getSystem(), recipient);
+    var m =
         new CreateBucketMessage(recipient, r.getPRId(), p, bucketId, bucketSize);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
 
@@ -143,12 +142,12 @@ public class CreateBucketMessage extends PartitionMessage {
     // belongs
     String partitionName = null;
     if (r.isFixedPartitionedRegion()) {
-      FixedPartitionAttributesImpl fpa =
+      var fpa =
           PartitionedRegionHelper.getFixedPartitionAttributesForBucket(r, bucketId);
       partitionName = fpa.getPartitionName();
     }
     r.checkReadiness();
-    InternalDistributedMember primary = r.getRedundancyProvider().createBucketAtomically(bucketId,
+    var primary = r.getRedundancyProvider().createBucketAtomically(bucketId,
         bucketSize, false, partitionName);
     r.getPrStats().endPartitionMessagesProcessing(startTime);
     CreateBucketReplyMessage.sendResponse(getSender(), getProcessorId(), dm, primary);
@@ -229,7 +228,7 @@ public class CreateBucketMessage extends PartitionMessage {
     public static void sendResponse(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, InternalDistributedMember primary) {
       Assert.assertTrue(recipient != null, "CreateBucketReplyMessage NULL reply message");
-      CreateBucketReplyMessage m = new CreateBucketReplyMessage(processorId, primary);
+      var m = new CreateBucketReplyMessage(processorId, primary);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -241,7 +240,7 @@ public class CreateBucketMessage extends PartitionMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "CreateBucketReplyMessage process invoking reply processor with processorId:"
@@ -281,7 +280,7 @@ public class CreateBucketMessage extends PartitionMessage {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      boolean hasPrimary = in.readBoolean();
+      var hasPrimary = in.readBoolean();
       if (hasPrimary) {
         primary = new InternalDistributedMember();
         InternalDataSerializer.invokeFromData(primary, in);
@@ -338,7 +337,7 @@ public class CreateBucketMessage extends PartitionMessage {
       try {
         waitForRepliesUninterruptibly();
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof DiskAccessException || t instanceof CancelException) {
           logger.debug(
               "NodeResponse got remote exception, throwing PartitionedRegionCommunication Exception {}",
@@ -362,7 +361,7 @@ public class CreateBucketMessage extends PartitionMessage {
         }
         e.handleCause();
       }
-      CreateBucketReplyMessage message = msg;
+      var message = msg;
       if (message == null) {
         return null;
       } else {

@@ -43,13 +43,13 @@ public class GeodeAwaitilityTest {
 
   @Test
   public void getTimeoutIsFiveMinutesByDefault() {
-    Duration fiveMinutes = Duration.ofMinutes(5);
+    var fiveMinutes = Duration.ofMinutes(5);
     assertThat(getTimeout()).isEqualTo(fiveMinutes);
   }
 
   @Test
   public void getTimeoutIsOverriddenWithSystemProperty() {
-    Duration oneMinute = Duration.ofMinutes(1);
+    var oneMinute = Duration.ofMinutes(1);
     System.setProperty(TIMEOUT_SECONDS_PROPERTY, valueOf(oneMinute.getSeconds()));
 
     assertThat(getTimeout()).isEqualTo(oneMinute);
@@ -67,11 +67,11 @@ public class GeodeAwaitilityTest {
 
   @Test
   public void awaitWithAliasActuallyUsesAlias() {
-    Duration oneMinute = Duration.ofMinutes(1);
+    var oneMinute = Duration.ofMinutes(1);
     System.setProperty(TIMEOUT_SECONDS_PROPERTY, valueOf(oneMinute.getSeconds()));
-    String alias = testName.getMethodName();
+    var alias = testName.getMethodName();
 
-    Throwable thrown = catchThrowable(() -> await(alias).until(() -> false));
+    var thrown = catchThrowable(() -> await(alias).until(() -> false));
 
     assertThat(thrown).isInstanceOf(ConditionTimeoutException.class).hasMessageContaining(alias);
   }

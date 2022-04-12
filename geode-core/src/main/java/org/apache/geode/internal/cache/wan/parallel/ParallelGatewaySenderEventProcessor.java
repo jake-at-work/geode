@@ -29,8 +29,6 @@ import org.apache.geode.internal.cache.Conflatable;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EnumListenerEvent;
-import org.apache.geode.internal.cache.EventID;
-import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
@@ -68,7 +66,7 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
   @Override
   protected void initializeMessageQueue(String id, boolean cleanQueues) {
     Set<Region<?, ?>> targetRs = new HashSet<>();
-    for (InternalRegion region : sender.getCache().getApplicationRegions()) {
+    for (var region : sender.getCache().getApplicationRegions()) {
       if (region.getAllGatewaySenderIds().contains(id)) {
         targetRs.add(region);
       }
@@ -77,7 +75,7 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
       logger.debug("The target Regions are(PGSEP) {}", targetRs);
     }
 
-    ParallelGatewaySenderQueue queue =
+    var queue =
         new ParallelGatewaySenderQueue(sender, targetRs, index, nDispatcher, cleanQueues);
 
     queue.start();
@@ -90,7 +88,7 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
 
   @Override
   public int eventQueueSize() {
-    ParallelGatewaySenderQueue queue = (ParallelGatewaySenderQueue) getQueue();
+    var queue = (ParallelGatewaySenderQueue) getQueue();
     return queue == null ? 0 : queue.localSize();
   }
 
@@ -98,7 +96,7 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
   public void enqueueEvent(EnumListenerEvent operation, EntryEvent<?, ?> event,
       Object substituteValue, boolean isLastEventInTransaction)
       throws IOException, CacheException {
-    Region<?, ?> region = event.getRegion();
+    var region = event.getRegion();
 
     if (!(region instanceof DistributedRegion) && ((EntryEventImpl) event).getTailKey() == -1) {
       // In case of parallel sender, we don't expect the key to be not set.
@@ -113,9 +111,9 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
     }
 
     // TODO: Looks like for PDX region bucket id is set to -1.
-    EventID eventID = ((EntryEventImpl) event).getEventId();
+    var eventID = ((EntryEventImpl) event).getEventId();
 
-    final GatewaySenderEventImpl gatewayQueueEvent =
+    final var gatewayQueueEvent =
         new GatewaySenderEventImpl(operation, event, substituteValue, true, eventID.getBucketID(),
             getTransactionMetadataDisposition(isLastEventInTransaction));
 
@@ -124,10 +122,10 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
 
   @Override
   protected void enqueueEvent(GatewayQueueEvent<?, ?> gatewayQueueEvent) {
-    boolean queuedEvent = false;
+    var queuedEvent = false;
     try {
       if (getSender().beforeEnqueue(gatewayQueueEvent)) {
-        long start = getSender().getStatistics().startTime();
+        var start = getSender().getStatistics().startTime();
         try {
           queuedEvent = queue.put(gatewayQueueEvent);
         } catch (InterruptedException e) {

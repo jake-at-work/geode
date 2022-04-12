@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
@@ -104,12 +103,12 @@ public class ClientTxCommitShouldNotHangRegressionTest extends LocatorTestBase {
 
   @Before
   public void setUpTest() throws Exception {
-    VM locator = getHost(0).getVM(0);
-    VM server1 = getHost(0).getVM(1);
-    VM server2 = getHost(0).getVM(2);
+    var locator = getHost(0).getVM(0);
+    var server1 = getHost(0).getVM(1);
+    var server2 = getHost(0).getVM(2);
     client = getHost(0).getVM(3);
 
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
     region1Name = uniqueName + "_R1";
     region2Name = uniqueName + "_R2";
 
@@ -117,7 +116,7 @@ public class ClientTxCommitShouldNotHangRegressionTest extends LocatorTestBase {
 
     locatorPort = locator.invoke("Start locator", () -> startLocator(hostName, ""));
 
-    String locators = getLocatorString(hostName, locatorPort);
+    var locators = getLocatorString(hostName, locatorPort);
 
     server1.invoke("Start server",
         () -> startBridgeServer(new String[] {region1Name}, locators, new String[] {region1Name}));
@@ -125,7 +124,7 @@ public class ClientTxCommitShouldNotHangRegressionTest extends LocatorTestBase {
         () -> startBridgeServer(new String[] {region2Name}, locators, new String[] {region2Name}));
 
     client.invoke("Create client", () -> {
-      ClientCacheFactory ccf = new ClientCacheFactory();
+      var ccf = new ClientCacheFactory();
       ccf.addPoolLocator(hostName, locatorPort);
 
       clientCache = ccf.create();
@@ -157,7 +156,7 @@ public class ClientTxCommitShouldNotHangRegressionTest extends LocatorTestBase {
       Region<Integer, String> region1 = clientCache.getRegion(region1Name);
       Region<Integer, String> region2 = clientCache.getRegion(region2Name);
 
-      CacheTransactionManager transactionManager = clientCache.getCacheTransactionManager();
+      var transactionManager = clientCache.getCacheTransactionManager();
 
       transactionManager.begin();
       region1.put(1, "value1");

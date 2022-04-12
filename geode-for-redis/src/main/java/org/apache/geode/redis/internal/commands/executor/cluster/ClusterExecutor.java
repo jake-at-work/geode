@@ -34,17 +34,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.partition.PartitionMemberInfo;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.cache.partition.PartitionRegionInfo;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.commands.parameters.RedisParametersMismatchException;
 import org.apache.geode.redis.internal.data.KeyHashUtil;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 import org.apache.geode.redis.internal.services.cluster.SlotAdvisor;
 
@@ -57,8 +53,8 @@ public class ClusterExecutor implements CommandExecutor {
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context)
       throws Exception {
 
-    List<byte[]> args = command.getProcessedCommand();
-    byte[] subcommand = args.get(1);
+    var args = command.getProcessedCommand();
+    var subcommand = args.get(1);
 
     if (equalsIgnoreCaseBytes(subcommand, INFO)) {
       checkNumArgs(command, subcommand, 2);
@@ -88,7 +84,7 @@ public class ClusterExecutor implements CommandExecutor {
   private RedisResponse getSlots(ExecutionHandlerContext ctx) throws InterruptedException {
     List<Object> slots = new ArrayList<>();
 
-    for (SlotAdvisor.MemberBucketSlot mbs : ctx.getRegionProvider().getSlotAdvisor()
+    for (var mbs : ctx.getRegionProvider().getSlotAdvisor()
         .getBucketSlots()) {
       if (mbs == null) {
         continue;
@@ -119,15 +115,15 @@ public class ClusterExecutor implements CommandExecutor {
    * output.
    */
   private RedisResponse getNodes(ExecutionHandlerContext ctx) throws InterruptedException {
-    String memberId = ctx.getMemberName();
-    List<SlotAdvisor.MemberBucketSlot> memberBucketSlots =
+    var memberId = ctx.getMemberName();
+    var memberBucketSlots =
         ctx.getRegionProvider().getSlotAdvisor().getBucketSlots();
-    Map<String, List<Integer>> memberBuckets = getMemberBuckets(memberBucketSlots);
+    var memberBuckets = getMemberBuckets(memberBucketSlots);
 
-    StringBuilder response = new StringBuilder();
-    for (Map.Entry<String, List<Integer>> member : memberBuckets.entrySet()) {
-      List<Integer> buckets = member.getValue();
-      SlotAdvisor.MemberBucketSlot mbs = memberBucketSlots.get(buckets.get(0));
+    var response = new StringBuilder();
+    for (var member : memberBuckets.entrySet()) {
+      var buckets = member.getValue();
+      var mbs = memberBucketSlots.get(buckets.get(0));
       if (mbs == null) {
         continue;
       }
@@ -157,7 +153,7 @@ public class ClusterExecutor implements CommandExecutor {
       List<SlotAdvisor.MemberBucketSlot> bucketSlots) {
     Map<String, List<Integer>> memberBuckets = new HashMap<>();
 
-    for (SlotAdvisor.MemberBucketSlot mbs : bucketSlots) {
+    for (var mbs : bucketSlots) {
       memberBuckets.computeIfAbsent(mbs.getMember().getUniqueId(), k -> new ArrayList<>())
           .add(mbs.getBucketId());
     }
@@ -166,7 +162,7 @@ public class ClusterExecutor implements CommandExecutor {
   }
 
   private RedisResponse getInfo(ExecutionHandlerContext ctx) {
-    int memberCount = getRegionMembers(ctx).size();
+    var memberCount = getRegionMembers(ctx).size();
 
     return RedisResponse.bulkString(
         "cluster_state:ok\r\n"
@@ -183,8 +179,8 @@ public class ClusterExecutor implements CommandExecutor {
   }
 
   private Set<PartitionMemberInfo> getRegionMembers(ExecutionHandlerContext ctx) {
-    Region<RedisKey, RedisData> dataRegion = ctx.getRegionProvider().getDataRegion();
-    PartitionRegionInfo info = PartitionRegionHelper.getPartitionRegionInfo(dataRegion);
+    var dataRegion = ctx.getRegionProvider().getDataRegion();
+    var info = PartitionRegionHelper.getPartitionRegionInfo(dataRegion);
     assert info != null; // Mostly to appease IJ since the region is always a PR
 
     return info.getPartitionMemberInfo();

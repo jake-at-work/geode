@@ -27,7 +27,6 @@ import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -65,14 +64,14 @@ public class ConfigurePDXCommand extends SingleGfshCommand {
           .createError("Configure pdx failed because cluster configuration is disabled.");
     }
 
-    ResultModel result = new ResultModel();
-    InfoResultModel infoSection = result.addInfo();
+    var result = new ResultModel();
+    var infoSection = result.addInfo();
 
     if (!getAllNormalMembers().isEmpty()) {
       infoSection.addLine(CliStrings.CONFIGURE_PDX__NORMAL__MEMBERS__WARNING);
     }
 
-    PdxType pdxType = new PdxType();
+    var pdxType = new PdxType();
     pdxType.setIgnoreUnreadFields(ignoreUnreadFields);
     pdxType.setReadSerialized(readSerialized);
     infoSection.addLine(CliStrings.CONFIGURE_PDX__READ__SERIALIZED + " = " + readSerialized);
@@ -121,9 +120,9 @@ public class ConfigurePDXCommand extends SingleGfshCommand {
 
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      String[] portableClassesPatterns = (String[]) parseResult
+      var portableClassesPatterns = (String[]) parseResult
           .getParamValue(CliStrings.CONFIGURE_PDX__PORTABLE__AUTO__SERIALIZER__CLASSES);
-      String[] nonPortableClassesPatterns =
+      var nonPortableClassesPatterns =
           (String[]) parseResult.getParamValue(CliStrings.CONFIGURE_PDX__AUTO__SERIALIZER__CLASSES);
 
       if ((nonPortableClassesPatterns != null && nonPortableClassesPatterns.length > 0)

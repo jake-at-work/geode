@@ -43,11 +43,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.cache.DiskStoreFactory;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
@@ -55,14 +51,10 @@ import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.internal.cq.CqService;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.internal.UniquePortSupplier;
 import org.apache.geode.internal.cache.DiskStoreAttributes;
@@ -149,26 +141,26 @@ public class DurableClientCQClusterRestartDUnitTest implements Serializable {
   }
 
   private int startLocator(File locatorLog) throws IOException {
-    InetAddress bindAddress = InetAddress.getByName(hostName);
-    Locator locator =
+    var bindAddress = InetAddress.getByName(hostName);
+    var locator =
         Locator.startLocatorAndDS(locatorPort, locatorLog, bindAddress, new Properties());
     return locator.getPort();
   }
 
   private void createCacheServerAndDiskRegion(File logFile) throws Exception {
-    Properties systemProperties = new Properties();
+    var systemProperties = new Properties();
     systemProperties.setProperty("gemfire.jg-bind-port", Integer.toString(uniquePort));
     cacheRule.createCache(createServerConfig(logFile), systemProperties);
 
     createDiskRegionIfNotExist();
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
   }
 
   private Properties createServerConfig(File logFile) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, hostName + "[" + locatorPort + "]");
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
     return config;
@@ -186,20 +178,20 @@ public class DurableClientCQClusterRestartDUnitTest implements Serializable {
     if (cacheRule.getCache().getRegion(regionName) != null) {
       return;
     }
-    DiskStoreAttributes diskStoreAttributes = new DiskStoreAttributes();
-    DiskStoreFactory diskStoreFactory =
+    var diskStoreAttributes = new DiskStoreAttributes();
+    var diskStoreFactory =
         cacheRule.getCache().createDiskStoreFactory(diskStoreAttributes);
     diskStoreFactory.setDiskDirs(new File[] {createOrGetDir()});
     diskStoreFactory.create(getDiskStoreName());
 
-    RegionFactory<Object, Object> regionFactory =
+    var regionFactory =
         cacheRule.getCache().createRegionFactory(REPLICATE_PERSISTENT);
     regionFactory.setDiskStoreName(getDiskStoreName());
     regionFactory.create(regionName);
   }
 
   private File createOrGetDir() throws IOException {
-    File dir = new File(temporaryFolder.getRoot(), getDiskStoreName());
+    var dir = new File(temporaryFolder.getRoot(), getDiskStoreName());
     if (!dir.exists()) {
       dir = temporaryFolder.newFolder(getDiskStoreName());
     }
@@ -211,14 +203,14 @@ public class DurableClientCQClusterRestartDUnitTest implements Serializable {
   }
 
   private void callFunctions() throws Exception {
-    InternalRegion region = (InternalRegion) clientCacheRule.getClientCache().getRegion(regionName);
+    var region = (InternalRegion) clientCacheRule.getClientCache().getRegion(regionName);
     Pool pool = region.getServerProxy().getPool();
 
     List<Future<Void>> futures = new ArrayList<>();
-    for (int i = 0; i < numOfInvocations; i++) {
+    for (var i = 0; i < numOfInvocations; i++) {
       futures.add(executorServiceRule.submit(() -> invokeFunction(pool)));
     }
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get(getTimeout().toMillis(), MILLISECONDS);
     }
   }
@@ -227,28 +219,28 @@ public class DurableClientCQClusterRestartDUnitTest implements Serializable {
     @SuppressWarnings("unchecked")
     Execution<String, Void, Void> execution =
         FunctionService.onServer(pool).setArguments(regionName);
-    ResultCollector<Void, Void> resultCollector = execution.execute(new TestFunction());
+    var resultCollector = execution.execute(new TestFunction());
     resultCollector.getResult();
   }
 
   private void setClientRegion() throws Exception {
     ClientCache clientCache = clientCacheRule.getClientCache();
     if (clientCache == null) {
-      Properties config = new Properties();
+      var config = new Properties();
       config.setProperty(DURABLE_CLIENT_ID, durableClientId);
       clientCacheRule.createClientCache(config);
     }
 
-    Region<Object, Object> region = clientCacheRule.getClientCache().getRegion(regionName);
+    var region = clientCacheRule.getClientCache().getRegion(regionName);
     if (region != null) {
       return;
     }
-    Pool pool = PoolManager.createFactory()
+    var pool = PoolManager.createFactory()
         .addLocator(hostName, locatorPort)
         .setSubscriptionEnabled(true)
         .create(uniqueName);
 
-    ClientRegionFactory<Object, Object> crf =
+    var crf =
         clientCacheRule.getClientCache().createClientRegionFactory(ClientRegionShortcut.LOCAL);
     crf.setPoolName(pool.getName());
     crf.create(regionName);
@@ -259,19 +251,19 @@ public class DurableClientCQClusterRestartDUnitTest implements Serializable {
   private void registerCQ() throws Exception {
     ClientCache clientCache = clientCacheRule.getClientCache();
 
-    QueryService queryService = clientCache.getQueryService();
-    CqAttributesFactory cqaf = new CqAttributesFactory();
+    var queryService = clientCache.getQueryService();
+    var cqaf = new CqAttributesFactory();
     cqaf.addCqListener(new TestCqListener());
-    CqAttributes cqAttributes = cqaf.create();
+    var cqAttributes = cqaf.create();
 
     queryService.newCq(cqName, "Select * from " + SEPARATOR + regionName,
         cqAttributes, true).executeWithInitialResults();
   }
 
   private void verifyCQListenerInvocations(int expected) {
-    QueryService cqService = clientCacheRule.getClientCache().getQueryService();
+    var cqService = clientCacheRule.getClientCache().getQueryService();
     await().untilAsserted(() -> {
-      CqListener cqListener = cqService.getCq(cqName).getCqAttributes().getCqListener();
+      var cqListener = cqService.getCq(cqName).getCqAttributes().getCqListener();
       assertThat(((TestCqListener) cqListener).numEvents.get()).isEqualTo(expected);
     });
   }
@@ -281,12 +273,12 @@ public class DurableClientCQClusterRestartDUnitTest implements Serializable {
 
     @Override
     public void execute(FunctionContext<String> context) {
-      CqService cqService = ((InternalCache) context.getCache()).getCqService();
+      var cqService = ((InternalCache) context.getCache()).getCqService();
       waitUntilCqRegistered(cqService);
 
-      String regionName = context.getArguments();
-      Region<Object, Object> region = context.getCache().getRegion(regionName);
-      int key = random.nextInt();
+      var regionName = context.getArguments();
+      var region = context.getCache().getRegion(regionName);
+      var key = random.nextInt();
       region.put(key, key);
       context.getResultSender().lastResult(true);
     }

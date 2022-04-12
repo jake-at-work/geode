@@ -50,7 +50,7 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinatorJUnitTest
   @Override
   protected void createGatewaySender() {
     super.createGatewaySender();
-    ConcurrentParallelGatewaySenderQueue queue =
+    var queue =
         (ConcurrentParallelGatewaySenderQueue) spy(getQueue());
     doReturn(queue).when(sender).getQueue();
     region = mock(PartitionedRegion.class);
@@ -60,7 +60,7 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinatorJUnitTest
 
   @Override
   protected AbstractGatewaySenderEventProcessor getEventProcessor() {
-    ConcurrentParallelGatewaySenderEventProcessor processor =
+    var processor =
         spy(new ConcurrentParallelGatewaySenderEventProcessor(sender, null, false));
     return processor;
   }
@@ -68,32 +68,32 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinatorJUnitTest
   @Test
   public void testWaitUntilParallelGatewaySenderFlushedSuccessfulNotInitiator() throws Throwable {
     long timeout = 5000;
-    TimeUnit unit = TimeUnit.MILLISECONDS;
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinator =
+    var unit = TimeUnit.MILLISECONDS;
+    var coordinator =
         new WaitUntilParallelGatewaySenderFlushedCoordinator(sender, timeout, unit, false);
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinatorSpy = spy(coordinator);
+    var coordinatorSpy = spy(coordinator);
     doReturn(getLocalBucketRegions()).when(coordinatorSpy).getLocalBucketRegions(any());
     doReturn(getCallableResult(true)).when(coordinatorSpy)
         .createWaitUntilBucketRegionQueueFlushedCallable(any(), anyLong(), any());
-    boolean result = coordinatorSpy.waitUntilFlushed();
+    var result = coordinatorSpy.waitUntilFlushed();
     assertTrue(result);
   }
 
   @Test
   public void waitUntilFlushShouldExitEarlyIfTimeoutElapses() throws Throwable {
     long timeout = 500;
-    TimeUnit unit = TimeUnit.MILLISECONDS;
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinator =
+    var unit = TimeUnit.MILLISECONDS;
+    var coordinator =
         new WaitUntilParallelGatewaySenderFlushedCoordinator(sender, timeout, unit, false);
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinatorSpy = spy(coordinator);
+    var coordinatorSpy = spy(coordinator);
 
     Set<BucketRegion> bucketRegions = new HashSet<>();
-    for (int i = 0; i < 5000; i++) {
+    for (var i = 0; i < 5000; i++) {
       bucketRegions.add(mock(BucketRegionQueue.class));
     }
     doReturn(bucketRegions).when(coordinatorSpy).getLocalBucketRegions(any());
 
-    WaitUntilBucketRegionQueueFlushedCallable callable =
+    var callable =
         mock(WaitUntilBucketRegionQueueFlushedCallable.class);
     when(callable.call()).then(invocation -> {
       Thread.sleep(100);
@@ -101,7 +101,7 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinatorJUnitTest
     });
     doReturn(callable).when(coordinatorSpy).createWaitUntilBucketRegionQueueFlushedCallable(any(),
         anyLong(), any());
-    boolean result = coordinatorSpy.waitUntilFlushed();
+    var result = coordinatorSpy.waitUntilFlushed();
     assertFalse(result);
 
     verify(callable, atMost(50)).call();
@@ -110,48 +110,48 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinatorJUnitTest
   @Test
   public void testWaitUntilParallelGatewaySenderFlushedUnsuccessfulNotInitiator() throws Throwable {
     long timeout = 5000;
-    TimeUnit unit = TimeUnit.MILLISECONDS;
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinator =
+    var unit = TimeUnit.MILLISECONDS;
+    var coordinator =
         new WaitUntilParallelGatewaySenderFlushedCoordinator(sender, timeout, unit, false);
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinatorSpy = spy(coordinator);
+    var coordinatorSpy = spy(coordinator);
     doReturn(getLocalBucketRegions()).when(coordinatorSpy).getLocalBucketRegions(any());
     doReturn(getCallableResult(false)).when(coordinatorSpy)
         .createWaitUntilBucketRegionQueueFlushedCallable(any(), anyLong(), any());
-    boolean result = coordinatorSpy.waitUntilFlushed();
+    var result = coordinatorSpy.waitUntilFlushed();
     assertFalse(result);
   }
 
   @Test
   public void testWaitUntilParallelGatewaySenderFlushedSuccessfulInitiator() throws Throwable {
     long timeout = 5000;
-    TimeUnit unit = TimeUnit.MILLISECONDS;
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinator =
+    var unit = TimeUnit.MILLISECONDS;
+    var coordinator =
         new WaitUntilParallelGatewaySenderFlushedCoordinator(sender, timeout, unit, true);
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinatorSpy = spy(coordinator);
+    var coordinatorSpy = spy(coordinator);
     doReturn(getLocalBucketRegions()).when(coordinatorSpy).getLocalBucketRegions(any());
     doReturn(getCallableResult(true)).when(coordinatorSpy)
         .createWaitUntilBucketRegionQueueFlushedCallable(any(), anyLong(), any());
-    boolean result = coordinatorSpy.waitUntilFlushed();
+    var result = coordinatorSpy.waitUntilFlushed();
     assertTrue(result);
   }
 
   @Test
   public void testWaitUntilParallelGatewaySenderFlushedUnsuccessfulInitiator() throws Throwable {
     long timeout = 5000;
-    TimeUnit unit = TimeUnit.MILLISECONDS;
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinator =
+    var unit = TimeUnit.MILLISECONDS;
+    var coordinator =
         new WaitUntilParallelGatewaySenderFlushedCoordinator(sender, timeout, unit, true);
-    WaitUntilParallelGatewaySenderFlushedCoordinator coordinatorSpy = spy(coordinator);
+    var coordinatorSpy = spy(coordinator);
     doReturn(getLocalBucketRegions()).when(coordinatorSpy).getLocalBucketRegions(any());
     doReturn(getCallableResult(false)).when(coordinatorSpy)
         .createWaitUntilBucketRegionQueueFlushedCallable(any(), anyLong(), any());
-    boolean result = coordinatorSpy.waitUntilFlushed();
+    var result = coordinatorSpy.waitUntilFlushed();
     assertFalse(result);
   }
 
   private WaitUntilBucketRegionQueueFlushedCallable getCallableResult(boolean expectedResult)
       throws Exception {
-    WaitUntilBucketRegionQueueFlushedCallable callable =
+    var callable =
         mock(WaitUntilBucketRegionQueueFlushedCallable.class);
     when(callable.call()).thenReturn(expectedResult);
     return callable;

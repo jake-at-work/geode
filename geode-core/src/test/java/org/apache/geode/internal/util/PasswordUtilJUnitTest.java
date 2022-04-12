@@ -32,9 +32,9 @@ public class PasswordUtilJUnitTest {
    */
   @Test
   public void testPasswordUtil() {
-    String password = "password";
-    String encrypted = "encrypted(C3CDC3485F7FF64381841CD344CBDF8A)";
-    String decrypted = PasswordUtil.decrypt(encrypted);
+    var password = "password";
+    var encrypted = "encrypted(C3CDC3485F7FF64381841CD344CBDF8A)";
+    var decrypted = PasswordUtil.decrypt(encrypted);
     assertThat(decrypted).isEqualTo(password);
   }
 

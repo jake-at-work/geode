@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import org.junit.Test;
 
@@ -36,11 +35,11 @@ public abstract class AbstractCacheTest {
 
   @Test
   public void setPropertyAcceptsKnownProperties() {
-    for (String gemfireProperty : AbstractDistributionConfig._getAttNames()) {
+    for (var gemfireProperty : AbstractDistributionConfig._getAttNames()) {
       abstractCache.setProperty(gemfireProperty, gemfireProperty + "_value");
     }
 
-    Properties properties = abstractCache.createDistributedSystemProperties();
+    var properties = abstractCache.createDistributedSystemProperties();
     Arrays.stream(AbstractDistributionConfig._getAttNames())
         .filter(key -> !overriddenProperties.contains(key))
         .forEach(key -> assertThat(properties).containsEntry(key, key + "_value"));

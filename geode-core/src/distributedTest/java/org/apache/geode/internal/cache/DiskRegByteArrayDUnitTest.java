@@ -29,14 +29,12 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.entries.DiskEntry;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
 /**
@@ -59,16 +57,16 @@ public class DiskRegByteArrayDUnitTest extends JUnit4CacheTestCase {
 
   public DiskRegByteArrayDUnitTest() {
     super();
-    File file1 = new File(getTestMethodName() + "1");
+    var file1 = new File(getTestMethodName() + "1");
     file1.mkdir();
     file1.deleteOnExit();
-    File file2 = new File(getTestMethodName() + "2");
+    var file2 = new File(getTestMethodName() + "2");
     file2.mkdir();
     file2.deleteOnExit();
-    File file3 = new File(getTestMethodName() + "3");
+    var file3 = new File(getTestMethodName() + "3");
     file3.mkdir();
     file3.deleteOnExit();
-    File file4 = new File(getTestMethodName() + "4");
+    var file4 = new File(getTestMethodName() + "4");
     file4.mkdir();
     file4.deleteOnExit();
     dirs = new File[4];
@@ -80,9 +78,9 @@ public class DiskRegByteArrayDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(DiskRegByteArrayDUnitTest::createCacheForVM0);
     vm1.invoke(DiskRegByteArrayDUnitTest::createCacheForVM1);
   }
@@ -110,13 +108,13 @@ public class DiskRegByteArrayDUnitTest extends JUnit4CacheTestCase {
     try {
       ds = (new DiskRegByteArrayDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
       factory.setDiskSynchronous(false);
       factory.setDiskStoreName(cache.createDiskStoreFactory().setDiskDirs(dirs)
           .create("DiskRegByteArrayDUnitTest").getName());
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createVMRegion("region", attr);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -129,13 +127,13 @@ public class DiskRegByteArrayDUnitTest extends JUnit4CacheTestCase {
 
       ds = (new DiskRegByteArrayDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
       factory.setDiskSynchronous(false);
       factory.setDiskStoreName(cache.createDiskStoreFactory().setDiskDirs(dirs)
           .create("DiskRegByteArrayDUnitTest").getName());
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createVMRegion("region", attr);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -152,11 +150,11 @@ public class DiskRegByteArrayDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testPutGetByteArray() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    Object[] objArr = new Object[1];
+    var objArr = new Object[1];
     objArr[0] = "key";
 
     // Put in vm0
@@ -202,7 +200,7 @@ public class DiskRegByteArrayDUnitTest extends JUnit4CacheTestCase {
     Object val = null;
     // get from disk
     try {
-      DiskId diskId = ((DiskEntry) (((LocalRegion) region).basicGetEntry(ob))).getDiskId();
+      var diskId = ((DiskEntry) (((LocalRegion) region).basicGetEntry(ob))).getDiskId();
       val = ((LocalRegion) region).getDiskRegion().get(diskId);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -214,12 +212,12 @@ public class DiskRegByteArrayDUnitTest extends JUnit4CacheTestCase {
   }// end of getValueFromDiskMethod
 
   public static boolean verifyByteArray(Object ob) {
-    boolean result = false;
+    var result = false;
     Object val = null;
     Arrays.fill(value, (byte) 77);
     // get from disk
     try {
-      DiskId diskId = ((DiskEntry) (((LocalRegion) region).basicGetEntry(ob))).getDiskId();
+      var diskId = ((DiskEntry) (((LocalRegion) region).basicGetEntry(ob))).getDiskId();
       val = ((LocalRegion) region).getDiskRegion().get(diskId);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -235,7 +233,7 @@ public class DiskRegByteArrayDUnitTest extends JUnit4CacheTestCase {
     byte[] x = null;
     x = (byte[]) val;
 
-    for (int i = 0; i < x.length; i++) {
+    for (var i = 0; i < x.length; i++) {
       result = (x[i] == value[i]);
       // System.out.println("*********"+result);
     }

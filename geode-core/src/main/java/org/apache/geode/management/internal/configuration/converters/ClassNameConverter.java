@@ -27,7 +27,7 @@ import org.apache.geode.management.configuration.ClassName;
 public class ClassNameConverter extends ConfigurationConverter<ClassName, DeclarableType> {
   @Override
   protected ClassName fromNonNullXmlObject(DeclarableType xmlObject) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     xmlObject.getParameters().stream()
         .filter(pt -> pt.getString() != null)
         .forEach(p -> properties.setProperty(p.getName(), p.getString()));

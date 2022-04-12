@@ -153,7 +153,7 @@ public class InternalCacheBuilder {
   public InternalCache create()
       throws TimeoutException, CacheWriterException, GatewayException, RegionExistsException {
     synchronized (InternalCacheBuilder.class) {
-      InternalDistributedSystem internalDistributedSystem = findInternalDistributedSystem()
+      var internalDistributedSystem = findInternalDistributedSystem()
           .orElseGet(this::createInternalDistributedSystem);
       return create(internalDistributedSystem);
     }
@@ -180,7 +180,7 @@ public class InternalCacheBuilder {
     try {
       synchronized (InternalCacheBuilder.class) {
         synchronized (GemFireCacheImpl.class) {
-          InternalCache cache =
+          var cache =
               existingCache(internalDistributedSystem::getCache, singletonCacheSupplier);
           if (cache == null) {
             cache =
@@ -338,7 +338,7 @@ public class InternalCacheBuilder {
   }
 
   private InternalDistributedSystem createInternalDistributedSystem() {
-    SecurityConfig securityConfig = new SecurityConfig(
+    var securityConfig = new SecurityConfig(
         cacheConfig.getSecurityManager(),
         cacheConfig.getPostProcessor());
 
@@ -348,7 +348,7 @@ public class InternalCacheBuilder {
 
   private InternalCache existingCache(Supplier<? extends InternalCache> systemCacheSupplier,
       Supplier<? extends InternalCache> singletonCacheSupplier) {
-    InternalCache cache = allowMultipleSystems()
+    var cache = allowMultipleSystems()
         ? systemCacheSupplier.get()
         : singletonCacheSupplier.get();
 

@@ -63,8 +63,8 @@ public class DomainObjectPdxAuto extends DomainObject {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
+    final var prime = 31;
+    var result = super.hashCode();
     result = prime * result + (aBoolean ? 1231 : 1237);
     result = prime * result + Arrays.hashCode(aBooleanArray);
     result = prime * result + aByte;
@@ -108,7 +108,7 @@ public class DomainObjectPdxAuto extends DomainObject {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DomainObjectPdxAuto other = (DomainObjectPdxAuto) obj;
+    var other = (DomainObjectPdxAuto) obj;
     if (aBoolean != other.aBoolean) {
       return false;
     }

@@ -131,7 +131,7 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testSetters() {
-    PartitionAttributesImpl instance = createPartitionAttributesImpl();
+    var instance = createPartitionAttributesImpl();
     instance.setLocalMaxMemory(localMaxMemory);
 
     assertEquals(colocatedRegionFullPath, instance.getColocatedWith());
@@ -149,10 +149,10 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testMergeWithoutOffHeap() {
-    PartitionAttributesImpl instance = createPartitionAttributesImpl();
+    var instance = createPartitionAttributesImpl();
     instance.setLocalMaxMemory(localMaxMemory);
 
-    PartitionAttributesImpl destination = new PartitionAttributesImpl();
+    var destination = new PartitionAttributesImpl();
     destination.merge(instance);
 
     assertEquals(colocatedRegionFullPath, destination.getColocatedWith());
@@ -168,10 +168,10 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testCloneWithoutOffHeap() {
-    PartitionAttributesImpl instance = createPartitionAttributesImpl();
+    var instance = createPartitionAttributesImpl();
     instance.setLocalMaxMemory(localMaxMemory);
 
-    PartitionAttributesImpl clone = (PartitionAttributesImpl) instance.clone();
+    var clone = (PartitionAttributesImpl) instance.clone();
     assertGetValues(clone);
     assertEquals(localMaxMemory, instance.getLocalMaxMemory());
     assertEquals(offHeap, instance.getOffHeap());
@@ -181,9 +181,9 @@ public class PartitionAttributesImplJUnitTest {
   public void testCloneWithOffHeapAndDefaultLocalMaxMemory() {
     PartitionAttributesImpl.setTestAvailableOffHeapMemory(newTestAvailableOffHeapMemory + "m");
     offHeap = true;
-    PartitionAttributesImpl instance = createPartitionAttributesImpl();
+    var instance = createPartitionAttributesImpl();
 
-    PartitionAttributesImpl clone = (PartitionAttributesImpl) instance.clone();
+    var clone = (PartitionAttributesImpl) instance.clone();
     assertGetValues(clone);
     assertEquals(newTestAvailableOffHeapMemory, instance.getLocalMaxMemory());
     assertEquals(offHeap, instance.getOffHeap());
@@ -193,10 +193,10 @@ public class PartitionAttributesImplJUnitTest {
   public void testCloneWithOffHeapAndLesserLocalMaxMemory() {
     PartitionAttributesImpl.setTestAvailableOffHeapMemory(newTestAvailableOffHeapMemory + "m");
     offHeap = true;
-    PartitionAttributesImpl instance = createPartitionAttributesImpl();
+    var instance = createPartitionAttributesImpl();
     instance.setLocalMaxMemory(localMaxMemory);
 
-    PartitionAttributesImpl clone = (PartitionAttributesImpl) instance.clone();
+    var clone = (PartitionAttributesImpl) instance.clone();
     assertGetValues(clone);
     assertEquals(localMaxMemory, instance.getLocalMaxMemory());
     assertEquals(offHeap, instance.getOffHeap());
@@ -206,10 +206,10 @@ public class PartitionAttributesImplJUnitTest {
   public void testCloneWithOffHeapAndGreaterLocalMaxMemory() {
     PartitionAttributesImpl.setTestAvailableOffHeapMemory(newTestAvailableOffHeapMemory + "m");
     offHeap = true;
-    PartitionAttributesImpl instance = createPartitionAttributesImpl();
+    var instance = createPartitionAttributesImpl();
     instance.setLocalMaxMemory(greaterLocalMaxMemory);
 
-    PartitionAttributesImpl clone = (PartitionAttributesImpl) instance.clone();
+    var clone = (PartitionAttributesImpl) instance.clone();
     assertGetValues(clone);
     assertEquals(greaterLocalMaxMemory, instance.getLocalMaxMemory());
     assertEquals(offHeap, instance.getOffHeap());
@@ -217,12 +217,12 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testLocalPropertiesWithLOCAL_MAX_MEMORY_PROPERTY() {
-    int value = 111;
+    var value = 111;
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(PartitionAttributesFactory.LOCAL_MAX_MEMORY_PROPERTY, String.valueOf(value));
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setLocalProperties(props);
 
     assertNotNull(instance.getLocalProperties());
@@ -233,11 +233,11 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testLocalPropertiesWithoutLOCAL_MAX_MEMORY_PROPERTY() {
-    int value = 111;
+    var value = 111;
 
-    Properties props = new Properties();
+    var props = new Properties();
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setLocalProperties(props);
 
     assertNotNull(instance.getLocalProperties());
@@ -248,12 +248,12 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testGlobalPropertiesWithGLOBAL_MAX_MEMORY_PROPERTY() {
-    int value = 777;
+    var value = 777;
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(PartitionAttributesFactory.GLOBAL_MAX_MEMORY_PROPERTY, String.valueOf(value));
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setGlobalProperties(props);
 
     assertNotNull(instance.getGlobalProperties());
@@ -264,11 +264,11 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testGlobalPropertiesWithoutGLOBAL_MAX_MEMORY_PROPERTY() {
-    int value = 777;
+    var value = 777;
 
-    Properties props = new Properties();
+    var props = new Properties();
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setGlobalProperties(props);
 
     assertNotNull(instance.getGlobalProperties());
@@ -280,14 +280,14 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testGetLocalMaxMemoryDefault() {
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     assertEquals(PartitionAttributesFactory.LOCAL_MAX_MEMORY_DEFAULT,
         instance.getLocalMaxMemoryDefault());
   }
 
   @Test
   public void testSetAllWithOffHeapAndDefaultLocalMaxMemory() {
-    PartitionAttributesImpl source = new PartitionAttributesImpl();
+    var source = new PartitionAttributesImpl();
     source.setColocatedWith(colocatedRegionFullPath);
 
     fixedPartitionAttributes = new FixedPartitionAttributesImpl();
@@ -308,7 +308,7 @@ public class PartitionAttributesImplJUnitTest {
     source.setTotalMaxMemory(totalMaxMemory);
     source.setTotalNumBuckets(maxNumberOfBuckets);
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setAll(source);
 
     assertEquals(source.getLocalMaxMemory(), instance.getLocalMaxMemory());
@@ -318,7 +318,7 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testSetAllWithoutOffHeapAndDefaultLocalMaxMemory() {
-    PartitionAttributesImpl source = new PartitionAttributesImpl();
+    var source = new PartitionAttributesImpl();
     source.setColocatedWith(colocatedRegionFullPath);
 
     fixedPartitionAttributes = new FixedPartitionAttributesImpl();
@@ -339,7 +339,7 @@ public class PartitionAttributesImplJUnitTest {
     source.setTotalMaxMemory(totalMaxMemory);
     source.setTotalNumBuckets(maxNumberOfBuckets);
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setAll(source);
 
     assertEquals(source, instance);
@@ -348,7 +348,7 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testSetAllWithoutOffHeapAndNonDefaultLocalMaxMemory() {
-    PartitionAttributesImpl source = new PartitionAttributesImpl();
+    var source = new PartitionAttributesImpl();
     source.setColocatedWith(colocatedRegionFullPath);
 
     fixedPartitionAttributes = new FixedPartitionAttributesImpl();
@@ -369,7 +369,7 @@ public class PartitionAttributesImplJUnitTest {
     source.setTotalMaxMemory(totalMaxMemory);
     source.setTotalNumBuckets(maxNumberOfBuckets);
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setAll(source);
 
     assertEquals(source, instance);
@@ -378,7 +378,7 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testSetAllWithOffHeapAndNonDefaultLocalMaxMemory() {
-    PartitionAttributesImpl source = new PartitionAttributesImpl();
+    var source = new PartitionAttributesImpl();
     source.setColocatedWith(colocatedRegionFullPath);
 
     fixedPartitionAttributes = new FixedPartitionAttributesImpl();
@@ -399,7 +399,7 @@ public class PartitionAttributesImplJUnitTest {
     source.setTotalMaxMemory(totalMaxMemory);
     source.setTotalNumBuckets(maxNumberOfBuckets);
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setAll(source);
 
     assertEquals(source, instance);
@@ -408,10 +408,10 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testSetAllWithLocalAndGlobalProperties() {
-    PartitionAttributesImpl source = new PartitionAttributesImpl();
+    var source = new PartitionAttributesImpl();
     fillInForSetAllWithPropertiesTest(source);
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setAll(source);
 
     assertEquals(source, instance);
@@ -420,10 +420,10 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testFillInForSetAllWithPropertiesTestAndHashCode() {
-    PartitionAttributesImpl one = new PartitionAttributesImpl();
+    var one = new PartitionAttributesImpl();
     fillInForSetAllWithPropertiesTest(one);
 
-    PartitionAttributesImpl two = new PartitionAttributesImpl();
+    var two = new PartitionAttributesImpl();
     fillInForSetAllWithPropertiesTest(two);
 
     assertEquals(one.hashCode(), two.hashCode());
@@ -453,11 +453,11 @@ public class PartitionAttributesImplJUnitTest {
     fixedPartitionAttributes = new FixedPartitionAttributesImpl();
     fixedPartitionAttributes.setPartitionName("setPartitionName");
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     fillInForEqualityTest(instance);
     instance.addFixedPartitionAttributes(fixedPartitionAttributes);
 
-    PartitionAttributesImpl other = new PartitionAttributesImpl();
+    var other = new PartitionAttributesImpl();
     fillInForEqualityTest(other);
     other.addFixedPartitionAttributes(fixedPartitionAttributes);
 
@@ -467,17 +467,17 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void testEqualsForNonEqualInstances() {
-    FixedPartitionAttributesImpl fixedPartitionAttributes1 = new FixedPartitionAttributesImpl();
+    var fixedPartitionAttributes1 = new FixedPartitionAttributesImpl();
     fixedPartitionAttributes1.setPartitionName("setPartitionName1");
 
-    FixedPartitionAttributesImpl fixedPartitionAttributes2 = new FixedPartitionAttributesImpl();
+    var fixedPartitionAttributes2 = new FixedPartitionAttributesImpl();
     fixedPartitionAttributes2.setPartitionName("setPartitionName2");
 
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     fillInForEqualityTest(instance);
     instance.addFixedPartitionAttributes(fixedPartitionAttributes1);
 
-    PartitionAttributesImpl other = new PartitionAttributesImpl();
+    var other = new PartitionAttributesImpl();
     fillInForEqualityTest(other);
     other.addFixedPartitionAttributes(fixedPartitionAttributes2);
 
@@ -486,7 +486,7 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void validateColocationWithNonExistingRegion() {
-    PartitionAttributesImpl instance = createPartitionAttributesImpl();
+    var instance = createPartitionAttributesImpl();
     instance.setColocatedWith("nonExistingRegion");
     assertThatThrownBy(() -> instance.validateColocation(cache))
         .isInstanceOf(IllegalStateException.class)
@@ -495,9 +495,9 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void validateColocationWithNonPartitionedRegion() {
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     when(cache.getRegion("nonPrRegion")).thenReturn(region);
-    PartitionAttributesImpl instance = createPartitionAttributesImpl();
+    var instance = createPartitionAttributesImpl();
     instance.setColocatedWith("nonPrRegion");
 
     assertThatThrownBy(() -> instance.validateColocation(cache))
@@ -507,12 +507,12 @@ public class PartitionAttributesImplJUnitTest {
 
   @Test
   public void validateColocationWithSimilarPartitionedRegion() {
-    PartitionedRegion region = mock(PartitionedRegion.class);
-    PartitionAttributes prAttributes = mock(PartitionAttributes.class);
+    var region = mock(PartitionedRegion.class);
+    var prAttributes = mock(PartitionAttributes.class);
     when(cache.getRegion("PrRegion")).thenReturn(region);
     when(region.getPartitionAttributes()).thenReturn(prAttributes);
 
-    PartitionAttributesImpl instance = createPartitionAttributesImpl();
+    var instance = createPartitionAttributesImpl();
     when(prAttributes.getTotalNumBuckets()).thenReturn(instance.getTotalNumBuckets());
     when(prAttributes.getRedundantCopies()).thenReturn(instance.getRedundantCopies());
     instance.setColocatedWith("PrRegion");
@@ -546,7 +546,7 @@ public class PartitionAttributesImplJUnitTest {
   }
 
   private PartitionAttributesImpl createPartitionAttributesImpl() {
-    PartitionAttributesImpl instance = new PartitionAttributesImpl();
+    var instance = new PartitionAttributesImpl();
     instance.setColocatedWith(colocatedRegionFullPath);
     instance.setGlobalProperties(globalProps);
     instance.setLocalProperties(localProps);

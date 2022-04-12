@@ -58,8 +58,8 @@ public class InternalDistributedSystemBuilderIntegrationTest {
 
   @Test
   public void buildBuildsAndInitializesSystem() {
-    String theName = "theName";
-    Properties configProperties = new Properties();
+    var theName = "theName";
+    var configProperties = new Properties();
     configProperties.setProperty(NAME, theName);
 
     system = new InternalDistributedSystem.Builder(configProperties, metricsSessionBuilder)
@@ -71,11 +71,11 @@ public class InternalDistributedSystemBuilderIntegrationTest {
 
   @Test
   public void buildUsesSecurityConfig() {
-    SecurityManager theSecurityManager = mock(SecurityManager.class);
-    PostProcessor thePostProcessor = mock(PostProcessor.class);
+    var theSecurityManager = mock(SecurityManager.class);
+    var thePostProcessor = mock(PostProcessor.class);
 
-    SecurityConfig securityConfig = new SecurityConfig(theSecurityManager, thePostProcessor);
-    Properties configProperties = new Properties();
+    var securityConfig = new SecurityConfig(theSecurityManager, thePostProcessor);
+    var configProperties = new Properties();
 
     system = new InternalDistributedSystem.Builder(configProperties, metricsSessionBuilder)
         .setSecurityConfig(securityConfig)
@@ -90,13 +90,13 @@ public class InternalDistributedSystemBuilderIntegrationTest {
   @Test
   public void buildThatStartsLocatorAndFailsThenStopsLocator() {
     // Create properties the cause the locator to be started
-    int locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    Properties configProperties = new Properties();
+    var locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var configProperties = new Properties();
     configProperties.setProperty(MCAST_PORT, "0");
     configProperties.setProperty(START_LOCATOR, "localhost[" + locatorPort + "]");
 
     // Create a Builder with the TestClusterDistributionManagerConstructor
-    InternalDistributedSystem.Builder builder =
+    var builder =
         new InternalDistributedSystem.Builder(configProperties, metricsSessionBuilder)
             .setClusterDistributionManagerConstructor(
                 new TestClusterDistributionManagerConstructor());

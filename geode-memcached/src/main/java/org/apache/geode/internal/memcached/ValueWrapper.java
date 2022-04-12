@@ -110,7 +110,7 @@ public class ValueWrapper implements DataSerializable {
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof ValueWrapper) {
-      ValueWrapper other = (ValueWrapper) obj;
+      var other = (ValueWrapper) obj;
       return casVersion == other.casVersion;
     }
     return false;

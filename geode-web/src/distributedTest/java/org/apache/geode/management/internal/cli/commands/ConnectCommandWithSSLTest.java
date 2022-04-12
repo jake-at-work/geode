@@ -292,7 +292,7 @@ public class ConnectCommandWithSSLTest {
 
   @Test
   public void connectWithClusterAndJmxSSL() throws Exception {
-    Properties combined = new Properties();
+    var combined = new Properties();
     combined.putAll(jmxSslProperties);
     combined.putAll(clusterSslProperties);
     combined.store(out, null);

@@ -29,7 +29,7 @@ public class UniqueIdGeneratorJUnitTest {
 
   @Test
   public void testBasics() throws Exception {
-    UniqueIdGenerator uig = new UniqueIdGenerator(1);
+    var uig = new UniqueIdGenerator(1);
     assertEquals(0, uig.obtain());
     try {
       uig.obtain();
@@ -40,7 +40,7 @@ public class UniqueIdGeneratorJUnitTest {
     assertEquals(0, uig.obtain());
 
     uig = new UniqueIdGenerator(32768);
-    for (int i = 0; i < 32768; i++) {
+    for (var i = 0; i < 32768; i++) {
       assertEquals(i, uig.obtain());
     }
     try {
@@ -48,7 +48,7 @@ public class UniqueIdGeneratorJUnitTest {
       fail("expected IllegalStateException");
     } catch (IllegalStateException expected) {
     }
-    for (int i = 32767; i >= 0; i--) {
+    for (var i = 32767; i >= 0; i--) {
       uig.release(i);
       assertEquals(i, uig.obtain());
     }

@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Properties;
-import java.util.Set;
 
 import joptsimple.internal.Strings;
 import org.apache.commons.io.FileUtils;
@@ -39,11 +37,8 @@ import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.FileResultModel;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.management.internal.configuration.utils.ZipUtils;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -77,15 +72,15 @@ public class ExportClusterConfigurationCommand extends GfshCommand {
       return ResultModel.createError("Cluster configuration service is not running.");
     }
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     InternalConfigurationPersistenceService configPersistenceService =
         getConfigurationPersistenceService();
     if (zipFileName != null) {
-      Path tempDir = Files.createTempDirectory("temp");
-      Path exportedDir = tempDir.resolve("cluster_config");
-      Path zipFile = tempDir.resolve(FilenameUtils.getName(zipFileName));
+      var tempDir = Files.createTempDirectory("temp");
+      var exportedDir = tempDir.resolve("cluster_config");
+      var zipFile = tempDir.resolve(FilenameUtils.getName(zipFileName));
       try {
-        for (Configuration config : configPersistenceService.getEntireConfiguration().values()) {
+        for (var config : configPersistenceService.getEntireConfiguration().values()) {
           configPersistenceService.writeConfigToFile(config, exportedDir.toFile());
         }
         ZipUtils.zipDirectory(exportedDir, zipFile);
@@ -96,28 +91,28 @@ public class ExportClusterConfigurationCommand extends GfshCommand {
         FileUtils.deleteQuietly(tempDir.toFile());
       }
     } else {
-      Configuration configuration = configPersistenceService.getConfiguration(group);
+      var configuration = configPersistenceService.getConfiguration(group);
       if (configuration == null) {
         return ResultModel.createError("No cluster configuration for '" + group + "'.");
       }
 
-      String cacheXmlContent = configuration.getCacheXmlContent();
+      var cacheXmlContent = configuration.getCacheXmlContent();
       if (cacheXmlContent != null) {
-        InfoResultModel xmlSection = result.addInfo("xml");
+        var xmlSection = result.addInfo("xml");
         xmlSection.setHeader(configuration.getCacheXmlFileName() + ": ");
         xmlSection.addLine(cacheXmlContent);
       }
 
-      Properties gemfireProperties = configuration.getGemfireProperties();
+      var gemfireProperties = configuration.getGemfireProperties();
       if (gemfireProperties.size() > 0) {
-        DataResultModel propertySection = result.addData("properties");
+        var propertySection = result.addData("properties");
         propertySection.setHeader("Properties: ");
         propertySection.addData(gemfireProperties);
       }
 
-      Set<String> jarNames = configuration.getJarNames();
+      var jarNames = configuration.getJarNames();
       if (jarNames.size() > 0) {
-        InfoResultModel jarSection = result.addInfo("jars");
+        var jarSection = result.addInfo("jars");
         jarSection.setHeader("Jars: ");
         jarSection.addLine(Strings.join(jarNames, ", "));
       }
@@ -135,9 +130,9 @@ public class ExportClusterConfigurationCommand extends GfshCommand {
 
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      String zip = parseResult.getParamValueAsString(CliStrings.EXPORT_SHARED_CONFIG__FILE);
-      String xmlFile = parseResult.getParamValueAsString(XML_FILE);
-      String group = parseResult.getParamValueAsString(GROUP);
+      var zip = parseResult.getParamValueAsString(CliStrings.EXPORT_SHARED_CONFIG__FILE);
+      var xmlFile = parseResult.getParamValueAsString(XML_FILE);
+      var group = parseResult.getParamValueAsString(GROUP);
 
       if (group != null && group.contains(",")) {
         return ResultModel.createError("Only a single group name is supported.");
@@ -156,12 +151,12 @@ public class ExportClusterConfigurationCommand extends GfshCommand {
             .createError(CliStrings.format(CliStrings.INVALID_FILE_EXTENSION, ".zip"));
       }
 
-      String exportedFile = (zip != null) ? zip : xmlFile;
+      var exportedFile = (zip != null) ? zip : xmlFile;
       if (exportedFile != null) {
         // make sure the file does not exist so that we don't overwrite some existing file
-        File file = new File(exportedFile).getAbsoluteFile();
+        var file = new File(exportedFile).getAbsoluteFile();
         if (file.exists()) {
-          String message = file.getAbsolutePath() + " already exists. Overwrite it? ";
+          var message = file.getAbsolutePath() + " already exists. Overwrite it? ";
           if (readYesNo(message, Response.YES) == Response.NO) {
             return ResultModel.createError("Aborted. " + exportedFile + "already exists.");
           }
@@ -177,17 +172,17 @@ public class ExportClusterConfigurationCommand extends GfshCommand {
       if (result.getStatus() == Result.Status.ERROR) {
         return result;
       }
-      String xmlFile = parseResult.getParamValueAsString(XML_FILE);
-      String zipFile = parseResult.getParamValueAsString(CliStrings.EXPORT_SHARED_CONFIG__FILE);
-      String group = parseResult.getParamValueAsString(GROUP);
+      var xmlFile = parseResult.getParamValueAsString(XML_FILE);
+      var zipFile = parseResult.getParamValueAsString(CliStrings.EXPORT_SHARED_CONFIG__FILE);
+      var group = parseResult.getParamValueAsString(GROUP);
       // save the result to the file
       if (xmlFile != null) {
-        InfoResultModel xmlSection = result.getInfoSection("xml");
+        var xmlSection = result.getInfoSection("xml");
         if (xmlSection == null) {
-          InfoResultModel info = result.addInfo("info");
+          var info = result.addInfo("info");
           info.addLine(String.format("xml content is empty. %s is not created.", xmlFile));
         } else {
-          File file = new File(xmlFile).getAbsoluteFile();
+          var file = new File(xmlFile).getAbsoluteFile();
           FileUtils.write(file, Strings.join(xmlSection.getContent(), System.lineSeparator()),
               Charset.defaultCharset());
           xmlSection.removeLine(0);
@@ -195,7 +190,7 @@ public class ExportClusterConfigurationCommand extends GfshCommand {
         }
       } else if (zipFile != null) {
         // delete the existing file since at this point, user is OK to replace the old zip.
-        File file = new File(zipFile).getAbsoluteFile();
+        var file = new File(zipFile).getAbsoluteFile();
         if (file.exists()) {
           FileUtils.deleteQuietly(file);
         }

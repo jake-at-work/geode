@@ -26,7 +26,6 @@ import org.apache.geode.cache.client.internal.ExecutablePool;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.security.NotAuthorizedException;
 
@@ -94,7 +93,7 @@ public class CreateCQOp {
       getMessage().addStringPart(queryStr);
       getMessage().addIntPart(cqState);
       {
-        byte durableByte = (byte) (isDurable ? 0x01 : 0x00);
+        var durableByte = (byte) (isDurable ? 0x01 : 0x00);
         getMessage().addBytesPart(new byte[] {durableByte});
       }
       getMessage().addBytesPart(new byte[] {(byte) regionDataPolicy.ordinal()});
@@ -107,24 +106,24 @@ public class CreateCQOp {
 
     @Override
     protected Object processResponse(final @NotNull Message m) throws Exception {
-      ChunkedMessage msg = (ChunkedMessage) m;
+      var msg = (ChunkedMessage) m;
       msg.readHeader();
-      int msgType = msg.getMessageType();
+      var msgType = msg.getMessageType();
       msg.receiveChunk();
       if (msgType == MessageType.REPLY) {
         return Boolean.TRUE;
       } else {
         if (msgType == MessageType.EXCEPTION) {
-          Part part = msg.getPart(0);
-          String s = "While performing a remote " + getOpName();
+          var part = msg.getPart(0);
+          var s = "While performing a remote " + getOpName();
           throw new ServerOperationException(s, (Throwable) part.getObject());
         } else if (isErrorResponse(msgType)) {
-          Part part = msg.getPart(0);
+          var part = msg.getPart(0);
           // Dan Smith- a hack, but I don't want to change the protocol right
           // now. We need to throw a security exception so that the exception
           // will be propagated up properly. Ideally, this exception would be
           // contained in the message.
-          String errorMessage = part.getString();
+          var errorMessage = part.getString();
           if (errorMessage.contains("Not authorized")) {
             throw new NotAuthorizedException(errorMessage);
           }

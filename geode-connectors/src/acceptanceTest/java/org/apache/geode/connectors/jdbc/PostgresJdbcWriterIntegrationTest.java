@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URL;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
@@ -70,7 +69,7 @@ public class PostgresJdbcWriterIntegrationTest extends JdbcWriterIntegrationTest
 
     employees.destroy("1");
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + DEFAULT_DB_NAME + '.' + SCHEMA_NAME + '.'
             + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "2", employee2);
@@ -84,7 +83,7 @@ public class PostgresJdbcWriterIntegrationTest extends JdbcWriterIntegrationTest
     employees.put("1", pdx1);
     employees.put("2", pdx2);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + DEFAULT_DB_NAME + '.' + SCHEMA_NAME + '.'
             + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee1);
@@ -99,7 +98,7 @@ public class PostgresJdbcWriterIntegrationTest extends JdbcWriterIntegrationTest
     employees.put("1", pdx1);
     employees.put("1", pdx2);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + DEFAULT_DB_NAME + '.' + SCHEMA_NAME + '.'
             + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee2);

@@ -33,7 +33,7 @@ public class RegionHelperIntegrationTest {
   public void generateXml() throws Exception {
     Region region = server.getCache().getRegion(SEPARATOR + "test");
     region.put("key", "value");
-    String cacheXml = RegionHelper.generateCacheXml(server.getCache());
+    var cacheXml = RegionHelper.generateCacheXml(server.getCache());
 
     // make sure the generated cache.xml skips region entries
     assertThat(cacheXml).doesNotContain("<entry>")

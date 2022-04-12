@@ -23,7 +23,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.BufferUnderflowException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -48,7 +47,6 @@ import org.apache.geode.cache.client.ServerRefusedConnectionException;
 import org.apache.geode.cache.client.SubscriptionNotEnabledException;
 import org.apache.geode.cache.client.internal.ExecuteFunctionOp.ExecuteFunctionOpImpl;
 import org.apache.geode.cache.client.internal.ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl;
-import org.apache.geode.cache.client.internal.QueueManager.QueueConnections;
 import org.apache.geode.cache.client.internal.pooling.ConnectionDestroyedException;
 import org.apache.geode.cache.client.internal.pooling.ConnectionManager;
 import org.apache.geode.cache.execute.FunctionException;
@@ -123,7 +121,7 @@ public class OpExecutorImpl implements ExecutablePool {
   @Override
   public Object execute(Op op, int retries) {
     if (serverAffinity.get()) {
-      ServerLocation loc = affinityServerLocation.get();
+      var loc = affinityServerLocation.get();
       if (loc == null) {
         loc = getNextOpServerLocation();
         affinityServerLocation.set(loc);
@@ -134,15 +132,15 @@ public class OpExecutorImpl implements ExecutablePool {
       return executeWithServerAffinity(loc, op);
     }
 
-    Connection conn = connectionManager.borrowConnection(serverTimeout);
+    var conn = connectionManager.borrowConnection(serverTimeout);
     try {
       Set<ServerLocation> attemptedServers = null;
 
-      for (int attempt = 0; true; attempt++) {
+      for (var attempt = 0; true; attempt++) {
         // when an op is retried we may need to try to recover the previous
         // attempt's version stamp
         if (attempt == 1 && (op instanceof AbstractOp)) {
-          AbstractOp absOp = (AbstractOp) op;
+          var absOp = (AbstractOp) op;
           absOp.getMessage().setIsRetry();
         }
         try {
@@ -190,7 +188,7 @@ public class OpExecutorImpl implements ExecutablePool {
    * @return the result of execution
    */
   Object executeWithServerAffinity(ServerLocation loc, Op op) {
-    final int initialRetryCount = getAffinityRetryCount();
+    final var initialRetryCount = getAffinityRetryCount();
     try {
       try {
         return executeOnServer(loc, op, true, false);
@@ -201,7 +199,7 @@ public class OpExecutorImpl implements ExecutablePool {
         if (!serverAffinityFailover || e instanceof ServerOperationException) {
           throw e;
         }
-        int retryCount = getAffinityRetryCount();
+        var retryCount = getAffinityRetryCount();
         if ((retryAttempts != -1 && retryCount >= retryAttempts)
             || retryCount > TX_RETRY_ATTEMPT) {
           // prevent stack overflow
@@ -215,9 +213,9 @@ public class OpExecutorImpl implements ExecutablePool {
       }
       // send TXFailoverOp, so that new server can
       // do bootstrapping, then re-execute original op
-      AbstractOp absOp = (AbstractOp) op;
+      var absOp = (AbstractOp) op;
       absOp.getMessage().setIsRetry();
-      int transactionId = absOp.getMessage().getTransactionId();
+      var transactionId = absOp.getMessage().getTransactionId();
       // for CommitOp we do not have transactionId in AbstractOp
       // so set it explicitly for TXFailoverOp
       TXFailoverOp.execute(pool, transactionId);
@@ -276,7 +274,7 @@ public class OpExecutorImpl implements ExecutablePool {
   }
 
   public ServerLocation getNextOpServerLocation() {
-    Connection conn = connectionManager.borrowConnection(serverTimeout);
+    var conn = connectionManager.borrowConnection(serverTimeout);
     try {
       return conn.getServer();
     } finally {
@@ -299,7 +297,7 @@ public class OpExecutorImpl implements ExecutablePool {
   public Object executeOn(ServerLocation server, final Op op, final boolean accessed,
       final boolean onlyUseExistingCnx) {
     if (serverAffinity.get()) {
-      final ServerLocation affinityServer = affinityServerLocation.get();
+      final var affinityServer = affinityServerLocation.get();
       if (affinityServer != null) {
         server = affinityServer;
       } else {
@@ -314,7 +312,7 @@ public class OpExecutorImpl implements ExecutablePool {
 
   protected Object executeOnServer(ServerLocation server, Op op, boolean accessed,
       boolean onlyUseExistingConnection) {
-    boolean returnConnection = true;
+    var returnConnection = true;
     Connection connection = null;
     if (op instanceof PingOp.PingOpImpl) {
       // currently for pings we prefer to queue clientToServer cnx so that we will
@@ -322,11 +320,11 @@ public class OpExecutorImpl implements ExecutablePool {
       if (queueManager != null) {
         // see if our QueueManager has a connection to this server that we can send
         // the ping on.
-        final ServerLocationAndMemberId slAndMId = new ServerLocationAndMemberId(server,
+        final var slAndMId = new ServerLocationAndMemberId(server,
             ((PingOp.PingOpImpl) op).getServerID().getUniqueId());
-        final Endpoint endpoint = endpointManager.getEndpointMap().get(slAndMId);
+        final var endpoint = endpointManager.getEndpointMap().get(slAndMId);
         if (endpoint != null) {
-          QueueConnections queueConnections = queueManager.getAllConnectionsNoWait();
+          var queueConnections = queueManager.getAllConnectionsNoWait();
           connection = queueConnections.getConnection(endpoint);
           if (connection != null) {
             // we found one to do the ping on
@@ -366,13 +364,13 @@ public class OpExecutorImpl implements ExecutablePool {
       throw new SubscriptionNotEnabledException();
     }
 
-    final HashSet<ServerLocation> attemptedPrimaries = new HashSet<>();
+    final var attemptedPrimaries = new HashSet<ServerLocation>();
     while (true) {
-      final Connection primary = queueManager.getAllConnections().getPrimary();
+      final var primary = queueManager.getAllConnections().getPrimary();
       try {
         return executeWithPossibleReAuthentication(primary, op);
       } catch (final Exception e) {
-        boolean finalAttempt = !attemptedPrimaries.add(primary.getServer());
+        var finalAttempt = !attemptedPrimaries.add(primary.getServer());
         handleException(e, primary, 0, finalAttempt);
         // we shouldn't reach this code, but just in case
         if (finalAttempt) {
@@ -390,8 +388,8 @@ public class OpExecutorImpl implements ExecutablePool {
 
     RuntimeException lastException = null;
 
-    final QueueConnections connections = queueManager.getAllConnectionsNoWait();
-    final Connection primary = connections.getPrimary();
+    final var connections = queueManager.getAllConnectionsNoWait();
+    final var primary = connections.getPrimary();
     if (primary != null) {
       try {
         executeWithPossibleReAuthentication(primary, op);
@@ -404,8 +402,8 @@ public class OpExecutorImpl implements ExecutablePool {
       }
     }
 
-    final List<Connection> backups = connections.getBackups();
-    for (final Connection connection : backups) {
+    final var backups = connections.getBackups();
+    for (final var connection : backups) {
       try {
         executeWithPossibleReAuthentication(connection, op);
       } catch (Exception e) {
@@ -427,14 +425,14 @@ public class OpExecutorImpl implements ExecutablePool {
     if (queueManager == null) {
       throw new SubscriptionNotEnabledException();
     }
-    final QueueConnections connections = queueManager.getAllConnections();
+    final var connections = queueManager.getAllConnections();
 
-    final List<Connection> backups = connections.getBackups();
+    final var backups = connections.getBackups();
     if (logger.isTraceEnabled(LogMarker.BRIDGE_SERVER_VERBOSE)) {
       logger.trace(LogMarker.BRIDGE_SERVER_VERBOSE, "sending {} to backups: {}", op, backups);
     }
-    for (int i = backups.size() - 1; i >= 0; i--) {
-      final Connection connection = backups.get(i);
+    for (var i = backups.size() - 1; i >= 0; i--) {
+      final var connection = backups.get(i);
       try {
         executeWithPossibleReAuthentication(connection, op);
       } catch (Exception e) {
@@ -442,8 +440,8 @@ public class OpExecutorImpl implements ExecutablePool {
       }
     }
 
-    Connection primary = connections.getPrimary();
-    final HashSet<ServerLocation> attemptedPrimaries = new HashSet<>();
+    var primary = connections.getPrimary();
+    final var attemptedPrimaries = new HashSet<ServerLocation>();
     while (true) {
       try {
         if (logger.isTraceEnabled(LogMarker.BRIDGE_SERVER_VERBOSE)) {
@@ -455,7 +453,7 @@ public class OpExecutorImpl implements ExecutablePool {
           logger.trace(LogMarker.BRIDGE_SERVER_VERBOSE, "caught exception sending to primary {}",
               e.getMessage(), e);
         }
-        final boolean finalAttempt = !attemptedPrimaries.add(primary.getServer());
+        final var finalAttempt = !attemptedPrimaries.add(primary.getServer());
         handleException(e, primary, 0, finalAttempt);
         primary = queueManager.getAllConnections().getPrimary();
         // we shouldn't reach this code, but just in case
@@ -538,10 +536,10 @@ public class OpExecutorImpl implements ExecutablePool {
 
     GemFireException exceptionToThrow = null;
     String title;
-    boolean invalidateServer = true;
-    boolean warn = true;
-    boolean forceThrow = false;
-    Throwable cause = throwable;
+    var invalidateServer = true;
+    var warn = true;
+    var forceThrow = false;
+    var cause = throwable;
 
     if (throwable instanceof MessageTooLargeException) {
       title = null;
@@ -617,7 +615,7 @@ public class OpExecutorImpl implements ExecutablePool {
       exceptionToThrow = (PutAllPartialResultException) throwable;
       invalidateServer = false;
     } else {
-      Throwable t = throwable.getCause();
+      var t = throwable.getCause();
       if ((t instanceof IOException)
           || (t instanceof SerializationException) || (t instanceof CopyException)
           || (t instanceof GemFireSecurityException) || (t instanceof ServerOperationException)
@@ -655,11 +653,11 @@ public class OpExecutorImpl implements ExecutablePool {
       if (invalidateServer) {
         endpointManager.serverCrashed(connection.getEndpoint());
       }
-      boolean logEnabled = warn ? logger.isWarnEnabled() : logger.isDebugEnabled();
-      boolean msgNeeded = logEnabled || finalAttempt;
+      var logEnabled = warn ? logger.isWarnEnabled() : logger.isDebugEnabled();
+      var msgNeeded = logEnabled || finalAttempt;
       if (msgNeeded) {
-        final StringBuilder sb = getExceptionMessage(title, retryCount, finalAttempt, connection);
-        final String msg = sb.toString();
+        final var sb = getExceptionMessage(title, retryCount, finalAttempt, connection);
+        final var msg = sb.toString();
         if (logEnabled) {
           if (warn) {
             logger.warn(msg);
@@ -679,7 +677,7 @@ public class OpExecutorImpl implements ExecutablePool {
 
   private static StringBuilder getExceptionMessage(final String exceptionName, final int retryCount,
       final boolean finalAttempt, final Connection connection) {
-    final StringBuilder message = new StringBuilder(200);
+    final var message = new StringBuilder(200);
     message.append("Pool unexpected ").append(exceptionName);
     if (connection != null) {
       message.append(" connection=").append(connection);
@@ -709,7 +707,7 @@ public class OpExecutorImpl implements ExecutablePool {
       return;
     }
 
-    final UserAttributes ua = getUserAttributesFromThreadLocal();
+    final var ua = getUserAttributesFromThreadLocal();
     if (ua == null) {
       return;
     }
@@ -731,7 +729,7 @@ public class OpExecutorImpl implements ExecutablePool {
   void authenticateMultiuser(final PoolImpl pool, final Connection conn,
       final UserAttributes ua) {
     try {
-      final Long userId = AuthenticateUserOp.executeOn(conn.getServer(), pool, ua.getCredentials());
+      final var userId = AuthenticateUserOp.executeOn(conn.getServer(), pool, ua.getCredentials());
       if (userId != null) {
         ua.setServerToId(conn.getServer(), userId);
         if (logger.isDebugEnabled()) {
@@ -740,7 +738,7 @@ public class OpExecutorImpl implements ExecutablePool {
         }
       }
     } catch (ServerConnectivityException sce) {
-      final Throwable cause = sce.getCause();
+      final var cause = sce.getCause();
       if (cause instanceof IOException || cause instanceof BufferUnderflowException
           || cause instanceof CancelException
           || (sce.getMessage() != null
@@ -759,7 +757,7 @@ public class OpExecutorImpl implements ExecutablePool {
     try {
       return conn.execute(op);
     } catch (final ServerConnectivityException sce) {
-      final Throwable cause = sce.getCause();
+      final var cause = sce.getCause();
       if ((cause instanceof AuthenticationRequiredException
           && USER_NOT_FOUND.equals(cause.getMessage()))
           || sce.getMessage().contains("Connection error while authenticating user")
@@ -767,12 +765,12 @@ public class OpExecutorImpl implements ExecutablePool {
         // 2nd exception-message above is from AbstractOp.sendMessage()
 
         if (pool.getMultiuserAuthentication()) {
-          final UserAttributes ua = getUserAttributesFromThreadLocal();
+          final var ua = getUserAttributesFromThreadLocal();
           if (ua != null) {
             authenticateMultiuser(pool, conn, ua);
           }
         } else {
-          final Connection wrappedConnection = conn.getWrappedConnection();
+          final var wrappedConnection = conn.getWrappedConnection();
           conn.getServer().setUserId(AuthenticateUserOp.executeOn(wrappedConnection, this));
         }
 

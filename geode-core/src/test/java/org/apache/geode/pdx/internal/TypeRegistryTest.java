@@ -44,7 +44,7 @@ public class TypeRegistryTest {
   public void defineTypeGivenANewTypeStoresItWithTheCorrectIdAndReturnsIt() {
     when(typeRegistration.defineType(newType)).thenReturn(37);
 
-    PdxType result = typeRegistry.defineType(newType);
+    var result = typeRegistry.defineType(newType);
 
     assertThat(result).isSameAs(newType);
     verify(newType).setTypeId(37);
@@ -58,7 +58,7 @@ public class TypeRegistryTest {
     typeRegistry.getTypeToId().put(newType, 37);
     typeRegistry.getIdToType().put(37, null);
 
-    PdxType result = typeRegistry.defineType(newType);
+    var result = typeRegistry.defineType(newType);
 
     assertThat(result).isSameAs(newType);
     verify(newType).setTypeId(37);
@@ -68,32 +68,32 @@ public class TypeRegistryTest {
 
   @Test
   public void defineTypeGivenATypeEqualToAnExistingTypeReturnsTheExistingType() {
-    PdxType existingType = new PdxType("myClass", true);
-    PdxType equalType = new PdxType("myClass", true);
+    var existingType = new PdxType("myClass", true);
+    var equalType = new PdxType("myClass", true);
     typeRegistry.getTypeToId().put(existingType, 37);
     typeRegistry.getIdToType().put(37, existingType);
 
-    PdxType result = typeRegistry.defineType(equalType);
+    var result = typeRegistry.defineType(equalType);
 
     assertThat(result).isSameAs(existingType);
   }
 
   @Test
   public void defineTypeGivenATypeEqualToAnExistingButNotInTypeToIdTypeReturnsTheExistingType() {
-    PdxType existingType = new PdxType("myClass", true);
-    PdxType equalType = new PdxType("myClass", true);
+    var existingType = new PdxType("myClass", true);
+    var equalType = new PdxType("myClass", true);
     typeRegistry.getTypeToId().put(existingType, null);
     typeRegistry.getIdToType().put(37, existingType);
     when(typeRegistration.defineType(equalType)).thenReturn(37);
 
-    PdxType result = typeRegistry.defineType(equalType);
+    var result = typeRegistry.defineType(equalType);
 
     assertThat(result).isSameAs(existingType);
   }
 
   @Test
   public void defineTypeGivenATypeNotEqualToAnExistingButWithTheSameIdThrows() {
-    PdxType existingType = mock(PdxType.class);
+    var existingType = mock(PdxType.class);
     typeRegistry.getTypeToId().put(existingType, null);
     typeRegistry.getIdToType().put(37, existingType);
     when(typeRegistration.defineType(newType)).thenReturn(37);
@@ -104,9 +104,9 @@ public class TypeRegistryTest {
 
   @Test
   public void defineLocalTypeGivenNullCallsDefineType() {
-    TypeRegistry spy = spy(typeRegistry);
+    var spy = spy(typeRegistry);
 
-    PdxType result = spy.defineLocalType(null, newType);
+    var result = spy.defineLocalType(null, newType);
 
     assertThat(result).isSameAs(newType);
     verify(spy).defineType(newType);
@@ -114,9 +114,9 @@ public class TypeRegistryTest {
 
   @Test
   public void defineLocalTypeGivenNewTypeAddsItToLocalTypeIds() {
-    Object domainInstance = new Object();
+    var domainInstance = new Object();
 
-    PdxType result = typeRegistry.defineLocalType(domainInstance, newType);
+    var result = typeRegistry.defineLocalType(domainInstance, newType);
 
     assertThat(result).isSameAs(newType);
     assertThat(typeRegistry.getLocalTypeIds().get(Object.class)).isSameAs(newType);
@@ -124,12 +124,12 @@ public class TypeRegistryTest {
 
   @Test
   public void defineLocalTypeGivenExistingTypeReturnsIt() {
-    PdxType existingType = new PdxType("myClass", true);
-    PdxType equalType = new PdxType("myClass", true);
-    Object domainInstance = new Object();
+    var existingType = new PdxType("myClass", true);
+    var equalType = new PdxType("myClass", true);
+    var domainInstance = new Object();
     typeRegistry.getLocalTypeIds().put(Object.class, existingType);
 
-    PdxType result = typeRegistry.defineLocalType(domainInstance, equalType);
+    var result = typeRegistry.defineLocalType(domainInstance, equalType);
 
     assertThat(result).isSameAs(existingType);
   }

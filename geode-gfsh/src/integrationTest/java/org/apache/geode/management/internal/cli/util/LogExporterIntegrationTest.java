@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -59,10 +58,10 @@ public class LogExporterIntegrationTest {
   public void createServerFilesDir() throws IOException {
     // Name the directory after this test instance and the Gradle test worker, to ensure that tests
     // running in parallel use different directories.
-    String testRunnerID = System.getProperty("org.gradle.test.worker", "standalone");
-    int testInstanceID = System.identityHashCode(this);
-    String className = getClass().getSimpleName();
-    String dirName = String.format("%s-%x-%s", className, testInstanceID, testRunnerID);
+    var testRunnerID = System.getProperty("org.gradle.test.worker", "standalone");
+    var testInstanceID = System.identityHashCode(this);
+    var className = getClass().getSimpleName();
+    var dirName = String.format("%s-%x-%s", className, testInstanceID, testRunnerID);
     serverFilesDir = Files.createDirectories(Paths.get(dirName)).normalize().toAbsolutePath();
   }
 
@@ -73,24 +72,24 @@ public class LogExporterIntegrationTest {
 
   @Test
   public void serverStartedWithWrongSuffix() throws Exception {
-    String logFileNameWithWrongSuffix = "test.txt";
-    String statsFileNameWithWrongSuffix = "archive.archive";
+    var logFileNameWithWrongSuffix = "test.txt";
+    var statsFileNameWithWrongSuffix = "archive.archive";
 
-    Path logFile = serverFilesDir.resolve(logFileNameWithWrongSuffix);
-    Path statsFile = serverFilesDir.resolve(statsFileNameWithWrongSuffix);
+    var logFile = serverFilesDir.resolve(logFileNameWithWrongSuffix);
+    var statsFile = serverFilesDir.resolve(statsFileNameWithWrongSuffix);
 
     server.withProperty(LOG_FILE, logFile.toString())
         .withProperty(STATISTIC_ARCHIVE_FILE, statsFile.toString())
         .startServer();
 
-    LogExporter logExporter = new LogExporter(filter, null, null);
-    List<Path> logFiles = logExporter.findLogFiles(serverFilesDir);
+    var logExporter = new LogExporter(filter, null, null);
+    var logFiles = logExporter.findLogFiles(serverFilesDir);
 
     assertThat(logFiles)
         .as("log files")
         .isEmpty();
 
-    List<Path> statsFiles = logExporter.findStatFiles(serverFilesDir);
+    var statsFiles = logExporter.findStatFiles(serverFilesDir);
     assertThat(statsFiles)
         .as("stat files")
         .isEmpty();
@@ -98,24 +97,24 @@ public class LogExporterIntegrationTest {
 
   @Test
   public void serverStartedWithCorrectSuffix() throws Exception {
-    String logFileName = "test.log";
-    String statsFileName = "archive.gfs";
-    Path logFile = serverFilesDir.resolve(logFileName);
-    Path statsFile = serverFilesDir.resolve(statsFileName);
+    var logFileName = "test.log";
+    var statsFileName = "archive.gfs";
+    var logFile = serverFilesDir.resolve(logFileName);
+    var statsFile = serverFilesDir.resolve(statsFileName);
 
     server.withProperty(LOG_FILE, logFile.toString())
         .withProperty(STATISTIC_ARCHIVE_FILE, statsFile.toString())
         .startServer();
 
-    LogExporter logExporter = new LogExporter(filter, null, null);
-    List<Path> logFiles = logExporter.findLogFiles(serverFilesDir);
+    var logExporter = new LogExporter(filter, null, null);
+    var logFiles = logExporter.findLogFiles(serverFilesDir);
 
     assertThat(logFiles)
         .as("log files")
         .hasSize(1);
     assertThat(logFiles.get(0)).hasFileName(logFileName);
 
-    List<Path> statsFiles = logExporter.findStatFiles(serverFilesDir);
+    var statsFiles = logExporter.findStatFiles(serverFilesDir);
     assertThat(statsFiles)
         .as("stat files")
         .hasSize(1);
@@ -125,21 +124,21 @@ public class LogExporterIntegrationTest {
   @Test
   @Ignore("GEODE-2574: fix .gz suffix")
   public void serverStartedWithGZSuffix() throws Exception {
-    Path gzLogFile = serverFilesDir.resolve("test.log.gz");
-    Path gzStatsFile = serverFilesDir.resolve("archive.gfs.gz");
+    var gzLogFile = serverFilesDir.resolve("test.log.gz");
+    var gzStatsFile = serverFilesDir.resolve("archive.gfs.gz");
 
     server.withProperty(LOG_FILE, gzLogFile.toString())
         .withProperty(STATISTIC_ARCHIVE_FILE, gzStatsFile.toString())
         .startServer();
 
-    LogExporter logExporter = new LogExporter(filter, null, null);
-    List<Path> logFiles = logExporter.findLogFiles(serverFilesDir);
+    var logExporter = new LogExporter(filter, null, null);
+    var logFiles = logExporter.findLogFiles(serverFilesDir);
 
     assertThat(logFiles)
         .as("log files")
         .hasSize(1);
 
-    List<Path> statsFiles = logExporter.findStatFiles(serverFilesDir);
+    var statsFiles = logExporter.findStatFiles(serverFilesDir);
     assertThat(statsFiles)
         .as("stats files")
         .hasSize(1);
@@ -147,7 +146,7 @@ public class LogExporterIntegrationTest {
 
   @Test
   public void testNoStatsFile() throws Throwable {
-    Path logFile = serverFilesDir.resolve("server.log");
+    var logFile = serverFilesDir.resolve("server.log");
 
     server.withProperty(LOG_FILE, logFile.toString())
         .startServer();
@@ -157,9 +156,9 @@ public class LogExporterIntegrationTest {
 
   @Test
   public void testWithRelativeFilePaths() throws Throwable {
-    Path serverWorkingDir = server.getWorkingDir().toPath().normalize().toAbsolutePath();
-    Path relativeLogFile = serverWorkingDir.relativize(serverFilesDir.resolve("server.log"));
-    Path relativeStatsFile = serverWorkingDir.relativize(serverFilesDir.resolve("stats.gfs"));
+    var serverWorkingDir = server.getWorkingDir().toPath().normalize().toAbsolutePath();
+    var relativeLogFile = serverWorkingDir.relativize(serverFilesDir.resolve("server.log"));
+    var relativeStatsFile = serverWorkingDir.relativize(serverFilesDir.resolve("stats.gfs"));
 
     server.withProperty(LOG_FILE, relativeLogFile.toString())
         .withProperty(STATISTIC_ARCHIVE_FILE, relativeStatsFile.toString())
@@ -170,10 +169,10 @@ public class LogExporterIntegrationTest {
 
   @Test
   public void testWithAbsoluteFilePaths() throws Exception {
-    String logFileName = "server.log";
-    String statsFileName = "stats.gfs";
-    Path absoluteLogFile = serverFilesDir.resolve("logs").resolve(logFileName).toAbsolutePath();
-    Path absoluteStatsFile =
+    var logFileName = "server.log";
+    var statsFileName = "stats.gfs";
+    var absoluteLogFile = serverFilesDir.resolve("logs").resolve(logFileName).toAbsolutePath();
+    var absoluteStatsFile =
         serverFilesDir.resolve("stats").resolve(statsFileName).toAbsolutePath();
     Files.createDirectories(absoluteLogFile.getParent());
     Files.createDirectories(absoluteLogFile.getParent());
@@ -182,18 +181,18 @@ public class LogExporterIntegrationTest {
         .withProperty(STATISTIC_ARCHIVE_FILE, absoluteStatsFile.toString())
         .startServer();
 
-    LogExporter logExporter =
+    var logExporter =
         new LogExporter(filter, absoluteLogFile.toFile(), absoluteStatsFile.toFile());
-    String exportedZip = logExporter.export().toString();
+    var exportedZip = logExporter.export().toString();
 
     assertThat(zipEntriesIn(exportedZip))
         .containsExactlyInAnyOrder(logFileName, statsFileName);
   }
 
   private static void verifyExportLogsFunctionDoesNotBlowUp(Cache cache) throws Throwable {
-    ExportLogsFunction.Args args =
+    var args =
         new ExportLogsFunction.Args(null, null, "info", false, false, false);
-    CapturingResultSender resultSender = new CapturingResultSender();
+    var resultSender = new CapturingResultSender();
     @SuppressWarnings("unchecked")
     FunctionContext<ExportLogsFunction.Args> context =
         new FunctionContextImpl(cache, "functionId", args, resultSender);

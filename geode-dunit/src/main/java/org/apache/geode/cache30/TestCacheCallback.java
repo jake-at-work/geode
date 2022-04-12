@@ -40,7 +40,7 @@ public abstract class TestCacheCallback implements CacheCallback {
    */
   public boolean wasInvoked() {
     checkForError();
-    boolean value = invoked;
+    var value = invoked;
     if (value) {
       invoked = false;
     }
@@ -82,7 +82,7 @@ public abstract class TestCacheCallback implements CacheCallback {
 
   private void checkForError() {
     if (callbackError != null) {
-      AssertionError error = new AssertionError("Exception occurred in callback", callbackError);
+      var error = new AssertionError("Exception occurred in callback", callbackError);
       throw error;
     }
   }

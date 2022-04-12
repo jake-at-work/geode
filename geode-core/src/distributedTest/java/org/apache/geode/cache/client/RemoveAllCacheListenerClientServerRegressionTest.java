@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EntryNotFoundException;
@@ -41,7 +40,6 @@ import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestCase;
@@ -247,12 +245,12 @@ public class RemoveAllCacheListenerClientServerRegressionTest extends Distribute
   private void setupGemFireCacheServer(RegionShortcut shortcut, boolean concChecks) {
     serverVM = Host.getHost(0).getVM(0);
     serverPort.set(AvailablePortHelper.getRandomAvailableTCPPort());
-    String serverName = getClass().getSimpleName() + "_server";
+    var serverName = getClass().getSimpleName() + "_server";
     serverVM.invoke(new SerializableRunnable() {
       @Override
       public void run() {
         try {
-          Cache cache = new CacheFactory().set("name", serverName).set(MCAST_PORT, "0")
+          var cache = new CacheFactory().set("name", serverName).set(MCAST_PORT, "0")
               .set(LOG_FILE, serverName + ".log").set(LOG_LEVEL, "config")
               .set("locators", "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]")
               .create();
@@ -262,7 +260,7 @@ public class RemoveAllCacheListenerClientServerRegressionTest extends Distribute
           regionFactory.setConcurrencyChecksEnabled(concChecks);
           regionFactory.create(REGION_NAME);
 
-          CacheServer cacheServer = cache.addCacheServer();
+          var cacheServer = cache.addCacheServer();
           cacheServer.setPort(serverPort.get());
           cacheServer.setMaxConnections(10);
           cacheServer.start();
@@ -280,15 +278,15 @@ public class RemoveAllCacheListenerClientServerRegressionTest extends Distribute
   private void setupGemFireClientCache(ClientRegionShortcut shortcut, boolean concChecks) {
     clientVM = Host.getHost(0).getVM(1);
     clientVM.invoke(() -> {
-      ClientCache clientCache = new ClientCacheFactory().create();
+      var clientCache = new ClientCacheFactory().create();
 
-      PoolFactory poolFactory = PoolManager.createFactory();
+      var poolFactory = PoolManager.createFactory();
       poolFactory.setMaxConnections(10);
       poolFactory.setMinConnections(1);
       poolFactory.setReadTimeout(5000);
       poolFactory.setSubscriptionEnabled(true);
       poolFactory.addServer("localhost", serverPort.get());
-      Pool pool = poolFactory.create("serverConnectionPool");
+      var pool = poolFactory.create("serverConnectionPool");
       assertNotNull("The 'serverConnectionPool' was not properly configured and initialized!",
           pool);
 
@@ -297,7 +295,7 @@ public class RemoveAllCacheListenerClientServerRegressionTest extends Distribute
       regionFactory.setPoolName(pool.getName());
       regionFactory.addCacheListener(new TestListener());
       regionFactory.setConcurrencyChecksEnabled(concChecks);
-      Region<String, String> aRegion = regionFactory.create(REGION_NAME);
+      var aRegion = regionFactory.create(REGION_NAME);
       assertNotNull("The region " + REGION_NAME + " was not properly configured and initialized",
           aRegion);
 
@@ -310,7 +308,7 @@ public class RemoveAllCacheListenerClientServerRegressionTest extends Distribute
     @Override
     public void afterDestroy(EntryEvent event) {
       if (event.getKey().equals(NON_EXISTENT_KEY)) {
-        String errStr = "event fired for non-existent key " + event.getKey() + "; " + event + "\n"
+        var errStr = "event fired for non-existent key " + event.getKey() + "; " + event + "\n"
             + getStackTrace();
         getBlackboard().setMailbox(BB_MAILBOX_KEY, errStr);
       }
@@ -338,7 +336,7 @@ public class RemoveAllCacheListenerClientServerRegressionTest extends Distribute
       removeAllSet.add("key2");
       removeAllSet.add(NON_EXISTENT_KEY);
       aRegion.removeAll(removeAllSet);
-      Object error = getBlackboard().getMailbox(BB_MAILBOX_KEY);
+      var error = getBlackboard().getMailbox(BB_MAILBOX_KEY);
       assertNotNull(error);
       assertEquals("", error);
     });
@@ -355,7 +353,7 @@ public class RemoveAllCacheListenerClientServerRegressionTest extends Distribute
       } catch (EntryNotFoundException e) {
         // expected
       }
-      Object error = getBlackboard().getMailbox(BB_MAILBOX_KEY);
+      var error = getBlackboard().getMailbox(BB_MAILBOX_KEY);
       assertNotNull(error);
       assertEquals("", error);
     });
@@ -370,7 +368,7 @@ public class RemoveAllCacheListenerClientServerRegressionTest extends Distribute
       Region<String, String> aRegion = ClientCacheFactory.getAnyInstance().getRegion(REGION_NAME);
       Object returnedValue = aRegion.remove(NON_EXISTENT_KEY);
       assertNull(returnedValue);
-      Object error = getBlackboard().getMailbox(BB_MAILBOX_KEY);
+      var error = getBlackboard().getMailbox(BB_MAILBOX_KEY);
       assertNotNull(error);
       assertEquals("", error);
     });
@@ -381,7 +379,7 @@ public class RemoveAllCacheListenerClientServerRegressionTest extends Distribute
     try {
       throw new Exception("Exception to get stack trace");
     } catch (Exception e) {
-      StringWriter sw = new StringWriter();
+      var sw = new StringWriter();
       e.printStackTrace(new PrintWriter(sw, true));
       return sw.toString();
     }

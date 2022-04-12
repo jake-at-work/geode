@@ -87,7 +87,7 @@ public class EventSequenceNumberHolder implements DataSerializable {
 
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append("seqNo").append(lastSequenceNumber);
     if (versionTag != null) {
       result.append(",").append(versionTag);
@@ -111,7 +111,7 @@ public class EventSequenceNumberHolder implements DataSerializable {
     if (endOfLifeTimestamp == 0) {
       endOfLifeTimestamp = now; // a new holder - start the timer
     }
-    boolean expire = false;
+    var expire = false;
     if (endOfLifeTimestamp <= expirationTime) {
       removed = true;
       lastSequenceNumber = -1;

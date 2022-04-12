@@ -22,7 +22,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -33,7 +32,6 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.PartitionedRegionStorageException;
-import org.apache.geode.cache.Region;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
@@ -54,7 +52,7 @@ public class PaginationDUnitTest extends LuceneQueriesAccessorBase {
   protected void putEntryInEachBucket() {
     accessor.invoke(() -> {
       final Cache cache = getCache();
-      Region<Object, Object> region = cache.getRegion(REGION_NAME);
+      var region = cache.getRegion(REGION_NAME);
       IntStream.range(0, NUM_BUCKETS).forEach(i -> region.put(i, new TestObject("hello world")));
     });
   }
@@ -63,8 +61,8 @@ public class PaginationDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getListOfRegionTestTypes")
   public void partitionedRegionStorageExceptionWhenAllDataStoreAreClosedWhilePagination(
       RegionTestableType regionTestType) {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
 
@@ -78,13 +76,13 @@ public class PaginationDUnitTest extends LuceneQueriesAccessorBase {
 
     accessor.invoke(() -> {
       Cache cache = getCache();
-      LuceneService service = LuceneServiceProvider.get(cache);
+      var service = LuceneServiceProvider.get(cache);
       LuceneQuery<Integer, TestObject> query;
       query = service.createLuceneQueryFactory().setLimit(1000).setPageSize(PAGE_SIZE)
           .create(INDEX_NAME, REGION_NAME, "world", "text");
-      PageableLuceneQueryResults<Integer, TestObject> pages = query.findPages();
+      var pages = query.findPages();
       assertTrue(pages.hasNext());
-      List<LuceneResultStruct<Integer, TestObject>> page = pages.next();
+      var page = pages.next();
       assertEquals(page.size(), PAGE_SIZE, page.size());
       dataStore1.invoke(JUnit4CacheTestCase::closeCache);
       try {
@@ -103,8 +101,8 @@ public class PaginationDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getListOfRegionTestTypes")
   public void noExceptionWhenOneDataStoreIsClosedButOneIsStillUpWhilePagination(
       RegionTestableType regionTestType) {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
 
@@ -120,17 +118,17 @@ public class PaginationDUnitTest extends LuceneQueriesAccessorBase {
     accessor.invoke(() -> {
       List<LuceneResultStruct<Integer, TestObject>> combinedResult = new ArrayList<>();
       Cache cache = getCache();
-      LuceneService service = LuceneServiceProvider.get(cache);
+      var service = LuceneServiceProvider.get(cache);
       LuceneQuery<Integer, TestObject> query;
       query = service.createLuceneQueryFactory().setLimit(1000).setPageSize(PAGE_SIZE)
           .create(INDEX_NAME, REGION_NAME, "world", "text");
-      PageableLuceneQueryResults<Integer, TestObject> pages = query.findPages();
+      var pages = query.findPages();
       assertTrue(pages.hasNext());
-      List<LuceneResultStruct<Integer, TestObject>> page = pages.next();
+      var page = pages.next();
       combinedResult.addAll(page);
       assertEquals(PAGE_SIZE, page.size());
       dataStore1.invoke(JUnit4CacheTestCase::closeCache);
-      for (int i = 0; i < ((NUM_BUCKETS / PAGE_SIZE) - 1); i++) {
+      for (var i = 0; i < ((NUM_BUCKETS / PAGE_SIZE) - 1); i++) {
         page = pages.next();
         assertEquals(PAGE_SIZE, page.size());
         combinedResult.addAll(page);
@@ -141,11 +139,11 @@ public class PaginationDUnitTest extends LuceneQueriesAccessorBase {
 
   private void validateTheCombinedResult(
       final List<LuceneResultStruct<Integer, TestObject>> combinedResult) {
-    Map<Integer, TestObject> resultMap = combinedResult.stream()
+    var resultMap = combinedResult.stream()
         .collect(Collectors.toMap(LuceneResultStruct::getKey, LuceneResultStruct::getValue));
     assertEquals(NUM_BUCKETS, resultMap.size());
 
-    for (int i = 0; i < NUM_BUCKETS; i++) {
+    for (var i = 0; i < NUM_BUCKETS; i++) {
       assertEquals("The aggregate result does not contain the key = " + i, true,
           resultMap.containsKey(i));
       assertEquals(new TestObject("hello world"), resultMap.get(i));

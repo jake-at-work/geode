@@ -75,13 +75,13 @@ public class SerialGatewaySenderImplTest {
 
     statisticsClock = mock(StatisticsClock.class);
 
-    DistributedLockService distributedLockService = mock(DistributedLockService.class);
+    var distributedLockService = mock(DistributedLockService.class);
     when(distributedLockService.lock(any(), anyLong(), anyLong())).thenReturn(true);
     when(cache.getGatewaySenderLockService()).thenReturn(distributedLockService);
   }
 
   private SerialGatewaySenderImpl createSerialGatewaySenderImplSpy() {
-    GatewaySenderAdvisor gatewaySenderAdvisor = mock(GatewaySenderAdvisor.class);
+    var gatewaySenderAdvisor = mock(GatewaySenderAdvisor.class);
     when(gatewaySenderAdvisor.isPrimary()).thenReturn(true);
 
     eventProcessor1 = mock(AbstractGatewaySenderEventProcessor.class);
@@ -93,9 +93,9 @@ public class SerialGatewaySenderImplTest {
     when(eventProcessor2.isStopped()).thenReturn(false);
     when(eventProcessor2.getRunningStateLock()).thenReturn(mock(Object.class));
 
-    SerialGatewaySenderImpl serialGatewaySender =
+    var serialGatewaySender =
         new SerialGatewaySenderImpl(cache, statisticsClock, gatewaySenderAttributes);
-    SerialGatewaySenderImpl spySerialGatewaySender = spy(serialGatewaySender);
+    var spySerialGatewaySender = spy(serialGatewaySender);
     doReturn(gatewaySenderAdvisor).when(spySerialGatewaySender).getSenderAdvisor();
     doReturn(eventProcessor1).when(spySerialGatewaySender).createEventProcessor(false);
     doReturn(eventProcessor2).when(spySerialGatewaySender).createEventProcessor(true);

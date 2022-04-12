@@ -15,7 +15,6 @@
 package org.apache.geode.internal.util.redaction;
 
 import java.util.function.Function;
-import java.util.regex.Matcher;
 
 /**
  * Simple redaction strategy using regex to parse options.
@@ -32,16 +31,16 @@ class RegexRedactionStrategy implements RedactionStrategy {
 
   @Override
   public String redact(String string) {
-    Matcher matcher = ParserRegex.getPattern().matcher(string);
+    var matcher = ParserRegex.getPattern().matcher(string);
     while (matcher.find()) {
-      String option = matcher.group(2);
+      var option = matcher.group(2);
       if (!isSensitive.apply(option)) {
         continue;
       }
 
-      String leadingBoundary = matcher.group(1);
-      String separator = matcher.group(3);
-      String withRedaction = leadingBoundary + option + separator + redacted;
+      var leadingBoundary = matcher.group(1);
+      var separator = matcher.group(3);
+      var withRedaction = leadingBoundary + option + separator + redacted;
       string = string.replace(matcher.group(), withRedaction);
     }
 

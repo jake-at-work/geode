@@ -56,7 +56,7 @@ public abstract class AbstractDeltaSessionAttributes extends AbstractSessionAttr
 
     synchronized (deltas) {
       DataSerializer.writeInteger(deltas.size(), out);
-      for (Map.Entry<String, DeltaEvent> e : deltas.entrySet()) {
+      for (var e : deltas.entrySet()) {
         DataSerializer.writeString(e.getKey(), out);
         DataSerializer.writeObject(e.getValue(), out);
       }
@@ -73,8 +73,8 @@ public abstract class AbstractDeltaSessionAttributes extends AbstractSessionAttr
     Map<String, DeltaEvent> localDeltas = new HashMap<>();
     try {
       int size = DataSerializer.readInteger(in);
-      for (int i = 0; i < size; i++) {
-        String key = DataSerializer.readString(in);
+      for (var i = 0; i < size; i++) {
+        var key = DataSerializer.readString(in);
         DeltaEvent evt = DataSerializer.readObject(in);
         localDeltas.put(key, evt);
       }
@@ -84,7 +84,7 @@ public abstract class AbstractDeltaSessionAttributes extends AbstractSessionAttr
     }
 
     LOG.debug("Processing {} delta events for {}", localDeltas.size(), session);
-    for (DeltaEvent e : localDeltas.values()) {
+    for (var e : localDeltas.values()) {
       if (e.isUpdate()) {
         attributes.put(e.getName(), e.getValue());
       } else {

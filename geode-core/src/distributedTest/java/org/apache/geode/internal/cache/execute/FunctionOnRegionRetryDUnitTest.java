@@ -22,7 +22,6 @@ import junitparams.naming.TestCaseName;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.apache.geode.cache.execute.Function;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
 
@@ -66,7 +65,7 @@ public class FunctionOnRegionRetryDUnitTest extends FunctionRetryTestBase {
       final int retryAttempts,
       final int expectedCalls) throws Exception {
 
-    Function function = testFunctionRetry(haStatus,
+    var function = testFunctionRetry(haStatus,
         clientMetadataStatus,
         ExecutionTarget.REGION,
         functionIdentifierType,
@@ -110,7 +109,7 @@ public class FunctionOnRegionRetryDUnitTest extends FunctionRetryTestBase {
       final int retryAttempts,
       final int expectedCalls) throws Exception {
 
-    Function function = testFunctionRetry(haStatus,
+    var function = testFunctionRetry(haStatus,
         clientMetadataStatus,
         ExecutionTarget.REGION_WITH_FILTER_1_KEY,
         functionIdentifierType,

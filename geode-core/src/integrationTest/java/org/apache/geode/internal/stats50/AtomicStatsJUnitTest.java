@@ -27,8 +27,6 @@ import org.junit.Test;
 
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
@@ -42,30 +40,30 @@ public class AtomicStatsJUnitTest {
   @Test
   public void testConcurrentGets() throws Throwable {
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     // props.setProperty("statistic-sample-rate", "60000");
     props.setProperty(STATISTIC_SAMPLING_ENABLED, "false");
-    DistributedSystem ds = DistributedSystem.connect(props);
+    var ds = DistributedSystem.connect(props);
 
-    String statName = "TestStats";
-    String statDescription = "Tests stats";
+    var statName = "TestStats";
+    var statDescription = "Tests stats";
 
-    final String statDesc = "blah blah blah";
+    final var statDesc = "blah blah blah";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
-    StatisticsType type = f.createType(statName, statDescription, new StatisticDescriptor[] {
+    var type = f.createType(statName, statDescription, new StatisticDescriptor[] {
         f.createIntGauge("stat", statDesc, "bottles of beer on the wall"),});
 
-    final int statId = type.nameToId("stat");
+    final var statId = type.nameToId("stat");
 
     try {
 
-      final AtomicReference<Statistics> statsRef = new AtomicReference<>();
-      final CyclicBarrier beforeIncrement = new CyclicBarrier(3);
-      final CyclicBarrier afterIncrement = new CyclicBarrier(3);
-      Thread thread1 = new Thread("thread1") {
+      final var statsRef = new AtomicReference<Statistics>();
+      final var beforeIncrement = new CyclicBarrier(3);
+      final var afterIncrement = new CyclicBarrier(3);
+      var thread1 = new Thread("thread1") {
         @Override
         public void run() {
           try {
@@ -83,7 +81,7 @@ public class AtomicStatsJUnitTest {
           }
         }
       };
-      Thread thread3 = new Thread("thread1") {
+      var thread3 = new Thread("thread1") {
         @Override
         public void run() {
           try {
@@ -103,8 +101,8 @@ public class AtomicStatsJUnitTest {
       };
       thread1.start();
       thread3.start();
-      for (int i = 0; i < 5000; i++) {
-        Statistics stats = ds.createAtomicStatistics(type, "stats");
+      for (var i = 0; i < 5000; i++) {
+        var stats = ds.createAtomicStatistics(type, "stats");
         statsRef.set(stats);
         beforeIncrement.await();
         afterIncrement.await();

@@ -56,15 +56,15 @@ public class UnregisterInterestListOp {
       super(MessageType.UNREGISTER_INTEREST_LIST, 4 + keys.size());
       getMessage().addStringPart(region, true);
       {
-        byte closingByte = (byte) (isClosing ? 0x01 : 0x00);
+        var closingByte = (byte) (isClosing ? 0x01 : 0x00);
         getMessage().addBytesPart(new byte[] {closingByte});
       }
       {
-        byte keepAliveByte = (byte) (keepAlive ? 0x01 : 0x00);
+        var keepAliveByte = (byte) (keepAlive ? 0x01 : 0x00);
         getMessage().addBytesPart(new byte[] {keepAliveByte});
       }
       getMessage().addIntPart(keys.size());
-      for (final Object key : keys) {
+      for (final var key : keys) {
         getMessage().addStringOrObjPart(key);
       }
     }

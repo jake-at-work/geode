@@ -16,7 +16,6 @@ package org.apache.geode.management.internal;
 
 import java.io.InvalidObjectException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -46,8 +45,8 @@ public class CompositeConverter extends OpenTypeConverter {
     this.itemNames = itemNames;
     this.getters = getters;
     getterConverters = new OpenTypeConverter[getters.length];
-    for (int i = 0; i < getters.length; i++) {
-      Type retType = getters[i].getGenericReturnType();
+    for (var i = 0; i < getters.length; i++) {
+      var retType = getters[i].getGenericReturnType();
       getterConverters[i] = OpenTypeConverter.toConverter(retType);
     }
   }
@@ -57,7 +56,7 @@ public class CompositeConverter extends OpenTypeConverter {
    */
   @Override
   Object toNonNullOpenValue(Object value) throws OpenDataException {
-    CompositeType ct = (CompositeType) getOpenType();
+    var ct = (CompositeType) getOpenType();
     if (value instanceof CompositeDataView) {
       return ((CompositeDataView) value).toCompositeData(ct);
     }
@@ -65,10 +64,10 @@ public class CompositeConverter extends OpenTypeConverter {
       return null;
     }
 
-    Object[] values = new Object[getters.length];
-    for (int i = 0; i < getters.length; i++) {
+    var values = new Object[getters.length];
+    for (var i = 0; i < getters.length; i++) {
       try {
-        Object got = getters[i].invoke(value, (Object[]) null);
+        var got = getters[i].invoke(value, (Object[]) null);
         values[i] = getterConverters[i].toOpenValue(got);
       } catch (Exception e) {
         throw openDataException("Error calling getter for " + itemNames[i] + ": " + e, e);
@@ -89,24 +88,25 @@ public class CompositeConverter extends OpenTypeConverter {
 
     Class targetClass = (Class<?>) getTargetType();
 
-    CompositeBuilder[][] builders = {{new CompositeBuilderViaFrom(targetClass, itemNames),},
+    var builders = new CompositeBuilder[][] {
+        {new CompositeBuilderViaFrom(targetClass, itemNames),},
         {new CompositeBuilderViaConstructor(targetClass, itemNames),},
         {new CompositeBuilderCheckGetters(targetClass, itemNames, getterConverters),
             new CompositeBuilderViaSetters(targetClass, itemNames),
             new CompositeBuilderViaProxy(targetClass, itemNames),},};
     CompositeBuilder foundBuilder = null;
 
-    StringBuilder whyNots = new StringBuilder();
+    var whyNots = new StringBuilder();
     Throwable possibleCause = null;
-    find: for (CompositeBuilder[] relatedBuilders : builders) {
-      for (int i = 0; i < relatedBuilders.length; i++) {
-        CompositeBuilder builder = relatedBuilders[i];
-        String whyNot = builder.applicable(getters);
+    find: for (var relatedBuilders : builders) {
+      for (var i = 0; i < relatedBuilders.length; i++) {
+        var builder = relatedBuilders[i];
+        var whyNot = builder.applicable(getters);
         if (whyNot == null) {
           foundBuilder = builder;
           break find;
         }
-        Throwable cause = builder.possibleCause();
+        var cause = builder.possibleCause();
         if (cause != null) {
           possibleCause = cause;
         }
@@ -122,7 +122,7 @@ public class CompositeConverter extends OpenTypeConverter {
       }
     }
     if (foundBuilder == null) {
-      String msg = "Do not know how to make a " + targetClass.getName() + " from a CompositeData: "
+      var msg = "Do not know how to make a " + targetClass.getName() + " from a CompositeData: "
           + whyNots;
       if (possibleCause != null) {
         msg += ". Remaining exceptions show a POSSIBLE cause.";

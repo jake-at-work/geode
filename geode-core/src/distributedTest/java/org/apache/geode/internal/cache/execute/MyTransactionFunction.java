@@ -19,7 +19,6 @@ import java.util.Iterator;
 
 import util.TestException;
 
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CommitConflictException;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.Region;
@@ -35,10 +34,7 @@ import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
-import org.apache.geode.internal.cache.TXEntryState;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXRegionState;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.execute.PRTransactionDUnitTest.TransactionListener2;
 import org.apache.geode.internal.cache.execute.data.CustId;
 import org.apache.geode.internal.cache.execute.data.Customer;
@@ -49,10 +45,10 @@ public class MyTransactionFunction implements Function {
 
   @Override
   public void execute(FunctionContext context) {
-    RegionFunctionContext ctx = (RegionFunctionContext) context;
+    var ctx = (RegionFunctionContext) context;
     verifyExecutionOnPrimary(ctx);
-    ArrayList args = (ArrayList) ctx.getArguments();
-    Integer testOperation = (Integer) args.get(0);
+    var args = (ArrayList) ctx.getArguments();
+    var testOperation = (Integer) args.get(0);
     int op = testOperation;
     switch (op) {
       case PRTransactionDUnitTest.VERIFY_TX:
@@ -99,12 +95,12 @@ public class MyTransactionFunction implements Function {
   private void verifyTransactionExecution(RegionFunctionContext ctx) {
     Region custPR = ctx.getDataSet();
     Region orderPR = custPR.getCache().getRegion(PRTransactionDUnitTest.OrderPartitionedRegionName);
-    CacheTransactionManager mgr = custPR.getCache().getCacheTransactionManager();
-    ArrayList args = (ArrayList) ctx.getArguments();
-    CustId custId = (CustId) args.get(1);
-    Customer newCus = (Customer) args.get(2);
-    OrderId orderId = (OrderId) args.get(3);
-    Order order = (Order) args.get(4);
+    var mgr = custPR.getCache().getCacheTransactionManager();
+    var args = (ArrayList) ctx.getArguments();
+    var custId = (CustId) args.get(1);
+    var newCus = (Customer) args.get(2);
+    var orderId = (OrderId) args.get(3);
+    var order = (Order) args.get(4);
     mgr.begin();
     custPR.put(custId, newCus);
     Assert.assertTrue(custPR.containsKey(custId));
@@ -113,15 +109,15 @@ public class MyTransactionFunction implements Function {
     Assert.assertTrue(orderPR.containsKey(orderId));
     Assert.assertTrue(orderPR.containsValueForKey(orderId));
     mgr.commit();
-    Customer commitedCust = (Customer) custPR.get(custId);
+    var commitedCust = (Customer) custPR.get(custId);
     Assert.assertTrue(newCus.equals(commitedCust),
         "Expected Customer to be:" + newCus + " but was:" + commitedCust);
-    Order commitedOrder = (Order) orderPR.get(orderId);
+    var commitedOrder = (Order) orderPR.get(orderId);
     Assert.assertTrue(order.equals(commitedOrder),
         "Expected Order to be:" + order + " but was:" + commitedOrder);
     // put a never before put key
-    OrderId newOrderId = new OrderId(4000, custId);
-    Order newOrder = new Order("NewOrder");
+    var newOrderId = new OrderId(4000, custId);
+    var newOrder = new Order("NewOrder");
     mgr.begin();
     custPR.put(custId, newCus);
     orderPR.put(newOrderId, newOrder);
@@ -134,13 +130,13 @@ public class MyTransactionFunction implements Function {
   private void verifyDestroyOperation(RegionFunctionContext ctx) {
     Region custPR = ctx.getDataSet();
     Region orderPR = custPR.getCache().getRegion(PRColocationDUnitTest.OrderPartitionedRegionName);
-    CacheTransactionManager mgr = custPR.getCache().getCacheTransactionManager();
-    ArrayList args = (ArrayList) ctx.getArguments();
-    CustId custId = (CustId) args.get(1);
-    Customer newCus = (Customer) args.get(2);
-    OrderId orderId = (OrderId) args.get(3);
-    Order order = (Order) args.get(4);
-    Customer oldCustomer = (Customer) custPR.get(custId);
+    var mgr = custPR.getCache().getCacheTransactionManager();
+    var args = (ArrayList) ctx.getArguments();
+    var custId = (CustId) args.get(1);
+    var newCus = (Customer) args.get(2);
+    var orderId = (OrderId) args.get(3);
+    var order = (Order) args.get(4);
+    var oldCustomer = (Customer) custPR.get(custId);
     Customer commitedCust = null;
     // test destroy rollback
     mgr.begin();
@@ -160,10 +156,10 @@ public class MyTransactionFunction implements Function {
     Assert.assertTrue(oldCustomer.equals(commitedCust),
         "Expected customer to rollback to:" + oldCustomer + " but was:" + commitedCust);
     // test remote destroy
-    boolean caughtEx = false;
+    var caughtEx = false;
     try {
       mgr.begin();
-      Customer cust = new Customer("foo", "bar");
+      var cust = new Customer("foo", "bar");
       custPR.put(custId, cust);
       custPR.destroy(custId);
       custPR.putIfAbsent(custId, cust);
@@ -196,7 +192,7 @@ public class MyTransactionFunction implements Function {
     mgr.commit();
     commitedCust = (Customer) custPR.get(custId);
     Assert.assertTrue(commitedCust == null, "Expected Customer to be null but was:" + commitedCust);
-    Order commitedOrder = (Order) orderPR.get(orderId);
+    var commitedOrder = (Order) orderPR.get(orderId);
     Assert.assertTrue(order.equals(commitedOrder),
         "Expected Order to be:" + order + " but was:" + commitedOrder);
     // put the customer again for invalidate verification
@@ -205,9 +201,9 @@ public class MyTransactionFunction implements Function {
     mgr.commit();
     // test destroy on new entry
     // TODO: This throws EntryNotFound
-    OrderId newOrderId = new OrderId(5000, custId);
+    var newOrderId = new OrderId(5000, custId);
     mgr.begin();
-    Order newOrder = new Order("New Order to be destroyed");
+    var newOrder = new Order("New Order to be destroyed");
     orderPR.put(newOrderId, newOrder);
     orderPR.destroy(newOrderId);
     mgr.commit();
@@ -215,8 +211,8 @@ public class MyTransactionFunction implements Function {
 
     // test ConcurrentMap operations
     mgr.begin();
-    Order order1 = new Order("New Order to be replaced");
-    Order order2 = new Order("New Order to be destroyed");
+    var order1 = new Order("New Order to be replaced");
+    var order2 = new Order("New Order to be destroyed");
     orderPR.putIfAbsent(newOrderId, order1);
     Assert.assertTrue(order1.equals(orderPR.replace(newOrderId, order2)));
     mgr.commit(); // value is order2
@@ -239,13 +235,13 @@ public class MyTransactionFunction implements Function {
   private void verifyInvalidateOperation(RegionFunctionContext ctx) {
     Region custPR = ctx.getDataSet();
     Region orderPR = custPR.getCache().getRegion(PRTransactionDUnitTest.OrderPartitionedRegionName);
-    CacheTransactionManager mgr = custPR.getCache().getCacheTransactionManager();
-    ArrayList args = (ArrayList) ctx.getArguments();
-    CustId custId = (CustId) args.get(1);
-    Customer newCus = (Customer) args.get(2);
-    OrderId orderId = (OrderId) args.get(3);
-    Order order = (Order) args.get(4);
-    Customer oldCustomer = (Customer) custPR.get(custId);
+    var mgr = custPR.getCache().getCacheTransactionManager();
+    var args = (ArrayList) ctx.getArguments();
+    var custId = (CustId) args.get(1);
+    var newCus = (Customer) args.get(2);
+    var orderId = (OrderId) args.get(3);
+    var order = (Order) args.get(4);
+    var oldCustomer = (Customer) custPR.get(custId);
     Customer commitedCust = null;
     // test destroy rollback
     mgr.begin();
@@ -265,7 +261,7 @@ public class MyTransactionFunction implements Function {
     Assert.assertTrue(oldCustomer.equals(commitedCust),
         "Expected customer to rollback to:" + oldCustomer + " but was:" + commitedCust);
     // test remote destroy
-    boolean caughtEx = false;
+    var caughtEx = false;
     try {
       mgr.begin();
       custPR.put(custId, new Customer("foo", "bar"));
@@ -297,7 +293,7 @@ public class MyTransactionFunction implements Function {
     mgr.commit();
     commitedCust = (Customer) custPR.get(custId);
     Assert.assertTrue(commitedCust == null, "Expected Customer to be null but was:" + commitedCust);
-    Order commitedOrder = (Order) orderPR.get(orderId);
+    var commitedOrder = (Order) orderPR.get(orderId);
     Assert.assertTrue(order.equals(commitedOrder),
         "Expected Order to be:" + order + " but was:" + commitedOrder);
     // test destroy on new entry
@@ -312,28 +308,28 @@ public class MyTransactionFunction implements Function {
   private void verifyTransactionRollback(RegionFunctionContext ctx) {
     Region custPR = ctx.getDataSet();
     Region orderPR = custPR.getCache().getRegion(PRTransactionDUnitTest.OrderPartitionedRegionName);
-    CacheTransactionManager mgr = custPR.getCache().getCacheTransactionManager();
-    ArrayList args = (ArrayList) ctx.getArguments();
-    CustId custId = (CustId) args.get(1);
-    Customer newCus = (Customer) args.get(2);
-    OrderId orderId = (OrderId) args.get(3);
-    Order order = (Order) args.get(4);
-    Customer oldCustomer = (Customer) custPR.get(custId);
-    Order oldOrder = (Order) orderPR.get(orderId);
+    var mgr = custPR.getCache().getCacheTransactionManager();
+    var args = (ArrayList) ctx.getArguments();
+    var custId = (CustId) args.get(1);
+    var newCus = (Customer) args.get(2);
+    var orderId = (OrderId) args.get(3);
+    var order = (Order) args.get(4);
+    var oldCustomer = (Customer) custPR.get(custId);
+    var oldOrder = (Order) orderPR.get(orderId);
     mgr.begin();
     custPR.put(custId, newCus);
-    Customer txCust = (Customer) custPR.get(custId);
+    var txCust = (Customer) custPR.get(custId);
     orderPR.put(orderId, order);
-    Order txOrder = (Order) orderPR.get(orderId);
+    var txOrder = (Order) orderPR.get(orderId);
     Assert.assertTrue(newCus.equals(txCust),
         "Expected Customer to be:" + newCus + " but was:" + txCust);
     Assert.assertTrue(txOrder.equals(order),
         "Expected Order to be:" + order + " but was:" + txOrder);
     mgr.rollback();
-    Customer commitedCust = (Customer) custPR.get(custId);
+    var commitedCust = (Customer) custPR.get(custId);
     Assert.assertTrue(oldCustomer.equals(commitedCust),
         "Expected Customer to be:" + oldCustomer + " but was:" + commitedCust);
-    Order commitedOrder = (Order) orderPR.get(orderId);
+    var commitedOrder = (Order) orderPR.get(orderId);
     Assert.assertTrue(oldOrder.equals(commitedOrder),
         "Expected Order to be:" + oldOrder + " but was:" + commitedOrder);
 
@@ -358,12 +354,12 @@ public class MyTransactionFunction implements Function {
   private void verifyNonCoLocatedOpsRejection(RegionFunctionContext ctx) {
     Region custPR = ctx.getDataSet();
     Region orderPR = custPR.getCache().getRegion(PRTransactionDUnitTest.OrderPartitionedRegionName);
-    CacheTransactionManager mgr = custPR.getCache().getCacheTransactionManager();
-    ArrayList args = (ArrayList) ctx.getArguments();
-    CustId custId = (CustId) args.get(1);
-    Customer newCus = (Customer) args.get(2);
-    OrderId orderId = (OrderId) args.get(3);
-    Order order = (Order) args.get(4);
+    var mgr = custPR.getCache().getCacheTransactionManager();
+    var args = (ArrayList) ctx.getArguments();
+    var custId = (CustId) args.get(1);
+    var newCus = (Customer) args.get(2);
+    var orderId = (OrderId) args.get(3);
+    var order = (Order) args.get(4);
     mgr.begin();
     try {
       custPR.put(custId, newCus);
@@ -379,7 +375,7 @@ public class MyTransactionFunction implements Function {
 
   private void verifyListenerCallback(RegionFunctionContext ctx) {
     verifyTransactionExecution(ctx);
-    TransactionListener2 listener =
+    var listener =
         (TransactionListener2) ctx.getDataSet().getAttributes().getCacheListeners()[0];
     Assert.assertTrue(listener.getNumberOfPutCallbacks() == 2,
         "Expected 2 put callback, but " + "got " + listener.getNumberOfPutCallbacks());
@@ -393,12 +389,12 @@ public class MyTransactionFunction implements Function {
   }
 
   private void verifyExecutionOnPrimary(RegionFunctionContext ctx) {
-    PartitionedRegion pr = (PartitionedRegion) ctx.getDataSet();
-    ArrayList args = (ArrayList) ctx.getArguments();
-    CustId custId = (CustId) args.get(1);
-    int bucketId = PartitionedRegionHelper.getHashKey(pr, null, custId, null, null);
+    var pr = (PartitionedRegion) ctx.getDataSet();
+    var args = (ArrayList) ctx.getArguments();
+    var custId = (CustId) args.get(1);
+    var bucketId = PartitionedRegionHelper.getHashKey(pr, null, custId, null, null);
     DistributedMember primary = pr.getRegionAdvisor().getPrimaryMemberForBucket(bucketId);
-    DistributedMember me = pr.getCache().getDistributedSystem().getDistributedMember();
+    var me = pr.getCache().getDistributedSystem().getDistributedMember();
     Assert.assertTrue(me.equals(primary), "Function should have been executed on primary:" + primary
         + " but was executed on member:" + me);
   }
@@ -406,32 +402,32 @@ public class MyTransactionFunction implements Function {
   private void verifyTxStateAndConflicts(RegionFunctionContext ctx) {
     Region custPR = ctx.getDataSet();
     Region orderPR = custPR.getCache().getRegion(PRTransactionDUnitTest.OrderPartitionedRegionName);
-    ArrayList args = (ArrayList) ctx.getArguments();
-    CustId custId = (CustId) args.get(1);
-    CacheTransactionManager mgr = custPR.getCache().getCacheTransactionManager();
-    OrderId vOrderId = new OrderId(3000, custId);
-    Order vOrder = new Order("vOrder");
-    TXManagerImpl mImp = (TXManagerImpl) mgr;
+    var args = (ArrayList) ctx.getArguments();
+    var custId = (CustId) args.get(1);
+    var mgr = custPR.getCache().getCacheTransactionManager();
+    var vOrderId = new OrderId(3000, custId);
+    var vOrder = new Order("vOrder");
+    var mImp = (TXManagerImpl) mgr;
     mImp.begin();
     orderPR.put(vOrderId, vOrder);
-    TXStateProxy txState = mImp.pauseTransaction();
+    var txState = mImp.pauseTransaction();
     Iterator it = txState.getRegions().iterator();
     Assert.assertTrue(txState.getRegions().size() == 1,
         "Expected 1 region; " + "found:" + txState.getRegions().size());
-    LocalRegion lr = (LocalRegion) it.next();
+    var lr = (LocalRegion) it.next();
     Assert.assertTrue(lr instanceof BucketRegion);
-    TXRegionState txRegion = txState.readRegion(lr);
-    TXEntryState txEntry = txRegion.readEntry(txRegion.getEntryKeys().iterator().next());
+    var txRegion = txState.readRegion(lr);
+    var txEntry = txRegion.readEntry(txRegion.getEntryKeys().iterator().next());
     mImp.unpauseTransaction(txState);
     orderPR.put(vOrderId, new Order("foo"));
     TransactionId txId = null;
     txId = mImp.suspend();
     // since both puts were on same key, verify that
     // TxRegionState and TXEntryState are same
-    LocalRegion lr1 = (LocalRegion) txState.getRegions().iterator().next();
+    var lr1 = (LocalRegion) txState.getRegions().iterator().next();
     Assert.assertTrue(lr == lr1);
-    TXRegionState txRegion1 = txState.readRegion(lr);
-    TXEntryState txEntry1 = txRegion1.readEntry(txRegion.getEntryKeys().iterator().next());
+    var txRegion1 = txState.readRegion(lr);
+    var txEntry1 = txRegion1.readEntry(txRegion.getEntryKeys().iterator().next());
     Assert.assertTrue(txEntry == txEntry1);
     // to check for conflicts, start a new transaction, operate on same key,
     // commit the second and expect the first to fail
@@ -440,7 +436,7 @@ public class MyTransactionFunction implements Function {
     mImp.commit();
     // now begin the first
     mImp.resume(txId);
-    boolean caughtException = false;
+    var caughtException = false;
     try {
       mImp.commit();
     } catch (CommitConflictException e) {
@@ -454,25 +450,25 @@ public class MyTransactionFunction implements Function {
   private void verifyRepeatableRead(RegionFunctionContext ctx) {
     Region custPR = ctx.getDataSet();
     Region orderPR = custPR.getCache().getRegion(PRColocationDUnitTest.OrderPartitionedRegionName);
-    ArrayList args = (ArrayList) ctx.getArguments();
-    CustId custId = (CustId) args.get(1);
-    Customer cust = (Customer) args.get(2);
+    var args = (ArrayList) ctx.getArguments();
+    var custId = (CustId) args.get(1);
+    var cust = (Customer) args.get(2);
     Assert.assertTrue(custPR.get(custId) == null);
-    CacheTransactionManager mgr = custPR.getCache().getCacheTransactionManager();
-    TXManagerImpl mImp = (TXManagerImpl) mgr;
+    var mgr = custPR.getCache().getCacheTransactionManager();
+    var mImp = (TXManagerImpl) mgr;
     mImp.begin();
     custPR.put(custId, cust);
     Assert.assertTrue(cust.equals(custPR.get(custId)));
-    TXStateProxy txState = mImp.pauseTransaction();
+    var txState = mImp.pauseTransaction();
     Assert.assertTrue(custPR.get(custId) == null);
     mImp.unpauseTransaction(txState);
     mImp.commit();
     // change value
     mImp.begin();
-    Customer oldCust = (Customer) custPR.get(custId);
+    var oldCust = (Customer) custPR.get(custId);
     Assert.assertTrue(oldCust.equals(cust));
     txState = mImp.pauseTransaction();
-    Customer newCust = new Customer("fooNew", "barNew");
+    var newCust = new Customer("fooNew", "barNew");
     custPR.put(custId, newCust);
     mImp.unpauseTransaction(txState);
     Assert.assertTrue(oldCust.equals(custPR.get(custId)));
@@ -482,9 +478,9 @@ public class MyTransactionFunction implements Function {
   private void updateNonColocation(RegionFunctionContext ctx) {
     Region custPR = ctx.getDataSet();
 
-    ArrayList args = (ArrayList) ctx.getArguments();
-    CustId custId = (CustId) args.get(1);
-    Customer newCus = (Customer) args.get(2);
+    var args = (ArrayList) ctx.getArguments();
+    var custId = (CustId) args.get(1);
+    var newCus = (Customer) args.get(2);
 
     custPR.put(custId, newCus);
     Assert.assertTrue(custPR.containsKey(custId));

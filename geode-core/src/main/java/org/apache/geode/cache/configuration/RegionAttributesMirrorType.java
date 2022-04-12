@@ -62,7 +62,7 @@ public enum RegionAttributesMirrorType {
   }
 
   public static RegionAttributesMirrorType fromValue(String v) {
-    for (RegionAttributesMirrorType c : RegionAttributesMirrorType.values()) {
+    for (var c : RegionAttributesMirrorType.values()) {
       if (c.value.equals(v)) {
         return c;
       }

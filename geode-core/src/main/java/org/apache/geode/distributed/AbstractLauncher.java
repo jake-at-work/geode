@@ -171,9 +171,9 @@ public abstract class AbstractLauncher<T extends Comparable<T>> implements Runna
     if (url == null) {
       return new Properties();
     }
-    Properties properties = new Properties();
+    var properties = new Properties();
 
-    try (FileReader reader = new FileReader(new File(url.toURI()))) {
+    try (var reader = new FileReader(new File(url.toURI()))) {
       properties.load(reader);
     } catch (IOException | URISyntaxException handled) {
       // not in the file system, try the classpath
@@ -243,7 +243,7 @@ public abstract class AbstractLauncher<T extends Comparable<T>> implements Runna
    * @see java.util.Properties
    */
   protected Properties getDistributedSystemProperties(final Properties defaults) {
-    final Properties distributedSystemProperties = new Properties();
+    final var distributedSystemProperties = new Properties();
 
     if (defaults != null) {
       distributedSystemProperties.putAll(defaults);
@@ -314,7 +314,7 @@ public abstract class AbstractLauncher<T extends Comparable<T>> implements Runna
    * @return a String value indicating the ID of the member in the GemFire distributed system.
    */
   public String getMemberId() {
-    final InternalDistributedSystem distributedSystem =
+    final var distributedSystem =
         InternalDistributedSystem.getConnectedInstance();
     return distributedSystem != null ? distributedSystem.getMemberId() : null;
   }
@@ -326,7 +326,7 @@ public abstract class AbstractLauncher<T extends Comparable<T>> implements Runna
    * @return a String value indicating the name of the member in the GemFire distributed system.
    */
   public String getMemberName() {
-    final InternalDistributedSystem distributedSystem =
+    final var distributedSystem =
         InternalDistributedSystem.getConnectedInstance();
     return distributedSystem != null ? distributedSystem.getConfig().getName() : null;
   }
@@ -445,7 +445,7 @@ public abstract class AbstractLauncher<T extends Comparable<T>> implements Runna
   }
 
   boolean isPidInProcess() {
-    Integer pid = getPid();
+    var pid = getPid();
     return pid != null && pid == identifyPidOrNot();
   }
 
@@ -519,24 +519,24 @@ public abstract class AbstractLauncher<T extends Comparable<T>> implements Runna
     }
 
     protected static String toDaysHoursMinutesSeconds(final Long milliseconds) {
-      final StringBuilder buffer = new StringBuilder();
+      final var buffer = new StringBuilder();
 
       if (milliseconds != null) {
         long millisecondsRemaining = milliseconds;
 
-        final long days = TimeUnit.MILLISECONDS.toDays(millisecondsRemaining);
+        final var days = TimeUnit.MILLISECONDS.toDays(millisecondsRemaining);
 
         millisecondsRemaining -= TimeUnit.DAYS.toMillis(days);
 
-        final long hours = TimeUnit.MILLISECONDS.toHours(millisecondsRemaining);
+        final var hours = TimeUnit.MILLISECONDS.toHours(millisecondsRemaining);
 
         millisecondsRemaining -= TimeUnit.HOURS.toMillis(hours);
 
-        final long minutes = TimeUnit.MILLISECONDS.toMinutes(millisecondsRemaining);
+        final var minutes = TimeUnit.MILLISECONDS.toMinutes(millisecondsRemaining);
 
         millisecondsRemaining -= TimeUnit.MINUTES.toMillis(minutes);
 
-        final long seconds = TimeUnit.MILLISECONDS.toSeconds(millisecondsRemaining);
+        final var seconds = TimeUnit.MILLISECONDS.toSeconds(millisecondsRemaining);
 
         if (days > 0) {
           buffer.append(days).append(days > 1 ? " days " : " day ");
@@ -786,7 +786,7 @@ public abstract class AbstractLauncher<T extends Comparable<T>> implements Runna
      */
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       switch (getStatus()) {
         case STARTING:
           sb.append("Starting %s in %s on %s as %s at %s").append(System.lineSeparator());
@@ -873,7 +873,7 @@ public abstract class AbstractLauncher<T extends Comparable<T>> implements Runna
      * @return a Status enumerated type matching the description.
      */
     public static Status valueOfDescription(final String description) {
-      for (Status status : values()) {
+      for (var status : values()) {
         if (status.getDescription().equalsIgnoreCase(description)) {
           return status;
         }

@@ -68,20 +68,20 @@ public class PerfQuery {
   }
 
   public void run() throws Exception {
-    Date startTime = new Date();
+    var startTime = new Date();
     setUp();
-    DateFormat formatter = DateFormat.getDateTimeInstance();
+    var formatter = DateFormat.getDateTimeInstance();
     System.out.println("Test started at: " + formatter.format(startTime));
     runQueries();
     printSummary();
     tearDown();
-    Date endTime = new Date();
+    var endTime = new Date();
     System.out.println("Test ended at: " + formatter.format(endTime));
-    long durationMs = endTime.getTime() - startTime.getTime();
-    long durationS = durationMs / 1000;
-    long durationM = durationS / 60;
-    long durationMM = durationM % 60;
-    long durationH = durationM / 60;
+    var durationMs = endTime.getTime() - startTime.getTime();
+    var durationS = durationMs / 1000;
+    var durationM = durationS / 60;
+    var durationMM = durationM % 60;
+    var durationH = durationM / 60;
     System.out.println("Test took " + durationH + "hrs, " + durationMM + "min.");
   }
 
@@ -92,19 +92,19 @@ public class PerfQuery {
     System.out.println("Average query execution time in ms");
     System.out.println();
 
-    String[] setNames = new String[] {"33% Retrieval", "0% Retrieval"};
-    for (int setI = 0; setI < setNames.length; setI++) {
-      String setName = setNames[setI];
+    var setNames = new String[] {"33% Retrieval", "0% Retrieval"};
+    for (var setI = 0; setI < setNames.length; setI++) {
+      var setName = setNames[setI];
       System.out.println(setName + ":");
       System.out.println("dataset size,hand-coded,brute-force,indexed,[index-create-time]");
 
-      for (int szi = 0; szi < DATA_SET_SIZES.length; szi++) {
+      for (var szi = 0; szi < DATA_SET_SIZES.length; szi++) {
         System.out.print(DATA_SET_SIZES[szi]);
         System.out.print(',');
-        for (int ti = HAND_CODED; ti <= INDEX_CREATE; ti++) {
+        for (var ti = HAND_CODED; ti <= INDEX_CREATE; ti++) {
 
           // skip over first set of each type, which was warm up
-          int ix = ((setI + 1) * DATA_SET_SIZES.length) + szi;
+          var ix = ((setI + 1) * DATA_SET_SIZES.length) + szi;
 
           System.out.print(results[ti].get(ix));
           if (ti < INDEX_CREATE) {
@@ -152,18 +152,18 @@ public class PerfQuery {
     System.out.println("Executing Query: " + query.getQueryString());
     System.out.println("Num iterations=" + NUM_ITERATIONS);
     System.out.println();
-    boolean indexed = execType == INDEXED;
-    for (int num : DATA_SET_SIZES) {
+    var indexed = execType == INDEXED;
+    for (var num : DATA_SET_SIZES) {
       populate(num, indexed);
       System.out.println("Executing (" + execTypeStrings[execType] + ")...");
-      long startTime = NanoTimer.getTime();
+      var startTime = NanoTimer.getTime();
       SelectResults results = null;
-      for (int j = 0; j < NUM_ITERATIONS; j++) {
+      for (var j = 0; j < NUM_ITERATIONS; j++) {
         results = (SelectResults) query.execute();
       }
-      long totalTime = NanoTimer.getTime() - startTime;
+      var totalTime = NanoTimer.getTime() - startTime;
       System.out.println("results size =" + results.size());
-      float aveTime = totalTime / NUM_ITERATIONS / 1e6f;
+      var aveTime = totalTime / NUM_ITERATIONS / 1e6f;
       System.out.println("ave execution time=" + aveTime + " ms");
       this.results[execType].add(aveTime);
       System.out.println();
@@ -180,8 +180,8 @@ public class PerfQuery {
       public Object execute() {
         Region region = cache.getRegion(SEPARATOR + "portfolios");
         SelectResults results = new ResultsSet();
-        for (final Object o : region.values()) {
-          Portfolio ptflo = (Portfolio) o;
+        for (final var o : region.values()) {
+          var ptflo = (Portfolio) o;
           if ("type1".equals(ptflo.getType())) {
             results.add(ptflo);
           }
@@ -197,8 +197,8 @@ public class PerfQuery {
       public Object execute() {
         Region region = cache.getRegion(SEPARATOR + "portfolios");
         SelectResults results = new ResultsSet();
-        for (final Object o : region.values()) {
-          Portfolio ptflo = (Portfolio) o;
+        for (final var o : region.values()) {
+          var ptflo = (Portfolio) o;
           if ("miss".equals(ptflo.getType())) {
             results.add(ptflo);
           }
@@ -214,7 +214,7 @@ public class PerfQuery {
   private void setUp() throws CacheException {
     ds = DistributedSystem.connect(new Properties());
     cache = CacheFactory.create(ds);
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setValueConstraint(Portfolio.class);
     regionAttributes = attributesFactory.create();
     qs = cache.getQueryService();
@@ -230,14 +230,14 @@ public class PerfQuery {
       region.localDestroyRegion();
     }
     region = cache.createRegion("portfolios", regionAttributes);
-    for (int i = 0; i < numPortfolios; i++) {
+    for (var i = 0; i < numPortfolios; i++) {
       region.put(String.valueOf(i), new Portfolio(i));
     }
     if (indexed) {
       System.out.println("Creating index...");
-      long startNanos = NanoTimer.getTime();
+      var startNanos = NanoTimer.getTime();
       qs.createIndex("portfolios", IndexType.FUNCTIONAL, "type", SEPARATOR + "portfolios");
-      float createTime = (NanoTimer.getTime() - startNanos) / 1e6f;
+      var createTime = (NanoTimer.getTime() - startNanos) / 1e6f;
       System.out.println("Index created in " + createTime + " ms.");
       results[INDEX_CREATE].add(createTime);
     }
@@ -249,12 +249,12 @@ public class PerfQuery {
       region.localDestroyRegion();
     }
     region = cache.createRegion("portfolios", regionAttributes);
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region.put(String.valueOf(i), new Portfolio(i));
     }
     System.out.println("Warming up index creation...");
-    for (int i = 0; i < 20000; i++) {
-      Index index =
+    for (var i = 0; i < 20000; i++) {
+      var index =
           qs.createIndex("portfolios", IndexType.FUNCTIONAL, "type", SEPARATOR + "portfolios");
       qs.removeIndex(index);
     }

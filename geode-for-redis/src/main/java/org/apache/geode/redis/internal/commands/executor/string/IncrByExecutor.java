@@ -15,14 +15,10 @@
 package org.apache.geode.redis.internal.commands.executor.string;
 
 
-import java.util.List;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -35,11 +31,11 @@ public class IncrByExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
+    var commandElems = command.getProcessedCommand();
+    var region = context.getRegion();
+    var key = command.getKey();
 
-    byte[] incrArray = commandElems.get(INCREMENT_INDEX);
+    var incrArray = commandElems.get(INCREMENT_INDEX);
     long increment;
 
     try {
@@ -48,7 +44,7 @@ public class IncrByExecutor implements CommandExecutor {
       return RedisResponse.error(ERROR_INCREMENT_NOT_USABLE);
     }
 
-    byte[] value = context.stringLockedExecute(key, false,
+    var value = context.stringLockedExecute(key, false,
         string -> string.incrby(region, key, increment));
 
     return RedisResponse.integer(value);

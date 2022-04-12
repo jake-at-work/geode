@@ -15,8 +15,6 @@
 
 package org.apache.geode.modules.session.internal.filter;
 
-import com.mockrunner.mock.web.MockFilterConfig;
-import com.mockrunner.mock.web.WebMockObjectFactory;
 import org.junit.Before;
 import org.junit.experimental.categories.Category;
 
@@ -35,8 +33,8 @@ public class SessionReplicationLocalCacheJUnitTest extends CommonTests {
   public void setUp() throws Exception {
     super.setUp();
 
-    WebMockObjectFactory factory = getWebMockObjectFactory();
-    MockFilterConfig config = factory.getMockFilterConfig();
+    var factory = getWebMockObjectFactory();
+    var config = factory.getMockFilterConfig();
 
     config.setInitParameter(GeodeGlossary.GEMFIRE_PREFIX + "property.mcast-port", "0");
     config.setInitParameter("cache-type", "peer-to-peer");

@@ -95,7 +95,7 @@ public class OpExecutorImplJUnitTest {
   public void testExecute() {
     ExecutablePool exec = new OpExecutorImpl(manager, queueManager, endpointManager, riTracker, 3,
         10, PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT, cancelCriterion, null);
-    Object result = exec.execute(cnx -> "hello");
+    var result = exec.execute(cnx -> "hello");
 
     assertThat(result).isEqualTo("hello");
     assertThat(borrows).isEqualTo(1);
@@ -105,7 +105,7 @@ public class OpExecutorImplJUnitTest {
 
     reset();
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       exec.execute(cnx -> {
         throw new SocketTimeoutException("test");
       });
@@ -155,7 +155,7 @@ public class OpExecutorImplJUnitTest {
 
     manager.numServers = 5;
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       exec.execute(cnx -> {
         throw new IOException("Something didn't work");
       });
@@ -176,7 +176,7 @@ public class OpExecutorImplJUnitTest {
 
     manager.numServers = 5;
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       exec.execute(cnx -> {
         throw new IOException("Something didn't work");
       });
@@ -194,8 +194,8 @@ public class OpExecutorImplJUnitTest {
   public void testExecuteOn() {
     ExecutablePool exec = new OpExecutorImpl(manager, queueManager, endpointManager, riTracker, 3,
         10, PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT, cancelCriterion, null);
-    ServerLocation server = new ServerLocation("localhost", -1);
-    Object result = exec.executeOn(server, cnx -> "hello");
+    var server = new ServerLocation("localhost", -1);
+    var result = exec.executeOn(server, cnx -> "hello");
 
     assertThat(result).isEqualTo("hello");
     assertThat(borrows).isEqualTo(1);
@@ -205,7 +205,7 @@ public class OpExecutorImplJUnitTest {
 
     reset();
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       exec.executeOn(server, cnx -> {
         throw new SocketTimeoutException("test");
       });
@@ -272,7 +272,7 @@ public class OpExecutorImplJUnitTest {
     reset();
 
     queueManager.backups = 3;
-    Object result = exec.executeOnQueuesAndReturnPrimaryResult(new Op() {
+    var result = exec.executeOnQueuesAndReturnPrimaryResult(new Op() {
       private int i;
 
       @Override
@@ -294,12 +294,12 @@ public class OpExecutorImplJUnitTest {
 
   @Test
   public void executeWithServerAffinityDoesNotChangeInitialRetryCountOfZero() {
-    OpExecutorImpl opExecutor =
+    var opExecutor =
         new OpExecutorImpl(manager, queueManager, endpointManager, riTracker, -1,
             10, PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT, cancelCriterion,
             mock(PoolImpl.class));
     Op txSynchronizationOp = mock(TXSynchronizationOp.Impl.class);
-    ServerLocation serverLocation = mock(ServerLocation.class);
+    var serverLocation = mock(ServerLocation.class);
     opExecutor.setAffinityRetryCount(0);
 
     opExecutor.executeWithServerAffinity(serverLocation, txSynchronizationOp);
@@ -309,12 +309,12 @@ public class OpExecutorImplJUnitTest {
 
   @Test
   public void executeWithServerAffinityWithNonZeroAffinityRetryCountWillNotSetToZero() {
-    OpExecutorImpl opExecutor =
+    var opExecutor =
         new OpExecutorImpl(manager, queueManager, endpointManager, riTracker, -1,
             10, PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT, cancelCriterion,
             mock(PoolImpl.class));
     Op txSynchronizationOp = mock(TXSynchronizationOp.Impl.class);
-    ServerLocation serverLocation = mock(ServerLocation.class);
+    var serverLocation = mock(ServerLocation.class);
     opExecutor.setAffinityRetryCount(1);
 
     opExecutor.executeWithServerAffinity(serverLocation, txSynchronizationOp);
@@ -324,13 +324,13 @@ public class OpExecutorImplJUnitTest {
 
   @Test
   public void executeWithServerAffinityWithServerConnectivityExceptionIncrementsRetryCountAndResetsToZero() {
-    OpExecutorImpl opExecutor =
+    var opExecutor =
         spy(new OpExecutorImpl(manager, queueManager, endpointManager, riTracker, -1,
             10, PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT, cancelCriterion,
             mock(PoolImpl.class)));
     AbstractOp txSynchronizationOp = mock(TXSynchronizationOp.Impl.class);
-    ServerLocation serverLocation = mock(ServerLocation.class);
-    ServerConnectivityException serverConnectivityException =
+    var serverLocation = mock(ServerLocation.class);
+    var serverConnectivityException =
         new ServerConnectivityException("test");
     doThrow(serverConnectivityException)
         .when(opExecutor)
@@ -348,13 +348,13 @@ public class OpExecutorImplJUnitTest {
 
   @Test
   public void executeWithServerAffinityAndRetryCountGreaterThansTxRetryAttemptThrowsServerConnectivityException() {
-    OpExecutorImpl opExecutor =
+    var opExecutor =
         spy(new OpExecutorImpl(manager, queueManager, endpointManager, riTracker, -1,
             10, PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT, cancelCriterion,
             mock(PoolImpl.class)));
     AbstractOp txSynchronizationOp = mock(TXSynchronizationOp.Impl.class);
-    ServerLocation serverLocation = mock(ServerLocation.class);
-    ServerConnectivityException serverConnectivityException =
+    var serverLocation = mock(ServerLocation.class);
+    var serverConnectivityException =
         new ServerConnectivityException("test");
     doThrow(serverConnectivityException)
         .when(opExecutor)
@@ -363,7 +363,7 @@ public class OpExecutorImplJUnitTest {
     opExecutor.setupServerAffinity(true);
     opExecutor.setAffinityRetryCount(OpExecutorImpl.TX_RETRY_ATTEMPT + 1);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       opExecutor.executeWithServerAffinity(serverLocation, txSynchronizationOp);
     });
     assertThat(thrown).isSameAs(serverConnectivityException);
@@ -623,7 +623,7 @@ public class OpExecutorImplJUnitTest {
         public List<Connection> getBackups() {
           getBackups++;
           List<Connection> result = new ArrayList<>(backups);
-          for (int i = 0; i < backups; i++) {
+          for (var i = 0; i < backups; i++) {
             result.add(new DummyConnection(new ServerLocation("localhost", currentServer++)));
           }
           return result;

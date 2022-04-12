@@ -16,12 +16,8 @@ package org.apache.geode.internal.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.internal.offheap.MemoryAllocatorImpl;
-import org.apache.geode.internal.offheap.MemoryBlock;
-import org.apache.geode.internal.offheap.RefCountChangeInfo;
 import org.apache.geode.internal.offheap.ReferenceCountHelper;
 
 public class OffHeapTestUtil {
@@ -35,8 +31,8 @@ public class OffHeapTestUtil {
       return;
     }
 
-    long end = System.currentTimeMillis() + 5000;
-    List<MemoryBlock> orphans = allocator.getOrphans(cache);
+    var end = System.currentTimeMillis() + 5000;
+    var orphans = allocator.getOrphans(cache);
 
     // Wait for the orphans to go away
     while (orphans != null && !orphans.isEmpty() && System.currentTimeMillis() < end) {
@@ -49,7 +45,7 @@ public class OffHeapTestUtil {
     }
 
     if (orphans != null && !orphans.isEmpty()) {
-      List<RefCountChangeInfo> info =
+      var info =
           ReferenceCountHelper.getRefCountInfo(orphans.get(0).getAddress());
       System.out.println("FOUND ORPHAN!!");
       System.out.println("Sample orphan: " + orphans.get(0));

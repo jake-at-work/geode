@@ -49,7 +49,7 @@ public class NonTXEntry implements Region.Entry {
 
   /** Internal method for getting the underlying RegionEntry */
   public RegionEntry getRegionEntry() {
-    RegionEntry regionEntry = region.getRegionMap().getEntry(key);
+    var regionEntry = region.getRegionMap().getEntry(key);
     if (regionEntry == null) {
       throw new EntryDestroyedException(key.toString());
     }
@@ -57,7 +57,7 @@ public class NonTXEntry implements Region.Entry {
   }
 
   private RegionEntry basicGetEntry() {
-    RegionEntry re = region.basicGetEntry(key);
+    var re = region.basicGetEntry(key);
     if (re == null) {
       throw new EntryDestroyedException(key.toString());
     }
@@ -87,7 +87,7 @@ public class NonTXEntry implements Region.Entry {
   }
 
   public Object getValue(boolean ignoreCopyOnRead) {
-    Object value =
+    var value =
         region.getDeserialized(basicGetEntry(), false, ignoreCopyOnRead, false, false);
     if (value == null) {
       throw new EntryDestroyedException(getKey().toString());
@@ -104,7 +104,7 @@ public class NonTXEntry implements Region.Entry {
    * @return {@link VMCachedDeserializable}
    */
   public Object getRawValue() {
-    Object value = basicGetEntry().getValue((RegionEntryContext) getRegion());
+    var value = basicGetEntry().getValue((RegionEntryContext) getRegion());
     if (value == null) {
       throw new EntryDestroyedException(getRegionEntry().getKey().toString());
     } else if (Token.isInvalid(value)) {
@@ -147,7 +147,7 @@ public class NonTXEntry implements Region.Entry {
     if (!(obj instanceof NonTXEntry)) {
       return false;
     }
-    NonTXEntry entry = (NonTXEntry) obj;
+    var entry = (NonTXEntry) obj;
     return basicGetEntry().equals(entry.getRegionEntry())
         && getRegion() == entry.getRegion();
   }

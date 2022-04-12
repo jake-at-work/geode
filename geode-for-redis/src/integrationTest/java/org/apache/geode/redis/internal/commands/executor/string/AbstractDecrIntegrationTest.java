@@ -52,11 +52,11 @@ public abstract class AbstractDecrIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testDecr() {
-    String oneHundredKey = randString();
-    String negativeOneHundredKey = randString();
-    String unsetKey = randString();
-    final int oneHundredValue = 100;
-    final int negativeOneHundredValue = -100;
+    var oneHundredKey = randString();
+    var negativeOneHundredKey = randString();
+    var unsetKey = randString();
+    final var oneHundredValue = 100;
+    final var negativeOneHundredValue = -100;
     jedis.set(oneHundredKey, Integer.toString(oneHundredValue));
     jedis.set(negativeOneHundredKey, Integer.toString(negativeOneHundredValue));
 
@@ -74,7 +74,7 @@ public abstract class AbstractDecrIntegrationTest implements RedisIntegrationTes
   public void testDecr_shouldBeAtomic() {
     jedis.set("contestedKey", "0");
 
-    int ITERATION_COUNT = 4000;
+    var ITERATION_COUNT = 4000;
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> jedis.decr("contestedKey"),
         (i) -> jedis.decr("contestedKey"))

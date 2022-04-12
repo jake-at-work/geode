@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.query.internal.QueryConfigurationService;
 import org.apache.geode.cache.query.internal.QueryConfigurationServiceImpl;
-import org.apache.geode.cache.query.security.MethodInvocationAuthorizer;
 import org.apache.geode.cache.query.security.UnrestrictedMethodAuthorizer;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -56,7 +55,7 @@ public class AlterQueryServiceCommandWithoutSecurityDUnitTest {
 
   private void verifyNoOpAuthorizer() {
     servers.forEach(s -> s.invoke(() -> {
-      MethodInvocationAuthorizer methodAuthorizer = Objects
+      var methodAuthorizer = Objects
           .requireNonNull(ClusterStartupRule.getCache()).getService(QueryConfigurationService.class)
           .getMethodAuthorizer();
       assertThat(methodAuthorizer).isEqualTo(QueryConfigurationServiceImpl.getNoOpAuthorizer());
@@ -66,7 +65,7 @@ public class AlterQueryServiceCommandWithoutSecurityDUnitTest {
   @Test
   public void alterQueryServiceCommandDoesNotUpdateMethodAuthorizerWhenSecurityIsNotEnabled() {
     verifyNoOpAuthorizer();
-    String authorizerName = UnrestrictedMethodAuthorizer.class.getName();
+    var authorizerName = UnrestrictedMethodAuthorizer.class.getName();
 
     gfsh.executeAndAssertThat(COMMAND_NAME + " --" + AUTHORIZER_NAME + "=" + authorizerName)
         .statusIsError().containsOutput(SECURITY_NOT_ENABLED_MESSAGE);

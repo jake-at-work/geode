@@ -21,14 +21,11 @@ import static org.apache.geode.test.dunit.Assert.assertTrue;
 import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -62,14 +59,14 @@ public class WANClusterConfigurationDUnitTest {
     addIgnoredException("could not get remote locator");
     addIgnoredException("cannot have the same parallel gateway sender id");
 
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // Connect Gfsh to locator.
     gfsh.connectAndVerify(locator);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ny");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__PARALLEL, "true");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2");
@@ -101,14 +98,14 @@ public class WANClusterConfigurationDUnitTest {
     addIgnoredException("could not get remote locator");
     addIgnoredException("cannot have the same parallel gateway sender id");
 
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // Connect Gfsh to locator.
     gfsh.connectAndVerify(locator);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ny");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__PARALLEL, "true");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2");
@@ -137,14 +134,14 @@ public class WANClusterConfigurationDUnitTest {
     addIgnoredException("could not get remote locator");
     addIgnoredException("cannot have the same parallel gateway sender id");
 
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // Connect Gfsh to locator.
     gfsh.connectAndVerify(locator);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ny");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__PARALLEL, "true");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2");
@@ -179,14 +176,14 @@ public class WANClusterConfigurationDUnitTest {
     addIgnoredException("could not get remote locator");
     addIgnoredException("cannot have the same parallel gateway sender id");
     addIgnoredException("Could not execute \"list gateways\"");
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // Connect Gfsh to locator.
     gfsh.connectAndVerify(locator);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ny");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__PARALLEL, "true");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2");
@@ -226,14 +223,14 @@ public class WANClusterConfigurationDUnitTest {
     addIgnoredException("could not get remote locator");
     addIgnoredException("cannot have the same parallel gateway sender id");
 
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // Connect Gfsh to locator.
     gfsh.connectAndVerify(locator);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ny");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__PARALLEL, "true");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2");
@@ -267,14 +264,14 @@ public class WANClusterConfigurationDUnitTest {
     addIgnoredException("could not get remote locator");
     addIgnoredException("cannot have the same parallel gateway sender id");
 
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // Connect Gfsh to locator.
     gfsh.connectAndVerify(locator);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ny");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
@@ -306,14 +303,14 @@ public class WANClusterConfigurationDUnitTest {
     addIgnoredException("could not get remote locator");
     addIgnoredException("cannot have the same parallel gateway sender id");
 
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // Connect Gfsh to locator.
     gfsh.connectAndVerify(locator);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ny");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
@@ -351,14 +348,14 @@ public class WANClusterConfigurationDUnitTest {
     addIgnoredException("could not get remote locator");
     addIgnoredException("cannot have the same parallel gateway sender id");
 
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // Connect Gfsh to locator.
     gfsh.connectAndVerify(locator);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ny");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__PARALLEL, "true");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2");
@@ -396,14 +393,14 @@ public class WANClusterConfigurationDUnitTest {
     addIgnoredException("could not get remote locator");
     addIgnoredException("cannot have the same parallel gateway sender id");
 
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // Connect Gfsh to locator.
     gfsh.connectAndVerify(locator);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ny");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__PARALLEL, "true");
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2");
@@ -436,20 +433,20 @@ public class WANClusterConfigurationDUnitTest {
   public void testCreateGatewaySenderReceiver() throws Exception {
     addIgnoredException("could not get remote locator");
 
-    final String gsId = "GatewaySender1";
-    final String batchSize = "1000";
-    final String dispatcherThreads = "5";
-    final String enableConflation = "false";
-    final String manualStart = "false";
-    final String alertThreshold = "1000";
-    final String batchTimeInterval = "20";
-    final String maxQueueMemory = "100";
-    final String orderPolicy = GatewaySender.OrderPolicy.KEY.toString();
-    final String parallel = "true";
-    final String rmDsId = "250";
-    final String socketBufferSize =
+    final var gsId = "GatewaySender1";
+    final var batchSize = "1000";
+    final var dispatcherThreads = "5";
+    final var enableConflation = "false";
+    final var manualStart = "false";
+    final var alertThreshold = "1000";
+    final var batchTimeInterval = "20";
+    final var maxQueueMemory = "100";
+    final var orderPolicy = GatewaySender.OrderPolicy.KEY.toString();
+    final var parallel = "true";
+    final var rmDsId = "250";
+    final var socketBufferSize =
         String.valueOf(GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 1000);
-    final String socketReadTimeout =
+    final var socketReadTimeout =
         String.valueOf(GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 200);
 
     dataMember = clusterStartupRule.startServerVM(1, locator.getPort());
@@ -458,7 +455,7 @@ public class WANClusterConfigurationDUnitTest {
     gfsh.connectAndVerify(locator);
 
     // create GatewayReceiver
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYRECEIVER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYRECEIVER);
     csb.addOptionWithValueCheck(CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART, "true");
     csb.addOption(CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT, "10000");
     csb.addOption(CliStrings.CREATE_GATEWAYRECEIVER__ENDPORT, "20000");
@@ -492,15 +489,15 @@ public class WANClusterConfigurationDUnitTest {
     // Start a new member which receives the shared configuration
     // Verify the config creation on this member
 
-    MemberVM newMember = clusterStartupRule.startServerVM(2, locator.getPort());
+    var newMember = clusterStartupRule.startServerVM(2, locator.getPort());
 
     // verify GatewayReceiver attributes saved in cluster config
     newMember.invoke(() -> {
-      Set<GatewayReceiver> gatewayReceivers = ClusterStartupRule.getCache().getGatewayReceivers();
+      var gatewayReceivers = ClusterStartupRule.getCache().getGatewayReceivers();
       assertNotNull(gatewayReceivers);
       assertFalse(gatewayReceivers.isEmpty());
       assertTrue(gatewayReceivers.size() == 1);
-      for (GatewayReceiver gr : gatewayReceivers) {
+      for (var gr : gatewayReceivers) {
         assertThat(gr.isManualStart()).isTrue();
         assertThat(gr.getStartPort()).isEqualTo(10000);
         assertThat(gr.getEndPort()).isEqualTo(20000);
@@ -511,7 +508,7 @@ public class WANClusterConfigurationDUnitTest {
 
     // verify GatewaySender attributes saved in cluster config
     newMember.invoke(() -> {
-      GatewaySender gs = ClusterStartupRule.getCache().getGatewaySender(gsId);
+      var gs = ClusterStartupRule.getCache().getGatewaySender(gsId);
       assertNotNull(gs);
       assertTrue(alertThreshold.equals(Integer.toString(gs.getAlertThreshold())));
       assertTrue(batchSize.equals(Integer.toString(gs.getBatchSize())));

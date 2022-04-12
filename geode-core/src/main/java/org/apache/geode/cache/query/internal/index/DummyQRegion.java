@@ -50,7 +50,7 @@ public class DummyQRegion extends QRegion {
 
   public DummyQRegion(Region region) {
     super(region, false);
-    Class constraint = region.getAttributes().getValueConstraint();
+    var constraint = region.getAttributes().getValueConstraint();
     if (constraint != null) {
       valueType = TypeUtils.getObjectType(constraint);
     }
@@ -123,11 +123,11 @@ public class DummyQRegion extends QRegion {
       valueInList = new ArrayList(1);
     }
     valueInList.clear();
-    Object val = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
+    var val = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
     if (val instanceof StoredObject) {
       @Retained
       @Released
-      StoredObject ohval = (StoredObject) val;
+      var ohval = (StoredObject) val;
       try {
         val = ohval.getDeserializedValue(getRegion(), entry);
       } finally {
@@ -145,11 +145,11 @@ public class DummyQRegion extends QRegion {
     if (valueInArray == null) {
       valueInArray = new Object[1];
     }
-    Object val = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
+    var val = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
     if (val instanceof StoredObject) {
       @Retained
       @Released
-      StoredObject ohval = (StoredObject) val;
+      var ohval = (StoredObject) val;
       try {
         val = ohval.getDeserializedValue(getRegion(), entry);
       } finally {
@@ -169,11 +169,11 @@ public class DummyQRegion extends QRegion {
       values.setElementType(valueType);
     }
     values.clear();
-    Object val = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
+    var val = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
     if (val instanceof StoredObject) {
       @Retained
       @Released
-      StoredObject ohval = (StoredObject) val;
+      var ohval = (StoredObject) val;
       try {
         val = ohval.getDeserializedValue(getRegion(), entry);
       } finally {
@@ -194,7 +194,7 @@ public class DummyQRegion extends QRegion {
     }
     entries.clear();
     // return collection of Region.Entry, not (dotless) RegionEntry
-    Region rgn = getRegion();
+    var rgn = getRegion();
     // unwrap until we get the LocalRegion
     while (!(rgn instanceof LocalRegion)) {
       rgn = ((QRegion) TypeUtils.checkCast(rgn, QRegion.class)).getRegion();
@@ -215,7 +215,7 @@ public class DummyQRegion extends QRegion {
 
   @Override
   public Region.Entry getEntry(Object key) {
-    NonTXEntry e = (NonTXEntry) super.getEntry(key);
+    var e = (NonTXEntry) super.getEntry(key);
     Region.Entry retVal = null;
     if (e != null && entry == e.getRegionEntry()) {
       retVal = e;

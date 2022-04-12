@@ -26,9 +26,9 @@ public class TimeExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    long timeStamp = System.currentTimeMillis();
-    long seconds = timeStamp / 1000;
-    long microSeconds = (timeStamp - (seconds * 1000)) * 1000;
+    var timeStamp = System.currentTimeMillis();
+    var seconds = timeStamp / 1000;
+    var microSeconds = (timeStamp - (seconds * 1000)) * 1000;
 
     return RedisResponse.array(Long.toString(seconds), Long.toString(microSeconds));
   }

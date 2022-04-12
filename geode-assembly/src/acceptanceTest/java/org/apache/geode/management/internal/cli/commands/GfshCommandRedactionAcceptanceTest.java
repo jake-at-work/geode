@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -53,7 +51,7 @@ public class GfshCommandRedactionAcceptanceTest {
 
   @Before
   public void setUp() throws Exception {
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
     locatorPort = ports[0];
     unusedPort = ports[1];
     locatorFolder = temporaryFolder.newFolder(LOCATOR_NAME).toPath().toAbsolutePath();
@@ -73,7 +71,7 @@ public class GfshCommandRedactionAcceptanceTest {
 
   @Test
   public void commandsAreLoggedAndRedacted() throws Exception {
-    Path logFile = locatorFolder.resolve(LOCATOR_NAME + ".log");
+    var logFile = locatorFolder.resolve(LOCATOR_NAME + ".log");
 
     gfshCommandRule.connectAndVerify(locatorPort, GfshCommandRule.PortType.locator);
     gfshCommandRule.executeAndAssertThat(
@@ -85,17 +83,17 @@ public class GfshCommandRedactionAcceptanceTest {
         "connect --jmx-manager=localhost[" + unusedPort + "] --password=secret")
         .statusIsError();
 
-    Pattern startLocatorPattern = Pattern.compile(
+    var startLocatorPattern = Pattern.compile(
         "Executing command: start locator --properties-file=unknown --J=-Dgemfire.security-password=\\*\\*\\*\\*\\*\\*\\*\\*");
-    Pattern connectPattern = Pattern.compile(
+    var connectPattern = Pattern.compile(
         "Executing command: connect --jmx-manager=localhost\\[" + unusedPort
             + "] --password=\\*\\*\\*\\*\\*\\*\\*\\*");
 
-    Predicate<String> isRelevantLine = startLocatorPattern.asPredicate()
+    var isRelevantLine = startLocatorPattern.asPredicate()
         .or(connectPattern.asPredicate());
 
     await().untilAsserted(() -> {
-      List<String> foundPatterns = Files
+      var foundPatterns = Files
           .lines(logFile)
           .filter(isRelevantLine)
           .collect(Collectors.toList());

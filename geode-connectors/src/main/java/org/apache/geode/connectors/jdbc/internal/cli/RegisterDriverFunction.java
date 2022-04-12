@@ -35,8 +35,8 @@ public class RegisterDriverFunction extends CliFunction<Object[]> {
   @Override
   public CliFunctionResult executeFunction(FunctionContext<Object[]> context) {
     try {
-      String driverClassName = (String) context.getArguments()[0];
-      DriverJarUtils util = getDriverJarUtil();
+      var driverClassName = (String) context.getArguments()[0];
+      var util = getDriverJarUtil();
       util.registerDriver(driverClassName);
       return new CliFunctionResult(context.getMemberName(), CliFunctionResult.StatusState.OK,
           driverClassName + " was successfully registered.");

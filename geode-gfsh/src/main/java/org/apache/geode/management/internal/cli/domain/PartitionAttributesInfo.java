@@ -17,15 +17,12 @@ package org.apache.geode.management.internal.cli.domain;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.geode.cache.FixedPartitionAttributes;
 import org.apache.geode.cache.PartitionAttributes;
-import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.internal.cache.PartitionAttributesImpl;
 import org.apache.geode.management.internal.cli.util.RegionAttributesDefault;
 import org.apache.geode.management.internal.cli.util.RegionAttributesNames;
@@ -54,21 +51,21 @@ public class PartitionAttributesInfo implements Serializable {
     colocatedWith = partitionAttributes.getColocatedWith();
     recoveryDelay = partitionAttributes.getRecoveryDelay();
     startupRecoveryDelay = partitionAttributes.getStartupRecoveryDelay();
-    PartitionResolver<?, ?> partitionResolver = partitionAttributes.getPartitionResolver();
+    var partitionResolver = partitionAttributes.getPartitionResolver();
 
     if (partitionResolver != null) {
       partitionResolverName = partitionResolver.getName();
     }
 
-    List<FixedPartitionAttributes> fpaList = partitionAttributes.getFixedPartitionAttributes();
+    var fpaList = partitionAttributes.getFixedPartitionAttributes();
 
     if (fpaList != null) {
-      Iterator<FixedPartitionAttributes> iters = fpaList.iterator();
+      var iters = fpaList.iterator();
       fpaInfoList = new ArrayList<>();
 
       while (iters.hasNext()) {
-        FixedPartitionAttributes fpa = iters.next();
-        FixedPartitionAttributesInfo fpaInfo = new FixedPartitionAttributesInfo(fpa);
+        var fpa = iters.next();
+        var fpaInfo = new FixedPartitionAttributesInfo(fpa);
         fpaInfoList.add(fpaInfo);
       }
     }
@@ -151,7 +148,7 @@ public class PartitionAttributesInfo implements Serializable {
 
   public boolean equals(Object obj) {
     if (obj instanceof PartitionAttributesInfo) {
-      PartitionAttributesInfo paInfo = (PartitionAttributesInfo) obj;
+      var paInfo = (PartitionAttributesInfo) obj;
       return StringUtils.equals(getColocatedWith(), paInfo.getColocatedWith())
           && getLocalMaxMemory() == paInfo.getLocalMaxMemory()
           && StringUtils.equals(getPartitionResolverName(), paInfo.getPartitionResolverName())

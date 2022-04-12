@@ -32,7 +32,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedReference;
 
 @SuppressWarnings("serial")
@@ -43,10 +42,10 @@ public class DistributedReferenceCacheExampleTest implements Serializable {
 
   @Before
   public void setUp() {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(LOCATORS, getLocators());
 
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         cache.set(new CacheFactory(configProperties).create());
       });
@@ -55,7 +54,7 @@ public class DistributedReferenceCacheExampleTest implements Serializable {
 
   @Test
   public void eachVmHasItsOwnCache() {
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         assertThat(cache.get()).isNotNull();
       });

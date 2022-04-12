@@ -97,9 +97,9 @@ public class ListMappingCommandTest {
     when(region2Config.getName()).thenReturn("region2");
 
     when(cacheConfig.getRegions()).thenReturn(regions);
-    RegionMapping mapping1 =
+    var mapping1 =
         new RegionMapping("region1", "class1", "table1", "name1", null, null, null);
-    RegionMapping mapping2 =
+    var mapping2 =
         new RegionMapping("region2", "class2", "table2", "name2", null, null, null);
     List<CacheElement> mappingList1 = new ArrayList<>();
     mappingList1.add(mapping1);
@@ -128,9 +128,9 @@ public class ListMappingCommandTest {
     when(region2Config.getName()).thenReturn("region2");
 
     when(cacheConfig.getRegions()).thenReturn(regions);
-    RegionMapping mapping1 =
+    var mapping1 =
         new RegionMapping("region1", "class1", "table1", "name1", null, null, null);
-    RegionMapping mapping2 =
+    var mapping2 =
         new RegionMapping("region2", "class2", "table2", "name2", null, null, null);
     List<CacheElement> mappingList1 = new ArrayList<>();
     mappingList1.add(mapping1);

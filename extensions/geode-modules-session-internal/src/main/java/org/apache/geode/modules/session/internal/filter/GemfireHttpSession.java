@@ -121,18 +121,18 @@ public class GemfireHttpSession implements HttpSession, DataSerializable, Delta 
     if (!isValid) {
       throw new IllegalStateException("Session is already invalidated");
     }
-    Object obj = attributes.getAttribute(name);
+    var obj = attributes.getAttribute(name);
 
     if (obj != null) {
       Object tmpObj = null;
-      ClassLoader loader = ((GemfireSessionManager) manager).getReferenceClassLoader();
+      var loader = ((GemfireSessionManager) manager).getReferenceClassLoader();
 
       if (obj.getClass().getClassLoader() != loader) {
         LOG.debug("Attribute '{}' needs to be reconstructed with a new classloader", name);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        var baos = new ByteArrayOutputStream();
         try {
-          ObjectOutputStream oos = new ObjectOutputStream(baos);
+          var oos = new ObjectOutputStream(baos);
           oos.writeObject(obj);
           oos.close();
 
@@ -398,7 +398,7 @@ public class GemfireHttpSession implements HttpSession, DataSerializable, Delta 
     }
 
     if (getMaxInactiveInterval() >= 0) {
-      long now = System.currentTimeMillis();
+      var now = System.currentTimeMillis();
       return now - attributes.getLastAccessedTime() < getMaxInactiveInterval() * 1000;
     }
 

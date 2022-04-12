@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.geode.cache.CommitConflictException;
@@ -65,7 +64,7 @@ public class DistPeerTXStateStub extends PeerTXStateStub implements DistTXCoordi
     // [DISTTX] TODO Handle Stats
 
     precommitDistTxMsg.setSecondaryTransactionalOperations(secondaryTransactionalOperations);
-    final Set<DistributedMember> recipients = Collections.singleton(target);
+    final var recipients = Collections.singleton(target);
     precommitDistTxMsg.setRecipients(recipients);
     dm.putOutgoing(precommitDistTxMsg);
     precommitDistTxMsg.resetRecipients();
@@ -82,7 +81,7 @@ public class DistPeerTXStateStub extends PeerTXStateStub implements DistTXCoordi
     // [DISTTX] TODO Handle Stats
     dm.getStats().incSentCommitMessages(1L);
 
-    final Set<DistributedMember> recipients = Collections.singleton(target);
+    final var recipients = Collections.singleton(target);
     commitDistTxMsg.setRecipients(recipients);
     dm.putOutgoing(commitDistTxMsg);
     commitDistTxMsg.resetRecipients();
@@ -99,7 +98,7 @@ public class DistPeerTXStateStub extends PeerTXStateStub implements DistTXCoordi
     // this.internalAfterSendRollback.run();
     // }
 
-    final Set<DistributedMember> recipients = Collections.singleton(target);
+    final var recipients = Collections.singleton(target);
     rollbackDistTxMsg.setRecipients(recipients);
     dm.putOutgoing(rollbackDistTxMsg);
     rollbackDistTxMsg.resetRecipients();
@@ -159,7 +158,7 @@ public class DistPeerTXStateStub extends PeerTXStateStub implements DistTXCoordi
       // [DISTTX] TODO Remove throwable
       logger.debug("DistPeerTXStateStub.putEntry " + event.getKeyInfo().getKey(), new Throwable());
     }
-    boolean returnValue = super.putEntry(event, ifNew, ifOld, expectedOldValue, requireOldValue,
+    var returnValue = super.putEntry(event, ifNew, ifOld, expectedOldValue, requireOldValue,
         lastModified, overwriteDestroyed, invokeCallbacks, throwConcurrentModification);
     addPrimaryTransactionalOperations(new DistTxEntryEvent(event));
 
@@ -182,7 +181,7 @@ public class DistPeerTXStateStub extends PeerTXStateStub implements DistTXCoordi
       logger.debug("DistPeerTXStateStub.putEntryOnRemote " + event.getKeyInfo().getKey(),
           new Throwable());
     }
-    boolean returnValue = super.putEntryOnRemote(event, ifNew, ifOld, expectedOldValue,
+    var returnValue = super.putEntryOnRemote(event, ifNew, ifOld, expectedOldValue,
         requireOldValue, lastModified, overwriteDestroyed);
     addPrimaryTransactionalOperations(new DistTxEntryEvent(event));
 
@@ -251,10 +250,10 @@ public class DistPeerTXStateStub extends PeerTXStateStub implements DistTXCoordi
       InternalRegion reg) {
     super.postPutAll(putallOp, successfulPuts, reg);
     // TODO DISTTX: event is never released
-    EntryEventImpl event = EntryEventImpl.createPutAllEvent(putallOp, reg, Operation.PUTALL_CREATE,
+    var event = EntryEventImpl.createPutAllEvent(putallOp, reg, Operation.PUTALL_CREATE,
         putallOp.getBaseEvent().getKey(), putallOp.getBaseEvent().getValue());
     event.setEventId(putallOp.getBaseEvent().getEventId());
-    DistTxEntryEvent dtop = new DistTxEntryEvent(event);
+    var dtop = new DistTxEntryEvent(event);
     dtop.setPutAllOperation(putallOp);
     primaryTransactionalOperations.add(dtop);
   }
@@ -264,10 +263,10 @@ public class DistPeerTXStateStub extends PeerTXStateStub implements DistTXCoordi
       VersionedObjectList successfulOps, InternalRegion reg) {
     super.postRemoveAll(removeAllOp, successfulOps, reg);
     // TODO DISTTX: event is never released
-    EntryEventImpl event =
+    var event =
         EntryEventImpl.createRemoveAllEvent(removeAllOp, reg, removeAllOp.getBaseEvent().getKey());
     event.setEventId(removeAllOp.getBaseEvent().getEventId());
-    DistTxEntryEvent dtop = new DistTxEntryEvent(event);
+    var dtop = new DistTxEntryEvent(event);
     dtop.setRemoveAllOperation(removeAllOp);
     primaryTransactionalOperations.add(dtop);
   }
@@ -320,12 +319,12 @@ public class DistPeerTXStateStub extends PeerTXStateStub implements DistTXCoordi
       boolean includePrimaryRegions, boolean includeRedundantRegions)
       throws UnsupportedOperationInTransactionException {
     if (includePrimaryRegions) {
-      for (DistTxEntryEvent dtos : primaryTransactionalOperations) {
+      for (var dtos : primaryTransactionalOperations) {
         regionSet.add(dtos.getRegion());
       }
     }
     if (includeRedundantRegions) {
-      for (DistTxEntryEvent dtos : secondaryTransactionalOperations) {
+      for (var dtos : secondaryTransactionalOperations) {
         regionSet.add(dtos.getRegion());
       }
     }

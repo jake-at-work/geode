@@ -65,7 +65,7 @@ public class FunctionStatsManager {
   }
 
   public FunctionStats getFunctionStatsByName(String name) {
-    MeterRegistry meterRegistryFromSupplier = meterRegistrySupplier.get();
+    var meterRegistryFromSupplier = meterRegistrySupplier.get();
 
     if (statsDisabled && meterRegistryFromSupplier == null) {
       return dummyFunctionStats;
@@ -76,18 +76,18 @@ public class FunctionStatsManager {
   }
 
   public void close() {
-    for (FunctionStats functionstats : functionExecutionStatsMap.values()) {
+    for (var functionstats : functionExecutionStatsMap.values()) {
       functionstats.close();
     }
     functionServiceStats.close();
   }
 
   private FunctionStats create(String name, MeterRegistry meterRegistryFromSupplier) {
-    MeterRegistry meterRegistry = meterRegistryFromSupplier == null
+    var meterRegistry = meterRegistryFromSupplier == null
         ? noopMeterRegistry
         : meterRegistryFromSupplier;
 
-    Statistics statistics = statsDisabled
+    var statistics = statsDisabled
         ? dummyStatistics
         : statisticsFactory.createAtomicStatistics(FunctionStatsImpl.getStatisticsType(), name);
 
@@ -106,7 +106,7 @@ public class FunctionStatsManager {
   }
 
   public static FunctionStats getFunctionStats(String functionID) {
-    InternalDistributedSystem ds = InternalDistributedSystem.getAnyInstance();
+    var ds = InternalDistributedSystem.getAnyInstance();
     if (ds == null) {
       return createDummyFunctionStats();
     }

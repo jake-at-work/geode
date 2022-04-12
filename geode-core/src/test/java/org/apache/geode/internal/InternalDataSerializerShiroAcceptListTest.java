@@ -140,12 +140,12 @@ public class InternalDataSerializerShiroAcceptListTest {
   private static void trySerializingObject(Object object, Properties properties)
       throws IOException, ClassNotFoundException {
     InternalDataSerializer.initializeSerializationFilter(config(properties), emptySet());
-    HeapDataOutputStream outputStream = new HeapDataOutputStream(CURRENT);
+    var outputStream = new HeapDataOutputStream(CURRENT);
 
     DataSerializer.writeObject(object, outputStream);
 
-    try (ByteArrayInputStream bais = new ByteArrayInputStream(outputStream.toByteArray());
-        DataInputStream dis = new DataInputStream(bais)) {
+    try (var bais = new ByteArrayInputStream(outputStream.toByteArray());
+        var dis = new DataInputStream(bais)) {
       DataSerializer.readObject(dis);
     }
   }
@@ -155,7 +155,7 @@ public class InternalDataSerializerShiroAcceptListTest {
   }
 
   private static Properties propertiesWithoutFilter() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(VALIDATE_SERIALIZABLE_OBJECTS_NAME, "true");
 
     return properties;

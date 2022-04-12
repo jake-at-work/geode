@@ -18,24 +18,19 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.Collection;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqServiceStatistics;
-import org.apache.geode.cache.query.CqStatistics;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.cq.internal.CqQueryImpl;
 import org.apache.geode.cache.query.cq.internal.CqServiceImpl;
 import org.apache.geode.cache.query.cq.internal.CqServiceVsdStats;
-import org.apache.geode.cache.query.internal.CqQueryVsdStats;
 import org.apache.geode.cache.query.internal.CqStateImpl;
 import org.apache.geode.cache.query.internal.DefaultQueryService;
 import org.apache.geode.cache.query.internal.cq.CqService;
-import org.apache.geode.cache.query.internal.cq.InternalCqQuery;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.Invoke;
@@ -96,14 +91,14 @@ public class CqStatsDUnitTest extends JUnit4CacheTestCase {
           e.printStackTrace();
           fail("Failed to get CqService, CQ : " + cqName);
         }
-        Collection<? extends InternalCqQuery> cqs = cqService.getAllCqs();
+        var cqs = cqService.getAllCqs();
         if (cqs.size() == 0) {
           fail("Failed to get CqQuery for CQ : " + cqName);
         }
-        CqQueryImpl cQuery = (CqQueryImpl) cqs.iterator().next();
+        var cQuery = (CqQueryImpl) cqs.iterator().next();
 
-        CqStatistics cqStats = cQuery.getStatistics();
-        CqQueryVsdStats cqVsdStats = cQuery.getVsdStats();
+        var cqStats = cQuery.getStatistics();
+        var cqVsdStats = cQuery.getVsdStats();
         if (cqStats == null || cqVsdStats == null) {
           fail("Failed to get CqQuery Stats for CQ : " + cqName);
         }
@@ -247,21 +242,21 @@ public class CqStatsDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testCQStatistics() throws Exception {
 
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     /* Init Server and Client */
     cqDUnitTest.createServer(server);
     final int port = server.invoke(CqQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
     cqDUnitTest.createClient(client, port, host0);
 
     /* Create CQs. */
     cqDUnitTest.createCQ(client, "testCQStatistics_0", cqDUnitTest.cqs[0]);
 
     /* Init values at server. */
-    int size = 100;
+    var size = 100;
     cqDUnitTest.createValues(server, cqDUnitTest.regions[0], size);
 
     cqDUnitTest.executeCQ(client, "testCQStatistics_0", true, null);
@@ -326,22 +321,22 @@ public class CqStatsDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testCQServiceStatistics() throws Exception {
 
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client1 = host.getVM(1);
-    VM client2 = host.getVM(2);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client1 = host.getVM(1);
+    var client2 = host.getVM(2);
 
 
     /* Init Server and Client */
     cqDUnitTest.createServer(server);
     final int port = server.invoke(CqQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
     cqDUnitTest.createClient(client1, port, host0);
     cqDUnitTest.createClient(client2, port, host0);
 
     /* Create CQs. */
-    String cqName = "testCQServiceStatistics_0";
-    String cqName10 = "testCQServiceStatistics_10";
+    var cqName = "testCQServiceStatistics_0";
+    var cqName10 = "testCQServiceStatistics_10";
     cqDUnitTest.createCQ(client1, cqName, cqDUnitTest.cqs[0]);
     cqDUnitTest.createCQ(client2, cqName10, cqDUnitTest.cqs[2]);
     Wait.pause(PAUSE);
@@ -363,7 +358,7 @@ public class CqStatsDUnitTest extends JUnit4CacheTestCase {
     validateCQServiceStats(server, 2, 2, 0, 0, CqQueryDUnitTest.noTest, 1, 2);
 
     /* Init values at server. */
-    int size = 10;
+    var size = 10;
     cqDUnitTest.createValues(server, cqDUnitTest.regions[0], size);
     // Wait for client to Synch.
     cqDUnitTest.waitForCreated(client1, "testCQServiceStatistics_0", CqQueryDUnitTest.KEY + size);

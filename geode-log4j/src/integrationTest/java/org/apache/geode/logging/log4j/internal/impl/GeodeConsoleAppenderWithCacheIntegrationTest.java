@@ -22,7 +22,6 @@ import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.net.URL;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
@@ -68,14 +67,14 @@ public class GeodeConsoleAppenderWithCacheIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
 
   @Before
   public void setUp() {
-    String name = testName.getMethodName();
+    var name = testName.getMethodName();
     logFile = new File(temporaryFolder.getRoot(), name + ".log");
 
     geodeConsoleAppender =
@@ -93,7 +92,7 @@ public class GeodeConsoleAppenderWithCacheIntegrationTest {
 
   @Test
   public void logsToStdoutIfLogFileNotSpecified() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
 
     cache = (InternalCache) new CacheFactory(config).create();
@@ -101,7 +100,7 @@ public class GeodeConsoleAppenderWithCacheIntegrationTest {
     logger.info(logMessage);
 
     LogEvent foundLogEvent = null;
-    for (LogEvent logEvent : geodeConsoleAppender.getLogEvents()) {
+    for (var logEvent : geodeConsoleAppender.getLogEvents()) {
       if (logEvent.getMessage().getFormattedMessage().contains(logMessage)) {
         foundLogEvent = logEvent;
         break;
@@ -112,7 +111,7 @@ public class GeodeConsoleAppenderWithCacheIntegrationTest {
 
   @Test
   public void stopsLoggingToStdoutWhenLoggingToLogFileStarts() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
 
@@ -121,7 +120,7 @@ public class GeodeConsoleAppenderWithCacheIntegrationTest {
     logger.info(logMessage);
 
     LogEvent foundLogEvent = null;
-    for (LogEvent logEvent : geodeConsoleAppender.getLogEvents()) {
+    for (var logEvent : geodeConsoleAppender.getLogEvents()) {
       if (logEvent.getMessage().getFormattedMessage().contains(logMessage)) {
         foundLogEvent = logEvent;
         break;
@@ -132,7 +131,7 @@ public class GeodeConsoleAppenderWithCacheIntegrationTest {
 
   @Test
   public void resumesLoggingToStdoutWhenLoggingToLogFileStops() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
 
@@ -143,7 +142,7 @@ public class GeodeConsoleAppenderWithCacheIntegrationTest {
     logger.info(logMessage);
 
     LogEvent foundLogEvent = null;
-    for (LogEvent logEvent : geodeConsoleAppender.getLogEvents()) {
+    for (var logEvent : geodeConsoleAppender.getLogEvents()) {
       if (logEvent.getMessage().getFormattedMessage().contains(logMessage)) {
         foundLogEvent = logEvent;
         break;

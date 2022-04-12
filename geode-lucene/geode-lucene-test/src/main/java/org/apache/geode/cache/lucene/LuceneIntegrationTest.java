@@ -39,14 +39,14 @@ public class LuceneIntegrationTest {
 
   @Before
   public void createCache() {
-    CacheFactory cf = getCacheFactory();
+    var cf = getCacheFactory();
     cache = cf.create();
 
     luceneService = LuceneServiceProvider.get(cache);
   }
 
   protected CacheFactory getCacheFactory() {
-    CacheFactory cf = new CacheFactory();
+    var cf = new CacheFactory();
     cf.set(MCAST_PORT, "0");
     cf.set(LOCATORS, "");
     return cf;

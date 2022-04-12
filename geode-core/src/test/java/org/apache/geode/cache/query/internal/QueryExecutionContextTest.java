@@ -30,9 +30,9 @@ public class QueryExecutionContextTest {
 
   @Before
   public void setUp() {
-    QueryConfigurationService mockService = mock(QueryConfigurationService.class);
+    var mockService = mock(QueryConfigurationService.class);
     when(mockService.getMethodAuthorizer()).thenReturn(mock(MethodInvocationAuthorizer.class));
-    InternalCache mockCache = mock(InternalCache.class);
+    var mockCache = mock(InternalCache.class);
     when(mockCache.getService(QueryConfigurationService.class)).thenReturn(mockService);
 
     context = new QueryExecutionContext(null, mockCache);
@@ -40,14 +40,14 @@ public class QueryExecutionContextTest {
 
   @Test
   public void testNullReturnedFromCacheGetWhenNoValueWasPut() {
-    Object key = new Object();
+    var key = new Object();
     assertThat(context.cacheGet(key)).isNull();
   }
 
   @Test
   public void testPutValueReturnedFromCacheGet() {
-    Object key = new Object();
-    Object value = new Object();
+    var key = new Object();
+    var value = new Object();
 
     context.cachePut(key, value);
     assertThat(context.cacheGet(key)).isEqualTo(value);
@@ -55,16 +55,16 @@ public class QueryExecutionContextTest {
 
   @Test
   public void testDefaultReturnedFromCacheGetWhenNoValueWasPut() {
-    Object key = new Object();
-    Object value = new Object();
+    var key = new Object();
+    var value = new Object();
 
     assertThat(context.cacheGet(key, value)).isEqualTo(value);
   }
 
   @Test
   public void testExecCachesCanBePushedAndValuesRetrievedAtTheCorrectLevel() {
-    Object key = new Object();
-    Object value = new Object();
+    var key = new Object();
+    var value = new Object();
 
     context.pushExecCache(1);
     context.cachePut(key, value);

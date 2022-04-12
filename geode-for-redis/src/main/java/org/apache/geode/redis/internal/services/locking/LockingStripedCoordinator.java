@@ -37,14 +37,14 @@ public class LockingStripedCoordinator implements StripedCoordinator {
 
   public LockingStripedCoordinator(int concurrencyLevel) {
     locks = new ReentrantLock[concurrencyLevel];
-    for (int i = 0; i < concurrencyLevel; i++) {
+    for (var i = 0; i < concurrencyLevel; i++) {
       locks[i] = new ReentrantLock();
     }
   }
 
   @Override
   public <T> T execute(RedisKey stripeId, Callable<T> callable) {
-    Lock lock = getLock(stripeId);
+    var lock = getLock(stripeId);
     lock.lock();
     try {
       return callable.call();

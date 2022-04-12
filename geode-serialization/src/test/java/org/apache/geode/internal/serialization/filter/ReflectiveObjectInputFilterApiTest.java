@@ -59,7 +59,7 @@ public class ReflectiveObjectInputFilterApiTest {
   public void createFilterGivenValidPatternReturnsNewFilter()
       throws IllegalAccessException, InvocationTargetException {
 
-    Object filter = api.createFilter("!*");
+    var filter = api.createFilter("!*");
 
     assertThat(filter)
         .as("ObjectInputFilter$Config.createFilter(\"!*\")")
@@ -71,7 +71,7 @@ public class ReflectiveObjectInputFilterApiTest {
   public void createFilterGivenEmptyPatternReturnsNull()
       throws IllegalAccessException, InvocationTargetException {
 
-    Object filter = api.createFilter("");
+    var filter = api.createFilter("");
 
     assertThat(filter)
         .as("ObjectInputFilter$Config.createFilter(\"\")")
@@ -82,7 +82,7 @@ public class ReflectiveObjectInputFilterApiTest {
   public void createFilterGivenBlankPatternReturnsNewFilter()
       throws IllegalAccessException, InvocationTargetException {
 
-    Object filter = api.createFilter(" ");
+    var filter = api.createFilter(" ");
 
     assertThat(filter)
         .as("ObjectInputFilter$Config.createFilter(\" \")")
@@ -94,7 +94,7 @@ public class ReflectiveObjectInputFilterApiTest {
   public void getSerialFilterReturnsNullWhenFilterDoesNotExist()
       throws IllegalAccessException, InvocationTargetException {
 
-    Object filter = api.getSerialFilter();
+    var filter = api.getSerialFilter();
 
     assertThat(filter).isNull();
   }
@@ -103,9 +103,9 @@ public class ReflectiveObjectInputFilterApiTest {
   public void getObjectInputFilterReturnsNullWhenFilterDoesNotExist()
       throws IllegalAccessException, InvocationTargetException, IOException {
     Serializable object = "hello";
-    ObjectInputStream inputStream = new ObjectInputStream(byteArrayInputStream(object));
+    var inputStream = new ObjectInputStream(byteArrayInputStream(object));
 
-    Object filter = api.getObjectInputFilter(inputStream);
+    var filter = api.getObjectInputFilter(inputStream);
 
     assertThat(filter).isNull();
   }
@@ -113,12 +113,12 @@ public class ReflectiveObjectInputFilterApiTest {
   @Test
   public void getObjectInputFilterReturnsExistingFilter()
       throws IllegalAccessException, InvocationTargetException, IOException {
-    Object existingFilter = api.createFilter("*");
+    var existingFilter = api.createFilter("*");
     Serializable object = "hello";
-    ObjectInputStream inputStream = new ObjectInputStream(byteArrayInputStream(object));
+    var inputStream = new ObjectInputStream(byteArrayInputStream(object));
     api.setObjectInputFilter(inputStream, existingFilter);
 
-    Object filter = api.getObjectInputFilter(inputStream);
+    var filter = api.getObjectInputFilter(inputStream);
 
     assertThat(filter).isSameAs(existingFilter);
   }
@@ -128,9 +128,9 @@ public class ReflectiveObjectInputFilterApiTest {
       throws ClassNotFoundException, IllegalAccessException, InvocationTargetException,
       IOException {
     Serializable object = new SerializableClass("hello");
-    Object filter = api.createFilter(object.getClass().getName() + ";!*");
+    var filter = api.createFilter(object.getClass().getName() + ";!*");
 
-    try (ObjectInputStream inputStream = new ObjectInputStream(byteArrayInputStream(object))) {
+    try (var inputStream = new ObjectInputStream(byteArrayInputStream(object))) {
       api.setObjectInputFilter(inputStream, filter);
 
       assertThat(inputStream.readObject()).isEqualTo(object);
@@ -141,12 +141,12 @@ public class ReflectiveObjectInputFilterApiTest {
   public void setObjectInputFilterGivenDenyFilterThrowsInvalidClassException()
       throws IllegalAccessException, InvocationTargetException, IOException {
     Serializable object = new SerializableClass("hello");
-    Object filter = api.createFilter("!" + object.getClass().getName());
+    var filter = api.createFilter("!" + object.getClass().getName());
 
-    try (ObjectInputStream inputStream = new ObjectInputStream(byteArrayInputStream(object))) {
+    try (var inputStream = new ObjectInputStream(byteArrayInputStream(object))) {
       api.setObjectInputFilter(inputStream, filter);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         assertThat(inputStream.readObject()).isEqualTo(object);
       });
 
@@ -159,10 +159,10 @@ public class ReflectiveObjectInputFilterApiTest {
       throws ClassNotFoundException, IllegalAccessException, InvocationTargetException,
       IOException {
     Serializable object = new SerializableClass("hello");
-    String className = object.getClass().getName();
-    Object filter = api.createObjectInputFilterProxy(className + ";!*", singleton(className));
+    var className = object.getClass().getName();
+    var filter = api.createObjectInputFilterProxy(className + ";!*", singleton(className));
 
-    try (ObjectInputStream inputStream = new ObjectInputStream(byteArrayInputStream(object))) {
+    try (var inputStream = new ObjectInputStream(byteArrayInputStream(object))) {
       api.setObjectInputFilter(inputStream, filter);
 
       assertThat(inputStream.readObject()).isEqualTo(object);
@@ -173,13 +173,13 @@ public class ReflectiveObjectInputFilterApiTest {
   public void createObjectInputFilterProxyGivenRejectFilterThrowsInvalidClassException()
       throws IllegalAccessException, InvocationTargetException, IOException {
     Serializable object = new SerializableClass("hello");
-    String className = object.getClass().getName();
-    Object filter = api.createObjectInputFilterProxy("!" + className + ";*", emptyList());
+    var className = object.getClass().getName();
+    var filter = api.createObjectInputFilterProxy("!" + className + ";*", emptyList());
 
-    try (ObjectInputStream inputStream = new ObjectInputStream(byteArrayInputStream(object))) {
+    try (var inputStream = new ObjectInputStream(byteArrayInputStream(object))) {
       api.setObjectInputFilter(inputStream, filter);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         assertThat(inputStream.readObject()).isEqualTo(object);
       });
 
@@ -208,7 +208,7 @@ public class ReflectiveObjectInputFilterApiTest {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      SerializableClass that = (SerializableClass) o;
+      var that = (SerializableClass) o;
       return value.equals(that.value);
     }
 
@@ -219,7 +219,7 @@ public class ReflectiveObjectInputFilterApiTest {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("SerializableClass{");
+      var sb = new StringBuilder("SerializableClass{");
       sb.append("value='").append(value).append('\'');
       sb.append('}');
       return sb.toString();

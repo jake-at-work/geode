@@ -25,10 +25,10 @@ public class OrderedTombstoneMapJUnitTest {
 
   @Test
   public void test() {
-    OrderedTombstoneMap<String> map = new OrderedTombstoneMap<>();
+    var map = new OrderedTombstoneMap<String>();
 
-    DiskStoreID id1 = DiskStoreID.random();
-    DiskStoreID id2 = DiskStoreID.random();
+    var id1 = DiskStoreID.random();
+    var id2 = DiskStoreID.random();
     map.put(createVersionTag(id1, 1, 7), "one");
     map.put(createVersionTag(id1, 3, 2), "two");
     map.put(createVersionTag(id2, 3, 5), "three");
@@ -47,7 +47,7 @@ public class OrderedTombstoneMapJUnitTest {
   }
 
   private VersionTag createVersionTag(DiskStoreID id, long regionVersion, long timeStamp) {
-    VersionTag tag = VersionTag.create(id);
+    var tag = VersionTag.create(id);
     tag.setRegionVersion(regionVersion);
     tag.setVersionTimeStamp(timeStamp);
     return tag;

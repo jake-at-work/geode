@@ -42,25 +42,25 @@ class TemporalComparator implements Comparator {
   // throws ClassCastExcepton if obj1 or obj2 is not a java.util.Date or subclass
   @Override
   public int compare(Object obj1, Object obj2) {
-    java.util.Date date1 = (java.util.Date) obj1;
-    java.util.Date date2 = (java.util.Date) obj2;
-    long ms1 = date1.getTime();
-    long ms2 = date2.getTime();
+    var date1 = (java.util.Date) obj1;
+    var date2 = (java.util.Date) obj2;
+    var ms1 = date1.getTime();
+    var ms2 = date2.getTime();
 
     // if we're dealing with Timestamps, then we need to extract milliseconds
     // out of the nanos and then do a compare with the "extra" nanos
-    int extraNanos1 = 0;
-    int extraNanos2 = 0;
+    var extraNanos1 = 0;
+    var extraNanos2 = 0;
     if (date1 instanceof java.sql.Timestamp) {
-      int nanos = ((java.sql.Timestamp) date1).getNanos();
-      int ms = nanos / 1000000;
+      var nanos = ((java.sql.Timestamp) date1).getNanos();
+      var ms = nanos / 1000000;
       ms1 += ms;
       extraNanos1 = nanos - (ms * 1000000);
     }
 
     if (date2 instanceof java.sql.Timestamp) {
-      int nanos = ((java.sql.Timestamp) date2).getNanos();
-      int ms = nanos / 1000000;
+      var nanos = ((java.sql.Timestamp) date2).getNanos();
+      var ms = nanos / 1000000;
       ms2 += ms;
       extraNanos2 = nanos - (ms * 1000000);
     }

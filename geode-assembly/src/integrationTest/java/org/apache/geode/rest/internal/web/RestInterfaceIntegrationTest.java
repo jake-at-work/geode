@@ -118,7 +118,7 @@ public class RestInterfaceIntegrationTest {
 
   @Before
   public void setupGemFire() {
-    AgentUtil agentUtil = new AgentUtil(GemFireVersion.getGemFireVersion());
+    var agentUtil = new AgentUtil(GemFireVersion.getGemFireVersion());
     if (agentUtil.findWarLocation("geode-web-api") == null) {
       fail("unable to locate geode-web-api WAR file");
     }
@@ -157,21 +157,21 @@ public class RestInterfaceIntegrationTest {
       return Integer
           .parseInt(StringUtils.trimWhitespace(gemfireProperties.getProperty(HTTP_SERVICE_PORT)));
     } catch (NumberFormatException ignore) {
-      int httpServicePort = getHttpServicePort(DEFAULT_HTTP_SERVICE_PORT);
+      var httpServicePort = getHttpServicePort(DEFAULT_HTTP_SERVICE_PORT);
       gemfireProperties.setProperty(HTTP_SERVICE_PORT, String.valueOf(httpServicePort));
       return httpServicePort;
     }
   }
 
   private int getHttpServicePort(final int defaultHttpServicePort) {
-    int httpServicePort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var httpServicePort = AvailablePortHelper.getRandomAvailableTCPPort();
     return (httpServicePort > 1024 && httpServicePort < 65536 ? httpServicePort
         : defaultHttpServicePort);
   }
 
   protected ObjectMapper getObjectMapper() {
     if (objectMapper == null) {
-      Jackson2ObjectMapperFactoryBean objectMapperFactoryBean =
+      var objectMapperFactoryBean =
           new Jackson2ObjectMapperFactoryBean();
 
       objectMapperFactoryBean.setFailOnEmptyBeans(true);
@@ -215,7 +215,7 @@ public class RestInterfaceIntegrationTest {
   }
 
   protected Date createDate(final int year, final int month, final int dayOfMonth) {
-    Calendar dateTime = Calendar.getInstance();
+    var dateTime = Calendar.getInstance();
     dateTime.clear();
     dateTime.set(Calendar.YEAR, year);
     dateTime.set(Calendar.MONTH, month);
@@ -229,7 +229,7 @@ public class RestInterfaceIntegrationTest {
   }
 
   protected RestTemplate createRestTemplate() {
-    MappingJackson2HttpMessageConverter httpMessageConverter =
+    var httpMessageConverter =
         new MappingJackson2HttpMessageConverter();
 
     httpMessageConverter.setObjectMapper(getObjectMapper());
@@ -278,7 +278,7 @@ public class RestInterfaceIntegrationTest {
         try {
           responseBodyReader = new BufferedReader(new InputStreamReader(response.getBody()));
 
-          StringBuilder buffer = new StringBuilder();
+          var buffer = new StringBuilder();
           String line;
 
           while ((line = responseBodyReader.readLine()) != null) {
@@ -297,8 +297,8 @@ public class RestInterfaceIntegrationTest {
 
   @Test
   public void testRegionObjectWithDatePropertyAccessedWithRestApi() {
-    String key = "1";
-    Person jonDoe = createPerson("Jon", "Doe", createDate(1977, Calendar.OCTOBER, 31));
+    var key = "1";
+    var jonDoe = createPerson("Jon", "Doe", createDate(1977, Calendar.OCTOBER, 31));
 
     assertTrue(getPeopleRegion().isEmpty());
 
@@ -308,7 +308,7 @@ public class RestInterfaceIntegrationTest {
     assertEquals(1, getPeopleRegion().size());
     assertTrue(getPeopleRegion().containsKey(key));
 
-    Object jonDoeRef = getPeopleRegion().get(key);
+    var jonDoeRef = getPeopleRegion().get(key);
 
     assertTrue(jonDoeRef instanceof PdxInstance);
     assertEquals(jonDoe.getClass().getName(), ((PdxInstance) jonDoeRef).getClassName());
@@ -316,9 +316,9 @@ public class RestInterfaceIntegrationTest {
     assertEquals(jonDoe.getLastName(), ((PdxInstance) jonDoeRef).getField("lastName"));
     assertEquals(jonDoe.getBirthDate(), ((PdxInstance) jonDoeRef).getField("birthDate"));
 
-    RestTemplate restTemplate = createRestTemplate();
+    var restTemplate = createRestTemplate();
 
-    Person jonDoeResource = restTemplate
+    var jonDoeResource = restTemplate
         .getForObject(getRegionGetRestApiEndpoint(getPeopleRegion(), key), Person.class);
 
     assertNotNull(jonDoeResource);
@@ -332,7 +332,7 @@ public class RestInterfaceIntegrationTest {
      * System.out.printf("(OQL Query using API) Person is (%1$s)%n", result);
      */
 
-    String url = getAdhocQueryRestApiEndpoint(
+    var url = getAdhocQueryRestApiEndpoint(
         String.format("SELECT * FROM %1$s", getPeopleRegion().getFullPath()));
 
     System.out.printf("URL (%1$s)%n", url);
@@ -435,7 +435,7 @@ public class RestInterfaceIntegrationTest {
         return false;
       }
 
-      Person that = (Person) obj;
+      var that = (Person) obj;
 
       return ObjectUtils.nullSafeEquals(getFirstName(), that.getFirstName())
           && ObjectUtils.nullSafeEquals(getLastName(), that.getLastName())
@@ -444,7 +444,7 @@ public class RestInterfaceIntegrationTest {
 
     @Override
     public int hashCode() {
-      int hashValue = 17;
+      var hashValue = 17;
       hashValue = 37 * hashValue + ObjectUtils.nullSafeHashCode(getFirstName());
       hashValue = 37 * hashValue + ObjectUtils.nullSafeHashCode(getLastName());
       hashValue = 37 * hashValue + ObjectUtils.nullSafeHashCode(getBirthDate());

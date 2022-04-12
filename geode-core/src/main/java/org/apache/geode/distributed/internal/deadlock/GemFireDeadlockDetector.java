@@ -26,7 +26,6 @@ import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.execute.AbstractExecution;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 
@@ -56,8 +55,8 @@ public class GemFireDeadlockDetector {
    */
   public DependencyGraph find() {
 
-    final DeadlockDetector detector = new DeadlockDetector();
-    ResultCollector<HashSet<Dependency>, Serializable> collector =
+    final var detector = new DeadlockDetector();
+    var collector =
         new ResultCollector<HashSet<Dependency>, Serializable>() {
 
           @Override
@@ -118,15 +117,15 @@ public class GemFireDeadlockDetector {
 
     @Override
     public void execute(FunctionContext context) {
-      InternalDistributedSystem instance = InternalDistributedSystem.getAnyInstance();
+      var instance = InternalDistributedSystem.getAnyInstance();
       if (instance == null) {
         context.getResultSender().lastResult(new HashSet());
         return;
       }
 
-      InternalDistributedMember member = instance.getDistributedMember();
+      var member = instance.getDistributedMember();
 
-      Set<Dependency> dependencies = DeadlockDetector.collectAllDependencies(member);
+      var dependencies = DeadlockDetector.collectAllDependencies(member);
       context.getResultSender().lastResult(dependencies);
     }
 

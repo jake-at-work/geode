@@ -31,11 +31,8 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.TransactionId;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.dunit.rules.DistributedDiskDirRule;
@@ -76,12 +73,12 @@ public class PersistentRegionTransactionDUnitTest extends JUnit4CacheTestCase {
     createServer(server, true, false);
     putData(server);
     server.invoke(() -> getCache().close());
-    int port = createServer(server, true, false);
+    var port = createServer(server, true, false);
 
 
     client.invoke(() -> {
-      ClientCacheFactory factory = new ClientCacheFactory().addPoolServer("localhost", port);
-      ClientCache cache = getClientCache(factory);
+      var factory = new ClientCacheFactory().addPoolServer("localhost", port);
+      var cache = getClientCache(factory);
       cache.getCacheTransactionManager().begin();
       try {
         assertEquals(VALUE, cache.createClientRegionFactory(ClientRegionShortcut.PROXY)
@@ -104,7 +101,7 @@ public class PersistentRegionTransactionDUnitTest extends JUnit4CacheTestCase {
       if (!isOverflow) {
         System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
       }
-      CacheFactory cacheFactory = new CacheFactory();
+      var cacheFactory = new CacheFactory();
       Cache cache = getCache(cacheFactory);
       cache.createDiskStoreFactory().setQueueSize(3).setTimeInterval(10000).create("disk");
       if (isOverflow) {
@@ -116,7 +113,7 @@ public class PersistentRegionTransactionDUnitTest extends JUnit4CacheTestCase {
       } else {
         cache.createRegionFactory(RegionShortcut.REPLICATE_PERSISTENT).create(REGIONNAME);
       }
-      CacheServer cacheServer = cache.addCacheServer();
+      var cacheServer = cache.addCacheServer();
       cacheServer.setPort(0);
       cacheServer.start();
       return cacheServer.getPort();
@@ -125,11 +122,11 @@ public class PersistentRegionTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void clientTransactionCanGetEvictedEntryOnPersistentOverflowRegion() throws Exception {
-    int port = createServer(server, true, false);
+    var port = createServer(server, true, false);
     putData(server);
     client.invoke(() -> {
-      ClientCacheFactory factory = new ClientCacheFactory().addPoolServer("localhost", port);
-      ClientCache cache = getClientCache(factory);
+      var factory = new ClientCacheFactory().addPoolServer("localhost", port);
+      var cache = getClientCache(factory);
       cache.getCacheTransactionManager().begin();
       try {
         assertEquals(VALUE, cache.createClientRegionFactory(ClientRegionShortcut.PROXY)
@@ -145,7 +142,7 @@ public class PersistentRegionTransactionDUnitTest extends JUnit4CacheTestCase {
     createServer(server, true, false);
     putData(server);
     server.invoke(() -> {
-      LocalRegion region = (LocalRegion) getCache().getRegion(REGIONNAME);
+      var region = (LocalRegion) getCache().getRegion(REGIONNAME);
       await()
           .untilAsserted(() -> assertThat(region.getValueInVM(KEY)).isNull());
       getCache().getCacheTransactionManager().begin();
@@ -164,7 +161,7 @@ public class PersistentRegionTransactionDUnitTest extends JUnit4CacheTestCase {
     server.invoke(() -> getCache().close());
     createServer(server, true, false);
     server.invoke(() -> {
-      LocalRegion region = (LocalRegion) getCache().getRegion("region");
+      var region = (LocalRegion) getCache().getRegion("region");
       getCache().getCacheTransactionManager().begin();
       try {
         assertEquals(VALUE, region.get(KEY));
@@ -181,7 +178,7 @@ public class PersistentRegionTransactionDUnitTest extends JUnit4CacheTestCase {
     server.invoke(() -> getCache().close());
     createServer(server, false, false);
     server.invoke(() -> {
-      LocalRegion region = (LocalRegion) getCache().getRegion("region");
+      var region = (LocalRegion) getCache().getRegion("region");
       assertThat(region.getValueInVM(KEY)).isNull();
       getCache().getCacheTransactionManager().begin();
       try {
@@ -197,12 +194,12 @@ public class PersistentRegionTransactionDUnitTest extends JUnit4CacheTestCase {
     createServer(server, false, false);
     putData(server);
     server.invoke(() -> getCache().close());
-    int port = createServer(server, false, false);
+    var port = createServer(server, false, false);
 
 
     client.invoke(() -> {
-      ClientCacheFactory factory = new ClientCacheFactory().addPoolServer("localhost", port);
-      ClientCache cache = getClientCache(factory);
+      var factory = new ClientCacheFactory().addPoolServer("localhost", port);
+      var cache = getClientCache(factory);
       cache.getCacheTransactionManager().begin();
       try {
         assertEquals(VALUE, cache.createClientRegionFactory(ClientRegionShortcut.PROXY)
@@ -218,15 +215,15 @@ public class PersistentRegionTransactionDUnitTest extends JUnit4CacheTestCase {
     createServer(server, true, true);
     server.invoke(() -> {
       Cache cache = getCache();
-      DiskStoreImpl diskStore = (DiskStoreImpl) cache.findDiskStore("disk");
-      LocalRegion region = (LocalRegion) cache.getRegion("region");
+      var diskStore = (DiskStoreImpl) cache.findDiskStore("disk");
+      var region = (LocalRegion) cache.getRegion("region");
       region.put(1, "value1");
       region.put(2, "value2"); // causes key 1 to be evicted and sits in the async queue
-      TXManagerImpl txManager = getCache().getTxManager();
+      var txManager = getCache().getTxManager();
       txManager.begin();
       assertNotEquals(region.getValueInVM(1), Token.NOT_AVAILABLE);
       region.put(1, "new value");
-      TransactionId txId = txManager.suspend();
+      var txId = txManager.suspend();
       region.put(3, "value3");
       region.put(4, "value4");
       diskStore.flush();

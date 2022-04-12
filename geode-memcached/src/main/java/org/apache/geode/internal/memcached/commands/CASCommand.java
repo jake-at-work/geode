@@ -15,10 +15,8 @@
 package org.apache.geode.internal.memcached.commands;
 
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.internal.memcached.Reply;
 import org.apache.geode.internal.memcached.RequestReader;
 import org.apache.geode.internal.memcached.ValueWrapper;
@@ -42,28 +40,28 @@ public class CASCommand extends AbstractCommand {
   }
 
   private ByteBuffer processAsciiCommand(ByteBuffer buffer, Cache cache) {
-    CharBuffer flb = getFirstLineBuffer();
+    var flb = getFirstLineBuffer();
     getAsciiDecoder().reset();
     getAsciiDecoder().decode(buffer, flb, false);
     flb.flip();
-    String firstLine = getFirstLine();
-    String[] firstLineElements = firstLine.split(" ");
+    var firstLine = getFirstLine();
+    var firstLineElements = firstLine.split(" ");
 
-    String key = firstLineElements[1];
-    int flags = Integer.parseInt(firstLineElements[2]);
-    long expTime = Long.parseLong(firstLineElements[3]);
-    int numBytes = Integer.parseInt(firstLineElements[4]);
-    long casVersion = Long.parseLong(stripNewline(firstLineElements[5]));
+    var key = firstLineElements[1];
+    var flags = Integer.parseInt(firstLineElements[2]);
+    var expTime = Long.parseLong(firstLineElements[3]);
+    var numBytes = Integer.parseInt(firstLineElements[4]);
+    var casVersion = Long.parseLong(stripNewline(firstLineElements[5]));
 
-    byte[] value = new byte[numBytes];
+    var value = new byte[numBytes];
     buffer.position(firstLine.length());
-    for (int i = 0; i < numBytes; i++) {
+    for (var i = 0; i < numBytes; i++) {
       value[i] = buffer.get();
     }
 
-    String reply = Reply.EXISTS.toString();
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
-    ValueWrapper expected = ValueWrapper.getDummyValue(casVersion);
+    var reply = Reply.EXISTS.toString();
+    var r = getMemcachedRegion(cache);
+    var expected = ValueWrapper.getDummyValue(casVersion);
     if (r.replace(key, expected, ValueWrapper.getWrappedValue(value, flags))) {
       reply = Reply.STORED.toString();
     }

@@ -57,9 +57,9 @@ public class MonitoringRegionCacheListener extends CacheListenerAdapter<String, 
       }
       objectName = ObjectName.getInstance(event.getKey());
 
-      FederationComponent oldObject = (FederationComponent) event.getOldValue();
-      FederationComponent newObject = (FederationComponent) event.getNewValue();
-      String className = newObject.getMBeanInterfaceClass();
+      var oldObject = (FederationComponent) event.getOldValue();
+      var newObject = (FederationComponent) event.getNewValue();
+      var className = newObject.getMBeanInterfaceClass();
       Class interfaceClass;
       if (classRef.get(className) != null) {
         interfaceClass = classRef.get(className);
@@ -89,8 +89,8 @@ public class MonitoringRegionCacheListener extends CacheListenerAdapter<String, 
       }
       objectName = ObjectName.getInstance(event.getKey());
 
-      FederationComponent newObject = (FederationComponent) event.getNewValue();
-      String className = newObject.getMBeanInterfaceClass();
+      var newObject = (FederationComponent) event.getNewValue();
+      var className = newObject.getMBeanInterfaceClass();
       Class interfaceClass;
       if (classRef.get(className) != null) {
         interfaceClass = classRef.get(className);

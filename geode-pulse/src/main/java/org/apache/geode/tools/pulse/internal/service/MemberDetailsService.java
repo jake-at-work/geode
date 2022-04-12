@@ -22,7 +22,6 @@ import static org.apache.geode.tools.pulse.internal.util.NameUtil.makeCompliantN
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,18 +55,18 @@ public class MemberDetailsService implements PulseService {
   @Override
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
-    String userName = request.getUserPrincipal().getName();
+    var userName = request.getUserPrincipal().getName();
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    JsonNode requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
-    String memberName = requestDataJSON.get("MemberDetails").get("memberName").textValue();
+    var requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
+    var memberName = requestDataJSON.get("MemberDetails").get("memberName").textValue();
 
-    Cluster.Member clusterMember = cluster.getMember(makeCompliantName(memberName));
+    var clusterMember = cluster.getMember(makeCompliantName(memberName));
     if (clusterMember != null) {
       responseJSON.put("memberId", clusterMember.getId());
       responseJSON.put("name", clusterMember.getName());
@@ -75,7 +74,7 @@ public class MemberDetailsService implements PulseService {
       responseJSON.put("clusterId", cluster.getId());
       responseJSON.put("clusterName", cluster.getServerName());
       responseJSON.put("userName", userName);
-      double loadAvg = clusterMember.getLoadAverage();
+      var loadAvg = clusterMember.getLoadAverage();
       responseJSON.put("loadAverage", TWO_PLACE_DECIMAL_FORMAT.format(loadAvg));
       responseJSON.put("sockets", clusterMember.getTotalFileDescriptorOpen());
       responseJSON.put("threads", clusterMember.getNumThreads());
@@ -86,16 +85,16 @@ public class MemberDetailsService implements PulseService {
       // Number of member clients
       responseJSON.put("numClients", clusterMember.getMemberClientsHMap().size());
 
-      long diskUsageVal = clusterMember.getTotalDiskUsage();
-      double diskUsage = diskUsageVal / 1024D;
+      var diskUsageVal = clusterMember.getTotalDiskUsage();
+      var diskUsage = diskUsageVal / 1024D;
 
       responseJSON.put("diskStorageUsed", TWO_PLACE_DECIMAL_FORMAT.format(diskUsage));
 
-      Cluster.Alert[] alertsList = cluster.getAlertsList();
+      var alertsList = cluster.getAlertsList();
 
-      String status = "Normal";
+      var status = "Normal";
 
-      for (Cluster.Alert alert : alertsList) {
+      for (var alert : alertsList) {
         if (clusterMember.getName().equals(alert.getMemberName())) {
           if (alert.getSeverity() == Cluster.Alert.SEVERE) {
             status = "Severe";

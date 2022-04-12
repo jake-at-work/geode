@@ -49,11 +49,11 @@ public class FileSystemCanaryIntegrationTest {
 
   @Before
   public void setUp() {
-    String name = testName.getMethodName();
+    var name = testName.getMethodName();
     file = new File(temporaryFolder.getRoot(), name + "-main.log");
 
     lines = new ArrayList<>();
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       lines.add("Line-" + i);
     }
   }

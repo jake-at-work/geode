@@ -37,7 +37,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexNameConflictException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.internal.DefaultQuery;
@@ -100,7 +99,7 @@ public class PRQueryDistributedTest implements Serializable {
 
     vm0.invoke("putting data", () -> {
       Region region = cacheRule.getCache().getRegion(regionName);
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         region.put(i, new TestObject(i));
       }
     });
@@ -141,14 +140,14 @@ public class PRQueryDistributedTest implements Serializable {
     });
 
     vm1.invoke(() -> {
-      Query query = cacheRule.getCache().getQueryService()
+      var query = cacheRule.getCache().getQueryService()
           .newQuery("<trace> select * from " + SEPARATOR + regionName + " r where r > 0");
-      SelectResults results = (SelectResults) query.execute();
+      var results = (SelectResults) query.execute();
       assertThat(results.asSet()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
     });
 
     vm1.invoke(() -> {
-      PRQueryTraceTestHook server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server1TestHookInVM1.getHooks().get(TestHook.SPOTS.PULL_OFF_PR_QUERY_TRACE_INFO))
           .isTrue();
       assertThat(server1TestHookInVM1.getHooks().get(TestHook.SPOTS.CREATE_PR_QUERY_TRACE_STRING))
@@ -158,7 +157,7 @@ public class PRQueryDistributedTest implements Serializable {
               .isTrue();
     });
     vm2.invoke(() -> {
-      PRQueryTraceTestHook server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server2TestHookInVM2.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.POPULATING_TRACE_INFO_FOR_REMOTE_QUERY))
               .isTrue();
@@ -190,14 +189,14 @@ public class PRQueryDistributedTest implements Serializable {
     });
 
     vm1.invoke(() -> {
-      Query query = cacheRule.getCache().getQueryService()
+      var query = cacheRule.getCache().getQueryService()
           .newQuery("<trace> select * from " + SEPARATOR + regionName + " r where r > 0");
-      SelectResults results = (SelectResults) query.execute();
+      var results = (SelectResults) query.execute();
       assertThat(results.asSet()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
     });
 
     vm1.invoke(() -> {
-      PRQueryTraceTestHook server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server1TestHookInVM1.getHooks().get(TestHook.SPOTS.PULL_OFF_PR_QUERY_TRACE_INFO))
           .isTrue();
       assertThat(server1TestHookInVM1.getHooks().get(TestHook.SPOTS.CREATE_PR_QUERY_TRACE_STRING))
@@ -207,7 +206,7 @@ public class PRQueryDistributedTest implements Serializable {
               .isTrue();
     });
     vm2.invoke(() -> {
-      PRQueryTraceTestHook server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server2TestHookInVM2.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.POPULATING_TRACE_INFO_FOR_REMOTE_QUERY))
               .isTrue();
@@ -239,14 +238,14 @@ public class PRQueryDistributedTest implements Serializable {
     });
 
     vm1.invoke(() -> {
-      Query query = cacheRule.getCache().getQueryService()
+      var query = cacheRule.getCache().getQueryService()
           .newQuery("select * from " + SEPARATOR + regionName + " r where r > 0");
-      SelectResults results = (SelectResults) query.execute();
+      var results = (SelectResults) query.execute();
       assertThat(results.asSet()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
     });
 
     vm1.invoke(() -> {
-      PRQueryTraceTestHook server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server1TestHookInVM1.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.PULL_OFF_PR_QUERY_TRACE_INFO)).isNull();
       assertThat(server1TestHookInVM1.getHooks()
@@ -256,7 +255,7 @@ public class PRQueryDistributedTest implements Serializable {
               .isTrue();
     });
     vm2.invoke(() -> {
-      PRQueryTraceTestHook server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server2TestHookInVM2.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.POPULATING_TRACE_INFO_FOR_REMOTE_QUERY))
               .isNull();
@@ -289,14 +288,14 @@ public class PRQueryDistributedTest implements Serializable {
     });
 
     vm1.invoke(() -> {
-      Query query = cacheRule.getCache().getQueryService()
+      var query = cacheRule.getCache().getQueryService()
           .newQuery("select * from " + SEPARATOR + regionName + " r where r > 0");
-      SelectResults results = (SelectResults) query.execute();
+      var results = (SelectResults) query.execute();
       assertThat(results.asSet()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
     });
 
     vm1.invoke(() -> {
-      PRQueryTraceTestHook server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server1TestHookInVM1.getHooks()
           .get(TestHook.SPOTS.PULL_OFF_PR_QUERY_TRACE_INFO)).isTrue();
       assertThat(server1TestHookInVM1.getHooks()
@@ -306,7 +305,7 @@ public class PRQueryDistributedTest implements Serializable {
               .isNull();
     });
     vm2.invoke(() -> {
-      PRQueryTraceTestHook server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server2TestHookInVM2.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.POPULATING_TRACE_INFO_FOR_REMOTE_QUERY))
               .isTrue();
@@ -337,14 +336,14 @@ public class PRQueryDistributedTest implements Serializable {
     });
 
     vm1.invoke(() -> {
-      Query query = cacheRule.getCache().getQueryService()
+      var query = cacheRule.getCache().getQueryService()
           .newQuery("<trace> select * from " + SEPARATOR + regionName + " r where r > 0");
-      SelectResults results = (SelectResults) query.execute();
+      var results = (SelectResults) query.execute();
       assertThat(results.asSet()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
     });
 
     vm1.invoke(() -> {
-      PRQueryTraceTestHook server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server1TestHookInVM1.getHooks().get(TestHook.SPOTS.PULL_OFF_PR_QUERY_TRACE_INFO))
           .isTrue();
       assertThat(server1TestHookInVM1.getHooks().get(TestHook.SPOTS.CREATE_PR_QUERY_TRACE_STRING))
@@ -354,7 +353,7 @@ public class PRQueryDistributedTest implements Serializable {
               .isTrue();
     });
     vm2.invoke(() -> {
-      PRQueryTraceTestHook server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server2TestHookInVM2.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.POPULATING_TRACE_INFO_FOR_REMOTE_QUERY))
               .isTrue();
@@ -386,14 +385,14 @@ public class PRQueryDistributedTest implements Serializable {
     });
 
     vm1.invoke(() -> {
-      Query query = cacheRule.getCache().getQueryService()
+      var query = cacheRule.getCache().getQueryService()
           .newQuery("select * from " + SEPARATOR + regionName + " r where r > 0");
-      SelectResults results = (SelectResults) query.execute();
+      var results = (SelectResults) query.execute();
       assertThat(results.asSet()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
     });
 
     vm1.invoke(() -> {
-      PRQueryTraceTestHook server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server1TestHookInVM1.getHooks()
           .get(TestHook.SPOTS.PULL_OFF_PR_QUERY_TRACE_INFO)).isTrue();
       assertThat(server1TestHookInVM1.getHooks()
@@ -403,7 +402,7 @@ public class PRQueryDistributedTest implements Serializable {
               .isNull();
     });
     vm2.invoke(() -> {
-      PRQueryTraceTestHook server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server2TestHookInVM2.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.POPULATING_TRACE_INFO_FOR_REMOTE_QUERY))
               .isTrue();
@@ -434,14 +433,14 @@ public class PRQueryDistributedTest implements Serializable {
     });
 
     vm1.invoke(() -> {
-      Query query = cacheRule.getCache().getQueryService()
+      var query = cacheRule.getCache().getQueryService()
           .newQuery("select * from " + SEPARATOR + regionName + " r where r > 0");
-      SelectResults results = (SelectResults) query.execute();
+      var results = (SelectResults) query.execute();
       assertThat(results.asSet()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
     });
 
     vm1.invoke(() -> {
-      PRQueryTraceTestHook server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server1TestHookInVM1.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.PULL_OFF_PR_QUERY_TRACE_INFO)).isNull();
       assertThat(server1TestHookInVM1.getHooks()
@@ -451,7 +450,7 @@ public class PRQueryDistributedTest implements Serializable {
               .isNull();
     });
     vm2.invoke(() -> {
-      PRQueryTraceTestHook server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server2TestHookInVM2.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.POPULATING_TRACE_INFO_FOR_REMOTE_QUERY))
               .isNull();
@@ -482,14 +481,14 @@ public class PRQueryDistributedTest implements Serializable {
     });
 
     vm1.invoke(() -> {
-      Query query = cacheRule.getCache().getQueryService()
+      var query = cacheRule.getCache().getQueryService()
           .newQuery("<trace> select * from " + SEPARATOR + regionName + " r where r > 0");
-      SelectResults results = (SelectResults) query.execute();
+      var results = (SelectResults) query.execute();
       assertThat(results.asSet()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
     });
 
     vm1.invoke(() -> {
-      PRQueryTraceTestHook server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server1TestHookInVM1 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server1TestHookInVM1.getHooks().get(TestHook.SPOTS.PULL_OFF_PR_QUERY_TRACE_INFO))
           .isTrue();
       assertThat(server1TestHookInVM1.getHooks().get(TestHook.SPOTS.CREATE_PR_QUERY_TRACE_STRING))
@@ -499,7 +498,7 @@ public class PRQueryDistributedTest implements Serializable {
               .isTrue();
     });
     vm2.invoke(() -> {
-      PRQueryTraceTestHook server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
+      var server2TestHookInVM2 = (PRQueryTraceTestHook) DefaultQuery.testHook;
       assertThat(server2TestHookInVM2.getHooks()
           .get(DefaultQuery.TestHook.SPOTS.POPULATING_TRACE_INFO_FOR_REMOTE_QUERY))
               .isTrue();
@@ -511,14 +510,14 @@ public class PRQueryDistributedTest implements Serializable {
 
   private void createPartitionedRegion() {
     cacheRule.createCache();
-    PartitionAttributesFactory paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
+    var paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
     cacheRule.getCache().createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(paf.create()).create(regionName);
   }
 
   private void createAccessor() {
     cacheRule.createCache();
-    PartitionAttributesFactory paf =
+    var paf =
         new PartitionAttributesFactory().setTotalNumBuckets(10).setLocalMaxMemory(0);
     cacheRule.getCache().createRegionFactory(RegionShortcut.PARTITION_PROXY)
         .setPartitionAttributes(paf.create()).create(regionName);
@@ -526,7 +525,7 @@ public class PRQueryDistributedTest implements Serializable {
 
   private void createBuckets() {
     Region region = cacheRule.getCache().getRegion(regionName);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       region.put(i, i);
     }
   }

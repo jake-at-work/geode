@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,22 +56,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.CacheClosedException;
-import org.apache.geode.cache.DiskStoreFactory;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.PartitionedRegionStorageException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
-import org.apache.geode.cache.control.RebalanceOperation;
-import org.apache.geode.cache.control.RebalanceResults;
 import org.apache.geode.cache.persistence.PartitionOfflineException;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.locks.DLockRequestProcessor;
-import org.apache.geode.internal.admin.remote.AdminFailureResponse;
 import org.apache.geode.internal.cache.DestroyRegionOperation.DestroyRegionMessage;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.lang.SystemUtils;
@@ -141,7 +134,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
     vm2 = getVM(2);
     vm3 = getVM(3);
 
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
     regionName1 = uniqueName + "_region1";
     regionName2 = uniqueName + "_region2";
     regionName3 = uniqueName + "_region3";
@@ -185,11 +178,11 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
       assertThat(getCache().getDistributionManager().getNormalDistributionManagerIds()).hasSize(3);
     });
 
-    BackupStatus status = vm2.invoke(this::backupMember);
+    var status = vm2.invoke(this::backupMember);
     assertThat(status.getBackedUpDiskStores()).hasSize(2);
     assertThat(status.getOfflineDiskStores()).isEmpty();
 
-    Collection<File> files = FileUtils.listFiles(backupBaseDir, new String[] {"txt"}, true);
+    var files = FileUtils.listFiles(backupBaseDir, new String[] {"txt"}, true);
     assertThat(files).hasSize(4);
 
     vm0.invoke(() -> deleteOldUserFile(getDiskDirFor(vm0)));
@@ -227,7 +220,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
   @Test
   public void testBackupDuringGII() throws Exception {
     getBlackboard().initBlackboard();
-    String diskStoreName = getUniqueName();
+    var diskStoreName = getUniqueName();
 
     vm0.invoke(() -> createReplicatedRegion(regionName1, diskStoreName, getDiskStoreFor(vm0), true,
         false));
@@ -328,10 +321,10 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
       createData(0, 5, "B", regionName2);
     });
 
-    BackupStatus status = vm1.invoke(this::backupMember);
+    var status = vm1.invoke(this::backupMember);
     assertThat(status.getBackedUpDiskStores()).hasSize(2);
 
-    for (DistributedMember key : status.getBackedUpDiskStores().keySet()) {
+    for (var key : status.getBackedUpDiskStores().keySet()) {
       assertThat(key).isNotNull();
     }
     assertThat(status.getOfflineDiskStores()).isEmpty();
@@ -371,15 +364,15 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
     // create the pr on vm1, which won't have any buckets
     vm1.invoke(() -> createRegions(vm1));
 
-    CompletableFuture<BackupStatus> backupStatusFuture =
+    var backupStatusFuture =
         CompletableFuture.supplyAsync(() -> vm2.invoke(this::backupMember));
 
-    CompletableFuture<Void> createDataFuture =
+    var createDataFuture =
         CompletableFuture.runAsync(() -> vm0.invoke(() -> createData(1, 5, "A", regionName1)));
 
     CompletableFuture.allOf(backupStatusFuture, createDataFuture);
 
-    BackupStatus status = backupStatusFuture.get();
+    var status = backupStatusFuture.get();
     assertThat(status.getBackedUpDiskStores()).hasSize(2);
     assertThat(status.getOfflineDiskStores()).isEmpty();
 
@@ -435,8 +428,8 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
 
     // Perform a rebalance. This will trigger the backup in the middle of the bucket move.
     vm0.invoke("Do rebalance", () -> {
-      RebalanceOperation op = getCache().getResourceManager().createRebalanceFactory().start();
-      RebalanceResults results = op.getResults();
+      var op = getCache().getResourceManager().createRebalanceFactory().start();
+      var results = op.getResults();
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(1);
     });
 
@@ -462,7 +455,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
     addIgnoredException("Uncaught exception");
     addIgnoredException("Stop processing");
 
-    String exceptionMessage = "Backup in progress";
+    var exceptionMessage = "Backup in progress";
 
     vm0.invoke(() -> {
       disconnectFromDS();
@@ -482,7 +475,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
         .hasRootCauseInstanceOf(IOException.class);
 
     // second backup should succeed because the observer and backup state has been cleared
-    BackupStatus status = vm2.invoke(this::backupMember);
+    var status = vm2.invoke(this::backupMember);
     assertThat(status.getBackedUpDiskStores()).hasSize(2);
     assertThat(status.getOfflineDiskStores()).isEmpty();
   }
@@ -500,7 +493,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
       createData(0, 5, "B", regionName2);
     });
 
-    BackupStatus status = vm2.invoke(this::backupMember);
+    var status = vm2.invoke(this::backupMember);
     assertThat(status.getBackedUpDiskStores()).hasSize(1);
     assertThat(status.getBackedUpDiskStores().values().iterator().next()).hasSize(2);
     assertThat(status.getOfflineDiskStores()).isEmpty();
@@ -521,7 +514,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
 
     vm1.invoke(() -> getCache().close());
 
-    BackupStatus status = vm3.invoke(this::backupMember);
+    var status = vm3.invoke(this::backupMember);
     assertThat(status.getBackedUpDiskStores()).hasSize(2);
     assertThat(status.getOfflineDiskStores()).hasSize(2);
   }
@@ -557,7 +550,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
     AsyncInvocation putsInVM0 = vm0.invokeAsync(() -> {
       Region region = getCache().getRegion(regionName1);
       try {
-        for (int i = 0;; i++) {
+        for (var i = 0;; i++) {
           try {
             region.get(i % NUM_BUCKETS);
           } catch (PartitionOfflineException | PartitionedRegionStorageException expected) {
@@ -655,8 +648,8 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
       public void beforeProcessMessage(ClusterDistributionManager dm, DistributionMessage message) {
         if (message instanceof PrepareBackupRequest) {
           DistributionMessageObserver.setInstance(null);
-          IOException exception = new IOException(exceptionMessage);
-          AdminFailureResponse response = create(message.getSender(), exception);
+          var exception = new IOException(exceptionMessage);
+          var response = create(message.getSender(), exception);
           response.setMsgId(((PrepareBackupRequest) message).getMsgId());
           dm.putOutgoing(response);
           throw new RuntimeException("Stop processing");
@@ -707,32 +700,32 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
   private void createPersistentRegions(final VM... vms)
       throws ExecutionException, InterruptedException {
     Set<AsyncInvocation> createRegionAsyncs = new HashSet<>();
-    for (VM vm : vms) {
+    for (var vm : vms) {
       createRegionAsyncs.add(vm.invokeAsync(() -> createRegions(vm)));
     }
-    for (AsyncInvocation createRegion : createRegionAsyncs) {
+    for (var createRegion : createRegionAsyncs) {
       createRegion.await();
     }
   }
 
   private void validateBackupComplete() {
-    Pattern pattern = Pattern.compile(".*INCOMPLETE.*");
-    File[] files = backupBaseDir.listFiles((dir, name) -> pattern.matcher(name).matches());
+    var pattern = Pattern.compile(".*INCOMPLETE.*");
+    var files = backupBaseDir.listFiles((dir, name) -> pattern.matcher(name).matches());
 
     assertThat(files).isNotNull().hasSize(0);
   }
 
   private void deleteOldUserFile(final File dir) throws IOException {
-    File userDir = new File(dir, "userbackup-");
+    var userDir = new File(dir, "userbackup-");
     FileUtils.deleteDirectory(userDir);
   }
 
   private long setBackupFiles(final File dir) throws IOException {
-    File dir1 = new File(dir, "test1");
-    File dir2 = new File(dir1, "test2");
+    var dir1 = new File(dir, "test1");
+    var dir2 = new File(dir1, "test2");
     dir2.mkdirs();
 
-    File textFile = new File(dir2, "my.txt");
+    var textFile = new File(dir2, "my.txt");
     Files.createFile(textFile.toPath());
 
     List<File> backupList = new ArrayList<>();
@@ -743,9 +736,9 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
   }
 
   private void verifyUserFileRestored(final File dir, final long expectedLastModified) {
-    File dir1 = new File(dir, "test1");
-    File dir2 = new File(dir1, "test2");
-    File textFile = new File(dir2, "my.txt");
+    var dir1 = new File(dir, "test1");
+    var dir2 = new File(dir1, "test2");
+    var textFile = new File(dir2, "my.txt");
 
     assertThat(textFile).exists();
     assertThat(textFile.lastModified()).isEqualTo(expectedLastModified);
@@ -758,11 +751,11 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
 
   private void createRegion(final String regionName, final String diskStoreName,
       final File diskDir) {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(toArray(diskDir));
     diskStoreFactory.setMaxOplogSize(1);
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(0);
 
     RegionFactory regionFactory = getCache().createRegionFactory(PARTITION_PERSISTENT);
@@ -774,7 +767,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
 
   private void createReplicatedRegion(final String regionName, final String diskStoreName,
       final File diskDir, boolean sync, boolean delayDiskStoreFlush) {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(toArray(diskDir));
     diskStoreFactory.setMaxOplogSize(1);
     if (delayDiskStoreFlush) {
@@ -792,15 +785,15 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
   }
 
   private void createColocatedRegions(final VM vm) {
-    DiskStoreFactory diskStoreFactory1 = getCache().createDiskStoreFactory();
+    var diskStoreFactory1 = getCache().createDiskStoreFactory();
     diskStoreFactory1.setDiskDirs(toArray(getDiskStoreFor(vm, 1)));
     diskStoreFactory1.setMaxOplogSize(1);
 
-    DiskStoreFactory diskStoreFactory2 = getCache().createDiskStoreFactory();
+    var diskStoreFactory2 = getCache().createDiskStoreFactory();
     diskStoreFactory2.setDiskDirs(toArray(getDiskStoreFor(vm, 2)));
     diskStoreFactory2.setMaxOplogSize(1);
 
-    PartitionAttributesFactory partitionAttributesFactory1 = new PartitionAttributesFactory();
+    var partitionAttributesFactory1 = new PartitionAttributesFactory();
     partitionAttributesFactory1.setRedundantCopies(0);
 
     RegionFactory regionFactory1 = getCache().createRegionFactory(PARTITION_PERSISTENT);
@@ -809,7 +802,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
     regionFactory1.setDiskSynchronous(true);
     regionFactory1.create(regionName1);
 
-    PartitionAttributesFactory partitionAttributesFactory2 = new PartitionAttributesFactory();
+    var partitionAttributesFactory2 = new PartitionAttributesFactory();
     partitionAttributesFactory2.setColocatedWith(regionName1);
     partitionAttributesFactory2.setRedundantCopies(0);
 
@@ -821,10 +814,10 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
   }
 
   private void createRegionWithOverflow(final File diskDir) {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(toArray(diskDir));
 
-    EvictionAttributes evictionAttributes = createLIFOEntryAttributes(1, OVERFLOW_TO_DISK);
+    var evictionAttributes = createLIFOEntryAttributes(1, OVERFLOW_TO_DISK);
 
     RegionFactory regionFactory = getCache().createRegionFactory(REPLICATE);
     regionFactory.setDiskStoreName(diskStoreFactory.create(getUniqueName()).getName());
@@ -837,7 +830,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
       final String regionName) {
     Region<Integer, String> region = getCache().getRegion(regionName);
 
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       region.put(i, value);
     }
   }
@@ -846,7 +839,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
       final String regionName) {
     Region region = getCache().getRegion(regionName);
 
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       assertThat(region.get(i)).isEqualTo(value);
     }
   }
@@ -858,12 +851,12 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
 
   private void restoreBackup(final int expectedScriptCount)
       throws IOException, InterruptedException {
-    Collection<File> restoreScripts =
+    var restoreScripts =
         listFiles(backupBaseDir, new RegexFileFilter(".*restore.*"), DIRECTORY);
 
     assertThat(restoreScripts).hasSize(expectedScriptCount);
 
-    for (File script : restoreScripts) {
+    for (var script : restoreScripts) {
       executeScript(script);
     }
   }
@@ -880,7 +873,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
   }
 
   private void createAccessor() {
-    PartitionAttributesFactory partitionAttributesFactory1 = new PartitionAttributesFactory();
+    var partitionAttributesFactory1 = new PartitionAttributesFactory();
     partitionAttributesFactory1.setLocalMaxMemory(0);
     partitionAttributesFactory1.setRedundantCopies(0);
 
@@ -888,7 +881,7 @@ public class BackupDistributedTest extends JUnit4DistributedTestCase implements 
     regionFactory1.setPartitionAttributes(partitionAttributesFactory1.create());
     regionFactory1.create(regionName1);
 
-    PartitionAttributesFactory partitionAttributesFactory2 = new PartitionAttributesFactory();
+    var partitionAttributesFactory2 = new PartitionAttributesFactory();
     partitionAttributesFactory2.setLocalMaxMemory(0);
     partitionAttributesFactory2.setRedundantCopies(0);
     partitionAttributesFactory2.setColocatedWith(regionName1);

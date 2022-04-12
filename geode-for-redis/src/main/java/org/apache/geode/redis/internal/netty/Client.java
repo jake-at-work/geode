@@ -74,7 +74,7 @@ public class Client {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Client client = (Client) o;
+    var client = (Client) o;
     return Objects.equals(channel, client.channel);
   }
 
@@ -139,7 +139,7 @@ public class Client {
       return channel.writeAndFlush(buffer);
     } else {
       // snapshot buffer before netty reuses it
-      final byte[] bufferBytes = getBufferBytes(buffer);
+      final var bufferBytes = getBufferBytes(buffer);
       return channel.writeAndFlush(buffer)
           .addListener(
               (ChannelFutureListener) f -> logResponse(bufferBytes, channel.remoteAddress(),
@@ -149,8 +149,8 @@ public class Client {
 
   @VisibleForTesting
   byte[] getBufferBytes(ByteBuf buffer) {
-    int size = buffer.readableBytes();
-    byte[] result = new byte[size];
+    var size = buffer.readableBytes();
+    var result = new byte[size];
     buffer.getBytes(0, result);
     return result;
   }
@@ -169,7 +169,7 @@ public class Client {
 
   private void logResponse(RedisResponse response, Object extraMessage, Throwable cause) {
     if (logger.isDebugEnabled() && response != null) {
-      ByteBuf buf = response.encode(new UnpooledByteBufAllocator(false));
+      var buf = response.encode(new UnpooledByteBufAllocator(false));
       if (cause == null) {
         logger.debug("Redis command returned: {} - {}",
             Command.getHexEncodedString(buf.array(), buf.readableBytes()), extraMessage);

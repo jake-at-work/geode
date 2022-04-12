@@ -97,7 +97,7 @@ public class ShowMissingDiskStoresFunctionTest {
 
   @Test
   public void execute_throwsRuntimeException_whenFunctionContextIsNull() {
-    Throwable thrown = catchThrowable(() -> showMissingDiskStoresFunction.execute(null));
+    var thrown = catchThrowable(() -> showMissingDiskStoresFunction.execute(null));
 
     // NOTE: throwing RuntimeException with no message is a bad practice
     assertThat(thrown)
@@ -123,8 +123,8 @@ public class ShowMissingDiskStoresFunctionTest {
 
   @Test
   public void execute_resultsContains_MissingDiskStores() throws UnknownHostException {
-    PersistentMemberID persistentMemberId1 = persistentMemberID("/directory1", 1, (short) 1);
-    PersistentMemberID persistentMemberId2 = persistentMemberID("/directory2", 2, (short) 2);
+    var persistentMemberId1 = persistentMemberID("/directory1", 1, (short) 1);
+    var persistentMemberId2 = persistentMemberID("/directory2", 2, (short) 2);
     Map<String, Set<PersistentMemberID>> waitingRegions = new HashMap<>();
     waitingRegions.put("region1", new HashSet<>(asList(persistentMemberId1, persistentMemberId2)));
 
@@ -133,7 +133,7 @@ public class ShowMissingDiskStoresFunctionTest {
 
     showMissingDiskStoresFunction.execute(functionContext);
 
-    List<Set<?>> results = getResults(functionContext.getResultSender());
+    var results = getResults(functionContext.getResultSender());
     assertThat(results)
         .as("results collection")
         .hasSize(1);
@@ -148,7 +148,7 @@ public class ShowMissingDiskStoresFunctionTest {
 
   @Test
   public void execute_resultsContains_MissingColocatedRegions() {
-    InternalDistributedMember member = distributedMember("host1", "name1");
+    var member = distributedMember("host1", "name1");
 
     when(cache.getMyId()).thenReturn(member);
     when(cache.getPartitionedRegions()).thenReturn(asSet(region1, region2));
@@ -158,7 +158,7 @@ public class ShowMissingDiskStoresFunctionTest {
 
     showMissingDiskStoresFunction.execute(functionContext);
 
-    List<Set<?>> results = getResults(functionContext.getResultSender());
+    var results = getResults(functionContext.getResultSender());
     assertThat(results)
         .as("results collection")
         .hasSize(1);
@@ -174,9 +174,9 @@ public class ShowMissingDiskStoresFunctionTest {
   @Test
   public void execute_resultsContains_missingDiskStores_andMissingColocatedRegions()
       throws UnknownHostException {
-    InternalDistributedMember member = distributedMember("host2", "name2");
-    PersistentMemberID persistentMemberId1 = persistentMemberID("/directory1", 1, (short) 1);
-    PersistentMemberID persistentMemberId2 = persistentMemberID("/directory2", 2, (short) 2);
+    var member = distributedMember("host2", "name2");
+    var persistentMemberId1 = persistentMemberID("/directory1", 1, (short) 1);
+    var persistentMemberId2 = persistentMemberID("/directory2", 2, (short) 2);
     Map<String, Set<PersistentMemberID>> waitingRegions = new HashMap<>();
     waitingRegions.put("region2", asSet(persistentMemberId1, persistentMemberId2));
 
@@ -189,7 +189,7 @@ public class ShowMissingDiskStoresFunctionTest {
 
     showMissingDiskStoresFunction.execute(functionContext);
 
-    List<Set<?>> results = getResults(functionContext.getResultSender());
+    var results = getResults(functionContext.getResultSender());
     assertThat(results)
         .as("results collection")
         .hasSize(2);
@@ -253,7 +253,7 @@ public class ShowMissingDiskStoresFunctionTest {
   }
 
   private static InternalDistributedMember distributedMember(String host, String name) {
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var member = mock(InternalDistributedMember.class);
     when(member.getHost()).thenReturn(host);
     when(member.getName()).thenReturn(name);
     return member;

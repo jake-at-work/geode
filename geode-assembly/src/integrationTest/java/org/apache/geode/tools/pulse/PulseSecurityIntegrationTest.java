@@ -28,7 +28,6 @@ import org.apache.geode.test.junit.categories.PulseTest;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.EmbeddedPulseRule;
 import org.apache.geode.test.junit.rules.LocatorStarterRule;
-import org.apache.geode.tools.pulse.internal.data.Cluster;
 
 @Category({SecurityTest.class, PulseTest.class})
 public class PulseSecurityIntegrationTest {
@@ -44,33 +43,33 @@ public class PulseSecurityIntegrationTest {
   public void getAttributesWithSecurityManager() {
     pulse.useJmxPort(locator.getJmxPort());
 
-    ManagementService service =
+    var service =
         ManagementService.getExistingManagementService(locator.getLocator().getCache());
 
     await()
         .untilAsserted(() -> assertThat(service.getMemberMXBean()).isNotNull());
 
-    Cluster cluster = pulse.getRepository().getClusterWithUserNameAndPassword("cluster", "cluster");
-    Cluster.Member[] members = cluster.getMembers();
+    var cluster = pulse.getRepository().getClusterWithUserNameAndPassword("cluster", "cluster");
+    var members = cluster.getMembers();
     assertThat(members.length).isEqualTo(1);
     assertThat(members[0].getName()).isEqualTo("locator");
   }
 
   @Test
   public void getAttributesWithSecurityManagerAndTokenLogin() {
-    String tokenValue = "atleast20charactersoftokenimsure";
-    String userName = "cluster";
+    var tokenValue = "atleast20charactersoftokenimsure";
+    var userName = "cluster";
 
     pulse.useJmxPort(locator.getJmxPort());
 
-    ManagementService service =
+    var service =
         ManagementService.getExistingManagementService(locator.getLocator().getCache());
 
     await()
         .untilAsserted(() -> assertThat(service.getMemberMXBean()).isNotNull());
 
-    Cluster cluster = pulse.getRepository().getClusterWithCredentials(userName, tokenValue);
-    Cluster.Member[] members = cluster.getMembers();
+    var cluster = pulse.getRepository().getClusterWithCredentials(userName, tokenValue);
+    var members = cluster.getMembers();
     assertThat(members.length).isEqualTo(1);
     assertThat(members[0].getName()).isEqualTo("locator");
   }

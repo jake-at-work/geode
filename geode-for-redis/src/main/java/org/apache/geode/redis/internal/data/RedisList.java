@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Objects;
 
 import org.apache.geode.DataSerializable;
@@ -46,7 +45,6 @@ import org.apache.geode.redis.internal.data.delta.ReplaceByteArrayAtOffset;
 import org.apache.geode.redis.internal.eventing.BlockingCommandListener;
 import org.apache.geode.redis.internal.eventing.NotificationEvent;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
-import org.apache.geode.redis.internal.services.RegionProvider;
 
 public class RedisList extends AbstractRedisData {
 
@@ -69,11 +67,11 @@ public class RedisList extends AbstractRedisData {
 
   public static List<byte[]> blpop(ExecutionHandlerContext context, Command command,
       List<RedisKey> keys, double timeoutSeconds) {
-    RegionProvider regionProvider = context.getRegionProvider();
-    for (RedisKey key : keys) {
+    var regionProvider = context.getRegionProvider();
+    for (var key : keys) {
       RedisList list = regionProvider.getTypedRedisData(REDIS_LIST, key, false);
       if (!list.isNull()) {
-        byte[] poppedValue = list.lpop(context.getRegion(), key);
+        var poppedValue = list.lpop(context.getRegion(), key);
 
         // return the key and value
         List<byte[]> result = new ArrayList<>(2);
@@ -186,32 +184,32 @@ public class RedisList extends AbstractRedisData {
     start = normalizeStartIndex(start);
     stop = normalizeStopIndex(stop);
 
-    int elementSize = elementList.size();
+    var elementSize = elementList.size();
     if (start > stop || elementSize <= start) {
       return Collections.emptyList();
     }
 
-    int resultLength = stop - start + 1;
+    var resultLength = stop - start + 1;
 
     // Finds the shortest distance to access nodes in range
     if (start <= elementSize - stop - 1) {
       // Starts at head to access nodes at start index then iterates forwards
       List<byte[]> result = new ArrayList<>(resultLength);
-      ListIterator<byte[]> iterator = elementList.listIterator(start);
+      var iterator = elementList.listIterator(start);
 
-      for (int i = start; i <= stop; i++) {
-        byte[] element = iterator.next();
+      for (var i = start; i <= stop; i++) {
+        var element = iterator.next();
         result.add(element);
       }
       return result;
 
     } else {
       // Starts at tail to access nodes at stop index then iterates backwards
-      byte[][] result = new byte[resultLength][];
-      ListIterator<byte[]> iterator = elementList.listIterator(stop + 1);
+      var result = new byte[resultLength][];
+      var iterator = elementList.listIterator(stop + 1);
 
-      for (int i = resultLength - 1; i >= 0; i--) {
-        byte[] element = iterator.previous();
+      for (var i = resultLength - 1; i >= 0; i--) {
+        var element = iterator.previous();
         result[i] = element;
       }
       return Arrays.asList(result);
@@ -252,8 +250,8 @@ public class RedisList extends AbstractRedisData {
    * @param value the value to set
    */
   public void lset(Region<RedisKey, RedisData> region, RedisKey key, int index, byte[] value) {
-    int listSize = elementList.size();
-    int adjustedIndex = index >= 0 ? index : listSize + index;
+    var listSize = elementList.size();
+    var adjustedIndex = index >= 0 ? index : listSize + index;
     if (adjustedIndex > listSize - 1 || adjustedIndex < 0) {
       throw new RedisException(ERROR_INDEX_OUT_OF_RANGE);
     }
@@ -290,7 +288,7 @@ public class RedisList extends AbstractRedisData {
    */
   public byte[] rpop(Region<RedisKey, RedisData> region, RedisKey key) {
     byte newVersion;
-    int index = elementList.size() - 1;
+    var index = elementList.size() - 1;
     byte[] popped;
     RemoveElementsByIndex removed;
     synchronized (this) {
@@ -312,11 +310,11 @@ public class RedisList extends AbstractRedisData {
    */
   public static byte[] rpoplpush(ExecutionHandlerContext context, RedisKey source,
       RedisKey destination) {
-    RegionProvider regionProvider = context.getRegionProvider();
+    var regionProvider = context.getRegionProvider();
     RedisList sourceList = regionProvider.getTypedRedisData(REDIS_LIST, source, false);
     RedisList destinationList = regionProvider.getTypedRedisData(REDIS_LIST, destination, false);
-    Region<RedisKey, RedisData> region = regionProvider.getDataRegion();
-    byte[] moved = sourceList.rpop(region, source);
+    var region = regionProvider.getDataRegion();
+    var moved = sourceList.rpop(region, source);
     if (moved != null) {
       destinationList.lpush(context, Collections.singletonList(moved), destination, false);
     }
@@ -384,7 +382,7 @@ public class RedisList extends AbstractRedisData {
   public synchronized void toData(DataOutput out) throws IOException {
     super.toData(out);
     DataSerializer.writePrimitiveInt(elementList.size(), out);
-    for (byte[] element : elementList) {
+    for (var element : elementList) {
       DataSerializer.writeByteArray(element, out);
     }
   }
@@ -392,17 +390,17 @@ public class RedisList extends AbstractRedisData {
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
     super.fromData(in);
-    int size = DataSerializer.readPrimitiveInt(in);
-    for (int i = 0; i < size; ++i) {
-      byte[] element = DataSerializer.readByteArray(in);
+    var size = DataSerializer.readPrimitiveInt(in);
+    for (var i = 0; i < size; ++i) {
+      var element = DataSerializer.readByteArray(in);
       elementList.addLast(element);
     }
   }
 
   public synchronized int elementInsert(byte[] elementToInsert, byte[] referenceElement,
       boolean before) {
-    int i = 0;
-    ListIterator<byte[]> iterator = elementList.listIterator();
+    var i = 0;
+    var iterator = elementList.listIterator();
 
     while (iterator.hasNext()) {
       if (Arrays.equals(iterator.next(), referenceElement)) {
@@ -434,7 +432,7 @@ public class RedisList extends AbstractRedisData {
   }
 
   protected synchronized void elementsPushHead(List<byte[]> elementsToAdd) {
-    for (byte[] element : elementsToAdd) {
+    for (var element : elementsToAdd) {
       elementPushHead(element);
     }
   }
@@ -468,7 +466,7 @@ public class RedisList extends AbstractRedisData {
     if (!super.equals(o)) {
       return false;
     }
-    RedisList redisList = (RedisList) o;
+    var redisList = (RedisList) o;
     return elementList.equals(redisList.elementList);
   }
 

@@ -93,10 +93,10 @@ public class Wait {
     if (milliseconds >= 1000 || logger.isDebugEnabled()) { // check for debug but log at info
       logger.info("Pausing for {} ms...", milliseconds);
     }
-    final long target = System.currentTimeMillis() + milliseconds;
+    final var target = System.currentTimeMillis() + milliseconds;
     try {
       for (;;) {
-        long msLeft = target - System.currentTimeMillis();
+        var msLeft = target - System.currentTimeMillis();
         if (msLeft <= 0) {
           break;
         }
@@ -119,14 +119,14 @@ public class Wait {
   @Deprecated
   public static void waitForCriterion(final WaitCriterion waitCriterion, final long timeoutMillis,
       final long pollingInterval, final boolean throwOnTimeout) {
-    long waitThisTime = jitterInterval(pollingInterval);
-    final long tilt = System.currentTimeMillis() + timeoutMillis;
+    var waitThisTime = jitterInterval(pollingInterval);
+    final var tilt = System.currentTimeMillis() + timeoutMillis;
     for (;;) {
       if (waitCriterion.done()) {
         return; // success
       }
       if (waitCriterion instanceof StoppableWaitCriterion) {
-        StoppableWaitCriterion ev2 = (StoppableWaitCriterion) waitCriterion;
+        var ev2 = (StoppableWaitCriterion) waitCriterion;
         if (ev2.stopWaiting()) {
           if (throwOnTimeout) {
             fail("stopWaiting returned true: " + waitCriterion.description());
@@ -136,7 +136,7 @@ public class Wait {
       }
 
       // Calculate time left
-      long timeLeft = tilt - System.currentTimeMillis();
+      var timeLeft = tilt - System.currentTimeMillis();
       if (timeLeft <= 0) {
         if (!throwOnTimeout) {
           return; // not an error, but we're done

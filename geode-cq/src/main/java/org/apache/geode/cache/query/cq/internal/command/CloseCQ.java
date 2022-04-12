@@ -21,17 +21,11 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.cache.query.CqException;
-import org.apache.geode.cache.query.internal.cq.CqService;
-import org.apache.geode.cache.query.internal.cq.InternalCqQuery;
 import org.apache.geode.distributed.internal.DistributionStats;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
-import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.AuthenticationExpiredException;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -53,16 +47,16 @@ public class CloseCQ extends BaseCQCommand {
   public void cmdExecute(final @NotNull Message clientMessage,
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start) throws IOException {
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    ClientProxyMembershipID id = serverConnection.getProxyID();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var id = serverConnection.getProxyID();
+    var stats = serverConnection.getCacheServerStats();
 
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE);
 
     start = DistributionStats.getStatTime();
     // Retrieve the data from the message parts
-    String cqName = clientMessage.getPart(0).getString();
+    var cqName = clientMessage.getPart(0).getString();
 
     if (logger.isDebugEnabled()) {
       logger.debug("{}: Received close CQ request from {} cqName: {}", serverConnection.getName(),
@@ -71,7 +65,7 @@ public class CloseCQ extends BaseCQCommand {
 
     // Process the query request
     if (cqName == null) {
-      String err =
+      var err =
           "The cqName for the cq close request is null";
       sendCqResponse(MessageType.CQDATAERROR_MSG_TYPE, err, clientMessage.getTransactionId(), null,
           serverConnection);
@@ -81,22 +75,22 @@ public class CloseCQ extends BaseCQCommand {
     // Process CQ close request
     try {
       // Append Client ID to CQ name
-      CqService cqService = crHelper.getCache().getCqService();
+      var cqService = crHelper.getCache().getCqService();
       cqService.start();
 
-      String serverCqName = cqName;
+      var serverCqName = cqName;
       if (id != null) {
         serverCqName = cqService.constructServerCqName(cqName, id);
       }
-      InternalCqQuery cqQuery = cqService.getCq(serverCqName);
+      var cqQuery = cqService.getCq(serverCqName);
 
       if (cqQuery != null) {
         securityService.authorize(Resource.DATA, Operation.READ, cqQuery.getRegionName());
 
-        AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+        var authzRequest = serverConnection.getAuthzRequest();
         if (authzRequest != null) {
 
-          String queryStr = cqQuery.getQueryString();
+          var queryStr = cqQuery.getQueryString();
           Set<String> cqRegionNames = new HashSet<>();
           cqRegionNames.add(cqQuery.getRegionName());
           authzRequest.closeCQAuthorize(cqName, queryStr, cqRegionNames);
@@ -116,7 +110,7 @@ public class CloseCQ extends BaseCQCommand {
       writeChunkedException(clientMessage, e, serverConnection);
       return;
     } catch (Exception e) {
-      String err =
+      var err =
           String.format("Exception while closing CQ CqName :%s", cqName);
       sendCqResponse(MessageType.CQ_EXCEPTION_TYPE, err, clientMessage.getTransactionId(), e,
           serverConnection);
@@ -129,7 +123,7 @@ public class CloseCQ extends BaseCQCommand {
         clientMessage.getTransactionId(), null, serverConnection);
     serverConnection.setAsTrue(RESPONDED);
 
-    long oldStart = start;
+    var oldStart = start;
     start = DistributionStats.getStatTime();
     stats.incProcessCloseCqTime(start - oldStart);
   }

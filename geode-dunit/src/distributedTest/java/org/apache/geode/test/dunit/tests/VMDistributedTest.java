@@ -46,36 +46,36 @@ public class VMDistributedTest extends DistributedTestCase {
 
   @Test
   public void testInvokeStaticBoolean() {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     assertEquals(BOOLEAN_VALUE, vm.invoke(VMDistributedTest::remoteBooleanMethod));
   }
 
   @Test
   public void testInvokeStaticByte() {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     assertEquals(BYTE_VALUE, (byte) vm.invoke(VMDistributedTest::remoteByteMethod));
   }
 
   @Test
   public void testInvokeStaticLong() {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     assertEquals(LONG_VALUE, (long) vm.invoke(VMDistributedTest::remoteLongMethod));
   }
 
   @Test
   public void testInvokeInstance() {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     assertEquals(STRING_VALUE, vm.invoke(new ClassWithString(), "getString"));
   }
 
   @Test
   public void testInvokeRunnableWithException() {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     try {
       vm.invoke(new InvokeRunnable());
       fail("Should have thrown a BasicTestException");
@@ -86,8 +86,8 @@ public class VMDistributedTest extends DistributedTestCase {
 
   @Test
   public void testReturnValue() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM vm = host.getVM(0);
+    final var host = Host.getHost(0);
+    final var vm = host.getVM(0);
     // Assert class static invocation works
     AsyncInvocation a1 = vm.invokeAsync(VMDistributedTest::getAndIncStaticCount);
     a1.join();
@@ -106,7 +106,7 @@ public class VMDistributedTest extends DistributedTestCase {
     assertEquals(4, a1.getReturnValue());
 
     // Assert object method invocation works with zero arg method
-    final VMTestObject o = new VMTestObject(0);
+    final var o = new VMTestObject(0);
     a1 = vm.invokeAsync(o, "incrementAndGet", new Object[] {});
     a1.join();
     assertEquals(1, a1.getReturnValue());

@@ -28,8 +28,8 @@ public class RemotePutAllMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    RemotePutAllMessage mockRemotePutAllMessage = mock(RemotePutAllMessage.class);
-    DataInput mockDataInput = mock(DataInput.class);
+    var mockRemotePutAllMessage = mock(RemotePutAllMessage.class);
+    var mockDataInput = mock(DataInput.class);
 
     mockRemotePutAllMessage.fromData(mockDataInput, null);
 

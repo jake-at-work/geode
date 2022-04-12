@@ -36,7 +36,6 @@ import org.apache.geode.management.CacheServerMXBean;
 import org.apache.geode.management.DistributedRegionMXBean;
 import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.JVMMetrics;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.RegionMXBean;
 import org.apache.geode.management.cli.CliMetaData;
@@ -123,8 +122,8 @@ public class ShowMetricsCommand extends GfshCommand {
       @CliOption(key = {CliStrings.SHOW_METRICS__CATEGORY},
           help = CliStrings.SHOW_METRICS__CATEGORY__HELP) String[] categories) {
 
-    DistributedMember member = memberNameOrId == null ? null : getMember(memberNameOrId);
-    StringBuilder csvBuilder =
+    var member = memberNameOrId == null ? null : getMember(memberNameOrId);
+    var csvBuilder =
         StringUtils.isEmpty(export_to_report_to) ? null : prepareCsvBuilder();
 
     ResultModel result;
@@ -135,7 +134,7 @@ public class ShowMetricsCommand extends GfshCommand {
       result =
           getDistributedRegionMetrics(regionName, export_to_report_to, categories, csvBuilder);
     } else if (memberNameOrId != null) {
-      int cacheServerPort = rawCacheServerPort == null ? -1 : rawCacheServerPort;
+      var cacheServerPort = rawCacheServerPort == null ? -1 : rawCacheServerPort;
       result =
           getMemberMetrics(member, export_to_report_to, categories, cacheServerPort, csvBuilder);
     } else {
@@ -153,18 +152,18 @@ public class ShowMetricsCommand extends GfshCommand {
    */
   private ResultModel getSystemWideMetrics(String export_to_report_to, String[] categoriesArr,
       StringBuilder csvBuilder) {
-    final ManagementService managementService = getManagementService();
-    DistributedSystemMXBean dsMxBean = managementService.getDistributedSystemMXBean();
+    final var managementService = getManagementService();
+    var dsMxBean = managementService.getDistributedSystemMXBean();
     if (dsMxBean == null) {
-      String errorMessage =
+      var errorMessage =
           CliStrings.format(CliStrings.SHOW_METRICS__ERROR, "Distributed System MBean not found");
       return ResultModel.createError(errorMessage);
     }
 
-    ResultModel result = new ResultModel();
-    TabularResultModel metricsTable = result.addTable("cluster-metrics");
+    var result = new ResultModel();
+    var metricsTable = result.addTable("cluster-metrics");
 
-    Set<Category> categoriesToDisplay = ArrayUtils.isNotEmpty(categoriesArr)
+    var categoriesToDisplay = ArrayUtils.isNotEmpty(categoriesArr)
         ? getCategorySet(categoriesArr) : new HashSet<>(SYSTEM_METRIC_CATEGORIES);
 
     metricsTable.setHeader("Cluster-wide Metrics");
@@ -188,14 +187,14 @@ public class ShowMetricsCommand extends GfshCommand {
       StringBuilder csvBuilder) {
     final SystemManagementService managementService = getManagementService();
 
-    ObjectName memberMBeanName = managementService.getMemberMBeanName(distributedMember);
-    MemberMXBean memberMxBean =
+    var memberMBeanName = managementService.getMemberMBeanName(distributedMember);
+    var memberMxBean =
         managementService.getMBeanInstance(memberMBeanName, MemberMXBean.class);
     ObjectName csMxBeanName;
     CacheServerMXBean csMxBean = null;
 
     if (memberMxBean == null) {
-      String errorMessage = CliStrings.format(CliStrings.SHOW_METRICS__ERROR, "Member MBean for "
+      var errorMessage = CliStrings.format(CliStrings.SHOW_METRICS__ERROR, "Member MBean for "
           + MBeanJMXAdapter.getMemberNameOrUniqueId(distributedMember) + " not found");
       return ResultModel.createError(errorMessage);
     }
@@ -211,15 +210,15 @@ public class ShowMetricsCommand extends GfshCommand {
       }
     }
 
-    JVMMetrics jvmMetrics = memberMxBean.showJVMMetrics();
+    var jvmMetrics = memberMxBean.showJVMMetrics();
 
-    ResultModel result = new ResultModel();
-    TabularResultModel metricsTable = result.addTable("member-metrics");
+    var result = new ResultModel();
+    var metricsTable = result.addTable("member-metrics");
     metricsTable.setHeader("Member Metrics");
 
-    List<Category> fullCategories =
+    var fullCategories =
         csMxBean != null ? MEMBER_WITH_PORT_METRIC_CATEGORIES : MEMBER_METRIC_CATEGORIES;
-    Set<Category> categoriesToDisplay = ArrayUtils.isNotEmpty(categoriesArr)
+    var categoriesToDisplay = ArrayUtils.isNotEmpty(categoriesArr)
         ? getCategorySet(categoriesArr) : new HashSet<>(fullCategories);
 
     writeMemberMetricValues(memberMxBean, jvmMetrics, metricsTable, csvBuilder,
@@ -243,21 +242,21 @@ public class ShowMetricsCommand extends GfshCommand {
   private ResultModel getDistributedRegionMetrics(String regionName, String export_to_report_to,
       String[] categoriesArr, StringBuilder csvBuilder) {
 
-    final ManagementService managementService = getManagementService();
+    final var managementService = getManagementService();
 
-    DistributedRegionMXBean regionMxBean = managementService.getDistributedRegionMXBean(regionName);
+    var regionMxBean = managementService.getDistributedRegionMXBean(regionName);
 
     if (regionMxBean == null) {
-      String errorMessage = CliStrings.format(CliStrings.SHOW_METRICS__ERROR,
+      var errorMessage = CliStrings.format(CliStrings.SHOW_METRICS__ERROR,
           "Distributed Region MBean for " + regionName + " not found");
       return ResultModel.createError(errorMessage);
     }
 
-    ResultModel result = new ResultModel();
-    TabularResultModel metricsTable = result.addTable("metrics");
+    var result = new ResultModel();
+    var metricsTable = result.addTable("metrics");
     metricsTable.setHeader("Cluster-wide Region Metrics");
 
-    Set<Category> categoriesToDisplay = ArrayUtils.isNotEmpty(categoriesArr)
+    var categoriesToDisplay = ArrayUtils.isNotEmpty(categoriesArr)
         ? getCategorySet(categoriesArr) : new HashSet<>(SYSTEM_REGION_METRIC_CATEGORIES);
 
     writeSystemRegionMetricValues(regionMxBean, metricsTable, csvBuilder, categoriesToDisplay);
@@ -281,24 +280,24 @@ public class ShowMetricsCommand extends GfshCommand {
 
     final SystemManagementService managementService = getManagementService();
 
-    ObjectName regionMBeanName =
+    var regionMBeanName =
         managementService.getRegionMBeanName(distributedMember, regionName);
-    RegionMXBean regionMxBean =
+    var regionMxBean =
         managementService.getMBeanInstance(regionMBeanName, RegionMXBean.class);
 
     if (regionMxBean == null) {
-      String errorMessage = CliStrings.format(CliStrings.SHOW_METRICS__ERROR,
+      var errorMessage = CliStrings.format(CliStrings.SHOW_METRICS__ERROR,
           "Region MBean for " + regionName + " on member "
               + MBeanJMXAdapter.getMemberNameOrUniqueId(distributedMember) + " not found");
       return ResultModel.createError(errorMessage);
     }
 
-    ResultModel result = new ResultModel();
-    TabularResultModel metricsTable = result.addTable("metrics");
+    var result = new ResultModel();
+    var metricsTable = result.addTable("metrics");
     metricsTable.setHeader("Metrics for region:" + regionName + " On Member "
         + MBeanJMXAdapter.getMemberNameOrUniqueId(distributedMember));
 
-    Set<Category> categoriesToDisplay = ArrayUtils.isNotEmpty(categoriesArr)
+    var categoriesToDisplay = ArrayUtils.isNotEmpty(categoriesArr)
         ? getCategorySet(categoriesArr) : new HashSet<>(REGION_METRIC_CATEGORIES);
 
     writeRegionMetricValues(regionMxBean, metricsTable, csvBuilder, categoriesToDisplay);
@@ -723,7 +722,7 @@ public class ShowMetricsCommand extends GfshCommand {
       return;
     }
 
-    for (int i = 0; i < metricValue.length; i++) {
+    for (var i = 0; i < metricValue.length; i++) {
       if (i == 0) {
         writeToTableAndCsv(metricsTable, type, metricName, metricValue[i], csvBuilder);
       } else {
@@ -743,7 +742,7 @@ public class ShowMetricsCommand extends GfshCommand {
   }
 
   private StringBuilder prepareCsvBuilder() {
-    StringBuilder csvBuilder = new StringBuilder();
+    var csvBuilder = new StringBuilder();
     csvBuilder.append(CliStrings.SHOW_METRICS__TYPE__HEADER);
     csvBuilder.append(',');
     csvBuilder.append(CliStrings.SHOW_METRICS__METRIC__HEADER);

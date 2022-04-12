@@ -64,7 +64,7 @@ public class DeployedJar {
    * Writes the given jarBytes to versionedJarFile
    */
   public DeployedJar(File versionedJarFile) {
-    String artifactId = JarFileUtils.toArtifactId(versionedJarFile.getName());
+    var artifactId = JarFileUtils.toArtifactId(versionedJarFile.getName());
 
     file = versionedJarFile;
     this.artifactId = artifactId;
@@ -112,8 +112,8 @@ public class DeployedJar {
   }
 
   private byte[] fileDigest(File file) throws IOException {
-    try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file))) {
-      byte[] data = new byte[8192];
+    try (var fis = new BufferedInputStream(new FileInputStream(file))) {
+      var data = new byte[8192];
       int read;
       while ((read = fis.read(data)) > 0) {
         messageDigest.update(data, 0, read);
@@ -137,7 +137,7 @@ public class DeployedJar {
    * @return the filename as user deployed, i.e remove the sequence number
    */
   public String getDeployedFileName() {
-    String fileBaseName = JarFileUtils.getDeployedFileBaseName(file.getName());
+    var fileBaseName = JarFileUtils.getDeployedFileBaseName(file.getName());
     if (fileBaseName == null) {
       throw new IllegalStateException("file name needs to have a sequence number");
     }
@@ -150,8 +150,8 @@ public class DeployedJar {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + (artifactId == null ? 0 : artifactId.hashCode());
     return result;
   }
@@ -167,7 +167,7 @@ public class DeployedJar {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DeployedJar other = (DeployedJar) obj;
+    var other = (DeployedJar) obj;
     if (artifactId == null) {
       return other.artifactId == null;
     } else
@@ -185,8 +185,8 @@ public class DeployedJar {
   }
 
   private String toHex(byte[] data) {
-    StringBuilder result = new StringBuilder();
-    for (byte b : data) {
+    var result = new StringBuilder();
+    for (var b : data) {
       result.append(String.format("%02x", b));
     }
     return result.toString();

@@ -51,7 +51,7 @@ public class MergeLogs {
       throw new IllegalArgumentException("Requires only 1  arguments : <targetDirName>");
     }
     try {
-      String result = mergeLogFile(args[0]).getCanonicalPath();
+      var result = mergeLogFile(args[0]).getCanonicalPath();
       System.out.println("Merged logs to: " + result);
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -70,16 +70,16 @@ public class MergeLogs {
 
     commandList.add(logDirectory.toAbsolutePath().toString());
 
-    ProcessBuilder procBuilder = new ProcessBuilder(commandList);
-    StringBuilder output = new StringBuilder();
+    var procBuilder = new ProcessBuilder(commandList);
+    var output = new StringBuilder();
     try {
       logger.info("Exporting logs now merging logs");
-      Process mergeProcess = procBuilder.redirectErrorStream(true).start();
+      var mergeProcess = procBuilder.redirectErrorStream(true).start();
 
       mergeProcess.waitFor();
 
-      try (InputStream inputStream = mergeProcess.getInputStream();
-          BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+      try (var inputStream = mergeProcess.getInputStream();
+          var br = new BufferedReader(new InputStreamReader(inputStream))) {
         String line = null;
 
         while ((line = br.readLine()) != null) {
@@ -102,10 +102,10 @@ public class MergeLogs {
   }
 
   static File mergeLogFile(String dirName) throws Exception {
-    Path dir = Paths.get(dirName);
-    List<File> logsToMerge = findLogFilesToMerge(dir.toFile());
+    var dir = Paths.get(dirName);
+    var logsToMerge = findLogFilesToMerge(dir.toFile());
     Map<String, InputStream> logFiles = new HashMap<>();
-    for (File file : logsToMerge) {
+    for (var file : logsToMerge) {
       try {
         logFiles.put(dir.relativize(file.toPath()).toString(),
             new FileInputStream(file));
@@ -118,7 +118,7 @@ public class MergeLogs {
     PrintWriter mergedLog = null;
     File mergedLogFile = null;
     try {
-      String mergeLog = dirName + File.separator + "merge_"
+      var mergeLog = dirName + File.separator + "merge_"
           + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new java.util.Date()) + ".log";
       mergedLogFile = new File(mergeLog);
       mergedLog = new PrintWriter(mergedLogFile);

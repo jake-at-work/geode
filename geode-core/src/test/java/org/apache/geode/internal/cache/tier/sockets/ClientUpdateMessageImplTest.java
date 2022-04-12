@@ -50,20 +50,20 @@ public class ClientUpdateMessageImplTest implements Serializable {
 
   @Before
   public void setUp() {
-    ClientUpdateMessageImpl.CqNameToOpHashMap cqs1 =
+    var cqs1 =
         new ClientUpdateMessageImpl.CqNameToOpHashMap(2);
     cqs1.add("cqName1", 1);
     cqs1.add("cqName2", 2);
     clientCqs.put(client1, cqs1);
-    ClientUpdateMessageImpl.CqNameToOpSingleEntry cqs2 =
+    var cqs2 =
         new ClientUpdateMessageImpl.CqNameToOpSingleEntry("cqName3", 3);
     clientCqs.put(client2, cqs2);
   }
 
   @Test
   public void addInterestedClientTest() {
-    ClientUpdateMessageImpl clientUpdateMessageImpl = new ClientUpdateMessageImpl();
-    ClientProxyMembershipID clientProxyMembershipID = mock(ClientProxyMembershipID.class);
+    var clientUpdateMessageImpl = new ClientUpdateMessageImpl();
+    var clientProxyMembershipID = mock(ClientProxyMembershipID.class);
 
     assertThat(clientUpdateMessageImpl.isClientInterestedInUpdates(clientProxyMembershipID))
         .isFalse();
@@ -80,9 +80,9 @@ public class ClientUpdateMessageImplTest implements Serializable {
 
   @Test
   public void serializeClientUpdateMessageNullInterestLists() {
-    ClientUpdateMessageImpl clientUpdateMessageImpl = getTestClientUpdateMessage();
+    var clientUpdateMessageImpl = getTestClientUpdateMessage();
 
-    ClientUpdateMessageImpl clientUpdateMessageCopy = CopyHelper.copy(clientUpdateMessageImpl);
+    var clientUpdateMessageCopy = CopyHelper.copy(clientUpdateMessageImpl);
 
     assertNotNull(clientUpdateMessageCopy);
     assertThat(clientUpdateMessageCopy.hasClientsInterestedInUpdates()).isFalse();
@@ -91,14 +91,14 @@ public class ClientUpdateMessageImplTest implements Serializable {
 
   @Test
   public void serializeClientUpdateMessageWithInterestLists() {
-    ClientUpdateMessageImpl clientUpdateMessageImpl = getTestClientUpdateMessage();
+    var clientUpdateMessageImpl = getTestClientUpdateMessage();
 
-    DistributedMember distributedMember =
+    var distributedMember =
         mock(DistributedMember.class, withSettings().serializable());
     when(distributedMember.getDurableClientAttributes())
         .thenReturn(mock(DurableClientAttributes.class, withSettings().serializable()));
 
-    ClientProxyMembershipID interestedClientID = new ClientProxyMembershipID(distributedMember);
+    var interestedClientID = new ClientProxyMembershipID(distributedMember);
 
     clientUpdateMessageImpl.addClientInterestList(interestedClientID, false);
     clientUpdateMessageImpl.addClientInterestList(interestedClientID, true);
@@ -106,7 +106,7 @@ public class ClientUpdateMessageImplTest implements Serializable {
     // This creates the CacheClientNotifier singleton which is null checked in
     // ClientUpdateMessageImpl.fromData(), so we need to do this for serialization to
     // succeed.
-    CacheClientNotifier cacheClientNotifier =
+    var cacheClientNotifier =
         CacheClientNotifier.getInstance(Fakes.cache(),
             mock(ClientRegistrationEventQueueManager.class),
             mock(StatisticsClock.class),
@@ -116,12 +116,12 @@ public class ClientUpdateMessageImplTest implements Serializable {
     // Mock the deserializing side to include the cache client
     // proxy with the interested client ID, so that the ID is added to the interest
     // collection in the message copy
-    CacheClientProxy cacheClientProxy = mock(CacheClientProxy.class);
+    var cacheClientProxy = mock(CacheClientProxy.class);
     when(cacheClientProxy.getProxyID()).thenReturn(interestedClientID);
 
     cacheClientNotifier.addClientProxy(cacheClientProxy);
 
-    ClientUpdateMessageImpl clientUpdateMessageCopy = CopyHelper.copy(clientUpdateMessageImpl);
+    var clientUpdateMessageCopy = CopyHelper.copy(clientUpdateMessageImpl);
 
     assertNotNull(clientUpdateMessageCopy);
     assertThat(clientUpdateMessageCopy.isClientInterestedInUpdates(interestedClientID)).isTrue();
@@ -130,20 +130,20 @@ public class ClientUpdateMessageImplTest implements Serializable {
   }
 
   private ClientUpdateMessageImpl getTestClientUpdateMessage() {
-    LocalRegion localRegion = mock(LocalRegion.class);
-    String regionName = "regionName";
+    var localRegion = mock(LocalRegion.class);
+    var regionName = "regionName";
     when(localRegion.getName()).thenReturn(regionName);
     return new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_CREATE, null, null);
   }
 
   @Test
   public void addClientCqCanBeExecutedConcurrently() throws Exception {
-    ClientUpdateMessageImpl clientUpdateMessageImpl = new ClientUpdateMessageImpl();
+    var clientUpdateMessageImpl = new ClientUpdateMessageImpl();
 
-    int numOfEvents = 4;
-    int[] cqEvents = new int[numOfEvents];
-    String[] cqNames = new String[numOfEvents];
-    ClientProxyMembershipID[] clients = new ClientProxyMembershipID[numOfEvents];
+    var numOfEvents = 4;
+    var cqEvents = new int[numOfEvents];
+    var cqNames = new String[numOfEvents];
+    var clients = new ClientProxyMembershipID[numOfEvents];
     prepareCqInfo(numOfEvents, cqEvents, cqNames, clients);
 
     addClientCqConcurrently(clientUpdateMessageImpl, numOfEvents, cqEvents, cqNames, clients);
@@ -151,16 +151,16 @@ public class ClientUpdateMessageImplTest implements Serializable {
     assertThat(clientUpdateMessageImpl.getClientCqs()).hasSize(2);
     assertThat(clientUpdateMessageImpl.getClientCqs().get(client1)).isInstanceOf(
         ClientUpdateMessageImpl.CqNameToOpHashMap.class);
-    ClientUpdateMessageImpl.CqNameToOpHashMap client1Cqs =
+    var client1Cqs =
         (ClientUpdateMessageImpl.CqNameToOpHashMap) clientUpdateMessageImpl.getClientCqs()
             .get(client1);
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       assertThat(client1Cqs.get("cqName" + i)).isEqualTo(i);
     }
 
     assertThat(clientUpdateMessageImpl.getClientCqs().get(client2)).isInstanceOf(
         ClientUpdateMessageImpl.CqNameToOpSingleEntry.class);
-    ClientUpdateMessageImpl.CqNameToOpSingleEntry client2Cqs =
+    var client2Cqs =
         (ClientUpdateMessageImpl.CqNameToOpSingleEntry) clientUpdateMessageImpl.getClientCqs()
             .get(client2);
     assertThat(client2Cqs.isEmpty()).isFalse();
@@ -168,7 +168,7 @@ public class ClientUpdateMessageImplTest implements Serializable {
 
   private void prepareCqInfo(int numOfEvents, int[] cqEvents, String[] cqNames,
       ClientProxyMembershipID[] clients) {
-    for (int i = 0; i < numOfEvents; i++) {
+    for (var i = 0; i < numOfEvents; i++) {
       cqEvents[i] = i;
       cqNames[i] = "cqName" + i;
       if (i < 3) {
@@ -183,21 +183,21 @@ public class ClientUpdateMessageImplTest implements Serializable {
       int numOfEvents, int[] cqEvents, String[] cqNames, ClientProxyMembershipID[] clients)
       throws InterruptedException, java.util.concurrent.ExecutionException {
     List<Future<Void>> futures = new ArrayList<>();
-    for (int i = 0; i < numOfEvents; i++) {
-      ClientProxyMembershipID client = clients[i];
-      String cqName = cqNames[i];
-      int cqEvent = cqEvents[i];
+    for (var i = 0; i < numOfEvents; i++) {
+      var client = clients[i];
+      var cqName = cqNames[i];
+      var cqEvent = cqEvents[i];
       futures.add(executorService
           .submit(() -> clientUpdateMessageImpl.addClientCq(client, cqName, cqEvent)));
     }
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get();
     }
   }
 
   @Test
   public void addOrSetClientCqsCanSetIfCqsMapIsNull() {
-    ClientUpdateMessageImpl clientUpdateMessageImpl = new ClientUpdateMessageImpl();
+    var clientUpdateMessageImpl = new ClientUpdateMessageImpl();
 
     clientUpdateMessageImpl.addOrSetClientCqs(client1, clientCqs);
 
@@ -206,8 +206,8 @@ public class ClientUpdateMessageImplTest implements Serializable {
 
   @Test
   public void addOrSetClientCqsCanAddCqsIfCqsMapNotNull() {
-    ClientUpdateMessageImpl clientUpdateMessageImpl = new ClientUpdateMessageImpl();
-    ClientProxyMembershipID clientProxyMembershipID = mock(ClientProxyMembershipID.class);
+    var clientUpdateMessageImpl = new ClientUpdateMessageImpl();
+    var clientProxyMembershipID = mock(ClientProxyMembershipID.class);
     clientUpdateMessageImpl.addClientCq(clientProxyMembershipID, "cqName", 10);
 
     clientUpdateMessageImpl.addOrSetClientCqs(client1, clientCqs);
@@ -215,7 +215,7 @@ public class ClientUpdateMessageImplTest implements Serializable {
     assertThat(clientUpdateMessageImpl.getClientCqs()).hasSize(2);
     assertThat(clientUpdateMessageImpl.getClientCqs().get(client1)).isInstanceOf(
         ClientUpdateMessageImpl.CqNameToOpHashMap.class);
-    ClientUpdateMessageImpl.CqNameToOpHashMap client1Cqs =
+    var client1Cqs =
         (ClientUpdateMessageImpl.CqNameToOpHashMap) clientUpdateMessageImpl.getClientCqs()
             .get(client1);
     assertThat(client1Cqs.get("cqName1")).isEqualTo(1);

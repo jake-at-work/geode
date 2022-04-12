@@ -74,7 +74,7 @@ public class StoppableCountDownLatch {
 
   public boolean await(final long timeout, final TimeUnit unit) throws InterruptedException {
     stopper.checkCancelInProgress(null);
-    long timeoutNanos = unit.toNanos(timeout);
+    var timeoutNanos = unit.toNanos(timeout);
     if (timeoutNanos > retryIntervalNanos) {
       return awaitWithCheck(timeoutNanos);
     }
@@ -88,7 +88,7 @@ public class StoppableCountDownLatch {
    */
   public boolean await(final long timeoutMillis) throws InterruptedException {
     stopper.checkCancelInProgress(null);
-    long timeoutNanos = MILLISECONDS.toNanos(timeoutMillis);
+    var timeoutNanos = MILLISECONDS.toNanos(timeoutMillis);
     if (timeoutNanos > retryIntervalNanos) {
       return awaitWithCheck(timeoutNanos);
     }
@@ -113,7 +113,7 @@ public class StoppableCountDownLatch {
   }
 
   private boolean awaitWithCheck(final long timeoutNanos) throws InterruptedException {
-    long startNanos = nanoTimer.nanoTime();
+    var startNanos = nanoTimer.nanoTime();
     boolean unlatched;
     do {
       stopper.checkCancelInProgress(null);

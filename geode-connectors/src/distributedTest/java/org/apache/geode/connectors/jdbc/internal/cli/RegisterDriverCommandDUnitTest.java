@@ -25,7 +25,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.util.ResourceUtils;
 
@@ -42,11 +41,11 @@ public class RegisterDriverCommandDUnitTest {
 
   @BeforeClass
   public static void before() throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     @SuppressWarnings("unused")
-    MemberVM server1 = cluster.startServerVM(1, "group1", locator.getPort());
+    var server1 = cluster.startServerVM(1, "group1", locator.getPort());
     @SuppressWarnings("unused")
-    MemberVM server2 = cluster.startServerVM(2, "group1", locator.getPort());
+    var server2 = cluster.startServerVM(2, "group1", locator.getPort());
 
     gfsh.connectAndVerify(locator);
   }
@@ -61,10 +60,10 @@ public class RegisterDriverCommandDUnitTest {
   public void testRegisterDriverDoesNotThrowException() {
 
     // aquire the jar to be used
-    final String jdbcJarName = "mysql-connector-java-8.0.28.jar";
-    File mySqlDriverFile = loadTestResource("/" + jdbcJarName);
+    final var jdbcJarName = "mysql-connector-java-8.0.28.jar";
+    var mySqlDriverFile = loadTestResource("/" + jdbcJarName);
     assertThat(mySqlDriverFile).exists();
-    String jarFile = mySqlDriverFile.getAbsolutePath();
+    var jarFile = mySqlDriverFile.getAbsolutePath();
 
     gfsh.executeAndAssertThat("deploy --jar=" + jarFile).statusIsSuccess();
 
@@ -79,7 +78,7 @@ public class RegisterDriverCommandDUnitTest {
   }
 
   private File loadTestResource(String fileName) {
-    String filePath = ResourceUtils.getResource(getClass(), fileName).getPath();
+    var filePath = ResourceUtils.getResource(getClass(), fileName).getPath();
     Assertions.assertThat(filePath).isNotNull();
 
     return new File(filePath);

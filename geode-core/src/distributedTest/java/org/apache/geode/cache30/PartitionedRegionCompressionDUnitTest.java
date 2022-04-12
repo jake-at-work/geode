@@ -53,7 +53,7 @@ public class PartitionedRegionCompressionDUnitTest extends PartitionedRegionDUni
       // Not a supported OS
       return ra;
     }
-    AttributesFactory<K, V> factory = new AttributesFactory<>(ra);
+    var factory = new AttributesFactory<K, V>(ra);
     if (!ra.getDataPolicy().isEmpty()) {
       factory.setCompressor(compressor);
     }

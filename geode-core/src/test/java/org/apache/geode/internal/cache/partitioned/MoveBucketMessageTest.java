@@ -28,11 +28,11 @@ public class MoveBucketMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    MoveBucketMessage mockMoveBucketMessage = mock(MoveBucketMessage.class);
-    ClusterDistributionManager mockDistributionManager = mock(ClusterDistributionManager.class);
-    PartitionedRegion mockPartitionedRegion = mock(PartitionedRegion.class);
-    long startTime = System.currentTimeMillis();
-    Object key = new Object();
+    var mockMoveBucketMessage = mock(MoveBucketMessage.class);
+    var mockDistributionManager = mock(ClusterDistributionManager.class);
+    var mockPartitionedRegion = mock(PartitionedRegion.class);
+    var startTime = System.currentTimeMillis();
+    var key = new Object();
 
     when(mockMoveBucketMessage.operateOnPartitionedRegion(eq(mockDistributionManager),
         eq(mockPartitionedRegion), eq(startTime))).thenReturn(true);

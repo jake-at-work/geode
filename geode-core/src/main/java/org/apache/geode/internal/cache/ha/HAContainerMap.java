@@ -45,7 +45,7 @@ public class HAContainerMap implements HAContainerWrapper {
 
   @Override
   public ClientProxyMembershipID getProxyID(String haRegionName) {
-    CacheClientProxy proxy = haRegionNameToProxy.get(haRegionName);
+    var proxy = haRegionNameToProxy.get(haRegionName);
     if (proxy != null) {
       return proxy.getProxyID();
     } else {
@@ -70,7 +70,7 @@ public class HAContainerMap implements HAContainerWrapper {
 
   @Override
   public Object getKey(Object key) {
-    Entry entry = (Entry) map.get(key);
+    var entry = (Entry) map.get(key);
     return (entry == null) ? null : entry.getKey();
   }
 
@@ -107,7 +107,7 @@ public class HAContainerMap implements HAContainerWrapper {
 
   @Override
   public Object get(Object key) {
-    Entry entry = (Entry) map.get(key);
+    var entry = (Entry) map.get(key);
     return (entry == null) ? null : entry.getValue();
   }
 
@@ -128,14 +128,14 @@ public class HAContainerMap implements HAContainerWrapper {
 
   @Override
   public Object put(Object key, Object value) {
-    Entry old = (Entry) map.put(key, new Entry(key, value));
+    var old = (Entry) map.put(key, new Entry(key, value));
     return old != null ? old.getValue() : null;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public Object putIfAbsent(Object key, Object value) {
-    Entry old = (Entry) map.putIfAbsent(key, new Entry(key, value));
+    var old = (Entry) map.putIfAbsent(key, new Entry(key, value));
     return old != null ? old.getValue() : null;
   }
 
@@ -146,7 +146,7 @@ public class HAContainerMap implements HAContainerWrapper {
 
   @Override
   public Object remove(Object key) {
-    Entry entry = (Entry) map.remove(key);
+    var entry = (Entry) map.remove(key);
     return (entry == null) ? null : entry.getValue();
   }
 

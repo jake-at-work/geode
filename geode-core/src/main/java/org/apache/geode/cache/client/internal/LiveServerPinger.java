@@ -70,7 +70,7 @@ public class LiveServerPinger extends EndpointListenerAdapter {
   }
 
   private void cancelFuture(Endpoint endpoint) {
-    Future future = taskFutures.remove(endpoint);
+    var future = taskFutures.remove(endpoint);
     if (future != null) {
       future.cancel(false);
     }
@@ -96,7 +96,7 @@ public class LiveServerPinger extends EndpointListenerAdapter {
           }
           InternalCache cache = GemFireCacheImpl.getInstance();
           if (cache != null) {
-            ClientMetadataService cms = cache.getClientMetadataService();
+            var cms = cache.getClientMetadataService();
             cms.removeBucketServerLocation(endpoint.getLocation());
           }
           // any failure to ping the server should be considered a crash (eg.

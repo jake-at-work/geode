@@ -42,7 +42,7 @@ public class GeodeJsonMapper {
   }
 
   public static ObjectMapper getMapperIgnoringUnknownProperties() {
-    ObjectMapper mapper = getMapper();
+    var mapper = getMapper();
     mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
     return mapper;
   }

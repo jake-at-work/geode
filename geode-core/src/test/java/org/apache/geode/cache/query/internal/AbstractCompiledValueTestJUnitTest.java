@@ -93,9 +93,9 @@ public class AbstractCompiledValueTestJUnitTest {
   public void whenLeafIsIdentifierAtTheLeafThenHasIdentifierAtLeafMustReturnTrue() {
     CompiledValue compiledValue1 = new CompiledID("testString");
     CompiledValue compiledValue2 = new CompiledID("testString");
-    CompiledIndexOperation compiledIndexOperation =
+    var compiledIndexOperation =
         new CompiledIndexOperation(compiledValue1, compiledValue2);
-    CompiledPath compiledPath = new CompiledPath(compiledIndexOperation, "test");
+    var compiledPath = new CompiledPath(compiledIndexOperation, "test");
     assertTrue(compiledPath.hasIdentifierAtLeafNode());
   }
 
@@ -103,9 +103,9 @@ public class AbstractCompiledValueTestJUnitTest {
   public void whenLeafIsNotIndentifierThenHasIdentifierAtLeafMustReturnFalse() {
     CompiledValue compiledValue1 = new CompiledBindArgument(1);
     CompiledValue compiledValue2 = new CompiledBindArgument(1);
-    CompiledIndexOperation compiledIndexOperation =
+    var compiledIndexOperation =
         new CompiledIndexOperation(compiledValue1, compiledValue2);
-    CompiledPath compiledPath = new CompiledPath(compiledIndexOperation, "test");
+    var compiledPath = new CompiledPath(compiledIndexOperation, "test");
     assertFalse(compiledPath.hasIdentifierAtLeafNode());
   }
 

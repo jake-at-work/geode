@@ -35,7 +35,6 @@ import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
-import org.apache.geode.redis.internal.statistics.RedisStats;
 
 public class InfoExecutor implements CommandExecutor {
 
@@ -47,7 +46,7 @@ public class InfoExecutor implements CommandExecutor {
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
     String result;
-    List<byte[]> commands = command.getProcessedCommand();
+    var commands = command.getProcessedCommand();
 
     if (containsSectionParameter(commands)) {
       result = getSpecifiedSection(context, commands);
@@ -62,7 +61,7 @@ public class InfoExecutor implements CommandExecutor {
   }
 
   private String getSpecifiedSection(ExecutionHandlerContext context, List<byte[]> commands) {
-    byte[] bytes = toUpperCaseBytes(commands.get(1));
+    var bytes = toUpperCaseBytes(commands.get(1));
     if (Arrays.equals(bytes, SERVER)) {
       return getServerSection(context);
     } else if (Arrays.equals(bytes, CLUSTER)) {
@@ -87,8 +86,8 @@ public class InfoExecutor implements CommandExecutor {
   }
 
   private String getStatsSection(ExecutionHandlerContext context) {
-    final RedisStats redisStats = context.getRedisStats();
-    String instantaneous_input_kbps =
+    final var redisStats = context.getRedisStats();
+    var instantaneous_input_kbps =
         decimalFormat.format(redisStats
             .getNetworkKiloBytesReadOverLastSecond());
 
@@ -107,10 +106,10 @@ public class InfoExecutor implements CommandExecutor {
   }
 
   private String getServerSection(ExecutionHandlerContext context) {
-    final String CURRENT_REDIS_VERSION = "5.0";
+    final var CURRENT_REDIS_VERSION = "5.0";
     // @todo test in info command integration test?
-    final int TCP_PORT = context.getServerPort();
-    final RedisStats redisStats = context.getRedisStats();
+    final var TCP_PORT = context.getServerPort();
+    final var redisStats = context.getRedisStats();
     return "# Server\r\n" +
         "redis_version:" + CURRENT_REDIS_VERSION + "\r\n" +
         "redis_mode:cluster\r\n" +
@@ -120,7 +119,7 @@ public class InfoExecutor implements CommandExecutor {
   }
 
   private String getClientsSection(ExecutionHandlerContext context) {
-    final RedisStats redisStats = context.getRedisStats();
+    final var redisStats = context.getRedisStats();
     return "# Clients\r\n" +
         "connected_clients:" + redisStats.getConnectedClients() + "\r\n" +
         "blocked_clients:0\r\n";
@@ -142,7 +141,7 @@ public class InfoExecutor implements CommandExecutor {
    * {@code totalMemory() - freeMemory()}.
    */
   private String getMemorySection() {
-    long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+    var usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
     String fragmentationRatio;
     if (usedMemory != 0) {
@@ -159,8 +158,8 @@ public class InfoExecutor implements CommandExecutor {
   }
 
   private String getKeyspaceSection(ExecutionHandlerContext context) {
-    int numberOfKeys = context.getRegionProvider().getDataRegion().size();
-    String keyspaceString = "# Keyspace\r\n";
+    var numberOfKeys = context.getRegionProvider().getDataRegion().size();
+    var keyspaceString = "# Keyspace\r\n";
 
     if (numberOfKeys > 0) {
       keyspaceString +=
@@ -188,7 +187,7 @@ public class InfoExecutor implements CommandExecutor {
   }
 
   private String getAllSections(ExecutionHandlerContext context) {
-    final String SECTION_SEPARATOR = "\r\n";
+    final var SECTION_SEPARATOR = "\r\n";
     return getServerSection(context) + SECTION_SEPARATOR +
         getClientsSection(context) + SECTION_SEPARATOR +
         getMemorySection() + SECTION_SEPARATOR +

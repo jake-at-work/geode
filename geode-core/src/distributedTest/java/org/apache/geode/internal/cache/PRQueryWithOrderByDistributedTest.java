@@ -37,9 +37,7 @@ import org.apache.geode.DataSerializable;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.pdx.JSONFormatter;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -96,28 +94,28 @@ public class PRQueryWithOrderByDistributedTest implements Serializable {
         "select distinct * from " + SEPARATOR + regionName
             + " order by nested.\"date\".\"date\".score"};
 
-    String jsonCustomer = "{" + "\"firstName\": \"John\"," + "\"lastName\": \"Smith\","
+    var jsonCustomer = "{" + "\"firstName\": \"John\"," + "\"lastName\": \"Smith\","
         + " \"age\": 25," + " \"date\":" + " \"" + new Date() + "\"," + " \"time\":" + " \""
         + new Time(1000) + "\"," + " \"timestamp\":" + " \"" + new Timestamp(1000) + "\"" + "}";
 
-    String jsonCustomer1 = "{" + "\"firstName\": \"John1\"," + "\"lastName\": \"Smith1\","
+    var jsonCustomer1 = "{" + "\"firstName\": \"John1\"," + "\"lastName\": \"Smith1\","
         + " \"age\": 25," + " \"date\":" + " \"" + new Date() + "\"," + " \"time\":" + " \""
         + new Time(1000) + "\"," + " \"timestamp\":" + " \"" + new Timestamp(1000) + "\"" + "}";
 
-    String jsonCustomer2 = "{" + "\"firstName\": \"John2\"," + "\"lastName\": \"Smith2\","
+    var jsonCustomer2 = "{" + "\"firstName\": \"John2\"," + "\"lastName\": \"Smith2\","
         + " \"age\": 25," + " \"date\":" + " \"" + new Date() + "\"," + " \"time\":" + " \""
         + new Time(1000) + "\"," + " \"timestamp\":" + " \"" + new Timestamp(1000) + "\"" + "}";
 
-    String jsonCustomer3 = "{" + "\"firstName\": \"John3\"," + "\"lastName\": \"Smith3\","
+    var jsonCustomer3 = "{" + "\"firstName\": \"John3\"," + "\"lastName\": \"Smith3\","
         + " \"age\": 25," + " \"date\":" + " \"" + new TestObject(1) + "\"," + " \"time\":" + " \""
         + new Time(1000) + "\"," + " \"timestamp\":" + " \"" + new Timestamp(1000) + "\"" + "}";
 
-    String jsonCustomer4 = "{" + "\"firstName\": \"John4\"," + "\"lastName\": \"Smith4\","
+    var jsonCustomer4 = "{" + "\"firstName\": \"John4\"," + "\"lastName\": \"Smith4\","
         + " \"age\": 25," + " \"date\":" + " \"" + new TestObject(1) + "\"," + " \"time\":" + " \""
         + new Time(1000) + "\"," + " \"timestamp\":" + " \"" + new Timestamp(1000) + "\","
         + " \"nested\":" + " \"" + new NestedKeywordObject(1) + "\"" + "}";
 
-    String jsonCustomer5 = "{" + "\"firstName\": \"John5\"," + "\"lastName\": \"Smith5\","
+    var jsonCustomer5 = "{" + "\"firstName\": \"John5\"," + "\"lastName\": \"Smith5\","
         + " \"age\": 25," + " \"date\":" + " \"" + new TestObject(1) + "\"," + " \"time\":" + " \""
         + new Time(1000) + "\"," + " \"timestamp\":" + " \"" + new Timestamp(1000) + "\","
         + " \"nested\":" + " \""
@@ -134,7 +132,7 @@ public class PRQueryWithOrderByDistributedTest implements Serializable {
       region.put("jsondoc4", JSONFormatter.fromJSON(jsonCustomer4));
       region.put("jsondoc5", JSONFormatter.fromJSON(jsonCustomer5));
 
-      CacheServer server = cacheRule.getCache().addCacheServer();
+      var server = cacheRule.getCache().addCacheServer();
       server.setPort(0);
       server.start();
       return server.getPort();
@@ -143,14 +141,14 @@ public class PRQueryWithOrderByDistributedTest implements Serializable {
     int portForServer2 = server2.invoke("Create Server2", () -> {
       cacheRule.createCache();
       cacheRule.getCache().createRegionFactory(PARTITION).create(regionName);
-      CacheServer server = cacheRule.getCache().addCacheServer();
+      var server = cacheRule.getCache().addCacheServer();
       server.setPort(0);
       server.start();
       return server.getPort();
     });
 
     client.invoke("Create client", () -> {
-      ClientCacheFactory ccf = new ClientCacheFactory();
+      var ccf = new ClientCacheFactory();
       ccf.addPoolServer(getServerHostName(), portForServer1);
       ccf.addPoolServer(getServerHostName(), portForServer2);
 
@@ -163,10 +161,10 @@ public class PRQueryWithOrderByDistributedTest implements Serializable {
   @Test
   public void testOrderByOnPRWithReservedKeywords() throws Exception {
     client.invoke("Execute queries on client", () -> {
-      QueryService queryService = clientCacheRule.getClientCache().getQueryService();
+      var queryService = clientCacheRule.getClientCache().getQueryService();
 
-      for (String query : queries) {
-        SelectResults results = (SelectResults) queryService.newQuery(query).execute();
+      for (var query : queries) {
+        var results = (SelectResults) queryService.newQuery(query).execute();
         assertThat(results.size())
             .as("Size of result set should be greater than 0 for query: " + query).isGreaterThan(0);
       }

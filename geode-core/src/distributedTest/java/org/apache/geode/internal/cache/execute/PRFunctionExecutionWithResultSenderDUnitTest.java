@@ -50,7 +50,6 @@ import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.functions.TestFunction;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 import org.apache.geode.test.junit.categories.FunctionServiceTest;
 
@@ -72,8 +71,8 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
    */
   @Test
   public void testRemoteSingleKeyExecution_byName() throws Exception {
-    VM accessor = getHost(0).getVM(2);
-    VM datastore = getHost(0).getVM(3);
+    var accessor = getHost(0).getVM(2);
+    var datastore = getHost(0).getVM(3);
 
     accessor.invoke(() -> {
       createPartitionedRegion(regionName, 0, 0);
@@ -92,7 +91,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
 
       Function function = new TestFunction(true, TEST_FUNCTION2);
       FunctionService.registerFunction(function);
-      Execution execution = FunctionService.onRegion(region);
+      var execution = FunctionService.onRegion(region);
 
       region.put(STRING_KEY, 1);
       region.put(STRING_KEY + "3", 3);
@@ -107,7 +106,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
 
       ResultCollector<List<Integer>, List<List<Integer>>> resultCollector2 =
           execution.withFilter(stringKeys).setArguments(stringKeys).execute(function.getId());
-      List<List<Integer>> values = resultCollector2.getResult();
+      var values = resultCollector2.getResult();
       assertThat(values).hasSize(1);
       assertThat(values.get(0)).hasSize(3).containsOnly(1, 3, 4);
 
@@ -130,8 +129,8 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
    */
   @Test
   public void testRemoteExecution_NoLastResult() throws Exception {
-    VM accessor = getHost(0).getVM(0);
-    VM datastore = getHost(0).getVM(1);
+    var accessor = getHost(0).getVM(0);
+    var datastore = getHost(0).getVM(1);
 
     accessor.invoke(() -> {
       createPartitionedRegion(regionName, 0, 0);
@@ -159,7 +158,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
       stringKeys.add(STRING_KEY + "3");
       stringKeys.add(STRING_KEY + "4");
 
-      ResultCollector<Boolean, List<Boolean>> resultCollector =
+      var resultCollector =
           execution.withFilter(stringKeys).setArguments(true).execute(function.getId());
 
       assertThatThrownBy(resultCollector::getResult).isInstanceOf(FunctionException.class)
@@ -173,10 +172,10 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
    */
   @Test
   public void testRemoteMultiKeyExecution_byName() throws Exception {
-    VM accessor = getHost(0).getVM(3);
-    VM datastore0 = getHost(0).getVM(0);
-    VM datastore1 = getHost(0).getVM(1);
-    VM datastore2 = getHost(0).getVM(2);
+    var accessor = getHost(0).getVM(3);
+    var datastore0 = getHost(0).getVM(0);
+    var datastore1 = getHost(0).getVM(1);
+    var datastore2 = getHost(0).getVM(2);
 
     accessor.invoke(() -> {
       createPartitionedRegion(regionName, 0, 0);
@@ -198,16 +197,16 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
     });
 
     accessor.invoke(() -> {
-      PartitionedRegion pr = getPartitionedRegion(regionName);
+      var pr = getPartitionedRegion(regionName);
 
       Set<String> stringKeys = new HashSet<>();
-      for (int i = pr.getTotalNumberOfBuckets() * 2; i > 0; i--) {
+      for (var i = pr.getTotalNumberOfBuckets() * 2; i > 0; i--) {
         stringKeys.add(STRING_KEY + i);
       }
 
-      int valueIndex = 0;
-      for (String key : stringKeys) {
-        int value = valueIndex++;
+      var valueIndex = 0;
+      for (var key : stringKeys) {
+        var value = valueIndex++;
         pr.put(key, value);
       }
 
@@ -215,16 +214,16 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
       FunctionService.registerFunction(function);
 
       Execution<Boolean, Boolean, List<Boolean>> booleanExecution = FunctionService.onRegion(pr);
-      ResultCollector<Boolean, List<Boolean>> resultCollector1 =
+      var resultCollector1 =
           booleanExecution.withFilter(stringKeys).setArguments(true).execute(function.getId());
-      List<Boolean> booleanResults = resultCollector1.getResult();
+      var booleanResults = resultCollector1.getResult();
       assertThat(booleanResults).hasSize(3).containsExactly(true, true, true);
 
       Execution<Set<String>, List<Integer>, List<List<Integer>>> execution =
           FunctionService.onRegion(pr);
-      ResultCollector<List<Integer>, List<List<Integer>>> resultCollector2 =
+      var resultCollector2 =
           execution.withFilter(stringKeys).setArguments(stringKeys).execute(function.getId());
-      List<List<Integer>> valuesResults = resultCollector2.getResult();
+      var valuesResults = resultCollector2.getResult();
       assertThat(valuesResults).hasSize(pr.getTotalNumberOfBuckets() * 2 * 3);
     });
   }
@@ -236,31 +235,31 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
    */
   @Test
   public void testLocalMultiKeyExecution_byName() throws Exception {
-    PartitionedRegion pr = createPartitionedRegion(regionName, 10, 0);
+    var pr = createPartitionedRegion(regionName, 10, 0);
 
     Set<String> stringKeys = new HashSet<>();
-    for (int i = pr.getTotalNumberOfBuckets() * 2; i > 0; i--) {
+    for (var i = pr.getTotalNumberOfBuckets() * 2; i > 0; i--) {
       stringKeys.add(STRING_KEY + i);
     }
 
-    int valueIndex = 0;
-    for (String key : stringKeys) {
-      int value = valueIndex++;
+    var valueIndex = 0;
+    for (var key : stringKeys) {
+      var value = valueIndex++;
       pr.put(key, value);
     }
 
     Function function = new TestFunction(true, TEST_FUNCTION9);
     FunctionService.registerFunction(function);
-    Execution execution = FunctionService.onRegion(pr);
+    var execution = FunctionService.onRegion(pr);
 
     ResultCollector<Boolean, List<Boolean>> resultCollector1 =
         execution.withFilter(stringKeys).setArguments(true).execute(function.getId());
-    List<Boolean> results = resultCollector1.getResult();
+    var results = resultCollector1.getResult();
     assertThat(results).hasSize(1).containsExactly(true);
 
     ResultCollector<List<Integer>, List<List<Integer>>> resultCollector2 =
         execution.withFilter(stringKeys).setArguments(stringKeys).execute(function.getId());
-    List<List<Integer>> valuesResults = resultCollector2.getResult();
+    var valuesResults = resultCollector2.getResult();
     assertThat(valuesResults).hasSize(pr.getTotalNumberOfBuckets() * 2);
   }
 
@@ -273,16 +272,16 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
    */
   @Test
   public void testLocalExecution_NoLastResult() throws Exception {
-    PartitionedRegion pr = createPartitionedRegion(regionName, 10, 0);
+    var pr = createPartitionedRegion(regionName, 10, 0);
 
     Set<String> stringKeys = new HashSet<>();
-    for (int i = pr.getTotalNumberOfBuckets() * 2; i > 0; i--) {
+    for (var i = pr.getTotalNumberOfBuckets() * 2; i > 0; i--) {
       stringKeys.add(STRING_KEY + i);
     }
 
-    int valueIndex = 0;
-    for (String key : stringKeys) {
-      int value = valueIndex++;
+    var valueIndex = 0;
+    for (var key : stringKeys) {
+      var value = valueIndex++;
       pr.put(key, value);
     }
 
@@ -290,7 +289,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
     FunctionService.registerFunction(function);
     Execution<Boolean, Boolean, List<Boolean>> execution = FunctionService.onRegion(pr);
 
-    ResultCollector<Boolean, List<Boolean>> resultCollector =
+    var resultCollector =
         execution.withFilter(stringKeys).setArguments(true).execute(function.getId());
 
     assertThatThrownBy(resultCollector::getResult).isInstanceOf(FunctionException.class)
@@ -303,10 +302,10 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
    */
   @Test
   public void testExecutionOnAllNodes_NoLastResult() throws Exception {
-    VM datastore0 = getHost(0).getVM(0);
-    VM datastore1 = getHost(0).getVM(1);
-    VM datastore2 = getHost(0).getVM(2);
-    VM datastore3 = getHost(0).getVM(3);
+    var datastore0 = getHost(0).getVM(0);
+    var datastore1 = getHost(0).getVM(1);
+    var datastore2 = getHost(0).getVM(2);
+    var datastore3 = getHost(0).getVM(3);
 
     datastore0.invoke(() -> {
       createPartitionedRegion(regionName, 10, 0, 17);
@@ -329,21 +328,21 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
     });
 
     datastore3.invoke(() -> {
-      PartitionedRegion pr = getPartitionedRegion(regionName);
+      var pr = getPartitionedRegion(regionName);
 
       Collection<String> stringKeys = new HashSet<>();
-      for (int i = pr.getTotalNumberOfBuckets() * 3; i > 0; i--) {
+      for (var i = pr.getTotalNumberOfBuckets() * 3; i > 0; i--) {
         stringKeys.add(STRING_KEY + i);
       }
 
-      int valueIndex = 0;
-      for (String key : stringKeys) {
-        int value = valueIndex++;
+      var valueIndex = 0;
+      for (var key : stringKeys) {
+        var value = valueIndex++;
         pr.put(key, value);
       }
 
       // Assert there is data in each bucket
-      for (int bucketId = 0; bucketId < pr.getTotalNumberOfBuckets(); bucketId++) {
+      for (var bucketId = 0; bucketId < pr.getTotalNumberOfBuckets(); bucketId++) {
         assertThat(pr.getBucketKeys(bucketId).size()).isGreaterThan(0);
       }
 
@@ -360,10 +359,10 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
 
   @Test
   public void testExecutionOnAllNodes_byName() throws Exception {
-    VM datastore0 = getHost(0).getVM(0);
-    VM datastore1 = getHost(0).getVM(1);
-    VM datastore2 = getHost(0).getVM(2);
-    VM datastore3 = getHost(0).getVM(3);
+    var datastore0 = getHost(0).getVM(0);
+    var datastore1 = getHost(0).getVM(1);
+    var datastore2 = getHost(0).getVM(2);
+    var datastore3 = getHost(0).getVM(3);
 
     datastore0.invoke(() -> {
       createPartitionedRegion(regionName, 10, 0, 17);
@@ -386,21 +385,21 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
     });
 
     datastore3.invoke(() -> {
-      PartitionedRegion pr = getPartitionedRegion(regionName);
+      var pr = getPartitionedRegion(regionName);
 
       Collection<String> stringKeys = new HashSet<>();
-      for (int i = pr.getTotalNumberOfBuckets() * 3; i > 0; i--) {
+      for (var i = pr.getTotalNumberOfBuckets() * 3; i > 0; i--) {
         stringKeys.add(STRING_KEY + i);
       }
 
-      int valueIndex = 0;
-      for (String key : stringKeys) {
-        int value = valueIndex++;
+      var valueIndex = 0;
+      for (var key : stringKeys) {
+        var value = valueIndex++;
         pr.put(key, value);
       }
 
       // Assert there is data in each bucket
-      for (int bucketId = 0; bucketId < pr.getTotalNumberOfBuckets(); bucketId++) {
+      for (var bucketId = 0; bucketId < pr.getTotalNumberOfBuckets(); bucketId++) {
         assertThat(pr.getBucketKeys(bucketId).size()).isGreaterThan(0);
       }
 
@@ -408,10 +407,10 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
       FunctionService.registerFunction(function);
       Execution<Boolean, Boolean, List<Boolean>> execution = FunctionService.onRegion(pr);
 
-      ResultCollector<Boolean, List<Boolean>> resultCollector =
+      var resultCollector =
           execution.setArguments(true).execute(function.getId());
 
-      List<Boolean> results = resultCollector.getResult();
+      var results = resultCollector.getResult();
       assertThat(results).hasSize(4).containsExactly(true, true, true, true);
     });
   }
@@ -425,20 +424,20 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
    */
   @Test
   public void executeThrowsIfRegionIsNotReplicated() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(MCAST_PORT, "0");
     config.put(LOCATORS, "");
     getCache(config);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.EMPTY); // ie, a NON-REPLICATED region
 
-    Region region = getCache().createRegion(regionName, factory.create());
+    var region = getCache().createRegion(regionName, factory.create());
 
     Function function = new TestFunction(true, TEST_FUNCTION2);
     FunctionService.registerFunction(function);
 
-    Execution execution = FunctionService.onRegion(region).setArguments(true);
+    var execution = FunctionService.onRegion(region).setArguments(true);
 
     assertThatThrownBy(() -> execution.execute(function.getId()))
         .isInstanceOf(FunctionException.class)
@@ -447,19 +446,19 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
 
   private PartitionedRegion createPartitionedRegion(final String regionName,
       final int localMaxMemory, final int redundancy) {
-    PartitionAttributes pa = createPartitionAttributes(localMaxMemory, redundancy);
+    var pa = createPartitionAttributes(localMaxMemory, redundancy);
     return createPartitionedRegion(regionName, pa);
   }
 
   private PartitionedRegion createPartitionedRegion(final String regionName,
       final int localMaxMemory, final int redundancy, final PartitionResolver resolver) {
-    PartitionAttributes pa = createPartitionAttributes(localMaxMemory, redundancy, resolver);
+    var pa = createPartitionAttributes(localMaxMemory, redundancy, resolver);
     return createPartitionedRegion(regionName, pa);
   }
 
   private PartitionedRegion createPartitionedRegion(final String regionName,
       final int localMaxMemory, final int redundancy, final int totalNumBuckets) {
-    PartitionAttributes pa = createPartitionAttributes(localMaxMemory, redundancy, totalNumBuckets);
+    var pa = createPartitionAttributes(localMaxMemory, redundancy, totalNumBuckets);
     return createPartitionedRegion(regionName, pa);
   }
 
@@ -472,7 +471,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
 
   private PartitionAttributes createPartitionAttributes(final int localMaxMemory,
       final int redundancy) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setRedundantCopies(redundancy);
     return paf.create();
@@ -480,7 +479,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
 
   private PartitionAttributes createPartitionAttributes(final int localMaxMemory,
       final int redundancy, final PartitionResolver resolver) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setPartitionResolver(resolver);
     paf.setRedundantCopies(redundancy);
@@ -489,7 +488,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
 
   private PartitionAttributes createPartitionAttributes(final int localMaxMemory,
       final int redundancy, final PartitionResolver resolver, final int totalNumBuckets) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setPartitionResolver(resolver);
     paf.setRedundantCopies(redundancy);
@@ -499,7 +498,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
 
   private PartitionAttributes createPartitionAttributes(final int localMaxMemory,
       final int redundancy, final long startupRecoveryDelay, final int totalNumBuckets) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setRedundantCopies(redundancy);
     paf.setStartupRecoveryDelay(startupRecoveryDelay);
@@ -509,7 +508,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
 
   private PartitionAttributes createPartitionAttributes(final int localMaxMemory,
       final int redundancy, final int totalNumBuckets) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setRedundantCopies(redundancy);
     paf.setTotalNumBuckets(totalNumBuckets);
@@ -519,7 +518,7 @@ public class PRFunctionExecutionWithResultSenderDUnitTest extends CacheTestCase 
   private PartitionAttributes createPartitionAttributes(final String colocatedWith,
       final int localMaxMemory, final PartitionResolver resolver, final int redundancy,
       final int totalNumBuckets) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setColocatedWith(colocatedWith);
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setPartitionResolver(resolver);

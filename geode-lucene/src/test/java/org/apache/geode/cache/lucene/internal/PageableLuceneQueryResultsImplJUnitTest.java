@@ -63,25 +63,25 @@ public class PageableLuceneQueryResultsImplJUnitTest {
   public void setUp() {
     hits = new ArrayList<>();
 
-    for (int i = 0; i < 23; i++) {
+    for (var i = 0; i < 23; i++) {
       hits.add(new EntryScore("key_" + i, i));
       expected.add(new LuceneResultStructImpl<>("key_" + i, "value_" + i, i));
     }
 
     userRegion = mock(Region.class);
 
-    final ResultCollector collector = mock(ResultCollector.class);
+    final var collector = mock(ResultCollector.class);
     execution = mock(Execution.class);
     when(execution.withFilter(any())).thenReturn(execution);
     when(execution.withCollector(any())).thenReturn(execution);
     when(execution.execute(anyString())).thenReturn(collector);
 
     when(collector.getResult()).then((Answer) invocation -> {
-      ArgumentCaptor<Set> captor = ArgumentCaptor.forClass(Set.class);
+      var captor = ArgumentCaptor.forClass(Set.class);
       verify(execution, atLeast(1)).withFilter(captor.capture());
       Collection<String> keys = captor.getValue();
       Map<String, String> results = new HashMap<>();
-      for (String key : keys) {
+      for (var key : keys) {
         results.put(key, key.replace("key_", "value_"));
       }
 
@@ -93,15 +93,15 @@ public class PageableLuceneQueryResultsImplJUnitTest {
   public void testMaxStore() {
     hits.set(5, new EntryScore<>("key_5", 502));
 
-    PageableLuceneQueryResultsImpl<String, String> results =
-        new PageableLuceneQueryResultsImpl<>(hits, null, 5);
+    var results =
+        new PageableLuceneQueryResultsImpl<String, String>(hits, null, 5);
 
     assertEquals(502, results.getMaxScore(), 0.1f);
   }
 
   @Test
   public void testPagination() {
-    PageableLuceneQueryResultsImpl<String, String> results =
+    var results =
         new PageableLuceneQueryResultsImpl<String, String>(hits, userRegion, 10) {
           @Override
           protected Execution onRegion() {
@@ -113,7 +113,7 @@ public class PageableLuceneQueryResultsImplJUnitTest {
 
     assertTrue(results.hasNext());
 
-    List<LuceneResultStruct<String, String>> next = results.next();
+    var next = results.next();
     assertEquals(expected.subList(0, 10), next);
 
     assertTrue(results.hasNext());
@@ -132,7 +132,7 @@ public class PageableLuceneQueryResultsImplJUnitTest {
 
   @Test
   public void testNoPagination() {
-    PageableLuceneQueryResultsImpl<String, String> results =
+    var results =
         new PageableLuceneQueryResultsImpl<String, String>(hits, userRegion, 0) {
           @Override
           protected Execution onRegion() {
@@ -144,7 +144,7 @@ public class PageableLuceneQueryResultsImplJUnitTest {
 
     assertTrue(results.hasNext());
 
-    List<LuceneResultStruct<String, String>> next = results.next();
+    var next = results.next();
     assertEquals(expected, next);
 
     assertFalse(results.hasNext());
@@ -154,8 +154,8 @@ public class PageableLuceneQueryResultsImplJUnitTest {
 
   @Test
   public void shouldThrowNoSuchElementExceptionFromNextWithNoMorePages() {
-    PageableLuceneQueryResultsImpl<String, String> results =
-        new PageableLuceneQueryResultsImpl<>(Collections.emptyList(), userRegion, 0);
+    var results =
+        new PageableLuceneQueryResultsImpl<String, String>(Collections.emptyList(), userRegion, 0);
 
     assertFalse(results.hasNext());
     thrown.expect(NoSuchElementException.class);

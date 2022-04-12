@@ -44,8 +44,8 @@ public class DirectBufferTest {
 
   @Test
   public void attachmentIsRootBufferForDirectBufferSlice() {
-    final ByteBuffer root = ByteBuffer.allocateDirect(10);
-    final ByteBuffer slice = root.slice();
+    final var root = ByteBuffer.allocateDirect(10);
+    final var slice = root.slice();
 
     assertThat(DirectBuffer.attachment(slice)).isSameAs(root);
   }

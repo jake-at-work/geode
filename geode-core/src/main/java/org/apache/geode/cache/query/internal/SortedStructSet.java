@@ -105,7 +105,7 @@ public class SortedStructSet extends TreeSet
       throw new IllegalArgumentException(
           "This set only accepts StructImpl");
     }
-    StructImpl s = (StructImpl) obj;
+    var s = (StructImpl) obj;
     if (!s.getStructType().equals(structType)) {
       throw new IllegalArgumentException(
           "obj does not have the same StructType");
@@ -135,7 +135,7 @@ public class SortedStructSet extends TreeSet
     if (!(obj instanceof Struct)) {
       return false;
     }
-    Struct s = (Struct) obj;
+    var s = (Struct) obj;
     if (!structType.equals(StructTypeImpl.typeFromStruct(s))) {
       return false;
     }
@@ -163,7 +163,7 @@ public class SortedStructSet extends TreeSet
     if (!(o instanceof Struct)) {
       return false;
     }
-    Struct s = (Struct) o;
+    var s = (Struct) o;
     if (!structType.equals(StructTypeImpl.typeFromStruct(s))) {
       return false;
     }
@@ -203,12 +203,12 @@ public class SortedStructSet extends TreeSet
   }
 
   public boolean addAll(StructSet ss) {
-    boolean modified = false;
+    var modified = false;
     if (!structType.equals(ss.structType)) {
       throw new IllegalArgumentException(
           "types do not match");
     }
-    for (Iterator itr = ss.fieldValuesIterator(); itr.hasNext();) {
+    for (var itr = ss.fieldValuesIterator(); itr.hasNext();) {
       if (addFieldValues((Object[]) itr.next())) {
         modified = true;
       }
@@ -217,13 +217,13 @@ public class SortedStructSet extends TreeSet
   }
 
   public boolean removeAll(StructSet ss) {
-    boolean modified = false;
+    var modified = false;
     if (!structType.equals(ss.structType)) {
       return false; // nothing
                     // modified
     }
-    for (Iterator itr = ss.fieldValuesIterator(); itr.hasNext();) {
-      Object[] fieldValues = (Object[]) itr.next();
+    for (var itr = ss.fieldValuesIterator(); itr.hasNext();) {
+      var fieldValues = (Object[]) itr.next();
       if (removeFieldValues(fieldValues)) {
         modified = true;
       }
@@ -240,12 +240,12 @@ public class SortedStructSet extends TreeSet
         return true; // nothing retained in receiver collection
       }
     }
-    boolean changed = false;
-    int size = size();
+    var changed = false;
+    var size = size();
     Iterator it;
     it = fieldValuesIterator();
     while (size-- > 0) {
-      Object[] val = (Object[]) it.next();
+      var val = (Object[]) it.next();
       // if (!ss.containsFieldValues(vals)) {
       if (!ss.containsFieldValues(val)) {
         it.remove();
@@ -321,12 +321,12 @@ public class SortedStructSet extends TreeSet
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append("[");
-    Iterator i = iterator();
-    boolean hasNext = i.hasNext();
+    var i = iterator();
+    var hasNext = i.hasNext();
     while (hasNext) {
-      Object o = i.next();
+      var o = i.next();
       buf.append(o == this ? "(this Collection)" : String.valueOf(o));
       hasNext = i.hasNext();
       if (hasNext) {
@@ -374,9 +374,9 @@ public class SortedStructSet extends TreeSet
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     modifiable = in.readBoolean();
-    int size = in.readInt();
+    var size = in.readInt();
     structType = context.getDeserializer().readObject(in);
-    for (int j = size; j > 0; j--) {
+    for (var j = size; j > 0; j--) {
       Object[] fieldValues = context.getDeserializer().readObject(in);
       addFieldValues(fieldValues);
     }
@@ -389,8 +389,8 @@ public class SortedStructSet extends TreeSet
     out.writeBoolean(modifiable);
     out.writeInt(size());
     context.getSerializer().writeObject(structType, out);
-    for (Iterator i = fieldValuesIterator(); i.hasNext();) {
-      Object[] fieldValues = (Object[]) i.next();
+    for (var i = fieldValuesIterator(); i.hasNext();) {
+      var fieldValues = (Object[]) i.next();
       DataSerializer.writeObjectArray(fieldValues, out);
     }
   }

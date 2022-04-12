@@ -19,11 +19,8 @@ import static org.apache.geode.distributed.ConfigurationProperties.DISTRIBUTED_S
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Set;
-
 import javax.management.ObjectName;
 import javax.management.Query;
-import javax.management.QueryExp;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -54,7 +51,7 @@ public class HttpOperationInvokerMBeanOperationTest {
 
   @Test
   public void getAttribute() throws Exception {
-    Integer distributedSystemId =
+    var distributedSystemId =
         (Integer) invoker.getAttribute(ManagementConstants.OBJECTNAME__DISTRIBUTEDSYSTEM_MXBEAN,
             "DistributedSystemId");
     assertThat(distributedSystemId).isEqualTo(100);
@@ -62,7 +59,7 @@ public class HttpOperationInvokerMBeanOperationTest {
 
   @Test
   public void invoke() throws Exception {
-    String[] gatewayReceivers =
+    var gatewayReceivers =
         (String[]) invoker.invoke(ManagementConstants.OBJECTNAME__DISTRIBUTEDSYSTEM_MXBEAN,
             "listGatewayReceivers", new Object[0], new String[0]);
 
@@ -71,10 +68,10 @@ public class HttpOperationInvokerMBeanOperationTest {
 
   @Test
   public void queryName() throws Exception {
-    ObjectName objectName = ObjectName.getInstance("GemFire:type=Member,*");
-    QueryExp query = Query.eq(Query.attr("Name"), Query.value("mock"));
+    var objectName = ObjectName.getInstance("GemFire:type=Member,*");
+    var query = Query.eq(Query.attr("Name"), Query.value("mock"));
 
-    Set<ObjectName> names = invoker.queryNames(objectName, query);
+    var names = invoker.queryNames(objectName, query);
     assertTrue(names.isEmpty());
   }
 
@@ -85,7 +82,7 @@ public class HttpOperationInvokerMBeanOperationTest {
 
   @Test
   public void getDistributedSystemMbean() throws Exception {
-    DistributedSystemMXBean bean = invoker.getDistributedSystemMXBean();
+    var bean = invoker.getDistributedSystemMXBean();
     assertThat(bean).isInstanceOf(DistributedSystemMXBean.class);
   }
 }

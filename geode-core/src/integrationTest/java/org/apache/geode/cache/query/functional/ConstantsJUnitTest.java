@@ -29,9 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 
@@ -41,7 +39,7 @@ public class ConstantsJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
@@ -55,10 +53,10 @@ public class ConstantsJUnitTest {
 
   @Test
   public void testTRUE() throws Exception {
-    Query query =
+    var query =
         CacheUtils.getQueryService()
             .newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where TRUE");
-    Object result = query.execute();
+    var result = query.execute();
     if (!(result instanceof Collection) || ((Collection) result).size() != 4) {
       fail(query.getQueryString());
     }
@@ -66,10 +64,10 @@ public class ConstantsJUnitTest {
 
   @Test
   public void testFALSE() throws Exception {
-    Query query =
+    var query =
         CacheUtils.getQueryService()
             .newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where FALSE");
-    Object result = query.execute();
+    var result = query.execute();
     if (!(result instanceof Collection) || ((Collection) result).size() != 0) {
       fail(query.getQueryString());
     }
@@ -77,10 +75,10 @@ public class ConstantsJUnitTest {
 
   @Test
   public void testUNDEFINED() throws Exception {
-    Query query =
+    var query =
         CacheUtils.getQueryService()
             .newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where UNDEFINED");
-    Object result = query.execute();
+    var result = query.execute();
     if (!(result instanceof Collection) || ((Collection) result).size() != 0) {
       fail(query.getQueryString());
     }
@@ -94,10 +92,10 @@ public class ConstantsJUnitTest {
 
   @Test
   public void testNULL() throws Exception {
-    Query query =
+    var query =
         CacheUtils.getQueryService()
             .newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where NULL");
-    Object result = query.execute();
+    var result = query.execute();
     if (!(result instanceof Collection) || ((Collection) result).size() != 0) {
       fail(query.getQueryString());
     }

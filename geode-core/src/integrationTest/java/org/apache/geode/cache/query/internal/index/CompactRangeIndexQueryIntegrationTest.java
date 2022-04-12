@@ -29,8 +29,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.PortfolioPdx;
@@ -48,21 +46,21 @@ public class CompactRangeIndexQueryIntegrationTest {
       throws Exception {
     Cache cache = serverStarterRule.getCache();
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create("portfolios");
-    int numMatching = 10;
-    QueryService qs = cache.getQueryService();
+    var numMatching = 10;
+    var qs = cache.getQueryService();
     qs.createIndex("statusIndex", "p.status", SEPARATOR + "portfolios p");
-    for (int i = 0; i < numMatching * 2; i++) {
-      PortfolioPdx p = new PortfolioPdx(i);
+    for (var i = 0; i < numMatching * 2; i++) {
+      var p = new PortfolioPdx(i);
       if (i < numMatching) {
         p.status = "1";
       }
       region.put("KEY-" + i, p);
     }
 
-    Query q = qs.newQuery(
+    var q = qs.newQuery(
         "select * from " + SEPARATOR
             + "portfolios p where p.pk <> '0' and p.status <> '0' and p.status <> '1' and p.status <> '2'");
-    SelectResults rs = (SelectResults) q.execute();
+    var rs = (SelectResults) q.execute();
     assertEquals(numMatching, rs.size());
   }
 
@@ -71,11 +69,11 @@ public class CompactRangeIndexQueryIntegrationTest {
       throws Exception {
     Cache cache = serverStarterRule.getCache();
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create("ExampleRegion");
-    QueryService qs = cache.getQueryService();
+    var qs = cache.getQueryService();
     qs.createIndex("ExampleRegionIndex", "er['codeNumber','origin']",
         SEPARATOR + "ExampleRegion er");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Map<String, Object> data = new HashMap<>();
       data.put("codeNumber", 1);
       if ((i % 3) == 0) {
@@ -89,33 +87,33 @@ public class CompactRangeIndexQueryIntegrationTest {
       region.put(String.valueOf(i), data);
     }
 
-    Query q = qs.newQuery(
+    var q = qs.newQuery(
         "select * from " + SEPARATOR
             + "ExampleRegion E where E['codeNumber']=1 and E['origin']='src_common' and (E['country']='JPY' or E['ccountrycy']='USD')");
-    SelectResults rs = (SelectResults) q.execute();
+    var rs = (SelectResults) q.execute();
     assertEquals(4, rs.size());
   }
 
   @Test
   // getSizeEstimate will be called only when having a choice between two indexes
   public void getSizeEstimateShouldNotThrowClassCastException() throws Exception {
-    String regionName = "portfolio";
+    var regionName = "portfolio";
 
     Cache cache = serverStarterRule.getCache();
     assertNotNull(cache);
     Region region =
         cache.createRegionFactory().setDataPolicy(DataPolicy.REPLICATE).create(regionName);
 
-    Portfolio p = new Portfolio(1);
+    var p = new Portfolio(1);
     region.put(1, p);
-    Portfolio p2 = new Portfolio(3);
+    var p2 = new Portfolio(3);
     region.put(2, p2);
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     queryService.createIndex("statusIndex", "status", SEPARATOR + "portfolio");
     queryService.createIndex("idIndex", "ID", SEPARATOR + "portfolio");
 
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery("select * from " + SEPARATOR + "portfolio where status = 4 AND ID = 'StringID'")
         .execute();
 

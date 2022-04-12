@@ -28,10 +28,10 @@ public class LogLevelExtractorTest {
 
   @Test
   public void extractWorksCorrectlyForLineFromLogFile() {
-    String logLine =
+    var logLine =
         "[info 2017/02/07 11:16:36.694 PST locator1 <locator request thread[1]> tid=0x27] Mapped \"{[/v1/async-event-queues],methods=[GET]}\" onto public java.lang.String";
 
-    LogLevelExtractor.Result result = LogLevelExtractor.extract(logLine);
+    var result = LogLevelExtractor.extract(logLine);
 
     assertThat(result).isNotNull();
     assertThat(result.getLogLevel()).isEqualTo(Level.INFO);
@@ -41,10 +41,10 @@ public class LogLevelExtractorTest {
 
   @Test
   public void extractWorksForFine() {
-    String logLine =
+    var logLine =
         "[fine 2017/02/07 11:16:36.694 PST locator1 <locator request thread[1]> tid=0x27] Mapped \"{[/v1/async-event-queues],methods=[GET]}\" onto public java.lang.String";
 
-    LogLevelExtractor.Result result = LogLevelExtractor.extract(logLine);
+    var result = LogLevelExtractor.extract(logLine);
 
     assertThat(result).isNotNull();
     assertThat(result.getLogLevel()).isEqualTo(Level.DEBUG);
@@ -54,10 +54,10 @@ public class LogLevelExtractorTest {
 
   @Test
   public void extractWorksForFiner() {
-    String logLine =
+    var logLine =
         "[finer 2017/02/07 11:16:36.694 PST locator1 <locator request thread[1]> tid=0x27] Mapped \"{[/v1/async-event-queues],methods=[GET]}\" onto public java.lang.String";
 
-    LogLevelExtractor.Result result = LogLevelExtractor.extract(logLine);
+    var result = LogLevelExtractor.extract(logLine);
 
     assertThat(result).isNotNull();
     assertThat(result.getLogLevel()).isEqualTo(Level.TRACE);
@@ -66,10 +66,10 @@ public class LogLevelExtractorTest {
 
   @Test
   public void extractWorksForFinest() {
-    String logLine =
+    var logLine =
         "[finest 2017/02/07 11:16:36.694 PST locator1 <locator request thread[1]> tid=0x27] Mapped \"{[/v1/async-event-queues],methods=[GET]}\" onto public java.lang.String";
 
-    LogLevelExtractor.Result result = LogLevelExtractor.extract(logLine);
+    var result = LogLevelExtractor.extract(logLine);
 
     assertThat(result).isNotNull();
     assertThat(result.getLogLevel()).isEqualTo(Level.TRACE);
@@ -78,18 +78,18 @@ public class LogLevelExtractorTest {
 
   @Test
   public void extractReturnsNullIfNoTimestamp() {
-    String logLine = "[info (this line is not a valid log statement since it has no timestamp)";
+    var logLine = "[info (this line is not a valid log statement since it has no timestamp)";
 
-    LogLevelExtractor.Result result = LogLevelExtractor.extract(logLine);
+    var result = LogLevelExtractor.extract(logLine);
 
     assertThat(result).isNull();
   }
 
   @Test
   public void extractReturnsNullIfLineDoesNotMatchPattern() {
-    String logLine = "some line containing a date like 2017/02/07 11:16:36.694 PST ";
+    var logLine = "some line containing a date like 2017/02/07 11:16:36.694 PST ";
 
-    LogLevelExtractor.Result result = LogLevelExtractor.extract(logLine);
+    var result = LogLevelExtractor.extract(logLine);
 
     assertThat(result).isNull();
   }

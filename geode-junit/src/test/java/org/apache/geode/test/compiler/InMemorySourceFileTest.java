@@ -23,7 +23,7 @@ public class InMemorySourceFileTest {
 
   @Test
   public void fromClassNameWithNoPackage() {
-    InMemorySourceFile sourceFile = InMemorySourceFile.fromClassName("NoPackage");
+    var sourceFile = InMemorySourceFile.fromClassName("NoPackage");
     assertThat(sourceFile.getName())
         .as("name")
         .isEqualTo("NoPackage");
@@ -34,7 +34,7 @@ public class InMemorySourceFileTest {
 
   @Test
   public void fromClassNameWithPackage() {
-    InMemorySourceFile sourceFile = InMemorySourceFile.fromClassName("foo.bar.ClassName");
+    var sourceFile = InMemorySourceFile.fromClassName("foo.bar.ClassName");
     assertThat(sourceFile.getName())
         .as("name")
         .isEqualTo("foo.bar.ClassName");

@@ -49,7 +49,7 @@ public class DateFormatter {
   }
 
   public static SimpleDateFormat createLocalizedDateFormat() {
-    String pattern = new SimpleDateFormat().toLocalizedPattern();
+    var pattern = new SimpleDateFormat().toLocalizedPattern();
     return new SimpleDateFormat(getModifiedLocalizedPattern(pattern), Locale.getDefault());
   }
 
@@ -59,7 +59,7 @@ public class DateFormatter {
     if (pattern.contains("mm")) {
       // if the localized pattern does not display seconds, add it in the pattern
       if (!pattern.contains("ss")) {
-        int mm = pattern.indexOf("mm");
+        var mm = pattern.indexOf("mm");
         pattern_to_use = pattern.substring(0, mm + 2) + ":ss" + pattern.substring(mm + 2);
       }
       // if the localized pattern already contains seconds, the pattern should be enough

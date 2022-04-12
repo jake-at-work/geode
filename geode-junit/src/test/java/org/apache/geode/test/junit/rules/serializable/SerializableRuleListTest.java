@@ -36,11 +36,11 @@ public class SerializableRuleListTest {
 
   @Test
   public void canBeSerialized() throws Exception {
-    String value = "foo";
-    FakeSerializableTestRule fakeRule = new FakeSerializableTestRule().value(value);
-    SerializableRuleList instance = new SerializableRuleList().add(fakeRule);
+    var value = "foo";
+    var fakeRule = new FakeSerializableTestRule().value(value);
+    var instance = new SerializableRuleList().add(fakeRule);
 
-    SerializableRuleList cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned.rules().size()).isEqualTo(1);
     assertThat(cloned.rules().get(0)).isInstanceOf(FakeSerializableTestRule.class)
@@ -82,7 +82,7 @@ public class SerializableRuleListTest {
         return false;
       }
 
-      FakeSerializableTestRule that = (FakeSerializableTestRule) o;
+      var that = (FakeSerializableTestRule) o;
 
       return value != null ? value.equals(that.value()) : that.value() == null;
     }

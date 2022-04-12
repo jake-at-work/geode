@@ -45,25 +45,25 @@ public class RegionCreateFunctionJUnitTest {
 
   @Test
   public void testSkipIfExists() {
-    RegionCreateFunction function = spy(new RegionCreateFunction());
+    var function = spy(new RegionCreateFunction());
     @SuppressWarnings("unchecked")
     FunctionContext<CreateRegionFunctionArgs> context = mock(FunctionContext.class);
-    InternalCache internalCache = mock(InternalCache.class);
-    InternalCacheForClientAccess cache = mock(InternalCacheForClientAccess.class);
+    var internalCache = mock(InternalCache.class);
+    var cache = mock(InternalCacheForClientAccess.class);
     @SuppressWarnings("unchecked")
     ResultSender<Object> resultSender = mock(ResultSender.class);
-    TypeRegistry typeRegistry = mock(TypeRegistry.class);
+    var typeRegistry = mock(TypeRegistry.class);
 
     when(context.getResultSender()).thenReturn(resultSender);
     when(context.getCache()).thenReturn(internalCache);
     when(internalCache.getCacheForProcessingClientRequests()).thenReturn(cache);
     when(context.getMemberName()).thenReturn("member");
     when(cache.getPdxRegistry()).thenReturn(typeRegistry);
-    CreateRegionFunctionArgs args = new CreateRegionFunctionArgs(SEPARATOR + "REGION",
+    var args = new CreateRegionFunctionArgs(SEPARATOR + "REGION",
         new RegionConfig(), true);
     when(context.getArguments()).thenReturn(args);
 
-    RegionConfigRealizer realizer = mock(RegionConfigRealizer.class);
+    var realizer = mock(RegionConfigRealizer.class);
 
     Region<?, ?> region = mock(Region.class);
     when(function.getRealizer()).thenReturn(realizer);
@@ -72,7 +72,7 @@ public class RegionCreateFunctionJUnitTest {
 
     function.execute(context);
 
-    ArgumentCaptor<CliFunctionResult> captor = ArgumentCaptor.forClass(CliFunctionResult.class);
+    var captor = ArgumentCaptor.forClass(CliFunctionResult.class);
     verify(resultSender, times(1)).lastResult(captor.capture());
 
     assertThat(captor.getValue().getStatusMessage())
@@ -81,11 +81,11 @@ public class RegionCreateFunctionJUnitTest {
 
   @Test
   public void testRegionCreateWillThrowExceptionWithPdxRegistryNull() {
-    RegionCreateFunction function = spy(new RegionCreateFunction());
+    var function = spy(new RegionCreateFunction());
     @SuppressWarnings("unchecked")
     FunctionContext<CreateRegionFunctionArgs> context = mock(FunctionContext.class);
-    InternalCache internalCache = mock(InternalCache.class);
-    InternalCacheForClientAccess cache = mock(InternalCacheForClientAccess.class);
+    var internalCache = mock(InternalCache.class);
+    var cache = mock(InternalCacheForClientAccess.class);
     @SuppressWarnings("unchecked")
     ResultSender<Object> resultSender = mock(ResultSender.class);
 
@@ -95,7 +95,7 @@ public class RegionCreateFunctionJUnitTest {
     when(context.getMemberName()).thenReturn("member");
     when(cache.getPdxRegistry()).thenReturn(null);
 
-    CreateRegionFunctionArgs args = new CreateRegionFunctionArgs(SEPARATOR + "REGION",
+    var args = new CreateRegionFunctionArgs(SEPARATOR + "REGION",
         new RegionConfig(), true);
     when(context.getArguments()).thenReturn(args);
 
@@ -106,14 +106,14 @@ public class RegionCreateFunctionJUnitTest {
 
   @Test
   public void testRegionCreateWillNotThrowExceptionWithPdxRegistryCreated() {
-    RegionCreateFunction function = spy(new RegionCreateFunction());
+    var function = spy(new RegionCreateFunction());
     @SuppressWarnings("unchecked")
     FunctionContext<CreateRegionFunctionArgs> context = mock(FunctionContext.class);
-    InternalCache internalCache = mock(InternalCache.class);
-    InternalCacheForClientAccess cache = mock(InternalCacheForClientAccess.class);
+    var internalCache = mock(InternalCache.class);
+    var cache = mock(InternalCacheForClientAccess.class);
     @SuppressWarnings("unchecked")
     ResultSender<Object> resultSender = mock(ResultSender.class);
-    TypeRegistry typeRegistry = mock(TypeRegistry.class);
+    var typeRegistry = mock(TypeRegistry.class);
 
     when(context.getResultSender()).thenReturn(resultSender);
     when(context.getCache()).thenReturn(internalCache);
@@ -121,7 +121,7 @@ public class RegionCreateFunctionJUnitTest {
     when(context.getMemberName()).thenReturn("member");
     when(cache.getPdxRegistry()).thenReturn(typeRegistry);
 
-    CreateRegionFunctionArgs args = new CreateRegionFunctionArgs(SEPARATOR + "REGION",
+    var args = new CreateRegionFunctionArgs(SEPARATOR + "REGION",
         new RegionConfig(), true);
     when(context.getArguments()).thenReturn(args);
 

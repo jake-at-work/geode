@@ -28,11 +28,11 @@ public class OffHeapStorageNonRuntimeStatsJUnitTest {
   @Test
   public void testUpdateNonRealTimeOffHeapStorageStats() {
     StatisticsFactory localStatsFactory = new LocalStatisticsFactory(null);
-    OutOfOffHeapMemoryListener ooohml = mock(OutOfOffHeapMemoryListener.class);
-    MemoryAllocator ma =
+    var ooohml = mock(OutOfOffHeapMemoryListener.class);
+    var ma =
         OffHeapStorage.basicCreateOffHeapStorage(localStatsFactory, 1024 * 1024, ooohml, 100);
     try {
-      OffHeapMemoryStats stats = ma.getStats();
+      var stats = ma.getStats();
 
       assertThat(stats.getFreeMemory()).isEqualTo(1024 * 1024);
       assertThat(stats.getMaxMemory()).isEqualTo(1024 * 1024);
@@ -41,12 +41,12 @@ public class OffHeapStorageNonRuntimeStatsJUnitTest {
       assertThat(stats.getLargestFragment()).isEqualTo(1024 * 1024);
       assertThat(stats.getFreedChunks()).isEqualTo(0);
 
-      FreeListManager freeListManager = ((MemoryAllocatorImpl) ma).getFreeListManager();
-      StoredObject storedObject1 = ma.allocate(10);
+      var freeListManager = ((MemoryAllocatorImpl) ma).getFreeListManager();
+      var storedObject1 = ma.allocate(10);
       // Release the memory of the object so that the next allocation reuses the freed chunk
       ReferenceCounter.release(storedObject1.getAddress(), freeListManager);
-      StoredObject storedObject2 = ma.allocate(10);
-      StoredObject storedObject3 = ma.allocate(10);
+      var storedObject2 = ma.allocate(10);
+      var storedObject3 = ma.allocate(10);
 
       assertThat(stats.getFreeMemory()).isLessThan(1024 * 1024);
       assertThat(stats.getUsedMemory()).isGreaterThan(0);

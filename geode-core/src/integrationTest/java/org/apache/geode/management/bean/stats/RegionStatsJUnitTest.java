@@ -85,7 +85,7 @@ public class RegionStatsJUnitTest extends MBeanStatsTestCase {
 
   @Test
   public void testDiskCounters() throws InterruptedException {
-    final long startTime = statisticsClock.getTime();
+    final var startTime = statisticsClock.getTime();
 
     diskRegionStats.incNumEntriesInVM(10);
     diskRegionStats.incNumOverflowOnDisk(15);
@@ -112,7 +112,7 @@ public class RegionStatsJUnitTest extends MBeanStatsTestCase {
 
   @Test
   public void testTimeBasedCounters() throws InterruptedException {
-    final long startTime = statisticsClock.getTime();
+    final var startTime = statisticsClock.getTime();
 
     cachePerfStats.startCacheListenerCall();
     cachePerfStats.startCacheWriterCall();

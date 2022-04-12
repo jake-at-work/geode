@@ -49,7 +49,6 @@ import org.junit.Test;
 import org.apache.geode.InternalGemFireException;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerConnectivityException;
@@ -71,7 +70,6 @@ import org.apache.geode.management.membership.UniversalMembershipListenerAdapter
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
 
 /**
@@ -124,7 +122,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(ENABLE_NETWORK_PARTITION_DETECTION, "false");
     return config;
   }
@@ -216,7 +214,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
    */
   @Test
   public void testLonerClientEventsInServer() throws Exception {
-    MembershipListener systemListener = new MembershipListener() {
+    var systemListener = new MembershipListener() {
       @Override
       public void memberJoined(final MembershipEvent event) {
         joinSystemNotification.notify(event);
@@ -233,7 +231,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    UniversalMembershipListenerAdapter adapter = new UniversalMembershipListenerAdapter() {
+    var adapter = new UniversalMembershipListenerAdapter() {
       @Override
       public void memberJoined(final MembershipEvent event) {
         joinAdapterNotification.notify((AdaptedMembershipEvent) event);
@@ -250,7 +248,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    ClientMembershipListener bridgeListener = new ClientMembershipListener() {
+    var bridgeListener = new ClientMembershipListener() {
       @Override
       public void memberJoined(final ClientMembershipEvent event) {
         joinClientNotification.notify(event);
@@ -267,17 +265,17 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    String name = getUniqueName();
-    int[] ports = new int[1];
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var name = getUniqueName();
+    var ports = new int[1];
 
     // create CacheServer in controller vm...
     getSystem();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
     assertThat(region).isNotNull();
     assertThat(getRootRegion().getSubregion(name)).isNotNull();
@@ -285,29 +283,29 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     ports[0] = startBridgeServer(0);
     assertThat(ports[0] != 0).isTrue();
 
-    DistributedMember serverMember = getMemberId();
-    String serverMemberId = serverMember.getId();
+    var serverMember = getMemberId();
+    var serverMemberId = serverMember.getId();
 
     // register the bridge listener
     ClientMembership.registerClientMembershipListener(bridgeListener);
 
-    InternalCache cache = getInternalCache();
-    ManagementService service = ManagementService.getExistingManagementService(cache);
+    var cache = getInternalCache();
+    var service = ManagementService.getExistingManagementService(cache);
     // register the system listener
     service.addMembershipListener(systemListener);
 
     // register the universal adapter. Not required as this test is only for BridgeClient test
     adapter.registerMembershipListener(service);
 
-    SerializableCallable createBridgeClient = new SerializableCallable("Create bridge client") {
+    var createBridgeClient = new SerializableCallable("Create bridge client") {
       @Override
       public Object call() {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         config.setProperty(LOCATORS, "");
         config.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
         getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, getServerHostName(host), ports, false,
             -1, -1, null);
@@ -318,8 +316,8 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     };
 
     // create bridge client in vm0...
-    DistributedMember clientMember = (DistributedMember) vm0.invoke(createBridgeClient);
-    String clientMemberId = clientMember.getId();
+    var clientMember = (DistributedMember) vm0.invoke(createBridgeClient);
+    var clientMemberId = clientMember.getId();
 
     // should trigger both adapter and bridge listener but not system listener
     joinAdapterNotification.awaitNotification(30, SECONDS);
@@ -336,8 +334,8 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     vm0.invoke(new SerializableRunnable("Wait for client to fully connect") {
       @Override
       public void run() {
-        String poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
-        PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+        var poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
+        var pool = (PoolImpl) PoolManager.find(poolName);
         waitForClientToFullyConnect(pool);
       }
     });
@@ -378,8 +376,8 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     vm0.invoke(new SerializableRunnable("Wait for client to fully connect") {
       @Override
       public void run() {
-        String poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
-        PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+        var poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
+        var pool = (PoolImpl) PoolManager.find(poolName);
         waitForClientToFullyConnect(pool);
       }
     });
@@ -407,26 +405,26 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
    */
   @Test
   public void testSystemClientEventsInServer() throws Exception {
-    boolean[] firedSystem = new boolean[3];
-    DistributedMember[] memberSystem = new DistributedMember[3];
-    String[] memberIdSystem = new String[3];
-    boolean[] isClientSystem = new boolean[3];
+    var firedSystem = new boolean[3];
+    var memberSystem = new DistributedMember[3];
+    var memberIdSystem = new String[3];
+    var isClientSystem = new boolean[3];
 
-    boolean[] firedAdapter = new boolean[3];
-    DistributedMember[] memberAdapter = new DistributedMember[3];
-    String[] memberIdAdapter = new String[3];
-    boolean[] isClientAdapter = new boolean[3];
+    var firedAdapter = new boolean[3];
+    var memberAdapter = new DistributedMember[3];
+    var memberIdAdapter = new String[3];
+    var isClientAdapter = new boolean[3];
 
-    boolean[] firedBridge = new boolean[3];
-    DistributedMember[] memberBridge = new DistributedMember[3];
-    String[] memberIdBridge = new String[3];
-    boolean[] isClientBridge = new boolean[3];
+    var firedBridge = new boolean[3];
+    var memberBridge = new DistributedMember[3];
+    var memberIdBridge = new String[3];
+    var isClientBridge = new boolean[3];
 
-    boolean[] firedSystemDuplicate = new boolean[3];
-    boolean[] firedAdapterDuplicate = new boolean[3];
-    boolean[] firedBridgeDuplicate = new boolean[3];
+    var firedSystemDuplicate = new boolean[3];
+    var firedAdapterDuplicate = new boolean[3];
+    var firedBridgeDuplicate = new boolean[3];
 
-    MembershipListener systemListener = new MembershipListener() {
+    var systemListener = new MembershipListener() {
       @Override
       public synchronized void memberJoined(MembershipEvent event) {
         firedSystemDuplicate[JOINED] = firedSystem[JOINED];
@@ -455,7 +453,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    UniversalMembershipListenerAdapter adapter = new UniversalMembershipListenerAdapter() {
+    var adapter = new UniversalMembershipListenerAdapter() {
       @Override
       public synchronized void memberJoined(MembershipEvent event) {
         firedAdapterDuplicate[JOINED] = firedAdapter[JOINED];
@@ -493,7 +491,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    ClientMembershipListener bridgeListener = new ClientMembershipListener() {
+    var bridgeListener = new ClientMembershipListener() {
       @Override
       public synchronized void memberJoined(ClientMembershipEvent event) {
         firedBridgeDuplicate[JOINED] = firedBridge[JOINED];
@@ -525,24 +523,24 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    String name = getUniqueName();
-    int[] ports = new int[1];
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var name = getUniqueName();
+    var ports = new int[1];
 
     // create CacheServer in controller vm...
     getSystem();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     assertThat(region).isNotNull();
     assertThat(getRootRegion().getSubregion(name)).isNotNull();
 
     ports[0] = startBridgeServer(0);
     assertThat(ports[0] != 0).isTrue();
-    DistributedMember serverMember = getMemberId();
-    String serverMemberId = serverMember.getId();
-    Properties serverProperties = getSystem().getProperties();
+    var serverMember = getMemberId();
+    var serverMemberId = serverMember.getId();
+    var serverProperties = getSystem().getProperties();
 
     // Below removed properties are already got copied as cluster SSL properties
     serverProperties.remove(CLUSTER_SSL_ENABLED);
@@ -553,21 +551,21 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     // register the bridge listener
     ClientMembership.registerClientMembershipListener(bridgeListener);
 
-    InternalCache cache = getInternalCache();
-    ManagementService service = ManagementService.getExistingManagementService(cache);
+    var cache = getInternalCache();
+    var service = ManagementService.getExistingManagementService(cache);
     // register the system listener
     service.addMembershipListener(systemListener);
 
     // register the universal adapter.
     adapter.registerMembershipListener(service);
 
-    SerializableCallable createBridgeClient = new SerializableCallable("Create bridge client") {
+    var createBridgeClient = new SerializableCallable("Create bridge client") {
       @Override
       public Object call() {
         System.setProperty(RESTRICT_MEMBERSHIP_PORT_RANGE, "false");
         assertThat(getSystem(serverProperties).isConnected()).isTrue();
         assertThat(getCache().isClosed()).isFalse();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, getServerHostName(host), ports, false,
             -1, -1, null);
@@ -578,8 +576,8 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     };
 
     // create bridge client in vm0...
-    DistributedMember clientMember = (DistributedMember) vm0.invoke(createBridgeClient);
-    String clientMemberId = clientMember.getId();
+    var clientMember = (DistributedMember) vm0.invoke(createBridgeClient);
+    var clientMemberId = clientMember.getId();
 
     // should trigger both adapter and bridge listener but not system listener
     synchronized (adapter) {
@@ -647,8 +645,8 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     vm0.invoke(new SerializableRunnable("Wait for client to fully connect") {
       @Override
       public void run() {
-        String pl = getRootRegion().getSubregion(name).getAttributes().getPoolName();
-        PoolImpl pi = (PoolImpl) PoolManager.find(pl);
+        var pl = getRootRegion().getSubregion(name).getAttributes().getPoolName();
+        var pi = (PoolImpl) PoolManager.find(pl);
         waitForClientToFullyConnect(pi);
       }
     });
@@ -783,8 +781,8 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     vm0.invoke(new SerializableRunnable("Wait for client to fully connect") {
       @Override
       public void run() {
-        String poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
-        PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+        var poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
+        var pool = (PoolImpl) PoolManager.find(poolName);
         waitForClientToFullyConnect(pool);
       }
     });
@@ -929,8 +927,8 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     vm0.invoke(new SerializableRunnable("Wait for client to fully connect") {
       @Override
       public void run() {
-        String poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
-        PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+        var poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
+        var pool = (PoolImpl) PoolManager.find(poolName);
         waitForClientToFullyConnect(pool);
       }
     });
@@ -1006,8 +1004,8 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
    * the pool has more than one Endpoint.
    */
   private void waitForClientToFullyConnect(PoolImpl pool) {
-    long failMillis = System.currentTimeMillis() + JOIN_FAIL_MILLIS;
-    boolean fullyConnected = false;
+    var failMillis = System.currentTimeMillis() + JOIN_FAIL_MILLIS;
+    var fullyConnected = false;
     while (!fullyConnected) {
       pause(100);
       fullyConnected = pool.getConnectionCount() >= pool.getMinConnections();
@@ -1021,7 +1019,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
    */
   private void resetArraysForTesting(boolean[] fired, DistributedMember[] member, String[] memberId,
       boolean[] isClient) {
-    for (int i = 0; i < fired.length; i++) {
+    for (var i = 0; i < fired.length; i++) {
       fired[i] = false;
       member[i] = null;
       memberId[i] = null;
@@ -1037,7 +1035,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
   }
 
   private void assertArrayFalse(String msg, boolean[] array) {
-    for (boolean value : array) {
+    for (var value : array) {
       if (msg == null) {
         assertThat(value).isFalse();
       } else {
@@ -1047,7 +1045,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
   }
 
   private void assertArrayTrue(String msg, boolean[] array) {
-    for (final boolean b : array) {
+    for (final var b : array) {
       if (msg == null) {
         assertThat(b).isTrue();
       } else {
@@ -1061,26 +1059,26 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
    */
   @Test
   public void testServerEventsInPeerSystem() throws Exception {
-    boolean[] firedSystem = new boolean[3];
-    DistributedMember[] memberSystem = new DistributedMember[3];
-    String[] memberIdSystem = new String[3];
-    boolean[] isClientSystem = new boolean[3];
+    var firedSystem = new boolean[3];
+    var memberSystem = new DistributedMember[3];
+    var memberIdSystem = new String[3];
+    var isClientSystem = new boolean[3];
 
-    boolean[] firedAdapter = new boolean[3];
-    DistributedMember[] memberAdapter = new DistributedMember[3];
-    String[] memberIdAdapter = new String[3];
-    boolean[] isClientAdapter = new boolean[3];
+    var firedAdapter = new boolean[3];
+    var memberAdapter = new DistributedMember[3];
+    var memberIdAdapter = new String[3];
+    var isClientAdapter = new boolean[3];
 
-    boolean[] firedBridge = new boolean[3];
-    DistributedMember[] memberBridge = new DistributedMember[3];
-    String[] memberIdBridge = new String[3];
-    boolean[] isClientBridge = new boolean[3];
+    var firedBridge = new boolean[3];
+    var memberBridge = new DistributedMember[3];
+    var memberIdBridge = new String[3];
+    var isClientBridge = new boolean[3];
 
-    boolean[] firedSystemDuplicate = new boolean[3];
-    boolean[] firedAdapterDuplicate = new boolean[3];
-    boolean[] firedBridgeDuplicate = new boolean[3];
+    var firedSystemDuplicate = new boolean[3];
+    var firedAdapterDuplicate = new boolean[3];
+    var firedBridgeDuplicate = new boolean[3];
 
-    MembershipListener systemListener = new MembershipListener() {
+    var systemListener = new MembershipListener() {
       @Override
       public synchronized void memberJoined(MembershipEvent event) {
         firedSystemDuplicate[JOINED] = firedSystem[JOINED];
@@ -1109,7 +1107,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    UniversalMembershipListenerAdapter adapter = new UniversalMembershipListenerAdapter() {
+    var adapter = new UniversalMembershipListenerAdapter() {
       @Override
       public synchronized void memberJoined(MembershipEvent event) {
         firedAdapterDuplicate[JOINED] = firedAdapter[JOINED];
@@ -1147,34 +1145,34 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    String name = getUniqueName();
-    int[] ports = getRandomAvailableTCPPorts(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var name = getUniqueName();
+    var ports = getRandomAvailableTCPPorts(1);
     assertThat(ports[0] != 0).isTrue();
 
     // create BridgeServer in controller vm...
     getSystem();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     assertThat(region).isNotNull();
     assertThat(getRootRegion().getSubregion(name)).isNotNull();
 
     ports[0] = startBridgeServer(0);
     assertThat(ports[0] != 0).isTrue();
 
-    DistributedMember serverMember = getMemberId();
-    String serverMemberId = serverMember.getId();
-    Properties serverProperties = getSystem().getProperties();
+    var serverMember = getMemberId();
+    var serverMemberId = serverMember.getId();
+    var serverProperties = getSystem().getProperties();
 
     serverProperties.remove(CLUSTER_SSL_ENABLED);
     serverProperties.remove(CLUSTER_SSL_CIPHERS);
     serverProperties.remove(CLUSTER_SSL_PROTOCOLS);
     serverProperties.remove(CLUSTER_SSL_REQUIRE_AUTHENTICATION);
 
-    InternalCache cache = getInternalCache();
-    ManagementService service = ManagementService.getExistingManagementService(cache);
+    var cache = getInternalCache();
+    var service = ManagementService.getExistingManagementService(cache);
     // register the system listener
     service.addMembershipListener(systemListener);
 
@@ -1182,21 +1180,21 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     adapter.registerMembershipListener(service);
 
     // create BridgeServer in vm0...
-    SerializableCallable createPeerCache = new SerializableCallable("Create Peer Cache") {
+    var createPeerCache = new SerializableCallable("Create Peer Cache") {
       @Override
       public Object call() {
         getSystem(serverProperties);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
-        Region region = createRegion(name, factory.create());
+        var region = createRegion(name, factory.create());
         assertThat(region).isNotNull();
         assertThat(getRootRegion().getSubregion(name)).isNotNull();
         return basicGetSystem().getDistributedMember();
       }
     };
 
-    DistributedMember peerMember = (DistributedMember) vm0.invoke(createPeerCache);
-    String peerMemberId = peerMember.getId();
+    var peerMember = (DistributedMember) vm0.invoke(createPeerCache);
+    var peerMemberId = peerMember.getId();
 
     synchronized (systemListener) {
       if (!firedSystem[JOINED]) {
@@ -1313,20 +1311,20 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
    */
   @Test
   public void testServerEventsInLonerClient() throws Exception {
-    boolean[] firedAdapter = new boolean[3];
-    DistributedMember[] memberAdapter = new DistributedMember[3];
-    String[] memberIdAdapter = new String[3];
-    boolean[] isClientAdapter = new boolean[3];
+    var firedAdapter = new boolean[3];
+    var memberAdapter = new DistributedMember[3];
+    var memberIdAdapter = new String[3];
+    var isClientAdapter = new boolean[3];
 
-    boolean[] firedBridge = new boolean[3];
-    DistributedMember[] memberBridge = new DistributedMember[3];
-    String[] memberIdBridge = new String[3];
-    boolean[] isClientBridge = new boolean[3];
+    var firedBridge = new boolean[3];
+    var memberBridge = new DistributedMember[3];
+    var memberIdBridge = new String[3];
+    var isClientBridge = new boolean[3];
 
-    boolean[] firedAdapterDuplicate = new boolean[3];
-    boolean[] firedBridgeDuplicate = new boolean[3];
+    var firedAdapterDuplicate = new boolean[3];
+    var firedBridgeDuplicate = new boolean[3];
 
-    UniversalMembershipListenerAdapter adapter = new UniversalMembershipListenerAdapter() {
+    var adapter = new UniversalMembershipListenerAdapter() {
       @Override
       public synchronized void memberJoined(MembershipEvent event) {
         firedAdapterDuplicate[JOINED] = firedAdapter[JOINED];
@@ -1364,7 +1362,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    ClientMembershipListener bridgeListener = new ClientMembershipListener() {
+    var bridgeListener = new ClientMembershipListener() {
       @Override
       public synchronized void memberJoined(ClientMembershipEvent event) {
         firedBridgeDuplicate[JOINED] = firedBridge[JOINED];
@@ -1396,13 +1394,13 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
       }
     };
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    String name = getUniqueName();
-    int[] ports = getRandomAvailableTCPPorts(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var name = getUniqueName();
+    var ports = getRandomAvailableTCPPorts(1);
     assertThat(ports[0] != 0).isTrue();
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(MCAST_PORT, "0");
     config.put(LOCATORS, "");
     config.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
@@ -1412,13 +1410,13 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     ClientMembership.registerClientMembershipListener(bridgeListener);
 
     // create CacheServer in vm0...
-    SerializableCallable createBridgeServer = new SerializableCallable("Create BridgeServer") {
+    var createBridgeServer = new SerializableCallable("Create BridgeServer") {
       @Override
       public Object call() {
         getSystem();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
-        Region region = createRegion(name, factory.create());
+        var region = createRegion(name, factory.create());
         assertThat(region).isNotNull();
         assertThat(getRootRegion().getSubregion(name)).isNotNull();
 
@@ -1438,7 +1436,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
     assertThat((int) vm0.invoke("getServerPort", () -> serverPort)).isEqualTo(ports[0]);
 
     // create region which connects to cache server
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     configureConnectionPool(factory, getServerHostName(host), ports, false, -1, -1, null);
     createRegion(name, factory.create());
@@ -1487,8 +1485,8 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
 
     resetArraysForTesting(firedAdapter, memberAdapter, memberIdAdapter, isClientAdapter);
 
-    String poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
-    PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+    var poolName = getRootRegion().getSubregion(name).getAttributes().getPoolName();
+    var pool = (PoolImpl) PoolManager.find(poolName);
     waitForClientToFullyConnect(pool);
 
     addIgnoredException(IOException.class.getName());
@@ -1600,7 +1598,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
   }
 
   private static InternalCache getInternalCache() {
-    InternalCache cache = (InternalCache) CacheFactory.getAnyInstance();
+    var cache = (InternalCache) CacheFactory.getAnyInstance();
     assertThat(cache).isNotNull();
     return cache;
   }
@@ -1715,7 +1713,7 @@ public class UniversalMembershipListenerAdapterDUnitTest extends ClientServerTes
         throw new InternalGemFireException("Invalidly comparing TestDistributedMember to " + o);
       }
 
-      FakeDistributedMember fakeDistributedMember = (FakeDistributedMember) o;
+      var fakeDistributedMember = (FakeDistributedMember) o;
       return getHost().compareTo(fakeDistributedMember.getHost());
     }
 

@@ -64,20 +64,20 @@ public class ImportDataIntegrationTest {
     gfsh.connectAndVerify(server.getEmbeddedLocatorPort(), GfshCommandRule.PortType.locator);
     region = server.getCache().getRegion(TEST_REGION_NAME);
     loadRegion("value");
-    Path basePath = tempDir.getRoot().toPath();
+    var basePath = tempDir.getRoot().toPath();
     snapshotFile = basePath.resolve(SNAPSHOT_FILE);
     snapshotDir = basePath.resolve(SNAPSHOT_DIR);
   }
 
   @Test
   public void testExportImport() {
-    String exportCommand = buildBaseExportCommand()
+    var exportCommand = buildBaseExportCommand()
         .addOption(CliStrings.EXPORT_DATA__FILE, snapshotFile.toString()).getCommandString();
     gfsh.executeAndAssertThat(exportCommand).statusIsSuccess();
 
     loadRegion("");
 
-    String importCommand = buildBaseImportCommand()
+    var importCommand = buildBaseImportCommand()
         .addOption(CliStrings.IMPORT_DATA__FILE, snapshotFile.toString()).getCommandString();
     gfsh.executeAndAssertThat(importCommand).statusIsSuccess();
     assertThat(gfsh.getGfshOutput()).contains("Data imported from file");
@@ -86,13 +86,13 @@ public class ImportDataIntegrationTest {
 
   @Test
   public void testExportImportRelativePath() throws IOException {
-    String exportCommand = buildBaseExportCommand()
+    var exportCommand = buildBaseExportCommand()
         .addOption(CliStrings.EXPORT_DATA__FILE, SNAPSHOT_FILE).getCommandString();
     gfsh.executeAndAssertThat(exportCommand).statusIsSuccess();
 
     loadRegion("");
 
-    String importCommand = buildBaseImportCommand()
+    var importCommand = buildBaseImportCommand()
         .addOption(CliStrings.IMPORT_DATA__FILE, SNAPSHOT_FILE).getCommandString();
     gfsh.executeAndAssertThat(importCommand).statusIsSuccess();
     Files.deleteIfExists(Paths.get(SNAPSHOT_FILE));
@@ -102,14 +102,14 @@ public class ImportDataIntegrationTest {
 
   @Test
   public void testParallelExportImport() {
-    String exportCommand =
+    var exportCommand =
         buildBaseExportCommand().addOption(CliStrings.EXPORT_DATA__DIR, snapshotDir.toString())
             .addOption(CliStrings.EXPORT_DATA__PARALLEL, "true").getCommandString();
     gfsh.executeAndAssertThat(exportCommand).statusIsSuccess();
 
     loadRegion("");
 
-    String importCommand =
+    var importCommand =
         buildBaseImportCommand().addOption(CliStrings.IMPORT_DATA__DIR, snapshotDir.toString())
             .addOption(CliStrings.IMPORT_DATA__PARALLEL, "true").getCommandString();
     gfsh.executeAndAssertThat(importCommand).statusIsSuccess();
@@ -121,8 +121,8 @@ public class ImportDataIntegrationTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testInvalidMember() {
-    String invalidMemberName = "invalidMember";
-    String invalidMemberCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
+    var invalidMemberName = "invalidMember";
+    var invalidMemberCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
         .addOption(CliStrings.MEMBER, invalidMemberName)
         .addOption(CliStrings.IMPORT_DATA__REGION, TEST_REGION_NAME)
         .addOption(CliStrings.IMPORT_DATA__FILE, snapshotFile.toString()).getCommandString();
@@ -133,7 +133,7 @@ public class ImportDataIntegrationTest {
 
   @Test
   public void testNonExistentRegion() {
-    String nonExistentRegionCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
+    var nonExistentRegionCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
         .addOption(CliStrings.MEMBER, server.getName())
         .addOption(CliStrings.IMPORT_DATA__REGION, SEPARATOR + "nonExistentRegion")
         .addOption(CliStrings.IMPORT_DATA__FILE, snapshotFile.toString()).getCommandString();
@@ -145,7 +145,7 @@ public class ImportDataIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testInvalidFile() {
-    String invalidFileCommand = buildBaseImportCommand()
+    var invalidFileCommand = buildBaseImportCommand()
         .addOption(CliStrings.IMPORT_DATA__FILE, snapshotFile.toString() + ".invalid")
         .getCommandString();
     gfsh.executeCommand(invalidFileCommand);
@@ -156,7 +156,7 @@ public class ImportDataIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testMissingFileAndDirectory() {
-    String missingFileAndDirCommand = buildBaseImportCommand().getCommandString();
+    var missingFileAndDirCommand = buildBaseImportCommand().getCommandString();
     gfsh.executeCommand(missingFileAndDirCommand);
     assertThat(gfsh.getGfshOutput()).contains("Must specify a location to load snapshot from");
   }
@@ -164,7 +164,7 @@ public class ImportDataIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testParallelWithOnlyFile() {
-    String importCommand =
+    var importCommand =
         buildBaseImportCommand().addOption(CliStrings.IMPORT_DATA__FILE, snapshotFile.toString())
             .addOption(CliStrings.IMPORT_DATA__PARALLEL, "true").getCommandString();
     gfsh.executeCommand(importCommand);
@@ -175,7 +175,7 @@ public class ImportDataIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testSpecifyingDirectoryAndFileCommands() {
-    String importCommand =
+    var importCommand =
         buildBaseImportCommand().addOption(CliStrings.IMPORT_DATA__FILE, snapshotFile.toString())
             .addOption(CliStrings.IMPORT_DATA__DIR, snapshotDir.toString()).getCommandString();
     gfsh.executeCommand(importCommand);

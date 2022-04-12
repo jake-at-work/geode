@@ -55,8 +55,8 @@ public enum CacheXmlVersion {
   @Immutable
   private static final Map<String, CacheXmlVersion> valuesForVersion;
   static {
-    HashMap<String, CacheXmlVersion> valuesForVersionMap = new HashMap<>();
-    for (final CacheXmlVersion cacheXmlVersion : values()) {
+    var valuesForVersionMap = new HashMap<String, CacheXmlVersion>();
+    for (final var cacheXmlVersion : values()) {
       valuesForVersionMap.put(cacheXmlVersion.getVersion(), cacheXmlVersion);
     }
 
@@ -142,7 +142,7 @@ public enum CacheXmlVersion {
    * @since GemFire 8.1
    */
   public static CacheXmlVersion valueForVersion(final String version) {
-    final CacheXmlVersion cacheXmlVersion = valuesForVersion.get(version);
+    final var cacheXmlVersion = valuesForVersion.get(version);
     if (null == cacheXmlVersion) {
       throw new IllegalArgumentException("No enum constant "
           + CacheXmlVersion.class.getCanonicalName() + " for version " + version + ".");

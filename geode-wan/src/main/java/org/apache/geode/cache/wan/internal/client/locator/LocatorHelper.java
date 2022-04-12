@@ -19,7 +19,6 @@ import static org.apache.geode.internal.lang.utils.JavaWorkarounds.computeIfAbse
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -39,15 +38,15 @@ public class LocatorHelper {
    */
   public static boolean addLocator(int distributedSystemId, DistributionLocatorId locator,
       LocatorMembershipListener locatorListener, DistributionLocatorId sourceLocator) {
-    final ConcurrentMap<Integer, Set<DistributionLocatorId>> allLocatorsInfo = locatorListener
+    final var allLocatorsInfo = locatorListener
         .getAllLocatorsInfo();
     Set<DistributionLocatorId> locatorsSet = new CopyOnWriteHashSet<>();
     locatorsSet.add(locator);
-    Set<DistributionLocatorId> existingValue =
+    var existingValue =
         allLocatorsInfo.putIfAbsent(distributedSystemId, locatorsSet);
     if (existingValue != null) {
       if (!locator.getMemberName().equals(DistributionConfig.DEFAULT_NAME)) {
-        final DistributionLocatorId existingLocator =
+        final var existingLocator =
             getLocatorWithSameMemberName(existingValue, locator);
 
         if (existingLocator != null) {
@@ -59,9 +58,9 @@ public class LocatorHelper {
             }
 
             existingValue.remove(existingLocator);
-            final ConcurrentMap<Integer, Set<String>> allServerLocatorsInfo = locatorListener
+            final var allServerLocatorsInfo = locatorListener
                 .getAllServerLocatorsInfo();
-            Set<String> allLocators = allServerLocatorsInfo.get(distributedSystemId);
+            var allLocators = allServerLocatorsInfo.get(distributedSystemId);
             allLocators.remove(existingLocator.toString());
             existingValue.add(locator);
             addServerLocator(distributedSystemId, locatorListener, locator);
@@ -76,7 +75,7 @@ public class LocatorHelper {
           return true;
 
         } else {
-          DistributionLocatorId oldLocator =
+          var oldLocator =
               getLocatorFromCollection(existingValue, locator);
 
           if (oldLocator == null) {
@@ -131,21 +130,21 @@ public class LocatorHelper {
   public static boolean addExchangedLocators(Map<Integer, Set<DistributionLocatorId>> locators,
       LocatorMembershipListener locatorListener) {
 
-    ConcurrentMap<Integer, Set<DistributionLocatorId>> allLocators =
+    var allLocators =
         locatorListener.getAllLocatorsInfo();
     if (!allLocators.equals(locators)) {
-      for (Map.Entry<Integer, Set<DistributionLocatorId>> entry : locators.entrySet()) {
-        Set<DistributionLocatorId> existingValue = allLocators.putIfAbsent(entry.getKey(),
+      for (var entry : locators.entrySet()) {
+        var existingValue = allLocators.putIfAbsent(entry.getKey(),
             new CopyOnWriteHashSet<>(entry.getValue()));
 
         if (existingValue != null) {
-          Set<DistributionLocatorId> localLocators = allLocators.get(entry.getKey());
+          var localLocators = allLocators.get(entry.getKey());
           if (!localLocators.equals(entry.getValue())) {
             entry.getValue().removeAll(localLocators);
-            for (DistributionLocatorId locator : entry.getValue()) {
+            for (var locator : entry.getValue()) {
               if (!locator.getMemberName().equals(DistributionConfig.DEFAULT_NAME)
                   && !localLocators.isEmpty()) {
-                DistributionLocatorId existingLocator =
+                var existingLocator =
                     getLocatorWithSameMemberName(localLocators, locator);
 
                 // if locator received in response, is already stored in local collection,
@@ -162,7 +161,7 @@ public class LocatorHelper {
           }
 
         } else {
-          for (DistributionLocatorId locator : entry.getValue()) {
+          for (var locator : entry.getValue()) {
             addServerLocator(entry.getKey(), locatorListener, locator);
             locatorListener.locatorJoined(entry.getKey(), locator, null);
           }
@@ -178,7 +177,7 @@ public class LocatorHelper {
    */
   private static DistributionLocatorId getLocatorWithSameMemberName(
       Set<DistributionLocatorId> locatorSet, DistributionLocatorId locator) {
-    for (DistributionLocatorId locElement : locatorSet) {
+    for (var locElement : locatorSet) {
       if (locator.getMemberName().equals(locElement.getMemberName())) {
         return locElement;
       }
@@ -191,7 +190,7 @@ public class LocatorHelper {
    */
   private static DistributionLocatorId getLocatorFromCollection(
       Set<DistributionLocatorId> locatorSet, DistributionLocatorId locator) {
-    for (DistributionLocatorId locElement : locatorSet) {
+    for (var locElement : locatorSet) {
       if (locator.equals(locElement)) {
         return locElement;
       }

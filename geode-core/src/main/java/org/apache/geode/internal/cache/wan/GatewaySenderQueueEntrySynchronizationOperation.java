@@ -21,14 +21,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
-import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
@@ -75,10 +73,10 @@ public class GatewaySenderQueueEntrySynchronizationOperation {
           entriesToSynchronize);
     }
     // Create and send message
-    DistributionManager dm = region.getDistributionManager();
-    GatewaySenderQueueEntrySynchronizationReplyProcessor processor =
+    var dm = region.getDistributionManager();
+    var processor =
         new GatewaySenderQueueEntrySynchronizationReplyProcessor(dm, recipient, this);
-    GatewaySenderQueueEntrySynchronizationMessage message =
+    var message =
         new GatewaySenderQueueEntrySynchronizationMessage(recipient,
             processor.getProcessorId(), this);
     dm.putOutgoing(message);
@@ -101,7 +99,7 @@ public class GatewaySenderQueueEntrySynchronizationOperation {
   private void initializeEntriesToSynchronize(
       List<InitialImageOperation.Entry> giiEntriesToSynchronize) {
     entriesToSynchronize = new ArrayList<>();
-    for (InitialImageOperation.Entry entry : giiEntriesToSynchronize) {
+    for (var entry : giiEntriesToSynchronize) {
       entriesToSynchronize.add(
           new GatewaySenderQueueEntrySynchronizationEntry(entry.getKey(), entry.getVersionTag()));
     }
@@ -123,7 +121,7 @@ public class GatewaySenderQueueEntrySynchronizationOperation {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof ReplyMessage) {
-          ReplyMessage reply = (ReplyMessage) msg;
+          var reply = (ReplyMessage) msg;
           if (reply.getException() == null) {
             if (logger.isDebugEnabled()) {
               logger.debug(
@@ -132,12 +130,12 @@ public class GatewaySenderQueueEntrySynchronizationOperation {
                   operation.region.getFullPath(), operation.entriesToSynchronize,
                   reply.getReturnValue());
             }
-            List<Map<String, GatewayQueueEvent>> events =
+            var events =
                 (List<Map<String, GatewayQueueEvent>>) reply.getReturnValue();
-            for (int i = 0; i < events.size(); i++) {
-              Map<String, GatewayQueueEvent> eventsForOneEntry = events.get(i);
+            for (var i = 0; i < events.size(); i++) {
+              var eventsForOneEntry = events.get(i);
               if (events.isEmpty()) {
-                GatewaySenderQueueEntrySynchronizationEntry entry =
+                var entry =
                     operation.entriesToSynchronize.get(i);
                 logger.info(
                     "Synchronization event reply from member={}; regionPath={}; key={}; entryVersion={} is empty",
@@ -156,8 +154,8 @@ public class GatewaySenderQueueEntrySynchronizationOperation {
     }
 
     private void putSynchronizationEvents(Map<String, GatewayQueueEvent> senderIdsAndEvents) {
-      for (Map.Entry<String, GatewayQueueEvent> senderIdAndEvent : senderIdsAndEvents.entrySet()) {
-        AbstractGatewaySender sender =
+      for (var senderIdAndEvent : senderIdsAndEvents.entrySet()) {
+        var sender =
             (AbstractGatewaySender) getCache().getGatewaySender(senderIdAndEvent.getKey());
         sender.putSynchronizationEvent(senderIdAndEvent.getValue());
       }
@@ -202,7 +200,7 @@ public class GatewaySenderQueueEntrySynchronizationOperation {
       } catch (Throwable t) {
         replyException = new ReplyException(t);
       } finally {
-        ReplyMessage replyMsg = new ReplyMessage();
+        var replyMsg = new ReplyMessage();
         replyMsg.setRecipient(getSender());
         replyMsg.setProcessorId(processorId);
         if (replyException == null) {
@@ -221,15 +219,15 @@ public class GatewaySenderQueueEntrySynchronizationOperation {
     private Object getSynchronizationEvents(InternalCache cache) {
       List<Map<String, GatewayQueueEvent>> results = new ArrayList<>();
       // Get the region
-      LocalRegion region = (LocalRegion) cache.getRegion(regionPath);
+      var region = (LocalRegion) cache.getRegion(regionPath);
 
       // Add the appropriate GatewaySenderEventImpl from each GatewaySender for each entry
-      Set<String> allGatewaySenderIds = region.getAllGatewaySenderIds();
-      for (GatewaySender sender : cache.getAllGatewaySenders()) {
+      var allGatewaySenderIds = region.getAllGatewaySenderIds();
+      for (var sender : cache.getAllGatewaySenders()) {
         if (allGatewaySenderIds.contains(sender.getId())) {
-          for (GatewaySenderQueueEntrySynchronizationEntry entry : entriesToSynchronize) {
+          for (var entry : entriesToSynchronize) {
             Map<String, GatewayQueueEvent> resultForOneEntry = new HashMap<>();
-            GatewayQueueEvent event = ((AbstractGatewaySender) sender)
+            var event = ((AbstractGatewaySender) sender)
                 .getSynchronizationEvent(entry.key, entry.entryVersion.getVersionTimeStamp());
             if (event != null) {
               resultForOneEntry.put(sender.getId(), event);

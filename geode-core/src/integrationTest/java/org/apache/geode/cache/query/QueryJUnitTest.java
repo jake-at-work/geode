@@ -73,8 +73,8 @@ public class QueryJUnitTest {
   @Test
   public void test000GetQueryString() {
     CacheUtils.log("testGetQueryString");
-    String queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "root";
-    Query q = CacheUtils.getQueryService().newQuery(queryStr);
+    var queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "root";
+    var q = CacheUtils.getQueryService().newQuery(queryStr);
     if (!queryStr.equals(q.getQueryString())) {
       fail("Query.getQueryString() returns different query string");
     }
@@ -84,12 +84,12 @@ public class QueryJUnitTest {
   public void test001Execute() {
     CacheUtils.log("testExecute");
     try {
-      Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+      var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
       region.put("1", new Portfolio(1));
       region.put("2", new Portfolio(0));
-      String queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios";
-      Query q = CacheUtils.getQueryService().newQuery(queryStr);
-      SelectResults results = (SelectResults) q.execute();
+      var queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios";
+      var q = CacheUtils.getQueryService().newQuery(queryStr);
+      var results = (SelectResults) q.execute();
       assertEquals(results.size(), 2);
     } catch (Exception e) {
       e.printStackTrace();
@@ -101,15 +101,15 @@ public class QueryJUnitTest {
   public void test002UnicodeInQuery() {
     CacheUtils.log("testUnicodeInQuery");
     try {
-      Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+      var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
       region.put("1", new Portfolio(1));
       region.put("2", new Portfolio(0));
-      String queryStr =
+      var queryStr =
           "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios WHERE unicodeṤtring = 'ṤẐṶ'";
-      Query q = CacheUtils.getQueryService().newQuery(queryStr);
-      SelectResults results = (SelectResults) q.execute();
+      var q = CacheUtils.getQueryService().newQuery(queryStr);
+      var results = (SelectResults) q.execute();
       assertEquals(results.size(), 1);
-      Portfolio p = (Portfolio) results.iterator().next();
+      var p = (Portfolio) results.iterator().next();
       assertEquals(p.unicodeṤtring, "ṤẐṶ");
     } catch (Exception e) {
       e.printStackTrace();
@@ -126,8 +126,8 @@ public class QueryJUnitTest {
   @Test
   public void test004IsCompiled() {
     CacheUtils.log("testIsCompiled");
-    String queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "root";
-    Query q = CacheUtils.getQueryService().newQuery(queryStr);
+    var queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "root";
+    var q = CacheUtils.getQueryService().newQuery(queryStr);
     if (q.isCompiled()) {
       fail("Query.isCompiled() returns true for non-compiled query");
     }
@@ -136,17 +136,17 @@ public class QueryJUnitTest {
   @Test
   public void test005GetStatistics() {
     CacheUtils.log("testGetStatistics");
-    String queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where status='active'";
-    Query q = CacheUtils.getQueryService().newQuery(queryStr);
-    QueryStatistics qst = q.getStatistics();
+    var queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where status='active'";
+    var q = CacheUtils.getQueryService().newQuery(queryStr);
+    var qst = q.getStatistics();
     if (qst.getNumExecutions() != 0 && qst.getTotalExecutionTime() != 0) {
       fail("QueryStatistics not initialized properly");
     }
     try {
-      Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+      var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
       CacheUtils.getQueryService().createIndex("testIndex", IndexType.FUNCTIONAL, "status",
           SEPARATOR + "Portfolios");
-      for (int i = 0; i < 10000; i++) {
+      for (var i = 0; i < 10000; i++) {
         region.put(i + "", new Portfolio(i));
       }
       q.execute();
@@ -156,7 +156,7 @@ public class QueryJUnitTest {
         fail("QueryStatistics not updated.");
       }
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         q.execute();
       }
 
@@ -169,7 +169,7 @@ public class QueryJUnitTest {
   @Test
   public void test006GetRegionsInQuery() {
 
-    String[] queryStrs =
+    var queryStrs =
         new String[] {"SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where status='active'",
             SEPARATOR + "Portfolios", SEPARATOR + "Portfolios.values",
             SEPARATOR + "Portfolios.keys()", SEPARATOR + "Portfolios.entries(false)",
@@ -204,7 +204,7 @@ public class QueryJUnitTest {
                 + "portfolios4, entries).size = 3",
 
         };
-    String[][] regions = new String[][] {{SEPARATOR + "Portfolios"}, {SEPARATOR + "Portfolios"},
+    var regions = new String[][] {{SEPARATOR + "Portfolios"}, {SEPARATOR + "Portfolios"},
         {SEPARATOR + "Portfolios"},
         {SEPARATOR + "Portfolios"}, {SEPARATOR + "Portfolios"}, {}, {SEPARATOR + "Employees"},
         {SEPARATOR + "Portfolios"}, {SEPARATOR + "pos"},
@@ -219,16 +219,16 @@ public class QueryJUnitTest {
 
     };
 
-    Object[] params = new Object[] {"", CacheUtils.createRegion("Portfolios", Portfolio.class)};
-    for (int i = 0; i < queryStrs.length; ++i) {
-      Query q = CacheUtils.getQueryService().newQuery(queryStrs[i]);
+    var params = new Object[] {"", CacheUtils.createRegion("Portfolios", Portfolio.class)};
+    for (var i = 0; i < queryStrs.length; ++i) {
+      var q = CacheUtils.getQueryService().newQuery(queryStrs[i]);
 
       Set set = ((DefaultQuery) q).getRegionsInQuery(params);
-      String[] qRegions = regions[i];
+      var qRegions = regions[i];
       assertEquals("region names don't match in query #" + i + "(\"" + queryStrs[i] + "\"",
           new HashSet(Arrays.asList(qRegions)), set);
     }
-    DefaultQuery q = (DefaultQuery) CacheUtils.getQueryService().newQuery(queryStrs[0]);
+    var q = (DefaultQuery) CacheUtils.getQueryService().newQuery(queryStrs[0]);
 
     Set set = q.getRegionsInQuery(params);
     try {
@@ -242,11 +242,11 @@ public class QueryJUnitTest {
   @Test
   public void test007UndefinedResults() {
     CacheUtils.log("testQueryExceptionLogMessage");
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(0));
-    String queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios.ketset";
-    Query q = CacheUtils.getQueryService().newQuery(queryStr);
+    var queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios.ketset";
+    var q = CacheUtils.getQueryService().newQuery(queryStr);
     Object results = null;
 
     try {
@@ -256,8 +256,8 @@ public class QueryJUnitTest {
     }
     assertEquals(0, ((SelectResults) results).size());
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    AttributesFactory af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
 
     region = CacheUtils.createRegion("PortfoliosPR", af.create(), false);
@@ -284,18 +284,18 @@ public class QueryJUnitTest {
      */
     Position.resetCounter();
 
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
-    for (int i = 0; i < 10; i++) {
-      Portfolio p = new Portfolio(i);
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    for (var i = 0; i < 10; i++) {
+      var p = new Portfolio(i);
       if (i % 2 == 0) {
         p.positions = null;
       }
       region.put("key-" + i, p);
     }
 
-    String queryStr = "select * from " + region.getFullPath() + " p where p.positions = NULL ";
+    var queryStr = "select * from " + region.getFullPath() + " p where p.positions = NULL ";
 
-    Query q = CacheUtils.getQueryService().newQuery(queryStr);
+    var q = CacheUtils.getQueryService().newQuery(queryStr);
     SelectResults sr = null;
     try {
       sr = (SelectResults) q.execute();
@@ -322,18 +322,18 @@ public class QueryJUnitTest {
       Cache cache = CacheUtils.getCache();
       RegionFactory<Integer, Portfolio> rf = cache.createRegionFactory(RegionShortcut.PARTITION);
       Region r = rf.create("keyzset");
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         r.put(i, new Portfolio(i));
       }
-      ScopeThreadingTestHook scopeIDTestHook = new ScopeThreadingTestHook(3);
+      var scopeIDTestHook = new ScopeThreadingTestHook(3);
       DefaultQuery.testHook = scopeIDTestHook;
-      QueryService qs = cache.getQueryService();
-      Query q = qs.newQuery(
+      var qs = cache.getQueryService();
+      var q = qs.newQuery(
           "SELECT DISTINCT * FROM " + SEPARATOR
               + "keyzset.keySet key WHERE key.id > 0 AND key.id <= 0 ORDER BY key asc LIMIT $3");
-      Thread q1 = new Thread(new QueryRunnable(q, new Object[] {10, 20, 10}));
-      Thread q2 = new Thread(new QueryRunnable(q, new Object[] {5, 10, 5}));
-      Thread q3 = new Thread(new QueryRunnable(q, new Object[] {2, 10, 8}));
+      var q1 = new Thread(new QueryRunnable(q, new Object[] {10, 20, 10}));
+      var q2 = new Thread(new QueryRunnable(q, new Object[] {5, 10, 5}));
+      var q3 = new Thread(new QueryRunnable(q, new Object[] {2, 10, 8}));
       q1.start();
       q2.start();
       q3.start();
@@ -355,27 +355,27 @@ public class QueryJUnitTest {
     Region regionA = rf.create("regionA");
     Region regionB = rf.create("regionB");
 
-    for (int i = 1; i <= 100; i++) {
+    for (var i = 1; i <= 100; i++) {
       regionA.put(Integer.toString(i), new TestUserObject("" + i, "" + i, "" + i, "" + i));
       regionB.put(Integer.toString(i), new TestUserObject("" + i, "" + i, "" + i, "" + i));
     }
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
 
-    Index regionAUserCodeIndex = qs.createIndex("regionAUserCodeIndex",
+    var regionAUserCodeIndex = qs.createIndex("regionAUserCodeIndex",
         IndexType.FUNCTIONAL, "userId", SEPARATOR + "regionA ");
-    Index regionBUserCodeIndex = qs.createIndex("regionAUserCodeIndex",
+    var regionBUserCodeIndex = qs.createIndex("regionAUserCodeIndex",
         IndexType.FUNCTIONAL, "userId", SEPARATOR + "regionB ");
 
-    Index regionAUserNameIndex = qs.createIndex("regionAUserNameIndex",
+    var regionAUserNameIndex = qs.createIndex("regionAUserNameIndex",
         IndexType.FUNCTIONAL, "userName", SEPARATOR + "regionA ");
-    Index regionBUserNameIndex = qs.createIndex("regionBUserNameIndex",
+    var regionBUserNameIndex = qs.createIndex("regionBUserNameIndex",
         IndexType.FUNCTIONAL, "userName", SEPARATOR + "regionB ");
 
-    Query query = qs.newQuery(
+    var query = qs.newQuery(
         "select regionB.userId,regionA.professionCode,regionB.postCode,regionB.userName from "
             + SEPARATOR + "regionA regionA," + SEPARATOR
             + "regionB regionB where regionA.userId = regionB.userId and regionA.professionCode in Set('1','2','3') and regionB.postCode = '1' and regionB.userId='1'");
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertTrue(results.size() > 0);
   }
 

@@ -44,14 +44,14 @@ public class WanCopyRegionFunctionServiceTest {
 
   @Test
   public void severalExecuteWithSameRegionAndSenderNotAllowed() {
-    CountDownLatch latch = new CountDownLatch(1);
-    Callable<CliFunctionResult> firstExecution = () -> {
+    var latch = new CountDownLatch(1);
+    var firstExecution = (Callable<CliFunctionResult>) () -> {
       latch.await(GeodeAwaitility.getTimeout().getSeconds(), TimeUnit.SECONDS);
       return null;
     };
 
-    String regionName = "myRegion";
-    String senderId = "mySender";
+    var regionName = "myRegion";
+    var senderId = "mySender";
     CompletableFuture
         .supplyAsync(() -> {
           try {
@@ -65,7 +65,7 @@ public class WanCopyRegionFunctionServiceTest {
     await().untilAsserted(() -> assertThat(service.getNumberOfCurrentExecutions()).isEqualTo(1));
 
     // Execute another function instance for the same region and sender-id
-    Callable<CliFunctionResult> secondExecution = () -> null;
+    var secondExecution = (Callable<CliFunctionResult>) () -> null;
 
     assertThatThrownBy(() -> service.execute(secondExecution, regionName, senderId))
         .isInstanceOf(WanCopyRegionFunctionServiceAlreadyRunningException.class);
@@ -76,10 +76,10 @@ public class WanCopyRegionFunctionServiceTest {
 
   @Test
   public void cancelRunningExecutionReturnsSuccess() {
-    String regionName = "myRegion";
-    String senderId = "mySender";
-    CountDownLatch latch = new CountDownLatch(1);
-    Callable<CliFunctionResult> firstExecution = () -> {
+    var regionName = "myRegion";
+    var senderId = "mySender";
+    var latch = new CountDownLatch(1);
+    var firstExecution = (Callable<CliFunctionResult>) () -> {
       latch.await(GeodeAwaitility.getTimeout().getSeconds(), TimeUnit.SECONDS);
       return null;
     };
@@ -96,7 +96,7 @@ public class WanCopyRegionFunctionServiceTest {
     await().untilAsserted(() -> assertThat(service.getNumberOfCurrentExecutions()).isEqualTo(1));
 
     // Cancel the function execution
-    boolean result = service.cancel(regionName, senderId);
+    var result = service.cancel(regionName, senderId);
 
     assertThat(result).isEqualTo(true);
     await().untilAsserted(() -> assertThat(service.getNumberOfCurrentExecutions()).isEqualTo(0));
@@ -104,18 +104,18 @@ public class WanCopyRegionFunctionServiceTest {
 
   @Test
   public void cancelNotRunningExecutionReturnsError() {
-    final String regionName = "myRegion";
-    final String senderId = "mySender";
+    final var regionName = "myRegion";
+    final var senderId = "mySender";
 
-    boolean result = service.cancel(regionName, senderId);
+    var result = service.cancel(regionName, senderId);
 
     assertThat(result).isEqualTo(false);
   }
 
   @Test
   public void cancelAllExecutionsWithRunningExecutionsReturnsCanceledExecutions() {
-    CountDownLatch latch = new CountDownLatch(2);
-    Callable<CliFunctionResult> firstExecution = () -> {
+    var latch = new CountDownLatch(2);
+    var firstExecution = (Callable<CliFunctionResult>) () -> {
       latch.await(GeodeAwaitility.getTimeout().getSeconds(), TimeUnit.SECONDS);
       return null;
     };
@@ -129,7 +129,7 @@ public class WanCopyRegionFunctionServiceTest {
           }
         });
 
-    Callable<CliFunctionResult> secondExecution = () -> {
+    var secondExecution = (Callable<CliFunctionResult>) () -> {
       latch.await(GeodeAwaitility.getTimeout().getSeconds(), TimeUnit.SECONDS);
       return null;
     };
@@ -147,7 +147,7 @@ public class WanCopyRegionFunctionServiceTest {
     await().untilAsserted(() -> assertThat(service.getNumberOfCurrentExecutions()).isEqualTo(2));
 
     // Cancel the function execution
-    String executionsString = service.cancelAll();
+    var executionsString = service.cancelAll();
 
     assertThat(executionsString).isEqualTo("[(myRegion,mySender1), (myRegion,mySender)]");
     await().untilAsserted(() -> assertThat(service.getNumberOfCurrentExecutions()).isEqualTo(0));
@@ -155,15 +155,15 @@ public class WanCopyRegionFunctionServiceTest {
 
   @Test
   public void severalExecuteWithDifferentRegionOrSenderAreAllowed() {
-    int executions = 5;
-    CountDownLatch latch = new CountDownLatch(executions);
-    for (int i = 0; i < executions; i++) {
-      Callable<CliFunctionResult> firstExecution = () -> {
+    var executions = 5;
+    var latch = new CountDownLatch(executions);
+    for (var i = 0; i < executions; i++) {
+      var firstExecution = (Callable<CliFunctionResult>) () -> {
         latch.await(GeodeAwaitility.getTimeout().getSeconds(), TimeUnit.SECONDS);
         return null;
       };
 
-      final String regionName = String.valueOf(i);
+      final var regionName = String.valueOf(i);
       CompletableFuture
           .supplyAsync(() -> {
             try {
@@ -179,7 +179,7 @@ public class WanCopyRegionFunctionServiceTest {
         () -> assertThat(service.getNumberOfCurrentExecutions()).isEqualTo(executions));
 
     // End executions
-    for (int i = 0; i < executions; i++) {
+    for (var i = 0; i < executions; i++) {
       latch.countDown();
     }
   }

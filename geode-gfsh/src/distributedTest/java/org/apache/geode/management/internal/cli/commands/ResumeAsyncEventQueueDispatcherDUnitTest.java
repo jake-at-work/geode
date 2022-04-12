@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import org.apache.geode.internal.cache.wan.MyAsyncEventListener;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 public class ResumeAsyncEventQueueDispatcherDUnitTest {
@@ -42,7 +41,7 @@ public class ResumeAsyncEventQueueDispatcherDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void create_sync_event_queue() throws Exception {
-    MemberVM locator = lsRule.startLocatorVM(0);
+    var locator = lsRule.startLocatorVM(0);
     lsRule.startServerVM(1, locator.getPort());
     gfsh.connectAndVerify(locator);
 

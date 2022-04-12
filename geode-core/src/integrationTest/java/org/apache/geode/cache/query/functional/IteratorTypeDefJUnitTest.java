@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.SelectResults;
@@ -40,8 +39,8 @@ public class IteratorTypeDefJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
     CacheUtils.log(region);
@@ -54,7 +53,7 @@ public class IteratorTypeDefJUnitTest {
 
   @Test
   public void testIteratorDefSyntax() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         "IMPORT org.apache.geode.cache.\"query\".data.Position;"
             + "SELECT DISTINCT secId FROM " + SEPARATOR
             + "portfolios,  positions.values pos TYPE Position WHERE iD > 0",
@@ -68,11 +67,11 @@ public class IteratorTypeDefJUnitTest {
             + "portfolios,  positions.values AS pos  WHERE iD > 0",
         "SELECT DISTINCT pos.secId FROM " + SEPARATOR
             + "portfolios, pos IN positions.values  WHERE iD > 0",};
-    for (final String query : queries) {
+    for (final var query : queries) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(query);
-        Object r = q.execute();
+        var r = q.execute();
       } catch (Exception e) {
         e.printStackTrace();
         fail(q.getQueryString());
@@ -83,14 +82,14 @@ public class IteratorTypeDefJUnitTest {
 
   @Test
   public void testIteratorDefSyntaxForObtainingResultBag() throws Exception {
-    String[] queries = {"IMPORT org.apache.geode.cache.\"query\".data.Position;"
+    var queries = new String[] {"IMPORT org.apache.geode.cache.\"query\".data.Position;"
         + "SELECT DISTINCT secId FROM " + SEPARATOR
         + "portfolios, (set<Position>)positions.values WHERE iD > 0",};
-    for (final String query : queries) {
+    for (final var query : queries) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(query);
-        Object r = q.execute();
+        var r = q.execute();
         if (!(r instanceof SelectResults)) {
           fail(
               "testIteratorDefSyntaxForObtainingResultBag: Test failed as obtained Result Data not an instance of SelectResults. Query= "
@@ -112,13 +111,13 @@ public class IteratorTypeDefJUnitTest {
   @Test
   public void testNOValueconstraintInCreatRegion() throws Exception {
     CacheUtils.createRegion("pos", null);
-    String[] queries = {"IMPORT org.apache.geode.cache.\"query\".data.Portfolio;"
+    var queries = new String[] {"IMPORT org.apache.geode.cache.\"query\".data.Portfolio;"
         + "SELECT DISTINCT * FROM (set<Portfolio>)" + SEPARATOR + "pos where iD > 0"};
-    for (final String query : queries) {
+    for (final var query : queries) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(query);
-        Object r = q.execute();
+        var r = q.execute();
       } catch (Exception e) {
         e.printStackTrace();
         fail(q.getQueryString());
@@ -129,20 +128,20 @@ public class IteratorTypeDefJUnitTest {
 
   @Test
   public void testNOConstraintOnRegion() throws Exception {
-    Region region = CacheUtils.createRegion("portfl", null);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("portfl", null);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
     CacheUtils.log(region);
-    String[] queries = {"IMPORT org.apache.geode.cache.\"query\".data.Position;"
+    var queries = new String[] {"IMPORT org.apache.geode.cache.\"query\".data.Position;"
         + "IMPORT org.apache.geode.cache.\"query\".data.Portfolio;"
         + "SELECT DISTINCT secId FROM (set<Portfolio>)" + SEPARATOR
         + "portfl, (set<Position>)positions.values WHERE iD > 0",};
-    for (final String query : queries) {
+    for (final var query : queries) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(query);
-        Object r = q.execute();
+        var r = q.execute();
       } catch (Exception e) {
         e.printStackTrace();
         fail(q.getQueryString());

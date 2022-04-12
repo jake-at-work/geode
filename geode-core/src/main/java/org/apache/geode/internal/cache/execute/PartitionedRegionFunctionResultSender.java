@@ -218,8 +218,7 @@ public class PartitionedRegionFunctionResultSender implements InternalResultSend
   private synchronized void lastResult(Object oneResult, ResultCollector collector,
       boolean lastRemoteResult, boolean lastLocalResult, DistributedMember memberID) {
 
-
-    boolean completedLocal = lastLocalResult || localLastResultReceived;
+    var completedLocal = lastLocalResult || localLastResultReceived;
     if (lastRemoteResult) {
       completelyDoneFromRemote = true;
     }
@@ -379,7 +378,7 @@ public class PartitionedRegionFunctionResultSender implements InternalResultSend
 
   @Override
   public void sendException(Throwable exception) {
-    InternalFunctionException iFunxtionException = new InternalFunctionException(exception);
+    var iFunxtionException = new InternalFunctionException(exception);
     lastResult(iFunxtionException);
     localLastResultReceived = true;
   }

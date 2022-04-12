@@ -14,9 +14,7 @@
  */
 package org.apache.geode.internal.cache;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import org.apache.geode.cache.RegionAttributes;
@@ -463,9 +461,9 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
   }
 
   public void setAllHasFields(boolean b) {
-    int hasCounter = 0;
-    Field[] thisFields = UserSpecifiedRegionAttributes.class.getDeclaredFields();
-    for (final Field thisField : thisFields) {
+    var hasCounter = 0;
+    var thisFields = UserSpecifiedRegionAttributes.class.getDeclaredFields();
+    for (final var thisField : thisFields) {
       if (thisField.getName().startsWith("has")) {
         hasCounter++;
         try {
@@ -524,18 +522,18 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
   private static final int HAS_COUNT = 41;
 
   public void initHasFields(UserSpecifiedRegionAttributes<K, V> other) {
-    Field[] thisFields = UserSpecifiedRegionAttributes.class.getDeclaredFields();
-    Object[] emptyArgs = new Object[] {};
-    int hasCounter = 0;
+    var thisFields = UserSpecifiedRegionAttributes.class.getDeclaredFields();
+    var emptyArgs = new Object[] {};
+    var hasCounter = 0;
     String fieldName = null;
-    for (final Field thisField : thisFields) {
+    for (final var thisField : thisFields) {
       fieldName = thisField.getName();
       if (fieldName.startsWith("has")) {
         hasCounter++;
-        boolean bval = false;
+        var bval = false;
 
         try {
-          Method otherMeth = other.getClass().getMethod(fieldName/* , (Class[])null */);
+          var otherMeth = other.getClass().getMethod(fieldName/* , (Class[])null */);
           bval = (Boolean) otherMeth.invoke(other, emptyArgs);
         } catch (NoSuchMethodException darnit) {
           Assert.assertTrue(false, "A has* method accessor is required for field " + fieldName);

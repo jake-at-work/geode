@@ -28,7 +28,7 @@ public class ShowMetricsJUnitTest {
 
   @Test
   public void testPortAndRegion() throws Exception {
-    ShowMetricsCommand command = spy(ShowMetricsCommand.class);
+    var command = spy(ShowMetricsCommand.class);
     parser.executeAndAssertThat(command, "show metrics --port=0 --region=regionA")
         .statusIsError()
         .containsOutput("The --region and --port parameters are mutually exclusive");
@@ -36,7 +36,7 @@ public class ShowMetricsJUnitTest {
 
   @Test
   public void testPortOnly() throws Exception {
-    ShowMetricsCommand command = spy(ShowMetricsCommand.class);
+    var command = spy(ShowMetricsCommand.class);
     parser.executeAndAssertThat(command, "show metrics --port=0")
         .statusIsError()
         .containsOutput(
@@ -45,7 +45,7 @@ public class ShowMetricsJUnitTest {
 
   @Test
   public void invalidPortNumber() throws Exception {
-    ShowMetricsCommand command = spy(ShowMetricsCommand.class);
+    var command = spy(ShowMetricsCommand.class);
     parser.executeAndAssertThat(command, "show metrics --port=abc")
         .statusIsError()
         .containsOutput("Invalid command");

@@ -49,9 +49,6 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.mockito.Mock;
 
 import org.apache.geode.cache.CacheExistsException;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.InternalCacheBuilder.InternalCacheConstructor;
-import org.apache.geode.internal.cache.InternalCacheBuilder.InternalDistributedSystemConstructor;
 import org.apache.geode.metrics.internal.MetricsService;
 
 /**
@@ -76,7 +73,7 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void create_throwsNullPointerException_ifConfigPropertiesIsNull() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         null, new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         constructorOf(constructedSystem()),
         THROWING_CACHE_SUPPLIER, constructorOf(constructedCache()));
@@ -87,7 +84,7 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void create_throwsNullPointerException_andCacheConfigIsNull() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), null, metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         constructorOf(constructedSystem()),
         THROWING_CACHE_SUPPLIER, constructorOf(constructedCache()));
@@ -98,12 +95,12 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void create_constructsSystem_withGivenProperties_ifNoSystemExists() {
-    InternalCache constructedCache = constructedCache();
+    var constructedCache = constructedCache();
 
-    InternalDistributedSystemConstructor systemConstructor = constructorOf(constructedSystem());
-    Properties configProperties = new Properties();
+    var systemConstructor = constructorOf(constructedSystem());
+    var configProperties = new Properties();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         configProperties, new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         systemConstructor, THROWING_CACHE_SUPPLIER, constructorOf(constructedCache));
 
@@ -114,24 +111,24 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void create_returnsConstructedCache_ifNoSystemExists() {
-    InternalCache constructedCache = constructedCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         constructorOf(constructedSystem()), THROWING_CACHE_SUPPLIER,
         constructorOf(constructedCache));
 
-    InternalCache result = internalCacheBuilder.create();
+    var result = internalCacheBuilder.create();
 
     assertThat(result).isSameAs(constructedCache);
   }
 
   @Test
   public void create_setsConstructedCache_onConstructedSystem_ifNoSystemExists() {
-    InternalDistributedSystem constructedSystem = constructedSystem();
-    InternalCache constructedCache = constructedCache();
+    var constructedSystem = constructedSystem();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         constructorOf(constructedSystem), THROWING_CACHE_SUPPLIER, constructorOf(constructedCache));
 
@@ -142,11 +139,11 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void create_setsConstructedSystem_onConstructedCache_ifNoSystemExists() {
-    InternalDistributedSystem constructedSystem = constructedSystem();
+    var constructedSystem = constructedSystem();
 
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache());
+    var cacheConstructor = constructorOf(constructedCache());
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         constructorOf(constructedSystem), THROWING_CACHE_SUPPLIER, cacheConstructor);
 
@@ -159,26 +156,26 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_throwsNullPointerException_ifSystemIsNull() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, THROWING_CACHE_CONSTRUCTOR);
 
-    Throwable thrown = catchThrowable(() -> internalCacheBuilder.create(null));
+    var thrown = catchThrowable(() -> internalCacheBuilder.create(null));
 
     assertThat(thrown).isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void createWithSystem_returnsConstructedCache_ifSystemCacheDoesNotExist() {
-    InternalCache constructedCache = constructedCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, constructorOf(constructedCache));
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .create(systemWithNoCache());
 
     assertThat(result).isSameAs(constructedCache);
@@ -186,10 +183,10 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_setsConstructedCache_onGivenSystem_ifSystemCacheDoesNotExist() {
-    InternalDistributedSystem givenSystem = systemWithNoCache();
-    InternalCache constructedCache = constructedCache();
+    var givenSystem = systemWithNoCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, constructorOf(constructedCache));
@@ -202,11 +199,11 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_setsGivenSystem_onConstructedCache_ifSystemCacheDoesNotExist() {
-    InternalDistributedSystem givenSystem = systemWithNoCache();
+    var givenSystem = systemWithNoCache();
 
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache());
+    var cacheConstructor = constructorOf(constructedCache());
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, cacheConstructor);
@@ -220,16 +217,16 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_returnsConstructedCache_ifGivenSystemHasClosedCache() {
-    InternalCache closedCache = cache(CLOSED);
-    InternalDistributedSystem givenSystem = systemWith(closedCache);
+    var closedCache = cache(CLOSED);
+    var givenSystem = systemWith(closedCache);
 
-    InternalCache constructedCache = constructedCache();
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var constructedCache = constructedCache();
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, constructorOf(constructedCache));
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .create(givenSystem);
 
     assertThat(result).isSameAs(constructedCache);
@@ -237,12 +234,12 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_setsConstructedCache_onGivenSystem_ifSystemCacheIsClosed() {
-    InternalCache closedCache = cache(CLOSED);
-    InternalDistributedSystem givenSystem = systemWith(closedCache);
+    var closedCache = cache(CLOSED);
+    var givenSystem = systemWith(closedCache);
 
-    InternalCache constructedCache = constructedCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR, THROWING_CACHE_SUPPLIER, constructorOf(constructedCache));
 
@@ -254,12 +251,12 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_setsGivenSystem_onConstructedCache_ifSystemCacheIsClosed() {
-    InternalCache closedCache = cache(CLOSED);
-    InternalDistributedSystem givenSystem = systemWith(closedCache);
+    var closedCache = cache(CLOSED);
+    var givenSystem = systemWith(closedCache);
 
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache());
+    var cacheConstructor = constructorOf(constructedCache());
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, cacheConstructor);
@@ -273,15 +270,15 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_throwsCacheExistsException_ifSystemCacheIsOpen_butExistingNotOk() {
-    InternalCache openCache = cache(OPEN);
-    InternalDistributedSystem givenSystem = systemWith(openCache);
+    var openCache = cache(OPEN);
+    var givenSystem = systemWith(openCache);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, THROWING_CACHE_CONSTRUCTOR);
 
-    Throwable thrown = catchThrowable(() -> internalCacheBuilder
+    var thrown = catchThrowable(() -> internalCacheBuilder
         .setIsExistingOk(false)
         .create(givenSystem));
 
@@ -290,10 +287,10 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_doesNotSetSystemCache_onGivenSystem__ifSystemCacheIsOpen_butExistingNotOk() {
-    InternalCache openCache = cache(OPEN);
-    InternalDistributedSystem givenSystem = systemWith(openCache);
+    var openCache = cache(OPEN);
+    var givenSystem = systemWith(openCache);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, THROWING_CACHE_CONSTRUCTOR);
@@ -307,17 +304,17 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_propagatesCacheConfigException_ifSystemCacheIsOpen_andExistingOk_butCacheIsIncompatible() {
-    InternalCache incompatibleOpenCache = cache("incompatible", OPEN);
-    InternalDistributedSystem givenSystem = systemWith(incompatibleOpenCache);
+    var incompatibleOpenCache = cache("incompatible", OPEN);
+    var givenSystem = systemWith(incompatibleOpenCache);
 
     Throwable thrownByCacheConfig = new IllegalStateException("incompatible");
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), throwingCacheConfig(thrownByCacheConfig), metricsSessionBuilder,
         THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR, THROWING_CACHE_SUPPLIER, THROWING_CACHE_CONSTRUCTOR);
 
-    Throwable thrown = catchThrowable(() -> internalCacheBuilder
+    var thrown = catchThrowable(() -> internalCacheBuilder
         .setIsExistingOk(true)
         .create(givenSystem));
 
@@ -326,11 +323,11 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_doesNotSetSystemCache_onGivenSystem_ifSystemCacheIsOpen_andExistingOk_butCacheIsNotCompatible() {
-    InternalCache incompatibleOpenCache = cache("incompatible", OPEN);
-    InternalDistributedSystem givenSystem = systemWith(incompatibleOpenCache);
+    var incompatibleOpenCache = cache("incompatible", OPEN);
+    var givenSystem = systemWith(incompatibleOpenCache);
     when(givenSystem.getCache()).thenReturn(incompatibleOpenCache);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), throwingCacheConfig(new IllegalStateException("incompatible")),
         metricsSessionBuilder,
         THROWING_SYSTEM_SUPPLIER, THROWING_SYSTEM_CONSTRUCTOR, THROWING_CACHE_SUPPLIER,
@@ -345,15 +342,15 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_returnsSystemCache_ifSystemCacheIsOpen_andExistingOk_andCacheIsCompatible() {
-    InternalCache compatibleOpenCache = cache("compatible", OPEN);
-    InternalDistributedSystem givenSystem = systemWith(compatibleOpenCache);
+    var compatibleOpenCache = cache("compatible", OPEN);
+    var givenSystem = systemWith(compatibleOpenCache);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, THROWING_CACHE_CONSTRUCTOR);
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .setIsExistingOk(true)
         .create(givenSystem);
 
@@ -362,11 +359,11 @@ public class InternalCacheBuilderAllowsMultipleSystemsTest {
 
   @Test
   public void createWithSystem_setsSystemCache_onGivenSystem_ifSystemCacheIsOpen_andExistingOk_andCacheIsCompatible() {
-    InternalCache compatibleOpenCache = cache("compatible", OPEN);
-    InternalDistributedSystem givenSystem = systemWith(compatibleOpenCache);
+    var compatibleOpenCache = cache("compatible", OPEN);
+    var givenSystem = systemWith(compatibleOpenCache);
     when(givenSystem.getCache()).thenReturn(compatibleOpenCache);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsSessionBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR, THROWING_CACHE_SUPPLIER, THROWING_CACHE_CONSTRUCTOR);
 

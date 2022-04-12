@@ -84,7 +84,7 @@ public class SortedSetRankRangeOptions extends AbstractSortedSetRangeOptions<Int
         return isStartIndex ? index : index + 1;
       }
     } else {
-      int offsetIndex = size + index;
+      var offsetIndex = size + index;
       if (offsetIndex < 0) {
         return 0;
       } else {

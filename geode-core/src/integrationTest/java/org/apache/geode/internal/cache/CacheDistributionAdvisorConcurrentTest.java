@@ -49,8 +49,8 @@ public class CacheDistributionAdvisorConcurrentTest {
   public void getAdviseAllEventsOrCachedForConcurrentUpdateShouldSucceed(ParallelExecutor executor)
       throws Exception {
 
-    CacheDistributionAdvisor advisor = createCacheDistributionAdvisor();
-    CacheProfile profile = createCacheProfile();
+    var advisor = createCacheDistributionAdvisor();
+    var profile = createCacheProfile();
     advisor.putProfile(profile, true);
 
     executor.inParallel(advisor::adviseAllEventsOrCached, count);
@@ -66,12 +66,12 @@ public class CacheDistributionAdvisorConcurrentTest {
   public void getAdviseUpdateForConcurrentUpdateShouldSucceed(ParallelExecutor executor)
       throws Exception {
 
-    EntryEventImpl event = new EntryEventImpl();
+    var event = new EntryEventImpl();
     event.setNewValue(null);
     event.setOperation(Operation.CREATE);
 
-    CacheDistributionAdvisor advisor = createCacheDistributionAdvisor();
-    CacheProfile profile = createCacheProfile();
+    var advisor = createCacheDistributionAdvisor();
+    var profile = createCacheProfile();
     advisor.putProfile(profile, true);
 
     executor.inParallel(() -> {
@@ -87,14 +87,14 @@ public class CacheDistributionAdvisorConcurrentTest {
   }
 
   private CacheDistributionAdvisor createCacheDistributionAdvisor() {
-    CacheDistributionAdvisee advisee = mock(CacheDistributionAdvisee.class);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var advisee = mock(CacheDistributionAdvisee.class);
+    var cancelCriterion = mock(CancelCriterion.class);
+    var distributionManager = mock(DistributionManager.class);
 
     when(advisee.getCancelCriterion()).thenReturn(cancelCriterion);
     when(advisee.getDistributionManager()).thenReturn(distributionManager);
 
-    CacheDistributionAdvisor result =
+    var result =
         CacheDistributionAdvisor.createCacheDistributionAdvisor(advisee);
 
     when(advisee.getDistributionAdvisor()).thenReturn(result);
@@ -103,7 +103,7 @@ public class CacheDistributionAdvisorConcurrentTest {
   }
 
   private CacheProfile createCacheProfile() throws UnknownHostException {
-    InternalDistributedMember member =
+    var member =
         new InternalDistributedMember(getLocalHost(), 0, false, false);
     return new CacheProfile(member, 1);
   }

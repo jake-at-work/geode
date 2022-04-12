@@ -45,9 +45,7 @@ import org.apache.geode.internal.cache.CachedDeserializableFactory;
 import org.apache.geode.internal.cache.DataLocationException;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.ForceReattemptException;
-import org.apache.geode.internal.cache.KeyInfo;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.PrimaryBucketException;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.TXStateProxy;
@@ -116,7 +114,7 @@ public class GetMessage extends PartitionMessageWithDirectReply {
   public int getProcessorType() {
     if (!forceUseOfPRExecutor && !ORDER_PR_GETS && !isDirectAck()) {
       try {
-        PartitionedRegion pr = PartitionedRegion.getPRFromId(regionId);
+        var pr = PartitionedRegion.getPRFromId(regionId);
         // If the region is persistent the get may need to fault a value
         // in which has to sync the region entry. Note it may need to
         // do this even if it is not overflow (after recovery values are faulted in async).
@@ -162,7 +160,7 @@ public class GetMessage extends PartitionMessageWithDirectReply {
       logger.trace(LogMarker.DM_VERBOSE, "GetMessage operateOnRegion: {}", r.getFullPath());
     }
 
-    PartitionedRegionDataStore ds = r.getDataStore();
+    var ds = r.getDataStore();
 
     assert getTXUniqId() == TXManagerImpl.NOTX || r.getDataView() instanceof TXStateProxy;
 
@@ -170,10 +168,10 @@ public class GetMessage extends PartitionMessageWithDirectReply {
     Object val = null;
     try {
       if (ds != null) {
-        VersionTagHolder event = new VersionTagHolder();
+        var event = new VersionTagHolder();
         try {
-          KeyInfo keyInfo = r.getKeyInfo(key, cbArg);
-          boolean lockEntry = forceUseOfPRExecutor || isDirectAck();
+          var keyInfo = r.getKeyInfo(key, cbArg);
+          var lockEntry = forceUseOfPRExecutor || isDirectAck();
 
           val = r.getDataView().getSerializedValue(r, keyInfo, !lockEntry, context, event,
               returnTombstones);
@@ -285,8 +283,8 @@ public class GetMessage extends PartitionMessageWithDirectReply {
       final Object key, final Object aCallbackArgument, ClientProxyMembershipID requestingClient,
       boolean returnTombstones) throws ForceReattemptException {
     Assert.assertTrue(recipient != null, "PRDistribuedGetReplyMessage NULL reply message");
-    GetResponse p = new GetResponse(r.getSystem(), Collections.singleton(recipient), key);
-    GetMessage m = new GetMessage(recipient, r.getPRId(), p, key, aCallbackArgument,
+    var p = new GetResponse(r.getSystem(), Collections.singleton(recipient), key);
+    var m = new GetMessage(recipient, r.getPRId(), p, key, aCallbackArgument,
         requestingClient, returnTombstones);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     Set failures = r.getDistributionManager().putOutgoing(m);
@@ -350,7 +348,7 @@ public class GetMessage extends PartitionMessageWithDirectReply {
     private GetReplyMessage(int processorId, RawValue val, VersionTag versionTag) {
       setProcessorId(processorId);
       rawVal = val;
-      final Object rval = val.getRawValue();
+      final var rval = val.getRawValue();
       if (rval == Token.TOMBSTONE) {
         valueType = VALUE_IS_TOMBSTONE;
       } else if (Token.isInvalid(rval)) {
@@ -383,7 +381,7 @@ public class GetMessage extends PartitionMessageWithDirectReply {
     public static void send(InternalDistributedMember recipient, int processorId, RawValue val,
         ReplySender replySender, VersionTag versionTag) throws ForceReattemptException {
       Assert.assertTrue(recipient != null, "PRDistribuedGetReplyMessage NULL reply message");
-      GetReplyMessage m = new GetReplyMessage(processorId, val, versionTag);
+      var m = new GetReplyMessage(processorId, val, versionTag);
       m.setRecipient(recipient);
       replySender.putOutgoing(m);
     }
@@ -395,8 +393,8 @@ public class GetMessage extends PartitionMessageWithDirectReply {
      */
     @Override
     public void process(final DistributionManager dm, ReplyProcessor21 processor) {
-      final boolean isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
-      final long startTime = getTimestamp();
+      final var isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
+      final var startTime = getTimestamp();
       if (isDebugEnabled) {
         logger.trace(LogMarker.DM_VERBOSE,
             "GetReplyMessage process invoking reply processor with processorId: {}",
@@ -431,8 +429,8 @@ public class GetMessage extends PartitionMessageWithDirectReply {
     public void toData(DataOutput out,
         SerializationContext context) throws IOException {
       super.toData(out, context);
-      final boolean hasVersionTag = (versionTag != null);
-      byte flags = valueType;
+      final var hasVersionTag = (versionTag != null);
+      var flags = valueType;
       if (hasVersionTag) {
         flags |= VALUE_HAS_VERSION_TAG;
       }
@@ -451,7 +449,7 @@ public class GetMessage extends PartitionMessageWithDirectReply {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      byte flags = in.readByte();
+      var flags = in.readByte();
       final boolean hasVersionTag;
       if ((hasVersionTag = (flags & VALUE_HAS_VERSION_TAG) != 0)) {
         flags &= ~VALUE_HAS_VERSION_TAG;
@@ -468,7 +466,7 @@ public class GetMessage extends PartitionMessageWithDirectReply {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("GetReplyMessage ").append("processorid=").append(processorId)
           .append(" reply to sender ").append(getSender());
       if (valueType == VALUE_IS_TOMBSTONE) {
@@ -513,7 +511,7 @@ public class GetMessage extends PartitionMessageWithDirectReply {
         start = DistributionStats.getStatTime();
       }
       if (msg instanceof GetReplyMessage) {
-        GetReplyMessage reply = (GetReplyMessage) msg;
+        var reply = (GetReplyMessage) msg;
         // De-serialization needs to occur in the requesting thread, not a P2P thread
         // (or some other limited resource)
         if (reply.valueInBytes != null || reply.valueType == GetReplyMessage.VALUE_IS_INVALID
@@ -534,7 +532,7 @@ public class GetMessage extends PartitionMessageWithDirectReply {
      * @return the value object
      */
     public Object getValue(boolean preferCD) throws ForceReattemptException {
-      final GetReplyMessage reply = getReply;
+      final var reply = getReply;
       try {
         if (reply != null) {
           switch (reply.valueType) {
@@ -589,7 +587,7 @@ public class GetMessage extends PartitionMessageWithDirectReply {
         }
       } catch (ForceReattemptException e) {
         e.checkKey(key);
-        final String msg = "GetResponse got ForceReattemptException; rethrowing";
+        final var msg = "GetResponse got ForceReattemptException; rethrowing";
         logger.debug(msg, e);
         throw e;
       }

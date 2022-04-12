@@ -96,14 +96,14 @@ public class PRCustomPartitioningDistributedTest implements Serializable {
 
   private void doPutOperations(final String regionName, final int century,
       final List<Date> listOfKeys) {
-    Calendar calendar = Calendar.getInstance();
+    var calendar = Calendar.getInstance();
     Region<Date, Integer> region = cacheRule.getCache().getRegion(regionName);
-    for (int month = 0; month <= 11; month++) {
-      int year = (int) (Math.random() * century);
-      int date = (int) (Math.random() * 30);
+    for (var month = 0; month <= 11; month++) {
+      var year = (int) (Math.random() * century);
+      var date = (int) (Math.random() * 30);
 
       calendar.set(year, month, date);
-      Date key = calendar.getTime();
+      var key = calendar.getTime();
       listOfKeys.add(key);
 
       region.put(key, month);
@@ -111,7 +111,7 @@ public class PRCustomPartitioningDistributedTest implements Serializable {
   }
 
   private void verifyKeysInAccessor(final String regionName, final List<Date> listOfKeys) {
-    PartitionedRegion partitionedRegion =
+    var partitionedRegion =
         (PartitionedRegion) cacheRule.getCache().getRegion(regionName);
 
     for (Object key : listOfKeys) {
@@ -122,29 +122,29 @@ public class PRCustomPartitioningDistributedTest implements Serializable {
   }
 
   private void verifyKeys(final String regionName, final List<Date> listOfKeys) {
-    PartitionedRegion partitionedRegion =
+    var partitionedRegion =
         (PartitionedRegion) cacheRule.getCache().getRegion(regionName);
 
-    for (Date key : listOfKeys) {
+    for (var key : listOfKeys) {
       assertThat(containsKeyInSomeBucket(partitionedRegion, key)).isTrue();
     }
 
     partitionedRegion.getDataStore().visitBuckets((bucketId, region) -> {
       Set<Object> bucketKeys = partitionedRegion.getBucketKeys(bucketId);
-      for (Object key : bucketKeys) {
+      for (var key : bucketKeys) {
         EntryOperation<Date, Integer> entryOperation =
             new EntryOperationImpl(partitionedRegion, null, key, null, null);
         PartitionResolver<Date, Integer> partitionResolver =
             partitionedRegion.getPartitionResolver();
-        Object routingObject = partitionResolver.getRoutingObject(entryOperation);
-        int routingObjectHashCode = routingObject.hashCode() % TOTAL_NUM_BUCKETS;
+        var routingObject = partitionResolver.getRoutingObject(entryOperation);
+        var routingObjectHashCode = routingObject.hashCode() % TOTAL_NUM_BUCKETS;
         assertThat(routingObjectHashCode).isEqualTo(bucketId);
       }
     });
   }
 
   private void createPartitionedRegionWithPartitionResolver() {
-    PartitionAttributesFactory<Date, Integer> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<Date, Integer>();
     paf.setPartitionResolver(new MonthBasedPartitionResolver());
     paf.setRedundantCopies(0);
     paf.setTotalNumBuckets(TOTAL_NUM_BUCKETS);
@@ -157,7 +157,7 @@ public class PRCustomPartitioningDistributedTest implements Serializable {
   }
 
   private void createPartitionedRegionAccessorWithPartitionResolver() {
-    PartitionAttributesFactory<Date, Integer> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<Date, Integer>();
     paf.setLocalMaxMemory(0);
     paf.setPartitionResolver(new MonthBasedPartitionResolver());
     paf.setRedundantCopies(0);
@@ -174,8 +174,8 @@ public class PRCustomPartitioningDistributedTest implements Serializable {
    * Returns true if the key is found in any buckets.
    */
   private boolean containsKeyInSomeBucket(PartitionedRegion partitionedRegion, Date key) {
-    int numberOfBuckets = partitionedRegion.getTotalNumberOfBuckets();
-    for (int bucketId = 0; bucketId < numberOfBuckets; bucketId++) {
+    var numberOfBuckets = partitionedRegion.getTotalNumberOfBuckets();
+    for (var bucketId = 0; bucketId < numberOfBuckets; bucketId++) {
       if (partitionedRegion.getBucketKeys(bucketId).contains(key)) {
         return true;
       }

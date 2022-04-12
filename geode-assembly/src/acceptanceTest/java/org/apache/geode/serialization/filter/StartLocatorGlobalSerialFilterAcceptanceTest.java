@@ -47,14 +47,14 @@ public class StartLocatorGlobalSerialFilterAcceptanceTest {
 
   @Before
   public void setUpPorts() {
-    int[] ports = getRandomAvailableTCPPorts(2);
+    var ports = getRandomAvailableTCPPorts(2);
     locatorPort = ports[0];
     locatorJmxPort = ports[1];
   }
 
   @Test
   public void startDoesNotConfigureGlobalSerialFilter_byDefault() {
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=locator",
         "--dir=" + locatorFolder,
@@ -74,7 +74,7 @@ public class StartLocatorGlobalSerialFilterAcceptanceTest {
 
   @Test
   public void startDoesNotConfigureGlobalSerialFilter_whenJdkSerialFilterIsNotBlank() {
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=locator",
         "--dir=" + locatorFolder,
@@ -95,7 +95,7 @@ public class StartLocatorGlobalSerialFilterAcceptanceTest {
 
   @Test
   public void startConfiguresGlobalSerialFilter_whenEnableGlobalSerialFilterIsTrue() {
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=locator",
         "--dir=" + locatorFolder,
@@ -116,7 +116,7 @@ public class StartLocatorGlobalSerialFilterAcceptanceTest {
 
   @Test
   public void startDoesNotConfigureGlobalSerialFilter_whenEnableGlobalSerialFilterIsTrue_andJdkSerialFilterIsNotBlank() {
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=locator",
         "--dir=" + locatorFolder,

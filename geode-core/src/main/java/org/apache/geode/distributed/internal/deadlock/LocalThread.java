@@ -15,8 +15,6 @@
 package org.apache.geode.distributed.internal.deadlock;
 
 import java.io.Serializable;
-import java.lang.management.LockInfo;
-import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 
 /**
@@ -42,7 +40,7 @@ public class LocalThread implements Serializable, ThreadReference {
 
   private String generateThreadStack(ThreadInfo info) {
     // This is annoying, but the to string method on info sucks.
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append(info.getThreadName()).append(" ID=0x")
         .append(Long.toHexString(info.getThreadId())).append("(").append(info.getThreadId())
         .append(") state=").append(info.getThreadState());
@@ -51,9 +49,9 @@ public class LocalThread implements Serializable, ThreadReference {
     if (info.getLockInfo() != null) {
       result.append("\n\twaiting to lock <" + info.getLockInfo() + ">");
     }
-    for (StackTraceElement element : info.getStackTrace()) {
+    for (var element : info.getStackTrace()) {
       result.append("\n\tat " + element);
-      for (MonitorInfo monitor : info.getLockedMonitors()) {
+      for (var monitor : info.getLockedMonitors()) {
         if (element.equals(monitor.getLockedStackFrame())) {
           result.append("\n\tlocked <" + monitor + ">");
         }
@@ -62,7 +60,7 @@ public class LocalThread implements Serializable, ThreadReference {
 
     if (info.getLockedSynchronizers().length > 0) {
       result.append("\nLocked synchronizers:");
-      for (LockInfo sync : info.getLockedSynchronizers()) {
+      for (var sync : info.getLockedSynchronizers()) {
         result.append(
             "\n" + sync.getClassName() + "@" + Integer.toHexString(sync.getIdentityHashCode()));
 
@@ -90,8 +88,8 @@ public class LocalThread implements Serializable, ThreadReference {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + (int) (threadId ^ (threadId >>> 32));
     result = prime * result + ((locality == null) ? 0 : locality.hashCode());
     return result;
@@ -108,7 +106,7 @@ public class LocalThread implements Serializable, ThreadReference {
     if (!(obj instanceof LocalThread)) {
       return false;
     }
-    LocalThread other = (LocalThread) obj;
+    var other = (LocalThread) obj;
     if (threadId != other.threadId) {
       return false;
     }

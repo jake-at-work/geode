@@ -57,16 +57,12 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
-import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
 import org.apache.geode.distributed.Locator;
@@ -74,14 +70,12 @@ import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderException;
 import org.apache.geode.internal.cache.wan.InternalGatewaySender;
 import org.apache.geode.internal.cache.wan.InternalGatewaySenderFactory;
 import org.apache.geode.internal.cache.wan.WANTestBase;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 import org.apache.geode.test.junit.categories.WanTest;
@@ -146,7 +140,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -169,7 +163,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
     vm6.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
     vm7.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -205,7 +199,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -228,7 +222,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
     vm6.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
     vm7.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -260,7 +254,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
     filters.add(new MyGatewayEventFilter_AfterAck());
     filters.add(new PDXGatewayEventFilter());
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -283,7 +277,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
     vm6.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
     vm7.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -323,13 +317,13 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
       boolean isManualStart,
       int numDispatchers,
       OrderPolicy policy) throws IOException {
-    try (IgnoredException ie = addIgnoredException("Could not connect")) {
-      File persistentDirectory =
+    try (var ie = addIgnoredException("Could not connect")) {
+      var persistentDirectory =
           temporaryFolder.newFolder(id + "_disk_" + currentTimeMillis() + "_" + getCurrentVMNum());
-      DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
-      File[] dirs = new File[] {persistentDirectory};
+      var diskStoreFactory = getCache().createDiskStoreFactory();
+      var dirs = new File[] {persistentDirectory};
 
-      InternalGatewaySenderFactory gatewaySenderFactory =
+      var gatewaySenderFactory =
           (InternalGatewaySenderFactory) getCache().createGatewaySenderFactory();
 
       gatewaySenderFactory.setParallel(false);
@@ -346,7 +340,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
         gatewaySenderFactory.setDiskStoreName(
             diskStoreFactory.setDiskDirs(dirs).create(id).getName());
       } else {
-        DiskStore store = diskStoreFactory.setDiskDirs(dirs).create(id);
+        var store = diskStoreFactory.setDiskDirs(dirs).create(id);
         gatewaySenderFactory.setDiskStoreName(store.getName());
       }
 
@@ -355,7 +349,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
   }
 
   private Properties getDistributedSystemProperties(int locatorPort) {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "localhost[" + locatorPort + "]");
     return props;
@@ -366,15 +360,15 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
   }
 
   private void createReplicatedRegion(String regionName, String senderIds) {
-    try (IgnoredException ie1 = addIgnoredException(ForceReattemptException.class);
-        IgnoredException ie2 = addIgnoredException(GatewaySenderException.class);
-        IgnoredException ie3 = addIgnoredException(InterruptedException.class)) {
+    try (var ie1 = addIgnoredException(ForceReattemptException.class);
+        var ie2 = addIgnoredException(GatewaySenderException.class);
+        var ie3 = addIgnoredException(InterruptedException.class)) {
       RegionFactory regionFactory = getCache().createRegionFactory(REPLICATE);
 
       if (senderIds != null) {
-        StringTokenizer tokenizer = new StringTokenizer(senderIds, ",");
+        var tokenizer = new StringTokenizer(senderIds, ",");
         while (tokenizer.hasMoreTokens()) {
-          String senderId = tokenizer.nextToken();
+          var senderId = tokenizer.nextToken();
           regionFactory.addGatewaySenderId(senderId);
         }
       }
@@ -388,10 +382,10 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
   }
 
   private void doPuts(String regionName, int count) {
-    try (IgnoredException ie1 = addIgnoredException(GatewaySenderException.class);
-        IgnoredException ie2 = addIgnoredException(InterruptedException.class)) {
+    try (var ie1 = addIgnoredException(GatewaySenderException.class);
+        var ie2 = addIgnoredException(InterruptedException.class)) {
       Region<Number, String> region = getCache().getRegion(SEPARATOR + regionName);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         region.put(i, "Value_" + i);
       }
     }
@@ -399,28 +393,28 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
 
   private void doPuts(String regionName, int from, int count) {
     Region<Number, String> region = getCache().getRegion(SEPARATOR + regionName);
-    for (int i = from; i < count; i++) {
+    for (var i = from; i < count; i++) {
       region.put(i, "Value_" + i);
     }
   }
 
   private int createFirstLocatorWithDSId(int systemId) {
     stopOldLocator();
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
     startLocator(systemId, locatorPort, locatorPort, -1, true);
     return locatorPort;
   }
 
   private int createFirstRemoteLocator(int systemId, int remoteLocatorPort) {
     stopOldLocator();
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
     startLocator(systemId, locatorPort, locatorPort, remoteLocatorPort, true);
     return locatorPort;
   }
 
   private void startLocator(int systemId, int locatorPort, int startLocatorPort,
       int remoteLocatorPort, boolean startServerLocator) {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
 
     props.setProperty(DISTRIBUTED_SYSTEM_ID, String.valueOf(systemId));
     props.setProperty(MCAST_PORT, "0");
@@ -456,9 +450,9 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
   }
 
   private GatewaySender findGatewaySender(String senderId, boolean assertNotNull) {
-    Set<GatewaySender> senders = getCache().getGatewaySenders();
+    var senders = getCache().getGatewaySenders();
     GatewaySender sender = null;
-    for (GatewaySender s : senders) {
+    for (var s : senders) {
       if (s.getId().equals(senderId)) {
         sender = s;
         break;
@@ -473,43 +467,43 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
   }
 
   private void startSender(String senderId) {
-    try (IgnoredException ie1 = addIgnoredException("Could not connect");
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class);
-        IgnoredException ie3 = addIgnoredException(InterruptedException.class)) {
+    try (var ie1 = addIgnoredException("Could not connect");
+        var ie2 = addIgnoredException(ForceReattemptException.class);
+        var ie3 = addIgnoredException(InterruptedException.class)) {
       findGatewaySender(senderId).start();
     }
   }
 
   private void pauseSender(String senderId) {
-    try (IgnoredException ie1 = addIgnoredException("Could not connect");
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class)) {
-      InternalGatewaySender sender = findInternalGatewaySender(senderId);
+    try (var ie1 = addIgnoredException("Could not connect");
+        var ie2 = addIgnoredException(ForceReattemptException.class)) {
+      var sender = findInternalGatewaySender(senderId);
       sender.pause();
       sender.getEventProcessor().waitForDispatcherToPause();
     }
   }
 
   private void resumeSender(String senderId) {
-    try (IgnoredException ie1 = addIgnoredException("Could not connect");
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class)) {
+    try (var ie1 = addIgnoredException("Could not connect");
+        var ie2 = addIgnoredException(ForceReattemptException.class)) {
       findGatewaySender(senderId).resume();
     }
   }
 
   private void stopSender(String senderId) {
-    try (IgnoredException ie1 = addIgnoredException("Could not connect");
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class)) {
-      InternalGatewaySender sender = findInternalGatewaySender(senderId);
+    try (var ie1 = addIgnoredException("Could not connect");
+        var ie2 = addIgnoredException(ForceReattemptException.class)) {
+      var sender = findInternalGatewaySender(senderId);
 
-      AbstractGatewaySenderEventProcessor eventProcessor = sender.getEventProcessor();
+      var eventProcessor = sender.getEventProcessor();
 
       sender.stop();
 
       if (eventProcessor instanceof ConcurrentSerialGatewaySenderEventProcessor) {
-        ConcurrentSerialGatewaySenderEventProcessor concurrentEventProcessor =
+        var concurrentEventProcessor =
             (ConcurrentSerialGatewaySenderEventProcessor) eventProcessor;
-        Set<RegionQueue> queues = concurrentEventProcessor.getQueues();
-        for (RegionQueue queue : queues) {
+        var queues = concurrentEventProcessor.getQueues();
+        for (var queue : queues) {
           if (queue instanceof SerialGatewaySenderQueue) {
             assertThat(((SerialGatewaySenderQueue) queue).isRemovalThreadAlive())
                 .isFalse();
@@ -520,22 +514,22 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
   }
 
   private int createReceiver() throws IOException {
-    int receiverPort = getRandomAvailableTCPPort();
+    var receiverPort = getRandomAvailableTCPPort();
 
-    GatewayReceiverFactory gatewayReceiverFactory = getCache().createGatewayReceiverFactory();
+    var gatewayReceiverFactory = getCache().createGatewayReceiverFactory();
     gatewayReceiverFactory.setStartPort(receiverPort);
     gatewayReceiverFactory.setEndPort(receiverPort);
     gatewayReceiverFactory.setManualStart(true);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
     receiver.start();
 
     return receiverPort;
   }
 
   private void validateRegionSize(String regionName, int regionSize) {
-    try (IgnoredException ie1 = addIgnoredException(CacheClosedException.class);
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class)) {
+    try (var ie1 = addIgnoredException(CacheClosedException.class);
+        var ie2 = addIgnoredException(ForceReattemptException.class)) {
       Region region = getCache().getRegion(SEPARATOR + regionName);
 
       await()
@@ -546,12 +540,12 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
   }
 
   private void validateQueueContents(String senderId, int regionSize) {
-    try (IgnoredException ie1 = addIgnoredException(GatewaySenderException.class);
-        IgnoredException ie2 = addIgnoredException(InterruptedException.class)) {
-      InternalGatewaySender sender = findInternalGatewaySender(senderId);
+    try (var ie1 = addIgnoredException(GatewaySenderException.class);
+        var ie2 = addIgnoredException(InterruptedException.class)) {
+      var sender = findInternalGatewaySender(senderId);
 
       if (sender.isParallel()) {
-        RegionQueue regionQueue = sender.getQueues().toArray(new RegionQueue[1])[0];
+        var regionQueue = sender.getQueues().toArray(new RegionQueue[1])[0];
         await()
             .untilAsserted(() -> {
               assertThat(regionQueue.size())
@@ -559,11 +553,11 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
             });
 
       } else {
-        Set<RegionQueue> queues = sender.getQueues();
+        var queues = sender.getQueues();
         await()
             .untilAsserted(() -> {
-              int size = 0;
-              for (RegionQueue queue : queues) {
+              var size = 0;
+              for (var queue : queues) {
                 size += queue.size();
               }
               assertThat(size)
@@ -574,14 +568,14 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
   }
 
   private void validateSenderPausedState(String senderId) {
-    GatewaySender sender = findGatewaySender(senderId);
+    var sender = findGatewaySender(senderId);
 
     assertThat(sender.isPaused())
         .isTrue();
   }
 
   private void validateSenderResumedState(String senderId) {
-    GatewaySender sender = findGatewaySender(senderId);
+    var sender = findGatewaySender(senderId);
 
     assertThat(sender.isPaused())
         .isFalse();
@@ -591,8 +585,8 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
 
   private void updateBatchSize(int batchsize) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -603,8 +597,8 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
       }
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -618,8 +612,8 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
 
   private void updateBatchTimeInterval(int batchTimeInterval) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -630,8 +624,8 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
       }
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -645,8 +639,8 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
 
   private void updateGroupTransactionEvents(boolean groupTransactionEvents) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -657,8 +651,8 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
       }
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -672,8 +666,8 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
 
   private void updateGatewayEventFilters(List<GatewayEventFilter> filters) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -684,8 +678,8 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
       }
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -699,33 +693,33 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
 
   private void checkBatchSize(int batchsize) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchSize()).isEqualTo(batchsize);
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchSize()).isEqualTo(batchsize);
     });
   }
 
   private void checkBatchTimeInterval(int batchTimeInterval) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchTimeInterval()).isEqualTo(batchTimeInterval);
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchTimeInterval()).isEqualTo(batchTimeInterval);
     });
   }
 
   private void checkGroupTransactionEvents(boolean groupTransactionEvents) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
     });
 
@@ -777,7 +771,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
       if (!(obj instanceof MyGatewayEventFilter)) {
         return false;
       }
-      MyGatewayEventFilter filter = (MyGatewayEventFilter) obj;
+      var filter = (MyGatewayEventFilter) obj;
       return Id.equals(filter.Id);
     }
   }
@@ -826,7 +820,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
       if (!(obj instanceof MyGatewayEventFilter)) {
         return false;
       }
-      MyGatewayEventFilter filter = (MyGatewayEventFilter) obj;
+      var filter = (MyGatewayEventFilter) obj;
       return Id.equals(filter.Id);
     }
   }
@@ -879,7 +873,7 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
       if (!(obj instanceof WANTestBase.MyGatewayEventFilter)) {
         return false;
       }
-      MyGatewayEventFilter filter = (MyGatewayEventFilter) obj;
+      var filter = (MyGatewayEventFilter) obj;
       return Id.equals(filter.Id);
     }
   }

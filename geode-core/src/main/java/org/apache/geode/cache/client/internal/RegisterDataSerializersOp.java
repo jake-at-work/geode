@@ -22,7 +22,6 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.SerializationException;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.internal.InternalDataSerializer.SerializerAttributesHolder;
-import org.apache.geode.internal.cache.ClientServerObserver;
 import org.apache.geode.internal.cache.ClientServerObserverHolder;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.tier.MessageType;
@@ -55,9 +54,9 @@ public class RegisterDataSerializersOp {
      */
     public RegisterDataSerializersOpImpl(DataSerializer[] dataSerializers, EventID eventId) {
       super(MessageType.REGISTER_DATASERIALIZERS, dataSerializers.length * 2 + 1);
-      for (DataSerializer dataSerializer : dataSerializers) {
+      for (var dataSerializer : dataSerializers) {
         // strip '.class' off these class names
-        String className = dataSerializer.getClass().toString().substring(6);
+        var className = dataSerializer.getClass().toString().substring(6);
         try {
           getMessage().addBytesPart(BlobHelper.serializeToBlob(className));
         } catch (IOException ex) {
@@ -68,7 +67,7 @@ public class RegisterDataSerializersOp {
       getMessage().addBytesPart(eventId.calcBytes());
       // // CALLBACK FOR TESTING PURPOSE ONLY ////
       if (PoolImpl.IS_INSTANTIATOR_CALLBACK) {
-        ClientServerObserver bo = ClientServerObserverHolder.getInstance();
+        var bo = ClientServerObserverHolder.getInstance();
         bo.beforeSendingToServer(eventId);
       }
     }
@@ -78,7 +77,7 @@ public class RegisterDataSerializersOp {
      */
     public RegisterDataSerializersOpImpl(SerializerAttributesHolder[] holders, EventID eventId) {
       super(MessageType.REGISTER_DATASERIALIZERS, holders.length * 2 + 1);
-      for (final SerializerAttributesHolder holder : holders) {
+      for (final var holder : holders) {
         try {
           getMessage().addBytesPart(BlobHelper.serializeToBlob(holder.getClassName()));
         } catch (IOException ex) {
@@ -89,7 +88,7 @@ public class RegisterDataSerializersOp {
       getMessage().addBytesPart(eventId.calcBytes());
       // // CALLBACK FOR TESTING PURPOSE ONLY ////
       if (PoolImpl.IS_INSTANTIATOR_CALLBACK) {
-        ClientServerObserver bo = ClientServerObserverHolder.getInstance();
+        var bo = ClientServerObserverHolder.getInstance();
         bo.beforeSendingToServer(eventId);
       }
     }

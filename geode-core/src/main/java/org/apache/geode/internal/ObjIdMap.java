@@ -111,9 +111,9 @@ public class ObjIdMap {
    */
   public boolean containsKey(int key) {
 
-    Entry[] table = this.table;
-    int bucket = Math.abs(key) % table.length;
-    for (Entry e = table[bucket]; e != null; e = e.next) {
+    var table = this.table;
+    var bucket = Math.abs(key) % table.length;
+    for (var e = table[bucket]; e != null; e = e.next) {
       if (e.key == key) {
         return true;
       }
@@ -130,9 +130,9 @@ public class ObjIdMap {
    */
   public Object get(int key) {
 
-    Entry[] table = this.table;
-    int bucket = Math.abs(key) % table.length;
-    for (Entry e = table[bucket]; e != null; e = e.next) {
+    var table = this.table;
+    var bucket = Math.abs(key) % table.length;
+    for (var e = table[bucket]; e != null; e = e.next) {
       if (e.key == key) {
         return e.value;
       }
@@ -150,25 +150,25 @@ public class ObjIdMap {
   }
 
   private void rehash(Entry[] oldMap, int newCount, int newCapacity) {
-    int oldCapacity = oldMap.length;
+    var oldCapacity = oldMap.length;
 
-    Entry[] newMap = new Entry[newCapacity];
+    var newMap = new Entry[newCapacity];
 
     synchronized (rehashLock) {
-      for (int i = oldCapacity; i-- > 0;) {
-        for (Entry old = oldMap[i]; old != null;) {
-          Entry e = old;
+      for (var i = oldCapacity; i-- > 0;) {
+        for (var old = oldMap[i]; old != null;) {
+          var e = old;
           old = old.next;
 
           if (e.value != null && e.value instanceof WeakReference) {
-            WeakReference r = (WeakReference) e.value;
+            var r = (WeakReference) e.value;
             if (r.get() == null) {
               // don't copy this one into the new table since its value was gc'd
               newCount--;
               continue;
             }
           }
-          int index = Math.abs(e.key) % newCapacity;
+          var index = Math.abs(e.key) % newCapacity;
           e.next = newMap[index];
           newMap[index] = e;
         }
@@ -189,10 +189,10 @@ public class ObjIdMap {
   public Object put(int key, Object value) {
 
     // Is the key already in the table?
-    int bucket = Math.abs(key) % table.length;
-    for (Entry e = table[bucket]; e != null; e = e.next) {
+    var bucket = Math.abs(key) % table.length;
+    for (var e = table[bucket]; e != null; e = e.next) {
       if (e.key == key) {
-        Object old = e.value;
+        var old = e.value;
         e.value = value;
         return old;
       }
@@ -205,7 +205,7 @@ public class ObjIdMap {
       bucket = Math.abs(key) % table.length;
     }
 
-    Entry e = new Entry();
+    var e = new Entry();
     e.key = key;
     e.value = value;
     e.next = table[bucket];
@@ -219,8 +219,8 @@ public class ObjIdMap {
    * <code>null</code> otherwise.
    */
   public Object remove(int key) {
-    Entry[] table = this.table;
-    int bucket = Math.abs(key) % table.length;
+    var table = this.table;
+    var bucket = Math.abs(key) % table.length;
 
     for (Entry e = table[bucket], prev = null; e != null; prev = e, e = e.next) {
       if (key == e.key) {
@@ -231,7 +231,7 @@ public class ObjIdMap {
         }
 
         count--;
-        Object oldValue = e.value;
+        var oldValue = e.value;
         e.value = null;
         return oldValue;
       }
@@ -244,12 +244,12 @@ public class ObjIdMap {
    * Returns all of the objects in the map
    */
   public Object[] values() {
-    Object[] values = new Object[size()];
+    var values = new Object[size()];
 
-    Entry[] table = this.table;
-    int i = 0;
-    for (final Entry entry : table) {
-      for (Entry e = entry; e != null; e = e.next) {
+    var table = this.table;
+    var i = 0;
+    for (final var entry : table) {
+      for (var e = entry; e != null; e = e.next) {
         values[i++] = e.value;
       }
     }
@@ -314,7 +314,7 @@ public class ObjIdMap {
         index++;
       }
 
-      Entry oldNext = next;
+      var oldNext = next;
       if (oldNext != null) {
         next = oldNext.next;
       }

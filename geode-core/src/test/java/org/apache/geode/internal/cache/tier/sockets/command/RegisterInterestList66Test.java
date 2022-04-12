@@ -196,7 +196,7 @@ public class RegisterInterestList66Test {
 
     verify(authzRequest).registerInterestListAuthorize(eq(REGION_NAME), any(), any());
 
-    ArgumentCaptor<NotAuthorizedException> argument =
+    var argument =
         ArgumentCaptor.forClass(NotAuthorizedException.class);
     verify(chunkedResponseMessage).addObjPart(argument.capture());
 

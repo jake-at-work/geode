@@ -42,8 +42,8 @@ public class ExceptionHandlingAdvice {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public void handleExc(IOException ext) {
     // write errors
-    StringWriter swBuffer = new StringWriter();
-    PrintWriter prtWriter = new PrintWriter(swBuffer);
+    var swBuffer = new StringWriter();
+    var prtWriter = new PrintWriter(swBuffer);
     ext.printStackTrace(prtWriter);
     logger.fatal("IOException Details : {}\n", swBuffer);
   }

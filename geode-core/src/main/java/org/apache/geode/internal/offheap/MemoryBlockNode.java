@@ -83,7 +83,7 @@ public class MemoryBlockNode implements MemoryBlock {
       return "compressed object of size " + ((OffHeapStoredObject) block).getDataSize();
     }
     // Object obj = EntryEventImpl.deserialize(((Chunk)this.block).getRawBytes());
-    byte[] bytes = ((OffHeapStoredObject) block).getRawBytes();
+    var bytes = ((OffHeapStoredObject) block).getRawBytes();
     return DataType.getDataType(bytes);
   }
 
@@ -99,7 +99,7 @@ public class MemoryBlockNode implements MemoryBlock {
 
   @Override
   public Object getDataValue() {
-    String dataType = getDataType();
+    var dataType = getDataType();
     if (dataType == null || dataType.equals("N/A")) {
       return null;
     } else if (isCompressed()) {
@@ -110,7 +110,7 @@ public class MemoryBlockNode implements MemoryBlock {
       return ((OffHeapStoredObject) block).getRawBytes();
     } else {
       try {
-        byte[] bytes = ((OffHeapStoredObject) block).getRawBytes();
+        var bytes = ((OffHeapStoredObject) block).getRawBytes();
         return DataSerializer.readObject(DataType.getDataInput(bytes));
       } catch (IOException e) {
         e.printStackTrace();
@@ -127,7 +127,7 @@ public class MemoryBlockNode implements MemoryBlock {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder(MemoryBlock.class.getSimpleName());
+    final var sb = new StringBuilder(MemoryBlock.class.getSimpleName());
     sb.append("{");
     sb.append("MemoryAddress=").append(getAddress());
     sb.append(", State=").append(getState());
@@ -147,9 +147,9 @@ public class MemoryBlockNode implements MemoryBlock {
     sb.append(", DataType=").append(getDataType());
     {
       sb.append(", DataValue=");
-      Object dataValue = getDataValue();
+      var dataValue = getDataValue();
       if (dataValue instanceof byte[]) {
-        byte[] ba = (byte[]) dataValue;
+        var ba = (byte[]) dataValue;
         if (ba.length < 1024) {
           sb.append(Arrays.toString(ba));
         } else {

@@ -60,7 +60,7 @@ public class ClientConnectionResponse extends ServerLocationResponse {
   @Override
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
-    boolean serverFound = server != null;
+    var serverFound = server != null;
     DataSerializer.writePrimitiveBoolean(serverFound, out);
     if (serverFound) {
       server.toData(out);

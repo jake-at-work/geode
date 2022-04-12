@@ -35,7 +35,6 @@ import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -76,7 +75,7 @@ public class ClientHealthStatsDUnitTest implements Serializable {
       ClientRegionFactory<String, String> regionFactory =
           ClusterStartupRule.getClientCache()
               .createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY);
-      Region<String, String> region = regionFactory.create("regionA");
+      var region = regionFactory.create("regionA");
       // need to do some operation in order for the clients to be registered in mBean
       region.put("1", "1");
     }, client1, client2);
@@ -125,18 +124,18 @@ public class ClientHealthStatsDUnitTest implements Serializable {
       Region<String, String> region =
           ClusterStartupRule.getCache().getRegion(SEPARATOR + "regionA");
 
-      Thread thread1 = new Thread(() -> {
-        for (int i = 0; i < NUMBER_PUTS; i++) {
+      var thread1 = new Thread(() -> {
+        for (var i = 0; i < NUMBER_PUTS; i++) {
           region.put("T1_KEY_" + i, "VALUE_" + i);
         }
       });
-      Thread thread2 = new Thread(() -> {
-        for (int i = 0; i < NUMBER_PUTS; i++) {
+      var thread2 = new Thread(() -> {
+        for (var i = 0; i < NUMBER_PUTS; i++) {
           region.put("T2_KEY_" + i, "VALUE_" + i);
         }
       });
-      Thread thread3 = new Thread(() -> {
-        for (int i = 0; i < NUMBER_PUTS; i++) {
+      var thread3 = new Thread(() -> {
+        for (var i = 0; i < NUMBER_PUTS; i++) {
           region.put("T3_KEY_" + i, "VALUE_" + i);
         }
       });
@@ -158,7 +157,7 @@ public class ClientHealthStatsDUnitTest implements Serializable {
     server.invoke(() -> {
       Region<String, String> region =
           ClusterStartupRule.getCache().getRegion(SEPARATOR + "regionA");
-      for (int i = 0; i < NUMBER_PUTS; i++) {
+      for (var i = 0; i < NUMBER_PUTS; i++) {
         region.put("NEWKEY_" + i, "NEWVALUE_" + i);
       }
       region.put("last_key", "last_value");
@@ -171,20 +170,20 @@ public class ClientHealthStatsDUnitTest implements Serializable {
 
     // verify the stats
     server.invoke(() -> {
-      ManagementService service = ClusterStartupRule.memberStarter.getManagementService();
-      CacheServerMXBean cacheServerMXBean = service.getLocalCacheServerMXBean(server.getPort());
+      var service = ClusterStartupRule.memberStarter.getManagementService();
+      var cacheServerMXBean = service.getLocalCacheServerMXBean(server.getPort());
 
-      CacheClientNotifier clientNotifier = CacheClientNotifier.getInstance();
-      CacheClientProxy clientProxy = clientNotifier.getClientProxies().iterator().next();
+      var clientNotifier = CacheClientNotifier.getInstance();
+      var clientProxy = clientNotifier.getClientProxies().iterator().next();
       assertThat(clientProxy.getQueueSizeStat()).isEqualTo(clientProxy.getQueueSize());
 
-      ClientQueueDetail queueDetails = cacheServerMXBean.showClientQueueDetails()[0];
+      var queueDetails = cacheServerMXBean.showClientQueueDetails()[0];
       assertThat((int) queueDetails.getQueueSize()).isEqualTo(clientProxy.getQueueSizeStat());
     });
   }
 
   private ClientVM createDurableClient(int index) throws Exception {
-    ClientVM client = cluster.startClientVM(index, new Properties(), ccf -> {
+    var client = cluster.startClientVM(index, new Properties(), ccf -> {
       ccf.setPoolSubscriptionEnabled(true);
       ccf.addPoolServer("localhost", server.getPort());
       ccf.set(DURABLE_CLIENT_ID, "client" + index);
@@ -204,7 +203,7 @@ public class ClientHealthStatsDUnitTest implements Serializable {
           }
         }
       });
-      Region<String, String> region = regionFactory.create("regionA");
+      var region = regionFactory.create("regionA");
       region.registerInterest("ALL_KEYS", true);
       ClusterStartupRule.getClientCache().readyForEvents();
     });
@@ -213,19 +212,19 @@ public class ClientHealthStatsDUnitTest implements Serializable {
 
   private void verifyClientsAndSubscription(int subscriptionCount) {
     locator.invoke(() -> {
-      CacheServerMXBean bean =
+      var bean =
           ClusterStartupRule.memberStarter.getCacheServerMXBean(server.getName(), server.getPort());
-      String[] clientIds = bean.getClientIds();
+      var clientIds = bean.getClientIds();
 
-      ClientHealthStatus[] clientStatuses = bean.showAllClientStats();
+      var clientStatuses = bean.showAllClientStats();
       assertThat(clientStatuses).isNotNull().hasSize(2);
 
-      ClientHealthStatus clientStatus1 = bean.showClientStats(clientIds[0]);
-      ClientHealthStatus clientStatus2 = bean.showClientStats(clientIds[1]);
+      var clientStatus1 = bean.showClientStats(clientIds[0]);
+      var clientStatus2 = bean.showClientStats(clientIds[1]);
       assertThat(clientStatus1).isNotNull();
       assertThat(clientStatus2).isNotNull();
 
-      DistributedSystemMXBean dsBean =
+      var dsBean =
           ClusterStartupRule.memberStarter.getManagementService().getDistributedSystemMXBean();
       assertThat(dsBean.getNumClients()).isEqualTo(2);
       await().until(() -> dsBean.getNumSubscriptions() == subscriptionCount);

@@ -29,12 +29,9 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 
@@ -48,11 +45,11 @@ public class DistinctAndNonDistinctQueryJUnitTest {
 
   @Test
   public void testDistinct() throws Exception {
-    String queryString = "select distinct * from $1";
-    Query q = CacheUtils.getQueryService().newQuery(queryString);
-    SelectResults results = (SelectResults) q.execute(new Object[] {data});
+    var queryString = "select distinct * from $1";
+    var q = CacheUtils.getQueryService().newQuery(queryString);
+    var results = (SelectResults) q.execute(new Object[] {data});
     assertEquals(4, results.size());
-    for (Object element : data) {
+    for (var element : data) {
       assertTrue(results.contains(element));
       assertEquals(1, results.occurrences(element));
     }
@@ -61,11 +58,11 @@ public class DistinctAndNonDistinctQueryJUnitTest {
 
   @Test
   public void testNonDistinct() throws Exception {
-    String queryString = "select * from $1";
-    Query q = CacheUtils.getQueryService().newQuery(queryString);
-    SelectResults results = (SelectResults) q.execute(new Object[] {data});
+    var queryString = "select * from $1";
+    var q = CacheUtils.getQueryService().newQuery(queryString);
+    var results = (SelectResults) q.execute(new Object[] {data});
     assertEquals(8, results.size());
-    for (Object element : data) {
+    for (var element : data) {
       assertTrue(results.contains(element));
       assertEquals(2, results.occurrences(element));
     }
@@ -74,7 +71,7 @@ public class DistinctAndNonDistinctQueryJUnitTest {
     q = CacheUtils.getQueryService().newQuery(queryString);
     results = (SelectResults) q.execute(new Object[] {data});
     assertEquals(8, results.size());
-    for (Object element : data) {
+    for (var element : data) {
       assertTrue(results.contains(element));
       assertEquals(2, results.occurrences(element));
     }
@@ -84,29 +81,29 @@ public class DistinctAndNonDistinctQueryJUnitTest {
   @Test
   public void testDistinctNonDistinctWithIndexes() throws Exception {
     CacheUtils.startCache();
-    Region rgn =
+    var rgn =
         CacheUtils.createRegion("testDistinctNonDistinctWithIndexes", String.class, Scope.LOCAL);
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.createIndex("length", IndexType.FUNCTIONAL, "length",
         SEPARATOR + "testDistinctNonDistinctWithIndexes");
 
     List filtered = new ArrayList();
-    int i = 0;
-    for (final Object datum : data) {
-      String s = (String) datum;
+    var i = 0;
+    for (final var datum : data) {
+      var s = (String) datum;
       if (s.length() <= 3) {
         rgn.put(i++, s);
         filtered.add(s);
       }
     }
 
-    String queryString =
+    var queryString =
         "select distinct * from " + SEPARATOR + "testDistinctNonDistinctWithIndexes s "
             + " where 3 >= s.length";
-    Query q = CacheUtils.getQueryService().newQuery(queryString);
-    SelectResults results = (SelectResults) q.execute();
+    var q = CacheUtils.getQueryService().newQuery(queryString);
+    var results = (SelectResults) q.execute();
     assertEquals(2, results.size());
-    for (Object element : filtered) {
+    for (var element : filtered) {
       assertTrue(results.contains(element));
       assertEquals(1, results.occurrences(element));
     }
@@ -117,7 +114,7 @@ public class DistinctAndNonDistinctQueryJUnitTest {
     q = CacheUtils.getQueryService().newQuery(queryString);
     results = (SelectResults) q.execute();
     assertEquals(2, results.size());
-    for (Object element : filtered) {
+    for (var element : filtered) {
       assertTrue(results.contains(element));
       assertEquals(1, results.occurrences(element));
     }
@@ -127,7 +124,7 @@ public class DistinctAndNonDistinctQueryJUnitTest {
     q = CacheUtils.getQueryService().newQuery(queryString);
     results = (SelectResults) q.execute(new Object[] {data});
     assertEquals(4, results.size());
-    for (Object element : filtered) {
+    for (var element : filtered) {
       assertTrue(results.contains(element));
       assertEquals(2, results.occurrences(element));
     }
@@ -137,7 +134,7 @@ public class DistinctAndNonDistinctQueryJUnitTest {
     q = CacheUtils.getQueryService().newQuery(queryString);
     results = (SelectResults) q.execute(new Object[] {data});
     assertEquals(4, results.size());
-    for (Object element : filtered) {
+    for (var element : filtered) {
       assertTrue(results.contains(element));
       assertEquals(2, results.occurrences(element));
     }

@@ -99,11 +99,11 @@ public class StringMapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
     System.out.print(" ops: " + nops);
     System.out.println();
 
-    String[] key = makeKeys(nkeys);
+    var key = makeKeys(nkeys);
 
-    int k = 1;
-    int warmups = 2;
-    for (int i = 1; i <= maxThreads;) {
+    var k = 1;
+    var warmups = 2;
+    for (var i = 1; i <= maxThreads;) {
       Thread.sleep(100);
       test(i, nkeys, key, mapClass);
       shuffleKeys(key);
@@ -123,14 +123,14 @@ public class StringMapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
   }
 
   static String[] makeKeys(int n) {
-    LoopHelpers.SimpleRandom rng = new LoopHelpers.SimpleRandom();
-    String[] key = new String[n];
-    for (int i = 0; i < key.length; ++i) {
-      int k = 0;
-      int len = 1 + (rng.next() & 0xf);
-      char[] c = new char[len * 4];
-      for (int j = 0; j < len; ++j) {
-        int r = rng.next();
+    var rng = new LoopHelpers.SimpleRandom();
+    var key = new String[n];
+    for (var i = 0; i < key.length; ++i) {
+      var k = 0;
+      var len = 1 + (rng.next() & 0xf);
+      var c = new char[len * 4];
+      for (var j = 0; j < len; ++j) {
+        var r = rng.next();
         c[k++] = (char) (' ' + (r & 0x7f));
         r >>>= 8;
         c[k++] = (char) (' ' + (r & 0x7f));
@@ -145,10 +145,10 @@ public class StringMapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
   }
 
   static void shuffleKeys(String[] key) {
-    Random rng = new Random();
-    for (int i = key.length; i > 1; --i) {
-      int j = rng.nextInt(i);
-      String tmp = key[j];
+    var rng = new Random();
+    for (var i = key.length; i > 1; --i) {
+      var j = rng.nextInt(i);
+      var tmp = key[j];
       key[j] = key[i - 1];
       key[i - 1] = tmp;
     }
@@ -156,21 +156,21 @@ public class StringMapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
 
   static void test(int i, int nkeys, String[] key, Class mapClass) throws Exception {
     System.out.print("Threads: " + i + "\t:");
-    Map map = (Map) mapClass.newInstance();
+    var map = (Map) mapClass.newInstance();
     // Uncomment to start with a non-empty table
     // for (int j = 0; j < nkeys; j += 4) // start 1/4 occupied
     // map.put(key[j], key[j]);
-    LoopHelpers.BarrierTimer timer = new LoopHelpers.BarrierTimer();
-    CyclicBarrier barrier = new CyclicBarrier(i + 1, timer);
-    for (int t = 0; t < i; ++t) {
+    var timer = new LoopHelpers.BarrierTimer();
+    var barrier = new CyclicBarrier(i + 1, timer);
+    for (var t = 0; t < i; ++t) {
       pool.execute(new Runner(t, map, key, barrier));
     }
     barrier.await();
     barrier.await();
-    long time = timer.getTime();
-    long tpo = time / (i * (long) nops);
+    var time = timer.getTime();
+    var tpo = time / (i * (long) nops);
     System.out.print(LoopHelpers.rightJustify(tpo) + " ns per op");
-    double secs = (double) (time) / 1000000000.0;
+    var secs = (double) (time) / 1000000000.0;
     System.out.println("\t " + secs + "s run time");
     map.clear();
   }
@@ -194,7 +194,7 @@ public class StringMapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
 
     int step() {
       // random-walk around key positions, bunching accesses
-      int r = rng.next();
+      var r = rng.next();
       position += (r & 7) - 3;
       while (position >= key.length) {
         position -= key.length;
@@ -203,8 +203,8 @@ public class StringMapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
         position += key.length;
       }
 
-      String k = key[position];
-      String x = (String) map.get(k);
+      var k = key[position];
+      var x = (String) map.get(k);
 
       if (x != null) {
         if (r < removesPerMaxRandom) {
@@ -227,7 +227,7 @@ public class StringMapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
     public void run() {
       try {
         barrier.await();
-        int ops = nops;
+        var ops = nops;
         while (ops > 0) {
           ops -= step();
         }

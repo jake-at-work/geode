@@ -45,7 +45,7 @@ public class MemberManagementController extends AbstractManagementController {
   @GetMapping(MEMBER_ENDPOINT + "/{id:.+}")
   public ClusterManagementGetResult<Member, MemberInformation> getMember(
       @PathVariable(name = "id") String id) {
-    Member config = new Member();
+    var config = new Member();
     config.setId(id);
     return clusterManagementService.get(config);
   }
@@ -58,7 +58,7 @@ public class MemberManagementController extends AbstractManagementController {
   @GetMapping(MEMBER_ENDPOINT)
   public ClusterManagementListResult<Member, MemberInformation> listMembers(
       @RequestParam(required = false) String id, @RequestParam(required = false) String group) {
-    Member filter = new Member();
+    var filter = new Member();
     if (StringUtils.isNotBlank(id)) {
       filter.setId(id);
     }

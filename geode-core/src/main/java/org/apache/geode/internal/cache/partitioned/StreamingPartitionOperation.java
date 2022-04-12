@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.partitioned;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -89,11 +88,11 @@ public abstract class StreamingPartitionOperation extends StreamingOperation {
       return Collections.emptySet();
     }
 
-    StreamingPartitionResponse processor = new StreamingPartitionResponse(sys, recipients);
-    DistributionMessage m = createRequestMessage(recipients, processor);
+    var processor = new StreamingPartitionResponse(sys, recipients);
+    var m = createRequestMessage(recipients, processor);
     sys.getDistributionManager().putOutgoing(m);
     // should we allow this to timeout?
-    Set<InternalDistributedMember> failedMembers = processor.waitForCacheOrQueryException();
+    var failedMembers = processor.waitForCacheOrQueryException();
     return failedMembers;
   }
 
@@ -156,12 +155,12 @@ public abstract class StreamingPartitionOperation extends StreamingOperation {
 
       msgsBeingProcessed.incrementAndGet();
       try {
-        StreamingReplyMessage m = (StreamingReplyMessage) msg;
-        boolean isLast = true; // is last message for this member?
-        List objects = m.getObjects();
+        var m = (StreamingReplyMessage) msg;
+        var isLast = true; // is last message for this member?
+        var objects = m.getObjects();
         if (objects != null) { // CONSTRAINT: objects should only be null if there's no data at all
           // Bug 37461: don't allow abort flag to be cleared
-          boolean isAborted = abort; // volatile fetch
+          var isAborted = abort; // volatile fetch
           if (!isAborted) {
             isAborted =
                 !processChunk(objects, m.getSender(), m.getMessageNumber(), m.isLastMessage());
@@ -191,7 +190,7 @@ public abstract class StreamingPartitionOperation extends StreamingOperation {
 
     @Override
     protected synchronized void processException(DistributionMessage msg, ReplyException ex) {
-      Throwable t = ex.getCause();
+      var t = ex.getCause();
       if (t instanceof ForceReattemptException || t instanceof CacheClosedException) {
         if (logger.isDebugEnabled()) {
           logger.debug(
@@ -231,7 +230,7 @@ public abstract class StreamingPartitionOperation extends StreamingOperation {
         waitForRepliesUninterruptibly();
         return failedMembers;
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof CacheException) {
           throw (CacheException) t;
         } else if (t instanceof RegionDestroyedException) {
@@ -277,7 +276,7 @@ public abstract class StreamingPartitionOperation extends StreamingOperation {
     @Override
     public String toString() {
       // bug 37213: make sure toString is bullet-proof from escaped constructor
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("<");
       sb.append(getClass().getName());
       sb.append(" ");
@@ -311,7 +310,7 @@ public abstract class StreamingPartitionOperation extends StreamingOperation {
     }
 
     public void removeFailedSenders(Set notReceivedMembers) {
-      for (final Object notReceivedMember : notReceivedMembers) {
+      for (final var notReceivedMember : notReceivedMembers) {
         removeMember((InternalDistributedMember) notReceivedMember, true);
       }
     }
@@ -374,17 +373,17 @@ public abstract class StreamingPartitionOperation extends StreamingOperation {
     protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm,
         PartitionedRegion pr, long startTime)
         throws CacheException, QueryException, ForceReattemptException, InterruptedException {
-      final boolean isTraceEnabled = logger.isTraceEnabled();
+      final var isTraceEnabled = logger.isTraceEnabled();
 
       if (Thread.interrupted()) {
         throw new InterruptedException();
       }
       Object nextObject;
       Object failedObject = null;
-      int socketBufferSize = dm.getSystem().getConfig().getSocketBufferSize();
-      int chunkSize = socketBufferSize - StreamingOperation.MSG_OVERHEAD;
-      boolean sentFinalMessage = false;
-      boolean receiverCacheClosed = false;
+      var socketBufferSize = dm.getSystem().getConfig().getSocketBufferSize();
+      var chunkSize = socketBufferSize - StreamingOperation.MSG_OVERHEAD;
+      var sentFinalMessage = false;
+      var receiverCacheClosed = false;
 
       outStream = new HeapDataOutputStream(chunkSize, Versioning
           .getKnownVersionOrDefault(getSender().getVersion(), KnownVersion.CURRENT));

@@ -148,13 +148,13 @@ public abstract class AuthzCredentialGenerator {
    */
   public Properties getAllowedCredentials(final OperationCode[] opCodes, final String[] regionNames,
       final int index) {
-    int numTries = getNumPrincipalTries(opCodes, regionNames);
+    var numTries = getNumPrincipalTries(opCodes, regionNames);
     if (numTries <= 0) {
       numTries = 1;
     }
 
-    for (int tries = 0; tries < numTries; tries++) {
-      final Principal principal =
+    for (var tries = 0; tries < numTries; tries++) {
+      final var principal =
           getAllowedPrincipal(opCodes, regionNames, (index + tries) % numTries);
       try {
         return generator.getValidCredentials(principal);
@@ -186,13 +186,13 @@ public abstract class AuthzCredentialGenerator {
     // infinite, and the number here is just to perform some number of tries
     // before giving up.
 
-    int numTries = getNumPrincipalTries(opCodes, regionNames);
+    var numTries = getNumPrincipalTries(opCodes, regionNames);
     if (numTries <= 0) {
       numTries = 1;
     }
 
-    for (int tries = 0; tries < numTries; tries++) {
-      final Principal principal =
+    for (var tries = 0; tries < numTries; tries++) {
+      final var principal =
           getDisallowedPrincipal(opCodes, regionNames, (index + tries) % numTries);
       try {
         return generator.getValidCredentials(principal);
@@ -351,7 +351,7 @@ public abstract class AuthzCredentialGenerator {
      */
     public static List getAll() {
       final List codes = new ArrayList();
-      for (final Object o : CODE_NAME_MAP.values()) {
+      for (final var o : CODE_NAME_MAP.values()) {
         codes.add(o);
       }
       return codes;
@@ -389,7 +389,7 @@ public abstract class AuthzCredentialGenerator {
       if (!(obj instanceof ClassCode)) {
         return false;
       }
-      final ClassCode other = (ClassCode) obj;
+      final var other = (ClassCode) obj;
       return other.ordinal == ordinal;
     }
 

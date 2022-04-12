@@ -96,7 +96,7 @@ public abstract class AbstractSessionCache implements SessionCache {
   }
 
   RegionConfiguration createRegionConfiguration() {
-    RegionConfiguration configuration = getNewRegionConfiguration();
+    var configuration = getNewRegionConfiguration();
     configuration.setRegionName(getSessionManager().getRegionName());
     configuration.setRegionAttributesId(getSessionManager().getRegionAttributesId());
     if (getSessionManager()

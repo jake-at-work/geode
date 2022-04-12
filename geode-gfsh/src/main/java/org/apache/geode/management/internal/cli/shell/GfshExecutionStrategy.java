@@ -18,7 +18,6 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.shell.core.ExecutionStrategy;
 import org.springframework.shell.core.Shell;
@@ -67,7 +66,7 @@ public class GfshExecutionStrategy implements ExecutionStrategy {
    */
   @Override
   public Object execute(ParseResult parseResult) {
-    Method method = parseResult.getMethod();
+    var method = parseResult.getMethod();
 
     // check if it's a shell only command
     if (isShellOnly(method)) {
@@ -75,7 +74,7 @@ public class GfshExecutionStrategy implements ExecutionStrategy {
       synchronized (mutex) {
         Assert.isTrue(isReadyForCommands(), "Not yet ready for commands");
 
-        Object exeuctionResult = new CommandExecutor(null).execute((GfshParseResult) parseResult);
+        var exeuctionResult = new CommandExecutor(null).execute((GfshParseResult) parseResult);
         if (exeuctionResult instanceof ResultModel) {
           return new CommandResult((ResultModel) exeuctionResult);
         }
@@ -89,7 +88,7 @@ public class GfshExecutionStrategy implements ExecutionStrategy {
       throw new IllegalStateException("Configuration error!");
     }
 
-    ResultModel resultModel = executeOnRemote((GfshParseResult) parseResult);
+    var resultModel = executeOnRemote((GfshParseResult) parseResult);
 
     if (resultModel == null) {
       return null;
@@ -105,12 +104,12 @@ public class GfshExecutionStrategy implements ExecutionStrategy {
    *         false otherwise
    */
   private boolean isShellOnly(Method method) {
-    CliMetaData cliMetadata = method.getAnnotation(CliMetaData.class);
+    var cliMetadata = method.getAnnotation(CliMetaData.class);
     return cliMetadata != null && cliMetadata.shellOnly();
   }
 
   private String getInterceptor(Method method) {
-    CliMetaData cliMetadata = method.getAnnotation(CliMetaData.class);
+    var cliMetadata = method.getAnnotation(CliMetaData.class);
     return cliMetadata != null ? cliMetadata.interceptor() : CliMetaData.ANNOTATION_NULL_VALUE;
   }
 
@@ -157,7 +156,7 @@ public class GfshExecutionStrategy implements ExecutionStrategy {
     List<File> fileData = null;
     CliAroundInterceptor interceptor = null;
 
-    String interceptorClass = getInterceptor(parseResult.getMethod());
+    var interceptorClass = getInterceptor(parseResult.getMethod());
 
     // 1. Pre Remote Execution
     if (!CliMetaData.ANNOTATION_NULL_VALUE.equals(interceptorClass)) {
@@ -172,7 +171,7 @@ public class GfshExecutionStrategy implements ExecutionStrategy {
         return ResultModel.createError("Interceptor Configuration Error");
       }
 
-      ResultModel preExecResult = interceptor.preExecution(parseResult);
+      var preExecResult = interceptor.preExecution(parseResult);
       if (preExecResult.getStatus() != Status.OK) {
         return preExecResult;
       }
@@ -181,7 +180,7 @@ public class GfshExecutionStrategy implements ExecutionStrategy {
 
     // 2. Remote Execution
     Object response = null;
-    final Map<String, String> env = shell.getEnv();
+    final var env = shell.getEnv();
     try {
       response = shell.getOperationInvoker()
           .processCommand(new CommandRequest(parseResult, env, fileData));
@@ -208,7 +207,7 @@ public class GfshExecutionStrategy implements ExecutionStrategy {
         commandResult = ResultModel.fromJson((String) response);
       } catch (Exception e) {
         logWrapper.severe("Unable to parse the remote response.", e);
-        String clientVersion = GemFireVersion.getGemFireVersion();
+        var clientVersion = GemFireVersion.getGemFireVersion();
         String remoteVersion = null;
         try {
           remoteVersion = shell.getOperationInvoker().getRemoteVersion();
@@ -216,7 +215,7 @@ public class GfshExecutionStrategy implements ExecutionStrategy {
           // unable to get the remote version (pre-1.5.0 manager does not have this capability)
           // ignore
         }
-        String message = "Unable to parse the remote response. This might due to gfsh client "
+        var message = "Unable to parse the remote response. This might due to gfsh client "
             + "version(" + clientVersion + ") mismatch with the remote cluster version"
             + ((remoteVersion == null) ? "." : "(" + remoteVersion + ").");
         return ResultModel.createError(message);

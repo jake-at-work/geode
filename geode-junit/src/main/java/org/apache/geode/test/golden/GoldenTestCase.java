@@ -55,7 +55,7 @@ public abstract class GoldenTestCase {
   @After
   public final void tearDownGoldenTest() throws Exception {
     try {
-      for (ProcessWrapper process : processes) {
+      for (var process : processes) {
         process.destroy();
         printProcessOutput(process, true);
       }
@@ -83,7 +83,7 @@ public abstract class GoldenTestCase {
 
   protected final ProcessWrapper createProcessWrapper(
       final ProcessWrapper.Builder processWrapperBuilder, final Class<?> main) {
-    final ProcessWrapper processWrapper =
+    final var processWrapper =
         processWrapperBuilder.jvmArguments(JVM_ARGS).mainClass(main).build();
     processes.add(processWrapper);
     return processWrapper;
@@ -110,18 +110,18 @@ public abstract class GoldenTestCase {
 
   protected void assertOutputMatchesGoldenFile(final String actualOutput,
       final String goldenFileName) throws IOException {
-    GoldenComparator comparator = createGoldenComparator();
+    var comparator = createGoldenComparator();
     comparator.assertOutputMatchesGoldenFile(actualOutput, goldenFileName);
   }
 
   protected final void assertOutputMatchesGoldenFile(final ProcessWrapper process,
       final String goldenFileName) throws IOException {
-    GoldenComparator comparator = createGoldenComparator();
+    var comparator = createGoldenComparator();
     comparator.assertOutputMatchesGoldenFile(process.getOutput(), goldenFileName);
   }
 
   protected final Properties createProperties() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(GeodeGlossary.GEMFIRE_PREFIX + MCAST_PORT, "0");
     properties.setProperty(GeodeGlossary.GEMFIRE_PREFIX + LOG_LEVEL, "warning");
     properties.setProperty("file.encoding", "UTF-8");

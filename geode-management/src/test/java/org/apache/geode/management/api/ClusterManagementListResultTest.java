@@ -42,22 +42,22 @@ public class ClusterManagementListResultTest {
   @Test
   public void serialization() throws Exception {
     List<EntityGroupInfo<Region, RuntimeRegionInfo>> groupInfos = new ArrayList<>();
-    EntityGroupInfo<Region, RuntimeRegionInfo> group1 = new EntityGroupInfo<>();
-    Region group1Region = new Region();
+    var group1 = new EntityGroupInfo<Region, RuntimeRegionInfo>();
+    var group1Region = new Region();
     group1Region.setName("regionA");
     group1Region.setGroup("group1");
     group1Region.setType(RegionType.REPLICATE);
     group1.setConfiguration(group1Region);
 
-    EntityGroupInfo<Region, RuntimeRegionInfo> group2 = new EntityGroupInfo<>();
-    Region group2Region = new Region();
+    var group2 = new EntityGroupInfo<Region, RuntimeRegionInfo>();
+    var group2Region = new Region();
     group2Region.setName("regionA");
     group2Region.setGroup("group2");
     group2Region.setType(RegionType.REPLICATE);
     group2.setConfiguration(group2Region);
 
-    EntityGroupInfo<Region, RuntimeRegionInfo> group3 = new EntityGroupInfo<>();
-    Region group3Region = new Region();
+    var group3 = new EntityGroupInfo<Region, RuntimeRegionInfo>();
+    var group3Region = new Region();
     group3Region.setName("regionB");
     group3Region.setGroup("group3");
     group3Region.setType(RegionType.REPLICATE);
@@ -74,7 +74,7 @@ public class ClusterManagementListResultTest {
     // make sure it only has 2 regions defined (one region exists in 2 groups)
     assertThat(list.getResult()).hasSize(2);
 
-    String json = mapper.writeValueAsString(list);
+    var json = mapper.writeValueAsString(list);
     System.out.println(json);
 
     // make sure each region's link only appears once in the json

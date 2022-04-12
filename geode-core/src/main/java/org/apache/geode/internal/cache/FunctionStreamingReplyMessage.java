@@ -50,7 +50,7 @@ public class FunctionStreamingReplyMessage extends ReplyMessage {
   public static void send(InternalDistributedMember recipient, int processorId,
       ReplyException exception, DistributionManager dm, Object result, int msgNum,
       boolean lastMsg) {
-    FunctionStreamingReplyMessage m = new FunctionStreamingReplyMessage();
+    var m = new FunctionStreamingReplyMessage();
     m.processorId = processorId;
     if (exception != null) {
       m.setException(exception);
@@ -94,7 +94,7 @@ public class FunctionStreamingReplyMessage extends ReplyMessage {
     } catch (Exception e) { // bug fix 40670
       // Seems odd to throw a NonSerializableEx when it has already been
       // serialized and we are failing because we can't deserialize.
-      NotSerializableException ioEx = new NotSerializableException();
+      var ioEx = new NotSerializableException();
       ioEx.initCause(e);
       throw ioEx;
     }
@@ -115,7 +115,7 @@ public class FunctionStreamingReplyMessage extends ReplyMessage {
       if (ex instanceof CancelException) {
         throw new DistributedSystemDisconnectedException(ex);
       }
-      NotSerializableException ioEx =
+      var ioEx =
           new NotSerializableException(result.getClass().getName());
       ioEx.initCause(ex);
       throw ioEx;
@@ -124,13 +124,13 @@ public class FunctionStreamingReplyMessage extends ReplyMessage {
 
   @Override
   public String toString() {
-    StringBuilder buff = new StringBuilder();
+    var buff = new StringBuilder();
     buff.append(getClass().getName());
     buff.append("(processorId=");
     buff.append(processorId);
     buff.append(" from ");
     buff.append(getSender());
-    ReplyException ex = getException();
+    var ex = getException();
     if (ex != null) {
       buff.append(" with exception ");
       buff.append(ex);

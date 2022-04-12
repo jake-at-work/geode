@@ -19,7 +19,6 @@ import javax.management.modelmbean.ModelMBean;
 
 import org.apache.geode.admin.internal.SystemMemberCacheImpl;
 import org.apache.geode.cache.Region;
-import org.apache.geode.internal.admin.GemFireVM;
 
 /**
  * MBean representation of {@link org.apache.geode.admin.SystemMemberRegion}.
@@ -54,7 +53,7 @@ public class SystemMemberRegionJmxImpl
   private void initializeMBean(SystemMemberCacheImpl cache)
       throws org.apache.geode.admin.AdminException {
 
-    GemFireVM vm = cache.getVM();
+    var vm = cache.getVM();
     mbeanName = "GemFire.Cache:" + "path="
         + MBeanUtils.makeCompliantMBeanNameProperty(getFullPath()) + ",name="
         + MBeanUtils.makeCompliantMBeanNameProperty(cache.getName()) + ",id="
@@ -117,7 +116,7 @@ public class SystemMemberRegionJmxImpl
       return false;
     }
 
-    SystemMemberRegionJmxImpl other = (SystemMemberRegionJmxImpl) obj;
+    var other = (SystemMemberRegionJmxImpl) obj;
 
     return getMBeanName().equals(other.getMBeanName());
   }

@@ -24,7 +24,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
 import java.nio.file.Path;
@@ -75,25 +74,25 @@ public class HttpRequesterTest {
 
   @Test
   public void extractResponseOfJsonString() throws Exception {
-    String responseString = "my response";
+    var responseString = "my response";
     requester = new HttpRequester();
     response =
         new MockClientHttpResponse(IOUtils.toInputStream(responseString, "UTF-8"), HttpStatus.OK);
 
     response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-    Object result = requester.extractResponse(response);
+    var result = requester.extractResponse(response);
     assertThat(result).isEqualTo(responseString);
   }
 
   @Test
   public void extractResponseOfFileDownload() throws Exception {
-    File responseFile = temporaryFolder.newFile();
+    var responseFile = temporaryFolder.newFile();
     FileUtils.writeStringToFile(responseFile, "some file contents", "UTF-8");
     requester = new HttpRequester();
     response = new MockClientHttpResponse(new FileInputStream(responseFile), HttpStatus.OK);
     response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    Object result = requester.extractResponse(response);
-    Path fileResult = (Path) result;
+    var result = requester.extractResponse(response);
+    var fileResult = (Path) result;
     assertThat(fileResult).hasSameTextualContentAs(responseFile.toPath());
   }
 
@@ -116,7 +115,7 @@ public class HttpRequesterTest {
   @Test
   public void get() throws Exception {
     requester = spy(new HttpRequester(securityProps, restTemplate));
-    String result = requester.get(uri, String.class);
+    var result = requester.get(uri, String.class);
 
     assertThat(result).isEqualTo("done");
     verify(requester).exchange(uri, HttpMethod.GET, null, String.class);
@@ -127,7 +126,7 @@ public class HttpRequesterTest {
   @Test
   public void post() throws Exception {
     requester = spy(new HttpRequester(securityProps, restTemplate));
-    String result =
+    var result =
         requester.post(uri, "myData", String.class);
 
     assertThat(result).isEqualTo("done");
@@ -138,10 +137,10 @@ public class HttpRequesterTest {
   }
 
   private void verifyHeaderIsUpdated() {
-    ArgumentCaptor<HttpHeaders> headerCaptor = ArgumentCaptor.forClass(HttpHeaders.class);
+    var headerCaptor = ArgumentCaptor.forClass(HttpHeaders.class);
     verify(requester).addHeaderValues(headerCaptor.capture());
 
-    HttpHeaders headers = headerCaptor.getValue();
+    var headers = headerCaptor.getValue();
     assertThat(headers.get("user").get(0)).isEqualTo("me");
     assertThat(headers.get("password").get(0)).isEqualTo("secret");
   }

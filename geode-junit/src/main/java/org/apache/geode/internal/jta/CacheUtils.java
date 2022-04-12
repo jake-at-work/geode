@@ -24,13 +24,9 @@ import static org.apache.geode.distributed.ConfigurationProperties.CACHE_XML_FIL
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.apache.geode.test.util.ResourceUtils.createTempFileFromResource;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
@@ -56,17 +52,17 @@ public class CacheUtils {
   }
 
   public static String init(String className) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(CACHE_XML_FILE,
         createTempFileFromResource(CacheUtils.class, "cachejta.xml")
             .getAbsolutePath());
-    String tableName = "";
+    var tableName = "";
     props.setProperty(MCAST_PORT, "0");
 
     ds = DistributedSystem.connect(props);
     cache = CacheFactory.create(ds);
     if (className != null && !className.equals("")) {
-      String time = new Long(System.currentTimeMillis()).toString();
+      var time = new Long(System.currentTimeMillis()).toString();
       tableName = className + time;
       createTable(tableName);
     }
@@ -87,7 +83,7 @@ public class CacheUtils {
 
   public static String init(DistributedSystem ds1, String className) throws Exception {
     System.out.println("Entering CacheUtils.init, DS is " + ds1);
-    String tableName = "";
+    var tableName = "";
     try {
       try {
         cache = CacheFactory.getInstance(ds1);
@@ -95,7 +91,7 @@ public class CacheUtils {
         cache = CacheFactory.create(ds1);
       }
       if (className != null && !className.equals("")) {
-        String time = new Long(System.currentTimeMillis()).toString();
+        var time = new Long(System.currentTimeMillis()).toString();
         tableName = className + time;
         createTable(tableName);
       }
@@ -115,20 +111,20 @@ public class CacheUtils {
   }
 
   public static void createTable(String tableName) throws NamingException, SQLException {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var ctx = cache.getJNDIContext();
+    var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
 
     // String sql = "create table " + tableName + " (id number primary key, name varchar2(50))";
     // String sql = "create table " + tableName + " (id integer primary key, name varchar(50))";
-    String sql = "create table " + tableName
+    var sql = "create table " + tableName
         + " (id integer NOT NULL, name varchar(50), CONSTRAINT the_key PRIMARY KEY(id))";
     System.out.println(sql);
-    Connection conn = ds.getConnection();
-    Statement sm = conn.createStatement();
+    var conn = ds.getConnection();
+    var sm = conn.createStatement();
     sm.execute(sql);
     sm.close();
     sm = conn.createStatement();
-    for (int i = 1; i <= 100; i++) {
+    for (var i = 1; i <= 100; i++) {
       sql = "insert into " + tableName + " values (" + i + ",'name" + i + "')";
       sm.addBatch(sql);
       System.out.println(sql);
@@ -138,14 +134,14 @@ public class CacheUtils {
   }
 
   public static void listTableData(String tableName) throws NamingException, SQLException {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var ctx = cache.getJNDIContext();
+    var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
 
-    String sql = "select * from " + tableName;
+    var sql = "select * from " + tableName;
 
-    Connection conn = ds.getConnection();
-    try (Statement sm = conn.createStatement()) {
-      ResultSet rs = sm.executeQuery(sql);
+    var conn = ds.getConnection();
+    try (var sm = conn.createStatement()) {
+      var rs = sm.executeQuery(sql);
       while (rs.next()) {
         System.out.println("id " + rs.getString(1) + " name " + rs.getString(2));
       }
@@ -155,12 +151,12 @@ public class CacheUtils {
   }
 
   public static void destroyTable(String tableName) throws NamingException, SQLException {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
-    Connection conn = ds.getConnection();
+    var ctx = cache.getJNDIContext();
+    var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var conn = ds.getConnection();
     // System.out.println (" trying to drop table: " + tableName);
-    String sql = "drop table " + tableName;
-    try (Statement sm = conn.createStatement()) {
+    var sql = "drop table " + tableName;
+    try (var sm = conn.createStatement()) {
       sm.execute(sql);
     }
     conn.close();

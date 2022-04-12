@@ -17,17 +17,14 @@ package org.apache.geode.redis.internal.statistics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.apache.geode.Statistics;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.statistics.StatisticsManager;
 import org.apache.geode.redis.GeodeRedisServerRule;
 import org.apache.geode.redis.internal.commands.RedisCommandType;
 
@@ -38,18 +35,18 @@ public class GeodeRedisStatsIntegrationTest {
 
   @Test
   public void checkGeodeRedisStatsExist() {
-    Cache cache = CacheFactory.getAnyInstance();
-    InternalDistributedSystem internalSystem =
+    var cache = CacheFactory.getAnyInstance();
+    var internalSystem =
         (InternalDistributedSystem) cache.getDistributedSystem();
-    StatisticsManager statisticsManager = internalSystem.getStatisticsManager();
+    var statisticsManager = internalSystem.getStatisticsManager();
 
-    List<String> statDescriptions = statisticsManager.getStatsList()
+    var statDescriptions = statisticsManager.getStatsList()
         .stream().map(Statistics::getTextId).collect(Collectors.toList());
 
     assertThat(statDescriptions).contains(GeodeRedisStats.STATS_BASENAME);
 
-    for (RedisCommandType.Category category : RedisCommandType.Category.values()) {
-      String name = GeodeRedisStats.STATS_BASENAME + ":" + category.name();
+    for (var category : RedisCommandType.Category.values()) {
+      var name = GeodeRedisStats.STATS_BASENAME + ":" + category.name();
       assertThat(statDescriptions).contains(name);
     }
   }

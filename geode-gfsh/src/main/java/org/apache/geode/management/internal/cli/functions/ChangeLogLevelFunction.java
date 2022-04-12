@@ -19,7 +19,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.LOG_LEVEL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.execute.FunctionContext;
@@ -49,14 +48,14 @@ public class ChangeLogLevelFunction implements InternalFunction<Object[]> {
 
   @Override
   public void execute(FunctionContext<Object[]> context) {
-    InternalCache cache = (InternalCache) context.getCache();
+    var cache = (InternalCache) context.getCache();
     Map<String, String> result = new HashMap<>();
     try {
-      Object[] args = context.getArguments();
-      String logLevel = (String) args[0];
+      var args = context.getArguments();
+      var logLevel = (String) args[0];
 
-      Level log4jLevel = LogLevel.getLevel(logLevel);
-      int logWriterLevel = LogLevel.getLogWriterLevel(logLevel);
+      var log4jLevel = LogLevel.getLevel(logLevel);
+      var logWriterLevel = LogLevel.getLogWriterLevel(logLevel);
 
       cache.getInternalDistributedSystem().getConfig().setLogLevel(logWriterLevel);
 

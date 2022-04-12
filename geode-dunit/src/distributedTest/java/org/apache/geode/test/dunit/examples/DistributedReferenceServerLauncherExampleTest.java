@@ -31,9 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.distributed.ServerLauncher;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedReference;
 import org.apache.geode.test.junit.rules.serializable.SerializableTemporaryFolder;
 
@@ -48,12 +46,12 @@ public class DistributedReferenceServerLauncherExampleTest implements Serializab
 
   @Before
   public void setUp() {
-    String locators = getLocators();
+    var locators = getLocators();
 
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
-        String name = "server-" + getVMId();
-        ServerLauncher serverLauncher = new ServerLauncher.Builder()
+        var name = "server-" + getVMId();
+        var serverLauncher = new ServerLauncher.Builder()
             .setWorkingDirectory(temporaryFolder.newFolder(name).getAbsolutePath())
             .setMemberName(name)
             .setDisableDefaultServer(true)
@@ -69,12 +67,12 @@ public class DistributedReferenceServerLauncherExampleTest implements Serializab
 
   @Test
   public void eachVmHasItsOwnLocatorLauncher() {
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         assertThat(serverLauncher.get()).isNotNull();
 
-        InternalCache cache = (InternalCache) serverLauncher.get().getCache();
-        InternalDistributedSystem system = cache.getInternalDistributedSystem();
+        var cache = (InternalCache) serverLauncher.get().getCache();
+        var system = cache.getInternalDistributedSystem();
         assertThat(system.getAllOtherMembers()).hasSize(5);
       });
     }

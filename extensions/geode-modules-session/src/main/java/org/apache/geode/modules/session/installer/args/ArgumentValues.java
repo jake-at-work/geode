@@ -71,7 +71,7 @@ public class ArgumentValues {
    * @param paramValues parameter values for the argument
    */
   void addResult(final Argument arg, final String[] paramValues) {
-    List<String[]> list = values.get(arg);
+    var list = values.get(arg);
     if (list == null) {
       list = new ArrayList<>();
       list.add(paramValues);
@@ -101,10 +101,10 @@ public class ArgumentValues {
       return values.keySet().size();
     }
 
-    int count = 0;
-    for (Argument arg : values.keySet()) {
-      boolean found = false;
-      for (int i = 0; !found && i < ofThese.length; i++) {
+    var count = 0;
+    for (var arg : values.keySet()) {
+      var found = false;
+      for (var i = 0; !found && i < ofThese.length; i++) {
         if (ofThese[i].equals(arg)) {
           count++;
           found = true;
@@ -121,7 +121,7 @@ public class ArgumentValues {
    * @return true if the argument is defined by the command line, false otherwise
    */
   public boolean isDefined(final Argument arg) {
-    final List<String[]> result = values.get(arg);
+    final var result = values.get(arg);
     return (result != null);
   }
 
@@ -133,20 +133,20 @@ public class ArgumentValues {
    * @return list of all parameter lists defined for this argument
    */
   public List<String[]> getAllResults(final Argument arg) {
-    List<String[]> result = values.get(arg);
+    var result = values.get(arg);
 
     if (result == null) {
-      final String[] envVars = arg.getEnvVars();
-      final String[] defaults = arg.getDefaults();
-      final String[] vals = new String[arg.getParameterCount()];
-      boolean found = defaults != null;
+      final var envVars = arg.getEnvVars();
+      final var defaults = arg.getDefaults();
+      final var vals = new String[arg.getParameterCount()];
+      var found = defaults != null;
 
-      for (int i = 0; i < arg.getParameterCount(); i++) {
+      for (var i = 0; i < arg.getParameterCount(); i++) {
         if (defaults != null) {
           vals[i] = defaults[i];
         }
         if (envVars != null) {
-          String val = System.getenv(envVars[i]);
+          var val = System.getenv(envVars[i]);
           if (val != null) {
             found = true;
             vals[i] = val;
@@ -169,7 +169,7 @@ public class ArgumentValues {
    * @return first parameter list defined for this argument
    */
   private String[] getResult(final Argument arg) {
-    final List<String[]> all = getAllResults(arg);
+    final var all = getAllResults(arg);
     if (all == null) {
       return null;
     } else {
@@ -185,7 +185,7 @@ public class ArgumentValues {
    * @return first parameter of the first list of parameters supplied
    */
   public String getFirstResult(final Argument arg) {
-    final String[] all = getResult(arg);
+    final var all = getResult(arg);
     if (all == null) {
       return null;
     } else {
@@ -201,7 +201,7 @@ public class ArgumentValues {
    * @return value specified, or default value provided
    */
   public int getFirstResultAsInt(final Argument arg, final int undefinedValue) {
-    final String value = getFirstResult(arg);
+    final var value = getFirstResult(arg);
     if (value == null) {
       return undefinedValue;
     } else {

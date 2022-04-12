@@ -88,7 +88,7 @@ public class DualServerSNIAcceptanceTest {
     docker.loggingExecForService("locator-maeve",
         "gfsh", "run", "--file=/geode/scripts/create-regions.gfsh");
 
-    final String trustStorePath =
+    final var trustStorePath =
         createTempFileFromResource(SingleServerSNIAcceptanceTest.class,
             "geode-config/truststore.jks")
                 .getAbsolutePath();
@@ -137,14 +137,14 @@ public class DualServerSNIAcceptanceTest {
   }
 
   private void verifyUnreachable(final String groupName, final String regionName) {
-    final Region<String, String> region = getRegion(groupName, regionName);
+    final var region = getRegion(groupName, regionName);
     assertThatThrownBy(() -> region.destroy("hello"))
         .hasCauseInstanceOf(RegionDestroyedException.class)
         .hasStackTraceContaining("was not found during destroy request");
   }
 
   private void verifyPutAndGet(final String groupName, final String regionName) {
-    final Region<String, String> region = getRegion(groupName, regionName);
+    final var region = getRegion(groupName, regionName);
     region.destroy("hello");
     region.put("hello", "world");
     assertThat(region.get("hello")).isEqualTo("world");

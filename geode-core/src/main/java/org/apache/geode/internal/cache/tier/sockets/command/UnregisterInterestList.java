@@ -22,14 +22,12 @@ import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.DynamicRegionFactory;
-import org.apache.geode.cache.operations.UnregisterInterestOperationContext;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -62,13 +60,13 @@ public class UnregisterInterestList extends BaseCommand {
     regionNamePart = clientMessage.getPart(0);
     regionName = regionNamePart.getCachedString();
 
-    Part isClosingListPart = clientMessage.getPart(1);
-    byte[] isClosingListPartBytes = (byte[]) isClosingListPart.getObject();
-    boolean isClosingList = isClosingListPartBytes[0] == 0x01;
+    var isClosingListPart = clientMessage.getPart(1);
+    var isClosingListPartBytes = (byte[]) isClosingListPart.getObject();
+    var isClosingList = isClosingListPartBytes[0] == 0x01;
     boolean keepAlive;
     try {
-      Part keepAlivePart = clientMessage.getPart(2);
-      byte[] keepAlivePartBytes = (byte[]) keepAlivePart.getObject();
+      var keepAlivePart = clientMessage.getPart(2);
+      var keepAlivePartBytes = (byte[]) keepAlivePart.getObject();
       keepAlive = keepAlivePartBytes[0] == 0x01;
     } catch (Exception e) {
       writeChunkedException(clientMessage, e, serverConnection);
@@ -80,7 +78,7 @@ public class UnregisterInterestList extends BaseCommand {
 
     partNumber = 4;
     keys = new ArrayList<>();
-    for (int i = 0; i < numberOfKeys; i++) {
+    for (var i = 0; i < numberOfKeys; i++) {
       keyPart = clientMessage.getPart(partNumber + i);
       try {
         key = keyPart.getStringOrObject();
@@ -124,12 +122,11 @@ public class UnregisterInterestList extends BaseCommand {
       return;
     }
 
-
-    AuthorizeRequest authorizeRequest = serverConnection.getAuthzRequest();
+    var authorizeRequest = serverConnection.getAuthzRequest();
     if (authorizeRequest != null) {
       if (!DynamicRegionFactory.regionIsDynamicRegionList(regionName)) {
         try {
-          UnregisterInterestOperationContext unregisterContext =
+          var unregisterContext =
               authorizeRequest.unregisterInterestListAuthorize(regionName, keys);
           keys = (List<Object>) unregisterContext.getKey();
         } catch (NotAuthorizedException ex) {

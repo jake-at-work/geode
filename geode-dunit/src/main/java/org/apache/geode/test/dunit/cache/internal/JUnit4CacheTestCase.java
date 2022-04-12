@@ -119,7 +119,7 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
           if (factory == null) {
             newCache = (InternalCache) CacheFactory.create(getSystem());
           } else {
-            Properties config = getSystem().getProperties();
+            var config = getSystem().getProperties();
             for (Map.Entry entry : config.entrySet()) {
               factory.set((String) entry.getKey(), (String) entry.getValue());
             }
@@ -151,8 +151,8 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
   public final void finishCacheXml(final String name) {
     synchronized (JUnit4CacheTestCase.class) {
       try {
-        File file = new File(name + "-cache.xml");
-        PrintWriter printWriter = new PrintWriter(new FileWriter(file), true);
+        var file = new File(name + "-cache.xml");
+        var printWriter = new PrintWriter(new FileWriter(file), true);
         CacheXmlGenerator.generate(cache, printWriter);
         printWriter.close();
         cache = null;
@@ -173,10 +173,10 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
   public final void finishCacheXml(final File root, final String name, final boolean useSchema,
       final String xmlVersion) throws IOException {
     synchronized (JUnit4CacheTestCase.class) {
-      File dir = new File(root, "XML_" + xmlVersion);
+      var dir = new File(root, "XML_" + xmlVersion);
       dir.mkdirs();
-      File file = new File(dir, name + ".xml");
-      PrintWriter printWriter = new PrintWriter(new FileWriter(file), true);
+      var file = new File(dir, name + ".xml");
+      var printWriter = new PrintWriter(new FileWriter(file), true);
       CacheXmlGenerator.generate(cache, printWriter, useSchema, xmlVersion);
       printWriter.close();
       cache = null;
@@ -379,8 +379,8 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
 
   private <K, V> AttributesFactory<K, V> getRootAttributesFactory(
       RegionAttributes<K, V> regionAttributes) {
-    AttributesFactory<K, V> attributesFactory = new AttributesFactory<>(regionAttributes);
-    ExpirationAttributes expiration = ExpirationAttributes.DEFAULT;
+    var attributesFactory = new AttributesFactory<K, V>(regionAttributes);
+    var expiration = ExpirationAttributes.DEFAULT;
 
     attributesFactory.setCacheLoader(null);
     attributesFactory.setCacheWriter(null);
@@ -399,8 +399,8 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
   }
 
   private <K, V> RegionFactory<K, V> getRootRegionFactory(RegionFactory<K, V> regionFactory) {
-    MyRegionFactory<K, V> regionFactory1 = new MyRegionFactory<>(regionFactory);
-    ExpirationAttributes expiration = ExpirationAttributes.DEFAULT;
+    var regionFactory1 = new MyRegionFactory<K, V>(regionFactory);
+    var expiration = ExpirationAttributes.DEFAULT;
 
     regionFactory1.setCacheLoader(null);
     regionFactory1.setCacheWriter(null);
@@ -417,10 +417,10 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
     Region<K, V> root = getRootRegion(rootName);
     if (root == null) {
       // don't put listeners on root region
-      AttributesFactory<K, V> attributesFactory = getRootAttributesFactory(attributes);
+      var attributesFactory = getRootAttributesFactory(attributes);
       attributesFactory.setDataPolicy(DataPolicy.PARTITION);
 
-      RegionAttributes<K, V> rootAttrs = attributesFactory.create();
+      var rootAttrs = attributesFactory.create();
       root = createRootRegion(rootName, rootAttrs);
     }
     return root;
@@ -431,7 +431,7 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
     Region<K, V> root = getRootRegion(rootName);
     if (root == null) {
       // don't put listeners on root region
-      RegionFactory<K, V> regionFactory1 = getRootRegionFactory(regionFactory);
+      var regionFactory1 = getRootRegionFactory(regionFactory);
       regionFactory1.setDataPolicy(DataPolicy.PARTITION);
 
       root = regionFactory1.create(rootName);
@@ -445,10 +445,10 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
 
     if (root == null) {
       // don't put listeners on root region
-      AttributesFactory<K, V> attributesFactory = getRootAttributesFactory(attributes);
+      var attributesFactory = getRootAttributesFactory(attributes);
       attributesFactory.setPartitionAttributes(null);
 
-      RegionAttributes<K, V> rootAttrs = attributesFactory.create();
+      var rootAttrs = attributesFactory.create();
       root = createRootRegion(rootName, rootAttrs);
     }
     return root.createSubregion(name, attributes);
@@ -460,7 +460,7 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
 
     Region<K, V> root = getRootRegion(rootName);
     if (root == null) {
-      RegionFactory<K, V> regionFactoryRoot = getRootRegionFactory(regionFactory);
+      var regionFactoryRoot = getRootRegionFactory(regionFactory);
       regionFactoryRoot.setPartitionAttributes(null);
       root = regionFactoryRoot.create(rootName);
     }
@@ -556,8 +556,8 @@ public abstract class JUnit4CacheTestCase extends JUnit4DistributedTestCase
   }
 
   public static File getDiskDir() {
-    int vmNum = VM.getCurrentVMNum();
-    File dir = new File("diskDir", "disk" + vmNum).getAbsoluteFile();
+    var vmNum = VM.getCurrentVMNum();
+    var dir = new File("diskDir", "disk" + vmNum).getAbsoluteFile();
     dir.mkdirs();
     return dir;
   }

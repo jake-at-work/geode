@@ -18,12 +18,8 @@ import static org.apache.geode.connectors.jdbc.internal.cli.ListMappingCommand.L
 import static org.apache.geode.connectors.jdbc.internal.cli.ListMappingCommand.LIST_OF_MAPPINGS;
 
 import java.io.Serializable;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
-
-import javax.sql.DataSource;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,7 +31,6 @@ import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
 
@@ -74,15 +69,15 @@ public class ListMappingCommandDUnitTest implements Serializable {
   }
 
   private void executeSql(String sql) {
-    for (MemberVM server : Arrays.asList(server1, server2, server3, server4)) {
+    for (var server : Arrays.asList(server1, server2, server3, server4)) {
       if (server == null) {
         continue;
       }
       server.invoke(() -> {
         try {
-          DataSource ds = JNDIInvoker.getDataSource("connection");
-          Connection conn = ds.getConnection();
-          Statement sm = conn.createStatement();
+          var ds = JNDIInvoker.getDataSource("connection");
+          var conn = ds.getConnection();
+          var sm = conn.createStatement();
           sm.execute(sql);
           sm.close();
         } catch (SQLException e) {
@@ -140,13 +135,13 @@ public class ListMappingCommandDUnitTest implements Serializable {
         .statusIsSuccess();
     createTable();
     try {
-      String mapping = "create jdbc-mapping --region=" + regionName + " --data-source=connection "
+      var mapping = "create jdbc-mapping --region=" + regionName + " --data-source=connection "
           + "--table=myTable --pdx-name="
           + IdAndName.class.getName() + " --schema=mySchema";
       gfsh.executeAndAssertThat(mapping).statusIsSuccess();
 
-      CommandStringBuilder csb = new CommandStringBuilder(LIST_MAPPING);
-      CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+      var csb = new CommandStringBuilder(LIST_MAPPING);
+      var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
       commandResultAssert.statusIsSuccess();
       commandResultAssert.tableHasRowCount(1);
@@ -169,13 +164,13 @@ public class ListMappingCommandDUnitTest implements Serializable {
         .statusIsSuccess();
     createTable();
     try {
-      String mapping = "create jdbc-mapping --region=" + regionName + " --data-source=connection "
+      var mapping = "create jdbc-mapping --region=" + regionName + " --data-source=connection "
           + "--table=myTable --schema=mySchema --pdx-name=" + IdAndName.class.getName();
       gfsh.executeAndAssertThat(mapping).statusIsSuccess();
 
-      CommandStringBuilder csb =
+      var csb =
           new CommandStringBuilder(LIST_MAPPING + " --groups=" + TEST_GROUP1);
-      CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+      var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
       commandResultAssert.statusIsError().hasNoTableSection();
 
@@ -205,15 +200,15 @@ public class ListMappingCommandDUnitTest implements Serializable {
         .statusIsSuccess();
     createTable();
     try {
-      String mapping =
+      var mapping =
           "create jdbc-mapping --region=" + regionName + " --groups=" + TEST_GROUP1
               + " --data-source=connection " + "--table=myTable --schema=mySchema --pdx-name="
               + IdAndName.class.getName();
       gfsh.executeAndAssertThat(mapping).statusIsSuccess();
 
-      CommandStringBuilder csb =
+      var csb =
           new CommandStringBuilder(LIST_MAPPING + " --groups=" + TEST_GROUP1);
-      CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+      var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
       commandResultAssert.statusIsSuccess();
       commandResultAssert.tableHasRowCount(1);
@@ -258,7 +253,7 @@ public class ListMappingCommandDUnitTest implements Serializable {
     createTable();
     try {
       // create 4 mappings
-      String mapping =
+      var mapping =
           "create jdbc-mapping --region=" + regionName + " --data-source=connection "
               + "--table=myTable --schema=mySchema --pdx-name=" + IdAndName.class.getName();
       gfsh.executeAndAssertThat(mapping).statusIsSuccess();
@@ -279,9 +274,9 @@ public class ListMappingCommandDUnitTest implements Serializable {
       gfsh.executeAndAssertThat(mapping).statusIsSuccess();
 
       {
-        CommandStringBuilder csb =
+        var csb =
             new CommandStringBuilder(LIST_MAPPING);
-        CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+        var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
         commandResultAssert.statusIsSuccess();
         commandResultAssert.tableHasRowCount(1);
@@ -289,9 +284,9 @@ public class ListMappingCommandDUnitTest implements Serializable {
       }
 
       {
-        CommandStringBuilder csb =
+        var csb =
             new CommandStringBuilder(LIST_MAPPING + " --groups=" + TEST_GROUP1);
-        CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+        var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
         commandResultAssert.statusIsSuccess();
         commandResultAssert.tableHasRowCount(2);
@@ -300,9 +295,9 @@ public class ListMappingCommandDUnitTest implements Serializable {
       }
 
       {
-        CommandStringBuilder csb =
+        var csb =
             new CommandStringBuilder(LIST_MAPPING + " --groups=" + TEST_GROUP2);
-        CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+        var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
         commandResultAssert.statusIsSuccess();
         commandResultAssert.tableHasRowCount(2);
@@ -311,9 +306,9 @@ public class ListMappingCommandDUnitTest implements Serializable {
       }
 
       {
-        CommandStringBuilder csb =
+        var csb =
             new CommandStringBuilder(LIST_MAPPING + " --groups=" + TEST_GROUP1 + "," + TEST_GROUP2);
-        CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+        var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
         commandResultAssert.statusIsSuccess();
         // There will be 4 items: testRegion1 for testGroup1, testRegion2 for testGroup2,
         // group1Group2Region for testGroup1, group1Group2Region for testGroup2
@@ -341,15 +336,15 @@ public class ListMappingCommandDUnitTest implements Serializable {
         .statusIsSuccess();
     createTable();
     try {
-      String mapping =
+      var mapping =
           "create jdbc-mapping --region=" + regionName + " --groups=" + TEST_GROUP1
               + " --data-source=connection --schema=mySchema --table=myTable --pdx-name="
               + IdAndName.class.getName();
       gfsh.executeAndAssertThat(mapping).statusIsSuccess();
 
-      CommandStringBuilder csb =
+      var csb =
           new CommandStringBuilder(LIST_MAPPING + " --groups=" + TEST_GROUP1);
-      CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+      var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
       commandResultAssert.statusIsSuccess();
       commandResultAssert.tableHasRowCount(1);
@@ -381,7 +376,7 @@ public class ListMappingCommandDUnitTest implements Serializable {
         .statusIsSuccess();
     createTable();
     try {
-      String mapping =
+      var mapping =
           "create jdbc-mapping --region=" + GROUP1_REGION + " --groups=" + TEST_GROUP1
               + " --data-source=connection --schema=mySchema --table=myTable --pdx-name="
               + IdAndName.class.getName();
@@ -393,7 +388,7 @@ public class ListMappingCommandDUnitTest implements Serializable {
               + IdAndName.class.getName();
       gfsh.executeAndAssertThat(mapping).statusIsSuccess();
 
-      CommandStringBuilder csb = new CommandStringBuilder("destroy region --name=" + GROUP1_REGION);
+      var csb = new CommandStringBuilder("destroy region --name=" + GROUP1_REGION);
       gfsh.executeAndAssertThat(csb.toString()).statusIsError()
           .containsOutput("Cannot destroy region \"" + GROUP1_REGION
               + "\" because JDBC mapping exists. Use \"destroy jdbc-mapping\" first.");

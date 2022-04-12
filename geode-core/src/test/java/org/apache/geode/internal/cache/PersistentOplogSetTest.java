@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +31,6 @@ import org.mockito.ArgumentCaptor;
 
 import org.apache.geode.internal.cache.entries.DiskEntry;
 import org.apache.geode.internal.cache.entries.DiskEntry.Helper.ValueWrapper;
-import org.apache.geode.internal.cache.persistence.DiskRecoveryStore;
 import org.apache.geode.internal.cache.persistence.DiskRegionView;
 
 public class PersistentOplogSetTest {
@@ -109,7 +107,7 @@ public class PersistentOplogSetTest {
 
   @Test
   public void getChildReturnsMatchingEntryFromOplogIdToOplogMap() {
-    Oplog oplog = mock(Oplog.class);
+    var oplog = mock(Oplog.class);
     persistentOplogSet.setChild(null);
     persistentOplogSet.getOplogIdToOplog().put(24L, oplog);
 
@@ -120,7 +118,7 @@ public class PersistentOplogSetTest {
 
   @Test
   public void getChildReturnsNullIfEntriesInOplogIdToOplogMapDoNotMatch() {
-    Oplog oplog = mock(Oplog.class);
+    var oplog = mock(Oplog.class);
     persistentOplogSet.setChild(null);
     persistentOplogSet.getOplogIdToOplog().put(42L, oplog);
 
@@ -131,7 +129,7 @@ public class PersistentOplogSetTest {
 
   @Test
   public void getChildReturnsMatchingEntryFromInactiveOplogMap() {
-    Oplog oplog = mock(Oplog.class);
+    var oplog = mock(Oplog.class);
     persistentOplogSet.setChild(null);
     when(oplog.getOplogId()).thenReturn(24L);
     when(diskStore.getStats()).thenReturn(diskStoreStats);
@@ -144,7 +142,7 @@ public class PersistentOplogSetTest {
 
   @Test
   public void getChildReturnsNullIfEntriesInInactiveOplogMapDoNotMatch() {
-    Oplog oplog = mock(Oplog.class);
+    var oplog = mock(Oplog.class);
     persistentOplogSet.setChild(null);
     when(oplog.getOplogId()).thenReturn(42L);
     when(diskStore.getStats()).thenReturn(diskStoreStats);
@@ -157,9 +155,9 @@ public class PersistentOplogSetTest {
 
   @Test
   public void getCompactableOplogsGathersOnlyOplogsThatNeedCompaction() {
-    Oplog oplogNeedingCompaction1 = oplog(true);
-    Oplog oplogNeedingCompaction2 = oplog(true);
-    Map<Long, Oplog> oplogMap = persistentOplogSet.getOplogIdToOplog();
+    var oplogNeedingCompaction1 = oplog(true);
+    var oplogNeedingCompaction2 = oplog(true);
+    var oplogMap = persistentOplogSet.getOplogIdToOplog();
     oplogMap.put(0L, oplog(false));
     oplogMap.put(1L, oplogNeedingCompaction1);
     oplogMap.put(2L, oplogNeedingCompaction2);
@@ -173,10 +171,10 @@ public class PersistentOplogSetTest {
 
   @Test
   public void getCompactableOplogsGathersOplogsInOrderUpToMax() {
-    Oplog oplogNeedingCompaction1 = oplog(true);
-    Oplog oplogNeedingCompaction2 = oplog(true);
-    Oplog oplogNeedingCompaction3 = oplog(true);
-    Map<Long, Oplog> oplogMap = persistentOplogSet.getOplogIdToOplog();
+    var oplogNeedingCompaction1 = oplog(true);
+    var oplogNeedingCompaction2 = oplog(true);
+    var oplogNeedingCompaction3 = oplog(true);
+    var oplogMap = persistentOplogSet.getOplogIdToOplog();
     oplogMap.put(1L, oplogNeedingCompaction1);
     oplogMap.put(2L, oplogNeedingCompaction2);
     oplogMap.put(3L, oplogNeedingCompaction3);
@@ -190,14 +188,14 @@ public class PersistentOplogSetTest {
 
   @Test
   public void getCompactableOplogsGathersAdditionalOplogsUpToMaxSize() {
-    Oplog oplogNeedingCompaction1 = oplog(true);
-    Oplog oplogNeedingCompaction2 = oplog(true);
-    Map<Long, Oplog> oplogMap = persistentOplogSet.getOplogIdToOplog();
+    var oplogNeedingCompaction1 = oplog(true);
+    var oplogNeedingCompaction2 = oplog(true);
+    var oplogMap = persistentOplogSet.getOplogIdToOplog();
     oplogMap.put(1L, oplogNeedingCompaction1);
     oplogMap.put(2L, oplogNeedingCompaction2);
     List<CompactableOplog> compactableOplogs = new ArrayList<>();
 
-    Oplog existingOplogAlreadyInList = oplog(true);
+    var existingOplogAlreadyInList = oplog(true);
     compactableOplogs.add(existingOplogAlreadyInList);
 
     persistentOplogSet.getCompactableOplogs(compactableOplogs, 2);
@@ -209,13 +207,13 @@ public class PersistentOplogSetTest {
 
   @Test
   public void getCompactableOplogsDoesNotAddToListOfMaxSize() {
-    Oplog oplogNeedingCompaction1 = oplog(true);
-    Map<Long, Oplog> oplogMap = persistentOplogSet.getOplogIdToOplog();
+    var oplogNeedingCompaction1 = oplog(true);
+    var oplogMap = persistentOplogSet.getOplogIdToOplog();
     oplogMap.put(1L, oplogNeedingCompaction1);
     List<CompactableOplog> compactableOplogs = new ArrayList<>();
 
-    Oplog existingOplogAlreadyInList1 = oplog(true);
-    Oplog existingOplogAlreadyInList2 = oplog(true);
+    var existingOplogAlreadyInList1 = oplog(true);
+    var existingOplogAlreadyInList2 = oplog(true);
     compactableOplogs.add(existingOplogAlreadyInList1);
     compactableOplogs.add(existingOplogAlreadyInList2);
 
@@ -228,21 +226,21 @@ public class PersistentOplogSetTest {
 
   @Test
   public void recoverRegionsThatAreReadyPrintsBucketEntries() {
-    PrintStream outputStream = mock(PrintStream.class);
+    var outputStream = mock(PrintStream.class);
     persistentOplogSet = new PersistentOplogSet(diskStore, outputStream);
     when(diskStore.getDiskInitFile()).thenReturn(mock(DiskInitFile.class));
     when(diskStore.isValidating()).thenReturn(true);
     when(diskStore.getStats()).thenReturn(mock(DiskStoreStats.class));
 
-    String prName = "prName";
-    int entryCount = 9;
-    Map<Long, DiskRecoveryStore> currentRecoveryMap = persistentOplogSet.getPendingRecoveryMap();
-    ValidatingDiskRegion validatingDiskRegion = validatingDiskRegionForBucket(prName, entryCount);
+    var prName = "prName";
+    var entryCount = 9;
+    var currentRecoveryMap = persistentOplogSet.getPendingRecoveryMap();
+    var validatingDiskRegion = validatingDiskRegionForBucket(prName, entryCount);
     currentRecoveryMap.put(0L, validatingDiskRegion);
 
     persistentOplogSet.recoverRegionsThatAreReady();
 
-    ArgumentCaptor<String> printedString = ArgumentCaptor.forClass(String.class);
+    var printedString = ArgumentCaptor.forClass(String.class);
     verify(outputStream).println(printedString.capture());
 
     assertThat(printedString.getValue())
@@ -253,21 +251,21 @@ public class PersistentOplogSetTest {
 
   @Test
   public void recoverRegionsThatAreReadyPrintsRegionSize() {
-    PrintStream outputStream = mock(PrintStream.class);
+    var outputStream = mock(PrintStream.class);
     persistentOplogSet = new PersistentOplogSet(diskStore, outputStream);
     when(diskStore.getDiskInitFile()).thenReturn(mock(DiskInitFile.class));
     when(diskStore.isValidating()).thenReturn(true);
     when(diskStore.getStats()).thenReturn(mock(DiskStoreStats.class));
 
-    String regionName = "regionName";
-    int entryCount = 13;
-    Map<Long, DiskRecoveryStore> currentRecoveryMap = persistentOplogSet.getPendingRecoveryMap();
-    ValidatingDiskRegion validatingDiskRegion = validatingDiskRegion(regionName, entryCount);
+    var regionName = "regionName";
+    var entryCount = 13;
+    var currentRecoveryMap = persistentOplogSet.getPendingRecoveryMap();
+    var validatingDiskRegion = validatingDiskRegion(regionName, entryCount);
     currentRecoveryMap.put(0L, validatingDiskRegion);
 
     persistentOplogSet.recoverRegionsThatAreReady();
 
-    ArgumentCaptor<String> printedString = ArgumentCaptor.forClass(String.class);
+    var printedString = ArgumentCaptor.forClass(String.class);
     verify(outputStream).println(printedString.capture());
 
     assertThat(printedString.getValue())
@@ -276,7 +274,7 @@ public class PersistentOplogSetTest {
   }
 
   private ValidatingDiskRegion validatingDiskRegionForBucket(String prName, int entryCount) {
-    ValidatingDiskRegion validatingDiskRegion = mock(ValidatingDiskRegion.class);
+    var validatingDiskRegion = mock(ValidatingDiskRegion.class);
     when(validatingDiskRegion.isBucket()).thenReturn(true);
     when(validatingDiskRegion.getDiskRegionView()).thenReturn(mock(DiskRegionView.class));
     when(validatingDiskRegion.getPrName()).thenReturn(prName);
@@ -285,7 +283,7 @@ public class PersistentOplogSetTest {
   }
 
   private ValidatingDiskRegion validatingDiskRegion(String regionName, int entryCount) {
-    ValidatingDiskRegion validatingDiskRegion = mock(ValidatingDiskRegion.class);
+    var validatingDiskRegion = mock(ValidatingDiskRegion.class);
     when(validatingDiskRegion.getName()).thenReturn(regionName);
     when(validatingDiskRegion.isBucket()).thenReturn(false);
     when(validatingDiskRegion.getDiskRegionView()).thenReturn(mock(DiskRegionView.class));
@@ -294,7 +292,7 @@ public class PersistentOplogSetTest {
   }
 
   private Oplog oplog(boolean needsCompaction) {
-    Oplog oplog = mock(Oplog.class);
+    var oplog = mock(Oplog.class);
     when(oplog.needsCompaction()).thenReturn(needsCompaction);
     return oplog;
   }

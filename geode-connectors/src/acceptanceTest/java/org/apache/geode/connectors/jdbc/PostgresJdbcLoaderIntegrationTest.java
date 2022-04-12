@@ -34,7 +34,6 @@ import org.apache.geode.connectors.jdbc.internal.configuration.FieldMapping;
 import org.apache.geode.connectors.jdbc.test.junit.rules.DatabaseConnectionRule;
 import org.apache.geode.connectors.jdbc.test.junit.rules.PostgresConnectionRule;
 import org.apache.geode.pdx.FieldType;
-import org.apache.geode.pdx.PdxInstance;
 
 public class PostgresJdbcLoaderIntegrationTest extends JdbcLoaderIntegrationTest {
 
@@ -66,7 +65,7 @@ public class PostgresJdbcLoaderIntegrationTest extends JdbcLoaderIntegrationTest
 
   @Override
   protected List<FieldMapping> getSupportedPdxFieldsTableFieldMappings() {
-    List<FieldMapping> fieldMappings = Arrays.asList(
+    var fieldMappings = Arrays.asList(
         new FieldMapping("id", FieldType.STRING.name(), "id", JDBCType.VARCHAR.name(), false),
         new FieldMapping("aboolean", FieldType.BOOLEAN.name(), "aboolean", JDBCType.BIT.name(),
             true),
@@ -107,17 +106,17 @@ public class PostgresJdbcLoaderIntegrationTest extends JdbcLoaderIntegrationTest
     statement
         .execute("Insert into " + DEFAULT_DB_NAME + '.' + SCHEMA_NAME + '.' + REGION_TABLE_NAME
             + "(id, name, age) values('1', 'Emp1', 21)");
-    String ids = "id,name";
+    var ids = "id,name";
     Region<String, Employee> region =
         createRegionWithJDBCLoader(REGION_TABLE_NAME, Employee.class.getName(), ids,
             DEFAULT_DB_NAME,
             SCHEMA_NAME, getEmployeeTableFieldMappings());
     createPdxType();
 
-    PdxInstance key =
+    var key =
         cache.createPdxInstanceFactory("MyPdxKeyType").neverDeserialize().writeString("id", "1")
             .writeString("name", "Emp1").create();
-    Employee value = region.get(key);
+    var value = region.get(key);
 
     assertThat(value.getId()).isEqualTo("1");
     assertThat(value.getName()).isEqualTo("Emp1");

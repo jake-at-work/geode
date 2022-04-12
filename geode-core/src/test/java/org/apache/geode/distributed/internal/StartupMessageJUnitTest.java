@@ -30,25 +30,25 @@ public class StartupMessageJUnitTest {
 
   @Test
   public void processShouldSendAReplyMessageWhenExceptionThrown() {
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
+    var distributionManager = mock(ClusterDistributionManager.class);
 
-    InternalDistributedMember id = mock(InternalDistributedMember.class);
+    var id = mock(InternalDistributedMember.class);
     when(distributionManager.getId()).thenReturn(id);
 
     // This method will throw an exception in the middle of StartupMessage.process
     when(distributionManager.getTransport()).thenThrow(new IllegalStateException("FAIL"));
 
-    StartupMessage startupMessage = new StartupMessage();
+    var startupMessage = new StartupMessage();
     startupMessage.setSender(id);
     startupMessage.process(distributionManager);
 
     // We expect process to send a ReplyMessage with an exception
     // So that the sender is not blocked
-    ArgumentCaptor<DistributionMessage> responseCaptor =
+    var responseCaptor =
         ArgumentCaptor.forClass(DistributionMessage.class);
     verify(distributionManager).putOutgoing(responseCaptor.capture());
 
-    DistributionMessage response = responseCaptor.getValue();
+    var response = responseCaptor.getValue();
     assertThat(response).isInstanceOf(ReplyMessage.class);
     assertThat(((ReplyMessage) response).getException())
         .isInstanceOf(ReplyException.class)
@@ -57,26 +57,26 @@ public class StartupMessageJUnitTest {
 
   @Test
   public void processShouldSendAReplyMessageWhenErrorThrownForNoResponse() {
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
+    var distributionManager = mock(ClusterDistributionManager.class);
 
-    InternalDistributedMember id = mock(InternalDistributedMember.class);
+    var id = mock(InternalDistributedMember.class);
     when(distributionManager.getId()).thenReturn(id);
 
     // This method will throw an error in the middle of StartupMessage.process
     when(distributionManager.getTransport()).thenThrow(new Error("No Response sent"));
 
-    StartupMessage startupMessage = new StartupMessage();
+    var startupMessage = new StartupMessage();
     startupMessage.setSender(id);
     assertThatThrownBy(() -> startupMessage.process(distributionManager))
         .isInstanceOf(Error.class).hasMessage("No Response sent");
 
     // We expect process to send a ReplyMessage with an exception
     // So that the sender is not blocked
-    ArgumentCaptor<DistributionMessage> responseCaptor =
+    var responseCaptor =
         ArgumentCaptor.forClass(DistributionMessage.class);
     verify(distributionManager).putOutgoing(responseCaptor.capture());
 
-    DistributionMessage response = responseCaptor.getValue();
+    var response = responseCaptor.getValue();
     assertThat(response).isInstanceOf(ReplyMessage.class);
     assertThat(((ReplyMessage) response).getException())
         .isInstanceOf(ReplyException.class)
@@ -85,12 +85,12 @@ public class StartupMessageJUnitTest {
 
   @Test
   public void startupMessageGetProcessorTypeIsWaitingPool() {
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
+    var distributionManager = mock(ClusterDistributionManager.class);
 
-    InternalDistributedMember id = mock(InternalDistributedMember.class);
+    var id = mock(InternalDistributedMember.class);
     when(distributionManager.getId()).thenReturn(id);
 
-    StartupMessage startupMessage = new StartupMessage();
+    var startupMessage = new StartupMessage();
     startupMessage.setSender(id);
     startupMessage.process(distributionManager);
 
@@ -100,12 +100,12 @@ public class StartupMessageJUnitTest {
 
   @Test
   public void startupResponseMessageGetProcessorTypeIsWaitingPool() {
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
+    var distributionManager = mock(ClusterDistributionManager.class);
 
-    InternalDistributedMember id = mock(InternalDistributedMember.class);
+    var id = mock(InternalDistributedMember.class);
     when(distributionManager.getId()).thenReturn(id);
 
-    StartupResponseMessage startupResponseMessage = new StartupResponseMessage();
+    var startupResponseMessage = new StartupResponseMessage();
     startupResponseMessage.setSender(id);
     startupResponseMessage.process(distributionManager);
 

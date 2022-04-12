@@ -67,13 +67,13 @@ public class DestroyAsyncEventQueueFunctionTest {
   @Test
   @SuppressWarnings("deprecation")
   public void execute_validAeqId_OK() {
-    XmlEntity xmlEntity = mock(XmlEntity.class);
+    var xmlEntity = mock(XmlEntity.class);
     doReturn(xmlEntity).when(function).getAEQXmlEntity(anyString(), anyString());
     when(cache.getAsyncEventQueue(TEST_AEQ_ID)).thenReturn(mockAEQ);
 
     function.execute(mockContext);
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getXmlEntity()).isNotNull();
@@ -87,7 +87,7 @@ public class DestroyAsyncEventQueueFunctionTest {
 
     function.execute(mockContext);
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getMessage()).containsPattern(TEST_AEQ_ID + ".*not found");
@@ -101,7 +101,7 @@ public class DestroyAsyncEventQueueFunctionTest {
 
     function.execute(mockContext);
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getMessage()).containsPattern("Skipping:.*" + TEST_AEQ_ID + ".*not found");

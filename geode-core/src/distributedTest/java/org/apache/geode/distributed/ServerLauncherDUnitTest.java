@@ -21,9 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.junit.Rule;
@@ -37,7 +35,6 @@ import org.apache.geode.management.membership.MembershipEvent;
 import org.apache.geode.management.membership.MembershipListener;
 import org.apache.geode.management.membership.UniversalMembershipListenerAdapter;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 
 
 public class ServerLauncherDUnitTest {
@@ -74,7 +71,7 @@ public class ServerLauncherDUnitTest {
 
   @Test
   public void ensureCleanShutdownFromInProcessServerLauncher() throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     // Start a server who will be a lead and thus have a weight of 15. If we don't do this and the
     // test fails with just a single server crashing, the locator will declare a split-brain and
@@ -84,7 +81,7 @@ public class ServerLauncherDUnitTest {
     locator.invoke(() -> {
       MembershipListener listener = new TestManagementListener();
       Cache cache = ClusterStartupRule.getCache();
-      ManagementService managementService = ManagementService.getExistingManagementService(cache);
+      var managementService = ManagementService.getExistingManagementService(cache);
       managementService.addMembershipListener(listener);
     });
 
@@ -97,27 +94,27 @@ public class ServerLauncherDUnitTest {
   }
 
   private void launchServer(int port) throws Exception {
-    Path javaBin = Paths.get(System.getProperty("java.home"), "bin", "java");
+    var javaBin = Paths.get(System.getProperty("java.home"), "bin", "java");
 
-    String serverLauncherClass = ServerLauncherDUnitTestHelper.class.getName();
+    var serverLauncherClass = ServerLauncherDUnitTestHelper.class.getName();
     logger.info("Running java class " + serverLauncherClass);
 
-    ProcessBuilder pBuilder = new ProcessBuilder();
+    var pBuilder = new ProcessBuilder();
     pBuilder.directory(tempDir.newFolder());
     pBuilder.command(javaBin.toString(), "-classpath", System.getProperty("java.class.path"));
     // Copy all --add-opens and --add-exports options to the command line
-    List<String> command = pBuilder.command();
+    var command = pBuilder.command();
     command.addAll(getJvmModuleOptions());
     command.add(serverLauncherClass);
     command.add(String.valueOf(port));
 
     pBuilder.redirectErrorStream(true);
-    Process process = pBuilder.start();
+    var process = pBuilder.start();
 
-    ByteArrayOutputStream result = new ByteArrayOutputStream();
-    BufferedInputStream bais = new BufferedInputStream(process.getInputStream());
+    var result = new ByteArrayOutputStream();
+    var bais = new BufferedInputStream(process.getInputStream());
 
-    byte[] buffer = new byte[4096];
+    var buffer = new byte[4096];
     int n;
     while ((n = bais.read(buffer)) > 0) {
       result.write(buffer, 0, n);

@@ -26,11 +26,11 @@ public class NonLocalRegionEntryTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    NonLocalRegionEntry mockNonLocalRegionEntry = mock(NonLocalRegionEntry.class);
-    RegionEntryContext mockRegionEntryContext = mock(RegionEntryContext.class);
-    LocalRegion mockLocalRegion = mock(LocalRegion.class);
-    Object valueInVM = new Object();
-    Object valueOnDisk = new Object();
+    var mockNonLocalRegionEntry = mock(NonLocalRegionEntry.class);
+    var mockRegionEntryContext = mock(RegionEntryContext.class);
+    var mockLocalRegion = mock(LocalRegion.class);
+    var valueInVM = new Object();
+    var valueOnDisk = new Object();
 
     when(mockNonLocalRegionEntry.getValueInVM(eq(mockRegionEntryContext))).thenReturn(valueInVM);
     when(mockNonLocalRegionEntry.getValueInVMOrDiskWithoutFaultIn(eq(mockLocalRegion)))

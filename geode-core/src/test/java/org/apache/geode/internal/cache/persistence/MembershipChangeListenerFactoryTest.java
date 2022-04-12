@@ -24,7 +24,7 @@ public class MembershipChangeListenerFactoryTest {
 
   @Test
   public void warningDelayMustMustNotBeSameAsPollDuration() {
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       new MembershipChangeListenerFactory()
           .setWarningDelay(ofSeconds(20))
           .setPollDuration(ofSeconds(20))
@@ -36,7 +36,7 @@ public class MembershipChangeListenerFactoryTest {
 
   @Test
   public void warningDelayMustBeLessThanPollDuration() {
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       new MembershipChangeListenerFactory()
           .setWarningDelay(ofSeconds(20))
           .setPollDuration(ofSeconds(10))
@@ -48,7 +48,7 @@ public class MembershipChangeListenerFactoryTest {
 
   @Test
   public void warningDelayCanBeLessThanPollDuration() {
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       new MembershipChangeListenerFactory()
           .setWarningDelay(ofSeconds(10))
           .setPollDuration(ofSeconds(20))

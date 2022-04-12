@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.apache.geode.internal.InternalStatisticsDisabledException;
 import org.apache.geode.internal.cache.DiskId;
-import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.RegionEntryContext;
 import org.apache.geode.internal.cache.Token;
@@ -103,9 +102,9 @@ public class VMStatsDiskRegionEntryOffHeapStringKey1 extends VMStatsDiskRegionEn
     // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
     initialize(context, value);
     // caller has already confirmed that key.length <= MAX_INLINE_STRING_KEY
-    long tempBits1 = 0L;
+    var tempBits1 = 0L;
     if (byteEncode) {
-      for (int i = key.length() - 1; i >= 0; i--) {
+      for (var i = key.length() - 1; i >= 0; i--) {
         // Note: we know each byte is <= 0x7f so the "& 0xff" is not needed. But I added it in to
         // keep findbugs happy.
         tempBits1 |= (byte) key.charAt(i) & 0xff;
@@ -113,7 +112,7 @@ public class VMStatsDiskRegionEntryOffHeapStringKey1 extends VMStatsDiskRegionEn
       }
       tempBits1 |= 1 << 6;
     } else {
-      for (int i = key.length() - 1; i >= 0; i--) {
+      for (var i = key.length() - 1; i >= 0; i--) {
         tempBits1 |= key.charAt(i);
         tempBits1 <<= 16;
       }
@@ -220,9 +219,9 @@ public class VMStatsDiskRegionEntryOffHeapStringKey1 extends VMStatsDiskRegionEn
   }
 
   private void diskInitialize(final RegionEntryContext context, final Object value) {
-    DiskRecoveryStore diskRecoveryStore = (DiskRecoveryStore) context;
-    DiskStoreImpl diskStore = diskRecoveryStore.getDiskStore();
-    long maxOplogSize = diskStore.getMaxOplogSize();
+    var diskRecoveryStore = (DiskRecoveryStore) context;
+    var diskStore = diskRecoveryStore.getDiskStore();
+    var maxOplogSize = diskStore.getMaxOplogSize();
     // get appropriate instance of DiskId implementation based on maxOplogSize
     id = DiskId.createDiskId(maxOplogSize, true, diskStore.needsLinkedList());
     Helper.initialize(this, diskRecoveryStore, value);
@@ -310,16 +309,16 @@ public class VMStatsDiskRegionEntryOffHeapStringKey1 extends VMStatsDiskRegionEn
 
   @Override
   public Object getKey() {
-    int keyLength = getKeyLength();
-    char[] chars = new char[keyLength];
-    long tempBits1 = bits1;
+    var keyLength = getKeyLength();
+    var chars = new char[keyLength];
+    var tempBits1 = bits1;
     if (getEncoding() == 1) {
-      for (int i = 0; i < keyLength; i++) {
+      for (var i = 0; i < keyLength; i++) {
         tempBits1 >>= 8;
         chars[i] = (char) (tempBits1 & 0x00ff);
       }
     } else {
-      for (int i = 0; i < keyLength; i++) {
+      for (var i = 0; i < keyLength; i++) {
         tempBits1 >>= 16;
         chars[i] = (char) (tempBits1 & 0x00FFff);
       }
@@ -331,22 +330,22 @@ public class VMStatsDiskRegionEntryOffHeapStringKey1 extends VMStatsDiskRegionEn
   @Override
   public boolean isKeyEqual(final Object key) {
     if (key instanceof String) {
-      String stringKey = (String) key;
-      int keyLength = getKeyLength();
+      var stringKey = (String) key;
+      var keyLength = getKeyLength();
       if (stringKey.length() == keyLength) {
-        long tempBits1 = bits1;
+        var tempBits1 = bits1;
         if (getEncoding() == 1) {
-          for (int i = 0; i < keyLength; i++) {
+          for (var i = 0; i < keyLength; i++) {
             tempBits1 >>= 8;
-            char character = (char) (tempBits1 & 0x00ff);
+            var character = (char) (tempBits1 & 0x00ff);
             if (stringKey.charAt(i) != character) {
               return false;
             }
           }
         } else {
-          for (int i = 0; i < keyLength; i++) {
+          for (var i = 0; i < keyLength; i++) {
             tempBits1 >>= 16;
-            char character = (char) (tempBits1 & 0x00FFff);
+            var character = (char) (tempBits1 & 0x00FFff);
             if (stringKey.charAt(i) != character) {
               return false;
             }

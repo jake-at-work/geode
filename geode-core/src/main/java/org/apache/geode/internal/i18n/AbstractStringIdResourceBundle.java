@@ -46,7 +46,7 @@ public class AbstractStringIdResourceBundle {
    * The default bundle, English, will be <code>data = null</code>
    */
   private void initData(String baseName, Locale l) {
-    String resource = baseName + "_" + l.getLanguage() + ".txt";
+    var resource = baseName + "_" + l.getLanguage() + ".txt";
 
     InputStream is = null;
     try {
@@ -69,20 +69,20 @@ public class AbstractStringIdResourceBundle {
   }
 
   private Int2ObjectOpenHashMap readDataFile(InputStream is) {
-    Int2ObjectOpenHashMap map = new Int2ObjectOpenHashMap();
-    boolean complete = false;
+    var map = new Int2ObjectOpenHashMap();
+    var complete = false;
     BufferedReader input = null;
     try {
       input = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
       String line = null;
       while ((line = input.readLine()) != null) {
-        int equalSign = line.indexOf('=');
-        String idAsString = line.substring(0, equalSign - 1).trim();
+        var equalSign = line.indexOf('=');
+        var idAsString = line.substring(0, equalSign - 1).trim();
         // The +2 is because we need to skip the "= ", we dont use trim because some messages want
         // leading whitespace
-        String message = line.substring(equalSign + 2).replaceAll("\\\\n", "\n");
+        var message = line.substring(equalSign + 2).replaceAll("\\\\n", "\n");
         try {
-          int id = Integer.parseInt(idAsString);
+          var id = Integer.parseInt(idAsString);
           map.put(id, message);
         } catch (NumberFormatException nfe) {
           // unit tests should prevent this from happening in a customer situation
@@ -122,7 +122,7 @@ public class AbstractStringIdResourceBundle {
     if (usingRawMode()) {
       return key.getRawText();
     }
-    String txt = (String) data.get(key.id);
+    var txt = (String) data.get(key.id);
     if (txt != null) {
       return txt;
     } else {
@@ -140,7 +140,7 @@ public class AbstractStringIdResourceBundle {
   }
 
   public static AbstractStringIdResourceBundle getBundle(String baseName, Locale l) {
-    AbstractStringIdResourceBundle newMessageBundle = new AbstractStringIdResourceBundle();
+    var newMessageBundle = new AbstractStringIdResourceBundle();
     newMessageBundle.initData(baseName, l);
     return newMessageBundle;
   }

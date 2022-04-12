@@ -34,8 +34,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -51,13 +49,10 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.persistence.PersistentID;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.InternalCache;
@@ -109,7 +104,7 @@ public class IncrementalBackupIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
 
     diskStoreName1 = uniqueName + "_diskStore-1";
     diskStoreName2 = uniqueName + "_diskStore-2";
@@ -146,10 +141,10 @@ public class IncrementalBackupIntegrationTest {
    */
   @Test
   public void testIncrementalBackup() throws Exception {
-    String memberId = getModifiedMemberId();
+    var memberId = getModifiedMemberId();
 
     // Find all of the member's oplogs in the disk directory (*.crf,*.krf,*.drf)
-    Collection<File> memberOplogFiles = listFiles(diskDir, OPLOG_FILTER, DIRECTORY);
+    var memberOplogFiles = listFiles(diskDir, OPLOG_FILTER, DIRECTORY);
     assertThat(memberOplogFiles).isNotEmpty();
 
     // Perform a full backup and wait for it to finish
@@ -157,7 +152,7 @@ public class IncrementalBackupIntegrationTest {
     waitForBackup();
 
     // Find all of the member's oplogs in the performBackupBaseline (*.crf,*.krf,*.drf)
-    Collection<File> memberBaselineOplogs =
+    var memberBaselineOplogs =
         listFiles(getBackupDirForMember(getBaselineDir(), memberId), OPLOG_FILTER, DIRECTORY);
     assertThat(memberBaselineOplogs).isNotEmpty();
 
@@ -170,7 +165,7 @@ public class IncrementalBackupIntegrationTest {
     waitForBackup();
 
     // Find all of the member's oplogs in the performBackupIncremental (*.crf,*.krf,*.drf)
-    Collection<File> memberIncrementalOplogs =
+    var memberIncrementalOplogs =
         listFiles(getBackupDirForMember(getIncrementalDir(), memberId), OPLOG_FILTER, DIRECTORY);
     assertThat(memberIncrementalOplogs).isNotEmpty();
 
@@ -188,7 +183,7 @@ public class IncrementalBackupIntegrationTest {
     validateBackupStatus(performBackup(getIncremental2Path(), getIncrementalBackupPath()));
     waitForBackup();
 
-    Collection<File> memberIncremental2Oplogs =
+    var memberIncremental2Oplogs =
         listFiles(getBackupDirForMember(getIncremental2Dir(), memberId), OPLOG_FILTER, DIRECTORY);
     assertThat(memberIncremental2Oplogs).isNotEmpty();
 
@@ -206,7 +201,7 @@ public class IncrementalBackupIntegrationTest {
         .doesNotContainAnyElementsOf(memberIncrementalOplogNames);
 
     // Shut down our member so we can perform a restore
-    PersistentID id = getPersistentID(diskStoreName1);
+    var id = getPersistentID(diskStoreName1);
     getCache().close();
 
     // Execute the restore
@@ -214,7 +209,7 @@ public class IncrementalBackupIntegrationTest {
         getBackupDirForMember(getIncremental2Dir(), memberId));
 
     // Collect all of the restored operation logs.
-    Collection<File> restoredOplogs =
+    var restoredOplogs =
         listFiles(new File(id.getDirectory()), OPLOG_FILTER, DIRECTORY);
     assertThat(restoredOplogs).isNotEmpty();
 
@@ -244,22 +239,22 @@ public class IncrementalBackupIntegrationTest {
   @Test
   public void testIncompleteInBaseline() throws Exception {
     // Get the member ID for VM 1 and perform a performBackupBaseline.
-    String memberId = getModifiedMemberId();
+    var memberId = getModifiedMemberId();
     validateBackupStatus(performBackup(getBaselinePath()));
 
     // Find all of the member's oplogs in the performBackupBaseline (*.crf,*.krf,*.drf)
-    Collection<File> memberBaselineOplogs =
+    var memberBaselineOplogs =
         listFiles(getBackupDirForMember(getBaselineDir(), memberId), OPLOG_FILTER, DIRECTORY);
     assertThat(memberBaselineOplogs).isNotEmpty();
 
     Collection<String> memberBaselineOplogNames = new ArrayList<>();
     transform(memberBaselineOplogs, memberBaselineOplogNames, getFileNameTransformer());
 
-    File backupDir = getBackupDirForMember(getBaselineDir(), getModifiedMemberId());
+    var backupDir = getBackupDirForMember(getBaselineDir(), getModifiedMemberId());
     assertThat(backupDir).exists();
 
     // Mark the performBackupBaseline as incomplete (even though it really isn't)
-    File incomplete = new File(backupDir, BackupWriter.INCOMPLETE_BACKUP_FILE);
+    var incomplete = new File(backupDir, BackupWriter.INCOMPLETE_BACKUP_FILE);
     assertThat(incomplete.createNewFile()).isTrue();
 
     // Do an performBackupIncremental. It should discover that the performBackupBaseline is
@@ -267,7 +262,7 @@ public class IncrementalBackupIntegrationTest {
     validateBackupStatus(performBackup(getIncrementalPath(), getBaselineBackupPath()));
 
     // Find all of the member's oplogs in the performBackupIncremental (*.crf,*.krf,*.drf)
-    Collection<File> memberIncrementalOplogs =
+    var memberIncrementalOplogs =
         listFiles(getBackupDirForMember(getIncrementalDir(), memberId), OPLOG_FILTER, DIRECTORY);
     assertThat(memberIncrementalOplogs).isNotEmpty();
 
@@ -287,11 +282,11 @@ public class IncrementalBackupIntegrationTest {
   @Test
   public void testMissingBaseline() throws Exception {
     // Get the member ID for VM 1 and perform a performBackupBaseline.
-    String memberId = getModifiedMemberId();
+    var memberId = getModifiedMemberId();
     validateBackupStatus(performBackup(getBaselinePath()));
 
     // Find all of the member's oplogs in the performBackupBaseline (*.crf,*.krf,*.drf)
-    Collection<File> memberBaselineOplogs =
+    var memberBaselineOplogs =
         listFiles(getBackupDirForMember(getBaselineDir(), memberId), OPLOG_FILTER, DIRECTORY);
     assertThat(memberBaselineOplogs).isNotEmpty();
 
@@ -309,7 +304,7 @@ public class IncrementalBackupIntegrationTest {
         .backupAllMembers(getIncrementalPath(), getBaselinePath());
 
     // Find all of the member's oplogs in the performBackupIncremental (*.crf,*.krf,*.drf)
-    Collection<File> memberIncrementalOplogs =
+    var memberIncrementalOplogs =
         listFiles(getBackupDirForMember(getIncrementalDir(), memberId), OPLOG_FILTER, DIRECTORY);
     assertThat(memberIncrementalOplogs).isNotEmpty();
 
@@ -327,14 +322,14 @@ public class IncrementalBackupIntegrationTest {
    */
   @Test
   public void testBackupUserDeployedJarFiles() throws Exception {
-    String jarName = getClass().getSimpleName();
-    byte[] classBytes = new ClassBuilder().createJarFromName(jarName);
+    var jarName = getClass().getSimpleName();
+    var classBytes = new ClassBuilder().createJarFromName(jarName);
 
-    File jarFile = temporaryFolder.newFile(jarName + ".jar");
+    var jarFile = temporaryFolder.newFile(jarName + ".jar");
     IOUtils.copyLarge(new ByteArrayInputStream(classBytes), new FileOutputStream(jarFile));
 
     // Deploy a "dummy" jar to the VM.
-    Deployment jarFileDeployment =
+    var jarFileDeployment =
         new Deployment(jarFile.getName(), "test", Instant.now().toString());
     jarFileDeployment.setFile(jarFile);
     ClassPathLoader.getLatest().getJarDeploymentService().deploy(jarFileDeployment);
@@ -345,16 +340,16 @@ public class IncrementalBackupIntegrationTest {
     validateBackupStatus(performBackup(getBaselinePath()));
 
     // Make sure the user deployed jar is part of the backup.
-    Collection<File> memberDeployedJarFiles =
+    var memberDeployedJarFiles =
         listFiles(getBackupDirForMember(getBaselineDir(), getModifiedMemberId()),
             new RegexFileFilter(".*" + jarName + ".*"), DIRECTORY);
     assertThat(memberDeployedJarFiles).isNotEmpty();
 
     // Shut down our member so we can perform a restore
-    PersistentID id = getPersistentID(diskStoreName1);
+    var id = getPersistentID(diskStoreName1);
     getCache().close();
 
-    File backupDir =
+    var backupDir =
         getBackupDirForMember(getBaselineDir(), getModifiedMemberId());
 
     // Cleanup "dummy" jar from file system.
@@ -364,13 +359,13 @@ public class IncrementalBackupIntegrationTest {
     performRestore(new File(id.getDirectory()), backupDir);
 
     // Make sure the user deployed jar is part of the restore.
-    Collection<File> restoredJars =
+    var restoredJars =
         listFiles(userDir, new RegexFileFilter(".*" + jarName + ".*"), DIRECTORY);
     assertThat(restoredJars).isNotEmpty();
 
     Collection<String> restoredJarNames = new ArrayList<>();
     transform(memberDeployedJarFiles, restoredJarNames, getFileNameTransformer());
-    for (String name : restoredJarNames) {
+    for (var name : restoredJarNames) {
       assertThat(name).contains(jarName);
     }
 
@@ -378,7 +373,7 @@ public class IncrementalBackupIntegrationTest {
     createCache();
 
     // Remove the "dummy" jar from the VM.
-    for (Deployment deployment : ClassPathLoader.getLatest().getJarDeploymentService()
+    for (var deployment : ClassPathLoader.getLatest().getJarDeploymentService()
         .listDeployed()) {
       if (deployment.getFileName().startsWith(jarName)) {
         ClassPathLoader.getLatest().getJarDeploymentService()
@@ -404,14 +399,14 @@ public class IncrementalBackupIntegrationTest {
   }
 
   private void createDiskStore(final String diskStoreName, final File diskDir) {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(new File[] {diskDir});
     diskStoreFactory.create(diskStoreName);
   }
 
   private void createRegion(final String regionName, final String diskStoreName) {
-    PartitionAttributesFactory<Integer, String> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<Integer, String>();
     partitionAttributesFactory.setTotalNumBuckets(5);
 
     RegionFactory<Integer, String> regionFactory =
@@ -468,7 +463,7 @@ public class IncrementalBackupIntegrationTest {
   }
 
   private PersistentID getPersistentID(final String diskStoreName) {
-    for (DiskStore diskStore : getCache().listDiskStores()) {
+    for (var diskStore : getCache().listDiskStores()) {
       if (diskStore.getName().equals(diskStoreName)) {
         return ((DiskStoreImpl) diskStore).getPersistentID();
       }
@@ -477,11 +472,11 @@ public class IncrementalBackupIntegrationTest {
   }
 
   private void waitForBackup() {
-    Collection<DiskStore> backupInProgress = getCache().listDiskStores();
+    var backupInProgress = getCache().listDiskStores();
     Collection<DiskStoreImpl> backupCompleteList = new ArrayList<>();
 
     while (backupCompleteList.size() < backupInProgress.size()) {
-      for (DiskStore diskStore : backupInProgress) {
+      for (var diskStore : backupInProgress) {
         if (((DiskStoreImpl) diskStore).getInProgressBackup() == null
             && !backupCompleteList.contains(diskStore)) {
           backupCompleteList.add((DiskStoreImpl) diskStore);
@@ -491,22 +486,22 @@ public class IncrementalBackupIntegrationTest {
   }
 
   private String getBaselineBackupPath() {
-    File[] dirs = getBaselineDir().listFiles((FileFilter) DIRECTORY);
+    var dirs = getBaselineDir().listFiles((FileFilter) DIRECTORY);
     assertThat(dirs).hasSize(1);
     return dirs[0].getAbsolutePath();
   }
 
   private String getIncrementalBackupPath() {
-    File[] dirs = getIncrementalDir().listFiles((FileFilter) DIRECTORY);
+    var dirs = getIncrementalDir().listFiles((FileFilter) DIRECTORY);
     assertThat(dirs).hasSize(1);
     return dirs[0].getAbsolutePath();
   }
 
   private File getBackupDirForMember(final File rootDir, final CharSequence memberId) {
-    File[] dateDirs = rootDir.listFiles((FileFilter) DIRECTORY);
+    var dateDirs = rootDir.listFiles((FileFilter) DIRECTORY);
     assertThat(dateDirs).hasSize(1);
 
-    File[] memberDirs =
+    var memberDirs =
         dateDirs[0].listFiles(file -> file.isDirectory() && file.getName().contains(memberId));
     assertThat(memberDirs).hasSize(1);
 
@@ -539,19 +534,19 @@ public class IncrementalBackupIntegrationTest {
       throws IOException, InterruptedException {
     // The restore script will not restore if there is an if file in the copy to directory. Remove
     // these files first.
-    Collection<File> ifFiles = listFiles(memberDir, new RegexFileFilter(".*\\.if$"), DIRECTORY);
-    for (File file : ifFiles) {
+    var ifFiles = listFiles(memberDir, new RegexFileFilter(".*\\.if$"), DIRECTORY);
+    for (var file : ifFiles) {
       assertThat(file.delete()).isTrue();
     }
 
     // Remove all operation logs.
-    Collection<File> oplogs = listFiles(memberDir, OPLOG_FILTER, DIRECTORY);
-    for (File file : oplogs) {
+    var oplogs = listFiles(memberDir, OPLOG_FILTER, DIRECTORY);
+    for (var file : oplogs) {
       assertThat(file.delete()).isTrue();
     }
 
     // Get a hold of the restore script and make sure it is there.
-    File restoreScript = new File(backupDir, "restore.sh");
+    var restoreScript = new File(backupDir, "restore.sh");
     if (!restoreScript.exists()) {
       restoreScript = new File(backupDir, "restore.bat");
     }
@@ -564,14 +559,14 @@ public class IncrementalBackupIntegrationTest {
     Region<Integer, String> region = getCache().getRegion(regionName1);
 
     // Fill our region data
-    for (int i = dataStart; i < dataEnd; ++i) {
+    for (var i = dataStart; i < dataEnd; ++i) {
       region.put(i, Integer.toString(i));
     }
 
     Region<Integer, String> barRegion = getCache().getRegion(regionName2);
 
     // Fill our region data
-    for (int i = dataStart; i < dataEnd; ++i) {
+    for (var i = dataStart; i < dataEnd; ++i) {
       barRegion.put(i, Integer.toString(i));
     }
 
@@ -580,12 +575,12 @@ public class IncrementalBackupIntegrationTest {
   }
 
   private void validateBackupStatus(final BackupStatus backupStatus) {
-    Map<DistributedMember, Set<PersistentID>> backupMap = backupStatus.getBackedUpDiskStores();
+    var backupMap = backupStatus.getBackedUpDiskStores();
     assertThat(backupMap).isNotEmpty();
 
-    for (DistributedMember member : backupMap.keySet()) {
+    for (var member : backupMap.keySet()) {
       assertThat(backupMap.get(member)).isNotEmpty();
-      for (PersistentID id : backupMap.get(member)) {
+      for (var id : backupMap.get(member)) {
         assertThat(id.getHost()).isNotNull();
         assertThat(id.getUUID()).isNotNull();
         assertThat(id.getDirectory()).isNotNull();
@@ -594,8 +589,8 @@ public class IncrementalBackupIntegrationTest {
   }
 
   private void deleteMatching(final File dir, final Pattern pattern) throws IOException {
-    Collection<File> files = listFiles(dir, new RegexFileFilter(pattern), DIRECTORY);
-    for (File file : files) {
+    var files = listFiles(dir, new RegexFileFilter(pattern), DIRECTORY);
+    for (var file : files) {
       Files.delete(file.toPath());
     }
   }

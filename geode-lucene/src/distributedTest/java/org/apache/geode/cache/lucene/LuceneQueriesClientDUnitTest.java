@@ -20,10 +20,8 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.SerializableCallableIF;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.junit.categories.LuceneTest;
@@ -36,9 +34,9 @@ public class LuceneQueriesClientDUnitTest extends LuceneQueriesDUnitTest {
   @Override
   public void postSetUp() throws Exception {
     super.postSetUp();
-    SerializableCallableIF<Integer> launchServer = () -> {
+    var launchServer = (SerializableCallableIF<Integer>) () -> {
       final Cache cache = getCache();
-      final CacheServer server = cache.addCacheServer();
+      final var server = cache.addCacheServer();
       server.setPort(0);
       server.start();
       return server.getPort();
@@ -47,10 +45,10 @@ public class LuceneQueriesClientDUnitTest extends LuceneQueriesDUnitTest {
     final int port2 = dataStore2.invoke(launchServer);
 
     accessor.invoke(() -> {
-      ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+      var clientCacheFactory = new ClientCacheFactory();
       clientCacheFactory.addPoolServer("localhost", port1);
       clientCacheFactory.addPoolServer("localhost", port2);
-      ClientCache clientCache = getClientCache(clientCacheFactory);
+      var clientCache = getClientCache(clientCacheFactory);
       clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(REGION_NAME);
     });
   }

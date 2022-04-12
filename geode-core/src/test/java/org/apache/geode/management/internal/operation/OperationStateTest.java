@@ -44,14 +44,14 @@ public class OperationStateTest {
 
   @Test
   public void getOperationStart() {
-    Date start = new Date();
+    var start = new Date();
     OperationState<?, ?> operationState = new OperationState<>(null, null, start);
     assertThat(operationState.getOperationStart()).isSameAs(start);
   }
 
   @Test
   public void getOperationEnd() {
-    Date end = new Date();
+    var end = new Date();
     OperationState<?, ?> operationState = new OperationState<>(null, null, null);
     assertThat(operationState.getOperationEnd()).isNull();
     operationState.setOperationEnd(end, null, null);
@@ -60,8 +60,8 @@ public class OperationStateTest {
 
   @Test
   public void getLocator() {
-    String locator = "locator";
-    OperationState operationState = new OperationState(null, null, null);
+    var locator = "locator";
+    var operationState = new OperationState(null, null, null);
     operationState.setLocator(locator);
     assertThat(operationState.getLocator()).isSameAs(locator);
   }
@@ -70,7 +70,7 @@ public class OperationStateTest {
   public void getResult() {
     OperationState<?, OperationResult> operationState = new OperationState<>(null, null, null);
     assertThat(operationState.getResult()).isNull();
-    OperationResult result = mock(OperationResult.class);
+    var result = mock(OperationResult.class);
     operationState.setOperationEnd(null, result, null);
     assertThat(operationState.getResult()).isSameAs(result);
   }
@@ -79,7 +79,7 @@ public class OperationStateTest {
   public void getThrowable() {
     OperationState<?, ?> operationState = new OperationState<>(null, null, null);
     assertThat(operationState.getThrowable()).isNull();
-    Throwable throwable = new Throwable();
+    var throwable = new Throwable();
     operationState.setOperationEnd(null, null, throwable);
     assertThat(operationState.getThrowable()).isSameAs(throwable);
   }
@@ -89,11 +89,11 @@ public class OperationStateTest {
     OperationState<?, OperationResult> operationState1 = new OperationState<>(null, null, null);
     OperationState<?, OperationResult> operationState2 = new OperationState<>(null, null, null);
     assertThat(operationState1).isEqualTo(operationState2);
-    ClusterManagementOperation operation = mock(ClusterManagementOperation.class);
-    Date start = new Date();
-    Date end = new Date();
-    OperationResult result = mock(OperationResult.class);
-    Throwable throwable = new Throwable();
+    var operation = mock(ClusterManagementOperation.class);
+    var start = new Date();
+    var end = new Date();
+    var result = mock(OperationResult.class);
+    var throwable = new Throwable();
     operationState1 = new OperationState<>("opId", operation, start);
     operationState1.setOperationEnd(end, result, throwable);
     operationState2 = new OperationState<>("opId", operation, start);
@@ -106,11 +106,11 @@ public class OperationStateTest {
     OperationState<?, OperationResult> operationState = new OperationState<>(null, null, null);
     operationState.hashCode();
     operationState = new OperationState<>("opId", null, null);
-    int hashCode = operationState.hashCode();
-    ClusterManagementOperation operation = mock(ClusterManagementOperation.class);
-    Date end = new Date();
-    OperationResult result = mock(OperationResult.class);
-    Throwable throwable = new Throwable();
+    var hashCode = operationState.hashCode();
+    var operation = mock(ClusterManagementOperation.class);
+    var end = new Date();
+    var result = mock(OperationResult.class);
+    var throwable = new Throwable();
     operationState.setOperationEnd(end, result, throwable);
     assertThat(operationState.hashCode()).isEqualTo(hashCode);
   }
@@ -124,29 +124,29 @@ public class OperationStateTest {
 
   @Test
   public void createCopyProducesEqualInstance() {
-    ClusterManagementOperation operation = mock(ClusterManagementOperation.class);
-    Date start = new Date();
-    Date end = new Date();
+    var operation = mock(ClusterManagementOperation.class);
+    var start = new Date();
+    var end = new Date();
     OperationState<?, OperationResult> operationState =
         new OperationState<>("opId", operation, start);
-    OperationResult result = mock(OperationResult.class);
-    Throwable throwable = new Throwable();
+    var result = mock(OperationResult.class);
+    var throwable = new Throwable();
     operationState.setOperationEnd(end, result, throwable);
 
-    OperationState<?, OperationResult> operationStateCopy = operationState.createCopy();
+    var operationStateCopy = operationState.createCopy();
 
     assertThat(operationStateCopy).isEqualTo(operationState);
   }
 
   @Test
   public void createCopyResultIsNotChangedBySubsequentOperationEndCalls() {
-    ClusterManagementOperation operation = mock(ClusterManagementOperation.class);
-    Date start = new Date();
-    Date end = new Date();
+    var operation = mock(ClusterManagementOperation.class);
+    var start = new Date();
+    var end = new Date();
     OperationState<?, OperationResult> operationState =
         new OperationState<>("opId", operation, start);
 
-    OperationState<?, OperationResult> operationStateCopy = operationState.createCopy();
+    var operationStateCopy = operationState.createCopy();
     operationState.setOperationEnd(end, null, null);
 
     assertThat(operationStateCopy).isNotSameAs(operationState);
@@ -156,14 +156,14 @@ public class OperationStateTest {
 
   @Test
   public void testToString() {
-    ClusterManagementOperation operation = mock(ClusterManagementOperation.class);
-    Date start = new Date();
-    Date end = new Date();
+    var operation = mock(ClusterManagementOperation.class);
+    var start = new Date();
+    var end = new Date();
     OperationState<?, OperationResult> operationState =
         new OperationState<>("opId", operation, start);
     operationState.setOperationEnd(end, null, null);
 
-    final String expected = "OperationState{" +
+    final var expected = "OperationState{" +
         "opId=" + operationState.getId() +
         ", operation=" + operationState.getOperation() +
         ", operationStart=" + operationState.getOperationStart() +
@@ -178,14 +178,14 @@ public class OperationStateTest {
 
   @Test
   public void testToStringWithThrowable() {
-    ClusterManagementOperation operation = mock(ClusterManagementOperation.class);
-    Date start = new Date();
-    Date end = new Date();
+    var operation = mock(ClusterManagementOperation.class);
+    var start = new Date();
+    var end = new Date();
     OperationState<?, OperationResult> operationState =
         new OperationState<>("opId", operation, start);
     operationState.setOperationEnd(end, null, new RuntimeException("Test"));
 
-    final String expected = "OperationState{" +
+    final var expected = "OperationState{" +
         "opId=" + operationState.getId() +
         ", operation=" + operationState.getOperation() +
         ", operationStart=" + operationState.getOperationStart() +

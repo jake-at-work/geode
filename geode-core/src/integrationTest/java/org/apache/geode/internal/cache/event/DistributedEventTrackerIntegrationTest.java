@@ -30,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Properties;
 
 import junitparams.Parameters;
@@ -46,7 +45,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
@@ -74,7 +72,7 @@ public class DistributedEventTrackerIntegrationTest {
   @Before
   public void setUp() throws Exception {
     logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(LOCATORS, "");
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOG_FILE, logFile.getAbsolutePath());
@@ -90,7 +88,7 @@ public class DistributedEventTrackerIntegrationTest {
   @Parameters(method = "getPossibleDuplicates")
   public void testHasSeenEventReplicatedRegion(boolean possibleDuplicate) throws IOException {
     // Create the replicated region
-    DistributedRegion region =
+    var region =
         (DistributedRegion) cache.createRegionFactory(REPLICATE).create(testName.getMethodName());
 
     // Invoke hasSeenEvent and verify results
@@ -101,14 +99,14 @@ public class DistributedEventTrackerIntegrationTest {
   @Parameters(method = "getPossibleDuplicates")
   public void testHasSeenEventPartitionedRegion(boolean possibleDuplicate) throws IOException {
     // Create the partitioned region
-    PartitionedRegion region =
+    var region =
         (PartitionedRegion) cache.createRegionFactory(PARTITION).create(testName.getMethodName());
 
     // Assign buckets so that the BucketRegions and their EventTrackers are created
     PartitionRegionHelper.assignBucketsToPartitions(region);
 
     // Get a BucketRegion
-    BucketRegion br = region.getBucketRegion(0);
+    var br = region.getBucketRegion(0);
 
     // Invoke hasSeenEvent and verify results
     invokeHasSeenEventAndVerifyResults(br, possibleDuplicate, !possibleDuplicate);
@@ -117,16 +115,16 @@ public class DistributedEventTrackerIntegrationTest {
   @Test
   public void testHasSeenEventNullEvent() throws IOException {
     // Create the region
-    DistributedRegion region =
+    var region =
         (DistributedRegion) cache.createRegionFactory(REPLICATE).create(testName.getMethodName());
 
     // Record an event with a high sequence number
-    byte[] memberId = new byte[0];
-    long threadId = 1L;
+    var memberId = new byte[0];
+    var threadId = 1L;
     recordHighSequenceNumberEvent(region, memberId, threadId);
 
     // Invoke hasSeenEvent with event id (null event)
-    boolean hasSeenEvent =
+    var hasSeenEvent =
         region.getEventTracker().hasSeenEvent(new EventID(memberId, threadId, 0L));
 
     // Verify results
@@ -136,14 +134,14 @@ public class DistributedEventTrackerIntegrationTest {
   @Test
   public void testHasSeenEventPartitionedRegionLowRedundancy() throws IOException {
     // Create the partitioned region
-    PartitionedRegion region = (PartitionedRegion) cache.createRegionFactory(PARTITION_REDUNDANT)
+    var region = (PartitionedRegion) cache.createRegionFactory(PARTITION_REDUNDANT)
         .create(testName.getMethodName());
 
     // Assign buckets so that the BucketRegions and their EventTrackers are created
     PartitionRegionHelper.assignBucketsToPartitions(region);
 
     // Get a BucketRegion
-    BucketRegion br = region.getBucketRegion(0);
+    var br = region.getBucketRegion(0);
 
     // Invoke hasSeenEvent and verify results
     invokeHasSeenEventAndVerifyResults(br, false, false);
@@ -152,14 +150,14 @@ public class DistributedEventTrackerIntegrationTest {
   @Test
   public void testHasSeenEventPartitionedRegionInRecovery() throws IOException {
     // Create the partitioned region
-    PartitionedRegion region =
+    var region =
         (PartitionedRegion) cache.createRegionFactory(PARTITION).create(testName.getMethodName());
 
     // Assign buckets so that the BucketRegions and their EventTrackers are created
     PartitionRegionHelper.assignBucketsToPartitions(region);
 
     // Get a BucketRegion
-    BucketRegion br = region.getBucketRegion(0);
+    var br = region.getBucketRegion(0);
 
     // Start recovery in progress
     region.getPrStats().startRecovery();
@@ -171,16 +169,16 @@ public class DistributedEventTrackerIntegrationTest {
   private void invokeHasSeenEventAndVerifyResults(DistributedRegion region,
       boolean possibleDuplicate, boolean logMessageIsPresent) throws IOException {
     // Record an event with a high sequence number
-    byte[] memberId = new byte[0];
-    long threadId = 1L;
+    var memberId = new byte[0];
+    var threadId = 1L;
     recordHighSequenceNumberEvent(region, memberId, threadId);
 
     // Create an event with a lower sequence number and possibleDuplicate set appropriately
-    EntryEventImpl event2 =
+    var event2 =
         createEvent(region, new EventID(memberId, threadId, 0L), possibleDuplicate);
 
     // Invoke hasSeenEvent
-    boolean hasSeenEvent = region.getEventTracker().hasSeenEvent(event2);
+    var hasSeenEvent = region.getEventTracker().hasSeenEvent(event2);
 
     // Verify results
     verifyResults(region, hasSeenEvent, logMessageIsPresent);
@@ -189,7 +187,7 @@ public class DistributedEventTrackerIntegrationTest {
   private void recordHighSequenceNumberEvent(DistributedRegion region, byte[] memberId,
       long threadId) {
     // Create event with high sequence number
-    EntryEventImpl event1 = createEvent(region, new EventID(memberId, threadId, 1000L), false);
+    var event1 = createEvent(region, new EventID(memberId, threadId, 1000L), false);
 
     // Record the event
     region.getEventTracker().recordEvent(event1);
@@ -201,7 +199,7 @@ public class DistributedEventTrackerIntegrationTest {
     assertThat(hasSeenEvent).isTrue();
 
     // Verify the log does or does not contain the message depending on possibleDuplicate
-    Optional<String> logLine = Files.lines(Paths.get(logFile.getAbsolutePath()))
+    var logLine = Files.lines(Paths.get(logFile.getAbsolutePath()))
         .filter(line -> line.contains(EVENT_HAS_PREVIOUSLY_BEEN_SEEN_PREFIX))
         .findFirst();
     assertThat(logLine.isPresent()).isEqualTo(logMessageIsPresent);
@@ -212,7 +210,7 @@ public class DistributedEventTrackerIntegrationTest {
 
   private EntryEventImpl createEvent(LocalRegion region, EventID eventId,
       boolean possibleDuplicate) {
-    EntryEventImpl event = EntryEventImpl.create(region, Operation.CREATE, 0, 0, null, true,
+    var event = EntryEventImpl.create(region, Operation.CREATE, 0, 0, null, true,
         region.getCache().getMyId(), false, eventId);
     event.setPossibleDuplicate(possibleDuplicate);
 

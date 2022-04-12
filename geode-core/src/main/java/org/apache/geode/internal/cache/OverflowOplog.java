@@ -114,11 +114,11 @@ class OverflowOplog implements CompactableOplog, Flushable {
     oplogSet = parent;
     this.dirHolder = dirHolder;
     opState = new OpState();
-    long maxOplogSizeParam = this.parent.getMaxOplogSizeInBytes();
+    var maxOplogSizeParam = this.parent.getMaxOplogSizeInBytes();
     if (maxOplogSizeParam < minSize) {
       maxOplogSizeParam = minSize;
     }
-    long availableSpace = this.dirHolder.getAvailableSpace();
+    var availableSpace = this.dirHolder.getAvailableSpace();
     if (availableSpace < minSize
         // fix for bug 42464
         && !this.parent.isCompactionEnabled()) {
@@ -135,7 +135,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
     stats = this.parent.getStats();
 
     closed = false;
-    String n = this.parent.getName();
+    var n = this.parent.getName();
     diskFile = new File(this.dirHolder.getDir(), "OVERFLOW" + n + "_" + oplogId);
     try {
       createCrf(parent.getActiveOverflowOplog());
@@ -156,7 +156,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
 
   private void preblow() {
     dirHolder.incrementTotalOplogSize(maxOplogSize);
-    final OplogFile olf = getOLF();
+    final var olf = getOLF();
     try {
       olf.raf.setLength(maxOplogSize);
       olf.raf.seek(0);
@@ -171,7 +171,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
    * Creates the crf oplog file
    */
   private void createCrf(OverflowOplog previous) throws IOException {
-    File f = new File(diskFile.getPath() + CRF_FILE_EXT);
+    var f = new File(diskFile.getPath() + CRF_FILE_EXT);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Creating operation log file {}", f);
@@ -194,7 +194,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
 
   @VisibleForTesting
   Integer getWriteBufferCapacity() {
-    Integer writeBufferSizeProperty = getWriteBufferSizeProperty();
+    var writeBufferSizeProperty = getWriteBufferSizeProperty();
     if (writeBufferSizeProperty != null) {
       return writeBufferSizeProperty;
     }
@@ -214,7 +214,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
 
   private ByteBuffer consumeWriteBuf() {
     synchronized (crf) {
-      ByteBuffer result = crf.writeBuf;
+      var result = crf.writeBuf;
       crf.writeBuf = null;
       return result;
     }
@@ -264,7 +264,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
     OverflowOplog retryOplog = null;
     long offset = 0;
     synchronized (id) {
-      int opId = (int) id.getOplogId();
+      var opId = (int) id.getOplogId();
       if (opId != getOplogId()) {
         // the oplog changed on us so we need to do a recursive
         // call after unsyncing
@@ -278,7 +278,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
       return retryOplog.getBytesAndBits(dr, id, faultingIn, bitOnly);
     }
     BytesAndBits bb = null;
-    long start = stats.startRead();
+    var start = stats.startRead();
 
     // If the offset happens to be -1, still it is possible that
     // the data is present in the current oplog file.
@@ -483,7 +483,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
    */
   public boolean modify(DiskRegion dr, DiskEntry entry, ValueWrapper value, boolean async) {
     try {
-      byte userBits = calcUserBits(value);
+      var userBits = calcUserBits(value);
       return basicModify(entry, value, userBits, async);
     } catch (IOException ex) {
       throw new DiskAccessException(
@@ -532,12 +532,12 @@ class OverflowOplog implements CompactableOplog, Flushable {
    */
   private boolean basicModify(DiskEntry entry, ValueWrapper value, byte userBits, boolean async)
       throws IOException, InterruptedException {
-    DiskId id = entry.getDiskId();
-    long startPosForSynchOp = -1L;
+    var id = entry.getDiskId();
+    var startPosForSynchOp = -1L;
     OverflowOplog emptyOplog = null;
     synchronized (crf) {
       initOpState(entry, value, userBits);
-      int adjustment = getOpStateSize();
+      var adjustment = getOpStateSize();
       assert adjustment > 0;
       int oldOplogId;
       // do the io while holding lock so that switch can set doneAppending
@@ -565,7 +565,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
         // so when the compactor iterates over it will read values with a sequential scan
         // instead of hopping around the oplog.
         if (oldOplogId > 0) {
-          OverflowOplog oldOplog = getOplogSet().getChild(oldOplogId);
+          var oldOplog = getOplogSet().getChild(oldOplogId);
           if (oldOplog != null) {
             if (oldOplog.rmLive(entry)) {
               if (oldOplogId != getOplogId()) {
@@ -623,12 +623,12 @@ class OverflowOplog implements CompactableOplog, Flushable {
    */
   private void basicRemove(DiskRegion dr, DiskEntry entry)
       throws IOException, InterruptedException {
-    DiskId id = entry.getDiskId();
+    var id = entry.getDiskId();
 
     // no need to lock since this code no longer does io
     if (EntryBits.isNeedsValue(id.getUserBits())) {
       // oplogId already done up in DiskStoreImpl
-      long oldOffset = id.getOffsetInOplog();
+      var oldOffset = id.getOffsetInOplog();
       if (oldOffset != -1) {
         id.setOffsetInOplog(-1);
         if (rmLive(entry)) {
@@ -651,21 +651,21 @@ class OverflowOplog implements CompactableOplog, Flushable {
 
   @Override
   public void flush() throws IOException {
-    final OplogFile olf = crf;
+    final var olf = crf;
     synchronized (olf) {
       if (olf.RAFClosed) {
         return;
       }
       try {
-        ByteBuffer bb = olf.writeBuf;
+        var bb = olf.writeBuf;
         if (bb != null && bb.position() != 0) {
           bb.flip();
-          int flushed = 0;
-          int numChannelRetries = 0;
+          var flushed = 0;
+          var numChannelRetries = 0;
           do {
-            int channelBytesWritten = 0;
-            final int bbStartPos = bb.position();
-            final long channelStartPos = olf.channel.position();
+            var channelBytesWritten = 0;
+            final var bbStartPos = bb.position();
+            final var channelStartPos = olf.channel.position();
             // differentiate between bytes written on this channel.write() iteration and the
             // total number of bytes written to the channel on this call
             channelBytesWritten = olf.channel.write(bb);
@@ -708,14 +708,14 @@ class OverflowOplog implements CompactableOplog, Flushable {
    * @return original channel object
    */
   FileChannel testSetCrfChannel(FileChannel ch) {
-    FileChannel chPrev = crf.channel;
+    var chPrev = crf.channel;
     crf.channel = ch;
     return chPrev;
   }
 
   @Override
   public void flush(ByteBuffer b1, ByteBuffer b2) throws IOException {
-    final OplogFile olf = crf;
+    final var olf = crf;
     synchronized (olf) {
       if (olf.RAFClosed) {
         return;
@@ -767,8 +767,8 @@ class OverflowOplog implements CompactableOplog, Flushable {
    * @return The long offset at which the data present in the ByteBuffer gets written to
    */
   private long writeOpLogBytes(boolean async) throws IOException {
-    long startPos = -1L;
-    final OplogFile olf = crf;
+    var startPos = -1L;
+    final var olf = crf;
     synchronized (olf) {
       if (doneAppending) {
         return -1;
@@ -783,7 +783,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
       // Also it is only in case of synch writing, we are writing more
       // than what is actually needed, we will have to reset the pointer.
       // Also need to add in offset in writeBuf in case we are not flushing writeBuf
-      long curFileOffset = olf.channel.position() + olf.writeBuf.position();
+      var curFileOffset = olf.channel.position() + olf.writeBuf.position();
       startPos = allocate(curFileOffset, getOpStateSize());
       if (startPos != -1) {
         if (startPos != curFileOffset) {
@@ -796,8 +796,8 @@ class OverflowOplog implements CompactableOplog, Flushable {
           logger.trace(LogMarker.PERSIST_WRITES_VERBOSE, "writeOpLogBytes startPos={} oplog#{}",
               startPos, getOplogId());
         }
-        long oldBytesFlushed = olf.bytesFlushed;
-        long bytesWritten = opState.write();
+        var oldBytesFlushed = olf.bytesFlushed;
+        var bytesWritten = opState.write();
         if ((startPos + bytesWritten) > olf.currSize) {
           olf.currSize = startPos + bytesWritten;
         }
@@ -826,7 +826,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
       byte userBits) throws IOException {
     synchronized (crf) {
       assert offsetInOplog >= 0;
-      RandomAccessFile myRAF = crf.raf;
+      var myRAF = crf.raf;
       BytesAndBits bb = null;
       long writePosition = 0;
       if (!doneAppending) {
@@ -843,7 +843,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
         myRAF.seek(offsetInOplog);
         try {
           stats.incOplogSeeks();
-          byte[] valueBytes = new byte[valueLength];
+          var valueBytes = new byte[valueLength];
           myRAF.readFully(valueBytes);
           stats.incOplogReads();
           bb = new BytesAndBits(valueBytes, userBits);
@@ -862,13 +862,13 @@ class OverflowOplog implements CompactableOplog, Flushable {
   private BytesAndBits attemptWriteBufferGet(long writePosition, long readPosition, int valueLength,
       byte userBits) {
     BytesAndBits bb = null;
-    ByteBuffer writeBuf = crf.writeBuf;
-    int curWriteBufPos = writeBuf.position();
+    var writeBuf = crf.writeBuf;
+    var curWriteBufPos = writeBuf.position();
     if (writePosition <= readPosition
         && (writePosition + curWriteBufPos) >= (readPosition + valueLength)) {
-      int bufOffset = (int) (readPosition - writePosition);
-      byte[] valueBytes = new byte[valueLength];
-      int oldLimit = writeBuf.limit();
+      var bufOffset = (int) (readPosition - writePosition);
+      var valueBytes = new byte[valueLength];
+      var oldLimit = writeBuf.limit();
       writeBuf.limit(curWriteBufPos);
       writeBuf.position(bufOffset);
       writeBuf.get(valueBytes);
@@ -908,7 +908,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
       try {
         for (;;) {
           dr.getCancelCriterion().checkCancelInProgress(null);
-          boolean interrupted = Thread.interrupted();
+          var interrupted = Thread.interrupted();
           try {
             bb = attemptGet(dr, offsetInOplog, valueLength, userBits);
             break;
@@ -942,7 +942,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
    * deletes the oplog's file(s)
    */
   void deleteFiles() {
-    boolean needsDestroy = deleted.compareAndSet(false, true);
+    var needsDestroy = deleted.compareAndSet(false, true);
     if (needsDestroy) {
       getOplogSet().removeOverflow(this);
       deleteFile();
@@ -950,7 +950,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
   }
 
   private void deleteFile() {
-    final OplogFile olf = getOLF();
+    final var olf = getOLF();
     if (maxOplogSize != 0) {
       dirHolder.decrementTotalOplogSize(maxOplogSize);
       maxOplogSize = 0;
@@ -1061,9 +1061,9 @@ class OverflowOplog implements CompactableOplog, Flushable {
       return false;
     }
     // otherwise check if we have enough garbage to collect with a compact
-    long rvHWMtmp = totalCount.get();
+    var rvHWMtmp = totalCount.get();
     if (rvHWMtmp > 0) {
-      long tlc = totalLiveCount.get();
+      var tlc = totalLiveCount.get();
       if (tlc < 0) {
         tlc = 0;
       }
@@ -1181,7 +1181,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
     public long write() throws IOException {
       long bytesWritten = 0;
       if (needsValue) {
-        int valueLength = value.getLength();
+        var valueLength = value.getLength();
         if (valueLength > 0) {
           write(value);
           bytesWritten += valueLength;
@@ -1201,7 +1201,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
   // }
 
   private DiskEntry getNextLiveEntry() {
-    DiskEntry result = liveEntries.getPrev();
+    var result = liveEntries.getPrev();
     if (result == liveEntries) {
       result = null;
     }
@@ -1230,7 +1230,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
     if (!compacting) {
       return false;
     }
-    Object v = isCompactorThread.get();
+    var v = isCompactorThread.get();
     return v != null && v == Boolean.TRUE;
   }
 
@@ -1261,14 +1261,14 @@ class OverflowOplog implements CompactableOplog, Flushable {
         // Start with a fresh wrapper on every compaction so that
         // if previous run used some high memory byte array which was
         // exceptional, it gets garbage collected.
-        long opStart = getStats().getStatTime();
-        BytesAndBitsForCompactor wrapper = new BytesAndBitsForCompactor();
+        var opStart = getStats().getStatTime();
+        var wrapper = new BytesAndBitsForCompactor();
 
         DiskEntry de;
         DiskEntry lastDe = null;
-        boolean compactFailed = !compactor.keepCompactorRunning();
-        int totalCount = 0;
-        boolean didCompact = false;
+        var compactFailed = !compactor.keepCompactorRunning();
+        var totalCount = 0;
+        var didCompact = false;
         while ((de = getNextLiveEntry()) != null) {
           if (!compactor.keepCompactorRunning()) {
             compactFailed = true;
@@ -1283,10 +1283,10 @@ class OverflowOplog implements CompactableOplog, Flushable {
           lastDe = de;
           didCompact = false;
           synchronized (de) { // fix for bug 41797
-            DiskId did = de.getDiskId();
+            var did = de.getDiskId();
             assert did != null;
             synchronized (did) {
-              long oplogId = did.getOplogId();
+              var oplogId = did.getOplogId();
               if (oplogId != getOplogId()) {
                 if (oplogId == -1) {
                   // to prevent bug 42304 do a rmLive call
@@ -1295,11 +1295,11 @@ class OverflowOplog implements CompactableOplog, Flushable {
                 continue;
               }
               // Bug 42304 - If the entry has been invalidated, don't copy it forward.
-              boolean toCompact = getBytesAndBitsForCompaction(de, wrapper);
+              var toCompact = getBytesAndBitsForCompaction(de, wrapper);
               if (toCompact) {
-                byte[] valueBytes = wrapper.getBytes();
-                int length = wrapper.getValidLength();
-                byte userBits = wrapper.getBits();
+                var valueBytes = wrapper.getBytes();
+                var length = wrapper.getValidLength();
+                var userBits = wrapper.getBits();
                 if (oplogId != did.getOplogId()) {
                   // @todo: Is this even possible? Perhaps I should just assert here
                   // skip this one, its oplogId changed
@@ -1369,10 +1369,10 @@ class OverflowOplog implements CompactableOplog, Flushable {
    */
   private boolean getBytesAndBitsForCompaction(DiskEntry entry, BytesAndBitsForCompactor wrapper) {
     // caller is synced on did
-    DiskId did = entry.getDiskId();
+    var did = entry.getDiskId();
     byte userBits = 0;
-    long oplogOffset = did.getOffsetInOplog();
-    boolean foundData = false;
+    var oplogOffset = did.getOffsetInOplog();
+    var foundData = false;
     if (entry.isValueNull()) {
       // If the mode is synch it is guaranteed to be present in the disk
       foundData = basicGetForCompactor(oplogOffset, false, did.getValueLength(), did.getUserBits(),
@@ -1449,7 +1449,7 @@ class OverflowOplog implements CompactableOplog, Flushable {
                */ (offsetInOplog + valueLength) > crf.bytesFlushed && !closed) {
             flushAll(); // fix for bug 41205
           }
-          final long writePosition =
+          final var writePosition =
               (doneAppending) ? crf.bytesFlushed : crf.raf.getFilePointer();
           if ((offsetInOplog + valueLength) > writePosition) {
             throw new DiskAccessException(

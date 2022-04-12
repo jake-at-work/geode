@@ -29,7 +29,6 @@ import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -56,8 +55,8 @@ public class CreateRegion extends BaseCommand {
     // bserverStats.incInt(destroyRequestsId, 1);
     // start = DistributionStats.getStatTime();
     // Retrieve the data from the message parts
-    Part parentRegionNamePart = clientMessage.getPart(0);
-    String parentRegionName = parentRegionNamePart.getCachedString();
+    var parentRegionNamePart = clientMessage.getPart(0);
+    var parentRegionName = parentRegionNamePart.getCachedString();
 
     regionNamePart = clientMessage.getPart(1);
     regionName = regionNamePart.getCachedString();
@@ -71,7 +70,7 @@ public class CreateRegion extends BaseCommand {
 
     // Process the create region request
     if (parentRegionName == null || regionName == null) {
-      String errMessage = "";
+      var errMessage = "";
       if (parentRegionName == null) {
         logger.warn("{}: The input parent region name for the create region request is null",
             serverConnection.getName());
@@ -92,7 +91,7 @@ public class CreateRegion extends BaseCommand {
 
     Region parentRegion = serverConnection.getCache().getRegion(parentRegionName);
     if (parentRegion == null) {
-      String reason = " was not found during subregion creation request";
+      var reason = " was not found during subregion creation request";
       writeRegionDestroyedEx(clientMessage, parentRegionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
@@ -106,7 +105,7 @@ public class CreateRegion extends BaseCommand {
       return;
     }
 
-    AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+    var authzRequest = serverConnection.getAuthzRequest();
     if (authzRequest != null) {
       try {
         authzRequest.createRegionAuthorize(parentRegionName + SEPARATOR + regionName);
@@ -117,9 +116,9 @@ public class CreateRegion extends BaseCommand {
       }
     }
     // Create or get the subregion
-    Region region = parentRegion.getSubregion(regionName);
+    var region = parentRegion.getSubregion(regionName);
     if (region == null) {
-      AttributesFactory factory = new AttributesFactory(parentRegion.getAttributes());
+      var factory = new AttributesFactory(parentRegion.getAttributes());
       region = parentRegion.createSubregion(regionName, factory.create());
       if (logger.isDebugEnabled()) {
         logger.debug("{}: Created region {}", serverConnection.getName(), region);

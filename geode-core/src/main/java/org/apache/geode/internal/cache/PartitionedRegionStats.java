@@ -22,7 +22,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.Region;
@@ -179,7 +178,7 @@ public class PartitionedRegionStats {
 
   static {
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     type = f.createType("PartitionedRegionStats",
         "Statistics for operations and connections in the Partitioned Region",
         new StatisticDescriptor[] {
@@ -609,7 +608,7 @@ public class PartitionedRegionStats {
 
   public void endPut(long start, int numInc) {
     if (clock.isEnabled()) {
-      long delta = clock.getTime() - start;
+      var delta = clock.getTime() - start;
       stats.incLong(putTimeId, delta);
     }
     stats.incLong(putsCompletedId, numInc);
@@ -621,7 +620,7 @@ public class PartitionedRegionStats {
    */
   public void endPutAll(long start, int numInc) {
     if (clock.isEnabled()) {
-      long delta = clock.getTime() - start;
+      var delta = clock.getTime() - start;
       stats.incLong(fieldId_PUTALL_TIME, delta);
       // this.putStatsHistogram.endOp(delta);
 
@@ -631,7 +630,7 @@ public class PartitionedRegionStats {
 
   public void endRemoveAll(long start, int numInc) {
     if (clock.isEnabled()) {
-      long delta = clock.getTime() - start;
+      var delta = clock.getTime() - start;
       stats.incLong(fieldId_REMOVE_ALL_TIME, delta);
     }
     stats.incLong(fieldId_REMOVE_ALLS_COMPLETED, numInc);
@@ -646,7 +645,7 @@ public class PartitionedRegionStats {
 
   public void endGet(long start, int numInc) {
     if (clock.isEnabled()) {
-      final long delta = clock.getTime() - start;
+      final var delta = clock.getTime() - start;
       stats.incLong(getTimeId, delta);
     }
     stats.incLong(getsCompletedId, numInc);
@@ -756,7 +755,7 @@ public class PartitionedRegionStats {
 
   public void endPartitionMessagesProcessing(long start) {
     if (clock.isEnabled()) {
-      long delta = clock.getTime() - start;
+      var delta = clock.getTime() - start;
       stats.incLong(partitionMessagesProcessingTimeId, delta);
     }
     stats.incLong(partitionMessagesProcessedId, 1);
@@ -852,31 +851,31 @@ public class PartitionedRegionStats {
   }
 
   public void endVolunteeringBecamePrimary(long start) {
-    long ts = clock.getTime();
+    var ts = clock.getTime();
     stats.incLong(volunteeringInProgressId, -1);
     stats.incLong(volunteeringBecamePrimaryId, 1);
     if (clock.isEnabled()) {
-      long time = ts - start;
+      var time = ts - start;
       stats.incLong(volunteeringBecamePrimaryTimeId, time);
     }
   }
 
   public void endVolunteeringOtherPrimary(long start) {
-    long ts = clock.getTime();
+    var ts = clock.getTime();
     stats.incLong(volunteeringInProgressId, -1);
     stats.incLong(volunteeringOtherPrimaryId, 1);
     if (clock.isEnabled()) {
-      long time = ts - start;
+      var time = ts - start;
       stats.incLong(volunteeringOtherPrimaryTimeId, time);
     }
   }
 
   public void endVolunteeringClosed(long start) {
-    long ts = clock.getTime();
+    var ts = clock.getTime();
     stats.incLong(volunteeringInProgressId, -1);
     stats.incLong(volunteeringClosedId, 1);
     if (clock.isEnabled()) {
-      long time = ts - start;
+      var time = ts - start;
       stats.incLong(volunteeringClosedTimeId, time);
     }
   }
@@ -950,7 +949,7 @@ public class PartitionedRegionStats {
 
   /** Remove stat start time from holding map to complete a clock stat */
   public long removeStartTime(Object key) {
-    Long startTime = startTimeMap.remove(key);
+    var startTime = startTimeMap.remove(key);
     return startTime == null ? 0 : startTime;
   }
 
@@ -983,7 +982,7 @@ public class PartitionedRegionStats {
   }
 
   public void endRecovery(long start) {
-    long ts = clock.getTime();
+    var ts = clock.getTime();
     stats.incLong(recoveriesInProgressId, -1);
     if (clock.isEnabled()) {
       stats.incLong(recoveriesTimeId, ts - start);
@@ -1004,7 +1003,7 @@ public class PartitionedRegionStats {
   }
 
   public void endBucketCreate(long start, boolean success, boolean isRebalance) {
-    long ts = clock.getTime();
+    var ts = clock.getTime();
     stats.incLong(bucketCreatesInProgressId, -1);
     if (clock.isEnabled()) {
       stats.incLong(bucketCreateTimeId, ts - start);
@@ -1028,7 +1027,7 @@ public class PartitionedRegionStats {
   }
 
   public void endPrimaryTransfer(long start, boolean success, boolean isRebalance) {
-    long ts = clock.getTime();
+    var ts = clock.getTime();
     stats.incLong(primaryTransfersInProgressId, -1);
     if (clock.isEnabled()) {
       stats.incLong(primaryTransferTimeId, ts - start);
@@ -1149,7 +1148,7 @@ public class PartitionedRegionStats {
   }
 
   public void endApplyReplication(long start) {
-    long delta = clock.getTime() - start;
+    var delta = clock.getTime() - start;
     stats.incLong(applyReplicationInProgressId, -1);
     stats.incLong(applyReplicationCompletedId, 1);
     stats.incLong(applyReplicationTimeId, delta);
@@ -1161,7 +1160,7 @@ public class PartitionedRegionStats {
   }
 
   public void endSendReplication(long start) {
-    long delta = clock.getTime() - start;
+    var delta = clock.getTime() - start;
     stats.incLong(sendReplicationInProgressId, -1);
     stats.incLong(sendReplicationCompletedId, 1);
     stats.incLong(sendReplicationTimeId, delta);
@@ -1173,7 +1172,7 @@ public class PartitionedRegionStats {
   }
 
   public void endPutRemote(long start) {
-    long delta = clock.getTime() - start;
+    var delta = clock.getTime() - start;
     stats.incLong(putRemoteInProgressId, -1);
     stats.incLong(putRemoteCompletedId, 1);
     stats.incLong(putRemoteTimeId, delta);
@@ -1185,7 +1184,7 @@ public class PartitionedRegionStats {
   }
 
   public void endPutLocal(long start) {
-    long delta = clock.getTime() - start;
+    var delta = clock.getTime() - start;
     stats.incLong(putLocalInProgressId, -1);
     stats.incLong(putLocalCompletedId, 1);
     stats.incLong(putLocalTimeId, delta);

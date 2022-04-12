@@ -14,12 +14,10 @@
  */
 package org.apache.geode.redis.internal.commands.executor.list;
 
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class RPushExecutor implements CommandExecutor {
@@ -27,10 +25,10 @@ public class RPushExecutor implements CommandExecutor {
   @Override
   public final RedisResponse executeCommand(final Command command,
       final ExecutionHandlerContext context) {
-    List<byte[]> commandElements = command.getProcessedCommand();
-    RedisKey key = command.getKey();
+    var commandElements = command.getProcessedCommand();
+    var key = command.getKey();
 
-    List<byte[]> elementsToAdd = commandElements.subList(2, commandElements.size());
+    var elementsToAdd = commandElements.subList(2, commandElements.size());
 
     final long newLength = context.listLockedExecute(key, false,
         list -> list.rpush(context, elementsToAdd, key, shouldPushOnlyIfKeyExists()));

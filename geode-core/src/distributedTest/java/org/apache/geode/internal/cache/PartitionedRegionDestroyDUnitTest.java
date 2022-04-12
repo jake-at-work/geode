@@ -36,7 +36,6 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 
@@ -83,14 +82,14 @@ public class PartitionedRegionDestroyDUnitTest extends CacheTestCase {
     vm3.invoke(this::createPartitionedRegions);
 
     vm1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(RegionDestroyedException.class)) {
+      try (var ie = addIgnoredException(RegionDestroyedException.class)) {
         Cache cache = getCache();
-        for (int i = 0; i < numberOfRegions; i++) {
+        for (var i = 0; i < numberOfRegions; i++) {
           Region<Integer, String> region = cache.getRegion(prNamePrefix + i);
           // Create enough entries such that all bucket are created, integer keys assumes mod
           // distribution
-          int totalEntries = ((PartitionedRegion) region).getTotalNumberOfBuckets() * 2;
-          for (int k = 0; k < totalEntries; k++) {
+          var totalEntries = ((PartitionedRegion) region).getTotalNumberOfBuckets() * 2;
+          for (var k = 0; k < totalEntries; k++) {
             region.put(k, prNamePrefix + k);
           }
         }
@@ -98,25 +97,25 @@ public class PartitionedRegionDestroyDUnitTest extends CacheTestCase {
     });
 
     AsyncInvocation asyncVM2 = vm2.invokeAsync(() -> {
-      try (IgnoredException ie = addIgnoredException(RegionDestroyedException.class)) {
+      try (var ie = addIgnoredException(RegionDestroyedException.class)) {
         Cache cache = getCache();
 
         // Grab the regions right away, before they get destroyed by the other thread
-        PartitionedRegion[] regions = new PartitionedRegion[numberOfRegions];
-        for (int i = 0; i < numberOfRegions; i++) {
+        var regions = new PartitionedRegion[numberOfRegions];
+        for (var i = 0; i < numberOfRegions; i++) {
           regions[i] = (PartitionedRegion) cache.getRegion(SEPARATOR + prNamePrefix + i);
           assertThat(regions[i]).isNotNull();
         }
 
         signalLatch.countDown();
 
-        for (int i = 0; i < numberOfRegions; i++) {
-          PartitionedRegion region = regions[i];
-          int startEntries = region.getTotalNumberOfBuckets() * 20;
-          int endEntries = startEntries + region.getTotalNumberOfBuckets();
-          boolean isDestroyed = false;
-          for (int k = startEntries; k < endEntries; k++) {
-            final int key = k;
+        for (var i = 0; i < numberOfRegions; i++) {
+          var region = regions[i];
+          var startEntries = region.getTotalNumberOfBuckets() * 20;
+          var endEntries = startEntries + region.getTotalNumberOfBuckets();
+          var isDestroyed = false;
+          for (var k = startEntries; k < endEntries; k++) {
+            final var key = k;
             try {
               if (isDestroyed) {
                 assertThatThrownBy(() -> region.put(key, prNamePrefix + key))
@@ -139,7 +138,7 @@ public class PartitionedRegionDestroyDUnitTest extends CacheTestCase {
 
     vm0.invoke(() -> {
       Cache cache = getCache();
-      for (int i = 0; i < numberOfRegions; i++) {
+      for (var i = 0; i < numberOfRegions; i++) {
         Region region = cache.getRegion(prNamePrefix + i);
         assertThat(region).isNotNull();
 
@@ -161,20 +160,20 @@ public class PartitionedRegionDestroyDUnitTest extends CacheTestCase {
   private void createPartitionedRegions() {
     Cache cache = getCache();
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(redundantCopies);
     partitionAttributesFactory.setLocalMaxMemory(localMaxMemory);
     partitionAttributesFactory.setTotalNumBuckets(totalNumBuckets);
 
     RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
 
-    for (int i = 0; i < numberOfRegions; i++) {
+    for (var i = 0; i < numberOfRegions; i++) {
       regionFactory.create(prNamePrefix + i);
     }
   }
 
   private void validateMetaDataAfterDestroy() {
-    InternalCache cache = getCache();
+    var cache = getCache();
     Region rootRegion = PartitionedRegionHelper.getPRRoot(cache);
 
     await().untilAsserted(() -> assertThat(cache.rootRegions()).isEmpty());
@@ -185,8 +184,8 @@ public class PartitionedRegionDestroyDUnitTest extends CacheTestCase {
 
     assertThat(PartitionedRegion.getPrIdToPR()).hasSize(numberOfRegions);
 
-    for (Object regionObject : rootRegion.subregions(false)) {
-      Region region = (Region) regionObject;
+    for (var regionObject : rootRegion.subregions(false)) {
+      var region = (Region) regionObject;
       assertThat(region.getName()).doesNotContain(PartitionedRegionHelper.BUCKET_REGION_PREFIX);
     }
   }

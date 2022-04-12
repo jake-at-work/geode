@@ -51,10 +51,8 @@ import org.apache.geode.cache.TransactionDataRebalancedException;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerOperationException;
-import org.apache.geode.cache.client.internal.ClientMetadataService;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
@@ -63,7 +61,6 @@ import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.RegionFunctionContext;
 import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
@@ -158,7 +155,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
 
     server1.invoke(() -> cacheRule.closeAndNullCache());
 
-    TransactionId transactionId = server2.invoke(
+    var transactionId = server2.invoke(
         (SerializableCallableIF<TransactionId>) this::doFunctionTransactionAndSuspend);
 
     server1.invoke(this::restartPrimary);
@@ -177,7 +174,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
     accessor.invoke(this::registerFunctions);
     server1.invoke(() -> cacheRule.closeAndNullCache());
 
-    TransactionId transactionId = accessor.invoke(
+    var transactionId = accessor.invoke(
         (SerializableCallableIF<TransactionId>) this::doFunctionTransactionAndSuspend);
 
     server1.invoke(this::restartPrimary);
@@ -201,14 +198,14 @@ public class FixedPartitioningWithTransactionDistributedTest implements
 
     createClientRegion(true, port1, port2);
     Region region = clientCacheRule.getClientCache().getRegion(regionName);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
-    TransactionId transactionId = doFunctionTransactionAndSuspend(region, txManager);
+    var transactionId = doFunctionTransactionAndSuspend(region, txManager);
 
     accessor.invoke(() -> cacheRule.closeAndNullCache());
     server1.invoke(this::restartPrimary);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> resumeFunctionTransaction(transactionId, region, txManager));
     Assertions.assertThat(caughtException).isInstanceOf(FunctionException.class);
     Assertions.assertThat(caughtException.getCause())
@@ -221,10 +218,10 @@ public class FixedPartitioningWithTransactionDistributedTest implements
     setupClient();
 
     Region region = clientCacheRule.getClientCache().getRegion(regionName);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
 
-    TransactionId transactionId =
+    var transactionId =
         doFunctionTransactionAndSuspend(region, txManager, new MyTransactionFunction());
     txManager.resume(transactionId);
     txManager.rollback();
@@ -235,7 +232,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
   }
 
   private void forceClientMetadataUpdate(Region region) {
-    ClientMetadataService clientMetadataService =
+    var clientMetadataService =
         ((InternalCache) clientCacheRule.getClientCache()).getClientMetadataService();
     clientMetadataService.scheduleGetPRMetaData((InternalRegion) region, true);
     await().atMost(5, HOURS).until(clientMetadataService::isMetadataStable);
@@ -247,11 +244,11 @@ public class FixedPartitioningWithTransactionDistributedTest implements
     setupClient();
 
     Region region = clientCacheRule.getClientCache().getRegion(regionName);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
 
     try {
-      TransactionId transactionId = doFunctionTransactionAndSuspend(region, txManager,
+      var transactionId = doFunctionTransactionAndSuspend(region, txManager,
           new MyTransactionFunction(), Type.ON_REGION, false);
       txManager.resume(transactionId);
       txManager.rollback();
@@ -275,10 +272,10 @@ public class FixedPartitioningWithTransactionDistributedTest implements
     setupClient();
 
     Region region = clientCacheRule.getClientCache().getRegion(regionName);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
 
-    Throwable caughtException = catchThrowable(() -> doFunctionTransactionAndSuspend(region,
+    var caughtException = catchThrowable(() -> doFunctionTransactionAndSuspend(region,
         txManager, new MyTransactionFunction(), Type.ON_MEMBER));
 
     assertThat(caughtException).isInstanceOf(UnsupportedOperationException.class);
@@ -291,10 +288,10 @@ public class FixedPartitioningWithTransactionDistributedTest implements
     setupClient();
 
     Region region = clientCacheRule.getClientCache().getRegion(regionName);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
 
-    Throwable caughtException = catchThrowable(() -> doFunctionTransactionAndSuspend(region,
+    var caughtException = catchThrowable(() -> doFunctionTransactionAndSuspend(region,
         txManager, new MyTransactionFunction(), Type.ON_SERVER));
 
     assertThat(caughtException).isInstanceOf(FunctionException.class);
@@ -318,7 +315,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
 
   private void restartPrimary() throws Exception {
     createServerRegion(true, 1, 1);
-    PartitionedRegion partitionedRegion =
+    var partitionedRegion =
         (PartitionedRegion) cacheRule.getCache().getRegion(regionName);
     assertThat(partitionedRegion.get(1)).isEqualTo(1);
     await().until(() -> partitionedRegion.getBucketPrimary(0)
@@ -348,10 +345,10 @@ public class FixedPartitioningWithTransactionDistributedTest implements
 
   private int createServerRegion(boolean isPrimary, int redundantCopies, int totalNumOfBuckets,
       boolean isAccessor) throws Exception {
-    FixedPartitionAttributes fixedPartition =
+    var fixedPartition =
         FixedPartitionAttributes.createFixedPartition(FIXED_PARTITION_NAME, isPrimary,
             totalNumOfBuckets);
-    PartitionAttributesFactory<Integer, Integer> factory = new PartitionAttributesFactory<>();
+    var factory = new PartitionAttributesFactory<Integer, Integer>();
     factory.setRedundantCopies(redundantCopies).setTotalNumBuckets(totalNumOfBuckets)
         .setPartitionResolver(new MyFixedPartitionResolver());
     if (isAccessor) {
@@ -363,7 +360,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
     cacheRule.getOrCreateCache().createRegionFactory(
         isAccessor ? RegionShortcut.PARTITION : RegionShortcut.PARTITION_PERSISTENT)
         .setPartitionAttributes(factory.create()).create(regionName);
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -396,8 +393,8 @@ public class FixedPartitioningWithTransactionDistributedTest implements
   }
 
   private PoolImpl getPool(boolean singleHopEnabled, int... ports) {
-    PoolFactory factory = PoolManager.createFactory();
-    for (int port : ports) {
+    var factory = PoolManager.createFactory();
+    for (var port : ports) {
       factory.addServer(hostName, port);
     }
     factory.setPRSingleHopEnabled(singleHopEnabled);
@@ -412,7 +409,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
 
   private TransactionId doFunctionTransactionAndSuspend() {
     Region region = cacheRule.getCache().getRegion(regionName);
-    TXManagerImpl manager = cacheRule.getCache().getTxManager();
+    var manager = cacheRule.getCache().getTxManager();
     return doFunctionTransactionAndSuspend(region, manager);
   }
 
@@ -453,7 +450,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
         throw new RuntimeException("unexpected type");
     }
 
-    boolean executeFunctionByIdOnClient = false;
+    var executeFunctionByIdOnClient = false;
     if (clientCacheRule.getClientCache() != null) {
       forceClientMetadataUpdate(region);
       executeFunctionByIdOnClient = executeFunctionByIdOnClient() && type != Type.ON_MEMBER;
@@ -472,18 +469,18 @@ public class FixedPartitioningWithTransactionDistributedTest implements
 
   private void resumeFunctionTransaction(TransactionId transactionId) {
     Region region = cacheRule.getCache().getRegion(regionName);
-    TXManagerImpl manager = cacheRule.getCache().getTxManager();
+    var manager = cacheRule.getCache().getTxManager();
     resumeFunctionTransaction(transactionId, region, manager);
   }
 
   private void resumeFunctionTransaction(TransactionId transactionId, Region region,
       CacheTransactionManager manager) {
-    Execution execution = FunctionService.onRegion(region);
+    var execution = FunctionService.onRegion(region);
     manager.resume(transactionId);
     try {
       Set<Integer> keySet = new HashSet<>();
       keySet.add(3);
-      ResultCollector resultCollector =
+      var resultCollector =
           execution.withFilter(keySet).execute(new MyResumeTransactionFunction());
       resultCollector.getResult();
     } finally {
@@ -514,7 +511,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
     @Override
     public void execute(FunctionContext context) {
       assertThat(context).isInstanceOf(RegionFunctionContext.class);
-      PartitionedRegion region = (PartitionedRegion) ((RegionFunctionContext) context).getDataSet();
+      var region = (PartitionedRegion) ((RegionFunctionContext) context).getDataSet();
       region.containsValueForKey(2);
       context.getResultSender().lastResult(Boolean.TRUE);
     }
@@ -534,7 +531,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
     @Override
     public void execute(FunctionContext context) {
       assertThat(context).isInstanceOf(RegionFunctionContext.class);
-      PartitionedRegion region = (PartitionedRegion) ((RegionFunctionContext) context).getDataSet();
+      var region = (PartitionedRegion) ((RegionFunctionContext) context).getDataSet();
       region.containsValueForKey(3);
       context.getResultSender().lastResult(Boolean.TRUE);
     }
@@ -554,7 +551,7 @@ public class FixedPartitioningWithTransactionDistributedTest implements
     @Override
     public void execute(FunctionContext context) {
       if (context instanceof RegionFunctionContext) {
-        PartitionedRegion region =
+        var region =
             (PartitionedRegion) ((RegionFunctionContext) context).getDataSet();
         region.destroy(2);
         context.getResultSender().lastResult(Boolean.TRUE);

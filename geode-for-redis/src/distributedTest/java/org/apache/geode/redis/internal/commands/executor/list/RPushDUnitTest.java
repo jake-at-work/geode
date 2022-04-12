@@ -20,8 +20,6 @@ import static org.apache.geode.test.dunit.rules.RedisClusterStartupRule.BIND_ADD
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
@@ -36,8 +34,6 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.cache.BucketDump;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.redis.ConcurrentLoopingThreads;
 import org.apache.geode.redis.internal.services.RegionProvider;
@@ -60,7 +56,7 @@ public class RPushDUnitTest {
 
   @BeforeClass
   public static void testSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     locatorPort = locator.getPort();
     server1 = clusterStartUp.startRedisVM(1, locatorPort);
     clusterStartUp.startRedisVM(2, locatorPort);
@@ -83,12 +79,12 @@ public class RPushDUnitTest {
 
   @Test
   public void givenBucketsMovedDuringRPush_elementsAreAddedAtomically() throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
-    String KEY = "key";
+    var running = new AtomicBoolean(true);
+    var KEY = "key";
 
     Future<?> movingFuture = executor.submit(() -> {
       try {
-        for (int i = 0; i < 20; i++) {
+        for (var i = 0; i < 20; i++) {
           clusterStartUp.moveBucketForKey(KEY);
           Thread.sleep(500);
         }
@@ -97,7 +93,7 @@ public class RPushDUnitTest {
       }
     });
 
-    int i = 0;
+    var i = 0;
     while (running.get()) {
       jedis.rpush(KEY, value(i++), value(i++), value(i++), value(i++), value(i++));
     }
@@ -106,7 +102,7 @@ public class RPushDUnitTest {
     compareBuckets();
 
     String popped;
-    int j = 0;
+    var j = 0;
     while ((popped = jedis.lpop(KEY)) != null) {
       assertThat(popped).isEqualTo(value(j));
       j++;
@@ -115,19 +111,19 @@ public class RPushDUnitTest {
 
   @Test
   public void concurrentRPush_behavesCorrectly() {
-    String KEY = "muggle";
-    String[] rpushElements1 = IntStream.range(0, 10)
+    var KEY = "muggle";
+    var rpushElements1 = IntStream.range(0, 10)
         .mapToObj(Integer::toString)
         .toArray(String[]::new);
-    String[] rpushElements2 = IntStream.range(10, 20)
+    var rpushElements2 = IntStream.range(10, 20)
         .mapToObj(Integer::toString)
         .toArray(String[]::new);
 
-    String[] expectedContents1 =
+    var expectedContents1 =
         Streams.concat(Arrays.stream(rpushElements1), Arrays.stream(rpushElements2))
             .toArray(String[]::new);
 
-    String[] expectedContents2 =
+    var expectedContents2 =
         Streams.concat(Arrays.stream(rpushElements2), Arrays.stream(rpushElements1))
             .toArray(String[]::new);
 
@@ -135,8 +131,8 @@ public class RPushDUnitTest {
         i -> jedis.rpush(KEY, rpushElements1),
         i -> jedis.rpush(KEY, rpushElements2))
             .runWithAction(() -> {
-              String[] actualContents = new String[expectedContents1.length];
-              for (int i = 0; i < actualContents.length; ++i) {
+              var actualContents = new String[expectedContents1.length];
+              for (var i = 0; i < actualContents.length; ++i) {
                 actualContents[i] = jedis.lindex(KEY, i);
               }
               assertThat(actualContents).satisfiesAnyOf(
@@ -148,14 +144,14 @@ public class RPushDUnitTest {
 
   @Test
   public void shouldNotLoseData_givenPrimaryServerCrashesDuringOperations() throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
-    String KEY = "key";
-    int finalLocatorPort = locatorPort;
-    int finalRedisPort = redisServerPort;
+    var running = new AtomicBoolean(true);
+    var KEY = "key";
+    var finalLocatorPort = locatorPort;
+    var finalRedisPort = redisServerPort;
 
     Future<?> crasherFuture = executor.submit(() -> {
       try {
-        for (int i = 0; i < 10 && running.get(); i++) {
+        for (var i = 0; i < 10 && running.get(); i++) {
           clusterStartUp.moveBucketForKey(KEY, "server-3");
           // Sleep for a bit so that rename can execute
           Thread.sleep(1000);
@@ -170,7 +166,7 @@ public class RPushDUnitTest {
       }
     });
 
-    int i = 0;
+    var i = 0;
     while (running.get()) {
       jedis.rpush(KEY, value(i++));
     }
@@ -179,7 +175,7 @@ public class RPushDUnitTest {
     compareBuckets();
 
     String popped;
-    int j = 0;
+    var j = 0;
     while ((popped = jedis.lpop(KEY)) != null) {
       try {
         assertThat(popped).isEqualTo(value(j));
@@ -198,14 +194,14 @@ public class RPushDUnitTest {
 
   private void compareBuckets() {
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      PartitionedRegion region =
+      var cache = ClusterStartupRule.getCache();
+      var region =
           (PartitionedRegion) cache.getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
-      for (int j = 0; j < region.getTotalNumberOfBuckets(); j++) {
-        List<BucketDump> buckets = region.getAllBucketEntries(j);
+      for (var j = 0; j < region.getTotalNumberOfBuckets(); j++) {
+        var buckets = region.getAllBucketEntries(j);
         assertThat(buckets.size()).isEqualTo(2);
-        Map<Object, Object> bucket1 = buckets.get(0).getValues();
-        Map<Object, Object> bucket2 = buckets.get(1).getValues();
+        var bucket1 = buckets.get(0).getValues();
+        var bucket2 = buckets.get(1).getValues();
         assertThat(bucket1).containsExactlyEntriesOf(bucket2);
       }
     });

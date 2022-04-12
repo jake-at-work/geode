@@ -40,7 +40,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.KeyStore;
 import java.util.Arrays;
@@ -53,25 +52,19 @@ import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.test.dunit.rules.ClientVM;
@@ -109,7 +102,7 @@ public class RestAPIsWithSSLDUnitTest {
   }
 
   private static File findTrustStore(Properties props) {
-    String propertyValue = props.getProperty(SSL_TRUSTSTORE);
+    var propertyValue = props.getProperty(SSL_TRUSTSTORE);
     if (StringUtils.isEmpty(propertyValue)) {
       propertyValue = getDeprecatedTrustStore(props);
     }
@@ -120,7 +113,7 @@ public class RestAPIsWithSSLDUnitTest {
   }
 
   private static File findKeyStoreJKS(Properties props) {
-    String propertyValue = props.getProperty(SSL_KEYSTORE);
+    var propertyValue = props.getProperty(SSL_KEYSTORE);
     if (StringUtils.isEmpty(propertyValue)) {
       propertyValue = getDeprecatedKeystore(props);
     }
@@ -139,7 +132,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   private void startClusterWithSSL(final Properties sslProperties)
       throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     server = cluster.startServerVM(1, s -> s.withRestService()
         .withProperties(sslProperties)
         .withConnectionToLocator(locator.getPort())
@@ -148,8 +141,8 @@ public class RestAPIsWithSSLDUnitTest {
         .withCacheSetup(cf -> cf.setPdxReadSerialized(true)));
 
     client.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Region<String, Person> region =
+      var clientCache = ClusterStartupRule.getClientCache();
+      var region =
           clientCache.<String, Person>createClientRegionFactory(ClientRegionShortcut.PROXY)
               .create(PEOPLE_REGION_NAME);
 
@@ -184,19 +177,19 @@ public class RestAPIsWithSSLDUnitTest {
   }
 
   private static CloseableHttpClient getSSLBasedHTTPClient(Properties properties) throws Exception {
-    KeyStore clientKeys = KeyStore.getInstance("JKS");
-    File keystoreJKSForPath = findKeyStoreJKS(properties);
+    var clientKeys = KeyStore.getInstance("JKS");
+    var keystoreJKSForPath = findKeyStoreJKS(properties);
     clientKeys.load(new FileInputStream(keystoreJKSForPath), "password".toCharArray());
 
-    KeyStore clientTrust = KeyStore.getInstance("JKS");
-    File trustStoreJKSForPath = findTrustStore(properties);
+    var clientTrust = KeyStore.getInstance("JKS");
+    var trustStoreJKSForPath = findTrustStore(properties);
     clientTrust.load(new FileInputStream(trustStoreJKSForPath), "password".toCharArray());
 
     // this is needed
-    SSLContextBuilder custom = SSLContexts.custom();
-    SSLContextBuilder sslContextBuilder =
+    var custom = SSLContexts.custom();
+    var sslContextBuilder =
         custom.loadTrustMaterial(clientTrust, new TrustSelfSignedStrategy());
-    SSLContext sslcontext = sslContextBuilder
+    var sslcontext = sslContextBuilder
         .loadKeyMaterial(clientKeys, "password".toCharArray(), (aliases, socket) -> {
           if (aliases.size() == 1) {
             return aliases.keySet().stream().findFirst().get();
@@ -211,32 +204,31 @@ public class RestAPIsWithSSLDUnitTest {
     // Host checking is disabled here, as tests might run on multiple hosts and
     // host entries can not be assumed
     @SuppressWarnings("deprecation")
-    SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
+    var sslConnectionSocketFactory = new SSLConnectionSocketFactory(
         sslcontext, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
     return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).build();
   }
 
   private void validateConnection(Properties properties) throws Exception {
-    HttpGet get = new HttpGet(restEndpoint + "/People/1");
+    var get = new HttpGet(restEndpoint + "/People/1");
     get.addHeader("Content-Type", "application/json");
     get.addHeader("Accept", "application/json");
 
+    var httpclient = getSSLBasedHTTPClient(properties);
+    var response = httpclient.execute(get);
 
-    CloseableHttpClient httpclient = getSSLBasedHTTPClient(properties);
-    CloseableHttpResponse response = httpclient.execute(get);
-
-    HttpEntity entity = response.getEntity();
-    InputStream content = entity.getContent();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+    var entity = response.getEntity();
+    var content = entity.getContent();
+    var reader = new BufferedReader(new InputStreamReader(content));
     String line;
-    StringBuilder str = new StringBuilder();
+    var str = new StringBuilder();
     while ((line = reader.readLine()) != null) {
       str.append(line);
     }
 
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode json = mapper.readTree(str.toString());
+    var mapper = new ObjectMapper();
+    var json = mapper.readTree(str.toString());
 
     assertEquals(json.get("id").asInt(), 101);
     assertEquals(json.get("firstName").asText(), "Mithali");
@@ -247,7 +239,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   @Test
   public void testSimpleSSL() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_TRUSTSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -260,7 +252,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   @Test
   public void testSimpleSSLWithMultiKey_KeyStore() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE,
         createTempFileFromResource(getClass(), "/org/apache/geode/internal/net/multiKey.jks")
             .getAbsolutePath());
@@ -279,7 +271,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   @Test(expected = RuntimeException.class)
   public void testSimpleSSLWithMultiKey_KeyStore_WithInvalidClientKey() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE,
         createTempFileFromResource(getClass(), "/org/apache/geode/internal/net/multiKey.jks")
             .getAbsolutePath());
@@ -298,7 +290,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   @Test
   public void testSSLWithoutKeyStoreType() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_TRUSTSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -311,7 +303,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   @Test
   public void testSSLWithSSLProtocol() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_TRUSTSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -326,7 +318,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   @Test
   public void testSSLWithTLSProtocol() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_TRUSTSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -341,7 +333,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   @Test
   public void testSSLWithTLSv12Protocol() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_TRUSTSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -356,7 +348,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   @Test
   public void testWithMultipleProtocol() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_TRUSTSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -370,10 +362,10 @@ public class RestAPIsWithSSLDUnitTest {
   }
 
   private List<String> getRSACiphers() throws Exception {
-    SSLContext ssl = SSLContext.getInstance("TLSv1.2");
+    var ssl = SSLContext.getInstance("TLSv1.2");
 
     ssl.init(null, null, new java.security.SecureRandom());
-    String[] cipherSuites = ssl.getSocketFactory().getSupportedCipherSuites();
+    var cipherSuites = ssl.getSocketFactory().getSupportedCipherSuites();
 
     return Arrays.stream(cipherSuites).filter(c -> c.contains("RSA")).collect(Collectors.toList());
   }
@@ -381,7 +373,7 @@ public class RestAPIsWithSSLDUnitTest {
   @Test
   public void testSSLWithCipherSuite() throws Exception {
     System.setProperty("javax.net.debug", "ssl,handshake");
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_TRUSTSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -391,7 +383,7 @@ public class RestAPIsWithSSLDUnitTest {
     props.setProperty(SSL_ENABLED_COMPONENTS, SecurableCommunicationChannel.WEB.getConstant());
 
     // This is the safest in terms of support across various JDK releases
-    List<String> rsaCiphers = getRSACiphers();
+    var rsaCiphers = getRSACiphers();
     props.setProperty(SSL_CIPHERS, rsaCiphers.get(0));
 
     startClusterWithSSL(props);
@@ -401,7 +393,7 @@ public class RestAPIsWithSSLDUnitTest {
   @Test
   public void testSSLWithMultipleCipherSuite() throws Exception {
     System.setProperty("javax.net.debug", "ssl,handshake");
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SSL_KEYSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_TRUSTSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -411,7 +403,7 @@ public class RestAPIsWithSSLDUnitTest {
     props.setProperty(SSL_ENABLED_COMPONENTS, SecurableCommunicationChannel.WEB.getConstant());
 
     // This is the safest in terms of support across various JDK releases
-    List<String> rsaCiphers = getRSACiphers();
+    var rsaCiphers = getRSACiphers();
     props.setProperty(SSL_CIPHERS, rsaCiphers.get(0) + "," + rsaCiphers.get(1));
 
     startClusterWithSSL(props);
@@ -422,7 +414,7 @@ public class RestAPIsWithSSLDUnitTest {
   @Test
   public void testSSLWithMultipleCipherSuiteLegacy() throws Exception {
     System.setProperty("javax.net.debug", "ssl,handshake");
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE,
         findTrustedJKSWithSingleEntry().getCanonicalPath());
@@ -430,7 +422,7 @@ public class RestAPIsWithSSLDUnitTest {
     props.setProperty(HTTP_SERVICE_SSL_PROTOCOLS, "TLSv1.2");
 
     // This is the safest in terms of support across various JDK releases
-    List<String> rsaCiphers = getRSACiphers();
+    var rsaCiphers = getRSACiphers();
     props.setProperty(SSL_CIPHERS, rsaCiphers.get(0) + "," + rsaCiphers.get(1));
 
     startClusterWithSSL(props);
@@ -439,7 +431,7 @@ public class RestAPIsWithSSLDUnitTest {
 
   @Test
   public void testMutualAuthentication() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
 
     props.setProperty(SSL_KEYSTORE, findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -458,7 +450,7 @@ public class RestAPIsWithSSLDUnitTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testSimpleSSLLegacy() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE,
         findTrustedJKSWithSingleEntry().getCanonicalPath());
@@ -471,7 +463,7 @@ public class RestAPIsWithSSLDUnitTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testSSLWithoutKeyStoreTypeLegacy() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE,
         findTrustedJKSWithSingleEntry().getCanonicalPath());
@@ -484,7 +476,7 @@ public class RestAPIsWithSSLDUnitTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testSSLWithSSLProtocolLegacy() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE,
         findTrustedJKSWithSingleEntry().getCanonicalPath());
@@ -498,7 +490,7 @@ public class RestAPIsWithSSLDUnitTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testSSLWithTLSProtocolLegacy() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE,
         findTrustedJKSWithSingleEntry().getCanonicalPath());
@@ -512,7 +504,7 @@ public class RestAPIsWithSSLDUnitTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testSSLWithTLSv12ProtocolLegacy() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE,
         findTrustedJKSWithSingleEntry().getCanonicalPath());
@@ -526,7 +518,7 @@ public class RestAPIsWithSSLDUnitTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testWithMultipleProtocolLegacy() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE,
         findTrustedJKSWithSingleEntry().getCanonicalPath());
@@ -541,19 +533,19 @@ public class RestAPIsWithSSLDUnitTest {
   @Test
   public void testSSLWithCipherSuiteLegacy() throws Exception {
     System.setProperty("javax.net.debug", "ssl");
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE,
         findTrustedJKSWithSingleEntry().getCanonicalPath());
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE_PASSWORD, "password");
     props.setProperty(HTTP_SERVICE_SSL_PROTOCOLS, "TLSv1.2");
 
-    SSLContext ssl = SSLContext.getInstance("TLSv1.2");
+    var ssl = SSLContext.getInstance("TLSv1.2");
 
     ssl.init(null, null, new java.security.SecureRandom());
-    String[] cipherSuites = ssl.getSocketFactory().getSupportedCipherSuites();
+    var cipherSuites = ssl.getSocketFactory().getSupportedCipherSuites();
 
-    String rsaCipher = Arrays.stream(cipherSuites).filter(c -> c.contains("RSA")).findFirst().get();
+    var rsaCipher = Arrays.stream(cipherSuites).filter(c -> c.contains("RSA")).findFirst().get();
     props.setProperty(HTTP_SERVICE_SSL_CIPHERS, rsaCipher);
 
     startClusterWithSSL(props);
@@ -563,7 +555,7 @@ public class RestAPIsWithSSLDUnitTest {
   @SuppressWarnings("deprecation")
   @Test
   public void testMutualAuthenticationLegacy() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     props.setProperty(HTTP_SERVICE_SSL_KEYSTORE,
         findTrustedJKSWithSingleEntry().getCanonicalPath());

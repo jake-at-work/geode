@@ -36,13 +36,10 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
@@ -55,7 +52,6 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.command.Put70;
@@ -103,7 +99,7 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
             "false");
       }
     });
-    for (IgnoredException ex : expectedExceptions) {
+    for (var ex : expectedExceptions) {
       ex.remove();
     }
   }
@@ -114,15 +110,15 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testRetryPut() {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
 
     createServerRegion(vm0, RegionShortcut.REPLICATE);
     createServerRegion(vm1, RegionShortcut.REPLICATE);
 
     // create an event tag in vm0 and then replay that event in vm1
-    final DistributedMember memberID =
+    final var memberID =
         (DistributedMember) vm0.invoke(new SerializableCallable("get id") {
           @Override
           public Object call() {
@@ -133,14 +129,14 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
     vm0.invoke(new SerializableCallable("create entry with fake event ID") {
       @Override
       public Object call() {
-        DistributedRegion dr = (DistributedRegion) getCache().getRegion("region");
+        var dr = (DistributedRegion) getCache().getRegion("region");
         VersionTag tag = new VMVersionTag();
         tag.setMemberID(dr.getVersionMember());
         tag.setRegionVersion(123);
         tag.setEntryVersion(9);
         tag.setVersionTimeStamp(System.currentTimeMillis());
-        EventID eventID = new EventID(new byte[0], 1, 0);
-        EntryEventImpl event = EntryEventImpl.create(dr, Operation.CREATE, "TestObject",
+        var eventID = new EventID(new byte[0], 1, 0);
+        var event = EntryEventImpl.create(dr, Operation.CREATE, "TestObject",
             "TestValue", null, false, memberID, true, eventID);
         event.setVersionTag(tag);
         event.setContext(new ClientProxyMembershipID(memberID));
@@ -152,13 +148,13 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(new SerializableRunnable("recover event tag in vm1 from vm0") {
       @Override
       public void run() {
-        DistributedRegion dr = (DistributedRegion) getCache().getRegion("region");
-        EventID eventID = new EventID(new byte[0], 1, 0);
-        EntryEventImpl event = EntryEventImpl.create(dr, Operation.CREATE, "TestObject",
+        var dr = (DistributedRegion) getCache().getRegion("region");
+        var eventID = new EventID(new byte[0], 1, 0);
+        var event = EntryEventImpl.create(dr, Operation.CREATE, "TestObject",
             "TestValue", null, false, memberID, true, eventID);
         try {
           event.setContext(new ClientProxyMembershipID(memberID));
-          boolean recovered =
+          var recovered =
               ((BaseCommand) Put70.getCommand()).recoverVersionTagForRetriedOperation(event);
           assertTrue("Expected to recover the version for this event ID",
               recovered);
@@ -174,10 +170,10 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(new SerializableRunnable("recover posdup event tag in vm1 event tracker from vm0") {
       @Override
       public void run() {
-        DistributedRegion dr = (DistributedRegion) getCache()
+        var dr = (DistributedRegion) getCache()
             .getRegion("region");
-        EventID eventID = new EventID(new byte[0], 1, 0);
-        EntryEventImpl event = EntryEventImpl
+        var eventID = new EventID(new byte[0], 1, 0);
+        var event = EntryEventImpl
             .create(dr, Operation.CREATE, "TestObject",
                 "TestValue", null, false, memberID, true, eventID);
         event.setPossibleDuplicate(true);
@@ -244,13 +240,13 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doRetriedTest(final OpType opType) {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm3 = host.getVM(3);
 
-    int port0 = createServerRegion(vm0, RegionShortcut.REPLICATE);
-    int port1 = createServerRegion(vm1, RegionShortcut.REPLICATE);
+    var port0 = createServerRegion(vm0, RegionShortcut.REPLICATE);
+    var port1 = createServerRegion(vm1, RegionShortcut.REPLICATE);
     createClientRegion(vm3, port0, port1);
 
     vm0.invoke(new SerializableRunnable() {
@@ -272,9 +268,9 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
               public void beforeSendMessage(ClusterDistributionManager dm,
                   DistributionMessage message) {
                 if (message instanceof DistributedCacheOperation.CacheOperationMessage) {
-                  DistributedCacheOperation.CacheOperationMessage com =
+                  var com =
                       (DistributedCacheOperation.CacheOperationMessage) message;
-                  VersionTag tag = com.getVersionTag();
+                  var tag = com.getVersionTag();
                   if (((opType == OpType.CREATE || opType == OpType.PUT_IF_ABSENT)
                       && tag.getEntryVersion() == 1) || tag.getEntryVersion() == 2) {
                     DistributionMessageObserver.setInstance(null);
@@ -329,7 +325,7 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
       public void run() {
         // if the observer was triggered, it would have cleared itself
         assertNull(DistributionMessageObserver.getInstance());
-        VersionTag tag = ((LocalRegion) getCache().getRegion("region"))
+        var tag = ((LocalRegion) getCache().getRegion("region"))
             .getVersionTag(0);
         if (opType == OpType.CREATE || opType == OpType.PUT_IF_ABSENT) {
           assertEquals(1, tag.getRegionVersion());
@@ -343,7 +339,7 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
     vm0.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        GemFireCacheImpl cache = (GemFireCacheImpl) basicGetCache();
+        var cache = (GemFireCacheImpl) basicGetCache();
         assertTrue(cache == null || cache.isClosed());
       }
     });
@@ -355,11 +351,11 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testRetryPutAll() {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
 
     createServerRegion(vm0, RegionShortcut.PARTITION_REDUNDANT_PERSISTENT);
     vm0.invoke(new SerializableRunnable() {
@@ -389,9 +385,9 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    int port1 = createServerRegion(vm1,
+    var port1 = createServerRegion(vm1,
         RegionShortcut.PARTITION_REDUNDANT_PERSISTENT);
-    int port2 = createServerRegion(vm2,
+    var port2 = createServerRegion(vm2,
         RegionShortcut.PARTITION_REDUNDANT_PERSISTENT);
     createClientRegion(vm3, port1, port2);
 
@@ -410,7 +406,7 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
         map.put(0, "a");
         map.put(113, "b");
         region.putAll(map);
-        RegionEntry entry = ((LocalRegion) region).getRegionEntry(0);
+        var entry = ((LocalRegion) region).getRegionEntry(0);
         assertNotNull(entry);
         assertNotNull(entry.getVersionStamp());
         assertEquals(2, entry.getVersionStamp().getEntryVersion());
@@ -432,7 +428,7 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        GemFireCacheImpl cache = (GemFireCacheImpl) basicGetCache();
+        var cache = (GemFireCacheImpl) basicGetCache();
         assertTrue(cache == null || cache.isClosed());
       }
     });
@@ -444,11 +440,11 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testRetryPutAllInAccessor() {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
 
     LogWriterUtils.getLogWriter().info("creating region in vm0");
     createRegionInPeer(vm0, RegionShortcut.PARTITION_REDUNDANT_PERSISTENT);
@@ -528,7 +524,7 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
         assertNull(DistributionMessageObserver.getInstance());
 
         Region region = getCache().getRegion("region");
-        VersionTag tag = ((LocalRegion) region).getVersionTag(0);
+        var tag = ((LocalRegion) region).getVersionTag(0);
         assertEquals(2, tag.getEntryVersion());
       }
     });
@@ -542,7 +538,7 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
         assertNull(DistributionMessageObserver.getInstance());
 
         Region region = getCache().getRegion("region");
-        VersionTag tag = ((LocalRegion) region).getVersionTag(0);
+        var tag = ((LocalRegion) region).getVersionTag(0);
         assertEquals(2, tag.getEntryVersion());
       }
     });
@@ -551,7 +547,7 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
     vm0.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        GemFireCacheImpl cache = (GemFireCacheImpl) basicGetCache();
+        var cache = (GemFireCacheImpl) basicGetCache();
         assertTrue(cache == null || cache.isClosed());
       }
     });
@@ -568,11 +564,11 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
   }
 
   private int createServerRegion(VM vm, final RegionShortcut shortcut) {
-    SerializableCallable createRegion = new SerializableCallable(
+    var createRegion = new SerializableCallable(
         "create server region") {
       @Override
       public Object call() throws Exception {
-        RegionFactory<Object, Object> rf = getCache()
+        var rf = getCache()
             .createRegionFactory(shortcut);
         if (!shortcut.equals(RegionShortcut.REPLICATE)) {
           rf.setPartitionAttributes(
@@ -580,8 +576,8 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
         }
         rf.create("region");
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -592,11 +588,11 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createRegionInPeer(VM vm, final RegionShortcut shortcut) {
-    SerializableCallable createRegion = new SerializableCallable(
+    var createRegion = new SerializableCallable(
         "create peer region") {
       @Override
       public Object call() throws Exception {
-        RegionFactory<Object, Object> rf = getCache()
+        var rf = getCache()
             .createRegionFactory(shortcut);
         if (!shortcut.equals(RegionShortcut.REPLICATE)) {
           rf.setPartitionAttributes(
@@ -611,17 +607,17 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties p = super.getDistributedSystemProperties();
+    var p = super.getDistributedSystemProperties();
     p.put(CONSERVE_SOCKETS, "false");
     return p;
   }
 
   private int createServerRegionWithPersistence(VM vm,
       final boolean persistentPdxRegistry) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheFactory cf = new CacheFactory();
+        var cf = new CacheFactory();
         if (persistentPdxRegistry) {
           cf.setPdxPersistent(true).setPdxDiskStore("store");
         }
@@ -630,14 +626,14 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
         cache.createDiskStoreFactory().setDiskDirs(getDiskDirs())
             .create("store");
 
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
         af.setDiskStoreName("store");
         createRootRegion("testSimplePdx", af.create());
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -648,16 +644,16 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
   }
 
   private int createServerAccessor(VM vm) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.EMPTY);
         createRootRegion("testSimplePdx", af.create());
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -669,11 +665,11 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
 
   private void createClientRegion(final VM vm, final int port1,
       final int port2) {
-    SerializableCallable createRegion = new SerializableCallable(
+    var createRegion = new SerializableCallable(
         "create client region in " + vm) {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
 
         cf.addPoolServer(NetworkUtils.getServerHostName(vm.getHost()), port1);
         cf.addPoolServer(NetworkUtils.getServerHostName(vm.getHost()), port2);
@@ -681,7 +677,7 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
         cf.setPoolReadTimeout(10 * 60 * 1000);
         cf.setPoolSubscriptionEnabled(true);
 
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
                 .create("region");

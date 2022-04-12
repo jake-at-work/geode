@@ -52,7 +52,7 @@ public class TransactionManagerImplJUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     ds = DistributedSystem.connect(props);
     tm = TransactionManagerImpl.getTransactionManager();
@@ -78,9 +78,9 @@ public class TransactionManagerImplJUnitTest {
     assertEquals(Status.STATUS_NO_TRANSACTION, tm.getStatus());
     utx.begin();
     assertEquals(Status.STATUS_ACTIVE, tm.getStatus());
-    Thread thread = Thread.currentThread();
-    Transaction txn1 = (Transaction) tm.getTransactionMap().get(thread);
-    Transaction txn2 = tm.getTransaction();
+    var thread = Thread.currentThread();
+    var txn1 = (Transaction) tm.getTransactionMap().get(thread);
+    var txn2 = tm.getTransaction();
     assertTrue("GetTransaction not returning the correct transaction", txn1 == txn2);
     utx.commit();
     assertEquals(Status.STATUS_NO_TRANSACTION, tm.getStatus());
@@ -89,9 +89,9 @@ public class TransactionManagerImplJUnitTest {
   @Test
   public void testGetTransactionImpl() throws Exception {
     utx.begin();
-    Thread thread = Thread.currentThread();
-    Transaction txn1 = (Transaction) tm.getTransactionMap().get(thread);
-    Transaction txn2 = tm.getTransaction();
+    var thread = Thread.currentThread();
+    var txn1 = (Transaction) tm.getTransactionMap().get(thread);
+    var txn2 = tm.getTransaction();
     assertTrue("GetTransactionImpl not returning the correct transaction", txn1 == txn2);
     utx.commit();
   }
@@ -99,10 +99,10 @@ public class TransactionManagerImplJUnitTest {
   @Test
   public void testGetGlobalTransaction() throws Exception {
     utx.begin();
-    Thread thread = Thread.currentThread();
-    Transaction txn = (Transaction) tm.getTransactionMap().get(thread);
-    GlobalTransaction gTxn1 = (GlobalTransaction) tm.getGlobalTransactionMap().get(txn);
-    GlobalTransaction gTxn2 = tm.getGlobalTransaction();
+    var thread = Thread.currentThread();
+    var txn = (Transaction) tm.getTransactionMap().get(thread);
+    var gTxn1 = (GlobalTransaction) tm.getGlobalTransactionMap().get(txn);
+    var gTxn2 = tm.getGlobalTransaction();
     assertTrue("Get Global Transaction not returning the correct global transaction",
         gTxn1 == gTxn2);
     utx.commit();
@@ -112,8 +112,8 @@ public class TransactionManagerImplJUnitTest {
   public void testNotifyBeforeCompletionException() throws Exception {
     // Asif : Test Notify BeforeCompletion Exception handling
     utx.begin();
-    Thread thread = Thread.currentThread();
-    Transaction txn = (Transaction) tm.getTransactionMap().get(thread);
+    var thread = Thread.currentThread();
+    var txn = (Transaction) tm.getTransactionMap().get(thread);
     txn.registerSynchronization(new Synchronization() {
 
       @Override
@@ -139,8 +139,8 @@ public class TransactionManagerImplJUnitTest {
   public void testSetRollBackOnly() throws Exception {
     // Asif : Test Exception when marking transaction for rollbackonly
     utx.begin();
-    Thread thread = Thread.currentThread();
-    Transaction txn = (Transaction) tm.getTransactionMap().get(thread);
+    var thread = Thread.currentThread();
+    var txn = (Transaction) tm.getTransactionMap().get(thread);
     txn.registerSynchronization(new Synchronization() {
 
       @Override
@@ -169,8 +169,8 @@ public class TransactionManagerImplJUnitTest {
   @Test
   public void testXAExceptionInCommit() throws Exception {
     utx.begin();
-    Thread thread = Thread.currentThread();
-    Transaction txn = (Transaction) tm.getTransactionMap().get(thread);
+    var thread = Thread.currentThread();
+    var txn = (Transaction) tm.getTransactionMap().get(thread);
     txn.registerSynchronization(new Synchronization() {
 
       @Override
@@ -205,8 +205,8 @@ public class TransactionManagerImplJUnitTest {
   @Test
   public void testXAExceptionRollback() throws Exception {
     utx.begin();
-    Thread thread = Thread.currentThread();
-    Transaction txn = (Transaction) tm.getTransactionMap().get(thread);
+    var thread = Thread.currentThread();
+    var txn = (Transaction) tm.getTransactionMap().get(thread);
     txn.registerSynchronization(new Synchronization() {
 
       @Override
@@ -241,8 +241,8 @@ public class TransactionManagerImplJUnitTest {
   @Test
   public void testRollback() throws Exception {
     utx.begin();
-    Thread thread = Thread.currentThread();
-    Transaction txn = (Transaction) tm.getTransactionMap().get(thread);
+    var thread = Thread.currentThread();
+    var txn = (Transaction) tm.getTransactionMap().get(thread);
     txn.registerSynchronization(new Synchronization() {
 
       @Override

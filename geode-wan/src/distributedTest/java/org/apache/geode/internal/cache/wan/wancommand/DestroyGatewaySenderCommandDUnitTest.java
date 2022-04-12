@@ -50,7 +50,7 @@ public class DestroyGatewaySenderCommandDUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(NAME, "happylocator");
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(0, props);

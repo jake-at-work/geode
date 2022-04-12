@@ -16,7 +16,6 @@ package org.apache.geode.management;
 
 
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,7 +25,6 @@ import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.BackwardCompatibilityTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.version.TestVersion;
@@ -39,7 +37,7 @@ public class ConfigurationCompatibilityTest {
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(s -> TestVersion.compare(s, "1.10.0") < 0);
     return result;
   }
@@ -57,12 +55,12 @@ public class ConfigurationCompatibilityTest {
   @Test
   public void whenConfigurationIsExchangedBetweenMixedVersionLocatorsThenItShouldNotThrowExceptions()
       throws Exception {
-    MemberVM locator1 = clusterStartupRule.startLocatorVM(0, oldVersion);
-    int locatorPort1 = locator1.getPort();
-    MemberVM locator2 =
+    var locator1 = clusterStartupRule.startLocatorVM(0, oldVersion);
+    var locatorPort1 = locator1.getPort();
+    var locator2 =
         clusterStartupRule
             .startLocatorVM(1, 0, oldVersion, l -> l.withConnectionToLocator(locatorPort1));
-    int locatorPort2 = locator2.getPort();
+    var locatorPort2 = locator2.getPort();
 
     gfsh.connect(locator1);
     gfsh.executeAndAssertThat("configure pdx --read-serialized=true --disk-store=DEFAULT")
@@ -77,7 +75,7 @@ public class ConfigurationCompatibilityTest {
 
     clusterStartupRule.stop(0);
     locator1 = clusterStartupRule.startLocatorVM(0, l -> l.withConnectionToLocator(locatorPort2));
-    int newLocatorPort1 = locator1.getPort();
+    var newLocatorPort1 = locator1.getPort();
 
     // configure pdx command is executed to trigger a cluster configuration change event.
     gfsh.disconnect();
@@ -88,7 +86,7 @@ public class ConfigurationCompatibilityTest {
     clusterStartupRule.stop(1);
     locator2 =
         clusterStartupRule.startLocatorVM(1, l -> l.withConnectionToLocator(newLocatorPort1));
-    int newLocatorPort2 = locator2.getPort();
+    var newLocatorPort2 = locator2.getPort();
 
     // configure pdx command is executed to trigger a cluster configuration change event.
     gfsh.disconnect();

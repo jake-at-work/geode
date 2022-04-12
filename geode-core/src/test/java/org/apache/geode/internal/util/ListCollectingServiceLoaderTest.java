@@ -22,14 +22,11 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ServiceConfigurationError;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -49,29 +46,29 @@ public class ListCollectingServiceLoaderTest {
   public void loadServices_delegatesLoading() {
     when(serviceLoaderWrapper.iterator()).thenReturn(mock(Iterator.class));
 
-    ListCollectingServiceLoader<MetricsPublishingService> collectingServiceLoader =
-        new ListCollectingServiceLoader<>(serviceLoaderWrapper);
+    var collectingServiceLoader =
+        new ListCollectingServiceLoader<MetricsPublishingService>(serviceLoaderWrapper);
 
     collectingServiceLoader.loadServices(MetricsPublishingService.class);
 
-    InOrder inOrder = inOrder(serviceLoaderWrapper);
+    var inOrder = inOrder(serviceLoaderWrapper);
     inOrder.verify(serviceLoaderWrapper).load(same(MetricsPublishingService.class));
     inOrder.verify(serviceLoaderWrapper).iterator();
   }
 
   @Test
   public void loadServices_returnsLoadedServices() {
-    MetricsPublishingService service1 = mock(MetricsPublishingService.class);
-    MetricsPublishingService service2 = mock(MetricsPublishingService.class);
-    MetricsPublishingService service3 = mock(MetricsPublishingService.class);
-    List<MetricsPublishingService> expectedServices = asList(service1, service2, service3);
+    var service1 = mock(MetricsPublishingService.class);
+    var service2 = mock(MetricsPublishingService.class);
+    var service3 = mock(MetricsPublishingService.class);
+    var expectedServices = asList(service1, service2, service3);
 
     when(serviceLoaderWrapper.iterator()).thenReturn(expectedServices.iterator());
 
-    ListCollectingServiceLoader<MetricsPublishingService> collectingServiceLoader =
-        new ListCollectingServiceLoader<>(serviceLoaderWrapper);
+    var collectingServiceLoader =
+        new ListCollectingServiceLoader<MetricsPublishingService>(serviceLoaderWrapper);
 
-    Collection<MetricsPublishingService> actualServices =
+    var actualServices =
         collectingServiceLoader.loadServices(MetricsPublishingService.class);
 
     assertThat(actualServices)
@@ -80,19 +77,19 @@ public class ListCollectingServiceLoaderTest {
 
   @Test
   public void loadServices_returnsLoadedServices_whenOneServiceThrows() {
-    MetricsPublishingService service1 = mock(MetricsPublishingService.class);
-    MetricsPublishingService service3 = mock(MetricsPublishingService.class);
+    var service1 = mock(MetricsPublishingService.class);
+    var service3 = mock(MetricsPublishingService.class);
     Iterator<MetricsPublishingService> iterator = mock(Iterator.class);
-    ServiceConfigurationError error = new ServiceConfigurationError("Error message");
+    var error = new ServiceConfigurationError("Error message");
 
     when(iterator.hasNext()).thenReturn(true, true, true, false);
     when(iterator.next()).thenReturn(service1).thenThrow(error).thenReturn(service3);
     when(serviceLoaderWrapper.iterator()).thenReturn(iterator);
 
-    ListCollectingServiceLoader<MetricsPublishingService> collectingServiceLoader =
-        new ListCollectingServiceLoader<>(serviceLoaderWrapper);
+    var collectingServiceLoader =
+        new ListCollectingServiceLoader<MetricsPublishingService>(serviceLoaderWrapper);
 
-    Collection<MetricsPublishingService> actualServices =
+    var actualServices =
         collectingServiceLoader.loadServices(MetricsPublishingService.class);
 
     assertThat(actualServices)

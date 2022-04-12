@@ -49,10 +49,10 @@ public class AlertListenerRegistrationIntegrationTest {
 
   @Before
   public void setUp() {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(LOCATORS, "");
 
-    DistributedSystem distributedSystem = DistributedSystem.connect(configProperties);
+    var distributedSystem = DistributedSystem.connect(configProperties);
     member = distributedSystem.getDistributedMember();
     internalDistributedSystem = (InternalDistributedSystem) distributedSystem;
     alertingService = spy(internalDistributedSystem.getAlertingService());
@@ -67,7 +67,7 @@ public class AlertListenerRegistrationIntegrationTest {
 
   @Test
   public void hasAlertListenerIsFalseByDefault() {
-    for (AlertLevel alertLevel : AlertLevel.values()) {
+    for (var alertLevel : AlertLevel.values()) {
       assertThat(alertingService.hasAlertListener(member, alertLevel)).isFalse();
     }
   }
@@ -83,7 +83,7 @@ public class AlertListenerRegistrationIntegrationTest {
   public void hasAlertListenerIsTrueOnlyForLevelWarning() {
     alertingService.addAlertListener(member, WARNING);
 
-    for (AlertLevel alertLevel : AlertLevel.values()) {
+    for (var alertLevel : AlertLevel.values()) {
       if (alertLevel != WARNING) {
         assertThat(alertingService.hasAlertListener(member, alertLevel)).isFalse();
       }
@@ -94,7 +94,7 @@ public class AlertListenerRegistrationIntegrationTest {
   public void hasAlertListenerIsTrueOnlyForLevelError() {
     alertingService.addAlertListener(member, ERROR);
 
-    for (AlertLevel alertLevel : AlertLevel.values()) {
+    for (var alertLevel : AlertLevel.values()) {
       if (alertLevel != ERROR) {
         assertThat(alertingService.hasAlertListener(member, alertLevel)).isFalse();
       }
@@ -105,7 +105,7 @@ public class AlertListenerRegistrationIntegrationTest {
   public void hasAlertListenerIsTrueOnlyForLevelSevere() {
     alertingService.addAlertListener(member, SEVERE);
 
-    for (AlertLevel alertLevel : AlertLevel.values()) {
+    for (var alertLevel : AlertLevel.values()) {
       if (alertLevel != SEVERE) {
         assertThat(alertingService.hasAlertListener(member, alertLevel)).isFalse();
       }
@@ -116,7 +116,7 @@ public class AlertListenerRegistrationIntegrationTest {
   public void addAlertListenerDoesNothingForLevelNone() {
     alertingService.addAlertListener(member, NONE);
 
-    for (AlertLevel alertLevel : AlertLevel.values()) {
+    for (var alertLevel : AlertLevel.values()) {
       assertThat(alertingService.hasAlertListener(member, alertLevel)).isFalse();
     }
   }
@@ -151,7 +151,7 @@ public class AlertListenerRegistrationIntegrationTest {
   @Test
   public void systemHasAlertListenerForMemberIsFalseByDefault() {
     assertThat(internalDistributedSystem.hasAlertListenerFor(member)).isFalse();
-    for (AlertLevel alertLevel : AlertLevel.values()) {
+    for (var alertLevel : AlertLevel.values()) {
       assertThat(internalDistributedSystem.hasAlertListenerFor(member, alertLevel.intLevel()))
           .isFalse();
     }
@@ -159,7 +159,7 @@ public class AlertListenerRegistrationIntegrationTest {
 
   @Test
   public void systemHasAlertListenerForAlertLevelIsFalseByDefault() {
-    for (AlertLevel alertLevel : AlertLevel.values()) {
+    for (var alertLevel : AlertLevel.values()) {
       assertThat(internalDistributedSystem.hasAlertListenerFor(member, alertLevel.intLevel()))
           .isFalse();
     }
@@ -176,7 +176,7 @@ public class AlertListenerRegistrationIntegrationTest {
   public void systemHasAlertListenerIsFalseForOtherLevels() {
     alertingService.addAlertListener(member, WARNING);
 
-    for (AlertLevel alertLevel : AlertLevel.values()) {
+    for (var alertLevel : AlertLevel.values()) {
       if (alertLevel != WARNING) {
         assertThat(internalDistributedSystem.hasAlertListenerFor(member, alertLevel.intLevel()))
             .isFalse();

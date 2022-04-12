@@ -56,11 +56,11 @@ public class PidFileIntegrationTest {
   @Test
   public void readsIntFromFile() throws Exception {
     // arrange
-    String value = "42";
+    var value = "42";
     FileUtils.writeStringToFile(pidFile, value, Charset.defaultCharset());
 
     // act
-    int readValue = new PidFile(pidFile).readPid();
+    var readValue = new PidFile(pidFile).readPid();
 
     // assert
     assertThat(readValue).isEqualTo(Integer.parseInt(value));
@@ -79,7 +79,7 @@ public class PidFileIntegrationTest {
   @Test
   public void readingFileWithNonIntegerThrowsIllegalArgumentException() throws Exception {
     // arrange
-    String value = "forty two";
+    var value = "forty two";
     FileUtils.writeStringToFile(pidFile, value, Charset.defaultCharset());
 
     // act/assert
@@ -91,7 +91,7 @@ public class PidFileIntegrationTest {
   @Test
   public void readingFileWithNegativeIntegerThrowsIllegalArgumentException() throws Exception {
     // arrange
-    String value = "-42";
+    var value = "-42";
     FileUtils.writeStringToFile(pidFile, value, Charset.defaultCharset());
 
     // act/assert
@@ -114,8 +114,8 @@ public class PidFileIntegrationTest {
   public void findsCorrectFileByName() throws Exception {
     // arrange
     FileUtils.writeStringToFile(pidFile, String.valueOf(pid), Charset.defaultCharset());
-    int[] pids = new AvailablePid().findAvailablePids(4);
-    for (int i = 1; i <= pids.length; i++) {
+    var pids = new AvailablePid().findAvailablePids(4);
+    for (var i = 1; i <= pids.length; i++) {
       FileUtils.writeStringToFile(
           new File(directory, "pid" + i + ".txt"), String.valueOf(pids[i - 1]),
           Charset.defaultCharset());
@@ -123,7 +123,7 @@ public class PidFileIntegrationTest {
     assertThat(directory.listFiles()).hasSize(pids.length + 1);
 
     // act
-    PidFile namedPidFile = new PidFile(directory, pidFile.getName());
+    var namedPidFile = new PidFile(directory, pidFile.getName());
 
     // assert
     assertThat(namedPidFile.getFile()).hasContent(String.valueOf(pid));
@@ -144,7 +144,7 @@ public class PidFileIntegrationTest {
   @Test
   public void fileForDirectoryThrowsIllegalArgumentException() throws Exception {
     // arrange
-    File directoryIsFile = temporaryFolder.newFile("my.file");
+    var directoryIsFile = temporaryFolder.newFile("my.file");
 
     // act/assert
     assertThatThrownBy(() -> new PidFile(directoryIsFile, pidFileName).readPid())
@@ -163,8 +163,8 @@ public class PidFileIntegrationTest {
   @Test
   public void missingFileInFullDirectoryThrowsFileNotFoundException() throws Exception {
     // arrange
-    int[] pids = new AvailablePid().findAvailablePids(4);
-    for (int i = 1; i <= pids.length; i++) {
+    var pids = new AvailablePid().findAvailablePids(4);
+    for (var i = 1; i <= pids.length; i++) {
       FileUtils.writeStringToFile(
           new File(directory, "pid" + i + ".txt"), String.valueOf(pids[i - 1]),
           Charset.defaultCharset());

@@ -88,11 +88,11 @@ public class LegacyStatTimer implements Timer {
    */
   @Override
   public <T> T record(Supplier<T> supplier) {
-    final long s = clock.monotonicTime();
+    final var s = clock.monotonicTime();
     try {
       return supplier.get();
     } finally {
-      final long e = clock.monotonicTime();
+      final var e = clock.monotonicTime();
       record(e - s, TimeUnit.NANOSECONDS);
     }
   }
@@ -102,11 +102,11 @@ public class LegacyStatTimer implements Timer {
    */
   @Override
   public <T> T recordCallable(Callable<T> callable) throws Exception {
-    final long s = clock.monotonicTime();
+    final var s = clock.monotonicTime();
     try {
       return callable.call();
     } finally {
-      final long e = clock.monotonicTime();
+      final var e = clock.monotonicTime();
       record(e - s, TimeUnit.NANOSECONDS);
     }
   }
@@ -116,11 +116,11 @@ public class LegacyStatTimer implements Timer {
    */
   @Override
   public void record(Runnable runnable) {
-    final long s = clock.monotonicTime();
+    final var s = clock.monotonicTime();
     try {
       runnable.run();
     } finally {
-      final long e = clock.monotonicTime();
+      final var e = clock.monotonicTime();
       record(e - s, TimeUnit.NANOSECONDS);
     }
   }
@@ -246,8 +246,8 @@ public class LegacyStatTimer implements Timer {
      * it can be used to remove the registered timer from the registry.
      */
     public Timer register(MeterRegistry registry) {
-      Clock clock = registry.config().clock();
-      Timer underlyingTimer = builder.register(registry);
+      var clock = registry.config().clock();
+      var underlyingTimer = builder.register(registry);
       return new LegacyStatTimer(clock, underlyingTimer, countStatisticBinding,
           timeStatisticBinding);
     }

@@ -82,11 +82,11 @@ public class OffHeapValidationJUnitTest {
   }
 
   protected GemFireCacheImpl createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, getOffHeapMemorySize());
-    GemFireCacheImpl result = (GemFireCacheImpl) new CacheFactory(props).create();
+    var result = (GemFireCacheImpl) new CacheFactory(props).create();
     return result;
   }
 
@@ -109,13 +109,13 @@ public class OffHeapValidationJUnitTest {
   @Test
   public void testMemoryInspection() throws IOException {
     // validate initial state
-    MemoryAllocator allocator = cache.getOffHeapStore();
+    var allocator = cache.getOffHeapStore();
     assertNotNull(allocator);
-    MemoryInspector inspector = allocator.getMemoryInspector();
+    var inspector = allocator.getMemoryInspector();
     assertNotNull(inspector);
     inspector.createSnapshot();
     try {
-      MemoryBlock firstBlock = inspector.getFirstBlock();
+      var firstBlock = inspector.getFirstBlock();
       assertNotNull(firstBlock);
       assertEquals(1024 * 1024 * 2, firstBlock.getBlockSize());
       assertEquals("N/A", firstBlock.getDataType());
@@ -132,9 +132,9 @@ public class OffHeapValidationJUnitTest {
     }
 
     // create off-heap region
-    Region<Object, Object> region = cache.createRegionFactory(getRegionShortcut())
+    var region = cache.createRegionFactory(getRegionShortcut())
         .setOffHeap(true).create(getRegionName());
-    Region<Object, Object> compressedRegion = cache.createRegionFactory(getRegionShortcut())
+    var compressedRegion = cache.createRegionFactory(getRegionShortcut())
         .setOffHeap(true).setCompressor(SnappyCompressor.getDefaultInstance())
         .create(getRegionName() + "Compressed");
 
@@ -182,7 +182,7 @@ public class OffHeapValidationJUnitTest {
     // validate inspection
     inspector.createSnapshot();
     try {
-      MemoryBlock firstBlock = inspector.getFirstBlock();
+      var firstBlock = inspector.getFirstBlock();
       assertEquals(MemoryBlock.State.UNUSED, firstBlock.getState());
 
       // System.out.println(((MemoryAllocatorImpl)inspector).getSnapshot());
@@ -191,10 +191,10 @@ public class OffHeapValidationJUnitTest {
       Collections.sort(expected,
           (o1, o2) -> Long.valueOf(o1.memoryAddress).compareTo(o2.memoryAddress));
 
-      int i = 0;
-      MemoryBlock block = firstBlock.getNextBlock();
+      var i = 0;
+      var block = firstBlock.getNextBlock();
       while (block != null) {
-        ExpectedValues values = expected.get(i);
+        var values = expected.get(i);
         assertEquals(i + ":" + values.dataType, values.blockSize, block.getBlockSize());
         assertEquals(i + ":" + values.dataType, values.dataType, block.getDataType());
         assertEquals(i + ":" + values.dataType, values.freeListId, block.getFreeListId());
@@ -205,7 +205,7 @@ public class OffHeapValidationJUnitTest {
         assertEquals(i + ":" + values.dataType, values.isSerialized, block.isSerialized());
         // compare block.getDataValue() but only for String types
         if (values.dataType.equals("java.lang.String")) {
-          Object obj = block.getDataValue();
+          var obj = block.getDataValue();
           assertNotNull(block.toString(), obj);
           assertTrue(obj instanceof String);
           assertEquals("this is a string", obj);
@@ -221,12 +221,12 @@ public class OffHeapValidationJUnitTest {
         } else if (values.dataType.contains("[")) {
           // TODO: multiple dimension arrays or non-byte arrays
         } else if (values.dataValue instanceof Collection) {
-          int diff = joint((Collection<?>) values.dataValue, (Collection<?>) block.getDataValue());
+          var diff = joint((Collection<?>) values.dataValue, (Collection<?>) block.getDataValue());
           assertEquals(i + ":" + values.dataType, 0, diff);
         } else if (values.dataValue instanceof IdentityHashMap) {
           // TODO
         } else if (values.dataValue instanceof Map) {
-          int diff = joint((Map<?, ?>) values.dataValue, (Map<?, ?>) block.getDataValue());
+          var diff = joint((Map<?, ?>) values.dataValue, (Map<?, ?>) block.getDataValue());
           assertEquals(i + ":" + values.dataType, 0, diff);
         } else {
           assertEquals(i + ":" + values.dataType, values.dataValue, block.getDataValue());
@@ -298,16 +298,16 @@ public class OffHeapValidationJUnitTest {
   }
 
   private long getMemoryAddress(Region region, String key) {
-    Object entry = ((LocalRegion) region).getRegionEntry(key).getValue();
+    var entry = ((LocalRegion) region).getRegionEntry(key).getValue();
     assertTrue(entry instanceof OffHeapStoredObject);
-    long memoryAddress = ((OffHeapStoredObject) entry).getAddress();
+    var memoryAddress = ((OffHeapStoredObject) entry).getAddress();
     assertTrue(memoryAddress > 0);
     return memoryAddress;
   }
 
   private void putString(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyString";
-    String value = "this is a string";
+    var key = "keyString";
+    var value = "this is a string";
     region.put(key, value);
     expected.add(new ExpectedValues(value, value.length() * 2, "java.lang.String", -1,
         getMemoryAddress(region, key), 1, 0, false, true));
@@ -315,29 +315,29 @@ public class OffHeapValidationJUnitTest {
 
   private void putCompressedString(Region<Object, Object> region, List<ExpectedValues> expected)
       throws IOException {
-    String key = "keyString";
-    String value = "this is a string";
+    var key = "keyString";
+    var value = "this is a string";
     region.put(key, value);
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(value, hdos);
-    byte[] uncompressedBytes = hdos.toByteArray();
-    byte[] expectedValue = SnappyCompressor.getDefaultInstance().compress(uncompressedBytes);
+    var uncompressedBytes = hdos.toByteArray();
+    var expectedValue = SnappyCompressor.getDefaultInstance().compress(uncompressedBytes);
     expected.add(
         new ExpectedValues(expectedValue, 32, "compressed object of size " + expectedValue.length,
             -1, getMemoryAddress(region, key), 1, 0, true, true));
   }
 
   private void putDate(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyDate";
-    Date value = new Date();
+    var key = "keyDate";
+    var value = new Date();
     region.put(key, value);
     expected.add(new ExpectedValues(value, 24, "java.util.Date", -1, getMemoryAddress(region, key),
         1, 0, false, true));
   }
 
   private void putByteArray(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyByteArray";
-    byte[] value = new byte[10];
+    var key = "keyByteArray";
+    var value = new byte[10];
     region.put(key, value);
     expected.add(new ExpectedValues(value, 24, "byte[10]", -1, getMemoryAddress(region, key), 1, 0,
         false, false));
@@ -345,50 +345,50 @@ public class OffHeapValidationJUnitTest {
 
   private void putCompressedByteArray(Region<Object, Object> region, List<ExpectedValues> expected)
       throws IOException {
-    String key = "keyByteArray";
-    byte[] value = new byte[10];
+    var key = "keyByteArray";
+    var value = new byte[10];
     region.put(key, value);
-    byte[] expectedValue = SnappyCompressor.getDefaultInstance().compress(value);
+    var expectedValue = SnappyCompressor.getDefaultInstance().compress(value);
     expected
         .add(new ExpectedValues(expectedValue, 24, "compressed byte[" + expectedValue.length + "]",
             -1, getMemoryAddress(region, key), 1, 0, true, false));
   }
 
   private void putByteArrayArray(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyByteArrayArray";
-    byte[][] value = new byte[10][10];
+    var key = "keyByteArrayArray";
+    var value = new byte[10][10];
     region.put(key, value);
     expected.add(new ExpectedValues(value, 120, "byte[][]", -1, getMemoryAddress(region, key), 1, 0,
         false, true));
   }
 
   private void putShortArray(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyShortArray(";
-    short[] value = new short[10];
+    var key = "keyShortArray(";
+    var value = new short[10];
     region.put(key, value);
     expected.add(new ExpectedValues(value, 32, "short[]", -1, getMemoryAddress(region, key), 1, 0,
         false, true));
   }
 
   private void putStringArray(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyStringArray";
-    String[] value = new String[10];
+    var key = "keyStringArray";
+    var value = new String[10];
     region.put(key, value);
     expected.add(new ExpectedValues(value, 24, "java.lang.String[]", -1,
         getMemoryAddress(region, key), 1, 0, false, true));
   }
 
   private void putObjectArray(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyObjectArray";
-    Object[] value = new Object[10];
+    var key = "keyObjectArray";
+    var value = new Object[10];
     region.put(key, value);
     expected.add(new ExpectedValues(value, 40, "java.lang.Object[]", -1,
         getMemoryAddress(region, key), 1, 0, false, true));
   }
 
   private void putArrayList(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyArrayList";
-    ArrayList<Object> value = new ArrayList<>();
+    var key = "keyArrayList";
+    var value = new ArrayList<Object>();
     value.add("string 1");
     value.add("string 2");
     region.put(key, value);
@@ -397,8 +397,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putLinkedList(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyLinkedList";
-    LinkedList<Object> value = new LinkedList<>();
+    var key = "keyLinkedList";
+    var value = new LinkedList<Object>();
     value.add("string 1");
     value.add("string 2");
     region.put(key, value);
@@ -407,8 +407,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putHashSet(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyHashSet";
-    HashSet<Object> value = new HashSet<>();
+    var key = "keyHashSet";
+    var value = new HashSet<Object>();
     value.add("string 1");
     value.add("string 2");
     region.put(key, value);
@@ -417,8 +417,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putLinkedHashSet(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyLinkedHashSet";
-    LinkedHashSet<Object> value = new LinkedHashSet<>();
+    var key = "keyLinkedHashSet";
+    var value = new LinkedHashSet<Object>();
     value.add("string 1");
     value.add("string 2");
     region.put(key, value);
@@ -427,8 +427,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putHashMap(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyHashMap";
-    HashMap<Object, Object> value = new HashMap<>();
+    var key = "keyHashMap";
+    var value = new HashMap<Object, Object>();
     value.put("1", "string 1");
     value.put("2", "string 2");
     region.put(key, value);
@@ -437,8 +437,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putIdentityHashMap(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyIdentityHashMap";
-    IdentityHashMap<Object, Object> value = new IdentityHashMap<>();
+    var key = "keyIdentityHashMap";
+    var value = new IdentityHashMap<Object, Object>();
     value.put("1", "string 1");
     value.put("2", "string 2");
     region.put(key, value);
@@ -447,8 +447,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putHashtable(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyHashtable";
-    Hashtable<Object, Object> value = new Hashtable<>();
+    var key = "keyHashtable";
+    var value = new Hashtable<Object, Object>();
     value.put("1", "string 1");
     value.put("2", "string 2");
     region.put(key, value);
@@ -457,8 +457,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putProperties(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyProperties";
-    Properties value = new Properties();
+    var key = "keyProperties";
+    var value = new Properties();
     value.put("1", "string 1");
     value.put("2", "string 2");
     region.put(key, value);
@@ -467,8 +467,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putVector(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyVector";
-    Vector<String> value = new Vector<>();
+    var key = "keyVector";
+    var value = new Vector<String>();
     value.add("string 1");
     value.add("string 2");
     region.put(key, value);
@@ -477,8 +477,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putStack(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyStack";
-    Stack<String> value = new Stack<>();
+    var key = "keyStack";
+    var value = new Stack<String>();
     value.add("string 1");
     value.add("string 2");
     region.put(key, value);
@@ -487,8 +487,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putTreeMap(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyTreeMap";
-    TreeMap<String, String> value = new TreeMap<>();
+    var key = "keyTreeMap";
+    var value = new TreeMap<String, String>();
     value.put("1", "string 1");
     value.put("2", "string 2");
     region.put(key, value);
@@ -497,8 +497,8 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putTreeSet(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyTreeSet";
-    TreeSet<String> value = new TreeSet<>();
+    var key = "keyTreeSet";
+    var value = new TreeSet<String>();
     value.add("string 1");
     value.add("string 2");
     region.put(key, value);
@@ -507,32 +507,32 @@ public class OffHeapValidationJUnitTest {
   }
 
   private void putClass(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyClass";
-    Class<String> value = String.class;
+    var key = "keyClass";
+    var value = String.class;
     region.put(key, value);
     expected.add(new ExpectedValues(value, 32, "java.lang.Class", -1, getMemoryAddress(region, key),
         1, 0, false, true));
   }
 
   private void putUUID(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyUUID";
-    UUID value = UUID.randomUUID();
+    var key = "keyUUID";
+    var value = UUID.randomUUID();
     region.put(key, value);
     expected.add(new ExpectedValues(value, 32, "java.util.UUID", -1, getMemoryAddress(region, key),
         1, 0, false, true));
   }
 
   private void putTimestamp(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keyTimestamp";
-    Timestamp value = new Timestamp(System.currentTimeMillis());
+    var key = "keyTimestamp";
+    var value = new Timestamp(System.currentTimeMillis());
     region.put(key, value);
     expected.add(new ExpectedValues(value, 24, "java.sql.Timestamp", -1,
         getMemoryAddress(region, key), 1, 0, false, true));
   }
 
   private void putSerializableClass(Region<Object, Object> region, List<ExpectedValues> expected) {
-    String key = "keySerializableClass";
-    SerializableClass value = new SerializableClass();
+    var key = "keySerializableClass";
+    var value = new SerializableClass();
     region.put(key, value);
     expected.add(
         new ExpectedValues(value, 112, "java.io.Serializable:" + SerializableClass.class.getName(),

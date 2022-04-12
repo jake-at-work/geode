@@ -29,7 +29,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.Position;
@@ -66,15 +65,15 @@ public class PRIndexStatisticsJUnitTest {
   }
 
   private void createAndPopulateRegion() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    AttributesFactory af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     assertTrue(region instanceof PartitionedRegion);
     Position.cnt = 0;
     if (region.size() == 0) {
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -82,8 +81,8 @@ public class PRIndexStatisticsJUnitTest {
   }
 
   private void createRegion() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    AttributesFactory af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
@@ -106,7 +105,7 @@ public class PRIndexStatisticsJUnitTest {
 
     assertTrue(keyIndex1 instanceof PartitionedIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex1.getStatistics();
+    var keyIndex1Stats = keyIndex1.getStatistics();
     assertEquals(89, keyIndex1Stats.getNumberOfBucketIndexes());
     assertEquals(89, keyIndex1Stats.getNumberOfBucketIndexesLong());
 
@@ -115,7 +114,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndex1Stats.getNumberOfValues());
     assertEquals(200, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -124,18 +123,18 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(400, keyIndex1Stats.getNumUpdates());
 
     // IndexUsed stats test
-    String queryStr = "select * from " + SEPARATOR
+    var queryStr = "select * from " + SEPARATOR
         + "portfolio p, p.positions.values pos where pos.secId = 'YHOO'";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     assertEquals(50, keyIndex1Stats.getTotalUses());
 
     // NumOfValues should be reduced.
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -144,7 +143,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(450, keyIndex1Stats.getNumUpdates());
 
     // Should not have any effect as invalidated values are destroyed
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -153,7 +152,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(450, keyIndex1Stats.getNumUpdates());
 
     // NumOfKeys should get zero as all values are destroyed
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -178,7 +177,7 @@ public class PRIndexStatisticsJUnitTest {
 
     assertTrue(keyIndex2 instanceof PartitionedIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex2.getStatistics();
+    var keyIndex1Stats = keyIndex2.getStatistics();
     assertEquals(89, keyIndex1Stats.getNumberOfBucketIndexes());
     assertEquals(89, keyIndex1Stats.getNumberOfBucketIndexesLong());
 
@@ -187,7 +186,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(100, keyIndex1Stats.getNumberOfValues());
     assertEquals(100, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -196,17 +195,17 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndex1Stats.getNumUpdates());
 
     // IndexUsed stats test
-    String queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
-    Query query = qs.newQuery(queryStr);
+    var queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     assertEquals(50, keyIndex1Stats.getTotalUses());
 
     // NumOfValues should be reduced.
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -214,7 +213,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(50, keyIndex1Stats.getNumberOfValues());
     assertEquals(250, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -223,7 +222,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(250, keyIndex1Stats.getNumUpdates());
 
     // NumOfKeys should get zero as all values are destroyed
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -248,7 +247,7 @@ public class PRIndexStatisticsJUnitTest {
 
     assertTrue(keyIndex3 instanceof PartitionedIndex);
 
-    IndexStatistics keyIndexStats = keyIndex3.getStatistics();
+    var keyIndexStats = keyIndex3.getStatistics();
     assertTrue(keyIndexStats instanceof IndexStatistics);
     assertEquals(89, keyIndexStats.getNumberOfBucketIndexes());
     assertEquals(89, keyIndexStats.getNumberOfBucketIndexesLong());
@@ -258,7 +257,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndexStats.getNumberOfValues());
     assertEquals(200, keyIndexStats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -267,19 +266,19 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndexStats.getNumberOfValues());
     assertEquals(400, keyIndexStats.getNumUpdates());
 
-    String queryStr =
+    var queryStr =
         "select * from " + SEPARATOR
             + "portfolio where positions['DELL'] != NULL OR positions['YHOO'] != NULL";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     // Index should be used
     assertEquals(100, keyIndexStats.getTotalUses());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -288,7 +287,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(100, keyIndexStats.getNumberOfValues());
     assertEquals(500, keyIndexStats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -297,7 +296,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(100, keyIndexStats.getNumberOfValues());
     assertEquals(500, keyIndexStats.getNumUpdates());
 
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -322,7 +321,7 @@ public class PRIndexStatisticsJUnitTest {
 
     assertTrue(keyIndex3 instanceof PartitionedIndex);
 
-    IndexStatistics keyIndexStats = keyIndex3.getStatistics();
+    var keyIndexStats = keyIndex3.getStatistics();
     assertTrue(keyIndexStats instanceof IndexStatistics);
     assertEquals(89, keyIndexStats.getNumberOfBucketIndexes());
     assertEquals(89, keyIndexStats.getNumberOfBucketIndexesLong());
@@ -333,7 +332,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndexStats.getNumUpdates());
 
     Position.cnt = 0;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -342,19 +341,19 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndexStats.getNumberOfValues());
     assertEquals(400, keyIndexStats.getNumUpdates());
 
-    String queryStr =
+    var queryStr =
         "select * from " + SEPARATOR
             + "portfolio where positions['DELL'] != NULL OR positions['YHOO'] != NULL";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     // Both RangeIndex should be used
     assertEquals(100 /* Execution time */, keyIndexStats.getTotalUses());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -363,7 +362,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(100, keyIndexStats.getNumberOfValues());
     assertEquals(600, keyIndexStats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -373,7 +372,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(600, keyIndexStats.getNumUpdates());
 
 
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -399,13 +398,13 @@ public class PRIndexStatisticsJUnitTest {
         SEPARATOR + "portfolio p, p.positions.values pos");
 
     // Recreate all entries in the region
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
     assertTrue(keyIndex1 instanceof PartitionedIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex1.getStatistics();
+    var keyIndex1Stats = keyIndex1.getStatistics();
     assertEquals(89, keyIndex1Stats.getNumberOfBucketIndexes());
     assertEquals(89, keyIndex1Stats.getNumberOfBucketIndexesLong());
 
@@ -414,7 +413,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndex1Stats.getNumberOfValues());
     assertEquals(200, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -423,18 +422,18 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(400, keyIndex1Stats.getNumUpdates());
 
     // IndexUsed stats test
-    String queryStr = "select * from " + SEPARATOR
+    var queryStr = "select * from " + SEPARATOR
         + "portfolio p, p.positions.values pos where pos.secId = 'YHOO'";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     assertEquals(50, keyIndex1Stats.getTotalUses());
 
     // NumOfValues should be reduced.
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -443,7 +442,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(450, keyIndex1Stats.getNumUpdates());
 
     // Should not have any effect as invalidated values are destroyed
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -452,7 +451,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(450, keyIndex1Stats.getNumUpdates());
 
     // NumOfKeys should get zero as all values are destroyed
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -479,13 +478,13 @@ public class PRIndexStatisticsJUnitTest {
             SEPARATOR + "portfolio ");
 
     // Recreate all entries in the region
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
     assertTrue(keyIndex2 instanceof PartitionedIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex2.getStatistics();
+    var keyIndex1Stats = keyIndex2.getStatistics();
     assertEquals(89, keyIndex1Stats.getNumberOfBucketIndexes());
     assertEquals(89, keyIndex1Stats.getNumberOfBucketIndexesLong());
 
@@ -494,7 +493,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(100, keyIndex1Stats.getNumberOfValues());
     assertEquals(100, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -503,17 +502,17 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndex1Stats.getNumUpdates());
 
     // IndexUsed stats test
-    String queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
-    Query query = qs.newQuery(queryStr);
+    var queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     assertEquals(50, keyIndex1Stats.getTotalUses());
 
     // NumOfValues should be reduced.
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -521,7 +520,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(50, keyIndex1Stats.getNumberOfValues());
     assertEquals(250, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -530,7 +529,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(250, keyIndex1Stats.getNumUpdates());
 
     // NumOfKeys should get zero as all values are destroyed
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -557,12 +556,12 @@ public class PRIndexStatisticsJUnitTest {
 
     // Recreate all entries in the region
     Position.cnt = 0;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
     assertTrue(keyIndex3 instanceof PartitionedIndex);
 
-    IndexStatistics keyIndexStats = keyIndex3.getStatistics();
+    var keyIndexStats = keyIndex3.getStatistics();
     assertTrue(keyIndexStats instanceof IndexStatistics);
     assertEquals(89, keyIndexStats.getNumberOfBucketIndexes());
     assertEquals(89, keyIndexStats.getNumberOfBucketIndexesLong());
@@ -573,7 +572,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndexStats.getNumUpdates());
 
     Position.cnt = 0;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -582,19 +581,19 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndexStats.getNumberOfValues());
     assertEquals(400, keyIndexStats.getNumUpdates());
 
-    String queryStr =
+    var queryStr =
         "select * from " + SEPARATOR
             + "portfolio where positions['DELL'] != NULL OR positions['YHOO'] != NULL";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     // Both RangeIndex should be used
     assertEquals((100 /* Execution time */), keyIndexStats.getTotalUses());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -603,7 +602,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(100, keyIndexStats.getNumberOfValues());
     assertEquals(500, keyIndexStats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -612,7 +611,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(100, keyIndexStats.getNumberOfValues());
     assertEquals(500, keyIndexStats.getNumUpdates());
 
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -640,12 +639,12 @@ public class PRIndexStatisticsJUnitTest {
 
     // Recreate all entries in the region
     Position.cnt = 0;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
     assertTrue(keyIndex3 instanceof PartitionedIndex);
 
-    IndexStatistics keyIndexStats = keyIndex3.getStatistics();
+    var keyIndexStats = keyIndex3.getStatistics();
     assertTrue(keyIndexStats instanceof IndexStatistics);
     assertEquals(89, keyIndexStats.getNumberOfBucketIndexes());
     assertEquals(89, keyIndexStats.getNumberOfBucketIndexesLong());
@@ -656,7 +655,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndexStats.getNumUpdates());
 
     Position.cnt = 0;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -665,19 +664,19 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(200, keyIndexStats.getNumberOfValues());
     assertEquals(400, keyIndexStats.getNumUpdates());
 
-    String queryStr =
+    var queryStr =
         "select * from " + SEPARATOR
             + "portfolio where positions['DELL'] != NULL OR positions['YHOO'] != NULL";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     // Both RangeIndex should be used
     assertEquals(100 /* Execution time */, keyIndexStats.getTotalUses());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -686,7 +685,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(100, keyIndexStats.getNumberOfValues());
     assertEquals(600, keyIndexStats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -696,7 +695,7 @@ public class PRIndexStatisticsJUnitTest {
     assertEquals(600, keyIndexStats.getNumUpdates());
 
 
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 

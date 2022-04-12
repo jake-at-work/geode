@@ -24,7 +24,6 @@ import java.io.File;
 import com.google.common.io.Files;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.Result;
 
 import org.apache.geode.test.junit.runners.TestRunner;
 
@@ -32,7 +31,7 @@ public class TemporaryFileRuleTest {
 
   @Test
   public void exceptionIsThrownIfFileAlreadyExists() {
-    Result result =
+    var result =
         TestRunner.runTest(TemporaryFileRuleTest.ExceptionIsThrownIfFileAlreadyExists.class);
 
     assertThat(result.wasSuccessful()).isTrue();
@@ -40,7 +39,7 @@ public class TemporaryFileRuleTest {
 
   @Test
   public void fileGetsCreatedProperly() {
-    Result result = TestRunner.runTest(TemporaryFileRuleTest.FileGetsCreatedProperly.class);
+    var result = TestRunner.runTest(TemporaryFileRuleTest.FileGetsCreatedProperly.class);
 
     assertThat(result.wasSuccessful()).isTrue();
   }
@@ -48,7 +47,7 @@ public class TemporaryFileRuleTest {
 
   @Test
   public void filesGetCleanedUpAfterTestMethod() {
-    Result result =
+    var result =
         TestRunner.runTest(TemporaryFileRuleTest.FilesGetCleanedUpAfterTestMethod.class);
 
     assertThat(result.wasSuccessful()).isTrue();
@@ -67,8 +66,8 @@ public class TemporaryFileRuleTest {
 
     @Test
     public void doTest() throws Exception {
-      String fileName = "fileThatAlreadyExists.txt";
-      File tempFile = new File(tempDirectory, fileName);
+      var fileName = "fileThatAlreadyExists.txt";
+      var tempFile = new File(tempDirectory, fileName);
       assertThat(tempFile.createNewFile()).isTrue();
       assertThatThrownBy(() -> temporaryFileRule.newFile(fileName))
           .isInstanceOf(IllegalStateException.class);
@@ -89,9 +88,9 @@ public class TemporaryFileRuleTest {
 
     @Test
     public void doTest() throws Exception {
-      String fileName = "expectedFile.txt";
-      File expectedFile = new File(tempDirectory, fileName);
-      File actualFile = temporaryFileRule.newFile(fileName);
+      var fileName = "expectedFile.txt";
+      var expectedFile = new File(tempDirectory, fileName);
+      var actualFile = temporaryFileRule.newFile(fileName);
 
       assertThat(actualFile).isEqualTo(expectedFile);
     }

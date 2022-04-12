@@ -33,7 +33,7 @@ public class FetchSysCfgRequest extends AdminRequest {
    * Returns a <code>FetchSysCfgRequest</code> to be sent to the specified recipient.
    */
   public static FetchSysCfgRequest create() {
-    FetchSysCfgRequest m = new FetchSysCfgRequest();
+    var m = new FetchSysCfgRequest();
     return m;
   }
 

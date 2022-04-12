@@ -66,7 +66,7 @@ public class DestroyDataSourceCommandTest {
   @SuppressWarnings("unchecked")
   @Before
   public void setUp() {
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     command = spy(DestroyDataSourceCommand.class);
     doReturn(cache).when(command).getCache();
     cacheConfig = mock(CacheConfig.class);
@@ -126,7 +126,7 @@ public class DestroyDataSourceCommandTest {
   @Test
   public void whenClusterConfigRunningAndJndiBindingFoundThenError() {
     List<JndiBindingsType.JndiBinding> bindings = new ArrayList<>();
-    JndiBindingsType.JndiBinding jndiBinding = new JndiBindingsType.JndiBinding();
+    var jndiBinding = new JndiBindingsType.JndiBinding();
     jndiBinding.setJndiName("name");
     jndiBinding.setType(CreateJndiBindingCommand.DATASOURCE_TYPE.MANAGED.getType());
     bindings.add(jndiBinding);
@@ -139,9 +139,9 @@ public class DestroyDataSourceCommandTest {
 
   @Test
   public void whenClusterConfigRunningAndDataSourceInUseByRegionThenError() {
-    String DATA_SOURCE_NAME = "myDataSourceName";
+    var DATA_SOURCE_NAME = "myDataSourceName";
     List<JndiBindingsType.JndiBinding> bindings = new ArrayList<>();
-    JndiBindingsType.JndiBinding jndiBinding = new JndiBindingsType.JndiBinding();
+    var jndiBinding = new JndiBindingsType.JndiBinding();
     jndiBinding.setJndiName(DATA_SOURCE_NAME);
     jndiBinding.setType(CreateJndiBindingCommand.DATASOURCE_TYPE.SIMPLE.getType());
     bindings.add(jndiBinding);
@@ -155,12 +155,12 @@ public class DestroyDataSourceCommandTest {
   }
 
   private void setupRegionConfigToUseDataSource(String dataSourceName) {
-    RegionConfig regionConfig = mock(RegionConfig.class);
+    var regionConfig = mock(RegionConfig.class);
     when(regionConfig.getName()).thenReturn("regionUsingDataSource");
     List<RegionConfig> regionConfigList = new ArrayList<>();
     regionConfigList.add(regionConfig);
     when(cacheConfig.getRegions()).thenReturn(regionConfigList);
-    RegionMapping regionMapping = mock(RegionMapping.class);
+    var regionMapping = mock(RegionMapping.class);
     when(regionMapping.getDataSourceName()).thenReturn(dataSourceName);
     List<CacheElement> cacheElementList = new ArrayList<>();
     cacheElementList.add(regionMapping);
@@ -170,7 +170,7 @@ public class DestroyDataSourceCommandTest {
   @Test
   public void whenNoMembersFoundAndClusterConfigRunningAndRegionUsingOtherDataSourceThenUpdateClusterConfig() {
     List<JndiBindingsType.JndiBinding> bindings = new ArrayList<>();
-    JndiBindingsType.JndiBinding jndiBinding = new JndiBindingsType.JndiBinding();
+    var jndiBinding = new JndiBindingsType.JndiBinding();
     jndiBinding.setJndiName("name");
     jndiBinding.setType(CreateJndiBindingCommand.DATASOURCE_TYPE.SIMPLE.getType());
     bindings.add(jndiBinding);
@@ -188,7 +188,7 @@ public class DestroyDataSourceCommandTest {
   @Test
   public void whenNoMembersFoundAndClusterConfigRunningThenUpdateClusterConfig() {
     List<JndiBindingsType.JndiBinding> bindings = new ArrayList<>();
-    JndiBindingsType.JndiBinding jndiBinding = new JndiBindingsType.JndiBinding();
+    var jndiBinding = new JndiBindingsType.JndiBinding();
     jndiBinding.setJndiName("name");
     jndiBinding.setType(CreateJndiBindingCommand.DATASOURCE_TYPE.SIMPLE.getType());
     bindings.add(jndiBinding);
@@ -205,7 +205,7 @@ public class DestroyDataSourceCommandTest {
   @Test
   public void whenNoMembersFoundAndClusterConfigRunningWithPooledTypeThenUpdateClusterConfig() {
     List<JndiBindingsType.JndiBinding> bindings = new ArrayList<>();
-    JndiBindingsType.JndiBinding jndiBinding = new JndiBindingsType.JndiBinding();
+    var jndiBinding = new JndiBindingsType.JndiBinding();
     jndiBinding.setJndiName("name");
     jndiBinding.setType(CreateJndiBindingCommand.DATASOURCE_TYPE.POOLED.getType());
     bindings.add(jndiBinding);
@@ -224,7 +224,7 @@ public class DestroyDataSourceCommandTest {
     Set<DistributedMember> members = new HashSet<>();
     members.add(mock(DistributedMember.class));
 
-    CliFunctionResult result =
+    var result =
         new CliFunctionResult("server1", true, "Data source \"name\" not found on \"server1\"");
     List<CliFunctionResult> results = new ArrayList<>();
     results.add(result);
@@ -243,7 +243,7 @@ public class DestroyDataSourceCommandTest {
     Set<DistributedMember> members = new HashSet<>();
     members.add(mock(DistributedMember.class));
 
-    CliFunctionResult result =
+    var result =
         new CliFunctionResult("server1", true, "Data source \"name\" not found on \"server1\"");
     List<CliFunctionResult> results = new ArrayList<>();
     results.add(result);
@@ -265,9 +265,9 @@ public class DestroyDataSourceCommandTest {
     members.add(mock(DistributedMember.class));
     members.add(mock(DistributedMember.class));
 
-    CliFunctionResult result =
+    var result =
         new CliFunctionResult("server1", true, "Data source \"name\" not found on \"server1\"");
-    CliFunctionResult result2 =
+    var result2 =
         new CliFunctionResult("server2", true, "Data source \"name\" destroyed on \"server2\"");
     List<CliFunctionResult> results = new ArrayList<>();
     results.add(result);
@@ -290,7 +290,7 @@ public class DestroyDataSourceCommandTest {
     Set<DistributedMember> members = new HashSet<>();
     members.add(mock(DistributedMember.class));
 
-    CliFunctionResult result =
+    var result =
         new CliFunctionResult("server1", true, "Data source \"name\" destroyed on \"server1\"");
     List<CliFunctionResult> results = new ArrayList<>();
     results.add(result);
@@ -306,17 +306,17 @@ public class DestroyDataSourceCommandTest {
 
     verify(ccService, times(0)).updateCacheConfig(any(), any());
 
-    ArgumentCaptor<DestroyJndiBindingFunction> function =
+    var function =
         ArgumentCaptor.forClass(DestroyJndiBindingFunction.class);
-    ArgumentCaptor<Object[]> arguments = ArgumentCaptor.forClass(Object[].class);
+    var arguments = ArgumentCaptor.forClass(Object[].class);
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<Set<DistributedMember>> targetMembers = ArgumentCaptor.forClass(Set.class);
     verify(command, times(1)).executeAndGetFunctionResult(function.capture(), arguments.capture(),
         targetMembers.capture());
 
-    String jndiName = (String) arguments.getValue()[0];
-    boolean destroyingDataSource = (boolean) arguments.getValue()[1];
+    var jndiName = (String) arguments.getValue()[0];
+    var destroyingDataSource = (boolean) arguments.getValue()[1];
 
     assertThat(function.getValue()).isInstanceOf(DestroyJndiBindingFunction.class);
     assertThat(jndiName).isEqualTo("name");
@@ -328,7 +328,7 @@ public class DestroyDataSourceCommandTest {
   @Test
   public void whenMembersFoundAndClusterConfigRunningThenUpdateClusterConfigAndInvokeFunction() {
     List<JndiBindingsType.JndiBinding> bindings = new ArrayList<>();
-    JndiBindingsType.JndiBinding jndiBinding = new JndiBindingsType.JndiBinding();
+    var jndiBinding = new JndiBindingsType.JndiBinding();
     jndiBinding.setJndiName("name");
     jndiBinding.setType(CreateJndiBindingCommand.DATASOURCE_TYPE.SIMPLE.getType());
     bindings.add(jndiBinding);
@@ -337,7 +337,7 @@ public class DestroyDataSourceCommandTest {
     Set<DistributedMember> members = new HashSet<>();
     members.add(mock(DistributedMember.class));
 
-    CliFunctionResult result =
+    var result =
         new CliFunctionResult("server1", true, "Data source \"name\" destroyed on \"server1\"");
     List<CliFunctionResult> results = new ArrayList<>();
     results.add(result);
@@ -353,17 +353,17 @@ public class DestroyDataSourceCommandTest {
     assertThat(cacheConfig.getJndiBindings().isEmpty()).isTrue();
     verify(command).updateConfigForGroup(eq("cluster"), eq(cacheConfig), any());
 
-    ArgumentCaptor<DestroyJndiBindingFunction> function =
+    var function =
         ArgumentCaptor.forClass(DestroyJndiBindingFunction.class);
-    ArgumentCaptor<Object[]> arguments = ArgumentCaptor.forClass(Object[].class);
+    var arguments = ArgumentCaptor.forClass(Object[].class);
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<Set<DistributedMember>> targetMembers = ArgumentCaptor.forClass(Set.class);
     verify(command, times(1)).executeAndGetFunctionResult(function.capture(), arguments.capture(),
         targetMembers.capture());
 
-    String jndiName = (String) arguments.getValue()[0];
-    boolean destroyingDataSource = (boolean) arguments.getValue()[1];
+    var jndiName = (String) arguments.getValue()[0];
+    var destroyingDataSource = (boolean) arguments.getValue()[1];
 
     assertThat(function.getValue()).isInstanceOf(DestroyJndiBindingFunction.class);
     assertThat(jndiName).isEqualTo("name");

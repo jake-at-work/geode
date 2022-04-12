@@ -27,18 +27,18 @@ public class CombinedSensitiveDictionaryTest {
 
   @Test
   public void isFalseWhenZeroDelegates() {
-    CombinedSensitiveDictionary combined = new CombinedSensitiveDictionary();
+    var combined = new CombinedSensitiveDictionary();
 
-    boolean result = combined.isSensitive("string");
+    var result = combined.isSensitive("string");
 
     assertThat(result).isFalse();
   }
 
   @Test
   public void delegatesInputToSingleDictionary() {
-    String input = "string";
-    SensitiveDataDictionary dictionary = mock(SensitiveDataDictionary.class);
-    CombinedSensitiveDictionary combined = new CombinedSensitiveDictionary(dictionary);
+    var input = "string";
+    var dictionary = mock(SensitiveDataDictionary.class);
+    var combined = new CombinedSensitiveDictionary(dictionary);
 
     combined.isSensitive(input);
 
@@ -47,10 +47,10 @@ public class CombinedSensitiveDictionaryTest {
 
   @Test
   public void delegatesInputToTwoDictionaries() {
-    String input = "string";
-    SensitiveDataDictionary dictionary1 = mock(SensitiveDataDictionary.class);
-    SensitiveDataDictionary dictionary2 = mock(SensitiveDataDictionary.class);
-    CombinedSensitiveDictionary combined =
+    var input = "string";
+    var dictionary1 = mock(SensitiveDataDictionary.class);
+    var dictionary2 = mock(SensitiveDataDictionary.class);
+    var combined =
         new CombinedSensitiveDictionary(dictionary1, dictionary2);
 
     combined.isSensitive(input);
@@ -61,12 +61,12 @@ public class CombinedSensitiveDictionaryTest {
 
   @Test
   public void delegatesInputToManyDictionaries() {
-    String input = "string";
-    SensitiveDataDictionary dictionary1 = mock(SensitiveDataDictionary.class);
-    SensitiveDataDictionary dictionary2 = mock(SensitiveDataDictionary.class);
-    SensitiveDataDictionary dictionary3 = mock(SensitiveDataDictionary.class);
-    SensitiveDataDictionary dictionary4 = mock(SensitiveDataDictionary.class);
-    CombinedSensitiveDictionary combined =
+    var input = "string";
+    var dictionary1 = mock(SensitiveDataDictionary.class);
+    var dictionary2 = mock(SensitiveDataDictionary.class);
+    var dictionary3 = mock(SensitiveDataDictionary.class);
+    var dictionary4 = mock(SensitiveDataDictionary.class);
+    var combined =
         new CombinedSensitiveDictionary(dictionary1, dictionary2, dictionary3, dictionary4);
 
     combined.isSensitive(input);
@@ -79,51 +79,51 @@ public class CombinedSensitiveDictionaryTest {
 
   @Test
   public void isFalseWhenManyDictionariesAreFalse() {
-    String input = "string";
-    SensitiveDataDictionary dictionary1 = createDictionary(false);
-    SensitiveDataDictionary dictionary2 = createDictionary(false);
-    SensitiveDataDictionary dictionary3 = createDictionary(false);
-    SensitiveDataDictionary dictionary4 = createDictionary(false);
-    CombinedSensitiveDictionary combined =
+    var input = "string";
+    var dictionary1 = createDictionary(false);
+    var dictionary2 = createDictionary(false);
+    var dictionary3 = createDictionary(false);
+    var dictionary4 = createDictionary(false);
+    var combined =
         new CombinedSensitiveDictionary(dictionary1, dictionary2, dictionary3, dictionary4);
 
-    boolean result = combined.isSensitive(input);
+    var result = combined.isSensitive(input);
 
     assertThat(result).isFalse();
   }
 
   @Test
   public void isTrueWhenManyDictionariesAreTrue() {
-    String input = "string";
-    SensitiveDataDictionary dictionary1 = createDictionary(true);
-    SensitiveDataDictionary dictionary2 = createDictionary(true);
-    SensitiveDataDictionary dictionary3 = createDictionary(true);
-    SensitiveDataDictionary dictionary4 = createDictionary(true);
-    CombinedSensitiveDictionary combined =
+    var input = "string";
+    var dictionary1 = createDictionary(true);
+    var dictionary2 = createDictionary(true);
+    var dictionary3 = createDictionary(true);
+    var dictionary4 = createDictionary(true);
+    var combined =
         new CombinedSensitiveDictionary(dictionary1, dictionary2, dictionary3, dictionary4);
 
-    boolean result = combined.isSensitive(input);
+    var result = combined.isSensitive(input);
 
     assertThat(result).isTrue();
   }
 
   @Test
   public void isTrueWhenOneOfManyDictionariesIsTrue() {
-    String input = "string";
-    SensitiveDataDictionary dictionary1 = createDictionary(false);
-    SensitiveDataDictionary dictionary2 = createDictionary(false);
-    SensitiveDataDictionary dictionary3 = createDictionary(false);
-    SensitiveDataDictionary dictionary4 = createDictionary(true);
-    CombinedSensitiveDictionary combined =
+    var input = "string";
+    var dictionary1 = createDictionary(false);
+    var dictionary2 = createDictionary(false);
+    var dictionary3 = createDictionary(false);
+    var dictionary4 = createDictionary(true);
+    var combined =
         new CombinedSensitiveDictionary(dictionary1, dictionary2, dictionary3, dictionary4);
 
-    boolean result = combined.isSensitive(input);
+    var result = combined.isSensitive(input);
 
     assertThat(result).isTrue();
   }
 
   private SensitiveDataDictionary createDictionary(boolean isSensitive) {
-    SensitiveDataDictionary dictionary = mock(SensitiveDataDictionary.class);
+    var dictionary = mock(SensitiveDataDictionary.class);
     when(dictionary.isSensitive(anyString())).thenReturn(isSensitive);
     return dictionary;
   }

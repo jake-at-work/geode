@@ -26,9 +26,9 @@ public class MemberFunctionStreamingMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    MemberFunctionStreamingMessage mockMemberFunctionStreamingMessage =
+    var mockMemberFunctionStreamingMessage =
         mock(MemberFunctionStreamingMessage.class);
-    InternalDistributedMember mockInternalDistributedMember = mock(InternalDistributedMember.class);
+    var mockInternalDistributedMember = mock(InternalDistributedMember.class);
     when(mockMemberFunctionStreamingMessage.getMemberToMasqueradeAs())
         .thenReturn(mockInternalDistributedMember);
     assertThat(mockMemberFunctionStreamingMessage.getMemberToMasqueradeAs())

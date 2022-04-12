@@ -33,7 +33,6 @@ import org.junit.Test;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 
 public class RegisterDriverCommandTest {
@@ -60,7 +59,7 @@ public class RegisterDriverCommandTest {
         DRIVER_CLASS_NAME + " was successfully registered.");
     resultList.add(result);
 
-    ResultModel resultModel = command.registerDriver(DRIVER_CLASS_NAME);
+    var resultModel = command.registerDriver(DRIVER_CLASS_NAME);
 
     assertThat(resultModel.toString())
         .contains(DRIVER_CLASS_NAME + " was successfully registered.");
@@ -72,7 +71,7 @@ public class RegisterDriverCommandTest {
   @Test
   public void testRegisterDriverReturnsErrorWhenNoMembers() {
     when(memberSet.size()).thenReturn(0);
-    ResultModel resultModel = command.registerDriver(DRIVER_CLASS_NAME);
+    var resultModel = command.registerDriver(DRIVER_CLASS_NAME);
 
     assertThat(resultModel.toString()).contains(NO_MEMBERS_FOUND);
   }
@@ -80,13 +79,13 @@ public class RegisterDriverCommandTest {
   @Test
   public void testRegisterDriverReturnsWhenFunctionFailsToExecute() {
     when(memberSet.size()).thenReturn(1);
-    String errorMessage = "Error message";
+    var errorMessage = "Error message";
 
     result = new CliFunctionResult("Server1", CliFunctionResult.StatusState.ERROR,
         errorMessage);
     resultList.add(result);
 
-    ResultModel resultModel = command.registerDriver(DRIVER_CLASS_NAME);
+    var resultModel = command.registerDriver(DRIVER_CLASS_NAME);
 
     assertThat(resultModel.toString()).contains(errorMessage);
     assertThat(resultModel.getStatus()).isEqualTo(Result.Status.ERROR);
@@ -94,10 +93,10 @@ public class RegisterDriverCommandTest {
 
   @Test
   public void testRegisterDriverReturnsWhenExceptionIsThrown() {
-    String exceptionString = "Test Exception";
+    var exceptionString = "Test Exception";
     doThrow(new NullPointerException(exceptionString)).when(command).findMembers(any(), any());
 
-    ResultModel resultModel = command.registerDriver(DRIVER_CLASS_NAME);
+    var resultModel = command.registerDriver(DRIVER_CLASS_NAME);
 
     assertThat(resultModel.getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(resultModel.toString()).contains(

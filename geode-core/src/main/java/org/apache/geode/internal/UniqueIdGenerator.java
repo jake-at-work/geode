@@ -76,8 +76,8 @@ public class UniqueIdGenerator {
    * @exception IndexOutOfBoundsException if the specified index is negative.
    */
   private void setBit(int bitIndex) {
-    int unitIndex = unitIndex(bitIndex);
-    long bit = bit(bitIndex);
+    var unitIndex = unitIndex(bitIndex);
+    var bit = bit(bitIndex);
     units[unitIndex] |= bit;
   }
 
@@ -87,8 +87,8 @@ public class UniqueIdGenerator {
    * @param bitIndex the index of the bit to be cleared.
    */
   private void clearBit(int bitIndex) {
-    int unitIndex = unitIndex(bitIndex);
-    long bit = bit(bitIndex);
+    var unitIndex = unitIndex(bitIndex);
+    var bit = bit(bitIndex);
     units[unitIndex] &= ~bit;
   }
 
@@ -108,7 +108,7 @@ public class UniqueIdGenerator {
 
   private static int trailingZeroCnt(long val) {
     // Loop unrolled for performance
-    int byteVal = (int) val & 0xff;
+    var byteVal = (int) val & 0xff;
     if (byteVal != 0) {
       return trailingZeroTable[byteVal];
     }
@@ -157,9 +157,9 @@ public class UniqueIdGenerator {
    * @return the index of the next clear bit.
    */
   private int nextClearBit(int fromIndex) {
-    int u = unitIndex(fromIndex);
-    int testIndex = (fromIndex & BIT_INDEX_MASK);
-    long unit = units[u] >> testIndex;
+    var u = unitIndex(fromIndex);
+    var testIndex = (fromIndex & BIT_INDEX_MASK);
+    var unit = units[u] >> testIndex;
 
     if (unit == (WORD_MASK >> testIndex)) {
       testIndex = 0;
@@ -209,8 +209,8 @@ public class UniqueIdGenerator {
    */
   public int obtain() {
     synchronized (this) {
-      int candidate = ctr;
-      int result = nextClearBit(candidate);
+      var candidate = ctr;
+      var result = nextClearBit(candidate);
       if (result == -1 && candidate != 0) {
         // The following check will do some additional work by scanning
         // the range [candidate..MAX_ID] again if it does not find a clear bit

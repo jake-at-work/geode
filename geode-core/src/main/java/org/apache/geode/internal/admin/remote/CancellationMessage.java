@@ -33,7 +33,7 @@ public class CancellationMessage extends PooledDistributionMessage {
   private int msgToCancel;
 
   public static CancellationMessage create(InternalDistributedMember recipient, int msgToCancel) {
-    CancellationMessage m = new CancellationMessage();
+    var m = new CancellationMessage();
     m.msgToCancel = msgToCancel;
     m.setRecipient(recipient);
     return m;

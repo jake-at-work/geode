@@ -23,7 +23,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
@@ -57,12 +56,12 @@ public class TXWriterTestCase {
   protected Region<String, String> region;
 
   protected void createCache() throws CacheException {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0"); // loner
 
     cache = (GemFireCacheImpl) CacheFactory.create(DistributedSystem.connect(p));
 
-    AttributesFactory<String, String> af = new AttributesFactory<>();
+    var af = new AttributesFactory<String, String>();
     af.setScope(Scope.DISTRIBUTED_NO_ACK);
     af.setIndexMaintenanceSynchronous(true);
 
@@ -105,14 +104,14 @@ public class TXWriterTestCase {
 
   @AfterClass
   public static void afterClass() {
-    InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+    var ids = InternalDistributedSystem.getAnyInstance();
     if (ids != null) {
       ids.disconnect();
     }
   }
 
   void installCacheListenerAndWriter() {
-    AttributesMutator<String, String> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     mutator.addCacheListener(new CacheListenerAdapter<String, String>() {
       @Override
       public void close() {

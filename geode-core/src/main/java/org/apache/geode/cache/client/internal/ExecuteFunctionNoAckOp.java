@@ -28,7 +28,6 @@ import org.apache.geode.internal.cache.execute.AbstractExecution;
 import org.apache.geode.internal.cache.execute.MemberMappedArgument;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -69,7 +68,7 @@ public class ExecuteFunctionNoAckOp {
               + op.getMessage() + " to all servers using pool: " + pool);
         }
         servers = pool.getConnectionSource().getAllServers();
-        for (final Object server : servers) {
+        for (final var server : servers) {
           pool.executeOn((ServerLocation) server, op);
         }
       } else {
@@ -110,7 +109,7 @@ public class ExecuteFunctionNoAckOp {
               + op.getMessage() + " to all servers using pool: " + pool);
         }
         servers = pool.getConnectionSource().getAllServers();
-        for (final Object server : servers) {
+        for (final var server : servers) {
           pool.executeOn((ServerLocation) server, op);
         }
       } else {
@@ -150,7 +149,7 @@ public class ExecuteFunctionNoAckOp {
         MemberMappedArgument memberMappedArg, byte hasResult, boolean isFnSerializationReqd,
         String[] groups, boolean allMembers) {
       super(MessageType.EXECUTE_FUNCTION, MSG_PARTS);
-      byte functionState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
+      var functionState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
           function.optimizeForWrite());
       getMessage().addBytesPart(new byte[] {functionState});
       if (isFnSerializationReqd) {
@@ -179,13 +178,13 @@ public class ExecuteFunctionNoAckOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      final int msgType = msg.getMessageType();
+      final var msgType = msg.getMessageType();
       if (msgType == MessageType.REPLY) {
         return null;
       } else {
-        Part part = msg.getPart(0);
+        var part = msg.getPart(0);
         if (msgType == MessageType.EXCEPTION) {
-          Throwable t = (Throwable) part.getObject();
+          var t = (Throwable) part.getObject();
           logger.warn("Function execution without result encountered an Exception on server.", t);
         } else if (isErrorResponse(msgType)) {
           logger.warn("Function execution without result encountered an Exception on server.");

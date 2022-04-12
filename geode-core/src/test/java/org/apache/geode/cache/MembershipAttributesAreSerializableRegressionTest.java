@@ -37,19 +37,19 @@ public class MembershipAttributesAreSerializableRegressionTest {
    */
   @Test
   public void testMembershipAttributesAreSerializable() throws Exception {
-    String[] roles = {"a", "b", "c"};
-    MembershipAttributes outMA = new MembershipAttributes(roles);
+    var roles = new String[] {"a", "b", "c"};
+    var outMA = new MembershipAttributes(roles);
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
-    try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+    var baos = new ByteArrayOutputStream(1000);
+    try (var oos = new ObjectOutputStream(baos)) {
       oos.writeObject(outMA);
     }
 
-    byte[] data = baos.toByteArray();
+    var data = baos.toByteArray();
 
-    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-    try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-      MembershipAttributes inMA = (MembershipAttributes) ois.readObject();
+    var bais = new ByteArrayInputStream(data);
+    try (var ois = new ObjectInputStream(bais)) {
+      var inMA = (MembershipAttributes) ois.readObject();
       assertEquals(outMA, inMA);
     }
   }
@@ -59,18 +59,18 @@ public class MembershipAttributesAreSerializableRegressionTest {
    */
   @Test
   public void testSubscriptionAttributesAreSerializable() throws Exception {
-    SubscriptionAttributes outSA = new SubscriptionAttributes();
+    var outSA = new SubscriptionAttributes();
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
-    try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+    var baos = new ByteArrayOutputStream(1000);
+    try (var oos = new ObjectOutputStream(baos)) {
       oos.writeObject(outSA);
     }
 
-    byte[] data = baos.toByteArray();
+    var data = baos.toByteArray();
 
-    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-    try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-      SubscriptionAttributes inSA = (SubscriptionAttributes) ois.readObject();
+    var bais = new ByteArrayInputStream(data);
+    try (var ois = new ObjectInputStream(bais)) {
+      var inSA = (SubscriptionAttributes) ois.readObject();
       assertEquals(outSA, inSA);
     }
   }

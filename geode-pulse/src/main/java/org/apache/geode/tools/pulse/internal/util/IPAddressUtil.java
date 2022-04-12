@@ -17,7 +17,6 @@
 
 package org.apache.geode.tools.pulse.internal.util;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -49,13 +48,13 @@ public class IPAddressUtil {
   }
 
   public static Boolean isIPv4LiteralAddress(String IPAddress) {
-    Matcher matcher = IPAddressUtil.VALID_IPV4_PATTERN.matcher(IPAddress);
+    var matcher = IPAddressUtil.VALID_IPV4_PATTERN.matcher(IPAddress);
     return matcher.matches();
   }
 
   public static Boolean isIPv6LiteralAddress(String IPAddress) {
 
-    Matcher matcher = IPAddressUtil.VALID_IPV6_PATTERN.matcher(IPAddress);
+    var matcher = IPAddressUtil.VALID_IPV6_PATTERN.matcher(IPAddress);
     return matcher.matches();
   }
 }

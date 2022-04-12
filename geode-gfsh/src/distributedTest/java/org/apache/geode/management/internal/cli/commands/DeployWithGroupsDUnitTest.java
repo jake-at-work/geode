@@ -75,8 +75,8 @@ public class DeployWithGroupsDUnitTest implements Serializable {
 
   @Before
   public void setup() throws Exception {
-    ClassBuilder classBuilder = new ClassBuilder();
-    File jarsDir = temporaryFolder.newFolder();
+    var classBuilder = new ClassBuilder();
+    var jarsDir = temporaryFolder.newFolder();
     jar1 = new File(jarsDir, jarName1);
     jar2 = new File(jarsDir, jarName2);
 
@@ -92,7 +92,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
 
     locator = lsRule.startLocatorVM(0);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, GROUP1);
     server1 = lsRule.startServerVM(1, props, locator.getPort());
 
@@ -107,7 +107,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
     // Deploy a jar to a single group
     gfshConnector.executeAndAssertThat("deploy --jar=" + jar2 + " --group=" + GROUP1)
         .statusIsSuccess();
-    String resultString = gfshConnector.getGfshOutput();
+    var resultString = gfshConnector.getGfshOutput();
 
     assertThat(resultString).contains(server1.getName());
     assertThat(resultString).doesNotContain(server2.getName());
@@ -190,7 +190,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
   public void deployJarToAllServers() throws Exception {
     // Deploy a jar to all servers
     gfshConnector.executeAndAssertThat("deploy --jar=" + jar1).statusIsSuccess();
-    String resultString = gfshConnector.getGfshOutput();
+    var resultString = gfshConnector.getGfshOutput();
 
     assertThat(resultString).contains(server1.getName());
     assertThat(resultString).contains(server2.getName());
@@ -209,7 +209,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
   public void deployJarToAllServersWithRestart() {
     // Deploy a jar to all servers
     gfshConnector.executeAndAssertThat("deploy --jar=" + jar1).statusIsSuccess();
-    String resultString = gfshConnector.getGfshOutput();
+    var resultString = gfshConnector.getGfshOutput();
 
     assertThat(resultString).contains(server1.getName());
     assertThat(resultString).contains(server2.getName());
@@ -222,7 +222,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
     server2.getVM().bounce();
 
     // Restart the actual cache
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, GROUP1);
     server1 = lsRule.startServerVM(1, props, locator.getPort());
 
@@ -237,7 +237,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
   public void undeployJarFromAllServersWithRestart() throws Exception {
     // Deploy a jar to all servers
     gfshConnector.executeAndAssertThat("deploy --jar=" + jar1).statusIsSuccess();
-    String resultString = gfshConnector.getGfshOutput();
+    var resultString = gfshConnector.getGfshOutput();
 
     assertThat(resultString).contains(server1.getName());
     assertThat(resultString).contains(server2.getName());
@@ -254,7 +254,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
     server2.getVM().bounce();
 
     // Restart the actual cache
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, GROUP1);
     server1 = lsRule.startServerVM(1, props, locator.getPort());
 
@@ -318,7 +318,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
   }
 
   private void assertThatCanLoad(String jarName, String className) throws ClassNotFoundException {
-    String artifactId = JarFileUtils.getArtifactId(jarName);
+    var artifactId = JarFileUtils.getArtifactId(jarName);
     assertThat(
         ClassPathLoader.getLatest().getJarDeploymentService().getDeployed(artifactId)
             .isSuccessful())
@@ -327,7 +327,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
   }
 
   private void assertThatCannotLoad(String jarName, String className) {
-    String artifactId = JarFileUtils.getArtifactId(jarName);
+    var artifactId = JarFileUtils.getArtifactId(jarName);
     assertThat(
         ClassPathLoader.getLatest().getJarDeploymentService().getDeployed(artifactId)
             .isSuccessful())
@@ -348,7 +348,7 @@ public class DeployWithGroupsDUnitTest implements Serializable {
 
     // List for all members
     gfshConnector.executeAndAssertThat("list deployed").statusIsSuccess();
-    String resultString = gfshConnector.getGfshOutput();
+    var resultString = gfshConnector.getGfshOutput();
     assertThat(resultString).contains(server1.getName());
     assertThat(resultString).contains(server2.getName());
     assertThat(resultString).contains(jarName1);

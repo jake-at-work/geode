@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.management.internal.configuration.ClusterConfigTestBase;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 
@@ -36,21 +35,21 @@ public class ImportClusterConfigTest extends ClusterConfigTestBase {
 
   @Test
   public void importWouldNotShutDownServer() {
-    GfshExecution startCluster = GfshScript
+    var startCluster = GfshScript
         .of("start locator --name=" + locatorName,
             "start server --name=" + serverNotShutDownName + " --server-port=0")
         .withName("startCluster").execute(gfsh);
     assertThat(startCluster.getOutputText()).contains(locatorName + " is currently online")
         .contains(serverNotShutDownName + " is currently online");
 
-    GfshExecution importConfiguration = GfshScript
+    var importConfiguration = GfshScript
         .of("connect", "import cluster-configuration --zip-file-name=" + clusterConfigZipPath)
         .withName("importConfiguration").execute(gfsh);
     assertThat(importConfiguration.getOutputText())
         .contains("Cluster configuration successfully imported")
         .contains("Configure the servers in 'cluster' group: ");
 
-    GfshExecution listMembers =
+    var listMembers =
         GfshScript.of("connect", "list members").withName("listMembers").execute(gfsh);
     assertThat(listMembers.getOutputText()).contains("serverNotShutDown");
   }

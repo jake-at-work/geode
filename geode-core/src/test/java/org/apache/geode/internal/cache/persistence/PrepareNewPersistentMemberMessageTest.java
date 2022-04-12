@@ -41,7 +41,7 @@ public class PrepareNewPersistentMemberMessageTest {
 
   @Test
   public void doesNotSendReplyIfFailedWithCancelledException() {
-    PrepareNewPersistentMemberMessage message = spy(new PrepareNewPersistentMemberMessage());
+    var message = spy(new PrepareNewPersistentMemberMessage());
     when(manager.getExistingCache()).thenThrow(new CacheClosedException());
     doReturn(replyMessage).when(message).createReplyMessage();
 
@@ -52,7 +52,7 @@ public class PrepareNewPersistentMemberMessageTest {
 
   @Test
   public void sendReplyIfNoException() {
-    PrepareNewPersistentMemberMessage message = spy(new PrepareNewPersistentMemberMessage());
+    var message = spy(new PrepareNewPersistentMemberMessage());
     doReturn(sender).when(message).getSender();
     doReturn(replyMessage).when(message).createReplyMessage();
     doReturn(regionPath).when(message).getRegionPath();

@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ public class SSLUtilTest {
 
   @Test
   public void failWhenNothingIsRequested() {
-    SSLConfig sslConfig = mock(SSLConfig.class);
+    var sslConfig = mock(SSLConfig.class);
     when(sslConfig.getClientProtocolsAsStringArray())
         .thenReturn(new String[0]);
     when(sslConfig.getServerProtocolsAsStringArray())
@@ -47,7 +46,7 @@ public class SSLUtilTest {
 
   @Test
   public void failWithAnUnknownProtocol() throws Exception {
-    SSLConfig sslConfig = mock(SSLConfig.class);
+    var sslConfig = mock(SSLConfig.class);
     when(sslConfig.getClientProtocolsAsStringArray())
         .thenReturn(new String[] {"boulevard of broken dreams"});
     when(sslConfig.getServerProtocolsAsStringArray())
@@ -58,26 +57,26 @@ public class SSLUtilTest {
 
   @Test
   public void getASpecificProtocol() throws Exception {
-    SSLConfig sslConfig = mock(SSLConfig.class);
+    var sslConfig = mock(SSLConfig.class);
     when(sslConfig.getClientProtocolsAsStringArray()).thenReturn(new String[] {"TLSv1.2"});
     when(sslConfig.getServerProtocolsAsStringArray()).thenReturn(new String[] {"TLSv1.2"});
-    final SSLContext sslContextInstance = SSLUtil.getSSLContextInstance(sslConfig);
+    final var sslContextInstance = SSLUtil.getSSLContextInstance(sslConfig);
     assertThat(sslContextInstance.getProtocol().equalsIgnoreCase("TLSv1.2")).isTrue();
   }
 
   @Test
   public void getAnyProtocolWithAnUnknownInTheList() throws Exception {
-    SSLConfig sslConfig = mock(SSLConfig.class);
+    var sslConfig = mock(SSLConfig.class);
     when(sslConfig.getClientProtocolsAsStringArray())
         .thenReturn(new String[] {"the dream of the blue turtles", "any", "SSL"});
     when(sslConfig.getServerProtocolsAsStringArray())
         .thenReturn(new String[] {"the dream of the blue turtles", "any", "SSL"});
-    final SSLContext sslContextInstance = SSLUtil.getSSLContextInstance(sslConfig);
+    final var sslContextInstance = SSLUtil.getSSLContextInstance(sslConfig);
     // make sure that we don't continue past "any" and use the following protocol (SSL)
     assertThat(sslContextInstance.getProtocol().equalsIgnoreCase("SSL")).isFalse();
-    String selectedProtocol = sslContextInstance.getProtocol();
+    var selectedProtocol = sslContextInstance.getProtocol();
     String matchedProtocol = null;
-    for (String algorithm : SSLUtil.DEFAULT_ALGORITHMS) {
+    for (var algorithm : SSLUtil.DEFAULT_ALGORITHMS) {
       if (algorithm.equalsIgnoreCase(selectedProtocol)) {
         matchedProtocol = algorithm;
       }
@@ -89,23 +88,23 @@ public class SSLUtilTest {
 
   @Test
   public void getARealProtocolAfterProcessingAny() throws Exception {
-    final String[] algorithms = {"dream weaver", "any", "TLSv1.2"};
-    final String[] algorithmsForAny = new String[] {"sweet dreams (are made of this)"};
-    final SSLContext sslContextInstance = SSLUtil.findSSLContextForProtocols(algorithms,
+    final var algorithms = new String[] {"dream weaver", "any", "TLSv1.2"};
+    final var algorithmsForAny = new String[] {"sweet dreams (are made of this)"};
+    final var sslContextInstance = SSLUtil.findSSLContextForProtocols(algorithms,
         algorithmsForAny);
     assertThat(sslContextInstance.getProtocol().equalsIgnoreCase("TLSv1.2")).isTrue();
   }
 
   @Test
   public void getDefaultKeyManagerFactory() throws NoSuchAlgorithmException {
-    final KeyManagerFactory keyManagerFactory = SSLUtil.getDefaultKeyManagerFactory();
+    final var keyManagerFactory = SSLUtil.getDefaultKeyManagerFactory();
     assertThat(keyManagerFactory).isNotNull();
     assertThat(keyManagerFactory.getAlgorithm()).isEqualTo(KeyManagerFactory.getDefaultAlgorithm());
   }
 
   @Test
   public void getDefaultTrustManagerFactory() throws NoSuchAlgorithmException {
-    final TrustManagerFactory trustManagerFactory = SSLUtil.getDefaultTrustManagerFactory();
+    final var trustManagerFactory = SSLUtil.getDefaultTrustManagerFactory();
     assertThat(trustManagerFactory).isNotNull();
     assertThat(trustManagerFactory.getAlgorithm())
         .isEqualTo(TrustManagerFactory.getDefaultAlgorithm());
@@ -113,7 +112,7 @@ public class SSLUtilTest {
 
   @Test
   void combineProtocolsReturnsEmptyWhenBothProtocolListsAreEmpty() {
-    final SSLConfig config = mock(SSLConfig.class);
+    final var config = mock(SSLConfig.class);
     when(config.getClientProtocolsAsStringArray()).thenReturn(new String[0]);
     when(config.getServerProtocolsAsStringArray()).thenReturn(new String[0]);
 
@@ -122,7 +121,7 @@ public class SSLUtilTest {
 
   @Test
   void combineProtocolsReturnsUniqueValues() {
-    final SSLConfig config = mock(SSLConfig.class);
+    final var config = mock(SSLConfig.class);
     when(config.getClientProtocolsAsStringArray()).thenReturn(new String[] {"a"});
     when(config.getServerProtocolsAsStringArray()).thenReturn(new String[] {"a", "b"});
 
@@ -131,7 +130,7 @@ public class SSLUtilTest {
 
   @Test
   void combineProtocolsReturnPrefersSSLServerProtocols() {
-    final SSLConfig config = mock(SSLConfig.class);
+    final var config = mock(SSLConfig.class);
     when(config.getClientProtocolsAsStringArray()).thenReturn(new String[] {"a", "c"});
     when(config.getServerProtocolsAsStringArray()).thenReturn(new String[] {"a", "b"});
 

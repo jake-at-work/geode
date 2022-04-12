@@ -25,7 +25,6 @@ import static org.apache.geode.internal.cache.wan.wancommand.WANCommandUtils.ver
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -35,8 +34,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -63,7 +60,7 @@ public class PauseGatewaySenderCommandDUnitTest implements Serializable {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
 
@@ -79,7 +76,7 @@ public class PauseGatewaySenderCommandDUnitTest implements Serializable {
   public void testPauseGatewaySender_ErrorConditions() throws Exception {
     server1 = clusterStartupRule.startServerVM(3, locatorSite1.getPort());
     DistributedMember vm1Member = getMember(server1.getVM());
-    String command = CliStrings.PAUSE_GATEWAYSENDER + " --" + CliStrings.PAUSE_GATEWAYSENDER__ID
+    var command = CliStrings.PAUSE_GATEWAYSENDER + " --" + CliStrings.PAUSE_GATEWAYSENDER__ID
         + "=ln --" + CliStrings.MEMBER + "=" + vm1Member.getId() + " --" + CliStrings.GROUP
         + "=SenderGroup1";
     gfsh.executeAndAssertThat(command).statusIsError()
@@ -106,15 +103,15 @@ public class PauseGatewaySenderCommandDUnitTest implements Serializable {
         () -> validateGatewaySenderMXBeanProxy(getMember(server1.getVM()), "ln", true, false));
 
     DistributedMember vm1Member = getMember(server1.getVM());
-    String command = CliStrings.PAUSE_GATEWAYSENDER + " --" + CliStrings.PAUSE_GATEWAYSENDER__ID
+    var command = CliStrings.PAUSE_GATEWAYSENDER + " --" + CliStrings.PAUSE_GATEWAYSENDER__ID
         + "=ln --" + CliStrings.MEMBER + "=" + vm1Member.getId();
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
 
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.PAUSE_GATEWAYSENDER);
-    List<String> messages = resultData.getValuesInColumn("Message");
+    var messages = resultData.getValuesInColumn("Message");
     assertThat(messages.get(0)).contains("is paused on member");
 
     locatorSite1.invoke(
@@ -151,15 +148,15 @@ public class PauseGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(
         () -> validateGatewaySenderMXBeanProxy(getMember(server3.getVM()), "ln", true, false));
 
-    String command =
+    var command =
         CliStrings.PAUSE_GATEWAYSENDER + " --" + CliStrings.PAUSE_GATEWAYSENDER__ID + "=ln";
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.PAUSE_GATEWAYSENDER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "OK");
 
     locatorSite1.invoke(
@@ -182,7 +179,7 @@ public class PauseGatewaySenderCommandDUnitTest implements Serializable {
     Integer locator1Port = locatorSite1.getPort();
 
     // setup servers in Site #1
-    String groups = "SenderGroup1";
+    var groups = "SenderGroup1";
     server1 = startServerWithGroups(3, groups, locator1Port);
     server2 = startServerWithGroups(4, groups, locator1Port);
     server3 = startServerWithGroups(5, groups, locator1Port);
@@ -206,15 +203,15 @@ public class PauseGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(
         () -> validateGatewaySenderMXBeanProxy(getMember(server3.getVM()), "ln", true, false));
 
-    String command = CliStrings.PAUSE_GATEWAYSENDER + " --" + CliStrings.PAUSE_GATEWAYSENDER__ID
+    var command = CliStrings.PAUSE_GATEWAYSENDER + " --" + CliStrings.PAUSE_GATEWAYSENDER__ID
         + "=ln --" + CliStrings.GROUP + "=SenderGroup1";
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.PAUSE_GATEWAYSENDER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "OK");
 
     locatorSite1.invoke(
@@ -273,15 +270,15 @@ public class PauseGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(
         () -> validateGatewaySenderMXBeanProxy(getMember(server5.getVM()), "ln", true, false));
 
-    String command = CliStrings.PAUSE_GATEWAYSENDER + " --" + CliStrings.PAUSE_GATEWAYSENDER__ID
+    var command = CliStrings.PAUSE_GATEWAYSENDER + " --" + CliStrings.PAUSE_GATEWAYSENDER__ID
         + "=ln --" + CliStrings.GROUP + "=SenderGroup1,SenderGroup2";
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.PAUSE_GATEWAYSENDER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "OK", "OK");
 
     locatorSite1.invoke(
@@ -303,7 +300,7 @@ public class PauseGatewaySenderCommandDUnitTest implements Serializable {
   }
 
   private MemberVM startServerWithGroups(int index, String groups, int locPort) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, groups);
     return clusterStartupRule.startServerVM(index, props, locPort);
   }

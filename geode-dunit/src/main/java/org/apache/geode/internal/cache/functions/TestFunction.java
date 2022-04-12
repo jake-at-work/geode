@@ -20,31 +20,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 
-import org.apache.logging.log4j.Logger;
-
 import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.RebalanceOperation;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionInvocationTargetException;
 import org.apache.geode.cache.execute.RegionFunctionContext;
 import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.Assert;
@@ -136,8 +127,8 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
    */
   @Override
   public void execute(FunctionContext context) {
-    String id = props.getProperty(ID);
-    String noAckTest = props.getProperty(NOACKTEST);
+    var id = props.getProperty(ID);
+    var noAckTest = props.getProperty(NOACKTEST);
 
     if (id.equals(TEST_FUNCTION1) || id.equals(TEST_FUNCTION_ON_ONE_MEMBER_RETURN_ARGS)) {
       execute1(context);
@@ -204,7 +195,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
 
   private void executeFunctionRunningForLongTime(FunctionContext context) {
-    Logger logger = LogService.getLogger();
+    var logger = LogService.getLogger();
 
     try {
       Thread.sleep(2000);
@@ -218,16 +209,16 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   private void executeFunctionBucketFilter(FunctionContext context) {
     // int bucketIDAsFilter = ((Integer)context.getArguments()).intValue();
     // check if the node contains the bucket passed as filter
-    RegionFunctionContextImpl rfc = (RegionFunctionContextImpl) context;
-    PartitionedRegion pr = (PartitionedRegion) rfc.getDataSet();
-    int[] bucketIDs = rfc.getLocalBucketArray(pr);
+    var rfc = (RegionFunctionContextImpl) context;
+    var pr = (PartitionedRegion) rfc.getDataSet();
+    var bucketIDs = rfc.getLocalBucketArray(pr);
     pr.getGemFireCache().getLogger().fine("LOCAL BUCKETSET =" + Arrays.toString(bucketIDs));
     ResultSender<Integer> rs = context.<Integer>getResultSender();
     if (!pr.getDataStore().areAllBucketsHosted(bucketIDs)) {
       throw new AssertionError(
           "bucket IDs =" + Arrays.toString(bucketIDs) + " not all hosted locally");
     } else {
-      for (int i = 1; i < bucketIDs[0]; ++i) {
+      for (var i = 1; i < bucketIDs[0]; ++i) {
         rs.sendResult(bucketIDs[i]);
       }
       rs.lastResult(bucketIDs[bucketIDs[0]]);
@@ -237,13 +228,13 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void executeFunctionReturningArgs(FunctionContext context) {
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    LogWriter logger = ds.getLogWriter();
+    var logger = ds.getLogWriter();
     logger.info("Executing executeFunctionReturningArgs in TestFunction on Member : "
         + ds.getDistributedMember() + "with Context : " + context);
     if (!hasResult()) {
       return;
     }
-    Object[] args = (Object[]) context.getArguments();
+    var args = (Object[]) context.getArguments();
     if (args != null) {
       context.getResultSender().lastResult(args[0]);
     } else {
@@ -253,7 +244,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void execute1(FunctionContext context) {
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    LogWriter logger = ds.getLogWriter();
+    var logger = ds.getLogWriter();
     logger.info("Executing execute1 in TestFunction on Member : " + ds.getDistributedMember()
         + "with Context : " + context);
     if (!hasResult()) {
@@ -269,9 +260,9 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
       context.getResultSender().lastResult(context.getArguments());
     } else if (context.getArguments() instanceof Set) {
-      Set origKeys = (Set) context.getArguments();
-      ArrayList vals = new ArrayList();
-      for (Object val : origKeys) {
+      var origKeys = (Set) context.getArguments();
+      var vals = new ArrayList();
+      for (var val : origKeys) {
         if (val != null) {
           vals.add(val);
         }
@@ -286,7 +277,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void execute2(FunctionContext context) {
     if (context instanceof RegionFunctionContext) {
-      RegionFunctionContext rfContext = (RegionFunctionContext) context;
+      var rfContext = (RegionFunctionContext) context;
       rfContext.getDataSet().getCache().getLogger()
           .info("Executing function :  TestFunction2.execute " + rfContext);
       if (rfContext.getArguments() instanceof Boolean) {
@@ -307,7 +298,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
           }
         }
       } else if (rfContext.getArguments() instanceof String) {
-        String key = (String) rfContext.getArguments();
+        var key = (String) rfContext.getArguments();
         if (key.equals("TestingTimeOut")) { // for test
                                             // PRFunctionExecutionDUnitTest#testRemoteMultiKeyExecution_timeout
           try {
@@ -328,10 +319,10 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
         }
         /* return (Serializable)rfContext.getDataSet().get(key); */
       } else if (rfContext.getArguments() instanceof Set) {
-        Set origKeys = (Set) rfContext.getArguments();
-        ArrayList vals = new ArrayList();
-        for (Object key : origKeys) {
-          Object val = PartitionRegionHelper.getLocalDataForContext(rfContext).get(key);
+        var origKeys = (Set) rfContext.getArguments();
+        var vals = new ArrayList();
+        for (var key : origKeys) {
+          var val = PartitionRegionHelper.getLocalDataForContext(rfContext).get(key);
           if (val != null) {
             vals.add(val);
           }
@@ -339,9 +330,9 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
         rfContext.getResultSender().lastResult(vals);
         /* return vals; */
       } else if (rfContext.getArguments() instanceof HashMap) {
-        HashMap putData = (HashMap) rfContext.getArguments();
-        for (Object o : putData.entrySet()) {
-          Map.Entry me = (Map.Entry) o;
+        var putData = (HashMap) rfContext.getArguments();
+        for (var o : putData.entrySet()) {
+          var me = (Map.Entry) o;
           rfContext.getDataSet().put(me.getKey(), me.getValue());
         }
         rfContext.getResultSender().lastResult(Boolean.TRUE);
@@ -353,7 +344,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
         context.getResultSender().lastResult(Boolean.FALSE);
       } else {
         DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-        LogWriter logger = ds.getLogWriter();
+        var logger = ds.getLogWriter();
         logger.info("Executing in TestFunction on Server : " + ds.getDistributedMember()
             + "with Context : " + context);
         while (ds.isConnected()) {
@@ -372,14 +363,14 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   private void execute3(FunctionContext context) {
 
     if (context instanceof RegionFunctionContext) {
-      RegionFunctionContext prContext = (RegionFunctionContext) context;
+      var prContext = (RegionFunctionContext) context;
       prContext.getDataSet().getCache().getLogger()
           .info("Executing function : TestFunction3.execute " + prContext);
       if (prContext.getArguments() instanceof Set) {
-        Set origKeys = (Set) prContext.getArguments();
-        ArrayList vals = new ArrayList();
-        for (Object origKey : origKeys) {
-          Object val = PartitionRegionHelper.getLocalDataForContext(prContext).get(origKey);
+        var origKeys = (Set) prContext.getArguments();
+        var vals = new ArrayList();
+        for (var origKey : origKeys) {
+          var val = PartitionRegionHelper.getLocalDataForContext(prContext).get(origKey);
           if (val != null) {
             vals.add(val);
           }
@@ -388,9 +379,9 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
         /* return vals; */
       } else if (prContext.getFilter() != null) {
         Set origKeys = prContext.getFilter();
-        ArrayList vals = new ArrayList();
-        for (Object origKey : origKeys) {
-          Object val = PartitionRegionHelper.getLocalDataForContext(prContext).get(origKey);
+        var vals = new ArrayList();
+        for (var origKey : origKeys) {
+          var val = PartitionRegionHelper.getLocalDataForContext(prContext).get(origKey);
           if (val != null) {
             vals.add(val);
           }
@@ -408,7 +399,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   private void execute4(FunctionContext context) {
 
     if (context instanceof RegionFunctionContext) {
-      RegionFunctionContext prContext = (RegionFunctionContext) context;
+      var prContext = (RegionFunctionContext) context;
       prContext.getDataSet().getCache().getLogger()
           .info("Executing function :  TestFunction4-7.execute " + prContext);
       if (prContext.getArguments() instanceof Boolean) {
@@ -417,15 +408,15 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
           prContext.getResultSender().lastResult(prContext.getArguments());
         }
       } else if (prContext.getArguments() instanceof String) {
-        String key = (String) prContext.getArguments();
+        var key = (String) prContext.getArguments();
         /* return (Serializable)PartitionRegionHelper.getLocalDataForContext(prContext).get(key); */
         prContext.getResultSender().lastResult(
             PartitionRegionHelper.getLocalDataForContext(prContext).get(key));
       } else if (prContext.getArguments() instanceof Set) {
-        Set origKeys = (Set) prContext.getArguments();
-        ArrayList vals = new ArrayList();
-        for (Object origKey : origKeys) {
-          Object val = PartitionRegionHelper.getLocalDataForContext(prContext).get(origKey);
+        var origKeys = (Set) prContext.getArguments();
+        var vals = new ArrayList();
+        for (var origKey : origKeys) {
+          var val = PartitionRegionHelper.getLocalDataForContext(prContext).get(origKey);
           if (val != null) {
             vals.add(val);
           }
@@ -434,9 +425,9 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
           prContext.getResultSender().lastResult(vals);
         }
       } else if (prContext.getArguments() instanceof HashMap) {
-        HashMap putData = (HashMap) prContext.getArguments();
-        for (Object o : putData.entrySet()) {
-          Map.Entry me = (Map.Entry) o;
+        var putData = (HashMap) prContext.getArguments();
+        for (var o : putData.entrySet()) {
+          var me = (Map.Entry) o;
           prContext.getDataSet().put(me.getKey(), me.getValue());
         }
         if (hasResult()) {
@@ -457,7 +448,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void execute5(FunctionContext context) {
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    LogWriter logger = ds.getLogWriter();
+    var logger = ds.getLogWriter();
     logger.info("Executing executeException in TestFunction on Member : "
         + ds.getDistributedMember() + "with Context : " + context);
     if (hasResult()) {
@@ -474,7 +465,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   private void executeMemberFunction(FunctionContext context) {
     if (hasResult()) {
       if (context.getArguments() instanceof String) {
-        String args = (String) context.getArguments();
+        var args = (String) context.getArguments();
         if (!args.equalsIgnoreCase("Key")) {
           Assert.assertTrue(
               args.equals(
@@ -492,7 +483,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void execute8(FunctionContext context) {
     if (context instanceof RegionFunctionContext) {
-      RegionFunctionContext rfContext = (RegionFunctionContext) context;
+      var rfContext = (RegionFunctionContext) context;
       rfContext.getDataSet().getCache().getLogger()
           .info("Executing function :  TestFunction8.execute " + rfContext);
 
@@ -501,14 +492,14 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
         // rfContext.getResultSender().sendResult(rfContext.getArguments());
         rfContext.getResultSender().lastResult(rfContext.getArguments());
       } else if (rfContext.getArguments() instanceof String) {
-        String op = (String) rfContext.getArguments();
+        var op = (String) rfContext.getArguments();
         if (op.equals("DELETE")) {
           Region r = rfContext.getDataSet();
           Set s = rfContext.getFilter();
           if (s == null) {
             rfContext.getResultSender().lastResult(Boolean.FALSE);
           }
-          for (Object value : s) {
+          for (var value : s) {
             r.destroy(value);
           }
           rfContext.getResultSender().lastResult(Boolean.TRUE);
@@ -518,8 +509,8 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
           if (s == null) {
             rfContext.getResultSender().lastResult(Boolean.FALSE);
           }
-          Iterator itr = s.iterator();
-          ArrayList vals = new ArrayList();
+          var itr = s.iterator();
+          var vals = new ArrayList();
           while (itr.hasNext()) {
             vals.add(r.get(itr.next()));
           }
@@ -536,13 +527,13 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void execute9(FunctionContext context) {
     if (context instanceof RegionFunctionContext) {
-      RegionFunctionContext rfContext = (RegionFunctionContext) context;
+      var rfContext = (RegionFunctionContext) context;
       rfContext.getDataSet().getCache().getLogger()
           .info("Executing function :  TestFunction9.execute " + rfContext);
       if (rfContext.getArguments() instanceof Boolean) {
         rfContext.getResultSender().lastResult(rfContext.getArguments());
       } else if (rfContext.getArguments() instanceof String) {
-        String key = (String) rfContext.getArguments();
+        var key = (String) rfContext.getArguments();
         if (key.equals("TestingTimeOut")) { // for test
                                             // PRFunctionExecutionDUnitTest#testRemoteMultiKeyExecution_timeout
           try {
@@ -555,18 +546,18 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
           }
         }
         if (context instanceof RegionFunctionContext) {
-          RegionFunctionContext prContext = (RegionFunctionContext) context;
+          var prContext = (RegionFunctionContext) context;
           if (PartitionRegionHelper.isPartitionedRegion(prContext.getDataSet())) {
             rfContext.getResultSender().lastResult(
                 PartitionRegionHelper.getLocalDataForContext(prContext).get(key));
           }
         }
       } else if (rfContext.getArguments() instanceof Set) {
-        Set origKeys = (Set) rfContext.getArguments();
-        for (Iterator i = origKeys.iterator(); i.hasNext();) {
+        var origKeys = (Set) rfContext.getArguments();
+        for (var i = origKeys.iterator(); i.hasNext();) {
           Object val;
           if (context instanceof RegionFunctionContext) {
-            RegionFunctionContext prContext = (RegionFunctionContext) context;
+            var prContext = (RegionFunctionContext) context;
             val = PartitionRegionHelper.getLocalDataForContext(prContext).get(i.next());
           } else {
             val = rfContext.getDataSet().get(i.next());
@@ -580,9 +571,9 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
         }
       } else if (rfContext.getArguments() instanceof HashMap) {
-        HashMap putData = (HashMap) rfContext.getArguments();
-        for (Object o : putData.entrySet()) {
-          Map.Entry me = (Map.Entry) o;
+        var putData = (HashMap) rfContext.getArguments();
+        for (var o : putData.entrySet()) {
+          var me = (Map.Entry) o;
           rfContext.getDataSet().put(me.getKey(), me.getValue());
         }
         rfContext.getResultSender().lastResult(Boolean.TRUE);
@@ -595,20 +586,20 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void executeException(FunctionContext context) {
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    LogWriter logger = ds.getLogWriter();
+    var logger = ds.getLogWriter();
     logger.fine("Executing executeException in TestFunction on Member : "
         + ds.getDistributedMember() + "with Context : " + context);
     if (context.getArguments() instanceof Boolean) {
       logger.fine("MyFunctionExecutionException Exception is intentionally thrown");
       throw new MyFunctionExecutionException("I have been thrown from TestFunction");
     } else if (context.getArguments() instanceof String) {
-      String key = (String) context.getArguments();
+      var key = (String) context.getArguments();
       logger.fine("Result sent back :" + key);
       context.getResultSender().lastResult(key);
     } else if (context.getArguments() instanceof Set) {
-      Set origKeys = (Set) context.getArguments();
-      ArrayList vals = new ArrayList();
-      for (Object val : origKeys) {
+      var origKeys = (Set) context.getArguments();
+      var vals = new ArrayList();
+      for (var val : origKeys) {
         if (val != null) {
           vals.add(val);
         }
@@ -623,7 +614,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void executeAlwaysException(FunctionContext context) {
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    LogWriter logger = ds.getLogWriter();
+    var logger = ds.getLogWriter();
     logger.fine("Executing executeException in TestFunction on Member : "
         + ds.getDistributedMember() + "with Context : " + context);
     logger.fine("MyFunctionExecutionException Exception is intentionally thrown");
@@ -633,14 +624,14 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void executeWithSendException(FunctionContext context) {
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    LogWriter logger = ds.getLogWriter();
+    var logger = ds.getLogWriter();
     logger.fine("Executing executeWithSendException in TestFunction on Member : "
         + ds.getDistributedMember() + "with Context : " + context);
     if (context.getArguments() instanceof Boolean) {
       context.getResultSender()
           .sendException(new MyFunctionExecutionException("I have been send from TestFunction"));
     } else if (context.getArguments() instanceof String) {
-      String arg = (String) context.getArguments();
+      var arg = (String) context.getArguments();
       if (arg.equals("Multiple")) {
         logger.fine("Sending Exception First time");
         context.getResultSender()
@@ -650,8 +641,8 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
             .sendException(new MyFunctionExecutionException("I have been send from TestFunction"));
       }
     } else if (context.getArguments() instanceof Set) {
-      Set args = (Set) context.getArguments();
-      for (int i = 0; i < args.size(); i++) {
+      var args = (Set) context.getArguments();
+      for (var i = 0; i < args.size(); i++) {
         context.getResultSender().sendResult(i);
       }
       context.getResultSender().sendException(
@@ -664,19 +655,19 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
   private void executeWithThrowException(FunctionContext context) {
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    RegionFunctionContext rfContext = (RegionFunctionContext) context;
-    LogWriter logger = ds.getLogWriter();
+    var rfContext = (RegionFunctionContext) context;
+    var logger = ds.getLogWriter();
     logger.fine("Executing executeWithThrowException in TestFunction on Member : "
         + ds.getDistributedMember() + "with Context : " + context);
     if (context.getArguments() instanceof Boolean) {
       logger.fine("MyFunctionExecutionException Exception is intentionally thrown");
       throw new MyFunctionExecutionException("I have been thrown from TestFunction");
     } else if (rfContext.getArguments() instanceof Set) {
-      Set origKeys = (Set) rfContext.getArguments();
-      for (Object origKey : origKeys) {
+      var origKeys = (Set) rfContext.getArguments();
+      for (var origKey : origKeys) {
         Region r = PartitionRegionHelper.getLocalDataForContext(rfContext);
-        Object key = origKey;
-        Object val = r.get(key);
+        var key = origKey;
+        var val = r.get(key);
         if (val != null) {
           throw new MyFunctionExecutionException("I have been thrown from TestFunction");
         }
@@ -690,7 +681,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   private synchronized void executeFunctionReexecuteException(FunctionContext context) {
     retryCountForExecuteFunctionReexecuteException++;
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    LogWriter logger = ds.getLogWriter();
+    var logger = ds.getLogWriter();
     logger.fine("Executing executeException in TestFunction on Member : "
         + ds.getDistributedMember() + "with Context : " + context);
     if (retryCountForExecuteFunctionReexecuteException >= 5) {
@@ -708,9 +699,9 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   }
 
   private void executeResultSender(FunctionContext context) {
-    ResultSender resultSender = context.getResultSender();
+    var resultSender = context.getResultSender();
     if (context instanceof RegionFunctionContext) {
-      RegionFunctionContext rfContext = (RegionFunctionContext) context;
+      var rfContext = (RegionFunctionContext) context;
       rfContext.getDataSet().getCache().getLogger()
           .info("Executing function :  TestFunctionexecuteResultSender.execute " + rfContext);
       if (rfContext.getArguments() instanceof Boolean) {
@@ -718,12 +709,12 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
           resultSender.lastResult(rfContext.getArguments());
         }
       } else if (rfContext.getArguments() instanceof Set) {
-        Set origKeys = (Set) rfContext.getArguments();
-        Object[] objectArray = origKeys.toArray();
-        int size = objectArray.length;
-        int i = 0;
+        var origKeys = (Set) rfContext.getArguments();
+        var objectArray = origKeys.toArray();
+        var size = objectArray.length;
+        var i = 0;
         for (; i < (size - 1); i++) {
-          Object val = PartitionRegionHelper.getLocalDataForContext(rfContext).get(objectArray[i]);
+          var val = PartitionRegionHelper.getLocalDataForContext(rfContext).get(objectArray[i]);
           if (val != null) {
             resultSender.sendResult(val);
           }
@@ -748,9 +739,9 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
     } else if (context.getArguments() instanceof String) {
       context.getResultSender().lastResult(context.getArguments());
     } else if (context.getArguments() instanceof Set) {
-      Set origKeys = (Set) context.getArguments();
-      ArrayList vals = new ArrayList();
-      for (Object val : origKeys) {
+      var origKeys = (Set) context.getArguments();
+      var vals = new ArrayList();
+      for (var val : origKeys) {
         if (val != null) {
           vals.add(val);
         }
@@ -773,14 +764,14 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
 
     }
     if (context instanceof RegionFunctionContext) {
-      RegionFunctionContext rfContext = (RegionFunctionContext) context;
+      var rfContext = (RegionFunctionContext) context;
       rfContext.getDataSet().getCache().getLogger()
           .info("Executing function :  TestFunction.execute " + rfContext);
       if (rfContext.getArguments() instanceof Boolean) {
         /* return rfContext.getArguments(); */
         rfContext.getResultSender().lastResult(rfContext.getArguments());
       } else if (rfContext.getArguments() instanceof String) {
-        String key = (String) rfContext.getArguments();
+        var key = (String) rfContext.getArguments();
         if (key.equals("TestingTimeOut")) { // for test
                                             // PRFunctionExecutionDUnitTest#testRemoteMultiKeyExecution_timeout
           try {
@@ -811,10 +802,10 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
         }
         /* return (Serializable)rfContext.getDataSet().get(key); */
       } else if (rfContext.getArguments() instanceof Set) {
-        Set origKeys = (Set) rfContext.getArguments();
-        ArrayList vals = new ArrayList();
-        for (Object origKey : origKeys) {
-          Object val = PartitionRegionHelper.getLocalDataForContext(rfContext).get(origKey);
+        var origKeys = (Set) rfContext.getArguments();
+        var vals = new ArrayList();
+        for (var origKey : origKeys) {
+          var val = PartitionRegionHelper.getLocalDataForContext(rfContext).get(origKey);
           if (val != null) {
             vals.add(val);
           }
@@ -822,9 +813,9 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
         rfContext.getResultSender().lastResult(vals);
         /* return vals; */
       } else if (rfContext.getArguments() instanceof HashMap) {
-        HashMap putData = (HashMap) rfContext.getArguments();
-        for (Object o : putData.entrySet()) {
-          Map.Entry me = (Map.Entry) o;
+        var putData = (HashMap) rfContext.getArguments();
+        for (var o : putData.entrySet()) {
+          var me = (Map.Entry) o;
           rfContext.getDataSet().put(me.getKey(), me.getValue());
         }
         rfContext.getResultSender().lastResult(Boolean.TRUE);
@@ -838,7 +829,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   }
 
   private void executeHA(FunctionContext context) {
-    RegionFunctionContext rcontext = (RegionFunctionContext) context;
+    var rcontext = (RegionFunctionContext) context;
     Region region = rcontext.getDataSet();
     region.getCache().getLogger().fine("executeHA#execute( " + rcontext + " )");
 
@@ -852,12 +843,12 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   }
 
   private void executeHAAndNonHAOnServer(FunctionContext context) {
-    List<CacheServer> servers = CacheFactory.getAnyInstance().getCacheServers();
-    ArrayList<String> args = (ArrayList<String>) context.getArguments();
+    var servers = CacheFactory.getAnyInstance().getCacheServers();
+    var args = (ArrayList<String>) context.getArguments();
     Region r = CacheFactory.getAnyInstance().getRegion(args.get(0));
-    String testName = args.get(1);
-    Integer numTimesStopped = (Integer) r.get("stopped");
-    Integer numTimesSentResult = (Integer) r.get("sentresult");
+    var testName = args.get(1);
+    var numTimesStopped = (Integer) r.get("stopped");
+    var numTimesSentResult = (Integer) r.get("sentresult");
 
     if (context.isPossibleDuplicate()) {
       switch (testName) {
@@ -871,7 +862,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
             context.getResultSender().lastResult(args.get(0));
           } else {
             r.put("stopped", ++numTimesStopped);
-            for (CacheServer s : servers) {
+            for (var s : servers) {
               if (((CacheServerImpl) s).getSystem().getDistributedMember()
                   .equals(((GemFireCacheImpl) CacheFactory.getAnyInstance()).getMyId())) {
                 s.stop();
@@ -900,7 +891,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
         r.put("stopped", ++numTimesStopped);
       }
 
-      for (CacheServer s : servers) {
+      for (var s : servers) {
         if (((CacheServerImpl) s).getSystem().getDistributedMember()
             .equals(((GemFireCacheImpl) CacheFactory.getAnyInstance()).getMyId())) {
           s.stop();
@@ -913,17 +904,17 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   }
 
   private void executeHAAndNonHAOnRegion(FunctionContext context) {
-    List<CacheServer> servers = CacheFactory.getAnyInstance().getCacheServers();
-    ArrayList<String> args = (ArrayList<String>) context.getArguments();
+    var servers = CacheFactory.getAnyInstance().getCacheServers();
+    var args = (ArrayList<String>) context.getArguments();
 
-    RegionFunctionContext rfContext = (RegionFunctionContext) context;
+    var rfContext = (RegionFunctionContext) context;
     rfContext.getDataSet().getCache().getLogger()
         .info("Executing function :  executeHAAndNonHAOnRegion " + rfContext);
 
     Region r = CacheFactory.getAnyInstance().getRegion(args.get(0));
-    String testName = args.get(1);
-    Integer numTimesStopped = (Integer) r.get("stopped");
-    Integer numTimesSentResult = (Integer) r.get("sentresult");
+    var testName = args.get(1);
+    var numTimesStopped = (Integer) r.get("stopped");
+    var numTimesSentResult = (Integer) r.get("sentresult");
 
     if (context.isPossibleDuplicate()) {
       if (testName.equals("regionExecutionHATwoServerDown")) {
@@ -936,7 +927,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
           context.getResultSender().lastResult(args.get(0));
         } else {
           r.put("stopped", ++numTimesStopped);
-          for (CacheServer s : servers) {
+          for (var s : servers) {
             if (((CacheServerImpl) s).getSystem().getDistributedMember()
                 .equals(((GemFireCacheImpl) CacheFactory.getAnyInstance()).getMyId())) {
               s.stop();
@@ -962,7 +953,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
         r.put("stopped", ++numTimesStopped);
       }
 
-      for (CacheServer s : servers) {
+      for (var s : servers) {
         if (((CacheServerImpl) s).getSystem().getDistributedMember()
             .equals(((GemFireCacheImpl) CacheFactory.getAnyInstance()).getMyId())) {
           s.stop();
@@ -982,7 +973,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
     }
 
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    LogWriter logger = ds.getLogWriter();
+    var logger = ds.getLogWriter();
     logger.fine("Executing executeException in TestFunction on Member : "
         + ds.getDistributedMember() + "with Context : " + context);
     if (retryCount >= 5) {
@@ -1008,12 +999,12 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   }
 
   private void executeWithLastResult(FunctionContext context) {
-    RegionFunctionContext rfContext = (RegionFunctionContext) context;
-    final PartitionedRegion pr = (PartitionedRegion) rfContext.getDataSet();
+    var rfContext = (RegionFunctionContext) context;
+    final var pr = (PartitionedRegion) rfContext.getDataSet();
 
-    ResourceManager resMan = pr.getCache().getResourceManager();
-    RebalanceFactory factory = resMan.createRebalanceFactory();
-    RebalanceOperation rebalanceOp = factory.start();
+    var resMan = pr.getCache().getResourceManager();
+    var factory = resMan.createRebalanceFactory();
+    var rebalanceOp = factory.start();
     try {
       rebalanceOp.getResults();
     } catch (CancellationException | InterruptedException e) {
@@ -1023,11 +1014,11 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   }
 
   private void executeSingleHopForceNetworkHop(FunctionContext context) {
-    RegionFunctionContext rfContext = (RegionFunctionContext) context;
-    final PartitionedRegion pr = (PartitionedRegion) rfContext.getDataSet();
-    Set keySet = (Set) rfContext.getArguments();
+    var rfContext = (RegionFunctionContext) context;
+    final var pr = (PartitionedRegion) rfContext.getDataSet();
+    var keySet = (Set) rfContext.getArguments();
     // Read entries from the region to provoke hops to another server
-    for (Object key : keySet) {
+    for (var key : keySet) {
       pr.get(key);
     }
     int networkHopType = pr.getNetworkHopType();
@@ -1035,8 +1026,8 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   }
 
   private void executeGetNetworkHop(FunctionContext context) {
-    RegionFunctionContext rfContext = (RegionFunctionContext) context;
-    final PartitionedRegion pr = (PartitionedRegion) rfContext.getDataSet();
+    var rfContext = (RegionFunctionContext) context;
+    final var pr = (PartitionedRegion) rfContext.getDataSet();
     int networkHopType = pr.getNetworkHopType();
     context.getResultSender().lastResult(networkHopType);
   }
@@ -1060,7 +1051,7 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
     if (!(obj instanceof TestFunction)) {
       return false;
     }
-    TestFunction function = (TestFunction) obj;
+    var function = (TestFunction) obj;
     return props.equals(function.getConfig());
   }
 
@@ -1116,8 +1107,8 @@ public class TestFunction<T> implements Function<T>, Declarable2, DataSerializab
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
     Map map = DataSerializer.readHashMap(in);
     if (map != null) {
-      for (Object o : map.entrySet()) {
-        Map.Entry entry = (Map.Entry) o;
+      for (var o : map.entrySet()) {
+        var entry = (Map.Entry) o;
         props.put(entry.getKey(), entry.getValue());
       }
     }

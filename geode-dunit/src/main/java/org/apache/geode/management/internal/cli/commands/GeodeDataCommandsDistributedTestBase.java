@@ -30,15 +30,10 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.DistributedRegionMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -92,19 +87,19 @@ public class GeodeDataCommandsDistributedTestBase {
   }
 
   private static void setupRegions(String regionName, String parRegionName) {
-    InternalCache cache = ClusterStartupRule.getCache();
-    RegionFactory<Object, Object> regionFactory =
+    var cache = ClusterStartupRule.getCache();
+    var regionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
 
-    Region<Object, Object> dataRegion = regionFactory.create(DATA_REGION_NAME);
+    var dataRegion = regionFactory.create(DATA_REGION_NAME);
     dataRegion = regionFactory.createSubregion(dataRegion, DATA_REGION_NAME_CHILD_1);
     regionFactory.createSubregion(dataRegion, DATA_REGION_NAME_CHILD_1_2);
 
     regionFactory.create(regionName);
 
-    PartitionAttributes<Object, Object> partitionAttrs =
+    var partitionAttrs =
         new PartitionAttributesFactory<>().setRedundantCopies(2).create();
-    RegionFactory<Object, Object> partitionRegionFactory =
+    var partitionRegionFactory =
         cache.createRegionFactory(RegionShortcut.PARTITION);
     partitionRegionFactory.setPartitionAttributes(partitionAttrs);
     partitionRegionFactory.create(DATA_PAR_REGION_NAME);
@@ -114,11 +109,11 @@ public class GeodeDataCommandsDistributedTestBase {
 
 
   void setupForGetPutRemoveLocateEntry(String testName) throws Exception {
-    Properties props = locatorProperties();
+    var props = locatorProperties();
     props.setProperty(SERIALIZABLE_OBJECT_FILTER, SERIALIZATION_FILTER);
     props.setProperty(NAME, testName + "Manager");
 
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty(SERIALIZABLE_OBJECT_FILTER, SERIALIZATION_FILTER);
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withProperties(props));
     server1 = cluster.startServerVM(1, serverProps, locator.getPort());
@@ -139,16 +134,16 @@ public class GeodeDataCommandsDistributedTestBase {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_PAR_REGION_NAME_VM2_PATH, 1);
 
     locator.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      final ManagementService service = ManagementService.getManagementService(cache);
+      var cache = ClusterStartupRule.getCache();
+      final var service = ManagementService.getManagementService(cache);
 
-      DistributedRegionMXBean bean = service.getDistributedRegionMXBean(DATA_REGION_NAME_PATH);
+      var bean = service.getDistributedRegionMXBean(DATA_REGION_NAME_PATH);
 
-      String[] regions = {DATA_REGION_NAME_PATH, DATA_REGION_NAME_VM1_PATH,
+      var regions = new String[] {DATA_REGION_NAME_PATH, DATA_REGION_NAME_VM1_PATH,
           DATA_REGION_NAME_VM2_PATH, DATA_PAR_REGION_NAME_PATH, DATA_PAR_REGION_NAME_VM1_PATH,
           DATA_PAR_REGION_NAME_VM2_PATH};
 
-      for (String region : regions) {
+      for (var region : regions) {
         bean = service.getDistributedRegionMXBean(region);
         if (bean.getMemberCount() < 1) {
           fail("Even after waiting mbean reports number of member hosting region "
@@ -167,10 +162,10 @@ public class GeodeDataCommandsDistributedTestBase {
     Short shortValue = Short.parseShort("121");
     Integer integerKey = Integer.parseInt("123456");
     Integer integerValue = Integer.parseInt("12345678");
-    Float floatKey = Float.valueOf("12432.2325");
-    Float floatValue = Float.valueOf("111111.1111");
-    Double doubleKey = Double.valueOf("12432.235425");
-    Double doubleValue = Double.valueOf("111111.111111");
+    var floatKey = Float.valueOf("12432.2325");
+    var floatValue = Float.valueOf("111111.1111");
+    var doubleKey = Double.valueOf("12432.235425");
+    var doubleValue = Double.valueOf("111111.111111");
 
     // Testing Byte Wrappers
     testGetPutLocateEntryFromShellAndGeode(byteKey, byteValue, Byte.class, true, true);
@@ -189,56 +184,55 @@ public class GeodeDataCommandsDistributedTestBase {
   private void testGetPutLocateEntryFromShellAndGeode(final Serializable key,
       final Serializable value, Class<?> klass, boolean addRegionPath, boolean expResult) {
 
-    SerializableRunnableIF putTask = () -> {
+    var putTask = (SerializableRunnableIF) () -> {
       Cache cache = ClusterStartupRule.getCache();
-      Region<Object, Object> region =
+      var region =
           cache.getRegion(DATA_REGION_NAME_PATH);
       region.clear();
       region.put(key, value);
     };
 
-    SerializableRunnableIF getTask = () -> {
+    var getTask = (SerializableRunnableIF) () -> {
       Cache cache = ClusterStartupRule.getCache();
-      Region<Object, Object> region =
+      var region =
           cache.getRegion(DATA_REGION_NAME_PATH);
       assertThat(region.containsKey(key)).isTrue();
       assertThat(value).isEqualTo(region.get(key));
     };
 
-    SerializableRunnableIF removeTask = () -> {
+    var removeTask = (SerializableRunnableIF) () -> {
       Cache cache = ClusterStartupRule.getCache();
-      Region<Object, Object> region =
+      var region =
           cache.getRegion(DATA_REGION_NAME_PATH);
       assertThat(region.containsKey(key)).isTrue();
       region.remove(key);
     };
 
-
-    SerializableRunnableIF clearTask = () -> {
+    var clearTask = (SerializableRunnableIF) () -> {
       Cache cache = ClusterStartupRule.getCache();
-      Region<Object, Object> region =
+      var region =
           cache.getRegion(DATA_REGION_NAME_PATH);
       region.clear();
     };
 
-    String canonicalName = klass.getCanonicalName();
-    String getCommand = "get --key=" + key + " --key-class=" + canonicalName
+    var canonicalName = klass.getCanonicalName();
+    var getCommand = "get --key=" + key + " --key-class=" + canonicalName
         + " --value-class=" + canonicalName;
     if (addRegionPath) {
       getCommand += " --region=" + DATA_REGION_NAME_PATH;
     }
 
-    String locateEntryCommand = "locate entry --key=" + key + " --key-class="
+    var locateEntryCommand = "locate entry --key=" + key + " --key-class="
         + canonicalName + " --value-class=" + canonicalName;
     if (addRegionPath) {
       locateEntryCommand += " --region=" + DATA_REGION_NAME_PATH;
     }
 
-    String removeCommand = "remove --key=" + key + " --key-class=" + canonicalName;
+    var removeCommand = "remove --key=" + key + " --key-class=" + canonicalName;
     if (addRegionPath) {
       removeCommand += " --region=" + DATA_REGION_NAME_PATH;
     }
-    String putCommand = "put --key=" + key + " --key-class=" + canonicalName
+    var putCommand = "put --key=" + key + " --key-class=" + canonicalName
         + " --value=" + value + " --value-class=" + canonicalName;
     if (addRegionPath) {
       putCommand += " --region=" + DATA_REGION_NAME_PATH;
@@ -285,8 +279,8 @@ public class GeodeDataCommandsDistributedTestBase {
   }
 
   private static Properties locatorProperties() {
-    int jmxPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    Properties props = new Properties();
+    var jmxPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOG_LEVEL, "fine");
     props.setProperty(ConfigurationProperties.JMX_MANAGER_HOSTNAME_FOR_CLIENTS, "localhost");

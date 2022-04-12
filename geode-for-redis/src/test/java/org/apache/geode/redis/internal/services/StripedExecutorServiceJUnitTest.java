@@ -59,9 +59,9 @@ public class StripedExecutorServiceJUnitTest {
   @Test
   public void testSingleStripeRunnable() throws InterruptedException {
     ExecutorService pool = new StripedExecutorService();
-    Object stripe = new Object();
-    AtomicInteger actual = new AtomicInteger(0);
-    for (int i = 0; i < 100; i++) {
+    var stripe = new Object();
+    var actual = new AtomicInteger(0);
+    for (var i = 0; i < 100; i++) {
       pool.submit(new TestRunnable(stripe, actual, i));
     }
     assertThat(pool.isTerminated()).isFalse();
@@ -78,13 +78,13 @@ public class StripedExecutorServiceJUnitTest {
 
   @Test
   public void testShutdown() throws InterruptedException {
-    ThreadGroup group = new ThreadGroup("stripetestgroup");
-    Thread starter = new Thread(group, "starter") {
+    var group = new ThreadGroup("stripetestgroup");
+    var starter = new Thread(group, "starter") {
       public void run() {
         ExecutorService pool = new StripedExecutorService();
-        Object stripe = new Object();
-        AtomicInteger actual = new AtomicInteger(0);
-        for (int i = 0; i < 100; i++) {
+        var stripe = new Object();
+        var actual = new AtomicInteger(0);
+        for (var i = 0; i < 100; i++) {
           pool.submit(new TestRunnable(stripe, actual, i));
         }
         pool.shutdown();
@@ -98,11 +98,11 @@ public class StripedExecutorServiceJUnitTest {
 
   @Test
   public void testShutdownNow() throws InterruptedException {
-    int totalRunnables = 100;
+    var totalRunnables = 100;
     ExecutorService pool = new StripedExecutorService();
-    Object stripe = new Object();
-    AtomicInteger actual = new AtomicInteger(0);
-    for (int i = 0; i < totalRunnables; i++) {
+    var stripe = new Object();
+    var actual = new AtomicInteger(0);
+    for (var i = 0; i < totalRunnables; i++) {
       pool.submit(new TestRunnable(stripe, actual, i));
     }
 
@@ -124,20 +124,20 @@ public class StripedExecutorServiceJUnitTest {
     ExecutorService pool = new StripedExecutorService();
     final CompletionService<Integer> cs = new ExecutorCompletionService<>(pool);
 
-    Thread testSubmitter = new Thread("TestSubmitter") {
+    var testSubmitter = new Thread("TestSubmitter") {
       public void run() {
-        Object stripe = new Object();
-        for (int i = 0; i < 50; i++) {
+        var stripe = new Object();
+        for (var i = 0; i < 50; i++) {
           cs.submit(new TestCallable(stripe, i));
         }
-        for (int i = 50; i < 100; i++) {
+        for (var i = 50; i < 100; i++) {
           cs.submit(new TestCallable(stripe, i));
         }
       }
     };
     testSubmitter.start();
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       int actual = cs.take().get();
       assertThat(actual)
           .as("unexpected thread completion order")
@@ -153,8 +153,8 @@ public class StripedExecutorServiceJUnitTest {
   @Test
   public void testUnstripedRunnable() throws InterruptedException {
     ExecutorService pool = new StripedExecutorService();
-    AtomicInteger actual = new AtomicInteger(0);
-    for (int i = 0; i < 100; i++) {
+    var actual = new AtomicInteger(0);
+    for (var i = 0; i < 100; i++) {
       pool.submit(new TestUnstripedRunnable(actual, i));
     }
     pool.shutdown();
@@ -168,12 +168,12 @@ public class StripedExecutorServiceJUnitTest {
   @Test
   public void testMultipleStripes() throws InterruptedException {
     final ExecutorService pool = new StripedExecutorService();
-    ExecutorService producerPool = Executors.newCachedThreadPool();
-    for (int i = 0; i < 20; i++) {
+    var producerPool = Executors.newCachedThreadPool();
+    for (var i = 0; i < 20; i++) {
       producerPool.submit(() -> {
-        Object stripe = new Object();
-        AtomicInteger actual = new AtomicInteger(0);
-        for (int i1 = 0; i1 < 100; i1++) {
+        var stripe = new Object();
+        var actual = new AtomicInteger(0);
+        for (var i1 = 0; i1 < 100; i1++) {
           pool.submit(new TestRunnable(stripe, actual, i1));
         }
       });
@@ -193,12 +193,12 @@ public class StripedExecutorServiceJUnitTest {
   @Test
   public void testMultipleFastStripes() throws InterruptedException {
     final ExecutorService pool = new StripedExecutorService();
-    ExecutorService producerPool = Executors.newCachedThreadPool();
-    for (int i = 0; i < 20; i++) {
+    var producerPool = Executors.newCachedThreadPool();
+    for (var i = 0; i < 20; i++) {
       producerPool.submit(() -> {
-        Object stripe = new Object();
-        AtomicInteger actual = new AtomicInteger(0);
-        for (int i1 = 0; i1 < 100; i1++) {
+        var stripe = new Object();
+        var actual = new AtomicInteger(0);
+        for (var i1 = 0; i1 < 100; i1++) {
           pool.submit(new TestFastRunnable(stripe, actual, i1));
         }
       });
@@ -233,12 +233,12 @@ public class StripedExecutorServiceJUnitTest {
 
     public void run() {
       try {
-        ThreadLocalRandom rand = ThreadLocalRandom.current();
+        var rand = ThreadLocalRandom.current();
         Thread.sleep(rand.nextInt(10) + 10);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
-      int actual = stripeSequence.getAndIncrement();
+      var actual = stripeSequence.getAndIncrement();
       if (actual != expected) {
         outOfSequence = true;
       }
@@ -266,7 +266,7 @@ public class StripedExecutorServiceJUnitTest {
     }
 
     public void run() {
-      int actual = stripeSequence.getAndIncrement();
+      var actual = stripeSequence.getAndIncrement();
       if (actual != expected) {
         outOfSequence = true;
       }
@@ -292,7 +292,7 @@ public class StripedExecutorServiceJUnitTest {
 
     public Integer call() throws Exception {
       try {
-        ThreadLocalRandom rand = ThreadLocalRandom.current();
+        var rand = ThreadLocalRandom.current();
         Thread.sleep(rand.nextInt(10) + 10);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
@@ -313,12 +313,12 @@ public class StripedExecutorServiceJUnitTest {
 
     public void run() {
       try {
-        ThreadLocalRandom rand = ThreadLocalRandom.current();
+        var rand = ThreadLocalRandom.current();
         Thread.sleep(rand.nextInt(10) + 10);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
-      int actual = stripeSequence.getAndIncrement();
+      var actual = stripeSequence.getAndIncrement();
       if (actual != expected) {
         outOfSequence = true;
       }

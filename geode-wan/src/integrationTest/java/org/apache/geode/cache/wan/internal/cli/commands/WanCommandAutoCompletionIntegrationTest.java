@@ -22,7 +22,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.rules.GfshParserRule;
-import org.apache.geode.test.junit.rules.GfshParserRule.CommandCandidate;
 
 @Category(GfshTest.class)
 public class WanCommandAutoCompletionIntegrationTest {
@@ -32,8 +31,8 @@ public class WanCommandAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionOffersMandatoryOptionsInAlphabeticalOrderForWanCopyRegionWithSpace() {
-    String buffer = "wan-copy region ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "wan-copy region ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(2);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--region");
     assertThat(candidate.getCandidate(1)).isEqualTo(buffer + "--sender-id");
@@ -41,8 +40,8 @@ public class WanCommandAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionOffersTheFirstMandatoryOptionInAlphabeticalOrderForWanCopyRegionWithDash() {
-    String buffer = "wan-copy region --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "wan-copy region --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "region");
   }

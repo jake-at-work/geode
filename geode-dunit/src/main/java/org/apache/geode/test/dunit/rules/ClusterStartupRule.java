@@ -208,26 +208,26 @@ public class ClusterStartupRule implements SerializableTestRule {
   }
 
   public MemberVM startLocatorVM(int index, String version) {
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     return startLocatorVM(index, port, version, x -> x);
   }
 
   public MemberVM startLocatorVM(int index,
       SerializableFunction<LocatorStarterRule> ruleOperator) {
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     // Use compose() to put our action at the front of the operator. That way, if the ruleOperator
     // also sets a port, that action will override ours, and the locator will use the port specified
     // by ruleOperator.
-    SerializableFunction<LocatorStarterRule> ruleOperatorWithPort =
+    var ruleOperatorWithPort =
         ruleOperator.compose(x -> x.withPort(port));
     return startLocatorVM(index, 0, VersionManager.CURRENT_VERSION, ruleOperatorWithPort);
   }
 
   public MemberVM startLocatorVM(int index, int port, String version,
       SerializableFunction<LocatorStarterRule> ruleOperator) {
-    final String defaultName = "locator-" + index;
-    VM locatorVM = getVM(index, version);
-    LocatorStarterRule locatorStarter = new LocatorStarterRule();
+    final var defaultName = "locator-" + index;
+    var locatorVM = getVM(index, version);
+    var locatorStarter = new LocatorStarterRule();
     Locator server = locatorVM.invoke("start locator in vm" + index, () -> {
       memberStarter = locatorStarter;
       if (logFile) {
@@ -243,7 +243,7 @@ public class ClusterStartupRule implements SerializableTestRule {
       return locatorStarter;
     });
 
-    MemberVM memberVM = new MemberVM(server, locatorVM);
+    var memberVM = new MemberVM(server, locatorVM);
     occupiedVMs.put(index, memberVM);
     return memberVM;
   }
@@ -268,9 +268,9 @@ public class ClusterStartupRule implements SerializableTestRule {
 
   public MemberVM startServerVM(int index, String version,
       SerializableFunction<ServerStarterRule> ruleOperator) {
-    final String defaultName = "server-" + index;
-    VM serverVM = getVM(index, version);
-    ServerStarterRule serverStarter = new ServerStarterRule();
+    final var defaultName = "server-" + index;
+    var serverVM = getVM(index, version);
+    var serverStarter = new ServerStarterRule();
     Server server = serverVM.invoke("startServerVM", () -> {
       memberStarter = serverStarter;
       if (logFile) {
@@ -283,15 +283,15 @@ public class ClusterStartupRule implements SerializableTestRule {
       return serverStarter;
     });
 
-    MemberVM memberVM = new MemberVM(server, serverVM);
+    var memberVM = new MemberVM(server, serverVM);
     occupiedVMs.put(index, memberVM);
     return memberVM;
   }
 
   public ClientVM startClientVM(int index, String clientVersion,
       SerializableConsumerIF<ClientCacheRule> clientCacheRuleSetUp) throws Exception {
-    VM client = getVM(index, clientVersion);
-    Exception error = client.invoke(() -> {
+    var client = getVM(index, clientVersion);
+    var error = client.invoke(() -> {
       clientCacheRule = new ClientCacheRule();
       try {
         clientCacheRuleSetUp.accept(clientCacheRule);
@@ -304,7 +304,7 @@ public class ClusterStartupRule implements SerializableTestRule {
     if (error != null) {
       throw error;
     }
-    ClientVM clientVM = new ClientVM(client);
+    var clientVM = new ClientVM(client);
     occupiedVMs.put(index, clientVM);
     return clientVM;
   }
@@ -364,7 +364,7 @@ public class ClusterStartupRule implements SerializableTestRule {
    * this crashes the VM hosting the member/client.
    */
   public void crashVM(int index) {
-    VMProvider member = occupiedVMs.get(index);
+    var member = occupiedVMs.get(index);
     member.getVM().bounceForcibly();
   }
 

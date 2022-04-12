@@ -51,7 +51,7 @@ public abstract class GfshCommand implements CommandMarker {
 
 
   public boolean isOnlineCommandAvailable() {
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
     // command should always be available on the server
     if (gfsh == null) {
       return true;
@@ -97,12 +97,12 @@ public abstract class GfshCommand implements CommandMarker {
 
   @SuppressWarnings("unchecked")
   public <T extends ConfigurationPersistenceService> T getConfigurationPersistenceService() {
-    InternalLocator locator = InternalLocator.getLocator();
+    var locator = InternalLocator.getLocator();
     return locator == null ? null : (T) locator.getConfigurationPersistenceService();
   }
 
   public ClusterManagementService getClusterManagementService() {
-    InternalLocator locator = InternalLocator.getLocator();
+    var locator = InternalLocator.getLocator();
     return locator == null ? null : locator.getClusterManagementService();
   }
 
@@ -111,7 +111,7 @@ public abstract class GfshCommand implements CommandMarker {
   }
 
   public boolean isSharedConfigurationRunning() {
-    InternalLocator locator = InternalLocator.getLocator();
+    var locator = InternalLocator.getLocator();
     return locator != null && locator.isSharedConfigurationRunning();
   }
 
@@ -123,7 +123,7 @@ public abstract class GfshCommand implements CommandMarker {
    * this either returns a non-null member or throw an exception if member is not found.
    */
   public DistributedMember getMember(final String memberName) {
-    DistributedMember member = findMember(memberName);
+    var member = findMember(memberName);
 
     if (member == null) {
       throw new EntityNotFoundException(
@@ -173,8 +173,8 @@ public abstract class GfshCommand implements CommandMarker {
   }
 
   public Set<DistributedMember> findAllOtherLocators() {
-    Set<DistributedMember> allLocators = findAllLocators();
-    String thisId = getCache().getDistributedSystem().getDistributedMember().getId();
+    var allLocators = findAllLocators();
+    var thisId = getCache().getDistributedSystem().getDistributedMember().getId();
     return allLocators.stream().filter(m -> !(m.getId().equals(thisId)))
         .collect(Collectors.toSet());
   }
@@ -187,7 +187,7 @@ public abstract class GfshCommand implements CommandMarker {
    * if no members matches these names, a UserErrorException will be thrown
    */
   public Set<DistributedMember> getMembers(String[] groups, String[] members) {
-    Set<DistributedMember> matchingMembers = findMembers(groups, members);
+    var matchingMembers = findMembers(groups, members);
     if (matchingMembers.size() == 0) {
       throw new EntityNotFoundException(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
@@ -206,7 +206,7 @@ public abstract class GfshCommand implements CommandMarker {
    * if no members matches these names, a UserErrorException will be thrown
    */
   public Set<DistributedMember> getMembersIncludingLocators(String[] groups, String[] members) {
-    Set<DistributedMember> matchingMembers = findMembersIncludingLocators(groups, members);
+    var matchingMembers = findMembersIncludingLocators(groups, members);
     if (matchingMembers.size() == 0) {
       throw new EntityNotFoundException(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
@@ -233,14 +233,14 @@ public abstract class GfshCommand implements CommandMarker {
 
   public CliFunctionResult executeFunctionAndGetFunctionResult(Function<?> function, Object args,
       final DistributedMember targetMember) {
-    ResultCollector<?, ?> rc = executeFunction(function, args, Collections.singleton(targetMember));
-    List<CliFunctionResult> results = CliFunctionResult.cleanResults((List<?>) rc.getResult());
+    var rc = executeFunction(function, args, Collections.singleton(targetMember));
+    var results = CliFunctionResult.cleanResults((List<?>) rc.getResult());
     return results.size() > 0 ? results.get(0) : null;
   }
 
   public List<CliFunctionResult> executeAndGetFunctionResult(Function<?> function, Object args,
       Set<DistributedMember> targetMembers) {
-    ResultCollector<?, ?> rc = executeFunction(function, args, targetMembers);
+    var rc = executeFunction(function, args, targetMembers);
     return CliFunctionResult.cleanResults((List<?>) rc.getResult());
   }
 
@@ -255,8 +255,8 @@ public abstract class GfshCommand implements CommandMarker {
    * @return true if the function returns true within the timeout period; false otherwise
    */
   public boolean poll(long timeout, TimeUnit unit, Supplier<Boolean> function) {
-    long startWaitTime = System.currentTimeMillis();
-    long waitTime = unit.toMillis(timeout);
+    var startWaitTime = System.currentTimeMillis();
+    var waitTime = unit.toMillis(timeout);
 
     do {
       try {

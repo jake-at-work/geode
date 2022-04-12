@@ -25,10 +25,8 @@ import org.junit.Test;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheListener;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.TransactionEvent;
 import org.apache.geode.cache.TransactionListener;
@@ -55,16 +53,16 @@ public class CallbackArgDUnitTest extends JUnit4CacheTestCase {
   }
 
   private VM getOtherVm() {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     return host.getVM(0);
   }
 
   private void doCommitOtherVm() {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("create root") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         CacheListener cl1 = new CacheListenerAdapter() {
           @Override
           public void afterCreate(EntryEvent e) {
@@ -73,16 +71,16 @@ public class CallbackArgDUnitTest extends JUnit4CacheTestCase {
         };
         af.addCacheListener(cl1);
         af.setScope(Scope.DISTRIBUTED_ACK);
-        Region r1 = createRootRegion("r1", af.create());
-        Region r2 = r1.createSubregion("r2", af.create());
-        Region r3 = r2.createSubregion("r3", af.create());
-        CacheTransactionManager ctm = getCache().getCacheTransactionManager();
+        var r1 = createRootRegion("r1", af.create());
+        var r2 = r1.createSubregion("r2", af.create());
+        var r3 = r2.createSubregion("r3", af.create());
+        var ctm = getCache().getCacheTransactionManager();
         TransactionListener tl1 = new TransactionListenerAdapter() {
           @Override
           public void afterCommit(TransactionEvent e) {
             assertEquals(6, e.getEvents().size());
-            for (final org.apache.geode.cache.CacheEvent<?, ?> cacheEvent : e.getEvents()) {
-              EntryEvent ee = (EntryEvent) cacheEvent;
+            for (final var cacheEvent : e.getEvents()) {
+              var ee = (EntryEvent) cacheEvent;
               assertEquals(callbackArg, ee.getCallbackArgument());
               assertEquals(true, ee.isCallbackArgumentAvailable());
             }
@@ -107,7 +105,7 @@ public class CallbackArgDUnitTest extends JUnit4CacheTestCase {
   int clCount = 0;
 
   Object getCurrentExpectedKey() {
-    Object result = expectedKeys.get(clCount);
+    var result = expectedKeys.get(clCount);
     clCount += 1;
     return result;
   }
@@ -134,7 +132,7 @@ public class CallbackArgDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doTest() throws CacheException {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setDataPolicy(DataPolicy.REPLICATE);
     af.setScope(Scope.DISTRIBUTED_ACK);
     CacheListener cl1 = new CacheListenerAdapter() {
@@ -146,17 +144,17 @@ public class CallbackArgDUnitTest extends JUnit4CacheTestCase {
       }
     };
     af.addCacheListener(cl1);
-    Region r1 = createRootRegion("r1", af.create());
-    Region r2 = r1.createSubregion("r2", af.create());
+    var r1 = createRootRegion("r1", af.create());
+    var r2 = r1.createSubregion("r2", af.create());
     r2.createSubregion("r3", af.create());
 
     TransactionListener tl1 = new TransactionListenerAdapter() {
       @Override
       public void afterCommit(TransactionEvent e) {
         assertEquals(6, e.getEvents().size());
-        ArrayList keys = new ArrayList();
-        for (final org.apache.geode.cache.CacheEvent<?, ?> cacheEvent : e.getEvents()) {
-          EntryEvent ee = (EntryEvent) cacheEvent;
+        var keys = new ArrayList();
+        for (final var cacheEvent : e.getEvents()) {
+          var ee = (EntryEvent) cacheEvent;
           keys.add(ee.getKey());
           assertEquals(callbackArg, ee.getCallbackArgument());
           assertEquals(true, ee.isCallbackArgumentAvailable());
@@ -165,7 +163,7 @@ public class CallbackArgDUnitTest extends JUnit4CacheTestCase {
         invokeCount = 1;
       }
     };
-    CacheTransactionManager ctm = getCache().getCacheTransactionManager();
+    var ctm = getCache().getCacheTransactionManager();
     ctm.addListener(tl1);
 
     invokeCount = 0;

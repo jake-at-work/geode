@@ -25,7 +25,6 @@ import static org.apache.geode.test.util.ResourceUtils.createTempFileFromResourc
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Collection;
 import java.util.Properties;
 
 import org.junit.After;
@@ -36,7 +35,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
@@ -50,7 +48,7 @@ public class DeclarativeIndexCreationJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(CACHE_XML_FILE,
         createTempFileFromResource(getClass(), "cachequeryindex.xml")
             .getAbsolutePath());
@@ -73,12 +71,12 @@ public class DeclarativeIndexCreationJUnitTest {
   @Test
   public void testAsynchronousIndexCreatedOnRoot_PortfoliosRegion() {
     Region root = cache.getRegion(SEPARATOR + "root" + SEPARATOR + "portfolios");
-    IndexManager im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
-    Collection coll = im.getIndexes();
+    var im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
+    var coll = im.getIndexes();
     if (coll.size() > 0) {
       assertTrue(true);
       CacheUtils.log("List of indexes= " + im);
-      RegionAttributes ra = root.getAttributes();
+      var ra = root.getAttributes();
       assertTrue(!ra.getIndexMaintenanceSynchronous());
     } else {
       fail(
@@ -89,12 +87,12 @@ public class DeclarativeIndexCreationJUnitTest {
   @Test
   public void testSynchronousIndexCreatedOnRoot_StringRegion() {
     Region root = cache.getRegion(SEPARATOR + "root" + SEPARATOR + "string");
-    IndexManager im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
-    Collection coll = im.getIndexes();
+    var im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
+    var coll = im.getIndexes();
     if (coll.size() > 0) {
       assertTrue(true);
       CacheUtils.log("List of indexes= " + im);
-      RegionAttributes ra = root.getAttributes();
+      var ra = root.getAttributes();
       assertTrue(ra.getIndexMaintenanceSynchronous());
     } else {
       fail(
@@ -111,12 +109,12 @@ public class DeclarativeIndexCreationJUnitTest {
   @Test
   public void testSynchronousIndexCreatedOnRootRegion() {
     Region root = cache.getRegion(SEPARATOR + "root");
-    IndexManager im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
-    Collection coll = im.getIndexes();
+    var im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
+    var coll = im.getIndexes();
     if (coll.size() > 0) {
       assertTrue(true);
       CacheUtils.log("List of indexes= " + im);
-      RegionAttributes ra = root.getAttributes();
+      var ra = root.getAttributes();
       assertTrue(ra.getIndexMaintenanceSynchronous());
     } else {
       fail(

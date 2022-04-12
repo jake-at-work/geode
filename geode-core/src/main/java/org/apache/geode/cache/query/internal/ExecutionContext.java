@@ -156,7 +156,7 @@ public class ExecutionContext {
    * @return the dependency set as a shortcut
    */
   Set addDependency(CompiledValue cv, RuntimeIterator itr) {
-    Set<RuntimeIterator> ds = getDependencySet(cv, false);
+    var ds = getDependencySet(cv, false);
     ds.add(itr);
     return ds;
   }
@@ -166,7 +166,7 @@ public class ExecutionContext {
     if (set.isEmpty()) {
       return getDependencySet(cv, true);
     }
-    Set<RuntimeIterator> ds = getDependencySet(cv, false);
+    var ds = getDependencySet(cv, false);
     ds.addAll(set);
     return ds;
   }
@@ -176,11 +176,11 @@ public class ExecutionContext {
    */
   boolean isDependentOnCurrentScope(CompiledValue cv) {
     // return !getDependencySet(cv, true).isEmpty();
-    Set<RuntimeIterator> setRItr = getDependencySet(cv, true);
-    boolean isDependent = false;
+    var setRItr = getDependencySet(cv, true);
+    var isDependent = false;
     if (!setRItr.isEmpty()) {
-      int currScopeID = currentScope().getScopeID();
-      for (RuntimeIterator ritr : setRItr) {
+      var currScopeID = currentScope().getScopeID();
+      for (var ritr : setRItr) {
         if (currScopeID == ritr.getScopeID()) {
           isDependent = true;
           break;
@@ -205,7 +205,7 @@ public class ExecutionContext {
   }
 
   Set<RuntimeIterator> getDependencySet(CompiledValue cv, boolean readOnly) {
-    Set<RuntimeIterator> set = dependencyGraph.get(cv);
+    var set = dependencyGraph.get(cv);
     if (set == null) {
       if (readOnly) {
         return Collections.emptySet();
@@ -240,14 +240,14 @@ public class ExecutionContext {
 
   /** bind a named iterator (to current scope) */
   public void bindIterator(RuntimeIterator itr) {
-    QScope currentScope = currentScope();
-    int currScopeID = currentScope.getScopeID();
+    var currentScope = currentScope();
+    var currScopeID = currentScope.getScopeID();
     itr.setScopeID(currScopeID);
     currentScope.bindIterator(itr);
   }
 
   public CompiledValue resolve(String name) throws TypeMismatchException, AmbiguousNameException {
-    CompiledValue value = resolveAsVariable(name);
+    var value = resolveAsVariable(name);
     if (value != null) {
       return value;
     }
@@ -267,8 +267,8 @@ public class ExecutionContext {
   /** Return null if cannot be resolved as a variable in current scope */
   private CompiledValue resolveAsVariable(String name) {
     CompiledValue value;
-    for (int i = scopes.size() - 1; i >= 0; i--) {
-      QScope scope = scopes.get(i);
+    for (var i = scopes.size() - 1; i >= 0; i--) {
+      var scope = scopes.get(i);
       value = scope.resolve(name);
       if (value != null) {
         return value;
@@ -321,8 +321,8 @@ public class ExecutionContext {
   public List getCurrScopeDpndntItrsBasedOnSingleIndpndntItr(RuntimeIterator rIter) {
     List<RuntimeIterator> list = new ArrayList<>();
     list.add(rIter);
-    for (RuntimeIterator iteratorInCurrentScope : currentScope().getIterators()) {
-      Set<RuntimeIterator> itrSet =
+    for (var iteratorInCurrentScope : currentScope().getIterators()) {
+      var itrSet =
           itrDefToIndpndtRuntimeItrMap.get(iteratorInCurrentScope.getCmpIteratorDefn());
       if (rIter != iteratorInCurrentScope && itrSet.size() == 1
           && itrSet.iterator().next() == rIter) {
@@ -333,7 +333,7 @@ public class ExecutionContext {
   }
 
   void setOneIndexLookup(boolean b) {
-    QScope scope = currentScope();
+    var scope = currentScope();
     Support.Assert(scope != null, "must be called within valid scope");
     scope._oneIndexLookup = b;
   }
@@ -361,10 +361,10 @@ public class ExecutionContext {
     // to see if there is a unique resolution
     RuntimeIterator oneUnknown = null;
     List<RuntimeIterator> hits = new ArrayList<>(2);
-    boolean foundOneUnknown = false;
-    NEXT_SCOPE: for (int i = scopes.size() - 1; i >= 0; i--) {
-      QScope scope = scopes.get(i);
-      for (RuntimeIterator itr : scope.getIterators()) {
+    var foundOneUnknown = false;
+    NEXT_SCOPE: for (var i = scopes.size() - 1; i >= 0; i--) {
+      var scope = scopes.get(i);
+      for (var itr : scope.getIterators()) {
         Assert.assertTrue(itr != null);
         // if scope is limited to this iterator, then don't check any more
         // iterators in this scope
@@ -429,12 +429,12 @@ public class ExecutionContext {
         return path;
       }
       if (path instanceof CompiledPath) {
-        CompiledValue rec = path.getReceiver();
+        var rec = path.getReceiver();
         return findIterator(rec);
       }
       if (path instanceof CompiledOperation) {
-        CompiledOperation operation = (CompiledOperation) path;
-        CompiledValue rec = operation.getReceiver(this);
+        var operation = (CompiledOperation) path;
+        var rec = operation.getReceiver(this);
         if (rec == null) {
           return resolveImplicitOperationName(operation.getMethodName(),
               operation.getArguments().size(), true);
@@ -442,12 +442,12 @@ public class ExecutionContext {
         return findIterator(rec);
       }
       if (path instanceof CompiledIndexOperation) {
-        CompiledIndexOperation cio = (CompiledIndexOperation) path;
-        CompiledValue rec = cio.getReceiver();
+        var cio = (CompiledIndexOperation) path;
+        var rec = cio.getReceiver();
         return findIterator(rec);
       }
       if (path instanceof CompiledID) {
-        CompiledValue expr = resolve(((CompiledID) path).getId());
+        var expr = resolve(((CompiledID) path).getId());
         return findIterator(expr);
       } // if we get these exceptions return null
     } catch (TypeMismatchException | NameResolutionException ignore) {
@@ -471,9 +471,9 @@ public class ExecutionContext {
    * in a Set or should it be a single value?
    */
   void computeUltimateDependencies(CompiledValue cv, Set<RuntimeIterator> set) {
-    Set<RuntimeIterator> dependencySet = getDependencySet(cv, true);
-    for (RuntimeIterator rIter : dependencySet) {
-      Set<RuntimeIterator> indRuntimeIterators =
+    var dependencySet = getDependencySet(cv, true);
+    for (var rIter : dependencySet) {
+      var indRuntimeIterators =
           itrDefToIndpndtRuntimeItrMap.get(rIter.getCmpIteratorDefn());
       if (indRuntimeIterators != null) {
         set.addAll(indRuntimeIterators);
@@ -501,14 +501,14 @@ public class ExecutionContext {
       set.add(itr);
       // Since it is a an independent RuntimeIterator , check if its Collection Expr boils down to a
       // Region. If it is , we need to store the QRegion in the Map
-      CompiledValue startVal =
+      var startVal =
           QueryUtils.obtainTheBottomMostCompiledValue(itrDef.getCollectionExpr());
       if (startVal.getType() == OQLLexerTokenTypes.RegionPath) {
         rgnPath = ((QRegion) ((CompiledRegion) startVal).evaluate(this)).getFullPath();
         indpndtItrToRgnMap.put(itr, rgnPath);
       } else if (startVal.getType() == OQLLexerTokenTypes.QUERY_PARAM) {
         Object rgn;
-        CompiledBindArgument cba = (CompiledBindArgument) startVal;
+        var cba = (CompiledBindArgument) startVal;
         if ((rgn = cba.evaluate(this)) instanceof Region) {
           indpndtItrToRgnMap.put(itr, rgnPath = ((Region) rgn).getFullPath());
         }
@@ -534,7 +534,7 @@ public class ExecutionContext {
       }
     }
     String tempIndexID;
-    RuntimeIterator currItr = itrDef.getRuntimeIterator(this);
+    var currItr = itrDef.getRuntimeIterator(this);
     currItr.setIndexInternalID((mgr == null
         || (tempIndexID = mgr.getCanonicalizedIteratorName(itrDef.genFromClause(this))) == null)
             ? currItr.getInternalId() : tempIndexID);
@@ -542,8 +542,8 @@ public class ExecutionContext {
 
   List getAllIndependentIteratorsOfCurrentScope() {
     List<RuntimeIterator> independentIterators = new ArrayList<>(indpndtItrToRgnMap.size());
-    int currentScopeId = currentScope().getScopeID();
-    for (RuntimeIterator rIter : indpndtItrToRgnMap.keySet()) {
+    var currentScopeId = currentScope().getScopeID();
+    for (var rIter : indpndtItrToRgnMap.keySet()) {
       if (rIter.getScopeID() == currentScopeId) {
         independentIterators.add(rIter);
       }
@@ -574,7 +574,7 @@ public class ExecutionContext {
     computeUltimateDependencies(itrDef, set);
     // If the set is empty then add the self RuntimeIterator to the Map.
     if (set.isEmpty()) {
-      RuntimeIterator itr = itrDef.getRuntimeIterator(this);
+      var itr = itrDef.getRuntimeIterator(this);
       set.add(itr);
     }
     itrDefToIndpndtRuntimeItrMap.put(itrDef, set);
@@ -704,7 +704,7 @@ public class ExecutionContext {
    * @throws QueryExecutionCanceledException otherwise
    */
   Object reinterpretQueryExecutionCanceledException() {
-    final CacheRuntimeException queryCanceledException = getQueryCanceledException();
+    final var queryCanceledException = getQueryCanceledException();
     if (queryCanceledException != null) {
       throw queryCanceledException;
     } else {

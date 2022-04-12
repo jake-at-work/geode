@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.partitioned.rebalance;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.internal.cache.partitioned.rebalance.model.BucketRollup;
-import org.apache.geode.internal.cache.partitioned.rebalance.model.Member;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.Move;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.PartitionedRegionLoadModel;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -72,7 +71,7 @@ public class RemoveOverRedundancy extends RebalanceDirectorAdapter {
         model.ignoreOverRedundancyBucket(first);
       }
     }
-    Member targetMember = bestMove.getTarget();
+    var targetMember = bestMove.getTarget();
 
     model.remoteOverRedundancyBucket(first, targetMember);
 

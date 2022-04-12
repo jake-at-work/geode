@@ -18,7 +18,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.lucene.document.Document;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -37,12 +36,12 @@ public class HeterogeneousLuceneSerializerJUnitTest {
    */
   @Test
   public void testHeterogeneousObjects() {
-    String[] fields = new String[] {"s", "i", "l", "d", "f", "s2", "missing"};
-    HeterogeneousLuceneSerializer mapper = new HeterogeneousLuceneSerializer();
+    var fields = new String[] {"s", "i", "l", "d", "f", "s2", "missing"};
+    var mapper = new HeterogeneousLuceneSerializer();
 
-    Type1 t1 = new Type1("a", 1, 2L, 3.0, 4.0f);
+    var t1 = new Type1("a", 1, 2L, 3.0, 4.0f);
 
-    Document doc1 = SerializerTestHelper.invokeSerializer(mapper, t1, fields);
+    var doc1 = SerializerTestHelper.invokeSerializer(mapper, t1, fields);
 
     assertEquals(5, doc1.getFields().size());
     assertEquals("a", doc1.getField("s").stringValue());
@@ -51,9 +50,9 @@ public class HeterogeneousLuceneSerializerJUnitTest {
     assertEquals(3.0, doc1.getField("d").numericValue());
     assertEquals(4.0f, doc1.getField("f").numericValue());
 
-    Type2 t2 = new Type2("a", 1, 2L, 3.0, 4.0f, "b");
+    var t2 = new Type2("a", 1, 2L, 3.0, 4.0f, "b");
 
-    Document doc2 = SerializerTestHelper.invokeSerializer(mapper, t2, fields);
+    var doc2 = SerializerTestHelper.invokeSerializer(mapper, t2, fields);
 
     assertEquals(6, doc2.getFields().size());
     assertEquals("a", doc2.getField("s").stringValue());
@@ -63,14 +62,14 @@ public class HeterogeneousLuceneSerializerJUnitTest {
     assertEquals(3.0, doc2.getField("d").numericValue());
     assertEquals(4.0f, doc2.getField("f").numericValue());
 
-    PdxInstance pdxInstance = mock(PdxInstance.class);
+    var pdxInstance = mock(PdxInstance.class);
 
     when(pdxInstance.hasField("s")).thenReturn(true);
     when(pdxInstance.hasField("i")).thenReturn(true);
     when(pdxInstance.getField("s")).thenReturn("a");
     when(pdxInstance.getField("i")).thenReturn(5);
 
-    Document doc3 = SerializerTestHelper.invokeSerializer(mapper, pdxInstance, fields);
+    var doc3 = SerializerTestHelper.invokeSerializer(mapper, pdxInstance, fields);
 
     assertEquals(2, doc3.getFields().size());
     assertEquals("a", doc3.getField("s").stringValue());
@@ -79,8 +78,8 @@ public class HeterogeneousLuceneSerializerJUnitTest {
 
   @Test
   public void shouldIndexPrimitiveStringIfRequested() {
-    HeterogeneousLuceneSerializer mapper = new HeterogeneousLuceneSerializer();
-    Document doc = SerializerTestHelper.invokeSerializer(mapper, "sample value",
+    var mapper = new HeterogeneousLuceneSerializer();
+    var doc = SerializerTestHelper.invokeSerializer(mapper, "sample value",
         new String[] {LuceneService.REGION_VALUE_FIELD});
     assertEquals(1, doc.getFields().size());
     assertEquals("sample value", doc.getField(LuceneService.REGION_VALUE_FIELD).stringValue());
@@ -88,8 +87,8 @@ public class HeterogeneousLuceneSerializerJUnitTest {
 
   @Test
   public void shouldIndexPrimitiveNumberIfRequested() {
-    HeterogeneousLuceneSerializer mapper = new HeterogeneousLuceneSerializer();
-    Document doc = SerializerTestHelper.invokeSerializer(mapper, 53,
+    var mapper = new HeterogeneousLuceneSerializer();
+    var doc = SerializerTestHelper.invokeSerializer(mapper, 53,
         new String[] {LuceneService.REGION_VALUE_FIELD});
 
     assertEquals(1, doc.getFields().size());

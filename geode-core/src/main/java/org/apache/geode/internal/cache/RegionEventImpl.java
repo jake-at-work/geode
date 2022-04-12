@@ -24,7 +24,6 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.DSFIDFactory;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.FilterRoutingInfo.FilterInfo;
@@ -86,7 +85,7 @@ public class RegionEventImpl
     this.callbackArgument = callbackArgument;
     this.originRemote = originRemote;
     this.distributedMember = distributedMember;
-    DistributedSystem sys = ((LocalRegion) region).getCache().getDistributedSystem();
+    var sys = ((LocalRegion) region).getCache().getDistributedSystem();
     if (generateEventID) {
       eventId = new EventID(sys);
     }
@@ -141,9 +140,9 @@ public class RegionEventImpl
    */
   @Override
   public Object getCallbackArgument() {
-    Object result = callbackArgument;
+    var result = callbackArgument;
     while (result instanceof WrappedCallbackArgument) {
-      WrappedCallbackArgument wca = (WrappedCallbackArgument) result;
+      var wca = (WrappedCallbackArgument) result;
       result = wca.getOriginalCallbackArg();
     }
     if (result == Token.NOT_AVAILABLE) {
@@ -294,7 +293,7 @@ public class RegionEventImpl
   }
 
   String getShortClassName() {
-    String cname = getClass().getName();
+    var cname = getClass().getName();
     return cname.substring(getClass().getPackage().getName().length() + 1);
   }
 

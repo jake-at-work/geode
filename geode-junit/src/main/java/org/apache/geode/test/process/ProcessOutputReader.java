@@ -53,12 +53,12 @@ public class ProcessOutputReader {
       }
     }
 
-    final long startTime = System.nanoTime();
+    final var startTime = System.nanoTime();
 
-    long millisToJoin = unit.toMillis(timeout);
+    var millisToJoin = unit.toMillis(timeout);
     stderr.join(millisToJoin);
 
-    long nanosRemaining = unit.toNanos(timeout) - (System.nanoTime() - startTime);
+    var nanosRemaining = unit.toNanos(timeout) - (System.nanoTime() - startTime);
     millisToJoin = unit.toMillis(nanosRemaining);
     stdout.join(millisToJoin);
 
@@ -68,8 +68,8 @@ public class ProcessOutputReader {
 
   private boolean waitForProcess(final long timeout, final TimeUnit unit)
       throws InterruptedException {
-    long startTime = System.nanoTime();
-    long nanosRemaining = unit.toNanos(timeout);
+    var startTime = System.nanoTime();
+    var nanosRemaining = unit.toNanos(timeout);
 
     while (nanosRemaining > 0) {
       try {
@@ -77,7 +77,7 @@ public class ProcessOutputReader {
         return true;
       } catch (IllegalThreadStateException ex) {
         if (nanosRemaining > 0) {
-          long millisToSleep = Math.min(TimeUnit.NANOSECONDS.toMillis(nanosRemaining) + 1, 100);
+          var millisToSleep = Math.min(TimeUnit.NANOSECONDS.toMillis(nanosRemaining) + 1, 100);
           Thread.sleep(millisToSleep);
         }
       }

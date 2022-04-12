@@ -22,7 +22,6 @@ import static org.apache.geode.test.junit.rules.serializable.FieldsOfTimeout.FIE
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -38,35 +37,35 @@ public class SerializableTimeoutTest {
 
   @Test
   public void hasThreeFields() {
-    Field[] fields = Timeout.class.getDeclaredFields();
+    var fields = Timeout.class.getDeclaredFields();
     assertThat(fields.length).as("Fields: " + Arrays.asList(fields)).isEqualTo(3);
   }
 
   @Test
   public void fieldTimeoutShouldExist() throws Exception {
-    Field field = Timeout.class.getDeclaredField(FIELD_TIMEOUT);
+    var field = Timeout.class.getDeclaredField(FIELD_TIMEOUT);
     assertThat(field.getType()).isEqualTo(Long.TYPE);
   }
 
   @Test
   public void fieldTimeUnitShouldExist() throws Exception {
-    Field field = Timeout.class.getDeclaredField(FIELD_TIME_UNIT);
+    var field = Timeout.class.getDeclaredField(FIELD_TIME_UNIT);
     assertThat(field.getType()).isEqualTo(TimeUnit.class);
   }
 
   @Test
   public void fieldLookForStuckThreadShouldExist() throws Exception {
-    Field field = Timeout.class.getDeclaredField(FIELD_LOOK_FOR_STUCK_THREAD);
+    var field = Timeout.class.getDeclaredField(FIELD_LOOK_FOR_STUCK_THREAD);
     assertThat(field.getType()).isEqualTo(Boolean.TYPE);
   }
 
   @Test
   public void fieldsCanBeRead() {
     long timeout = 1000;
-    TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-    boolean lookingForStuckThread = false;
+    var timeUnit = TimeUnit.MILLISECONDS;
+    var lookingForStuckThread = false;
 
-    SerializableTimeout instance = SerializableTimeout.builder().withTimeout(timeout, timeUnit)
+    var instance = SerializableTimeout.builder().withTimeout(timeout, timeUnit)
         .withLookingForStuckThread(lookingForStuckThread).build();
 
     assertThat(readField(Timeout.class, instance, FIELD_TIMEOUT)).isEqualTo(timeout);
@@ -77,7 +76,7 @@ public class SerializableTimeoutTest {
 
   @Test
   public void isSerializable() {
-    SerializableTimeout serializableTimeout =
+    var serializableTimeout =
         new SerializableTimeout(SerializableTimeout.builder());
 
     assertThat(serializableTimeout).isInstanceOf(Serializable.class);
@@ -85,10 +84,10 @@ public class SerializableTimeoutTest {
 
   @Test
   public void serializes() {
-    SerializableTimeout serializableTimeout =
+    var serializableTimeout =
         new SerializableTimeout(SerializableTimeout.builder());
 
-    SerializableTimeout clone = SerializationUtils.clone(serializableTimeout);
+    var clone = SerializationUtils.clone(serializableTimeout);
 
     assertThat(clone.timeout(SECONDS)).isEqualTo(serializableTimeout.timeout(SECONDS));
   }
@@ -96,10 +95,10 @@ public class SerializableTimeoutTest {
   @Test
   public void canBeSerialized() {
     long timeout = 2;
-    TimeUnit timeUnit = SECONDS;
-    boolean lookingForStuckThread = true;
+    var timeUnit = SECONDS;
+    var lookingForStuckThread = true;
 
-    SerializableTimeout instance = SerializableTimeout.builder().withTimeout(timeout, timeUnit)
+    var instance = SerializableTimeout.builder().withTimeout(timeout, timeUnit)
         .withLookingForStuckThread(lookingForStuckThread).build();
 
     assertThat(readField(Timeout.class, instance, FIELD_TIMEOUT)).isEqualTo(timeout);
@@ -107,7 +106,7 @@ public class SerializableTimeoutTest {
     assertThat(readField(Timeout.class, instance, FIELD_LOOK_FOR_STUCK_THREAD))
         .isEqualTo(lookingForStuckThread);
 
-    SerializableTimeout cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(readField(Timeout.class, cloned, FIELD_TIMEOUT)).isEqualTo(timeout);
     assertThat(readField(Timeout.class, cloned, FIELD_TIME_UNIT)).isEqualTo(timeUnit);

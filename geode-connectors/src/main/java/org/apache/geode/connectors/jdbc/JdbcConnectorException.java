@@ -43,7 +43,7 @@ public class JdbcConnectorException extends CacheRuntimeException {
    */
   public static JdbcConnectorException createException(Exception e) {
     if (containsNonSerializableException(e)) {
-      String message =
+      var message =
           e.getMessage() + System.lineSeparator() + ExceptionUtils.getStackTrace(e);
       return new JdbcConnectorException(message);
     } else {
@@ -89,7 +89,7 @@ public class JdbcConnectorException extends CacheRuntimeException {
       return true;
     }
 
-    Throwable cause = e.getCause();
+    var cause = e.getCause();
     while (cause != null) {
       if (cause instanceof SQLException) {
         return true;

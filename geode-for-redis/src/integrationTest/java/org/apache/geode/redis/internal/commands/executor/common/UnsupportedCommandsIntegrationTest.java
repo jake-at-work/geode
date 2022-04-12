@@ -72,9 +72,9 @@ public class UnsupportedCommandsIntegrationTest {
     assertThat(RedisCommandType.UNLINK.isUnsupported()).isTrue();
     server.setEnableUnsupportedCommands(false);
 
-    final String key = "key";
+    final var key = "key";
     // The trailing comma and space at the end of the message is necessary to match Redis' message
-    final String expectedErrorMsg =
+    final var expectedErrorMsg =
         "ERR unknown command `UNLINK`, with args beginning with: `" + key + "`, ";
 
     assertThatThrownBy(() -> jedis.unlink(key)).hasMessage(expectedErrorMsg);

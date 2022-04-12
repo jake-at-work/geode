@@ -16,8 +16,6 @@ package org.apache.geode.management.internal.configuration.functions;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.util.Set;
-
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
@@ -26,9 +24,9 @@ import org.apache.geode.internal.cache.execute.InternalFunction;
 public class GetRegionNamesFunction implements InternalFunction {
   @Override
   public void execute(FunctionContext context) {
-    InternalCache cache = (InternalCache) context.getCache();
+    var cache = (InternalCache) context.getCache();
 
-    Set<String> regions =
+    var regions =
         cache.getApplicationRegions().stream().map(InternalRegion::getName).collect(toSet());
 
     context.getResultSender().lastResult(regions);

@@ -79,10 +79,10 @@ public class TransactionalOperation {
    */
   public Set<Object> getKeys() {
     if (operation == ServerRegionOperation.PUT_ALL) {
-      Map m = (Map) arguments[0];
+      var m = (Map) arguments[0];
       return m.keySet();
     } else if (operation == ServerRegionOperation.REMOVE_ALL) {
-      Collection<Object> keys = (Collection<Object>) arguments[0];
+      var keys = (Collection<Object>) arguments[0];
       return new HashSet(keys);
     }
     return null;

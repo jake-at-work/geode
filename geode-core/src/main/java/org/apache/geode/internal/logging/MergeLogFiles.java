@@ -115,7 +115,7 @@ public class MergeLogFiles {
   public static boolean mergeLogFiles(final Map<String, InputStream> logFiles,
       final PrintWriter mergedFile) {
     Map<String, DisplayNameAndFileStream> newMap = new HashMap<>();
-    for (Map.Entry<String, InputStream> entry : logFiles.entrySet()) {
+    for (var entry : logFiles.entrySet()) {
       newMap.put(entry.getKey(), new DisplayNameAndFileStream(entry.getKey(), entry.getValue()));
     }
     return mergeLogFiles(newMap, mergedFile, false, false, false, new LinkedList<>());
@@ -184,11 +184,11 @@ public class MergeLogFiles {
   static List<File> getLogFiles(final String dirName) {
     List<File> result = new ArrayList<>();
 
-    File dir = new File(dirName);
-    File[] names = dir.listFiles();
+    var dir = new File(dirName);
+    var names = dir.listFiles();
     if (names != null) {
-      for (final File name : names) {
-        String path = name.getAbsolutePath();
+      for (final var name : names) {
+        var path = name.getAbsolutePath();
         if (path.endsWith(".log") || path.endsWith(".log.gz")) {
           result.add(name);
         }
@@ -200,15 +200,15 @@ public class MergeLogFiles {
   public static void main(final String... args) throws IOException {
     File mergeFile = null;
     List<File> files = new ArrayList<>();
-    int dirCount = 0;
-    boolean findPIDs = false;
-    boolean tabOut = false;
-    boolean suppressBlanks = false;
-    boolean multithreaded = false;
+    var dirCount = 0;
+    var findPIDs = false;
+    var tabOut = false;
+    var suppressBlanks = false;
+    var multithreaded = false;
     List<String> patterns = new LinkedList<>();
 
     // Parse command line
-    for (int i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; i++) {
       switch (args[i]) {
         case "-align":
           tabOut = true;
@@ -251,7 +251,7 @@ public class MergeLogFiles {
 
           break;
         default:
-          File file = new File(args[i]);
+          var file = new File(args[i]);
           if (!file.exists()) {
             usage(String.format("File %s does not exist", file));
           }
@@ -266,8 +266,8 @@ public class MergeLogFiles {
 
     // Expand directory names found in list
     List<File> expandedFiles = new ArrayList<>();
-    for (File file : files) {
-      String path = file.getAbsolutePath();
+    for (var file : files) {
+      var path = file.getAbsolutePath();
       if (!file.exists()) {
         usage(String.format("File %s does not exist", path));
       }
@@ -276,7 +276,7 @@ public class MergeLogFiles {
         continue;
       }
       if (file.isDirectory()) {
-        List<File> moreFiles = getLogFiles(path);
+        var moreFiles = getLogFiles(path);
         expandedFiles.addAll(moreFiles);
         continue;
       }
@@ -288,7 +288,7 @@ public class MergeLogFiles {
     // Create output stream
     PrintStream ps;
     if (mergeFile != null) {
-      FileOutputStream fileOutputStream = new FileOutputStream(mergeFile);
+      var fileOutputStream = new FileOutputStream(mergeFile);
       try {
         ps = new PrintStream(fileOutputStream, true);
       } catch (Exception ex) {
@@ -299,10 +299,10 @@ public class MergeLogFiles {
       ps = out;
     }
 
-    PrintWriter mergedFile = new PrintWriter(ps, true);
+    var mergedFile = new PrintWriter(ps, true);
 
     ps.println("Merged files (count = " + expandedFiles.size() + ") input list:");
-    for (File expandedFile : expandedFiles) {
+    for (var expandedFile : expandedFiles) {
       ps.println("  " + expandedFile);
     }
     ps.println();
@@ -312,7 +312,7 @@ public class MergeLogFiles {
       nickNames = findPIDs(files, mergedFile);
     }
 
-    Map<String, DisplayNameAndFileStream> logFiles =
+    var logFiles =
         getStringDisplayNameAndFileStreamMap(files, dirCount, findPIDs, nickNames);
 
     mergeLogFiles(logFiles, mergedFile, tabOut, suppressBlanks, multithreaded,
@@ -324,8 +324,8 @@ public class MergeLogFiles {
   static Map<String, DisplayNameAndFileStream> getStringDisplayNameAndFileStreamMap(
       List<File> files, int dirCount, boolean findPIDs, List nickNames) throws IOException {
     Map<String, DisplayNameAndFileStream> logFiles = new HashMap<>();
-    for (int i = 0; i < files.size(); i++) {
-      File file = files.get(i);
+    for (var i = 0; i < files.size(); i++) {
+      var file = files.get(i);
 
       String logFileName;
       if (findPIDs && nickNames.get(i) != null) {
@@ -335,10 +335,10 @@ public class MergeLogFiles {
           logFileName = (String) nickNames.get(i);
         }
       } else {
-        StringBuilder sb = new StringBuilder();
-        File parent = file.getParentFile();
-        for (int j = 0; j < dirCount && parent != null; j++) {
-          String parentName = parent.getName() + "/";
+        var sb = new StringBuilder();
+        var parent = file.getParentFile();
+        for (var j = 0; j < dirCount && parent != null; j++) {
+          var parentName = parent.getName() + "/";
           // don't add dot-slash
           if (parentName.equals("./")) {
             parent = null;
@@ -367,16 +367,16 @@ public class MergeLogFiles {
    * gemfire_1043/system_01_00.log --> 1043-3<br>
    */
   private static List<String> findPIDs(final Collection<File> files, final PrintWriter output) {
-    int[] pidTable = new int[files.size()];
-    int[] pidTableCounter = new int[pidTable.length];
+    var pidTable = new int[files.size()];
+    var pidTableCounter = new int[pidTable.length];
     List<String> nickNames = new ArrayList<>();
-    char fileSeparatorChar = File.separatorChar;
+    var fileSeparatorChar = File.separatorChar;
 
-    for (File file : files) {
-      String name = file.getPath();
+    for (var file : files) {
+      var name = file.getPath();
 
-      String slashdotslash = fileSeparatorChar + "." + fileSeparatorChar;
-      int startIdx = name.lastIndexOf(slashdotslash);
+      var slashdotslash = fileSeparatorChar + "." + fileSeparatorChar;
+      var startIdx = name.lastIndexOf(slashdotslash);
 
       // get rid of the parent directories and any /./ in the path
       if (startIdx > 0) {
@@ -388,12 +388,12 @@ public class MergeLogFiles {
       // first see if there's a number at the end of the file's directory name
       if (startIdx > 0) {
         startIdx--;
-        char c = name.charAt(startIdx);
+        var c = name.charAt(startIdx);
         if (!('0' <= c && c <= '9')) {
           startIdx = 0;
         } else {
           // see if this is a hydra-generated test directory name, like parReg-0504-161349
-          int testIdx = startIdx - 1;
+          var testIdx = startIdx - 1;
           while (testIdx > 0 && '0' <= name.charAt(testIdx) && name.charAt(testIdx) <= '9') {
             testIdx--;
           }
@@ -418,16 +418,16 @@ public class MergeLogFiles {
       }
 
       // find the string of numbers at the end of the test area and use it as a PID
-      for (int i = startIdx; i >= 0; i--) {
-        char c = name.charAt(i);
+      for (var i = startIdx; i >= 0; i--) {
+        var c = name.charAt(i);
         if (!('0' <= c && c <= '9')) {
           if (i < name.length() - 1) { // have a number
             // there's a number - assume it's a PID if it's not zero
-            String PID = name.substring(i + 1, startIdx + 1);
+            var PID = name.substring(i + 1, startIdx + 1);
             try {
-              int iPID = Integer.parseInt(PID);
+              var iPID = Integer.parseInt(PID);
               if (iPID > 0) {
-                int p = 0;
+                var p = 0;
                 // find the PID in the table of those seen so far, or assign it
                 // a new slot. increment the number of files for this PID and
                 // assign a nickname for the file
@@ -568,7 +568,7 @@ public class MergeLogFiles {
       if (patterns == null || patterns.isEmpty()) {
         return true;
       }
-      for (Pattern p : patterns) {
+      for (var p : patterns) {
         if (p.matcher(entry.getContents()).matches()) {
           return true;
         }
@@ -684,13 +684,13 @@ public class MergeLogFiles {
      */
     @Override
     public void run() {
-      LogFileParser parser =
+      var parser =
           new LogFileParser(logFileName, logFile, tabOut, suppressBlanks);
 
       try {
         while (true) {
           SystemFailure.checkFailure();
-          LogEntry entry = parser.getNextEntry();
+          var entry = parser.getNextEntry();
           if (entry.isLast() || patternMatch(entry)) {
             queue.put(entry);
 
@@ -722,7 +722,7 @@ public class MergeLogFiles {
       if (patterns == null || patterns.isEmpty()) {
         return true;
       }
-      for (Pattern p : patterns) {
+      for (var p : patterns) {
         if (p.matcher(entry.getContents()).matches()) {
           return true;
         }
@@ -738,12 +738,12 @@ public class MergeLogFiles {
      */
     @Override
     public LogEntry peek() {
-      LogEntry entry = queue.peek();
+      var entry = queue.peek();
       if (entry == null) {
         synchronized (this) {
           entry = queue.peek();
           while (entry == null) {
-            boolean interrupted = Thread.interrupted();
+            var interrupted = Thread.interrupted();
             try {
               wait();
               entry = queue.peek();
@@ -824,15 +824,15 @@ public class MergeLogFiles {
         final PrintWriter mergedFile, final boolean tabOut, final boolean suppressBlanks,
         final boolean multithreaded, final Iterable<String> patterns) {
       List<Pattern> compiledPatterns = new LinkedList<>();
-      for (String pattern : patterns) {
+      for (var pattern : patterns) {
         compiledPatterns.add(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
       }
 
       // First start the Reader threads
-      ReaderGroup group =
+      var group =
           new ReaderGroup("Reader threads");
       Collection<Reader> readers = new ArrayList<>(logFiles.size());
-      for (DisplayNameAndFileStream nameAndFileStream : logFiles.values()) {
+      for (var nameAndFileStream : logFiles.values()) {
         if (multithreaded) {
           readers.add(new ThreadedReader(nameAndFileStream.getInputStream(),
               nameAndFileStream.getDisplayName(), group, tabOut,
@@ -848,19 +848,19 @@ public class MergeLogFiles {
       Reader lastOldest = null;
 
       // sort readers by their next time-stamp
-      Set<Reader> sorted = sortReaders(readers);
+      var sorted = sortReaders(readers);
 
       while (!readers.isEmpty()) {
         Iterator sortedIt = sorted.iterator();
         if (!sortedIt.hasNext()) {
           break;
         }
-        Reader oldest = (Reader) sortedIt.next();
+        var oldest = (Reader) sortedIt.next();
         sortedIt.remove();
 
         String nextReaderTimestamp = null;
         if (sortedIt.hasNext()) {
-          Reader nextInLine = (Reader) sortedIt.next();
+          var nextInLine = (Reader) sortedIt.next();
           nextReaderTimestamp = nextInLine.peek().getTimestamp();
         }
 
@@ -875,7 +875,7 @@ public class MergeLogFiles {
         // write until we hit the next file's time-stamp
         do {
           entry = oldest.peek();
-          String timestamp = entry.getTimestamp();
+          var timestamp = entry.getTimestamp();
 
           if (nextReaderTimestamp != null) {
             if (nextReaderTimestamp.compareTo(timestamp) < 0) {
@@ -900,8 +900,8 @@ public class MergeLogFiles {
 
     private static Set<Reader> sortReaders(final Iterable<Reader> readers) {
       Set<Reader> sorted = new TreeSet<>(new ReaderComparator());
-      int uniqueId = 1;
-      for (Reader reader : readers) {
+      var uniqueId = 1;
+      for (var reader : readers) {
         if (reader == null) {
           continue;
         }
@@ -917,10 +917,10 @@ public class MergeLogFiles {
 
     @Override
     public int compare(final Reader reader1, final Reader reader2) {
-      int id1 = reader1.getUniqueId();
-      int id2 = reader2.getUniqueId();
-      LogEntry entry1 = reader1.peek();
-      LogEntry entry2 = reader2.peek();
+      var id1 = reader1.getUniqueId();
+      var id2 = reader2.getUniqueId();
+      var entry1 = reader1.peek();
+      var entry2 = reader2.peek();
       if (entry1 == null) {
         if (entry2 == null) {
           return Integer.compare(id1, id2);
@@ -932,9 +932,9 @@ public class MergeLogFiles {
       if (entry2 == null) {
         return 1;
       }
-      String timestamp1 = entry1.getTimestamp();
-      String timestamp2 = entry2.getTimestamp();
-      int compare = timestamp1.compareTo(timestamp2);
+      var timestamp1 = entry1.getTimestamp();
+      var timestamp2 = entry2.getTimestamp();
+      var compare = timestamp1.compareTo(timestamp2);
       if (compare == 0) {
         if (id1 < id2) {
           return -1;

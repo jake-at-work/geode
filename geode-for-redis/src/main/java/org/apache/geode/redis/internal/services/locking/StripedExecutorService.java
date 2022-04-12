@@ -250,9 +250,9 @@ public class StripedExecutorService extends AbstractExecutorService {
     lock.lock();
     try {
       checkPoolIsRunning();
-      Object stripe = getStripe(command);
+      var stripe = getStripe(command);
       if (stripe != null) {
-        SerialExecutor ser_exec = executors.get(stripe);
+        var ser_exec = executors.get(stripe);
         if (ser_exec == null) {
           executors.put(stripe, ser_exec = new SerialExecutor(stripe));
         }
@@ -309,7 +309,7 @@ public class StripedExecutorService extends AbstractExecutorService {
     try {
       shutdown();
       List<Runnable> result = new ArrayList<>();
-      for (SerialExecutor ser_ex : executors.values()) {
+      for (var ser_ex : executors.values()) {
         ser_ex.tasks.drainTo(result);
       }
       result.addAll(executor.shutdownNow());
@@ -343,7 +343,7 @@ public class StripedExecutorService extends AbstractExecutorService {
       if (state == State.RUNNING) {
         return false;
       }
-      for (SerialExecutor executor : executors.values()) {
+      for (var executor : executors.values()) {
         if (!executor.isEmpty()) {
           return false;
         }
@@ -362,7 +362,7 @@ public class StripedExecutorService extends AbstractExecutorService {
       throws InterruptedException {
     lock.lock();
     try {
-      long waitUntil = System.nanoTime() + unit.toNanos(timeout);
+      var waitUntil = System.nanoTime() + unit.toNanos(timeout);
       long remainingTime;
       while ((remainingTime = waitUntil - System.nanoTime()) > 0
           && !executors.isEmpty()) {

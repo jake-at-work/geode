@@ -48,9 +48,9 @@ public class Instrument implements Serializable {
   }
 
   public static Instrument getInstrument(String id) {
-    Instrument inst = new Instrument(id);
-    for (int i = 0; i < 5; i++) {
-      TradingLine tl = new TradingLine();
+    var inst = new Instrument(id);
+    for (var i = 0; i < 5; i++) {
+      var tl = new TradingLine();
       tl.addAlternateReference("SOME_KEY", "SOME_VALUE");
       tl.addAlternateReference("SOME_OTHER_KEY", "SOME_OTHER_VALUE");
       inst.addTradingLine(tl);

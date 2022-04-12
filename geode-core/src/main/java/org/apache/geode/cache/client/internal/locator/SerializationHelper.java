@@ -36,7 +36,7 @@ public class SerializationHelper {
       return;
     }
     out.writeInt(serverLocations.size());
-    for (ServerLocation serverLocation : serverLocations) {
+    for (var serverLocation : serverLocations) {
       InternalDataSerializer.invokeToData(serverLocation, out);
     }
   }
@@ -48,7 +48,7 @@ public class SerializationHelper {
       return;
     }
     out.writeInt(bucketServerLocations.size());
-    for (BucketServerLocation66 serverLocation : bucketServerLocations) {
+    for (var serverLocation : bucketServerLocations) {
       InternalDataSerializer.invokeToData(serverLocation, out);
     }
   }
@@ -57,8 +57,8 @@ public class SerializationHelper {
       int size, T serverLocations)
       throws IOException, ClassNotFoundException {
 
-    for (int i = 0; i < size; i++) {
-      ServerLocation next = new ServerLocation();
+    for (var i = 0; i < size; i++) {
+      var next = new ServerLocation();
       InternalDataSerializer.invokeFromData(next, in);
       serverLocations.add(next);
     }
@@ -68,7 +68,7 @@ public class SerializationHelper {
 
   static ArrayList<ServerLocation> readServerLocationList(DataInput in)
       throws IOException, ClassNotFoundException {
-    int size = in.readInt();
+    var size = in.readInt();
     if (size < 0) {
       return null;
     }
@@ -92,7 +92,7 @@ public class SerializationHelper {
 
   static HashSet<ServerLocation> readServerLocationSet(DataInput in)
       throws IOException, ClassNotFoundException {
-    int size = in.readInt();
+    var size = in.readInt();
     if (size < 0) {
       return null;
     }
@@ -101,13 +101,13 @@ public class SerializationHelper {
 
   public static HashSet<BucketServerLocation66> readBucketServerLocationSet(DataInput in)
       throws IOException, ClassNotFoundException {
-    int size = in.readInt();
+    var size = in.readInt();
     if (size < 0) {
       return null;
     }
-    HashSet<BucketServerLocation66> bucketServerLocations = new HashSet<>(size);
-    for (int i = 0; i < size; i++) {
-      BucketServerLocation66 next = new BucketServerLocation66();
+    var bucketServerLocations = new HashSet<BucketServerLocation66>(size);
+    for (var i = 0; i < size; i++) {
+      var next = new BucketServerLocation66();
       InternalDataSerializer.invokeFromData(next, in);
       bucketServerLocations.add(next);
     }

@@ -28,9 +28,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.execute.Function;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.management.internal.security.TestFunctions.ReadFunction;
@@ -54,7 +52,7 @@ public class ClientExecuteFunctionAuthDUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     properties.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.management.internal.security.TestFunctions*");
@@ -63,7 +61,7 @@ public class ClientExecuteFunctionAuthDUnitTest {
     server.invoke(() -> {
       ClusterStartupRule.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("region");
     });
-    int serverPort = server.getPort();
+    var serverPort = server.getPort();
     client1 = cluster.startClientVM(1, c1 -> c1.withCredential("dataRead", "dataRead")
         .withPoolSubscription(true)
         .withServerConnection(serverPort));
@@ -80,21 +78,21 @@ public class ClientExecuteFunctionAuthDUnitTest {
   @Test
   public void testExecuteFunctionWithFunctionObject() throws Exception {
     client1.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
 
       // can not write
       assertThatThrownBy(() -> onServer(cache.getDefaultPool()).execute(writeFunction))
           .hasMessageContaining("DATA:WRITE");
 
       // can read
-      ResultCollector rc = onServer(cache.getDefaultPool()).execute(readFunction);
+      var rc = onServer(cache.getDefaultPool()).execute(readFunction);
       assertThat(((ArrayList) rc.getResult()).get(0)).isEqualTo(ReadFunction.SUCCESS_OUTPUT);
     });
 
     client2.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       // can write
-      ResultCollector rc = onServer(cache.getDefaultPool()).execute(writeFunction);
+      var rc = onServer(cache.getDefaultPool()).execute(writeFunction);
       assertThat(((ArrayList) rc.getResult()).get(0)).isEqualTo(WriteFunction.SUCCESS_OUTPUT);
 
       // can not read

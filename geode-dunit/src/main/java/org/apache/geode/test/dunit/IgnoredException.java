@@ -101,8 +101,8 @@ public class IgnoredException implements Serializable, AutoCloseable {
    * @return an IgnoredException instance for removal purposes
    */
   public static IgnoredException addIgnoredException(final String suspectString, final VM vm) {
-    IgnoredException ignoredException = new IgnoredException(suspectString, vm);
-    SerializableRunnableIF addRunnable = runnableForAdd(ignoredException.getAddMessage());
+    var ignoredException = new IgnoredException(suspectString, vm);
+    var addRunnable = runnableForAdd(ignoredException.getAddMessage());
 
     try {
       addRunnable.run();
@@ -149,7 +149,7 @@ public class IgnoredException implements Serializable, AutoCloseable {
   }
 
   public void remove() {
-    SerializableRunnableIF removeRunnable = runnableForRemove(getRemoveMessage());
+    var removeRunnable = runnableForRemove(getRemoveMessage());
 
     try {
       removeRunnable.run();

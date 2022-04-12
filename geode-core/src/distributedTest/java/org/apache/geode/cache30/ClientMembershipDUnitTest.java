@@ -28,7 +28,6 @@ import static org.apache.geode.test.dunit.Assert.fail;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,11 +43,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.InternalGemFireException;
-import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
@@ -71,7 +67,6 @@ import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.junit.categories.ClientServerTest;
 
@@ -106,15 +101,15 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
 
   private void waitForAcceptsInProgressToBe(final int target) throws Exception {
     await().timeout(300, TimeUnit.SECONDS).until(() -> {
-      int actual = getAcceptsInProgress();
+      var actual = getAcceptsInProgress();
       return actual == getAcceptsInProgress();
     });
   }
 
   protected int getAcceptsInProgress() {
-    DistributedSystem distributedSystem = getCache().getDistributedSystem();
-    StatisticsType st = distributedSystem.findType("CacheServerStats");
-    Statistics[] s = distributedSystem.findStatisticsByType(st);
+    var distributedSystem = getCache().getDistributedSystem();
+    var st = distributedSystem.findType("CacheServerStats");
+    var s = distributedSystem.findStatisticsByType(st);
     return s[0].getInt("acceptsInProgress");
   }
 
@@ -126,12 +121,12 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
   @Test
   public void testConnectionTimeout() throws Exception {
     IgnoredException.addIgnoredException("failed accepting client connection");
-    final Host host = Host.getHost(0);
-    final String hostName = NetworkUtils.getServerHostName(host);
-    final VM vm0 = host.getVM(0);
+    final var host = Host.getHost(0);
+    final var hostName = NetworkUtils.getServerHostName(host);
+    final var vm0 = host.getVM(0);
     System.setProperty(AcceptorImpl.ACCEPT_TIMEOUT_PROPERTY_NAME, "1000");
     try {
-      final int port = startBridgeServer(0);
+      final var port = startBridgeServer(0);
       // AsyncInvocation ai = null;
       try {
         assertTrue(port != 0);
@@ -142,7 +137,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
                 getCache(); // create a cache so we have stats
                 System.out.println("connecting to cache server with socket");
                 try {
-                  InetAddress addr = InetAddress.getByName(hostName);
+                  var addr = InetAddress.getByName(hostName);
                   meanSocket = new Socket(addr, port);
                 } catch (Exception e) {
                   throw new RuntimeException("Test failed to connect or was interrupted", e);
@@ -215,12 +210,12 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
   }
 
   public void doTestBasicEvents() throws Exception {
-    final boolean[] fired = new boolean[3];
-    final DistributedMember[] member = new DistributedMember[3];
-    final String[] memberId = new String[3];
-    final boolean[] isClient = new boolean[3];
+    final var fired = new boolean[3];
+    final var member = new DistributedMember[3];
+    final var memberId = new String[3];
+    final var isClient = new boolean[3];
 
-    ClientMembershipListener listener = new ClientMembershipListener() {
+    var listener = new ClientMembershipListener() {
       @Override
       public void memberJoined(ClientMembershipEvent event) {
         fired[JOINED] = true;
@@ -363,7 +358,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
    */
   private void resetArraysForTesting(boolean[] fired, DistributedMember[] member, String[] memberId,
       boolean[] isClient) {
-    for (int i = 0; i < fired.length; i++) {
+    for (var i = 0; i < fired.length; i++) {
       fired[i] = false;
       member[i] = null;
       memberId[i] = null;
@@ -377,14 +372,14 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testUnregisterClientMembershipListener() throws Exception {
-    final boolean[] fired = new boolean[1];
-    final DistributedMember[] member = new DistributedMember[1];
-    final String[] memberId = new String[1];
-    final boolean[] isClient = new boolean[1];
+    final var fired = new boolean[1];
+    final var member = new DistributedMember[1];
+    final var memberId = new String[1];
+    final var isClient = new boolean[1];
 
     getSystem();
 
-    ClientMembershipListener listener = new ClientMembershipListener() {
+    var listener = new ClientMembershipListener() {
       @Override
       public void memberJoined(ClientMembershipEvent event) {
         fired[0] = true;
@@ -433,17 +428,17 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testMultipleListeners() throws Exception {
-    final int NUM_LISTENERS = 4;
-    final boolean[] fired = new boolean[NUM_LISTENERS];
-    final DistributedMember[] member = new DistributedMember[NUM_LISTENERS];
-    final String[] memberId = new String[NUM_LISTENERS];
-    final boolean[] isClient = new boolean[NUM_LISTENERS];
+    final var NUM_LISTENERS = 4;
+    final var fired = new boolean[NUM_LISTENERS];
+    final var member = new DistributedMember[NUM_LISTENERS];
+    final var memberId = new String[NUM_LISTENERS];
+    final var isClient = new boolean[NUM_LISTENERS];
 
     getSystem();
 
-    final ClientMembershipListener[] listeners = new ClientMembershipListener[NUM_LISTENERS];
-    for (int i = 0; i < NUM_LISTENERS; i++) {
-      final int whichListener = i;
+    final var listeners = new ClientMembershipListener[NUM_LISTENERS];
+    for (var i = 0; i < NUM_LISTENERS; i++) {
+      final var whichListener = i;
       listeners[i] = new ClientMembershipListener() {
         @Override
         public void memberJoined(ClientMembershipEvent event) {
@@ -467,7 +462,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
 
     final DistributedMember clientJoined = new TestDistributedMember("clientJoined");
     InternalClientMembership.notifyClientJoined(clientJoined);
-    for (int i = 0; i < NUM_LISTENERS; i++) {
+    for (var i = 0; i < NUM_LISTENERS; i++) {
       synchronized (listeners[i]) {
         listeners[i].wait(20);
       }
@@ -482,7 +477,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     ClientMembership.registerClientMembershipListener(listeners[0]);
     ClientMembership.registerClientMembershipListener(listeners[0]);
 
-    ClientMembershipListener[] registeredListeners =
+    var registeredListeners =
         ClientMembership.getClientMembershipListeners();
     assertEquals(1, registeredListeners.length);
     assertEquals(listeners[0], registeredListeners[0]);
@@ -499,7 +494,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         listeners[1].wait(2000);
       }
     }
-    for (int i = 0; i < NUM_LISTENERS; i++) {
+    for (var i = 0; i < NUM_LISTENERS; i++) {
       if (i < 2) {
         assertTrue(fired[i]);
         assertEquals(clientJoined, member[i]);
@@ -525,7 +520,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         listeners[1].wait(2000);
       }
     }
-    for (int i = 0; i < NUM_LISTENERS; i++) {
+    for (var i = 0; i < NUM_LISTENERS; i++) {
       if (i == 1) {
         assertTrue(fired[i]);
         assertEquals(clientJoined, member[i]);
@@ -554,7 +549,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         listeners[3].wait(2000);
       }
     }
-    for (int i = 0; i < NUM_LISTENERS; i++) {
+    for (var i = 0; i < NUM_LISTENERS; i++) {
       if (i != 0) {
         assertTrue(fired[i]);
         assertEquals(clientJoined, member[i]);
@@ -583,7 +578,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         listeners[0].wait(2000);
       }
     }
-    for (int i = 0; i < NUM_LISTENERS; i++) {
+    for (var i = 0; i < NUM_LISTENERS; i++) {
       assertTrue(fired[i]);
       assertEquals(clientJoined, member[i]);
       assertEquals(clientJoined.getId(), memberId[i]);
@@ -604,7 +599,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         listeners[0].wait(2000);
       }
     }
-    for (int i = 0; i < NUM_LISTENERS; i++) {
+    for (var i = 0; i < NUM_LISTENERS; i++) {
       if (i < 3) {
         assertTrue(fired[i]);
         assertEquals(clientJoined, member[i]);
@@ -631,7 +626,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         listeners[0].wait(2000);
       }
     }
-    for (int i = 0; i < NUM_LISTENERS; i++) {
+    for (var i = 0; i < NUM_LISTENERS; i++) {
       if (i < 2) {
         assertTrue(fired[i]);
         assertEquals(clientJoined, member[i]);
@@ -652,7 +647,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     assertEquals(0, registeredListeners.length);
 
     InternalClientMembership.notifyClientJoined(clientJoined);
-    for (int i = 0; i < NUM_LISTENERS; i++) {
+    for (var i = 0; i < NUM_LISTENERS; i++) {
       synchronized (listeners[i]) {
         listeners[i].wait(20);
       }
@@ -674,7 +669,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         listeners[1].wait(2000);
       }
     }
-    for (int i = 0; i < NUM_LISTENERS; i++) {
+    for (var i = 0; i < NUM_LISTENERS; i++) {
       if (i == 1) {
         assertTrue(fired[i]);
         assertEquals(clientJoined, member[i]);
@@ -705,13 +700,13 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     properties = null;
     getSystem();
     IgnoredException.addIgnoredException("IOException");
-    final boolean[] fired = new boolean[3];
-    final DistributedMember[] member = new DistributedMember[3];
-    final String[] memberId = new String[3];
-    final boolean[] isClient = new boolean[3];
+    final var fired = new boolean[3];
+    final var member = new DistributedMember[3];
+    final var memberId = new String[3];
+    final var isClient = new boolean[3];
 
     // create and register ClientMembershipListener in controller vm...
-    ClientMembershipListener listener = new ClientMembershipListener() {
+    var listener = new ClientMembershipListener() {
       @Override
       public void memberJoined(ClientMembershipEvent event) {
         System.out.println("[testClientMembershipEventsInClient] memberJoined: " + event);
@@ -737,18 +732,18 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     };
     ClientMembership.registerClientMembershipListener(listener);
 
-    final VM vm0 = Host.getHost(0).getVM(0);
-    final String name = getUniqueName();
-    final int[] ports = new int[1];
+    final var vm0 = Host.getHost(0).getVM(0);
+    final var name = getUniqueName();
+    final var ports = new int[1];
 
     // create BridgeServer in vm0...
     vm0.invoke("create cache server", () -> {
       try {
         System.out.println("[testClientMembershipEventsInClient] Create BridgeServer");
         getSystem();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
-        Region region = createRegion(name, factory.create());
+        var region = createRegion(name, factory.create());
         assertNotNull(region);
         assertNotNull(getRootRegion().getSubregion(name));
         testClientMembershipEventsInClient_port = startBridgeServer(0);
@@ -766,7 +761,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     DistributedMember serverMember = vm0.invoke("get distributed member",
         () -> getSystem().getDistributedMember());
 
-    String serverMemberId = serverMember.toString();
+    var serverMemberId = serverMember.toString();
 
     System.out.println("[testClientMembershipEventsInClient] ports[0]=" + ports[0]);
     System.out.println("[testClientMembershipEventsInClient] serverMember=" + serverMember);
@@ -807,7 +802,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
 
     // create bridge client in controller vm...
     System.out.println("[testClientMembershipEventsInClient] create bridge client");
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     config.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
@@ -815,7 +810,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
 
     try {
       getCache();
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.LOCAL);
       ClientServerTestCase.configureConnectionPool(factory,
           NetworkUtils.getServerHostName(Host.getHost(0)), ports, true, -1, -1, null);
@@ -831,8 +826,8 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     System.out.println("[testClientMembershipEventsInClient] assert client detected server join");
 
     // first check the getCurrentServers() result
-    ClientCache clientCache = (ClientCache) getCache();
-    Set<InetSocketAddress> servers = clientCache.getCurrentServers();
+    var clientCache = (ClientCache) getCache();
+    var servers = clientCache.getCurrentServers();
     assertTrue(!servers.isEmpty());
 
     // now check listener results
@@ -906,13 +901,13 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testClientMembershipEventsInServer() throws Exception {
-    final boolean[] fired = new boolean[3];
-    final DistributedMember[] member = new DistributedMember[3];
-    final String[] memberId = new String[3];
-    final boolean[] isClient = new boolean[3];
+    final var fired = new boolean[3];
+    final var member = new DistributedMember[3];
+    final var memberId = new String[3];
+    final var isClient = new boolean[3];
 
     // create and register ClientMembershipListener in controller vm...
-    ClientMembershipListener listener = new ClientMembershipListener() {
+    var listener = new ClientMembershipListener() {
       @Override
       public void memberJoined(ClientMembershipEvent event) {
         System.out.println("[testClientMembershipEventsInServer] memberJoined: " + event);
@@ -945,23 +940,23 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     };
     ClientMembership.registerClientMembershipListener(listener);
 
-    final VM vm0 = Host.getHost(0).getVM(0);
-    final String name = getUniqueName();
-    final int[] ports = new int[1];
+    final var vm0 = Host.getHost(0).getVM(0);
+    final var name = getUniqueName();
+    final var ports = new int[1];
 
     // create BridgeServer in controller vm...
     System.out.println("[testClientMembershipEventsInServer] Create BridgeServer");
     getSystem();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     assertNotNull(region);
     assertNotNull(getRootRegion().getSubregion(name));
 
     ports[0] = startBridgeServer(0);
     assertTrue(ports[0] != 0);
-    DistributedMember serverMember = getMemberId();
-    String serverMemberId = serverMember.toString();
+    var serverMember = getMemberId();
+    var serverMemberId = serverMember.toString();
 
     System.out.println("[testClientMembershipEventsInServer] ports[0]=" + ports[0]);
     System.out.println("[testClientMembershipEventsInServer] serverMemberId=" + serverMemberId);
@@ -1002,19 +997,19 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     assertFalse(isClient[CRASHED]);
     resetArraysForTesting(fired, member, memberId, isClient);
 
-    final Host host = Host.getHost(0);
-    SerializableCallable createConnectionPool = new SerializableCallable("Create connectionPool") {
+    final var host = Host.getHost(0);
+    var createConnectionPool = new SerializableCallable("Create connectionPool") {
       @Override
       public Object call() {
         System.out.println("[testClientMembershipEventsInServer] create bridge client");
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         config.setProperty(LOCATORS, "");
         config.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
         properties = config;
         DistributedSystem s = getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
-        Pool pool = ClientServerTestCase.configureConnectionPool(factory,
+        var factory = new AttributesFactory();
+        var pool = ClientServerTestCase.configureConnectionPool(factory,
             NetworkUtils.getServerHostName(host), ports, true, -1, 2, null);
         createRegion(name, factory.create());
         assertNotNull(getRootRegion().getSubregion(name));
@@ -1024,8 +1019,8 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     };
 
     // create bridge client in vm0...
-    DistributedMember clientMember = (DistributedMember) vm0.invoke(createConnectionPool);
-    String clientMemberId = clientMember.toString();
+    var clientMember = (DistributedMember) vm0.invoke(createConnectionPool);
+    var clientMemberId = clientMember.toString();
 
     await().timeout(300, TimeUnit.SECONDS).until(() -> {
       return fired[JOINED] || fired[LEFT] || fired[CRASHED];
@@ -1055,8 +1050,8 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         System.out.println("[testClientMembershipEventsInServer] Stop bridge client");
         getRootRegion().getSubregion(name).close();
         Map m = PoolManager.getAll();
-        for (final Object o : m.values()) {
-          Pool p = (Pool) o;
+        for (final var o : m.values()) {
+          var p = (Pool) o;
           p.destroy();
         }
       }
@@ -1114,8 +1109,8 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
           System.out.println("[testClientMembershipEventsInServer] Stop bridge client");
           getRootRegion().getSubregion(name).close();
           Map m = PoolManager.getAll();
-          for (final Object o : m.values()) {
-            Pool p = (Pool) o;
+          for (final var o : m.values()) {
+            var p = (Pool) o;
             p.destroy();
           }
         }
@@ -1161,13 +1156,13 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testLifecycle() throws Exception {
-    final boolean[] fired = new boolean[3];
-    final DistributedMember[] member = new DistributedMember[3];
-    final String[] memberId = new String[3];
-    final boolean[] isClient = new boolean[3];
+    final var fired = new boolean[3];
+    final var member = new DistributedMember[3];
+    final var memberId = new String[3];
+    final var isClient = new boolean[3];
 
     // create and register ClientMembershipListener in controller vm...
-    ClientMembershipListener listener = new ClientMembershipListener() {
+    var listener = new ClientMembershipListener() {
       @Override
       public void memberJoined(ClientMembershipEvent event) {
         assertFalse(fired[JOINED]);
@@ -1189,7 +1184,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     ClientMembership.registerClientMembershipListener(listener);
 
     // create loner in controller vm...
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     properties = config;
@@ -1239,29 +1234,29 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testGetConnectedClients() throws Exception {
-    final String name = getUniqueName();
-    final int[] ports = new int[1];
+    final var name = getUniqueName();
+    final var ports = new int[1];
 
     IgnoredException.addIgnoredException("ConnectException");
 
     // create BridgeServer in controller vm...
     System.out.println("[testGetConnectedClients] Create BridgeServer");
     getSystem();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     assertNotNull(region);
     assertNotNull(getRootRegion().getSubregion(name));
 
     ports[0] = startBridgeServer(0);
     assertTrue(ports[0] != 0);
-    String serverMemberId = getSystem().getDistributedMember().toString();
+    var serverMemberId = getSystem().getDistributedMember().toString();
 
     System.out.println("[testGetConnectedClients] ports[0]=" + ports[0]);
     System.out.println("[testGetConnectedClients] serverMemberId=" + serverMemberId);
 
-    final Host host = Host.getHost(0);
-    SerializableCallable createPool = new SerializableCallable("Create connection pool") {
+    final var host = Host.getHost(0);
+    var createPool = new SerializableCallable("Create connection pool") {
       @Override
       public Object call() {
         System.out.println("[testGetConnectedClients] create bridge client");
@@ -1269,9 +1264,9 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         properties.setProperty(MCAST_PORT, "0");
         properties.setProperty(LOCATORS, "");
         getSystem(properties);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
-        Pool p = ClientServerTestCase.configureConnectionPool(factory,
+        var p = ClientServerTestCase.configureConnectionPool(factory,
             NetworkUtils.getServerHostName(host), ports, true, -1, -1, null);
         createRegion(name, factory.create());
         assertNotNull(getRootRegion().getSubregion(name));
@@ -1281,19 +1276,19 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     };
 
     // create bridge client in vm0...
-    final String[] clientMemberIdArray = new String[host.getVMCount()];
+    final var clientMemberIdArray = new String[host.getVMCount()];
 
-    for (int i = 0; i < host.getVMCount(); i++) {
-      final VM vm = Host.getHost(0).getVM(i);
+    for (var i = 0; i < host.getVMCount(); i++) {
+      final var vm = Host.getHost(0).getVM(i);
       System.out.println("creating pool in vm_" + i);
       clientMemberIdArray[i] = vm.invoke(createPool).toString();
     }
     Collection clientMemberIds = Arrays.asList(clientMemberIdArray);
 
     {
-      final int expectedClientCount = clientMemberIds.size();
+      final var expectedClientCount = clientMemberIds.size();
       await().timeout(300, TimeUnit.SECONDS).until(() -> {
-        Map connectedClients = InternalClientMembership.getConnectedClients(false, getCache());
+        var connectedClients = InternalClientMembership.getConnectedClients(false, getCache());
         if (connectedClients == null) {
           return false;
         }
@@ -1301,16 +1296,16 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
       });
     }
 
-    Map connectedClients = InternalClientMembership.getConnectedClients(false, getCache());
+    var connectedClients = InternalClientMembership.getConnectedClients(false, getCache());
     assertNotNull(connectedClients);
     assertEquals(clientMemberIds.size(), connectedClients.size());
     System.out
         .println("connectedClients: " + connectedClients + "; clientMemberIds: " + clientMemberIds);
-    for (final Object o : connectedClients.keySet()) {
-      String connectedClient = (String) o;
+    for (final var o : connectedClients.keySet()) {
+      var connectedClient = (String) o;
       System.out.println("[testGetConnectedClients] checking for client " + connectedClient);
       assertTrue(clientMemberIds.contains(connectedClient));
-      Object[] result = (Object[]) connectedClients.get(connectedClient);
+      var result = (Object[]) connectedClients.get(connectedClient);
       System.out.println("[testGetConnectedClients] result: "
           + (result == null ? "none" : result[0] + "; connections=" + result[1]));
     }
@@ -1322,20 +1317,20 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testGetConnectedServers() throws Exception {
-    final Host host = Host.getHost(0);
-    final String name = getUniqueName();
-    final int[] ports = new int[host.getVMCount()];
+    final var host = Host.getHost(0);
+    final var name = getUniqueName();
+    final var ports = new int[host.getVMCount()];
 
-    for (int i = 0; i < host.getVMCount(); i++) {
-      final int whichVM = i;
-      final VM vm = Host.getHost(0).getVM(i);
+    for (var i = 0; i < host.getVMCount(); i++) {
+      final var whichVM = i;
+      final var vm = Host.getHost(0).getVM(i);
       vm.invoke("Create cache server", () -> {
         // create BridgeServer in controller vm...
         System.out.println("[testGetConnectedServers] Create BridgeServer");
         getSystem();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
-        Region region = createRegion(name + "_" + whichVM, factory.create());
+        var region = createRegion(name + "_" + whichVM, factory.create());
         assertNotNull(region);
         assertNotNull(getRootRegion().getSubregion(name + "_" + whichVM));
         region.put("KEY-1", "VAL-1");
@@ -1360,35 +1355,35 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     }
 
     System.out.println("[testGetConnectedServers] create bridge client");
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     properties = config;
     getSystem(config);
     getCache();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
 
-    for (int i = 0; i < ports.length; i++) {
+    for (var i = 0; i < ports.length; i++) {
       System.out.println("[testGetConnectedServers] creating connectionpool for "
           + NetworkUtils.getServerHostName(host) + " " + ports[i]);
-      int[] thisServerPorts = new int[] {ports[i]};
+      var thisServerPorts = new int[] {ports[i]};
       configureConnectionPoolWithNameAndFactory(factory, NetworkUtils.getServerHostName(host),
           thisServerPorts, false, -1,
           -1, null, "pooly" + i, PoolManager.createFactory(), -1, -1, -2,
           -1);
-      Region region = createRegion(name + "_" + i, factory.create());
+      var region = createRegion(name + "_" + i, factory.create());
       assertNotNull(getRootRegion().getSubregion(name + "_" + i));
       region.get("KEY-1");
     }
 
-    final int expectedVMCount = host.getVMCount();
+    final var expectedVMCount = host.getVMCount();
     await().timeout(300, TimeUnit.SECONDS).until(() -> {
       if (PoolManager.getAll().size() != expectedVMCount) {
         return false;
       }
-      Map connectedServers = InternalClientMembership.getConnectedServers();
+      var connectedServers = InternalClientMembership.getConnectedServers();
       if (connectedServers == null) {
         return false;
       }
@@ -1397,11 +1392,11 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
 
     assertEquals(host.getVMCount(), PoolManager.getAll().size());
 
-    Map connectedServers = InternalClientMembership.getConnectedServers();
+    var connectedServers = InternalClientMembership.getConnectedServers();
     assertNotNull(connectedServers);
     assertEquals(host.getVMCount(), connectedServers.size());
-    for (final Object o : connectedServers.keySet()) {
-      String connectedServer = (String) o;
+    for (final var o : connectedServers.keySet()) {
+      var connectedServer = (String) o;
       System.out.println("[testGetConnectedServers]  value for connectedServer: "
           + connectedServers.get(connectedServer));
     }
@@ -1428,21 +1423,21 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testGetNotifiedClients() throws Exception {
-    final Host host = Host.getHost(0);
-    final String name = getUniqueName();
-    final int[] ports = new int[host.getVMCount()];
+    final var host = Host.getHost(0);
+    final var name = getUniqueName();
+    final var ports = new int[host.getVMCount()];
 
-    for (int i = 0; i < host.getVMCount(); i++) {
-      final int whichVM = i;
-      final VM vm = Host.getHost(0).getVM(i);
+    for (var i = 0; i < host.getVMCount(); i++) {
+      final var whichVM = i;
+      final var vm = Host.getHost(0).getVM(i);
       vm.invoke(new CacheSerializableRunnable("Create cache server") {
         @Override
         public void run2() throws CacheException {
           // create BridgeServer in controller vm...
           System.out.println("[testGetNotifiedClients] Create BridgeServer");
           getSystem();
-          AttributesFactory factory = new AttributesFactory();
-          Region region = createRegion(name, factory.create());
+          var factory = new AttributesFactory();
+          var region = createRegion(name, factory.create());
           assertNotNull(region);
           assertNotNull(getRootRegion().getSubregion(name));
           region.put("KEY-1", "VAL-1");
@@ -1467,37 +1462,37 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     }
 
     System.out.println("[testGetNotifiedClients] create bridge client");
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     properties = config;
     getSystem();
     getCache();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
 
     System.out.println("[testGetNotifiedClients] creating connection pool");
     ClientServerTestCase.configureConnectionPool(factory, NetworkUtils.getServerHostName(host),
         ports, true, -1, -1, null);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     assertNotNull(getRootRegion().getSubregion(name));
     region.registerInterest("KEY-1");
     region.get("KEY-1");
 
-    final String clientMemberId = getMemberId().toString();
+    final var clientMemberId = getMemberId().toString();
 
     pauseForClientToJoin();
 
     // assertions go here
-    int[] clientCounts = new int[host.getVMCount()];
+    var clientCounts = new int[host.getVMCount()];
 
     // only one server vm will have that client for updating
-    for (int i = 0; i < host.getVMCount(); i++) {
-      final int whichVM = i;
-      final VM vm = Host.getHost(0).getVM(i);
+    for (var i = 0; i < host.getVMCount(); i++) {
+      final var whichVM = i;
+      final var vm = Host.getHost(0).getVM(i);
       vm.invoke("Create cache server", () -> {
-        Map clients = InternalClientMembership.getConnectedClients(true, getCache());
+        var clients = InternalClientMembership.getConnectedClients(true, getCache());
         assertNotNull(clients);
         testGetNotifiedClients_clientCount = clients.size();
         // [bruce] this is not a valid assertion - the server may not use
@@ -1514,8 +1509,8 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
     }
 
     // only one server should have a notifier for this client...
-    int totalClientCounts = 0;
-    for (final int clientCount : clientCounts) {
+    var totalClientCounts = 0;
+    for (final var clientCount : clientCounts) {
       totalClientCounts += clientCount;
     }
     // this assertion fails because the count is 4
@@ -1579,7 +1574,7 @@ public class ClientMembershipDUnitTest extends ClientServerTestCase {
         throw new InternalGemFireException("Invalidly comparing TestDistributedMember to " + o);
       }
 
-      TestDistributedMember tds = (TestDistributedMember) o;
+      var tds = (TestDistributedMember) o;
       return getHost().compareTo(tds.getHost());
     }
 

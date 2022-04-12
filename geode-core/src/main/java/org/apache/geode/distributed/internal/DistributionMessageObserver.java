@@ -30,7 +30,7 @@ public abstract class DistributionMessageObserver {
    * @return the old observer, or null if there was no old observer.
    */
   public static DistributionMessageObserver setInstance(DistributionMessageObserver instance) {
-    DistributionMessageObserver oldInstance = DistributionMessageObserver.instance;
+    var oldInstance = DistributionMessageObserver.instance;
     DistributionMessageObserver.instance = instance;
     return oldInstance;
   }

@@ -45,7 +45,7 @@ public class PdxInstanceHelper implements JSONToPdxMapper {
   }
 
   public PdxInstanceHelper(String className, JSONToPdxMapper parent, String... identityFields) {
-    InternalCache cache = getCache();
+    var cache = getCache();
     if (logger.isTraceEnabled()) {
       logger.trace("ClassName {}", className);
     }
@@ -58,7 +58,7 @@ public class PdxInstanceHelper implements JSONToPdxMapper {
 
   public void initializeIdentityFields(String... identityFields) {
     this.identityFields = new HashSet<>();
-    for (String identityField : identityFields) {
+    for (var identityField : identityFields) {
       this.identityFields.add(identityField);
     }
   }

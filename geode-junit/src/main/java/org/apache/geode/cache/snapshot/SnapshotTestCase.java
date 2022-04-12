@@ -43,12 +43,12 @@ public class SnapshotTestCase {
 
   @Before
   public void setUp() throws Exception {
-    File storeDirectory = baseDir.newFolder("store");
+    var storeDirectory = baseDir.newFolder("store");
     snapshotDirectory = baseDir.newFolder("snapshots");
 
     regionGenerator = new RegionGenerator();
 
-    CacheFactory cf = new CacheFactory().set(MCAST_PORT, "0").set(LOG_LEVEL, "error");
+    var cf = new CacheFactory().set(MCAST_PORT, "0").set(LOG_LEVEL, "error");
     cache = cf.create();
 
     diskStore = cache.createDiskStoreFactory().setMaxOplogSize(1)
@@ -66,7 +66,7 @@ public class SnapshotTestCase {
 
   Map<Integer, MyObject> createExpected(SerializationType type) {
     Map<Integer, MyObject> expected = new HashMap<>();
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       expected.put(i, regionGenerator.createData(type, i, "The number is " + i));
     }
     return expected;

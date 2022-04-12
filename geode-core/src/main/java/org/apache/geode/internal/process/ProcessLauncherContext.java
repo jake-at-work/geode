@@ -52,7 +52,7 @@ public class ProcessLauncherContext {
    * @return true if this process should redirect output to the system log
    */
   public static boolean isRedirectingOutput() {
-    ProcessLauncherContext context = get();
+    var context = get();
     if (context == null) {
       return REDIRECT_OUTPUT_DEFAULT;
     }
@@ -67,7 +67,7 @@ public class ProcessLauncherContext {
    * @return the contingent gemfire properties values to be used as an alternative default value
    */
   public static Properties getOverriddenDefaults() {
-    ProcessLauncherContext context = get();
+    var context = get();
     if (context == null) {
       return new Properties();
     }
@@ -75,7 +75,7 @@ public class ProcessLauncherContext {
   }
 
   public static StartupStatusListener getStartupListener() {
-    ProcessLauncherContext context = get();
+    var context = get();
     if (context == null) {
       return null;
     }

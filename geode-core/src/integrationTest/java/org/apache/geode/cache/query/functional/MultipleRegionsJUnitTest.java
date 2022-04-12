@@ -24,10 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Data;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -38,20 +35,20 @@ public class MultipleRegionsJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region1 = CacheUtils.createRegion("Portfolios", Portfolio.class);
-    for (int i = 0; i < 5; i++) {
+    var region1 = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    for (var i = 0; i < 5; i++) {
       region1.put("" + i, new Portfolio(i));
     }
-    Region region2 = CacheUtils.createRegion("Portfolios2", Portfolio.class);
-    for (int i = 0; i < 2; i++) {
+    var region2 = CacheUtils.createRegion("Portfolios2", Portfolio.class);
+    for (var i = 0; i < 2; i++) {
       region2.put("" + i, new Portfolio(i));
     }
-    Region region3 = CacheUtils.createRegion("Data", Data.class);
-    for (int i = 0; i < 2; i++) {
+    var region3 = CacheUtils.createRegion("Data", Data.class);
+    for (var i = 0; i < 2; i++) {
       region3.put("" + i, new Data());
     }
-    Region region4 = CacheUtils.createRegion("Portfolios3", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region4 = CacheUtils.createRegion("Portfolios3", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region4.put("" + i, new Portfolio(i));
     }
   }
@@ -63,9 +60,9 @@ public class MultipleRegionsJUnitTest {
 
   @Test
   public void testQueriesExecutionOnMultipleRegion() throws Exception {
-    int[] SizeArray = {5, 2, 0, 8, 80, 10, 8, 10, 48};
-    QueryService qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var SizeArray = new int[] {5, 2, 0, 8, 80, 10, 8, 10, 48};
+    var qs = CacheUtils.getQueryService();
+    var queries = new String[] {
         // Multiple Regions Available. Execute queries on any of the Region.
         "select distinct * from " + SEPARATOR + "Portfolios",
         "SELECT DISTINCT * FROM " + SEPARATOR
@@ -82,9 +79,9 @@ public class MultipleRegionsJUnitTest {
         "Select distinct * from " + SEPARATOR + "Portfolios pf, " + SEPARATOR + "Portfolios2, "
             + SEPARATOR + "Portfolios3, " + SEPARATOR + "Data where pf.status='active'"};
 
-    for (int i = 0; i < queries.length; i++) {
-      Query query = qs.newQuery(queries[i]);
-      Object result = query.execute();
+    for (var i = 0; i < queries.length; i++) {
+      var query = qs.newQuery(queries[i]);
+      var result = query.execute();
       if (((Collection) result).size() != SizeArray[i]) {
         fail("Size of Result is not as Expected");
       }

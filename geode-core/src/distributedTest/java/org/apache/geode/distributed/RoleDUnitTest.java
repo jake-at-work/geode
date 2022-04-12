@@ -26,9 +26,6 @@ import java.util.Set;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.membership.InternalRole;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableRunnable;
@@ -53,21 +50,21 @@ public class RoleDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testRolesInLonerVM() {
-    final String rolesProp = "A,B,C,D,E,F,G";
-    final String[] rolesArray = new String[] {"A", "B", "C", "D", "E", "F", "G"};
+    final var rolesProp = "A,B,C,D,E,F,G";
+    final var rolesArray = new String[] {"A", "B", "C", "D", "E", "F", "G"};
 
     distributionProperties = new Properties();
     distributionProperties.setProperty(MCAST_PORT, "0");
     distributionProperties.setProperty(LOCATORS, "");
     distributionProperties.setProperty(ROLES, rolesProp);
 
-    InternalDistributedSystem system = getSystem(distributionProperties);
+    var system = getSystem(distributionProperties);
     try {
-      DistributionManager dm = system.getDistributionManager();
-      Set allRoles = dm.getAllRoles();
+      var dm = system.getDistributionManager();
+      var allRoles = dm.getAllRoles();
       assertEquals(rolesArray.length, allRoles.size());
 
-      InternalDistributedMember member = dm.getDistributionManagerId();
+      var member = dm.getDistributionManagerId();
       Set roles = member.getRoles();
       assertEquals(rolesArray.length, roles.size());
 
@@ -75,8 +72,8 @@ public class RoleDUnitTest extends JUnit4DistributedTestCase {
       assertEquals(false, roleA.isPresent());
       assertEquals(0, roleA.getCount());
 
-      for (final Object o : roles) {
-        Role role = (Role) o;
+      for (final var o : roles) {
+        var role = (Role) o;
         assertEquals(true, role.isPresent());
         assertEquals(1, role.getCount());
       }
@@ -91,17 +88,17 @@ public class RoleDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testRolesInDistributedVMs() {
     // connect all four vms...
-    final String[] vmRoles = new String[] {"VM_A", "BAR", "Foo,BAR", "Bip,BAM"};
-    final Object[][] roleCounts = new Object[][] {{"VM_A", 1}, {"BAR", 2},
+    final var vmRoles = new String[] {"VM_A", "BAR", "Foo,BAR", "Bip,BAM"};
+    final var roleCounts = new Object[][] {{"VM_A", 1}, {"BAR", 2},
         {"Foo", 1}, {"Bip", 1}, {"BAM", 1}};
 
-    for (int i = 0; i < vmRoles.length; i++) {
-      final int vm = i;
+    for (var i = 0; i < vmRoles.length; i++) {
+      final var vm = i;
       Host.getHost(0).getVM(vm).invoke(new SerializableRunnable("create system") {
         @Override
         public void run() {
           disconnectFromDS();
-          Properties config = new Properties();
+          var config = new Properties();
           config.setProperty(ROLES, vmRoles[vm]);
           config.setProperty(LOG_LEVEL, "fine");
           distributionProperties = config;
@@ -111,23 +108,23 @@ public class RoleDUnitTest extends JUnit4DistributedTestCase {
     }
 
     // validate roles from each vm...
-    for (int i = 0; i < vmRoles.length; i++) {
-      final int vm = i;
+    for (var i = 0; i < vmRoles.length; i++) {
+      final var vm = i;
       Host.getHost(0).getVM(vm).invoke(new SerializableRunnable("verify roles") {
         @Override
         public void run() {
-          InternalDistributedSystem sys = getSystem();
-          DistributionManager dm = sys.getDistributionManager();
+          var sys = getSystem();
+          var dm = sys.getDistributionManager();
 
-          Set allRoles = dm.getAllRoles();
+          var allRoles = dm.getAllRoles();
           assertEquals(
               "allRoles is " + allRoles.size() + " but roleCounts should be " + roleCounts.length,
               roleCounts.length, allRoles.size());
 
-          for (final Object allRole : allRoles) {
+          for (final var allRole : allRoles) {
             // match role with string in roleCounts
-            Role role = (Role) allRole;
-            for (final Object[] roleCount : roleCounts) {
+            var role = (Role) allRole;
+            for (final var roleCount : roleCounts) {
               if (role.getName().equals(roleCount[0])) {
                 // parse count
                 int count = (Integer) roleCount[1];
@@ -149,23 +146,23 @@ public class RoleDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testDuplicateRoleNames() {
-    final String rolesProp = "A,A";
+    final var rolesProp = "A,A";
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     config.setProperty(ROLES, rolesProp);
     distributionProperties = config;
 
-    InternalDistributedSystem system = getSystem();
+    var system = getSystem();
     try {
-      DistributionManager dm = system.getDistributionManager();
-      InternalDistributedMember member = dm.getDistributionManagerId();
+      var dm = system.getDistributionManager();
+      var member = dm.getDistributionManagerId();
 
       Set roles = member.getRoles();
       assertEquals(1, roles.size());
 
-      Role role = (Role) roles.iterator().next();
+      var role = (Role) roles.iterator().next();
       assertEquals(true, role.isPresent());
       assertEquals(1, role.getCount());
     } finally {

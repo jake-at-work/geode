@@ -67,13 +67,13 @@ public class MemberStarterRuleAwaitDUnitTest {
   @BeforeClass
   public static void beforeClass() {
     locator = csRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server = csRule.startServerVM(1, member -> member.withJMXManager()
         .withConnectionToLocator(locatorPort)
         .withRegion(RegionShortcut.PARTITION_PERSISTENT, existingRegionName));
 
     existingDiskStoreName = server.invoke(() -> {
-      DiskStore anExistingDiskStore =
+      var anExistingDiskStore =
           (DiskStore) ClusterStartupRule.getCache().listDiskStores().toArray()[0];
       return anExistingDiskStore.getName();
     });

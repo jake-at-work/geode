@@ -14,7 +14,6 @@
  */
 package org.apache.geode.codeAnalysis;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,10 +31,10 @@ public class ClassAndVariables implements Comparable {
   public ClassAndVariables(CompiledClass parsedClass) {
     dclass = parsedClass;
 
-    String name = dclass.fullyQualifiedName().replace('/', '.');
+    var name = dclass.fullyQualifiedName().replace('/', '.');
     try {
       Class realClass = Class.forName(name);
-      Field field = realClass.getDeclaredField("serialVersionUID");
+      var field = realClass.getDeclaredField("serialVersionUID");
       field.setAccessible(true);
       serialVersionUID = field.getLong(null);
       hasSerialVersionUID = true;

@@ -17,10 +17,8 @@ package org.apache.geode.management.internal.beans.stats;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.internal.statistics.StatisticId;
 import org.apache.geode.internal.statistics.StatisticNotFoundException;
 import org.apache.geode.internal.statistics.StatisticsListener;
 import org.apache.geode.internal.statistics.StatisticsNotification;
@@ -92,32 +90,32 @@ public class AggregateRegionStatsMonitor extends MBeanStatsMonitor {
 
   Number computeDelta(Map<String, Number> statsMap, String name, Number currentValue) {
     if (name.equals(StatsKey.PRIMARY_BUCKET_COUNT)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.PRIMARY_BUCKET_COUNT, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.PRIMARY_BUCKET_COUNT, 0);
       return currentValue.intValue() - prevValue.intValue();
     }
 
     if (name.equals(StatsKey.BUCKET_COUNT)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.BUCKET_COUNT, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.BUCKET_COUNT, 0);
       return currentValue.intValue() - prevValue.intValue();
     }
 
     if (name.equals(StatsKey.TOTAL_BUCKET_SIZE)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.TOTAL_BUCKET_SIZE, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.TOTAL_BUCKET_SIZE, 0);
       return currentValue.intValue() - prevValue.intValue();
     }
 
     if (name.equals(StatsKey.LRU_EVICTIONS)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.LRU_EVICTIONS, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.LRU_EVICTIONS, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.LRU_DESTROYS)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.LRU_DESTROYS, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.LRU_DESTROYS, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.DISK_SPACE)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.DISK_SPACE, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.DISK_SPACE, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
@@ -157,12 +155,12 @@ public class AggregateRegionStatsMonitor extends MBeanStatsMonitor {
   }
 
   private MemberLevelRegionStatisticsListener removeListener(Statistics stats) {
-    ValueMonitor monitor = monitors.remove(stats);
+    var monitor = monitors.remove(stats);
     if (monitor != null) {
       monitor.removeStatistics(stats);
     }
 
-    MemberLevelRegionStatisticsListener listener = listeners.remove(stats);
+    var listener = listeners.remove(stats);
     if ((listener != null) && (monitor != null)) {
       monitor.removeListener(listener);
     }
@@ -179,7 +177,7 @@ public class AggregateRegionStatsMonitor extends MBeanStatsMonitor {
   }
 
   public void removePartitionStatistics(Statistics stats) {
-    MemberLevelRegionStatisticsListener listener = removeListener(stats);
+    var listener = removeListener(stats);
 
     if (listener != null) {
       listener.decreaseParStats();
@@ -217,8 +215,8 @@ public class AggregateRegionStatsMonitor extends MBeanStatsMonitor {
 
   @Override
   public void addStatisticsToMonitor(Statistics stats) {
-    ValueMonitor regionMonitor = new ValueMonitor();
-    MemberLevelRegionStatisticsListener listener = new MemberLevelRegionStatisticsListener();
+    var regionMonitor = new ValueMonitor();
+    var listener = new MemberLevelRegionStatisticsListener();
     regionMonitor.addListener(listener);
     regionMonitor.addStatistics(stats);
 
@@ -228,8 +226,8 @@ public class AggregateRegionStatsMonitor extends MBeanStatsMonitor {
 
   @Override
   public void stopListener() {
-    for (Statistics stat : listeners.keySet()) {
-      ValueMonitor monitor = monitors.get(stat);
+    for (var stat : listeners.keySet()) {
+      var monitor = monitors.get(stat);
       monitor.removeListener(listeners.get(stat));
       monitor.removeStatistics(stat);
     }
@@ -252,9 +250,9 @@ public class AggregateRegionStatsMonitor extends MBeanStatsMonitor {
           return;
         }
 
-        for (StatisticId statId : notification) {
-          StatisticDescriptor descriptor = statId.getStatisticDescriptor();
-          String name = descriptor.getName();
+        for (var statId : notification) {
+          var descriptor = statId.getStatisticDescriptor();
+          var name = descriptor.getName();
           Number value;
 
           try {
@@ -264,7 +262,7 @@ public class AggregateRegionStatsMonitor extends MBeanStatsMonitor {
           }
 
           log(name, value);
-          Number deltaValue = computeDelta(statsMap, name, value);
+          var deltaValue = computeDelta(statsMap, name, value);
           statsMap.put(name, value);
           increaseStats(name, deltaValue);
         }

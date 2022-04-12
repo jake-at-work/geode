@@ -28,9 +28,7 @@ import javax.security.auth.Subject;
 import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAResource;
 
 import org.apache.logging.log4j.Logger;
 
@@ -120,13 +118,13 @@ public class FacetsJCAConnectionManagerImpl
         }
       }
 
-      Transaction txn = transManager.getTransaction();
+      var txn = transManager.getTransaction();
       if (txn != null) {
         // Check if Data Source provides XATransaction
         // if(configs.getTransactionType = "XATransaction")
-        XAResource xar = conn.getXAResource();
+        var xar = conn.getXAResource();
         txn.enlistResource(xar);
-        java.util.List resList = (List) xalistThreadLocal.get();
+        var resList = (List) xalistThreadLocal.get();
         if (resList.size() == 0) {
           // facets specific implementation
           // register syschronisation only once
@@ -139,7 +137,7 @@ public class FacetsJCAConnectionManagerImpl
         // else throw a resource exception
       }
     } catch (RollbackException ex) {
-      String exception =
+      var exception =
           String.format(
               "FacetsJCAConnectionManagerImpl:: An Exception was caught while allocating a connection due to %s",
               ex.getMessage());
@@ -163,12 +161,12 @@ public class FacetsJCAConnectionManagerImpl
   public void connectionErrorOccurred(ConnectionEvent event) {
     if (isActive) {
       // If its an XAConnection
-      ManagedConnection conn = (ManagedConnection) event.getSource();
+      var conn = (ManagedConnection) event.getSource();
       // XAResource xar = (XAResource) xaResourcesMap.get(conn);
       ((List) xalistThreadLocal.get()).remove(conn);
-      TransactionManagerImpl transManager = TransactionManagerImpl.getTransactionManager();
+      var transManager = TransactionManagerImpl.getTransactionManager();
       try {
-        Transaction txn = transManager.getTransaction();
+        var txn = transManager.getTransaction();
         if (txn == null) {
           mannPoolCache.returnPooledConnectionToPool(conn);
         } else {
@@ -181,7 +179,7 @@ public class FacetsJCAConnectionManagerImpl
         mannPoolCache.expirePooledConnection(conn);
         // mannPoolCache.destroyPooledConnection(conn);
       } catch (Exception ex) {
-        String exception =
+        var exception =
             "FacetsJCAConnectionManagerImpl::connectionErrorOccurred: Exception occurred due to "
                 + ex.getMessage();
         if (logger.isDebugEnabled()) {
@@ -199,15 +197,15 @@ public class FacetsJCAConnectionManagerImpl
   @Override
   public void connectionClosed(ConnectionEvent event) {
     if (isActive) {
-      ManagedConnection conn = (ManagedConnection) event.getSource();
-      TransactionManagerImpl transManager = TransactionManagerImpl.getTransactionManager();
+      var conn = (ManagedConnection) event.getSource();
+      var transManager = TransactionManagerImpl.getTransactionManager();
       try {
-        Transaction txn = transManager.getTransaction();
+        var txn = transManager.getTransaction();
         if (txn == null) {
           mannPoolCache.returnPooledConnectionToPool(conn);
         }
       } catch (Exception se) {
-        String exception =
+        var exception =
             "FacetsJCAConnectionManagerImpl::connectionClosed: Exception occurred due to "
                 + se.getMessage();
         if (logger.isDebugEnabled()) {
@@ -256,8 +254,8 @@ public class FacetsJCAConnectionManagerImpl
     // DELIST THE XARESOURCE FROM THE LIST. RETURN ALL THE CONNECTIONS TO THE
     // POOL.
     java.util.List lsConn = (ArrayList) xalistThreadLocal.get();
-    for (final Object o : lsConn) {
-      ManagedConnection conn = (ManagedConnection) o;
+    for (final var o : lsConn) {
+      var conn = (ManagedConnection) o;
       mannPoolCache.returnPooledConnectionToPool(conn);
     }
     lsConn.clear();

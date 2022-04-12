@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Test;
 
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.test.junit.rules.LocatorStarterRule;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
 
@@ -44,11 +42,11 @@ public class MemberStarterRuleIntegrationTest {
 
   @Test
   public void testWithPortOnLocator() {
-    int targetPort = getRandomAvailableTCPPort();
+    var targetPort = getRandomAvailableTCPPort();
     locator = new LocatorStarterRule().withPort(targetPort).withAutoStart();
     locator.before();
 
-    InternalLocator internalMember = locator.getLocator();
+    var internalMember = locator.getLocator();
 
     // This is the rule framework's port
     assertThat(locator.getPort()).isEqualTo(targetPort);
@@ -59,11 +57,11 @@ public class MemberStarterRuleIntegrationTest {
 
   @Test
   public void testWithPortOnServer() {
-    int targetPort = getRandomAvailableTCPPort();
+    var targetPort = getRandomAvailableTCPPort();
     server = new ServerStarterRule().withPort(targetPort).withAutoStart();
     server.before();
 
-    CacheServer internalMember = server.getServer();
+    var internalMember = server.getServer();
 
     // This is the rule framework's port
     assertThat(server.getPort()).isEqualTo(targetPort);

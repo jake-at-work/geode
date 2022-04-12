@@ -35,26 +35,26 @@ public class BucketTargetingMapTest {
   @Before
   public void initMocks() {
     region = mock(BucketRegion.class);
-    final BucketTargetingResolver resolver = new BucketTargetingResolver();
+    final var resolver = new BucketTargetingResolver();
   }
 
   @Test
   public void getUsesCallbackArg() {
-    final BucketTargetingMap map = new BucketTargetingMap(region, 1);
+    final var map = new BucketTargetingMap(region, 1);
     when(region.get(eq("key"), eq(1))).thenReturn("value");
     assertEquals("value", map.get("key"));
   }
 
   @Test
   public void putIfAbsentUsesCallbackArg() {
-    final BucketTargetingMap map = new BucketTargetingMap(region, 1);
+    final var map = new BucketTargetingMap(region, 1);
     map.putIfAbsent("key", "value");
     verify(region).create(eq("key"), eq("value"), eq(1));
   }
 
   @Test
   public void containsKeyUsesCallbackArg() {
-    final BucketTargetingMap map = new BucketTargetingMap(region, 1);
+    final var map = new BucketTargetingMap(region, 1);
     when(region.get(eq("key"), eq(1))).thenReturn("value");
     assertEquals(true, map.containsKey("key"));
     assertEquals(false, map.containsKey("none"));

@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.geode.admin.AdminException;
 import org.apache.geode.admin.CacheDoesNotExistException;
@@ -37,7 +36,6 @@ import org.apache.geode.internal.admin.AdminBridgeServer;
 import org.apache.geode.internal.admin.CacheInfo;
 import org.apache.geode.internal.admin.GemFireVM;
 import org.apache.geode.internal.admin.Stat;
-import org.apache.geode.internal.admin.StatResource;
 
 /**
  * View of a GemFire system member's cache.
@@ -71,7 +69,7 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
    */
   @Override
   public String getName() {
-    String result = info.getName();
+    var result = info.getName();
     if (result == null || result.length() == 0) {
       result = "default";
     }
@@ -128,7 +126,7 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
 
   @Override
   public java.util.Set getRootRegionNames() {
-    Set set = info.getRootRegionNames();
+    var set = info.getRootRegionNames();
     if (set == null) {
       set = Collections.EMPTY_SET;
     }
@@ -139,7 +137,7 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
   @Override
   public void refresh() {
     if (!info.isClosed()) {
-      CacheInfo cur = vm.getCacheInfo();
+      var cur = vm.getCacheInfo();
       if (cur == null || (info.getId() != cur.getId())) {
         // it is a different instance of the cache. So set our version
         // to closed
@@ -152,12 +150,12 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
   }
 
   public GemFireMemberStatus getSnapshot() {
-    GemFireMemberStatus stat = vm.getSnapshot();
+    var stat = vm.getSnapshot();
     return stat;
   }
 
   public RegionSubRegionSnapshot getRegionSnapshot() {
-    RegionSubRegionSnapshot snap = vm.getRegionSnapshot();
+    var snap = vm.getRegionSnapshot();
     return snap;
   }
 
@@ -168,7 +166,7 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
 
   @Override
   public SystemMemberRegion getRegion(String path) throws org.apache.geode.admin.AdminException {
-    Region r = vm.getRegion(info, path);
+    var r = vm.getRegion(info, path);
     if (r == null) {
       return null;
     } else {
@@ -179,7 +177,7 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
   @Override
   public SystemMemberRegion createRegion(String name, RegionAttributes attrs)
       throws AdminException {
-    Region r = vm.createVMRootRegion(info, name, attrs);
+    var r = vm.createVMRootRegion(info, name, attrs);
     if (r == null) {
       return null;
 
@@ -197,14 +195,14 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
 
   // internal methods
   private void initStats() {
-    StatResource resource = info.getPerfStats();
+    var resource = info.getPerfStats();
     if (resource == null) {
       // See bug 31397
       Assert.assertTrue(isClosed());
       return;
     }
 
-    Stat[] stats = resource.getStats();
+    var stats = resource.getStats();
     if (stats == null || stats.length < 1) {
       statistics = new Statistic[0];
       return;
@@ -212,32 +210,32 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
 
     // define new statistics instances...
     List statList = new ArrayList();
-    for (final Stat stat : stats) {
+    for (final var stat : stats) {
       statList.add(createStatistic(stat));
     }
     statistics = (Statistic[]) statList.toArray(new Statistic[0]);
   }
 
   private void updateStats() {
-    StatResource resource = info.getPerfStats();
+    var resource = info.getPerfStats();
     if (resource == null) {
       // See bug 31397
       Assert.assertTrue(isClosed());
       return;
     }
 
-    Stat[] stats = resource.getStats();
+    var stats = resource.getStats();
     if (stats == null || stats.length < 1) {
       return;
     }
 
-    for (final Stat stat : stats) {
+    for (final var stat : stats) {
       updateStatistic(stat);
     }
   }
 
   private void updateStatistic(Stat stat) {
-    for (final Statistic statistic : statistics) {
+    for (final var statistic : statistics) {
       if (statistic.getName().equals(stat.getName())) {
         ((StatisticImpl) statistic).setStat(stat);
         return;
@@ -264,7 +262,7 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
 
   protected SystemMemberRegion createSystemMemberRegion(Region r)
       throws org.apache.geode.admin.AdminException {
-    SystemMemberRegionImpl sysMemberRegion = new SystemMemberRegionImpl(this, r);
+    var sysMemberRegion = new SystemMemberRegionImpl(this, r);
     sysMemberRegion.refresh();
     return sysMemberRegion;
   }
@@ -272,7 +270,7 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
   @Override
   public SystemMemberCacheServer addCacheServer() throws AdminException {
 
-    AdminBridgeServer bridge = vm.addCacheServer(info);
+    var bridge = vm.addCacheServer(info);
     SystemMemberCacheServer admin = createSystemMemberBridgeServer(bridge);
     bridgeServers.put(bridge.getId(), admin);
     return admin;
@@ -281,11 +279,11 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
   private Collection getCacheServersCollection() throws AdminException {
     Collection bridges = new ArrayList();
 
-    int[] bridgeIds = info.getBridgeServerIds();
-    for (int id : bridgeIds) {
-      SystemMemberBridgeServer bridge = (SystemMemberBridgeServer) bridgeServers.get(id);
+    var bridgeIds = info.getBridgeServerIds();
+    for (var id : bridgeIds) {
+      var bridge = (SystemMemberBridgeServer) bridgeServers.get(id);
       if (bridge == null) {
-        AdminBridgeServer info = vm.getBridgeInfo(this.info, id);
+        var info = vm.getBridgeInfo(this.info, id);
         if (info != null) {
           bridge = createSystemMemberBridgeServer(info);
           bridgeServers.put(info.getId(), bridge);
@@ -301,8 +299,8 @@ public class SystemMemberCacheImpl implements SystemMemberCache {
 
   @Override
   public SystemMemberCacheServer[] getCacheServers() throws AdminException {
-    Collection bridges = getCacheServersCollection();
-    SystemMemberCacheServer[] array = new SystemMemberCacheServer[bridges.size()];
+    var bridges = getCacheServersCollection();
+    var array = new SystemMemberCacheServer[bridges.size()];
     return (SystemMemberCacheServer[]) bridges.toArray(array);
   }
 

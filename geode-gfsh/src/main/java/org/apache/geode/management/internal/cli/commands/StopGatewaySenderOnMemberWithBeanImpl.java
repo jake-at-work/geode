@@ -17,8 +17,6 @@ package org.apache.geode.management.internal.cli.commands;
 
 import java.util.ArrayList;
 
-import javax.management.ObjectName;
-
 import org.apache.geode.cache.Cache;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.GatewaySenderMXBean;
@@ -31,11 +29,11 @@ class StopGatewaySenderOnMemberWithBeanImpl
   public ArrayList<String> executeStopGatewaySenderOnMember(String id, Cache cache,
       SystemManagementService managementService, DistributedMember member) {
     GatewaySenderMXBean bean;
-    ArrayList<String> statusList = new ArrayList<>();
+    var statusList = new ArrayList<String>();
     if (cache.getDistributedSystem().getDistributedMember().getId().equals(member.getId())) {
       bean = managementService.getLocalGatewaySenderMXBean(id);
     } else {
-      ObjectName objectName = managementService.getGatewaySenderMBeanName(member, id);
+      var objectName = managementService.getGatewaySenderMBeanName(member, id);
       bean = managementService.getMBeanProxy(objectName, GatewaySenderMXBean.class);
     }
 

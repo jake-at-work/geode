@@ -23,7 +23,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -133,7 +132,7 @@ public class FederatingManager extends Manager implements ManagerMembership {
 
       lifecycleLock.lock();
       try {
-        for (Runnable task : pendingTasks) {
+        for (var task : pendingTasks) {
           executeTask(task);
         }
       } finally {
@@ -277,11 +276,11 @@ public class FederatingManager extends Manager implements ManagerMembership {
    * After that the task will be marked as cancelled.
    */
   private void startManagingActivity() {
-    boolean isDebugEnabled = logger.isDebugEnabled();
+    var isDebugEnabled = logger.isDebugEnabled();
 
     Collection<Callable<InternalDistributedMember>> giiTaskList = new ArrayList<>();
 
-    for (InternalDistributedMember member : system.getDistributionManager()
+    for (var member : system.getDistributionManager()
         .getOtherDistributionManagerIds()) {
       giiTaskList.add(new AddMemberTask(member));
     }
@@ -290,13 +289,13 @@ public class FederatingManager extends Manager implements ManagerMembership {
       if (isDebugEnabled) {
         logger.debug("Management Resource creation started  : ");
       }
-      List<Future<InternalDistributedMember>> futureTaskList =
+      var futureTaskList =
           executorService.get().invokeAll(giiTaskList);
 
-      for (Future<InternalDistributedMember> futureTask : futureTaskList) {
+      for (var futureTask : futureTaskList) {
         try {
           DistributedMember returnedMember = futureTask.get();
-          String memberId = returnedMember != null ? returnedMember.getId() : null;
+          var memberId = returnedMember != null ? returnedMember.getId() : null;
 
           if (futureTask.isDone()) {
             if (isDebugEnabled) {
@@ -344,7 +343,7 @@ public class FederatingManager extends Manager implements ManagerMembership {
     try {
       executorService.get().shutdownNow();
 
-      for (DistributedMember distributedMember : repo.getMonitoringRegionMap().keySet()) {
+      for (var distributedMember : repo.getMonitoringRegionMap().keySet()) {
         removeMemberArtifacts(distributedMember, false);
       }
     } catch (Exception e) {
@@ -363,9 +362,9 @@ public class FederatingManager extends Manager implements ManagerMembership {
   @VisibleForTesting
   void addMemberArtifacts(InternalDistributedMember member) {
     synchronized (member) {
-      String appender = MBeanJMXAdapter.getUniqueIDForMember(member);
-      String monitoringRegionName = ManagementConstants.MONITORING_REGION + "_" + appender;
-      String notificationRegionName = ManagementConstants.NOTIFICATION_REGION + "_" + appender;
+      var appender = MBeanJMXAdapter.getUniqueIDForMember(member);
+      var monitoringRegionName = ManagementConstants.MONITORING_REGION + "_" + appender;
+      var notificationRegionName = ManagementConstants.NOTIFICATION_REGION + "_" + appender;
 
       if (cache.getInternalRegion(monitoringRegionName) != null
           && cache.getInternalRegion(notificationRegionName) != null) {
@@ -378,7 +377,7 @@ public class FederatingManager extends Manager implements ManagerMembership {
         if (!Thread.currentThread().isInterrupted()) {
 
           // Create anonymous stats holder for Management Regions
-          HasCachePerfStats monitoringRegionStats = new HasCachePerfStats() {
+          var monitoringRegionStats = new HasCachePerfStats() {
 
             @Override
             public CachePerfStats getCachePerfStats() {
@@ -398,7 +397,7 @@ public class FederatingManager extends Manager implements ManagerMembership {
           monitorFactory.setScope(Scope.DISTRIBUTED_NO_ACK);
           monitorFactory.setDataPolicy(DataPolicy.REPLICATE);
           monitorFactory.setConcurrencyChecksEnabled(false);
-          ManagementCacheListener managementCacheListener =
+          var managementCacheListener =
               new ManagementCacheListener(proxyFactory);
           monitorFactory.addCacheListener(managementCacheListener);
           monitorFactory.setIsUsedForMetaRegion(true);
@@ -416,7 +415,7 @@ public class FederatingManager extends Manager implements ManagerMembership {
               .setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(
                   ManagementConstants.NOTIF_REGION_MAX_ENTRIES, EvictionAction.LOCAL_DESTROY));
 
-          NotificationCacheListener notifListener = new NotificationCacheListener(proxyFactory);
+          var notifListener = new NotificationCacheListener(proxyFactory);
           notificationFactory.addCacheListener(notifListener);
           notificationFactory.setIsUsedForMetaRegion(true);
           notificationFactory.setCachePerfStatsHolder(monitoringRegionStats);
@@ -434,7 +433,7 @@ public class FederatingManager extends Manager implements ManagerMembership {
             throw new ManagementException(e);
           }
 
-          boolean proxyNotificationRegionCreated = false;
+          var proxyNotificationRegionCreated = false;
           Region<NotificationKey, Notification> proxyNotificationRegion;
           try {
             if (!running) {
@@ -497,8 +496,8 @@ public class FederatingManager extends Manager implements ManagerMembership {
 
   @VisibleForTesting
   void removeMemberArtifacts(DistributedMember member, boolean crashed) {
-    Region<String, Object> monitoringRegion = repo.getEntryFromMonitoringRegionMap(member);
-    Region<NotificationKey, Notification> notificationRegion =
+    var monitoringRegion = repo.getEntryFromMonitoringRegionMap(member);
+    var notificationRegion =
         repo.getEntryFromNotifRegionMap(member);
 
     if (monitoringRegion == null && notificationRegion == null) {

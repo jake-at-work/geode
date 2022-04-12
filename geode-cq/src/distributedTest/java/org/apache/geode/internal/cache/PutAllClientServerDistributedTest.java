@@ -52,8 +52,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -73,13 +71,11 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.LowMemoryException;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
@@ -88,20 +84,16 @@ import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerConnectivityException;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.cache.client.internal.InternalClientCache;
 import org.apache.geode.cache.persistence.PartitionOfflineException;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
@@ -186,7 +178,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1 = getVM(2);
     client2 = getVM(3);
 
-    for (VM vm : asList(getController(), client1, client2, server1, server2)) {
+    for (var vm : asList(getController(), client1, client2, server1, server2)) {
       vm.invoke(() -> {
         VALUE.set(null);
         COUNTER.set(null);
@@ -212,7 +204,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : asList(getController(), client1, client2, server1, server2)) {
+    for (var vm : asList(getController(), client1, client2, server1, server2)) {
       vm.invoke(() -> {
         countDown(LATCH);
         countDown(BEFORE);
@@ -271,22 +263,22 @@ public class PutAllClientServerDistributedTest implements Serializable {
       // create a CQ for key 10-20
       Region<String, TickerData> localSaveRegion = getClientCache().getRegion("localsave");
 
-      CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+      var cqAttributesFactory = new CqAttributesFactory();
       cqAttributesFactory.addCqListener(new CountingCqListener<>(localSaveRegion));
-      CqAttributes cqAttributes = cqAttributesFactory.create();
+      var cqAttributes = cqAttributesFactory.create();
 
-      String cqName = "EOInfoTracker";
-      String query = String.join(" ",
+      var cqName = "EOInfoTracker";
+      var query = String.join(" ",
           "SELECT ALL * FROM " + SEPARATOR + regionName + " ii",
           "WHERE ii.getTicker() >= '10' and ii.getTicker() < '20'");
 
-      CqQuery cqQuery = getClientCache().getQueryService().newCq(cqName, query, cqAttributes);
+      var cqQuery = getClientCache().getQueryService().newCq(cqName, query, cqAttributes);
 
       SelectResults<Struct> results = cqQuery.executeWithInitialResults();
-      List<Struct> resultsAsList = results.asList();
-      for (int i = 0; i < resultsAsList.size(); i++) {
-        Struct struct = resultsAsList.get(i);
-        TickerData tickerData = (TickerData) struct.get("value");
+      var resultsAsList = results.asList();
+      for (var i = 0; i < resultsAsList.size(); i++) {
+        var struct = resultsAsList.get(i);
+        var tickerData = (TickerData) struct.get("value");
         localSaveRegion.put("key-" + i, tickerData);
       }
 
@@ -300,8 +292,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -319,8 +311,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED));
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
 
@@ -337,7 +329,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client2.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       Map<String, TickerData> map = new LinkedHashMap<>();
-      for (int i = 10; i < 20; i++) {
+      for (var i = 10; i < 20; i++) {
         map.put("key-" + i, new TickerData(i * 10));
       }
       region.putAll(map);
@@ -347,11 +339,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> localSaveRegion = getClientCache().getRegion("localsave");
 
-      for (int i = 10; i < 20; i++) {
-        String key = "key-" + i;
-        int price = i * 10;
+      for (var i = 10; i < 20; i++) {
+        var key = "key-" + i;
+        var price = i * 10;
         await().untilAsserted(() -> {
-          TickerData tickerData = localSaveRegion.get(key);
+          var tickerData = localSaveRegion.get(key);
           assertThat(tickerData.getPrice()).isEqualTo(price);
         });
       }
@@ -365,13 +357,13 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      Throwable thrown = catchThrowable(() -> region.putAll(null));
+      var thrown = catchThrowable(() -> region.putAll(null));
       assertThat(thrown).isInstanceOf(NullPointerException.class);
 
       region.localDestroyRegion();
 
       Map<String, TickerData> puts = new LinkedHashMap<>();
-      for (int i = 1; i < 21; i++) {
+      for (var i = 1; i < 21; i++) {
         puts.put("key-" + i, null);
       }
 
@@ -484,25 +476,25 @@ public class PutAllClientServerDistributedTest implements Serializable {
       assertThat(getCache().getRegion(regionName).size()).isEqualTo(ONE_HUNDRED);
     });
 
-    VersionedObjectList versions = client1.invoke(() -> {
+    var versions = client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
-      VersionedObjectList versionsToReturn = doRemoveAll(region, "key-", ONE_HUNDRED);
+      var versionsToReturn = doRemoveAll(region, "key-", ONE_HUNDRED);
       assertThat(region.size()).isZero();
       return versionsToReturn;
     });
 
     // client1 removeAll again
-    VersionedObjectList versionsAfterRetry = client1.invoke(() -> {
+    var versionsAfterRetry = client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
-      VersionedObjectList versionsToReturn = doRemoveAll(region, "key-", ONE_HUNDRED);
+      var versionsToReturn = doRemoveAll(region, "key-", ONE_HUNDRED);
       assertThat(region.size()).isZero();
       return versionsToReturn;
     });
 
     // noinspection rawtypes
-    List<VersionTag> versionTags = versions.getVersionTags();
+    var versionTags = versions.getVersionTags();
     // noinspection rawtypes
-    List<VersionTag> versionTagsAfterRetry = versionsAfterRetry.getVersionTags();
+    var versionTagsAfterRetry = versionsAfterRetry.getVersionTags();
     assertThat(versionTags)
         .hasSameSizeAs(versionTagsAfterRetry)
         .containsAll(versionTagsAfterRetry);
@@ -542,8 +534,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       doPutAll(region, "key-", ONE_HUNDRED);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -554,8 +546,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       region.getAttributesMutator().setCacheWriter(new CountingCacheWriter<>());
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -566,8 +558,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       region.getAttributesMutator().setCacheWriter(new CountingCacheWriter<>());
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -577,8 +569,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED));
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("key-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("key-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
     });
@@ -595,7 +587,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isZero();
 
-      CountingCacheWriter<String, TickerData> countingCacheWriter =
+      var countingCacheWriter =
           (CountingCacheWriter<String, TickerData>) region.getAttributes().getCacheWriter();
       assertThat(countingCacheWriter.getDestroys()).isEqualTo(ONE_HUNDRED);
     });
@@ -605,7 +597,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isZero();
 
-      CountingCacheWriter<String, TickerData> countingCacheWriter =
+      var countingCacheWriter =
           (CountingCacheWriter<String, TickerData>) region.getAttributes().getCacheWriter();
       // beforeDestroys are only triggered at server1 since removeAll is submitted from client1
       assertThat(countingCacheWriter.getDestroys()).isZero();
@@ -635,8 +627,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
       long timeStamp1 = 0;
       long timeStamp2 = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("async1key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("async1key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp1);
         timeStamp1 = tickerData.getTimeStamp();
@@ -655,8 +647,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
       long timeStamp1 = 0;
       long timeStamp2 = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("async1key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("async1key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp1);
         timeStamp1 = tickerData.getTimeStamp();
@@ -675,8 +667,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
       long timeStamp1 = 0;
       long timeStamp2 = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("async1key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("async1key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp1);
         timeStamp1 = tickerData.getTimeStamp();
@@ -693,13 +685,13 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED * 2));
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("async1key-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("async1key-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("async2key-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("async2key-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
     });
@@ -746,8 +738,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       doPutAll(region, "p2pkey-", ONE_HUNDRED);
 
       long timeStamp = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("p2pkey-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("p2pkey-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp);
         timeStamp = tickerData.getTimeStamp();
@@ -759,8 +751,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
 
       long timeStamp = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("p2pkey-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("p2pkey-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp);
         timeStamp = tickerData.getTimeStamp();
@@ -772,8 +764,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED));
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("p2pkey-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("p2pkey-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
     });
@@ -783,8 +775,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED));
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("p2pkey-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("p2pkey-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
     });
@@ -819,16 +811,16 @@ public class PutAllClientServerDistributedTest implements Serializable {
     // verify client1 for local invalidate
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
-      for (int i = 0; i < 10; i++) {
-        String key = "key-" + i;
+      for (var i = 0; i < 10; i++) {
+        var key = "key-" + i;
 
         await("entry with null value exists for " + key).until(() -> {
-          Entry<String, TickerData> regionEntry = region.getEntry(key);
+          var regionEntry = region.getEntry(key);
           return regionEntry != null && regionEntry.getValue() == null;
         });
 
         // local invalidate will set the value to null
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData).isNull();
       }
     });
@@ -838,7 +830,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(concurrencyChecksEnabled={0})")
   public void test2NormalServer(boolean concurrencyChecksEnabled) {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(LOCATORS, locators);
 
     // set notifyBySubscription=false to test local-invalidates
@@ -866,8 +858,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       doPutAll(region, "case1-", ONE_HUNDRED);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("case1-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("case1-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
 
@@ -882,8 +874,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       region.localDestroy(String.valueOf(ONE_HUNDRED));
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("case1-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("case1-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -913,7 +905,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isZero();
 
-      CountingCacheWriter<String, TickerData> countingCacheWriter =
+      var countingCacheWriter =
           (CountingCacheWriter<String, TickerData>) region.getAttributes().getCacheWriter();
       assertThat(countingCacheWriter.getDestroys()).isEqualTo(ONE_HUNDRED);
     });
@@ -923,7 +915,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isZero();
 
-      CountingCacheWriter<String, TickerData> countingCacheWriter =
+      var countingCacheWriter =
           (CountingCacheWriter<String, TickerData>) region.getAttributes().getCacheWriter();
       // beforeDestroys are only triggered at server1 since the removeAll is submitted from client1
       assertThat(countingCacheWriter.getDestroys()).isZero();
@@ -943,8 +935,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       doPutAll(region, "case2-", ONE_HUNDRED);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("case2-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("case2-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -954,8 +946,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("case2-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("case2-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -1044,8 +1036,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       doPutAll(region, "key-", ONE_HUNDRED);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -1065,7 +1057,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
       await().untilAsserted(() -> {
-        Entry<String, TickerData> regionEntry = region.getEntry("case3-1");
+        var regionEntry = region.getEntry("case3-1");
         assertThat(regionEntry).isNotNull();
 
         regionEntry = region.getEntry("case3-2");
@@ -1087,7 +1079,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       keys.add("case3-1");
       region.removeAll(keys);
 
-      Entry<String, TickerData> regionEntry = region.getEntry("case3-1");
+      var regionEntry = region.getEntry("case3-1");
       assertThat(regionEntry).isNull();
 
       regionEntry = region.getEntry("case3-2");
@@ -1101,7 +1093,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     server1.invoke(() -> {
       Region<String, TickerData> region = getCache().getRegion(regionName);
 
-      Entry<String, TickerData> regionEntry = region.getEntry("case3-1");
+      var regionEntry = region.getEntry("case3-1");
       assertThat(regionEntry).isNull();
 
       regionEntry = region.getEntry("case3-2");
@@ -1115,7 +1107,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     server2.invoke(() -> {
       Region<String, TickerData> region = getCache().getRegion(regionName);
 
-      Entry<String, TickerData> regionEntry = region.getEntry("case3-1");
+      var regionEntry = region.getEntry("case3-1");
       assertThat(regionEntry).isNull();
 
       regionEntry = region.getEntry("case3-2");
@@ -1130,7 +1122,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
       await().untilAsserted(() -> {
-        Entry<String, TickerData> regionEntry = region.getEntry("case3-1");
+        var regionEntry = region.getEntry("case3-1");
         assertThat(regionEntry).isNull();
 
         regionEntry = region.getEntry("case3-2");
@@ -1216,11 +1208,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      String message =
+      var message =
           String.format("Region %s putAll at server applied partial keys due to exception.",
               region.getFullPath());
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, keyPrefix, ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, keyPrefix, ONE_HUNDRED));
 
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
@@ -1230,8 +1222,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
       assertThat(region.size()).isEqualTo(ONE_HUNDRED * 3 / 2);
 
-      int count = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
+      var count = 0;
+      for (var i = 0; i < ONE_HUNDRED; i++) {
         VersionTag<?> tag = ((InternalRegion) region).getVersionTag(keyPrefix + i);
         if (tag != null && 1 == tag.getEntryVersion()) {
           count++;
@@ -1253,8 +1245,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
           .isInstanceOf(PartitionOfflineException.class);
 
       // putAll only created 50 entries, removeAll removed them. So 100 entries are all NULL
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry(keyPrefix + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry(keyPrefix + i);
         assertThat(regionEntry).isNull();
       }
     });
@@ -1262,8 +1254,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
     // verify entries from client2
     client2.invoke(() -> await().untilAsserted(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry(keyPrefix + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry(keyPrefix + i);
         assertThat(regionEntry).isNull();
       }
     }));
@@ -1303,8 +1295,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       doPutAll(region, "key-", ONE_HUNDRED);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -1315,8 +1307,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       region.getAttributesMutator().setCacheWriter(new CountingCacheWriter<>());
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -1327,8 +1319,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       region.getAttributesMutator().setCacheWriter(new CountingCacheWriter<>());
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
       }
     });
@@ -1338,8 +1330,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED));
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("key-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("key-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
     });
@@ -1356,7 +1348,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isZero();
 
-      CountingCacheWriter<String, TickerData> countingCacheWriter =
+      var countingCacheWriter =
           (CountingCacheWriter<String, TickerData>) region.getAttributes().getCacheWriter();
       // beforeDestroys are only triggered at primary buckets.
       // server1 and server2 each holds half of buckets
@@ -1368,7 +1360,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isZero();
 
-      CountingCacheWriter<String, TickerData> countingCacheWriter =
+      var countingCacheWriter =
           (CountingCacheWriter<String, TickerData>) region.getAttributes().getCacheWriter();
       // beforeDestroys are only triggered at primary buckets.
       // server1 and server2 each holds half of buckets
@@ -1401,8 +1393,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
       long timeStamp1 = 0;
       long timeStamp2 = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("async1key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("async1key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp1);
         timeStamp1 = tickerData.getTimeStamp();
@@ -1420,8 +1412,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
       long timeStamp1 = 0;
       long timeStamp2 = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("async1key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("async1key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp1);
         timeStamp1 = tickerData.getTimeStamp();
@@ -1438,13 +1430,13 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED * 2));
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("async1key-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("async1key-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("async2key-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("async2key-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
     });
@@ -1491,8 +1483,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       doPutAll(region, "p2pkey-", ONE_HUNDRED);
 
       long timeStamp = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("p2pkey-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("p2pkey-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp);
         timeStamp = tickerData.getTimeStamp();
@@ -1504,8 +1496,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
 
       long timeStamp = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("p2pkey-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("p2pkey-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp);
         timeStamp = tickerData.getTimeStamp();
@@ -1517,8 +1509,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED));
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("p2pkey-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("p2pkey-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
     });
@@ -1528,8 +1520,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED));
 
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        Entry<String, TickerData> regionEntry = region.getEntry("p2pkey-" + i);
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var regionEntry = region.getEntry("p2pkey-" + i);
         assertThat(regionEntry.getValue()).isNull();
       }
     });
@@ -1565,16 +1557,16 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      for (int i = 0; i < 10; i++) {
-        String key = "key-" + i;
+      for (var i = 0; i < 10; i++) {
+        var key = "key-" + i;
 
         await().until(() -> {
-          Entry<String, TickerData> regionEntry = region.getEntry(key);
+          var regionEntry = region.getEntry(key);
           return regionEntry != null && regionEntry.getValue() == null;
         });
 
         // local invalidate will set the value to null
-        TickerData tickerData = region.getEntry("key-" + i).getValue();
+        var tickerData = region.getEntry("key-" + i).getValue();
         assertThat(tickerData).isNull();
       }
     });
@@ -1612,7 +1604,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     // client1 destroy
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
-      Throwable thrown = catchThrowable(() -> region.destroy("bogusKey"));
+      var thrown = catchThrowable(() -> region.destroy("bogusKey"));
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
           .hasCauseInstanceOf(CacheWriterException.class);
@@ -1669,11 +1661,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      String message =
+      var message =
           String.format("Region %s putAll at server applied partial keys due to exception.",
               region.getFullPath());
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
 
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
@@ -1707,7 +1699,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     // server2 add listener and putAll
     server2.invoke(() -> {
       Region<String, TickerData> region = getCache().getRegion(regionName);
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-" + "again:", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-" + "again:", ONE_HUNDRED));
       assertThat(thrown).isInstanceOf(CacheWriterException.class);
     });
 
@@ -1740,11 +1732,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      String message =
+      var message =
           String.format("Region %s removeAll at server applied partial keys due to exception.",
               region.getFullPath());
 
-      Throwable thrown = catchThrowable(() -> doRemoveAll(region, "key-", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doRemoveAll(region, "key-", ONE_HUNDRED));
 
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
@@ -1781,7 +1773,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     // server2 add listener and removeAll
     server2.invoke(() -> {
       Region<String, TickerData> region = getCache().getRegion(regionName);
-      Throwable thrown = catchThrowable(() -> doRemoveAll(region, "key-" + "again:", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doRemoveAll(region, "key-" + "again:", ONE_HUNDRED));
       assertThat(thrown).isInstanceOf(CacheWriterException.class);
     });
 
@@ -1827,7 +1819,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
                 }
               })));
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
       assertThat(thrown).isInstanceOf(CacheWriterException.class);
 
       thrown = catchThrowable(() -> region.put("dummyKey", new TickerData(0)));
@@ -1838,11 +1830,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      String message =
+      var message =
           String.format("Region %s putAll at server applied partial keys due to exception.",
               region.getFullPath());
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
 
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
@@ -1865,7 +1857,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
                 throw new OplogCancelledException("Expected by test");
               })));
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
       assertThat(thrown).isInstanceOf(OplogCancelledException.class);
 
       thrown = catchThrowable(() -> region.put("dummyKey", new TickerData(0)));
@@ -1876,7 +1868,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
       assertThat(thrown)
           .isInstanceOf(ServerConnectivityException.class)
           .hasCauseInstanceOf(OplogCancelledException.class);
@@ -1897,7 +1889,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
                 throw new LowMemoryException("Testing", emptySet());
               })));
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
       assertThat(thrown).isInstanceOf(LowMemoryException.class);
 
       thrown = catchThrowable(() -> region.put("dummyKey", new TickerData(0)));
@@ -1908,7 +1900,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_HUNDRED));
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
           .getCause()
@@ -1932,11 +1924,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
               })));
 
       Map<String, TickerData> map = new LinkedHashMap<>();
-      for (int i = 0; i < ONE_HUNDRED; i++) {
+      for (var i = 0; i < ONE_HUNDRED; i++) {
         map.put(keyPrefix + i, new TickerData(i));
       }
 
-      Throwable thrown = catchThrowable(() -> region.putAll(map));
+      var thrown = catchThrowable(() -> region.putAll(map));
       assertThat(thrown)
           .isInstanceOf(TimeoutException.class)
           .hasNoCause();
@@ -1962,11 +1954,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
       Map<String, TickerData> map = new LinkedHashMap<>();
-      for (int i = 0; i < ONE_HUNDRED; i++) {
+      for (var i = 0; i < ONE_HUNDRED; i++) {
         map.put(keyPrefix + i, new TickerData(i));
       }
 
-      Throwable thrown = catchThrowable(() -> region.putAll(map));
+      var thrown = catchThrowable(() -> region.putAll(map));
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
           .hasCauseInstanceOf(TimeoutException.class);
@@ -2002,7 +1994,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
         .regionShortcut(PARTITION_PERSISTENT)
         .create());
 
-    for (VM clientVM : asList(client1, client2)) {
+    for (var clientVM : asList(client1, client2)) {
       clientVM.invoke(() -> new ClientBuilder()
           .serverPorts(serverPort1, serverPort2)
           .subscriptionAckInterval()
@@ -2038,11 +2030,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
       region.getAttributesMutator().addCacheListener(new SlowCacheListener<>());
       region.registerInterest("ALL_KEYS");
 
-      String message =
+      var message =
           String.format("Region %s putAll at server applied partial keys due to exception.",
               region.getFullPath());
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "Key-", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "Key-", ONE_HUNDRED));
 
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
@@ -2079,11 +2071,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      String message =
+      var message =
           String.format("Region %s putAll at server applied partial keys due to exception.",
               region.getFullPath());
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-" + "again:", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-" + "again:", ONE_HUNDRED));
 
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
@@ -2124,7 +2116,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     // server2 add listener and putAll
     server2.invoke(() -> {
       Region<String, TickerData> region = getCache().getRegion(regionName);
-      Throwable thrown =
+      var thrown =
           catchThrowable(() -> doPutAll(region, "key-" + "once again:", ONE_HUNDRED));
       assertThat(thrown)
           .isInstanceOf(CacheWriterException.class)
@@ -2201,11 +2193,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     AsyncInvocation<Void> addListenerAndPutAllInClient1 = client1.invokeAsync(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      String message =
+      var message =
           String.format("Region %s putAll at server applied partial keys due to exception.",
               region.getFullPath());
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, keyPrefix, ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, keyPrefix, ONE_HUNDRED));
 
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
@@ -2234,11 +2226,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      String message =
+      var message =
           String.format("Region %s putAll at server applied partial keys due to exception.",
               region.getFullPath());
 
-      Throwable thrown = catchThrowable(() -> doPutAll(region, keyPrefix + "again:", ONE_HUNDRED));
+      var thrown = catchThrowable(() -> doPutAll(region, keyPrefix + "again:", ONE_HUNDRED));
 
       assertThat(thrown)
           .isInstanceOf(ServerOperationException.class)
@@ -2256,7 +2248,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     });
 
     // add a cacheWriter for server to fail putAll after it created cacheWriterAllowedKeyNum keys
-    int throwAfterNumberCreates = 16;
+    var throwAfterNumberCreates = 16;
 
     // server1 add cacheWriter to throw exception after created some keys
     server1.invoke(() -> {
@@ -2274,11 +2266,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
-      String message =
+      var message =
           String.format("Region %s putAll at server applied partial keys due to exception.",
               region.getFullPath());
 
-      Throwable thrown =
+      var thrown =
           catchThrowable(() -> doPutAll(region, keyPrefix + "once more:", ONE_HUNDRED));
 
       assertThat(thrown)
@@ -2408,7 +2400,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
    */
   @Test
   public void testEventIdOutOfOrderInPartitionRegionSingleHop() {
-    VM server3 = client2;
+    var server3 = client2;
 
     int serverPort1 = server1.invoke(() -> new ServerBuilder()
         .regionShortcut(PARTITION)
@@ -2498,7 +2490,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
    */
   @Test
   public void testEventIdOutOfOrderInPartitionRegionSingleHopFromClientRegisteredInterest() {
-    VM server3 = client2;
+    var server3 = client2;
 
     int serverPort1 = server1.invoke(() -> new ServerBuilder()
         .regionShortcut(PARTITION)
@@ -2536,7 +2528,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     await().until(() -> myRegion.size() == ONE_HUNDRED);
 
     // register interest and add listener
-    Counter clientCounter = new Counter("client");
+    var clientCounter = new Counter("client");
     myRegion.getAttributesMutator().addCacheListener(new CountingCacheListener<>(clientCounter));
 
     // server1 and server2 will closeCache after created 10 keys
@@ -2665,8 +2657,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       Region<String, TickerData> region = getCache().getRegion(regionName);
 
       long timeStamp = 0;
-      for (int i = 0; i < ONE_HUNDRED; i++) {
-        TickerData tickerData = region.getEntry("async1key-" + i).getValue();
+      for (var i = 0; i < ONE_HUNDRED; i++) {
+        var tickerData = region.getEntry("async1key-" + i).getValue();
         assertThat(tickerData.getPrice()).isEqualTo(i);
         assertThat(tickerData.getTimeStamp()).isGreaterThanOrEqualTo(timeStamp);
         timeStamp = tickerData.getTimeStamp();
@@ -2719,7 +2711,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     // client1 execute putAll
     client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
-      Throwable thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_THOUSAND));
+      var thrown = catchThrowable(() -> doPutAll(region, "key-", ONE_THOUSAND));
       assertThat(thrown).isInstanceOf(ServerConnectivityException.class);
     });
   }
@@ -2875,14 +2867,14 @@ public class PutAllClientServerDistributedTest implements Serializable {
     });
 
     // client1 versions collection
-    List<VersionTag<?>> client1Versions = client1.invoke(() -> {
+    var client1Versions = client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED * 2);
 
-      RegionMap entries = ((DiskRecoveryStore) region).getRegionMap();
+      var entries = ((DiskRecoveryStore) region).getRegionMap();
       List<VersionTag<?>> versions = new ArrayList<>();
-      for (Object key : entries.keySet()) {
-        RegionEntry regionEntry = entries.getEntry(key);
+      for (var key : entries.keySet()) {
+        var regionEntry = entries.getEntry(key);
         VersionTag<?> tag = regionEntry.getVersionStamp().asVersionTag();
         versions.add(tag);
       }
@@ -2891,14 +2883,14 @@ public class PutAllClientServerDistributedTest implements Serializable {
     });
 
     // client2 versions collection
-    List<VersionTag<?>> client2Versions = client2.invoke(() -> {
+    var client2Versions = client2.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED * 2);
 
-      RegionMap entries = ((DiskRecoveryStore) region).getRegionMap();
+      var entries = ((DiskRecoveryStore) region).getRegionMap();
       List<VersionTag<?>> versions = new ArrayList<>();
-      for (Object key : entries.keySet()) {
-        RegionEntry regionEntry = entries.getEntry(key);
+      for (var key : entries.keySet()) {
+        var regionEntry = entries.getEntry(key);
         VersionTag<?> tag = regionEntry.getVersionStamp().asVersionTag();
         versions.add(tag);
       }
@@ -2908,7 +2900,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
     assertThat(client1Versions.size()).isEqualTo(ONE_HUNDRED * 2);
 
-    for (VersionTag<?> tag : client1Versions) {
+    for (var tag : client1Versions) {
       assertThat(client2Versions).contains(tag);
     }
   }
@@ -2954,16 +2946,16 @@ public class PutAllClientServerDistributedTest implements Serializable {
     });
 
     // client1 versions collection
-    List<VersionTag<?>> client1RAVersions = client1.invoke(() -> {
+    var client1RAVersions = client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      RegionMap entries = ((DiskRecoveryStore) region).getRegionMap();
+      var entries = ((DiskRecoveryStore) region).getRegionMap();
       assertThat(entries.size()).isEqualTo(ONE_HUNDRED * 2);
 
       List<VersionTag<?>> versions = new ArrayList<>();
-      for (Object key : entries.keySet()) {
-        RegionEntry regionEntry = entries.getEntry(key);
+      for (var key : entries.keySet()) {
+        var regionEntry = entries.getEntry(key);
         VersionTag<?> tag = regionEntry.getVersionStamp().asVersionTag();
         versions.add(tag);
       }
@@ -2971,16 +2963,16 @@ public class PutAllClientServerDistributedTest implements Serializable {
     });
 
     // client2 versions collection
-    List<VersionTag<?>> client2RAVersions = client2.invoke(() -> {
+    var client2RAVersions = client2.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      RegionMap entries = ((DiskRecoveryStore) region).getRegionMap();
+      var entries = ((DiskRecoveryStore) region).getRegionMap();
       assertThat(entries.size()).isEqualTo(ONE_HUNDRED * 2);
 
       List<VersionTag<?>> versions = new ArrayList<>();
-      for (Object key : entries.keySet()) {
-        RegionEntry regionEntry = entries.getEntry(key);
+      for (var key : entries.keySet()) {
+        var regionEntry = entries.getEntry(key);
         VersionTag<?> tag = regionEntry.getVersionStamp().asVersionTag();
         versions.add(tag);
       }
@@ -2989,14 +2981,14 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
     assertThat(client1RAVersions.size()).isEqualTo(ONE_HUNDRED * 2);
 
-    for (VersionTag<?> tag : client1RAVersions) {
+    for (var tag : client1RAVersions) {
       assertThat(client2RAVersions).contains(tag);
     }
   }
 
   @Test
   public void testVersionsOnServersWithNotificationsOnly() {
-    VM server3 = client2;
+    var server3 = client2;
 
     // set notifyBySubscription=true to test register interest
     server1.invoke(() -> new ServerBuilder()
@@ -3031,18 +3023,18 @@ public class PutAllClientServerDistributedTest implements Serializable {
     });
 
     // server1 versions collection
-    List<String> expectedVersions = server1.invoke(() -> {
+    var expectedVersions = server1.invoke(() -> {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED * 2);
 
-      PartitionedRegionDataStore dataStore = ((PartitionedRegion) region).getDataStore();
-      Set<BucketRegion> buckets = dataStore.getAllLocalPrimaryBucketRegions();
+      var dataStore = ((PartitionedRegion) region).getDataStore();
+      var buckets = dataStore.getAllLocalPrimaryBucketRegions();
 
       List<String> versions = new ArrayList<>();
-      for (BucketRegion bucketRegion : buckets) {
-        RegionMap entries = bucketRegion.entries;
-        for (Object key : entries.keySet()) {
-          RegionEntry regionEntry = entries.getEntry(key);
+      for (var bucketRegion : buckets) {
+        var entries = bucketRegion.entries;
+        for (var key : entries.keySet()) {
+          var regionEntry = entries.getEntry(key);
           VersionTag<?> tag = regionEntry.getVersionStamp().asVersionTag();
           versions.add(key + " " + tag);
         }
@@ -3051,16 +3043,16 @@ public class PutAllClientServerDistributedTest implements Serializable {
     });
 
     // client1 versions collection
-    List<String> actualVersions = client1.invoke(() -> {
+    var actualVersions = client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
       // Let client be updated with all keys.
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ONE_HUNDRED * 2));
 
-      RegionMap entries = ((DiskRecoveryStore) region).getRegionMap();
+      var entries = ((DiskRecoveryStore) region).getRegionMap();
       List<String> versions = new ArrayList<>();
-      for (Object key : entries.keySet()) {
-        RegionEntry regionEntry = entries.getEntry(key);
+      for (var key : entries.keySet()) {
+        var regionEntry = entries.getEntry(key);
         VersionTag<?> tag = regionEntry.getVersionStamp().asVersionTag();
         tag.setMemberID(null);
         versions.add(key + " " + tag);
@@ -3070,7 +3062,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
     assertThat(actualVersions).hasSize(ONE_HUNDRED * 2);
 
-    for (String keyTag : expectedVersions) {
+    for (var keyTag : expectedVersions) {
       assertThat(actualVersions).contains(keyTag);
     }
   }
@@ -3080,7 +3072,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
    */
   @Test
   public void testRAVersionsOnServersWithNotificationsOnly() {
-    VM server3 = client2;
+    var server3 = client2;
 
     // set notifyBySubscription=true to test register interest
     server1.invoke(() -> new ServerBuilder()
@@ -3116,18 +3108,18 @@ public class PutAllClientServerDistributedTest implements Serializable {
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
     });
 
-    List<String> expectedRAVersions = server1.invoke(() -> {
+    var expectedRAVersions = server1.invoke(() -> {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      PartitionedRegionDataStore dataStore = ((PartitionedRegion) region).getDataStore();
-      Set<BucketRegion> buckets = dataStore.getAllLocalPrimaryBucketRegions();
+      var dataStore = ((PartitionedRegion) region).getDataStore();
+      var buckets = dataStore.getAllLocalPrimaryBucketRegions();
 
       List<String> versions = new ArrayList<>();
-      for (BucketRegion bucketRegion : buckets) {
-        RegionMap entries = bucketRegion.entries;
-        for (Object key : entries.keySet()) {
-          RegionEntry regionEntry = entries.getEntry(key);
+      for (var bucketRegion : buckets) {
+        var entries = bucketRegion.entries;
+        for (var key : entries.keySet()) {
+          var regionEntry = entries.getEntry(key);
           VersionTag<?> tag = regionEntry.getVersionStamp().asVersionTag();
           versions.add(key + " " + tag);
         }
@@ -3135,11 +3127,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
       return versions;
     });
 
-    List<String> actualRAVersions = client1.invoke(() -> {
+    var actualRAVersions = client1.invoke(() -> {
       Region<String, TickerData> region = getClientCache().getRegion(regionName);
 
       // Let client be updated with all keys.
-      RegionMap entries = ((DiskRecoveryStore) region).getRegionMap();
+      var entries = ((DiskRecoveryStore) region).getRegionMap();
 
       await().untilAsserted(() -> {
         assertThat(region.size()).isEqualTo(ONE_HUNDRED);
@@ -3147,8 +3139,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
       });
 
       List<String> versions = new ArrayList<>();
-      for (Object key : entries.keySet()) {
-        RegionEntry regionEntry = entries.getEntry(key);
+      for (var key : entries.keySet()) {
+        var regionEntry = entries.getEntry(key);
         VersionTag<?> tag = regionEntry.getVersionStamp().asVersionTag();
         tag.setMemberID(null);
         versions.add(key + " " + tag);
@@ -3158,7 +3150,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
     assertThat(actualRAVersions).hasSize(ONE_HUNDRED * 2);
 
-    for (String keyTag : expectedRAVersions) {
+    for (var keyTag : expectedRAVersions) {
       assertThat(actualRAVersions).contains(keyTag);
     }
   }
@@ -3189,16 +3181,16 @@ public class PutAllClientServerDistributedTest implements Serializable {
     });
 
     // client1 versions collection
-    List<VersionTag<?>> client1Versions = server1.invoke(() -> {
+    var client1Versions = server1.invoke(() -> {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      RegionMap entries = ((DiskRecoveryStore) region).getRegionMap();
+      var entries = ((DiskRecoveryStore) region).getRegionMap();
       assertThat(entries.size()).isEqualTo(ONE_HUNDRED * 2);
 
       List<VersionTag<?>> versions = new ArrayList<>();
-      for (Object key : entries.keySet()) {
-        RegionEntry regionEntry = entries.getEntry(key);
+      for (var key : entries.keySet()) {
+        var regionEntry = entries.getEntry(key);
         VersionTag<?> tag = regionEntry.getVersionStamp().asVersionTag();
         versions.add(tag);
       }
@@ -3206,16 +3198,16 @@ public class PutAllClientServerDistributedTest implements Serializable {
     });
 
     // client2 versions collection
-    List<VersionTag<?>> client2Versions = server2.invoke(() -> {
+    var client2Versions = server2.invoke(() -> {
       Region<String, TickerData> region = getCache().getRegion(regionName);
       assertThat(region.size()).isEqualTo(ONE_HUNDRED);
 
-      RegionMap entries = ((DiskRecoveryStore) region).getRegionMap();
+      var entries = ((DiskRecoveryStore) region).getRegionMap();
       assertThat(entries.size()).isEqualTo(ONE_HUNDRED * 2);
 
       List<VersionTag<?>> versions = new ArrayList<>();
-      for (Object key : entries.keySet()) {
-        RegionEntry regionEntry = entries.getEntry(key);
+      for (var key : entries.keySet()) {
+        var regionEntry = entries.getEntry(key);
         versions.add(regionEntry.getVersionStamp().asVersionTag());
       }
       return versions;
@@ -3223,7 +3215,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
     assertThat(client1Versions.size()).isEqualTo(ONE_HUNDRED * 2);
 
-    for (VersionTag<?> tag : client2Versions) {
+    for (var tag : client2Versions) {
       tag.setMemberID(null);
       assertThat(client1Versions).contains(tag);
     }
@@ -3265,7 +3257,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
         .setDataPolicy(DataPolicy.NORMAL)
         .create(regionName);
 
-    CacheServer cacheServer = getCache().addCacheServer();
+    var cacheServer = getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
@@ -3273,21 +3265,21 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
   private void doPutAll(Map<String, TickerData> region, String keyPrefix, int entryCount) {
     Map<String, TickerData> map = new LinkedHashMap<>();
-    for (int i = 0; i < entryCount; i++) {
+    for (var i = 0; i < entryCount; i++) {
       map.put(keyPrefix + i, new TickerData(i));
     }
     region.putAll(map);
   }
 
   private void verifyPutAll(Map<String, TickerData> region, String keyPrefix) {
-    for (int i = 0; i < ONE_HUNDRED; i++) {
+    for (var i = 0; i < ONE_HUNDRED; i++) {
       assertThat(region.containsKey(keyPrefix + i)).isTrue();
     }
   }
 
   private VersionedObjectList doRemoveAll(Region<String, TickerData> region, String keyPrefix,
       int entryCount) {
-    InternalRegion internalRegion = (InternalRegion) region;
+    var internalRegion = (InternalRegion) region;
 
     InternalEntryEvent event =
         EntryEventImpl.create(internalRegion, Operation.REMOVEALL_DESTROY, null, null,
@@ -3295,11 +3287,11 @@ public class PutAllClientServerDistributedTest implements Serializable {
     event.disallowOffHeapValues();
 
     Collection<Object> keys = new ArrayList<>();
-    for (int i = 0; i < entryCount; i++) {
+    for (var i = 0; i < entryCount; i++) {
       keys.add(keyPrefix + i);
     }
 
-    DistributedRemoveAllOperation removeAllOp =
+    var removeAllOp =
         new DistributedRemoveAllOperation(event, keys.size(), false);
 
     return internalRegion.basicRemoveAll(keys, removeAllOp, null);
@@ -3309,8 +3301,8 @@ public class PutAllClientServerDistributedTest implements Serializable {
    * Stops the cache server specified by port
    */
   private void stopCacheServer(int port) {
-    boolean foundServer = false;
-    for (CacheServer cacheServer : getCache().getCacheServers()) {
+    var foundServer = false;
+    for (var cacheServer : getCache().getCacheServers()) {
       if (cacheServer.getPort() == port) {
         cacheServer.stop();
         assertThat(cacheServer.isRunning()).isFalse();
@@ -3373,7 +3365,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
     private int create() throws IOException {
       assertThat(regionShortcut).isNotNull();
 
-      Properties config = getDistributedSystemProperties();
+      var config = getDistributedSystemProperties();
       config.setProperty(LOCATORS, locators);
 
       createCache(new CacheFactory(config));
@@ -3392,7 +3384,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
       // create diskStore if required
       if (regionShortcut.isPersistent()) {
-        DiskStore diskStore = getCache().findDiskStore(diskStoreName);
+        var diskStore = getCache().findDiskStore(diskStoreName);
         if (diskStore == null) {
           getCache().createDiskStoreFactory()
               .setDiskDirs(getDiskDirs())
@@ -3407,7 +3399,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
 
       regionFactory.create(regionName);
 
-      CacheServer cacheServer = getCache().addCacheServer();
+      var cacheServer = getCache().addCacheServer();
       cacheServer.setMaxThreads(0);
       cacheServer.setPort(0);
       cacheServer.start();
@@ -3467,12 +3459,12 @@ public class PutAllClientServerDistributedTest implements Serializable {
         assertThat(subscriptionEnabled).isTrue();
       }
 
-      Properties config = getDistributedSystemProperties();
+      var config = getDistributedSystemProperties();
       config.setProperty(LOCATORS, "");
 
       createClientCache(new ClientCacheFactory(config));
 
-      PoolFactory poolFactory = PoolManager.createFactory();
+      var poolFactory = PoolManager.createFactory();
       for (int serverPort : serverPorts) {
         poolFactory.addServer(hostName, serverPort);
       }
@@ -3493,7 +3485,7 @@ public class PutAllClientServerDistributedTest implements Serializable {
       clientRegionFactory
           .setPoolName(poolName);
 
-      Region<String, TickerData> region = clientRegionFactory
+      var region = clientRegionFactory
           .create(regionName);
 
       if (registerInterest) {

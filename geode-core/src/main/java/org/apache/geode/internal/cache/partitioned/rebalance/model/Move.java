@@ -61,7 +61,7 @@ public class Move {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Move move = (Move) o;
+    var move = (Move) o;
     return Objects.equals(source, move.source) && Objects.equals(target, move.target)
         && Objects.equals(bucket, move.bucket);
   }

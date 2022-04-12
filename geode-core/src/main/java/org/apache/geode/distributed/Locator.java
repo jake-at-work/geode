@@ -169,7 +169,7 @@ public abstract class Locator {
    */
   public static Locator startLocator(int port, File logFile, InetAddress bindAddress)
       throws IOException {
-    HostAddress hostAddress = bindAddress == null ? null : new HostAddress(bindAddress);
+    var hostAddress = bindAddress == null ? null : new HostAddress(bindAddress);
     return startLocator(port, logFile, false, hostAddress, null, true,
         true, null);
   }
@@ -203,7 +203,7 @@ public abstract class Locator {
    */
   public static Locator startLocatorAndDS(int port, File logFile, InetAddress bindAddress,
       java.util.Properties dsProperties) throws IOException {
-    HostAddress hostAddress = bindAddress == null ? null : new HostAddress(bindAddress);
+    var hostAddress = bindAddress == null ? null : new HostAddress(bindAddress);
     return startLocator(port, logFile, hostAddress, dsProperties, true, true,
         null);
   }
@@ -246,7 +246,7 @@ public abstract class Locator {
   public static Locator startLocatorAndDS(int port, File logFile, InetAddress bindAddress,
       java.util.Properties dsProperties, boolean peerLocator, boolean serverLocator,
       String hostnameForClients) throws IOException {
-    HostAddress hostAddress = bindAddress == null ? null : new HostAddress(bindAddress);
+    var hostAddress = bindAddress == null ? null : new HostAddress(bindAddress);
     return startLocator(port, logFile, hostAddress, dsProperties, true, true,
         hostnameForClients);
   }
@@ -280,7 +280,7 @@ public abstract class Locator {
    * @deprecated as of 7.0 use {@link #getLocator} instead
    */
   public static List<Locator> getLocators() {
-    Locator result = getLocator();
+    var result = getLocator();
     if (result == null) {
       return Collections.emptyList();
     } else {
@@ -351,7 +351,7 @@ public abstract class Locator {
    * @since GemFire 5.7
    */
   public String getHostnameForClients() {
-    String result = hostnameForClients;
+    var result = hostnameForClients;
     if (result != null && result.equals("")) {
       result = null;
     }
@@ -400,8 +400,8 @@ public abstract class Locator {
     } else {
       bindAddressString = hostAddress.getHostName();
     }
-    StringBuilder locatorString = new StringBuilder(String.valueOf(bindAddressString));
-    Integer port = getPort();
+    var locatorString = new StringBuilder(String.valueOf(bindAddressString));
+    var port = getPort();
     if (port != null && port > 0) {
       locatorString.append('[').append(getPort()).append(']');
     }

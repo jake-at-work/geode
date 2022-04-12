@@ -75,19 +75,19 @@ public class RegionCreateFunction implements InternalFunction {
         ((InternalCache) context.getCache()).getCacheForProcessingClientRequests();
     waitUntilConditionIsMet(() -> cache.getPdxRegistry() != null, 2000);
 
-    String memberNameOrId = context.getMemberName();
-    CreateRegionFunctionArgs regionCreateArgs = (CreateRegionFunctionArgs) context.getArguments();
+    var memberNameOrId = context.getMemberName();
+    var regionCreateArgs = (CreateRegionFunctionArgs) context.getArguments();
 
     try {
-      RegionPath regionPath = new RegionPath(regionCreateArgs.getRegionPath());
+      var regionPath = new RegionPath(regionCreateArgs.getRegionPath());
       getRealizer().create(regionCreateArgs.getConfig(), regionCreateArgs.getRegionPath(), cache);
-      XmlEntity xmlEntity = new XmlEntity(CacheXml.REGION, "name", regionPath.getRootRegionName());
+      var xmlEntity = new XmlEntity(CacheXml.REGION, "name", regionPath.getRootRegionName());
       resultSender.lastResult(new CliFunctionResult(memberNameOrId, xmlEntity.getXmlDefinition(),
           CliStrings.format(CliStrings.CREATE_REGION__MSG__REGION_0_CREATED_ON_1,
               regionCreateArgs.getRegionPath(), memberNameOrId)));
     } catch (IllegalStateException e) {
-      String exceptionMsg = e.getMessage();
-      String localizedString =
+      var exceptionMsg = e.getMessage();
+      var localizedString =
           "Only regions with persistence or overflow to disk can specify DiskStore";
       if (localizedString.equals(e.getMessage())) {
         exceptionMsg = exceptionMsg + " "
@@ -105,13 +105,13 @@ public class RegionCreateFunction implements InternalFunction {
                     CliStrings.CREATE_REGION__MSG__SKIPPING_0_REGION_PATH_1_ALREADY_EXISTS,
                     memberNameOrId, regionCreateArgs.getRegionPath())));
       } else {
-        String exceptionMsg =
+        var exceptionMsg =
             CliStrings.format(CliStrings.CREATE_REGION__MSG__REGION_PATH_0_ALREADY_EXISTS_ON_1,
                 regionCreateArgs.getRegionPath(), memberNameOrId);
         resultSender.lastResult(handleException(memberNameOrId, exceptionMsg, e));
       }
     } catch (Exception e) {
-      String exceptionMsg = e.getMessage();
+      var exceptionMsg = e.getMessage();
       if (exceptionMsg == null) {
         exceptionMsg = ExceptionUtils.getStackTrace(e);
       }
@@ -134,7 +134,7 @@ public class RegionCreateFunction implements InternalFunction {
   }
 
   private void waitUntilConditionIsMet(BooleanSupplier awaitedCondition, int timeoutInMs) {
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
     while (!awaitedCondition.getAsBoolean()) {
       if (System.currentTimeMillis() - startTime > timeoutInMs) {
         throw new TimeoutException(

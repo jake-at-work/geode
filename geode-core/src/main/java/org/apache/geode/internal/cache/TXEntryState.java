@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.CacheRuntimeException;
-import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.CommitConflictException;
 import org.apache.geode.cache.DataPolicy;
@@ -285,7 +284,7 @@ public class TXEntryState implements Releasable {
    */
   protected TXEntryState(RegionEntry re, Object pvId, Object pv, TXRegionState txRegionState,
       boolean isDistributed) {
-    Object vId = pvId;
+    var vId = pvId;
     if (vId == null) {
       vId = Token.REMOVED_PHASE1;
     }
@@ -319,7 +318,7 @@ public class TXEntryState implements Releasable {
   }
 
   void serializePendingValue() {
-    Object pendingValue = getPendingValue();
+    var pendingValue = getPendingValue();
     if (Token.isInvalidOrRemoved(pendingValue)) {
       // token
       return;
@@ -331,7 +330,7 @@ public class TXEntryState implements Releasable {
 
     // CachedDeserialized, Object or PDX
     if (pendingValue instanceof CachedDeserializable) {
-      CachedDeserializable cachedDeserializable = (CachedDeserializable) pendingValue;
+      var cachedDeserializable = (CachedDeserializable) pendingValue;
       setSerializedPendingValue(cachedDeserializable.getSerializedValue());
     } else {
       setSerializedPendingValue(EntryEventImpl.serialize(pendingValue));
@@ -483,7 +482,7 @@ public class TXEntryState implements Releasable {
     if (!existsLocally()) {
       return null;
     }
-    Object v = getNearSidePendingValue();
+    var v = getNearSidePendingValue();
     if (v instanceof CachedDeserializable && !preferCD) {
       // The only reason we would is if we do a read
       // in a transaction and the initial op that created the TXEntryState
@@ -693,7 +692,7 @@ public class TXEntryState implements Releasable {
    * @since GemFire 5.7
    */
   private static int generateEventOffset(TXState txState) {
-    long seqId = EventID.reserveSequenceId();
+    var seqId = EventID.reserveSequenceId();
     return (int) (seqId - txState.getBaseSequenceId());
   }
 
@@ -920,13 +919,13 @@ public class TXEntryState implements Releasable {
 
   @Retained
   EntryEvent getEvent(InternalRegion r, Object key, TXState txs) {
-    InternalRegion eventRegion = r;
+    var eventRegion = r;
     if (r.isUsedForPartitionedRegionBucket()) {
       eventRegion = r.getPartitionedRegion();
     }
     @Retained
     EntryEventImpl result = new TxEntryEventImpl(eventRegion, key);
-    boolean returnedResult = false;
+    var returnedResult = false;
     try {
       if (destroy == DESTROY_NONE || isOpDestroy()) {
         result.setOldValue(getOriginalValue());
@@ -960,11 +959,11 @@ public class TXEntryState implements Releasable {
    */
   public boolean destroy(EntryEventImpl event, boolean cacheWrite, boolean originRemote)
       throws CacheWriterException, EntryNotFoundException, TimeoutException {
-    InternalRegion internalRegion = event.getRegion();
-    CacheWriter cWriter = internalRegion.basicGetWriter();
-    byte advisedOp = adviseOp((cacheWrite ? OP_D_DESTROY : OP_L_DESTROY), event);
+    var internalRegion = event.getRegion();
+    var cWriter = internalRegion.basicGetWriter();
+    var advisedOp = adviseOp((cacheWrite ? OP_D_DESTROY : OP_L_DESTROY), event);
     if (cWriter != null && cacheWrite && !event.inhibitAllNotifications()) {
-      boolean oldOriginRemote = event.isOriginRemote();
+      var oldOriginRemote = event.isOriginRemote();
       if (event.hasClientOrigin() || originRemote) {
         event.setOriginRemote(true);
       }
@@ -998,8 +997,8 @@ public class TXEntryState implements Releasable {
    */
   public boolean basicPut(EntryEventImpl event, boolean ifNew, boolean originRemote)
       throws CacheWriterException, TimeoutException {
-    byte putOp = OP_CREATE;
-    boolean doingCreate = true;
+    var putOp = OP_CREATE;
+    var doingCreate = true;
     if (!ifNew) {
       if (existsLocally()) {
         putOp = OP_PUT;
@@ -1019,12 +1018,12 @@ public class TXEntryState implements Releasable {
       putOp += (byte) (OP_NLOAD_PUT - OP_PUT);
     }
     bulkOp = event.getOperation().isPutAll();
-    byte advisedOp = adviseOp(putOp, event);
+    var advisedOp = adviseOp(putOp, event);
 
-    InternalRegion internalRegion = event.getRegion();
+    var internalRegion = event.getRegion();
     if (!event.isNetSearch()) {
-      CacheWriter cWriter = internalRegion.basicGetWriter();
-      boolean oldOriginRemote = event.isOriginRemote();
+      var cWriter = internalRegion.basicGetWriter();
+      var oldOriginRemote = event.isOriginRemote();
       if (event.hasClientOrigin() || originRemote) {
         event.setOriginRemote(true);
       }
@@ -1053,7 +1052,7 @@ public class TXEntryState implements Releasable {
    */
   private void fetchRemoteVersionTag(EntryEventImpl event) {
     if (event.getRegion() instanceof DistributedRegion) {
-      DistributedRegion dr = (DistributedRegion) event.getRegion();
+      var dr = (DistributedRegion) event.getRegion();
       if (dr.getDataPolicy() == DataPolicy.NORMAL || dr.getDataPolicy() == DataPolicy.PRELOADED) {
         VersionTag tag = null;
         try {
@@ -1083,12 +1082,12 @@ public class TXEntryState implements Releasable {
       }
 
       Region region = event.getRegion();
-      boolean needOldValue = region instanceof HARegion // fix for bug 37909
+      var needOldValue = region instanceof HARegion // fix for bug 37909
           || region instanceof BucketRegion;
       event.setTXEntryOldValue(oldVal, needOldValue);
     }
 
-    byte advisedOpCode = OP_NULL;
+    var advisedOpCode = OP_NULL;
     // Determine new operation based on
     // the requested operation 'requestedOpCode' and
     // the previous operation 'this.op'
@@ -1441,7 +1440,7 @@ public class TXEntryState implements Releasable {
     }
     try {
       r.checkReadiness();
-      RegionEntry re = r.basicGetEntry(key);
+      var re = r.basicGetEntry(key);
       Object curCmtVersionId = null;
       try {
         if ((re == null) || re.isValueNull()) {
@@ -1465,8 +1464,8 @@ public class TXEntryState implements Releasable {
           // ((CachedDeserializable)curCmtVersionId).getDeserializedValue();
           // }
           if (VERBOSE_CONFLICT_STRING || logger.isDebugEnabled()) {
-            String fromString = calcConflictString(getOriginalVersionId());
-            String toString = calcConflictString(curCmtVersionId);
+            var fromString = calcConflictString(getOriginalVersionId());
+            var toString = calcConflictString(curCmtVersionId);
             if (!fromString.equals(toString)) {
               throw new CommitConflictException(
                   String.format(
@@ -1490,7 +1489,7 @@ public class TXEntryState implements Releasable {
   }
 
   private String calcConflictString(Object obj) {
-    Object o = obj;
+    var o = obj;
     if (o instanceof CachedDeserializable) {
       if (o instanceof StoredObject && ((StoredObject) o).isCompressed()) {
         // fix for bug 52113
@@ -1578,7 +1577,7 @@ public class TXEntryState implements Releasable {
   }
 
   private void txApplyDestroyLocally(InternalRegion r, Object key, TXState txState) {
-    boolean invokeCallbacks = isOpDestroyEvent(r);
+    var invokeCallbacks = isOpDestroyEvent(r);
     List<EntryEventImpl> pendingCallbacks =
         invokeCallbacks ? txState.getPendingCallbacks() : new ArrayList<>();
     try {
@@ -1846,7 +1845,7 @@ public class TXEntryState implements Releasable {
   @Override
   @Released(TX_ENTRY_STATE)
   public void release() {
-    Object tmp = originalVersionId;
+    var tmp = originalVersionId;
     if (OffHeapHelper.release(tmp)) {
       originalVersionId = null; // fix for bug 47900
     }
@@ -1881,7 +1880,7 @@ public class TXEntryState implements Releasable {
       SerializationContext context,
       boolean largeModCount, boolean sendVersionTag,
       boolean sendShadowKey) throws IOException {
-    Operation operation = getFarSideOperation();
+    var operation = getFarSideOperation();
     out.writeByte(operation.ordinal);
     if (largeModCount) {
       out.writeInt(modSerialNum);
@@ -1904,7 +1903,7 @@ public class TXEntryState implements Releasable {
     if (!operation.isDestroy()) {
       out.writeBoolean(didDistributedDestroy());
       if (!operation.isInvalidate()) {
-        boolean isTokenOrByteArray = Token.isInvalidOrRemoved(getPendingValue());
+        var isTokenOrByteArray = Token.isInvalidOrRemoved(getPendingValue());
         isTokenOrByteArray = isTokenOrByteArray || getPendingValue() instanceof byte[];
         out.writeBoolean(isTokenOrByteArray);
         if (isTokenOrByteArray) {
@@ -1969,7 +1968,7 @@ public class TXEntryState implements Releasable {
 
     @Override
     public int compareTo(Object o) {
-      TxEntryEventImpl other = (TxEntryEventImpl) o;
+      var other = (TxEntryEventImpl) o;
       return getSortValue() - other.getSortValue();
     }
 

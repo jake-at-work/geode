@@ -25,7 +25,6 @@ import java.io.IOException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.Query;
-import javax.management.QueryExp;
 
 import org.junit.Test;
 
@@ -45,11 +44,11 @@ public class QueryParameterSourceJUnitTest {
 
   @Test
   public void testCreateQueryParameterSource() throws MalformedObjectNameException {
-    final ObjectName expectedObjectName = ObjectName.getInstance("GemFire:type=Member,*");
+    final var expectedObjectName = ObjectName.getInstance("GemFire:type=Member,*");
 
-    final QueryExp expectedQueryExpression = Query.eq(Query.attr("id"), Query.value("12345"));
+    final var expectedQueryExpression = Query.eq(Query.attr("id"), Query.value("12345"));
 
-    final QueryParameterSource query =
+    final var query =
         new QueryParameterSource(expectedObjectName, expectedQueryExpression);
 
     assertNotNull(query);
@@ -60,29 +59,29 @@ public class QueryParameterSourceJUnitTest {
   @Test
   public void testSerialization()
       throws ClassNotFoundException, IOException, MalformedObjectNameException {
-    final ObjectName expectedObjectName = ObjectName.getInstance("GemFire:type=Member,*");
+    final var expectedObjectName = ObjectName.getInstance("GemFire:type=Member,*");
 
-    final QueryExp expectedQueryExpression =
+    final var expectedQueryExpression =
         Query.or(Query.eq(Query.attr("name"), Query.value("myName")),
             Query.eq(Query.attr("id"), Query.value("myId")));
 
-    final QueryParameterSource expectedQuery =
+    final var expectedQuery =
         new QueryParameterSource(expectedObjectName, expectedQueryExpression);
 
     assertNotNull(expectedQuery);
     assertSame(expectedObjectName, expectedQuery.getObjectName());
     assertSame(expectedQueryExpression, expectedQuery.getQueryExpression());
 
-    final byte[] queryBytes = IOUtils.serializeObject(expectedQuery);
+    final var queryBytes = IOUtils.serializeObject(expectedQuery);
 
     assertNotNull(queryBytes);
     assertTrue(queryBytes.length != 0);
 
-    final Object queryObj = IOUtils.deserializeObject(queryBytes);
+    final var queryObj = IOUtils.deserializeObject(queryBytes);
 
     assertTrue(queryObj instanceof QueryParameterSource);
 
-    final QueryParameterSource actualQuery = (QueryParameterSource) queryObj;
+    final var actualQuery = (QueryParameterSource) queryObj;
 
     assertNotSame(expectedQuery, actualQuery);
     assertNotNull(actualQuery.getObjectName());

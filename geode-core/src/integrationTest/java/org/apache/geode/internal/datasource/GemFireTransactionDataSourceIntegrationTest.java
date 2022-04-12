@@ -25,11 +25,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 import javax.transaction.SystemException;
@@ -53,16 +51,16 @@ public class GemFireTransactionDataSourceIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    String derbySystemHome = temporaryFolder.newFolder("derby").getAbsolutePath();
+    var derbySystemHome = temporaryFolder.newFolder("derby").getAbsolutePath();
     System.setProperty("derby.system.home", derbySystemHome);
 
-    String cacheXmlFileName = getClass().getSimpleName() + "_cachejta.xml";
-    String cacheXmlPath = createFileFromResource(
+    var cacheXmlFileName = getClass().getSimpleName() + "_cachejta.xml";
+    var cacheXmlPath = createFileFromResource(
         getResource(cacheXmlFileName),
         temporaryFolder.getRoot(),
         cacheXmlFileName).getAbsolutePath();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(CACHE_XML_FILE, cacheXmlPath);
     props.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
 
@@ -76,24 +74,24 @@ public class GemFireTransactionDataSourceIntegrationTest {
 
   @Test
   public void testExceptionHandlingRegisterTranxConnection() throws Exception {
-    Context context = cache.getJNDIContext();
-    GemFireTransactionDataSource dataSource =
+    var context = cache.getJNDIContext();
+    var dataSource =
         (GemFireTransactionDataSource) context.lookup("java:/XAPooledDataSource");
 
-    GemFireConnectionPoolManager poolManager =
+    var poolManager =
         (GemFireConnectionPoolManager) dataSource.getConnectionProvider();
-    TranxPoolCacheImpl poolCache = (TranxPoolCacheImpl) poolManager.getConnectionPoolCache();
-    Connection connection = dataSource.getConnection();
+    var poolCache = (TranxPoolCacheImpl) poolManager.getConnectionPoolCache();
+    var connection = dataSource.getConnection();
     // get connection to activate clean thread, which will sleep for 20 seconds
     // also duration of connection is cca. 20 secs
 
     // get new connection on which exception will be throw.
-    TransactionManager transactionManager = mock(TransactionManager.class);
+    var transactionManager = mock(TransactionManager.class);
     dataSource.setTransactionManager(transactionManager);
 
     when(transactionManager.getTransaction()).thenThrow(new SystemException("SQL exception"));
 
-    Throwable thrown = catchThrowable(dataSource::getConnection);
+    var thrown = catchThrowable(dataSource::getConnection);
 
     assertThat(thrown)
         .isInstanceOf(SQLException.class)
@@ -112,27 +110,27 @@ public class GemFireTransactionDataSourceIntegrationTest {
 
   @Test
   public void testExceptionHandlingGetConnection() throws Exception {
-    Context context = cache.getJNDIContext();
-    GemFireTransactionDataSource dataSource =
+    var context = cache.getJNDIContext();
+    var dataSource =
         (GemFireTransactionDataSource) context.lookup("java:/XAPooledDataSource");
 
-    GemFireConnectionPoolManager poolManager =
+    var poolManager =
         (GemFireConnectionPoolManager) dataSource.getConnectionProvider();
-    TranxPoolCacheImpl poolCache = (TranxPoolCacheImpl) poolManager.getConnectionPoolCache();
-    Connection connection = dataSource.getConnection();
+    var poolCache = (TranxPoolCacheImpl) poolManager.getConnectionPoolCache();
+    var connection = dataSource.getConnection();
     dataSource.getConnection();
     // get connection to activate clean thread, which will sleep for 20 seconds
     // also duration of connection is cca. 20 secs
 
     // get new connection on which exception will be throw.
-    XADataSource xaDataSource = mock(XADataSource.class);
-    XAConnection xaConnection = mock(XAConnection.class);
+    var xaDataSource = mock(XADataSource.class);
+    var xaConnection = mock(XAConnection.class);
     poolCache.setXADataSource(xaDataSource);
 
     when(xaDataSource.getXAConnection(any(), any())).thenReturn(xaConnection);
     when(xaConnection.getConnection()).thenThrow(new SQLException("SQL exception2"));
 
-    Throwable thrown = catchThrowable(dataSource::getConnection);
+    var thrown = catchThrowable(dataSource::getConnection);
 
     assertThat(thrown)
         .isInstanceOf(SQLException.class)

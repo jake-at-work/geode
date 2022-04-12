@@ -18,9 +18,7 @@ package org.apache.geode.cache.lucene.internal.cli.functions;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
-import org.apache.geode.cache.lucene.internal.LuceneIndexCreationProfile;
 import org.apache.geode.cache.lucene.internal.LuceneIndexImpl;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexDetails;
@@ -55,12 +53,12 @@ public class LuceneDescribeIndexFunction implements InternalFunction {
   public void execute(final FunctionContext context) {
     LuceneIndexDetails result = null;
 
-    final Cache cache = context.getCache();
-    final String serverName = cache.getDistributedSystem().getDistributedMember().getName();
-    final LuceneIndexInfo indexInfo = (LuceneIndexInfo) context.getArguments();
-    LuceneServiceImpl service = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
-    LuceneIndex index = service.getIndex(indexInfo.getIndexName(), indexInfo.getRegionPath());
-    LuceneIndexCreationProfile profile =
+    final var cache = context.getCache();
+    final var serverName = cache.getDistributedSystem().getDistributedMember().getName();
+    final var indexInfo = (LuceneIndexInfo) context.getArguments();
+    var service = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
+    var index = service.getIndex(indexInfo.getIndexName(), indexInfo.getRegionPath());
+    var profile =
         service.getDefinedIndex(indexInfo.getIndexName(), indexInfo.getRegionPath());
     if (index != null) {
       result = new LuceneIndexDetails((LuceneIndexImpl) index, serverName);

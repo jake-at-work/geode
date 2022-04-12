@@ -56,9 +56,9 @@ public class SecurityServiceFactory {
       securityProps = new Properties();
     }
 
-    String shiroConfig = securityProps.getProperty(SECURITY_SHIRO_INIT);
-    SecurityManager securityManager = CallbackInstantiator.getSecurityManager(securityProps);
-    PostProcessor postProcessor = CallbackInstantiator.getPostProcessor(securityProps);
+    var shiroConfig = securityProps.getProperty(SECURITY_SHIRO_INIT);
+    var securityManager = CallbackInstantiator.getSecurityManager(securityProps);
+    var postProcessor = CallbackInstantiator.getPostProcessor(securityProps);
 
     // cacheConfig's securityManager/postprocessor takes precedence over those defined in
     // securityProps
@@ -81,8 +81,8 @@ public class SecurityServiceFactory {
     }
 
     // if not return legacy security service
-    String clientAuthenticatorConfig = securityProps.getProperty(SECURITY_CLIENT_AUTHENTICATOR);
-    String peerAuthenticatorConfig = securityProps.getProperty(SECURITY_PEER_AUTHENTICATOR);
+    var clientAuthenticatorConfig = securityProps.getProperty(SECURITY_CLIENT_AUTHENTICATOR);
+    var peerAuthenticatorConfig = securityProps.getProperty(SECURITY_PEER_AUTHENTICATOR);
     return new LegacySecurityService(clientAuthenticatorConfig, peerAuthenticatorConfig);
   }
 

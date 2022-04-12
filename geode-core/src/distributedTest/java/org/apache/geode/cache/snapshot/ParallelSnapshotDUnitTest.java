@@ -59,7 +59,7 @@ public class ParallelSnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         TestSnapshotFileMapper.class.getName());
     return properties;
@@ -119,28 +119,28 @@ public class ParallelSnapshotDUnitTest extends JUnit4CacheTestCase {
 
   private void doExport(boolean explode, int nodes) throws Exception {
     Region region = getCache().getRegion("test");
-    for (int i = 0; i < DATA_POINTS; i++) {
+    for (var i = 0; i < DATA_POINTS; i++) {
       region.put(i, ffff);
     }
 
-    RegionSnapshotService rss = region.getSnapshotService();
+    var rss = region.getSnapshotService();
 
-    final TestSnapshotFileMapper mapper = new TestSnapshotFileMapper();
+    final var mapper = new TestSnapshotFileMapper();
     mapper.setShouldExplode(explode);
 
-    SnapshotOptionsImpl opt = (SnapshotOptionsImpl) rss.createOptions();
+    var opt = (SnapshotOptionsImpl) rss.createOptions();
     opt.setParallelMode(true);
     opt.setMapper(mapper);
 
-    File f = new File(directory, "mysnap.gfd").getAbsoluteFile();
+    var f = new File(directory, "mysnap.gfd").getAbsoluteFile();
     rss.save(f, SnapshotFormat.GEODE, opt);
 
     mapper.setShouldExplode(false);
-    SerializableCallable check = new SerializableCallable() {
+    var check = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         getCache().getDistributedSystem().getDistributedMember();
-        File snap =
+        var snap =
             mapper.mapExportPath(getCache().getDistributedSystem().getDistributedMember(), f);
         assertTrue("Could not find snapshot: " + snap, snap.exists());
         return null;
@@ -152,48 +152,48 @@ public class ParallelSnapshotDUnitTest extends JUnit4CacheTestCase {
 
   private void doImport(boolean explode) throws ClassNotFoundException, IOException {
     Region region = getCache().getRegion("test");
-    RegionSnapshotService rss = region.getSnapshotService();
+    var rss = region.getSnapshotService();
 
-    final TestSnapshotFileMapper mapper = new TestSnapshotFileMapper();
+    final var mapper = new TestSnapshotFileMapper();
     mapper.setShouldExplode(explode);
 
-    SnapshotOptionsImpl opt = (SnapshotOptionsImpl) rss.createOptions();
+    var opt = (SnapshotOptionsImpl) rss.createOptions();
     opt.setParallelMode(true);
     opt.setMapper(mapper);
 
-    for (int i = 0; i < DATA_POINTS; i++) {
+    for (var i = 0; i < DATA_POINTS; i++) {
       region.put(i, eeee);
     }
 
     rss.load(directory, SnapshotFormat.GEODE, opt);
-    for (int i = 0; i < DATA_POINTS; i++) {
+    for (var i = 0; i < DATA_POINTS; i++) {
       assertTrue(Arrays.equals(ffff, (byte[]) region.get(i)));
     }
   }
 
   private void doSequentialImport() throws IOException, ClassNotFoundException {
     Region region = getCache().getRegion("test");
-    RegionSnapshotService rss = region.getSnapshotService();
-    SnapshotOptionsImpl opt = (SnapshotOptionsImpl) rss.createOptions();
+    var rss = region.getSnapshotService();
+    var opt = (SnapshotOptionsImpl) rss.createOptions();
 
 
-    for (int i = 0; i < DATA_POINTS; i++) {
+    for (var i = 0; i < DATA_POINTS; i++) {
       region.put(i, eeee);
     }
-    int vmCount = Host.getHost(0).getVMCount();
-    for (int i = 0; i <= vmCount; i++) {
+    var vmCount = Host.getHost(0).getVMCount();
+    for (var i = 0; i <= vmCount; i++) {
       rss.load(new File(directory, Integer.toString(i)), SnapshotFormat.GEODE, opt);
     }
-    for (int i = 0; i < DATA_POINTS; i++) {
+    for (var i = 0; i < DATA_POINTS; i++) {
       assertTrue(Arrays.equals(ffff, (byte[]) region.get(i)));
     }
   }
 
   private void forEachVm(SerializableCallable call, boolean local, int maxNodes) throws Exception {
-    Host host = Host.getHost(0);
-    int vms = Math.min(host.getVMCount(), maxNodes);
+    var host = Host.getHost(0);
+    var vms = Math.min(host.getVMCount(), maxNodes);
 
-    for (int i = 0; i < vms; ++i) {
+    for (var i = 0; i < vms; ++i) {
       host.getVM(i).invoke(call);
     }
 
@@ -210,13 +210,13 @@ public class ParallelSnapshotDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void loadCache(int maxNodes) throws Exception {
-    SerializableCallable setup = new SerializableCallable() {
+    var setup = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheFactory cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
+        var cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
 
         Cache cache = getCache(cf);
-        RegionGenerator rgen = new RegionGenerator();
+        var rgen = new RegionGenerator();
         rgen.createRegion(cache, null, RegionType.PARTITION, "test");
 
         return null;

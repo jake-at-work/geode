@@ -18,14 +18,11 @@
 package org.apache.geode.tools.pulse.internal.controllers;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -44,7 +41,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.apache.geode.tools.pulse.internal.data.Cluster;
 import org.apache.geode.tools.pulse.internal.data.PulseVersion;
 import org.apache.geode.tools.pulse.internal.data.Repository;
-import org.apache.geode.tools.pulse.internal.service.PulseService;
 import org.apache.geode.tools.pulse.internal.service.PulseServiceFactory;
 import org.apache.geode.tools.pulse.internal.service.SystemAlertsService;
 
@@ -95,19 +91,19 @@ public class PulseController {
   @RequestMapping(value = "/pulseUpdate", method = RequestMethod.POST)
   public void getPulseUpdate(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    String pulseData = request.getParameter("pulseData");
+    var pulseData = request.getParameter("pulseData");
 
-    ObjectNode responseMap = mapper.createObjectNode();
+    var responseMap = mapper.createObjectNode();
 
     try {
-      JsonNode requestMap = mapper.readTree(pulseData);
+      var requestMap = mapper.readTree(pulseData);
       Iterator<?> keys = requestMap.fieldNames();
 
       // Execute Services
       while (keys.hasNext()) {
-        String serviceName = keys.next().toString();
+        var serviceName = keys.next().toString();
         try {
-          PulseService pulseService = pulseServiceFactory.getPulseServiceInstance(serviceName);
+          var pulseService = pulseServiceFactory.getPulseServiceInstance(serviceName);
           responseMap.set(serviceName, pulseService.execute(request));
         } catch (OAuth2AuthenticationException | OAuth2AuthorizationException e) {
           logger.warn("serviceException [for service {}] = {}", serviceName, e.getMessage());
@@ -130,7 +126,7 @@ public class PulseController {
   @RequestMapping(value = "/authenticateUser", method = RequestMethod.GET)
   public void authenticateUser(HttpServletRequest request, HttpServletResponse response) {
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     try {
       responseJSON.put("isUserLoggedIn", isUserLoggedIn(request));
@@ -155,7 +151,7 @@ public class PulseController {
       throws IOException {
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     try {
       // Response
@@ -177,7 +173,7 @@ public class PulseController {
   public void clearAlerts(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     int alertType;
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     try {
       alertType = Integer.parseInt(request.getParameter("alertType"));
@@ -189,16 +185,16 @@ public class PulseController {
     }
 
     try {
-      boolean isClearAll = Boolean.parseBoolean(request.getParameter("clearAll"));
+      var isClearAll = Boolean.parseBoolean(request.getParameter("clearAll"));
       // get cluster object
-      Cluster cluster = repository.getCluster();
+      var cluster = repository.getCluster();
       cluster.clearAlerts(alertType, isClearAll);
       responseJSON.put("status", "deleted");
       responseJSON.set("systemAlerts",
           SystemAlertsService.getAlertsJson(cluster, cluster.getNotificationPageNumber()));
       responseJSON.put("pageNumber", cluster.getNotificationPageNumber());
 
-      boolean isGFConnected = cluster.isConnectedFlag();
+      var isGFConnected = cluster.isConnectedFlag();
       if (isGFConnected) {
         responseJSON.put("connectedFlag", isGFConnected);
       } else {
@@ -217,7 +213,7 @@ public class PulseController {
   public void acknowledgeAlert(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     int alertId;
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     try {
       alertId = Integer.parseInt(request.getParameter("alertId"));
@@ -230,7 +226,7 @@ public class PulseController {
 
     try {
       // get cluster object
-      Cluster cluster = repository.getCluster();
+      var cluster = repository.getCluster();
 
       // set alert is acknowledged
       cluster.acknowledgeAlert(alertId);
@@ -248,15 +244,15 @@ public class PulseController {
       HttpServletResponse response)
       throws IOException {
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     try {
       // getting cluster's Regions
       responseJSON.put("clusterName", cluster.getServerName());
-      ArrayNode regionsData = getRegionsJson(cluster);
+      var regionsData = getRegionsJson(cluster);
       responseJSON.set("clusterRegions", regionsData);
       responseJSON.put("connectedFlag", cluster.isConnectedFlag());
       responseJSON.put("connectedErrorMsg", cluster.getConnectionErrorMsg());
@@ -275,12 +271,12 @@ public class PulseController {
    */
   private ArrayNode getRegionsJson(Cluster cluster) {
 
-    Collection<Cluster.Region> clusterRegions = cluster.getClusterRegions().values();
-    ArrayNode regionsListJson = mapper.createArrayNode();
+    var clusterRegions = cluster.getClusterRegions().values();
+    var regionsListJson = mapper.createArrayNode();
 
     if (!clusterRegions.isEmpty()) {
-      for (Cluster.Region region : clusterRegions) {
-        ObjectNode regionJSON = mapper.createObjectNode();
+      for (var region : clusterRegions) {
+        var regionJSON = mapper.createObjectNode();
         regionJSON.put("name", region.getName());
         regionJSON.put("fullPath", region.getFullPath());
         regionJSON.put("regionType", region.getRegionType());
@@ -288,12 +284,12 @@ public class PulseController {
         regionJSON.put("isPartition", region.getRegionType().contains("PARTITION"));
 
         regionJSON.put("memberCount", region.getMemberCount());
-        List<String> regionsMembers = region.getMemberName();
-        ArrayNode jsonRegionMembers = mapper.createArrayNode();
+        var regionsMembers = region.getMemberName();
+        var jsonRegionMembers = mapper.createArrayNode();
 
-        for (String regionsMember : regionsMembers) {
-          Cluster.Member member = cluster.getMembersHMap().get(regionsMember);
-          ObjectNode jsonMember = mapper.createObjectNode();
+        for (var regionsMember : regionsMembers) {
+          var member = cluster.getMembersHMap().get(regionsMember);
+          var jsonMember = mapper.createObjectNode();
           jsonMember.put("key", regionsMember);
           jsonMember.put("id", member.getId());
           jsonMember.put("name", member.getName());
@@ -312,8 +308,8 @@ public class PulseController {
   public void dataBrowserQuery(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     // get query string
-    String query = request.getParameter("query");
-    String members = request.getParameter("members");
+    var query = request.getParameter("query");
+    var members = request.getParameter("members");
     int limit;
 
     try {
@@ -323,7 +319,7 @@ public class PulseController {
       logger.debug(e);
     }
 
-    ObjectNode queryResult = executeQuery(request, query, members, limit);
+    var queryResult = executeQuery(request, query, members, limit);
 
     response.getOutputStream().write(queryResult.toString().getBytes());
   }
@@ -331,24 +327,24 @@ public class PulseController {
   @RequestMapping(value = "/dataBrowserQueryHistory", method = RequestMethod.GET)
   public void dataBrowserQueryHistory(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     try {
       // get cluster object
-      Cluster cluster = repository.getCluster();
-      String userName = request.getUserPrincipal().getName();
+      var cluster = repository.getCluster();
+      var userName = request.getUserPrincipal().getName();
 
       // get query string
-      String action = request.getParameter(QUERYSTRING_PARAM_ACTION);
+      var action = request.getParameter(QUERYSTRING_PARAM_ACTION);
       if (StringUtils.isBlank(action)) {
         action = ACTION_VIEW;
       }
 
       if (action.equalsIgnoreCase(ACTION_DELETE)) {
-        String queryId = request.getParameter(QUERYSTRING_PARAM_QUERYID);
+        var queryId = request.getParameter(QUERYSTRING_PARAM_QUERYID);
         if (StringUtils.isNotBlank(queryId)) {
 
-          boolean deleteStatus = cluster.deleteQueryById(userName, queryId);
+          var deleteStatus = cluster.deleteQueryById(userName, queryId);
           if (deleteStatus) {
             responseJSON.put("status", STATUS_REPSONSE_SUCCESS);
           } else {
@@ -362,7 +358,7 @@ public class PulseController {
       }
 
       // Get list of past executed queries
-      ArrayNode queryResult = cluster.getQueryHistoryByUserId(userName);
+      var queryResult = cluster.getQueryHistoryByUserId(userName);
       responseJSON.set("queryHistory", queryResult);
     } catch (Exception e) {
       logger.debug("Exception Occurred : ", e);
@@ -377,8 +373,8 @@ public class PulseController {
   public void dataBrowserExport(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     // get query string
-    String query = request.getParameter("query");
-    String members = request.getParameter("members");
+    var query = request.getParameter("query");
+    var members = request.getParameter("members");
     int limit;
 
     try {
@@ -388,7 +384,7 @@ public class PulseController {
       logger.debug(e);
     }
 
-    ObjectNode queryResult = executeQuery(request, query, members, limit);
+    var queryResult = executeQuery(request, query, members, limit);
 
     response.setContentType("application/json");
     response.setHeader("Content-Disposition", "attachment; filename=results.json");
@@ -399,24 +395,24 @@ public class PulseController {
   public void getQueryStatisticsGridModel(HttpServletRequest request,
       HttpServletResponse response) {
 
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
     // get cluster object
-    Cluster cluster = repository.getCluster();
-    String userName = request.getUserPrincipal().getName();
+    var cluster = repository.getCluster();
+    var userName = request.getUserPrincipal().getName();
 
     try {
-      String[] arrColNames = Cluster.Statement.getGridColumnNames();
-      String[] arrColAttribs = Cluster.Statement.getGridColumnAttributes();
-      int[] arrColWidths = Cluster.Statement.getGridColumnWidths();
+      var arrColNames = Cluster.Statement.getGridColumnNames();
+      var arrColAttribs = Cluster.Statement.getGridColumnAttributes();
+      var arrColWidths = Cluster.Statement.getGridColumnWidths();
 
-      ArrayNode colNamesList = mapper.createArrayNode();
-      for (String arrColName : arrColNames) {
+      var colNamesList = mapper.createArrayNode();
+      for (var arrColName : arrColNames) {
         colNamesList.add(arrColName);
       }
 
-      ArrayNode colModelList = mapper.createArrayNode();
-      for (int i = 0; i < arrColAttribs.length; ++i) {
-        ObjectNode columnJSON = mapper.createObjectNode();
+      var colModelList = mapper.createArrayNode();
+      for (var i = 0; i < arrColAttribs.length; ++i) {
+        var columnJSON = mapper.createObjectNode();
         columnJSON.put("name", arrColAttribs[i]);
         columnJSON.put("index", arrColAttribs[i]);
         columnJSON.put("width", arrColWidths[i]);
@@ -439,16 +435,16 @@ public class PulseController {
 
   private ObjectNode executeQuery(HttpServletRequest request, String query, String members,
       int limit) {
-    ObjectNode queryResult = mapper.createObjectNode();
+    var queryResult = mapper.createObjectNode();
     try {
 
       if (StringUtils.isNotBlank(query)) {
         // get cluster object
-        Cluster cluster = repository.getCluster();
-        String userName = request.getUserPrincipal().getName();
+        var cluster = repository.getCluster();
+        var userName = request.getUserPrincipal().getName();
 
         // Add html escaped query to history
-        String escapedQuery = StringEscapeUtils.escapeHtml4(query);
+        var escapedQuery = StringEscapeUtils.escapeHtml4(query);
         cluster.addQueryInHistory(escapedQuery, userName);
 
         // Call execute query method

@@ -28,8 +28,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.PortfolioPdx;
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer;
@@ -44,10 +42,10 @@ public class PdxCopyOnReadQueryJUnitTest {
   public void testCopyOnReadPdxSerialization() throws Exception {
     List<String> classes = new ArrayList<>();
     classes.add(PortfolioPdx.class.getCanonicalName());
-    ReflectionBasedAutoSerializer serializer =
+    var serializer =
         new ReflectionBasedAutoSerializer(classes.toArray(new String[0]));
 
-    CacheFactory cf = new CacheFactory();
+    var cf = new CacheFactory();
     cf.setPdxSerializer(serializer);
     cf.setPdxReadSerialized(false);
     cf.set(MCAST_PORT, "0");
@@ -58,19 +56,19 @@ public class PdxCopyOnReadQueryJUnitTest {
     Region duplicates =
         cache.createRegionFactory(RegionShortcut.REPLICATE).create("SimpleObjects_Duplicates");
 
-    for (int i = 0; i < 10; i++) {
-      PortfolioPdx t = new PortfolioPdx(i);
+    for (var i = 0; i < 10; i++) {
+      var t = new PortfolioPdx(i);
       region.put(i, t);
       duplicates.put(i, t);
     }
 
-    QueryService qs = cache.getQueryService();
-    SelectResults rs =
+    var qs = cache.getQueryService();
+    var rs =
         (SelectResults) qs.newQuery("select * from " + SEPARATOR + "SimpleObjects").execute();
     assertEquals(10, rs.size());
-    Query query =
+    var query =
         qs.newQuery("select * from " + SEPARATOR + "SimpleObjects_Duplicates s where s in ($1)");
-    SelectResults finalResults = (SelectResults) query.execute(new Object[] {rs});
+    var finalResults = (SelectResults) query.execute(new Object[] {rs});
     assertEquals(10, finalResults.size());
   }
 

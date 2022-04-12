@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Rule;
@@ -33,12 +32,10 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.pdx.PdxReader;
 import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedBlackboard;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -67,8 +64,8 @@ public class RegionConcurrentOperationDUnitTest implements Serializable {
 
   @Test
   public void getOnProxyRegionFromMultipleThreadsReturnsDifferentObjects() throws Exception {
-    VM member1 = getVM(0);
-    String regionName = getClass().getSimpleName();
+    var member1 = getVM(0);
+    var regionName = getClass().getSimpleName();
 
     cacheRule.createCache();
     cacheRule.getCache().createRegionFactory(REPLICATE_PROXY).create(regionName);
@@ -79,27 +76,27 @@ public class RegionConcurrentOperationDUnitTest implements Serializable {
           .setCacheLoader(new TestCacheLoader()).create(regionName);
     });
 
-    Future<Object> get1 = executorServiceRule.submit(() -> {
-      Region<Object, Object> region = cacheRule.getCache().getRegion(regionName);
+    var get1 = executorServiceRule.submit(() -> {
+      var region = cacheRule.getCache().getRegion(regionName);
       return region.get(key);
     });
 
-    Future<Object> get2 = executorServiceRule.submit(() -> {
-      Region<Object, Object> region = cacheRule.getCache().getRegion(regionName);
+    var get2 = executorServiceRule.submit(() -> {
+      var region = cacheRule.getCache().getRegion(regionName);
       getBlackboard().waitForGate("Loader", 60, TimeUnit.SECONDS);
       return region.get(key);
     });
 
-    Object get1value = get1.get();
-    Object get2value = get2.get();
+    var get1value = get1.get();
+    var get2value = get2.get();
 
     assertThat(get1value).isNotSameAs(get2value);
   }
 
   @Test
   public void getOnPreLoadedRegionFromMultipleThreadsReturnSameObject() throws Exception {
-    VM member1 = getVM(0);
-    String regionName = getClass().getSimpleName();
+    var member1 = getVM(0);
+    var regionName = getClass().getSimpleName();
 
     cacheRule.createCache();
     cacheRule.getCache().createRegionFactory().setDataPolicy(DataPolicy.PRELOADED)
@@ -112,19 +109,19 @@ public class RegionConcurrentOperationDUnitTest implements Serializable {
     });
     assertThat(cacheRule.getCache().getRegion(regionName).size()).isEqualTo(0);
 
-    Future<Object> get1 = executorServiceRule.submit(() -> {
-      Region<Object, Object> region = cacheRule.getCache().getRegion(regionName);
+    var get1 = executorServiceRule.submit(() -> {
+      var region = cacheRule.getCache().getRegion(regionName);
       return region.get(key);
     });
 
-    Future<Object> get2 = executorServiceRule.submit(() -> {
-      Region<Object, Object> region = cacheRule.getCache().getRegion(regionName);
+    var get2 = executorServiceRule.submit(() -> {
+      var region = cacheRule.getCache().getRegion(regionName);
       getBlackboard().waitForGate("Loader", 60, TimeUnit.SECONDS);
       return region.get(key);
     });
 
-    Object get1value = get1.get();
-    Object get2value = get2.get();
+    var get1value = get1.get();
+    var get2value = get2.get();
 
     assertThat(get1value).isSameAs(get2value);
     assertThat(cacheRule.getCache().getRegion(regionName).size()).isEqualTo(1);
@@ -133,22 +130,22 @@ public class RegionConcurrentOperationDUnitTest implements Serializable {
   @Test
   public void getOnPartitionedRegionFromMultipleThreadsReturnsDifferentPdxInstances()
       throws Exception {
-    String regionName = getClass().getSimpleName();
-    CacheFactory cacheFactory = new CacheFactory();
+    var regionName = getClass().getSimpleName();
+    var cacheFactory = new CacheFactory();
     cacheFactory.setPdxReadSerialized(true);
     cacheRule.createCache(cacheFactory);
-    InternalCache cache = cacheRule.getCache();
+    var cache = cacheRule.getCache();
     cache.setCopyOnRead(true);
-    Region<Object, Object> region = cache.createRegionFactory(PARTITION)
+    var region = cache.createRegionFactory(PARTITION)
         .create(regionName);
 
     // Keep doing this concurrency test for 30 seconds.
-    long endTime = Duration.ofSeconds(30).toMillis() + System.currentTimeMillis();
+    var endTime = Duration.ofSeconds(30).toMillis() + System.currentTimeMillis();
 
     while (System.currentTimeMillis() < endTime) {
-      Callable<Object> getValue = () -> {
+      var getValue = (Callable<Object>) () -> {
         while (true) {
-          Object value = region.get(key);
+          var value = region.get(key);
           if (value != null) {
             return value;
           }
@@ -157,12 +154,12 @@ public class RegionConcurrentOperationDUnitTest implements Serializable {
 
       // In this test, two threads are doing gets. One thread puts the value
       // We expect that the threads will *always* get different PdxInstance values
-      Future<Object> get1 = executorServiceRule.submit(getValue);
-      Future<Object> get2 = executorServiceRule.submit(getValue);
-      Future<Object> put = executorServiceRule.submit(() -> region.put(key, new TestValue()));
+      var get1 = executorServiceRule.submit(getValue);
+      var get2 = executorServiceRule.submit(getValue);
+      var put = executorServiceRule.submit(() -> region.put(key, new TestValue()));
 
-      Object get1value = get1.get();
-      Object get2value = get2.get();
+      var get1value = get1.get();
+      var get2value = get2.get();
       put.get();
 
       // Assert the values returned are different objects.

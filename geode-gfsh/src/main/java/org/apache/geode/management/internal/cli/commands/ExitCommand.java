@@ -19,18 +19,17 @@ import org.springframework.shell.core.ExitShellRequest;
 import org.springframework.shell.core.annotation.CliCommand;
 
 import org.apache.geode.management.cli.CliMetaData;
-import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.i18n.CliStrings;
 
 public class ExitCommand extends OfflineGfshCommand {
   @CliCommand(value = {CliStrings.EXIT, "quit"}, help = CliStrings.EXIT__HELP)
   @CliMetaData(shellOnly = true, relatedTopic = {CliStrings.TOPIC_GFSH})
   public ExitShellRequest exit() {
-    Gfsh gfshInstance = getGfsh();
+    var gfshInstance = getGfsh();
 
     gfshInstance.stop();
 
-    ExitShellRequest exitShellRequest = gfshInstance.getExitShellRequest();
+    var exitShellRequest = gfshInstance.getExitShellRequest();
     if (exitShellRequest == null) {
       // shouldn't really happen, but we'll fallback to this anyway
       exitShellRequest = ExitShellRequest.NORMAL_EXIT;

@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -49,34 +48,34 @@ public class FunctionScannerTest {
 
   @Test
   public void implementsFunction() throws Exception {
-    File sourceFileOne = loadTestResource("ImplementsFunction.java");
+    var sourceFileOne = loadTestResource("ImplementsFunction.java");
 
     jarBuilder.buildJar(outputJar, sourceFileOne);
 
-    Collection<String> functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
+    var functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
     assertThat(functionsFoundInJar)
         .contains("org.apache.geode.management.internal.deployment.ImplementsFunction");
   }
 
   @Test
   public void extendsFunctionAdapter() throws Exception {
-    File sourceFileOne = loadTestResource("ExtendsFunctionAdapter.java");
+    var sourceFileOne = loadTestResource("ExtendsFunctionAdapter.java");
 
     jarBuilder.buildJar(outputJar, sourceFileOne);
 
-    Collection<String> functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
+    var functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
     assertThat(functionsFoundInJar)
         .contains("org.apache.geode.management.internal.deployment.ExtendsFunctionAdapter");
   }
 
   @Test
   public void testConcreteExtendsAbstractExtendsFunctionAdapter() throws Exception {
-    File sourceFileOne = loadTestResource("AbstractExtendsFunctionAdapter.java");
-    File sourceFileTwo = loadTestResource("ConcreteExtendsAbstractExtendsFunctionAdapter.java");
+    var sourceFileOne = loadTestResource("AbstractExtendsFunctionAdapter.java");
+    var sourceFileTwo = loadTestResource("ConcreteExtendsAbstractExtendsFunctionAdapter.java");
 
     jarBuilder.buildJar(outputJar, sourceFileOne, sourceFileTwo);
 
-    Collection<String> functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
+    var functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
     assertThat(functionsFoundInJar).contains(
         "org.apache.geode.management.internal.deployment.ConcreteExtendsAbstractExtendsFunctionAdapter",
         "org.apache.geode.management.internal.deployment.AbstractExtendsFunctionAdapter");
@@ -84,12 +83,12 @@ public class FunctionScannerTest {
 
   @Test
   public void testConcreteExtendsAbstractImplementsFunction() throws Exception {
-    File sourceFileOne = loadTestResource("AbstractImplementsFunction.java");
-    File sourceFileTwo = loadTestResource("ConcreteExtendsAbstractImplementsFunction.java");
+    var sourceFileOne = loadTestResource("AbstractImplementsFunction.java");
+    var sourceFileTwo = loadTestResource("ConcreteExtendsAbstractImplementsFunction.java");
 
     jarBuilder.buildJar(outputJar, sourceFileOne, sourceFileTwo);
 
-    Collection<String> functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
+    var functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
     assertThat(functionsFoundInJar).contains(
         "org.apache.geode.management.internal.deployment.ConcreteExtendsAbstractImplementsFunction",
         "org.apache.geode.management.internal.deployment.AbstractImplementsFunction");
@@ -98,21 +97,21 @@ public class FunctionScannerTest {
   @Test
   @Ignore("Fails due to GEODE-3429")
   public void registerFunctionHierarchySplitAcrossTwoJars() throws Exception {
-    File sourceFileOne = loadTestResource("AbstractImplementsFunction.java");
-    File abstractJar = new File(temporaryFolder.getRoot(), "abstract.jar");
+    var sourceFileOne = loadTestResource("AbstractImplementsFunction.java");
+    var abstractJar = new File(temporaryFolder.getRoot(), "abstract.jar");
     jarBuilder.buildJar(abstractJar, sourceFileOne);
 
     jarBuilder.addToClasspath(abstractJar);
-    File sourceFileTwo = loadTestResource("AnnotatedFunction.java");
+    var sourceFileTwo = loadTestResource("AnnotatedFunction.java");
 
     jarBuilder.buildJar(outputJar, sourceFileTwo);
-    Collection<String> functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
+    var functionsFoundInJar = functionScanner.findFunctionsInJar(outputJar);
     assertThat(functionsFoundInJar).contains(
         "org.apache.geode.management.internal.deployment.AnnotatedFunction");
   }
 
   private File loadTestResource(String fileName) {
-    String filePath =
+    var filePath =
         createTempFileFromResource(getClass(), fileName).getAbsolutePath();
     assertThat(filePath).isNotNull();
 

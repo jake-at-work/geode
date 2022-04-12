@@ -46,7 +46,7 @@ public class DistributedRegionSearchLoadJUnitTest {
 
   protected DistributedRegion createAndDefineRegion(boolean isConcurrencyChecksEnabled,
       RegionAttributes<Object, Object> ra, InternalRegionArguments ira, GemFireCacheImpl cache) {
-    DistributedRegion region =
+    var region =
         new DistributedRegion("testRegion", ra, null, cache, ira, disabledClock());
     if (isConcurrencyChecksEnabled) {
       region.enableConcurrencyChecks();
@@ -65,7 +65,7 @@ public class DistributedRegionSearchLoadJUnitTest {
 
   private RegionAttributes<Object, Object> createRegionAttributes(
       boolean isConcurrencyChecksEnabled) {
-    AttributesFactory<Object, Object> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<Object, Object>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setConcurrencyChecksEnabled(isConcurrencyChecksEnabled);
@@ -79,12 +79,12 @@ public class DistributedRegionSearchLoadJUnitTest {
 
   protected EntryEventImpl createDummyEvent(DistributedRegion region) {
     // create a dummy event id
-    EventID eventId = createDummyEventID();
-    String key = "key1";
-    String value = "Value1";
+    var eventId = createDummyEventID();
+    var key = "key1";
+    var value = "Value1";
 
     // create an event
-    EntryEventImpl event = EntryEventImpl.create(region, Operation.CREATE, key, value, null,
+    var event = EntryEventImpl.create(region, Operation.CREATE, key, value, null,
         false /* origin remote */, null, false /* generateCallbacks */, eventId);
     // avoid calling invokeCallbacks
     event.callbacksInvoked(true);
@@ -93,7 +93,7 @@ public class DistributedRegionSearchLoadJUnitTest {
   }
 
   protected VersionTag<InternalDistributedMember> createVersionTag(boolean validVersionTag) {
-    InternalDistributedMember remoteMember = mock(InternalDistributedMember.class);
+    var remoteMember = mock(InternalDistributedMember.class);
     VersionTag<InternalDistributedMember> tag = uncheckedCast(VersionTag.create(remoteMember));
     if (validVersionTag) {
       tag.setRegionVersion(1);
@@ -103,14 +103,14 @@ public class DistributedRegionSearchLoadJUnitTest {
   }
 
   protected DistributedRegion prepare(boolean isConcurrencyChecksEnabled) {
-    GemFireCacheImpl cache = Fakes.cache();
+    var cache = Fakes.cache();
 
     // create region attributes and internal region arguments
-    RegionAttributes<Object, Object> ra = createRegionAttributes(isConcurrencyChecksEnabled);
-    InternalRegionArguments ira = new InternalRegionArguments();
+    var ra = createRegionAttributes(isConcurrencyChecksEnabled);
+    var ira = new InternalRegionArguments();
 
     // create a region object
-    DistributedRegion region = createAndDefineRegion(isConcurrencyChecksEnabled, ra, ira, cache);
+    var region = createAndDefineRegion(isConcurrencyChecksEnabled, ra, ira, cache);
     if (isConcurrencyChecksEnabled) {
       region.enableConcurrencyChecks();
     }
@@ -121,12 +121,12 @@ public class DistributedRegionSearchLoadJUnitTest {
   }
 
   private void createSearchLoad(DistributedRegion region) {
-    SearchLoadAndWriteProcessor proc = mock(SearchLoadAndWriteProcessor.class);
+    var proc = mock(SearchLoadAndWriteProcessor.class);
 
     doAnswer((Answer<EntryEventImpl>) invocation -> {
-      Object[] args = invocation.getArguments();
+      var args = invocation.getArguments();
       if (args[0] instanceof EntryEventImpl) {
-        EntryEventImpl event = (EntryEventImpl) args[0];
+        var event = (EntryEventImpl) args[0];
         event.setNewValue("NewLoadedValue");
         event.setOperation(Operation.LOCAL_LOAD_CREATE);
       }
@@ -139,13 +139,13 @@ public class DistributedRegionSearchLoadJUnitTest {
 
   @Test
   public void testClientEventIsUpdatedWithCurrentEntryVersionTagAfterLoad() {
-    DistributedRegion region = prepare(true);
-    EntryEventImpl event = createDummyEvent(region);
+    var region = prepare(true);
+    var event = createDummyEvent(region);
     region.basicInvalidate(event);
 
     createSearchLoad(region);
 
-    KeyInfo ki = new KeyInfo(event.getKey(), null, null);
+    var ki = new KeyInfo(event.getKey(), null, null);
     region.findObjectInSystem(ki, false, null, false, null, false, false, null, event, false);
     assertNotNull("ClientEvent version tag is not set with region version tag.",
         event.getVersionTag());
@@ -153,14 +153,14 @@ public class DistributedRegionSearchLoadJUnitTest {
 
   @Test
   public void testClientEventIsUpdatedWithCurrentEntryVersionTagAfterSearchConcurrencyException() {
-    DistributedRegion region = prepare(true);
+    var region = prepare(true);
 
-    EntryEventImpl event = createDummyEvent(region);
+    var event = createDummyEvent(region);
     region.basicInvalidate(event);
 
-    VersionTag<InternalDistributedMember> tag = createVersionTag(true);
-    RegionEntry re = mock(RegionEntry.class);
-    VersionStamp stamp = mock(VersionStamp.class);
+    var tag = createVersionTag(true);
+    var re = mock(RegionEntry.class);
+    var stamp = mock(VersionStamp.class);
 
     doReturn(re).when(region).getRegionEntry(any());
     when(re.getVersionStamp()).thenReturn(stamp);
@@ -170,7 +170,7 @@ public class DistributedRegionSearchLoadJUnitTest {
     doThrow(new ConcurrentCacheModificationException()).when(region)
         .basicPutEntry(any(EntryEventImpl.class), anyLong());
 
-    KeyInfo ki = new KeyInfo(event.getKey(), null, null);
+    var ki = new KeyInfo(event.getKey(), null, null);
     region.findObjectInSystem(ki, false, null, false, null, false, false, null, event, false);
     assertNotNull("ClientEvent version tag is not set with region version tag.",
         event.getVersionTag());

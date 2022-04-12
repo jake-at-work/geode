@@ -21,15 +21,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.function.IntSupplier;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -41,9 +38,7 @@ import org.codehaus.cargo.container.installer.Installer;
 import org.codehaus.cargo.container.installer.ZipURLInstaller;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.internal.configuration.utils.ZipUtils;
@@ -139,11 +134,11 @@ public abstract class ContainerInstall {
     this.connType = connType;
     this.portSupplier = portSupplier;
 
-    String installDir = DEFAULT_INSTALL_DIR + name;
+    var installDir = DEFAULT_INSTALL_DIR + name;
 
     clearPreviousInstall(installDir);
 
-    URL url = getResource(getClass(), "/" + downloadURL);
+    var url = getResource(getClass(), "/" + downloadURL);
     logger.info("Installing container from URL " + url);
 
     // Optional step to install the container from a URL pointing to its distribution
@@ -174,7 +169,7 @@ public abstract class ContainerInstall {
    * Cleans up the installation by deleting the extracted module and downloaded installation folders
    */
   private void clearPreviousInstall(String installDir) throws IOException {
-    File installFolder = new File(installDir);
+    var installFolder = new File(installDir);
     // Remove installs from previous runs in the same folder
     if (installFolder.exists()) {
       logger.info("Deleting previous install folder " + installFolder.getAbsolutePath());
@@ -286,17 +281,17 @@ public abstract class ContainerInstall {
    */
   private static String findSessionTestingWar() {
     // Start out searching directory above current
-    String curPath = "../";
+    var curPath = "../";
 
     // Looking for extensions folder
-    final String warModuleDirName = "extensions";
+    final var warModuleDirName = "extensions";
     File warModuleDir = null;
 
     // While directory searching for is not found
     while (warModuleDir == null) {
       // Try to find the find the directory in the current directory
-      File[] files = new File(curPath).listFiles();
-      for (File file : files) {
+      var files = new File(curPath).listFiles();
+      for (var file : files) {
         if (file.isDirectory() && file.getName().equals(warModuleDirName)) {
           warModuleDir = file;
           break;
@@ -321,14 +316,14 @@ public abstract class ContainerInstall {
    */
   private static String findAndExtractModule(String geodeModuleLocation, String moduleName)
       throws IOException {
-    File modulesDir = new File(geodeModuleLocation);
+    var modulesDir = new File(geodeModuleLocation);
 
     logger.info("Trying to access build dir " + modulesDir);
 
     // Search directory for tomcat module folder/zip
-    boolean archive = false;
+    var archive = false;
     File modulePath = null;
-    for (File file : modulesDir.listFiles()) {
+    for (var file : modulesDir.listFiles()) {
 
       if (file.getName().toLowerCase().contains(moduleName)) {
         modulePath = file;
@@ -342,10 +337,10 @@ public abstract class ContainerInstall {
 
     assertThat(modulePath).describedAs("module path").isNotNull();
 
-    String extractedModulePath =
+    var extractedModulePath =
         modulePath.getName().substring(0, modulePath.getName().length() - 4);
     // Get the name of the new module folder within the extraction directory
-    File newModuleFolder = new File(DEFAULT_MODULE_EXTRACTION_DIR + extractedModulePath);
+    var newModuleFolder = new File(DEFAULT_MODULE_EXTRACTION_DIR + extractedModulePath);
     // Remove any previous module folders extracted here
     if (newModuleFolder.exists()) {
       logger.info("Deleting previous modules directory " + newModuleFolder.getAbsolutePath());
@@ -385,8 +380,8 @@ public abstract class ContainerInstall {
    */
   static void editPropertyFile(String filePath, String propertyName, String propertyValue,
       boolean append) throws Exception {
-    FileInputStream input = new FileInputStream(filePath);
-    Properties properties = new Properties();
+    var input = new FileInputStream(filePath);
+    var properties = new Properties();
     properties.load(input);
 
     String val;
@@ -439,9 +434,9 @@ public abstract class ContainerInstall {
 
     try {
       // Get XML file to edit
-      DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-      Document doc = docBuilder.parse(XMLPath);
+      var docFactory = DocumentBuilderFactory.newInstance();
+      var docBuilder = docFactory.newDocumentBuilder();
+      var doc = docBuilder.parse(XMLPath);
 
       Node node = null;
       // Get node with specified tagId
@@ -451,9 +446,9 @@ public abstract class ContainerInstall {
       // If writing on similar attributes then search by tag name
       else if (writeOnSimilarAttributeNames) {
         // Get all the nodes with the given tag name
-        NodeList nodes = doc.getElementsByTagName(tagName);
-        for (int i = 0; i < nodes.getLength(); i++) {
-          Node n = nodes.item(i);
+        var nodes = doc.getElementsByTagName(tagName);
+        for (var i = 0; i < nodes.getLength(); i++) {
+          var n = nodes.item(i);
           // If the node being iterated across has the exact attributes then it is the one that
           // should be edited
           if (nodeHasExactAttributes(n, attributes, false)) {
@@ -474,13 +469,13 @@ public abstract class ContainerInstall {
       }
       // No node found creates new element under the parent tag passed in
       else {
-        Element e = doc.createElement(replacementTagName);
+        var e = doc.createElement(replacementTagName);
         // Set id attribute
         if (tagId != null) {
           e.setAttribute("id", tagId);
         }
         // Set other attributes
-        for (String key : attributes.keySet()) {
+        for (var key : attributes.keySet()) {
           e.setAttribute(key, attributes.get(key));
         }
 
@@ -489,10 +484,10 @@ public abstract class ContainerInstall {
       }
 
       // Write updated XML file
-      TransformerFactory transformerFactory = TransformerFactory.newInstance();
-      Transformer transformer = transformerFactory.newTransformer();
-      DOMSource source = new DOMSource(doc);
-      StreamResult result = new StreamResult(new File(XMLPath));
+      var transformerFactory = TransformerFactory.newInstance();
+      var transformer = transformerFactory.newTransformer();
+      var source = new DOMSource(doc);
+      var result = new StreamResult(new File(XMLPath));
       transformer.transform(source, result);
 
       logger.info("Modified container XML file " + XMLPath);
@@ -513,15 +508,15 @@ public abstract class ContainerInstall {
   private static Node findNodeWithAttribute(Document doc, String nodeName, String name,
       String value) {
     // Get all nodes with given name
-    NodeList nodes = doc.getElementsByTagName(nodeName);
+    var nodes = doc.getElementsByTagName(nodeName);
     if (nodes == null) {
       return null;
     }
 
     // Find and return the first node that has the given attribute
-    for (int i = 0; i < nodes.getLength(); i++) {
-      Node node = nodes.item(i);
-      Node nodeAttr = node.getAttributes().getNamedItem(name);
+    for (var i = 0; i < nodes.getLength(); i++) {
+      var node = nodes.item(i);
+      var nodeAttr = node.getAttributes().getNamedItem(name);
 
       if (nodeAttr != null && nodeAttr.getTextContent().equals(value)) {
         return node;
@@ -539,7 +534,7 @@ public abstract class ContainerInstall {
    * @return The given node with ONLY the given attributes
    */
   private static Node rewriteNodeAttributes(Node node, HashMap<String, String> attributes) {
-    NamedNodeMap nodeAttrs = node.getAttributes();
+    var nodeAttrs = node.getAttributes();
 
     // Remove all previous attributes
     while (nodeAttrs.getLength() > 0) {
@@ -547,7 +542,7 @@ public abstract class ContainerInstall {
     }
 
     // Set to new attributes
-    for (String key : attributes.keySet()) {
+    for (var key : attributes.keySet()) {
       ((Element) node).setAttribute(key, attributes.get(key));
     }
 
@@ -566,11 +561,11 @@ public abstract class ContainerInstall {
    */
   private static boolean nodeHasExactAttributes(Node node, HashMap<String, String> attributes,
       boolean checkSimilarValues) {
-    NamedNodeMap nodeAttrs = node.getAttributes();
+    var nodeAttrs = node.getAttributes();
 
     // Check to make sure the node has all attribute fields
-    for (String key : attributes.keySet()) {
-      Node attr = nodeAttrs.getNamedItem(key);
+    for (var key : attributes.keySet()) {
+      var attr = nodeAttrs.getNamedItem(key);
       if (attr == null
           || checkSimilarValues && !attr.getTextContent().equals(attributes.get(key))) {
         return false;
@@ -578,8 +573,8 @@ public abstract class ContainerInstall {
     }
 
     // Check to make sure the node does not have more than the attribute fields
-    for (int i = 0; i < nodeAttrs.getLength(); i++) {
-      String attr = nodeAttrs.item(i).getNodeName();
+    for (var i = 0; i < nodeAttrs.getLength(); i++) {
+      var attr = nodeAttrs.item(i).getNodeName();
       if (attributes.get(attr) == null || checkSimilarValues
           && !attributes.get(attr).equals(nodeAttrs.item(i).getTextContent())) {
         return false;

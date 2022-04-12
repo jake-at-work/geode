@@ -21,13 +21,10 @@ import org.junit.Test;
 
 import org.apache.geode.cache.query.cq.dunit.CqQueryDUnitTest;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.management.DistributedSystemMXBean;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.ManagementTestBase;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 
 /**
@@ -50,11 +47,11 @@ public class TestCQDUnitTest extends ManagementTestBase {
 
   public static long getNumOfCQ() {
 
-    final WaitCriterion waitCriteria = new WaitCriterion() {
+    final var waitCriteria = new WaitCriterion() {
       @Override
       public boolean done() {
-        final ManagementService service = getManagementService();
-        final DistributedSystemMXBean bean = service.getDistributedSystemMXBean();
+        final var service = getManagementService();
+        final var bean = service.getDistributedSystemMXBean();
         if (bean != null) {
           return bean.getActiveCQCount() > 0;
         }
@@ -67,7 +64,7 @@ public class TestCQDUnitTest extends ManagementTestBase {
       }
     };
     GeodeAwaitility.await().untilAsserted(waitCriteria);
-    final DistributedSystemMXBean bean = getManagementService().getDistributedSystemMXBean();
+    final var bean = getManagementService().getDistributedSystemMXBean();
     assertNotNull(bean);
     return bean.getActiveCQCount();
   }
@@ -77,12 +74,12 @@ public class TestCQDUnitTest extends ManagementTestBase {
     initManagement(false);
     LogWriterUtils.getLogWriter().info("started testNumOfCQ");
 
-    VM server = managedNodeList.get(1);
-    VM client = managedNodeList.get(2);
+    var server = managedNodeList.get(1);
+    var client = managedNodeList.get(2);
 
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    int serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
     cqDUnitTest.createServer(server, serverPort);
 
     final int port = server.invoke(CqQueryDUnitTest::getCacheServerPort);
@@ -94,7 +91,7 @@ public class TestCQDUnitTest extends ManagementTestBase {
     cqDUnitTest.createCQ(client, queryName2, cqDUnitTest.cqs[3]);
     cqDUnitTest.executeCQ(client, queryName2, false, null);
 
-    final int size = 1000;
+    final var size = 1000;
     cqDUnitTest.createValues(client, cqDUnitTest.regions[0], size);
     cqDUnitTest.waitForCreated(client, queryName, CqQueryDUnitTest.KEY + size);
     cqDUnitTest.waitForCreated(client, queryName2, CqQueryDUnitTest.KEY + size);

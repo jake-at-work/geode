@@ -35,7 +35,7 @@ public class CompactVersionHolder<T extends VersionSource> implements VersionHol
   private final long versionTimeStamp;
 
   public CompactVersionHolder(VersionHolder<T> tag) {
-    int eVersion = tag.getEntryVersion();
+    var eVersion = tag.getEntryVersion();
     entryVersionLowBytes = (short) (eVersion & 0xffff);
     entryVersionHighByte = (byte) ((eVersion & 0xff0000) >> 16);
     regionVersionHighBytes = tag.getRegionVersionHighBytes();
@@ -73,7 +73,7 @@ public class CompactVersionHolder<T extends VersionSource> implements VersionHol
   }
 
   public VersionTag asVersionTag() {
-    VersionTag tag = VersionTag.create(memberID);
+    var tag = VersionTag.create(memberID);
     tag.setEntryVersion(getEntryVersion());
     tag.setRegionVersion(regionVersionHighBytes, regionVersionLowBytes);
     tag.setVersionTimeStamp(getVersionTimeStamp());
@@ -94,7 +94,7 @@ public class CompactVersionHolder<T extends VersionSource> implements VersionHol
   }
 
   public String toString() {
-    StringBuilder s = new StringBuilder();
+    var s = new StringBuilder();
     s.append("{v").append(getEntryVersion());
     s.append("; rv").append(getRegionVersion());
     if (memberID != null) {

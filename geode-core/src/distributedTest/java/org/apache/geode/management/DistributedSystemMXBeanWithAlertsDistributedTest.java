@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.Notification;
@@ -139,7 +138,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
     managerMember = managerVM.invoke(this::createManager);
     IgnoredException.addIgnoredException("Cannot form connection to alert listener");
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
         createMember(memberVM);
       });
@@ -148,7 +147,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
 
   @After
   public void tearDown() throws Exception {
-    for (VM vm : toArray(managerVM, memberVM1, memberVM2, memberVM3)) {
+    for (var vm : toArray(managerVM, memberVM1, memberVM2, memberVM3)) {
       vm.invoke(() -> {
         if (cache != null) {
           cache.close();
@@ -165,7 +164,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   public void managerAddsAlertListenerToEachMember() {
     // default AlertLevel is SEVERE
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
         await().untilAsserted(
             () -> assertThat(alertingService.hasAlertListener(managerMember, SEVERE)).isTrue());
@@ -176,7 +175,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   @Test
   public void managerReceivesRemoteAlertAtAlertLevel() {
     memberVM1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(severeLevelMessage)) {
+      try (var ie = addIgnoredException(severeLevelMessage)) {
         logger.fatal(severeLevelMessage);
       }
     });
@@ -189,10 +188,10 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   @Test
   public void managerDoesNotReceiveRemoteAlertBelowAlertLevel() {
     memberVM1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(warningLevelMessage)) {
+      try (var ie = addIgnoredException(warningLevelMessage)) {
         logger.warn(warningLevelMessage);
       }
-      try (IgnoredException ie = addIgnoredException(errorLevelMessage)) {
+      try (var ie = addIgnoredException(errorLevelMessage)) {
         logger.error(errorLevelMessage);
       }
     });
@@ -207,10 +206,10 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
     changeAlertLevel(WARNING);
 
     memberVM1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(errorLevelMessage)) {
+      try (var ie = addIgnoredException(errorLevelMessage)) {
         logger.error(errorLevelMessage);
       }
-      try (IgnoredException ie = addIgnoredException(severeLevelMessage)) {
+      try (var ie = addIgnoredException(severeLevelMessage)) {
         logger.fatal(severeLevelMessage);
       }
     });
@@ -223,7 +222,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   @Test
   public void managerReceivesLocalAlertAtAlertLevel() {
     managerVM.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(severeLevelMessage)) {
+      try (var ie = addIgnoredException(severeLevelMessage)) {
         logger.fatal(severeLevelMessage);
       }
     });
@@ -236,10 +235,10 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   @Test
   public void managerDoesNotReceiveLocalAlertBelowAlertLevel() {
     managerVM.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(warningLevelMessage)) {
+      try (var ie = addIgnoredException(warningLevelMessage)) {
         logger.warn(warningLevelMessage);
       }
-      try (IgnoredException ie = addIgnoredException(errorLevelMessage)) {
+      try (var ie = addIgnoredException(errorLevelMessage)) {
         logger.error(errorLevelMessage);
       }
     });
@@ -262,10 +261,10 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
     changeAlertLevel(WARNING);
 
     managerVM.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(errorLevelMessage)) {
+      try (var ie = addIgnoredException(errorLevelMessage)) {
         logger.error(errorLevelMessage);
       }
-      try (IgnoredException ie = addIgnoredException(severeLevelMessage)) {
+      try (var ie = addIgnoredException(severeLevelMessage)) {
         logger.fatal(severeLevelMessage);
       }
     });
@@ -277,9 +276,9 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
 
   @Test
   public void managerReceivesAlertsFromAllMembers() {
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
-        try (IgnoredException ie = addIgnoredException(severeLevelMessage)) {
+        try (var ie = addIgnoredException(severeLevelMessage)) {
           logger.fatal(severeLevelMessage);
         }
       });
@@ -294,15 +293,15 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   public void managerReceivesAlertsFromAllMembersAtAlertLevelAndAbove() {
     changeAlertLevel(WARNING);
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
-        try (IgnoredException ie = addIgnoredException(warningLevelMessage)) {
+        try (var ie = addIgnoredException(warningLevelMessage)) {
           logger.warn(warningLevelMessage);
         }
-        try (IgnoredException ie = addIgnoredException(errorLevelMessage)) {
+        try (var ie = addIgnoredException(errorLevelMessage)) {
           logger.error(errorLevelMessage);
         }
-        try (IgnoredException ie = addIgnoredException(severeLevelMessage)) {
+        try (var ie = addIgnoredException(severeLevelMessage)) {
           logger.fatal(severeLevelMessage);
         }
       });
@@ -318,15 +317,15 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   public void managerDoesNotReceiveAlertsAtAlertLevelNone() {
     changeAlertLevel(NONE);
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
-        try (IgnoredException ie = addIgnoredException(warningLevelMessage)) {
+        try (var ie = addIgnoredException(warningLevelMessage)) {
           logger.warn(warningLevelMessage);
         }
-        try (IgnoredException ie = addIgnoredException(errorLevelMessage)) {
+        try (var ie = addIgnoredException(errorLevelMessage)) {
           logger.error(errorLevelMessage);
         }
-        try (IgnoredException ie = addIgnoredException(severeLevelMessage)) {
+        try (var ie = addIgnoredException(severeLevelMessage)) {
           logger.fatal(severeLevelMessage);
         }
       });
@@ -342,9 +341,9 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
     // close managerVM so we can recreate it AFTER generating alerts in memberVMs
     managerVM.invoke(() -> cache.close());
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
-        try (IgnoredException ie = addIgnoredException(severeLevelMessage)) {
+        try (var ie = addIgnoredException(severeLevelMessage)) {
           logger.fatal(severeLevelMessage);
         }
       });
@@ -354,7 +353,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
 
     managerMember = managerVM.invoke(() -> cache.getDistributionManager().getId());
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
         await().until(() -> alertingService.hasAlertListener(managerMember, SEVERE));
       });
@@ -368,9 +367,9 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
 
     // managerVM should now receive any new alerts though
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
-        try (IgnoredException ie = addIgnoredException(severeLevelMessage)) {
+        try (var ie = addIgnoredException(severeLevelMessage)) {
           logger.fatal(severeLevelMessage);
         }
       });
@@ -382,7 +381,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   }
 
   private DistributedMember createManager() throws InstanceNotFoundException {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, MANAGER_NAME);
     config.setProperty(JMX_MANAGER, "true");
     config.setProperty(JMX_MANAGER_START, "true");
@@ -402,7 +401,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   }
 
   private void createMember(VM memberVM) {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, MEMBER_NAME + memberVM.getId());
     config.setProperty(JMX_MANAGER, "false");
 
@@ -417,7 +416,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
       distributedSystemMXBean.changeAlertLevel(alertLevel.name());
     });
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
         if (alertLevel == NONE) {
           await().until(() -> !alertingService.hasAlertListener(managerMember, alertLevel));
@@ -429,26 +428,26 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
   }
 
   private Notification captureNotification() {
-    ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+    var captor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationListener, timeout(TIMEOUT)).handleNotification(captor.capture(), isNull());
     return captor.getValue();
   }
 
   private List<Notification> captureAllNotifications(int count) {
-    ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+    var captor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationListener, timeout(TIMEOUT).times(count)).handleNotification(captor.capture(),
         isNull());
     return captor.getAllValues();
   }
 
   private Alert captureAlert() {
-    Notification notification = captureNotification();
+    var notification = captureNotification();
     return new Alert(getAlertLevel(notification), notification.getMessage());
   }
 
   private List<Alert> captureAllAlerts(int count) {
     List<Alert> alerts = new ArrayList<>();
-    for (Notification notification : captureAllNotifications(count)) {
+    for (var notification : captureAllNotifications(count)) {
       alerts.add(new Alert(getAlertLevel(notification), notification.getMessage()));
     }
     return alerts;
@@ -484,7 +483,7 @@ public class DistributedSystemMXBeanWithAlertsDistributedTest implements Seriali
       if (obj == null || getClass() != obj.getClass()) {
         return false;
       }
-      Alert alert = (Alert) obj;
+      var alert = (Alert) obj;
       return level == alert.level && Objects.equals(message, alert.message);
     }
 

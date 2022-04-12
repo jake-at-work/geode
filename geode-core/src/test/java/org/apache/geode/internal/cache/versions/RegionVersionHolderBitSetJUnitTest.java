@@ -33,8 +33,8 @@ public class RegionVersionHolderBitSetJUnitTest {
 
   @Test
   public void recordVersionLargerThanIntMaxValueShouldSucceed() {
-    RegionVersionHolder h = createHolder(true);
-    long version = ((long) Integer.MAX_VALUE) + 10L;
+    var h = createHolder(true);
+    var version = ((long) Integer.MAX_VALUE) + 10L;
     h.recordVersion(version);
     assertEquals(version, h.getBitSetVersionForTesting());
     assertEquals(bitSet(0), h.getBitSetForTesting());
@@ -44,10 +44,10 @@ public class RegionVersionHolderBitSetJUnitTest {
 
   @Test
   public void initializeFromUpdatesBitSetVersionCorrectly() {
-    RegionVersionHolder holder = createHolder(true);
-    RegionVersionHolder other = createHolder(true);
+    var holder = createHolder(true);
+    var other = createHolder(true);
 
-    int moreThanBitSetWidth = BIT_SET_WIDTH + 10;
+    var moreThanBitSetWidth = BIT_SET_WIDTH + 10;
     holder.recordVersion(moreThanBitSetWidth);
     other.recordVersion(2);
 
@@ -69,8 +69,8 @@ public class RegionVersionHolderBitSetJUnitTest {
 
   @Test
   public void recordVersionLessThanBitSetWidthShouldNotMoveBitSet() {
-    RegionVersionHolder h = createHolder(true);
-    int version = BIT_SET_WIDTH - 10;
+    var h = createHolder(true);
+    var version = BIT_SET_WIDTH - 10;
     h.recordVersion(version);
     assertEquals(1, h.getBitSetVersionForTesting());
     assertEquals(bitSet(version - 1), h.getBitSetForTesting());
@@ -80,8 +80,8 @@ public class RegionVersionHolderBitSetJUnitTest {
 
   @Test
   public void recordVersionGreaterThanBitSetWidthShouldMoveBitSet() {
-    RegionVersionHolder h = createHolder(true);
-    long version = ((long) Integer.MAX_VALUE) - 10L;
+    var h = createHolder(true);
+    var version = ((long) Integer.MAX_VALUE) - 10L;
     h.recordVersion(version);
     assertEquals(version, h.getBitSetVersionForTesting());
     assertEquals(bitSet(0), h.getBitSetForTesting());
@@ -91,7 +91,7 @@ public class RegionVersionHolderBitSetJUnitTest {
 
   @Test
   public void recordFirstVersionShouldSetFirstBit() {
-    RegionVersionHolder h = createHolder(true);
+    var h = createHolder(true);
     h.recordVersion(1);
     assertEquals(1, h.getBitSetVersionForTesting());
     assertEquals(bitSet(0), h.getBitSetForTesting());
@@ -101,10 +101,10 @@ public class RegionVersionHolderBitSetJUnitTest {
 
   @Test
   public void recordLargeVersionWithSomeBitsSetShouldMoveBitSet() {
-    RegionVersionHolder h = createHolder(true);
+    var h = createHolder(true);
 
     LongStream.range(1, 10).forEach(h::recordVersion);
-    long version = ((long) Integer.MAX_VALUE) - 10L;
+    var version = ((long) Integer.MAX_VALUE) - 10L;
     h.recordVersion(version);
     assertEquals(version, h.getBitSetVersionForTesting());
     assertEquals(bitSet(0), h.getBitSetForTesting());
@@ -114,11 +114,11 @@ public class RegionVersionHolderBitSetJUnitTest {
 
   @Test
   public void recordOneVersionPastBitSetWidthShouldMoveBitSet() {
-    RegionVersionHolder h = createHolder(true);
+    var h = createHolder(true);
 
     LongStream.range(1, BIT_SET_WIDTH + 1).forEach(h::recordVersion);
     assertEquals(1, h.getBitSetVersionForTesting());
-    BitSet expectedBitSet = new BitSet(BIT_SET_WIDTH);
+    var expectedBitSet = new BitSet(BIT_SET_WIDTH);
     expectedBitSet.set(0, BIT_SET_WIDTH);
     assertEquals(expectedBitSet, h.getBitSetForTesting());
 
@@ -132,8 +132,8 @@ public class RegionVersionHolderBitSetJUnitTest {
 
   @Test
   public void recordVersionGreaterThanTwiceBitSetWidthShouldMoveBitSetAndCreateExceptions() {
-    RegionVersionHolder h = createHolder(true);
-    long version = ((long) Integer.MAX_VALUE) - 10L;
+    var h = createHolder(true);
+    var version = ((long) Integer.MAX_VALUE) - 10L;
     LongStream.range(1, 10).forEach(h::recordVersion);
     h.recordVersion(15);
     h.recordVersion(version);
@@ -147,12 +147,12 @@ public class RegionVersionHolderBitSetJUnitTest {
 
   @Test
   public void recordVersionLessThanTwiceBitSetWidthShouldSlideBitSet() {
-    RegionVersionHolder h = createHolder(true);
+    var h = createHolder(true);
     LongStream.range(1, 10).forEach(h::recordVersion);
     h.recordVersion(15);
-    int lessThanBitSetVersion = BIT_SET_WIDTH - 10;
+    var lessThanBitSetVersion = BIT_SET_WIDTH - 10;
     h.recordVersion(lessThanBitSetVersion);
-    int moreThanBitSetVersion = BIT_SET_WIDTH + 10;
+    var moreThanBitSetVersion = BIT_SET_WIDTH + 10;
     h.recordVersion(moreThanBitSetVersion);
 
     // The bit set will only slide to start from 15, because that is the last set bit
@@ -183,7 +183,7 @@ public class RegionVersionHolderBitSetJUnitTest {
   }
 
   private BitSet bitSet(int... setBits) {
-    BitSet bitSet = new BitSet(BIT_SET_WIDTH);
+    var bitSet = new BitSet(BIT_SET_WIDTH);
     IntStream.of(setBits).forEach(bitSet::set);
     return bitSet;
   }

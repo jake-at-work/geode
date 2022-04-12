@@ -16,7 +16,6 @@ package org.apache.geode.distributed.internal;
 
 import java.util.Set;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 
 public class StartupMessageReplyProcessor extends ReplyProcessor21 {
@@ -37,7 +36,7 @@ public class StartupMessageReplyProcessor extends ReplyProcessor21 {
 
   @Override
   protected boolean removeMember(InternalDistributedMember m, boolean departed) {
-    boolean result = super.removeMember(m, departed);
+    var result = super.removeMember(m, departed);
     dm.removeUnfinishedStartup(m, true);
     return result;
   }
@@ -63,9 +62,9 @@ public class StartupMessageReplyProcessor extends ReplyProcessor21 {
    */
   void collectUnresponsiveMembers(Set<InternalDistributedMember> s) {
     if (stillWaiting()) {
-      InternalDistributedMember[] memberList = getMembers();
+      var memberList = getMembers();
       synchronized (memberList) {
-        for (InternalDistributedMember m : memberList) {
+        for (var m : memberList) {
           if (m != null) {
             s.add(m);
           }
@@ -76,7 +75,7 @@ public class StartupMessageReplyProcessor extends ReplyProcessor21 {
 
   @Override
   public void process(DistributionMessage msg) {
-    final LogWriter log = system.getLogWriter();
+    final var log = system.getLogWriter();
     super.process(msg);
     if (log.fineEnabled()) {
       log.fine(this + " done processing " + msg + " from " + msg.getSender());
@@ -86,7 +85,7 @@ public class StartupMessageReplyProcessor extends ReplyProcessor21 {
   @Override
   protected void preWait() {
     waiting = true;
-    DistributionManager mgr = getDistributionManager();
+    var mgr = getDistributionManager();
     statStart = mgr.getStats().startReplyWait();
     // Note we do not use addMembershipListenerAndGetDistributionManagerIds
     // because this is the startup message and we do not yet have any

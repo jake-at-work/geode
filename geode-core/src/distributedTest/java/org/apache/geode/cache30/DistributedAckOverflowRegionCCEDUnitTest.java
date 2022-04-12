@@ -31,7 +31,7 @@ public class DistributedAckOverflowRegionCCEDUnitTest extends DistributedAckRegi
 
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setConcurrencyChecksEnabled(true);

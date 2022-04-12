@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonEncoding;
@@ -50,10 +49,10 @@ public class PdxToJSON {
   }
 
   public String getJSON() {
-    JsonFactory jf = new JsonFactory();
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var jf = new JsonFactory();
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     try {
-      JsonGenerator jg = jf.createJsonGenerator(hdos, JsonEncoding.UTF8);
+      var jg = jf.createJsonGenerator(hdos, JsonEncoding.UTF8);
       enableDisableJSONGeneratorFeature(jg);
       getJSONString(jg, m_pdxInstance);
       jg.close();
@@ -66,10 +65,10 @@ public class PdxToJSON {
   }
 
   public byte[] getJSONByteArray() {
-    JsonFactory jf = new JsonFactory();
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var jf = new JsonFactory();
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     try {
-      JsonGenerator jg = jf.createJsonGenerator(hdos, JsonEncoding.UTF8);
+      var jg = jf.createJsonGenerator(hdos, JsonEncoding.UTF8);
       enableDisableJSONGeneratorFeature(jg);
       getJSONString(jg, m_pdxInstance);
       jg.close();
@@ -103,10 +102,10 @@ public class PdxToJSON {
       boolean b = (Boolean) value;
       jg.writeBoolean(b);
     } else if (value.getClass().equals(Byte.class)) {
-      Byte b = (Byte) value;
+      var b = (Byte) value;
       jg.writeNumber(b);
     } else if (value.getClass().equals(Short.class)) {
-      Short b = (Short) value;
+      var b = (Short) value;
       jg.writeNumber(b);
     } else if (value.getClass().equals(Integer.class)) {
       int i = (Integer) value;
@@ -115,19 +114,19 @@ public class PdxToJSON {
       long i = (Long) value;
       jg.writeNumber(i);
     } else if (value.getClass().equals(BigInteger.class)) {
-      BigInteger i = (BigInteger) value;
+      var i = (BigInteger) value;
       jg.writeNumber(i);
     } else if (value.getClass().equals(Float.class)) {
       float i = (Float) value;
       jg.writeNumber(i);
     } else if (value.getClass().equals(BigDecimal.class)) {
-      BigDecimal i = (BigDecimal) value;
+      var i = (BigDecimal) value;
       jg.writeNumber(i);
     } else if (value.getClass().equals(Double.class)) {
       double d = (Double) value;
       jg.writeNumber(d);
     } else if (value.getClass().equals(String.class)) {
-      String s = (String) value;
+      var s = (String) value;
       jg.writeString(s);
     } else if (value.getClass().isArray()) {
       getJSONStringFromArray(jg, value, pf);
@@ -153,8 +152,8 @@ public class PdxToJSON {
 
     jg.writeStartObject();
 
-    for (final Object o : map.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
+    for (final var o : map.entrySet()) {
+      var entry = (Map.Entry) o;
 
       // Iterate over Map and write key-value
       jg.writeFieldName(entry.getKey().toString()); // write Key in a Map
@@ -167,10 +166,10 @@ public class PdxToJSON {
       throws IOException {
     jg.writeStartObject();
 
-    List<String> pdxFields = pdxInstance.getFieldNames();
+    var pdxFields = pdxInstance.getFieldNames();
 
-    for (String pf : pdxFields) {
-      Object value = pdxInstance.getField(pf);
+    for (var pf : pdxFields) {
+      var value = pdxInstance.getField(pf);
       jg.writeFieldName(pf);
       writeValue(jg, value, pf);
     }
@@ -222,8 +221,8 @@ public class PdxToJSON {
       JsonHelper.getJsonFromStringArray(jg, (String[]) value, pf);
     } else if (value.getClass().equals(Object[].class)) {
       jg.writeStartArray();
-      Object[] array = (Object[]) value;
-      for (Object obj : array) {
+      var array = (Object[]) value;
+      for (var obj : array) {
         writeValue(jg, obj, pf);
       }
       jg.writeEndArray();

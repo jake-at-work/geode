@@ -97,7 +97,7 @@ public class ExpiryTaskTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    ExpiryTask mockExpiryTask = mock(ExpiryTask.class);
+    var mockExpiryTask = mock(ExpiryTask.class);
     mockExpiryTask.run2();
     verify(mockExpiryTask, times(1)).run2();
   }
@@ -111,7 +111,7 @@ public class ExpiryTaskTest {
 
   @Test
   public void isExpiryUnitsSecondsReturnsTrueIfRegionNotMilliseconds() {
-    LocalRegion localRegion = mock(LocalRegion.class);
+    var localRegion = mock(LocalRegion.class);
     when(localRegion.isExpiryUnitsMilliseconds()).thenReturn(false);
     ExpiryTask expiryTask = new TestableExpiryTask(localRegion);
 
@@ -120,7 +120,7 @@ public class ExpiryTaskTest {
 
   @Test
   public void isExpiryUnitsSecondsReturnsFalseIfRegionIsMilliseconds() {
-    LocalRegion localRegion = mock(LocalRegion.class);
+    var localRegion = mock(LocalRegion.class);
     when(localRegion.isExpiryUnitsMilliseconds()).thenReturn(true);
     ExpiryTask expiryTask = new TestableExpiryTask(localRegion);
 
@@ -129,22 +129,22 @@ public class ExpiryTaskTest {
 
   @Test
   public void normalizeToMillisConvertIfUnitsAreSeconds() {
-    LocalRegion localRegion = mock(LocalRegion.class);
+    var localRegion = mock(LocalRegion.class);
     when(localRegion.isExpiryUnitsMilliseconds()).thenReturn(false);
     ExpiryTask expiryTask = new TestableExpiryTask(localRegion);
 
-    long result = expiryTask.normalizeToMillis(2);
+    var result = expiryTask.normalizeToMillis(2);
 
     assertThat(result).isEqualTo(2000);
   }
 
   @Test
   public void normalizeToMillisDoesNothingIfExpiryUnitMillis() {
-    LocalRegion localRegion = mock(LocalRegion.class);
+    var localRegion = mock(LocalRegion.class);
     when(localRegion.isExpiryUnitsMilliseconds()).thenReturn(true);
     ExpiryTask expiryTask = new TestableExpiryTask(localRegion);
 
-    long result = expiryTask.normalizeToMillis(2000);
+    var result = expiryTask.normalizeToMillis(2000);
 
     assertThat(result).isEqualTo(2000);
   }
@@ -153,7 +153,7 @@ public class ExpiryTaskTest {
   public void hasExpiredReturnsFalseIfNowBeforeExpireTime() {
     ExpiryTask expiryTask = new TestableExpiryTask(null);
 
-    boolean result = expiryTask.hasExpired(1499, 2000);
+    var result = expiryTask.hasExpired(1499, 2000);
 
     assertThat(result).isFalse();
   }
@@ -162,7 +162,7 @@ public class ExpiryTaskTest {
   public void hasExpiredReturnsTrueIfNowEqualsExpireTime() {
     ExpiryTask expiryTask = new TestableExpiryTask(null);
 
-    boolean result = expiryTask.hasExpired(2000, 2000);
+    var result = expiryTask.hasExpired(2000, 2000);
 
     assertThat(result).isTrue();
   }
@@ -171,7 +171,7 @@ public class ExpiryTaskTest {
   public void hasExpiredReturnsTrueIfNowAfterExpireTime() {
     ExpiryTask expiryTask = new TestableExpiryTask(null);
 
-    boolean result = expiryTask.hasExpired(3000, 2000);
+    var result = expiryTask.hasExpired(3000, 2000);
 
     assertThat(result).isTrue();
   }
@@ -180,7 +180,7 @@ public class ExpiryTaskTest {
   public void hasExpiredReturnsTrueIfNowLessThanHalfSecondOfExpireTime() {
     ExpiryTask expiryTask = new TestableExpiryTask(null);
 
-    boolean result = expiryTask.hasExpired(1500, 2000);
+    var result = expiryTask.hasExpired(1500, 2000);
 
     assertThat(result).isTrue();
   }

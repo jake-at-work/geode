@@ -30,7 +30,6 @@ import org.apache.geode.cache.CacheExistsException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.Position;
 import org.apache.geode.cache.query.internal.index.AbstractIndex.RegionEntryToValuesMap;
@@ -84,7 +83,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
   private final int totalDataSize = 50;
 
   public void setCacheInVMs(VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(this::getAvailableCacheElseCreateCache);
     }
   }
@@ -136,15 +135,15 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
   @Test
   public void testCompactRangeIndex() {
     // Create a Local Region.
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
     vm0.invoke(helper.getCacheSerializableRunnableForReplicatedRegionCreation(regionName));
 
     vm0.invoke(helper.getCacheSerializableRunnableForPRIndexCreate(regionName, indexName,
         indexedExpression, fromClause, alias));
 
-    AsyncInvocation[] asyncInvs = new AsyncInvocation[2];
+    var asyncInvs = new AsyncInvocation[2];
 
     asyncInvs[0] =
         vm0.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName, 0, stepSize));
@@ -152,11 +151,11 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     asyncInvs[1] =
         vm0.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName, 0, stepSize));
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       ThreadUtils.join(inv, 30 * 000);
     }
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       if (inv.exceptionOccurred()) {
         Assert.fail("Random region operation failed on VM_" + inv.getId(), inv.getException());
       }
@@ -169,27 +168,27 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
   @Test
   public void testMultiIndexCreation() {
     // Create a Local Region.
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(1);
     setCacheInVMs(vm0);
     vm0.invoke(helper.getCacheSerializableRunnableForReplicatedRegionCreation(regionName));
 
-    ArrayList<String> names = new ArrayList<>();
+    var names = new ArrayList<String>();
     names.add(indexName);
     names.add(rindexName);
 
-    ArrayList<String> exps = new ArrayList<>();
+    var exps = new ArrayList<String>();
     exps.add(indexedExpression);
     exps.add(rindexedExpression);
 
-    ArrayList<String> fromClauses = new ArrayList<>();
+    var fromClauses = new ArrayList<String>();
     fromClauses.add(fromClause);
     fromClauses.add(rfromClause);
 
     vm0.invoke(
         helper.getCacheSerializableRunnableForDefineIndex(regionName, names, exps, fromClauses));
 
-    AsyncInvocation[] asyncInvs = new AsyncInvocation[2];
+    var asyncInvs = new AsyncInvocation[2];
 
     asyncInvs[0] =
         vm0.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName, 0, stepSize));
@@ -197,11 +196,11 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     asyncInvs[1] =
         vm0.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName, 0, stepSize));
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       ThreadUtils.join(inv, 30 * 000);
     }
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       if (inv.exceptionOccurred()) {
         Assert.fail("Random region operation failed on VM_" + inv.getId(), inv.getException());
       }
@@ -216,10 +215,10 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     return new CacheSerializableRunnable("Index Validate") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = PRQueryDUnitHelper.getCache();
+        var cache = PRQueryDUnitHelper.getCache();
         Region region = cache.getRegion(regionName);
 
-        IndexValidator validator = new IndexValidator();
+        var validator = new IndexValidator();
 
         validator.validate(region);
       }
@@ -228,15 +227,15 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
 
   @Test
   public void testRangeIndex() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
     vm0.invoke(helper.getCacheSerializableRunnableForReplicatedRegionCreation(regionName));
 
     vm0.invoke(helper.getCacheSerializableRunnableForPRIndexCreate(regionName, rindexName,
         rindexedExpression, rfromClause, ralias));
 
-    AsyncInvocation[] asyncInvs = new AsyncInvocation[2];
+    var asyncInvs = new AsyncInvocation[2];
 
     asyncInvs[0] = vm0.invokeAsync(
         helper.getCacheSerializableRunnableForPRRandomOps(regionName, 0, totalDataSize));
@@ -244,10 +243,10 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     asyncInvs[1] = vm0.invokeAsync(
         helper.getCacheSerializableRunnableForPRRandomOps(regionName, 0, totalDataSize));
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       ThreadUtils.join(inv, 30 * 000);
     }
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       if (inv.exceptionOccurred()) {
         Assert.fail("Random region operation failed on VM_" + inv.getId(), inv.getException());
       }
@@ -260,11 +259,11 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
   // Tests on Partition Region
   @Test
   public void testCompactRangeIndexOnPR() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
     vm0.invoke(helper.getCacheSerializableRunnableForPRAccessorCreate(regionName, redundancy,
         Portfolio.class));
@@ -281,8 +280,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     vm0.invoke(helper.getCacheSerializableRunnableForPRIndexCreate(regionName, indexName,
         indexedExpression, fromClause, alias));
 
-
-    AsyncInvocation[] asyncInvs = new AsyncInvocation[12];
+    var asyncInvs = new AsyncInvocation[12];
 
     asyncInvs[0] =
         vm0.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName, 0, stepSize));
@@ -320,11 +318,11 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     asyncInvs[11] = vm3.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName,
         (3 * (stepSize)), totalDataSize));
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       ThreadUtils.join(inv, 60 * 000);
     }
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       if (inv.exceptionOccurred()) {
         Assert.fail("Random region operation failed on VM_" + inv.getId(), inv.getException());
       }
@@ -340,11 +338,11 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
 
   @Test
   public void testRangeIndexOnPR() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
     vm0.invoke(helper.getCacheSerializableRunnableForPRAccessorCreate(regionName, redundancy,
         Portfolio.class));
@@ -361,8 +359,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     vm0.invoke(helper.getCacheSerializableRunnableForPRIndexCreate(regionName, rindexName,
         rindexedExpression, rfromClause, ralias));
 
-
-    AsyncInvocation[] asyncInvs = new AsyncInvocation[12];
+    var asyncInvs = new AsyncInvocation[12];
 
     asyncInvs[0] =
         vm0.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName, 0, stepSize));
@@ -400,10 +397,10 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     asyncInvs[11] = vm3.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName,
         (3 * (stepSize)), totalDataSize));
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       ThreadUtils.join(inv, 60 * 000);
     }
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       if (inv.exceptionOccurred()) {
         Assert.fail("Random region operation failed on VM_" + inv.getId(), inv.getException());
       }
@@ -419,11 +416,11 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
 
   @Test
   public void testMultiIndexOnPR() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
     vm0.invoke(helper.getCacheSerializableRunnableForPRAccessorCreate(regionName, redundancy,
         Portfolio.class));
@@ -437,22 +434,22 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     vm3.invoke(
         helper.getCacheSerializableRunnableForPRCreate(regionName, redundancy, Portfolio.class));
 
-    ArrayList<String> names = new ArrayList<>();
+    var names = new ArrayList<String>();
     names.add(indexName);
     names.add(rindexName);
 
-    ArrayList<String> exps = new ArrayList<>();
+    var exps = new ArrayList<String>();
     exps.add(indexedExpression);
     exps.add(rindexedExpression);
 
-    ArrayList<String> fromClauses = new ArrayList<>();
+    var fromClauses = new ArrayList<String>();
     fromClauses.add(fromClause);
     fromClauses.add(rfromClause);
 
     vm0.invoke(
         helper.getCacheSerializableRunnableForDefineIndex(regionName, names, exps, fromClauses));
 
-    AsyncInvocation[] asyncInvs = new AsyncInvocation[12];
+    var asyncInvs = new AsyncInvocation[12];
 
     asyncInvs[0] =
         vm0.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName, 0, stepSize));
@@ -490,11 +487,11 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
     asyncInvs[11] = vm3.invokeAsync(helper.getCacheSerializableRunnableForPRRandomOps(regionName,
         (3 * (stepSize)), totalDataSize));
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       ThreadUtils.join(inv, 60 * 000);
     }
 
-    for (AsyncInvocation inv : asyncInvs) {
+    for (var inv : asyncInvs) {
       if (inv.exceptionOccurred()) {
         Assert.fail("Random region operation failed on VM_" + inv.getId(), inv.getException());
       }
@@ -529,7 +526,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
       Collection<Index> indexes = ((LocalRegion) region).getIndexManager().getIndexes();
 
       // validate each index one by one
-      for (Index index : indexes) {
+      for (var index : indexes) {
         if (region instanceof PartitionedRegion) {
           validateOnPR((PartitionedRegion) region, (PartitionedIndex) index);
         } else {
@@ -540,10 +537,10 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
 
     private void validate(Region region, Index index) {
       // Get index expression
-      String indexExpr = index.getIndexedExpression();
-      int expectedIndexSize = 0;
-      int expectedNullEntries = 0;
-      int expectedUndefinedEntries = 0;
+      var indexExpr = index.getIndexedExpression();
+      var expectedIndexSize = 0;
+      var expectedNullEntries = 0;
+      var expectedUndefinedEntries = 0;
 
       // Lets check if it contains a '.'
       if (indexExpr.indexOf(".") != -1) {
@@ -552,9 +549,9 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
 
       // do a get<indexExpr>() on each region value and verify if the
       // evaluated index key is part of index and has RE as a reference to it
-      Collection<RegionEntry> entries = ((LocalRegion) region).entries.regionEntries();
-      for (RegionEntry internalEntry : entries) {
-        Object value = internalEntry.getValueInVM((LocalRegion) region);
+      var entries = ((LocalRegion) region).entries.regionEntries();
+      for (var internalEntry : entries) {
+        var value = internalEntry.getValueInVM((LocalRegion) region);
 
         if (value instanceof CachedDeserializable) {
           value = ((CachedDeserializable) value).getDeserializedValue(region, internalEntry);
@@ -609,18 +606,18 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
             // Ignore invalid values.
             if (value != Token.INVALID && value != Token.TOMBSTONE) {
               Collection<Position> positions = ((Portfolio) value).positions.values();
-              for (Position pos : positions) {
+              for (var pos : positions) {
                 if (pos != null) {
                   LogWriterUtils.getLogWriter()
                       .info("Portfolio: " + value + "Position: " + pos);
-                  String secId = pos.secId;
+                  var secId = pos.secId;
                   assertTrue(
                       "Did not find index key for REgionEntry [key: " + internalEntry.getKey()
                           + " , value: " + value + " ] in index: " + index.getName(),
                       ((RangeIndex) index).valueToEntriesMap.containsKey(secId));
 
                   // Get Index value for the evaluated index key.
-                  Object valuesForKey = ((RangeIndex) index).valueToEntriesMap.get(secId);
+                  var valuesForKey = ((RangeIndex) index).valueToEntriesMap.get(secId);
 
                   // Check if RegionEntry is present in Index for the key evaluated from
                   // region value.
@@ -653,7 +650,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
       }
 
       // Validate sizes for index map, null and undefined maps.
-      int actualSize = 0;
+      var actualSize = 0;
       if (index instanceof CompactRangeIndex) {
         CloseableIterator<IndexStoreEntry> iter = null;
         try {
@@ -671,7 +668,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
         }
       }
       if (index instanceof RangeIndex) {
-        for (Object value : ((RangeIndex) index).valueToEntriesMap.values()) {
+        for (var value : ((RangeIndex) index).valueToEntriesMap.values()) {
           if (value instanceof RegionEntry) {
             actualSize++;
           } else {
@@ -683,7 +680,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
         }
       }
 
-      IndexStatistics stats = index.getStatistics();
+      var stats = index.getStatistics();
       if (index instanceof CompactRangeIndex) {
         LogWriterUtils.getLogWriter().info(" Actual Size of Index is: " + actualSize);
         /*
@@ -704,7 +701,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
             .info(" Actual Size of Index is: " + actualSize + " Undefined size is: "
                 + ((RangeIndex) index).undefinedMappedEntries.getNumEntries()
                 + " And NULL size is: " + ((RangeIndex) index).nullMappedEntries.getNumEntries());
-        for (Object obj : ((RangeIndex) index).undefinedMappedEntries.map.keySet()) {
+        for (var obj : ((RangeIndex) index).undefinedMappedEntries.map.keySet()) {
           LogWriterUtils.getLogWriter().info(((RegionEntry) obj).getKey() + "");
         }
         LogWriterUtils.getLogWriter()
@@ -727,29 +724,29 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
 
     private void validateOnPR(PartitionedRegion pr, PartitionedIndex ind) {
       // Get index expression
-      String indexExpr = ind.getIndexedExpression();
-      int expectedIndexSize = 0;
-      int expectedNullEntries = 0;
-      int expectedUndefinedEntries = 0;
+      var indexExpr = ind.getIndexedExpression();
+      var expectedIndexSize = 0;
+      var expectedNullEntries = 0;
+      var expectedUndefinedEntries = 0;
 
       // Lets check if it contains a '.'
       if (indexExpr.indexOf(".") != -1) {
         indexExpr = indexExpr.substring(indexExpr.indexOf(".") + 1);
       }
 
-      int actualValueSize = 0;
-      int actualKeySize = 0;
+      var actualValueSize = 0;
+      var actualKeySize = 0;
 
-      for (Object idx : ind.getBucketIndexes()) {
-        Index index = (Index) idx;
+      for (var idx : ind.getBucketIndexes()) {
+        var index = (Index) idx;
         assertTrue("Bucket stats are different than PR stats for bucket: " + index.getRegion(),
             index.getStatistics() == ind.getStatistics());
         Region region = index.getRegion();
         // do a get<indexExpr>() on each region value and verify if the
         // evaluated index key is part of index and has RE as a reference to it
-        Collection<RegionEntry> entries = ((LocalRegion) region).entries.regionEntries();
-        for (RegionEntry internalEntry : entries) {
-          Object value = internalEntry.getValueInVM((LocalRegion) region);
+        var entries = ((LocalRegion) region).entries.regionEntries();
+        for (var internalEntry : entries) {
+          var value = internalEntry.getValueInVM((LocalRegion) region);
 
           if (value instanceof CachedDeserializable) {
             value = ((CachedDeserializable) value).getDeserializedValue(region, internalEntry);
@@ -803,18 +800,18 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
               // Ignore invalid values.
               if (value != Token.INVALID && value != Token.TOMBSTONE) {
                 Collection<Position> positions = ((Portfolio) value).positions.values();
-                for (Position pos : positions) {
+                for (var pos : positions) {
                   if (pos != null) {
                     LogWriterUtils.getLogWriter()
                         .info("Portfolio: " + value + "Position: " + pos);
-                    String secId = pos.secId;
+                    var secId = pos.secId;
                     assertTrue(
                         "Did not find index key for REgionEntry [key: " + internalEntry.getKey()
                             + " , value: " + value + " ] in index: " + index.getName(),
                         ((RangeIndex) index).valueToEntriesMap.containsKey(secId));
 
                     // Get Index value for the evaluated index key.
-                    Object valuesForKey = ((RangeIndex) index).valueToEntriesMap.get(secId);
+                    var valuesForKey = ((RangeIndex) index).valueToEntriesMap.get(secId);
 
                     // Check if RegionEntry is present in Index for the key evaluated from
                     // region value.
@@ -863,7 +860,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
           }
         }
         if (index instanceof RangeIndex) {
-          for (Object value : ((RangeIndex) index).valueToEntriesMap.values()) {
+          for (var value : ((RangeIndex) index).valueToEntriesMap.values()) {
             if (value instanceof RegionEntry) {
               actualValueSize++;
             } else {
@@ -881,7 +878,7 @@ public class ConcurrentIndexUpdateWithoutWLDUnitTest extends JUnit4DistributedTe
           "No of index entries NOT equals the No of RegionENtries NOT based on stats for index:"
               + ind.getName(),
           expectedIndexSize, actualValueSize);
-      IndexStatistics stats = ind.getStatistics();
+      var stats = ind.getStatistics();
       assertEquals(
           "No of index entries NOT equals the No of RegionENtries based on statistics for index:"
               + ind.getName(),

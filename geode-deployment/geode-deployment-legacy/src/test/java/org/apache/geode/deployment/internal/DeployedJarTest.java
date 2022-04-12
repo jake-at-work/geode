@@ -53,7 +53,7 @@ public class DeployedJarTest {
 
   @Test
   public void throwsIfFileIsEmptyFile() throws Exception {
-    File emptyFile = createEmptyFile("empty.jar");
+    var emptyFile = createEmptyFile("empty.jar");
 
     assertThatThrownBy(() -> new DeployedJar(emptyFile))
         .isInstanceOf(IllegalArgumentException.class);
@@ -78,7 +78,7 @@ public class DeployedJarTest {
 
   void createJarFile(String jarName) throws IOException {
     jarFile = new File(temporaryFolder.getRoot(), jarName);
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJarFromClassNames(jarFile, "ExpectedClass");
   }
 

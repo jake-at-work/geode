@@ -32,18 +32,12 @@ import org.junit.Test;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.cache.server.ClientSubscriptionConfig;
 import org.apache.geode.internal.cache.DiskStoreAttributes;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.AsyncInvocation;
@@ -90,12 +84,12 @@ public class CqDUnitTest implements Serializable {
   @Before
   public void setUp() {
     hostName = getHostName();
-    VM server = getVM(0);
+    var server = getVM(0);
     getVM(0).invoke(() -> cacheRule.createCache());
     testListener = new TestCqListener[VM_COUNT - 1];
 
     clients = new VM[VM_COUNT - 1];
-    for (int i = 0; i < VM_COUNT - 1; i++) {
+    for (var i = 0; i < VM_COUNT - 1; i++) {
       clients[i] = getVM(i + 1);
       clients[i].invoke(() -> clientCacheRule.createClientCache());
       testListener[i] = new TestCqListener();
@@ -103,7 +97,7 @@ public class CqDUnitTest implements Serializable {
 
     serverPort = server.invoke(() -> createSubscriptionServer(cacheRule.getCache()));
 
-    for (VM client : clients) {
+    for (var client : clients) {
       client.invoke(this::createRegionOnClient);
     }
 
@@ -116,30 +110,30 @@ public class CqDUnitTest implements Serializable {
     registerCqs();
 
     AsyncInvocation<?>[] asyncInvocations = new AsyncInvocation[VM_COUNT - 1];
-    for (int i = 0; i < VM_COUNT - 1; i++) {
+    for (var i = 0; i < VM_COUNT - 1; i++) {
       asyncInvocations[i] = clients[i].invokeAsync(this::doPuts);
     }
 
-    for (int i = 0; i < VM_COUNT - 1; i++) {
+    for (var i = 0; i < VM_COUNT - 1; i++) {
       asyncInvocations[i].await();
     }
 
-    for (int i = 0; i < VM_COUNT - 1; i++) {
+    for (var i = 0; i < VM_COUNT - 1; i++) {
       clients[i].invoke(this::verifyCQListenerInvocations);
     }
   }
 
   private void verifyCQListenerInvocations() {
     await().untilAsserted(() -> {
-      QueryService cqService = clientCacheRule.getClientCache().getQueryService();
-      CqListener cqListener = cqService.getCq(cqName).getCqAttributes().getCqListener();
+      var cqService = clientCacheRule.getClientCache().getQueryService();
+      var cqListener = cqService.getCq(cqName).getCqAttributes().getCqListener();
 
       assertThat(totalCQInvocations).isEqualTo(((TestCqListener) cqListener).numEvents.get());
     });
   }
 
   private void registerCqs() {
-    for (int i = 0; i < VM_COUNT - 1; i++) {
+    for (var i = 0; i < VM_COUNT - 1; i++) {
       registerCq(clients[i]);
     }
   }
@@ -148,12 +142,12 @@ public class CqDUnitTest implements Serializable {
     client.invoke(() -> {
       ClientCache clientCache = clientCacheRule.getClientCache();
 
-      QueryService queryService = clientCache.getQueryService();
-      CqAttributesFactory cqaf = new CqAttributesFactory();
+      var queryService = clientCache.getQueryService();
+      var cqaf = new CqAttributesFactory();
 
-      int i = client.getId() - 1;
+      var i = client.getId() - 1;
       cqaf.addCqListener(testListener[i]);
-      CqAttributes cqAttributes = cqaf.create();
+      var cqAttributes = cqaf.create();
 
       queryService.newCq(cqName, "Select * from " + SEPARATOR + REGION_NAME + " where ID > 0",
           cqAttributes)
@@ -163,10 +157,10 @@ public class CqDUnitTest implements Serializable {
 
   private void doPuts() {
     ClientCache clientCache = clientCacheRule.getClientCache();
-    Region<Object, Object> region = clientCache.getRegion(REGION_NAME);
+    var region = clientCache.getRegion(REGION_NAME);
 
 
-    for (int i = totalPut; i > 0; i--) {
+    for (var i = totalPut; i > 0; i--) {
       doPut(region, i);
     }
   }
@@ -188,10 +182,10 @@ public class CqDUnitTest implements Serializable {
   }
 
   private void createRegionOnClient() {
-    Pool pool = PoolManager.createFactory().addServer(hostName, serverPort)
+    var pool = PoolManager.createFactory().addServer(hostName, serverPort)
         .setSubscriptionEnabled(true).create("poolName");
 
-    ClientRegionFactory<Object, Object> crf =
+    var crf =
         clientCacheRule.getClientCache().createClientRegionFactory(ClientRegionShortcut.PROXY);
     crf.setPoolName(pool.getName());
     crf.create(REGION_NAME);
@@ -204,7 +198,7 @@ public class CqDUnitTest implements Serializable {
   }
 
   private void initializeDiskStore(InternalCache cache) throws IOException {
-    DiskStoreAttributes diskStoreAttributes = new DiskStoreAttributes();
+    var diskStoreAttributes = new DiskStoreAttributes();
     diskStoreAttributes.name = "clientQueueDS";
     diskStoreAttributes.diskDirs = new File[] {tempDir.newFolder(testName + "_dir")};
     cache.createDiskStoreFactory(diskStoreAttributes).create("clientQueueDS");
@@ -215,8 +209,8 @@ public class CqDUnitTest implements Serializable {
   }
 
   private int initializeCacheServerWithSubscription(InternalCache cache) throws IOException {
-    CacheServer cacheServer = cache.addCacheServer();
-    ClientSubscriptionConfig clientSubscriptionConfig = cacheServer.getClientSubscriptionConfig();
+    var cacheServer = cache.addCacheServer();
+    var clientSubscriptionConfig = cacheServer.getClientSubscriptionConfig();
     clientSubscriptionConfig.setEvictionPolicy("entry");
     clientSubscriptionConfig.setCapacity(1);
     clientSubscriptionConfig.setDiskStoreName("clientQueueDS");

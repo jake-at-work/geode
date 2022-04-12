@@ -33,18 +33,18 @@ public class WANRollingUpgradeVerifyGatewaySenderProfile extends WANRollingUpgra
   @Test
   // This test verifies that a GatewaySenderProfile serializes properly between versions new to old.
   public void testVerifyGatewaySenderProfile() {
-    final Host host = Host.getHost(0);
-    VM oldLocator = host.getVM(oldVersion, 0);
-    VM oldServer = host.getVM(oldVersion, 1);
-    VM currentServer = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    final var host = Host.getHost(0);
+    var oldLocator = host.getVM(oldVersion, 0);
+    var oldServer = host.getVM(oldVersion, 1);
+    var currentServer = host.getVM(VersionManager.CURRENT_VERSION, 2);
 
     // Start locator
-    final int port = getRandomAvailableTCPPort();
+    final var port = getRandomAvailableTCPPort();
     oldLocator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(port));
-    final String locators = NetworkUtils.getServerHostName(host) + "[" + port + "]";
+    final var locators = NetworkUtils.getServerHostName(host) + "[" + port + "]";
     oldLocator.invoke(() -> startLocator(port, 0, locators, ""));
 
-    IgnoredException ie =
+    var ie =
         IgnoredException.addIgnoredException("could not get remote locator information");
     try {
       // Start old server
@@ -59,7 +59,7 @@ public class WANRollingUpgradeVerifyGatewaySenderProfile extends WANRollingUpgra
                       || InternalLocator.getLocator().isSharedConfigurationRunning())));
 
       // Create GatewaySender in old server
-      String senderId = getName() + "_gatewaysender";
+      var senderId = getName() + "_gatewaysender";
       oldServer.invoke(() -> createGatewaySender(senderId, 10,
           ParallelGatewaySenderQueue.DEFAULT_MESSAGE_SYNC_INTERVAL));
 
@@ -78,20 +78,20 @@ public class WANRollingUpgradeVerifyGatewaySenderProfile extends WANRollingUpgra
   // This test verifies that a GatewaySenderProfile serializes properly between versions old to new.
   public void testOldServerCanUnderstandNewGatewaySenderProfile() {
 
-    VM oldLocator = VM.getVM(oldVersion, 0);
-    VM oldServer = VM.getVM(oldVersion, 1);
-    VM currentServer = VM.getVM(VersionManager.CURRENT_VERSION, 2);
+    var oldLocator = VM.getVM(oldVersion, 0);
+    var oldServer = VM.getVM(oldVersion, 1);
+    var currentServer = VM.getVM(VersionManager.CURRENT_VERSION, 2);
 
     // Start locator
-    final int port = getRandomAvailableTCPPort();
+    final var port = getRandomAvailableTCPPort();
     oldLocator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(port));
-    final String locators = VM.getHostName() + "[" + port + "]";
+    final var locators = VM.getHostName() + "[" + port + "]";
     oldLocator.invoke(() -> startLocator(port, 0, locators, ""));
 
-    IgnoredException ie =
+    var ie =
         IgnoredException.addIgnoredException("could not get remote locator information");
     try {
-      String senderId = getName() + "_gatewaysender";
+      var senderId = getName() + "_gatewaysender";
 
       // Start current server
       currentServer.invoke(() -> createCache(locators));

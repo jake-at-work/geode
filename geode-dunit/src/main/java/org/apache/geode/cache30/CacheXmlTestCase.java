@@ -25,7 +25,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -133,15 +132,15 @@ public class CacheXmlTestCase extends JUnit4CacheTestCase {
   }
 
   protected File copyResourceToDirectory(File directory, String fileName) throws IOException {
-    URL url = getClass().getResource(fileName);
-    File file = new File(directory, fileName);
+    var url = getClass().getResource(fileName);
+    var file = new File(directory, fileName);
     FileUtils.copyURLToFile(url, file);
     return file;
   }
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     if (xmlFile != null) {
       props.setProperty(CACHE_XML_FILE, xmlFile.toString());
     }
@@ -165,32 +164,32 @@ public class CacheXmlTestCase extends JUnit4CacheTestCase {
   }
 
   protected void testXml(CacheCreation creation, boolean checkSame) throws IOException {
-    File root = temporaryFolder.getRoot();
-    File dir = new File(root, "XML_" + getGemFireVersion());
+    var root = temporaryFolder.getRoot();
+    var dir = new File(root, "XML_" + getGemFireVersion());
     dir.mkdirs();
-    File file = new File(dir, getUniqueName() + ".xml");
+    var file = new File(dir, getUniqueName() + ".xml");
 
-    final boolean useSchema = getUseSchema();
-    final String version = getGemFireVersion();
+    final var useSchema = getUseSchema();
+    final var version = getGemFireVersion();
 
-    PrintWriter pw = new PrintWriter(new FileWriter(file), true);
+    var pw = new PrintWriter(new FileWriter(file), true);
     CacheXmlGenerator.generate(creation, pw, useSchema, version);
     pw.close();
 
     setXmlFile(file);
 
-    boolean client = creation instanceof ClientCacheCreation;
+    var client = creation instanceof ClientCacheCreation;
     Cache cache = getCache(client);
 
     try {
       if (checkSame && !creation.sameAs(cache)) {
-        StringWriter sw = new StringWriter();
+        var sw = new StringWriter();
         CacheXmlGenerator.generate(creation, new PrintWriter(sw, true), useSchema, version);
         CacheXmlGenerator.generate(cache, new PrintWriter(sw, true), useSchema, version);
         fail(sw.toString());
       }
     } catch (RuntimeException re) {
-      StringWriter sw = new StringWriter();
+      var sw = new StringWriter();
       CacheXmlGenerator.generate(creation, new PrintWriter(sw, true), useSchema, version);
       CacheXmlGenerator.generate(cache, new PrintWriter(sw, true), useSchema, version);
       fail(sw.toString(), re);

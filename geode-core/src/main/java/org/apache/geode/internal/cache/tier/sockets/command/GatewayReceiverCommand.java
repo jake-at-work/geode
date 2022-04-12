@@ -26,16 +26,13 @@ import org.apache.geode.CancelException;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.RegionDestroyedException;
-import org.apache.geode.cache.operations.DestroyOperationContext;
 import org.apache.geode.cache.operations.PutOperationContext;
 import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.EventIDHolder;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
@@ -48,7 +45,6 @@ import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.BatchException70;
 import org.apache.geode.internal.cache.wan.GatewayReceiverStats;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.util.BlobHelper;
 import org.apache.geode.pdx.PdxRegistryMismatchException;
@@ -71,11 +67,11 @@ public class GatewayReceiverCommand extends BaseCommand {
   }
 
   private void handleRegionNull(ServerConnection servConn, String regionName, int batchId) {
-    InternalCache cache = servConn.getCachedRegionHelper().getCacheForGatewayCommand();
+    var cache = servConn.getCachedRegionHelper().getCacheForGatewayCommand();
     if (cache != null && cache.isCacheAtShutdownAll()) {
       throw cache.getCacheClosedException("Shutdown occurred during message processing");
     }
-    String reason = format("Region %s was not found during batch create request %s",
+    var reason = format("Region %s was not found during batch create request %s",
         regionName, batchId);
     throw new RegionDestroyedException(reason, regionName);
   }
@@ -85,11 +81,11 @@ public class GatewayReceiverCommand extends BaseCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start)
       throws IOException, InterruptedException {
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    GatewayReceiverStats stats = (GatewayReceiverStats) serverConnection.getCacheServerStats();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var stats = (GatewayReceiverStats) serverConnection.getCacheServerStats();
 
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadProcessBatchRequestTime(start - oldStart);
     }
@@ -97,13 +93,13 @@ public class GatewayReceiverCommand extends BaseCommand {
     stats.incBatchSize(clientMessage.getPayloadLength());
 
     // Retrieve the number of events
-    Part numberOfEventsPart = clientMessage.getPart(0);
-    int numberOfEvents = numberOfEventsPart.getInt();
+    var numberOfEventsPart = clientMessage.getPart(0);
+    var numberOfEvents = numberOfEventsPart.getInt();
     stats.incEventsReceived(numberOfEvents);
 
     // Retrieve the batch id
-    Part batchIdPart = clientMessage.getPart(1);
-    int batchId = batchIdPart.getInt();
+    var batchIdPart = clientMessage.getPart(1);
+    var batchId = batchIdPart.getInt();
 
     // If this batch has already been seen, do not reply.
     // Instead, drop the batch and continue.
@@ -144,36 +140,36 @@ public class GatewayReceiverCommand extends BaseCommand {
 
     // Retrieve the events from the message parts. The '2' below
     // represents the number of events (part0) and the batchId (part1)
-    int partNumber = 2;
-    int dsid = clientMessage.getPart(partNumber++).getInt();
+    var partNumber = 2;
+    var dsid = clientMessage.getPart(partNumber++).getInt();
 
-    boolean removeOnException = clientMessage.getPart(partNumber++).getSerializedForm()[0] == 1;
+    var removeOnException = clientMessage.getPart(partNumber++).getSerializedForm()[0] == 1;
 
     // event received in batch also have PDX events at the start of the batch,to
     // represent correct index on which the exception occurred, number of PDX
     // events need to be subtracted.
-    int indexWithoutPDXEvent = -1; //
+    var indexWithoutPDXEvent = -1; //
     Part valuePart = null;
     Throwable fatalException = null;
     List<BatchException70> exceptions = new ArrayList<>();
-    for (int i = 0; i < numberOfEvents; i++) {
+    for (var i = 0; i < numberOfEvents; i++) {
       indexWithoutPDXEvent++;
 
-      Part actionTypePart = clientMessage.getPart(partNumber);
-      int actionType = actionTypePart.getInt();
+      var actionTypePart = clientMessage.getPart(partNumber);
+      var actionType = actionTypePart.getInt();
 
-      boolean callbackArgExists = false;
+      var callbackArgExists = false;
 
       try {
-        boolean isPdxEvent = false;
-        boolean retry = true;
+        var isPdxEvent = false;
+        var retry = true;
         do {
           if (isPdxEvent) {
             // This is a retried event. Reset the PDX event index.
             indexWithoutPDXEvent++;
           }
           isPdxEvent = false;
-          Part possibleDuplicatePart = clientMessage.getPart(partNumber + 1);
+          var possibleDuplicatePart = clientMessage.getPart(partNumber + 1);
           byte[] possibleDuplicatePartBytes;
           try {
             possibleDuplicatePartBytes = (byte[]) possibleDuplicatePart.getObject();
@@ -184,11 +180,11 @@ public class GatewayReceiverCommand extends BaseCommand {
             handleException(removeOnException, stats, e);
             break;
           }
-          boolean possibleDuplicate = possibleDuplicatePartBytes[0] == 0x01;
+          var possibleDuplicate = possibleDuplicatePartBytes[0] == 0x01;
 
           // Retrieve the region name from the message parts
-          Part regionNamePart = clientMessage.getPart(partNumber + 2);
-          String regionName = regionNamePart.getCachedString();
+          var regionNamePart = clientMessage.getPart(partNumber + 2);
+          var regionName = regionNamePart.getCachedString();
           if (regionName.equals(PeerTypeRegistration.REGION_FULL_PATH)) {
             indexWithoutPDXEvent--;
             isPdxEvent = true;
@@ -199,7 +195,7 @@ public class GatewayReceiverCommand extends BaseCommand {
           // duplication of events, but it is unused now. In
           // fact the event id is overridden by the FROM_GATEWAY
           // token.
-          Part eventIdPart = clientMessage.getPart(partNumber + 3);
+          var eventIdPart = clientMessage.getPart(partNumber + 3);
           eventIdPart.setVersion(serverConnection.getClientVersion());
           // String eventId = eventIdPart.getString();
           EventID eventId;
@@ -214,7 +210,7 @@ public class GatewayReceiverCommand extends BaseCommand {
           }
 
           // Retrieve the key from the message parts
-          Part keyPart = clientMessage.getPart(partNumber + 4);
+          var keyPart = clientMessage.getPart(partNumber + 4);
           Object key;
           try {
             key = keyPart.getStringOrObject();
@@ -242,7 +238,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                 index = partNumber + 6;
                 callbackArgExistsPart = clientMessage.getPart(index++);
                 {
-                  byte[] partBytes = (byte[]) callbackArgExistsPart.getObject();
+                  var partBytes = (byte[]) callbackArgExistsPart.getObject();
                   callbackArgExists = partBytes[0] == 0x01;
                 }
                 if (callbackArgExists) {
@@ -274,7 +270,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                   if (regionName == null) {
                     message = "%s: The input region name for the batch create request %s is null";
                   }
-                  String s = format(message, serverConnection.getName(), batchId);
+                  var s = format(message, serverConnection.getName(), batchId);
                   logger.warn(s);
                   throw new Exception(s);
                 }
@@ -284,7 +280,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                 } else {
                   clientEvent = new EventIDHolder(eventId);
                   if (versionTimeStamp > 0) {
-                    VersionTag tag = VersionTag.create(region.getVersionMember());
+                    var tag = VersionTag.create(region.getVersionMember());
                     tag.setIsGatewayTag(true);
                     tag.setVersionTimeStamp(versionTimeStamp);
                     tag.setDistributedSystemId(dsid);
@@ -292,12 +288,12 @@ public class GatewayReceiverCommand extends BaseCommand {
                   }
                   clientEvent.setPossibleDuplicate(possibleDuplicate);
                   handleMessageRetry(region, clientEvent);
-                  byte[] value = valuePart.getSerializedForm();
-                  boolean isObject = valuePart.isObject();
+                  var value = valuePart.getSerializedForm();
+                  var isObject = valuePart.isObject();
                   // This should be done on client while sending since that is the WAN gateway
-                  AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+                  var authzRequest = serverConnection.getAuthzRequest();
                   if (authzRequest != null) {
-                    PutOperationContext putContext =
+                    var putContext =
                         authzRequest.putAuthorize(regionName, key, value, isObject, callbackArg);
                     value = putContext.getSerializedValue();
                     isObject = putContext.isObject();
@@ -347,7 +343,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                 index = partNumber + 6;
                 callbackArgExistsPart = clientMessage.getPart(index++);
                 {
-                  byte[] partBytes = (byte[]) callbackArgExistsPart.getObject();
+                  var partBytes = (byte[]) callbackArgExistsPart.getObject();
                   callbackArgExists = partBytes[0] == 0x01;
                 }
                 if (callbackArgExists) {
@@ -380,7 +376,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                   if (regionName == null) {
                     message = "%s: The input region name for the batch update request %s is null";
                   }
-                  String s = format(message, serverConnection.getName(), batchId);
+                  var s = format(message, serverConnection.getName(), batchId);
                   logger.warn(s);
                   throw new Exception(s);
                 }
@@ -390,7 +386,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                 } else {
                   clientEvent = new EventIDHolder(eventId);
                   if (versionTimeStamp > 0) {
-                    VersionTag tag = VersionTag.create(region.getVersionMember());
+                    var tag = VersionTag.create(region.getVersionMember());
                     tag.setIsGatewayTag(true);
                     tag.setVersionTimeStamp(versionTimeStamp);
                     tag.setDistributedSystemId(dsid);
@@ -398,11 +394,11 @@ public class GatewayReceiverCommand extends BaseCommand {
                   }
                   clientEvent.setPossibleDuplicate(possibleDuplicate);
                   handleMessageRetry(region, clientEvent);
-                  byte[] value = valuePart.getSerializedForm();
-                  boolean isObject = valuePart.isObject();
-                  AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+                  var value = valuePart.getSerializedForm();
+                  var isObject = valuePart.isObject();
+                  var authzRequest = serverConnection.getAuthzRequest();
                   if (authzRequest != null) {
-                    PutOperationContext putContext = authzRequest.putAuthorize(regionName, key,
+                    var putContext = authzRequest.putAuthorize(regionName, key,
                         value, isObject, callbackArg, PutOperationContext.UPDATE);
                     value = putContext.getSerializedValue();
                     isObject = putContext.isObject();
@@ -411,7 +407,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                   if (isPdxEvent) {
                     result = addPdxType(crHelper, key, value);
                   } else {
-                    boolean generateCallbacks =
+                    var generateCallbacks =
                         actionType != GatewaySenderEventImpl.UPDATE_ACTION_NO_GENERATE_CALLBACKS;
                     result = region.basicBridgePut(key, value, null, isObject, callbackArg,
                         serverConnection.getProxyID(), clientEvent, generateCallbacks);
@@ -421,9 +417,9 @@ public class GatewayReceiverCommand extends BaseCommand {
                     stats.incUpdateRequest();
                     retry = false;
                   } else {
-                    final String message =
+                    final var message =
                         "%s: Failed to update entry for region %s, key %s, value %s, and callbackArg %s";
-                    String s = format(message, serverConnection.getName(), regionName,
+                    var s = format(message, serverConnection.getName(), regionName,
                         key, valuePart, callbackArg);
                     logger.info(s);
                     throw new Exception(s);
@@ -444,7 +440,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                 index = partNumber + 5;
                 callbackArgExistsPart = clientMessage.getPart(index++);
                 {
-                  byte[] partBytes = (byte[]) callbackArgExistsPart.getObject();
+                  var partBytes = (byte[]) callbackArgExistsPart.getObject();
                   callbackArgExists = partBytes[0] == 0x01;
                 }
                 if (callbackArgExists) {
@@ -480,7 +476,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                     message =
                         "%s: The input region name for the batch destroy request %s is null";
                   }
-                  String s = format(message, serverConnection.getName(), batchId);
+                  var s = format(message, serverConnection.getName(), batchId);
                   logger.warn(s);
                   throw new Exception(s);
                 }
@@ -490,7 +486,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                 } else {
                   clientEvent = new EventIDHolder(eventId);
                   if (versionTimeStamp > 0) {
-                    VersionTag tag = VersionTag.create(region.getVersionMember());
+                    var tag = VersionTag.create(region.getVersionMember());
                     tag.setIsGatewayTag(true);
                     tag.setVersionTimeStamp(versionTimeStamp);
                     tag.setDistributedSystemId(dsid);
@@ -498,9 +494,9 @@ public class GatewayReceiverCommand extends BaseCommand {
                   }
                   handleMessageRetry(region, clientEvent);
                   // Destroy the entry
-                  AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+                  var authzRequest = serverConnection.getAuthzRequest();
                   if (authzRequest != null) {
-                    DestroyOperationContext destroyContext =
+                    var destroyContext =
                         authzRequest.destroyAuthorize(regionName, key, callbackArg);
                     callbackArg = destroyContext.getCallbackArg();
                   }
@@ -542,7 +538,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                 index = partNumber + 5;
                 callbackArgExistsPart = clientMessage.getPart(index++);
 
-                byte[] partBytes = (byte[]) callbackArgExistsPart.getObject();
+                var partBytes = (byte[]) callbackArgExistsPart.getObject();
                 callbackArgExists = partBytes[0] == 0x01;
 
                 if (callbackArgExists) {
@@ -559,10 +555,10 @@ public class GatewayReceiverCommand extends BaseCommand {
                 }
                 // Process the update time-stamp request
                 if (key == null || regionName == null) {
-                  String message =
+                  var message =
                       "%s: Caught exception processing batch update version request request %s containing %s events";
 
-                  String s = format(message, serverConnection.getName(),
+                  var s = format(message, serverConnection.getName(),
                       batchId, numberOfEvents);
                   logger.warn(s);
                   throw new Exception(s);
@@ -577,7 +573,7 @@ public class GatewayReceiverCommand extends BaseCommand {
                     clientEvent = new EventIDHolder(eventId);
 
                     if (versionTimeStamp > 0) {
-                      VersionTag tag = VersionTag.create(region.getVersionMember());
+                      var tag = VersionTag.create(region.getVersionMember());
                       tag.setIsGatewayTag(true);
                       tag.setVersionTimeStamp(versionTimeStamp);
                       tag.setDistributedSystemId(dsid);
@@ -635,12 +631,12 @@ public class GatewayReceiverCommand extends BaseCommand {
 
         // Increment the batch id unless the received batch id is -1 (a
         // failover batch)
-        DistributedSystem ds = crHelper.getCacheForGatewayCommand().getDistributedSystem();
-        String exceptionMessage = format(
+        var ds = crHelper.getCacheForGatewayCommand().getDistributedSystem();
+        var exceptionMessage = format(
             "Exception occurred while processing a batch on the receiver running on DistributedSystem with Id: %s, DistributedMember on which the receiver is running: %s",
             ((InternalDistributedSystem) ds).getDistributionManager().getDistributedSystemId(),
             ds.getDistributedMember());
-        BatchException70 be =
+        var be =
             new BatchException70(exceptionMessage, e, indexWithoutPDXEvent, batchId);
         exceptions.add(be);
       } finally {
@@ -669,7 +665,7 @@ public class GatewayReceiverCommand extends BaseCommand {
     }
 
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessBatchTime(start - oldStart);
     }
@@ -701,7 +697,7 @@ public class GatewayReceiverCommand extends BaseCommand {
   private boolean addPdxType(CachedRegionHelper crHelper, Object key, Object value)
       throws Exception {
     if (key instanceof EnumId) {
-      EnumId enumId = (EnumId) key;
+      var enumId = (EnumId) key;
       value = BlobHelper.deserializeBlob((byte[]) value);
       crHelper.getCacheForGatewayCommand().getPdxRegistry().addRemoteEnum(enumId.intValue(),
           (EnumInfo) value);
@@ -748,7 +744,7 @@ public class GatewayReceiverCommand extends BaseCommand {
 
   private void writeReply(Message msg, ServerConnection servConn, int batchId, int numberOfEvents)
       throws IOException {
-    Message replyMsg = servConn.getResponseMessage();
+    var replyMsg = servConn.getResponseMessage();
     replyMsg.setMessageType(MessageType.REPLY);
     replyMsg.setTransactionId(msg.getTransactionId());
     replyMsg.setNumberOfParts(2);
@@ -765,7 +761,7 @@ public class GatewayReceiverCommand extends BaseCommand {
 
   private static void writeBatchException(Message origMsg, List<BatchException70> exceptions,
       ServerConnection servConn) throws IOException {
-    Message errorMsg = servConn.getErrorResponseMessage();
+    var errorMsg = servConn.getErrorResponseMessage();
     errorMsg.setMessageType(MessageType.EXCEPTION);
     errorMsg.setNumberOfParts(2);
     errorMsg.setTransactionId(origMsg.getTransactionId());
@@ -783,7 +779,7 @@ public class GatewayReceiverCommand extends BaseCommand {
 
   private static void writeFatalException(Message origMsg, Throwable exception,
       ServerConnection servConn) throws IOException {
-    Message errorMsg = servConn.getErrorResponseMessage();
+    var errorMsg = servConn.getErrorResponseMessage();
     errorMsg.setMessageType(MessageType.EXCEPTION);
     errorMsg.setNumberOfParts(2);
     errorMsg.setTransactionId(origMsg.getTransactionId());

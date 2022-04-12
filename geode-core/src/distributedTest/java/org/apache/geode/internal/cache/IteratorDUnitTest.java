@@ -17,15 +17,12 @@ package org.apache.geode.internal.cache;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Iterator;
-
 import org.junit.Test;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableCallable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
 /**
@@ -41,17 +38,17 @@ public class IteratorDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testKeysIteratorOnLR() throws Exception {
-    final String regionName = getUniqueName();
+    final var regionName = getUniqueName();
     Region r = getGemfireCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
     r.put("key", "value");
     r.put("key2", "value2");
     r.put("key3", "value3");
-    LocalRegion lr = (LocalRegion) r;
+    var lr = (LocalRegion) r;
     // simulate a removed key
     // region.getRegionMap().getEntry("key")._setValue(Token.REMOVED_PHASE1);
     lr.getRegionMap().getEntry("key").setValue(lr, Token.REMOVED_PHASE1);
-    Iterator it = r.keySet().iterator();
-    int numKeys = 0;
+    var it = r.keySet().iterator();
+    var numKeys = 0;
     while (it.hasNext()) {
       it.next();
       numKeys++;
@@ -61,10 +58,10 @@ public class IteratorDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testKeysIteratorOnPR() {
-    Host host = Host.getHost(0);
-    VM accessor = host.getVM(0);
-    VM datastore = host.getVM(1);
-    final String regionName = getUniqueName();
+    var host = Host.getHost(0);
+    var accessor = host.getVM(0);
+    var datastore = host.getVM(1);
+    final var regionName = getUniqueName();
 
     accessor.invoke(new SerializableCallable() {
       @Override
@@ -81,8 +78,8 @@ public class IteratorDUnitTest extends JUnit4CacheTestCase {
         r.put("key", "value");
         r.put("key2", "value2");
         r.put("key3", "value3");
-        PartitionedRegion pr = (PartitionedRegion) r;
-        BucketRegion br = pr.getBucketRegion("key");
+        var pr = (PartitionedRegion) r;
+        var br = pr.getBucketRegion("key");
         assertNotNull(br);
         // simulate a removed key
         br.getRegionMap().getEntry("key").setValue(pr, Token.REMOVED_PHASE1);
@@ -93,8 +90,8 @@ public class IteratorDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r = getGemfireCache().getRegion(regionName);
-        Iterator it = r.keySet().iterator();
-        int numKeys = 0;
+        var it = r.keySet().iterator();
+        var numKeys = 0;
         while (it.hasNext()) {
           it.next();
           numKeys++;

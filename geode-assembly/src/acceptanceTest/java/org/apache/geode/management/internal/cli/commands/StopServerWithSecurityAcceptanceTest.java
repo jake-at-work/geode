@@ -56,7 +56,7 @@ public class StopServerWithSecurityAcceptanceTest {
   public void cannotStopServerAsDataReaderOverHttp() throws Exception {
     startCluster();
 
-    GfshExecution stopServer = dataReaderCannotStopServer(true);
+    var stopServer = dataReaderCannotStopServer(true);
     assertThat(stopServer.getOutputText()).contains("dataReader not authorized for CLUSTER:READ");
   }
 
@@ -71,7 +71,7 @@ public class StopServerWithSecurityAcceptanceTest {
   public void cannotStopServerAsDataReaderOverJmx() throws Exception {
     startCluster();
 
-    GfshExecution stopServer = dataReaderCannotStopServer(false);
+    var stopServer = dataReaderCannotStopServer(false);
     assertThat(stopServer.getOutputText()).contains("dataReader not authorized for CLUSTER:READ");
   }
 
@@ -86,7 +86,7 @@ public class StopServerWithSecurityAcceptanceTest {
   public void cannotStopServerAsClusterReaderOverJmx() throws Exception {
     startCluster();
 
-    GfshExecution stopServer = clusterReaderCannotStopServer(false);
+    var stopServer = clusterReaderCannotStopServer(false);
     assertThat(stopServer.getOutputText())
         .contains("clusterRead not authorized for CLUSTER:MANAGE");
   }
@@ -95,16 +95,16 @@ public class StopServerWithSecurityAcceptanceTest {
   public void cannotStopServerAsClusterReaderOverHttp() throws Exception {
     startCluster();
 
-    GfshExecution stopServer = clusterReaderCannotStopServer(true);
+    var stopServer = clusterReaderCannotStopServer(true);
     assertThat(stopServer.getOutputText())
         .contains("clusterRead not authorized for CLUSTER:MANAGE");
   }
 
   private GfshExecution startCluster() {
-    String startLocator = new CommandStringBuilder("start locator").addOption("name", "locator")
+    var startLocator = new CommandStringBuilder("start locator").addOption("name", "locator")
         .addOption("security-properties-file", securityPropertiesFile.getAbsolutePath()).toString();
 
-    String startServer = new CommandStringBuilder("start server").addOption("name", "server")
+    var startServer = new CommandStringBuilder("start server").addOption("name", "server")
         .addOption("server-port", "0")
         .addOption("security-properties-file", securityPropertiesFile.getAbsolutePath()).toString();
 
@@ -127,7 +127,7 @@ public class StopServerWithSecurityAcceptanceTest {
   }
 
   private String connectCommand(String permission, boolean useHttp) {
-    CommandStringBuilder cmd = new CommandStringBuilder("connect").addOption("user", permission)
+    var cmd = new CommandStringBuilder("connect").addOption("user", permission)
         .addOption("password", permission);
     if (useHttp) {
       cmd.addOption("use-http");

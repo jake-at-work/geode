@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.PoolStatHelper;
 import org.apache.geode.distributed.internal.QueueStatHelper;
@@ -81,7 +80,7 @@ public class ResourceManagerStats {
 
 
   static {
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     type = f.createType("ResourceManagerStats", "Statistics about resource management",
         new StatisticDescriptor[] {
             f.createLongGauge("rebalancesInProgress",
@@ -270,7 +269,7 @@ public class ResourceManagerStats {
   }
 
   public void endRebalance(long start) {
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     stats.incLong(rebalancesInProgressId, -1L);
     stats.incLong(rebalancesCompletedId, 1L);
     stats.incLong(rebalanceTimeId, elapsed);
@@ -282,7 +281,7 @@ public class ResourceManagerStats {
   }
 
   public void endRestoreRedundancy(long start) {
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     stats.incLong(restoreRedundanciesInProgressId, -1L);
     stats.incLong(restoreRedundanciesCompletedId, 1L);
     stats.incLong(restoreRedundancyTimeId, elapsed);

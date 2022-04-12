@@ -136,7 +136,7 @@ public class Order implements PdxSerializable {
       this.items = new ArrayList<>();
     }
 
-    for (Item it : items) {
+    for (var it : items) {
       this.items.add(it);
     }
   }

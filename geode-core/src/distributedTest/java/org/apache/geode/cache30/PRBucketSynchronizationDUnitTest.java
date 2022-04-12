@@ -32,11 +32,9 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.VMCachedDeserializable;
 import org.apache.geode.internal.cache.versions.VMVersionTag;
@@ -64,7 +62,7 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = super.getDistributedSystemProperties();
+    var config = super.getDistributedSystemProperties();
     config.put(ConfigurationProperties.ENABLE_NETWORK_PARTITION_DETECTION, "false");
     return config;
   }
@@ -91,13 +89,13 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
   private void doBucketsSyncOnPrimaryLoss(TestType typeOfTest) {
     IgnoredException.addIgnoredException("killing member's ds");
     IgnoredException.addIgnoredException("killing member's ds");
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
     Set<VM> verifyVMs = new HashSet<>();
 
-    final String name = getUniqueName() + "Region";
+    final var name = getUniqueName() + "Region";
 
     verifyVMs.add(vm0);
     verifyVMs.add(vm1);
@@ -122,9 +120,9 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
 
     // cause one of the VMs to throw away the next operation
     VM creatorVM = null;
-    InternalDistributedMember primaryID = getId(primaryOwner);
-    VersionSource primaryVersionID = getVersionID(primaryOwner);
-    for (VM vm : verifyVMs) {
+    var primaryID = getId(primaryOwner);
+    var primaryVersionID = getVersionID(primaryOwner);
+    for (var vm : verifyVMs) {
       creatorVM = vm;
       createEntry2(creatorVM, primaryID, primaryVersionID);
       break;
@@ -137,7 +135,7 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
     // get back in sync
     DistributedTestUtils.crashDistributedSystem(primaryOwner);
 
-    for (VM vm : verifyVMs) {
+    for (var vm : verifyVMs) {
       verifySynchronized(vm, primaryID);
     }
   }
@@ -150,7 +148,7 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
 
   private boolean isPrimaryForBucket0(VM vm) {
     return vm.invoke("is primary?", () -> {
-      PartitionedRegion pr = (PartitionedRegion) testRegion;
+      var pr = (PartitionedRegion) testRegion;
       return pr.getDataStore().getLocalBucketById(0).getBucketAdvisor().isPrimary();
     });
   }
@@ -171,14 +169,14 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
       final VersionSource primaryVersionID) {
     vm.invoke("create entry2", () -> {
       // create a fake event that looks like it came from the primary and apply it to this cache
-      PartitionedRegion pr = (PartitionedRegion) testRegion;
-      BucketRegion bucket = pr.getDataStore().getLocalBucketById(0);
+      var pr = (PartitionedRegion) testRegion;
+      var bucket = pr.getDataStore().getLocalBucketById(0);
       VersionTag tag = new VMVersionTag();
       tag.setMemberID(primaryVersionID);
       tag.setRegionVersion(2);
       tag.setEntryVersion(1);
       tag.setIsRemoteForTesting();
-      EntryEventImpl event =
+      var event =
           EntryEventImpl.create(bucket, Operation.CREATE, "Object3", true, primary, true, false);
       event.setNewValue(new VMCachedDeserializable("value3", 12));
       event.setVersionTag(tag);
@@ -207,8 +205,8 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
 
   private void verifySynchronized(VM vm, final InternalDistributedMember crashedMember) {
     vm.invoke("check that synchronization happened", () -> {
-      PartitionedRegion pr = (PartitionedRegion) testRegion;
-      final BucketRegion bucket = pr.getDataStore().getLocalBucketById(0);
+      var pr = (PartitionedRegion) testRegion;
+      final var bucket = pr.getDataStore().getLocalBucketById(0);
 
       await().until(() -> {
         if (testRegion.getCache().getDistributionManager().isCurrentMember(crashedMember)) {
@@ -217,7 +215,7 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
         if (!testRegion.containsKey("Object3")) {
           return false;
         }
-        RegionEntry re = bucket.getRegionMap().getEntry("Object5");
+        var re = bucket.getRegionMap().getEntry("Object5");
         if (re == null) {
           return false;
         }
@@ -228,7 +226,7 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
 
   private void createRegion(VM vm, final String regionName, final TestType typeOfTest) {
     vm.invoke(() -> {
-      AttributesFactory af = new AttributesFactory();
+      var af = new AttributesFactory();
       af.setDataPolicy(DataPolicy.PARTITION);
       af.setPartitionAttributes(
           (new PartitionAttributesFactory()).setTotalNumBuckets(2).setRedundantCopies(3).create());

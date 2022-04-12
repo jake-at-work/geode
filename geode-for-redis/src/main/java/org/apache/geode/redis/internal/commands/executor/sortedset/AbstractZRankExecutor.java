@@ -14,20 +14,18 @@
  */
 package org.apache.geode.redis.internal.commands.executor.sortedset;
 
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public abstract class AbstractZRankExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElements = command.getProcessedCommand();
-    RedisKey key = command.getKey();
-    byte[] member = commandElements.get(2);
+    var commandElements = command.getProcessedCommand();
+    var key = command.getKey();
+    var member = commandElements.get(2);
 
     long rank;
     if (isRev()) {

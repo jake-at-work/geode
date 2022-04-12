@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.xmlcache;
 
 import java.io.IOException;
 import java.util.ServiceLoader;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.xml.sax.InputSource;
@@ -47,7 +46,7 @@ public class PivotalEntityResolver extends DefaultEntityResolver2 {
       return null;
     }
 
-    Matcher matcher = SYSTEM_ID_ROOT.matcher(systemId);
+    var matcher = SYSTEM_ID_ROOT.matcher(systemId);
     if (matcher.find()) {
       return getClassPathInputSource(publicId, systemId, matcher.replaceFirst(CLASSPATH_ROOT));
     }

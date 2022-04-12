@@ -18,10 +18,7 @@ package org.apache.geode.management.internal.cli.functions;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.management.internal.cli.domain.IndexDetails;
 
@@ -52,10 +49,10 @@ public class ListIndexFunction implements InternalFunction<Void> {
     try {
       final Set<IndexDetails> indexDetailsSet = new HashSet<>();
 
-      final Cache cache = context.getCache();
-      final DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+      final var cache = context.getCache();
+      final var member = cache.getDistributedSystem().getDistributedMember();
 
-      for (final Index index : cache.getQueryService().getIndexes()) {
+      for (final var index : cache.getQueryService().getIndexes()) {
         indexDetailsSet.add(new IndexDetails(member, index));
       }
 

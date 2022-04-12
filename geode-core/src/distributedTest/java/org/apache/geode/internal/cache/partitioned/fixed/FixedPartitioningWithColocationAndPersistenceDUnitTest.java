@@ -69,7 +69,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EntryOperation;
 import org.apache.geode.cache.FixedPartitionAttributes;
 import org.apache.geode.cache.FixedPartitionResolver;
@@ -79,12 +78,9 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.FixedPartitionAttributesImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalDataSet;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserver;
 import org.apache.geode.test.dunit.AsyncInvocation;
@@ -129,7 +125,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     vm2 = getVM(2);
     vm3 = getVM(3);
 
-    for (VM memberVM : asList(vm0, vm1, vm2, vm3)) {
+    for (var memberVM : asList(vm0, vm1, vm2, vm3)) {
       memberVM.invoke(() -> {
         CACHE.set(DUMMY_CACHE);
         DISK_DIR.set(temporaryFolder.newFolder("diskDir-" + getVMId()).getAbsoluteFile());
@@ -139,7 +135,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
   @After
   public void tearDown() {
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         InternalResourceManager.setResourceObserver(null);
         closeCache();
@@ -163,7 +159,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .totalNumBuckets(8)
           .create(CUSTOMERS_REGION);
 
-      Throwable thrown = catchThrowable(() -> new RegionBuilder<>()
+      var thrown = catchThrowable(() -> new RegionBuilder<>()
           .addFixedPartitionAttributes(createFixedPartition("Order100", true, 2))
           .redundantCopies(0)
           .localMaxMemory(40)
@@ -193,7 +189,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
    */
   @Test
   public void testColocation_FPRs_ChildUsingAttributesOfParent() {
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(this::createCache);
     }
 
@@ -237,7 +233,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
         .partitionResolver(new CustomerFixedPartitionResolver<>())
         .create(CUSTOMERS_REGION));
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(2)
           .localMaxMemory(50)
@@ -247,7 +243,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(ORDERS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(2)
           .localMaxMemory(50)
@@ -257,7 +253,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(SHIPMENTS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         validateFixedPartitionAttributes(ORDERS_REGION);
         validateFixedPartitionAttributes(SHIPMENTS_REGION);
@@ -272,14 +268,14 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       validateColocatedData(10);
     });
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> validatePrimaryBucketsForColocation(15, 5));
     }
   }
 
   @Test
   public void testColocation_FPR_Persistence_ChildUsingAttributesOfParent() {
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(this::createCache);
     }
 
@@ -327,7 +323,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
         .persistent(true)
         .create(CUSTOMERS_REGION));
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(2)
           .localMaxMemory(50)
@@ -337,7 +333,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(ORDERS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(2)
           .localMaxMemory(50)
@@ -347,7 +343,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(SHIPMENTS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         validateFixedPartitionAttributes(ORDERS_REGION);
         validateFixedPartitionAttributes(SHIPMENTS_REGION);
@@ -362,7 +358,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       validateColocatedData(10);
     });
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> validatePrimaryBucketsForColocation(15, 5));
     }
   }
@@ -372,7 +368,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
    */
   @Test
   public void testColocation_FPRs_ChildUsingAttributesOfParent_HA() {
-    for (VM vm : asList(vm0, vm1, vm2)) {
+    for (var vm : asList(vm0, vm1, vm2)) {
       vm.invoke(this::createCache);
     }
 
@@ -407,7 +403,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
         .partitionResolver(new CustomerFixedPartitionResolver<>())
         .create(CUSTOMERS_REGION));
 
-    for (VM vm : asList(vm0, vm1, vm2)) {
+    for (var vm : asList(vm0, vm1, vm2)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(2)
           .localMaxMemory(50)
@@ -417,7 +413,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(ORDERS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1, vm2)) {
+    for (var vm : asList(vm0, vm1, vm2)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(2)
           .localMaxMemory(50)
@@ -427,7 +423,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(SHIPMENTS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1, vm2)) {
+    for (var vm : asList(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         validateFixedPartitionAttributes(ORDERS_REGION);
         validateFixedPartitionAttributes(SHIPMENTS_REGION);
@@ -449,12 +445,12 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
     vm2.invoke(this::closeCache);
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> validatePrimaryBucketsForColocationAfterCacheClosed(15, 5));
     }
 
     vm2.invoke(() -> {
-      RecoveryFinishedObserver observer =
+      var observer =
           new RecoveryFinishedObserver(CUSTOMERS_REGION, ORDERS_REGION, SHIPMENTS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
@@ -491,7 +487,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     vm2.invoke(() -> validatePrimaryBucketsForColocation(15, 5));
 
     vm3.invoke(() -> {
-      RecoveryFinishedObserver observer =
+      var observer =
           new RecoveryFinishedObserver(CUSTOMERS_REGION, ORDERS_REGION, SHIPMENTS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
@@ -525,14 +521,14 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
     vm0.invoke(() -> validateColocatedData(10));
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> validatePrimaryBucketsForColocation(15, 5));
     }
   }
 
   @Test
   public void testColocation_FPR_Persistence_ChildUsingAttributesOfParent_HA() {
-    for (VM vm : asList(vm0, vm1, vm2)) {
+    for (var vm : asList(vm0, vm1, vm2)) {
       vm.invoke(this::createCache);
     }
 
@@ -570,7 +566,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
         .persistent(true)
         .create(CUSTOMERS_REGION));
 
-    for (VM vm : asList(vm0, vm1, vm2)) {
+    for (var vm : asList(vm0, vm1, vm2)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(2)
           .localMaxMemory(50)
@@ -581,7 +577,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(ORDERS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1, vm2)) {
+    for (var vm : asList(vm0, vm1, vm2)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(2)
           .localMaxMemory(50)
@@ -592,7 +588,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(SHIPMENTS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1, vm2)) {
+    for (var vm : asList(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         validateFixedPartitionAttributes(ORDERS_REGION);
         validateFixedPartitionAttributes(SHIPMENTS_REGION);
@@ -613,12 +609,12 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
     vm2.invoke(this::closeCache);
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> validatePrimaryBucketsForColocationAfterCacheClosed(15, 5));
     }
 
     vm2.invoke(() -> {
-      RecoveryFinishedObserver observer =
+      var observer =
           new RecoveryFinishedObserver(CUSTOMERS_REGION, ORDERS_REGION, SHIPMENTS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
@@ -655,7 +651,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     vm2.invoke(() -> validatePrimaryBucketsForColocation(15, 5));
 
     vm3.invoke(() -> {
-      RecoveryFinishedObserver observer =
+      var observer =
           new RecoveryFinishedObserver(CUSTOMERS_REGION, ORDERS_REGION, SHIPMENTS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
@@ -689,7 +685,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
     vm0.invoke(() -> validateColocatedData(10));
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> validatePrimaryBucketsForColocation(15, 5));
     }
   }
@@ -775,7 +771,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     vm2.invoke(() -> validatePrimaryData(Q3));
     vm3.invoke(() -> validatePrimaryData(Q4));
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> validatePrimaryBucketsForQuarters(3, 3));
     }
   }
@@ -819,16 +815,16 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     vm0.invoke(() -> validatePrimaryData(27 * 2, Q1, Q2));
     vm1.invoke(() -> validatePrimaryData(27 * 2, Q2, Q1));
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> validatePrimaryBucketsForQuarters(6, 3));
     }
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
     vm1.invoke(() -> {
-      RecoveryFinishedObserver observer = new RecoveryFinishedObserver(QUARTERS_REGION);
+      var observer = new RecoveryFinishedObserver(QUARTERS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
       createCache();
@@ -854,7 +850,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     });
 
     vm0.invoke(() -> {
-      RecoveryFinishedObserver observer = new RecoveryFinishedObserver(QUARTERS_REGION);
+      var observer = new RecoveryFinishedObserver(QUARTERS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
       createCache();
@@ -874,7 +870,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     vm0.invoke(() -> validatePrimaryData(27 * 2, Q1, Q2));
     vm1.invoke(() -> validatePrimaryData(27 * 2, Q2, Q1));
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> validatePrimaryBucketsForQuarters(6, 3));
     }
 
@@ -888,7 +884,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
    */
   @Test
   public void testColocation_FPR_Persistence_Colocation_OneMemberAlive() {
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(this::createCache);
     }
 
@@ -912,7 +908,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
         .persistent(true)
         .create(CUSTOMERS_REGION));
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(1)
           .localMaxMemory(50)
@@ -922,7 +918,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(ORDERS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(1)
           .localMaxMemory(50)
@@ -932,7 +928,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(SHIPMENTS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> {
         validateFixedPartitionAttributes(ORDERS_REGION);
         validateFixedPartitionAttributes(SHIPMENTS_REGION);
@@ -947,7 +943,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       validateColocatedData(10);
     });
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> validatePrimaryBucketsForColocation(10, 5));
     }
 
@@ -963,7 +959,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     });
 
     vm1.invoke(() -> {
-      RecoveryFinishedObserver observer =
+      var observer =
           new RecoveryFinishedObserver(CUSTOMERS_REGION, ORDERS_REGION, SHIPMENTS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
@@ -995,10 +991,10 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       await().until(observer::isRecoveryFinished);
     });
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> validatePrimaryBucketsForColocation(10, 5));
     }
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> validateColocatedData(10));
     }
   }
@@ -1009,7 +1005,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
    */
   @Test
   public void testColocation_FPR_Persistence_Colocation() {
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(this::createCache);
     }
 
@@ -1033,7 +1029,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
         .persistent(true)
         .create(CUSTOMERS_REGION));
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(1)
           .localMaxMemory(50)
@@ -1043,7 +1039,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(ORDERS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> new RegionBuilder<>()
           .redundantCopies(1)
           .localMaxMemory(50)
@@ -1053,7 +1049,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
           .create(SHIPMENTS_REGION));
     }
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> {
         validateFixedPartitionAttributes(ORDERS_REGION);
         validateFixedPartitionAttributes(SHIPMENTS_REGION);
@@ -1068,16 +1064,16 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       validateColocatedData(10);
     });
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> validatePrimaryBucketsForColocation(10, 5));
     }
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
     vm1.invoke(() -> {
-      RecoveryFinishedObserver observer = new RecoveryFinishedObserver(CUSTOMERS_REGION);
+      var observer = new RecoveryFinishedObserver(CUSTOMERS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
       createCache();
@@ -1130,11 +1126,11 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     vm0.invoke(() -> validatePrimaryWithSecondaryData(Q1, Q2));
     vm1.invoke(() -> validatePrimaryWithSecondaryData(Q3, Q4));
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> validatePrimaryBucketsForQuarters(6, 6));
     }
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
@@ -1239,16 +1235,16 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     vm2.invoke(() -> validatePrimaryWithSecondaryData(Q3, Q4));
     vm3.invoke(() -> validatePrimaryWithSecondaryData(Q4, Q1));
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> validatePrimaryBucketsForQuarters(6, 3));
     }
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(this::closeCache);
     }
 
     AsyncInvocation<Void> createRegionInVM3 = vm3.invokeAsync(() -> {
-      RecoveryFinishedObserver observer = new RecoveryFinishedObserver(QUARTERS_REGION);
+      var observer = new RecoveryFinishedObserver(QUARTERS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
       createCache();
@@ -1266,7 +1262,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     });
 
     AsyncInvocation<Void> createRegionInVM2 = vm2.invokeAsync(() -> {
-      RecoveryFinishedObserver observer = new RecoveryFinishedObserver(QUARTERS_REGION);
+      var observer = new RecoveryFinishedObserver(QUARTERS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
       createCache();
@@ -1284,7 +1280,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     });
 
     AsyncInvocation<Void> createRegionInVM1 = vm1.invokeAsync(() -> {
-      RecoveryFinishedObserver observer = new RecoveryFinishedObserver(QUARTERS_REGION);
+      var observer = new RecoveryFinishedObserver(QUARTERS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
       createCache();
@@ -1302,7 +1298,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     });
 
     AsyncInvocation<Void> createRegionInVM0 = vm0.invokeAsync(() -> {
-      RecoveryFinishedObserver observer = new RecoveryFinishedObserver(QUARTERS_REGION);
+      var observer = new RecoveryFinishedObserver(QUARTERS_REGION);
       InternalResourceManager.setResourceObserver(observer);
 
       createCache();
@@ -1352,7 +1348,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
    */
   @Test
   public void testPR_Persistence() {
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         new RegionBuilder<>()
@@ -1367,7 +1363,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
     vm0.invoke(() -> putQuartersData());
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
@@ -1386,7 +1382,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   }
 
   private Properties getDistributedSystemProperties() {
-    Properties configProperties = DistributedRule.getDistributedSystemProperties();
+    var configProperties = DistributedRule.getDistributedSystemProperties();
     configProperties.setProperty(SERIALIZABLE_OBJECT_FILTER,
         String.join(";", "org.apache.geode.internal.cache.functions.**",
             CustomerId.class.getName(), Customer.class.getName(), OrderId.class.getName(),
@@ -1425,10 +1421,10 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   private void doPutQuartersData(Month... months) throws ParseException {
     Region<Date, String> quarterRegion = getCache().getRegion(QUARTERS_REGION);
 
-    for (Month month : months) {
-      for (int day = 1; day < 10; day++) {
-        Date date = month.date(day);
-        String value = month.toString() + day;
+    for (var month : months) {
+      for (var day = 1; day < 10; day++) {
+        var date = month.date(day);
+        var value = month.toString() + day;
         quarterRegion.put(date, value);
       }
     }
@@ -1441,10 +1437,10 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   private void putCustomersData(int count, Predicate<Integer> predicate) {
     Region<CustomerId, Customer> customerRegion = getCache().getRegion(CUSTOMERS_REGION);
 
-    for (int i = 1; i <= requirePositive(count); i++) {
+    for (var i = 1; i <= requirePositive(count); i++) {
       if (predicate.test(i)) {
-        CustomerId customerId = new CustomerId(i);
-        Customer customer = new Customer("Name-" + i, "Address-" + i);
+        var customerId = new CustomerId(i);
+        var customer = new Customer("Name-" + i, "Address-" + i);
         customerRegion.put(customerId, customer);
       }
     }
@@ -1457,14 +1453,14 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   private void putOrdersData(int count, Predicate<Integer> predicate) {
     Region<OrderId, Order> orderRegion = getCache().getRegion(ORDERS_REGION);
 
-    for (int i = 1; i <= requirePositive(count); i++) {
+    for (var i = 1; i <= requirePositive(count); i++) {
       if (predicate.test(i)) {
-        CustomerId customerId = new CustomerId(i);
+        var customerId = new CustomerId(i);
 
-        for (int j = 1; j <= 10; j++) {
-          int oid = i * 10 + j;
-          OrderId orderId = new OrderId(oid, customerId);
-          Order order = new Order("Order-" + oid);
+        for (var j = 1; j <= 10; j++) {
+          var oid = i * 10 + j;
+          var orderId = new OrderId(oid, customerId);
+          var order = new Order("Order-" + oid);
           orderRegion.put(orderId, order);
         }
       }
@@ -1478,18 +1474,18 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   private void putShipmentsData(int count, Predicate<Integer> predicate) {
     Region<ShipmentId, Shipment> shipmentRegion = getCache().getRegion(SHIPMENTS_REGION);
 
-    for (int i = 1; i <= requirePositive(count); i++) {
+    for (var i = 1; i <= requirePositive(count); i++) {
       if (predicate.test(i)) {
-        CustomerId customerId = new CustomerId(i);
+        var customerId = new CustomerId(i);
 
-        for (int j = 1; j <= 10; j++) {
-          int oid = i * 10 + j;
-          OrderId orderId = new OrderId(oid, customerId);
+        for (var j = 1; j <= 10; j++) {
+          var oid = i * 10 + j;
+          var orderId = new OrderId(oid, customerId);
 
-          for (int k = 1; k <= 10; k++) {
-            int sid = oid * 10 + k;
-            ShipmentId shipmentId = new ShipmentId(sid, orderId);
-            Shipment shipment = new Shipment("Shipment-" + sid);
+          for (var k = 1; k <= 10; k++) {
+            var sid = oid * 10 + k;
+            var shipmentId = new ShipmentId(sid, orderId);
+            var shipment = new Shipment("Shipment-" + sid);
             shipmentRegion.put(shipmentId, shipment);
           }
         }
@@ -1498,8 +1494,8 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   }
 
   private <K, V> Region<K, V> getLocalDataSet(Region<K, V> region) {
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-    PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
+    var partitionedRegion = (PartitionedRegion) region;
+    var dataStore = partitionedRegion.getDataStore();
 
     if (dataStore != null) {
       return uncheckedCast(new LocalDataSet(partitionedRegion, dataStore.getAllLocalBucketIds()));
@@ -1510,10 +1506,10 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   private void validateQuartersData() throws ParseException {
     Region<Date, String> quarterRegion = getCache().getRegion(QUARTERS_REGION);
 
-    for (Month month : Month.values()) {
-      for (int i = 1; i < 10; i++) {
-        Date date = month.date(i);
-        String value = month.toString() + i;
+    for (var month : Month.values()) {
+      for (var i = 1; i < 10; i++) {
+        var date = month.date(i);
+        var value = month.toString() + i;
         assertThat(quarterRegion.get(date)).isEqualTo(value);
       }
     }
@@ -1522,10 +1518,10 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   private void validateQuartersData(Quarter quarter) throws ParseException {
     Region<Date, String> quarterRegion = getCache().getRegion(QUARTERS_REGION);
 
-    for (Month month : quarter.months()) {
-      for (int i = 1; i < 10; i++) {
-        Date date = month.date(i);
-        String value = month.toString() + i;
+    for (var month : quarter.months()) {
+      for (var i = 1; i < 10; i++) {
+        var date = month.date(i);
+        var value = month.toString() + i;
         assertThat(quarterRegion.get(date)).isEqualTo(value);
       }
     }
@@ -1534,9 +1530,9 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   private void validateCustomersData() {
     Region<CustomerId, Customer> customerRegion = getCache().getRegion(CUSTOMERS_REGION);
 
-    for (int id = 1; id <= 20; id++) {
-      CustomerId customerId = new CustomerId(id);
-      Customer customer = new Customer("Name-" + id, "Address-" + id);
+    for (var id = 1; id <= 20; id++) {
+      var customerId = new CustomerId(id);
+      var customer = new Customer("Name-" + id, "Address-" + id);
       assertThat(customerRegion.get(customerId)).isEqualTo(customer);
     }
 
@@ -1545,31 +1541,31 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   }
 
   private void validateColocatedData(int count) {
-    PartitionedRegion customers = (PartitionedRegion) getCache().getRegion(CUSTOMERS_REGION);
-    PartitionedRegion orders = (PartitionedRegion) getCache().getRegion(ORDERS_REGION);
-    PartitionedRegion shipments = (PartitionedRegion) getCache().getRegion(SHIPMENTS_REGION);
+    var customers = (PartitionedRegion) getCache().getRegion(CUSTOMERS_REGION);
+    var orders = (PartitionedRegion) getCache().getRegion(ORDERS_REGION);
+    var shipments = (PartitionedRegion) getCache().getRegion(SHIPMENTS_REGION);
 
-    for (int i = 0; i < requirePositive(count); i++) {
-      InternalDistributedMember idmForCustomer = customers.getBucketPrimary(i);
-      InternalDistributedMember idmForOrder = orders.getBucketPrimary(i);
-      InternalDistributedMember idmForShipment = shipments.getBucketPrimary(i);
+    for (var i = 0; i < requirePositive(count); i++) {
+      var idmForCustomer = customers.getBucketPrimary(i);
+      var idmForOrder = orders.getBucketPrimary(i);
+      var idmForShipment = shipments.getBucketPrimary(i);
 
       // take all the keys from the shipment for each bucket
       Set<CustomerId> customerKey = uncheckedCast(customers.getBucketKeys(i));
       assertThat(customerKey).isNotNull();
 
-      for (CustomerId customerId : customerKey) {
+      for (var customerId : customerKey) {
         assertThat(customers.get(customerId)).isNotNull();
 
         Set<OrderId> orderKey = uncheckedCast(orders.getBucketKeys(i));
-        for (OrderId orderId : orderKey) {
+        for (var orderId : orderKey) {
           assertThat(orders.get(orderId)).isNotNull();
           if (orderId.getCustomerId().equals(customerId)) {
             assertThat(idmForOrder).isEqualTo(idmForCustomer);
           }
 
           Set<ShipmentId> shipmentKey = uncheckedCast(shipments.getBucketKeys(i));
-          for (ShipmentId shipmentId : shipmentKey) {
+          for (var shipmentId : shipmentKey) {
             assertThat(shipments.get(shipmentId)).isNotNull();
             if (shipmentId.getOrderId().equals(orderId)) {
               assertThat(idmForShipment).isEqualTo(idmForOrder);
@@ -1596,8 +1592,8 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   private void doValidatePrimaryData(Map<Date, String> localDataSet, Quarter... expectedQuarters)
       throws ParseException {
     Collection<Quarter> unexpectedQuarters = new ArrayList<>(asList(Quarter.values()));
-    for (Quarter quarter : Quarter.values()) {
-      for (Quarter expectedQuarter : expectedQuarters) {
+    for (var quarter : Quarter.values()) {
+      for (var expectedQuarter : expectedQuarters) {
         if (quarter == expectedQuarter) {
           validateDataContainsQuarter(localDataSet, quarter);
           unexpectedQuarters.remove(quarter);
@@ -1605,7 +1601,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       }
     }
 
-    for (Quarter unexpectedQuarter : unexpectedQuarters) {
+    for (var unexpectedQuarter : unexpectedQuarters) {
       validateDataDoesNotContainQuarter(localDataSet, unexpectedQuarter);
     }
   }
@@ -1618,9 +1614,9 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
   private void validateDataContainsQuarter(Map<Date, String> localDataSet, Quarter quarter)
       throws ParseException {
-    for (Month month : quarter.months()) {
-      for (int day = 1; day < 10; day++) {
-        Date date = month.date(day);
+    for (var month : quarter.months()) {
+      for (var day = 1; day < 10; day++) {
+        var date = month.date(day);
         assertThat(localDataSet.keySet()).contains(date);
       }
     }
@@ -1628,16 +1624,16 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
   private void validateDataDoesNotContainQuarter(Map<Date, String> localDataSet, Quarter quarter)
       throws ParseException {
-    for (Month month : quarter.months()) {
-      for (int day = 1; day < 10; day++) {
-        Date date = month.date(day);
+    for (var month : quarter.months()) {
+      for (var day = 1; day < 10; day++) {
+        var date = month.date(day);
         assertThat(localDataSet.keySet()).doesNotContain(date);
       }
     }
   }
 
   private void validatePrimaryBucketsForQuarters(int bucketCount, int primaryBucketCount) {
-    PartitionedRegionDataStore localDataStore =
+    var localDataStore =
         getPartitionedRegion(QUARTERS_REGION).getDataStore();
 
     assertThat(localDataStore.getSizeLocally())
@@ -1647,18 +1643,18 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   }
 
   private void validatePrimaryBucketsForColocation(int bucketCount, int primaryBucketCount) {
-    PartitionedRegion customerPartitionedRegion =
+    var customerPartitionedRegion =
         (PartitionedRegion) getCache().getRegion(CUSTOMERS_REGION);
-    PartitionedRegion orderPartitionedRegion =
+    var orderPartitionedRegion =
         (PartitionedRegion) getCache().getRegion(ORDERS_REGION);
-    PartitionedRegion shipmentPartitionedRegion =
+    var shipmentPartitionedRegion =
         (PartitionedRegion) getCache().getRegion(SHIPMENTS_REGION);
 
-    Map<Integer, Integer> localBucket2RegionMap_Customer =
+    var localBucket2RegionMap_Customer =
         customerPartitionedRegion.getDataStore().getSizeLocally();
-    Map<Integer, Integer> localBucket2RegionMap_Order =
+    var localBucket2RegionMap_Order =
         orderPartitionedRegion.getDataStore().getSizeLocally();
-    Map<Integer, Integer> localBucket2RegionMap_Shipment =
+    var localBucket2RegionMap_Shipment =
         shipmentPartitionedRegion.getDataStore().getSizeLocally();
 
     assertThat(localBucket2RegionMap_Customer)
@@ -1675,11 +1671,11 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     assertThat(localBucket2RegionMap_Shipment.keySet())
         .isEqualTo(localBucket2RegionMap_Order.keySet());
 
-    List<Integer> primaryBuckets_Customer =
+    var primaryBuckets_Customer =
         customerPartitionedRegion.getDataStore().getLocalPrimaryBucketsListTestOnly();
-    List<Integer> primaryBuckets_Order =
+    var primaryBuckets_Order =
         orderPartitionedRegion.getDataStore().getLocalPrimaryBucketsListTestOnly();
-    List<Integer> primaryBuckets_Shipment =
+    var primaryBuckets_Shipment =
         shipmentPartitionedRegion.getDataStore().getLocalPrimaryBucketsListTestOnly();
 
     assertThat(primaryBuckets_Customer)
@@ -1699,18 +1695,18 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
   private void validatePrimaryBucketsForColocationAfterCacheClosed(int bucketCount,
       int primaryBucketCount) {
-    PartitionedRegion customerPartitionedRegion =
+    var customerPartitionedRegion =
         (PartitionedRegion) getCache().getRegion(CUSTOMERS_REGION);
-    PartitionedRegion orderPartitionedRegion =
+    var orderPartitionedRegion =
         (PartitionedRegion) getCache().getRegion(ORDERS_REGION);
-    PartitionedRegion shipmentPartitionedRegion =
+    var shipmentPartitionedRegion =
         (PartitionedRegion) getCache().getRegion(SHIPMENTS_REGION);
 
-    Map<Integer, Integer> localBucket2RegionMap_Customer =
+    var localBucket2RegionMap_Customer =
         customerPartitionedRegion.getDataStore().getSizeLocally();
-    Map<Integer, Integer> localBucket2RegionMap_Order =
+    var localBucket2RegionMap_Order =
         orderPartitionedRegion.getDataStore().getSizeLocally();
-    Map<Integer, Integer> localBucket2RegionMap_Shipment =
+    var localBucket2RegionMap_Shipment =
         shipmentPartitionedRegion.getDataStore().getSizeLocally();
 
     assertThat(localBucket2RegionMap_Customer)
@@ -1727,11 +1723,11 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     assertThat(localBucket2RegionMap_Shipment.keySet())
         .isEqualTo(localBucket2RegionMap_Order.keySet());
 
-    List<Integer> primaryBuckets_Customer =
+    var primaryBuckets_Customer =
         customerPartitionedRegion.getDataStore().getLocalPrimaryBucketsListTestOnly();
-    List<Integer> primaryBuckets_Order =
+    var primaryBuckets_Order =
         orderPartitionedRegion.getDataStore().getLocalPrimaryBucketsListTestOnly();
-    List<Integer> primaryBuckets_Shipment =
+    var primaryBuckets_Shipment =
         shipmentPartitionedRegion.getDataStore().getLocalPrimaryBucketsListTestOnly();
 
     assertThat(primaryBuckets_Customer.size() % primaryBucketCount)
@@ -1750,13 +1746,13 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
   }
 
   private void validateFixedPartitionAttributes(String regionName) {
-    PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
-    PartitionedRegion colocatedRegion =
+    var partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
+    var colocatedRegion =
         (PartitionedRegion) getCache().getRegion(partitionedRegion.getColocatedWith());
 
-    List<FixedPartitionAttributesImpl> childAttributes =
+    var childAttributes =
         partitionedRegion.getFixedPartitionAttributesImpl();
-    List<FixedPartitionAttributesImpl> parentAttributes =
+    var parentAttributes =
         colocatedRegion.getFixedPartitionAttributesImpl();
 
     assertThat(childAttributes).isEqualTo(parentAttributes);
@@ -1783,7 +1779,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     }
 
     static Quarter find(Month month) {
-      for (Quarter quarter : values()) {
+      for (var quarter : values()) {
         if (quarter.months.contains(month)) {
           return quarter;
         }
@@ -1813,14 +1809,14 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     }
 
     Date date(int day) throws ParseException {
-      String dayString = day > 0 && day < 10 ? "0" + day : String.valueOf(day);
-      String dateString = dayString + "-" + this + "-2010";
-      SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", US);
+      var dayString = day > 0 && day < 10 ? "0" + day : String.valueOf(day);
+      var dateString = dayString + "-" + this + "-2010";
+      var dateFormat = new SimpleDateFormat("dd-MMM-yyyy", US);
       return dateFormat.parse(dateString);
     }
 
     static Month find(int id) {
-      for (Month month : values()) {
+      for (var month : values()) {
         if (month.id == id) {
           return month;
         }
@@ -1877,14 +1873,14 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     }
 
     private void create(String regionName) {
-      PartitionAttributesFactory<K, V> paf = new PartitionAttributesFactory<K, V>()
+      var paf = new PartitionAttributesFactory<K, V>()
           .setRedundantCopies(redundantCopies)
           .setLocalMaxMemory(localMaxMemory)
           .setTotalNumBuckets(totalNumBuckets)
           .setPartitionResolver(partitionResolver)
           .setColocatedWith(colocatedWith);
 
-      for (FixedPartitionAttributes fixedPartitionAttributes : fixedPartitionAttributesList) {
+      for (var fixedPartitionAttributes : fixedPartitionAttributesList) {
         paf.addFixedPartitionAttributes(fixedPartitionAttributes);
       }
 
@@ -1892,7 +1888,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       if (persistent) {
         regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION_PERSISTENT);
 
-        DiskStore diskStore = getCache().findDiskStore(DISK_STORE);
+        var diskStore = getCache().findDiskStore(DISK_STORE);
         if (diskStore == null) {
           diskStore = getCache().createDiskStoreFactory()
               .setDiskDirs(getDiskDirs())
@@ -1915,13 +1911,13 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
     private final Map<String, AtomicBoolean> regionNames = new HashMap<>();
 
     private RecoveryFinishedObserver(String... regionNames) {
-      for (String regionName : regionNames) {
+      for (var regionName : regionNames) {
         this.regionNames.put(requireNonNull(regionName), new AtomicBoolean());
       }
     }
 
     private boolean isRecoveryFinished() {
-      for (Map.Entry<String, AtomicBoolean> entry : regionNames.entrySet()) {
+      for (var entry : regionNames.entrySet()) {
         if (!entry.getValue().get()) {
           return false;
         }
@@ -1946,7 +1942,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
     @Override
     public void recoveryFinished(Region region) {
-      for (Map.Entry<String, AtomicBoolean> entry : regionNames.entrySet()) {
+      for (var entry : regionNames.entrySet()) {
         if (entry.getKey().equals(region.getName())) {
           entry.getValue().set(true);
         }
@@ -1996,7 +1992,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       if (!(o instanceof CustomerId)) {
         return false;
       }
-      CustomerId other = (CustomerId) o;
+      var other = (CustomerId) o;
       return other.id == id;
     }
 
@@ -2029,7 +2025,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       if (!(o instanceof Customer)) {
         return false;
       }
-      Customer other = (Customer) o;
+      var other = (Customer) o;
       return other.name.equals(name) && other.address.equals(address);
     }
 
@@ -2066,7 +2062,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       if (!(o instanceof OrderId)) {
         return false;
       }
-      OrderId other = (OrderId) o;
+      var other = (OrderId) o;
       return other.id == id && other.customerId.equals(customerId);
     }
 
@@ -2097,7 +2093,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       if (!(obj instanceof Order)) {
         return false;
       }
-      Order other = (Order) obj;
+      var other = (Order) obj;
       return other.orderName != null && other.orderName.equals(orderName);
     }
 
@@ -2134,7 +2130,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       if (!(obj instanceof ShipmentId)) {
         return false;
       }
-      ShipmentId other = (ShipmentId) obj;
+      var other = (ShipmentId) obj;
       return orderId.equals(other.orderId) && id == other.id;
     }
 
@@ -2165,7 +2161,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       if (!(obj instanceof Shipment)) {
         return false;
       }
-      Shipment other = (Shipment) obj;
+      var other = (Shipment) obj;
       return other.shipmentName != null && other.shipmentName.equals(shipmentName);
     }
 
@@ -2180,18 +2176,18 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
     @Override
     public String getPartitionName(EntryOperation<K, V> opDetails, Set<String> targetPartitions) {
-      int customerId = -1;
+      var customerId = -1;
 
       if (opDetails.getKey() instanceof ShipmentId) {
-        ShipmentId key = (ShipmentId) opDetails.getKey();
+        var key = (ShipmentId) opDetails.getKey();
         customerId = key.getOrderId().getCustomerId().getId();
 
       } else if (opDetails.getKey() instanceof OrderId) {
-        OrderId key = (OrderId) opDetails.getKey();
+        var key = (OrderId) opDetails.getKey();
         customerId = key.getCustomerId().getId();
 
       } else if (opDetails.getKey() instanceof CustomerId) {
-        CustomerId key = (CustomerId) opDetails.getKey();
+        var key = (CustomerId) opDetails.getKey();
         customerId = key.getId();
       }
 
@@ -2215,15 +2211,15 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       Serializable routingObject = null;
 
       if (opDetails.getKey() instanceof ShipmentId) {
-        ShipmentId key = (ShipmentId) opDetails.getKey();
+        var key = (ShipmentId) opDetails.getKey();
         routingObject = key.getOrderId().getCustomerId();
 
       } else if (opDetails.getKey() instanceof OrderId) {
-        OrderId key = (OrderId) opDetails.getKey();
+        var key = (OrderId) opDetails.getKey();
         routingObject = key.getCustomerId();
 
       } else if (opDetails.getKey() instanceof CustomerId) {
-        CustomerId key = (CustomerId) opDetails.getKey();
+        var key = (CustomerId) opDetails.getKey();
         routingObject = key.getId();
       }
 
@@ -2247,19 +2243,19 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
 
     @Override
     public String getPartitionName(EntryOperation<K, V> opDetails, Set<String> targetPartitions) {
-      Date date = (Date) opDetails.getKey();
-      Calendar calendar = Calendar.getInstance();
+      var date = (Date) opDetails.getKey();
+      var calendar = Calendar.getInstance();
       calendar.setTime(date);
 
-      Month month = Month.find(calendar.get(Calendar.MONTH) + 1);
+      var month = Month.find(calendar.get(Calendar.MONTH) + 1);
 
       return Quarter.find(month).toString();
     }
 
     @Override
     public Serializable getRoutingObject(EntryOperation<K, V> opDetails) {
-      Date date = (Date) opDetails.getKey();
-      Calendar calendar = Calendar.getInstance();
+      var date = (Date) opDetails.getKey();
+      var calendar = Calendar.getInstance();
       calendar.setTime(date);
       return calendar.get(Calendar.MONTH);
     }
@@ -2277,7 +2273,7 @@ public class FixedPartitioningWithColocationAndPersistenceDUnitTest implements S
       if (!(obj instanceof QuarterFixedPartitionResolver)) {
         return false;
       }
-      QuarterFixedPartitionResolver other = (QuarterFixedPartitionResolver) obj;
+      var other = (QuarterFixedPartitionResolver) obj;
       return properties.equals(other.properties);
     }
 

@@ -33,7 +33,7 @@ public class RollbackOp {
    * @param txId the id of the transaction to rollback
    */
   public static void execute(ExecutablePool pool, int txId) {
-    RollbackOpImpl op = new RollbackOpImpl(txId);
+    var op = new RollbackOpImpl(txId);
     pool.execute(op);
   }
 

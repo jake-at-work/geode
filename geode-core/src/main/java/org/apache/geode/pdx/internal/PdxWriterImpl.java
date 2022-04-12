@@ -16,7 +16,6 @@ package org.apache.geode.pdx.internal;
 
 import java.io.DataOutput;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Date;
 
 import org.apache.geode.InternalGemFireException;
@@ -152,7 +151,7 @@ public class PdxWriterImpl implements PdxWriter {
       // PdxInstanceFactoryImpl is using us
       return;
     }
-    PdxUnreadData ud = initUnreadData();
+    var ud = initUnreadData();
     if (ud == null && pdx != null) {
       if (aci != null) {
         existingType = aci.getSerializedType();
@@ -164,7 +163,7 @@ public class PdxWriterImpl implements PdxWriter {
     }
 
     if (existingType != null) {
-      int c = existingType.getVariableLengthFieldCount();
+      var c = existingType.getVariableLengthFieldCount();
       if (c > 0) {
         vlfOffsets = new int[c];
       }
@@ -185,7 +184,7 @@ public class PdxWriterImpl implements PdxWriter {
       // Now is the time to initialize tr.
       tr = GemFireCacheImpl.getForPdx("Could not access Pdx registry").getPdxRegistry();
     }
-    PdxUnreadData ud = unreadData;
+    var ud = unreadData;
     if (ud == null && pdx != null) {
       ud = tr.getUnreadData(pdx);
       unreadData = ud;
@@ -542,7 +541,7 @@ public class PdxWriterImpl implements PdxWriter {
         }
       } else {
         if (doExtraValidation()) {
-          int fieldCount = fieldId + 1;
+          var fieldCount = fieldId + 1;
           if (existingType.getFieldCount() != fieldCount) {
             throw new PdxSerializationException("Expected the number of fields for class "
                 + existingType.getClassName() + " to be " + existingType.getFieldCount()
@@ -554,7 +553,7 @@ public class PdxWriterImpl implements PdxWriter {
 
       // Now write length of the byte stream (does not include bytes for DSCODE and the length
       // itself.)
-      long bits = ((long) getCurrentOffset()) << 32 | (0x00000000FFFFFFFFL & typeId); // fixes 45005
+      var bits = ((long) getCurrentOffset()) << 32 | (0x00000000FFFFFFFFL & typeId); // fixes 45005
       lu.update(bits);
     } // !alreadyGenerated
 
@@ -595,10 +594,10 @@ public class PdxWriterImpl implements PdxWriter {
    * Must be invoked only after {@link PdxSerializable#toData(PdxWriter)}
    */
   private void appendOffsets() {
-    int fieldDataSize = getCurrentOffset();
+    var fieldDataSize = getCurrentOffset();
     // Take the list of offsets and append it in reverse order.
-    byte sizeOfOffset = getSizeOfOffset(vlfCount, fieldDataSize);
-    for (int i = (vlfCount - 1); i >= 0; i--) {
+    var sizeOfOffset = getSizeOfOffset(vlfCount, fieldDataSize);
+    for (var i = (vlfCount - 1); i >= 0; i--) {
       switch (sizeOfOffset) {
         case 1:
           os.write((byte) vlfOffsets[i]);
@@ -659,13 +658,13 @@ public class PdxWriterImpl implements PdxWriter {
    * Make sure we have room to add a VLF offset.
    */
   private void ensureVlfCapacity() {
-    int vlfOffsetsCapacity = 0;
+    var vlfOffsetsCapacity = 0;
     if (vlfOffsets != null) {
       vlfOffsetsCapacity = vlfOffsets.length;
     }
     if (vlfCount == vlfOffsetsCapacity) {
-      int[] tmp = new int[vlfOffsetsCapacity + EXPAND_SIZE];
-      for (int i = 0; i < vlfOffsetsCapacity; i++) {
+      var tmp = new int[vlfOffsetsCapacity + EXPAND_SIZE];
+      for (var i = 0; i < vlfOffsetsCapacity; i++) {
         tmp[i] = vlfOffsets[i];
       }
       vlfOffsets = tmp;
@@ -687,7 +686,7 @@ public class PdxWriterImpl implements PdxWriter {
   public <CT, VT extends CT> PdxWriter writeField(String fieldName, VT fieldValue,
       Class<CT> fieldType, boolean onlyPortableObjects) {
     if (fieldType.equals(boolean.class)) {
-      boolean v = false;
+      var v = false;
       if (fieldValue != null) {
         v = (Boolean) fieldValue;
       }
@@ -711,7 +710,7 @@ public class PdxWriterImpl implements PdxWriter {
       }
       writeShort(fieldName, v);
     } else if (fieldType.equals(int.class)) {
-      int v = 0;
+      var v = 0;
       if (fieldValue != null) {
         v = (Integer) fieldValue;
       }
@@ -723,13 +722,13 @@ public class PdxWriterImpl implements PdxWriter {
       }
       writeLong(fieldName, v);
     } else if (fieldType.equals(float.class)) {
-      float v = 0.0f;
+      var v = 0.0f;
       if (fieldValue != null) {
         v = (Float) fieldValue;
       }
       writeFloat(fieldName, v);
     } else if (fieldType.equals(double.class)) {
-      double v = 0.0;
+      var v = 0.0;
       if (fieldValue != null) {
         v = (Double) fieldValue;
       }
@@ -886,14 +885,14 @@ public class PdxWriterImpl implements PdxWriter {
   @Override
   public PdxWriter markIdentityField(String fieldName) {
     if (definingNewPdxType()) {
-      PdxField ft = newType.getPdxField(fieldName);
+      var ft = newType.getPdxField(fieldName);
       if (ft == null) {
         throw new PdxFieldDoesNotExistException(
             "Field " + fieldName + " must be written before calling markIdentityField");
       }
       ft.setIdentityField(true);
     } else if (doExtraValidation()) {
-      PdxField ft = existingType.getPdxField(fieldName);
+      var ft = existingType.getPdxField(fieldName);
       if (ft == null) {
         throw new PdxFieldDoesNotExistException(
             "Field " + fieldName + " must be written before calling markIdentityField");
@@ -922,10 +921,10 @@ public class PdxWriterImpl implements PdxWriter {
   private void updateMetaData(String fieldName, FieldType type, boolean isIdentityField) {
     beforeFieldWrite();
     if (definingNewPdxType()) {
-      PdxField ft = new PdxField(fieldName, fieldId, vlfCount, type, isIdentityField);
+      var ft = new PdxField(fieldName, fieldId, vlfCount, type, isIdentityField);
       newType.addField(ft);
     } else if (doExtraValidation()) {
-      PdxField ft = existingType.getPdxField(fieldName);
+      var ft = existingType.getPdxField(fieldName);
       if (ft == null) {
         throw new PdxSerializationException("Did not expect field " + fieldName
             + " to be serialized since it was not the first time this class was serialized.");
@@ -946,12 +945,12 @@ public class PdxWriterImpl implements PdxWriter {
   }
 
   PdxInstance makePdxInstance() {
-    final int DSCODE_SIZE = 1;
-    final int LENGTH_SIZE = 4;
-    final int PDX_TYPE_SIZE = 4;
-    final int BYTES_TO_SKIP = DSCODE_SIZE + LENGTH_SIZE + PDX_TYPE_SIZE;
-    ByteBuffer bb = os.toByteBuffer(BYTES_TO_SKIP);
-    PdxType pt = newType;
+    final var DSCODE_SIZE = 1;
+    final var LENGTH_SIZE = 4;
+    final var PDX_TYPE_SIZE = 4;
+    final var BYTES_TO_SKIP = DSCODE_SIZE + LENGTH_SIZE + PDX_TYPE_SIZE;
+    var bb = os.toByteBuffer(BYTES_TO_SKIP);
+    var pt = newType;
     if (pt == null) {
       pt = existingType;
     }

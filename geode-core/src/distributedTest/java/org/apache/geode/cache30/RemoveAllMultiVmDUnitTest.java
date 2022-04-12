@@ -35,13 +35,11 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -57,18 +55,18 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(RemoveAllMultiVmDUnitTest::createCache);
     vm1.invoke(RemoveAllMultiVmDUnitTest::createCache);
   }
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(RemoveAllMultiVmDUnitTest::closeCache);
     vm1.invoke(RemoveAllMultiVmDUnitTest::closeCache);
     cache = null;
@@ -84,9 +82,9 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
     try {
       ds = (new RemoveAllMultiVmDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
 
     } catch (Exception ex) {
@@ -96,10 +94,10 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
 
   public static void createMirroredRegion() {
     try {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDataPolicy(DataPolicy.REPLICATE);
       factory.setScope(Scope.DISTRIBUTED_ACK);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       mirroredRegion = cache.createRegion("mirrored", attr);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -122,19 +120,19 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
 
   @Test
   public void testLocalRemoveAll() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
     vm0.invoke(new CacheSerializableRunnable("testLocalRemoveAll") {
       @Override
       public void run2() throws CacheException {
         int cntr = 0, cntr1 = 0;
-        for (int i = 1; i < 6; i++) {
+        for (var i = 1; i < 6; i++) {
           region.put(i, "testLocalRemoveAll" + i);
           cntr++;
         }
 
-        int size1 = region.size();
+        var size1 = region.size();
         assertEquals(5, size1);
 
         region.removeAll(Collections.EMPTY_SET);
@@ -155,20 +153,20 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
 
   @Test
   public void testLocalTxRemoveAll() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
     vm0.invoke(new CacheSerializableRunnable("testSimpleRemoveAllTx") {
       @Override
       public void run2() throws CacheException {
         cacheTxnMgr = cache.getCacheTransactionManager();
-        int cntr = 0;
-        for (int i = 1; i < 6; i++) {
+        var cntr = 0;
+        for (var i = 1; i < 6; i++) {
           region.put(i, "testLocalTxRemoveAll" + i);
           cntr++;
         }
 
-        int size1 = region.size();
+        var size1 = region.size();
         assertEquals(5, size1);
 
         cacheTxnMgr.begin();
@@ -182,7 +180,7 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
             .removeAll(Arrays.asList(666, 1, 2));
         cacheTxnMgr.commit();
 
-        int size2 = region.size();
+        var size2 = region.size();
 
         assertEquals(size1 - 2, size2);
         assertEquals(true, region.containsKey(3));
@@ -194,9 +192,9 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
 
   @Test
   public void testDistributedRemoveAll() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     vm1.invoke(new CacheSerializableRunnable("create mirrored region") {
       @Override
@@ -210,12 +208,12 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
       public void run2() throws CacheException {
         createMirroredRegion();
         int cntr = 0, cntr1 = 0;
-        for (int i = 1; i < 6; i++) {
+        for (var i = 1; i < 6; i++) {
           mirroredRegion.put(i, "testDistributedRemoveAll" + i);
           cntr++;
         }
 
-        int size1 = mirroredRegion.size();
+        var size1 = mirroredRegion.size();
         assertEquals(5, size1);
 
         mirroredRegion.removeAll(Collections.EMPTY_SET);
@@ -248,9 +246,9 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
 
   @Test
   public void testDistributedTxRemoveAll() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     vm1.invoke(new CacheSerializableRunnable("create mirrored region") {
       @Override
@@ -264,12 +262,12 @@ public class RemoveAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TO
       public void run2() throws CacheException {
         createMirroredRegion();
         int cntr = 0, cntr1 = 0;
-        for (int i = 1; i < 6; i++) {
+        for (var i = 1; i < 6; i++) {
           mirroredRegion.put(i, "testDistributedTxRemoveAll" + i);
           cntr++;
         }
 
-        int size1 = mirroredRegion.size();
+        var size1 = mirroredRegion.size();
         assertEquals(5, size1);
         cacheTxnMgr = cache.getCacheTransactionManager();
 

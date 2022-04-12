@@ -81,7 +81,7 @@ public class PortfolioData implements Declarable, Serializable {
   }
 
   public String toString() {
-    String out =
+    var out =
         "Portfolio [ID=" + ID + " status=" + status + " type=" + type + " pkid=" + pkid + "\n ";
 
     return out + "\n]";
@@ -115,7 +115,7 @@ public class PortfolioData implements Declarable, Serializable {
     if (!(p instanceof PortfolioData)) {
       return false;
     }
-    PortfolioData pd = (PortfolioData) p;
+    var pd = (PortfolioData) p;
     return (ID == pd.ID) && pkid.equals(pd.pkid) && (type.equals(pd.type));
   }
 

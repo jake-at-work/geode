@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.zip.GZIPInputStream;
 
@@ -54,8 +53,8 @@ public class PluckStacks {
    * @param args names of files to scan for suspicious threads in thread-dumps
    */
   public static void main(String[] args) throws Exception {
-    PluckStacks ps = new PluckStacks();
-    for (final String arg : args) {
+    var ps = new PluckStacks();
+    for (final var arg : args) {
       ps.examineLog(new File(arg));
     }
   }
@@ -66,8 +65,8 @@ public class PluckStacks {
 
     try {
       if (log.getName().endsWith(".gz")) {
-        try (FileInputStream fileInputStream = new FileInputStream(log);
-            GZIPInputStream gzipInputStream = new GZIPInputStream(fileInputStream)) {
+        try (var fileInputStream = new FileInputStream(log);
+            var gzipInputStream = new GZIPInputStream(fileInputStream)) {
           reader = new LineNumberReader(new InputStreamReader(gzipInputStream));
         }
       } else {
@@ -78,13 +77,13 @@ public class PluckStacks {
     }
 
     try {
-      TreeMap<String, List<ThreadStack>> dumps = getThreadDumps(reader, log.getName());
+      var dumps = getThreadDumps(reader, log.getName());
 
-      StringBuilder buffer = new StringBuilder();
-      for (Map.Entry<String, List<ThreadStack>> dump : dumps.entrySet()) {
+      var buffer = new StringBuilder();
+      for (var dump : dumps.entrySet()) {
         if (dump.getValue().size() > 0) {
           buffer.append(dump.getKey());
-          for (ThreadStack stack : dump.getValue()) {
+          for (var stack : dump.getValue()) {
             stack.appendToBuffer(buffer);
             buffer.append("\n");
           }
@@ -94,7 +93,7 @@ public class PluckStacks {
           break;
         }
       }
-      String output = buffer.toString();
+      var output = buffer.toString();
       if (output.length() > 0) {
         System.out.println(output);
       }
@@ -105,18 +104,18 @@ public class PluckStacks {
 
   public TreeMap<String, List<ThreadStack>> getThreadDumps(LineNumberReader reader,
       String logFileName) {
-    TreeMap<String, List<ThreadStack>> result = new TreeMap<>();
+    var result = new TreeMap<String, List<ThreadStack>>();
 
     String line = null;
-    int stackNumber = 1;
+    var stackNumber = 1;
     try {
       while ((line = reader.readLine()) != null) {
         if (line.startsWith("Full thread dump")
             || line.startsWith(CliStrings.STACK_TRACE_FOR_MEMBER)) {
-          int lineNumber = reader.getLineNumber();
-          List<ThreadStack> stacks = getStacks(reader);
+          var lineNumber = reader.getLineNumber();
+          var stacks = getStacks(reader);
           if (stacks.size() > 0) {
-            final String buffer = "[Stack #" + stackNumber++
+            final var buffer = "[Stack #" + stackNumber++
                 + " from " + logFileName + " line " + lineNumber + "]\n" + line
                 + "\n";
             result.put(buffer, stacks);
@@ -136,7 +135,7 @@ public class PluckStacks {
   public List<ThreadStack> getStacks(BufferedReader reader) throws IOException {
     List<ThreadStack> result = new LinkedList<>();
     ThreadStack lastStack = null;
-    ArrayList breadcrumbs = new ArrayList(4);
+    var breadcrumbs = new ArrayList(4);
     do {
       String line = null;
       // find the start of the stack
@@ -160,7 +159,7 @@ public class PluckStacks {
         }
       } while (true);
       // cache the first two lines and examine the third to see if it starts with a tab and "at "
-      String firstLine = line;
+      var firstLine = line;
       String secondLine = null;
       breadcrumbs.clear();
       do {
@@ -204,8 +203,8 @@ public class PluckStacks {
 
   /* see if this thread is at an expected pause point */
   boolean isExpectedStack(ThreadStack thread) {
-    String threadName = thread.getThreadName();
-    int stackSize = thread.size();
+    var threadName = thread.getThreadName();
+    var stackSize = thread.size();
 
     // keep all hydra threads
     if (threadName.startsWith("vm_")) {
@@ -461,11 +460,11 @@ public class PluckStacks {
     if (thread.isRunnable()) {
       return false;
     }
-    int size = thread.size();
+    var size = thread.size();
     if (size > 8 && thread.get(7).contains("DMStats.take")) {
       return true;
     }
-    for (int i = 3; i < 12; i++) {
+    for (var i = 3; i < 12; i++) {
       if (size > i && thread.get(size - i).contains("getTask")) {
         return true;
       }
@@ -520,7 +519,7 @@ public class PluckStacks {
     }
 
     boolean contains(String subString) {
-      for (int i = lines.size() - 1; i >= 0; i--) {
+      for (var i = lines.size() - 1; i >= 0; i--) {
         if (lines.get(i).contains(subString)) {
           return true;
         }
@@ -537,8 +536,8 @@ public class PluckStacks {
     }
 
     String getThreadName() {
-      String firstLine = lines.get(0);
-      int quote = firstLine.indexOf('"', 1);
+      var firstLine = lines.get(0);
+      var quote = firstLine.indexOf('"', 1);
       if (quote > 1) {
         return firstLine.substring(1, quote);
       }
@@ -551,12 +550,12 @@ public class PluckStacks {
 
     @Override
     public String toString() {
-      StringWriter sw = new StringWriter();
-      boolean first = true;
-      for (String line : lines) {
+      var sw = new StringWriter();
+      var first = true;
+      for (var line : lines) {
         sw.append(line).append("\n");
         if (first && breadcrumbs != null) {
-          for (String bline : breadcrumbs) {
+          for (var bline : breadcrumbs) {
             sw.append(bline).append("\n");
           }
         }
@@ -571,14 +570,14 @@ public class PluckStacks {
             + lines.size());
         w.append("\n");
       }
-      boolean first = true;
-      for (String line : lines) {
+      var first = true;
+      for (var line : lines) {
         w.append(line);
         w.append("\n");
         if (first) {
           first = false;
           if (breadcrumbs != null) {
-            for (String bline : breadcrumbs) {
+            for (var bline : breadcrumbs) {
               w.append(bline).append("\n");
             }
           }
@@ -591,11 +590,11 @@ public class PluckStacks {
         buffer.append("stack.name='" + getThreadName() + "' runnable=" + runnable + " lines="
             + lines.size()).append("\n");
       }
-      boolean first = true;
-      for (String line : lines) {
+      var first = true;
+      for (var line : lines) {
         buffer.append(line).append("\n");
         if (first && breadcrumbs != null) {
-          for (String bline : breadcrumbs) {
+          for (var bline : breadcrumbs) {
             buffer.append(bline).append("\n");
           }
         }

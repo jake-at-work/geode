@@ -39,8 +39,8 @@ public class PRPersistentConfig {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((colocatedWith == null) ? 0 : colocatedWith.hashCode());
     result = prime * result + totalNumBuckets;
     return result;
@@ -57,7 +57,7 @@ public class PRPersistentConfig {
     if (!(obj instanceof PRPersistentConfig)) {
       return false;
     }
-    PRPersistentConfig other = (PRPersistentConfig) obj;
+    var other = (PRPersistentConfig) obj;
     if (colocatedWith == null) {
       if (other.colocatedWith != null) {
         return false;

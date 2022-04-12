@@ -41,12 +41,12 @@ public class RedisListTest {
 
   @Test
   public void confirmSerializationIsStable() throws IOException, ClassNotFoundException {
-    RedisList list1 = createRedisList(1, 2);
-    int expirationTimestamp = 1000;
+    var list1 = createRedisList(1, 2);
+    var expirationTimestamp = 1000;
     list1.setExpirationTimestampNoDelta(expirationTimestamp);
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     DataSerializer.writeObject(list1, out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
+    var in = new ByteArrayDataInput(out.toByteArray());
     RedisList list2 = DataSerializer.readObject(in);
     assertThat(list2.getExpirationTimestamp())
         .isEqualTo(list1.getExpirationTimestamp())
@@ -63,44 +63,44 @@ public class RedisListTest {
 
   @Test
   public void hashcode_returnsSameValue_forEqualLists() {
-    RedisList list1 = createRedisList(1, 2);
-    RedisList list2 = createRedisList(1, 2);
+    var list1 = createRedisList(1, 2);
+    var list2 = createRedisList(1, 2);
     assertThat(list1).isEqualTo(list2);
     assertThat(list1.hashCode()).isEqualTo(list2.hashCode());
   }
 
   @Test
   public void hashcode_returnsDifferentValue_forDifferentLists() {
-    RedisList list1 = createRedisList(1, 2);
-    RedisList list2 = createRedisList(2, 1);
+    var list1 = createRedisList(1, 2);
+    var list2 = createRedisList(2, 1);
     assertThat(list1).isNotEqualTo(list2);
     assertThat(list1.hashCode()).isNotEqualTo(list2.hashCode());
   }
 
   @Test
   public void equals_returnsFalse_givenDifferentExpirationTimes() {
-    RedisList list1 = createRedisList(1, 2);
+    var list1 = createRedisList(1, 2);
     list1.setExpirationTimestampNoDelta(1000);
-    RedisList list2 = createRedisList(1, 2);
+    var list2 = createRedisList(1, 2);
     list2.setExpirationTimestampNoDelta(999);
     assertThat(list1).isNotEqualTo(list2);
   }
 
   @Test
   public void equals_returnsFalse_givenDifferentValueBytes() {
-    RedisList list1 = createRedisList(1, 2);
+    var list1 = createRedisList(1, 2);
     list1.setExpirationTimestampNoDelta(1000);
-    RedisList list2 = createRedisList(1, 3);
+    var list2 = createRedisList(1, 3);
     list2.setExpirationTimestampNoDelta(1000);
     assertThat(list1).isNotEqualTo(list2);
   }
 
   @Test
   public void equals_returnsTrue_givenEqualValueBytesAndExpiration() {
-    RedisList list1 = createRedisList(1, 2);
-    int expirationTimestamp = 1000;
+    var list1 = createRedisList(1, 2);
+    var expirationTimestamp = 1000;
     list1.setExpirationTimestampNoDelta(expirationTimestamp);
-    RedisList list2 = createRedisList(1, 2);
+    var list2 = createRedisList(1, 2);
     list2.setExpirationTimestampNoDelta(expirationTimestamp);
     assertThat(list1).isEqualTo(list2);
     assertThat(list2.getExpirationTimestamp())
@@ -110,7 +110,7 @@ public class RedisListTest {
 
   @Test
   public void equals_returnsTrue_givenDifferentEmptyLists() {
-    RedisList list1 = new RedisList();
+    var list1 = new RedisList();
     RedisList list2 = NULL_REDIS_LIST;
     assertThat(list1).isEqualTo(list2);
     assertThat(list2).isEqualTo(list1);
@@ -121,8 +121,8 @@ public class RedisListTest {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
     when(region.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
-    byte[] element = new byte[] {1};
-    RedisList list = createRedisListWithDuplicateElements();
+    var element = new byte[] {1};
+    var list = createRedisListWithDuplicateElements();
 
     list.lrem(2, element, region, null);
 
@@ -133,21 +133,21 @@ public class RedisListTest {
   @Test
   public void versionDoesNotUpdateWhenReferenceElementNotFound() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisList list = createRedisList(1, 2);
+    var list = createRedisList(1, 2);
 
-    byte originalVersion = list.getVersion();
+    var originalVersion = list.getVersion();
     list.linsert(new byte[] {(byte) 3}, new byte[] {(byte) 0}, true, region, null);
 
     assertThat(list.getVersion()).isEqualTo(originalVersion);
   }
 
   private Object validateDeltaSerialization(InvocationOnMock invocation) throws IOException {
-    RedisList value = invocation.getArgument(1, RedisList.class);
+    var value = invocation.getArgument(1, RedisList.class);
     assertThat(value.hasDelta()).isTrue();
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     value.toDelta(out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
-    RedisList list2 = createRedisListWithDuplicateElements();
+    var in = new ByteArrayDataInput(out.toByteArray());
+    var list2 = createRedisListWithDuplicateElements();
     assertThat(list2).isNotEqualTo(value);
     list2.fromDelta(in);
     assertThat(list2).isEqualTo(value);
@@ -156,7 +156,7 @@ public class RedisListTest {
 
 
   private RedisList createRedisListWithDuplicateElements() {
-    RedisList newList = new RedisList();
+    var newList = new RedisList();
     newList.elementPushHead(new byte[] {1});
     newList.elementPushHead(new byte[] {2});
     newList.elementPushHead(new byte[] {1});
@@ -166,7 +166,7 @@ public class RedisListTest {
   }
 
   private RedisList createRedisList(int e1, int e2) {
-    RedisList newList = new RedisList();
+    var newList = new RedisList();
     newList.elementPushHead(new byte[] {(byte) e1});
     newList.elementPushHead(new byte[] {(byte) e2});
     return newList;

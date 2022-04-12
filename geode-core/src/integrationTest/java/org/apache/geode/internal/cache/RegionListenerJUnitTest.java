@@ -43,14 +43,14 @@ public class RegionListenerJUnitTest {
 
   @Test
   public void test() {
-    final AtomicBoolean afterCreateInvoked = new AtomicBoolean();
-    final AtomicBoolean beforeDestroyedInvoked = new AtomicBoolean();
-    RegionListener listener = new RegionListener() {
+    final var afterCreateInvoked = new AtomicBoolean();
+    final var beforeDestroyedInvoked = new AtomicBoolean();
+    var listener = new RegionListener() {
 
       @Override
       public RegionAttributes beforeCreate(Region parent, String regionName, RegionAttributes attrs,
           InternalRegionArguments internalRegionArgs) {
-        AttributesFactory newAttrsFactory = new AttributesFactory(attrs);
+        var newAttrsFactory = new AttributesFactory(attrs);
         newAttrsFactory.setDataPolicy(DataPolicy.EMPTY);
         return newAttrsFactory.create();
       }

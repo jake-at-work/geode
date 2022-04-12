@@ -16,7 +16,6 @@ package org.apache.geode.pdx.internal;
 
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.tcp.ByteBufferInputStream.ByteSource;
 import org.apache.geode.pdx.PdxFieldAlreadyExistsException;
 import org.apache.geode.pdx.PdxUnreadFields;
 
@@ -42,12 +41,12 @@ public class PdxUnreadData implements PdxUnreadFields {
 
   public void initialize(UnreadPdxType unreadType, PdxReaderImpl reader) {
     this.unreadType = unreadType;
-    int[] indexes = unreadType.getUnreadFieldIndexes();
+    var indexes = unreadType.getUnreadFieldIndexes();
     unreadData = new byte[indexes.length][];
-    int i = 0;
-    for (int idx : indexes) {
+    var i = 0;
+    for (var idx : indexes) {
 
-      ByteSource field = reader.getRaw(idx);
+      var field = reader.getRaw(idx);
 
       // Copy the unread data into a new byte array
       unreadData[i] = new byte[field.capacity()];
@@ -79,12 +78,12 @@ public class PdxUnreadData implements PdxUnreadFields {
     if (isEmpty()) {
       return;
     }
-    int[] indexes = unreadType.getUnreadFieldIndexes();
-    int i = 0;
+    var indexes = unreadType.getUnreadFieldIndexes();
+    var i = 0;
     while (i < unreadData.length) {
-      int idx = indexes[i];
-      byte[] data = unreadData[i];
-      PdxField ft = unreadType.getPdxFieldByIndex(idx);
+      var idx = indexes[i];
+      var data = unreadData[i];
+      var ft = unreadType.getPdxFieldByIndex(idx);
       try {
         writer.writeRawField(ft, data);
       } catch (PdxFieldAlreadyExistsException ex) {
@@ -108,8 +107,8 @@ public class PdxUnreadData implements PdxUnreadFields {
     if (cache == null) {
       return;
     }
-    TypeRegistry tr = cache.getPdxRegistry();
-    PdxUnreadData ud = tr.getUnreadData(o);
+    var tr = cache.getPdxRegistry();
+    var ud = tr.getUnreadData(o);
     if (ud != null && !ud.isEmpty()) {
       tr.putUnreadData(copy, ud);
     }

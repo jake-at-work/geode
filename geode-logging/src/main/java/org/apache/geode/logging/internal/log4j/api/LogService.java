@@ -35,7 +35,7 @@ public class LogService {
    * @return The Logger for the calling class.
    */
   public static Logger getLogger() {
-    String name = StackLocator.getInstance().getCallerClass(2).getName();
+    var name = StackLocator.getInstance().getCallerClass(2).getName();
     return getLogger(name);
   }
 

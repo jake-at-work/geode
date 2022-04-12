@@ -29,17 +29,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.AdditionalAnswers;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
@@ -84,7 +81,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
    */
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     vm2 = host.getVM(2);
@@ -114,7 +111,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
    * create cache
    */
   private InternalCache createCache() throws CacheException {
-    Properties props = new Properties();
+    var props = new Properties();
     DistributedSystem ds = getSystem(props);
     ds.disconnect();
     ds = getSystem(props);
@@ -203,18 +200,18 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
   @Ignore("TODO: this test was disabled")
   @Test
   public void testBugNo35988() throws Exception {
-    CacheSerializableRunnable createQueue =
+    var createQueue =
         new CacheSerializableRunnable("CreateCache, HARegionQueue and start thread") {
           @Override
           public void run2() throws CacheException {
-            HARegionQueueDUnitTest test = new HARegionQueueDUnitTest();
+            var test = new HARegionQueueDUnitTest();
             // TODO:ASIF: Bcoz of the QRM thread cannot take frequency below
             // 1 second , thus we need to carfully evaluate what to do. Though
             // in this case 1 second instead of 500 ms will work
             // System.getProperties().put("QueueRemovalThreadWaitTime", new Long(500));
             cache = test.createCache();
             cache.setMessageSyncInterval(1);
-            HARegionQueueAttributes hrqa = new HARegionQueueAttributes();
+            var hrqa = new HARegionQueueAttributes();
             hrqa.setExpiryTime(300);
             try {
               hrq = HARegionQueue.getHARegionQueueInstance("testregion1", cache, hrqa,
@@ -234,7 +231,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
       @Override
       public void run2() throws CacheException {
         try {
-          Conflatable obj = (Conflatable) hrq.take();
+          var obj = (Conflatable) hrq.take();
           assertNotNull(obj);
         } catch (Exception e) {
           throw new AssertionError(e);
@@ -245,7 +242,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
     vm1.invoke(new CacheSerializableRunnable("checkInVm1") {
       @Override
       public void run2() throws CacheException {
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
           @Override
           public boolean done() {
             Thread.yield(); // TODO is this necessary?
@@ -267,15 +264,15 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
    * create a client with 2 regions sharing a common writer
    */
   private static void createRegion() throws Exception {
-    HARegionQueueDUnitTest test = new HARegionQueueDUnitTest();
+    var test = new HARegionQueueDUnitTest();
     cache = test.createCache();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
     // Mock the HARegionQueue and answer the input CachedDeserializable when updateHAEventWrapper is
     // called
-    HARegionQueue harq = mock(HARegionQueue.class);
+    var harq = mock(HARegionQueue.class);
     when(harq.updateHAEventWrapper(any(), any(), any()))
         .thenAnswer(AdditionalAnswers.returnsSecondArg());
 
@@ -284,7 +281,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static void createRegionQueue() throws Exception {
-    HARegionQueueDUnitTest test = new HARegionQueueDUnitTest();
+    var test = new HARegionQueueDUnitTest();
     cache = test.createCache();
     /*
      * AttributesFactory factory = new AttributesFactory(); factory.setScope(Scope.DISTRIBUTED_ACK);
@@ -292,24 +289,24 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
      */
     hrq = HARegionQueue.getHARegionQueueInstance("HARegionQueueDUnitTest_region", cache,
         HARegionQueue.NON_BLOCKING_HA_QUEUE, false, disabledClock());
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
-    EventID id2 = new EventID(new byte[] {1}, 1, 2);
-    ConflatableObject c1 =
+    var id1 = new EventID(new byte[] {1}, 1, 1);
+    var id2 = new EventID(new byte[] {1}, 1, 2);
+    var c1 =
         new ConflatableObject("1", "1", id1, false, "HARegionQueueDUnitTest_region");
-    ConflatableObject c2 =
+    var c2 =
         new ConflatableObject("2", "2", id2, false, "HARegionQueueDUnitTest_region");
     hrq.put(c1);
     hrq.put(c2);
   }
 
   private static void createRegionQueue2() throws Exception {
-    HARegionQueueDUnitTest test = new HARegionQueueDUnitTest();
+    var test = new HARegionQueueDUnitTest();
     cache = test.createCache();
     /*
      * AttributesFactory factory = new AttributesFactory(); factory.setScope(Scope.DISTRIBUTED_ACK);
      * factory.setDataPolicy(DataPolicy.REPLICATE);
      */
-    HARegionQueueAttributes harqAttr = new HARegionQueueAttributes();
+    var harqAttr = new HARegionQueueAttributes();
     harqAttr.setExpiryTime(3);
     hrq = HARegionQueue.getHARegionQueueInstance("HARegionQueueDUnitTest_region", cache, harqAttr,
         HARegionQueue.NON_BLOCKING_HA_QUEUE, false, disabledClock());
@@ -317,7 +314,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
 
   private static void clearRegion() {
     try {
-      for (final Object o : hrq.getRegion().keys()) {
+      for (final var o : hrq.getRegion().keys()) {
         hrq.getRegion().localDestroy(o);
       }
     } catch (Exception e) {
@@ -336,7 +333,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
     try {
       final Region region = hrq.getRegion();
       // wait until we have a dead server
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           Thread.yield(); // TODO is this necessary?
@@ -389,7 +386,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
   private static void putConflatables() {
     try {
       Region r1 = hrq.getRegion();
-      for (int i = 1; i < 11; i++) {
+      for (var i = 1; i < 11; i++) {
         r1.put((long) i, new ConflatableObject("key" + i, "value" + i,
             new EventID(new byte[] {1}, 1, i), true, "HARegionQueueDUnitTest_region"));
       }
@@ -403,39 +400,39 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
    */
   private static void verifyMapsAndData() {
     try {
-      HARegion r1 = hrq.getRegion();
+      var r1 = hrq.getRegion();
       // region should not be null
       assertNotNull(" Did not expect the HARegion to be null but it is", r1);
       // it should have ten non null entries
-      for (int i = 1; i < 11; i++) {
+      for (var i = 1; i < 11; i++) {
         assertNotNull(" Did not expect the entry to be null but it is", r1.get((long) i));
       }
       // HARegionQueue should not be null
       assertNotNull(" Did not expect the HARegionQueue to be null but it is", hrq);
 
-      Map conflationMap = hrq.getConflationMapForTesting();
+      var conflationMap = hrq.getConflationMapForTesting();
       // conflationMap size should be greater than 0
       assertTrue(" Did not expect the conflationMap size to be 0 but it is",
           conflationMap.size() > 0);
-      Map internalMap = (Map) conflationMap.get("HARegionQueueDUnitTest_region");
+      var internalMap = (Map) conflationMap.get("HARegionQueueDUnitTest_region");
       // internal map should not be null. it should be present
       assertNotNull(" Did not expect the internalMap to be null but it is", internalMap);
       // get and verify the entries in the conflation map.
-      for (int i = 1; i < 11; i++) {
+      for (var i = 1; i < 11; i++) {
         assertTrue(" Did not expect the entry not to be equal but it is",
             internalMap.get("key" + i).equals((long) i));
       }
-      Map eventMap = hrq.getEventsMapForTesting();
+      var eventMap = hrq.getEventsMapForTesting();
       // DACE should not be null
       assertNotNull(" Did not expect the result (DACE object) to be null but it is",
           eventMap.get(new ThreadIdentifier(new byte[] {1}, 1)));
-      Set counterSet = hrq.getCurrentCounterSet(new EventID(new byte[] {1}, 1, 1));
+      var counterSet = hrq.getCurrentCounterSet(new EventID(new byte[] {1}, 1, 1));
       assertTrue(" excpected the counter set size to be 10 but it is not so",
           counterSet.size() == 10);
       long i = 1;
       // verify the order of the iteration. it should be 1 - 10. The underlying
       // set is a LinkedHashSet
-      for (final Object o : counterSet) {
+      for (final var o : counterSet) {
         assertTrue((Long) o == i);
         i++;
       }
@@ -447,7 +444,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
       // be null and empty
       Thread.sleep(7500);
 
-      for (int j = 1; j < 11; j++) {
+      for (var j = 1; j < 11; j++) {
         assertNull("expected the entry to be null since expiry time exceeded but it is not so",
             r1.get((long) j));
       }
@@ -574,17 +571,17 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
       final Scope rscope) {
     // Create Cache and HARegionQueue in all the 4 VMs.
 
-    CacheSerializableRunnable createRgnsAndQueues = new CacheSerializableRunnable(
+    var createRgnsAndQueues = new CacheSerializableRunnable(
         "CreateCache, mirrored Region & HARegionQueue with a CacheListener") {
       @Override
       public void run2() throws CacheException {
-        HARegionQueueDUnitTest test = new HARegionQueueDUnitTest();
+        var test = new HARegionQueueDUnitTest();
         System.getProperties().put("QueueRemovalThreadWaitTime", "2000");
         cache = test.createCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(rscope);
         factory.setDataPolicy(DataPolicy.REPLICATE);
-        HARegionQueueAttributes hrqa = new HARegionQueueAttributes();
+        var hrqa = new HARegionQueueAttributes();
         hrqa.setExpiryTime(5);
         try {
           if (createBlockingQueue) {
@@ -637,28 +634,28 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
     vm1.invoke(createRgnsAndQueues);
     vm2.invoke(createRgnsAndQueues);
     vm3.invoke(createRgnsAndQueues);
-    CacheSerializableRunnable spawnThreadsAndperformOps =
+    var spawnThreadsAndperformOps =
         new CacheSerializableRunnable("Spawn multiple threads which do various operations") {
 
           @Override
           public void run2() throws CacheException {
             opThreads = new RunOp[4 + 2 + 2 + 2];
-            for (int i = 0; i < 4; ++i) {
+            for (var i = 0; i < 4; ++i) {
               opThreads[i] = new RunOp(RunOp.PUT, i);
             }
-            for (int i = 4; i < 6; ++i) {
+            for (var i = 4; i < 6; ++i) {
               opThreads[i] = new RunOp(RunOp.PEEK, i);
             }
 
-            for (int i = 6; i < 8; ++i) {
+            for (var i = 6; i < 8; ++i) {
               opThreads[i] = new RunOp(RunOp.TAKE, i);
             }
 
-            for (int i = 8; i < 10; ++i) {
+            for (var i = 8; i < 10; ++i) {
               opThreads[i] = new RunOp(RunOp.TAKE, i);
             }
 
-            for (final Thread opThread : opThreads) {
+            for (final var opThread : opThreads) {
               opThread.start();
             }
 
@@ -670,15 +667,14 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
     vm2.invokeAsync(spawnThreadsAndperformOps);
     vm3.invokeAsync(spawnThreadsAndperformOps);
 
-
-    SerializableCallable guaranteeOperationsOccured =
+    var guaranteeOperationsOccured =
         new SerializableCallable("Check Ops Occurred") {
           @Override
           public Object call() throws CacheException {
             if (opThreads == null) {
               return false;
             }
-            for (final Thread opThread : opThreads) {
+            for (final var opThread : opThreads) {
               if (((RunOp) opThread).getNumOpsPerformed() == 0) {
                 return false;
               }
@@ -699,14 +695,14 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
     // In case of blocking HARegionQueue do some extra puts so that the
     // blocking threads
     // are exited
-    CacheSerializableRunnable toggleFlag =
+    var toggleFlag =
         new CacheSerializableRunnable("Toggle the flag to signal end of threads") {
           @Override
           public void run2() throws CacheException {
             toCnt = false;
             if (createBlockingQueue) {
               try {
-                for (int i = 0; i < 100; ++i) {
+                for (var i = 0; i < 100; ++i) {
                   hrq.put(new ConflatableObject("1", "1", new EventID(new byte[] {1}, 100, i),
                       false, SEPARATOR + "x"));
                 }
@@ -723,11 +719,11 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
     vm2.invokeAsync(toggleFlag);
     vm3.invokeAsync(toggleFlag);
 
-    CacheSerializableRunnable joinWithThreads =
+    var joinWithThreads =
         new CacheSerializableRunnable("Join with the threads") {
           @Override
           public void run2() throws CacheException {
-            for (final Thread opThread : opThreads) {
+            for (final var opThread : opThreads) {
 
               if (opThread.isInterrupted()) {
                 fail("Test failed because  thread encountered exception");
@@ -753,15 +749,15 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testNPEDueToHARegionQueueEscapeInConstructor() {
     // changing EXPIRY_TIME to 5 doesn't change how long the test runs!
-    final int EXPIRY_TIME = 30; // test will run for this many seconds
+    final var EXPIRY_TIME = 30; // test will run for this many seconds
     // Create two HARegionQueue 's in the two VMs. The frequency of QRM thread
     // should be high
     // Check for NullPointeException in the other VM.
-    CacheSerializableRunnable createQueuesAndThread =
+    var createQueuesAndThread =
         new CacheSerializableRunnable("CreateCache, HARegionQueue and start thread") {
           @Override
           public void run2() throws CacheException {
-            HARegionQueueDUnitTest test = new HARegionQueueDUnitTest();
+            var test = new HARegionQueueDUnitTest();
             // TODO:ASIF: Bcoz of the QRM thread cannot take frequency below
             // 1 second , thus we need to carfully evaluate what to do.
             // For this bug to appear ,without bugfix , qrm needs to run
@@ -769,24 +765,24 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
             // System.getProperties().put("QueueRemovalThreadWaitTime", new Long(10));
             cache = test.createCache();
             cache.setMessageSyncInterval(1);
-            HARegionQueueAttributes hrqa = new HARegionQueueAttributes();
+            var hrqa = new HARegionQueueAttributes();
             hrqa.setExpiryTime(EXPIRY_TIME);
             try {
               hrq = HARegionQueue.getHARegionQueueInstance(
                   "testNPEDueToHARegionQueueEscapeInConstructor", cache, hrqa,
                   HARegionQueue.NON_BLOCKING_HA_QUEUE, false, disabledClock());
               // changing OP_COUNT to 20 makes no difference in test time
-              final int OP_COUNT = 200;
+              final var OP_COUNT = 200;
               // Do 1000 putand 100 take in a separate thread
-              for (int i = 0; i < OP_COUNT; ++i) {
+              for (var i = 0; i < OP_COUNT; ++i) {
                 hrq.put(new ConflatableObject((long) i, (long) i,
                     new EventID(new byte[] {0}, 1, i), false, "dummy"));
               }
               opThreads = new Thread[1];
               opThreads[0] = new Thread(() -> {
-                for (int i = 0; i < OP_COUNT; ++i) {
+                for (var i = 0; i < OP_COUNT; ++i) {
                   try {
-                    Object o = hrq.take();
+                    var o = hrq.take();
                     if (o == null) {
                       Thread.sleep(50);
                     }
@@ -803,17 +799,17 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
           }
         };
 
-    CacheSerializableRunnable createQueues =
+    var createQueues =
         new CacheSerializableRunnable("CreateCache, HARegionQueue ") {
           @Override
           public void run2() throws CacheException {
             createQueuesThread = Thread.currentThread();
-            HARegionQueueDUnitTest test = new HARegionQueueDUnitTest();
+            var test = new HARegionQueueDUnitTest();
             // System.getProperties().put("QueueRemovalThreadWaitTime",
             // new Long(120000));
             cache = test.createCache();
             cache.setMessageSyncInterval(EXPIRY_TIME);
-            HARegionQueueAttributes hrqa = new HARegionQueueAttributes();
+            var hrqa = new HARegionQueueAttributes();
             hrqa.setExpiryTime(EXPIRY_TIME);
             try {
               hrq = HARegionQueue.getHARegionQueueInstance(
@@ -825,11 +821,11 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
           }
         };
 
-    CacheSerializableRunnable waitForCreateQueuesThread =
+    var waitForCreateQueuesThread =
         new CacheSerializableRunnable("joinCreateCache") {
           @Override
           public void run2() {
-            WaitCriterion ev = new WaitCriterion() {
+            var ev = new WaitCriterion() {
               @Override
               public boolean done() {
                 return createQueuesThread != null;
@@ -848,7 +844,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
     vm0.invoke(createQueuesAndThread);
     vm1.invokeAsync(createQueues);
 
-    CacheSerializableRunnable joinWithThread =
+    var joinWithThread =
         new CacheSerializableRunnable("CreateCache, HARegionQueue join with thread") {
           @Override
           public void run2() throws CacheException {
@@ -887,8 +883,8 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
     @Override
     public void run() {
       Region rgn = cache.getRegion("test_region");
-      int counter = 0;
-      LogWriter logger = cache.getLogger();
+      var counter = 0;
+      var logger = cache.getLogger();
       Conflatable cnf;
       try {
         while (toCnt) {
@@ -919,7 +915,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
               hrq.remove();
               break;
             case BATCH_PEEK:
-              List confList = hrq.peek(3, 2000);
+              var confList = hrq.peek(3, 2000);
               if (logger.fineEnabled() && confList != null) {
                 logger.fine("Object retrieved  by  batch peek are =" + confList);
               }
@@ -945,15 +941,15 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
    * object.
    */
   private static void createHARegionQueueandCheckExpiration() throws Exception {
-    HARegionQueueDUnitTest test = new HARegionQueueDUnitTest();
+    var test = new HARegionQueueDUnitTest();
     cache = test.createCache();
-    HARegionQueueAttributes attrs = new HARegionQueueAttributes();
+    var attrs = new HARegionQueueAttributes();
     attrs.setExpiryTime(1);
     hrq = getHARegionQueueInstance("HARegionQueueDUnitTest_region", cache, attrs,
         NON_BLOCKING_HA_QUEUE, false, disabledClock());
     // wait until we have a dead
     // server
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return hrq.getAvailableIds().size() == 0;
@@ -978,7 +974,7 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
    * HARegionQueue should not allow data with duplicate EventIds.
    */
   private static void createRegionQueueandCheckDuplicates() throws Exception {
-    HARegionQueueDUnitTest test = new HARegionQueueDUnitTest();
+    var test = new HARegionQueueDUnitTest();
     cache = test.createCache();
 
     hrq = HARegionQueue.getHARegionQueueInstance("HARegionQueueDUnitTest_region", cache,
@@ -986,11 +982,11 @@ public class HARegionQueueDUnitTest extends JUnit4DistributedTestCase {
 
     assertEquals(2, hrq.size());
 
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
-    EventID id2 = new EventID(new byte[] {1}, 1, 2);
-    ConflatableObject c1 =
+    var id1 = new EventID(new byte[] {1}, 1, 1);
+    var id2 = new EventID(new byte[] {1}, 1, 2);
+    var c1 =
         new ConflatableObject("1", "1", id1, false, "HARegionQueueDUnitTest_region");
-    ConflatableObject c2 =
+    var c2 =
         new ConflatableObject("2", "2", id2, false, "HARegionQueueDUnitTest_region");
 
     hrq.put(c1);

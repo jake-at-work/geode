@@ -41,7 +41,6 @@ import org.apache.geode.internal.deployment.DeploymentServiceFactory;
 import org.apache.geode.internal.deployment.JarDeploymentService;
 import org.apache.geode.internal.util.CollectionUtils;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.configuration.Deployment;
 import org.apache.geode.management.internal.utils.JarFileUtils;
 
 /**
@@ -100,7 +99,7 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
    */
   public URL getResource(final Class<?> contextClass, final String name) {
     if (contextClass != null) {
-      URL url = contextClass.getResource(name);
+      var url = contextClass.getResource(name);
       if (url != null) {
         return url;
       }
@@ -118,7 +117,7 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
    *         found
    */
   public InputStream getResourceAsStream(final String name) {
-    URL url = getResource(name);
+    var url = getResource(name);
     try {
       return url != null ? url.openStream() : null;
     } catch (IOException e) {
@@ -138,7 +137,7 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
    */
   public InputStream getResourceAsStream(final Class<?> contextClass, final String name) {
     if (contextClass != null) {
-      InputStream is = contextClass.getResourceAsStream(name);
+      var is = contextClass.getResourceAsStream(name);
       if (is != null) {
         return is;
       }
@@ -147,10 +146,10 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
   }
 
   public Enumeration<URL> getResources(final String name) throws IOException {
-    final LinkedHashSet<URL> urls = new LinkedHashSet<>();
+    final var urls = new LinkedHashSet<URL>();
 
-    for (ClassLoader classLoader : getClassLoaders()) {
-      Enumeration<URL> resources = classLoader.getResources(name);
+    for (var classLoader : getClassLoaders()) {
+      var resources = classLoader.getResources(name);
       if (resources != null && resources.hasMoreElements()) {
         CollectionUtils.addAll(urls, resources);
       }
@@ -160,17 +159,17 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
   }
 
   public URL getResource(final String name) {
-    final boolean isTraceEnabled = logger.isTraceEnabled();
+    final var isTraceEnabled = logger.isTraceEnabled();
     if (isTraceEnabled) {
       logger.trace("getResource({})", name);
     }
 
-    for (ClassLoader classLoader : getClassLoaders()) {
+    for (var classLoader : getClassLoaders()) {
       if (isTraceEnabled) {
         logger.trace("getResource trying: {}", classLoader);
       }
       try {
-        URL url = classLoader.getResource(name);
+        var url = classLoader.getResource(name);
 
         if (url != null) {
           if (isTraceEnabled) {
@@ -187,12 +186,12 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
   }
 
   public Class<?> forName(final String name) throws ClassNotFoundException {
-    final boolean isTraceEnabled = logger.isTraceEnabled();
+    final var isTraceEnabled = logger.isTraceEnabled();
     if (isTraceEnabled) {
       logger.trace("forName({})", name);
     }
 
-    Class<?> clazz = forName(name, isTraceEnabled);
+    var clazz = forName(name, isTraceEnabled);
     if (clazz != null) {
       return clazz;
     }
@@ -201,7 +200,7 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
   }
 
   private Class<?> forName(String name, boolean isTraceEnabled) {
-    for (ClassLoader classLoader : getClassLoaders()) {
+    for (var classLoader : getClassLoaders()) {
       if (isTraceEnabled) {
         logger.trace("forName trying: {}", classLoader);
       }
@@ -212,7 +211,7 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
             return null;
           }
         }
-        Class<?> clazz = Class.forName(name, true, classLoader);
+        var clazz = Class.forName(name, true, classLoader);
         if (isTraceEnabled) {
           logger.trace("forName found by: {}", classLoader);
         }
@@ -230,7 +229,7 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
   public Class<?> getProxyClass(final Class<?>... classObjs) {
     IllegalArgumentException ex = null;
 
-    for (ClassLoader classLoader : getClassLoaders()) {
+    for (var classLoader : getClassLoaders()) {
       try {
         return Proxy.getProxyClass(classLoader, classObjs);
       } catch (SecurityException sex) {
@@ -249,8 +248,8 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
 
   private synchronized void rebuildClassLoaderForDeployedJars() {
     leafLoader = null;
-    List<Deployment> deployments = jarDeploymentService.listDeployed();
-    for (Deployment deployment : deployments) {
+    var deployments = jarDeploymentService.listDeployed();
+    for (var deployment : deployments) {
       chainClassloader(deployment.getFile());
     }
   }
@@ -263,10 +262,10 @@ public class LegacyClasspathServiceImpl implements ClasspathService {
   }
 
   private List<ClassLoader> getClassLoaders() {
-    ArrayList<ClassLoader> classLoaders = new ArrayList<>();
+    var classLoaders = new ArrayList<ClassLoader>();
 
     if (!excludeTCCL) {
-      ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+      var tccl = Thread.currentThread().getContextClassLoader();
       if (tccl != null) {
         classLoaders.add(tccl);
       }

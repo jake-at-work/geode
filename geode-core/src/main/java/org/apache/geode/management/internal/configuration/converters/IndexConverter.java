@@ -39,12 +39,12 @@ public class IndexConverter extends ConfigurationConverter<Index, RegionConfig.I
 
   @Override
   protected Index fromNonNullXmlObject(RegionConfig.Index regionConfigIndex) {
-    Index index = new Index();
+    var index = new Index();
     index.setName(regionConfigIndex.getName());
     index.setExpression(regionConfigIndex.getExpression());
     index.setRegionPath(regionConfigIndex.getFromClause());
 
-    Boolean keyIndex = regionConfigIndex.isKeyIndex();
+    var keyIndex = regionConfigIndex.isKeyIndex();
     if (keyIndex != null && keyIndex) {
       index.setIndexType(IndexType.KEY);
     } else if (HASH.equalsIgnoreCase(regionConfigIndex.getType())) {
@@ -60,7 +60,7 @@ public class IndexConverter extends ConfigurationConverter<Index, RegionConfig.I
 
   @Override
   protected RegionConfig.Index fromNonNullConfigObject(Index index) {
-    RegionConfig.Index regionConfigIndex = new RegionConfig.Index();
+    var regionConfigIndex = new RegionConfig.Index();
     regionConfigIndex.setName(index.getName());
     regionConfigIndex.setFromClause(index.getRegionPath());
     regionConfigIndex.setExpression(index.getExpression());

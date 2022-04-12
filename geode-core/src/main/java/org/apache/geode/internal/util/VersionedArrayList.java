@@ -98,8 +98,8 @@ public class VersionedArrayList implements DataSerializable, Versionable, Iterab
    * @param obj the object to remove from the list
    */
   public synchronized boolean remove(Node obj) {
-    ArrayList<Node> newList = new ArrayList<>(list);
-    boolean ret = newList.remove(obj);
+    var newList = new ArrayList<Node>(list);
+    var ret = newList.remove(obj);
     if (ret) {
       list = Collections.unmodifiableList(newList);
       // incrementVersion("r->" + obj);
@@ -190,9 +190,9 @@ public class VersionedArrayList implements DataSerializable, Versionable, Iterab
       l = list;
       // vh = this.vhist;
     }
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("ArrayList version = " + getVersion() + " Elements = { ");
-    for (Node node : l) {
+    for (var node : l) {
       sb.append(node.toString() + ", ");
     }
     // sb.append("vhist:\n " + vh);
@@ -213,9 +213,9 @@ public class VersionedArrayList implements DataSerializable, Versionable, Iterab
     }
 
     out.writeLong(v);
-    final int s = l.size();
+    final var s = l.size();
     out.writeInt(s);
-    for (Node node : l) {
+    for (var node : l) {
       InternalDataSerializer.invokeToData(node, out);
     }
 
@@ -229,10 +229,10 @@ public class VersionedArrayList implements DataSerializable, Versionable, Iterab
 
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-    final ArrayList<Node> l = new ArrayList<>();
-    final long v = in.readLong();
-    final int size = in.readInt();
-    for (int k = 0; k < size; k++) {
+    final var l = new ArrayList<Node>();
+    final var v = in.readLong();
+    final var size = in.readInt();
+    for (var k = 0; k < size; k++) {
       l.add(new Node(in));
     }
 
@@ -268,7 +268,7 @@ public class VersionedArrayList implements DataSerializable, Versionable, Iterab
         return version > v;
       }
     } else {
-      final Comparable o = other.getVersion();
+      final var o = other.getVersion();
       return getVersion().compareTo(o) > 0;
     }
   }
@@ -284,7 +284,7 @@ public class VersionedArrayList implements DataSerializable, Versionable, Iterab
         return version < v;
       }
     } else {
-      final Comparable o = other.getVersion();
+      final var o = other.getVersion();
       return getVersion().compareTo(o) < 0;
     }
   }
@@ -300,7 +300,7 @@ public class VersionedArrayList implements DataSerializable, Versionable, Iterab
         return version == v;
       }
     } else {
-      final Comparable o = other.getVersion();
+      final var o = other.getVersion();
       return getVersion().compareTo(o) == 0;
     }
   }

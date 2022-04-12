@@ -17,7 +17,6 @@ package org.apache.geode.cache.lucene.internal.cli.commands;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -30,7 +29,6 @@ import org.apache.geode.cache.lucene.internal.cli.LuceneFunctionSerializable;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexInfo;
 import org.apache.geode.cache.lucene.internal.cli.functions.LuceneCreateIndexFunction;
 import org.apache.geode.cache.lucene.internal.security.LucenePermission;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.CliMetaData;
@@ -38,8 +36,6 @@ import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.cli.remote.CommandExecutor;
 import org.apache.geode.management.internal.cli.result.CommandResultException;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
-import org.apache.geode.management.internal.configuration.domain.XmlEntity;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -78,21 +74,21 @@ public class LuceneCreateIndexCommand extends LuceneCommandBase {
     // Every lucene index potentially writes to disk.
     authorize(Resource.CLUSTER, Operation.MANAGE, LucenePermission.TARGET);
 
-    final InternalCache cache = (InternalCache) getCache();
+    final var cache = (InternalCache) getCache();
 
     // trim fields for any leading trailing spaces.
-    String[] trimmedFields = Arrays.stream(fields).map(String::trim).toArray(String[]::new);
-    LuceneIndexInfo indexInfo =
+    var trimmedFields = Arrays.stream(fields).map(String::trim).toArray(String[]::new);
+    var indexInfo =
         new LuceneIndexInfo(indexName, regionPath, trimmedFields, analyzers, serializer);
 
-    final ResultCollector<?, ?> rc =
+    final var rc =
         executeFunctionOnAllMembers(createIndexFunction, indexInfo);
-    final List<CliFunctionResult> funcResults = (List<CliFunctionResult>) rc.getResult();
-    final XmlEntity xmlEntity = funcResults.stream().filter(CliFunctionResult::isSuccessful)
+    final var funcResults = (List<CliFunctionResult>) rc.getResult();
+    final var xmlEntity = funcResults.stream().filter(CliFunctionResult::isSuccessful)
         .map(CliFunctionResult::getXmlEntity).filter(Objects::nonNull).findFirst().orElse(null);
-    final ResultModel result = new ResultModel();
-    final TabularResultModel tabularResult = result.addTable("lucene-indexes");
-    for (final CliFunctionResult cliFunctionResult : funcResults) {
+    final var result = new ResultModel();
+    final var tabularResult = result.addTable("lucene-indexes");
+    for (final var cliFunctionResult : funcResults) {
       tabularResult.accumulate("Member", cliFunctionResult.getMemberIdOrName());
 
       if (cliFunctionResult.isSuccessful()) {
@@ -119,7 +115,7 @@ public class LuceneCreateIndexCommand extends LuceneCommandBase {
   protected ResultCollector<?, ?> executeFunctionOnAllMembers(Function function,
       final LuceneFunctionSerializable functionArguments)
       throws IllegalArgumentException {
-    Set<DistributedMember> targetMembers = getAllNormalMembers();
+    var targetMembers = getAllNormalMembers();
     return executeFunction(function, functionArguments, targetMembers);
   }
 

@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.statistics;
 
-import java.util.List;
 
 import org.apache.geode.Statistics;
 
@@ -36,7 +35,7 @@ public class TestStatisticsSampler implements StatisticsSampler {
 
   @Override
   public Statistics[] getStatistics() {
-    List<Statistics> statsList = manager.getStatsList();
+    var statsList = manager.getStatsList();
     synchronized (statsList) {
       return statsList.toArray(new Statistics[statsList.size()]);
     }

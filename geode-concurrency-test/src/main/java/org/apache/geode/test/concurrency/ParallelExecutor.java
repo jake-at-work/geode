@@ -43,7 +43,7 @@ public interface ParallelExecutor {
   }
 
   default <T> Collection<Future<T>> inParallel(RunnableWithException runnable, int count) {
-    ArrayList<Future<T>> futures = new ArrayList<>(count);
+    var futures = new ArrayList<Future<T>>(count);
     for (; count > 0; count--) {
       futures.add(inParallel(runnable));
     }

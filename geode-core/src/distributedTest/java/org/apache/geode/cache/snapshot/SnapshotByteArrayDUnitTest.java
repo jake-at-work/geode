@@ -52,11 +52,11 @@ public class SnapshotByteArrayDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testImportByteArray() throws Exception {
-    SerializableCallable load = new SerializableCallable() {
+    var load = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion("snapshot-ops");
-        for (int i = 0; i < 1000; i++) {
+        for (var i = 0; i < 1000; i++) {
           region.put(i, new byte[] {0xf});
         }
 
@@ -69,7 +69,7 @@ public class SnapshotByteArrayDUnitTest extends JUnit4CacheTestCase {
 
     Host.getHost(0).getVM(1).invoke(load);
 
-    SerializableCallable callback = new SerializableCallable() {
+    var callback = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion("snapshot-ops");
@@ -95,10 +95,10 @@ public class SnapshotByteArrayDUnitTest extends JUnit4CacheTestCase {
           private void dump(EntryEvent<Integer, Object> event) {
             LogWriterUtils.getLogWriter().info("op = " + event.getOperation());
 
-            Object obj1 = event.getNewValue();
+            var obj1 = event.getNewValue();
             LogWriterUtils.getLogWriter().info("new = " + obj1);
 
-            Object obj2 = event.getOldValue();
+            var obj2 = event.getOldValue();
             LogWriterUtils.getLogWriter().info("old = " + obj2);
           }
         });
@@ -110,7 +110,7 @@ public class SnapshotByteArrayDUnitTest extends JUnit4CacheTestCase {
     SnapshotDUnitTest.forEachVm(callback, true);
     Region region = getCache().getRegion("snapshot-ops");
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region.put(i, new byte[] {0x0, 0x1, 0x3});
       region.invalidate(i);
       region.destroy(i);
@@ -118,14 +118,14 @@ public class SnapshotByteArrayDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void loadCache() throws Exception {
-    SerializableCallable setup = new SerializableCallable() {
+    var setup = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheFactory cf =
+        var cf =
             new CacheFactory().setPdxSerializer(new MyPdxSerializer()).setPdxPersistent(true);
 
         Cache cache = getCache(cf);
-        RegionGenerator rgen = new RegionGenerator();
+        var rgen = new RegionGenerator();
         rgen.createRegion(cache, null, RegionType.REPLICATE, "snapshot-ops");
 
         return null;

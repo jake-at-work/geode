@@ -48,12 +48,10 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.logging.internal.log4j.LogWriterLogger;
 import org.apache.geode.logging.internal.log4j.api.FastLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogConfig;
 import org.apache.geode.logging.internal.spi.LogWriterLevel;
 import org.apache.geode.test.assertj.LogFileAssert;
 import org.apache.geode.test.junit.categories.LoggingTest;
@@ -87,10 +85,10 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Before
   public void setUp() {
-    File currentWorkingDir = new File("");
+    var currentWorkingDir = new File("");
     currentWorkingDirPath = currentWorkingDir.getAbsolutePath();
 
-    String name = testName.getMethodName();
+    var name = testName.getMethodName();
     mainLogFile = new File(temporaryFolder.getRoot(), name + "-main.log");
     mainLogFilePath = mainLogFile.getAbsolutePath();
     securityLogFile = new File(temporaryFolder.getRoot(), name + "-security.log");
@@ -118,12 +116,12 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void defaultConfigForLogging() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    LogConfig logConfig = system.getLogConfig();
+    var logConfig = system.getLogConfig();
 
     assertThat(logConfig.getName()).isEqualTo("");
     assertThat(logConfig.getLogFile().getAbsolutePath()).isEqualTo(currentWorkingDirPath);
@@ -136,16 +134,16 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void bothLogFilesConfigured() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(SECURITY_LOG_FILE, securityLogFilePath);
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger logWriterLogger = (LogWriterLogger) system.getLogWriter();
-    LogWriterLogger securityLogWriterLogger = (LogWriterLogger) system.getSecurityLogWriter();
+    var distributionConfig = system.getConfig();
+    var logWriterLogger = (LogWriterLogger) system.getLogWriter();
+    var securityLogWriterLogger = (LogWriterLogger) system.getSecurityLogWriter();
 
     await().untilAsserted(() -> {
       system.getLogWriter().info("log another line");
@@ -154,7 +152,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
       assertThat(securityLogFile).exists();
 
       // assertThat mainLogFile is not empty
-      try (FileInputStream fis = new FileInputStream(mainLogFile)) {
+      try (var fis = new FileInputStream(mainLogFile)) {
         assertThat(fis.available()).isGreaterThan(0);
       }
     });
@@ -175,7 +173,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     securityLogWriterLogger.info("test: security log file created at info");
 
     // assertThat securityLogFile is not empty
-    try (FileInputStream fis = new FileInputStream(securityLogFile)) {
+    try (var fis = new FileInputStream(securityLogFile)) {
       assertThat(fis.available()).isGreaterThan(0);
     }
 
@@ -189,7 +187,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(logWriter.errorEnabled()).isTrue();
     assertThat(logWriter.severeEnabled()).isTrue();
 
-    FastLogger logWriterFastLogger = (FastLogger) logWriterLogger.getExtendedLogger();
+    var logWriterFastLogger = (FastLogger) logWriterLogger.getExtendedLogger();
     assertThat(logWriterFastLogger.isDelegating()).isFalse();
     assertThat(logWriterFastLogger.isTraceEnabled()).isFalse();
     assertThat(logWriterFastLogger.isDebugEnabled()).isFalse();
@@ -208,7 +206,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(securityLogWriter.errorEnabled()).isTrue();
     assertThat(securityLogWriter.severeEnabled()).isTrue();
 
-    FastLogger securityLogWriterFastLogger = (FastLogger) logWriterLogger.getExtendedLogger();
+    var securityLogWriterFastLogger = (FastLogger) logWriterLogger.getExtendedLogger();
     assertThat(securityLogWriterFastLogger.isDelegating()).isFalse();
     assertThat(securityLogWriterFastLogger.isTraceEnabled()).isFalse();
     assertThat(securityLogWriterFastLogger.isDebugEnabled()).isFalse();
@@ -220,14 +218,14 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void mainLogWriterLogsToMainLogFile() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger logWriter = (LogWriterLogger) system.getLogWriter();
+    var distributionConfig = system.getConfig();
+    var logWriter = (LogWriterLogger) system.getLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -236,7 +234,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(distributionConfig.getLogLevel()).isEqualTo(CONFIG.intLevel());
     assertThat(logWriter.getLogWriterLevel()).isEqualTo(INFO.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     logWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -349,14 +347,14 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void securityLogWriterLogsToMainLogFile() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
+    var distributionConfig = system.getConfig();
+    var securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -365,7 +363,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(distributionConfig.getLogLevel()).isEqualTo(CONFIG.intLevel());
     assertThat(securityLogWriter.getLogWriterLevel()).isEqualTo(INFO.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     securityLogWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -478,13 +476,13 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void geodeLoggerLogsToMainLogFile() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
+    var distributionConfig = system.getConfig();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -493,7 +491,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(distributionConfig.getLogLevel()).isEqualTo(CONFIG.intLevel());
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.INFO);
 
-    String message = createMessage(Level.TRACE);
+    var message = createMessage(Level.TRACE);
     geodeLogger.trace(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -582,13 +580,13 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void applicationLoggerLogsToMainLogFile() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
+    var distributionConfig = system.getConfig();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -597,7 +595,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(distributionConfig.getLogLevel()).isEqualTo(CONFIG.intLevel());
     assertThat(applicationLogger.getLevel()).isEqualTo(Level.INFO);
 
-    String message = createMessage(Level.TRACE);
+    var message = createMessage(Level.TRACE);
     applicationLogger.trace(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -686,15 +684,15 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void mainLogWriterLogsToMainLogFileWithMainLogLevelFine() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, FINE.name());
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger logWriter = (LogWriterLogger) system.getLogWriter();
+    var distributionConfig = system.getConfig();
+    var logWriter = (LogWriterLogger) system.getLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -703,7 +701,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(distributionConfig.getLogLevel()).isEqualTo(FINE.intLevel());
     assertThat(logWriter.getLogWriterLevel()).isEqualTo(FINE.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     logWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -777,22 +775,22 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void securityLogWriterLogsToMainLogFileWithMainLogLevelFine() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, FINE.name());
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
+    var distributionConfig = system.getConfig();
+    var securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
     assertThat(distributionConfig.getLogLevel()).isEqualTo(FINE.intLevel());
     assertThat(securityLogWriter.getLogWriterLevel()).isEqualTo(INFO.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     securityLogWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -827,14 +825,14 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void geodeLoggerLogsToMainLogFileWithMainLogLevelFine() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, FINE.name());
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
+    var distributionConfig = system.getConfig();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -843,7 +841,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(distributionConfig.getLogLevel()).isEqualTo(FINE.intLevel());
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.DEBUG);
 
-    String message = createMessage(Level.TRACE);
+    var message = createMessage(Level.TRACE);
     geodeLogger.trace(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -901,15 +899,15 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void mainLogWriterLogsToMainLogFileWithMainLogLevelDebug() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, Level.DEBUG.name());
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger logWriter = (LogWriterLogger) system.getLogWriter();
+    var distributionConfig = system.getConfig();
+    var logWriter = (LogWriterLogger) system.getLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -918,7 +916,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(distributionConfig.getLogLevel()).isEqualTo(FINE.intLevel());
     assertThat(logWriter.getLogWriterLevel()).isEqualTo(FINE.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     logWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -992,22 +990,22 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void securityLogWriterLogsToMainLogFileWithMainLogLevelDebug() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, Level.DEBUG.name());
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
+    var distributionConfig = system.getConfig();
+    var securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
     assertThat(distributionConfig.getLogLevel()).isEqualTo(FINE.intLevel());
     assertThat(securityLogWriter.getLogWriterLevel()).isEqualTo(INFO.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     securityLogWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -1042,14 +1040,14 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void geodeLoggerLogsToMainLogFileWithMainLogLevelDebug() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, Level.DEBUG.name());
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
+    var distributionConfig = system.getConfig();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -1058,7 +1056,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(distributionConfig.getLogLevel()).isEqualTo(FINE.intLevel());
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.DEBUG);
 
-    String message = createMessage(Level.TRACE);
+    var message = createMessage(Level.TRACE);
     geodeLogger.trace(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -1116,7 +1114,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void logsToDifferentLogFilesWithMainLogLevelFine() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, FINE.name());
@@ -1124,9 +1122,9 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger logWriter = (LogWriterLogger) system.getLogWriter();
-    LogWriterLogger securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
+    var distributionConfig = system.getConfig();
+    var logWriter = (LogWriterLogger) system.getLogWriter();
+    var securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
 
     await().untilAsserted(() -> {
       assertThat(mainLogFile).exists();
@@ -1140,7 +1138,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(securityLogWriter.getLogWriterLevel()).isEqualTo(INFO.intLevel());
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.DEBUG);
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     securityLogWriter.finest(message);
     LogFileAssert.assertThat(securityLogFile).doesNotContain(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
@@ -1163,7 +1161,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
   @Test
   public void logsToDifferentLogFilesWithBothLogLevelsFine() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, FINE.name());
@@ -1172,9 +1170,9 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger logWriter = (LogWriterLogger) system.getLogWriter();
-    LogWriterLogger securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
+    var distributionConfig = system.getConfig();
+    var logWriter = (LogWriterLogger) system.getLogWriter();
+    var securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
 
     await().untilAsserted(() -> {
       assertThat(mainLogFile).exists();
@@ -1188,7 +1186,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
     assertThat(securityLogWriter.getLogWriterLevel()).isEqualTo(FINE.intLevel());
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.DEBUG);
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     securityLogWriter.finest(message);
     LogFileAssert.assertThat(securityLogFile).doesNotContain(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
@@ -1266,7 +1264,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
    */
   @Test
   public void mainLogWriterLogsToMainLogFileWithHigherSecurityLogLevel() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, FINE.name());
@@ -1274,8 +1272,8 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger logWriter = (LogWriterLogger) system.getLogWriter();
+    var distributionConfig = system.getConfig();
+    var logWriter = (LogWriterLogger) system.getLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -1284,7 +1282,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     assertThat(logWriter.getLogWriterLevel()).isEqualTo(FINE.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     logWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -1324,7 +1322,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
    */
   @Test
   public void securityLogWriterLogsToMainLogFileWithHigherSecurityLogLevel() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, FINE.name());
@@ -1332,8 +1330,8 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
+    var distributionConfig = system.getConfig();
+    var securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -1342,7 +1340,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     assertThat(securityLogWriter.getLogWriterLevel()).isEqualTo(INFO.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     securityLogWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -1382,7 +1380,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
    */
   @Test
   public void geodeLoggerLogsToMainLogFileWithHigherSecurityLogLevel() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, FINE.name());
@@ -1390,7 +1388,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
+    var distributionConfig = system.getConfig();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -1399,7 +1397,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.DEBUG);
 
-    String message = createMessage(Level.TRACE);
+    var message = createMessage(Level.TRACE);
     geodeLogger.trace(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -1431,7 +1429,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
    */
   @Test
   public void mainLogWriterLogsToMainLogFileWithLowerSecurityLogLevel() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, INFO.name());
@@ -1439,8 +1437,8 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger logWriter = (LogWriterLogger) system.getLogWriter();
+    var distributionConfig = system.getConfig();
+    var logWriter = (LogWriterLogger) system.getLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -1449,7 +1447,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     assertThat(logWriter.getLogWriterLevel()).isEqualTo(INFO.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     logWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -1489,7 +1487,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
    */
   @Test
   public void securityLogWriterLogsToMainLogFileWithLowerSecurityLogLevel() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, INFO.name());
@@ -1497,8 +1495,8 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
-    LogWriterLogger securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
+    var distributionConfig = system.getConfig();
+    var securityLogWriter = (LogWriterLogger) system.getSecurityLogWriter();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -1507,7 +1505,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     assertThat(securityLogWriter.getLogWriterLevel()).isEqualTo(FINE.intLevel());
 
-    String message = createMessage(FINEST);
+    var message = createMessage(FINEST);
     securityLogWriter.finest(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 
@@ -1547,7 +1545,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
    */
   @Test
   public void geodeLoggerLogsToMainLogFileWithLowerSecurityLogLevel() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFilePath);
     config.setProperty(LOG_LEVEL, INFO.name());
@@ -1555,7 +1553,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
 
-    DistributionConfig distributionConfig = system.getConfig();
+    var distributionConfig = system.getConfig();
 
     await().untilAsserted(() -> assertThat(mainLogFile).exists());
 
@@ -1564,7 +1562,7 @@ public class LoggingWithDistributedSystemIntegrationTest {
 
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.INFO);
 
-    String message = createMessage(Level.TRACE);
+    var message = createMessage(Level.TRACE);
     geodeLogger.trace(message);
     LogFileAssert.assertThat(mainLogFile).doesNotContain(message);
 

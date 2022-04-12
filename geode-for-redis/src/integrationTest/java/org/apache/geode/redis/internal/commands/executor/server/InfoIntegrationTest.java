@@ -36,9 +36,9 @@ public class InfoIntegrationTest extends AbstractInfoIntegrationTest {
 
   @Test
   public void shouldReturnRedisVersion() {
-    String expectedResult = "redis_version:5.0";
+    var expectedResult = "redis_version:5.0";
 
-    String actualResult = jedis.info();
+    var actualResult = jedis.info();
 
     assertThat(actualResult).contains(expectedResult);
   }

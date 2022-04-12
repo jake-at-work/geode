@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAlgorithm;
-import org.apache.geode.cache.EvictionAttributes;
 
 public class RegionFunctionArgsTest {
 
@@ -88,21 +87,21 @@ public class RegionFunctionArgsTest {
     assertThat(args.getEvictionAttributes()).isNull();
 
     args.setEvictionAttributes("local-destroy", null, null, null);
-    EvictionAttributes attributes = args.getEvictionAttributes()
+    var attributes = args.getEvictionAttributes()
         .convertToEvictionAttributes();
     assertThat(attributes.getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_HEAP);
     assertThat(attributes.getAction()).isEqualTo(EvictionAction.LOCAL_DESTROY);
     assertThat(attributes.getMaximum()).isEqualTo(0);
 
     args.setEvictionAttributes("overflow-to-disk", 1000, null, null);
-    EvictionAttributes attributes1 = args.getEvictionAttributes()
+    var attributes1 = args.getEvictionAttributes()
         .convertToEvictionAttributes();
     assertThat(attributes1.getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_MEMORY);
     assertThat(attributes1.getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
     assertThat(attributes1.getMaximum()).isEqualTo(1000);
 
     args.setEvictionAttributes("local-destroy", null, 1000, null);
-    EvictionAttributes attributes2 = args.getEvictionAttributes()
+    var attributes2 = args.getEvictionAttributes()
         .convertToEvictionAttributes();
     assertThat(attributes2.getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_ENTRY);
     assertThat(attributes2.getAction()).isEqualTo(EvictionAction.LOCAL_DESTROY);
@@ -112,7 +111,7 @@ public class RegionFunctionArgsTest {
   @Test
   public void evictionAttributesWithNullAction() throws Exception {
     args.setEvictionAttributes(null, null, 1000, null);
-    RegionFunctionArgs.EvictionAttrs attributes3 = args.getEvictionAttributes();
+    var attributes3 = args.getEvictionAttributes();
     assertThat(attributes3).isNull();
   }
 }

@@ -223,7 +223,7 @@ public class MemberFunctionResultSender implements InternalResultSender {
 
   @Override
   public void sendException(Throwable exception) {
-    InternalFunctionException iFunxtionException = new InternalFunctionException(exception);
+    var iFunxtionException = new InternalFunctionException(exception);
     lastResult(iFunxtionException);
     localLastResultReceived = true;
   }

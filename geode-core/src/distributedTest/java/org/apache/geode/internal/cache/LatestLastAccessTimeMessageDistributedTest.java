@@ -19,7 +19,6 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.Set;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,10 +26,7 @@ import org.junit.Test;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
 
 public class LatestLastAccessTimeMessageDistributedTest implements Serializable {
@@ -44,11 +40,11 @@ public class LatestLastAccessTimeMessageDistributedTest implements Serializable 
   @Test
   public void testSendLatestLastAccessTimeMessageToMemberWithNoRegion() {
     // Start Locator
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     // Start servers
-    int locatorPort = locator.getPort();
-    MemberVM server1 =
+    var locatorPort = locator.getPort();
+    var server1 =
         cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort).withRegion(
             RegionShortcut.PARTITION_REDUNDANT, testName.getMethodName()));
     cluster.startServerVM(2, s -> s.withConnectionToLocator(locatorPort));
@@ -62,27 +58,27 @@ public class LatestLastAccessTimeMessageDistributedTest implements Serializable 
 
   private void assignBucketsToPartitions() {
     Cache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
-    PartitionedRegion pr = (PartitionedRegion) cache.getRegion(testName.getMethodName());
+    var pr = (PartitionedRegion) cache.getRegion(testName.getMethodName());
     PartitionRegionHelper.assignBucketsToPartitions(pr);
   }
 
   private void sendLastAccessTimeMessage() throws InterruptedException {
     // Get a BucketRegion
     Cache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
-    PartitionedRegion pr = (PartitionedRegion) cache.getRegion(testName.getMethodName());
-    BucketRegion br = pr.getBucketRegion(0);
+    var pr = (PartitionedRegion) cache.getRegion(testName.getMethodName());
+    var br = pr.getBucketRegion(0);
 
     // Get the recipients
-    DistributionManager dm = br.getDistributionManager();
-    Set<InternalDistributedMember> recipients = dm.getOtherNormalDistributionManagerIds();
+    var dm = br.getDistributionManager();
+    var recipients = dm.getOtherNormalDistributionManagerIds();
 
     // Create and sent the LatestLastAccessTimeMessage
-    LatestLastAccessTimeReplyProcessor replyProcessor =
+    var replyProcessor =
         new LatestLastAccessTimeReplyProcessor(dm, recipients);
     dm.putOutgoing(new LatestLastAccessTimeMessage<>(replyProcessor, recipients, br, (Object) 0));
 
     // Wait for the reply. Timeout if no reply is received.
-    boolean success = replyProcessor.waitForReplies(getTimeout().toMillis());
+    var success = replyProcessor.waitForReplies(getTimeout().toMillis());
 
     // Assert the wait was successful
     assertThat(success).isTrue();

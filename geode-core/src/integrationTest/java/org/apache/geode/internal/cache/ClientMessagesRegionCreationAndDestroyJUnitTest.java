@@ -69,19 +69,19 @@ public class ClientMessagesRegionCreationAndDestroyJUnitTest {
    */
 
   private void attachBridgeServer() throws IOException {
-    CacheServerImpl server = (CacheServerImpl) cache.addCacheServer();
+    var server = (CacheServerImpl) cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.getClientSubscriptionConfig().setEvictionPolicy(HARegionQueue.HA_EVICTION_POLICY_ENTRY);
     server.start();
     assertNotNull("client messages region is null ",
         server.getAcceptor().getCacheClientNotifier().getHaContainer());
     // check for is LIFO Enable
-    String regionName =
+    var regionName =
         ((HAContainerWrapper) server.getAcceptor().getCacheClientNotifier().getHaContainer())
             .getName();
-    EvictionAttributesImpl ea = (EvictionAttributesImpl) cache
+    var ea = (EvictionAttributesImpl) cache
         .getRegion(SEPARATOR + regionName).getAttributes().getEvictionAttributes();
     assertTrue("Eviction Algorithm is not LIFO", ea.isLIFO());
     // The CacheClientNotifier is a singleton.
@@ -101,7 +101,7 @@ public class ClientMessagesRegionCreationAndDestroyJUnitTest {
    */
   @Test
   public void testCreationAndDestroyOfClientMessagesRegion() {
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       // sequential
       attachmentOfBridgeServer();
     }
@@ -129,8 +129,8 @@ public class ClientMessagesRegionCreationAndDestroyJUnitTest {
   private void dettachmentOfBridgeServer() {
     // detach all cache server to test destroy of client_messages_region
     for (Iterator itr = cache.getCacheServers().iterator(); itr.hasNext();) {
-      CacheServerImpl server = (CacheServerImpl) itr.next();
-      String rName =
+      var server = (CacheServerImpl) itr.next();
+      var rName =
           ((HAContainerWrapper) server.getAcceptor().getCacheClientNotifier().getHaContainer())
               .getName();
       assertNotNull("client messages region is null ", cache.getRegion(SEPARATOR + rName));
@@ -162,7 +162,7 @@ public class ClientMessagesRegionCreationAndDestroyJUnitTest {
    * @throws CacheException - thrown if any exception occurs in cache creation
    */
   private Cache createCache() throws CacheException {
-    Properties p = new Properties();
+    var p = new Properties();
     p.put(MCAST_PORT, "0");
     return CacheFactory.create(DistributedSystem.connect(p));
   }

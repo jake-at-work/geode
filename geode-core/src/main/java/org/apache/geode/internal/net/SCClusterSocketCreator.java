@@ -21,12 +21,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import javax.net.ServerSocketFactory;
-import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocket;
 
 import org.apache.geode.GemFireConfigException;
 import org.apache.geode.distributed.internal.tcpserver.ClusterSocketCreatorImpl;
-import org.apache.geode.net.SSLParameterExtension;
 
 class SCClusterSocketCreator extends ClusterSocketCreatorImpl {
   private final SocketCreator coreSocketCreator;
@@ -59,7 +57,7 @@ class SCClusterSocketCreator extends ClusterSocketCreatorImpl {
           "SSL not configured correctly, Please look at previous error");
     }
     ServerSocketFactory ssf = coreSocketCreator.getSslContext().getServerSocketFactory();
-    SSLServerSocket serverSocket = (SSLServerSocket) ssf.createServerSocket();
+    var serverSocket = (SSLServerSocket) ssf.createServerSocket();
     serverSocket.setReuseAddress(true);
     // If necessary, set the receive buffer size before binding the socket so
     // that large buffers will be allocated on accepted sockets (see
@@ -86,7 +84,7 @@ class SCClusterSocketCreator extends ClusterSocketCreatorImpl {
     }
     serverSocket.setEnableSessionCreation(true);
 
-    final String[] protocols = sslConfig.getServerProtocolsAsStringArray();
+    final var protocols = sslConfig.getServerProtocolsAsStringArray();
     if (!SSLConfig.isAnyProtocols(protocols)) {
       serverSocket.setEnabledProtocols(protocols);
     }
@@ -95,9 +93,9 @@ class SCClusterSocketCreator extends ClusterSocketCreatorImpl {
       serverSocket.setEnabledCipherSuites(sslConfig.getCiphersAsStringArray());
     }
 
-    final SSLParameterExtension sslParameterExtension = sslConfig.getSSLParameterExtension();
+    final var sslParameterExtension = sslConfig.getSSLParameterExtension();
     if (sslParameterExtension != null) {
-      final SSLParameters modifiedParams =
+      final var modifiedParams =
           sslParameterExtension.modifySSLServerSocketParameters(serverSocket.getSSLParameters());
       serverSocket.setSSLParameters(modifiedParams);
     }

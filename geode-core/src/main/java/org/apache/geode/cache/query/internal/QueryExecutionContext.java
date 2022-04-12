@@ -91,11 +91,11 @@ public class QueryExecutionContext extends ExecutionContext {
     }
     // execCache can be empty in cases where we are doing adds to indexes
     // in that case, we use a default execCache
-    int scopeId = -1;
+    var scopeId = -1;
     if (!execCacheStack.isEmpty()) {
       scopeId = (Integer) execCacheStack.peek();
     }
-    Map execCache = (Map) execCaches.get(scopeId);
+    var execCache = (Map) execCaches.get(scopeId);
     if (execCache == null) {
       execCache = new HashMap();
       execCaches.put(scopeId, execCache);
@@ -112,11 +112,11 @@ public class QueryExecutionContext extends ExecutionContext {
   public Object cacheGet(Object key, Object defaultValue) {
     // execCache can be empty in cases where we are doing adds to indexes
     // in that case, we use a default execCache
-    int scopeId = -1;
+    var scopeId = -1;
     if (!execCacheStack.isEmpty()) {
       scopeId = (Integer) execCacheStack.peek();
     }
-    Map execCache = (Map) execCaches.get(scopeId);
+    var execCache = (Map) execCaches.get(scopeId);
     if (execCache == null) {
       return defaultValue;
     }
@@ -179,7 +179,7 @@ public class QueryExecutionContext extends ExecutionContext {
       bindArgumentToPdxStringMap = new HashMap<>();
     }
 
-    PdxString pdxString = bindArgumentToPdxStringMap.get(index - 1);
+    var pdxString = bindArgumentToPdxStringMap.get(index - 1);
     if (pdxString == null) {
       pdxString = new PdxString((String) bindArguments[index - 1]);
       bindArgumentToPdxStringMap.put(index - 1, pdxString);

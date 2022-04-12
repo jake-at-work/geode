@@ -341,8 +341,8 @@ public abstract class VersionTag<T extends VersionSource>
   }
 
   public void toData(DataOutput out, boolean includeMember) throws IOException {
-    int flags = 0;
-    boolean versionIsShort = false;
+    var flags = 0;
+    var versionIsShort = false;
     if (entryVersion < 0x10000) {
       versionIsShort = true;
       flags |= VERSION_TWO_BYTES;
@@ -353,7 +353,7 @@ public abstract class VersionTag<T extends VersionSource>
     if (memberID != null && includeMember) {
       flags |= HAS_MEMBER_ID;
     }
-    boolean writePreviousMemberID = false;
+    var writePreviousMemberID = false;
     if (previousMemberID != null && includeMember) {
       flags |= HAS_PREVIOUS_MEMBER_ID;
       if (Objects.equals(previousMemberID, memberID)) {
@@ -390,7 +390,7 @@ public abstract class VersionTag<T extends VersionSource>
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    int flags = in.readUnsignedShort();
+    var flags = in.readUnsignedShort();
     if (logger.isTraceEnabled(LogMarker.VERSION_TAG_VERBOSE)) {
       logger.trace(LogMarker.VERSION_TAG_VERBOSE, "deserializing {} with flags 0x{}",
           getClass(), Integer.toHexString(flags));
@@ -441,7 +441,7 @@ public abstract class VersionTag<T extends VersionSource>
 
   @Override
   public String toString() {
-    StringBuilder s = new StringBuilder();
+    var s = new StringBuilder();
     if (isGatewayTag()) {
       s.append("{ds=").append(distributedSystemId).append("; time=")
           .append(getVersionTimeStamp()).append("}");
@@ -509,8 +509,8 @@ public abstract class VersionTag<T extends VersionSource>
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + entryVersion;
     result = prime * result + ((memberID == null) ? 0 : memberID.hashCode());
     result = prime * result + regionVersionHighBytes;
@@ -533,7 +533,7 @@ public abstract class VersionTag<T extends VersionSource>
     if (getClass() != obj.getClass()) {
       return false;
     }
-    VersionTag<?> other = (VersionTag<?>) obj;
+    var other = (VersionTag<?>) obj;
     if (entryVersion != other.entryVersion) {
       return false;
     }

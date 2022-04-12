@@ -41,7 +41,6 @@ import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.internal.PoolImpl;
@@ -131,7 +130,7 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
 
   @Before
   public void setup() throws Exception {
-    Properties clusterMemberProperties = getVMPropertiesWithPermission("cluster,data");
+    var clusterMemberProperties = getVMPropertiesWithPermission("cluster,data");
     if (TestVersion.compare(clientVersion, "1.4.0") >= 0) {
       clusterMemberProperties.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
           "org.apache.geode.security.templates.UsernamePrincipal");
@@ -146,14 +145,14 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
       Cache cache = ClusterStartupRule.getCache();
       RegionFactory<String, String> rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
       rf.addCacheListener(new ClientAuthorizationFailoverTestListener());
-      Region<String, String> region = rf.create(regionName);
+      var region = rf.create(regionName);
       region.putAll(serverData);
     });
 
     server2.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
       RegionFactory<String, String> rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
-      Region<String, String> region = rf.create(regionName);
+      var region = rf.create(regionName);
       assertThat(region.getAll(serverData.keySet())).containsAllEntriesOf(serverData);
     });
   }
@@ -161,7 +160,7 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
   @Test
   public void dataReaderCanStillOnlyReadAfterFailover() throws Exception {
     // Connect to the server that will fail
-    ClientVM client = createAndInitializeClientAndCache("dataRead");
+    var client = createAndInitializeClientAndCache("dataRead");
 
     // Client should be able to read and not write.
     client.invoke(() -> {
@@ -185,13 +184,13 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
     });
 
     // Initialize client cache and region. Get the port of the primary connected server.
-    MemberVM server_to_fail = determinePrimaryServer(client);
+    var server_to_fail = determinePrimaryServer(client);
 
     // Bring down primary server
     server_to_fail.stop(true);
 
     // Confirm failover
-    MemberVM secondaryServer = (server1.getPort() == server_to_fail.getPort()) ? server2 : server1;
+    var secondaryServer = (server1.getPort() == server_to_fail.getPort()) ? server2 : server1;
     await().until(() -> getPrimaryServerPort(client) == secondaryServer.getPort());
 
     // Confirm permissions: client should still only be able to read and not write.
@@ -225,7 +224,7 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
   @Test
   public void dataWriterCanStillOnlyWriteAfterFailover() throws Exception {
     // Connect to the server that will fail
-    ClientVM client = createAndInitializeClientAndCache("dataWrite");
+    var client = createAndInitializeClientAndCache("dataWrite");
 
     // Client should be able to write but not read.
     client.invoke(() -> {
@@ -249,13 +248,13 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
     });
 
     // Initialize client cache and region. Get the port of the primary connected server.
-    MemberVM server_to_fail = determinePrimaryServer(client);
+    var server_to_fail = determinePrimaryServer(client);
 
     // Bring down primary server
     server_to_fail.stop(true);
 
     // Confirm failover
-    MemberVM secondaryServer = (server1.getPort() == server_to_fail.getPort()) ? server2 : server1;
+    var secondaryServer = (server1.getPort() == server_to_fail.getPort()) ? server2 : server1;
     await().until(() -> getPrimaryServerPort(client) == secondaryServer.getPort());
 
     // Confirm permissions: client should still only be able to write and not read.
@@ -283,7 +282,7 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
   @Test
   public void dataReaderCanRegisterAndUnregisterAcrossFailover() throws Exception {
     // Connect to the server that will fail
-    ClientVM client = createAndInitializeClientAndCache("dataRead");
+    var client = createAndInitializeClientAndCache("dataRead");
 
     // Client should be able to register and unregister interests.
     client.invoke(() -> {
@@ -295,13 +294,13 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
     });
 
     // Initialize client cache and region. Get the port of the primary connected server.
-    MemberVM server_to_fail = determinePrimaryServer(client);
+    var server_to_fail = determinePrimaryServer(client);
 
     // Bring down primary server
     server_to_fail.stop(true);
 
     // Confirm failover
-    MemberVM secondaryServer = (server1.getPort() == server_to_fail.getPort()) ? server2 : server1;
+    var secondaryServer = (server1.getPort() == server_to_fail.getPort()) ? server2 : server1;
     await().until(() -> getPrimaryServerPort(client) == secondaryServer.getPort());
 
     // Confirm permissions.
@@ -316,28 +315,28 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
 
   @Test
   public void dataWriterCannotRegisterInterestAcrossFailover() throws Exception {
-    Properties props = getVMPropertiesWithPermission("dataWrite");
+    var props = getVMPropertiesWithPermission("dataWrite");
     if (TestVersion.compare(clientVersion, "1.4.0") >= 0) {
       props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
           "org.apache.geode.security.templates.UsernamePrincipal");
     }
 
-    int server1Port = server1.getPort();
-    int server2Port = server2.getPort();
+    var server1Port = server1.getPort();
+    var server2Port = server2.getPort();
 
-    ClientVM client1 = csRule.startClientVM(3, clientVersion, props, cf -> cf
+    var client1 = csRule.startClientVM(3, clientVersion, props, cf -> cf
         .addPoolServer("localhost", server1Port).addPoolServer("localhost", server2Port)
         .setPoolSubscriptionEnabled(true).setPoolSubscriptionRedundancy(2));
 
     // Initialize cache
     client1.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       ClientRegionFactory<String, String> rf =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region<String, String> region1 = rf.create(regionName);
+      var region1 = rf.create(regionName);
     });
 
-    ClientVM client = client1;
+    var client = client1;
 
     // Client should be able to register and unregister interests.
     client.invoke(() -> {
@@ -352,13 +351,13 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
     });
 
     // Initialize client cache and region. Get the port of the primary connected server.
-    MemberVM server_to_fail = determinePrimaryServer(client);
+    var server_to_fail = determinePrimaryServer(client);
 
     // Bring down primary server
     server_to_fail.stop(true);
 
     // Confirm failover
-    MemberVM secondaryServer = (server1.getPort() == server_to_fail.getPort()) ? server2 : server1;
+    var secondaryServer = (server1.getPort() == server_to_fail.getPort()) ? server2 : server1;
     await().until(() -> getPrimaryServerPort(client) == secondaryServer.getPort());
 
     // Confirm permissions.
@@ -372,46 +371,46 @@ public class ClientDataAuthorizationUsingLegacySecurityWithFailoverDUnitTest {
   }
 
   private ClientVM createAndInitializeClientAndCache(String withPermission) throws Exception {
-    int server1Port = server1.getPort();
-    int server2Port = server2.getPort();
+    var server1Port = server1.getPort();
+    var server2Port = server2.getPort();
 
-    Properties props = getVMPropertiesWithPermission(withPermission);
+    var props = getVMPropertiesWithPermission(withPermission);
 
     if (TestVersion.compare(clientVersion, "1.4.0") >= 0) {
       props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
           "org.apache.geode.security.templates.UsernamePrincipal");
     }
 
-    ClientVM client = csRule.startClientVM(3, clientVersion, props, cf -> cf
+    var client = csRule.startClientVM(3, clientVersion, props, cf -> cf
         .addPoolServer("localhost", server1Port).addPoolServer("localhost", server2Port)
         .setPoolSubscriptionEnabled(true).setPoolSubscriptionRedundancy(2));
 
     // Initialize cache
     client.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       ClientRegionFactory<String, String> rf =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region<String, String> region = rf.create(regionName);
+      var region = rf.create(regionName);
     });
 
     return client;
   }
 
   private MemberVM determinePrimaryServer(ClientVM client) {
-    int primaryPort = getPrimaryServerPort(client);
+    var primaryPort = getPrimaryServerPort(client);
     return (primaryPort == server1.getPort()) ? server1 : server2;
   }
 
   private int getPrimaryServerPort(ClientVM client) {
     return client.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
-      PoolImpl pool = (PoolImpl) cache.getDefaultPool();
+      var cache = ClusterStartupRule.getClientCache();
+      var pool = (PoolImpl) cache.getDefaultPool();
       return pool.getPrimaryPort();
     });
   }
 
   private Properties getVMPropertiesWithPermission(String permission) {
-    Properties props = new Properties();
+    var props = new Properties();
     // Using the legacy security framework
     props.setProperty(SECURITY_CLIENT_AUTHENTICATOR,
         SimpleAuthenticator.class.getCanonicalName() + ".create");

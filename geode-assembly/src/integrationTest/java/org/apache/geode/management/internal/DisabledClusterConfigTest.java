@@ -22,7 +22,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.test.junit.rules.GeodeDevRestClient;
 import org.apache.geode.test.junit.rules.LocatorStarterRule;
 import org.apache.geode.test.junit.rules.RequiresGeodeHome;
@@ -38,11 +37,11 @@ public class DisabledClusterConfigTest {
   public void disabledClusterConfig() throws Exception {
     locator.withProperty(ConfigurationProperties.ENABLE_CLUSTER_CONFIGURATION, "false")
         .withHttpService().startLocator();
-    GeodeDevRestClient restClient =
+    var restClient =
         new GeodeDevRestClient("/management/v1", "localhost", locator.getHttpPort(),
             false);
 
-    ClusterManagementResult result =
+    var result =
         restClient.doPostAndAssert("/regions", "{\"name\":\"test\"}")
             .hasStatusCode(500)
             .getClusterManagementResult();

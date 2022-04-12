@@ -68,7 +68,7 @@ public class SuspectMembersMessage<ID extends MemberIdentifier> extends Abstract
       SerializationContext context) throws IOException {
     if (suspectRequests != null) {
       out.writeInt(suspectRequests.size());
-      for (SuspectRequest<ID> sr : suspectRequests) {
+      for (var sr : suspectRequests) {
         context.getSerializer().writeObject(sr.getSuspectMember(), out);
         StaticSerialization.writeString(sr.getReason(), out);
       }
@@ -80,9 +80,9 @@ public class SuspectMembersMessage<ID extends MemberIdentifier> extends Abstract
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    int size = in.readInt();
-    for (int i = 0; i < size; i++) {
-      SuspectRequest<ID> sr = new SuspectRequest<>(
+    var size = in.readInt();
+    for (var i = 0; i < size; i++) {
+      var sr = new SuspectRequest<ID>(
           context.getDeserializer().readObject(in), StaticSerialization.readString(in));
       suspectRequests.add(sr);
     }

@@ -44,7 +44,7 @@ public class CommonConfigurationValidator implements ConfigurationValidator<Abst
   }
 
   private void validateCreate(AbstractConfiguration config) {
-    String group = config.getGroup();
+    var group = config.getGroup();
 
     if (AbstractConfiguration.CLUSTER.equalsIgnoreCase(group)) {
       throw new IllegalArgumentException("'"
@@ -54,7 +54,7 @@ public class CommonConfigurationValidator implements ConfigurationValidator<Abst
     if (group != null && group.contains(",")) {
       throw new IllegalArgumentException("Group name should not contain comma.");
     }
-    String id = config.getId();
+    var id = config.getId();
     if (id.contains("/")) {
       throw new IllegalArgumentException("Identifier should not contain slash.");
     }

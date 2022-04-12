@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -86,10 +85,10 @@ public class MembershipIntegrationTest {
   public void oneMembershipCanStartWithALocator()
       throws IOException, MemberStartupException {
 
-    final MembershipLocator<MemberIdentifier> locator = createLocator(0);
+    final var locator = createLocator(0);
     locator.start();
 
-    final Membership<MemberIdentifier> membership = createMembership(locator,
+    final var membership = createMembership(locator,
         locator.getPort());
     start(membership);
 
@@ -103,15 +102,15 @@ public class MembershipIntegrationTest {
   public void twoMembershipsCanStartWithOneLocator()
       throws IOException, MemberStartupException {
 
-    final MembershipLocator<MemberIdentifier> locator = createLocator(0);
+    final var locator = createLocator(0);
     locator.start();
 
-    final int locatorPort = locator.getPort();
+    final var locatorPort = locator.getPort();
 
-    final Membership<MemberIdentifier> membership1 = createMembership(locator, locatorPort);
+    final var membership1 = createMembership(locator, locatorPort);
     start(membership1);
 
-    final Membership<MemberIdentifier> membership2 = createMembership(null, locatorPort);
+    final var membership2 = createMembership(null, locatorPort);
     start(membership2);
 
     await().untilAsserted(
@@ -128,20 +127,20 @@ public class MembershipIntegrationTest {
   public void twoLocatorsCanStartSequentially()
       throws IOException, MemberStartupException {
 
-    final MembershipLocator<MemberIdentifier> locator1 = createLocator(0);
+    final var locator1 = createLocator(0);
     locator1.start();
 
-    final int locatorPort1 = locator1.getPort();
+    final var locatorPort1 = locator1.getPort();
 
-    Membership<MemberIdentifier> membership1 = createMembership(locator1, locatorPort1);
+    var membership1 = createMembership(locator1, locatorPort1);
     start(membership1);
 
-    final MembershipLocator<MemberIdentifier> locator2 = createLocator(0, locatorPort1);
+    final var locator2 = createLocator(0, locatorPort1);
     locator2.start();
 
-    final int locatorPort2 = locator2.getPort();
+    final var locatorPort2 = locator2.getPort();
 
-    Membership<MemberIdentifier> membership2 =
+    var membership2 =
         createMembership(locator2, locatorPort1, locatorPort2);
     start(membership2);
 
@@ -158,23 +157,23 @@ public class MembershipIntegrationTest {
   public void secondMembershipCanJoinUsingTheSecondLocatorToStart()
       throws IOException, MemberStartupException {
 
-    final MembershipLocator<MemberIdentifier> locator1 = createLocator(0);
+    final var locator1 = createLocator(0);
     locator1.start();
 
-    final int locatorPort1 = locator1.getPort();
+    final var locatorPort1 = locator1.getPort();
 
-    final Membership<MemberIdentifier> membership1 = createMembership(locator1, locatorPort1);
+    final var membership1 = createMembership(locator1, locatorPort1);
     start(membership1);
 
-    final MembershipLocator<MemberIdentifier> locator2 = createLocator(0, locatorPort1);
+    final var locator2 = createLocator(0, locatorPort1);
     locator2.start();
 
-    int locatorPort2 = locator2.getPort();
+    var locatorPort2 = locator2.getPort();
 
     // Force the next membership to use locator2 by stopping locator1
     stop(locator1);
 
-    Membership<MemberIdentifier> membership2 =
+    var membership2 =
         createMembership(locator2, locatorPort1, locatorPort2);
     start(membership2);
 
@@ -191,13 +190,13 @@ public class MembershipIntegrationTest {
   public void locatorWaitsForLocatorWaitTimeUntilAllLocatorsContacted()
       throws InterruptedException, TimeoutException, ExecutionException {
 
-    final Supplier<ExecutorService> executorServiceSupplier =
-        () -> LoggingExecutors.newCachedThreadPool("membership", false);
+    final var executorServiceSupplier =
+        (Supplier<ExecutorService>) () -> LoggingExecutors.newCachedThreadPool("membership", false);
 
-    int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
 
-    int locatorWaitTime = (int) Duration.ofMinutes(5).getSeconds();
-    final MembershipConfig config =
+    var locatorWaitTime = (int) Duration.ofMinutes(5).getSeconds();
+    final var config =
         createMembershipConfig(true, locatorWaitTime, locatorPorts[0], locatorPorts[1]);
 
     /*
@@ -206,11 +205,11 @@ public class MembershipIntegrationTest {
      * Set its locator-wait-time so it'll not become a coordinator right away, allowing time for the
      * other member to start and become a coordinator.
      */
-    CompletableFuture<Membership<MemberIdentifier>> createMembership0 =
+    var createMembership0 =
         launchLocator(executorServiceSupplier, locatorPorts[0], config);
 
     // minimum duration a locator waits to become the coordinator, regardless of locatorWaitTime
-    final Duration minimumJoinWaitTime = Duration
+    final var minimumJoinWaitTime = Duration
         // amount of sleep time per retry in GMSJoinLeave.join()
         .ofMillis(JOIN_RETRY_SLEEP + FIND_LOCATOR_RETRY_SLEEP)
         // expected number of retries in GMSJoinLeave.join()
@@ -230,13 +229,13 @@ public class MembershipIntegrationTest {
      * Now start the other locator, after waiting longer than the minimum wait time for
      * connecting to a locator but shorter than the locator-wait-time.
      */
-    CompletableFuture<Membership<MemberIdentifier>> createMembership1 =
+    var createMembership1 =
         launchLocator(executorServiceSupplier, locatorPorts[1], config);
 
 
     // Make sure the members are created in less than the locator-wait-time
-    Membership<MemberIdentifier> membership0 = createMembership0.get(2, TimeUnit.MINUTES);
-    Membership<MemberIdentifier> membership1 = createMembership1.get(2, TimeUnit.MINUTES);
+    var membership0 = createMembership0.get(2, TimeUnit.MINUTES);
+    var membership1 = createMembership1.get(2, TimeUnit.MINUTES);
 
     // Make sure the members see each other in the view
     await().untilAsserted(() -> assertThat(membership0.getView().getMembers()).hasSize(2));
@@ -250,8 +249,8 @@ public class MembershipIntegrationTest {
       Supplier<ExecutorService> executorServiceSupplier, int locatorPort, MembershipConfig config) {
     return executorServiceRule.supplyAsync(() -> {
       try {
-        Path locatorDirectory0 = temporaryFolder.newFolder().toPath();
-        MembershipLocator<MemberIdentifier> locator0 =
+        var locatorDirectory0 = temporaryFolder.newFolder().toPath();
+        var locator0 =
             MembershipLocatorBuilder.newLocatorBuilder(
                 socketCreator,
                 dsfidSerializer,
@@ -262,7 +261,7 @@ public class MembershipIntegrationTest {
                 .create();
         locator0.start();
 
-        Membership<MemberIdentifier> membership = createMembership(config, locator0);
+        var membership = createMembership(config, locator0);
         membership.start();
         membership.startEventProcessing();
         return membership;
@@ -282,8 +281,8 @@ public class MembershipIntegrationTest {
       final MembershipLocator<MemberIdentifier> embeddedLocator,
       final int... locatorPorts)
       throws MembershipConfigurationException {
-    final boolean isALocator = embeddedLocator != null;
-    final MembershipConfig config =
+    final var isALocator = embeddedLocator != null;
+    final var config =
         createMembershipConfig(isALocator, DEFAULT_LOCATOR_WAIT_TIME, locatorPorts);
     return createMembership(config, embeddedLocator);
   }
@@ -292,9 +291,9 @@ public class MembershipIntegrationTest {
       final MembershipConfig config,
       final MembershipLocator<MemberIdentifier> embeddedLocator)
       throws MembershipConfigurationException {
-    final MemberIdentifierFactoryImpl memberIdFactory = new MemberIdentifierFactoryImpl();
+    final var memberIdFactory = new MemberIdentifierFactoryImpl();
 
-    final TcpClient locatorClient =
+    final var locatorClient =
         new TcpClient(socketCreator, dsfidSerializer.getObjectSerializer(),
             dsfidSerializer.getObjectDeserializer(), TcpSocketFactory.DEFAULT);
 
@@ -331,7 +330,7 @@ public class MembershipIntegrationTest {
 
   private String getLocatorString(
       final int... locatorPorts) {
-    final String hostName = localHost.getHostName();
+    final var hostName = localHost.getHostName();
     return Arrays.stream(locatorPorts)
         .mapToObj(port -> hostName + '[' + port + ']')
         .collect(Collectors.joining(","));
@@ -342,11 +341,11 @@ public class MembershipIntegrationTest {
       final int... locatorPorts)
       throws MembershipConfigurationException,
       IOException {
-    final Supplier<ExecutorService> executorServiceSupplier =
-        () -> LoggingExecutors.newCachedThreadPool("membership", false);
-    Path locatorDirectory = temporaryFolder.newFolder().toPath();
+    final var executorServiceSupplier =
+        (Supplier<ExecutorService>) () -> LoggingExecutors.newCachedThreadPool("membership", false);
+    var locatorDirectory = temporaryFolder.newFolder().toPath();
 
-    final MembershipConfig config =
+    final var config =
         createMembershipConfig(true, DEFAULT_LOCATOR_WAIT_TIME, locatorPorts);
 
     return MembershipLocatorBuilder.newLocatorBuilder(

@@ -28,11 +28,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexInvalidException;
 import org.apache.geode.cache.query.IndexNameConflictException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -49,7 +47,7 @@ public class OffHeapIndexJUnitTest {
 
   @Before
   public void setUp() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, "100m");
@@ -66,11 +64,11 @@ public class OffHeapIndexJUnitTest {
   @Test
   public void testUnsupportedAsyncIndexes() throws RegionNotFoundException, IndexInvalidException,
       IndexNameConflictException, IndexExistsException {
-    RegionFactory<Object, Object> rf = gfc.createRegionFactory();
+    var rf = gfc.createRegionFactory();
     rf.setOffHeap(true);
     rf.setIndexMaintenanceSynchronous(false);
     rf.create("r");
-    QueryService qs = gfc.getQueryService();
+    var qs = gfc.getQueryService();
     try {
       qs.createIndex("idx", "age", SEPARATOR + "r");
       fail("expected UnsupportedOperationException");
@@ -85,11 +83,11 @@ public class OffHeapIndexJUnitTest {
   @Test
   public void testUnsupportedMultiIteratorIndexes() throws RegionNotFoundException,
       IndexInvalidException, IndexNameConflictException, IndexExistsException {
-    RegionFactory<Object, Object> rf = gfc.createRegionFactory();
+    var rf = gfc.createRegionFactory();
     rf.setOffHeap(true);
     rf.setIndexMaintenanceSynchronous(true);
     rf.create("r");
-    QueryService qs = gfc.getQueryService();
+    var qs = gfc.getQueryService();
     try {
       qs.createIndex("idx", "addr", SEPARATOR + "r r, r.addresses addr");
       fail("expected UnsupportedOperationException");

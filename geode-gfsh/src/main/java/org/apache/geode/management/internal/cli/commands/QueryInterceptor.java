@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.event.ParseResult;
@@ -28,7 +27,6 @@ import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.domain.DataCommandResult;
 import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 
 public class QueryInterceptor extends AbstractCliAroundInterceptor {
@@ -37,7 +35,7 @@ public class QueryInterceptor extends AbstractCliAroundInterceptor {
 
   @Override
   public ResultModel preExecution(GfshParseResult parseResult) {
-    File outputFile = getOutputFile(parseResult);
+    var outputFile = getOutputFile(parseResult);
 
     if (outputFile != null && outputFile.exists()) {
       return ResultModel.createError(FILE_ALREADY_EXISTS_MESSAGE);
@@ -49,26 +47,26 @@ public class QueryInterceptor extends AbstractCliAroundInterceptor {
   @Override
   public ResultModel postExecution(GfshParseResult parseResult, ResultModel model, Path tempFile)
       throws Exception {
-    File outputFile = getOutputFile(parseResult);
+    var outputFile = getOutputFile(parseResult);
 
     if (outputFile == null) {
       return model;
     }
 
-    Map<String, String> sectionResultData =
+    var sectionResultData =
         model.getDataSection(DataCommandResult.DATA_INFO_SECTION).getContent();
 
-    String limit = sectionResultData.get("Limit");
-    String resultString = sectionResultData.get("Result");
-    String rows = sectionResultData.get("Rows");
+    var limit = sectionResultData.get("Limit");
+    var resultString = sectionResultData.get("Result");
+    var rows = sectionResultData.get("Rows");
 
     if ("false".equalsIgnoreCase(resultString)) {
       return model;
     }
 
     writeResultTableToFile(outputFile, model);
-    ResultModel newModel = new ResultModel();
-    DataResultModel data = newModel.addData(DataCommandResult.DATA_INFO_SECTION);
+    var newModel = new ResultModel();
+    var data = newModel.addData(DataCommandResult.DATA_INFO_SECTION);
 
     data.addData("Result", resultString);
     if (StringUtils.isNotBlank(limit)) {
@@ -86,8 +84,8 @@ public class QueryInterceptor extends AbstractCliAroundInterceptor {
   }
 
   private void writeResultTableToFile(File file, ResultModel resultModel) throws IOException {
-    CommandResult commandResult = new CommandResult(resultModel);
-    try (FileWriter fileWriter = new FileWriter(file)) {
+    var commandResult = new CommandResult(resultModel);
+    try (var fileWriter = new FileWriter(file)) {
       fileWriter.write(commandResult.asString());
     }
   }

@@ -34,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -62,7 +61,6 @@ import org.springframework.test.context.web.GenericXmlWebContextLoader;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.context.web.WebMergedContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -183,7 +181,7 @@ public class RestAccessControllerTest {
   }
 
   private static void loadResource(String name) throws Exception {
-    URL orderCasJson = RestAccessControllerTest.class.getResource(name);
+    var orderCasJson = RestAccessControllerTest.class.getResource(name);
     jsonResources.put(name, new String(Files.readAllBytes(Paths.get(orderCasJson.toURI()))));
   }
 
@@ -211,15 +209,15 @@ public class RestAccessControllerTest {
         .andExpect(status().isConflict())
         .andExpect(content().json(jsonResources.get(ORDER1_JSON)));
 
-    Order order = (Order) ((PdxInstance) orderRegion.get("1")).getObject();
+    var order = (Order) ((PdxInstance) orderRegion.get("1")).getObject();
     assertThat(order).as("order should not be null").isNotNull();
   }
 
   @Test
   @WithMockUser
   public void postEntryWithSlashKey() throws Exception {
-    String decodedKey = createKey(1);
-    String encodedKey = encodeKey(decodedKey);
+    var decodedKey = createKey(1);
+    var encodedKey = encodeKey(decodedKey);
     mockMvc.perform(put("/v1/orders?op=CREATE&keys=" + encodedKey)
         .content(jsonResources.get(ORDER1_JSON))
         .with(POST_PROCESSOR))
@@ -234,7 +232,7 @@ public class RestAccessControllerTest {
         .andExpect(content().json(jsonResources.get(ORDER1_JSON)))
         .andExpect(header().string("Location", BASE_URL + "/orders?keys=" + encodedKey));
 
-    Order order = (Order) ((PdxInstance) orderRegion.get(decodedKey)).getObject();
+    var order = (Order) ((PdxInstance) orderRegion.get(decodedKey)).getObject();
     assertThat(order).as("order should not be null").isNotNull();
   }
 
@@ -255,16 +253,16 @@ public class RestAccessControllerTest {
         .andExpect(content().json(jsonResources.get(ORDER1_ARRAY_JSON)));
 
     @SuppressWarnings("unchecked")
-    List<PdxInstance> entries = (List<PdxInstance>) orderRegion.get("1");
-    Order order = (Order) entries.get(0).getObject();
+    var entries = (List<PdxInstance>) orderRegion.get("1");
+    var order = (Order) entries.get(0).getObject();
     assertThat(order).as("order should not be null").isNotNull();
   }
 
   @Test
   @WithMockUser
   public void createEntryWithJsonArrayOfOrdersWithEncodedKey() throws Exception {
-    String decodedKey = createKey(1);
-    String encodedKey = encodeKey(decodedKey);
+    var decodedKey = createKey(1);
+    var encodedKey = encodeKey(decodedKey);
     mockMvc.perform(put("/v1/orders?op=CREATE&keys=" + encodedKey)
         .content(jsonResources.get(ORDER1_ARRAY_JSON))
         .with(POST_PROCESSOR))
@@ -280,8 +278,8 @@ public class RestAccessControllerTest {
         .andExpect(header().string("Location", BASE_URL + "/orders?keys=" + encodedKey));
 
     @SuppressWarnings("unchecked")
-    List<PdxInstance> entries = (List<PdxInstance>) orderRegion.get(decodedKey);
-    Order order = (Order) entries.get(0).getObject();
+    var entries = (List<PdxInstance>) orderRegion.get(decodedKey);
+    var order = (Order) entries.get(0).getObject();
     assertThat(order).as("order should not be null").isNotNull();
   }
 
@@ -384,12 +382,12 @@ public class RestAccessControllerTest {
   @Test
   @WithMockUser
   public void putAll() throws Exception {
-    StringBuilder keysBuilder = new StringBuilder();
-    for (int i = 1; i < 60; i++) {
+    var keysBuilder = new StringBuilder();
+    for (var i = 1; i < 60; i++) {
       keysBuilder.append(i).append(',');
     }
     keysBuilder.append(60);
-    String keys = keysBuilder.toString();
+    var keys = keysBuilder.toString();
     mockMvc.perform(
         put("/v1/customers/" + keys)
             .content(jsonResources.get(CUSTOMER_LIST_JSON))
@@ -397,8 +395,8 @@ public class RestAccessControllerTest {
         .andExpect(status().isOk())
         .andExpect(header().string("Location", BASE_URL + "/customers/" + keys));
     assertThat(customerRegion).hasSize(60);
-    for (int i = 1; i <= 60; i++) {
-      PdxInstance customer = customerRegion.get(String.valueOf(i));
+    for (var i = 1; i <= 60; i++) {
+      var customer = customerRegion.get(String.valueOf(i));
       assertThat(customer.getField("customerId").toString())
           .isEqualTo(Integer.valueOf(100 + i).toString());
     }
@@ -407,12 +405,12 @@ public class RestAccessControllerTest {
   @Test
   @WithMockUser
   public void putAllWithQueryParam() throws Exception {
-    StringBuilder keysBuilder = new StringBuilder();
-    for (int i = 1; i < 60; i++) {
+    var keysBuilder = new StringBuilder();
+    for (var i = 1; i < 60; i++) {
       keysBuilder.append(i).append(',');
     }
     keysBuilder.append(60);
-    String keys = keysBuilder.toString();
+    var keys = keysBuilder.toString();
     mockMvc.perform(
         put("/v1/customers?keys=" + keys)
             .content(jsonResources.get(CUSTOMER_LIST_JSON))
@@ -420,8 +418,8 @@ public class RestAccessControllerTest {
         .andExpect(status().isOk())
         .andExpect(header().string("Location", BASE_URL + "/customers?keys=" + keys));
     assertThat(customerRegion).hasSize(60);
-    for (int i = 1; i <= 60; i++) {
-      PdxInstance customer = customerRegion.get(String.valueOf(i));
+    for (var i = 1; i <= 60; i++) {
+      var customer = customerRegion.get(String.valueOf(i));
       assertThat(customer.getField("customerId").toString())
           .isEqualTo(Integer.valueOf(100 + i).toString());
     }
@@ -430,12 +428,12 @@ public class RestAccessControllerTest {
   @Test
   @WithMockUser
   public void putMultipleEncodedKeys() throws Exception {
-    StringBuilder keysBuilder = new StringBuilder();
-    for (int i = 1; i < 60; i++) {
+    var keysBuilder = new StringBuilder();
+    for (var i = 1; i < 60; i++) {
       keysBuilder.append(createEncodedKey(i)).append(',');
     }
     keysBuilder.append(createEncodedKey(60));
-    String keys = keysBuilder.toString();
+    var keys = keysBuilder.toString();
     mockMvc.perform(
         put("/v1/customers?keys=" + keys)
             .content(jsonResources.get(CUSTOMER_LIST_JSON))
@@ -443,8 +441,8 @@ public class RestAccessControllerTest {
         .andExpect(status().isOk())
         .andExpect(header().string("Location", BASE_URL + "/customers?keys=" + keys));
     assertThat(customerRegion).hasSize(60);
-    for (int i = 1; i <= 60; i++) {
-      PdxInstance customer = customerRegion.get(createKey(i));
+    for (var i = 1; i <= 60; i++) {
+      var customer = customerRegion.get(createKey(i));
       assertThat(customer.getField("customerId").toString())
           .isEqualTo(Integer.valueOf(100 + i).toString());
     }
@@ -453,8 +451,8 @@ public class RestAccessControllerTest {
   @Test
   @WithMockUser
   public void putSingleEncodedKey() throws Exception {
-    String decodedKey = createKey(32);
-    String encodedKey = encodeKey(decodedKey);
+    var decodedKey = createKey(32);
+    var encodedKey = encodeKey(decodedKey);
 
     mockMvc.perform(
         put("/v1/orders?keys=" + encodedKey)
@@ -465,7 +463,7 @@ public class RestAccessControllerTest {
 
     assertThat(orderRegion).hasSize(1);
     assertThat(orderRegion.containsKey(decodedKey)).isTrue();
-    Order order = (Order) ((PdxInstance) orderRegion.get(decodedKey)).getObject();
+    var order = (Order) ((PdxInstance) orderRegion.get(decodedKey)).getObject();
     assertThat(order.getPurchaseOrderNo()).isEqualTo(112);
     assertThat(order.getCustomerId()).isEqualTo(102);
   }
@@ -944,14 +942,14 @@ public class RestAccessControllerTest {
   @WithMockUser
   public void getMultipleEncodedKeys() throws Exception {
     putMultipleEncodedKeys();
-    StringBuilder keyBuilder = new StringBuilder();
-    for (int i = 2; i <= 5; i++) {
+    var keyBuilder = new StringBuilder();
+    for (var i = 2; i <= 5; i++) {
       keyBuilder.append(createEncodedKey(i));
       if (i != 5) {
         keyBuilder.append(',');
       }
     }
-    String keys = keyBuilder.toString();
+    var keys = keyBuilder.toString();
     mockMvc.perform(get("/v1/customers?keys=" + keys)
         .with(POST_PROCESSOR))
         .andExpect(status().isOk())
@@ -965,7 +963,7 @@ public class RestAccessControllerTest {
   @WithMockUser
   public void getSingleEncodedKey() throws Exception {
     putMultipleEncodedKeys();
-    String keys = createEncodedKey(7);
+    var keys = createEncodedKey(7);
     mockMvc.perform(get("/v1/customers?keys=" + keys)
         .with(POST_PROCESSOR))
         .andExpect(status().isOk())
@@ -978,19 +976,19 @@ public class RestAccessControllerTest {
   @WithMockUser
   public void deleteMultipleEncodedKeys() throws Exception {
     putMultipleEncodedKeys();
-    StringBuilder keyBuilder = new StringBuilder();
-    for (int i = 2; i <= 5; i++) {
+    var keyBuilder = new StringBuilder();
+    for (var i = 2; i <= 5; i++) {
       keyBuilder.append(createEncodedKey(i));
       if (i != 5) {
         keyBuilder.append(',');
       }
     }
-    String keys = keyBuilder.toString();
+    var keys = keyBuilder.toString();
     mockMvc.perform(delete("/v1/customers?keys=" + keys)
         .with(POST_PROCESSOR))
         .andExpect(status().isOk());
     assertThat(customerRegion).hasSize(60 - 4);
-    for (int i = 2; i <= 5; i++) {
+    for (var i = 2; i <= 5; i++) {
       assertThat(customerRegion.containsKey(createKey(i))).isFalse();
     }
   }
@@ -1064,7 +1062,7 @@ public class RestAccessControllerTest {
   @Test
   @WithMockUser
   public void executeQueryWithParams() throws Exception {
-    String QUERY_ARGS =
+    var QUERY_ARGS =
         "[{\"@type\": \"int\", \"@value\": 2}, {\"@type\": \"double\", \"@value\": 150.00}]";
 
     postEntry(); // order 1
@@ -1090,7 +1088,7 @@ public class RestAccessControllerTest {
   @Test
   @WithMockUser
   public void putAndUpdateQuery() throws Exception {
-    final String QUERY_ARGS = "[{\"@type\": \"int\", \"@value\": 20},"
+    final var QUERY_ARGS = "[{\"@type\": \"int\", \"@value\": 20},"
         + "{\"@type\": \"int\", \"@value\": 120},"
         + "{\"@type\": \"int\", \"@value\": 130}]";
 
@@ -1195,7 +1193,7 @@ public class RestAccessControllerTest {
   @Test
   @WithMockUser
   public void executeFunction() throws Exception {
-    final String FUNCTION_ARGS = "[{\"@type\": \"double\", \"@value\": 210},"
+    final var FUNCTION_ARGS = "[{\"@type\": \"double\", \"@value\": 210},"
         + "{\"@type\": \"org.apache.geode.rest.internal.web.controllers.Item\","
         + "\"itemNo\": 599, \"description\": \"Part X Free on Bumper Offer\","
         + "\"quantity\": 2, \"unitprice\": 5, \"totalprice\": 10.00}]";
@@ -1217,7 +1215,7 @@ public class RestAccessControllerTest {
   @Test
   @WithMockUser
   public void executeFunctionWithFilter() throws Exception {
-    final String FUNCTION_ARGS = "[{\"@type\": \"String\", \"@value\": \"argument\"}]";
+    final var FUNCTION_ARGS = "[{\"@type\": \"String\", \"@value\": \"argument\"}]";
 
     putEntry(); // order 2
     mockMvc.perform(post("/v1/functions/GetOrderDescriptionFunction?onRegion=orders&filter=2")
@@ -1230,7 +1228,7 @@ public class RestAccessControllerTest {
   @Test
   @WithMockUser
   public void executeFunctionWithFilterKeyNotFound() throws Exception {
-    final String FUNCTION_ARGS = "[{\"@type\": \"String\", \"@value\": \"argument\"}]";
+    final var FUNCTION_ARGS = "[{\"@type\": \"String\", \"@value\": \"argument\"}]";
 
     putEntry(); // order 2
     mockMvc.perform(post("/v1/functions/GetOrderDescriptionFunction?onRegion=orders&filter=1")
@@ -1372,15 +1370,15 @@ public class RestAccessControllerTest {
   }
 
   private void deleteAllQueries() throws Exception {
-    MvcResult result = mockMvc.perform(get("/v1/queries")
+    var result = mockMvc.perform(get("/v1/queries")
         .with(POST_PROCESSOR))
         .andExpect(status().isOk())
         .andReturn();
 
-    String content = result.getResponse().getContentAsString();
+    var content = result.getResponse().getContentAsString();
     List<String> ids = JsonPath.read(content, "$.queries[*].id");
 
-    for (String id : ids) {
+    for (var id : ids) {
       mockMvc.perform(delete("/v1/queries/" + id)
           .with(POST_PROCESSOR))
           .andExpect(status().isOk());

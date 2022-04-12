@@ -17,16 +17,11 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.apache.geode.management.internal.cli.commands.DataCommandsUtils.callFunctionForRegion;
 
-import java.util.Set;
-
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.shiro.subject.Subject;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
@@ -56,7 +51,7 @@ public class GetCommand extends GfshCommand {
           specifiedDefaultValue = "true",
           help = CliStrings.GET__LOAD__HELP) Boolean loadOnCacheMiss) {
 
-    Cache cache = getCache();
+    var cache = getCache();
     authorize(Resource.DATA, Operation.READ, regionPath, key);
     DataCommandResult dataResult;
 
@@ -64,18 +59,18 @@ public class GetCommand extends GfshCommand {
 
     @SuppressWarnings("rawtypes")
     Region region = cache.getRegion(regionPath);
-    DataCommandFunction getfn = new DataCommandFunction();
+    var getfn = new DataCommandFunction();
     if (region == null) {
-      Set<DistributedMember> memberList = findAnyMembersForRegion(regionPath);
+      var memberList = findAnyMembersForRegion(regionPath);
       if (CollectionUtils.isNotEmpty(memberList)) {
-        DataCommandRequest request = new DataCommandRequest();
+        var request = new DataCommandRequest();
         request.setCommand(CliStrings.GET);
         request.setKey(key);
         request.setKeyClass(keyClass);
         request.setRegionName(regionPath);
         request.setValueClass(valueClass);
         request.setLoadOnCacheMiss(loadOnCacheMiss);
-        Subject subject = getSubject();
+        var subject = getSubject();
         if (subject != null) {
           request.setPrincipal(subject.getPrincipal());
         }

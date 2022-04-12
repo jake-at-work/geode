@@ -52,43 +52,43 @@ public class SqlStatementFactoryTest {
 
   @Test
   public void getSelectQueryString() throws Exception {
-    String expectedStatement =
+    var expectedStatement =
         String.format("SELECT * FROM %s WHERE %s = ?", QUOTED_TABLE_PATH,
             quoted(KEY_COLUMN_1_NAME));
 
-    String statement = factory.createSelectQueryString(QUOTED_TABLE_PATH, entryColumnData);
+    var statement = factory.createSelectQueryString(QUOTED_TABLE_PATH, entryColumnData);
 
     assertThat(statement).isEqualTo(expectedStatement);
   }
 
   @Test
   public void getDestroySqlString() throws Exception {
-    String expectedStatement =
+    var expectedStatement =
         String.format("DELETE FROM %s WHERE %s = ?", QUOTED_TABLE_PATH, quoted(KEY_COLUMN_1_NAME));
 
-    String statement = factory.createDestroySqlString(QUOTED_TABLE_PATH, entryColumnData);
+    var statement = factory.createDestroySqlString(QUOTED_TABLE_PATH, entryColumnData);
 
     assertThat(statement).isEqualTo(expectedStatement);
   }
 
   @Test
   public void getUpdateSqlString() throws Exception {
-    String expectedStatement = String.format("UPDATE %s SET %s = ?, %s = ? WHERE %s = ?",
+    var expectedStatement = String.format("UPDATE %s SET %s = ?, %s = ? WHERE %s = ?",
         QUOTED_TABLE_PATH, quoted(VALUE_COLUMN_1_NAME), quoted(VALUE_COLUMN_2_NAME),
         quoted(KEY_COLUMN_1_NAME));
 
-    String statement = factory.createUpdateSqlString(QUOTED_TABLE_PATH, entryColumnData);
+    var statement = factory.createUpdateSqlString(QUOTED_TABLE_PATH, entryColumnData);
 
     assertThat(statement).isEqualTo(expectedStatement);
   }
 
   @Test
   public void getInsertSqlString() throws Exception {
-    String expectedStatement = String.format("INSERT INTO %s (%s,%s,%s) VALUES (?,?,?)",
+    var expectedStatement = String.format("INSERT INTO %s (%s,%s,%s) VALUES (?,?,?)",
         QUOTED_TABLE_PATH, quoted(VALUE_COLUMN_1_NAME), quoted(VALUE_COLUMN_2_NAME),
         quoted(KEY_COLUMN_1_NAME));
 
-    String statement = factory.createInsertSqlString(QUOTED_TABLE_PATH, entryColumnData);
+    var statement = factory.createInsertSqlString(QUOTED_TABLE_PATH, entryColumnData);
 
     assertThat(statement).isEqualTo(expectedStatement);
   }
@@ -98,9 +98,9 @@ public class SqlStatementFactoryTest {
     valueColumnData.clear();
     keyColumnData.clear();
 
-    String statement = factory.createInsertSqlString(QUOTED_TABLE_PATH, entryColumnData);
+    var statement = factory.createInsertSqlString(QUOTED_TABLE_PATH, entryColumnData);
 
-    String expectedStatement = String.format("INSERT INTO %s () VALUES ()", QUOTED_TABLE_PATH);
+    var expectedStatement = String.format("INSERT INTO %s () VALUES ()", QUOTED_TABLE_PATH);
     assertThat(statement).isEqualTo(expectedStatement);
   }
 
@@ -108,9 +108,9 @@ public class SqlStatementFactoryTest {
   public void getInsertSqlStringGivenMultipleKeys() throws Exception {
     keyColumnData.add(new ColumnData(KEY_COLUMN_2_NAME, null, JDBCType.NULL));
 
-    String statement = factory.createInsertSqlString(QUOTED_TABLE_PATH, entryColumnData);
+    var statement = factory.createInsertSqlString(QUOTED_TABLE_PATH, entryColumnData);
 
-    String expectedStatement = String.format("INSERT INTO %s (%s,%s,%s,%s) VALUES (?,?,?,?)",
+    var expectedStatement = String.format("INSERT INTO %s (%s,%s,%s,%s) VALUES (?,?,?,?)",
         QUOTED_TABLE_PATH, quoted(VALUE_COLUMN_1_NAME), quoted(VALUE_COLUMN_2_NAME),
         quoted(KEY_COLUMN_1_NAME), quoted(KEY_COLUMN_2_NAME));
     assertThat(statement).isEqualTo(expectedStatement);
@@ -120,9 +120,9 @@ public class SqlStatementFactoryTest {
   public void getUpdateSqlStringGivenMultipleKeys() throws Exception {
     keyColumnData.add(new ColumnData(KEY_COLUMN_2_NAME, null, JDBCType.NULL));
 
-    String statement = factory.createUpdateSqlString(QUOTED_TABLE_PATH, entryColumnData);
+    var statement = factory.createUpdateSqlString(QUOTED_TABLE_PATH, entryColumnData);
 
-    String expectedStatement = String.format("UPDATE %s SET %s = ?, %s = ? WHERE %s = ? AND %s = ?",
+    var expectedStatement = String.format("UPDATE %s SET %s = ?, %s = ? WHERE %s = ? AND %s = ?",
         QUOTED_TABLE_PATH, quoted(VALUE_COLUMN_1_NAME), quoted(VALUE_COLUMN_2_NAME),
         quoted(KEY_COLUMN_1_NAME), quoted(KEY_COLUMN_2_NAME));
     assertThat(statement).isEqualTo(expectedStatement);
@@ -132,9 +132,9 @@ public class SqlStatementFactoryTest {
   public void getSelectQueryStringGivenMultipleKeys() throws Exception {
     keyColumnData.add(new ColumnData(KEY_COLUMN_2_NAME, null, JDBCType.NULL));
 
-    String statement = factory.createSelectQueryString(QUOTED_TABLE_PATH, entryColumnData);
+    var statement = factory.createSelectQueryString(QUOTED_TABLE_PATH, entryColumnData);
 
-    String expectedStatement =
+    var expectedStatement =
         String.format("SELECT * FROM %s WHERE %s = ? AND %s = ?", QUOTED_TABLE_PATH,
             quoted(KEY_COLUMN_1_NAME),
             quoted(KEY_COLUMN_2_NAME));
@@ -145,9 +145,9 @@ public class SqlStatementFactoryTest {
   public void getDestroySqlStringGivenMultipleKeys() throws Exception {
     keyColumnData.add(new ColumnData(KEY_COLUMN_2_NAME, null, JDBCType.NULL));
 
-    String statement = factory.createDestroySqlString(QUOTED_TABLE_PATH, entryColumnData);
+    var statement = factory.createDestroySqlString(QUOTED_TABLE_PATH, entryColumnData);
 
-    String expectedStatement =
+    var expectedStatement =
         String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", QUOTED_TABLE_PATH,
             quoted(KEY_COLUMN_1_NAME),
             quoted(KEY_COLUMN_2_NAME));

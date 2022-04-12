@@ -78,7 +78,7 @@ public abstract class AbstractZPopMaxIntegrationTest implements RedisIntegration
   public void shouldReturnEmpty_givenNegativeCount() {
     jedis.zadd("key", 1, "player1");
 
-    List<?> result = (List<?>) jedis.sendCommand("key", Protocol.Command.ZPOPMAX, "key", "-1");
+    var result = (List<?>) jedis.sendCommand("key", Protocol.Command.ZPOPMAX, "key", "-1");
     assertThat(result).isEmpty();
     assertThat(jedis.zrange("key", 0, 10)).containsExactly("player1");
   }
@@ -108,10 +108,10 @@ public abstract class AbstractZPopMaxIntegrationTest implements RedisIntegration
   @Test
   public void withCountShouldReturn_membersInScoreOrder_whenScoresAreDifferent() {
     List<Tuple> tuples = new ArrayList<>();
-    int count = 10;
+    var count = 10;
     // Make sure that the results are not somehow dependent on the order of insertion
-    List<Integer> shuffles = makeShuffledList(count);
-    for (int i = 0; i < count; i++) {
+    var shuffles = makeShuffledList(count);
+    for (var i = 0; i < count; i++) {
       jedis.zadd("key", count - shuffles.get(i), "player" + shuffles.get(i));
       tuples.add(new Tuple("player" + i, (double) (count - i)));
     }
@@ -122,10 +122,10 @@ public abstract class AbstractZPopMaxIntegrationTest implements RedisIntegration
   @Test
   public void withCountShouldReturn_membersInReverseLexicalOrder_whenScoresAreTheSame() {
     List<Tuple> tuples = new ArrayList<>();
-    int count = 10;
+    var count = 10;
     // Make sure that the results are not somehow dependent on the order of insertion
-    List<Integer> shuffles = makeShuffledList(count);
-    for (int i = 0; i < count; i++) {
+    var shuffles = makeShuffledList(count);
+    for (var i = 0; i < count; i++) {
       jedis.zadd("key", 1D, "player" + shuffles.get(i));
       tuples.add(new Tuple("player" + (count - i - 1), 1D));
     }
@@ -135,7 +135,7 @@ public abstract class AbstractZPopMaxIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldReturn_countHighestScores() {
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       jedis.zadd("key", i, "player" + i);
     }
 
@@ -154,7 +154,7 @@ public abstract class AbstractZPopMaxIntegrationTest implements RedisIntegration
    */
   private List<Integer> makeShuffledList(int count) {
     List<Integer> result = new ArrayList<>(count);
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       result.add(i);
     }
 

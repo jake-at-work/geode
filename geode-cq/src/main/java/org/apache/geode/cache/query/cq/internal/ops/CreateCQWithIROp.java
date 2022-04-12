@@ -68,7 +68,7 @@ public class CreateCQWithIROp {
       getMessage().addStringPart(queryStr);
       getMessage().addIntPart(cqState);
       {
-        byte durableByte = (byte) (isDurable ? 0x01 : 0x00);
+        var durableByte = (byte) (isDurable ? 0x01 : 0x00);
         getMessage().addBytesPart(new byte[] {durableByte});
       }
       getMessage().addBytesPart(new byte[] {(byte) regionDataPolicy.ordinal()});

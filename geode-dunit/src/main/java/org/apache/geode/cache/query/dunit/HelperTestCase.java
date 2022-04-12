@@ -43,7 +43,6 @@ import org.apache.geode.cache.query.IndexNameConflictException;
 import org.apache.geode.cache.query.QueryTestUtils;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.internal.index.CompactRangeIndex;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.test.dunit.AsyncInvocation;
@@ -62,7 +61,7 @@ public abstract class HelperTestCase extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var paf = new PartitionAttributesFactory();
         RegionFactory factory = getCache().createRegionFactory(RegionShortcut.PARTITION)
             .setPartitionAttributes(paf.create());
         if (valueConstraint != null) {
@@ -110,7 +109,7 @@ public abstract class HelperTestCase extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws CqException, RegionNotFoundException, CqExistsException {
-        CqAttributes attrs = cqAttr;
+        var attrs = cqAttr;
         if (attrs == null) {
           attrs = createDummyCqAttributes();
         }
@@ -148,7 +147,7 @@ public abstract class HelperTestCase extends JUnit4CacheTestCase {
       public Object call() throws RegionNotFoundException, CqExistsException, IndexExistsException,
           IndexNameConflictException {
         Region region = getCache().getRegion(SEPARATOR + regionName);
-        CompactRangeIndex index =
+        var index =
             (CompactRangeIndex) getCache().getQueryService().getIndex(region, indexName);
         System.out.println(index.dump());
         return true;
@@ -169,7 +168,7 @@ public abstract class HelperTestCase extends JUnit4CacheTestCase {
 
   private CqAttributes createDummyCqAttributes() {
     // Create CQ Attributes.
-    CqAttributesFactory cqAf = new CqAttributesFactory();
+    var cqAf = new CqAttributesFactory();
 
     // Initialize and set CqListener.
     CqListener[] cqListeners = {new CqListener() {
@@ -185,7 +184,7 @@ public abstract class HelperTestCase extends JUnit4CacheTestCase {
 
     }};
     cqAf.initCqListeners(cqListeners);
-    CqAttributes cqa = cqAf.create();
+    var cqa = cqAf.create();
     return cqa;
   }
 
@@ -203,7 +202,7 @@ public abstract class HelperTestCase extends JUnit4CacheTestCase {
     server.invoke(new SerializableRunnable("Close CacheServer") {
       @Override
       public void run() {
-        CacheServer cs = getCache().getCacheServers().iterator().next();
+        var cs = getCache().getCacheServers().iterator().next();
         cs.stop();
         assertFalse(cs.isRunning());
       }
@@ -226,10 +225,10 @@ public abstract class HelperTestCase extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         getSystem(properties);
 
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setCopyOnRead(true);
 
-        CacheServer cacheServer = getCache().addCacheServer();
+        var cacheServer = getCache().addCacheServer();
         cacheServer.setPort(port);
 
         QueryTestUtils.setCache(cache);
@@ -242,7 +241,7 @@ public abstract class HelperTestCase extends JUnit4CacheTestCase {
     server.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        for (final CacheServer cacheServer : getCache().getCacheServers()) {
+        for (final var cacheServer : getCache().getCacheServers()) {
           cacheServer.start();
         }
         return true;
@@ -257,27 +256,27 @@ public abstract class HelperTestCase extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         getSystem(properties);
 
-        final ClientCacheFactory ccf = new ClientCacheFactory(properties);
-        for (int i = 0; i < servers.length; i++) {
+        final var ccf = new ClientCacheFactory(properties);
+        for (var i = 0; i < servers.length; i++) {
           ccf.addPoolServer(NetworkUtils.getServerHostName(servers[i].getHost()), ports[i]);
         }
         ccf.setPoolSubscriptionEnabled(true);
         ccf.setPoolSubscriptionRedundancy(redundancyLevel);
 
-        ClientCache cache = getClientCache(ccf);
+        var cache = getClientCache(ccf);
       }
     });
   }
 
   protected Properties getClientProperties() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(LOCATORS, "");
     return p;
   }
 
   protected Properties getServerProperties(int mcastPort) {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, mcastPort + "");
     p.setProperty(LOCATORS, "");
     return p;

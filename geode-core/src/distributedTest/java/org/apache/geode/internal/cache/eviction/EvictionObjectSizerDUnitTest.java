@@ -40,7 +40,6 @@ import org.apache.geode.internal.JvmSizeUtils;
 import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.CachedDeserializableFactory;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.RegionMap;
 import org.apache.geode.internal.cache.TestNonSizerObject;
 import org.apache.geode.internal.cache.TestObjectSizerImpl;
 import org.apache.geode.internal.cache.entries.AbstractLRURegionEntry;
@@ -85,11 +84,11 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
     // Total Size of each entry should be= 1048592
 
     putData("PR1", 2, 1);
-    int keySize = 0;
-    int valueSize =
+    var keySize = 0;
+    var valueSize =
         JvmSizeUtils.getObjectHeaderSize() + 4 /* array length */ + (1024 * 1024) /* bytes */;
     valueSize = roundUpSize(valueSize);
-    int entrySize = keySize + valueSize
+    var entrySize = keySize + valueSize
         + ((HeapLRUController) ((PartitionedRegion) region).getEvictionController())
             .getPerEntryOverhead();
     verifySize("PR1", 2, entrySize);
@@ -113,11 +112,11 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
     putData("PR1", 2, 1);
 
     {
-      int keySize = 0;
-      int valueSize =
+      var keySize = 0;
+      var valueSize =
           JvmSizeUtils.getObjectHeaderSize() + 4 /* array length */ + (1024 * 1024) /* bytes */;
       valueSize = roundUpSize(valueSize);
-      int entrySize = keySize + valueSize
+      var entrySize = keySize + valueSize
           + ((HeapLRUController) ((PartitionedRegion) region).getEvictionController())
               .getPerEntryOverhead();
       verifySize("PR1", 2, entrySize);
@@ -130,11 +129,11 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
 
     {
       putData("PR1", 2, 2);
-      int keySize = 0;
-      int valueSize = JvmSizeUtils.getObjectHeaderSize() + 4 /* array length */
+      var keySize = 0;
+      var valueSize = JvmSizeUtils.getObjectHeaderSize() + 4 /* array length */
           + (1024 * 1024 * 2) /* bytes */;
       valueSize = roundUpSize(valueSize);
-      int entrySize = keySize + valueSize
+      var entrySize = keySize + valueSize
           + ((HeapLRUController) ((PartitionedRegion) region).getEvictionController())
               .getPerEntryOverhead();
       verifySize("PR1", 2, entrySize);
@@ -155,10 +154,10 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
     // Total Size of each entry should be= 54
     putCustomizedData(1, new byte[0]);
     {
-      int keySize = 0;
-      int valueSize = JvmSizeUtils.getObjectHeaderSize() + 4 /* array length */ + 0 /* bytes */;
+      var keySize = 0;
+      var valueSize = JvmSizeUtils.getObjectHeaderSize() + 4 /* array length */ + 0 /* bytes */;
       valueSize = roundUpSize(valueSize);
-      int entrySize = keySize + valueSize
+      var entrySize = keySize + valueSize
           + ((HeapLRUController) ((PartitionedRegion) region).getEvictionController())
               .getPerEntryOverhead();
       assertEquals(entrySize, getSizeOfCustomizedData(1));
@@ -170,10 +169,10 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
     // Total Size of each entry should be= 59
     putCustomizedData(2, new byte[4]);
     {
-      int keySize = 0;
-      int valueSize = JvmSizeUtils.getObjectHeaderSize() + 4 /* array length */ + 4 /* bytes */;
+      var keySize = 0;
+      var valueSize = JvmSizeUtils.getObjectHeaderSize() + 4 /* array length */ + 4 /* bytes */;
       valueSize = roundUpSize(valueSize);
-      int entrySize = keySize + valueSize
+      var entrySize = keySize + valueSize
           + ((HeapLRUController) ((PartitionedRegion) region).getEvictionController())
               .getPerEntryOverhead();
       assertEquals(entrySize, getSizeOfCustomizedData(2));
@@ -194,7 +193,7 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
     // org.apache.geode
     // Total Size of entry should be= 71
     putCustomizedData(1, new TestObjectSizerImpl());
-    int expected = (0 + 156 + (Sizeable.PER_OBJECT_OVERHEAD * 2)
+    var expected = (0 + 156 + (Sizeable.PER_OBJECT_OVERHEAD * 2)
         + ((HeapLRUController) ((PartitionedRegion) region).getEvictionController())
             .getPerEntryOverhead());
     assertEquals(expected, getSizeOfCustomizedData(1));
@@ -215,7 +214,7 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
     // org.apache.geode
     // Total Size of entry should be= 72
     putCustomizedObjects(new TestNonSizerObject("1"), new TestObjectSizerImpl());
-    int expected = (1 + 156 + (Sizeable.PER_OBJECT_OVERHEAD * 2)
+    var expected = (1 + 156 + (Sizeable.PER_OBJECT_OVERHEAD * 2)
         + ((HeapLRUController) ((PartitionedRegion) region).getEvictionController())
             .getPerEntryOverhead());
     assertEquals(expected, getSizeOfCustomizedObject(new TestNonSizerObject("1")));
@@ -229,7 +228,7 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
   }
 
   private void createMyCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     DistributedSystem ds = getSystem(props);
     assertNotNull(ds);
     ds.disconnect();
@@ -242,8 +241,8 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
       EvictionAlgorithm evictionAlgorithm, String regionName, int totalNoOfBuckets,
       int evictionAction, int evictorInterval, ObjectSizer sizer) {
 
-    final AttributesFactory factory = new AttributesFactory();
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory()
+    final var factory = new AttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory()
         .setRedundantCopies(totalNoOfBuckets == 4 ? 0 : 1).setTotalNumBuckets(totalNoOfBuckets);
     factory.setConcurrencyChecksEnabled(false);
     factory.setPartitionAttributes(partitionAttributesFactory.create());
@@ -261,7 +260,7 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
       }
       if (evictionAction == 2) {
         factory.setDiskSynchronous(true);
-        final File[] diskDirs = new File[1];
+        final var diskDirs = new File[1];
         diskDirs[0] =
             new File("Partitioned_Region_Eviction/" + "LogFile" + "_" + OSProcess.getId());
         diskDirs[0].mkdirs();
@@ -280,11 +279,11 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
    */
   private static int putData(final String regionName, final int noOfElememts,
       final int sizeOfElement) {
-    int result = 0;
+    var result = 0;
     final Region pr = cache.getRegion(regionName);
-    for (int counter = 1; counter <= noOfElememts; counter++) {
-      byte[] baValue = new byte[sizeOfElement * 1024 * 1024];
-      int baSize = CachedDeserializableFactory.getByteSize(baValue);
+    for (var counter = 1; counter <= noOfElememts; counter++) {
+      var baValue = new byte[sizeOfElement * 1024 * 1024];
+      var baSize = CachedDeserializableFactory.getByteSize(baValue);
       result += baSize;
       pr.put(counter, baValue);
     }
@@ -293,20 +292,20 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
 
   private static void verifySize(String regionName, int noOfElememts, int entrySize) {
     final Region pr = cache.getRegion(regionName);
-    for (final Map.Entry<Integer, BucketRegion> integerBucketRegionEntry : ((PartitionedRegion) pr)
+    for (final var integerBucketRegionEntry : ((PartitionedRegion) pr)
         .getDataStore()
         .getAllLocalBuckets()) {
-      final Map.Entry entry = (Map.Entry) integerBucketRegionEntry;
-      final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+      final var entry = (Map.Entry) integerBucketRegionEntry;
+      final var bucketRegion = (BucketRegion) entry.getValue();
       if (bucketRegion == null) {
         continue;
       } else {
-        RegionMap map = bucketRegion.getRegionMap();
+        var map = bucketRegion.getRegionMap();
         if (map == null || map.size() == 0) {
           continue;
         }
         LogWriterUtils.getLogWriter().info("Checking for entry in bucket region: " + bucketRegion);
-        for (int counter = 1; counter <= noOfElememts; counter++) {
+        for (var counter = 1; counter <= noOfElememts; counter++) {
           assertEquals(entrySize,
               ((AbstractLRURegionEntry) map.getEntry(counter)).getEntrySize());
         }
@@ -328,15 +327,15 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
 
   private int getSizeOfCustomizedData(int counter) {
     final Region pr = cache.getRegion("PR1");
-    for (final Map.Entry<Integer, BucketRegion> integerBucketRegionEntry : ((PartitionedRegion) pr)
+    for (final var integerBucketRegionEntry : ((PartitionedRegion) pr)
         .getDataStore()
         .getAllLocalBuckets()) {
-      final Map.Entry entry = (Map.Entry) integerBucketRegionEntry;
-      final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+      final var entry = (Map.Entry) integerBucketRegionEntry;
+      final var bucketRegion = (BucketRegion) entry.getValue();
       if (bucketRegion == null) {
         continue;
       } else {
-        RegionMap map = bucketRegion.getRegionMap();
+        var map = bucketRegion.getRegionMap();
         return ((AbstractLRURegionEntry) map.getEntry(counter)).getEntrySize();
       }
     }
@@ -345,16 +344,16 @@ public class EvictionObjectSizerDUnitTest extends CacheTestCase {
 
   private int getSizeOfCustomizedObject(Object object) {
     final Region pr = cache.getRegion("PR1");
-    for (final Map.Entry<Integer, BucketRegion> integerBucketRegionEntry : ((PartitionedRegion) pr)
+    for (final var integerBucketRegionEntry : ((PartitionedRegion) pr)
         .getDataStore()
         .getAllLocalBuckets()) {
-      final Map.Entry entry = (Map.Entry) integerBucketRegionEntry;
-      final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+      final var entry = (Map.Entry) integerBucketRegionEntry;
+      final var bucketRegion = (BucketRegion) entry.getValue();
       if (bucketRegion == null) {
         continue;
       } else {
-        RegionMap map = bucketRegion.getRegionMap();
-        AbstractLRURegionEntry re = (AbstractLRURegionEntry) map.getEntry(object);
+        var map = bucketRegion.getRegionMap();
+        var re = (AbstractLRURegionEntry) map.getEntry(object);
         if (re != null) {
           return re.getEntrySize();
         }

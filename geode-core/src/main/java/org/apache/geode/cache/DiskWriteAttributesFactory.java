@@ -63,7 +63,7 @@ public class DiskWriteAttributesFactory implements java.io.Serializable {
   public DiskWriteAttributesFactory(DiskWriteAttributes dwa) {
 
     props.setProperty(CacheXml.BYTES_THRESHOLD, String.valueOf(dwa.getBytesThreshold()));
-    long maxOplogSizeInBytes = convertToBytes(dwa.getMaxOplogSize());
+    var maxOplogSizeInBytes = convertToBytes(dwa.getMaxOplogSize());
     props.setProperty(CacheXml.MAX_OPLOG_SIZE, String.valueOf(maxOplogSizeInBytes));
     props.setProperty(CacheXml.ROLL_OPLOG, String.valueOf(dwa.isRollOplogs()));
     props.setProperty(DiskWriteAttributesImpl.SYNCHRONOUS_PROPERTY,
@@ -171,7 +171,7 @@ public class DiskWriteAttributesFactory implements java.io.Serializable {
               "Maximum Oplog size specified has to be a non-negative number and the value given %s is not acceptable",
               maxOplogSize));
     }
-    long maxOplogSizeInBytes = convertToBytes(maxOplogSize);
+    var maxOplogSizeInBytes = convertToBytes(maxOplogSize);
     props.setProperty(CacheXml.MAX_OPLOG_SIZE, String.valueOf(maxOplogSizeInBytes));
   }
 

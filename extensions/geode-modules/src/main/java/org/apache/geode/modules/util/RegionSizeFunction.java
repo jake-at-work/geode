@@ -35,7 +35,7 @@ public class RegionSizeFunction implements Function, Declarable, DataSerializabl
   @Override
   @SuppressWarnings("unchecked")
   public void execute(FunctionContext context) {
-    RegionFunctionContext rfc = (RegionFunctionContext) context;
+    var rfc = (RegionFunctionContext) context;
     context.getResultSender().lastResult(rfc.getDataSet().size());
   }
 

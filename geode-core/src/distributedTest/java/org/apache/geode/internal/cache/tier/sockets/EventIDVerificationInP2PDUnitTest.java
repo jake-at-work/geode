@@ -32,7 +32,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
@@ -73,7 +72,7 @@ public class EventIDVerificationInP2PDUnitTest extends JUnit4DistributedTestCase
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     receiver = false;
   }
@@ -100,7 +99,7 @@ public class EventIDVerificationInP2PDUnitTest extends JUnit4DistributedTestCase
     vm0.invoke(() -> EventIDVerificationInP2PDUnitTest.createServerCache(0));
 
     createEntry();
-    Boolean pass =
+    var pass =
         vm0.invoke(() -> EventIDVerificationInP2PDUnitTest.verifyResult(eventId));
     assertFalse(pass);
     put();
@@ -125,7 +124,7 @@ public class EventIDVerificationInP2PDUnitTest extends JUnit4DistributedTestCase
 
   public static void createServerCache(Integer type) throws Exception {
     new EventIDVerificationInP2PDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     if (type == DISTRIBUTED_ACK) {
       factory.setScope(Scope.DISTRIBUTED_ACK);
     }
@@ -194,7 +193,7 @@ public class EventIDVerificationInP2PDUnitTest extends JUnit4DistributedTestCase
       }
     });
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
   }
@@ -272,7 +271,7 @@ public class EventIDVerificationInP2PDUnitTest extends JUnit4DistributedTestCase
       }
       gotCallback = false;
     }
-    boolean temp = correctId.equals(eventId);
+    var temp = correctId.equals(eventId);
     return temp;
   }
 
@@ -293,7 +292,7 @@ public class EventIDVerificationInP2PDUnitTest extends JUnit4DistributedTestCase
 
   protected static void verifyEventID() {
     Boolean pass;
-    EventID eventId = EventIDVerificationInP2PDUnitTest.eventId;
+    var eventId = EventIDVerificationInP2PDUnitTest.eventId;
     pass = vm0.invoke(() -> EventIDVerificationInP2PDUnitTest.verifyResult(eventId));
     assertTrue(pass);
   }

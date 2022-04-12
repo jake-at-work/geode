@@ -55,13 +55,13 @@ class RowGroup {
   }
 
   Row newRow() {
-    Row row = new Row(this, screen);
+    var row = new Row(this, screen);
     rows.add(row);
     return row;
   }
 
   void newRowSeparator(Character character, boolean isTableWideSeparator) {
-    Row row = new Row(this, screen, character, isTableWideSeparator);
+    var row = new Row(this, screen, character, isTableWideSeparator);
     rows.add(row);
   }
 
@@ -72,9 +72,9 @@ class RowGroup {
   String buildRowGroup(boolean isTabularResult) {
     colSizes = computeColSizes(isTabularResult);
 
-    StringBuilder stringBuilder = new StringBuilder();
-    for (Row row : rows) {
-      String builtRow = row.buildRow(isTabularResult);
+    var stringBuilder = new StringBuilder();
+    for (var row : rows) {
+      var builtRow = row.buildRow(isTabularResult);
       stringBuilder.append(builtRow);
       if (StringUtils.isNotBlank(builtRow) || row.isBlank()) {
         stringBuilder.append(GfshParser.LINE_SEPARATOR);
@@ -88,10 +88,10 @@ class RowGroup {
   }
 
   int getNumCols() {
-    int maxNumCols = 0;
+    var maxNumCols = 0;
 
-    for (Row row : rows) {
-      int numCols = row.getNumCols();
+    for (var row : rows) {
+      var numCols = row.getNumCols();
       if (numCols > maxNumCols) {
         maxNumCols = numCols;
       }
@@ -114,9 +114,9 @@ class RowGroup {
   }
 
   private int[] computeColSizes(boolean isTabularResult) {
-    int[] localColSizes = new int[getNumCols()];
+    var localColSizes = new int[getNumCols()];
 
-    for (int i = 0; i < localColSizes.length; i++) {
+    for (var i = 0; i < localColSizes.length; i++) {
       localColSizes[i] = getMaxColLength(i);
     }
 
@@ -129,10 +129,10 @@ class RowGroup {
   }
 
   private int getMaxColLength(int colNum) {
-    int maxLength = 0;
+    var maxLength = 0;
 
-    for (Row row : rows) {
-      int colLength = row.getMaxColLength(colNum);
+    for (var row : rows) {
+      var colLength = row.getMaxColLength(colNum);
       if (colLength > maxLength) {
         maxLength = colLength;
       }
@@ -153,10 +153,10 @@ class RowGroup {
 
     // build sorted list and find total width
     List<ComparableColumn> stringList = new ArrayList<>();
-    int index = 0;
-    int totalLength = 0;
-    for (int k : colSizes) {
-      ComparableColumn cs = new ComparableColumn();
+    var index = 0;
+    var totalLength = 0;
+    for (var k : colSizes) {
+      var cs = new ComparableColumn();
       cs.originalIndex = index++;
       cs.length = k;
       stringList.add(cs);
@@ -172,10 +172,10 @@ class RowGroup {
 
     // find out columns which need trimming
     totalLength = 0;
-    int spaceLeft = 0;
-    int totalExtra = 0;
-    for (ComparableColumn s : stringList) {
-      int newLength = totalLength + s.length;
+    var spaceLeft = 0;
+    var totalExtra = 0;
+    for (var s : stringList) {
+      var newLength = totalLength + s.length;
       // Ensure that the spaceLeft is never < 2 which would prevent displaying a trimmed value
       // even when there is space available on the screen.
       if (newLength + SCREEN_WIDTH_MARGIN_BUFFER > screenWidth) {
@@ -192,9 +192,9 @@ class RowGroup {
 
     // calculate trimmed width for columns marked for
     // distribute the trimming as per percentage
-    int[] finalColSizes = new int[colSizes.length];
-    int i = 0;
-    for (ComparableColumn s : stringList) {
+    var finalColSizes = new int[colSizes.length];
+    var i = 0;
+    for (var s : stringList) {
       if (totalLength > screenWidth) {
         if (s.markForTrim) {
           s.trimmedLength = (int) Math.floor(spaceLeft * ((double) s.length / totalExtra));
@@ -210,7 +210,7 @@ class RowGroup {
 
     totalLength = 0;
     index = 0;
-    for (int colSize : finalColSizes) {
+    for (var colSize : finalColSizes) {
       if (colSize != colSizes[index] && colSize < 2) {
         throw new TooManyColumnsException("Computed ColSize=" + colSize
             + " Set RESULT_VIEWER to external. This uses the 'less' command (with horizontal scrolling) to see wider results");

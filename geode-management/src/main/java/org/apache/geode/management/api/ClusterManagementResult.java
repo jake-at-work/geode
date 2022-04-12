@@ -111,8 +111,8 @@ public class ClusterManagementResult {
     message = message.trim();
 
     // capitalize the first letter
-    char firstChar = message.charAt(0);
-    char newFirstChar = Character.toUpperCase(firstChar);
+    var firstChar = message.charAt(0);
+    var newFirstChar = Character.toUpperCase(firstChar);
     if (newFirstChar != firstChar) {
       message = newFirstChar + message.substring(1);
     }
@@ -175,7 +175,7 @@ public class ClusterManagementResult {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ClusterManagementResult that = (ClusterManagementResult) o;
+    var that = (ClusterManagementResult) o;
     return statusCode == that.statusCode &&
         Objects.equals(statusMessage, that.statusMessage);
   }

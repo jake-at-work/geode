@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,16 +27,12 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.persistence.PersistentID;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.DistributedSystemMXBean;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.LogWrapper;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.messages.CompactRequest;
@@ -55,7 +50,7 @@ public class CompactDiskStoreCommand extends GfshCommand {
           help = CliStrings.COMPACT_DISK_STORE__NAME__HELP) String diskStoreName,
       @CliOption(key = {CliStrings.GROUP, CliStrings.GROUPS},
           help = CliStrings.COMPACT_DISK_STORE__GROUP__HELP) String[] groups) {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
     try {
       // disk store exists validation
@@ -64,7 +59,7 @@ public class CompactDiskStoreCommand extends GfshCommand {
             CliStrings.format(CliStrings.COMPACT_DISK_STORE__DISKSTORE_0_DOES_NOT_EXIST,
                 new Object[] {diskStoreName}));
       } else {
-        InternalDistributedSystem ds = ((InternalCache) getCache()).getInternalDistributedSystem();
+        var ds = ((InternalCache) getCache()).getInternalDistributedSystem();
 
         Map<DistributedMember, PersistentID> overallCompactInfo = new HashMap<>();
 
@@ -76,15 +71,15 @@ public class CompactDiskStoreCommand extends GfshCommand {
         }
         allMembers.add(ds.getDistributedMember());
 
-        String groupInfo = "";
+        var groupInfo = "";
         // if groups are specified, find members in the specified group
         if (groups != null && groups.length > 0) {
           groupInfo = CliStrings.format(CliStrings.COMPACT_DISK_STORE__MSG__FOR_GROUP,
               new Object[] {Arrays.toString(groups) + "."});
           final Set<InternalDistributedMember> selectedMembers = new HashSet<>();
-          List<String> targetedGroups = Arrays.asList(groups);
-          for (InternalDistributedMember member : allMembers) {
-            List<String> memberGroups = member.getGroups();
+          var targetedGroups = Arrays.asList(groups);
+          for (var member : allMembers) {
+            var memberGroups = member.getGroups();
             if (!Collections.disjoint(targetedGroups, memberGroups)) {
               selectedMembers.add(member);
             }
@@ -102,7 +97,7 @@ public class CompactDiskStoreCommand extends GfshCommand {
         } else {
           // first invoke on local member if it exists in the targeted set
           if (allMembers.remove(ds.getDistributedMember())) {
-            PersistentID compactedDiskStoreId = CompactRequest.compactDiskStore(diskStoreName);
+            var compactedDiskStoreId = CompactRequest.compactDiskStore(diskStoreName);
             if (compactedDiskStoreId != null) {
               overallCompactInfo.put(ds.getDistributedMember(), compactedDiskStoreId);
             }
@@ -112,13 +107,13 @@ public class CompactDiskStoreCommand extends GfshCommand {
           // CompactRequest. Otherwise, send the request to others
           if (!allMembers.isEmpty()) {
             // Invoke compact on all 'other' members
-            Map<DistributedMember, PersistentID> memberCompactInfo =
+            var memberCompactInfo =
                 CompactRequest.send(ds.getDistributionManager(), diskStoreName, allMembers);
             if (memberCompactInfo != null && !memberCompactInfo.isEmpty()) {
               overallCompactInfo.putAll(memberCompactInfo);
               memberCompactInfo.clear();
             }
-            String notExecutedMembers = CompactRequest.getNotExecutedMembers();
+            var notExecutedMembers = CompactRequest.getNotExecutedMembers();
             if (notExecutedMembers != null && !notExecutedMembers.isEmpty()) {
               LogWrapper.getInstance(getCache())
                   .info("compact disk-store \"" + diskStoreName
@@ -129,14 +124,14 @@ public class CompactDiskStoreCommand extends GfshCommand {
 
           // If compaction happened at all, then prepare the summary
           if (!overallCompactInfo.isEmpty()) {
-            Set<Map.Entry<DistributedMember, PersistentID>> entries = overallCompactInfo.entrySet();
+            var entries = overallCompactInfo.entrySet();
 
-            for (Map.Entry<DistributedMember, PersistentID> entry : entries) {
-              String memberId = entry.getKey().getName();
-              DataResultModel summary = result.addData(memberId);
+            for (var entry : entries) {
+              var memberId = entry.getKey().getName();
+              var summary = result.addData(memberId);
               summary.setHeader("On Member: " + memberId);
 
-              PersistentID persistentID = entry.getValue();
+              var persistentID = entry.getValue();
               if (persistentID != null) {
                 summary.addData("UUID", persistentID.getUUID());
                 summary.addData("Host", persistentID.getHost().getHostName());
@@ -160,8 +155,8 @@ public class CompactDiskStoreCommand extends GfshCommand {
   }
 
   private boolean diskStoreExists(String diskStoreName) {
-    ManagementService managementService = getManagementService();
-    DistributedSystemMXBean dsMXBean = managementService.getDistributedSystemMXBean();
+    var managementService = getManagementService();
+    var dsMXBean = managementService.getDistributedSystemMXBean();
 
     return Arrays.stream(dsMXBean.listMembers()).anyMatch(
         member -> DiskStoreCommandsUtils.diskStoreBeanAndMemberBeanDiskStoreExists(dsMXBean, member,

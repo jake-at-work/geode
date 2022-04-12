@@ -50,13 +50,13 @@ public class AddressManager extends Protocol {
     switch (evt.getType()) {
 
       case Event.FIND_MBRS:
-        List<Address> missing = (List<Address>) evt.getArg();
+        var missing = (List<Address>) evt.getArg();
 
-        Responses responses = new Responses(false);
-        for (Address laddr : missing) {
+        var responses = new Responses(false);
+        for (var laddr : missing) {
           try {
             if (laddr instanceof JGAddress) {
-              PingData pd = new PingData(laddr, true, laddr.toString(), newIpAddress(laddr));
+              var pd = new PingData(laddr, true, laddr.toString(), newIpAddress(laddr));
               responses.addResponse(pd, false);
               updateUDPCache(pd);
             }
@@ -71,7 +71,7 @@ public class AddressManager extends Protocol {
   }
 
   private IpAddress newIpAddress(Address jgaddr) {
-    JGAddress addr = (JGAddress) jgaddr;
+    var addr = (JGAddress) jgaddr;
     return addr.asIpAddress();
   }
 

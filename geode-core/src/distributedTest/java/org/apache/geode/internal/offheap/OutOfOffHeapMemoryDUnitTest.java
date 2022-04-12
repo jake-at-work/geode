@@ -35,7 +35,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.OutOfOffHeapMemoryException;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
@@ -75,7 +74,7 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public final void preTearDownAssertions() throws Exception {
-    final SerializableRunnable checkOrphans = new SerializableRunnable() {
+    final var checkOrphans = new SerializableRunnable() {
       @Override
       public void run() {
         if (hasCache()) {
@@ -114,7 +113,7 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.put(MCAST_PORT, "0");
     props.put(STATISTIC_SAMPLING_ENABLED, "true");
     if (isSmallerVM.get()) {
@@ -129,15 +128,15 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
   public void testSimpleOutOfOffHeapMemoryMemberDisconnects() {
     final DistributedSystem system = getSystem();
     final Cache cache = getCache();
-    final ClusterDistributionManager dm =
+    final var dm =
         (ClusterDistributionManager) ((InternalDistributedSystem) system).getDistributionManager();
 
-    Region<Object, Object> region =
+    var region =
         cache.createRegionFactory(getRegionShortcut()).setOffHeap(true).create(getRegionName());
     OutOfOffHeapMemoryException ooohme;
     try {
       Object value = new byte[1024];
-      for (int i = 0; true; i++) {
+      for (var i = 0; true; i++) {
         region.put("key-" + i, value);
       }
     } catch (OutOfOffHeapMemoryException e) {
@@ -154,7 +153,7 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
 
     // verify system was closed out due to OutOfOffHeapMemoryException
     assertFalse(system.isConnected());
-    InternalDistributedSystem ids = (InternalDistributedSystem) system;
+    var ids = (InternalDistributedSystem) system;
     try {
       ids.getDistributionManager();
       fail(
@@ -185,8 +184,8 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void assertRootCause(Throwable throwable, Class<?> expected) {
-    boolean passed = false;
-    Throwable cause = throwable.getCause();
+    var passed = false;
+    var cause = throwable.getCause();
     while (cause != null) {
       if (cause.getClass().equals(expected)) {
         passed = true;
@@ -202,12 +201,12 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testOtherMembersSeeOutOfOffHeapMemoryMemberDisconnects() {
-    final int vmCount = Host.getHost(0).getVMCount();
+    final var vmCount = Host.getHost(0).getVMCount();
 
-    final String name = getRegionName();
-    final RegionShortcut shortcut = getRegionShortcut();
-    final int biggerVM = 0;
-    final int smallerVM = 1;
+    final var name = getRegionName();
+    final var shortcut = getRegionShortcut();
+    final var biggerVM = 0;
+    final var smallerVM = 1;
 
     Host.getHost(0).getVM(smallerVM).invoke(new SerializableRunnable() {
       @Override
@@ -217,14 +216,14 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
     });
 
     // create off-heap region in all members
-    for (int i = 0; i < vmCount; i++) {
+    for (var i = 0; i < vmCount; i++) {
       Host.getHost(0).getVM(i).invoke(new SerializableRunnable() {
         @Override
         public void run() {
           OutOfOffHeapMemoryDUnitTest.cache.set(getCache());
           OutOfOffHeapMemoryDUnitTest.system.set(getSystem());
 
-          final Region<Object, Object> region = OutOfOffHeapMemoryDUnitTest.cache.get()
+          final var region = OutOfOffHeapMemoryDUnitTest.cache.get()
               .createRegionFactory(shortcut).setOffHeap(true).create(name);
           assertNotNull(region);
         }
@@ -232,15 +231,15 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
     }
 
     // make sure there are vmCount+1 members total
-    for (int i = 0; i < vmCount; i++) {
+    for (var i = 0; i < vmCount; i++) {
       Host.getHost(0).getVM(i).invoke(new SerializableRunnable() {
         @Override
         public void run() {
           assertFalse(OutOfOffHeapMemoryDUnitTest.cache.get().isClosed());
           assertTrue(OutOfOffHeapMemoryDUnitTest.system.get().isConnected());
 
-          final int countMembersPlusLocator = vmCount + 1; // +1 for locator
-          final int countOtherMembers = vmCount - 1; // -1 one for self
+          final var countMembersPlusLocator = vmCount + 1; // +1 for locator
+          final var countOtherMembers = vmCount - 1; // -1 one for self
 
           assertEquals(countMembersPlusLocator,
               ((InternalDistributedSystem) OutOfOffHeapMemoryDUnitTest.system.get())
@@ -257,14 +256,14 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         final long TIME_LIMIT = 30 * 1000;
-        final StopWatch stopWatch = new StopWatch(true);
+        final var stopWatch = new StopWatch(true);
 
-        int countOtherMembers = vmCount - 1; // -1 for self
-        final int countOtherMembersMinusSmaller = vmCount - 1 - 1; // -1 for self, -1 for smallerVM
+        var countOtherMembers = vmCount - 1; // -1 for self
+        final var countOtherMembersMinusSmaller = vmCount - 1 - 1; // -1 for self, -1 for smallerVM
 
-        final Region<Object, Object> region =
+        final var region =
             OutOfOffHeapMemoryDUnitTest.cache.get().getRegion(name);
-        for (int i = 0; countOtherMembers > countOtherMembersMinusSmaller; i++) {
+        for (var i = 0; countOtherMembers > countOtherMembersMinusSmaller; i++) {
           region.put("key-" + i, new byte[1024]);
           countOtherMembers =
               ((DistributedRegion) OutOfOffHeapMemoryDUnitTest.cache.get().getRegion(name))
@@ -287,16 +286,16 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
     });
 
     // verify that all other members noticed smaller member closed
-    for (int i = 0; i < vmCount; i++) {
+    for (var i = 0; i < vmCount; i++) {
       if (i == smallerVM) {
         continue;
       }
       Host.getHost(0).getVM(i).invoke(new SerializableRunnable() {
         @Override
         public void run() {
-          final int countMembersPlusLocator = vmCount + 1 - 1; // +1 for locator, -1 for OOOHME
+          final var countMembersPlusLocator = vmCount + 1 - 1; // +1 for locator, -1 for OOOHME
                                                                // member
-          final int countOtherMembers = vmCount - 1 - 1; // -1 for self, -1 for OOOHME member
+          final var countOtherMembers = vmCount - 1 - 1; // -1 for self, -1 for OOOHME member
 
           await()
               .until(numDistributionManagers(), equalTo(countMembersPlusLocator));
@@ -307,7 +306,7 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
 
         private Callable<Integer> numProfiles() {
           return () -> {
-            DistributedRegion dr =
+            var dr =
                 (DistributedRegion) OutOfOffHeapMemoryDUnitTest.cache.get().getRegion(name);
             return dr.getDistributionAdvisor().getNumProfiles();
           };
@@ -315,7 +314,7 @@ public class OutOfOffHeapMemoryDUnitTest extends JUnit4CacheTestCase {
 
         private Callable<Integer> numDistributionManagers() {
           return () -> {
-            InternalDistributedSystem ids =
+            var ids =
                 (InternalDistributedSystem) OutOfOffHeapMemoryDUnitTest.system.get();
             return ids.getDistributionManager().getDistributionManagerIds().size();
           };

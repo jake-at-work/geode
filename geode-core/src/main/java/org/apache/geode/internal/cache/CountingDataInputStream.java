@@ -68,77 +68,77 @@ public class CountingDataInputStream implements DataInput, AutoCloseable {
 
   @Override
   public int skipBytes(int n) throws IOException {
-    int result = dis.skipBytes(n);
+    var result = dis.skipBytes(n);
     count += result;
     return result;
   }
 
   @Override
   public boolean readBoolean() throws IOException {
-    boolean result = dis.readBoolean();
+    var result = dis.readBoolean();
     count += 1;
     return result;
   }
 
   @Override
   public byte readByte() throws IOException {
-    byte result = dis.readByte();
+    var result = dis.readByte();
     count += 1;
     return result;
   }
 
   @Override
   public int readUnsignedByte() throws IOException {
-    int result = dis.readUnsignedByte();
+    var result = dis.readUnsignedByte();
     count += 1;
     return result;
   }
 
   @Override
   public short readShort() throws IOException {
-    short result = dis.readShort();
+    var result = dis.readShort();
     count += 2;
     return result;
   }
 
   @Override
   public int readUnsignedShort() throws IOException {
-    int result = dis.readUnsignedShort();
+    var result = dis.readUnsignedShort();
     count += 2;
     return result;
   }
 
   @Override
   public char readChar() throws IOException {
-    char result = dis.readChar();
+    var result = dis.readChar();
     count += 2;
     return result;
   }
 
   @Override
   public int readInt() throws IOException {
-    int result = dis.readInt();
+    var result = dis.readInt();
     count += 4;
     return result;
   }
 
   @Override
   public long readLong() throws IOException {
-    long result = dis.readLong();
+    var result = dis.readLong();
     count += 8;
     return result;
   }
 
   @Override
   public float readFloat() throws IOException {
-    float result = dis.readFloat();
+    var result = dis.readFloat();
     count += 4;
     return result;
   }
 
   @Override
   public double readDouble() throws IOException {
-    double result = dis.readDouble();
+    var result = dis.readDouble();
     count += 8;
     return result;
   }

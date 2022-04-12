@@ -37,7 +37,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.wan.internal.GatewaySenderEventRemoteDispatcher;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.wan.WANTestBase;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -87,28 +86,28 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
   public void testWanAuthValidCredentials() {
     final CredentialGenerator credentialGenerator = new DummyCredentialGenerator();
 
-    final Properties extraProps = credentialGenerator.getSystemProperties();
+    final var extraProps = credentialGenerator.getSystemProperties();
 
-    final Properties senderCredentials = credentialGenerator.getValidCredentials(1);
+    final var senderCredentials = credentialGenerator.getValidCredentials(1);
     if (extraProps != null) {
       senderCredentials.putAll(extraProps);
     }
-    final Properties senderJavaProps = credentialGenerator.getJavaProperties();
+    final var senderJavaProps = credentialGenerator.getJavaProperties();
 
     // receiver's invalid credentials
-    final Properties receiverCredentials = credentialGenerator.getInvalidCredentials(1);
+    final var receiverCredentials = credentialGenerator.getInvalidCredentials(1);
     if (extraProps != null) {
       receiverCredentials.putAll(extraProps);
     }
-    final Properties receiverJavaProps = credentialGenerator.getJavaProperties();
+    final var receiverJavaProps = credentialGenerator.getJavaProperties();
 
-    final String clientAuthenticator = credentialGenerator.getAuthenticator();
-    final String clientAuthInit = credentialGenerator.getAuthInit();
+    final var clientAuthenticator = credentialGenerator.getAuthenticator();
+    final var clientAuthInit = credentialGenerator.getAuthInit();
 
-    final Properties senderSecurityProps =
+    final var senderSecurityProps =
         buildProperties(clientAuthenticator, clientAuthInit, null, senderCredentials, null);
     // have receiver start a cache with invalid credentials
-    final Properties receiverSecurityProps =
+    final var receiverSecurityProps =
         buildProperties(clientAuthenticator, clientAuthInit, null, receiverCredentials, null);
 
     // ------------------------------- Set Up With Valid Credentials -------------------------------
@@ -139,8 +138,8 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
 
   @Test
   public void testWanIntegratedSecurityWithValidCredentials() {
-    final Properties senderSecurityProps = buildSecurityProperties("admin", "secret");
-    final Properties receiverSecurityProps = buildSecurityProperties("guest", "guest");
+    final var senderSecurityProps = buildSecurityProperties("admin", "secret");
+    final var receiverSecurityProps = buildSecurityProperties("guest", "guest");
 
     // ------------------------------- Set Up With Valid Credentials -------------------------------
 
@@ -174,26 +173,26 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
   public void testWanAuthInvalidCredentials() {
     final CredentialGenerator credentialGenerator = new DummyCredentialGenerator();
 
-    final Properties extraProps = credentialGenerator.getSystemProperties();
+    final var extraProps = credentialGenerator.getSystemProperties();
 
-    final Properties senderCredentials = credentialGenerator.getInvalidCredentials(1);
+    final var senderCredentials = credentialGenerator.getInvalidCredentials(1);
     if (extraProps != null) {
       senderCredentials.putAll(extraProps);
     }
-    final Properties senderJavaProperties = credentialGenerator.getJavaProperties();
+    final var senderJavaProperties = credentialGenerator.getJavaProperties();
 
-    final Properties receiverCredentials = credentialGenerator.getInvalidCredentials(2);
+    final var receiverCredentials = credentialGenerator.getInvalidCredentials(2);
     if (extraProps != null) {
       receiverCredentials.putAll(extraProps);
     }
-    final Properties receiverJavaProps = credentialGenerator.getJavaProperties();
+    final var receiverJavaProps = credentialGenerator.getJavaProperties();
 
-    final String clientAuthenticator = credentialGenerator.getAuthenticator();
-    final String clientAuthInit = credentialGenerator.getAuthInit();
+    final var clientAuthenticator = credentialGenerator.getAuthenticator();
+    final var clientAuthInit = credentialGenerator.getAuthInit();
 
-    final Properties senderSecurityProps =
+    final var senderSecurityProps =
         buildProperties(clientAuthenticator, clientAuthInit, null, senderCredentials, null);
-    final Properties receiverSecurityPropsWithIncorrectSenderCreds =
+    final var receiverSecurityPropsWithIncorrectSenderCreds =
         buildProperties(clientAuthenticator, clientAuthInit, null, receiverCredentials, null);
 
     // ------------------------------ Set Up With Invalid Credentials ------------------------------
@@ -224,13 +223,13 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
    */
   @Test
   public void testWanSecurityManagerWithInvalidThenValidCredentials() {
-    final Properties senderSecurityProps = buildSecurityProperties("admin", "wrongPswd");
+    final var senderSecurityProps = buildSecurityProperties("admin", "wrongPswd");
 
-    final String securityJsonResource =
+    final var securityJsonResource =
         "org/apache/geode/internal/cache/wan/misc/NewWanAuthenticationDUnitTest.testWanSecurityManagerWithInvalidCredentials.security.json";
-    final Properties receiverSecurityPropsWithCorrectSenderCreds =
+    final var receiverSecurityPropsWithCorrectSenderCreds =
         buildSecurityProperties(securityJsonResource);
-    final Properties receiverSecurityPropsWithIncorrectSenderCreds = buildSecurityProperties();
+    final var receiverSecurityPropsWithIncorrectSenderCreds = buildSecurityProperties();
 
     // ------------------------------ Set Up With Invalid Credentials ------------------------------
 
@@ -268,16 +267,16 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
 
   @Test
   public void testWanSecurityManagerWithValidThenInvalidThenValidCredentials() {
-    final String securityJsonResource =
+    final var securityJsonResource =
         "org/apache/geode/internal/cache/wan/misc/NewWanAuthenticationDUnitTest.testWanSecurityManagerWithInvalidCredentials.security.json";
-    final String gatewayConnectionRetryIntervalConfigParameter =
+    final var gatewayConnectionRetryIntervalConfigParameter =
         GeodeGlossary.GEMFIRE_PREFIX + "gateway-connection-retry-interval";
 
-    final Properties senderSecurityProps = buildSecurityProperties("admin", "wrongPswd");
+    final var senderSecurityProps = buildSecurityProperties("admin", "wrongPswd");
 
-    final Properties receiverSecurityPropsWithCorrectSenderCreds =
+    final var receiverSecurityPropsWithCorrectSenderCreds =
         buildSecurityProperties(securityJsonResource);
-    final Properties receiverSecurityPropsWithIncorrectSenderCreds = buildSecurityProperties();
+    final var receiverSecurityPropsWithIncorrectSenderCreds = buildSecurityProperties();
 
     // ------------------------------- Set Up With Valid Credentials -------------------------------
 
@@ -335,29 +334,29 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
 
   @Test
   public void testWanAuthValidCredentialsWithServer() {
-    final DummyCredentialGenerator credentialGenerator = new DummyCredentialGenerator();
+    final var credentialGenerator = new DummyCredentialGenerator();
     credentialGenerator.init();
 
-    final Properties extraProps = credentialGenerator.getSystemProperties();
+    final var extraProps = credentialGenerator.getSystemProperties();
 
-    final Properties senderCredentials = credentialGenerator.getValidCredentials(1);
+    final var senderCredentials = credentialGenerator.getValidCredentials(1);
     if (extraProps != null) {
       senderCredentials.putAll(extraProps);
     }
-    final Properties senderJavaProps = credentialGenerator.getJavaProperties();
+    final var senderJavaProps = credentialGenerator.getJavaProperties();
 
-    final Properties receiverCredentials = credentialGenerator.getInvalidCredentials(2);
+    final var receiverCredentials = credentialGenerator.getInvalidCredentials(2);
     if (extraProps != null) {
       receiverCredentials.putAll(extraProps);
     }
-    final Properties receiverJavaProps = credentialGenerator.getJavaProperties();
+    final var receiverJavaProps = credentialGenerator.getJavaProperties();
 
-    final String clientAuthenticator = credentialGenerator.getAuthenticator();
-    final String clientAuthInit = UserPasswdAI.class.getName() + ".createAI";
+    final var clientAuthenticator = credentialGenerator.getAuthenticator();
+    final var clientAuthInit = UserPasswdAI.class.getName() + ".createAI";
 
-    final Properties senderSecurityProps =
+    final var senderSecurityProps =
         buildProperties(clientAuthenticator, clientAuthInit, null, senderCredentials, null);
-    final Properties receiverSecurityProps =
+    final var receiverSecurityProps =
         buildProperties(clientAuthenticator, clientAuthInit, null, receiverCredentials, null);
 
     // ------------------------------- Set Up With Valid Credentials -------------------------------
@@ -381,8 +380,8 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
 
   @Test
   public void testWanSecurityManagerAuthValidCredentialsWithServer() {
-    Properties senderSecurityProps = buildSecurityProperties("admin", "secret");
-    Properties receiverSecurityProps = buildSecurityProperties("guest", "guest");
+    var senderSecurityProps = buildSecurityProperties("admin", "secret");
+    var receiverSecurityProps = buildSecurityProperties("guest", "guest");
 
     // ------------------------------- Set Up With Valid Credentials -------------------------------
 
@@ -417,8 +416,8 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
     if (isQueueBlocked) {
       // caller is assuming that queue processing will not make progress
       try {
-        final LongAdder dispatchAttempts = new LongAdder();
-        final LongAdder ackReadAttempts = new LongAdder();
+        final var dispatchAttempts = new LongAdder();
+        final var ackReadAttempts = new LongAdder();
 
         GatewaySenderEventRemoteDispatcher.messageProcessingAttempted = isAck -> {
           if (isAck) {
@@ -476,7 +475,7 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
 
   private static Properties buildProperties(String clientauthenticator, String clientAuthInit,
       String accessor, Properties extraAuthProps, Properties extraAuthzProps) {
-    Properties authProps = new Properties();
+    var authProps = new Properties();
     if (clientauthenticator != null) {
       authProps.setProperty(SECURITY_CLIENT_AUTHENTICATOR, clientauthenticator);
     }
@@ -496,7 +495,7 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
   }
 
   private static Properties buildSecurityProperties(final String username, final String password) {
-    final Properties props = buildSecurityProperties();
+    final var props = buildSecurityProperties();
     props.put("security-username", username);
     props.put("security-password", password);
     return props;
@@ -504,13 +503,13 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
 
   private static Properties buildSecurityProperties(
       final String securityJsonResource) {
-    final Properties props = buildSecurityProperties();
+    final var props = buildSecurityProperties();
     props.put("security-json", securityJsonResource);
     return props;
   }
 
   private static Properties buildSecurityProperties() {
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.put(SECURITY_MANAGER, TestSecurityManager.class.getName());
     props.put(SECURITY_CLIENT_AUTH_INIT, UserPasswdAI.class.getName());
     props.put("security-json", securityJsonResource);
@@ -524,8 +523,8 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
     logger.info("Set the server properties to: " + authProps);
     logger.info("Set the java properties to: " + javaProps);
 
-    SecurityTestUtils tmpInstance = new SecurityTestUtils();
-    DistributedSystem ds = tmpInstance.createSystem(authProps, (Properties) javaProps);
+    var tmpInstance = new SecurityTestUtils();
+    var ds = tmpInstance.createSystem(authProps, (Properties) javaProps);
     assertNotNull(ds);
     assertTrue(ds.isConnected());
     cache = CacheFactory.create(ds);
@@ -541,10 +540,10 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
     @Override
     public Properties getCredentials(Properties props, DistributedMember server, boolean isPeer)
         throws AuthenticationFailedException {
-      boolean val = (CacheFactory.getAnyInstance().getDistributedSystem().getDistributedMember()
+      var val = (CacheFactory.getAnyInstance().getDistributedSystem().getDistributedMember()
           .getProcessId() != server.getProcessId());
       Assert.assertTrue(val, "getCredentials: Server should be different");
-      Properties p = super.getCredentials(props, server, isPeer);
+      var p = super.getCredentials(props, server, isPeer);
       if (val) {
         isDifferentServerInGetCredentialCall = true;
         CacheFactory.getAnyInstance().getLogger()

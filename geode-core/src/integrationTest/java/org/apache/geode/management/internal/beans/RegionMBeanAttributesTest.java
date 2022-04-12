@@ -18,8 +18,6 @@ package org.apache.geode.management.internal.beans;
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,7 +63,7 @@ public class RegionMBeanAttributesTest {
     bean = mBeanRule.getProxyMXBean(RegionMXBean.class);
 
     assertThat(bean).isNotNull();
-    Set<String> eventQueueIds = bean.listRegionAttributes().getAsyncEventQueueIds();
+    var eventQueueIds = bean.listRegionAttributes().getAsyncEventQueueIds();
     assertThat(eventQueueIds).containsExactly("AEQ1");
   }
 
@@ -80,7 +78,7 @@ public class RegionMBeanAttributesTest {
     bean = mBeanRule.getProxyMXBean(RegionMXBean.class);
 
     assertThat(bean).isNotNull();
-    Set<String> eventQueueIds = bean.listRegionAttributes().getAsyncEventQueueIds();
+    var eventQueueIds = bean.listRegionAttributes().getAsyncEventQueueIds();
     assertThat(eventQueueIds).containsExactly("AEQ1");
 
     gfsh.executeAndAssertThat("alter region --name=" + SEPARATOR + "FOO --async-event-queue-id=")

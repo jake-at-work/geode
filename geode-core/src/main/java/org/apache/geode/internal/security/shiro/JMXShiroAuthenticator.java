@@ -49,9 +49,9 @@ public class JMXShiroAuthenticator implements JMXAuthenticator, NotificationList
   @Override
   public Subject authenticate(Object credentials) {
     String username;
-    Properties credProps = new Properties();
+    var credProps = new Properties();
     if (credentials instanceof String[]) {
-      final String[] aCredentials = (String[]) credentials;
+      final var aCredentials = (String[]) credentials;
       username = aCredentials[0];
       credProps.setProperty(ResourceConstants.USER_NAME, aCredentials[0]);
       credProps.setProperty(ResourceConstants.PASSWORD, aCredentials[1]);
@@ -62,7 +62,7 @@ public class JMXShiroAuthenticator implements JMXAuthenticator, NotificationList
       throw new AuthenticationFailedException(MISSING_CREDENTIALS_MESSAGE);
     }
 
-    org.apache.shiro.subject.Subject shiroSubject = securityService.login(credProps);
+    var shiroSubject = securityService.login(credProps);
     Principal principal;
 
     if (shiroSubject == null) {
@@ -78,13 +78,13 @@ public class JMXShiroAuthenticator implements JMXAuthenticator, NotificationList
   @Override
   public void handleNotification(Notification notification, Object handback) {
     if (notification instanceof JMXConnectionNotification) {
-      JMXConnectionNotification cxNotification = (JMXConnectionNotification) notification;
-      String type = cxNotification.getType();
-      String connectionId = cxNotification.getConnectionId();
+      var cxNotification = (JMXConnectionNotification) notification;
+      var type = cxNotification.getType();
+      var connectionId = cxNotification.getConnectionId();
       if (JMXConnectionNotification.OPENED.equals(type)) {
         connectedUsers.put(connectionId, securityService.getSubject());
       } else if (JMXConnectionNotification.CLOSED.equals(type)) {
-        org.apache.shiro.subject.Subject subject = connectedUsers.remove(connectionId);
+        var subject = connectedUsers.remove(connectionId);
         securityService.bindSubject(subject);
         securityService.logout();
       }

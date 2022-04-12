@@ -17,8 +17,6 @@ package org.apache.geode.management.internal.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.io.File;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -51,7 +49,7 @@ public class DeployCommandsSecurityTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    File zipFile = temporaryFolder.newFile(zipFileName);
+    var zipFile = temporaryFolder.newFile(zipFileName);
     deployCommand = "deploy --jar=" + zipFile.getAbsolutePath();
   }
 
@@ -90,7 +88,7 @@ public class DeployCommandsSecurityTest {
   @Test // only power user can deploy
   @ConnectionConfiguration(user = "cluster,data", password = "cluster,data")
   public void testPowerAccess1() {
-    String result = bean.processCommand(deployCommand);
+    var result = bean.processCommand(deployCommand);
 
     assertThat(result).contains("can not be executed only from server side");
   }
@@ -99,7 +97,7 @@ public class DeployCommandsSecurityTest {
   @ConnectionConfiguration(user = "clusterManage,clusterWrite,dataManage,dataWrite",
       password = "clusterManage,clusterWrite,dataManage,dataWrite")
   public void testPowerAccess2() {
-    String result = bean.processCommand(deployCommand);
+    var result = bean.processCommand(deployCommand);
     assertThat(result).contains("can not be executed only from server side");
   }
 }

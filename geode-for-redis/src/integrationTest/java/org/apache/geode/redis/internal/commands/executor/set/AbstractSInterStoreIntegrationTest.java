@@ -93,7 +93,7 @@ public abstract class AbstractSInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sinterstore_withNoIntersectingMembers_returnsZero_doesNotCreateSetAtDestination() {
-    String[] secondSetMembers = new String[] {"apple", "microsoft", "linux", "peach"};
+    var secondSetMembers = new String[] {"apple", "microsoft", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
@@ -103,11 +103,11 @@ public abstract class AbstractSInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sinterstore_withSomeIntersectingMembers_returnsInterSize_storesInter() {
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String[] result = {"one", "two"};
+    var result = new String[] {"one", "two"};
     assertThat(jedis.sinterstore(DESTINATION_KEY, SET_KEY_1, SET_KEY_2)).isEqualTo(result.length);
     assertThat(jedis.smembers(DESTINATION_KEY)).containsExactlyInAnyOrder(result);
   }
@@ -146,7 +146,7 @@ public abstract class AbstractSInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sinterstore_withNonSetDestKey_withExistentSet_returnsInterSize_destKeyOverwrittenWithInter() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
@@ -156,7 +156,7 @@ public abstract class AbstractSInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sinterstore_withNonSetDestKey_withNonExistentSet_returnsZero_destKeyIsDeleted() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     assertThat(jedis.sinterstore(stringKey, NON_EXISTENT_SET)).isEqualTo(0);
@@ -165,7 +165,7 @@ public abstract class AbstractSInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sinterstore_withNonSetKeyAsFirstKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
@@ -176,7 +176,7 @@ public abstract class AbstractSInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sinterstore_withNonSetKeyAsThirdKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(DESTINATION_KEY, DESTINATION_MEMBERS);
@@ -188,7 +188,7 @@ public abstract class AbstractSInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sinterstore_withNonSetKeyAsThirdKeyAndNonExistentSetAsFirstKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
@@ -200,8 +200,8 @@ public abstract class AbstractSInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sinterstore_withSetsFromDifferentSlots_returnsCrossSlotError() {
-    String setKeyDifferentSlot = "{tag2}setKey2";
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var setKeyDifferentSlot = "{tag2}setKey2";
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(setKeyDifferentSlot, secondSetMembers);
 
@@ -211,12 +211,12 @@ public abstract class AbstractSInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void ensureSetConsistency_whenRunningConcurrently() {
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String[] result = {"one", "two"};
-    final AtomicLong sinterSizeReference = new AtomicLong(0);
+    var result = new String[] {"one", "two"};
+    final var sinterSizeReference = new AtomicLong(0);
     new ConcurrentLoopingThreads(1000,
         i -> jedis.srem(SET_KEY_2, secondSetMembers),
         i -> sinterSizeReference.set(jedis.sinterstore(DESTINATION_KEY, SET_KEY_1, SET_KEY_2)))

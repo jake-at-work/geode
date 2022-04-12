@@ -47,15 +47,15 @@ public class GatewaySenderMBeanBridgeTest {
   @Before
   public void before() throws Exception {
     gatewaySender = mock(AbstractGatewaySender.class);
-    GatewaySenderStats gwstats = mock(GatewaySenderStats.class);
+    var gwstats = mock(GatewaySenderStats.class);
     when(((AbstractGatewaySender) gatewaySender).getStatistics()).thenReturn(gwstats);
-    Statistics stats = mock(Statistics.class);
+    var stats = mock(Statistics.class);
     when(gwstats.getStats()).thenReturn(stats);
 
-    final long startTime = System.currentTimeMillis();
-    TestStatisticsManager manager =
+    final var startTime = System.currentTimeMillis();
+    var manager =
         new TestStatisticsManager(1, getClass().getSimpleName(), startTime);
-    StatArchiveHandlerConfig mockStatArchiveHandlerConfig = mock(StatArchiveHandlerConfig.class,
+    var mockStatArchiveHandlerConfig = mock(StatArchiveHandlerConfig.class,
         getClass().getSimpleName() + "$" + StatArchiveHandlerConfig.class.getSimpleName());
     when(mockStatArchiveHandlerConfig.getArchiveFileName()).thenReturn(new File(""));
     when(mockStatArchiveHandlerConfig.getArchiveFileSizeLimit()).thenReturn(0L);
@@ -67,11 +67,11 @@ public class GatewaySenderMBeanBridgeTest {
         .thenReturn(getClass().getSimpleName());
 
     StatisticsSampler sampler = new TestStatisticsSampler(manager);
-    SampleCollector sampleCollector = new SampleCollector(sampler);
+    var sampleCollector = new SampleCollector(sampler);
     sampleCollector.initialize(mockStatArchiveHandlerConfig, NanoTimer.getTime(),
         new MainWithChildrenRollingFileHandler());
 
-    StatisticsType type = mock(StatisticsType.class);
+    var type = mock(StatisticsType.class);
     when(stats.getType()).thenReturn(type);
     StatisticDescriptor[] descriptors = {};
     when(type.getStatistics()).thenReturn(descriptors);

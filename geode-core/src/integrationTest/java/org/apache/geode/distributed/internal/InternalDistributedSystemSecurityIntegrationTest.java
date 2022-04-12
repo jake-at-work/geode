@@ -50,11 +50,11 @@ public class InternalDistributedSystemSecurityIntegrationTest {
 
   @Test
   public void disconnectClosesSecurityManager() {
-    SecurityManager theSecurityManager = mock(SecurityManager.class);
+    var theSecurityManager = mock(SecurityManager.class);
 
-    SecurityConfig securityConfig =
+    var securityConfig =
         new SecurityConfig(theSecurityManager, mock(PostProcessor.class));
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
 
     system =
         InternalDistributedSystem.connectInternal(configProperties, securityConfig,
@@ -67,11 +67,11 @@ public class InternalDistributedSystemSecurityIntegrationTest {
 
   @Test
   public void disconnectClosesPostProcessor() {
-    PostProcessor thePostProcessor = mock(PostProcessor.class);
+    var thePostProcessor = mock(PostProcessor.class);
 
-    SecurityConfig securityConfig =
+    var securityConfig =
         new SecurityConfig(mock(SecurityManager.class), thePostProcessor);
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
 
     system = InternalDistributedSystem.connectInternal(
         configProperties, securityConfig, metricsSessionBuilder);

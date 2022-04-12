@@ -101,9 +101,9 @@ public class SimpleDiskRegionJUnitTest extends DiskRegionTestingBase {
   }
 
   void checkIfContainsFileWithSubstring(String substr) {
-    for (final File dir : dirs) {
-      File[] files = dir.listFiles();
-      for (final File file : files) {
+    for (final var dir : dirs) {
+      var files = dir.listFiles();
+      for (final var file : files) {
         if (file.getAbsolutePath().contains(substr)) {
           fail("file \"" + file.getAbsolutePath() + "\" still exists");
         }
@@ -112,9 +112,9 @@ public class SimpleDiskRegionJUnitTest extends DiskRegionTestingBase {
   }
 
   void expectContainsFileWithSubstring(String substr) {
-    for (final File dir : dirs) {
-      File[] files = dir.listFiles();
-      for (final File file : files) {
+    for (final var dir : dirs) {
+      var files = dir.listFiles();
+      for (final var file : files) {
         if (file.getAbsolutePath().contains(substr)) {
           return; // found one
         }
@@ -124,9 +124,9 @@ public class SimpleDiskRegionJUnitTest extends DiskRegionTestingBase {
   }
 
   void checkIfContainsFileWithExt(String fileExtension) {
-    for (final File dir : dirs) {
-      File[] files = dir.listFiles();
-      for (final File file : files) {
+    for (final var dir : dirs) {
+      var files = dir.listFiles();
+      for (final var file : files) {
         if (file.getAbsolutePath().endsWith(fileExtension)) {
           fail("file \"" + file.getAbsolutePath() + "\" still exists");
         }
@@ -197,12 +197,12 @@ public class SimpleDiskRegionJUnitTest extends DiskRegionTestingBase {
   public void testGetChild() {
     deleteFiles();
     region = DiskRegionHelperFactory.getAsyncPersistOnlyRegion(cache, diskProps);
-    DiskRegion dr = ((LocalRegion) region).getDiskRegion();
-    Oplog oplog = dr.testHook_getChild();
-    long id = oplog.getOplogId();
+    var dr = ((LocalRegion) region).getDiskRegion();
+    var oplog = dr.testHook_getChild();
+    var id = oplog.getOplogId();
 
     StatisticsFactory factory = region.getCache().getDistributedSystem();
-    Oplog newOplog =
+    var newOplog =
         new Oplog(id, dr.getOplogSet(), new DirectoryHolder(factory, dirs[0], 1000000, 0));
     dr.getDiskStore().getPersistentOplogs().setChild(newOplog);
     assertEquals(newOplog, dr.testHook_getChild());
@@ -220,23 +220,23 @@ public class SimpleDiskRegionJUnitTest extends DiskRegionTestingBase {
   public void testGetNextDir() {
     deleteFiles();
 
-    File file1 = new File("SimpleDiskRegionJUnitTestDir1");
+    var file1 = new File("SimpleDiskRegionJUnitTestDir1");
     file1.mkdir();
     file1.deleteOnExit();
 
-    File file2 = new File("SimpleDiskRegionJUnitTestDir2");
+    var file2 = new File("SimpleDiskRegionJUnitTestDir2");
     file2.mkdir();
     file2.deleteOnExit();
 
-    File file3 = new File("SimpleDiskRegionJUnitTestDir3");
+    var file3 = new File("SimpleDiskRegionJUnitTestDir3");
     file3.mkdir();
     file3.deleteOnExit();
 
-    File file4 = new File("SimpleDiskRegionJUnitTestDir4");
+    var file4 = new File("SimpleDiskRegionJUnitTestDir4");
     file4.mkdir();
     file4.deleteOnExit();
 
-    File[] oldDirs = new File[4];
+    var oldDirs = new File[4];
     oldDirs = dirs;
     dirs[0] = file1;
     dirs[1] = file2;
@@ -244,11 +244,11 @@ public class SimpleDiskRegionJUnitTest extends DiskRegionTestingBase {
     dirs[3] = file4;
     closeDiskStores();
     deleteFiles();
-    DiskRegionProperties diskProps = new DiskRegionProperties();
+    var diskProps = new DiskRegionProperties();
     diskProps.setDiskDirs(dirs);
 
     region = DiskRegionHelperFactory.getAsyncPersistOnlyRegion(cache, diskProps);
-    DiskRegion dr = ((LocalRegion) region).getDiskRegion();
+    var dr = ((LocalRegion) region).getDiskRegion();
     assertEquals(file2, dr.getNextDir().getDir());
     assertEquals(file3, dr.getNextDir().getDir());
     assertEquals(file4, dr.getNextDir().getDir());
@@ -266,12 +266,12 @@ public class SimpleDiskRegionJUnitTest extends DiskRegionTestingBase {
     deleteFiles();
     region = DiskRegionHelperFactory.getAsyncPersistOnlyRegion(cache, diskProps);
 
-    TestNewDiskId newDiskId = new TestNewDiskId();
-    Thread thread1 = new Thread(newDiskId);
-    Thread thread2 = new Thread(newDiskId);
-    Thread thread3 = new Thread(newDiskId);
-    Thread thread4 = new Thread(newDiskId);
-    Thread thread5 = new Thread(newDiskId);
+    var newDiskId = new TestNewDiskId();
+    var thread1 = new Thread(newDiskId);
+    var thread2 = new Thread(newDiskId);
+    var thread3 = new Thread(newDiskId);
+    var thread4 = new Thread(newDiskId);
+    var thread5 = new Thread(newDiskId);
 
     thread1.setDaemon(true);
     thread2.setDaemon(true);
@@ -302,7 +302,7 @@ public class SimpleDiskRegionJUnitTest extends DiskRegionTestingBase {
     @Override
     public void run() {
       long keyId = 0;
-      for (int i = 0; i < 10000; i++) {
+      for (var i = 0; i < 10000; i++) {
         keyId = ((LocalRegion) region).getDiskRegion().newOplogEntryId();
         keyIds.add(keyId);
       }

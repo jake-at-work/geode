@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.junit.After;
@@ -31,11 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Address;
@@ -64,18 +61,18 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
 
   @Test
   public void testMultiIteratorsMultiRegion1() throws Exception {
-    Object[][] r = new Object[4][2];
+    var r = new Object[4][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
-    Region r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r2.put(i + "", new Portfolio(i));
     }
 
@@ -83,17 +80,17 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     add1.add(new Address("411045", "Baner"));
     add1.add(new Address("411001", "DholePatilRd"));
 
-    Region r3 = CacheUtils.createRegion("employees", Employee.class);
-    for (int i = 0; i < 4; i++) {
+    var r3 = CacheUtils.createRegion("employees", Employee.class);
+    for (var i = 0; i < 4; i++) {
       r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
     }
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT DISTINCT * FROM " + SEPARATOR + "portfolio1 pf1, " + SEPARATOR + "portfolio2 pf2, "
             + SEPARATOR + "employees e WHERE pf1.status = 'active'",};
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
       r[i][0] = q.execute();
     }
     // Create Indexes
@@ -101,17 +98,17 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     qs.createIndex("statusIndexPf2", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolio2");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][1] = q.execute();
       if (!observer.isIndexesUsed) {
         fail("Index is NOT uesd");
       }
 
-      for (final Object o : observer.indexesUsed) {
-        String indexUsed = o.toString();
+      for (final var o : observer.indexesUsed) {
+        var indexUsed = o.toString();
         if (!(indexUsed).equals("statusIndexPf1")) {
           fail("<statusIndexPf1> was expected but found " + indexUsed);
         }
@@ -119,23 +116,23 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
 
       assertThat(observer.indexesUsed.size()).isGreaterThan(0);
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
   }
 
   @Test
   public void testMultiIteratorsMultiRegion2() throws Exception {
-    Object[][] r = new Object[4][2];
-    QueryService qs = CacheUtils.getQueryService();
+    var r = new Object[4][2];
+    var qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
-    Region r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r2.put(i + "", new Portfolio(i));
     }
 
@@ -143,18 +140,18 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     add1.add(new Address("411045", "Baner"));
     add1.add(new Address("411001", "DholePatilRd"));
 
-    Region r3 = CacheUtils.createRegion("employees", Employee.class);
-    for (int i = 0; i < 4; i++) {
+    var r3 = CacheUtils.createRegion("employees", Employee.class);
+    for (var i = 0; i < 4; i++) {
       r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
     }
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR022
         // Both the Indexes Must get used. Presently only one Index is being used.
         "SELECT DISTINCT * FROM " + SEPARATOR + "portfolio1 pf1, " + SEPARATOR + "portfolio2 pf2, "
             + SEPARATOR + "employees e1 WHERE pf1.status = 'active' AND e1.empId < 10"};
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
       r[i][0] = q.execute();
     }
     // Create Indexes & Execute the queries
@@ -162,20 +159,20 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
         SEPARATOR + "portfolio1 pf1");
     qs.createIndex("empIdIndex", IndexType.FUNCTIONAL, "e.empId", SEPARATOR + "employees e");
 
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][1] = q.execute();
       if (!observer.isIndexesUsed) {
         fail("Index is NOT uesd");
       }
-      int indxs = observer.indexesUsed.size();
+      var indxs = observer.indexesUsed.size();
       if (indxs != 2) {
         fail("Both the idexes are not getting used.Only " + indxs + " index is getting used");
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -191,26 +188,26 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
         }
       }
     }
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
   }
 
   @Test
   public void testMultiIteratorsMultiRegion3() throws Exception {
-    Object[][] r = new Object[9][2];
-    QueryService qs = CacheUtils.getQueryService();
+    var r = new Object[9][2];
+    var qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
-    Region r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r2.put(i + "", new Portfolio(i));
     }
-    String[] queries = {
+    var queries = new String[] {
         // Test Case No. IUMR004
         "SELECT DISTINCT * FROM " + SEPARATOR + "portfolio1 pf1, " + SEPARATOR
             + "portfolio2 pf2, pf1.positions.values posit1,"
@@ -237,8 +234,8 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
             + " pf1.collectionHolderMap.values coll1,pf2.collectionHolderMap.values coll2 "
             + " WHERE posit1.secId='IBM' OR posit2.secId='IBM'",};
     // Execute Queries Without Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
       r[i][0] = q.execute();
     }
     // Create Indexes and Execute the Queries
@@ -249,20 +246,20 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
         SEPARATOR
             + "portfolio2 pf2, pf2.collectionHolderMap.values coll2, pf2.positions.values pos22");
 
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][1] = q.execute();
       if (!observer.isIndexesUsed) {
         fail("Index is NOT uesd");
       }
-      int indxs = observer.indexesUsed.size();
+      var indxs = observer.indexesUsed.size();
       if (indxs != 2) {
         fail("Both the idexes are not getting used.Only " + indxs + " index is getting used");
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -279,34 +276,34 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
       }
     }
     // Verify the Query Results
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
   }
 
   @Test
   public void testMultiIteratorsMultiRegion4() throws Exception {
-    Object[][] r = new Object[4][2];
-    QueryService qs = CacheUtils.getQueryService();
+    var r = new Object[4][2];
+    var qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
-    Region r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r2.put(i + "", new Portfolio(i));
     }
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR024
         // Both the Indexes Must get used. Presently only one Index is being used.
         "SELECT DISTINCT * FROM " + SEPARATOR + "portfolio1 pf1, pf1.positions.values posit1, "
             + SEPARATOR
             + "portfolio2 pf2, pf2.positions.values posit2 WHERE pf2.status='active' AND posit1.secId='IBM'"};
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
       r[i][0] = q.execute();
     }
 
@@ -316,20 +313,20 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     qs.createIndex("statusIndexPf2", IndexType.FUNCTIONAL, "pf2.status",
         SEPARATOR + "portfolio2 pf2");
 
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][1] = q.execute();
       if (!observer.isIndexesUsed) {
         fail("Index is NOT uesd");
       }
-      int indxs = observer.indexesUsed.size();
+      var indxs = observer.indexesUsed.size();
       if (indxs != 2) {
         fail("Both the idexes are not getting used.Only " + indxs + " index is getting used");
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -346,23 +343,23 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
       }
     }
     // Verify the Query Results
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
   }
 
   @Test
   public void testMultiIteratorsMultiRegion5() throws Exception {
-    Object[][] r = new Object[4][2];
-    QueryService qs = CacheUtils.getQueryService();
+    var r = new Object[4][2];
+    var qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
-    Region r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r2.put(i + "", new Portfolio(i));
     }
 
@@ -370,20 +367,20 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     add1.add(new Address("411045", "Baner"));
     add1.add(new Address("411001", "DholePatilRd"));
 
-    Region r3 = CacheUtils.createRegion("employees", Employee.class);
-    for (int i = 0; i < 4; i++) {
+    var r3 = CacheUtils.createRegion("employees", Employee.class);
+    for (var i = 0; i < 4; i++) {
       r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
     }
-    String[] queries = {
+    var queries = new String[] {
         // Test case IUMR025
         // Three of the indexes must get used.. Presently only one Index is being used.
         "SELECT DISTINCT * FROM " + SEPARATOR + "portfolio1 pf1, " + SEPARATOR + "portfolio2 pf2, "
             + SEPARATOR
             + "employees e1 WHERE pf1.status = 'active' AND pf2.status = 'active' AND e1.empId < 10"};
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][0] = q.execute();
     }
@@ -394,20 +391,20 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
         SEPARATOR + "portfolio2 pf2");
     qs.createIndex("empIdIndex", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employees");
 
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][1] = q.execute();
       if (!observer.isIndexesUsed) {
         fail("Index is NOT uesd");
       }
-      int indxs = observer.indexesUsed.size();
+      var indxs = observer.indexesUsed.size();
       if (indxs != 3) {
         fail("Three of the idexes are not getting used. Only " + indxs + " index is getting used");
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -427,26 +424,26 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
       }
     }
     // Verify the Query Results
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
   }
 
   @Test
   public void testMultiIteratorsMultiRegion6() throws Exception {
-    Object[][] r = new Object[4][2];
-    QueryService qs = CacheUtils.getQueryService();
+    var r = new Object[4][2];
+    var qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
-    Region r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r2.put(i + "", new Portfolio(i));
     }
-    String[] queries = {
+    var queries = new String[] {
         // Both the Indexes Must get used. Presently only one Index is being used.
         " SELECT DISTINCT * FROM " + SEPARATOR + "portfolio1 pf1, " + SEPARATOR
             + "portfolio2 pf2, pf1.positions.values posit1,"
@@ -457,8 +454,8 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
             + "portfolio2 pf2, pf2.collectionHolderMap.values coll2, pf2.positions.values posit2 "
             + " WHERE posit1.secId='IBM' AND posit2.secId='IBM'",};
     // Execute Queries Without Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
       r[i][0] = q.execute();
     }
     // Create Indexes and Execute the Queries
@@ -467,20 +464,20 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     qs.createIndex("secIdIndexPf2", IndexType.FUNCTIONAL, "pos22.secId",
         SEPARATOR + "portfolio2 pf2, pf2.positions.values pos22");
 
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][1] = q.execute();
       if (!observer.isIndexesUsed) {
         fail("Index is NOT uesd");
       }
-      int indxs = observer.indexesUsed.size();
+      var indxs = observer.indexesUsed.size();
       if (indxs != 2) {
         fail("Both the idexes are not getting used.Only " + indxs + " index is getting used");
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -497,26 +494,26 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
       }
     }
     // Verify the Query Results
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
   }
 
   @Test
   public void testMultiIteratorsMultiRegion7() throws Exception {
-    Object[][] r = new Object[4][2];
-    QueryService qs = CacheUtils.getQueryService();
+    var r = new Object[4][2];
+    var qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
-    Region r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r2.put(i + "", new Portfolio(i));
     }
-    String[] queries = {
+    var queries = new String[] {
         // Task IUMR007
         "SELECT DISTINCT coll1 as collHldrMap1 , coll2 as CollHldrMap2 FROM " + SEPARATOR
             + "portfolio1 pf1, " + SEPARATOR
@@ -524,8 +521,8 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
             + "pf1.collectionHolderMap.values coll1, pf2.collectionHolderMap.values coll2 "
             + "WHERE posit1.secId='IBM' OR posit2.secId='IBM'",};
     // Execute Queries Without Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
       r[i][0] = q.execute();
     }
     // Create Indexes and Execute the Queries
@@ -535,20 +532,20 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
         SEPARATOR
             + "portfolio2 pf2, pf2.collectionHolderMap.values coll2, pf2.positions.values pos22");
 
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][1] = q.execute();
       if (!observer.isIndexesUsed) {
         fail("Index is NOT uesd");
       }
-      int indxs = observer.indexesUsed.size();
+      var indxs = observer.indexesUsed.size();
       if (indxs != 2) {
         fail("Both the idexes are not getting used.Only " + indxs + " index is getting used");
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -565,23 +562,23 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
       }
     }
     // Verify the Query Results
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
   }
 
   @Test
   public void testMultiIteratorsMultiRegion8() throws Exception {
-    Object[][] r = new Object[4][2];
-    QueryService qs = CacheUtils.getQueryService();
+    var r = new Object[4][2];
+    var qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
-    Region r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r2 = CacheUtils.createRegion("portfolio2", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r2.put(i + "", new Portfolio(i));
     }
 
@@ -589,16 +586,16 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     add1.add(new Address("411045", "Baner"));
     add1.add(new Address("411001", "DholePatilRd"));
 
-    Region r3 = CacheUtils.createRegion("employees", Employee.class);
-    for (int i = 0; i < 4; i++) {
+    var r3 = CacheUtils.createRegion("employees", Employee.class);
+    for (var i = 0; i < 4; i++) {
       r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
     }
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR + "portfolio1 pf1, pf1.positions.values posit1, "
             + SEPARATOR + "portfolio2 pf2, " + SEPARATOR + "employees e WHERE posit1.secId='IBM'"};
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
       r[i][0] = q.execute();
     }
     // Create Indexes
@@ -607,21 +604,21 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
         SEPARATOR + "portfolio1 pf1, pf1.positions.values posit1");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][1] = q.execute();
       if (!observer.isIndexesUsed) {
         fail("Index is NOT uesd");
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("secIdIndexPf1", itr.next().toString());
 
       assertThat(observer.indexesUsed.size()).isGreaterThan(0);
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
   }
 
@@ -630,23 +627,23 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     try {
       IndexManager.TEST_RANGEINDEX_ONLY = true;
 
-      QueryService qs = CacheUtils.getQueryService();
+      var qs = CacheUtils.getQueryService();
       Position.resetCounter();
       // Create Regions
-      Region r1 = CacheUtils.createRegion("portfolio", Portfolio.class);
-      for (int i = 0; i < 1000; i++) {
+      var r1 = CacheUtils.createRegion("portfolio", Portfolio.class);
+      for (var i = 0; i < 1000; i++) {
         r1.put(i + "", new Portfolio(i));
       }
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
 
-      Region r2 = CacheUtils.createRegion("employee", Employee.class);
-      for (int i = 0; i < 1000; i++) {
+      var r2 = CacheUtils.createRegion("employee", Employee.class);
+      for (var i = 0; i < 1000; i++) {
         r2.put(i + "", new Employee("empName", (20 + i), i /* empId */, "Mr.", (5000 + i), add1));
       }
 
-      String[][] queriesWithResCount = {
+      var queriesWithResCount = new String[][] {
           // Test case No. IUMR021
           {"SELECT DISTINCT * FROM " + SEPARATOR + "portfolio pf, " + SEPARATOR
               + "employee emp WHERE pf.ID = emp.empId",
@@ -677,13 +674,13 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
               + "employee emp WHERE pf.ID = emp.empId AND (pf.status='active' OR pf.ID > 499)",
               "" + 750},};
 
-      String[] queries = new String[queriesWithResCount.length];
-      Object[][] r = new Object[queries.length][2];
+      var queries = new String[queriesWithResCount.length];
+      var r = new Object[queries.length][2];
 
       // Execute Queries without Indexes
-      for (int i = 0; i < queries.length; i++) {
+      for (var i = 0; i < queries.length; i++) {
         queries[i] = queriesWithResCount[i][0];
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i][0] = q.execute();
         assertTrue(r[i][0] instanceof SelectResults);
         assertEquals(Integer.parseInt(queriesWithResCount[i][1]), ((SelectResults) r[i][0]).size());
@@ -694,9 +691,9 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
       qs.createIndex("empIdIndexPf2", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employee");
 
       // Execute Queries with Indexes
-      for (int i = 0; i < queries.length; i++) {
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+      for (var i = 0; i < queries.length; i++) {
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
         assertTrue(r[i][0] instanceof SelectResults);
@@ -705,8 +702,8 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
           fail("Index is NOT used for query" + queries[i]);
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String temp = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var temp = o.toString();
           if (!(temp.equals("idIndexPf") || temp.equals("empIdIndexPf2")
               || temp.equals("statusIndexPf"))) {
             fail("<idIndexPf> or <empIdIndexPf2>    was expected but found " + temp);
@@ -714,11 +711,11 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
         }
 
         if (i != 3 /* For join query without parenthesis */) {
-          int indxs = observer.indexesUsed.size();
+          var indxs = observer.indexesUsed.size();
           assertTrue("Indexes used is not of size >= 2", indxs >= 2);
         }
       }
-      StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+      var ssOrrs = new StructSetOrResultsSet();
       ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
     } finally {
       IndexManager.TEST_RANGEINDEX_ONLY = false;
@@ -730,30 +727,30 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     try {
       IndexManager.TEST_RANGEINDEX_ONLY = true;
 
-      Object[][] r = new Object[1][2];
-      QueryService qs = CacheUtils.getQueryService();
+      var r = new Object[1][2];
+      var qs = CacheUtils.getQueryService();
       Position.resetCounter();
       // Create Regions
-      Region r1 = CacheUtils.createRegion("portfolio", Portfolio.class);
-      for (int i = 0; i < 1000; i++) {
+      var r1 = CacheUtils.createRegion("portfolio", Portfolio.class);
+      for (var i = 0; i < 1000; i++) {
         r1.put(i + "", new Portfolio(i));
       }
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
 
-      Region r2 = CacheUtils.createRegion("employee", Employee.class);
-      for (int i = 0; i < 1000; i++) {
+      var r2 = CacheUtils.createRegion("employee", Employee.class);
+      for (var i = 0; i < 1000; i++) {
         r2.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
 
-      String[] queries = {
+      var queries = new String[] {
           // Test case No. IUMR021
           "SELECT DISTINCT * FROM " + SEPARATOR + "portfolio pf, pf.positions pos, " + SEPARATOR
               + "employee emp WHERE pf.iD = emp.empId",};
       // Execute Queries without Indexes
-      for (int i = 0; i < queries.length; i++) {
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+      for (var i = 0; i < queries.length; i++) {
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i][0] = q.execute();
       }
       // Create Indexes
@@ -762,26 +759,26 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
       qs.createIndex("empIdIndexPf2", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employee");
 
       // Execute Queries with Indexes
-      for (int i = 0; i < queries.length; i++) {
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+      for (var i = 0; i < queries.length; i++) {
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
         if (!observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String temp = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var temp = o.toString();
           if (!(temp.equals("idIndexPf") || temp.equals("empIdIndexPf2"))) {
             fail("<idIndexPf> or <empIdIndexPf2>    was expected but found " + temp);
           }
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
         assertTrue("Indexes used is not of size = 2", indxs == 2);
       }
-      StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+      var ssOrrs = new StructSetOrResultsSet();
       ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
     } finally {
       IndexManager.TEST_RANGEINDEX_ONLY = false;
@@ -792,30 +789,30 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
   public void testBasicCompositeIndexUsageWithMultipleIndexes() throws Exception {
     try {
       IndexManager.TEST_RANGEINDEX_ONLY = true;
-      Object[][] r = new Object[1][2];
-      QueryService qs = CacheUtils.getQueryService();
+      var r = new Object[1][2];
+      var qs = CacheUtils.getQueryService();
       Position.resetCounter();
       // Create Regions
-      Region r1 = CacheUtils.createRegion("portfolio", Portfolio.class);
-      for (int i = 0; i < 1000; i++) {
+      var r1 = CacheUtils.createRegion("portfolio", Portfolio.class);
+      for (var i = 0; i < 1000; i++) {
         r1.put(i + "", new Portfolio(i));
       }
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
 
-      Region r2 = CacheUtils.createRegion("employee", Employee.class);
-      for (int i = 0; i < 1000; i++) {
+      var r2 = CacheUtils.createRegion("employee", Employee.class);
+      for (var i = 0; i < 1000; i++) {
         r2.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
 
-      String[] queries = {
+      var queries = new String[] {
           // Test case No. IUMR021
           "SELECT DISTINCT * FROM " + SEPARATOR + "portfolio pf, pf.positions pos, " + SEPARATOR
               + "employee emp WHERE pf.iD = emp.empId and pf.status='active' and emp.age > 900",};
       // Execute Queries without Indexes
-      for (int i = 0; i < queries.length; i++) {
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+      for (var i = 0; i < queries.length; i++) {
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i][0] = q.execute();
       }
       // Create Indexes
@@ -824,27 +821,27 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
       qs.createIndex("empIdIndexPf2", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employee");
       qs.createIndex("ageIndexemp", IndexType.FUNCTIONAL, "age", SEPARATOR + "employee emp ");
       // Execute Queries with Indexes
-      for (int i = 0; i < queries.length; i++) {
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+      for (var i = 0; i < queries.length; i++) {
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
         if (!observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String temp = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var temp = o.toString();
           if (!(temp.equals("ageIndexemp") || temp.equals("idIndexPf")
               || temp.equals("empIdIndexPf2") || temp.equals("statusIndexPf2"))) {
             fail("<idIndexPf> or <empIdIndexPf2>    was expected but found " + temp);
           }
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
         assertTrue("Indexes used is not of size = 3", indxs == 3);
       }
-      StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+      var ssOrrs = new StructSetOrResultsSet();
       ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
     } finally {
       IndexManager.TEST_RANGEINDEX_ONLY = false;
@@ -855,15 +852,15 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
   public void testAssertionBug() throws Exception {
     try {
       IndexManager.TEST_RANGEINDEX_ONLY = true;
-      Region region1 = CacheUtils.createRegion("Quotes1", Quote.class);
-      Region region2 = CacheUtils.createRegion("Quotes2", Quote.class);
-      Region region3 = CacheUtils.createRegion("Restricted1", Restricted.class);
-      for (int i = 0; i < 10; i++) {
+      var region1 = CacheUtils.createRegion("Quotes1", Quote.class);
+      var region2 = CacheUtils.createRegion("Quotes2", Quote.class);
+      var region3 = CacheUtils.createRegion("Restricted1", Restricted.class);
+      for (var i = 0; i < 10; i++) {
         region1.put(i, new Quote(i));
         region2.put(i, new Quote(i));
         region3.put(i, new Restricted(i));
       }
-      QueryService qs = CacheUtils.getQueryService();
+      var qs = CacheUtils.getQueryService();
       ////////// creating indexes on region Quotes1
       qs.createIndex("Quotes1Region-quoteIdStrIndex", IndexType.PRIMARY_KEY, "q.quoteIdStr",
           SEPARATOR + "Quotes1 q");
@@ -928,7 +925,7 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
           SEPARATOR + "Restricted1 r");
       qs.createIndex("RestrictedRegion-maxQtyIndex-1", IndexType.FUNCTIONAL, "r.maxQty",
           SEPARATOR + "Restricted1 r");
-      Query q = qs.newQuery(
+      var q = qs.newQuery(
           "SELECT DISTINCT  q.cusip, q.quoteType, q.dealerPortfolio, q.channelName, q.dealerCode, q.priceType, q.price, q.lowerQty, q.upperQty, q.ytm, r.minQty, r.maxQty, r.incQty FROM "
               + SEPARATOR + "Quotes1 q, " + SEPARATOR
               + "Restricted1 r WHERE q.cusip = r.cusip AND q.quoteType = r.quoteType");
@@ -943,36 +940,36 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
     try {
       IndexManager.TEST_RANGEINDEX_ONLY = true;
 
-      Object[][] r = new Object[1][2];
-      QueryService qs = CacheUtils.getQueryService();
+      var r = new Object[1][2];
+      var qs = CacheUtils.getQueryService();
       Position.resetCounter();
       // Create Regions
-      Region r1 = CacheUtils.createRegion("portfolio", Portfolio.class);
-      for (int i = 0; i < 100; i++) {
+      var r1 = CacheUtils.createRegion("portfolio", Portfolio.class);
+      for (var i = 0; i < 100; i++) {
         r1.put(i + "", new Portfolio(i));
       }
 
-      Region r3 = CacheUtils.createRegion("portfolio3", Portfolio.class);
-      for (int i = 0; i < 10; i++) {
+      var r3 = CacheUtils.createRegion("portfolio3", Portfolio.class);
+      for (var i = 0; i < 10; i++) {
         r3.put(i + "", new Portfolio(i));
       }
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
 
-      Region r2 = CacheUtils.createRegion("employee", Employee.class);
-      for (int i = 0; i < 100; i++) {
+      var r2 = CacheUtils.createRegion("employee", Employee.class);
+      for (var i = 0; i < 100; i++) {
         r2.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
 
-      String[] queries = {
+      var queries = new String[] {
           // Test case No. IUMR021
           "SELECT DISTINCT * FROM " + SEPARATOR + "portfolio pf, pf.positions pos, " + SEPARATOR
               + "portfolio3 pf3, " + SEPARATOR
               + "employee emp WHERE pf.iD = emp.empId and pf.status='active' and emp.age > 50 and pf3.status='active'",};
       // Execute Queries without Indexes
-      for (int i = 0; i < queries.length; i++) {
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
+      for (var i = 0; i < queries.length; i++) {
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i][0] = q.execute();
       }
       // Create Indexes
@@ -983,27 +980,27 @@ public class IUMRMultiIndexesMultiRegionJUnitTest {
           SEPARATOR + "portfolio3 pf3 ");
       qs.createIndex("ageIndexemp", IndexType.FUNCTIONAL, "age", SEPARATOR + "employee emp ");
       // Execute Queries with Indexes
-      for (int i = 0; i < queries.length; i++) {
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+      for (var i = 0; i < queries.length; i++) {
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
         if (!observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String temp = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var temp = o.toString();
           if (!(temp.equals("ageIndexemp") || temp.equals("idIndexPf")
               || temp.equals("empIdIndexPf2") || temp.equals("statusIndexPf3"))) {
             fail("<idIndexPf> or <empIdIndexPf2>    was expected but found " + temp);
           }
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
         assertTrue("Indexes used is not of size = 4 but of size = " + indxs, indxs == 4);
       }
-      StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+      var ssOrrs = new StructSetOrResultsSet();
       ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
     } finally {
       IndexManager.TEST_RANGEINDEX_ONLY = false;

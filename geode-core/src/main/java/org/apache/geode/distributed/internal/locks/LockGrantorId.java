@@ -116,10 +116,10 @@ public class LockGrantorId {
     if (otherLockGrantorId == null) {
       return true;
     }
-    boolean isNewer = lockGrantorVersion > otherLockGrantorId.getLockGrantorVersion();
+    var isNewer = lockGrantorVersion > otherLockGrantorId.getLockGrantorVersion();
     if (!isNewer && lockGrantorMember.equals(otherLockGrantorId.getLockGrantorMember())) {
-      int otherGrantorSerialNumber = otherLockGrantorId.getLockGrantorSerialNumber();
-      boolean serialRolled =
+      var otherGrantorSerialNumber = otherLockGrantorId.getLockGrantorSerialNumber();
+      var serialRolled =
           lockGrantorSerialNumber > ROLLOVER_MARGIN && otherGrantorSerialNumber < 0;
       isNewer = serialRolled || lockGrantorSerialNumber > otherGrantorSerialNumber;
     }
@@ -204,7 +204,7 @@ public class LockGrantorId {
     if (!(other instanceof LockGrantorId)) {
       return false;
     }
-    final LockGrantorId that = (LockGrantorId) other;
+    final var that = (LockGrantorId) other;
 
     if (lockGrantorMember != that.lockGrantorMember && !(lockGrantorMember != null
         && lockGrantorMember.equals(that.lockGrantorMember))) {
@@ -224,8 +224,8 @@ public class LockGrantorId {
    */
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result =
         mult * result + (lockGrantorMember == null ? 0 : lockGrantorMember.hashCode());

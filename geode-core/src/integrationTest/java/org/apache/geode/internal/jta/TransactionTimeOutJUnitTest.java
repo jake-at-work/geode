@@ -26,13 +26,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Properties;
 import java.util.Random;
 
-import javax.naming.Context;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
 
@@ -63,22 +59,22 @@ public class TransactionTimeOutJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
 
-    int pid = new Random().nextInt();
+    var pid = new Random().nextInt();
 
-    File tmpFile = File.createTempFile("dunit-cachejta_", ".xml");
+    var tmpFile = File.createTempFile("dunit-cachejta_", ".xml");
     tmpFile.deleteOnExit();
 
-    String path = tmpFile.getAbsolutePath();
-    String file_as_str =
+    var path = tmpFile.getAbsolutePath();
+    var file_as_str =
         readFile(createTempFileFromResource(TransactionTimeOutJUnitTest.class, "/jta/cachejta.xml")
             .getAbsolutePath());
-    String modified_file_str = file_as_str.replaceAll("newDB", "newDB_" + pid);
+    var modified_file_str = file_as_str.replaceAll("newDB", "newDB_" + pid);
 
-    FileOutputStream fos = new FileOutputStream(path);
-    BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(fos));
+    var fos = new FileOutputStream(path);
+    var wr = new BufferedWriter(new OutputStreamWriter(fos));
     wr.write(modified_file_str);
     wr.flush();
     wr.close();
@@ -174,16 +170,16 @@ public class TransactionTimeOutJUnitTest {
 
   @Test
   public void test7Commit() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var ctx = cache.getJNDIContext();
+    var ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
     ds2.getConnection();
-    GemFireTransactionDataSource ds =
+    var ds =
         (GemFireTransactionDataSource) ctx.lookup("java:/XAPooledDataSource");
-    UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
     utx.begin();
-    Connection conn = ds.getConnection();
-    String sql = "create table newTable1 (id integer)";
-    Statement sm = conn.createStatement();
+    var conn = ds.getConnection();
+    var sql = "create table newTable1 (id integer)";
+    var sm = conn.createStatement();
     sm.execute(sql);
     utx.setTransactionTimeout(30);
     Thread.sleep(5000);
@@ -193,7 +189,7 @@ public class TransactionTimeOutJUnitTest {
     sm.execute(sql);
     utx.commit();
     sql = "select * from newTable1 where id = 1";
-    ResultSet rs = sm.executeQuery(sql);
+    var rs = sm.executeQuery(sql);
     if (!rs.next()) {
       fail("Transaction not committed");
     }
@@ -205,22 +201,22 @@ public class TransactionTimeOutJUnitTest {
 
   @Test
   public void test8CommitAfterTimeOut() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var ctx = cache.getJNDIContext();
+    var ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
     ds2.getConnection();
-    GemFireTransactionDataSource ds =
+    var ds =
         (GemFireTransactionDataSource) ctx.lookup("java:/XAPooledDataSource");
-    UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
     utx.begin();
-    Connection conn = ds.getConnection();
-    String sql = "create table newTable2 (id integer)";
-    Statement sm = conn.createStatement();
+    var conn = ds.getConnection();
+    var sql = "create table newTable2 (id integer)";
+    var sm = conn.createStatement();
     sm.execute(sql);
     utx.setTransactionTimeout(30);
     sql = "insert into newTable2  values (1)";
     sm.execute(sql);
     sql = "select * from newTable2 where id = 1";
-    ResultSet rs = sm.executeQuery(sql);
+    var rs = sm.executeQuery(sql);
     if (!rs.next()) {
       fail("Transaction not committed");
     }
@@ -239,22 +235,22 @@ public class TransactionTimeOutJUnitTest {
 
   @Test
   public void test9RollbackAfterTimeOut() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
-    Connection conn2 = ds2.getConnection();
-    GemFireTransactionDataSource ds =
+    var ctx = cache.getJNDIContext();
+    var ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var conn2 = ds2.getConnection();
+    var ds =
         (GemFireTransactionDataSource) ctx.lookup("java:/XAPooledDataSource");
-    UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
     utx.begin();
-    Connection conn = ds.getConnection();
-    String sql = "create table newTable3 (id integer)";
-    Statement sm = conn.createStatement();
+    var conn = ds.getConnection();
+    var sql = "create table newTable3 (id integer)";
+    var sm = conn.createStatement();
     sm.execute(sql);
     utx.setTransactionTimeout(30);
     sql = "insert into newTable3  values (1)";
     sm.execute(sql);
     sql = "select * from newTable3 where id = 1";
-    ResultSet rs = sm.executeQuery(sql);
+    var rs = sm.executeQuery(sql);
     if (!rs.next()) {
       fail("Transaction not committed");
     }
@@ -273,9 +269,9 @@ public class TransactionTimeOutJUnitTest {
   }
 
   private static String readFile(String filename) throws IOException {
-    BufferedReader br = new BufferedReader(new FileReader(filename));
-    String nextLine = "";
-    StringBuilder sb = new StringBuilder();
+    var br = new BufferedReader(new FileReader(filename));
+    var nextLine = "";
+    var sb = new StringBuilder();
     while ((nextLine = br.readLine()) != null) {
       sb.append(nextLine);
       //

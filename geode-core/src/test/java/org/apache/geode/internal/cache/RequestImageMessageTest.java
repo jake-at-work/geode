@@ -26,7 +26,7 @@ public class RequestImageMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    RequestImageMessage mockRequestImageMessage = mock(RequestImageMessage.class);
+    var mockRequestImageMessage = mock(RequestImageMessage.class);
     when(mockRequestImageMessage.getProcessorType()).thenReturn(1);
     assertThat(mockRequestImageMessage.getProcessorType()).isEqualTo(1);
   }

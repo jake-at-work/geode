@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -64,7 +63,7 @@ public class OrderStatisticsTreeTest {
   public void testAdd() {
     assertThat(tree.isEmpty()).isEqualTo(set.isEmpty());
 
-    for (int i = 10; i < 30; i += 2) {
+    for (var i = 10; i < 30; i += 2) {
       assertThat(tree.isHealthy()).isTrue();
       assertThat(tree.contains(i)).isEqualTo(set.contains(i));
       assertThat(tree.add(i)).isEqualTo(set.add(i));
@@ -78,7 +77,7 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testAddAll() {
-    for (int i = 0; i < 10; ++i) {
+    for (var i = 0; i < 10; ++i) {
       assertThat(tree.add(i)).isEqualTo(set.add(i));
     }
 
@@ -87,14 +86,14 @@ public class OrderStatisticsTreeTest {
     assertThat(tree.addAll(coll)).isEqualTo(set.addAll(coll));
     assertThat(tree.size()).isEqualTo(set.size());
 
-    for (int i = -10; i < 20; ++i) {
+    for (var i = -10; i < 20; ++i) {
       assertThat(tree.contains(i)).isEqualTo(set.contains(i));
     }
   }
 
   @Test
   public void testClear() {
-    for (int i = 0; i < 2000; ++i) {
+    for (var i = 0; i < 2000; ++i) {
       set.add(i);
       tree.add(i);
     }
@@ -108,7 +107,7 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testContains() {
-    for (int i = 100; i < 200; i += 3) {
+    for (var i = 100; i < 200; i += 3) {
       assertThat(tree.isHealthy()).isTrue();
       assertThat(tree.add(i)).isEqualTo(set.add(i));
       assertThat(tree.isHealthy()).isTrue();
@@ -116,21 +115,21 @@ public class OrderStatisticsTreeTest {
 
     assertThat(tree.size()).isEqualTo(set.size());
 
-    for (int i = 0; i < 300; ++i) {
+    for (var i = 0; i < 300; ++i) {
       assertThat(tree.contains(i)).isEqualTo(set.contains(i));
     }
   }
 
   @Test
   public void testContainsAll() {
-    for (int i = 0; i < 50; ++i) {
+    for (var i = 0; i < 50; ++i) {
       set.add(i);
       tree.add(i);
     }
 
     Collection<Integer> coll = new HashSet<>();
 
-    for (int i = 10; i < 20; ++i) {
+    for (var i = 10; i < 20; ++i) {
       coll.add(i);
     }
 
@@ -141,16 +140,16 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testRemove() {
-    for (int i = 0; i < 200; ++i) {
+    for (var i = 0; i < 200; ++i) {
       assertThat(tree.add(i)).isEqualTo(set.add(i));
     }
 
-    for (int i = 50; i < 150; i += 2) {
+    for (var i = 50; i < 150; i += 2) {
       assertThat(tree.remove(i)).isEqualTo(set.remove(i));
       assertThat(tree.isHealthy()).isTrue();
     }
 
-    for (int i = -100; i < 300; ++i) {
+    for (var i = -100; i < 300; ++i) {
       assertThat(tree.contains(i)).isEqualTo(set.contains(i));
     }
   }
@@ -164,26 +163,26 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testRemoveAll() {
-    for (int i = 0; i < 40; ++i) {
+    for (var i = 0; i < 40; ++i) {
       set.add(i);
       tree.add(i);
     }
 
     Collection<Integer> coll = new HashSet<>();
 
-    for (int i = 10; i < 20; ++i) {
+    for (var i = 10; i < 20; ++i) {
       coll.add(i);
     }
 
     assertThat(tree.removeAll(coll)).isEqualTo(set.removeAll(coll));
 
-    for (int i = -10; i < 50; ++i) {
+    for (var i = -10; i < 50; ++i) {
       assertThat(tree.contains(i)).isEqualTo(set.contains(i));
     }
 
     assertThat(tree.removeAll(coll)).isEqualTo(set.removeAll(coll));
 
-    for (int i = -10; i < 50; ++i) {
+    for (var i = -10; i < 50; ++i) {
       assertThat(tree.contains(i)).isEqualTo(set.contains(i));
     }
   }
@@ -191,7 +190,7 @@ public class OrderStatisticsTreeTest {
   @Test
   public void testSize() {
     assertThat(tree.size()).isEqualTo(set.size());
-    for (int i = 0; i < 200; ++i) {
+    for (var i = 0; i < 200; ++i) {
       assertThat(tree.add(i)).isEqualTo(set.add(i));
       assertThat(tree.size()).isEqualTo(set.size());
     }
@@ -199,10 +198,10 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testIndexOf() {
-    int stepSize = 10;
-    int entries = 20;
+    var stepSize = 10;
+    var entries = 20;
     // All entries are multiple of 10, from 0 to 190
-    for (int i = 0; i < entries; ++i) {
+    for (var i = 0; i < entries; ++i) {
       assertThat(tree.add(i * stepSize)).isTrue();
     }
 
@@ -210,7 +209,7 @@ public class OrderStatisticsTreeTest {
     assertThat(tree.indexOf(-1)).isEqualTo(0);
     assertThat(tree.indexOf(entries * stepSize)).isEqualTo(tree.size());
 
-    for (int i = 0; i < entries * stepSize; ++i) {
+    for (var i = 0; i < entries * stepSize; ++i) {
       assertThat(tree.indexOf(i)).isEqualTo((i + stepSize - 1) / stepSize);
     }
   }
@@ -235,7 +234,7 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testGetThrowsOnNegativeIndex() {
-    for (int i = 0; i < 5; ++i) {
+    for (var i = 0; i < 5; ++i) {
       tree.add(i);
     }
 
@@ -244,7 +243,7 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testGetThrowsOnTooLargeIndex() {
-    for (int i = 0; i < 5; ++i) {
+    for (var i = 0; i < 5; ++i) {
       tree.add(i);
     }
 
@@ -253,11 +252,11 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testGet() {
-    for (int i = 0; i < 100; i += 3) {
+    for (var i = 0; i < 100; i += 3) {
       tree.add(i);
     }
 
-    for (int i = 0; i < tree.size(); ++i) {
+    for (var i = 0; i < tree.size(); ++i) {
       assertThat(tree.get(i)).isEqualTo(Integer.valueOf(3 * i));
     }
   }
@@ -269,15 +268,15 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testIteratorThrowsOnDoubleRemove() {
-    for (int i = 10; i < 20; ++i) {
+    for (var i = 10; i < 20; ++i) {
       set.add(i);
       tree.add(i);
     }
 
-    Iterator<Integer> iterator1 = set.iterator();
-    Iterator<Integer> iterator2 = tree.iterator();
+    var iterator1 = set.iterator();
+    var iterator2 = tree.iterator();
 
-    for (int i = 0; i < 3; ++i) {
+    for (var i = 0; i < 3; ++i) {
       assertThat(iterator2.next()).isEqualTo(iterator1.next());
     }
 
@@ -291,15 +290,15 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testIterator() {
-    for (int i = 0; i < 5; ++i) {
+    for (var i = 0; i < 5; ++i) {
       tree.add(i);
       set.add(i);
     }
 
-    Iterator<Integer> iterator1 = set.iterator();
-    Iterator<Integer> iterator2 = tree.iterator();
+    var iterator1 = set.iterator();
+    var iterator2 = tree.iterator();
 
-    for (int i = 0; i < set.size(); ++i) {
+    for (var i = 0; i < set.size(); ++i) {
       assertThat(iterator2.hasNext()).isEqualTo(iterator1.hasNext());
       assertThat(iterator2.next()).isEqualTo(iterator1.next());
     }
@@ -319,15 +318,15 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testRemoveThrowsWithoutNext() {
-    for (int i = 0; i < 10; ++i) {
+    for (var i = 0; i < 10; ++i) {
       tree.add(i);
       set.add(i);
     }
 
-    Iterator<Integer> iterator1 = set.iterator();
-    Iterator<Integer> iterator2 = tree.iterator();
+    var iterator1 = set.iterator();
+    var iterator2 = tree.iterator();
 
-    for (int i = 0; i < 4; ++i) {
+    for (var i = 0; i < 4; ++i) {
       assertThat(iterator2.hasNext()).isEqualTo(iterator1.hasNext());
       assertThat(iterator2.next()).isEqualTo(iterator1.next());
     }
@@ -341,7 +340,7 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testRetainAll() {
-    for (int i = 0; i < 100; ++i) {
+    for (var i = 0; i < 100; ++i) {
       set.add(i);
       tree.add(i);
     }
@@ -356,14 +355,14 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testIteratorRemove() {
-    int lowerNonZeroBound = 10;
-    int upperNonZeroBound = 16;
-    for (int i = lowerNonZeroBound; i < upperNonZeroBound; ++i) {
+    var lowerNonZeroBound = 10;
+    var upperNonZeroBound = 16;
+    for (var i = lowerNonZeroBound; i < upperNonZeroBound; ++i) {
       assertThat(tree.add(i)).isEqualTo(set.add(i));
     }
 
-    Iterator<Integer> iterator1 = set.iterator();
-    Iterator<Integer> iterator2 = tree.iterator();
+    var iterator1 = set.iterator();
+    var iterator2 = tree.iterator();
 
     assertThat(iterator2.hasNext()).isEqualTo(iterator1.hasNext());
     assertThat(iterator2.next()).isEqualTo(iterator1.next());
@@ -385,22 +384,22 @@ public class OrderStatisticsTreeTest {
 
     assertThat(tree.size()).isEqualTo(set.size());
 
-    for (int i = lowerNonZeroBound; i < upperNonZeroBound; ++i) {
+    for (var i = lowerNonZeroBound; i < upperNonZeroBound; ++i) {
       assertThat(tree.contains(i)).isEqualTo(set.contains(i));
     }
   }
 
   @Test
   public void testIteratorBruteForce() {
-    for (int i = 0; i < 10_000; ++i) {
+    for (var i = 0; i < 10_000; ++i) {
       assertThat(tree.add(i)).isEqualTo(set.add(i));
     }
 
-    Iterator<Integer> setIterator = set.iterator();
-    Iterator<Integer> treeIterator = tree.iterator();
+    var setIterator = set.iterator();
+    var treeIterator = tree.iterator();
 
-    long seed = System.nanoTime();
-    Random random = new Random(seed);
+    var seed = System.nanoTime();
+    var random = new Random(seed);
 
     System.out.println("testIteratorBruteForce - seed: " + seed);
 
@@ -410,7 +409,7 @@ public class OrderStatisticsTreeTest {
         break;
       }
 
-      boolean toRemove = random.nextBoolean();
+      var toRemove = random.nextBoolean();
 
       if (toRemove) {
         try {
@@ -437,13 +436,13 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testIteratorConcurrentModification() {
-    for (int i = 0; i < 100; ++i) {
+    for (var i = 0; i < 100; ++i) {
       set.add(i);
       tree.add(i);
     }
 
-    Iterator<Integer> setIterator = set.iterator();
-    Iterator<Integer> treeIterator = tree.iterator();
+    var setIterator = set.iterator();
+    var treeIterator = tree.iterator();
 
     set.remove(10);
     tree.remove(10);
@@ -457,15 +456,15 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testIteratorConcurrentRemove() {
-    for (int i = 10; i < 20; ++i) {
+    for (var i = 10; i < 20; ++i) {
       set.add(i);
       tree.add(i);
     }
 
-    Iterator<Integer> setIterator = set.iterator();
-    Iterator<Integer> treeIterator = tree.iterator();
+    var setIterator = set.iterator();
+    var treeIterator = tree.iterator();
 
-    for (int i = 0; i < 4; ++i) {
+    for (var i = 0; i < 4; ++i) {
       setIterator.next();
       treeIterator.next();
     }
@@ -492,13 +491,13 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testIllegalStateOnRemove() {
-    for (int i = 0; i < 10; ++i) {
+    for (var i = 0; i < 10; ++i) {
       set.add(i);
       tree.add(i);
     }
 
-    Iterator<Integer> setIterator = set.iterator();
-    Iterator<Integer> treeIterator = tree.iterator();
+    var setIterator = set.iterator();
+    var treeIterator = tree.iterator();
 
     set.add(100);
     tree.add(100);
@@ -509,17 +508,17 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testConcurrentIterators() {
-    for (int i = 0; i < 10; ++i) {
+    for (var i = 0; i < 10; ++i) {
       set.add(i);
       tree.add(i);
     }
 
-    Iterator<Integer> firstSetIterator = set.iterator();
-    Iterator<Integer> secondSetIterator = set.iterator();
-    Iterator<Integer> firstTreeIterator = tree.iterator();
-    Iterator<Integer> secondTreeIterator = tree.iterator();
+    var firstSetIterator = set.iterator();
+    var secondSetIterator = set.iterator();
+    var firstTreeIterator = tree.iterator();
+    var secondTreeIterator = tree.iterator();
 
-    for (int i = 0; i < 3; ++i) {
+    for (var i = 0; i < 3; ++i) {
       firstSetIterator.next();
       firstTreeIterator.next();
     }
@@ -536,15 +535,15 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testToArray() {
-    Random r = new Random();
+    var r = new Random();
 
-    for (int i = 0; i < 50; ++i) {
-      int num = r.nextInt();
+    for (var i = 0; i < 50; ++i) {
+      var num = r.nextInt();
       set.add(num);
       tree.add(num);
     }
-    Object[] treeArray = tree.toArray();
-    Object[] setArray = set.toArray();
+    var treeArray = tree.toArray();
+    var setArray = set.toArray();
 
     assertThat(treeArray).isEqualTo(setArray);
     assertThat(Arrays.equals(setArray, treeArray)).isTrue();
@@ -554,16 +553,16 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testToArrayGeneric() {
-    for (int i = 0; i < 100; ++i) {
+    for (var i = 0; i < 100; ++i) {
       set.add(i);
       tree.add(i);
     }
 
-    Integer[] array1before = new Integer[set.size() - 1];
-    Integer[] array2before = new Integer[set.size() - 1];
+    var array1before = new Integer[set.size() - 1];
+    var array2before = new Integer[set.size() - 1];
 
-    Integer[] array1after = set.toArray(array1before);
-    Integer[] array2after = tree.toArray(array2before);
+    var array1after = set.toArray(array1before);
+    var array2after = tree.toArray(array2before);
 
     assertThat(array1after).isNotSameAs(array1before);
     assertThat(array2after).isNotSameAs(array2before);
@@ -582,13 +581,13 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testGetIndexRange() {
-    for (int i = 0; i < 100; ++i) {
+    for (var i = 0; i < 100; ++i) {
       tree.add(i);
     }
 
     List<Integer> subSet = new ArrayList<>();
-    int maxElements = 10;
-    Iterator<Integer> subIterator = tree.getIndexRange(0, maxElements, false);
+    var maxElements = 10;
+    var subIterator = tree.getIndexRange(0, maxElements, false);
     while (subIterator.hasNext()) {
       subSet.add(subIterator.next());
     }
@@ -625,13 +624,13 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testGetIndexRangeWithReverseRange() {
-    for (int i = 0; i < 100; ++i) {
+    for (var i = 0; i < 100; ++i) {
       tree.add(i);
     }
 
     List<Integer> subSet = new ArrayList<>();
-    int maxElements = 10;
-    Iterator<Integer> subIterator = tree.getIndexRange(99, maxElements, true);
+    var maxElements = 10;
+    var subIterator = tree.getIndexRange(99, maxElements, true);
     while (subIterator.hasNext()) {
       subSet.add(subIterator.next());
     }
@@ -673,8 +672,8 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void getSizeInBytes_isAccurate_forAdds() {
-    int elementSize = 0;
-    for (int i = 0; i < 1000; ++i) {
+    var elementSize = 0;
+    for (var i = 0; i < 1000; ++i) {
       tree.add(i);
       elementSize += sizer.sizeof(i);
       assertThat(tree.getSizeInBytes()).isEqualTo(sizer.sizeof(tree) - elementSize);
@@ -683,13 +682,13 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void getSizeInBytes_isAccurate_forRemoves() {
-    int entries = 1000;
-    int elementSize = 0;
-    for (int i = 0; i < entries; ++i) {
+    var entries = 1000;
+    var elementSize = 0;
+    for (var i = 0; i < entries; ++i) {
       tree.add(i);
       elementSize += sizer.sizeof(i);
     }
-    for (int i = 0; i < entries; ++i) {
+    for (var i = 0; i < entries; ++i) {
       tree.remove(i);
       elementSize -= sizer.sizeof(i);
       assertThat(tree.getSizeInBytes()).isEqualTo(sizer.sizeof(tree) - elementSize);
@@ -698,12 +697,12 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void getSizeInBytes_isAccurate_forIteratorRemoves() {
-    int elementSize = 0;
-    for (int i = 0; i < 1000; ++i) {
+    var elementSize = 0;
+    for (var i = 0; i < 1000; ++i) {
       tree.add(i);
       elementSize += sizer.sizeof(i);
     }
-    Iterator<Integer> iterator = tree.iterator();
+    var iterator = tree.iterator();
     while (iterator.hasNext()) {
       elementSize -= sizer.sizeof(iterator.next());
       iterator.remove();
@@ -713,21 +712,21 @@ public class OrderStatisticsTreeTest {
 
   @Test
   public void testGetSizeInBytesWithOrderedSetEntry() {
-    Random random = new Random();
+    var random = new Random();
     byte[] member;
     double score;
     List<RedisSortedSet.OrderedSetEntry> entries = new ArrayList<>();
-    RedisSortedSet.ScoreSet tree = new RedisSortedSet.ScoreSet();
+    var tree = new RedisSortedSet.ScoreSet();
 
     assertThat(tree.getSizeInBytes()).isEqualTo(sizer.sizeof(tree));
 
     // Populate the tree set with randomly-sized OrderedSetEntry instances and verify that the
     // reported size is accurate after each addition
-    int sizeOfEntries = 0;
-    for (int i = 0; i < 100; ++i) {
+    var sizeOfEntries = 0;
+    for (var i = 0; i < 100; ++i) {
       member = new byte[random.nextInt(50_000)];
       score = random.nextDouble();
-      RedisSortedSet.OrderedSetEntry entry = new RedisSortedSet.OrderedSetEntry(member, score);
+      var entry = new RedisSortedSet.OrderedSetEntry(member, score);
       sizeOfEntries += sizer.sizeof(entry);
       entries.add(entry);
       tree.add(entry);
@@ -736,10 +735,10 @@ public class OrderStatisticsTreeTest {
 
     // Remove half the entries using an iterator and verify that the reported size is accurate after
     // each removal
-    Iterator<RedisSortedSet.AbstractOrderedSetEntry> iterator =
+    var iterator =
         tree.getIndexRange(tree.size() / 2, tree.size(), false);
     while (iterator.hasNext()) {
-      RedisSortedSet.AbstractOrderedSetEntry entry = iterator.next();
+      var entry = iterator.next();
       sizeOfEntries -= sizer.sizeof(entry);
       iterator.remove();
       assertThat(tree.getSizeInBytes()).isEqualTo(sizer.sizeof(tree) - sizeOfEntries);
@@ -747,8 +746,8 @@ public class OrderStatisticsTreeTest {
 
     // Remove the rest of the entries using tree.remove() and verify that the reported size is
     // accurate after each removal
-    int entriesSize = entries.size();
-    for (RedisSortedSet.OrderedSetEntry entry : entries) {
+    var entriesSize = entries.size();
+    for (var entry : entries) {
       if (tree.remove(entry)) {
         sizeOfEntries -= sizer.sizeof(entry);
       }
@@ -762,20 +761,20 @@ public class OrderStatisticsTreeTest {
   // that. If they have increased, carefully consider that increase before changing the constants.
   @Test
   public void orderStatisticsTreeBaseSize_shouldMatchReflectedSize() {
-    RedisSortedSet.ScoreSet tree = new RedisSortedSet.ScoreSet();
+    var tree = new RedisSortedSet.ScoreSet();
     assertThat(tree.getSizeInBytes()).isEqualTo(sizer.sizeof(tree));
   }
 
   @Test
   public void orderStatisticsTreePerEntryOverhead_shouldMatchReflectedSize() {
-    RedisSortedSet.ScoreSet tree = new RedisSortedSet.ScoreSet();
-    int beforeSize = sizer.sizeof(tree);
-    for (int i = 0; i < 100; ++i) {
-      byte[] member = new byte[i];
-      RedisSortedSet.OrderedSetEntry entry = new RedisSortedSet.OrderedSetEntry(member, i);
+    var tree = new RedisSortedSet.ScoreSet();
+    var beforeSize = sizer.sizeof(tree);
+    for (var i = 0; i < 100; ++i) {
+      var member = new byte[i];
+      var entry = new RedisSortedSet.OrderedSetEntry(member, i);
       tree.add(entry);
-      int afterSize = sizer.sizeof(tree);
-      int perMemberOverhead = afterSize - beforeSize - sizer.sizeof(entry);
+      var afterSize = sizer.sizeof(tree);
+      var perMemberOverhead = afterSize - beforeSize - sizer.sizeof(entry);
       assertThat(NODE_OVERHEAD).isEqualTo(perMemberOverhead);
       beforeSize = afterSize;
     }

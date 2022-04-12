@@ -51,8 +51,8 @@ public class FlushAllDUnitTest {
     server1 = cluster.startRedisVM(1, locator.getPort());
     cluster.startRedisVM(2, locator.getPort());
 
-    int redisServerPort1 = cluster.getRedisPort(1);
-    int redisServerPort2 = cluster.getRedisPort(2);
+    var redisServerPort1 = cluster.getRedisPort(1);
+    var redisServerPort2 = cluster.getRedisPort(2);
 
     jedis1 = new Jedis(BIND_ADDRESS, redisServerPort1, REDIS_CLIENT_TIMEOUT);
     jedis2 = new Jedis(BIND_ADDRESS, redisServerPort2, REDIS_CLIENT_TIMEOUT);
@@ -68,8 +68,8 @@ public class FlushAllDUnitTest {
 
   @Before
   public void setup() {
-    int ENTRIES = 1000;
-    for (int i = 0; i < ENTRIES; i++) {
+    var ENTRIES = 1000;
+    for (var i = 0; i < ENTRIES; i++) {
       jedisCluster.set("key-" + i, "value-" + i);
     }
   }
@@ -78,7 +78,7 @@ public class FlushAllDUnitTest {
   public void flushAllOnlyDeletesOnOneMember() {
     jedis1.flushAll();
 
-    int keysRemaining = keyCount();
+    var keysRemaining = keyCount();
 
     assertThat(keysRemaining).isLessThan(ENTRIES);
     assertThat(keysRemaining).isGreaterThan(0);
@@ -98,8 +98,8 @@ public class FlushAllDUnitTest {
   }
 
   private int keyCount() {
-    int keys = 0;
-    for (int i = 0; i < ENTRIES; i++) {
+    var keys = 0;
+    for (var i = 0; i < ENTRIES; i++) {
       keys += jedisCluster.get("key-" + i) != null ? 1 : 0;
     }
 

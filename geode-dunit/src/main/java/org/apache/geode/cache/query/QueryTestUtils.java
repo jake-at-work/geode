@@ -2401,8 +2401,8 @@ public class QueryTestUtils implements Serializable {
   }
 
   public void createPartitionRegion(String name, Class constraint) {
-    ExpirationAttributes expiration = ExpirationAttributes.DEFAULT;
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var expiration = ExpirationAttributes.DEFAULT;
+    var paf = new PartitionAttributesFactory();
     RegionFactory factory =
         cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(paf.create());
     if (constraint != null) {
@@ -2468,7 +2468,7 @@ public class QueryTestUtils implements Serializable {
 
   public void removeIndex(String name, String region) {
     try {
-      QueryService qs = getQueryService();
+      var qs = getQueryService();
       qs.removeIndex(qs.getIndex(cache.getRegion(region), name));
     } catch (Exception e) {
       e.printStackTrace();
@@ -2545,11 +2545,11 @@ public class QueryTestUtils implements Serializable {
    * @return Object array containing SelectResults
    */
   public Object[] executeQueries(String[] qarr) throws Exception {
-    QueryService qs = cache.getQueryService();
-    Object[] result = new Object[qarr.length];
+    var qs = cache.getQueryService();
+    var result = new Object[qarr.length];
     String query = null;
-    int j = 0;
-    for (final String s : qarr) {
+    var j = 0;
+    for (final var s : qarr) {
       query = queries.get(s);
       result[j++] = qs.newQuery(query).execute();
     }
@@ -2574,11 +2574,11 @@ public class QueryTestUtils implements Serializable {
    *
    */
   public Object[] executeQueriesWithoutDistinct(String[] qarr) {
-    QueryService qs = cache.getQueryService();
-    Object[] result = new Object[qarr.length];
+    var qs = cache.getQueryService();
+    var result = new Object[qarr.length];
     String query = null;
-    int j = 0;
-    for (final String s : qarr) {
+    var j = 0;
+    for (final var s : qarr) {
       query = queries.get(s);
       if (query.indexOf("distinct") > -1) {
         query = query.replace("distinct", "");
@@ -2615,11 +2615,11 @@ public class QueryTestUtils implements Serializable {
    *
    */
   public Object[] executeQueriesWithDistinct(String[] qarr) {
-    QueryService qs = cache.getQueryService();
-    Object[] result = new Object[qarr.length];
+    var qs = cache.getQueryService();
+    var result = new Object[qarr.length];
     String query = null;
-    int j = 0;
-    for (final String aQarr : qarr) {
+    var j = 0;
+    for (final var aQarr : qarr) {
       query = queries.get(aQarr);
       if (!query.toLowerCase().contains("distinct")) {
         query = query.replaceFirst("select", "select distinct");
@@ -2676,7 +2676,7 @@ public class QueryTestUtils implements Serializable {
   }
 
   public static File createTestRootDiskStore(String testName) throws IOException {
-    File diskDir = new File(testName).getAbsoluteFile();
+    var diskDir = new File(testName).getAbsoluteFile();
     FileUtils.deleteDirectory(diskDir);
     diskDir.mkdir();
     diskDir.deleteOnExit();

@@ -24,13 +24,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.net.URL;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.junit.LoggerContextRule;
 import org.junit.After;
 import org.junit.Before;
@@ -76,24 +73,24 @@ public class LogWriterAppenderIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
 
   @Before
   public void setUp() {
-    String name = testName.getMethodName();
+    var name = testName.getMethodName();
     logFile = new File(temporaryFolder.getRoot(), name + ".log");
 
-    LogConfig config = mock(LogConfig.class);
+    var config = mock(LogConfig.class);
     when(config.getName()).thenReturn(name);
     when(config.getLogFile()).thenReturn(logFile);
 
-    LogConfigSupplier logConfigSupplier = mock(LogConfigSupplier.class);
+    var logConfigSupplier = mock(LogConfigSupplier.class);
     when(logConfigSupplier.getLogConfig()).thenReturn(config);
 
-    SessionContext sessionContext = mock(SessionContext.class);
+    var sessionContext = mock(SessionContext.class);
     when(sessionContext.getLogConfigSupplier()).thenReturn(logConfigSupplier);
 
     logger = LogService.getLogger();
@@ -118,7 +115,7 @@ public class LogWriterAppenderIntegrationTest {
     logger.info(logMessage);
 
     assertThat(logWriterAppender.getLogEvents()).hasSize(1);
-    LogEvent event = logWriterAppender.getLogEvents().get(0);
+    var event = logWriterAppender.getLogEvents().get(0);
     assertThat(event.getLoggerName()).isEqualTo(getClass().getName());
     assertThat(event.getLevel()).isEqualTo(Level.INFO);
     assertThat(event.getMessage().getFormattedMessage()).isEqualTo(logMessage);
@@ -186,7 +183,7 @@ public class LogWriterAppenderIntegrationTest {
     logger.info(logMessage);
 
     assertThat(logFile).exists();
-    String content = FileUtils.readFileToString(logFile, defaultCharset()).trim();
+    var content = FileUtils.readFileToString(logFile, defaultCharset()).trim();
     assertThat(content).contains(logMessage);
   }
 
@@ -196,10 +193,10 @@ public class LogWriterAppenderIntegrationTest {
 
     assertThat(logFile).exists();
 
-    List<String> lines = nonBlankStrings(readLines(logFile, defaultCharset()));
+    var lines = nonBlankStrings(readLines(logFile, defaultCharset()));
     assertThat(lines).hasSize(1);
 
-    for (String line : lines) {
+    for (var line : lines) {
       assertThat(line).matches(LogMessageRegex.getRegex());
     }
   }

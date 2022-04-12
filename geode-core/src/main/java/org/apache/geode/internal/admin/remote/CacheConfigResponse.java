@@ -49,10 +49,10 @@ public class CacheConfigResponse extends AdminResponse {
    */
   public static CacheConfigResponse create(DistributionManager dm,
       InternalDistributedMember recipient, int cacheId, byte attributeCode, int newValue) {
-    CacheConfigResponse m = new CacheConfigResponse();
+    var m = new CacheConfigResponse();
     m.setRecipient(recipient);
     try {
-      InternalCache c = (InternalCache) CacheFactory.getInstanceCloseOk(dm.getSystem());
+      var c = (InternalCache) CacheFactory.getInstanceCloseOk(dm.getSystem());
       if (cacheId != System.identityHashCode(c)) {
         m.info = null;
       } else {

@@ -32,7 +32,7 @@ public class DiskIdJUnitTest {
    */
   @Test
   public void testGetSetOplogId() throws Exception {
-    DiskId did = getDiskId();
+    var did = getDiskId();
     did.setOplogId(-1);
     assertEquals(-1, did.getOplogId());
     did.setOplogId(0);
@@ -48,7 +48,7 @@ public class DiskIdJUnitTest {
    */
   @Test
   public void testGetSetUserBits() throws Exception {
-    DiskId did = getDiskId();
+    var did = getDiskId();
     byte userBits = 0;
     userBits = EntryBits.setSerialized(userBits, true);
     did.setUserBits(userBits);
@@ -111,9 +111,9 @@ public class DiskIdJUnitTest {
    */
   @Test
   public void testAllOperationsValidatingResult1() {
-    DiskId did = getDiskId();
-    for (int i = -16777215; i < 16777215; i++) {
-      boolean boolValuePerIteration = false;
+    var did = getDiskId();
+    for (var i = -16777215; i < 16777215; i++) {
+      var boolValuePerIteration = false;
       did.setOplogId(i);
       // set true for even, set false for odd
       switch ((i % 3)) {
@@ -140,7 +140,7 @@ public class DiskIdJUnitTest {
           break;
       }
       assertEquals(did.getOplogId(), i);
-      byte userBits2 = did.getUserBits();
+      var userBits2 = did.getUserBits();
       switch (i % 4) {
         case 0:
           break;
@@ -163,9 +163,9 @@ public class DiskIdJUnitTest {
    */
   @Test
   public void testPersistIntDiskIdInstance() {
-    int maxOplogSizeinMB = 2;
+    var maxOplogSizeinMB = 2;
 
-    DiskId diskId = DiskId.createDiskId(maxOplogSizeinMB, true /* is persistence type */, true);
+    var diskId = DiskId.createDiskId(maxOplogSizeinMB, true /* is persistence type */, true);
     assertTrue(
         "Instance of 'PersistIntOplogOffsetDiskId' was not created though max oplog size (in bytes) was smaller than Integer.MAX_VALUE",
         DiskId.isInstanceofPersistIntOplogOffsetDiskId(diskId));
@@ -177,10 +177,10 @@ public class DiskIdJUnitTest {
    */
   @Test
   public void testPersistLongDiskIdInstance() {
-    long maxOplogSizeInBytes = (long) Integer.MAX_VALUE + 1;
-    int maxOplogSizeinMB = (int) (maxOplogSizeInBytes / (1024 * 1024));
+    var maxOplogSizeInBytes = (long) Integer.MAX_VALUE + 1;
+    var maxOplogSizeinMB = (int) (maxOplogSizeInBytes / (1024 * 1024));
 
-    DiskId diskId = DiskId.createDiskId(maxOplogSizeinMB, true/* is persistence type */, true);
+    var diskId = DiskId.createDiskId(maxOplogSizeinMB, true/* is persistence type */, true);
     assertTrue(
         "Instance of 'PersistLongOplogOffsetDiskId' was not created though max oplog size (in bytes) was greater than Integer.MAX_VALUE",
         DiskId.isInstanceofPersistLongOplogOffsetDiskId(diskId));
@@ -192,9 +192,9 @@ public class DiskIdJUnitTest {
    */
   @Test
   public void testOverflowIntDiskIdInstance() {
-    int maxOplogSizeinMB = 2;
+    var maxOplogSizeinMB = 2;
 
-    DiskId diskId = DiskId.createDiskId(maxOplogSizeinMB, false /* is overflow type */, true);
+    var diskId = DiskId.createDiskId(maxOplogSizeinMB, false /* is overflow type */, true);
     assertTrue(
         "Instance of 'OverflowIntOplogOffsetDiskId' was not created though max oplog size (in bytes) was smaller than Integer.MAX_VALUE",
         DiskId.isInstanceofOverflowIntOplogOffsetDiskId(diskId));
@@ -206,10 +206,10 @@ public class DiskIdJUnitTest {
    */
   @Test
   public void testOverflowLongDiskIdInstance() {
-    long maxOplogSizeInBytes = (long) Integer.MAX_VALUE + 1;
-    int maxOplogSizeinMB = (int) (maxOplogSizeInBytes / (1024 * 1024));
+    var maxOplogSizeInBytes = (long) Integer.MAX_VALUE + 1;
+    var maxOplogSizeinMB = (int) (maxOplogSizeInBytes / (1024 * 1024));
 
-    DiskId diskId = DiskId.createDiskId(maxOplogSizeinMB, false/* is overflow type */, true);
+    var diskId = DiskId.createDiskId(maxOplogSizeinMB, false/* is overflow type */, true);
     assertTrue(
         "Instance of 'OverflowLongOplogOffsetDiskId' was not created though max oplog size (in bytes) was greater than Integer.MAX_VALUE",
         DiskId.isInstanceofOverflowOnlyWithLongOffset(diskId));
@@ -224,10 +224,10 @@ public class DiskIdJUnitTest {
    */
   @Test
   public void testPersistUnmarkForWrite() {
-    DiskId diskId = getDiskId();
+    var diskId = getDiskId();
     diskId.setKeyId(11);
     diskId.unmarkForWriting();
-    long newKeyId = diskId.getKeyId();
+    var newKeyId = diskId.getKeyId();
 
     assertEquals(11, newKeyId);
   }
@@ -237,7 +237,7 @@ public class DiskIdJUnitTest {
    */
   @Test
   public void testPersistMarkForWrite() {
-    DiskId diskId = getDiskId();
+    var diskId = getDiskId();
     diskId.setKeyId(11);
     assertThatThrownBy(diskId::markForWriting).isInstanceOf(IllegalStateException.class);
   }

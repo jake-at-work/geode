@@ -54,7 +54,7 @@ public class HGetDUnitTest {
     server1 = clusterStartUp.startRedisVM(1, locator.getPort());
     server2 = clusterStartUp.startRedisVM(2, locator.getPort());
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(LOCAL_HOST, redisServerPort), JEDIS_TIMEOUT);
   }
 
@@ -70,13 +70,13 @@ public class HGetDUnitTest {
 
   @Test
   public void hgetReturnsNewValues_whenPuttingValues() {
-    String key = "key";
+    var key = "key";
     Map<String, String> expectedMap = new HashMap<>();
 
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> {
-          String field = "field-" + i;
-          String value = "value-" + i;
+          var field = "field-" + i;
+          var value = "value-" + i;
           jedis.hset(key, field, value);
           expectedMap.put(field, value);
         },

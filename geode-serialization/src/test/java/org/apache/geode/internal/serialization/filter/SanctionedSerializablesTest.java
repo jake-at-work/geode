@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ public class SanctionedSerializablesTest {
     Collection<SanctionedSerializablesService> services = new HashSet<>();
     services.add(serviceWithSanctionedSerializablesOf("foo", "bar"));
 
-    Set<String> result = loadSanctionedClassNames(services);
+    var result = loadSanctionedClassNames(services);
 
     assertThat(result).containsExactlyInAnyOrder("foo", "bar");
   }
@@ -49,14 +48,14 @@ public class SanctionedSerializablesTest {
     services.add(serviceWithSanctionedSerializablesOf("the", "fox"));
     services.add(serviceWithSanctionedSerializablesOf("a", "bear"));
 
-    Set<String> result = loadSanctionedClassNames(services);
+    var result = loadSanctionedClassNames(services);
 
     assertThat(result).containsExactlyInAnyOrder("foo", "bar", "the", "fox", "a", "bear");
   }
 
   @Test
   public void nullThrowsNullPointerException() {
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       loadSanctionedClassNames(null);
     });
 
@@ -65,7 +64,7 @@ public class SanctionedSerializablesTest {
 
   @Test
   public void emptyServicesReturnsEmptySet() {
-    Set<String> result = loadSanctionedClassNames(emptySet());
+    var result = loadSanctionedClassNames(emptySet());
 
     assertThat(result).isEmpty();
   }
@@ -77,7 +76,7 @@ public class SanctionedSerializablesTest {
     services.add(serviceWithSanctionedSerializablesOf());
     services.add(serviceWithSanctionedSerializablesOf());
 
-    Set<String> result = loadSanctionedClassNames(services);
+    var result = loadSanctionedClassNames(services);
 
     assertThat(result).isEmpty();
   }
@@ -85,7 +84,7 @@ public class SanctionedSerializablesTest {
   private static SanctionedSerializablesService serviceWithSanctionedSerializablesOf(
       String... classNames) {
     try {
-      SanctionedSerializablesService service = mock(SanctionedSerializablesService.class);
+      var service = mock(SanctionedSerializablesService.class);
       when(service.getSerializationAcceptlist()).thenReturn(asList(classNames));
       return service;
     } catch (IOException e) {

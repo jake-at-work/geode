@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -35,7 +34,6 @@ import java.util.Properties;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
-import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
 import javax.management.ReflectionException;
 import javax.management.remote.JMXConnector;
@@ -77,7 +75,7 @@ public class ReadOpFileAccessControllerJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties pr = getProperties();
+    var pr = getProperties();
     ds = getSystem(pr);
     cache = (GemFireCacheImpl) CacheFactory.create(ds);
     hostname = InetAddress.getLocalHost().getCanonicalHostName();
@@ -93,7 +91,7 @@ public class ReadOpFileAccessControllerJUnitTest {
   }
 
   private Properties getProperties() {
-    Properties pr = new Properties();
+    var pr = new Properties();
     pr.put(MCAST_PORT, "0");
     pr.put(LOCATORS, "");
     // pr.put("jmx-manager", "true");
@@ -104,13 +102,13 @@ public class ReadOpFileAccessControllerJUnitTest {
   @Test
   public void testReadOnlyOperations()
       throws IOException, InstanceNotFoundException, ReflectionException, MBeanException {
-    ManagementService service =
+    var service =
         ManagementService.getExistingManagementService(GemFireCacheImpl.getInstance());
-    String accessFileName = createAccessFile();
-    String passwordFileName = createPasswordFile();
+    var accessFileName = createAccessFile();
+    var passwordFileName = createPasswordFile();
     createConnector(accessFileName, passwordFileName);
 
-    MBeanServerConnection server = connectToRmiConnector();
+    var server = connectToRmiConnector();
     DistributedMember member = cache.getMyId();
 
     assertNotNull(server.invoke(service.getMemberMBeanName(member), "listRegions", null, null));
@@ -140,8 +138,8 @@ public class ReadOpFileAccessControllerJUnitTest {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private MBeanServerConnection connectToRmiConnector() throws IOException {
-    String serviceUrl = SERVICE_URLPREFIX + "//" + hostname + ":" + port + "/jmxconnector";
-    String[] creds = {"user", "user"};
+    var serviceUrl = SERVICE_URLPREFIX + "//" + hostname + ":" + port + "/jmxconnector";
+    var creds = new String[] {"user", "user"};
     Map env = new HashMap();
     env.put(JMXConnector.CREDENTIALS, creds);
     connector = JMXConnectorFactory.connect(new JMXServiceURL(serviceUrl), env);
@@ -150,23 +148,23 @@ public class ReadOpFileAccessControllerJUnitTest {
 
   private void createConnector(String accessFileName, String pwFile) throws IOException {
     registry = LocateRegistry.createRegistry(port);
-    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-    String serviceUrl = SERVICE_URLPREFIX + "//" + hostname + ":" + port + "/jmxconnector";
+    var mbs = ManagementFactory.getPlatformMBeanServer();
+    var serviceUrl = SERVICE_URLPREFIX + "//" + hostname + ":" + port + "/jmxconnector";
     System.out.println("Server service url " + serviceUrl);
-    final JMXServiceURL jmxServiceUrl = new JMXServiceURL(serviceUrl);
+    final var jmxServiceUrl = new JMXServiceURL(serviceUrl);
 
-    final HashMap<String, Object> env = new HashMap<>();
+    final var env = new HashMap<String, Object>();
     env.put("jmx.remote.x.password.file", pwFile);
 
-    ReadOpFileAccessController controller = new ReadOpFileAccessController(accessFileName);
+    var controller = new ReadOpFileAccessController(accessFileName);
     controller.setMBeanServer(mbs);
     rmiConnector = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceUrl, env, controller);
     rmiConnector.start();
   }
 
   private String createAccessFile() throws IOException {
-    File file = tempFolder.newFile("jmxremote.access");
-    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+    var file = tempFolder.newFile("jmxremote.access");
+    var writer = new BufferedWriter(new FileWriter(file));
     writer.append("admin readwrite");
     writer.append(lineSeparator());
     writer.append("user readonly");
@@ -177,8 +175,8 @@ public class ReadOpFileAccessControllerJUnitTest {
   }
 
   private String createPasswordFile() throws IOException {
-    File file = tempFolder.newFile("jmxremote.password");
-    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+    var file = tempFolder.newFile("jmxremote.password");
+    var writer = new BufferedWriter(new FileWriter(file));
     writer.append("admin admin");
     writer.append(lineSeparator());
     writer.append("user user");

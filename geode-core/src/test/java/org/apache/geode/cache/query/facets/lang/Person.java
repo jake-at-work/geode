@@ -51,15 +51,15 @@ public class Person {
 
 
   public int getAge() {
-    Calendar now = Calendar.getInstance();
-    Calendar bd = Calendar.getInstance();
+    var now = Calendar.getInstance();
+    var bd = Calendar.getInstance();
     bd.setTime(_birthdate);
 
-    Calendar bdThisYear = Calendar.getInstance();
+    var bdThisYear = Calendar.getInstance();
     bdThisYear.setTime(_birthdate);
     bdThisYear.set(Calendar.YEAR, now.get(Calendar.YEAR));
 
-    int age = now.get(Calendar.YEAR) - bd.get(Calendar.YEAR);
+    var age = now.get(Calendar.YEAR) - bd.get(Calendar.YEAR);
 
     if (bdThisYear.after(now)) {
       age--;

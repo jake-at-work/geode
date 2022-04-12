@@ -88,7 +88,7 @@ public class ClassNameType implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ClassNameType that = (ClassNameType) o;
+    var that = (ClassNameType) o;
     return Objects.equals(className, that.className);
   }
 

@@ -19,7 +19,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import org.junit.Before;
@@ -71,7 +70,7 @@ public class PrepareBackupFactoryTest {
 
   @Test
   public void createPrepareBackupReturnsPrepareBackup() throws Exception {
-    Properties properties =
+    var properties =
         new BackupConfigFactory().withTargetDirPath("targetDir").createBackupProperties();
     assertThat(prepareBackupFactory.createPrepareBackup(member, cache, properties))
         .isInstanceOf(PrepareBackup.class);

@@ -49,8 +49,8 @@ public class RegionAdvisorJUnitTest {
 
   @Test
   public void getBucketSerials_shouldReturnAnArrayOfIllegalSerials_whenBucketsAreNull() {
-    RegionAttributes regionAttributes = mock(RegionAttributes.class);
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var regionAttributes = mock(RegionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(partitionedRegion.getAttributes()).thenReturn(regionAttributes);
     when(regionAttributes.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(partitionAttributes.getTotalNumBuckets()).thenReturn(serials.length);
@@ -60,15 +60,15 @@ public class RegionAdvisorJUnitTest {
 
   @Test
   public void processProfilesQueuedDuringInitialization_shouldNotThrowIndexOutOfBoundsException() {
-    RegionAdvisor.QueuedBucketProfile queuedBucketProfile =
+    var queuedBucketProfile =
         new RegionAdvisor.QueuedBucketProfile(mock(InternalDistributedMember.class), serials, true);
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var distributionManager = mock(DistributionManager.class);
     when(regionAdvisor.getDistributionManager()).thenReturn(distributionManager);
     when(distributionManager.isCurrentMember(any())).thenReturn(true);
     regionAdvisor.preInitQueue.add(queuedBucketProfile);
 
-    ProxyBucketRegion proxyBucketRegion = mock(ProxyBucketRegion.class);
-    BucketAdvisor bucketAdvisor = mock(BucketAdvisor.class);
+    var proxyBucketRegion = mock(ProxyBucketRegion.class);
+    var bucketAdvisor = mock(BucketAdvisor.class);
     when(proxyBucketRegion.getBucketAdvisor()).thenReturn(bucketAdvisor);
     regionAdvisor.buckets =
         new ProxyBucketRegion[] {proxyBucketRegion, proxyBucketRegion, proxyBucketRegion};
@@ -81,15 +81,15 @@ public class RegionAdvisorJUnitTest {
 
   @Test
   public void testRemoveIdAndBucketWithNonNullPreInitQueue() {
-    int bucketId = 0;
-    int serial = 1234;
-    boolean regionDestroyed = true;
-    InternalDistributedMember memberId = mock(InternalDistributedMember.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var bucketId = 0;
+    var serial = 1234;
+    var regionDestroyed = true;
+    var memberId = mock(InternalDistributedMember.class);
+    var distributionManager = mock(DistributionManager.class);
     when(regionAdvisor.getDistributionManager()).thenReturn(distributionManager);
     when(distributionManager.isCurrentMember(any())).thenReturn(true);
-    ProxyBucketRegion proxyBucketRegion = mock(ProxyBucketRegion.class);
-    BucketAdvisor bucketAdvisor = mock(BucketAdvisor.class);
+    var proxyBucketRegion = mock(ProxyBucketRegion.class);
+    var bucketAdvisor = mock(BucketAdvisor.class);
     when(proxyBucketRegion.getBucketAdvisor()).thenReturn(bucketAdvisor);
     regionAdvisor.buckets = new ProxyBucketRegion[] {proxyBucketRegion};
 
@@ -105,15 +105,15 @@ public class RegionAdvisorJUnitTest {
 
   @Test
   public void testRemoveIdAndBucketWithNullPreInitQueue() {
-    int bucketId = 0;
-    int serial = 5678;
-    boolean regionDestroyed = true;
-    InternalDistributedMember memberId = mock(InternalDistributedMember.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var bucketId = 0;
+    var serial = 5678;
+    var regionDestroyed = true;
+    var memberId = mock(InternalDistributedMember.class);
+    var distributionManager = mock(DistributionManager.class);
     when(regionAdvisor.getDistributionManager()).thenReturn(distributionManager);
     when(distributionManager.isCurrentMember(any())).thenReturn(true);
-    ProxyBucketRegion proxyBucketRegion = mock(ProxyBucketRegion.class);
-    BucketAdvisor bucketAdvisor = mock(BucketAdvisor.class);
+    var proxyBucketRegion = mock(ProxyBucketRegion.class);
+    var bucketAdvisor = mock(BucketAdvisor.class);
     when(proxyBucketRegion.getBucketAdvisor()).thenReturn(bucketAdvisor);
     regionAdvisor.buckets = new ProxyBucketRegion[] {proxyBucketRegion};
 

@@ -19,8 +19,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.SECURITY_PEER
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.Properties;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -40,7 +38,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
   @Test
   public void nullAuthenticatorShouldReturnNull() throws Exception {
     assertThat(securityProps).doesNotContainKey(SECURITY_PEER_AUTHENTICATOR);
-    String result =
+    var result =
         authenticator.authenticate(member, securityProps, securityProps);
     // assertThat(result).isNull(); NOTE: old security used to return null
     assertThat(result).contains("Security check failed");
@@ -49,7 +47,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
   @Test
   public void emptyAuthenticatorShouldReturnNull() throws Exception {
     securityProps.setProperty(SECURITY_PEER_AUTHENTICATOR, "");
-    String result =
+    var result =
         authenticator.authenticate(member, securityProps, securityProps);
     // assertThat(result).isNull(); NOTE: old security used to return null
     assertThat(result).contains("Security check failed");
@@ -60,7 +58,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
     securityProps.setProperty(SECURITY_PEER_AUTH_INIT, "dummy1");
     securityProps.setProperty(SECURITY_PEER_AUTHENTICATOR, "dummy2");
 
-    Properties secProps = authenticator.getSecurityProps();
+    var secProps = authenticator.getSecurityProps();
 
     assertThat(secProps.size()).isEqualTo(2);
     assertThat(secProps.getProperty(SECURITY_PEER_AUTH_INIT)).isEqualTo("dummy1");
@@ -71,11 +69,11 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
   public void usesPeerAuthInitToGetCredentials() throws Exception {
     props.setProperty(SECURITY_PEER_AUTH_INIT, SpyAuthInit.class.getName() + ".create");
 
-    SpyAuthInit auth = new SpyAuthInit();
+    var auth = new SpyAuthInit();
     assertThat(auth.isClosed()).isFalse();
 
     SpyAuthInit.setAuthInitialize(auth);
-    Properties credentials = authenticator.getCredentials(member, props);
+    var credentials = authenticator.getCredentials(member, props);
 
     assertThat(credentials).isEqualTo(props);
     assertThat(auth.isClosed()).isTrue();
@@ -84,20 +82,20 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
 
   @Test
   public void getCredentialsShouldReturnNullIfNoPeerAuthInit() throws Exception {
-    Properties credentials = authenticator.getCredentials(member, props);
+    var credentials = authenticator.getCredentials(member, props);
     assertThat(credentials).isNull();
   }
 
   @Test
   public void getCredentialsShouldReturnNullIfEmptyPeerAuthInit() throws Exception {
     props.setProperty(SECURITY_PEER_AUTH_INIT, "");
-    Properties credentials = authenticator.getCredentials(member, props);
+    var credentials = authenticator.getCredentials(member, props);
     assertThat(credentials).isNull();
   }
 
   @Test
   public void getCredentialsShouldThrowIfPeerAuthInitDoesNotExist() throws Exception {
-    String authInit = getClass().getName() + "$NotExistAuth.create";
+    var authInit = getClass().getName() + "$NotExistAuth.create";
     props.setProperty(SECURITY_PEER_AUTH_INIT, authInit);
     assertThatThrownBy(() -> authenticator.getCredentials(member, props))
         .hasMessageContaining("Instance could not be obtained from");
@@ -132,11 +130,11 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
     props.setProperty(SECURITY_PEER_AUTHENTICATOR,
         SpyAuthenticator.class.getName() + ".create");
 
-    SpyAuthenticator auth = new SpyAuthenticator();
+    var auth = new SpyAuthenticator();
     assertThat(auth.isClosed()).isFalse();
 
     SpyAuthenticator.setAuthenticator(auth);
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
 
     assertThat(result).isNull();
     assertThat(auth.isClosed()).isTrue();
@@ -145,7 +143,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
 
   @Test
   public void authenticateShouldReturnNullIfPeerAuthenticatorIsNull() throws Exception {
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
     // assertThat(result).isNull(); // NOTE: old security used to return null
     assertThat(result).contains("Security check failed. Instance could not be obtained from null");
   }
@@ -153,7 +151,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
   @Test
   public void authenticateShouldReturnNullIfPeerAuthenticatorIsEmpty() throws Exception {
     props.setProperty(SECURITY_PEER_AUTHENTICATOR, "");
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
     // assertThat(result).isNull(); // NOTE: old security used to return null
     assertThat(result).contains("Security check failed. Instance could not be obtained from");
   }
@@ -163,7 +161,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
       throws Exception {
     props.setProperty(SECURITY_PEER_AUTHENTICATOR,
         getClass().getName() + "$NotExistAuth.create");
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
     assertThat(result).startsWith("Security check failed. Instance could not be obtained from");
   }
 
@@ -171,7 +169,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
   public void authenticateShouldReturnFailureMessageIfAuthenticateReturnsNull() throws Exception {
     props.setProperty(SECURITY_PEER_AUTHENTICATOR,
         AuthenticatorReturnsNulls.class.getName() + ".create");
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
     assertThat(result).startsWith("Security check failed. Instance could not be obtained");
   }
 
@@ -179,7 +177,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
   public void authenticateShouldReturnFailureMessageIfNullCredentials() throws Exception {
     props.setProperty(SECURITY_PEER_AUTHENTICATOR,
         AuthenticatorReturnsNulls.class.getName() + ".create");
-    String result = authenticator.authenticate(member, null, props);
+    var result = authenticator.authenticate(member, null, props);
     assertThat(result).startsWith("Failed to find credentials from");
   }
 
@@ -187,7 +185,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
   public void authenticateShouldReturnFailureMessageIfAuthenticateInitThrows() throws Exception {
     props.setProperty(SECURITY_PEER_AUTHENTICATOR,
         AuthenticatorInitThrows.class.getName() + ".create");
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
     assertThat(result).startsWith("Security check failed. expected init error");
   }
 
@@ -195,7 +193,7 @@ public class GMSAuthenticatorWithAuthenticatorTest extends AbstractGMSAuthentica
   public void authenticateShouldReturnFailureMessageIfAuthenticateThrows() throws Exception {
     props.setProperty(SECURITY_PEER_AUTHENTICATOR,
         AuthenticatorAuthenticateThrows.class.getName() + ".create");
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
     assertThat(result).startsWith("Security check failed. expected authenticate error");
   }
 }

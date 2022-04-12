@@ -56,7 +56,7 @@ public class QueryObserverHolder {
    */
   public static QueryObserver setInstance(QueryObserver observer) {
     Support.assertArg(observer != null, "setInstance expects a non-null argument!");
-    QueryObserver oldObserver = _instance;
+    var oldObserver = _instance;
     _instance = observer;
     return oldObserver;
   }

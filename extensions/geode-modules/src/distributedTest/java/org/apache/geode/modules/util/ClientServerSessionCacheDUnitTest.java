@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
 
 import javax.servlet.http.HttpSession;
 
@@ -34,18 +33,12 @@ import org.junit.rules.RuleChain;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.NoAvailableServersException;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.MembershipListener;
-import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.execute.metrics.FunctionStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.modules.session.catalina.ClientServerSessionCache;
 import org.apache.geode.modules.session.catalina.SessionManager;
@@ -68,9 +61,9 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
 
   @Test
   public void multipleGeodeServersCreateSessionRegion() {
-    final VM server0 = VM.getVM(0);
-    final VM server1 = VM.getVM(1);
-    final VM client = VM.getVM(2);
+    final var server0 = VM.getVM(0);
+    final var server1 = VM.getVM(1);
+    final var client = VM.getVM(2);
 
     server0.invoke(this::startCacheServer);
     server1.invoke(this::startCacheServer);
@@ -83,9 +76,9 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
 
   @Test
   public void addServerToExistingClusterCopiesSessionRegion() {
-    final VM server0 = VM.getVM(0);
-    final VM server1 = VM.getVM(1);
-    final VM client = VM.getVM(2);
+    final var server0 = VM.getVM(0);
+    final var server1 = VM.getVM(1);
+    final var client = VM.getVM(2);
 
     server0.invoke(this::startCacheServer);
 
@@ -101,9 +94,9 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
 
   @Test
   public void addServerToExistingClusterDoesNotCopyPreCreatedSessionRegion() {
-    final VM server0 = VM.getVM(0);
-    final VM server1 = VM.getVM(1);
-    final VM client = VM.getVM(2);
+    final var server0 = VM.getVM(0);
+    final var server1 = VM.getVM(1);
+    final var client = VM.getVM(2);
 
     server0.invoke(this::startCacheServer);
     server0.invoke(this::createSessionRegion);
@@ -119,7 +112,7 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
     // If the user precreated the region, they must manually
     // create it on all servers
     server1.invoke(() -> {
-      Region<Object, Object> region = cacheRule.getCache().getRegion(SESSION_REGION_NAME);
+      var region = cacheRule.getCache().getRegion(SESSION_REGION_NAME);
       assertThat(region).isNull();
     });
 
@@ -127,7 +120,7 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
 
   @Test
   public void startingAClientWithoutServersFails() {
-    final VM client = VM.getVM(2);
+    final var client = VM.getVM(2);
 
     assertThatThrownBy(() -> client.invoke(this::startClientSessionCache))
         .hasCauseInstanceOf(NoAvailableServersException.class);
@@ -135,9 +128,9 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
 
   @Test
   public void canPreCreateSessionRegionBeforeStartingClient() {
-    final VM server0 = VM.getVM(0);
-    final VM server1 = VM.getVM(1);
-    final VM client = VM.getVM(2);
+    final var server0 = VM.getVM(0);
+    final var server1 = VM.getVM(1);
+    final var client = VM.getVM(2);
 
     server0.invoke(this::startCacheServer);
     server1.invoke(this::startCacheServer);
@@ -156,9 +149,9 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
 
   @Test
   public void cannotPreCreateMismatchedSessionRegionBeforeStartingClient() {
-    final VM server0 = VM.getVM(0);
-    final VM server1 = VM.getVM(1);
-    final VM client = VM.getVM(2);
+    final var server0 = VM.getVM(0);
+    final var server1 = VM.getVM(1);
+    final var client = VM.getVM(2);
 
     server0.invoke(this::startCacheServer);
     server1.invoke(this::startCacheServer);
@@ -172,9 +165,9 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
 
   @Test
   public void sessionCacheSizeShouldNotInvokeFunctionsOnTheCluster() {
-    final VM server1 = VM.getVM(0);
-    final VM server2 = VM.getVM(1);
-    final VM client1 = VM.getVM(3);
+    final var server1 = VM.getVM(0);
+    final var server2 = VM.getVM(1);
+    final var client1 = VM.getVM(3);
 
     server1.invoke(this::startCacheServer);
     server2.invoke(this::startCacheServer);
@@ -182,20 +175,20 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
     server2.invoke(this::createSessionRegion);
 
     client1.invoke(() -> {
-      final SessionManager sessionManager = mock(SessionManager.class);
-      final Log logger = mock(Log.class);
+      final var sessionManager = mock(SessionManager.class);
+      final var logger = mock(Log.class);
       when(sessionManager.getLogger()).thenReturn(logger);
       when(sessionManager.getRegionName()).thenReturn(RegionHelper.NAME + "_sessions");
       when(sessionManager.getRegionAttributesId())
           .thenReturn(RegionShortcut.PARTITION_REDUNDANT.toString());
 
-      final ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+      final var clientCacheFactory = new ClientCacheFactory();
       clientCacheFactory.addPoolLocator("localhost", DistributedRule.getLocatorPort());
       clientCacheFactory.setPoolSubscriptionEnabled(true);
       clientCacheRule.createClientCache(clientCacheFactory);
 
       final ClientCache clientCache = clientCacheRule.getClientCache();
-      ClientServerSessionCache clientServerSessionCache =
+      var clientServerSessionCache =
           new ClientServerSessionCache(sessionManager, clientCache);
       clientServerSessionCache.initialize();
 
@@ -226,15 +219,15 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
   }
 
   private void validateSessionRegion() {
-    final InternalCache cache = cacheRule.getCache();
+    final var cache = cacheRule.getCache();
 
     final Region<String, HttpSession> region = cache.getRegion(SESSION_REGION_NAME);
     assertThat(region).isNotNull();
 
-    final RegionAttributes<Object, Object> expectedAttributes =
+    final var expectedAttributes =
         cache.getRegionAttributes(RegionShortcut.PARTITION_REDUNDANT.toString());
 
-    final RegionAttributes<String, HttpSession> attributes = region.getAttributes();
+    final var attributes = region.getAttributes();
     assertThat(attributes.getScope()).isEqualTo(expectedAttributes.getScope());
     assertThat(attributes.getDataPolicy()).isEqualTo(expectedAttributes.getDataPolicy());
     assertThat(attributes.getPartitionAttributes())
@@ -248,11 +241,11 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
   }
 
   private void validateBootstrapped() {
-    final InternalCache cache = cacheRule.getCache();
+    final var cache = cacheRule.getCache();
 
-    final DistributionManager distributionManager =
+    final var distributionManager =
         cache.getInternalDistributedSystem().getDistributionManager();
-    final Collection<MembershipListener> listeners =
+    final var listeners =
         distributionManager.getMembershipListeners();
     assertThat(listeners)
         .filteredOn(listener -> listener instanceof BootstrappingFunction)
@@ -270,7 +263,7 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
         cache.getRegion(CreateRegionFunction.REGION_CONFIGURATION_METADATA_REGION);
     assertThat(region).isNotNull();
 
-    final RegionAttributes<String, RegionConfiguration> attributes = region.getAttributes();
+    final var attributes = region.getAttributes();
     assertThat(attributes.getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
     assertThat(attributes.getScope()).isEqualTo(Scope.DISTRIBUTED_ACK);
     assertThat(attributes.getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
@@ -280,21 +273,21 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
   }
 
   private void validateRegionSizeFunctionCalls() {
-    FunctionStats functionStats = FunctionStatsManager.getFunctionStats(RegionSizeFunction.ID);
+    var functionStats = FunctionStatsManager.getFunctionStats(RegionSizeFunction.ID);
     assertThat(functionStats.getFunctionExecutionCalls())
         .as("No function should be invoked to get the region size.")
         .isEqualTo(0);
   }
 
   private void startClientSessionCache() {
-    final SessionManager sessionManager = mock(SessionManager.class);
-    final Log logger = mock(Log.class);
+    final var sessionManager = mock(SessionManager.class);
+    final var logger = mock(Log.class);
     when(sessionManager.getLogger()).thenReturn(logger);
     when(sessionManager.getRegionName()).thenReturn(RegionHelper.NAME + "_sessions");
     when(sessionManager.getRegionAttributesId())
         .thenReturn(RegionShortcut.PARTITION_REDUNDANT.toString());
 
-    final ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+    final var clientCacheFactory = new ClientCacheFactory();
     clientCacheFactory.addPoolLocator("localhost", DistributedRule.getLocatorPort());
     clientCacheFactory.setPoolSubscriptionEnabled(true);
     clientCacheRule.createClientCache(clientCacheFactory);
@@ -305,7 +298,7 @@ public class ClientServerSessionCacheDUnitTest implements Serializable {
 
   private void startCacheServer() throws IOException {
     final Cache cache = cacheRule.getOrCreateCache();
-    final CacheServer cacheServer = cache.addCacheServer();
+    final var cacheServer = cache.addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     await().until(cacheServer::isRunning);

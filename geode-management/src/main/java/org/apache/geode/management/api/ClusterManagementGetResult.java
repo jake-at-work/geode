@@ -54,7 +54,7 @@ public class ClusterManagementGetResult<T extends AbstractConfiguration<R>, R ex
     if (!super.equals(o)) {
       return false;
     }
-    ClusterManagementGetResult<?, ?> that = (ClusterManagementGetResult<?, ?>) o;
+    var that = (ClusterManagementGetResult<?, ?>) o;
     return Objects.equals(entityInfo, that.entityInfo);
   }
 

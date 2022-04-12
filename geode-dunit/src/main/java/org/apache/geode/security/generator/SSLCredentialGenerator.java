@@ -72,20 +72,20 @@ public class SSLCredentialGenerator extends CredentialGenerator {
   }
 
   private File findTrustedJKS() {
-    final File ssldir = new File(System.getProperty("JTESTS") + "/ssl");
+    final var ssldir = new File(System.getProperty("JTESTS") + "/ssl");
     return new File(ssldir, "trusted.keystore");
   }
 
   private File findUntrustedJKS() {
-    final File ssldir = new File(System.getProperty("JTESTS") + "/ssl");
+    final var ssldir = new File(System.getProperty("JTESTS") + "/ssl");
     return new File(ssldir, "untrusted.keystore");
   }
 
   private Properties getValidJavaSSLProperties() {
-    final File jks = findTrustedJKS();
+    final var jks = findTrustedJKS();
 
     try {
-      final Properties props = new Properties();
+      final var props = new Properties();
       props.setProperty("javax.net.ssl.trustStore", jks.getCanonicalPath());
       props.setProperty("javax.net.ssl.trustStorePassword", "password");
       props.setProperty("javax.net.ssl.keyStore", jks.getCanonicalPath());
@@ -99,10 +99,10 @@ public class SSLCredentialGenerator extends CredentialGenerator {
   }
 
   private Properties getInvalidJavaSSLProperties() {
-    final File jks = findUntrustedJKS();
+    final var jks = findUntrustedJKS();
 
     try {
-      final Properties props = new Properties();
+      final var props = new Properties();
       props.setProperty("javax.net.ssl.trustStore", jks.getCanonicalPath());
       props.setProperty("javax.net.ssl.trustStorePassword", "password");
       props.setProperty("javax.net.ssl.keyStore", jks.getCanonicalPath());
@@ -116,7 +116,7 @@ public class SSLCredentialGenerator extends CredentialGenerator {
   }
 
   private Properties getSSLProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(CLUSTER_SSL_CIPHERS, "true");
     props.setProperty(CLUSTER_SSL_REQUIRE_AUTHENTICATION, "true");
     props.setProperty(CLUSTER_SSL_CIPHERS, "SSL_RSA_WITH_3DES_EDE_CBC_SHA");

@@ -57,7 +57,7 @@ public class JdbcConnectorServiceXmlParserTest {
 
   @Test
   public void startElementCreatesJdbcServiceConfiguration() throws Exception {
-    JdbcConnectorServiceXmlParser parser = new JdbcConnectorServiceXmlParser();
+    var parser = new JdbcConnectorServiceXmlParser();
     stack.push(regionCreation);
     parser.setStack(stack);
 
@@ -68,7 +68,7 @@ public class JdbcConnectorServiceXmlParserTest {
 
   @Test
   public void startElementWithWrongUriDoesNothing() throws Exception {
-    JdbcConnectorServiceXmlParser parser = new JdbcConnectorServiceXmlParser();
+    var parser = new JdbcConnectorServiceXmlParser();
     stack.push(regionCreation);
     parser.setStack(stack);
 
@@ -79,9 +79,9 @@ public class JdbcConnectorServiceXmlParserTest {
 
   @Test
   public void endElementRemovesJdbcServiceConfiguration() throws Exception {
-    JdbcConnectorServiceXmlParser parser = new JdbcConnectorServiceXmlParser();
+    var parser = new JdbcConnectorServiceXmlParser();
     stack.push(regionCreation);
-    RegionMapping regionMapping = mock(RegionMapping.class);
+    var regionMapping = mock(RegionMapping.class);
     stack.push(regionMapping);
     parser.setStack(stack);
 
@@ -93,9 +93,9 @@ public class JdbcConnectorServiceXmlParserTest {
 
   @Test
   public void endElementRemovesWithWrongUriDoesNothing() throws Exception {
-    JdbcConnectorServiceXmlParser parser = new JdbcConnectorServiceXmlParser();
+    var parser = new JdbcConnectorServiceXmlParser();
     stack.push(regionCreation);
-    RegionMapping regionMapping = mock(RegionMapping.class);
+    var regionMapping = mock(RegionMapping.class);
     stack.push(regionMapping);
     parser.setStack(stack);
 

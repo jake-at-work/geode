@@ -60,8 +60,8 @@ public class ClientHealthMonitorTest {
 
   @Test
   public void idleServerConnectionTerminatedByHealthMonitor() throws Exception {
-    ClientProxyMembershipID mockId = mock(ClientProxyMembershipID.class);
-    ServerConnection mockConnection = mock(ServerConnection.class);
+    var mockId = mock(ClientProxyMembershipID.class);
+    var mockConnection = mock(ServerConnection.class);
 
     clientHealthMonitor.registerClient(mockId);
     clientHealthMonitor.addConnection(mockId, mockConnection);
@@ -84,14 +84,14 @@ public class ClientHealthMonitorTest {
 
   @Test
   public void activeServerConnectionNotTerminatedByHealthMonitor() throws Exception {
-    ClientProxyMembershipID mockId = mock(ClientProxyMembershipID.class);
-    ServerConnection mockConnection = mock(ServerConnection.class);
+    var mockId = mock(ClientProxyMembershipID.class);
+    var mockConnection = mock(ServerConnection.class);
 
     clientHealthMonitor.registerClient(mockId);
     clientHealthMonitor.addConnection(mockId, mockConnection);
     clientHealthMonitor.receivedPing(mockId);
 
-    HeartbeatOverride heartbeater = new HeartbeatOverride();
+    var heartbeater = new HeartbeatOverride();
     clientHealthMonitor.testUseCustomHeartbeatCheck(heartbeater);
 
     await().until(() -> heartbeater.numHeartbeats >= 5);
@@ -102,7 +102,7 @@ public class ClientHealthMonitorTest {
 
   @Test
   public void registerClientNewClientAddedWithCurrentTimeAndIncrementsStat() {
-    ClientProxyMembershipID mockId = mock(ClientProxyMembershipID.class);
+    var mockId = mock(ClientProxyMembershipID.class);
     clientHealthMonitor.registerClient(mockId);
     assertThat(clientHealthMonitor.getClientHeartbeats().get(mockId)).isNotNull()
         .isLessThanOrEqualTo(System.currentTimeMillis());
@@ -112,9 +112,9 @@ public class ClientHealthMonitorTest {
   @Test
   public void registerClientExistingClientDoesNotUpdateTimeOrIncrementStat()
       throws InterruptedException {
-    ClientProxyMembershipID mockId = mock(ClientProxyMembershipID.class);
+    var mockId = mock(ClientProxyMembershipID.class);
     clientHealthMonitor.registerClient(mockId);
-    Long expectedTime = clientHealthMonitor.getClientHeartbeats().get(mockId);
+    var expectedTime = clientHealthMonitor.getClientHeartbeats().get(mockId);
 
     Thread.sleep(2);
     clientHealthMonitor.registerClient(mockId);
@@ -127,7 +127,7 @@ public class ClientHealthMonitorTest {
 
   @Test
   public void unregisterClientExistingClientIsRemovedAndIncrementsStat() {
-    ClientProxyMembershipID mockId = mock(ClientProxyMembershipID.class);
+    var mockId = mock(ClientProxyMembershipID.class);
     clientHealthMonitor.registerClient(mockId);
 
     clientHealthMonitor.unregisterClient(mockId, null, true, null);
@@ -137,7 +137,7 @@ public class ClientHealthMonitorTest {
 
   @Test
   public void unregisterClientMissingClientIsDoesNotIncrementStat() {
-    ClientProxyMembershipID mockId = mock(ClientProxyMembershipID.class);
+    var mockId = mock(ClientProxyMembershipID.class);
     clientHealthMonitor.registerClient(mockId);
 
     clientHealthMonitor.unregisterClient(mockId, null, true, null);
@@ -150,7 +150,7 @@ public class ClientHealthMonitorTest {
 
   @Test
   public void receivedPingNewClientRegistersWithCurrentTimeAndIncrementsStat() {
-    ClientProxyMembershipID mockId = mock(ClientProxyMembershipID.class);
+    var mockId = mock(ClientProxyMembershipID.class);
     clientHealthMonitor.registerClient(mockId);
     clientHealthMonitor.receivedPing(mockId);
     assertThat(clientHealthMonitor.getClientHeartbeats().get(mockId)).isNotNull()
@@ -160,10 +160,10 @@ public class ClientHealthMonitorTest {
 
   @Test
   public void receivedPingExistingClientUpdatesTimeOnly() throws InterruptedException {
-    ClientProxyMembershipID mockId = mock(ClientProxyMembershipID.class);
+    var mockId = mock(ClientProxyMembershipID.class);
     clientHealthMonitor.registerClient(mockId);
     clientHealthMonitor.receivedPing(mockId);
-    Long expectedTime = clientHealthMonitor.getClientHeartbeats().get(mockId);
+    var expectedTime = clientHealthMonitor.getClientHeartbeats().get(mockId);
 
     Thread.sleep(2);
     clientHealthMonitor.receivedPing(mockId);

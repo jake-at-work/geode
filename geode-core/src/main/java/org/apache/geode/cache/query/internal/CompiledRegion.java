@@ -21,7 +21,6 @@ import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.RegionNotFoundException;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 
 
@@ -54,7 +53,7 @@ public class CompiledRegion extends AbstractCompiledValue {
     Region rgn;
     Cache cache = context.getCache();
     // do PR bucketRegion substitution here for expressions that evaluate to a Region.
-    PartitionedRegion pr = context.getPartitionedRegion();
+    var pr = context.getPartitionedRegion();
 
 
     if (pr != null && pr.getFullPath().equals(regionPath)) {
@@ -65,13 +64,13 @@ public class CompiledRegion extends AbstractCompiledValue {
       // We have possibly got a situation of equijoin. it may be across PRs. so use the context's
       // bucket region
       // to get ID and then retrieve the this region's bucket region
-      BucketRegion br = context.getBucketRegion();
-      int bucketID = br.getId();
+      var br = context.getBucketRegion();
+      var bucketID = br.getId();
       // Is current region a partitioned region
       rgn = cache.getRegion(regionPath);
       if (rgn.getAttributes().getDataPolicy().withPartitioning()) {
         // convert it into bucket region.
-        PartitionedRegion prLocal = (PartitionedRegion) rgn;
+        var prLocal = (PartitionedRegion) rgn;
         rgn = prLocal.getDataStore().getLocalBucketById(bucketID);
       }
 

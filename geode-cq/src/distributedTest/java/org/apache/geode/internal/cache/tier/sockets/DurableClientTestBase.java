@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 
 import java.time.Duration;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -40,19 +39,15 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqExistsException;
 import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.cq.internal.CqQueryImpl;
 import org.apache.geode.cache.query.data.Portfolio;
-import org.apache.geode.cache.query.internal.cq.CqService;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.cache.CacheServerImpl;
@@ -178,11 +173,11 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
     serverVM.invoke(() -> {
       if (count > 0) {
 
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
           @Override
           public boolean done() {
             checkNumberOfClientProxies(count);
-            CacheClientProxy proxy = getClientProxy();
+            var proxy = getClientProxy();
 
             return proxy != null && durableClientId.equals(proxy.getDurableId());
           }
@@ -203,7 +198,7 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
       checkNumberOfClientProxies(count);
 
       if (count > 0) {
-        CacheClientProxy proxy = getClientProxy();
+        var proxy = getClientProxy();
 
         assertThat(proxy).isNotNull();
         // checkProxyIsAlive(proxy);
@@ -230,7 +225,7 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
   }
 
   private void printClientProxyState(String st) {
-    CacheSerializableRunnable s =
+    var s =
         new CacheSerializableRunnable("Logging CCCP and ServerConnection state") {
           @Override
           public void run2() throws CacheException {
@@ -246,12 +241,12 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
   }
 
   private static String printMap(Map<String, Object[]> m) {
-    Iterator<Map.Entry<String, Object[]>> itr = m.entrySet().iterator();
-    StringBuilder sb = new StringBuilder();
+    var itr = m.entrySet().iterator();
+    var sb = new StringBuilder();
     sb.append("size = ").append(m.size()).append(" ");
     while (itr.hasNext()) {
       sb.append("{");
-      Map.Entry<String, Object[]> entry = itr.next();
+      var entry = itr.next();
       sb.append(entry.getKey());
       sb.append(", ");
       printMapValue(entry.getValue(), sb);
@@ -272,7 +267,7 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
   }
 
   static void waitForCacheClientProxyPaused() {
-    final CacheClientProxy proxy = getClientProxy();
+    final var proxy = getClientProxy();
     assertThat(proxy).isNotNull();
 
     await()
@@ -399,17 +394,17 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
 
   CqQuery createCq(String cqName, String cqQuery, boolean durable)
       throws CqException, CqExistsException {
-    QueryService qs = CacheServerTestUtil.getCache().getQueryService();
-    CqAttributesFactory cqf = new CqAttributesFactory();
+    var qs = CacheServerTestUtil.getCache().getQueryService();
+    var cqf = new CqAttributesFactory();
     CqListener[] cqListeners = {new CacheServerTestUtil.ControlCqListener()};
     cqf.initCqListeners(cqListeners);
-    CqAttributes cqa = cqf.create();
+    var cqa = cqf.create();
     return qs.newCq(cqName, cqQuery, cqa, durable);
 
   }
 
   Pool getClientPool(String host, int serverPort, boolean establishCallbackConnection) {
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     pf.addServer(host, serverPort).setSubscriptionEnabled(establishCallbackConnection)
         .setSubscriptionAckInterval(1);
     return ((PoolFactoryImpl) pf).getPoolAttributes();
@@ -427,7 +422,7 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
 
   Properties getClientDistributedSystemProperties(String durableClientId,
       int durableClientTimeout) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     properties.setProperty(DURABLE_CLIENT_ID, durableClientId);
@@ -437,11 +432,11 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
 
   static CacheClientProxy getClientProxy() {
     // Get the CacheClientNotifier
-    CacheClientNotifier notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
+    var notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
 
     // Get the CacheClientProxy or not (if proxy set is empty)
     CacheClientProxy proxy = null;
-    java.util.Iterator<CacheClientProxy> i = notifier.getClientProxies().iterator();
+    var i = notifier.getClientProxies().iterator();
     if (i.hasNext()) {
       proxy = i.next();
     }
@@ -450,11 +445,11 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
 
   private static String getAllClientProxyState() {
     // Get the CacheClientNotifier
-    CacheClientNotifier notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
+    var notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
 
     // Get the CacheClientProxy or not (if proxy set is empty)
-    java.util.Iterator<CacheClientProxy> i = notifier.getClientProxies().iterator();
-    StringBuilder sb = new StringBuilder();
+    var i = notifier.getClientProxies().iterator();
+    var sb = new StringBuilder();
     while (i.hasNext()) {
       sb.append(" [");
       sb.append(i.next().getState());
@@ -480,7 +475,7 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
   }
 
   static CacheServerImpl getBridgeServer() {
-    CacheServerImpl bridgeServer =
+    var bridgeServer =
         (CacheServerImpl) CacheServerTestUtil.getCache().getCacheServers().iterator().next();
     assertThat(bridgeServer).isNotNull();
     return bridgeServer;
@@ -488,7 +483,7 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
 
   Pool getClientPool(String host, int server1Port, int server2Port,
       boolean establishCallbackConnection, int redundancyLevel) {
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     pf.addServer(host, server1Port).addServer(host, server2Port)
         .setSubscriptionEnabled(establishCallbackConnection)
         .setSubscriptionRedundancy(redundancyLevel).setSubscriptionAckInterval(1);
@@ -503,7 +498,7 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
    */
   static String getHARegionQueueName() {
     checkNumberOfClientProxies(1);
-    CacheClientProxy proxy = getClientProxy();
+    var proxy = getClientProxy();
     assertThat(proxy).isNotNull();
     return proxy.getHARegionName();
   }
@@ -534,7 +529,7 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
       @Override
       public void run2() throws CacheException {
 
-        Region<Object, Object> region = CacheServerTestUtil.getCache().getRegion(regionName);
+        var region = CacheServerTestUtil.getCache().getRegion(regionName);
         assertThat(region).isNotNull();
 
         // Register interest in all keys
@@ -576,8 +571,8 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
         assertThat(region).isNotNull();
 
         // Publish some entries
-        for (int i = startingValue; i < startingValue + count; i++) {
-          String keyAndValue = String.valueOf(i);
+        for (var i = startingValue; i < startingValue + count; i++) {
+          var keyAndValue = String.valueOf(i);
           region.put(keyAndValue, keyAndValue);
         }
 
@@ -592,12 +587,12 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
       @Override
       public void run2() throws CacheException {
         // Get the region
-        Region<Object, Object> region = CacheServerTestUtil.getCache().getRegion(regionName);
+        var region = CacheServerTestUtil.getCache().getRegion(regionName);
         assertThat(region).isNotNull();
 
         // Publish some entries
-        for (int i = 0; i < numEntries; i++) {
-          String keyAndValue = String.valueOf(i);
+        for (var i = 0; i < numEntries; i++) {
+          var keyAndValue = String.valueOf(i);
           region.put(keyAndValue, new Portfolio(i));
         }
 
@@ -617,12 +612,12 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
       @Override
       public void run2() throws CacheException {
 
-        final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
-        final CacheClientProxy clientProxy = ccnInstance.getClientProxy(durableClientId);
-        ClientProxyMembershipID proxyId = clientProxy.getProxyID();
-        CqService cqService = ((InternalCache) CacheServerTestUtil.getCache()).getCqService();
+        final var ccnInstance = CacheClientNotifier.getInstance();
+        final var clientProxy = ccnInstance.getClientProxy(durableClientId);
+        var proxyId = clientProxy.getProxyID();
+        var cqService = ((InternalCache) CacheServerTestUtil.getCache()).getCqService();
         cqService.start();
-        final CqQueryImpl cqQuery = (CqQueryImpl) cqService.getClientCqFromServer(proxyId, cqName);
+        final var cqQuery = (CqQueryImpl) cqService.getClientCqFromServer(proxyId, cqName);
 
         // Wait until we get the expected number of events or until 10 seconds are up
         await()
@@ -644,8 +639,8 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
       @Override
       public void run2() throws CacheException {
 
-        final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
-        final CacheClientProxy clientProxy = ccnInstance.getClientProxy(durableClientId);
+        final var ccnInstance = CacheClientNotifier.getInstance();
+        final var clientProxy = ccnInstance.getClientProxy(durableClientId);
 
         // Wait until we get the expected number of events or until 10 seconds are up
         await()
@@ -665,12 +660,12 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
       @Override
       public void run2() throws CacheException {
         try {
-          final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
-          final CacheClientProxy clientProxy = ccnInstance.getClientProxy(durableClientId);
-          ClientProxyMembershipID proxyId = clientProxy.getProxyID();
-          CqService cqService = ((InternalCache) CacheServerTestUtil.getCache()).getCqService();
+          final var ccnInstance = CacheClientNotifier.getInstance();
+          final var clientProxy = ccnInstance.getClientProxy(durableClientId);
+          var proxyId = clientProxy.getProxyID();
+          var cqService = ((InternalCache) CacheServerTestUtil.getCache()).getCqService();
           cqService.start();
-          java.util.List<String> cqNames = cqService.getAllDurableClientCqs(proxyId);
+          var cqNames = cqService.getAllDurableClientCqs(proxyId);
           assertThat(expectedNumber).isEqualTo(cqNames.size());
         } catch (Exception e) {
           throw new CacheException(e) {};
@@ -694,10 +689,10 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
 
   void checkCqListenerEvents(final String cqName, final int numEvents,
       final int secondsToWait) {
-    QueryService qs = CacheServerTestUtil.getCache().getQueryService();
-    CqQuery cq = qs.getCq(cqName);
+    var qs = CacheServerTestUtil.getCache().getQueryService();
+    var cq = qs.getCq(cqName);
     // Get the listener and wait for the appropriate number of events
-    CacheServerTestUtil.ControlCqListener listener =
+    var listener =
         (CacheServerTestUtil.ControlCqListener) cq.getCqAttributes().getCqListener();
     listener.waitWhileNotEnoughEvents(secondsToWait * 1000, numEvents);
     assertThat(numEvents).isEqualTo(listener.events.size());
@@ -707,11 +702,11 @@ public class DurableClientTestBase extends JUnit4DistributedTestCase {
       final VM vm) {
     vm.invoke(() -> {
       // Get the region
-      Region<Object, Object> region = CacheServerTestUtil.getCache().getRegion(regionName);
+      var region = CacheServerTestUtil.getCache().getRegion(regionName);
       assertThat(region).isNotNull();
 
       // Get the listener and wait for the appropriate number of events
-      CacheServerTestUtil.ControlListener controlListener =
+      var controlListener =
           (CacheServerTestUtil.ControlListener) region.getAttributes().getCacheListeners()[0];
 
       controlListener.waitWhileNotEnoughEvents(sleepMinutes * 60 * 1000, numberOfEntries,

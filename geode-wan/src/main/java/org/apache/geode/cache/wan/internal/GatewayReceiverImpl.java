@@ -31,7 +31,6 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ResourceEvent;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalCacheServer;
@@ -203,8 +202,8 @@ public class GatewayReceiverImpl implements GatewayReceiver {
       return;
     }
 
-    int loopStartPort = getPortToStart();
-    int port = loopStartPort;
+    var loopStartPort = getPortToStart();
+    var port = loopStartPort;
 
     while (!tryToStart(port)) {
       // get next port to try
@@ -221,7 +220,7 @@ public class GatewayReceiverImpl implements GatewayReceiver {
 
     logger.info("The GatewayReceiver started on port : {}", this.port);
 
-    InternalDistributedSystem system = cache.getInternalDistributedSystem();
+    var system = cache.getInternalDistributedSystem();
     system.handleResourceEvent(ResourceEvent.GATEWAYRECEIVER_START, this);
   }
 
@@ -261,7 +260,7 @@ public class GatewayReceiverImpl implements GatewayReceiver {
       cache.removeGatewayReceiverServer(receiverServer);
     }
 
-    InternalDistributedSystem system = cache.getInternalDistributedSystem();
+    var system = cache.getInternalDistributedSystem();
     system.handleResourceEvent(ResourceEvent.GATEWAYRECEIVER_DESTROY, this);
   }
 

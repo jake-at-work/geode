@@ -27,9 +27,9 @@ public class DestroyMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DestroyMessage mockDestroyOperation = mock(DestroyMessage.class);
-    DistributedRegion mockDistributedRegion = mock(DistributedRegion.class);
-    InternalCacheEvent mockInternalCacheEvent = mock(InternalCacheEvent.class);
+    var mockDestroyOperation = mock(DestroyMessage.class);
+    var mockDistributedRegion = mock(DistributedRegion.class);
+    var mockInternalCacheEvent = mock(InternalCacheEvent.class);
 
     when(mockDestroyOperation.createEvent(eq(mockDistributedRegion)))
         .thenReturn(mockInternalCacheEvent);

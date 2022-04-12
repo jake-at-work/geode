@@ -39,7 +39,7 @@ public class StateColorMap {
 
 
   public Color getColor(Object state) {
-    Color color = colors.get(state);
+    var color = colors.get(state);
     if (color == null) {
       color = colorList.nextColor();
       colors.put(state, color);

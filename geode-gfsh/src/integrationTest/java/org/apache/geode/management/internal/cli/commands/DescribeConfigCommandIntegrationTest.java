@@ -62,8 +62,8 @@ public class DescribeConfigCommandIntegrationTest {
 
   @Test
   public void describeConfigOnInvalidMember() throws Exception {
-    String invalidMemberName = "invalid-member-name";
-    String expectedErrorString = String.format("Member %s could not be found", invalidMemberName);
+    var invalidMemberName = "invalid-member-name";
+    var expectedErrorString = String.format("Member %s could not be found", invalidMemberName);
     gfsh.executeAndAssertThat("describe config --member=" + invalidMemberName).statusIsError()
         .containsOutput(expectedErrorString);
   }

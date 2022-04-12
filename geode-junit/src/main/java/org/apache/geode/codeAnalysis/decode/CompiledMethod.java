@@ -141,7 +141,7 @@ public class CompiledMethod implements Comparable {
     argCount = ((CpUtf8) myclass.constant_pool[descriptor_index]).argCount();
     for (idx = 1; idx <= argCount; idx++) {
       // use a cheap check here that doesn't require all of the work of decodeClassName()
-      String str = ((CpUtf8) myclass.constant_pool[descriptor_index]).stringValue();
+      var str = ((CpUtf8) myclass.constant_pool[descriptor_index]).stringValue();
       if (compiledClassName.equals(str)) {
         return true;
       }
@@ -157,7 +157,7 @@ public class CompiledMethod implements Comparable {
   }
 
   public CompiledCode getCode() {
-    for (final CompiledAttribute attribute : attributes) {
+    for (final var attribute : attributes) {
       if (attribute.name(myclass).equals("Code")) {
         try {
           return new CompiledCode(attribute.info);
@@ -174,7 +174,7 @@ public class CompiledMethod implements Comparable {
     if (other == this) {
       return 0;
     }
-    CompiledMethod otherMethod = (CompiledMethod) other;
+    var otherMethod = (CompiledMethod) other;
     return signature().compareTo(otherMethod.signature());
   }
 

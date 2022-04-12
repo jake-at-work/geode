@@ -21,7 +21,6 @@ import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -41,7 +40,6 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache30.TestCacheLoader;
 import org.apache.geode.distributed.internal.ReplyException;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 
@@ -163,7 +161,7 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       Cache cache = getCache();
       RegionFactory<String, String> regionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
-      Region<String, String> region = regionFactory.create(regionName);
+      var region = regionFactory.create(regionName);
 
       assertThat(region.getAttributes().getPartitionAttributes().getLocalMaxMemory())
           .isNotEqualTo(0);
@@ -180,8 +178,8 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
     // create a "pure" accessor, no data storage
     Cache cache = getCache();
 
-    PartitionAttributesFactory<String, String> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<String, String>();
     partitionAttributesFactory.setRedundantCopies(1);
     partitionAttributesFactory.setLocalMaxMemory(0);
 
@@ -189,7 +187,7 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
         cache.createRegionFactory(RegionShortcut.PARTITION);
     regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
 
-    Region<String, String> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
     assertThat(region.get(key1, cacheLoaderArg)).isEqualTo(cacheLoaderArg);
   }
@@ -197,8 +195,8 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
   private void createPartitionedRegion() {
     Cache cache = getCache();
 
-    PartitionAttributesFactory<String, String> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<String, String>();
     partitionAttributesFactory.setTotalNumBuckets(totalNumBuckets);
 
     RegionFactory<String, String> regionFactory = cache.createRegionFactory(PARTITION);
@@ -210,8 +208,8 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
   private void createAccessor() {
     Cache cache = getCache();
 
-    PartitionAttributesFactory<String, String> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<String, String>();
     partitionAttributesFactory.setTotalNumBuckets(totalNumBuckets);
     partitionAttributesFactory.setLocalMaxMemory(0);
 
@@ -235,8 +233,8 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       }
     };
 
-    PartitionAttributesFactory<String, String> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<String, String>();
     partitionAttributesFactory.setLocalMaxMemory(localMaxMemory);
     partitionAttributesFactory.setRedundantCopies(1);
 
@@ -244,7 +242,7 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
     regionFactory.setCacheLoader(cacheLoader);
     regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
 
-    PartitionedRegion partitionedRegion = (PartitionedRegion) regionFactory.create(regionName);
+    var partitionedRegion = (PartitionedRegion) regionFactory.create(regionName);
 
     assertThat(partitionedRegion.getDataStore().getCacheLoader()).isSameAs(cacheLoader);
   }
@@ -266,11 +264,11 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       Region<String, String> region = cache.getRegion(regionName);
 
       // putIfAbsent returns null if success
-      for (int i = putRange_1Start; i <= putRange_1End; i++) {
-        String key = Integer.toString(i);
-        String value = Integer.toString(i);
+      for (var i = putRange_1Start; i <= putRange_1End; i++) {
+        var key = Integer.toString(i);
+        var value = Integer.toString(i);
 
-        String result = region.putIfAbsent(key, value);
+        var result = region.putIfAbsent(key, value);
 
         assertThat(result).isNull();
       }
@@ -279,12 +277,12 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(region.isEmpty()).isFalse();
 
       // putIfAbsent returns existing value if failure
-      for (int i = putRange_1Start; i <= putRange_1End; i++) {
-        String key = Integer.toString(i);
-        String oldValue = Integer.toString(i);
-        String newValue = Integer.toString(i + 1);
+      for (var i = putRange_1Start; i <= putRange_1End; i++) {
+        var key = Integer.toString(i);
+        var oldValue = Integer.toString(i);
+        var newValue = Integer.toString(i + 1);
 
-        String result = region.putIfAbsent(key, newValue);
+        var result = region.putIfAbsent(key, newValue);
 
         assertThat(result).isEqualTo(oldValue);
         assertThat(region.get(key)).isEqualTo(oldValue);
@@ -294,12 +292,12 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(region.isEmpty()).isFalse();
 
       // replace(key, oldValue, newValue) returns true if success
-      for (int i = putRange_1Start; i <= putRange_1End; i++) {
-        String key = Integer.toString(i);
-        String oldValue = Integer.toString(i);
-        String newValue = "replaced" + i;
+      for (var i = putRange_1Start; i <= putRange_1End; i++) {
+        var key = Integer.toString(i);
+        var oldValue = Integer.toString(i);
+        var newValue = "replaced" + i;
 
-        boolean result = region.replace(key, oldValue, newValue);
+        var result = region.replace(key, oldValue, newValue);
 
         assertThat(result).isTrue();
         assertThat(region.get(key)).isEqualTo(newValue);
@@ -309,14 +307,14 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(region.isEmpty()).isFalse();
 
       // replace(key, oldValue, newValue) returns false if failure
-      for (int i = putRange_1Start; i <= putRange_2End; i++) {
+      for (var i = putRange_1Start; i <= putRange_2End; i++) {
         // wrong expected old value
-        String key = Integer.toString(i);
-        String actualValue = i <= putRange_1End ? "replaced" + i : null;
-        String wrongValue = Integer.toString(i);
-        String newValue = "not" + i;
+        var key = Integer.toString(i);
+        var actualValue = i <= putRange_1End ? "replaced" + i : null;
+        var wrongValue = Integer.toString(i);
+        var newValue = "not" + i;
 
-        boolean result = region.replace(key, wrongValue, newValue);
+        var result = region.replace(key, wrongValue, newValue);
 
         assertThat(result).isFalse();
         assertThat(region.get(key)).isEqualTo(actualValue);
@@ -326,12 +324,12 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(region.isEmpty()).isFalse();
 
       // replace(key, value) returns old value if success
-      for (int i = putRange_1Start; i <= putRange_1End; i++) {
-        String key = Integer.toString(i);
-        String oldValue = "replaced" + i;
-        String newValue = "twice replaced" + i;
+      for (var i = putRange_1Start; i <= putRange_1End; i++) {
+        var key = Integer.toString(i);
+        var oldValue = "replaced" + i;
+        var newValue = "twice replaced" + i;
 
-        String result = region.replace(key, newValue);
+        var result = region.replace(key, newValue);
 
         assertThat(result).isEqualTo(oldValue);
         assertThat(region.get(Integer.toString(i))).isEqualTo(newValue);
@@ -341,11 +339,11 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(region.isEmpty()).isFalse();
 
       // replace(key, value) returns null if failure
-      for (int i = putRange_2Start; i <= putRange_2End; i++) {
-        String key = Integer.toString(i);
-        String newValue = "thrice replaced" + i;
+      for (var i = putRange_2Start; i <= putRange_2End; i++) {
+        var key = Integer.toString(i);
+        var newValue = "thrice replaced" + i;
 
-        String result = region.replace(key, newValue);
+        var result = region.replace(key, newValue);
 
         assertThat(result).isNull();
         assertThat(region.get(key)).isNull();
@@ -355,12 +353,12 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(region.isEmpty()).isFalse();
 
       // remove(key, value) returns false if failure
-      for (int i = putRange_1Start; i <= putRange_2End; i++) {
-        String key = Integer.toString(i);
-        String actualValue = i <= putRange_1End ? "twice replaced" + i : null;
-        String wrongValue = Integer.toString(-i);
+      for (var i = putRange_1Start; i <= putRange_2End; i++) {
+        var key = Integer.toString(i);
+        var actualValue = i <= putRange_1End ? "twice replaced" + i : null;
+        var wrongValue = Integer.toString(-i);
 
-        boolean result = region.remove(key, wrongValue);
+        var result = region.remove(key, wrongValue);
 
         assertThat(result).isFalse();
         assertThat(region.get(key)).isEqualTo(actualValue);
@@ -370,11 +368,11 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(region.isEmpty()).isFalse();
 
       // remove(key, value) returns true if success
-      for (int i = putRange_1Start; i <= putRange_1End; i++) {
-        String key = Integer.toString(i);
-        String value = "twice replaced" + i;
+      for (var i = putRange_1Start; i <= putRange_1End; i++) {
+        var key = Integer.toString(i);
+        var value = "twice replaced" + i;
 
-        boolean result = region.remove(key, value);
+        var result = region.remove(key, value);
 
         assertThat(result).isTrue();
         assertThat(region.get(key)).isNull();
@@ -391,41 +389,41 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       Region<String, String> region = cache.getRegion(regionName);
 
       // put
-      for (int i = putRange_1Start; i <= putRange_1End; i++) {
-        String key = "" + i;
-        String value = "" + i;
+      for (var i = putRange_1Start; i <= putRange_1End; i++) {
+        var key = "" + i;
+        var value = "" + i;
 
-        String result = region.put(key, value);
+        var result = region.put(key, value);
 
         assertThat(result).isNull();
       }
 
       // create
-      for (int i = createRange_1Start; i <= createRange_1End; i++) {
-        String key = "" + i;
-        String value = i % 2 == 0 ? "" + i : null;
+      for (var i = createRange_1Start; i <= createRange_1End; i++) {
+        var key = "" + i;
+        var value = i % 2 == 0 ? "" + i : null;
 
         region.create(key, value);
       }
 
       // create throws EntryExistsException
-      for (int i = createRange_1Start; i <= createRange_1End; i++) {
-        String key = "" + i;
-        String value = i % 2 == 0 ? "" + i : null;
+      for (var i = createRange_1Start; i <= createRange_1End; i++) {
+        var key = "" + i;
+        var value = i % 2 == 0 ? "" + i : null;
 
-        try (IgnoredException ignored = addIgnoredException(EntryExistsException.class.getName())) {
+        try (var ignored = addIgnoredException(EntryExistsException.class.getName())) {
           assertThatThrownBy(() -> region.create(key, value))
               .isInstanceOf(EntryExistsException.class);
         }
       }
 
       // invalidate throws EntryNotFoundException
-      for (int i = invalidateRange_1Start; i <= invalidateRange_1End; i++) {
-        String key = Integer.toString(i);
-        String value = Integer.toString(i);
+      for (var i = invalidateRange_1Start; i <= invalidateRange_1End; i++) {
+        var key = Integer.toString(i);
+        var value = Integer.toString(i);
 
         // invalidate op throws EntryNotFoundException
-        try (IgnoredException ignored =
+        try (var ignored =
             addIgnoredException(EntryNotFoundException.class.getName())) {
           assertThatThrownBy(() -> region.invalidate(key))
               .isInstanceOf(EntryNotFoundException.class);
@@ -445,8 +443,8 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       }
 
       // destroy op
-      for (int i = invalidateRange_1Start; i <= invalidateRange_1End; i++) {
-        String key = Integer.toString(i);
+      for (var i = invalidateRange_1Start; i <= invalidateRange_1End; i++) {
+        var key = Integer.toString(i);
 
         region.destroy(key);
 
@@ -455,9 +453,9 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       }
 
       // invalidate op throws EntryNotFoundException
-      try (IgnoredException ignored = addIgnoredException(EntryNotFoundException.class.getName())) {
-        for (int i = invalidateRange_1Start; i <= invalidateRange_1End; i++) {
-          String key = "" + i;
+      try (var ignored = addIgnoredException(EntryNotFoundException.class.getName())) {
+        for (var i = invalidateRange_1Start; i <= invalidateRange_1End; i++) {
+          var key = "" + i;
 
           assertThatThrownBy(() -> region.invalidate(key))
               .isInstanceOf(EntryNotFoundException.class);
@@ -472,29 +470,29 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       Region<String, String> region = cache.getRegion(regionName);
 
       // populate region
-      for (int i = putRange_2Start; i <= putRange_2End; i++) {
-        String key = "" + i;
-        String value = "" + i;
+      for (var i = putRange_2Start; i <= putRange_2End; i++) {
+        var key = "" + i;
+        var value = "" + i;
 
-        String result = region.put(key, value);
+        var result = region.put(key, value);
 
         assertThat(result).isNull();
       }
 
       // create
-      for (int i = createRange_2Start; i <= createRange_2End; i++) {
-        String key = "" + i;
-        String value = i % 2 == 0 ? "" + i : null;
+      for (var i = createRange_2Start; i <= createRange_2End; i++) {
+        var key = "" + i;
+        var value = i % 2 == 0 ? "" + i : null;
 
         region.create(key, value);
       }
 
       // create throws EntryExistsException
-      try (IgnoredException ignored1 = addIgnoredException(EntryExistsException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = createRange_2Start; i <= createRange_2End; i++) {
-          String key = "" + i;
-          String value = i % 2 == 0 ? "" + i : null;
+      try (var ignored1 = addIgnoredException(EntryExistsException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = createRange_2Start; i <= createRange_2End; i++) {
+          var key = "" + i;
+          var value = i % 2 == 0 ? "" + i : null;
 
           assertThatThrownBy(() -> region.create(key, value))
               .isInstanceOf(EntryExistsException.class);
@@ -502,11 +500,11 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       }
 
       // invalidate throws EntryNotFoundException THEN repopulate region
-      try (IgnoredException ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = invalidateRange_2Start; i <= invalidateRange_2End; i++) {
-          String key = Integer.toString(i);
-          String value = Integer.toString(i);
+      try (var ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = invalidateRange_2Start; i <= invalidateRange_2End; i++) {
+          var key = Integer.toString(i);
+          var value = Integer.toString(i);
 
           assertThatThrownBy(() -> region.invalidate(key))
               .isInstanceOf(EntryNotFoundException.class);
@@ -516,9 +514,9 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       }
 
       // invalidate
-      for (int i = invalidateRange_2Start; i <= invalidateRange_2End; i++) {
-        String key = Integer.toString(i);
-        String value = Integer.toString(i);
+      for (var i = invalidateRange_2Start; i <= invalidateRange_2End; i++) {
+        var key = Integer.toString(i);
+        var value = Integer.toString(i);
 
         assertThat(region.containsKey(key)).isTrue();
         assertThat(region.containsValueForKey(key)).isTrue();
@@ -532,8 +530,8 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       }
 
       // destroy
-      for (int i = invalidateRange_2Start; i <= invalidateRange_2End; i++) {
-        String key = Integer.toString(i);
+      for (var i = invalidateRange_2Start; i <= invalidateRange_2End; i++) {
+        var key = Integer.toString(i);
 
         region.destroy(key);
 
@@ -543,10 +541,10 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       }
 
       // invalidate throws EntryNotFoundException
-      try (IgnoredException ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = invalidateRange_2Start; i <= invalidateRange_2End; i++) {
-          String key = Integer.toString(i);
+      try (var ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = invalidateRange_2Start; i <= invalidateRange_2End; i++) {
+          var key = Integer.toString(i);
 
           assertThatThrownBy(() -> region.invalidate(key))
               .isInstanceOf(EntryNotFoundException.class);
@@ -566,7 +564,7 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(region.keySet().size()).isEqualTo(0);
 
       // put
-      for (int i = putRange_1Start; i <= putRange_1End; i++) {
+      for (var i = putRange_1Start; i <= putRange_1End; i++) {
         region.put(Integer.toString(i), Integer.toString(i));
       }
 
@@ -579,14 +577,14 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       // PartitionedRegionSingleNodeOperationsJUnitTest
 
       // keys
-      Set<String> keySet = region.keySet();
+      var keySet = region.keySet();
       assertThat(keySet.size()).isEqualTo(putRange_1End);
 
       // keySet iterator
-      Iterator<String> iterator = keySet.iterator();
+      var iterator = keySet.iterator();
       while (iterator.hasNext()) {
         assertThatThrownBy(iterator::remove).isInstanceOf(Exception.class);
-        String key = iterator.next();
+        var key = iterator.next();
         assertThat(key.getClass()).isEqualTo(String.class);
       }
 
@@ -597,9 +595,9 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(iterator.hasNext()).isFalse();
 
       // destroy
-      try (IgnoredException ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = putRange_1Start; i <= putRange_1End; i++) {
+      try (var ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = putRange_1Start; i <= putRange_1End; i++) {
           region.destroy(Integer.toString(i));
         }
       }
@@ -609,27 +607,27 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       assertThat(region.isEmpty()).isTrue();
 
       // put
-      for (int i = putRange_1Start; i <= putRange_1End; i++) {
-        String key = Integer.toString(i);
-        String value = Integer.toString(i);
+      for (var i = putRange_1Start; i <= putRange_1End; i++) {
+        var key = Integer.toString(i);
+        var value = Integer.toString(i);
 
         region.put(key, value);
       }
 
       // create
-      for (int i = createRange_1Start; i <= createRange_1End; i++) {
-        String key = Integer.toString(i);
-        String value = i % 2 == 0 ? Integer.toString(i) : null;
+      for (var i = createRange_1Start; i <= createRange_1End; i++) {
+        var key = Integer.toString(i);
+        var value = i % 2 == 0 ? Integer.toString(i) : null;
 
         region.create(key, value);
       }
 
       // create throws EntryExistsException
-      try (IgnoredException ignored1 = addIgnoredException(EntryExistsException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = createRange_1Start; i <= createRange_1End; i++) {
-          String key = Integer.toString(i);
-          String value = i % 2 == 0 ? Integer.toString(i) : null;
+      try (var ignored1 = addIgnoredException(EntryExistsException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = createRange_1Start; i <= createRange_1End; i++) {
+          var key = Integer.toString(i);
+          var value = i % 2 == 0 ? Integer.toString(i) : null;
 
           assertThatThrownBy(() -> region.create(key, value))
               .isInstanceOf(EntryExistsException.class);
@@ -644,27 +642,27 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       Region<String, String> region = cache.getRegion(regionName);
 
       // put
-      for (int i = putRange_2Start; i <= putRange_2End; i++) {
-        String key = Integer.toString(i);
-        String value = Integer.toString(i);
+      for (var i = putRange_2Start; i <= putRange_2End; i++) {
+        var key = Integer.toString(i);
+        var value = Integer.toString(i);
 
         region.put(key, value);
       }
 
       // create
-      for (int i = createRange_2Start; i <= createRange_2End; i++) {
-        String key = Integer.toString(i);
-        String value = i % 2 == 0 ? Integer.toString(i) : null;
+      for (var i = createRange_2Start; i <= createRange_2End; i++) {
+        var key = Integer.toString(i);
+        var value = i % 2 == 0 ? Integer.toString(i) : null;
 
         region.create(key, value);
       }
 
       // create throws EntryExistsException
-      try (IgnoredException ignored1 = addIgnoredException(EntryExistsException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = createRange_2Start; i <= createRange_2End; i++) {
-          String key = Integer.toString(i);
-          String value = i % 2 == 0 ? Integer.toString(i) : null;
+      try (var ignored1 = addIgnoredException(EntryExistsException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = createRange_2Start; i <= createRange_2End; i++) {
+          var key = Integer.toString(i);
+          var value = i % 2 == 0 ? Integer.toString(i) : null;
 
           assertThatThrownBy(() -> region.create(key, value))
               .isInstanceOf(EntryExistsException.class);
@@ -679,17 +677,17 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       Region<String, String> region = cache.getRegion(regionName);
 
       // destroy
-      for (int i = removeRange_1Start; i <= removeRange_1End; i++) {
-        String key = Integer.toString(i);
+      for (var i = removeRange_1Start; i <= removeRange_1End; i++) {
+        var key = Integer.toString(i);
 
         region.destroy(key);
       }
 
       // destroy throws EntryNotFoundException
-      try (IgnoredException ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = removeRange_1Start; i <= removeRange_1End; i++) {
-          String key = Integer.toString(i);
+      try (var ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = removeRange_1Start; i <= removeRange_1End; i++) {
+          var key = Integer.toString(i);
 
           assertThatThrownBy(() -> region.destroy(key)).isInstanceOf(EntryNotFoundException.class);
         }
@@ -703,27 +701,27 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       Region<String, String> region = cache.getRegion(regionName);
 
       // put
-      for (int i = putRange_3Start; i <= putRange_3End; i++) {
-        String key = Integer.toString(i);
-        String value = Integer.toString(i);
+      for (var i = putRange_3Start; i <= putRange_3End; i++) {
+        var key = Integer.toString(i);
+        var value = Integer.toString(i);
 
         region.put(key, value);
       }
 
       // create
-      for (int i = createRange_3Start; i <= createRange_3End; i++) {
-        String key = Integer.toString(i);
-        String value = i % 2 == 0 ? Integer.toString(i) : null;
+      for (var i = createRange_3Start; i <= createRange_3End; i++) {
+        var key = Integer.toString(i);
+        var value = i % 2 == 0 ? Integer.toString(i) : null;
 
         region.create(key, value);
       }
 
       // create throws EntryExistsException
-      try (IgnoredException ignored1 = addIgnoredException(EntryExistsException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = createRange_3Start; i <= createRange_3End; i++) {
-          String key = Integer.toString(i);
-          String value = i % 2 == 0 ? Integer.toString(i) : null;
+      try (var ignored1 = addIgnoredException(EntryExistsException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = createRange_3Start; i <= createRange_3End; i++) {
+          var key = Integer.toString(i);
+          var value = i % 2 == 0 ? Integer.toString(i) : null;
 
           assertThatThrownBy(() -> region.create(key, value))
               .isInstanceOf(EntryExistsException.class);
@@ -738,17 +736,17 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       Region<String, String> region = cache.getRegion(regionName);
 
       // destroy
-      for (int i = removeRange_2Start; i <= removeRange_2End; i++) {
-        String key = Integer.toString(i);
+      for (var i = removeRange_2Start; i <= removeRange_2End; i++) {
+        var key = Integer.toString(i);
 
         region.destroy(key);
       }
 
       // destroy throws EntryNotFoundException
-      try (IgnoredException ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = removeRange_2Start; i <= removeRange_2End; i++) {
-          String key = Integer.toString(i);
+      try (var ignored1 = addIgnoredException(EntryNotFoundException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = removeRange_2Start; i <= removeRange_2End; i++) {
+          var key = Integer.toString(i);
 
           assertThatThrownBy(() -> region.destroy(key)).isInstanceOf(EntryNotFoundException.class);
         }
@@ -762,27 +760,27 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
       Region<String, String> region = cache.getRegion(regionName);
 
       // populate
-      for (int i = putRange_4Start; i <= putRange_4End; i++) {
-        String key = Integer.toString(i);
-        String value = Integer.toString(i);
+      for (var i = putRange_4Start; i <= putRange_4End; i++) {
+        var key = Integer.toString(i);
+        var value = Integer.toString(i);
 
         region.put(key, value);
       }
 
       // create
-      for (int i = createRange_4Start; i <= createRange_4End; i++) {
-        String key = Integer.toString(i);
-        String value = i % 2 == 0 ? Integer.toString(i) : null;
+      for (var i = createRange_4Start; i <= createRange_4End; i++) {
+        var key = Integer.toString(i);
+        var value = i % 2 == 0 ? Integer.toString(i) : null;
 
         region.create(key, value);
       }
 
       // create throws EntryExistsException
-      try (IgnoredException ignored1 = addIgnoredException(EntryExistsException.class.getName());
-          IgnoredException ignored2 = addIgnoredException(ReplyException.class.getName())) {
-        for (int i = createRange_4Start; i <= createRange_4End; i++) {
-          String key = Integer.toString(i);
-          String value = i % 2 == 0 ? Integer.toString(i) : null;
+      try (var ignored1 = addIgnoredException(EntryExistsException.class.getName());
+          var ignored2 = addIgnoredException(ReplyException.class.getName())) {
+        for (var i = createRange_4Start; i <= createRange_4End; i++) {
+          var key = Integer.toString(i);
+          var value = i % 2 == 0 ? Integer.toString(i) : null;
 
           assertThatThrownBy(() -> region.create(key, value))
               .isInstanceOf(EntryExistsException.class);
@@ -792,14 +790,14 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
   }
 
   private void validateGetAndContainsInAll() {
-    for (int vm = 0; vm < 4; vm++) {
+    for (var vm = 0; vm < 4; vm++) {
       getHost(0).getVM(vm).invoke(() -> {
         Cache cache = getCache();
         Region<String, String> region = cache.getRegion(regionName);
 
         // get
-        for (int i = putRange_1Start; i <= putRange_4End; i++) {
-          String value = region.get(Integer.toString(i));
+        for (var i = putRange_1Start; i <= putRange_4End; i++) {
+          var value = region.get(Integer.toString(i));
           if ((i >= removeRange_1Start && i <= removeRange_1End)
               || (i >= removeRange_2Start && i <= removeRange_2End)) {
             assertThat(value).isNull();
@@ -809,8 +807,8 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
         }
 
         // containsKey
-        for (int i = putRange_1Start; i <= putRange_4End; i++) {
-          boolean containsKey = region.containsKey(Integer.toString(i));
+        for (var i = putRange_1Start; i <= putRange_4End; i++) {
+          var containsKey = region.containsKey(Integer.toString(i));
           if ((i >= removeRange_1Start && i <= removeRange_1End)
               || (i >= removeRange_2Start && i <= removeRange_2End)) {
             assertThat(containsKey).isFalse();
@@ -820,8 +818,8 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
         }
 
         // containsValueForKey
-        for (int i = putRange_1Start; i <= putRange_4End; i++) {
-          boolean containsValueForKey = region.containsValueForKey(Integer.toString(i));
+        for (var i = putRange_1Start; i <= putRange_4End; i++) {
+          var containsValueForKey = region.containsValueForKey(Integer.toString(i));
           if ((i >= removeRange_1Start && i <= removeRange_1End)
               || (i >= removeRange_2Start && i <= removeRange_2End)) {
             assertThat(containsValueForKey).isFalse();
@@ -834,7 +832,7 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
   }
 
   private void validateMetaDataAfterRegionDestroyInAll() {
-    for (int vm = 0; vm < 4; vm++) {
+    for (var vm = 0; vm < 4; vm++) {
       getHost(0).getVM(vm).invoke(() -> {
         Cache cache = getCache();
         Region<String, String> region = cache.getRegion(regionName);
@@ -843,16 +841,16 @@ public class PartitionedRegionAPIDUnitTest extends CacheTestCase {
         Region rootRegion =
             cache.getRegion(SEPARATOR + PartitionedRegionHelper.PR_ROOT_REGION_NAME);
 
-        Object configObject = rootRegion.get(regionName.substring(1));
+        var configObject = rootRegion.get(regionName.substring(1));
         assertThat(configObject).isNull();
 
         Set<Region> subregions = rootRegion.subregions(false);
-        for (Region subregion : subregions) {
-          String name = subregion.getName();
+        for (var subregion : subregions) {
+          var name = subregion.getName();
           assertThat(name).doesNotContain(PartitionedRegionHelper.BUCKET_REGION_PREFIX);
         }
 
-        boolean containsKey = PartitionedRegion.getPrIdToPR().containsKey(regionName);
+        var containsKey = PartitionedRegion.getPrIdToPR().containsKey(regionName);
         assertThat(containsKey).isFalse();
       });
     }

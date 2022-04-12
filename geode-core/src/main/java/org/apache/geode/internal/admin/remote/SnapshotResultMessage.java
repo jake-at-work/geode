@@ -35,7 +35,7 @@ public class SnapshotResultMessage extends PooledDistributionMessage implements 
   private int snapshotId;
 
   public static SnapshotResultMessage create(Region region, int snapshotId) throws CacheException {
-    SnapshotResultMessage m = new SnapshotResultMessage();
+    var m = new SnapshotResultMessage();
     m.results = new RemoteRegionSnapshot(region);
     m.snapshotId = snapshotId;
     return m;
@@ -43,7 +43,7 @@ public class SnapshotResultMessage extends PooledDistributionMessage implements 
 
   @Override
   public void process(ClusterDistributionManager dm) {
-    RemoteGfManagerAgent agent = dm.getAgent();
+    var agent = dm.getAgent();
     if (agent != null) {
       agent.enqueueSnapshotResults(this);
     }

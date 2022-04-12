@@ -14,7 +14,6 @@
  */
 package org.apache.geode.rest.internal.web.controllers;
 
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.geode.cache.CacheClosedException;
@@ -41,23 +40,23 @@ public class GetOrderDescriptionFunction implements Function<String> {
       throw ex;
     }
 
-    RegionFunctionContext regionContext = (RegionFunctionContext) context;
+    var regionContext = (RegionFunctionContext) context;
     @SuppressWarnings("unchecked")
-    Set<String> keys = (Set<String>) regionContext.getFilter();
-    Iterator<String> keysIterator = keys.iterator();
+    var keys = (Set<String>) regionContext.getFilter();
+    var keysIterator = keys.iterator();
     Object key = null;
     if (keysIterator.hasNext()) {
       key = (keysIterator.next());
     }
 
-    Object obj = region.get(key);
+    var obj = region.get(key);
     String description;
     if (obj instanceof PdxInstance) {
-      PdxInstance pi = (PdxInstance) obj;
-      Order receivedOrder = (Order) pi.getObject();
+      var pi = (PdxInstance) obj;
+      var receivedOrder = (Order) pi.getObject();
       description = receivedOrder.getDescription();
     } else {
-      Order receivedOrder = (Order) obj;
+      var receivedOrder = (Order) obj;
       description = receivedOrder.getDescription();
     }
 

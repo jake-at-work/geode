@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.management.cli.CliMetaData;
@@ -73,7 +71,7 @@ public class NetstatCommand extends GfshCommand {
       @CliOption(key = CliStrings.NETSTAT__WITHLSOF, specifiedDefaultValue = "true",
           unspecifiedDefaultValue = "false",
           help = CliStrings.NETSTAT__WITHLSOF__HELP) boolean withlsof) {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
     Map<String, DistributedMember> hostMemberMap = new HashMap<>();
     Map<String, List<String>> hostMemberListMap = new HashMap<>();
@@ -83,19 +81,19 @@ public class NetstatCommand extends GfshCommand {
         throw new IllegalArgumentException(
             CliStrings.NETSTAT__MSG__ONLY_ONE_OF_MEMBER_OR_GROUP_SHOULD_BE_SPECIFIED);
       }
-      StringBuilder resultInfo = new StringBuilder();
+      var resultInfo = new StringBuilder();
 
       // Execute for remote members whose id or name matches
-      InternalDistributedSystem system = InternalDistributedSystem.getConnectedInstance();
+      var system = InternalDistributedSystem.getConnectedInstance();
 
       if (members != null) {
         Set<String> notFoundMembers = new HashSet<>();
-        for (String memberIdOrName : members) {
-          Set<DistributedMember> membersToExecuteOn = ManagementUtils.getAllMembers(system);
-          boolean memberFound = false;
-          for (DistributedMember distributedMember : membersToExecuteOn) {
-            String memberName = distributedMember.getName();
-            String memberId = distributedMember.getId();
+        for (var memberIdOrName : members) {
+          var membersToExecuteOn = ManagementUtils.getAllMembers(system);
+          var memberFound = false;
+          for (var distributedMember : membersToExecuteOn) {
+            var memberName = distributedMember.getName();
+            var memberId = distributedMember.getId();
             if (memberName.equals(memberIdOrName) || memberId.equals(memberIdOrName)) {
               buildMaps(hostMemberMap, hostMemberListMap, memberIdOrName, distributedMember);
 
@@ -122,10 +120,10 @@ public class NetstatCommand extends GfshCommand {
           membersToExecuteOn = ManagementUtils.getAllMembers(system);
         }
 
-        for (DistributedMember distributedMember : membersToExecuteOn) {
-          String memberName = distributedMember.getName();
-          String memberId = distributedMember.getId();
-          String memberIdOrName =
+        for (var distributedMember : membersToExecuteOn) {
+          var memberName = distributedMember.getName();
+          var memberId = distributedMember.getId();
+          var memberIdOrName =
               memberName != null && !memberName.isEmpty() ? memberName : memberId;
 
           buildMaps(hostMemberMap, hostMemberListMap, memberIdOrName, distributedMember);
@@ -137,25 +135,25 @@ public class NetstatCommand extends GfshCommand {
       if (lineSeparatorToUse == null) {
         lineSeparatorToUse = GfshParser.LINE_SEPARATOR;
       }
-      NetstatFunction.NetstatFunctionArgument nfa =
+      var nfa =
           new NetstatFunction.NetstatFunctionArgument(lineSeparatorToUse, withlsof);
 
       if (!hostMemberMap.isEmpty()) {
         Set<DistributedMember> membersToExecuteOn = new HashSet<>(hostMemberMap.values());
-        ResultCollector<?, ?> netstatResult =
+        var netstatResult =
             ManagementUtils.executeFunction(NetstatFunction.INSTANCE, nfa, membersToExecuteOn);
-        List<?> resultList = (List<?>) netstatResult.getResult();
+        var resultList = (List<?>) netstatResult.getResult();
         for (Object aResultList : resultList) {
-          NetstatFunction.NetstatFunctionResult netstatFunctionResult =
+          var netstatFunctionResult =
               (NetstatFunction.NetstatFunctionResult) aResultList;
-          CliUtils.DeflaterInflaterData deflaterInflaterData =
+          var deflaterInflaterData =
               netstatFunctionResult.getCompressedBytes();
           try {
-            String remoteHost = netstatFunctionResult.getHost();
-            List<String> membersList = hostMemberListMap.get(remoteHost);
+            var remoteHost = netstatFunctionResult.getHost();
+            var membersList = hostMemberListMap.get(remoteHost);
             resultInfo.append(MessageFormat.format(netstatFunctionResult.getHeaderInfo(),
                 collectionToString(membersList, 120)));
-            CliUtils.DeflaterInflaterData uncompressedBytes = CliUtils.uncompressBytes(
+            var uncompressedBytes = CliUtils.uncompressBytes(
                 deflaterInflaterData.getData(), deflaterInflaterData.getDataLength());
             resultInfo.append(new String(uncompressedBytes.getData()));
           } catch (DataFormatException e) {
@@ -164,7 +162,7 @@ public class NetstatCommand extends GfshCommand {
         }
       }
       if (saveAs != null && !saveAs.isEmpty()) {
-        String saveToFile = saveAs;
+        var saveToFile = saveAs;
         if (!saveAs.endsWith(NETSTAT_FILE_REQUIRED_EXTENSION)) {
           saveToFile = saveAs + NETSTAT_FILE_REQUIRED_EXTENSION;
         }
@@ -184,11 +182,11 @@ public class NetstatCommand extends GfshCommand {
 
   String collectionToString(Collection<?> col, int newlineAfter) {
     if (col != null) {
-      StringBuilder builder = new StringBuilder();
-      int lastNewlineAt = 0;
+      var builder = new StringBuilder();
+      var lastNewlineAt = 0;
 
-      for (Iterator<?> it = col.iterator(); it.hasNext();) {
-        Object object = it.next();
+      for (var it = col.iterator(); it.hasNext();) {
+        var object = it.next();
         builder.append(object);
         if (it.hasNext()) {
           builder.append(", ");
@@ -206,7 +204,7 @@ public class NetstatCommand extends GfshCommand {
   private void buildMaps(Map<String, DistributedMember> hostMemberMap,
       Map<String, List<String>> hostMemberListMap, String memberIdOrName,
       DistributedMember distributedMember) {
-    String host = distributedMember.getHost();
+    var host = distributedMember.getHost();
 
     // Maintain one member for a host - function execution purpose - once only for a host
     if (!hostMemberMap.containsKey(host)) {
@@ -227,7 +225,7 @@ public class NetstatCommand extends GfshCommand {
   public static class Interceptor extends AbstractCliAroundInterceptor {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      String saveAs = parseResult.getParamValueAsString(CliStrings.NETSTAT__FILE);
+      var saveAs = parseResult.getParamValueAsString(CliStrings.NETSTAT__FILE);
 
       if (saveAs != null && StringUtils.isEmpty(FilenameUtils.getName(saveAs))) {
         return ResultModel.createError("Invalid file name: " + saveAs);
@@ -240,12 +238,12 @@ public class NetstatCommand extends GfshCommand {
     public ResultModel postExecution(GfshParseResult parseResult, ResultModel result, Path tempFile)
         throws IOException {
       // save the content to the file specified by the user
-      String saveAs = parseResult.getParamValueAsString(CliStrings.NETSTAT__FILE);
+      var saveAs = parseResult.getParamValueAsString(CliStrings.NETSTAT__FILE);
       if (saveAs == null) {
         return result;
       }
 
-      File file = new File(saveAs).getAbsoluteFile();
+      var file = new File(saveAs).getAbsoluteFile();
       result.saveFileTo(file.getParentFile());
       return result;
     }

@@ -39,8 +39,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.InternalDistributedSystem.ConnectListener;
@@ -89,13 +87,13 @@ public class MultipleCacheJUnitTest {
 
   @Test
   public void cacheCreateTwoPeerCaches() {
-    Cache cache1 = createCache("cache1");
-    Cache cache2 = createCache("cache2");
+    var cache1 = createCache("cache1");
+    var cache2 = createCache("cache2");
 
     assertThat(cache2).isNotSameAs(cache1);
 
-    DistributedMember member1 = cache1.getDistributedSystem().getDistributedMember();
-    DistributedMember member2 = cache2.getDistributedSystem().getDistributedMember();
+    var member1 = cache1.getDistributedSystem().getDistributedMember();
+    var member2 = cache2.getDistributedSystem().getDistributedMember();
 
     assertThat(member2).isNotEqualTo(member1);
     assertThat(cache2.getDistributedSystem().getAllOtherMembers()).contains(member1);
@@ -105,20 +103,20 @@ public class MultipleCacheJUnitTest {
 
   @Test
   public void canCreateTwoPeerCachesWithReplicatedRegion() {
-    Cache cache1 = createCache("cache1");
-    Cache cache2 = createCache("cache2");
+    var cache1 = createCache("cache1");
+    var cache2 = createCache("cache2");
 
-    Region<String, String> region1 =
+    var region1 =
         cache1.<String, String>createRegionFactory(REPLICATE).create("region");
-    Region<String, String> region2 =
+    var region2 =
         cache2.<String, String>createRegionFactory(REPLICATE).create("region");
 
     assertThat(region2).isNotSameAs(region1);
 
-    String value = "value";
+    var value = "value";
     region1.put("key", value);
 
-    String region2Value = region2.get("key");
+    var region2Value = region2.get("key");
     assertThat(value).isEqualTo(region2Value);
 
     // Make sure the value was actually serialized/deserialized between the two caches
@@ -126,7 +124,7 @@ public class MultipleCacheJUnitTest {
   }
 
   private Cache createCache(String memberName) {
-    Cache cache = new CacheFactory(configProperties)
+    var cache = new CacheFactory(configProperties)
         .set(NAME, memberName)
         .create();
     caches.add(cache);

@@ -35,7 +35,7 @@ public class RootRegionRequest extends AdminRequest {
    * Returns a <code>RootRegionRequest</code> to be sent to the specified recipient.
    */
   public static RootRegionRequest create() {
-    RootRegionRequest m = new RootRegionRequest();
+    var m = new RootRegionRequest();
     return m;
   }
 

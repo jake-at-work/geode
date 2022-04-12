@@ -122,12 +122,12 @@ public class ConnectionImpl implements Connection {
 
     try {
       // if a forced-disconnect has occurred, we can't send messages to anyone
-      boolean sendCloseMsg = !TEST_DURABLE_CLIENT_CRASH;
+      var sendCloseMsg = !TEST_DURABLE_CLIENT_CRASH;
       if (sendCloseMsg) {
         try {
           ds.getDistributionManager();
         } catch (CancelException e) { // distribution has stopped
-          Throwable t = e.getCause();
+          var t = e.getCause();
           if (t instanceof ForcedDisconnectException) {
             // we're crashing - don't attempt to send a message (bug 39317)
             sendCloseMsg = false;
@@ -191,7 +191,7 @@ public class ConnectionImpl implements Connection {
   }
 
   private void releaseCommBuffers() {
-    ByteBuffer bb = commBuffer;
+    var bb = commBuffer;
     if (bb != null) {
       commBuffer = null;
       ServerConnection.releaseCommBuffer(bb);

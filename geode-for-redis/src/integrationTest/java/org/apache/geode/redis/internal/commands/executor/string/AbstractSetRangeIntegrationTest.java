@@ -109,8 +109,8 @@ public abstract class AbstractSetRangeIntegrationTest implements RedisIntegratio
   @Test
   public void setRange_onNonExistentKey_padsBeginning() {
     assertThat(jedis.setrange("key", 2, "abc")).isEqualTo(5);
-    byte[] result = jedis.get(new byte[] {'k', 'e', 'y'});
-    byte[] expected = new byte[] {0, 0, 'a', 'b', 'c'};
+    var result = jedis.get(new byte[] {'k', 'e', 'y'});
+    var expected = new byte[] {0, 0, 'a', 'b', 'c'};
     assertThat(result).isEqualTo(expected);
   }
 

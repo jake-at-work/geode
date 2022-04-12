@@ -64,9 +64,9 @@ public class StatisticsTypeFactoryImpl implements StatisticsTypeFactory {
    * @throws IllegalArgumentException if the type already exists and is not equal to the new type
    */
   public StatisticsType addType(StatisticsType t) {
-    StatisticsType result = t;
+    var result = t;
     synchronized (statTypes) {
-      StatisticsType currentValue = findType(result.getName());
+      var currentValue = findType(result.getName());
       if (currentValue == null) {
         statTypes.put(result.getName(), result);
       } else if (result.equals(currentValue)) {

@@ -41,7 +41,7 @@ public class RegionStatisticsResponse extends AdminResponse {
    */
   public static RegionStatisticsResponse create(DistributionManager dm,
       InternalDistributedMember recipient, Region r) {
-    RegionStatisticsResponse m = new RegionStatisticsResponse();
+    var m = new RegionStatisticsResponse();
     m.setRecipient(recipient);
     m.regionStatistics = new RemoteCacheStatistics(r.getStatistics());
     return m;

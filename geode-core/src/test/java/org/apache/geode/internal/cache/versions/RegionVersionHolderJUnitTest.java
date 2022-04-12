@@ -55,18 +55,18 @@ public class RegionVersionHolderJUnitTest {
 
   @Test
   public void test48066_1() {
-    RegionVersionHolder vh1 = new RegionVersionHolder(member);
-    for (int i = 1; i <= 3; i++) {
+    var vh1 = new RegionVersionHolder(member);
+    for (var i = 1; i <= 3; i++) {
       vh1.recordVersion(i);
     }
     System.out.println("vh1=" + vh1);
 
-    RegionVersionHolder vh2 = vh1.clone();
+    var vh2 = vh1.clone();
     System.out.println("after clone, vh2=" + vh2);
 
     {
-      RegionVersionHolder vh3 = new RegionVersionHolder(member);
-      for (int i = 1; i <= 10; i++) {
+      var vh3 = new RegionVersionHolder(member);
+      for (var i = 1; i <= 10; i++) {
         vh3.recordVersion(i);
       }
 
@@ -88,8 +88,8 @@ public class RegionVersionHolderJUnitTest {
 
   @Test
   public void test48066() {
-    RegionVersionHolder vh = new RegionVersionHolder(member);
-    BitSet bs = new BitSet();
+    var vh = new RegionVersionHolder(member);
+    var bs = new BitSet();
     bs.set(0, 8679);
     bs.set(8705, 8713);
     recordVersions(vh, bs);
@@ -1474,8 +1474,7 @@ public class RegionVersionHolderJUnitTest {
     vh.removeExceptionsOlderThan(8712);
     System.out.println("after GC:\t" + vh);
 
-
-    RegionVersionHolder clone = vh.clone();
+    var clone = vh.clone();
     System.out.println("clone: \t\t" + clone);
     assertTrue("Expected a version greater than 7746 but got this: " + clone,
         clone.getVersion() >= 7746);
@@ -1489,20 +1488,20 @@ public class RegionVersionHolderJUnitTest {
   @Test
   public void testCanonicalExceptions() {
     List<RVVException> exceptionList = new ArrayList<>();
-    for (int i = NUM_TEST_EXCEPTIONS; i > 0; --i) {
+    for (var i = NUM_TEST_EXCEPTIONS; i > 0; --i) {
       long start = i * TEST_EXCEPTION_SIZE;
-      long end = start + TEST_EXCEPTION_SIZE;
-      RVVException testException = RVVException.createException(start, end);
-      for (long j = start + 2; j < end; j += 2) {
+      var end = start + TEST_EXCEPTION_SIZE;
+      var testException = RVVException.createException(start, end);
+      for (var j = start + 2; j < end; j += 2) {
         testException.add(j);
       }
       exceptionList.add(testException);
     }
 
-    List<RVVException> canonicalExceptions = RegionVersionHolder.canonicalExceptions(exceptionList);
+    var canonicalExceptions = RegionVersionHolder.canonicalExceptions(exceptionList);
 
     long expectedStart = NUM_TEST_EXCEPTIONS * TEST_EXCEPTION_SIZE + TEST_EXCEPTION_SIZE - 2;
-    for (RVVException exception : canonicalExceptions) {
+    for (var exception : canonicalExceptions) {
       assertEquals(expectedStart, exception.previousVersion);
       assertEquals(expectedStart + 2, exception.nextVersion);
       assertTrue(exception.isEmpty());
@@ -1524,7 +1523,7 @@ public class RegionVersionHolderJUnitTest {
     try {
       // Create a bit set that represents some seen version
       // with some exceptions
-      BitSet bs1 = new BitSet();
+      var bs1 = new BitSet();
       bs1.set(1, 6);
       bs1.set(10, 13);
       bs1.set(30, 51);
@@ -1532,13 +1531,13 @@ public class RegionVersionHolderJUnitTest {
       bs1.set(68, 101);
 
       // Get a version holder that has seen these exceptions
-      RegionVersionHolder vh1 = buildHolder(bs1);
+      var vh1 = buildHolder(bs1);
       validateExceptions(vh1);
 
 
       {
         // Simple case, initialize an empty version holder
-        RegionVersionHolder vh2 = new RegionVersionHolder(member);
+        var vh2 = new RegionVersionHolder(member);
         vh2.initializeFrom(vh1);
 
         assertEquals("RVV=" + vh2, 100, vh2.getVersion());
@@ -1551,7 +1550,7 @@ public class RegionVersionHolderJUnitTest {
         // Initialize a vector that has seen some later versions, and has some older
         // exceptions
 
-        BitSet bs2 = new BitSet();
+        var bs2 = new BitSet();
 
         // Add an exception that doesn't overlap with vh1 exceptions
         bs2.set(80, 106);
@@ -1566,7 +1565,7 @@ public class RegionVersionHolderJUnitTest {
         bs2.set(15, 26);
         bs2.set(1, 4);
 
-        RegionVersionHolder vh2 = buildHolder(bs2);
+        var vh2 = buildHolder(bs2);
 
         validateExceptions(vh2);
         vh2.initializeFrom(vh1);
@@ -1575,7 +1574,7 @@ public class RegionVersionHolderJUnitTest {
         assertEquals(100, vh2.getVersion());
         compareWithBitSet(bs1, vh2);
 
-        RegionVersionHolder vh4 = vh2.clone();
+        var vh4 = vh2.clone();
         assertEquals(105, vh4.version);
         assertEquals(100, vh4.getVersion());
         compareWithBitSet(bs1, vh4);
@@ -1598,7 +1597,7 @@ public class RegionVersionHolderJUnitTest {
   private RegionVersionHolder buildHolder(BitSet bs) {
 
     // Createa version holder
-    RegionVersionHolder vh = new RegionVersionHolder(member);
+    var vh = new RegionVersionHolder(member);
 
     // Record all of the version in the holder
     recordVersions(vh, bs);
@@ -1615,7 +1614,7 @@ public class RegionVersionHolderJUnitTest {
    */
   protected void recordVersions(RegionVersionHolder vh, BitSet bs) {
     // System.out.println("vh="+vh);
-    for (int i = 1; i < bs.length(); i++) {
+    for (var i = 1; i < bs.length(); i++) {
       if (bs.get(i)) {
         vh.recordVersion(i);
         // System.out.println("after adding " + i + ", vh="+vh);
@@ -1636,7 +1635,7 @@ public class RegionVersionHolderJUnitTest {
     try {
       RVVException.UseTreeSetsForTesting = useTreeSets;
       // Create a bit set which matches the seen versions of vh1
-      BitSet bs1 = new BitSet();
+      var bs1 = new BitSet();
       bs1.set(1, 6);
       bs1.set(27, 29);
       bs1.set(30, 41);
@@ -1644,21 +1643,21 @@ public class RegionVersionHolderJUnitTest {
       bs1.set(47, 49);
       bs1.set(50, 101);
 
-      RegionVersionHolder vh1 = buildHolder(bs1);
+      var vh1 = buildHolder(bs1);
       validateExceptions(vh1);
       compareWithBitSet(bs1, vh1);
 
       {
         // Initialize a vector that has seen some later versions, and has some older
         // exceptions
-        BitSet bs2 = new BitSet();
+        var bs2 = new BitSet();
 
         // Add an exception that doesn't overlap with vh1 exceptions
         bs2.set(1, 6);
         bs2.set(20, 44);
         bs2.set(49, 101);
 
-        RegionVersionHolder vh2 = buildHolder(bs2);
+        var vh2 = buildHolder(bs2);
         validateExceptions(vh2);
         vh2.initializeFrom(vh1);
         // bs2.or(bs1);
@@ -1676,10 +1675,10 @@ public class RegionVersionHolderJUnitTest {
     try {
       RVVException.UseTreeSetsForTesting = true;
       // Create a bit set which matches the seen versions of vh1
-      BitSet bs1 = new BitSet();
+      var bs1 = new BitSet();
       bs1.set(1024);
 
-      RegionVersionHolder vh1 = buildHolder(bs1);
+      var vh1 = buildHolder(bs1);
       bs1.set(510);
       bs1.set(511);
       bs1.set(512);
@@ -1693,7 +1692,7 @@ public class RegionVersionHolderJUnitTest {
   }
 
   private void compareWithBitSet(BitSet bitSet, RegionVersionHolder versionHolder) {
-    for (int i = 1; i < bitSet.length(); i++) {
+    for (var i = 1; i < bitSet.length(); i++) {
       assertEquals("For entry " + i + " version=" + versionHolder, bitSet.get(i),
           versionHolder.contains(i));
     }
@@ -1719,15 +1718,15 @@ public class RegionVersionHolderJUnitTest {
 
       // Simple case, - vh2 has a greater version than vh1
       {
-        RegionVersionHolder vh1 = new RegionVersionHolder(member);
-        RegionVersionHolder vh2 = new RegionVersionHolder(member);
+        var vh1 = new RegionVersionHolder(member);
+        var vh2 = new RegionVersionHolder(member);
 
         vh1.recordVersion(100);
-        BitSet bs1 = new BitSet();
+        var bs1 = new BitSet();
         bs1.set(1, 100);
         recordVersions(vh1, bs1);
 
-        BitSet bs2 = new BitSet();
+        var bs2 = new BitSet();
         bs2.set(1, 105);
         recordVersions(vh2, bs2);
         assertFalse(vh1.dominates(vh2));
@@ -1736,17 +1735,17 @@ public class RegionVersionHolderJUnitTest {
 
       // test with a gap between the bitsetVersion and the version
       {
-        RegionVersionHolder vh1 = new RegionVersionHolder(member);
-        RegionVersionHolder vh2 = new RegionVersionHolder(member);
+        var vh1 = new RegionVersionHolder(member);
+        var vh2 = new RegionVersionHolder(member);
 
-        BitSet bs1 = new BitSet();
+        var bs1 = new BitSet();
         bs1.set(1, 101);
         recordVersions(vh1, bs1);
         // this test assumes that the width is much greater than 100, so use the
         // original RegionVersionHolder.BIT_SET_WIDTH in order for the assertions to be correct
         vh1.recordVersion(2 * originalBitSetWidth);
 
-        BitSet bs2 = new BitSet();
+        var bs2 = new BitSet();
         bs2.set(1, 2 * originalBitSetWidth + 1);
         recordVersions(vh2, bs2);
 
@@ -1761,14 +1760,14 @@ public class RegionVersionHolderJUnitTest {
       // More complicated. vh2 has a higher version, but has
       // some exceptions that vh1 does not have.
       {
-        RegionVersionHolder vh1 = new RegionVersionHolder(member);
-        RegionVersionHolder vh2 = new RegionVersionHolder(member);
-        BitSet bs1 = new BitSet();
+        var vh1 = new RegionVersionHolder(member);
+        var vh2 = new RegionVersionHolder(member);
+        var bs1 = new BitSet();
         bs1.set(1, 21);
         bs1.set(30, 101);
         recordVersions(vh1, bs1);
 
-        BitSet bs2 = new BitSet();
+        var bs2 = new BitSet();
         bs2.set(1, 50);
         bs2.set(60, 105);
         recordVersions(vh2, bs2);
@@ -1784,8 +1783,8 @@ public class RegionVersionHolderJUnitTest {
       // Same version, but both have some exceptions the other doesn't
       {
         // VH2 will have exceptions for 20-25, 26-30, 41-43
-        RegionVersionHolder vh1 = new RegionVersionHolder(member);
-        BitSet bs1 = new BitSet();
+        var vh1 = new RegionVersionHolder(member);
+        var bs1 = new BitSet();
 
         // record some versions to generate two exceptions
         bs1.set(1, 21);
@@ -1799,8 +1798,8 @@ public class RegionVersionHolderJUnitTest {
         recordVersions(vh1, bs1);
 
         // VH2 will have exceptions for 20-25, 26-30, 42-45
-        RegionVersionHolder vh2 = new RegionVersionHolder(member);
-        BitSet bs2 = new BitSet();
+        var vh2 = new RegionVersionHolder(member);
+        var bs2 = new BitSet();
         bs2.set(1, 21);
         bs2.set(25, 27);
         bs2.set(30, 43);
@@ -1812,13 +1811,13 @@ public class RegionVersionHolderJUnitTest {
 
       // Same version, but vh2 has an exception that vh1 doesn't
       {
-        RegionVersionHolder vh1 = new RegionVersionHolder(member);
-        BitSet bs1 = new BitSet();
+        var vh1 = new RegionVersionHolder(member);
+        var bs1 = new BitSet();
         bs1.set(1, 101);
         recordVersions(vh1, bs1);
 
-        RegionVersionHolder vh2 = new RegionVersionHolder(member);
-        BitSet bs2 = new BitSet();
+        var vh2 = new RegionVersionHolder(member);
+        var bs2 = new BitSet();
         bs2.set(1, 43);
         bs2.set(45, 101);
         recordVersions(vh2, bs2);
@@ -1830,14 +1829,14 @@ public class RegionVersionHolderJUnitTest {
       // Same version, but vh2 has an exception that vh1 doesn't
       // With overlapping exception
       {
-        RegionVersionHolder vh1 = new RegionVersionHolder(member);
-        BitSet bs1 = new BitSet();
+        var vh1 = new RegionVersionHolder(member);
+        var bs1 = new BitSet();
         bs1.set(1, 44);
         bs1.set(45, 101);
         recordVersions(vh1, bs1);
 
-        RegionVersionHolder vh2 = new RegionVersionHolder(member);
-        BitSet bs2 = new BitSet();
+        var vh2 = new RegionVersionHolder(member);
+        var bs2 = new BitSet();
         bs2.set(1, 40);
         bs2.set(45, 101);
         recordVersions(vh1, bs1);
@@ -1849,8 +1848,8 @@ public class RegionVersionHolderJUnitTest {
       // With some differently expressed
       // but equivalent exceptions.
       {
-        RegionVersionHolder vh1 = new RegionVersionHolder(member);
-        BitSet bs1 = new BitSet();
+        var vh1 = new RegionVersionHolder(member);
+        var bs1 = new BitSet();
         bs1.set(1, 20);
         bs1.set(30, 101);
         recordVersions(vh1, bs1);
@@ -1859,8 +1858,8 @@ public class RegionVersionHolderJUnitTest {
         bs1.set(26);
         recordVersions(vh1, bs1);
 
-        RegionVersionHolder vh2 = new RegionVersionHolder(member);
-        BitSet bs2 = new BitSet();
+        var vh2 = new RegionVersionHolder(member);
+        var bs2 = new BitSet();
         bs2.set(1, 20);
         bs2.set(30, 101);
         bs2.set(25);
@@ -1885,7 +1884,7 @@ public class RegionVersionHolderJUnitTest {
    */
   private boolean dominates(BitSet bs1, BitSet bs2) {
     // bs1 dominates bs2 if it has set at least all of the bits in bs1.
-    BitSet copy = new BitSet();
+    var copy = new BitSet();
     // Make copy a copy of bit set 2
     copy.or(bs2);
 
@@ -1904,7 +1903,7 @@ public class RegionVersionHolderJUnitTest {
    */
   private void validateExceptions(RegionVersionHolder<?> holder) {
     if (holder.getExceptionForTest() != null) {
-      for (RVVException ex : holder.getExceptionForTest()) {
+      for (var ex : holder.getExceptionForTest()) {
         // now it allows the special exception whose nextVersion==holder.version+1
         if (ex.nextVersion > holder.version + 1) {
           Assert.assertTrue(false, "next version too large next=" + ex.nextVersion
@@ -1916,7 +1915,7 @@ public class RegionVersionHolderJUnitTest {
               "bad next and previous next=" + ex.nextVersion + ", previous=" + ex.previousVersion);
         }
 
-        for (RVVException.ReceivedVersionsReverseIterator it =
+        for (var it =
             ex.receivedVersionsReverseIterator(); it.hasNext();) {
           Long received = it.next();
           if (received >= ex.nextVersion) {

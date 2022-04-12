@@ -19,7 +19,6 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.getTimeout;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -88,11 +87,11 @@ public class ExecutorServiceRuleGetThreadsTest {
     executorServiceRule.submit(() -> terminateLatch.await(TIMEOUT_MILLIS, MILLISECONDS));
     executorServiceRule.submit(() -> terminateLatch.await(TIMEOUT_MILLIS, MILLISECONDS));
 
-    long[] threadIds = executorServiceRule.getThreadIds();
+    var threadIds = executorServiceRule.getThreadIds();
     assertThat(threadIds).hasSize(2);
 
-    Set<Thread> threads = executorServiceRule.getThreads();
-    for (Thread thread : threads) {
+    var threads = executorServiceRule.getThreads();
+    for (var thread : threads) {
       assertThat(threadIds).contains(thread.getId());
     }
   }

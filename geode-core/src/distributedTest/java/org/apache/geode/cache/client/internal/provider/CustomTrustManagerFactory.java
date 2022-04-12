@@ -48,7 +48,7 @@ public abstract class CustomTrustManagerFactory extends TrustManagerFactorySpi {
 
   @Override
   public final TrustManager[] engineGetTrustManagers() {
-    X509ExtendedTrustManager systemTrustManager = getCustomTrustManager();
+    var systemTrustManager = getCustomTrustManager();
     return new TrustManager[] {systemTrustManager};
   }
 
@@ -66,7 +66,7 @@ public abstract class CustomTrustManagerFactory extends TrustManagerFactorySpi {
 
   private X509ExtendedTrustManager getCustomTrustManager() {
     if (customTrustManager == null) {
-      for (TrustManager candidate : customTrustManagerFactory.getTrustManagers()) {
+      for (var candidate : customTrustManagerFactory.getTrustManagers()) {
         if (candidate instanceof X509ExtendedTrustManager) {
           logger.info("Adding System Trust Manager");
           customTrustManager = (X509ExtendedTrustManager) candidate;
@@ -78,11 +78,11 @@ public abstract class CustomTrustManagerFactory extends TrustManagerFactorySpi {
   }
 
   private void init() {
-    String trustStoreType = "JKS";
-    String trustStorePassword = "password";
+    var trustStoreType = "JKS";
+    var trustStorePassword = "password";
 
-    try (FileInputStream fileInputStream = new FileInputStream(trustStorePath)) {
-      KeyStore trustStore = KeyStore.getInstance(trustStoreType);
+    try (var fileInputStream = new FileInputStream(trustStorePath)) {
+      var trustStore = KeyStore.getInstance(trustStoreType);
       trustStore.load(fileInputStream, trustStorePassword.toCharArray());
       customTrustManagerFactory = TrustManagerFactory.getInstance(algorithm, "SunJSSE");
       customTrustManagerFactory.init(trustStore);

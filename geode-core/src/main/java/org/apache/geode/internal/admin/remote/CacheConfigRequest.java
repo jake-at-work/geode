@@ -40,7 +40,7 @@ public class CacheConfigRequest extends AdminRequest {
    * Returns a <code>CacheConfigRequest</code>.
    */
   public static CacheConfigRequest create(CacheInfo c, int attCode, int v) {
-    CacheConfigRequest m = new CacheConfigRequest();
+    var m = new CacheConfigRequest();
     m.attributeCode = (byte) attCode;
     m.newValue = v;
     m.cacheId = c.getId();

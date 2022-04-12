@@ -22,7 +22,6 @@ package org.apache.geode.cache.query.data;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class State implements Serializable {
@@ -38,8 +37,8 @@ public class State implements Serializable {
   }// end of contructor 1
 
   public State(int i, Set districts) {
-    String[] arr1 = {"MAHARASHTRA", "GUJARAT", "PUNJAB", "KERALA", "AASAM"};
-    String[] arr2 = {"WEST", "WEST", "NORTH", "SOUTH", "EAST"};
+    var arr1 = new String[] {"MAHARASHTRA", "GUJARAT", "PUNJAB", "KERALA", "AASAM"};
+    var arr2 = new String[] {"WEST", "WEST", "NORTH", "SOUTH", "EAST"};
     /* this is for the test to have 33.33% of the objects belonging to one state */
     name = arr1[i % 3];
     zone = arr2[i % 3];
@@ -63,7 +62,7 @@ public class State implements Serializable {
 
   public Set getDistrictsWithSameName(District dist) {
     Set districtsWithSameName = new HashSet();
-    Iterator itr2 = districts.iterator();
+    var itr2 = districts.iterator();
     District dist1;
     while (itr2.hasNext()) {
       dist1 = (District) itr2.next();

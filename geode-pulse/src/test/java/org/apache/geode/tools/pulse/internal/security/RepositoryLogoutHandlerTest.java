@@ -50,9 +50,9 @@ public class RepositoryLogoutHandlerTest {
 
   @Test
   public void logsOutAuthenticatedUser() {
-    String authenticatedUser = "authenticated-user";
+    var authenticatedUser = "authenticated-user";
 
-    Authentication authentication = mock(Authentication.class);
+    var authentication = mock(Authentication.class);
     when(authentication.getName()).thenReturn(authenticatedUser);
 
     handler.logout(null, null, authentication);

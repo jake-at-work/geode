@@ -149,10 +149,10 @@ public class SerializableTemporaryFolder extends TemporaryFolder implements Seri
 
   @Override
   protected void after() {
-    File directory = copyTo.get();
+    var directory = copyTo.get();
     if (directory != null && when.get().test(passed.get())) {
-      File timestamp = new File(directory, String.valueOf(System.currentTimeMillis()));
-      File destination = new File(timestamp, methodName.get());
+      var timestamp = new File(directory, String.valueOf(System.currentTimeMillis()));
+      var destination = new File(timestamp, methodName.get());
       destination.mkdirs();
 
       copyTo(getRoot(), destination);
@@ -198,14 +198,14 @@ public class SerializableTemporaryFolder extends TemporaryFolder implements Seri
     }
 
     protected Object readResolve() {
-      Builder instanceBuilder = builder();
+      var instanceBuilder = builder();
       instanceBuilder.parentFolder(parentFolder);
 
       if (assureDeletion) {
         instanceBuilder.assureDeletion();
       }
 
-      SerializableTemporaryFolder instance = new SerializableTemporaryFolder(instanceBuilder);
+      var instance = new SerializableTemporaryFolder(instanceBuilder);
       writeField(TemporaryFolder.class, instance, FIELD_FOLDER, folder);
 
       return instance;

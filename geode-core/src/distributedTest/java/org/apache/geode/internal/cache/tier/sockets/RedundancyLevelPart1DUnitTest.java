@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -49,7 +48,6 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.RegisterInterestTracker;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.ClientServerObserver;
 import org.apache.geode.internal.cache.ClientServerObserverAdapter;
@@ -142,7 +140,7 @@ public class RedundancyLevelPart1DUnitTest implements Serializable {
       ClientServerObserverHolder.setInstance(clientServerObserver);
     }
 
-    for (VM vm : toArray(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : toArray(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> cacheRule.closeAndNullCache());
     }
 
@@ -409,7 +407,7 @@ public class RedundancyLevelPart1DUnitTest implements Serializable {
   }
 
   private void registerK1AndK2() {
-    Region<Object, Object> region = cache.getRegion(REGION_NAME);
+    var region = cache.getRegion(REGION_NAME);
     assertThat(region).isNotNull();
     List<String> list = new ArrayList<>();
     list.add(K1);
@@ -423,9 +421,9 @@ public class RedundancyLevelPart1DUnitTest implements Serializable {
   }
 
   private void stopServer() {
-    Iterator<CacheServer> iterator = cache.getCacheServers().iterator();
+    var iterator = cache.getCacheServers().iterator();
     if (iterator.hasNext()) {
-      CacheServer server = iterator.next();
+      var server = iterator.next();
       server.stop();
     }
   }
@@ -447,7 +445,7 @@ public class RedundancyLevelPart1DUnitTest implements Serializable {
           });
     }
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
 
@@ -482,7 +480,7 @@ public class RedundancyLevelPart1DUnitTest implements Serializable {
     cache.createRegionFactory(RegionShortcut.REPLICATE).setEnableSubscriptionConflation(true)
         .create(REGION_NAME);
 
-    CacheServer cacheServer = cache.addCacheServer();
+    var cacheServer = cache.addCacheServer();
 
     cacheServer.setMaximumTimeBetweenPings(180000);
     cacheServer.setPort(0);
@@ -494,23 +492,23 @@ public class RedundancyLevelPart1DUnitTest implements Serializable {
   private void verifyInterestRegistration() {
     await().untilAsserted(() -> assertThat(cache.getCacheServers()).hasSize(1));
 
-    InternalCacheServer cacheServer =
+    var cacheServer =
         (InternalCacheServer) cache.getCacheServers().iterator().next();
     assertThat(cacheServer).isNotNull();
     assertThat(cacheServer.getAcceptor()).isNotNull();
     assertThat(cacheServer.getAcceptor().getCacheClientNotifier()).isNotNull();
 
-    CacheClientNotifier cacheClientNotifier =
+    var cacheClientNotifier =
         cacheServer.getAcceptor().getCacheClientNotifier();
     await().untilAsserted(
         () -> assertThat(cacheClientNotifier.getClientProxies().size()).isGreaterThan(0));
 
-    Iterator<CacheClientProxy> cacheClientProxyIterator =
+    var cacheClientProxyIterator =
         cacheClientNotifier.getClientProxies().iterator();
 
     assertThat(cacheClientProxyIterator.hasNext()).describedAs("A CacheClientProxy was expected")
         .isTrue();
-    CacheClientProxy cacheClientProxy = cacheClientProxyIterator.next();
+    var cacheClientProxy = cacheClientProxyIterator.next();
 
     await().until(() -> {
       Set<?> keysMap = cacheClientProxy.cils[RegisterInterestTracker.interestListIndex]

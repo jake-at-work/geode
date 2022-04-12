@@ -15,15 +15,11 @@
 package org.apache.geode.management.internal.cli.functions;
 
 
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.execute.ResultSender;
-import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.cli.CliFunction;
 import org.apache.geode.management.internal.cli.CliUtils;
@@ -47,15 +43,15 @@ public class DestroyGatewayReceiverFunction extends CliFunction<Void> {
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext<Void> context) {
-    ResultSender<Object> resultSender = context.getResultSender();
+    var resultSender = context.getResultSender();
 
-    Cache cache = context.getCache();
-    String memberNameOrId =
+    var cache = context.getCache();
+    var memberNameOrId =
         CliUtils.getMemberNameOrId(cache.getDistributedSystem().getDistributedMember());
 
-    Set<GatewayReceiver> gatewayReceivers = cache.getGatewayReceivers();
+    var gatewayReceivers = cache.getGatewayReceivers();
     if (gatewayReceivers != null && !gatewayReceivers.isEmpty()) {
-      for (GatewayReceiver receiver : gatewayReceivers) {
+      for (var receiver : gatewayReceivers) {
         try {
           if (receiver.isRunning()) {
             receiver.stop();

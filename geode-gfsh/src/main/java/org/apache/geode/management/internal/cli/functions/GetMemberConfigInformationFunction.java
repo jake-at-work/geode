@@ -17,7 +17,6 @@ package org.apache.geode.management.internal.cli.functions;
 import static org.apache.geode.distributed.ConfigurationProperties.SOCKET_BUFFER_SIZE;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,10 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.DistributionConfigImpl;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.ConfigSource;
@@ -57,12 +54,12 @@ public class GetMemberConfigInformationFunction extends CliFunction<Boolean> {
   public CliFunctionResult executeFunction(FunctionContext<Boolean> context) {
     boolean hideDefaults = context.getArguments();
 
-    Cache cache = context.getCache();
-    InternalDistributedSystem system = (InternalDistributedSystem) cache.getDistributedSystem();
-    DistributionConfig config = system.getConfig();
+    var cache = context.getCache();
+    var system = (InternalDistributedSystem) cache.getDistributedSystem();
+    var config = system.getConfig();
 
-    DistributionConfigImpl distConfigImpl = ((DistributionConfigImpl) config);
-    MemberConfigurationInfo memberConfigInfo = new MemberConfigurationInfo();
+    var distConfigImpl = ((DistributionConfigImpl) config);
+    var memberConfigInfo = new MemberConfigurationInfo();
     memberConfigInfo.setJvmInputArguments(getJvmInputArguments());
     memberConfigInfo
         .setGfePropsRuntime(distConfigImpl.getConfigPropsFromSource(ConfigSource.runtime()));
@@ -103,10 +100,10 @@ public class GetMemberConfigInformationFunction extends CliFunction<Boolean> {
     memberConfigInfo.setCacheAttributes(cacheAttributes);
 
     List<Map<String, String>> cacheServerAttributesList = new ArrayList<>();
-    List<CacheServer> cacheServers = cache.getCacheServers();
+    var cacheServers = cache.getCacheServers();
 
     if (cacheServers != null) {
-      for (CacheServer cacheServer : cacheServers) {
+      for (var cacheServer : cacheServers) {
         Map<String, String> cacheServerAttributes = new HashMap<>();
 
         cacheServerAttributes.put("bind-address", cacheServer.getBindAddress());
@@ -208,9 +205,9 @@ public class GetMemberConfigInformationFunction extends CliFunction<Boolean> {
     // Make a copy to avoid the CME's
     Set<String> attributesSet = new HashSet<>(attributesMap.keySet());
 
-    for (String attribute : attributesSet) {
-      String attributeValue = attributesMap.get(attribute);
-      String defaultValue = defaultAttributesMap.get(attribute);
+    for (var attribute : attributesSet) {
+      var attributeValue = attributesMap.get(attribute);
+      var defaultValue = defaultAttributesMap.get(attribute);
 
       if (attributeValue != null) {
         if (attributeValue.equals(defaultValue)) {
@@ -225,7 +222,7 @@ public class GetMemberConfigInformationFunction extends CliFunction<Boolean> {
   }
 
   private List<String> getJvmInputArguments() {
-    RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+    var runtimeBean = ManagementFactory.getRuntimeMXBean();
     return ArgumentRedactor.redactEachInList(runtimeBean.getInputArguments());
   }
 }

@@ -66,7 +66,7 @@ public abstract class GemFireException extends RuntimeException {
     if (getCause() == null) {
       return null;
     }
-    Throwable root = getCause();
+    var root = getCause();
     while (root.getCause() != null) {
       root = root.getCause();
     }

@@ -29,7 +29,6 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import org.apache.geode.logging.internal.spi.LogConfig;
@@ -53,7 +52,7 @@ public class LoggingSessionTest {
     loggingSessionNotifier = spy(new LoggingSessionRegistryProvider());
     logConfigSupplier = spy(LogConfigSupplier.class);
     configuration = spy(Configuration.create());
-    LogConfig config = mock(LogConfig.class);
+    var config = mock(LogConfig.class);
 
     when(logConfigSupplier.getLogConfig()).thenReturn(config);
     when(config.getLogFile()).thenReturn(new File(""));
@@ -119,7 +118,7 @@ public class LoggingSessionTest {
   public void createSessionPublishesConfigBeforeCreatingLoggingSession() {
     loggingSession.createSession(logConfigSupplier);
 
-    InOrder inOrder = inOrder(configuration, loggingSessionNotifier);
+    var inOrder = inOrder(configuration, loggingSessionNotifier);
     inOrder.verify(configuration).initialize(eq(logConfigSupplier));
     inOrder.verify(configuration).configChanged();
     inOrder.verify(loggingSessionNotifier).createSession(eq(loggingSession));

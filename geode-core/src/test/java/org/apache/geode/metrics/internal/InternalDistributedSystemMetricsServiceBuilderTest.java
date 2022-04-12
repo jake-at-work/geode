@@ -64,7 +64,7 @@ public class InternalDistributedSystemMetricsServiceBuilderTest {
     when(system.getName()).thenReturn("some-system-name");
     when(system.getDistributedMember().getHost()).thenReturn("some-host-name");
 
-    MetricsService metricsService = serviceBuilder.build(system);
+    var metricsService = serviceBuilder.build(system);
 
     try {
       assertThat(metricsService).isInstanceOf(InternalDistributedSystemMetricsService.class);
@@ -75,13 +75,13 @@ public class InternalDistributedSystemMetricsServiceBuilderTest {
 
   @Test
   public void usesFactoryToCreateSession_ifFactorySet() {
-    MetricsService metricsServiceCreatedByFactory = mock(MetricsService.class);
+    var metricsServiceCreatedByFactory = mock(MetricsService.class);
 
     when(metricsServiceFactory
         .create(any(), any(), any(), any(), any(), any(), any(), anyBoolean(), anyBoolean(),
             anyBoolean())).thenReturn(metricsServiceCreatedByFactory);
 
-    MetricsService metricsService = serviceBuilder
+    var metricsService = serviceBuilder
         .setMetricsServiceFactory(metricsServiceFactory)
         .build(system);
 
@@ -126,7 +126,7 @@ public class InternalDistributedSystemMetricsServiceBuilderTest {
 
   @Test
   public void passesGivenCompositeMeterRegistryToFactoryAsMetricsServiceMeterRegistry() {
-    CompositeMeterRegistry theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
+    var theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
 
     serviceBuilder.setMetricsServiceFactory(metricsServiceFactory)
         .setCompositeMeterRegistry(theMetricsServiceMeterRegistry)
@@ -149,7 +149,7 @@ public class InternalDistributedSystemMetricsServiceBuilderTest {
 
   @Test
   public void passesIndividuallyAddedClientMeterRegistriesToFactory() {
-    Set<MeterRegistry> individuallyAddedClientMeterRegistries = setOf(3, MeterRegistry.class);
+    var individuallyAddedClientMeterRegistries = setOf(3, MeterRegistry.class);
 
     serviceBuilder.setMetricsServiceFactory(metricsServiceFactory);
     individuallyAddedClientMeterRegistries.forEach(serviceBuilder::addPersistentMeterRegistry);
@@ -169,7 +169,7 @@ public class InternalDistributedSystemMetricsServiceBuilderTest {
 
   @Test
   public void passesBulkAddedClientMeterRegistriesToFactory() {
-    Set<MeterRegistry> bulkAddedClientMeterRegistries = setOf(4, MeterRegistry.class);
+    var bulkAddedClientMeterRegistries = setOf(4, MeterRegistry.class);
 
     serviceBuilder.setMetricsServiceFactory(metricsServiceFactory)
         .addPersistentMeterRegistries(bulkAddedClientMeterRegistries)
@@ -206,7 +206,7 @@ public class InternalDistributedSystemMetricsServiceBuilderTest {
 
   @Test
   public void passesGivenMeterBinderToFactory() {
-    CloseableMeterBinder theBinder = mock(CloseableMeterBinder.class);
+    var theBinder = mock(CloseableMeterBinder.class);
 
     serviceBuilder.setMetricsServiceFactory(metricsServiceFactory)
         .setBinder(theBinder)
@@ -229,7 +229,7 @@ public class InternalDistributedSystemMetricsServiceBuilderTest {
 
   @Test
   public void passesGivenLoggerToFactory() {
-    Logger theLogger = mock(Logger.class);
+    var theLogger = mock(Logger.class);
 
     serviceBuilder.setMetricsServiceFactory(metricsServiceFactory)
         .setLogger(theLogger)
@@ -310,7 +310,7 @@ public class InternalDistributedSystemMetricsServiceBuilderTest {
 
   @Test
   public void passesGivenSystemToFactory() {
-    InternalDistributedSystem theSystem = mock(InternalDistributedSystem.class);
+    var theSystem = mock(InternalDistributedSystem.class);
 
     serviceBuilder.setMetricsServiceFactory(metricsServiceFactory)
         .build(theSystem);

@@ -37,32 +37,32 @@ public class InputStreamReader {
     List<String> strings = new ArrayList<>();
 
     while (true) {
-      byte recordType = (byte) input.read();
+      var recordType = (byte) input.read();
       switch (recordType) {
         case OutputStreamAppender.STRING_RECORD:
           strings.add(input.readUTF());
           break;
         case OutputStreamAppender.EDGE_RECORD:
-          long timestamp = input.readLong();
-          GraphType graphType = GraphType.getType(input.readByte());
-          boolean isPattern = input.readBoolean();
+          var timestamp = input.readLong();
+          var graphType = GraphType.getType(input.readByte());
+          var isPattern = input.readBoolean();
           String graphName = null;
           Pattern graphPattern = null;
           if (isPattern) {
-            String pattern = input.readUTF();
-            int flags = input.readInt();
+            var pattern = input.readUTF();
+            var flags = input.readInt();
             graphPattern = Pattern.compile(pattern, flags);
           } else {
             graphName = input.readUTF();
             // TODO - canonicalize this on write,
             graphName = graphName.intern();
           }
-          String stateName = input.readUTF();
+          var stateName = input.readUTF();
           // TODO - canonicalize this on write,
           stateName = stateName.intern();
-          String edgeName = readCanonicalString(strings);
-          String source = readCanonicalString(strings);
-          String dest = readCanonicalString(strings);
+          var edgeName = readCanonicalString(strings);
+          var source = readCanonicalString(strings);
+          var dest = readCanonicalString(strings);
 
           if (isPattern) {
             if (filter.acceptPattern(graphType, graphPattern, edgeName, source, dest)) {
@@ -87,7 +87,7 @@ public class InputStreamReader {
   }
 
   private String readCanonicalString(List<String> strings) throws IOException {
-    int index = input.readInt();
+    var index = input.readInt();
     if (index == -1) {
       return null;
     }

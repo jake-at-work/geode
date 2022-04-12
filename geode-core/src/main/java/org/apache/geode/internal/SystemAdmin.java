@@ -36,26 +36,21 @@ import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -74,11 +69,9 @@ import org.apache.geode.admin.internal.AdminDistributedSystemImpl;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.cache.persistence.PersistentID;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionConfigImpl;
 import org.apache.geode.distributed.internal.HighPriorityAckedMessage;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.tcpserver.HostAndPort;
 import org.apache.geode.distributed.internal.tcpserver.TcpClient;
 import org.apache.geode.distributed.internal.tcpserver.TcpSocketFactory;
@@ -95,8 +88,6 @@ import org.apache.geode.internal.statistics.StatArchiveReader.ResourceInst;
 import org.apache.geode.internal.statistics.StatArchiveReader.StatValue;
 import org.apache.geode.internal.util.JavaCommandBuilder;
 import org.apache.geode.internal.util.PluckStacks;
-import org.apache.geode.internal.util.PluckStacks.ThreadStack;
-import org.apache.geode.management.BackupStatus;
 import org.apache.geode.util.internal.GeodeGlossary;
 
 /**
@@ -109,14 +100,14 @@ public class SystemAdmin {
    * in.
    */
   public static File findGemFireLibDir() {
-    URL jarURL = GemFireVersion.getJarURL();
+    var jarURL = GemFireVersion.getJarURL();
     if (jarURL == null) {
       return null;
     }
-    String path = jarURL.getPath();
+    var path = jarURL.getPath();
     // Decode URL to get rid of escaped characters. See bug 32465.
     path = URLDecoder.decode(path);
-    File f = new File(path);
+    var f = new File(path);
     if (f.isDirectory()) {
       return f;
     }
@@ -141,7 +132,7 @@ public class SystemAdmin {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    int port = DistributionLocator.parsePort(portOption);
+    var port = DistributionLocator.parsePort(portOption);
 
     if (addressOption == null) {
       addressOption = "";
@@ -156,7 +147,7 @@ public class SystemAdmin {
       }
     }
     // check to see if locator is already running
-    File logFile = new File(directory, DistributionLocator.DEFAULT_STARTUP_LOG_FILE);
+    var logFile = new File(directory, DistributionLocator.DEFAULT_STARTUP_LOG_FILE);
     try {
       // make sure file can be opened for writing
       (new FileOutputStream(logFile.getPath(), true)).close();
@@ -169,7 +160,7 @@ public class SystemAdmin {
     }
 
     if (gemfirePropertiesFileOption != null) {
-      Properties newPropOptions = new Properties();// see #43731
+      var newPropOptions = new Properties();// see #43731
       newPropOptions.putAll(propertyOptionArg);
       newPropOptions.setProperty("gemfirePropertyFile", gemfirePropertiesFileOption);
       propertyOptionArg = newPropOptions;
@@ -179,7 +170,7 @@ public class SystemAdmin {
     Map<String, String> env = new HashMap<>();
     SocketCreator.readSSLProperties(env);
 
-    List cmdVec = JavaCommandBuilder.buildCommand(getDistributionLocatorPath(), null,
+    var cmdVec = JavaCommandBuilder.buildCommand(getDistributionLocatorPath(), null,
         propertyOptionArg, xoptions);
 
     cmdVec.add(String.valueOf(port));
@@ -191,25 +182,25 @@ public class SystemAdmin {
     }
     cmdVec.add(hostnameForClientsOption);
 
-    String[] cmd = (String[]) cmdVec.toArray(new String[0]);
+    var cmd = (String[]) cmdVec.toArray(new String[0]);
 
     // start with a fresh log each time
     if (!logFile.delete() && logFile.exists()) {
       throw new GemFireIOException("Unable to delete " + logFile.getAbsolutePath());
     }
-    boolean treatAsPure = true;
+    var treatAsPure = true;
     /*
      * A counter used by PureJava to determine when its waited too long to start the locator
      * process. countDown * 250 = how many seconds to wait before giving up.
      */
-    int countDown = 60;
+    var countDown = 60;
     // NYI: wait around until we can attach
     while (!ManagerInfo.isLocatorStarted(directory)) {
       countDown--;
       Thread.sleep(250);
       if (countDown < 0) {
         try {
-          String msg = tailFile(logFile, false);
+          var msg = tailFile(logFile, false);
           throw new GemFireIOException(
               String.format("Start of locator failed. The end of %s contained this message: %s.",
                   logFile, msg),
@@ -245,10 +236,10 @@ public class SystemAdmin {
     try {
       Enumeration en = NetworkInterface.getNetworkInterfaces();
       while (en.hasMoreElements()) {
-        NetworkInterface ni = (NetworkInterface) en.nextElement();
+        var ni = (NetworkInterface) en.nextElement();
         Enumeration en2 = ni.getInetAddresses();
         while (en2.hasMoreElements()) {
-          InetAddress check = (InetAddress) en2.nextElement();
+          var check = (InetAddress) en2.nextElement();
           if (check.equals(addr)) {
             return true;
           }
@@ -283,15 +274,15 @@ public class SystemAdmin {
     }
 
     if (propertyOption != null) {
-      for (final Object o : propertyOption.keySet()) {
-        String key = (String) o;
+      for (final var o : propertyOption.keySet()) {
+        var key = (String) o;
         System.setProperty(key, propertyOption.getProperty(key));
       }
     }
-    int port = DistributionLocator.parsePort(portOption);
-    int pid = 0;
+    var port = DistributionLocator.parsePort(portOption);
+    var pid = 0;
     try {
-      ManagerInfo info = ManagerInfo.loadLocatorInfo(directory);
+      var info = ManagerInfo.loadLocatorInfo(directory);
       pid = info.getManagerProcessId();
       if (portOption == null || portOption.trim().length() == 0) {
         port = info.getManagerPort();
@@ -357,10 +348,10 @@ public class SystemAdmin {
    *         means that the info file is corrupt.
    */
   public String locatorInfo(File directory) {
-    int statusCode = ManagerInfo.getLocatorStatusCode(directory);
-    String statusString = ManagerInfo.statusToString(statusCode);
+    var statusCode = ManagerInfo.getLocatorStatusCode(directory);
+    var statusString = ManagerInfo.statusToString(statusCode);
     try {
-      ManagerInfo mi = ManagerInfo.loadLocatorInfo(directory);
+      var mi = ManagerInfo.loadLocatorInfo(directory);
       if (statusCode == ManagerInfo.KILLED_STATUS_CODE) {
         return String.format("Locator in %s was killed while it was %s. Locator process id was %s.",
             directory, ManagerInfo.statusToString(mi.getManagerStatus()),
@@ -382,7 +373,7 @@ public class SystemAdmin {
   private static void cleanupAfterKilledLocator(File directory) {
     try {
       if (ManagerInfo.getLocatorStatusCode(directory) == ManagerInfo.KILLED_STATUS_CODE) {
-        File infoFile = ManagerInfo.getLocatorInfoFile(directory);
+        var infoFile = ManagerInfo.getLocatorInfoFile(directory);
         if (infoFile.exists()) {
           if (!infoFile.delete() && infoFile.exists()) {
             System.out.println("WARNING: unable to delete " + infoFile.getAbsolutePath());
@@ -403,7 +394,7 @@ public class SystemAdmin {
    * @since GemFire 4.0
    */
   public String locatorTailLog(File directory) {
-    File logFile = new File(directory, DistributionLocator.DEFAULT_LOG_FILE);
+    var logFile = new File(directory, DistributionLocator.DEFAULT_LOG_FILE);
     if (!logFile.exists()) {
       return String.format("Log file %s does not exist.", logFile);
     }
@@ -411,8 +402,8 @@ public class SystemAdmin {
     try {
       return TailLogResponse.tailSystemLog(logFile);
     } catch (IOException ex) {
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw, true);
+      var sw = new StringWriter();
+      var pw = new PrintWriter(sw, true);
       sw.write(String.format("An IOException was thrown while tailing %s",
           logFile));
       ex.printStackTrace(pw);
@@ -428,11 +419,11 @@ public class SystemAdmin {
   }
 
   public static void compactDiskStore(List args) {
-    String diskStoreName = (String) args.get(0);
-    List dirList = args.subList(1, args.size());
-    File[] dirs = new File[dirList.size()];
-    Iterator it = dirList.iterator();
-    int idx = 0;
+    var diskStoreName = (String) args.get(0);
+    var dirList = args.subList(1, args.size());
+    var dirs = new File[dirList.size()];
+    var it = dirList.iterator();
+    var idx = 0;
     while (it.hasNext()) {
       dirs[idx] = new File((String) it.next());
       idx++;
@@ -445,11 +436,11 @@ public class SystemAdmin {
   }
 
   public static void upgradeDiskStore(List args) {
-    String diskStoreName = (String) args.get(0);
-    List dirList = args.subList(1, args.size());
-    File[] dirs = new File[dirList.size()];
-    Iterator it = dirList.iterator();
-    int idx = 0;
+    var diskStoreName = (String) args.get(0);
+    var dirList = args.subList(1, args.size());
+    var dirs = new File[dirList.size()];
+    var it = dirList.iterator();
+    var idx = 0;
     while (it.hasNext()) {
       dirs[idx] = new File((String) it.next());
       idx++;
@@ -462,14 +453,14 @@ public class SystemAdmin {
   }
 
   public static void compactAllDiskStores(List args) throws AdminException {
-    InternalDistributedSystem ads = getAdminCnx();
-    Map<DistributedMember, Set<PersistentID>> status =
+    var ads = getAdminCnx();
+    var status =
         AdminDistributedSystemImpl.compactAllDiskStores(ads.getDistributionManager());
 
     System.out.println("Compaction complete.");
     System.out.println("The following disk stores compacted some files:");
-    for (Set<PersistentID> memberStores : status.values()) {
-      for (PersistentID store : memberStores) {
+    for (var memberStores : status.values()) {
+      for (var store : memberStores) {
         System.out.println("\t" + store);
       }
     }
@@ -480,11 +471,11 @@ public class SystemAdmin {
   }
 
   public static void validateDiskStore(List args) {
-    String diskStoreName = (String) args.get(0);
-    List dirList = args.subList(1, args.size());
-    File[] dirs = new File[dirList.size()];
-    Iterator it = dirList.iterator();
-    int idx = 0;
+    var diskStoreName = (String) args.get(0);
+    var dirList = args.subList(1, args.size());
+    var dirs = new File[dirList.size()];
+    var it = dirList.iterator();
+    var idx = 0;
     while (it.hasNext()) {
       dirs[idx] = new File((String) it.next());
       idx++;
@@ -498,16 +489,16 @@ public class SystemAdmin {
 
   private static InternalDistributedSystem getAdminCnx() {
     InternalDistributedSystem.setCommandLineAdmin(true);
-    Properties props = propertyOption;
+    var props = propertyOption;
     props.setProperty(LOG_LEVEL, "warning");
-    DistributionConfigImpl dsc = new DistributionConfigImpl(props);
+    var dsc = new DistributionConfigImpl(props);
     System.out.print("Connecting to distributed system:");
     if (!"".equals(dsc.getLocators())) {
       System.out.println(" locators=" + dsc.getLocators());
     } else {
       System.out.println(" mcast=" + dsc.getMcastAddress() + ":" + dsc.getMcastPort());
     }
-    InternalDistributedSystem ds =
+    var ds =
         (InternalDistributedSystem) InternalDistributedSystem.connectForAdmin(props);
     Set existingMembers = ds.getDistributionManager().getDistributionManagerIds();
     if (existingMembers.isEmpty()) {
@@ -522,10 +513,10 @@ public class SystemAdmin {
       if (cmdLine.size() > 0) {
         timeout = Long.parseLong(cmdLine.get(0));
       }
-      InternalDistributedSystem ads = getAdminCnx();
-      Set members =
+      var ads = getAdminCnx();
+      var members =
           AdminDistributedSystemImpl.shutDownAllMembers(ads.getDistributionManager(), timeout);
-      int count = members == null ? 0 : members.size();
+      var count = members == null ? 0 : members.size();
       if (members == null) {
         System.err
             .println("Unable to shut down the distributed system in the specified amount of time.");
@@ -552,8 +543,8 @@ public class SystemAdmin {
 
   public static void printStacks(List<String> cmdLine, boolean allStacks) {
     try {
-      InternalDistributedSystem ads = getAdminCnx();
-      HighPriorityAckedMessage msg = new HighPriorityAckedMessage();
+      var ads = getAdminCnx();
+      var msg = new HighPriorityAckedMessage();
       OutputStream os;
       PrintWriter ps;
       File outputFile = null;
@@ -567,25 +558,25 @@ public class SystemAdmin {
         ps = new PrintWriter(System.out);
       }
 
-      Map<InternalDistributedMember, byte[]> dumps =
+      var dumps =
           msg.dumpStacks(ads.getDistributionManager().getAllOtherMembers(), false, true);
-      for (Map.Entry<InternalDistributedMember, byte[]> entry : dumps.entrySet()) {
+      for (var entry : dumps.entrySet()) {
         ps.append("--- dump of stack for member " + entry.getKey()
             + " ------------------------------------------------------------------------------\n");
         ps.flush();
-        GZIPInputStream zipIn = new GZIPInputStream(new ByteArrayInputStream(entry.getValue()));
+        var zipIn = new GZIPInputStream(new ByteArrayInputStream(entry.getValue()));
         if (allStacks) {
-          BufferedInputStream bin = new BufferedInputStream(zipIn);
-          byte[] buffer = new byte[10000];
+          var bin = new BufferedInputStream(zipIn);
+          var buffer = new byte[10000];
           int count;
           while ((count = bin.read(buffer)) != -1) {
             os.write(buffer, 0, count);
           }
           ps.append('\n');
         } else {
-          BufferedReader reader = new BufferedReader(new InputStreamReader(zipIn));
-          List<ThreadStack> stacks = (new PluckStacks()).getStacks(reader);
-          for (ThreadStack s : stacks) {
+          var reader = new BufferedReader(new InputStreamReader(zipIn));
+          var stacks = (new PluckStacks()).getStacks(reader);
+          for (var s : stacks) {
             s.writeTo(ps);
             ps.append('\n');
           }
@@ -603,25 +594,25 @@ public class SystemAdmin {
   }
 
   public static void backup(String targetDir) throws AdminException {
-    InternalDistributedSystem ads = getAdminCnx();
+    var ads = getAdminCnx();
 
     // Baseline directory should be null if it was not provided on the command line
-    BackupStatus status =
+    var status =
         new BackupOperation(ads.getDistributionManager(), ads.getCache()).backupAllMembers(
             targetDir,
             SystemAdmin.baselineDir);
 
-    boolean incomplete = !status.getOfflineDiskStores().isEmpty();
+    var incomplete = !status.getOfflineDiskStores().isEmpty();
 
     System.out.println("The following disk stores were backed up:");
-    for (Set<PersistentID> memberStores : status.getBackedUpDiskStores().values()) {
-      for (PersistentID store : memberStores) {
+    for (var memberStores : status.getBackedUpDiskStores().values()) {
+      for (var store : memberStores) {
         System.out.println("\t" + store);
       }
     }
     if (incomplete) {
       System.err.println("The backup may be incomplete. The following disk stores are not online:");
-      for (PersistentID store : status.getOfflineDiskStores()) {
+      for (var store : status.getOfflineDiskStores()) {
         System.err.println("\t" + store);
       }
     } else {
@@ -630,30 +621,30 @@ public class SystemAdmin {
   }
 
   public static void listMissingDiskStores() throws AdminException {
-    InternalDistributedSystem ads = getAdminCnx();
+    var ads = getAdminCnx();
     Set s = AdminDistributedSystemImpl.getMissingPersistentMembers(ads.getDistributionManager());
     if (s.isEmpty()) {
       System.out.println("The distributed system did not have any missing disk stores");
     } else {
-      for (Object o : s) {
+      for (var o : s) {
         System.out.println(o);
       }
     }
   }
 
   private static File[] argsToFile(Collection<String> args) {
-    File[] dirs = new File[args.size()];
+    var dirs = new File[args.size()];
 
-    int i = 0;
-    for (String dir : args) {
+    var i = 0;
+    for (var dir : args) {
       dirs[i++] = new File(dir);
     }
     return dirs;
   }
 
   public static void showDiskStoreMetadata(ArrayList<String> args) {
-    String dsName = args.get(0);
-    File[] dirs = argsToFile(args.subList(1, args.size()));
+    var dsName = args.get(0);
+    var dirs = argsToFile(args.subList(1, args.size()));
 
     try {
       DiskStoreImpl.dumpMetadata(dsName, dirs, showBuckets);
@@ -663,13 +654,13 @@ public class SystemAdmin {
   }
 
   public static void exportDiskStore(ArrayList<String> args, String outputDir) {
-    File out = outputDir == null ? new File(".") : new File(outputDir);
+    var out = outputDir == null ? new File(".") : new File(outputDir);
     if (!out.exists()) {
       out.mkdirs();
     }
 
-    String dsName = args.get(0);
-    File[] dirs = argsToFile(args.subList(1, args.size()));
+    var dsName = args.get(0);
+    var dirs = argsToFile(args.subList(1, args.size()));
 
     try {
       DiskStoreImpl.exportOfflineSnapshot(dsName, dirs, out);
@@ -680,17 +671,17 @@ public class SystemAdmin {
 
   public static void revokeMissingDiskStores(ArrayList<String> cmdLine)
       throws UnknownHostException, AdminException {
-    String uuidString = cmdLine.get(0);
-    UUID uuid = UUID.fromString(uuidString);
-    InternalDistributedSystem ads = getAdminCnx();
+    var uuidString = cmdLine.get(0);
+    var uuid = UUID.fromString(uuidString);
+    var ads = getAdminCnx();
     AdminDistributedSystemImpl.revokePersistentMember(ads.getDistributionManager(), uuid);
-    Set<PersistentID> s =
+    var s =
         AdminDistributedSystemImpl.getMissingPersistentMembers(ads.getDistributionManager());
 
 
     // Fix for 42607 - wait to see if the revoked member goes way if it is still in the set of
     // missing members. It may take a moment to clear the missing member set after the revoke.
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     while (containsRevokedMember(s, uuid)) {
       try {
         Thread.sleep(1000);
@@ -712,7 +703,7 @@ public class SystemAdmin {
   }
 
   private static boolean containsRevokedMember(Set<PersistentID> missing, UUID revokedUUID) {
-    for (PersistentID id : missing) {
+    for (var id : missing) {
       if (id.getUUID().equals(revokedUUID)) {
         return true;
       }
@@ -725,11 +716,11 @@ public class SystemAdmin {
   }
 
   public static void modifyDiskStore(List args) {
-    String diskStoreName = (String) args.get(0);
-    List dirList = args.subList(1, args.size());
-    File[] dirs = new File[dirList.size()];
-    Iterator it = dirList.iterator();
-    int idx = 0;
+    var diskStoreName = (String) args.get(0);
+    var dirList = args.subList(1, args.size());
+    var dirs = new File[dirList.size()];
+    var it = dirList.iterator();
+    var idx = 0;
     while (it.hasNext()) {
       dirs[idx] = new File((String) it.next());
       idx++;
@@ -786,21 +777,21 @@ public class SystemAdmin {
     } else {
       ps = System.out;
     }
-    PrintWriter mergedFile = new PrintWriter(ps, true);
+    var mergedFile = new PrintWriter(ps, true);
 
-    List<String> normalizedFiles =
+    var normalizedFiles =
         args.stream().map(f -> Paths.get(f).toAbsolutePath().toString()).collect(
             Collectors.toList());
-    int prefixLength =
+    var prefixLength =
         StringUtils.getCommonPrefix(normalizedFiles.toArray(new String[] {})).length();
 
     if (!quiet) {
       ps.println("Merging the following log files:");
     }
 
-    for (String fileName : normalizedFiles) {
+    for (var fileName : normalizedFiles) {
       try {
-        String shortName = fileName.substring(prefixLength);
+        var shortName = fileName.substring(prefixLength);
         inputs.put(shortName, new FileInputStream(fileName));
       } catch (FileNotFoundException ex) {
         throw new GemFireIOException(
@@ -834,14 +825,14 @@ public class SystemAdmin {
    * @throws IOException if the file can not be opened or read
    */
   public String tailFile(File file, boolean problemsOnly) throws IOException {
-    byte[] buffer = new byte[128000];
-    int readSize = buffer.length;
-    RandomAccessFile f = new RandomAccessFile(file, "r");
-    long length = f.length();
+    var buffer = new byte[128000];
+    var readSize = buffer.length;
+    var f = new RandomAccessFile(file, "r");
+    var length = f.length();
     if (length < readSize) {
       readSize = (int) length;
     }
-    long seekOffset = length - readSize;
+    var seekOffset = length - readSize;
     f.seek(seekOffset);
     if (readSize != f.read(buffer, 0, readSize)) {
       throw new EOFException(
@@ -849,9 +840,9 @@ public class SystemAdmin {
     }
     f.close();
     // Now look for the last message header
-    int msgStart = -1;
-    int msgEnd = readSize;
-    for (int i = readSize - 1; i >= 0; i--) {
+    var msgStart = -1;
+    var msgEnd = readSize;
+    for (var i = readSize - 1; i >= 0; i--) {
       if (buffer[i] == '[' && (buffer[i + 1] == 's' || buffer[i + 1] == 'e' || buffer[i
           + 1] == 'w' /* ignore all messages except severe, error, and warning to fix bug 28968 */)
           && i > 0 && (buffer[i - 1] == '\n' || buffer[i - 1] == '\r')) {
@@ -864,7 +855,7 @@ public class SystemAdmin {
         return null;
       }
       // Could not find message start. Show last line instead.
-      for (int i = readSize - 3; i >= 0; i--) {
+      for (var i = readSize - 3; i >= 0; i--) {
         if (buffer[i] == '\n' || buffer[i] == '\r') {
           msgStart = (buffer[i] == '\n') ? (i + 1) : (i + 2);
           break;
@@ -876,14 +867,14 @@ public class SystemAdmin {
       }
     } else {
       // try to find the start of the next message and get rid of it
-      for (int i = msgStart + 1; i < readSize; i++) {
+      for (var i = msgStart + 1; i < readSize; i++) {
         if (buffer[i] == '[' && (buffer[i - 1] == '\n' || buffer[i - 1] == '\r')) {
           msgEnd = i;
           break;
         }
       }
     }
-    for (int i = msgStart; i < msgEnd; i++) {
+    for (var i = msgStart; i < msgEnd; i++) {
       if (buffer[i] == '\n' || buffer[i] == '\r') {
         buffer[i] = ' ';
       }
@@ -892,11 +883,11 @@ public class SystemAdmin {
   }
 
   protected void format(PrintWriter pw, String msg, String linePrefix, int initialLength) {
-    final int maxWidth = 79;
-    boolean firstLine = true;
-    int lineLength = 0;
-    final int prefixLength = linePrefix.length();
-    int idx = 0;
+    final var maxWidth = 79;
+    var firstLine = true;
+    var lineLength = 0;
+    final var prefixLength = linePrefix.length();
+    var idx = 0;
     while (idx < msg.length()) {
       if (lineLength == 0) {
         if (isBreakChar(msg, idx)) {
@@ -926,7 +917,7 @@ public class SystemAdmin {
         lineLength = 0;
         idx += 2;
       } else {
-        String word = msg.substring(idx, findWordBreak(msg, idx));
+        var word = msg.substring(idx, findWordBreak(msg, idx));
         if (lineLength == prefixLength || (word.length() + lineLength) <= maxWidth) {
           pw.print(word);
           lineLength += word.length();
@@ -947,8 +938,8 @@ public class SystemAdmin {
   private static final char[] breakChars = new char[] {' ', '\t', '\n', '\r'};
 
   private static boolean isBreakChar(String str, int idx) {
-    char c = str.charAt(idx);
-    for (final char breakChar : breakChars) {
+    var c = str.charAt(idx);
+    for (final var breakChar : breakChars) {
       if (c == breakChar) {
         return true;
       }
@@ -957,9 +948,9 @@ public class SystemAdmin {
   }
 
   private static int findWordBreak(String str, int fromIdx) {
-    int result = str.length();
-    for (final char breakChar : breakChars) {
-      int tmp = str.indexOf(breakChar, fromIdx + 1);
+    var result = str.length();
+    for (final var breakChar : breakChars) {
+      var tmp = str.indexOf(breakChar, fromIdx + 1);
       if (tmp > fromIdx && tmp < result) {
         result = tmp;
       }
@@ -990,7 +981,7 @@ public class SystemAdmin {
       } else {
         combineType = NONE;
       }
-      int dotIdx = cmdLineSpec.lastIndexOf('.');
+      var dotIdx = cmdLineSpec.lastIndexOf('.');
       String typeId = null;
       String instanceId = null;
       String statId = null;
@@ -998,7 +989,7 @@ public class SystemAdmin {
         statId = cmdLineSpec.substring(dotIdx + 1);
         cmdLineSpec = cmdLineSpec.substring(0, dotIdx);
       }
-      int commaIdx = cmdLineSpec.indexOf(':');
+      var commaIdx = cmdLineSpec.indexOf(':');
       if (commaIdx != -1) {
         instanceId = cmdLineSpec.substring(0, commaIdx);
         typeId = cmdLineSpec.substring(commaIdx + 1);
@@ -1050,7 +1041,7 @@ public class SystemAdmin {
       if (sp == null) {
         return true;
       } else {
-        Matcher m = sp.matcher(statName);
+        var m = sp.matcher(statName);
         return m.matches();
       }
     }
@@ -1060,7 +1051,7 @@ public class SystemAdmin {
       if (tp == null) {
         return true;
       } else {
-        Matcher m = tp.matcher(typeName);
+        var m = tp.matcher(typeName);
         return m.matches();
       }
     }
@@ -1070,7 +1061,7 @@ public class SystemAdmin {
       if (ip == null) {
         return true;
       } else {
-        Matcher m = ip.matcher(textId);
+        var m = ip.matcher(textId);
         if (m.matches()) {
           return true;
         }
@@ -1081,9 +1072,9 @@ public class SystemAdmin {
   }
 
   private static StatSpec[] createSpecs(List cmdLineSpecs) {
-    StatSpec[] result = new StatSpec[cmdLineSpecs.size()];
-    Iterator it = cmdLineSpecs.iterator();
-    int idx = 0;
+    var result = new StatSpec[cmdLineSpecs.size()];
+    var it = cmdLineSpecs.iterator();
+    var idx = 0;
     while (it.hasNext()) {
       result[idx] = new StatSpec((String) it.next());
       idx++;
@@ -1109,13 +1100,13 @@ public class SystemAdmin {
     System.out.println("  " + v.toString());
     if (details) {
       System.out.print("  values=");
-      double[] snapshots = v.getSnapshots();
-      for (final double snapshot : snapshots) {
+      var snapshots = v.getSnapshots();
+      for (final var snapshot : snapshots) {
         System.out.print(' ');
         System.out.print(snapshot);
       }
       System.out.println();
-      String desc = v.getDescriptor().getDescription();
+      var desc = v.getDescriptor().getDescription();
       if (desc != null && desc.length() > 0) {
         System.out.println("    " + desc);
       }
@@ -1156,13 +1147,13 @@ public class SystemAdmin {
       throw new IllegalArgumentException(
           "The -persample and -nofilter options are mutually exclusive.");
     }
-    StatSpec[] specs = createSpecs(cmdLineSpecs);
+    var specs = createSpecs(cmdLineSpecs);
     if (directory != null) {
       throw new IllegalArgumentException(
           "The -archive= and -dir= options are mutually exclusive.");
     }
     StatArchiveReader reader = null;
-    boolean interrupted = false;
+    var interrupted = false;
     try {
       reader = new StatArchiveReader((File[]) archiveNames.toArray(new File[0]),
           specs, !monitor);
@@ -1170,19 +1161,19 @@ public class SystemAdmin {
       // (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
       if (specs.length == 0) {
         if (details) {
-          StatArchiveReader.StatArchiveFile[] archives = reader.getArchives();
-          for (final StatArchiveReader.StatArchiveFile archive : archives) {
+          var archives = reader.getArchives();
+          for (final var archive : archives) {
             System.out.println(archive.getArchiveInfo().toString());
           }
         }
       }
       do {
         if (specs.length == 0) {
-          for (final Object o : reader.getResourceInstList()) {
-            ResourceInst inst = (ResourceInst) o;
-            StatValue[] values = inst.getStatValues();
-            boolean firstTime = true;
-            for (final StatValue value : values) {
+          for (final var o : reader.getResourceInstList()) {
+            var inst = (ResourceInst) o;
+            var values = inst.getStatValues();
+            var firstTime = true;
+            for (final var value : values) {
               if (value != null && value.hasValueChanged()) {
                 if (firstTime) {
                   firstTime = false;
@@ -1196,8 +1187,8 @@ public class SystemAdmin {
         } else {
           Map<CombinedResources, List<StatValue>> allSpecsMap =
               new HashMap<>();
-          for (final StatSpec spec : specs) {
-            StatValue[] values = reader.matchSpec(spec);
+          for (final var spec : specs) {
+            var values = reader.matchSpec(spec);
             if (values.length == 0) {
               if (!quiet) {
                 System.err.println(String.format("[warning] No stats matched %s.",
@@ -1206,9 +1197,9 @@ public class SystemAdmin {
             } else {
               Map<CombinedResources, List<StatValue>> specMap =
                   new HashMap<>();
-              for (StatValue v : values) {
-                CombinedResources key = new CombinedResources(v);
-                List<StatValue> list = specMap.get(key);
+              for (var v : values) {
+                var key = new CombinedResources(v);
+                var list = specMap.get(key);
                 if (list != null) {
                   list.add(v);
                 } else {
@@ -1220,8 +1211,8 @@ public class SystemAdmin {
                     String.format("[info] Found %s instances matching %s:",
                         specMap.size(), spec.cmdLineSpec));
               }
-              for (Map.Entry<CombinedResources, List<StatValue>> me : specMap.entrySet()) {
-                List<StatValue> list = allSpecsMap.get(me.getKey());
+              for (var me : specMap.entrySet()) {
+                var list = allSpecsMap.get(me.getKey());
                 if (list != null) {
                   list.addAll(me.getValue());
                 } else {
@@ -1230,9 +1221,9 @@ public class SystemAdmin {
               }
             }
           }
-          for (Map.Entry<CombinedResources, List<StatValue>> me : allSpecsMap.entrySet()) {
+          for (var me : allSpecsMap.entrySet()) {
             System.out.println(me.getKey());
-            for (StatValue v : me.getValue()) {
+            for (var v : me.getValue()) {
               printStatValue(v, startTime, endTime, nofilter, persec, persample, prunezeros,
                   details);
             }
@@ -1277,9 +1268,9 @@ public class SystemAdmin {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
-      boolean first = true;
-      for (ResourceInst inst : this) {
+      var sb = new StringBuilder();
+      var first = true;
+      for (var inst : this) {
         if (first) {
           first = false;
         } else {
@@ -1298,7 +1289,7 @@ public class SystemAdmin {
 
   protected void printHelpTopic(String topic, PrintWriter pw) {
     if (topic.equalsIgnoreCase("all")) {
-      for (final String helpTopic : helpTopics) {
+      for (final var helpTopic : helpTopics) {
         if (!helpTopic.equals("all")) {
           pw.println("-------- " + helpTopic + " --------");
           printHelpTopic(helpTopic, pw);
@@ -1313,7 +1304,7 @@ public class SystemAdmin {
     } else if (topic.equalsIgnoreCase("commands")) {
       pw.println(usageMap.get("gemfire") + " <command> ...");
       format(pw, (String) helpMap.get("gemfire"), "  ", 0);
-      for (final String validCommand : validCommands) {
+      for (final var validCommand : validCommands) {
         pw.println((String) usageMap.get(validCommand));
         if (helpMap.get(validCommand) == null) {
           pw.println("  (help message missing for " + validCommand + ")");
@@ -1324,7 +1315,7 @@ public class SystemAdmin {
     } else if (topic.equalsIgnoreCase("options")) {
       pw.println(
           "All command line options start with a - and are not required.Each option has a default that will be used when its not specified.Options that take an argument always use a single = character, with no spaces, to delimit where the option name ends and the argument begins.Options that precede the command word can be used with any command and are also permitted to follow the command word.");
-      for (final String validOption : validOptions) {
+      for (final var validOption : validOptions) {
         pw.print(validOption + ":");
         try {
           format(pw, (String) helpMap.get(validOption), "  ", validOption.length() + 1);
@@ -1337,14 +1328,14 @@ public class SystemAdmin {
     } else if (topic.equalsIgnoreCase("usage")) {
       pw.println(
           "The following synax is used in the usage strings:[] designate an optional item() are used to group items<> designate non-literal text. Used to designate logical items* suffix means zero or more of the previous item| means the item to the left or right is required");
-      for (final String validCommand : validCommands) {
+      for (final var validCommand : validCommands) {
         pw.println(getUsageString(validCommand));
       }
     }
   }
 
   protected void help(List args) {
-    String topic = "overview";
+    var topic = "overview";
     if (args.size() > 0) {
       topic = (String) args.get(0);
       if (!Arrays.asList(helpTopics).contains(topic.toLowerCase())) {
@@ -1353,7 +1344,7 @@ public class SystemAdmin {
         usage();
       }
     }
-    PrintWriter pw = new PrintWriter(System.out);
+    var pw = new PrintWriter(System.out);
     printHelpTopic(topic, pw);
     pw.flush();
     if (args.size() == 0) {
@@ -1366,7 +1357,7 @@ public class SystemAdmin {
   }
 
   protected String getUsageString(String cmd) {
-    StringBuilder result = new StringBuilder(80);
+    var result = new StringBuilder(80);
     result.append(usageMap.get("gemfire")).append(' ');
     if (cmd == null || cmd.equalsIgnoreCase("gemfire")) {
       result.append(join(Arrays.asList(validCommands), "|")).append(" ...");
@@ -1404,7 +1395,7 @@ public class SystemAdmin {
           "-statisticsEnabled=", "-peer=", "-server=", "-q", "-D", "-X", "-outputDir="};
 
   protected String checkCmd(String theCmd) {
-    String cmd = theCmd;
+    var cmd = theCmd;
     if (!Arrays.asList(validCommands).contains(cmd.toLowerCase())) {
       if (!Arrays.asList(aliasCommands).contains(cmd.toLowerCase())) {
         System.err
@@ -1457,9 +1448,9 @@ public class SystemAdmin {
   }
 
   public static String join(List l, String joinString) {
-    StringBuilder result = new StringBuilder(80);
-    boolean firstTime = true;
-    for (final Object o : l) {
+    var result = new StringBuilder(80);
+    var firstTime = true;
+    for (final var o : l) {
       if (firstTime) {
         firstTime = false;
       } else {
@@ -1808,9 +1799,9 @@ public class SystemAdmin {
   }
 
   private static long parseTime(String arg) {
-    DateFormat fmt = DateFormatter.createDateFormat();
+    var fmt = DateFormatter.createDateFormat();
     try {
-      Date d = fmt.parse(arg);
+      var d = fmt.parse(arg);
       return d.getTime();
     } catch (ParseException ex) {
       throw new IllegalArgumentException(
@@ -1820,11 +1811,11 @@ public class SystemAdmin {
   }
 
   protected boolean matchCmdArg(String cmd, String arg) {
-    String[] validArgs = cmdOptionsMap.get(cmd.toLowerCase());
-    for (final String validArg : validArgs) {
+    var validArgs = cmdOptionsMap.get(cmd.toLowerCase());
+    for (final var validArg : validArgs) {
       if (validArg.endsWith("=") || validArg.equals("-D") || validArg.equals("-X")) {
         if (arg.toLowerCase().startsWith(validArg) || arg.startsWith(validArg)) {
-          String argValue = arg.substring(validArg.length());
+          var argValue = arg.substring(validArg.length());
           if (validArg.equals("-dir=")) {
             sysDirName = argValue;
           } else if (validArg.equals("-archive=")) {
@@ -1868,9 +1859,9 @@ public class SystemAdmin {
           } else if (validArg.equals("-hostname-for-clients=")) {
             hostnameForClientsOption = argValue;
           } else if (validArg.equals("-D")) {
-            int idx = argValue.indexOf('=');
-            String key = argValue.substring(0, idx);
-            String value = argValue.substring(idx + 1);
+            var idx = argValue.indexOf('=');
+            var key = argValue.substring(0, idx);
+            var value = argValue.substring(idx + 1);
             propertyOption.setProperty(key, value);
           } else if (validArg.equals("-X")) {
             xoptions.add(arg);
@@ -1921,8 +1912,8 @@ public class SystemAdmin {
   }
 
   protected void printHelp(String cmd) {
-    List<String> lines = format((String) helpMap.get(cmd.toLowerCase()), 80);
-    for (String line : lines) {
+    var lines = format((String) helpMap.get(cmd.toLowerCase()), 80);
+    for (var line : lines) {
       System.err.println(line);
     }
     usage(cmd);
@@ -1930,8 +1921,8 @@ public class SystemAdmin {
 
   public static List<String> format(String string, int width) {
     List<String> results = new ArrayList<>();
-    String[] realLines = string.split("\n");
-    for (String line : realLines) {
+    var realLines = string.split("\n");
+    for (var line : realLines) {
       results.addAll(lineWrapOut(line, width));
       results.add("");
     }
@@ -1940,10 +1931,10 @@ public class SystemAdmin {
   }
 
   public static List<String> lineWrapOut(String string, int width) {
-    Pattern pattern =
+    var pattern =
         Pattern.compile("(.{0," + (width - 1) + "}\\S|\\S{" + (width) + ",})(\n|\\s+|$)");
 
-    Matcher matcher = pattern.matcher(string);
+    var matcher = pattern.matcher(string);
     List<String> lines = new ArrayList<>();
     while (matcher.find()) {
       lines.add(matcher.group(1));
@@ -1953,7 +1944,7 @@ public class SystemAdmin {
   }
 
   private static String getExceptionMessage(Throwable ex) {
-    String result = ex.getMessage();
+    var result = ex.getMessage();
     if (result == null || result.length() == 0) {
       result = ex.toString();
     }
@@ -1966,7 +1957,7 @@ public class SystemAdmin {
   }
 
   public static File getProductDir() {
-    File libdir = findGemFireLibDir();
+    var libdir = findGemFireLibDir();
     if (libdir == null) {
       return new File("").getAbsoluteFile(); // default to current directory
     } else {
@@ -1975,19 +1966,19 @@ public class SystemAdmin {
   }
 
   public static File getHiddenDir() throws IOException {
-    File prodDir = getProductDir();
+    var prodDir = getProductDir();
     if (prodDir == null) {
       return null;
     }
-    File hiddenDir = new File(prodDir.getParentFile(), "hidden");
+    var hiddenDir = new File(prodDir.getParentFile(), "hidden");
     if (!hiddenDir.exists()) {
       hiddenDir = new File(prodDir.getCanonicalFile().getParentFile(), "hidden");
     }
     if (!hiddenDir.exists()) {
       // If we don't have a jar file (eg, when running in eclipse), look for a hidden
       // directory in same same directory as our classes.
-      File libDir = findGemFireLibDir();
-      File oldHiddenDir = hiddenDir;
+      var libDir = findGemFireLibDir();
+      var oldHiddenDir = hiddenDir;
       if (libDir != null && libDir.exists()) {
         hiddenDir = new File(libDir, "hidden");
       }
@@ -2001,12 +1992,12 @@ public class SystemAdmin {
 
   public static void main(String[] args) {
     try {
-      final SystemAdmin admin = new SystemAdmin();
+      final var admin = new SystemAdmin();
       admin.initHelpMap();
       admin.initUsageMap();
       admin.invoke(args);
     } finally {
-      InternalDistributedSystem sys = InternalDistributedSystem.getConnectedInstance();
+      var sys = InternalDistributedSystem.getConnectedInstance();
       if (sys != null) {
         sys.disconnect();
       }
@@ -2015,11 +2006,11 @@ public class SystemAdmin {
 
   public void invoke(String[] args) {
     String cmd = null;
-    ArrayList cmdLine = new ArrayList(Arrays.asList(args));
+    var cmdLine = new ArrayList(Arrays.asList(args));
     try {
-      Iterator it = cmdLine.iterator();
+      var it = cmdLine.iterator();
       while (it.hasNext()) {
-        String arg = (String) it.next();
+        var arg = (String) it.next();
         if (arg.startsWith("-")) {
           if (matchCmdArg("gemfire", arg)) {
             it.remove();
@@ -2053,9 +2044,9 @@ public class SystemAdmin {
     File sysDir = null;
     // File configFile = null;
     try {
-      Iterator it = cmdLine.iterator();
+      var it = cmdLine.iterator();
       while (it.hasNext()) {
-        String arg = (String) it.next();
+        var arg = (String) it.next();
         if (arg.startsWith("-")) {
           if (matchCmdArg(cmd, arg) || matchCmdArg("gemfire", arg)) {
             it.remove();
@@ -2090,11 +2081,11 @@ public class SystemAdmin {
         statistics(sysDir, archiveOption, details, nofilter, persec, persample, prunezeros, monitor,
             startTime, endTime, cmdLine);
       } else if (cmd.equalsIgnoreCase("version")) {
-        boolean optionOK = (cmdLine.size() == 0);
+        var optionOK = (cmdLine.size() == 0);
         if (cmdLine.size() == 1) {
           optionOK = false;
 
-          String option = (String) cmdLine.get(0);
+          var option = (String) cmdLine.get(0);
           if ("CREATE".equals(option) || "FULL".equalsIgnoreCase(option)) {
             // CREATE and FULL are secret for internal use only
             optionOK = true;

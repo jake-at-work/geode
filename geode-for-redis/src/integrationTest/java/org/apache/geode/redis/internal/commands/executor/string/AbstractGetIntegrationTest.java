@@ -53,10 +53,10 @@ public abstract class AbstractGetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testGET_shouldReturnValueOfKey_givenValueIsAString() {
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
 
-    String result = jedis.get(key);
+    var result = jedis.get(key);
     assertThat(result).isNull();
 
     jedis.set(key, value);
@@ -66,26 +66,26 @@ public abstract class AbstractGetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testGET_shouldReturnNil_givenKeyDoesNotExist() {
-    String key = "this key does not exist";
+    var key = "this key does not exist";
 
-    String result = jedis.get(key);
+    var result = jedis.get(key);
     assertThat(result).isNull();
   }
 
   @Test
   public void testGET_shouldReturnEmptyString_givenKeyIsEmpty() {
-    String key = "emptyKey";
+    var key = "emptyKey";
     jedis.set(key, "");
 
-    String result = jedis.get(key);
+    var result = jedis.get(key);
     assertThat(result).isEmpty();
   }
 
   @Test
   public void testGET_shouldThrowJedisDataExceptionError_givenValueIsNotAString() {
-    String key = "key";
-    String field = "field";
-    String member = "member";
+    var key = "key";
+    var field = "field";
+    var member = "member";
 
     jedis.sadd(key, field, member);
     assertThatThrownBy(() -> jedis.get(key)).hasMessage(ERROR_WRONG_TYPE);

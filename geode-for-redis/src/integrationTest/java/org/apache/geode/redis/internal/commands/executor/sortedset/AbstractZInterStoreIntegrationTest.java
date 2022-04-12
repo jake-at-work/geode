@@ -75,7 +75,7 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
   public void shouldReturnWrongTypeError_givenNonSortedSetKeyAsFirstKey() {
     jedis.zadd(KEY1, 1, "value1");
     jedis.zadd(KEY2, 1, "value2");
-    final String stringKey = "{tag1}stringKey";
+    final var stringKey = "{tag1}stringKey";
     jedis.set(stringKey, "value");
 
     assertThatThrownBy(() -> jedis.zinterstore(NEW_SET, stringKey, KEY1, KEY2))
@@ -86,7 +86,7 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
   public void shouldReturnWrongTypeError_givenNonSortedSetKeyAsThirdKey() {
     jedis.zadd(KEY1, 1, "value1");
     jedis.zadd(KEY2, 1, "value2");
-    final String stringKey = "{tag1}stringKey";
+    final var stringKey = "{tag1}stringKey";
     jedis.set(stringKey, "value");
 
     assertThatThrownBy(() -> jedis.zinterstore(NEW_SET, KEY1, KEY2,
@@ -96,7 +96,7 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
   @Test
   public void shouldReturnWrongTypeError_givenNonSortedSetKeyAsThirdKeyAndNonExistentSortedSetAsFirstKey() {
     jedis.zadd(KEY1, 1, "value1");
-    final String stringKey = "{tag1}stringKey";
+    final var stringKey = "{tag1}stringKey";
     jedis.set(stringKey, "value");
 
     assertThatThrownBy(() -> jedis.zinterstore(NEW_SET, "{tag1}nonExistentKey", KEY1, stringKey))
@@ -105,7 +105,7 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void shouldError_givenSetsCrossSlots() {
-    final String crossSlotKey = "{tag2}another";
+    final var crossSlotKey = "{tag2}another";
     assertThatThrownBy(
         () -> jedis.sendCommand(NEW_SET, Protocol.Command.ZINTERSTORE, NEW_SET, "2", crossSlotKey,
             KEY1)).hasMessage(RedisConstants.ERROR_WRONG_SLOT);
@@ -251,54 +251,54 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
     jedis.zadd(KEY1, 1.0, "key1Member");
 
     assertThat(jedis.zinterstore(NEW_SET, KEY1)).isEqualTo(1L);
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0L, 1L);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0L, 1L);
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldStoreIntersection_givenWeightOfOne_andOneRedisSortedSet() {
-    Map<String, Double> scores = buildMapOfMembersAndScores();
-    final List<Tuple> expectedResults = convertToTuples(scores, (ignore, value) -> value);
+    var scores = buildMapOfMembersAndScores();
+    final var expectedResults = convertToTuples(scores, (ignore, value) -> value);
     expectedResults.sort(Comparator.naturalOrder());
     jedis.zadd(KEY1, scores);
 
     assertThat(jedis.zinterstore(NEW_SET, new ZParams().weights(1), KEY1))
         .isEqualTo(expectedResults.size());
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldStoreIntersection_givenWeightOfZero_andOneRedisSortedSet() {
-    Map<String, Double> scores = buildMapOfMembersAndScores();
-    final List<Tuple> expectedResults = convertToTuples(scores, (ignore, value) -> 0D);
+    var scores = buildMapOfMembersAndScores();
+    final var expectedResults = convertToTuples(scores, (ignore, value) -> 0D);
     jedis.zadd(KEY1, scores);
 
     assertThat(jedis.zinterstore(NEW_SET, new ZParams().weights(0), KEY1))
         .isEqualTo(scores.size());
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldStoreIntersection_givenWeightOfPositiveInfinity_andOneRedisSortedSet() {
-    Map<String, Double> scores = buildMapOfMembersAndScores();
-    final List<Tuple> expectedResults =
+    var scores = buildMapOfMembersAndScores();
+    final var expectedResults =
         convertToTuples(scores, (ignore, value) -> value > 0 ? Double.POSITIVE_INFINITY : value);
     jedis.zadd(KEY1, scores);
 
     assertThat(jedis.zinterstore(NEW_SET, new ZParams().weights(Double.POSITIVE_INFINITY),
         KEY1)).isEqualTo(scores.size());
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldStoreIntersection_givenWeightOfNegativeInfinity_andOneRedisSortedSet() {
-    Map<String, Double> scores = buildMapOfMembersAndScores();
+    var scores = buildMapOfMembersAndScores();
     jedis.zadd(KEY1, scores);
 
     final List<Tuple> expectedResults = new ArrayList<>();
@@ -311,16 +311,16 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
     assertThat(jedis.zinterstore(NEW_SET, new ZParams().weights(Double.NEGATIVE_INFINITY),
         KEY1)).isEqualTo(scores.size());
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldStoreIntersection_givenWeightOfN_andOneRedisSortedSet() {
-    Map<String, Double> scores = buildMapOfMembersAndScores();
+    var scores = buildMapOfMembersAndScores();
     jedis.zadd(KEY1, scores);
 
-    double multiplier = 2.71D;
+    var multiplier = 2.71D;
 
     final List<Tuple> expectedResults = new ArrayList<>();
     expectedResults.add(new Tuple("player1", Double.NEGATIVE_INFINITY));
@@ -332,13 +332,13 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
     assertThat(jedis.zinterstore(NEW_SET, new ZParams().weights(multiplier), KEY1))
         .isEqualTo(scores.size());
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldStoreIntersection_givenMultipleRedisSortedSets() {
-    Map<String, Double> scores = buildMapOfMembersAndScores();
+    var scores = buildMapOfMembersAndScores();
     final List<Tuple> expectedResults = new ArrayList<>();
     expectedResults.add(new Tuple("player1", Double.NEGATIVE_INFINITY));
     expectedResults.add(new Tuple("player2", 0D));
@@ -352,13 +352,13 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
     assertThat(jedis.zinterstore(NEW_SET, new ZParams(), KEY1, KEY2))
         .isEqualTo(expectedResults.size());
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldStoreIntersection_givenTwoRedisSortedSets_withDifferentWeights() {
-    Map<String, Double> scores = buildMapOfMembersAndScores();
+    var scores = buildMapOfMembersAndScores();
     final List<Tuple> expectedResults = new ArrayList<>();
     expectedResults.add(new Tuple("player1", Double.NEGATIVE_INFINITY));
     expectedResults.add(new Tuple("player2", 0D));
@@ -372,13 +372,13 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
     assertThat(jedis.zinterstore(NEW_SET, new ZParams().weights(1, 2), KEY1, KEY2))
         .isEqualTo(expectedResults.size());
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldStoreIntersection_givenMultipleIdenticalRedisSortedSets_withDifferentPositiveWeights() {
-    Map<String, Double> scores = buildMapOfMembersAndScores();
+    var scores = buildMapOfMembersAndScores();
     final List<Tuple> expectedResults = new ArrayList<>();
     expectedResults.add(new Tuple("player1", Double.NEGATIVE_INFINITY));
     expectedResults.add(new Tuple("player2", 0D));
@@ -393,13 +393,13 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
     assertThat(jedis.zinterstore(NEW_SET, new ZParams().weights(1D, 2D, 1.5D), KEY1, KEY2, KEY3))
         .isEqualTo(expectedResults.size());
 
-    final List<Tuple> actualResults = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
+    final var actualResults = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
     assertThatActualScoresAreVeryCloseToExpectedScores(expectedResults, actualResults);
   }
 
   @Test
   public void shouldStoreEmptyIntersection_givenOneSetDoesNotExist() {
-    Map<String, Double> scores = buildMapOfMembersAndScores(1, 10);
+    var scores = buildMapOfMembersAndScores(1, 10);
     jedis.zadd(KEY1, scores);
 
     assertThat(jedis.zinterstore(NEW_SET, KEY1, KEY2)).isEqualTo(0);
@@ -409,8 +409,8 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void shouldStoreNothingAtDestinationKey_givenTwoNonIntersectingSets() {
-    Map<String, Double> scores = buildMapOfMembersAndScores(1, 5);
-    Map<String, Double> nonIntersectionScores = buildMapOfMembersAndScores(6, 10);
+    var scores = buildMapOfMembersAndScores(1, 5);
+    var nonIntersectionScores = buildMapOfMembersAndScores(6, 10);
     jedis.zadd(KEY1, scores);
     jedis.zadd(KEY2, nonIntersectionScores);
 
@@ -421,9 +421,9 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void shouldStoreSumOfIntersection_givenThreePartiallyOverlappingSets() {
-    Map<String, Double> scores1 = buildMapOfMembersAndScores(1, 10);
-    Map<String, Double> scores2 = buildMapOfMembersAndScores(6, 13);
-    Map<String, Double> scores3 = buildMapOfMembersAndScores(4, 11);
+    var scores1 = buildMapOfMembersAndScores(1, 10);
+    var scores2 = buildMapOfMembersAndScores(6, 13);
+    var scores3 = buildMapOfMembersAndScores(4, 11);
 
     jedis.zadd(KEY1, scores1);
     jedis.zadd(KEY2, scores2);
@@ -433,18 +433,18 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
         KEY1, KEY2, KEY3)).isEqualTo(5);
 
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 6; i <= 10; i++) {
+    for (var i = 6; i <= 10; i++) {
       expected.add(tupleSumOfScores("player" + i, scores1, scores2, scores3));
     }
 
-    final List<Tuple> actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expected, actual);
   }
 
   @Test
   public void shouldStoreSumOfZero_whenAddingNegativeAndPositiveInfinity() {
-    String member = "member";
+    var member = "member";
     jedis.zadd(KEY1, Double.POSITIVE_INFINITY, member);
     jedis.zadd(KEY2, Double.NEGATIVE_INFINITY, member);
     assertThat(jedis.zinterstore(NEW_SET, KEY1, KEY2)).isOne();
@@ -453,9 +453,9 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void shouldStoreMaxOfIntersection_givenThreePartiallyOverlappingSets() {
-    Map<String, Double> scores1 = buildMapOfMembersAndScores(1, 10);
-    Map<String, Double> scores2 = buildMapOfMembersAndScores(6, 13);
-    Map<String, Double> scores3 = buildMapOfMembersAndScores(4, 11);
+    var scores1 = buildMapOfMembersAndScores(1, 10);
+    var scores2 = buildMapOfMembersAndScores(6, 13);
+    var scores3 = buildMapOfMembersAndScores(4, 11);
 
     jedis.zadd(KEY1, scores1);
     jedis.zadd(KEY2, scores2);
@@ -465,20 +465,20 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
         KEY1, KEY2, KEY3)).isEqualTo(5);
 
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 6; i <= 10; i++) {
+    for (var i = 6; i <= 10; i++) {
       expected.add(tupleMaxOfScores("player" + i, scores1, scores2, scores3));
     }
 
-    final List<Tuple> actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expected, actual);
   }
 
   @Test
   public void shouldStoreMinOfIntersection_givenThreePartiallyOverlappingSets() {
-    Map<String, Double> scores1 = buildMapOfMembersAndScores(1, 10);
-    Map<String, Double> scores2 = buildMapOfMembersAndScores(6, 13);
-    Map<String, Double> scores3 = buildMapOfMembersAndScores(4, 11);
+    var scores1 = buildMapOfMembersAndScores(1, 10);
+    var scores2 = buildMapOfMembersAndScores(6, 13);
+    var scores3 = buildMapOfMembersAndScores(4, 11);
 
     jedis.zadd(KEY1, scores1);
     jedis.zadd(KEY2, scores2);
@@ -488,199 +488,199 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
         KEY1, KEY2, KEY3)).isEqualTo(5);
 
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 6; i <= 10; i++) {
+    for (var i = 6; i <= 10; i++) {
       expected.add(tupleMinOfScores("player" + i, scores1, scores2, scores3));
     }
 
-    final List<Tuple> actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expected, actual);
   }
 
   @Test
   public void shouldStoreSumOfIntersection_givenThreePartiallyOverlappingSets_andWeights() {
-    double weight1 = 0D;
-    double weight2 = 42D;
-    double weight3 = -7.3D;
+    var weight1 = 0D;
+    var weight2 = 42D;
+    var weight3 = -7.3D;
 
-    Map<String, Double> scores1 = buildMapOfMembersAndScores(1, 10);
-    Map<String, Double> scores2 = buildMapOfMembersAndScores(6, 13);
-    Map<String, Double> scores3 = buildMapOfMembersAndScores(4, 11);
+    var scores1 = buildMapOfMembersAndScores(1, 10);
+    var scores2 = buildMapOfMembersAndScores(6, 13);
+    var scores3 = buildMapOfMembersAndScores(4, 11);
 
     jedis.zadd(KEY1, scores1);
     jedis.zadd(KEY2, scores2);
     jedis.zadd(KEY3, scores3);
 
-    ZParams zParams = new ZParams().aggregate(ZParams.Aggregate.SUM)
+    var zParams = new ZParams().aggregate(ZParams.Aggregate.SUM)
         .weights(weight1, weight2, weight3);
 
     assertThat(jedis.zinterstore(NEW_SET, zParams, KEY1, KEY2, KEY3)).isEqualTo(5);
 
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 6; i <= 10; i++) {
+    for (var i = 6; i <= 10; i++) {
       expected.add(tupleSumOfScoresWithWeights("player" + i, scores1, scores2, scores3, weight1,
           weight2, weight3));
     }
 
-    final List<Tuple> actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expected, actual);
   }
 
   @Test
   public void shouldStoreMaxOfIntersection_givenThreePartiallyOverlappingSets_andWeights() {
-    double weight1 = 0D;
-    double weight2 = 42D;
-    double weight3 = -7.3D;
+    var weight1 = 0D;
+    var weight2 = 42D;
+    var weight3 = -7.3D;
 
-    Map<String, Double> scores1 = buildMapOfMembersAndScores(1, 10);
-    Map<String, Double> scores2 = buildMapOfMembersAndScores(6, 13);
-    Map<String, Double> scores3 = buildMapOfMembersAndScores(4, 11);
+    var scores1 = buildMapOfMembersAndScores(1, 10);
+    var scores2 = buildMapOfMembersAndScores(6, 13);
+    var scores3 = buildMapOfMembersAndScores(4, 11);
 
     jedis.zadd(KEY1, scores1);
     jedis.zadd(KEY2, scores2);
     jedis.zadd(KEY3, scores3);
 
-    ZParams zParams = new ZParams().aggregate(ZParams.Aggregate.MAX)
+    var zParams = new ZParams().aggregate(ZParams.Aggregate.MAX)
         .weights(weight1, weight2, weight3);
 
     assertThat(jedis.zinterstore(NEW_SET, zParams, KEY1, KEY2, KEY3)).isEqualTo(5);
 
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 6; i <= 10; i++) {
+    for (var i = 6; i <= 10; i++) {
       expected.add(tupleMaxOfScoresWithWeights("player" + i, scores1, scores2, scores3, weight1,
           weight2, weight3));
     }
 
-    final List<Tuple> actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expected, actual);
   }
 
   @Test
   public void shouldStoreMinOfIntersection_givenThreePartiallyOverlappingSets_andWeights() {
-    double weight1 = 0D;
-    double weight2 = 42D;
-    double weight3 = -7.3D;
+    var weight1 = 0D;
+    var weight2 = 42D;
+    var weight3 = -7.3D;
 
-    Map<String, Double> scores1 = buildMapOfMembersAndScores(1, 10);
-    Map<String, Double> scores2 = buildMapOfMembersAndScores(6, 13);
-    Map<String, Double> scores3 = buildMapOfMembersAndScores(4, 11);
+    var scores1 = buildMapOfMembersAndScores(1, 10);
+    var scores2 = buildMapOfMembersAndScores(6, 13);
+    var scores3 = buildMapOfMembersAndScores(4, 11);
 
     jedis.zadd(KEY1, scores1);
     jedis.zadd(KEY2, scores2);
     jedis.zadd(KEY3, scores3);
 
-    ZParams zParams = new ZParams().aggregate(ZParams.Aggregate.MIN)
+    var zParams = new ZParams().aggregate(ZParams.Aggregate.MIN)
         .weights(weight1, weight2, weight3);
 
     assertThat(jedis.zinterstore(NEW_SET, zParams, KEY1, KEY2, KEY3)).isEqualTo(5);
 
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 6; i <= 10; i++) {
+    for (var i = 6; i <= 10; i++) {
       expected.add(tupleMinOfScoresWithWeights("player" + i, scores1, scores2, scores3, weight1,
           weight2, weight3));
     }
 
-    final List<Tuple> actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expected, actual);
   }
 
   @Test
   public void shouldStoreMaxOfIntersection_givenThreePartiallyOverlappingSetsWithIdenticalScores() {
-    double score = 3.141592;
-    Map<String, Double> scores1 = buildMapOfMembersAndIdenticalScores(1, 10, score);
-    Map<String, Double> scores2 = buildMapOfMembersAndIdenticalScores(6, 13, score);
-    Map<String, Double> scores3 = buildMapOfMembersAndIdenticalScores(4, 11, score);
+    var score = 3.141592;
+    var scores1 = buildMapOfMembersAndIdenticalScores(1, 10, score);
+    var scores2 = buildMapOfMembersAndIdenticalScores(6, 13, score);
+    var scores3 = buildMapOfMembersAndIdenticalScores(4, 11, score);
 
     jedis.zadd(KEY1, scores1);
     jedis.zadd(KEY2, scores2);
     jedis.zadd(KEY3, scores3);
 
-    ZParams zParams = new ZParams().aggregate(ZParams.Aggregate.MAX);
+    var zParams = new ZParams().aggregate(ZParams.Aggregate.MAX);
 
     assertThat(jedis.zinterstore(NEW_SET, zParams, KEY1, KEY2, KEY3)).isEqualTo(5);
 
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 6; i <= 10; i++) {
+    for (var i = 6; i <= 10; i++) {
       expected.add(new Tuple("player" + i, score));
     }
 
-    final List<Tuple> actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expected, actual);
   }
 
   @Test
   public void shouldStoreMinOfIntersection_givenThreePartiallyOverlappingSetsWithIdenticalScores() {
-    double score = 3.141592;
-    Map<String, Double> scores1 = buildMapOfMembersAndIdenticalScores(1, 10, score);
-    Map<String, Double> scores2 = buildMapOfMembersAndIdenticalScores(6, 13, score);
-    Map<String, Double> scores3 = buildMapOfMembersAndIdenticalScores(4, 11, score);
+    var score = 3.141592;
+    var scores1 = buildMapOfMembersAndIdenticalScores(1, 10, score);
+    var scores2 = buildMapOfMembersAndIdenticalScores(6, 13, score);
+    var scores3 = buildMapOfMembersAndIdenticalScores(4, 11, score);
 
     jedis.zadd(KEY1, scores1);
     jedis.zadd(KEY2, scores2);
     jedis.zadd(KEY3, scores3);
 
-    ZParams zParams = new ZParams().aggregate(ZParams.Aggregate.MAX);
+    var zParams = new ZParams().aggregate(ZParams.Aggregate.MAX);
 
     assertThat(jedis.zinterstore(NEW_SET, zParams, KEY1, KEY2, KEY3)).isEqualTo(5);
 
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 6; i <= 10; i++) {
+    for (var i = 6; i <= 10; i++) {
       expected.add(new Tuple("player" + i, score));
     }
 
-    final List<Tuple> actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var actual = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expected, actual);
   }
 
   @Test
   public void shouldStoreIntersectionUsingLastAggregate_givenMultipleAggregateKeywords() {
-    Map<String, Double> scores1 = buildMapOfMembersAndScores(1, 15);
-    Map<String, Double> scores2 = buildMapOfMembersAndScores(9, 13);
-    Map<String, Double> scores3 = buildMapOfMembersAndScores(12, 18);
+    var scores1 = buildMapOfMembersAndScores(1, 15);
+    var scores2 = buildMapOfMembersAndScores(9, 13);
+    var scores3 = buildMapOfMembersAndScores(12, 18);
 
     jedis.zadd(KEY1, scores1);
     jedis.zadd(KEY2, scores2);
     jedis.zadd(KEY3, scores3);
 
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 12; i <= 13; i++) {
+    for (var i = 12; i <= 13; i++) {
       expected.add(tupleMaxOfScores("player" + i, scores1, scores2, scores3));
     }
 
     jedis.sendCommand(NEW_SET, Protocol.Command.ZINTERSTORE, NEW_SET, "3",
         KEY1, KEY2, KEY3, "AGGREGATE", "MIN", "AGGREGATE", "MAX");
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expected, results);
   }
 
   @Test
   public void shouldStoreIntersection_whenTargetExistsAndSetsAreDuplicated() {
-    Map<String, Double> scores = buildMapOfMembersAndScores(0, 10);
+    var scores = buildMapOfMembersAndScores(0, 10);
     jedis.zadd(KEY1, scores);
     jedis.zadd(KEY2, scores);
 
-    final List<Tuple> expectedResults = convertToTuples(scores, (ignore, score) -> score * 2);
+    final var expectedResults = convertToTuples(scores, (ignore, score) -> score * 2);
 
     // destination key is a key that exists
     assertThat(jedis.zinterstore(KEY1, KEY1, KEY2)).isEqualTo(scores.size());
 
-    final List<Tuple> results = jedis.zrangeWithScores(KEY1, 0, 10);
+    final var results = jedis.zrangeWithScores(KEY1, 0, 10);
 
     assertThatActualScoresAreVeryCloseToExpectedScores(expectedResults, results);
   }
 
   @Test
   public void shouldNotError_givenKeysNamedWeightsOrAggregate() {
-    String weights = "WEIGHTS";
+    var weights = "WEIGHTS";
     jedis.zadd(weights, 1, "member");
-    String aggregate = "AGGREGATE";
+    var aggregate = "AGGREGATE";
     jedis.zadd(aggregate, 1, "member");
     jedis.zinterstore(weights, weights, weights);
     jedis.zinterstore(aggregate, aggregate, aggregate);
@@ -688,7 +688,7 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void ensureSetConsistency_andNoExceptions_whenRunningConcurrently() {
-    int scoreCount = 1000;
+    var scoreCount = 1000;
     jedis.zadd("{A}ones", buildMapOfMembersAndScores(0, scoreCount - 1));
 
     jedis.zadd("{A}scores1", buildMapOfMembersAndScores(0, scoreCount - 1));
@@ -726,9 +726,9 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
 
   private Map<String, Double> buildMapOfMembersAndScores(int start, int end) {
     Map<String, Double> scores = new LinkedHashMap<>();
-    Random random = new Random();
+    var random = new Random();
 
-    for (int i = start; i <= end; i++) {
+    for (var i = start; i <= end; i++) {
       scores.put("player" + i, random.nextDouble());
     }
 
@@ -739,7 +739,7 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
       double score) {
     Map<String, Double> scores = new LinkedHashMap<>();
 
-    for (int i = start; i <= end; i++) {
+    for (var i = start; i <= end; i++) {
       scores.put("player" + i, score);
     }
 
@@ -786,8 +786,8 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
   private List<Tuple> convertToTuples(Map<String, Double> map,
       BiFunction<Integer, Double, Double> function) {
     final List<Tuple> tuples = new ArrayList<>();
-    int x = 0;
-    for (Map.Entry<String, Double> e : map.entrySet()) {
+    var x = 0;
+    for (var e : map.entrySet()) {
       tuples.add(new Tuple(e.getKey().getBytes(), function.apply(x++, e.getValue())));
     }
 
@@ -825,9 +825,9 @@ public abstract class AbstractZInterStoreIntegrationTest implements RedisIntegra
       final List<Tuple> expectedResults, final List<Tuple> results) {
     assertThat(expectedResults.size()).isEqualTo(results.size());
 
-    for (Tuple expectedResult : expectedResults) {
-      boolean resultFound = false;
-      for (Tuple actualResult : results) {
+    for (var expectedResult : expectedResults) {
+      var resultFound = false;
+      for (var actualResult : results) {
         if (Objects.equals(actualResult.getElement(), expectedResult.getElement())) {
           assertThat(actualResult.getScore()).isCloseTo(expectedResult.getScore(),
               Offset.offset(0.0001D));

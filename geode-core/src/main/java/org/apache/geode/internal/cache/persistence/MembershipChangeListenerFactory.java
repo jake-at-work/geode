@@ -73,7 +73,7 @@ public class MembershipChangeListenerFactory {
     requireNonNull(warningDelay);
     requireNonNull(pollDuration);
 
-    int diff = warningDelay.compareTo(pollDuration);
+    var diff = warningDelay.compareTo(pollDuration);
     if (diff >= 0) {
       throw new IllegalArgumentException("Warning delay \"" + warningDelay.getSeconds()
           + "\" seconds must be less than poll duration \"" + pollDuration.getSeconds()

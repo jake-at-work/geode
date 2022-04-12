@@ -17,12 +17,10 @@ package org.apache.geode.admin.internal;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
@@ -41,10 +39,7 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import org.apache.geode.admin.AdminDistributedSystem;
 import org.apache.geode.admin.AdminException;
-import org.apache.geode.admin.CacheServer;
 import org.apache.geode.admin.CacheServerConfig;
-import org.apache.geode.admin.DistributedSystemConfig;
-import org.apache.geode.admin.DistributionLocator;
 import org.apache.geode.admin.DistributionLocatorConfig;
 import org.apache.geode.admin.ManagedEntityConfig;
 import org.apache.geode.annotations.Immutable;
@@ -104,8 +99,8 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
       Source src = new SAXSource(this, new InputSource());
       Result res = new StreamResult(pw);
 
-      TransformerFactory xFactory = TransformerFactory.newInstance();
-      Transformer xform = xFactory.newTransformer();
+      var xFactory = TransformerFactory.newInstance();
+      var xform = xFactory.newTransformer();
       xform.setOutputProperty(OutputKeys.METHOD, "xml");
       xform.setOutputProperty(OutputKeys.INDENT, "yes");
       xform.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, SYSTEM_ID);
@@ -115,7 +110,7 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
       pw.flush();
 
     } catch (Exception ex) {
-      RuntimeException ex2 = new RuntimeException(
+      var ex2 = new RuntimeException(
           "Exception thrown while generating XML.", ex);
       throw ex2;
     }
@@ -131,7 +126,7 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
 
     handler.startDocument();
 
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
 
     atts.addAttribute("", "", ID, "", String.valueOf(system.getConfig().getSystemId()));
 
@@ -158,7 +153,7 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
    * Generates XML for the remote command
    */
   private void generateRemoteCommand() throws SAXException {
-    String remoteCommand = system.getRemoteCommand();
+    var remoteCommand = system.getRemoteCommand();
 
     handler.startElement("", REMOTE_COMMAND, REMOTE_COMMAND, EMPTY);
 
@@ -182,8 +177,8 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
    * Generates XML for the distributed system's locators
    */
   private void generateLocators() throws SAXException {
-    DistributionLocator[] locators = system.getDistributionLocators();
-    for (final DistributionLocator locator : locators) {
+    var locators = system.getDistributionLocators();
+    for (final var locator : locators) {
       generateLocator(locator.getConfig());
     }
   }
@@ -193,7 +188,7 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
    */
   private void generateLocator(DistributionLocatorConfig config) throws SAXException {
 
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     atts.addAttribute("", "", PORT, "", String.valueOf(config.getPort()));
 
     handler.startElement("", LOCATOR, LOCATOR, atts);
@@ -208,28 +203,28 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
    */
   private void generateEntityConfig(ManagedEntityConfig config) throws SAXException {
 
-    String host = config.getHost();
+    var host = config.getHost();
     if (host != null) {
       handler.startElement("", HOST, HOST, EMPTY);
       handler.characters(host.toCharArray(), 0, host.length());
       handler.endElement("", HOST, HOST);
     }
 
-    String remoteCommand = config.getRemoteCommand();
+    var remoteCommand = config.getRemoteCommand();
     if (remoteCommand != null) {
       handler.startElement("", REMOTE_COMMAND, REMOTE_COMMAND, EMPTY);
       handler.characters(remoteCommand.toCharArray(), 0, remoteCommand.length());
       handler.endElement("", REMOTE_COMMAND, REMOTE_COMMAND);
     }
 
-    String workingDirectory = config.getWorkingDirectory();
+    var workingDirectory = config.getWorkingDirectory();
     if (workingDirectory != null) {
       handler.startElement("", WORKING_DIRECTORY, WORKING_DIRECTORY, EMPTY);
       handler.characters(workingDirectory.toCharArray(), 0, workingDirectory.length());
       handler.endElement("", WORKING_DIRECTORY, WORKING_DIRECTORY);
     }
 
-    String productDirectory = config.getProductDirectory();
+    var productDirectory = config.getProductDirectory();
     if (productDirectory != null) {
       handler.startElement("", PRODUCT_DIRECTORY, PRODUCT_DIRECTORY, EMPTY);
       handler.characters(productDirectory.toCharArray(), 0, productDirectory.length());
@@ -241,38 +236,38 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
    * Generates XML for the SSL configuration of the distributed system.
    */
   private void generateSSL() throws SAXException {
-    DistributedSystemConfig config = system.getConfig();
+    var config = system.getConfig();
 
-    boolean sslEnabled = config.isSSLEnabled();
+    var sslEnabled = config.isSSLEnabled();
     if (!sslEnabled) {
       return;
     }
 
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     atts.addAttribute("", "", AUTHENTICATION_REQUIRED, "",
         String.valueOf(config.isSSLAuthenticationRequired()));
 
     handler.startElement("", SSL, SSL, atts);
 
-    String protocols = config.getSSLProtocols();
+    var protocols = config.getSSLProtocols();
     if (protocols != null) {
       handler.startElement("", PROTOCOLS, PROTOCOLS, EMPTY);
       handler.characters(protocols.toCharArray(), 0, protocols.length());
       handler.endElement("", PROTOCOLS, PROTOCOLS);
     }
 
-    String ciphers = config.getSSLCiphers();
+    var ciphers = config.getSSLCiphers();
     if (ciphers != null) {
       handler.startElement("", CIPHERS, CIPHERS, EMPTY);
       handler.characters(ciphers.toCharArray(), 0, ciphers.length());
       handler.endElement("", CIPHERS, CIPHERS);
     }
 
-    Properties sslProps = config.getSSLProperties();
-    for (final Map.Entry<Object, Object> objectObjectEntry : sslProps.entrySet()) {
-      Map.Entry entry = (Map.Entry) objectObjectEntry;
-      String key = (String) entry.getKey();
-      String value = (String) entry.getValue();
+    var sslProps = config.getSSLProperties();
+    for (final var objectObjectEntry : sslProps.entrySet()) {
+      var entry = (Map.Entry) objectObjectEntry;
+      var key = (String) entry.getKey();
+      var value = (String) entry.getValue();
 
       handler.startElement("", PROPERTY, PROPERTY, EMPTY);
 
@@ -295,8 +290,8 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
    */
   private void generateCacheServers() throws SAXException, AdminException {
 
-    CacheServer[] servers = system.getCacheServers();
-    for (final CacheServer server : servers) {
+    var servers = system.getCacheServers();
+    for (final var server : servers) {
       generateCacheServer(server.getConfig());
     }
   }
@@ -310,7 +305,7 @@ public class ManagedEntityConfigXmlGenerator extends ManagedEntityConfigXml impl
 
     generateEntityConfig(config);
 
-    String classpath = config.getClassPath();
+    var classpath = config.getClassPath();
     if (classpath != null) {
       handler.startElement("", CLASSPATH, CLASSPATH, EMPTY);
       handler.characters(classpath.toCharArray(), 0, classpath.length());

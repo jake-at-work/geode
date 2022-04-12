@@ -100,8 +100,8 @@ public class ClientMetadataService {
 
   private PartitionResolver getResolver(Region r, Object key, Object callbackArgument) {
     // First choice is one associated with the region
-    final String regionFullPath = r.getFullPath();
-    ClientPartitionAdvisor advisor = getClientPartitionAdvisor(regionFullPath);
+    final var regionFullPath = r.getFullPath();
+    var advisor = getClientPartitionAdvisor(regionFullPath);
     PartitionResolver result = null;
     if (advisor != null) {
       result = advisor.getPartitionResolver();
@@ -126,13 +126,13 @@ public class ClientMetadataService {
 
   public ServerLocation getBucketServerLocation(Region region, Operation operation, Object key,
       Object value, Object callbackArg) {
-    ClientPartitionAdvisor prAdvisor = getClientPartitionAdvisor(region.getFullPath());
+    var prAdvisor = getClientPartitionAdvisor(region.getFullPath());
     if (prAdvisor == null) {
       return null;
     }
-    int totalNumberOfBuckets = prAdvisor.getTotalNumBuckets();
+    var totalNumberOfBuckets = prAdvisor.getTotalNumBuckets();
 
-    final PartitionResolver resolver = getResolver(region, key, callbackArg);
+    final var resolver = getResolver(region, key, callbackArg);
     Object resolveKey;
     EntryOperation entryOp = null;
     if (resolver == null) {
@@ -152,10 +152,10 @@ public class ClientMetadataService {
       if (entryOp == null) {
         entryOp = new EntryOperationImpl(region, Operation.FUNCTION_EXECUTION, key, null, null);
       }
-      String partition = ((FixedPartitionResolver) resolver).getPartitionName(entryOp,
+      var partition = ((FixedPartitionResolver) resolver).getPartitionName(entryOp,
           prAdvisor.getFixedPartitionNames());
       if (partition == null) {
-        Object[] prms = new Object[] {region.getName(), resolver};
+        var prms = new Object[] {region.getName(), resolver};
         throw new IllegalStateException(
             String.format("For region %s, partition resolver %s returned partition name null",
                 prms));
@@ -170,7 +170,7 @@ public class ClientMetadataService {
       bucketId = PartitionedRegionHelper.getHashKey(resolveKey, totalNumberOfBuckets);
     }
 
-    ServerLocation bucketServerLocation = getServerLocation(region, operation, bucketId);
+    var bucketServerLocation = getServerLocation(region, operation, bucketId);
     ServerLocation location = null;
     if (bucketServerLocation != null) {
       location =
@@ -180,8 +180,8 @@ public class ClientMetadataService {
   }
 
   private ServerLocation getServerLocation(Region region, Operation operation, int bucketId) {
-    final String regionFullPath = region.getFullPath();
-    ClientPartitionAdvisor prAdvisor = getClientPartitionAdvisor(regionFullPath);
+    final var regionFullPath = region.getFullPath();
+    var prAdvisor = getClientPartitionAdvisor(regionFullPath);
     if (prAdvisor == null) {
       if (logger.isDebugEnabled()) {
         logger.debug(
@@ -205,17 +205,17 @@ public class ClientMetadataService {
 
   public Map<ServerLocation, Set> getServerToFilterMap(final Collection routingKeys,
       final Region region, boolean primaryMembersNeeded, boolean bucketsAsFilter) {
-    final String regionFullPath = region.getFullPath();
-    ClientPartitionAdvisor prAdvisor = getClientPartitionAdvisor(regionFullPath);
+    final var regionFullPath = region.getFullPath();
+    var prAdvisor = getClientPartitionAdvisor(regionFullPath);
     if (prAdvisor == null || prAdvisor.adviseRandomServerLocation() == null) {
       scheduleGetPRMetaData((InternalRegion) region, false);
       return null;
     }
-    Map<Integer, Set> bucketToKeysMap =
+    var bucketToKeysMap =
         groupByBucketOnClientSide(region, prAdvisor, routingKeys, bucketsAsFilter);
 
     Map<ServerLocation, Set> serverToKeysMap = new HashMap<>();
-    Map<ServerLocation, Set<Integer>> serverToBuckets =
+    var serverToBuckets =
         groupByServerToBuckets(prAdvisor, bucketToKeysMap.keySet(), primaryMembersNeeded, region);
 
     if (serverToBuckets == null) {
@@ -228,12 +228,12 @@ public class ClientMetadataService {
     }
 
     for (Map.Entry entry : serverToBuckets.entrySet()) {
-      ServerLocation server = (ServerLocation) entry.getKey();
+      var server = (ServerLocation) entry.getKey();
       Set<Integer> buckets = uncheckedCast(entry.getValue());
-      for (Integer bucket : buckets) {
+      for (var bucket : buckets) {
         // use LinkedHashSet to maintain the order of keys
         // the keys will be iterated several times
-        Set keys = serverToKeysMap.get(server);
+        var keys = serverToKeysMap.get(server);
         if (keys == null) {
           keys = new LinkedHashSet();
         }
@@ -250,15 +250,15 @@ public class ClientMetadataService {
 
   public Map<ServerLocation, Set<Integer>> groupByServerToAllBuckets(Region region,
       boolean primaryOnly) {
-    final String regionFullPath = region.getFullPath();
-    ClientPartitionAdvisor prAdvisor = getClientPartitionAdvisor(regionFullPath);
+    final var regionFullPath = region.getFullPath();
+    var prAdvisor = getClientPartitionAdvisor(regionFullPath);
     if (prAdvisor == null || prAdvisor.adviseRandomServerLocation() == null) {
       scheduleGetPRMetaData((InternalRegion) region, false);
       return null;
     }
-    int totalNumberOfBuckets = prAdvisor.getTotalNumBuckets();
+    var totalNumberOfBuckets = prAdvisor.getTotalNumBuckets();
     Set<Integer> allBucketIds = new HashSet<>();
-    for (int i = 0; i < totalNumberOfBuckets; i++) {
+    for (var i = 0; i < totalNumberOfBuckets; i++) {
       allBucketIds.add(i);
     }
     return groupByServerToBuckets(prAdvisor, allBucketIds, primaryOnly, region);
@@ -273,8 +273,8 @@ public class ClientMetadataService {
       Region region) {
     if (primaryOnly) {
       Map<ServerLocation, Set<Integer>> serverToBucketsMap = new HashMap<>();
-      for (Integer bucketId : bucketSet) {
-        ServerLocation server = prAdvisor.advisePrimaryServerLocation(bucketId);
+      for (var bucketId : bucketSet) {
+        var server = prAdvisor.advisePrimaryServerLocation(bucketId);
         if (server == null) {
           // If we don't have the metadata for some buckets, return
           // null, indicating that we don't have any metadata. This
@@ -284,7 +284,7 @@ public class ClientMetadataService {
               prAdvisor.adviseServerLocations(bucketId));
           return null;
         }
-        Set<Integer> buckets = serverToBucketsMap.get(server);
+        var buckets = serverToBucketsMap.get(server);
         if (buckets == null) {
           buckets = new HashSet<>(); // faster if this was an ArrayList
           serverToBucketsMap.put(server, buckets);
@@ -306,15 +306,15 @@ public class ClientMetadataService {
   private Map<ServerLocation, Set<Integer>> pruneNodes(ClientPartitionAdvisor prAdvisor,
       Set<Integer> buckets) {
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug("ClientMetadataService: The buckets to be pruned are: {}", buckets);
     }
     Map<ServerLocation, Set<Integer>> serverToBucketsMap = new HashMap<>();
     Map<ServerLocation, Set<Integer>> prunedServerToBucketsMap = new HashMap<>();
 
-    for (Integer bucketId : buckets) {
-      List<BucketServerLocation66> serversList = prAdvisor.adviseServerLocations(bucketId);
+    for (var bucketId : buckets) {
+      var serversList = prAdvisor.adviseServerLocations(bucketId);
       if (isDebugEnabled) {
         logger.debug("ClientMetadataService: For bucketId {} the server list is {}", bucketId,
             serversList);
@@ -337,7 +337,7 @@ public class ClientMetadataService {
           bucketSet.add(bucketId);
           serverToBucketsMap.put(server, bucketSet);
         } else {
-          Set<Integer> bucketSet = serverToBucketsMap.get(server);
+          var bucketSet = serverToBucketsMap.get(server);
           bucketSet.add(bucketId);
           serverToBucketsMap.put(server, bucketSet);
         }
@@ -351,11 +351,11 @@ public class ClientMetadataService {
     if (serverToBucketsMap.isEmpty()) {
       return null;
     } else {
-      int size = serverToBucketsMap.size();
+      var size = serverToBucketsMap.size();
       randomFirstServer =
           (ServerLocation) serverToBucketsMap.keySet().toArray()[rand.nextInt(size)];
     }
-    Set<Integer> bucketSet = serverToBucketsMap.get(randomFirstServer);
+    var bucketSet = serverToBucketsMap.get(randomFirstServer);
     if (isDebugEnabled) {
       logger.debug(
           "ClientMetadataService: Adding the server : {} which is random and buckets {} to prunedMap",
@@ -366,12 +366,12 @@ public class ClientMetadataService {
     serverToBucketsMap.remove(randomFirstServer);
 
     while (!currentBucketSet.equals(buckets)) {
-      ServerLocation server = findNextServer(serverToBucketsMap.entrySet(), currentBucketSet);
+      var server = findNextServer(serverToBucketsMap.entrySet(), currentBucketSet);
       if (server == null) {
         break;
       }
 
-      Set<Integer> bucketSet2 = serverToBucketsMap.get(server);
+      var bucketSet2 = serverToBucketsMap.get(server);
       bucketSet2.removeAll(currentBucketSet);
       if (bucketSet2.isEmpty()) {
         serverToBucketsMap.remove(server);
@@ -400,9 +400,9 @@ public class ClientMetadataService {
       Set<Integer> currentBucketSet) {
 
     ServerLocation server = null;
-    int max = -1;
+    var max = -1;
     List<ServerLocation> nodesOfEqualSize = new ArrayList<>();
-    for (Map.Entry<ServerLocation, Set<Integer>> entry : entrySet) {
+    for (var entry : entrySet) {
       Set<Integer> buckets = new HashSet<>(entry.getValue());
       buckets.removeAll(currentBucketSet);
 
@@ -416,7 +416,7 @@ public class ClientMetadataService {
       }
     }
 
-    Random r = new Random();
+    var r = new Random();
     if (nodesOfEqualSize.size() > 0) {
       return nodesOfEqualSize.get(r.nextInt(nodesOfEqualSize.size()));
     }
@@ -428,11 +428,11 @@ public class ClientMetadataService {
       ClientPartitionAdvisor prAdvisor, Collection routingKeys, boolean bucketsAsFilter) {
 
     Map<Integer, Set> bucketToKeysMap = new HashMap<>();
-    int totalNumberOfBuckets = prAdvisor.getTotalNumBuckets();
-    for (final Object key : routingKeys) {
-      int bucketId = bucketsAsFilter ? (Integer) key
+    var totalNumberOfBuckets = prAdvisor.getTotalNumBuckets();
+    for (final var key : routingKeys) {
+      var bucketId = bucketsAsFilter ? (Integer) key
           : extractBucketID(region, prAdvisor, totalNumberOfBuckets, key);
-      Set bucketKeys = bucketToKeysMap.get(bucketId);
+      var bucketKeys = bucketToKeysMap.get(bucketId);
       if (bucketKeys == null) {
         bucketKeys = new HashSet(); // faster if this was an ArrayList
         bucketToKeysMap.put(bucketId, bucketKeys);
@@ -447,8 +447,8 @@ public class ClientMetadataService {
 
   private int extractBucketID(Region region, ClientPartitionAdvisor prAdvisor,
       int totalNumberOfBuckets, Object key) {
-    int bucketId = -1;
-    final PartitionResolver resolver = getResolver(region, key, null);
+    var bucketId = -1;
+    final var resolver = getResolver(region, key, null);
     Object resolveKey;
     EntryOperation entryOp = null;
     if (resolver == null) {
@@ -468,10 +468,10 @@ public class ClientMetadataService {
       if (entryOp == null) {
         entryOp = new EntryOperationImpl(region, Operation.FUNCTION_EXECUTION, key, null, null);
       }
-      String partition = ((FixedPartitionResolver) resolver).getPartitionName(entryOp,
+      var partition = ((FixedPartitionResolver) resolver).getPartitionName(entryOp,
           prAdvisor.getFixedPartitionNames());
       if (partition == null) {
-        Object[] prms = new Object[] {region.getName(), resolver};
+        var prms = new Object[] {region.getName(), resolver};
         throw new IllegalStateException(
             String.format("For region %s, partition resolver %s returned partition name null",
                 prms));
@@ -517,7 +517,7 @@ public class ClientMetadataService {
         refreshTaskCount++;
         totalRefreshTaskCount++;
       }
-      Runnable fetchTask = () -> {
+      var fetchTask = (Runnable) () -> {
         try {
           getClientPRMetadata(region);
         } catch (VirtualMachineError e) {
@@ -539,9 +539,9 @@ public class ClientMetadataService {
   }
 
   public void getClientPRMetadata(InternalRegion region) {
-    final String regionFullPath = region.getFullPath();
+    final var regionFullPath = region.getFullPath();
     ClientPartitionAdvisor advisor = null;
-    InternalPool pool = region.getServerProxy().getPool();
+    var pool = region.getServerProxy().getPool();
     // Acquires lock only if it is free, else a request to fetch meta data is in
     // progress, so just return
     if (region.getClientMetaDataLock().tryLock()) {
@@ -556,19 +556,19 @@ public class ClientMetadataService {
           addClientPartitionAdvisor(regionFullPath, advisor);
         } else {
           if (advisor.getFixedPAMap() != null && !advisor.isFPAAttrsComplete()) {
-            ClientPartitionAdvisor newAdvisor =
+            var newAdvisor =
                 GetClientPartitionAttributesOp.execute(pool, regionFullPath);
             advisor.updateFixedPAMap(newAdvisor.getFixedPAMap());
           }
         }
-        String colocatedWith = advisor.getColocatedWith();
+        var colocatedWith = advisor.getColocatedWith();
         if (colocatedWith == null) {
           isMetadataRefreshed_TEST_ONLY = true;
           GetClientPRMetaDataOp.execute(pool, regionFullPath, this);
           region.getCachePerfStats().incMetaDataRefreshCount();
         } else {
-          ClientPartitionAdvisor colocatedAdvisor = getClientPartitionAdvisor(colocatedWith);
-          InternalRegion leaderRegion = (InternalRegion) region.getCache().getRegion(colocatedWith);
+          var colocatedAdvisor = getClientPartitionAdvisor(colocatedWith);
+          var leaderRegion = (InternalRegion) region.getCache().getRegion(colocatedWith);
           if (colocatedAdvisor == null) {
             scheduleGetPRMetaData(leaderRegion, true);
             return;
@@ -589,7 +589,7 @@ public class ClientMetadataService {
     if (nonPRs.contains(region.getFullPath())) {
       return;
     }
-    ClientPartitionAdvisor advisor = getClientPartitionAdvisor(region.getFullPath());
+    var advisor = getClientPartitionAdvisor(region.getFullPath());
     if (advisor != null && advisor.getServerGroup().length() != 0
         && HONOUR_SERVER_GROUP_IN_PR_SINGLE_HOP) {
       if (logger.isDebugEnabled()) {
@@ -625,7 +625,7 @@ public class ClientMetadataService {
         refreshTaskCount++;
         totalRefreshTaskCount++;
       }
-      Runnable fetchTask = () -> {
+      var fetchTask = (Runnable) () -> {
         try {
           getClientPRMetadata(region);
         } catch (VirtualMachineError e) {
@@ -648,14 +648,14 @@ public class ClientMetadataService {
   }
 
   public void removeBucketServerLocation(ServerLocation serverLocation) {
-    Set<String> keys = getAllRegionFullPaths();
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    var keys = getAllRegionFullPaths();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug("ClientMetadataService removing a ServerLocation :{}{}", serverLocation, keys);
     }
     if (keys != null) {
-      for (String regionPath : keys) {
-        ClientPartitionAdvisor prAdvisor = getClientPartitionAdvisor(regionPath);
+      for (var regionPath : keys) {
+        var prAdvisor = getClientPartitionAdvisor(regionPath);
         if (isDebugEnabled) {
           logger.debug("ClientMetadataService removing from {}{}", regionPath, prAdvisor);
         }
@@ -668,14 +668,14 @@ public class ClientMetadataService {
 
   public byte getMetaDataVersion(Region region, Operation operation, Object key, Object value,
       Object callbackArg) {
-    ClientPartitionAdvisor prAdvisor = getClientPartitionAdvisor(region.getFullPath());
+    var prAdvisor = getClientPartitionAdvisor(region.getFullPath());
     if (prAdvisor == null) {
       return 0;
     }
 
-    int totalNumberOfBuckets = prAdvisor.getTotalNumBuckets();
+    var totalNumberOfBuckets = prAdvisor.getTotalNumBuckets();
 
-    final PartitionResolver resolver = getResolver(region, key, callbackArg);
+    final var resolver = getResolver(region, key, callbackArg);
     Object resolveKey;
     EntryOperation entryOp = null;
     if (resolver == null) {
@@ -696,10 +696,10 @@ public class ClientMetadataService {
       if (entryOp == null) {
         entryOp = new EntryOperationImpl(region, Operation.FUNCTION_EXECUTION, key, null, null);
       }
-      String partition = ((FixedPartitionResolver) resolver).getPartitionName(entryOp,
+      var partition = ((FixedPartitionResolver) resolver).getPartitionName(entryOp,
           prAdvisor.getFixedPartitionNames());
       if (partition == null) {
-        Object[] prms = new Object[] {region.getName(), resolver};
+        var prms = new Object[] {region.getName(), resolver};
         throw new IllegalStateException(
             String.format("For region %s, partition resolver %s returned partition name null",
                 prms));
@@ -710,7 +710,7 @@ public class ClientMetadataService {
       bucketId = PartitionedRegionHelper.getHashKey(resolveKey, totalNumberOfBuckets);
     }
 
-    BucketServerLocation66 bsl =
+    var bsl =
         (BucketServerLocation66) getPrimaryServerLocation(region, bucketId);
     if (bsl == null) {
       return 0;
@@ -719,8 +719,8 @@ public class ClientMetadataService {
   }
 
   private ServerLocation getPrimaryServerLocation(Region region, int bucketId) {
-    final String regionFullPath = region.getFullPath();
-    ClientPartitionAdvisor prAdvisor = getClientPartitionAdvisor(regionFullPath);
+    final var regionFullPath = region.getFullPath();
+    var prAdvisor = getClientPartitionAdvisor(regionFullPath);
     if (prAdvisor == null) {
       if (logger.isDebugEnabled()) {
         logger.debug(
@@ -751,8 +751,8 @@ public class ClientMetadataService {
     try {
       clientPRAdvisors.put(regionFullPath, advisor);
       if (advisor.getColocatedWith() != null) {
-        String parentRegionPath = advisor.getColocatedWith();
-        Set<ClientPartitionAdvisor> colocatedAdvisors =
+        var parentRegionPath = advisor.getColocatedWith();
+        var colocatedAdvisors =
             colocatedPRAdvisors.get(parentRegionPath);
         if (colocatedAdvisors == null) {
           colocatedAdvisors = new CopyOnWriteArraySet<>();

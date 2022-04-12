@@ -39,14 +39,14 @@ public class SecurityTestUtil {
 
   @Deprecated
   public static ClientCache createClientCache(String username, String password, int serverPort) {
-    Properties props = new Properties();
+    var props = new Properties();
     return createClientCache(username, password, serverPort, props);
   }
 
   @Deprecated
   public static ClientCache createClientCache(String username, String password, int serverPort,
       Properties extraProperties) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(UserPasswordAuthInit.USER_NAME, username);
     props.setProperty(UserPasswordAuthInit.PASSWORD, password);
     props.setProperty(SECURITY_CLIENT_AUTH_INIT, UserPasswordAuthInit.class.getName());
@@ -56,7 +56,7 @@ public class SecurityTestUtil {
     if (VersionManager.getInstance().getCurrentVersionOrdinal() >= 75) {
       props.setProperty(SERIALIZABLE_OBJECT_FILTER, "org.apache.geode.security.query.data.*");
     }
-    ClientCache cache = new ClientCacheFactory(props).setPoolSubscriptionEnabled(true)
+    var cache = new ClientCacheFactory(props).setPoolSubscriptionEnabled(true)
         .addPoolServer("localhost", serverPort).create();
     return cache;
   }

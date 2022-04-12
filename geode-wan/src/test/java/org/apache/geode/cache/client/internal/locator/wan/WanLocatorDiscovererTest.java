@@ -52,10 +52,10 @@ public class WanLocatorDiscovererTest {
   @Before
   public void setUp() {
     locatorMembershipListener = mock(LocatorMembershipListener.class);
-    DistributionLocatorId loc1 = new DistributionLocatorId(40401, "127.0.0.1", null, "loc1");
-    DistributionLocatorId loc2 = new DistributionLocatorId(40402, "127.0.0.2", null, "loc2");
-    DistributionLocatorId loc3 = new DistributionLocatorId(40403, "127.0.0.3", null, "loc3");
-    DistributionLocatorId loc4 = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
+    var loc1 = new DistributionLocatorId(40401, "127.0.0.1", null, "loc1");
+    var loc2 = new DistributionLocatorId(40402, "127.0.0.2", null, "loc2");
+    var loc3 = new DistributionLocatorId(40403, "127.0.0.3", null, "loc3");
+    var loc4 = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
     Set<DistributionLocatorId> locatorSet = new HashSet<>();
     locatorSet.add(loc1);
     locatorSet.add(loc2);
@@ -83,7 +83,7 @@ public class WanLocatorDiscovererTest {
     when(config.getLocators()).thenReturn(locators);
     when(config.getRemoteLocators()).thenReturn("");
 
-    WanLocatorDiscovererImpl test_wan = new WanLocatorDiscovererImpl();
+    var test_wan = new WanLocatorDiscovererImpl();
     test_wan.discover(40401, config, locatorMembershipListener, null);
 
     assertThat(allLocatorsInfo.get(1)).hasSize(4);

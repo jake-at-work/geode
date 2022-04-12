@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
@@ -78,7 +77,7 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
   public int startBridgeServer(int port) throws IOException {
 
     Cache cache = getCache();
-    CacheServer bridge = cache.addCacheServer();
+    var bridge = cache.addCacheServer();
     bridge.setPort(port);
     bridge.setMaxThreads(getMaxThreads());
     bridge.start();
@@ -100,7 +99,7 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
    */
   public void stopBridgeServers(Cache cache) {
     CacheServer bridge;
-    for (CacheServer cacheServer : cache.getCacheServers()) {
+    for (var cacheServer : cache.getCacheServers()) {
       bridge = cacheServer;
       bridge.stop();
       assertThat(bridge.isRunning()).isFalse();
@@ -111,7 +110,7 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
    * Returns region attributes for a <code>LOCAL</code> region
    */
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.LOCAL);
     return factory.create();
   }
@@ -179,7 +178,7 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
     if (AUTO_LOAD_BALANCE || ports.length == 0) {
       pf.addLocator(host, DistributedTestUtils.getLocatorPort());
     } else {
-      for (int port : ports) {
+      for (var port : ports) {
         pf.addServer(host, port);
       }
     }
@@ -208,11 +207,11 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
     if (serverGroup != null) {
       pf.setServerGroup(serverGroup);
     }
-    String rpoolName = TEST_POOL_NAME;
+    var rpoolName = TEST_POOL_NAME;
     if (poolName != null) {
       rpoolName = poolName;
     }
-    Pool pool = pf.create(rpoolName);
+    var pool = pf.create(rpoolName);
     if (factory != null) {
       factory.setPoolName(rpoolName);
     }
@@ -243,7 +242,7 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
     if (AUTO_LOAD_BALANCE || ports.length == 0) {
       pf.addLocator(host, DistributedTestUtils.getLocatorPort());
     } else {
-      for (int port : ports) {
+      for (var port : ports) {
         pf.addServer(host, port);
       }
     }
@@ -272,11 +271,11 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
     if (serverGroup != null) {
       pf.setServerGroup(serverGroup);
     }
-    String rpoolName = TEST_POOL_NAME;
+    var rpoolName = TEST_POOL_NAME;
     if (poolName != null) {
       rpoolName = poolName;
     }
-    Pool pool = pf.create(rpoolName);
+    var pool = pf.create(rpoolName);
     if (factory != null) {
       factory.setPoolName(rpoolName);
     }
@@ -304,7 +303,7 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
           fail("interrupted");
         }
       }
-      Object ret = helper.getKey();
+      var ret = helper.getKey();
 
       if (ret instanceof String) {
         if (ret != null && ret.equals(NON_EXISTENT_KEY)) {
@@ -332,7 +331,7 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
       @Override
       public void run2() {
         try {
-          AttributesFactory<Object, Object> factory = new AttributesFactory<>();
+          var factory = new AttributesFactory<Object, Object>();
           factory.setScope(Scope.DISTRIBUTED_ACK); // can't be local since used with
                                                    // registerInterest
           factory.setCacheLoader(new CacheServerCacheLoader());
@@ -341,7 +340,7 @@ public abstract class ClientServerTestCase extends JUnit4CacheTestCase {
           startBridgeServer(port);
           finishCacheXml(rName + "-" + port);
 
-          Region<Object, Object> region = getRootRegion(rName);
+          var region = getRootRegion(rName);
           assertThat(region).isNotNull();
           region.put(BridgeServerKey, port); // A unique key/value to identify the
                                              // BridgeServer

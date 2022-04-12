@@ -68,7 +68,7 @@ public class ManageBackupBucketReplyMessageTest {
 
   @Test
   public void sendStillInitializingReplyIfColocatedRegionsAreInitializing() {
-    ManageBackupBucketMessage message = new ManageBackupBucketMessage();
+    var message = new ManageBackupBucketMessage();
 
     when(partitionedRegionDataStore.isPartitionedRegionReady(partitionedRegion, bucketId))
         .thenReturn(false);
@@ -83,7 +83,7 @@ public class ManageBackupBucketReplyMessageTest {
 
   @Test
   public void sendRefusalReplyIfDataStoreNotGrabbedBucket() {
-    ManageBackupBucketMessage message = spy(new ManageBackupBucketMessage(recipent, regionId,
+    var message = spy(new ManageBackupBucketMessage(recipent, regionId,
         processor, bucketId, isReblance, replaceOfflineDate, source, forecCreation));
 
     when(partitionedRegionDataStore.isPartitionedRegionReady(partitionedRegion, bucketId))
@@ -102,7 +102,7 @@ public class ManageBackupBucketReplyMessageTest {
 
   @Test
   public void sendAcceptanceReplyIfDataStoreGrabbedBucket() {
-    ManageBackupBucketMessage message = spy(new ManageBackupBucketMessage(recipent, regionId,
+    var message = spy(new ManageBackupBucketMessage(recipent, regionId,
         processor, bucketId, isReblance, replaceOfflineDate, source, forecCreation));
 
     when(partitionedRegionDataStore.isPartitionedRegionReady(partitionedRegion, bucketId))

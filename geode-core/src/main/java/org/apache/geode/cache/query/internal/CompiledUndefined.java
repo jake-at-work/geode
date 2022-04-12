@@ -24,11 +24,9 @@ import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
-import org.apache.geode.cache.query.internal.index.IndexData;
 import org.apache.geode.cache.query.internal.index.IndexProtocol;
 import org.apache.geode.cache.query.internal.index.IndexUtils;
 import org.apache.geode.cache.query.internal.types.StructTypeImpl;
-import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.cache.query.types.StructType;
 
 /**
@@ -59,7 +57,7 @@ public class CompiledUndefined extends AbstractCompiledValue implements Negatabl
   @Override
   public Object evaluate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    boolean b = _value.evaluate(context) == QueryService.UNDEFINED;
+    var b = _value.evaluate(context) == QueryService.UNDEFINED;
     return _is_defined != b;
   }
 
@@ -86,9 +84,9 @@ public class CompiledUndefined extends AbstractCompiledValue implements Negatabl
     // place
     Support.Assert(_value.isDependentOnCurrentScope(context),
         "For a condition which does not depend on any RuntimeIterator of current scope , we should not have been in this function");
-    IndexInfo[] idxInfo = getIndexInfo(context);
-    ObjectType resultType = idxInfo[0]._index.getResultSetType();
-    int indexFieldsSize = -1;
+    var idxInfo = getIndexInfo(context);
+    var resultType = idxInfo[0]._index.getResultSetType();
+    var indexFieldsSize = -1;
     SelectResults set = null;
     if (resultType instanceof StructType) {
       set = QueryUtils.createStructCollection(context, (StructTypeImpl) resultType);
@@ -97,9 +95,9 @@ public class CompiledUndefined extends AbstractCompiledValue implements Negatabl
       set = QueryUtils.createResultCollection(context, resultType);
       indexFieldsSize = 1;
     }
-    int op = _is_defined ? TOK_NE : TOK_EQ;
-    Object key = QueryService.UNDEFINED;
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var op = _is_defined ? TOK_NE : TOK_EQ;
+    var key = QueryService.UNDEFINED;
+    var observer = QueryObserverHolder.getInstance();
     try {
       observer.beforeIndexLookup(idxInfo[0]._index, op, key);
       context.cachePut(CompiledValue.INDEX_INFO, idxInfo[0]);
@@ -114,17 +112,17 @@ public class CompiledUndefined extends AbstractCompiledValue implements Negatabl
   @Override
   public int getSizeEstimate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    IndexInfo[] idxInfo = getIndexInfo(context);
+    var idxInfo = getIndexInfo(context);
     assert idxInfo.length == 1;
 
     if (context instanceof QueryExecutionContext) {
-      QueryExecutionContext qcontext = (QueryExecutionContext) context;
+      var qcontext = (QueryExecutionContext) context;
       if (qcontext.isHinted(idxInfo[0]._index.getName())) {
         return qcontext.getHintSize(idxInfo[0]._index.getName());
       }
     }
 
-    int op = _is_defined ? TOK_NE : TOK_EQ;
+    var op = _is_defined ? TOK_NE : TOK_EQ;
     return idxInfo[0]._index.getSizeEstimate(QueryService.UNDEFINED, op, idxInfo[0]._matchLevel);
   }
 
@@ -181,8 +179,8 @@ public class CompiledUndefined extends AbstractCompiledValue implements Negatabl
   @Override
   protected PlanInfo protGetPlanInfo(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    PlanInfo result = new PlanInfo();
-    IndexInfo[] indexInfo = getIndexInfo(context);
+    var result = new PlanInfo();
+    var indexInfo = getIndexInfo(context);
     if (indexInfo == null) {
       return result;
     }
@@ -197,7 +195,7 @@ public class CompiledUndefined extends AbstractCompiledValue implements Negatabl
   @Override
   public IndexInfo[] getIndexInfo(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    IndexInfo[] indexInfo = privGetIndexInfo(context);
+    var indexInfo = privGetIndexInfo(context);
     if (indexInfo != null) {
       if (indexInfo == NO_INDEXES_IDENTIFIER) {
         return null;
@@ -212,7 +210,7 @@ public class CompiledUndefined extends AbstractCompiledValue implements Negatabl
     // & its key is DEFINED
     // , then are we returning all the values of the region ?
     // & that if the key is UNDEFINED are we returning an empty set.?
-    IndexData indexData =
+    var indexData =
         QueryUtils.getAvailableIndexIfAny(_value, context, _is_defined ? TOK_NE : TOK_EQ);
     IndexProtocol index = null;
     IndexInfo[] newIndexInfo = null;
@@ -283,10 +281,10 @@ public class CompiledUndefined extends AbstractCompiledValue implements Negatabl
       QueryInvocationTargetException {
     // If the current filter is equality & comparedTo filter is also equality based , then
     // return the one with lower size estimate is better
-    boolean isThisBetter = true;
-    int thisOperator = getOperator();
-    int thatSize = comparedTo.getSizeEstimate(context);
-    int thatOperator = comparedTo.getOperator();
+    var isThisBetter = true;
+    var thisOperator = getOperator();
+    var thatSize = comparedTo.getSizeEstimate(context);
+    var thatOperator = comparedTo.getOperator();
 
     // Go with the lowest cost when hint is used.
     if (context instanceof QueryExecutionContext && ((QueryExecutionContext) context).hasHints()) {

@@ -31,7 +31,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 
 @SuppressWarnings("serial")
@@ -51,7 +50,7 @@ public class LocatorPortClusterExampleTest implements Serializable {
 
     cache = (InternalCache) new CacheFactory(config).create();
 
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       vm.invoke(() -> {
         cache = (InternalCache) new CacheFactory(config).create();
       });
@@ -61,14 +60,14 @@ public class LocatorPortClusterExampleTest implements Serializable {
   @After
   public void tearDown() throws Exception {
     cache = null;
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       vm.invoke(() -> cache = null);
     }
   }
 
   @Test
   public void clusterHasDUnitVMCountPlusTwoByDefault() {
-    int dunitVMCount = getVMCount();
+    var dunitVMCount = getVMCount();
     assertThat(cache.getDistributionManager().getViewMembers()).hasSize(dunitVMCount + 2);
   }
 }

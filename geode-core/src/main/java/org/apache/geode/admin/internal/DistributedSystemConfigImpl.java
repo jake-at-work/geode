@@ -47,7 +47,6 @@ import org.apache.geode.admin.AdminXmlException;
 import org.apache.geode.admin.CacheServerConfig;
 import org.apache.geode.admin.CacheVmConfig;
 import org.apache.geode.admin.DistributedSystemConfig;
-import org.apache.geode.admin.DistributionLocator;
 import org.apache.geode.admin.DistributionLocatorConfig;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.DistributionConfigImpl;
@@ -140,12 +139,12 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
    */
   private static Properties filterOutAdminProperties(Properties props) {
 
-    Properties props2 = new Properties();
+    var props2 = new Properties();
     for (Enumeration names = props.propertyNames(); names.hasMoreElements();) {
-      String name = (String) names.nextElement();
+      var name = (String) names.nextElement();
       if (!(ENTITY_CONFIG_XML_FILE_NAME.equals(name) || REFRESH_INTERVAL_NAME.equals(name)
           || REMOTE_COMMAND_NAME.equals(name))) {
-        String value = props.getProperty(name);
+        var value = props.getProperty(name);
         if ((name != null) && (value != null)) {
           props2.setProperty(name, value);
         }
@@ -227,17 +226,17 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
   protected DistributedSystemConfigImpl(Properties props, boolean ignoreGemFirePropsFile) {
     this(new DistributionConfigImpl(filterOutAdminProperties(props), ignoreGemFirePropsFile),
         DEFAULT_REMOTE_COMMAND);
-    String remoteCommand = props.getProperty(REMOTE_COMMAND_NAME);
+    var remoteCommand = props.getProperty(REMOTE_COMMAND_NAME);
     if (remoteCommand != null) {
       this.remoteCommand = remoteCommand;
     }
 
-    String entityConfigXMLFile = props.getProperty(ENTITY_CONFIG_XML_FILE_NAME);
+    var entityConfigXMLFile = props.getProperty(ENTITY_CONFIG_XML_FILE_NAME);
     if (entityConfigXMLFile != null) {
       this.entityConfigXMLFile = entityConfigXMLFile;
     }
 
-    String refreshInterval = props.getProperty(REFRESH_INTERVAL_NAME);
+    var refreshInterval = props.getProperty(REFRESH_INTERVAL_NAME);
     if (refreshInterval != null) {
       try {
         this.refreshInterval = Integer.parseInt(refreshInterval);
@@ -396,8 +395,8 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
    * @throws AdminXmlException If a problem is encountered while parsing the XML file.
    */
   private void parseEntityConfigXMLFile() {
-    String fileName = entityConfigXMLFile;
-    File xmlFile = new File(fileName);
+    var fileName = entityConfigXMLFile;
+    var xmlFile = new File(fileName);
     if (!xmlFile.exists()) {
       if (DEFAULT_ENTITY_CONFIG_XML_FILE.equals(fileName)) {
         // Default doesn't exist, no big deal
@@ -578,7 +577,7 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
   private boolean validateMembershipRange(String membershipPortRange) {
     int[] range = null;
     if (membershipPortRange != null && membershipPortRange.trim().length() > 0) {
-      String[] splitted = membershipPortRange.split("-");
+      var splitted = membershipPortRange.split("-");
       range = new int[2];
       range[0] = Integer.parseInt(splitted[0].trim());
       range[1] = Integer.parseInt(splitted[1].trim());
@@ -596,7 +595,7 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
    *         range separated by '-' e.g. 1-65535
    */
   private static String getMembershipPortRangeString(int[] membershipPortRange) {
-    String membershipPortRangeString = "";
+    var membershipPortRangeString = "";
     if (membershipPortRange != null && membershipPortRange.length == 2) {
       membershipPortRangeString = membershipPortRange[0] + "-" + membershipPortRange[1];
     }
@@ -737,19 +736,19 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
     if (remoteCommand == null || remoteCommand.isEmpty()) {
       return;
     }
-    final String command = remoteCommand.toLowerCase().trim();
+    final var command = remoteCommand.toLowerCase().trim();
     if (!command.contains("{host}") || !command.contains("{cmd}")) {
       throw new IllegalArgumentException(ILLEGAL_REMOTE_COMMAND_RSH_OR_SSH + remoteCommand);
     }
 
-    final StringTokenizer tokenizer = new StringTokenizer(command, " ");
-    final ArrayList<String> array = new ArrayList<>();
-    for (int i = 0; tokenizer.hasMoreTokens(); i++) {
-      String string = tokenizer.nextToken();
+    final var tokenizer = new StringTokenizer(command, " ");
+    final var array = new ArrayList<String>();
+    for (var i = 0; tokenizer.hasMoreTokens(); i++) {
+      var string = tokenizer.nextToken();
       if (i == 0) {
         // first element must be rsh or ssh
-        boolean found = false;
-        for (final String legalRemoteCommand : LEGAL_REMOTE_COMMANDS) {
+        var found = false;
+        for (final var legalRemoteCommand : LEGAL_REMOTE_COMMANDS) {
           if (string.contains(legalRemoteCommand)) {
             // verify command is at end of string
             if (!(string.endsWith(legalRemoteCommand)
@@ -763,16 +762,16 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
           throw new IllegalArgumentException(ILLEGAL_REMOTE_COMMAND_RSH_OR_SSH + remoteCommand);
         }
       } else {
-        final boolean isSwitch = string.startsWith("-");
-        final boolean isHostOrCmd = string.equals("{host}") || string.equals("{cmd}");
+        final var isSwitch = string.startsWith("-");
+        final var isHostOrCmd = string.equals("{host}") || string.equals("{cmd}");
 
         // additional elements must be switches or values-for-switches or {host} or user@{host} or
         // {cmd}
         if (!isSwitch && !isHostOrCmd) {
-          final String previous =
+          final var previous =
               array.isEmpty() ? null : array.get(array.size() - 1);
-          final boolean isValueForSwitch = previous != null && previous.startsWith("-");
-          final boolean isHostWithUser = string.contains("@") && string.endsWith("{host}");
+          final var isValueForSwitch = previous != null && previous.startsWith("-");
+          final var isHostWithUser = string.contains("@") && string.endsWith("{host}");
 
           if (!(isValueForSwitch || isHostWithUser)) {
             throw new IllegalArgumentException(ILLEGAL_REMOTE_COMMAND_RSH_OR_SSH + remoteCommand);
@@ -840,8 +839,8 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
     if (managerConfig == null) {
       return;
     }
-    for (final Object cacheServerConfig : cacheServerConfigs) {
-      CacheServerConfigImpl impl = (CacheServerConfigImpl) cacheServerConfig;
+    for (final var cacheServerConfig : cacheServerConfigs) {
+      var impl = (CacheServerConfigImpl) cacheServerConfig;
       if (impl.equals(managerConfig)) {
         return;
       }
@@ -873,9 +872,9 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
   @Override
   public DistributionLocatorConfig[] getDistributionLocatorConfigs() {
     if (system != null) {
-      DistributionLocator[] locators = system.getDistributionLocators();
-      DistributionLocatorConfig[] configs = new DistributionLocatorConfig[locators.length];
-      for (int i = 0; i < locators.length; i++) {
+      var locators = system.getDistributionLocators();
+      var configs = new DistributionLocatorConfig[locators.length];
+      for (var i = 0; i < locators.length; i++) {
         configs[i] = locators[i].getConfig();
       }
       return configs;
@@ -935,7 +934,7 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
     synchronized (listeners) {
       clients = (ConfigListener[]) listeners.toArray(new ConfigListener[listeners.size()]);
     }
-    for (final ConfigListener client : clients) {
+    for (final var client : clients) {
       try {
         client.configChanged(this);
       } catch (Exception e) {
@@ -1164,18 +1163,18 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
    */
   @Override
   public Object clone() throws CloneNotSupportedException {
-    DistributedSystemConfigImpl other = (DistributedSystemConfigImpl) super.clone();
+    var other = (DistributedSystemConfigImpl) super.clone();
     other.system = null;
     other.cacheServerConfigs = new HashSet();
     other.locatorConfigs = new HashSet();
 
-    DistributionLocatorConfig[] myLocators = getDistributionLocatorConfigs();
-    for (DistributionLocatorConfig locator : myLocators) {
+    var myLocators = getDistributionLocatorConfigs();
+    for (var locator : myLocators) {
       other.addDistributionLocatorConfig((DistributionLocatorConfig) locator.clone());
     }
 
-    CacheServerConfig[] myCacheServers = getCacheServerConfigs();
-    for (CacheServerConfig locator : myCacheServers) {
+    var myCacheServers = getCacheServerConfigs();
+    for (var locator : myCacheServers) {
       other.addCacheServerConfig((CacheServerConfig) locator.clone());
     }
 
@@ -1184,8 +1183,8 @@ public class DistributedSystemConfigImpl implements DistributedSystemConfig {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(1000);
-    String lf = lineSeparator();
+    var buf = new StringBuilder(1000);
+    var lf = lineSeparator();
     if (lf == null) {
       lf = ",";
     }

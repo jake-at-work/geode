@@ -19,21 +19,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.junit.Test;
 
 public class DirectReplySenderTest {
 
   @Test
   public void getConnectionsReturnsMutableListOfOne() {
-    final Connection connection = mock(Connection.class);
-    final DirectReplySender directReplySender = new DirectReplySender(connection);
-    final List<Connection> connections = directReplySender.getConnections();
+    final var connection = mock(Connection.class);
+    final var directReplySender = new DirectReplySender(connection);
+    final var connections = directReplySender.getConnections();
     assertThat(connections).containsExactly(connection);
     assertThatNoException().isThrownBy(() -> {
-      final Iterator<Connection> iterator = connections.iterator();
+      final var iterator = connections.iterator();
       iterator.next();
       iterator.remove();
     });

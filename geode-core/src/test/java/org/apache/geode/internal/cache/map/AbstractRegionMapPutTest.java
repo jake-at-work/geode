@@ -34,7 +34,6 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 import org.apache.geode.cache.DiskAccessException;
 import org.apache.geode.cache.query.internal.index.IndexManager;
@@ -55,7 +54,7 @@ public class AbstractRegionMapPutTest {
 
   @Before
   public void setup() {
-    RegionEntryFactory regionEntryFactory = mock(RegionEntryFactory.class);
+    var regionEntryFactory = mock(RegionEntryFactory.class);
     when(regionEntryFactory.createEntry(any(), any(), any())).thenReturn(createdRegionEntry);
     when(focusedRegionMap.getEntryFactory()).thenReturn(regionEntryFactory);
     when(focusedRegionMap.getEntryMap()).thenReturn(entryMap);
@@ -66,7 +65,7 @@ public class AbstractRegionMapPutTest {
   public void validateOwnerInitialized() {
     when(internalRegion.isInitialized()).thenReturn(true);
 
-    TestableRegionMapPut testableRegionMapPut = new TestableRegionMapPut();
+    var testableRegionMapPut = new TestableRegionMapPut();
 
     assertThat(testableRegionMapPut.isOwnerInitialized()).isTrue();
   }
@@ -75,7 +74,7 @@ public class AbstractRegionMapPutTest {
   public void validateOwnerUninitialized() {
     when(internalRegion.isInitialized()).thenReturn(false);
 
-    TestableRegionMapPut testableRegionMapPut = new TestableRegionMapPut();
+    var testableRegionMapPut = new TestableRegionMapPut();
 
     assertThat(testableRegionMapPut.isOwnerInitialized()).isFalse();
   }
@@ -98,7 +97,7 @@ public class AbstractRegionMapPutTest {
   public void putWithUnsatisfiedPreconditionsReturnsNull() {
     instance.checkPreconditions = false;
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNull();
     verify(focusedRegionMap, times(1)).getEntry(eq(event));
@@ -149,13 +148,13 @@ public class AbstractRegionMapPutTest {
 
   @Test
   public void putWithOqlIndexManagerCallInitAndCountDown() {
-    IndexManager oqlIndexManager = mock(IndexManager.class);
+    var oqlIndexManager = mock(IndexManager.class);
     when(internalRegion.getIndexManager()).thenReturn(oqlIndexManager);
     instance.checkPreconditions = true;
 
     instance.put();
 
-    InOrder inOrder = inOrder(oqlIndexManager, instance);
+    var inOrder = inOrder(oqlIndexManager, instance);
     inOrder.verify(oqlIndexManager, times(1)).waitForIndexInit();
     inOrder.verify(instance, times(1)).createOrUpdateEntry();
     inOrder.verify(oqlIndexManager, times(1)).countDownIndexUpdaters();
@@ -176,7 +175,7 @@ public class AbstractRegionMapPutTest {
     instance.checkPreconditions = true;
     when(focusedRegionMap.getEntry(event)).thenReturn(null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(createdRegionEntry);
     verifyMapContractWhenCreateSucceeds();
@@ -191,7 +190,7 @@ public class AbstractRegionMapPutTest {
 
     instance.put();
 
-    InOrder inOrder = inOrder(createdRegionEntry, instance);
+    var inOrder = inOrder(createdRegionEntry, instance);
     inOrder.verify(createdRegionEntry, times(1)).setUpdateInProgress(true);
     inOrder.verify(instance, times(1)).createOrUpdateEntry();
     inOrder.verify(createdRegionEntry, times(1)).setUpdateInProgress(false);
@@ -202,7 +201,7 @@ public class AbstractRegionMapPutTest {
     instance.onlyExisting = true;
     instance.entryExists = false;
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNull();
     verify(focusedRegionMap, times(1)).getEntry(eq(event));
@@ -215,10 +214,10 @@ public class AbstractRegionMapPutTest {
     instance.checkPreconditions = true;
     instance.onlyExisting = true;
     instance.entryExists = true;
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var existingEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(existingEntry);
     verify(focusedRegionMap, times(1)).getEntry(eq(event));
@@ -230,11 +229,11 @@ public class AbstractRegionMapPutTest {
   @Test
   public void putWithExistingEntryFromPutIfAbsentReturnsExistingEntry() {
     instance.checkPreconditions = true;
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var existingEntry = mock(RegionEntry.class);
     when(focusedRegionMap.putEntryIfAbsent(any(), eq(createdRegionEntry)))
         .thenReturn(existingEntry);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(existingEntry);
     verify(focusedRegionMap, times(1)).getEntry(eq(event));
@@ -245,12 +244,12 @@ public class AbstractRegionMapPutTest {
   @Test
   public void putWithExistingEntryFromPutIfAbsentThatIsRemovedReturnsExistingEntry() {
     instance.checkPreconditions = true;
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var existingEntry = mock(RegionEntry.class);
     when(existingEntry.isRemovedPhase2()).thenReturn(true).thenReturn(false);
     when(focusedRegionMap.putEntryIfAbsent(any(), eq(createdRegionEntry)))
         .thenReturn(existingEntry);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(existingEntry);
     verify(focusedRegionMap, times(2)).getEntry(eq(event));

@@ -39,7 +39,6 @@ import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.control.HeapMemoryMonitor;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.logging.internal.OSProcess;
 import org.apache.geode.test.dunit.Assert;
@@ -70,7 +69,7 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     dataStore1 = host.getVM(0);
     dataStore2 = host.getVM(1);
   }
@@ -86,8 +85,8 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     dataStore1.invoke(new CacheSerializableRunnable("testlimit") {
       @Override
       public void run2() throws CacheException {
-        final PartitionedRegion pr1 = (PartitionedRegion) cache.getRegion("PR1");
-        final PartitionedRegion pr2 = (PartitionedRegion) cache.getRegion("PR2");
+        final var pr1 = (PartitionedRegion) cache.getRegion("PR1");
+        final var pr2 = (PartitionedRegion) cache.getRegion("PR2");
         assertEquals(maxEntries, pr1.getEvictionLimit());
         assertEquals(maxEntries, pr2.getEvictionLimit());
       }
@@ -96,8 +95,8 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     dataStore2.invoke(new CacheSerializableRunnable("testlimit") {
       @Override
       public void run2() throws CacheException {
-        final PartitionedRegion pr1 = (PartitionedRegion) cache.getRegion("PR1");
-        final PartitionedRegion pr2 = (PartitionedRegion) cache.getRegion("PR2");
+        final var pr1 = (PartitionedRegion) cache.getRegion("PR1");
+        final var pr2 = (PartitionedRegion) cache.getRegion("PR2");
         assertEquals(maxEntries, pr1.getEvictionLimit());
         assertEquals(maxEntries, pr2.getEvictionLimit());
       }
@@ -115,9 +114,9 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     dataStore1.invoke(new CacheSerializableRunnable("testlimit") {
       @Override
       public void run2() throws CacheException {
-        final long ONE_MEG = 1024L * 1024L;
-        final PartitionedRegion pr1 = (PartitionedRegion) cache.getRegion("PR1");
-        final PartitionedRegion pr2 = (PartitionedRegion) cache.getRegion("PR2");
+        final var ONE_MEG = 1024L * 1024L;
+        final var pr1 = (PartitionedRegion) cache.getRegion("PR1");
+        final var pr2 = (PartitionedRegion) cache.getRegion("PR2");
         assertEquals(pr1.getLocalMaxMemory(), pr1.getEvictionLimit() / ONE_MEG);
         assertEquals(pr2.getLocalMaxMemory(), pr2.getEvictionLimit() / ONE_MEG);
       }
@@ -126,9 +125,9 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     dataStore2.invoke(new CacheSerializableRunnable("testlimit") {
       @Override
       public void run2() throws CacheException {
-        final long ONE_MEG = 1024L * 1024L;
-        final PartitionedRegion pr1 = (PartitionedRegion) cache.getRegion("PR1");
-        final PartitionedRegion pr2 = (PartitionedRegion) cache.getRegion("PR2");
+        final var ONE_MEG = 1024L * 1024L;
+        final var pr1 = (PartitionedRegion) cache.getRegion("PR1");
+        final var pr2 = (PartitionedRegion) cache.getRegion("PR2");
         assertEquals(pr1.getLocalMaxMemory(), pr1.getEvictionLimit() / ONE_MEG);
         assertEquals(pr2.getLocalMaxMemory(), pr2.getEvictionLimit() / ONE_MEG);
       }
@@ -144,11 +143,11 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     prepareScenario(EvictionAlgorithm.LRU_ENTRY);
     putData("PR1", 10);
     putData("PR2", 16);
-    long sizeOfPr1 = getPRCounter("PR1");
-    long sizeOfPr2 = getPRCounter("PR2");
+    var sizeOfPr1 = getPRCounter("PR1");
+    var sizeOfPr2 = getPRCounter("PR2");
 
-    long totalBucketSizeForPR1 = getCounterForBucketsOfPR("PR1");
-    long totalBucketSizeForPR2 = getCounterForBucketsOfPR("PR2");
+    var totalBucketSizeForPR1 = getCounterForBucketsOfPR("PR1");
+    var totalBucketSizeForPR2 = getCounterForBucketsOfPR("PR2");
 
     assertEquals(sizeOfPr1, totalBucketSizeForPR1);
     assertEquals(sizeOfPr2, totalBucketSizeForPR2);
@@ -162,11 +161,11 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     prepareScenario(EvictionAlgorithm.LRU_MEMORY);
     putData("PR1", 10);
     putData("PR2", 16);
-    long sizeOfPr1 = getPRCounter("PR1");
-    long sizeOfPr2 = getPRCounter("PR2");
+    var sizeOfPr1 = getPRCounter("PR1");
+    var sizeOfPr2 = getPRCounter("PR2");
 
-    long totalBucketSizeForPR1 = getCounterForBucketsOfPR("PR1");
-    long totalBucketSizeForPR2 = getCounterForBucketsOfPR("PR2");
+    var totalBucketSizeForPR1 = getCounterForBucketsOfPR("PR1");
+    var totalBucketSizeForPR2 = getCounterForBucketsOfPR("PR2");
 
     assertEquals(sizeOfPr1, totalBucketSizeForPR1);
     assertEquals(sizeOfPr2, totalBucketSizeForPR2);
@@ -182,11 +181,11 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
         Float.toString(0));
     putData("PR1", 20);
     putData("PR2", 20);
-    long sizeOfPr1 = getPRCounter("PR1");
-    long sizeOfPr2 = getPRCounter("PR2");
+    var sizeOfPr1 = getPRCounter("PR1");
+    var sizeOfPr2 = getPRCounter("PR2");
 
-    long totalBucketSizeForPR1 = getCounterForBucketsOfPR("PR1");
-    long totalBucketSizeForPR2 = getCounterForBucketsOfPR("PR2");
+    var totalBucketSizeForPR1 = getCounterForBucketsOfPR("PR1");
+    var totalBucketSizeForPR2 = getCounterForBucketsOfPR("PR2");
   }
 
   @Test
@@ -194,22 +193,22 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     // Ignore this excetion as this can happen if pool is shutting down
     IgnoredException
         .addIgnoredException(java.util.concurrent.RejectedExecutionException.class.getName());
-    final long ONE_MEG = 1024L * 1024L;
+    final var ONE_MEG = 1024L * 1024L;
     createCache();
     createPartitionedRegion(true, EvictionAlgorithm.LRU_ENTRY, "PR1", 2, 1, 10000);
-    for (int counter = 1; counter <= maxEntries; counter++) {
+    for (var counter = 1; counter <= maxEntries; counter++) {
       region.put(counter, new byte[(1 * 1024 * 1024) - 2]);
     }
-    PartitionedRegion pr = (PartitionedRegion) region;
-    long sizeOfPRegion = pr.getEvictionCounter();
+    var pr = (PartitionedRegion) region;
+    var sizeOfPRegion = pr.getEvictionCounter();
 
     assertEquals(sizeOfPRegion, 20);
     long bucketSize = 0;
-    for (final Map.Entry<Integer, BucketRegion> regionEntry : ((PartitionedRegion) region)
+    for (final var regionEntry : ((PartitionedRegion) region)
         .getDataStore()
         .getAllLocalBuckets()) {
-      final Map.Entry entry = (Map.Entry) regionEntry;
-      final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+      final var entry = (Map.Entry) regionEntry;
+      final var bucketRegion = (BucketRegion) entry.getValue();
       if (bucketRegion == null) {
         continue;
       }
@@ -220,16 +219,16 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
 
     // Cause Eviction.
     bucketSize = 0;
-    final int extraEnteries = 4;
-    for (int counter = 1; counter <= extraEnteries; counter++) {
+    final var extraEnteries = 4;
+    for (var counter = 1; counter <= extraEnteries; counter++) {
       region.put(counter, new byte[(1 * 1024 * 1024) - 2]);
     }
     sizeOfPRegion = pr.getEvictionCounter();
     assertEquals(sizeOfPRegion, 20);
-    for (final Map.Entry<Integer, BucketRegion> bucketRegionEntry : pr.getDataStore()
+    for (final var bucketRegionEntry : pr.getDataStore()
         .getAllLocalBuckets()) {
-      final Map.Entry entry = (Map.Entry) bucketRegionEntry;
-      final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+      final var entry = (Map.Entry) bucketRegionEntry;
+      final var bucketRegion = (BucketRegion) entry.getValue();
       if (bucketRegion == null) {
         continue;
       }
@@ -239,16 +238,16 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     assertEquals(sizeOfPRegion, bucketSize);
 
     // Clear one bucket
-    for (final Map.Entry<Integer, BucketRegion> integerBucketRegionEntry : pr.getDataStore()
+    for (final var integerBucketRegionEntry : pr.getDataStore()
         .getAllLocalBuckets()) {
-      final Map.Entry entry = (Map.Entry) integerBucketRegionEntry;
-      final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+      final var entry = (Map.Entry) integerBucketRegionEntry;
+      final var bucketRegion = (BucketRegion) entry.getValue();
       if (bucketRegion == null) {
         continue;
       }
       // Don't just clear the bucket here, use the real region
       // api to remove the entries.
-      for (Object key : bucketRegion.keySet()) {
+      for (var key : bucketRegion.keySet()) {
         region.destroy(key);
       }
       assertEquals(bucketRegion.getCounter(), 0);
@@ -265,7 +264,7 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     // Ignore this excetion as this can happen if pool is shutting down
     IgnoredException
         .addIgnoredException(java.util.concurrent.RejectedExecutionException.class.getName());
-    final int extraEntries = 24;
+    final var extraEntries = 24;
     prepareScenario(EvictionAlgorithm.LRU_ENTRY);
     putData("PR1", maxEntries + extraEntries);
     putData("PR2", maxEntries + extraEntries);
@@ -273,11 +272,11 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
         new CacheSerializableRunnable("testEntryLRUEvictionNDestroyNNumOverflowOnDiskCount") {
           @Override
           public void run2() throws CacheException {
-            PartitionedRegion pr1 = (PartitionedRegion) cache.getRegion("PR1");
+            var pr1 = (PartitionedRegion) cache.getRegion("PR1");
             assertEquals(pr1.getTotalEvictions(), (extraEntries - maxEntries) / 2);
             assertEquals(pr1.getEvictionDestroys(), pr1.getTotalEvictions());
 
-            PartitionedRegion pr2 = (PartitionedRegion) cache.getRegion("PR2");
+            var pr2 = (PartitionedRegion) cache.getRegion("PR2");
             assertEquals(pr2.getTotalEvictions(), (extraEntries - maxEntries) / 2);
             assertEquals(pr2.getEvictionDestroys(), 0);
             assertEquals(pr2.getDiskRegionStats().getNumOverflowOnDisk(),
@@ -289,11 +288,11 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
         new CacheSerializableRunnable("testEntryLRUEvictionNDestroyNNumOverflowOnDiskCount") {
           @Override
           public void run2() throws CacheException {
-            PartitionedRegion pr1 = (PartitionedRegion) cache.getRegion("PR1");
+            var pr1 = (PartitionedRegion) cache.getRegion("PR1");
             assertEquals(pr1.getTotalEvictions(), (extraEntries - maxEntries) / 2);
             assertEquals(pr1.getEvictionDestroys(), pr1.getTotalEvictions());
 
-            PartitionedRegion pr2 = (PartitionedRegion) cache.getRegion("PR2");
+            var pr2 = (PartitionedRegion) cache.getRegion("PR2");
             assertEquals(pr2.getTotalEvictions(), (extraEntries - maxEntries) / 2);
             assertEquals(pr2.getEvictionDestroys(), 0);
             assertEquals(pr2.getDiskRegionStats().getNumOverflowOnDisk(),
@@ -307,26 +306,26 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     // Ignore this excetion as this can happen if pool is shutting down
     IgnoredException
         .addIgnoredException(java.util.concurrent.RejectedExecutionException.class.getName());
-    int localMaxMem = 50;
-    final int extraEntries = 6;
+    var localMaxMem = 50;
+    final var extraEntries = 6;
     prepareScenario(EvictionAlgorithm.LRU_MEMORY);
     putData("PR1", (2 * localMaxMem) + extraEntries);
     putData("PR2", (2 * localMaxMem/* localmaxmem */) + extraEntries);
     dataStore1.invoke(new CacheSerializableRunnable("testEvictionCount") {
       @Override
       public void run2() throws CacheException {
-        PartitionedRegion pr1 = (PartitionedRegion) cache.getRegion("PR1");
+        var pr1 = (PartitionedRegion) cache.getRegion("PR1");
         LogWriterUtils.getLogWriter().info("dddd  local" + pr1.getLocalMaxMemory());
         LogWriterUtils.getLogWriter().info("dddd  local evi" + pr1.getTotalEvictions());
         LogWriterUtils.getLogWriter()
             .info("dddd  local entries" + (pr1.getEvictionCounter() / (1024 * 1024)));
-        HeapMemoryMonitor hmm =
+        var hmm =
             ((InternalResourceManager) cache.getResourceManager()).getHeapMonitor();
-        long memused = hmm.getBytesUsed() / (1024 * 1024);
+        var memused = hmm.getBytesUsed() / (1024 * 1024);
         LogWriterUtils.getLogWriter().info("dddd  local memused= " + memused);
         assertTrue(pr1.getTotalEvictions() >= extraEntries / 2);
         assertEquals(pr1.getEvictionDestroys(), pr1.getTotalEvictions());
-        PartitionedRegion pr2 = (PartitionedRegion) cache.getRegion("PR2");
+        var pr2 = (PartitionedRegion) cache.getRegion("PR2");
         assertTrue(pr2.getTotalEvictions() >= extraEntries / 2);
         assertEquals(pr2.getEvictionDestroys(), 0);
         assertTrue(pr2.getDiskRegionStats().getNumOverflowOnDisk() >= extraEntries / 2);
@@ -336,11 +335,11 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     dataStore2.invoke(new CacheSerializableRunnable("testEvictionCount") {
       @Override
       public void run2() throws CacheException {
-        PartitionedRegion pr1 = (PartitionedRegion) cache.getRegion("PR1");
+        var pr1 = (PartitionedRegion) cache.getRegion("PR1");
         assertTrue(pr1.getTotalEvictions() >= extraEntries / 2);
         assertEquals(pr1.getEvictionDestroys(), pr1.getTotalEvictions());
 
-        PartitionedRegion pr2 = (PartitionedRegion) cache.getRegion("PR2");
+        var pr2 = (PartitionedRegion) cache.getRegion("PR2");
         assertTrue(pr2.getTotalEvictions() >= extraEntries / 2);
         assertEquals(pr2.getEvictionDestroys(), 0);
         assertTrue(pr2.getDiskRegionStats().getNumOverflowOnDisk() >= extraEntries / 2);
@@ -379,7 +378,7 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
 
   public void createCache() {
     try {
-      Properties props = new Properties();
+      var props = new Properties();
       DistributedSystem ds = getSystem(props);
       assertNotNull(ds);
       ds.disconnect();
@@ -418,9 +417,9 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
   public void createPartitionedRegion(boolean setEvictionOn, EvictionAlgorithm evictionAlgorithm,
       String regionName, int totalNoOfBuckets, int evictionAction, int evictorInterval) {
 
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setOffHeap(isOffHeapEnabled());
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory()
+    var partitionAttributesFactory = new PartitionAttributesFactory()
         .setRedundantCopies(0).setTotalNumBuckets(totalNoOfBuckets).setLocalMaxMemory(50);
 
     factory.setPartitionAttributes(partitionAttributesFactory.create());
@@ -437,7 +436,7 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
             evictionAction == 1 ? EvictionAction.LOCAL_DESTROY : EvictionAction.OVERFLOW_TO_DISK));
       }
       if (evictionAction == 2) {
-        final File[] diskDirs = new File[1];
+        final var diskDirs = new File[1];
         diskDirs[0] =
             new File("Partitioned_Region_EvictionStats/" + "LogFile" + "_" + OSProcess.getId());
         diskDirs[0].mkdirs();
@@ -457,7 +456,7 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
       @Override
       public void run2() throws CacheException {
         final Region pr = cache.getRegion(regionName);
-        for (int counter = 1; counter <= noOfElememts; counter++) {
+        for (var counter = 1; counter <= noOfElememts; counter++) {
           pr.put(counter, new byte[1 * 1024 * 1024]);
           // getLogWriter().info("Deep put data element no->" + counter);
         }
@@ -466,7 +465,7 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
   }
 
   private long getPRCounter(String prRegionName) {
-    final long ONE_MEG = 1024L * 1024L;
+    final var ONE_MEG = 1024L * 1024L;
     long sizeOfPR = 0;
     sizeOfPR = sizeOfPR + dataStore1
         .invoke(() -> EvictionStatsDUnitTest.getPartionRegionCounter(prRegionName));
@@ -476,12 +475,12 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
   }
 
   public static long getPartionRegionCounter(String prRegionName) {
-    final PartitionedRegion pr = (PartitionedRegion) cache.getRegion(prRegionName);
+    final var pr = (PartitionedRegion) cache.getRegion(prRegionName);
     return pr.getEvictionCounter();
   }
 
   private long getCounterForBucketsOfPR(String prRegionName) {
-    final long ONE_MEG = 1024L * 1024L;
+    final var ONE_MEG = 1024L * 1024L;
     long totalBucketSize = 0;
     totalBucketSize = totalBucketSize
         + dataStore1.invoke(() -> EvictionStatsDUnitTest.getCounterForBuckets(prRegionName));
@@ -493,11 +492,11 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
 
   public static long getCounterForBuckets(String prRegionName) {
     long bucketSize = 0;
-    final PartitionedRegion pr = (PartitionedRegion) cache.getRegion(prRegionName);
-    for (final Map.Entry<Integer, BucketRegion> integerBucketRegionEntry : pr.getDataStore()
+    final var pr = (PartitionedRegion) cache.getRegion(prRegionName);
+    for (final var integerBucketRegionEntry : pr.getDataStore()
         .getAllLocalBuckets()) {
-      final Map.Entry entry = (Map.Entry) integerBucketRegionEntry;
-      final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+      final var entry = (Map.Entry) integerBucketRegionEntry;
+      final var bucketRegion = (BucketRegion) entry.getValue();
       if (bucketRegion == null) {
         continue;
       }

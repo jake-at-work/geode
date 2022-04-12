@@ -15,41 +15,30 @@
 package org.apache.geode.management.internal.beans;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CqClosedException;
 import org.apache.geode.cache.query.CqException;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.internal.CqStateImpl;
-import org.apache.geode.cache.query.internal.cq.CqService;
 import org.apache.geode.cache.query.internal.cq.InternalCqQuery;
 import org.apache.geode.cache.query.internal.cq.ServerCQ;
 import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.cache.server.ServerLoad;
-import org.apache.geode.cache.server.ServerLoadProbe;
 import org.apache.geode.cache.server.internal.ServerMetricsImpl;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.admin.ClientHealthMonitoringRegion;
 import org.apache.geode.internal.admin.remote.ClientHealthStats;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.ha.HARegionQueue;
-import org.apache.geode.internal.cache.tier.Acceptor;
 import org.apache.geode.internal.cache.tier.InternalClientMembership;
 import org.apache.geode.internal.cache.tier.sockets.AcceptorImpl;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
-import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.process.PidUnavailableException;
 import org.apache.geode.internal.process.ProcessUtils;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -195,8 +184,8 @@ public class CacheServerBridge extends ServerBridge {
 
   /** Get the load probe for this cache server **/
   public ServerLoadData fetchLoadProbe() {
-    ServerLoadProbe probe = cacheServer.getLoadProbe();
-    ServerLoad load = probe.getLoad(new ServerMetricsImpl(cacheServer.getMaxConnections()));
+    var probe = cacheServer.getLoadProbe();
+    var load = probe.getLoad(new ServerMetricsImpl(cacheServer.getMaxConnections()));
     return new ServerLoadData(load.getConnectionLoad(), load.getSubscriptionConnectionLoad(),
         load.getLoadPerConnection(), load.getLoadPerSubscriptionConnection());
   }
@@ -264,12 +253,12 @@ public class CacheServerBridge extends ServerBridge {
 
 
   public String[] getContinuousQueryList() {
-    CqService cqService = cache.getCqService();
+    var cqService = cache.getCqService();
     if (cqService != null) {
-      Collection<? extends InternalCqQuery> allCqs = cqService.getAllCqs();
+      var allCqs = cqService.getAllCqs();
       if (allCqs != null && allCqs.size() > 0) {
-        String[] allCqStr = new String[allCqs.size()];
-        int i = 0;
+        var allCqStr = new String[allCqs.size()];
+        var i = 0;
         for (InternalCqQuery cq : allCqs) {
           allCqStr[i] = cq.getName();
           i++;
@@ -285,22 +274,22 @@ public class CacheServerBridge extends ServerBridge {
    * Gets currently executing query count
    */
   public long getRegisteredCQCount() {
-    CqService cqService = cache.getCqService();
+    var cqService = cache.getCqService();
     if (cqService != null) {
-      Collection<? extends InternalCqQuery> allCqs = cqService.getAllCqs();
+      var allCqs = cqService.getAllCqs();
       return allCqs != null && allCqs.size() > 0 ? allCqs.size() : 0;
     }
     return 0;
   }
 
   public String[] getIndexList() {
-    Collection<Index> idxs = qs.getIndexes();
+    var idxs = qs.getIndexes();
     if (!idxs.isEmpty()) {
-      Iterator<Index> idx = idxs.iterator();
-      String[] indexList = new String[idxs.size()];
-      int i = 0;
+      var idx = idxs.iterator();
+      var indexList = new String[idxs.size()];
+      var i = 0;
       while (idx.hasNext()) {
-        Index index = idx.next();
+        var index = idx.next();
         indexList[i] = index.getName();
         i++;
 
@@ -316,11 +305,11 @@ public class CacheServerBridge extends ServerBridge {
    */
   public String[] listClientIds() throws Exception {
     String[] allConnectedClientStr = null;
-    Map<String, ClientConnInfo> uniqueIds = getUniqueClientIds();
+    var uniqueIds = getUniqueClientIds();
     if (uniqueIds.size() > 0) {
       allConnectedClientStr = new String[uniqueIds.size()];
-      int j = 0;
-      for (String clientId : uniqueIds.keySet()) {
+      var j = 0;
+      for (var clientId : uniqueIds.keySet()) {
         allConnectedClientStr[j] = clientId;
         j++;
       }
@@ -333,15 +322,15 @@ public class CacheServerBridge extends ServerBridge {
   private Map<String, ClientConnInfo> getUniqueClientIds() {
     Map<String, ClientConnInfo> uniqueIds = null;
 
-    ServerConnection[] serverConnections = acceptor.getAllServerConnectionList();
-    Collection<CacheClientProxy> clientProxies =
+    var serverConnections = acceptor.getAllServerConnectionList();
+    var clientProxies =
         acceptor.getCacheClientNotifier().getClientProxies();
 
     if (clientProxies.size() > 0) {
       uniqueIds = new HashMap<>();
 
-      for (CacheClientProxy p : clientProxies) {
-        ClientConnInfo clientConInfo =
+      for (var p : clientProxies) {
+        var clientConInfo =
             new ClientConnInfo(p.getProxyID(), p.getSocketHost(), p.getRemotePort(), p.isPrimary());
         uniqueIds.put(p.getProxyID().getDSMembership(), clientConInfo);
       }
@@ -351,11 +340,11 @@ public class CacheServerBridge extends ServerBridge {
       if (uniqueIds == null) {
         uniqueIds = new HashMap<>();
       }
-      for (ServerConnection conn : serverConnections) {
-        ClientProxyMembershipID clientId = conn.getProxyID();
+      for (var conn : serverConnections) {
+        var clientId = conn.getProxyID();
         if (clientId != null) { // Check added to fix bug 51987
           if (uniqueIds.get(clientId.getDSMembership()) == null) {
-            ClientConnInfo clientConInfo = new ClientConnInfo(conn.getProxyID(),
+            var clientConInfo = new ClientConnInfo(conn.getProxyID(),
                 conn.getSocketHost(), conn.getSocketPort(), false);
             uniqueIds.put(clientId.getDSMembership(), clientConInfo);
           }
@@ -406,24 +395,24 @@ public class CacheServerBridge extends ServerBridge {
       return null;
     }
 
-    CacheServerImpl server = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var server = (CacheServerImpl) cache.getCacheServers().iterator().next();
 
     if (server == null) {
       return null;
     }
 
-    Acceptor acceptor = server.getAcceptor();
+    var acceptor = server.getAcceptor();
     if (acceptor == null) {
       return null;
     }
 
-    ServerConnection[] serverConnections = acceptor.getAllServerConnectionList();
+    var serverConnections = acceptor.getAllServerConnectionList();
 
-    boolean flag = connInfo.toString().contains("primary=true");
+    var flag = connInfo.toString().contains("primary=true");
 
-    for (ServerConnection conn : serverConnections) {
-      ClientProxyMembershipID cliIdFrmProxy = conn.getProxyID();
-      ClientConnInfo cci =
+    for (var conn : serverConnections) {
+      var cliIdFrmProxy = conn.getProxyID();
+      var cci =
           new ClientConnInfo(conn.getProxyID(), conn.getSocketHost(), conn.getSocketPort(), flag);
       if (connInfo.toString().equals(cci.toString())) {
         return cliIdFrmProxy.getClientVersion();
@@ -431,8 +420,8 @@ public class CacheServerBridge extends ServerBridge {
     }
 
     // check form ccp
-    ClientProxyMembershipID proxyId = connInfo.getClientId();
-    CacheClientProxy proxy = CacheClientNotifier.getInstance().getClientProxy(proxyId);
+    var proxyId = connInfo.getClientId();
+    var proxy = CacheClientNotifier.getInstance().getClientProxy(proxyId);
     if (proxy != null) {
       return proxy.getVersion();
     } else {
@@ -442,8 +431,8 @@ public class CacheServerBridge extends ServerBridge {
 
   public ClientHealthStatus showClientStats(String clientId) throws Exception {
     try {
-      Map<String, ClientConnInfo> uniqueClientIds = getUniqueClientIds();
-      ClientConnInfo clientConnInfo = uniqueClientIds.get(clientId);
+      var uniqueClientIds = getUniqueClientIds();
+      var clientConnInfo = uniqueClientIds.get(clientId);
       return getClientHealthStatus(clientConnInfo);
     } finally {
       CacheServerBridge.clientVersion.set(null);
@@ -453,17 +442,17 @@ public class CacheServerBridge extends ServerBridge {
   public ClientHealthStatus[] showAllClientStats() throws Exception {
     try {
       List<ClientHealthStatus> clientHealthStatusList = null;
-      Map<String, ClientConnInfo> uniqueClientIds = getUniqueClientIds();
+      var uniqueClientIds = getUniqueClientIds();
       if (!uniqueClientIds.isEmpty()) {
         clientHealthStatusList = new ArrayList<>();
 
-        for (Map.Entry<String, ClientConnInfo> p : uniqueClientIds.entrySet()) {
-          ClientHealthStatus status = getClientHealthStatus(p.getValue());
+        for (var p : uniqueClientIds.entrySet()) {
+          var status = getClientHealthStatus(p.getValue());
           if (status != null) {
             clientHealthStatusList.add(status);
           }
         }
-        ClientHealthStatus[] statusArr = new ClientHealthStatus[clientHealthStatusList.size()];
+        var statusArr = new ClientHealthStatus[clientHealthStatusList.size()];
         return clientHealthStatusList.toArray(statusArr);
       }
       return new ClientHealthStatus[0];
@@ -473,8 +462,8 @@ public class CacheServerBridge extends ServerBridge {
   }
 
   private ClientHealthStatus getClientHealthStatus(ClientConnInfo connInfo) {
-    ClientProxyMembershipID proxyId = connInfo.getClientId();
-    CacheClientProxy proxy = CacheClientNotifier.getInstance().getClientProxy(proxyId);
+    var proxyId = connInfo.getClientId();
+    var proxy = CacheClientNotifier.getInstance().getClientProxy(proxyId);
 
     if (proxy != null && !proxy.isConnected() && !proxyId.isDurable()) {
       return null;
@@ -482,18 +471,18 @@ public class CacheServerBridge extends ServerBridge {
 
     CacheServerBridge.clientVersion.set(getClientVersion(connInfo));
 
-    int clientCQCount = 0;
-    CqService cqService = cache.getCqService();
+    var clientCQCount = 0;
+    var cqService = cache.getCqService();
     if (cqService != null) {
-      List<ServerCQ> cqs = cqService.getAllClientCqs(proxyId);
+      var cqs = cqService.getAllClientCqs(proxyId);
       clientCQCount = cqs.size();
     }
 
-    ClientHealthStatus status = new ClientHealthStatus();
+    var status = new ClientHealthStatus();
 
-    Region clientHealthMonitoringRegion = ClientHealthMonitoringRegion.getInstance(cache);
-    String clientName = proxyId.getDSMembership();
-    DistributedMember clientMemberId = proxyId.getDistributedMember();
+    var clientHealthMonitoringRegion = ClientHealthMonitoringRegion.getInstance(cache);
+    var clientName = proxyId.getDSMembership();
+    var clientMemberId = proxyId.getDistributedMember();
     status.setClientId(connInfo.toString());
     status.setName(clientName);
     status.setHostName(connInfo.getHostName());
@@ -510,7 +499,7 @@ public class CacheServerBridge extends ServerBridge {
       status.setSubscriptionEnabled(false);
     }
 
-    ClientHealthStats stats = (ClientHealthStats) clientHealthMonitoringRegion.get(clientMemberId);
+    var stats = (ClientHealthStats) clientHealthMonitoringRegion.get(clientMemberId);
     if (stats == null) {
       // Clients older than Geode 1.8 put strings in the region, rather than ids
       // See GEODE-5157
@@ -535,9 +524,9 @@ public class CacheServerBridge extends ServerBridge {
    *
    */
   public void closeContinuousQuery(String queryName) throws Exception {
-    CqService cqService = cache.getCqService();
+    var cqService = cache.getCqService();
     if (cqService != null) {
-      Collection<? extends InternalCqQuery> allCqs = cqService.getAllCqs();
+      var allCqs = cqService.getAllCqs();
       for (InternalCqQuery query : allCqs) {
         if (query.getName().equals(queryName)) {
           try {
@@ -558,9 +547,9 @@ public class CacheServerBridge extends ServerBridge {
    *
    */
   public void executeContinuousQuery(String queryName) throws Exception {
-    CqService cqService = cache.getCqService();
+    var cqService = cache.getCqService();
     if (cqService != null) {
-      Collection<? extends InternalCqQuery> allCqs = cqService.getAllCqs();
+      var allCqs = cqService.getAllCqs();
       for (InternalCqQuery query : allCqs) {
         if (query.getName().equals(queryName)) {
           try {
@@ -579,9 +568,9 @@ public class CacheServerBridge extends ServerBridge {
    *
    */
   public void stopContinuousQuery(String queryName) throws Exception {
-    CqService cqService = cache.getCqService();
+    var cqService = cache.getCqService();
     if (cqService != null) {
-      Collection<? extends InternalCqQuery> allCqs = cqService.getAllCqs();
+      var allCqs = cqService.getAllCqs();
       for (InternalCqQuery query : allCqs) {
         if (query.getName().equals(queryName)) {
           try {
@@ -604,9 +593,9 @@ public class CacheServerBridge extends ServerBridge {
    */
   public void removeIndex(String indexName) throws Exception {
     try {
-      Collection<Index> idxs = qs.getIndexes();
+      var idxs = qs.getIndexes();
       if (!idxs.isEmpty()) {
-        for (final Index index : idxs) {
+        for (final var index : idxs) {
           if (index.getName().equals(indexName)) {
             qs.removeIndex(index);
           }
@@ -643,7 +632,7 @@ public class CacheServerBridge extends ServerBridge {
   }
 
   public long getActiveCQCount() {
-    CqService cqService = cache.getCqService();
+    var cqService = cache.getCqService();
     if (cqService != null && cqService.isRunning()) {
       return cqService.getCqStatistics().numCqsActive();
     }
@@ -651,7 +640,7 @@ public class CacheServerBridge extends ServerBridge {
   }
 
   public int getNumSubscriptions() {
-    Map clientProxyMembershipIDMap = InternalClientMembership.getClientQueueSizes(cache);
+    var clientProxyMembershipIDMap = InternalClientMembership.getClientQueueSizes(cache);
     return clientProxyMembershipIDMap.keySet().size();
   }
 
@@ -670,7 +659,7 @@ public class CacheServerBridge extends ServerBridge {
     List<ClientQueueDetail> clientQueueDetailList = null;
     try {
       if (acceptor != null && acceptor.getCacheClientNotifier() != null) {
-        Collection<CacheClientProxy> clientProxies =
+        var clientProxies =
             acceptor.getCacheClientNotifier().getClientProxies();
 
         if (clientProxies.size() > 0) {
@@ -679,14 +668,14 @@ public class CacheServerBridge extends ServerBridge {
           return new ClientQueueDetail[0];
         }
 
-        for (CacheClientProxy p : clientProxies) {
-          ClientQueueDetail status = getClientQueueDetail(p);
+        for (var p : clientProxies) {
+          var status = getClientQueueDetail(p);
           if (status != null) {
             clientQueueDetailList.add(status);
           }
 
         }
-        ClientQueueDetail[] queueDetailArr = new ClientQueueDetail[clientQueueDetailList.size()];
+        var queueDetailArr = new ClientQueueDetail[clientQueueDetailList.size()];
         return clientQueueDetailList.toArray(queueDetailArr);
 
       }
@@ -698,15 +687,15 @@ public class CacheServerBridge extends ServerBridge {
   }
 
   private ClientQueueDetail getClientQueueDetail(CacheClientProxy p) {
-    ClientQueueDetail queueDetail = new ClientQueueDetail();
-    ClientProxyMembershipID proxyID = p.getProxyID();
+    var queueDetail = new ClientQueueDetail();
+    var proxyID = p.getProxyID();
 
     if (!p.isConnected() && !proxyID.isDurable()) {
       return null;
     }
     queueDetail.setClientId(getClientIdFromCacheClientProxy(p));
 
-    HARegionQueue queue = p.getHARegionQueue();
+    var queue = p.getHARegionQueue();
     if (queue == null) {
       return queueDetail;
     }
@@ -725,10 +714,10 @@ public class CacheServerBridge extends ServerBridge {
   public ClientQueueDetail getClientQueueDetail(String clientId) throws Exception {
     try {
       if (acceptor != null && acceptor.getCacheClientNotifier() != null) {
-        Collection<CacheClientProxy> clientProxies =
+        var clientProxies =
             acceptor.getCacheClientNotifier().getClientProxies();
-        for (CacheClientProxy p : clientProxies) {
-          String buffer = getClientIdFromCacheClientProxy(p);
+        for (var p : clientProxies) {
+          var buffer = getClientIdFromCacheClientProxy(p);
           if (buffer.equals(clientId)) {
             return getClientQueueDetail(p);
           }

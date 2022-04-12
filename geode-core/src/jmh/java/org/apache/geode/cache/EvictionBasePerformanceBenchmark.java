@@ -70,7 +70,7 @@ public class EvictionBasePerformanceBenchmark {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public String nonEvictingUpdate(MyState state) {
-    String key = Integer.toString(state.random.nextInt(MAX_ENTRIES));
+    var key = Integer.toString(state.random.nextInt(MAX_ENTRIES));
     return region.put(key, "value");
   }
 
@@ -80,16 +80,16 @@ public class EvictionBasePerformanceBenchmark {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public String evictingCreate(MyState state) {
-    String key = Integer.toString(state.nextKey++);
+    var key = Integer.toString(state.nextKey++);
     return region.put(key, "value");
   }
 
   private Region<String, String> createRegion(Cache cache, int maxSize) {
-    Region<String, String> region = cache.<String, String>createRegionFactory(RegionShortcut.LOCAL)
+    var region = cache.<String, String>createRegionFactory(RegionShortcut.LOCAL)
         .setEvictionAttributes(
             EvictionAttributes.createLRUEntryAttributes(maxSize, EvictionAction.LOCAL_DESTROY))
         .create("testRegion");
-    for (int i = 0; i < MAX_ENTRIES; i++) {
+    for (var i = 0; i < MAX_ENTRIES; i++) {
       region.put(Integer.toString(i), "value");
     }
     region.put("over", "limit");

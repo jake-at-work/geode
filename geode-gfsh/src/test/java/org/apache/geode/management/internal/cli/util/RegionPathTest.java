@@ -25,7 +25,7 @@ public class RegionPathTest {
 
   @Test
   public void rootName() {
-    RegionPath path = new RegionPath("test");
+    var path = new RegionPath("test");
     assertThat(path.getParent()).isNull();
     assertThat(path.getName()).isEqualTo("test");
     assertThat(path.isRoot()).isTrue();
@@ -35,7 +35,7 @@ public class RegionPathTest {
 
   @Test
   public void rootNameWithSlash() {
-    RegionPath path = new RegionPath(SEPARATOR + "test");
+    var path = new RegionPath(SEPARATOR + "test");
     assertThat(path.getParent()).isNull();
     assertThat(path.getName()).isEqualTo("test");
     assertThat(path.isRoot()).isTrue();
@@ -45,7 +45,7 @@ public class RegionPathTest {
 
   @Test
   public void subRegionName() {
-    RegionPath path = new RegionPath("test1" + SEPARATOR + "test2");
+    var path = new RegionPath("test1" + SEPARATOR + "test2");
     assertThat(path.getParent()).isEqualTo(SEPARATOR + "test1");
     assertThat(path.getName()).isEqualTo("test2");
     assertThat(path.isRoot()).isFalse();
@@ -55,7 +55,7 @@ public class RegionPathTest {
 
   @Test
   public void subRegionNameWithSlash() {
-    RegionPath path = new RegionPath(SEPARATOR + "test1" + SEPARATOR + "test2");
+    var path = new RegionPath(SEPARATOR + "test1" + SEPARATOR + "test2");
     assertThat(path.getParent()).isEqualTo(SEPARATOR + "test1");
     assertThat(path.getName()).isEqualTo("test2");
     assertThat(path.isRoot()).isFalse();
@@ -65,7 +65,7 @@ public class RegionPathTest {
 
   @Test
   public void subSubRegionName() {
-    RegionPath path = new RegionPath("test1" + SEPARATOR + "test2" + SEPARATOR + "test3");
+    var path = new RegionPath("test1" + SEPARATOR + "test2" + SEPARATOR + "test3");
     assertThat(path.getParent()).isEqualTo(SEPARATOR + "test1" + SEPARATOR + "test2");
     assertThat(path.getName()).isEqualTo("test3");
     assertThat(path.isRoot()).isFalse();
@@ -75,7 +75,7 @@ public class RegionPathTest {
 
   @Test
   public void subSubRegionNameWithSlash() {
-    RegionPath path =
+    var path =
         new RegionPath(SEPARATOR + "test1" + SEPARATOR + "test2" + SEPARATOR + "test3");
     assertThat(path.getParent()).isEqualTo(SEPARATOR + "test1" + SEPARATOR + "test2");
     assertThat(path.getName()).isEqualTo("test3");

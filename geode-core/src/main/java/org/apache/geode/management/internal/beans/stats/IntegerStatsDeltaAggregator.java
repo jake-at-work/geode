@@ -43,7 +43,7 @@ public class IntegerStatsDeltaAggregator {
 
   private void incData(FederationComponent newComp, FederationComponent oldComp) {
 
-    Map<String, Object> newState = (newComp != null ? newComp.getObjectState() : null);
+    var newState = (newComp != null ? newComp.getObjectState() : null);
     Map<String, Object> oldState;
 
     if (oldComp != null && oldComp.getOldState().size() > 0) {
@@ -53,10 +53,10 @@ public class IntegerStatsDeltaAggregator {
     }
 
     if (newState != null) {
-      for (int index = 0; index < keys.size(); index++) {
+      for (var index = 0; index < keys.size(); index++) {
         prevCounters.set(index, currCounters.get(index));
 
-        Integer newVal = (Integer) newState.get(keys.get(index));
+        var newVal = (Integer) newState.get(keys.get(index));
 
         if (newVal == null) {
           continue;
@@ -64,7 +64,7 @@ public class IntegerStatsDeltaAggregator {
 
         Integer oldVal = 0;
         if (oldState != null) {
-          Object val = oldState.get(keys.get(index));
+          var val = oldState.get(keys.get(index));
           if (val != null) {
             oldVal = (Integer) val;
           }
@@ -75,7 +75,7 @@ public class IntegerStatsDeltaAggregator {
   }
 
   public int getDelta(String key) {
-    int index = keys.indexOf(key);
+    var index = keys.indexOf(key);
     if (index == -1) {
       return 0;
     }
@@ -83,7 +83,7 @@ public class IntegerStatsDeltaAggregator {
   }
 
   private void initializeArray(AtomicIntegerArray arr) {
-    for (int i = 0; i < arr.length(); i++) {
+    for (var i = 0; i < arr.length(); i++) {
       arr.set(i, 0);
     }
   }

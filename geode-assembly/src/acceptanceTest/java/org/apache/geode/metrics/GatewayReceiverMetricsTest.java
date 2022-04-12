@@ -19,13 +19,10 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.compiler.ClassBuilder.writeJarFromClasses;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 
-import io.micrometer.core.instrument.Counter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,24 +65,24 @@ public class GatewayReceiverMetricsTest {
 
   @Before
   public void startClusters() throws IOException {
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(6);
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(6);
 
     receiverLocatorPort = ports[0];
     senderLocatorPort = ports[1];
-    int senderServerPort = ports[2];
-    int receiverServerPort = ports[3];
-    int senderLocatorJmxPort = ports[4];
-    int receiverLocatorJmxPort = ports[5];
+    var senderServerPort = ports[2];
+    var receiverServerPort = ports[3];
+    var senderLocatorJmxPort = ports[4];
+    var receiverLocatorJmxPort = ports[5];
 
-    int senderSystemId = 2;
-    int receiverSystemId = 1;
+    var senderSystemId = 2;
+    var receiverSystemId = 1;
 
     senderLocatorFolder = newFolder(SENDER_LOCATOR_NAME);
     receiverLocatorFolder = newFolder(RECEIVER_LOCATOR_NAME);
     senderServerFolder = newFolder(SENDER_SERVER_NAME);
     receiverServerFolder = newFolder(RECEIVER_SERVER_NAME);
 
-    String startSenderLocatorCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var startSenderLocatorCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "start locator",
         "--name=" + SENDER_LOCATOR_NAME,
         "--dir=" + senderLocatorFolder,
@@ -97,7 +94,7 @@ public class GatewayReceiverMetricsTest {
         "--J=-Dgemfire.jmx-manager-start=true",
         "--J=-Dgemfire.jmx-manager-port=" + senderLocatorJmxPort);
 
-    String startReceiverLocatorCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var startReceiverLocatorCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "start locator",
         "--name=" + RECEIVER_LOCATOR_NAME,
         "--dir=" + receiverLocatorFolder,
@@ -109,7 +106,7 @@ public class GatewayReceiverMetricsTest {
         "--J=-Dgemfire.jmx-manager-start=true ",
         "--J=-Dgemfire.jmx-manager-port=" + receiverLocatorJmxPort);
 
-    String startSenderServerCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var startSenderServerCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "start server",
         "--name=" + SENDER_SERVER_NAME,
         "--dir=" + senderServerFolder,
@@ -117,10 +114,10 @@ public class GatewayReceiverMetricsTest {
         "--server-port=" + senderServerPort,
         "--J=-Dgemfire.distributed-system-id=" + senderSystemId);
 
-    Path serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
+    var serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
         MetricsPublishingService.class, SimpleMetricsPublishingService.class);
 
-    String startReceiverServerCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var startReceiverServerCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "start server",
         "--name=" + RECEIVER_SERVER_NAME,
         "--dir=" + receiverServerFolder,
@@ -132,17 +129,17 @@ public class GatewayReceiverMetricsTest {
     gfshRule.execute(startSenderLocatorCommand, startReceiverLocatorCommand,
         startSenderServerCommand, startReceiverServerCommand);
 
-    String gatewaySenderId = "gs";
+    var gatewaySenderId = "gs";
 
-    String connectToSenderLocatorCommand = "connect --locator=localhost[" + senderLocatorPort + "]";
+    var connectToSenderLocatorCommand = "connect --locator=localhost[" + senderLocatorPort + "]";
 
-    String startGatewaySenderCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var startGatewaySenderCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "create gateway-sender",
         "--id=" + gatewaySenderId,
         "--parallel=false",
         "--remote-distributed-system-id=" + receiverSystemId);
 
-    String createSenderRegionCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var createSenderRegionCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "create region",
         "--name=" + REGION_NAME,
         "--type=" + RegionShortcut.REPLICATE.name(),
@@ -151,10 +148,10 @@ public class GatewayReceiverMetricsTest {
     gfshRule.execute(connectToSenderLocatorCommand, startGatewaySenderCommand,
         createSenderRegionCommand);
 
-    String connectToReceiverLocatorCommand =
+    var connectToReceiverLocatorCommand =
         "connect --locator=localhost[" + receiverLocatorPort + "]";
-    String startGatewayReceiverCommand = "create gateway-receiver";
-    String createReceiverRegionCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var startGatewayReceiverCommand = "create gateway-receiver";
+    var createReceiverRegionCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "create region",
         "--name=" + REGION_NAME,
         "--type=" + RegionShortcut.REPLICATE.name());
@@ -163,20 +160,20 @@ public class GatewayReceiverMetricsTest {
         createReceiverRegionCommand);
 
     // Deploy function to members
-    String functionJarPath =
+    var functionJarPath =
         newJarForFunctionClass(GetEventsReceivedCountFunction.class, "function.jar");
-    String deployCommand = "deploy --jar=" + functionJarPath;
-    String listFunctionsCommand = "list functions";
+    var deployCommand = "deploy --jar=" + functionJarPath;
+    var listFunctionsCommand = "list functions";
 
     gfshRule.execute(connectToReceiverLocatorCommand, deployCommand, listFunctionsCommand);
   }
 
   @After
   public void stopClusters() {
-    String stopReceiverServerCommand = "stop server --dir=" + receiverServerFolder;
-    String stopSenderServerCommand = "stop server --dir=" + senderServerFolder;
-    String stopReceiverLocatorCommand = "stop locator --dir=" + receiverLocatorFolder;
-    String stopSenderLocatorCommand = "stop locator --dir=" + senderLocatorFolder;
+    var stopReceiverServerCommand = "stop server --dir=" + receiverServerFolder;
+    var stopSenderServerCommand = "stop server --dir=" + senderServerFolder;
+    var stopReceiverLocatorCommand = "stop locator --dir=" + receiverLocatorFolder;
+    var stopSenderLocatorCommand = "stop locator --dir=" + senderLocatorFolder;
 
     gfshRule.execute(stopReceiverServerCommand, stopSenderServerCommand, stopReceiverLocatorCommand,
         stopSenderLocatorCommand);
@@ -184,20 +181,20 @@ public class GatewayReceiverMetricsTest {
 
   @Test
   public void whenPerformingOperations_thenGatewayReceiverEventsReceivedIncreases() {
-    String connectToSenderLocatorCommand = "connect --locator=localhost[" + senderLocatorPort + "]";
+    var connectToSenderLocatorCommand = "connect --locator=localhost[" + senderLocatorPort + "]";
 
-    String doPutCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var doPutCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "put",
         "--region=" + REGION_NAME,
         "--key=foo",
         "--value=bar");
 
-    String doRemoveCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var doRemoveCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "remove",
         "--region=" + REGION_NAME,
         "--key=foo");
 
-    String doCreateRegionCommand = String.join(GFSH_COMMAND_SEPARATOR,
+    var doCreateRegionCommand = String.join(GFSH_COMMAND_SEPARATOR,
         "create region",
         "--name=blah",
         "--type=" + RegionShortcut.REPLICATE.name());
@@ -205,15 +202,15 @@ public class GatewayReceiverMetricsTest {
     gfshRule.execute(connectToSenderLocatorCommand, doPutCommand, doRemoveCommand,
         doCreateRegionCommand);
 
-    String connectToReceiverLocatorCommand =
+    var connectToReceiverLocatorCommand =
         "connect --locator=localhost[" + receiverLocatorPort + "]";
-    String executeFunctionCommand = "execute function --id=" + GetEventsReceivedCountFunction.ID;
+    var executeFunctionCommand = "execute function --id=" + GetEventsReceivedCountFunction.ID;
 
     Collection<String> gatewayEventsExpectedToReceive =
         Arrays.asList(doPutCommand, doRemoveCommand);
 
     await().untilAsserted(() -> {
-      String output =
+      var output =
           gfshRule.execute(connectToReceiverLocatorCommand, executeFunctionCommand).getOutputText();
 
       assertThat(output.trim())
@@ -227,7 +224,7 @@ public class GatewayReceiverMetricsTest {
   }
 
   private String newJarForFunctionClass(Class clazz, String jarName) throws IOException {
-    File jar = temporaryFolder.newFile(jarName);
+    var jar = temporaryFolder.newFile(jarName);
     writeJarFromClasses(jar, clazz);
     return jar.getAbsolutePath();
   }
@@ -237,7 +234,7 @@ public class GatewayReceiverMetricsTest {
 
     @Override
     public void execute(FunctionContext<Void> context) {
-      Counter eventsReceivedCounter = SimpleMetricsPublishingService.getRegistry()
+      var eventsReceivedCounter = SimpleMetricsPublishingService.getRegistry()
           .find("geode.gateway.receiver.events")
           .counter();
 

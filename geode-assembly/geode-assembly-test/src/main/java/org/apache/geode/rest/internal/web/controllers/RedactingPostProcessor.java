@@ -44,13 +44,13 @@ public class RedactingPostProcessor implements PostProcessor {
       return null;
     }
     if (customer instanceof Customer) {
-      String username = getUsername(principal);
+      var username = getUsername(principal);
       // Unable to retrieve the role at this point, so for this demo we'll just work with the
       // username
       if (username.equals("super-user")) {
         return customer;
       }
-      Customer cust = (Customer) customer;
+      var cust = (Customer) customer;
       return new Customer(cust.getCustomerId(), cust.getFirstName(), cust.getLastName(),
           "*********");
     } else {

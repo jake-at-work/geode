@@ -37,10 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.security.IntegratedSecurityService;
-import org.apache.geode.internal.security.SecurityService;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 import org.apache.geode.test.junit.categories.SecurityTest;
@@ -55,16 +52,16 @@ public class SecurityManagerLifecycleDistributedTest extends CacheTestCase {
   public void setUp() throws Exception {
     locatorVM = getVM(0);
 
-    int[] ports = getRandomAvailableTCPPorts(2);
-    int locatorPort = ports[0];
-    int managerPort = ports[1];
+    var ports = getRandomAvailableTCPPorts(2);
+    var locatorPort = ports[0];
+    var managerPort = ports[1];
 
     locators = getServerHostName() + "[" + locatorPort + "]";
 
     locatorVM.invoke(() -> {
       deleteLocatorStateFile(locatorPort);
 
-      Properties config = new Properties();
+      var config = new Properties();
       config.setProperty(LOCATORS, locators);
       config.setProperty(MCAST_PORT, "0");
       config.setProperty(START_LOCATOR, locators);
@@ -98,7 +95,7 @@ public class SecurityManagerLifecycleDistributedTest extends CacheTestCase {
   }
 
   private void connectServer() throws IOException {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, locators);
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(USE_CLUSTER_CONFIGURATION, "false");
@@ -108,7 +105,7 @@ public class SecurityManagerLifecycleDistributedTest extends CacheTestCase {
 
     getSystem(config);
 
-    CacheServer server1 = getCache().addCacheServer();
+    var server1 = getCache().addCacheServer();
     server1.setPort(0);
     server1.start();
 
@@ -116,7 +113,7 @@ public class SecurityManagerLifecycleDistributedTest extends CacheTestCase {
   }
 
   private void verifyCallbacksRegardlessOfManager(final boolean isManager) {
-    ManagementService ms = getExistingManagementService(getCache());
+    var ms = getExistingManagementService(getCache());
     assertThat(ms).isNotNull();
     assertThat(ms.isManager()).isEqualTo(isManager);
 
@@ -124,10 +121,10 @@ public class SecurityManagerLifecycleDistributedTest extends CacheTestCase {
   }
 
   private void verifyInitAndCloseInvoked() {
-    SecurityService securityService = getCache().getSecurityService();
+    var securityService = getCache().getSecurityService();
     assertThat(securityService).isNotNull().isInstanceOf(IntegratedSecurityService.class);
 
-    SpySecurityManager ssm =
+    var ssm =
         (SpySecurityManager) getCache().getSecurityService().getSecurityManager();
 
     assertThat(ssm.getInitInvocationCount()).isEqualTo(1);

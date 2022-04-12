@@ -23,8 +23,8 @@ public class PRColocationDistributedTestHelper {
     if (defaultStringSize == 0) {
       return "";
     }
-    StringBuilder buf = new StringBuilder(defaultStringSize);
-    for (int i = 0; i < defaultStringSize; i++) {
+    var buf = new StringBuilder(defaultStringSize);
+    for (var i = 0; i < defaultStringSize; i++) {
       buf.append("a");
     }
     return buf.toString();

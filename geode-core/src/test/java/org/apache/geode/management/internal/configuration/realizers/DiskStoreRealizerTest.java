@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.api.RealizationResult;
 import org.apache.geode.management.configuration.DiskStore;
 
 public class DiskStoreRealizerTest {
@@ -49,11 +48,11 @@ public class DiskStoreRealizerTest {
 
   @Test
   public void creatingDiskStoreWithNameShouldSucceed() throws Exception {
-    DiskStore config = new DiskStore();
-    String name = "diskStoreName";
+    var config = new DiskStore();
+    var name = "diskStoreName";
     config.setName(name);
     config.setDirectories(new ArrayList());
-    RealizationResult result = diskStoreRealizer.create(config, cache);
+    var result = diskStoreRealizer.create(config, cache);
     verify(diskStoreFactory, times(1)).create(name);
     assertThat(result.getMessage())
         .isEqualTo("DiskStore " + config.getName() + " created successfully.");
@@ -62,10 +61,10 @@ public class DiskStoreRealizerTest {
 
   @Test
   public void existsReturnsTrueIfADiskStoreMatchesName() {
-    DiskStore config = new DiskStore();
-    String name = "diskStoreName";
+    var config = new DiskStore();
+    var name = "diskStoreName";
     Collection<org.apache.geode.cache.DiskStore> diskStores = new ArrayList();
-    org.apache.geode.cache.DiskStore existingDiskStore =
+    var existingDiskStore =
         mock(org.apache.geode.cache.DiskStore.class);
     when(existingDiskStore.getName()).thenReturn(name);
     diskStores.add(existingDiskStore);
@@ -77,10 +76,10 @@ public class DiskStoreRealizerTest {
 
   @Test
   public void existsReturnsFalseIfADiskStoreMatchesName() {
-    DiskStore config = new DiskStore();
-    String name = "diskStoreName";
+    var config = new DiskStore();
+    var name = "diskStoreName";
     Collection<org.apache.geode.cache.DiskStore> diskStores = new ArrayList();
-    org.apache.geode.cache.DiskStore existingDiskStore =
+    var existingDiskStore =
         mock(org.apache.geode.cache.DiskStore.class);
     when(existingDiskStore.getName()).thenReturn("notTheDiskStoreYouAreLookingFor");
     diskStores.add(existingDiskStore);
@@ -92,23 +91,23 @@ public class DiskStoreRealizerTest {
 
   @Test
   public void deletingDiskStoreShouldFailIfDiskStoreNotFound() throws Exception {
-    DiskStore config = new DiskStore();
-    String name = "diskStoreName";
+    var config = new DiskStore();
+    var name = "diskStoreName";
     config.setName(name);
     config.setDirectories(new ArrayList());
-    RealizationResult result = diskStoreRealizer.delete(config, cache);
+    var result = diskStoreRealizer.delete(config, cache);
     assertThat(result.getMessage()).isEqualTo("DiskStore " + config.getName() + " not found.");
     assertThat(result.isSuccess()).isFalse();
   }
 
   @Test
   public void deletingDiskStoreShouldSucceedIfDiskStoreFound() throws Exception {
-    DiskStore config = new DiskStore();
+    var config = new DiskStore();
     config.setDirectories(new ArrayList());
-    String name = "diskStoreName";
+    var name = "diskStoreName";
     config.setName(name);
     when(cache.findDiskStore(name)).thenReturn(mock(org.apache.geode.cache.DiskStore.class));
-    RealizationResult result = diskStoreRealizer.delete(config, cache);
+    var result = diskStoreRealizer.delete(config, cache);
     assertThat(result.getMessage())
         .isEqualTo("DiskStore " + config.getName() + " deleted successfully.");
     assertThat(result.isSuccess()).isTrue();

@@ -36,15 +36,15 @@ public class GemFireFormatter extends Formatter {
 
   @Override
   public String format(final LogRecord record) {
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var pw = new PrintWriter(sw);
 
     pw.println();
     pw.print('[');
     pw.print(record.getLevel().getName());
     pw.print(' ');
     pw.print(dateFormat.format(new Date(record.getMillis())));
-    String threadName = Thread.currentThread().getName();
+    var threadName = Thread.currentThread().getName();
     if (threadName != null) {
       pw.print(' ');
       pw.print(threadName);
@@ -59,7 +59,7 @@ public class GemFireFormatter extends Formatter {
     pw.print(record.getSequenceNumber());
     pw.print(") ");
 
-    String msg = record.getMessage();
+    var msg = record.getMessage();
     if (msg != null) {
       try {
         LogWriterImpl.formatText(pw, msg, 40);

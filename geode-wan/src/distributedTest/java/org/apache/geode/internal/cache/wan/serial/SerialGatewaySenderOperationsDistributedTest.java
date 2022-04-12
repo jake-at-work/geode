@@ -46,9 +46,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.logging.log4j.Logger;
@@ -67,8 +65,6 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.Instantiator;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionFactory;
@@ -76,27 +72,19 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.locator.QueueConnectionRequest;
 import org.apache.geode.cache.client.internal.locator.QueueConnectionResponse;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.internal.InternalLocator;
-import org.apache.geode.distributed.internal.ServerLocator;
 import org.apache.geode.internal.cache.ForceReattemptException;
-import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.tier.sockets.CacheServerTestUtil;
-import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
-import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderException;
 import org.apache.geode.internal.cache.wan.InternalGatewaySender;
 import org.apache.geode.internal.cache.wan.InternalGatewaySenderFactory;
 import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderQueue;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 import org.apache.geode.test.junit.categories.WanTest;
@@ -161,7 +149,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -196,7 +184,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -221,7 +209,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
 
     vm4.invoke(() -> doPuts(className + "_RR", 10));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -256,7 +244,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -281,7 +269,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
 
     vm4.invoke(() -> doPuts(className + "_RR", 20));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -347,7 +335,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -372,7 +360,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
 
     vm7.invoke(() -> doPuts(className + "_RR", 20));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -413,7 +401,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -436,7 +424,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     vm6.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
     vm7.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
     vm4.invoke(() -> pauseSender("ln"));
@@ -447,7 +435,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     await()
         .until(() -> stream(toArray(vm4, vm5))
             .map(vm -> vm.invoke(() -> {
-              InternalGatewaySender sender = findInternalGatewaySender("ln");
+              var sender = findInternalGatewaySender("ln");
               logger.info(displaySerialQueueContent(sender));
               return sender.getEventQueueSize();
             }))
@@ -472,7 +460,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -495,7 +483,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     vm6.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
     vm7.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -530,7 +518,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -553,7 +541,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     vm6.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
     vm7.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -649,7 +637,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -672,7 +660,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     vm6.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
     vm7.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -700,7 +688,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -723,7 +711,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     vm6.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
     vm7.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
@@ -749,7 +737,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
@@ -772,14 +760,14 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     vm6.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
     vm7.invoke(() -> createReplicatedRegion(className + "_RR", "ln"));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
     vm4.invoke(() -> doPuts(className + "_RR", 10));
 
     vm4.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> destroySender("ln"));
+      var thrown = catchThrowable(() -> destroySender("ln"));
       assertThat(thrown).isInstanceOf(GatewaySenderException.class);
     });
 
@@ -791,37 +779,37 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     int lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     int nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    for (VM vm : toArray(vm2, vm3)) {
+    for (var vm : toArray(vm2, vm3)) {
       vm.invoke(() -> {
         createCache(nyPort);
         createReceiver();
       });
     }
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> createCache(lnPort));
     }
 
     vm4.invoke(() -> createSender("ln", 2, true, true, numDispatchers, DEFAULT_ORDER_POLICY));
     vm5.invoke(() -> createSender("ln", 2, true, true, numDispatchers, DEFAULT_ORDER_POLICY));
 
-    for (VM vm : toArray(vm4, vm5)) {
+    for (var vm : toArray(vm4, vm5)) {
       vm.invoke(() -> startSender("ln"));
     }
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
-        InternalLocator internalLocator = (InternalLocator) Locator.getLocator();
-        ServerLocator serverLocator = internalLocator.getServerLocatorAdvisee();
+        var internalLocator = (InternalLocator) Locator.getLocator();
+        var serverLocator = internalLocator.getServerLocatorAdvisee();
 
         assertThat(serverLocator.getLoadMap())
             .as("Empty server load map")
             .isEmpty();
 
-        ClientProxyMembershipID clientProxyMembership = getNewProxyMembership(getSystem());
-        QueueConnectionRequest request =
+        var clientProxyMembership = getNewProxyMembership(getSystem());
+        var request =
             new QueueConnectionRequest(clientProxyMembership, 1, new HashSet<>(), "", false);
-        QueueConnectionResponse response =
+        var response =
             (QueueConnectionResponse) serverLocator.processRequest(request);
 
         assertThat(response.getServers())
@@ -883,13 +871,13 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
       boolean isManualStart,
       int numDispatchers,
       OrderPolicy policy) throws IOException {
-    try (IgnoredException ie = addIgnoredException("Could not connect")) {
-      File persistentDirectory =
+    try (var ie = addIgnoredException("Could not connect")) {
+      var persistentDirectory =
           temporaryFolder.newFolder(id + "_disk_" + currentTimeMillis() + "_" + getCurrentVMNum());
-      DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
-      File[] dirs = new File[] {persistentDirectory};
+      var diskStoreFactory = getCache().createDiskStoreFactory();
+      var dirs = new File[] {persistentDirectory};
 
-      InternalGatewaySenderFactory gatewaySenderFactory =
+      var gatewaySenderFactory =
           (InternalGatewaySenderFactory) getCache().createGatewaySenderFactory();
 
       gatewaySenderFactory.setParallel(false);
@@ -906,7 +894,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
         gatewaySenderFactory.setDiskStoreName(
             diskStoreFactory.setDiskDirs(dirs).create(id).getName());
       } else {
-        DiskStore store = diskStoreFactory.setDiskDirs(dirs).create(id);
+        var store = diskStoreFactory.setDiskDirs(dirs).create(id);
         gatewaySenderFactory.setDiskStoreName(store.getName());
       }
 
@@ -915,7 +903,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private Properties getDistributedSystemProperties(int locatorPort) {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "localhost[" + locatorPort + "]");
     return props;
@@ -926,15 +914,15 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private void createReplicatedRegion(String regionName, String senderIds) {
-    try (IgnoredException ie1 = addIgnoredException(ForceReattemptException.class);
-        IgnoredException ie2 = addIgnoredException(GatewaySenderException.class);
-        IgnoredException ie3 = addIgnoredException(InterruptedException.class)) {
+    try (var ie1 = addIgnoredException(ForceReattemptException.class);
+        var ie2 = addIgnoredException(GatewaySenderException.class);
+        var ie3 = addIgnoredException(InterruptedException.class)) {
       RegionFactory regionFactory = getCache().createRegionFactory(REPLICATE);
 
       if (senderIds != null) {
-        StringTokenizer tokenizer = new StringTokenizer(senderIds, ",");
+        var tokenizer = new StringTokenizer(senderIds, ",");
         while (tokenizer.hasMoreTokens()) {
-          String senderId = tokenizer.nextToken();
+          var senderId = tokenizer.nextToken();
           regionFactory.addGatewaySenderId(senderId);
         }
       }
@@ -948,10 +936,10 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private void doPuts(String regionName, int count) {
-    try (IgnoredException ie1 = addIgnoredException(GatewaySenderException.class);
-        IgnoredException ie2 = addIgnoredException(InterruptedException.class)) {
+    try (var ie1 = addIgnoredException(GatewaySenderException.class);
+        var ie2 = addIgnoredException(InterruptedException.class)) {
       Region<Number, String> region = getCache().getRegion(SEPARATOR + regionName);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         region.put(i, "Value_" + i);
       }
     }
@@ -959,13 +947,13 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
 
   private void doPuts(String regionName, int from, int count) {
     Region<Number, String> region = getCache().getRegion(SEPARATOR + regionName);
-    for (int i = from; i < count; i++) {
+    for (var i = from; i < count; i++) {
       region.put(i, "Value_" + i);
     }
   }
 
   private void createClientWithLocator(int locatorPort, String hostName) {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
 
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
@@ -992,21 +980,21 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
 
   private int createFirstLocatorWithDSId(int systemId) {
     stopOldLocator();
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
     startLocator(systemId, locatorPort, locatorPort, -1, true);
     return locatorPort;
   }
 
   private int createFirstRemoteLocator(int systemId, int remoteLocatorPort) {
     stopOldLocator();
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
     startLocator(systemId, locatorPort, locatorPort, remoteLocatorPort, true);
     return locatorPort;
   }
 
   private void startLocator(int systemId, int locatorPort, int startLocatorPort,
       int remoteLocatorPort, boolean startServerLocator) {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
 
     props.setProperty(DISTRIBUTED_SYSTEM_ID, String.valueOf(systemId));
     props.setProperty(MCAST_PORT, "0");
@@ -1042,9 +1030,9 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private GatewaySender findGatewaySender(String senderId, boolean assertNotNull) {
-    Set<GatewaySender> senders = getCache().getGatewaySenders();
+    var senders = getCache().getGatewaySenders();
     GatewaySender sender = null;
-    for (GatewaySender s : senders) {
+    for (var s : senders) {
       if (s.getId().equals(senderId)) {
         sender = s;
         break;
@@ -1059,43 +1047,43 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private void startSender(String senderId) {
-    try (IgnoredException ie1 = addIgnoredException("Could not connect");
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class);
-        IgnoredException ie3 = addIgnoredException(InterruptedException.class)) {
+    try (var ie1 = addIgnoredException("Could not connect");
+        var ie2 = addIgnoredException(ForceReattemptException.class);
+        var ie3 = addIgnoredException(InterruptedException.class)) {
       findGatewaySender(senderId).start();
     }
   }
 
   private void pauseSender(String senderId) {
-    try (IgnoredException ie1 = addIgnoredException("Could not connect");
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class)) {
-      InternalGatewaySender sender = findInternalGatewaySender(senderId);
+    try (var ie1 = addIgnoredException("Could not connect");
+        var ie2 = addIgnoredException(ForceReattemptException.class)) {
+      var sender = findInternalGatewaySender(senderId);
       sender.pause();
       sender.getEventProcessor().waitForDispatcherToPause();
     }
   }
 
   private void resumeSender(String senderId) {
-    try (IgnoredException ie1 = addIgnoredException("Could not connect");
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class)) {
+    try (var ie1 = addIgnoredException("Could not connect");
+        var ie2 = addIgnoredException(ForceReattemptException.class)) {
       findGatewaySender(senderId).resume();
     }
   }
 
   private void stopSender(String senderId) {
-    try (IgnoredException ie1 = addIgnoredException("Could not connect");
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class)) {
-      InternalGatewaySender sender = findInternalGatewaySender(senderId);
+    try (var ie1 = addIgnoredException("Could not connect");
+        var ie2 = addIgnoredException(ForceReattemptException.class)) {
+      var sender = findInternalGatewaySender(senderId);
 
-      AbstractGatewaySenderEventProcessor eventProcessor = sender.getEventProcessor();
+      var eventProcessor = sender.getEventProcessor();
 
       sender.stop();
 
       if (eventProcessor instanceof ConcurrentSerialGatewaySenderEventProcessor) {
-        ConcurrentSerialGatewaySenderEventProcessor concurrentEventProcessor =
+        var concurrentEventProcessor =
             (ConcurrentSerialGatewaySenderEventProcessor) eventProcessor;
-        Set<RegionQueue> queues = concurrentEventProcessor.getQueues();
-        for (RegionQueue queue : queues) {
+        var queues = concurrentEventProcessor.getQueues();
+        for (var queue : queues) {
           if (queue instanceof SerialGatewaySenderQueue) {
             assertThat(((SerialGatewaySenderQueue) queue).isRemovalThreadAlive())
                 .isFalse();
@@ -1115,14 +1103,14 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private int createReceiver() throws IOException {
-    int receiverPort = getRandomAvailableTCPPort();
+    var receiverPort = getRandomAvailableTCPPort();
 
-    GatewayReceiverFactory gatewayReceiverFactory = getCache().createGatewayReceiverFactory();
+    var gatewayReceiverFactory = getCache().createGatewayReceiverFactory();
     gatewayReceiverFactory.setStartPort(receiverPort);
     gatewayReceiverFactory.setEndPort(receiverPort);
     gatewayReceiverFactory.setManualStart(true);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
     receiver.start();
 
     return receiverPort;
@@ -1131,39 +1119,39 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   private void createReceiverAndServer(int locatorPort) throws IOException {
     getCache(getDistributedSystemProperties(locatorPort));
 
-    int receiverPort = getRandomAvailableTCPPort();
+    var receiverPort = getRandomAvailableTCPPort();
 
-    GatewayReceiverFactory gatewayReceiverFactory = getCache().createGatewayReceiverFactory();
+    var gatewayReceiverFactory = getCache().createGatewayReceiverFactory();
     gatewayReceiverFactory.setStartPort(receiverPort);
     gatewayReceiverFactory.setEndPort(receiverPort);
     gatewayReceiverFactory.setManualStart(true);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
     receiver.start();
 
-    CacheServer server = getCache().addCacheServer();
+    var server = getCache().addCacheServer();
     server.setPort(0);
     server.setHostnameForClients("localhost");
     server.start();
   }
 
   private void startReceivers() throws IOException {
-    Set<GatewayReceiver> receivers = getCache().getGatewayReceivers();
-    for (GatewayReceiver receiver : receivers) {
+    var receivers = getCache().getGatewayReceivers();
+    for (var receiver : receivers) {
       receiver.start();
     }
   }
 
   private void stopReceivers() {
-    Set<GatewayReceiver> receivers = getCache().getGatewayReceivers();
-    for (GatewayReceiver receiver : receivers) {
+    var receivers = getCache().getGatewayReceivers();
+    for (var receiver : receivers) {
       receiver.stop();
     }
   }
 
   private void validateRegionSize(String regionName, int regionSize) {
-    try (IgnoredException ie1 = addIgnoredException(CacheClosedException.class);
-        IgnoredException ie2 = addIgnoredException(ForceReattemptException.class)) {
+    try (var ie1 = addIgnoredException(CacheClosedException.class);
+        var ie2 = addIgnoredException(ForceReattemptException.class)) {
       Region region = getCache().getRegion(SEPARATOR + regionName);
 
       await()
@@ -1174,12 +1162,12 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private void validateQueueContents(String senderId, int regionSize) {
-    try (IgnoredException ie1 = addIgnoredException(GatewaySenderException.class);
-        IgnoredException ie2 = addIgnoredException(InterruptedException.class)) {
-      InternalGatewaySender sender = findInternalGatewaySender(senderId);
+    try (var ie1 = addIgnoredException(GatewaySenderException.class);
+        var ie2 = addIgnoredException(InterruptedException.class)) {
+      var sender = findInternalGatewaySender(senderId);
 
       if (sender.isParallel()) {
-        RegionQueue regionQueue = sender.getQueues().toArray(new RegionQueue[1])[0];
+        var regionQueue = sender.getQueues().toArray(new RegionQueue[1])[0];
         await()
             .untilAsserted(() -> {
               assertThat(regionQueue.size())
@@ -1187,11 +1175,11 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
             });
 
       } else {
-        Set<RegionQueue> queues = sender.getQueues();
+        var queues = sender.getQueues();
         await()
             .untilAsserted(() -> {
-              int size = 0;
-              for (RegionQueue queue : queues) {
+              var size = 0;
+              for (var queue : queues) {
                 size += queue.size();
               }
               assertThat(size)
@@ -1202,7 +1190,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private void validateQueueSizeStat(String senderId, int queueSize) {
-    InternalGatewaySender sender = findInternalGatewaySender(senderId);
+    var sender = findInternalGatewaySender(senderId);
 
     await()
         .untilAsserted(() -> assertThat(sender.getEventQueueSize())
@@ -1211,7 +1199,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private void validateSecondaryQueueSizeStat(String senderId, int queueSize) {
-    InternalGatewaySender sender = findInternalGatewaySender(senderId);
+    var sender = findInternalGatewaySender(senderId);
 
     await()
         .untilAsserted(() -> {
@@ -1223,22 +1211,22 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private void validateSenderDestroyed(String senderId, boolean isParallel) {
-    GatewaySender sender = findGatewaySender(senderId, false);
+    var sender = findGatewaySender(senderId, false);
 
     assertThat(sender)
         .isNull();
 
-    String queueRegionNameSuffix =
+    var queueRegionNameSuffix =
         isParallel ? ParallelGatewaySenderQueue.QSTRING : "_SERIAL_GATEWAY_SENDER_QUEUE";
 
-    for (InternalRegion region : getCache().getAllRegions()) {
+    for (var region : getCache().getAllRegions()) {
       assertThat(region.getName())
           .doesNotContain(senderId + queueRegionNameSuffix);
     }
   }
 
   private void validateSenderOperations(String senderId) {
-    GatewaySender sender = findGatewaySender(senderId);
+    var sender = findGatewaySender(senderId);
 
     assertThat(sender.isPaused())
         .isFalse();
@@ -1268,14 +1256,14 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private void validateSenderPausedState(String senderId) {
-    GatewaySender sender = findGatewaySender(senderId);
+    var sender = findGatewaySender(senderId);
 
     assertThat(sender.isPaused())
         .isTrue();
   }
 
   private void validateSenderResumedState(String senderId) {
-    GatewaySender sender = findGatewaySender(senderId);
+    var sender = findGatewaySender(senderId);
 
     assertThat(sender.isPaused())
         .isFalse();
@@ -1284,14 +1272,14 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private void verifySenderRunningState(String senderId) {
-    GatewaySender sender = getCache().getGatewaySender(senderId);
+    var sender = getCache().getGatewaySender(senderId);
 
     assertThat(sender.isRunning())
         .isTrue();
   }
 
   private void validateSenderStoppedState(String senderId) {
-    GatewaySender sender = findGatewaySender(senderId);
+    var sender = findGatewaySender(senderId);
 
     assertThat(sender.isRunning())
         .isFalse();
@@ -1300,7 +1288,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
   }
 
   private String displaySerialQueueContent(InternalGatewaySender sender) {
-    StringBuilder message = new StringBuilder();
+    var message = new StringBuilder();
     message
         .append("Is Primary: ")
         .append(sender.isPrimary())
@@ -1314,7 +1302,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
           .append("Queue Count: ")
           .append(sender.getQueues().size());
 
-      List<Object> list = sender.getQueues().stream()
+      var list = sender.getQueues().stream()
           .<Object>map(regionQueue -> ((SerialGatewaySenderQueue) regionQueue).displayContent())
           .collect(toList());
 
@@ -1324,7 +1312,7 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
           .append(list);
     }
 
-    AbstractGatewaySenderEventProcessor abstractProcessor = sender.getEventProcessor();
+    var abstractProcessor = sender.getEventProcessor();
     if (abstractProcessor == null) {
       message
           .append(", ")

@@ -25,10 +25,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.shiro.subject.Subject;
 
 import org.apache.geode.cache.CacheClosedException;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -56,19 +54,19 @@ public class DeployFunction implements InternalFunction<Object[]> {
   @SuppressWarnings("deprecation")
   public void execute(FunctionContext<Object[]> context) {
 
-    String memberIdentifier = "";
+    var memberIdentifier = "";
 
     try {
-      final Object[] args = context.getArguments();
+      final var args = context.getArguments();
       @SuppressWarnings("unchecked")
-      final List<String> jarFilenames = (List<String>) args[0];
+      final var jarFilenames = (List<String>) args[0];
       @SuppressWarnings("unchecked")
-      final List<RemoteInputStream> jarStreams = (List<RemoteInputStream>) args[1];
+      final var jarStreams = (List<RemoteInputStream>) args[1];
 
-      InternalCache cache = (InternalCache) context.getCache();
-      DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+      var cache = (InternalCache) context.getCache();
+      var member = cache.getDistributedSystem().getDistributedMember();
 
-      String memberId = !member.getName().equals("") ? member.getName() : member.getId();
+      var memberId = !member.getName().equals("") ? member.getName() : member.getId();
       memberIdentifier = memberId;
 
       List<DeploymentInfo> results = new LinkedList<>();
@@ -78,13 +76,13 @@ public class DeployFunction implements InternalFunction<Object[]> {
       deployments = jarFilenames.stream().map(jarFileName -> new Deployment(jarFileName,
           getDeployedBy(cache), Instant.now().toString())).collect(Collectors.toList());
 
-      for (int i = 0; i < deployments.size(); i++) {
-        Deployment deployment = deployments.get(i);
+      for (var i = 0; i < deployments.size(); i++) {
+        var deployment = deployments.get(i);
         @SuppressWarnings("unchecked")
-        Execution execution = FunctionService.onMember(member)
+        var execution = FunctionService.onMember(member)
             .setArguments(
                 Arrays.asList(deployment, CacheElementOperation.CREATE, jarStreams.get(i)));
-        List<?> functionResult = (List<?>) execution
+        var functionResult = (List<?>) execution
             .execute(new CacheRealizationFunction())
             .getResult();
 
@@ -93,7 +91,7 @@ public class DeployFunction implements InternalFunction<Object[]> {
             if (entry instanceof Throwable) {
               logger.warn("Error executing CacheRealizationFunction.", entry);
             } else if (entry instanceof RealizationResult) {
-              RealizationResult realizationResult = (RealizationResult) entry;
+              var realizationResult = (RealizationResult) entry;
               results.add(new DeploymentInfo(memberId,
                   deployment.getFileName(), realizationResult.getMessage()));
             }
@@ -101,10 +99,10 @@ public class DeployFunction implements InternalFunction<Object[]> {
         });
       }
 
-      CliFunctionResult result = new CliFunctionResult(memberIdentifier, results);
+      var result = new CliFunctionResult(memberIdentifier, results);
       context.getResultSender().lastResult(result);
     } catch (CacheClosedException cce) {
-      CliFunctionResult result = new CliFunctionResult(memberIdentifier, false, null);
+      var result = new CliFunctionResult(memberIdentifier, false, null);
       context.getResultSender().lastResult(result);
 
     } catch (VirtualMachineError e) {
@@ -115,7 +113,7 @@ public class DeployFunction implements InternalFunction<Object[]> {
       org.apache.geode.SystemFailure.checkFailure();
       logger.error("Could not deploy JAR file {}", throwable.getMessage(), throwable);
 
-      CliFunctionResult result = new CliFunctionResult(memberIdentifier, throwable, null);
+      var result = new CliFunctionResult(memberIdentifier, throwable, null);
       context.getResultSender().lastResult(result);
     }
   }

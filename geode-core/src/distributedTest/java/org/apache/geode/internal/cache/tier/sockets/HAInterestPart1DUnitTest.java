@@ -19,7 +19,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
 
 @SuppressWarnings("serial")
@@ -91,12 +90,12 @@ public class HAInterestPart1DUnitTest extends HAInterestTestCase {
     server2.invoke(HAInterestTestCase::createEntriesK1andK2);
     server3.invoke(HAInterestTestCase::createEntriesK1andK2);
     // stop primary
-    VM oldPrimary = getPrimaryVM();
+    var oldPrimary = getPrimaryVM();
     stopPrimaryAndRegisterK1AndK2AndVerifyResponse();
     // DSM
     verifyDeadAndLiveServers(1, 2);
     // new primary
-    VM newPrimary = getPrimaryVM(oldPrimary);
+    var newPrimary = getPrimaryVM(oldPrimary);
     newPrimary.invoke(HAInterestTestCase::verifyDispatcherIsAlive);
     newPrimary.invoke(HAInterestTestCase::verifyInterestRegistration);
   }
@@ -112,7 +111,7 @@ public class HAInterestPart1DUnitTest extends HAInterestTestCase {
     server2.invoke(HAInterestTestCase::createEntriesK1andK2);
     server3.invoke(HAInterestTestCase::createEntriesK1andK2);
 
-    VM primary = getPrimaryVM();
+    var primary = getPrimaryVM();
     stopSecondaryAndRegisterK1AndK2AndVerifyResponse();
 
     verifyDeadAndLiveServers(1, 2);
@@ -134,11 +133,11 @@ public class HAInterestPart1DUnitTest extends HAInterestTestCase {
     server2.invoke(HAInterestTestCase::createEntriesK1andK2);
     server3.invoke(HAInterestTestCase::createEntriesK1andK2);
     // stop server1 and server2
-    VM oldPrimary = getPrimaryVM();
+    var oldPrimary = getPrimaryVM();
     stopBothPrimaryAndSecondaryAndRegisterK1AndK2AndVerifyResponse();
 
     verifyDeadAndLiveServers(2, 1);
-    VM newPrimary = getPrimaryVM(oldPrimary);
+    var newPrimary = getPrimaryVM(oldPrimary);
     newPrimary.invoke(HAInterestTestCase::verifyDispatcherIsAlive);
     newPrimary.invoke(HAInterestTestCase::verifyInterestRegistration);
   }
@@ -158,11 +157,11 @@ public class HAInterestPart1DUnitTest extends HAInterestTestCase {
     server2.invoke(HAInterestTestCase::createEntriesK1andK2);
     server3.invoke(HAInterestTestCase::createEntriesK1andK2);
 
-    VM oldPrimary = getPrimaryVM();
+    var oldPrimary = getPrimaryVM();
     stopPrimaryAndRegisterK1AndK2AndVerifyResponse();
 
     verifyDeadAndLiveServers(1, 2);
-    VM newPrimary = getPrimaryVM(oldPrimary);
+    var newPrimary = getPrimaryVM(oldPrimary);
     newPrimary.invoke(HAInterestTestCase::verifyDispatcherIsAlive);
     newPrimary.invoke(HAInterestTestCase::verifyInterestRegistration);
   }

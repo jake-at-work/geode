@@ -29,7 +29,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -60,9 +59,9 @@ public class DeploymentIntegrationTest {
 
   @Test
   public void configIsNotRequired() throws Exception {
-    MockMultipartFile file = new MockMultipartFile("file", "test.jar",
+    var file = new MockMultipartFile("file", "test.jar",
         "application/zip", "Foo".getBytes());
-    MockMultipartHttpServletRequestBuilder builder =
+    var builder =
         MockMvcRequestBuilders.multipart("/v1/deployments");
     builder.with(request -> {
       request.setMethod("PUT");
@@ -72,9 +71,9 @@ public class DeploymentIntegrationTest {
     // request only contains file, not configuration json
     context.perform(builder.file(file))
         .andExpect(status().isCreated());
-    ArgumentCaptor<Deployment> argumentCaptor = ArgumentCaptor.forClass(Deployment.class);
+    var argumentCaptor = ArgumentCaptor.forClass(Deployment.class);
     verify(cms).create(argumentCaptor.capture());
-    Deployment deployment = argumentCaptor.getValue();
+    var deployment = argumentCaptor.getValue();
     assertThat(deployment.getFileName()).isEqualTo("test.jar");
     assertThat(deployment.getGroup()).isNull();
   }

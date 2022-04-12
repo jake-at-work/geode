@@ -45,7 +45,7 @@ public class DistributedPingMessage extends HighPriorityDistributionMessage {
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    ClientHealthMonitor chm = ClientHealthMonitor.getInstance();
+    var chm = ClientHealthMonitor.getInstance();
     if (chm != null) {
       chm.receivedPing(proxyID);
     }

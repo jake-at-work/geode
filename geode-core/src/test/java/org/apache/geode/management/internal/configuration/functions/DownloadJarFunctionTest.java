@@ -39,7 +39,7 @@ public class DownloadJarFunctionTest {
     function = spy(DownloadJarFunction.class);
     context = mock(FunctionContext.class);
     when(context.getArguments()).thenReturn(new String[] {"hello", "world"});
-    InternalLocator locator = mock(InternalLocator.class);
+    var locator = mock(InternalLocator.class);
     when(locator.getConfigurationPersistenceService()).thenReturn(mock(
         InternalConfigurationPersistenceService.class));
     doReturn(locator).when(function).getLocator();

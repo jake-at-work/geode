@@ -26,9 +26,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -69,25 +67,25 @@ public class ClusterSelectedRegionService implements PulseService {
 
   // Comparator based upon regions entry count
   private static final Comparator<Cluster.Member> memberCurrentHeapUsageComparator = (m1, m2) -> {
-    long m1HeapUsage = m1.getCurrentHeapSize();
-    long m2HeapUsage = m2.getCurrentHeapSize();
+    var m1HeapUsage = m1.getCurrentHeapSize();
+    var m2HeapUsage = m2.getCurrentHeapSize();
     return Long.compare(m1HeapUsage, m2HeapUsage);
   };
 
   @Override
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
-    String userName = request.getUserPrincipal().getName();
-    String pulseData = request.getParameter("pulseData");
-    JsonNode parameterMap = mapper.readTree(pulseData);
-    String selectedRegionFullPath =
+    var userName = request.getUserPrincipal().getName();
+    var pulseData = request.getParameter("pulseData");
+    var parameterMap = mapper.readTree(pulseData);
+    var selectedRegionFullPath =
         parameterMap.get("ClusterSelectedRegion").get("regionFullPath").textValue();
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     // getting cluster's Regions
     responseJSON.put("clusterName", cluster.getServerName());
@@ -107,9 +105,9 @@ public class ClusterSelectedRegionService implements PulseService {
     Long totalHeapSize = cluster.getTotalHeapSize();
     Long totalDiskUsage = cluster.getTotalBytesOnDisk();
 
-    Cluster.Region reg = cluster.getClusterRegion(selectedRegionFullPath);
+    var reg = cluster.getClusterRegion(selectedRegionFullPath);
     if (reg != null) {
-      ObjectNode regionJSON = mapper.createObjectNode();
+      var regionJSON = mapper.createObjectNode();
 
       regionJSON.put("name", reg.getName());
       regionJSON.put("path", reg.getFullPath());
@@ -117,21 +115,21 @@ public class ClusterSelectedRegionService implements PulseService {
       regionJSON.put("systemRegionEntryCount", reg.getSystemRegionEntryCount());
       regionJSON.put("memberCount", reg.getMemberCount());
 
-      final String regionType = reg.getRegionType();
+      final var regionType = reg.getRegionType();
       regionJSON.put("type", regionType);
       regionJSON.put("getsRate", reg.getGetsRate());
       regionJSON.put("putsRate", reg.getPutsRate());
       regionJSON.put("lruEvictionRate", reg.getLruEvictionRate());
 
-      Cluster.Member[] clusterMembersList = cluster.getMembers();
+      var clusterMembersList = cluster.getMembers();
 
       // collect members of this region
       List<Cluster.Member> clusterMembersL = new ArrayList<>();
-      for (String memberName : reg.getMemberName()) {
-        for (Cluster.Member member : clusterMembersList) {
-          String name = member.getName();
+      for (var memberName : reg.getMemberName()) {
+        for (var member : clusterMembersList) {
+          var name = member.getName();
           name = name.replace(":", "-");
-          String id = member.getId();
+          var id = member.getId();
           id = id.replace(":", "-");
 
           if ((memberName.equals(id)) || (memberName.equals(name))) {
@@ -144,23 +142,23 @@ public class ClusterSelectedRegionService implements PulseService {
       clusterMembersL.sort(memberCurrentHeapUsageComparator);
 
       // return sorted member list by heap usage
-      ArrayNode memberArray = mapper.createArrayNode();
-      for (Cluster.Member member : clusterMembersL) {
-        ObjectNode regionMember = mapper.createObjectNode();
+      var memberArray = mapper.createArrayNode();
+      for (var member : clusterMembersL) {
+        var regionMember = mapper.createObjectNode();
         regionMember.put("memberId", member.getId());
         regionMember.put("name", member.getName());
         regionMember.put("host", member.getHost());
 
-        long usedHeapSize = cluster.getUsedHeapSize();
-        long currentHeap = member.getCurrentHeapSize();
+        var usedHeapSize = cluster.getUsedHeapSize();
+        var currentHeap = member.getCurrentHeapSize();
         if (usedHeapSize > 0) {
-          double heapUsage = ((double) currentHeap / (double) usedHeapSize) * 100;
+          var heapUsage = ((double) currentHeap / (double) usedHeapSize) * 100;
           regionMember.put("heapUsage", TWO_PLACE_DECIMAL_FORMAT.format(heapUsage));
         } else {
           regionMember.put("heapUsage", 0);
         }
-        double currentCPUUsage = member.getCpuUsage();
-        double loadAvg = member.getLoadAverage();
+        var currentCPUUsage = member.getCpuUsage();
+        var loadAvg = member.getLoadAverage();
 
         regionMember.put("cpuUsage", TWO_PLACE_DECIMAL_FORMAT.format(currentCPUUsage));
         regionMember.put("currentHeapUsage", member.getCurrentHeapSize());
@@ -186,7 +184,7 @@ public class ClusterSelectedRegionService implements PulseService {
       regionJSON.put("isEnableOffHeapMemory",
           reg.isEnableOffHeapMemory() ? PulseService.VALUE_ON : PulseService.VALUE_OFF);
 
-      String regCompCodec = reg.getCompressionCodec();
+      var regCompCodec = reg.getCompressionCodec();
       if (StringUtils.isNotBlank(regCompCodec)) {
         regionJSON.put("compressionCodec", reg.getCompressionCodec());
       } else {
@@ -207,8 +205,8 @@ public class ClusterSelectedRegionService implements PulseService {
           reg.getRegionStatisticTrend(Cluster.Region.REGION_STAT_DISK_WRITES_PER_SEC_TREND)));
 
       regionJSON.put("emptyNodes", reg.getEmptyNode());
-      long entrySize = reg.getEntrySize();
-      String entrySizeInMB = FOUR_PLACE_DECIMAL_FORMAT.format(entrySize / (1024f * 1024f));
+      var entrySize = reg.getEntrySize();
+      var entrySizeInMB = FOUR_PLACE_DECIMAL_FORMAT.format(entrySize / (1024f * 1024f));
       if (entrySize < 0) {
         regionJSON.put(ENTRY_SIZE, PulseService.VALUE_NA);
       } else {
@@ -222,7 +220,7 @@ public class ClusterSelectedRegionService implements PulseService {
       logger.debug("calling getSelectedRegionJson :: regionJSON = {}", regionJSON);
       return regionJSON;
     } else {
-      ObjectNode responseJSON = mapper.createObjectNode();
+      var responseJSON = mapper.createObjectNode();
       responseJSON.put("errorOnRegion", "Region [" + selectedRegionFullPath + "] is not available");
       return responseJSON;
     }

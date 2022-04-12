@@ -67,7 +67,7 @@ public class JsonSerializationTest {
 
   @Test
   public void invalidAttributes() throws Exception {
-    String json = "{'name':'test','Group1':'group1','Group2':'group2'}";
+    var json = "{'name':'test','Group1':'group1','Group2':'group2'}";
     when(cms.create(any())).thenReturn(new ClusterManagementRealizationResult());
     context.perform(post("/v1/regions").content(json))
         .andExpect(status().isBadRequest())
@@ -79,13 +79,13 @@ public class JsonSerializationTest {
 
   @Test
   public void validAttributes() throws Exception {
-    String json = "{'name':'test','group':'group1'}";
+    var json = "{'name':'test','group':'group1'}";
     when(cms.create(any())).thenReturn(new ClusterManagementRealizationResult());
     context.perform(post("/v1/regions").content(json))
         .andExpect(header().string("content-type", "application/json;charset=UTF-8"))
         .andExpect(status().isCreated());
     verify(cms, atLeastOnce()).create(regionConfigCaptor.capture());
-    Region value = regionConfigCaptor.getValue();
+    var value = regionConfigCaptor.getValue();
     assertThat(value.getGroup()).isEqualTo("group1");
   }
 }

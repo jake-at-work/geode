@@ -48,14 +48,14 @@ public class CustomerIDPartitionResolver implements PartitionResolver {
     Serializable routingbject = null;
 
     if (opDetails.getKey() instanceof ShipmentId) {
-      ShipmentId shipmentId = (ShipmentId) opDetails.getKey();
+      var shipmentId = (ShipmentId) opDetails.getKey();
       routingbject = shipmentId.getOrderId().getCustId();
     }
     if (opDetails.getKey() instanceof OrderId) {
-      OrderId orderId = (OrderId) opDetails.getKey();
+      var orderId = (OrderId) opDetails.getKey();
       routingbject = orderId.getCustId();
     } else if (opDetails.getKey() instanceof CustId) {
-      CustId custId = (CustId) opDetails.getKey();
+      var custId = (CustId) opDetails.getKey();
       routingbject = custId.getCustId();
     }
     return routingbject;
@@ -73,7 +73,7 @@ public class CustomerIDPartitionResolver implements PartitionResolver {
       return false;
     }
 
-    CustomerIDPartitionResolver otherCustomerIDPartitionResolver = (CustomerIDPartitionResolver) o;
+    var otherCustomerIDPartitionResolver = (CustomerIDPartitionResolver) o;
     return otherCustomerIDPartitionResolver.id.equals(id);
 
   }

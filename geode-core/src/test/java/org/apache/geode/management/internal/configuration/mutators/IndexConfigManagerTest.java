@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-import java.util.List;
-
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +50,7 @@ public class IndexConfigManagerTest {
   @Test
   public void listWithoutFilter() {
     setupCacheConfig();
-    List<Index> list = manager.list(index, cacheConfig);
+    var list = manager.list(index, cacheConfig);
     assertSoftly(softly -> {
       softly.assertThat(list).hasSize(2)
           .extracting(Index::getName)
@@ -66,7 +64,7 @@ public class IndexConfigManagerTest {
   public void listWithRegionName() {
     setupCacheConfig();
     index.setRegionPath("region1");
-    List<Index> list = manager.list(index, cacheConfig);
+    var list = manager.list(index, cacheConfig);
     assertSoftly(softly -> {
       softly.assertThat(list).hasSize(1);
       softly.assertThat(list.get(0).getName()).isEqualTo("index1");
@@ -78,7 +76,7 @@ public class IndexConfigManagerTest {
   public void listWithIndexName() {
     setupCacheConfig();
     index.setName("index2");
-    List<Index> list = manager.list(index, cacheConfig);
+    var list = manager.list(index, cacheConfig);
     assertSoftly(softly -> {
       softly.assertThat(list).hasSize(1);
       softly.assertThat(list.get(0).getName()).isEqualTo("index2");
@@ -91,7 +89,7 @@ public class IndexConfigManagerTest {
     setupCacheConfig();
     index.setName("index1");
     index.setRegionPath("region2");
-    List<Index> list = manager.list(index, cacheConfig);
+    var list = manager.list(index, cacheConfig);
     assertThat(list).hasSize(0);
   }
 
@@ -100,7 +98,7 @@ public class IndexConfigManagerTest {
     setupCacheConfig();
     index.setName("index2");
     index.setRegionPath("region2");
-    List<Index> list = manager.list(index, cacheConfig);
+    var list = manager.list(index, cacheConfig);
     assertSoftly(softly -> {
       softly.assertThat(list).hasSize(1);
       softly.assertThat(list.get(0).getName()).isEqualTo("index2");
@@ -117,7 +115,7 @@ public class IndexConfigManagerTest {
     index.setRegionPath("region1");
 
     manager.add(index, cacheConfig);
-    List<Index> indices = manager.list(index, cacheConfig);
+    var indices = manager.list(index, cacheConfig);
 
     assertSoftly(softly -> {
       softly.assertThat(indices).hasSize(1);
@@ -189,14 +187,14 @@ public class IndexConfigManagerTest {
   }
 
   private void setupCacheConfig() {
-    RegionConfig region1 = new RegionConfig("region1", "REPLICATE");
-    RegionConfig.Index index1 = new RegionConfig.Index();
+    var region1 = new RegionConfig("region1", "REPLICATE");
+    var index1 = new RegionConfig.Index();
     index1.setName("index1");
     index1.setFromClause(SEPARATOR + "region1");
     region1.getIndexes().add(index1);
 
-    RegionConfig region2 = new RegionConfig("region2", "REPLICATE");
-    RegionConfig.Index index2 = new RegionConfig.Index();
+    var region2 = new RegionConfig("region2", "REPLICATE");
+    var index2 = new RegionConfig.Index();
     index2.setName("index2");
     index2.setFromClause(SEPARATOR + "region2");
     region2.getIndexes().add(index2);

@@ -61,7 +61,7 @@ public class DeclarableTypeInstantiatorTest {
 
   @Test
   public void createDeclarableInstanceFromDeclarableType() {
-    DeclarableType declarableType = new DeclarableType(MyDeclarable.class.getName(),
+    var declarableType = new DeclarableType(MyDeclarable.class.getName(),
         "{\"value1\":5,\"value2\":\"some string\"}");
 
     MyDeclarable result = DeclarableTypeInstantiator.newInstance(declarableType, cache);
@@ -74,16 +74,16 @@ public class DeclarableTypeInstantiatorTest {
 
   @Test
   public void createDeclarableInstancedFromNestedDeclarableType() {
-    DeclarableType declarableType = new DeclarableType(MyDeclarable.class.getName(),
+    var declarableType = new DeclarableType(MyDeclarable.class.getName(),
         "{\"value1\":5,\"value2\":\"some string\"}");
-    ParameterType parameterType = new ParameterType("inner-prop", declarableType);
+    var parameterType = new ParameterType("inner-prop", declarableType);
 
-    DeclarableType outerDeclarable = new DeclarableType(MyOuterDeclarable.class.getName());
+    var outerDeclarable = new DeclarableType(MyOuterDeclarable.class.getName());
     outerDeclarable.getParameters().add(parameterType);
 
     MyOuterDeclarable result = DeclarableTypeInstantiator.newInstance(outerDeclarable, cache);
     assertThat(result.props).isNotNull();
-    MyDeclarable innerDeclarable = (MyDeclarable) result.props.get("inner-prop");
+    var innerDeclarable = (MyDeclarable) result.props.get("inner-prop");
 
     assertThat(innerDeclarable.props.getProperty("value1")).isEqualTo("5");
     assertThat(innerDeclarable.props.getProperty("value2")).isEqualTo("some string");
@@ -91,15 +91,15 @@ public class DeclarableTypeInstantiatorTest {
 
   @Test
   public void getInstance() {
-    ClassName klass = new ClassName("java.lang.String");
+    var klass = new ClassName("java.lang.String");
     String s = DeclarableTypeInstantiator.newInstance(klass, null);
     assertThat(s).isEqualTo("");
   }
 
   @Test
   public void getInstanceWithProps() {
-    String json = "{\"k\":\"v\"}";
-    ClassName cacheWriter = new ClassName(MyCacheWriter.class.getName(), json);
+    var json = "{\"k\":\"v\"}";
+    var cacheWriter = new ClassName(MyCacheWriter.class.getName(), json);
     MyCacheWriter obj = DeclarableTypeInstantiator.newInstance(cacheWriter, null);
     assertThat(obj.getProperties()).containsEntry("k", "v").containsOnlyKeys("k");
   }

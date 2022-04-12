@@ -27,10 +27,7 @@ import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.control.RebalanceResults;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.partition.PartitionMemberInfo;
 import org.apache.geode.cache.partition.PartitionRebalanceInfo;
 import org.apache.geode.internal.cache.xmlcache.CacheXmlGenerator;
@@ -43,9 +40,9 @@ public class RegionHelper {
 
   public static Region createRegion(Cache cache, RegionConfiguration configuration) {
     // Use the createRegion method so that the RegionAttributes creation can be reused by validate.
-    RegionAttributes requestedRegionAttributes = getRegionAttributes(cache, configuration);
+    var requestedRegionAttributes = getRegionAttributes(cache, configuration);
     @SuppressWarnings("unchecked")
-    Region region =
+    var region =
         cache.createRegionFactory(requestedRegionAttributes).create(configuration.getRegionName());
 
     // Log the cache xml if debugging is enabled. I'd like to be able to just
@@ -59,15 +56,15 @@ public class RegionHelper {
 
   public static void validateRegion(Cache cache, RegionConfiguration configuration, Region region) {
     // Get the attributes of the existing region
-    RegionAttributes existingAttributes = region.getAttributes();
+    var existingAttributes = region.getAttributes();
 
     // Create region attributes creation on existing region attributes.
     // The RAC is created to execute the sameAs method.
-    RegionAttributesCreation existingRACreation =
+    var existingRACreation =
         new RegionAttributesCreation(existingAttributes, false);
 
     // Create requested region attributes
-    RegionAttributes requestedRegionAttributes = getRegionAttributes(cache, configuration);
+    var requestedRegionAttributes = getRegionAttributes(cache, configuration);
 
     // Compare the two region attributes. This method either returns true or throws a
     // RuntimeException.
@@ -76,16 +73,16 @@ public class RegionHelper {
 
   public static RebalanceResults rebalanceCache(GemFireCache cache)
       throws CancellationException, InterruptedException {
-    ResourceManager resourceManager = cache.getResourceManager();
-    RebalanceFactory rebalanceFactory = resourceManager.createRebalanceFactory();
-    RebalanceOperation rebalanceOperation = rebalanceFactory.start();
+    var resourceManager = cache.getResourceManager();
+    var rebalanceFactory = resourceManager.createRebalanceFactory();
+    var rebalanceOperation = rebalanceFactory.start();
     return rebalanceOperation.getResults();
   }
 
   public static String generateCacheXml(Cache cache) {
     try {
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw, true);
+      var sw = new StringWriter();
+      var pw = new PrintWriter(sw, true);
       CacheXmlGenerator.generate(cache, pw, false);
       pw.close();
       return sw.toString();
@@ -104,11 +101,11 @@ public class RegionHelper {
           "No region attributes named " + configuration.getRegionAttributesId() + " are defined.");
     }
 
-    RegionAttributesCreation requestedAttributes =
+    var requestedAttributes =
         new RegionAttributesCreation(baseRequestedAttributes, false);
 
     // Set the expiration time and action if necessary
-    int maxInactiveInterval = configuration.getMaxInactiveInterval();
+    var maxInactiveInterval = configuration.getMaxInactiveInterval();
     if (maxInactiveInterval != RegionConfiguration.DEFAULT_MAX_INACTIVE_INTERVAL) {
       requestedAttributes.setStatisticsEnabled(true);
 
@@ -142,7 +139,7 @@ public class RegionHelper {
     // Add the cacheWriter if necessary
     if (configuration.getCacheWriterName() != null) {
       try {
-        CacheWriter writer =
+        var writer =
             (CacheWriter) Class.forName(configuration.getCacheWriterName()).newInstance();
         requestedAttributes.setCacheWriter(writer);
       } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
@@ -156,8 +153,8 @@ public class RegionHelper {
   private RegionHelper() {}
 
   public static String getRebalanceResultsMessage(RebalanceResults results) {
-    StringBuilder builder = new StringBuilder();
-    for (PartitionRebalanceInfo rebalanceInfo : results.getPartitionRebalanceDetails()) {
+    var builder = new StringBuilder();
+    for (var rebalanceInfo : results.getPartitionRebalanceDetails()) {
       // Log the overall results
       fillInRebalanceResultsSummary(builder, rebalanceInfo);
 
@@ -193,7 +190,7 @@ public class RegionHelper {
   private static void fillInRebalanceResultsMemberDetails(StringBuilder builder,
       Set<PartitionMemberInfo> memberInfoSet, String when) {
     builder.append("\nMember Info ").append(when).append(" Rebalance:\n");
-    for (PartitionMemberInfo info : memberInfoSet) {
+    for (var info : memberInfoSet) {
       builder.append("\tdistributedMember=").append(info.getDistributedMember())
           .append(", configuredMaxMemory=").append(info.getConfiguredMaxMemory()).append(", size=")
           .append(info.getSize()).append(", bucketCount=").append(info.getBucketCount())

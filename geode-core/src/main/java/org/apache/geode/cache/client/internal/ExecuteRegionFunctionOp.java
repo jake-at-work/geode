@@ -40,7 +40,6 @@ import org.apache.geode.internal.cache.execute.AbstractExecution;
 import org.apache.geode.internal.cache.execute.BucketMovedException;
 import org.apache.geode.internal.cache.execute.InternalFunctionException;
 import org.apache.geode.internal.cache.execute.InternalFunctionInvocationTargetException;
-import org.apache.geode.internal.cache.execute.MemberMappedArgument;
 import org.apache.geode.internal.cache.execute.ServerRegionFunctionExecutor;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.internal.cache.tier.MessageType;
@@ -76,7 +75,7 @@ public class ExecuteRegionFunctionOp {
       ExecuteRegionFunctionOpImpl op, boolean isReexecute,
       Set<String> failedNodes) {
 
-    int maxRetryAttempts = retryAttempts > 0 ? retryAttempts : MAX_RETRY_INITIAL_VALUE;
+    var maxRetryAttempts = retryAttempts > 0 ? retryAttempts : MAX_RETRY_INITIAL_VALUE;
     if (!isHA) {
       maxRetryAttempts = 0;
     }
@@ -96,7 +95,7 @@ public class ExecuteRegionFunctionOp {
           return;
         }
         isReexecute = true;
-        Set<String> failedNodesIds = e.getFailedNodeSet();
+        var failedNodesIds = e.getFailedNodeSet();
         failedNodes = ensureMutability(failedNodes);
         failedNodes.clear();
         if (failedNodesIds != null) {
@@ -165,9 +164,9 @@ public class ExecuteRegionFunctionOp {
     private void fillMessage(String region, Function function, String functionId,
         ServerRegionFunctionExecutor serverRegionExecutor,
         Set<String> removedNodes, byte functionState, byte flags) {
-      Set routingObjects = serverRegionExecutor.getFilter();
-      Object args = serverRegionExecutor.getArguments();
-      MemberMappedArgument memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
+      var routingObjects = serverRegionExecutor.getFilter();
+      var args = serverRegionExecutor.getArguments();
+      var memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
       addBytes(functionState);
       getMessage().addStringPart(region, true);
       if (function != null && serverRegionExecutor.isFnSerializationReqd()) {
@@ -181,7 +180,7 @@ public class ExecuteRegionFunctionOp {
 
       getMessage().addBytesPart(new byte[] {flags});
       getMessage().addIntPart(routingObjects.size());
-      for (Object key : routingObjects) {
+      for (var key : routingObjects) {
         getMessage().addStringOrObjPart(key);
       }
       getMessage().addIntPart(removedNodes.size());
@@ -196,8 +195,8 @@ public class ExecuteRegionFunctionOp {
       super(MessageType.EXECUTE_REGION_FUNCTION,
           getMessagePartCount(serverRegionExecutor.getFilter().size(), 0), timeoutMs);
       executeOnBucketSet = serverRegionExecutor.getExecuteOnBucketSetFlag();
-      byte flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
-      byte functionState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
+      var flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
+      var functionState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
           function.optimizeForWrite());
       failedNodes = Collections.emptySet();
       fillMessage(region,
@@ -234,14 +233,14 @@ public class ExecuteRegionFunctionOp {
       super(MessageType.EXECUTE_REGION_FUNCTION,
           getMessagePartCount(serverRegionExecutor.getFilter().size(), 0), timeoutMs);
 
-      byte functionState = hasResult;
+      var functionState = hasResult;
       if (calculateFnState) {
         functionState = AbstractExecution.getFunctionState(isHA,
             hasResult == (byte) 1, optimizeForWrite);
       }
 
       executeOnBucketSet = serverRegionExecutor.getExecuteOnBucketSetFlag();
-      byte flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
+      var flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
 
       failedNodes = Collections.emptySet();
       fillMessage(region, null, functionId, serverRegionExecutor, failedNodes, functionState,
@@ -281,7 +280,7 @@ public class ExecuteRegionFunctionOp {
         resultCollector.clearResults();
       }
 
-      byte flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
+      var flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
 
       fillMessage(regionName, function, functionId,
           executor, removedNodes, hasResult, flags);
@@ -291,7 +290,7 @@ public class ExecuteRegionFunctionOp {
       if (getTimeoutMs() == DEFAULT_CLIENT_FUNCTION_TIMEOUT) {
         getMessage().addBytesPart(new byte[] {functionStateOrHasResult});
       } else {
-        byte[] bytes = new byte[5];
+        var bytes = new byte[5];
         bytes[0] = functionStateOrHasResult;
         Part.encodeInt(getTimeoutMs(), bytes, 1);
         getMessage().addBytesPart(bytes);
@@ -300,23 +299,23 @@ public class ExecuteRegionFunctionOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      ChunkedMessage executeFunctionResponseMsg = (ChunkedMessage) msg;
+      var executeFunctionResponseMsg = (ChunkedMessage) msg;
       // Read the header which describes the type of message following
       try {
         executeFunctionResponseMsg.readHeader();
         switch (executeFunctionResponseMsg.getMessageType()) {
           case MessageType.EXECUTE_REGION_FUNCTION_RESULT:
-            final boolean isDebugEnabled = logger.isDebugEnabled();
+            final var isDebugEnabled = logger.isDebugEnabled();
             if (isDebugEnabled) {
               logger.debug(
                   "ExecuteRegionFunctionOpImpl#processResponse: received message of type EXECUTE_REGION_FUNCTION_RESULT. The number of parts are : {}",
                   executeFunctionResponseMsg.getNumberOfParts());
             }
             // Read the chunk
-            boolean throwServerOp = false;
+            var throwServerOp = false;
             do {
               executeFunctionResponseMsg.receiveChunk();
-              Object resultResponse = executeFunctionResponseMsg.getPart(0).getObject();
+              var resultResponse = executeFunctionResponseMsg.getPart(0).getObject();
               Object result;
               if (resultResponse instanceof ArrayList) {
                 result = ((ArrayList) resultResponse).get(0);
@@ -327,10 +326,10 @@ public class ExecuteRegionFunctionOp {
               // if the function is HA throw exceptions
               // if nonHA collect these exceptions and wait till you get last chunk
               if (result instanceof FunctionException) {
-                FunctionException ex = ((FunctionException) result);
+                var ex = ((FunctionException) result);
                 if (ex instanceof InternalFunctionException) {
-                  Throwable cause = ex.getCause();
-                  DistributedMember memberID =
+                  var cause = ex.getCause();
+                  var memberID =
                       (DistributedMember) ((ArrayList) resultResponse).get(1);
                   resultCollector.addResult(memberID, cause);
                   FunctionStatsManager
@@ -338,7 +337,7 @@ public class ExecuteRegionFunctionOp {
                       .incResultsReceived();
                 } else if (((FunctionException) result)
                     .getCause() instanceof InternalFunctionInvocationTargetException) {
-                  InternalFunctionInvocationTargetException ifite =
+                  var ifite =
                       (InternalFunctionInvocationTargetException) ex.getCause();
                   failedNodes = ensureMutability(failedNodes);
                   failedNodes.addAll(ifite.getFailedNodeSet());
@@ -347,7 +346,7 @@ public class ExecuteRegionFunctionOp {
                   addFunctionException((FunctionException) result);
                 }
               } else if (result instanceof Throwable) {
-                Throwable t = (Throwable) result;
+                var t = (Throwable) result;
                 if (functionException == null) {
                   if (result instanceof BucketMovedException) {
                     FunctionInvocationTargetException fite;
@@ -370,7 +369,7 @@ public class ExecuteRegionFunctionOp {
                           ((CacheClosedException) result).getMessage());
                     }
                     if (resultResponse instanceof ArrayList) {
-                      DistributedMember memberID =
+                      var memberID =
                           (DistributedMember) ((ArrayList) resultResponse).get(1);
                       failedNodes = ensureMutability(failedNodes);
                       failedNodes.add(memberID.getId());
@@ -386,7 +385,7 @@ public class ExecuteRegionFunctionOp {
                   functionException.addException(t);
                 }
               } else {
-                DistributedMember memberID =
+                var memberID =
                     (DistributedMember) ((ArrayList) resultResponse).get(1);
                 resultCollector.addResult(memberID, result);
                 FunctionStatsManager
@@ -401,7 +400,7 @@ public class ExecuteRegionFunctionOp {
 
 
             if (isHA && throwServerOp) {
-              String s = "While performing a remote " + getOpName();
+              var s = "While performing a remote " + getOpName();
               throw new ServerOperationException(s, functionException);
             }
 
@@ -421,20 +420,20 @@ public class ExecuteRegionFunctionOp {
 
             // Read the chunk
             executeFunctionResponseMsg.receiveChunk();
-            Part part0 = executeFunctionResponseMsg.getPart(0);
-            Object obj = part0.getObject();
+            var part0 = executeFunctionResponseMsg.getPart(0);
+            var obj = part0.getObject();
             if (obj instanceof FunctionException) {
-              FunctionException ex = ((FunctionException) obj);
+              var ex = ((FunctionException) obj);
               if (((FunctionException) obj)
                   .getCause() instanceof InternalFunctionInvocationTargetException) {
-                InternalFunctionInvocationTargetException ifite =
+                var ifite =
                     (InternalFunctionInvocationTargetException) ex.getCause();
                 failedNodes = ensureMutability(failedNodes);
                 failedNodes.addAll(ifite.getFailedNodeSet());
               }
               throw ex;
             } else if (obj instanceof Throwable) {
-              String s = "While performing a remote " + getOpName();
+              var s = "While performing a remote " + getOpName();
               throw new ServerOperationException(s, (Throwable) obj);
             }
             break;
@@ -445,7 +444,7 @@ public class ExecuteRegionFunctionOp {
             }
             // Read the chunk
             executeFunctionResponseMsg.receiveChunk();
-            String errorMessage = executeFunctionResponseMsg.getPart(0).getString();
+            var errorMessage = executeFunctionResponseMsg.getPart(0).getString();
             throw new ServerOperationException(errorMessage);
           default:
             throw new InternalGemFireError(

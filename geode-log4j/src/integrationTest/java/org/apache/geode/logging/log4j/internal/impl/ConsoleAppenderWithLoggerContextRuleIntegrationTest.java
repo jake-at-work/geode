@@ -18,7 +18,6 @@ import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URL;
 import java.nio.ByteBuffer;
 
 import org.apache.logging.log4j.Level;
@@ -72,7 +71,7 @@ public class ConsoleAppenderWithLoggerContextRuleIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
@@ -97,7 +96,7 @@ public class ConsoleAppenderWithLoggerContextRuleIntegrationTest {
     assertThat(consoleAppender.getState()).isSameAs(LifeCycle.State.STARTED);
     assertThat(consoleAppender.getTarget()).isSameAs(ConsoleAppender.Target.SYSTEM_OUT);
 
-    OutputStreamManager outputStreamManager = consoleAppender.getManager();
+    var outputStreamManager = consoleAppender.getManager();
     assertThat(outputStreamManager.isOpen()).isTrue();
     assertThat(outputStreamManager.getByteBuffer()).isInstanceOf(ByteBuffer.class);
     assertThat(outputStreamManager.hasOutputStream()).isTrue();

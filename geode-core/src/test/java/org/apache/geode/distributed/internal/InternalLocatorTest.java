@@ -56,9 +56,9 @@ public class InternalLocatorTest {
     managementService = mock(BaseManagementService.class);
     agentUtil = mock(AgentUtil.class);
     httpService = mock(HttpService.class);
-    InternalRegionFactory regionFactory = mock(InternalRegionFactory.class);
-    LoggingSession loggingSession = mock(LoggingSession.class);
-    URI uri = new URI("file", "/management.war", null);
+    var regionFactory = mock(InternalRegionFactory.class);
+    var loggingSession = mock(LoggingSession.class);
+    var uri = new URI("file", "/management.war", null);
 
     when(distributionConfig.getJmxManager()).thenReturn(true);
     when(distributionConfig.getJmxManagerPort())
@@ -124,7 +124,7 @@ public class InternalLocatorTest {
   public void startClusterManagementServiceWithRestServiceEnabledDoesNotThrowWhenStartManagerThrows()
       throws Exception {
     when(distributionConfig.getEnableManagementRestService()).thenReturn(true);
-    RuntimeException startManagerEx = new RuntimeException("startManager failed");
+    var startManagerEx = new RuntimeException("startManager failed");
     doThrow(startManagerEx).when(managementService).startManager();
 
     internalLocator.startClusterManagementService(cache, agentUtil);

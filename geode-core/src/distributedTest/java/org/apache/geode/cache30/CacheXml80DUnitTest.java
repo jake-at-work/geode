@@ -36,11 +36,9 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.compression.SnappyCompressor;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.xmlcache.CacheCreation;
@@ -60,10 +58,10 @@ public class CacheXml80DUnitTest extends CacheXml70DUnitTest {
 
   @Test
   public void testCompressor() throws Exception {
-    final String regionName = "testCompressor";
+    final var regionName = "testCompressor";
 
-    final CacheCreation cache = new CacheCreation();
-    final RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    final var cache = new CacheCreation();
+    final var attrs = new RegionAttributesCreation(cache);
     attrs.setCompressor(SnappyCompressor.getDefaultInstance());
     /* Region regionBefore = */ cache.createRegion(regionName, attrs);
 
@@ -86,8 +84,8 @@ public class CacheXml80DUnitTest extends CacheXml70DUnitTest {
    */
   @Test
   public void testIndexXmlCreation() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     attrs.setDataPolicy(DataPolicy.REPLICATE);
     cache.createRegion("replicated", attrs);
@@ -100,18 +98,18 @@ public class CacheXml80DUnitTest extends CacheXml70DUnitTest {
 
     Cache c = getCache();
     assertNotNull(c);
-    QueryService qs = c.getQueryService();
-    Collection<Index> indexes = qs.getIndexes();
+    var qs = c.getQueryService();
+    var indexes = qs.getIndexes();
     assertEquals(3, indexes.size());
     c.getQueryService().createIndex("crIndex2", "r.CR_ID_2", SEPARATOR + "replicated r");
     c.getQueryService().createIndex("rIndex", "r.R_ID",
         SEPARATOR + "replicated r, r.positions.values rv");
 
-    File dir = new File(temporaryFolder.getRoot(), "XML_" + getGemFireVersion());
+    var dir = new File(temporaryFolder.getRoot(), "XML_" + getGemFireVersion());
     dir.mkdirs();
-    File file = new File(dir, "actual-" + getUniqueName() + ".xml");
+    var file = new File(dir, "actual-" + getUniqueName() + ".xml");
 
-    PrintWriter pw = new PrintWriter(new FileWriter(file), true);
+    var pw = new PrintWriter(new FileWriter(file), true);
     CacheXmlGenerator.generate(c, pw, getUseSchema(), getGemFireVersion());
     pw.close();
 
@@ -124,26 +122,26 @@ public class CacheXml80DUnitTest extends CacheXml70DUnitTest {
 
     c = getCache();
     qs = c.getQueryService();
-    Collection<Index> newIndexes = qs.getIndexes();
+    var newIndexes = qs.getIndexes();
     assertEquals(5, newIndexes.size());
 
     Region r = c.getRegion(SEPARATOR + "replicated");
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       r.put(i, new TestObject(i));
     }
 
     // Validate to see, newly created indexes match the initial configuration
-    for (Index index : indexes) {
-      Index newIndex = qs.getIndex(r, index.getName());
+    for (var index : indexes) {
+      var newIndex = qs.getIndex(r, index.getName());
       assertEquals("Index from clause is not same for index " + index.getName(),
           newIndex.getFromClause(), index.getFromClause());
       assertEquals("Index expression is not same for index " + index.getName(),
           newIndex.getIndexedExpression(), index.getIndexedExpression());
     }
 
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("select * from " + SEPARATOR + "replicated r where r.ID = 1")
             .execute();
     assertEquals(1, results.size());
@@ -182,12 +180,12 @@ public class CacheXml80DUnitTest extends CacheXml70DUnitTest {
 
   @Test
   public void testCacheServerDisableTcpNoDelay() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    CacheServer cs = cache.addCacheServer();
+    var cs = cache.addCacheServer();
     cs.setPort(0);
     cs.setTcpNoDelay(false);
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.NORMAL);
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
@@ -195,12 +193,12 @@ public class CacheXml80DUnitTest extends CacheXml70DUnitTest {
 
   @Test
   public void testCacheServerEnableTcpNoDelay() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    CacheServer cs = cache.addCacheServer();
+    var cs = cache.addCacheServer();
     cs.setPort(0);
     cs.setTcpNoDelay(true);
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.NORMAL);
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
@@ -208,15 +206,15 @@ public class CacheXml80DUnitTest extends CacheXml70DUnitTest {
 
   @Test
   public void testDiskUsage() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    DiskStoreAttributesCreation disk = new DiskStoreAttributesCreation();
+    var disk = new DiskStoreAttributesCreation();
     disk.setDiskUsageWarningPercentage(97);
     disk.setDiskUsageCriticalPercentage(98);
     disk.setName("mydisk");
     cache.addDiskStore(disk);
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     attrs.setDiskStoreName("mydisk");
 

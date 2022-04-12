@@ -38,7 +38,7 @@ public class DistTXAdjunctCommitMessage extends TXCommitMessage {
     Iterator it = farSideEntryOps.iterator();
     while (it.hasNext()) {
       try {
-        RegionCommit.FarSideEntryOp entryOp = (RegionCommit.FarSideEntryOp) it.next();
+        var entryOp = (RegionCommit.FarSideEntryOp) it.next();
         entryOp.processAdjunctOnly();
       } catch (CacheRuntimeException problem) {
         processCacheRuntimeException(problem);

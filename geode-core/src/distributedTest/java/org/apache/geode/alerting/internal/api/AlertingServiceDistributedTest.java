@@ -43,7 +43,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.Serializable;
-import java.util.Properties;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.JMX;
@@ -129,7 +128,7 @@ public class AlertingServiceDistributedTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(managerVM, memberVM)) {
+    for (var vm : toArray(managerVM, memberVM)) {
       vm.invoke(() -> {
         removeListener(messageListener);
         cache.close();
@@ -262,7 +261,7 @@ public class AlertingServiceDistributedTest implements Serializable {
 
   @Test
   public void alertDetailsSourceContainsThreadName() {
-    String threadName = memberVM.invoke(() -> {
+    var threadName = memberVM.invoke(() -> {
       logger.fatal(alertMessage);
       return Thread.currentThread().getName();
     });
@@ -301,7 +300,7 @@ public class AlertingServiceDistributedTest implements Serializable {
 
   @Test
   public void alertDetailsThreadNameMatchesLoggingThreadName() {
-    String threadName = memberVM.invoke(() -> {
+    var threadName = memberVM.invoke(() -> {
       logger.fatal(alertMessage);
       return Thread.currentThread().getName();
     });
@@ -336,7 +335,7 @@ public class AlertingServiceDistributedTest implements Serializable {
     messageListener = spy(AlertListenerMessage.Listener.class);
     addListener(messageListener);
 
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, managerName);
     config.setProperty(JMX_MANAGER, "true");
     config.setProperty(JMX_MANAGER_START, "true");
@@ -358,7 +357,7 @@ public class AlertingServiceDistributedTest implements Serializable {
   }
 
   private void createMember() {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, memberName);
     config.setProperty(JMX_MANAGER, "false");
 
@@ -384,14 +383,14 @@ public class AlertingServiceDistributedTest implements Serializable {
   }
 
   private Notification captureNotification() {
-    ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+    var notificationCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationListener, timeout(TIMEOUT)).handleNotification(notificationCaptor.capture(),
         isNull());
     return notificationCaptor.getValue();
   }
 
   private AlertDetails captureAlertDetails() {
-    ArgumentCaptor<AlertDetails> alertDetailsCaptor = ArgumentCaptor.forClass(AlertDetails.class);
+    var alertDetailsCaptor = ArgumentCaptor.forClass(AlertDetails.class);
     verify(messageListener, timeout(TIMEOUT)).created(alertDetailsCaptor.capture());
     return alertDetailsCaptor.getValue();
   }

@@ -37,7 +37,7 @@ public class RemoveHealthListenerRequest extends AdminRequest {
    * Returns a <code>RemoveHealthListenerRequest</code> to be sent to the specified recipient.
    */
   public static RemoveHealthListenerRequest create(int id) {
-    RemoveHealthListenerRequest m = new RemoveHealthListenerRequest();
+    var m = new RemoveHealthListenerRequest();
     m.id = id;
     return m;
   }

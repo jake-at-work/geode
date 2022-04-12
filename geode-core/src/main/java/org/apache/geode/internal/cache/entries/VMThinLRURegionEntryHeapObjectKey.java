@@ -117,10 +117,10 @@ public class VMThinLRURegionEntryHeapObjectKey extends VMThinLRURegionEntryHeap 
   @Override
   public synchronized int updateEntrySize(final EvictionController evictionController,
       final Object value) {
-    int oldSize = getEntrySize();
-    int newSize = evictionController.entrySize(getKeyForSizing(), value);
+    var oldSize = getEntrySize();
+    var newSize = evictionController.entrySize(getKeyForSizing(), value);
     setEntrySize(newSize);
-    int delta = newSize - oldSize;
+    var delta = newSize - oldSize;
     return delta;
   }
 

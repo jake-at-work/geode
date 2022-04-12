@@ -70,13 +70,13 @@ public class ResultsCollectionCopyOnReadWrapper implements SelectResults {
 
     @Override
     public Object next() {
-      Object object = iterator.next();
+      var object = iterator.next();
       if (object instanceof Struct) {
-        Struct struct = (Struct) object;
-        Object[] values = struct.getFieldValues();
-        Object[] newValues = new Object[values.length];
-        int length = values.length;
-        for (int i = 0; i < length; i++) {
+        var struct = (Struct) object;
+        var values = struct.getFieldValues();
+        var newValues = new Object[values.length];
+        var length = values.length;
+        for (var i = 0; i < length; i++) {
           newValues[i] = CopyHelper.copy(values[i]);
         }
         return new StructImpl((StructTypeImpl) struct.getStructType(), newValues);
@@ -161,8 +161,8 @@ public class ResultsCollectionCopyOnReadWrapper implements SelectResults {
 
   @Override
   public Object[] toArray() {
-    ArrayList arrayList = new ArrayList();
-    for (final Object o : this) {
+    var arrayList = new ArrayList();
+    for (final var o : this) {
       arrayList.add(o);
     }
     return arrayList.toArray();
@@ -170,8 +170,8 @@ public class ResultsCollectionCopyOnReadWrapper implements SelectResults {
 
   @Override
   public Object[] toArray(Object[] a) {
-    Iterator iter = iterator();
-    int i = 0;
+    var iter = iterator();
+    var i = 0;
     while (iter.hasNext()) {
       a[i++] = iter.next();
     }

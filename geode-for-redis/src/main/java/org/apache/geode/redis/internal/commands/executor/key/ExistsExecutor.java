@@ -15,7 +15,6 @@
  */
 package org.apache.geode.redis.internal.commands.executor.key;
 
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
@@ -28,9 +27,9 @@ public class ExistsExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<RedisKey> commandElems = command.getProcessedCommandKeys();
+    var commandElems = command.getProcessedCommandKeys();
 
-    long existsCount = commandElems
+    var existsCount = commandElems
         .stream()
         .filter(key -> exists(context, key))
         .count();

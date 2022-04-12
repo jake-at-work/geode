@@ -19,8 +19,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStreamReader;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import javax.xml.XMLConstants;
@@ -28,7 +26,6 @@ import javax.xml.XMLConstants;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import org.apache.geode.internal.cache.xmlcache.CacheXml;
@@ -46,8 +43,8 @@ import org.apache.geode.management.internal.configuration.utils.XmlUtils.XPathCo
 public class CacheElementJUnitTest {
 
   private Document loadSchema(final String schemaLocation) throws Exception {
-    final CacheXmlParser entityResolver = new CacheXmlParser();
-    final XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+    final var entityResolver = new CacheXmlParser();
+    final var xmlReader = XMLReaderFactory.createXMLReader();
     xmlReader.setEntityResolver(entityResolver);
 
     return XmlUtils.getDocumentBuilder()
@@ -62,8 +59,8 @@ public class CacheElementJUnitTest {
    */
   @Test
   public void testCacheDefinedAsNestedComplexType8_1() throws Exception {
-    Document doc = loadSchema(CacheXmlVersion.GEMFIRE_8_1.getSchemaLocation());
-    final XPathContext xPathContext =
+    var doc = loadSchema(CacheXmlVersion.GEMFIRE_8_1.getSchemaLocation());
+    final var xPathContext =
         new XPathContext(CacheElement.XSD_PREFIX, XMLConstants.W3C_XML_SCHEMA_NS_URI);
     final Node cacheType = XmlUtils.querySingleElement(doc.getFirstChild(),
         CacheElement.CACHE_TYPE_EMBEDDED, xPathContext);
@@ -80,8 +77,8 @@ public class CacheElementJUnitTest {
    */
   @Test
   public void testCacheDefinedAsNestedComplexTypeLatest() throws Exception {
-    Document doc = loadSchema(CacheXml.LATEST_SCHEMA_LOCATION);
-    final XPathContext xPathContext =
+    var doc = loadSchema(CacheXml.LATEST_SCHEMA_LOCATION);
+    final var xPathContext =
         new XPathContext(CacheElement.XSD_PREFIX, XMLConstants.W3C_XML_SCHEMA_NS_URI);
     final Node cacheType = XmlUtils.querySingleElement(doc.getFirstChild(),
         CacheElement.CACHE_TYPE_EMBEDDED, xPathContext);
@@ -97,14 +94,14 @@ public class CacheElementJUnitTest {
    */
   @Test
   public void testBuildElementMap() throws Exception {
-    final Document doc = XmlUtils.createDocumentFromReader(
+    final var doc = XmlUtils.createDocumentFromReader(
         new InputStreamReader(getClass().getResourceAsStream("CacheElementJUnitTest.xml")));
 
-    final LinkedHashMap<String, CacheElement> elementMap = CacheElement.buildElementMap(doc);
+    final var elementMap = CacheElement.buildElementMap(doc);
 
-    final Iterator<Entry<String, CacheElement>> entries = elementMap.entrySet().iterator();
+    final var entries = elementMap.entrySet().iterator();
 
-    int order = 0;
+    var order = 0;
     assertEntry("cache-transaction-manager", order++, entries.next());
     assertEntry("dynamic-region-factory", order++, entries.next());
     assertEntry("gateway-hub", order++, entries.next());

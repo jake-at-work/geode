@@ -61,7 +61,7 @@ public class CompiledFunction extends AbstractCompiledValue {
   public Object evaluate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
     if (_function == LITERAL_element) {
-      Object arg = _args[0].evaluate(context);
+      var arg = _args[0].evaluate(context);
       return call(arg, context);
     } else if (_function == LITERAL_nvl) {
       return Functions.nvl(_args[0], _args[1], context);
@@ -76,8 +76,8 @@ public class CompiledFunction extends AbstractCompiledValue {
   @Override
   public Set computeDependencies(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    int len = _args.length;
-    for (final CompiledValue arg : _args) {
+    var len = _args.length;
+    for (final var arg : _args) {
       context.addDependencies(this, arg.computeDependencies(context));
     }
     return context.getDependencySet(this, true);
@@ -97,8 +97,8 @@ public class CompiledFunction extends AbstractCompiledValue {
   public void generateCanonicalizedExpression(StringBuilder clauseBuffer, ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
     clauseBuffer.insert(0, ')');
-    int len = _args.length;
-    for (int i = len - 1; i > 0; i--) {
+    var len = _args.length;
+    for (var i = len - 1; i > 0; i--) {
       _args[i].generateCanonicalizedExpression(clauseBuffer, context);
       clauseBuffer.insert(0, ',');
     }

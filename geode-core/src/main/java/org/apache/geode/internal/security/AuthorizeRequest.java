@@ -17,7 +17,6 @@ package org.apache.geode.internal.security;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashSet;
@@ -87,7 +86,7 @@ public class AuthorizeRequest {
     isPrincipalSerializable = this.principal instanceof Serializable;
 
     logger = cache.getSecurityLogger();
-    Method authzMethod = ClassLoadUtils.methodFromName(authzFactoryName);
+    var authzMethod = ClassLoadUtils.methodFromName(authzFactoryName);
     authzCallback = (AccessControl) authzMethod.invoke(null, (Object[]) null);
     authzCallback.init(principal, dm, cache);
     id = null;
@@ -111,7 +110,7 @@ public class AuthorizeRequest {
     GetOperationContext getContext = new GetOperationContextImpl(key, false);
     getContext.setCallbackArg(callbackArg);
     if (!authzCallback.authorizeOperation(regionName, getContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform GET operation on region [%s]",
               regionName);
       if (logger.fineEnabled()) {
@@ -140,10 +139,10 @@ public class AuthorizeRequest {
   public PutOperationContext putAuthorize(String regionName, Object key, Object value,
       boolean isObject, Object callbackArg, byte opType) throws NotAuthorizedException {
 
-    PutOperationContext putContext = new PutOperationContext(key, value, isObject, opType, false);
+    var putContext = new PutOperationContext(key, value, isObject, opType, false);
     putContext.setCallbackArg(callbackArg);
     if (!authzCallback.authorizeOperation(regionName, putContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform PUT operation on region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -163,10 +162,10 @@ public class AuthorizeRequest {
 
   public PutAllOperationContext putAllAuthorize(String regionName, Map map, Object callbackArg)
       throws NotAuthorizedException {
-    PutAllOperationContext putAllContext = new PutAllOperationContext(map);
+    var putAllContext = new PutAllOperationContext(map);
     putAllContext.setCallbackArg(callbackArg);
     if (!authzCallback.authorizeOperation(regionName, putAllContext)) {
-      final String errStr =
+      final var errStr =
           String.format("Not authorized to perform PUTALL operation on region [%s]",
               regionName);
       if (logger.warningEnabled()) {
@@ -212,10 +211,10 @@ public class AuthorizeRequest {
 
   public RemoveAllOperationContext removeAllAuthorize(String regionName, Collection<?> keys,
       Object callbackArg) throws NotAuthorizedException {
-    RemoveAllOperationContext removeAllContext = new RemoveAllOperationContext(keys);
+    var removeAllContext = new RemoveAllOperationContext(keys);
     removeAllContext.setCallbackArg(callbackArg);
     if (!authzCallback.authorizeOperation(regionName, removeAllContext)) {
-      final String errStr =
+      final var errStr =
           String.format("Not authorized to perform removeAll operation on region [%s]",
               regionName);
       if (logger.warningEnabled()) {
@@ -238,10 +237,10 @@ public class AuthorizeRequest {
   public DestroyOperationContext destroyAuthorize(String regionName, Object key, Object callbackArg)
       throws NotAuthorizedException {
 
-    DestroyOperationContext destroyEntryContext = new DestroyOperationContext(key);
+    var destroyEntryContext = new DestroyOperationContext(key);
     destroyEntryContext.setCallbackArg(callbackArg);
     if (!authzCallback.authorizeOperation(regionName, destroyEntryContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform DESTROY operation on region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -270,10 +269,10 @@ public class AuthorizeRequest {
     if (regionNames == null) {
       regionNames = new HashSet();
     }
-    QueryOperationContext queryContext =
+    var queryContext =
         new QueryOperationContext(queryString, regionNames, false, queryParams);
     if (!authzCallback.authorizeOperation(null, queryContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perfom QUERY operation [%s] on the cache",
               queryString);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -297,10 +296,10 @@ public class AuthorizeRequest {
     if (regionNames == null) {
       regionNames = new HashSet();
     }
-    ExecuteCQOperationContext executeCQContext =
+    var executeCQContext =
         new ExecuteCQOperationContext(cqName, queryString, regionNames, false);
     if (!authzCallback.authorizeOperation(null, executeCQContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perfom EXECUTE_CQ operation [%s] on the cache",
               queryString);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -321,10 +320,10 @@ public class AuthorizeRequest {
   public void stopCQAuthorize(String cqName, String queryString, Set regionNames)
       throws NotAuthorizedException {
 
-    StopCQOperationContext stopCQContext =
+    var stopCQContext =
         new StopCQOperationContext(cqName, queryString, regionNames);
     if (!authzCallback.authorizeOperation(null, stopCQContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perfom STOP_CQ operation [%s] on the cache",
               cqName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -344,10 +343,10 @@ public class AuthorizeRequest {
   public void closeCQAuthorize(String cqName, String queryString, Set regionNames)
       throws NotAuthorizedException {
 
-    CloseCQOperationContext closeCQContext =
+    var closeCQContext =
         new CloseCQOperationContext(cqName, queryString, regionNames);
     if (!authzCallback.authorizeOperation(null, closeCQContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perfom CLOSE_CQ operation [%s] on the cache",
               cqName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -366,9 +365,9 @@ public class AuthorizeRequest {
 
   public void getDurableCQsAuthorize() throws NotAuthorizedException {
 
-    GetDurableCQsOperationContext getDurableCQsContext = new GetDurableCQsOperationContext();
+    var getDurableCQsContext = new GetDurableCQsOperationContext();
     if (!authzCallback.authorizeOperation(null, getDurableCQsContext)) {
-      String errStr =
+      var errStr =
           "Not authorized to perform GET_DURABLE_CQS operation on cache";
       logger.warning(String.format("%s : %s", this, errStr));
       if (isPrincipalSerializable) {
@@ -387,10 +386,10 @@ public class AuthorizeRequest {
   public RegionClearOperationContext clearAuthorize(String regionName, Object callbackArg)
       throws NotAuthorizedException {
 
-    RegionClearOperationContext regionClearContext = new RegionClearOperationContext(false);
+    var regionClearContext = new RegionClearOperationContext(false);
     regionClearContext.setCallbackArg(callbackArg);
     if (!authzCallback.authorizeOperation(regionName, regionClearContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform REGION_CLEAR operation on region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -412,10 +411,10 @@ public class AuthorizeRequest {
       final @NotNull org.apache.geode.internal.cache.tier.InterestType interestType,
       InterestResultPolicy policy) throws NotAuthorizedException {
 
-    RegisterInterestOperationContext registerInterestContext = new RegisterInterestOperationContext(
+    var registerInterestContext = new RegisterInterestOperationContext(
         key, InterestType.fromOrdinal((byte) interestType.ordinal()), policy);
     if (!authzCallback.authorizeOperation(regionName, registerInterestContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform REGISTER_INTEREST operation for region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -441,7 +440,7 @@ public class AuthorizeRequest {
     registerInterestListContext =
         new RegisterInterestOperationContext(keys, InterestType.LIST, policy);
     if (!authzCallback.authorizeOperation(regionName, registerInterestListContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform REGISTER_INTEREST_LIST operation for region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -469,7 +468,7 @@ public class AuthorizeRequest {
         new UnregisterInterestOperationContext(key,
             InterestType.fromOrdinal((byte) interestType.ordinal()));
     if (!authzCallback.authorizeOperation(regionName, unregisterInterestContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform UNREGISTER_INTEREST operation for region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -493,7 +492,7 @@ public class AuthorizeRequest {
     UnregisterInterestOperationContext unregisterInterestListContext;
     unregisterInterestListContext = new UnregisterInterestOperationContext(keys, InterestType.LIST);
     if (!authzCallback.authorizeOperation(regionName, unregisterInterestListContext)) {
-      String errStr =
+      var errStr =
           String.format(
               "Not authorized to perform UNREGISTER_INTEREST_LIST operation for region %s",
               regionName);
@@ -515,9 +514,9 @@ public class AuthorizeRequest {
 
   public KeySetOperationContext keySetAuthorize(String regionName) throws NotAuthorizedException {
 
-    KeySetOperationContext keySetContext = new KeySetOperationContext(false);
+    var keySetContext = new KeySetOperationContext(false);
     if (!authzCallback.authorizeOperation(regionName, keySetContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform KEY_SET operation on region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -537,9 +536,9 @@ public class AuthorizeRequest {
 
   public void containsKeyAuthorize(String regionName, Object key) throws NotAuthorizedException {
 
-    ContainsKeyOperationContext containsKeyContext = new ContainsKeyOperationContext(key);
+    var containsKeyContext = new ContainsKeyOperationContext(key);
     if (!authzCallback.authorizeOperation(regionName, containsKeyContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform CONTAINS_KEY operation on region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -558,9 +557,9 @@ public class AuthorizeRequest {
 
   public void createRegionAuthorize(String regionName) throws NotAuthorizedException {
 
-    RegionCreateOperationContext regionCreateContext = new RegionCreateOperationContext(false);
+    var regionCreateContext = new RegionCreateOperationContext(false);
     if (!authzCallback.authorizeOperation(regionName, regionCreateContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform CREATE_REGION operation for the region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -580,10 +579,10 @@ public class AuthorizeRequest {
   public RegionDestroyOperationContext destroyRegionAuthorize(String regionName, Object callbackArg)
       throws NotAuthorizedException {
 
-    RegionDestroyOperationContext regionDestroyContext = new RegionDestroyOperationContext(false);
+    var regionDestroyContext = new RegionDestroyOperationContext(false);
     regionDestroyContext.setCallbackArg(callbackArg);
     if (!authzCallback.authorizeOperation(regionName, regionDestroyContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform REGION_DESTROY operation for the region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));
@@ -604,10 +603,10 @@ public class AuthorizeRequest {
   public ExecuteFunctionOperationContext executeFunctionAuthorize(String functionName,
       String region, Set keySet, Object arguments, boolean optimizeForWrite)
       throws NotAuthorizedException {
-    ExecuteFunctionOperationContext executeContext = new ExecuteFunctionOperationContext(
+    var executeContext = new ExecuteFunctionOperationContext(
         functionName, region, keySet, arguments, optimizeForWrite, false);
     if (!authzCallback.authorizeOperation(region, executeContext)) {
-      final String errStr =
+      final var errStr =
           "Not authorized to perform EXECUTE_REGION_FUNCTION operation";
       if (logger.warningEnabled()) {
         logger.warning(String.format("%s : %s", this, errStr));
@@ -629,10 +628,10 @@ public class AuthorizeRequest {
   public InvalidateOperationContext invalidateAuthorize(String regionName, Object key,
       Object callbackArg) throws NotAuthorizedException {
 
-    InvalidateOperationContext invalidateEntryContext = new InvalidateOperationContext(key);
+    var invalidateEntryContext = new InvalidateOperationContext(key);
     invalidateEntryContext.setCallbackArg(callbackArg);
     if (!authzCallback.authorizeOperation(regionName, invalidateEntryContext)) {
-      String errStr =
+      var errStr =
           String.format("Not authorized to perform INVALIDATE operation on region %s",
               regionName);
       logger.warning(String.format("%s : %s", this, errStr));

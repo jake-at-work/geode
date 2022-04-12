@@ -18,12 +18,10 @@ import javax.resource.ResourceException;
 import javax.resource.spi.LocalTransaction;
 import javax.resource.spi.LocalTransactionException;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 
 public class JCALocalTransaction implements LocalTransaction {
   private volatile InternalCache cache;
@@ -58,7 +56,7 @@ public class JCALocalTransaction implements LocalTransaction {
       throw new LocalTransactionException(
           "Transaction with id=" + tid + " is already in progress");
     }
-    TXStateProxy tsp = gfTxMgr.getTXState();
+    var tsp = gfTxMgr.getTXState();
     if (tsp == null) {
       gfTxMgr.begin();
       tsp = gfTxMgr.getTXState();
@@ -76,11 +74,11 @@ public class JCALocalTransaction implements LocalTransaction {
 
   @Override
   public void commit() throws ResourceException {
-    LogWriter logger = cache.getLogger();
+    var logger = cache.getLogger();
     if (logger.fineEnabled()) {
       logger.fine("JCALocalTransaction:invoked commit");
     }
-    TXStateProxy tsp = gfTxMgr.getTXState();
+    var tsp = gfTxMgr.getTXState();
     if (tsp != null && tid != tsp.getTransactionId()) {
       throw new IllegalStateException("Local Transaction associated with Tid = " + tid
           + " attempting to commit a different transaction");
@@ -95,12 +93,12 @@ public class JCALocalTransaction implements LocalTransaction {
 
   @Override
   public void rollback() throws ResourceException {
-    TXStateProxy tsp = gfTxMgr.getTXState();
+    var tsp = gfTxMgr.getTXState();
     if (tsp != null && tid != tsp.getTransactionId()) {
       throw new IllegalStateException("Local Transaction associated with Tid = " + tid
           + " attempting to commit a different transaction");
     }
-    LogWriter logger = cache.getLogger();
+    var logger = cache.getLogger();
     if (logger.fineEnabled()) {
       logger.fine("JCALocalTransaction:invoked rollback");
     }
@@ -123,7 +121,7 @@ public class JCALocalTransaction implements LocalTransaction {
 
   private void init() {
     cache = (InternalCache) CacheFactory.getAnyInstance();
-    LogWriter logger = cache.getLogger();
+    var logger = cache.getLogger();
     if (logger.fineEnabled()) {
       logger.fine("JCAManagedConnection:init. Inside init");
     }

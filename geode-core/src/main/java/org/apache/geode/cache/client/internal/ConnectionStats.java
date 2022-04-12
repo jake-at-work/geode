@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.distributed.internal.DistributionStats;
@@ -449,7 +448,7 @@ public class ConnectionStats implements MessageStats {
 
   static {
     try {
-      StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+      var f = StatisticsTypeFactoryImpl.singleton();
       type = f.createType("ClientStats", "Statistics about client to server communication",
           new StatisticDescriptor[] {
               f.createIntGauge("addPdxTypeInProgress",
@@ -1675,7 +1674,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the get failed
    */
   public void endGetSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(getSendInProgressId, -1);
     int endGetSendId;
@@ -1696,7 +1695,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if get failed
    */
   public void endGet(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(getInProgressId, -1);
     int endGetId;
@@ -1741,7 +1740,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the put failed
    */
   public void endPutSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(putSendInProgressId, -1);
     int endPutSendId;
@@ -1762,7 +1761,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if put failed
    */
   public void endPut(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(putInProgressId, -1);
     int endPutId;
@@ -1807,7 +1806,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the destroy failed
    */
   public void endDestroySend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(destroySendInProgressId, -1);
     int endDestroySendId;
@@ -1828,7 +1827,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if destroy failed
    */
   public void endDestroy(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(destroyInProgressId, -1);
     int endDestroyId;
@@ -1865,7 +1864,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the destroyRegion failed
    */
   public void endDestroyRegionSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(destroyRegionSendInProgressId, -1);
     int endDestroyRegionSendId;
@@ -1886,7 +1885,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if destroyRegion failed
    */
   public void endDestroyRegion(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(destroyRegionInProgressId, -1);
     int endDestroyRegionId;
@@ -1923,7 +1922,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the clear failed
    */
   public void endClearSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(clearSendInProgressId, -1);
     int endClearSendId;
@@ -1944,7 +1943,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if clear failed
    */
   public void endClear(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(clearInProgressId, -1);
     int endClearId;
@@ -1981,7 +1980,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the containsKey failed
    */
   public void endContainsKeySend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(containsKeySendInProgressId, -1);
     int endContainsKeySendId;
@@ -2002,7 +2001,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if containsKey failed
    */
   public void endContainsKey(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(containsKeyInProgressId, -1);
     int endContainsKeyId;
@@ -2039,7 +2038,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the keySet failed
    */
   public void endKeySetSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(keySetSendInProgressId, -1);
     int endKeySetSendId;
@@ -2060,7 +2059,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if keySet failed
    */
   public void endKeySet(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(keySetInProgressId, -1);
     int endKeySetId;
@@ -2097,7 +2096,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the registerInterest failed
    */
   public void endRegisterInterestSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(registerInterestSendInProgressId, -1);
     int endRegisterInterestSendId;
@@ -2118,7 +2117,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if registerInterest failed
    */
   public void endRegisterInterest(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(registerInterestInProgressId, -1);
     int endRegisterInterestId;
@@ -2155,7 +2154,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the unregisterInterest failed
    */
   public void endUnregisterInterestSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(unregisterInterestSendInProgressId, -1);
     int endUnregisterInterestSendId;
@@ -2176,7 +2175,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if unregisterInterest failed
    */
   public void endUnregisterInterest(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(unregisterInterestInProgressId, -1);
     int endUnregisterInterestId;
@@ -2213,7 +2212,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the query failed
    */
   public void endQuerySend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(querySendInProgressId, -1);
     int endQuerySendId;
@@ -2234,7 +2233,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if query failed
    */
   public void endQuery(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(queryInProgressId, -1);
     int endQueryId;
@@ -2271,7 +2270,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the createCQ failed
    */
   public void endCreateCQSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(createCQSendInProgressId, -1);
     int endCreateCQSendId;
@@ -2292,7 +2291,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if createCQ failed
    */
   public void endCreateCQ(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(createCQInProgressId, -1);
     int endCreateCQId;
@@ -2329,7 +2328,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the stopCQ failed
    */
   public void endStopCQSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(stopCQSendInProgressId, -1);
     int endStopCQSendId;
@@ -2350,7 +2349,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if stopCQ failed
    */
   public void endStopCQ(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(stopCQInProgressId, -1);
     int endStopCQId;
@@ -2387,7 +2386,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the closeCQ failed
    */
   public void endCloseCQSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(closeCQSendInProgressId, -1);
     int endCloseCQSendId;
@@ -2408,7 +2407,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if closeCQ failed
    */
   public void endCloseCQ(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(closeCQInProgressId, -1);
     int endCloseCQId;
@@ -2445,7 +2444,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the stopCQ failed
    */
   public void endGetDurableCQsSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(getDurableCQsSendsInProgressId, -1);
     int endGetDurableCQsSendId;
@@ -2466,7 +2465,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if stopCQ failed
    */
   public void endGetDurableCQs(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(getDurableCQsInProgressId, -1);
     int endGetDurableCQsId;
@@ -2503,7 +2502,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the gatewayBatch failed
    */
   public void endGatewayBatchSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(gatewayBatchSendInProgressId, -1);
     int endGatewayBatchSendId;
@@ -2524,7 +2523,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if gatewayBatch failed
    */
   public void endGatewayBatch(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(gatewayBatchInProgressId, -1);
     int endGatewayBatchId;
@@ -2561,7 +2560,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the readyForEvents failed
    */
   public void endReadyForEventsSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(readyForEventsSendInProgressId, -1);
     int endReadyForEventsSendId;
@@ -2582,7 +2581,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if readyForEvents failed
    */
   public void endReadyForEvents(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(readyForEventsInProgressId, -1);
     int endReadyForEventsId;
@@ -2619,7 +2618,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the makePrimary failed
    */
   public void endMakePrimarySend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(makePrimarySendInProgressId, -1);
     int endMakePrimarySendId;
@@ -2640,7 +2639,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if makePrimary failed
    */
   public void endMakePrimary(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(makePrimaryInProgressId, -1);
     int endMakePrimaryId;
@@ -2677,7 +2676,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the closeCon failed
    */
   public void endCloseConSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(closeConSendInProgressId, -1);
     int endCloseConSendId;
@@ -2698,7 +2697,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if closeCon failed
    */
   public void endCloseCon(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(closeConInProgressId, -1);
     int endCloseConId;
@@ -2735,7 +2734,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the primaryAck failed
    */
   public void endPrimaryAckSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(primaryAckSendInProgressId, -1);
     int endPrimaryAckSendId;
@@ -2756,7 +2755,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if primaryAck failed
    */
   public void endPrimaryAck(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(primaryAckInProgressId, -1);
     int endPrimaryAckId;
@@ -2793,7 +2792,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the ping failed
    */
   public void endPingSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(pingSendInProgressId, -1);
     int endPingSendId;
@@ -2814,7 +2813,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if ping failed
    */
   public void endPing(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(pingInProgressId, -1);
     int endPingId;
@@ -2858,7 +2857,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the registerInstantiators failed
    */
   public void endRegisterInstantiatorsSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(registerInstantiatorsSendInProgressId, -1);
     int endRegisterInstantiatorsSendId;
@@ -2872,7 +2871,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endRegisterDataSerializersSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(registerDataSerializersSendInProgressId, -1);
     int endDataSerializersSendId;
@@ -2893,7 +2892,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if registerInstantiators failed
    */
   public void endRegisterInstantiators(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(registerInstantiatorsInProgressId, -1);
     int endRegisterInstantiatorsId;
@@ -2909,7 +2908,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endRegisterDataSerializers(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(registerDataSerializersInProgressId, -1);
     int endRegisterDataSerializersId;
@@ -2946,7 +2945,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the putAll failed
    */
   public void endPutAllSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(putAllSendInProgressId, -1);
     int endPutAllSendId;
@@ -2967,7 +2966,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if putAll failed
    */
   public void endPutAll(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(putAllInProgressId, -1);
     int endPutAllId;
@@ -3004,7 +3003,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the removeAll failed
    */
   public void endRemoveAllSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(removeAllSendInProgressId, -1);
     int endRemoveAllSendId;
@@ -3025,7 +3024,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if removeAll failed
    */
   public void endRemoveAll(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(removeAllInProgressId, -1);
     int endRemoveAllId;
@@ -3062,7 +3061,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the getAll failed
    */
   public void endGetAllSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(getAllSendInProgressId, -1);
     int endGetAllSendId;
@@ -3083,7 +3082,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if getAll failed
    */
   public void endGetAll(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(getAllInProgressId, -1);
     int endGetAllId;
@@ -3103,8 +3102,8 @@ public class ConnectionStats implements MessageStats {
   }
 
   public int getOps() {
-    int ops = 0;
-    for (int i = 0; i < opIds.length; i++) {
+    var ops = 0;
+    for (var i = 0; i < opIds.length; i++) {
       ops += stats.getInt(i);
     }
     return ops;
@@ -3184,7 +3183,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the executeFunction failed
    */
   public void endExecuteFunctionSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     sendStats.incInt(executeFunctionSendInProgressId, -1);
     int endExecuteFunctionSendId;
     if (failed) {
@@ -3204,7 +3203,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if executeFunction failed
    */
   public void endExecuteFunction(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     stats.incInt(executeFunctionInProgressId, -1);
     int endExecuteFunctionId;
     if (timedOut) {
@@ -3252,7 +3251,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the GetClientPRMetadata failed
    */
   public void endGetClientPRMetadataSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(getClientPRMetadataSendInProgressId, -1);
     int endGetClientPRMetadataSendId;
@@ -3273,7 +3272,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if GetClientPRMetadata failed
    */
   public void endGetClientPRMetadata(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(getClientPRMetadataInProgressId, -1);
     int endGetClientPRMetadataId;
@@ -3310,7 +3309,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if the send of the GetClientPartitionAttributes failed
    */
   public void endGetClientPartitionAttributesSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(getClientPartitionAttributesSendInProgressId, -1);
     int endGetClientPartitionAttributesSendId;
@@ -3331,7 +3330,7 @@ public class ConnectionStats implements MessageStats {
    * @param failed true if GetClientPartitionAttributes failed
    */
   public void endGetClientPartitionAttributes(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(getClientPartitionAttributesInProgressId, -1);
     int endGetClientPartitionAttributesId;
@@ -3361,7 +3360,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endGetPDXTypeByIdSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(getPDXTypeByIdSendInProgressId, -1);
     int endGetPDXTypeByIdSendId;
@@ -3375,7 +3374,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endGetPDXIdForTypeSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(getPDXIdForTypeSendInProgressId, -1);
     int endGetPDXIdForTypeSendId;
@@ -3389,7 +3388,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endGetPDXTypeById(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(getPDXTypeByIdInProgressId, -1);
     int statId;
@@ -3405,7 +3404,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endGetPDXIdForType(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(getPDXIdForTypeInProgressId, -1);
     int statId;
@@ -3428,7 +3427,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endAddPdxTypeSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(addPdxTypeSendInProgressId, -1);
     int endAddPdxTypeSendId;
@@ -3442,7 +3441,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endAddPdxType(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(addPdxTypeInProgressId, -1);
     int statId;
@@ -3465,7 +3464,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endSizeSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(sizeSendInProgressId, -1);
     int endSizeSendId;
@@ -3480,7 +3479,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endSize(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(sizeInProgressId, -1);
     int endSizeId;
@@ -3505,7 +3504,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endInvalidateSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(invalidateSendInProgressId, -1);
     int endInvalidateSendId;
@@ -3519,7 +3518,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endInvalidate(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(invalidateInProgressId, -1);
     int endInvalidateId;
@@ -3542,7 +3541,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endCommitSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(commitSendInProgressId, -1);
     int endcommitSendId;
@@ -3556,7 +3555,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endCommit(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(commitInProgressId, -1);
     int endcommitId;
@@ -3580,7 +3579,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endGetEntrySend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(getEntrySendInProgressId, -1);
     int endGetEntrySendId;
@@ -3594,7 +3593,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endGetEntry(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(getEntryInProgressId, -1);
     int endGetEntryId;
@@ -3618,7 +3617,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endRollbackSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(rollbackSendInProgressId, -1);
     int endRollbackSendId;
@@ -3632,7 +3631,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endRollback(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(rollbackInProgressId, -1);
     int endRollbackId;
@@ -3657,7 +3656,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endTxFailoverSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(txFailoverSendInProgressId, -1);
     int endTxFailoverSendId;
@@ -3671,7 +3670,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endTxFailover(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(txFailoverInProgressId, -1);
     int endTxFailoverId;
@@ -3695,7 +3694,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endTxSynchronizationSend(long startTime, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOpSend(duration, failed);
     sendStats.incInt(txSynchronizationSendInProgressId, -1);
     int endTxSynchronizationSendId;
@@ -3709,7 +3708,7 @@ public class ConnectionStats implements MessageStats {
   }
 
   public void endTxSynchronization(long startTime, boolean timedOut, boolean failed) {
-    long duration = getStatTime() - startTime;
+    var duration = getStatTime() - startTime;
     endClientOp(duration, timedOut, failed);
     stats.incInt(txSynchronizationInProgressId, -1);
     int endTxSynchronizationId;

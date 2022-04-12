@@ -43,11 +43,11 @@ public class TXRemoteRollbackMessage extends TXMessage {
 
   public static ReliableReplyProcessor21 send(Cache cache, int txUniqId,
       InternalDistributedMember onBehalfOfClientMember, DistributedMember recipient) {
-    final InternalDistributedSystem system =
+    final var system =
         (InternalDistributedSystem) cache.getDistributedSystem();
     final Set recipients = Collections.singleton(recipient);
-    ReliableReplyProcessor21 response = new ReliableReplyProcessor21(system, recipients);
-    TXRemoteRollbackMessage msg =
+    var response = new ReliableReplyProcessor21(system, recipients);
+    var msg =
         new TXRemoteRollbackMessage(txUniqId, onBehalfOfClientMember, response);
     msg.setRecipients(recipients);
     system.getDistributionManager().putOutgoing(msg);
@@ -56,12 +56,12 @@ public class TXRemoteRollbackMessage extends TXMessage {
 
   @Override
   protected boolean operateOnTx(TXId txId, ClusterDistributionManager dm) {
-    InternalCache cache = dm.getCache();
+    var cache = dm.getCache();
     if (cache == null) {
       throw new CacheClosedException(
           "A cache has not yet been created.");
     }
-    TXManagerImpl txMgr = cache.getTXMgr();
+    var txMgr = cache.getTXMgr();
     if (logger.isDebugEnabled()) {
       logger.debug("TX: Rolling back :{}", txId);
     }

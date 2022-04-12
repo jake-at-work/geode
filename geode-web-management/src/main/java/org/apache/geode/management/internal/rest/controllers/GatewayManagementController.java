@@ -48,7 +48,7 @@ public class GatewayManagementController extends AbstractManagementController {
   @GetMapping(GATEWAY_RECEIVERS_ENDPOINTS)
   public ClusterManagementListResult<GatewayReceiver, GatewayReceiverInfo> listGatewayReceivers(
       @RequestParam(required = false) String group) {
-    GatewayReceiver filter = new GatewayReceiver();
+    var filter = new GatewayReceiver();
     if (StringUtils.isNotBlank(group)) {
       filter.setGroup(group);
     }
@@ -60,7 +60,7 @@ public class GatewayManagementController extends AbstractManagementController {
   @GetMapping(GATEWAY_RECEIVERS_ENDPOINTS + "/{id:.+}")
   public ClusterManagementGetResult<GatewayReceiver, GatewayReceiverInfo> getGatewayReceiver(
       @PathVariable(name = "id") String id) {
-    GatewayReceiver config = new GatewayReceiver();
+    var config = new GatewayReceiver();
     config.setGroup(id);
     return clusterManagementService.get(config);
   }

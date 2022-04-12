@@ -35,7 +35,6 @@ import org.apache.geode.test.junit.categories.PulseTest;
 import org.apache.geode.test.junit.rules.EmbeddedPulseRule;
 import org.apache.geode.test.junit.rules.LocatorStarterRule;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
-import org.apache.geode.tools.pulse.internal.data.Cluster;
 
 @Category({PulseTest.class})
 @RunWith(Parameterized.class)
@@ -52,7 +51,7 @@ public class PulseConnectivityTest {
 
   @Parameterized.Parameters(name = "JMXBindAddress: {0}")
   public static Collection<String> bindAddresses() throws Exception {
-    String nonDefaultJmxBindAddress = InetAddress.getLocalHost().getHostName();
+    var nonDefaultJmxBindAddress = InetAddress.getLocalHost().getHostName();
     if ("localhost".equals(nonDefaultJmxBindAddress)) {
       nonDefaultJmxBindAddress = InetAddress.getLocalHost().getHostAddress();
     }
@@ -61,7 +60,7 @@ public class PulseConnectivityTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties locatorProperties = new Properties();
+    var locatorProperties = new Properties();
     if (!"localhost".equals(jmxBindAddress)) {
       locatorProperties.setProperty(JMX_MANAGER_BIND_ADDRESS, jmxBindAddress);
     }
@@ -71,7 +70,7 @@ public class PulseConnectivityTest {
   @Test
   public void testConnectToJmx() throws Exception {
     pulse.useJmxManager(jmxBindAddress, locator.getJmxPort());
-    Cluster cluster = pulse.getRepository().getClusterWithUserNameAndPassword("admin", null);
+    var cluster = pulse.getRepository().getClusterWithUserNameAndPassword("admin", null);
     assertThat(cluster.isConnectedFlag()).isTrue();
     assertThat(cluster.getServerCount()).isEqualTo(0);
   }
@@ -79,7 +78,7 @@ public class PulseConnectivityTest {
   @Test
   public void testConnectToLocator() throws Exception {
     pulse.useLocatorPort(locator.getPort());
-    Cluster cluster = pulse.getRepository().getClusterWithUserNameAndPassword("admin", null);
+    var cluster = pulse.getRepository().getClusterWithUserNameAndPassword("admin", null);
     assertThat(cluster.isConnectedFlag()).isTrue();
     assertThat(cluster.getServerCount()).isEqualTo(0);
     assertThat(cluster.isAlive()).isTrue();

@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,18 +60,18 @@ public class FileWatchingX509ExtendedKeyManagerIntegrationTest {
 
   @Test
   public void initializesKeyManager() throws Exception {
-    Map<String, CertificateMaterial> entries = storeCertificates(keyStore, alias);
+    var entries = storeCertificates(keyStore, alias);
 
     target = newFileWatchingKeyManager(sslConfigFor(keyStore, alias));
 
-    X509Certificate[] chain = target.getCertificateChain(alias);
+    var chain = target.getCertificateChain(alias);
     assertThat(chain).containsExactly(entries.get(alias).getCertificate());
   }
 
   @Test
   public void initializesKeyManagerWithoutAliasSpecified() throws Exception {
-    String anotherAlias = "another-alias";
-    Map<String, CertificateMaterial> entries = storeCertificates(keyStore, alias, anotherAlias);
+    var anotherAlias = "another-alias";
+    var entries = storeCertificates(keyStore, alias, anotherAlias);
 
     target = newFileWatchingKeyManager(sslConfigFor(keyStore, null));
 
@@ -93,10 +92,10 @@ public class FileWatchingX509ExtendedKeyManagerIntegrationTest {
 
     pauseForFileWatcherToStartDetectingChanges();
 
-    Map<String, CertificateMaterial> updated = storeCertificates(keyStore, alias);
+    var updated = storeCertificates(keyStore, alias);
 
     await().untilAsserted(() -> {
-      X509Certificate[] chain = target.getCertificateChain(alias);
+      var chain = target.getCertificateChain(alias);
       assertThat(chain).containsExactly(updated.get(alias).getCertificate());
     });
   }
@@ -112,13 +111,13 @@ public class FileWatchingX509ExtendedKeyManagerIntegrationTest {
 
   @Test
   public void returnsNewInstanceForDifferentPath() throws Exception {
-    Path differentPath = temporaryFolder.newFile("another-keystore.jks").toPath();
+    var differentPath = temporaryFolder.newFile("another-keystore.jks").toPath();
     storeCertificates(differentPath, alias);
     storeCertificates(keyStore, alias);
 
     target = newFileWatchingKeyManager(sslConfigFor(keyStore, alias));
 
-    FileWatchingX509ExtendedKeyManager other =
+    var other =
         newFileWatchingKeyManager(sslConfigFor(differentPath, alias));
     try {
       assertThat(target).isNotSameAs(other);
@@ -129,12 +128,12 @@ public class FileWatchingX509ExtendedKeyManagerIntegrationTest {
 
   @Test
   public void returnsNewInstanceForDifferentAlias() throws Exception {
-    String differentAlias = "different-alias";
+    var differentAlias = "different-alias";
     storeCertificates(keyStore, alias, differentAlias);
 
     target = newFileWatchingKeyManager(sslConfigFor(keyStore, alias));
 
-    FileWatchingX509ExtendedKeyManager other =
+    var other =
         newFileWatchingKeyManager(sslConfigFor(keyStore, differentAlias));
     try {
       assertThat(target).isNotSameAs(other);
@@ -145,9 +144,9 @@ public class FileWatchingX509ExtendedKeyManagerIntegrationTest {
 
   @Test
   public void throwsIfUnableToLoadKeyManager() {
-    Path notFoundFile = temporaryFolder.getRoot().toPath().resolve("notfound");
+    var notFoundFile = temporaryFolder.getRoot().toPath().resolve("notfound");
 
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> newFileWatchingKeyManager(sslConfigFor(notFoundFile, alias)));
 
     assertThat(thrown).isNotNull();
@@ -169,9 +168,9 @@ public class FileWatchingX509ExtendedKeyManagerIntegrationTest {
   private Map<String, CertificateMaterial> storeCertificates(Path keyStore, String... aliases)
       throws Exception {
     Map<String, CertificateMaterial> entries = new HashMap<>();
-    CertStores store = new CertStores("");
-    for (String alias : aliases) {
-      CertificateMaterial cert = new CertificateBuilder().commonName("geode").generate();
+    var store = new CertStores("");
+    for (var alias : aliases) {
+      var cert = new CertificateBuilder().commonName("geode").generate();
       store.withCertificate(alias, cert);
       entries.put(alias, cert);
     }

@@ -34,18 +34,18 @@ public class GatewayDeltaEventApplicationCacheListener
   @Override
   public void afterCreate(EntryEvent<String, GatewayDeltaEvent> event) {
     System.out.println("GatewayDeltaApplierCacheListener event: " + event);
-    EntryEventImpl eventImpl = (EntryEventImpl) event;
+    var eventImpl = (EntryEventImpl) event;
     if (cache.getLogger().fineEnabled()) {
-      String builder = "GatewayDeltaApplierCacheListener: Received event for " + event.getKey()
+      var builder = "GatewayDeltaApplierCacheListener: Received event for " + event.getKey()
           + "->" + event.getNewValue() + ".";
       cache.getLogger().fine(builder);
     }
 
     // If the event is from a remote site, apply it to the session
-    Object callbackArgument = eventImpl.getRawCallbackArgument();
+    var callbackArgument = eventImpl.getRawCallbackArgument();
     System.out.println("GatewayDeltaApplierCacheListener callbackArgument: " + callbackArgument);
     if (callbackArgument instanceof GatewaySenderEventCallbackArgument) {
-      GatewayDeltaEvent delta = event.getNewValue();
+      var delta = event.getNewValue();
       delta.apply(cache);
       System.out.println("Applied " + delta);
 

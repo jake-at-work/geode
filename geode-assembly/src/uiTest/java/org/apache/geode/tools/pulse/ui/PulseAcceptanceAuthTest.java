@@ -63,9 +63,9 @@ public class PulseAcceptanceAuthTest extends PulseAcceptanceTestBase {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty("security-username", "cluster");
     serverProps.setProperty("security-password", "cluster");
     clusterRule.startServerVM(1, serverProps, locatorPort);

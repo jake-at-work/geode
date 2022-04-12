@@ -48,7 +48,7 @@ public class SerialAckedMessage extends SerialDistributionMessage implements Mes
 
   public SerialAckedMessage() {
     super();
-    InternalDistributedSystem ds = InternalDistributedSystem.getAnyInstance();
+    var ds = InternalDistributedSystem.getAnyInstance();
     if (ds != null) { // this constructor is used in serialization as well as when sending to others
       originDm = (ClusterDistributionManager) ds.getDistributionManager();
       id = originDm.getDistributionManagerId();
@@ -65,7 +65,7 @@ public class SerialAckedMessage extends SerialDistributionMessage implements Mes
    */
   public void send(Collection recipients, boolean multicast)
       throws InterruptedException, ReplyException {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
     if (Thread.interrupted()) {
       throw new InterruptedException();
@@ -84,8 +84,8 @@ public class SerialAckedMessage extends SerialDistributionMessage implements Mes
     setMulticast(multicast);
     Set failures = originDm.putOutgoing(this);
     if (failures != null && failures.size() > 0) {
-      for (final Object failure : failures) {
-        InternalDistributedMember mbr = (InternalDistributedMember) failure;
+      for (final var failure : failures) {
+        var mbr = (InternalDistributedMember) failure;
         if (isDebugEnabled) {
           logger.debug("Unable to send serial acked message to {}", mbr);
         }
@@ -123,7 +123,7 @@ public class SerialAckedMessage extends SerialDistributionMessage implements Mes
   @Override
   protected void process(ClusterDistributionManager dm) {
     Assert.assertTrue(id != null);
-    ReplyMessage reply = new ReplyMessage();
+    var reply = new ReplyMessage();
     reply.setProcessorId(processorId);
     reply.setRecipient(getSender());
     dm.putOutgoing(reply);

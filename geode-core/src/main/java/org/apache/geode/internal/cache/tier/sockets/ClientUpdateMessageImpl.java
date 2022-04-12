@@ -350,7 +350,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
    */
 
   protected Message getMessage(CacheClientProxy proxy, byte[] latestValue) throws IOException {
-    KnownVersion clientVersion = proxy.getVersion();
+    var clientVersion = proxy.getVersion();
     byte[] serializedValue = null;
     boolean conflation;
     conflation = (proxy.clientConflation == Handshake.CONFLATION_ON)
@@ -376,13 +376,13 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
 
   private Message getGFE70Message(CacheClientProxy proxy, byte[] p_latestValue,
       boolean conflation, KnownVersion clientVersion) throws IOException {
-    byte[] latestValue = p_latestValue;
+    var latestValue = p_latestValue;
 
     Message message;
-    ClientProxyMembershipID proxyId = proxy.getProxyID();
+    var proxyId = proxy.getProxyID();
     // Add CQ info.
-    int cqMsgParts = 0;
-    boolean clientHasCq = _hasCqs && (getCqs(proxyId) != null);
+    var cqMsgParts = 0;
+    var clientHasCq = _hasCqs && (getCqs(proxyId) != null);
 
     if (clientHasCq) {
       cqMsgParts = (getCqs(proxyId).length * 2) + 1;
@@ -522,7 +522,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
       ThreadLocal.withInitial(HashMap::new);
 
   private Message getMessage(int numParts, KnownVersion clientVersion) {
-    Message m = CACHED_MESSAGES.get().get(numParts);
+    var m = CACHED_MESSAGES.get().get(numParts);
     if (m == null) {
       m = new Message(numParts, KnownVersion.CURRENT);
       CACHED_MESSAGES.get().put(numParts, m);
@@ -555,7 +555,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
   @Override
   public boolean hasCqs(ClientProxyMembershipID clientId) {
     if (_clientCqs != null) {
-      CqNameToOp cqs = _clientCqs.get(clientId);
+      var cqs = _clientCqs.get(clientId);
       return cqs != null && !cqs.isEmpty();
     }
     return false;
@@ -576,7 +576,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
   private String[] getCqs(ClientProxyMembershipID clientId) {
     String[] cqNames = null;
     if (_clientCqs != null) {
-      CqNameToOp cqs = _clientCqs.get(clientId);
+      var cqs = _clientCqs.get(clientId);
 
       if (cqs != null && !cqs.isEmpty()) {
         cqNames = cqs.getNames();
@@ -602,7 +602,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
       _clientCqs = new ClientCqConcurrentMap();
       _hasCqs = true;
     }
-    CqNameToOp cqInfo = _clientCqs.get(clientId);
+    var cqInfo = _clientCqs.get(clientId);
     if (cqInfo == null) {
       cqInfo = new CqNameToOpSingleEntry(cqName, cqEvent);
       _clientCqs.put(clientId, cqInfo);
@@ -617,7 +617,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
 
   private void addCqsToMessage(ClientProxyMembershipID proxyId, Message message) {
     if (_clientCqs != null) {
-      CqNameToOp cqs = _clientCqs.get(proxyId);
+      var cqs = _clientCqs.get(proxyId);
       if (cqs != null) {
         message.addIntPart(cqs.size() * 2);
         cqs.addToMessage(message);
@@ -626,7 +626,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
   }
 
   public void removeClientCq(ClientProxyMembershipID clientId, InternalCqQuery cqToClose) {
-    CqNameToOp cqs = getClientCq(clientId);
+    var cqs = getClientCq(clientId);
     if (cqs != null) {
       cqs.delete(cqToClose.getName());
       // remove clientId key if no more cqs exist for this clientId
@@ -723,7 +723,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
     Object deserializedObject = serializedBytes;
     // This is a debugging method so ignore all exceptions like
     // ClassNotFoundException
-    try (ByteArrayDataInput dis = new ByteArrayDataInput(serializedBytes)) {
+    try (var dis = new ByteArrayDataInput(serializedBytes)) {
       deserializedObject = DataSerializer.readObject(dis);
     } catch (Exception ignored) {
     }
@@ -732,7 +732,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
 
   @Override
   public String toString() {
-    StringBuilder buffer = new StringBuilder();
+    var buffer = new StringBuilder();
     buffer.append("ClientUpdateMessageImpl[").append("op=").append(_operation)
         .append(";region=").append(_regionName).append(";key=").append(_keyOfInterest);
     if (logger.isTraceEnabled()) {
@@ -773,13 +773,13 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
     out.writeBoolean(_hasCqs);
     DataSerializer.writeObject(_callbackArgument, out);
 
-    HashSet<ClientProxyMembershipID> clientInterestListSnapshot =
+    var clientInterestListSnapshot =
         _clientInterestList != null
             ? new HashSet<>(_clientInterestList)
             : null;
     DataSerializer.writeHashSet(clientInterestListSnapshot, out);
 
-    HashSet<ClientProxyMembershipID> clientInterestListInvSnapshot =
+    var clientInterestListInvSnapshot =
         _clientInterestListInv != null
             ? new HashSet<>(_clientInterestListInv)
             : null;
@@ -803,7 +803,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
     _hasCqs = in.readBoolean();
     _callbackArgument = DataSerializer.readObject(in);
 
-    CacheClientNotifier ccn = CacheClientNotifier.getInstance();
+    var ccn = CacheClientNotifier.getInstance();
 
     Set<ClientProxyMembershipID> clientInterestList = DataSerializer.readHashSet(in);
     _clientInterestList = ccn != null && clientInterestList != null
@@ -819,9 +819,9 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
   }
 
   private Object getOriginalCallbackArgument() {
-    Object result = _callbackArgument;
+    var result = _callbackArgument;
     while (result instanceof WrappedCallbackArgument) {
-      WrappedCallbackArgument wca = (WrappedCallbackArgument) result;
+      var wca = (WrappedCallbackArgument) result;
       result = wca.getOriginalCallbackArg();
     }
     return result;
@@ -851,7 +851,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
     // using a NullDataOutputStream and hardcoded into this method:
 
     // - the id (an instance of EventId)
-    int size = 0;
+    var size = 0;
 
     // Add overhead for this instance.
     size += Sizeable.PER_OBJECT_OVERHEAD;
@@ -892,7 +892,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
   @Override
   public int getSizeInBytes() {
 
-    int size = CONSTANT_MEMORY_OVERHEAD;
+    var size = CONSTANT_MEMORY_OVERHEAD;
 
     // The value (a byte[])
     if (_value != null) {
@@ -905,7 +905,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
   }
 
   private int sizeOf(Object obj) {
-    int size = 0;
+    var size = 0;
     if (obj == null) {
       return size;
     }
@@ -1007,7 +1007,7 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
     public void sendTo(DataOutput out) throws IOException {
       // When serialized it needs to look just as if writeObject was called on a HASH_MAP
       out.writeByte(DSCODE.HASH_MAP.toByte());
-      int size = size();
+      var size = size();
       InternalDataSerializer.writeArrayLength(size, out);
       if (size > 0) {
         DataSerializer.writeObject(name[0], out);
@@ -1086,16 +1086,16 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
 
     @Override
     public String[] getNames() {
-      String[] cqNames = new String[size()];
+      var cqNames = new String[size()];
       cqNames = keySet().toArray(cqNames);
       return cqNames;
     }
 
     @Override
     public void addToMessage(Message message) {
-      for (Entry<String, Integer> entry : entrySet()) {
+      for (var entry : entrySet()) {
         // Add CQ Name.
-        String cq = entry.getKey();
+        var cq = entry.getKey();
         message.addStringPart(cq, true);
         // Add CQ Op.
         int op = entry.getValue();

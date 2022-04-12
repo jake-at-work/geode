@@ -37,11 +37,11 @@ class PdxLuceneSerializer implements LuceneSerializer {
 
   @Override
   public Collection<Document> toDocuments(LuceneIndex index, Object value) {
-    Document doc = new Document();
-    PdxInstance pdx = (PdxInstance) value;
-    for (String field : index.getFieldNames()) {
+    var doc = new Document();
+    var pdx = (PdxInstance) value;
+    for (var field : index.getFieldNames()) {
       if (pdx.hasField(field)) {
-        Object fieldValue = pdx.getField(field);
+        var fieldValue = pdx.getField(field);
         if (fieldValue == null) {
           continue;
         }

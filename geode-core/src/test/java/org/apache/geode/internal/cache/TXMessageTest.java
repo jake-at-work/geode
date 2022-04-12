@@ -26,8 +26,8 @@ public class TXMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    TXMessage mockTXMessage = mock(TXMessage.class);
-    InternalDistributedMember mockInternalDistributedMember = mock(InternalDistributedMember.class);
+    var mockTXMessage = mock(TXMessage.class);
+    var mockInternalDistributedMember = mock(InternalDistributedMember.class);
     when(mockTXMessage.getMemberToMasqueradeAs()).thenReturn(mockInternalDistributedMember);
     assertThat(mockTXMessage.getMemberToMasqueradeAs()).isSameAs(mockInternalDistributedMember);
   }

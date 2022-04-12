@@ -50,7 +50,7 @@ public enum LogWriterLevel {
   NONE(InternalLogWriter.NONE_LEVEL);
 
   public static LogWriterLevel find(final int intLevel) {
-    for (LogWriterLevel logWriterLevel : values()) {
+    for (var logWriterLevel : values()) {
       if (logWriterLevel.intLevel == intLevel) {
         return logWriterLevel;
       }

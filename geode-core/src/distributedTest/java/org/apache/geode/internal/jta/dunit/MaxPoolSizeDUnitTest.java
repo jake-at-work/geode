@@ -25,12 +25,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
@@ -46,7 +43,6 @@ import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
@@ -56,9 +52,9 @@ public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
   private static String tblName;
 
   private static String readFile(String filename) throws IOException {
-    BufferedReader br = new BufferedReader(new FileReader(filename));
-    String nextLine = "";
-    StringBuilder sb = new StringBuilder();
+    var br = new BufferedReader(new FileReader(filename));
+    var nextLine = "";
+    var sb = new StringBuilder();
     while ((nextLine = br.readLine()) != null) {
       sb.append(nextLine);
       //
@@ -72,13 +68,13 @@ public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static String modifyFile(String str) throws IOException {
-    String search = "<jndi-binding type=\"XAPooledDataSource\"";
-    String last_search = "</jndi-binding>";
-    String newDB = "newDB_" + OSProcess.getId();
-    String jndi_str =
+    var search = "<jndi-binding type=\"XAPooledDataSource\"";
+    var last_search = "</jndi-binding>";
+    var newDB = "newDB_" + OSProcess.getId();
+    var jndi_str =
         "<jndi-binding type=\"XAPooledDataSource\" jndi-name=\"XAPooledDataSource\" jdbc-driver-class=\"org.apache.derby.jdbc.EmbeddedDriver\" init-pool-size=\"1\" max-pool-size=\"2\" idle-timeout-seconds=\"600\" blocking-timeout-seconds=\"2\" login-timeout-seconds=\"1\" conn-pooled-datasource-class=\"org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource\" xa-datasource-class=\"org.apache.derby.jdbc.EmbeddedXADataSource\" user-name=\"mitul\" password=\"83f0069202c571faf1ae6c42b4ad46030e4e31c17409e19a\" connection-url=\"jdbc:derby:"
             + newDB + ";create=true\" >";
-    String config_prop = "<config-property>"
+    var config_prop = "<config-property>"
         + "<config-property-name>description</config-property-name>"
         + "<config-property-type>java.lang.String</config-property-type>"
         + "<config-property-value>hi</config-property-value>" + "</config-property>"
@@ -92,7 +88,7 @@ public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
         + "<config-property-name>databaseName</config-property-name>"
         + "<config-property-type>java.lang.String</config-property-type>"
         + "<config-property-value>" + newDB + "</config-property-value>" + "</config-property>\n";
-    String new_str = jndi_str + config_prop;
+    var new_str = jndi_str + config_prop;
     /*
      * String new_str = " <jndi-binding type=\"XAPooledDataSource\" jndi-name=\"XAPooledDataSource\"
      * jdbc-driver-class=\"org.apache.derby.jdbc.EmbeddedDriver\"
@@ -106,38 +102,38 @@ public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
      * value=\""+newDB+"\"/> <property key=\"user\" value=\"mitul\"/> <property key=\"password\"
      * value=\"83f0069202c571faf1ae6c42b4ad46030e4e31c17409e19a\"/>";
      */
-    int n1 = str.indexOf(search);
+    var n1 = str.indexOf(search);
     LogWriterUtils.getLogWriter().fine("Start Index = " + n1);
-    int n2 = str.indexOf(last_search, n1);
-    StringBuilder sbuff = new StringBuilder(str);
+    var n2 = str.indexOf(last_search, n1);
+    var sbuff = new StringBuilder(str);
     LogWriterUtils.getLogWriter().fine("END Index = " + n2);
-    String modified_str = sbuff.replace(n1, n2, new_str).toString();
+    var modified_str = sbuff.replace(n1, n2, new_str).toString();
     return modified_str;
   }
 
   public static String init(String className) throws Exception {
     LogWriterUtils.getLogWriter().fine("PATH11 ");
-    Properties props = new Properties();
-    int pid = OSProcess.getId();
-    String path = File.createTempFile("dunit-cachejta_", ".xml").getAbsolutePath();
+    var props = new Properties();
+    var pid = OSProcess.getId();
+    var path = File.createTempFile("dunit-cachejta_", ".xml").getAbsolutePath();
     LogWriterUtils.getLogWriter().fine("PATH " + path);
     /** * Return file as string and then modify the string accordingly ** */
-    String file_as_str = readFile(
+    var file_as_str = readFile(
         createTempFileFromResource(CacheUtils.class, "cachejta.xml")
             .getAbsolutePath());
     file_as_str = file_as_str.replaceAll("newDB", "newDB_" + pid);
-    String modified_file_str = modifyFile(file_as_str);
-    FileOutputStream fos = new FileOutputStream(path);
-    BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(fos));
+    var modified_file_str = modifyFile(file_as_str);
+    var fos = new FileOutputStream(path);
+    var wr = new BufferedWriter(new OutputStreamWriter(fos));
     wr.write(modified_file_str);
     wr.flush();
     wr.close();
     props.setProperty(CACHE_XML_FILE, path);
-    String tableName = "";
+    var tableName = "";
     ds = (new MaxPoolSizeDUnitTest()).getSystem(props);
     cache = CacheFactory.create(ds);
     if (className != null && !className.equals("")) {
-      String time = new Long(System.currentTimeMillis()).toString();
+      var time = new Long(System.currentTimeMillis()).toString();
       tableName = className + time;
       createTable(tableName);
     }
@@ -146,22 +142,22 @@ public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void createTable(String tableName) throws NamingException, SQLException {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var ctx = cache.getJNDIContext();
+    var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
     // String sql = "create table " + tableName + " (id number primary key, name
     // varchar2(50))";
     // String sql = "create table " + tableName + " (id integer primary key,
     // name varchar(50))";
-    String sql =
+    var sql =
         "create table " + tableName + " (id integer NOT NULL, name varchar(50), CONSTRAINT "
             + tableName + "_key PRIMARY KEY(id))";
     LogWriterUtils.getLogWriter().fine(sql);
-    Connection conn = ds.getConnection();
-    Statement sm = conn.createStatement();
+    var conn = ds.getConnection();
+    var sm = conn.createStatement();
     sm.execute(sql);
     sm.close();
     sm = conn.createStatement();
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       sql = "insert into " + tableName + " values (" + i + ",'name" + i + "')";
       sm.addBatch(sql);
       LogWriterUtils.getLogWriter().fine(sql);
@@ -172,13 +168,13 @@ public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
 
   public static void destroyTable() throws NamingException, SQLException {
     try {
-      String tableName = tblName;
-      Context ctx = cache.getJNDIContext();
-      DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
-      Connection conn = ds.getConnection();
+      var tableName = tblName;
+      var ctx = cache.getJNDIContext();
+      var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var conn = ds.getConnection();
       LogWriterUtils.getLogWriter().fine(" trying to drop table: " + tableName);
-      String sql = "drop table " + tableName;
-      Statement sm = conn.createStatement();
+      var sql = "drop table " + tableName;
+      var sm = conn.createStatement();
       sm.execute(sql);
       conn.close();
     } catch (SQLException se) {
@@ -225,17 +221,17 @@ public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
   @Override
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    Object[] o = new Object[1];
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var o = new Object[1];
     o[0] = "MaxPoolSizeDUnitTest";
     vm0.invoke(MaxPoolSizeDUnitTest.class, "init", o);
   }
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     try {
       vm0.invoke(MaxPoolSizeDUnitTest::destroyTable);
     } finally {
@@ -245,8 +241,8 @@ public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testMaxPoolSize() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     AsyncInvocation asyncObj = vm0.invokeAsync(MaxPoolSizeDUnitTest::runTest1);
     ThreadUtils.join(asyncObj, 30 * 1000);
     if (asyncObj.exceptionOccurred()) {
@@ -255,11 +251,11 @@ public class MaxPoolSizeDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void runTest1() throws Exception {
-    final int MAX_CONNECTIONS = 3;
-    int count = 0;
+    final var MAX_CONNECTIONS = 3;
+    var count = 0;
     DataSource ds = null;
     try {
-      Context ctx = cache.getJNDIContext();
+      var ctx = cache.getJNDIContext();
       ds = (DataSource) ctx.lookup("java:/XAPooledDataSource");
     } catch (NamingException e) {
       LogWriterUtils.getLogWriter().fine("Naming Exception caught in lookup: " + e);

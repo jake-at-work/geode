@@ -32,8 +32,8 @@ public class CustomAsyncEventListener implements AsyncEventListener {
 
   @Override
   public boolean processEvents(List<AsyncEvent> events) {
-    int i = 0;
-    for (AsyncEvent event : events) {
+    var i = 0;
+    for (var event : events) {
       i++;
       if (!exceptionThrown && i == 40) {
         i = 0;

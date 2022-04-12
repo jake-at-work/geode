@@ -22,7 +22,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
@@ -43,15 +42,15 @@ public class ClientReady extends BaseCommand {
   public void cmdExecute(final @NotNull Message clientMessage,
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start) throws IOException {
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var stats = serverConnection.getCacheServerStats();
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadClientReadyRequestTime(start - oldStart);
     }
     try {
-      String clientHost = serverConnection.getSocketHost();
-      int clientPort = serverConnection.getSocketPort();
+      var clientHost = serverConnection.getSocketHost();
+      var clientPort = serverConnection.getSocketPort();
       if (logger.isDebugEnabled()) {
         logger.debug("{}: Received client ready request ({} bytes) from {} on {}:{}",
             serverConnection.getName(), clientMessage.getPayloadLength(),
@@ -61,7 +60,7 @@ public class ClientReady extends BaseCommand {
       serverConnection.getAcceptor().getCacheClientNotifier()
           .readyForEvents(serverConnection.getProxyID());
 
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessClientReadyTime(start - oldStart);
 

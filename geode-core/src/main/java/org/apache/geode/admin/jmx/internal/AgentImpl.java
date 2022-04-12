@@ -53,7 +53,6 @@ import org.apache.geode.LogWriter;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.admin.AdminDistributedSystem;
 import org.apache.geode.admin.AdminException;
-import org.apache.geode.admin.jmx.Agent;
 import org.apache.geode.admin.jmx.AgentConfig;
 import org.apache.geode.admin.jmx.AgentFactory;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
@@ -99,7 +98,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
    */
   static {
     checkDebug();
-    String commonsLog = System.getProperty("org.apache.commons.logging.log");
+    var commonsLog = System.getProperty("org.apache.commons.logging.log");
     if (commonsLog == null || commonsLog.length() == 0) {
       System.setProperty("org.apache.commons.logging.log",
           "org.apache.commons.logging.impl.SimpleLog");
@@ -201,7 +200,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
     try {
       objectName = new ObjectName(mbeanName);
     } catch (MalformedObjectNameException ex) {
-      String s = String.format("While creating ObjectName: %s",
+      var s = String.format("While creating ObjectName: %s",
           mbeanName);
       throw new AdminException(s, ex);
     }
@@ -226,7 +225,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
     try {
       memberInfoWithStatsMBean = new MemberInfoWithStatsMBean(this);
 
-      MBeanServer mbs = getMBeanServer();
+      var mbs = getMBeanServer();
       mbs.registerMBean(memberInfoWithStatsMBean, memberInfoWithStatsMBean.getObjectName());
       /*
        * We are not re-throwing these exceptions as failure create/register the GemFireTypesWrapper
@@ -320,7 +319,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
         stop();
         throw new StartupException(ex);
       } catch (MalformedObjectNameException ex) {
-        String autoConnectFailed = "auto connect failed:  {}";
+        var autoConnectFailed = "auto connect failed:  {}";
         logger.error(autoConnectFailed, ex.getMessage());
         stop();
         throw new StartupException(new AdminException(
@@ -416,7 +415,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
 
         ClusterDistributionManager.setIsDedicatedAdminVM(true);
 
-        AdminDistributedSystemJmxImpl systemJmx = (AdminDistributedSystemJmxImpl) system;
+        var systemJmx = (AdminDistributedSystemJmxImpl) system;
         if (systemJmx == null) {
           systemJmx = (AdminDistributedSystemJmxImpl) createDistributedSystem(agentConfig);
           system = systemJmx;
@@ -491,14 +490,14 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
    * @return snapshot of the current log
    */
   public String getLog() {
-    File childLogFile = loggingSession.getLogFile().isPresent()
+    var childLogFile = loggingSession.getLogFile().isPresent()
         ? loggingSession.getLogFile().get().getChildLogFile() : null;
-    String childTail = tailFile(childLogFile);
-    String mainTail = tailFile(new File(agentConfig.getLogFile()));
+    var childTail = tailFile(childLogFile);
+    var mainTail = tailFile(new File(agentConfig.getLogFile()));
     if (childTail == null && mainTail == null) {
       return "No log file configured, log messages will be directed to stdout.";
     } else {
-      StringBuilder result = new StringBuilder();
+      var result = new StringBuilder();
       if (mainTail != null) {
         result.append(mainTail);
       }
@@ -525,7 +524,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
   /** Returns true if this Agent is currently connected to a system. */
   @Override
   public boolean isConnected() {
-    boolean result = false;
+    var result = false;
     synchronized (CONN_SYNC) {
       result = ((system != null) && system.isConnected());
     }
@@ -550,12 +549,12 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
    * @throws IllegalArgumentException if the specified file's parent is not an existing directory.
    */
   public void setPropertyFile(String value) {
-    File f = (new File(value)).getAbsoluteFile();
+    var f = (new File(value)).getAbsoluteFile();
     if (f.isDirectory()) {
       throw new IllegalArgumentException(
           String.format("The file %s is a directory.", f));
     }
-    File parent = f.getParentFile();
+    var parent = f.getParentFile();
     if (parent != null) {
       if (!parent.isDirectory()) {
         throw new IllegalArgumentException(
@@ -869,13 +868,13 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
   private void initLogWriter() throws org.apache.geode.admin.AdminException {
     loggingSession.createSession(this);
 
-    final LogConfig logConfig = agentConfig.createLogConfig();
+    final var logConfig = agentConfig.createLogConfig();
 
     // LOG: create logWriterAppender here
     loggingSession.startSession();
 
     // LOG: look in AgentConfigImpl for existing LogWriter to use
-    InternalLogWriter existingLogWriter = agentConfig.getInternalLogWriter();
+    var existingLogWriter = agentConfig.getInternalLogWriter();
     if (existingLogWriter != null) {
       logWriter = existingLogWriter;
     } else {
@@ -936,10 +935,10 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
     }
 
     try {
-      ObjectName rmiRegistryNamingName = getRMIRegistryNamingName();
+      var rmiRegistryNamingName = getRMIRegistryNamingName();
       if (agentConfig.isRmiRegistryEnabled()
           && mBeanServer.isRegistered(rmiRegistryNamingName)) {
-        String[] empty = new String[0];
+        var empty = new String[0];
         mBeanServer.invoke(rmiRegistryNamingName, "stop", empty, empty);
         MBeanUtils.unregisterMBean(rmiRegistryNamingName);
       }
@@ -954,7 +953,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
     }
 
     try {
-      ObjectName rmiConnectorServerName = getRMIConnectorServerName();
+      var rmiConnectorServerName = getRMIConnectorServerName();
       if (mBeanServer.isRegistered(rmiConnectorServerName)) {
         MBeanUtils.unregisterMBean(rmiConnectorServerName);
       }
@@ -1049,7 +1048,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
     }
 
     try {
-      Agent agent = AgentFactory.getAgent(ac);
+      var agent = AgentFactory.getAgent(ac);
       agent.start();
 
     } catch (VirtualMachineError err) {
@@ -1077,15 +1076,15 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
     if (!agentConfig.isRmiRegistryEnabled()) {
       return;
     }
-    MBeanServer mbs = getMBeanServer();
-    String host = agentConfig.getRmiBindAddress();
-    int port = agentConfig.getRmiPort();
+    var mbs = getMBeanServer();
+    var host = agentConfig.getRmiBindAddress();
+    var port = agentConfig.getRmiPort();
 
     /*
      * Register and start the rmi-registry naming MBean, which is needed by JSR 160
      * RMIConnectorServer
      */
-    ObjectName registryName = getRMIRegistryNamingName();
+    var registryName = getRMIRegistryNamingName();
     try {
       RMIRegistryService registryNamingService = null;
       if (host != null && !("".equals(host.trim()))) {
@@ -1111,14 +1110,14 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
       return;
     }
 
-    String rmiBindAddress = agentConfig.getRmiBindAddress();
+    var rmiBindAddress = agentConfig.getRmiBindAddress();
 
     // Set RMI Stubs to use the given RMI Bind Address
     // Default bindAddress is "", if none is set - ignore if not set
     // If java.rmi.server.hostname property is specified then
     // that override is not changed
-    String rmiStubServerNameKey = "java.rmi.server.hostname";
-    String overrideHostName = System.getProperty(rmiStubServerNameKey);
+    var rmiStubServerNameKey = "java.rmi.server.hostname";
+    var overrideHostName = System.getProperty(rmiStubServerNameKey);
     if ((overrideHostName == null || overrideHostName.trim().length() == 0)
         && (rmiBindAddress != null && rmiBindAddress.trim().length() != 0)) {
       System.setProperty(rmiStubServerNameKey, rmiBindAddress);
@@ -1128,7 +1127,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
 
     try {
       createRMIRegistry();
-      ObjectName objName = getRMIConnectorServerName();
+      var objName = getRMIConnectorServerName();
 
       // make sure this adaptor is not already registered...
       if (getMBeanServer().isRegistered(objName)) {
@@ -1143,10 +1142,10 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
        * /jndi/rmi://<rmi-binding-address>:<rmi-port><JNDI_NAME>
        */
       String urlString = null;
-      String connectorServerHost = "";
-      int connectorServerPort = agentConfig.getRmiServerPort();
-      String rmiRegistryHost = "";
-      int rmiRegistryPort = agentConfig.getRmiPort();
+      var connectorServerHost = "";
+      var connectorServerPort = agentConfig.getRmiServerPort();
+      var rmiRegistryHost = "";
+      var rmiRegistryPort = agentConfig.getRmiPort();
 
       // Set registryHost to localhost if not specified
       // RMI stubs would use a default IP if namingHost is left empty
@@ -1165,7 +1164,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
       logger.debug("JMX Service URL string is : \"{}\"", urlString);
 
       // The address of the connector
-      JMXServiceURL url = new JMXServiceURL(urlString);
+      var url = new JMXServiceURL(urlString);
 
       Map<String, Object> env = new HashMap<>();
 
@@ -1222,7 +1221,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
       return;
     }
     try {
-      ObjectName objName = getSnmpAdaptorName();
+      var objName = getSnmpAdaptorName();
 
       // make sure this adaptor is not already registered...
       if (getMBeanServer().isRegistered(objName)) {
@@ -1231,8 +1230,8 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
         return;
       }
 
-      String className = "com.adventnet.adaptors.snmp.snmpsupport.SmartSnmpAdaptor";
-      String snmpDir = agentConfig.getSnmpDirectory();
+      var className = "com.adventnet.adaptors.snmp.snmpsupport.SmartSnmpAdaptor";
+      var snmpDir = agentConfig.getSnmpDirectory();
       // ex:/merry2/users/klund/agent
 
       // validate the directory...
@@ -1240,17 +1239,17 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
         throw new IllegalArgumentException(
             "snmp-directory must be specified because SNMP is enabled");
       }
-      File root = new File(snmpDir);
+      var root = new File(snmpDir);
       if (!root.exists()) {
         throw new IllegalArgumentException(
             "snmp-directory does not exist");
       }
 
       // create the adaptor...
-      String[] sigs = new String[] {"java.lang.String"};
-      Object[] args = new Object[] {snmpDir};
+      var sigs = new String[] {"java.lang.String"};
+      var args = new Object[] {snmpDir};
 
-      String bindAddress = agentConfig.getSnmpBindAddress();
+      var bindAddress = agentConfig.getSnmpBindAddress();
       if (bindAddress != null && bindAddress.length() > 0) {
         sigs = new String[] {"java.lang.String", sigs[0]};
         args = new Object[] {bindAddress, args[0]};
@@ -1286,7 +1285,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
       return;
     }
     try {
-      ObjectName objName = getHttpAdaptorName();
+      var objName = getHttpAdaptorName();
 
       // make sure this adaptor is not already registered...
       if (getMBeanServer().isRegistered(objName)) {
@@ -1309,7 +1308,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
       }
 
       if (agentConfig.getHttpBindAddress() != null) {
-        String host = agentConfig.getHttpBindAddress();
+        var host = agentConfig.getHttpBindAddress();
         logger.info(LogMarker.CONFIG_MARKER, "HTTP adaptor listening on address:  {}", host);
         httpAdaptor.setHost(host);
       } else {
@@ -1317,7 +1316,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
       }
 
       // SSL support...
-      MX4JServerSocketFactory socketFactory =
+      var socketFactory =
           new MX4JServerSocketFactory(agentConfig.isAgentSSLEnabled(),
               agentConfig.isHttpSSLRequireAuth(), agentConfig.getAgentSSLProtocols(),
               agentConfig.getAgentSSLCiphers(), agentConfig.getGfSecurityProperties());
@@ -1362,7 +1361,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
    * Defines and starts the Xslt Processor helper service for the Http Adaptor.
    */
   private ObjectName createXsltProcessor() throws javax.management.JMException {
-    ObjectName objName = getXsltProcessorName();
+    var objName = getXsltProcessorName();
 
     // make sure this mbean is not already registered...
     if (getMBeanServer().isRegistered(objName)) {
@@ -1479,7 +1478,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
   }
 
   void logConfigChanged() {
-    for (LogConfigListener listener : logConfigListeners) {
+    for (var listener : logConfigListeners) {
       listener.configChanged();
     }
   }
@@ -1506,9 +1505,9 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
    * @since GemFire 6.0
    */
   void updateRmiClientsCount() {
-    int noOfClientsConnected = 0;
+    var noOfClientsConnected = 0;
 
-    String[] connectionIds = rmiConnector.getConnectionIds();
+    var connectionIds = rmiConnector.getConnectionIds();
 
     if (connectionIds != null) {
       noOfClientsConnected = connectionIds.length;
@@ -1516,7 +1515,7 @@ public class AgentImpl implements org.apache.geode.admin.jmx.Agent,
 
     logger.info("No. of RMI clients connected :: {}", noOfClientsConnected);
 
-    AdminDistributedSystemJmxImpl adminDSJmx = (AdminDistributedSystemJmxImpl) system;
+    var adminDSJmx = (AdminDistributedSystemJmxImpl) system;
 
     adminDSJmx.setRmiClientCountZero(noOfClientsConnected == 0);
   }
@@ -1573,9 +1572,9 @@ class ConnectionNotificationAdapter implements NotificationListener {
       justification = "Only JMXConnectionNotification instances are used.")
   public void handleNotification(Notification notification, Object handback) {
     if (handback instanceof AgentImpl) {
-      AgentImpl agent = (AgentImpl) handback;
+      var agent = (AgentImpl) handback;
 
-      JMXConnectionNotification jmxNotifn = (JMXConnectionNotification) notification;
+      var jmxNotifn = (JMXConnectionNotification) notification;
 
       if (logger.isDebugEnabled()) {
         logger.debug("Connection notification for connection id : '{}'",

@@ -14,14 +14,10 @@
  */
 package org.apache.geode.redis.internal.commands.executor.hash;
 
-import java.util.List;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 /**
@@ -44,11 +40,11 @@ public class HSetExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
-    List<byte[]> fieldsToSet = commandElems.subList(2, commandElems.size());
+    var region = context.getRegion();
+    var key = command.getKey();
+    var fieldsToSet = commandElems.subList(2, commandElems.size());
 
     int fieldsAdded = context.hashLockedExecute(key, false,
         hash -> hash.hset(region, key, fieldsToSet, onlySetOnAbsent()));

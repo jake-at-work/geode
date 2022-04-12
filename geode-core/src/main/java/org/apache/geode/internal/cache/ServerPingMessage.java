@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.PooledDistributionMessage;
 import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
@@ -59,12 +57,12 @@ public class ServerPingMessage extends PooledDistributionMessage {
    */
   public static boolean send(InternalCache cache, Set<InternalDistributedMember> recipients) {
 
-    InternalDistributedSystem ids = cache.getInternalDistributedSystem();
-    DistributionManager dm = ids.getDistributionManager();
+    var ids = cache.getInternalDistributedSystem();
+    var dm = ids.getDistributionManager();
     Set<InternalDistributedMember> filteredRecipients = new HashSet<>();
 
     // filtered recipients
-    for (InternalDistributedMember recipient : recipients) {
+    for (var recipient : recipients) {
       if (KnownVersion.GFE_81.compareTo(recipient.getVersion()) <= 0) {
         filteredRecipients.add(recipient);
       }
@@ -73,8 +71,8 @@ public class ServerPingMessage extends PooledDistributionMessage {
       return true;
     }
 
-    ReplyProcessor21 replyProcessor = new ReplyProcessor21(dm, filteredRecipients);
-    ServerPingMessage spm = new ServerPingMessage(replyProcessor);
+    var replyProcessor = new ReplyProcessor21(dm, filteredRecipients);
+    var spm = new ServerPingMessage(replyProcessor);
 
     spm.setRecipients(filteredRecipients);
     Set failedServers = null;
@@ -85,7 +83,7 @@ public class ServerPingMessage extends PooledDistributionMessage {
       failedServers = dm.putOutgoing(spm);
 
       // wait for the replies for timeout msecs
-      boolean receivedReplies = replyProcessor.waitForReplies(0L);
+      var receivedReplies = replyProcessor.waitForReplies(0L);
 
       dm.getCancelCriterion().checkCancelInProgress(null);
 

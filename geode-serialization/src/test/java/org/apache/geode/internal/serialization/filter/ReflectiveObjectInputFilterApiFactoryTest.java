@@ -38,7 +38,7 @@ public class ReflectiveObjectInputFilterApiFactoryTest {
   public void createsInstanceOfReflectionObjectInputFilterApi() {
     ObjectInputFilterApiFactory factory = new ReflectiveObjectInputFilterApiFactory();
 
-    ObjectInputFilterApi api = factory.createObjectInputFilterApi();
+    var api = factory.createObjectInputFilterApi();
 
     assertThat(api).isInstanceOf(ReflectiveObjectInputFilterApi.class);
   }
@@ -49,7 +49,7 @@ public class ReflectiveObjectInputFilterApiFactoryTest {
 
     ObjectInputFilterApiFactory factory = new ReflectiveObjectInputFilterApiFactory();
 
-    ReflectiveObjectInputFilterApi api =
+    var api =
         (ReflectiveObjectInputFilterApi) factory.createObjectInputFilterApi();
 
     assertThat(api.getApiPackage()).isEqualTo(ApiPackage.JAVA_IO);
@@ -61,7 +61,7 @@ public class ReflectiveObjectInputFilterApiFactoryTest {
 
     ObjectInputFilterApiFactory factory = new ReflectiveObjectInputFilterApiFactory();
 
-    ReflectiveObjectInputFilterApi api =
+    var api =
         (ReflectiveObjectInputFilterApi) factory.createObjectInputFilterApi();
 
     assertThat(api.getApiPackage()).isEqualTo(ApiPackage.SUN_MISC);

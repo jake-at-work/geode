@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.internal.cache.GemFireCacheImpl;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 
@@ -97,7 +96,7 @@ public class CacheRuleBuilderDistributedTest {
     @Test
     public void getCache_returnsNullInAllVMs() {
       assertThat(cacheRule.getCache()).isNull();
-      for (VM vm : getAllVMs()) {
+      for (var vm : getAllVMs()) {
         vm.invoke(() -> assertThat(cacheRule.getCache()).isNull());
       }
     }
@@ -105,7 +104,7 @@ public class CacheRuleBuilderDistributedTest {
     @Test
     public void getCacheSingleton_returnsNullInAllVMs() {
       assertThat(GemFireCacheImpl.getInstance()).isNull();
-      for (VM vm : getAllVMs()) {
+      for (var vm : getAllVMs()) {
         vm.invoke(() -> assertThat(GemFireCacheImpl.getInstance()).isNull());
       }
     }
@@ -122,7 +121,7 @@ public class CacheRuleBuilderDistributedTest {
     @Test
     public void getCache_returnsCacheInLocalOnly() {
       assertThat(cacheRule.getCache()).isNotNull();
-      for (VM vm : getAllVMs()) {
+      for (var vm : getAllVMs()) {
         vm.invoke(() -> assertThat(cacheRule.getCache()).isNull());
       }
     }
@@ -144,7 +143,7 @@ public class CacheRuleBuilderDistributedTest {
         assertThat(cacheRule.getCache()).isNotNull();
       });
 
-      for (int i = 1; i < getVMCount(); i++) {
+      for (var i = 1; i < getVMCount(); i++) {
         getVM(i).invoke(() -> {
           assertThat(cacheRule.getCache()).isNull();
         });
@@ -165,7 +164,7 @@ public class CacheRuleBuilderDistributedTest {
     public void getCache_returnsCacheInTwoVMs() {
       assertThat(cacheRule.getCache()).isNull();
 
-      for (int i = 0; i < getVMCount(); i++) {
+      for (var i = 0; i < getVMCount(); i++) {
         if (i == 1 || i == 3) {
           getVM(i).invoke(() -> {
             assertThat(cacheRule.getCache()).isNotNull();
@@ -190,7 +189,7 @@ public class CacheRuleBuilderDistributedTest {
     @Test
     public void createCacheInAll_returnsCacheInAll() {
       assertThat(cacheRule.getCache()).isNotNull();
-      for (int i = 0; i < getVMCount(); i++) {
+      for (var i = 0; i < getVMCount(); i++) {
         getVM(i).invoke(() -> {
           assertThat(cacheRule.getCache()).isNotNull();
         });
@@ -209,7 +208,7 @@ public class CacheRuleBuilderDistributedTest {
     @Test
     public void createCacheInAllExplicitly_returnsCacheInAll() {
       assertThat(cacheRule.getCache()).isNotNull();
-      for (int i = 0; i < getVMCount(); i++) {
+      for (var i = 0; i < getVMCount(); i++) {
         getVM(i).invoke(() -> {
           assertThat(cacheRule.getCache()).isNotNull();
         });
@@ -227,11 +226,11 @@ public class CacheRuleBuilderDistributedTest {
 
     @Test
     public void createCacheInAll_createsCluster() {
-      int vmCount = getVMCount();
+      var vmCount = getVMCount();
 
       assertThat(cacheRule.getCache().getDistributionManager().getViewMembers())
           .hasSize(vmCount + 2);
-      for (int i = 0; i < vmCount; i++) {
+      for (var i = 0; i < vmCount; i++) {
         getVM(i).invoke(() -> {
           assertThat(cacheRule.getCache().getDistributionManager().getViewMembers())
               .hasSize(vmCount + 2);
@@ -256,7 +255,7 @@ public class CacheRuleBuilderDistributedTest {
       assertThat(
           cacheRule.getCache().getInternalDistributedSystem().getConfig().getDistributedSystemId())
               .isEqualTo(1);
-      for (int i = 0; i < getVMCount(); i++) {
+      for (var i = 0; i < getVMCount(); i++) {
         getVM(i).invoke(() -> {
           assertThat(cacheRule.getCache().getDistributedSystem().getProperties()
               .getProperty(DISTRIBUTED_SYSTEM_ID)).isEqualTo("1");
@@ -281,7 +280,7 @@ public class CacheRuleBuilderDistributedTest {
     @Test
     public void replaceConfig_createsLonersInAll() {
       assertThat(cacheRule.getCache().getDistributionManager().getViewMembers()).hasSize(1);
-      for (int i = 0; i < getVMCount(); i++) {
+      for (var i = 0; i < getVMCount(); i++) {
         getVM(i).invoke(() -> {
           assertThat(cacheRule.getCache().getDistributionManager().getViewMembers()).hasSize(1);
         });

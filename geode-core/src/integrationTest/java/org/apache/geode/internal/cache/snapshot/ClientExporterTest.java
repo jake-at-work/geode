@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.execute.FunctionContext;
@@ -34,9 +33,9 @@ public class ClientExporterTest {
 
   @Test
   public void proxyExportFunctionGetsRequestedRegion() {
-    Cache cache = spy(new CacheFactory().set("locators", "").set("mcast-port", "0").create());
+    var cache = spy(new CacheFactory().set("locators", "").set("mcast-port", "0").create());
     cache.createRegionFactory(RegionShortcut.PARTITION).create("testRegion");
-    ResultSender resultSender = mock(ResultSender.class);
+    var resultSender = mock(ResultSender.class);
     ClientExporter.ClientArgs<String, String> args = mock(ClientExporter.ClientArgs.class);
     when(args.isPRSingleHop()).thenReturn(true);
     when(args.getRegion()).thenReturn("testRegion");

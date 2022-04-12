@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.GatewayReceiverConfig;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.management.configuration.GatewayReceiver;
 import org.apache.geode.management.internal.configuration.converters.GatewayReceiverConverter;
@@ -50,7 +49,7 @@ public class GatewayReceiverConfigManager extends CacheConfigurationManager<Gate
   @Override
   public List<GatewayReceiver> list(GatewayReceiver filterConfig,
       CacheConfig existing) {
-    GatewayReceiverConfig gatewayReceiver = existing.getGatewayReceiver();
+    var gatewayReceiver = existing.getGatewayReceiver();
     if (gatewayReceiver == null) {
       return Collections.emptyList();
     }

@@ -47,18 +47,18 @@ class Table {
   }
 
   RowGroup newRowGroup() {
-    RowGroup rowGroup = new RowGroup(this, screen);
+    var rowGroup = new RowGroup(this, screen);
     rowGroups.add(rowGroup);
     return rowGroup;
   }
 
   Row newRow() {
-    RowGroup rowGroup = newRowGroup();
+    var rowGroup = newRowGroup();
     return rowGroup.newRow();
   }
 
   void newBlankRow() {
-    RowGroup rowGroup = newRowGroup();
+    var rowGroup = newRowGroup();
     rowGroup.newBlankRow();
   }
 
@@ -73,14 +73,14 @@ class Table {
    * Computes total Max Row Length across table - for all row groups.
    */
   int getMaxLength() {
-    int rowGroupMaxTotalLength = 0;
-    for (RowGroup rowGroup : rowGroups) {
-      List<Row> rows = rowGroup.getRows();
+    var rowGroupMaxTotalLength = 0;
+    for (var rowGroup : rowGroups) {
+      var rows = rowGroup.getRows();
 
-      int rowMaxTotalLength = 0;
-      for (Row row : rows) {
-        int rowTotalLength = 0;
-        for (int i = 0; i < row.getNumCols(); i++) {
+      var rowMaxTotalLength = 0;
+      for (var row : rows) {
+        var rowTotalLength = 0;
+        for (var i = 0; i < row.getNumCols(); i++) {
           rowTotalLength += row.getMaxColLength(i);
         }
 
@@ -92,7 +92,7 @@ class Table {
         }
       }
 
-      int rowGroupTotalLength = 0;
+      var rowGroupTotalLength = 0;
       rowGroupTotalLength += rowMaxTotalLength;
       if (rowGroupMaxTotalLength < rowGroupTotalLength) {
         rowGroupMaxTotalLength = rowGroupTotalLength;
@@ -102,8 +102,8 @@ class Table {
   }
 
   String buildTable() {
-    StringBuilder StringBuilder = new StringBuilder();
-    for (RowGroup rowGroup : rowGroups) {
+    var StringBuilder = new StringBuilder();
+    for (var rowGroup : rowGroups) {
       StringBuilder.append(rowGroup.buildRowGroup(isTabularResult));
     }
 
@@ -112,7 +112,7 @@ class Table {
 
   List<String> buildTableList() {
     List<String> list = new ArrayList<>();
-    for (RowGroup rowGroup : rowGroups) {
+    for (var rowGroup : rowGroups) {
       list.add(rowGroup.buildRowGroup(isTabularResult));
     }
 

@@ -68,7 +68,7 @@ public class LoggingSessionRegistryProvider
    * Provides {@code createSession} notification to all registered listeners.
    */
   public void createSession(final SessionContext sessionContext) {
-    for (LoggingSessionListener listener : listeners) {
+    for (var listener : listeners) {
       listener.createSession(sessionContext);
     }
   }
@@ -77,7 +77,7 @@ public class LoggingSessionRegistryProvider
    * Provides {@code startSession} notification to all registered listeners.
    */
   public void startSession() {
-    for (LoggingSessionListener listener : listeners) {
+    for (var listener : listeners) {
       listener.startSession();
     }
   }
@@ -86,7 +86,7 @@ public class LoggingSessionRegistryProvider
    * Provides {@code stopSession} notification to all registered listeners.
    */
   public void stopSession() {
-    for (LoggingSessionListener listener : listeners) {
+    for (var listener : listeners) {
       listener.stopSession();
     }
   }
@@ -95,7 +95,7 @@ public class LoggingSessionRegistryProvider
    * Returns the system {@link LogFile} from any {@link LoggingSessionListener} that offers it.
    */
   public Optional<LogFile> getLogFile() {
-    for (LoggingSessionListener listener : listeners) {
+    for (var listener : listeners) {
       if (listener.getLogFile().isPresent()) {
         return listener.getLogFile();
       }

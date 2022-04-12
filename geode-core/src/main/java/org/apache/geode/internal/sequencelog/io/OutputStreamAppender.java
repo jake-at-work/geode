@@ -52,13 +52,13 @@ public class OutputStreamAppender {
   }
 
   public void write(Transition edge) throws IOException {
-    byte graphType = edge.getType().getId();
+    var graphType = edge.getType().getId();
     // TODO - really we should deal with null and read it back in as null as well.
-    String stateName = edge.getState() == null ? "null" : edge.getState().toString();
-    long timestamp = edge.getTimestamp();
-    int edgeId = canonalize(edge.getEdgeName());
-    int source = canonalize(edge.getSource());
-    int dest = canonalize(edge.getDest());
+    var stateName = edge.getState() == null ? "null" : edge.getState().toString();
+    var timestamp = edge.getTimestamp();
+    var edgeId = canonalize(edge.getEdgeName());
+    var source = canonalize(edge.getSource());
+    var dest = canonalize(edge.getDest());
 
     outputStream.write(EDGE_RECORD);
     outputStream.writeLong(timestamp);
@@ -72,10 +72,10 @@ public class OutputStreamAppender {
   }
 
   private void writeGraphName(Object graphName) throws IOException {
-    boolean isPattern = graphName instanceof Pattern;
+    var isPattern = graphName instanceof Pattern;
     outputStream.writeBoolean(isPattern);
     if (isPattern) {
-      final Pattern pattern = (Pattern) graphName;
+      final var pattern = (Pattern) graphName;
       outputStream.writeUTF(pattern.pattern());
       outputStream.writeInt(pattern.flags());
     } else {
@@ -84,11 +84,11 @@ public class OutputStreamAppender {
   }
 
   private int canonalize(Object object) throws IOException {
-    Integer id = writtenObjects.get(object);
+    var id = writtenObjects.get(object);
     if (id != null) {
       return id;
     }
-    String toString = object.toString();
+    var toString = object.toString();
     id = writtenStrings.get(toString);
     if (id != null) {
       return id;

@@ -24,18 +24,14 @@ import static org.apache.geode.test.junit.runners.TestRunner.runTestWithValidati
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedMap;
 
 @SuppressWarnings("serial")
@@ -46,21 +42,21 @@ public class DistributedMapTest implements Serializable {
 
   @Test
   public void isEmptyIsTrueByDefault() {
-    boolean empty = distributedMap.isEmpty();
+    var empty = distributedMap.isEmpty();
 
     assertThat(empty).isTrue();
   }
 
   @Test
   public void sizeIsZeroWhenEmpty() {
-    int size = distributedMap.size();
+    var size = distributedMap.size();
 
     assertThat(size).isZero();
   }
 
   @Test
   public void getReturnsNullByDefault() {
-    Object value = distributedMap.get("key");
+    var value = distributedMap.get("key");
 
     assertThat(value).isNull();
   }
@@ -69,7 +65,7 @@ public class DistributedMapTest implements Serializable {
   public void getReturnsValueOfPut() {
     distributedMap.put("key", "value");
 
-    Object value = distributedMap.get("key");
+    var value = distributedMap.get("key");
 
     assertThat(value).isEqualTo("value");
   }
@@ -80,7 +76,7 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key", "value2");
     distributedMap.put("key", "value3");
 
-    Object value = distributedMap.get("key");
+    var value = distributedMap.get("key");
 
     assertThat(value).isEqualTo("value3");
   }
@@ -89,16 +85,16 @@ public class DistributedMapTest implements Serializable {
   public void getReturnsSameValueRepeatedly() {
     distributedMap.put("key", "value");
 
-    Object value1 = distributedMap.get("key");
-    Object value2 = distributedMap.get("key");
-    Object value3 = distributedMap.get("key");
+    var value1 = distributedMap.get("key");
+    var value2 = distributedMap.get("key");
+    var value3 = distributedMap.get("key");
 
     assertThat(value3).isEqualTo(value2).isEqualTo(value1);
   }
 
   @Test
   public void containsKeyIsFalseWhenEntryDoesNotExist() {
-    boolean containsKey = distributedMap.containsKey("key");
+    var containsKey = distributedMap.containsKey("key");
 
     assertThat(containsKey).isFalse();
   }
@@ -107,14 +103,14 @@ public class DistributedMapTest implements Serializable {
   public void containsKeyIsTrueWhenEntryExists() {
     distributedMap.put("key", "value");
 
-    boolean containsKey = distributedMap.containsKey("key");
+    var containsKey = distributedMap.containsKey("key");
 
     assertThat(containsKey).isTrue();
   }
 
   @Test
   public void containsValueIsFalseWhenEntryDoesNotExist() {
-    boolean containsValue = distributedMap.containsValue("value");
+    var containsValue = distributedMap.containsValue("value");
 
     assertThat(containsValue).isFalse();
   }
@@ -123,7 +119,7 @@ public class DistributedMapTest implements Serializable {
   public void containsValueIsTrueWhenEntryExists() {
     distributedMap.put("key", "value");
 
-    boolean containsValue = distributedMap.containsValue("value");
+    var containsValue = distributedMap.containsValue("value");
 
     assertThat(containsValue).isTrue();
   }
@@ -179,7 +175,7 @@ public class DistributedMapTest implements Serializable {
   public void isEmptyIsFalseAfterPut() {
     distributedMap.put("key", "value");
 
-    boolean isEmpty = distributedMap.isEmpty();
+    var isEmpty = distributedMap.isEmpty();
 
     assertThat(isEmpty).isFalse();
   }
@@ -199,7 +195,7 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    int size = distributedMap.size();
+    var size = distributedMap.size();
 
     assertThat(size).isEqualTo(3);
   }
@@ -221,7 +217,7 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    Set<Object> keySet = distributedMap.keySet();
+    var keySet = distributedMap.keySet();
 
     assertThat(keySet).containsExactly("key1", "key2", "key3");
   }
@@ -232,7 +228,7 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    Collection<Object> values = distributedMap.values();
+    var values = distributedMap.values();
 
     assertThat(values).containsExactlyInAnyOrder("value1", "value2", "value3");
   }
@@ -247,7 +243,7 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    Set<Entry<Object, Object>> entrySet = distributedMap.entrySet();
+    var entrySet = distributedMap.entrySet();
 
     assertThat(entrySet).isEqualTo(expectedEntries.entrySet());
   }
@@ -262,8 +258,8 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    boolean equals = distributedMap.equals(otherMap);
-    boolean otherEquals = otherMap.equals(distributedMap);
+    var equals = distributedMap.equals(otherMap);
+    var otherEquals = otherMap.equals(distributedMap);
 
     assertThat(equals).isEqualTo(otherEquals).isTrue();
   }
@@ -277,8 +273,8 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    boolean equals = distributedMap.equals(otherMap);
-    boolean otherEquals = otherMap.equals(distributedMap);
+    var equals = distributedMap.equals(otherMap);
+    var otherEquals = otherMap.equals(distributedMap);
 
     assertThat(equals).isEqualTo(otherEquals).isFalse();
   }
@@ -294,8 +290,8 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    boolean equals = distributedMap.equals(otherMap);
-    boolean otherEquals = otherMap.equals(distributedMap);
+    var equals = distributedMap.equals(otherMap);
+    var otherEquals = otherMap.equals(distributedMap);
 
     assertThat(equals).isEqualTo(otherEquals).isFalse();
   }
@@ -310,8 +306,8 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    boolean equals = distributedMap.equals(otherMap);
-    boolean otherEquals = otherMap.equals(distributedMap);
+    var equals = distributedMap.equals(otherMap);
+    var otherEquals = otherMap.equals(distributedMap);
 
     assertThat(equals).isEqualTo(otherEquals).isFalse();
   }
@@ -326,8 +322,8 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    int thisHashCode = distributedMap.hashCode();
-    int otherHashCode = otherMap.hashCode();
+    var thisHashCode = distributedMap.hashCode();
+    var otherHashCode = otherMap.hashCode();
 
     assertThat(thisHashCode).isEqualTo(otherHashCode);
   }
@@ -341,8 +337,8 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    int thisHashCode = distributedMap.hashCode();
-    int otherHashCode = otherMap.hashCode();
+    var thisHashCode = distributedMap.hashCode();
+    var otherHashCode = otherMap.hashCode();
 
     assertThat(thisHashCode).isNotEqualTo(otherHashCode);
   }
@@ -358,8 +354,8 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    int thisHashCode = distributedMap.hashCode();
-    int otherHashCode = otherMap.hashCode();
+    var thisHashCode = distributedMap.hashCode();
+    var otherHashCode = otherMap.hashCode();
 
     assertThat(thisHashCode).isNotEqualTo(otherHashCode);
   }
@@ -374,8 +370,8 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    int thisHashCode = distributedMap.hashCode();
-    int otherHashCode = otherMap.hashCode();
+    var thisHashCode = distributedMap.hashCode();
+    var otherHashCode = otherMap.hashCode();
 
     assertThat(thisHashCode).isNotEqualTo(otherHashCode);
   }
@@ -390,8 +386,8 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key2", "value2");
     distributedMap.put("key3", "value3");
 
-    String toString = distributedMap.toString();
-    String otherToString = otherMap.toString();
+    var toString = distributedMap.toString();
+    var otherToString = otherMap.toString();
 
     assertThat(toString).isEqualTo(otherToString);
   }
@@ -403,7 +399,7 @@ public class DistributedMapTest implements Serializable {
     });
 
     getController().invoke(() -> {
-      Object value = distributedMap.get("key1");
+      var value = distributedMap.get("key1");
 
       assertThat(value).isEqualTo("value1");
     });
@@ -415,7 +411,7 @@ public class DistributedMapTest implements Serializable {
       distributedMap.put("key1", "value1");
     });
 
-    Object value = distributedMap.get("key1");
+    var value = distributedMap.get("key1");
 
     assertThat(value).isEqualTo("value1");
   }
@@ -425,7 +421,7 @@ public class DistributedMapTest implements Serializable {
     distributedMap.put("key1", "value1");
 
     getController().invoke(() -> {
-      Object value = distributedMap.get("key1");
+      var value = distributedMap.get("key1");
 
       assertThat(value).isEqualTo("value1");
     });
@@ -437,7 +433,7 @@ public class DistributedMapTest implements Serializable {
       distributedMap.put("key1", "value1");
     });
 
-    Object value = distributedMap.get("key1");
+    var value = distributedMap.get("key1");
 
     assertThat(value).isEqualTo("value1");
   }
@@ -446,9 +442,9 @@ public class DistributedMapTest implements Serializable {
   public void getReturnsSameValueInEveryVmAsPutInController() {
     distributedMap.put("key1", "value1");
 
-    for (VM vm : toArray(getAllVMs(), getController())) {
+    for (var vm : toArray(getAllVMs(), getController())) {
       vm.invoke(() -> {
-        Object value = distributedMap.get("key1");
+        var value = distributedMap.get("key1");
 
         assertThat(value).isEqualTo("value1");
       });
@@ -462,7 +458,7 @@ public class DistributedMapTest implements Serializable {
     });
 
     getVM(0).invoke(() -> {
-      Object value = distributedMap.get("key1");
+      var value = distributedMap.get("key1");
 
       assertThat(value).isEqualTo("value1");
     });
@@ -473,7 +469,7 @@ public class DistributedMapTest implements Serializable {
     getVM(0).invoke(() -> {
       distributedMap.put("key1", "value1");
 
-      Object value = distributedMap.get("key1");
+      var value = distributedMap.get("key1");
 
       assertThat(value).isEqualTo("value1");
     });
@@ -485,9 +481,9 @@ public class DistributedMapTest implements Serializable {
       distributedMap.put("key1", "value1");
     });
 
-    for (VM vm : toArray(getAllVMs(), getController())) {
+    for (var vm : toArray(getAllVMs(), getController())) {
       vm.invoke(() -> {
-        Object value = distributedMap.get("key1");
+        var value = distributedMap.get("key1");
 
         assertThat(value)
             .as("value in " + getVMId())
@@ -558,7 +554,7 @@ public class DistributedMapTest implements Serializable {
 
     @Test
     public void distributedMapIsAccessibleInEveryVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(distributedMap.map()).isSameAs(map.get());
           assertThat(distributedMap.get("key1")).isEqualTo("value1");
@@ -590,7 +586,7 @@ public class DistributedMapTest implements Serializable {
 
     @Test
     public void twoDistributedMapsAreAccessibleInEveryVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(distributedMap1.map()).isSameAs(map1.get());
           assertThat(distributedMap1.get("key1")).isEqualTo("value1");
@@ -633,7 +629,7 @@ public class DistributedMapTest implements Serializable {
 
     @Test
     public void manyDistributedMapsAreAccessibleInEveryVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(distributedMap1.map()).isSameAs(map1.get());
           assertThat(distributedMap1.get("key1")).isEqualTo("value1");

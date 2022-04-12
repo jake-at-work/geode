@@ -152,7 +152,7 @@ class RegionPerfStats extends CachePerfStats implements RegionStats {
     // should not be disabled by clock.isEnabled()==false
 
     // don't use getStatTime so always enabled
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(loadTimeId, ts - start);
     stats.incLong(loadsInProgressId, -1);
     stats.incLong(loadsCompletedId, 1);
@@ -190,7 +190,7 @@ class RegionPerfStats extends CachePerfStats implements RegionStats {
     // not be disabled by clock.isEnabled()==false
 
     // don't use getStatTime so always enabled
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(netsearchTimeId, ts - start);
     stats.incLong(netsearchesInProgressId, -1);
     stats.incLong(netsearchesCompletedId, 1);
@@ -272,7 +272,7 @@ class RegionPerfStats extends CachePerfStats implements RegionStats {
 
   @Override
   public void endIndexUpdate(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(indexUpdateTimeId, ts - start);
     stats.incLong(indexUpdateInProgressId, -1);
     stats.incLong(indexUpdateCompletedId, 1);
@@ -337,7 +337,7 @@ class RegionPerfStats extends CachePerfStats implements RegionStats {
   @Override
   public void endGet(long start, boolean miss) {
     if (clock.isEnabled()) {
-      long totalNanos = getTime() - start;
+      var totalNanos = getTime() - start;
       stats.incLong(getTimeId, totalNanos);
     }
     stats.incLong(getsId, 1L);
@@ -349,7 +349,7 @@ class RegionPerfStats extends CachePerfStats implements RegionStats {
 
   @Override
   public void endGetForClient(long start, boolean miss) {
-    long totalNanos = clock.isEnabled() ? getTime() - start : 0;
+    var totalNanos = clock.isEnabled() ? getTime() - start : 0;
     if (miss) {
       cacheGetsMissTimer.record(totalNanos, NANOSECONDS);
     } else {
@@ -565,7 +565,7 @@ class RegionPerfStats extends CachePerfStats implements RegionStats {
   @Override
   public void endCompression(long startTime, long startSize, long endSize) {
     if (clock.isEnabled()) {
-      long time = getTime() - startTime;
+      var time = getTime() - startTime;
       stats.incLong(compressionCompressTimeId, time);
       cachePerfStats.stats.incLong(compressionCompressTimeId, time);
     }
@@ -587,7 +587,7 @@ class RegionPerfStats extends CachePerfStats implements RegionStats {
   @Override
   public void endDecompression(long startTime) {
     if (clock.isEnabled()) {
-      long time = getTime() - startTime;
+      var time = getTime() - startTime;
       stats.incLong(compressionDecompressTimeId, time);
       cachePerfStats.stats.incLong(compressionDecompressTimeId, time);
     }

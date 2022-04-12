@@ -45,13 +45,11 @@ import org.apache.geode.logging.internal.OSProcess;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.cli.GfshParser;
-import org.apache.geode.management.internal.cli.domain.ConnectToLocatorResult;
 import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.cli.shell.JmxOperationInvoker;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
-import org.apache.geode.management.internal.cli.util.ConnectionEndpoint;
 import org.apache.geode.management.internal.configuration.utils.ClusterConfigurationStatusRetriever;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.util.HostUtils;
@@ -129,7 +127,7 @@ public class StartLocatorCommand extends OfflineGfshCommand {
       memberName = StartMemberUtils.getNameGenerator().generate('-');
     }
 
-    String resolvedWorkingDirectory = resolveWorkingDirectory(workingDirectory, memberName);
+    var resolvedWorkingDirectory = resolveWorkingDirectory(workingDirectory, memberName);
 
     return doStartLocator(memberName, bindAddress, classpath, force, group, hostnameForClients,
         jmxManagerHostnameForClients, includeSystemClasspath, locators, logLevel, mcastBindAddress,
@@ -182,7 +180,7 @@ public class StartLocatorCommand extends OfflineGfshCommand {
               gemfireSecurityPropertiesFile.getAbsolutePath()));
     }
 
-    Properties gemfireProperties = new Properties();
+    var gemfireProperties = new Properties();
 
     StartMemberUtils.setPropertyIfNotNull(gemfireProperties, ConfigurationProperties.GROUPS, group);
     StartMemberUtils.setPropertyIfNotNull(gemfireProperties, ConfigurationProperties.LOCATORS,
@@ -205,7 +203,7 @@ public class StartLocatorCommand extends OfflineGfshCommand {
     StartMemberUtils.setPropertyIfNotNull(gemfireProperties,
         ConfigurationProperties.JMX_MANAGER_HOSTNAME_FOR_CLIENTS, jmxManagerHostnameForClients);
 
-    LocatorLauncher.Builder locatorLauncherBuilder =
+    var locatorLauncherBuilder =
         new LocatorLauncher.Builder().setBindAddress(bindAddress).setForce(force).setPort(port)
             .setRedirectOutput(redirectOutput).setWorkingDirectory(workingDirectory);
     if (hostnameForClients != null) {
@@ -214,31 +212,31 @@ public class StartLocatorCommand extends OfflineGfshCommand {
     if (memberName != null) {
       locatorLauncherBuilder.setMemberName(memberName);
     }
-    LocatorLauncher locatorLauncher = locatorLauncherBuilder.build();
+    var locatorLauncher = locatorLauncherBuilder.build();
 
-    String[] locatorCommandLine = createStartLocatorCommandLine(locatorLauncher,
+    var locatorCommandLine = createStartLocatorCommandLine(locatorLauncher,
         gemfirePropertiesFile, gemfireSecurityPropertiesFile, gemfireProperties, classpath,
         includeSystemClasspath, jvmArgsOpts, initialHeap, maxHeap);
 
-    final Process locatorProcess =
+    final var locatorProcess =
         getProcess(locatorLauncher.getWorkingDirectory(), locatorCommandLine);
 
     locatorProcess.getInputStream().close();
     locatorProcess.getOutputStream().close();
 
     // fix TRAC bug #51967 by using NON_BLOCKING on Windows
-    final ProcessStreamReader.ReadingMode readingMode = SystemUtils.isWindows()
+    final var readingMode = SystemUtils.isWindows()
         ? ProcessStreamReader.ReadingMode.NON_BLOCKING : ProcessStreamReader.ReadingMode.BLOCKING;
 
-    final StringBuilder message = new StringBuilder(); // need thread-safe StringBuilder
-    ProcessStreamReader.InputListener inputListener = line -> {
+    final var message = new StringBuilder(); // need thread-safe StringBuilder
+    var inputListener = (ProcessStreamReader.InputListener) line -> {
       message.append(line);
       if (readingMode == ProcessStreamReader.ReadingMode.BLOCKING) {
         message.append(lineSeparator());
       }
     };
 
-    ProcessStreamReader stderrReader = new ProcessStreamReader.Builder(locatorProcess)
+    var stderrReader = new ProcessStreamReader.Builder(locatorProcess)
         .inputStream(locatorProcess.getErrorStream()).inputListener(inputListener)
         .readingMode(readingMode).continueReadingMillis(2 * 1000).build().start();
 
@@ -246,9 +244,9 @@ public class StartLocatorCommand extends OfflineGfshCommand {
 
     String previousLocatorStatusMessage = null;
 
-    LauncherSignalListener locatorSignalListener = new LauncherSignalListener();
+    var locatorSignalListener = new LauncherSignalListener();
 
-    final boolean registeredLocatorSignalListener =
+    final var registeredLocatorSignalListener =
         getGfsh().getSignalHandler().registerListener(locatorSignalListener);
 
     try {
@@ -266,7 +264,7 @@ public class StartLocatorCommand extends OfflineGfshCommand {
 
           locatorState = LocatorLauncher.LocatorState.fromDirectory(workingDirectory, memberName);
 
-          String currentLocatorStatusMessage = locatorState.getStatusMessage();
+          var currentLocatorStatusMessage = locatorState.getStatusMessage();
 
           if (locatorState.isStartingOrNotResponding()
               && !(StringUtils.isBlank(currentLocatorStatusMessage)
@@ -277,7 +275,7 @@ public class StartLocatorCommand extends OfflineGfshCommand {
             previousLocatorStatusMessage = currentLocatorStatusMessage;
           }
         } else {
-          final int exitValue = locatorProcess.exitValue();
+          final var exitValue = locatorProcess.exitValue();
 
           return ResultModel.createError(
               String.format(CliStrings.START_LOCATOR__PROCESS_TERMINATED_ABNORMALLY_ERROR_MESSAGE,
@@ -295,12 +293,12 @@ public class StartLocatorCommand extends OfflineGfshCommand {
 
     Gfsh.println();
 
-    final boolean asyncStart =
+    final var asyncStart =
         (registeredLocatorSignalListener && locatorSignalListener.isSignaled()
             && ServerLauncher.ServerState.isStartingNotRespondingOrNull(locatorState));
 
-    ResultModel result = new ResultModel();
-    InfoResultModel infoResult = result.addInfo();
+    var result = new ResultModel();
+    var infoResult = result.addInfo();
 
     if (loadSharedConfigurationFromDirectory) {
       infoResult.addLine("Warning: Option --load-cluster-config-from-dir is deprecated, use '"
@@ -316,7 +314,7 @@ public class StartLocatorCommand extends OfflineGfshCommand {
 
     infoResult.addLine(locatorState.toString());
     String locatorHostName;
-    String bindAddr = locatorLauncher.getBindAddressString();
+    var bindAddr = locatorLauncher.getBindAddressString();
     if (bindAddr != null) {
       locatorHostName = bindAddr;
     } else {
@@ -324,18 +322,17 @@ public class StartLocatorCommand extends OfflineGfshCommand {
           HostUtils.getLocalHost());
     }
 
-    int locatorPort = Integer.parseInt(locatorState.getPort());
+    var locatorPort = Integer.parseInt(locatorState.getPort());
 
-
-    ConnectCommand connectCommand = new ConnectCommand();
-    Properties configProperties = connectCommand.resolveSslProperties(getGfsh(), false,
+    var connectCommand = new ConnectCommand();
+    var configProperties = connectCommand.resolveSslProperties(getGfsh(), false,
         gemfirePropertiesFile, gemfireSecurityPropertiesFile);
 
     // AUTO-CONNECT
     // If the connect succeeds add the connected message to the result,
     // Else, ask the user to use the "connect" command to connect to the Locator.
     if (shouldAutoConnect(connect)) {
-      boolean connected =
+      var connected =
           doAutoConnect(locatorHostName, locatorPort, configProperties, infoResult);
 
       // Report on the state of the Shared Configuration service if enabled...
@@ -364,26 +361,26 @@ public class StartLocatorCommand extends OfflineGfshCommand {
 
   private boolean doAutoConnect(final String locatorHostname, final int locatorPort,
       final Properties configurationProperties, final InfoResultModel infoResult) {
-    boolean connectSuccess = false;
-    boolean jmxManagerAuthEnabled = false;
-    boolean jmxManagerSslEnabled = false;
+    var connectSuccess = false;
+    var jmxManagerAuthEnabled = false;
+    var jmxManagerSslEnabled = false;
 
     String responseFailureMessage = null;
 
-    for (int attempts = 0; (attempts < 10 && !connectSuccess); attempts++) {
+    for (var attempts = 0; (attempts < 10 && !connectSuccess); attempts++) {
       try {
-        ConnectToLocatorResult connectToLocatorResult =
+        var connectToLocatorResult =
             ConnectCommand.connectToLocator(locatorHostname, locatorPort,
                 ConnectCommand.CONNECT_LOCATOR_TIMEOUT_MS / 4, configurationProperties);
 
-        ConnectionEndpoint memberEndpoint = connectToLocatorResult.getMemberEndpoint();
+        var memberEndpoint = connectToLocatorResult.getMemberEndpoint();
 
         jmxManagerSslEnabled = connectToLocatorResult.isJmxManagerSslEnabled();
 
         getGfsh().setOperationInvoker(new JmxOperationInvoker(memberEndpoint.getHost(),
             memberEndpoint.getPort(), configurationProperties));
 
-        String shellAndLogMessage = CliStrings.format(CliStrings.CONNECT__MSG__SUCCESS,
+        var shellAndLogMessage = CliStrings.format(CliStrings.CONNECT__MSG__SUCCESS,
             "JMX Manager " + memberEndpoint.toString(false));
 
         infoResult.addLine("\n");
@@ -423,10 +420,10 @@ public class StartLocatorCommand extends OfflineGfshCommand {
       final boolean jmxManagerAuthEnabled, final boolean jmxManagerSslEnabled,
       final InfoResultModel infoResult) {
     infoResult.addLine("\n");
-    CommandStringBuilder commandUsage = new CommandStringBuilder(CliStrings.CONNECT)
+    var commandUsage = new CommandStringBuilder(CliStrings.CONNECT)
         .addOption(CliStrings.CONNECT__LOCATOR, locatorHostName + "[" + locatorPort + "]");
 
-    StringBuilder message = new StringBuilder();
+    var message = new StringBuilder();
 
     if (jmxManagerAuthEnabled) {
       commandUsage.addOption(CliStrings.CONNECT__USERNAME).addOption(CliStrings.CONNECT__PASSWORD);
@@ -514,7 +511,7 @@ public class StartLocatorCommand extends OfflineGfshCommand {
     List<String> jarFilePathnames = new ArrayList<>();
     jarFilePathnames.add(StartMemberUtils.CORE_DEPENDENCIES_JAR_PATHNAME);
     // include all extension dependencies on the CLASSPATH...
-    for (String extensionsJarPathname : getExtensionsJars()) {
+    for (var extensionsJarPathname : getExtensionsJars()) {
       if (org.apache.commons.lang3.StringUtils.isNotBlank(extensionsJarPathname)) {
         jarFilePathnames.add(extensionsJarPathname);
       }
@@ -525,8 +522,8 @@ public class StartLocatorCommand extends OfflineGfshCommand {
   }
 
   private String[] getExtensionsJars() {
-    File extensionsDirectory = new File(StartMemberUtils.EXTENSIONS_PATHNAME);
-    File[] extensionsJars = extensionsDirectory.listFiles();
+    var extensionsDirectory = new File(StartMemberUtils.EXTENSIONS_PATHNAME);
+    var extensionsJars = extensionsDirectory.listFiles();
 
     if (extensionsJars != null) {
       // assume `extensions` directory does not contain any subdirectories. It only contains jars.

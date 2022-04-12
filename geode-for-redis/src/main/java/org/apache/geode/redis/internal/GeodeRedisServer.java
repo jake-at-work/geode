@@ -19,11 +19,8 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.internal.statistics.StatisticsClockFactory;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.redis.internal.data.RedisKey;
@@ -81,7 +78,7 @@ public class GeodeRedisServer {
 
     redisStats = createStats(cache);
     StripedCoordinator stripedCoordinator = new LockingStripedCoordinator();
-    RedisMemberInfoRetrievalFunction infoFunction = RedisMemberInfoRetrievalFunction.register();
+    var infoFunction = RedisMemberInfoRetrievalFunction.register();
 
     eventDistributor = new EventDistributor();
     regionProvider = new RegionProvider(cache, stripedCoordinator, redisStats, eventDistributor);
@@ -89,8 +86,8 @@ public class GeodeRedisServer {
 
     activeExpirationManager = new ActiveExpirationManager(regionProvider);
 
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
-    RedisSecurityService securityService = new RedisSecurityService(cache.getSecurityService());
+    var member = cache.getDistributedSystem().getDistributedMember();
+    var securityService = new RedisSecurityService(cache.getSecurityService());
 
     nettyRedisServer = new NettyRedisServer(() -> cache.getInternalDistributedSystem().getConfig(),
         regionProvider, pubSub,
@@ -111,8 +108,8 @@ public class GeodeRedisServer {
   }
 
   private static RedisStats createStats(InternalCache cache) {
-    InternalDistributedSystem system = cache.getInternalDistributedSystem();
-    StatisticsClock statisticsClock =
+    var system = cache.getInternalDistributedSystem();
+    var statisticsClock =
         StatisticsClockFactory.clock(true);
 
     return new RedisStats(statisticsClock,
@@ -158,7 +155,7 @@ public class GeodeRedisServer {
 
   @VisibleForTesting
   public Long getDataStoreBytesInUseForDataRegion() {
-    PartitionedRegion dataRegion = (PartitionedRegion) getRegionProvider().getDataRegion();
+    var dataRegion = (PartitionedRegion) getRegionProvider().getDataRegion();
     return dataRegion.getPrStats().getDataStoreBytesInUse();
   }
 

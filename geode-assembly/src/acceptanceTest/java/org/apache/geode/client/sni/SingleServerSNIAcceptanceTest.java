@@ -28,7 +28,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -74,13 +73,13 @@ public class SingleServerSNIAcceptanceTest {
     // start up server/locator processes and initialize the server cache
     docker.execForService("geode", "gfsh", "run", "--file=/geode/scripts/geode-starter.gfsh");
 
-    final String trustStorePath =
+    final var trustStorePath =
         createTempFileFromResource(SingleServerSNIAcceptanceTest.class,
             "geode-config/truststore.jks")
                 .getAbsolutePath();
 
     // set up client cache properties so it can connect to the server
-    Properties clientCacheProperties = new Properties();
+    var clientCacheProperties = new Properties();
     clientCacheProperties.setProperty(SSL_ENABLED_COMPONENTS, "all");
     clientCacheProperties.setProperty(SSL_KEYSTORE_TYPE, "jks");
     clientCacheProperties.setProperty(SSL_REQUIRE_AUTHENTICATION, "false");
@@ -99,7 +98,7 @@ public class SingleServerSNIAcceptanceTest {
 
   @AfterClass
   public static void afterClass() throws Exception {
-    String logs = docker.execForService("geode", "cat", "server-dolores/server-dolores.log");
+    var logs = docker.execForService("geode", "cat", "server-dolores/server-dolores.log");
     System.out.println("server logs------------------------------------------");
     System.out.println(logs);
 
@@ -130,7 +129,7 @@ public class SingleServerSNIAcceptanceTest {
   public void query() throws Exception {
     final SelectResults<String> results = region.query("SELECT * from " + SEPARATOR + "jellyfish");
     assertThat(results).hasSize(bulkData.size());
-    for (String result : results) {
+    for (var result : results) {
       assertThat(bulkData.containsValue(result)).isTrue();
     }
   }
@@ -140,9 +139,9 @@ public class SingleServerSNIAcceptanceTest {
    */
   @Test
   public void getAll() {
-    final Map<String, String> results = region.getAll(bulkData.keySet());
+    final var results = region.getAll(bulkData.keySet());
     assertThat(results).hasSize(bulkData.size());
-    for (Map.Entry<String, String> entry : results.entrySet()) {
+    for (var entry : results.entrySet()) {
       assertThat(region.containsKey(entry.getKey())).isFalse();
       assertThat(bulkData.containsKey(entry.getKey())).isTrue();
       assertThat(entry.getValue()).isEqualTo(bulkData.get(entry.getKey()));
@@ -166,8 +165,8 @@ public class SingleServerSNIAcceptanceTest {
   @Test
   public void verifyServerAPIs() {
     assertThat(region.sizeOnServer()).isEqualTo(bulkData.size());
-    Set<String> keysOnServer = region.keySetOnServer();
-    for (String entry : bulkData.keySet()) {
+    var keysOnServer = region.keySetOnServer();
+    for (var entry : bulkData.keySet()) {
       assertThat(region.containsKeyOnServer(entry)).isTrue();
       assertThat(keysOnServer).contains(entry);
     }
@@ -176,9 +175,9 @@ public class SingleServerSNIAcceptanceTest {
 
   protected static Map<String, String> getBulkDataMap() {
     // create a putAll map with enough keys to force a lot of "chunking" of the results
-    int numberOfKeys = BaseCommand.MAXIMUM_CHUNK_SIZE * 10; // 1,000 keys
+    var numberOfKeys = BaseCommand.MAXIMUM_CHUNK_SIZE * 10; // 1,000 keys
     Map<String, String> pairs = new HashMap<>();
-    for (int i = 1; i < numberOfKeys; i++) {
+    for (var i = 1; i < numberOfKeys; i++) {
       pairs.put("Object_" + i, "Value_" + i);
     }
     return pairs;

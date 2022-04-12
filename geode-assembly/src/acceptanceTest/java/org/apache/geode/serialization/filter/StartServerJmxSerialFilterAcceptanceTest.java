@@ -60,7 +60,7 @@ public class StartServerJmxSerialFilterAcceptanceTest {
   public void startWithJmxManagerConfiguresJmxSerialFilter_onJava9orGreater() {
     assumeThat(isJavaVersionAtLeast(JAVA_9)).isTrue();
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=server",
         "--dir=" + serverFolder,
@@ -85,7 +85,7 @@ public class StartServerJmxSerialFilterAcceptanceTest {
   public void startWithJmxManagerDoesNotConfigureJmxSerialFilter_onJava8() {
     assumeThat(isJavaVersionAtMost(JAVA_1_8)).isTrue();
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=server",
         "--dir=" + serverFolder,

@@ -59,7 +59,7 @@ public class CompactRangeIndexJUnitTest {
   public void setUp() {
     IndexManager.INDEX_ELEMARRAY_THRESHOLD_FOR_TESTING = 3;
     utils = new QueryTestUtils();
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     utils.initializeQueryMap();
     utils.createCache(props);
@@ -92,15 +92,15 @@ public class CompactRangeIndexJUnitTest {
     Region region = utils.getCache().getRegion("exampleRegion");
 
     // create objects
-    int numObjects = 10;
-    for (int i = 1; i <= numObjects; i++) {
-      Portfolio p = new Portfolio(i);
+    var numObjects = 10;
+    for (var i = 1; i <= numObjects; i++) {
+      var p = new Portfolio(i);
       p.status = null;
       region.put("KEY-" + i, p);
     }
     // execute query and check result size
-    QueryService qs = utils.getCache().getQueryService();
-    SelectResults results = (SelectResults) qs
+    var qs = utils.getCache().getQueryService();
+    var results = (SelectResults) qs
         .newQuery("Select * from " + SEPARATOR + "exampleRegion r where r.status = null").execute();
     assertEquals("Null matched Results expected", numObjects, results.size());
   }
@@ -114,16 +114,16 @@ public class CompactRangeIndexJUnitTest {
     Region region = utils.getCache().getRegion("exampleRegion");
 
     // create objects
-    int numObjects = 10;
-    for (int i = 1; i <= numObjects; i++) {
-      Portfolio p = new Portfolio(i);
+    var numObjects = 10;
+    for (var i = 1; i <= numObjects; i++) {
+      var p = new Portfolio(i);
       p.status = null;
       p.getPositions().put(null, "something");
       region.put("KEY-" + i, p);
     }
     // execute query and check result size
-    QueryService qs = utils.getCache().getQueryService();
-    SelectResults results = (SelectResults) qs
+    var qs = utils.getCache().getQueryService();
+    var results = (SelectResults) qs
         .newQuery(
             "Select * from " + SEPARATOR + "exampleRegion r where r.position[null] = something")
         .execute();
@@ -138,17 +138,17 @@ public class CompactRangeIndexJUnitTest {
     Region region = utils.getCache().getRegion("exampleRegion");
 
     // create objects
-    int numObjects = 10;
-    for (int i = 1; i <= numObjects; i++) {
-      Portfolio p = new Portfolio(i);
+    var numObjects = 10;
+    for (var i = 1; i <= numObjects; i++) {
+      var p = new Portfolio(i);
       p.status = null;
       p.getPositions().put(null, "something");
       region.put("KEY-" + i, p);
     }
     index = utils.createIndex("indexName", "positions[*]", SEPARATOR + "exampleRegion");
     // execute query and check result size
-    QueryService qs = utils.getCache().getQueryService();
-    SelectResults results = (SelectResults) qs
+    var qs = utils.getCache().getQueryService();
+    var results = (SelectResults) qs
         .newQuery(
             "Select * from " + SEPARATOR + "exampleRegion r where r.position[null] = something")
         .execute();
@@ -165,30 +165,30 @@ public class CompactRangeIndexJUnitTest {
     try {
       index = utils.createIndex("compact range index", "p.status", SEPARATOR + "exampleRegion p");
       final Region r = utils.getCache().getRegion(SEPARATOR + "exampleRegion");
-      Portfolio p0 = new Portfolio(0);
+      var p0 = new Portfolio(0);
       p0.status = "active";
-      final Portfolio p1 = new Portfolio(1);
+      final var p1 = new Portfolio(1);
       p1.status = "active";
       r.put("0", p0);
 
       DefaultQuery.testHook = new MemoryIndexStoreREToIndexElemTestHook();
-      final CountDownLatch threadsDone = new CountDownLatch(2);
+      final var threadsDone = new CountDownLatch(2);
 
-      Thread t1 = new Thread(() -> {
+      var t1 = new Thread(() -> {
         r.put("1", p1);
         threadsDone.countDown();
       });
       t1.start();
 
-      Thread t0 = new Thread(() -> {
+      var t0 = new Thread(() -> {
         r.remove("0");
         threadsDone.countDown();
 
       });
       t0.start();
       threadsDone.await(90, TimeUnit.SECONDS);
-      QueryService qs = utils.getCache().getQueryService();
-      SelectResults results = (SelectResults) qs
+      var qs = utils.getCache().getQueryService();
+      var results = (SelectResults) qs
           .newQuery("Select * from " + SEPARATOR + "exampleRegion r where r.status='active'")
           .execute();
       // the remove should have happened
@@ -199,10 +199,10 @@ public class CompactRangeIndexJUnitTest {
           .execute();
       assertEquals(1, results.size());
 
-      CompactRangeIndex cindex = (CompactRangeIndex) index;
-      MemoryIndexStore indexStore = (MemoryIndexStore) cindex.getIndexStorage();
+      var cindex = (CompactRangeIndex) index;
+      var indexStore = (MemoryIndexStore) cindex.getIndexStorage();
       CloseableIterator iterator = indexStore.get("active");
-      int count = 0;
+      var count = 0;
       while (iterator.hasNext()) {
         count++;
         iterator.next();
@@ -224,13 +224,13 @@ public class CompactRangeIndexJUnitTest {
     try {
       index = utils.createIndex("compact range index", "p.status", SEPARATOR + "exampleRegion p");
       final Region r = utils.getCache().getRegion(SEPARATOR + "exampleRegion");
-      Portfolio p0 = new Portfolio(0);
+      var p0 = new Portfolio(0);
       p0.status = "active";
-      Portfolio p1 = new Portfolio(1);
+      var p1 = new Portfolio(1);
       p1.status = "active";
-      final Portfolio p2 = new Portfolio(2);
+      final var p2 = new Portfolio(2);
       p2.status = "active";
-      Portfolio p3 = new Portfolio(3);
+      var p3 = new Portfolio(3);
       p3.status = "active";
       r.put("0", p0);
       r.put("1", p1);
@@ -238,23 +238,23 @@ public class CompactRangeIndexJUnitTest {
 
       // now we set the test hook. That way previous calls would not affect the test hooks
       DefaultQuery.testHook = new MemoryIndexStoreIndexElemToTokenToConcurrentHashSetTestHook();
-      final CountDownLatch threadsDone = new CountDownLatch(2);
-      Thread t2 = new Thread(() -> {
+      final var threadsDone = new CountDownLatch(2);
+      var t2 = new Thread(() -> {
         r.put("2", p2);
         threadsDone.countDown();
 
       });
       t2.start();
 
-      Thread t0 = new Thread(() -> {
+      var t0 = new Thread(() -> {
         r.remove("0");
         threadsDone.countDown();
       });
       t0.start();
 
       threadsDone.await(90, TimeUnit.SECONDS);
-      QueryService qs = utils.getCache().getQueryService();
-      SelectResults results = (SelectResults) qs
+      var qs = utils.getCache().getQueryService();
+      var results = (SelectResults) qs
           .newQuery("Select * from " + SEPARATOR + "exampleRegion r where r.status='active'")
           .execute();
       // the remove should have happened
@@ -265,10 +265,10 @@ public class CompactRangeIndexJUnitTest {
           .execute();
       assertEquals(3, results.size());
 
-      CompactRangeIndex cindex = (CompactRangeIndex) index;
-      MemoryIndexStore indexStore = (MemoryIndexStore) cindex.getIndexStorage();
+      var cindex = (CompactRangeIndex) index;
+      var indexStore = (MemoryIndexStore) cindex.getIndexStorage();
       CloseableIterator iterator = indexStore.get("active");
-      int count = 0;
+      var count = 0;
       while (iterator.hasNext()) {
         count++;
         iterator.next();
@@ -285,8 +285,8 @@ public class CompactRangeIndexJUnitTest {
     r.put("0", new Portfolio(0));
     r.invalidate("0");
     index = utils.createIndex("compact range index", "p.status", SEPARATOR + "exampleRegion p");
-    QueryService qs = utils.getCache().getQueryService();
-    SelectResults results = (SelectResults) qs
+    var qs = utils.getCache().getQueryService();
+    var results = (SelectResults) qs
         .newQuery("Select * from " + SEPARATOR + "exampleRegion r where r.status='active'")
         .execute();
     // the remove should have happened
@@ -297,10 +297,10 @@ public class CompactRangeIndexJUnitTest {
         .execute();
     assertEquals(0, results.size());
 
-    CompactRangeIndex cindex = (CompactRangeIndex) index;
-    MemoryIndexStore indexStore = (MemoryIndexStore) cindex.getIndexStorage();
+    var cindex = (CompactRangeIndex) index;
+    var indexStore = (MemoryIndexStore) cindex.getIndexStorage();
     CloseableIterator iterator = indexStore.get(QueryService.UNDEFINED);
-    int count = 0;
+    var count = 0;
     while (iterator.hasNext()) {
       count++;
       iterator.next();
@@ -318,15 +318,15 @@ public class CompactRangeIndexJUnitTest {
       Region region = utils.getCache().getRegion("exampleRegion");
 
       // create objects
-      int numObjects = 10;
-      for (int i = 1; i <= numObjects; i++) {
-        Portfolio p = new Portfolio(i);
+      var numObjects = 10;
+      for (var i = 1; i <= numObjects; i++) {
+        var p = new Portfolio(i);
         p.status = null;
         region.put("KEY-" + i, p);
       }
       // execute query and check result size
-      QueryService qs = utils.getCache().getQueryService();
-      SelectResults results = (SelectResults) qs
+      var qs = utils.getCache().getQueryService();
+      var results = (SelectResults) qs
           .newQuery(
               "<trace>SELECT DISTINCT e.key FROM " + SEPARATOR
                   + "exampleRegion AS e WHERE e.ID = 1 AND e.getP1().getSharesOutstanding() >= -1 AND e.getP1().getSharesOutstanding() <= 1000 LIMIT 10 ")
@@ -438,33 +438,33 @@ public class CompactRangeIndexJUnitTest {
   @Test
   public void testNullAndUndefinedValuesForMapKeyInCompactRangeIndex() throws Exception {
     index = utils.createIndex("indexName", "positions['SUN']", SEPARATOR + "exampleRegion");
-    Region<Object, Object> region = utils.getCache().getRegion("exampleRegion");
+    var region = utils.getCache().getRegion("exampleRegion");
 
     // create objects
-    Portfolio p1 = new Portfolio(1);
+    var p1 = new Portfolio(1);
     p1.positions = new HashMap<>();
     p1.positions.put("SUN", "yes");
     region.put("KEY-" + 1, p1);
 
     // Equivalent to having a null value for positions['SUN'] when querying
-    Portfolio p2 = new Portfolio(2);
+    var p2 = new Portfolio(2);
     p2.positions = new HashMap<>();
     p2.positions.put("ERIC", 2);
     region.put("KEY-" + 2, p2);
 
     // Undefined value for positions['SUN'] when querying
-    Portfolio p3 = new Portfolio(3);
+    var p3 = new Portfolio(3);
     p3.positions = null;
     region.put("KEY-" + 3, p3);
 
     // null value for positions['SUN']
-    Portfolio p4 = new Portfolio(4);
+    var p4 = new Portfolio(4);
     p4.positions = new HashMap<>();
     p4.positions.put("SUN", null);
     region.put("KEY-" + 4, p4);
 
     // execute query for null value and check result size
-    QueryService qs = utils.getCache().getQueryService();
+    var qs = utils.getCache().getQueryService();
     SelectResults<Object> results = UncheckedUtils.uncheckedCast(qs
         .newQuery(
             "Select * from " + SEPARATOR + "exampleRegion r where r.positions['SUN'] = null")
@@ -484,24 +484,24 @@ public class CompactRangeIndexJUnitTest {
   }
 
   private void putValues(int num) {
-    Region region = utils.getRegion("exampleRegion");
-    for (int i = 1; i <= num; i++) {
+    var region = utils.getRegion("exampleRegion");
+    for (var i = 1; i <= num; i++) {
       region.put("KEY-" + i, new Portfolio(i));
     }
   }
 
   private void putOffsetValues(int num) {
-    Region region = utils.getRegion("exampleRegion");
-    for (int i = 1; i <= num; i++) {
+    var region = utils.getRegion("exampleRegion");
+    for (var i = 1; i <= num; i++) {
       region.put("KEY-" + i, new Portfolio(i + 1));
     }
   }
 
   public void executeQueryWithCount() throws Exception {
-    String[] queries = {"520"};
-    for (Object result : utils.executeQueries(queries)) {
+    var queries = new String[] {"520"};
+    for (var result : utils.executeQueries(queries)) {
       if (result instanceof Collection) {
-        for (Object e : (Collection) result) {
+        for (var e : (Collection) result) {
           if (e instanceof Integer) {
             assertEquals(10, ((Integer) e).intValue());
           }
@@ -533,9 +533,9 @@ public class CompactRangeIndexJUnitTest {
   }
 
   private Object getValuesFromMap(String key) {
-    MemoryIndexStore ind = (MemoryIndexStore) ((CompactRangeIndex) index).getIndexStorage();
+    var ind = (MemoryIndexStore) ((CompactRangeIndex) index).getIndexStorage();
     Map map = ind.valueToEntriesMap;
-    Object entryValue = map.get(key);
+    var entryValue = map.get(key);
     return entryValue;
   }
 
@@ -555,9 +555,9 @@ public class CompactRangeIndexJUnitTest {
   }
 
   private int executeSimpleQuery(int expResults) throws Exception {
-    String[] queries = {"519"}; // SELECT * FROM /exampleRegion WHERE \"type\" = 'type1'
-    int results = 0;
-    for (Object result : utils.executeQueries(queries)) {
+    var queries = new String[] {"519"}; // SELECT * FROM /exampleRegion WHERE \"type\" = 'type1'
+    var results = 0;
+    for (var result : utils.executeQueries(queries)) {
       if (result instanceof SelectResults) {
         Collection<?> collection = ((SelectResults<?>) result).asList();
         results = collection.size();
@@ -573,9 +573,9 @@ public class CompactRangeIndexJUnitTest {
   }
 
   private int executeRangeQueryWithDistinct(int expResults) throws Exception {
-    String[] queries = {"181"};
-    int results = 0;
-    for (Object result : utils.executeQueries(queries)) {
+    var queries = new String[] {"181"};
+    var results = 0;
+    for (var result : utils.executeQueries(queries)) {
       if (result instanceof SelectResults) {
         Collection<?> collection = ((SelectResults<?>) result).asList();
         results = collection.size();
@@ -594,9 +594,9 @@ public class CompactRangeIndexJUnitTest {
   }
 
   private int executeRangeQueryWithoutDistinct(int expResults) {
-    String[] queries = {"181"};
-    int results = 0;
-    for (Object result : utils.executeQueriesWithoutDistinct(queries)) {
+    var queries = new String[] {"181"};
+    var results = 0;
+    for (var result : utils.executeQueriesWithoutDistinct(queries)) {
       if (result instanceof SelectResults) {
         Collection<?> collection = ((SelectResults<?>) result).asList();
         results = collection.size();

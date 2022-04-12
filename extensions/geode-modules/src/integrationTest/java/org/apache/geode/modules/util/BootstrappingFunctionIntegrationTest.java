@@ -49,7 +49,7 @@ public class BootstrappingFunctionIntegrationTest {
     distributedMember = mock(InternalDistributedMember.class);
     distributionManager = mock(DistributionManager.class);
 
-    InternalDistributedSystem distributedSystem = mock(InternalDistributedSystem.class);
+    var distributedSystem = mock(InternalDistributedSystem.class);
     when(distributedSystem.getDistributedMember()).thenReturn(distributedMember);
     when(distributedSystem.getDistributionManager()).thenReturn(distributionManager);
     when(mockCache.getDistributedSystem()).thenReturn(distributedSystem);
@@ -76,8 +76,8 @@ public class BootstrappingFunctionIntegrationTest {
     doNothing().when(distributionManager).addMembershipListener(bootstrappingFunction);
 
     @SuppressWarnings("unchecked")
-    ResultSender<String> resultSender = (ResultSender<String>) mock(ResultSender.class);
-    FunctionContext functionContext = mock(FunctionContext.class);
+    var resultSender = (ResultSender<String>) mock(ResultSender.class);
+    var functionContext = mock(FunctionContext.class);
     doNothing().when(resultSender).lastResult(any());
     when(functionContext.getResultSender()).thenReturn(resultSender);
 
@@ -92,8 +92,8 @@ public class BootstrappingFunctionIntegrationTest {
     doNothing().when(distributionManager).addMembershipListener(bootstrappingFunction);
 
     @SuppressWarnings("unchecked")
-    ResultSender<String> resultSender = (ResultSender<String>) mock(ResultSender.class);
-    FunctionContext functionContext = mock(FunctionContext.class);
+    var resultSender = (ResultSender<String>) mock(ResultSender.class);
+    var functionContext = mock(FunctionContext.class);
     doNothing().when(resultSender).lastResult(any());
     when(functionContext.getResultSender()).thenReturn(resultSender);
 

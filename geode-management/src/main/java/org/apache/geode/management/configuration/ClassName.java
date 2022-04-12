@@ -137,7 +137,7 @@ public class ClassName implements Serializable {
       return false;
     }
 
-    ClassName that = (ClassName) o;
+    var that = (ClassName) o;
 
     return className.equals(that.getClassName())
         && getInitProperties().equals(that.getInitProperties());
@@ -152,7 +152,7 @@ public class ClassName implements Serializable {
     if (StringUtils.isBlank(className)) {
       return false;
     }
-    String regex = "([\\p{L}_$][\\p{L}\\p{N}_$]*\\.)*[\\p{L}_$][\\p{L}\\p{N}_$]*";
+    var regex = "([\\p{L}_$][\\p{L}\\p{N}_$]*\\.)*[\\p{L}_$][\\p{L}\\p{N}_$]*";
     return Pattern.matches(regex, className);
   }
 

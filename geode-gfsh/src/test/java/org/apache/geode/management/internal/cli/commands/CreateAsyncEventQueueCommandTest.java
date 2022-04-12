@@ -47,7 +47,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.remote.CommandExecutor;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.functions.CliFunctionResult.StatusState;
@@ -94,7 +93,7 @@ public class CreateAsyncEventQueueCommandTest {
 
   @Test
   public void defaultValues() {
-    GfshParseResult result = gfsh.parse(MINIUM_COMMAND);
+    var result = gfsh.parse(MINIUM_COMMAND);
     assertThat(result.getParamValue(CREATE_ASYNC_EVENT_QUEUE__BATCHTIMEINTERVAL)).isEqualTo(5);
     assertThat(result.getParamValue(CREATE_ASYNC_EVENT_QUEUE__BATCH_SIZE)).isEqualTo(100);
     assertThat(result.getParamValue(CREATE_ASYNC_EVENT_QUEUE__MAXIMUM_QUEUE_MEMORY)).isEqualTo(100);

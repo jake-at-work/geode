@@ -28,11 +28,11 @@ public class RedisKeyJUnitTest {
 
   @Test
   public void testSerialization() throws Exception {
-    RedisKey keyOut = new RedisKey(stringToBytes("012345"));
+    var keyOut = new RedisKey(stringToBytes("012345"));
 
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     DataSerializer.writeObject(keyOut, out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
+    var in = new ByteArrayDataInput(out.toByteArray());
 
     RedisKey keyIn = DataSerializer.readObject(in);
     assertThat(keyIn).isEqualTo(keyOut);

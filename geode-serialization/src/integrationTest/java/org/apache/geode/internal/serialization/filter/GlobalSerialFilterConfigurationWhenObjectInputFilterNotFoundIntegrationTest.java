@@ -57,7 +57,7 @@ public class GlobalSerialFilterConfigurationWhenObjectInputFilterNotFoundIntegra
     System.clearProperty("geode.enableGlobalSerialFilter");
     GlobalSerialFilterConfigurationFactory factory =
         new SystemPropertyGlobalSerialFilterConfigurationFactory();
-    FilterConfiguration configuration = factory.create(config);
+    var configuration = factory.create(config);
 
     assertThatCode(configuration::configure)
         .doesNotThrowAnyException();
@@ -69,7 +69,7 @@ public class GlobalSerialFilterConfigurationWhenObjectInputFilterNotFoundIntegra
     System.clearProperty("geode.enableGlobalSerialFilter");
     GlobalSerialFilterConfigurationFactory factory =
         new SystemPropertyGlobalSerialFilterConfigurationFactory(() -> supportsObjectInputFilter);
-    FilterConfiguration configuration = factory.create(config);
+    var configuration = factory.create(config);
 
     configuration.configure();
 
@@ -82,9 +82,9 @@ public class GlobalSerialFilterConfigurationWhenObjectInputFilterNotFoundIntegra
     System.setProperty("geode.enableGlobalSerialFilter", "true");
     GlobalSerialFilterConfigurationFactory factory =
         new SystemPropertyGlobalSerialFilterConfigurationFactory(() -> supportsObjectInputFilter);
-    FilterConfiguration configuration = factory.create(config);
+    var configuration = factory.create(config);
 
-    boolean result = configuration.configure();
+    var result = configuration.configure();
 
     assertThat(result).isFalse();
   }
@@ -95,7 +95,7 @@ public class GlobalSerialFilterConfigurationWhenObjectInputFilterNotFoundIntegra
     FilterConfiguration configuration = new GlobalSerialFilterConfiguration(
         config, logger, globalSerialFilterFactory_throws);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       configuration.configure();
     });
 

@@ -17,7 +17,6 @@ package org.apache.geode.internal.security;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.Set;
 
@@ -64,7 +63,7 @@ public class AuthorizeRequestPP {
     this.principal = principal;
     isPrincipalSerializable = this.principal instanceof Serializable;
     logger = cache.getSecurityLogger();
-    Method postAuthzMethod = ClassLoadUtils.methodFromName(postAuthzFactoryName);
+    var postAuthzMethod = ClassLoadUtils.methodFromName(postAuthzFactoryName);
     postAuthzCallback = (AccessControl) postAuthzMethod.invoke(null, (Object[]) null);
     postAuthzCallback.init(principal, id.getDistributedMember(), cache);
     if (logger.infoEnabled()) {
@@ -90,7 +89,7 @@ public class AuthorizeRequestPP {
     }
     getContext.setObject(result, isObject);
     if (!postAuthzCallback.authorizeOperation(regionName, getContext)) {
-      String errStr =
+      var errStr =
           String.format("In post-process: not authorized to perform GET operation on region %s",
               regionName);
       logger.warning(String.format("%s : %s", id, errStr));
@@ -120,7 +119,7 @@ public class AuthorizeRequestPP {
     }
     queryContext.setQueryResult(queryResult);
     if (!postAuthzCallback.authorizeOperation(null, queryContext)) {
-      String errStr =
+      var errStr =
           String.format(
               "In post-process: not authorized to perform QUERY operation %s on the cache",
               queryString);
@@ -150,7 +149,7 @@ public class AuthorizeRequestPP {
     }
     executeCQContext.setQueryResult(queryResult);
     if (!postAuthzCallback.authorizeOperation(null, executeCQContext)) {
-      String errStr =
+      var errStr =
           String.format(
               "In post-process: not authorized to perform EXECUTE_CQ operation %s on the cache",
               queryString);
@@ -180,7 +179,7 @@ public class AuthorizeRequestPP {
     }
     keySetContext.setKeySet(keySet);
     if (!postAuthzCallback.authorizeOperation(regionName, keySetContext)) {
-      String errStr =
+      var errStr =
           String.format("In post-process: not authorized to perform KEY_SET operation on region %s",
               regionName);
       logger.warning(String.format("%s : %s", id, errStr));
@@ -203,9 +202,9 @@ public class AuthorizeRequestPP {
       ExecuteFunctionOperationContext executeContext) throws NotAuthorizedException {
 
     executeContext.setResult(oneResult);
-    final String regionName = executeContext.getRegionName();
+    final var regionName = executeContext.getRegionName();
     if (!postAuthzCallback.authorizeOperation(regionName, executeContext)) {
-      String errStr =
+      var errStr =
           String.format(
               "%s: In post-process: Not authorized to perform EXECUTE_REGION_FUNCTION operation on region [%s]",
               this, regionName);

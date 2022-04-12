@@ -79,7 +79,7 @@ public class PageEntry {
       return false;
     }
 
-    final PageEntry pageEntry = (PageEntry) o;
+    final var pageEntry = (PageEntry) o;
 
     if (!getKey().equals(pageEntry.getKey())) {
       return false;
@@ -90,7 +90,7 @@ public class PageEntry {
 
   @Override
   public int hashCode() {
-    int result = getKey().hashCode();
+    var result = getKey().hashCode();
     result = 31 * result + getValue().hashCode();
     return result;
   }

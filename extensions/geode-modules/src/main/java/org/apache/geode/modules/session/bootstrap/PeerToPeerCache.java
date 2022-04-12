@@ -16,7 +16,6 @@ package org.apache.geode.modules.session.bootstrap;
 
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.control.RebalanceResults;
 import org.apache.geode.modules.util.RegionHelper;
 
 /**
@@ -66,7 +65,7 @@ public class PeerToPeerCache extends AbstractCache {
   protected void rebalanceCache() {
     try {
       getLogger().info("Rebalancing: " + cache);
-      RebalanceResults results = RegionHelper.rebalanceCache(cache);
+      var results = RegionHelper.rebalanceCache(cache);
       if (getLogger().isDebugEnabled()) {
         getLogger().debug("Done rebalancing: " + cache);
         getLogger().debug(RegionHelper.getRebalanceResultsMessage(results));

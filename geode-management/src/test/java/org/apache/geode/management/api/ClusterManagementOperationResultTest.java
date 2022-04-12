@@ -39,10 +39,11 @@ public class ClusterManagementOperationResultTest {
 
   @Test
   public void serialize() throws Exception {
-    ClusterManagementOperationResult<ClusterManagementOperation<OperationResult>, OperationResult> result =
-        new ClusterManagementOperationResult<>(StatusCode.OK, "Success!!", new Date(), new Date(),
+    var result =
+        new ClusterManagementOperationResult<ClusterManagementOperation<OperationResult>, OperationResult>(
+            StatusCode.OK, "Success!!", new Date(), new Date(),
             null, "id", null, null);
-    String json = mapper.writeValueAsString(result);
+    var json = mapper.writeValueAsString(result);
     System.out.println(json);
     @SuppressWarnings("unchecked")
     ClusterManagementOperationResult<ClusterManagementOperation<OperationResult>, OperationResult> value =
@@ -52,12 +53,13 @@ public class ClusterManagementOperationResultTest {
 
   @Test
   public void serializeRebalance() throws Exception {
-    RebalanceOperation rebalanceOperation = new RebalanceOperation();
+    var rebalanceOperation = new RebalanceOperation();
     rebalanceOperation.setOperator("operator");
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> result =
-        new ClusterManagementOperationResult<>(StatusCode.OK, "Success!!", new Date(), new Date(),
+    var result =
+        new ClusterManagementOperationResult<RebalanceOperation, RebalanceResult>(StatusCode.OK,
+            "Success!!", new Date(), new Date(),
             rebalanceOperation, "id", new RebalanceResultImpl(), null);
-    String json = mapper.writeValueAsString(result);
+    var json = mapper.writeValueAsString(result);
     System.out.println(json);
     @SuppressWarnings("unchecked")
     ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> value =

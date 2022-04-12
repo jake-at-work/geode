@@ -25,14 +25,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.Operation;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionExistsException;
 import org.apache.geode.cache.TimeoutException;
@@ -81,7 +79,7 @@ public class HARegion extends DistributedRegion {
 
   @Override
   protected StringBuilder getStringBuilder() {
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append("HARegion");
     buf.append("[path='").append(getFullPath());
     return buf;
@@ -151,7 +149,7 @@ public class HARegion extends DistributedRegion {
       throw new IllegalStateException(
           "Cannot set time to live when statistics are disabled");
     }
-    ExpirationAttributes oldAttrs = getEntryTimeToLive();
+    var oldAttrs = getEntryTimeToLive();
     entryTimeToLive = timeToLive.getTimeout();
     entryTimeToLiveExpirationAction = timeToLive.getAction();
     setEntryTimeToLiveAttributes();
@@ -171,7 +169,7 @@ public class HARegion extends DistributedRegion {
   @Override
   protected void basicInvalidate(final EntryEventImpl event, boolean invokeCallbacks,
       final boolean forceNewEntry) throws EntryNotFoundException {
-    Object key = event.getKey();
+    var key = event.getKey();
     if (key instanceof Long) {
       boolean removedFromAvID;
       Conflatable conflatable;
@@ -208,7 +206,7 @@ public class HARegion extends DistributedRegion {
     checkReadiness();
 
     @Released
-    EntryEventImpl event = EntryEventImpl.create(this, Operation.UPDATE, key, value,
+    var event = EntryEventImpl.create(this, Operation.UPDATE, key, value,
         aCallbackArgument, false, getMyId());
     try {
 
@@ -241,9 +239,9 @@ public class HARegion extends DistributedRegion {
       RegionAttributes ra, StatisticsClock statisticsClock)
       throws TimeoutException, RegionExistsException, IOException, ClassNotFoundException {
 
-    HARegion haRegion = new HARegion(regionName, ra, null, cache, statisticsClock);
+    var haRegion = new HARegion(regionName, ra, null, cache, statisticsClock);
     haRegion.setOwner(hrq);
-    Region region = cache.createVMRegion(regionName, ra,
+    var region = cache.createVMRegion(regionName, ra,
         new InternalRegionArguments().setInternalMetaRegion(haRegion).setDestroyLockFlag(true)
             .setSnapshotInputStream(null).setInternalRegion(true).setImageTarget(null));
 
@@ -300,7 +298,7 @@ public class HARegion extends DistributedRegion {
   public void destroyRegion(Object aCallbackArgument)
       throws CacheWriterException, TimeoutException {
     // Do not generate EventID
-    RegionEventImpl event = new RegionEventImpl(this, Operation.REGION_DESTROY, aCallbackArgument,
+    var event = new RegionEventImpl(this, Operation.REGION_DESTROY, aCallbackArgument,
         true /* isOriginRemote */, getMyId());
 
     basicDestroyRegion(event, true);
@@ -336,12 +334,12 @@ public class HARegion extends DistributedRegion {
       boolean returnTombstones) throws CacheLoaderException, TimeoutException {
 
     Object value = null;
-    final Object key = keyInfo.getKey();
-    final Object aCallbackArgument = keyInfo.getCallbackArg();
+    final var key = keyInfo.getKey();
+    final var aCallbackArgument = keyInfo.getCallbackArg();
     // copy into local var to prevent race condition
     RegionEntry re = null;
     Assert.assertTrue(!hasServerProxy());
-    CacheLoader loader = basicGetLoader();
+    var loader = basicGetLoader();
     if (loader != null) {
       value = callCacheLoader(loader, key, aCallbackArgument, preferCD);
 
@@ -356,7 +354,7 @@ public class HARegion extends DistributedRegion {
           }
 
           @Released
-          EntryEventImpl event = EntryEventImpl.create(this, op, key, value, aCallbackArgument,
+          var event = EntryEventImpl.create(this, op, key, value, aCallbackArgument,
               false, getMyId(), generateCallbacks);
           try {
             re = basicPutEntry(event, 0L);
@@ -410,7 +408,7 @@ public class HARegion extends DistributedRegion {
   @Override
   public void fillInProfile(Profile profile) {
     super.fillInProfile(profile);
-    HARegionAdvisor.HAProfile h = (HARegionAdvisor.HAProfile) profile;
+    var h = (HARegionAdvisor.HAProfile) profile;
     // dunit tests create HARegions without encapsulating them in queues
     if (owningQueue != null) {
       h.isPrimary = owningQueue.isPrimary();
@@ -471,7 +469,7 @@ public class HARegion extends DistributedRegion {
     }
 
     public static HARegionAdvisor createHARegionAdvisor(CacheDistributionAdvisee region) {
-      HARegionAdvisor advisor = new HARegionAdvisor(region);
+      var advisor = new HARegionAdvisor(region);
       advisor.initialize();
       return advisor;
     }
@@ -485,7 +483,7 @@ public class HARegion extends DistributedRegion {
      */
     @Override
     public InitialImageAdvice adviseInitialImage(InitialImageAdvice previousAdvice) {
-      InitialImageAdvice r = super.adviseInitialImage(previousAdvice);
+      var r = super.adviseInitialImage(previousAdvice);
       r.setOthers(getAdvisee().getDistributionManager().getOtherDistributionManagerIds());
       return r;
     }
@@ -496,9 +494,9 @@ public class HARegion extends DistributedRegion {
     }
 
     public boolean noPrimaryOrHasRegisteredInterest() {
-      Profile[] locProfiles = profiles; // grab current profiles
-      for (Profile locProfile : locProfiles) {
-        HAProfile p = (HAProfile) locProfile;
+      var locProfiles = profiles; // grab current profiles
+      for (var locProfile : locProfiles) {
+        var p = (HAProfile) locProfile;
         if (p.isPrimary) {
           return p.hasRegisteredInterest;
         }
@@ -549,7 +547,7 @@ public class HARegion extends DistributedRegion {
       public void toData(DataOutput out,
           SerializationContext context) throws IOException {
         super.toData(out, context);
-        int flags = 0;
+        var flags = 0;
         if (hasRegisteredInterest) {
           flags |= HAS_REGISTERED_INTEREST_BIT;
         }

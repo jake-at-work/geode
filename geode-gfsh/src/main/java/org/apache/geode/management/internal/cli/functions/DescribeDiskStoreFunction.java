@@ -15,13 +15,11 @@
 
 package org.apache.geode.management.internal.cli.functions;
 
-import java.io.File;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.Region;
@@ -74,22 +72,22 @@ public class DescribeDiskStoreFunction implements InternalFunction<String> {
 
   @Override
   public void execute(final FunctionContext<String> context) {
-    Cache cache = context.getCache();
+    var cache = context.getCache();
 
     try {
       if (cache instanceof InternalCache) {
-        InternalCache gemfireCache = (InternalCache) cache;
+        var gemfireCache = (InternalCache) cache;
 
         DistributedMember member = gemfireCache.getMyId();
 
-        String diskStoreName = context.getArguments();
-        String memberId = member.getId();
-        String memberName = member.getName();
+        var diskStoreName = context.getArguments();
+        var memberId = member.getId();
+        var memberName = member.getName();
 
-        DiskStore diskStore = gemfireCache.findDiskStore(diskStoreName);
+        var diskStore = gemfireCache.findDiskStore(diskStoreName);
 
         if (diskStore != null) {
-          DiskStoreDetails diskStoreDetails = new DiskStoreDetails(diskStore.getDiskStoreUUID(),
+          var diskStoreDetails = new DiskStoreDetails(diskStore.getDiskStoreUUID(),
               diskStore.getName(), memberId, memberName);
 
           diskStoreDetails.setAllowForceCompaction(diskStore.getAllowForceCompaction());
@@ -126,14 +124,14 @@ public class DescribeDiskStoreFunction implements InternalFunction<String> {
 
   private void setDiskDirDetails(final DiskStore diskStore,
       final DiskStoreDetails diskStoreDetails) {
-    File[] diskDirs = diskStore.getDiskDirs();
-    Integer[] diskDirSizes = ArrayUtils.toIntegerArray(diskStore.getDiskDirSizes());
+    var diskDirs = diskStore.getDiskDirs();
+    var diskDirSizes = ArrayUtils.toIntegerArray(diskStore.getDiskDirSizes());
 
     assertState(diskDirs.length == diskDirSizes.length,
         "The number of disk directories with a specified size (%1$d) does not match the number of disk directories (%2$d)!",
         diskDirSizes.length, diskDirs.length);
 
-    for (int index = 0; index < diskDirs.length; index++) {
+    for (var index = 0; index < diskDirs.length; index++) {
       diskStoreDetails.add(new DiskStoreDetails.DiskDirDetails(diskDirs[index].getAbsolutePath(),
           ArrayUtils.getElementAtIndex(diskDirSizes, index, 0)));
     }
@@ -161,7 +159,7 @@ public class DescribeDiskStoreFunction implements InternalFunction<String> {
 
   protected void setRegionDetails(final InternalCache cache, final DiskStore diskStore,
       final DiskStoreDetails diskStoreDetails) {
-    for (Region<?, ?> region : cache.rootRegions()) {
+    for (var region : cache.rootRegions()) {
       setRegionDetails(region, diskStore, diskStoreDetails);
     }
   }
@@ -169,15 +167,15 @@ public class DescribeDiskStoreFunction implements InternalFunction<String> {
   private void setRegionDetails(final Region<?, ?> region, final DiskStore diskStore,
       final DiskStoreDetails diskStoreDetails) {
     if (isUsingDiskStore(region, diskStore)) {
-      String regionFullPath = region.getFullPath();
-      DiskStoreDetails.RegionDetails regionDetails = new DiskStoreDetails.RegionDetails(
+      var regionFullPath = region.getFullPath();
+      var regionDetails = new DiskStoreDetails.RegionDetails(
           regionFullPath, StringUtils.defaultIfBlank(region.getName(), regionFullPath));
       regionDetails.setOverflowToDisk(isOverflowToDisk(region));
       regionDetails.setPersistent(isPersistent(region));
       diskStoreDetails.add(regionDetails);
     }
 
-    for (Region<?, ?> subregion : region.subregions(false)) {
+    for (var subregion : region.subregions(false)) {
       setRegionDetails(subregion, diskStore, diskStoreDetails); // depth-first, recursive strategy
     }
   }
@@ -194,9 +192,9 @@ public class DescribeDiskStoreFunction implements InternalFunction<String> {
 
   protected void setCacheServerDetails(final InternalCache cache, final DiskStore diskStore,
       final DiskStoreDetails diskStoreDetails) {
-    for (CacheServer cacheServer : cache.getCacheServers()) {
+    for (var cacheServer : cache.getCacheServers()) {
       if (isUsingDiskStore(cacheServer, diskStore)) {
-        DiskStoreDetails.CacheServerDetails cacheServerDetails =
+        var cacheServerDetails =
             new DiskStoreDetails.CacheServerDetails(cacheServer.getBindAddress(),
                 cacheServer.getPort());
         cacheServerDetails.setHostName(cacheServer.getHostnameForClients());
@@ -220,9 +218,9 @@ public class DescribeDiskStoreFunction implements InternalFunction<String> {
 
   protected void setGatewayDetails(final InternalCache cache, final DiskStore diskStore,
       final DiskStoreDetails diskStoreDetails) {
-    for (GatewaySender gatewaySender : cache.getGatewaySenders()) {
+    for (var gatewaySender : cache.getGatewaySenders()) {
       if (isUsingDiskStore(gatewaySender, diskStore)) {
-        DiskStoreDetails.GatewayDetails gatewayDetails =
+        var gatewayDetails =
             new DiskStoreDetails.GatewayDetails(gatewaySender.getId());
         gatewayDetails.setPersistent(isPersistent(gatewaySender));
         diskStoreDetails.add(gatewayDetails);
@@ -233,7 +231,7 @@ public class DescribeDiskStoreFunction implements InternalFunction<String> {
   protected void setPdxSerializationDetails(final InternalCache cache, final DiskStore diskStore,
       final DiskStoreDetails diskStoreDetails) {
     if (cache.getPdxPersistent()) {
-      String diskStoreName = StringUtils.defaultIfBlank(cache.getPdxDiskStore(),
+      var diskStoreName = StringUtils.defaultIfBlank(cache.getPdxDiskStore(),
           DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
       diskStoreDetails.setPdxSerializationMetaDataStored(
           ObjectUtils.equals(diskStoreName, diskStore.getName()));
@@ -252,7 +250,7 @@ public class DescribeDiskStoreFunction implements InternalFunction<String> {
 
   protected void setAsyncEventQueueDetails(final InternalCache cache, final DiskStore diskStore,
       final DiskStoreDetails diskStoreDetails) {
-    for (AsyncEventQueue queue : cache.getAsyncEventQueues()) {
+    for (var queue : cache.getAsyncEventQueues()) {
       if (isUsingDiskStore(queue, diskStore)) {
         diskStoreDetails.add(new DiskStoreDetails.AsyncEventQueueDetails(queue.getId()));
       }

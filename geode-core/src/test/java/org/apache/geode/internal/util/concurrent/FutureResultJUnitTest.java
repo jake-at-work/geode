@@ -32,8 +32,8 @@ public class FutureResultJUnitTest {
 
   @Test
   public void cancelledFutureResultThrowsExceptionOnGet() throws Exception {
-    TestCancelCriterion cancelCriterion = new TestCancelCriterion();
-    FutureResult futureResult = new FutureResult(cancelCriterion);
+    var cancelCriterion = new TestCancelCriterion();
+    var futureResult = new FutureResult(cancelCriterion);
     cancelCriterion.cancelReason = "cancelling for test";
     try {
       futureResult.get(1000, TimeUnit.MILLISECONDS);
@@ -62,7 +62,7 @@ public class FutureResultJUnitTest {
 
     @Override
     public RuntimeException generateCancelledException(Throwable e) {
-      String reason = cancelInProgress();
+      var reason = cancelInProgress();
       if (reason == null) {
         return null;
       } else {

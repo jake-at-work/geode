@@ -20,8 +20,6 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
-import org.apache.catalina.Context;
-import org.apache.catalina.Manager;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
@@ -57,10 +55,10 @@ public abstract class AbstractCommitSessionValve<SelfT extends AbstractCommitSes
    */
   protected static <SelfT extends AbstractCommitSessionValve<?>> void commitSession(
       final Request request) {
-    final Context context = request.getContext();
-    final Manager manager = context.getManager();
+    final var context = request.getContext();
+    final var manager = context.getManager();
     if (manager instanceof DeltaSessionManager) {
-      final DeltaSessionFacade session = (DeltaSessionFacade) request.getSession(false);
+      final var session = (DeltaSessionFacade) request.getSession(false);
       if (session != null) {
         final DeltaSessionManager<SelfT> deltaSessionManager = uncheckedCast(manager);
         if (session.isValid()) {

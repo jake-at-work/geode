@@ -51,13 +51,13 @@ public class SecurityServiceFactoryShiroIntegrationTest {
 
   @Test
   public void getResourcePackage_shouldReturnPackageWithSlashes() throws Exception {
-    String expected = "org/apache/geode/internal/security/";
+    var expected = "org/apache/geode/internal/security/";
     assertThat(getResourcePackage(getClass())).isEqualTo(expected);
   }
 
   @Test
   public void create_shiro_createsCustomSecurityService() throws Exception {
-    Properties securityConfig = new Properties();
+    var securityConfig = new Properties();
     securityConfig.setProperty(SECURITY_SHIRO_INIT, shiroIniInClasspath);
     service = SecurityServiceFactory.create(securityConfig);
     assertThat(service).isInstanceOf(IntegratedSecurityService.class);

@@ -49,7 +49,7 @@ public class DistributedRestoreSystemPropertiesDistributedTest {
     assertPreconditions();
 
     System.setProperty(PREEXISTING_PROPERTY, PREEXISTING_VALUE);
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         System.setProperty(PREEXISTING_PROPERTY, PREEXISTING_VALUE);
       });
@@ -59,7 +59,7 @@ public class DistributedRestoreSystemPropertiesDistributedTest {
   @After
   public void tearDown() {
     System.clearProperty(PREEXISTING_PROPERTY);
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         System.clearProperty(PREEXISTING_PROPERTY);
       });
@@ -71,7 +71,7 @@ public class DistributedRestoreSystemPropertiesDistributedTest {
     runTestWithValidation(NullPropertyWithDifferentValues.class);
 
     assertThat(System.getProperty(NULL_PROPERTY)).isNull();
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         assertThat(System.getProperty(NULL_PROPERTY)).isNull();
       });
@@ -83,7 +83,7 @@ public class DistributedRestoreSystemPropertiesDistributedTest {
     runTestWithValidation(NullPropertyWithDifferentValues.class);
 
     assertThat(System.getProperty(PREEXISTING_PROPERTY)).isEqualTo(PREEXISTING_VALUE);
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         assertThat(System.getProperty(PREEXISTING_PROPERTY)).isEqualTo(PREEXISTING_VALUE);
       });
@@ -111,7 +111,7 @@ public class DistributedRestoreSystemPropertiesDistributedTest {
   private void assertPreconditions() {
     assertThat(System.getProperty(NULL_PROPERTY)).isNull();
     assertThat(System.getProperty(PREEXISTING_PROPERTY)).isNull();
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         assertThat(System.getProperty(NULL_PROPERTY)).isNull();
         assertThat(System.getProperty(PREEXISTING_PROPERTY)).isNull();

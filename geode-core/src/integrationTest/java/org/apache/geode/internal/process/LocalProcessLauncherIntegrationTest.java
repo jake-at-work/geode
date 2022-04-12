@@ -128,7 +128,7 @@ public class LocalProcessLauncherIntegrationTest {
   @Test
   public void getPidReturnsActualPid() throws Exception {
     // arrange
-    LocalProcessLauncher launcher = new LocalProcessLauncher(pidFile, false);
+    var launcher = new LocalProcessLauncher(pidFile, false);
 
     // act/assert
     assertThat(launcher.getPid()).isEqualTo(actualPid);
@@ -137,7 +137,7 @@ public class LocalProcessLauncherIntegrationTest {
   @Test
   public void getPidFileReturnsPidFile() throws Exception {
     // arrange
-    LocalProcessLauncher launcher = new LocalProcessLauncher(pidFile, false);
+    var launcher = new LocalProcessLauncher(pidFile, false);
 
     // act/assert
     assertThat(launcher.getPidFile()).isEqualTo(pidFile);
@@ -146,7 +146,7 @@ public class LocalProcessLauncherIntegrationTest {
   @Test
   public void closeDeletesPidFile() throws Exception {
     // arrange
-    LocalProcessLauncher launcher = new LocalProcessLauncher(pidFile, false);
+    var launcher = new LocalProcessLauncher(pidFile, false);
     assertThat(pidFile).exists();
 
     // act

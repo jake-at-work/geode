@@ -31,7 +31,6 @@ import org.apache.geode.SystemConnectException;
 import org.apache.geode.distributed.internal.membership.api.StopShunningMarker;
 import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.InternalDataSerializer.SerializerAttributesHolder;
 import org.apache.geode.internal.InternalInstantiator;
 import org.apache.geode.internal.InternalInstantiator.InstantiatorAttributesHolder;
 import org.apache.geode.internal.inet.LocalHostUtil;
@@ -179,8 +178,8 @@ public class StartupMessage extends DistributionMessage implements AdminMessageT
   @Override
   protected void process(ClusterDistributionManager dm) {
     String rejectionMessage = null;
-    boolean isAdminDM = false;
-    boolean replySent = false;
+    var isAdminDM = false;
+    var replySent = false;
     try {
       isAdminDM =
           dm.getId().getVmKind() == ClusterDistributionManager.ADMIN_ONLY_DM_TYPE
@@ -216,7 +215,7 @@ public class StartupMessage extends DistributionMessage implements AdminMessageT
           && distributedSystemId != DistributionConfig.DEFAULT_DISTRIBUTED_SYSTEM_ID
           && distributedSystemId != dm.getDistributedSystemId()) {
 
-        String distributedSystemListener =
+        var distributedSystemListener =
             System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "DistributedSystemListener");
         // this check is specific for Jayesh's use case of WAN BootStraping
         if (distributedSystemListener != null) {
@@ -244,7 +243,7 @@ public class StartupMessage extends DistributionMessage implements AdminMessageT
 
       if (rejectionMessage == null) { // change state only if there's no rejectionMessage yet
         if (interfaces == null || interfaces.size() == 0) {
-          String msg = "Rejected new system node %s because peer has no network interfaces";
+          var msg = "Rejected new system node %s because peer has no network interfaces";
           rejectionMessage = String.format(msg, getSender());
         } else {
           dm.setEquivalentHosts(interfaces);
@@ -339,16 +338,16 @@ public class StartupMessage extends DistributionMessage implements AdminMessageT
 
     // Send a description of all of the DataSerializers and
     // Instantiators that have been registered
-    SerializerAttributesHolder[] sahs = InternalDataSerializer.getSerializersForDistribution();
+    var sahs = InternalDataSerializer.getSerializersForDistribution();
     out.writeInt(sahs.length);
-    for (final SerializerAttributesHolder sah : sahs) {
+    for (final var sah : sahs) {
       DataSerializer.writeNonPrimitiveClassName(sah.getClassName(), out);
       out.writeInt(sah.getId());
     }
 
-    Object[] insts = InternalInstantiator.getInstantiatorsForSerialization();
+    var insts = InternalInstantiator.getInstantiatorsForSerialization();
     out.writeInt(insts.length);
-    for (final Object inst : insts) {
+    for (final var inst : insts) {
       String instantiatorClassName, instantiatedClassName;
       int id;
       if (inst instanceof Instantiator) {
@@ -371,7 +370,7 @@ public class StartupMessage extends DistributionMessage implements AdminMessageT
     DataSerializer.writeString(redundancyZone, out);
     out.writeBoolean(enforceUniqueZone);
 
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocatorsAll);
     data.writeIsSharedConfigurationEnabled(isSharedConfigurationEnabled);
     data.writeMcastPort(mcastPort);
@@ -402,11 +401,11 @@ public class StartupMessage extends DistributionMessage implements AdminMessageT
     isMcastEnabled = in.readBoolean();
     isTcpDisabled = in.readBoolean();
 
-    int serializerCount = in.readInt();
-    for (int i = 0; i < serializerCount; i++) {
-      String cName = DataSerializer.readNonPrimitiveClassName(in);
+    var serializerCount = in.readInt();
+    for (var i = 0; i < serializerCount; i++) {
+      var cName = DataSerializer.readNonPrimitiveClassName(in);
 
-      int id = in.readInt(); // id
+      var id = in.readInt(); // id
       try {
         if (cName != null) {
           InternalDataSerializer.register(cName, false, null, null, id);
@@ -418,11 +417,11 @@ public class StartupMessage extends DistributionMessage implements AdminMessageT
       }
     }
 
-    int instantiatorCount = in.readInt();
-    for (int i = 0; i < instantiatorCount; i++) {
-      String instantiatorClassName = DataSerializer.readNonPrimitiveClassName(in);
-      String instantiatedClassName = DataSerializer.readNonPrimitiveClassName(in);
-      int id = in.readInt();
+    var instantiatorCount = in.readInt();
+    for (var i = 0; i < instantiatorCount; i++) {
+      var instantiatorClassName = DataSerializer.readNonPrimitiveClassName(in);
+      var instantiatedClassName = DataSerializer.readNonPrimitiveClassName(in);
+      var id = in.readInt();
 
       try {
         if (instantiatorClassName != null && instantiatedClassName != null) {
@@ -440,7 +439,7 @@ public class StartupMessage extends DistributionMessage implements AdminMessageT
     redundancyZone = DataSerializer.readString(in);
     enforceUniqueZone = in.readBoolean();
 
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.readFrom(in);
     hostedLocatorsAll = data.readHostedLocators();
     isSharedConfigurationEnabled = data.readIsSharedConfigurationEnabled();

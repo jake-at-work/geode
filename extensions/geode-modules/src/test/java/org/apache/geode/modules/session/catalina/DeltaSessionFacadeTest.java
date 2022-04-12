@@ -28,7 +28,7 @@ public class DeltaSessionFacadeTest {
   public void DeltaSessionFacadeMakesProperCallsOnSessionWhenInvoked() {
     final DeltaSessionInterface session = spy(new DeltaSession());
 
-    final DeltaSessionFacade facade = new DeltaSessionFacade(session);
+    final var facade = new DeltaSessionFacade(session);
 
     doNothing().when(session).commit();
     doReturn(true).when(session).isValid();

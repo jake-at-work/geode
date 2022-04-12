@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.InternalCache;
 
 public class MeterRegistrySupplier implements Supplier<MeterRegistry> {
 
@@ -32,12 +31,12 @@ public class MeterRegistrySupplier implements Supplier<MeterRegistry> {
 
   @Override
   public MeterRegistry get() {
-    InternalDistributedSystem system = internalDistributedSystemSupplier.get();
+    var system = internalDistributedSystemSupplier.get();
     if (system == null) {
       return null;
     }
 
-    InternalCache internalCache = system.getCache();
+    var internalCache = system.getCache();
     if (internalCache == null) {
       return null;
     }

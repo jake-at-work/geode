@@ -25,8 +25,8 @@ public class OutputFormatter {
   }
 
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    for (String line : outputLines) {
+    var sb = new StringBuilder();
+    for (var line : outputLines) {
       sb.append("\n").append(line);
     }
     sb.append("\n");

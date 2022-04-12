@@ -49,14 +49,14 @@ public class TCPConduitDUnitTest extends DistributedTestCase {
 
   @Parameterized.Parameters
   public static Collection<Properties> data() {
-    Properties nonSSL = new Properties();
+    var nonSSL = new Properties();
     nonSSL.setProperty(ConfigurationProperties.SOCKET_LEASE_TIME, "1000");
     nonSSL.setProperty(ConfigurationProperties.DISABLE_AUTO_RECONNECT, "true");
 
-    Properties SSL = new Properties();
+    var SSL = new Properties();
     SSL.putAll(nonSSL);
 
-    final String keystorePath =
+    final var keystorePath =
         createTempFileFromResource(TCPConduitDUnitTest.class,
             "/org/apache/geode/cache/client/internal/default.keystore").getAbsolutePath();
 
@@ -81,13 +81,13 @@ public class TCPConduitDUnitTest extends DistributedTestCase {
    */
   @Test
   public void basicAcceptConnection() throws Exception {
-    final VM vm1 = VM.getVM(1);
-    final VM vm2 = VM.getVM(2);
-    final VM vm3 = VM.getVM(3);
+    final var vm1 = VM.getVM(1);
+    final var vm2 = VM.getVM(2);
+    final var vm3 = VM.getVM(3);
 
     disconnectAllFromDS();
 
-    int port = startLocator();
+    var port = startLocator();
     properties.put(ConfigurationProperties.LOCATORS, "localhost[" + port + "]");
 
     vm1.invoke(() -> startServer(properties));
@@ -100,16 +100,16 @@ public class TCPConduitDUnitTest extends DistributedTestCase {
 
     // ensure that the closing of a shared/unordered connection to another node does not
     // remove all connections for that node
-    InternalDistributedMember otherMember =
+    var otherMember =
         (InternalDistributedMember) system.getAllOtherMembers().iterator().next();
-    DistributionImpl distribution =
+    var distribution =
         (DistributionImpl) system.getDistributionManager().getDistribution();
-    final ConnectionTable connectionTable =
+    final var connectionTable =
         distribution.getDirectChannel().getConduit().getConTable();
 
     assertThat(connectionTable.hasReceiversFor(otherMember)).isTrue();
 
-    Connection sharedUnordered = connectionTable.get(otherMember, false,
+    var sharedUnordered = connectionTable.get(otherMember, false,
         System.currentTimeMillis(), 15000, 0);
     sharedUnordered.requestClose("for testing");
     // the sender connection has been closed so we should only have 2 senders now
@@ -119,14 +119,14 @@ public class TCPConduitDUnitTest extends DistributedTestCase {
 
     try {
       await("for message to be sent").until(() -> {
-        final SerialAckedMessage serialAckedMessage = new SerialAckedMessage();
+        final var serialAckedMessage = new SerialAckedMessage();
         serialAckedMessage.send(system.getAllOtherMembers(), false);
         return true;
       });
     } finally {
       // DUnit won't clean up properly if the sockets are hung; we have to crash the systems.
       IgnoredException.addIgnoredException("ForcedDisconnectException|loss of quorum");
-      for (VM vm : Arrays.asList(vm1, vm2, vm3)) {
+      for (var vm : Arrays.asList(vm1, vm2, vm3)) {
         vm.invoke("crash system in case it's hung", () -> {
           if (system != null && system.isConnected()) {
             DistributedTestUtils.crashDistributedSystem(system);
@@ -138,7 +138,7 @@ public class TCPConduitDUnitTest extends DistributedTestCase {
   }
 
   private int startLocator() throws Exception {
-    Locator locator = Locator.startLocatorAndDS(0, new File(""), properties);
+    var locator = Locator.startLocatorAndDS(0, new File(""), properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
     return locator.getPort();
   }

@@ -18,7 +18,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.UUID;
@@ -169,20 +168,20 @@ public final class CopyHelper {
           try {
             // Note that Object.clone is protected so we need to use reflection
             // to call clone even though this object implements Cloneable
-            Class<?> c = o.getClass();
+            var c = o.getClass();
             // By convention, the user should make the clone method public.
             // But even if they don't, let's go ahead and use it.
             // The other problem is that if the class is private, we still
             // need to make the method accessible even if the method is public,
             // because Object.clone is protected.
-            Method m = c.getDeclaredMethod("clone");
+            var m = c.getDeclaredMethod("clone");
             m.setAccessible(true);
             copy = (T) m.invoke(o, new Object[0]);
             return copy;
           } catch (NoSuchMethodException | IllegalAccessException | SecurityException ignore) {
             // try using Serialization
           } catch (InvocationTargetException ex) {
-            Throwable cause = ex.getTargetException();
+            var cause = ex.getTargetException();
             if (cause instanceof CloneNotSupportedException) {
               // try using Serialization
             } else {
@@ -244,7 +243,7 @@ public final class CopyHelper {
 
   private static <T> T doDeepCopy(T o) {
     try {
-      HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+      var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
       DataSerializer.writeObject(o, hdos);
       return DataSerializer.readObject(new DataInputStream(hdos.getInputStream()));
     } catch (ClassNotFoundException ex) {

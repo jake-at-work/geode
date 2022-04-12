@@ -29,7 +29,6 @@ import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 
 /**
@@ -55,13 +54,13 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
    */
   @Test
   public void testCacheWriterBeforeCreate() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     final Object key = getUniqueName();
     final Object value = 42;
     final Object arg = "ARG";
-    final String exception = "EXCEPTION";
+    final var exception = "EXCEPTION";
 
-    TestCacheWriter writer = new TestCacheWriter() {
+    var writer = new TestCacheWriter() {
       @Override
       public void beforeCreate2(EntryEvent event) throws CacheWriterException {
 
@@ -74,10 +73,10 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
         assertFalse(event.getOperation().isNetLoad());
         assertFalse(event.getOperation().isNetSearch());
 
-        Object argument = event.getCallbackArgument();
+        var argument = event.getCallbackArgument();
         if (argument != null) {
           if (argument.equals(exception)) {
-            String s = "Test CacheWriterException";
+            var s = "Test CacheWriterException";
             throw new CacheWriterException(s);
 
           } else {
@@ -92,9 +91,9 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheWriter(writer);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
     region.create(key, value);
     assertTrue(writer.wasInvoked());
@@ -142,14 +141,14 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
    */
   @Test
   public void testCacheWriterBeforeUpdate() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     final Object key = getUniqueName();
     final Object oldValue = 42;
     final Object newValue = 43;
     final Object arg = "ARG";
-    final String exception = "EXCEPTION";
+    final var exception = "EXCEPTION";
 
-    TestCacheWriter writer = new TestCacheWriter() {
+    var writer = new TestCacheWriter() {
       @Override
       public void beforeCreate2(EntryEvent event) throws CacheWriterException {
         // This method will get invoked when the region is populated
@@ -172,10 +171,10 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
         assertFalse(event.getOperation().isNetLoad());
         assertFalse(event.getOperation().isNetSearch());
 
-        Object argument = event.getCallbackArgument();
+        var argument = event.getCallbackArgument();
         if (argument != null) {
           if (argument.equals(exception)) {
-            String s = "Test CacheWriterException";
+            var s = "Test CacheWriterException";
             throw new CacheWriterException(s);
 
           } else {
@@ -185,9 +184,9 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheWriter(writer);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
     region.create(key, oldValue);
     assertTrue(writer.wasInvoked());
@@ -249,13 +248,13 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
    */
   @Test
   public void testCacheWriterBeforeDestroy() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     final Object key = getUniqueName();
     final Object value = 42;
     final Object arg = "ARG";
-    final String exception = "EXCEPTION";
+    final var exception = "EXCEPTION";
 
-    TestCacheWriter writer = new TestCacheWriter() {
+    var writer = new TestCacheWriter() {
       @Override
       public void beforeCreate2(EntryEvent event) throws CacheWriterException {
         // This method will get invoked when the region is populated
@@ -273,10 +272,10 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
         assertFalse(event.getOperation().isNetLoad());
         assertFalse(event.getOperation().isNetSearch());
 
-        Object argument = event.getCallbackArgument();
+        var argument = event.getCallbackArgument();
         if (argument != null) {
           if (argument.equals(exception)) {
-            String s = "Test CacheWriterException";
+            var s = "Test CacheWriterException";
             throw new CacheWriterException(s);
 
           } else {
@@ -286,9 +285,9 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheWriter(writer);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
     region.create(key, value);
     assertTrue(writer.wasInvoked());
@@ -321,17 +320,17 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
   @Test
   public void testCacheWriterBeforeRegionDestroy() throws CacheException {
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object arg = "ARG";
-    final String exception = "EXCEPTION";
+    final var exception = "EXCEPTION";
 
-    TestCacheWriter writer = new TestCacheWriter() {
+    var writer = new TestCacheWriter() {
       private boolean closed = false;
       private boolean destroyed = false;
 
       @Override
       public boolean wasInvoked() {
-        boolean value = closed && destroyed;
+        var value = closed && destroyed;
         super.wasInvoked();
         return value;
       }
@@ -351,10 +350,10 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
         assertFalse(event.getOperation().isExpiration());
         assertFalse(event.isOriginRemote());
 
-        Object argument = event.getCallbackArgument();
+        var argument = event.getCallbackArgument();
         if (argument != null) {
           if (argument.equals(exception)) {
-            String s = "Test CacheWriterException";
+            var s = "Test CacheWriterException";
             throw new CacheWriterException(s);
 
           } else {
@@ -366,9 +365,9 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheWriter(writer);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     Region region;
 
     region = createRegion(name, attrs);
@@ -402,15 +401,15 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
    */
   @Test
   public void testCacheWriterLocalDestroy() throws CacheException {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
 
     // If any of the writer's callback methods are invoked
-    TestCacheWriter writer = new TestCacheWriter() {};
+    var writer = new TestCacheWriter() {};
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheWriter(writer);
-    RegionAttributes attrs = factory.create();
-    Region region = createRegion(name, attrs);
+    var attrs = factory.create();
+    var region = createRegion(name, attrs);
     region.localDestroyRegion();
   }
 
@@ -419,14 +418,14 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
    */
   @Test
   public void testCacheWriterExceptionAborts() throws CacheException {
-    final String name = getUniqueName();
-    final String exception = "EXCEPTION";
+    final var name = getUniqueName();
+    final var exception = "EXCEPTION";
 
-    TestCacheWriter writer = new TestCacheWriter() {
+    var writer = new TestCacheWriter() {
       private void handleEvent(Object argument) throws CacheWriterException {
 
         if (exception.equals(argument)) {
-          String s = "Test Exception";
+          var s = "Test Exception";
           throw new CacheWriterException(s);
         }
       }
@@ -456,15 +455,15 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheWriter(writer);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     Region region;
 
     region = createRegion(name, attrs);
     Object value = 42;
 
-    String p1 = "Test Exception";
+    var p1 = "Test Exception";
     getCache().getLogger().info("<ExpectedException action=add>" + p1 + "</ExpectedException>");
     try {
       region.put(name, value, exception);
@@ -484,7 +483,7 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
       fail("Should have thrown a CacheWriterException");
 
     } catch (CacheWriterException ex) {
-      Region.Entry entry = region.getEntry(name);
+      var entry = region.getEntry(name);
       assertNotNull(entry);
       assertEquals(value, entry.getValue());
     }
@@ -494,7 +493,7 @@ public abstract class CacheWriterTestCase extends RegionAttributesTestCase {
       fail("Should have thrown a CacheWriterException");
 
     } catch (CacheWriterException ex) {
-      Region.Entry entry = region.getEntry(name);
+      var entry = region.getEntry(name);
       assertNotNull(entry);
       assertEquals(value, entry.getValue());
     }

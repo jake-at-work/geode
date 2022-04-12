@@ -44,7 +44,6 @@ import org.apache.geode.GemFireException;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.server.CacheServer;
@@ -52,7 +51,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.TXCommitMessage;
 import org.apache.geode.internal.cache.TXId;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.TXStateProxyImpl;
 import org.apache.geode.internal.cache.tx.ClientTXStateStub;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -88,7 +86,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testClientTXStateStubBeforeCompletion() throws Exception {
     getBlackboard().initBlackboard();
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
 
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
 
@@ -99,17 +97,17 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
     Region region = getCache().getRegion(REGION_NAME);
     assertTrue(region.get(key).equals(value));
 
-    String first = "one";
-    String second = "two";
+    var first = "one";
+    var second = "two";
 
     client.invokeAsync(() -> commitTxWithBeforeCompletion(REGION_NAME, true, first, second));
 
     getBlackboard().waitForGate(first, 30, TimeUnit.SECONDS);
-    TXManagerImpl mgr = (TXManagerImpl) getCache().getCacheTransactionManager();
+    var mgr = (TXManagerImpl) getCache().getCacheTransactionManager();
     mgr.begin();
     region.put(key, newValue);
-    TXStateProxyImpl tx = (TXStateProxyImpl) mgr.pauseTransaction();
-    ClientTXStateStub txStub = (ClientTXStateStub) tx.getRealDeal(null, null);
+    var tx = (TXStateProxyImpl) mgr.pauseTransaction();
+    var txStub = (ClientTXStateStub) tx.getRealDeal(null, null);
     mgr.unpauseTransaction(tx);
     try {
       txStub.beforeCompletion();
@@ -144,7 +142,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
   }
 
   private CacheServer createCacheServer(Cache cache, int maxThreads) {
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     server.setMaxThreads(maxThreads);
     server.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
     try {
@@ -157,13 +155,13 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   private void createClientRegion(final Host host, final int port0, String regionName,
       boolean disableSetOpToStartJTA, boolean isCacheProxy) {
-    ClientCacheFactory cf = new ClientCacheFactory();
+    var cf = new ClientCacheFactory();
     cf.addPoolServer(host.getHostName(), port0);
     if (disableSetOpToStartJTA) {
       logger.info("setting system property {} to true ", RESTORE_SET_OPERATION_PROPERTY);
       System.setProperty(RESTORE_SET_OPERATION_PROPERTY, "true");
     }
-    ClientCache cache = getClientCache(cf);
+    var cache = getClientCache(cf);
     if (isCacheProxy) {
       cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName);
     } else {
@@ -174,11 +172,11 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
   private void commitTxWithBeforeCompletion(String regionName, boolean withWait, String first,
       String second) throws TimeoutException, InterruptedException {
     Region region = getCache().getRegion(regionName);
-    TXManagerImpl mgr = (TXManagerImpl) getCache().getCacheTransactionManager();
+    var mgr = (TXManagerImpl) getCache().getCacheTransactionManager();
     mgr.begin();
     region.put(key, newValue);
-    TXStateProxyImpl tx = (TXStateProxyImpl) mgr.pauseTransaction();
-    ClientTXStateStub txStub = (ClientTXStateStub) tx.getRealDeal(null, null);
+    var tx = (TXStateProxyImpl) mgr.pauseTransaction();
+    var txStub = (ClientTXStateStub) tx.getRealDeal(null, null);
     mgr.unpauseTransaction(tx);
     txStub.beforeCompletion();
     if (withWait) {
@@ -200,11 +198,11 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   private void testJTAWithMaxThreads(int maxThreads) {
     getBlackboard().initBlackboard();
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
 
     final int port = server.invoke("create cache", () -> {
       Cache cache = getCache(properties);
-      CacheServer cacheServer = createCacheServer(cache, maxThreads);
+      var cacheServer = createCacheServer(cache, maxThreads);
       Region region = cache.createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
       region.put(key, value);
 
@@ -226,7 +224,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testClientCompletedJTAIsInFailoverMap() throws Exception {
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
 
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
 
@@ -235,14 +233,14 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
     Region region = getCache().getRegion(REGION_NAME);
     assertTrue(region.get(key).equals(value));
 
-    TransactionManager JTAManager =
+    var JTAManager =
         (TransactionManager) getCache().getJNDIContext().lookup("java:/TransactionManager");
     assertNotNull(JTAManager);
 
     // commit
     JTAManager.begin();
     region.put(key, newValue);
-    final TXId committedTXId = getTxId();
+    final var committedTXId = getTxId();
     JTAManager.commit();
     assertTrue(region.get(key).equals(newValue));
 
@@ -251,7 +249,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
     // rollback
     JTAManager.begin();
     region.put(key, "UncommittedValue");
-    final TXId rolledBackTXId = getTxId();
+    final var rolledBackTXId = getTxId();
     JTAManager.rollback();
     assertTrue(region.get(key).equals(newValue));
 
@@ -260,7 +258,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   private Integer createServerRegion(String regionName, Properties properties) {
     Cache cache = getCache(properties);
-    CacheServer cacheServer = createCacheServer(cache, 0);
+    var cacheServer = createCacheServer(cache, 0);
     Region region = cache.createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
     region.put(key, value);
 
@@ -268,8 +266,8 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
   }
 
   private TXId getTxId() {
-    TXManagerImpl txManager = (TXManagerImpl) getCache().getCacheTransactionManager();
-    TXStateProxy txStateProxy = txManager.getTXState();
+    var txManager = (TXManagerImpl) getCache().getCacheTransactionManager();
+    var txStateProxy = txManager.getTXState();
     return txStateProxy.getTxId();
   }
 
@@ -293,7 +291,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testValuesOnProxyWithPutWhenSetOperationDoesNotStartJTA() throws Exception {
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
     createClientRegion(host, port, REGION_NAME, true, false);
 
@@ -305,7 +303,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testValuesOnCacheProxyWithPutWhenSetOperationDoesNotStartJTA() throws Exception {
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
     createClientRegion(host, port, REGION_NAME, true, true);
 
@@ -318,13 +316,13 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   private void verifyRegionValueFailsWhenSetOperationDoesNotStartJTA(Region region)
       throws NamingException, NotSupportedException, SystemException {
-    TransactionManager JTAManager =
+    var JTAManager =
         (TransactionManager) getCache().getJNDIContext().lookup("java:/TransactionManager");
     assertNotNull(JTAManager);
 
     try {
       JTAManager.begin();
-      Collection values = region.values();
+      var values = region.values();
       assertFalse(values.contains(value));
       region.put(newKey, newValue);
       assertThatThrownBy(() -> values.contains(newValue)).isInstanceOf(IllegalStateException.class)
@@ -337,13 +335,13 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testValuesOnProxyRegionWithPutWhenSetOperationStartsJTA() throws Exception {
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
     createClientRegion(host, port, REGION_NAME, false, false);
 
     Region region = getCache().getRegion(REGION_NAME);
     assertTrue(region.get(key).equals(value));
-    Collection collection = region.values();
+    var collection = region.values();
     // local cache data, not all operation forwarded to server (see GEODE-1887)
     assertFalse(collection.contains(value));
 
@@ -354,14 +352,14 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testValuesOnCacheProxyRegionWithPutWhenSetOperationStartsJTA() throws Exception {
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
     createClientRegion(host, port, REGION_NAME, false, true);
 
     Region region = getCache().getRegion(REGION_NAME);
     assertTrue(region.get(key).equals(value));
     // local cache data
-    Collection values = region.values();
+    var values = region.values();
     assertTrue(values.contains(value));
     region.localDestroy(key);
     assertFalse(values.contains(value));
@@ -372,10 +370,10 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
   }
 
   private void verifyValuesWhenSetOperationStartsTransaction(Region region) {
-    TXManagerImpl txManager = getCache().getTxManager();
+    var txManager = getCache().getTxManager();
     try {
       txManager.begin();
-      Collection values = region.values();
+      var values = region.values();
       values.contains(value);
       assertEquals(1, values.size());
       region.put(newKey, newValue);
@@ -389,12 +387,12 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   private void verifyValuesUsingJTAWhenSetOperationStartsTransaction(Region region)
       throws NamingException, NotSupportedException, SystemException {
-    TransactionManager JTAManager =
+    var JTAManager =
         (TransactionManager) getCache().getJNDIContext().lookup("java:/TransactionManager");
     assertNotNull(JTAManager);
     try {
       JTAManager.begin();
-      Collection values = region.values();
+      var values = region.values();
       // check server under JTA/Transaction
       assertTrue(values.contains(value));
       assertEquals(1, values.size());
@@ -410,7 +408,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEntrySetOnProxyWithPutWhenSetOperationDoesNotStartJTA() throws Exception {
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
     createClientRegion(host, port, REGION_NAME, true, false);
 
@@ -423,7 +421,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEntrySetOnCacheProxyWithPutWhenSetOperationDoesNotStartJTA() throws Exception {
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
     createClientRegion(host, port, REGION_NAME, true, true);
 
@@ -437,7 +435,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   private void verifyEntrySetFailsWhenSetOperationDoesNotStartJTA(Region region, Map.Entry entry)
       throws NamingException, NotSupportedException, SystemException {
-    TransactionManager JTAManager =
+    var JTAManager =
         (TransactionManager) getCache().getJNDIContext().lookup("java:/TransactionManager");
     assertNotNull(JTAManager);
 
@@ -456,7 +454,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEntrySetOnProxyRegionWithPutWhenSetOperationStartsJTA() throws Exception {
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
     createClientRegion(host, port, REGION_NAME, false, false);
 
@@ -469,7 +467,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEntrySetOnCacheProxyRegionWithPutWhenSetOperationStartsJTA() throws Exception {
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
     final int port = server.invoke(() -> createServerRegion(REGION_NAME, properties));
     createClientRegion(host, port, REGION_NAME, false, true);
 
@@ -483,7 +481,7 @@ public class ClientServerJTADUnitTest extends JUnit4CacheTestCase {
 
   private void verifyEntrySetUsingJTAWhenSetOperationStartsTransaction(Region region)
       throws NamingException, NotSupportedException, SystemException {
-    TransactionManager JTAManager =
+    var JTAManager =
         (TransactionManager) getCache().getJNDIContext().lookup("java:/TransactionManager");
     assertNotNull(JTAManager);
     try {

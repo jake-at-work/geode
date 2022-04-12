@@ -22,7 +22,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.internal.CopyOnWriteHashSet;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
@@ -53,7 +52,7 @@ public class LuceneIndexStats {
   private final CopyOnWriteHashSet<IntSupplier> documentsSuppliers = new CopyOnWriteHashSet<>();
 
   static {
-    final StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    final var f = StatisticsTypeFactoryImpl.singleton();
     statsType = f.createType(statsTypeName, statsTypeDescription, new StatisticDescriptor[] {
         f.createIntCounter("queryExecutions", "Number of lucene queries executed on this member",
             "operations"),

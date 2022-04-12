@@ -45,8 +45,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
 
   @Test
   public void testParallelGatewaySenderWithoutStarting() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -92,8 +92,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
    */
   @Test
   public void testParallelGatewaySenderStartOnAccessorNode() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -145,8 +145,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
    */
   @Test
   public void testParallelPropagationSenderPause() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -207,8 +207,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
    */
   @Test
   public void testParallelPropagationSenderResume() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -284,8 +284,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
    */
   @Test
   public void testParallelPropagationSenderResumeNegativeScenario() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -343,8 +343,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
    */
   @Test
   public void testParallelPropagationSenderStop() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
@@ -403,8 +403,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
    */
   @Test
   public void testParallelPropagationSenderStartAfterStop() throws Throwable {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
@@ -465,7 +465,7 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
     AsyncInvocation vm5start = vm5.invokeAsync(() -> WANTestBase.startSender("ln"));
     AsyncInvocation vm6start = vm6.invokeAsync(() -> WANTestBase.startSender("ln"));
     AsyncInvocation vm7start = vm7.invokeAsync(() -> WANTestBase.startSender("ln"));
-    int START_TIMEOUT = 30000;
+    var START_TIMEOUT = 30000;
     vm4start.getResult(START_TIMEOUT);
     vm5start.getResult(START_TIMEOUT);
     vm6start.getResult(START_TIMEOUT);
@@ -510,8 +510,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
   @Ignore("Bug47553")
   @Test
   public void testParallelPropagationSenderStartAfterStop_Scenario2() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
@@ -604,8 +604,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
    */
   @Test
   public void testParallelPropagationSenderStartAfterStopOnAccessorNode() throws Throwable {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
@@ -702,8 +702,8 @@ public class ConcurrentParallelGatewaySenderOperation_1_DUnitTest extends WANTes
    */
   @Test
   public void testStartPauseResumeParallelGatewaySender() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);

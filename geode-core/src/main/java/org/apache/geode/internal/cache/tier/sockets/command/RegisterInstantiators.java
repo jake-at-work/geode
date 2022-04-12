@@ -31,7 +31,6 @@ import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.CacheServerHelper;
 import org.apache.geode.internal.cache.tier.sockets.ClientInstantiatorMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 
@@ -59,39 +58,39 @@ public class RegisterInstantiators extends BaseCommand {
           serverConnection.getSocketString());
     }
 
-    int noOfParts = clientMessage.getNumberOfParts();
+    var noOfParts = clientMessage.getNumberOfParts();
     // Assert parts
     Assert.assertTrue((noOfParts - 1) % 3 == 0);
     // 3 parts per instantiator and one eventId part
-    int noOfInstantiators = (noOfParts - 1) / 3;
+    var noOfInstantiators = (noOfParts - 1) / 3;
 
     // retrieve eventID from the last Part
-    ByteBuffer eventIdPartsBuffer =
+    var eventIdPartsBuffer =
         ByteBuffer.wrap(clientMessage.getPart(noOfParts - 1).getSerializedForm());
-    long threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    long sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    EventID eventId =
+    var threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var eventId =
         new EventID(serverConnection.getEventMemberIDByteArray(), threadId, sequenceId);
 
-    byte[][] serializedInstantiators = new byte[noOfInstantiators * 3][];
-    boolean caughtCNFE = false;
+    var serializedInstantiators = new byte[noOfInstantiators * 3][];
+    var caughtCNFE = false;
     Exception cnfe = null;
     try {
-      for (int i = 0; i < noOfParts - 1; i = i + 3) {
+      for (var i = 0; i < noOfParts - 1; i = i + 3) {
 
-        Part instantiatorPart = clientMessage.getPart(i);
+        var instantiatorPart = clientMessage.getPart(i);
         serializedInstantiators[i] = instantiatorPart.getSerializedForm();
-        String instantiatorClassName =
+        var instantiatorClassName =
             (String) CacheServerHelper.deserialize(serializedInstantiators[i]);
 
-        Part instantiatedPart = clientMessage.getPart(i + 1);
+        var instantiatedPart = clientMessage.getPart(i + 1);
         serializedInstantiators[i + 1] = instantiatedPart.getSerializedForm();
-        String instantiatedClassName =
+        var instantiatedClassName =
             (String) CacheServerHelper.deserialize(serializedInstantiators[i + 1]);
 
-        Part idPart = clientMessage.getPart(i + 2);
+        var idPart = clientMessage.getPart(i + 2);
         serializedInstantiators[i + 2] = idPart.getSerializedForm();
-        int id = idPart.getInt();
+        var id = idPart.getInt();
 
         Class instantiatorClass = null, instantiatedClass = null;
         try {
@@ -124,7 +123,7 @@ public class RegisterInstantiators extends BaseCommand {
       // due to a missing class, because they were not distributed
       // in InternalInstantiator.register. Otherwise they will have
       // been distributed if successfully registered.
-      ClientInstantiatorMessage clientInstantiatorMessage =
+      var clientInstantiatorMessage =
           new ClientInstantiatorMessage(EnumListenerEvent.AFTER_REGISTER_INSTANTIATOR,
               serializedInstantiators, serverConnection.getProxyID(), eventId);
 

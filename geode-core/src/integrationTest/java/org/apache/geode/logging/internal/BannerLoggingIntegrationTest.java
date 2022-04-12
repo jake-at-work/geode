@@ -22,7 +22,6 @@ import static org.apache.geode.internal.logging.Banner.BannerHeader.displayValue
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
@@ -60,10 +59,10 @@ public class BannerLoggingIntegrationTest {
 
   @Before
   public void setUp() {
-    String name = testName.getMethodName();
+    var name = testName.getMethodName();
     mainLogFile = new File(temporaryFolder.getRoot(), name + "-main.log");
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFile.getAbsolutePath());
 
@@ -97,12 +96,12 @@ public class BannerLoggingIntegrationTest {
   public void bannerIsLoggedToFileBeforeLogMessage() throws Exception {
     geodeLogger.info(logMessage);
 
-    List<String> lines = readLines(mainLogFile, defaultCharset());
+    var lines = readLines(mainLogFile, defaultCharset());
 
-    boolean foundBanner = false;
-    boolean foundLogMessage = false;
+    var foundBanner = false;
+    var foundLogMessage = false;
 
-    for (String line : lines) {
+    for (var line : lines) {
       if (containsAny(line, displayValues())) {
         assertThat(foundLogMessage).as("Banner should be logged before log message: " + lines)
             .isFalse();
@@ -120,7 +119,7 @@ public class BannerLoggingIntegrationTest {
   }
 
   private boolean containsAny(String string, String... values) {
-    for (String value : values) {
+    for (var value : values) {
       if (string.contains(value)) {
         return true;
       }

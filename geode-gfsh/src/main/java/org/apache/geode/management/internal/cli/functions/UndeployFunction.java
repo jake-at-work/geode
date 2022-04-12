@@ -24,14 +24,12 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.configuration.Deployment;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
-import org.apache.geode.services.result.ServiceResult;
 
 public class UndeployFunction implements InternalFunction<Object[]> {
   private static final Logger logger = LogService.getLogger();
@@ -42,14 +40,14 @@ public class UndeployFunction implements InternalFunction<Object[]> {
   @Override
   public void execute(FunctionContext<Object[]> context) {
     // Declared here so that it's available when returning a Throwable
-    String memberId = "";
+    var memberId = "";
 
     try {
-      final Object[] args = context.getArguments();
-      final String[] jarFilenameList = (String[]) args[0]; // Comma separated
-      InternalCache cache = (InternalCache) context.getCache();
+      final var args = context.getArguments();
+      final var jarFilenameList = (String[]) args[0]; // Comma separated
+      var cache = (InternalCache) context.getCache();
 
-      DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+      var member = cache.getDistributedSystem().getDistributedMember();
 
       memberId = member.getId();
       // If they set a name use it instead
@@ -61,7 +59,7 @@ public class UndeployFunction implements InternalFunction<Object[]> {
       if (ArrayUtils.isNotEmpty(jarFilenameList)) {
         jarNamesToUndeploy = Arrays.stream(jarFilenameList).collect(Collectors.toList());
       } else {
-        final List<Deployment> jarClassLoaders =
+        final var jarClassLoaders =
             ClassPathLoader.getLatest().getJarDeploymentService().listDeployed();
         jarNamesToUndeploy =
             jarClassLoaders.stream().map(Deployment::getFileName)
@@ -69,9 +67,9 @@ public class UndeployFunction implements InternalFunction<Object[]> {
       }
 
       Map<String, String> undeployedJars = new HashMap<>();
-      for (String jarName : jarNamesToUndeploy) {
+      for (var jarName : jarNamesToUndeploy) {
         String jarLocation;
-        ServiceResult<Deployment> deploymentServiceResult =
+        var deploymentServiceResult =
             ClassPathLoader.getLatest().getJarDeploymentService().undeployByFileName(jarName);
         if (deploymentServiceResult.isSuccessful()) {
           jarLocation = deploymentServiceResult.getMessage().getFilePath();
@@ -81,12 +79,12 @@ public class UndeployFunction implements InternalFunction<Object[]> {
         undeployedJars.put(jarName, jarLocation);
       }
 
-      CliFunctionResult result = new CliFunctionResult(memberId, undeployedJars, null);
+      var result = new CliFunctionResult(memberId, undeployedJars, null);
       context.getResultSender().lastResult(result);
 
     } catch (Exception cce) {
       logger.error(cce.getMessage(), cce);
-      CliFunctionResult result = new CliFunctionResult(memberId, false, null);
+      var result = new CliFunctionResult(memberId, false, null);
       context.getResultSender().lastResult(result);
     }
   }

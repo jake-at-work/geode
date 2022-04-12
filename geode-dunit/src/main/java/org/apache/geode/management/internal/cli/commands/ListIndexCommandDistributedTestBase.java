@@ -23,8 +23,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.management.internal.cli.domain.Stock;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -51,14 +49,14 @@ public class ListIndexCommandDistributedTestBase {
 
   @Before
   public void before() throws Exception {
-    MemberVM locator = lsRule.startLocatorVM(0, MemberStarterRule::withHttpService);
+    var locator = lsRule.startLocatorVM(0, MemberStarterRule::withHttpService);
     server = lsRule.startServerVM(1, locator.getPort());
 
     server.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
-      RegionFactory<Object, Object> factory =
+      var factory =
           cache.createRegionFactory(RegionShortcut.REPLICATE);
-      Region<Object, Object> region = factory.create(REGION_1);
+      var region = factory.create(REGION_1);
 
       cache.getQueryService().createIndex(INDEX_1, "key", INDEX_REGION_NAME);
       region.put(1, new Stock("SUNW", 10));

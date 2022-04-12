@@ -16,9 +16,7 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.util.Arrays;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -48,12 +46,12 @@ public class ExportLogsStatsOverHttpDistributedTest extends ExportLogsStatsDistr
   @Test
   public void testExportWithDir() throws Exception {
     connectIfNeeded();
-    File dir = temporaryFolder.newFolder();
+    var dir = temporaryFolder.newFolder();
     connector.executeAndAssertThat("export logs --dir=" + dir.getAbsolutePath())
         .containsOutput("Logs exported to: ", dir.getAbsolutePath());
-    String message = connector.getGfshOutput();
-    String zipPath = getZipPathFromCommandResult(message);
-    Set<String> actualZipEntries =
+    var message = connector.getGfshOutput();
+    var zipPath = getZipPathFromCommandResult(message);
+    var actualZipEntries =
         new ZipFile(zipPath).stream().map(ZipEntry::getName).collect(Collectors.toSet());
 
     assertThat(actualZipEntries).containsAll(expectedZipEntries);

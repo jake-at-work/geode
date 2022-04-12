@@ -46,7 +46,7 @@ public class EvictionListBuilderTest {
 
   @Test
   public void createsLIFOListWhenAlgorithmIsLifo() {
-    EvictionAlgorithm lifoAlgorithm = EvictionAlgorithm.LIFO_ENTRY;
+    var lifoAlgorithm = EvictionAlgorithm.LIFO_ENTRY;
     when(controller.getEvictionAlgorithm()).thenReturn(lifoAlgorithm);
 
     assertThat(builder.create()).isInstanceOf(LIFOList.class);

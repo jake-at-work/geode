@@ -30,7 +30,6 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.StatisticsDisabledException;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
@@ -75,18 +74,18 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testHitMissCount() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = "KEY"; // value exists
     Object key2 = "KEY2"; // no entry
     Object key3 = "KEY3"; // entry, invalid
     Object value = "VALUE";
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setStatisticsEnabled(true);
 
-    Region region = createRegion(name, factory.create());
-    CacheStatistics rStats = region.getStatistics();
+    var region = createRegion(name, factory.create());
+    var rStats = region.getStatistics();
     assertEquals(0, rStats.getHitCount());
     assertEquals(0, rStats.getMissCount());
     assertEquals(0.0f, rStats.getHitRatio(), 0.0f);
@@ -110,7 +109,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
     assertEquals(0, rStats.getHitCount());
     assertEquals(0, rStats.getMissCount());
 
-    CacheStatistics eStats = region.getEntry(key).getStatistics();
+    var eStats = region.getEntry(key).getStatistics();
     assertEquals(0, eStats.getHitCount());
     assertEquals(0, eStats.getMissCount());
     assertEquals(0.0f, eStats.getHitRatio(), 0.0f);
@@ -135,7 +134,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
     assertEquals(0.5f, rStats.getHitRatio(), 0.0f);
 
     region.create(key3, null);
-    CacheStatistics e3Stats = region.getEntry(key3).getStatistics();
+    var e3Stats = region.getEntry(key3).getStatistics();
     assertEquals(0, e3Stats.getHitCount());
     assertEquals(0, e3Stats.getMissCount());
     assertEquals(0.0f, e3Stats.getHitRatio(), 0.0f);
@@ -186,7 +185,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testTimeStats() throws CacheException, InterruptedException {
     final long ESTAT_RES = 100; // the resolution, in ms, of entry stats
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = "KEY";
     Object key2 = "KEY2";
     Object value = "VALUE";
@@ -195,14 +194,14 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
     long oldBefore;
     long oldAfter;
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setStatisticsEnabled(true);
 
     before = getCache().cacheTimeMillis();
-    Region region = createRegion(name, factory.create());
-    CacheStatistics rStats = region.getStatistics();
-    CacheStatistics rootStats = getRootRegion().getStatistics();
+    var region = createRegion(name, factory.create());
+    var rStats = region.getStatistics();
+    var rootStats = getRootRegion().getStatistics();
     after = getCache().cacheTimeMillis();
 
     assertInRange(before, after, rStats.getLastAccessedTime());
@@ -224,7 +223,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
     Wait.pause(150);
     before = getCache().cacheTimeMillis();
     region.put(key, value);
-    CacheStatistics eStats = region.getEntry(key).getStatistics();
+    var eStats = region.getEntry(key).getStatistics();
     after = getCache().cacheTimeMillis();
     assertInRange(before, after, rStats.getLastAccessedTime());
     assertInRange(before, after, rStats.getLastModifiedTime());
@@ -247,14 +246,14 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
     assertInRange(before - ESTAT_RES, after + ESTAT_RES, eStats.getLastAccessedTime());
     assertInRange(oldBefore - ESTAT_RES, oldAfter + ESTAT_RES, eStats.getLastModifiedTime());
 
-    long oldOldBefore = oldBefore;
-    long oldOldAfter = oldAfter;
+    var oldOldBefore = oldBefore;
+    var oldOldAfter = oldAfter;
     oldBefore = before;
     oldAfter = after;
     Wait.pause(150);
     before = getCache().cacheTimeMillis();
     region.create(key2, null);
-    CacheStatistics eStats2 = region.getEntry(key2).getStatistics();
+    var eStats2 = region.getEntry(key2).getStatistics();
     after = getCache().cacheTimeMillis();
     assertInRange(before, after, rStats.getLastAccessedTime());
     assertInRange(before, after, rStats.getLastModifiedTime());
@@ -292,7 +291,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
     assertInRange(oldBefore, oldAfter, rootStats.getLastModifiedTime());
 
     before = getCache().cacheTimeMillis();
-    Region sub = region.createSubregion("sub", region.getAttributes());
+    var sub = region.createSubregion("sub", region.getAttributes());
     after = getCache().cacheTimeMillis();
     assertInRange(before, after, rStats.getLastAccessedTime());
     assertInRange(before, after, rStats.getLastModifiedTime());
@@ -324,14 +323,14 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testDistributedStats() {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = "KEY";
     final Object value = "VALUE";
 
     SerializableRunnable create = new CacheSerializableRunnable("Create Region") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setEarlyAck(false);
         factory.setStatisticsEnabled(true);
@@ -339,9 +338,9 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
       }
     };
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     vm0.invoke(create);
     vm1.invoke(create);
@@ -352,7 +351,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(name);
         // region.create(key, null);
         region.put(key, value);
-        CacheStatistics stats = region.getEntry(key).getStatistics();
+        var stats = region.getEntry(key).getStatistics();
         lastAccessed = stats.getLastAccessedTime();
         lastModified = stats.getLastModifiedTime();
         getCache().getLogger()
@@ -368,9 +367,9 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        Object result = region.get(key);
+        var result = region.get(key);
         assertEquals(value, result);
-        CacheStatistics stats = region.getEntry(key).getStatistics();
+        var stats = region.getEntry(key).getStatistics();
         lastModifiedRemote = stats.getLastModifiedTime();
         getCache().getLogger().fine("NETSEARCH: lastAccessed: " + stats.getLastAccessedTime()
             + ", lastModified: " + stats.getLastModifiedTime());
@@ -382,7 +381,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        CacheStatistics stats = region.getEntry(key).getStatistics();
+        var stats = region.getEntry(key).getStatistics();
         assertEquals(lastAccessed, stats.getLastAccessedTime());
         assertEquals(lastModified, stats.getLastModifiedTime());
         assertEquals(0, stats.getHitCount());
@@ -403,7 +402,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
         // assertNull(region.getEntry(key));
         region.put(key, value);
         assertEquals(value, region.getEntry(key).getValue());
-        CacheStatistics stats = region.getEntry(key).getStatistics();
+        var stats = region.getEntry(key).getStatistics();
         getCache().getLogger().fine("UPDATE: lastAccessed: " + stats.getLastAccessedTime()
             + ", lastModified: " + stats.getLastModifiedTime());
       }
@@ -415,11 +414,11 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        CacheStatistics stats = region.getEntry(key).getStatistics();
-        long ta = stats.getLastAccessedTime();
-        long tm = stats.getLastModifiedTime();
-        long hc = stats.getHitCount();
-        long mc = stats.getMissCount();
+        var stats = region.getEntry(key).getStatistics();
+        var ta = stats.getLastAccessedTime();
+        var tm = stats.getLastModifiedTime();
+        var hc = stats.getHitCount();
+        var mc = stats.getMissCount();
 
         getCache().getLogger().fine("VERIFY: lastAccessed: " + ta + ", lastModified: " + tm);
         assertTrue("lastAccessedTime was " + ta + " but was expected to be > " + lastAccessed,
@@ -444,7 +443,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        CacheStatistics stats = region.getEntry(key).getStatistics();
+        var stats = region.getEntry(key).getStatistics();
         assertEquals(lastAccessed, stats.getLastAccessedTime());
         assertEquals(lastModified, stats.getLastModifiedTime());
         assertEquals(0, stats.getHitCount());
@@ -462,7 +461,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        CacheStatistics stats = region.getStatistics();
+        var stats = region.getStatistics();
 
         // lastAccessed var contains stat from an Entry, which may be
         // up to 100 ms off from stat in Region because Entry has
@@ -480,13 +479,13 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testDisabledStatistics() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = "KEY";
     Object value = "VALUE";
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setStatisticsEnabled(false);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     try {
       region.getStatistics();
       fail("Should have thrown a StatisticsDisabledException");
@@ -496,7 +495,7 @@ public class CacheStatisticsDUnitTest extends JUnit4CacheTestCase {
     }
 
     region.put(key, value);
-    Region.Entry entry = region.getEntry(key);
+    var entry = region.getEntry(key);
 
     try {
       entry.getStatistics();

@@ -77,7 +77,7 @@ public class MethodInvokerResult implements Serializable {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append(getResult());
     sb.append(lineSeparator());
     if (getStackTrace() != null) {
@@ -120,18 +120,18 @@ public class MethodInvokerResult implements Serializable {
   }
 
   private static String toStackTrace(Throwable throwable) {
-    StringWriter sw = new StringWriter();
+    var sw = new StringWriter();
     throwable.printStackTrace(new PrintWriter(sw, true));
     return sw.toString();
   }
 
   private static Throwable checkSerializable(Throwable throwable) {
-    try (ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream())) {
+    try (var oos = new ObjectOutputStream(new ByteArrayOutputStream())) {
       oos.writeObject(throwable);
       return throwable;
 
     } catch (IOException e) {
-      StringWriter sw = new StringWriter();
+      var sw = new StringWriter();
       e.printStackTrace(new PrintWriter(sw, true));
       return new IOException(sw.toString());
     }

@@ -18,8 +18,6 @@ package org.apache.geode.management.internal.cli.commands;
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -28,11 +26,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.PartitionAttributesImpl;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.PersistenceTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
@@ -52,21 +48,21 @@ public class RebalanceMembersColocationTest {
 
   @Test
   public void testRebalanceResultOutputMemberCountWithColocatedRegions() throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
-    MemberVM server1 = cluster.startServerVM(1, locator.getPort());
-    MemberVM server2 = cluster.startServerVM(2, locator.getPort());
+    var server1 = cluster.startServerVM(1, locator.getPort());
+    var server2 = cluster.startServerVM(2, locator.getPort());
 
     server1.invoke(() -> {
-      Region<Object, Object> parentRegion = Objects.requireNonNull(ClusterStartupRule.getCache())
+      var parentRegion = Objects.requireNonNull(ClusterStartupRule.getCache())
           .createRegionFactory(RegionShortcut.PARTITION).create(PARENT_REGION_NAME);
 
       IntStream.range(0, 500).forEach(i -> parentRegion.put("key" + i, "value" + 1));
 
-      PartitionAttributesImpl attributes = new PartitionAttributesImpl();
+      var attributes = new PartitionAttributesImpl();
       attributes.setColocatedWith(PARENT_REGION_NAME);
 
-      Region<Object, Object> childRegion = Objects.requireNonNull(ClusterStartupRule.getCache())
+      var childRegion = Objects.requireNonNull(ClusterStartupRule.getCache())
           .createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes)
           .create(CHILD_REGION_NAME);
 
@@ -77,7 +73,7 @@ public class RebalanceMembersColocationTest {
       Objects.requireNonNull(ClusterStartupRule.getCache())
           .createRegionFactory(RegionShortcut.PARTITION).create(PARENT_REGION_NAME);
 
-      PartitionAttributesImpl attributes = new PartitionAttributesImpl();
+      var attributes = new PartitionAttributesImpl();
       attributes.setColocatedWith(PARENT_REGION_NAME);
 
       Objects.requireNonNull(ClusterStartupRule.getCache())
@@ -90,7 +86,7 @@ public class RebalanceMembersColocationTest {
 
     gfsh.connectAndVerify(locator);
 
-    Map<String, List<String>> rebalanceResult =
+    var rebalanceResult =
         gfsh.executeAndAssertThat("rebalance --include-region=" + SEPARATOR + PARENT_REGION_NAME)
             .statusIsSuccess().hasTableSection().getActual().getContent();
 

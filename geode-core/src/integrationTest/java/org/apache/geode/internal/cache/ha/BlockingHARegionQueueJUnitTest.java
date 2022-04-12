@@ -45,21 +45,21 @@ public class BlockingHARegionQueueJUnitTest extends HARegionQueueJUnitTest {
    */
   @Test
   public void testBlockingPutAndTake() throws Exception {
-    HARegionQueueAttributes hrqa = new HARegionQueueAttributes();
+    var hrqa = new HARegionQueueAttributes();
     hrqa.setBlockingQueueCapacity(1);
 
-    HARegionQueue hrq = createHARegionQueue(testName.getMethodName(), hrqa);
+    var hrq = createHARegionQueue(testName.getMethodName(), hrqa);
     hrq.setPrimary(true); // fix for 40314 - capacity constraint is checked for primary only.
 
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
+    var id1 = new EventID(new byte[] {1}, 1, 1);
     hrq.put(new ConflatableObject("key1", "val1", id1, false, "testing"));
 
-    AtomicBoolean threadStarted = new AtomicBoolean(false);
+    var threadStarted = new AtomicBoolean(false);
 
-    Thread thread = new Thread(() -> {
+    var thread = new Thread(() -> {
       try {
         threadStarted.set(true);
-        EventID id2 = new EventID(new byte[] {1}, 1, 2);
+        var id2 = new EventID(new byte[] {1}, 1, 2);
         hrq.put(new ConflatableObject("key1", "val2", id2, false, "testing"));
       } catch (InterruptedException e) {
         errorCollector.addError(e);
@@ -69,7 +69,7 @@ public class BlockingHARegionQueueJUnitTest extends HARegionQueueJUnitTest {
 
     await().until(threadStarted::get);
 
-    Conflatable conf = (Conflatable) hrq.take();
+    var conf = (Conflatable) hrq.take();
     assertThat(conf, notNullValue());
 
     await().until(() -> !thread.isAlive());
@@ -81,21 +81,21 @@ public class BlockingHARegionQueueJUnitTest extends HARegionQueueJUnitTest {
    */
   @Test
   public void testBlockingPutAndPeekRemove() throws Exception {
-    HARegionQueueAttributes hrqa = new HARegionQueueAttributes();
+    var hrqa = new HARegionQueueAttributes();
     hrqa.setBlockingQueueCapacity(1);
 
-    HARegionQueue hrq = createHARegionQueue(testName.getMethodName(), hrqa);
+    var hrq = createHARegionQueue(testName.getMethodName(), hrqa);
     hrq.setPrimary(true);// fix for 40314 - capacity constraint is checked for primary only.
 
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
+    var id1 = new EventID(new byte[] {1}, 1, 1);
     hrq.put(new ConflatableObject("key1", "val1", id1, false, "testing"));
 
-    AtomicBoolean threadStarted = new AtomicBoolean(false);
+    var threadStarted = new AtomicBoolean(false);
 
-    Thread thread = new Thread(() -> {
+    var thread = new Thread(() -> {
       try {
         threadStarted.set(true);
-        EventID id2 = new EventID(new byte[] {1}, 1, 2);
+        var id2 = new EventID(new byte[] {1}, 1, 2);
         hrq.put(new ConflatableObject("key1", "val2", id2, false, "testing"));
       } catch (Exception e) {
         errorCollector.addError(e);
@@ -105,7 +105,7 @@ public class BlockingHARegionQueueJUnitTest extends HARegionQueueJUnitTest {
 
     await().until(threadStarted::get);
 
-    Conflatable conf = (Conflatable) hrq.peek();
+    var conf = (Conflatable) hrq.peek();
     assertThat(conf, notNullValue());
 
     hrq.remove();
@@ -122,22 +122,22 @@ public class BlockingHARegionQueueJUnitTest extends HARegionQueueJUnitTest {
    */
   @Test
   public void testBlockingPutAndExpiry() throws Exception {
-    HARegionQueueAttributes hrqa = new HARegionQueueAttributes();
+    var hrqa = new HARegionQueueAttributes();
     hrqa.setBlockingQueueCapacity(1);
     hrqa.setExpiryTime(1);
 
-    HARegionQueue hrq = createHARegionQueue(testName.getMethodName(), hrqa);
+    var hrq = createHARegionQueue(testName.getMethodName(), hrqa);
 
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
+    var id1 = new EventID(new byte[] {1}, 1, 1);
 
     hrq.put(new ConflatableObject("key1", "val1", id1, false, "testing"));
 
-    AtomicBoolean threadStarted = new AtomicBoolean(false);
+    var threadStarted = new AtomicBoolean(false);
 
-    Thread thread = new Thread(() -> {
+    var thread = new Thread(() -> {
       try {
         threadStarted.set(true);
-        EventID id2 = new EventID(new byte[] {1}, 1, 2);
+        var id2 = new EventID(new byte[] {1}, 1, 2);
         hrq.put(new ConflatableObject("key1", "val2", id2, false, "testing"));
       } catch (Exception e) {
         errorCollector.addError(e);

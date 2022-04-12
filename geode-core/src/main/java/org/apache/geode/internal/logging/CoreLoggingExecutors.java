@@ -55,7 +55,7 @@ public class CoreLoggingExecutors {
 
   public static ExecutorService newFixedThreadPoolWithTimeout(int poolSize, long keepAliveTime,
       TimeUnit unit, QueueStatHelper queueStatHelper, String threadName) {
-    BlockingQueue<Runnable> workQueue = createWorkQueueWithStatistics(0, queueStatHelper);
+    var workQueue = createWorkQueueWithStatistics(0, queueStatHelper);
     return LoggingExecutors.newFixedThreadPool(poolSize, keepAliveTime, unit, workQueue, threadName,
         true);
   }
@@ -64,7 +64,7 @@ public class CoreLoggingExecutors {
       int workQueueSize, QueueStatHelper queueStatHelper, String threadName,
       ThreadInitializer threadInitializer, CommandWrapper commandWrapper,
       PoolStatHelper poolStatHelper, ThreadsMonitoring threadsMonitoring) {
-    BlockingQueue<Runnable> workQueue =
+    var workQueue =
         createWorkQueueWithStatistics(workQueueSize, queueStatHelper);
     ThreadFactory threadFactory =
         new LoggingThreadFactory(threadName, threadInitializer, commandWrapper);
@@ -85,7 +85,7 @@ public class CoreLoggingExecutors {
       QueueStatHelper queueStatHelper, String threadName, ThreadInitializer threadInitializer,
       CommandWrapper commandWrapper, PoolStatHelper poolStatHelper,
       ThreadsMonitoring threadsMonitoring) {
-    BlockingQueue<Runnable> workQueue =
+    var workQueue =
         createWorkQueueWithStatistics(workQueueSize, queueStatHelper);
     return newSerialThreadPool(workQueue, threadName, threadInitializer, commandWrapper,
         poolStatHelper, threadsMonitoring);
@@ -94,7 +94,7 @@ public class CoreLoggingExecutors {
   public static ScheduledExecutorService newScheduledThreadPool(int poolSize, long keepAliveTime,
       TimeUnit unit, String threadName, ThreadsMonitoring threadsMonitoring) {
     ThreadFactory threadFactory = new LoggingThreadFactory(threadName);
-    ScheduledThreadPoolExecutorWithKeepAlive result =
+    var result =
         new ScheduledThreadPoolExecutorWithKeepAlive(poolSize, keepAliveTime, unit, threadFactory,
             threadsMonitoring);
     result.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
@@ -114,7 +114,7 @@ public class CoreLoggingExecutors {
   public static ExecutorService newThreadPoolWithFixedFeed(int poolSize, long keepAliveTime,
       TimeUnit unit, int workQueueSize, String threadName, CommandWrapper commandWrapper,
       PoolStatHelper poolStatHelper, ThreadsMonitoring threadsMonitoring) {
-    ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(workQueueSize);
+    var workQueue = new ArrayBlockingQueue<Runnable>(workQueueSize);
     ThreadFactory threadFactory = new LoggingThreadFactory(threadName, commandWrapper);
     return new PooledExecutorWithDMStats(poolSize, keepAliveTime, unit, workQueue, threadFactory,
         poolStatHelper, threadsMonitoring);
@@ -124,7 +124,7 @@ public class CoreLoggingExecutors {
       QueueStatHelper queueStatHelper, String threadName, ThreadInitializer threadInitializer,
       CommandWrapper commandWrapper, PoolStatHelper poolStatHelper,
       ThreadsMonitoring threadsMonitoring) {
-    BlockingQueue<Runnable> workQueue =
+    var workQueue =
         createWorkQueueWithStatistics(workQueueSize, queueStatHelper);
     return newThreadPool(poolSize, workQueue, threadName, threadInitializer, commandWrapper,
         poolStatHelper, threadsMonitoring);
@@ -133,7 +133,7 @@ public class CoreLoggingExecutors {
   public static ExecutorService newThreadPoolWithSynchronousFeed(int poolSize, String threadName,
       CommandWrapper commandWrapper) {
     ThreadFactory threadFactory = new LoggingThreadFactory(threadName, commandWrapper);
-    SynchronousQueue<Runnable> workQueue = new SynchronousQueue<>();
+    var workQueue = new SynchronousQueue<Runnable>();
     return new PooledExecutorWithDMStats(poolSize, getIdleThreadTimeoutMillis(), MILLISECONDS,
         workQueue, threadFactory, null, null);
   }
@@ -142,7 +142,7 @@ public class CoreLoggingExecutors {
       TimeUnit unit, String threadName, CommandWrapper commandWrapper,
       PoolStatHelper poolStatHelper, ThreadsMonitoring threadsMonitoring) {
     ThreadFactory threadFactory = new LoggingThreadFactory(threadName, commandWrapper);
-    SynchronousQueue<Runnable> workQueue = new SynchronousQueue<>();
+    var workQueue = new SynchronousQueue<Runnable>();
     return new PooledExecutorWithDMStats(poolSize, keepAliveTime, unit, workQueue, threadFactory,
         poolStatHelper, threadsMonitoring);
   }
@@ -150,7 +150,7 @@ public class CoreLoggingExecutors {
   public static ExecutorService newThreadPoolWithSynchronousFeed(int poolSize, long keepAliveTime,
       TimeUnit unit, String threadName, RejectedExecutionHandler rejectionHandler,
       PoolStatHelper poolStatHelper) {
-    SynchronousQueue<Runnable> workQueue = new SynchronousQueue<>();
+    var workQueue = new SynchronousQueue<Runnable>();
     ThreadFactory threadFactory = new LoggingThreadFactory(threadName);
     return new PooledExecutorWithDMStats(poolSize, keepAliveTime, unit, workQueue, threadFactory,
         rejectionHandler, poolStatHelper, null);
@@ -191,7 +191,7 @@ public class CoreLoggingExecutors {
       TimeUnit unit, String threadName, ThreadInitializer threadInitializer,
       CommandWrapper commandWrapper, PoolStatHelper poolStatHelper,
       ThreadsMonitoring threadsMonitoring) {
-    LinkedBlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
+    var workQueue = new LinkedBlockingQueue<Runnable>();
     ThreadFactory threadFactory =
         new LoggingThreadFactory(threadName, threadInitializer, commandWrapper);
     return new PooledExecutorWithDMStats(poolSize, keepAliveTime, unit, workQueue, threadFactory,

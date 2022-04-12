@@ -98,7 +98,7 @@ public class RandomRule extends SecureRandom implements GsRandom, SerializableTe
    */
   @Override
   public char nextChar() {
-    char c = (char) next(16);
+    var c = (char) next(16);
     if (c == '}') {
       c = nextChar(); // prevent right bracket, try again
     }
@@ -201,7 +201,7 @@ public class RandomRule extends SecureRandom implements GsRandom, SerializableTe
       max--;
     }
 
-    int theNext = nextInt();
+    var theNext = nextInt();
     // Math.abs behaves badly when given min int, so avoid
     if (theNext == Integer.MIN_VALUE) {
       theNext = Integer.MIN_VALUE + 1;
@@ -238,7 +238,7 @@ public class RandomRule extends SecureRandom implements GsRandom, SerializableTe
    * @throws IllegalArgumentException if iterable is empty.
    */
   public <T> T next(Iterable<T> iterable) {
-    List<T> list = requireNonNulls(requireNonEmpty(stream(iterable.spliterator(), false)
+    var list = requireNonNulls(requireNonEmpty(stream(iterable.spliterator(), false)
         .collect(toList())));
     return list.get(nextInt(0, list.size() - 1));
   }
@@ -254,7 +254,7 @@ public class RandomRule extends SecureRandom implements GsRandom, SerializableTe
    * @throws IllegalArgumentException if values is empty.
    */
   public <T> T next(T... values) {
-    List<T> list = requireNonNulls(requireNonEmpty(asList(values)));
+    var list = requireNonNulls(requireNonEmpty(asList(values)));
     return requireNonEmpty(list).get(nextInt(0, list.size() - 1));
   }
 
@@ -303,7 +303,7 @@ public class RandomRule extends SecureRandom implements GsRandom, SerializableTe
     }
 
     protected Object readResolve() {
-      RandomRule randomRule = seed == null ? new RandomRule() : new RandomRule(seed.clone());
+      var randomRule = seed == null ? new RandomRule() : new RandomRule(seed.clone());
       randomRule.before();
       return randomRule;
     }

@@ -14,7 +14,6 @@
  */
 package org.apache.geode.distributed.internal.deadlock;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -38,11 +37,11 @@ public class UnsafeThreadLocal<T> extends ThreadLocal<T> {
 
   private static Object get(ThreadLocal threadLocal, Thread thread) {
     try {
-      Object threadLocalMap =
+      var threadLocalMap =
           invokePrivate(threadLocal, "getMap", new Class[] {Thread.class}, new Object[] {thread});
 
       if (threadLocalMap != null) {
-        Object entry = invokePrivate(threadLocalMap, "getEntry", new Class[] {ThreadLocal.class},
+        var entry = invokePrivate(threadLocalMap, "getEntry", new Class[] {ThreadLocal.class},
             new Object[] {threadLocal});
         if (entry != null) {
           return getPrivate(entry, "value");
@@ -56,7 +55,7 @@ public class UnsafeThreadLocal<T> extends ThreadLocal<T> {
 
   private static Object getPrivate(Object object, String fieldName) throws SecurityException,
       NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-    Field field = object.getClass().getDeclaredField(fieldName);
+    var field = object.getClass().getDeclaredField(fieldName);
     field.setAccessible(true);
     return field.get(object);
   }
@@ -78,7 +77,7 @@ public class UnsafeThreadLocal<T> extends ThreadLocal<T> {
       }
     }
     method.setAccessible(true);
-    Object result = method.invoke(object, args);
+    var result = method.invoke(object, args);
     return result;
   }
 

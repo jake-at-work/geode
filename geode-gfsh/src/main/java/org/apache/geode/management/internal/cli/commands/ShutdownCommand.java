@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -28,7 +26,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
@@ -68,25 +65,25 @@ public class ShutdownCommand extends GfshCommand {
     }
 
     // convert to milliseconds
-    long timeout = userSpecifiedTimeout * 1000L;
-    InternalCache cache = (InternalCache) getCache();
-    int numDataNodes = getAllNormalMembers().size();
-    Set<DistributedMember> locators = getAllMembers();
-    Set<DistributedMember> dataNodes = getAllNormalMembers();
+    var timeout = userSpecifiedTimeout * 1000L;
+    var cache = (InternalCache) getCache();
+    var numDataNodes = getAllNormalMembers().size();
+    var locators = getAllMembers();
+    var dataNodes = getAllNormalMembers();
     locators.removeAll(dataNodes);
 
     if (!shutdownLocators && numDataNodes == 0) {
       return ResultModel.createInfo(CliStrings.SHUTDOWN__MSG__NO_DATA_NODE_FOUND);
     }
 
-    String managerName = cache.getJmxManagerAdvisor().getDistributionManager().getId().getId();
+    var managerName = cache.getJmxManagerAdvisor().getDistributionManager().getId().getId();
 
-    final DistributedMember manager = getMember(managerName);
+    final var manager = getMember(managerName);
 
     dataNodes.remove(manager);
 
     // shut down all data members excluding this manager if manager is a data node
-    long timeElapsed = shutDownNodeWithTimeOut(timeout, dataNodes);
+    var timeElapsed = shutDownNodeWithTimeOut(timeout, dataNodes);
     timeout = timeout - timeElapsed;
 
     // shut down locators one by one
@@ -98,10 +95,10 @@ public class ShutdownCommand extends GfshCommand {
       // remove current locator as that would get shutdown last
       locators.remove(manager);
 
-      for (DistributedMember locator : locators) {
+      for (var locator : locators) {
         Set<DistributedMember> lsSet = new HashSet<>();
         lsSet.add(locator);
-        long elapsedTime = shutDownNodeWithTimeOut(timeout, lsSet);
+        var elapsedTime = shutDownNodeWithTimeOut(timeout, lsSet);
         timeout = timeout - elapsedTime;
       }
     }
@@ -129,12 +126,12 @@ public class ShutdownCommand extends GfshCommand {
   private long shutDownNodeWithTimeOut(long timeout, Set<DistributedMember> nodesToBeStopped)
       throws TimeoutException, InterruptedException, ExecutionException {
 
-    long shutDownTimeStart = System.currentTimeMillis();
+    var shutDownTimeStart = System.currentTimeMillis();
     shutdownNode(timeout, nodesToBeStopped);
 
-    long shutDownTimeEnd = System.currentTimeMillis();
+    var shutDownTimeEnd = System.currentTimeMillis();
 
-    long timeElapsed = shutDownTimeEnd - shutDownTimeStart;
+    var timeElapsed = shutDownTimeEnd - shutDownTimeStart;
 
     if (timeElapsed > timeout || Boolean.getBoolean("ThrowTimeoutException")) {
       // The second check for ThrowTimeoutException is a test hook
@@ -145,13 +142,13 @@ public class ShutdownCommand extends GfshCommand {
 
   private void shutdownNode(final long timeout, final Set<DistributedMember> includeMembers)
       throws TimeoutException, InterruptedException, ExecutionException {
-    ExecutorService exec = LoggingExecutors.newSingleThreadExecutor("ShutdownCommand", false);
+    var exec = LoggingExecutors.newSingleThreadExecutor("ShutdownCommand", false);
     try {
       final Function shutDownFunction = new ShutDownFunction();
       logger.info("Gfsh executing shutdown on members " + includeMembers);
-      Callable<String> shutdownNodes = () -> {
+      var shutdownNodes = (Callable<String>) () -> {
         try {
-          Execution execution = FunctionService.onMembers(includeMembers);
+          var execution = FunctionService.onMembers(includeMembers);
           execution.execute(shutDownFunction);
         } catch (FunctionException functionEx) {
           // Expected Exception as the function is shutting down the target members and the result
@@ -159,7 +156,7 @@ public class ShutdownCommand extends GfshCommand {
         }
         return "SUCCESS";
       };
-      Future<String> result = exec.submit(shutdownNodes);
+      var result = exec.submit(shutdownNodes);
       result.get(timeout, TimeUnit.MILLISECONDS);
     } catch (TimeoutException te) {
       logger.error("TimeoutException in shutting down members." + includeMembers);
@@ -184,7 +181,7 @@ public class ShutdownCommand extends GfshCommand {
         return ResultModel.createInfo(CliStrings.SHUTDOWN__MSG__SHUTDOWN_ENTIRE_DS);
       }
 
-      Response response = readYesNo(CliStrings.SHUTDOWN__MSG__WARN_USER, Response.YES);
+      var response = readYesNo(CliStrings.SHUTDOWN__MSG__WARN_USER, Response.YES);
       if (response == Response.NO) {
         return ResultModel.createError(CliStrings.SHUTDOWN__MSG__ABORTING_SHUTDOWN);
       } else {

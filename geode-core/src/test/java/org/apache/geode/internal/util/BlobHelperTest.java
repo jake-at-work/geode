@@ -65,7 +65,7 @@ public class BlobHelperTest {
     mapWithTwoEntries.put("FOO", "foo");
     mapWithTwoEntries.put("BAR", 7);
 
-    HeapDataOutputStream hdos = createHeapDataOutputStream();
+    var hdos = createHeapDataOutputStream();
     DataSerializer.writeObject(new ClassNotFoundSerialization(), hdos);
     bytesOfClassNotFoundSerialization = hdos.toByteArray();
 
@@ -86,7 +86,7 @@ public class BlobHelperTest {
 
   @Test
   public void deserializeBlobOfMapReturnsCopyOfMap() throws Exception {
-    final Object object = deserializeBlob(bytesOfMap);
+    final var object = deserializeBlob(bytesOfMap);
 
     assertThat(object).isNotNull();
     assertThat(object).isExactlyInstanceOf(HashMap.class);
@@ -112,7 +112,7 @@ public class BlobHelperTest {
 
   @Test
   public void serializeMapToStreamWritesMapAsBytes() throws Exception {
-    HeapDataOutputStream hdos = createHeapDataOutputStream();
+    var hdos = createHeapDataOutputStream();
 
     serializeTo(mapWithTwoEntries, hdos);
 
@@ -121,7 +121,7 @@ public class BlobHelperTest {
 
   @Test
   public void serializeNullToStreamWritesNullAsBytes() throws Exception {
-    HeapDataOutputStream hdos = createHeapDataOutputStream();
+    var hdos = createHeapDataOutputStream();
 
     serializeTo(null, hdos);
 
@@ -130,7 +130,7 @@ public class BlobHelperTest {
 
   @Test
   public void serializeToBlobMapReturnsBytesOfMap() throws Exception {
-    byte[] bytes = serializeToBlob(mapWithTwoEntries);
+    var bytes = serializeToBlob(mapWithTwoEntries);
 
     assertThat(bytes).isNotNull().isEqualTo(bytesOfMap);
   }
@@ -143,7 +143,7 @@ public class BlobHelperTest {
 
   @Test
   public void serializeToBlobWithNullReturnsBytesOfNull() throws Exception {
-    byte[] bytes = serializeToBlob(null);
+    var bytes = serializeToBlob(null);
 
     assertThat(bytes).isNotNull().isEqualTo(bytesOfNull);
   }
@@ -162,7 +162,7 @@ public class BlobHelperTest {
 
   @Test
   public void serializeUnserializableToStreamThrowsNotSerializableException() throws Exception {
-    HeapDataOutputStream hdos = createHeapDataOutputStream();
+    var hdos = createHeapDataOutputStream();
 
     assertThatThrownBy(() -> serializeTo(new Object(), hdos))
         .isExactlyInstanceOf(NotSerializableException.class).hasMessage(Object.class.getName());

@@ -213,7 +213,7 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenNonexistentKey_returnsEmptyArray() {
-    ScanResult<Tuple> result = jedis.zscan("nonexistent", ZERO_CURSOR);
+    var result = jedis.zscan("nonexistent", ZERO_CURSOR);
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(result.getResult()).isEmpty();
@@ -221,9 +221,9 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenNegativeCursor_returnsEntriesUsingAbsoluteValueOfCursor() {
-    Map<String, Double> entryMap = initializeThreeFieldSortedSet();
+    var entryMap = initializeThreeFieldSortedSet();
 
-    String cursor = "-100";
+    var cursor = "-100";
     ScanResult<Tuple> result;
     List<Tuple> allEntries = new ArrayList<>();
 
@@ -253,9 +253,9 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
   @Test
   public void givenInvalidRegexSyntax_returnsEmptyArray() {
     jedis.zadd(KEY, SCORE_ONE, MEMBER_ONE);
-    ScanParams scanParams = new ScanParams().count(1).match("\\p");
+    var scanParams = new ScanParams().count(1).match("\\p");
 
-    ScanResult<Tuple> result = jedis.zscan(KEY.getBytes(), ZERO_CURSOR.getBytes(), scanParams);
+    var result = jedis.zscan(KEY.getBytes(), ZERO_CURSOR.getBytes(), scanParams);
 
     assertThat(result.getResult()).isEmpty();
   }
@@ -268,7 +268,7 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
     expected.put(MEMBER_ONE, SCORE_ONE);
     jedis.zadd(KEY, SCORE_ONE, MEMBER_ONE);
 
-    ScanResult<Tuple> result = jedis.zscan(KEY, ZERO_CURSOR);
+    var result = jedis.zscan(KEY, ZERO_CURSOR);
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(tupleCollectionToMap(result.getResult()))
@@ -277,9 +277,9 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenSortedSetWithMultipleEntries_returnsAllEntries() {
-    Map<String, Double> entryMap = initializeThreeFieldSortedSet();
+    var entryMap = initializeThreeFieldSortedSet();
 
-    ScanResult<Tuple> result = jedis.zscan(KEY, ZERO_CURSOR);
+    var result = jedis.zscan(KEY, ZERO_CURSOR);
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(tupleCollectionToMap(result.getResult()))
@@ -291,7 +291,7 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
     initializeThreeFieldSortedSet();
 
     List<Object> result;
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result = uncheckedCast(jedis.sendCommand(KEY, Protocol.Command.ZSCAN,
@@ -310,9 +310,9 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
   public void givenCompleteIteration_shouldReturnCursorWithValueOfZero() {
     initializeThreeFieldSortedSet();
 
-    ScanParams scanParams = new ScanParams().count(1);
+    var scanParams = new ScanParams().count(1);
     ScanResult<Tuple> result;
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result = jedis.zscan(KEY.getBytes(), cursor.getBytes(), scanParams);
@@ -324,11 +324,11 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenMatch_returnsAllMatchingEntries() {
-    Map<String, Double> entryMap = initializeThreeFieldSortedSet();
+    var entryMap = initializeThreeFieldSortedSet();
 
-    ScanParams scanParams = new ScanParams().match("*1*");
+    var scanParams = new ScanParams().match("*1*");
 
-    ScanResult<Tuple> result =
+    var result =
         jedis.zscan(KEY.getBytes(), ZERO_CURSOR.getBytes(), scanParams);
 
     entryMap.remove(MEMBER_THREE);
@@ -339,7 +339,7 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenMultipleMatches_returnsEntriesMatchingLastMatchParameter() {
-    Map<String, Double> expectedResults = initializeThreeFieldSortedSet();
+    var expectedResults = initializeThreeFieldSortedSet();
     expectedResults.remove(MEMBER_THREE);
 
     List<Object> result =
@@ -351,21 +351,21 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
     assertThat((byte[]) result.get(0)).isEqualTo(ZERO_CURSOR.getBytes());
     List<byte[]> membersAndScores = uncheckedCast(result.get(1));
 
-    Map<String, Double> scanResults = byteArrayListToMap(membersAndScores);
+    var scanResults = byteArrayListToMap(membersAndScores);
     assertThat(scanResults.keySet()).containsExactlyInAnyOrderElementsOf(expectedResults.keySet());
-    for (Map.Entry<String, Double> entry : scanResults.entrySet()) {
+    for (var entry : scanResults.entrySet()) {
       assertThat(expectedResults.get(entry.getKey())).isCloseTo(entry.getValue(), doubleOffset);
     }
   }
 
   @Test
   public void givenMatchAndCount_returnsAllMatchingKeys() {
-    Map<String, Double> entryMap = initializeThreeFieldSortedSet();
+    var entryMap = initializeThreeFieldSortedSet();
 
-    ScanParams scanParams = new ScanParams().count(1).match("*1*");
+    var scanParams = new ScanParams().count(1).match("*1*");
     ScanResult<Tuple> result;
     List<Tuple> allEntries = new ArrayList<>();
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result = jedis.zscan(KEY.getBytes(), cursor.getBytes(), scanParams);
@@ -379,12 +379,12 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenMultipleCountsAndMatches_returnsEntriesMatchingLastMatchParameter() {
-    Map<String, Double> expectedResults = initializeThreeFieldSortedSet();
+    var expectedResults = initializeThreeFieldSortedSet();
     expectedResults.remove(MEMBER_THREE);
 
     List<Object> result;
     List<byte[]> allEntries = new ArrayList<>();
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result =
@@ -402,23 +402,23 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
     assertThat((byte[]) result.get(0)).isEqualTo(ZERO_CURSOR.getBytes());
 
-    Map<String, Double> scanResults = byteArrayListToMap(allEntries);
+    var scanResults = byteArrayListToMap(allEntries);
     assertThat(scanResults.keySet()).containsExactlyInAnyOrderElementsOf(expectedResults.keySet());
-    for (Map.Entry<String, Double> entry : scanResults.entrySet()) {
+    for (var entry : scanResults.entrySet()) {
       assertThat(expectedResults.get(entry.getKey())).isCloseTo(entry.getValue(), doubleOffset);
     }
   }
 
   @Test
   public void should_notReturnMember_givenMemberWasRemovedBeforeZscanIsCalled() {
-    Map<String, Double> entryMap = initializeThreeFieldSortedSet();
+    var entryMap = initializeThreeFieldSortedSet();
 
     jedis.zrem(KEY, MEMBER_THREE);
     entryMap.remove(MEMBER_THREE);
 
     assertThat(jedis.zscore(KEY, MEMBER_THREE)).isNull();
 
-    ScanResult<Tuple> result = jedis.zscan(KEY, ZERO_CURSOR);
+    var result = jedis.zscan(KEY, ZERO_CURSOR);
 
     assertThat(tupleCollectionToMap(result.getResult()))
         .containsExactlyInAnyOrderEntriesOf(entryMap);
@@ -428,18 +428,18 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
   public void should_notErrorGivenNonzeroCursorOnFirstCall() {
     initializeThreeFieldSortedSet();
 
-    ScanResult<Tuple> result = jedis.zscan(KEY, "5");
+    var result = jedis.zscan(KEY, "5");
 
     assertThat(result.getResult().size()).isNotZero();
   }
 
   @Test
   public void should_notErrorGivenCountEqualToIntegerMaxValue() {
-    Map<String, Double> entryMap = initializeThreeFieldSortedSet();
+    var entryMap = initializeThreeFieldSortedSet();
 
-    ScanParams scanParams = new ScanParams().count(Integer.MAX_VALUE);
+    var scanParams = new ScanParams().count(Integer.MAX_VALUE);
 
-    ScanResult<Tuple> result =
+    var result =
         jedis.zscan(KEY.getBytes(), ZERO_CURSOR.getBytes(), scanParams);
     assertThat(tupleCollectionToMap(result.getResult()))
         .containsExactlyInAnyOrderEntriesOf(entryMap);
@@ -447,9 +447,9 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void should_notErrorGivenCountGreaterThanIntegerMaxValue() {
-    Map<String, Double> initialEntries = initializeThreeFieldSortedSet();
+    var initialEntries = initializeThreeFieldSortedSet();
 
-    String greaterThanInt = String.valueOf(2L * Integer.MAX_VALUE);
+    var greaterThanInt = String.valueOf(2L * Integer.MAX_VALUE);
     List<Object> result =
         uncheckedCast(jedis.sendCommand(KEY.getBytes(), Protocol.Command.ZSCAN,
             KEY.getBytes(), ZERO_CURSOR.getBytes(),
@@ -458,9 +458,9 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
     assertThat((byte[]) result.get(0)).isEqualTo(ZERO_CURSOR.getBytes());
 
     List<byte[]> membersAndScores = uncheckedCast(result.get(1));
-    Map<String, Double> scanResults = byteArrayListToMap(membersAndScores);
+    var scanResults = byteArrayListToMap(membersAndScores);
     assertThat(scanResults.keySet()).containsExactlyInAnyOrderElementsOf(initialEntries.keySet());
-    for (Map.Entry<String, Double> entry : scanResults.entrySet()) {
+    for (var entry : scanResults.entrySet()) {
       assertThat(initialEntries.get(entry.getKey())).isCloseTo(entry.getValue(), doubleOffset);
     }
   }
@@ -469,12 +469,12 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void should_notLoseMembers_givenConcurrentThreadsDoingZScansAndChangingValues() {
-    final Map<String, Double> initialSortedSetData = makeEntryMap();
+    final var initialSortedSetData = makeEntryMap();
     jedis.zadd(KEY, initialSortedSetData);
-    final int iterationCount = 500;
+    final var iterationCount = 500;
 
-    final Jedis jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
-    final Jedis jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
 
     new ConcurrentLoopingThreads(iterationCount,
         (i) -> multipleZScanAndAssertOnContentOfResultSet(jedis1, initialSortedSetData, true),
@@ -487,18 +487,18 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void should_notLoseKeysForConsistentlyPresentFields_givenConcurrentThreadsAddingAndRemovingFields() {
-    final Map<String, Double> initialSortedSetData = makeEntryMap();
+    final var initialSortedSetData = makeEntryMap();
     jedis.zadd(KEY, initialSortedSetData);
-    final int iterationCount = 500;
+    final var iterationCount = 500;
 
-    final Jedis jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
-    final Jedis jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
 
     new ConcurrentLoopingThreads(iterationCount,
         (i) -> multipleZScanAndAssertOnContentOfResultSet(jedis1, initialSortedSetData, false),
         (i) -> multipleZScanAndAssertOnContentOfResultSet(jedis2, initialSortedSetData, false),
         (i) -> {
-          String member = "new_" + BASE_MEMBER + i;
+          var member = "new_" + BASE_MEMBER + i;
           jedis.zadd(KEY, 0.1, member);
           jedis.zrem(KEY, member);
         }).run();
@@ -511,7 +511,7 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
       final Map<String, Double> initialSortedSetData, boolean assertOnSizeOnly) {
     Set<Tuple> allEntries = new HashSet<>();
     ScanResult<Tuple> result;
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result = jedis.zscan(KEY, cursor);
@@ -537,7 +537,7 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
 
   private Map<String, Double> makeEntryMap() {
     Map<String, Double> dataSet = new HashMap<>();
-    for (int i = 0; i < SIZE_OF_ENTRY_SET; i++) {
+    for (var i = 0; i < SIZE_OF_ENTRY_SET; i++) {
       dataSet.put(BASE_MEMBER + i, (double) i);
     }
     return dataSet;
@@ -550,7 +550,7 @@ public abstract class AbstractZScanIntegrationTest implements RedisIntegrationTe
   private Map<String, Double> byteArrayListToMap(List<byte[]> byteArrayList) {
     assertThat(byteArrayList.size() % 2 == 0);
     Map<String, Double> outputMap = new HashMap<>();
-    for (int i = 0; i < byteArrayList.size(); i += 2) {
+    for (var i = 0; i < byteArrayList.size(); i += 2) {
       outputMap.put(new String(byteArrayList.get(i)),
           Double.parseDouble(new String(byteArrayList.get(i + 1))));
     }

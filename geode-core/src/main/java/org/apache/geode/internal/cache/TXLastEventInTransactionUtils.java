@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.wan.GatewaySender;
 
 public class TXLastEventInTransactionUtils {
   /**
@@ -40,9 +39,9 @@ public class TXLastEventInTransactionUtils {
       return null;
     }
 
-    List<Set> senderIdsPerEvent = getGroupingSendersPerEvent(callbacks, cache);
+    var senderIdsPerEvent = getGroupingSendersPerEvent(callbacks, cache);
     if (senderIdsPerEvent.stream().distinct().count() > 1) {
-      String info = eventsAndSendersPerEventToString(callbacks, senderIdsPerEvent);
+      var info = eventsAndSendersPerEventToString(callbacks, senderIdsPerEvent);
       throw new ServiceConfigurationError(
           "Not all events go to the same senders that group transactions. " + info);
     }
@@ -52,8 +51,8 @@ public class TXLastEventInTransactionUtils {
 
   private static String eventsAndSendersPerEventToString(List<EntryEventImpl> callbacks,
       List<Set> senderIdsPerEvent) {
-    StringBuilder buf = new StringBuilder();
-    for (int i = 0; i < callbacks.size(); i++) {
+    var buf = new StringBuilder();
+    for (var i = 0; i < callbacks.size(); i++) {
       buf.append("Event[");
       buf.append(i);
       buf.append("]: ");
@@ -69,8 +68,8 @@ public class TXLastEventInTransactionUtils {
 
   private static boolean checkNoSendersGroupTransactionEvents(List<EntryEventImpl> callbacks,
       Cache cache) throws ServiceConfigurationError {
-    for (String senderId : getSenderIdsForEvents(callbacks)) {
-      GatewaySender sender = cache.getGatewaySender(senderId);
+    for (var senderId : getSenderIdsForEvents(callbacks)) {
+      var sender = cache.getGatewaySender(senderId);
       if (sender != null && sender.mustGroupTransactionEvents()) {
         return false;
       }
@@ -101,7 +100,7 @@ public class TXLastEventInTransactionUtils {
 
   private static boolean doesSenderGroupTransactionEvents(Cache cache, String senderId)
       throws ServiceConfigurationError {
-    GatewaySender sender = cache.getGatewaySender(senderId);
+    var sender = cache.getGatewaySender(senderId);
     if (sender == null) {
       throw new ServiceConfigurationError("No information for senderId: " + senderId);
     }

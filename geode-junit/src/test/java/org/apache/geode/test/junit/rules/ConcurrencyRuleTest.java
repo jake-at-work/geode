@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,7 +71,7 @@ public class ConcurrencyRuleTest {
   };
 
   private final Callable<Integer> callWithRetValAndRepeatCountAndOneWrongValue = () -> {
-    int currentIteration = iterations.incrementAndGet();
+    var currentIteration = iterations.incrementAndGet();
     if (currentIteration == stopIteration) {
       return 3;
     }
@@ -91,7 +90,7 @@ public class ConcurrencyRuleTest {
   };
 
   private final Callable<Integer> callWithOneExceptionAndRepeatCount = () -> {
-    int currentIteration = iterations.incrementAndGet();
+    var currentIteration = iterations.incrementAndGet();
     if (currentIteration == stopIteration) {
       throw new IllegalStateException("Oh boy, here I go testin' again");
     }
@@ -147,7 +146,7 @@ public class ConcurrencyRuleTest {
   @Test
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void runAndExpectException_throwableInstance_wrongMessage_fails(Execution execution) {
-    Callable<?> callable = () -> {
+    var callable = (Callable<?>) () -> {
       throw new NullPointerException("foo");
     };
 
@@ -159,7 +158,7 @@ public class ConcurrencyRuleTest {
   @Test
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void runAndExpectException_throwableInstance_wrongClass_fails(Execution execution) {
-    Callable<?> callable = () -> {
+    var callable = (Callable<?>) () -> {
       throw new IllegalArgumentException("foo");
     };
 
@@ -270,7 +269,7 @@ public class ConcurrencyRuleTest {
   @Test
   public void failsWhenMultipleReturnValuesExpected_ExceptionAndReturn() {
     try {
-      Throwable thrown = catchThrowable(() -> concurrencyRule.add(callWithRetVal)
+      var thrown = catchThrowable(() -> concurrencyRule.add(callWithRetVal)
           .expectException(expectedException)
           .expectValue(expectedRetVal));
 
@@ -285,7 +284,7 @@ public class ConcurrencyRuleTest {
   @Test
   public void failsWhenMultipleReturnValuesExpected_ExceptionAndType() {
     try {
-      Throwable thrown = catchThrowable(() -> concurrencyRule.add(callWithRetVal)
+      var thrown = catchThrowable(() -> concurrencyRule.add(callWithRetVal)
           .expectException(expectedException)
           .expectExceptionType(expectedException.getClass()));
 
@@ -300,7 +299,7 @@ public class ConcurrencyRuleTest {
   @Test
   public void failsWhenMultipleReturnValuesExpected_ResultAndType() {
     try {
-      Throwable thrown = catchThrowable(() -> concurrencyRule.add(callWithRetVal)
+      var thrown = catchThrowable(() -> concurrencyRule.add(callWithRetVal)
           .expectValue(expectedRetVal)
           .expectExceptionType(expectedException.getClass()));
 
@@ -315,7 +314,7 @@ public class ConcurrencyRuleTest {
   @Test
   public void failsWhenMultipleReturnValuesExpected_ResultAndCauseType() {
     try {
-      Throwable thrown = catchThrowable(() -> concurrencyRule.add(callWithRetVal)
+      var thrown = catchThrowable(() -> concurrencyRule.add(callWithRetVal)
           .expectValue(expectedRetVal)
           .expectExceptionCauseType(expectedException.getClass()));
 
@@ -330,7 +329,7 @@ public class ConcurrencyRuleTest {
   @Test
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void repeatForIterations(Execution execution) {
-    int expectedIterations = 4;
+    var expectedIterations = 4;
     iterations.set(0);
 
     concurrencyRule.add(callWithRetValAndRepeatCount).repeatForIterations(4);
@@ -341,7 +340,7 @@ public class ConcurrencyRuleTest {
   @Test
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void repeatForIterationsAndExpectExceptionForEach_byExceptionClass(Execution execution) {
-    int expectedIterations = 4;
+    var expectedIterations = 4;
     iterations.set(0);
 
     concurrencyRule.add(callWithExceptionAndRepeatCount)
@@ -354,7 +353,7 @@ public class ConcurrencyRuleTest {
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void repeatForIterationsAndExpectExceptionForEach_byExceptionInstance(
       Execution execution) {
-    int expectedIteration = 4;
+    var expectedIteration = 4;
     iterations.set(0);
 
     concurrencyRule.add(callWithExceptionAndRepeatCount).expectException(expectedException)
@@ -366,7 +365,7 @@ public class ConcurrencyRuleTest {
   @Test
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void repeatForIterationsAndExpectValueForEach(Execution execution) {
-    int ExpectedIterations = 4;
+    var ExpectedIterations = 4;
     iterations.set(0);
 
     concurrencyRule.add(callWithRetValAndRepeatCount).repeatForIterations(4)
@@ -378,7 +377,7 @@ public class ConcurrencyRuleTest {
   @Test
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void repeatForIterationsAndExpectValueForEach_failsWithOneWrongValue(Execution execution) {
-    int expectedIterations = 4;
+    var expectedIterations = 4;
     iterations.set(0);
 
     concurrencyRule.add(callWithRetValAndRepeatCountAndOneWrongValue).expectValue(expectedRetVal)
@@ -390,7 +389,7 @@ public class ConcurrencyRuleTest {
   @Test
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void repeatUntilValue_throwsIfValueIsNeverTrue(Execution execution) {
-    boolean expectedVal = true;
+    var expectedVal = true;
 
     retVal.set(false);
 
@@ -406,8 +405,8 @@ public class ConcurrencyRuleTest {
   @Test
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void deadlocksGetResolved(Execution execution) {
-    final AtomicBoolean lock1 = new AtomicBoolean();
-    final AtomicBoolean lock2 = new AtomicBoolean();
+    final var lock1 = new AtomicBoolean();
+    final var lock2 = new AtomicBoolean();
 
     concurrencyRule.add(() -> {
       await().until(() -> lock2.equals(Boolean.TRUE));
@@ -423,8 +422,8 @@ public class ConcurrencyRuleTest {
 
     concurrencyRule.setTimeout(Duration.ofSeconds(1));
 
-    Throwable thrown = catchThrowable(() -> execution.execute(concurrencyRule));
-    Throwable cause = thrown.getCause();
+    var thrown = catchThrowable(() -> execution.execute(concurrencyRule));
+    var cause = thrown.getCause();
 
     assertThat(thrown).isInstanceOf(RuntimeException.class);
     assertThat(cause).isInstanceOf(MultipleFailureException.class);
@@ -435,24 +434,24 @@ public class ConcurrencyRuleTest {
 
   @Test
   public void clearEmptiesThreadsToRun() {
-    final AtomicBoolean b1 = new AtomicBoolean(Boolean.FALSE);
-    final AtomicBoolean b2 = new AtomicBoolean(Boolean.FALSE);
-    final AtomicBoolean b3 = new AtomicBoolean(Boolean.FALSE);
-    final AtomicBoolean b4 = new AtomicBoolean(Boolean.FALSE);
+    final var b1 = new AtomicBoolean(Boolean.FALSE);
+    final var b2 = new AtomicBoolean(Boolean.FALSE);
+    final var b3 = new AtomicBoolean(Boolean.FALSE);
+    final var b4 = new AtomicBoolean(Boolean.FALSE);
 
-    Callable c1 = () -> {
+    var c1 = (Callable) () -> {
       b1.set(true);
       return null;
     };
-    Callable c2 = () -> {
+    var c2 = (Callable) () -> {
       b2.set(true);
       return null;
     };
-    Callable c3 = () -> {
+    var c3 = (Callable) () -> {
       b3.set(true);
       return null;
     };
-    Callable c4 = () -> {
+    var c4 = (Callable) () -> {
       b4.set(true);
       return null;
     };
@@ -461,7 +460,7 @@ public class ConcurrencyRuleTest {
     concurrencyRule.add(c1);
     concurrencyRule.add(c2);
     concurrencyRule.add(c3).expectExceptionType(IllegalArgumentException.class);
-    Throwable thrown = catchThrowable(() -> concurrencyRule.executeInParallel());
+    var thrown = catchThrowable(() -> concurrencyRule.executeInParallel());
 
     assertThat(thrown).isInstanceOf(AssertionError.class);
     assertThat(b1).isTrue();
@@ -492,15 +491,15 @@ public class ConcurrencyRuleTest {
   @Test
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void runManyThreads(Execution execution) {
-    Callable<Void> exceptionCallable = () -> {
+    var exceptionCallable = (Callable<Void>) () -> {
       throw new IOException("foo");
     };
 
-    Callable<String> valueCallable = () -> {
+    var valueCallable = (Callable<String>) () -> {
       return "successful value";
     };
 
-    Callable<Void> setInvokedCallable = () -> {
+    var setInvokedCallable = (Callable<Void>) () -> {
       invoked.set(true);
       return null;
     };
@@ -512,8 +511,8 @@ public class ConcurrencyRuleTest {
     concurrencyRule.add(setInvokedCallable);
     concurrencyRule.add(exceptionCallable);
 
-    Throwable thrown = catchThrowable(() -> execution.execute(concurrencyRule));
-    List<Throwable> errors = ((MultipleFailureException) thrown.getCause()).getFailures();
+    var thrown = catchThrowable(() -> execution.execute(concurrencyRule));
+    var errors = ((MultipleFailureException) thrown.getCause()).getFailures();
 
     assertThat(errors).hasSize(3);
     assertThat(errors.get(0)).isInstanceOf(AssertionError.class)
@@ -529,7 +528,7 @@ public class ConcurrencyRuleTest {
   @Parameters({"EXECUTE_IN_SERIES", "EXECUTE_IN_PARALLEL"})
   public void timeoutValueIsRespected(Execution execution) {
 
-    Callable<Void> c1 = () -> {
+    var c1 = (Callable<Void>) () -> {
       Thread.sleep(5000);
       return null;
     };
@@ -538,7 +537,7 @@ public class ConcurrencyRuleTest {
     concurrencyRule.add(c1);
     concurrencyRule.add(c1);
     await("timeout is respected").until(() -> {
-      Throwable thrown = catchThrowable(() -> execution.execute(concurrencyRule));
+      var thrown = catchThrowable(() -> execution.execute(concurrencyRule));
       assertThat(((MultipleFailureException) thrown.getCause()).getFailures()).hasSize(2)
           .hasOnlyElementsOfType(TimeoutException.class);
       return true;
@@ -547,11 +546,11 @@ public class ConcurrencyRuleTest {
 
   @Test
   public void afterFailsIfThreadsWereNotRun() {
-    Callable<Integer> c1 = () -> {
+    var c1 = (Callable<Integer>) () -> {
       return 2;
     };
 
-    Callable<String> c2 = () -> {
+    var c2 = (Callable<String>) () -> {
       return "some string";
     };
 

@@ -78,7 +78,7 @@ public class LockServiceMBeanAuthorizationJUnitTest {
   @Test
   @ConnectionConfiguration(user = "clusterManage", password = "clusterManage")
   public void testClusterManage() throws Exception {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
     lockServiceMBean.becomeLockGrantor(); // c:m
     softly.assertThatThrownBy(() -> lockServiceMBean.fetchGrantorMember())
         .hasMessageContaining(ResourcePermissions.CLUSTER_READ.toString());
@@ -94,7 +94,7 @@ public class LockServiceMBeanAuthorizationJUnitTest {
   @Test
   @ConnectionConfiguration(user = "clusterRead", password = "clusterRead")
   public void testClusterRead() throws Exception {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
     softly.assertThatThrownBy(() -> lockServiceMBean.becomeLockGrantor())
         .hasMessageContaining(ResourcePermissions.CLUSTER_MANAGE.toString());
     lockServiceMBean.fetchGrantorMember();
@@ -107,7 +107,7 @@ public class LockServiceMBeanAuthorizationJUnitTest {
   @Test
   @ConnectionConfiguration(user = "user", password = "user")
   public void testNoAccess() throws Exception {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
 
     softly.assertThatThrownBy(() -> lockServiceMBean.becomeLockGrantor())
         .hasMessageContaining(ResourcePermissions.CLUSTER_MANAGE.toString());

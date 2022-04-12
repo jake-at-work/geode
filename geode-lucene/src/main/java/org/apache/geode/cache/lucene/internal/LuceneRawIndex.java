@@ -28,11 +28,11 @@ public class LuceneRawIndex extends LuceneIndexImpl {
 
   @Override
   protected RepositoryManager createRepositoryManager(LuceneSerializer luceneSerializer) {
-    HeterogeneousLuceneSerializer mapper = (HeterogeneousLuceneSerializer) luceneSerializer;
+    var mapper = (HeterogeneousLuceneSerializer) luceneSerializer;
     if (mapper == null) {
       mapper = new HeterogeneousLuceneSerializer();
     }
-    RawLuceneRepositoryManager rawLuceneRepositoryManager = new RawLuceneRepositoryManager(this,
+    var rawLuceneRepositoryManager = new RawLuceneRepositoryManager(this,
         mapper, cache.getDistributionManager().getExecutors().getWaitingThreadPool());
     return rawLuceneRepositoryManager;
   }

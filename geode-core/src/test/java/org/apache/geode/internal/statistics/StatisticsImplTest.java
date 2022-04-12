@@ -66,7 +66,7 @@ public class StatisticsImplTest {
 
   @Test
   public void invokeIntSuppliersShouldUpdateStats() {
-    IntSupplier intSupplier = mock(IntSupplier.class);
+    var intSupplier = mock(IntSupplier.class);
     when(intSupplier.getAsInt()).thenReturn(23);
     statistics.setIntSupplier(4, intSupplier);
     assertThat(statistics.updateSuppliedValues()).isEqualTo(0);
@@ -77,7 +77,7 @@ public class StatisticsImplTest {
 
   @Test
   public void invokeLongSuppliersShouldUpdateStats() {
-    LongSupplier longSupplier = mock(LongSupplier.class);
+    var longSupplier = mock(LongSupplier.class);
     when(longSupplier.getAsLong()).thenReturn(23L);
     statistics.setLongSupplier(4, longSupplier);
     assertThat(statistics.updateSuppliedValues()).isEqualTo(0);
@@ -88,7 +88,7 @@ public class StatisticsImplTest {
 
   @Test
   public void invokeDoubleSuppliersShouldUpdateStats() {
-    DoubleSupplier doubleSupplier = mock(DoubleSupplier.class);
+    var doubleSupplier = mock(DoubleSupplier.class);
     when(doubleSupplier.getAsDouble()).thenReturn(23.3);
     statistics.setDoubleSupplier(4, doubleSupplier);
     assertThat(statistics.updateSuppliedValues()).isEqualTo(0);
@@ -99,14 +99,14 @@ public class StatisticsImplTest {
 
   @Test
   public void getSupplierCountShouldReturnCorrectCount() {
-    IntSupplier intSupplier = mock(IntSupplier.class);
+    var intSupplier = mock(IntSupplier.class);
     statistics.setIntSupplier(4, intSupplier);
     assertThat(statistics.getSupplierCount()).isEqualTo(1);
   }
 
   @Test
   public void invokeSuppliersShouldCatchSupplierErrorsAndReturnCount() {
-    IntSupplier throwingSupplier = mock(IntSupplier.class);
+    var throwingSupplier = mock(IntSupplier.class);
     when(throwingSupplier.getAsInt()).thenThrow(NullPointerException.class);
     statistics.setIntSupplier(4, throwingSupplier);
     assertThat(statistics.updateSuppliedValues()).isEqualTo(1);
@@ -116,11 +116,11 @@ public class StatisticsImplTest {
 
   @Test
   public void invokeSuppliersShouldLogErrorOnlyOnce() {
-    StatisticsLogger statisticsLogger = mock(StatisticsLogger.class);
+    var statisticsLogger = mock(StatisticsLogger.class);
     statistics = new SimpleStatistics(statisticsType, ANY_TEXT_ID, ANY_NUMERIC_ID, ANY_UNIQUE_ID,
         ANY_OS_STAT_FLAGS, statisticsManager, statisticsLogger);
 
-    IntSupplier throwingSupplier = mock(IntSupplier.class);
+    var throwingSupplier = mock(IntSupplier.class);
     when(throwingSupplier.getAsInt()).thenThrow(NullPointerException.class);
     statistics.setIntSupplier(4, throwingSupplier);
     assertThat(statistics.updateSuppliedValues()).isEqualTo(1);
@@ -138,18 +138,18 @@ public class StatisticsImplTest {
 
   @Test
   public void badSupplierParamShouldThrowError() {
-    IntSupplier intSupplier = mock(IntSupplier.class);
+    var intSupplier = mock(IntSupplier.class);
     when(intSupplier.getAsInt()).thenReturn(23);
     when(statisticsType.isValidLongId(anyInt())).thenReturn(false);
 
-    Throwable thrown = catchThrowable(() -> statistics.setIntSupplier(23, intSupplier));
+    var thrown = catchThrowable(() -> statistics.setIntSupplier(23, intSupplier));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void nonEmptyTextId_usesGivenTextId() {
-    String nonEmptyTextId = "non-empty-text-id";
+    var nonEmptyTextId = "non-empty-text-id";
 
     statistics = new SimpleStatistics(statisticsType, nonEmptyTextId, ANY_NUMERIC_ID, ANY_UNIQUE_ID,
         ANY_OS_STAT_FLAGS, statisticsManager);
@@ -159,7 +159,7 @@ public class StatisticsImplTest {
 
   @Test
   public void nullTextId_usesNameFromStatisticsManager() {
-    String nameFromStatisticsManager = "statistics-manager-name";
+    var nameFromStatisticsManager = "statistics-manager-name";
     when(statisticsManager.getName()).thenReturn(nameFromStatisticsManager);
     String nullTextId = null;
 
@@ -171,9 +171,9 @@ public class StatisticsImplTest {
 
   @Test
   public void emptyTextId_usesNameFromStatisticsManager() {
-    String nameFromStatisticsManager = "statistics-manager-name";
+    var nameFromStatisticsManager = "statistics-manager-name";
     when(statisticsManager.getName()).thenReturn(nameFromStatisticsManager);
-    String emptyTextId = "";
+    var emptyTextId = "";
 
     statistics = new SimpleStatistics(statisticsType, emptyTextId, ANY_NUMERIC_ID, ANY_UNIQUE_ID,
         ANY_OS_STAT_FLAGS, statisticsManager);
@@ -183,7 +183,7 @@ public class StatisticsImplTest {
 
   @Test
   public void positiveNumericId_usesGivenNumericId() {
-    int positiveNumericId = 21;
+    var positiveNumericId = 21;
 
     statistics = new SimpleStatistics(statisticsType, ANY_TEXT_ID, positiveNumericId, ANY_UNIQUE_ID,
         ANY_OS_STAT_FLAGS, statisticsManager);
@@ -193,7 +193,7 @@ public class StatisticsImplTest {
 
   @Test
   public void negativeNumericId_usesGivenNumericId() {
-    int negativeNumericId = -21;
+    var negativeNumericId = -21;
 
     statistics = new SimpleStatistics(statisticsType, ANY_TEXT_ID, negativeNumericId, ANY_UNIQUE_ID,
         ANY_OS_STAT_FLAGS, statisticsManager);
@@ -203,9 +203,9 @@ public class StatisticsImplTest {
 
   @Test
   public void zeroNumericId_usesPidFromStatisticsManager() {
-    int pidFromStatisticsManager = 42;
+    var pidFromStatisticsManager = 42;
     when(statisticsManager.getPid()).thenReturn(pidFromStatisticsManager);
-    int zeroNumericId = 0;
+    var zeroNumericId = 0;
 
     statistics = new SimpleStatistics(statisticsType, ANY_TEXT_ID, zeroNumericId, ANY_UNIQUE_ID,
         ANY_OS_STAT_FLAGS, statisticsManager);

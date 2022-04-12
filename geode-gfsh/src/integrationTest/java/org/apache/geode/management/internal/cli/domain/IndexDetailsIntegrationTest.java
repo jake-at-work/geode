@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
 
 public class IndexDetailsIntegrationTest {
@@ -58,10 +56,10 @@ public class IndexDetailsIntegrationTest {
   @Test
   public void basicAttributes() {
     Cache cache = serverRule.getCache();
-    Index idx = cache.getQueryService().getIndex(region, INDEX_1);
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+    var idx = cache.getQueryService().getIndex(region, INDEX_1);
+    var member = cache.getDistributedSystem().getDistributedMember();
 
-    IndexDetails details = new IndexDetails(member, idx);
+    var details = new IndexDetails(member, idx);
     assertThat(details).isNotNull();
 
     assertThat(details.getIndexName()).isEqualTo(INDEX_1);
@@ -74,7 +72,7 @@ public class IndexDetailsIntegrationTest {
     assertThat(details.getProjectionAttributes()).isEqualTo("*");
     assertThat(details.getIsValid()).isEqualTo(true);
 
-    IndexDetails.IndexStatisticsDetails stats = details.getIndexStatisticsDetails();
+    var stats = details.getIndexStatisticsDetails();
     assertThat(stats.getNumberOfKeys()).isEqualTo(1);
     assertThat(stats.getNumberOfUpdates()).isEqualTo(1);
     assertThat(stats.getNumberOfValues()).isEqualTo(1);

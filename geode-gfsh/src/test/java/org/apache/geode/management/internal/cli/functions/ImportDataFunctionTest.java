@@ -52,9 +52,9 @@ public class ImportDataFunctionTest {
     when(context.getArguments()).thenReturn(new Object[0]);
     importer.execute(context);
 
-    ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+    var captor = ArgumentCaptor.forClass(Object.class);
     verify(resultSender).lastResult(captor.capture());
-    Object value = captor.getValue();
+    var value = captor.getValue();
     assertThat(value).isInstanceOf(CliFunctionResult.class);
     assertThat(((CliFunctionResult) value).getStatusMessage())
         .contains("Arguments length does not match required length");
@@ -62,16 +62,16 @@ public class ImportDataFunctionTest {
 
   @Test
   public void importDataFunctionShouldSendCliFunctionResultIfErrorHappens() {
-    Object[] arguments = new Object[4];
+    var arguments = new Object[4];
     arguments[2] = true;
     arguments[3] = true;
     when(context.getArguments()).thenReturn(arguments);
     when(context.getCache()).thenThrow(new Error("test error"));
     importer.execute(context);
 
-    ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+    var captor = ArgumentCaptor.forClass(Object.class);
     verify(resultSender).lastResult(captor.capture());
-    Object value = captor.getValue();
+    var value = captor.getValue();
     assertThat(value).isInstanceOf(CliFunctionResult.class);
     assertThat(((CliFunctionResult) value).getStatusMessage()).contains("test error");
   }

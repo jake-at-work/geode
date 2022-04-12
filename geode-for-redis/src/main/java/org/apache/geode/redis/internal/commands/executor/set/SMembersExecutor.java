@@ -19,7 +19,6 @@ import java.util.Set;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.data.RedisSet.MemberSet;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -27,7 +26,7 @@ public class SMembersExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    RedisKey key = command.getKey();
+    var key = command.getKey();
     Set<byte[]> members = context.setLockedExecute(key, true,
         set -> new MemberSet(set.smembers()));
 

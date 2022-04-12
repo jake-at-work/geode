@@ -21,7 +21,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Config;
 import org.apache.geode.internal.ConfigSource;
@@ -43,12 +42,12 @@ public class StoreSysCfgResponse extends AdminResponse {
    */
   public static StoreSysCfgResponse create(DistributionManager dm,
       InternalDistributedMember recipient, Config sc) {
-    StoreSysCfgResponse m = new StoreSysCfgResponse();
+    var m = new StoreSysCfgResponse();
     m.setRecipient(recipient);
-    InternalDistributedSystem sys = dm.getSystem();
+    var sys = dm.getSystem();
     Config conf = sys.getConfig();
-    String[] names = conf.getAttributeNames();
-    for (final String name : names) {
+    var names = conf.getAttributeNames();
+    for (final var name : names) {
       if (conf.isAttributeModifiable(name)) {
         conf.setAttributeObject(name, sc.getAttributeObject(name), ConfigSource.runtime());
       }

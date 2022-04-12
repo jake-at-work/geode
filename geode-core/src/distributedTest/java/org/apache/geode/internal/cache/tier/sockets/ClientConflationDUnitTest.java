@@ -37,13 +37,9 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.DistributionConfig;
@@ -83,7 +79,7 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     setIsSlowStart();
@@ -93,7 +89,7 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
 
   private Cache createCache(Properties props) throws Exception {
     DistributedSystem ds = getSystem(props);
-    Cache cache = CacheFactory.create(ds);
+    var cache = CacheFactory.create(ds);
     if (cache == null) {
       throw new Exception("CacheFactory.create() returned null ");
     }
@@ -157,7 +153,7 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
    * create properties for a loner VM
    */
   private static Properties createProperties1(String conflation) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DELTA_PROPAGATION, "false");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
@@ -167,11 +163,11 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
 
 
   private static void createPool2(String host, AttributesFactory factory, Integer port) {
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     pf.addServer(host, port).setSubscriptionEnabled(true).setReadTimeout(10000)
         .setSocketBufferSize(32768).setPingInterval(1000).setMinConnections(3)
         .setSubscriptionRedundancy(-1);
-    Pool pool = pf.create("superpoolish" + (poolNameCounter++));
+    var pool = pf.create("superpoolish" + (poolNameCounter++));
     factory.setPoolName(pool.getName());
   }
 
@@ -181,9 +177,9 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void createClientCache(String host, Integer port, String conflation)
       throws Exception {
-    ClientConflationDUnitTest test = new ClientConflationDUnitTest();
+    var test = new ClientConflationDUnitTest();
     cacheClient = test.createCache(createProperties1(conflation));
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     createPool2(host, factory, port);
     factory.setCacheListener(new CacheListenerAdapter() {
@@ -202,7 +198,7 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
         }
       }
     });
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cacheClient.createRegion(REGION_NAME1, attrs);
     createPool2(host, factory, port);
     factory.setCacheListener(new CacheListenerAdapter() {
@@ -225,13 +221,13 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void createClientCacheFeeder(String host, Integer port) throws Exception {
-    ClientConflationDUnitTest test = new ClientConflationDUnitTest();
+    var test = new ClientConflationDUnitTest();
     cacheFeeder = test
         .createCache(createProperties1(DistributionConfig.CLIENT_CONFLATION_PROP_VALUE_DEFAULT));
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     createPool2(host, factory, port);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cacheFeeder.createRegion(REGION_NAME1, attrs);
     attrs = factory.create();
     cacheFeeder.createRegion(REGION_NAME2, attrs);
@@ -289,11 +285,11 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
    * Assert all queues are empty to aid later assertion for listener event counts.
    */
   public static void assertAllQueuesEmpty() {
-    for (final CacheServer server : cacheServer.getCacheServers()) {
-      for (final CacheClientProxy cacheClientProxy : ((CacheServerImpl) server).getAcceptor()
+    for (final var server : cacheServer.getCacheServers()) {
+      for (final var cacheClientProxy : ((CacheServerImpl) server).getAcceptor()
           .getCacheClientNotifier()
           .getClientProxies()) {
-        int qsize = cacheClientProxy.getQueueSize();
+        var qsize = cacheClientProxy.getQueueSize();
         assertTrue("Queue size expected to be zero but is " + qsize, qsize == 0);
       }
     }
@@ -307,11 +303,11 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
     // we do 5 puts on each key, so:
 
     // for writer 1 default conflation is on
-    final int create1 = 1;
-    int update1 = 1;
+    final var create1 = 1;
+    var update1 = 1;
     // for writer 2 default conflation is off
-    final int create2 = 1;
-    int update2 = 4;
+    final var create2 = 1;
+    var update2 = 4;
 
     if (conflation.equals(CLIENT_CONFLATION_PROP_VALUE_ON)) {
       // override
@@ -321,7 +317,7 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
       update1 = 4;
     }
 
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         Thread.yield(); // TODO is this necessary?
@@ -335,7 +331,7 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
     };
     GeodeAwaitility.await().untilAsserted(ev);
 
-    final int u1 = update1;
+    final var u1 = update1;
     ev = new WaitCriterion() {
       @Override
       public boolean done() {
@@ -364,7 +360,7 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
     };
     GeodeAwaitility.await().untilAsserted(ev);
 
-    final int u2 = update2;
+    final var u2 = update2;
     ev = new WaitCriterion() {
       @Override
       public boolean done() {
@@ -402,20 +398,20 @@ public class ClientConflationDUnitTest extends JUnit4DistributedTestCase {
    *
    */
   public static Integer createServerCache() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DELTA_PROPAGATION, "false");
-    ClientConflationDUnitTest test = new ClientConflationDUnitTest();
+    var test = new ClientConflationDUnitTest();
     cacheServer = test.createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEnableConflation(true);
-    RegionAttributes attrs1 = factory.create();
+    var attrs1 = factory.create();
     factory.setEnableConflation(false);
-    RegionAttributes attrs2 = factory.create();
+    var attrs2 = factory.create();
     cacheServer.createRegion(REGION_NAME1, attrs1);
     cacheServer.createRegion(REGION_NAME2, attrs2);
-    CacheServer server = cacheServer.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cacheServer.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.setSocketBufferSize(32768);

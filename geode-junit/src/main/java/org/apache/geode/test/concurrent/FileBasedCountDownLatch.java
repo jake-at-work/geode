@@ -40,8 +40,8 @@ public class FileBasedCountDownLatch implements Serializable {
     lockFile = File.createTempFile("CountDownLatchLock", ".txt");
     dataFile = File.createTempFile("CountDownLatchData", ".txt");
 
-    try (FileOutputStream out = new FileOutputStream(lockFile)) {
-      java.nio.channels.FileLock lock = out.getChannel().lock();
+    try (var out = new FileOutputStream(lockFile)) {
+      var lock = out.getChannel().lock();
       try {
         FileUtils.writeStringToFile(dataFile, String.valueOf(count), Charsets.UTF_8);
       } finally {
@@ -53,14 +53,14 @@ public class FileBasedCountDownLatch implements Serializable {
   }
 
   public void countDown() throws IOException {
-    try (FileOutputStream out = new FileOutputStream(lockFile)) {
-      java.nio.channels.FileLock lock = out.getChannel().lock();
+    try (var out = new FileOutputStream(lockFile)) {
+      var lock = out.getChannel().lock();
 
       try {
-        String fileContents = FileUtils.readFileToString(dataFile, Charsets.UTF_8);
-        int currentValue = Integer.parseInt(fileContents);
+        var fileContents = FileUtils.readFileToString(dataFile, Charsets.UTF_8);
+        var currentValue = Integer.parseInt(fileContents);
 
-        int newValue = currentValue - 1;
+        var newValue = currentValue - 1;
         FileUtils.writeStringToFile(dataFile, String.valueOf(newValue), Charsets.UTF_8);
 
       } finally {
@@ -74,10 +74,10 @@ public class FileBasedCountDownLatch implements Serializable {
   }
 
   protected int currentValue() throws IOException {
-    try (FileOutputStream out = new FileOutputStream(lockFile)) {
-      java.nio.channels.FileLock lock = out.getChannel().lock();
+    try (var out = new FileOutputStream(lockFile)) {
+      var lock = out.getChannel().lock();
       try {
-        String fileContents = FileUtils.readFileToString(dataFile, Charsets.UTF_8);
+        var fileContents = FileUtils.readFileToString(dataFile, Charsets.UTF_8);
         return Integer.parseInt(fileContents);
       } finally {
         lock.release();

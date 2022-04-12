@@ -151,7 +151,7 @@ public class PeerToPeerSessionCacheTest extends AbstractSessionCacheTest {
   @Test
   public void touchSessionsWithPartitionedRegionSucceeds() {
     final Set<String> sessionIds = new HashSet<>();
-    final ResultCollector collector = mock(ResultCollector.class);
+    final var collector = mock(ResultCollector.class);
 
     when(sessionManager.getRegionAttributesId()).thenReturn(RegionShortcut.PARTITION.toString());
     doReturn(emptyExecution).when((PeerToPeerSessionCache) sessionCache)
@@ -170,7 +170,7 @@ public class PeerToPeerSessionCacheTest extends AbstractSessionCacheTest {
     sessionCache.initialize();
 
     final Set<String> sessionIds = new HashSet<>();
-    final ResultCollector collector = mock(ResultCollector.class);
+    final var collector = mock(ResultCollector.class);
 
     when(sessionManager.getRegionAttributesId()).thenReturn(RegionShortcut.REPLICATE.toString());
     doReturn(emptyExecution).when((PeerToPeerSessionCache) sessionCache)
@@ -186,8 +186,8 @@ public class PeerToPeerSessionCacheTest extends AbstractSessionCacheTest {
   @Test
   public void touchSessionsCatchesThrownException() {
     final Set<String> sessionIds = new HashSet<>();
-    final ResultCollector collector = mock(ResultCollector.class);
-    final FunctionException exception = new FunctionException();
+    final var collector = mock(ResultCollector.class);
+    final var exception = new FunctionException();
 
     when(sessionManager.getRegionAttributesId()).thenReturn(RegionShortcut.PARTITION.toString());
     doReturn(emptyExecution).when((PeerToPeerSessionCache) sessionCache)

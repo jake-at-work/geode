@@ -132,8 +132,8 @@ public class ServerConnectionTest {
 
   @Test
   public void shouldUseUniqueIdFromMessage() {
-    long uniqueIdFromMessage = 23456L;
-    MessageIdExtractor messageIdExtractor = mock(MessageIdExtractor.class);
+    var uniqueIdFromMessage = 23456L;
+    var messageIdExtractor = mock(MessageIdExtractor.class);
     when(handshake.getEncryptor()).thenReturn(mock(Encryptor.class));
     when(messageIdExtractor.getUniqueIdFromMessage(any(Message.class), any(Encryptor.class),
         anyLong())).thenReturn(uniqueIdFromMessage);
@@ -141,7 +141,7 @@ public class ServerConnectionTest {
     serverConnection.setMessageIdExtractor(messageIdExtractor);
     serverConnection.setRequestMessage(requestMessage);
 
-    long value = serverConnection.getUniqueId();
+    var value = serverConnection.getUniqueId();
 
     assertThat(value).isEqualTo(uniqueIdFromMessage);
   }
@@ -155,7 +155,7 @@ public class ServerConnectionTest {
 
   @Test
   public void bindSubjectDoesNothingIfNotIntegratedService() {
-    ServerConnection connection = spy(serverConnection);
+    var connection = spy(serverConnection);
     assertThat(securityService.isIntegratedSecurity()).isFalse();
     connection.bindSubject(command);
     verify(connection, never()).getUniqueId();
@@ -168,7 +168,7 @@ public class ServerConnectionTest {
             cachedRegionHelper, mock(CacheServerStats.class), 0, 0, null,
             CommunicationMode.GatewayToGateway.getModeNumber(), acceptor,
             securityService);
-    ServerConnection connection = spy(serverConnection);
+    var connection = spy(serverConnection);
     when(securityService.isIntegratedSecurity()).thenReturn(true);
     connection.bindSubject(command);
     verify(connection, never()).getUniqueId();
@@ -176,7 +176,7 @@ public class ServerConnectionTest {
 
   @Test
   public void bindSubjectDoesNothingIfPutUserCredential() {
-    ServerConnection connection = spy(serverConnection);
+    var connection = spy(serverConnection);
     when(securityService.isIntegratedSecurity()).thenReturn(true);
     command = mock(PutUserCredentials.class);
     connection.bindSubject(command);
@@ -185,7 +185,7 @@ public class ServerConnectionTest {
 
   @Test
   public void bindSubjectDoesNothingIfInternalMessage() {
-    ServerConnection connection = spy(serverConnection);
+    var connection = spy(serverConnection);
     when(securityService.isIntegratedSecurity()).thenReturn(true);
     doReturn(true).when(connection).isInternalMessage(any(Message.class), anyBoolean());
     connection.bindSubject(command);
@@ -194,7 +194,7 @@ public class ServerConnectionTest {
 
   @Test
   public void bindSubject() {
-    ServerConnection connection = spy(serverConnection);
+    var connection = spy(serverConnection);
     initializeClientUserAuth(connection);
 
     when(acceptor.getCacheClientNotifier()).thenReturn(notifier);
@@ -208,7 +208,7 @@ public class ServerConnectionTest {
         .hasMessageContaining("Failed to find the authenticated user.");
 
     // verify bindSubject will be called if we have an existing subject
-    Subject subject = mock(Subject.class);
+    var subject = mock(Subject.class);
     connection.putSubject(subject, 123L);
     connection.bindSubject(command);
     verify(securityService).bindSubject(subject);
@@ -217,8 +217,8 @@ public class ServerConnectionTest {
   // this initializes the clientUserAuths
   private void initializeClientUserAuth(ServerConnection connection) {
     doNothing().when(connection).initializeCommands();
-    ClientProxyMembershipID proxyId = mock(ClientProxyMembershipID.class);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var proxyId = mock(ClientProxyMembershipID.class);
+    var member = mock(InternalDistributedMember.class);
     when(proxyId.getDistributedMember()).thenReturn(member);
     connection.setProxyId(proxyId);
     connection.doHandshake();
@@ -226,16 +226,16 @@ public class ServerConnectionTest {
 
   @Test
   public void putSubject() {
-    ServerConnection connection = spy(serverConnection);
+    var connection = spy(serverConnection);
     initializeClientUserAuth(connection);
 
     when(acceptor.getCacheClientNotifier()).thenReturn(notifier);
-    Subject subject = mock(Subject.class);
-    CacheClientProxy proxy = mock(CacheClientProxy.class);
+    var subject = mock(Subject.class);
+    var proxy = mock(CacheClientProxy.class);
     when(notifier.getClientProxy(any(ClientProxyMembershipID.class))).thenReturn(proxy);
 
     // when proxy begins with null subject
-    long userId = connection.putSubject(subject, 123L);
+    var userId = connection.putSubject(subject, 123L);
     // if proxy has no subject set, then setSubject won't be called
     assertThat(userId).isEqualTo(123L);
     verify(proxy, never()).setSubject(any());
@@ -261,7 +261,7 @@ public class ServerConnectionTest {
 
   @Test
   public void getUniqueIdBytesShouldThrowCacheClosedException() throws Exception {
-    ServerConnection spy = spy(serverConnection);
+    var spy = spy(serverConnection);
     doThrow(new CacheClosedException()).when(spy).getUniqueId(requestMessage, -1);
     assertThatThrownBy(() -> spy.getUniqueIdBytes(requestMessage, -1))
         .isInstanceOf(CacheClosedException.class);
@@ -269,8 +269,8 @@ public class ServerConnectionTest {
 
   @Test
   public void doNormalMessageShouldNotProcessMessageWhenTerminated() {
-    ServerConnection spy = spy(serverConnection);
-    ServerConnectionCollection serverConnections = mock(ServerConnectionCollection.class);
+    var spy = spy(serverConnection);
+    var serverConnections = mock(ServerConnectionCollection.class);
     spy.setServerConnectionCollection(serverConnections);
     when(serverConnections.incrementConnectionsProcessing()).thenReturn(true);
 
@@ -285,8 +285,8 @@ public class ServerConnectionTest {
   public void handleTerminationWithoutUnrgisterClientShouldNotNullClientAuths() {
     when(acceptor.getClientHealthMonitor()).thenReturn(clientHealthMonitor);
     when(acceptor.getCacheClientNotifier()).thenReturn(notifier);
-    ClientUserAuths clientUserAuths = mock(ClientUserAuths.class);
-    ServerConnection spy = spy(serverConnection);
+    var clientUserAuths = mock(ClientUserAuths.class);
+    var spy = spy(serverConnection);
     doReturn(new HashMap<>()).when(clientHealthMonitor).getCleanupTable();
     doReturn(new HashMap<>()).when(clientHealthMonitor).getCleanupProxyIdTable();
     spy.setClientUserAuths(clientUserAuths);
@@ -295,7 +295,7 @@ public class ServerConnectionTest {
     assertThat(spy.getClientUserAuths()).isNotNull();
 
     // subsequent putSubject call will be successful
-    Subject subject = mock(Subject.class);
+    var subject = mock(Subject.class);
     spy.putSubject(subject, -1);
   }
 
@@ -304,15 +304,15 @@ public class ServerConnectionTest {
     when(acceptor.getClientHealthMonitor()).thenReturn(clientHealthMonitor);
     when(acceptor.getCacheClientNotifier()).thenReturn(notifier);
     when(acceptor.getConnectionListener()).thenReturn(mock(ConnectionListener.class));
-    ClientUserAuths clientUserAuths = mock(ClientUserAuths.class);
-    ServerConnection spy = spy(serverConnection);
+    var clientUserAuths = mock(ClientUserAuths.class);
+    var spy = spy(serverConnection);
     Map<ServerSideHandshake, MutableInt> cleanupTable = mock(Map.class);
     when(cleanupTable.get(any())).thenReturn(mock(MutableInt.class));
     doReturn(cleanupTable).when(clientHealthMonitor).getCleanupTable();
     doReturn(new HashMap<>()).when(clientHealthMonitor).getCleanupProxyIdTable();
     spy.setClientUserAuths(clientUserAuths);
 
-    ClientProxyMembershipID proxyId = mock(ClientProxyMembershipID.class);
+    var proxyId = mock(ClientProxyMembershipID.class);
     when(proxyId.isDurable()).thenReturn(true);
     when(proxyId.getDistributedMember()).thenReturn(mock(InternalDistributedMember.class));
     spy.setProxyId(proxyId);

@@ -23,7 +23,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 
@@ -45,10 +44,10 @@ public class MakePrimary extends BaseCommand {
       final @NotNull SecurityService securityService, long start)
       throws IOException, ClassNotFoundException {
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
-    Part isClientReadyPart = clientMessage.getPart(0);
-    byte[] isClientReadyPartBytes = (byte[]) isClientReadyPart.getObject();
-    boolean isClientReady = isClientReadyPartBytes[0] == 0x01;
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    var isClientReadyPart = clientMessage.getPart(0);
+    var isClientReadyPartBytes = (byte[]) isClientReadyPart.getObject();
+    var isClientReady = isClientReadyPartBytes[0] == 0x01;
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug("{}: Received make primary request ({} bytes) isClientReady={}: from {}",
           serverConnection.getName(), clientMessage.getPayloadLength(), isClientReady,

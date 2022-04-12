@@ -16,8 +16,6 @@ package org.apache.geode.pdx;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collection;
-
 import com.examples.snapshot.MyObjectPdx;
 import com.examples.snapshot.MyObjectPdx.MyEnumPdx;
 import com.examples.snapshot.MyPdxSerializer;
@@ -28,14 +26,9 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.pdx.internal.EnumInfo;
-import org.apache.geode.pdx.internal.PdxType;
-import org.apache.geode.pdx.internal.TypeRegistry;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableCallable;
@@ -54,17 +47,17 @@ public class PdxTypeExportDUnitTest extends JUnit4CacheTestCase {
     Region r = getCache().getRegion("pdxtest");
     r.get(1);
 
-    TypeRegistry tr = getCache().getPdxRegistry();
-    Collection<PdxType> types = tr.typeMap().values();
+    var tr = getCache().getPdxRegistry();
+    var types = tr.typeMap().values();
     assertEquals(MyObjectPdx.class.getName(), types.iterator().next().getClassName());
 
-    Collection<EnumInfo> enums = tr.enumMap().values();
+    var enums = tr.enumMap().values();
     assertEquals(MyEnumPdx.const1.name(), enums.iterator().next().getEnum().name());
   }
 
   @Test
   public void testClient() throws Exception {
-    SerializableCallable test = new SerializableCallable() {
+    var test = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         testPeer();
@@ -82,10 +75,10 @@ public class PdxTypeExportDUnitTest extends JUnit4CacheTestCase {
 
   @SuppressWarnings("serial")
   public void loadCache() throws Exception {
-    SerializableCallable peer = new SerializableCallable() {
+    var peer = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheFactory cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
+        var cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
 
         Cache cache = getCache(cf);
         Region r = cache.createRegionFactory(RegionShortcut.REPLICATE).create("pdxtest");
@@ -95,16 +88,16 @@ public class PdxTypeExportDUnitTest extends JUnit4CacheTestCase {
       }
     };
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     host.getVM(1).invoke(peer);
 
-    SerializableCallable server = new SerializableCallable() {
+    var server = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheFactory cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
+        var cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
 
@@ -115,13 +108,13 @@ public class PdxTypeExportDUnitTest extends JUnit4CacheTestCase {
 
     final int port = (Integer) host.getVM(2).invoke(server);
 
-    SerializableCallable client = new SerializableCallable() {
+    var client = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory().setPdxSerializer(new MyPdxSerializer())
+        var cf = new ClientCacheFactory().setPdxSerializer(new MyPdxSerializer())
             .addPoolServer(NetworkUtils.getServerHostName(host), port);
 
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region r = cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("pdxtest");
         return null;
       }

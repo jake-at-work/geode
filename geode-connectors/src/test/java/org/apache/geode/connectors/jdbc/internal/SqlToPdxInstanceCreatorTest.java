@@ -66,7 +66,7 @@ public class SqlToPdxInstanceCreatorTest {
   @Test
   @Parameters(source = FieldType.class)
   public void readWritesFieldGivenPdxFieldType(FieldType fieldType) throws Exception {
-    PdxInstanceFactory factory = setupPdxInstanceFactory(fieldType);
+    var factory = setupPdxInstanceFactory(fieldType);
     when(columnMapping.getJdbcType()).thenReturn(JDBCType.NULL.name());
     when(columnMapping.getPdxType()).thenReturn(fieldType.name());
 
@@ -77,13 +77,13 @@ public class SqlToPdxInstanceCreatorTest {
   }
 
   private SqlToPdxInstance createSqlToPdxInstance() throws SQLException {
-    SqlToPdxInstanceCreator sqlToPdxInstanceCreator =
+    var sqlToPdxInstanceCreator =
         new SqlToPdxInstanceCreator(cache, regionMapping);
     return sqlToPdxInstanceCreator.create();
   }
 
   private PdxInstanceFactory setupPdxInstanceFactory(FieldType fieldType) {
-    PdxInstanceFactory factory = mock(PdxInstanceFactory.class);
+    var factory = mock(PdxInstanceFactory.class);
     when(factory.create()).thenReturn(pdxTemplate);
     when(cache.createPdxInstanceFactory(PDX_CLASS_NAME)).thenReturn(factory);
 

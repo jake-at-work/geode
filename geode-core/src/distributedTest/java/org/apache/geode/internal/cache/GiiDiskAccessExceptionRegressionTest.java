@@ -31,8 +31,6 @@ import org.junit.Test;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.DiskAccessException;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.test.dunit.VM;
@@ -105,10 +103,10 @@ public class GiiDiskAccessExceptionRegressionTest extends CacheTestCase {
     vm1.invoke(this::createCacheForVM1);
 
     // Create DiskRegion locally in controller VM also
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(controllerDiskDirs);
 
-    DiskStore diskStore = diskStoreFactory.create(uniqueName);
+    var diskStore = diskStoreFactory.create(uniqueName);
 
     InternalRegionFactory factory = getCache().createInternalRegionFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
@@ -119,7 +117,7 @@ public class GiiDiskAccessExceptionRegressionTest extends CacheTestCase {
     Region<Integer, Integer> region = factory.create(uniqueName);
 
     // Now put entries in the disk region
-    for (int i = 0; i < 100; ++i) {
+    for (var i = 0; i < 100; ++i) {
       region.put(i, i);
     }
 
@@ -129,7 +127,7 @@ public class GiiDiskAccessExceptionRegressionTest extends CacheTestCase {
     // Now recreate the region but set the factory such that disk region entry object
     // used is customized by us to throw exception while writing to disk
 
-    DistributedRegion distributedRegion =
+    var distributedRegion =
         new DistributedRegion(uniqueName, factory.getCreateAttributes(), null,
             getCache(),
             new InternalRegionArguments().setDestroyLockFlag(true).setRecreateFlag(false)
@@ -151,12 +149,12 @@ public class GiiDiskAccessExceptionRegressionTest extends CacheTestCase {
    * This method is used to create Cache in VM0
    */
   private void createCacheForVM0() {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(vm0DiskDirs);
 
-    DiskStore diskStore = diskStoreFactory.create(uniqueName);
+    var diskStore = diskStoreFactory.create(uniqueName);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setDiskStoreName(diskStore.getName());
     factory.setDiskSynchronous(false);
@@ -169,12 +167,12 @@ public class GiiDiskAccessExceptionRegressionTest extends CacheTestCase {
    * This method is used to create Cache in VM1
    */
   private void createCacheForVM1() {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(vm1DiskDirs);
 
-    DiskStore diskStore = diskStoreFactory.create(uniqueName);
+    var diskStore = diskStoreFactory.create(uniqueName);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setDiskStoreName(diskStore.getName());
     factory.setDiskSynchronous(false);

@@ -38,7 +38,7 @@ public class MemoryInspectorImpl implements MemoryInspector {
 
   @Override
   public synchronized void createSnapshot() {
-    List<MemoryBlock> value = memoryBlocks;
+    var value = memoryBlocks;
     if (value == null) {
       value = getOrderedBlocks();
       memoryBlocks = value;
@@ -47,7 +47,7 @@ public class MemoryInspectorImpl implements MemoryInspector {
 
   @Override
   public synchronized List<MemoryBlock> getSnapshot() {
-    List<MemoryBlock> value = memoryBlocks;
+    var value = memoryBlocks;
     if (value == null) {
       return Collections.emptyList();
     } else {
@@ -58,7 +58,7 @@ public class MemoryInspectorImpl implements MemoryInspector {
 
   @Override
   public MemoryBlock getFirstBlock() {
-    final List<MemoryBlock> value = getSnapshot();
+    final var value = getSnapshot();
     if (value.isEmpty()) {
       return null;
     } else {
@@ -81,8 +81,8 @@ public class MemoryInspectorImpl implements MemoryInspector {
     if (block == null) {
       return null;
     }
-    List<MemoryBlock> blocks = getSnapshot();
-    int nextBlock = blocks.indexOf(block) + 1;
+    var blocks = getSnapshot();
+    var nextBlock = blocks.indexOf(block) + 1;
     if (nextBlock > 0 && blocks.size() > nextBlock) {
       return blocks.get(nextBlock);
     } else {

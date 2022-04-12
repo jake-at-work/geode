@@ -40,7 +40,6 @@ import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.execute.BucketMovedException;
 
@@ -113,7 +112,7 @@ public class PartitionedIndex extends AbstractIndex {
   public void addToBucketIndexes(Region r, Index index) {
     synchronized (bucketIndexes) {
       setArbitraryBucketIndex(index);
-      List<Index> indexes = bucketIndexes.get(r);
+      var indexes = bucketIndexes.get(r);
       if (indexes == null) {
         indexes = new ArrayList<>();
       }
@@ -124,7 +123,7 @@ public class PartitionedIndex extends AbstractIndex {
 
   public void removeFromBucketIndexes(Region r, Index index) {
     synchronized (bucketIndexes) {
-      List<Index> indexes = bucketIndexes.get(r);
+      var indexes = bucketIndexes.get(r);
       if (indexes != null) {
         indexes.remove(index);
         if (indexes.isEmpty()) {
@@ -144,8 +143,8 @@ public class PartitionedIndex extends AbstractIndex {
    */
   public int getNumberOfIndexedBuckets() {
     synchronized (bucketIndexes) {
-      int size = 0;
-      for (List<Index> indexList : bucketIndexes.values()) {
+      var size = 0;
+      for (var indexList : bucketIndexes.values()) {
         size += indexList.size();
       }
       return size;
@@ -160,7 +159,7 @@ public class PartitionedIndex extends AbstractIndex {
   public List getBucketIndexes() {
     synchronized (bucketIndexes) {
       List<Index> indexes = new ArrayList<>();
-      for (List<Index> indexList : bucketIndexes.values()) {
+      for (var indexList : bucketIndexes.values()) {
         indexes.addAll(indexList);
       }
       return indexes;
@@ -170,7 +169,7 @@ public class PartitionedIndex extends AbstractIndex {
   public List<Index> getBucketIndexes(Region r) {
     synchronized (bucketIndexes) {
       List<Index> indexes = new ArrayList<>();
-      List<Index> indexList = bucketIndexes.get(r);
+      var indexList = bucketIndexes.get(r);
       if (indexList != null) {
         indexes.addAll(indexList);
       }
@@ -192,7 +191,7 @@ public class PartitionedIndex extends AbstractIndex {
     Index index = null;
     synchronized (bucketIndexes) {
       if (bucketIndexes.size() > 0) {
-        List<Index> indexList = bucketIndexes.values().iterator().next();
+        var indexList = bucketIndexes.values().iterator().next();
         if (indexList != null && indexList.size() > 0) {
           index = indexList.get(0);
         }
@@ -235,7 +234,7 @@ public class PartitionedIndex extends AbstractIndex {
     } catch (Exception ex) {
       throw new QueryInvocationTargetException(ex.getMessage());
     }
-    PartitionedRegionDataStore prds = pr.getDataStore();
+    var prds = pr.getDataStore();
     BucketRegion bukRegion;
     bukRegion = prds.getLocalBucketById(bId);
     if (bukRegion == null) {
@@ -260,16 +259,16 @@ public class PartitionedIndex extends AbstractIndex {
    * Verify if the index is available of the buckets. If not create index on the bucket.
    */
   public void verifyAndCreateMissingIndex(List buckets) throws QueryInvocationTargetException {
-    PartitionedRegion pr = (PartitionedRegion) getRegion();
-    PartitionedRegionDataStore prds = pr.getDataStore();
+    var pr = (PartitionedRegion) getRegion();
+    var prds = pr.getDataStore();
 
-    for (Object bId : buckets) {
+    for (var bId : buckets) {
       // create index
-      BucketRegion bukRegion = prds.getLocalBucketById((Integer) bId);
+      var bukRegion = prds.getLocalBucketById((Integer) bId);
       if (bukRegion == null) {
         throw new QueryInvocationTargetException("Bucket not found for the id :" + bId);
       }
-      IndexManager im = IndexUtils.getIndexManager(cache, bukRegion, true);
+      var im = IndexUtils.getIndexManager(cache, bukRegion, true);
       if (im != null && im.getIndex(indexName) == null) {
         try {
           if (pr.getCache().getLogger().fineEnabled()) {
@@ -279,7 +278,7 @@ public class PartitionedIndex extends AbstractIndex {
                     + bukRegion.getFullPath() + ", index will be created on this region.");
           }
 
-          ExecutionContext externalContext = new ExecutionContext(null, bukRegion.getCache());
+          var externalContext = new ExecutionContext(null, bukRegion.getCache());
           externalContext.setBucketRegion(pr, bukRegion);
 
           im.createIndex(indexName, type, originalIndexedExpression, fromClause,
@@ -637,8 +636,8 @@ public class PartitionedIndex extends AbstractIndex {
 
   @Override
   public boolean isEmpty() {
-    boolean empty = true;
-    for (Object index : getBucketIndexes()) {
+    var empty = true;
+    for (var index : getBucketIndexes()) {
       empty = ((AbstractIndex) index).isEmpty();
       if (!empty) {
         return false;

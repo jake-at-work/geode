@@ -40,7 +40,6 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
 import org.apache.geode.internal.cache.PrimaryBucketException;
 import org.apache.geode.internal.cache.versions.VersionTag;
@@ -109,7 +108,7 @@ public class PRUpdateEntryVersionMessage extends PartitionMessageWithDirectReply
       long startTime) throws CacheException, QueryException, DataLocationException,
       InterruptedException, IOException {
     // release not needed because disallowOffHeapValues called
-    final EntryEventImpl event =
+    final var event =
         EntryEventImpl.create(pr, getOperation(), getKey(), null, /* newValue */
             null, /* callbackargs */
             false /* originRemote - false to force distribution in buckets */,
@@ -125,11 +124,11 @@ public class PRUpdateEntryVersionMessage extends PartitionMessageWithDirectReply
     event.setInvokePRCallbacks(false);
     event.setCausedByMessage(this);
 
-    boolean sendReply = true;
+    var sendReply = true;
 
     if (!notificationOnly) {
 
-      PartitionedRegionDataStore ds = pr.getDataStore();
+      var ds = pr.getDataStore();
       Assert.assertTrue(ds != null,
           "This process should have storage for an item in " + this);
       try {
@@ -254,9 +253,9 @@ public class PRUpdateEntryVersionMessage extends PartitionMessageWithDirectReply
   public static UpdateEntryVersionResponse send(InternalDistributedMember recipient,
       PartitionedRegion r, EntryEventImpl event) throws ForceReattemptException {
     Set recipients = Collections.singleton(recipient);
-    UpdateEntryVersionResponse p =
+    var p =
         new UpdateEntryVersionResponse(r.getSystem(), recipient, event.getKey());
-    PRUpdateEntryVersionMessage m =
+    var m =
         new PRUpdateEntryVersionMessage(recipients, r.getPRId(), p, event);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
 

@@ -30,29 +30,29 @@ public class PartitionedRegionDataView extends LocalRegionDataView {
 
   @Override
   public void updateEntryVersion(EntryEventImpl event) throws EntryNotFoundException {
-    PartitionedRegion pr = (PartitionedRegion) event.getRegion();
+    var pr = (PartitionedRegion) event.getRegion();
     pr.updateEntryVersionInBucket(event);
   }
 
   @Override
   public void invalidateExistingEntry(EntryEventImpl event, boolean invokeCallbacks,
       boolean forceNewEntry) {
-    PartitionedRegion pr = (PartitionedRegion) event.getRegion();
+    var pr = (PartitionedRegion) event.getRegion();
     pr.invalidateInBucket(event);
   }
 
   @Override
   public void destroyExistingEntry(EntryEventImpl event, boolean cacheWrite,
       Object expectedOldValue) {
-    PartitionedRegion pr = (PartitionedRegion) event.getRegion();
+    var pr = (PartitionedRegion) event.getRegion();
     pr.destroyInBucket(event, expectedOldValue);
   }
 
   @Override
   public Entry getEntry(KeyInfo keyInfo, LocalRegion localRegion, boolean allowTombstones) {
-    TXStateProxy tx = localRegion.cache.getTXMgr().pauseTransaction();
+    var tx = localRegion.cache.getTXMgr().pauseTransaction();
     try {
-      PartitionedRegion pr = (PartitionedRegion) localRegion;
+      var pr = (PartitionedRegion) localRegion;
       return pr.nonTXGetEntry(keyInfo, false, allowTombstones);
     } finally {
       localRegion.cache.getTXMgr().unpauseTransaction(tx);
@@ -64,7 +64,7 @@ public class PartitionedRegionDataView extends LocalRegionDataView {
       Object value, boolean disableCopyOnRead, boolean preferCD,
       ClientProxyMembershipID requestingClient, EntryEventImpl clientEvent,
       boolean returnTombstones) {
-    TXStateProxy tx = r.cache.getTXMgr().pauseTransaction();
+    var tx = r.cache.getTXMgr().pauseTransaction();
     try {
       return r.findObjectInSystem(key, isCreate, tx, generateCallbacks, value, disableCopyOnRead,
           preferCD, requestingClient, clientEvent, returnTombstones);
@@ -75,7 +75,7 @@ public class PartitionedRegionDataView extends LocalRegionDataView {
 
   @Override
   public boolean containsKey(KeyInfo keyInfo, LocalRegion localRegion) {
-    PartitionedRegion pr = (PartitionedRegion) localRegion;
+    var pr = (PartitionedRegion) localRegion;
     return pr.nonTXContainsKey(keyInfo);
   }
 
@@ -83,7 +83,7 @@ public class PartitionedRegionDataView extends LocalRegionDataView {
   public Object getSerializedValue(LocalRegion localRegion, KeyInfo keyInfo, boolean doNotLockEntry,
       ClientProxyMembershipID requestingClient, EntryEventImpl clientEvent,
       boolean returnTombstones) throws DataLocationException {
-    PartitionedRegion pr = (PartitionedRegion) localRegion;
+    var pr = (PartitionedRegion) localRegion;
     return pr.getDataStore().getSerializedLocally(keyInfo, doNotLockEntry, requestingClient,
         clientEvent, returnTombstones);
   }
@@ -92,7 +92,7 @@ public class PartitionedRegionDataView extends LocalRegionDataView {
   public boolean putEntryOnRemote(EntryEventImpl event, boolean ifNew, boolean ifOld,
       Object expectedOldValue, boolean requireOldValue, long lastModified,
       boolean overwriteDestroyed) throws DataLocationException {
-    PartitionedRegion pr = (PartitionedRegion) event.getRegion();
+    var pr = (PartitionedRegion) event.getRegion();
     return pr.getDataStore().putLocally(event.getKeyInfo().getBucketId(), event, ifNew, ifOld,
         expectedOldValue, requireOldValue, lastModified);
   }
@@ -100,7 +100,7 @@ public class PartitionedRegionDataView extends LocalRegionDataView {
   @Override
   public void destroyOnRemote(EntryEventImpl event, boolean cacheWrite, Object expectedOldValue)
       throws DataLocationException {
-    PartitionedRegion pr = (PartitionedRegion) event.getRegion();
+    var pr = (PartitionedRegion) event.getRegion();
     pr.getDataStore().destroyLocally(event.getKeyInfo().getBucketId(), event, expectedOldValue);
     return;
   }
@@ -108,20 +108,20 @@ public class PartitionedRegionDataView extends LocalRegionDataView {
   @Override
   public void invalidateOnRemote(EntryEventImpl event, boolean invokeCallbacks,
       boolean forceNewEntry) throws DataLocationException {
-    PartitionedRegion pr = (PartitionedRegion) event.getRegion();
+    var pr = (PartitionedRegion) event.getRegion();
     pr.getDataStore().invalidateLocally(event.getKeyInfo().getBucketId(), event);
   }
 
   @Override
   public Set getBucketKeys(LocalRegion localRegion, int bucketId, boolean allowTombstones) {
-    PartitionedRegion pr = (PartitionedRegion) localRegion;
+    var pr = (PartitionedRegion) localRegion;
     return pr.getBucketKeys(bucketId, allowTombstones);
   }
 
   @Override
   public Entry getEntryOnRemote(KeyInfo keyInfo, LocalRegion localRegion, boolean allowTombstones)
       throws DataLocationException {
-    PartitionedRegion pr = (PartitionedRegion) localRegion;
+    var pr = (PartitionedRegion) localRegion;
     return pr.getDataStore().getEntryLocally(keyInfo.getBucketId(), keyInfo.getKey(), false,
         allowTombstones);
   }

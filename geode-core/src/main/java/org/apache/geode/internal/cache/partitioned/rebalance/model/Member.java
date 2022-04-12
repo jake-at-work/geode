@@ -69,20 +69,20 @@ public class Member implements Comparable<Member> {
    */
   public RefusalReason canDelete(Bucket bucket, DistributionManager distributionManager) {
     // This code only applies to Clusters.
-    String myRedundancyZone = distributionManager.getRedundancyZone(memberId);
+    var myRedundancyZone = distributionManager.getRedundancyZone(memberId);
 
     if (myRedundancyZone == null) {
       // Not using redundancy zones, so...
       return RefusalReason.NONE;
     }
 
-    for (Member member : bucket.getMembersHosting()) {
+    for (var member : bucket.getMembersHosting()) {
       // Don't look at yourself because you are not redundant for yourself
       if (member.getMemberId().equals(getMemberId())) {
         continue;
       }
 
-      String memberRedundancyZone = distributionManager.getRedundancyZone(member.memberId);
+      var memberRedundancyZone = distributionManager.getRedundancyZone(member.memberId);
       if (memberRedundancyZone == null) {
         // Not using redundancy zones, so...
         continue;
@@ -116,10 +116,10 @@ public class Member implements Comparable<Member> {
       // TODO we could have some logic to prefer moving to different ip addresses
       // Probably that logic should be another stage after redundancy recovery, like
       // improveRedundancy.
-      boolean sourceIsEquivalent = sourceMember != null
+      var sourceIsEquivalent = sourceMember != null
           && addressComparor.areSameZone(getMemberId(), sourceMember.getDistributedMember());
       if (sourceMember == null || !sourceIsEquivalent) {
-        for (Member hostingMember : bucket.getMembersHosting()) {
+        for (var hostingMember : bucket.getMembersHosting()) {
           if ((!hostingMember.equals(sourceMember) || addressComparor.enforceUniqueZones())
               && addressComparor.areSameZone(getMemberId(), hostingMember.getDistributedMember())) {
             if (logger.isDebugEnabled()) {
@@ -202,8 +202,8 @@ public class Member implements Comparable<Member> {
   }
 
   public int getPrimaryCount() {
-    int primaryCount = 0;
-    for (Bucket bucket : getBuckets()) {
+    var primaryCount = 0;
+    for (var bucket : getBuckets()) {
       if (equals(bucket.getPrimary())) {
         primaryCount++;
       }
@@ -273,7 +273,7 @@ public class Member implements Comparable<Member> {
     if (!(other instanceof Member)) {
       return false;
     }
-    Member o = (Member) other;
+    var o = (Member) other;
     return Objects.equals(memberId, o.memberId);
   }
 

@@ -17,15 +17,11 @@ package org.apache.geode.internal.memcached.commands;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.internal.memcached.KeyWrapper;
 import org.apache.geode.internal.memcached.Reply;
 import org.apache.geode.internal.memcached.RequestReader;
 import org.apache.geode.internal.memcached.ResponseStatus;
@@ -59,9 +55,9 @@ public class GetCommand extends AbstractCommand {
   private static final byte[] END_BUF = toEncodedArray(Reply.END.toString());
 
   private static final byte[] toEncodedArray(String string) {
-    ByteBuffer buffer = asciiCharset.encode(string);
+    var buffer = asciiCharset.encode(string);
     buffer.rewind();
-    byte[] result = new byte[buffer.remaining()];
+    var result = new byte[buffer.remaining()];
     buffer.get(result);
     return result;
   }
@@ -94,9 +90,9 @@ public class GetCommand extends AbstractCommand {
 
   protected ByteBuffer processBinaryCommand(ByteBuffer buffer, RequestReader request, Cache cache,
       ByteBuffer response) {
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
+    var r = getMemcachedRegion(cache);
 
-    KeyWrapper key = getKey(buffer, HEADER_LENGTH);
+    var key = getKey(buffer, HEADER_LENGTH);
     ValueWrapper val = null;
     try {
       val = r.get(key);
@@ -112,8 +108,8 @@ public class GetCommand extends AbstractCommand {
       }
       response.putShort(POSITION_RESPONSE_STATUS, ResponseStatus.KEY_NOT_FOUND.asShort());
     } else {
-      byte[] realValue = val.getValue();
-      int responseLength = HEADER_LENGTH + realValue.length + EXTRAS_LENGTH
+      var realValue = val.getValue();
+      var responseLength = HEADER_LENGTH + realValue.length + EXTRAS_LENGTH
           + (sendKeysInResponse() ? key.getKey().length : 0);
       if (response.capacity() < responseLength) {
         response = request.getResponse(responseLength);
@@ -154,22 +150,22 @@ public class GetCommand extends AbstractCommand {
   }
 
   private ByteBuffer processAsciiCommand(RequestReader request, Cache cache) {
-    ByteBuffer buffer = request.getRequest();
-    CharBuffer flb = getFirstLineBuffer();
+    var buffer = request.getRequest();
+    var flb = getFirstLineBuffer();
     getAsciiDecoder().reset();
     getAsciiDecoder().decode(buffer, flb, false);
     flb.flip();
-    String firstLine = getFirstLine();
-    String[] firstLineElements = firstLine.split(" ");
+    var firstLine = getFirstLine();
+    var firstLineElements = firstLine.split(" ");
 
-    boolean isGets = firstLineElements[0].equals("gets");
+    var isGets = firstLineElements[0].equals("gets");
     Set<String> keys = new HashSet<>();
-    for (int i = 1; i < firstLineElements.length; i++) {
+    for (var i = 1; i < firstLineElements.length; i++) {
       keys.add(stripNewline(firstLineElements[i]));
     }
 
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
-    Map<Object, ValueWrapper> results = r.getAll(keys);
+    var r = getMemcachedRegion(cache);
+    var results = r.getAll(keys);
 
     return composeReply(results, isGets);
   }
@@ -177,22 +173,22 @@ public class GetCommand extends AbstractCommand {
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NULL_PARAM_DEREF",
       justification = "findbugs complains that v is null while putting into buffer, but it is not")
   private ByteBuffer composeReply(Map<Object, ValueWrapper> results, boolean isGets) {
-    Iterator<Entry<Object, ValueWrapper>> it = results.entrySet().iterator();
-    ByteBuffer buffer = getReplyBuffer();
+    var it = results.entrySet().iterator();
+    var buffer = getReplyBuffer();
     while (it.hasNext()) {
-      Entry<Object, ValueWrapper> e = it.next();
+      var e = it.next();
       if (getLogger().fineEnabled()) {
         getLogger().fine("get compose reply:" + e);
       }
-      ValueWrapper valWrapper = e.getValue();
+      var valWrapper = e.getValue();
       if (valWrapper != null) {
-        byte[] v = valWrapper.getValue();
-        CharBuffer reply = getLineBuffer();
+        var v = valWrapper.getValue();
+        var reply = getLineBuffer();
         reply.put(VALUE).put(W_SPACE);
         reply.put(e.getKey().toString()).put(W_SPACE);
         reply.put(Integer.toString(valWrapper.getFlags())).put(W_SPACE); // flags
 
-        String valBytes = v == null ? Integer.toString(0) : Integer.toString(v.length);
+        var valBytes = v == null ? Integer.toString(0) : Integer.toString(v.length);
         reply.put(valBytes);
         if (isGets) {
           // send the version for gets command
@@ -213,7 +209,7 @@ public class GetCommand extends AbstractCommand {
   }
 
   private ByteBuffer getReplyBuffer() {
-    ByteBuffer retVal = replyBuffer.get();
+    var retVal = replyBuffer.get();
     if (retVal == null) {
       retVal = ByteBuffer.allocate(REPLY_BUFFER_CAPACITY);
       replyBuffer.set(retVal);
@@ -223,7 +219,7 @@ public class GetCommand extends AbstractCommand {
   }
 
   private CharBuffer getLineBuffer() {
-    CharBuffer retVal = lineBuffer.get();
+    var retVal = lineBuffer.get();
     if (retVal == null) {
       retVal = CharBuffer.allocate(1024);
       lineBuffer.set(retVal);

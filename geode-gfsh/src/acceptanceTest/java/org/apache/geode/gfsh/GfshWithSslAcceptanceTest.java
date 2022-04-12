@@ -41,7 +41,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
-import org.apache.geode.cache.ssl.CertificateMaterial;
 import org.apache.geode.internal.UniquePortSupplier;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 
@@ -68,15 +67,15 @@ public class GfshWithSslAcceptanceTest {
       GeneralSecurityException {
     gfsh = new GfshRule();
 
-    final UniquePortSupplier portSupplier = new UniquePortSupplier();
-    final int port = portSupplier.getAvailablePort();
+    final var portSupplier = new UniquePortSupplier();
+    final var port = portSupplier.getAvailablePort();
 
     tempFolder.create();
     keyStoreFile = tempFolder.newFile();
     trustStoreFile = tempFolder.newFile();
     securityPropertiesFile = tempFolder.newFile();
 
-    final String hostName = InetAddress.getLocalHost().getCanonicalHostName();
+    final var hostName = InetAddress.getLocalHost().getCanonicalHostName();
     generateKeyAndTrustStore(hostName, keyStoreFile, trustStoreFile);
 
     startLocator = format(
@@ -107,20 +106,20 @@ public class GfshWithSslAcceptanceTest {
 
   public static void generateKeyAndTrustStore(final String hostName, final File keyStoreFile,
       final File trustStoreFile) throws IOException, GeneralSecurityException {
-    final CertificateMaterial ca =
+    final var ca =
         new CertificateBuilder(CERTIFICATE_EXPIRATION_IN_DAYS, CERTIFICATE_ALGORITHM)
             .commonName("Test CA")
             .isCA()
             .generate();
 
-    final CertificateMaterial certificate = new CertificateBuilder(CERTIFICATE_EXPIRATION_IN_DAYS,
+    final var certificate = new CertificateBuilder(CERTIFICATE_EXPIRATION_IN_DAYS,
         CERTIFICATE_ALGORITHM)
             .commonName(hostName)
             .issuedBy(ca)
             .sanDnsName(hostName)
             .generate();
 
-    final CertStores store = new CertStores(hostName);
+    final var store = new CertStores(hostName);
     store.withCertificate("geode", certificate);
     store.trust("ca", ca);
 
@@ -131,7 +130,7 @@ public class GfshWithSslAcceptanceTest {
   private static void generateSecurityProperties(final boolean endpointIdentificationEnabled,
       final File securityPropertiesFile, final File keyStoreFile, final File trustStoreFile)
       throws IOException {
-    final Properties properties = new Properties();
+    final var properties = new Properties();
 
     properties.setProperty(SSL_REQUIRE_AUTHENTICATION, valueOf(true));
     properties.setProperty(SSL_ENABLED_COMPONENTS, "all");

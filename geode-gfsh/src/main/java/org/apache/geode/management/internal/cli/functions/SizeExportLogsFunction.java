@@ -45,18 +45,18 @@ public class SizeExportLogsFunction extends ExportLogsFunction
   @Override
   public void execute(final FunctionContext<Args> context) {
     try {
-      InternalCache cache = (InternalCache) context.getCache();
-      DistributionConfig config = cache.getInternalDistributedSystem().getConfig();
-      Args args = context.getArguments();
-      long diskAvailable = getDiskAvailable(config);
-      long estimatedSize = estimateLogFileSize(cache.getMyId(), config.getLogFile(),
+      var cache = (InternalCache) context.getCache();
+      var config = cache.getInternalDistributedSystem().getConfig();
+      var args = context.getArguments();
+      var diskAvailable = getDiskAvailable(config);
+      var estimatedSize = estimateLogFileSize(cache.getMyId(), config.getLogFile(),
           config.getStatisticArchiveFile(), args);
 
-      BytesToString bytesToString = new BytesToString();
+      var bytesToString = new BytesToString();
       if (estimatedSize == 0 || estimatedSize < diskAvailable) {
         context.getResultSender().lastResult(estimatedSize);
       } else {
-        String sb = "Estimated disk space required (" +
+        var sb = "Estimated disk space required (" +
             bytesToString.of(estimatedSize) + ") to consolidate logs on member " +
             cache.getName() + " will exceed available disk space (" +
             bytesToString.of(diskAvailable) + ")";
@@ -90,10 +90,10 @@ public class SizeExportLogsFunction extends ExportLogsFunction
       baseStatsFile = statArchive.getAbsoluteFile();
     }
 
-    LogFilter logFilter = new LogFilter(args.getLogLevel(), args.isThisLogLevelOnly(),
+    var logFilter = new LogFilter(args.getLogLevel(), args.isThisLogLevelOnly(),
         args.getStartTime(), args.getEndTime());
 
-    long estimatedSize =
+    var estimatedSize =
         new LogExporter(logFilter, baseLogFile, baseStatsFile).estimateFilteredSize();
 
     LOGGER.info("Estimated log file size: " + estimatedSize);

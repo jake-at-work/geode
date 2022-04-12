@@ -19,7 +19,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.pdx.internal.EnumInfo;
@@ -73,27 +72,27 @@ public class ExportedRegistry {
 
   public void toData(DataOutput out) throws IOException {
     out.writeInt(types.size());
-    for (Entry<Integer, PdxType> entry : types.entrySet()) {
+    for (var entry : types.entrySet()) {
       DataSerializer.writeObject(entry.getValue(), out);
     }
 
     out.writeInt(enums.size());
-    for (Entry<Integer, EnumInfo> entry : enums.entrySet()) {
+    for (var entry : enums.entrySet()) {
       out.writeInt(entry.getKey());
       DataSerializer.writeObject(entry.getValue(), out);
     }
   }
 
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-    int typeCount = in.readInt();
-    for (int i = 0; i < typeCount; i++) {
+    var typeCount = in.readInt();
+    for (var i = 0; i < typeCount; i++) {
       PdxType type = DataSerializer.readObject(in);
       types.put(type.getTypeId(), type);
     }
 
-    int enumCount = in.readInt();
-    for (int i = 0; i < enumCount; i++) {
-      int id = in.readInt();
+    var enumCount = in.readInt();
+    for (var i = 0; i < enumCount; i++) {
+      var id = in.readInt();
       EnumInfo ei = DataSerializer.readObject(in);
       enums.put(id, ei);
     }

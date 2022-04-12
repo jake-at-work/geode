@@ -27,7 +27,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.server.CacheServer;
@@ -70,7 +69,7 @@ public class InterestListFailoverDUnitTest extends JUnit4DistributedTestCase {
   @Override
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     vm2 = host.getVM(2);
@@ -79,7 +78,7 @@ public class InterestListFailoverDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public void createServersAndClients(int redundancyLevel) {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     // start servers first
     PORT1 = vm0
         .invoke(() -> CacheServerTestUtil.createCacheServer(REGION_NAME, Boolean.TRUE));
@@ -120,7 +119,7 @@ public class InterestListFailoverDUnitTest extends JUnit4DistributedTestCase {
     vm1.invoke(InterestListFailoverDUnitTest::createEntries);
     vm2.invoke(InterestListFailoverDUnitTest::createEntries);
     vm0.invoke(InterestListFailoverDUnitTest::createEntries);
-    Integer primaryPort =
+    var primaryPort =
         vm1.invoke(InterestListFailoverDUnitTest::registerInterestList);
     VM primaryVM;
     if (primaryPort == PORT1) {
@@ -182,7 +181,7 @@ public class InterestListFailoverDUnitTest extends JUnit4DistributedTestCase {
       r.registerInterest("key-4");
       r.registerInterest("key-5");
       // now return the port of the primary.
-      PoolImpl p = (PoolImpl) PoolManager.find(r.getAttributes().getPoolName());
+      var p = (PoolImpl) PoolManager.find(r.getAttributes().getPoolName());
       return p.getPrimaryPort();
     } catch (Exception ex) {
       Assert.fail("failed while registering keys k1 to k5", ex);
@@ -194,7 +193,7 @@ public class InterestListFailoverDUnitTest extends JUnit4DistributedTestCase {
     try {
       Iterator iter = CacheServerTestUtil.getCache().getCacheServers().iterator();
       if (iter.hasNext()) {
-        CacheServer server = (CacheServer) iter.next();
+        var server = (CacheServer) iter.next();
         server.stop();
       }
     } catch (Exception e) {
@@ -203,7 +202,7 @@ public class InterestListFailoverDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private Pool getClientPool(String host, int redundancyLevel) {
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     pf.addServer(host, PORT1).addServer(host, PORT2).setSubscriptionEnabled(true)
         // round robin?
         .setReadTimeout(500).setSocketBufferSize(32768)
@@ -246,16 +245,16 @@ public class InterestListFailoverDUnitTest extends JUnit4DistributedTestCase {
   public static void _validateEntries(final String v) {
     try {
       final Region r = getCache().getRegion(SEPARATOR + REGION_NAME);
-      final String key1 = "key-1";
+      final var key1 = "key-1";
       assertNotNull(r);
       // Verify that 'key-1' was updated
       // assertIndexDetailsEquals("vm2-key-1", r.getEntry("key-1").getValue());
-      WaitCriterion wc = new WaitCriterion() {
+      var wc = new WaitCriterion() {
         String excuse;
 
         @Override
         public boolean done() {
-          Object val = r.get(key1);
+          var val = r.get(key1);
           if (val == null) {
             return false;
           }

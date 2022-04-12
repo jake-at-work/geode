@@ -74,12 +74,12 @@ public class RestSecurityConfiguration extends WebSecurityConfigurerAdapter {
     return new CommonsMultipartResolver() {
       @Override
       public boolean isMultipart(HttpServletRequest request) {
-        String method = request.getMethod().toLowerCase();
+        var method = request.getMethod().toLowerCase();
         // By default, only POST is allowed. Since this is an 'update' we should accept PUT.
         if (!Arrays.asList("put", "post").contains(method)) {
           return false;
         }
-        String contentType = request.getContentType();
+        var contentType = request.getContentType();
         return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
       }
     };
@@ -99,7 +99,7 @@ public class RestSecurityConfiguration extends WebSecurityConfigurerAdapter {
       // if auth token is enabled, add a filter to parse the request header. The filter still
       // saves the token in the form of UsernamePasswordAuthenticationToken
       if (authProvider.isAuthTokenEnabled()) {
-        JwtAuthenticationFilter tokenEndpointFilter = new JwtAuthenticationFilter();
+        var tokenEndpointFilter = new JwtAuthenticationFilter();
         tokenEndpointFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {
         });
         tokenEndpointFilter.setAuthenticationFailureHandler((request, response, exception) -> {
@@ -120,7 +120,7 @@ public class RestSecurityConfiguration extends WebSecurityConfigurerAdapter {
       response.addHeader("WWW-Authenticate", "Basic realm=\"GEODE\"");
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setContentType(CONTENT_TYPE);
-      ClusterManagementResult result =
+      var result =
           new ClusterManagementResult(ClusterManagementResult.StatusCode.UNAUTHENTICATED,
               authException.getMessage());
       objectMapper.writeValue(response.getWriter(), result);

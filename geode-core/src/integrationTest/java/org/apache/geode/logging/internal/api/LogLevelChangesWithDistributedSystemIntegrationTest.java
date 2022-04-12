@@ -58,7 +58,7 @@ public class LogLevelChangesWithDistributedSystemIntegrationTest {
 
   @Before
   public void setUp() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_LEVEL, "INFO");
     config.setProperty(SECURITY_LOG_LEVEL, "INFO");

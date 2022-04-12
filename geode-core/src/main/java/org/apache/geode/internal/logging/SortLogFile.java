@@ -53,8 +53,8 @@ public class SortLogFile {
   public static void sortLogFile(InputStream logFile, PrintWriter sortedFile) throws IOException {
 
     Collection<LogFileParser.LogEntry> sorted = new TreeSet<>((entry1, entry2) -> {
-      String stamp1 = entry1.getTimestamp();
-      String stamp2 = entry2.getTimestamp();
+      var stamp1 = entry1.getTimestamp();
+      var stamp2 = entry2.getTimestamp();
 
       if (stamp1.equals(stamp2)) {
         if (entry1.getContents().equals(entry2.getContents())) {
@@ -66,13 +66,13 @@ public class SortLogFile {
       return stamp1.compareTo(stamp2);
     });
 
-    BufferedReader br = new BufferedReader(new InputStreamReader(logFile));
-    LogFileParser parser = new LogFileParser(null, br);
+    var br = new BufferedReader(new InputStreamReader(logFile));
+    var parser = new LogFileParser(null, br);
     while (parser.hasMoreEntries()) {
       sorted.add(parser.getNextEntry());
     }
 
-    for (LogFileParser.LogEntry entry : sorted) {
+    for (var entry : sorted) {
       entry.writeTo(sortedFile);
     }
   }
@@ -95,7 +95,7 @@ public class SortLogFile {
     File logFile = null;
     File sortedFile = null;
 
-    for (int i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; i++) {
       if (args[i].equals("-sortedFile")) {
         if (++i >= args.length) {
           usage("Missing sorted file name");
@@ -104,7 +104,7 @@ public class SortLogFile {
         sortedFile = new File(args[i]);
 
       } else if (logFile == null) {
-        File file = new File(args[i]);
+        var file = new File(args[i]);
         if (!file.exists()) {
           usage(String.format("File %s does not exist", file));
         }
@@ -124,7 +124,7 @@ public class SortLogFile {
 
       PrintStream ps;
       if (sortedFile != null) {
-        FileOutputStream fileOutputStream = new FileOutputStream(sortedFile);
+        var fileOutputStream = new FileOutputStream(sortedFile);
         try {
           ps = new PrintStream(fileOutputStream, true);
         } catch (Exception ex) {

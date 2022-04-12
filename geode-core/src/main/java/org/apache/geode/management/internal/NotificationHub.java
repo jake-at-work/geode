@@ -81,7 +81,7 @@ public class NotificationHub {
 
     try {
       synchronized (listenerObjectMap) {
-        NotificationHubListener listener = listenerObjectMap.get(objectName);
+        var listener = listenerObjectMap.get(objectName);
         if (listener == null) {
           listener = new NotificationHubListener(objectName);
           listener.incNumCounter();
@@ -105,7 +105,7 @@ public class NotificationHub {
     try {
       synchronized (listenerObjectMap) {
         if (listenerObjectMap.get(objectName) != null) {
-          NotificationHubListener listener = listenerObjectMap.get(objectName);
+          var listener = listenerObjectMap.get(objectName);
           if (listener.decNumCounter() == 0) {
             listenerObjectMap.remove(objectName);
             // The MBean might have been un registered if the resource is
@@ -128,9 +128,9 @@ public class NotificationHub {
    */
   public void cleanUpListeners() {
     synchronized (listenerObjectMap) {
-      for (ObjectName objectName : listenerObjectMap.keySet()) {
+      for (var objectName : listenerObjectMap.keySet()) {
 
-        NotificationHubListener listener = listenerObjectMap.get(objectName);
+        var listener = listenerObjectMap.get(objectName);
 
         if (listener != null) {
           try {
@@ -189,7 +189,7 @@ public class NotificationHub {
 
     @Override
     public void handleNotification(Notification notification, Object handback) {
-      NotificationKey key = new NotificationKey(name);
+      var key = new NotificationKey(name);
       notification.setUserData(memberSource);
       repo.putEntryInLocalNotificationRegion(key, notification);
     }

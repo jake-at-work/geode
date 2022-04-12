@@ -21,10 +21,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.cache.wan.MyAsyncEventListener;
 import org.apache.geode.management.internal.cli.remote.CommandExecutor;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -156,7 +154,7 @@ public class CreateAsyncEventQueueCommandDUnitTest {
     gfsh.connectAndVerify(locator);
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService service =
+      var service =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
       assertThat(service.getConfiguration("cluster").getCacheXmlContent()).isNull();
     });
@@ -166,9 +164,9 @@ public class CreateAsyncEventQueueCommandDUnitTest {
         .tableHasRowWithValues("Member", "Status", "Message", "server-1", "OK", "Success");
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService service =
+      var service =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      Configuration configuration = service.getConfiguration("cluster");
+      var configuration = service.getConfiguration("cluster");
       assertThat(configuration.getCacheXmlContent()).contains("id=\"queue\"");
     });
   }

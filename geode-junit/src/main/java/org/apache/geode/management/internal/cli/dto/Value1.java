@@ -79,7 +79,7 @@ public class Value1 implements Serializable {
 
   public boolean equals(Object other) {
     if (other instanceof Value1) {
-      Value1 v = (Value1) other;
+      var v = (Value1) other;
       return v.employeeId == employeeId;
     } else {
       return false;

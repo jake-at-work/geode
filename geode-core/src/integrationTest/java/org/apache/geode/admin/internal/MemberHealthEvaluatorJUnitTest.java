@@ -25,9 +25,7 @@ import org.junit.Test;
 
 import org.apache.geode.admin.GemFireHealth;
 import org.apache.geode.admin.GemFireHealthConfig;
-import org.apache.geode.internal.statistics.GemFireStatSampler;
 import org.apache.geode.internal.statistics.OsStatisticsProvider;
-import org.apache.geode.internal.statistics.platform.ProcessStats;
 
 /**
  * Contains simple tests for the {@link MemberHealthEvaluator}.
@@ -47,16 +45,16 @@ public class MemberHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
   @Test
   public void testCheckVMProcessSize() throws InterruptedException {
     if (OsStatisticsProvider.build().osStatsSupported()) {
-      GemFireStatSampler sampler = system.getStatSampler();
+      var sampler = system.getStatSampler();
       assertNotNull(sampler);
 
       sampler.waitForInitialization(10000); // fix: remove infinite wait
 
-      ProcessStats stats = sampler.getProcessStats();
+      var stats = sampler.getProcessStats();
       assertNotNull(stats);
 
       List status = new ArrayList();
-      long threshold = stats.getProcessSize() * 2;
+      var threshold = stats.getProcessSize() * 2;
 
       if (threshold <= 0) {
         // The process size is zero on some Linux versions
@@ -66,13 +64,13 @@ public class MemberHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
       GemFireHealthConfig config = new GemFireHealthConfigImpl(null);
       config.setMaxVMProcessSize(threshold);
 
-      MemberHealthEvaluator eval =
+      var eval =
           new MemberHealthEvaluator(config, system.getDistributionManager());
       eval.evaluate(status);
       assertTrue(status.isEmpty());
 
       status = new ArrayList();
-      long processSize = stats.getProcessSize();
+      var processSize = stats.getProcessSize();
       threshold = processSize / 2;
       assertTrue("Threshold (" + threshold + ") is > 0.  " + "Process size is " + processSize,
           threshold > 0);
@@ -84,7 +82,7 @@ public class MemberHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
       eval.evaluate(status);
       assertEquals(1, status.size());
 
-      AbstractHealthEvaluator.HealthStatus ill =
+      var ill =
           (AbstractHealthEvaluator.HealthStatus) status.get(0);
       assertEquals(GemFireHealth.OKAY_HEALTH, ill.getHealthCode());
       assertTrue(ill.getDiagnosis().indexOf("The size of this VM") != -1);

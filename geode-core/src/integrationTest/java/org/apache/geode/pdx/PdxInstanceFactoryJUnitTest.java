@@ -54,11 +54,9 @@ import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.tcp.ByteBufferInputStream.ByteSourceFactory;
-import org.apache.geode.pdx.internal.PdxField;
 import org.apache.geode.pdx.internal.PdxInstanceEnum;
 import org.apache.geode.pdx.internal.PdxInstanceFactoryImpl;
 import org.apache.geode.pdx.internal.PdxInstanceImpl;
-import org.apache.geode.pdx.internal.PdxType;
 import org.apache.geode.test.junit.categories.SerializationTest;
 
 @Category({SerializationTest.class})
@@ -83,28 +81,28 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void testBasics() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("basics", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("basics", false, cache);
     c.writeInt("intField", 37);
-    PdxInstance pi = c.create();
-    WritablePdxInstance wpi = pi.createWriter();
+    var pi = c.create();
+    var wpi = pi.createWriter();
     assertEquals(true, wpi.hasField("intField"));
     assertEquals(37, wpi.getField("intField"));
     assertEquals(false, wpi.isIdentityField("intField"));
     wpi.setField("intField", 38);
     assertEquals(38, wpi.getField("intField"));
     checkPdxInstance(wpi);
-    PdxType t1 = ((PdxInstanceImpl) pi).getPdxType();
-    PdxInstanceFactory c2 = PdxInstanceFactoryImpl.newCreator("basics", false, cache);
+    var t1 = ((PdxInstanceImpl) pi).getPdxType();
+    var c2 = PdxInstanceFactoryImpl.newCreator("basics", false, cache);
     c2.writeInt("intField", 46);
-    PdxInstance pi2 = c2.create();
-    PdxType t2 = ((PdxInstanceImpl) pi2).getPdxType();
+    var pi2 = c2.create();
+    var t2 = ((PdxInstanceImpl) pi2).getPdxType();
     assertEquals(t1, t2);
     assertEquals(t1.getTypeId(), t2.getTypeId());
   }
 
   @Test
   public void testEnums() throws IOException, ClassNotFoundException {
-    PdxInstance e0 =
+    var e0 =
         cache.createPdxEnum(Coin.class.getName(), Coin.HEADS.name(), Coin.HEADS.ordinal());
     assertEquals(true, e0.isEnum());
     assertEquals(true, e0.hasField("name"));
@@ -116,25 +114,25 @@ public class PdxInstanceFactoryJUnitTest {
     assertEquals(Coin.HEADS.ordinal(), e0.getField("ordinal"));
     assertEquals(Coin.HEADS, e0.getObject());
 
-    PdxInstance e1 =
+    var e1 =
         cache.createPdxEnum(Coin.class.getName(), Coin.TAILS.name(), Coin.TAILS.ordinal());
-    PdxInstance e2 =
+    var e2 =
         cache.createPdxEnum(Coin.class.getName(), Coin.EDGE.name(), Coin.EDGE.ordinal());
     try {
       cache.createPdxEnum(Coin.class.getName(), Coin.EDGE.name(), 79);
       throw new RuntimeException("expected PdxSerializationException");
     } catch (PdxSerializationException ignored) {
     }
-    Comparable<Object> c0 = (Comparable<Object>) e0;
-    Comparable c1 = (Comparable) e1;
-    Comparable c2 = (Comparable) e2;
+    var c0 = (Comparable<Object>) e0;
+    var c1 = (Comparable) e1;
+    var c2 = (Comparable) e2;
     assertEquals(true, c0.compareTo(c1) < 0);
     assertEquals(true, c1.compareTo(c0) > 0);
     assertEquals(true, c1.compareTo(c2) < 0);
     assertEquals(true, c2.compareTo(c1) > 0);
     assertEquals(true, c1.compareTo(c1) == 0);
     assertEquals(false, e1 instanceof PdxInstanceEnum);
-    PdxInstanceEnum pie1 = new PdxInstanceEnum(Coin.TAILS);
+    var pie1 = new PdxInstanceEnum(Coin.TAILS);
     assertEquals(e1, pie1);
     assertEquals(e1.hashCode(), pie1.hashCode());
     assertEquals(0, c1.compareTo(pie1));
@@ -144,7 +142,7 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void testPortableWriteObject() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("portable", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("portable", false, cache);
     c.writeObject("f1", (byte) 1, true);
     c.writeObject("f2", Boolean.TRUE, true);
     c.writeObject("f3", Character.CURRENCY_SYMBOL, true);
@@ -186,7 +184,7 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void testPortableWriteObjectArray() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("portable", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("portable", false, cache);
     c.writeObjectArray("f1", new Object[] {(byte) 1}, true);
     c.writeObjectArray("f2", new Object[] {Boolean.TRUE}, true);
     c.writeObjectArray("f3", new Object[] {Character.CURRENCY_SYMBOL}, true);
@@ -228,7 +226,7 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void testPortableWriteField() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("portable", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("portable", false, cache);
     c.writeField("f1", (byte) 1, Object.class, true);
     c.writeField("f2", Boolean.TRUE, Object.class, true);
     c.writeField("f3", Character.CURRENCY_SYMBOL, Object.class, true);
@@ -283,8 +281,8 @@ public class PdxInstanceFactoryJUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + Arrays.hashCode(longArray);
       return result;
     }
@@ -300,7 +298,7 @@ public class PdxInstanceFactoryJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      MyDS other = (MyDS) obj;
+      var other = (MyDS) obj;
       return Arrays.equals(longArray, other.longArray);
     }
   }
@@ -312,9 +310,9 @@ public class PdxInstanceFactoryJUnitTest {
    */
   @Test
   public void testNestedDS() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("nestedDS", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("nestedDS", false, cache);
     c.writeObject("obj", new MyDS());
-    PdxInstance pi = c.create();
+    var pi = c.create();
     pi.getField("obj");
     checkPdxInstance(pi);
   }
@@ -335,8 +333,8 @@ public class PdxInstanceFactoryJUnitTest {
   public void testNestedArray() throws IOException, ClassNotFoundException {
     PdxInstance pi;
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("nestedArray", false, cache);
-      MyPdx[] array = new MyPdx[] {new MyPdx()};
+      var c = PdxInstanceFactoryImpl.newCreator("nestedArray", false, cache);
+      var array = new MyPdx[] {new MyPdx()};
       c.writeObjectArray("array", array);
       pi = c.create();
     }
@@ -346,27 +344,27 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void testSerializable() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("basics", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("basics", false, cache);
     c.writeInt("intField", 37);
-    PdxInstance pi = c.create();
+    var pi = c.create();
     checkSerializable(pi);
   }
 
   private void checkSerializable(Serializable before) throws IOException, ClassNotFoundException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    var baos = new ByteArrayOutputStream();
+    var oos = new ObjectOutputStream(baos);
     oos.writeObject(before);
     oos.close();
-    byte[] bytes = baos.toByteArray();
-    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-    ObjectInputStream ois = new ObjectInputStream(bais);
-    Object after = ois.readObject();
+    var bytes = baos.toByteArray();
+    var bais = new ByteArrayInputStream(bytes);
+    var ois = new ObjectInputStream(bais);
+    var after = ois.readObject();
     assertEquals(before, after);
   }
 
   @Test
   public void testMark() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("markField", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("markField", false, cache);
     try {
       c.markIdentityField("intField1");
       throw new RuntimeException("expected exception");
@@ -377,7 +375,7 @@ public class PdxInstanceFactoryJUnitTest {
     c.writeInt("intField2", 2);
     c.writeInt("intField3", 3);
     c.markIdentityField("intField1");
-    WritablePdxInstance pi = c.create().createWriter();
+    var pi = c.create().createWriter();
     assertEquals(true, pi.hasField("intField1"));
     assertEquals(true, pi.hasField("intField2"));
     assertEquals(true, pi.hasField("intField3"));
@@ -401,7 +399,7 @@ public class PdxInstanceFactoryJUnitTest {
 
   private PdxInstance checkPdxInstance(PdxInstance pi) throws IOException, ClassNotFoundException {
     // serialize the pi and make sure it can be deserialized
-    PdxInstance pi2 = (PdxInstance) serializeAndDeserialize(pi);
+    var pi2 = (PdxInstance) serializeAndDeserialize(pi);
     assertEquals(pi, pi2);
     assertEquals(pi.hashCode(), pi2.hashCode());
     assertEquals(pi.getFieldNames(), pi2.getFieldNames());
@@ -410,9 +408,9 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void testFieldTypes() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("byteField", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("byteField", false, cache);
     c.writeByte("f", (byte) 37);
-    WritablePdxInstance pi = c.create().createWriter();
+    var pi = c.create().createWriter();
     assertEquals((byte) 37, pi.getField("f"));
     try {
       pi.setField("f", "Bogus");
@@ -545,7 +543,7 @@ public class PdxInstanceFactoryJUnitTest {
     checkPdxInstance(pi);
 
     c = PdxInstanceFactoryImpl.newCreator("dateField", false, cache);
-    Date d1 = new Date(37);
+    var d1 = new Date(37);
     c.writeDate("f", d1);
     pi = c.create().createWriter();
     assertEquals(d1, pi.getField("f"));
@@ -557,7 +555,7 @@ public class PdxInstanceFactoryJUnitTest {
     }
     pi.setField("f", null);
     assertEquals(null, pi.getField("f"));
-    Date d2 = new Date(38);
+    var d2 = new Date(38);
     pi.setField("f", d2);
     assertEquals(d2, pi.getField("f"));
     checkPdxInstance(pi);
@@ -579,13 +577,13 @@ public class PdxInstanceFactoryJUnitTest {
     checkPdxInstance(pi);
 
     c = PdxInstanceFactoryImpl.newCreator("objectField", false, cache);
-    Date o1 = new Date(23);
+    var o1 = new Date(23);
     c.writeObject("f", o1);
     pi = c.create().createWriter();
     assertEquals(o1, pi.getField("f"));
     pi.setField("f", null);
     assertEquals(null, pi.getField("f"));
-    Date o2 = new Date(24);
+    var o2 = new Date(24);
     pi.setField("f", o2);
     assertEquals(o2, pi.getField("f"));
     checkPdxInstance(pi);
@@ -773,9 +771,9 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void testWriteField() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("byteField", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("byteField", false, cache);
     c.writeField("f", (byte) 37, Byte.class);
-    WritablePdxInstance pi = c.create().createWriter();
+    var pi = c.create().createWriter();
     assertEquals((byte) 37, pi.getField("f"));
     pi.setField("f", (byte) 38);
     assertEquals((byte) 38, pi.getField("f"));
@@ -838,11 +836,11 @@ public class PdxInstanceFactoryJUnitTest {
     checkPdxInstance(pi);
 
     c = PdxInstanceFactoryImpl.newCreator("dateField", false, cache);
-    Date d1 = new Date(37);
+    var d1 = new Date(37);
     c.writeField("f", d1, Date.class);
     pi = c.create().createWriter();
     assertEquals(d1, pi.getField("f"));
-    Date d2 = new Date(38);
+    var d2 = new Date(38);
     pi.setField("f", d2);
     assertEquals(d2, pi.getField("f"));
     checkPdxInstance(pi);
@@ -856,11 +854,11 @@ public class PdxInstanceFactoryJUnitTest {
     checkPdxInstance(pi);
 
     c = PdxInstanceFactoryImpl.newCreator("objectField", false, cache);
-    Date o1 = new Date(23);
+    var o1 = new Date(23);
     c.writeField("f", o1, Object.class);
     pi = c.create().createWriter();
     assertEquals(o1, pi.getField("f"));
-    Date o2 = new Date(24);
+    var o2 = new Date(24);
     pi.setField("f", o2);
     assertEquals(o2, pi.getField("f"));
     checkPdxInstance(pi);
@@ -960,9 +958,9 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void testWritePrimitiveField() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("byteField", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("byteField", false, cache);
     c.writeField("f", (byte) 37, byte.class);
-    WritablePdxInstance pi = c.create().createWriter();
+    var pi = c.create().createWriter();
     assertEquals((byte) 37, pi.getField("f"));
     pi.setField("f", (byte) 38);
     assertEquals((byte) 38, pi.getField("f"));
@@ -1028,26 +1026,26 @@ public class PdxInstanceFactoryJUnitTest {
   @Test
   public void testPdxInstancePut() throws IOException {
     Region r = cache.createRegionFactory(RegionShortcut.LOCAL).create("testPdxInstancePut");
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("testPdxInstancePut", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("testPdxInstancePut", false, cache);
     c.writeField("f", 37, int.class);
-    PdxInstance pi = c.create();
+    var pi = c.create();
     r.put("key", pi);
-    PdxInstance pi2 = (PdxInstance) r.get("key");
+    var pi2 = (PdxInstance) r.get("key");
     assertEquals(pi, pi2);
   }
 
   @Test
   public void testNestedPdxInstance() throws IOException, ClassNotFoundException {
-    PdxInstanceFactory c =
+    var c =
         PdxInstanceFactoryImpl.newCreator("testNestedPdxInstanceChild", false, cache);
     c.writeField("f", 37, int.class);
-    PdxInstance child = c.create();
+    var child = c.create();
     c = PdxInstanceFactoryImpl.newCreator("testNestedPdxInstanceParent", false, cache);
     c.writeObject("f", child);
-    WritablePdxInstance parent = c.create().createWriter();
+    var parent = c.create().createWriter();
     checkPdxInstance(child);
     checkPdxInstance(parent);
-    WritablePdxInstance child2 = ((PdxInstance) parent.getField("f")).createWriter();
+    var child2 = ((PdxInstance) parent.getField("f")).createWriter();
     assertEquals(child, child2);
     assertTrue(child != child2);
     child2.setField("f", 38);
@@ -1056,14 +1054,14 @@ public class PdxInstanceFactoryJUnitTest {
     parent.setField("f", child2);
     assertFalse(child.equals(parent.getField("f")));
     assertEquals(child2, parent.getField("f"));
-    PdxInstance parentCopy = checkPdxInstance(parent);
+    var parentCopy = checkPdxInstance(parent);
     assertEquals(child2, parentCopy.getField("f"));
   }
 
   private void checkDefaultBytes(PdxInstance pi, String fieldName) {
-    PdxInstanceImpl impl = (PdxInstanceImpl) pi;
-    PdxType t = impl.getPdxType();
-    PdxField f = t.getPdxField(fieldName);
+    var impl = (PdxInstanceImpl) pi;
+    var t = impl.getPdxType();
+    var f = t.getPdxField(fieldName);
     assertEquals(ByteSourceFactory.create(f.getFieldType().getDefaultBytes()),
         impl.getRaw(f.getFieldIndex()));
   }
@@ -1071,184 +1069,184 @@ public class PdxInstanceFactoryJUnitTest {
   @Test
   public void testDefaults() throws IOException, ClassNotFoundException {
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("byteField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("byteField", false, cache);
       c.writeField("f", (byte) 0, byte.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals((byte) 0, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("booleanField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("booleanField", false, cache);
       c.writeField("f", false, boolean.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(false, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("charField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("charField", false, cache);
       c.writeField("f", (char) 0, char.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals((char) 0, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("shortField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("shortField", false, cache);
       c.writeField("f", (short) 0, short.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals((short) 0, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("intField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("intField", false, cache);
       c.writeField("f", 0, int.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(0, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("longField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("longField", false, cache);
       c.writeField("f", (long) 0, long.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals((long) 0, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("floatField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("floatField", false, cache);
       c.writeField("f", (float) 0.0, float.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals((float) 0, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("doubleField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("doubleField", false, cache);
       c.writeField("f", 0.0, double.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals((double) 0, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("dateField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("dateField", false, cache);
       c.writeField("f", null, Date.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("stringField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("stringField", false, cache);
       c.writeField("f", null, String.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("objectField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("objectField", false, cache);
       c.writeField("f", null, Object.class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("byteArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("byteArrayField", false, cache);
       c.writeField("f", null, byte[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("booleanArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("booleanArrayField", false, cache);
       c.writeField("f", null, boolean[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("charArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("charArrayField", false, cache);
       c.writeField("f", null, char[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("shortArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("shortArrayField", false, cache);
       c.writeField("f", null, short[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("intArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("intArrayField", false, cache);
       c.writeField("f", null, int[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("longArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("longArrayField", false, cache);
       c.writeField("f", null, long[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("floatArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("floatArrayField", false, cache);
       c.writeField("f", null, float[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("doubleArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("doubleArrayField", false, cache);
       c.writeField("f", null, double[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("StringArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("StringArrayField", false, cache);
       c.writeField("f", null, String[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("ObjectArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("ObjectArrayField", false, cache);
       c.writeField("f", null, Object[].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
     {
-      PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("byteArrayArrayField", false, cache);
+      var c = PdxInstanceFactoryImpl.newCreator("byteArrayArrayField", false, cache);
       c.writeField("f", null, byte[][].class);
-      PdxInstance pi = c.create();
+      var pi = c.create();
       assertEquals(null, pi.getField("f"));
       checkDefaultBytes(pi, "f");
     }
   }
 
   private Object serializeAndDeserialize(Object in) throws IOException, ClassNotFoundException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(in, hdos);
-    byte[] bytes = hdos.toByteArray();
+    var bytes = hdos.toByteArray();
     // System.out.println("Serialized bytes = " + Arrays.toString(bytes));
     return DataSerializer.readObject(new DataInputStream(new ByteArrayInputStream(bytes)));
   }
 
   @Test
   public void undeserializablePdxInstanceGetObjectReturnsThePdxInstance() {
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
 
-    Object object = instance.getObject();
+    var object = instance.getObject();
 
     assertThat(object).isSameAs(instance);
   }
 
   @Test
   public void normalPdxInstanceGetObjectThrowsClassNotFoundGivenABadClass() {
-    PdxInstanceFactory factory = cache.createPdxInstanceFactory("badClass");
-    PdxInstance instance = factory.create();
+    var factory = cache.createPdxInstanceFactory("badClass");
+    var instance = factory.create();
 
     assertThatThrownBy(instance::getObject).isInstanceOf(PdxSerializationException.class)
         .hasCauseInstanceOf(ClassNotFoundException.class);
@@ -1260,14 +1258,14 @@ public class PdxInstanceFactoryJUnitTest {
     cache.close();
     cache = (GemFireCacheImpl) new CacheFactory().set(MCAST_PORT, "0")
         .setPdxReadSerialized(false).create();
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create("myRegion");
     region.put("key", instance);
 
-    Object getValue = region.get("key");
+    var getValue = region.get("key");
 
     assertThat(getValue).isEqualTo(instance);
   }
@@ -1278,73 +1276,73 @@ public class PdxInstanceFactoryJUnitTest {
     cache.close();
     cache = (GemFireCacheImpl) new CacheFactory().set(MCAST_PORT, "0")
         .setPdxReadSerialized(false).create();
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
-    PdxInstance putKey = factory.create();
+    var putKey = factory.create();
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create("myRegion");
     region.put(putKey, "value");
     factory = cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
-    PdxInstance getKey = factory.create();
+    var getKey = factory.create();
 
-    Object getValue = region.get(getKey);
+    var getValue = region.get(getKey);
 
     assertThat(getValue).isEqualTo("value");
   }
 
   @Test
   public void undeserializablePdxInstanceWithDifferentTypeNameAreNotEqual() {
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
     factory = cache.createPdxInstanceFactory("myPdxInstanceType2").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
-    PdxInstance instance2 = factory.create();
+    var instance2 = factory.create();
 
     assertThat(instance).isNotEqualTo(instance2);
   }
 
   @Test
   public void pdxInstanceEqualsReturnsTrueIfSameClassAndMissingFieldHasDefaultValue() {
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
     factory.writeInt("fieldTwo", 0);
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
     factory = cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
-    PdxInstance instance2 = factory.create();
+    var instance2 = factory.create();
 
     assertThat(instance).isEqualTo(instance2);
   }
 
   @Test
   public void pdxInstanceEqualsReturnsFalseIfNoClassAndMissingFieldHasDefaultValue() {
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
     factory.writeInt("fieldTwo", 0);
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
     factory = cache.createPdxInstanceFactory("").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
-    PdxInstance instance2 = factory.create();
+    var instance2 = factory.create();
 
     assertThat(instance).isNotEqualTo(instance2);
   }
 
   @Test
   public void undeserializablePdxInstanceWithMultipleEqualFieldsInDifferentOrderAreEqual() {
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
     factory.writeString("fieldTwo", "valueTwo");
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
     factory = cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
     factory.writeString("fieldTwo", "valueTwo");
     factory.writeString("fieldOne", "valueOne");
-    PdxInstance instance2 = factory.create();
+    var instance2 = factory.create();
 
     assertThat(instance).isEqualTo(instance2);
   }
@@ -1358,15 +1356,15 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void pdxInstanceWithNoCallsAndMultipleEqualFieldsInDifferentOrderAreEqual() {
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("");
     factory.writeString("fieldOne", "valueOne");
     factory.writeString("fieldTwo", "valueTwo");
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
     factory = cache.createPdxInstanceFactory("");
     factory.writeString("fieldTwo", "valueTwo");
     factory.writeString("fieldOne", "valueOne");
-    PdxInstance instance2 = factory.create();
+    var instance2 = factory.create();
 
     assertThat(instance).isEqualTo(instance2);
   }
@@ -1377,8 +1375,8 @@ public class PdxInstanceFactoryJUnitTest {
     cache.close();
     cache = (GemFireCacheImpl) new CacheFactory().set(MCAST_PORT, "0")
         .setPdxReadSerialized(false).create();
-    PdxInstanceFactory factory = cache.createPdxInstanceFactory("badClass");
-    PdxInstance instance = factory.create();
+    var factory = cache.createPdxInstanceFactory("badClass");
+    var instance = factory.create();
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create("myRegion");
     region.put("key", instance);
 
@@ -1388,39 +1386,39 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void undeserializablePdxInstanceReturnsFalseFromIsDeserializable() {
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("myPdxInstanceType").neverDeserialize();
     factory.writeString("fieldOne", "valueOne");
     factory.writeString("fieldTwo", "valueTwo");
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
 
     assertThat(instance.isDeserializable()).isFalse();
   }
 
   @Test
   public void pdxInstanceWithNoClassReturnsFalseFromIsDeserializable() {
-    PdxInstanceFactory factory =
+    var factory =
         cache.createPdxInstanceFactory("");
     factory.writeString("fieldOne", "valueOne");
     factory.writeString("fieldTwo", "valueTwo");
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
 
     assertThat(instance.isDeserializable()).isFalse();
   }
 
   @Test
   public void normalPdxInstanceReturnsTrueFromIsDeserializable() {
-    PdxInstanceFactory factory = cache.createPdxInstanceFactory("className");
+    var factory = cache.createPdxInstanceFactory("className");
     factory.writeString("fieldOne", "valueOne");
     factory.writeString("fieldTwo", "valueTwo");
-    PdxInstance instance = factory.create();
+    var instance = factory.create();
 
     assertThat(instance.isDeserializable()).isTrue();
   }
 
   @Test
   public void jsonPdxInstanceIsDeserializableReturnsTrue() {
-    PdxInstance jsonPdxInstance =
+    var jsonPdxInstance =
         cache.createPdxInstanceFactory(JSONFormatter.JSON_CLASSNAME, false).create();
 
     assertThat(jsonPdxInstance.isDeserializable()).isTrue();
@@ -1428,14 +1426,14 @@ public class PdxInstanceFactoryJUnitTest {
 
   @Test
   public void twoPdxInstancesWithTheSameClassAndFieldsHaveTheSamePdxType() {
-    PdxInstanceFactory factory = cache.createPdxInstanceFactory("className");
+    var factory = cache.createPdxInstanceFactory("className");
     factory.writeString("fieldOne", "valueOne");
     factory.writeString("fieldTwo", "valueTwo");
-    PdxInstanceImpl instance1 = (PdxInstanceImpl) factory.create();
+    var instance1 = (PdxInstanceImpl) factory.create();
     factory = cache.createPdxInstanceFactory("className");
     factory.writeString("fieldOne", "valueOne");
     factory.writeString("fieldTwo", "valueTwo");
-    PdxInstanceImpl instance2 = (PdxInstanceImpl) factory.create();
+    var instance2 = (PdxInstanceImpl) factory.create();
 
     assertThat(instance1.getPdxType()).isSameAs(instance2.getPdxType());
   }

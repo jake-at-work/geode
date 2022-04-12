@@ -23,9 +23,7 @@ import static org.apache.geode.test.dunit.VM.getCurrentVMNum;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
-import java.util.Optional;
 
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
@@ -147,13 +145,13 @@ public class DistributedDiskDirRule extends DiskDirRule implements SerializableT
 
   private void initializeHelperRules(Description description) throws Exception {
     if (temporaryFolder != null) {
-      Method method = TemporaryFolder.class.getDeclaredMethod(BEFORE);
+      var method = TemporaryFolder.class.getDeclaredMethod(BEFORE);
       method.setAccessible(true);
       method.invoke(temporaryFolder);
     }
 
     if (testName != null) {
-      Method method = TestName.class.getDeclaredMethod(STARTING, Description.class);
+      var method = TestName.class.getDeclaredMethod(STARTING, Description.class);
       method.setAccessible(true);
       method.invoke(testName, description);
     }
@@ -170,10 +168,10 @@ public class DistributedDiskDirRule extends DiskDirRule implements SerializableT
   private void doBefore(DistributedDiskDirRule diskDirRule) throws Exception {
     data = new DistributedDiskDirRuleData(diskDirRule);
 
-    Optional<String> value = getProductStringProperty(DEFAULT_DISK_DIRS_PROPERTY);
+    var value = getProductStringProperty(DEFAULT_DISK_DIRS_PROPERTY);
     value.ifPresent(s -> data.setOriginalValue(s));
 
-    File diskDir = new File(data.temporaryFolder().getRoot(), getDiskDirName(testClassName));
+    var diskDir = new File(data.temporaryFolder().getRoot(), getDiskDirName(testClassName));
     if (!diskDir.exists()) {
       Files.createDirectory(diskDir.toPath());
     }

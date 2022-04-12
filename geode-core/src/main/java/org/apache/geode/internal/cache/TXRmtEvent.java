@@ -67,9 +67,9 @@ public class TXRmtEvent implements TransactionEvent {
     if (events == null) {
       return Collections.EMPTY_LIST;
     } else {
-      ArrayList result = new ArrayList(events.size());
-      for (final Object event : events) {
-        CacheEvent ce = (CacheEvent) event;
+      var result = new ArrayList(events.size());
+      for (final var event : events) {
+        var ce = (CacheEvent) event;
         if (isEventUserVisible(ce)) {
           result.add(ce);
         }
@@ -90,9 +90,9 @@ public class TXRmtEvent implements TransactionEvent {
     if (events == null || events.isEmpty()) {
       return false;
     }
-    for (final CacheEvent<?, ?> event : (Iterable<CacheEvent<?, ?>>) events) {
+    for (final var event : (Iterable<CacheEvent<?, ?>>) events) {
       if (isEventUserVisible(event)) {
-        LocalRegion region = (LocalRegion) event.getRegion();
+        var region = (LocalRegion) event.getRegion();
         if (region != null && !region.isPdxTypesRegion() && !region.isInternalRegion()) {
           return false;
         }
@@ -113,12 +113,12 @@ public class TXRmtEvent implements TransactionEvent {
     DistributedMember originator = ((TXId) txId).getMemberId();
     // TODO:ASIF :EventID will not be generated with this constructor . Check if
     // this is correct
-    InternalRegion eventRegion = r;
+    var eventRegion = r;
     if (r.isUsedForPartitionedRegionBucket()) {
       eventRegion = r.getPartitionedRegion();
     }
     @Retained
-    EntryEventImpl event = EntryEventImpl.create(eventRegion, op, key, newValue, aCallbackArgument, // callbackArg
+    var event = EntryEventImpl.create(eventRegion, op, key, newValue, aCallbackArgument, // callbackArg
         true, // originRemote
         originator);
     event.setOldValue(re.getValueInVM(r)); // OFFHEAP: copy into heap cd
@@ -159,7 +159,7 @@ public class TXRmtEvent implements TransactionEvent {
 
   public void freeOffHeapResources() {
     if (events != null) {
-      for (EntryEventImpl e : (List<EntryEventImpl>) events) {
+      for (var e : (List<EntryEventImpl>) events) {
         e.release();
       }
     }

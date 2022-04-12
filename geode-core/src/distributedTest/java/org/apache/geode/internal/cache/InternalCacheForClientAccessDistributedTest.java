@@ -31,16 +31,13 @@ import org.junit.Test;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.VM;
@@ -61,24 +58,24 @@ public class InternalCacheForClientAccessDistributedTest implements java.io.Seri
     serverVM = VM.getVM(0);
     clientVM = VM.getVM(1);
 
-    final int locatorPort = DistributedTestUtils.getDUnitLocatorPort();
+    final var locatorPort = DistributedTestUtils.getDUnitLocatorPort();
     // create a server cache and a client cache
     serverVM.invoke(() -> {
-      String locatorSpec = "localhost[" + locatorPort + "]";
-      CacheFactory config = new CacheFactory();
+      var locatorSpec = "localhost[" + locatorPort + "]";
+      var config = new CacheFactory();
       config.set(
           ConfigurationProperties.LOCATORS, locatorSpec);
       config.set(
           ConfigurationProperties.NAME, "server1");
 
-      Cache serverCache = config.create();
+      var serverCache = config.create();
       cache = serverCache;
 
-      CacheServer cacheServer = serverCache.addCacheServer();
+      var cacheServer = serverCache.addCacheServer();
       cacheServer.start();
     });
     clientVM.invoke(() -> {
-      ClientCacheFactory config = new ClientCacheFactory();
+      var config = new ClientCacheFactory();
       config.addPoolLocator("localhost", locatorPort);
       config.setPoolSubscriptionEnabled(true);
       cache = config.create();
@@ -88,7 +85,7 @@ public class InternalCacheForClientAccessDistributedTest implements java.io.Seri
   @After
   public void tearDown() {
     serverVM.invoke(() -> {
-      DistributedSystem system = cache.getDistributedSystem();
+      var system = cache.getDistributedSystem();
       cache.close();
       cache = null;
       assertThat(system.isConnected()).isFalse();
@@ -102,20 +99,20 @@ public class InternalCacheForClientAccessDistributedTest implements java.io.Seri
   @Test
   public void serverUsesFilteredCache() {
     serverVM.invoke(() -> {
-      Cache serverCache = (Cache) cache;
+      var serverCache = (Cache) cache;
       serverCache.createRegionFactory(RegionShortcut.REPLICATE).create("region");
     });
     clientVM.invoke(() -> {
-      ClientCache clientCache = (ClientCache) cache;
-      Region<String, String> region =
+      var clientCache = (ClientCache) cache;
+      var region =
           clientCache.<String, String>createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
               .create("region");
       region.put("Object1", "Value1");
     });
     serverVM.invoke(() -> {
-      Cache serverCache = (Cache) cache;
-      CacheServer server = serverCache.getCacheServers().stream().findFirst().get();
-      CacheServerImpl impl = (CacheServerImpl) server;
+      var serverCache = (Cache) cache;
+      var server = serverCache.getCacheServers().stream().findFirst().get();
+      var impl = (CacheServerImpl) server;
       assertThat(impl.getAcceptor().getCachedRegionHelper().getCache())
           .isInstanceOf(InternalCacheForClientAccess.class);
     });
@@ -125,12 +122,12 @@ public class InternalCacheForClientAccessDistributedTest implements java.io.Seri
   public void invokeClientOperationsOnInternalRegion() {
     serverVM.invoke(() -> {
       // we need to use internal APIs to create an "internal" region
-      GemFireCacheImpl serverCache = (GemFireCacheImpl) cache;
-      InternalRegionArguments internalRegionArguments = new InternalRegionArguments();
+      var serverCache = (GemFireCacheImpl) cache;
+      var internalRegionArguments = new InternalRegionArguments();
       internalRegionArguments.setIsUsedForPartitionedRegionAdmin(true);
       RegionAttributes<String, String> attributes =
           serverCache.getRegionAttributes(RegionShortcut.REPLICATE.toString());
-      LocalRegion region = (LocalRegion) serverCache.createVMRegion("internalRegion", attributes,
+      var region = (LocalRegion) serverCache.createVMRegion("internalRegion", attributes,
           internalRegionArguments);
       assertThat(region.isInternalRegion()).isTrue();
     });
@@ -138,8 +135,8 @@ public class InternalCacheForClientAccessDistributedTest implements java.io.Seri
   }
 
   private void testAllOperations() {
-    ClientCache clientCache = (ClientCache) cache;
-    Region<String, String> region =
+    var clientCache = (ClientCache) cache;
+    var region =
         clientCache.<String, String>createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
             .create("internalRegion");
 

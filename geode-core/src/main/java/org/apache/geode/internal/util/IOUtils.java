@@ -52,7 +52,7 @@ public abstract class IOUtils {
     if (pathElements != null) {
       pathname = StringUtils.defaultIfBlank(pathname, File.separator);
 
-      for (final String pathElement : pathElements) {
+      for (final var pathElement : pathElements) {
         pathname += (pathname.endsWith(File.separator) ? "" : File.separator);
         pathname += pathElement;
       }
@@ -106,9 +106,9 @@ public abstract class IOUtils {
   public static String createPath(final String[] pathElements, String separator) {
     separator = separator != null ? separator : File.separator;
 
-    final StringBuilder buffer = new StringBuilder();
+    final var buffer = new StringBuilder();
 
-    for (String pathElement : pathElements) {
+    for (var pathElement : pathElements) {
       buffer.append(separator).append(pathElement);
     }
 
@@ -165,7 +165,7 @@ public abstract class IOUtils {
     ObjectInputStream objIn = null;
 
     try {
-      ByteArrayInputStream bis = new ByteArrayInputStream(objBytes);
+      var bis = new ByteArrayInputStream(objBytes);
       objIn = new ClassLoaderObjectInputStream(bis, loader);
       return objIn.readObject();
     } finally {
@@ -181,10 +181,10 @@ public abstract class IOUtils {
    * @return a String value containing only the filename of the file system resource (file).
    */
   public static String getFilename(final String pathname) {
-    String filename = pathname;
+    var filename = pathname;
 
     if (StringUtils.isNotBlank(filename)) {
-      final int index = filename.lastIndexOf(File.separator);
+      final var index = filename.lastIndexOf(File.separator);
       filename = (index == -1 ? filename : filename.substring(index + 1));
     }
 
@@ -218,7 +218,7 @@ public abstract class IOUtils {
    * @see java.io.Serializable
    */
   public static byte[] serializeObject(final Object obj) throws IOException {
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    final var out = new ByteArrayOutputStream();
 
     ObjectOutputStream objOut = null;
 
@@ -246,8 +246,8 @@ public abstract class IOUtils {
   public static byte[] toByteArray(final InputStream in) throws IOException {
     assert in != null : "The input stream to read bytes from cannot be null!";
 
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    final byte[] buffer = new byte[BUFFER_SIZE];
+    final var out = new ByteArrayOutputStream();
+    final var buffer = new byte[BUFFER_SIZE];
     int bytesRead;
 
     try {

@@ -20,7 +20,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
@@ -60,25 +59,25 @@ public class CreateMockRegionExtensionFunction implements Function, DataSerializ
 
   @Override
   public void execute(FunctionContext context) {
-    final Cache cache = CacheFactory.getAnyInstance();
+    final var cache = CacheFactory.getAnyInstance();
 
     final Region<?, ?> region = cache.getRegion((String) ((Object[]) context.getArguments())[0]);
     if (!(region instanceof Extensible)) {
       throw new FunctionException("Not extensible region.");
     }
 
-    final String value = (String) ((Object[]) context.getArguments())[1];
+    final var value = (String) ((Object[]) context.getArguments())[1];
 
     @SuppressWarnings("unchecked")
-    final Extensible<Region<?, ?>> extensible = (Extensible<Region<?, ?>>) region;
-    final MockRegionExtension extension = new MockRegionExtension(value);
+    final var extensible = (Extensible<Region<?, ?>>) region;
+    final var extension = new MockRegionExtension(value);
     extension.beforeCreate(extensible, cache);
     extension.onCreate(extensible, extensible);
 
-    XmlEntity xmlEntity = new XmlEntity(CacheXml.REGION, "name", region.getName());
+    var xmlEntity = new XmlEntity(CacheXml.REGION, "name", region.getName());
 
     final ResultSender<Object> resultSender = context.getResultSender();
-    final String memberNameOrId =
+    final var memberNameOrId =
         CliUtils.getMemberNameOrId(cache.getDistributedSystem().getDistributedMember());
 
     resultSender.lastResult(new CliFunctionResult(memberNameOrId, xmlEntity,

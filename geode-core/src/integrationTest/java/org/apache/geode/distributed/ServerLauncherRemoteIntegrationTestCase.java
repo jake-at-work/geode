@@ -134,7 +134,7 @@ public abstract class ServerLauncherRemoteIntegrationTestCase
   protected ServerLauncher startServer(final ServerCommand command, final InputListener outListener,
       final InputListener errListener) throws IOException {
     executeCommandWithReaders(command.create(), outListener, errListener);
-    ServerLauncher launcher = awaitStart(getWorkingDirectory());
+    var launcher = awaitStart(getWorkingDirectory());
     assertThat(process.isAlive()).isTrue();
     return launcher;
   }
@@ -198,7 +198,7 @@ public abstract class ServerLauncherRemoteIntegrationTestCase
   private ServerLauncher awaitStart(final ServerCommand command) {
     try {
       executeCommandWithReaders(command);
-      ServerLauncher launcher = awaitStart(getWorkingDirectory());
+      var launcher = awaitStart(getWorkingDirectory());
       assertThat(process.isAlive()).isTrue();
       return launcher;
     } catch (IOException e) {

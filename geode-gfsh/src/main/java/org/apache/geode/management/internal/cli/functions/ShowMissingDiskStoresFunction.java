@@ -15,18 +15,13 @@
 package org.apache.geode.management.internal.cli.functions;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.cache.partitioned.ColocatedRegionDetails;
-import org.apache.geode.internal.cache.persistence.PersistentMemberID;
-import org.apache.geode.internal.cache.persistence.PersistentMemberManager;
 import org.apache.geode.internal.cache.persistence.PersistentMemberPattern;
 
 public class ShowMissingDiskStoresFunction implements InternalFunction<Void> {
@@ -47,24 +42,24 @@ public class ShowMissingDiskStoresFunction implements InternalFunction<Void> {
       throw new RuntimeException();
     }
     try {
-      final InternalCache cache = (InternalCache) context.getCache();
+      final var cache = (InternalCache) context.getCache();
 
       if (cache != null && !cache.isClosed()) {
         final DistributedMember member = cache.getMyId();
 
         // Missing DiskStores
-        PersistentMemberManager mm = cache.getPersistentMemberManager();
-        Map<String, Set<PersistentMemberID>> waitingRegions = mm.getWaitingRegions();
-        for (Set<PersistentMemberID> entry : waitingRegions.values()) {
-          for (PersistentMemberID id : entry) {
+        var mm = cache.getPersistentMemberManager();
+        var waitingRegions = mm.getWaitingRegions();
+        for (var entry : waitingRegions.values()) {
+          for (var id : entry) {
             memberMissingIDs.add(new PersistentMemberPattern(id));
           }
         }
         // Missing colocated regions
-        Set<PartitionedRegion> prs = cache.getPartitionedRegions();
-        for (PartitionedRegion pr : prs) {
-          List<String> missingChildRegions = pr.getMissingColocatedChildren();
-          for (String child : missingChildRegions) {
+        var prs = cache.getPartitionedRegions();
+        for (var pr : prs) {
+          var missingChildRegions = pr.getMissingColocatedChildren();
+          for (var child : missingChildRegions) {
             missingColocatedRegions.add(new ColocatedRegionDetails(member.getHost(),
                 member.getName(), pr.getFullPath(), child));
           }

@@ -32,10 +32,8 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.ServerRegionProxy;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.test.dunit.VM;
@@ -128,9 +126,9 @@ public class ClientDestroyRegionNotificationRegressionTest implements Serializab
     clientRegionFactory.setPoolName(pool.getName());
     clientRegionFactory.create(regionName);
 
-    Connection connection = pool.acquireConnection(new ServerLocation(hostName, port2));
-    EventID eventId = new EventID(new byte[] {1}, 1, 1);
-    ServerRegionProxy serverRegionProxy = new ServerRegionProxy(regionName, pool);
+    var connection = pool.acquireConnection(new ServerLocation(hostName, port2));
+    var eventId = new EventID(new byte[] {1}, 1, 1);
+    var serverRegionProxy = new ServerRegionProxy(regionName, pool);
 
     serverRegionProxy.destroyRegionOnForTestsOnly(connection, eventId, null);
   }
@@ -141,7 +139,7 @@ public class ClientDestroyRegionNotificationRegressionTest implements Serializab
     RegionFactory<?, ?> regionFactory = cacheRule.getCache().createRegionFactory(REPLICATE);
     regionFactory.create(regionName);
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();

@@ -46,18 +46,18 @@ public class ArithmeticOperationsIntegrationTest {
 
   @Before
   public void setup() {
-    String regionName = "portfolio";
+    var regionName = "portfolio";
 
     cache = serverStarterRule.getCache();
     assertNotNull(cache);
     Region region =
         cache.createRegionFactory().setDataPolicy(DataPolicy.REPLICATE).create(regionName);
 
-    Portfolio p = new Portfolio(1);
+    var p = new Portfolio(1);
     region.put(1, p);
-    Portfolio p2 = new Portfolio(2);
+    var p2 = new Portfolio(2);
     region.put(2, p2);
-    Portfolio p3 = new Portfolio(3);
+    var p3 = new Portfolio(3);
     region.put(3, p3);
 
     queryService = cache.getQueryService();
@@ -86,10 +86,10 @@ public class ArithmeticOperationsIntegrationTest {
 
   @Test
   public void modOnNumericShouldApplyOperationAndReturnMatchingResults() throws Exception {
-    SelectResults modPercentageResults = (SelectResults) queryService
+    var modPercentageResults = (SelectResults) queryService
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID % 2 = 1").execute();
 
-    SelectResults modKeywordResults = (SelectResults) queryService
+    var modKeywordResults = (SelectResults) queryService
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID MOD 2 = 1").execute();
 
     assertEquals(2, modPercentageResults.size());
@@ -98,23 +98,23 @@ public class ArithmeticOperationsIntegrationTest {
 
   @Test
   public void modOperationAsProjectionShouldCorrectlyModReturnValue() throws Exception {
-    SelectResults modPercentageResults = (SelectResults) queryService
+    var modPercentageResults = (SelectResults) queryService
         .newQuery("select (ID % 2) from " + SEPARATOR + "portfolio p where p.ID % 2 = 1").execute();
 
-    SelectResults modKeywordResults = (SelectResults) queryService
+    var modKeywordResults = (SelectResults) queryService
         .newQuery("select ID mod 2 from " + SEPARATOR + "portfolio p where p.ID MOD 2 = 1")
         .execute();
 
     assertEquals(2, modPercentageResults.size());
     assertEquals(modPercentageResults.size(), modKeywordResults.size());
-    for (Object o : modKeywordResults) {
+    for (var o : modKeywordResults) {
       assertEquals(1, o);
     }
   }
 
   @Test
   public void addOperationShouldApplyOpInQuery() throws Exception {
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID + 1 = 2").execute();
     assertEquals(1, results.size());
   }
@@ -122,7 +122,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void addOperationShouldThrowExceptionWhenAddingNonNumeric() throws Exception {
     try {
-      SelectResults results = (SelectResults) queryService
+      var results = (SelectResults) queryService
           .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID + '1' = 2").execute();
       fail();
     } catch (TypeMismatchException qite) {
@@ -133,7 +133,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void addOperationShouldThrowExceptionWhenAddingNull() throws Exception {
     try {
-      SelectResults results = (SelectResults) queryService
+      var results = (SelectResults) queryService
           .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID + null = 2").execute();
       fail();
     } catch (TypeMismatchException qite) {
@@ -144,7 +144,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void subtractOperationShouldThrowExceptionWhenAddingNonNumeric() throws Exception {
     try {
-      SelectResults results = (SelectResults) queryService
+      var results = (SelectResults) queryService
           .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID - '1' = 2").execute();
       fail();
     } catch (TypeMismatchException qite) {
@@ -155,7 +155,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void subtractOperationShouldThrowExceptionWhenAddingNull() throws Exception {
     try {
-      SelectResults results = (SelectResults) queryService
+      var results = (SelectResults) queryService
           .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID - null = 2").execute();
       fail();
     } catch (TypeMismatchException qite) {
@@ -165,7 +165,7 @@ public class ArithmeticOperationsIntegrationTest {
 
   @Test
   public void subtractOperationShouldCorrectlySubtractInQuery() throws Exception {
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery("select * from " + SEPARATOR + "portfolio p where (p.ID - 1) = 2").execute();
 
     assertEquals(1, results.size());
@@ -174,7 +174,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void multiplyOperationShouldThrowExceptionWhenAddingNonNumeric() throws Exception {
     try {
-      SelectResults results = (SelectResults) queryService
+      var results = (SelectResults) queryService
           .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID * '1' = 2").execute();
       fail();
     } catch (TypeMismatchException qite) {
@@ -185,7 +185,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void multiplyOperationShouldThrowExceptionWhenAddingNull() throws Exception {
     try {
-      SelectResults results = (SelectResults) queryService
+      var results = (SelectResults) queryService
           .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID * null = 2").execute();
       fail();
     } catch (TypeMismatchException qite) {
@@ -195,7 +195,7 @@ public class ArithmeticOperationsIntegrationTest {
 
   @Test
   public void multiplyOperationShouldCorrectlyExecuteInQuery() throws Exception {
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery("select * from " + SEPARATOR + "portfolio p where (p.ID * 1) = 3").execute();
 
     assertEquals(1, results.size());
@@ -204,7 +204,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void divideOperationShouldThrowExceptionWhenDividingNonNumeric() throws Exception {
     try {
-      SelectResults results = (SelectResults) queryService
+      var results = (SelectResults) queryService
           .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID / '1' = 2").execute();
       fail();
     } catch (TypeMismatchException qite) {
@@ -215,7 +215,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void divideOperationShouldThrowExceptionWhenDividingNull() throws Exception {
     try {
-      SelectResults results = (SelectResults) queryService
+      var results = (SelectResults) queryService
           .newQuery("select * from " + SEPARATOR + "portfolio p where p.ID / null = 2").execute();
       fail();
     } catch (TypeMismatchException qite) {
@@ -226,7 +226,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void divideByZeroShouldThrowException() throws Exception {
     try {
-      SelectResults results = (SelectResults) queryService
+      var results = (SelectResults) queryService
           .newQuery("select * from " + SEPARATOR + "portfolio p where (p.ID / 0) = 3").execute();
       fail();
     } catch (QueryInvocationTargetException e) {
@@ -236,7 +236,7 @@ public class ArithmeticOperationsIntegrationTest {
 
   @Test
   public void divideOperationShouldCorrectlyExecuteInQuery() throws Exception {
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery("select * from " + SEPARATOR + "portfolio p where (p.ID / 1) = 3").execute();
 
     assertEquals(1, results.size());
@@ -245,7 +245,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void combinationOfArithmeticOperationsShouldExecuteOperationsAndNotThrowException()
       throws Exception {
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery(
             "select * from " + SEPARATOR
                 + "portfolio p where (p.ID - 1 + 1 - 1 + 1 - 1 + 1 * 1 / 1 - 1 + 1 - 1) = 2")
@@ -257,7 +257,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void arithmeticOperationsRetainCorrectOperatorPrecedenceWithAdditionAndMultiplication()
       throws Exception {
-    SelectResults results =
+    var results =
         (SelectResults) queryService.newQuery("select 1 + 2 * 3 from " + SEPARATOR + "portfolio p")
             .execute();
 
@@ -267,7 +267,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void arithmeticOperationsRetainCorrectOperatorPrecedenceWhenAdditionClauseIsAtEnd()
       throws Exception {
-    SelectResults results =
+    var results =
         (SelectResults) queryService.newQuery("select 2 * 3 + 1 from " + SEPARATOR + "portfolio p")
             .execute();
 
@@ -277,7 +277,7 @@ public class ArithmeticOperationsIntegrationTest {
   @Test
   public void arithmeticOperationsRetainCorrectOperatorPrecedenceWithParenthesis()
       throws Exception {
-    SelectResults results =
+    var results =
         (SelectResults) queryService
             .newQuery("select (1 + 2) * 3 from " + SEPARATOR + "portfolio p").execute();
 
@@ -286,7 +286,7 @@ public class ArithmeticOperationsIntegrationTest {
 
   @Test
   public void arithmeticOperationsRetainCorrectOperatorPrecedence() throws Exception {
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery("select 1 + 2 * 12 - 4 / 2 + 10 from " + SEPARATOR + "portfolio p").execute();
 
     assertEquals(33, results.iterator().next());

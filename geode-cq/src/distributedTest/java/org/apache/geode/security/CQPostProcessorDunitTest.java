@@ -35,18 +35,13 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.ProxyCache;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.CqResults;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.cq.internal.CqListenerImpl;
 import org.apache.geode.security.templates.UserPasswordAuthInit;
 import org.apache.geode.test.dunit.Host;
@@ -74,21 +69,21 @@ public class CQPostProcessorDunitTest extends JUnit4DistributedTestCase {
   public void before() throws Exception {
     Region region =
         server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("key" + i, "value" + i);
     }
   }
 
   @Test
   public void testPostProcess() {
-    String query = "select * from " + SEPARATOR + "AuthRegion";
+    var query = "select * from " + SEPARATOR + "AuthRegion";
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
-      Pool pool = PoolManager.find(region);
-      QueryService qs = pool.getQueryService();
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
+      var pool = PoolManager.find(region);
+      var qs = pool.getQueryService();
 
-      CqAttributesFactory factory = new CqAttributesFactory();
+      var factory = new CqAttributesFactory();
 
       factory.addCqListener(new CqListenerImpl() {
         @Override
@@ -98,14 +93,13 @@ public class CQPostProcessorDunitTest extends JUnit4DistributedTestCase {
         }
       });
 
-
-      CqAttributes cqa = factory.create();
+      var cqa = factory.create();
 
       // Create the CqQuery
-      CqQuery cq = qs.newCq("CQ1", query, cqa);
+      var cq = qs.newCq("CQ1", query, cqa);
       CqResults results = cq.executeWithInitialResults();
       assertEquals(5, results.size());
-      String resultString = results.toString();
+      var resultString = results.toString();
       assertTrue(resultString, resultString.contains("key:key0,value:super-user/null/key0/value0"));
       assertTrue(resultString.contains("key:key1,value:super-user/null/key1/value1"));
       assertTrue(resultString.contains("key:key2,value:super-user/null/key2/value2"));
@@ -114,8 +108,8 @@ public class CQPostProcessorDunitTest extends JUnit4DistributedTestCase {
     });
 
     client2.invoke(() -> {
-      ClientCache cache = createClientCache("authRegionUser", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("authRegionUser", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
       region.put("key6", "value6");
     });
 
@@ -123,40 +117,39 @@ public class CQPostProcessorDunitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testMultiUserPostProcess() {
-    String query = "select * from " + SEPARATOR + REGION_NAME;
+    var query = "select * from " + SEPARATOR + REGION_NAME;
     client1.invoke(() -> {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(LOCATORS, "");
       props.setProperty(MCAST_PORT, "0");
       props.setProperty(SECURITY_CLIENT_AUTH_INIT,
           UserPasswordAuthInit.class.getName() + ".create");
-      ClientCacheFactory factory = new ClientCacheFactory(props);
+      var factory = new ClientCacheFactory(props);
 
       factory.addPoolServer("localhost", server.getPort());
       factory.setPoolMinConnections(5);
       factory.setPoolSubscriptionEnabled(true);
       factory.setPoolMultiuserAuthentication(true);
 
-
-      ClientCache clientCache = factory.create();
+      var clientCache = factory.create();
       Region region =
           clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(REGION_NAME);
-      Pool pool = PoolManager.find(region);
+      var pool = PoolManager.find(region);
 
-      Properties userProps = new Properties();
+      var userProps = new Properties();
       userProps.setProperty("security-username", "super-user");
       userProps.setProperty("security-password", "1234567");
-      ProxyCache cache =
+      var cache =
           (ProxyCache) clientCache.createAuthenticatedView(userProps, pool.getName());
 
-      QueryService qs = cache.getQueryService();
+      var qs = cache.getQueryService();
 
-      CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+      var cqAttributesFactory = new CqAttributesFactory();
 
-      CqAttributes cqa = cqAttributesFactory.create();
+      var cqa = cqAttributesFactory.create();
 
       // Create the CqQuery
-      CqQuery cq = qs.newCq("CQ1", query, cqa, true);
+      var cq = qs.newCq("CQ1", query, cqa, true);
       cq.execute();
     });
   }

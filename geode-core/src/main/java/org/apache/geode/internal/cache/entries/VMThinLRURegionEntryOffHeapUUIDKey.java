@@ -178,10 +178,10 @@ public class VMThinLRURegionEntryOffHeapUUIDKey extends VMThinLRURegionEntryOffH
   @Override
   public synchronized int updateEntrySize(final EvictionController evictionController,
       final Object value) {
-    int oldSize = getEntrySize();
-    int newSize = evictionController.entrySize(getKeyForSizing(), value);
+    var oldSize = getEntrySize();
+    var newSize = evictionController.entrySize(getKeyForSizing(), value);
     setEntrySize(newSize);
-    int delta = newSize - oldSize;
+    var delta = newSize - oldSize;
     return delta;
   }
 
@@ -269,7 +269,7 @@ public class VMThinLRURegionEntryOffHeapUUIDKey extends VMThinLRURegionEntryOffH
   @Override
   public boolean isKeyEqual(final Object key) {
     if (key instanceof UUID) {
-      UUID uuid = (UUID) key;
+      var uuid = (UUID) key;
       return uuid.getLeastSignificantBits() == keyLeastSigBits
           && uuid.getMostSignificantBits() == keyMostSigBits;
     }

@@ -31,9 +31,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.apache.geode.management.api.RealizationResult;
 import org.apache.geode.management.configuration.Deployment;
-import org.apache.geode.management.runtime.DeploymentInfo;
 import org.apache.geode.services.result.impl.Failure;
 import org.apache.geode.services.result.impl.Success;
 
@@ -50,7 +48,7 @@ public class DeploymentRealizerTest {
   @Test
   public void getWithJarNotFound() {
     deployment.setFileName("a.jar");
-    DeploymentInfo deploymentInfo = realizer.get(deployment, null);
+    var deploymentInfo = realizer.get(deployment, null);
     assertThat(deploymentInfo.getJarLocation()).isEqualTo(DeploymentRealizer.JAR_NOT_DEPLOYED);
   }
 
@@ -59,7 +57,7 @@ public class DeploymentRealizerTest {
     deployment.setFileName("a.jar");
     deployment.setFile(new File("/test/a.jar"));
     doReturn(Success.of(deployment)).when(realizer).getDeployed(any());
-    DeploymentInfo deploymentInfo = realizer.get(deployment, null);
+    var deploymentInfo = realizer.get(deployment, null);
     assertThat(Paths.get(deploymentInfo.getJarLocation()).toUri())
         .isEqualTo(Paths.get("/test/a.jar").toUri());
   }
@@ -88,7 +86,7 @@ public class DeploymentRealizerTest {
     doReturn(Success.of(null)).when(realizer).deploy(any(Deployment.class));
     deployment.setFile(new File("/test/test.jar"));
 
-    RealizationResult realizationResult = realizer.create(deployment, null);
+    var realizationResult = realizer.create(deployment, null);
 
     assertThat(realizationResult.getMessage()).contains("Already deployed");
     assertThat(realizationResult.isSuccess()).isTrue();
@@ -96,15 +94,15 @@ public class DeploymentRealizerTest {
 
   @Test
   public void createWithNewJar() throws Exception {
-    String canonicalPath = "/home/sweet/home/test/test.jar";
-    Deployment expectedDeployment = new Deployment("test.jar", "by", "time");
-    File file = new File(canonicalPath);
+    var canonicalPath = "/home/sweet/home/test/test.jar";
+    var expectedDeployment = new Deployment("test.jar", "by", "time");
+    var file = new File(canonicalPath);
     expectedDeployment.setFile(file);
     deployment = new Deployment(canonicalPath, "test", Instant.now().toString());
     deployment.setFile(new File("/test/test.jar"));
     doReturn(Success.of(expectedDeployment)).when(realizer).deploy(any(Deployment.class));
 
-    RealizationResult realizationResult = realizer.create(deployment, null);
+    var realizationResult = realizer.create(deployment, null);
 
     assertThat(realizationResult.getMessage()).contains(file.getCanonicalPath());
     assertThat(realizationResult.isSuccess()).isTrue();
@@ -112,8 +110,8 @@ public class DeploymentRealizerTest {
 
   @Test
   public void createWithFailedDeploy() throws IOException, ClassNotFoundException {
-    String eMessage = "test runtime exception";
-    RuntimeException runtimeException = new RuntimeException(eMessage);
+    var eMessage = "test runtime exception";
+    var runtimeException = new RuntimeException(eMessage);
     doThrow(runtimeException).when(realizer).deploy(any(Deployment.class));
     deployment.setFile(new File("/test/test.jar"));
 
@@ -124,11 +122,11 @@ public class DeploymentRealizerTest {
 
   @Test
   public void createWithFailedGetForCanonicalPath() throws Exception {
-    String eMessage = "error getting canonical path";
+    var eMessage = "error getting canonical path";
     doReturn(Failure.of(eMessage)).when(realizer).deploy(any(Deployment.class));
     deployment.setFile(new File("/test/test.jar"));
 
-    RealizationResult realizationResult = realizer.create(deployment, null);
+    var realizationResult = realizer.create(deployment, null);
     assertThat(realizationResult.isSuccess()).isFalse();
     assertThat(realizationResult.getMessage()).contains(eMessage);
   }
@@ -136,7 +134,7 @@ public class DeploymentRealizerTest {
   @Test
   public void alreadyDeployed() throws Exception {
     doReturn(Success.of(null)).when(realizer).deploy(any());
-    RealizationResult realizationResult = realizer.create(deployment, null);
+    var realizationResult = realizer.create(deployment, null);
     assertThat(realizationResult.isSuccess()).isTrue();
     assertThat(realizationResult.getMessage()).contains("Already deployed");
   }

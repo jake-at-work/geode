@@ -32,13 +32,13 @@ public class ClusterConfigWithEmbededLocatorDUnitTest extends JUnit4DistributedT
 
   @Before
   public void before() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     locator = host.getVM(0);
   }
 
   @Test
   public void testEmbeddedLocator() throws Exception {
-    int locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
 
     // locator started this way won't have cluster configuration running
     locator.invoke(() -> {

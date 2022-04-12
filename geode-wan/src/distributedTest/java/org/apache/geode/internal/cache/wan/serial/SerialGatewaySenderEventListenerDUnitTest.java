@@ -20,15 +20,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
@@ -56,7 +53,7 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
   @Ignore
   @Test
   public void testGatewaySenderEventListenerInvocationWithoutLocator() {
-    int mPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var mPort = AvailablePortHelper.getRandomAvailableTCPPort();
     vm4.invoke(() -> WANTestBase.createCacheWithoutLocator(mPort));
     vm5.invoke(() -> WANTestBase.createCacheWithoutLocator(mPort));
     vm6.invoke(() -> WANTestBase.createCacheWithoutLocator(mPort));
@@ -79,7 +76,7 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
         () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
 
     final Map keyValues = new HashMap();
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       keyValues.put(i, i);
     }
 
@@ -103,8 +100,8 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
    */
   @Test
   public void testGatewaySenderEventListenerInvocation() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
 
     createCacheInVMs(nyPort, vm2, vm3);
@@ -134,7 +131,7 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
         () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
 
     final Map keyValues = new HashMap();
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       keyValues.put(i, i);
     }
 
@@ -157,8 +154,8 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
    */
   @Test
   public void testGatewaySender2EventListenerInvocation() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
 
@@ -184,7 +181,7 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
         () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
 
     final Map keyValues = new HashMap();
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       keyValues.put(i, i);
     }
 
@@ -205,8 +202,8 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
    */
   @Test
   public void testGatewaySenderEventListenerPoolImpl() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -226,7 +223,7 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
   @Test
   public void testGatewaySenderEventListener_GatewayOperations() {
 
-    int mPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var mPort = AvailablePortHelper.getRandomAvailableTCPPort();
     vm4.invoke(() -> WANTestBase.createCacheWithoutLocator(mPort));
     vm5.invoke(() -> WANTestBase.createCacheWithoutLocator(mPort));
     vm6.invoke(() -> WANTestBase.createCacheWithoutLocator(mPort));
@@ -247,7 +244,7 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
         () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
 
     final Map initialKeyValues = new HashMap();
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       initialKeyValues.put(i, i);
     }
 
@@ -261,7 +258,7 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.stopSender("ln"));
 
     final Map keyValues = new HashMap();
-    for (int i = 1000; i < 2000; i++) {
+    for (var i = 1000; i < 2000; i++) {
       keyValues.put(i, i);
     }
 
@@ -275,7 +272,7 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.startSender("ln"));
 
     final Map finalKeyValues = new HashMap();
-    for (int i = 2000; i < 3000; i++) {
+    for (var i = 2000; i < 3000; i++) {
       finalKeyValues.put(i, i);
     }
 
@@ -290,10 +287,10 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
   }
 
   public static void validateNoPoolCreation(final String siteId) {
-    Set<GatewaySender> senders = cache.getGatewaySenders();
-    for (GatewaySender sender : senders) {
+    var senders = cache.getGatewaySenders();
+    for (var sender : senders) {
       if (sender.getId().equals(siteId)) {
-        AbstractGatewaySender sImpl = (AbstractGatewaySender) sender;
+        var sImpl = (AbstractGatewaySender) sender;
         assertNull(sImpl.getProxy());
       }
     }
@@ -301,29 +298,29 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
 
   public static void validateReceivedEventsMapSizeListener1(final String senderId, final Map map) {
 
-    Set<GatewaySender> senders = cache.getGatewaySenders();
+    var senders = cache.getGatewaySenders();
     GatewaySender sender = null;
-    for (GatewaySender s : senders) {
+    for (var s : senders) {
       if (s.getId().equals(senderId)) {
         sender = s;
         break;
       }
     }
 
-    final List<AsyncEventListener> listeners =
+    final var listeners =
         ((AbstractGatewaySender) sender).getAsyncEventListeners();
     if (listeners.size() == 1) {
-      final AsyncEventListener l = listeners.get(0);
+      final var l = listeners.get(0);
 
-      WaitCriterion wc = new WaitCriterion() {
+      var wc = new WaitCriterion() {
         Map listenerMap;
 
         @Override
         public boolean done() {
           listenerMap = ((MyGatewaySenderEventListener) l).getEventsMap();
-          boolean sizeCorrect = map.size() == listenerMap.size();
-          boolean keySetCorrect = listenerMap.keySet().containsAll(map.keySet());
-          boolean valuesCorrect = listenerMap.values().containsAll(map.values());
+          var sizeCorrect = map.size() == listenerMap.size();
+          var keySetCorrect = listenerMap.keySet().containsAll(map.keySet());
+          var valuesCorrect = listenerMap.values().containsAll(map.values());
           return sizeCorrect && keySetCorrect && valuesCorrect;
         }
 
@@ -339,34 +336,34 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
 
   public static void validateReceivedEventsMapSizeListener2(final String senderId, final Map map) {
 
-    Set<GatewaySender> senders = cache.getGatewaySenders();
+    var senders = cache.getGatewaySenders();
     GatewaySender sender = null;
-    for (GatewaySender s : senders) {
+    for (var s : senders) {
       if (s.getId().equals(senderId)) {
         sender = s;
         break;
       }
     }
 
-    final List<AsyncEventListener> listeners =
+    final var listeners =
         ((AbstractGatewaySender) sender).getAsyncEventListeners();
     if (listeners.size() == 2) {
-      final AsyncEventListener l1 = listeners.get(0);
-      final AsyncEventListener l2 = listeners.get(1);
+      final var l1 = listeners.get(0);
+      final var l2 = listeners.get(1);
       await().untilAsserted(() -> {
-        Map listenerMap1 = ((MyGatewaySenderEventListener) l1).getEventsMap();
+        var listenerMap1 = ((MyGatewaySenderEventListener) l1).getEventsMap();
 
-        Map listenerMap2 = ((MyGatewaySenderEventListener2) l2).getEventsMap();
-        int listener1MapSize = listenerMap1.size();
-        int listener2MapSize = listenerMap1.size();
-        int expectedMapSize = map.size();
-        boolean sizeCorrect = expectedMapSize == listener1MapSize;
-        boolean keySetCorrect = listenerMap1.keySet().containsAll(map.keySet());
-        boolean valuesCorrect = listenerMap1.values().containsAll(map.values());
+        var listenerMap2 = ((MyGatewaySenderEventListener2) l2).getEventsMap();
+        var listener1MapSize = listenerMap1.size();
+        var listener2MapSize = listenerMap1.size();
+        var expectedMapSize = map.size();
+        var sizeCorrect = expectedMapSize == listener1MapSize;
+        var keySetCorrect = listenerMap1.keySet().containsAll(map.keySet());
+        var valuesCorrect = listenerMap1.values().containsAll(map.values());
 
-        boolean sizeCorrect2 = expectedMapSize == listener2MapSize;
-        boolean keySetCorrect2 = listenerMap2.keySet().containsAll(map.keySet());
-        boolean valuesCorrect2 = listenerMap2.values().containsAll(map.values());
+        var sizeCorrect2 = expectedMapSize == listener2MapSize;
+        var keySetCorrect2 = listenerMap2.keySet().containsAll(map.keySet());
+        var valuesCorrect2 = listenerMap2.values().containsAll(map.values());
 
         assertEquals(
             "Failed while waiting for all sites to get updated with the correct events. \nThe "

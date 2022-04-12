@@ -44,7 +44,6 @@ import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.functions.CreateJndiBindingFunction;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.test.junit.rules.GfshParserRule;
@@ -62,7 +61,7 @@ public class CreateJndiBindingCommandTest {
 
   @Before
   public void setUp() throws Exception {
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     when(cache.getDistributionManager()).thenReturn(mock(DistributionManager.class));
     command = spy(CreateJndiBindingCommand.class);
     command.setCache(cache);
@@ -87,11 +86,11 @@ public class CreateJndiBindingCommandTest {
 
   @Test
   public void configPropertyIsProperlyParsed() {
-    GfshParseResult result = gfsh.parse(COMMAND
+    var result = gfsh.parse(COMMAND
         + " --type=SIMPLE --name=name --jdbc-driver-class=driver --connection-url=url "
         + "--datasource-config-properties={'name':'name1','type':'type1','value':'value1'},{'name':'name2','type':'type2','value':'value2'}");
 
-    JndiBindingsType.JndiBinding.ConfigProperty[] configProperties =
+    var configProperties =
         (JndiBindingsType.JndiBinding.ConfigProperty[]) result
             .getParamValue("datasource-config-properties");
     assertThat(configProperties).hasSize(2);
@@ -118,9 +117,9 @@ public class CreateJndiBindingCommandTest {
 
   @Test
   public void returnsErrorIfBindingAlreadyExistsAndIfUnspecified() {
-    InternalConfigurationPersistenceService clusterConfigService =
+    var clusterConfigService =
         mock(InternalConfigurationPersistenceService.class);
-    CacheConfig cacheConfig = mock(CacheConfig.class);
+    var cacheConfig = mock(CacheConfig.class);
     when(cacheConfig.getJndiBindings()).thenReturn(bindings);
     bindings.add(binding);
 
@@ -134,9 +133,9 @@ public class CreateJndiBindingCommandTest {
 
   @Test
   public void skipsIfBindingAlreadyExistsAndIfSpecified() {
-    InternalConfigurationPersistenceService clusterConfigService =
+    var clusterConfigService =
         mock(InternalConfigurationPersistenceService.class);
-    CacheConfig cacheConfig = mock(CacheConfig.class);
+    var cacheConfig = mock(CacheConfig.class);
 
     doReturn(clusterConfigService).when(command).getConfigurationPersistenceService();
     doReturn(cacheConfig).when(clusterConfigService).getCacheConfig(any());
@@ -151,9 +150,9 @@ public class CreateJndiBindingCommandTest {
 
   @Test
   public void skipsIfBindingAlreadyExistsAndIfSpecifiedTrue() {
-    InternalConfigurationPersistenceService clusterConfigService =
+    var clusterConfigService =
         mock(InternalConfigurationPersistenceService.class);
-    CacheConfig cacheConfig = mock(CacheConfig.class);
+    var cacheConfig = mock(CacheConfig.class);
     when(cacheConfig.getJndiBindings()).thenReturn(bindings);
     bindings.add(binding);
 
@@ -168,9 +167,9 @@ public class CreateJndiBindingCommandTest {
 
   @Test
   public void returnsErrorIfBindingAlreadyExistsAndIfSpecifiedFalse() {
-    InternalConfigurationPersistenceService clusterConfigService =
+    var clusterConfigService =
         mock(InternalConfigurationPersistenceService.class);
-    CacheConfig cacheConfig = mock(CacheConfig.class);
+    var cacheConfig = mock(CacheConfig.class);
     when(cacheConfig.getJndiBindings()).thenReturn(bindings);
     bindings.add(binding);
 
@@ -197,9 +196,9 @@ public class CreateJndiBindingCommandTest {
 
   @Test
   public void whenNoMembersFoundAndClusterConfigRunningThenUpdateClusterConfig() {
-    InternalConfigurationPersistenceService clusterConfigService =
+    var clusterConfigService =
         mock(InternalConfigurationPersistenceService.class);
-    CacheConfig cacheConfig = mock(CacheConfig.class);
+    var cacheConfig = mock(CacheConfig.class);
 
     doReturn(Collections.emptySet()).when(command).findMembers(any(), any());
     doReturn(clusterConfigService).when(command).getConfigurationPersistenceService();
@@ -226,7 +225,7 @@ public class CreateJndiBindingCommandTest {
     Set<DistributedMember> members = new HashSet<>();
     members.add(mock(DistributedMember.class));
 
-    CliFunctionResult result = new CliFunctionResult("server1", true,
+    var result = new CliFunctionResult("server1", true,
         "Tried creating jndi binding \"name\" on \"server1\"");
     List<CliFunctionResult> results = new ArrayList<>();
     results.add(result);
@@ -242,16 +241,16 @@ public class CreateJndiBindingCommandTest {
         .tableHasColumnOnlyWithValues("Status", "OK").tableHasColumnOnlyWithValues("Message",
             "Tried creating jndi binding \"name\" on \"server1\"");
 
-    ArgumentCaptor<CreateJndiBindingFunction> function =
+    var function =
         ArgumentCaptor.forClass(CreateJndiBindingFunction.class);
-    ArgumentCaptor<Object[]> arguments =
+    var arguments =
         ArgumentCaptor.forClass(Object[].class);
     @SuppressWarnings("unchecked")
     ArgumentCaptor<Set<DistributedMember>> targetMembers = ArgumentCaptor.forClass(Set.class);
     verify(command, times(1)).executeAndGetFunctionResult(function.capture(), arguments.capture(),
         targetMembers.capture());
-    Object[] actualArguments = arguments.getValue();
-    JndiBinding jndiConfig = (JndiBinding) actualArguments[0];
+    var actualArguments = arguments.getValue();
+    var jndiConfig = (JndiBinding) actualArguments[0];
     boolean creatingDataSource = (Boolean) actualArguments[1];
 
     assertThat(function.getValue()).isInstanceOf(CreateJndiBindingFunction.class);
@@ -267,13 +266,13 @@ public class CreateJndiBindingCommandTest {
     Set<DistributedMember> members = new HashSet<>();
     members.add(mock(DistributedMember.class));
 
-    CliFunctionResult result = new CliFunctionResult("server1", true,
+    var result = new CliFunctionResult("server1", true,
         "Tried creating jndi binding \"name\" on \"server1\"");
     List<CliFunctionResult> results = new ArrayList<>();
     results.add(result);
-    InternalConfigurationPersistenceService clusterConfigService =
+    var clusterConfigService =
         mock(InternalConfigurationPersistenceService.class);
-    CacheConfig cacheConfig = mock(CacheConfig.class);
+    var cacheConfig = mock(CacheConfig.class);
 
     doReturn(members).when(command).findMembers(any(), any());
     doReturn(clusterConfigService).when(command).getConfigurationPersistenceService();
@@ -295,16 +294,16 @@ public class CreateJndiBindingCommandTest {
     verify(clusterConfigService).updateCacheConfig(any(), any());
     verify(command).updateConfigForGroup(eq("cluster"), eq(cacheConfig), any());
 
-    ArgumentCaptor<CreateJndiBindingFunction> function =
+    var function =
         ArgumentCaptor.forClass(CreateJndiBindingFunction.class);
-    ArgumentCaptor<Object[]> arguments =
+    var arguments =
         ArgumentCaptor.forClass(Object[].class);
     @SuppressWarnings("unchecked")
     ArgumentCaptor<Set<DistributedMember>> targetMembers = ArgumentCaptor.forClass(Set.class);
     verify(command, times(1)).executeAndGetFunctionResult(function.capture(), arguments.capture(),
         targetMembers.capture());
-    Object[] actualArguments = arguments.getValue();
-    JndiBinding jndiConfig = (JndiBinding) actualArguments[0];
+    var actualArguments = arguments.getValue();
+    var jndiConfig = (JndiBinding) actualArguments[0];
     boolean creatingDataSource = (Boolean) actualArguments[1];
 
     assertThat(function.getValue()).isInstanceOf(CreateJndiBindingFunction.class);

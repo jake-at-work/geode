@@ -15,12 +15,10 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.functions.ResumeAsyncEventQueueDispatcherFunction;
@@ -52,9 +50,9 @@ public class ResumeAsyncEventQueueDispatcherCommand extends GfshCommand {
       queueId = queueId.trim();
     }
 
-    Set<DistributedMember> targetMembers = findMembers(onGroup, onMember);
+    var targetMembers = findMembers(onGroup, onMember);
 
-    List<CliFunctionResult> results =
+    var results =
         executeAndGetFunctionResult(new ResumeAsyncEventQueueDispatcherFunction(), queueId,
             targetMembers);
 

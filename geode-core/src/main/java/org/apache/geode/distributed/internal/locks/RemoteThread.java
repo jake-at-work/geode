@@ -51,7 +51,7 @@ public class RemoteThread {
     if (!(other instanceof RemoteThread)) {
       return false;
     }
-    final RemoteThread that = (RemoteThread) other;
+    final var that = (RemoteThread) other;
 
     if (member != that.member && !(member != null && member.equals(that.member))) {
       return false;
@@ -61,8 +61,8 @@ public class RemoteThread {
 
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + (member == null ? 0 : member.hashCode());
     result = mult * result + threadId;

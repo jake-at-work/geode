@@ -33,7 +33,6 @@ import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -107,15 +106,15 @@ public class InternalClientMembership {
 
     synchronized (systems) {
       // Initialize our own list of distributed systems via a connect listener
-      List existingSystems = InternalDistributedSystem
+      var existingSystems = InternalDistributedSystem
           .addConnectListener(InternalClientMembership::addInternalDistributedSystem);
 
       isMonitoring = true;
 
       // While still holding the lock on systems, add all currently known
       // systems to our own list
-      for (final Object existingSystem : existingSystems) {
-        InternalDistributedSystem sys = (InternalDistributedSystem) existingSystem;
+      for (final var existingSystem : existingSystems) {
+        var sys = (InternalDistributedSystem) existingSystem;
         try {
           if (sys.isConnected()) {
             addInternalDistributedSystem(sys);
@@ -139,7 +138,7 @@ public class InternalClientMembership {
   public static void registerClientMembershipListener(ClientMembershipListener listener) {
     startMonitoring();
     synchronized (membershipLock) {
-      List<ClientMembershipListener> oldListeners = clientMembershipListeners;
+      var oldListeners = clientMembershipListeners;
       if (!oldListeners.contains(listener)) {
         List<ClientMembershipListener> newListeners =
             new ArrayList<>(oldListeners);
@@ -157,7 +156,7 @@ public class InternalClientMembership {
   public static void unregisterClientMembershipListener(ClientMembershipListener listener) {
     startMonitoring();
     synchronized (membershipLock) {
-      List<ClientMembershipListener> oldListeners = clientMembershipListeners;
+      var oldListeners = clientMembershipListeners;
       if (oldListeners.contains(listener)) {
         List<ClientMembershipListener> newListeners =
             new ArrayList<>(oldListeners);
@@ -179,7 +178,7 @@ public class InternalClientMembership {
     // Synchronization is not needed because we never modify this list
     // in place.
 
-    List<ClientMembershipListener> l = clientMembershipListeners; // volatile fetch
+    var l = clientMembershipListeners; // volatile fetch
     // convert to an array
     return l.toArray(new ClientMembershipListener[0]);
   }
@@ -211,14 +210,14 @@ public class InternalClientMembership {
    */
   public static Map getConnectedClients(boolean onlyClientsNotifiedByThisServer,
       InternalCache cache) {
-    ClientHealthMonitor chMon = ClientHealthMonitor.getInstance();
+    var chMon = ClientHealthMonitor.getInstance();
     Set filterProxyIDs = null;
     if (onlyClientsNotifiedByThisServer) {
       // Note it is not necessary to synchronize on the list of Client servers here,
       // since this is only a status (snapshot) of the system.
-      for (final CacheServer server : cache.getCacheServers()) {
-        InternalCacheServer cacheServer = (InternalCacheServer) server;
-        Acceptor acceptor = cacheServer.getAcceptor();
+      for (final var server : cache.getCacheServers()) {
+        var cacheServer = (InternalCacheServer) server;
+        var acceptor = cacheServer.getAcceptor();
         if (acceptor != null && acceptor.getCacheClientNotifier() != null) {
           if (filterProxyIDs != null) {
             // notifierClients is a copy set from CacheClientNotifier
@@ -265,9 +264,9 @@ public class InternalClientMembership {
 
     // Get all clients
     Map allClients = new HashMap();
-    for (final CacheServer server : cache.getCacheServers()) {
-      InternalCacheServer cacheServer = (InternalCacheServer) server;
-      Acceptor acceptor = cacheServer.getAcceptor();
+    for (final var server : cache.getCacheServers()) {
+      var cacheServer = (InternalCacheServer) server;
+      var acceptor = cacheServer.getAcceptor();
       if (acceptor != null && acceptor.getCacheClientNotifier() != null) {
         allClients.putAll(acceptor.getCacheClientNotifier().getAllClients());
       }
@@ -287,9 +286,9 @@ public class InternalClientMembership {
     }
 
     Map clientQueueSizes = new HashMap();
-    for (CacheServer cacheServer : cache.getCacheServers()) {
-      InternalCacheServer internalCacheServer = (InternalCacheServer) cacheServer;
-      Acceptor acceptor = internalCacheServer.getAcceptor();
+    for (var cacheServer : cache.getCacheServers()) {
+      var internalCacheServer = (InternalCacheServer) cacheServer;
+      var acceptor = internalCacheServer.getAcceptor();
       if (acceptor != null && acceptor.getCacheClientNotifier() != null) {
         clientQueueSizes.putAll(acceptor.getCacheClientNotifier().getClientQueueSizes());
       }
@@ -307,16 +306,16 @@ public class InternalClientMembership {
     final Map map = new HashMap(); // KEY:server (String), VALUE:List of active endpoints
     // returns an unmodifiable set
     Map/* <String,Pool> */ poolMap = PoolManager.getAll();
-    for (final Object value : poolMap.values()) {
-      PoolImpl pi = (PoolImpl) value;
+    for (final var value : poolMap.values()) {
+      var pi = (PoolImpl) value;
       Map/* <ServerLocationAndMemberId,Endpoint> */ eps = pi.getEndpointMap();
-      for (final Object o : eps.entrySet()) {
-        Map.Entry entry = (Map.Entry) o;
-        ServerLocation loc = ((ServerLocationAndMemberId) entry.getKey()).getServerLocation();
-        org.apache.geode.cache.client.internal.Endpoint ep =
+      for (final var o : eps.entrySet()) {
+        var entry = (Map.Entry) o;
+        var loc = ((ServerLocationAndMemberId) entry.getKey()).getServerLocation();
+        var ep =
             (org.apache.geode.cache.client.internal.Endpoint) entry.getValue();
-        String server = loc.getHostName() + "[" + loc.getPort() + "]";
-        Integer count = (Integer) map.get(server);
+        var server = loc.getHostName() + "[" + loc.getPort() + "]";
+        var count = (Integer) map.get(server);
         if (count == null) {
           map.put(server, 1);
         } else {
@@ -329,7 +328,7 @@ public class InternalClientMembership {
 
   public static Map getConnectedIncomingGateways() {
     Map connectedIncomingGateways = null;
-    ClientHealthMonitor chMon = ClientHealthMonitor.getInstance();
+    var chMon = ClientHealthMonitor.getInstance();
     if (chMon == null) {
       connectedIncomingGateways = new HashMap();
     } else {
@@ -412,7 +411,7 @@ public class InternalClientMembership {
   private static void notifyListeners(final DistributedMember member, final boolean client,
       final EventType typeOfEvent) {
     startMonitoring();
-    ExecutorService queuedExecutor = executor;
+    var queuedExecutor = executor;
     if (queuedExecutor == null) {
       return;
     }
@@ -435,7 +434,7 @@ public class InternalClientMembership {
   private static void doNotifyClientMembershipListener(DistributedMember member, boolean client,
       ClientMembershipEvent clientMembershipEvent, EventType eventType) {
 
-    for (ClientMembershipListener listener : clientMembershipListeners) {
+    for (var listener : clientMembershipListeners) {
 
       try {
         if (eventType.equals(EventType.JOINED)) {

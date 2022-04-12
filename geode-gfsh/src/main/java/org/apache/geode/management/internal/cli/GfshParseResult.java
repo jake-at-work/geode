@@ -59,21 +59,21 @@ public class GfshParseResult extends ParseResult {
     super(method, instance, arguments);
     this.userInput = userInput.trim();
 
-    CliCommand cliCommand = method.getAnnotation(CliCommand.class);
+    var cliCommand = method.getAnnotation(CliCommand.class);
     commandName = cliCommand.value()[0];
 
-    Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+    var parameterAnnotations = method.getParameterAnnotations();
     if (arguments == null) {
       return;
     }
 
-    for (int i = 0; i < arguments.length; i++) {
-      Object argument = arguments[i];
+    for (var i = 0; i < arguments.length; i++) {
+      var argument = arguments[i];
       if (argument == null) {
         continue;
       }
 
-      CliOption cliOption = getCliOption(parameterAnnotations, i);
+      var cliOption = getCliOption(parameterAnnotations, i);
 
       // this maps are used for easy access of option values.
       // It's used in tests and validation of option values in pre-execution
@@ -105,7 +105,7 @@ public class GfshParseResult extends ParseResult {
 
 
   public String getParamValueAsString(String param) {
-    Object argument = paramValueMap.get(param);
+    var argument = paramValueMap.get(param);
     if (argument == null) {
       return null;
     }
@@ -124,8 +124,8 @@ public class GfshParseResult extends ParseResult {
   }
 
   private CliOption getCliOption(Annotation[][] parameterAnnotations, int index) {
-    Annotation[] annotations = parameterAnnotations[index];
-    for (Annotation annotation : annotations) {
+    var annotations = parameterAnnotations[index];
+    for (var annotation : annotations) {
       if (annotation instanceof CliOption) {
         return (CliOption) annotation;
       }

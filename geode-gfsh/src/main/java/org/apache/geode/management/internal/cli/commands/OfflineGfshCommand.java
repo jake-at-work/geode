@@ -17,7 +17,6 @@ package org.apache.geode.management.internal.cli.commands;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
@@ -29,7 +28,6 @@ import org.springframework.shell.core.CommandMarker;
 import org.apache.geode.management.internal.cli.CliUtils;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.cli.shell.JmxOperationInvoker;
-import org.apache.geode.management.internal.cli.shell.OperationInvoker;
 import org.apache.geode.management.internal.i18n.CliStrings;
 
 public abstract class OfflineGfshCommand implements CommandMarker {
@@ -47,7 +45,7 @@ public abstract class OfflineGfshCommand implements CommandMarker {
   }
 
   public JMXServiceURL getJmxServiceUrl() {
-    OperationInvoker operationInvoker = getGfsh().getOperationInvoker();
+    var operationInvoker = getGfsh().getOperationInvoker();
     if (operationInvoker instanceof JmxOperationInvoker) {
       return ((JmxOperationInvoker) operationInvoker).getJmxServiceUrl();
     }
@@ -56,16 +54,16 @@ public abstract class OfflineGfshCommand implements CommandMarker {
   }
 
   public boolean isConnectedAndReady() {
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
     return gfsh != null && gfsh.isConnectedAndReady();
   }
 
   protected Properties loadProperties(File... files) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     if (files == null) {
       return properties;
     }
-    for (File file : files) {
+    for (var file : files) {
       if (file != null) {
         properties.putAll(loadPropertiesFromFile(file));
       }
@@ -85,13 +83,13 @@ public abstract class OfflineGfshCommand implements CommandMarker {
   }
 
   private static Properties loadPropertiesFromUrl(URL url) {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     if (url == null) {
       return properties;
     }
 
-    try (InputStream inputStream = url.openStream()) {
+    try (var inputStream = url.openStream()) {
       properties.load(inputStream);
     } catch (IOException io) {
       throw new RuntimeException(

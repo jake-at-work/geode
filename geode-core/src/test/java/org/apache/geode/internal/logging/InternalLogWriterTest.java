@@ -32,7 +32,7 @@ public class InternalLogWriterTest {
 
   @Test
   public void testLevelNames() {
-    String[] levelNames = InternalLogWriter.levelNames.toArray(new String[0]);
+    var levelNames = InternalLogWriter.levelNames.toArray(new String[0]);
 
     assertThat(levelNames[0]).isEqualTo("all");
     assertThat(levelNames[1]).isEqualTo("finest");

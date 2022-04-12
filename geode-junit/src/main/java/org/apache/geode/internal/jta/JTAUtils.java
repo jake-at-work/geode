@@ -20,14 +20,10 @@
 
 package org.apache.geode.internal.jta;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
@@ -78,7 +74,7 @@ public class JTAUtils {
    */
   public void getRegionFromCache(String region) throws Exception {
     try {
-      Region subregion = currRegion.getSubregion(region);
+      var subregion = currRegion.getSubregion(region);
 
       if (subregion == null) {
         makeRegion(region);
@@ -102,7 +98,7 @@ public class JTAUtils {
     int space;
     List<String> list = new LinkedList<>();
     while ((space = command.indexOf(' ')) > 0) {
-      String str = command.substring(0, space);
+      var str = command.substring(0, space);
       list.add(str);
       command = command.substring(space + 1);
     }
@@ -118,7 +114,7 @@ public class JTAUtils {
    */
 
   public String get(String command) throws CacheException {
-    Object valueBytes = currRegion.get(command);
+    var valueBytes = currRegion.get(command);
     return printEntry(command, valueBytes);
   }
 
@@ -130,14 +126,14 @@ public class JTAUtils {
   public void put(String command, String val) throws Exception {
     try {
       command = "put " + command + " " + val;
-      List<String> list = parseCommand(command);
+      var list = parseCommand(command);
       if (list.size() < 3) {
         System.out.println("Error:put requires a name and a value");
       } else {
-        String name = list.get(1);
-        String value = list.get(2);
+        var name = list.get(1);
+        var value = list.get(2);
         if (list.size() > 3) {
-          String objectType = list.get(3);
+          var objectType = list.get(3);
           if (objectType.equalsIgnoreCase("int")) {
             currRegion.put(name, Integer.valueOf(value));
           } else if (objectType.equalsIgnoreCase("str")) {
@@ -187,7 +183,7 @@ public class JTAUtils {
 
     String returnVal = null;
     if (str.indexOf(':') != -1) {
-      String[] tokens = str.split(":");
+      var tokens = str.split(":");
       returnVal = tokens[1].trim();
     } else if (str.equals("No value in cache.")) { // dont change this string!!
       returnVal = str;
@@ -202,13 +198,13 @@ public class JTAUtils {
    */
   public void deleteRows(String tableName) throws NamingException, SQLException {
 
-    Context ctx = cache.getJNDIContext();
-    DataSource da = (DataSource) ctx.lookup("java:/SimpleDataSource"); // doesn't req txn
+    var ctx = cache.getJNDIContext();
+    var da = (DataSource) ctx.lookup("java:/SimpleDataSource"); // doesn't req txn
 
-    Connection conn = da.getConnection();
-    Statement stmt = conn.createStatement();
-    String sql = "select * from " + tableName;
-    ResultSet rs = stmt.executeQuery(sql);
+    var conn = da.getConnection();
+    var stmt = conn.createStatement();
+    var sql = "select * from " + tableName;
+    var rs = stmt.executeQuery(sql);
     if (rs.next()) {
 
       sql = "delete from  " + tableName;
@@ -228,15 +224,15 @@ public class JTAUtils {
    */
   public int getRows(String tableName) throws NamingException, SQLException {
 
-    Context ctx = cache.getJNDIContext();
-    DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var ctx = cache.getJNDIContext();
+    var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
 
-    String sql = "select * from " + tableName;
+    var sql = "select * from " + tableName;
 
-    int counter = 0;
-    try (Connection conn = ds.getConnection();
-        Statement sm = conn.createStatement();
-        ResultSet rs = sm.executeQuery(sql)) {
+    var counter = 0;
+    try (var conn = ds.getConnection();
+        var sm = conn.createStatement();
+        var rs = sm.executeQuery(sql)) {
       while (rs.next()) {
         counter++;
       }
@@ -252,16 +248,16 @@ public class JTAUtils {
    */
   public boolean checkTableAgainstData(String tableName, String pattern)
       throws NamingException, SQLException {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
-    boolean found = false;
-    String id_str = "";
+    var ctx = cache.getJNDIContext();
+    var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var found = false;
+    var id_str = "";
 
-    String sql = "select * from " + tableName;
+    var sql = "select * from " + tableName;
 
-    try (Connection conn = ds.getConnection();
-        Statement sm = conn.createStatement();
-        ResultSet rs = sm.executeQuery(sql)) {
+    try (var conn = ds.getConnection();
+        var sm = conn.createStatement();
+        var rs = sm.executeQuery(sql)) {
       while (rs.next()) {
         System.out.println("id:" + rs.getString(1));
         System.out.println("name:" + rs.getString(2));

@@ -35,8 +35,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.distributed.LocatorLauncher.Builder;
-import org.apache.geode.distributed.LocatorLauncher.LocatorState;
-import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.process.ProcessControllerFactory;
 import org.apache.geode.internal.process.ProcessType;
@@ -76,7 +74,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
 
   @Test
   public void startWithPortUsesPort() {
-    LocatorLauncher launcher = startLocator(newBuilder()
+    var launcher = startLocator(newBuilder()
         .setPort(defaultLocatorPort));
 
     assertThat(launcher.getInternalLocator().getPort()).isEqualTo(defaultLocatorPort);
@@ -84,7 +82,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
 
   @Test
   public void startWithPortZeroUsesAnEphemeralPort() {
-    LocatorLauncher launcher = startLocator(newBuilder()
+    var launcher = startLocator(newBuilder()
         .setPort(0));
 
     assertThat(launcher.getInternalLocator().getPort()).isGreaterThan(0);
@@ -93,13 +91,13 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
 
   @Test
   public void startUsesBuilderValues() {
-    LocatorLauncher launcher = startLocator(newBuilder()
+    var launcher = startLocator(newBuilder()
         .setPort(nonDefaultLocatorPort));
 
-    InternalLocator locator = launcher.getInternalLocator();
+    var locator = launcher.getInternalLocator();
     assertThat(locator.getPort()).isEqualTo(nonDefaultLocatorPort);
 
-    DistributedSystem system = locator.getDistributedSystem();
+    var system = locator.getDistributedSystem();
     assertThat(system.getProperties().getProperty(DISABLE_AUTO_RECONNECT)).isEqualTo("true");
     assertThat(system.getProperties().getProperty(LOG_LEVEL)).isEqualTo("config");
     assertThat(system.getProperties().getProperty(MCAST_PORT)).isEqualTo("0");
@@ -122,9 +120,9 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
 
   @Test
   public void startDeletesStaleControlFiles() {
-    File stopRequestFile = givenControlFile(getProcessType().getStopRequestFileName());
-    File statusRequestFile = givenControlFile(getProcessType().getStatusRequestFileName());
-    File statusFile = givenControlFile(getProcessType().getStatusFileName());
+    var stopRequestFile = givenControlFile(getProcessType().getStopRequestFileName());
+    var statusRequestFile = givenControlFile(getProcessType().getStatusRequestFileName());
+    var statusFile = givenControlFile(getProcessType().getStatusFileName());
 
     startLocator();
 
@@ -148,7 +146,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
     launcher = newBuilder()
         .build();
 
-    Throwable thrown = catchThrowable(() -> launcher.start());
+    var thrown = catchThrowable(() -> launcher.start());
 
     assertThat(thrown)
         .isInstanceOf(RuntimeException.class)
@@ -162,7 +160,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
         .setPort(nonDefaultLocatorPort)
         .build();
 
-    Throwable thrown = catchThrowable(() -> launcher.start());
+    var thrown = catchThrowable(() -> launcher.start());
 
     assertThat(thrown)
         .isInstanceOf(RuntimeException.class)
@@ -173,7 +171,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
   public void statusWithPidReturnsOnlineWithDetails() throws Exception {
     givenRunningLocator();
 
-    LocatorState locatorState = new Builder()
+    var locatorState = new Builder()
         .setPid(localPid)
         .build()
         .status();
@@ -195,7 +193,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
   public void statusWithWorkingDirectoryReturnsOnlineWithDetails() throws Exception {
     givenRunningLocator();
 
-    LocatorState locatorState = new Builder()
+    var locatorState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -216,11 +214,11 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
   @Test
   public void statusWithEmptyPidFileThrowsIllegalArgumentException() {
     givenEmptyPidFile();
-    LocatorLauncher launcher = new Builder()
+    var launcher = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build();
 
-    Throwable thrown = catchThrowable(launcher::status);
+    var thrown = catchThrowable(launcher::status);
 
     assertThat(thrown)
         .isInstanceOf(IllegalArgumentException.class)
@@ -231,7 +229,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
   public void statusWithEmptyWorkingDirectoryReturnsNotRespondingWithDetails() throws Exception {
     givenEmptyWorkingDirectory();
 
-    LocatorState locatorState = new Builder()
+    var locatorState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -256,7 +254,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
   public void statusWithStalePidFileReturnsNotResponding() {
     givenPidFile(fakePid);
 
-    LocatorState locatorState = new Builder()
+    var locatorState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -268,7 +266,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
   public void stopWithPidReturnsStopped() {
     givenRunningLocator();
 
-    LocatorState locatorState = new Builder()
+    var locatorState = new Builder()
         .setPid(localPid)
         .build()
         .stop();
@@ -292,7 +290,7 @@ public class LocatorLauncherLocalIntegrationTest extends LocatorLauncherIntegrat
   public void stopWithWorkingDirectoryReturnsStopped() {
     givenRunningLocator();
 
-    LocatorState locatorState = new Builder()
+    var locatorState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .stop();

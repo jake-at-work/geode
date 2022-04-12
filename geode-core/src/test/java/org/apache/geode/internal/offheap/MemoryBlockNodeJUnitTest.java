@@ -79,7 +79,7 @@ public class MemoryBlockNodeJUnitTest {
   }
 
   private StoredObject createValueAsUnserializedStoredObject(Object value) {
-    StoredObject createdObject = createValueAsUnserializedStoredObject(value, false);
+    var createdObject = createValueAsUnserializedStoredObject(value, false);
     return createdObject;
   }
 
@@ -91,9 +91,9 @@ public class MemoryBlockNodeJUnitTest {
       valueInByteArray = (byte[]) value;
     }
 
-    boolean isSerialized = false;
+    var isSerialized = false;
 
-    StoredObject createdObject = createChunk(valueInByteArray, isSerialized, isCompressed);
+    var createdObject = createChunk(valueInByteArray, isSerialized, isCompressed);
     return createdObject;
   }
 
@@ -102,29 +102,29 @@ public class MemoryBlockNodeJUnitTest {
   }
 
   private StoredObject createChunk(byte[] v, boolean isSerialized, boolean isCompressed) {
-    StoredObject chunk = ma.allocateAndInitialize(v, isSerialized, isCompressed);
+    var chunk = ma.allocateAndInitialize(v, isSerialized, isCompressed);
     return chunk;
   }
 
 
   private StoredObject createValueAsSerializedStoredObject(Object value) {
-    StoredObject createdObject = createValueAsSerializedStoredObject(value, false);
+    var createdObject = createValueAsSerializedStoredObject(value, false);
     return createdObject;
   }
 
   private StoredObject createValueAsSerializedStoredObject(Object value, boolean isCompressed) {
-    byte[] valueInSerializedByteArray = EntryEventImpl.serialize(value);
+    var valueInSerializedByteArray = EntryEventImpl.serialize(value);
 
-    boolean isSerialized = true;
+    var isSerialized = true;
 
-    StoredObject createdObject =
+    var createdObject =
         createChunk(valueInSerializedByteArray, isSerialized, isCompressed);
     return createdObject;
   }
 
 
   private void allocateOffHeapDeserialized() {
-    Object regionEntryValue = getValue();
+    var regionEntryValue = getValue();
     storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
   }
 
@@ -148,7 +148,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getStateReturnsStateOfBlock() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     MemoryBlock mb = new MemoryBlockNode(ma, fragment);
     allocateOffHeapDeserialized();
     softly.assertThat(mb.getState()).isEqualTo(fragment.getState());
@@ -156,29 +156,29 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getMemoryAddressReturnsAddressOfBlock() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     MemoryBlock mb = new MemoryBlockNode(ma, fragment);
     softly.assertThat(mb.getAddress()).isEqualTo(fragment.getAddress());
   }
 
   @Test
   public void getBlockSizeReturnsSizeOfBlock() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     MemoryBlock mb = new MemoryBlockNode(ma, fragment);
     softly.assertThat(mb.getBlockSize()).isEqualTo(fragment.getBlockSize());
   }
 
   @Test
   public void getNextBlockOfSingleBlockReturnsNull() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     MemoryBlock mb = new MemoryBlockNode(ma, fragment);
     softly.assertThat(mb.getNextBlock()).isNull();
   }
 
   @Test
   public void getSlabIdReturnsIdOfSlabBlockWasConstructedFrom() {
-    for (int i = 0; i < slabs.length; ++i) {
-      Fragment fragment = new Fragment(slabs[i].getMemoryAddress(), slabs[i].getSize());
+    for (var i = 0; i < slabs.length; ++i) {
+      var fragment = new Fragment(slabs[i].getMemoryAddress(), slabs[i].getSize());
       MemoryBlock mb = new MemoryBlockNode(ma, fragment);
       softly.assertThat(mb.getSlabId()).isEqualTo(i);
     }
@@ -186,17 +186,17 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getFreeListIdReturnsIdFromUnderlyingBlock() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     MemoryBlock mb = new MemoryBlockNode(ma, fragment);
     softly.assertThat(mb.getFreeListId()).isEqualTo(-1);
   }
 
   @Test
   public void getRefCountReturnsRefCountFromUnderlyingBlock() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     MemoryBlock mb = new MemoryBlockNode(ma, fragment);
     softly.assertThat(mb.getRefCount()).isEqualTo(0);
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb2 = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb2.getRefCount()).isEqualTo(1);
@@ -204,7 +204,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getDataTypeReturnsTypeFromUnderlyingBlock() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb2 = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb2.getDataType()).isEqualTo("java.lang.Long");
@@ -212,7 +212,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getHashCodeReturnsCodeFromUnderlyingBlock() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb2 = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb2.hashCode()).isEqualTo(storedObject.hashCode());
@@ -220,8 +220,8 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void equalsComparisonWithNonMemoryBlockNodeReturnsFalse() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
-    Object obj = getValue();
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb2 = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb2.equals(fragment)).isEqualTo(false);
@@ -229,9 +229,9 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void equalsComparisonWithAnotherMemoryBlockReturnsFalse() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     MemoryBlock mb = new MemoryBlockNode(ma, fragment);
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb2 = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb2.equals(mb)).isEqualTo(false);
@@ -240,7 +240,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void equalsComparisonToSelfReturnsTrue() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb.equals(mb)).isEqualTo(true);
@@ -248,7 +248,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void equalsComparisonWhenUnderlyingBlocksHaveSameMemoryAddressReturnsTrue() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb1 = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     MemoryBlock mb2 = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
@@ -257,7 +257,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getDataTypeOfSerializedCompressedReturnsTypeFromUnderlyingBlock() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj, true);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb.getDataType()).isEqualTo("compressed object of size 9");
@@ -265,7 +265,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getDataTypeOfUnserializedNotCompressedReturnsTypeFromUnderlyingBlock() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsUnserializedStoredObject(obj, false);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb.getDataType()).isEqualTo("byte[8]" + "");
@@ -274,7 +274,7 @@ public class MemoryBlockNodeJUnitTest {
   @Test
   public void getDataTypeOfUnserializedCompressedReturnsTypeFromUnderlyingBlock() {
 
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsUnserializedStoredObject(obj, true);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb.getDataType()).isEqualTo("compressed byte[8]");
@@ -282,10 +282,10 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getDataValueSerializedNotCompressedReturnsFromUnderlyingBlock() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     MemoryBlock mb = new MemoryBlockNode(ma, fragment);
     softly.assertThat(mb.getDataValue()).isNull();
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb2 = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb2.getDataValue()).isEqualTo(getValue());
@@ -293,56 +293,56 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getDataValueSerializedCompressedReturnsBytesFromUnderlyingBlock() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj, true);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
-    byte[] storedObjectBytes = new byte[storedObject.getValueSizeInBytes()];
+    var storedObjectBytes = new byte[storedObject.getValueSizeInBytes()];
     storedObject.readDataBytes(0, storedObjectBytes);
     softly.assertThat(mb.getDataValue()).isEqualTo(storedObjectBytes);
   }
 
   @Test
   public void getDataValueUnserializedCompressedReturnsBytesFromUnderlyingBlock() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsUnserializedStoredObject(obj, true);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
-    byte[] storedObjectBytes = new byte[storedObject.getValueSizeInBytes()];
+    var storedObjectBytes = new byte[storedObject.getValueSizeInBytes()];
     storedObject.readDataBytes(0, storedObjectBytes);
     softly.assertThat(mb.getDataValue()).isEqualTo(storedObjectBytes);
   }
 
   @Test
   public void getDataValueUnserializedNotCompressedReturnsBytesFromUnderlyingBlock() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsUnserializedStoredObject(obj, false);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
-    byte[] storedObjectBytes = new byte[storedObject.getValueSizeInBytes()];
+    var storedObjectBytes = new byte[storedObject.getValueSizeInBytes()];
     storedObject.readDataBytes(0, storedObjectBytes);
     softly.assertThat(mb.getDataValue()).isEqualTo(storedObjectBytes);
   }
 
   @Test
   public void getDataValueWithIllegalDataTypeCatchesIOException() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     storedObject.writeDataByte(0, DSCODE.ILLEGAL.toByte());
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
-    ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+    var errContent = new ByteArrayOutputStream();
     System.setErr(new PrintStream(errContent));
     softly.assertThat(mb.getDataValue()).isEqualTo("IOException:Unknown header byte: -127");
   }
 
   @Test
   public void getDataValueCatchesCacheClosedException() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
-    OffHeapStoredObject spyStoredObject = spy((OffHeapStoredObject) storedObject);
+    var spyStoredObject = spy((OffHeapStoredObject) storedObject);
     doReturn("java.lang.Long").when(spyStoredObject).getDataType();
     doAnswer((m) -> {
       throw new CacheClosedException("Unit test forced exception");
     }).when(spyStoredObject)
         .getRawBytes();
-    ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+    var errContent = new ByteArrayOutputStream();
     System.setErr(new PrintStream(errContent));
     MemoryBlock mb = new MemoryBlockNode(ma, spyStoredObject);
     softly.assertThat(mb.getDataValue())
@@ -351,14 +351,14 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void getDataValueCatchesClassNotFoundException() throws Exception {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
-    OffHeapStoredObject spyStoredObject = spy((OffHeapStoredObject) storedObject);
+    var spyStoredObject = spy((OffHeapStoredObject) storedObject);
     doReturn("java.lang.Long").when(spyStoredObject).getDataType();
     doAnswer((m) -> {
       throw new ClassNotFoundException();
     }).when(spyStoredObject).getRawBytes();
-    ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+    var errContent = new ByteArrayOutputStream();
     System.setErr(new PrintStream(errContent));
     MemoryBlock mb = new MemoryBlockNode(ma, spyStoredObject);
     softly.assertThat(mb.getDataValue()).isEqualTo("ClassNotFoundException:null");
@@ -366,7 +366,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void toStringOfUnusedBlockReturnsStateUnusedAndTypeNA() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     MemoryBlock mb = new MemoryBlockNode(ma, fragment);
     softly.assertThat(mb.toString()).matches(
         "MemoryBlock\\{MemoryAddress=\\d*, State=UNUSED, BlockSize=1024, SlabId=0, FreeListId=NONE, RefCount=0, isSerialized=false, isCompressed=false, DataType=N/A, DataValue=null}");
@@ -374,7 +374,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void toStringOfAllocatedBlockReturnsStateAllocateddAndTypeOfData() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb.toString()).matches(
@@ -383,7 +383,7 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void toStringOfAllocatedBlockWithUnserializedValueReturnsByteArrayType() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsUnserializedStoredObject(obj);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
     softly.assertThat(mb.toString()).matches(
@@ -392,10 +392,10 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void toStringWithStateDeallocatedResultsInFreeListIdHuge() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
-    MemoryBlock spyMb = spy(mb);
+    var spyMb = spy(mb);
     softly.assertThat(spyMb.toString()).matches(
         "MemoryBlock\\{MemoryAddress=\\d*, State=ALLOCATED, BlockSize=\\d*, SlabId=0, FreeListId=NONE, RefCount=1, isSerialized=true, isCompressed=false, DataType=java.lang.Long, DataValue=9223372036854775807}");
     when(spyMb.getState()).thenReturn(State.DEALLOCATED);
@@ -406,10 +406,10 @@ public class MemoryBlockNodeJUnitTest {
 
   @Test
   public void toStringWithFreeListNotMinus1() {
-    Object obj = getValue();
+    var obj = getValue();
     storedObject = createValueAsSerializedStoredObject(obj);
     MemoryBlock mb = new MemoryBlockNode(ma, (MemoryBlock) storedObject);
-    MemoryBlock spyMb = spy(mb);
+    var spyMb = spy(mb);
     softly.assertThat(spyMb.toString()).matches(
         "MemoryBlock\\{MemoryAddress=\\d*, State=ALLOCATED, BlockSize=\\d*, SlabId=0, FreeListId=NONE, RefCount=1, isSerialized=true, isCompressed=false, DataType=java.lang.Long, DataValue=9223372036854775807}");
     when(spyMb.getState()).thenReturn(State.DEALLOCATED);

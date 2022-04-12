@@ -97,7 +97,7 @@ public abstract class AbstractLSetIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void lset_setsValue_givenValidPositiveIndex_withMultipleItemsInList() {
-    for (int i = 4; i >= 0; i--) {
+    for (var i = 4; i >= 0; i--) {
       jedis.lpush(KEY, initialValue + i);
     }
 
@@ -117,7 +117,7 @@ public abstract class AbstractLSetIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void lset_setsValue_givenValidNegativeIndex_withMultipleItemsInList() {
-    for (int i = 4; i >= 0; i--) {
+    for (var i = 4; i >= 0; i--) {
       jedis.lpush(KEY, initialValue + i);
     }
 
@@ -131,10 +131,11 @@ public abstract class AbstractLSetIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testConcurrentLSetAndLPush() {
-    String[] initialElements = {"snake", "lizard", "turtle", "tuatara", "crocodilian", "bird"};
+    var initialElements =
+        new String[] {"snake", "lizard", "turtle", "tuatara", "crocodilian", "bird"};
     jedis.lpush(KEY, initialElements);
 
-    String[] elementsToAdd = {"python", "monitor", "sulcata", "tuatara", "caiman", "raven"};
+    var elementsToAdd = new String[] {"python", "monitor", "sulcata", "tuatara", "caiman", "raven"};
     new ConcurrentLoopingThreads(1000,
         i -> jedis.lpush(KEY, elementsToAdd),
         i -> jedis.lset(KEY, 0, newValue)).runWithAction(() -> {
@@ -160,8 +161,8 @@ public abstract class AbstractLSetIntegrationTest implements RedisIntegrationTes
   @Test
   public void lset_withConcurrentLpop_behavesCorrectly() {
     jedis.lpush(KEY, initialValue);
-    AtomicReference<String> lpopResult = new AtomicReference<>();
-    AtomicReference<Throwable> lsetException = new AtomicReference<>();
+    var lpopResult = new AtomicReference<String>();
+    var lsetException = new AtomicReference<Throwable>();
 
     new ConcurrentLoopingThreads(1000,
         i -> lpopResult.set(jedis.lpop(KEY)),

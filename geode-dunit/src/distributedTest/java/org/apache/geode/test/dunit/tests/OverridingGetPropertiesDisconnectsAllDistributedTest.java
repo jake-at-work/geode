@@ -48,7 +48,7 @@ public class OverridingGetPropertiesDisconnectsAllDistributedTest extends Distri
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     return config;
   }

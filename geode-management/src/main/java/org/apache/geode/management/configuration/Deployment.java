@@ -132,7 +132,7 @@ public class Deployment extends GroupableConfiguration<DeploymentInfo> implement
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Deployment that = (Deployment) o;
+    var that = (Deployment) o;
     return Objects.equals(jarFileName, that.jarFileName) &&
         Objects.equals(deployedTime, that.deployedTime) &&
         Objects.equals(deployedBy, that.deployedBy);

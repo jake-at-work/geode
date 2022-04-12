@@ -98,8 +98,8 @@ public class TestSSLServer {
     if (args.length == 0 || args.length > 2) {
       usage();
     }
-    String name = args[0];
-    int port = 443;
+    var name = args[0];
+    var port = 443;
     if (args.length == 2) {
       try {
         port = Integer.parseInt(args[1]);
@@ -110,12 +110,12 @@ public class TestSSLServer {
         usage();
       }
     }
-    InetSocketAddress isa = new InetSocketAddress(name, port);
+    var isa = new InetSocketAddress(name, port);
 
     Set<Integer> protocolVersions = new TreeSet<>();
-    boolean compress = false;
-    for (int v = 0x0300; v <= 0x0303; v++) {
-      ServerHello serverHello = connect(isa, v, CIPHER_SUITES.keySet());
+    var compress = false;
+    for (var v = 0x0300; v <= 0x0303; v++) {
+      var serverHello = connect(isa, v, CIPHER_SUITES.keySet());
       if (serverHello == null) {
         continue;
       }
@@ -125,7 +125,7 @@ public class TestSSLServer {
       }
     }
 
-    ServerHelloSSLv2 serverHello2 = connectV2(isa);
+    var serverHello2 = connectV2(isa);
 
     if (serverHello2 != null) {
       protocolVersions.add(0x0200);
@@ -154,7 +154,7 @@ public class TestSSLServer {
     if (serverHello2 != null) {
       System.out.println("  " + versionString(0x0200));
       Set<Integer> vc2 = new TreeSet<>();
-      for (int c : serverHello2.cipherSuites) {
+      for (var c : serverHello2.cipherSuites) {
         vc2.add(c);
       }
       for (int c : vc2) {
@@ -172,7 +172,7 @@ public class TestSSLServer {
       if (v == 0x0200) {
         continue;
       }
-      Set<Integer> vsc = supportedSuites(isa, v, certID);
+      var vsc = supportedSuites(isa, v, certID);
       suppCS.put(v, vsc);
       if (lastSuppCS == null || !lastSuppCS.equals(vsc)) {
         System.out.println("  " + versionString(v));
@@ -191,16 +191,16 @@ public class TestSSLServer {
       System.out.println("No server certificate !");
     } else {
       System.out.println("Server certificate(s):");
-      for (String cc : certID) {
+      for (var cc : certID) {
         System.out.println("  " + cc);
       }
     }
     System.out.println("----------------------");
-    int agMaxStrength = STRONG;
-    int agMinStrength = STRONG;
-    boolean vulnBEAST = false;
+    var agMaxStrength = STRONG;
+    var agMinStrength = STRONG;
+    var vulnBEAST = false;
     for (int v : protocolVersions) {
-      Set<Integer> vsc = suppCS.get(v);
+      var vsc = suppCS.get(v);
       agMaxStrength = Math.min(
           maxStrength(vsc), agMaxStrength);
       agMinStrength = Math.min(
@@ -231,8 +231,8 @@ public class TestSSLServer {
 
   public List<String> getCipherSuiteNames() {
     Set<String> ciphers = new HashSet<>();
-    for (Map.Entry<Integer, Set<Integer>> e : cipherSuiteIds.entrySet()) {
-      for (Integer cv : e.getValue()) {
+    for (var e : cipherSuiteIds.entrySet()) {
+      for (var cv : e.getValue()) {
         if (e.getKey() == 0x0200) {
           ciphers.add(cipherSuiteStringV2(cv));
         } else {
@@ -245,11 +245,11 @@ public class TestSSLServer {
   }
 
   public TestSSLServer execute() {
-    InetSocketAddress isa = new InetSocketAddress(host, port);
+    var isa = new InetSocketAddress(host, port);
 
-    boolean compress = false;
-    for (int v = 0x0300; v <= 0x0303; v++) {
-      ServerHello serverHello = connect(isa, v, CIPHER_SUITES.keySet());
+    var compress = false;
+    for (var v = 0x0300; v <= 0x0303; v++) {
+      var serverHello = connect(isa, v, CIPHER_SUITES.keySet());
       if (serverHello == null) {
         continue;
       }
@@ -259,7 +259,7 @@ public class TestSSLServer {
       }
     }
 
-    ServerHelloSSLv2 serverHello2 = connectV2(isa);
+    var serverHello2 = connectV2(isa);
 
     if (serverHello2 != null) {
       protocolIds.add(0x0200);
@@ -271,7 +271,7 @@ public class TestSSLServer {
 
     if (serverHello2 != null) {
       Set<Integer> vc2 = new TreeSet<>();
-      for (int c : serverHello2.cipherSuites) {
+      for (var c : serverHello2.cipherSuites) {
         vc2.add(c);
       }
       cipherSuiteIds.put(0x0200, vc2);
@@ -284,7 +284,7 @@ public class TestSSLServer {
       if (v == 0x0200) {
         continue;
       }
-      Set<Integer> vsc = supportedSuites(isa, v, certificateIds);
+      var vsc = supportedSuites(isa, v, certificateIds);
       cipherSuiteIds.put(v, vsc);
     }
 
@@ -303,7 +303,7 @@ public class TestSSLServer {
     Set<Integer> cs = new TreeSet<>(CIPHER_SUITES.keySet());
     Set<Integer> rs = new TreeSet<>();
     for (;;) {
-      ServerHello sh = connect(isa, version, cs);
+      var sh = connect(isa, version, cs);
       if (sh == null) {
         break;
       }
@@ -325,9 +325,9 @@ public class TestSSLServer {
   }
 
   static int minStrength(Set<Integer> supp) {
-    int m = STRONG;
+    var m = STRONG;
     for (int suite : supp) {
-      CipherSuite cs = CIPHER_SUITES.get(suite);
+      var cs = CIPHER_SUITES.get(suite);
       if (cs == null) {
         continue;
       }
@@ -339,9 +339,9 @@ public class TestSSLServer {
   }
 
   static int maxStrength(Set<Integer> supp) {
-    int m = CLEAR;
+    var m = CLEAR;
     for (int suite : supp) {
-      CipherSuite cs = CIPHER_SUITES.get(suite);
+      var cs = CIPHER_SUITES.get(suite);
       if (cs == null) {
         continue;
       }
@@ -372,7 +372,7 @@ public class TestSSLServer {
     List<Integer> strongCBC = new ArrayList<>();
     List<Integer> strongStream = new ArrayList<>();
     for (int suite : supp) {
-      CipherSuite cs = CIPHER_SUITES.get(suite);
+      var cs = CIPHER_SUITES.get(suite);
       if (cs == null) {
         continue;
       }
@@ -393,7 +393,7 @@ public class TestSSLServer {
     }
     List<Integer> ns = new ArrayList<>(strongCBC);
     ns.addAll(strongStream);
-    ServerHello sh = connect(isa, version, ns);
+    var sh = connect(isa, version, ns);
     return !strongStream.contains(sh.cipherSuite);
   }
 
@@ -425,8 +425,8 @@ public class TestSSLServer {
             + isa + ": " + ioe);
         return null;
       }
-      byte[] ch = makeClientHello(version, cipherSuites);
-      OutputRecord orec = new OutputRecord(
+      var ch = makeClientHello(version, cipherSuites);
+      var orec = new OutputRecord(
           s.getOutputStream());
       orec.setType(HANDSHAKE);
       orec.setVersion(version);
@@ -563,7 +563,7 @@ public class TestSSLServer {
     public void write(byte[] buf, int off, int len)
         throws IOException {
       while (len > 0) {
-        int clen = Math.min(buffer.length - ptr, len);
+        var clen = Math.min(buffer.length - ptr, len);
         System.arraycopy(buf, off, buffer, ptr, clen);
         ptr += clen;
         off += clen;
@@ -583,7 +583,7 @@ public class TestSSLServer {
   static void readFully(InputStream in, byte[] buf, int off, int len)
       throws IOException {
     while (len > 0) {
-      int rlen = in.read(buf, off, len);
+      var rlen = in.read(buf, off, len);
       if (rlen < 0) {
         throw new EOFException();
       }
@@ -659,7 +659,7 @@ public class TestSSLServer {
       while (ptr == end) {
         refill();
       }
-      int clen = Math.min(end - ptr, len);
+      var clen = Math.min(end - ptr, len);
       System.arraycopy(buffer, ptr, buf, off, clen);
       ptr += clen;
       return clen;
@@ -684,7 +684,7 @@ public class TestSSLServer {
   static byte[] makeClientHello0(int version,
       Collection<Integer> cipherSuites)
       throws IOException {
-    ByteArrayOutputStream b = new ByteArrayOutputStream();
+    var b = new ByteArrayOutputStream();
 
     /*
      * Message header:
@@ -709,7 +709,7 @@ public class TestSSLServer {
      * (seconds since 1970/01/01 00:00:00 UTC, not counting
      * leap seconds).
      */
-    byte[] rand = new byte[32];
+    var rand = new byte[32];
     RNG.nextBytes(rand);
     enc32be((int) (System.currentTimeMillis() / 1000), rand, 0);
     b.write(rand);
@@ -723,10 +723,10 @@ public class TestSSLServer {
      * The list of cipher suites (list of 16-bit values; the
      * list length in bytes is written first).
      */
-    int num = cipherSuites.size();
-    byte[] cs = new byte[2 + num * 2];
+    var num = cipherSuites.size();
+    var cs = new byte[2 + num * 2];
     enc16be(num * 2, cs, 0);
-    int j = 2;
+    var j = 2;
     for (int s : cipherSuites) {
       enc16be(s, cs, j);
       j += 2;
@@ -750,7 +750,7 @@ public class TestSSLServer {
      * We now get the message as a blob. The message length
      * must be adjusted in the header.
      */
-    byte[] msg = b.toByteArray();
+    var msg = b.toByteArray();
     enc24be(msg.length - 4, msg, 1);
     return msg;
   }
@@ -765,11 +765,11 @@ public class TestSSLServer {
 
   static String doSHA1(byte[] buf, int off, int len) {
     try {
-      MessageDigest md = MessageDigest.getInstance("SHA1");
+      var md = MessageDigest.getInstance("SHA1");
       md.update(buf, off, len);
-      byte[] hv = md.digest();
-      Formatter f = new Formatter();
-      for (byte b : hv) {
+      var hv = md.digest();
+      var f = new Formatter();
+      for (var b : hv) {
         f.format("%02x", b & 0xFF);
       }
       return f.toString();
@@ -795,7 +795,7 @@ public class TestSSLServer {
 
     ServerHello(InputStream in)
         throws IOException {
-      InputRecord rec = new InputRecord(in);
+      var rec = new InputRecord(in);
       rec.setExpectedType(HANDSHAKE);
 
       /*
@@ -803,7 +803,7 @@ public class TestSSLServer {
        * First byte should be 2 ("ServerHello"), then
        * comes the message size (over 3 bytes).
        */
-      byte[] buf = new byte[4];
+      var buf = new byte[4];
       readFully(rec, buf);
       recordVersion = rec.getVersion();
       if (buf[0] != 2) {
@@ -816,7 +816,7 @@ public class TestSSLServer {
        * Read the complete message in RAM.
        */
       readFully(rec, buf);
-      int ptr = 0;
+      var ptr = 0;
 
       /*
        * The protocol version which we will use.
@@ -867,7 +867,7 @@ public class TestSSLServer {
       for (;;) {
         buf = new byte[4];
         readFully(rec, buf);
-        int mt = buf[0] & 0xFF;
+        var mt = buf[0] & 0xFF;
         buf = new byte[dec24be(buf, 1)];
         readFully(rec, buf);
         switch (mt) {
@@ -885,20 +885,20 @@ public class TestSSLServer {
       if (buf.length <= 6) {
         return;
       }
-      int len1 = dec24be(buf, 0);
+      var len1 = dec24be(buf, 0);
       if (len1 != buf.length - 3) {
         return;
       }
-      int len2 = dec24be(buf, 3);
+      var len2 = dec24be(buf, 3);
       if (len2 > buf.length - 6) {
         return;
       }
-      byte[] ec = new byte[len2];
+      var ec = new byte[len2];
       System.arraycopy(buf, 6, ec, 0, len2);
       try {
-        CertificateFactory cf =
+        var cf =
             CertificateFactory.getInstance("X.509");
-        X509Certificate xc =
+        var xc =
             (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(ec));
         serverCertName =
@@ -958,9 +958,9 @@ public class TestSSLServer {
     ServerHelloSSLv2(InputStream in)
         throws IOException {
       // Record length
-      byte[] buf = new byte[2];
+      var buf = new byte[2];
       readFully(in, buf);
-      int len = dec16be(buf, 0);
+      var len = dec16be(buf, 0);
       if ((len & 0x8000) == 0) {
         throw new IOException("not a SSLv2 record");
       }
@@ -975,9 +975,9 @@ public class TestSSLServer {
         throw new IOException(
             "not a SSLv2 server hello");
       }
-      int certLen = dec16be(buf, 5);
-      int csLen = dec16be(buf, 7);
-      int connIdLen = dec16be(buf, 9);
+      var certLen = dec16be(buf, 5);
+      var csLen = dec16be(buf, 7);
+      var connIdLen = dec16be(buf, 9);
       if (len != 11 + certLen + csLen + connIdLen) {
         throw new IOException(
             "not a SSLv2 server hello");
@@ -986,20 +986,20 @@ public class TestSSLServer {
         throw new IOException(
             "not a SSLv2 server hello");
       }
-      byte[] cert = new byte[certLen];
+      var cert = new byte[certLen];
       readFully(in, cert);
-      byte[] cs = new byte[csLen];
+      var cs = new byte[csLen];
       readFully(in, cs);
-      byte[] connId = new byte[connIdLen];
+      var connId = new byte[connIdLen];
       readFully(in, connId);
       cipherSuites = new int[csLen / 3];
       for (int i = 0, j = 0; i < csLen; i += 3, j++) {
         cipherSuites[j] = dec24be(cs, i);
       }
       try {
-        CertificateFactory cf =
+        var cf =
             CertificateFactory.getInstance("X.509");
-        X509Certificate xc =
+        var xc =
             (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(cert));
         serverCertName =
@@ -1043,7 +1043,7 @@ public class TestSSLServer {
   }
 
   static final String cipherSuiteString(int suite) {
-    CipherSuite cs = CIPHER_SUITES.get(suite);
+    var cs = CIPHER_SUITES.get(suite);
     if (cs == null) {
       return String.format("UNKNOWN_SUITE:0x%04X", cs);
     } else {
@@ -1052,7 +1052,7 @@ public class TestSSLServer {
   }
 
   static final String cipherSuiteStringV2(int suite) {
-    CipherSuite cs = CIPHER_SUITES.get(suite);
+    var cs = CIPHER_SUITES.get(suite);
     if (cs == null) {
       return String.format("UNKNOWN_SUITE:%02X,%02X,%02X",
           suite >> 16, (suite >> 8) & 0xFF, suite & 0XFF);
@@ -1063,7 +1063,7 @@ public class TestSSLServer {
 
   private static final void makeCS(int suite, String name,
       boolean isCBC, int strength) {
-    CipherSuite cs = new CipherSuite();
+    var cs = new CipherSuite();
     cs.suite = suite;
     cs.name = name;
     cs.isCBC = isCBC;
@@ -1074,7 +1074,7 @@ public class TestSSLServer {
      * Consistency test: the strength and CBC status can normally
      * be inferred from the name itself.
      */
-    boolean inferredCBC = name.contains("_CBC_");
+    var inferredCBC = name.contains("_CBC_");
     int inferredStrength;
     if (name.contains("_NULL_")) {
       inferredStrength = CLEAR;

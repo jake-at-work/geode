@@ -33,7 +33,7 @@ public class SumDistinctTest extends DistinctAggregatorTest {
     distinctAggregator.accumulate(10);
     distinctAggregator.accumulate(15);
 
-    Object result = distinctAggregator.terminate();
+    var result = distinctAggregator.terminate();
     assertThat(result).isInstanceOf(Number.class);
     assertThat(((Number) result).intValue()).isEqualTo(30);
   }

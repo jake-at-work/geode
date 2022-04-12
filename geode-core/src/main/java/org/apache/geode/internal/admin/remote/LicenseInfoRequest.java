@@ -32,7 +32,7 @@ public class LicenseInfoRequest extends AdminRequest {
    * Returns a <code>LicenseInfoRequest</code>.
    */
   public static LicenseInfoRequest create() {
-    LicenseInfoRequest m = new LicenseInfoRequest();
+    var m = new LicenseInfoRequest();
     return m;
   }
 

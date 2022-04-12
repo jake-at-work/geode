@@ -92,7 +92,7 @@ public class RegionAttributesTypeTest {
     assertThat(ExpirationAttributesType.combine(expirationAttributes, null))
         .isEqualToComparingFieldByFieldRecursively(expirationAttributes);
 
-    ExpirationAttributesType another =
+    var another =
         new ExpirationAttributesType(null, ExpirationAction.DESTROY.toXmlString(), "abc", null);
     expirationAttributes = ExpirationAttributesType.combine(expirationAttributes, another);
     assertThat(expirationAttributes.getTimeout()).isEqualTo("8");
@@ -108,7 +108,7 @@ public class RegionAttributesTypeTest {
 
   @Test
   public void generateEvictionAttributes() {
-    EvictionAttributes evictionAttributes =
+    var evictionAttributes =
         EvictionAttributes.generate(null, null, null, (String) null);
     assertThat(evictionAttributes).isNull();
 

@@ -34,9 +34,9 @@ public class GridProfileTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    GridProfile mockGridProfile = mock(GridProfile.class);
+    var mockGridProfile = mock(GridProfile.class);
     InternalCache cache = Fakes.cache();
-    ProfileId mockProfileId = mock(ProfileId.class);
+    var mockProfileId = mock(ProfileId.class);
     List<Profile> listOfProfiles = new ArrayList<>();
     listOfProfiles.add(mock(Profile.class));
 

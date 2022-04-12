@@ -49,9 +49,9 @@ public class ListCollectingServiceLoader<S> implements CollectingServiceLoader<S
     serviceLoaderWrapper.load(service);
 
     Collection<S> services = new ArrayList<>();
-    for (Iterator<S> iterator = serviceLoaderWrapper.iterator(); iterator.hasNext();) {
+    for (var iterator = serviceLoaderWrapper.iterator(); iterator.hasNext();) {
       try {
-        S instance = iterator.next();
+        var instance = iterator.next();
         services.add(instance);
       } catch (ServiceConfigurationError serviceConfigurationError) {
         logger.error("Error while loading implementations of {}", service.getName(),

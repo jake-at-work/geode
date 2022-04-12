@@ -35,48 +35,48 @@ public class HyphenFormatterTest {
 
   @Test
   public void containsOptionWithOneOptionReturnsTrue() {
-    String cmd = "start locator --name=loc1";
+    var cmd = "start locator --name=loc1";
     assertTrue(formatter.containsOption(cmd));
   }
 
   @Test
   public void containsOptionWithNoOptionReturnsFalse() {
-    String cmd = "start locator";
+    var cmd = "start locator";
     assertFalse(formatter.containsOption(cmd));
   }
 
   @Test
   public void containsOptionWithMultipleOptionsReturnsTrue() {
-    String cmd = "start locator --name=loc1 --J=-Dfoo=bar --J=-Dbar=foo";
+    var cmd = "start locator --name=loc1 --J=-Dfoo=bar --J=-Dbar=foo";
     assertTrue(formatter.containsOption(cmd));
   }
 
   @Test
   public void valueWithoutQuotesReturnsWithQuotes() {
-    String cmd = "start locator --name=loc1 --J=-Dfoo=bar";
-    String formattedCmd = formatter.formatCommand(cmd);
+    var cmd = "start locator --name=loc1 --J=-Dfoo=bar";
+    var formattedCmd = formatter.formatCommand(cmd);
 
-    String expected = "start locator --name=loc1 --J=\"-Dfoo=bar\"";
+    var expected = "start locator --name=loc1 --J=\"-Dfoo=bar\"";
     assertThat(formattedCmd).isEqualTo(expected);
   }
 
   @Test
   public void valueWithoutQuotesReturnsWithQuotes_2() {
-    String cmd = "start locator --J=-Dfoo=bar --name=loc1";
-    String formattedCmd = formatter.formatCommand(cmd);
+    var cmd = "start locator --J=-Dfoo=bar --name=loc1";
+    var formattedCmd = formatter.formatCommand(cmd);
 
-    String expected = "start locator --J=\"-Dfoo=bar\" --name=loc1";
+    var expected = "start locator --J=\"-Dfoo=bar\" --name=loc1";
     assertThat(formattedCmd).isEqualTo(expected);
   }
 
   @Test
   public void valueWithHyphenWithoutQuotesFails() {
-    String cmd =
+    var cmd =
         "rebalance --exclude-region=" + SEPARATOR
             + "GemfireDataCommandsDUnitTestRegion2 --simulate=true --time-out=-1";
-    String formattedCmd = formatter.formatCommand(cmd);
+    var formattedCmd = formatter.formatCommand(cmd);
 
-    String expected =
+    var expected =
         "rebalance --exclude-region=" + SEPARATOR
             + "GemfireDataCommandsDUnitTestRegion2 --simulate=true --time-out=\"-1\"";
     assertThat(formattedCmd).isEqualTo(expected);
@@ -84,12 +84,12 @@ public class HyphenFormatterTest {
 
   @Test
   public void valueWithHyphenWithoutQuotes() {
-    String cmd =
+    var cmd =
         "rebalance --exclude-region=" + SEPARATOR
             + "GemfireDataCommandsDUnitTestRegion2 --simulate=true --time-out=-1";
-    String formattedCmd = formatter.formatCommand(cmd);
+    var formattedCmd = formatter.formatCommand(cmd);
 
-    String expected =
+    var expected =
         "rebalance --exclude-region=" + SEPARATOR
             + "GemfireDataCommandsDUnitTestRegion2 --simulate=true --time-out=\"-1\"";
     assertThat(formattedCmd).isEqualTo(expected);
@@ -108,168 +108,168 @@ public class HyphenFormatterTest {
 
   @Test
   public void multipleJOptions() {
-    String cmd = "start locator --name=loc1 --J=-Dfoo=bar --J=-Dbar=foo";
-    String formattedCmd = formatter.formatCommand(cmd);
+    var cmd = "start locator --name=loc1 --J=-Dfoo=bar --J=-Dbar=foo";
+    var formattedCmd = formatter.formatCommand(cmd);
 
-    String expected = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=\"-Dbar=foo\"";
+    var expected = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=\"-Dbar=foo\"";
     assertThat(formattedCmd).isEqualTo(expected);
   }
 
   @Test
   public void multipleJOptionsWithSomethingAfter() {
-    String cmd = "start locator --name=loc1 --J=-Dfoo=bar --J=-Dbar=foo --group=locators";
-    String formattedCmd = formatter.formatCommand(cmd);
+    var cmd = "start locator --name=loc1 --J=-Dfoo=bar --J=-Dbar=foo --group=locators";
+    var formattedCmd = formatter.formatCommand(cmd);
 
-    String expected =
+    var expected =
         "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=\"-Dbar=foo\" --group=locators";
     assertThat(formattedCmd).isEqualTo(expected);
   }
 
   @Test
   public void multipleJOptionsWithSomethingBetween() {
-    String cmd = "start locator --name=loc1 --J=-Dfoo=bar --group=locators --J=-Dbar=foo";
-    String formattedCmd = formatter.formatCommand(cmd);
+    var cmd = "start locator --name=loc1 --J=-Dfoo=bar --group=locators --J=-Dbar=foo";
+    var formattedCmd = formatter.formatCommand(cmd);
 
-    String expected =
+    var expected =
         "start locator --name=loc1 --J=\"-Dfoo=bar\" --group=locators --J=\"-Dbar=foo\"";
     assertThat(formattedCmd).isEqualTo(expected);
   }
 
   @Test
   public void valueWithQuotes() {
-    String cmd = "start locator --name=loc1 --J=\"-Dfoo=bar\"";
-    String formattedCmd = formatter.formatCommand(cmd);
+    var cmd = "start locator --name=loc1 --J=\"-Dfoo=bar\"";
+    var formattedCmd = formatter.formatCommand(cmd);
     assertThat(formattedCmd).isEqualTo(cmd);
   }
 
   @Test
   public void oneValueWithQuotesOneWithout() {
-    String cmd = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=-Dfoo=bar";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=\"-Dfoo=bar\"";
+    var cmd = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=-Dfoo=bar";
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=\"-Dfoo=bar\"";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test
   public void oneValueWithoutQuotesOneWith() {
-    String cmd = "start locator --name=loc1 --J=-Dfoo=bar --J=\"-Dfoo=bar\"";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=\"-Dfoo=bar\"";
+    var cmd = "start locator --name=loc1 --J=-Dfoo=bar --J=\"-Dfoo=bar\"";
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=\"-Dfoo=bar\"";
     assertThat(formattedCmd).isEqualTo(expected);
   }
 
   @Test
   public void twoValuesWithQuotes() {
-    String cmd = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=\"-Dfoo=bar\"";
-    String formattedCmd = formatter.formatCommand(cmd);
+    var cmd = "start locator --name=loc1 --J=\"-Dfoo=bar\" --J=\"-Dfoo=bar\"";
+    var formattedCmd = formatter.formatCommand(cmd);
     assertThat(formattedCmd).as(cmd).isEqualTo(cmd);
   }
 
   @Test
   public void valueContainingQuotes() {
-    String cmd = "start locator --name=loc1 --J=\"-Dfoo=region\"";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected = "start locator --name=loc1 --J=\"-Dfoo=region\"";
+    var cmd = "start locator --name=loc1 --J=\"-Dfoo=region\"";
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected = "start locator --name=loc1 --J=\"-Dfoo=region\"";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test
   public void valueContainingQuotesAndSpace() {
-    String cmd = "start locator --name=loc1 --J=\"-Dfoo=my phrase\"";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected = "start locator --name=loc1 --J=\"-Dfoo=my phrase\"";
+    var cmd = "start locator --name=loc1 --J=\"-Dfoo=my phrase\"";
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected = "start locator --name=loc1 --J=\"-Dfoo=my phrase\"";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test
   public void valueContainingQuotesAndMultipleSpaces() {
-    String cmd = "start locator --name=loc1 --J=\"-Dfoo=this is a phrase\"";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected = "start locator --name=loc1 --J=\"-Dfoo=this is a phrase\"";
+    var cmd = "start locator --name=loc1 --J=\"-Dfoo=this is a phrase\"";
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected = "start locator --name=loc1 --J=\"-Dfoo=this is a phrase\"";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test
   public void valueContainingMultipleJWithSpaces() {
-    String cmd =
+    var cmd =
         "start locator --name=loc1 --J=-Dfoo=this is a phrase             --J=\"-Dfoo=a short sentence\"";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected =
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected =
         "start locator --name=loc1 --J=\"-Dfoo=this is a phrase\" --J=\"-Dfoo=a short sentence\"";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test
   public void valueContainingMultipleJWithSpaces2() {
-    String cmd =
+    var cmd =
         "start locator --name=loc1 --J=\"-Dfoo=this is a phrase            \" --J=\"-Dfoo=a short sentence\"";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected =
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected =
         "start locator --name=loc1 --J=\"-Dfoo=this is a phrase            \" --J=\"-Dfoo=a short sentence\"";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test
   public void optionAfterOneJOption() {
-    String cmd = "start locator --name=loc1 --J=-Dfoo=bar --http-service=8080";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected = "start locator --name=loc1 --J=\"-Dfoo=bar\" --http-service=8080";
+    var cmd = "start locator --name=loc1 --J=-Dfoo=bar --http-service=8080";
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected = "start locator --name=loc1 --J=\"-Dfoo=bar\" --http-service=8080";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test
   public void optionWithMoreThanOneHyphen() {
-    String cmd = "start locator --name=loc1 --http-service-port=8080";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected = "start locator --name=loc1 --http-service-port=8080";
+    var cmd = "start locator --name=loc1 --http-service-port=8080";
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected = "start locator --name=loc1 --http-service-port=8080";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test
   public void optionWithOneHyphenAfterOneJOption() {
-    String cmd =
+    var cmd =
         "start server --name=me3 --J=-Dgemfire.jmx-manager=true --http-service-port=8080";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected =
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected =
         "start server --name=me3 --J=\"-Dgemfire.jmx-manager=true\" --http-service-port=8080";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test // reproduces GEODE-2104
   public void optionWithMoreThanOneHyphenAfterOneJOption() {
-    String cmd = "start server --name=me3 --J=-Dgemfire.jmx-manager=true --http-service-port=8080";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected =
+    var cmd = "start server --name=me3 --J=-Dgemfire.jmx-manager=true --http-service-port=8080";
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected =
         "start server --name=me3 --J=\"-Dgemfire.jmx-manager=true\" --http-service-port=8080";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test
   public void optionWithOneHyphenAfterTwoJOptions() {
-    String cmd =
+    var cmd =
         "start server --name=me3 --J=-Dgemfire.jmx-manager=true --J=-Dgemfire.jmx-manager-start=true --http-service-port=8080";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected =
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected =
         "start server --name=me3 --J=\"-Dgemfire.jmx-manager=true\" --J=\"-Dgemfire.jmx-manager-start=true\" --http-service-port=8080";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test // reproduces GEODE-2104
   public void optionWithMoreThanOneHyphenAfterTwoJOptions() {
-    String cmd =
+    var cmd =
         "start server --name=me3 --J=-Dgemfire.jmx-manager=true --J=-Dgemfire.jmx-manager-start=true --http-service-port=8080";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected =
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected =
         "start server --name=me3 --J=\"-Dgemfire.jmx-manager=true\" --J=\"-Dgemfire.jmx-manager-start=true\" --http-service-port=8080";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }
 
   @Test // reproduces GEODE-2075
   public void optionWithMoreThanOneHyphenWithoutValueAfterJOptions() {
-    String cmd =
+    var cmd =
         "start server --name=Server2 --log-level=config --J=-Dgemfire.locators=localhost[10334] --disable-default-server";
-    String formattedCmd = formatter.formatCommand(cmd);
-    String expected =
+    var formattedCmd = formatter.formatCommand(cmd);
+    var expected =
         "start server --name=Server2 --log-level=config --J=\"-Dgemfire.locators=localhost[10334]\" --disable-default-server";
     assertThat(formattedCmd).as(cmd).isEqualTo(expected);
   }

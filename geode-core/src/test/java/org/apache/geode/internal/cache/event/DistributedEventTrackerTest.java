@@ -25,8 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -67,8 +65,8 @@ public class DistributedEventTrackerTest {
     when(region.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
     when(region.getCachePerfStats()).thenReturn(mock(CachePerfStats.class));
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(region.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
     when(ids.getOffHeapStore()).thenReturn(null);
@@ -82,16 +80,16 @@ public class DistributedEventTrackerTest {
     byte[] memId = {1, 2, 3};
     long threadId = 1;
     long retrySeqId = 1;
-    ThreadIdentifier tid = new ThreadIdentifier(memId, threadId);
-    EventID retryEventID = new EventID(memId, threadId, retrySeqId);
-    boolean skipCallbacks = true;
-    int size = 5;
+    var tid = new ThreadIdentifier(memId, threadId);
+    var retryEventID = new EventID(memId, threadId, retrySeqId);
+    var skipCallbacks = true;
+    var size = 5;
     recordPutAllEvents(memId, threadId, skipCallbacks, size);
 
-    ConcurrentMap<ThreadIdentifier, BulkOperationHolder> map =
+    var map =
         eventTracker.getRecordedBulkOpVersionTags();
-    BulkOperationHolder holder = map.get(tid);
-    int beforeSize = holder.getEntryVersionTags().size();
+    var holder = map.get(tid);
+    var beforeSize = holder.getEntryVersionTags().size();
 
     eventTracker.recordBulkOpStart(retryEventID, tid);
     map = eventTracker.getRecordedBulkOpVersionTags();
@@ -101,9 +99,9 @@ public class DistributedEventTrackerTest {
   }
 
   private void recordPutAllEvents(byte[] memId, long threadId, boolean skipCallbacks, int size) {
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       putEvent("key" + i, "value" + i, memId, threadId, skipCallbacks, i + 1);
-      EntryEventImpl event = EntryEventImpl.create(region, Operation.PUTALL_CREATE, "key" + i,
+      var event = EntryEventImpl.create(region, Operation.PUTALL_CREATE, "key" + i,
           "value" + i, null, false, member, !skipCallbacks, new EventID(memId, threadId, i + 1));
       event.setContext(memberId);
       event.setVersionTag(mock(VersionTag.class));
@@ -113,7 +111,7 @@ public class DistributedEventTrackerTest {
 
   private void putEvent(String key, String value, byte[] memId, long threadId,
       boolean skipCallbacks, int sequenceId) {
-    EntryEventImpl event = EntryEventImpl.create(region, Operation.PUTALL_CREATE, key, value, null,
+    var event = EntryEventImpl.create(region, Operation.PUTALL_CREATE, key, value, null,
         false, member, !skipCallbacks, new EventID(memId, threadId, sequenceId));
     event.setContext(memberId);
     event.setVersionTag(mock(VersionTag.class));
@@ -122,7 +120,7 @@ public class DistributedEventTrackerTest {
 
   private void putEvent(String key, String value, byte[] memId, long threadId,
       boolean skipCallbacks, int sequenceId, VersionTag tag) {
-    EntryEventImpl event = EntryEventImpl.create(region, Operation.PUTALL_CREATE, key, value, null,
+    var event = EntryEventImpl.create(region, Operation.PUTALL_CREATE, key, value, null,
         false, member, !skipCallbacks, new EventID(memId, threadId, sequenceId));
     event.setContext(memberId);
     event.setVersionTag(tag);
@@ -131,7 +129,7 @@ public class DistributedEventTrackerTest {
 
   @Test
   public void returnsCorrectNameOfCache() {
-    String testName = "testing";
+    var testName = "testing";
     when(region.getName()).thenReturn(testName);
     eventTracker = new DistributedEventTracker(region);
     assertEquals("Event Tracker for " + testName, eventTracker.getName());
@@ -147,8 +145,8 @@ public class DistributedEventTrackerTest {
 
   @Test
   public void startAndStopAddAndRemoveTrackerFromExpiryTask() {
-    EventTrackerExpiryTask task = mock(EventTrackerExpiryTask.class);
-    InternalCache cache = mock(InternalCache.class);
+    var task = mock(EventTrackerExpiryTask.class);
+    var cache = mock(InternalCache.class);
     when(region.getCache()).thenReturn(cache);
     when(cache.getEventTrackerTask()).thenReturn(task);
     eventTracker = new DistributedEventTracker(region);
@@ -165,12 +163,12 @@ public class DistributedEventTrackerTest {
 
   @Test
   public void returnsMapContainingSequenceIdHoldersCurrentlyPresent() {
-    EventSequenceNumberHolder sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
-    ThreadIdentifier threadId = new ThreadIdentifier(new byte[0], 0L);
+    var sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
+    var threadId = new ThreadIdentifier(new byte[0], 0L);
     eventTracker.recordSequenceNumber(threadId, sequenceIdHolder);
-    Map<ThreadIdentifier, EventSequenceNumberHolder> state = eventTracker.getState();
+    var state = eventTracker.getState();
     assertEquals(1, state.size());
-    EventSequenceNumberHolder returnedHolder = state.get(threadId);
+    var returnedHolder = state.get(threadId);
     assertNotNull(returnedHolder);
     // the version tag is stripped out on purpose, so passed in object and returned one are not
     // equal to each other
@@ -186,44 +184,44 @@ public class DistributedEventTrackerTest {
 
   @Test
   public void setsInitialImageProvidedWhenStateRecorded() {
-    InternalDistributedMember distributedMember = mock(InternalDistributedMember.class);
+    var distributedMember = mock(InternalDistributedMember.class);
     eventTracker.recordState(distributedMember, Collections.emptyMap());
     assertTrue(eventTracker.isInitialImageProvider(distributedMember));
   }
 
   @Test
   public void entryInRecordedStateStoredWhenNotInCurrentState() {
-    EventSequenceNumberHolder sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
-    ThreadIdentifier threadId = new ThreadIdentifier(new byte[0], 0L);
-    Map<ThreadIdentifier, EventSequenceNumberHolder> state =
+    var sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
+    var threadId = new ThreadIdentifier(new byte[0], 0L);
+    var state =
         Collections.singletonMap(threadId, sequenceIdHolder);
     eventTracker.recordState(null, state);
-    Map<ThreadIdentifier, EventSequenceNumberHolder> storedState = eventTracker.getState();
+    var storedState = eventTracker.getState();
     assertEquals(storedState.get(threadId).getLastSequenceNumber(),
         sequenceIdHolder.getLastSequenceNumber());
   }
 
   @Test
   public void entryInRecordedStateNotStoredIfAlreadyInCurrentState() {
-    EventSequenceNumberHolder originalSequenceIdHolder = new EventSequenceNumberHolder(0L, null);
-    ThreadIdentifier threadId = new ThreadIdentifier(new byte[0], 0L);
-    Map<ThreadIdentifier, EventSequenceNumberHolder> state =
+    var originalSequenceIdHolder = new EventSequenceNumberHolder(0L, null);
+    var threadId = new ThreadIdentifier(new byte[0], 0L);
+    var state =
         Collections.singletonMap(threadId, originalSequenceIdHolder);
     eventTracker.recordState(null, state);
 
-    EventSequenceNumberHolder newSequenceIdHolder = new EventSequenceNumberHolder(1L, null);
-    Map<ThreadIdentifier, EventSequenceNumberHolder> newState =
+    var newSequenceIdHolder = new EventSequenceNumberHolder(1L, null);
+    var newState =
         Collections.singletonMap(threadId, newSequenceIdHolder);
     eventTracker.recordState(null, newState);
 
-    Map<ThreadIdentifier, EventSequenceNumberHolder> storedState = eventTracker.getState();
+    var storedState = eventTracker.getState();
     assertEquals(storedState.get(threadId).getLastSequenceNumber(),
         originalSequenceIdHolder.getLastSequenceNumber());
   }
 
   @Test
   public void hasSeenEventReturnsFalseForEventWithNoID() {
-    InternalCacheEvent event = mock(InternalCacheEvent.class);
+    var event = mock(InternalCacheEvent.class);
     when(event.getEventId()).thenReturn(null);
     assertFalse(eventTracker.hasSeenEvent(event));
   }
@@ -236,24 +234,24 @@ public class DistributedEventTrackerTest {
 
   @Test
   public void hasNotSeenEventIDThatIsNotInRecordedEvents() {
-    EventID eventID = new EventID(new byte[0], 0L, 0L);
+    var eventID = new EventID(new byte[0], 0L, 0L);
     assertFalse(eventTracker.hasSeenEvent(eventID));
   }
 
   @Test
   public void hasSeenEventIDThatIsInRecordedEvents() {
-    EventID eventID = new EventID(new byte[0], 0L, 0L);
+    var eventID = new EventID(new byte[0], 0L, 0L);
     recordSequence(eventID);
     assertTrue(eventTracker.hasSeenEvent(eventID));
   }
 
   @Test
   public void hasNotSeenEventIDWhosSequenceIDIsMarkedRemoved() {
-    EventID eventID = new EventID(new byte[0], 0L, 0L);
-    EventSequenceNumberHolder sequenceIdHolder =
+    var eventID = new EventID(new byte[0], 0L, 0L);
+    var sequenceIdHolder =
         new EventSequenceNumberHolder(eventID.getSequenceID(), null);
     sequenceIdHolder.setRemoved(true);
-    ThreadIdentifier threadId = new ThreadIdentifier(new byte[0], 0L);
+    var threadId = new ThreadIdentifier(new byte[0], 0L);
     eventTracker.recordSequenceNumber(threadId, sequenceIdHolder);
 
     assertFalse(eventTracker.hasSeenEvent(eventID));
@@ -261,30 +259,30 @@ public class DistributedEventTrackerTest {
 
   @Test
   public void hasNotSeeEventIDWhosSequenceIDIsLargerThanSeen() {
-    EventID eventID = new EventID(new byte[0], 0L, 0L);
+    var eventID = new EventID(new byte[0], 0L, 0L);
     recordSequence(eventID);
 
-    EventID higherSequenceID = new EventID(new byte[0], 0L, 1);
+    var higherSequenceID = new EventID(new byte[0], 0L, 1);
     assertFalse(eventTracker.hasSeenEvent(higherSequenceID));
   }
 
   @Test
   public void returnsNoTagIfNoSequenceForEvent() {
-    EventID eventID = new EventID(new byte[0], 0L, 1L);
+    var eventID = new EventID(new byte[0], 0L, 1L);
     assertNull(eventTracker.findVersionTagForSequence(eventID));
   }
 
   @Test
   public void returnsNoTagIfSequencesDoNotMatchForEvent() {
-    EventID eventID = new EventID(new byte[0], 0L, 1);
+    var eventID = new EventID(new byte[0], 0L, 1);
     recordSequence(eventID);
     assertNull(eventTracker.findVersionTagForSequence(eventID));
   }
 
   @Test
   public void returnsCorrectTagForEvent() {
-    EventID eventID = new EventID(new byte[0], 0L, 0L);
-    EventSequenceNumberHolder sequenceIdHolder = recordSequence(eventID);
+    var eventID = new EventID(new byte[0], 0L, 0L);
+    var sequenceIdHolder = recordSequence(eventID);
     assertEquals(sequenceIdHolder.getVersionTag(), eventTracker.findVersionTagForSequence(eventID));
   }
 
@@ -295,45 +293,45 @@ public class DistributedEventTrackerTest {
 
   @Test
   public void returnsNoTagIfNoBulkOpForEventWithSequence() {
-    EventID eventID = new EventID(new byte[0], 0L, 1L);
+    var eventID = new EventID(new byte[0], 0L, 1L);
     assertNull(eventTracker.findVersionTagForBulkOp(eventID));
   }
 
   @Test
   public void returnsNoTagIfBulkOpsDoNotMatchForEvent() {
     putEvent("key", "value", new byte[0], 0, false, 0);
-    EventID eventIDWithoutBulkOp = new EventID(new byte[0], 0L, 1);
+    var eventIDWithoutBulkOp = new EventID(new byte[0], 0L, 1);
     assertNull(eventTracker.findVersionTagForBulkOp(eventIDWithoutBulkOp));
   }
 
   @Test
   public void returnsCorrectTagForEventWithBulkOp() {
-    EventID eventID = new EventID(new byte[0], 0L, 0L);
-    VersionTag tag = mock(VersionTag.class);
+    var eventID = new EventID(new byte[0], 0L, 0L);
+    var tag = mock(VersionTag.class);
     putEvent("key", "value", new byte[0], 0, false, 0, tag);
     assertEquals(tag, eventTracker.findVersionTagForBulkOp(eventID));
   }
 
   @Test
   public void executesABulkOperations() {
-    EventID eventID = new EventID(new byte[0], 0L, 1L);
-    Runnable bulkOperation = mock(Runnable.class);
+    var eventID = new EventID(new byte[0], 0L, 1L);
+    var bulkOperation = mock(Runnable.class);
     eventTracker.syncBulkOp(bulkOperation, eventID, false);
     verify(bulkOperation, times(1)).run();
   }
 
   @Test
   public void executesRunnableIfNotPartOfATransaction() {
-    EventID eventID = new EventID(new byte[0], 0L, 1L);
-    Runnable bulkOperation = mock(Runnable.class);
+    var eventID = new EventID(new byte[0], 0L, 1L);
+    var bulkOperation = mock(Runnable.class);
     eventTracker.syncBulkOp(bulkOperation, eventID, true);
     verify(bulkOperation, times(1)).run();
   }
 
   private EventSequenceNumberHolder recordSequence(EventID eventID) {
-    EventSequenceNumberHolder sequenceIdHolder =
+    var sequenceIdHolder =
         new EventSequenceNumberHolder(eventID.getSequenceID(), null);
-    ThreadIdentifier threadIdentifier = new ThreadIdentifier(new byte[0], eventID.getThreadID());
+    var threadIdentifier = new ThreadIdentifier(new byte[0], eventID.getThreadID());
     eventTracker.recordSequenceNumber(threadIdentifier, sequenceIdHolder);
     return sequenceIdHolder;
   }

@@ -55,18 +55,18 @@ public class JdbcPooledDataSourceFactory implements PooledDataSourceFactory {
 
   @Override
   public DataSource createDataSource(Properties poolProperties, Properties dataSourceProperties) {
-    Properties hikariProperties = convertToHikari(poolProperties);
-    HikariConfig config = new HikariConfig(hikariProperties);
+    var hikariProperties = convertToHikari(poolProperties);
+    var config = new HikariConfig(hikariProperties);
     config.setDataSourceProperties(dataSourceProperties);
     return new HikariDataSource(config);
   }
 
   Properties convertToHikari(Properties poolProperties) {
-    final int MILLIS_PER_SECOND = 1000;
-    Properties result = new Properties();
-    for (String name : poolProperties.stringPropertyNames()) {
-      String hikariName = convertToCamelCase(name);
-      String hikariValue = poolProperties.getProperty(name);
+    final var MILLIS_PER_SECOND = 1000;
+    var result = new Properties();
+    for (var name : poolProperties.stringPropertyNames()) {
+      var hikariName = convertToCamelCase(name);
+      var hikariValue = poolProperties.getProperty(name);
       if (name.equals("connection-url")) {
         hikariName = "jdbcUrl";
       } else if (name.equals("jdbc-driver-class")) {
@@ -85,9 +85,9 @@ public class JdbcPooledDataSourceFactory implements PooledDataSourceFactory {
   }
 
   private String convertToCamelCase(String name) {
-    StringBuilder nameBuilder = new StringBuilder(name.length());
-    boolean capitalizeNextChar = false;
-    for (char c : name.toCharArray()) {
+    var nameBuilder = new StringBuilder(name.length());
+    var capitalizeNextChar = false;
+    for (var c : name.toCharArray()) {
       if (c == '-') {
         capitalizeNextChar = true;
         continue;

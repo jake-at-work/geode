@@ -49,7 +49,6 @@ import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
@@ -112,12 +111,12 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     regionName = getUniqueName() + "_region";
     rootRegionName = getUniqueName() + "_rootRegion";
 
-    for (int i = 0; i < ENTRIES_COUNT; i++) {
+    for (var i = 0; i < ENTRIES_COUNT; i++) {
       values[i] = new byte[VALUE_SIZE];
       Arrays.fill(values[i], (byte) 0x42);
     }
 
-    for (VM memberVM : asList(vm0, vm1, vm2, vm3)) {
+    for (var memberVM : asList(vm0, vm1, vm2, vm3)) {
       memberVM.invoke(() -> {
         TEAR_DOWN.set(DUMMY_RUNNABLE);
         CACHE.set(DUMMY_CACHE);
@@ -128,7 +127,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         TEAR_DOWN.getAndSet(DUMMY_RUNNABLE).run();
         InternalResourceManager.setResourceObserver(null);
@@ -211,7 +210,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
   @TestCaseName("{method}_{0}_{1}")
   public void testNBRegionDestructionDuringGetInitialImage(CacheDefinition cacheDefinition,
       RegionDefinition regionDefinition) throws Exception {
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> CACHE_DEFINITION.set(cacheDefinition));
     }
 
@@ -232,7 +231,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
       InitialImageOperation.slowImageProcessing = 0;
 
       Region<Integer, byte[]> region = getCache().getRegion(regionName);
-      for (int i = 0; i < ENTRIES_COUNT; i++) {
+      for (var i = 0; i < ENTRIES_COUNT; i++) {
         region.put(i, values[i]);
       }
       assertThat(region.keySet().size()).isEqualTo(ENTRIES_COUNT);
@@ -242,7 +241,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     AsyncInvocation updateDataInVM0 = vm0.invokeAsync(() -> {
       await().until(() -> getCache().getCachePerfStats().getGetInitialImagesCompleted() < 1);
 
-      Region<Object, Object> region = getCache().getRegion(regionName);
+      var region = getCache().getRegion(regionName);
 
       // wait for profile of getInitialImage cache to show up
       awaitRegionProfiles(region, 1);
@@ -310,7 +309,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
   public void testNBRegionInvalidationDuringGetInitialImage(CacheDefinition cacheDefinition,
       RegionDefinition regionDefinition)
       throws Exception {
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> CACHE_DEFINITION.set(cacheDefinition));
     }
 
@@ -334,7 +333,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
       InitialImageOperation.slowImageProcessing = 0;
 
       Region<Integer, byte[]> region = getCache().getRegion(regionName);
-      for (int i = 0; i < ENTRIES_COUNT; i++) {
+      for (var i = 0; i < ENTRIES_COUNT; i++) {
         region.put(i, values[i]);
       }
       assertThat(region.keySet().size()).isEqualTo(ENTRIES_COUNT);
@@ -342,7 +341,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
 
     // start asynchronous process that does updates to the data
     AsyncInvocation updateDataInVM0 = vm0.invokeAsync("Do Nonblocking Operations", () -> {
-      Region<Object, Object> region = getCache().getRegion(regionName);
+      var region = getCache().getRegion(regionName);
 
       // wait for profile of getInitialImage cache to show up
       awaitRegionProfiles(region, 1);
@@ -393,7 +392,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     // wait for GII to complete
     getInitialImageInVM2.await();
 
-    long giiCompletedMillis = System.currentTimeMillis();
+    var giiCompletedMillis = System.currentTimeMillis();
 
     if (regionDefinition.getScope().isGlobal()) {
       // wait for nonblocking operations to complete
@@ -406,9 +405,9 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     // invoke repeating so noack regions wait for all updates to get processed
     vm2.invoke(() -> {
       await().untilAsserted(() -> {
-        Region<Object, Object> region = getCache().getRegion(regionName);
+        var region = getCache().getRegion(regionName);
         // expected entry count (subtract entries destroyed)
-        int entryCount = ENTRIES_COUNT - ENTRIES_COUNT / 6;
+        var entryCount = ENTRIES_COUNT - ENTRIES_COUNT / 6;
         assertThat(region.entrySet(false)).hasSize(entryCount);
       });
     });
@@ -417,11 +416,11 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
       Region<Integer, Object> region = getCache().getRegion(regionName);
 
       // expected entry count (subtract entries destroyed)
-      int entryCount = ENTRIES_COUNT - ENTRIES_COUNT / 6;
+      var entryCount = ENTRIES_COUNT - ENTRIES_COUNT / 6;
       assertThat(region.entrySet(false).size()).isEqualTo(entryCount);
 
       // determine how many entries were updated before getInitialImage was complete
-      int entriesUpdatedConcurrently = 0;
+      var entriesUpdatedConcurrently = 0;
 
       entriesUpdatedConcurrently =
           validateEntriesForInvalidate(giiCompletedMillis, region, entriesUpdatedConcurrently);
@@ -447,7 +446,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     // operate on every odd entry with different value, alternating between updates, invalidates,
     // and destroys. These operations are likely to be nonblocking if a sufficient number of updates
     // get through before the get initial image is complete.
-    for (int i = 1; i < 301; i += 2) {
+    for (var i = 1; i < 301; i += 2) {
       Object key = i;
       switch (i % 6) {
         case 1: // UPDATE
@@ -478,7 +477,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     // operate on every odd entry with different value, alternating between updates, invalidates,
     // and destroys. These operations are likely to be nonblocking if a sufficient number of
     // updates get through before the get initial image is complete.
-    for (int i = 1; i < ENTRIES_COUNT; i += 2) {
+    for (var i = 1; i < ENTRIES_COUNT; i += 2) {
 
       // at magical number 301, do a region invalidation, then continue as before
       if (i == 301) {
@@ -518,8 +517,8 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
 
   private int validateEntriesForInvalidate(long giiCompletedMillis, Region<Integer, Object> region,
       int entriesUpdatedConcurrently) {
-    for (int i = 0; i < ENTRIES_COUNT; i++) {
-      Entry<Integer, Object> entry = region.getEntry(i);
+    for (var i = 0; i < ENTRIES_COUNT; i++) {
+      var entry = region.getEntry(i);
 
       if (i < 301) {
         if (i % 6 == 5) {
@@ -544,7 +543,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
           assertThat(entry).as("Entry for #" + i).isNotNull();
           assertThat(entry.getValue()).isNotNull().isInstanceOf(Long.class);
 
-          long timestamp = (long) entry.getValue();
+          var timestamp = (long) entry.getValue();
           if (timestamp < giiCompletedMillis) {
             entriesUpdatedConcurrently++;
           }
@@ -592,7 +591,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     // now do a put and our DACK root region which will not complete
     // until processed on otherside which means everything done before this
     // point has been processed
-    Region<String, String> rootRegion = getRootRegion();
+    var rootRegion = getRootRegion();
     if (rootRegion != null) {
       rootRegion.put("DONE", "FLUSH_OPS");
     }
@@ -609,7 +608,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
    * awaitRegionProfiles(region, 1);
    */
   private void awaitRegionProfiles(Region<?, ?> region, int expectedProfileCount) {
-    CacheDistributionAdvisor regionAdvisor =
+    var regionAdvisor =
         ((CacheDistributionAdvisee) region).getCacheDistributionAdvisor();
 
     await("Awaiting '" + expectedProfileCount + "' profiles for '" + region + "'")
@@ -625,7 +624,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     }),
 
     OFF_HEAP(() -> {
-      Properties properties = getDistributedSystemProperties();
+      var properties = getDistributedSystemProperties();
       properties.setProperty(OFF_HEAP_MEMORY_SIZE, "10m");
       return properties;
     }, () -> {
@@ -726,7 +725,7 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     }
 
     private <K, V> RegionFactory<K, V> createRegionFactory(Cache cache) {
-      RegionFactory<K, V> regionFactory = cache.<K, V>createRegionFactory()
+      var regionFactory = cache.<K, V>createRegionFactory()
           .setScope(scope)
           .setDataPolicy(dataPolicy)
           .setCompressor(compressor)

@@ -28,17 +28,17 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 public class JtaBeforeCompletionMessageTest {
   @Test
   public void testBeforeCompletionNotInvokedIfJTACompleted() throws Exception {
-    InternalCache cache = mock(InternalCache.class);
-    TXManagerImpl txMgr = mock(TXManagerImpl.class);
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
-    TXId txId = mock(TXId.class);
+    var cache = mock(InternalCache.class);
+    var txMgr = mock(TXManagerImpl.class);
+    var distributionManager = mock(ClusterDistributionManager.class);
+    var txId = mock(TXId.class);
 
     when(distributionManager.getCache()).thenReturn(cache);
     when(cache.getTXMgr()).thenReturn(txMgr);
     when(txMgr.isHostedTxRecentlyCompleted(txId)).thenReturn(true);
     when(txMgr.getTXState()).thenReturn(mock(TXStateProxyImpl.class));
 
-    JtaBeforeCompletionMessage message = new JtaBeforeCompletionMessage(1,
+    var message = new JtaBeforeCompletionMessage(1,
         mock(InternalDistributedMember.class), mock(ReplyProcessor21.class));
 
     message.operateOnTx(txId, distributionManager);

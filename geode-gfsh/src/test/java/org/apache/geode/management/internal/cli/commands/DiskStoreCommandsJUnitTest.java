@@ -73,7 +73,7 @@ public class DiskStoreCommandsJUnitTest {
   public void setUp() {
     listDiskStoresCommand = spy(ListDiskStoresCommand.class);
     describeDiskStoreCommand = spy(DescribeDiskStoreCommand.class);
-    InternalCache mockCache = mock(InternalCache.class, "InternalCache");
+    var mockCache = mock(InternalCache.class, "InternalCache");
     mockResultCollector = mock(ResultCollector.class, "ResultCollector");
     mockFunctionExecutor = mock(AbstractExecution.class, "Function Executor");
     mockDistributedMember = mock(DistributedMember.class, "DistributedMember");
@@ -100,16 +100,16 @@ public class DiskStoreCommandsJUnitTest {
 
   @Test
   public void testGetDiskStoreDescription() {
-    final String memberId = "mockMember";
-    final String diskStoreName = "mockDiskStore";
-    final DiskStoreDetails expectedDiskStoredDetails =
+    final var memberId = "mockMember";
+    final var diskStoreName = "mockDiskStore";
+    final var expectedDiskStoredDetails =
         createDiskStoreDetails(memberId, diskStoreName);
     when(mockFunctionExecutor.execute(any(DescribeDiskStoreFunction.class)))
         .thenReturn(mockResultCollector);
     when(mockResultCollector.getResult())
         .thenReturn(Collections.singletonList(expectedDiskStoredDetails));
 
-    final DiskStoreDetails actualDiskStoreDetails =
+    final var actualDiskStoreDetails =
         describeDiskStoreCommand.getDiskStoreDescription(memberId, diskStoreName);
     AssertionsForClassTypes.assertThat(actualDiskStoreDetails).isNotNull();
     AssertionsForClassTypes.assertThat(actualDiskStoreDetails).isEqualTo(expectedDiskStoredDetails);
@@ -117,8 +117,8 @@ public class DiskStoreCommandsJUnitTest {
 
   @Test
   public void testGetDiskStoreDescriptionThrowsEntityNotFoundException() {
-    final String memberId = "mockMember";
-    final String diskStoreName = "mockDiskStore";
+    final var memberId = "mockMember";
+    final var diskStoreName = "mockDiskStore";
     when(mockFunctionExecutor.execute(any(DescribeDiskStoreFunction.class)))
         .thenThrow(new EntityNotFoundException("Mock Exception"));
 
@@ -129,8 +129,8 @@ public class DiskStoreCommandsJUnitTest {
 
   @Test
   public void testGetDiskStoreDescriptionThrowsRuntimeException() {
-    final String memberId = "mockMember";
-    final String diskStoreName = "mockDiskStore";
+    final var memberId = "mockMember";
+    final var diskStoreName = "mockDiskStore";
     when(mockFunctionExecutor.execute(any(DescribeDiskStoreFunction.class)))
         .thenThrow(new RuntimeException("Mock Exception"));
 
@@ -141,8 +141,8 @@ public class DiskStoreCommandsJUnitTest {
 
   @Test
   public void testGetDiskStoreDescriptionWithInvalidFunctionResultReturnType() {
-    final String memberId = "mockMember";
-    final String diskStoreName = "mockDiskStore";
+    final var memberId = "mockMember";
+    final var diskStoreName = "mockDiskStore";
     when(mockFunctionExecutor.execute(any(DescribeDiskStoreFunction.class)))
         .thenReturn(mockResultCollector);
     when(mockResultCollector.getResult()).thenReturn(Collections.singletonList(new Object()));
@@ -156,15 +156,15 @@ public class DiskStoreCommandsJUnitTest {
 
   @Test
   public void testGetDiskStoreList() {
-    final DiskStoreDetails diskStoreDetails1 =
+    final var diskStoreDetails1 =
         createDiskStoreDetails("memberOne", "cacheServer1DiskStore1");
-    final DiskStoreDetails diskStoreDetails2 =
+    final var diskStoreDetails2 =
         createDiskStoreDetails("memberOne", "cacheServer1DiskStore2");
-    final DiskStoreDetails diskStoreDetails3 =
+    final var diskStoreDetails3 =
         createDiskStoreDetails("memberTwo", "cacheServer2DiskStore1");
-    final DiskStoreDetails diskStoreDetails4 =
+    final var diskStoreDetails4 =
         createDiskStoreDetails("memberTwo", "cacheServer2DiskStore2");
-    final List<DiskStoreDetails> expectedDiskStores =
+    final var expectedDiskStores =
         Arrays.asList(diskStoreDetails1, diskStoreDetails2, diskStoreDetails3, diskStoreDetails4);
     final List<Set<DiskStoreDetails>> results = new ArrayList<>();
     results.add(CollectionUtils.asSet(diskStoreDetails1, diskStoreDetails2));
@@ -173,7 +173,7 @@ public class DiskStoreCommandsJUnitTest {
         .thenReturn(mockResultCollector);
     when(mockResultCollector.getResult()).thenReturn(results);
 
-    final List<DiskStoreDetails> actualDiskStores =
+    final var actualDiskStores =
         listDiskStoresCommand.getDiskStoreListing(Collections.singleton(mockDistributedMember));
     assertThat(actualDiskStores).isNotNull();
     assertThat(actualDiskStores).isEqualTo(expectedDiskStores);
@@ -192,9 +192,9 @@ public class DiskStoreCommandsJUnitTest {
 
   @Test
   public void testGetDiskStoreListReturnsFunctionInvocationTargetExceptionInResults() {
-    final DiskStoreDetails diskStoreDetails =
+    final var diskStoreDetails =
         createDiskStoreDetails("memberOne", "cacheServerDiskStore");
-    final List<DiskStoreDetails> expectedDiskStores = Collections.singletonList(diskStoreDetails);
+    final var expectedDiskStores = Collections.singletonList(diskStoreDetails);
     final List<Object> results = new ArrayList<>();
     results.add(CollectionUtils.asSet(diskStoreDetails));
     results.add(new FunctionInvocationTargetException("expected"));
@@ -202,7 +202,7 @@ public class DiskStoreCommandsJUnitTest {
         .thenReturn(mockResultCollector);
     when(mockResultCollector.getResult()).thenReturn(results);
 
-    final List<DiskStoreDetails> actualDiskStores =
+    final var actualDiskStores =
         listDiskStoresCommand.getDiskStoreListing(Collections.singleton(mockDistributedMember));
     assertThat(actualDiskStores).isNotNull();
     assertThat(actualDiskStores).isEqualTo(expectedDiskStores);

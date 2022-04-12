@@ -28,19 +28,19 @@ public class ExecutionContextTest {
 
   @Test
   public void constructorShouldUseConfiguredMethodAuthorizer() {
-    InternalCache mockCache = mock(InternalCache.class);
-    QueryConfigurationService mockService = mock(QueryConfigurationService.class);
+    var mockCache = mock(InternalCache.class);
+    var mockService = mock(QueryConfigurationService.class);
     when(mockCache.getService(QueryConfigurationService.class)).thenReturn(mockService);
 
-    MethodInvocationAuthorizer noOpAuthorizer = QueryConfigurationServiceImpl.getNoOpAuthorizer();
+    var noOpAuthorizer = QueryConfigurationServiceImpl.getNoOpAuthorizer();
     when(mockService.getMethodAuthorizer()).thenReturn(noOpAuthorizer);
-    ExecutionContext executionContextNoOpAuthorizer = new ExecutionContext(null, mockCache);
+    var executionContextNoOpAuthorizer = new ExecutionContext(null, mockCache);
     assertThat(executionContextNoOpAuthorizer.getMethodInvocationAuthorizer())
         .isSameAs(noOpAuthorizer);
 
     MethodInvocationAuthorizer restrictedAuthorizer = new RestrictedMethodAuthorizer(mockCache);
     when(mockService.getMethodAuthorizer()).thenReturn(restrictedAuthorizer);
-    ExecutionContext executionContextRestrictedAuthorizer = new ExecutionContext(null, mockCache);
+    var executionContextRestrictedAuthorizer = new ExecutionContext(null, mockCache);
     assertThat(executionContextRestrictedAuthorizer.getMethodInvocationAuthorizer())
         .isSameAs(restrictedAuthorizer);
   }

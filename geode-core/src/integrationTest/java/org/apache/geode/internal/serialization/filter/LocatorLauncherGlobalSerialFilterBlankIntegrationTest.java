@@ -34,7 +34,7 @@ public class LocatorLauncherGlobalSerialFilterBlankIntegrationTest
   @Test
   public void startDoesNotConfigureGlobalSerialFilter_whenFilterIsBlank()
       throws InvocationTargetException, IllegalAccessException {
-    Object existingGlobalSerialFilter = OBJECT_INPUT_FILTER_API.createFilter(" ");
+    var existingGlobalSerialFilter = OBJECT_INPUT_FILTER_API.createFilter(" ");
     OBJECT_INPUT_FILTER_API.setSerialFilter(existingGlobalSerialFilter);
 
     locator.set(new LocatorLauncher.Builder()

@@ -19,16 +19,12 @@ import static org.apache.geode.distributed.ConfigurationProperties.REMOTE_LOCATO
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.client.internal.locator.wan.LocatorMembershipListener;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.admin.remote.DistributionLocatorId;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -58,7 +54,7 @@ public class WanLocatorDiscoveryDUnitTest {
 
   private void setupWanSites() throws IOException {
     ports = AvailablePortHelper.getRandomAvailableTCPPorts(5);
-    int site1Port =
+    var site1Port =
         setupWanSite1();
     setupWanSite2(site1Port);
   }
@@ -67,7 +63,7 @@ public class WanLocatorDiscoveryDUnitTest {
     locator_ln1 = cluster.startLocatorVM(0, ports[0], VersionManager.CURRENT_VERSION,
         i -> i.withProperty(DISTRIBUTED_SYSTEM_ID, "1"));
 
-    int locator_ln1_port = locator_ln1.getPort();
+    var locator_ln1_port = locator_ln1.getPort();
 
     locator_ln2 = cluster.startLocatorVM(1, ports[1], VersionManager.CURRENT_VERSION,
         i -> i.withProperty(DISTRIBUTED_SYSTEM_ID, "1")
@@ -81,7 +77,7 @@ public class WanLocatorDiscoveryDUnitTest {
         i -> i.withProperty(DISTRIBUTED_SYSTEM_ID, "2")
             .withProperty(REMOTE_LOCATORS, "localhost[" + site1Port + "]"));
 
-    int locator_ny1_port = locator_ny1.getPort();
+    var locator_ny1_port = locator_ny1.getPort();
 
     locator_ny2 = cluster.startLocatorVM(3, ports[3], VersionManager.CURRENT_VERSION,
         i -> i.withProperty(DISTRIBUTED_SYSTEM_ID, "2")
@@ -93,11 +89,11 @@ public class WanLocatorDiscoveryDUnitTest {
   public void testLocatorList() throws Exception {
     setupWanSites();
     locator_ny1.invoke(() -> {
-      LocatorMembershipListener listener =
+      var listener =
           ClusterStartupRule.getLocator().getLocatorMembershipListener();
       GeodeAwaitility.await()
           .untilAsserted(() -> assertThat(listener.getAllLocatorsInfo().size()).isEqualTo(2));
-      for (Map.Entry<Integer, Set<DistributionLocatorId>> entry : listener.getAllLocatorsInfo()
+      for (var entry : listener.getAllLocatorsInfo()
           .entrySet()) {
         GeodeAwaitility.await()
             .untilAsserted(() -> assertThat(entry.getValue().size()).isEqualTo(2));
@@ -107,19 +103,19 @@ public class WanLocatorDiscoveryDUnitTest {
 
     locator_ln2.stop();
 
-    int locator_ln1_port = locator_ln1.getPort();
+    var locator_ln1_port = locator_ln1.getPort();
 
     locator_ln2 = cluster.startLocatorVM(1, ports[4], VersionManager.CURRENT_VERSION,
         i -> i.withProperty(DISTRIBUTED_SYSTEM_ID, "1")
             .withConnectionToLocator(locator_ln1_port));
 
     locator_ny2.invoke(() -> {
-      LocatorMembershipListener listener =
+      var listener =
           ClusterStartupRule.getLocator().getLocatorMembershipListener();
       GeodeAwaitility.await()
           .untilAsserted(() -> assertThat(listener.getAllLocatorsInfo().size()).isEqualTo(2));
 
-      for (Map.Entry<Integer, Set<DistributionLocatorId>> entry : listener.getAllLocatorsInfo()
+      for (var entry : listener.getAllLocatorsInfo()
           .entrySet()) {
         GeodeAwaitility.await()
             .untilAsserted(() -> assertThat(entry.getValue().size()).isEqualTo(2));

@@ -35,7 +35,6 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.args.ListPosition;
 
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
@@ -53,11 +52,11 @@ public class LInsertDUnitTest {
 
   @Before
   public void testSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     clusterStartUp.startRedisVM(1, locator.getPort());
     clusterStartUp.startRedisVM(2, locator.getPort());
     clusterStartUp.startRedisVM(3, locator.getPort());
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort), REDIS_CLIENT_TIMEOUT);
     clusterStartUp.flushAll();
   }
@@ -69,8 +68,8 @@ public class LInsertDUnitTest {
 
   @Test
   public void shouldDistributeDataAmongCluster_andRetainDataAfterServerCrash() {
-    String key = makeListKeyWithHashtag(1, clusterStartUp.getKeyOnServer("linsert", 1));
-    List<String> elementList = makeElementList(key, INITIAL_LIST_SIZE);
+    var key = makeListKeyWithHashtag(1, clusterStartUp.getKeyOnServer("linsert", 1));
+    var elementList = makeElementList(key, INITIAL_LIST_SIZE);
     lpushPerformAndVerify(key, elementList);
 
     assertThat(jedis.linsert(key, BEFORE, jedis.lindex(key, 2), insertedValue))
@@ -87,30 +86,33 @@ public class LInsertDUnitTest {
 
   @Test
   public void givenBucketsMoveDuringLInsert_operationsAreNotLost() throws Exception {
-    AtomicBoolean continueInserting = new AtomicBoolean(true);
-    List<String> listHashtags = makeListHashtags();
-    List<String> keys = makeListKeys(listHashtags);
+    var continueInserting = new AtomicBoolean(true);
+    var listHashtags = makeListHashtags();
+    var keys = makeListKeys(listHashtags);
 
-    List<String> elementList1 = makeElementList(keys.get(0), INITIAL_LIST_SIZE);
-    List<String> elementList2 = makeElementList(keys.get(1), INITIAL_LIST_SIZE);
-    List<String> elementList3 = makeElementList(keys.get(2), INITIAL_LIST_SIZE);
+    var elementList1 = makeElementList(keys.get(0), INITIAL_LIST_SIZE);
+    var elementList2 = makeElementList(keys.get(1), INITIAL_LIST_SIZE);
+    var elementList3 = makeElementList(keys.get(2), INITIAL_LIST_SIZE);
 
     lpushPerformAndVerify(keys.get(0), elementList1);
     lpushPerformAndVerify(keys.get(1), elementList2);
     lpushPerformAndVerify(keys.get(2), elementList3);
 
-    Runnable task1 =
-        () -> linsertPerformAndVerify(keys.get(0), BEFORE, 2, insertedValue, continueInserting);
-    Runnable task2 =
-        () -> linsertPerformAndVerify(keys.get(1), AFTER, 2, insertedValue, continueInserting);
-    Runnable task3 =
-        () -> linsertPerformAndVerify(keys.get(2), AFTER, 2, insertedValue, continueInserting);
+    var task1 =
+        (Runnable) () -> linsertPerformAndVerify(keys.get(0), BEFORE, 2, insertedValue,
+            continueInserting);
+    var task2 =
+        (Runnable) () -> linsertPerformAndVerify(keys.get(1), AFTER, 2, insertedValue,
+            continueInserting);
+    var task3 =
+        (Runnable) () -> linsertPerformAndVerify(keys.get(2), AFTER, 2, insertedValue,
+            continueInserting);
 
     Future<Void> future1 = executor.runAsync(task1);
     Future<Void> future2 = executor.runAsync(task2);
     Future<Void> future3 = executor.runAsync(task3);
 
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       clusterStartUp.moveBucketForKey(listHashtags.get(i % listHashtags.size()));
       Thread.sleep(500);
     }
@@ -139,11 +141,11 @@ public class LInsertDUnitTest {
 
   private void linsertPerformAndVerify(String key, ListPosition pos, int pivotIndex,
       String valueBase, AtomicBoolean continueInserting) {
-    int counter = 0;
+    var counter = 0;
     while (continueInserting.get()) {
-      String insertedValue = valueBase + counter++;
-      long startLength = jedis.llen(key);
-      String pivot = jedis.lindex(key, pivotIndex);
+      var insertedValue = valueBase + counter++;
+      var startLength = jedis.llen(key);
+      var pivot = jedis.lindex(key, pivotIndex);
       assertThat(jedis.linsert(key, pos, pivot, insertedValue)).isEqualTo(startLength + 1);
 
       if (pos == BEFORE) {
@@ -178,7 +180,7 @@ public class LInsertDUnitTest {
 
   private List<String> makeElementList(String key, int listSize) {
     List<String> elementList = new ArrayList<>();
-    for (int i = 0; i < listSize; i++) {
+    for (var i = 0; i < listSize; i++) {
       elementList.add("-" + key + "-" + i + "-");
     }
     return elementList;

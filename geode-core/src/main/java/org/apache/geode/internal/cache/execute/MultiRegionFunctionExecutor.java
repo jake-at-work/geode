@@ -22,7 +22,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.TransactionDataNotColocatedException;
 import org.apache.geode.cache.TransactionException;
@@ -31,7 +30,6 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Assert;
@@ -182,8 +180,8 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
       executeFunction(function, null);
       return new NoResult();
     }
-    ResultCollector inRc = (rc == null) ? new DefaultResultCollector() : rc;
-    ResultCollector rcToReturn = executeFunction(function, inRc);
+    var inRc = (rc == null) ? new DefaultResultCollector() : rc;
+    var rcToReturn = executeFunction(function, inRc);
     if (timeout > 0) {
       try {
         rcToReturn.getResult(timeout, unit);
@@ -196,13 +194,13 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
 
   private ResultCollector executeFunction(final Function function,
       ResultCollector resultCollector) {
-    InternalDistributedSystem ds = InternalDistributedSystem.getConnectedInstance();
+    var ds = InternalDistributedSystem.getConnectedInstance();
     if (ds == null) {
       throw new IllegalStateException(
           "DistributedSystem is either not created or not ready");
     }
-    final DistributionManager dm = ds.getDistributionManager();
-    final Map<InternalDistributedMember, Set<String>> memberToRegionMap =
+    final var dm = ds.getDistributionManager();
+    final var memberToRegionMap =
         calculateMemberToRegionMap();
     final Set<InternalDistributedMember> dest =
         new HashSet<>(memberToRegionMap.keySet());
@@ -219,11 +217,11 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
     }
     setExecutionNodes(dest);
 
-    final InternalDistributedMember localVM = cache.getMyId();
-    final LocalResultCollector<?, ?> localResultCollector =
+    final var localVM = cache.getMyId();
+    final var localResultCollector =
         getLocalResultCollector(function, resultCollector);
-    boolean remoteOnly = false;
-    boolean localOnly = false;
+    var remoteOnly = false;
+    var localOnly = false;
     if (!dest.contains(localVM)) {
       remoteOnly = true;
     }
@@ -231,33 +229,33 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
       localOnly = true;
     }
     validateExecution(function, dest);
-    final MemberFunctionResultSender resultSender = new MemberFunctionResultSender(dm,
+    final var resultSender = new MemberFunctionResultSender(dm,
         localResultCollector, function, localOnly, remoteOnly, null);
     if (dest.contains(localVM)) {
       // if member is local VM
       dest.remove(localVM);
-      Set<String> regionPathSet = memberToRegionMap.get(localVM);
+      var regionPathSet = memberToRegionMap.get(localVM);
       Set<Region> regions = new HashSet<>();
       if (regionPathSet != null) {
         InternalCache cache1 = GemFireCacheImpl.getInstance();
-        for (String regionPath : regionPathSet) {
+        for (var regionPath : regionPathSet) {
           regions.add(cache1.getRegion(regionPath));
         }
       }
       final FunctionContextImpl context =
           new MultiRegionFunctionContextImpl(cache, function.getId(),
               getArgumentsForMember(localVM.getId()), resultSender, regions, isReExecute);
-      boolean isTx = cache.getTxManager().getTXState() != null;
+      var isTx = cache.getTxManager().getTXState() != null;
       executeFunctionOnLocalNode(function, context, resultSender, dm, isTx);
     }
     if (!dest.isEmpty()) {
-      HashMap<InternalDistributedMember, Object> memberArgs =
-          new HashMap<>();
-      for (InternalDistributedMember recip : dest) {
+      var memberArgs =
+          new HashMap<InternalDistributedMember, Object>();
+      for (var recip : dest) {
         memberArgs.put(recip, getArgumentsForMember(recip.getId()));
       }
       Assert.assertTrue(memberArgs.size() == dest.size());
-      MultiRegionFunctionResultWaiter waiter = new MultiRegionFunctionResultWaiter(ds,
+      var waiter = new MultiRegionFunctionResultWaiter(ds,
           localResultCollector, function, dest, memberArgs, resultSender, memberToRegionMap);
 
       return waiter.getFunctionResultFrom(dest, function, this);
@@ -270,16 +268,16 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
         new HashMap<>();
     // nodes is maintained for node pruning logic
     Set<InternalDistributedMember> nodes = new HashSet<>();
-    for (Region region : regions) {
-      DataPolicy dp = region.getAttributes().getDataPolicy();
+    for (var region : regions) {
+      var dp = region.getAttributes().getDataPolicy();
       if (region instanceof PartitionedRegion) {
-        PartitionedRegion pr = (PartitionedRegion) region;
+        var pr = (PartitionedRegion) region;
         Set<InternalDistributedMember> prMembers = pr.getRegionAdvisor().advisePrimaryOwners();
         if (pr.isDataStore()) {
-          InternalCache cache = (InternalCache) region.getCache();
+          var cache = (InternalCache) region.getCache();
           // Add local node
-          InternalDistributedMember localVm = cache.getMyId();
-          Set<String> regions = memberToRegions.get(localVm);
+          var localVm = cache.getMyId();
+          var regions = memberToRegions.get(localVm);
           if (regions == null) {
             regions = new HashSet<>();
           }
@@ -287,8 +285,8 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
           memberToRegions.put(localVm, regions);
         }
         if (prMembers != null) {
-          for (InternalDistributedMember member : prMembers) {
-            Set<String> regions = memberToRegions.get(member);
+          for (var member : prMembers) {
+            var regions = memberToRegions.get(member);
             if (regions == null) {
               regions = new HashSet<>();
             }
@@ -300,15 +298,15 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
       } else if (region instanceof DistributedRegion) {
         if (dp.isEmpty() || dp.isNormal()) {
           // Add local members
-          DistributedRegion dr = (DistributedRegion) region;
-          Set<InternalDistributedMember> replicates =
+          var dr = (DistributedRegion) region;
+          var replicates =
               dr.getCacheDistributionAdvisor().adviseInitializedReplicates();
           // if existing nodes contain one of the nodes from replicates
-          boolean added = false;
-          for (InternalDistributedMember member : replicates) {
+          var added = false;
+          for (var member : replicates) {
             if (nodes.contains(member)) {
               added = true;
-              Set<String> regions = memberToRegions.get(member);
+              var regions = memberToRegions.get(member);
               if (regions == null) {
                 regions = new HashSet<>();
               }
@@ -320,9 +318,9 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
           // if existing nodes set is mutually exclusive to replicates
           if (replicates.size() != 0 && !added) {
             // select a random replicate
-            InternalDistributedMember member = (InternalDistributedMember) (replicates
+            var member = (InternalDistributedMember) (replicates
                 .toArray()[new Random().nextInt(replicates.size())]);
-            Set<String> regions = memberToRegions.get(member);
+            var regions = memberToRegions.get(member);
             if (regions == null) {
               regions = new HashSet<>();
             }
@@ -330,10 +328,10 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
             memberToRegions.put(member, regions);
           }
         } else if (dp.withReplication()) {
-          InternalCache cache = (InternalCache) region.getCache();
+          var cache = (InternalCache) region.getCache();
           // Add local node
-          InternalDistributedMember local = cache.getMyId();
-          Set<String> regions = memberToRegions.get(local);
+          var local = cache.getMyId();
+          var regions = memberToRegions.get(local);
           if (regions == null) {
             regions = new HashSet<>();
           }
@@ -341,10 +339,10 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
           memberToRegions.put(local, regions);
         }
       } else if (region instanceof LocalRegion) {
-        InternalCache cache = (InternalCache) region.getCache();
+        var cache = (InternalCache) region.getCache();
         // Add local node
-        InternalDistributedMember local = cache.getMyId();
-        Set<String> regions = memberToRegions.get(local);
+        var local = cache.getMyId();
+        var regions = memberToRegions.get(local);
         if (regions == null) {
           regions = new HashSet<>();
         }
@@ -363,7 +361,7 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
   @Override
   public void validateExecution(Function function, Set targetMembers) {
     InternalCache cache = null;
-    for (Region r : regions) {
+    for (var r : regions) {
       cache = (InternalCache) r.getCache();
       break;
     }
@@ -376,8 +374,8 @@ public class MultiRegionFunctionExecutor extends AbstractExecution {
             "Function inside a transaction cannot execute on more than one node");
       } else {
         assert targetMembers.size() == 1;
-        DistributedMember funcTarget = (DistributedMember) targetMembers.iterator().next();
-        DistributedMember target = cache.getTxManager().getTXState().getTarget();
+        var funcTarget = (DistributedMember) targetMembers.iterator().next();
+        var target = cache.getTxManager().getTXState().getTarget();
         if (target == null) {
           cache.getTxManager().getTXState().setTarget(funcTarget);
         } else if (!target.equals(funcTarget)) {

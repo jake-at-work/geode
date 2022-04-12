@@ -30,12 +30,12 @@ public class SqlToPdxInstanceCreator {
   }
 
   public SqlToPdxInstance create() {
-    SqlToPdxInstance result = new SqlToPdxInstance();
-    PdxInstanceFactory templateFactory = createPdxInstanceFactory();
-    for (FieldMapping columnMapping : regionMapping.getFieldMappings()) {
-      String columnName = columnMapping.getJdbcName();
-      String fieldName = columnMapping.getPdxName();
-      FieldType fieldType = FieldType.valueOf(columnMapping.getPdxType());
+    var result = new SqlToPdxInstance();
+    var templateFactory = createPdxInstanceFactory();
+    for (var columnMapping : regionMapping.getFieldMappings()) {
+      var columnName = columnMapping.getJdbcName();
+      var fieldName = columnMapping.getPdxName();
+      var fieldType = FieldType.valueOf(columnMapping.getPdxType());
       result.addMapping(columnName, fieldName, fieldType);
       writeField(templateFactory, columnMapping, fieldName, fieldType);
     }
@@ -44,7 +44,7 @@ public class SqlToPdxInstanceCreator {
   }
 
   private PdxInstanceFactory createPdxInstanceFactory() {
-    String valueClassName = regionMapping.getPdxName();
+    var valueClassName = regionMapping.getPdxName();
     return cache.createPdxInstanceFactory(valueClassName);
   }
 

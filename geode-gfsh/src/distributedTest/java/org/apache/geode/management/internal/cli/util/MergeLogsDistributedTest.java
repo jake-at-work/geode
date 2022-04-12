@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -34,7 +33,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
@@ -53,12 +51,12 @@ public class MergeLogsDistributedTest {
 
   @Before
   public void setup() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(DistributionConfig.LOG_LEVEL_NAME, "info");
-    MemberVM locator = lsRule.startLocatorVM(0, properties);
+    var locator = lsRule.startLocatorVM(0, properties);
 
-    MemberVM server = lsRule.startServerVM(1, properties, locator.getPort());
-    MemberVM server2 = lsRule.startServerVM(2, properties, locator.getPort());
+    var server = lsRule.startServerVM(1, properties, locator.getPort());
+    var server2 = lsRule.startServerVM(2, properties, locator.getPort());
 
     // Especially on Windows, wait for time to pass otherwise all log messages may appear in the
     // same millisecond.
@@ -78,7 +76,7 @@ public class MergeLogsDistributedTest {
 
   @Test
   public void testExportInProcess() throws Exception {
-    List<File> actualFiles = MergeLogs.findLogFilesToMerge(lsRule.getWorkingDirRoot());
+    var actualFiles = MergeLogs.findLogFilesToMerge(lsRule.getWorkingDirRoot());
     // remove pulse.log if present
     actualFiles =
         actualFiles.stream()
@@ -89,13 +87,13 @@ public class MergeLogsDistributedTest {
     // server-2.log
     assertThat(actualFiles).hasSize(3);
 
-    File result = MergeLogs.mergeLogFile(lsRule.getWorkingDirRoot().getCanonicalPath());
+    var result = MergeLogs.mergeLogFile(lsRule.getWorkingDirRoot().getCanonicalPath());
     assertOnLogContents(result);
   }
 
   @Test
   public void testExportInNewProcess() throws Throwable {
-    List<File> actualFiles = MergeLogs.findLogFilesToMerge(lsRule.getWorkingDirRoot());
+    var actualFiles = MergeLogs.findLogFilesToMerge(lsRule.getWorkingDirRoot());
     // remove pulse.log if present
     actualFiles =
         actualFiles.stream()
@@ -107,7 +105,7 @@ public class MergeLogsDistributedTest {
     assertThat(actualFiles).hasSize(3);
 
     MergeLogs.mergeLogsInNewProcess(lsRule.getWorkingDirRoot().toPath());
-    File result = Arrays.stream(lsRule.getWorkingDirRoot().listFiles())
+    var result = Arrays.stream(lsRule.getWorkingDirRoot().listFiles())
         .filter((File f) -> f.getName().startsWith("merge")).findFirst().orElseThrow(() -> {
           throw new AssertionError("No merged log file found");
         });
@@ -115,7 +113,7 @@ public class MergeLogsDistributedTest {
   }
 
   private void assertOnLogContents(File mergedLogFile) throws IOException {
-    String mergedLines = FileUtils.readLines(mergedLogFile, Charset.defaultCharset()).stream()
+    var mergedLines = FileUtils.readLines(mergedLogFile, Charset.defaultCharset()).stream()
         .collect(joining("\n"));
 
     assertThat(mergedLines).contains(MESSAGE_1);

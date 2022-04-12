@@ -19,7 +19,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.CacheService;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -36,19 +35,19 @@ public class GeodeMemcachedService implements CacheService {
 
   @Override
   public boolean init(Cache cache) {
-    InternalCache internalCache = (InternalCache) cache;
+    var internalCache = (InternalCache) cache;
     startMemcachedServer(internalCache);
 
     return true;
   }
 
   private void startMemcachedServer(InternalCache internalCache) {
-    InternalDistributedSystem system = internalCache.getInternalDistributedSystem();
-    int port = system.getConfig().getMemcachedPort();
+    var system = internalCache.getInternalDistributedSystem();
+    var port = system.getConfig().getMemcachedPort();
     if (port != 0) {
-      String protocol = system.getConfig().getMemcachedProtocol();
+      var protocol = system.getConfig().getMemcachedProtocol();
       assert protocol != null;
-      String bindAddress = system.getConfig().getMemcachedBindAddress();
+      var bindAddress = system.getConfig().getMemcachedBindAddress();
       assert bindAddress != null;
       if (bindAddress.equals(DistributionConfig.DEFAULT_MEMCACHED_BIND_ADDRESS)) {
         logger.info("Starting GemFireMemcachedServer on port {} for {} protocol",

@@ -32,10 +32,8 @@ import org.junit.Test;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.distributed.DistributedSystem;
 
 /**
@@ -55,13 +53,13 @@ public class DiskRegCacheXmlJUnitTest {
   private static File[] dirs = null;
 
   private void mkDirAndConnectDs() {
-    File file1 = new File("d1");
+    var file1 = new File("d1");
     file1.mkdir();
     file1.deleteOnExit();
-    File file2 = new File("d2");
+    var file2 = new File("d2");
     file2.mkdir();
     file2.deleteOnExit();
-    File file3 = new File("d3");
+    var file3 = new File("d3");
     file3.mkdir();
     file3.deleteOnExit();
     dirs = new File[3];
@@ -69,9 +67,9 @@ public class DiskRegCacheXmlJUnitTest {
     dirs[1] = file2;
     dirs[2] = file3;
     // Connect to the GemFire distributed system
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(NAME, "test");
-    String path =
+    var path =
         createTempFileFromResource(getClass(), "DiskRegCacheXmlJUnitTest.xml")
             .getAbsolutePath();
     props.setProperty(MCAST_PORT, "0");
@@ -98,18 +96,18 @@ public class DiskRegCacheXmlJUnitTest {
       }
     }
 
-    RegionAttributes ra1 = region1.getAttributes();
+    var ra1 = region1.getAttributes();
     assertTrue(ra1.isDiskSynchronous() == true);
-    DiskStore ds1 = cache.findDiskStore(((LocalRegion) region1).getDiskStoreName());
+    var ds1 = cache.findDiskStore(((LocalRegion) region1).getDiskStoreName());
     assertTrue(ds1 != null);
     assertTrue(ds1.getAutoCompact() == true);
     assertTrue(ds1.getMaxOplogSize() == 2);
 
     // Get the region2 which is a subregion of /root
     Region region2 = cache.getRegion(SEPARATOR + "root2" + SEPARATOR + "PersistSynchFixedOplog2");
-    RegionAttributes ra2 = region2.getAttributes();
+    var ra2 = region2.getAttributes();
     assertTrue(ra2.isDiskSynchronous() == true);
-    DiskStore ds2 = cache.findDiskStore(((LocalRegion) region2).getDiskStoreName());
+    var ds2 = cache.findDiskStore(((LocalRegion) region2).getDiskStoreName());
     assertTrue(ds2 != null);
     assertTrue(ds2.getAutoCompact() == false);
     assertTrue(ds2.getMaxOplogSize() == 0);
@@ -117,9 +115,9 @@ public class DiskRegCacheXmlJUnitTest {
     // Get the region3 which is a subregion of /root
     Region region3 =
         cache.getRegion(SEPARATOR + "root3" + SEPARATOR + "PersistASynchBufferRollingOplog3");
-    RegionAttributes ra3 = region3.getAttributes();
+    var ra3 = region3.getAttributes();
     assertTrue(ra3.isDiskSynchronous() == false);
-    DiskStore ds3 = cache.findDiskStore(((LocalRegion) region3).getDiskStoreName());
+    var ds3 = cache.findDiskStore(((LocalRegion) region3).getDiskStoreName());
     assertTrue(ds3 != null);
     assertTrue(ds3.getAutoCompact() == true);
     assertTrue(ds3.getMaxOplogSize() == 2);
@@ -129,9 +127,9 @@ public class DiskRegCacheXmlJUnitTest {
     // Get the region4 which is a subregion of /root
     Region region4 =
         cache.getRegion(SEPARATOR + "root4" + SEPARATOR + "PersistASynchNoBufferFixedOplog4");
-    RegionAttributes ra4 = region4.getAttributes();
+    var ra4 = region4.getAttributes();
     assertTrue(ra4.isDiskSynchronous() == false);
-    DiskStore ds4 = cache.findDiskStore(((LocalRegion) region4).getDiskStoreName());
+    var ds4 = cache.findDiskStore(((LocalRegion) region4).getDiskStoreName());
     assertTrue(ds4 != null);
     assertTrue(ds4.getAutoCompact() == false);
     assertTrue(ds4.getMaxOplogSize() == 2);
@@ -140,18 +138,18 @@ public class DiskRegCacheXmlJUnitTest {
     // Get the region5 which is a subregion of /root
     Region region5 =
         cache.getRegion(SEPARATOR + "root5" + SEPARATOR + "OverflowSynchRollingOplog5");
-    RegionAttributes ra5 = region5.getAttributes();
+    var ra5 = region5.getAttributes();
     assertTrue(ra5.isDiskSynchronous() == true);
-    DiskStore ds5 = cache.findDiskStore(((LocalRegion) region5).getDiskStoreName());
+    var ds5 = cache.findDiskStore(((LocalRegion) region5).getDiskStoreName());
     assertTrue(ds5 != null);
     assertTrue(ds5.getAutoCompact() == true);
     assertTrue(ds5.getMaxOplogSize() == 2);
 
     // Get the region6 which is a subregion of /root
     Region region6 = cache.getRegion(SEPARATOR + "root6" + SEPARATOR + "OverflowSynchFixedOplog6");
-    RegionAttributes ra6 = region6.getAttributes();
+    var ra6 = region6.getAttributes();
     assertTrue(ra6.isDiskSynchronous() == true);
-    DiskStore ds6 = cache.findDiskStore(((LocalRegion) region6).getDiskStoreName());
+    var ds6 = cache.findDiskStore(((LocalRegion) region6).getDiskStoreName());
     assertTrue(ds6 != null);
     assertTrue(ds6.getAutoCompact() == false);
     assertTrue(ds6.getMaxOplogSize() == 0);
@@ -159,9 +157,9 @@ public class DiskRegCacheXmlJUnitTest {
     // Get the region7 which is a subregion of /root
     Region region7 =
         cache.getRegion(SEPARATOR + "root7" + SEPARATOR + "OverflowASynchBufferRollingOplog7");
-    RegionAttributes ra7 = region7.getAttributes();
+    var ra7 = region7.getAttributes();
     assertTrue(ra7.isDiskSynchronous() == false);
-    DiskStore ds7 = cache.findDiskStore(((LocalRegion) region7).getDiskStoreName());
+    var ds7 = cache.findDiskStore(((LocalRegion) region7).getDiskStoreName());
     assertTrue(ds7 != null);
     assertTrue(ds7.getAutoCompact() == true);
     assertTrue(ds7.getMaxOplogSize() == 2);
@@ -169,18 +167,18 @@ public class DiskRegCacheXmlJUnitTest {
     // Get the region8 which is a subregion of /root
     Region region8 =
         cache.getRegion(SEPARATOR + "root8" + SEPARATOR + "OverflowASynchNoBufferFixedOplog8");
-    RegionAttributes ra8 = region8.getAttributes();
+    var ra8 = region8.getAttributes();
     assertTrue(ra8.isDiskSynchronous() == false);
-    DiskStore ds8 = cache.findDiskStore(((LocalRegion) region8).getDiskStoreName());
+    var ds8 = cache.findDiskStore(((LocalRegion) region8).getDiskStoreName());
     assertTrue(ds8 != null);
     assertTrue(ds8.getAutoCompact() == false);
 
     // Get the region9 which is a subregion of /root
     Region region9 =
         cache.getRegion(SEPARATOR + "root9" + SEPARATOR + "PersistOverflowSynchRollingOplog9");
-    RegionAttributes ra9 = region9.getAttributes();
+    var ra9 = region9.getAttributes();
     assertTrue(ra9.isDiskSynchronous() == true);
-    DiskStore ds9 = cache.findDiskStore(((LocalRegion) region9).getDiskStoreName());
+    var ds9 = cache.findDiskStore(((LocalRegion) region9).getDiskStoreName());
     assertTrue(ds9 != null);
     assertTrue(ds9.getAutoCompact() == true);
     assertTrue(ds9.getMaxOplogSize() == 2);
@@ -188,18 +186,18 @@ public class DiskRegCacheXmlJUnitTest {
     // Get the region10 which is a subregion of /root
     Region region10 =
         cache.getRegion(SEPARATOR + "root10" + SEPARATOR + "PersistOverflowSynchFixedOplog10");
-    RegionAttributes ra10 = region10.getAttributes();
+    var ra10 = region10.getAttributes();
     assertTrue(ra10.isDiskSynchronous() == true);
-    DiskStore ds10 = cache.findDiskStore(((LocalRegion) region10).getDiskStoreName());
+    var ds10 = cache.findDiskStore(((LocalRegion) region10).getDiskStoreName());
     assertTrue(ds10 != null);
     assertTrue(ds10.getAutoCompact() == false);
 
     // Get the region11 which is a subregion of /root
     Region region11 = cache
         .getRegion(SEPARATOR + "root11" + SEPARATOR + "PersistOverflowASynchBufferRollingOplog11");
-    RegionAttributes ra11 = region11.getAttributes();
+    var ra11 = region11.getAttributes();
     assertTrue(ra11.isDiskSynchronous() == false);
-    DiskStore ds11 = cache.findDiskStore(((LocalRegion) region11).getDiskStoreName());
+    var ds11 = cache.findDiskStore(((LocalRegion) region11).getDiskStoreName());
     assertTrue(ds11 != null);
     assertTrue(ds11.getAutoCompact() == true);
     assertTrue(ds11.getMaxOplogSize() == 2);
@@ -207,9 +205,9 @@ public class DiskRegCacheXmlJUnitTest {
     // Get the region12 which is a subregion of /root
     Region region12 = cache
         .getRegion(SEPARATOR + "root12" + SEPARATOR + "PersistOverflowASynchNoBufferFixedOplog12");
-    RegionAttributes ra12 = region12.getAttributes();
+    var ra12 = region12.getAttributes();
     assertTrue(ra12.isDiskSynchronous() == false);
-    DiskStore ds12 = cache.findDiskStore(((LocalRegion) region12).getDiskStoreName());
+    var ds12 = cache.findDiskStore(((LocalRegion) region12).getDiskStoreName());
     assertTrue(ds12 != null);
     assertTrue(ds12.getTimeInterval() == 15);
     assertTrue(ds12.getQueueSize() == 0);
@@ -218,9 +216,9 @@ public class DiskRegCacheXmlJUnitTest {
   }
 
   private static void deleteFiles() {
-    for (final File dir : dirs) {
-      File[] files = dir.listFiles();
-      for (final File file : files) {
+    for (final var dir : dirs) {
+      var files = dir.listFiles();
+      for (final var file : files) {
         file.delete();
       }
     }
@@ -230,8 +228,8 @@ public class DiskRegCacheXmlJUnitTest {
   public void tearDown() throws Exception {
     try {
       if (cache != null && !cache.isClosed()) {
-        for (final Region<?, ?> region : cache.rootRegions()) {
-          Region root = (Region) region;
+        for (final var region : cache.rootRegions()) {
+          var root = (Region) region;
           if (root.isDestroyed() || root instanceof HARegion) {
             continue;
           }
@@ -255,7 +253,7 @@ public class DiskRegCacheXmlJUnitTest {
     if (cache != null) {
       try {
         if (!cache.isClosed()) {
-          CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+          var txMgr = cache.getCacheTransactionManager();
           if (txMgr != null) {
             if (txMgr.exists()) {
               // make sure we cleanup this threads txid stored in a thread local

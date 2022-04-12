@@ -38,8 +38,6 @@ import org.junit.rules.TestName;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
@@ -62,10 +60,10 @@ public class CacheWriterGetOldValueIntegrationTest {
   public void setUp() throws Exception {
     cache = (InternalCache) new CacheFactory().set(LOCATORS, "").set(MCAST_PORT, "0").create();
 
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(new File[] {temporaryFolder.getRoot()});
 
-    DiskStore diskStore = diskStoreFactory.create(testName.getMethodName());
+    var diskStore = diskStoreFactory.create(testName.getMethodName());
 
     RegionFactory<String, String> regionFactory = cache.createRegionFactory();
     regionFactory.setEvictionAttributes(createLRUEntryAttributes(1, OVERFLOW_TO_DISK));
@@ -86,7 +84,7 @@ public class CacheWriterGetOldValueIntegrationTest {
     put(region, "k1", "v1");
     put(region, "k2", "v2");
 
-    PutAllCacheWriter<String, String> cacheWriter = new PutAllCacheWriter<>();
+    var cacheWriter = new PutAllCacheWriter<String, String>();
     region.getAttributesMutator().setCacheWriter(cacheWriter);
 
     Map<String, String> putAllMap = new HashMap<>();
@@ -102,7 +100,7 @@ public class CacheWriterGetOldValueIntegrationTest {
     put(region, "k1", "v1");
     put(region, "k2", "v2");
 
-    RemoveAllCacheWriter<String, String> cacheWriter = new RemoveAllCacheWriter<>();
+    var cacheWriter = new RemoveAllCacheWriter<String, String>();
     region.getAttributesMutator().setCacheWriter(cacheWriter);
 
     region.removeAll(Arrays.asList("k1", "k2"));
@@ -125,18 +123,18 @@ public class CacheWriterGetOldValueIntegrationTest {
     put(region, "k2", "v2");
 
     beginTx(useTx);
-    String unevictedKey = getUnevictedKey(region);
-    String unevictedValue = expectedValues.get(unevictedKey);
-    CacheWriterWithExpectedOldValue<String, String> cacheWriter =
-        new CacheWriterWithExpectedOldValue<>(unevictedValue);
+    var unevictedKey = getUnevictedKey(region);
+    var unevictedValue = expectedValues.get(unevictedKey);
+    var cacheWriter =
+        new CacheWriterWithExpectedOldValue<String, String>(unevictedValue);
     region.getAttributesMutator().setCacheWriter(cacheWriter);
     assertThat(put(region, unevictedKey, "update1")).isEqualTo(unevictedValue);
     assertThat(cacheWriter.getUnexpectedEvents()).isEmpty();
     endTx(useTx);
 
     beginTx(useTx);
-    String evictedKey = getEvictedKey(region);
-    String evictedValue = expectedValues.get(evictedKey);
+    var evictedKey = getEvictedKey(region);
+    var evictedValue = expectedValues.get(evictedKey);
     cacheWriter = new CacheWriterWithExpectedOldValue<>(evictedValue);
     region.getAttributesMutator().setCacheWriter(cacheWriter);
     assertThat(put(region, evictedKey, "update2")).isEqualTo(useTx ? evictedValue : null);
@@ -166,14 +164,14 @@ public class CacheWriterGetOldValueIntegrationTest {
   }
 
   private String put(Map<String, String> region, String key, String value) {
-    String result = region.put(key, value);
+    var result = region.put(key, value);
     expectedValues.put(key, value);
     return result;
   }
 
   private String getEvictedKey(Region<String, String> region) {
-    InternalRegion internalRegion = (InternalRegion) region;
-    RegionEntry regionEntry = internalRegion.getRegionEntry("k1");
+    var internalRegion = (InternalRegion) region;
+    var regionEntry = internalRegion.getRegionEntry("k1");
 
     String evictedKey = null;
     if (regionEntry.getValueAsToken() == null) {
@@ -189,8 +187,8 @@ public class CacheWriterGetOldValueIntegrationTest {
   }
 
   private String getUnevictedKey(Region<String, String> region) {
-    InternalRegion internalRegion = (InternalRegion) region;
-    RegionEntry regionEntry = internalRegion.getRegionEntry("k1");
+    var internalRegion = (InternalRegion) region;
+    var regionEntry = internalRegion.getRegionEntry("k1");
 
     String unevictedKey = null;
     if (regionEntry.getValueAsToken() != null) {

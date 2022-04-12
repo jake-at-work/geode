@@ -35,7 +35,7 @@ public class StripedStatisticsImpl extends StatisticsImpl {
       long uniqueId, StatisticsManager statisticsManager) {
     super(type, textId, numericId, uniqueId, 0, statisticsManager);
 
-    StatisticsTypeImpl realType = (StatisticsTypeImpl) type;
+    var realType = (StatisticsTypeImpl) type;
 
     longCount = realType.getLongStatCount();
     longAdders =
@@ -61,7 +61,7 @@ public class StripedStatisticsImpl extends StatisticsImpl {
 
   @Override
   protected void _setLong(int id, long value) {
-    int offset = getOffsetFromLongId(id);
+    var offset = getOffsetFromLongId(id);
     synchronized (longAdders[offset]) {
       longAdders[offset].reset();
       longAdders[offset].add(value);
@@ -70,7 +70,7 @@ public class StripedStatisticsImpl extends StatisticsImpl {
 
   @Override
   protected void _setDouble(int id, double value) {
-    int offset = getOffsetFromDoubleId(id);
+    var offset = getOffsetFromDoubleId(id);
     synchronized (doubleAdders[offset]) {
       doubleAdders[offset].reset();
       doubleAdders[offset].add(value);
@@ -79,7 +79,7 @@ public class StripedStatisticsImpl extends StatisticsImpl {
 
   @Override
   protected long _getLong(int id) {
-    int offset = getOffsetFromLongId(id);
+    var offset = getOffsetFromLongId(id);
     synchronized (longAdders[offset]) {
       return longAdders[offset].sum();
     }
@@ -87,7 +87,7 @@ public class StripedStatisticsImpl extends StatisticsImpl {
 
   @Override
   protected double _getDouble(int id) {
-    int offset = getOffsetFromDoubleId(id);
+    var offset = getOffsetFromDoubleId(id);
     synchronized (doubleAdders[offset]) {
       return doubleAdders[offset].sum();
     }
@@ -95,13 +95,13 @@ public class StripedStatisticsImpl extends StatisticsImpl {
 
   @Override
   protected void _incLong(int id, long delta) {
-    int offset = getOffsetFromLongId(id);
+    var offset = getOffsetFromLongId(id);
     longAdders[offset].add(delta);
   }
 
   @Override
   protected void _incDouble(int id, double delta) {
-    int offset = getOffsetFromDoubleId(id);
+    var offset = getOffsetFromDoubleId(id);
     doubleAdders[offset].add(delta);
   }
 }

@@ -19,16 +19,13 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.Test;
 
 import org.apache.geode.cache.operations.PutAllOperationContext;
-import org.apache.geode.internal.cache.CachedDeserializable;
 import org.apache.geode.internal.cache.CachedDeserializableFactory;
 import org.apache.geode.internal.cache.Token;
 
@@ -36,11 +33,11 @@ public class PutAllOperationContextJUnitTest {
 
   @Test
   public void testIllegalMapMods() {
-    LinkedHashMap<String, String> m = new LinkedHashMap<>();
+    var m = new LinkedHashMap<String, String>();
     m.put("1", "1");
     m.put("2", "2");
     m.put("3", "3");
-    PutAllOperationContext paoc = new PutAllOperationContext(m);
+    var paoc = new PutAllOperationContext(m);
     Map<String, String> opMap = paoc.getMap();
     try {
       paoc.setMap(null);
@@ -58,7 +55,7 @@ public class PutAllOperationContextJUnitTest {
     } catch (UnsupportedOperationException expected) {
     }
     { // change order and make sure paoc map order is unchanged
-      LinkedHashMap<String, String> m2 = new LinkedHashMap<>();
+      var m2 = new LinkedHashMap<String, String>();
       m2.put("1", "1");
       try {
         paoc.setMap(m2);
@@ -67,7 +64,7 @@ public class PutAllOperationContextJUnitTest {
       }
     }
     { // change order and make sure paoc map order is unchanged
-      LinkedHashMap<String, String> m2 = new LinkedHashMap<>();
+      var m2 = new LinkedHashMap<String, String>();
       try {
         paoc.setMap(m2);
         fail("expected IllegalArgumentException");
@@ -75,7 +72,7 @@ public class PutAllOperationContextJUnitTest {
       }
     }
     { // change order and make sure paoc map order is unchanged
-      LinkedHashMap<String, String> m2 = new LinkedHashMap<>();
+      var m2 = new LinkedHashMap<String, String>();
       m2.put("4", "4");
       m2.put("1", "1");
       m2.put("2", "2");
@@ -92,19 +89,19 @@ public class PutAllOperationContextJUnitTest {
    */
   @Test
   public void testInvalidToken() {
-    LinkedHashMap<String, Object> m = new LinkedHashMap<>();
+    var m = new LinkedHashMap<String, Object>();
     m.put("INVALID_TOKEN", Token.INVALID);
-    PutAllOperationContext paoc = new PutAllOperationContext(m);
+    var paoc = new PutAllOperationContext(m);
     Map<String, Object> opMap = paoc.getMap();
     assertEquals(1, opMap.size());
     assertEquals(true, opMap.containsKey("INVALID_TOKEN"));
     assertEquals(null, opMap.get("INVALID_TOKEN"));
     assertEquals(true, opMap.containsValue(null));
     assertEquals(false, opMap.containsValue("junk"));
-    Collection<Object> values = opMap.values();
+    var values = opMap.values();
     assertEquals(1, values.size());
     assertEquals(null, values.iterator().next());
-    Set<Map.Entry<String, Object>> entries = opMap.entrySet();
+    var entries = opMap.entrySet();
     assertEquals(1, entries.size());
     Map.Entry me = entries.iterator().next();
     assertEquals("INVALID_TOKEN", me.getKey());
@@ -117,30 +114,30 @@ public class PutAllOperationContextJUnitTest {
    */
   @Test
   public void testCachedDeserializable() {
-    LinkedHashMap<String, Object> m = new LinkedHashMap<>();
+    var m = new LinkedHashMap<String, Object>();
     Object v = 99;
-    CachedDeserializable cd = CachedDeserializableFactory.create(v, 24, null);
+    var cd = CachedDeserializableFactory.create(v, 24, null);
     m.put("cd", cd);
-    PutAllOperationContext paoc = new PutAllOperationContext(m);
+    var paoc = new PutAllOperationContext(m);
     Map<String, Object> opMap = paoc.getMap();
     assertEquals(1, opMap.size());
     assertEquals(true, opMap.containsKey("cd"));
     assertEquals(v, opMap.get("cd"));
     assertEquals(true, opMap.containsValue(v));
     assertEquals(false, opMap.containsValue("junk"));
-    Collection<Object> values = opMap.values();
+    var values = opMap.values();
     assertEquals(1, values.size());
     assertEquals(v, values.iterator().next());
-    Set<Map.Entry<String, Object>> entries = opMap.entrySet();
+    var entries = opMap.entrySet();
     assertEquals(1, entries.size());
     Map.Entry me = entries.iterator().next();
     assertEquals("cd", me.getKey());
     assertEquals(v, me.getValue());
     assertEquals(cd, m.get("cd"));
-    String opMapStr = opMap.toString();
+    var opMapStr = opMap.toString();
     assertEquals("expected " + opMapStr + " to not contain CachedDeserializable", false,
         opMapStr.contains("CachedDeserializable"));
-    HashMap<String, Object> hm = new HashMap<>(opMap);
+    var hm = new HashMap<String, Object>(opMap);
     assertEquals(hm, opMap);
     assertEquals(opMap, hm);
     assertEquals(hm.hashCode(), opMap.hashCode());
@@ -148,16 +145,16 @@ public class PutAllOperationContextJUnitTest {
 
   @Test
   public void testLegalMapMods() {
-    LinkedHashMap<String, String> m = new LinkedHashMap<>();
+    var m = new LinkedHashMap<String, String>();
     m.put("1", "1");
     m.put("2", "2");
     m.put("3", "3");
-    PutAllOperationContext paoc = new PutAllOperationContext(m);
+    var paoc = new PutAllOperationContext(m);
     Map<String, String> opMap = paoc.getMap();
     assertEquals(m, opMap);
 
     { // change order and make sure paoc map order is unchanged
-      LinkedHashMap<String, String> m2 = new LinkedHashMap<>();
+      var m2 = new LinkedHashMap<String, String>();
       m2.put("3", "3");
       m2.put("1", "1");
       m2.put("2", "2");
@@ -182,7 +179,7 @@ public class PutAllOperationContextJUnitTest {
     m.put("2", "2c");
     paoc.setMap(m);
     assertEquals(m, opMap);
-    for (Map.Entry<String, String> me : opMap.entrySet()) {
+    for (var me : opMap.entrySet()) {
       if (me.getKey().equals("1")) {
         me.setValue("1d");
       }

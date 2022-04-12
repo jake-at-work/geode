@@ -52,7 +52,7 @@ public class GfshCommandJUnitTest {
 
   @Test
   public void getMembers() throws Exception {
-    String[] members = {"member"};
+    var members = new String[] {"member"};
     doReturn(Collections.emptySet()).when(command).findMembers(members, null);
     assertThatThrownBy(() -> command.getMembers(members, null))
         .isInstanceOf(EntityNotFoundException.class);
@@ -60,7 +60,7 @@ public class GfshCommandJUnitTest {
 
   @Test
   public void getMembersIncludingLocators() throws Exception {
-    String[] members = {"member"};
+    var members = new String[] {"member"};
     doReturn(Collections.emptySet()).when(command).findMembersIncludingLocators(members, null);
     assertThatThrownBy(() -> command.getMembersIncludingLocators(members, null))
         .isInstanceOf(EntityNotFoundException.class);
@@ -68,13 +68,13 @@ public class GfshCommandJUnitTest {
 
   @Test
   public void findAllOtherLocators() throws Exception {
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     doReturn(cache).when(command).getCache();
-    DistributedMember member1 = mock(DistributedMember.class);
-    DistributedMember member2 = mock(DistributedMember.class);
+    var member1 = mock(DistributedMember.class);
+    var member2 = mock(DistributedMember.class);
     when(member1.getId()).thenReturn("member1");
     when(member2.getId()).thenReturn("member2");
-    DistributedSystem system = mock(DistributedSystem.class);
+    var system = mock(DistributedSystem.class);
     when(system.getDistributedMember()).thenReturn(member1);
     when(cache.getDistributedSystem()).thenReturn(system);
     Set<DistributedMember> members = new HashSet<>(asList(member1, member2));

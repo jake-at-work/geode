@@ -37,7 +37,6 @@ import org.apache.geode.cache.query.QueryException;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.MessageWithReply;
 import org.apache.geode.distributed.internal.OperationExecutors;
 import org.apache.geode.distributed.internal.ReplyException;
@@ -48,7 +47,6 @@ import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.execute.FunctionContextImpl;
 import org.apache.geode.internal.cache.execute.MemberFunctionResultSender;
 import org.apache.geode.internal.cache.execute.MultiRegionFunctionContextImpl;
-import org.apache.geode.internal.cache.execute.metrics.FunctionStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -93,7 +91,7 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
     this.isFnSerializationReqd = isFnSerializationReqd;
     this.isReExecute = isReExecute;
     txUniqId = TXManagerImpl.getCurrentTXUniqueId();
-    TXStateProxy txState = TXManagerImpl.getCurrentTXState();
+    var txState = TXManagerImpl.getCurrentTXState();
     if (txState != null && txState.isMemberIdForwardingRequired()) {
       txMemberId = txState.getOriginatingMember();
     }
@@ -109,7 +107,7 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
     regionPathSet = regions;
     this.isReExecute = isReExecute;
     txUniqId = TXManagerImpl.getCurrentTXUniqueId();
-    TXStateProxy txState = TXManagerImpl.getCurrentTXState();
+    var txState = TXManagerImpl.getCurrentTXState();
     if (txState != null && txState.isMemberIdForwardingRequired()) {
       txMemberId = txState.getOriginatingMember();
     }
@@ -124,12 +122,12 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
     if (txUniqId == TXManagerImpl.NOTX) {
       return null;
     } else {
-      InternalCache cache = dm.getCache();
+      var cache = dm.getCache();
       if (cache == null) {
         // ignore and return, we are shutting down!
         return null;
       }
-      TXManagerImpl mgr = cache.getTXMgr();
+      var mgr = cache.getTXMgr();
       return mgr.masqueradeAs(this);
     }
   }
@@ -141,7 +139,7 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
         // ignore and return, we are shutting down!
         return;
       }
-      TXManagerImpl mgr = cache.getTXMgr();
+      var mgr = cache.getTXMgr();
       mgr.unmasquerade(tx);
     }
   }
@@ -160,19 +158,19 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
       return;
     }
 
-    FunctionStats stats =
+    var stats =
         FunctionStatsManager.getFunctionStats(functionObject.getId(), dm.getSystem());
     TXStateProxy tx = null;
-    InternalCache cache = dm.getCache();
+    var cache = dm.getCache();
 
     long start = 0;
-    boolean startedFunctionExecution = false;
+    var startedFunctionExecution = false;
     try {
       tx = prepForTransaction(dm);
       ResultSender resultSender = new MemberFunctionResultSender(dm, this, functionObject);
       Set<Region> regions = new HashSet<>();
       if (regionPathSet != null) {
-        for (String regionPath : regionPathSet) {
+        for (var regionPath : regionPathSet) {
           if (checkCacheClosing(dm) || checkDSClosing(dm)) {
             if (dm.getCache() == null) {
               thr = new CacheClosedException(
@@ -278,7 +276,7 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
       DeserializationContext context) throws IOException, ClassNotFoundException {
     super.fromData(in, context);
 
-    short flags = in.readShort();
+    var flags = in.readShort();
     if ((flags & HAS_PROCESSOR_ID) != 0) {
       processorId = in.readInt();
       ReplyProcessor21.setMessageRPId(processorId);
@@ -290,7 +288,7 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
       txMemberId = DataSerializer.readObject(in);
     }
 
-    Object object = DataSerializer.readObject(in);
+    var object = DataSerializer.readObject(in);
     if (object instanceof String) {
       isFnSerializationReqd = false;
       functionObject = FunctionService.getFunction((String) object);
@@ -356,7 +354,7 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    int msgNum = replyMsgNum;
+    var msgNum = replyMsgNum;
     replyLastMsg = lastResult;
 
     sendReply(getSender(), processorId, dm, oneResult, msgNum, lastResult, sendResultsInOrder);
@@ -387,7 +385,7 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
    * check to see if the cache is closing
    */
   private boolean checkCacheClosing(ClusterDistributionManager dm) {
-    InternalCache cache = dm.getCache();
+    var cache = dm.getCache();
     return (cache == null || cache.getCancelCriterion().isCancelInProgress());
   }
 
@@ -397,7 +395,7 @@ public class MemberFunctionStreamingMessage extends DistributionMessage
    * @return true if the distributed system is closing
    */
   private boolean checkDSClosing(ClusterDistributionManager dm) {
-    InternalDistributedSystem ds = dm.getSystem();
+    var ds = dm.getSystem();
     return (ds == null || ds.isDisconnecting());
   }
 

@@ -76,7 +76,7 @@ public abstract class BaseManagementService extends ManagementService {
    */
   public static ManagementService getManagementService(InternalCacheForClientAccess cache) {
     synchronized (instances) {
-      BaseManagementService service = instances.get(cache);
+      var service = instances.get(cache);
       if (service == null) {
         service = SystemManagementService.newSystemManagementService(cache);
         instances.put(cache, service);
@@ -103,7 +103,7 @@ public abstract class BaseManagementService extends ManagementService {
 
   public static ManagementService getExistingManagementService(InternalCache cache) {
     synchronized (instances) {
-      BaseManagementService service = instances.get(cache.getCacheForProcessingClientRequests());
+      var service = instances.get(cache.getCacheForProcessingClientRequests());
       return service;
     }
   }
@@ -120,7 +120,7 @@ public abstract class BaseManagementService extends ManagementService {
 
       // While still holding the lock on systems, add all currently known
       // systems to our own list
-      for (InternalDistributedSystem sys : existingSystems) {
+      for (var sys : existingSystems) {
         try {
           if (sys.isConnected()) {
             addInternalDistributedSystem(sys);
@@ -162,8 +162,8 @@ public abstract class BaseManagementService extends ManagementService {
     synchronized (instances) {
       systems.remove(sys);
       if (systems.isEmpty()) {
-        for (Object key : instances.keySet()) {
-          BaseManagementService service = instances.get(key);
+        for (var key : instances.keySet()) {
+          var service = instances.get(key);
           try {
             if (!service.isClosed()) {
               // Service close method should take care of the cleaning up

@@ -169,8 +169,8 @@ public class SanctionedSerializablesFilterPatternTest {
 
   @Test
   public void appendsToPattern() {
-    String extraToAppend = "extra";
-    String pattern = new SanctionedSerializablesFilterPattern()
+    var extraToAppend = "extra";
+    var pattern = new SanctionedSerializablesFilterPattern()
         .append(extraToAppend)
         .pattern();
 
@@ -179,12 +179,12 @@ public class SanctionedSerializablesFilterPatternTest {
 
   @Test
   public void appendsJustBeforeRejectPattern() {
-    String extraToAppend = "extra";
-    String pattern = new SanctionedSerializablesFilterPattern()
+    var extraToAppend = "extra";
+    var pattern = new SanctionedSerializablesFilterPattern()
         .append(extraToAppend)
         .pattern();
 
-    String expectedEnd = new StringJoiner(";")
+    var expectedEnd = new StringJoiner(";")
         .add(extraToAppend)
         .add("!*")
         .toString();
@@ -196,7 +196,7 @@ public class SanctionedSerializablesFilterPatternTest {
   public void patternReturnsSameValueMultipleTimes() {
     FilterPattern sanctionedSerializablesFilterPattern =
         new SanctionedSerializablesFilterPattern();
-    String expectedPattern = sanctionedSerializablesFilterPattern
+    var expectedPattern = sanctionedSerializablesFilterPattern
         .pattern();
 
     assertThat(sanctionedSerializablesFilterPattern.pattern()).isEqualTo(expectedPattern);

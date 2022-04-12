@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +37,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -82,7 +80,7 @@ public class SetOperationJTADistributedTest extends JUnit4CacheTestCase {
   @Override
   public final void postSetUp() throws Exception {
     disconnectAllFromDS(); // isolate this test from others to avoid periodic CacheExistsExceptions
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     dataStore1 = host.getVM(0);
     dataStore2 = host.getVM(1);
     dataStore3 = host.getVM(2);
@@ -130,7 +128,7 @@ public class SetOperationJTADistributedTest extends JUnit4CacheTestCase {
 
   private void createRegion() {
     RegionFactory<Long, String> rf = basicGetCache().createRegionFactory(RegionShortcut.REPLICATE);
-    Region<Long, String> r = rf.create(REGION_NAME);
+    var r = rf.create(REGION_NAME);
   }
 
   private void loadRegion() {
@@ -139,12 +137,12 @@ public class SetOperationJTADistributedTest extends JUnit4CacheTestCase {
   }
 
   private void verifyRegionValuesWhenSetOperationStartsJTA() throws Exception {
-    Context ctx = getCache().getJNDIContext();
-    UserTransaction userTX = startUserTransaction(ctx);
+    var ctx = getCache().getJNDIContext();
+    var userTX = startUserTransaction(ctx);
     Region<Long, String> region = getCache().getRegion(SEPARATOR + REGION_NAME);
     try {
       userTX.begin();
-      Collection<String> set = region.values();
+      var set = region.values();
       set.forEach((value) -> assertTrue(testData.containsValue(value)));
       testData.values().forEach((value) -> assertTrue(set.contains(value)));
       assertEquals(testData.size(), set.size());
@@ -171,12 +169,12 @@ public class SetOperationJTADistributedTest extends JUnit4CacheTestCase {
   }
 
   private void verifyRegionValuesWhenSetOperationDoesNotStartJTA() throws Exception {
-    Context ctx = getCache().getJNDIContext();
-    UserTransaction userTX = startUserTransaction(ctx);
+    var ctx = getCache().getJNDIContext();
+    var userTX = startUserTransaction(ctx);
     Region<Long, String> region = getCache().getRegion(SEPARATOR + REGION_NAME);
     try {
       userTX.begin();
-      Collection<String> set = region.values();
+      var set = region.values();
       set.forEach((value) -> assertTrue(testData.containsValue(value)));
       testData.values().forEach((value) -> assertTrue(set.contains(value)));
       assertEquals(testData.size(), set.size());
@@ -288,7 +286,7 @@ public class SetOperationJTADistributedTest extends JUnit4CacheTestCase {
   }
 
   private void doTxFunction(boolean disableSetOpToStartJTA) {
-    DistributedMember owner = getCache().getDistributedSystem().getDistributedMember();
+    var owner = getCache().getDistributedSystem().getDistributedMember();
     if (disableSetOpToStartJTA) {
       FunctionService.onMember(owner).execute(TXFunctionSetOpDoesNoStartJTA.id).getResult();
     } else {

@@ -83,7 +83,7 @@ public class PRQueryRegionCloseDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(SERIALIZABLE_OBJECT_FILTER, "org.apache.geode.cache.query.data.**");
     return config;
   }
@@ -123,8 +123,8 @@ public class PRQueryRegionCloseDUnitTest extends CacheTestCase {
         vm0.invokeAsync(prQueryDUnitHelper.getCacheSerializableRunnableForPRQueryAndCompareResults(
             PARTITIONED_REGION_NAME, LOCAL_REGION_NAME));
 
-    for (int i = 0; i < NUMBER_OF_TEST_LOOPS; i++) {
-      int whichVM = random.nextInt(vmList.size());
+    for (var i = 0; i < NUMBER_OF_TEST_LOOPS; i++) {
+      var whichVM = random.nextInt(vmList.size());
       if (whichVM > 0) {
         vmList.get(whichVM).invoke(prQueryDUnitHelper.getCacheSerializableRunnableForRegionClose(
             PARTITIONED_REGION_NAME, REDUNDANCY, PortfolioData.class));

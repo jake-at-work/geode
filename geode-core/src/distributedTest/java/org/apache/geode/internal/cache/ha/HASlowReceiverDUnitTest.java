@@ -36,11 +36,9 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.ClientServerObserverAdapter;
@@ -81,7 +79,7 @@ public class HASlowReceiverDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     serverVM1 = host.getVM(1);
     serverVM2 = host.getVM(2);
     clientVM = host.getVM(3);
@@ -123,19 +121,19 @@ public class HASlowReceiverDUnitTest extends JUnit4DistributedTestCase {
 
   public static Integer createServerCache(String ePolicy, Integer cap) throws Exception {
 
-    Properties prop = new Properties();
+    var prop = new Properties();
     prop.setProperty(REMOVE_UNRESPONSIVE_CLIENT, "true");
     new HASlowReceiverDUnitTest().createCache(prop);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(regionName, attrs);
     logger = cache.getLogger();
 
-    int port = getRandomAvailableTCPPort();
-    CacheServer server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
     server1.setMaximumMessageCount(200);
@@ -151,13 +149,13 @@ public class HASlowReceiverDUnitTest extends JUnit4DistributedTestCase {
       Integer rLevel, Boolean addListener) throws Exception {
     CacheServerTestUtil.disableShufflingOfEndpoints();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HASlowReceiverDUnitTest().createCache(props);
 
-    AttributesFactory factory = new AttributesFactory();
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer("localhost", port1)
+    var factory = new AttributesFactory();
+    var p = (PoolImpl) PoolManager.createFactory().addServer("localhost", port1)
         .addServer("localhost", port2).addServer("localhost", port3).setSubscriptionEnabled(true)
         .setSubscriptionRedundancy(rLevel).setMinConnections(6).setReadTimeout(20000)
         .setPingInterval(1000).setRetryAttempts(5).create("HASlowReceiverDUnitTestPool");
@@ -180,7 +178,7 @@ public class HASlowReceiverDUnitTest extends JUnit4DistributedTestCase {
         }
       });
     }
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(regionName, attrs);
     pool = p;
   }
@@ -240,15 +238,15 @@ public class HASlowReceiverDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testSlowClient() throws Exception {
     setBridgeObserverForAfterQueueDestroyMessage();
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     clientVM.invoke(
         () -> HASlowReceiverDUnitTest.createClientCache(NetworkUtils.getServerHostName(host),
             PORT0, PORT1, PORT2, 2));
     clientVM.invoke(HASlowReceiverDUnitTest::registerInterest);
     // add expected socket exception string
-    final IgnoredException ex1 =
+    final var ex1 =
         IgnoredException.addIgnoredException(SocketException.class.getName());
-    final IgnoredException ex2 =
+    final var ex2 =
         IgnoredException.addIgnoredException(InterruptedException.class.getName());
 
     putEntries();

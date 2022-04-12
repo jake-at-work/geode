@@ -77,8 +77,8 @@ public class HABug36738DUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testBug36768() throws Exception {
-    final VM server1 = Host.getHost(0).getVM(0);
-    final VM server2 = Host.getHost(0).getVM(1);
+    final var server1 = Host.getHost(0).getVM(0);
+    final var server2 = Host.getHost(0).getVM(1);
 
     server1.invoke(this::createServerCacheWithHAAndRegion);
     await().until(() -> regionExists(server1, HAREGION_NAME));
@@ -95,14 +95,14 @@ public class HABug36738DUnitTest extends JUnit4DistributedTestCase {
     assertNotNull(cache);
     assertNotNull(haRegion);
 
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEnableConflation(true);
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
     cache.createVMRegion(REGION_NAME, factory.createRegionAttributes());
 
-    for (int i = 0; i < COUNT; i++) {
+    for (var i = 0; i < COUNT; i++) {
       ClientUpdateMessage clientMessage =
           new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE, (LocalRegion) haRegion,
               null, ("value" + i).getBytes(), (byte) 0x01, null, new ClientProxyMembershipID(),
@@ -115,13 +115,13 @@ public class HABug36738DUnitTest extends JUnit4DistributedTestCase {
   private void createServerCacheWithHA() throws Exception {
     cache = CacheFactory.create(getSystem());
 
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setMirrorType(MirrorType.KEYS_VALUES);
     factory.setScope(Scope.DISTRIBUTED_ACK);
 
     // Mock the HARegionQueue and answer the input CachedDeserializable when updateHAEventWrapper is
     // called
-    HARegionQueue harq = mock(HARegionQueue.class);
+    var harq = mock(HARegionQueue.class);
     when(harq.updateHAEventWrapper(any(), any(), any()))
         .thenAnswer(AdditionalAnswers.returnsSecondArg());
 
@@ -130,7 +130,7 @@ public class HABug36738DUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void checkRegionQueueSize() {
-    final HARegion region =
+    final var region =
         (HARegion) cache.getRegion(SEPARATOR + HAHelper.getRegionQueueName(HAREGION_NAME));
     assertNotNull(region);
     assertEquals(COUNT, region.size());

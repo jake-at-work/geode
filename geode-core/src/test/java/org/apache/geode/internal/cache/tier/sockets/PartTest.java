@@ -41,9 +41,9 @@ public class PartTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    Part mockPart = mock(Part.class);
-    OutputStream mockOutputStream = mock(OutputStream.class);
-    ByteBuffer mockByteBuffer = mock(ByteBuffer.class);
+    var mockPart = mock(Part.class);
+    var mockOutputStream = mock(OutputStream.class);
+    var mockByteBuffer = mock(ByteBuffer.class);
 
     mockPart.writeTo(mockOutputStream, mockByteBuffer);
 
@@ -52,16 +52,16 @@ public class PartTest {
 
   @Test
   public void getCacheStringReturnsCanonicalInstance() {
-    String stringValue = "test string";
-    Part part1 = new Part();
-    byte[] stringBytes1 = CacheServerHelper.toUTF(stringValue);
+    var stringValue = "test string";
+    var part1 = new Part();
+    var stringBytes1 = CacheServerHelper.toUTF(stringValue);
     part1.setPartState(stringBytes1, false);
-    Part part2 = new Part();
-    byte[] stringBytes2 = CacheServerHelper.toUTF(stringValue);
+    var part2 = new Part();
+    var stringBytes2 = CacheServerHelper.toUTF(stringValue);
     part2.setPartState(stringBytes2, false);
 
-    String result1 = part1.getCachedString();
-    String result2 = part2.getCachedString();
+    var result1 = part1.getCachedString();
+    var result2 = part2.getCachedString();
 
     assertThat(result1).isEqualTo(stringValue);
     assertThat(result1).isSameAs(result2);
@@ -69,16 +69,16 @@ public class PartTest {
 
   @Test
   public void getCacheStringWithNullStateReturnsNull() {
-    Part part = new Part();
+    var part = new Part();
 
-    String result = part.getCachedString();
+    var result = part.getCachedString();
 
     assertThat(result).isNull();
   }
 
   @Test
   public void getCachedStringGivenPartThatIsNotBytesThrows() {
-    Part part = new Part();
+    var part = new Part();
     part.setPartState(new byte[0], true);
 
     assertThatThrownBy(part::getCachedString)
@@ -87,17 +87,17 @@ public class PartTest {
 
   @Test
   public void writeToOutputStreamResetsPartOnException() throws Exception {
-    HeapDataOutputStream heapDataOutputStream = mock(HeapDataOutputStream.class);
+    var heapDataOutputStream = mock(HeapDataOutputStream.class);
     when(heapDataOutputStream.size()).thenReturn(1000);
-    OutputStream outputStream = mock(OutputStream.class);
-    ByteBuffer byteBuffer = mock(ByteBuffer.class);
+    var outputStream = mock(OutputStream.class);
+    var byteBuffer = mock(ByteBuffer.class);
     doThrow(new EOFException("test")).when(heapDataOutputStream).sendTo(eq(outputStream),
         eq(byteBuffer));
 
-    Part part = new Part();
+    var part = new Part();
     part.setPartState(heapDataOutputStream, false);
 
-    Throwable thrown = catchThrowable(() -> part.writeTo(outputStream, byteBuffer));
+    var thrown = catchThrowable(() -> part.writeTo(outputStream, byteBuffer));
 
     assertThat(thrown).isInstanceOf(EOFException.class);
     verify(heapDataOutputStream, times(1)).rewind();
@@ -105,12 +105,12 @@ public class PartTest {
 
   @Test
   public void writeToOutputStreamResetsPartOnSuccess() throws Exception {
-    HeapDataOutputStream heapDataOutputStream = mock(HeapDataOutputStream.class);
+    var heapDataOutputStream = mock(HeapDataOutputStream.class);
     when(heapDataOutputStream.size()).thenReturn(1000);
-    OutputStream outputStream = mock(OutputStream.class);
-    ByteBuffer byteBuffer = mock(ByteBuffer.class);
+    var outputStream = mock(OutputStream.class);
+    var byteBuffer = mock(ByteBuffer.class);
 
-    Part part = new Part();
+    var part = new Part();
     part.setPartState(heapDataOutputStream, false);
 
     part.writeTo(outputStream, byteBuffer);
@@ -120,15 +120,15 @@ public class PartTest {
 
   @Test
   public void writeToByteBufferResetsPartOnException() throws Exception {
-    HeapDataOutputStream heapDataOutputStream = mock(HeapDataOutputStream.class);
+    var heapDataOutputStream = mock(HeapDataOutputStream.class);
     when(heapDataOutputStream.size()).thenReturn(1000);
-    ByteBuffer byteBuffer = mock(ByteBuffer.class);
+    var byteBuffer = mock(ByteBuffer.class);
     doThrow(new BufferOverflowException()).when(heapDataOutputStream).sendTo(eq(byteBuffer));
 
-    Part part = new Part();
+    var part = new Part();
     part.setPartState(heapDataOutputStream, false);
 
-    Throwable thrown = catchThrowable(() -> part.writeTo(byteBuffer));
+    var thrown = catchThrowable(() -> part.writeTo(byteBuffer));
 
     assertThat(thrown).isInstanceOf(BufferOverflowException.class);
     verify(heapDataOutputStream, times(1)).rewind();
@@ -136,11 +136,11 @@ public class PartTest {
 
   @Test
   public void writeToByteBufferResetsPartOnSuccess() throws Exception {
-    HeapDataOutputStream heapDataOutputStream = mock(HeapDataOutputStream.class);
+    var heapDataOutputStream = mock(HeapDataOutputStream.class);
     when(heapDataOutputStream.size()).thenReturn(1000);
-    ByteBuffer byteBuffer = mock(ByteBuffer.class);
+    var byteBuffer = mock(ByteBuffer.class);
 
-    Part part = new Part();
+    var part = new Part();
     part.setPartState(heapDataOutputStream, false);
 
     part.writeTo(byteBuffer);
@@ -150,17 +150,17 @@ public class PartTest {
 
   @Test
   public void writeToSocketChannelResetsPartOnException() throws Exception {
-    HeapDataOutputStream heapDataOutputStream = mock(HeapDataOutputStream.class);
+    var heapDataOutputStream = mock(HeapDataOutputStream.class);
     when(heapDataOutputStream.size()).thenReturn(1000);
-    SocketChannel socketChannel = mock(SocketChannel.class);
-    ByteBuffer byteBuffer = mock(ByteBuffer.class);
+    var socketChannel = mock(SocketChannel.class);
+    var byteBuffer = mock(ByteBuffer.class);
     doThrow(new BufferOverflowException()).when(heapDataOutputStream).sendTo(eq(socketChannel),
         eq(byteBuffer));
 
-    Part part = new Part();
+    var part = new Part();
     part.setPartState(heapDataOutputStream, false);
 
-    Throwable thrown = catchThrowable(() -> part.writeTo(socketChannel, byteBuffer));
+    var thrown = catchThrowable(() -> part.writeTo(socketChannel, byteBuffer));
 
     assertThat(thrown).isInstanceOf(BufferOverflowException.class);
     verify(heapDataOutputStream, times(1)).rewind();
@@ -168,12 +168,12 @@ public class PartTest {
 
   @Test
   public void writeToSocketChannelResetsPartOnSuccess() throws Exception {
-    HeapDataOutputStream heapDataOutputStream = mock(HeapDataOutputStream.class);
+    var heapDataOutputStream = mock(HeapDataOutputStream.class);
     when(heapDataOutputStream.size()).thenReturn(1000);
-    SocketChannel socketChannel = mock(SocketChannel.class);
-    ByteBuffer byteBuffer = mock(ByteBuffer.class);
+    var socketChannel = mock(SocketChannel.class);
+    var byteBuffer = mock(ByteBuffer.class);
 
-    Part part = new Part();
+    var part = new Part();
     part.setPartState(heapDataOutputStream, false);
 
     part.writeTo(socketChannel, byteBuffer);

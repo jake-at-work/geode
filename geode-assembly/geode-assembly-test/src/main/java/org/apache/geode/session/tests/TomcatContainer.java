@@ -103,7 +103,7 @@ public class TomcatContainer extends ServerContainer {
    */
   @Override
   public void writeSettings() throws IOException {
-    StandaloneLocalConfiguration config = (StandaloneLocalConfiguration) getConfiguration();
+    var config = (StandaloneLocalConfiguration) getConfiguration();
 
     // Edit the context XML file
     ContainerInstall.editXMLFile(contextXMLFile.getAbsolutePath(), "Tomcat", "Manager", "Context",
@@ -134,8 +134,8 @@ public class TomcatContainer extends ServerContainer {
    */
   private void writePropertiesToConfig(StandaloneLocalConfiguration config, String file,
       String XPath, HashMap<String, String> attributes) {
-    for (String key : attributes.keySet()) {
-      XmlReplacement property = new XmlReplacement();
+    for (var key : attributes.keySet()) {
+      var property = new XmlReplacement();
       property.setFile(file);
       property.setXpathExpression(XPath);
       property.setAttributeName(key);
@@ -155,7 +155,7 @@ public class TomcatContainer extends ServerContainer {
    * @param configFileDestName The name of destination file for the new configuration file
    */
   private void setConfigFile(String filePath, String configDirDest, String configFileDestName) {
-    FileConfig configFile = new FileConfig();
+    var configFile = new FileConfig();
 
     configFile.setFile(filePath);
     configFile.setToDir(configDirDest);

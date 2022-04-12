@@ -34,7 +34,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.lucene.internal.cli.LuceneCliStrings;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -59,7 +58,7 @@ public class LuceneCommandsSecurityDUnitTest {
   @Before
   public void before() throws Exception {
     // start the locator
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     locator = locatorServer.startLocatorVM(0, props);
 
@@ -86,7 +85,7 @@ public class LuceneCommandsSecurityDUnitTest {
         user.getUserName(), user.getUserName());
 
     // Attempt to create lucene index
-    CommandResult result = gfshShell.executeCommand(getCreateIndexCommand());
+    var result = gfshShell.executeCommand(getCreateIndexCommand());
 
     // Verify result
     verifyResult(user, result);
@@ -110,7 +109,7 @@ public class LuceneCommandsSecurityDUnitTest {
         user.getUserName(), user.getUserName());
 
     // Attempt to search lucene index
-    CommandResult result = gfshShell.executeCommand(getSearchIndexCommand());
+    var result = gfshShell.executeCommand(getSearchIndexCommand());
 
     // Verify result
     verifyResult(user, result);
@@ -134,7 +133,7 @@ public class LuceneCommandsSecurityDUnitTest {
         user.getUserName(), user.getUserName());
 
     // Attempt to search lucene index
-    CommandResult result = gfshShell.executeCommand(getListIndexesCommand());
+    var result = gfshShell.executeCommand(getListIndexesCommand());
 
     // Verify result
     verifyResult(user, result);
@@ -158,7 +157,7 @@ public class LuceneCommandsSecurityDUnitTest {
         user.getUserName(), user.getUserName());
 
     // Attempt to search lucene index
-    CommandResult result = gfshShell.executeCommand(getDescribeIndexCommand());
+    var result = gfshShell.executeCommand(getDescribeIndexCommand());
 
     // Verify result
     verifyResult(user, result);
@@ -183,7 +182,7 @@ public class LuceneCommandsSecurityDUnitTest {
         user.getUserName(), user.getUserName());
 
     // Attempt to search lucene index
-    CommandResult result = gfshShell.executeCommand(getDestroyIndexCommand());
+    var result = gfshShell.executeCommand(getDestroyIndexCommand());
 
     // Verify result
     verifyResult(user, result);
@@ -214,7 +213,7 @@ public class LuceneCommandsSecurityDUnitTest {
   }
 
   protected String getCreateIndexCommand() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1");
@@ -222,7 +221,7 @@ public class LuceneCommandsSecurityDUnitTest {
   }
 
   protected String getCreateRegionCommand() {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
     csb.addOption(CliStrings.CREATE_REGION__REGION, REGION_NAME);
     csb.addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT,
         RegionShortcut.PARTITION_REDUNDANT.name());
@@ -230,7 +229,7 @@ public class LuceneCommandsSecurityDUnitTest {
   }
 
   private String getSearchIndexCommand() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__QUERY_STRING, "field1:value1");
@@ -239,19 +238,19 @@ public class LuceneCommandsSecurityDUnitTest {
   }
 
   private String getListIndexesCommand() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
     return csb.toString();
   }
 
   private String getDescribeIndexCommand() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESCRIBE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESCRIBE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     return csb.toString();
   }
 
   private String getDestroyIndexCommand() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESTROY_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESTROY_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     return csb.toString();

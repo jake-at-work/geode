@@ -64,8 +64,8 @@ public class InternalDataSerializerJUnitTest {
   @Test
   public void testInvokeFromData_SocketExceptionRethrown()
       throws IOException, ClassNotFoundException {
-    DataInput in = mock(DataInput.class);
-    DataSerializable ds = mock(DataSerializable.class);
+    var in = mock(DataInput.class);
+    var ds = mock(DataSerializable.class);
 
     doThrow(SocketException.class).when(ds).fromData(in);
 
@@ -76,7 +76,7 @@ public class InternalDataSerializerJUnitTest {
   @Test
   public void testBasicReadObject_SocketExceptionReThrown()
       throws IOException, ClassNotFoundException {
-    DataInput in = mock(DataInput.class);
+    var in = mock(DataInput.class);
     doReturn(DSCODE.DS_NO_FIXED_ID.toByte()).doReturn(DSCODE.CLASS.toByte())
         .doReturn(DSCODE.STRING.toByte()).when(in).readByte();
     doReturn(

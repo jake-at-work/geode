@@ -131,12 +131,12 @@ public class CertificateBuilder {
   }
 
   private GeneralNames san() throws IOException {
-    GeneralNames names = new GeneralNames();
-    for (String name : dnsNames) {
+    var names = new GeneralNames();
+    for (var name : dnsNames) {
       names.add(CertificateBuilder.dnsGeneralName(name));
     }
 
-    for (InetAddress address : ipAddresses) {
+    for (var address : ipAddresses) {
       names.add(CertificateBuilder.ipGeneralName(address));
     }
 
@@ -144,7 +144,7 @@ public class CertificateBuilder {
   }
 
   public CertificateMaterial generate() {
-    KeyPair keyPair = generateKeyPair("RSA");
+    var keyPair = generateKeyPair("RSA");
     PrivateKey privateKey;
     X509Certificate issuerCertificate = null;
 
@@ -154,7 +154,7 @@ public class CertificateBuilder {
       privateKey = issuer.getPrivateKey();
     }
 
-    X509Certificate cert = generate(keyPair.getPublic(), privateKey);
+    var cert = generate(keyPair.getPublic(), privateKey);
 
     if (issuer != null) {
       issuerCertificate = issuer.getCertificate();
@@ -164,13 +164,13 @@ public class CertificateBuilder {
   }
 
   private X509Certificate generate(PublicKey publicKey, PrivateKey privateKey) {
-    Date from = new Date();
-    Date to = new Date(from.getTime() + days * 86_400_000L);
+    var from = new Date();
+    var to = new Date(from.getTime() + days * 86_400_000L);
 
-    CertificateValidity interval = new CertificateValidity(from, to);
-    BigInteger sn = new BigInteger(64, new SecureRandom());
+    var interval = new CertificateValidity(from, to);
+    var sn = new BigInteger(64, new SecureRandom());
 
-    X509CertInfo info = new X509CertInfo();
+    var info = new X509CertInfo();
 
     try {
       info.set(X509CertInfo.VALIDITY, interval);
@@ -178,7 +178,7 @@ public class CertificateBuilder {
       info.set(X509CertInfo.SUBJECT, name);
       info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
       info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-      AlgorithmId algo = AlgorithmId.get("MD5withRSA");
+      var algo = AlgorithmId.get("MD5withRSA");
       info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algo));
 
       if (issuer == null) {
@@ -188,25 +188,25 @@ public class CertificateBuilder {
         info.set(X509CertInfo.ISSUER, issuer.getCertificate().getSubjectDN());
       }
 
-      CertificateExtensions extensions = new CertificateExtensions();
+      var extensions = new CertificateExtensions();
 
-      byte[] keyIdBytes = new KeyIdentifier(publicKey).getIdentifier();
-      SubjectKeyIdentifierExtension keyIdentifier = new SubjectKeyIdentifierExtension(keyIdBytes);
+      var keyIdBytes = new KeyIdentifier(publicKey).getIdentifier();
+      var keyIdentifier = new SubjectKeyIdentifierExtension(keyIdBytes);
       extensions.set(SubjectKeyIdentifierExtension.NAME, keyIdentifier);
 
-      GeneralNames subjectAltNames = san();
+      var subjectAltNames = san();
       if (!subjectAltNames.isEmpty()) {
-        SubjectAlternativeNameExtension altNames =
+        var altNames =
             new SubjectAlternativeNameExtension(subjectAltNames);
         extensions.set(SubjectAlternativeNameExtension.NAME, altNames);
       }
 
       if (isCA) {
-        KeyUsageExtension usageExtension = new KeyUsageExtension();
+        var usageExtension = new KeyUsageExtension();
         usageExtension.set(KeyUsageExtension.KEY_CERTSIGN, true);
         extensions.set(KeyUsageExtension.NAME, usageExtension);
 
-        BasicConstraintsExtension basicConstraints = new BasicConstraintsExtension(true, 0);
+        var basicConstraints = new BasicConstraintsExtension(true, 0);
         extensions.set(BasicConstraintsExtension.NAME, basicConstraints);
       }
 
@@ -215,7 +215,7 @@ public class CertificateBuilder {
       }
 
       // Sign the cert to identify the algorithm that's used.
-      X509CertImpl cert = new X509CertImpl(info);
+      var cert = new X509CertImpl(info);
       cert.sign(privateKey, algorithm);
 
       // Update the algorithm, and resign.
@@ -232,7 +232,7 @@ public class CertificateBuilder {
 
   private KeyPair generateKeyPair(String algorithm) {
     try {
-      KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algorithm);
+      var keyGen = KeyPairGenerator.getInstance(algorithm);
       keyGen.initialize(2048);
       return keyGen.genKeyPair();
     } catch (NoSuchAlgorithmException nex) {

@@ -25,8 +25,8 @@ public class RemoteTransactionCCEDUnitTest extends RemoteTransactionDUnitTest {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
-    String pattern = (String) properties.get(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER);
+    var properties = super.getDistributedSystemProperties();
+    var pattern = (String) properties.get(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER);
     pattern += ";org.apache.geode.internal.cache.RemoteTransactionCCEDUnitTest";
     properties.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER, pattern);
     return properties;

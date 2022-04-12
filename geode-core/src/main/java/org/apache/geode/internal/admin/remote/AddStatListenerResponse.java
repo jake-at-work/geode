@@ -40,7 +40,7 @@ public class AddStatListenerResponse extends AdminResponse {
    */
   public static AddStatListenerResponse create(DistributionManager dm,
       InternalDistributedMember recipient, long resourceId, String statName) {
-    AddStatListenerResponse m = new AddStatListenerResponse();
+    var m = new AddStatListenerResponse();
     m.setRecipient(recipient);
     GemFireStatSampler sampler = null;
     sampler = dm.getSystem().getStatSampler();

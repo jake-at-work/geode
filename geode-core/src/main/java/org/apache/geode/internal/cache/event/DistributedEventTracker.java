@@ -151,8 +151,8 @@ public class DistributedEventTracker implements EventTracker {
   @Override
   public Map<ThreadIdentifier, EventSequenceNumberHolder> getState() {
     Map<ThreadIdentifier, EventSequenceNumberHolder> result = new HashMap<>(recordedEvents.size());
-    for (Map.Entry<ThreadIdentifier, EventSequenceNumberHolder> entry : recordedEvents.entrySet()) {
-      EventSequenceNumberHolder holder = entry.getValue();
+    for (var entry : recordedEvents.entrySet()) {
+      var holder = entry.getValue();
       // don't transfer version tags - adds too much bulk just so we can do client tag recovery
       result.put(entry.getKey(),
           new EventSequenceNumberHolder(holder.getLastSequenceNumber(), null));
@@ -169,7 +169,7 @@ public class DistributedEventTracker implements EventTracker {
       sb = new StringBuilder(200);
       sb.append("Recording initial state for ").append(name).append(": ");
     }
-    for (Map.Entry<ThreadIdentifier, EventSequenceNumberHolder> entry : state.entrySet()) {
+    for (var entry : state.entrySet()) {
       if (sb != null) {
         sb.append("\n  ").append(entry.getKey().expensiveToString()).append("; sequenceID=")
             .append(entry.getValue());
@@ -224,7 +224,7 @@ public class DistributedEventTracker implements EventTracker {
     }
     do {
       removed = false;
-      EventSequenceNumberHolder oldEvh = recordedEvents.putIfAbsent(threadID, evh);
+      var oldEvh = recordedEvents.putIfAbsent(threadID, evh);
       if (oldEvh != null) {
         synchronized (oldEvh) {
           if (oldEvh.isRemoved()) {
@@ -250,22 +250,22 @@ public class DistributedEventTracker implements EventTracker {
 
   @Override
   public void recordEvent(InternalCacheEvent event) {
-    EventID eventID = event.getEventId();
+    var eventID = event.getEventId();
     if (ignoreEvent(event, eventID)) {
       return; // not tracked
     }
 
-    LocalRegion lr = (LocalRegion) event.getRegion();
-    ThreadIdentifier membershipID = createThreadIDFromEvent(eventID);
+    var lr = (LocalRegion) event.getRegion();
+    var membershipID = createThreadIDFromEvent(eventID);
 
     VersionTag tag = null;
     if (lr.getServerProxy() == null) {
       tag = event.getVersionTag();
-      RegionVersionVector v = ((LocalRegion) event.getRegion()).getVersionVector();
+      var v = ((LocalRegion) event.getRegion()).getVersionVector();
       canonicalizeIDs(tag, v);
     }
 
-    EventSequenceNumberHolder newEvh = new EventSequenceNumberHolder(eventID.getSequenceID(), tag);
+    var newEvh = new EventSequenceNumberHolder(eventID.getSequenceID(), tag);
     if (logger.isTraceEnabled()) {
       logger.trace("region event tracker recording {}", event);
     }
@@ -291,9 +291,9 @@ public class DistributedEventTracker implements EventTracker {
    * Record a version tag for a bulk operation.
    */
   private void recordBulkOpEvent(InternalCacheEvent event, ThreadIdentifier threadID) {
-    EventID eventID = event.getEventId();
+    var eventID = event.getEventId();
 
-    VersionTag tag = event.getVersionTag();
+    var tag = event.getVersionTag();
     if (tag == null) {
       return;
     }
@@ -303,17 +303,17 @@ public class DistributedEventTracker implements EventTracker {
           tag, event.getOperation());
     }
 
-    RegionVersionVector versionVector = ((LocalRegion) event.getRegion()).getVersionVector();
+    var versionVector = ((LocalRegion) event.getRegion()).getVersionVector();
     canonicalizeIDs(tag, versionVector);
 
     // Loop until we can successfully update the recorded bulk operations
     // For this thread id.
-    boolean retry = false;
+    var retry = false;
     do {
-      BulkOperationHolder bulkOpTracker = recordedBulkOpVersionTags.get(threadID);
+      var bulkOpTracker = recordedBulkOpVersionTags.get(threadID);
       if (bulkOpTracker == null) {
         bulkOpTracker = new BulkOperationHolder();
-        BulkOperationHolder old = recordedBulkOpVersionTags.putIfAbsent(threadID, bulkOpTracker);
+        var old = recordedBulkOpVersionTags.putIfAbsent(threadID, bulkOpTracker);
         if (old != null) {
           retry = true;
           continue;
@@ -343,7 +343,7 @@ public class DistributedEventTracker implements EventTracker {
 
   @Override
   public boolean hasSeenEvent(InternalCacheEvent event) {
-    EventID eventID = event.getEventId();
+    var eventID = event.getEventId();
     if (ignoreEvent(event, eventID)) {
       return false; // not tracked
     }
@@ -361,7 +361,7 @@ public class DistributedEventTracker implements EventTracker {
       return false;
     }
 
-    EventSequenceNumberHolder evh = getSequenceHolderForEvent(eventID);
+    var evh = getSequenceHolderForEvent(eventID);
     if (evh == null) {
       return false;
     }
@@ -370,7 +370,7 @@ public class DistributedEventTracker implements EventTracker {
       if (evh.isRemoved() || evh.getLastSequenceNumber() < eventID.getSequenceID()) {
         return false;
       }
-      Pair<Boolean, String> shouldLogPreviouslySeenEvent =
+      var shouldLogPreviouslySeenEvent =
           shouldLogPreviouslySeenEvent(tagHolder, evh);
       if (shouldLogPreviouslySeenEvent.getLeft()) {
         logger.info(EVENT_HAS_PREVIOUSLY_BEEN_SEEN, region.getName(),
@@ -404,14 +404,14 @@ public class DistributedEventTracker implements EventTracker {
 
   private Pair<Boolean, String> shouldLogPreviouslySeenEvent(InternalCacheEvent event,
       EventSequenceNumberHolder evh) {
-    boolean shouldLogSeenEvent = true;
+    var shouldLogSeenEvent = true;
     String message = null;
     if (event != null && ((EntryEventImpl) event).isPossibleDuplicate()) {
       // Ignore the previously seen event if it is a possible duplicate
       message = "possible duplicate";
       shouldLogSeenEvent = false;
     } else if (region instanceof BucketRegion) {
-      BucketRegion br = (BucketRegion) region;
+      var br = (BucketRegion) region;
       if (br.hasLowRedundancy()) {
         // Ignore the previously seen event while the bucket has low redundancy
         message = "low redundancy";
@@ -426,13 +426,13 @@ public class DistributedEventTracker implements EventTracker {
   }
 
   private EventSequenceNumberHolder getSequenceHolderForEvent(EventID eventID) {
-    ThreadIdentifier membershipID = createThreadIDFromEvent(eventID);
+    var membershipID = createThreadIDFromEvent(eventID);
     return recordedEvents.get(membershipID);
   }
 
   @Override
   public VersionTag findVersionTagForSequence(EventID eventID) {
-    EventSequenceNumberHolder evh = getSequenceHolderForEvent(eventID);
+    var evh = getSequenceHolderForEvent(eventID);
     if (evh == null) {
       if (logger.isDebugEnabled()) {
         logger.debug("search for version tag failed as no event is recorded for {}",
@@ -466,8 +466,8 @@ public class DistributedEventTracker implements EventTracker {
     if (eventID == null) {
       return null;
     }
-    ThreadIdentifier threadID = createThreadIDFromEvent(eventID);
-    BulkOperationHolder evh = recordedBulkOpVersionTags.get(threadID);
+    var threadID = createThreadIDFromEvent(eventID);
+    var evh = recordedBulkOpVersionTags.get(threadID);
     if (evh == null) {
       if (logger.isDebugEnabled()) {
         logger.debug("search for version tag failed as no events are recorded for {}",
@@ -497,13 +497,13 @@ public class DistributedEventTracker implements EventTracker {
     if (eventID == null) {
       return true;
     } else {
-      boolean isVersioned = (event.getVersionTag() != null);
-      boolean isClient = event.hasClientOrigin();
+      var isVersioned = (event.getVersionTag() != null);
+      var isClient = event.hasClientOrigin();
       if (isVersioned && isClient) {
         return false; // version tags for client events are kept for retries by the client
       }
-      boolean isEntry = event.getOperation().isEntry();
-      boolean isPr = event.getRegion().getAttributes().getDataPolicy().withPartitioning()
+      var isEntry = event.getOperation().isEntry();
+      var isPr = event.getRegion().getAttributes().getDataPolicy().withPartitioning()
           || ((LocalRegion) event.getRegion()).isUsedForPartitionedRegionBucket();
       return (!isClient && // ignore if it originated on a server, and
           isEntry && // it affects an entry and
@@ -518,7 +518,7 @@ public class DistributedEventTracker implements EventTracker {
       return;
     }
     Assert.assertTrue(eventID != null);
-    ThreadIdentifier membershipID = createThreadIDFromEvent(eventID);
+    var membershipID = createThreadIDFromEvent(eventID);
     Object opSyncObj = null;
     do {
       opSyncObj = recordedBulkOps.putIfAbsent(membershipID, new Object());
@@ -543,7 +543,7 @@ public class DistributedEventTracker implements EventTracker {
     if (logger.isDebugEnabled()) {
       logger.debug("recording bulkOp start for {}", tid.expensiveToString());
     }
-    EventSequenceNumberHolder evh = recordedEvents.get(tid);
+    var evh = recordedEvents.get(tid);
     if (evh == null) {
       return;
     }

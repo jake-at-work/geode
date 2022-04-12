@@ -32,7 +32,6 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -65,9 +64,9 @@ public class GetAllOp {
   public static VersionedObjectList execute(ExecutablePool pool, Region region, List keys,
       int retryAttempts, Object callback) {
     AbstractOp op = new GetAllOpImpl(region.getFullPath(), keys, callback);
-    ClientMetadataService cms = ((InternalRegion) region).getCache().getClientMetadataService();
+    var cms = ((InternalRegion) region).getCache().getClientMetadataService();
 
-    Map<ServerLocation, Set> serverToFilterMap = cms.getServerToFilterMap(keys, region, true);
+    var serverToFilterMap = cms.getServerToFilterMap(keys, region, true);
 
     if (serverToFilterMap == null || serverToFilterMap.isEmpty()) {
       op.initMessagePart();
@@ -77,14 +76,14 @@ public class GetAllOp {
       ServerConnectivityException se = null;
       List retryList = new ArrayList();
       try {
-        List callableTasks =
+        var callableTasks =
             constructGetAllTasks(region.getFullPath(), serverToFilterMap, (PoolImpl) pool,
                 callback);
-        Map<ServerLocation, Object> results =
+        var results =
             SingleHopClientExecutor.submitGetAll(serverToFilterMap,
                 callableTasks, cms, (LocalRegion) region);
-        for (ServerLocation server : results.keySet()) {
-          Object serverResult = results.get(server);
+        for (var server : results.keySet()) {
+          var serverResult = results.get(server);
           if (serverResult instanceof ServerConnectivityException) {
             se = (ServerConnectivityException) serverResult;
             retryList.addAll(serverToFilterMap.get(server));
@@ -108,7 +107,7 @@ public class GetAllOp {
         if (retryAttempts == 0) {
           throw se;
         } else {
-          VersionedObjectList retryResult =
+          var retryResult =
               GetAllOp.execute(pool, region.getFullPath(), retryList, callback);
           if (result == null) {
             result = retryResult;
@@ -130,16 +129,16 @@ public class GetAllOp {
       final Map<ServerLocation, Set> serverToFilterMap, final PoolImpl pool,
       final Object callback) {
     final List<SingleHopOperationCallable> tasks = new ArrayList<>();
-    ArrayList<ServerLocation> servers = new ArrayList<>(serverToFilterMap.keySet());
+    var servers = new ArrayList<ServerLocation>(serverToFilterMap.keySet());
 
     if (logger.isDebugEnabled()) {
       logger.debug("Constructing tasks for the servers {}", servers);
     }
-    for (ServerLocation server : servers) {
-      Set filterSet = serverToFilterMap.get(server);
+    for (var server : servers) {
+      var filterSet = serverToFilterMap.get(server);
       AbstractOp getAllOp = new GetAllOpImpl(region, new ArrayList(filterSet), callback);
 
-      SingleHopOperationCallable task =
+      var task =
           new SingleHopOperationCallable(new ServerLocation(server.getHostName(), server.getPort()),
               pool, getAllOp, UserAttributes.userAttributes.get());
       tasks.add(task);
@@ -164,7 +163,7 @@ public class GetAllOp {
 
     @Override
     protected void initMessagePart() {
-      Object[] keysArray = new Object[keyList.size()];
+      var keysArray = new Object[keyList.size()];
       keyList.toArray(keysArray);
       getMessage().addObjPart(keysArray);
       if (callback != null) {
@@ -193,17 +192,17 @@ public class GetAllOp {
     @Override
     protected Object processResponse(final @NotNull Message msg, final @NotNull Connection con)
         throws Exception {
-      final VersionedObjectList result = new VersionedObjectList(false);
-      final Exception[] exceptionRef = new Exception[1];
+      final var result = new VersionedObjectList(false);
+      final var exceptionRef = new Exception[1];
       processChunkedResponse((ChunkedMessage) msg, "getAll", cm -> {
-        Part part = cm.getPart(0);
+        var part = cm.getPart(0);
         try {
-          Object o = part.getObject();
+          var o = part.getObject();
           if (o instanceof Throwable) {
-            String s = "While performing a remote getAll";
+            var s = "While performing a remote getAll";
             exceptionRef[0] = new ServerOperationException(s, (Throwable) o);
           } else {
-            VersionedObjectList chunk = (VersionedObjectList) o;
+            var chunk = (VersionedObjectList) o;
             chunk.replaceNullIDs(con.getEndpoint().getMemberId());
             result.addAll(chunk);
           }

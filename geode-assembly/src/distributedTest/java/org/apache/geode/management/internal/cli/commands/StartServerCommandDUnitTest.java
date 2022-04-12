@@ -62,7 +62,6 @@ import org.apache.geode.distributed.AbstractLauncher;
 import org.apache.geode.distributed.ServerLauncher;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.distributed.internal.ServerLocation;
-import org.apache.geode.distributed.internal.ServerLocator;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.process.ProcessType;
 import org.apache.geode.internal.process.ProcessUtils;
@@ -128,12 +127,12 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithMissingCacheXml() throws IOException {
-    String missingCacheXmlPath =
+    var missingCacheXmlPath =
         Paths.get("missing", "cache.xml").toAbsolutePath().toString();
-    String expectedError =
+    var expectedError =
         CliStrings.format(CACHE_XML_NOT_FOUND_MESSAGE, missingCacheXmlPath);
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__SERVER_PORT, String.valueOf(serverPort))
@@ -147,12 +146,12 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithMissingGemFirePropertiesFile() throws IOException {
-    String missingGemfirePropertiesPath =
+    var missingGemfirePropertiesPath =
         Paths.get("missing", "gemfire.properties").toAbsolutePath().toString();
-    String expectedError =
+    var expectedError =
         CliStrings.format(GEODE_0_PROPERTIES_1_NOT_FOUND_MESSAGE, "", missingGemfirePropertiesPath);
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__SERVER_PORT, String.valueOf(serverPort))
@@ -166,9 +165,9 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithUsernameAndMissingPassword() throws IOException {
-    String expectedError = "password must be specified.";
+    var expectedError = "password must be specified.";
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__SERVER_PORT, String.valueOf(serverPort))
@@ -182,9 +181,9 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithUsernameLongFormAndMissingPassword() throws IOException {
-    String expectedError = "password must be specified.";
+    var expectedError = "password must be specified.";
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__SERVER_PORT, String.valueOf(serverPort))
@@ -198,12 +197,12 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithMissingSecurityPropertiesFile() throws IOException {
-    String missingSecurityPropertiesPath =
+    var missingSecurityPropertiesPath =
         Paths.get("missing", "security.properties").toAbsolutePath().toString();
-    String expectedError = CliStrings.format(GEODE_0_PROPERTIES_1_NOT_FOUND_MESSAGE,
+    var expectedError = CliStrings.format(GEODE_0_PROPERTIES_1_NOT_FOUND_MESSAGE,
         "Security ", missingSecurityPropertiesPath);
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__SERVER_PORT, String.valueOf(serverPort))
@@ -217,16 +216,16 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithUnavailablePort() throws IOException {
-    String expectedError =
+    var expectedError =
         "java.lang.RuntimeException: An IO error occurred while starting a Server";
-    String expectedCause = "Caused by: java.net.BindException: "
+    var expectedCause = "Caused by: java.net.BindException: "
         + "Network is unreachable; port (" + serverPort + ") is not available on localhost.";
 
-    try (Socket interferingProcess = new Socket()) {
+    try (var interferingProcess = new Socket()) {
       // make the target port unavailable
       interferingProcess.bind(new InetSocketAddress(serverPort));
 
-      String command = new CommandStringBuilder(START_SERVER)
+      var command = new CommandStringBuilder(START_SERVER)
           .addOption(START_SERVER__NAME, memberName)
           .addOption(START_SERVER__LOCATORS, locatorConnectionString)
           .addOption(START_SERVER__SERVER_PORT, String.valueOf(serverPort))
@@ -240,10 +239,10 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithAvailablePort() throws IOException {
-    String expectedMessage = "Server in " + workingDir.getCanonicalPath();
-    String expectedMessage2 = "as " + memberName + " is currently online.";
+    var expectedMessage = "Server in " + workingDir.getCanonicalPath();
+    var expectedMessage2 = "as " + memberName + " is currently online.";
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__SERVER_PORT, String.valueOf(serverPort))
@@ -256,29 +255,29 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithConflictingPIDFile() throws Exception {
-    String fileName = ProcessType.SERVER.getPidFileName();
+    var fileName = ProcessType.SERVER.getPidFileName();
 
     // create PID file
-    File pidFile = new File(workingDir.getAbsolutePath(), fileName);
+    var pidFile = new File(workingDir.getAbsolutePath(), fileName);
     assertThat(pidFile.createNewFile()).isTrue();
 
     // write PID to PID file
-    try (FileWriter fileWriter = new FileWriter(pidFile, false)) {
+    try (var fileWriter = new FileWriter(pidFile, false)) {
       fileWriter.write(ProcessUtils.identifyPid() + "\n");
       fileWriter.flush();
     }
     assertThat(pidFile.isFile()).isTrue();
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__SERVER_PORT, String.valueOf(serverPort))
         .addOption(START_SERVER__DIR, pidFile.getParentFile().getCanonicalPath())
         .getCommandString();
 
-    String expectedError = "A PID file already exists and a Server may be running in "
+    var expectedError = "A PID file already exists and a Server may be running in "
         + pidFile.getParentFile().getCanonicalPath();
-    String expectedCause = "Caused by: "
+    var expectedCause = "Caused by: "
         + "org.apache.geode.internal.process.FileAlreadyExistsException: Pid file already exists: "
         + pidFile.getCanonicalPath();
 
@@ -288,20 +287,20 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithForceOverwriteConflictingPIDFile() throws Exception {
-    String fileName = ProcessType.SERVER.getPidFileName();
+    var fileName = ProcessType.SERVER.getPidFileName();
 
     // create PID file
-    File pidFile = new File(workingDir.getAbsolutePath(), fileName);
+    var pidFile = new File(workingDir.getAbsolutePath(), fileName);
     assertThat(pidFile.createNewFile()).isTrue();
 
     // write PID to PID file
-    try (FileWriter fileWriter = new FileWriter(pidFile, false)) {
+    try (var fileWriter = new FileWriter(pidFile, false)) {
       fileWriter.write(ProcessUtils.identifyPid() + "\n");
       fileWriter.flush();
     }
     assertThat(pidFile.isFile()).isTrue();
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__SERVER_PORT, String.valueOf(serverPort))
@@ -309,7 +308,7 @@ public class StartServerCommandDUnitTest implements Serializable {
         .addOption(START_SERVER__FORCE, "true")
         .getCommandString();
 
-    String expectedMessage = "Server in " + pidFile.getParentFile().getCanonicalPath();
+    var expectedMessage = "Server in " + pidFile.getParentFile().getCanonicalPath();
 
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .containsOutput(expectedMessage);
@@ -317,10 +316,10 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testWithConnectionToLocator() throws IOException {
-    String expectedVersionPattern = "Geode Version: \\d+\\.\\d+\\.\\d+";
-    String expectedMessage = "Server in " + workingDir.getCanonicalPath();
+    var expectedVersionPattern = "Geode Version: \\d+\\.\\d+\\.\\d+";
+    var expectedMessage = "Server in " + workingDir.getCanonicalPath();
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__DIR, workingDir.getCanonicalPath())
@@ -336,12 +335,12 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void testServerJVMTerminatesOnOutOfMemoryError() throws IOException {
-    String groupName = "serverGroup";
-    String regionName = "testRegion";
+    var groupName = "serverGroup";
+    var regionName = "testRegion";
 
-    MemberVM server = cluster.startServerVM(1, locator.getPort());
+    var server = cluster.startServerVM(1, locator.getPort());
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption("group", groupName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
@@ -361,21 +360,21 @@ public class StartServerCommandDUnitTest implements Serializable {
 
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
-    ServerLauncher serverLauncher = new ServerLauncher.Builder()
+    var serverLauncher = new ServerLauncher.Builder()
         .setCommand(ServerLauncher.Command.STATUS)
         .setWorkingDirectory(workingDir.getCanonicalPath())
         .build();
     assertThat(serverLauncher).isNotNull();
 
-    ServerLauncher.ServerState serverState = serverLauncher.status();
+    var serverState = serverLauncher.status();
     assertThat(serverState.getStatus()).isEqualTo(AbstractLauncher.Status.ONLINE);
     assertThat(serverState.isVmWithProcessIdRunning()).isTrue();
 
-    Integer serverPid = serverState.getPid();
+    var serverPid = serverState.getPid();
     assertThat(ProcessUtils.isProcessAlive(serverPid)).isTrue();
 
-    String jarName = "RunOutOfMemory.jar";
-    File jar = temporaryFolder.newFile(jarName);
+    var jarName = "RunOutOfMemory.jar";
+    var jar = temporaryFolder.newFile(jarName);
     writeJarFromClasses(jar, RunOutOfMemoryFunction.class);
     gfsh.executeAndAssertThat("deploy --groups=" + groupName + " --jar=" + jar).statusIsSuccess();
 
@@ -398,9 +397,9 @@ public class StartServerCommandDUnitTest implements Serializable {
 
   @Test
   public void startServerRespectsHostnameForClients() throws IOException {
-    String expectedMessagePattern = "Server (.*) is currently online";
+    var expectedMessagePattern = "Server (.*) is currently online";
 
-    String command = new CommandStringBuilder(START_SERVER)
+    var command = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__NAME, memberName)
         .addOption(START_SERVER__LOCATORS, locatorConnectionString)
         .addOption(START_SERVER__DIR, workingDir.getCanonicalPath())
@@ -413,9 +412,9 @@ public class StartServerCommandDUnitTest implements Serializable {
 
     // Verify that the ServerLocation contains the specified hostname-for-clients.
     locator.invoke(() -> {
-      InternalLocator internalLocator = InternalLocator.getLocator();
-      final ServerLocator serverLocator = internalLocator.getServerLocatorAdvisee();
-      GetAllServersResponse serversResponse =
+      var internalLocator = InternalLocator.getLocator();
+      final var serverLocator = internalLocator.getServerLocatorAdvisee();
+      var serversResponse =
           (GetAllServersResponse) serverLocator.processRequest(new GetAllServersRequest());
       List<ServerLocation> locators = serversResponse.getServers();
 

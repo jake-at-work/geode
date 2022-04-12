@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
@@ -126,11 +125,11 @@ public class LinuxProcFsStatistics {
     }
 
     try {
-      File file = new File("/proc/" + pid + "/stat");
+      var file = new File("/proc/" + pid + "/stat");
       String line;
-      try (FileInputStream fileInputStream = new FileInputStream(file);
-          InputStreamReader isr = new InputStreamReader(fileInputStream);
-          BufferedReader br = new BufferedReader(isr, 2048)) {
+      try (var fileInputStream = new FileInputStream(file);
+          var isr = new InputStreamReader(fileInputStream);
+          var br = new BufferedReader(isr, 2048)) {
         line = br.readLine();
       }
       if (line == null) {
@@ -164,15 +163,15 @@ public class LinuxProcFsStatistics {
     }
     stats.setLong(LinuxSystemStats.processesLONG, getProcessCount());
     stats.setLong(LinuxSystemStats.cpusLONG, sys_cpus);
-    try (FileInputStream statFileInputStream = new FileInputStream(statFilePath);
-        InputStreamReader isr = new InputStreamReader(statFileInputStream);
-        BufferedReader br = new BufferedReader(isr)) {
+    try (var statFileInputStream = new FileInputStream(statFilePath);
+        var isr = new InputStreamReader(statFileInputStream);
+        var br = new BufferedReader(isr)) {
 
       String line;
       while ((line = br.readLine()) != null) {
         try {
           if (line.startsWith(CPU_TOKEN)) {
-            int[] cpuData = cpuStatSingleton.calculateStats(line);
+            var cpuData = cpuStatSingleton.calculateStats(line);
             stats.setLong(LinuxSystemStats.cpuIdleLONG, cpuData[CPU.IDLE.ordinal()]);
             stats.setLong(LinuxSystemStats.cpuNiceLONG, cpuData[CPU.NICE.ordinal()]);
             stats.setLong(LinuxSystemStats.cpuSystemLONG, cpuData[CPU.SYSTEM.ordinal()]);
@@ -186,13 +185,13 @@ public class LinuxProcFsStatistics {
                 + cpuData[CPU.SYSTEM.ordinal()] + cpuData[CPU.IOWAIT.ordinal()]
                 + cpuData[CPU.IRQ.ordinal()] + cpuData[CPU.SOFTIRQ.ordinal()]);
           } else if (!hasProcVmStat && line.startsWith(PAGE)) {
-            int secondIndex = line.indexOf(" ", PAGE.length());
+            var secondIndex = line.indexOf(" ", PAGE.length());
             stats.setLong(LinuxSystemStats.pagesPagedInLONG,
                 SpaceTokenizer.parseAsLong(line.substring(PAGE.length(), secondIndex)));
             stats.setLong(LinuxSystemStats.pagesPagedOutLONG,
                 SpaceTokenizer.parseAsLong(line.substring(secondIndex + 1)));
           } else if (!hasProcVmStat && line.startsWith(SWAP)) {
-            int secondIndex = line.indexOf(" ", SWAP.length());
+            var secondIndex = line.indexOf(" ", SWAP.length());
             stats.setLong(LinuxSystemStats.pagesSwappedInLONG,
                 SpaceTokenizer.parseAsLong(line.substring(SWAP.length(), secondIndex)));
             stats.setLong(LinuxSystemStats.pagesSwappedOutLONG,
@@ -225,10 +224,10 @@ public class LinuxProcFsStatistics {
   // Example of /proc/loadavg
   // 0.00 0.00 0.07 1/218 7907
   private static void getLoadAvg(LocalStatisticsImpl stats) {
-    try (FileInputStream fileInputStream = new FileInputStream("/proc/loadavg");
-        InputStreamReader isr = new InputStreamReader(fileInputStream);
-        BufferedReader br = new BufferedReader(isr, 512)) {
-      String line = br.readLine();
+    try (var fileInputStream = new FileInputStream("/proc/loadavg");
+        var isr = new InputStreamReader(fileInputStream);
+        var br = new BufferedReader(isr, 512)) {
+      var line = br.readLine();
       if (line == null) {
         return;
       }
@@ -250,15 +249,15 @@ public class LinuxProcFsStatistics {
    */
   public static long getAvailableMemory(Logger logger) {
     long free = 0;
-    Pattern p = Pattern.compile("(.*)?:\\s+(\\d+)( kB)?");
+    var p = Pattern.compile("(.*)?:\\s+(\\d+)( kB)?");
 
-    try (FileInputStream fileInputStream = new FileInputStream("/proc/meminfo");
-        InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-        BufferedReader br = new BufferedReader(inputStreamReader)) {
+    try (var fileInputStream = new FileInputStream("/proc/meminfo");
+        var inputStreamReader = new InputStreamReader(fileInputStream);
+        var br = new BufferedReader(inputStreamReader)) {
 
       String line;
       while ((line = br.readLine()) != null) {
-        Matcher m = p.matcher(line);
+        var m = p.matcher(line);
         if (m.matches() && ("MemFree".equals(m.group(1)) || "Cached".equals(m.group(1)))) {
           free += Long.parseLong(m.group(2));
         }
@@ -278,9 +277,9 @@ public class LinuxProcFsStatistics {
   // Mem: 4118380544 3816050688 302329856 0 109404160 3060326400
   // Swap: 4194881536 127942656 4066938880
   private static void getMemInfo(LocalStatisticsImpl stats) {
-    try (FileInputStream fileInputStream = new FileInputStream("/proc/meminfo");
-        InputStreamReader isr = new InputStreamReader(fileInputStream);
-        BufferedReader br = new BufferedReader(isr)) {
+    try (var fileInputStream = new FileInputStream("/proc/meminfo");
+        var isr = new InputStreamReader(fileInputStream);
+        var br = new BufferedReader(isr)) {
       // Assume all values read in are in kB, convert to MB
       String line;
       while ((line = br.readLine()) != null) {
@@ -336,12 +335,12 @@ public class LinuxProcFsStatistics {
 
   private static void getNetStatStats(LocalStatisticsImpl stats,
       String netstatStatsFilePath) {
-    SpaceTokenizer headerTokenizer = new SpaceTokenizer();
-    try (FileInputStream netstatStatsFileInputStream = new FileInputStream(netstatStatsFilePath);
-        InputStreamReader isr = new InputStreamReader(netstatStatsFileInputStream);
-        BufferedReader br = new BufferedReader(isr)) {
+    var headerTokenizer = new SpaceTokenizer();
+    try (var netstatStatsFileInputStream = new FileInputStream(netstatStatsFilePath);
+        var isr = new InputStreamReader(netstatStatsFileInputStream);
+        var br = new BufferedReader(isr)) {
 
-      String line = br.readLine(); // header;
+      var line = br.readLine(); // header;
       headerTokenizer.setString(line);
 
       do {
@@ -360,9 +359,9 @@ public class LinuxProcFsStatistics {
       // Find the token position for each stat we're interested in from the header line and read the
       // corresponding token from the stats line
       while (headerTokenizer.hasMoreTokens() && !tokenNames.isEmpty()) {
-        String currentToken = headerTokenizer.peekToken();
+        var currentToken = headerTokenizer.peekToken();
         if (tokenNames.contains(currentToken)) {
-          long statValue = SpaceTokenizer.parseAsLong(tokenizer.peekToken());
+          var statValue = SpaceTokenizer.parseAsLong(tokenizer.peekToken());
           switch (currentToken) {
             case TCP_SYNCOOKIES_SENT_NAME:
               stats.setLong(LinuxSystemStats.tcpExtSynCookiesSentLONG, statValue);
@@ -384,9 +383,9 @@ public class LinuxProcFsStatistics {
       }
 
       if (!soMaxConnProcessed) {
-        try (FileInputStream fileInputStream2 = new FileInputStream("/proc/sys/net/core/somaxconn");
-            InputStreamReader soMaxConnIsr = new InputStreamReader(fileInputStream2);
-            BufferedReader br2 = new BufferedReader(soMaxConnIsr)) {
+        try (var fileInputStream2 = new FileInputStream("/proc/sys/net/core/somaxconn");
+            var soMaxConnIsr = new InputStreamReader(fileInputStream2);
+            var br2 = new BufferedReader(soMaxConnIsr)) {
           line = br2.readLine();
           tokenizer.setString(line);
           soMaxConn = tokenizer.nextTokenAsInt();
@@ -410,9 +409,9 @@ public class LinuxProcFsStatistics {
    */
 
   private static void getNetStats(LocalStatisticsImpl stats) {
-    try (FileInputStream fileInputStream = new FileInputStream("/proc/net/dev");
-        InputStreamReader isr = new InputStreamReader(fileInputStream);
-        BufferedReader br = new BufferedReader(isr)) {
+    try (var fileInputStream = new FileInputStream("/proc/net/dev");
+        var isr = new InputStreamReader(fileInputStream);
+        var br = new BufferedReader(isr)) {
       br.readLine(); // Discard header info
       br.readLine(); // Discard header info
       long lo_recv_packets = 0, lo_recv_bytes = 0;
@@ -422,20 +421,20 @@ public class LinuxProcFsStatistics {
       long other_xmit_errs = 0, other_xmit_drop = 0, other_xmit_colls = 0;
       String line;
       while ((line = br.readLine()) != null) {
-        int index = line.indexOf(":");
-        boolean isloopback = (line.contains("lo:"));
+        var index = line.indexOf(":");
+        var isloopback = (line.contains("lo:"));
         tokenizer.setString(line.substring(index + 1).trim());
-        long recv_bytes = tokenizer.nextTokenAsLong();
-        long recv_packets = tokenizer.nextTokenAsLong();
-        long recv_errs = tokenizer.nextTokenAsLong();
-        long recv_drop = tokenizer.nextTokenAsLong();
+        var recv_bytes = tokenizer.nextTokenAsLong();
+        var recv_packets = tokenizer.nextTokenAsLong();
+        var recv_errs = tokenizer.nextTokenAsLong();
+        var recv_drop = tokenizer.nextTokenAsLong();
         tokenizer.skipTokens(4); // fifo, frame, compressed, multicast
-        long xmit_bytes = tokenizer.nextTokenAsLong();
-        long xmit_packets = tokenizer.nextTokenAsLong();
-        long xmit_errs = tokenizer.nextTokenAsLong();
-        long xmit_drop = tokenizer.nextTokenAsLong();
+        var xmit_bytes = tokenizer.nextTokenAsLong();
+        var xmit_packets = tokenizer.nextTokenAsLong();
+        var xmit_errs = tokenizer.nextTokenAsLong();
+        var xmit_drop = tokenizer.nextTokenAsLong();
         tokenizer.skipToken(); // fifo
-        long xmit_colls = tokenizer.nextTokenAsLong();
+        var xmit_colls = tokenizer.nextTokenAsLong();
 
         if (isloopback) {
           lo_recv_packets = recv_packets;
@@ -528,7 +527,7 @@ public class LinuxProcFsStatistics {
         {
           // " 8 1 sdb" on 2.6
           // " 8 1 452145145 sdb" on 2.4
-          String tok = tokenizer.nextToken();
+          var tok = tokenizer.nextToken();
           if (tok.length() == 0 || Character.isWhitespace(tok.charAt(0))) {
             // skip over first token since it is whitespace
             tokenizer.nextToken();
@@ -548,20 +547,20 @@ public class LinuxProcFsStatistics {
             continue;
           }
         }
-        long tmp_readsCompleted = tokenizer.nextTokenAsLong();
-        long tmp_readsMerged = tokenizer.nextTokenAsLong();
-        long tmp_sectorsRead = tokenizer.nextTokenAsLong();
-        long tmp_timeReading = tokenizer.nextTokenAsLong();
+        var tmp_readsCompleted = tokenizer.nextTokenAsLong();
+        var tmp_readsMerged = tokenizer.nextTokenAsLong();
+        var tmp_sectorsRead = tokenizer.nextTokenAsLong();
+        var tmp_timeReading = tokenizer.nextTokenAsLong();
         if (tokenizer.hasMoreTokens()) {
           // If we are on 2.6 then we might only have 4 longs; if so ignore this line
           // Otherwise we should have 11 long tokens.
-          long tmp_writesCompleted = tokenizer.nextTokenAsLong();
-          long tmp_writesMerged = tokenizer.nextTokenAsLong();
-          long tmp_sectorsWritten = tokenizer.nextTokenAsLong();
-          long tmp_timeWriting = tokenizer.nextTokenAsLong();
-          long tmp_iosInProgress = tokenizer.nextTokenAsLong();
-          long tmp_timeIosInProgress = tokenizer.nextTokenAsLong();
-          long tmp_ioTime = tokenizer.nextTokenAsLong();
+          var tmp_writesCompleted = tokenizer.nextTokenAsLong();
+          var tmp_writesMerged = tokenizer.nextTokenAsLong();
+          var tmp_sectorsWritten = tokenizer.nextTokenAsLong();
+          var tmp_timeWriting = tokenizer.nextTokenAsLong();
+          var tmp_iosInProgress = tokenizer.nextTokenAsLong();
+          var tmp_timeIosInProgress = tokenizer.nextTokenAsLong();
+          var tmp_ioTime = tokenizer.nextTokenAsLong();
           readsCompleted += tmp_readsCompleted;
           readsMerged += tmp_readsMerged;
           sectorsRead += tmp_sectorsRead;
@@ -575,7 +574,7 @@ public class LinuxProcFsStatistics {
           ioTime += tmp_ioTime;
         }
       } // while
-      final int SECTOR_SIZE = 512;
+      final var SECTOR_SIZE = 512;
       stats.setLong(LinuxSystemStats.readsCompletedLONG, readsCompleted);
       stats.setLong(LinuxSystemStats.readsMergedLONG, readsMerged);
       stats.setLong(LinuxSystemStats.bytesReadLONG, sectorsRead * SECTOR_SIZE);
@@ -613,9 +612,9 @@ public class LinuxProcFsStatistics {
   // pswpout 14495
   private static void getVmStats(LocalStatisticsImpl stats) {
     assert hasProcVmStat : "getVmStats called when hasVmStat was false";
-    try (FileInputStream fileInputStream = new FileInputStream("/proc/vmstat");
-        InputStreamReader isr = new InputStreamReader(fileInputStream);
-        BufferedReader br = new BufferedReader(isr)) {
+    try (var fileInputStream = new FileInputStream("/proc/vmstat");
+        var isr = new InputStreamReader(fileInputStream);
+        var br = new BufferedReader(isr)) {
       String line;
       while ((line = br.readLine()) != null) {
         if (line.startsWith(PGPGIN)) {
@@ -644,17 +643,17 @@ public class LinuxProcFsStatistics {
    * @return the files in /proc that do NOT match /proc/[0-9]*
    */
   private static int getNumberOfNonProcessProcFiles() {
-    File proc = new File("/proc");
-    String[] procFiles = proc.list();
-    int count = 0;
+    var proc = new File("/proc");
+    var procFiles = proc.list();
+    var count = 0;
     if (procFiles != null) {
-      for (String filename : procFiles) {
-        char c = filename.charAt(0);
+      for (var filename : procFiles) {
+        var c = filename.charAt(0);
         if (!Character.isDigit(c)) {
           if (c == '.') {
             // see if the next char is a digit
             if (filename.length() > 1) {
-              char c2 = filename.charAt(1);
+              var c2 = filename.charAt(1);
               if (Character.isDigit(c2)) {
                 // for bug 42091 do not count files that begin with a '.' followed by digits
                 continue;
@@ -672,8 +671,8 @@ public class LinuxProcFsStatistics {
    * @return the number of running processes on the system
    */
   private static int getProcessCount() {
-    File proc = new File("/proc");
-    String[] procFiles = proc.list();
+    var proc = new File("/proc");
+    var procFiles = proc.list();
     if (procFiles == null) {
       // unknown error, continue without this stat
       return 0;
@@ -698,7 +697,7 @@ public class LinuxProcFsStatistics {
     public int[] calculateStats(String newStatLine) {
       tokenizer.setString(newStatLine);
       tokenizer.skipToken(); // cpu name
-      final int MAX_CPU_STATS = CPU.values().length;
+      final var MAX_CPU_STATS = CPU.values().length;
       /*
        * newer kernels now have 10 columns for cpu in /proc/stat. This number may increase even
        * further, hence we now use List in place of long[]. We add up entries from all columns after
@@ -707,7 +706,7 @@ public class LinuxProcFsStatistics {
       List<Long> newStats = new ArrayList<>(10);
       List<Long> diffs = new ArrayList<>(10);
       long total_change = 0;
-      int actualCpuStats = 0;
+      var actualCpuStats = 0;
       long unaccountedCpuUtilization = 0;
 
       while (tokenizer.hasMoreTokens()) {
@@ -718,12 +717,12 @@ public class LinuxProcFsStatistics {
       if (lastCpuStatsInvalid) {
         lastCpuStats = newStats;
         lastCpuStatsInvalid = false;
-        for (int i = 0; i < MAX_CPU_STATS; i++) {
+        for (var i = 0; i < MAX_CPU_STATS; i++) {
           diffs.add(0L);
         }
         diffs.set(CPU.IDLE.ordinal(), 100L);
       } else {
-        for (int i = 0; i < actualCpuStats; i++) {
+        for (var i = 0; i < actualCpuStats; i++) {
           diffs.add(newStats.get(i) - lastCpuStats.get(i));
           total_change += diffs.get(i);
           lastCpuStats.set(i, newStats.get(i));
@@ -732,17 +731,17 @@ public class LinuxProcFsStatistics {
           // avoid divide by zero
           total_change = 1;
         }
-        for (int i = 0; i < MAX_CPU_STATS; i++) {
+        for (var i = 0; i < MAX_CPU_STATS; i++) {
           if (i < actualCpuStats) {
             diffs.set(i, (diffs.get(i) * 100) / total_change);
           }
         }
-        for (int i = MAX_CPU_STATS; i < actualCpuStats; i++) {
+        for (var i = MAX_CPU_STATS; i < actualCpuStats; i++) {
           unaccountedCpuUtilization += (diffs.get(i) * 100) / total_change;
         }
       }
-      int[] ret = new int[MAX_CPU_STATS];
-      for (int i = 0; i < MAX_CPU_STATS; i++) {
+      var ret = new int[MAX_CPU_STATS];
+      for (var i = 0; i < MAX_CPU_STATS; i++) {
         if (i < actualCpuStats) {
           ret[i] = diffs.get(i).intValue();
         }
@@ -772,7 +771,7 @@ public class LinuxProcFsStatistics {
     }
 
     private void nextIdx() {
-      int origin = nextIdx;
+      var origin = nextIdx;
       if (endIdx == rawChars.length || beginIdx == -1) {
         endIdx = -1;
         nextIdx = -1;
@@ -780,8 +779,8 @@ public class LinuxProcFsStatistics {
       }
       endIdx = -1;
       nextIdx = -1;
-      for (int i = origin + 1; i < rawChars.length; i++) {
-        char c = rawChars[i];
+      for (var i = origin + 1; i < rawChars.length; i++) {
+        var c = rawChars[i];
         // Add all delimiters here
         if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
           if (endIdx == -1) {
@@ -826,7 +825,7 @@ public class LinuxProcFsStatistics {
 
     protected String nextToken() {
       if (hasMoreTokens()) {
-        final String ret = str.substring(beginIdx, endIdx);
+        final var ret = str.substring(beginIdx, endIdx);
         beginIdx = nextIdx;
         nextIdx();
         return ret;
@@ -842,13 +841,13 @@ public class LinuxProcFsStatistics {
     }
 
     protected void skipTokens(int numberToSkip) {
-      int remaining = numberToSkip + 1;
+      var remaining = numberToSkip + 1;
       while (--remaining > 0 && skipToken()) {
       }
     }
 
     protected static long parseAsLong(String number) {
-      long l = 0L;
+      var l = 0L;
       try {
         l = Long.parseLong(number);
       } catch (NumberFormatException ignore) {
@@ -857,7 +856,7 @@ public class LinuxProcFsStatistics {
     }
 
     protected static int parseAsInt(String number) {
-      int i = 0;
+      var i = 0;
       try {
         i = Integer.parseInt(number);
       } catch (NumberFormatException ignore) {
@@ -866,7 +865,7 @@ public class LinuxProcFsStatistics {
     }
 
     protected int nextTokenAsInt() {
-      int i = 0;
+      var i = 0;
       try {
         i = Integer.parseInt(nextToken());
       } catch (NumberFormatException ignore) {
@@ -875,7 +874,7 @@ public class LinuxProcFsStatistics {
     }
 
     protected long nextTokenAsLong() {
-      long l = 0L;
+      var l = 0L;
       try {
         l = Long.parseLong(nextToken());
       } catch (NumberFormatException ignore) {

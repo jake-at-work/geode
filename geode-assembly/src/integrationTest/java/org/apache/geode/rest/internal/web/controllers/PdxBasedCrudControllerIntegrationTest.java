@@ -81,7 +81,7 @@ public class PdxBasedCrudControllerIntegrationTest {
 
   @Before
   public void setupGemFire() {
-    AgentUtil agentUtil = new AgentUtil(GemFireVersion.getGemFireVersion());
+    var agentUtil = new AgentUtil(GemFireVersion.getGemFireVersion());
     if (agentUtil.findWarLocation("geode-web-api") == null) {
       fail("unable to locate geode-web-api WAR file");
     }
@@ -93,8 +93,8 @@ public class PdxBasedCrudControllerIntegrationTest {
         port = Integer
             .parseInt(StringUtils.trimWhitespace(gemfireProperties.getProperty(HTTP_SERVICE_PORT)));
       } catch (NumberFormatException ignore) {
-        int httpServicePort1 = AvailablePortHelper.getRandomAvailableTCPPort();
-        int httpServicePort = (httpServicePort1 > 1024 && httpServicePort1 < 65536
+        var httpServicePort1 = AvailablePortHelper.getRandomAvailableTCPPort();
+        var httpServicePort = (httpServicePort1 > 1024 && httpServicePort1 < 65536
             ? httpServicePort1 : DEFAULT_HTTP_SERVICE_PORT);
         gemfireProperties.setProperty(HTTP_SERVICE_PORT, String.valueOf(httpServicePort));
         port = httpServicePort;
@@ -125,34 +125,34 @@ public class PdxBasedCrudControllerIntegrationTest {
 
   @Test
   public void testRegionEndpoint() throws Exception {
-    final RestTemplate restTemplate = new RestTemplate();
-    final String result = restTemplate.getForObject(
+    final var restTemplate = new RestTemplate();
+    final var result = restTemplate.getForObject(
         String.format(PORT_AND_ONE_STRING_FORMAT, port, region.getName()), String.class);
     assertTrue(result.replaceAll("\r", "").contains("{\n" + "  \"Region\" : [ "));
   }
 
   @Test
   public void testKeysEndpoint() throws Exception {
-    final RestTemplate restTemplate = new RestTemplate();
-    final String result = restTemplate.getForObject(
+    final var restTemplate = new RestTemplate();
+    final var result = restTemplate.getForObject(
         String.format(PORT_AND_TWO_STRINGS_FORMAT, port, region.getName(), "keys"), String.class);
     assertTrue(result.replaceAll("\r", "").contains("{\n  \"keys\" : [ "));
   }
 
   @Test
   public void testGetKeyEndpoint() throws Exception {
-    final RestTemplate restTemplate = new RestTemplate();
-    final String result = restTemplate.getForObject(
+    final var restTemplate = new RestTemplate();
+    final var result = restTemplate.getForObject(
         String.format(PORT_AND_TWO_STRINGS_FORMAT, port, region.getName(), "0"), String.class);
     assertTrue(result.contains("\\\"zero\\\""));
   }
 
   @Test
   public void testPutKeyEndpoint() throws Exception {
-    final RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders headers = new HttpHeaders();
+    final var restTemplate = new RestTemplate();
+    var headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<String> entity = new HttpEntity<>(formatJson("four", "cuatro"), headers);
+    var entity = new HttpEntity<String>(formatJson("four", "cuatro"), headers);
     restTemplate.put(String.format(PORT_AND_TWO_STRINGS_FORMAT, port, region.getName(), "4"),
         entity);
     assertTrue(region.containsKey("4"));
@@ -160,10 +160,10 @@ public class PdxBasedCrudControllerIntegrationTest {
 
   @Test
   public void testDeleteKeyEndpoint() throws Exception {
-    final RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders headers = new HttpHeaders();
+    final var restTemplate = new RestTemplate();
+    var headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<String> entity = new HttpEntity<>(formatJson("four", "cuatro"), headers);
+    var entity = new HttpEntity<String>(formatJson("four", "cuatro"), headers);
     restTemplate.put(String.format(PORT_AND_TWO_STRINGS_FORMAT, port, region.getName(), "4"),
         entity);
     restTemplate.delete(String.format(PORT_AND_TWO_STRINGS_FORMAT, port, region.getName(), "4"));
@@ -172,32 +172,32 @@ public class PdxBasedCrudControllerIntegrationTest {
 
   @Test
   public void testQueriesEndpoint() throws Exception {
-    final RestTemplate restTemplate = new RestTemplate();
-    final String result = restTemplate
+    final var restTemplate = new RestTemplate();
+    final var result = restTemplate
         .getForObject(String.format(PORT_AND_ONE_STRING_FORMAT, port, "queries"), String.class);
     assertEquals("{\n  \"queries\" : [ ]\n}", result.replaceAll("\r", ""));
   }
 
   @Test
   public void testFunctionsEndpoint() throws Exception {
-    final RestTemplate restTemplate = new RestTemplate();
-    final String result = restTemplate
+    final var restTemplate = new RestTemplate();
+    final var result = restTemplate
         .getForObject(String.format(PORT_AND_ONE_STRING_FORMAT, port, "functions"), String.class);
     assertEquals("{\n  \"functions\" : [ ]\n}", result.replaceAll("\r", ""));
   }
 
   @Test
   public void testPingEndpoint() throws Exception {
-    final RestTemplate restTemplate = new RestTemplate();
-    final String result = restTemplate
+    final var restTemplate = new RestTemplate();
+    final var result = restTemplate
         .getForObject(String.format(PORT_AND_ONE_STRING_FORMAT, port, "ping"), String.class);
     assertNull(result);
   }
 
   @Test
   public void testServersEndpoint() throws Exception {
-    final RestTemplate restTemplate = new RestTemplate();
-    final String result = restTemplate
+    final var restTemplate = new RestTemplate();
+    final var result = restTemplate
         .getForObject(String.format(PORT_AND_ONE_STRING_FORMAT, port, "servers"), String.class);
     assertEquals("[ \"http://localhost:" + port + "\" ]", result);
   }

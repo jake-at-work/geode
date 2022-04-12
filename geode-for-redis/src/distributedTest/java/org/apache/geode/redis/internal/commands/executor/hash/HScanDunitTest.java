@@ -64,16 +64,16 @@ public class HScanDunitTest {
   @BeforeClass
   public static void classSetup() {
     locator = redisClusterStartupRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
     redisClusterStartupRule.startRedisVM(1, locatorPort);
     redisClusterStartupRule.startRedisVM(2, locatorPort);
     redisClusterStartupRule.startRedisVM(3, locatorPort);
 
-    int redisServerPort1 = redisClusterStartupRule.getRedisPort(1);
+    var redisServerPort1 = redisClusterStartupRule.getRedisPort(1);
     clusterClient = RedisClusterClient.create("redis://localhost:" + redisServerPort1);
 
-    ClusterTopologyRefreshOptions refreshOptions =
+    var refreshOptions =
         ClusterTopologyRefreshOptions.builder()
             .enableAllAdaptiveRefreshTriggers()
             .build();
@@ -100,12 +100,12 @@ public class HScanDunitTest {
   public void should_allowHscanIterationToCompleteSuccessfullyGivenBucketIsMoving()
       throws ExecutionException, InterruptedException {
 
-    AtomicBoolean running = new AtomicBoolean(true);
+    var running = new AtomicBoolean(true);
 
     Future<Void> hScanFuture = executor.runAsync(
         () -> doHScanContinuallyAndAssertOnResults(running));
 
-    for (int i = 0; i < 100 && running.get(); i++) {
+    for (var i = 0; i < 100 && running.get(); i++) {
       redisClusterStartupRule.moveBucketForKey(HASH_KEY);
       GeodeAwaitility.await().during(200, TimeUnit.MILLISECONDS).until(() -> true);
     }
@@ -115,10 +115,10 @@ public class HScanDunitTest {
   }
 
   private static void doHScanContinuallyAndAssertOnResults(AtomicBoolean running) {
-    ScanCursor scanCursor = new ScanCursor("0", false);
+    var scanCursor = new ScanCursor("0", false);
     List<String> allEntries = new ArrayList<>();
     MapScanCursor<String, String> result;
-    int i = 0;
+    var i = 0;
 
     while (running.get()) {
       allEntries.clear();
@@ -128,7 +128,7 @@ public class HScanDunitTest {
       do {
         result = commands.hscan(HASH_KEY, scanCursor);
         scanCursor.setCursor(result.getCursor());
-        Map<String, String> resultEntries = result.getMap();
+        var resultEntries = result.getMap();
 
         resultEntries.forEach((key, value) -> allEntries.add(key));
       } while (!result.isFinished());
@@ -148,7 +148,7 @@ public class HScanDunitTest {
 
   private static Map<String, String> makeEntrySet(int sizeOfDataSet) {
     Map<String, String> dataSet = new HashMap<>();
-    for (int i = 0; i < sizeOfDataSet; i++) {
+    for (var i = 0; i < sizeOfDataSet; i++) {
       dataSet.put(BASE_FIELD + i, "value_" + i);
     }
     return dataSet;

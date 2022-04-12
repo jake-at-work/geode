@@ -44,12 +44,12 @@ public class ScanExecutor extends AbstractScanExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
-    String cursorString = command.getStringKey();
+    var cursorString = command.getStringKey();
     BigInteger cursor;
     byte[] globPattern = null;
-    int count = DEFAULT_COUNT;
+    var count = DEFAULT_COUNT;
 
     try {
       cursor = new BigInteger(cursorString).abs();
@@ -65,8 +65,8 @@ public class ScanExecutor extends AbstractScanExecutor {
       cursor = new BigInteger("0");
     }
 
-    for (int i = 2; i < commandElems.size(); i = i + 2) {
-      byte[] commandElemBytes = commandElems.get(i);
+    for (var i = 2; i < commandElems.size(); i = i + 2) {
+      var commandElemBytes = commandElems.get(i);
       if (equalsIgnoreCaseBytes(commandElemBytes, MATCH)) {
         commandElemBytes = commandElems.get(i + 1);
         globPattern = commandElemBytes;
@@ -88,7 +88,7 @@ public class ScanExecutor extends AbstractScanExecutor {
       }
     }
 
-    Pair<BigInteger, List<Object>> scanResult =
+    var scanResult =
         scan(context.getRegion().keySet(), convertGlobToRegex(globPattern), count, cursor);
     context.setScanCursor(scanResult.getLeft());
 
@@ -99,11 +99,11 @@ public class ScanExecutor extends AbstractScanExecutor {
       GlobPattern matchPattern,
       int count, BigInteger cursor) {
     List<Object> returnList = new ArrayList<>();
-    int size = list.size();
-    BigInteger beforeCursor = new BigInteger("0");
-    int numElements = 0;
-    int i = -1;
-    for (RedisKey key : list) {
+    var size = list.size();
+    var beforeCursor = new BigInteger("0");
+    var numElements = 0;
+    var i = -1;
+    for (var key : list) {
       i++;
       if (beforeCursor.compareTo(cursor) < 0) {
         beforeCursor = beforeCursor.add(new BigInteger("1"));

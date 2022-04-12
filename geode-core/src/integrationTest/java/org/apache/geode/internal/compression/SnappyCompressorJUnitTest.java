@@ -32,9 +32,9 @@ public class SnappyCompressorJUnitTest {
    */
   @Test
   public void testCompressByteArray() throws Exception {
-    String compressMe = "Hello, how are you?";
-    byte[] compressMeData = new SnappyCompressor().compress(compressMe.getBytes());
-    String uncompressedMe =
+    var compressMe = "Hello, how are you?";
+    var compressMeData = new SnappyCompressor().compress(compressMe.getBytes());
+    var uncompressedMe =
         new String(SnappyCompressor.getDefaultInstance().decompress(compressMeData));
 
     assertEquals(compressMe, uncompressedMe);

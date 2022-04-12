@@ -31,11 +31,11 @@ public class JavaSerializationJUnitTest {
 
   @Test
   public void testStructImplSerialization() throws Exception {
-    String[] fieldNames = {"col1", "col2"};
+    var fieldNames = new String[] {"col1", "col2"};
     ObjectType[] fieldTypes = {new ObjectTypeImpl(Integer.class), new ObjectTypeImpl(String.class)};
-    StructTypeImpl type = new StructTypeImpl(fieldNames, fieldTypes);
+    var type = new StructTypeImpl(fieldNames, fieldTypes);
     Object[] values = {123, "456"};
-    StructImpl si = new StructImpl(type, values);
+    var si = new StructImpl(type, values);
     verifyJavaSerialization(si);
   }
 
@@ -45,14 +45,14 @@ public class JavaSerializationJUnitTest {
   }
 
   private void verifyJavaSerialization(Object obj) throws Exception {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ObjectOutputStream out = new ObjectOutputStream(baos);
+    var baos = new ByteArrayOutputStream();
+    var out = new ObjectOutputStream(baos);
     out.writeObject(obj);
     out.close();
     baos.close();
-    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-    ObjectInputStream in = new ObjectInputStream(bais);
-    Object obj2 = in.readObject();
+    var bais = new ByteArrayInputStream(baos.toByteArray());
+    var in = new ObjectInputStream(bais);
+    var obj2 = in.readObject();
     in.close();
     bais.close();
     assert (obj.equals(obj2));

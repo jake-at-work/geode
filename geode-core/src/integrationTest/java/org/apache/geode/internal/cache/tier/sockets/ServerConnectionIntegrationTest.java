@@ -65,7 +65,7 @@ public class ServerConnectionIntegrationTest {
 
   @Before
   public void setUp() throws IOException {
-    InetAddress inetAddress = mock(InetAddress.class);
+    var inetAddress = mock(InetAddress.class);
 
     acceptor = mock(AcceptorImpl.class);
     socket = mock(Socket.class);
@@ -77,9 +77,9 @@ public class ServerConnectionIntegrationTest {
     when(inetAddress.getHostAddress()).thenReturn("localhost");
     when(socket.getInetAddress()).thenReturn(inetAddress);
 
-    InternalDistributedSystem internalDistributedSystem = mock(InternalDistributedSystem.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
-    ThreadsMonitoring threadsMonitoring = mock(ThreadsMonitoring.class);
+    var internalDistributedSystem = mock(InternalDistributedSystem.class);
+    var distributionManager = mock(DistributionManager.class);
+    var threadsMonitoring = mock(ThreadsMonitoring.class);
 
     when(cachedRegionHelper.getCache()).thenReturn(cache);
     when(cache.getInternalDistributedSystem()).thenReturn(internalDistributedSystem);
@@ -96,13 +96,13 @@ public class ServerConnectionIntegrationTest {
   @Test
   public void terminatingConnectionHandlesNewRequestsGracefully() {
     ClientHealthMonitor.createInstance(cache, 100, mock(CacheClientNotifierStats.class));
-    ClientHealthMonitor clientHealthMonitor = ClientHealthMonitor.getInstance();
+    var clientHealthMonitor = ClientHealthMonitor.getInstance();
 
     when(cache.getCacheTransactionManager()).thenReturn(mock(TXManagerImpl.class));
     when(acceptor.getClientHealthMonitor()).thenReturn(clientHealthMonitor);
     when(acceptor.getConnectionListener()).thenReturn(mock(ConnectionListener.class));
 
-    TestServerConnection testServerConnection =
+    var testServerConnection =
         new TestServerConnection(socket, cache, cachedRegionHelper, stats, 0, 0, null,
             CommunicationMode.PrimaryServerToClient.getModeNumber(), acceptor, securityService);
 
@@ -165,9 +165,9 @@ public class ServerConnectionIntegrationTest {
 
     @Override
     protected void doHandshake() {
-      ClientProxyMembershipID proxyID = mock(ClientProxyMembershipID.class);
-      ServerSideHandshake handshake = mock(ServerSideHandshake.class);
-      MessageIdExtractor extractor = mock(MessageIdExtractor.class);
+      var proxyID = mock(ClientProxyMembershipID.class);
+      var handshake = mock(ServerSideHandshake.class);
+      var extractor = mock(MessageIdExtractor.class);
 
       when(handshake.getVersion()).thenReturn(KnownVersion.CURRENT);
       when(proxyID.getDistributedMember()).thenReturn(mock(InternalDistributedMember.class));

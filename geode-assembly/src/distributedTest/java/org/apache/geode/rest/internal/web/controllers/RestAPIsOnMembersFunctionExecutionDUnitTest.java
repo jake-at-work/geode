@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -50,9 +49,9 @@ public class RestAPIsOnMembersFunctionExecutionDUnitTest extends RestAPITestBase
   }
 
   private String createCacheAndRegisterFunction(String hostName, String memberName) {
-    final int servicePort = AvailablePortHelper.getRandomAvailableTCPPort();
+    final var servicePort = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(NAME, memberName);
     props.setProperty(START_DEV_REST_API, "true");
     props.setProperty(HTTP_SERVICE_BIND_ADDRESS, hostName);
@@ -70,8 +69,8 @@ public class RestAPIsOnMembersFunctionExecutionDUnitTest extends RestAPITestBase
   public void testFunctionExecutionOnAllMembers() {
     createCacheForVMs();
 
-    for (int i = 0; i < 5; i++) {
-      CloseableHttpResponse response =
+    for (var i = 0; i < 5; i++) {
+      var response =
           executeFunctionThroughRestCall("OnMembersFunction", null, null, null, null, null);
       assertHttpResponse(response, 200, 4);
     }
@@ -96,8 +95,8 @@ public class RestAPIsOnMembersFunctionExecutionDUnitTest extends RestAPITestBase
   public void testFunctionExecutionEOnSelectedMembers() {
     createCacheForVMs();
 
-    for (int i = 0; i < 5; i++) {
-      CloseableHttpResponse response =
+    for (var i = 0; i < 5; i++) {
+      var response =
           executeFunctionThroughRestCall("OnMembersFunction", null, null, null, null, "m1,m2,m3");
       assertHttpResponse(response, 200, 3);
     }
@@ -112,8 +111,8 @@ public class RestAPIsOnMembersFunctionExecutionDUnitTest extends RestAPITestBase
     createCacheForVMs();
     // restURLs.add(createCacheAndRegisterFunction(vm0.getHost().getHostName(), "m1"));
 
-    for (int i = 0; i < 5; i++) {
-      CloseableHttpResponse response = executeFunctionThroughRestCall(
+    for (var i = 0; i < 5; i++) {
+      var response = executeFunctionThroughRestCall(
           "org.apache.geode.rest.internal.web.controllers.FullyQualifiedFunction", null, null, null,
           null, "m1,m2,m3");
       assertHttpResponse(response, 200, 3);
@@ -130,8 +129,8 @@ public class RestAPIsOnMembersFunctionExecutionDUnitTest extends RestAPITestBase
   public void testFunctionExecutionOnMembersWithFilter() {
     createCacheForVMs();
 
-    for (int i = 0; i < 5; i++) {
-      CloseableHttpResponse response =
+    for (var i = 0; i < 5; i++) {
+      var response =
           executeFunctionThroughRestCall("OnMembersFunction", null, "key2", null, null, "m1,m2,m3");
       assertHttpResponse(response, 500, 0);
     }

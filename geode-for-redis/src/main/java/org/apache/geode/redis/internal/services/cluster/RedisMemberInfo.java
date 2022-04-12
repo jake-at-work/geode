@@ -93,7 +93,7 @@ public class RedisMemberInfo implements DataSerializable, Serializable {
     if (!(o instanceof RedisMemberInfo)) {
       return false;
     }
-    RedisMemberInfo that = (RedisMemberInfo) o;
+    var that = (RedisMemberInfo) o;
     return redisPort == that.redisPort && Objects.equals(member, that.member)
         && Objects.equals(hostAddress, that.hostAddress);
   }

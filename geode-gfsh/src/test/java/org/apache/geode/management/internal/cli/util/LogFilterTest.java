@@ -41,9 +41,9 @@ public class LogFilterTest {
 
   @Test
   public void permittedLogLevelsCanFilterLines() {
-    LogFilter logFilter = new LogFilter(Level.INFO, null, null);
+    var logFilter = new LogFilter(Level.INFO, null, null);
 
-    LocalDateTime now = LocalDateTime.now();
+    var now = LocalDateTime.now();
     assertThat(logFilter.acceptsLogEntry(Level.INFO, now)).isEqualTo(LINE_ACCEPTED);
     assertThat(logFilter.acceptsLogEntry(Level.WARN, now)).isEqualTo(LINE_ACCEPTED);
     assertThat(logFilter.acceptsLogEntry(Level.DEBUG, now)).isEqualTo(LINE_REJECTED);
@@ -52,9 +52,9 @@ public class LogFilterTest {
 
   @Test
   public void permittedOnlyLogLevels() {
-    LogFilter logFilter = new LogFilter(Level.INFO, true, null, null);
+    var logFilter = new LogFilter(Level.INFO, true, null, null);
 
-    LocalDateTime now = LocalDateTime.now();
+    var now = LocalDateTime.now();
     assertThat(logFilter.acceptsLogEntry(Level.INFO, now)).isEqualTo(LINE_ACCEPTED);
     assertThat(logFilter.acceptsLogEntry(Level.WARN, now)).isEqualTo(LINE_REJECTED);
     assertThat(logFilter.acceptsLogEntry(Level.DEBUG, now)).isEqualTo(LINE_REJECTED);
@@ -63,9 +63,9 @@ public class LogFilterTest {
 
   @Test
   public void permittedLogLevelsALL() {
-    LogFilter logFilter = new LogFilter(Level.ALL, null, null);
+    var logFilter = new LogFilter(Level.ALL, null, null);
 
-    LocalDateTime now = LocalDateTime.now();
+    var now = LocalDateTime.now();
     assertThat(logFilter.acceptsLogEntry(Level.INFO, now)).isEqualTo(LINE_ACCEPTED);
     assertThat(logFilter.acceptsLogEntry(Level.WARN, now)).isEqualTo(LINE_ACCEPTED);
     assertThat(logFilter.acceptsLogEntry(Level.DEBUG, now)).isEqualTo(LINE_ACCEPTED);
@@ -74,9 +74,9 @@ public class LogFilterTest {
 
   @Test
   public void startDateCanFilterLines() {
-    LocalDateTime startDate = LocalDateTime.now().minusDays(2);
+    var startDate = LocalDateTime.now().minusDays(2);
 
-    LogFilter logFilter = new LogFilter(Level.ALL, startDate, null);
+    var logFilter = new LogFilter(Level.ALL, startDate, null);
 
     assertThat(logFilter.acceptsLogEntry(Level.INFO, LocalDateTime.now())).isEqualTo(LINE_ACCEPTED);
     assertThat(logFilter.acceptsLogEntry(Level.INFO, startDate)).isEqualTo(LINE_ACCEPTED);
@@ -88,9 +88,9 @@ public class LogFilterTest {
 
   @Test
   public void endDateCanFilterLines() {
-    LocalDateTime endDate = LocalDateTime.now().minusDays(2);
+    var endDate = LocalDateTime.now().minusDays(2);
 
-    LogFilter logFilter = new LogFilter(Level.ALL, null, endDate);
+    var logFilter = new LogFilter(Level.ALL, null, endDate);
 
     assertThat(logFilter.acceptsLogEntry(Level.INFO, LocalDateTime.now().minusDays(3)))
         .isEqualTo(LINE_ACCEPTED);
@@ -104,10 +104,10 @@ public class LogFilterTest {
 
   @Test
   public void filterWorksWithLevelBasedAndTimeBasedFiltering() {
-    LocalDateTime startDate = LocalDateTime.now().minusDays(5);
-    LocalDateTime endDate = LocalDateTime.now().minusDays(2);
+    var startDate = LocalDateTime.now().minusDays(5);
+    var endDate = LocalDateTime.now().minusDays(2);
 
-    LogFilter logFilter = new LogFilter(Level.INFO, startDate, endDate);
+    var logFilter = new LogFilter(Level.INFO, startDate, endDate);
 
     assertThat(logFilter.acceptsLogEntry(Level.ERROR, LocalDateTime.now().minusDays(6)))
         .isEqualTo(LINE_REJECTED);
@@ -134,7 +134,7 @@ public class LogFilterTest {
 
   @Test
   public void firstLinesAreAcceptedIfParsableLineHasNotBeenSeenYet() {
-    LogFilter logFilter = new LogFilter(Level.INFO, null, null);
+    var logFilter = new LogFilter(Level.INFO, null, null);
 
     assertThat(logFilter.acceptsLogEntry(null)).isEqualTo(LINE_ACCEPTED);
     assertThat(logFilter.acceptsLogEntry(null)).isEqualTo(LINE_ACCEPTED);
@@ -146,13 +146,13 @@ public class LogFilterTest {
 
   @Test
   public void testAcceptFileWithCreateTimeNotAvailale() {
-    Path path = mock(Path.class);
+    var path = mock(Path.class);
     when(path.toFile()).thenReturn(mock(File.class));
     when(path.toFile().lastModified()).thenReturn(System.currentTimeMillis());
     when(path.getFileSystem()).thenThrow(SecurityException.class);
 
     // a filter with no start/end date should accept this file
-    LogFilter filter = new LogFilter(Level.INFO, null, null);
+    var filter = new LogFilter(Level.INFO, null, null);
     assertThat(filter.acceptsFile(path)).isTrue();
 
     // a filter with a start date of now should not accept the file
@@ -176,17 +176,17 @@ public class LogFilterTest {
 
   @Test
   public void testAcceptFileWithCreateTimeAvailable() throws Exception {
-    Path path = mock(Path.class);
+    var path = mock(Path.class);
     when(path.toFile()).thenReturn(mock(File.class));
     when(path.toFile().lastModified()).thenReturn(System.currentTimeMillis());
-    BasicFileAttributes attributes = mock(BasicFileAttributes.class);
+    var attributes = mock(BasicFileAttributes.class);
     when(path.getFileSystem()).thenReturn(mock(FileSystem.class));
     when(path.getFileSystem().provider()).thenReturn(mock(FileSystemProvider.class));
     when(path.getFileSystem().provider().readAttributes(path, BasicFileAttributes.class))
         .thenReturn(attributes);
 
     // a filter with no start/end date should accept this file
-    LogFilter filter = new LogFilter(Level.INFO, null, null);
+    var filter = new LogFilter(Level.INFO, null, null);
     assertThat(filter.acceptsFile(path)).isTrue();
 
     // a filter with a start date of now should not accept the file

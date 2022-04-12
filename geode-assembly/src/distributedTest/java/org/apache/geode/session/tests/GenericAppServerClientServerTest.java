@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.modules.session.functions.GetSessionCount;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -52,14 +51,14 @@ public abstract class GenericAppServerClientServerTest extends CargoTestBase {
       throws Exception {
     manager.startAllInactiveContainers();
 
-    String key = "value_testSessionExpiration";
-    String value = "Foo";
+    var key = "value_testSessionExpiration";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response resp = client.set(key, value);
-    String cookie = resp.getSessionCookie();
+    var resp = client.set(key, value);
+    var cookie = resp.getSessionCookie();
 
-    for (int i = 0; i < manager.numContainers(); i++) {
+    for (var i = 0; i < manager.numContainers(); i++) {
       client.setPort(Integer.parseInt(manager.getContainerPort(i)));
       resp = client.get(key);
 
@@ -67,7 +66,7 @@ public abstract class GenericAppServerClientServerTest extends CargoTestBase {
       assertEquals(value, resp.getResponse());
     }
 
-    for (int i = 0; i < manager.numContainers(); i++) {
+    for (var i = 0; i < manager.numContainers(); i++) {
       client.setPort(Integer.parseInt(manager.getContainerPort(i)));
       resp = client.executionFunction(GetSessionCount.class);
       assertEquals("Should have 0 native sessions", "0", resp.getResponse());
@@ -77,7 +76,7 @@ public abstract class GenericAppServerClientServerTest extends CargoTestBase {
   @Override
   protected void verifySessionIsRemoved(String key) throws IOException, URISyntaxException {
     serverVM.invoke("verify session is removed", () -> {
-      final InternalCache cache = ClusterStartupRule.getCache();
+      final var cache = ClusterStartupRule.getCache();
       Region region = cache.getRegion("gemfire_modules_sessions");
       await("for region to be empty").untilAsserted(() -> assertEquals(0, region.size()));
     });
@@ -88,7 +87,7 @@ public abstract class GenericAppServerClientServerTest extends CargoTestBase {
   protected void verifyMaxInactiveInterval(int expected) throws IOException, URISyntaxException {
     super.verifyMaxInactiveInterval(expected);
     serverVM.invoke("verify max inactive interval", () -> {
-      final InternalCache cache = ClusterStartupRule.getCache();
+      final var cache = ClusterStartupRule.getCache();
       Region<Object, HttpSession> region = cache.getRegion("gemfire_modules_sessions");
       region.values().forEach(session -> assertEquals(expected, session.getMaxInactiveInterval()));
     });

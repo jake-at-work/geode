@@ -24,9 +24,7 @@ import org.apache.geode.cache.client.internal.TXSynchronizationOp.CompletionType
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.TXCommitMessage;
-import org.apache.geode.internal.cache.TXId;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
@@ -58,10 +56,10 @@ public class TXSynchronizationCommand extends BaseCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start)
       throws IOException, ClassNotFoundException, InterruptedException {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
 
-    CompletionType type = CompletionType.values()[clientMessage.getPart(0).getInt()];
+    var type = CompletionType.values()[clientMessage.getPart(0).getInt()];
     /* int txIdInt = */ clientMessage.getPart(1).getInt(); // [bruce] not sure if we need to
                                                            // transmit this
     final Part statusPart;
@@ -71,14 +69,14 @@ public class TXSynchronizationCommand extends BaseCommand {
       statusPart = null;
     }
 
-    final TXManagerImpl txMgr = getTXManager(serverConnection);
-    final InternalDistributedMember member = getDistributedMember(serverConnection);
+    final var txMgr = getTXManager(serverConnection);
+    final var member = getDistributedMember(serverConnection);
 
-    final TXStateProxy txProxy = txMgr.getTXState();
+    final var txProxy = txMgr.getTXState();
     assert txProxy != null;
 
-    final TXId txId = txProxy.getTxId();
-    TXCommitMessage commitMessage = txMgr.getRecentlyCompletedMessage(txId);
+    final var txId = txProxy.getTxId();
+    var commitMessage = txMgr.getRecentlyCompletedMessage(txId);
     if (commitMessage != null && commitMessage != TXCommitMessage.ROLLBACK_MSG) {
       assert type == CompletionType.AFTER_COMPLETION;
       try {
@@ -135,7 +133,7 @@ public class TXSynchronizationCommand extends BaseCommand {
         }
       } else {
         try {
-          int status = statusPart.getInt();
+          var status = statusPart.getInt();
           if (isDebugEnabled) {
             logger.debug("Executing afterCompletion({}) notification for transaction {}",
                 status, clientMessage.getTransactionId());
@@ -145,7 +143,7 @@ public class TXSynchronizationCommand extends BaseCommand {
           txProxy.afterCompletion(status);
           // GemFire commits during afterCompletion - send the commit info back to the client
           // where it can be applied to the local cache
-          TXCommitMessage cmsg = txProxy.getCommitMessage();
+          var cmsg = txProxy.getCommitMessage();
           try {
             writeCommitResponse(clientMessage, serverConnection, cmsg);
             txMgr.removeHostedTXState(txProxy.getTxId());

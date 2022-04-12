@@ -40,7 +40,7 @@ public class Value2 implements Serializable {
 
   public boolean equals(Object other) {
     if (other instanceof Value2) {
-      Value2 v2 = (Value2) other;
+      var v2 = (Value2) other;
       return v2.stateName.equals(stateName);
     } else {
       return false;

@@ -35,7 +35,6 @@ import org.apache.geode.distributed.internal.MessageWithReply;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
-import org.apache.geode.distributed.internal.ReplySender;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.partitioned.PartitionMessage;
@@ -74,13 +73,13 @@ public class FindRemoteTXMessage extends HighPriorityDistributionMessage
    *         recently committed transactionMessage if any
    */
   public static FindRemoteTXMessageReplyProcessor send(Cache cache, TXId txId) {
-    final InternalDistributedSystem system =
+    final var system =
         (InternalDistributedSystem) cache.getDistributedSystem();
-    DistributionManager dm = system.getDistributionManager();
+    var dm = system.getDistributionManager();
     Set recipients = dm.getOtherDistributionManagerIds();
-    FindRemoteTXMessageReplyProcessor processor =
+    var processor =
         new FindRemoteTXMessageReplyProcessor(dm, recipients, txId);
-    FindRemoteTXMessage msg = new FindRemoteTXMessage(txId, processor.getProcessorId(), recipients);
+    var msg = new FindRemoteTXMessage(txId, processor.getProcessorId(), recipients);
     dm.putOutgoing(msg);
     return processor;
   }
@@ -92,21 +91,21 @@ public class FindRemoteTXMessage extends HighPriorityDistributionMessage
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    boolean sendReply = true;
+    var sendReply = true;
     Throwable thr = null;
     try {
       if (logger.isDebugEnabled()) {
         logger.debug("processing {}", this);
       }
-      FindRemoteTXMessageReply reply = new FindRemoteTXMessageReply();
-      InternalCache cache = dm.getCache();
+      var reply = new FindRemoteTXMessageReply();
+      var cache = dm.getCache();
       if (cache != null) {
-        TXManagerImpl mgr = (TXManagerImpl) cache.getCacheTransactionManager();
+        var mgr = (TXManagerImpl) cache.getCacheTransactionManager();
         mgr.waitForCompletingTransaction(txId); // in case there is a lost commit going on
         reply.isHostingTx = mgr.isHostedTxInProgress(txId) || mgr.isHostedTxRecentlyCompleted(txId);
         if (!reply.isHostingTx) {
           // lookup in CMTTracker if a partial commit message exists
-          TXCommitMessage partialMessage = TXCommitMessage.getTracker().getTXCommitMessage(txId);
+          var partialMessage = TXCommitMessage.getTracker().getTXCommitMessage(txId);
           if (partialMessage != null) {
             reply.txCommitMessage = partialMessage;
             reply.isPartialCommitMessage = true;
@@ -139,7 +138,7 @@ public class FindRemoteTXMessage extends HighPriorityDistributionMessage
         thr = t;
       }
     } finally {
-      ReplySender rs = getReplySender(dm);
+      var rs = getReplySender(dm);
       if (sendReply && (processorId != 0 || (rs != dm))) {
         ReplyException rex = null;
         if (thr != null) {
@@ -152,8 +151,8 @@ public class FindRemoteTXMessage extends HighPriorityDistributionMessage
 
   @Override
   public String toString() {
-    StringBuilder buff = new StringBuilder();
-    String className = getClass().getName();
+    var buff = new StringBuilder();
+    var className = getClass().getName();
     buff.append(className.substring(
         className.indexOf(PartitionMessage.PN_TOKEN) + PartitionMessage.PN_TOKEN.length())); // partition.<foo>
     buff.append("(txId=").append(txId).append("; sender=").append(getSender())
@@ -194,7 +193,7 @@ public class FindRemoteTXMessage extends HighPriorityDistributionMessage
     @Override
     public void process(DistributionMessage msg) {
       if (msg instanceof FindRemoteTXMessageReply) {
-        FindRemoteTXMessageReply reply = (FindRemoteTXMessageReply) msg;
+        var reply = (FindRemoteTXMessageReply) msg;
         if (reply.isHostingTx) {
           hostingMember = msg.getSender();
         } else if (reply.isPartialCommitMessage) {
@@ -225,7 +224,7 @@ public class FindRemoteTXMessage extends HighPriorityDistributionMessage
         return txCommit;
       }
       if (!partialCommitMessages.isEmpty()) {
-        TXCommitMessage localTXMessage = TXCommitMessage.getTracker().getTXCommitMessage(txId);
+        var localTXMessage = TXCommitMessage.getTracker().getTXCommitMessage(txId);
         if (localTXMessage != null) {
           partialCommitMessages.add(localTXMessage);
         }
@@ -262,7 +261,7 @@ public class FindRemoteTXMessage extends HighPriorityDistributionMessage
         SerializationContext context) throws IOException {
       super.toData(out, context);
       out.writeBoolean(isHostingTx);
-      boolean sendTXCommitMessage = txCommitMessage != null;
+      var sendTXCommitMessage = txCommitMessage != null;
       out.writeBoolean(sendTXCommitMessage);
       if (sendTXCommitMessage) {
         out.writeBoolean(isPartialCommitMessage);

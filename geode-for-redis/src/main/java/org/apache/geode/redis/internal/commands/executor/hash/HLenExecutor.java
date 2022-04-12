@@ -19,7 +19,6 @@ import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.data.RedisHash;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 /**
@@ -40,7 +39,7 @@ public class HLenExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    RedisKey key = command.getKey();
+    var key = command.getKey();
     int len = context.hashLockedExecute(key, true, RedisHash::hlen);
 
     return RedisResponse.integer(len);

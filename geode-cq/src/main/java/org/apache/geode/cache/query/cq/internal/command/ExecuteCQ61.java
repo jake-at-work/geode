@@ -33,20 +33,11 @@ import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.DefaultQueryService;
 import org.apache.geode.cache.query.internal.cq.CqServiceProvider;
 import org.apache.geode.distributed.internal.DistributionStats;
-import org.apache.geode.internal.cache.tier.Acceptor;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
-import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.cache.vmotion.VMotionObserver;
 import org.apache.geode.internal.cache.vmotion.VMotionObserverHolder;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -73,26 +64,26 @@ public class ExecuteCQ61 extends BaseCQCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start)
       throws IOException, InterruptedException {
-    Acceptor acceptor = serverConnection.getAcceptor();
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    ClientProxyMembershipID id = serverConnection.getProxyID();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var acceptor = serverConnection.getAcceptor();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var id = serverConnection.getProxyID();
+    var stats = serverConnection.getCacheServerStats();
 
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE);
 
     // Retrieve the data from the message parts
-    String cqName = clientMessage.getPart(0).getString();
-    String cqQueryString = clientMessage.getPart(1).getString();
-    int cqState = clientMessage.getPart(2).getInt();
+    var cqName = clientMessage.getPart(0).getString();
+    var cqQueryString = clientMessage.getPart(1).getString();
+    var cqState = clientMessage.getPart(2).getInt();
 
-    Part isDurablePart = clientMessage.getPart(3);
-    byte[] isDurableByte = isDurablePart.getSerializedForm();
-    boolean isDurable = !(isDurableByte == null || isDurableByte[0] == 0);
+    var isDurablePart = clientMessage.getPart(3);
+    var isDurableByte = isDurablePart.getSerializedForm();
+    var isDurable = !(isDurableByte == null || isDurableByte[0] == 0);
     // region data policy
-    Part regionDataPolicyPart = clientMessage.getPart(clientMessage.getNumberOfParts() - 1);
-    byte[] regionDataPolicyPartBytes = regionDataPolicyPart.getSerializedForm();
-    final DataPolicy regionDataPolicy = DataPolicy.fromOrdinal(regionDataPolicyPartBytes[0]);
+    var regionDataPolicyPart = clientMessage.getPart(clientMessage.getNumberOfParts() - 1);
+    var regionDataPolicyPartBytes = regionDataPolicyPart.getSerializedForm();
+    final var regionDataPolicy = DataPolicy.fromOrdinal(regionDataPolicyPartBytes[0]);
 
     if (logger.isDebugEnabled()) {
       logger.debug("{}: Received {} request from {} CqName: {} queryString: {}",
@@ -101,12 +92,12 @@ public class ExecuteCQ61 extends BaseCQCommand {
     }
 
     // Check if the Server is running in NotifyBySubscription=true mode.
-    CacheClientNotifier ccn = acceptor.getCacheClientNotifier();
+    var ccn = acceptor.getCacheClientNotifier();
     if (ccn != null) {
-      CacheClientProxy proxy = ccn.getClientProxy(id);
+      var proxy = ccn.getClientProxy(id);
       if (proxy != null && !proxy.isNotifyBySubscription()) {
         // This should have been taken care at the client.
-        String err =
+        var err =
             "Server notifyBySubscription mode is set to false. CQ execution is not supported in this mode.";
         sendCqResponse(MessageType.CQDATAERROR_MSG_TYPE, err, clientMessage.getTransactionId(),
             null, serverConnection);
@@ -125,12 +116,12 @@ public class ExecuteCQ61 extends BaseCQCommand {
       qService = (DefaultQueryService) crHelper.getCache().getLocalQueryService();
 
       // Authorization check
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       query = qService.newQuery(cqQueryString);
       cqRegionNames = ((DefaultQuery) query).getRegionsInQuery(null);
       if (authzRequest != null) {
         executeCQContext = authzRequest.executeCQAuthorize(cqName, cqQueryString, cqRegionNames);
-        String newCqQueryString = executeCQContext.getQuery();
+        var newCqQueryString = executeCQContext.getQuery();
 
         if (!cqQueryString.equals(newCqQueryString)) {
           query = qService.newQuery(newCqQueryString);
@@ -148,7 +139,7 @@ public class ExecuteCQ61 extends BaseCQCommand {
 
       // test hook to trigger vMotion during CQ registration
       if (CqServiceProvider.VMOTION_DURING_CQ_REGISTRATION_FLAG) {
-        VMotionObserver vmo = VMotionObserverHolder.getInstance();
+        var vmo = VMotionObserverHolder.getInstance();
         vmo.vMotionBeforeCQRegistration();
       }
 
@@ -170,12 +161,12 @@ public class ExecuteCQ61 extends BaseCQCommand {
       return;
     }
 
-    final boolean sendResults =
+    final var sendResults =
         clientMessage.getMessageType() == MessageType.EXECUTECQ_WITH_IR_MSG_TYPE;
 
     // Execute the query only if it is execute with initial results or
     // if it is a non PR query with execute query and maintain keys flags set
-    boolean successQuery = false;
+    var successQuery = false;
     if (sendResults || CqServiceImpl.EXECUTE_QUERY_DURING_INIT && CqServiceProvider.MAINTAIN_KEYS
         && !cqQuery.isPR()) {
       // Execute the query and send the result-set to client.
@@ -214,7 +205,7 @@ public class ExecuteCQ61 extends BaseCQCommand {
           "cq created successfully.",
           clientMessage.getTransactionId(), null, serverConnection);
 
-      long start2 = DistributionStats.getStatTime();
+      var start2 = DistributionStats.getStatTime();
       stats.incProcessCreateCqTime(start2 - start);
     }
     serverConnection.setAsTrue(RESPONDED);

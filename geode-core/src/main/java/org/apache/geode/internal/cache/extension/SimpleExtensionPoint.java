@@ -73,13 +73,13 @@ public class SimpleExtensionPoint<T> implements ExtensionPoint<T> {
   }
 
   public void beforeCreate(final Cache cache) {
-    for (final Extension<T> extension : extensions) {
+    for (final var extension : extensions) {
       extension.beforeCreate(extensible, cache);
     }
   }
 
   public void fireCreate(final Extensible<T> newTarget) {
-    for (final Extension<T> extension : extensions) {
+    for (final var extension : extensions) {
       extension.onCreate(extensible, newTarget);
     }
   }

@@ -19,7 +19,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.internal.cache.ColocationHelper;
 import org.apache.geode.internal.cache.PRHARedundancyProvider;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegion.RecoveryLock;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -57,9 +56,9 @@ public class CreateMissingBucketsTask extends RecoveryRunnable {
         || redundancyProvider.getPartitionedRegion().isClosed)
       return;
 
-    PartitionedRegion leaderRegion =
+    var leaderRegion =
         ColocationHelper.getLeaderRegion(redundancyProvider.getPartitionedRegion());
-    RecoveryLock lock = leaderRegion.getRecoveryLock();
+    var lock = leaderRegion.getRecoveryLock();
     lock.lock();
     try {
       createMissingBuckets(redundancyProvider.getPartitionedRegion());
@@ -69,7 +68,7 @@ public class CreateMissingBucketsTask extends RecoveryRunnable {
   }
 
   protected void createMissingBuckets(PartitionedRegion region) {
-    PartitionedRegion parentRegion = ColocationHelper.getColocatedRegion(region);
+    var parentRegion = ColocationHelper.getColocatedRegion(region);
     if (parentRegion == null) {
       return;
     }
@@ -78,7 +77,7 @@ public class CreateMissingBucketsTask extends RecoveryRunnable {
     // before we create missing buckets for this child region.
     createMissingBuckets(parentRegion);
 
-    for (int i = 0; i < region.getTotalNumberOfBuckets(); i++) {
+    for (var i = 0; i < region.getTotalNumberOfBuckets(); i++) {
       if (region.isClosed || region.isLocallyDestroyed) {
         return;
       }
@@ -94,13 +93,13 @@ public class CreateMissingBucketsTask extends RecoveryRunnable {
    * Wait for Colocation to complete. Wait all nodes to Register this PartitionedRegion.
    */
   protected boolean waitForColocationCompleted(PartitionedRegion partitionedRegion) {
-    int sleepInterval = PartitionedRegionHelper.DEFAULT_WAIT_PER_RETRY_ITERATION;
+    var sleepInterval = PartitionedRegionHelper.DEFAULT_WAIT_PER_RETRY_ITERATION;
 
     while (!ColocationHelper.isColocationComplete(partitionedRegion)
         && (retryCount < MAX_NUMBER_INTERVALS)) {
 
       // Didn't time out. Sleep a bit and then continue
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         logger.info("Waiting for collocation to complete, retry number {}", retryCount);
         Thread.sleep(sleepInterval);

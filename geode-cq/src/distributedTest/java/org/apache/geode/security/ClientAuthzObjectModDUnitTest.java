@@ -71,16 +71,16 @@ public class ClientAuthzObjectModDUnitTest extends ClientAuthorizationTestCase {
 
   @Test
   public void testAllOpsObjectModWithFailover() throws Exception {
-    OperationWithAction[] allOps = allOps();
+    var allOps = allOps();
 
-    TestPostCredentialGenerator tgen = new TestPostCredentialGenerator();
+    var tgen = new TestPostCredentialGenerator();
 
     CredentialGenerator credentialGenerator = new DummyCredentialGenerator();
     credentialGenerator.init();
-    Properties extraProps = credentialGenerator.getSystemProperties();
-    Properties javaProps = credentialGenerator.getJavaProperties();
-    String authInit = credentialGenerator.getAuthInit();
-    String authenticator = credentialGenerator.getAuthenticator();
+    var extraProps = credentialGenerator.getSystemProperties();
+    var javaProps = credentialGenerator.getJavaProperties();
+    var authInit = credentialGenerator.getAuthInit();
+    var authenticator = credentialGenerator.getAuthenticator();
 
     System.out.println("testPutsGetsObjectModWithFailover: Using authinit: " + authInit);
     System.out.println("testPutsGetsObjectModWithFailover: Using authenticator: " + authenticator);
@@ -90,21 +90,21 @@ public class ClientAuthzObjectModDUnitTest extends ClientAuthorizationTestCase {
         + POST_ACCESSOR_CREATE);
 
     // Start servers with all required properties
-    Properties serverProps =
+    var serverProps =
         buildProperties(authenticator, extraProps, PRE_ACCESSOR_CREATE, POST_ACCESSOR_CREATE);
 
     // Get ports for the servers
-    int[] portsList = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int port1 = 0; // portsList[0];
-    int port2 = portsList[1];
+    var portsList = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var port1 = 0; // portsList[0];
+    var port2 = portsList[1];
 
     // Perform all the ops on the clients
     List<OperationWithAction> opBlock = new ArrayList();
-    Random rnd = new Random();
+    var rnd = new Random();
 
-    for (int opNum = 0; opNum < allOps.length; ++opNum) {
+    for (var opNum = 0; opNum < allOps.length; ++opNum) {
       // Start client with valid credentials as specified in OperationWithAction
-      OperationWithAction currentOp = allOps[opNum];
+      var currentOp = allOps[opNum];
       if (currentOp.equals(OperationWithAction.OPBLOCK_END)
           || currentOp.equals(OperationWithAction.OPBLOCK_NO_FAILOVER)) {
         // End of current operation block; execute all the operations on the servers with failover
@@ -248,7 +248,7 @@ public class ClientAuthzObjectModDUnitTest extends ClientAuthorizationTestCase {
 
   private Properties buildProperties(final String authenticator, final Properties extraProps,
       final String preAccessor, final String postAccessor) {
-    Properties authProps = new Properties();
+    var authProps = new Properties();
     if (authenticator != null) {
       authProps.setProperty(ConfigurationProperties.SECURITY_CLIENT_AUTHENTICATOR, authenticator);
     }
@@ -287,12 +287,12 @@ public class ClientAuthzObjectModDUnitTest extends ClientAuthorizationTestCase {
     @Override
     public Properties getAllowedCredentials(final OperationCode[] opCodes,
         final String[] regionNames, final int[] keyIndices, final int num) {
-      int userIndex = 1;
-      byte role = DummyAuthzCredentialGenerator.getRequiredRole(opCodes);
+      var userIndex = 1;
+      var role = DummyAuthzCredentialGenerator.getRequiredRole(opCodes);
       if (role == DummyAuthzCredentialGenerator.READER_ROLE) {
         userIndex = keyIndices[0] + 1;
       }
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(UserPasswordAuthInit.USER_NAME, "user" + userIndex);
       props.setProperty(UserPasswordAuthInit.PASSWORD, "user" + userIndex);
       return props;
@@ -301,14 +301,14 @@ public class ClientAuthzObjectModDUnitTest extends ClientAuthorizationTestCase {
     @Override
     public Properties getDisallowedCredentials(final OperationCode[] opCodes,
         final String[] regionNames, final int[] keyIndices, final int num) {
-      int userIndex = 0;
-      for (int index = 0; index < keyIndices.length; ++index) {
+      var userIndex = 0;
+      for (var index = 0; index < keyIndices.length; ++index) {
         if (keyIndices[index] != index) {
           userIndex = index + 1;
           break;
         }
       }
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(UserPasswordAuthInit.USER_NAME, "gemfire" + userIndex);
       props.setProperty(UserPasswordAuthInit.PASSWORD, "gemfire" + userIndex);
       return props;

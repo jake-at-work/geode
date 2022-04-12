@@ -118,7 +118,7 @@ public class RemoteOperationResponseTest {
   @Test
   public void waitForRemoteResponseWithReplyExceptionWithNoCauseCallsHandleCause()
       throws Exception {
-    ReplyException replyException = mock(ReplyException.class);
+    var replyException = mock(ReplyException.class);
     doThrow(replyException).when(replyProcessor).waitForRepliesUninterruptibly();
 
     replyProcessor.waitForRemoteResponse();
@@ -129,8 +129,8 @@ public class RemoteOperationResponseTest {
   @Test
   public void waitForRemoteResponseWithReplyExceptionWithUnhandledCauseCallsHandleCause()
       throws Exception {
-    ReplyException replyException = mock(ReplyException.class);
-    RuntimeException cause = mock(RuntimeException.class);
+    var replyException = mock(ReplyException.class);
+    var cause = mock(RuntimeException.class);
     when(replyException.getCause()).thenReturn(cause);
     doThrow(replyException).when(replyProcessor).waitForRepliesUninterruptibly();
 
@@ -142,8 +142,8 @@ public class RemoteOperationResponseTest {
   @Test
   public void waitForRemoteResponseWithReplyExceptionWithRemoteOperationExceptionCauseThrowsThatCause()
       throws Exception {
-    ReplyException replyException = mock(ReplyException.class);
-    RemoteOperationException cause = new RemoteOperationException("msg");
+    var replyException = mock(ReplyException.class);
+    var cause = new RemoteOperationException("msg");
     when(replyException.getCause()).thenReturn(cause);
     doThrow(replyException).when(replyProcessor).waitForRepliesUninterruptibly();
 
@@ -153,8 +153,8 @@ public class RemoteOperationResponseTest {
   @Test
   public void waitForRemoteResponseWithReplyExceptionWithCancelExceptionnCauseThrowsRemoteOperationException()
       throws Exception {
-    ReplyException replyException = mock(ReplyException.class);
-    CancelException cause = mock(CancelException.class);
+    var replyException = mock(ReplyException.class);
+    var cause = mock(CancelException.class);
     when(replyException.getCause()).thenReturn(cause);
     doThrow(replyException).when(replyProcessor).waitForRepliesUninterruptibly();
 

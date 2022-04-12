@@ -15,7 +15,6 @@
 
 package org.apache.geode.cache.query.internal;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 
@@ -150,8 +149,8 @@ public class RuntimeIterator extends AbstractCompiledValue {
     // first handle structs
     if ((elementType instanceof StructType) && !mustBeMethod) {
       // check field names
-      String[] fieldName = ((StructType) elementType).getFieldNames();
-      for (String s : fieldName) {
+      var fieldName = ((StructType) elementType).getFieldNames();
+      for (var s : fieldName) {
         if (name.equals(s)) {
           return true;
         }
@@ -173,8 +172,8 @@ public class RuntimeIterator extends AbstractCompiledValue {
       // here, only check for a method with the same number of arguments.
       // we'll check for ambiguous method invocation when the method is
       // actually fully resolved and invoked
-      Method[] methods = clazz.getMethods();
-      for (Method m : methods) {
+      var methods = clazz.getMethods();
+      for (var m : methods) {
         if (m.getName().equals(name) && m.getParameterTypes().length == numArgs) {
           return true;
         }
@@ -230,7 +229,7 @@ public class RuntimeIterator extends AbstractCompiledValue {
   public void generateCanonicalizedExpression(StringBuilder clauseBuffer,
       ExecutionContext context) {
     // prepend the internal iterator variable name for this RunTimeIterator
-    int currScopeID = context.currentScope().getScopeID();
+    var currScopeID = context.currentScope().getScopeID();
     if (currScopeID == scopeID) {
       // should have been set at this point
       clauseBuffer.insert(0, index_internal_id == null ? internalId : index_internal_id);

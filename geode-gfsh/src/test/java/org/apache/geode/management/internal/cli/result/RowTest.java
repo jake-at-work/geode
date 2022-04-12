@@ -23,18 +23,18 @@ public class RowTest {
 
   @Test
   public void isEmptyIsTrueByDefault() {
-    Row row = new Row(mock(RowGroup.class), mock(Screen.class));
+    var row = new Row(mock(RowGroup.class), mock(Screen.class));
 
-    boolean value = row.isEmpty();
+    var value = row.isEmpty();
 
     assertThat(value).isTrue();
   }
 
   @Test
   public void getNumColsIsZeroByDefault() {
-    Row row = new Row(mock(RowGroup.class), mock(Screen.class));
+    var row = new Row(mock(RowGroup.class), mock(Screen.class));
 
-    int value = row.getNumCols();
+    var value = row.getNumCols();
 
     assertThat(value).isZero();
   }

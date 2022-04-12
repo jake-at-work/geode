@@ -80,7 +80,7 @@ public class DiskStoreBackup {
   }
 
   synchronized void cleanup() {
-    for (Oplog oplog : getPendingBackup()) {
+    for (var oplog : getPendingBackup()) {
       backupFinished(oplog);
     }
   }

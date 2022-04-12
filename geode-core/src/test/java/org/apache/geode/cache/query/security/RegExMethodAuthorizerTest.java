@@ -111,7 +111,7 @@ public class RegExMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnFalseForKnownDangerousMethods() throws Exception {
-    TestBean testBean = new TestBean();
+    var testBean = new TestBean();
     List<Method> dangerousMethods = new ArrayList<>();
     dangerousMethods.add(TestBean.class.getMethod("getClass"));
     dangerousMethods.add(TestBean.class.getMethod("readResolve"));
@@ -150,7 +150,7 @@ public class RegExMethodAuthorizerTest {
   @Test
   public void authorizeShouldReturnFalseWheneverTheSecurityServiceDoesNotAllowOperationsOnTheRegion()
       throws Exception {
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     Region localRegion = mock(LocalRegion.class);
     Region partitionedRegion = mock(PartitionedRegion.class);
     when(region.getName()).thenReturn("testRegion");
@@ -176,7 +176,7 @@ public class RegExMethodAuthorizerTest {
   @Test
   public void authorizeShouldReturnTrueForMapMethodsOnRegionInstancesWheneverTheSecurityServiceAllowsOperationsOnTheRegion()
       throws Exception {
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     Region localRegion = mock(LocalRegion.class);
     Region partitionedRegion = mock(PartitionedRegion.class);
 
@@ -208,7 +208,7 @@ public class RegExMethodAuthorizerTest {
     someSafeMethods.add(new Pair<>(Map.Entry.class.getMethod("getKey"), mock(Map.Entry.class)));
     someSafeMethods
         .add(new Pair<>(Map.class.getMethod("get", Object.class), Collections.emptyMap()));
-    RegExMethodAuthorizer authorizer = new RegExMethodAuthorizer(
+    var authorizer = new RegExMethodAuthorizer(
         new RestrictedMethodAuthorizer(mockCache), Collections.emptySet());
 
     someSafeMethods.forEach(pair -> assertThat(authorizer.authorize(pair.getX(), pair.getY()))
@@ -227,7 +227,7 @@ public class RegExMethodAuthorizerTest {
         new Pair<>(Map.Entry.class.getMethod("setValue", Object.class), mock(Map.Entry.class)));
     someNonSafeMethods.add(
         new Pair<>(Map.class.getMethod("put", Object.class, Object.class), Collections.emptyMap()));
-    RegExMethodAuthorizer authorizer = new RegExMethodAuthorizer(
+    var authorizer = new RegExMethodAuthorizer(
         new RestrictedMethodAuthorizer(mockCache), Collections.emptySet());
 
     someNonSafeMethods.forEach(pair -> assertThat(authorizer.authorize(pair.getX(), pair.getY()))
@@ -236,11 +236,11 @@ public class RegExMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnTrueForMatchingMethods() throws Exception {
-    RestrictedMethodAuthorizer defaultAuthorizer = new RestrictedMethodAuthorizer(mockCache);
+    var defaultAuthorizer = new RestrictedMethodAuthorizer(mockCache);
     Set<String> regularExpressions =
         new HashSet<>(Arrays.asList("^java\\.lang\\..*\\.(?:wait|notify)",
             "^java\\.util\\..*\\.(?:set|put|add).*", ".*MockitoMock.*"));
-    RegExMethodAuthorizer customAuthorizer =
+    var customAuthorizer =
         new RegExMethodAuthorizer(defaultAuthorizer, regularExpressions);
 
     Set<Pair<Method, Object>> someNonSafeMethods = new HashSet<>();

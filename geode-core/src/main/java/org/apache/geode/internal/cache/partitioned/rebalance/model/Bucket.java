@@ -149,7 +149,7 @@ public class Bucket implements Comparable<Bucket> {
     if (!(other instanceof Bucket)) {
       return false;
     }
-    Bucket o = (Bucket) other;
+    var o = (Bucket) other;
     return id == o.id;
   }
 

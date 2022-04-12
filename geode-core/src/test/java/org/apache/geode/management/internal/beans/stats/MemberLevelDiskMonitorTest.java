@@ -52,10 +52,10 @@ public class MemberLevelDiskMonitorTest {
 
   @Before
   public void setUp() {
-    final long startTime = System.currentTimeMillis();
-    TestStatisticsManager manager =
+    final var startTime = System.currentTimeMillis();
+    var manager =
         new TestStatisticsManager(1, getClass().getSimpleName(), startTime);
-    StatArchiveHandlerConfig mockStatArchiveHandlerConfig = mock(StatArchiveHandlerConfig.class,
+    var mockStatArchiveHandlerConfig = mock(StatArchiveHandlerConfig.class,
         getClass().getSimpleName() + "$" + StatArchiveHandlerConfig.class.getSimpleName());
     when(mockStatArchiveHandlerConfig.getArchiveFileName()).thenReturn(new File(""));
     when(mockStatArchiveHandlerConfig.getArchiveFileSizeLimit()).thenReturn(0L);
@@ -67,7 +67,7 @@ public class MemberLevelDiskMonitorTest {
         .thenReturn(getClass().getSimpleName());
 
     StatisticsSampler sampler = new TestStatisticsSampler(manager);
-    SampleCollector sampleCollector = new SampleCollector(sampler);
+    var sampleCollector = new SampleCollector(sampler);
     sampleCollector.initialize(mockStatArchiveHandlerConfig, NanoTimer.getTime(),
         new MainWithChildrenRollingFileHandler());
     memberLevelDiskMonitor = spy(new MemberLevelDiskMonitor(testName.getMethodName()));
@@ -165,7 +165,7 @@ public class MemberLevelDiskMonitorTest {
 
   @Test
   public void addStatisticsToMonitorShouldAddListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
+    var statistics = mock(Statistics.class);
     memberLevelDiskMonitor.addStatisticsToMonitor(statistics);
 
     assertThat(memberLevelDiskMonitor.getMonitors().size()).isEqualTo(1);
@@ -174,9 +174,9 @@ public class MemberLevelDiskMonitorTest {
 
   @Test
   public void stopListenerShouldRemoveListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
-    ValueMonitor regionMonitor = mock(ValueMonitor.class);
-    MemberLevelDiskMonitor.MemberLevelDiskStatisticsListener listener =
+    var statistics = mock(Statistics.class);
+    var regionMonitor = mock(ValueMonitor.class);
+    var listener =
         mock(MemberLevelDiskMonitor.MemberLevelDiskStatisticsListener.class);
     memberLevelDiskMonitor.getListeners().put(statistics, listener);
     memberLevelDiskMonitor.getMonitors().put(statistics, regionMonitor);
@@ -216,9 +216,9 @@ public class MemberLevelDiskMonitorTest {
 
   @Test
   public void removeStatisticsFromMonitorShouldRemoveListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
-    ValueMonitor regionMonitor = mock(ValueMonitor.class);
-    MemberLevelDiskMonitor.MemberLevelDiskStatisticsListener listener =
+    var statistics = mock(Statistics.class);
+    var regionMonitor = mock(ValueMonitor.class);
+    var listener =
         mock(MemberLevelDiskMonitor.MemberLevelDiskStatisticsListener.class);
     memberLevelDiskMonitor.getListeners().put(statistics, listener);
     memberLevelDiskMonitor.getMonitors().put(statistics, regionMonitor);
@@ -233,7 +233,7 @@ public class MemberLevelDiskMonitorTest {
 
   @Test
   public void decreaseDiskStoreStatsShouldNotThrowNPE() {
-    Statistics statistics = mock(Statistics.class);
+    var statistics = mock(Statistics.class);
     memberLevelDiskMonitor.addStatisticsToMonitor(statistics);
     memberLevelDiskMonitor.getListeners().values().forEach(
         MemberLevelDiskMonitor.MemberLevelDiskStatisticsListener::decreaseDiskStoreStats);

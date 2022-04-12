@@ -76,7 +76,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
   public final void postSetUp() throws Exception {
     JUnit4DistributedTestCase.disconnectAllFromDS();
 
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     managingNode = host.getVM(0);
     managedNode1 = host.getVM(1);
     managedNode2 = host.getVM(2);
@@ -122,12 +122,12 @@ public abstract class ManagementTestBase extends CacheTestCase {
     if (managingNodeFirst) {
       createManagementCache(managingNode);
       startManagingNode(managingNode);
-      for (VM vm : managedNodeList) {
+      for (var vm : managedNodeList) {
         createCache(vm);
       }
 
     } else {
-      for (VM vm : managedNodeList) {
+      for (var vm : managedNodeList) {
         createCache(vm);
       }
       createManagementCache(managingNode);
@@ -154,7 +154,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
   }
 
   protected Cache createCache(final boolean isManager) {
-    Properties props = new Properties();
+    var props = new Properties();
 
     if (isManager) {
       props.setProperty(JMX_MANAGER, "true");
@@ -185,7 +185,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
       if (existingInstance != null) {
         existingInstance.close();
       }
-      InternalDistributedSystem ds = InternalDistributedSystem.getConnectedInstance();
+      var ds = InternalDistributedSystem.getConnectedInstance();
       if (ds != null) {
         ds.disconnect();
       }
@@ -209,7 +209,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
 
       @Override
       public boolean done() {
-        SystemManagementService service = (SystemManagementService) managementService;
+        var service = (SystemManagementService) managementService;
         return service.getMBeanProxy(objectName, interfaceClass) != null;
       }
     });
@@ -222,7 +222,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
     vm.invoke("Start Being Managing Node", () -> {
       Cache existingCache = GemFireCacheImpl.getInstance();
       managementService = ManagementService.getManagementService(existingCache);
-      SystemManagementService service = (SystemManagementService) managementService;
+      var service = (SystemManagementService) managementService;
       service.createManager();
       service.startManager();
     });
@@ -260,7 +260,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
   protected void createLocalRegion(final VM vm, final String localRegionName) {
     vm.invoke("Create Local region", () -> {
       InternalCache cache = GemFireCacheImpl.getInstance();
-      SystemManagementService service = (SystemManagementService) getManagementService();
+      var service = (SystemManagementService) getManagementService();
       RegionFactory factory = cache.createRegionFactory(RegionShortcut.LOCAL);
       factory.create(localRegionName);
     });
@@ -272,7 +272,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
   protected void createPartitionRegion(final VM vm, final String partitionRegionName) {
     vm.invoke("Create Partitioned region", () -> {
       InternalCache cache = GemFireCacheImpl.getInstance();
-      SystemManagementService service = (SystemManagementService) getManagementService();
+      var service = (SystemManagementService) getManagementService();
       RegionFactory factory = cache.createRegionFactory(RegionShortcut.PARTITION_REDUNDANT);
       factory.create(partitionRegionName);
     });
@@ -280,7 +280,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
 
   protected static void waitForRefresh(final int expectedRefreshCount,
       final ObjectName objectName) {
-    ManagementService service = getManagementService();
+    var service = getManagementService();
 
     GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
 
@@ -294,7 +294,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
 
       @Override
       public boolean done() {
-        long newRefreshTime = service.getLastUpdateTime(objectName);
+        var newRefreshTime = service.getLastUpdateTime(objectName);
         if (newRefreshTime > lastRefreshTime) {
           lastRefreshTime = newRefreshTime;
           actualRefreshCount++;
@@ -306,7 +306,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
   }
 
   protected DistributedMember getMember(final VM vm) {
-    SerializableCallable getMember = new SerializableCallable("Get Member") {
+    var getMember = new SerializableCallable("Get Member") {
       @Override
       public Object call() {
         InternalCache cache = GemFireCacheImpl.getInstance();
@@ -317,7 +317,7 @@ public abstract class ManagementTestBase extends CacheTestCase {
   }
 
   protected <T> T getMBeanProxy(final ObjectName objectName, final Class<T> interfaceClass) {
-    SystemManagementService service =
+    var service =
         (SystemManagementService) ManagementService.getManagementService(getCache());
     return service.getMBeanProxy(objectName, interfaceClass);
   }

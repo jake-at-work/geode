@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.security.GeneralSecurityException;
-import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,8 +38,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
 import org.apache.geode.cache.ssl.CertificateMaterial;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
-import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.internal.GatewaySenderEventRemoteDispatcher;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
@@ -74,23 +71,23 @@ public class WANHostNameVerificationDistributedTest {
       CertificateMaterial server_ln_cert,
       CertificateMaterial locator_ny_cert, CertificateMaterial server_ny_cert)
       throws GeneralSecurityException, IOException {
-    CertStores locator_ln_store = new CertStores("ln_locator");
+    var locator_ln_store = new CertStores("ln_locator");
     locator_ln_store.withCertificate("ln_locator", locator_ln_cert);
     locator_ln_store.trust("ca", ca);
 
-    CertStores server_ln_store = new CertStores("ln_server");
+    var server_ln_store = new CertStores("ln_server");
     server_ln_store.withCertificate("ln_server", server_ln_cert);
     server_ln_store.trust("ca", ca);
 
-    CertStores locator_ny_store = new CertStores("ny_locator");
+    var locator_ny_store = new CertStores("ny_locator");
     locator_ny_store.withCertificate("ny_locator", locator_ny_cert);
     locator_ny_store.trust("ca", ca);
 
-    CertStores server_ny_store = new CertStores("ny_server");
+    var server_ny_store = new CertStores("ny_server");
     server_ny_store.withCertificate("ny_server", server_ny_cert);
     server_ny_store.trust("ca", ca);
 
-    int site1Port =
+    var site1Port =
         setupWanSite1(locator_ln_store, server_ln_store);
     setupWanSite2(site1Port, locator_ny_store, server_ny_store);
   }
@@ -98,10 +95,10 @@ public class WANHostNameVerificationDistributedTest {
   private int setupWanSite1(CertStores locator_ln_store, CertStores server_ln_store)
       throws GeneralSecurityException, IOException {
 
-    Properties locatorSSLProps = locator_ln_store
+    var locatorSSLProps = locator_ln_store
         .propertiesWith(ALL, true, true);
 
-    Properties serverSSLProps = server_ln_store
+    var serverSSLProps = server_ln_store
         .propertiesWith(ALL, true, true);
 
     // create a cluster
@@ -128,14 +125,14 @@ public class WANHostNameVerificationDistributedTest {
       CertStores server_ny_store)
       throws GeneralSecurityException, IOException {
 
-    Properties locator_ny_props = locator_ny_store
+    var locator_ny_props = locator_ny_store
         .propertiesWith(ALL, true, true);
 
     locator_ny_props.setProperty(MCAST_PORT, "0");
     locator_ny_props.setProperty(DISTRIBUTED_SYSTEM_ID, "2");
     locator_ny_props.setProperty(REMOTE_LOCATORS, "localhost[" + site1Port + "]");
 
-    Properties server_ny_props = server_ny_store
+    var server_ny_props = server_ny_store
         .propertiesWith(ALL, true, true);
 
     // create a cluster
@@ -157,15 +154,15 @@ public class WANHostNameVerificationDistributedTest {
   }
 
   private static void createGatewayReceiver() {
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
-    GatewayReceiverFactory gwReceiver = getCache().createGatewayReceiverFactory();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var gwReceiver = getCache().createGatewayReceiverFactory();
     gwReceiver.setStartPort(port);
     gwReceiver.setEndPort(port);
     gwReceiver.create();
   }
 
   private static void createGatewaySender() {
-    GatewaySenderFactory gwSender = getCache().createGatewaySenderFactory();
+    var gwSender = getCache().createGatewaySenderFactory();
     gwSender.setBatchSize(1);
     gwSender.create("ln", 2);
   }
@@ -204,12 +201,12 @@ public class WANHostNameVerificationDistributedTest {
     // server-ln -> locator-ny
     // server-ln -> server-ny
 
-    CertificateMaterial ca = new CertificateBuilder()
+    var ca = new CertificateBuilder()
         .commonName("Test CA")
         .isCA()
         .generate();
 
-    CertificateMaterial locator_ln_cert = new CertificateBuilder()
+    var locator_ln_cert = new CertificateBuilder()
         .commonName("locator_ln")
         .issuedBy(ca)
         // ClusterStartupRule uses 'localhost' as locator host
@@ -222,7 +219,7 @@ public class WANHostNameVerificationDistributedTest {
         .sanIpAddress(LocalHostUtil.getLocalHost())
         .generate();
 
-    CertificateMaterial server_ln_cert = new CertificateBuilder()
+    var server_ln_cert = new CertificateBuilder()
         .commonName("server_ln")
         .issuedBy(ca)
         .sanDnsName(InetAddress.getLocalHost().getHostName())
@@ -233,7 +230,7 @@ public class WANHostNameVerificationDistributedTest {
         .sanIpAddress(LocalHostUtil.getLocalHost())
         .generate();
 
-    CertificateMaterial locator_ny_cert = new CertificateBuilder()
+    var locator_ny_cert = new CertificateBuilder()
         .commonName("locator_ny")
         .issuedBy(ca)
         // ClusterStartupRule uses 'localhost' as locator host
@@ -248,7 +245,7 @@ public class WANHostNameVerificationDistributedTest {
         .sanIpAddress(LocalHostUtil.getLocalHost())
         .generate();
 
-    CertificateMaterial server_ny_cert = new CertificateBuilder()
+    var server_ny_cert = new CertificateBuilder()
         .commonName("server_ny")
         .issuedBy(ca)
         .sanDnsName(InetAddress.getLocalHost().getHostName())
@@ -268,33 +265,33 @@ public class WANHostNameVerificationDistributedTest {
 
   @Test
   public void gwsenderFailsToConnectIfGWReceiverHasNoHostName() throws Exception {
-    CertificateMaterial ca = new CertificateBuilder()
+    var ca = new CertificateBuilder()
         .commonName("Test CA")
         .isCA()
         .generate();
 
-    CertificateMaterial gwSenderCertificate = new CertificateBuilder()
+    var gwSenderCertificate = new CertificateBuilder()
         .commonName("gwsender-ln")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial gwReceiverCertificate = new CertificateBuilder()
+    var gwReceiverCertificate = new CertificateBuilder()
         .commonName("gwreceiver-ny")
         .issuedBy(ca)
         .generate();
 
-    CertStores gwSender = new CertStores("gwsender");
+    var gwSender = new CertStores("gwsender");
     gwSender.withCertificate("gwsender", gwSenderCertificate);
     gwSender.trust("ca", ca);
 
-    CertStores gwReceiver = new CertStores("gwreceiver");
+    var gwReceiver = new CertStores("gwreceiver");
     gwReceiver.withCertificate("gwreceiver", gwReceiverCertificate);
     gwReceiver.trust("ca", ca);
 
-    Properties ln_SSLProps = gwSender
+    var ln_SSLProps = gwSender
         .propertiesWith(GATEWAY, true, true);
 
-    Properties ny_SSLProps = gwReceiver
+    var ny_SSLProps = gwReceiver
         .propertiesWith(GATEWAY, true, true);
 
     // create a ln cluster
@@ -328,9 +325,9 @@ public class WANHostNameVerificationDistributedTest {
     server_ny.invoke(WANHostNameVerificationDistributedTest::verifySite2DidNotReceived);
 
     server_ln.invoke(() -> {
-      AbstractGatewaySender gatewaySender =
+      var gatewaySender =
           (AbstractGatewaySender) getCache().getGatewaySender("ln");
-      GatewaySenderEventRemoteDispatcher dispatcher =
+      var dispatcher =
           (GatewaySenderEventRemoteDispatcher) gatewaySender.getEventProcessor().getDispatcher();
       assertThat(dispatcher.isConnectedToRemote()).isFalse();
 

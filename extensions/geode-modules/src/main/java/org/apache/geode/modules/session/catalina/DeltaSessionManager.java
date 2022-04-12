@@ -19,7 +19,6 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -192,7 +191,7 @@ public abstract class DeltaSessionManager<CommitSessionValveT extends AbstractCo
 
   @Override
   public void setMaxActiveSessions(int maxActiveSessions) {
-    int oldMaxActiveSessions = this.maxActiveSessions;
+    var oldMaxActiveSessions = this.maxActiveSessions;
     this.maxActiveSessions = maxActiveSessions;
     support.firePropertyChange("maxActiveSessions", new Integer(oldMaxActiveSessions),
         new Integer(this.maxActiveSessions));
@@ -343,7 +342,7 @@ public abstract class DeltaSessionManager<CommitSessionValveT extends AbstractCo
       getLogger().debug(
           this + ": Finding session " + id + " in " + getSessionCache().getOperatingRegionName());
     }
-    DeltaSessionInterface session = (DeltaSessionInterface) getSessionCache().getSession(id);
+    var session = (DeltaSessionInterface) getSessionCache().getSession(id);
     /*
      * Check that the context name for this session is the same as this manager's. This comes into
      * play when multiple versions of a webapp are deployed and active at the same time; the context
@@ -384,7 +383,7 @@ public abstract class DeltaSessionManager<CommitSessionValveT extends AbstractCo
 
   protected void initializeSessionCache() {
     // Retrieve the cache
-    GemFireCacheImpl cache = (GemFireCacheImpl) getAnyCacheInstance();
+    var cache = (GemFireCacheImpl) getAnyCacheInstance();
     if (cache == null) {
       throw new IllegalStateException(
           "No cache exists. Please configure either a PeerToPeerCacheLifecycleListener or ClientServerCacheLifecycleListener in the server.xml file.");
@@ -415,7 +414,7 @@ public abstract class DeltaSessionManager<CommitSessionValveT extends AbstractCo
   public void remove(Session session) {
     // Remove the session from the region if necessary.
     // It will have already been removed if it expired implicitly.
-    DeltaSessionInterface ds = (DeltaSessionInterface) session;
+    var ds = (DeltaSessionInterface) session;
     if (ds.getExpired()) {
       if (getLogger().isDebugEnabled()) {
         getLogger().debug(this + ": Expired session " + session.getId() + " from "
@@ -474,8 +473,8 @@ public abstract class DeltaSessionManager<CommitSessionValveT extends AbstractCo
    */
   @Override
   public String listSessionIds() {
-    StringBuilder builder = new StringBuilder();
-    Iterator<String> sessionIds = getSessionCache().keySet().iterator();
+    var builder = new StringBuilder();
+    var sessionIds = getSessionCache().keySet().iterator();
     while (sessionIds.hasNext()) {
       builder.append(sessionIds.next());
       if (sessionIds.hasNext()) {
@@ -521,7 +520,7 @@ public abstract class DeltaSessionManager<CommitSessionValveT extends AbstractCo
   }
 
   private void scheduleTouchSessionsTask() {
-    TimerTask task = new TimerTask() {
+    var task = new TimerTask() {
       @Override
       public void run() {
         // Get the sessionIds to touch and clear the set inside synchronization
@@ -548,10 +547,10 @@ public abstract class DeltaSessionManager<CommitSessionValveT extends AbstractCo
   }
 
   private void scheduleDetermineMaxActiveSessionsTask() {
-    TimerTask task = new TimerTask() {
+    var task = new TimerTask() {
       @Override
       public void run() {
-        int currentActiveSessions = 0;
+        var currentActiveSessions = 0;
         try {
           currentActiveSessions = getSessionCache().size();
         } catch (Exception ignore) {
@@ -677,8 +676,8 @@ public abstract class DeltaSessionManager<CommitSessionValveT extends AbstractCo
    * Clear the local cache to avoid ClassCastException if container is being reloaded.
    */
   private void clearLocalCache() {
-    final Log logger = getLogger();
-    final boolean debugEnabled = logger.isDebugEnabled();
+    final var logger = getLogger();
+    final var debugEnabled = logger.isDebugEnabled();
 
     if (getSessionCache().isClientServer()) {
       if (debugEnabled) {

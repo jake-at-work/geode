@@ -25,7 +25,6 @@ import javax.sql.ConnectionEventListener;
 import javax.sql.PooledConnection;
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
@@ -93,7 +92,7 @@ public class GemFireTransactionDataSource extends AbstractDataSource
       provider = new GemFireConnectionPoolManager(xaDS, configs, this);
       transManager = JNDIInvoker.getTransactionManager();
     } catch (Exception ex) {
-      String exception = "GemFireTransactionDataSource::Exception = " + ex;
+      var exception = "GemFireTransactionDataSource::Exception = " + ex;
       if (logger.isDebugEnabled()) {
         logger.debug(exception, ex);
       }
@@ -116,11 +115,11 @@ public class GemFireTransactionDataSource extends AbstractDataSource
     XAConnection xaConn = null;
     try {
       xaConn = (XAConnection) provider.borrowConnection();
-      Connection conn = getSQLConnection(xaConn);
+      var conn = getSQLConnection(xaConn);
       registerTranxConnection(xaConn);
       return conn;
     } catch (Exception ex) {
-      SQLException se = new SQLException(ex.getMessage(), ex);
+      var se = new SQLException(ex.getMessage(), ex);
       throw se;
     }
   }
@@ -149,16 +148,16 @@ public class GemFireTransactionDataSource extends AbstractDataSource
   public void connectionClosed(ConnectionEvent event) {
     if (isActive) {
       try {
-        XAConnection conn = (XAConnection) event.getSource();
-        XAResource xar = (XAResource) xaResourcesMap.get(conn);
+        var conn = (XAConnection) event.getSource();
+        var xar = (XAResource) xaResourcesMap.get(conn);
         xaResourcesMap.remove(conn);
-        Transaction txn = transManager.getTransaction();
+        var txn = transManager.getTransaction();
         if (txn != null && xar != null) {
           txn.delistResource(xar, XAResource.TMSUCCESS);
         }
         provider.returnConnection(conn);
       } catch (Exception e) {
-        String exception =
+        var exception =
             "GemFireTransactionDataSource::connectionClosed: Exception occurred due to " + e;
         if (logger.isDebugEnabled()) {
           logger.debug(exception, e);
@@ -177,10 +176,10 @@ public class GemFireTransactionDataSource extends AbstractDataSource
   public void connectionErrorOccurred(ConnectionEvent event) {
     if (isActive) {
       try {
-        PooledConnection conn = (PooledConnection) event.getSource();
+        var conn = (PooledConnection) event.getSource();
         provider.returnAndExpireConnection(conn);
       } catch (Exception ex) {
-        String exception =
+        var exception =
             "GemFireTransactionDataSource::connectionErrorOccurred: Exception occurred due to "
                 + ex;
         if (logger.isDebugEnabled()) {
@@ -197,16 +196,16 @@ public class GemFireTransactionDataSource extends AbstractDataSource
           transManager = JNDIInvoker.getTransactionManager();
         }
       }
-      Transaction txn = transManager.getTransaction();
+      var txn = transManager.getTransaction();
       if (txn != null) {
-        XAResource xar = xaConn.getXAResource();
+        var xar = xaConn.getXAResource();
         txn.enlistResource(xar);
         // Add in the Map after successful registration of XAResource
         xaResourcesMap.put(xaConn, xar);
       }
     } catch (Exception ex) {
       provider.returnAndExpireConnection(xaConn);
-      Exception e = new Exception(
+      var e = new Exception(
           String.format(
               "GemFireTransactionDataSource-registerTranxConnection(). Exception in registering the XAResource with the Transaction.Exception occurred= %s",
               ex),
@@ -228,7 +227,7 @@ public class GemFireTransactionDataSource extends AbstractDataSource
       provider.returnAndExpireConnection(poolC);
       throw e;
     }
-    boolean val = validateConnection(connection);
+    var val = validateConnection(connection);
     if (val) {
       return connection;
     } else {

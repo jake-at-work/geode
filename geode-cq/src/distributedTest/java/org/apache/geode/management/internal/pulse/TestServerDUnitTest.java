@@ -21,12 +21,9 @@ import org.junit.Test;
 
 import org.apache.geode.cache.query.cq.dunit.CqQueryDUnitTest;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.management.DistributedSystemMXBean;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.ManagementTestBase;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 
 /**
@@ -45,11 +42,11 @@ public class TestServerDUnitTest extends ManagementTestBase {
 
   public static int getNumOfServersFromMBean() {
 
-    final WaitCriterion waitCriteria = new WaitCriterion() {
+    final var waitCriteria = new WaitCriterion() {
       @Override
       public boolean done() {
-        final ManagementService service = getManagementService();
-        final DistributedSystemMXBean bean = service.getDistributedSystemMXBean();
+        final var service = getManagementService();
+        final var bean = service.getDistributedSystemMXBean();
         if (bean != null) {
           return bean.listCacheServers().length > 0;
         }
@@ -63,7 +60,7 @@ public class TestServerDUnitTest extends ManagementTestBase {
     };
 
     GeodeAwaitility.await().untilAsserted(waitCriteria);
-    final DistributedSystemMXBean bean = getManagementService().getDistributedSystemMXBean();
+    final var bean = getManagementService().getDistributedSystemMXBean();
     assertNotNull(bean);
     return bean.listCacheServers().length;
 
@@ -74,10 +71,10 @@ public class TestServerDUnitTest extends ManagementTestBase {
   @Test
   public void testNumOfServersDUnitTest() throws Exception {
     initManagement(false);
-    VM server = managedNodeList.get(1);
-    int serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var server = managedNodeList.get(1);
+    var serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
     cqDUnitTest.createServer(server, serverPort);
-    int serverCount =
+    var serverCount =
         ((Number) managingNode.invoke(TestServerDUnitTest::getNumOfServersFromMBean))
             .intValue();
     LogWriterUtils.getLogWriter().info("TestServerDUnitTest serverCount =" + serverCount);

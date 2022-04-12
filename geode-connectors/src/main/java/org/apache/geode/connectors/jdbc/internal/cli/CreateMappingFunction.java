@@ -17,7 +17,6 @@ package org.apache.geode.connectors.jdbc.internal.cli;
 import org.apache.geode.annotations.Experimental;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.connectors.jdbc.JdbcAsyncWriter;
 import org.apache.geode.connectors.jdbc.JdbcLoader;
@@ -43,18 +42,18 @@ public class CreateMappingFunction extends CliFunction<Object[]> {
   @Override
   public CliFunctionResult executeFunction(FunctionContext<Object[]> context)
       throws Exception {
-    JdbcConnectorService service = FunctionContextArgumentProvider.getJdbcConnectorService(context);
+    var service = FunctionContextArgumentProvider.getJdbcConnectorService(context);
     // input
-    Object[] arguments = context.getArguments();
-    RegionMapping regionMapping = (RegionMapping) arguments[0];
-    boolean synchronous = (boolean) arguments[1];
+    var arguments = context.getArguments();
+    var regionMapping = (RegionMapping) arguments[0];
+    var synchronous = (boolean) arguments[1];
 
-    String regionName = regionMapping.getRegionName();
-    Region<?, ?> region = verifyRegionExists(context.getCache(), regionName);
+    var regionName = regionMapping.getRegionName();
+    var region = verifyRegionExists(context.getCache(), regionName);
 
     // action
-    String member = context.getMemberName();
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var member = context.getMemberName();
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
     alterRegion(region, queueName, synchronous);
     if (isAccessor(region)) {
       return new CliFunctionResult(member, true,
@@ -66,7 +65,7 @@ public class CreateMappingFunction extends CliFunction<Object[]> {
     createRegionMapping(service, regionMapping);
 
     // output
-    String message =
+    var message =
         "Created JDBC mapping for region " + regionMapping.getRegionName() + " on " + member;
     return new CliFunctionResult(member, true, message);
   }
@@ -105,7 +104,7 @@ public class CreateMappingFunction extends CliFunction<Object[]> {
    * Otherwise a serial queue is created.
    */
   private void createAsyncEventQueue(Cache cache, String queueName, boolean isPartitioned) {
-    AsyncEventQueueFactory asyncEventQueueFactory = cache.createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = cache.createAsyncEventQueueFactory();
     asyncEventQueueFactory.setParallel(isPartitioned);
     asyncEventQueueFactory.create(queueName, new JdbcAsyncWriter());
   }

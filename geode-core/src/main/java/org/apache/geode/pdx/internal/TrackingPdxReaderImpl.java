@@ -16,11 +16,9 @@ package org.apache.geode.pdx.internal;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.geode.pdx.PdxUnreadFields;
 import org.apache.geode.pdx.internal.AutoSerializableManager.AutoClassInfo;
-import org.apache.geode.pdx.internal.AutoSerializableManager.PdxFieldWrapper;
 
 /**
  * Used to track what fields are actually read by the user's code. We want to know what fields are
@@ -198,11 +196,11 @@ public class TrackingPdxReaderImpl implements InternalPdxReader {
    * @return the indexes of the unread fields
    */
   private int[] generateUnreadDataFieldIndexes() {
-    PdxType blobType = pdxReader.getPdxType();
-    List<Integer> unreadFields = blobType.getUnreadFieldIndexes(readFields);
-    int[] unreadFieldIndexes = new int[unreadFields.size()];
+    var blobType = pdxReader.getPdxType();
+    var unreadFields = blobType.getUnreadFieldIndexes(readFields);
+    var unreadFieldIndexes = new int[unreadFields.size()];
     if (!unreadFields.isEmpty()) {
-      int i = 0;
+      var i = 0;
       for (int fieldIndex : unreadFields) {
         unreadFieldIndexes[i] = fieldIndex;
         i++;
@@ -217,16 +215,16 @@ public class TrackingPdxReaderImpl implements InternalPdxReader {
   }
 
   PdxUnreadData internalReadUnreadFields(PdxUnreadData ud) {
-    int[] unreadIndexes = generateUnreadDataFieldIndexes();
+    var unreadIndexes = generateUnreadDataFieldIndexes();
     if (unreadIndexes.length > 0) {
-      UnreadPdxType unreadLocalPdxType =
+      var unreadLocalPdxType =
           new UnreadPdxType(pdxReader.getPdxType(), unreadIndexes);
       tr.defineUnreadType(pdxClass, unreadLocalPdxType);
       ud.initialize(unreadLocalPdxType, pdxReader);
       return ud;
     } else {
       // Remember that this type does not have any unread data.
-      UnreadPdxType unreadLocalPdxType = new UnreadPdxType(pdxReader.getPdxType(), null);
+      var unreadLocalPdxType = new UnreadPdxType(pdxReader.getPdxType(), null);
       tr.defineUnreadType(pdxClass, unreadLocalPdxType);
       return null;
     }
@@ -487,7 +485,7 @@ public class TrackingPdxReaderImpl implements InternalPdxReader {
   @Override
   public void orderedDeserialize(Object obj, AutoClassInfo ci) {
     pdxReader.orderedDeserialize(obj, ci);
-    for (PdxFieldWrapper f : ci.getFields()) {
+    for (var f : ci.getFields()) {
       readFields.add(f.getName());
     }
   }

@@ -29,10 +29,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedSystem;
 
@@ -45,14 +43,14 @@ public class ExceptionHandlingJUnitTest {
 
   @BeforeClass
   public static void caseSetUp() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     distributedSystem = DistributedSystem.connect(properties);
-    Cache cache = CacheFactory.create(distributedSystem);
-    AttributesFactory factory = new AttributesFactory();
+    var cache = CacheFactory.create(distributedSystem);
+    var factory = new AttributesFactory();
     factory.setScope(Scope.GLOBAL);
-    RegionAttributes regionAttributes = factory.create();
+    var regionAttributes = factory.create();
     testRegion = cache.createRegion("TestRegion", regionAttributes);
   }
 
@@ -73,7 +71,7 @@ public class ExceptionHandlingJUnitTest {
 
   @Test
   public void testNullPointerWithContainsValue() {
-    boolean caught = false;
+    var caught = false;
     try {
       testRegion.containsValue(null);
     } catch (NullPointerException ex) {
@@ -87,7 +85,7 @@ public class ExceptionHandlingJUnitTest {
   @Ignore
   @Test
   public void testNullPointerWithGet() {
-    boolean caught = false;
+    var caught = false;
     try {
       testRegion.get(null);
     } catch (NullPointerException ex) {
@@ -100,7 +98,7 @@ public class ExceptionHandlingJUnitTest {
 
   @Test
   public void testNullPointerWithRemove() {
-    boolean caught = false;
+    var caught = false;
     try {
       testRegion.remove(null);
     } catch (NullPointerException ex) {
@@ -114,7 +112,7 @@ public class ExceptionHandlingJUnitTest {
   @Ignore
   @Test
   public void testNullPointerWithPut() {
-    boolean caught = false;
+    var caught = false;
     try {
       testRegion.put(null, null);
     } catch (NullPointerException ex) {
@@ -127,7 +125,7 @@ public class ExceptionHandlingJUnitTest {
 
   @Test
   public void testNullPointerWithPutAll() {
-    boolean caught = false;
+    var caught = false;
     try {
       testRegion.putAll(null);
     } catch (NullPointerException ex) {
@@ -140,9 +138,9 @@ public class ExceptionHandlingJUnitTest {
 
   @Test
   public void testPutAllNullValue() {
-    boolean caught = false;
+    var caught = false;
     try {
-      HashMap map = new HashMap();
+      var map = new HashMap();
       map.put("key1", "key1value");
       map.put("key2", null);
       testRegion.putAll(map);
@@ -156,7 +154,7 @@ public class ExceptionHandlingJUnitTest {
 
   @Test
   public void testNullPointerWithContainsKey() {
-    boolean caught = false;
+    var caught = false;
     try {
       testRegion.containsKey(null);
     } catch (NullPointerException ex) {

@@ -24,9 +24,7 @@ import org.junit.Test;
 
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.monitoring.executor.AbstractExecutor;
 
 /**
  *
@@ -51,7 +49,7 @@ public class ThreadsMonitoringIntegrationTest {
   }
 
   private void initInternalDistributedSystem() {
-    Properties nonDefault = new Properties();
+    var nonDefault = new Properties();
     nonDefault.put(ConfigurationProperties.MCAST_PORT, "0");
     nonDefault.put(ConfigurationProperties.LOCATORS, "");
     nonDefault.put(ConfigurationProperties.THREAD_MONITOR_ENABLED, "true");
@@ -63,13 +61,13 @@ public class ThreadsMonitoringIntegrationTest {
   @Test
   public void testThreadsMonitoringWorkflow() {
 
-    DistributionManager distributionManager = cache.getDistributionManager();
+    var distributionManager = cache.getDistributionManager();
     assertThat(distributionManager).isNotNull();
-    ThreadsMonitoring threadMonitoring = distributionManager.getThreadMonitoring();
+    var threadMonitoring = distributionManager.getThreadMonitoring();
     assertThat(threadMonitoring).isNotNull();
 
     assertThat(threadMonitoring).isInstanceOf(ThreadsMonitoringImpl.class);
-    ThreadsMonitoringImpl impl = ((ThreadsMonitoringImpl) threadMonitoring);
+    var impl = ((ThreadsMonitoringImpl) threadMonitoring);
 
     impl.getTimer().cancel();
 
@@ -83,7 +81,7 @@ public class ThreadsMonitoringIntegrationTest {
         .describedAs("ThreadMonitor monitoring process map validation should still be false.")
         .isFalse();
 
-    AbstractExecutor abstractExecutor =
+    var abstractExecutor =
         impl.getMonitorMap().get(Thread.currentThread().getId());
     abstractExecutor.setStartTime(abstractExecutor.getStartTime()
         - cache.getInternalDistributedSystem().getConfig().getThreadMonitorTimeLimit() - 1);
@@ -109,15 +107,15 @@ public class ThreadsMonitoringIntegrationTest {
   @Test
   public void verifySuspendResumeFunctionCorrectly() {
 
-    DistributionManager distributionManager = cache.getDistributionManager();
+    var distributionManager = cache.getDistributionManager();
     assertThat(distributionManager).isNotNull();
-    ThreadsMonitoring threadMonitoring = distributionManager.getThreadMonitoring();
+    var threadMonitoring = distributionManager.getThreadMonitoring();
     assertThat(threadMonitoring).isNotNull();
-    final int monitorTimeLimit =
+    final var monitorTimeLimit =
         cache.getInternalDistributedSystem().getConfig().getThreadMonitorTimeLimit();
 
     assertThat(threadMonitoring).isInstanceOf(ThreadsMonitoringImpl.class);
-    ThreadsMonitoringImpl impl = ((ThreadsMonitoringImpl) threadMonitoring);
+    var impl = ((ThreadsMonitoringImpl) threadMonitoring);
 
     impl.getTimer().cancel();
 
@@ -125,7 +123,7 @@ public class ThreadsMonitoringIntegrationTest {
         .describedAs("ThreadMonitor monitoring process map validation should be false.")
         .isFalse();
 
-    AbstractExecutor executor =
+    var executor =
         threadMonitoring.createAbstractExecutor(ThreadsMonitoring.Mode.P2PReaderExecutor);
 
     assertThat(impl.getThreadsMonitoringProcess().mapValidation())

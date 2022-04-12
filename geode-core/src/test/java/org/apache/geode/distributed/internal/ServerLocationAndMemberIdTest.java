@@ -27,12 +27,12 @@ public class ServerLocationAndMemberIdTest {
 
   @Test
   public void givenTwoObjectsWithSameHostAndPortAndId_whenCompared_thenAreEquals() {
-    final ServerLocation serverLocation1 = new ServerLocation("localhost", 1);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var serverLocation1 = new ServerLocation("localhost", 1);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
 
-    ServerLocationAndMemberId serverLocationAndMemberId1 =
+    var serverLocationAndMemberId1 =
         new ServerLocationAndMemberId(serverLocation1, uniqueId1);
-    ServerLocationAndMemberId serverLocationAndMemberId2 =
+    var serverLocationAndMemberId2 =
         new ServerLocationAndMemberId(serverLocation1, uniqueId1);
     assertEquals(serverLocationAndMemberId1, serverLocationAndMemberId2);
   }
@@ -40,15 +40,15 @@ public class ServerLocationAndMemberIdTest {
   @Test
   public void givenTwoObjectsWithSameHostAndPortButDifferentViewId_whenCompared_thenAreNotEquals() {
 
-    final ServerLocation serverLocation1 = new ServerLocation("localhost", 1);
-    InternalDistributedMember idmWithView1 = new InternalDistributedMember("localhost", 1);
+    final var serverLocation1 = new ServerLocation("localhost", 1);
+    var idmWithView1 = new InternalDistributedMember("localhost", 1);
     idmWithView1.setVmViewId(1);
-    InternalDistributedMember idmWithView2 = new InternalDistributedMember("localhost", 1);
+    var idmWithView2 = new InternalDistributedMember("localhost", 1);
     idmWithView2.setVmViewId(2);
 
-    ServerLocationAndMemberId serverLocationAndMemberId1 =
+    var serverLocationAndMemberId1 =
         new ServerLocationAndMemberId(serverLocation1, idmWithView1.getUniqueId());
-    ServerLocationAndMemberId serverLocationAndMemberId2 =
+    var serverLocationAndMemberId2 =
         new ServerLocationAndMemberId(serverLocation1, idmWithView2.getUniqueId());
 
     assertNotEquals(serverLocationAndMemberId1, serverLocationAndMemberId2);
@@ -56,14 +56,14 @@ public class ServerLocationAndMemberIdTest {
 
   @Test
   public void givenTwoObjectsWithDifferentHostPortAndId_whenCompared_thenAreNotEquals() {
-    final ServerLocation serverLocation1 = new ServerLocation("localhost", 1);
-    final ServerLocation serverLocation2 = new ServerLocation("localhost", 2);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var serverLocation1 = new ServerLocation("localhost", 1);
+    final var serverLocation2 = new ServerLocation("localhost", 2);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
 
-    ServerLocationAndMemberId serverLocationAndMemberId1 =
+    var serverLocationAndMemberId1 =
         new ServerLocationAndMemberId(serverLocation1, uniqueId1);
-    ServerLocationAndMemberId serverLocationAndMemberId2 =
+    var serverLocationAndMemberId2 =
         new ServerLocationAndMemberId(serverLocation2, uniqueId2);
 
     assertNotEquals(serverLocationAndMemberId1, serverLocationAndMemberId2);
@@ -72,15 +72,15 @@ public class ServerLocationAndMemberIdTest {
   @Test
   public void givenTwoObjectsWithSameHostAndPortAndSameDistributedMemberId_whenCompared_thenAreEqual() {
 
-    final ServerLocation serverLocation1 = new ServerLocation("localhost", 1);
-    InternalDistributedMember idmWithView1 = new InternalDistributedMember("localhost", 1);
+    final var serverLocation1 = new ServerLocation("localhost", 1);
+    var idmWithView1 = new InternalDistributedMember("localhost", 1);
     idmWithView1.setVmViewId(1);
-    InternalDistributedMember idmWithView2 = new InternalDistributedMember("localhost", 1);
+    var idmWithView2 = new InternalDistributedMember("localhost", 1);
     idmWithView2.setVmViewId(1);
 
-    ServerLocationAndMemberId serverLocationAndMemberId1 =
+    var serverLocationAndMemberId1 =
         new ServerLocationAndMemberId(serverLocation1, idmWithView1.getUniqueId());
-    ServerLocationAndMemberId serverLocationAndMemberId2 =
+    var serverLocationAndMemberId2 =
         new ServerLocationAndMemberId(serverLocation1, idmWithView2.getUniqueId());
 
     assertEquals(serverLocationAndMemberId1, serverLocationAndMemberId2);
@@ -89,20 +89,20 @@ public class ServerLocationAndMemberIdTest {
   @Test
   public void givenTwoObjectsWithSameHostAndPortAndSameDistributedMemberId_CannotBeAddedTwiceToHashMap() {
 
-    final ServerLocation serverLocation1 = new ServerLocation("localhost", 1);
-    InternalDistributedMember idmWithView1 = new InternalDistributedMember("localhost", 1);
+    final var serverLocation1 = new ServerLocation("localhost", 1);
+    var idmWithView1 = new InternalDistributedMember("localhost", 1);
     idmWithView1.setVmViewId(1);
-    InternalDistributedMember idmWithView2 = new InternalDistributedMember("localhost", 1);
+    var idmWithView2 = new InternalDistributedMember("localhost", 1);
     idmWithView2.setVmViewId(1);
 
-    ServerLocationAndMemberId serverLocationAndMemberId1 =
+    var serverLocationAndMemberId1 =
         new ServerLocationAndMemberId(serverLocation1, idmWithView1.getUniqueId());
-    ServerLocationAndMemberId serverLocationAndMemberId2 =
+    var serverLocationAndMemberId2 =
         new ServerLocationAndMemberId(serverLocation1, idmWithView2.getUniqueId());
 
     HashMap map = new HashMap<>();
     map.put(serverLocationAndMemberId1, 1);
-    Integer i = (Integer) map.get(serverLocationAndMemberId2);
+    var i = (Integer) map.get(serverLocationAndMemberId2);
     assertNotEquals(null, i);
     assertEquals(new Integer(1), i);
 

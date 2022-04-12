@@ -45,7 +45,7 @@ public abstract class GroupableConfiguration<R extends RuntimeInfo>
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    GroupableConfiguration<?> that = (GroupableConfiguration<?>) o;
+    var that = (GroupableConfiguration<?>) o;
     return Objects.equals(group, that.group);
   }
 

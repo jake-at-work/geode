@@ -28,7 +28,6 @@ import antlr.LLkParser;
 import antlr.ParserSharedInputState;
 import antlr.TokenBuffer;
 import antlr.TokenStream;
-import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
 
 public class UtilParser extends LLkParser {
@@ -56,27 +55,27 @@ public class UtilParser extends LLkParser {
    * LISP-like string to stdout
    */
   public static void main(String[] args) throws Exception {
-    boolean useFrame = false;
+    var useFrame = false;
     Reader reader = new InputStreamReader(System.in);
     if (args.length > 0 && args[0].startsWith("-f")) {
       useFrame = true;
     }
-    for (final String arg : args) {
+    for (final var arg : args) {
       if (!arg.startsWith("-")) {
         reader = new StringReader(arg);
         System.out.println("Parsing: \"" + arg + "\"");
         break;
       }
     }
-    OQLLexer lexer = new OQLLexer(reader);
-    OQLParser parser = new OQLParser(lexer);
+    var lexer = new OQLLexer(reader);
+    var parser = new OQLParser(lexer);
     // by default use Unsupported AST class, overridden for supported
     // operators in the grammer proper
     parser.setASTNodeClass("org.apache.geode.cache.query.internal.parse.ASTUnsupported");
     parser.queryProgram();
-    AST t = parser.getAST();
+    var t = parser.getAST();
     if (useFrame) {
-      ASTFrame frame = new ASTFrame("OQL Example", t);
+      var frame = new ASTFrame("OQL Example", t);
       frame.setVisible(true);
     } else {
       if (t == null) {

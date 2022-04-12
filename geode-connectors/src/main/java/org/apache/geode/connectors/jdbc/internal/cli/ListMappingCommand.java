@@ -23,7 +23,6 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.annotations.Experimental;
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.management.cli.CliMetaData;
@@ -53,16 +52,16 @@ public class ListMappingCommand extends GfshCommand {
   public ResultModel listMapping(@CliOption(key = {CliStrings.GROUP, CliStrings.GROUPS},
       optionContext = ConverterHint.MEMBERGROUP,
       help = LIST_MAPPING__GROUPS_NAME__HELP) String[] groups) {
-    ArrayList<RegionMapping> mappings = new ArrayList<>();
+    var mappings = new ArrayList<RegionMapping>();
 
     try {
-      ConfigurationPersistenceService configService = checkForClusterConfiguration();
+      var configService = checkForClusterConfiguration();
       if (groups == null) {
         groups = new String[] {ConfigurationPersistenceService.CLUSTER_CONFIG};
       }
-      for (String group : groups) {
-        CacheConfig cacheConfig = getCacheConfig(configService, group);
-        for (RegionConfig regionConfig : cacheConfig.getRegions()) {
+      for (var group : groups) {
+        var cacheConfig = getCacheConfig(configService, group);
+        for (var regionConfig : cacheConfig.getRegions()) {
           mappings.addAll(
               MappingCommandUtils.getMappingsFromRegionConfig(cacheConfig, regionConfig, group));
         }
@@ -72,8 +71,8 @@ public class ListMappingCommand extends GfshCommand {
     }
 
     // output
-    ResultModel resultModel = new ResultModel();
-    boolean mappingsExist =
+    var resultModel = new ResultModel();
+    var mappingsExist =
         fillTabularResultData(mappings, resultModel.addTable(JDBC_MAPPINGS_SECTION));
     if (mappingsExist) {
       resultModel.setHeader(EXPERIMENTAL);
@@ -91,7 +90,7 @@ public class ListMappingCommand extends GfshCommand {
     if (mappings == null) {
       return false;
     }
-    for (RegionMapping mapping : mappings) {
+    for (var mapping : mappings) {
       tableModel.accumulate(LIST_OF_MAPPINGS, mapping.getRegionName());
     }
     return !mappings.isEmpty();
@@ -99,7 +98,7 @@ public class ListMappingCommand extends GfshCommand {
 
   private CacheConfig getCacheConfig(ConfigurationPersistenceService configService, String group)
       throws PreconditionException {
-    CacheConfig result = configService.getCacheConfig(group);
+    var result = configService.getCacheConfig(group);
     if (result == null) {
       throw new PreconditionException(
           "Cache Configuration not found"
@@ -111,7 +110,7 @@ public class ListMappingCommand extends GfshCommand {
 
   private ConfigurationPersistenceService checkForClusterConfiguration()
       throws PreconditionException {
-    ConfigurationPersistenceService result = getConfigurationPersistenceService();
+    var result = getConfigurationPersistenceService();
     if (result == null) {
       throw new PreconditionException("Cluster Configuration must be enabled.");
     }

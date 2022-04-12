@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runners.Parameterized;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.apache.geode.cache.CacheFactory;
@@ -46,7 +44,6 @@ import org.apache.geode.management.internal.configuration.utils.XmlUtils;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.version.TestVersion;
 import org.apache.geode.test.version.VersionManager;
 
@@ -65,7 +62,7 @@ public class WANRollingUpgradeMultipleReceiversDefinedInClusterConfiguration
   @Parameterized.Parameters(name = "from_v{0}; attributes={1}; expectedReceiverCount={2}")
   public static Collection data() {
     // Get initial versions to test against
-    List<String> versions = getVersionsToTest();
+    var versions = getVersionsToTest();
 
     // Build up a list of version->attributes->expectedReceivers
     List<Object[]> result = new ArrayList<>();
@@ -95,7 +92,7 @@ public class WANRollingUpgradeMultipleReceiversDefinedInClusterConfiguration
     // There is no need to test old versions beyond 130. Individual member configuration is not
     // saved in cluster configuration and multiple receivers are not supported starting in 140.
     // Note: This comparison works because '130' < '140'.
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(version -> (TestVersion.compare(version, "1.4.0") >= 0));
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
@@ -142,11 +139,11 @@ public class WANRollingUpgradeMultipleReceiversDefinedInClusterConfiguration
   @Test
   public void testMultipleReceiversRemovedDuringRoll() {
     // Get old locator properties
-    VM locator = Host.getHost(0).getVM(oldVersion, 0);
-    String hostName = NetworkUtils.getServerHostName();
-    final int locatorPort = getRandomAvailableTCPPort();
+    var locator = Host.getHost(0).getVM(oldVersion, 0);
+    var hostName = NetworkUtils.getServerHostName();
+    final var locatorPort = getRandomAvailableTCPPort();
 
-    final String locators = hostName + "[" + locatorPort + "]";
+    final var locators = hostName + "[" + locatorPort + "]";
     // Start old locator
     locator.invoke(() -> {
       DistributedTestUtils.deleteLocatorStateFile(locatorPort);
@@ -171,7 +168,7 @@ public class WANRollingUpgradeMultipleReceiversDefinedInClusterConfiguration
     locator.invoke(this::verifyGatewayReceiverClusterConfigurationElements);
 
     // Start member in current version with cluster configuration enabled
-    VM server = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, 1);
+    var server = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, 1);
     server.invoke(() -> createCache(locators, true, true));
 
     // Verify member has expected number of receivers
@@ -181,18 +178,18 @@ public class WANRollingUpgradeMultipleReceiversDefinedInClusterConfiguration
   private void addMultipleGatewayReceiverElementsToClusterConfiguration()
       throws Exception {
     // Create empty xml document
-    CacheCreation creation = new CacheCreation();
-    final StringWriter stringWriter = new StringWriter();
-    final PrintWriter printWriter = new PrintWriter(stringWriter);
+    var creation = new CacheCreation();
+    final var stringWriter = new StringWriter();
+    final var printWriter = new PrintWriter(stringWriter);
     CacheXmlGenerator.generate(creation, printWriter, true, false, false);
     printWriter.close();
-    String baseXml = stringWriter.toString();
-    Document document = XmlUtils.createDocumentFromXml(baseXml);
+    var baseXml = stringWriter.toString();
+    var document = XmlUtils.createDocumentFromXml(baseXml);
 
     // Add gateway-receiver for each attribute
-    for (Attribute attribute : attributes) {
+    for (var attribute : attributes) {
       Node rootNode = document.getDocumentElement();
-      Element receiverElement = document.createElement("gateway-receiver");
+      var receiverElement = document.createElement("gateway-receiver");
       if (!attribute.name.equals("default")) {
         receiverElement.setAttribute(attribute.name, attribute.value);
       }
@@ -206,7 +203,7 @@ public class WANRollingUpgradeMultipleReceiversDefinedInClusterConfiguration
         InternalConfigurationPersistenceService.CONFIG_REGION_NAME);
 
     // Create a configuration and put into the configuration region
-    Configuration configuration = new Configuration(ConfigurationPersistenceService.CLUSTER_CONFIG);
+    var configuration = new Configuration(ConfigurationPersistenceService.CLUSTER_CONFIG);
     configuration.setCacheXmlContent(XmlUtils.prettyXml(document));
     configurationRegion.put(ConfigurationPersistenceService.CLUSTER_CONFIG, configuration);
   }
@@ -217,11 +214,11 @@ public class WANRollingUpgradeMultipleReceiversDefinedInClusterConfiguration
         InternalConfigurationPersistenceService.CONFIG_REGION_NAME);
 
     // Get the configuration from the region
-    Configuration configuration =
+    var configuration =
         configurationRegion.get(ConfigurationPersistenceService.CLUSTER_CONFIG);
 
     // Verify the configuration contains no gateway-receiver elements
-    Document document = XmlUtils.createDocumentFromXml(configuration.getCacheXmlContent());
+    var document = XmlUtils.createDocumentFromXml(configuration.getCacheXmlContent());
     assertThat(document.getElementsByTagName("gateway-receiver").getLength())
         .isEqualTo(expectedReceivers);
   }

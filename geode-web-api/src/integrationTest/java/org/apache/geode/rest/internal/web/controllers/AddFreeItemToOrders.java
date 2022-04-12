@@ -28,7 +28,6 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
@@ -68,13 +67,13 @@ public class AddFreeItemToOrders implements Function<Object> {
       throw ex;
     }
 
-    String oql =
+    var oql =
         "SELECT DISTINCT entry.key FROM " + SEPARATOR
             + "orders.entries entry WHERE entry.value.totalPrice > $1";
-    Object[] queryArgs = new Object[1];
+    var queryArgs = new Object[1];
     queryArgs[0] = argsList.get(0);
 
-    final Query query = cache.getQueryService().newQuery(oql);
+    final var query = cache.getQueryService().newQuery(oql);
 
     SelectResults<?> result;
     List<Object> keys = new ArrayList<>();
@@ -103,12 +102,12 @@ public class AddFreeItemToOrders implements Function<Object> {
 
     // class has to be in classpath.
     try {
-      Item it = (Item) (argsList.get(1));
-      for (Object key : keys) {
+      var it = (Item) (argsList.get(1));
+      for (var key : keys) {
         Object obj = region.get(key);
         if (obj instanceof PdxInstance) {
-          PdxInstance pi = (PdxInstance) obj;
-          Order receivedOrder = (Order) pi.getObject();
+          var pi = (PdxInstance) obj;
+          var receivedOrder = (Order) pi.getObject();
           receivedOrder.addItem(it);
 
           region.put(key, receivedOrder);

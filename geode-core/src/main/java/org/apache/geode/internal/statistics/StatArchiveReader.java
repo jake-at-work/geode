@@ -65,7 +65,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       throws IOException {
     archives = new StatArchiveFile[archiveNames.length];
     dump = Boolean.getBoolean("StatArchiveReader.dumpall");
-    for (int i = 0; i < archiveNames.length; i++) {
+    for (var i = 0; i < archiveNames.length; i++) {
       archives[i] = new StatArchiveFile(this, archiveNames[i], dump, filters);
     }
 
@@ -91,23 +91,23 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
    */
   public StatValue[] matchSpec(StatSpec spec) {
     if (spec.getCombineType() == StatSpec.GLOBAL) {
-      StatValue[] allValues = matchSpec(new RawStatSpec(spec));
+      var allValues = matchSpec(new RawStatSpec(spec));
       if (allValues.length == 0) {
         return allValues;
       } else {
-        ComboValue cv = new ComboValue(allValues);
+        var cv = new ComboValue(allValues);
         // need to save this in reader's combo value list
         return new StatValue[] {cv};
       }
     } else {
       List l = new ArrayList();
-      StatArchiveReader.StatArchiveFile[] archives = getArchives();
-      for (StatArchiveFile f : archives) {
+      var archives = getArchives();
+      for (var f : archives) {
         if (spec.archiveMatches(f.getFile())) {
           f.matchSpec(spec, l);
         }
       }
-      StatValue[] result = new StatValue[l.size()];
+      var result = new StatValue[l.size()];
       return (StatValue[]) l.toArray(result);
     }
   }
@@ -130,9 +130,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     if (closed) {
       return false;
     }
-    boolean result = false;
-    StatArchiveReader.StatArchiveFile[] archives = getArchives();
-    for (StatArchiveFile f : archives) {
+    var result = false;
+    var archives = getArchives();
+    for (var f : archives) {
       if (f.update(doReset)) {
         result = true;
       }
@@ -160,8 +160,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
   @Override
   public void close() throws IOException {
     if (!closed) {
-      StatArchiveReader.StatArchiveFile[] archives = getArchives();
-      for (StatArchiveFile f : archives) {
+      var archives = getArchives();
+      for (var f : archives) {
         f.close();
       }
       closed = true;
@@ -169,17 +169,17 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
   }
 
   private int getMemoryUsed() {
-    int result = 0;
-    StatArchiveReader.StatArchiveFile[] archives = getArchives();
-    for (StatArchiveFile f : archives) {
+    var result = 0;
+    var archives = getArchives();
+    for (var f : archives) {
       result += f.getMemoryUsed();
     }
     return result;
   }
 
   private void dump(PrintWriter stream) {
-    StatArchiveReader.StatArchiveFile[] archives = getArchives();
-    for (StatArchiveFile f : archives) {
+    var archives = getArchives();
+    for (var f : archives) {
       f.dump(stream);
     }
   }
@@ -212,7 +212,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     SingleStatRawStatSpec(String archive, String typeAndStat) {
       this.archive = archive;
-      String[] parts = typeAndStat.split("\\.", 0);
+      var parts = typeAndStat.split("\\.", 0);
       statType = parts[0];
       statName = parts[1];
     }
@@ -261,13 +261,13 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     System.out.println("  " + v.toString());
     if (details) {
       System.out.print("  values=");
-      double[] snapshots = v.getSnapshots();
-      for (final double snapshot : snapshots) {
+      var snapshots = v.getSnapshots();
+      for (final var snapshot : snapshots) {
         System.out.print(' ');
         System.out.print(snapshot);
       }
       System.out.println();
-      String desc = v.getDescriptor().getDescription();
+      var desc = v.getDescriptor().getDescription();
       if (desc != null && desc.length() > 0) {
         System.out.println("    " + desc);
       }
@@ -287,25 +287,25 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         ExitCode.FATAL.doSystemExit();
       }
       archiveName = args[1];
-      String statSpec = args[2];
+      var statSpec = args[2];
       if (!statSpec.contains(".")) {
         throw new IllegalArgumentException(
             "stat spec '" + statSpec + "' is malformed - use StatType.statName");
       }
-      File archiveFile = new File(archiveName);
+      var archiveFile = new File(archiveName);
       if (!archiveFile.exists()) {
         throw new IllegalArgumentException("archive file does not exist: " + archiveName);
       }
       if (!archiveFile.canRead()) {
         throw new IllegalArgumentException("archive file exists but is unreadable: " + archiveName);
       }
-      File[] archives = new File[] {archiveFile};
-      SingleStatRawStatSpec[] filters =
+      var archives = new File[] {archiveFile};
+      var filters =
           new SingleStatRawStatSpec[] {new SingleStatRawStatSpec(archiveName, args[2])};
       reader = new StatArchiveReader(archives, filters, false);
-      final StatValue[] statValues = reader.matchSpec(filters[0]);
+      final var statValues = reader.matchSpec(filters[0]);
       System.out.println(statSpec + " matched " + statValues.length + " stats...");
-      for (StatValue value : statValues) {
+      for (var value : statValues) {
         printStatValue(value, -1, -1, true, false, false, false, true);
       }
       System.out.println();
@@ -365,9 +365,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     public Object get(int idx) {
-      int archiveIdx = 0;
-      StatArchiveReader.StatArchiveFile[] archives = getArchives();
-      for (StatArchiveFile f : archives) {
+      var archiveIdx = 0;
+      var archives = getArchives();
+      for (var f : archives) {
         if (idx < (archiveIdx + f.resourceInstSize)) {
           return f.resourceInstTable[idx - archiveIdx];
         }
@@ -378,9 +378,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     public int size() {
-      int result = 0;
-      StatArchiveReader.StatArchiveFile[] archives = getArchives();
-      for (final StatArchiveFile archive : archives) {
+      var result = 0;
+      var archives = getArchives();
+      for (final var archive : archives) {
         result += archive.resourceInstSize;
       }
       return result;
@@ -735,8 +735,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         min = values[0];
         max = values[0];
         mostRecent = values[values.length - 1];
-        double total = values[0];
-        for (int i = 1; i < size; i++) {
+        var total = values[0];
+        for (var i = 1; i < size; i++) {
           total += values[i];
           if (values[i] < min) {
             min = values[i];
@@ -747,8 +747,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         avg = total / size;
         stddev = 0.0;
         if (size > 1) {
-          for (int i = 0; i < size; i++) {
-            double dv = values[i] - avg;
+          for (var i = 0; i < size; i++) {
+            var dv = values[i] - avg;
             stddev += (dv * dv);
           }
           stddev /= (size - 1);
@@ -764,9 +764,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     @Override
     public String toString() {
       calcStats();
-      StringBuilder result = new StringBuilder();
+      var result = new StringBuilder();
       result.append(getDescriptor().getName());
-      String units = getDescriptor().getUnits();
+      var units = getDescriptor().getUnits();
       if (units != null && units.length() > 0) {
         result.append(' ').append(units);
       }
@@ -783,7 +783,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         result.append(" endTime=\"").append(new Date(endTime)).append("\"");
       }
 
-      NumberFormat nf = getNumberFormat();
+      var nf = getNumberFormat();
       result.append(" min=").append(nf.format(min));
       result.append(" max=").append(nf.format(max));
       result.append(" average=").append(nf.format(avg));
@@ -816,10 +816,10 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     ComboValue(StatValue[] values) {
       this.values = values;
       filter = this.values[0].getFilter();
-      String typeName = this.values[0].getType().getName();
-      String statName = this.values[0].getDescriptor().getName();
-      int bestTypeIdx = 0;
-      for (int i = 1; i < this.values.length; i++) {
+      var typeName = this.values[0].getType().getName();
+      var statName = this.values[0].getDescriptor().getName();
+      var bestTypeIdx = 0;
+      for (var i = 1; i < this.values.length; i++) {
         if (filter != this.values[i].getFilter()) {
           /*
            * I'm not sure why this would happen. If it really can happen then this code should
@@ -870,7 +870,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       descriptor = original.getDescriptor();
       filter = original.getFilter();
       values = new StatValue[original.values.length];
-      for (int i = 0; i < values.length; i++) {
+      for (var i = 0; i < values.length; i++) {
         values[i] = original.values[i].createTrimmed(startTime, endTime);
       }
     }
@@ -892,10 +892,10 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     @Override
     public ResourceInst[] getResources() {
       Set set = new HashSet();
-      for (final StatValue value : values) {
+      for (final var value : values) {
         set.addAll(Arrays.asList(value.getResources()));
       }
-      ResourceInst[] result = new ResourceInst[set.size()];
+      var result = new ResourceInst[set.size()];
       return (ResourceInst[]) set.toArray(result);
     }
 
@@ -934,29 +934,29 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if (values.length == 0) {
         return new long[0];
       }
-      long[] valueTimeStamps = values[0].getRawAbsoluteTimeStamps();
-      int tsCount = valueTimeStamps.length + 1;
-      long[] ourTimeStamps = new long[(tsCount * 2) + 1];
+      var valueTimeStamps = values[0].getRawAbsoluteTimeStamps();
+      var tsCount = valueTimeStamps.length + 1;
+      var ourTimeStamps = new long[(tsCount * 2) + 1];
       System.arraycopy(valueTimeStamps, 0, ourTimeStamps, 0, valueTimeStamps.length);
       // Note we add a MAX sample to make the insert logic simple
       ourTimeStamps[valueTimeStamps.length] = Long.MAX_VALUE;
-      for (int i = 1; i < values.length; i++) {
+      for (var i = 1; i < values.length; i++) {
         valueTimeStamps = values[i].getRawAbsoluteTimeStamps();
         if (valueTimeStamps.length == 0) {
           continue;
         }
-        int ourIdx = 0;
-        int j = 0;
-        long tsToInsert = valueTimeStamps[0] - 1000; // default to 1 second
+        var ourIdx = 0;
+        var j = 0;
+        var tsToInsert = valueTimeStamps[0] - 1000; // default to 1 second
         if (valueTimeStamps.length > 1) {
           tsToInsert = valueTimeStamps[0] - (valueTimeStamps[1] - valueTimeStamps[0]);
         }
         // tsToInsert is now initialized to a value that we can pretend
         // was the previous timestamp inserted.
         while (j < valueTimeStamps.length) {
-          long timeDelta = (valueTimeStamps[j] - tsToInsert) / 2;
+          var timeDelta = (valueTimeStamps[j] - tsToInsert) / 2;
           tsToInsert = valueTimeStamps[j];
-          long tsAtInsertPoint = ourTimeStamps[ourIdx];
+          var tsAtInsertPoint = ourTimeStamps[ourIdx];
           while (tsToInsert > tsAtInsertPoint
               && !closeEnough(tsToInsert, tsAtInsertPoint, timeDelta)) {
             // System.out.println("DEBUG: skipping " + ourIdx + " because it was not closeEnough");
@@ -974,16 +974,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
             }
           } else {
             // its not in our list so add it
-            int endRunIdx = j + 1;
+            var endRunIdx = j + 1;
             while (endRunIdx < valueTimeStamps.length
                 && valueTimeStamps[endRunIdx] < tsAtInsertPoint
                 && !closeEnough(valueTimeStamps[endRunIdx], tsAtInsertPoint, timeDelta)) {
               endRunIdx++;
             }
-            int numToCopy = endRunIdx - j;
+            var numToCopy = endRunIdx - j;
             if (tsCount + numToCopy > ourTimeStamps.length) {
               // grow our timestamp array
-              long[] tmp = new long[(tsCount + numToCopy) * 2];
+              var tmp = new long[(tsCount + numToCopy) * 2];
               System.arraycopy(ourTimeStamps, 0, tmp, 0, tsCount);
               ourTimeStamps = tmp;
             }
@@ -1005,8 +1005,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       }
       tsCount--;
       {
-        int startIdx = 0;
-        int endIdx = tsCount - 1;
+        var startIdx = 0;
+        var endIdx = tsCount - 1;
         if (startTime != -1) {
           Assert.assertTrue(ourTimeStamps[startIdx] >= startTime);
         }
@@ -1016,7 +1016,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         tsCount = (endIdx - startIdx) + 1;
 
         // shrink and trim our timestamp array
-        long[] tmp = new long[tsCount];
+        var tmp = new long[tsCount];
         System.arraycopy(ourTimeStamps, startIdx, tmp, 0, tsCount);
         ourTimeStamps = tmp;
       }
@@ -1045,7 +1045,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     public boolean isTrimmedLeft() {
-      for (final StatValue value : values) {
+      for (final var value : values) {
         if (value.isTrimmedLeft()) {
           return true;
         }
@@ -1054,17 +1054,17 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private double[] getRawSnapshots(long[] ourTimeStamps) {
-      double[] result = new double[ourTimeStamps.length];
+      var result = new double[ourTimeStamps.length];
       if (result.length > 0) {
-        for (final StatValue value : values) {
-          long[] valueTimeStamps = value.getRawAbsoluteTimeStamps();
-          double[] valueSnapshots = value.getRawSnapshots();
-          double currentValue = 0.0;
-          int curIdx = 0;
+        for (final var value : values) {
+          var valueTimeStamps = value.getRawAbsoluteTimeStamps();
+          var valueSnapshots = value.getRawSnapshots();
+          var currentValue = 0.0;
+          var curIdx = 0;
           if (value.isTrimmedLeft() && valueSnapshots.length > 0) {
             currentValue = valueSnapshots[0];
           }
-          for (int j = 0; j < valueSnapshots.length; j++) {
+          for (var j = 0; j < valueSnapshots.length; j++) {
             while (!isClosest(valueTimeStamps[j], ourTimeStamps, curIdx)) {
               if (descriptor.isCounter()) {
                 result[curIdx] += currentValue;
@@ -1074,8 +1074,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
             }
             if (curIdx >= result.length) {
               // Add this to workaround bug 30288
-              int samplesSkipped = valueSnapshots.length - j;
-              StringBuilder msg = new StringBuilder(100);
+              var samplesSkipped = valueSnapshots.length - j;
+              var msg = new StringBuilder(100);
               msg.append("WARNING: dropping last ");
               if (samplesSkipped == 1) {
                 msg.append("sample because it");
@@ -1091,7 +1091,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
             curIdx++;
           }
           if (descriptor.isCounter()) {
-            for (int j = curIdx; j < result.length; j++) {
+            for (var j = curIdx; j < result.length; j++) {
               result[j] += currentValue;
             }
           }
@@ -1104,16 +1104,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     public double[] getSnapshots() {
       double[] result;
       if (filter != FILTER_NONE) {
-        long[] timestamps = getRawAbsoluteTimeStamps();
-        double[] snapshots = getRawSnapshots(timestamps);
+        var timestamps = getRawAbsoluteTimeStamps();
+        var snapshots = getRawSnapshots(timestamps);
         if (snapshots.length <= 1) {
           return new double[0];
         }
         result = new double[snapshots.length - 1];
-        for (int i = 0; i < result.length; i++) {
-          double valueDelta = snapshots[i + 1] - snapshots[i];
+        for (var i = 0; i < result.length; i++) {
+          var valueDelta = snapshots[i + 1] - snapshots[i];
           if (filter == FILTER_PERSEC) {
-            long timeDelta = timestamps[i + 1] - timestamps[i];
+            var timeDelta = timestamps[i + 1] - timestamps[i];
             result[i] = valueDelta / (timeDelta / 1000.0);
           } else {
             result[i] = valueDelta;
@@ -1189,11 +1189,11 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private int getStartIdx() {
-      int startIdx = 0;
+      var startIdx = 0;
       if (startTime != -1) {
-        long startTimeStamp = startTime - resource.getTimeBase();
-        long[] timestamps = resource.getAllRawTimeStamps();
-        for (int i = resource.getFirstTimeStampIdx(); i < resource.getFirstTimeStampIdx()
+        var startTimeStamp = startTime - resource.getTimeBase();
+        var timestamps = resource.getAllRawTimeStamps();
+        for (var i = resource.getFirstTimeStampIdx(); i < resource.getFirstTimeStampIdx()
             + series.getSize(); i++) {
           if (timestamps[i] >= startTimeStamp) {
             break;
@@ -1205,12 +1205,12 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private int getEndIdx(int startIdx) {
-      int endIdx = series.getSize() - 1;
+      var endIdx = series.getSize() - 1;
       if (endTime != -1) {
-        long endTimeStamp = endTime - resource.getTimeBase();
-        long[] timestamps = resource.getAllRawTimeStamps();
+        var endTimeStamp = endTime - resource.getTimeBase();
+        var timestamps = resource.getAllRawTimeStamps();
         endIdx = startIdx - 1;
-        for (int i = resource.getFirstTimeStampIdx() + startIdx; i < resource.getFirstTimeStampIdx()
+        for (var i = resource.getFirstTimeStampIdx() + startIdx; i < resource.getFirstTimeStampIdx()
             + series.getSize(); i++) {
           if (timestamps[i] >= endTimeStamp) {
             break;
@@ -1225,9 +1225,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     @Override
     public double[] getSnapshots() {
       double[] result;
-      int startIdx = getStartIdx();
-      int endIdx = getEndIdx(startIdx);
-      int resultSize = (endIdx - startIdx) + 1;
+      var startIdx = getStartIdx();
+      var endIdx = getEndIdx(startIdx);
+      var resultSize = (endIdx - startIdx) + 1;
 
       if (filter != FILTER_NONE && resultSize > 1) {
         long[] timestamps = null;
@@ -1235,10 +1235,10 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
           timestamps = resource.getAllRawTimeStamps();
         }
         result = new double[resultSize - 1];
-        int tsIdx = resource.getFirstTimeStampIdx() + startIdx;
-        double[] values = series.getValuesEx(descriptor.getTypeCode(), startIdx, resultSize);
-        for (int i = 0; i < result.length; i++) {
-          double valueDelta = values[i + 1] - values[i];
+        var tsIdx = resource.getFirstTimeStampIdx() + startIdx;
+        var values = series.getValuesEx(descriptor.getTypeCode(), startIdx, resultSize);
+        for (var i = 0; i < result.length; i++) {
+          var valueDelta = values[i + 1] - values[i];
           if (filter == FILTER_PERSEC) {
             double timeDelta = (timestamps[tsIdx + i + 1] - timestamps[tsIdx + i]); // millis
             valueDelta /= (timeDelta / 1000); // per second
@@ -1254,16 +1254,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     public double[] getRawSnapshots() {
-      int startIdx = getStartIdx();
-      int endIdx = getEndIdx(startIdx);
-      int resultSize = (endIdx - startIdx) + 1;
+      var startIdx = getStartIdx();
+      var endIdx = getEndIdx(startIdx);
+      var resultSize = (endIdx - startIdx) + 1;
       return series.getValuesEx(descriptor.getTypeCode(), startIdx, resultSize);
     }
 
     @Override
     public long[] getRawAbsoluteTimeStampsWithSecondRes() {
-      long[] result = getRawAbsoluteTimeStamps();
-      for (int i = 0; i < result.length; i++) {
+      var result = getRawAbsoluteTimeStamps();
+      for (var i = 0; i < result.length; i++) {
         result[i] += 500;
         result[i] /= 1000;
         result[i] *= 1000;
@@ -1273,17 +1273,17 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     public long[] getRawAbsoluteTimeStamps() {
-      int startIdx = getStartIdx();
-      int endIdx = getEndIdx(startIdx);
-      int resultSize = (endIdx - startIdx) + 1;
+      var startIdx = getStartIdx();
+      var endIdx = getEndIdx(startIdx);
+      var resultSize = (endIdx - startIdx) + 1;
       if (resultSize <= 0) {
         return new long[0];
       } else {
-        long[] result = new long[resultSize];
-        long[] timestamps = resource.getAllRawTimeStamps();
-        int tsIdx = resource.getFirstTimeStampIdx() + startIdx;
-        long base = resource.getTimeBase();
-        for (int i = 0; i < resultSize; i++) {
+        var result = new long[resultSize];
+        var timestamps = resource.getAllRawTimeStamps();
+        var tsIdx = resource.getFirstTimeStampIdx() + startIdx;
+        var base = resource.getTimeBase();
+        for (var i = 0; i < resultSize; i++) {
           result[i] = base + timestamps[tsIdx + i];
         }
         return result;
@@ -1301,7 +1301,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     protected int getMemoryUsed() {
-      int result = 0;
+      var result = 0;
       if (series != null) {
         result += series.getMemoryUsed();
       }
@@ -1311,7 +1311,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     protected void dump(PrintWriter stream) {
       calcStats();
       stream.print("  " + descriptor.getName() + "=");
-      NumberFormat nf = getNumberFormat();
+      var nf = getNumberFormat();
       stream.print("[size=" + getSnapshotsSize() + " min=" + nf.format(min) + " max="
           + nf.format(max) + " avg=" + nf.format(avg) + " stddev=" + nf.format(stddev) + "]");
       if (Boolean.getBoolean("StatArchiveReader.dumpall")) {
@@ -1382,8 +1382,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
           return new BitExplicitLongInterval(bits, interval, count);
         }
       } else {
-        boolean smallBits = false;
-        boolean smallInterval = false;
+        var smallBits = false;
+        var smallInterval = false;
         if (bits <= Integer.MAX_VALUE && bits >= Integer.MIN_VALUE) {
           smallBits = true;
         }
@@ -1419,15 +1419,15 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int fill(double[] values, int valueOffset, int typeCode, int skipCount) {
-      int fillcount = values.length - valueOffset; // space left in values
-      int maxCount = count - skipCount; // maximum values this interval can produce
+      var fillcount = values.length - valueOffset; // space left in values
+      var maxCount = count - skipCount; // maximum values this interval can produce
       if (fillcount > maxCount) {
         fillcount = maxCount;
       }
-      long base = getBits();
-      long interval = getInterval();
+      var base = getBits();
+      var interval = getInterval();
       base += skipCount * interval;
-      for (int i = 0; i < fillcount; i++) {
+      for (var i = 0; i < fillcount; i++) {
         values[valueOffset + i] = bitsToDouble(typeCode, base);
         base += interval;
       }
@@ -1438,7 +1438,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     void dump(PrintWriter stream) {
       stream.print(getBits());
       if (count > 1) {
-        long interval = getInterval();
+        var interval = getInterval();
         if (interval != 0) {
           stream.print("+=" + interval);
         }
@@ -1577,13 +1577,13 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int fill(double[] values, int valueOffset, int typeCode, int skipCount) {
-      int fillcount = values.length - valueOffset; // space left in values
-      int maxCount = count - skipCount; // maximum values this interval can produce
+      var fillcount = values.length - valueOffset; // space left in values
+      var maxCount = count - skipCount; // maximum values this interval can produce
       if (fillcount > maxCount) {
         fillcount = maxCount;
       }
-      double value = bitsToDouble(typeCode, getBits());
-      for (int i = 0; i < fillcount; i++) {
+      var value = bitsToDouble(typeCode, getBits());
+      for (var i = 0; i < fillcount; i++) {
         values[valueOffset + i] = value;
       }
       return fillcount;
@@ -1657,7 +1657,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int getMemoryUsed() {
-      int result = super.getMemoryUsed() + 4 + 8 + 8 + 4;
+      var result = super.getMemoryUsed() + 4 + 8 + 8 + 4;
       if (bitIntervals != null) {
         result += bitIntervals.length;
       }
@@ -1666,16 +1666,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int fill(double[] values, int valueOffset, int typeCode, int skipCount) {
-      int fillcount = values.length - valueOffset; // space left in values
-      int maxCount = count - skipCount; // maximum values this interval can produce
+      var fillcount = values.length - valueOffset; // space left in values
+      var maxCount = count - skipCount; // maximum values this interval can produce
       if (fillcount > maxCount) {
         fillcount = maxCount;
       }
-      long bitValue = firstValue;
-      for (int i = 0; i < skipCount; i++) {
+      var bitValue = firstValue;
+      for (var i = 0; i < skipCount; i++) {
         bitValue += bitIntervals[i];
       }
-      for (int i = 0; i < fillcount; i++) {
+      for (var i = 0; i < fillcount; i++) {
         bitValue += bitIntervals[skipCount + i];
         values[valueOffset + i] = bitsToDouble(typeCode, bitValue);
       }
@@ -1685,7 +1685,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     @Override
     void dump(PrintWriter stream) {
       stream.print("(byteIntervalCount=" + count + " start=" + firstValue);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         if (i != 0) {
           stream.print(", ");
         }
@@ -1700,7 +1700,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       lastValue = bits + (interval * (addCount - 1));
       bitIntervals = new byte[count * 2];
       bitIntervals[0] = 0;
-      for (int i = 1; i < count; i++) {
+      for (var i = 1; i < count; i++) {
         bitIntervals[i] = (byte) interval;
       }
     }
@@ -1710,16 +1710,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       // addCount >= 2; count >= 2
       if (addCount <= 11) {
         if (addInterval <= Byte.MAX_VALUE && addInterval >= Byte.MIN_VALUE) {
-          long firstInterval = addBits - lastValue;
+          var firstInterval = addBits - lastValue;
           if (firstInterval <= Byte.MAX_VALUE && firstInterval >= Byte.MIN_VALUE) {
             lastValue = addBits + (addInterval * (addCount - 1));
             if ((count + addCount) >= bitIntervals.length) {
-              byte[] tmp = new byte[(count + addCount) * 2];
+              var tmp = new byte[(count + addCount) * 2];
               System.arraycopy(bitIntervals, 0, tmp, 0, bitIntervals.length);
               bitIntervals = tmp;
             }
             bitIntervals[count++] = (byte) firstInterval;
-            for (int i = 1; i < addCount; i++) {
+            for (var i = 1; i < addCount; i++) {
               bitIntervals[count++] = (byte) addInterval;
             }
             return true;
@@ -1737,7 +1737,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int getMemoryUsed() {
-      int result = super.getMemoryUsed() + 4 + 8 + 8 + 4;
+      var result = super.getMemoryUsed() + 4 + 8 + 8 + 4;
       if (bitIntervals != null) {
         result += bitIntervals.length * 2;
       }
@@ -1746,16 +1746,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int fill(double[] values, int valueOffset, int typeCode, int skipCount) {
-      int fillcount = values.length - valueOffset; // space left in values
-      int maxCount = count - skipCount; // maximum values this interval can produce
+      var fillcount = values.length - valueOffset; // space left in values
+      var maxCount = count - skipCount; // maximum values this interval can produce
       if (fillcount > maxCount) {
         fillcount = maxCount;
       }
-      long bitValue = firstValue;
-      for (int i = 0; i < skipCount; i++) {
+      var bitValue = firstValue;
+      for (var i = 0; i < skipCount; i++) {
         bitValue += bitIntervals[i];
       }
-      for (int i = 0; i < fillcount; i++) {
+      for (var i = 0; i < fillcount; i++) {
         bitValue += bitIntervals[skipCount + i];
         values[valueOffset + i] = bitsToDouble(typeCode, bitValue);
       }
@@ -1765,7 +1765,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     @Override
     void dump(PrintWriter stream) {
       stream.print("(shortIntervalCount=" + count + " start=" + firstValue);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         if (i != 0) {
           stream.print(", ");
         }
@@ -1780,7 +1780,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       lastValue = bits + (interval * (addCount - 1));
       bitIntervals = new short[count * 2];
       bitIntervals[0] = 0;
-      for (int i = 1; i < count; i++) {
+      for (var i = 1; i < count; i++) {
         bitIntervals[i] = (short) interval;
       }
     }
@@ -1790,16 +1790,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       // addCount >= 2; count >= 2
       if (addCount <= 6) {
         if (addInterval <= Short.MAX_VALUE && addInterval >= Short.MIN_VALUE) {
-          long firstInterval = addBits - lastValue;
+          var firstInterval = addBits - lastValue;
           if (firstInterval <= Short.MAX_VALUE && firstInterval >= Short.MIN_VALUE) {
             lastValue = addBits + (addInterval * (addCount - 1));
             if ((count + addCount) >= bitIntervals.length) {
-              short[] tmp = new short[(count + addCount) * 2];
+              var tmp = new short[(count + addCount) * 2];
               System.arraycopy(bitIntervals, 0, tmp, 0, bitIntervals.length);
               bitIntervals = tmp;
             }
             bitIntervals[count++] = (short) firstInterval;
-            for (int i = 1; i < addCount; i++) {
+            for (var i = 1; i < addCount; i++) {
               bitIntervals[count++] = (short) addInterval;
             }
             return true;
@@ -1817,7 +1817,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int getMemoryUsed() {
-      int result = super.getMemoryUsed() + 4 + 8 + 8 + 4;
+      var result = super.getMemoryUsed() + 4 + 8 + 8 + 4;
       if (bitIntervals != null) {
         result += bitIntervals.length * 4;
       }
@@ -1826,16 +1826,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int fill(double[] values, int valueOffset, int typeCode, int skipCount) {
-      int fillcount = values.length - valueOffset; // space left in values
-      int maxCount = count - skipCount; // maximum values this interval can produce
+      var fillcount = values.length - valueOffset; // space left in values
+      var maxCount = count - skipCount; // maximum values this interval can produce
       if (fillcount > maxCount) {
         fillcount = maxCount;
       }
-      long bitValue = firstValue;
-      for (int i = 0; i < skipCount; i++) {
+      var bitValue = firstValue;
+      for (var i = 0; i < skipCount; i++) {
         bitValue += bitIntervals[i];
       }
-      for (int i = 0; i < fillcount; i++) {
+      for (var i = 0; i < fillcount; i++) {
         bitValue += bitIntervals[skipCount + i];
         values[valueOffset + i] = bitsToDouble(typeCode, bitValue);
       }
@@ -1845,7 +1845,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     @Override
     void dump(PrintWriter stream) {
       stream.print("(intIntervalCount=" + count + " start=" + firstValue);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         if (i != 0) {
           stream.print(", ");
         }
@@ -1860,7 +1860,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       lastValue = bits + (interval * (addCount - 1));
       bitIntervals = new int[count * 2];
       bitIntervals[0] = 0;
-      for (int i = 1; i < count; i++) {
+      for (var i = 1; i < count; i++) {
         bitIntervals[i] = (int) interval;
       }
     }
@@ -1870,16 +1870,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       // addCount >= 2; count >= 2
       if (addCount <= 4) {
         if (addInterval <= Integer.MAX_VALUE && addInterval >= Integer.MIN_VALUE) {
-          long firstInterval = addBits - lastValue;
+          var firstInterval = addBits - lastValue;
           if (firstInterval <= Integer.MAX_VALUE && firstInterval >= Integer.MIN_VALUE) {
             lastValue = addBits + (addInterval * (addCount - 1));
             if ((count + addCount) >= bitIntervals.length) {
-              int[] tmp = new int[(count + addCount) * 2];
+              var tmp = new int[(count + addCount) * 2];
               System.arraycopy(bitIntervals, 0, tmp, 0, bitIntervals.length);
               bitIntervals = tmp;
             }
             bitIntervals[count++] = (int) firstInterval;
-            for (int i = 1; i < addCount; i++) {
+            for (var i = 1; i < addCount; i++) {
               bitIntervals[count++] = (int) addInterval;
             }
             return true;
@@ -1895,7 +1895,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int getMemoryUsed() {
-      int result = super.getMemoryUsed() + 4 + 4;
+      var result = super.getMemoryUsed() + 4 + 4;
       if (bitArray != null) {
         result += bitArray.length * 8;
       }
@@ -1904,12 +1904,12 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     int fill(double[] values, int valueOffset, int typeCode, int skipCount) {
-      int fillcount = values.length - valueOffset; // space left in values
-      int maxCount = count - skipCount; // maximum values this interval can produce
+      var fillcount = values.length - valueOffset; // space left in values
+      var maxCount = count - skipCount; // maximum values this interval can produce
       if (fillcount > maxCount) {
         fillcount = maxCount;
       }
-      for (int i = 0; i < fillcount; i++) {
+      for (var i = 0; i < fillcount; i++) {
         values[valueOffset + i] = bitsToDouble(typeCode, bitArray[skipCount + i]);
       }
       return fillcount;
@@ -1918,7 +1918,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     @Override
     void dump(PrintWriter stream) {
       stream.print("(count=" + count + " ");
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         if (i != 0) {
           stream.print(", ");
         }
@@ -1930,7 +1930,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     BitExplicitLongInterval(long bits, long interval, int addCount) {
       count = addCount;
       bitArray = new long[count * 2];
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         bitArray[i] = bits;
         bits += interval;
       }
@@ -1941,11 +1941,11 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       // addCount >= 2; count >= 2
       if (addCount <= 3) {
         if ((count + addCount) >= bitArray.length) {
-          long[] tmp = new long[(count + addCount) * 2];
+          var tmp = new long[(count + addCount) * 2];
           System.arraycopy(bitArray, 0, tmp, 0, bitArray.length);
           bitArray = tmp;
         }
-        for (int i = 0; i < addCount; i++) {
+        for (var i = 0; i < addCount; i++) {
           bitArray[count++] = addBits;
           addBits += addInterval;
         }
@@ -1968,10 +1968,10 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      * Returns the amount of memory used to implement this series.
      */
     protected int getMemoryUsed() {
-      int result = 4 + 8 + 8 + 8 + 4 + 4 + 4;
+      var result = 4 + 8 + 8 + 8 + 4 + 4 + 4;
       if (intervals != null) {
         result += 4 * intervals.length;
-        for (int i = 0; i <= intervalIdx; i++) {
+        for (var i = 0; i <= intervalIdx; i++) {
           result += intervals[i].getMemoryUsed();
         }
       }
@@ -1988,15 +1988,15 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      * calling "getSize()".
      */
     public double[] getValuesEx(int typeCode, int samplesToSkip, int resultSize) {
-      double[] result = new double[resultSize];
-      int firstInterval = 0;
-      int idx = 0;
+      var result = new double[resultSize];
+      var firstInterval = 0;
+      var idx = 0;
       while (samplesToSkip > 0 && firstInterval <= intervalIdx
           && intervals[firstInterval].getSampleCount() <= samplesToSkip) {
         samplesToSkip -= intervals[firstInterval].getSampleCount();
         firstInterval++;
       }
-      for (int i = firstInterval; i <= intervalIdx; i++) {
+      for (var i = firstInterval; i <= intervalIdx; i++) {
         idx += intervals[i].fill(result, idx, typeCode, samplesToSkip);
         samplesToSkip = 0;
       }
@@ -2016,7 +2016,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     void dump(PrintWriter stream) {
       stream.print("[size=" + count + " intervals=" + (intervalIdx + 1) + " memused="
           + getMemoryUsed() + " ");
-      for (int i = 0; i <= intervalIdx; i++) {
+      for (var i = 0; i <= intervalIdx; i++) {
         if (i != 0) {
           stream.print(", ");
         }
@@ -2050,7 +2050,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     void addBits(long deltaBits) {
-      long bits = currentEndBits + deltaBits;
+      var bits = currentEndBits + deltaBits;
       if (currentCount == 0) {
         currentStartBits = bits;
         currentCount = 1;
@@ -2070,7 +2070,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
             // wouldn't fit in current bit interval so add a new one
             intervalIdx++;
             if (intervalIdx >= intervals.length) {
-              BitInterval[] tmp = new BitInterval[intervals.length * 2];
+              var tmp = new BitInterval[intervals.length * 2];
               System.arraycopy(intervals, 0, tmp, 0, intervals.length);
               intervals = tmp;
             }
@@ -2091,9 +2091,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      */
     void shrink() {
       if (intervals != null) {
-        int currentSize = intervalIdx + 1;
+        var currentSize = intervalIdx + 1;
         if (currentSize < intervals.length) {
-          BitInterval[] tmp = new BitInterval[currentSize];
+          var tmp = new BitInterval[currentSize];
           System.arraycopy(intervals, 0, tmp, 0, currentSize);
           intervals = tmp;
         }
@@ -2109,7 +2109,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     void dump(PrintWriter stream) {
       stream.print("[size=" + count);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         if (i != 0) {
           stream.print(", ");
           stream.print(timeStamps[i] - timeStamps[i - 1]);
@@ -2122,7 +2122,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     void shrink() {
       if (count < timeStamps.length) {
-        long[] tmp = new long[count];
+        var tmp = new long[count];
         System.arraycopy(timeStamps, 0, tmp, 0, count);
         timeStamps = tmp;
       }
@@ -2143,7 +2143,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     void addTimeStamp(int ts) {
       if (count >= timeStamps.length) {
-        long[] tmp = new long[timeStamps.length + GROW_SIZE];
+        var tmp = new long[timeStamps.length + GROW_SIZE];
         System.arraycopy(timeStamps, 0, tmp, 0, timeStamps.length);
         timeStamps = tmp;
       }
@@ -2176,9 +2176,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      * returned time stamp is the number of millis since midnight, Jan 1, 1970 UTC.
      */
     double[] getTimeValuesSinceIdx(int idx) {
-      int resultSize = count - idx;
-      double[] result = new double[resultSize];
-      for (int i = 0; i < resultSize; i++) {
+      var resultSize = count - idx;
+      var result = new double[resultSize];
+      for (var i = 0; i < resultSize; i++) {
         result[i] = getMilliTimeStamp(idx + i);
       }
       return result;
@@ -2200,7 +2200,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     public void dump(PrintWriter stream) {
       if (loaded) {
         stream.println(name + ": " + desc);
-        for (final StatDescriptor stat : stats) {
+        for (final var stat : stats) {
           stat.dump(stream);
         }
       }
@@ -2232,7 +2232,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      */
     protected boolean close() {
       if (isLoaded()) {
-        for (int i = 0; i < stats.length; i++) {
+        for (var i = 0; i < stats.length; i++) {
           if (stats[i] != null) {
             if (!stats[i].isLoaded()) {
               stats[i] = null;
@@ -2248,7 +2248,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     void unload() {
       loaded = false;
       desc = null;
-      for (final StatDescriptor stat : stats) {
+      for (final var stat : stats) {
         stat.unload();
       }
       descriptorMap.clear();
@@ -2257,7 +2257,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     protected void addStatDescriptor(StatArchiveFile archive, int offset, String name,
         boolean isCounter, boolean largerBetter, byte typeCode, String units, String desc) {
-      StatDescriptor descriptor =
+      var descriptor =
           new StatDescriptor(name, offset, isCounter, largerBetter, typeCode, units, desc);
       stats[offset] = descriptor;
       if (archive.loadStatDescriptor(descriptor, this)) {
@@ -2299,8 +2299,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       return result;
     }
@@ -2316,7 +2316,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      ResourceType other = (ResourceType) obj;
+      var other = (ResourceType) obj;
       if (name == null) {
         return other.name == null;
       } else
@@ -2400,7 +2400,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      * in the same time zone that was in effect when the archive was created.
      */
     public TimeZone getTimeZone() {
-      TimeZone result = TimeZone.getTimeZone(timeZoneName);
+      var result = TimeZone.getTimeZone(timeZoneName);
       if (result.getRawOffset() != timeZoneOffset) {
         result = new SimpleTimeZone(timeZoneOffset, timeZoneName);
       }
@@ -2446,7 +2446,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      */
     @Override
     public String toString() {
-      StringWriter sw = new StringWriter();
+      var sw = new StringWriter();
       dump(new PrintWriter(sw));
       return sw.toString();
     }
@@ -2491,9 +2491,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      * Returns the approximate amount of memory used to implement this object.
      */
     protected int getMemoryUsed() {
-      int result = 0;
+      var result = 0;
       if (values != null) {
-        for (final SimpleValue value : values) {
+        for (final var value : values) {
           result += value.getMemoryUsed();
         }
       }
@@ -2509,7 +2509,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      */
     @Override
     public String toString() {
-      StringBuilder result = new StringBuilder();
+      var result = new StringBuilder();
       result.append(name).append(", ").append(id).append(", ").append(type.getName()).append(": \"")
           .append(archive.formatTimeMillis(getFirstTimeMillis())).append('\"');
       if (!active) {
@@ -2538,7 +2538,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       stream.println(
           name + ":" + " file=" + getArchive().getFile() + " id=" + id + (active ? "" : " deleted")
               + " start=" + archive.formatTimeMillis(getFirstTimeMillis()));
-      for (final SimpleValue value : values) {
+      for (final var value : values) {
         value.dump(stream);
       }
     }
@@ -2552,9 +2552,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       Assert.assertTrue(type != null);
       this.type = type;
       if (loaded) {
-        StatDescriptor[] stats = type.getStats();
+        var stats = type.getStats();
         values = new SimpleValue[stats.length];
-        for (int i = 0; i < stats.length; i++) {
+        for (var i = 0; i < stats.length; i++) {
           if (archive.loadStat(stats[i], this)) {
             values[i] = new SimpleValue(this, stats[i]);
           } else {
@@ -2569,7 +2569,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     void matchSpec(StatSpec spec, List matchedValues) {
       if (spec.typeMatches(type.getName())) {
         if (spec.instanceMatches(getName(), getId())) {
-          for (final SimpleValue value : values) {
+          for (final var value : values) {
             if (value != null) {
               if (spec.statMatches(value.getDescriptor().getName())) {
                 matchedValues.add(value);
@@ -2608,7 +2608,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      */
     protected boolean close() {
       if (isLoaded()) {
-        for (final SimpleValue value : values) {
+        for (final var value : values) {
           if (value != null) {
             value.shrink();
           }
@@ -2660,7 +2660,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      */
     public StatValue getStatValue(String name) {
       StatValue result = null;
-      StatDescriptor desc = getType().getStat(name);
+      var desc = getType().getStat(name);
       if (desc != null) {
         result = values[desc.getOffset()];
       }
@@ -2714,7 +2714,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         if (firstTSidx == -1) {
           firstTSidx = archive.getTimeStamps().getSize() - 1;
         }
-        for (final SimpleValue value : values) {
+        for (final var value : values) {
           if (value != null) {
             value.addSample();
           }
@@ -2724,8 +2724,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + (int) (id ^ (id >>> 32));
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -2743,7 +2743,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      ResourceInst other = (ResourceInst) obj;
+      var other = (ResourceInst) obj;
       if (id != other.id) {
         return false;
       }
@@ -2860,8 +2860,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if (allFilters == null) {
         return new ValueFilter[0];
       }
-      ArrayList l = new ArrayList();
-      for (final ValueFilter allFilter : allFilters) {
+      var l = new ArrayList();
+      for (final var allFilter : allFilters) {
         if (allFilter.archiveMatches(getFile())) {
           l.add(allFilter);
         }
@@ -2869,7 +2869,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if (l.size() == allFilters.length) {
         return allFilters;
       } else {
-        ValueFilter[] result = new ValueFilter[l.size()];
+        var result = new ValueFilter[l.size()];
         return (ValueFilter[]) l.toArray(result);
       }
     }
@@ -2881,16 +2881,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     void matchSpec(StatSpec spec, List matchedValues) {
       if (spec.getCombineType() == StatSpec.FILE) {
         // search for previous ComboValue
-        for (final Object fileComboValue : fileComboValues) {
-          ComboValue v = (ComboValue) fileComboValue;
+        for (final var fileComboValue : fileComboValues) {
+          var v = (ComboValue) fileComboValue;
           if (!spec.statMatches(v.getDescriptor().getName())) {
             continue;
           }
           if (!spec.typeMatches(v.getType().getName())) {
             continue;
           }
-          ResourceInst[] resources = v.getResources();
-          for (final ResourceInst resource : resources) {
+          var resources = v.getResources();
+          for (final var resource : resources) {
             if (!spec.instanceMatches(resource.getName(), resource.getId())) {
               continue;
             }
@@ -2899,16 +2899,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
           matchedValues.add(v);
           return;
         }
-        ArrayList l = new ArrayList();
+        var l = new ArrayList();
         matchSpec(new RawStatSpec(spec), l);
         if (l.size() != 0) {
-          ComboValue cv = new ComboValue(l);
+          var cv = new ComboValue(l);
           // save this in file's combo value list
           fileComboValues.add(cv);
           matchedValues.add(cv);
         }
       } else {
-        for (int instIdx = 0; instIdx < resourceInstSize; instIdx++) {
+        for (var instIdx = 0; instIdx < resourceInstSize; instIdx++) {
           resourceInstTable[instIdx].matchSpec(spec, matchedValues);
         }
       }
@@ -2964,7 +2964,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         dataIn.reset();
       }
 
-      int updateTokenCount = 0;
+      var updateTokenCount = 0;
       while (readToken()) {
         updateTokenCount++;
       }
@@ -2976,14 +2976,14 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if (info != null) {
         info.dump(stream);
       }
-      for (final ResourceType resourceType : resourceTypeTable) {
+      for (final var resourceType : resourceTypeTable) {
         if (resourceType != null) {
           resourceType.dump(stream);
         }
       }
       stream.print("time=");
       timeSeries.dump(stream);
-      for (final ResourceInst resourceInst : resourceInstTable) {
+      for (final var resourceInst : resourceInstTable) {
         if (resourceInst != null) {
           resourceInst.dump(stream);
         }
@@ -3004,9 +3004,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         dataIn.close();
         is = null;
         dataIn = null;
-        int typeCount = 0;
+        var typeCount = 0;
         if (resourceTypeTable != null) { // fix for bug 32320
-          for (int i = 0; i < resourceTypeTable.length; i++) {
+          for (var i = 0; i < resourceTypeTable.length; i++) {
             if (resourceTypeTable[i] != null) {
               if (resourceTypeTable[i].close()) {
                 resourceTypeTable[i] = null;
@@ -3015,9 +3015,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
               }
             }
           }
-          ResourceType[] newTypeTable = new ResourceType[typeCount];
+          var newTypeTable = new ResourceType[typeCount];
           typeCount = 0;
-          for (final ResourceType resourceType : resourceTypeTable) {
+          for (final var resourceType : resourceTypeTable) {
             if (resourceType != null) {
               newTypeTable[typeCount] = resourceType;
               typeCount++;
@@ -3027,8 +3027,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         }
 
         if (resourceInstTable != null) { // fix for bug 32320
-          int instCount = 0;
-          for (int i = 0; i < resourceInstTable.length; i++) {
+          var instCount = 0;
+          for (var i = 0; i < resourceInstTable.length; i++) {
             if (resourceInstTable[i] != null) {
               if (resourceInstTable[i].close()) {
                 resourceInstTable[i] = null;
@@ -3037,9 +3037,9 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
               }
             }
           }
-          ResourceInst[] newInstTable = new ResourceInst[instCount];
+          var newInstTable = new ResourceInst[instCount];
           instCount = 0;
-          for (final ResourceInst resourceInst : resourceInstTable) {
+          for (final var resourceInst : resourceInstTable) {
             if (resourceInst != null) {
               newInstTable[instCount] = resourceInst;
               instCount++;
@@ -3064,16 +3064,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private void readHeaderToken() throws IOException {
-      byte archiveVersion = dataIn.readByte();
-      long startTimeStamp = dataIn.readLong();
-      long systemId = dataIn.readLong();
-      long systemStartTimeStamp = dataIn.readLong();
-      int timeZoneOffset = dataIn.readInt();
-      String timeZoneName = dataIn.readUTF();
-      String systemDirectory = dataIn.readUTF();
-      String productVersion = dataIn.readUTF();
-      String os = dataIn.readUTF();
-      String machine = dataIn.readUTF();
+      var archiveVersion = dataIn.readByte();
+      var startTimeStamp = dataIn.readLong();
+      var systemId = dataIn.readLong();
+      var systemStartTimeStamp = dataIn.readLong();
+      var timeZoneOffset = dataIn.readInt();
+      var timeZoneName = dataIn.readUTF();
+      var systemDirectory = dataIn.readUTF();
+      var productVersion = dataIn.readUTF();
+      var os = dataIn.readUTF();
+      var machine = dataIn.readUTF();
       if (archiveVersion <= 1) {
         throw new GemFireIOException(
             String.format("Archive version: %s is no longer supported.",
@@ -3105,7 +3105,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if (filters == null || filters.length == 0) {
         return true;
       } else {
-        for (final ValueFilter filter : filters) {
+        for (final var filter : filters) {
           if (filter.typeMatches(typeName)) {
             return true;
           }
@@ -3122,7 +3122,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if (filters == null || filters.length == 0) {
         return true;
       } else {
-        for (final ValueFilter filter : filters) {
+        for (final var filter : filters) {
           if (filter.statMatches(stat.getName()) && filter.typeMatches(type.getName())) {
             return true;
           }
@@ -3139,11 +3139,11 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if (filters == null || filters.length == 0) {
         return true;
       } else {
-        for (final ValueFilter filter : filters) {
+        for (final var filter : filters) {
           if (filter.typeMatches(type.getName())) {
             if (filter.instanceMatches(textId, numericId)) {
-              StatDescriptor[] stats = type.getStats();
-              for (final StatDescriptor stat : stats) {
+              var stats = type.getStats();
+              for (final var stat : stats) {
                 if (stat.isLoaded()) {
                   if (filter.statMatches(stat.getName())) {
                     return true;
@@ -3158,16 +3158,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     boolean loadStat(StatDescriptor stat, ResourceInst resource) {
-      ResourceType type = resource.getType();
+      var type = resource.getType();
       if (!resource.isLoaded() || !type.isLoaded() || !stat.isLoaded()) {
         return false;
       }
       if (filters == null || filters.length == 0) {
         return true;
       } else {
-        String textId = resource.getName();
-        long numericId = resource.getId();
-        for (final ValueFilter filter : filters) {
+        var textId = resource.getName();
+        var numericId = resource.getId();
+        for (final var filter : filters) {
           if (filter.statMatches(stat.getName()) && filter.typeMatches(type.getName())
               && filter.instanceMatches(textId, numericId)) {
             return true;
@@ -3178,12 +3178,12 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private void readResourceTypeToken() throws IOException {
-      int resourceTypeId = dataIn.readInt();
-      String resourceTypeName = dataIn.readUTF();
-      String resourceTypeDesc = dataIn.readUTF();
-      int statCount = dataIn.readUnsignedShort();
+      var resourceTypeId = dataIn.readInt();
+      var resourceTypeName = dataIn.readUTF();
+      var resourceTypeDesc = dataIn.readUTF();
+      var statCount = dataIn.readUnsignedShort();
       while (resourceTypeId >= resourceTypeTable.length) {
-        ResourceType[] tmp = new ResourceType[resourceTypeTable.length + 128];
+        var tmp = new ResourceType[resourceTypeTable.length + 128];
         System.arraycopy(resourceTypeTable, 0, tmp, 0, resourceTypeTable.length);
         resourceTypeTable = tmp;
       }
@@ -3204,16 +3204,16 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         }
       }
       resourceTypeTable[resourceTypeId] = rt;
-      for (int i = 0; i < statCount; i++) {
-        String statName = dataIn.readUTF();
-        byte typeCode = dataIn.readByte();
-        boolean isCounter = dataIn.readBoolean();
-        boolean largerBetter = isCounter; // default
+      for (var i = 0; i < statCount; i++) {
+        var statName = dataIn.readUTF();
+        var typeCode = dataIn.readByte();
+        var isCounter = dataIn.readBoolean();
+        var largerBetter = isCounter; // default
         if (archiveVersion >= 4) {
           largerBetter = dataIn.readBoolean();
         }
-        String units = dataIn.readUTF();
-        String desc = dataIn.readUTF();
+        var units = dataIn.readUTF();
+        var desc = dataIn.readUTF();
         rt.addStatDescriptor(this, i, statName, isCounter, largerBetter, typeCode, units, desc);
         if (dump) {
           System.out.println("  " + i + "=" + statName + " isCtr=" + isCounter + " largerBetter="
@@ -3223,12 +3223,12 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private void readResourceInstanceCreateToken(boolean initialize) throws IOException {
-      int resourceInstId = dataIn.readInt();
-      String name = dataIn.readUTF();
-      long id = dataIn.readLong();
-      int resourceTypeId = dataIn.readInt();
+      var resourceInstId = dataIn.readInt();
+      var name = dataIn.readUTF();
+      var id = dataIn.readLong();
+      var resourceTypeId = dataIn.readInt();
       while (resourceInstId >= resourceInstTable.length) {
-        ResourceInst[] tmp = new ResourceInst[resourceInstTable.length + 128];
+        var tmp = new ResourceInst[resourceInstTable.length + 128];
         System.arraycopy(resourceInstTable, 0, tmp, 0, resourceInstTable.length);
         resourceInstTable = tmp;
       }
@@ -3236,12 +3236,12 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
       if ((resourceInstId + 1) > resourceInstSize) {
         resourceInstSize = resourceInstId + 1;
       }
-      ResourceType type = resourceTypeTable[resourceTypeId];
+      var type = resourceTypeTable[resourceTypeId];
       if (type == null) {
         throw new IllegalStateException("ResourceType is missing for resourceTypeId "
             + resourceTypeId + ", resourceName " + name);
       }
-      boolean loadInstance = loadInstance(name, id, resourceTypeTable[resourceTypeId]);
+      var loadInstance = loadInstance(name, id, resourceTypeTable[resourceTypeId]);
       resourceInstTable[resourceInstId] = new ResourceInst(this, resourceInstId, name, id,
           resourceTypeTable[resourceTypeId], loadInstance);
       if (dump) {
@@ -3250,8 +3250,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         System.out.println("  name=" + name + " id=" + id + " typeId=" + resourceTypeId);
       }
       if (initialize) {
-        StatDescriptor[] stats = resourceInstTable[resourceInstId].getType().getStats();
-        for (int i = 0; i < stats.length; i++) {
+        var stats = resourceInstTable[resourceInstId].getType().getStats();
+        for (var i = 0; i < stats.length; i++) {
           long v;
           switch (stats[i].getTypeCode()) {
             case BOOLEAN_CODE:
@@ -3283,7 +3283,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private void readResourceInstanceDeleteToken() throws IOException {
-      int resourceInstId = dataIn.readInt();
+      var resourceInstId = dataIn.readInt();
       Assert.assertTrue(resourceInstTable[resourceInstId] != null);
       resourceInstTable[resourceInstId].makeInactive();
       if (dump) {
@@ -3292,7 +3292,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private int readResourceInstId() throws IOException {
-      int token = dataIn.readUnsignedByte();
+      var token = dataIn.readUnsignedByte();
       if (token <= MAX_BYTE_RESOURCE_INST_ID) {
         return token;
       } else if (token == ILLEGAL_RESOURCE_INST_ID_TOKEN) {
@@ -3305,7 +3305,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private int readTimeDelta() throws IOException {
-      int result = dataIn.readUnsignedShort();
+      var result = dataIn.readUnsignedShort();
       if (result == INT_TIMESTAMP_TOKEN) {
         result = dataIn.readInt();
       }
@@ -3317,17 +3317,17 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
     }
 
     private void readSampleToken() throws IOException {
-      int millisSinceLastSample = readTimeDelta();
+      var millisSinceLastSample = readTimeDelta();
       if (dump) {
         System.out.println("ts=" + millisSinceLastSample);
       }
-      int resourceInstId = readResourceInstId();
+      var resourceInstId = readResourceInstId();
       while (resourceInstId != ILLEGAL_RESOURCE_INST_ID) {
         if (dump) {
           System.out.print("  instId=" + resourceInstId);
         }
-        StatDescriptor[] stats = resourceInstTable[resourceInstId].getType().getStats();
-        int statOffset = dataIn.readUnsignedByte();
+        var stats = resourceInstTable[resourceInstId].getType().getStats();
+        var statOffset = dataIn.readUnsignedByte();
         while (statOffset != ILLEGAL_STAT_OFFSET) {
           long statDeltaBits;
           switch (stats[statOffset].getTypeCode()) {
@@ -3367,7 +3367,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
         resourceInstId = readResourceInstId();
       }
       timeSeries.addTimeStamp(millisSinceLastSample);
-      for (ResourceInst inst : resourceInstTable) {
+      for (var inst : resourceInstTable) {
         if (inst != null && inst.isActive()) {
           inst.addTimeStamp();
         }
@@ -3417,8 +3417,8 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
      * Returns the approximate amount of memory used to implement this object.
      */
     protected int getMemoryUsed() {
-      int result = 0;
-      for (final ResourceInst resourceInst : resourceInstTable) {
+      var result = 0;
+      for (final var resourceInst : resourceInstTable) {
         if (resourceInst != null) {
           result += resourceInst.getMemoryUsed();
         }
@@ -3428,7 +3428,7 @@ public class StatArchiveReader implements StatArchiveFormat, AutoCloseable {
   }
 
   private static NumberFormat getNumberFormat() {
-    NumberFormat nf = NumberFormat.getNumberInstance();
+    var nf = NumberFormat.getNumberInstance();
     nf.setMaximumFractionDigits(2);
     nf.setGroupingUsed(false);
     return nf;

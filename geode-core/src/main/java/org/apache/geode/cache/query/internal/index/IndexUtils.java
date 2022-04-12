@@ -45,14 +45,14 @@ public class IndexUtils {
     if (region == null || region.isDestroyed()) {
       return null;
     }
-    InternalRegion lRegion = (InternalRegion) region;
-    IndexManager idxMgr = lRegion.getIndexManager();
+    var lRegion = (InternalRegion) region;
+    var idxMgr = lRegion.getIndexManager();
     if (idxMgr == null && createIfNotAvailable) {
       // JUst before creating new IndexManager.
       if (testHook != null && region instanceof PartitionedRegion) {
         testHook.hook(0);
       }
-      Object imSync = lRegion.getIMSync();
+      var imSync = lRegion.getIMSync();
       synchronized (imSync) {
         // Double checked locking
         if (lRegion.getIndexManager() == null) {
@@ -71,7 +71,7 @@ public class IndexUtils {
       boolean usePrimaryIndex, ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
 
-    DefaultQueryService qs = (DefaultQueryService) cache.getLocalQueryService();
+    var qs = (DefaultQueryService) cache.getLocalQueryService();
     IndexData indxData = null;
     if (usePrimaryIndex) {
       if (useOnlyExactIndexs) {
@@ -108,7 +108,7 @@ public class IndexUtils {
     } else {
       // if exact PRIMARY_KEY Index not found then try to find exact FUNCTIONAL Index
       if (indxData._matchLevel != 0) {
-        IndexData functionalIndxData = qs.getIndex(regionpath, defintions,
+        var functionalIndxData = qs.getIndex(regionpath, defintions,
             IndexType.FUNCTIONAL /* do not use pk index */, indexedExpression, context);
         // if FUNCTIONAL Index is exact match then use or else use PRIMARY_KEY Index
         if (functionalIndxData != null && functionalIndxData._index.isValid()) {

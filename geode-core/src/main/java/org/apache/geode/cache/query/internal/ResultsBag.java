@@ -65,14 +65,14 @@ public class ResultsBag extends Bag implements DataSerializableFixedID {
    */
   ResultsBag(Collection c, CachePerfStats stats) {
     this(stats);
-    for (final Object o : c) {
+    for (final var o : c) {
       add(o);
     }
   }
 
   protected ResultsBag(Collection c, HashingStrategy strategy, CachePerfStats stats) {
     this(strategy, stats);
-    for (final Object o : c) {
+    for (final var o : c) {
       add(o);
     }
   }
@@ -145,11 +145,11 @@ public class ResultsBag extends Bag implements DataSerializableFixedID {
     readNumNulls(in);
     // Asif: The size will be including null so the Map should at max contain
     // size - number of nulls
-    int numLeft = size - numNulls;
+    var numLeft = size - numNulls;
 
     while (numLeft > 0) {
-      Object key = context.getDeserializer().readObject(in);
-      int occurrence = in.readInt();
+      var key = context.getDeserializer().readObject(in);
+      var occurrence = in.readInt();
       map.put(key, occurrence);
       numLeft -= occurrence;
     }
@@ -170,12 +170,12 @@ public class ResultsBag extends Bag implements DataSerializableFixedID {
     // For the time being not passing , assuming PR Has parsed
     // it
     // out.writeInt(this.limit);
-    int numLeft = size() - numNulls;
-    for (Iterator<Entry> itr = map.entrySet().iterator(); itr.hasNext() && numLeft > 0;) {
-      Entry entry = itr.next();
-      Object key = entry.getKey();
+    var numLeft = size() - numNulls;
+    for (var itr = map.entrySet().iterator(); itr.hasNext() && numLeft > 0;) {
+      var entry = itr.next();
+      var key = entry.getKey();
       context.getSerializer().writeObject(key, out);
-      int occurrence = entry.getValue();
+      var occurrence = entry.getValue();
       if (numLeft < occurrence) {
         occurrence = numLeft;
       }

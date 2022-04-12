@@ -33,7 +33,6 @@ import javax.resource.spi.ManagedConnectionMetaData;
 import javax.security.auth.Subject;
 import javax.transaction.xa.XAResource;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.internal.CopyOnWriteHashSet;
 import org.apache.geode.internal.cache.InternalCache;
@@ -98,7 +97,7 @@ public class JCAManagedConnection implements ManagedConnection {
   private void invalidateAndRemoveConnections() {
     synchronized (connections) {
       List<GFConnectionImpl> connectionsToRemove = new ArrayList<>();
-      for (GFConnectionImpl connection : connections) {
+      for (var connection : connections) {
         connection.invalidate();
         connectionsToRemove.add(connection);
       }
@@ -127,12 +126,12 @@ public class JCAManagedConnection implements ManagedConnection {
     if (!initialized || isCacheClosed()) {
       init();
     }
-    LogWriter logger = cache.getLogger();
+    var logger = cache.getLogger();
     if (logger.fineEnabled()) {
       logger.fine("JCAManagedConnection:getConnection. Returning new Connection");
     }
 
-    GFConnectionImpl connection = new GFConnectionImpl(this);
+    var connection = new GFConnectionImpl(this);
     connections.add(connection);
     return connection;
   }
@@ -142,7 +141,7 @@ public class JCAManagedConnection implements ManagedConnection {
     if (cache == null) {
       throw new RuntimeException("Cache could not be found in JCAManagedConnection");
     }
-    LogWriter logger = cache.getLogger();
+    var logger = cache.getLogger();
     if (logger.fineEnabled()) {
       logger.fine("JCAManagedConnection:init. Inside init");
     }
@@ -163,7 +162,7 @@ public class JCAManagedConnection implements ManagedConnection {
   @Override
   public ManagedConnectionMetaData getMetaData() throws ResourceException {
     if (initialized && !isCacheClosed()) {
-      LogWriter logger = cache.getLogger();
+      var logger = cache.getLogger();
       if (logger.fineEnabled()) {
         logger.fine("JCAManagedConnection:getMetaData");
       }
@@ -193,14 +192,14 @@ public class JCAManagedConnection implements ManagedConnection {
 
     synchronized (connections) {
       List<GFConnectionImpl> connectionsToRemove = new LinkedList<>(connections);
-      for (GFConnectionImpl connection : connections) {
+      for (var connection : connections) {
         connection.invalidate();
         connectionsToRemove.add(connection);
         synchronized (listeners) {
-          ConnectionEvent event =
+          var event =
               new ConnectionEvent(this, ConnectionEvent.CONNECTION_ERROR_OCCURRED, e);
           event.setConnectionHandle(connection);
-          for (ConnectionEventListener listener : listeners) {
+          for (var listener : listeners) {
             listener.connectionErrorOccurred(event);
           }
         }
@@ -214,9 +213,9 @@ public class JCAManagedConnection implements ManagedConnection {
     connections.remove(connection);
 
     synchronized (listeners) {
-      ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.CONNECTION_CLOSED);
+      var event = new ConnectionEvent(this, ConnectionEvent.CONNECTION_CLOSED);
       event.setConnectionHandle(connection);
-      for (ConnectionEventListener listener : listeners) {
+      for (var listener : listeners) {
         listener.connectionClosed(event);
       }
     }

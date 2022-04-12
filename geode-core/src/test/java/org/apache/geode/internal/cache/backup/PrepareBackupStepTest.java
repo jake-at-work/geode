@@ -27,12 +27,10 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
 
 import org.apache.geode.cache.CacheClosedException;
@@ -70,15 +68,15 @@ public class PrepareBackupStepTest {
 
     prepareBackupFactory = mock(PrepareBackupFactory.class);
 
-    File targetDir = mock(File.class);
-    File baselineDir = mock(File.class);
+    var targetDir = mock(File.class);
+    var baselineDir = mock(File.class);
 
     sender = mock(InternalDistributedMember.class, "sender");
     member1 = mock(InternalDistributedMember.class, "member1");
     member2 = mock(InternalDistributedMember.class, "member2");
     recipients = new HashSet<>();
 
-    Properties backupProperties = new BackupConfigFactory().withTargetDirPath(targetDir.toString())
+    var backupProperties = new BackupConfigFactory().withTargetDirPath(targetDir.toString())
         .withBaselineDirPath(baselineDir.toString()).createBackupProperties();
 
     prepareBackupStep = new PrepareBackupStep(dm, sender, cache, recipients,
@@ -103,7 +101,7 @@ public class PrepareBackupStepTest {
 
   @Test
   public void sendReturnsResultsForRemoteRecipient() throws Exception {
-    HashSet<PersistentID> persistentIdsForMember1 = new HashSet<>();
+    var persistentIdsForMember1 = new HashSet<PersistentID>();
     persistentIdsForMember1.add(mock(PersistentID.class));
     doAnswer(invokeAddToResults(new MemberWithPersistentIds(member1, persistentIdsForMember1)))
         .when(prepareBackupReplyProcessor).waitForReplies();
@@ -114,7 +112,7 @@ public class PrepareBackupStepTest {
 
   @Test
   public void sendReturnsResultsForLocalMember() throws Exception {
-    HashSet<PersistentID> persistentIdsForSender = new HashSet<>();
+    var persistentIdsForSender = new HashSet<PersistentID>();
     persistentIdsForSender.add(mock(PersistentID.class));
     when(prepareBackup.run()).thenReturn(persistentIdsForSender);
 
@@ -124,13 +122,13 @@ public class PrepareBackupStepTest {
 
   @Test
   public void sendReturnsResultsForAllMembers() throws Exception {
-    HashSet<PersistentID> persistentIdsForMember1 = new HashSet<>();
+    var persistentIdsForMember1 = new HashSet<PersistentID>();
     persistentIdsForMember1.add(mock(PersistentID.class));
 
-    HashSet<PersistentID> persistentIdsForMember2 = new HashSet<>();
+    var persistentIdsForMember2 = new HashSet<PersistentID>();
     persistentIdsForMember2.add(mock(PersistentID.class));
 
-    MemberWithPersistentIds[] ids = new MemberWithPersistentIds[] {
+    var ids = new MemberWithPersistentIds[] {
         new MemberWithPersistentIds(member1, persistentIdsForMember1),
         new MemberWithPersistentIds(member2, persistentIdsForMember2)};
 
@@ -139,7 +137,7 @@ public class PrepareBackupStepTest {
     // prepareBackupStep.addToResults(ids[0].member, ids[0].persistentIds);
     // prepareBackupStep.addToResults(ids[1].member, ids[1].persistentIds);
 
-    HashSet<PersistentID> persistentIdsForSender = new HashSet<>();
+    var persistentIdsForSender = new HashSet<PersistentID>();
     persistentIdsForSender.add(mock(PersistentID.class));
     when(prepareBackup.run()).thenReturn(persistentIdsForSender);
 
@@ -166,7 +164,7 @@ public class PrepareBackupStepTest {
 
   @Test
   public void addToResultsShouldShowUpInGetResults() throws Exception {
-    HashSet<PersistentID> persistentIdsForMember1 = new HashSet<>();
+    var persistentIdsForMember1 = new HashSet<PersistentID>();
     persistentIdsForMember1.add(mock(PersistentID.class));
     prepareBackupStep.addToResults(member1, persistentIdsForMember1);
     assertThat(prepareBackupStep.getResults()).containsOnlyKeys(member1)
@@ -187,7 +185,7 @@ public class PrepareBackupStepTest {
 
   @Test
   public void sendShouldHandleCancelExceptionFromWaitForReplies() throws Exception {
-    ReplyException replyException =
+    var replyException =
         new ReplyException("expected exception", new CacheClosedException("expected exception"));
     doThrow(replyException).when(prepareBackupReplyProcessor).waitForReplies();
     prepareBackupStep.send();
@@ -217,7 +215,7 @@ public class PrepareBackupStepTest {
 
   @Test
   public void sendShouldPrepareForBackupInLocalMemberBeforeWaitingForReplies() throws Exception {
-    InOrder inOrder = inOrder(prepareBackup, prepareBackupReplyProcessor);
+    var inOrder = inOrder(prepareBackup, prepareBackupReplyProcessor);
     prepareBackupStep.send();
 
     inOrder.verify(prepareBackup, times(1)).run();
@@ -226,7 +224,7 @@ public class PrepareBackupStepTest {
 
   private Answer<Object> invokeAddToResults(MemberWithPersistentIds... memberWithPersistentIds) {
     return invocation -> {
-      for (MemberWithPersistentIds ids : memberWithPersistentIds) {
+      for (var ids : memberWithPersistentIds) {
         prepareBackupStep.addToResults(ids.member, ids.persistentIds);
       }
       return null;

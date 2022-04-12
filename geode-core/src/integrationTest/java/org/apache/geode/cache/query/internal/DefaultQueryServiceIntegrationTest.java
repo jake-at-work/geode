@@ -69,7 +69,7 @@ public class DefaultQueryServiceIntegrationTest {
 
   @Test
   public void constructorShouldLogWarningWhenMethodAuthorizerIsNull() {
-    QueryConfigurationService mockService = mock(QueryConfigurationService.class);
+    var mockService = mock(QueryConfigurationService.class);
     when(mockService.getMethodAuthorizer()).thenReturn(null);
     when(spiedCache.getService(QueryConfigurationService.class)).thenReturn(mockService);
 

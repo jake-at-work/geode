@@ -22,12 +22,10 @@ import static org.junit.Assert.fail;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
@@ -61,7 +59,7 @@ public class ConnectionPoolingJUnitTest {
     encounteredException = false;
     props = new Properties();
     props.setProperty(MCAST_PORT, "0");
-    String path =
+    var path =
         createTempFileFromResource(ConnectionPoolingJUnitTest.class, "/jta/cachejta.xml")
             .getAbsolutePath();
     props.setProperty(CACHE_XML_FILE, path);
@@ -76,9 +74,9 @@ public class ConnectionPoolingJUnitTest {
 
   @Test
   public void testGetSimpleDataSource() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    GemFireBasicDataSource ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
-    Connection conn = ds.getConnection();
+    var ctx = cache.getJNDIContext();
+    var ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
+    var conn = ds.getConnection();
     if (conn == null) {
       fail(
           "DataSourceFactoryTest-testGetSimpleDataSource() Error in creating the GemFireBasicDataSource");
@@ -94,11 +92,11 @@ public class ConnectionPoolingJUnitTest {
    */
   @Test
   public void testConnectionPoolFunctions() throws Exception {
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
     ds = (DataSource) ctx.lookup("java:/PooledDataSource");
-    PoolClient_1 clientA = new PoolClient_1();
+    var clientA = new PoolClient_1();
     ThreadA = new Thread(clientA, "ThreadA");
-    PoolClient_2 clientB = new PoolClient_2();
+    var clientB = new PoolClient_2();
     ThreadB = new Thread(clientB, "ThreadB");
     // ThreadA.setDaemon(true);
     // ThreadB.setDaemon(true);
@@ -108,43 +106,43 @@ public class ConnectionPoolingJUnitTest {
   @Ignore("Disabled for bug #52242")
   @Test
   public void testXAPoolLeakage() throws Exception {
-    final String tableName = "testXAPoolLeakage";
+    final var tableName = "testXAPoolLeakage";
     // initialize cache and get user transaction
     try {
-      int numThreads = 10;
-      final int LOOP_COUNT = 10;
+      var numThreads = 10;
+      final var LOOP_COUNT = 10;
 
       // logger.debug ("Table name: " + tableName);
-      Context ctx = cache.getJNDIContext();
-      DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var ctx = cache.getJNDIContext();
+      var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
 
       // String sql = "create table " + tableName + " (id number primary key,
       // name varchar2(50))";
       // String sql = "create table " + tableName + " (id integer primary key,
       // name varchar(50))";
-      String sql =
+      var sql =
           "create table " + tableName + " (id varchar(50) NOT NULL, name varchar(50), CONSTRAINT "
               + tableName + "_key PRIMARY KEY(id))";
       logger.debug(sql);
-      Connection conn = ds.getConnection();
-      Statement sm = conn.createStatement();
+      var conn = ds.getConnection();
+      var sm = conn.createStatement();
       sm.execute(sql);
       sm.close();
       conn.close();
-      Thread[] th = new Thread[numThreads];
-      for (int i = 0; i < numThreads; ++i) {
-        final int threadID = i;
+      var th = new Thread[numThreads];
+      for (var i = 0; i < numThreads; ++i) {
+        final var threadID = i;
         th[i] = new Thread(new Runnable() {
           private final int key = threadID;
 
           @Override
           public void run() {
             try {
-              Context ctx = cache.getJNDIContext();
+              var ctx = cache.getJNDIContext();
               // Operation with first XA Resource
-              DataSource da1 = (DataSource) ctx.lookup("java:/XAMultiThreadedDataSource");
-              int val = 0;
-              for (int j = 0; j < LOOP_COUNT; ++j) {
+              var da1 = (DataSource) ctx.lookup("java:/XAMultiThreadedDataSource");
+              var val = 0;
+              for (var j = 0; j < LOOP_COUNT; ++j) {
                 UserTransaction ta = null;
                 try {
                   ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
@@ -157,11 +155,11 @@ public class ConnectionPoolingJUnitTest {
                 try {
                   // Begin the user transaction
                   ta.begin();
-                  for (int i = 1; i <= 50; i++) {
-                    Connection conn = da1.getConnection();
-                    Statement sm = conn.createStatement();
+                  for (var i = 1; i <= 50; i++) {
+                    var conn = da1.getConnection();
+                    var sm = conn.createStatement();
 
-                    String sql = "insert into " + tableName + " values (" + "'" + key + "X" + ++val
+                    var sql = "insert into " + tableName + " values (" + "'" + key + "X" + ++val
                         + "','name" + i + "')";
                     sm.execute(sql);
 
@@ -190,15 +188,15 @@ public class ConnectionPoolingJUnitTest {
         });
       }
 
-      for (final Thread value : th) {
+      for (final var value : th) {
         value.start();
       }
 
-      for (Thread t : th) {
+      for (var t : th) {
         long ms = 90 * 1000;
         t.join(ms);
         if (t.isAlive()) {
-          for (final Thread thread : th) {
+          for (final var thread : th) {
             thread.interrupt();
           }
           fail("Thread did not terminate after " + ms + " ms: " + t);
@@ -209,12 +207,12 @@ public class ConnectionPoolingJUnitTest {
     } finally {
       logger.debug("Destroying table: " + tableName);
 
-      Context ctx = cache.getJNDIContext();
-      DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
-      Connection conn = ds.getConnection();
+      var ctx = cache.getJNDIContext();
+      var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var conn = ds.getConnection();
       logger.debug(" trying to drop table: " + tableName);
-      String sql = "drop table " + tableName;
-      Statement sm = conn.createStatement();
+      var sql = "drop table " + tableName;
+      var sm = conn.createStatement();
       sm.execute(sql);
       conn.close();
       logger.debug(" Dropped table: " + tableName);
@@ -224,10 +222,10 @@ public class ConnectionPoolingJUnitTest {
   private class PoolClient_1 implements Runnable {
     @Override
     public void run() {
-      String threadName = Thread.currentThread().getName();
+      var threadName = Thread.currentThread().getName();
       logger.debug(" Inside Run method of " + threadName);
-      int numConn = 0;
-      Object[] connections = new Object[maxPoolSize];
+      var numConn = 0;
+      var connections = new Object[maxPoolSize];
       // Statement stmt = null;
       while (numConn < maxPoolSize) {
         try {
@@ -248,8 +246,8 @@ public class ConnectionPoolingJUnitTest {
       }
       ThreadB.start();
       logger.debug(" AFTER starting THREADB");
-      int numC = 0;
-      int display = 0;
+      var numC = 0;
+      var display = 0;
       // long birthTime = 0;
       // long newTime = 0;
       // long duration = 0;
@@ -291,11 +289,11 @@ public class ConnectionPoolingJUnitTest {
     @Override
     public void run() {
       try {
-        String threadName = Thread.currentThread().getName();
+        var threadName = Thread.currentThread().getName();
         logger.debug(" Inside Run method of " + threadName);
-        int numConn2 = 0;
+        var numConn2 = 0;
         // int display = 0;
-        Object[] connections = new Object[maxPoolSize];
+        var connections = new Object[maxPoolSize];
         while (numConn2 < maxPoolSize) {
           try {
             logger.debug(

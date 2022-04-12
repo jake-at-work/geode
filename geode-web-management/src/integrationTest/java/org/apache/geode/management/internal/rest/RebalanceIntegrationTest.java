@@ -40,14 +40,11 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
-import org.apache.geode.management.api.ClusterManagementListOperationsResult;
-import org.apache.geode.management.api.ClusterManagementOperationResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.api.ClusterManagementServiceTransport;
 import org.apache.geode.management.api.RestTemplateClusterManagementServiceTransport;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.operation.RebalanceOperation;
-import org.apache.geode.management.runtime.RebalanceResult;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = {"classpath*:WEB-INF/management-servlet.xml"},
@@ -68,7 +65,7 @@ public class RebalanceIntegrationTest {
   public void before() {
     context = new LocatorWebContext(webApplicationContext);
 
-    RestTemplate template = new RestTemplate();
+    var template = new RestTemplate();
     template.setRequestFactory(context.getRequestFactory());
     ClusterManagementServiceTransport transport =
         new RestTemplateClusterManagementServiceTransport(template);
@@ -77,7 +74,7 @@ public class RebalanceIntegrationTest {
 
   @Test
   public void start() throws Exception {
-    String json = "{}";
+    var json = "{}";
     context.perform(post("/v1/operations/rebalances").content(json))
         .andExpect(status().isAccepted())
         .andExpect(content().string(not(containsString("\"class\""))))
@@ -89,8 +86,8 @@ public class RebalanceIntegrationTest {
 
   @Test
   public void getStatus() throws Exception {
-    String json = "{}";
-    CompletableFuture<String> futureUri = new CompletableFuture<>();
+    var json = "{}";
+    var futureUri = new CompletableFuture<String>();
     context.perform(post("/v1/operations/rebalances").content(json))
         .andExpect(status().isAccepted())
         .andExpect(new ResponseBodyMatchers().containsObjectAsJson(futureUri))
@@ -114,8 +111,8 @@ public class RebalanceIntegrationTest {
   static class ResponseBodyMatchers {
     ResultMatcher containsObjectAsJson(CompletableFuture<String> futureUri) {
       return mvcResult -> {
-        String json = mvcResult.getResponse().getContentAsString();
-        String uri =
+        var json = mvcResult.getResponse().getContentAsString();
+        var uri =
             json.replaceFirst(".*\"self\":\"[^\"]*" + URI_VERSION, URI_VERSION).replaceFirst("\".*",
                 "");
         futureUri.complete(uri);
@@ -136,7 +133,7 @@ public class RebalanceIntegrationTest {
 
   @Test
   public void list() throws Exception {
-    String json = "{}";
+    var json = "{}";
     context.perform(post("/v1/operations/rebalances").content(json));
     context.perform(get("/v1/operations/rebalances"))
         .andExpect(status().isOk())
@@ -150,8 +147,8 @@ public class RebalanceIntegrationTest {
 
   @Test
   public void doOperation() throws Exception {
-    RebalanceOperation rebalance = new RebalanceOperation();
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> result =
+    var rebalance = new RebalanceOperation();
+    var result =
         client.start(rebalance);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusMessage())
@@ -161,7 +158,7 @@ public class RebalanceIntegrationTest {
   @Test
   public void doListOperations() {
     client.start(new RebalanceOperation());
-    ClusterManagementListOperationsResult<RebalanceOperation, RebalanceResult> listResult =
+    var listResult =
         client.list(new RebalanceOperation());
     assertThat(listResult.getResult().size()).isGreaterThanOrEqualTo(1);
     assertThat(listResult.getResult().get(0).getOperationStart()).isNotNull();

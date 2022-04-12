@@ -70,7 +70,7 @@ public class ClassWithSupportedPdxFields implements PdxSerializerObject, Seriali
       return false;
     }
 
-    ClassWithSupportedPdxFields that = (ClassWithSupportedPdxFields) o;
+    var that = (ClassWithSupportedPdxFields) o;
 
     if (getId() != null ? !getId().equals(that.getId())
         : that.getId() != null) {

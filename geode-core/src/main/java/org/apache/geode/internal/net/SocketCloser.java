@@ -103,14 +103,14 @@ public class SocketCloser {
   }
 
   private ExecutorService getAsyncThreadExecutor(String address) {
-    ExecutorService executorService = asyncCloseExecutors.get(address);
+    var executorService = asyncCloseExecutors.get(address);
     if (executorService == null) {
       // To be used for pre-1.8 jdk releases.
       // executorService = createThreadPoolExecutor();
 
       executorService = getWorkStealingPool(asyncClosePoolMaxThreads);
 
-      ExecutorService previousThreadPoolExecutor =
+      var previousThreadPoolExecutor =
           asyncCloseExecutors.putIfAbsent(address, executorService);
 
       if (previousThreadPoolExecutor != null) {
@@ -131,7 +131,7 @@ public class SocketCloser {
    * no longer needs its pool then you should call this method.
    */
   public void releaseResourcesForAddress(String address) {
-    ExecutorService executorService = asyncCloseExecutors.remove(address);
+    var executorService = asyncCloseExecutors.remove(address);
     if (executorService != null) {
       executorService.shutdown();
     }
@@ -152,14 +152,14 @@ public class SocketCloser {
     } finally {
       closedLock.unlock();
     }
-    for (ExecutorService executorService : asyncCloseExecutors.values()) {
+    for (var executorService : asyncCloseExecutors.values()) {
       executorService.shutdown();
     }
     asyncCloseExecutors.clear();
   }
 
   private Future asyncExecute(String address, Runnable runnableToExecute) {
-    ExecutorService asyncThreadExecutor = getAsyncThreadExecutor(address);
+    var asyncThreadExecutor = getAsyncThreadExecutor(address);
     return asyncThreadExecutor.submit(runnableToExecute);
   }
 
@@ -197,7 +197,7 @@ public class SocketCloser {
     if (socket.isClosed()) {
       return;
     }
-    boolean doItInline = false;
+    var doItInline = false;
     try {
       Future submittedTask = CompletableFuture.completedFuture(this);
       closedLock.lock();

@@ -16,17 +16,14 @@ package org.apache.geode.connectors.jdbc.internal.cli;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.http.annotation.Experimental;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -51,19 +48,19 @@ public class ListDriversCommand extends GfshCommand {
 
   public ResultModel listDrivers(
       @CliOption(key = MEMBER_NAME, help = MEMBER_NAME__HELP) String memberName) {
-    ResultModel resultModel = new ResultModel();
+    var resultModel = new ResultModel();
     return createTabularResultDataAndGetResult(resultModel, memberName);
   }
 
   private ResultModel createTabularResultDataAndGetResult(ResultModel resultModel,
       String memberName) {
-    TabularResultModel tableModel = resultModel.addTable(LIST_DRIVERS_SECTION);
+    var tableModel = resultModel.addTable(LIST_DRIVERS_SECTION);
     List<String> drivers = new ArrayList<>();
 
-    Set<DistributedMember> targetMembers = findMembers(null, null);
+    var targetMembers = findMembers(null, null);
     if (targetMembers.size() > 0) {
-      Object[] arguments = new Object[] {};
-      List<CliFunctionResult> listDriversResults = executeAndGetFunctionResult(
+      var arguments = new Object[] {};
+      var listDriversResults = executeAndGetFunctionResult(
           new ListDriversFunction(), arguments, targetMembers);
 
       if (memberName == null) {
@@ -71,7 +68,7 @@ public class ListDriversCommand extends GfshCommand {
             false, true);
       }
 
-      for (CliFunctionResult result : listDriversResults) {
+      for (var result : listDriversResults) {
         if (memberName.equals(result.getMemberIdOrName())) {
           if (result.isSuccessful()) {
             drivers = getListOfDrivers(result);
@@ -88,7 +85,7 @@ public class ListDriversCommand extends GfshCommand {
       return ResultModel.createInfo(EXPERIMENTAL + "\n" + NO_MEMBERS_FOUND);
     }
 
-    for (String driver : drivers) {
+    for (var driver : drivers) {
       tableModel.accumulate("Driver names for: " + memberName, driver);
     }
     return resultModel;

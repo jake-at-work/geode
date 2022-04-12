@@ -27,7 +27,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.After;
@@ -45,7 +44,6 @@ import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.entries.OffHeapRegionEntry;
 import org.apache.geode.internal.offheap.annotations.OffHeapIdentifier;
 import org.apache.geode.internal.offheap.annotations.Released;
@@ -76,11 +74,11 @@ public abstract class OffHeapRegionBase {
 
   private GemFireCacheImpl createCache(boolean isPersistent) {
     configureOffHeapStorage();
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, getOffHeapMemorySize());
-    GemFireCacheImpl result =
+    var result =
         (GemFireCacheImpl) new CacheFactory(props).setPdxPersistent(isPersistent).create();
     unconfigureOffHeapStorage();
     return result;
@@ -88,9 +86,9 @@ public abstract class OffHeapRegionBase {
 
   @After
   public void cleanUp() {
-    File dir = new File(".");
-    File[] files = dir.listFiles((dir1, name) -> name.startsWith("BACKUP"));
-    for (File file : files) {
+    var dir = new File(".");
+    var files = dir.listFiles((dir1, name) -> name.startsWith("BACKUP"));
+    for (var file : files) {
       file.delete();
     }
   }
@@ -109,13 +107,13 @@ public abstract class OffHeapRegionBase {
   public void testSizeAllocation() {
     // prevent cache from closing in reaction to ooom
     System.setProperty(OffHeapStorage.STAY_CONNECTED_ON_OUTOFOFFHEAPMEMORY_PROPERTY, "true");
-    GemFireCacheImpl gfc = createCache();
+    var gfc = createCache();
     try {
-      MemoryAllocator ma = gfc.getOffHeapStore();
+      var ma = gfc.getOffHeapStore();
       assertNotNull(ma);
-      final long offHeapSize = ma.getFreeMemory();
+      final var offHeapSize = ma.getFreeMemory();
       assertEquals(0, ma.getUsedMemory());
-      StoredObject mc1 = ma.allocate(64);
+      var mc1 = ma.allocate(64);
       assertEquals(64 + perObjectOverhead(), ma.getUsedMemory());
       assertEquals(offHeapSize - (64 + perObjectOverhead()), ma.getFreeMemory());
       mc1.release();
@@ -140,13 +138,13 @@ public abstract class OffHeapRegionBase {
 
   public void keep_testOutOfOffHeapMemoryErrorClosesCache() {
     // this test is redundant but may be useful
-    final GemFireCacheImpl gfc = createCache();
+    final var gfc = createCache();
     try {
-      MemoryAllocator ma = gfc.getOffHeapStore();
+      var ma = gfc.getOffHeapStore();
       assertNotNull(ma);
-      final long offHeapSize = ma.getFreeMemory();
+      final var offHeapSize = ma.getFreeMemory();
       assertEquals(0, ma.getUsedMemory());
-      StoredObject mc1 = ma.allocate(64);
+      var mc1 = ma.allocate(64);
       assertEquals(64 + perObjectOverhead(), ma.getUsedMemory());
       assertEquals(offHeapSize - (64 + perObjectOverhead()), ma.getFreeMemory());
       mc1.release();
@@ -161,7 +159,7 @@ public abstract class OffHeapRegionBase {
       }
       assertEquals(0, ma.getUsedMemory());
 
-      final WaitCriterion waitForDisconnect = new WaitCriterion() {
+      final var waitForDisconnect = new WaitCriterion() {
         @Override
         public boolean done() {
           return gfc.isClosed();
@@ -182,17 +180,17 @@ public abstract class OffHeapRegionBase {
 
   @Test
   public void testByteArrayAllocation() {
-    GemFireCacheImpl gfc = createCache();
+    var gfc = createCache();
     try {
-      MemoryAllocator ma = gfc.getOffHeapStore();
+      var ma = gfc.getOffHeapStore();
       assertNotNull(ma);
-      final long offHeapSize = ma.getFreeMemory();
+      final var offHeapSize = ma.getFreeMemory();
       assertEquals(0, ma.getUsedMemory());
-      byte[] data = new byte[] {1, 2, 3, 4, 5, 6, 7, 8};
-      StoredObject mc1 = ma.allocateAndInitialize(data, false, false);
+      var data = new byte[] {1, 2, 3, 4, 5, 6, 7, 8};
+      var mc1 = ma.allocateAndInitialize(data, false, false);
       assertEquals(data.length + perObjectOverhead(), ma.getUsedMemory());
       assertEquals(offHeapSize - (data.length + perObjectOverhead()), ma.getFreeMemory());
-      byte[] data2 = new byte[data.length];
+      var data2 = new byte[data.length];
       mc1.readDataBytes(0, data2);
       assertTrue(Arrays.equals(data, data2));
       mc1.release();
@@ -200,7 +198,7 @@ public abstract class OffHeapRegionBase {
       assertEquals(0, ma.getUsedMemory());
       // try some small byte[] that don't need to be stored off heap.
       data = new byte[] {1, 2, 3, 4, 5, 6, 7};
-      StoredObject so1 = ma.allocateAndInitialize(data, false, false);
+      var so1 = ma.allocateAndInitialize(data, false, false);
       assertEquals(0, ma.getUsedMemory());
       assertEquals(offHeapSize, ma.getFreeMemory());
       data2 = new byte[data.length];
@@ -217,13 +215,13 @@ public abstract class OffHeapRegionBase {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void doRegionTest(final RegionShortcut rs, final String rName, boolean compressed) {
-    boolean isPersistent = rs == RegionShortcut.LOCAL_PERSISTENT
+    var isPersistent = rs == RegionShortcut.LOCAL_PERSISTENT
         || rs == RegionShortcut.REPLICATE_PERSISTENT || rs == RegionShortcut.PARTITION_PERSISTENT;
-    GemFireCacheImpl gfc = createCache(isPersistent);
+    var gfc = createCache(isPersistent);
     Region r = null;
     try {
       gfc.setCopyOnRead(true);
-      final MemoryAllocator ma = gfc.getOffHeapStore();
+      final var ma = gfc.getOffHeapStore();
       assertNotNull(ma);
       await()
           .untilAsserted(() -> assertEquals(0, ma.getUsedMemory()));
@@ -244,7 +242,7 @@ public abstract class OffHeapRegionBase {
       assertEquals(0, ma.getUsedMemory());
       r.put("key1", data);
       assertTrue(ma.getUsedMemory() == 0);
-      long usedBeforeUpdate = ma.getUsedMemory();
+      var usedBeforeUpdate = ma.getUsedMemory();
       r.put("key1", data);
       assertEquals(usedBeforeUpdate, ma.getUsedMemory());
       assertEquals(data, r.get("key1"));
@@ -291,11 +289,11 @@ public abstract class OffHeapRegionBase {
 
       // confirm that byte[] do use off heap
       {
-        byte[] originalBytes = new byte[1024];
-        Object oldV = r.put("byteArray", originalBytes);
-        long startUsedMemory = ma.getUsedMemory();
+        var originalBytes = new byte[1024];
+        var oldV = r.put("byteArray", originalBytes);
+        var startUsedMemory = ma.getUsedMemory();
         assertEquals(null, oldV);
-        byte[] readBytes = (byte[]) r.get("byteArray");
+        var readBytes = (byte[]) r.get("byteArray");
         if (originalBytes == readBytes) {
           fail("Expected different byte[] identity");
         }
@@ -321,7 +319,7 @@ public abstract class OffHeapRegionBase {
           fail("Expected replace to happen");
         }
         assertEquals(startUsedMemory, ma.getUsedMemory());
-        byte[] otherBytes = new byte[1024];
+        var otherBytes = new byte[1024];
         otherBytes[1023] = 1;
         if (r.replace("byteArray", otherBytes, originalBytes)) {
           fail("Expected replace to not happen");
@@ -351,7 +349,7 @@ public abstract class OffHeapRegionBase {
         if (!compressed) {
           assertEquals(null, oldV);
         }
-        MyCacheListener listener = new MyCacheListener();
+        var listener = new MyCacheListener();
         r.getAttributesMutator().addCacheListener(listener);
         try {
           Object valueToReplace = "string value1";
@@ -377,9 +375,9 @@ public abstract class OffHeapRegionBase {
       assertTrue(ma.getUsedMemory() > 0);
       {
         Object key = "MyValueWithPartialEquals";
-        MyValueWithPartialEquals v1 = new MyValueWithPartialEquals("s1");
-        MyValueWithPartialEquals v2 = new MyValueWithPartialEquals("s2");
-        MyValueWithPartialEquals v3 = new MyValueWithPartialEquals("s1");
+        var v1 = new MyValueWithPartialEquals("s1");
+        var v2 = new MyValueWithPartialEquals("s2");
+        var v3 = new MyValueWithPartialEquals("s1");
         r.put(key, v1);
         try {
           if (r.replace(key, v2, "should not happen")) {
@@ -401,9 +399,9 @@ public abstract class OffHeapRegionBase {
       }
       {
         Object key = "MyPdxWithPartialEquals";
-        MyPdxWithPartialEquals v1 = new MyPdxWithPartialEquals("s", "1");
-        MyPdxWithPartialEquals v2 = new MyPdxWithPartialEquals("s", "2");
-        MyPdxWithPartialEquals v3 = new MyPdxWithPartialEquals("t", "1");
+        var v1 = new MyPdxWithPartialEquals("s", "1");
+        var v2 = new MyPdxWithPartialEquals("s", "2");
+        var v3 = new MyPdxWithPartialEquals("t", "1");
         r.put(key, v1);
         try {
           if (r.replace(key, v3, "should not happen")) {
@@ -423,7 +421,7 @@ public abstract class OffHeapRegionBase {
           r.remove(key);
         }
       }
-      byte[] value = new byte[1024];
+      var value = new byte[1024];
       /* while (value != null) */ {
         r.put("byteArray", value);
       }
@@ -504,7 +502,7 @@ public abstract class OffHeapRegionBase {
     @Override
     public boolean equals(Object other) {
       if (other instanceof MyValueWithPartialEquals) {
-        MyValueWithPartialEquals o = (MyValueWithPartialEquals) other;
+        var o = (MyValueWithPartialEquals) other;
         // just compare the first char
         return value.charAt(0) == o.value.charAt(0);
       } else {
@@ -553,7 +551,7 @@ public abstract class OffHeapRegionBase {
     @Retained(OffHeapIdentifier.TEST_OFF_HEAP_REGION_BASE_LISTENER)
     private void setEventData(EntryEvent e) {
       close();
-      EntryEventImpl event = (EntryEventImpl) e;
+      var event = (EntryEventImpl) e;
       ohOldValue = event.getOffHeapOldValue();
       ohNewValue = event.getOffHeapNewValue();
     }
@@ -642,9 +640,9 @@ public abstract class OffHeapRegionBase {
 
   @Test
   public void testPersistentChangeFromHeapToOffHeap() {
-    GemFireCacheImpl gfc = createCache(true);
+    var gfc = createCache(true);
     Region r = null;
-    final String value = "value big enough to force off-heap storage";
+    final var value = "value big enough to force off-heap storage";
     try {
       r = gfc.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT).setOffHeap(false)
           .create("changedFromHeapToOffHeap");
@@ -657,8 +655,8 @@ public abstract class OffHeapRegionBase {
       r = gfc.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT).setOffHeap(true)
           .create("changedFromHeapToOffHeap");
       assertEquals(true, r.containsKey("key"));
-      LocalRegion lr = (LocalRegion) r;
-      RegionEntry re = lr.getRegionEntry("key");
+      var lr = (LocalRegion) r;
+      var re = lr.getRegionEntry("key");
       if (!(re instanceof OffHeapRegionEntry)) {
         fail("expected re to be instanceof OffHeapRegionEntry but it was a " + re.getClass());
       }
@@ -673,10 +671,10 @@ public abstract class OffHeapRegionBase {
 
   @Test
   public void testPersistentCompressorChange() {
-    GemFireCacheImpl gfc = createCache(true);
+    var gfc = createCache(true);
     Region<Object, Object> r = null;
-    String value = "value1";
-    String key = "key";
+    var value = "value1";
+    var key = "key";
 
     try {
       r = gfc.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT).setOffHeap(true)
@@ -691,8 +689,8 @@ public abstract class OffHeapRegionBase {
       r = gfc.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT).setOffHeap(true)
           .setCompressor(null).create("region1");
       assertEquals(true, r.containsKey(key));
-      MemoryAllocatorImpl mai = MemoryAllocatorImpl.getAllocator();
-      List<OffHeapStoredObject> orphans = mai.getLostChunks(gfc);
+      var mai = MemoryAllocatorImpl.getAllocator();
+      var orphans = mai.getLostChunks(gfc);
       if (orphans.size() > 0) {
         fail("expected no orphan detected, but gets orphan size " + orphans.size());
       }

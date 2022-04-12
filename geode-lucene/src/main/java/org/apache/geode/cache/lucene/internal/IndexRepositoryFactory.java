@@ -51,14 +51,14 @@ public class IndexRepositoryFactory {
   public IndexRepository computeIndexRepository(final Integer bucketId, LuceneSerializer serializer,
       InternalLuceneIndex index, PartitionedRegion userRegion, final IndexRepository oldRepository,
       PartitionedRepositoryManager partitionedRepositoryManager) throws IOException {
-    LuceneIndexForPartitionedRegion indexForPR = (LuceneIndexForPartitionedRegion) index;
-    final PartitionedRegion fileRegion = indexForPR.getFileAndChunkRegion();
+    var indexForPR = (LuceneIndexForPartitionedRegion) index;
+    final var fileRegion = indexForPR.getFileAndChunkRegion();
 
     // We need to ensure that all members have created the fileAndChunk region before continuing
     Region prRoot = PartitionedRegionHelper.getPRRoot(fileRegion.getCache());
-    PartitionRegionConfig prConfig =
+    var prConfig =
         (PartitionRegionConfig) prRoot.get(fileRegion.getRegionIdentifier());
-    LuceneFileRegionColocationListener luceneFileRegionColocationCompleteListener =
+    var luceneFileRegionColocationCompleteListener =
         new LuceneFileRegionColocationListener(partitionedRepositoryManager, bucketId);
     fileRegion.addColocationListener(luceneFileRegionColocationCompleteListener);
     IndexRepository repo = null;
@@ -77,11 +77,11 @@ public class IndexRepositoryFactory {
   protected IndexRepository finishComputingRepository(Integer bucketId, LuceneSerializer serializer,
       PartitionedRegion userRegion, IndexRepository oldRepository, InternalLuceneIndex index)
       throws IOException {
-    LuceneIndexForPartitionedRegion indexForPR = (LuceneIndexForPartitionedRegion) index;
-    final PartitionedRegion fileRegion = indexForPR.getFileAndChunkRegion();
-    BucketRegion fileAndChunkBucket = getMatchingBucket(fileRegion, bucketId);
-    BucketRegion dataBucket = getMatchingBucket(userRegion, bucketId);
-    boolean success = false;
+    var indexForPR = (LuceneIndexForPartitionedRegion) index;
+    final var fileRegion = indexForPR.getFileAndChunkRegion();
+    var fileAndChunkBucket = getMatchingBucket(fileRegion, bucketId);
+    var dataBucket = getMatchingBucket(userRegion, bucketId);
+    var success = false;
     if (fileAndChunkBucket == null) {
       if (oldRepository != null) {
         oldRepository.cleanup();
@@ -102,8 +102,8 @@ public class IndexRepositoryFactory {
     if (oldRepository != null) {
       oldRepository.cleanup();
     }
-    DistributedLockService lockService = getLockService();
-    String lockName = getLockName(fileAndChunkBucket);
+    var lockService = getLockService();
+    var lockName = getLockName(fileAndChunkBucket);
     while (!lockService.lock(lockName, 100, -1)) {
       if (!fileAndChunkBucket.getBucketAdvisor().isPrimary()) {
         return null;
@@ -111,11 +111,11 @@ public class IndexRepositoryFactory {
     }
 
     final IndexRepository repo;
-    InternalCache cache = (InternalCache) userRegion.getRegionService();
+    var cache = (InternalCache) userRegion.getRegionService();
     boolean initialPdxReadSerializedFlag = cache.getPdxReadSerializedOverride();
     cache.setPdxReadSerializedOverride(true);
     try {
-      IndexWriter writer = buildIndexWriter(bucketId, fileAndChunkBucket, indexForPR);
+      var writer = buildIndexWriter(bucketId, fileAndChunkBucket, indexForPR);
       repo = new IndexRepositoryImpl(fileAndChunkBucket, writer, serializer,
           indexForPR.getIndexStats(), dataBucket, lockService, lockName, indexForPR);
       success = false;
@@ -146,15 +146,15 @@ public class IndexRepositoryFactory {
 
   protected IndexWriter buildIndexWriter(int bucketId, BucketRegion fileAndChunkBucket,
       LuceneIndexForPartitionedRegion indexForPR) throws IOException {
-    int attempts = 0;
+    var attempts = 0;
     // IOExceptions can occur if the fileAndChunk region is being modified while the IndexWriter is
     // being initialized, so allow limited retries here to account for that timing window
     while (true) {
       // bucketTargetingMap handles partition resolver (via bucketId as callbackArg)
-      Map<Object, Object> bucketTargetingMap = getBucketTargetingMap(fileAndChunkBucket, bucketId);
-      RegionDirectory dir =
+      var bucketTargetingMap = getBucketTargetingMap(fileAndChunkBucket, bucketId);
+      var dir =
           new RegionDirectory(bucketTargetingMap, indexForPR.getFileSystemStats());
-      IndexWriterConfig config = new IndexWriterConfig(indexForPR.getAnalyzer());
+      var config = new IndexWriterConfig(indexForPR.getAnalyzer());
       try {
         attempts++;
         return getIndexWriter(dir, config);
@@ -182,8 +182,8 @@ public class IndexRepositoryFactory {
       throws IOException {
     Set<IndexRepository> affectedRepos = new HashSet<>();
 
-    for (Object key : dataBucket.keySet()) {
-      Object value = getValue(userRegion.getEntry(key));
+    for (var key : dataBucket.keySet()) {
+      var value = getValue(userRegion.getEntry(key));
       if (value != null) {
         repo.update(key, value);
       } else {
@@ -192,7 +192,7 @@ public class IndexRepositoryFactory {
       affectedRepos.add(repo);
     }
 
-    for (IndexRepository affectedRepo : affectedRepos) {
+    for (var affectedRepo : affectedRepos) {
       affectedRepo.commit();
     }
     // fileRegion ops (get/put) need bucketId as a callbackArg for PartitionResolver
@@ -201,7 +201,7 @@ public class IndexRepositoryFactory {
   }
 
   private Object getValue(Region.Entry entry) {
-    final EntrySnapshot es = (EntrySnapshot) entry;
+    final var es = (EntrySnapshot) entry;
     Object value;
     try {
       value = es == null ? null : es.getRawValue(true);

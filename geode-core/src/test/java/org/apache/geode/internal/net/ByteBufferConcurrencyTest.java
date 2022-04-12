@@ -50,25 +50,25 @@ public class ByteBufferConcurrencyTest {
   @Test
   public void concurrentDestructAndOpenCloseShouldReturnToPoolOnce(final ParallelExecutor executor)
       throws Exception {
-    final BufferPool poolMock = mock(BufferPool.class);
-    final ByteBuffer someBuffer = ByteBuffer.allocate(1);
-    final ByteBufferVendor vendor =
+    final var poolMock = mock(BufferPool.class);
+    final var someBuffer = ByteBuffer.allocate(1);
+    final var vendor =
         new ByteBufferVendor(someBuffer, BufferPool.BufferType.TRACKED_SENDER,
             poolMock);
 
-    final RunnableWithException useBuffer = () -> {
-      try (final ByteBufferSharing sharing = vendor.open()) {
+    final var useBuffer = (RunnableWithException) () -> {
+      try (final var sharing = vendor.open()) {
         useBuffer(sharing);
       } catch (IOException e) {
         // It's ok to get an IOException if the sharing was destruct()ed before this runs
       }
     };
 
-    for (int i = 0; i < PARALLEL_TASK_COUNT; ++i) {
+    for (var i = 0; i < PARALLEL_TASK_COUNT; ++i) {
       executor.inParallel(useBuffer);
     }
     executor.inParallel(vendor::destruct);
-    for (int i = 0; i < PARALLEL_TASK_COUNT; ++i) {
+    for (var i = 0; i < PARALLEL_TASK_COUNT; ++i) {
       executor.inParallel(useBuffer);
     }
 
@@ -90,21 +90,21 @@ public class ByteBufferConcurrencyTest {
   public void concurrentDestructAndOpenShouldNotAllowUseOfReturnedBuffer(
       final ParallelExecutor executor)
       throws Exception {
-    final BufferPool poolMock = mock(BufferPool.class);
-    final AtomicBoolean returned = new AtomicBoolean(false);
+    final var poolMock = mock(BufferPool.class);
+    final var returned = new AtomicBoolean(false);
     doAnswer(arguments -> {
       returned.set(true);
       return null;
     }).when(poolMock).releaseBuffer(any(), any());
 
-    final ByteBuffer someBuffer = ByteBuffer.allocate(1);
-    final ByteBufferVendor vendor =
+    final var someBuffer = ByteBuffer.allocate(1);
+    final var vendor =
         new ByteBufferVendor(someBuffer, BufferPool.BufferType.TRACKED_SENDER,
             poolMock);
 
-    final RunnableWithException accessBufferAndVerify = () -> {
+    final var accessBufferAndVerify = (RunnableWithException) () -> {
       try {
-        try (final ByteBufferSharing sharing = vendor.open()) {
+        try (final var sharing = vendor.open()) {
           useBuffer(sharing);
           // The above buffer should not have been returned to the pool at this point!
           assertFalse(returned.get());
@@ -114,11 +114,11 @@ public class ByteBufferConcurrencyTest {
       }
     };
 
-    for (int i = 0; i < PARALLEL_TASK_COUNT; ++i) {
+    for (var i = 0; i < PARALLEL_TASK_COUNT; ++i) {
       executor.inParallel(accessBufferAndVerify);
     }
     executor.inParallel(vendor::destruct);
-    for (int i = 0; i < PARALLEL_TASK_COUNT; ++i) {
+    for (var i = 0; i < PARALLEL_TASK_COUNT; ++i) {
       executor.inParallel(accessBufferAndVerify);
     }
 
@@ -131,23 +131,23 @@ public class ByteBufferConcurrencyTest {
   @Test
   public void concurrentAccessToSharingShouldBeExclusive(final ParallelExecutor executor)
       throws Exception {
-    final BufferPool poolMock = mock(BufferPool.class);
-    final ByteBuffer someBuffer = ByteBuffer.allocate(1);
-    final ByteBufferVendor vendor =
+    final var poolMock = mock(BufferPool.class);
+    final var someBuffer = ByteBuffer.allocate(1);
+    final var vendor =
         new ByteBufferVendor(someBuffer, BufferPool.BufferType.TRACKED_SENDER,
             poolMock);
 
-    final AtomicBoolean inUse = new AtomicBoolean(false);
+    final var inUse = new AtomicBoolean(false);
 
-    final RunnableWithException useBufferAndCheckAccess = () -> {
-      try (final ByteBufferSharing sharing = vendor.open()) {
+    final var useBufferAndCheckAccess = (RunnableWithException) () -> {
+      try (final var sharing = vendor.open()) {
         assertFalse(inUse.getAndSet(true));
         useBuffer(sharing);
         assertTrue(inUse.getAndSet(false));
       }
     };
 
-    for (int i = 0; i < PARALLEL_TASK_COUNT; ++i) {
+    for (var i = 0; i < PARALLEL_TASK_COUNT; ++i) {
       executor.inParallel(useBufferAndCheckAccess);
     }
     executor.execute();
@@ -160,16 +160,16 @@ public class ByteBufferConcurrencyTest {
   public void concurrentAccessToSharingShouldBeExclusiveWithExtraCloses(
       final ParallelExecutor executor)
       throws Exception {
-    final BufferPool poolMock = mock(BufferPool.class);
-    final ByteBuffer someBuffer = ByteBuffer.allocate(1);
-    final ByteBufferVendor vendor =
+    final var poolMock = mock(BufferPool.class);
+    final var someBuffer = ByteBuffer.allocate(1);
+    final var vendor =
         new ByteBufferVendor(someBuffer, BufferPool.BufferType.TRACKED_SENDER,
             poolMock);
 
-    final AtomicBoolean inUse = new AtomicBoolean(false);
-    final RunnableWithException useBufferAndCheckAccess = () -> {
+    final var inUse = new AtomicBoolean(false);
+    final var useBufferAndCheckAccess = (RunnableWithException) () -> {
       Assertions.assertThatThrownBy(() -> {
-        try (final ByteBufferSharing sharing = vendor.open()) {
+        try (final var sharing = vendor.open()) {
           assertFalse(inUse.getAndSet(true));
           useBuffer(sharing);
           assertTrue(inUse.getAndSet(false));
@@ -177,7 +177,7 @@ public class ByteBufferConcurrencyTest {
         }
       }).isInstanceOf(IllegalMonitorStateException.class);
     };
-    for (int i = 0; i < PARALLEL_TASK_COUNT; ++i) {
+    for (var i = 0; i < PARALLEL_TASK_COUNT; ++i) {
       executor.inParallel(useBufferAndCheckAccess);
     }
     executor.execute();

@@ -49,7 +49,7 @@ public class LogWriterLevelTest {
 
   @Test
   public void serializes() {
-    LogWriterLevel logLevel = SerializationUtils.clone(ALL);
+    var logLevel = SerializationUtils.clone(ALL);
 
     assertThat(logLevel).isEqualTo(ALL).isSameAs(ALL);
   }

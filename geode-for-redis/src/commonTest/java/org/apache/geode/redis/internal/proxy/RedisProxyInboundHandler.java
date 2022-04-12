@@ -23,12 +23,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.redis.ArrayRedisMessage;
 import io.netty.handler.codec.redis.ErrorRedisMessage;
@@ -69,19 +67,19 @@ public class RedisProxyInboundHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) {
-    Channel inboundChannel = ctx.channel();
+    var inboundChannel = ctx.channel();
     processors = new LinkedBlockingQueue<>();
     outboundHandler = new RedisProxyOutboundHandler(inboundChannel, processors);
     movedResponseHandler = new MovedResponseHandler(inboundChannel, mappings, processors);
 
     // Start the connection attempt.
-    Bootstrap b = new Bootstrap();
+    var b = new Bootstrap();
     b.group(inboundChannel.eventLoop())
         .channel(ctx.channel().getClass())
         .handler(new ChannelInitializer<SocketChannel>() {
           @Override
           protected void initChannel(SocketChannel ch) {
-            ChannelPipeline p = ch.pipeline();
+            var p = ch.pipeline();
             p.addLast(new RedisEncoder());
             p.addLast(new RedisDecoder());
             p.addLast(new RedisBulkStringAggregator());
@@ -90,13 +88,13 @@ public class RedisProxyInboundHandler extends ChannelInboundHandlerAdapter {
             p.addLast(outboundHandler);
           }
         });
-    ChannelFuture f = b.connect(remoteHost, remotePort);
+    var f = b.connect(remoteHost, remotePort);
     outboundChannel = f.channel();
     f.addListener((ChannelFutureListener) future -> {
       if (future.isSuccess()) {
-        InetSocketAddress target = (InetSocketAddress) inboundChannel.localAddress();
-        for (Map.Entry<HostPort, HostPort> entry : mappings.entrySet()) {
-          HostPort exposed = entry.getValue();
+        var target = (InetSocketAddress) inboundChannel.localAddress();
+        for (var entry : mappings.entrySet()) {
+          var exposed = entry.getValue();
           if (target.getPort() == exposed.getPort()) {
             logger.info("Established proxy connection {} -> {} -> {}",
                 inboundChannel.remoteAddress(),
@@ -125,12 +123,12 @@ public class RedisProxyInboundHandler extends ChannelInboundHandlerAdapter {
   public void channelRead(final ChannelHandlerContext ctx, Object msg) {
     if (outboundChannel.isActive()) {
       // Commands always consist of an array of bulk strings
-      ArrayRedisMessage rMessage = (ArrayRedisMessage) msg;
-      String command = getArg(rMessage, 0);
+      var rMessage = (ArrayRedisMessage) msg;
+      var command = getArg(rMessage, 0);
 
       switch (command.toLowerCase()) {
         case "cluster":
-          String sub = getArg(rMessage, 1);
+          var sub = getArg(rMessage, 1);
           if ("slots".equals(sub)) {
             processors.add(slotsResponseProcessor);
           } else if ("nodes".equals(sub)) {

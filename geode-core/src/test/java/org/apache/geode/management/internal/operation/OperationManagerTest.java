@@ -47,7 +47,7 @@ public class OperationManagerTest {
   public void setUp() throws Exception {
     operationHistoryManager = mock(OperationHistoryManager.class);
     cache = mock(InternalCache.class);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var member = mock(InternalDistributedMember.class);
     when(cache.getMyId()).thenReturn(member);
     executorManager = new OperationManager(cache, operationHistoryManager);
   }
@@ -70,7 +70,7 @@ public class OperationManagerTest {
     OperationPerformer<ClusterManagementOperation<OperationResult>, OperationResult> performer =
         mock(OperationPerformer.class);
     ClusterManagementOperation<OperationResult> operation = mock(ClusterManagementOperation.class);
-    String opId = "opId";
+    var opId = "opId";
     OperationState<ClusterManagementOperation<OperationResult>, OperationResult> expectedOpState =
         mock(OperationState.class);
     executorManager.registerOperation(
@@ -79,7 +79,7 @@ public class OperationManagerTest {
     when(operationHistoryManager.recordStart(eq(operation), any())).thenReturn(opId);
     when(operationHistoryManager.get(opId)).thenReturn(expectedOpState);
 
-    OperationState<ClusterManagementOperation<OperationResult>, OperationResult> operationState =
+    var operationState =
         executorManager.submit(operation);
 
     assertThat(operationState).isSameAs(expectedOpState);
@@ -89,13 +89,13 @@ public class OperationManagerTest {
   public void submitUpdatesOperationStateWhenOperationCompletesSuccessfully() {
     OperationPerformer<ClusterManagementOperation<OperationResult>, OperationResult> performer =
         mock(OperationPerformer.class);
-    OperationResult operationResult = mock(OperationResult.class);
+    var operationResult = mock(OperationResult.class);
     ClusterManagementOperation<OperationResult> operation = mock(ClusterManagementOperation.class);
     executorManager.registerOperation(
         (Class<ClusterManagementOperation<OperationResult>>) operation.getClass(), performer);
 
     when(performer.perform(any(), any())).thenReturn(operationResult);
-    String opId = "my-op-id";
+    var opId = "my-op-id";
     when(operationHistoryManager.recordStart(any(), any())).thenReturn(opId);
 
     executorManager.submit(operation);
@@ -112,9 +112,9 @@ public class OperationManagerTest {
     executorManager.registerOperation(
         (Class<ClusterManagementOperation<OperationResult>>) operation.getClass(), performer);
 
-    RuntimeException thrownByPerformer = new RuntimeException();
+    var thrownByPerformer = new RuntimeException();
     doThrow(thrownByPerformer).when(performer).perform(any(), any());
-    String opId = "my-op-id";
+    var opId = "my-op-id";
     when(operationHistoryManager.recordStart(any(), any())).thenReturn(opId);
 
     executorManager.submit(operation);
@@ -126,16 +126,17 @@ public class OperationManagerTest {
   @Test
   public void submitCallsRecordEndOnlyAfterPerformerCompletes() throws InterruptedException {
     ClusterManagementOperation<OperationResult> operation = mock(ClusterManagementOperation.class);
-    CountDownLatch performerIsInProgress = new CountDownLatch(1);
-    CountDownLatch performerHasTestPermissionToComplete = new CountDownLatch(1);
+    var performerIsInProgress = new CountDownLatch(1);
+    var performerHasTestPermissionToComplete = new CountDownLatch(1);
 
-    String opId = "my-op-id";
+    var opId = "my-op-id";
     when(operationHistoryManager.recordStart(any(), any())).thenReturn(opId);
 
-    OperationResult operationResult = mock(OperationResult.class);
+    var operationResult = mock(OperationResult.class);
 
-    OperationPerformer<ClusterManagementOperation<OperationResult>, OperationResult> performer =
-        (cache, op) -> {
+    var performer =
+        (OperationPerformer<ClusterManagementOperation<OperationResult>, OperationResult>) (cache,
+            op) -> {
           try {
             performerIsInProgress.countDown();
             performerHasTestPermissionToComplete.await(10, SECONDS);

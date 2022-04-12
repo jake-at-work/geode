@@ -41,7 +41,7 @@ public class ControllerAdvisor extends GridAdvisor {
   }
 
   public static ControllerAdvisor createControllerAdvisor(DistributionAdvisee server) {
-    ControllerAdvisor advisor = new ControllerAdvisor(server);
+    var advisor = new ControllerAdvisor(server);
     advisor.initialize();
     return advisor;
   }
@@ -70,7 +70,7 @@ public class ControllerAdvisor extends GridAdvisor {
   protected void profilesChanged() {
     if (pollIsInitialized()) {
       super.profilesChanged();
-      ServerLocator sl = (ServerLocator) getAdvisee();
+      var sl = (ServerLocator) getAdvisee();
       sl.setLocatorCount(getControllerCount());
       sl.setServerCount(getBridgeServerCount());
     }

@@ -25,30 +25,29 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 
 public class RollingUpgradeRollSingleLocatorWithMultipleServersReplicatedRegion
     extends RollingUpgrade2DUnitTestBase {
 
   @Test
   public void testRollSingleLocatorWithMultipleServersReplicatedRegion() throws Exception {
-    final Host host = Host.getHost(0);
-    VM locator = host.getVM(oldVersion, 0);
-    VM server2 = host.getVM(oldVersion, 1);
-    VM server3 = host.getVM(oldVersion, 2);
+    final var host = Host.getHost(0);
+    var locator = host.getVM(oldVersion, 0);
+    var server2 = host.getVM(oldVersion, 1);
+    var server3 = host.getVM(oldVersion, 2);
 
-    final String objectType = "strings";
-    final String regionName = "aRegion";
+    final var objectType = "strings";
+    final var regionName = "aRegion";
 
-    RegionShortcut shortcut = RegionShortcut.REPLICATE;
+    var shortcut = RegionShortcut.REPLICATE;
 
-    int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
     locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts[0]));
 
     // configure all class loaders for each vm
 
-    String hostName = NetworkUtils.getServerHostName();
-    String locatorString = getLocatorString(locatorPorts);
+    var hostName = NetworkUtils.getServerHostName();
+    var locatorString = getLocatorString(locatorPorts);
     try {
       locator.invoke(invokeStartLocator(hostName, locatorPorts[0], getTestMethodName(),
           getLocatorProperties(locatorString), true));

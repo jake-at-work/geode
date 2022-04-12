@@ -47,12 +47,11 @@ public class AlertLevelJUnitTest {
     Constructor<AlertLevel> constructor;
     constructor = AlertLevel.class.getDeclaredConstructor(int.class, String.class, int.class);
     constructor.setAccessible(true);
-    AlertLevel level =
+    var level =
         constructor.newInstance(AlertLevel.ERROR.getSeverity(), "ERROR", AlertLevel.ERROR.ordinal);
     assertEquals(level.getSeverity(), AlertLevel.ERROR.getSeverity());
 
-
-    AlertLevel level1 =
+    var level1 =
         constructor.newInstance(AlertLevel.ERROR.getSeverity(), "ERROR",
             AlertLevel.ERROR.ordinal);
     assertEquals(level1.getName(), alertLevel2.getName());
@@ -62,7 +61,7 @@ public class AlertLevelJUnitTest {
 
   @Test
   public void checkOrdinals() {
-    for (int i = 0; i < AlertLevel.values().length; i++) {
+    for (var i = 0; i < AlertLevel.values().length; i++) {
       assertEquals(i, AlertLevel.values()[i].ordinal);
     }
   }

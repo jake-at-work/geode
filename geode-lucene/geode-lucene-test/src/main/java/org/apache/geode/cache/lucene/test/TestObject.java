@@ -48,7 +48,7 @@ public class TestObject implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    TestObject testObject = (TestObject) obj;
+    var testObject = (TestObject) obj;
     return (testObject.field1.equals(field1) && testObject.field2.equals(field2));
   }
 

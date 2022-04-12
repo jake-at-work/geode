@@ -24,9 +24,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
@@ -47,7 +45,7 @@ public class ReconnectedCacheServerDUnitTest extends JUnit4CacheTestCase {
   public final void postSetUp() {
     cache = getCache();
     if (cache.getCacheServers().isEmpty()) {
-      CacheServer server = cache.addCacheServer();
+      var server = cache.addCacheServer();
       server.setPort(0);
       addedCacheServer = true;
     }
@@ -55,7 +53,7 @@ public class ReconnectedCacheServerDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = new Properties(super.getDistributedSystemProperties());
+    var props = new Properties(super.getDistributedSystemProperties());
     props.setProperty(ConfigurationProperties.USE_CLUSTER_CONFIGURATION, "true");
     return props;
   }
@@ -75,7 +73,7 @@ public class ReconnectedCacheServerDUnitTest extends JUnit4CacheTestCase {
     assertFalse(
         Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "autoReconnect-useCacheXMLFile"));
 
-    InternalCache gc = (InternalCache) cache;
+    var gc = (InternalCache) cache;
 
     // fool the system into thinking cluster-config is being used
     gc.saveCacheXmlForReconnect();
@@ -91,17 +89,17 @@ public class ReconnectedCacheServerDUnitTest extends JUnit4CacheTestCase {
     assertFalse(
         Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "autoReconnect-useCacheXMLFile"));
 
-    GemFireCacheImpl gc = (GemFireCacheImpl) cache;
+    var gc = (GemFireCacheImpl) cache;
 
     gc.saveCacheXmlForReconnect();
 
     // the cache server config should now be stored in the cache's config
     assertFalse(gc.getCacheServers().isEmpty());
-    int numServers = gc.getCacheServers().size();
+    var numServers = gc.getCacheServers().size();
 
     assertNotNull(gc.getCacheConfig().getCacheServerCreation());
 
-    InternalDistributedSystem system = gc.getInternalDistributedSystem();
+    var system = gc.getInternalDistributedSystem();
     system.createAndStartCacheServers(gc.getCacheConfig().getCacheServerCreation(), gc);
 
     assertEquals("found these cache servers:" + gc.getCacheServers(), numServers,

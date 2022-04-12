@@ -143,7 +143,7 @@ public class CacheClientProxyTest {
   @Test
   public void close_keepProxy_ShouldNotLogoutUser() {
     when(id.isDurable()).thenReturn(true);
-    boolean keepProxy = proxyWithSingleUser.close(true, false);
+    var keepProxy = proxyWithSingleUser.close(true, false);
     assertThat(keepProxy).isTrue();
     verify(subject, never()).logout();
     verify(clientUserAuths, never()).cleanup(anyBoolean());
@@ -157,9 +157,9 @@ public class CacheClientProxyTest {
   @Test
   public void close_singleUser_logout_subject() {
     when(id.isDurable()).thenReturn(false);
-    CacheClientProxy spy = spy(proxyWithSingleUser);
+    var spy = spy(proxyWithSingleUser);
     doNothing().when(spy).closeTransientFields();
-    boolean keepProxy = spy.close(true, false);
+    var keepProxy = spy.close(true, false);
     assertThat(keepProxy).isFalse();
     verify(subject).logout();
     verify(clientUserAuths, never()).cleanup(anyBoolean());
@@ -168,9 +168,9 @@ public class CacheClientProxyTest {
   @Test
   public void close_multiUser_calls_ClientUserAuthsCleanUp() {
     when(id.isDurable()).thenReturn(false);
-    CacheClientProxy spy = spy(proxyWithMultiUser);
+    var spy = spy(proxyWithMultiUser);
     doNothing().when(spy).closeTransientFields();
-    boolean keepProxy = spy.close(true, false);
+    var keepProxy = spy.close(true, false);
     assertThat(keepProxy).isFalse();
     verify(subject, never()).logout();
     verify(clientUserAuths, times(1)).cleanup(anyBoolean());

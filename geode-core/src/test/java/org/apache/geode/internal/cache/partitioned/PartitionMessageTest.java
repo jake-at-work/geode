@@ -75,8 +75,8 @@ public class PartitionMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    PartitionMessage mockPartitionMessage = mock(PartitionMessage.class);
-    InternalDistributedMember mockInternalDistributedMember = mock(InternalDistributedMember.class);
+    var mockPartitionMessage = mock(PartitionMessage.class);
+    var mockInternalDistributedMember = mock(InternalDistributedMember.class);
 
     when(mockPartitionMessage.getMemberToMasqueradeAs()).thenReturn(mockInternalDistributedMember);
 

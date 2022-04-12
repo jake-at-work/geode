@@ -34,7 +34,7 @@ public class VersionInfoRequest extends AdminRequest {
    * Returns a <code>VersionInfoRequest</code>.
    */
   public static VersionInfoRequest create() {
-    VersionInfoRequest m = new VersionInfoRequest();
+    var m = new VersionInfoRequest();
     return m;
   }
 

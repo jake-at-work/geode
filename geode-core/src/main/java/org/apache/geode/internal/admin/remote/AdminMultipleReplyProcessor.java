@@ -35,9 +35,9 @@ public class AdminMultipleReplyProcessor extends ReplyProcessor21 {
   @Override
   protected void process(DistributionMessage message, boolean warn) {
     if (message instanceof AdminFailureResponse) {
-      Exception ex = ((AdminFailureResponse) message).getCause();
+      var ex = ((AdminFailureResponse) message).getCause();
       if (ex != null) {
-        ReplyException replyException = new ReplyException(ex);
+        var replyException = new ReplyException(ex);
         replyException.setSenderIfNull(message.getSender());
         processException(message, replyException);
       }

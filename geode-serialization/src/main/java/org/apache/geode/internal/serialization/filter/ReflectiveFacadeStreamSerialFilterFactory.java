@@ -24,11 +24,11 @@ public class ReflectiveFacadeStreamSerialFilterFactory implements StreamSerialFi
 
   @Override
   public StreamSerialFilter create(SerializableObjectConfig config, Set<String> sanctionedClasses) {
-    ObjectInputFilterApi api =
+    var api =
         new ReflectiveObjectInputFilterApiFactory().createObjectInputFilterApi();
 
     if (config.getValidateSerializableObjects()) {
-      String pattern = new SanctionedSerializablesFilterPattern()
+      var pattern = new SanctionedSerializablesFilterPattern()
           .append(config.getSerializableObjectFilter())
           .pattern();
 

@@ -77,9 +77,9 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
     public int hashCode(Object o) {
       // throws ClassCastException if not Object[]
       // compute hash code based on all elements
-      Object[] oa = (Object[]) o;
-      int h = 0;
-      for (Object obj : oa) {
+      var oa = (Object[]) o;
+      var h = 0;
+      for (var obj : oa) {
         if (obj != null) {
           h += obj.hashCode();
         }
@@ -134,13 +134,13 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
       // cannot be more than the size of the bag ( i.e
       // the limit) , we can safely assume HashMap size
       // to equal to bag's size
-      Iterator itr = bag.fieldValuesIterator();
+      var itr = bag.fieldValuesIterator();
       while (itr.hasNext()) {
         addFieldValues((Object[]) itr.next());
       }
     } else {
       Set keys = bag.map.keySet();
-      for (Object key : keys) {
+      for (var key : keys) {
         addFieldValues((Object[]) key);
       }
     }
@@ -195,7 +195,7 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
       throw new IllegalArgumentException(
           "This set only accepts StructImpl");
     }
-    StructImpl s = (StructImpl) obj;
+    var s = (StructImpl) obj;
     if (!s.getStructType().equals(structType)) {
       throw new IllegalArgumentException(
           String.format("obj does not have the same StructType: required: %s , actual: %s",
@@ -218,7 +218,7 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
     if (!(obj instanceof Struct)) {
       return false;
     }
-    Struct s = (Struct) obj;
+    var s = (Struct) obj;
     if (!structType.equals(StructTypeImpl.typeFromStruct(s))) {
       return false;
     }
@@ -238,7 +238,7 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
     if (!(o instanceof Struct)) {
       return false;
     }
-    Struct s = (Struct) o;
+    var s = (Struct) o;
     if (!structType.equals(StructTypeImpl.typeFromStruct(s))) {
       return false;
     }
@@ -257,8 +257,8 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
     if (c instanceof StructSet) {
       return addAll((StructSet) c);
     } else {
-      boolean modified = false;
-      for (Object o : c) {
+      var modified = false;
+      for (var o : c) {
         modified |= add(o);
       }
       return modified;
@@ -270,8 +270,8 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
     if (c instanceof StructSet) {
       return removeAll((StructSet) c);
     } else {
-      boolean modified = false;
-      for (Object o : c) {
+      var modified = false;
+      for (var o : c) {
         modified |= remove(o);
       }
       return modified;
@@ -287,13 +287,13 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
   }
 
   public boolean addAll(StructSet ss) {
-    boolean modified = false;
+    var modified = false;
     if (!structType.equals(ss.structType)) {
       throw new IllegalArgumentException(
           "types do not match");
     }
-    for (Iterator itr = ss.fieldValuesIterator(); itr.hasNext();) {
-      Object[] vals = (Object[]) itr.next();
+    for (var itr = ss.fieldValuesIterator(); itr.hasNext();) {
+      var vals = (Object[]) itr.next();
       if (contents.add(vals)) {
         modified = true;
       }
@@ -302,13 +302,13 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
   }
 
   public boolean removeAll(StructSet ss) {
-    boolean modified = false;
+    var modified = false;
     if (!structType.equals(ss.structType)) {
       return false; // nothing
                     // modified
     }
-    for (Iterator itr = ss.fieldValuesIterator(); itr.hasNext();) {
-      Object[] vals = (Object[]) itr.next();
+    for (var itr = ss.fieldValuesIterator(); itr.hasNext();) {
+      var vals = (Object[]) itr.next();
       if (contents.remove(vals)) {
         modified = true;
       }
@@ -325,12 +325,12 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
         return true; // nothing retained in receiver collection
       }
     }
-    boolean changed = false;
-    int size = size();
+    var changed = false;
+    var size = size();
     Iterator it;
     it = fieldValuesIterator();
     while (size-- > 0) {
-      Object[] vals = (Object[]) it.next();
+      var vals = (Object[]) it.next();
       if (!ss.containsFieldValues(vals)) {
         it.remove();
         changed = true;
@@ -405,12 +405,12 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append("[");
     Iterator i = iterator();
-    boolean hasNext = i.hasNext();
+    var hasNext = i.hasNext();
     while (hasNext) {
-      Object o = i.next();
+      var o = i.next();
       buf.append(o == this ? "(this Collection)" : String.valueOf(o));
       hasNext = i.hasNext();
       if (hasNext) {
@@ -461,9 +461,9 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     contents = new ObjectOpenCustomHashSet(new ObjectArrayHashingStrategy());
-    int size = in.readInt();
+    var size = in.readInt();
     structType = context.getDeserializer().readObject(in);
-    for (int j = size; j > 0; j--) {
+    for (var j = size; j > 0; j--) {
       add(context.getDeserializer().readObject(in));
     }
   }
@@ -473,7 +473,7 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
       SerializationContext context) throws IOException {
     out.writeInt(size());
     context.getSerializer().writeObject(structType, out);
-    for (final Object o : this) {
+    for (final var o : this) {
       context.getSerializer().writeObject(o, out);
     }
   }
@@ -495,9 +495,9 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
 
   @Override
   public Object[] toArray() {
-    Struct[] structs = new Struct[contents.size()];
-    int i = 0;
-    for (final Object o : this) {
+    var structs = new Struct[contents.size()];
+    var i = 0;
+    for (final var o : this) {
       structs[i++] = (Struct) o;
     }
     return structs;
@@ -505,9 +505,9 @@ public class StructSet /* extends ObjectOpenCustomHashSet */ implements Set, Sel
 
   @Override
   public Object[] toArray(Object[] a) {
-    Object[] array = contents.toArray(a);
-    int i = 0;
-    for (Object o : array) {
+    var array = contents.toArray(a);
+    var i = 0;
+    for (var o : array) {
       array[i++] = new StructImpl((StructTypeImpl) structType, (Object[]) o);
     }
     return array;

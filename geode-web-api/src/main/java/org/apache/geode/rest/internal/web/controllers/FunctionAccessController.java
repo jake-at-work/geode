@@ -15,10 +15,8 @@
 package org.apache.geode.rest.internal.web.controllers;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,7 +49,6 @@ import org.apache.geode.management.internal.exceptions.EntityNotFoundException;
 import org.apache.geode.rest.internal.web.exception.GemfireRestException;
 import org.apache.geode.rest.internal.web.util.ArrayUtils;
 import org.apache.geode.rest.internal.web.util.JSONUtils;
-import org.apache.geode.security.ResourcePermission;
 
 /**
  * The FunctionsController class serving REST Requests related to the function execution
@@ -97,11 +94,11 @@ public class FunctionAccessController extends AbstractBaseController {
     logger.debug("Listing all registered Functions in GemFire...");
 
     @SuppressWarnings("unchecked")
-    final Map<String, Function<?>> registeredFunctions =
+    final var registeredFunctions =
         (Map<String, Function<?>>) (Map<?, ?>) FunctionService.getRegisteredFunctions();
-    String listFunctionsAsJson =
+    var listFunctionsAsJson =
         JSONUtils.formulateJsonForListFunctionsCall(registeredFunctions.keySet());
-    final HttpHeaders headers = new HttpHeaders();
+    final var headers = new HttpHeaders();
     headers.setLocation(toUri("functions"));
     return new ResponseEntity<>(listFunctionsAsJson, headers, HttpStatus.OK);
   }
@@ -152,9 +149,9 @@ public class FunctionAccessController extends AbstractBaseController {
     }
 
     // check for required permissions of the function
-    Collection<ResourcePermission> requiredPermissions =
+    var requiredPermissions =
         function.getRequiredPermissions(region, args);
-    for (ResourcePermission requiredPermission : requiredPermissions) {
+    for (var requiredPermission : requiredPermissions) {
       securityService.authorize(requiredPermission);
     }
 
@@ -175,7 +172,7 @@ public class FunctionAccessController extends AbstractBaseController {
       logger.debug("Executing Function ({}) with filter ({})", functionId,
           ArrayUtils.toString(filter));
 
-      Set<String> filter1 = ArrayUtils.asSet(filter);
+      var filter1 = ArrayUtils.asSet(filter);
       execution = execution.withFilter(filter1);
     }
 
@@ -208,7 +205,7 @@ public class FunctionAccessController extends AbstractBaseController {
     }
 
     try {
-      final HttpHeaders headers = new HttpHeaders();
+      final var headers = new HttpHeaders();
       headers.setLocation(toUri("functions", functionId));
 
       Object functionResult;
@@ -219,7 +216,7 @@ public class FunctionAccessController extends AbstractBaseController {
 
       if (functionResult instanceof List<?>) {
         @SuppressWarnings("unchecked")
-        String functionResultAsJson =
+        var functionResultAsJson =
             JSONUtils.convertCollectionToJson((ArrayList<Object>) functionResult);
         return new ResponseEntity<>(functionResultAsJson, headers, HttpStatus.OK);
       } else {

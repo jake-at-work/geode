@@ -36,9 +36,9 @@ public class TransformUtils {
       new Transformer<Map.Entry<PersistentMemberID, Set<Integer>>, String>() {
         @Override
         public String transform(Map.Entry<PersistentMemberID, Set<Integer>> entry) {
-          PersistentMemberID memberId = entry.getKey();
-          Set<Integer> bucketIds = entry.getValue();
-          StringBuilder builder = new StringBuilder();
+          var memberId = entry.getKey();
+          var bucketIds = entry.getValue();
+          var builder = new StringBuilder();
           builder.append(persistentMemberIdToLogEntryTransformer.transform(memberId));
 
           if (null != bucketIds) {
@@ -58,7 +58,7 @@ public class TransformUtils {
   @Immutable
   public static final Transformer<PersistentMemberID, String> persistentMemberIdToLogEntryTransformer =
       memberId -> {
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
 
         if (null != memberId) {
           if (null != memberId.getDiskStoreId()) {
@@ -107,7 +107,7 @@ public class TransformUtils {
    */
   public static <T1, T2> void transform(Collection<T1> from, Collection<T2> to,
       Transformer<T1, T2> transformer) {
-    for (T1 instance : from) {
+    for (var instance : from) {
       to.add(transformer.transform(instance));
     }
   }
@@ -130,7 +130,7 @@ public class TransformUtils {
   public static <T1, T2> Map<T2, T1> transformAndMap(Collection<T1> from,
       Transformer<T1, T2> transformer) {
     Map<T2, T1> map = new HashMap<>();
-    for (T1 instance : from) {
+    for (var instance : from) {
       map.put(transformer.transform(instance), instance);
     }
 

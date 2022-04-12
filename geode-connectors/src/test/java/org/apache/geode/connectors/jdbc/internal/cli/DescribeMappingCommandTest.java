@@ -42,7 +42,6 @@ import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.connectors.jdbc.internal.configuration.FieldMapping;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.rules.GfshParserRule;
 
 
@@ -76,7 +75,7 @@ public class DescribeMappingCommandTest {
     when(command.getConfigurationPersistenceService()).thenReturn(configurationPersistenceService);
     when(configurationPersistenceService
         .getCacheConfig(ConfigurationPersistenceService.CLUSTER_CONFIG)).thenReturn(clusterConfig);
-    ArrayList<RegionConfig> regionConfigList = new ArrayList<>();
+    var regionConfigList = new ArrayList<RegionConfig>();
     regionConfigList.add(regionConfig);
     when(clusterConfig.getRegions()).thenReturn(regionConfigList);
     when(regionConfig.getName()).thenReturn("region1");
@@ -90,7 +89,7 @@ public class DescribeMappingCommandTest {
 
   @Test
   public void commandFailureWhenClusterConfigServiceNotEnabled() {
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -99,7 +98,7 @@ public class DescribeMappingCommandTest {
     regionMapping.setSpecifiedIds(true);
     regionMapping.setCatalog("myCatalog");
     regionMapping.setSchema("mySchema");
-    ArrayList<CacheElement> elements = new ArrayList<>();
+    var elements = new ArrayList<CacheElement>();
     elements.add(regionMapping);
     when(command.getConfigurationPersistenceService()).thenReturn(null);
 
@@ -109,7 +108,7 @@ public class DescribeMappingCommandTest {
 
   @Test
   public void commandFailureWhenClusterConfigServiceEnabledAndCacheConfigNotFound() {
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -118,7 +117,7 @@ public class DescribeMappingCommandTest {
     regionMapping.setSpecifiedIds(true);
     regionMapping.setCatalog("myCatalog");
     regionMapping.setSchema("mySchema");
-    ArrayList<CacheElement> elements = new ArrayList<>();
+    var elements = new ArrayList<CacheElement>();
     elements.add(regionMapping);
     when(configurationPersistenceService
         .getCacheConfig(ConfigurationPersistenceService.CLUSTER_CONFIG)).thenReturn(null);
@@ -129,7 +128,7 @@ public class DescribeMappingCommandTest {
 
   @Test
   public void commandFailureWhenClusterConfigServiceEnabledAndCacheConfigNotFoundWithGroup() {
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -138,7 +137,7 @@ public class DescribeMappingCommandTest {
     regionMapping.setSpecifiedIds(true);
     regionMapping.setCatalog("myCatalog");
     regionMapping.setSchema("mySchema");
-    ArrayList<CacheElement> elements = new ArrayList<>();
+    var elements = new ArrayList<CacheElement>();
     elements.add(regionMapping);
     when(configurationPersistenceService.getCacheConfig("group1")).thenReturn(null);
 
@@ -148,7 +147,7 @@ public class DescribeMappingCommandTest {
 
   @Test
   public void commandFailureWhenCacheConfigFoundAndRegionConfigNotFound() {
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -165,7 +164,7 @@ public class DescribeMappingCommandTest {
 
   @Test
   public void commandFailureWhenCacheConfigFoundAndRegionConfigNotFoundWithGroup() {
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -183,7 +182,7 @@ public class DescribeMappingCommandTest {
 
   @Test
   public void commandSuccessWhenClusterConfigFoundAndRegionConfigFound() {
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -192,7 +191,7 @@ public class DescribeMappingCommandTest {
     regionMapping.setSpecifiedIds(true);
     regionMapping.setCatalog("myCatalog");
     regionMapping.setSchema("mySchema");
-    ArrayList<CacheElement> elements = new ArrayList<>();
+    var elements = new ArrayList<CacheElement>();
     elements.add(regionMapping);
     when(regionConfig.getCustomRegionElements()).thenReturn(elements);
     when(regionConfig.getRegionAttributes().getDataPolicy())
@@ -214,7 +213,7 @@ public class DescribeMappingCommandTest {
 
   @Test
   public void commandSuccessWhenClusterConfigFoundAndRegionConfigFoundIdNotSpecified() {
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -223,7 +222,7 @@ public class DescribeMappingCommandTest {
     regionMapping.setSpecifiedIds(false);
     regionMapping.setCatalog("myCatalog");
     regionMapping.setSchema("mySchema");
-    ArrayList<CacheElement> elements = new ArrayList<>();
+    var elements = new ArrayList<CacheElement>();
     elements.add(regionMapping);
     when(regionConfig.getCustomRegionElements()).thenReturn(elements);
     when(regionConfig.getRegionAttributes().getDataPolicy())
@@ -243,15 +242,15 @@ public class DescribeMappingCommandTest {
   @Test
   public void commandSuccessWhenClusterConfigFoundAndRegionConfigFoundAsync() {
 
-    CacheConfig.AsyncEventQueue asyncEventQueue = mock(CacheConfig.AsyncEventQueue.class);
-    ArrayList<CacheConfig.AsyncEventQueue> queueList = new ArrayList<>();
+    var asyncEventQueue = mock(CacheConfig.AsyncEventQueue.class);
+    var queueList = new ArrayList<CacheConfig.AsyncEventQueue>();
     // Adding multiple mocked objects to the list to demonstrate the ability to distinguish the
     // correct queue later on
     queueList.add(asyncEventQueue);
     queueList.add(asyncEventQueue);
     queueList.add(asyncEventQueue);
 
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -260,7 +259,7 @@ public class DescribeMappingCommandTest {
     regionMapping.setSpecifiedIds(true);
     regionMapping.setCatalog("myCatalog");
     regionMapping.setSchema("mySchema");
-    ArrayList<CacheElement> elements = new ArrayList<>();
+    var elements = new ArrayList<CacheElement>();
     elements.add(regionMapping);
     when(regionConfig.getCustomRegionElements()).thenReturn(elements);
     when(regionConfig.getRegionAttributes().getDataPolicy())
@@ -284,7 +283,7 @@ public class DescribeMappingCommandTest {
 
   @Test
   public void commandSuccessWithFieldMappings() {
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -293,19 +292,19 @@ public class DescribeMappingCommandTest {
     regionMapping.setSpecifiedIds(false);
     regionMapping.setCatalog("myCatalog");
     regionMapping.setSchema("mySchema");
-    FieldMapping fieldMapping =
+    var fieldMapping =
         new FieldMapping("pdxName1", "pdxType1", "jdbcName1", "jdbcType1", true);
     regionMapping.addFieldMapping(fieldMapping);
-    FieldMapping fieldMapping2 =
+    var fieldMapping2 =
         new FieldMapping("veryLongpdxName2", "pdxType2", "veryLongjdbcName2", "jdbcType2", false);
     regionMapping.addFieldMapping(fieldMapping2);
-    ArrayList<CacheElement> elements = new ArrayList<>();
+    var elements = new ArrayList<CacheElement>();
     elements.add(regionMapping);
     when(regionConfig.getCustomRegionElements()).thenReturn(elements);
     when(regionConfig.getRegionAttributes().getDataPolicy())
         .thenReturn(RegionAttributesDataPolicy.REPLICATE);
 
-    CommandResultAssert resultAssert =
+    var resultAssert =
         gfsh.executeAndAssertThat(command, COMMAND).statusIsSuccess();
     resultAssert
         .hasDataSection()
@@ -328,7 +327,7 @@ public class DescribeMappingCommandTest {
 
   @Test
   public void whenMemberExistsForGroup() {
-    RegionMapping regionMapping = new RegionMapping();
+    var regionMapping = new RegionMapping();
     regionMapping.setRegionName("region1");
     regionMapping.setPdxName("class1");
     regionMapping.setTableName("table1");
@@ -337,7 +336,7 @@ public class DescribeMappingCommandTest {
     regionMapping.setSpecifiedIds(false);
     regionMapping.setCatalog("myCatalog");
     regionMapping.setSchema("mySchema");
-    ArrayList<CacheElement> elements = new ArrayList<>();
+    var elements = new ArrayList<CacheElement>();
     elements.add(regionMapping);
     when(regionConfig.getCustomRegionElements()).thenReturn(elements);
     when(regionConfig.getRegionAttributes().getDataPolicy())

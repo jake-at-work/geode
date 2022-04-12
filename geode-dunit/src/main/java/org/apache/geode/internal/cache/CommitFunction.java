@@ -24,9 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.TransactionDataNodeHasDepartedException;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.execute.Execution;
@@ -80,7 +78,7 @@ public class CommitFunction implements Function, DataSerializable {
 
   @Override
   public void execute(FunctionContext context) {
-    Cache cache = CacheFactory.getAnyInstance();
+    var cache = CacheFactory.getAnyInstance();
     TXId txId = null;
     try {
       txId = (TXId) context.getArguments();
@@ -91,12 +89,12 @@ public class CommitFunction implements Function, DataSerializable {
     }
     DistributedMember member = txId.getMemberId();
     Boolean result = false;
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (cache.getDistributedSystem().getDistributedMember().equals(member)) {
       if (isDebugEnabled) {
         logger.debug("CommitFunction: for transaction: {} committing locally", txId);
       }
-      CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+      var txMgr = cache.getCacheTransactionManager();
       if (txMgr.tryResume(txId)) {
         if (isDebugEnabled) {
           logger.debug("CommitFunction: resumed transaction: {}", txId);
@@ -105,17 +103,17 @@ public class CommitFunction implements Function, DataSerializable {
         result = true;
       }
     } else {
-      ArrayList args = new ArrayList();
+      var args = new ArrayList();
       args.add(txId);
       args.add(NestedTransactionFunction.COMMIT);
-      Execution ex = FunctionService.onMember(member).setArguments(args);
+      var ex = FunctionService.onMember(member).setArguments(args);
       if (isDebugEnabled) {
         logger.debug(
             "CommitFunction: for transaction: {} executing NestedTransactionFunction on member: {}",
             txId, member);
       }
       try {
-        List list = (List) ex.execute(new NestedTransactionFunction()).getResult();
+        var list = (List) ex.execute(new NestedTransactionFunction()).getResult();
         result = (Boolean) list.get(0);
       } catch (FunctionException fe) {
         if (fe.getCause() instanceof FunctionInvocationTargetException) {

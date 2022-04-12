@@ -35,7 +35,7 @@ public class AbstractGatewaySenderEventProcessorTest {
 
   @Test
   public void eventQueueSizeReturnsQueueSize() {
-    AbstractGatewaySenderEventProcessor processor = mock(AbstractGatewaySenderEventProcessor.class);
+    var processor = mock(AbstractGatewaySenderEventProcessor.class);
     when(processor.getQueue()).thenReturn(queue);
     doCallRealMethod().when(processor).eventQueueSize();
 
@@ -46,7 +46,7 @@ public class AbstractGatewaySenderEventProcessorTest {
 
   @Test
   public void eventQueueSizeReturnsZeroIfRegionQueueIsNull() {
-    AbstractGatewaySenderEventProcessor processor = mock(AbstractGatewaySenderEventProcessor.class);
+    var processor = mock(AbstractGatewaySenderEventProcessor.class);
     doCallRealMethod().when(processor).eventQueueSize();
 
     assertThat(processor.eventQueueSize()).isEqualTo(0);
@@ -56,9 +56,9 @@ public class AbstractGatewaySenderEventProcessorTest {
 
   @Test
   public void getTransactionMetadataDispositionIncludedWhenSenderMustGroupTransactionEventsTrue() {
-    final AbstractGatewaySenderEventProcessor processor =
+    final var processor =
         mock(AbstractGatewaySenderEventProcessor.class);
-    final AbstractGatewaySender sender = mock(AbstractGatewaySender.class);
+    final var sender = mock(AbstractGatewaySender.class);
     when(processor.getSender()).thenReturn(sender);
     when(sender.mustGroupTransactionEvents()).thenReturn(true);
     when(processor.getTransactionMetadataDisposition(anyBoolean())).thenCallRealMethod();
@@ -69,9 +69,9 @@ public class AbstractGatewaySenderEventProcessorTest {
 
   @Test
   public void getTransactionMetadataDispositionExcludedWhenSenderMustGroupTransactionEventsFalse() {
-    final AbstractGatewaySenderEventProcessor processor =
+    final var processor =
         mock(AbstractGatewaySenderEventProcessor.class);
-    final AbstractGatewaySender sender = mock(AbstractGatewaySender.class);
+    final var sender = mock(AbstractGatewaySender.class);
     when(sender.mustGroupTransactionEvents()).thenReturn(false);
     when(processor.getSender()).thenReturn(sender);
     when(processor.getTransactionMetadataDisposition(anyBoolean())).thenCallRealMethod();

@@ -71,9 +71,9 @@ public class RegionOperationStateStore
 
   @Override
   public <A extends ClusterManagementOperation<?>> String recordStart(A operation, String locator) {
-    String opId = uniqueIdSupplier.get();
+    var opId = uniqueIdSupplier.get();
 
-    OperationState operationInstance = new OperationState(opId, operation, new Date());
+    var operationInstance = new OperationState(opId, operation, new Date());
     operationInstance.setLocator(locator);
 
     region.put(opId, operationInstance);
@@ -84,7 +84,7 @@ public class RegionOperationStateStore
   @Override
   public <A extends ClusterManagementOperation<V>, V extends OperationResult> OperationState<A, V> get(
       String opId) {
-    OperationState<A, V> result = (OperationState<A, V>) region.get(opId);
+    var result = (OperationState<A, V>) region.get(opId);
     if (result != null) {
       result = result.createCopy();
     }
@@ -98,8 +98,8 @@ public class RegionOperationStateStore
 
   @Override
   public <A extends ClusterManagementOperation<V>, V extends OperationResult> List<OperationState<A, V>> list() {
-    ArrayList<OperationState<A, V>> result = new ArrayList<>();
-    for (OperationState<ClusterManagementOperation<OperationResult>, OperationResult> operationState : region
+    var result = new ArrayList<OperationState<A, V>>();
+    for (var operationState : region
         .values()) {
       result.add((OperationState<A, V>) operationState.createCopy());
     }
@@ -108,7 +108,7 @@ public class RegionOperationStateStore
 
   @Override
   public <V extends OperationResult> void recordEnd(String opId, V result, Throwable exception) {
-    OperationState<ClusterManagementOperation<OperationResult>, OperationResult> operationState =
+    var operationState =
         region.get(opId);
     operationState.setOperationEnd(new Date(), result, exception);
     region.put(opId, operationState);

@@ -43,8 +43,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.distributed.LocatorLauncher;
@@ -105,7 +103,7 @@ public class ValidateOfflineDiskStoreDUnitTest implements Serializable {
 
   @Before
   public void setUp() throws Exception {
-    VM locator = getVM(0);
+    var locator = getVM(0);
     server = getVM(1);
 
     locatorName = "locator";
@@ -115,7 +113,7 @@ public class ValidateOfflineDiskStoreDUnitTest implements Serializable {
 
     serverDir = temporaryFolder.newFolder(serverName);
 
-    int[] port = getRandomAvailableTCPPorts(3);
+    var port = getRandomAvailableTCPPorts(3);
     locatorPort = port[0];
     locatorJmxPort = port[1];
     serverPort = port[2];
@@ -152,8 +150,8 @@ public class ValidateOfflineDiskStoreDUnitTest implements Serializable {
     server.invoke(ValidateOfflineDiskStoreDUnitTest::stopServer);
 
     server.invoke(() -> {
-      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      PrintStream originalSystemOut = System.out;
+      var byteArrayOutputStream = new ByteArrayOutputStream();
+      var originalSystemOut = System.out;
       System.setOut(new PrintStream(byteArrayOutputStream));
       validateOfflineDiskStore();
       assertThat(byteArrayOutputStream.toString())
@@ -184,7 +182,7 @@ public class ValidateOfflineDiskStoreDUnitTest implements Serializable {
     LOCATOR.get().start();
 
     await().untilAsserted(() -> {
-      InternalLocator locator = (InternalLocator) LOCATOR.get().getLocator();
+      var locator = (InternalLocator) LOCATOR.get().getLocator();
       assertThat(locator.isSharedConfigurationRunning())
           .as("Locator shared configuration is running on locator" + getVMId())
           .isTrue();
@@ -242,11 +240,11 @@ public class ValidateOfflineDiskStoreDUnitTest implements Serializable {
   }
 
   private void populateRegions() {
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
-    ClientCache clientCache =
+    var clientCacheFactory = new ClientCacheFactory();
+    var clientCache =
         clientCacheFactory.addPoolLocator("localhost", locatorPort).create();
 
-    Region<Object, Object> clientRegion1 = clientCache
+    var clientRegion1 = clientCache
         .createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(REGION_NAME);
 
     IntStream.range(0, NUM_ENTRIES).forEach(i -> {

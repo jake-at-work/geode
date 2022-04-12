@@ -44,7 +44,7 @@ public class HAContainerRegion implements HAContainerWrapper {
 
   @Override
   public ClientProxyMembershipID getProxyID(String haRegionName) {
-    CacheClientProxy proxy = haRegionNameToProxy.get(haRegionName);
+    var proxy = haRegionNameToProxy.get(haRegionName);
     if (proxy != null) {
       return proxy.getProxyID();
     } else {
@@ -53,7 +53,7 @@ public class HAContainerRegion implements HAContainerWrapper {
   }
 
   public Region getMapForTest() {
-    Region region = map;
+    var region = map;
     return region;
   }
 
@@ -125,7 +125,7 @@ public class HAContainerRegion implements HAContainerWrapper {
 
   @Override
   public Object get(Object key) {
-    ClientUpdateMessageImpl msg = (ClientUpdateMessageImpl) map.get(key);
+    var msg = (ClientUpdateMessageImpl) map.get(key);
     if (msg != null) {
       msg.setEventIdentifier(((HAEventWrapper) key).getEventId());
       if (msg.hasCqs()) {
@@ -137,9 +137,9 @@ public class HAContainerRegion implements HAContainerWrapper {
 
   @Override
   public Object getEntry(Object key) {
-    Region.Entry entry = map.getEntry(key);
+    var entry = map.getEntry(key);
     if (entry != null) {
-      ClientUpdateMessageImpl msg = (ClientUpdateMessageImpl) entry.getValue();
+      var msg = (ClientUpdateMessageImpl) entry.getValue();
       msg.setEventIdentifier(((HAEventWrapper) key).getEventId());
       if (msg.hasCqs()) {
         msg.setClientCqs(((HAEventWrapper) key).getClientCqs());

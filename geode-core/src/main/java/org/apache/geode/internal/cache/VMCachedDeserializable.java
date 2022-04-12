@@ -85,7 +85,7 @@ public class VMCachedDeserializable implements CachedDeserializable, DataSeriali
 
   @Override
   public Object getDeserializedValue(Region r, RegionEntry re) {
-    Object v = value;
+    var v = value;
     if (v instanceof byte[]) {
       // org.apache.geode.internal.cache.GemFireCache.getInstance().getLogger().info("DEBUG
       // getDeserializedValue r=" + r + " re=" + re, new RuntimeException("STACK"));
@@ -100,13 +100,13 @@ public class VMCachedDeserializable implements CachedDeserializable, DataSeriali
         if (r instanceof PartitionedRegion) {
           r = ((PartitionedRegion) r).getBucketRegion(re.getKey());
         }
-        boolean callFinish = false;
+        var callFinish = false;
         RegionMap regionMap = null;
         if (r != null) { // fix for bug 44795
           regionMap = ((InternalRegion) r).getRegionMap();
         }
-        boolean threadAlreadySynced = Thread.holdsLock(le);
-        boolean isCacheListenerInvoked = re.isCacheListenerInvocationInProgress();
+        var threadAlreadySynced = Thread.holdsLock(le);
+        var isCacheListenerInvoked = re.isCacheListenerInvocationInProgress();
         synchronized (le) {
           v = value;
           if (!(v instanceof byte[])) {
@@ -164,7 +164,7 @@ public class VMCachedDeserializable implements CachedDeserializable, DataSeriali
 
   @Override
   public Object getDeserializedForReading() {
-    Object v = value;
+    var v = value;
     if (v instanceof byte[]) {
       return EntryEventImpl.deserialize((byte[]) v);
     } else {
@@ -174,9 +174,9 @@ public class VMCachedDeserializable implements CachedDeserializable, DataSeriali
 
   @Override
   public Object getDeserializedWritableCopy(Region r, RegionEntry re) {
-    Object v = value;
+    var v = value;
     if (v instanceof byte[]) {
-      Object result = EntryEventImpl.deserialize((byte[]) v);
+      var result = EntryEventImpl.deserialize((byte[]) v);
       if (CopyHelper.isWellKnownImmutableInstance(result) && !(result instanceof PdxInstance)) {
         // Since it is immutable go ahead and change the form
         // since we can return the immutable instance each time.
@@ -193,7 +193,7 @@ public class VMCachedDeserializable implements CachedDeserializable, DataSeriali
    */
   @Override
   public byte[] getSerializedValue() {
-    Object v = value;
+    var v = value;
     if (v instanceof byte[]) {
       return (byte[]) v;
     }
@@ -228,7 +228,7 @@ public class VMCachedDeserializable implements CachedDeserializable, DataSeriali
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     // fix for bug 38309
-    byte[] bytes = DataSerializer.readByteArray(in);
+    var bytes = DataSerializer.readByteArray(in);
     valueSize = bytes.length;
     value = bytes;
   }
@@ -241,7 +241,7 @@ public class VMCachedDeserializable implements CachedDeserializable, DataSeriali
   }
 
   String getShortClassName() {
-    String cname = getClass().getName();
+    var cname = getClass().getName();
     return cname.substring(getClass().getPackage().getName().length() + 1);
   }
 
@@ -257,7 +257,7 @@ public class VMCachedDeserializable implements CachedDeserializable, DataSeriali
 
   @Override
   public void fillSerializedValue(BytesAndBitsForCompactor wrapper, byte userBits) {
-    Object v = value;
+    var v = value;
     if (v instanceof byte[]) {
       wrapper.setData((byte[]) v, userBits, ((byte[]) v).length,
           false /* Not Reusable as it refers to underlying value */);

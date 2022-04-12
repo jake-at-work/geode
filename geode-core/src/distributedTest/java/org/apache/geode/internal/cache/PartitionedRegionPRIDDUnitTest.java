@@ -92,7 +92,7 @@ public class PartitionedRegionPRIDDUnitTest extends CacheTestCase {
   }
 
   private void createPartitionedRegion(String regionName, int localMaxMemory, int redundancy) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setRedundantCopies(redundancy);
 
@@ -108,11 +108,11 @@ public class PartitionedRegionPRIDDUnitTest extends CacheTestCase {
     assertThat(prRootRegion).isNotNull();
 
     List<Integer> prIdList = new ArrayList<>();
-    for (String regionName : regionNames) {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) cache.getRegion(regionName);
+    for (var regionName : regionNames) {
+      var partitionedRegion = (PartitionedRegion) cache.getRegion(regionName);
       assertThat(partitionedRegion).isNotNull();
 
-      PartitionRegionConfig prConfig =
+      var prConfig =
           (PartitionRegionConfig) prRootRegion.get(partitionedRegion.getRegionIdentifier());
       assertThat(prConfig).isNotNull();
 
@@ -123,7 +123,7 @@ public class PartitionedRegionPRIDDUnitTest extends CacheTestCase {
     SortedSet<Integer> prIdSet = new TreeSet<>(prIdList);
     assertThat(prIdSet).hasSameSizeAs(prIdList);
 
-    int numberOfPartitionedRegions = regionNames.length;
+    var numberOfPartitionedRegions = regionNames.length;
 
     // prId generated should be between 0 to number of partition regions-1
     for (int prId : prIdSet) {

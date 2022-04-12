@@ -52,7 +52,6 @@ import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserver;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserverAdapter;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.VMEventListener;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -108,14 +107,14 @@ public class PersistentPartitionHangsDuringRestartRegressionTest implements Seri
     vm0 = getVM(0);
     vm1 = getVM(1);
 
-    String uniqueName = getClass().getSimpleName() + "-" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "-" + testName.getMethodName();
     partitionedRegionName = uniqueName + "-partitionedRegion";
   }
 
   @After
   public void tearDown() {
     removeVMEventListener(vmEventListener);
-    for (VM vm : toArray(getAllVMs(), getController())) {
+    for (var vm : toArray(getAllVMs(), getController())) {
       vm.invoke(() -> {
         DistributionMessageObserver.setInstance(null);
         InternalResourceManager.setResourceObserver(null);
@@ -151,7 +150,7 @@ public class PersistentPartitionHangsDuringRestartRegressionTest implements Seri
 
     addVMEventListener(vmEventListener);
 
-    try (IgnoredException ie = addIgnoredException(PartitionOfflineException.class)) {
+    try (var ie = addIgnoredException(PartitionOfflineException.class)) {
       // This should recover redundancy, which should cause vm0 to bounce/disconnect
       AsyncInvocation createPRAsync = vm1.invokeAsync(() -> createPartitionedRegion(1, 0, 1, true));
 
@@ -176,7 +175,7 @@ public class PersistentPartitionHangsDuringRestartRegressionTest implements Seri
 
   private void createPartitionedRegion(final int redundancy, final int recoveryDelay,
       final int numBuckets, final boolean synchronous) throws InterruptedException {
-    CountDownLatch recoveryDone = new CountDownLatch(1);
+    var recoveryDone = new CountDownLatch(1);
 
     if (redundancy > 0) {
       ResourceObserver observer = new ResourceObserverAdapter() {
@@ -209,7 +208,7 @@ public class PersistentPartitionHangsDuringRestartRegressionTest implements Seri
   private void createData(final int startKey, final int endKey, final String value,
       final String regionName) {
     Region<Integer, String> region = getCache().getRegion(regionName);
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       region.put(i, value);
     }
   }
@@ -217,7 +216,7 @@ public class PersistentPartitionHangsDuringRestartRegressionTest implements Seri
   private void checkData(final int startKey, final int endKey, final String value,
       final String regionName) {
     Region<Integer, String> region = getCache().getRegion(regionName);
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       assertThat(region.get(i)).isEqualTo(value);
     }
   }
@@ -226,10 +225,10 @@ public class PersistentPartitionHangsDuringRestartRegressionTest implements Seri
    * Prevent GEODE-6232 by disabling JMX which is not needed in this test.
    */
   private InternalCache getCache() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(DISABLE_JMX, "true");
     config.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
-    InternalCache cache = cacheRule.getOrCreateCache(config);
+    var cache = cacheRule.getOrCreateCache(config);
     assertThat(cache.getInternalDistributedSystem().getResourceListeners()).isEmpty();
     return cache;
   }
@@ -239,7 +238,7 @@ public class PersistentPartitionHangsDuringRestartRegressionTest implements Seri
     @Override
     public void beforeProcessMessage(ClusterDistributionManager dm, DistributionMessage message) {
       if (message instanceof RequestImageMessage) {
-        RequestImageMessage requestImageMessage = (RequestImageMessage) message;
+        var requestImageMessage = (RequestImageMessage) message;
         // Don't bounce until we see a bucket
         if (requestImageMessage.regionPath.contains("_B_")) {
           DistributionMessageObserver.setInstance(null);

@@ -57,15 +57,15 @@ public class HttpInvocationHandler implements InvocationHandler {
   }
 
   protected boolean isAttributeAccessor(final Method method) {
-    final String methodName = method.getName();
+    final var methodName = method.getName();
     return (methodName.startsWith("get") || methodName.startsWith("is"));
   }
 
   protected String getAttributeName(final Method method) {
-    final String methodName = method.getName();
+    final var methodName = method.getName();
     // the attribute accessor method name either begins with 'get' or 'is' as defined by the JMX
     // specification
-    final int beginIndex = (methodName.startsWith("get") ? 3 : 2);
+    final var beginIndex = (methodName.startsWith("get") ? 3 : 2);
     return methodName.substring(beginIndex);
   }
 
@@ -76,7 +76,7 @@ public class HttpInvocationHandler implements InvocationHandler {
   protected String[] getSignature(final Method method) {
     final List<String> signature = new ArrayList<>();
 
-    for (final Class<?> parameterType : method.getParameterTypes()) {
+    for (final var parameterType : method.getParameterTypes()) {
       signature.add(parameterType.getName());
     }
 

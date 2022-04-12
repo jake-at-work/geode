@@ -30,12 +30,9 @@ import java.util.ConcurrentModificationException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
@@ -59,7 +56,7 @@ public class CollectionUtilsJUnitTest {
   public void testAsList() {
     final Integer[] numbers = {0, 1, 2, 1, 0};
 
-    final List<Integer> numberList = CollectionUtils.asList(numbers);
+    final var numberList = CollectionUtils.asList(numbers);
 
     assertNotNull(numberList);
     assertFalse(numberList.isEmpty());
@@ -73,7 +70,7 @@ public class CollectionUtilsJUnitTest {
   public void testAsSet() {
     final Integer[] numbers = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-    final Set<Integer> numberSet = CollectionUtils.asSet(numbers);
+    final var numberSet = CollectionUtils.asSet(numbers);
 
     assertNotNull(numberSet);
     assertFalse(numberSet.isEmpty());
@@ -87,7 +84,7 @@ public class CollectionUtilsJUnitTest {
   public void testAsSetWithNonUniqueElements() {
     final Integer[] numbers = {0, 1, 2, 1, 0};
 
-    final Set<Integer> numberSet = CollectionUtils.asSet(numbers);
+    final var numberSet = CollectionUtils.asSet(numbers);
 
     assertNotNull(numberSet);
     assertFalse(numberSet.isEmpty());
@@ -97,7 +94,7 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testCreateProperties() {
-    Properties properties =
+    var properties =
         CollectionUtils.createProperties(Collections.singletonMap("one", "two"));
 
     assertNotNull(properties);
@@ -114,13 +111,13 @@ public class CollectionUtilsJUnitTest {
     map.put("two", "B");
     map.put("six", "C");
 
-    Properties properties = CollectionUtils.createProperties(map);
+    var properties = CollectionUtils.createProperties(map);
 
     assertNotNull(properties);
     assertFalse(properties.isEmpty());
     assertEquals(map.size(), properties.size());
 
-    for (Entry<String, String> entry : map.entrySet()) {
+    for (var entry : map.entrySet()) {
       assertTrue(properties.containsKey(entry.getKey()));
       assertEquals(entry.getValue(), properties.get(entry.getKey()));
     }
@@ -128,7 +125,7 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testCreateEmptyProperties() {
-    Properties properties = CollectionUtils.createProperties(null);
+    var properties = CollectionUtils.createProperties(null);
 
     assertNotNull(properties);
     assertTrue(properties.isEmpty());
@@ -136,7 +133,7 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testEmptyListWithNullList() {
-    final List<Object> actualList = CollectionUtils.emptyList(null);
+    final var actualList = CollectionUtils.emptyList(null);
 
     assertNotNull(actualList);
     assertTrue(actualList.isEmpty());
@@ -149,27 +146,27 @@ public class CollectionUtilsJUnitTest {
     assertNotNull(expectedList);
     assertTrue(expectedList.isEmpty());
 
-    final List<Object> actualList = CollectionUtils.emptyList(expectedList);
+    final var actualList = CollectionUtils.emptyList(expectedList);
 
     assertSame(expectedList, actualList);
   }
 
   @Test
   public void testEmptyListWithList() {
-    final List<String> expectedList =
+    final var expectedList =
         Arrays.asList("aardvark", "baboon", "cat", "dog", "eel", "ferret");
 
     assertNotNull(expectedList);
     assertFalse(expectedList.isEmpty());
 
-    final List<String> actualList = CollectionUtils.emptyList(expectedList);
+    final var actualList = CollectionUtils.emptyList(expectedList);
 
     assertSame(expectedList, actualList);
   }
 
   @Test
   public void testEmptySetWithNullSet() {
-    final Set<Object> actualSet = CollectionUtils.emptySet(null);
+    final var actualSet = CollectionUtils.emptySet(null);
 
     assertNotNull(actualSet);
     assertTrue(actualSet.isEmpty());
@@ -182,7 +179,7 @@ public class CollectionUtilsJUnitTest {
     assertNotNull(expectedSet);
     assertTrue(expectedSet.isEmpty());
 
-    final Set<Object> actualSet = CollectionUtils.emptySet(expectedSet);
+    final var actualSet = CollectionUtils.emptySet(expectedSet);
 
     assertSame(expectedSet, actualSet);
   }
@@ -195,17 +192,17 @@ public class CollectionUtilsJUnitTest {
     assertNotNull(expectedSet);
     assertFalse(expectedSet.isEmpty());
 
-    final Set<String> actualSet = CollectionUtils.emptySet(expectedSet);
+    final var actualSet = CollectionUtils.emptySet(expectedSet);
 
     assertSame(expectedSet, actualSet);
   }
 
   @Test
   public void testFindAll() {
-    final List<Integer> numbers = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 9);
+    final var numbers = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 9);
 
     // accept all even numbers
-    final List<Integer> matches = CollectionUtils.findAll(numbers, number -> (number % 2 == 0));
+    final var matches = CollectionUtils.findAll(numbers, number -> (number % 2 == 0));
 
     assertNotNull(matches);
     assertFalse(matches.isEmpty());
@@ -214,10 +211,10 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testFindAllWhenMultipleElementsMatch() {
-    final List<Integer> numbers = Arrays.asList(0, 1, 2, 1, 4, 1, 6, 1, 7, 1, 9);
+    final var numbers = Arrays.asList(0, 1, 2, 1, 4, 1, 6, 1, 7, 1, 9);
 
     // accept 1
-    final List<Integer> matches = CollectionUtils.findAll(numbers, number -> (number == 1));
+    final var matches = CollectionUtils.findAll(numbers, number -> (number == 1));
 
     assertNotNull(matches);
     assertEquals(5, matches.size());
@@ -226,10 +223,10 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testFindAllWhenNoElementsMatch() {
-    final List<Integer> numbers = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+    final var numbers = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     // accept negative numbers
-    final List<Integer> matches = CollectionUtils.findAll(numbers, number -> (number < 0));
+    final var matches = CollectionUtils.findAll(numbers, number -> (number < 0));
 
     assertNotNull(matches);
     assertTrue(matches.isEmpty());
@@ -237,10 +234,10 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testFindBy() {
-    final List<Integer> numbers = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 9);
+    final var numbers = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 9);
 
     // accept 2
-    final Integer match = CollectionUtils.findBy(numbers, number -> (number == 2));
+    final var match = CollectionUtils.findBy(numbers, number -> (number == 2));
 
     assertNotNull(match);
     assertEquals(2, match.intValue());
@@ -248,10 +245,10 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testFindByWhenMultipleElementsMatch() {
-    final List<Integer> numbers = Arrays.asList(0, 1, 2, 1, 4, 1, 6, 1, 7, 1, 9);
+    final var numbers = Arrays.asList(0, 1, 2, 1, 4, 1, 6, 1, 7, 1, 9);
 
     // accept 1
-    final Integer match = CollectionUtils.findBy(numbers, number -> (number == 1));
+    final var match = CollectionUtils.findBy(numbers, number -> (number == 1));
 
     assertNotNull(match);
     assertEquals(1, match.intValue());
@@ -259,10 +256,10 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testFindByWhenNoElementsMatch() {
-    final List<Integer> numbers = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 9);
+    final var numbers = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 9);
 
     // accept 10
-    final Integer match = CollectionUtils.findBy(numbers, number -> (number == 10));
+    final var match = CollectionUtils.findBy(numbers, number -> (number == 10));
 
     assertNull(match);
   }
@@ -281,7 +278,7 @@ public class CollectionUtilsJUnitTest {
     assertFalse(expectedMap.isEmpty());
     assertEquals(6, expectedMap.size());
 
-    final Map<Object, String> actualMap =
+    final var actualMap =
         CollectionUtils.removeKeys(expectedMap, entry -> StringUtils.isNotBlank(entry.getValue()));
 
     assertSame(expectedMap, actualMap);
@@ -302,7 +299,7 @@ public class CollectionUtilsJUnitTest {
     assertFalse(expectedMap.isEmpty());
     assertEquals(4, expectedMap.size());
 
-    final Map<Object, Object> actualMap = CollectionUtils.removeKeysWithNullValues(expectedMap);
+    final var actualMap = CollectionUtils.removeKeysWithNullValues(expectedMap);
 
     assertSame(expectedMap, actualMap);
     assertEquals(3, expectedMap.size());
@@ -316,7 +313,7 @@ public class CollectionUtilsJUnitTest {
     assertNotNull(expectedMap);
     assertTrue(expectedMap.isEmpty());
 
-    final Map<?, ?> actualMap = CollectionUtils.removeKeysWithNullValues(expectedMap);
+    final var actualMap = CollectionUtils.removeKeysWithNullValues(expectedMap);
 
     assertSame(expectedMap, actualMap);
     assertTrue(actualMap.isEmpty());
@@ -341,16 +338,16 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testAddAllCollectionEnumerationWithList() {
-    final ArrayList<String> list = new ArrayList<>(4);
+    final var list = new ArrayList<String>(4);
 
     list.add("one");
     list.add("two");
 
-    final Vector<String> v = new Vector<>();
+    final var v = new Vector<String>();
     v.add("three");
     v.add("four");
 
-    boolean modified = CollectionUtils.addAll(list, v.elements());
+    var modified = CollectionUtils.addAll(list, v.elements());
 
     assertTrue(modified);
     assertEquals(4, list.size());
@@ -360,15 +357,15 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testAddAllCollectionEnumerationWithUnmodified() {
-    final HashSet<String> set = new HashSet<>();
+    final var set = new HashSet<String>();
 
     set.add("one");
     set.add("two");
 
-    final Vector<String> v = new Vector<>();
+    final var v = new Vector<String>();
     v.add("one");
 
-    boolean modified = CollectionUtils.addAll(set, v.elements());
+    var modified = CollectionUtils.addAll(set, v.elements());
 
     assertTrue(!modified);
     assertEquals(2, set.size());
@@ -376,12 +373,12 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testAddAllCollectionEnumerationWithEmpty() {
-    final ArrayList<String> list = new ArrayList<>(2);
+    final var list = new ArrayList<String>(2);
 
     list.add("one");
     list.add("two");
 
-    boolean modified = CollectionUtils.addAll(list, new Enumeration<String>() {
+    var modified = CollectionUtils.addAll(list, new Enumeration<String>() {
       @Override
       public boolean hasMoreElements() {
         return false;
@@ -399,12 +396,12 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testAddAllCollectionEnumerationWithNull() {
-    final ArrayList<String> list = new ArrayList<>(2);
+    final var list = new ArrayList<String>(2);
 
     list.add("one");
     list.add("two");
 
-    boolean modified = CollectionUtils.addAll(list, null);
+    var modified = CollectionUtils.addAll(list, null);
 
     assertTrue(!modified);
     assertEquals(2, list.size());
@@ -412,14 +409,14 @@ public class CollectionUtilsJUnitTest {
 
   @Test
   public void testUnmodifiableIterable() {
-    final ArrayList<Integer> list = new ArrayList<>();
+    final var list = new ArrayList<Integer>();
     list.add(0);
     list.add(1);
 
-    final Iterable<Integer> iterable = CollectionUtils.unmodifiableIterable(list);
+    final var iterable = CollectionUtils.unmodifiableIterable(list);
     assertNotNull(iterable);
 
-    final Iterator<Integer> iterator1 = iterable.iterator();
+    final var iterator1 = iterable.iterator();
     assertNotNull(iterator1);
     assertTrue(iterator1.hasNext());
     assertSame(list.get(0), iterator1.next());
@@ -440,7 +437,7 @@ public class CollectionUtilsJUnitTest {
       // ignore
     }
 
-    final Iterator<Integer> iterator2 = iterable.iterator();
+    final var iterator2 = iterable.iterator();
     assertNotNull(iterator2);
     assertNotSame(iterator1, iterator2);
     assertTrue(iterator2.hasNext());

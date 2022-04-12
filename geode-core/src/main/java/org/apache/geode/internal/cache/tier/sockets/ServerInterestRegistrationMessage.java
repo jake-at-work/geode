@@ -55,13 +55,13 @@ public class ServerInterestRegistrationMessage extends HighPriorityDistributionM
 
   static void sendInterestChange(DistributionManager dm, ClientProxyMembershipID clientId,
       ClientInterestMessageImpl clientInterestMessage) {
-    ServerInterestRegistrationMessage registrationMessage =
+    var registrationMessage =
         new ServerInterestRegistrationMessage(clientId, clientInterestMessage);
 
     Set recipients = dm.getOtherDistributionManagerIds();
     registrationMessage.setRecipients(recipients);
 
-    ReplyProcessor21 replyProcessor = new ReplyProcessor21(dm, recipients);
+    var replyProcessor = new ReplyProcessor21(dm, recipients);
     registrationMessage.processorId = replyProcessor.getProcessorId();
 
     dm.putOutgoing(registrationMessage);
@@ -77,9 +77,9 @@ public class ServerInterestRegistrationMessage extends HighPriorityDistributionM
   protected void process(ClusterDistributionManager dm) {
     // Get the proxy for the proxy id
     try {
-      CacheClientNotifier clientNotifier = CacheClientNotifier.getInstance();
+      var clientNotifier = CacheClientNotifier.getInstance();
       if (clientNotifier != null) {
-        CacheClientProxy proxy = clientNotifier.getClientProxy(clientId);
+        var proxy = clientNotifier.getClientProxy(clientId);
         // If this VM contains a proxy for the requested proxy id, forward the
         // message on to the proxy for processing
         if (proxy != null) {
@@ -87,7 +87,7 @@ public class ServerInterestRegistrationMessage extends HighPriorityDistributionM
         }
       }
     } finally {
-      ReplyMessage reply = new ReplyMessage();
+      var reply = new ReplyMessage();
       reply.setProcessorId(processorId);
       reply.setRecipient(getSender());
       try {

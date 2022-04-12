@@ -56,8 +56,8 @@ public class DumpRestoreIntegrationTest extends AbstractDumpRestoreIntegrationTe
 
   @Test
   public void restoreWithUnknownVersion_isNotSupported() throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(RADISH_DUMP_HEADER.length + 2);
-    DataOutputStream output = new DataOutputStream(baos);
+    var baos = new ByteArrayOutputStream(RADISH_DUMP_HEADER.length + 2);
+    var output = new DataOutputStream(baos);
     output.write(RADISH_DUMP_HEADER);
     output.writeShort(0);
 

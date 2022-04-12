@@ -50,8 +50,8 @@ public class InvalidatePartitionedRegionMessage extends PartitionMessage {
   }
 
   public static ReplyProcessor21 send(Set recipients, PartitionedRegion r, RegionEventImpl event) {
-    ReplyProcessor21 response = new ReplyProcessor21(r.getSystem(), recipients);
-    InvalidatePartitionedRegionMessage msg = new InvalidatePartitionedRegionMessage(recipients,
+    var response = new ReplyProcessor21(r.getSystem(), recipients);
+    var msg = new InvalidatePartitionedRegionMessage(recipients,
         event.getCallbackArgument(), r, response, event.getEventId());
     msg.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     r.getSystem().getDistributionManager().putOutgoing(msg);
@@ -71,7 +71,7 @@ public class InvalidatePartitionedRegionMessage extends PartitionMessage {
       long startTime)
       throws CacheException, QueryException, ForceReattemptException, InterruptedException {
 
-    RegionEventImpl event = new RegionEventImpl(pr, Operation.REGION_INVALIDATE, callbackArg,
+    var event = new RegionEventImpl(pr, Operation.REGION_INVALIDATE, callbackArg,
         !dm.getId().equals(getSender()), getSender(), getEventID());
     pr.basicInvalidateRegion(event);
     return true;

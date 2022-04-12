@@ -68,17 +68,17 @@ public class TopEntriesCollectorManager
 
   @Override
   public TopEntriesCollector reduce(Collection<TopEntriesCollector> collectors) {
-    TopEntriesCollector mergedResult = new TopEntriesCollector(id, limit);
+    var mergedResult = new TopEntriesCollector(id, limit);
     if (collectors.isEmpty()) {
       return mergedResult;
     }
 
-    final EntryScoreComparator scoreComparator = new TopEntries().new EntryScoreComparator();
+    final var scoreComparator = new TopEntries().new EntryScoreComparator();
 
     // orders a entry with higher score above a doc with lower score
-    Comparator<ListScanner> entryListComparator = (l1, l2) -> {
-      EntryScore o1 = l1.peek();
-      EntryScore o2 = l2.peek();
+    var entryListComparator = (Comparator<ListScanner>) (l1, l2) -> {
+      var o1 = l1.peek();
+      var o2 = l2.peek();
       return scoreComparator.compare(o1, o2);
     };
 
@@ -102,8 +102,8 @@ public class TopEntriesCollectorManager
     logger.debug("Only {} count of entries will be reduced. Other entries will be ignored", limit);
     while (entryListsPriorityQueue.size() > 0 && limit > mergedResult.size()) {
 
-      ListScanner scanner = entryListsPriorityQueue.remove();
-      EntryScore entry = scanner.next();
+      var scanner = entryListsPriorityQueue.remove();
+      var entry = scanner.next();
       mergedResult.collect(entry);
 
       if (scanner.hasNext()) {

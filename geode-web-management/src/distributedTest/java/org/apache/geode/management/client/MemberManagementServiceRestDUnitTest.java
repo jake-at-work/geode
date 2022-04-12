@@ -62,7 +62,7 @@ public class MemberManagementServiceRestDUnitTest {
     webContext = new LocatorWebContext(webApplicationContext);
 
     cluster.setSkipLocalDistributedSystemCleanup(true);
-    int locatorPort = webContext.getLocator().getPort();
+    var locatorPort = webContext.getLocator().getPort();
 
     cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
         .withProperty("groups", "group-1,group-2")

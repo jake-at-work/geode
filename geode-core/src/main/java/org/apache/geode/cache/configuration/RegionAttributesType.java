@@ -1501,7 +1501,7 @@ public class RegionAttributesType implements Serializable {
     if (evictionAttributes == null) {
       evictionAttributes = new EvictionAttributes();
     }
-    EvictionAttributes.LruHeapPercentage lruHeapPercentage =
+    var lruHeapPercentage =
         new EvictionAttributes.LruHeapPercentage();
     lruHeapPercentage.setAction(action);
     evictionAttributes.setLruHeapPercentage(lruHeapPercentage);
@@ -2066,12 +2066,12 @@ public class RegionAttributesType implements Serializable {
         return null;
       }
 
-      RegionAttributesType.EvictionAttributes evictionAttributes =
+      var evictionAttributes =
           new RegionAttributesType.EvictionAttributes();
-      EnumActionDestroyOverflow action = EnumActionDestroyOverflow.fromValue(evictionAction);
+      var action = EnumActionDestroyOverflow.fromValue(evictionAction);
 
       if (maxMemory == null && maxEntryCount == null) {
-        LruHeapPercentage heapPercentage =
+        var heapPercentage =
             new LruHeapPercentage();
         heapPercentage.setAction(action);
         if (objectSizer != null) {
@@ -2080,7 +2080,7 @@ public class RegionAttributesType implements Serializable {
         }
         evictionAttributes.setLruHeapPercentage(heapPercentage);
       } else if (maxMemory != null) {
-        LruMemorySize memorySize =
+        var memorySize =
             new LruMemorySize();
         memorySize.setAction(action);
         if (objectSizer != null) {
@@ -2090,7 +2090,7 @@ public class RegionAttributesType implements Serializable {
         memorySize.setMaximum(maxMemory.toString());
         evictionAttributes.setLruMemorySize(memorySize);
       } else {
-        LruEntryCount entryCount =
+        var entryCount =
             new LruEntryCount();
         entryCount.setAction(action);
         entryCount.setMaximum(maxEntryCount.toString());
@@ -2654,7 +2654,7 @@ public class RegionAttributesType implements Serializable {
         return null;
       }
 
-      RegionAttributesType.PartitionAttributes partitionAttributes =
+      var partitionAttributes =
           new RegionAttributesType.PartitionAttributes();
       partitionAttributes.setColocatedWith(colocatedWith);
       partitionAttributes.setLocalMaxMemory(Objects.toString(localMaxMemory, null));

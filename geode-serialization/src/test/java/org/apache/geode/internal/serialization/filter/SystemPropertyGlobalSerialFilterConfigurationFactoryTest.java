@@ -51,9 +51,9 @@ public class SystemPropertyGlobalSerialFilterConfigurationFactoryTest {
     GlobalSerialFilterConfigurationFactory factory =
         new SystemPropertyGlobalSerialFilterConfigurationFactory();
 
-    FilterConfiguration configuration = factory.create(config);
+    var configuration = factory.create(config);
 
-    boolean result = configuration.configure();
+    var result = configuration.configure();
 
     assertThat(result).isFalse();
   }
@@ -64,7 +64,7 @@ public class SystemPropertyGlobalSerialFilterConfigurationFactoryTest {
     GlobalSerialFilterConfigurationFactory factory =
         new SystemPropertyGlobalSerialFilterConfigurationFactory();
 
-    FilterConfiguration configuration = factory.create(config);
+    var configuration = factory.create(config);
 
     // don't actually invoke configure because this is a unit test
     assertThat(configuration).isInstanceOf(GlobalSerialFilterConfiguration.class);
@@ -76,9 +76,9 @@ public class SystemPropertyGlobalSerialFilterConfigurationFactoryTest {
     GlobalSerialFilterConfigurationFactory factory =
         new SystemPropertyGlobalSerialFilterConfigurationFactory();
 
-    FilterConfiguration configuration = factory.create(config);
+    var configuration = factory.create(config);
 
-    boolean result = configuration.configure();
+    var result = configuration.configure();
 
     assertThat(result).isFalse();
   }
@@ -91,9 +91,9 @@ public class SystemPropertyGlobalSerialFilterConfigurationFactoryTest {
     GlobalSerialFilterConfigurationFactory factory =
         new SystemPropertyGlobalSerialFilterConfigurationFactory();
 
-    FilterConfiguration configuration = factory.create(config);
+    var configuration = factory.create(config);
 
-    boolean result = configuration.configure();
+    var result = configuration.configure();
 
     assertThat(result).isFalse();
   }
@@ -101,13 +101,13 @@ public class SystemPropertyGlobalSerialFilterConfigurationFactoryTest {
   @Test
   public void createsNoOp_whenEnableGlobalSerialFilterIsFalse_andJreDoesNotSupportObjectInputFilter()
       throws UnableToSetSerialFilterException {
-    boolean supportsObjectInputFilter = false;
+    var supportsObjectInputFilter = false;
     GlobalSerialFilterConfigurationFactory configurationFactory =
         new SystemPropertyGlobalSerialFilterConfigurationFactory(() -> supportsObjectInputFilter);
 
-    FilterConfiguration configuration = configurationFactory.create(config);
+    var configuration = configurationFactory.create(config);
 
-    boolean result = configuration.configure();
+    var result = configuration.configure();
 
     assertThat(result).isFalse();
   }
@@ -116,13 +116,13 @@ public class SystemPropertyGlobalSerialFilterConfigurationFactoryTest {
   public void createsNoOp_whenEnableGlobalSerialFilterIsTrue_andJreDoesNotSupportObjectInputFilter()
       throws UnableToSetSerialFilterException {
     System.setProperty("geode.enableGlobalSerialFilter", "true");
-    boolean supportsObjectInputFilter = false;
+    var supportsObjectInputFilter = false;
     GlobalSerialFilterConfigurationFactory configurationFactory =
         new SystemPropertyGlobalSerialFilterConfigurationFactory(() -> supportsObjectInputFilter);
 
-    FilterConfiguration configuration = configurationFactory.create(config);
+    var configuration = configurationFactory.create(config);
 
-    boolean result = configuration.configure();
+    var result = configuration.configure();
 
     assertThat(result).isFalse();
   }
@@ -135,7 +135,7 @@ public class SystemPropertyGlobalSerialFilterConfigurationFactoryTest {
 
     assertThatCode(() -> {
 
-      FilterConfiguration configuration = factory.create(config);
+      var configuration = factory.create(config);
 
       configuration.configure();
 

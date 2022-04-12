@@ -16,12 +16,10 @@ package org.apache.geode.management.internal.beans;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.geode.distributed.internal.locks.DLockService;
-import org.apache.geode.distributed.internal.locks.DLockToken;
 import org.apache.geode.management.internal.ManagementConstants;
 
 /**
@@ -50,13 +48,13 @@ public class LockServiceMBeanBridge {
    */
 
   public String[] listHeldLocks() {
-    Map<Object, DLockToken> tokenMap = lockService.snapshotService();
-    Iterator<Object> it = tokenMap.keySet().iterator();
+    var tokenMap = lockService.snapshotService();
+    var it = tokenMap.keySet().iterator();
     List<String> listOfLocks = new ArrayList<>();
-    int j = 0;
+    var j = 0;
     while (it.hasNext()) {
-      Object lockObject = it.next();
-      DLockToken token = tokenMap.get(lockObject);
+      var lockObject = it.next();
+      var token = tokenMap.get(lockObject);
       if (token.getUsageCount() > 0) {
         // As lock objects are of Object type, this is the best
         // info we can give
@@ -64,7 +62,7 @@ public class LockServiceMBeanBridge {
       }
     }
     if (listOfLocks.size() > 0) {
-      String[] retStr = new String[listOfLocks.size()];
+      var retStr = new String[listOfLocks.size()];
       listOfLocks.toArray(retStr);
       return retStr;
     }
@@ -106,13 +104,13 @@ public class LockServiceMBeanBridge {
    */
   public Map<String, String> listThreadsHoldingLock() {
 
-    Map<Object, DLockToken> tokenMap = lockService.snapshotService();
-    Iterator<Object> it = tokenMap.keySet().iterator();
+    var tokenMap = lockService.snapshotService();
+    var it = tokenMap.keySet().iterator();
     Map<String, String> listOfLocks = new HashMap<>();
-    int j = 0;
+    var j = 0;
     while (it.hasNext()) {
-      Object lockObject = it.next();
-      DLockToken token = tokenMap.get(lockObject);
+      var lockObject = it.next();
+      var token = tokenMap.get(lockObject);
       if (token.getUsageCount() > 0) {
         listOfLocks.put(lockObject.toString(), token.getThreadName());
       }

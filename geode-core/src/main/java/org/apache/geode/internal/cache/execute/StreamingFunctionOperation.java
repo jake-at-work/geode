@@ -66,7 +66,7 @@ public abstract class StreamingFunctionOperation {
   }
 
   public void processData(Object result, boolean lastMsg, DistributedMember memberID) {
-    boolean completelyDone = false;
+    var completelyDone = false;
     if (lastMsg) {
       totalLastMsgReceived++;
     }
@@ -75,7 +75,7 @@ public abstract class StreamingFunctionOperation {
     }
 
     if (resultSender instanceof MemberFunctionResultSender) {
-      MemberFunctionResultSender rs = (MemberFunctionResultSender) resultSender;
+      var rs = (MemberFunctionResultSender) resultSender;
       rs.lastResult(result, completelyDone, reply, memberID);
     } else {
       if (completelyDone) {
@@ -92,10 +92,10 @@ public abstract class StreamingFunctionOperation {
       return rc;
     }
 
-    FunctionStreamingResultCollector processor =
+    var processor =
         new FunctionStreamingResultCollector(this, sys, recipients, rc, function, execution);
     reply = processor;
-    for (InternalDistributedMember recip : memberArgs.keySet()) {
+    for (var recip : memberArgs.keySet()) {
       DistributionMessage m = null;
       if (execution instanceof DistributedRegionFunctionExecutor
           || execution instanceof MultiRegionFunctionExecutor) {

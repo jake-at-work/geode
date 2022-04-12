@@ -23,11 +23,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
-import com.healthmarketscience.rmiio.exporter.RemoteStreamExporter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
@@ -46,11 +44,9 @@ import org.apache.geode.connectors.jdbc.JdbcWriter;
 import org.apache.geode.connectors.jdbc.internal.configuration.FieldMapping;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.SingleGfshCommand;
-import org.apache.geode.management.internal.ManagementAgent;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
@@ -140,7 +136,7 @@ public class CreateMappingCommand extends SingleGfshCommand {
     String remoteInputStreamName = null;
     RemoteInputStream remoteInputStream = null;
     if (pdxClassFile != null) {
-      List<String> pdxClassFilePaths = getFilePathFromShell();
+      var pdxClassFilePaths = getFilePathFromShell();
       if (pdxClassFilePaths.size() != 1) {
         throw new IllegalStateException(
             "Expected only one element in the list returned by getFilePathFromShell, but it returned: "
@@ -149,20 +145,20 @@ public class CreateMappingCommand extends SingleGfshCommand {
       tempPdxClassFilePath = pdxClassFilePaths.get(0);
     }
 
-    Set<DistributedMember> targetMembers = findMembers(groups, null);
-    RegionMapping mapping =
+    var targetMembers = findMembers(groups, null);
+    var mapping =
         new RegionMapping(regionName, pdxName, table, dataSourceName, id, catalog, schema);
 
     try {
-      ConfigurationPersistenceService configurationPersistenceService =
+      var configurationPersistenceService =
           checkForClusterConfiguration();
       if (groups == null) {
         groups = new String[] {ConfigurationPersistenceService.CLUSTER_CONFIG};
       }
-      for (String group : groups) {
-        CacheConfig cacheConfig =
+      for (var group : groups) {
+        var cacheConfig =
             MappingCommandUtils.getCacheConfig(configurationPersistenceService, group);
-        RegionConfig regionConfig = checkForRegion(regionName, cacheConfig, group);
+        var regionConfig = checkForRegion(regionName, cacheConfig, group);
         checkForExistingMapping(regionName, regionConfig);
         checkForCacheLoader(regionName, regionConfig);
         checkForCacheWriter(regionName, synchronous, regionConfig);
@@ -179,9 +175,9 @@ public class CreateMappingCommand extends SingleGfshCommand {
     }
 
     if (pdxClassFile != null) {
-      ManagementAgent agent =
+      var agent =
           ((SystemManagementService) getManagementService()).getManagementAgent();
-      RemoteStreamExporter exporter = agent.getRemoteStreamExporter();
+      var exporter = agent.getRemoteStreamExporter();
       remoteInputStreamName = FilenameUtils.getName(tempPdxClassFilePath);
       remoteInputStream =
           exporter.export(createSimpleRemoteInputStream(tempPdxClassFilePath));
@@ -203,27 +199,27 @@ public class CreateMappingCommand extends SingleGfshCommand {
       }
     }
     if (preconditionCheckResult.isSuccessful()) {
-      Object[] preconditionOutput = (Object[]) preconditionCheckResult.getResultObject();
-      String computedIds = (String) preconditionOutput[0];
+      var preconditionOutput = (Object[]) preconditionCheckResult.getResultObject();
+      var computedIds = (String) preconditionOutput[0];
       if (computedIds != null) {
         mapping.setIds(computedIds);
       }
       @SuppressWarnings("unchecked")
-      ArrayList<FieldMapping> fieldMappings = (ArrayList<FieldMapping>) preconditionOutput[1];
-      for (FieldMapping fieldMapping : fieldMappings) {
+      var fieldMappings = (ArrayList<FieldMapping>) preconditionOutput[1];
+      for (var fieldMapping : fieldMappings) {
         mapping.addFieldMapping(fieldMapping);
       }
     } else {
-      String message = preconditionCheckResult.getStatusMessage();
+      var message = preconditionCheckResult.getStatusMessage();
       return ResultModel.createError(message);
     }
 
     // action
-    Object[] arguments = new Object[] {mapping, synchronous};
-    List<CliFunctionResult> results =
+    var arguments = new Object[] {mapping, synchronous};
+    var results =
         executeAndGetFunctionResult(new CreateMappingFunction(), arguments, targetMembers);
 
-    ResultModel result =
+    var result =
         ResultModel.createMemberStatusResult(results, EXPERIMENTAL, null, false, true);
     result.setConfigObject(arguments);
     return result;
@@ -236,7 +232,7 @@ public class CreateMappingCommand extends SingleGfshCommand {
 
   private ConfigurationPersistenceService checkForClusterConfiguration()
       throws PreconditionException {
-    ConfigurationPersistenceService result = getConfigurationPersistenceService();
+    var result = getConfigurationPersistenceService();
     if (result == null) {
       throw new PreconditionException("Cluster Configuration must be enabled.");
     }
@@ -258,9 +254,9 @@ public class CreateMappingCommand extends SingleGfshCommand {
 
   private void checkForCacheLoader(String regionName, RegionConfig regionConfig)
       throws PreconditionException {
-    RegionAttributesType regionAttributes = regionConfig.getRegionAttributes();
+    var regionAttributes = regionConfig.getRegionAttributes();
     if (regionAttributes != null) {
-      DeclarableType loaderDeclarable = regionAttributes.getCacheLoader();
+      var loaderDeclarable = regionAttributes.getCacheLoader();
       if (loaderDeclarable != null) {
         throw new PreconditionException("The existing region " + regionName
             + " must not already have a cache-loader, but it has "
@@ -272,9 +268,9 @@ public class CreateMappingCommand extends SingleGfshCommand {
   private void checkForCacheWriter(String regionName, boolean synchronous,
       RegionConfig regionConfig) throws PreconditionException {
     if (synchronous) {
-      RegionAttributesType writerAttributes = regionConfig.getRegionAttributes();
+      var writerAttributes = regionConfig.getRegionAttributes();
       if (writerAttributes != null) {
-        DeclarableType writerDeclarable = writerAttributes.getCacheWriter();
+        var writerDeclarable = writerAttributes.getCacheWriter();
         if (writerDeclarable != null) {
           throw new PreconditionException("The existing region " + regionName
               + " must not already have a cache-writer, but it has "
@@ -287,8 +283,8 @@ public class CreateMappingCommand extends SingleGfshCommand {
   private void checkForAsyncQueue(String regionName, boolean synchronous, CacheConfig cacheConfig)
       throws PreconditionException {
     if (!synchronous) {
-      String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
-      AsyncEventQueue asyncEventQueue = cacheConfig.getAsyncEventQueues().stream()
+      var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+      var asyncEventQueue = cacheConfig.getAsyncEventQueues().stream()
           .filter(queue -> queue.getId().equals(queueName)).findFirst().orElse(null);
       if (asyncEventQueue != null) {
         throw new PreconditionException(
@@ -300,11 +296,11 @@ public class CreateMappingCommand extends SingleGfshCommand {
   private void checkForAEQIdForAccessor(String regionName, boolean synchronous,
       RegionConfig regionConfig)
       throws PreconditionException {
-    RegionAttributesType regionAttributesType = regionConfig.getRegionAttributes();
+    var regionAttributesType = regionConfig.getRegionAttributes();
     if (!synchronous && regionAttributesType != null) {
-      boolean isAccessor = MappingCommandUtils.isAccessor(regionAttributesType);
+      var isAccessor = MappingCommandUtils.isAccessor(regionAttributesType);
       if (isAccessor) {
-        String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+        var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
         if (regionAttributesType.getAsyncEventQueueIds() != null && regionAttributesType
             .getAsyncEventQueueIds().contains(queueName)) {
           throw new PreconditionException(
@@ -319,16 +315,16 @@ public class CreateMappingCommand extends SingleGfshCommand {
     if (element == null) {
       return false;
     }
-    Object[] arguments = (Object[]) element;
-    RegionMapping regionMapping = (RegionMapping) arguments[0];
+    var arguments = (Object[]) element;
+    var regionMapping = (RegionMapping) arguments[0];
     boolean synchronous = (Boolean) arguments[1];
-    String regionName = regionMapping.getRegionName();
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
-    RegionConfig regionConfig = findRegionConfig(cacheConfig, regionName);
+    var regionName = regionMapping.getRegionName();
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var regionConfig = findRegionConfig(cacheConfig, regionName);
     if (regionConfig == null) {
       return false;
     }
-    RegionAttributesType attributes = getRegionAttribute(regionConfig);
+    var attributes = getRegionAttribute(regionConfig);
     if (MappingCommandUtils.isAccessor(attributes)) {
       alterProxyRegion(queueName, attributes, synchronous);
     } else {
@@ -384,18 +380,18 @@ public class CreateMappingCommand extends SingleGfshCommand {
 
   private void createAsyncQueue(CacheConfig cacheConfig, RegionAttributesType attributes,
       String queueName) {
-    AsyncEventQueue asyncEventQueue = new AsyncEventQueue();
+    var asyncEventQueue = new AsyncEventQueue();
     asyncEventQueue.setId(queueName);
-    boolean isPartitioned = MappingCommandUtils.isPartition(attributes);
+    var isPartitioned = MappingCommandUtils.isPartition(attributes);
     asyncEventQueue.setParallel(isPartitioned);
-    DeclarableType listener = new DeclarableType();
+    var listener = new DeclarableType();
     listener.setClassName(JdbcAsyncWriter.class.getName());
     asyncEventQueue.setAsyncEventListener(listener);
     cacheConfig.getAsyncEventQueues().add(asyncEventQueue);
   }
 
   private void addAsyncEventQueueId(String queueName, RegionAttributesType attributes) {
-    String asyncEventQueueList = attributes.getAsyncEventQueueIds();
+    var asyncEventQueueList = attributes.getAsyncEventQueueIds();
     if (asyncEventQueueList == null) {
       asyncEventQueueList = "";
     }
@@ -410,13 +406,13 @@ public class CreateMappingCommand extends SingleGfshCommand {
   }
 
   private void setCacheLoader(RegionAttributesType attributes) {
-    DeclarableType loader = new DeclarableType();
+    var loader = new DeclarableType();
     loader.setClassName(JdbcLoader.class.getName());
     attributes.setCacheLoader(loader);
   }
 
   private void setCacheWriter(RegionAttributesType attributes) {
-    DeclarableType writer = new DeclarableType();
+    var writer = new DeclarableType();
     writer.setClassName(JdbcWriter.class.getName());
     attributes.setCacheWriter(writer);
   }
@@ -428,21 +424,21 @@ public class CreateMappingCommand extends SingleGfshCommand {
 
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      String pdxClassFileName = (String) parseResult.getParamValue(CREATE_MAPPING__PDX_CLASS_FILE);
+      var pdxClassFileName = (String) parseResult.getParamValue(CREATE_MAPPING__PDX_CLASS_FILE);
 
       if (StringUtils.isBlank(pdxClassFileName)) {
         return ResultModel.createInfo("");
       }
 
-      ResultModel result = new ResultModel();
-      File pdxClassFile = new File(pdxClassFileName);
+      var result = new ResultModel();
+      var pdxClassFile = new File(pdxClassFileName);
       if (!pdxClassFile.exists()) {
         return ResultModel.createError(pdxClassFile + " not found.");
       }
       if (!pdxClassFile.isFile()) {
         return ResultModel.createError(pdxClassFile + " is not a file.");
       }
-      String fileExtension = FilenameUtils.getExtension(pdxClassFileName);
+      var fileExtension = FilenameUtils.getExtension(pdxClassFileName);
       if (!fileExtension.equalsIgnoreCase("jar") && !fileExtension.equalsIgnoreCase("class")) {
         return ResultModel.createError(pdxClassFile + " must end with \".jar\" or \".class\".");
       }

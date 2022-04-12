@@ -18,7 +18,6 @@ package org.apache.geode.redis.internal.commands.executor.set;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.data.RedisSet;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -26,7 +25,7 @@ public class SCardExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    RedisKey key = command.getKey();
+    var key = command.getKey();
     int result = context.setLockedExecute(key, true, RedisSet::scard);
     return RedisResponse.integer(result);
   }

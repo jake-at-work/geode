@@ -26,17 +26,13 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.CommitConflictException;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.tier.sockets.CacheServerTestUtil;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -81,13 +77,13 @@ public class ClientServerRepeatableReadTransactionDistributedTest implements Ser
     region.put("key1", "value1");
     region.destroy("key1"); // creates a tombstone
 
-    TXManagerImpl txMgr =
+    var txMgr =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
 
     Region region1 = clientCacheRule.getClientCache().getRegion(regionName);
     txMgr.begin(); // tx1
     region1.values().toArray(); // this is a repeatable read
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     region1.put("key1", "newValue");
@@ -108,13 +104,13 @@ public class ClientServerRepeatableReadTransactionDistributedTest implements Ser
     region.put("key1", "value1");
     region.destroy("key1"); // creates a tombstone
 
-    TXManagerImpl txMgr =
+    var txMgr =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
 
     Region region1 = clientCacheRule.getClientCache().getRegion(regionName);
     txMgr.begin(); // tx1
     region1.keySet().toArray(); // this is a repeatable read
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     region1.put("key1", "newValue");
@@ -135,13 +131,13 @@ public class ClientServerRepeatableReadTransactionDistributedTest implements Ser
     region.put("key1", "value1");
     region.invalidate("key1");
 
-    TXManagerImpl txMgr =
+    var txMgr =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
 
     Region region1 = clientCacheRule.getClientCache().getRegion(regionName);
     txMgr.begin(); // tx1
     region1.values().toArray(); // this is a repeatable read
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     region1.put("key1", "newValue");
@@ -162,13 +158,13 @@ public class ClientServerRepeatableReadTransactionDistributedTest implements Ser
     region.put("key1", "value1");
     region.invalidate("key1");
 
-    TXManagerImpl txMgr =
+    var txMgr =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
 
     Region region1 = clientCacheRule.getClientCache().getRegion(regionName);
     txMgr.begin(); // tx1
     region1.keySet().toArray(); // this is a repeatable read
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     region1.put("key1", "newValue");
@@ -181,13 +177,13 @@ public class ClientServerRepeatableReadTransactionDistributedTest implements Ser
   }
 
   private int createServerRegion(int totalNumBuckets) throws Exception {
-    PartitionAttributesFactory factory = new PartitionAttributesFactory();
+    var factory = new PartitionAttributesFactory();
     factory.setTotalNumBuckets(totalNumBuckets);
-    PartitionAttributes partitionAttributes = factory.create();
+    var partitionAttributes = factory.create();
     cacheRule.getOrCreateCache().createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(partitionAttributes).create(regionName);
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -211,7 +207,7 @@ public class ClientServerRepeatableReadTransactionDistributedTest implements Ser
   }
 
   private PoolImpl getPool(int port) {
-    PoolFactory factory = PoolManager.createFactory();
+    var factory = PoolManager.createFactory();
     factory.addServer(hostName, port);
     factory.setReadTimeout(12000).setSocketBufferSize(1000);
     return (PoolImpl) factory.create(uniqueName);

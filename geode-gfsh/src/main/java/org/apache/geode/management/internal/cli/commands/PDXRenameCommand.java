@@ -18,7 +18,6 @@ package org.apache.geode.management.internal.cli.commands;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
-import java.util.Collection;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
@@ -48,28 +47,28 @@ public class PDXRenameCommand extends GfshCommand {
       throws Exception {
 
 
-    final File[] dirs = new File[diskDirs.length];
-    for (int i = 0; i < diskDirs.length; i++) {
+    final var dirs = new File[diskDirs.length];
+    for (var i = 0; i < diskDirs.length; i++) {
       dirs[i] = new File((diskDirs[i]));
     }
 
-    Collection<Object> results =
+    var results =
         DiskStoreImpl.pdxRename(diskStore, dirs, oldClassName, newClassName);
 
     if (results.isEmpty()) {
       return ResultModel.createError(CliStrings.format(CliStrings.PDX_RENAME__EMPTY));
     }
 
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    PrintStream printStream = new PrintStream(outputStream);
-    for (Object p : results) {
+    var outputStream = new ByteArrayOutputStream();
+    var printStream = new PrintStream(outputStream);
+    for (var p : results) {
       if (p instanceof PdxType) {
         ((PdxType) p).toStream(printStream, false);
       } else {
         ((EnumInfo) p).toStream(printStream);
       }
     }
-    String resultString =
+    var resultString =
         CliStrings.format(CliStrings.PDX_RENAME__SUCCESS, outputStream.toString());
     return ResultModel.createInfo(resultString);
   }

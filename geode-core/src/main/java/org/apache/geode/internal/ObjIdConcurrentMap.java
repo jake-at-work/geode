@@ -295,7 +295,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
      * Returns properly casted first entry of bin for given hash.
      */
     HashEntry<V> getFirst(int hash) {
-      HashEntry<V>[] tab = table;
+      var tab = table;
       return tab[hash & (tab.length - 1)];
     }
 
@@ -317,10 +317,10 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
 
     V get(int key, int hash) {
       if (count != 0) { // read-volatile
-        HashEntry<V> e = getFirst(hash);
+        var e = getFirst(hash);
         while (e != null) {
           if (e.hash == hash && key == e.key) {
-            V v = e.value;
+            var v = e.value;
             if (v != null) {
               return v;
             }
@@ -334,7 +334,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
 
     boolean containsKey(int key, int hash) {
       if (count != 0) { // read-volatile
-        HashEntry<V> e = getFirst(hash);
+        var e = getFirst(hash);
         while (e != null) {
           if (e.hash == hash && key == e.key) {
             return true;
@@ -347,11 +347,11 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
 
     boolean containsValue(Object value) {
       if (count != 0) { // read-volatile
-        HashEntry<V>[] tab = table;
-        int len = tab.length;
-        for (final HashEntry<V> vHashEntry : tab) {
-          for (HashEntry<V> e = vHashEntry; e != null; e = e.next) {
-            V v = e.value;
+        var tab = table;
+        var len = tab.length;
+        for (final var vHashEntry : tab) {
+          for (var e = vHashEntry; e != null; e = e.next) {
+            var v = e.value;
             if (v == null) // recheck
             {
               v = readValueUnderLock(e);
@@ -368,12 +368,12 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     boolean replace(int key, int hash, V oldValue, V newValue) {
       lock();
       try {
-        HashEntry<V> e = getFirst(hash);
+        var e = getFirst(hash);
         while (e != null && (e.hash != hash || key != e.key)) {
           e = e.next;
         }
 
-        boolean replaced = false;
+        var replaced = false;
         if (e != null && oldValue.equals(e.value)) {
           replaced = true;
           e.value = newValue;
@@ -387,7 +387,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     V replace(int key, int hash, V newValue) {
       lock();
       try {
-        HashEntry<V> e = getFirst(hash);
+        var e = getFirst(hash);
         while (e != null && (e.hash != hash || key != e.key)) {
           e = e.next;
         }
@@ -407,15 +407,15 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     V put(int key, int hash, V value, boolean onlyIfAbsent) {
       lock();
       try {
-        int c = count;
+        var c = count;
         if (c++ > threshold) // ensure capacity
         {
           rehash();
         }
-        HashEntry<V>[] tab = table;
-        int index = hash & (tab.length - 1);
-        HashEntry<V> first = tab[index];
-        HashEntry<V> e = first;
+        var tab = table;
+        var index = hash & (tab.length - 1);
+        var first = tab[index];
+        var e = first;
         while (e != null && (e.hash != hash || key != e.key)) {
           e = e.next;
         }
@@ -439,8 +439,8 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     }
 
     void rehash() {
-      HashEntry<V>[] oldTable = table;
-      int oldCapacity = oldTable.length;
+      var oldTable = table;
+      var oldCapacity = oldTable.length;
       if (oldCapacity >= MAXIMUM_CAPACITY) {
         return;
       }
@@ -457,23 +457,23 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
 
       HashEntry<V>[] newTable = HashEntry.newArray(oldCapacity << 1);
       threshold = (int) (newTable.length * loadFactor);
-      int sizeMask = newTable.length - 1;
-      for (HashEntry<V> e : oldTable) {
+      var sizeMask = newTable.length - 1;
+      for (var e : oldTable) {
         // We need to guarantee that any existing reads of old Map can
         // proceed. So we cannot yet null out each bin.
         if (e != null) {
-          HashEntry<V> next = e.next;
-          int idx = e.hash & sizeMask;
+          var next = e.next;
+          var idx = e.hash & sizeMask;
 
           // Single node on list
           if (next == null) {
             newTable[idx] = e;
           } else {
             // Reuse trailing consecutive sequence at same slot
-            HashEntry<V> lastRun = e;
-            int lastIdx = idx;
-            for (HashEntry<V> last = next; last != null; last = last.next) {
-              int k = last.hash & sizeMask;
+            var lastRun = e;
+            var lastIdx = idx;
+            for (var last = next; last != null; last = last.next) {
+              var k = last.hash & sizeMask;
               if (k != lastIdx) {
                 lastIdx = k;
                 lastRun = last;
@@ -482,9 +482,9 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
             newTable[lastIdx] = lastRun;
 
             // Clone all remaining nodes
-            for (HashEntry<V> p = e; p != lastRun; p = p.next) {
-              int k = p.hash & sizeMask;
-              HashEntry<V> n = newTable[k];
+            for (var p = e; p != lastRun; p = p.next) {
+              var k = p.hash & sizeMask;
+              var n = newTable[k];
               newTable[k] = new HashEntry<>(p.key, p.hash, n, p.value);
             }
           }
@@ -499,26 +499,26 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     V remove(int key, int hash, Object value) {
       lock();
       try {
-        int c = count - 1;
-        HashEntry<V>[] tab = table;
-        int index = hash & (tab.length - 1);
-        HashEntry<V> first = tab[index];
-        HashEntry<V> e = first;
+        var c = count - 1;
+        var tab = table;
+        var index = hash & (tab.length - 1);
+        var first = tab[index];
+        var e = first;
         while (e != null && (e.hash != hash || key != e.key)) {
           e = e.next;
         }
 
         V oldValue = null;
         if (e != null) {
-          V v = e.value;
+          var v = e.value;
           if (value == null || value.equals(v)) {
             oldValue = v;
             // All entries following removed node can stay
             // in list, but all preceding ones need to be
             // cloned.
             ++modCount;
-            HashEntry<V> newFirst = e.next;
-            for (HashEntry<V> p = first; p != e; p = p.next) {
+            var newFirst = e.next;
+            for (var p = first; p != e; p = p.next) {
               newFirst = new HashEntry<>(p.key, p.hash, newFirst, p.value);
             }
             tab[index] = newFirst;
@@ -535,8 +535,8 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
       if (count != 0) {
         lock();
         try {
-          HashEntry<V>[] tab = table;
-          for (int i = 0; i < tab.length; i++) {
+          var tab = table;
+          for (var i = 0; i < tab.length; i++) {
             tab[i] = null;
           }
           ++modCount;
@@ -575,8 +575,8 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     }
 
     // Find power-of-two sizes best matching arguments
-    int sshift = 0;
-    int ssize = 1;
+    var sshift = 0;
+    var ssize = 1;
     while (ssize < concurrencyLevel) {
       ++sshift;
       ssize <<= 1;
@@ -588,16 +588,16 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     if (initialCapacity > MAXIMUM_CAPACITY) {
       initialCapacity = MAXIMUM_CAPACITY;
     }
-    int c = initialCapacity / ssize;
+    var c = initialCapacity / ssize;
     if (c * ssize < initialCapacity) {
       ++c;
     }
-    int cap = 1;
+    var cap = 1;
     while (cap < c) {
       cap <<= 1;
     }
 
-    for (int i = 0; i < segments.length; ++i) {
+    for (var i = 0; i < segments.length; ++i) {
       segments[i] = new Segment<>(cap, loadFactor);
     }
   }
@@ -645,16 +645,16 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
    * @return <tt>true</tt> if this map contains no key-value mappings
    */
   public boolean isEmpty() {
-    final Segment<V>[] segments = this.segments;
+    final var segments = this.segments;
     /*
      * We keep track of per-segment modCounts to avoid ABA problems in which an element in one
      * segment was added and in another removed during traversal, in which case the table was never
      * actually empty at any point. Note the similar use of modCounts in the size() and
      * containsValue() methods, which are the only other methods also susceptible to ABA problems.
      */
-    int[] mc = new int[segments.length];
-    int mcsum = 0;
-    for (int i = 0; i < segments.length; ++i) {
+    var mc = new int[segments.length];
+    var mcsum = 0;
+    for (var i = 0; i < segments.length; ++i) {
       if (segments[i].count != 0) {
         return false;
       } else {
@@ -665,7 +665,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     // before any modifications at all were made. This is
     // probably common enough to bother tracking.
     if (mcsum != 0) {
-      for (int i = 0; i < segments.length; ++i) {
+      for (var i = 0; i < segments.length; ++i) {
         if (segments[i].count != 0 || mc[i] != segments[i].modCount) {
           return false;
         }
@@ -681,22 +681,22 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
    * @return the number of key-value mappings in this map
    */
   public int size() {
-    final Segment<V>[] segments = this.segments;
+    final var segments = this.segments;
     long sum = 0;
     long check = 0;
-    int[] mc = new int[segments.length];
+    var mc = new int[segments.length];
     // Try a few times to get accurate count. On failure due to
     // continuous async changes in table, resort to locking.
-    for (int k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
+    for (var k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
       check = 0;
       sum = 0;
-      int mcsum = 0;
-      for (int i = 0; i < segments.length; ++i) {
+      var mcsum = 0;
+      for (var i = 0; i < segments.length; ++i) {
         sum += segments[i].count;
         mcsum += mc[i] = segments[i].modCount;
       }
       if (mcsum != 0) {
-        for (int i = 0; i < segments.length; ++i) {
+        for (var i = 0; i < segments.length; ++i) {
           check += segments[i].count;
           if (mc[i] != segments[i].modCount) {
             check = -1; // force retry
@@ -710,13 +710,13 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     }
     if (check != sum) { // Resort to locking all segments
       sum = 0;
-      for (final Segment<V> value : segments) {
+      for (final var value : segments) {
         value.lock();
       }
-      for (final Segment<V> vSegment : segments) {
+      for (final var vSegment : segments) {
         sum += vSegment.count;
       }
-      for (final Segment<V> segment : segments) {
+      for (final var segment : segments) {
         segment.unlock();
       }
     }
@@ -739,7 +739,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
    * @throws NullPointerException if the specified key is null
    */
   public V get(int key) {
-    int hash = hash(key);
+    var hash = hash(key);
     return segmentFor(hash).get(key, hash);
   }
 
@@ -752,7 +752,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
    * @throws NullPointerException if the specified key is null
    */
   public boolean containsKey(int key) {
-    int hash = hash(key);
+    var hash = hash(key);
     return segmentFor(hash).containsKey(key, hash);
   }
 
@@ -772,23 +772,23 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
 
     // See explanation of modCount use above
 
-    final Segment<V>[] segments = this.segments;
-    int[] mc = new int[segments.length];
+    final var segments = this.segments;
+    var mc = new int[segments.length];
 
     // Try a few times without locking
-    for (int k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
+    for (var k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
       // int sum = 0;
-      int mcsum = 0;
-      for (int i = 0; i < segments.length; ++i) {
+      var mcsum = 0;
+      for (var i = 0; i < segments.length; ++i) {
         // int c = segments[i].count;
         mcsum += mc[i] = segments[i].modCount;
         if (segments[i].containsValue(value)) {
           return true;
         }
       }
-      boolean cleanSweep = true;
+      var cleanSweep = true;
       if (mcsum != 0) {
-        for (int i = 0; i < segments.length; ++i) {
+        for (var i = 0; i < segments.length; ++i) {
           // int c = segments[i].count;
           if (mc[i] != segments[i].modCount) {
             cleanSweep = false;
@@ -801,19 +801,19 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
       }
     }
     // Resort to locking all segments
-    for (final Segment<V> vSegment : segments) {
+    for (final var vSegment : segments) {
       vSegment.lock();
     }
-    boolean found = false;
+    var found = false;
     try {
-      for (final Segment<V> segment : segments) {
+      for (final var segment : segments) {
         if (segment.containsValue(value)) {
           found = true;
           break;
         }
       }
     } finally {
-      for (final Segment<V> segment : segments) {
+      for (final var segment : segments) {
         segment.unlock();
       }
     }
@@ -853,7 +853,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     if (value == null) {
       throw new NullPointerException();
     }
-    int hash = hash(key);
+    var hash = hash(key);
     return segmentFor(hash).put(key, hash, value, false);
   }
 
@@ -867,7 +867,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     if (value == null) {
       throw new NullPointerException();
     }
-    int hash = hash(key);
+    var hash = hash(key);
     return segmentFor(hash).put(key, hash, value, true);
   }
 
@@ -881,7 +881,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
    * @throws NullPointerException if the specified key is null
    */
   public V remove(int key) {
-    int hash = hash(key);
+    var hash = hash(key);
     return segmentFor(hash).remove(key, hash, null);
   }
 
@@ -890,7 +890,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
    * @throws NullPointerException if the specified key is null
    */
   public boolean remove(int key, Object value) {
-    int hash = hash(key);
+    var hash = hash(key);
     if (value == null) {
       return false;
     }
@@ -905,7 +905,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     if (oldValue == null || newValue == null) {
       throw new NullPointerException();
     }
-    int hash = hash(key);
+    var hash = hash(key);
     return segmentFor(hash).replace(key, hash, oldValue, newValue);
   }
 
@@ -919,7 +919,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     if (value == null) {
       throw new NullPointerException();
     }
-    int hash = hash(key);
+    var hash = hash(key);
     return segmentFor(hash).replace(key, hash, value);
   }
 
@@ -927,7 +927,7 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
    * Removes all of the mappings from this map.
    */
   public void clear() {
-    for (final Segment<V> segment : segments) {
+    for (final var segment : segments) {
       segment.clear();
     }
   }
@@ -944,12 +944,12 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
   private void writeObject(java.io.ObjectOutputStream s) throws IOException {
     s.defaultWriteObject();
 
-    for (Segment<V> seg : segments) {
+    for (var seg : segments) {
       seg.lock();
       try {
-        HashEntry<V>[] tab = seg.table;
-        for (final HashEntry<V> vHashEntry : tab) {
-          for (HashEntry<V> e = vHashEntry; e != null; e = e.next) {
+        var tab = seg.table;
+        for (final var vHashEntry : tab) {
+          for (var e = vHashEntry; e != null; e = e.next) {
             s.writeObject(e.key);
             s.writeObject(e.value);
           }
@@ -972,14 +972,14 @@ public class ObjIdConcurrentMap<V> /* extends AbstractMap<K, V> */
     s.defaultReadObject();
 
     // Initialize each segment to be minimally sized, and let grow.
-    for (final Segment<V> segment : segments) {
+    for (final var segment : segments) {
       segment.setTable(new HashEntry[1]);
     }
 
     // Read the keys and values, and put the mappings in the table
     for (;;) {
-      int key = s.readInt();
-      V value = (V) s.readObject();
+      var key = s.readInt();
+      var value = (V) s.readObject();
       // if (key == null)
       // break;
       put(key, value);

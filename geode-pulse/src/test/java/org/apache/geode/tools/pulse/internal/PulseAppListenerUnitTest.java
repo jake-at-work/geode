@@ -98,7 +98,7 @@ public class PulseAppListenerUnitTest {
   public void contextInitialized_isEmbeddedModeWithSslProperties_setsProvidedSslProperties() {
     resourceBundle = new StubResourceBundle();
 
-    Properties sslProperties = new Properties();
+    var sslProperties = new Properties();
 
     when(contextEvent.getApplicationContext()).thenReturn(applicationContext);
     when(applicationContext.getServletContext()).thenReturn(servletContext);
@@ -134,7 +134,7 @@ public class PulseAppListenerUnitTest {
   public void contextInitialized_isNonEmbeddedModeWithSslProperties_setsProvidedSslProperties() {
     resourceBundle = new StubResourceBundle();
 
-    Properties sslProperties = new Properties();
+    var sslProperties = new Properties();
     sslProperties.put("foo", "bar");
 
     when(repository.getResourceBundle()).thenReturn(resourceBundle);

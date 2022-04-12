@@ -91,7 +91,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void remembersMetricsServiceMeterRegistry() {
-    CompositeMeterRegistry theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
+    var theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
 
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -104,7 +104,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void remembersMetricsServiceBuilder() {
-    MetricsService.Builder theMetricsServiceBuilder = mock(MetricsService.Builder.class);
+    var theMetricsServiceBuilder = mock(MetricsService.Builder.class);
 
     metricsService =
         new InternalDistributedSystemMetricsService(theMetricsServiceBuilder, logger,
@@ -148,7 +148,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void meterRegistry_registerMeter_addsMemberTagWithSystemName_ifSystemNameIsNotEmpty() {
-    String theSystemName = "non-empty-system-name";
+    var theSystemName = "non-empty-system-name";
     when(system.getName()).thenReturn(theSystemName);
 
     MetricsService metricsService =
@@ -181,7 +181,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void meterRegistry_registerMeter_addsHostTagWithMemberHostName_ifHostNameIsNotEmpty() {
-    String theHostName = "non-empty-host-name";
+    var theHostName = "non-empty-host-name";
     when(system.getDistributedMember().getHost())
         .thenReturn(theHostName);
 
@@ -199,7 +199,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void meterRegistry_registerMeter_addsClusterTagWithSystemId_ifIsNotClient() {
-    int theSystemId = 21;
+    var theSystemId = 21;
     when(system.getConfig().getDistributedSystemId())
         .thenReturn(theSystemId);
 
@@ -234,8 +234,8 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void meterRegistry_registerMeter_addsLocatorMemberTypeTag_ifHasLocatorAndHasNoCacheServer() {
-    boolean hasCacheServer = false;
-    boolean hasLocator = true;
+    var hasCacheServer = false;
+    var hasLocator = true;
 
 
     MetricsService metricsService =
@@ -252,8 +252,8 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void meterRegistry_registerMeter_addsServerMemberTypeTag_ifHasCacheServerAndHasNoLocator() {
-    boolean hasCacheServer = true;
-    boolean hasLocator = false;
+    var hasCacheServer = true;
+    var hasLocator = false;
 
     MetricsService metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -269,8 +269,8 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void meterRegistry_registerMeter_addsEmbeddedCacheMemberTypeTag_ifHasNoCacheServerAndHasNoLocator() {
-    boolean hasCacheServer = false;
-    boolean hasLocator = false;
+    var hasCacheServer = false;
+    var hasLocator = false;
 
     MetricsService metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -285,8 +285,8 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void meterRegistry_registerMeter_addsServerLocatorMemberTypeTag_ifHasLocatorAndHasCacheServer() {
-    boolean hasLocator = true;
-    boolean hasCacheServer = true;
+    var hasLocator = true;
+    var hasCacheServer = true;
 
     MetricsService metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -301,7 +301,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void start_addsPersistentMeterRegistriesToMetricsServiceMeterRegistry() {
-    Set<MeterRegistry> thePersistentMeterRegistries = setOf(3, MeterRegistry.class);
+    var thePersistentMeterRegistries = setOf(3, MeterRegistry.class);
 
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -316,7 +316,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void start_bindsMeterBinderToMetricsServiceMeterRegistry() {
-    CompositeMeterRegistry theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
+    var theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
 
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -352,11 +352,11 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void start_logsError_ifMetricsPublishingServiceStartThrows() {
-    MetricsPublishingService throwingService = mock(MetricsPublishingService.class);
-    RuntimeException thrownDuringStart =
+    var throwingService = mock(MetricsPublishingService.class);
+    var thrownDuringStart =
         new RuntimeException("thrown by service.start() during test");
     doThrow(thrownDuringStart).when(throwingService).start(any());
-    String serviceClassName = throwingService.getClass().getName();
+    var serviceClassName = throwingService.getClass().getName();
 
     @SuppressWarnings("unchecked")
     CollectingServiceLoader<MetricsPublishingService> serviceLoader =
@@ -371,7 +371,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
     metricsService.start();
 
-    ArgumentCaptor<String> actualMessage = ArgumentCaptor.forClass(String.class);
+    var actualMessage = ArgumentCaptor.forClass(String.class);
     verify(logger).error(actualMessage.capture(), same(thrownDuringStart));
     assertThat(actualMessage.getValue())
         .as("Error log message")
@@ -380,7 +380,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void removeSubregistry_removesGivenRegistryFromMetricsServiceMeterRegistry() {
-    CompositeMeterRegistry theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
+    var theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
 
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -401,16 +401,16 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void registersCorrespondingMetersWithEachPersistentMeterRegistry() {
-    SimpleMeterRegistry persistentMeterRegistry1 = new SimpleMeterRegistry();
-    SimpleMeterRegistry persistentMeterRegistry2 = new SimpleMeterRegistry();
-    SimpleMeterRegistry persistentMeterRegistry3 = new SimpleMeterRegistry();
+    var persistentMeterRegistry1 = new SimpleMeterRegistry();
+    var persistentMeterRegistry2 = new SimpleMeterRegistry();
+    var persistentMeterRegistry3 = new SimpleMeterRegistry();
     Set<MeterRegistry> persistentMeterRegistries = new HashSet<>();
 
     persistentMeterRegistries.add(persistentMeterRegistry1);
     persistentMeterRegistries.add(persistentMeterRegistry2);
     persistentMeterRegistries.add(persistentMeterRegistry3);
 
-    StandardMeterBinder binderThatAddsManyMeters = new StandardMeterBinder();
+    var binderThatAddsManyMeters = new StandardMeterBinder();
 
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -419,11 +419,11 @@ public class InternalDistributedSystemMetricsServiceTest {
 
     metricsService.start();
 
-    MeterRegistry metricsServiceMeterRegistry = metricsService.getMeterRegistry();
+    var metricsServiceMeterRegistry = metricsService.getMeterRegistry();
 
     metricsServiceMeterRegistry.counter("my.new.meter");
 
-    List<Meter> expectedMeters = metricsServiceMeterRegistry.getMeters();
+    var expectedMeters = metricsServiceMeterRegistry.getMeters();
 
     assertHasMeters("persistent registry 1", persistentMeterRegistry1, expectedMeters);
     assertHasMeters("persistent registry 2", persistentMeterRegistry2, expectedMeters);
@@ -433,7 +433,7 @@ public class InternalDistributedSystemMetricsServiceTest {
   @Test
   public void registersCorrespondingMetersWithEachSessionMeterRegistry() {
 
-    StandardMeterBinder binderThatAddsManyMeters = new StandardMeterBinder();
+    var binderThatAddsManyMeters = new StandardMeterBinder();
 
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -442,19 +442,19 @@ public class InternalDistributedSystemMetricsServiceTest {
 
     metricsService.start();
 
-    SimpleMeterRegistry sessionMeterRegistry1 = new SimpleMeterRegistry();
-    SimpleMeterRegistry sessionMeterRegistry2 = new SimpleMeterRegistry();
-    SimpleMeterRegistry sessionMeterRegistry3 = new SimpleMeterRegistry();
+    var sessionMeterRegistry1 = new SimpleMeterRegistry();
+    var sessionMeterRegistry2 = new SimpleMeterRegistry();
+    var sessionMeterRegistry3 = new SimpleMeterRegistry();
 
     metricsService.addSubregistry(sessionMeterRegistry1);
     metricsService.addSubregistry(sessionMeterRegistry2);
     metricsService.addSubregistry(sessionMeterRegistry3);
 
-    MeterRegistry metricsServiceMeterRegistry = metricsService.getMeterRegistry();
+    var metricsServiceMeterRegistry = metricsService.getMeterRegistry();
 
     metricsServiceMeterRegistry.counter("my.new.meter");
 
-    List<Meter> expectedMeters = metricsServiceMeterRegistry.getMeters();
+    var expectedMeters = metricsServiceMeterRegistry.getMeters();
 
     assertHasMeters("session registry 1", sessionMeterRegistry1, expectedMeters);
     assertHasMeters("session registry 2", sessionMeterRegistry2, expectedMeters);
@@ -463,7 +463,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void stop_closesMeterBinder() throws Exception {
-    CloseableMeterBinder theMeterBinder = mock(CloseableMeterBinder.class);
+    var theMeterBinder = mock(CloseableMeterBinder.class);
 
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -503,7 +503,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void stop_logsError_ifMetricsPublishingServiceStopThrows() {
-    MetricsPublishingService throwingService = mock(MetricsPublishingService.class);
+    var throwingService = mock(MetricsPublishingService.class);
 
     @SuppressWarnings("unchecked")
     CollectingServiceLoader<MetricsPublishingService> serviceLoader =
@@ -518,14 +518,14 @@ public class InternalDistributedSystemMetricsServiceTest {
 
     metricsService.start();
 
-    RuntimeException thrownDuringStop =
+    var thrownDuringStop =
         new RuntimeException("thrown by service.stop() during test");
     doThrow(thrownDuringStop).when(throwingService).stop(metricsService);
 
     metricsService.stop();
 
-    String serviceClassName = throwingService.getClass().getName();
-    ArgumentCaptor<String> actualMessage = ArgumentCaptor.forClass(String.class);
+    var serviceClassName = throwingService.getClass().getName();
+    var actualMessage = ArgumentCaptor.forClass(String.class);
     verify(logger).error(actualMessage.capture(), same(thrownDuringStop));
     assertThat(actualMessage.getValue())
         .as("Error log message")
@@ -534,9 +534,9 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void stop_removesAllMeterRegistriesFromMetricsServiceMeterRegistry() {
-    CompositeMeterRegistry theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
+    var theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
 
-    Set<MeterRegistry> persistentMeterRegistries = setOf(3, MeterRegistry.class);
+    var persistentMeterRegistries = setOf(3, MeterRegistry.class);
 
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -545,7 +545,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
     metricsService.start();
 
-    Set<MeterRegistry> sessionMeterRegistries = setOf(3, MeterRegistry.class);
+    var sessionMeterRegistries = setOf(3, MeterRegistry.class);
     sessionMeterRegistries.forEach(metricsService::addSubregistry);
 
     metricsService.stop();
@@ -555,7 +555,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void stop_doesNotClosePersistentMeterRegistries() {
-    Set<MeterRegistry> persistentMeterRegistries = setOf(3, MeterRegistry.class);
+    var persistentMeterRegistries = setOf(3, MeterRegistry.class);
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
             publishingServiceLoader, metricsServiceMeterRegistry, persistentMeterRegistries,
@@ -578,7 +578,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
     metricsService.start();
 
-    Set<MeterRegistry> sessionMeterRegistries = setOf(3, MeterRegistry.class);
+    var sessionMeterRegistries = setOf(3, MeterRegistry.class);
     sessionMeterRegistries.forEach(metricsService::addSubregistry);
 
     metricsService.stop();
@@ -588,7 +588,7 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   @Test
   public void stop_closesMetricsServiceMeterRegistry() {
-    CompositeMeterRegistry theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
+    var theMetricsServiceMeterRegistry = new CompositeMeterRegistry();
 
     metricsService =
         new InternalDistributedSystemMetricsService(metricsServiceBuilder, logger,
@@ -619,8 +619,8 @@ public class InternalDistributedSystemMetricsServiceTest {
 
   private static void assertHasMeters(String registryName, MeterRegistry registry,
       List<Meter> expectedMeters) {
-    List<Meter.Id> expectedMeterIds = expectedMeters.stream().map(Meter::getId).collect(toList());
-    List<Meter.Id> actualMeterIds =
+    var expectedMeterIds = expectedMeters.stream().map(Meter::getId).collect(toList());
+    var actualMeterIds =
         registry.getMeters().stream().map(Meter::getId).collect(toList());
 
     assertThat(actualMeterIds)

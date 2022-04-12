@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.partitioned;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -129,13 +128,13 @@ public class IdentityRequestMessage extends DistributionMessage implements Messa
    */
   public static IdentityResponse send(Set recipients, InternalDistributedSystem is) {
     Assert.assertTrue(recipients != null, "IdentityMessage NULL recipients set");
-    int i = 0;
-    for (Iterator ri = recipients.iterator(); ri.hasNext(); i++) {
+    var i = 0;
+    for (var ri = recipients.iterator(); ri.hasNext(); i++) {
       Assert.assertTrue(null != ri.next(), "IdenityMessage recipient " + i + " is null");
     }
 
-    IdentityResponse p = new IdentityResponse(is, recipients);
-    IdentityRequestMessage m = new IdentityRequestMessage(recipients, p.getProcessorId());
+    var p = new IdentityResponse(is, recipients);
+    var m = new IdentityRequestMessage(recipients, p.getProcessorId());
     is.getDistributionManager().putOutgoing(m);
     return p;
   }
@@ -192,21 +191,21 @@ public class IdentityRequestMessage extends DistributionMessage implements Messa
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm) {
       Assert.assertTrue(recipient != null, "IdentityReplyMessage NULL reply message");
-      IdentityReplyMessage m = new IdentityReplyMessage(processorId);
+      var m = new IdentityReplyMessage(processorId);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
 
     @Override
     protected void process(final ClusterDistributionManager dm) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "{} process invoking reply processor with processorId:{}", getClass().getName(),
             processorId);
       }
 
-      ReplyProcessor21 processor = ReplyProcessor21.getProcessor(processorId);
+      var processor = ReplyProcessor21.getProcessor(processorId);
 
       if (processor == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -275,7 +274,7 @@ public class IdentityRequestMessage extends DistributionMessage implements Messa
 
     public IdentityResponse(InternalDistributedSystem system, Set initMembers) {
       super(system, initMembers);
-      int localIdent = IdentityRequestMessage.getLatestId();
+      var localIdent = IdentityRequestMessage.getLatestId();
       if (localIdent != UNINITIALIZED) {
         returnValue = localIdent;
       }
@@ -285,8 +284,8 @@ public class IdentityRequestMessage extends DistributionMessage implements Messa
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof IdentityReplyMessage) {
-          IdentityReplyMessage reply = (IdentityReplyMessage) msg;
-          final Integer remoteId = reply.getId();
+          var reply = (IdentityReplyMessage) msg;
+          final var remoteId = reply.getId();
           synchronized (this) {
             if (remoteId != null) {
               if (returnValue == null) {

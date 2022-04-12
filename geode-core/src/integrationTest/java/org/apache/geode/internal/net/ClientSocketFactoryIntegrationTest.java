@@ -61,7 +61,7 @@ public class ClientSocketFactoryIntegrationTest {
   public void setUp() throws Exception {
     System.setProperty(GEMFIRE_PREFIX + "clientSocketFactory", TSocketFactory.class.getName());
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(CLUSTER_SSL_ENABLED, "false");
     DistributionConfig distributionConfig = new DistributionConfigImpl(properties);
 

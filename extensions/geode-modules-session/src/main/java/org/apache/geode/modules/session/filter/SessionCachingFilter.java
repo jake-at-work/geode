@@ -31,7 +31,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletRequestWrapper;
 import javax.servlet.ServletResponse;
-import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -118,9 +117,9 @@ public class SessionCachingFilter implements Filter {
       this.manager = manager;
       this.context = context;
 
-      final Cookie[] cookies = request.getCookies();
+      final var cookies = request.getCookies();
       if (cookies != null) {
-        for (final Cookie cookie : cookies) {
+        for (final var cookie : cookies) {
           if (cookie.getName().equalsIgnoreCase(manager.getSessionCookieName())
               && cookie.getValue().endsWith("-GF")) {
             requestedSessionId = cookie.getValue();
@@ -174,7 +173,7 @@ public class SessionCachingFilter implements Filter {
 
       if (session == null || !session.isValid()) {
         if (create) {
-          HttpSession nativeSession = super.getSession();
+          var nativeSession = super.getSession();
           try {
             session = (GemfireHttpSession) manager.wrapSession(context,
                 nativeSession.getMaxInactiveInterval());
@@ -204,8 +203,8 @@ public class SessionCachingFilter implements Filter {
         return;
       }
 
-      SessionCookieConfig cookieConfig = context.getSessionCookieConfig();
-      Cookie cookie = new Cookie(manager.getSessionCookieName(), session.getId());
+      var cookieConfig = context.getSessionCookieConfig();
+      var cookie = new Cookie(manager.getSessionCookieName(), session.getId());
       cookie.setPath("".equals(getContextPath()) ? "/" : getContextPath());
       cookie.setHttpOnly(cookieConfig.isHttpOnly());
       cookie.setSecure(cookieConfig.isSecure());
@@ -290,10 +289,10 @@ public class SessionCachingFilter implements Filter {
     //////////////////////////////////////////////////////////////
     // Private methods
     private String extractSessionId() {
-      final int prefix = getRequestURL().indexOf(URL_SESSION_IDENTIFIER);
+      final var prefix = getRequestURL().indexOf(URL_SESSION_IDENTIFIER);
       if (prefix != -1) {
-        final int start = prefix + URL_SESSION_IDENTIFIER.length();
-        int suffix = getRequestURL().indexOf("?", start);
+        final var start = prefix + URL_SESSION_IDENTIFIER.length();
+        var suffix = getRequestURL().indexOf("?", start);
         if (suffix < 0) {
           suffix = getRequestURL().indexOf("#", start);
         }
@@ -346,8 +345,8 @@ public class SessionCachingFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
 
-    HttpServletRequest httpReq = (HttpServletRequest) request;
-    HttpServletResponse httpResp = (HttpServletResponse) response;
+    var httpReq = (HttpServletRequest) request;
+    var httpResp = (HttpServletResponse) response;
 
     // Early out if this isn't the right kind of request. We might see a RequestWrapper instance
     // during a forward or include request.
@@ -366,8 +365,8 @@ public class SessionCachingFilter implements Filter {
     // Caveat: some servers do not handle wrappers very well for forward or
     // include requests.
 
-    ResponseWrapper wrappedResponse = new ResponseWrapper(httpResp);
-    final RequestWrapper wrappedRequest =
+    var wrappedResponse = new ResponseWrapper(httpResp);
+    final var wrappedRequest =
         new RequestWrapper(manager, httpReq, wrappedResponse, filterConfig.getServletContext());
 
     Throwable problem = null;
@@ -382,7 +381,7 @@ public class SessionCachingFilter implements Filter {
       LOG.error("Exception processing filter chain", t);
     }
 
-    GemfireHttpSession session = (GemfireHttpSession) wrappedRequest.getSession(false);
+    var session = (GemfireHttpSession) wrappedRequest.getSession(false);
 
     // If there was a problem, we want to rethrow it if it is
     // a known type, otherwise log it.
@@ -416,7 +415,7 @@ public class SessionCachingFilter implements Filter {
       return false;
     }
 
-    final ServletRequest nestedRequest = ((ServletRequestWrapper) request).getRequest();
+    final var nestedRequest = ((ServletRequestWrapper) request).getRequest();
 
     if (nestedRequest == request) {
       return false;
@@ -447,7 +446,7 @@ public class SessionCachingFilter implements Filter {
 
     if (started.getAndDecrement() > 0) {
       // Allow override for testing purposes
-      String managerClassStr = config.getInitParameter("session-manager-class");
+      var managerClassStr = config.getInitParameter("session-manager-class");
 
       // Otherwise default
       if (managerClassStr == null) {
@@ -495,13 +494,13 @@ public class SessionCachingFilter implements Filter {
   }
 
   private void sendProcessingError(Throwable t, ServletResponse response) {
-    String stackTrace = getStackTrace(t);
+    var stackTrace = getStackTrace(t);
 
     if (stackTrace != null && !stackTrace.equals("")) {
       try {
         response.setContentType("text/html");
-        PrintStream ps = new PrintStream(response.getOutputStream());
-        PrintWriter pw = new PrintWriter(ps);
+        var ps = new PrintStream(response.getOutputStream());
+        var pw = new PrintWriter(ps);
         pw.print("<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n"); // NOI18N
 
         // PENDING! Localize this for next official release
@@ -515,7 +514,7 @@ public class SessionCachingFilter implements Filter {
       }
     } else {
       try {
-        PrintStream ps = new PrintStream(response.getOutputStream());
+        var ps = new PrintStream(response.getOutputStream());
         t.printStackTrace(ps);
         ps.close();
         response.getOutputStream().close();
@@ -527,8 +526,8 @@ public class SessionCachingFilter implements Filter {
   private static String getStackTrace(Throwable t) {
     String stackTrace = null;
     try {
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw);
+      var sw = new StringWriter();
+      var pw = new PrintWriter(sw);
       t.printStackTrace(pw);
       pw.close();
       sw.close();

@@ -14,9 +14,7 @@
  */
 package org.apache.geode.management.internal;
 
-import java.net.URI;
 import java.net.UnknownHostException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,7 +86,7 @@ public class RestAgent {
   // Start HTTP service in embedded mode
   public void startHttpService(InternalCache cache) throws Exception {
     // Find the developer REST WAR file
-    final URI gemfireAPIWar = agentUtil.findWarLocation("geode-web-api");
+    final var gemfireAPIWar = agentUtil.findWarLocation("geode-web-api");
     if (gemfireAPIWar == null) {
       logger.info(
           "Unable to find GemFire Developer REST API WAR file; the Developer REST Interface for GemFire will not be accessible.");
@@ -105,8 +103,8 @@ public class RestAgent {
           securityService);
 
       if (cache.getOptionalService(HttpService.class).isPresent()) {
-        HttpService httpService = cache.getOptionalService(HttpService.class).get();
-        Path gemfireAPIWarPath = Paths.get(gemfireAPIWar);
+        var httpService = cache.getOptionalService(HttpService.class).get();
+        var gemfireAPIWarPath = Paths.get(gemfireAPIWar);
         httpService.addWebApplication("/gemfire-api", gemfireAPIWarPath, securityServiceAttr);
         httpService.addWebApplication("/geode", gemfireAPIWarPath, securityServiceAttr);
       } else {
@@ -116,7 +114,7 @@ public class RestAgent {
   }
 
   public static String getBindAddressForHttpService(DistributionConfig config) {
-    String bindAddress = config.getHttpServiceBindAddress();
+    var bindAddress = config.getHttpServiceBindAddress();
     if (StringUtils.isNotBlank(bindAddress)) {
       return bindAddress;
     }
@@ -151,7 +149,7 @@ public class RestAgent {
       if (logger.isDebugEnabled()) {
         logger.debug("Starting creation of  __ParameterizedQueries__ region");
       }
-      InternalCache cache = CacheFactoryStatics.getAnyInstance();
+      var cache = CacheFactoryStatics.getAnyInstance();
       if (cache != null) {
         InternalRegionFactory<String, String> factory =
             cache.createInternalRegionFactory(RegionShortcut.REPLICATE);

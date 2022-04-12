@@ -31,11 +31,8 @@ import org.assertj.core.api.AbstractShortAssert;
 import org.junit.Test;
 
 import org.apache.geode.distributed.internal.membership.api.MemberData;
-import org.apache.geode.internal.serialization.DSFIDSerializer;
 import org.apache.geode.internal.serialization.DSFIDSerializerFactory;
-import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
-import org.apache.geode.internal.serialization.SerializationContext;
 
 /**
  * MemberData has to be able to hold an unknown version ordinal since, during a rolling upgrade,
@@ -48,14 +45,14 @@ public class GMSMemberDataVersionJUnitTest {
 
   @Test
   public void testConstructor1() {
-    final MemberDataBuilderImpl builder = MemberDataBuilderImpl.newBuilder(null, null);
+    final var builder = MemberDataBuilderImpl.newBuilder(null, null);
     builder.setVersionOrdinal(unknownVersionOrdinal);
     validate(builder.build());
   }
 
   @Test
   public void testConstructor2() {
-    final GMSMemberData memberData =
+    final var memberData =
         new GMSMemberData(mock(InetAddress.class), 0, unknownVersionOrdinal, 0, 0, 0);
     validate(memberData);
   }
@@ -63,23 +60,23 @@ public class GMSMemberDataVersionJUnitTest {
   @Test
   public void testReadEssentialData() throws IOException, ClassNotFoundException {
 
-    final MemberDataBuilderImpl builder = MemberDataBuilderImpl.newBuilder(null, null);
+    final var builder = MemberDataBuilderImpl.newBuilder(null, null);
     builder.setVersionOrdinal(unknownVersionOrdinal);
-    final MemberData member = builder.build();
+    final var member = builder.build();
 
-    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    final var baos = new ByteArrayOutputStream();
     final DataOutput dataOutput = new DataOutputStream(baos);
-    final DSFIDSerializer dsfidSerializer = new DSFIDSerializerFactory().create();
-    final SerializationContext serializationContext =
+    final var dsfidSerializer = new DSFIDSerializerFactory().create();
+    final var serializationContext =
         dsfidSerializer.createSerializationContext(dataOutput);
     member.writeEssentialData(dataOutput, serializationContext);
 
-    final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-    final DataInputStream stream = new DataInputStream(bais);
-    final DeserializationContext deserializationContext =
+    final var bais = new ByteArrayInputStream(baos.toByteArray());
+    final var stream = new DataInputStream(bais);
+    final var deserializationContext =
         dsfidSerializer.createDeserializationContext(stream);
     final DataInput dataInput = new DataInputStream(bais);
-    final GMSMemberData newMember = new GMSMemberData();
+    final var newMember = new GMSMemberData();
     newMember.readEssentialData(dataInput, deserializationContext);
 
     validate(newMember);

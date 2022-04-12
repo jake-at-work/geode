@@ -33,8 +33,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.query.CqAttributesFactory;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.internal.QueryConfigurationService;
 import org.apache.geode.cache.query.security.MethodInvocationAuthorizer;
 import org.apache.geode.cache.query.security.RestrictedMethodAuthorizer;
@@ -65,9 +63,9 @@ public class AlterQueryServiceCommandDistributedTest {
 
   @Before
   public void setUp() throws Exception {
-    MemberVM locator =
+    var locator =
         cluster.startLocatorVM(0, l -> l.withSecurityManager(SimpleSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server = cluster.startServerVM(1,
         s -> s.withConnectionToLocator(locatorPort).withCredential("cluster", "cluster"));
 
@@ -98,7 +96,7 @@ public class AlterQueryServiceCommandDistributedTest {
   }
 
   private String buildCommand(String authorizerName, Boolean forceUpdate) {
-    StringBuilder commandBuilder = new StringBuilder(COMMAND_NAME);
+    var commandBuilder = new StringBuilder(COMMAND_NAME);
     commandBuilder.append(" --").append(AUTHORIZER_NAME).append("=").append(authorizerName);
 
     if (forceUpdate != null) {
@@ -110,7 +108,7 @@ public class AlterQueryServiceCommandDistributedTest {
 
   private void verifyCurrentAuthorizerClass(Class authorizerClass) {
     server.invoke(() -> {
-      MethodInvocationAuthorizer methodAuthorizer =
+      var methodAuthorizer =
           Objects.requireNonNull(ClusterStartupRule.getCache())
               .getService(QueryConfigurationService.class).getMethodAuthorizer();
       assertThat(methodAuthorizer.getClass()).isEqualTo(authorizerClass);
@@ -119,13 +117,13 @@ public class AlterQueryServiceCommandDistributedTest {
 
   private void createClientCq(String queryString, boolean executeWithInitialResults) {
     client.invoke(() -> {
-      TestCqListener cqListener = new TestCqListener();
+      var cqListener = new TestCqListener();
       assertThat(ClusterStartupRule.getClientCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getClientCache().getQueryService();
-      CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+      var queryService = ClusterStartupRule.getClientCache().getQueryService();
+      var cqAttributesFactory = new CqAttributesFactory();
       cqAttributesFactory.addCqListener(cqListener);
 
-      CqQuery cq = queryService.newCq(queryString, cqAttributesFactory.create());
+      var cq = queryService.newCq(queryString, cqAttributesFactory.create());
       if (!executeWithInitialResults) {
         cq.execute();
       } else {
@@ -141,7 +139,7 @@ public class AlterQueryServiceCommandDistributedTest {
       boolean initialResults) {
     verifyCurrentAuthorizerClass(DEFAULT_AUTHORIZER_CLASS);
     createClientCq("SELECT * FROM " + SEPARATOR + regionName, initialResults);
-    String command = buildCommand(DummyMethodAuthorizer.class.getName(), false);
+    var command = buildCommand(DummyMethodAuthorizer.class.getName(), false);
 
     gfsh.executeAndAssertThat(command).statusIsError()
         .containsOutput(CONTINUOUS_QUERIES_RUNNING_MESSAGE);
@@ -155,7 +153,7 @@ public class AlterQueryServiceCommandDistributedTest {
       boolean initialResults) {
     verifyCurrentAuthorizerClass(DEFAULT_AUTHORIZER_CLASS);
     createClientCq("SELECT * FROM " + SEPARATOR + regionName, initialResults);
-    String command = buildCommand(DummyMethodAuthorizer.class.getName(), true);
+    var command = buildCommand(DummyMethodAuthorizer.class.getName(), true);
 
     gfsh.executeAndAssertThat(command).statusIsSuccess();
     verifyCurrentAuthorizerClass(DummyMethodAuthorizer.class);

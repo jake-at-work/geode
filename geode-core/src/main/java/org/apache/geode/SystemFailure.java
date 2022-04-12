@@ -215,7 +215,7 @@ public final class SystemFailure {
    * @return the previous value
    */
   public static boolean setExitOK(boolean newVal) {
-    boolean result = exitOK;
+    var result = exitOK;
     exitOK = newVal;
     if (exitOK) {
       exitExcuse = new Throwable("SystemFailure exitOK set");
@@ -354,7 +354,7 @@ public final class SystemFailure {
    */
   private static void runWatchDog() {
 
-    boolean warned = false;
+    var warned = false;
 
     logFine(WATCHDOG_NAME, "Starting");
     while (!stopping) {
@@ -404,7 +404,7 @@ public final class SystemFailure {
 
         if (!failureActionCompleted) {
           // avoid potential race condition setting the runnable
-          Runnable r = failureAction;
+          var r = failureAction;
           if (r != null) {
             logInfo(WATCHDOG_NAME, "running user's runnable");
             try {
@@ -562,10 +562,10 @@ public final class SystemFailure {
    */
   private static void runProctor() {
     // Note that the javadocs say this can return Long.MAX_VALUE.
-    final long maxMemory = Runtime.getRuntime().maxMemory();
+    final var maxMemory = Runtime.getRuntime().maxMemory();
 
     // Allocate this error in advance, since it's too late once it's been detected!
-    final OutOfMemoryError oome = new OutOfMemoryError(
+    final var oome = new OutOfMemoryError(
         String.format(
             "%s : memory has remained chronically below %s bytes (out of a maximum of %s ) for %s sec.",
             PROCTOR_NAME, minimumMemoryThreshold, maxMemory, WATCHDOG_WAIT));
@@ -601,7 +601,7 @@ public final class SystemFailure {
           continue;
         }
 
-        long totalMemory = Runtime.getRuntime().totalMemory();
+        var totalMemory = Runtime.getRuntime().totalMemory();
         if (totalMemory < maxMemory) {
           if (DEBUG) {
             logFine(PROCTOR_NAME,
@@ -617,7 +617,7 @@ public final class SystemFailure {
         }
         lastTotalMemory = totalMemory;
 
-        long freeMemory = Runtime.getRuntime().freeMemory();
+        var freeMemory = Runtime.getRuntime().freeMemory();
         if (freeMemory == 0) {
           // This is to workaround X bug #41821 in JRockit. Often, Jrockit returns 0 from
           // Runtime.getRuntime().freeMemory() Allocating this one object and calling again seems to
@@ -650,7 +650,7 @@ public final class SystemFailure {
         }
 
         // Memory is low
-        long now = System.currentTimeMillis();
+        var now = System.currentTimeMillis();
         if (lastStarveTime == NEVER_STARVED) {
           if (DEBUG) {
             logFine(PROCTOR_NAME,
@@ -855,7 +855,7 @@ public final class SystemFailure {
    * @return the previous action
    */
   public static Runnable setFailureAction(Runnable action) {
-    Runnable old = SystemFailure.failureAction;
+    var old = SystemFailure.failureAction;
     SystemFailure.failureAction = action;
     return old;
   }

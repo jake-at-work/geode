@@ -83,7 +83,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
 
   @Test
   public void isForwardExpirationDestroyAttributeFalseByDefault() {
-    AsyncEventListener al = mock(AsyncEventListener.class);
+    var al = mock(AsyncEventListener.class);
     aeq = cache.createAsyncEventQueueFactory().create("aeq", al);
     // Test for default value of isIgnoreEvictionAndExpiration setting.
     assertFalse(aeq.isForwardExpirationDestroy());
@@ -91,7 +91,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
 
   @Test
   public void canSetTrueForForwardExpirationDestroy() {
-    AsyncEventListener al = mock(AsyncEventListener.class);
+    var al = mock(AsyncEventListener.class);
     aeq = cache.createAsyncEventQueueFactory().setForwardExpirationDestroy(true).create("aeq", al);
     // Test for default value of isIgnoreEvictionAndExpiration setting.
     assertTrue(aeq.isForwardExpirationDestroy());
@@ -203,7 +203,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
         false /* eviction */, false /* evictionOverflow */, false /* expirationDestroy */,
         true /* expirationInvalidate */);
 
-    LocalRegion lr = (LocalRegion) region;
+    var lr = (LocalRegion) region;
     // Wait for region to evict/expire events.
     await()
         .untilAsserted(() -> assertEquals(2L, lr.getCachePerfStats().getInvalidates()));
@@ -222,7 +222,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
         false /* eviction */, false /* evictionOverflow */, false /* expirationDestroy */,
         true /* expirationInvalidate */);
 
-    LocalRegion lr = (LocalRegion) region;
+    var lr = (LocalRegion) region;
     // Wait for region to evict/expire events.
     await()
         .untilAsserted(() -> assertEquals(2L, lr.getCachePerfStats().getInvalidates()));
@@ -290,7 +290,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
         false /* expirationInvalidate */);
 
     // Wait for region to evict/expire events.
-    LocalRegion lr = (LocalRegion) region;
+    var lr = (LocalRegion) region;
     await()
         .untilAsserted(() -> assertEquals(1, lr.getDiskRegion().getStats().getNumOverflowOnDisk()));
     // The AQListner should get expected events.
@@ -307,7 +307,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
         false /* expirationInvalidate */);
 
     // Wait for region to evict/expire events.
-    PartitionedRegion pr = (PartitionedRegion) region;
+    var pr = (PartitionedRegion) region;
     await()
         .untilAsserted(() -> assertEquals(1, pr.getDiskRegionStats().getNumOverflowOnDisk()));
     // The AQListner should get expected events.
@@ -373,7 +373,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
         true /* expirationInvalidate */);
 
     // Wait for region to evict/expire events.
-    LocalRegion lr = (LocalRegion) region;
+    var lr = (LocalRegion) region;
     await()
         .untilAsserted(() -> assertEquals(2L, lr.getCachePerfStats().getInvalidates()));
 
@@ -394,7 +394,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
         true /* expirationInvalidate */);
 
     // Wait for region to evict/expire events.
-    LocalRegion lr = (LocalRegion) region;
+    var lr = (LocalRegion) region;
     await()
         .untilAsserted(() -> assertEquals(2L, lr.getCachePerfStats().getInvalidates()));
 
@@ -410,7 +410,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
       boolean eviction, boolean evictionOverflow, boolean expirationDestroy,
       boolean expirationInvalidate) {
     // String aeqId = "AEQTest";
-    String aeqId = name.getMethodName();
+    var aeqId = name.getMethodName();
 
     // Create AEQ
     createAsyncEventQueue(aeqId, forwardExpirationDestroy, events);
@@ -433,8 +433,8 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
 
 
   private boolean checkForOperation(List<AsyncEvent> events, boolean invalidate, boolean destroy) {
-    boolean found = false;
-    for (AsyncEvent e : events) {
+    var found = false;
+    for (var e : events) {
       if (invalidate && e.getOperation().isInvalidate()) {
         found = true;
         break;
@@ -448,21 +448,21 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
   }
 
   public int getEventsNotQueuedSize(String aeqId) {
-    AsyncEventQueueImpl aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
-    AbstractGatewaySender sender = (AbstractGatewaySender) aeq.getSender();
+    var aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
+    var sender = (AbstractGatewaySender) aeq.getSender();
     return sender.getStatistics().getEventsNotQueued();
   }
 
 
   public int getEventsReceived(String aeqId) {
-    AsyncEventQueueImpl aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
-    AbstractGatewaySender sender = (AbstractGatewaySender) aeq.getSender();
+    var aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
+    var sender = (AbstractGatewaySender) aeq.getSender();
     return sender.getStatistics().getEventsReceived();
   }
 
   private void createAsyncEventQueue(String id, boolean forwardExpirationDestroy,
       List<AsyncEvent> storeEvents) {
-    AsyncEventListener al = createAsyncListener(storeEvents);
+    var al = createAsyncListener(storeEvents);
     aeq = cache.createAsyncEventQueueFactory().setParallel(false)
         .setForwardExpirationDestroy(forwardExpirationDestroy).setBatchSize(1)
         .setBatchTimeInterval(1).create(id, al);
@@ -497,7 +497,7 @@ public class AsyncEventQueueEvictionAndExpirationJUnitTest {
   }
 
   private AsyncEventListener createAsyncListener(List<AsyncEvent> list) {
-    AsyncEventListener listener = new AsyncEventListener() {
+    var listener = new AsyncEventListener() {
       private final List<AsyncEvent> aeList = list;
 
       @Override

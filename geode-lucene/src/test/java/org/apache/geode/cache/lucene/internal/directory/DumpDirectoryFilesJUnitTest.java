@@ -39,7 +39,6 @@ import org.apache.geode.cache.lucene.internal.filesystem.FileSystem;
 import org.apache.geode.cache.lucene.internal.repository.IndexRepository;
 import org.apache.geode.cache.lucene.internal.repository.RepositoryManager;
 import org.apache.geode.internal.cache.BucketNotFoundException;
-import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.test.fake.Fakes;
 import org.apache.geode.test.junit.categories.LuceneTest;
 
@@ -58,18 +57,18 @@ public class DumpDirectoryFilesJUnitTest {
   @Before
   public void createMocks() throws BucketNotFoundException {
 
-    GemFireCacheImpl cache = Fakes.cache();
+    var cache = Fakes.cache();
     context = mock(RegionFunctionContext.class);
-    ResultSender sender = mock(ResultSender.class);
-    Region region = mock(Region.class);
-    InternalLuceneService service = mock(InternalLuceneService.class);
-    InternalLuceneIndex index = mock(InternalLuceneIndex.class);
-    RepositoryManager repoManager = mock(RepositoryManager.class);
-    IndexRepository repo = mock(IndexRepository.class);
-    IndexWriter writer = mock(IndexWriter.class);
-    RegionDirectory directory = mock(RegionDirectory.class);
+    var sender = mock(ResultSender.class);
+    var region = mock(Region.class);
+    var service = mock(InternalLuceneService.class);
+    var index = mock(InternalLuceneIndex.class);
+    var repoManager = mock(RepositoryManager.class);
+    var repo = mock(IndexRepository.class);
+    var writer = mock(IndexWriter.class);
+    var directory = mock(RegionDirectory.class);
     fileSystem = mock(FileSystem.class);
-    Region bucket = mock(Region.class);
+    var bucket = mock(Region.class);
     when(bucket.getFullPath()).thenReturn(bucketName);
 
     when(context.getArguments()).thenReturn(new String[] {directoryName, indexName});
@@ -89,16 +88,16 @@ public class DumpDirectoryFilesJUnitTest {
 
   @Test
   public void shouldInvokeExportOnBuckets() throws BucketNotFoundException {
-    DumpDirectoryFiles dump = new DumpDirectoryFiles();
+    var dump = new DumpDirectoryFiles();
     dump.execute(context);
 
-    File expectedDir = new File(directoryName, indexName + "_" + bucketName);
+    var expectedDir = new File(directoryName, indexName + "_" + bucketName);
     verify(fileSystem).export(eq(expectedDir));
   }
 
   @Test
   public void shouldThrowIllegalStateWhenMissingIndex() throws BucketNotFoundException {
-    DumpDirectoryFiles dump = new DumpDirectoryFiles();
+    var dump = new DumpDirectoryFiles();
     when(context.getArguments()).thenReturn(new String[] {"badDirectory", "badIndex"});
     expectedException.expect(IllegalStateException.class);
     dump.execute(context);
@@ -106,7 +105,7 @@ public class DumpDirectoryFilesJUnitTest {
 
   @Test
   public void shouldThrowIllegalArgumentWhenGivenBadArguments() throws BucketNotFoundException {
-    DumpDirectoryFiles dump = new DumpDirectoryFiles();
+    var dump = new DumpDirectoryFiles();
     when(context.getArguments()).thenReturn(new Object());
     expectedException.expect(IllegalArgumentException.class);
     dump.execute(context);
@@ -114,7 +113,7 @@ public class DumpDirectoryFilesJUnitTest {
 
   @Test
   public void shouldThrowIllegalArgumentWhenMissingArgument() throws BucketNotFoundException {
-    DumpDirectoryFiles dump = new DumpDirectoryFiles();
+    var dump = new DumpDirectoryFiles();
     when(context.getArguments()).thenReturn(new String[] {"not enough args"});
     expectedException.expect(IllegalArgumentException.class);
     dump.execute(context);

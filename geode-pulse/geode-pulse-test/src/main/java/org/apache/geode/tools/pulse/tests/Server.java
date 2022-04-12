@@ -38,7 +38,6 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.security.SecurityServiceFactory;
 import org.apache.geode.internal.security.shiro.JMXShiroAuthenticator;
 import org.apache.geode.management.internal.security.AccessControlMBean;
@@ -67,9 +66,9 @@ public class Server {
   }
 
   private String formJMXServiceURLString(String host, int jmxPort) throws UnknownHostException {
-    String jmxSerURL = "";
+    var jmxSerURL = "";
 
-    InetAddress inetAddr = InetAddress.getByName(host);
+    var inetAddr = InetAddress.getByName(host);
     if (inetAddr instanceof Inet4Address) {
       // Create jmx service url for IPv4 address
       jmxSerURL = "service:jmx:rmi://" + host + "/jndi/rmi://" + host + ":" + jmxPort + "/jmxrmi";
@@ -102,11 +101,11 @@ public class Server {
       Map<String, Object> env = new HashMap<>();
 
       // set up Shiro Security Manager
-      Properties securityProperties = new Properties();
+      var securityProperties = new Properties();
       securityProperties.setProperty(TestSecurityManager.SECURITY_JSON, jsonAuthFile);
       securityProperties.setProperty(SECURITY_MANAGER, TestSecurityManager.class.getName());
 
-      SecurityService securityService = SecurityServiceFactory.create(securityProperties);
+      var securityService = SecurityServiceFactory.create(securityProperties);
 
       // register the AccessControl bean
       mbs.registerMBean(new AccessControlMBean(securityService),
@@ -136,49 +135,49 @@ public class Server {
   }
 
   private synchronized void loadMBeans() throws Exception {
-    JMXProperties props = JMXProperties.getInstance();
+    var props = JMXProperties.getInstance();
 
     props.load(propFile);
 
     // Add servers
-    String[] servers = getArrayProperty(props, "servers");
-    for (String server : servers) {
+    var servers = getArrayProperty(props, "servers");
+    for (var server : servers) {
       addServerMBean(server);
     }
 
     // Add members
-    String[] members = getArrayProperty(props, "members");
-    for (String m : members) {
+    var members = getArrayProperty(props, "members");
+    for (var m : members) {
       addMemberMBean(m);
     }
 
     // Add regions
-    String[] regions = getArrayProperty(props, "regions");
-    for (String reg : regions) {
+    var regions = getArrayProperty(props, "regions");
+    for (var reg : regions) {
       addRegionMBean(reg);
     }
   }
 
   private synchronized void unloadMBeans() throws Exception {
-    JMXProperties props = JMXProperties.getInstance();
+    var props = JMXProperties.getInstance();
 
     props.load(propFile);
 
     // remove servers
-    String[] servers = getArrayProperty(props, "servers");
-    for (String server : servers) {
+    var servers = getArrayProperty(props, "servers");
+    for (var server : servers) {
       removeServerMBean();
     }
 
     // remove members
-    String[] members = getArrayProperty(props, "members");
-    for (String m : members) {
+    var members = getArrayProperty(props, "members");
+    for (var m : members) {
       removeMemberMBean(m);
     }
 
     // remove regions
-    String[] regions = getArrayProperty(props, "regions");
-    for (String reg : regions) {
+    var regions = getArrayProperty(props, "regions");
+    for (var reg : regions) {
       removeRegionMBean(reg);
     }
   }
@@ -199,12 +198,12 @@ public class Server {
   private void addRegionMBean(String reg)
       throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException,
       MalformedObjectNameException, NullPointerException {
-    Region regionObject = new Region(reg);
+    var regionObject = new Region(reg);
 
     mbs.registerMBean(regionObject, new ObjectName(Region.OBJECT_NAME + ",name=/" + reg));
 
-    for (String member : regionObject.getMembers()) {
-      RegionOnMember regionOnMemberObject = new RegionOnMember(regionObject.getFullPath(), member);
+    for (var member : regionObject.getMembers()) {
+      var regionOnMemberObject = new RegionOnMember(regionObject.getFullPath(), member);
       mbs.registerMBean(regionOnMemberObject,
           new ObjectName(
               PulseConstants.OBJECT_NAME_REGION_ON_MEMBER_REGION + regionObject.getFullPath()
@@ -215,11 +214,11 @@ public class Server {
   private void removeRegionMBean(String reg)
       throws InstanceNotFoundException, MBeanRegistrationException, MalformedObjectNameException,
       NullPointerException {
-    Region regionObject = new Region(reg);
+    var regionObject = new Region(reg);
 
     mbs.unregisterMBean(new ObjectName(Region.OBJECT_NAME + ",name=/" + reg));
 
-    for (String member : regionObject.getMembers()) {
+    for (var member : regionObject.getMembers()) {
       mbs.unregisterMBean(new ObjectName(
           PulseConstants.OBJECT_NAME_REGION_ON_MEMBER_REGION + regionObject.getFullPath()
               + PulseConstants.OBJECT_NAME_REGION_ON_MEMBER_MEMBER + member));
@@ -239,7 +238,7 @@ public class Server {
   }
 
   private String[] getArrayProperty(JMXProperties props, String propName) {
-    String propVal = props.getProperty(propName, "");
+    var propVal = props.getProperty(propName, "");
     return propVal.split(" ");
   }
 

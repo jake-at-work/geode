@@ -97,12 +97,12 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
 
   @Test
   public void getConnectionShouldShutdownTheAckThreadReaderWhenEventProcessorIsShutDown() {
-    AbstractGatewaySender sender = mock(AbstractGatewaySender.class);
-    AbstractGatewaySenderEventProcessor eventProcessor =
+    var sender = mock(AbstractGatewaySender.class);
+    var eventProcessor =
         mock(AbstractGatewaySenderEventProcessor.class);
-    GatewaySenderEventRemoteDispatcher dispatcher =
+    var dispatcher =
         new GatewaySenderEventRemoteDispatcher(eventProcessor, null);
-    GatewaySenderEventRemoteDispatcher.AckReaderThread ackReaderThread =
+    var ackReaderThread =
         dispatcher.new AckReaderThread(sender, "AckReaderThread");
     dispatcher.setAckReaderThread(ackReaderThread);
     assertFalse(ackReaderThread.isShutdown());
@@ -113,12 +113,12 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
 
   @Test
   public void shuttingDownAckThreadReaderConnectionShouldShutdownTheAckThreadReader() {
-    AbstractGatewaySender sender = mock(AbstractGatewaySender.class);
-    AbstractGatewaySenderEventProcessor eventProcessor =
+    var sender = mock(AbstractGatewaySender.class);
+    var eventProcessor =
         mock(AbstractGatewaySenderEventProcessor.class);
-    GatewaySenderEventRemoteDispatcher dispatcher =
+    var dispatcher =
         new GatewaySenderEventRemoteDispatcher(eventProcessor, null);
-    GatewaySenderEventRemoteDispatcher.AckReaderThread ackReaderThread =
+    var ackReaderThread =
         dispatcher.new AckReaderThread(sender, "AckReaderThread");
     dispatcher.setAckReaderThread(ackReaderThread);
     dispatcher.shutDownAckReaderConnection();
@@ -127,18 +127,18 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
 
   @Test
   public void shuttingDownAckThreadReaderShouldStopWhenCanceledAfterReadAckReturnNull() {
-    AbstractGatewaySender sender = mock(AbstractGatewaySender.class);
-    InternalCache cache = mock(InternalCache.class);
+    var sender = mock(AbstractGatewaySender.class);
+    var cache = mock(InternalCache.class);
     when(sender.getCache()).thenReturn(cache);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(cache.getCancelCriterion()).thenReturn(cancelCriterion);
     when(cancelCriterion.isCancelInProgress()).thenReturn(false).thenReturn(true);
-    AbstractGatewaySenderEventProcessor eventProcessor =
+    var eventProcessor =
         mock(AbstractGatewaySenderEventProcessor.class);
     when(eventProcessor.getSender()).thenReturn(sender);
-    GatewaySenderEventRemoteDispatcher dispatcher =
+    var dispatcher =
         new GatewaySenderEventRemoteDispatcher(eventProcessor, null);
-    GatewaySenderEventRemoteDispatcher.AckReaderThread ackReaderThread =
+    var ackReaderThread =
         dispatcher.new AckReaderThread(sender, "AckReaderThread");
 
     ackReaderThread.run();
@@ -149,31 +149,31 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
 
   @Test
   public void shuttingDownAckThreadReaderShouldStopWhenCanceledAndHandleSuccessBatchAckThrowException() {
-    AbstractGatewaySender sender = mock(AbstractGatewaySender.class);
-    InternalCache cache = mock(InternalCache.class);
+    var sender = mock(AbstractGatewaySender.class);
+    var cache = mock(InternalCache.class);
     when(sender.getCache()).thenReturn(cache);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(cache.getCancelCriterion()).thenReturn(cancelCriterion);
     when(cancelCriterion.isCancelInProgress()).thenReturn(false).thenReturn(true);
-    AbstractGatewaySenderEventProcessor eventProcessor =
+    var eventProcessor =
         mock(AbstractGatewaySenderEventProcessor.class);
     when(eventProcessor.getSender()).thenReturn(sender);
-    GatewaySenderEventRemoteDispatcher dispatcher =
+    var dispatcher =
         new GatewaySenderEventRemoteDispatcher(eventProcessor, null);
-    GatewaySenderEventRemoteDispatcher.AckReaderThread ackReaderThread =
+    var ackReaderThread =
         dispatcher.new AckReaderThread(sender, "AckReaderThread");
-    PoolImpl pool = mock(PoolImpl.class);
+    var pool = mock(PoolImpl.class);
     when(sender.getProxy()).thenReturn(pool);
-    Connection connection = mock(Connection.class);
+    var connection = mock(Connection.class);
     when(pool.acquireConnection()).thenReturn(connection);
     when(sender.isParallel()).thenReturn(true);
     when(cache.getRegion(PeerTypeRegistration.REGION_NAME)).thenReturn(null);
-    ServerQueueStatus serverQueueStatus = mock(ServerQueueStatus.class);
+    var serverQueueStatus = mock(ServerQueueStatus.class);
     when(connection.getQueueStatus()).thenReturn(serverQueueStatus);
     when(serverQueueStatus.getPdxSize()).thenReturn(0);
 
     when(eventProcessor.isStopped()).thenReturn(false);
-    GatewaySenderEventRemoteDispatcher.GatewayAck gatewayAck =
+    var gatewayAck =
         mock(GatewaySenderEventRemoteDispatcher.GatewayAck.class);
     when(pool.executeOn(any(Connection.class), any(Op.class), anyBoolean())).thenReturn(gatewayAck);
 
@@ -187,19 +187,19 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
 
   @Test
   public void getConnectionShouldCreateNewConnectionWhenServerIsNull() {
-    AbstractGatewaySender sender = mock(AbstractGatewaySender.class);
+    var sender = mock(AbstractGatewaySender.class);
     when(sender.isParallel()).thenReturn(false);
-    AbstractGatewaySenderEventProcessor eventProcessor =
+    var eventProcessor =
         mock(AbstractGatewaySenderEventProcessor.class);
     when(eventProcessor.getSender()).thenReturn(sender);
-    Connection connection = mock(Connection.class);
+    var connection = mock(Connection.class);
     when(connection.isDestroyed()).thenReturn(false);
     when(connection.getServer()).thenReturn(null);
-    GatewaySenderEventRemoteDispatcher dispatcher =
+    var dispatcher =
         new GatewaySenderEventRemoteDispatcher(eventProcessor, connection);
     dispatcher = spy(dispatcher);
     doNothing().when(dispatcher).initializeConnection();
-    Connection newConnection = dispatcher.getConnection(true);
+    var newConnection = dispatcher.getConnection(true);
     verify(dispatcher, times(1)).initializeConnection();
     verify(dispatcher, times(2)).getConnectionLifeCycleLock();
   }
@@ -209,7 +209,7 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
     when(senderMock.isParallel()).thenReturn(true);
 
     eventDispatcher = new GatewaySenderEventRemoteDispatcher(eventProcessorMock, null);
-    GatewaySenderEventRemoteDispatcher dispatcherSpy = spy(eventDispatcher);
+    var dispatcherSpy = spy(eventDispatcher);
     dispatcherSpy.initializeConnection();
 
     verify(senderMock, times(0)).getLockForConcurrentDispatcher();
@@ -227,7 +227,7 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
     when(memberIdMock.getUniqueId()).thenReturn("receiverId");
 
     eventDispatcher = new GatewaySenderEventRemoteDispatcher(eventProcessorMock, null);
-    GatewaySenderEventRemoteDispatcher dispatcherSpy = spy(eventDispatcher);
+    var dispatcherSpy = spy(eventDispatcher);
     dispatcherSpy.initializeConnection();
 
     verify(senderMock, times(1)).getLockForConcurrentDispatcher();
@@ -247,7 +247,7 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
     when(eventProcessorMock.getExpectedReceiverUniqueId()).thenReturn("");
 
     eventDispatcher = new GatewaySenderEventRemoteDispatcher(eventProcessorMock, null);
-    GatewaySenderEventRemoteDispatcher dispatcherSpy = spy(eventDispatcher);
+    var dispatcherSpy = spy(eventDispatcher);
     dispatcherSpy.initializeConnection();
 
     verify(senderMock, times(1)).getLockForConcurrentDispatcher();
@@ -268,7 +268,7 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
     when(eventProcessorMock.getExpectedReceiverUniqueId()).thenReturn("expectedId");
 
     eventDispatcher = new GatewaySenderEventRemoteDispatcher(eventProcessorMock, null);
-    GatewaySenderEventRemoteDispatcher dispatcherSpy = spy(eventDispatcher);
+    var dispatcherSpy = spy(eventDispatcher);
     dispatcherSpy.initializeConnection();
 
     verify(senderMock, times(1)).getLockForConcurrentDispatcher();
@@ -289,7 +289,7 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
     when(eventProcessorMock.getExpectedReceiverUniqueId()).thenReturn("expectedId");
 
     eventDispatcher = new GatewaySenderEventRemoteDispatcher(eventProcessorMock, null);
-    GatewaySenderEventRemoteDispatcher dispatcherSpy = spy(eventDispatcher);
+    var dispatcherSpy = spy(eventDispatcher);
     dispatcherSpy.initializeConnection();
 
     verify(senderMock, times(1)).getLockForConcurrentDispatcher();
@@ -311,9 +311,9 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
     when(eventProcessorMock.getExpectedReceiverUniqueId()).thenReturn("expectedId");
 
     eventDispatcher = new GatewaySenderEventRemoteDispatcher(eventProcessorMock, null);
-    GatewaySenderEventRemoteDispatcher dispatcherSpy = spy(eventDispatcher);
+    var dispatcherSpy = spy(eventDispatcher);
 
-    String expectedExceptionMessage =
+    var expectedExceptionMessage =
         "There are no active servers. "
             + GatewaySenderEventRemoteDispatcher.maxAttemptsReachedConnectingServerIdExceptionMessage
             + " [expectedId] (10 attempts)";
@@ -342,9 +342,9 @@ public class GatewaySenderEventRemoteDispatcherJUnitTest {
     when(poolMock.getCurrentServers()).thenReturn(currentServers);
 
     eventDispatcher = new GatewaySenderEventRemoteDispatcher(eventProcessorMock, null);
-    GatewaySenderEventRemoteDispatcher dispatcherSpy = spy(eventDispatcher);
+    var dispatcherSpy = spy(eventDispatcher);
 
-    String expectedExceptionMessage =
+    var expectedExceptionMessage =
         "No available connection was found, but the following active servers exist: host1:1@id1, host2:2@id2 "
             + GatewaySenderEventRemoteDispatcher.maxAttemptsReachedConnectingServerIdExceptionMessage
             + " [expectedId] (10 attempts)";

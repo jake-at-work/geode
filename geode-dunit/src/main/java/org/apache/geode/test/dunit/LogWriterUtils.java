@@ -16,8 +16,6 @@ package org.apache.geode.test.dunit;
 
 import static org.apache.geode.distributed.ConfigurationProperties.LOG_LEVEL;
 
-import java.util.Properties;
-
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.LogWriter;
@@ -68,8 +66,8 @@ public class LogWriterUtils {
    * @return the dunit log-level setting
    */
   public static String getDUnitLogLevel() {
-    Properties dsProperties = DUnitEnv.get().getDistributedSystemProperties();
-    String result = dsProperties.getProperty(LOG_LEVEL);
+    var dsProperties = DUnitEnv.get().getDistributedSystemProperties();
+    var result = dsProperties.getProperty(LOG_LEVEL);
     if (result == null) {
       result = LogWriterLogger.levelToString(DistributionConfig.DEFAULT_LOG_LEVEL);
     }

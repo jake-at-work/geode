@@ -15,12 +15,10 @@
 package org.apache.geode.internal.cache.snapshot;
 
 import java.io.IOException;
-import java.util.Map.Entry;
 
 import org.apache.geode.cache.EntryDestroyedException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.snapshot.SnapshotOptions;
-import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.snapshot.RegionSnapshotServiceImpl.ExportSink;
 import org.apache.geode.internal.cache.snapshot.RegionSnapshotServiceImpl.Exporter;
 import org.apache.geode.internal.cache.snapshot.SnapshotPacket.SnapshotRecord;
@@ -37,10 +35,10 @@ public class LocalExporter<K, V> implements Exporter<K, V> {
   @Override
   public long export(Region<K, V> region, ExportSink sink, SnapshotOptions<K, V> options)
       throws IOException {
-    LocalRegion local = RegionSnapshotServiceImpl.getLocalRegion(region);
+    var local = RegionSnapshotServiceImpl.getLocalRegion(region);
 
     long count = 0;
-    for (Entry<K, V> entry : region.entrySet()) {
+    for (var entry : region.entrySet()) {
       try {
         if (options.getFilter() == null || options.getFilter().accept(entry)) {
           sink.write(new SnapshotRecord(local, entry));

@@ -67,7 +67,6 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Operation;
@@ -79,17 +78,12 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.InternalClientCache;
 import org.apache.geode.cache.client.internal.InternalPool;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.cache.server.ClientSubscriptionConfig;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.compression.Compressor;
 import org.apache.geode.compression.SnappyCompressor;
-import org.apache.geode.internal.cache.eviction.EvictionController;
 import org.apache.geode.internal.cache.ha.HARegionQueue;
 import org.apache.geode.internal.cache.persistence.DiskRecoveryStore;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
@@ -165,7 +159,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
     vm2 = getVM(2);
     vm3 = getVM(3);
 
-    for (VM vm : toArray(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : toArray(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         DeltaTestImpl.resetDeltaInvokationCounters();
         CREATE_COUNTER.set(0);
@@ -182,7 +176,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : toArray(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         LATCH.get().countDown();
         closeClientCache(false);
@@ -194,8 +188,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CSuccessfulDeltaPropagationWithCompression() {
-    VM clientVM = getController();
-    VM serverVM = vm0;
+    var clientVM = getController();
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .compressor(new SnappyCompressor())
@@ -216,14 +210,14 @@ public class DeltaPropagationDUnitTest implements Serializable {
       region.registerInterest("ALL_KEYS");
     });
 
-    for (VM vm : toArray(serverVM, clientVM)) {
+    for (var vm : toArray(serverVM, clientVM)) {
       vm.invoke(this::prepareDeltas);
     }
 
     serverVM.invoke(() -> {
       Region<String, Object> region = getCache().getRegion(regionName);
       region.create(DELTA_KEY, DELTA_VALUES[0]);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         region.put(DELTA_KEY, DELTA_VALUES[i]);
       }
       region.put(LAST_KEY, "");
@@ -245,8 +239,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CSuccessfulDeltaPropagation() {
-    VM clientVM = getController();
-    VM serverVM = vm0;
+    var clientVM = getController();
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
@@ -263,14 +257,14 @@ public class DeltaPropagationDUnitTest implements Serializable {
       region.registerInterest("ALL_KEYS");
     });
 
-    for (VM vm : toArray(serverVM, clientVM)) {
+    for (var vm : toArray(serverVM, clientVM)) {
       vm.invoke(this::prepareDeltas);
     }
 
     serverVM.invoke(() -> {
       Region<String, Object> region = getCache().getRegion(regionName);
       region.create(DELTA_KEY, DELTA_VALUES[0]);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         region.put(DELTA_KEY, DELTA_VALUES[i]);
       }
       region.put(LAST_KEY, "");
@@ -292,8 +286,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CFailureInToDeltaMethod() {
-    VM clientVM = getController();
-    VM serverVM = vm0;
+    var clientVM = getController();
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
@@ -310,14 +304,14 @@ public class DeltaPropagationDUnitTest implements Serializable {
       region.registerInterest("ALL_KEYS");
     });
 
-    for (VM vm : toArray(serverVM, clientVM)) {
+    for (var vm : toArray(serverVM, clientVM)) {
       vm.invoke(this::prepareErroneousDeltasForToDelta);
     }
 
     serverVM.invoke(() -> {
       Region<String, Object> region = getCache().getRegion(regionName);
       region.create(DELTA_KEY, DELTA_VALUES[0]);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         try {
           // Note: this may or may not throw
           region.put(DELTA_KEY, DELTA_VALUES[i]);
@@ -350,8 +344,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CFailureInFromDeltaMethod() {
-    VM clientVM = getController();
-    VM serverVM = vm0;
+    var clientVM = getController();
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
@@ -368,14 +362,14 @@ public class DeltaPropagationDUnitTest implements Serializable {
       region.registerInterest("ALL_KEYS");
     });
 
-    for (VM vm : toArray(serverVM, clientVM)) {
+    for (var vm : toArray(serverVM, clientVM)) {
       vm.invoke(this::prepareErroneousDeltasForFromDelta);
     }
 
     serverVM.invoke(() -> {
       Region<String, Object> region = getCache().getRegion(regionName);
       region.create(DELTA_KEY, DELTA_VALUES[0]);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         region.put(DELTA_KEY, DELTA_VALUES[i]);
       }
       region.put(LAST_KEY, "");
@@ -399,8 +393,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CWithOldValueAtClientOverflownToDisk() {
-    VM clientVM = getController();
-    VM serverVM = vm0;
+    var clientVM = getController();
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
@@ -418,7 +412,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
       region.registerInterest("ALL_KEYS");
     });
 
-    for (VM vm : toArray(serverVM, clientVM)) {
+    for (var vm : toArray(serverVM, clientVM)) {
       vm.invoke(this::prepareDeltas);
     }
 
@@ -435,7 +429,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
     serverVM.invoke(() -> {
       Region<String, Object> region = getCache().getRegion(regionName);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         region.put(DELTA_KEY, DELTA_VALUES[i]);
       }
       region.put(LAST_KEY, "");
@@ -457,8 +451,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CWithLocallyDestroyedOldValueAtClient() {
-    VM clientVM = getController();
-    VM serverVM = vm0;
+    var clientVM = getController();
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
@@ -476,7 +470,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
       region.registerInterest("ALL_KEYS");
     });
 
-    for (VM vm : toArray(serverVM, clientVM)) {
+    for (var vm : toArray(serverVM, clientVM)) {
       vm.invoke(this::prepareDeltas);
     }
 
@@ -493,7 +487,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
     serverVM.invoke(() -> {
       Region<String, Object> region = getCache().getRegion(regionName);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         region.put(DELTA_KEY, DELTA_VALUES[i]);
       }
       region.put(LAST_KEY, "");
@@ -515,8 +509,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CWithInvalidatedOldValueAtClient() {
-    VM clientVM = getController();
-    VM serverVM = vm0;
+    var clientVM = getController();
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
@@ -533,7 +527,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
       region.registerInterest("ALL_KEYS");
     });
 
-    for (VM vm : toArray(serverVM, clientVM)) {
+    for (var vm : toArray(serverVM, clientVM)) {
       vm.invoke(this::prepareDeltas);
     }
 
@@ -541,7 +535,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
       Region<String, Object> region = getCache().getRegion(regionName);
       region.create(DELTA_KEY, DELTA_VALUES[0]);
       region.invalidate(DELTA_KEY);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         region.put(DELTA_KEY, DELTA_VALUES[i]);
       }
       region.put(LAST_KEY, "");
@@ -563,8 +557,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CDeltaPropagationWithClientConflationON() {
-    VM clientVM = getController();
-    VM serverVM = vm0;
+    var clientVM = getController();
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
@@ -586,7 +580,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
       prepareDeltas();
       Region<String, Object> region = getCache().getRegion(regionName);
       region.create(DELTA_KEY, DELTA_VALUES[0]);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         region.put(DELTA_KEY, DELTA_VALUES[i]);
       }
       region.put(LAST_KEY, "");
@@ -601,9 +595,9 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CDeltaPropagationWithServerConflationON() {
-    VM client1VM = getController();
-    VM client2VM = vm3;
-    VM serverVM = vm0;
+    var client1VM = getController();
+    var client2VM = vm3;
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .enableSubscriptionConflation(true)
@@ -622,7 +616,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
         .serverPorts(serverPort)
         .create());
 
-    for (VM clientVM : toArray(client1VM, client2VM)) {
+    for (var clientVM : toArray(client1VM, client2VM)) {
       clientVM.invoke(() -> {
         Region<String, Object> region = getClientCache().getRegion(regionName);
         region.registerInterest("ALL_KEYS");
@@ -633,13 +627,13 @@ public class DeltaPropagationDUnitTest implements Serializable {
       prepareDeltas();
       Region<String, Object> region = getCache().getRegion(regionName);
       region.create(DELTA_KEY, DELTA_VALUES[0]);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         region.put(DELTA_KEY, DELTA_VALUES[i]);
       }
       region.put(LAST_KEY, "");
     });
 
-    for (VM clientVM : toArray(client1VM, client2VM)) {
+    for (var clientVM : toArray(client1VM, client2VM)) {
       clientVM.invoke(() -> await().until(LAST_KEY_RECEIVED::get));
     }
 
@@ -654,8 +648,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CDeltaPropagationWithOnlyCreateEvents() {
-    VM clientVM = getController();
-    VM serverVM = vm0;
+    var clientVM = getController();
+    var serverVM = vm0;
 
     int serverPort = serverVM.invoke(() -> new ServerFactory()
         .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
@@ -674,7 +668,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
     serverVM.invoke(() -> {
       Region<String, Object> region = getCache().getRegion(regionName);
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         region.create(DELTA_KEY + i, new DeltaTestImpl());
       }
       region.create(LAST_KEY, "");
@@ -698,16 +692,16 @@ public class DeltaPropagationDUnitTest implements Serializable {
    */
   @Test
   public void testC2S2SDeltaPropagation() {
-    VM clientVM = getController();
-    VM server1VM = vm0;
-    VM server2VM = vm1;
+    var clientVM = getController();
+    var server1VM = vm0;
+    var server2VM = vm1;
 
-    for (VM vm : toArray(clientVM, server1VM, server2VM)) {
+    for (var vm : toArray(clientVM, server1VM, server2VM)) {
       vm.invoke(this::prepareDeltas);
     }
 
     int serverPort = server1VM.invoke(() -> {
-      int port = new ServerFactory()
+      var port = new ServerFactory()
           .cacheListener(new ClientToServerToServerListener())
           .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
           .create();
@@ -738,13 +732,13 @@ public class DeltaPropagationDUnitTest implements Serializable {
     });
 
     // Invalidate the value at both the servers.
-    for (VM serverVM : toArray(server1VM, server2VM)) {
+    for (var serverVM : toArray(server1VM, server2VM)) {
       serverVM.invoke(() -> {
         Region<String, DeltaTestImpl> region = getCache().getRegion(regionName);
         region.localInvalidate(DELTA_KEY);
       });
     }
-    for (VM serverVM : toArray(server1VM, server2VM)) {
+    for (var serverVM : toArray(server1VM, server2VM)) {
       serverVM.invoke(() -> {
         await().untilAsserted(() -> assertThat(INVALIDATE_COUNTER.get()).isEqualTo(1));
       });
@@ -758,12 +752,12 @@ public class DeltaPropagationDUnitTest implements Serializable {
     // Assert that server1VM distributed val as full value to server2VM.
     server2VM.invoke(() -> await().untilAsserted(() -> {
       Region<String, DeltaTestImpl> region = getCache().getRegion(regionName);
-      DeltaTestImpl deltaValue = region.getEntry(DELTA_KEY).getValue();
+      var deltaValue = region.getEntry(DELTA_KEY).getValue();
 
       assertThat(deltaValue).isEqualTo(DELTA_VALUES[1]);
     }));
 
-    for (VM vm : toArray(server1VM, server2VM)) {
+    for (var vm : toArray(server1VM, server2VM)) {
       vm.invoke(() -> {
         assertThat(DeltaTestImpl.deltaFeatureUsed()).isFalse();
       });
@@ -776,15 +770,15 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2S2CDeltaPropagationWithHAOverflow() {
-    VM clientVM = getController();
-    VM server1VM = vm0;
-    VM server2VM = vm1;
+    var clientVM = getController();
+    var server1VM = vm0;
+    var server2VM = vm1;
 
-    for (VM vm : toArray(clientVM, server1VM, server2VM)) {
+    for (var vm : toArray(clientVM, server1VM, server2VM)) {
       vm.invoke(this::prepareDeltas);
     }
 
-    for (VM vm : toArray(server1VM, server2VM)) {
+    for (var vm : toArray(server1VM, server2VM)) {
       vm.invoke(() -> {
         System.setProperty(INTERNAL_FACTORY_PROPERTY, CACHE_CLIENT_PROXY_FACTORY_NAME);
         LATCH.set(new CountDownLatch(1));
@@ -812,7 +806,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
     server1VM.invoke(() -> {
       Region<String, Object> region = getCache().getRegion(regionName);
       region.create(DELTA_KEY, DELTA_VALUES[0]);
-      for (int i = 1; i < EVENTS_SIZE; i++) {
+      for (var i = 1; i < EVENTS_SIZE; i++) {
         region.put(DELTA_KEY, DELTA_VALUES[i]);
       }
       region.put(LAST_KEY, "");
@@ -822,7 +816,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
       Region<String, Object> region =
           getCache().getRegion(generateNameForClientMsgsRegion(serverPort));
 
-      EvictionController evictionController = ((DiskRecoveryStore) region)
+      var evictionController = ((DiskRecoveryStore) region)
           .getRegionMap()
           .getEvictionController();
 
@@ -850,17 +844,17 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testS2CDeltaPropagationWithGIIAndFailover() {
-    VM clientVM = getController();
-    VM server1VM = vm0;
-    VM server2VM = vm1;
-    VM server3VM = vm2;
+    var clientVM = getController();
+    var server1VM = vm0;
+    var server2VM = vm1;
+    var server3VM = vm2;
 
-    for (VM vm : toArray(clientVM, server1VM, server2VM, server3VM)) {
+    for (var vm : toArray(clientVM, server1VM, server2VM, server3VM)) {
       vm.invoke(this::prepareDeltas);
     }
 
     // Do puts after slowing the dispatcher.
-    for (VM vm : toArray(server1VM, server2VM, server3VM)) {
+    for (var vm : toArray(server1VM, server2VM, server3VM)) {
       vm.invoke(() -> {
         System.setProperty(INTERNAL_FACTORY_PROPERTY, CACHE_CLIENT_PROXY_FACTORY_NAME);
         LATCH.set(new CountDownLatch(1));
@@ -887,15 +881,15 @@ public class DeltaPropagationDUnitTest implements Serializable {
       Region<String, DeltaTestImpl> region = getClientCache().getRegion(regionName);
       region.registerInterest("ALL_KEYS");
 
-      InternalPool pool = (InternalPool) PoolManager.getAll().values().stream().findFirst().get();
+      var pool = (InternalPool) PoolManager.getAll().values().stream().findFirst().get();
 
-      VM primaryServerVM = pool.getPrimaryPort() == serverPort1 ? server1VM
+      var primaryServerVM = pool.getPrimaryPort() == serverPort1 ? server1VM
           : pool.getPrimaryPort() == serverPort2 ? server2VM : server3VM;
 
       primaryServerVM.invoke(() -> {
         Region<String, Object> regionOnServer = getCache().getRegion(regionName);
         regionOnServer.create(DELTA_KEY, DELTA_VALUES[0]);
-        for (int i = 1; i < EVENTS_SIZE; i++) {
+        for (var i = 1; i < EVENTS_SIZE; i++) {
           regionOnServer.put(DELTA_KEY, DELTA_VALUES[i]);
         }
         regionOnServer.put(LAST_KEY, "");
@@ -904,10 +898,10 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
       await().until(LAST_KEY_RECEIVED::get);
 
-      VM primaryServer2VM = pool.getPrimaryPort() == serverPort1 ? server1VM
+      var primaryServer2VM = pool.getPrimaryPort() == serverPort1 ? server1VM
           : pool.getPrimaryPort() == serverPort2 ? server2VM : server3VM;
 
-      for (VM vm : toArray(server1VM, server2VM, server3VM)) {
+      for (var vm : toArray(server1VM, server2VM, server3VM)) {
         vm.invoke(() -> LATCH.get().countDown());
       }
 
@@ -934,8 +928,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
    */
   @Test
   public void testBug40165ClientReconnects() {
-    VM clientVM = getController();
-    VM serverVM = vm1;
+    var clientVM = getController();
+    var serverVM = vm1;
 
     int serverPort = serverVM.invoke(() -> {
       // Step 1
@@ -948,13 +942,13 @@ public class DeltaPropagationDUnitTest implements Serializable {
           .create();
     });
 
-    for (VM vm : toArray(clientVM, serverVM)) {
+    for (var vm : toArray(clientVM, serverVM)) {
       vm.invoke(this::prepareDeltas);
     }
 
-    String durableClientId = getName() + "_client";
+    var durableClientId = getName() + "_client";
 
-    Properties clientProperties = new Properties();
+    var clientProperties = new Properties();
     clientProperties.setProperty(LOCATORS, "");
     clientProperties.setProperty(DURABLE_CLIENT_ID, durableClientId);
     clientProperties.setProperty(DURABLE_CLIENT_TIMEOUT, String.valueOf(60));
@@ -963,7 +957,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
     clientVM.invoke(() -> {
       new ClientFactory().create(new ClientCacheFactory(clientProperties));
 
-      Pool pool = PoolManager.createFactory()
+      var pool = PoolManager.createFactory()
           .addServer("localhost", serverPort)
           .setSubscriptionEnabled(true)
           .setSubscriptionAckInterval(1)
@@ -991,7 +985,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
       clientRegionFactory
           .setPoolName(pool.getName());
 
-      Region<String, Object> region = clientRegionFactory.create(regionName);
+      var region = clientRegionFactory.create(regionName);
 
       region.registerInterest("ALL_KEYS");
 
@@ -1001,8 +995,8 @@ public class DeltaPropagationDUnitTest implements Serializable {
     serverVM.invoke(() -> {
       // Step 3
       Region<String, Object> region = getCache().getRegion(regionName);
-      for (int i = 0; i < 100; i++) {
-        DeltaTestImpl value = new DeltaTestImpl();
+      for (var i = 0; i < 100; i++) {
+        var value = new DeltaTestImpl();
         value.setStr(String.valueOf(i));
         region.put(DELTA_KEY, value);
       }
@@ -1019,13 +1013,13 @@ public class DeltaPropagationDUnitTest implements Serializable {
       // Step 6
       new ClientFactory().create(new ClientCacheFactory(clientProperties));
 
-      Pool pool = PoolManager.createFactory()
+      var pool = PoolManager.createFactory()
           .addServer("localhost", serverPort)
           .setSubscriptionAckInterval(1)
           .setSubscriptionEnabled(true)
           .create("DeltaPropagationDUnitTest");
 
-      AtomicReference<Object> afterCreateKey = new AtomicReference<>();
+      var afterCreateKey = new AtomicReference<Object>();
 
       ClientRegionFactory<String, Object> clientRegionFactory =
           getClientCache().createClientRegionFactory(ClientRegionShortcut.LOCAL);
@@ -1044,7 +1038,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
       clientRegionFactory
           .setPoolName(pool.getName());
 
-      Region<String, Object> region = clientRegionFactory.create(regionName);
+      var region = clientRegionFactory.create(regionName);
 
       region.registerInterest("ALL_KEYS");
 
@@ -1061,9 +1055,9 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
   @Test
   public void testBug40165ClientFailsOver() {
-    VM clientVM = getController();
-    VM server1VM = vm0;
-    VM server2VM = vm1;
+    var clientVM = getController();
+    var server1VM = vm0;
+    var server2VM = vm1;
 
     int serverPort1 = server1VM.invoke(() -> new ServerFactory()
         .evictionPolicy(HARegionQueue.HA_EVICTION_POLICY_MEMORY)
@@ -1080,12 +1074,12 @@ public class DeltaPropagationDUnitTest implements Serializable {
     // 8. Verify that expected number of deltas are received by it.
 
     // Step 0
-    for (VM vm : toArray(getController(), server1VM, server2VM)) {
+    for (var vm : toArray(getController(), server1VM, server2VM)) {
       vm.invoke(this::prepareDeltas);
     }
 
     // Step 1
-    for (VM serverVM : toArray(server1VM, server2VM)) {
+    for (var serverVM : toArray(server1VM, server2VM)) {
       serverVM.invoke(() -> {
         System.setProperty(INTERNAL_FACTORY_PROPERTY, CACHE_CLIENT_PROXY_FACTORY_NAME);
         LATCH.set(new CountDownLatch(1));
@@ -1099,16 +1093,16 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
     // Step 2
     clientVM.invoke(() -> {
-      String durableClientId = getName() + "_client";
+      var durableClientId = getName() + "_client";
 
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(LOCATORS, "");
       props.setProperty(DURABLE_CLIENT_ID, durableClientId);
       props.setProperty(DURABLE_CLIENT_TIMEOUT, String.valueOf(60));
 
       new ClientFactory().create(new ClientCacheFactory(props));
 
-      Pool pool = PoolManager.createFactory()
+      var pool = PoolManager.createFactory()
           .addServer("localhost", serverPort1)
           .addServer("localhost", serverPort2)
           .setSubscriptionEnabled(true)
@@ -1128,7 +1122,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
       clientRegionFactory
           .setPoolName(pool.getName());
 
-      Region<String, Object> region = clientRegionFactory.create(regionName);
+      var region = clientRegionFactory.create(regionName);
 
       region.registerInterest("ALL_KEYS");
       getClientCache().readyForEvents();
@@ -1137,22 +1131,22 @@ public class DeltaPropagationDUnitTest implements Serializable {
     // Step 3
     server1VM.invoke(() -> {
       Region<String, Object> region = getCache().getRegion(regionName);
-      for (int i = 0; i < 100; i++) {
-        DeltaTestImpl value = new DeltaTestImpl();
+      for (var i = 0; i < 100; i++) {
+        var value = new DeltaTestImpl();
         value.setStr(String.valueOf(i));
         region.put(DELTA_KEY, value);
       }
       region.put(LAST_KEY, "");
     });
 
-    for (VM serverVM : toArray(server1VM, server2VM)) {
+    for (var serverVM : toArray(server1VM, server2VM)) {
       serverVM.invoke(() -> LATCH.get().countDown());
     }
 
     // Step 5
     clientVM.invoke(() -> {
-      InternalPool pool = (InternalPool) PoolManager.getAll().values().stream().findFirst().get();
-      VM primaryVM = pool.getPrimaryPort() == serverPort1 ? server1VM : server2VM;
+      var pool = (InternalPool) PoolManager.getAll().values().stream().findFirst().get();
+      var primaryVM = pool.getPrimaryPort() == serverPort1 ? server1VM : server2VM;
 
       await().until(MARKER_RECEIVED::get);
 
@@ -1189,7 +1183,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
   }
 
   private void prepareDeltas() {
-    for (int i = 0; i < EVENTS_SIZE; i++) {
+    for (var i = 0; i < EVENTS_SIZE; i++) {
       DELTA_VALUES[i] =
           new DeltaTestImpl(0, "0", 0d, new byte[0], new TestObjectWithIdentifier("0", 0));
     }
@@ -1220,7 +1214,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
   }
 
   private void prepareErroneousDeltasForToDelta() {
-    for (int i = 0; i < EVENTS_SIZE; i++) {
+    for (var i = 0; i < EVENTS_SIZE; i++) {
       DELTA_VALUES[i] =
           new DeltaTestImpl(0, "0", 0d, new byte[0], new TestObjectWithIdentifier("0", 0));
     }
@@ -1247,7 +1241,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
   }
 
   private void prepareErroneousDeltasForFromDelta() {
-    for (int i = 0; i < EVENTS_SIZE; i++) {
+    for (var i = 0; i < EVENTS_SIZE; i++) {
       DELTA_VALUES[i] =
           new DeltaTestImpl(0, "0", 0d, new byte[0], new TestObjectWithIdentifier("0", 0));
     }
@@ -1274,13 +1268,13 @@ public class DeltaPropagationDUnitTest implements Serializable {
   }
 
   private void verifyOverflowOccurred(long expectedEvictions, int expectedRegionSize) {
-    DiskRecoveryStore region = (DiskRecoveryStore) getClientCache().getRegion(regionName);
-    RegionMap regionMap = region.getRegionMap();
+    var region = (DiskRecoveryStore) getClientCache().getRegion(regionName);
+    var regionMap = region.getRegionMap();
 
-    long evictions = regionMap.getEvictionController().getCounters().getEvictions();
+    var evictions = regionMap.getEvictionController().getCounters().getEvictions();
     assertThat(evictions).isEqualTo(expectedEvictions);
 
-    int regionSize = regionMap.size();
+    var regionSize = regionMap.size();
     assertThat(regionSize).isEqualTo(expectedRegionSize);
   }
 
@@ -1351,18 +1345,18 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
       factory.create(regionName);
 
-      int port = getRandomAvailableTCPPort();
-      CacheServer cacheServer = getCache().addCacheServer();
+      var port = getRandomAvailableTCPPort();
+      var cacheServer = getCache().addCacheServer();
       cacheServer.setPort(port);
 
       if (evictionPolicy != null) {
-        File overflowDirectory = temporaryFolder.newFolder("bsi_overflow_" + port);
+        var overflowDirectory = temporaryFolder.newFolder("bsi_overflow_" + port);
 
-        DiskStore diskStore = getCache().createDiskStoreFactory()
+        var diskStore = getCache().createDiskStoreFactory()
             .setDiskDirs(new File[] {overflowDirectory})
             .create("bsi");
 
-        ClientSubscriptionConfig clientSubscriptionConfig =
+        var clientSubscriptionConfig =
             cacheServer.getClientSubscriptionConfig();
 
         clientSubscriptionConfig.setCapacity(1);
@@ -1423,18 +1417,18 @@ public class DeltaPropagationDUnitTest implements Serializable {
     private void doCreate() throws IOException {
       System.setProperty(GEMFIRE_PREFIX + "bridge.disableShufflingOfEndpoints", "true");
 
-      Properties clientProperties = getDistributedSystemProperties();
+      var clientProperties = getDistributedSystemProperties();
       clientProperties.setProperty(LOCATORS, "");
       clientProperties.setProperty(CONFLATE_EVENTS, clientConflation);
 
       create(new ClientCacheFactory(clientProperties));
 
-      PoolFactory poolFactory = PoolManager.createFactory();
-      for (int port : serverPorts) {
+      var poolFactory = PoolManager.createFactory();
+      for (var port : serverPorts) {
         poolFactory.addServer("localhost", port);
       }
 
-      Pool pool = poolFactory
+      var pool = poolFactory
           .setMinConnections(2 * serverPorts.length)
           .setPingInterval(1000)
           .setIdleTimeout(250)
@@ -1457,9 +1451,9 @@ public class DeltaPropagationDUnitTest implements Serializable {
       if (evictionAttributes != null && evictionAttributes.getAction().isOverflowToDisk()) {
         // create diskstore with overflow dir
         // since it's overflow, no need to recover, so we can use random number as dir name
-        File overflowDir = temporaryFolder.newFolder("overflow_" + getVMId());
+        var overflowDir = temporaryFolder.newFolder("overflow_" + getVMId());
 
-        DiskStore diskStore = getClientCache().createDiskStoreFactory()
+        var diskStore = getClientCache().createDiskStoreFactory()
             .setDiskDirs(new File[] {overflowDir})
             .create("client_overflow_ds");
 
@@ -1508,7 +1502,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
     @Override
     public void afterUpdate(EntryEvent event) {
-      int index = UPDATE_COUNTER.incrementAndGet();
+      var index = UPDATE_COUNTER.incrementAndGet();
       errorCollector.checkThat(event.getNewValue(), equalTo(DELTA_VALUES[index]));
     }
   }
@@ -1524,7 +1518,7 @@ public class DeltaPropagationDUnitTest implements Serializable {
 
     @Override
     public void afterUpdate(EntryEvent event) {
-      int index = UPDATE_COUNTER.incrementAndGet();
+      var index = UPDATE_COUNTER.incrementAndGet();
 
       // Hack to ignore illegal delta put (skip the 3rd delta value)
       index = index >= 3 ? ++index : index;
@@ -1622,8 +1616,9 @@ public class DeltaPropagationDUnitTest implements Serializable {
     }
 
     private static SubjectIdGenerator subjectIdGeneratorFor(ClientProxyMembershipID proxyId) {
-      int proxyIdHashCode = proxyId.hashCode();
-      Consumer<Random> initializer = r -> r.setSeed(proxyIdHashCode + System.currentTimeMillis());
+      var proxyIdHashCode = proxyId.hashCode();
+      var initializer =
+          (Consumer<Random>) r -> r.setSeed(proxyIdHashCode + System.currentTimeMillis());
       return new RandomSubjectIdGenerator(new Random(), initializer);
     }
   }

@@ -73,9 +73,9 @@ public class SimpleAccessController implements AccessControl {
   }
 
   private boolean authorize(Principal principal, String permission) {
-    String[] principals = principal.toString().toLowerCase().split(",");
-    for (String role : principals) {
-      String permissionString = permission.replace(":", "").toLowerCase();
+    var principals = principal.toString().toLowerCase().split(",");
+    for (var role : principals) {
+      var permissionString = permission.replace(":", "").toLowerCase();
       if (permissionString.startsWith(role)) {
         return true;
       }

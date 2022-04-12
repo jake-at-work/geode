@@ -21,9 +21,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
@@ -53,9 +51,9 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
   @Test
   public void testPrimarySendersOnDifferentVMsReplicated() throws Exception {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstPeerLocator(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstPeerLocator(1));
 
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCachesWith(Boolean.FALSE, nyPort, lnPort);
 
@@ -95,10 +93,10 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
   // Uses partitioned regions and conserve-sockets=false
   @Test
   public void testPrimarySendersOnDifferentVMsPR() throws Exception {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke("createFirstPeerLocator", () -> WANTestBase.createFirstPeerLocator(1));
 
-    Integer nyPort = vm1.invoke("createFirstRemoteLocator",
+    var nyPort = vm1.invoke("createFirstRemoteLocator",
         () -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCachesWith(Boolean.FALSE, nyPort, lnPort);
@@ -134,10 +132,10 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
   @Test
   public void testPrimarySendersOnDifferentVMsReplicatedSocketPolicy() throws Exception {
 
-    Integer lnPort =
+    var lnPort =
         vm0.invoke("createFirstPeerLocator", () -> WANTestBase.createFirstPeerLocator(1));
 
-    Integer nyPort = vm1.invoke("createFirstRemoteLocator",
+    var nyPort = vm1.invoke("createFirstRemoteLocator",
         () -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCachesWith(Boolean.TRUE, nyPort, lnPort);
@@ -174,10 +172,10 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
   // this always causes a distributed deadlock
   @Test
   public void testPrimarySendersOnDifferentVMsPRSocketPolicy() throws Exception {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke("createFirstPeerLocator", () -> WANTestBase.createFirstPeerLocator(1));
 
-    Integer nyPort = vm1.invoke("createFirstRemoteLocator",
+    var nyPort = vm1.invoke("createFirstRemoteLocator",
         () -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCachesWith(Boolean.TRUE, nyPort, lnPort);
@@ -239,14 +237,14 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
 
   private void exerciseFunctions() throws Exception {
     // do function calls that use a shared connection
-    for (int x = 0; x < 1000; x++) {
+    for (var x = 0; x < 1000; x++) {
       // setting it to Boolean.TRUE it should pass the test
       vm4.invoke("doFunctionPuts", () -> SerialGatewaySenderDistributedDeadlockDUnitTest
           .doFunctionPuts(getTestMethodName() + "_RR", 1, Boolean.TRUE));
       vm5.invoke("doFunctionPuts", () -> SerialGatewaySenderDistributedDeadlockDUnitTest
           .doFunctionPuts(getTestMethodName() + "_RR", 1, Boolean.TRUE));
     }
-    for (int x = 0; x < 1000; x++) {
+    for (var x = 0; x < 1000; x++) {
       // setting the Boolean.FALSE below will cause a deadlock in some GFE versions
       // setting it to Boolean.TRUE as above it should pass the test
       // this is similar to the customer found distributed deadlock
@@ -364,8 +362,8 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
       throws Exception {
     Region region = CacheFactory.getAnyInstance().getRegion(name);
     FunctionService.registerFunction(new TestFunction());
-    Execution exe = FunctionService.onRegion(region);
-    for (int x = 0; x < num; x++) {
+    var exe = FunctionService.onRegion(region);
+    for (var x = 0; x < num; x++) {
       exe.setArguments(useThreadOwnedSocket)
           .execute("org.apache.geode.internal.cache.wan.serial.TestFunction");
     }
@@ -373,9 +371,9 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
 
   public static void doTxPutsPR(String regionName, int numPuts, int size) throws Exception {
     Region r = cache.getRegion(SEPARATOR + regionName);
-    CacheTransactionManager mgr = cache.getCacheTransactionManager();
-    for (int x = 0; x < numPuts; x++) {
-      int temp = (int) (Math.floor(Math.random() * size));
+    var mgr = cache.getCacheTransactionManager();
+    for (var x = 0; x < numPuts; x++) {
+      var temp = (int) (Math.floor(Math.random() * size));
       try {
         mgr.begin();
         r.put(temp, temp);
@@ -391,8 +389,8 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
   public static void doInvalidates(String regionName, int numInvalidates, int size)
       throws Exception {
     Region r = cache.getRegion(SEPARATOR + regionName);
-    for (int x = 0; x < numInvalidates; x++) {
-      int temp = (int) (Math.floor(Math.random() * size));
+    for (var x = 0; x < numInvalidates; x++) {
+      var temp = (int) (Math.floor(Math.random() * size));
       try {
         if (r.containsValueForKey(temp)) {
           r.invalidate(temp);
@@ -419,7 +417,7 @@ class TestFunction implements Function {
     if (option) {
       DistributedSystem.setThreadsSocketPolicy(false);
     }
-    RegionFunctionContext context = (RegionFunctionContext) fc;
+    var context = (RegionFunctionContext) fc;
     Region local = context.getDataSet();
     local.put(randKeyValue(10), randKeyValue(10000));
   }
@@ -440,7 +438,7 @@ class TestFunction implements Function {
   }
 
   private int randKeyValue(int size) {
-    double temp = Math.floor(Math.random() * size);
+    var temp = Math.floor(Math.random() * size);
     return (int) temp;
   }
 }

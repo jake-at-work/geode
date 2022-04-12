@@ -36,11 +36,11 @@ import org.junit.Test;
 public class CompoundMeterBinderTest {
   @Test
   public void bindsAllBinders() {
-    MeterRegistry registry = mock(MeterRegistry.class);
+    var registry = mock(MeterRegistry.class);
 
-    Set<MeterBinder> meterBinders = setOf(7, MeterBinder.class);
+    var meterBinders = setOf(7, MeterBinder.class);
 
-    CompoundMeterBinder composedBinder = new CompoundMeterBinder(meterBinders);
+    var composedBinder = new CompoundMeterBinder(meterBinders);
 
     composedBinder.bindTo(registry);
 
@@ -49,13 +49,13 @@ public class CompoundMeterBinderTest {
 
   @Test
   public void logsWarning_ifBinderThrowsWhileBinding() {
-    Logger logger = mock(Logger.class);
+    var logger = mock(Logger.class);
 
-    RuntimeException thrownByBinder = new RuntimeException("thrown for test purposes");
-    CloseableMeterBinder throwingBinder = mock(CloseableMeterBinder.class);
+    var thrownByBinder = new RuntimeException("thrown for test purposes");
+    var throwingBinder = mock(CloseableMeterBinder.class);
     doThrow(thrownByBinder).when(throwingBinder).bindTo(any());
 
-    CompoundMeterBinder composedBinder = new CompoundMeterBinder(logger, singleton(throwingBinder));
+    var composedBinder = new CompoundMeterBinder(logger, singleton(throwingBinder));
 
     composedBinder.bindTo(mock(MeterRegistry.class));
 
@@ -64,14 +64,14 @@ public class CompoundMeterBinderTest {
 
   @Test
   public void closesAllCloseableBinders() {
-    Set<MeterBinder> nonCloseableBinders = setOf(4, MeterBinder.class);
-    Set<CloseableMeterBinder> closeableBinders = setOf(9, CloseableMeterBinder.class);
+    var nonCloseableBinders = setOf(4, MeterBinder.class);
+    var closeableBinders = setOf(9, CloseableMeterBinder.class);
 
     Collection<MeterBinder> allBinders = new HashSet<>();
     allBinders.addAll(nonCloseableBinders);
     allBinders.addAll(closeableBinders);
 
-    CompoundMeterBinder composedBinder = new CompoundMeterBinder(allBinders);
+    var composedBinder = new CompoundMeterBinder(allBinders);
 
     composedBinder.close();
 
@@ -80,13 +80,13 @@ public class CompoundMeterBinderTest {
 
   @Test
   public void logsWarning_ifBinderThrowsWhileClosing() throws Exception {
-    Logger logger = mock(Logger.class);
+    var logger = mock(Logger.class);
 
-    RuntimeException thrownByBinder = new RuntimeException("thrown for test purposes");
-    CloseableMeterBinder throwingBinder = mock(CloseableMeterBinder.class);
+    var thrownByBinder = new RuntimeException("thrown for test purposes");
+    var throwingBinder = mock(CloseableMeterBinder.class);
     doThrow(thrownByBinder).when(throwingBinder).close();
 
-    CompoundMeterBinder composedBinder = new CompoundMeterBinder(logger, singleton(throwingBinder));
+    var composedBinder = new CompoundMeterBinder(logger, singleton(throwingBinder));
 
     composedBinder.close(); // throwingBinder will throw
 

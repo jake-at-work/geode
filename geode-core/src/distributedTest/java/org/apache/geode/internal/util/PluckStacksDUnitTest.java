@@ -31,7 +31,6 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
@@ -40,7 +39,6 @@ import org.apache.geode.management.internal.cli.domain.StackTracesPerMember;
 import org.apache.geode.management.internal.cli.functions.GetStackTracesFunction;
 import org.apache.geode.management.internal.util.ManagementUtils;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
 
@@ -48,7 +46,7 @@ public class PluckStacksDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.put(ConfigurationProperties.NAME,
         "vm " + Integer.getInteger("gemfire.DUnitLauncher.VM_NUM", -1));
     return properties;
@@ -60,9 +58,9 @@ public class PluckStacksDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testPluckingStacksFromGfshExport() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
 
     server1.invoke(() -> {
       getCache();
@@ -72,11 +70,11 @@ public class PluckStacksDUnitTest extends JUnit4CacheTestCase {
     });
     DistributedSystem system = getSystem();
 
-    Set<DistributedMember> targetMembers = system.getAllOtherMembers();
+    var targetMembers = system.getAllOtherMembers();
     assertEquals("expected 3 members but found " + targetMembers, 3, targetMembers.size());
 
-    String outputFileName = "PluckStacksdUnitTest.out";
-    File outputFile = new File(outputFileName);
+    var outputFileName = "PluckStacksdUnitTest.out";
+    var outputFile = new File(outputFileName);
     if (outputFile.exists()) {
       outputFile.delete();
     }
@@ -89,7 +87,7 @@ public class PluckStacksDUnitTest extends JUnit4CacheTestCase {
     Map<String, List<PluckStacks.ThreadStack>> result = new PluckStacks()
         .getThreadDumps(new LineNumberReader(new FileReader(outputFile)), outputFileName);
     assertEquals(targetMembers.size(), result.size());
-    for (List<PluckStacks.ThreadStack> dump : result.values()) {
+    for (var dump : result.values()) {
       // there should be thread stacks in the list
       assertNotEquals(0, dump.size());
     }
@@ -104,14 +102,14 @@ public class PluckStacksDUnitTest extends JUnit4CacheTestCase {
       throws Exception {
     Map<String, byte[]> dumps = new HashMap<>();
 
-    ResultCollector<?, ?> rc =
+    var rc =
         ManagementUtils.executeFunction(new GetStackTracesFunction(), null, targetMembers);
-    ArrayList<Object> resultList = (ArrayList<Object>) rc.getResult();
+    var resultList = (ArrayList<Object>) rc.getResult();
     assertEquals(targetMembers.size(), resultList.size());
 
-    for (Object resultObj : resultList) {
+    for (var resultObj : resultList) {
       if (resultObj instanceof StackTracesPerMember) {
-        StackTracesPerMember stackTracePerMember = (StackTracesPerMember) resultObj;
+        var stackTracePerMember = (StackTracesPerMember) resultObj;
         dumps.put(stackTracePerMember.getMemberNameOrId(),
             stackTracePerMember.getStackTraces());
       } else {

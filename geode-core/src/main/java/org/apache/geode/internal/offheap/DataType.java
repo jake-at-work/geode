@@ -18,7 +18,6 @@ import java.io.DataInput;
 import java.io.IOException;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.Instantiator;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.InternalInstantiator;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
@@ -33,7 +32,7 @@ import org.apache.geode.internal.serialization.DSCODE;
 public class DataType {
 
   public static String getDataType(byte[] bytes) {
-    final DataInput in = getDataInput(bytes);
+    final var in = getDataInput(bytes);
     byte header = 0;
     try {
       header = in.readByte();
@@ -168,15 +167,15 @@ public class DataType {
         return "java.util.concurrent.TimeUnit";
       }
       if (header == DSCODE.USER_CLASS.toByte()) {
-        byte userClassDSId = in.readByte();
+        var userClassDSId = in.readByte();
         return "DataSerializer: with Id:" + userClassDSId;
       }
       if (header == DSCODE.USER_CLASS_2.toByte()) {
-        short userClass2DSId = in.readShort();
+        var userClass2DSId = in.readShort();
         return "DataSerializer: with Id:" + userClass2DSId;
       }
       if (header == DSCODE.USER_CLASS_4.toByte()) {
-        int userClass4DSId = in.readInt();
+        var userClass4DSId = in.readInt();
         return "DataSerializer: with Id:" + userClass4DSId;
       }
       if (header == DSCODE.VECTOR.toByte()) {
@@ -219,15 +218,15 @@ public class DataType {
         return "java.lang.Void.class";
       }
       if (header == DSCODE.USER_DATA_SERIALIZABLE.toByte()) {
-        Instantiator instantiator = InternalInstantiator.getInstantiator(in.readByte());
+        var instantiator = InternalInstantiator.getInstantiator(in.readByte());
         return "org.apache.geode.Instantiator:" + instantiator.getInstantiatedClass().getName();
       }
       if (header == DSCODE.USER_DATA_SERIALIZABLE_2.toByte()) {
-        Instantiator instantiator = InternalInstantiator.getInstantiator(in.readShort());
+        var instantiator = InternalInstantiator.getInstantiator(in.readShort());
         return "org.apache.geode.Instantiator:" + instantiator.getInstantiatedClass().getName();
       }
       if (header == DSCODE.USER_DATA_SERIALIZABLE_4.toByte()) {
-        Instantiator instantiator = InternalInstantiator.getInstantiator(in.readInt());
+        var instantiator = InternalInstantiator.getInstantiator(in.readInt());
         return "org.apache.geode.Instantiator:" + instantiator.getInstantiatedClass().getName();
       }
       if (header == DSCODE.DATA_SERIALIZABLE.toByte()) {
@@ -236,7 +235,7 @@ public class DataType {
       if (header == DSCODE.SERIALIZABLE.toByte()) {
         String name = null;
         try {
-          Object obj = InternalDataSerializer.basicReadObject(getDataInput(bytes));
+          var obj = InternalDataSerializer.basicReadObject(getDataInput(bytes));
           name = obj.getClass().getName();
         } catch (ClassNotFoundException e) {
           name = e.getMessage();
@@ -244,20 +243,20 @@ public class DataType {
         return "java.io.Serializable:" + name;
       }
       if (header == DSCODE.PDX.toByte()) {
-        int typeId = in.readInt();
+        var typeId = in.readInt();
         return "pdxType:" + typeId;
       }
       if (header == DSCODE.PDX_ENUM.toByte()) {
         in.readByte(); // dsId is not needed
-        int enumId = InternalDataSerializer.readArrayLength(in);
+        var enumId = InternalDataSerializer.readArrayLength(in);
         return "pdxEnum:" + enumId;
       }
       if (header == DSCODE.GEMFIRE_ENUM.toByte()) {
-        String name = DataSerializer.readString(in);
+        var name = DataSerializer.readString(in);
         return "java.lang.Enum:" + name;
       }
       if (header == DSCODE.PDX_INLINE_ENUM.toByte()) {
-        String name = DataSerializer.readString(in);
+        var name = DataSerializer.readString(in);
         return "java.lang.Enum:" + name;
       }
       if (header == DSCODE.BIG_INTEGER.toByte()) {

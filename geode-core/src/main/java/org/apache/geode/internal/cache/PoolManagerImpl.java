@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
@@ -57,7 +56,7 @@ public class PoolManagerImpl {
   private static PoolManagerImpl impl = new PoolManagerImpl(true);
 
   public static PoolManagerImpl getPMI() {
-    PoolManagerImpl result = CacheCreation.getCurrentPoolManager();
+    var result = CacheCreation.getCurrentPoolManager();
     if (result == null) {
       result = impl;
     }
@@ -119,10 +118,10 @@ public class PoolManagerImpl {
    */
   public void close(boolean keepAlive) {
     // destroying connection pools
-    boolean foundClientPool = false;
+    var foundClientPool = false;
     synchronized (poolLock) {
-      for (Entry<String, Pool> entry : pools.entrySet()) {
-        Pool pool = entry.getValue();
+      for (var entry : pools.entrySet()) {
+        var pool = entry.getValue();
         if (pool instanceof PoolImpl) {
           ((PoolImpl) pool).basicDestroy(keepAlive);
           foundClientPool = true;
@@ -153,7 +152,7 @@ public class PoolManagerImpl {
   public void register(Pool pool) {
     synchronized (poolLock) {
       Map<String, Pool> copy = new HashMap<>(pools);
-      String name = pool.getName();
+      var name = pool.getName();
       // debugStack("register pool=" + name);
       Object old = copy.put(name, pool);
       if (old != null) {
@@ -177,7 +176,7 @@ public class PoolManagerImpl {
    */
   public boolean unregister(Pool pool) {
     // Continue only if the pool is not currently being used by any region and/or service.
-    int attachCount = 0;
+    var attachCount = 0;
     if (pool instanceof PoolImpl) {
       attachCount = ((PoolImpl) pool).getAttachCount();
     }
@@ -188,7 +187,7 @@ public class PoolManagerImpl {
 
     synchronized (poolLock) {
       Map<String, Pool> copy = new HashMap<>(pools);
-      String name = pool.getName();
+      var name = pool.getName();
       // debugStack("unregister pool=" + name);
       Object rmPool = copy.remove(name);
       if (rmPool == null || rmPool != pool) {
@@ -210,11 +209,11 @@ public class PoolManagerImpl {
    * @param xmlPoolsOnly if true then only call readyForEvents on pools declared in XML.
    */
   public static void readyForEvents(InternalDistributedSystem system, boolean xmlPoolsOnly) {
-    boolean foundDurablePool = false;
-    Map<String, Pool> pools = PoolManager.getAll();
-    for (Pool pool : pools.values()) {
+    var foundDurablePool = false;
+    var pools = PoolManager.getAll();
+    for (var pool : pools.values()) {
       if (pool instanceof PoolImpl) {
-        PoolImpl p = (PoolImpl) pool;
+        var p = (PoolImpl) pool;
         if (p.isDurableClient()) {
           // TODO - handle an exception and attempt on all pools?
           foundDurablePool = true;
@@ -231,10 +230,10 @@ public class PoolManagerImpl {
   }
 
   public static void allPoolsRegisterInstantiator(Instantiator instantiator) {
-    Instantiator[] instantiators = new Instantiator[] {instantiator};
-    for (Pool pool : PoolManager.getAll().values()) {
+    var instantiators = new Instantiator[] {instantiator};
+    for (var pool : PoolManager.getAll().values()) {
       try {
-        EventID eventId = InternalInstantiator.generateEventId();
+        var eventId = InternalInstantiator.generateEventId();
         if (eventId != null) {
           RegisterInstantiatorsOp.execute((ExecutablePool) pool, instantiators, eventId);
         }
@@ -245,10 +244,10 @@ public class PoolManagerImpl {
   }
 
   public static void allPoolsRegisterInstantiator(InstantiatorAttributesHolder holder) {
-    InstantiatorAttributesHolder[] holders = new InstantiatorAttributesHolder[] {holder};
-    for (Pool pool : PoolManager.getAll().values()) {
+    var holders = new InstantiatorAttributesHolder[] {holder};
+    for (var pool : PoolManager.getAll().values()) {
       try {
-        EventID eventId = InternalInstantiator.generateEventId();
+        var eventId = InternalInstantiator.generateEventId();
         if (eventId != null) {
           RegisterInstantiatorsOp.execute((ExecutablePool) pool, holders, eventId);
         }
@@ -259,10 +258,10 @@ public class PoolManagerImpl {
   }
 
   public static void allPoolsRegisterDataSerializers(DataSerializer dataSerializer) {
-    DataSerializer[] dataSerializers = new DataSerializer[] {dataSerializer};
-    for (Pool pool : PoolManager.getAll().values()) {
+    var dataSerializers = new DataSerializer[] {dataSerializer};
+    for (var pool : PoolManager.getAll().values()) {
       try {
-        EventID eventId = (EventID) dataSerializer.getEventId();
+        var eventId = (EventID) dataSerializer.getEventId();
         if (eventId == null) {
           eventId = InternalDataSerializer.generateEventId();
         }
@@ -278,10 +277,10 @@ public class PoolManagerImpl {
   }
 
   public static void allPoolsRegisterDataSerializers(SerializerAttributesHolder holder) {
-    SerializerAttributesHolder[] holders = new SerializerAttributesHolder[] {holder};
-    for (Pool pool : PoolManager.getAll().values()) {
+    var holders = new SerializerAttributesHolder[] {holder};
+    for (var pool : PoolManager.getAll().values()) {
       try {
-        EventID eventId = holder.getEventId();
+        var eventId = holder.getEventId();
         if (eventId == null) {
           eventId = InternalDataSerializer.generateEventId();
         }
@@ -299,7 +298,7 @@ public class PoolManagerImpl {
   public static void emergencyClose() {
     impl.itrForEmergencyClose.ifPresent(poolIterator -> {
       while (poolIterator.hasNext()) {
-        Pool pool = poolIterator.next();
+        var pool = poolIterator.next();
         if (pool instanceof PoolImpl) {
           ((PoolImpl) pool).emergencyClose();
         }

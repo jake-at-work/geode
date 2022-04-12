@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.util.Properties;
 
@@ -32,11 +31,9 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerConnectivityException;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.AvailablePortHelper;
@@ -55,7 +52,7 @@ public class ConnectionPoolImplJUnitTest {
 
   @Before
   public void setUp() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     cache = CacheFactory.create(DistributedSystem.connect(props));
@@ -71,9 +68,9 @@ public class ConnectionPoolImplJUnitTest {
   }
 
   private void setQueueError() {
-    final String addExpectedPEM =
+    final var addExpectedPEM =
         "<ExpectedException action=add>" + expectedPrimaryErrorMsg + "</ExpectedException>";
-    final String addExpectedREM =
+    final var addExpectedREM =
         "<ExpectedException action=add>" + expectedRedundantErrorMsg + "</ExpectedException>";
 
     cache.getLogger().info(addExpectedPEM);
@@ -82,9 +79,9 @@ public class ConnectionPoolImplJUnitTest {
   }
 
   private void unsetQueueError() {
-    final String removeExpectedPEM =
+    final var removeExpectedPEM =
         "<ExpectedException action=remove>" + expectedPrimaryErrorMsg + "</ExpectedException>";
-    final String removeExpectedREM =
+    final var removeExpectedREM =
         "<ExpectedException action=remove>" + expectedRedundantErrorMsg + "</ExpectedException>";
 
     cache.getLogger().info(removeExpectedPEM);
@@ -94,10 +91,10 @@ public class ConnectionPoolImplJUnitTest {
   @Test
   public void testDefaults() throws Exception {
     setQueueError();
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     cpf.addServer("localhost", port);
 
-    PoolImpl pool = (PoolImpl) cpf.create("myfriendlypool");
+    var pool = (PoolImpl) cpf.create("myfriendlypool");
 
     // check defaults
     assertEquals(PoolFactory.DEFAULT_SOCKET_CONNECT_TIMEOUT, pool.getSocketConnectTimeout());
@@ -122,7 +119,7 @@ public class ConnectionPoolImplJUnitTest {
     assertEquals(1, pool.getServers().size());
     assertEquals(0, pool.getLocators().size());
     {
-      InetSocketAddress addr = pool.getServers().get(0);
+      var addr = pool.getServers().get(0);
       assertEquals(port, addr.getPort());
       assertEquals("localhost", addr.getHostName());
     }
@@ -131,14 +128,14 @@ public class ConnectionPoolImplJUnitTest {
 
   @Test
   public void testProperties() throws Exception {
-    int readTimeout = 234234;
-    int socketTimeout = 123123;
+    var readTimeout = 234234;
+    var socketTimeout = 123123;
 
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     cpf.addServer("localhost", port).setSocketConnectTimeout(socketTimeout)
         .setReadTimeout(readTimeout).setThreadLocalConnections(true);
 
-    PoolImpl pool = (PoolImpl) cpf.create("myfriendlypool");
+    var pool = (PoolImpl) cpf.create("myfriendlypool");
 
     // check non default
     assertEquals("myfriendlypool", pool.getName());
@@ -148,21 +145,21 @@ public class ConnectionPoolImplJUnitTest {
     assertEquals(1, pool.getServers().size());
     assertEquals(0, pool.getLocators().size());
     {
-      InetSocketAddress addr = pool.getServers().get(0);
+      var addr = pool.getServers().get(0);
       assertEquals(port, addr.getPort());
       assertEquals("localhost", addr.getHostName());
     }
-    LiveServerPinger lsp = new LiveServerPinger(pool);
-    long NANOS_PER_MS = 1000000L;
+    var lsp = new LiveServerPinger(pool);
+    var NANOS_PER_MS = 1000000L;
     assertEquals(((pool.getPingInterval() + 1) / 2) * NANOS_PER_MS, lsp.pingIntervalNanos);
   }
 
   @Test
   public void testCacheClose() throws Exception {
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     cpf.addLocator("localhost", AvailablePortHelper.getRandomAvailableTCPPort());
-    Pool pool1 = cpf.create("pool1");
-    Pool pool2 = cpf.create("pool2");
+    var pool1 = cpf.create("pool1");
+    var pool2 = cpf.create("pool2");
     cache.close();
 
     assertTrue(pool1.isDestroyed());
@@ -171,26 +168,26 @@ public class ConnectionPoolImplJUnitTest {
 
   @Test
   public void testExecuteOp() throws Exception {
-    CacheServer server1 = cache.addCacheServer();
-    CacheServer server2 = cache.addCacheServer();
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int port1 = ports[0];
-    int port2 = ports[1];
+    var server1 = cache.addCacheServer();
+    var server2 = cache.addCacheServer();
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var port1 = ports[0];
+    var port2 = ports[1];
     server1.setPort(port1);
     server2.setPort(port2);
 
     server1.start();
     server2.start();
 
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     cpf.addServer("localhost", port2);
     cpf.addServer("localhost", port1);
-    PoolImpl pool = (PoolImpl) cpf.create("pool1");
+    var pool = (PoolImpl) cpf.create("pool1");
 
-    ServerLocation location1 = new ServerLocation("localhost", port1);
-    ServerLocation location2 = new ServerLocation("localhost", port2);
+    var location1 = new ServerLocation("localhost", port1);
+    var location2 = new ServerLocation("localhost", port2);
 
-    Op testOp = new Op() {
+    var testOp = new Op() {
       int attempts = 0;
 
       @Override
@@ -208,7 +205,7 @@ public class ConnectionPoolImplJUnitTest {
     // TODO - set retry attempts, and throw in some assertions
     // about how many times we retry
 
-    ServerLocation usedServer = (ServerLocation) pool.execute(testOp);
+    var usedServer = (ServerLocation) pool.execute(testOp);
     assertTrue("expected " + location1 + " or " + location2 + ", got " + usedServer,
         location1.equals(usedServer) || location2.equals(usedServer));
 
@@ -226,21 +223,21 @@ public class ConnectionPoolImplJUnitTest {
 
   @Test
   public void testCreatePool() throws Exception {
-    CacheServer server1 = cache.addCacheServer();
-    int port1 = port;
+    var server1 = cache.addCacheServer();
+    var port1 = port;
     server1.setPort(port1);
 
     server1.start();
 
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     cpf.addServer("localhost", port1);
     cpf.setSubscriptionEnabled(true);
     cpf.setSubscriptionRedundancy(0);
-    PoolImpl pool = (PoolImpl) cpf.create("pool1");
+    var pool = (PoolImpl) cpf.create("pool1");
 
-    ServerLocation location1 = new ServerLocation("localhost", port1);
+    var location1 = new ServerLocation("localhost", port1);
 
-    Op testOp = Connection::getServer;
+    var testOp = (Op) Connection::getServer;
 
     assertEquals(location1, pool.executeOnPrimary(testOp));
     assertEquals(location1, pool.executeOnQueuesAndReturnPrimaryResult(testOp));
@@ -248,18 +245,18 @@ public class ConnectionPoolImplJUnitTest {
 
   @Test
   public void testCalculateRetryFromThrownException() throws Exception {
-    int readTimeout = 234234;
-    int socketTimeout = 123123;
-    int port1 = 10000;
-    int retryAttempts = 0;
+    var readTimeout = 234234;
+    var socketTimeout = 123123;
+    var port1 = 10000;
+    var retryAttempts = 0;
 
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     cpf.addServer("localhost", port).setSocketConnectTimeout(socketTimeout)
         .setReadTimeout(readTimeout).setThreadLocalConnections(true);
 
-    ServerLocation location1 = new ServerLocation("fakehost", port1);
+    var location1 = new ServerLocation("fakehost", port1);
 
-    PoolImpl pool = (PoolImpl) cpf.create("testpool");
+    var pool = (PoolImpl) cpf.create("testpool");
     try {
       pool.acquireConnection(location1);
       fail("expected a ServerConnectivityException");

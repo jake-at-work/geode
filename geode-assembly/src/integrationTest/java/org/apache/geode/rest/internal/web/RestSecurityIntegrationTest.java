@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -173,15 +172,15 @@ public class RestSecurityIntegrationTest {
    */
   @Test
   public void getRegions() throws IOException {
-    JsonNode jsonObject = assertResponse(restClient.doGet("", "dataRead", "dataRead"))
+    var jsonObject = assertResponse(restClient.doGet("", "dataRead", "dataRead"))
         .hasStatusCode(200).hasContentType(APPLICATION_JSON_UTF8_VALUE)
         .getJsonObject();
 
-    JsonNode regions = jsonObject.get("regions");
+    var regions = jsonObject.get("regions");
     assertNotNull(regions);
     assertTrue(regions.size() > 0);
 
-    JsonNode region = regions.get(0);
+    var region = regions.get(0);
     assertEquals("AuthRegion", region.get("name").asText());
     assertEquals("REPLICATE", region.get("type").asText());
 
@@ -318,9 +317,9 @@ public class RestSecurityIntegrationTest {
   @Test
   public void putRegionKey() {
 
-    String json =
+    var json =
         "{\"@type\":\"com.gemstone.gemfire.web.rest.domain.Order\",\"purchaseOrderNo\":1121,\"customerId\":1012,\"description\":\"Order for  XYZ Corp\",\"orderDate\":\"02/10/2014\",\"deliveryDate\":\"02/20/2014\",\"contact\":\"Jelly Bean\",\"email\":\"jelly.bean@example.com\",\"phone\":\"01-2048096\",\"items\":[{\"itemNo\":1,\"description\":\"Product-100\",\"quantity\":12,\"unitPrice\":5,\"totalPrice\":60}],\"totalPrice\":225}";
-    String casJSON =
+    var casJSON =
         "{\"@old\":{\"@type\":\"com.gemstone.gemfire.web.rest.domain.Order\",\"purchaseOrderNo\":1121,\"customerId\":1012,\"description\":\"Order for  XYZ Corp\",\"orderDate\":\"02/10/2014\",\"deliveryDate\":\"02/20/2014\",\"contact\":\"Jelly Bean\",\"email\":\"jelly.bean@example.com\",\"phone\":\"01-2048096\",\"items\":[{\"itemNo\":1,\"description\":\"Product-100\",\"quantity\":12,\"unitPrice\":5,\"totalPrice\":60}],\"totalPrice\":225},\"@new \":{\"@type\":\"com.gemstone.gemfire.web.rest.domain.Order\",\"purchaseOrderNo\":1121,\"customerId\":1013,\"description\":\"Order for  New Corp\",\"orderDate\":\"02/10/2014\",\"deliveryDate\":\"02/25/2014\",\"contact\":\"Vanilla Bean\",\"email\":\"vanillabean@example.com\",\"phone\":\"01-2048096\",\"items\":[{\"itemNo\":12345,\"description\":\"part 123\",\"quantity\":12,\"unitPrice\":29.99,\"totalPrice\":149.95}],\"totalPrice\":149.95}}";
     // Test an unknown user - 401 error
     assertResponse(restClient.doPut("/" + REGION_NAME + "/key1?op=PUT", "user", "wrongPswd",

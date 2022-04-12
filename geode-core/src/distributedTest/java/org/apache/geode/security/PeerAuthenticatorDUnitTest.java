@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.security.templates.DummyAuthenticator;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
@@ -39,7 +38,7 @@ public class PeerAuthenticatorDUnitTest {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_PEER_AUTHENTICATOR, DummyAuthenticator.class.getName());
     lsRule.startLocatorVM(0, props);
   }
@@ -47,20 +46,19 @@ public class PeerAuthenticatorDUnitTest {
   @Test
   public void testPeerAuthenticator() throws Exception {
 
-    int locatorPort = lsRule.getMember(0).getPort();
-    Properties server1Props = new Properties();
+    var locatorPort = lsRule.getMember(0).getPort();
+    var server1Props = new Properties();
     server1Props.setProperty("security-username", "user");
     server1Props.setProperty("security-password", "user");
     lsRule.startServerVM(1, server1Props, locatorPort);
 
-
-    Properties server2Props = new Properties();
+    var server2Props = new Properties();
     server2Props.setProperty("security-username", "bogus");
     server2Props.setProperty("security-password", "user");
-    VM server2 = getHost(0).getVM(2);
+    var server2 = getHost(0).getVM(2);
 
     server2.invoke(() -> {
-      ServerStarterRule serverStarter = new ServerStarterRule();
+      var serverStarter = new ServerStarterRule();
       ClusterStartupRule.memberStarter = serverStarter;
       assertThatThrownBy(() -> serverStarter.startServer(server2Props, locatorPort))
           .isInstanceOf(GemFireSecurityException.class).hasMessageContaining("Invalid user name");

@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.STRICT_STUBS;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 import org.junit.Rule;
@@ -47,10 +46,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsPortFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    int port = 42;
+    var server = mock(InternalCacheServer.class);
+    var port = 42;
     when(server.getPort()).thenReturn(port);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -59,10 +58,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsBindAddressFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    String bindAddress = "bind-address";
+    var server = mock(InternalCacheServer.class);
+    var bindAddress = "bind-address";
     when(server.getBindAddress()).thenReturn(bindAddress);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -71,10 +70,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsNotifyBySubscriptionFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    boolean notifyBySubscription = true;
+    var server = mock(InternalCacheServer.class);
+    var notifyBySubscription = true;
     when(server.getNotifyBySubscription()).thenReturn(notifyBySubscription);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -83,10 +82,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsSocketBufferSizeFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    int socketBufferSize = 84;
+    var server = mock(InternalCacheServer.class);
+    var socketBufferSize = 84;
     when(server.getSocketBufferSize()).thenReturn(socketBufferSize);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -95,10 +94,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsMaximumTimeBetweenPingsFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    int maximumTimeBetweenPings = 84;
+    var server = mock(InternalCacheServer.class);
+    var maximumTimeBetweenPings = 84;
     when(server.getMaximumTimeBetweenPings()).thenReturn(maximumTimeBetweenPings);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -107,10 +106,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsCacheFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    InternalCache cache = mock(InternalCache.class);
+    var server = mock(InternalCacheServer.class);
+    var cache = mock(InternalCache.class);
     when(server.getCache()).thenReturn(cache);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -119,10 +118,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsMaxConnectionsFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    int maxConnections = 99;
+    var server = mock(InternalCacheServer.class);
+    var maxConnections = 99;
     when(server.getMaxConnections()).thenReturn(maxConnections);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -131,10 +130,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsMaxThreadsFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    int maxThreads = 50;
+    var server = mock(InternalCacheServer.class);
+    var maxThreads = 50;
     when(server.getMaxThreads()).thenReturn(maxThreads);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -143,10 +142,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsMaximumMessageCountFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    int maximumMessageCount = 500;
+    var server = mock(InternalCacheServer.class);
+    var maximumMessageCount = 500;
     when(server.getMaximumMessageCount()).thenReturn(maximumMessageCount);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -155,10 +154,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsMessageTimeToLiveFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    int messageTimeToLive = 400;
+    var server = mock(InternalCacheServer.class);
+    var messageTimeToLive = 400;
     when(server.getMessageTimeToLive()).thenReturn(messageTimeToLive);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -167,10 +166,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsConnectionListenerFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    ConnectionListener connectionListener = mock(ConnectionListener.class);
+    var server = mock(InternalCacheServer.class);
+    var connectionListener = mock(ConnectionListener.class);
     when(server.getConnectionListener()).thenReturn(connectionListener);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -179,10 +178,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsTcpNoDelayFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    boolean tcpNoDelay = true;
+    var server = mock(InternalCacheServer.class);
+    var tcpNoDelay = true;
     when(server.getTcpNoDelay()).thenReturn(tcpNoDelay);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -191,10 +190,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsTimeLimitMillisFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    long timeLimitMillis = Long.MAX_VALUE - 1;
+    var server = mock(InternalCacheServer.class);
+    var timeLimitMillis = Long.MAX_VALUE - 1;
     when(server.getTimeLimitMillis()).thenReturn(timeLimitMillis);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -203,10 +202,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsSecurityServiceFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    SecurityService securityService = mock(SecurityService.class);
+    var server = mock(InternalCacheServer.class);
+    var securityService = mock(SecurityService.class);
     when(server.getSecurityService()).thenReturn(securityService);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -215,10 +214,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsSocketCreatorSupplierFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    Supplier<SocketCreator> socketCreatorSupplier = () -> mock(SocketCreator.class);
+    var server = mock(InternalCacheServer.class);
+    var socketCreatorSupplier = (Supplier<SocketCreator>) () -> mock(SocketCreator.class);
     when(server.getSocketCreatorSupplier()).thenReturn(socketCreatorSupplier);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -227,11 +226,11 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsCacheClientNotifierProviderFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    CacheClientNotifierProvider cacheClientNotifierProvider =
+    var server = mock(InternalCacheServer.class);
+    var cacheClientNotifierProvider =
         mock(CacheClientNotifierProvider.class);
     when(server.getCacheClientNotifierProvider()).thenReturn(cacheClientNotifierProvider);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -240,11 +239,11 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsClientHealthMonitorProviderFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    ClientHealthMonitorProvider clientHealthMonitorProvider =
+    var server = mock(InternalCacheServer.class);
+    var clientHealthMonitorProvider =
         mock(ClientHealthMonitorProvider.class);
     when(server.getClientHealthMonitorProvider()).thenReturn(clientHealthMonitorProvider);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -253,9 +252,9 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerDoesNotUnsetIsGatewayReceiver() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    AcceptorBuilder builder = new AcceptorBuilder();
-    boolean isGatewayReceiver = true;
+    var server = mock(InternalCacheServer.class);
+    var builder = new AcceptorBuilder();
+    var isGatewayReceiver = true;
     builder.setIsGatewayReceiver(isGatewayReceiver);
 
     builder.forServer(server);
@@ -265,9 +264,9 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerDoesNotUnsetGatewayTransportFilters() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    AcceptorBuilder builder = new AcceptorBuilder();
-    List<GatewayTransportFilter> gatewayTransportFilters =
+    var server = mock(InternalCacheServer.class);
+    var builder = new AcceptorBuilder();
+    var gatewayTransportFilters =
         singletonList(mock(GatewayTransportFilter.class));
     builder.setGatewayTransportFilters(gatewayTransportFilters);
 
@@ -278,10 +277,10 @@ public class AcceptorBuilderTest {
 
   @Test
   public void forServerSetsStatisticsClockFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    StatisticsClock statisticsClock = mock(StatisticsClock.class);
+    var server = mock(InternalCacheServer.class);
+    var statisticsClock = mock(StatisticsClock.class);
     when(server.getStatisticsClock()).thenReturn(statisticsClock);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
 
     builder.forServer(server);
 
@@ -290,12 +289,12 @@ public class AcceptorBuilderTest {
 
   @Test
   public void setCacheReplacesCacheFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    InternalCache cacheFromServer = mock(InternalCache.class, "fromServer");
+    var server = mock(InternalCacheServer.class);
+    var cacheFromServer = mock(InternalCache.class, "fromServer");
     when(server.getCache()).thenReturn(cacheFromServer);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
     builder.forServer(server);
-    InternalCache cacheFromSetter = mock(InternalCache.class, "fromSetter");
+    var cacheFromSetter = mock(InternalCache.class, "fromSetter");
 
     builder.setCache(cacheFromSetter);
 
@@ -304,12 +303,12 @@ public class AcceptorBuilderTest {
 
   @Test
   public void setConnectionListenerReplacesConnectionListenerFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    ConnectionListener connectionListenerFromServer = mock(ConnectionListener.class, "fromServer");
+    var server = mock(InternalCacheServer.class);
+    var connectionListenerFromServer = mock(ConnectionListener.class, "fromServer");
     when(server.getConnectionListener()).thenReturn(connectionListenerFromServer);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
     builder.forServer(server);
-    ConnectionListener connectionListenerFromSetter = mock(ConnectionListener.class, "fromSetter");
+    var connectionListenerFromSetter = mock(ConnectionListener.class, "fromSetter");
 
     builder.setConnectionListener(connectionListenerFromSetter);
 
@@ -318,12 +317,12 @@ public class AcceptorBuilderTest {
 
   @Test
   public void setSecurityServiceReplacesSecurityServiceFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    SecurityService securityServiceFromServer = mock(SecurityService.class, "fromServer");
+    var server = mock(InternalCacheServer.class);
+    var securityServiceFromServer = mock(SecurityService.class, "fromServer");
     when(server.getSecurityService()).thenReturn(securityServiceFromServer);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
     builder.forServer(server);
-    SecurityService securityServiceFromSetter = mock(SecurityService.class, "fromSetter");
+    var securityServiceFromSetter = mock(SecurityService.class, "fromSetter");
 
     builder.setSecurityService(securityServiceFromSetter);
 
@@ -332,12 +331,12 @@ public class AcceptorBuilderTest {
 
   @Test
   public void setSocketCreatorSupplierReplacesSocketCreatorSupplierFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    Supplier<SocketCreator> socketCreatorSupplierFromServer = () -> mock(SocketCreator.class);
+    var server = mock(InternalCacheServer.class);
+    var socketCreatorSupplierFromServer = (Supplier<SocketCreator>) () -> mock(SocketCreator.class);
     when(server.getSocketCreatorSupplier()).thenReturn(socketCreatorSupplierFromServer);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
     builder.forServer(server);
-    Supplier<SocketCreator> socketCreatorSupplierFromSetter = () -> mock(SocketCreator.class);
+    var socketCreatorSupplierFromSetter = (Supplier<SocketCreator>) () -> mock(SocketCreator.class);
 
     builder.setSocketCreatorSupplier(socketCreatorSupplierFromSetter);
 
@@ -346,13 +345,13 @@ public class AcceptorBuilderTest {
 
   @Test
   public void setCacheClientNotifierProviderReplacesCacheClientNotifierProviderFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    CacheClientNotifierProvider cacheClientNotifierProviderFromServer =
+    var server = mock(InternalCacheServer.class);
+    var cacheClientNotifierProviderFromServer =
         mock(CacheClientNotifierProvider.class, "fromServer");
     when(server.getCacheClientNotifierProvider()).thenReturn(cacheClientNotifierProviderFromServer);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
     builder.forServer(server);
-    CacheClientNotifierProvider cacheClientNotifierProviderFromSetter =
+    var cacheClientNotifierProviderFromSetter =
         mock(CacheClientNotifierProvider.class, "fromSetter");
 
     builder.setCacheClientNotifierProvider(cacheClientNotifierProviderFromSetter);
@@ -363,13 +362,13 @@ public class AcceptorBuilderTest {
 
   @Test
   public void setClientHealthMonitorProviderReplacesClientHealthMonitorProviderFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    ClientHealthMonitorProvider clientHealthMonitorProviderFromServer =
+    var server = mock(InternalCacheServer.class);
+    var clientHealthMonitorProviderFromServer =
         mock(ClientHealthMonitorProvider.class, "fromServer");
     when(server.getClientHealthMonitorProvider()).thenReturn(clientHealthMonitorProviderFromServer);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
     builder.forServer(server);
-    ClientHealthMonitorProvider clientHealthMonitorProviderFromSetter =
+    var clientHealthMonitorProviderFromSetter =
         mock(ClientHealthMonitorProvider.class, "fromSetter");
 
     builder.setClientHealthMonitorProvider(clientHealthMonitorProviderFromSetter);
@@ -380,12 +379,12 @@ public class AcceptorBuilderTest {
 
   @Test
   public void setStatisticsClockReplacesStatisticsClockFromServer() {
-    InternalCacheServer server = mock(InternalCacheServer.class);
-    StatisticsClock statisticsClockFromServer = mock(StatisticsClock.class, "fromServer");
+    var server = mock(InternalCacheServer.class);
+    var statisticsClockFromServer = mock(StatisticsClock.class, "fromServer");
     when(server.getStatisticsClock()).thenReturn(statisticsClockFromServer);
-    AcceptorBuilder builder = new AcceptorBuilder();
+    var builder = new AcceptorBuilder();
     builder.forServer(server);
-    StatisticsClock statisticsClockFromSetter = mock(StatisticsClock.class, "fromSetter");
+    var statisticsClockFromSetter = mock(StatisticsClock.class, "fromSetter");
 
     builder.setStatisticsClock(statisticsClockFromSetter);
 

@@ -25,7 +25,7 @@ public class SimpleFormatter extends Formatter {
 
   @Override
   public String format(LogRecord record) {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append('[');
     sb.append(org.apache.persistence.admin.Logger.formatDate(new Date(record.getMillis())));
     sb.append(' ');
@@ -44,25 +44,25 @@ public class SimpleFormatter extends Formatter {
       sb.append('\n');
     }
 
-    Object[] params = record.getParameters();
+    var params = record.getParameters();
     if (params != null) {
-      for (final Object param : params) {
+      for (final var param : params) {
         sb.append(param);
         sb.append('\n');
       }
     }
 
     if (record.getThrown() != null) {
-      Throwable thr = record.getThrown();
-      StringWriter sw = new StringWriter();
+      var thr = record.getThrown();
+      var sw = new StringWriter();
       thr.printStackTrace(new PrintWriter(sw, true));
       sb.append(sw);
       sb.append('\n');
     }
 
     if (STACK_TRACE) {
-      Exception thr = new Exception("Stack Trace");
-      StringWriter sw = new StringWriter();
+      var thr = new Exception("Stack Trace");
+      var sw = new StringWriter();
       thr.printStackTrace(new PrintWriter(sw, true));
       sb.append(sw);
       sb.append('\n');

@@ -51,8 +51,8 @@ public class JarFilesPathConverter implements Converter<String[]> {
   public boolean getAllPossibleValues(List<Completion> completions, Class<?> targetType,
       String existingData, String optionContext, MethodTarget target) {
     // remove anything before ,
-    int comma = existingData.lastIndexOf(',') + 1;
-    String otherJars = existingData.substring(0, comma);
+    var comma = existingData.lastIndexOf(',') + 1;
+    var otherJars = existingData.substring(0, comma);
     existingData = existingData.substring(comma);
     List<Completion> allCompletions = new ArrayList<>();
     delegate.getAllPossibleValues(allCompletions, targetType, existingData, optionContext, target);

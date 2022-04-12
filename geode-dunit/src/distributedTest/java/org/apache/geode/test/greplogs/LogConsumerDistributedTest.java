@@ -61,7 +61,7 @@ public class LogConsumerDistributedTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(getAllVMs(), getController(), getLocator())) {
+    for (var vm : toArray(getAllVMs(), getController(), getLocator())) {
       vm.invoke(() -> {
         targetVM.set(null);
         task.set(null);
@@ -74,7 +74,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void traceLevel_logMessage_passes() {
     given(CONTROLLER, () -> logger.trace(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(result.wasSuccessful()).isTrue();
   }
@@ -83,7 +83,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void debugLevel_logMessage_passes() {
     given(CONTROLLER, () -> logger.debug(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(result.wasSuccessful()).isTrue();
   }
@@ -92,7 +92,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void infoLevel_logMessage_passes() {
     given(CONTROLLER, () -> logger.info(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(result.wasSuccessful()).isTrue();
   }
@@ -101,7 +101,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void warnLevel_logMessage_passes() {
     given(CONTROLLER, () -> logger.warn(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(result.wasSuccessful()).isTrue();
   }
@@ -110,7 +110,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_logMessage_fails() {
     given(CONTROLLER, () -> logger.error(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(result.wasSuccessful()).isFalse();
   }
@@ -119,7 +119,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void fatalLevel_logMessage_fails() {
     given(CONTROLLER, () -> logger.fatal(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(result.wasSuccessful()).isFalse();
   }
@@ -128,7 +128,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_logMessage_loggedAsync_fails() {
     given(CONTROLLER, () -> logger.error(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskAsync.class);
+    var result = runTest(ExecuteTaskAsync.class);
 
     assertThat(result.wasSuccessful()).isFalse();
   }
@@ -137,7 +137,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void fatalLevel_logMessage_loggedAsync_fails() {
     given(CONTROLLER, () -> logger.fatal(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskAsync.class);
+    var result = runTest(ExecuteTaskAsync.class);
 
     assertThat(result.wasSuccessful()).isFalse();
   }
@@ -146,7 +146,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_logMessage_includedInFailure() {
     given(CONTROLLER, () -> logger.error(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -158,7 +158,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void fatalLevel_logMessage_includedInFailure() {
     given(CONTROLLER, () -> logger.fatal(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -170,7 +170,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_logMessage_failsInVm() {
     given(ANY_VM, () -> logger.error(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -182,7 +182,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void fatalLevel_logMessage_failsInVm() {
     given(ANY_VM, () -> logger.fatal(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -194,7 +194,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_logMessage_loggedAsync_failsInVm() {
     given(ANY_VM, () -> logger.error(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskAsync.class);
+    var result = runTest(ExecuteTaskAsync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -206,7 +206,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void fatalLevel_logMessage_loggedAsync_failsInVm() {
     given(ANY_VM, () -> logger.fatal(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskAsync.class);
+    var result = runTest(ExecuteTaskAsync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -218,7 +218,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_logMessage_failsInController() {
     given(CONTROLLER, () -> logger.error(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -230,7 +230,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void fatalLevel_logMessage_failsInController() {
     given(CONTROLLER, () -> logger.fatal(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -242,7 +242,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_logMessage_loggedAsync_failsInController() {
     given(CONTROLLER, () -> logger.error(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskAsync.class);
+    var result = runTest(ExecuteTaskAsync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -254,7 +254,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void fatalLevel_logMessage_loggedAsync_failsInController() {
     given(CONTROLLER, () -> logger.fatal(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskAsync.class);
+    var result = runTest(ExecuteTaskAsync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -266,7 +266,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_logMessage_failsInLocator() {
     given(LOCATOR, () -> logger.error(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -278,7 +278,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void fatalLevel_logMessage_failsInLocator() {
     given(LOCATOR, () -> logger.fatal(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -290,7 +290,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_logMessage_loggedAsync_failsInLocator() {
     given(LOCATOR, () -> logger.error(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskAsync.class);
+    var result = runTest(ExecuteTaskAsync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -302,7 +302,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void fatalLevel_logMessage_loggedAsync_failsInLocator() {
     given(LOCATOR, () -> logger.fatal(LOG_MESSAGE));
 
-    Result result = runTest(ExecuteTaskAsync.class);
+    var result = runTest(ExecuteTaskAsync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -314,7 +314,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_exceptionMessage_failsInLocator() {
     given(LOCATOR, () -> logger.error(EXCEPTION_MESSAGE));
 
-    Result result = runTest(ExecuteTaskSync.class);
+    var result = runTest(ExecuteTaskSync.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -326,7 +326,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_exceptionMessage_loggedInBefore_failsInLocator() {
     given(LOCATOR, () -> logger.error(EXCEPTION_MESSAGE));
 
-    Result result = runTest(ExecuteTaskBefore.class);
+    var result = runTest(ExecuteTaskBefore.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -338,7 +338,7 @@ public class LogConsumerDistributedTest implements Serializable {
   public void errorLevel_exceptionMessage_loggedInBeforeClass_failsInLocator() {
     given(LOCATOR, () -> logger.error(EXCEPTION_MESSAGE));
 
-    Result result = runTest(ExecuteTaskBeforeClass.class);
+    var result = runTest(ExecuteTaskBeforeClass.class);
 
     assertThat(getFailure(result))
         .isInstanceOf(AssertionError.class)
@@ -347,7 +347,7 @@ public class LogConsumerDistributedTest implements Serializable {
   }
 
   private static void given(TargetVM targetVM, SerializableRunnableIF task) {
-    for (VM vm : toArray(getAllVMs(), getController(), getLocator())) {
+    for (var vm : toArray(getAllVMs(), getController(), getLocator())) {
       vm.invoke(() -> {
         LogConsumerDistributedTest.targetVM.set(targetVM);
         LogConsumerDistributedTest.task.set(task);
@@ -361,7 +361,7 @@ public class LogConsumerDistributedTest implements Serializable {
   }
 
   private static VM getTargetVm() {
-    TargetVM vm = targetVM.get();
+    var vm = targetVM.get();
     switch (vm) {
       case CONTROLLER:
         return getController();

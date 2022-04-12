@@ -34,14 +34,11 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.test.dunit.Host;
@@ -81,7 +78,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.cache.query.dunit.**");
     return properties;
@@ -91,10 +88,10 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   protected void startBridgeServer(int port, boolean notifyBySubscription) throws IOException {
 
     Cache cache = getCache();
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     server.setPort(port);
     server.start();
-    int bridgeServerPort = server.getPort();
+    var bridgeServerPort = server.getPort();
   }
 
   protected void configAndStartBridgeServer() {
@@ -106,19 +103,19 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createPartitionRegion(final boolean isAccessor) {
-    AttributesFactory factory = new AttributesFactory();
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var factory = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
     if (isAccessor) {
       paf.setLocalMaxMemory(0);
     }
-    PartitionAttributes prAttr = paf.setTotalNumBuckets(20).setRedundantCopies(0).create();
+    var prAttr = paf.setTotalNumBuckets(20).setRedundantCopies(0).create();
     factory.setPartitionAttributes(prAttr);
     createRegion(regionName, rootRegionName, factory.create());
   }
 
 
   private void createReplicateRegion() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
@@ -146,9 +143,9 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void whenMultipleEnumBindParametersAreUsedWithInQueryAndMapIndexIsPresentReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString =
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET ($1,$2)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -161,7 +158,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
@@ -169,13 +166,13 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void whenMultipleEnumBindParametersAreUsedWithInQueryReturnCorrectResults()
       throws CacheException {
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM client = host.getVM(3);
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString =
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var client = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET ($1,$2)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -187,16 +184,16 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
     vm1.invoke(executeQueryOnReplicateRegion(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenASingleEnumBindParameterIsUsedWithInQueryAndMapIndexIsPresentReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -208,7 +205,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
@@ -216,9 +213,9 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void whenASingleEnumBindParameterIsUsedWithInQueryReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -229,17 +226,17 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY};
     vm1.invoke(executeQueryOnReplicateRegion(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenMultipleTypeBindParameterIsUsedWithInQueryAndMapIndexIsPresentReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
 
-    final String queryString =
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET ($1,$2,$3)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -252,7 +249,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {2, DayEnum.MONDAY, "Tuesday"};
+    var bindArguments = new Object[] {2, DayEnum.MONDAY, "Tuesday"};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
@@ -260,9 +257,9 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void whenMultipleEnumBindParametersAreUsedWithInQueryAndMapIndexIsPresentInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString =
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET ($1,$2)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -275,16 +272,16 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
     vm1.invoke(executeQueryOnPartitionRegion(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenMultipleEnumBindParametersAreUsedWithInQueryInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString =
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET ($1,$2)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -296,16 +293,16 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
     vm1.invoke(executeQueryOnPartitionRegion(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenASingleEnumBindParameterIsUsedWithInQueryAndMapIndexIsPresentInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -317,16 +314,16 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY};
     vm1.invoke(executeQueryOnPartitionRegion(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenASingleEnumBindParameterIsUsedWithInQueryInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -337,17 +334,17 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY};
     vm1.invoke(executeQueryOnPartitionRegion(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenMultipleTypeBindParameterIsUsedWithInQueryAndMapIndexIsPresentInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
 
-    final String queryString =
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET ($1,$2,$3)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -360,17 +357,17 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {2, DayEnum.MONDAY, "Tuesday"};
+    var bindArguments = new Object[] {2, DayEnum.MONDAY, "Tuesday"};
     vm1.invoke(executeQueryOnPartitionRegion(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenEnumBindArgumentIsMatchedInSetWithIteratingFieldShouldReturnResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
 
-    final String queryString = "select * from " + regName + " where $1 in SET (getMapField['1'])";
+    final var queryString = "select * from " + regName + " where $1 in SET (getMapField['1'])";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -382,7 +379,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
@@ -390,10 +387,10 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void whenEnumBindArgumentIsMatchedInSetWithMultipleIteratingFieldShouldReturnResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
 
-    final String queryString =
+    final var queryString =
         "select * from " + regName + " where $1 in SET (getMapField['1'], getMapField['0'])";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -406,7 +403,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.TUESDAY};
+    var bindArguments = new Object[] {DayEnum.TUESDAY};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
@@ -414,10 +411,10 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void whenEnumBindArgumentIsMatchedInSetWithMultiTypedIteratingFieldShouldReturnResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries;
 
-    final String queryString = "select * from " + regName
+    final var queryString = "select * from " + regName
         + " where getMapField['1'] in SET (getMapField['1'], getMapField['2'], 'asdfasdf', getMapField['0'])";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -430,17 +427,17 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.TUESDAY};
+    var bindArguments = new Object[] {DayEnum.TUESDAY};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
 
   @Test
   public void whenANDConditionWithInSetFiltersOutAllFieldsReturnNoResults() throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = 0;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = 0;
 
-    final String queryString = "select * from " + regName
+    final var queryString = "select * from " + regName
         + " where getMapField['1'] in SET ($1, $2) AND getMapField['1'] in SET($3)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -453,17 +450,17 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY, DayEnum.WEDNESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY, DayEnum.WEDNESDAY};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
 
   @Test
   public void whenANDConditionWithInSetMatchesReturnResults() throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = 5;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = 5;
 
-    final String queryString = "select * from " + regName
+    final var queryString = "select * from " + regName
         + " where getMapField['1'] in SET ($1, $2) AND getMapField['2'] in SET($3)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -472,9 +469,9 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
         configAndStartBridgeServer();
         createReplicateRegion();
         createIndex("myIndex", "ts.getMapField[*]", regName + " ts");
-        HashMap entries = new HashMap();
+        var entries = new HashMap();
         IntStream.range(0, 10).forEach(i -> {
-          MapTestObject object = new MapTestObject(i);
+          var object = new MapTestObject(i);
           object.getMapField().put("2", DayEnum.WEDNESDAY);
           entries.put("key" + i, object);
         });
@@ -482,7 +479,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY, DayEnum.WEDNESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY, DayEnum.WEDNESDAY};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
@@ -490,10 +487,10 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void whenInSetCollectionContainsNonUniqueValuesMatchingSetShouldNotBeDuplicated()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
 
-    final String queryString =
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET($1, $1, $1)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -506,17 +503,17 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY, DayEnum.WEDNESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY, DayEnum.WEDNESDAY};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
 
   @Test
   public void whenORConditionWithInSetMatchesReturnResults() throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries;
 
-    final String queryString = "select * from " + regName
+    final var queryString = "select * from " + regName
         + " where getMapField['1'] in SET ($1) OR getMapField['0'] in SET($2)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -529,7 +526,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
     vm1.invoke(executeQueryWithIndexOnReplicateRegion(numExpectedResults, queryString,
         bindArguments, "myIndex", "ts.getMapField[*]", regName + " ts"));
   }
@@ -537,9 +534,9 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void whenUsingAccessorMultipleEnumBindParametersAreUsedWithInQueryAndMapIndexIsPresentInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString =
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET ($1,$2)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -552,16 +549,16 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
     vm1.invoke(executeQueryWithAccessor(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenUsingAccessorMultipleEnumBindParametersAreUsedWithInQueryInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString =
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET ($1,$2)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -573,16 +570,16 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY, DayEnum.TUESDAY};
     vm1.invoke(executeQueryWithAccessor(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenUsingAccessorASingleEnumBindParameterIsUsedWithInQueryAndMapIndexIsPresentInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -594,16 +591,16 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY};
     vm1.invoke(executeQueryWithAccessor(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenUsingAccessorASingleEnumBindParameterIsUsedWithInQueryInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
-    final String queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
+    final var queryString = "select * from " + regName + " where getMapField['1'] in SET ($1)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -614,17 +611,17 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {DayEnum.MONDAY};
+    var bindArguments = new Object[] {DayEnum.MONDAY};
     vm1.invoke(executeQueryWithAccessor(numExpectedResults, queryString, bindArguments));
   }
 
   @Test
   public void whenUsingAccessorMultipleTypeBindParameterIsUsedWithInQueryAndMapIndexIsPresentInPartitionRegionReturnCorrectResults()
       throws CacheException {
-    final int numberOfEntries = 10;
-    final int numExpectedResults = numberOfEntries / 2;
+    final var numberOfEntries = 10;
+    final var numExpectedResults = numberOfEntries / 2;
 
-    final String queryString =
+    final var queryString =
         "select * from " + regName + " where getMapField['1'] in SET ($1,$2,$3)";
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -637,7 +634,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] bindArguments = new Object[] {2, DayEnum.MONDAY, "Tuesday"};
+    var bindArguments = new Object[] {2, DayEnum.MONDAY, "Tuesday"};
     vm1.invoke(executeQueryWithAccessor(numExpectedResults, queryString, bindArguments));
   }
 
@@ -695,14 +692,14 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
 
 
   void verifyQuery(final int numExpectedEntries, final String queryString, Object[] bindArguments) {
-    QueryService qs = getCache().getQueryService();
+    var qs = getCache().getQueryService();
     Query query = null;
     SelectResults sr = null;
     try {
       query = qs.newQuery(queryString);
 
       sr = (SelectResults) query.execute(bindArguments);
-      Iterator iterator = sr.iterator();
+      var iterator = sr.iterator();
 
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -713,7 +710,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
   }
 
   void createIndex(String indexName, String indexExpression, String regionPath) {
-    QueryService localQueryService = getCache().getQueryService();
+    var localQueryService = getCache().getQueryService();
     try {
       localQueryService.createIndex(indexName, indexExpression, regionPath);
     } catch (Exception ex) {
@@ -723,7 +720,7 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
 
   void createEntries(final int numberOfEntries, String regionName) {
     Region region = getRootRegion().getSubregion(regionName);
-    for (int i = 0; i < numberOfEntries; i++) {
+    for (var i = 0; i < numberOfEntries; i++) {
       region.put("key" + i, new MapTestObject(i));
     }
   }
@@ -744,8 +741,8 @@ public class CompiledInDUnitTest extends JUnit4CacheTestCase {
     private final HashMap mapField = new HashMap<>();
 
     public MapTestObject(int i) {
-      int n = i % 2;
-      DayEnum enumVal = DayEnum.MONDAY;
+      var n = i % 2;
+      var enumVal = DayEnum.MONDAY;
       if (n == 0) {
         enumVal = DayEnum.TUESDAY;
       }

@@ -17,8 +17,6 @@ package org.apache.geode.internal.util.redaction;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
@@ -41,11 +39,11 @@ public class ArgumentRedactorIntegrationTest {
     System.setProperty(somePasswordProperty, "isRedacted");
     System.setProperty(someOtherPasswordProperty, "isRedacted");
 
-    List<String> args = asList("--user=me", "--password=isRedacted",
+    var args = asList("--user=me", "--password=isRedacted",
         "--another-password-for-some-reason =isRedacted", "--yet-another-password = isRedacted",
         "--one-more-password isRedacted");
 
-    String banner = new Banner().getString(args.toArray(new String[0]));
+    var banner = new Banner().getString(args.toArray(new String[0]));
 
     assertThat(banner).doesNotContain("isRedacted");
   }

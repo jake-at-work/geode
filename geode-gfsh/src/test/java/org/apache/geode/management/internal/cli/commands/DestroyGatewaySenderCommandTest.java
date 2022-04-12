@@ -47,7 +47,7 @@ public class DestroyGatewaySenderCommandTest {
   @SuppressWarnings("unchecked")
   public void before() {
     command = spy(DestroyGatewaySenderCommand.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     doReturn(cache).when(command).getCache();
     doReturn(true).when(command).waitForGatewaySenderMBeanDeletion(any(), any());
     functionResults = new ArrayList<>();
@@ -112,7 +112,7 @@ public class DestroyGatewaySenderCommandTest {
     functionResults.add(result1);
 
     doReturn(mock(Set.class)).when(command).getMembers(any(), any());
-    String id = (String) parser
+    var id = (String) parser
         .executeAndAssertThat(command, "destroy gateway-sender --id=1")
         .statusIsSuccess()
         .getResultModel()

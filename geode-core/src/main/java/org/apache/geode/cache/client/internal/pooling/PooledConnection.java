@@ -73,12 +73,12 @@ public class PooledConnection implements Connection {
    * @return true if internal connection was destroyed by this call; false if already destroyed
    */
   public boolean internalDestroy() {
-    boolean result = false;
+    var result = false;
     shouldDestroy.set(true); // probably already set but make sure
     synchronized (this) {
       active = false;
       notifyAll();
-      Connection myCon = connection;
+      var myCon = connection;
       if (myCon != null) {
         myCon.destroy();
         connection = null;
@@ -99,7 +99,7 @@ public class PooledConnection implements Connection {
 
   public void internalClose(boolean keepAlive) throws Exception {
     try {
-      Connection con = connection;
+      var con = connection;
       if (con != null) {
         con.close(keepAlive);
       }
@@ -115,7 +115,7 @@ public class PooledConnection implements Connection {
 
   @Override
   public void emergencyClose() {
-    Connection con = connection;
+    var con = connection;
     if (con != null) {
       connection.emergencyClose();
     }
@@ -124,7 +124,7 @@ public class PooledConnection implements Connection {
   }
 
   Connection getConnection() {
-    Connection result = connection;
+    var result = connection;
     if (result == null) {
       throw new ConnectionDestroyedException();
     }
@@ -156,7 +156,7 @@ public class PooledConnection implements Connection {
 
   @Override
   public void passivate(final boolean accessed) {
-    long now = 0L;
+    var now = 0L;
     if (accessed) {
       // do this outside the sync
       now = System.nanoTime();
@@ -201,7 +201,7 @@ public class PooledConnection implements Connection {
         return false;
       }
       assert !active;
-      final long now = System.nanoTime();
+      final var now = System.nanoTime();
       oldCon = connection;
       connection = newCon;
       endpoint = newCon.getEndpoint();
@@ -279,7 +279,7 @@ public class PooledConnection implements Connection {
         // when the connection goes inactive it will be resetting its access time.
         return timeoutNanos;
       } else {
-        long idleRemaining = remainingIdle(now, timeoutNanos);
+        var idleRemaining = remainingIdle(now, timeoutNanos);
         if (idleRemaining <= 0) {
           if (setShouldDestroy()) {
             // we were able to set the destroy bit
@@ -345,7 +345,7 @@ public class PooledConnection implements Connection {
 
   @Override
   public String toString() {
-    Connection myCon = connection;
+    var myCon = connection;
     if (myCon != null) {
       return "Pooled Connection to " + endpoint + ": " + myCon;
     } else {

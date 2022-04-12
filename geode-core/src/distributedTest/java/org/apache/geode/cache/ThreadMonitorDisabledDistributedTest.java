@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedReference;
 
 @SuppressWarnings("serial")
@@ -42,14 +41,14 @@ public class ThreadMonitorDisabledDistributedTest implements Serializable {
 
   @Before
   public void setUp() {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(LOCATORS, getLocators());
     configProperties.setProperty(THREAD_MONITOR_ENABLED, "false");
 
-    for (VM vm : asList(getVM(0), getVM(1))) {
+    for (var vm : asList(getVM(0), getVM(1))) {
       vm.invoke(() -> {
         cache.set(new CacheFactory(configProperties).create());
-        RegionFactory<Object, Object> factory =
+        var factory =
             cache.get().createRegionFactory(RegionShortcut.REPLICATE);
         factory.create(REGION_NAME);
       });
@@ -63,15 +62,15 @@ public class ThreadMonitorDisabledDistributedTest implements Serializable {
    */
   @Test
   public void regionPutWorksWithThreadMonitorDisabled() {
-    for (VM vm : asList(getVM(0))) {
+    for (var vm : asList(getVM(0))) {
       vm.invoke(() -> {
-        Region<Object, Object> region = cache.get().getRegion(REGION_NAME);
+        var region = cache.get().getRegion(REGION_NAME);
         region.put("key", "value");
       });
     }
-    for (VM vm : asList(getVM(0), getVM(1))) {
+    for (var vm : asList(getVM(0), getVM(1))) {
       vm.invoke(() -> {
-        Region<Object, Object> region = cache.get().getRegion(REGION_NAME);
+        var region = cache.get().getRegion(REGION_NAME);
         assertThat(region.get("key")).isEqualTo("value");
       });
     }

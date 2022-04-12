@@ -203,7 +203,7 @@ public class PartitionRebalanceDetailsImpl
     if (!(other instanceof PartitionRebalanceDetailsImpl)) {
       return false;
     }
-    PartitionRebalanceDetailsImpl o = (PartitionRebalanceDetailsImpl) other;
+    var o = (PartitionRebalanceDetailsImpl) other;
     return region.getFullPath().equals(o.region.getFullPath());
   }
 

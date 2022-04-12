@@ -85,7 +85,7 @@ public class SystemUtils {
 
   // @see java.lang.System#getProperty(String) with 'java.vm.vendor'.
   private static boolean isJvmVendor(final String expectedJvmVendorName) {
-    String jvmVendor = System.getProperty("java.vm.vendor");
+    var jvmVendor = System.getProperty("java.vm.vendor");
     return jvmVendor != null && jvmVendor.contains(expectedJvmVendorName);
   }
 
@@ -128,7 +128,7 @@ public class SystemUtils {
    * Returns true if the expectedJvmName matches {@code System.getProperty("java.vm.name")}.
    */
   private static boolean isJVM(final String expectedJvmName) {
-    String jvmName = System.getProperty("java.vm.name");
+    var jvmName = System.getProperty("java.vm.name");
     return jvmName != null && jvmName.contains(expectedJvmName);
   }
 
@@ -200,10 +200,10 @@ public class SystemUtils {
    * @return true if location is in the JVM classpath
    */
   public static boolean isInClassPath(URL location) throws MalformedURLException {
-    String classPath = getClassPath();
-    StringTokenizer st = new StringTokenizer(classPath, File.pathSeparator);
+    var classPath = getClassPath();
+    var st = new StringTokenizer(classPath, File.pathSeparator);
     while (st.hasMoreTokens()) {
-      String path = st.nextToken();
+      var path = st.nextToken();
       if (location.equals(new File(path).toURI().toURL())) {
         return true;
       }
@@ -250,7 +250,7 @@ public class SystemUtils {
    * Returns true if expectedOsName matches {@code System.getProperty("os.name")}.
    */
   private static boolean isOS(final String expectedOsName) {
-    String osName = getOsName();
+    var osName = getOsName();
     return osName != null && osName.contains(expectedOsName);
   }
 

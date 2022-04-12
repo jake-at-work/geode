@@ -35,14 +35,14 @@ public class GetRegionDescriptionFunction implements InternalFunction<String> {
 
   @Override
   public void execute(FunctionContext<String> context) {
-    String regionPath = context.getArguments();
+    var regionPath = context.getArguments();
     try {
       Cache cache = ((InternalCache) context.getCache()).getCacheForProcessingClientRequests();
       Region<?, ?> region = cache.getRegion(regionPath);
 
       if (region != null) {
-        String memberName = cache.getDistributedSystem().getDistributedMember().getName();
-        RegionDescriptionPerMember regionDescription =
+        var memberName = cache.getDistributedSystem().getDistributedMember().getName();
+        var regionDescription =
             new RegionDescriptionPerMember(region, memberName);
         context.getResultSender().lastResult(regionDescription);
       } else {

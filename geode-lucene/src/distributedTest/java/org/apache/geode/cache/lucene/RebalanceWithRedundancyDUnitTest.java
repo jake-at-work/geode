@@ -36,7 +36,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.lucene.test.IndexRegionSpy;
 import org.apache.geode.cache.lucene.test.IndexRepositorySpy;
 import org.apache.geode.cache.lucene.test.LuceneTestUtilities;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InitialImageOperation;
 import org.apache.geode.internal.cache.InitialImageOperation.GIITestHook;
 import org.apache.geode.internal.cache.InitialImageOperation.GIITestHookType;
@@ -64,7 +63,7 @@ public class RebalanceWithRedundancyDUnitTest extends LuceneQueriesAccessorBase 
   protected void putEntryInEachBucket() {
     accessor.invoke(() -> {
       final Cache cache = getCache();
-      Region<Object, Object> region = cache.getRegion(REGION_NAME);
+      var region = cache.getRegion(REGION_NAME);
       IntStream.range(0, NUM_BUCKETS).forEach(i -> region.put(i, new TestObject("hello world")));
     });
   }
@@ -73,7 +72,7 @@ public class RebalanceWithRedundancyDUnitTest extends LuceneQueriesAccessorBase 
   @Parameters(method = "getListOfRegionTestTypes")
   public void returnCorrectResultsWhenMovePrimaryHappensOnIndexUpdate(
       RegionTestableType regionTestType) throws InterruptedException {
-    final DistributedMember member2 =
+    final var member2 =
         dataStore2.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
     addCallbackToMovePrimary(dataStore1, member2);
 
@@ -85,12 +84,12 @@ public class RebalanceWithRedundancyDUnitTest extends LuceneQueriesAccessorBase 
   public void returnCorrectResultsWhenCloseCacheHappensOnIndexUpdate(
       RegionTestableType regionTestType) throws InterruptedException {
     dataStore1.invoke(() -> {
-      IndexRepositorySpy spy = IndexRepositorySpy.injectSpy();
+      var spy = IndexRepositorySpy.injectSpy();
 
       spy.beforeWriteIndexRepository(doAfterN(key -> getCache().close(), 2));
     });
 
-    final String expectedExceptions = CacheClosedException.class.getName();
+    final var expectedExceptions = CacheClosedException.class.getName();
     dataStore1.invoke(addExceptionTag1(expectedExceptions));
 
     putEntriesAndValidateResultsWithRedundancy(regionTestType);
@@ -104,7 +103,7 @@ public class RebalanceWithRedundancyDUnitTest extends LuceneQueriesAccessorBase 
   @Parameters(method = "getListOfRegionTestTypes")
   public void returnCorrectResultsWhenCloseCacheHappensOnPartialIndexWrite(
       RegionTestableType regionTestType) throws InterruptedException {
-    final DistributedMember member2 =
+    final var member2 =
         dataStore2.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
     dataStore1.invoke(() -> {
       IndexRegionSpy.beforeWrite(getCache(), doAfterN(key -> getCache().close(), 100));
@@ -121,8 +120,8 @@ public class RebalanceWithRedundancyDUnitTest extends LuceneQueriesAccessorBase 
   @Parameters(method = "getListOfRegionTestTypes")
   public void returnCorrectResultsWhenIndexUpdateHappensIntheMiddleofGII(
       RegionTestableType regionTestType) throws InterruptedException {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
     dataStore1.invoke(() -> initDataStore(createIndex, regionTestType));
@@ -131,7 +130,7 @@ public class RebalanceWithRedundancyDUnitTest extends LuceneQueriesAccessorBase 
     putEntryInEachBucket();
 
     dataStore2.invoke(() -> {
-      TestResourceObserver observer = new TestResourceObserver(4);
+      var observer = new TestResourceObserver(4);
       InternalResourceManager.setResourceObserver(observer);
       InitialImageOperation.setGIITestHook(
           new GIITestHook(GIITestHookType.AfterSentRequestImage, "Do puts during request") {
@@ -170,8 +169,8 @@ public class RebalanceWithRedundancyDUnitTest extends LuceneQueriesAccessorBase 
   }
 
   private void putEntriesAndValidateResultsWithRedundancy(RegionTestableType regionTestType) {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
     dataStore1.invoke(() -> initDataStore(createIndex, regionTestType));

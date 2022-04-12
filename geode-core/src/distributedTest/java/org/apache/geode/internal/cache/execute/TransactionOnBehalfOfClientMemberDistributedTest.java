@@ -21,23 +21,18 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.internal.cache.TXId;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.TXStateProxyImpl;
 import org.apache.geode.test.dunit.VM;
@@ -85,23 +80,23 @@ public class TransactionOnBehalfOfClientMemberDistributedTest implements Seriali
     server2.invoke(() -> createServerRegion(1, false));
     createClientRegion(port1);
 
-    TransactionId txId = beginAndSuspendTransaction(true);
+    var txId = beginAndSuspendTransaction(true);
     server1.invoke(() -> verifyOnBehalfOfClientMember(true));
     server2.invoke(() -> verifyOnBehalfOfClientMember(true));
     resumeAndCommitTransaction(true, txId);
   }
 
   private int createServerRegion(int totalNumBuckets, boolean isAccessor) throws IOException {
-    PartitionAttributesFactory factory = new PartitionAttributesFactory();
+    var factory = new PartitionAttributesFactory();
     factory.setTotalNumBuckets(totalNumBuckets);
     if (isAccessor) {
       factory.setLocalMaxMemory(0);
     }
-    PartitionAttributes partitionAttributes = factory.create();
+    var partitionAttributes = factory.create();
     cacheRule.getOrCreateCache().createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(partitionAttributes).create(regionName);
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -109,7 +104,7 @@ public class TransactionOnBehalfOfClientMemberDistributedTest implements Seriali
 
   private void createClientRegion(int port) {
     clientCacheRule.createClientCache();
-    Pool pool = PoolManager.createFactory().addServer(hostName, port).create(uniqueName);
+    var pool = PoolManager.createFactory().addServer(hostName, port).create(uniqueName);
 
     ClientRegionFactory crf =
         clientCacheRule.getClientCache().createClientRegionFactory(ClientRegionShortcut.LOCAL);
@@ -118,8 +113,8 @@ public class TransactionOnBehalfOfClientMemberDistributedTest implements Seriali
   }
 
   private TransactionId beginAndSuspendTransaction(boolean isClient) {
-    Region region = getRegion(isClient);
-    TXManagerImpl txManager = getTXManager(isClient);
+    var region = getRegion(isClient);
+    var txManager = getTXManager(isClient);
     txManager.begin();
     region.put(1, "value1");
     return txManager.suspend();
@@ -140,10 +135,10 @@ public class TransactionOnBehalfOfClientMemberDistributedTest implements Seriali
   }
 
   private void verifyOnBehalfOfClientMember(boolean shouldSet) {
-    TXManagerImpl txManager = cacheRule.getCache().getTxManager();
-    ArrayList<TXId> txIds = txManager.getHostedTxIds();
-    for (TXId txId : txIds) {
-      TXStateProxyImpl txStateProxy = (TXStateProxyImpl) txManager.getHostedTXState(txId);
+    var txManager = cacheRule.getCache().getTxManager();
+    var txIds = txManager.getHostedTxIds();
+    for (var txId : txIds) {
+      var txStateProxy = (TXStateProxyImpl) txManager.getHostedTXState(txId);
       if (shouldSet) {
         assertTrue(txStateProxy.isOnBehalfOfClient());
       } else {
@@ -153,7 +148,7 @@ public class TransactionOnBehalfOfClientMemberDistributedTest implements Seriali
   }
 
   private void resumeAndCommitTransaction(boolean isClient, TransactionId txId) {
-    TXManagerImpl txManager = getTXManager(isClient);
+    var txManager = getTXManager(isClient);
     txManager.resume(txId);
     txManager.commit();
   }
@@ -164,7 +159,7 @@ public class TransactionOnBehalfOfClientMemberDistributedTest implements Seriali
     server2.invoke(() -> createServerRegion(1, false));
     createClientRegion(port1);
 
-    TransactionId txId = server1.invoke(() -> beginAndSuspendTransaction(false));
+    var txId = server1.invoke(() -> beginAndSuspendTransaction(false));
     server1.invoke(() -> verifyOnBehalfOfClientMember(false));
     server2.invoke(() -> verifyOnBehalfOfClientMember(false));
     server1.invoke(() -> resumeAndCommitTransaction(false, txId));

@@ -14,7 +14,6 @@
  */
 package org.apache.geode.management.internal;
 
-import java.util.Set;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
@@ -64,10 +63,10 @@ public class MemberMessenger {
    * AlertListener for local Alerts.
    */
   void sendManagerInfo(DistributedMember receiver) {
-    String levelName = jmxAdapter.getDistributedSystemMXBean().getAlertLevel();
-    int alertCode = LogLevel.getLogWriterLevel(levelName);
+    var levelName = jmxAdapter.getDistributedSystemMXBean().getAlertLevel();
+    var alertCode = LogLevel.getLogWriterLevel(levelName);
 
-    ManagerStartupMessage msg = ManagerStartupMessage.create(alertCode);
+    var msg = ManagerStartupMessage.create(alertCode);
     msg.setRecipient((InternalDistributedMember) receiver);
 
     sendAsync(msg);
@@ -91,20 +90,20 @@ public class MemberMessenger {
    * (GEODE-5923).
    */
   void broadcastManagerInfo() {
-    Set<InternalDistributedMember> otherMemberSet =
+    var otherMemberSet =
         system.getDistributionManager().getAllOtherMembers();
 
-    String levelName = jmxAdapter.getDistributedSystemMXBean().getAlertLevel();
-    int alertCode = LogLevel.getLogWriterLevel(levelName);
+    var levelName = jmxAdapter.getDistributedSystemMXBean().getAlertLevel();
+    var alertCode = LogLevel.getLogWriterLevel(levelName);
 
-    ManagerStartupMessage msg = ManagerStartupMessage.create(alertCode);
+    var msg = ManagerStartupMessage.create(alertCode);
     if (otherMemberSet != null && otherMemberSet.size() > 0) {
       msg.setRecipients(otherMemberSet);
     }
 
     sendAsync(msg);
 
-    DistributionManager dm = system.getDistributionManager();
+    var dm = system.getDistributionManager();
     if (dm instanceof ClusterDistributionManager) {
       msg.process((ClusterDistributionManager) system.getDistributionManager());
     }
@@ -127,8 +126,8 @@ public class MemberMessenger {
    * member of the distributed system.
    */
   public void setAlertLevel(String levelName) {
-    int alertCode = LogLevel.getLogWriterLevel(levelName);
-    AlertLevelChangeMessage m = AlertLevelChangeMessage.create(alertCode);
+    var alertCode = LogLevel.getLogWriterLevel(levelName);
+    var m = AlertLevelChangeMessage.create(alertCode);
     sendAsync(m);
   }
 }

@@ -23,8 +23,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.internal.cache.FilterProfile;
 import org.apache.geode.internal.cache.LocalRegion;
@@ -42,12 +40,12 @@ public class FilterProfileIntegrationJUnitTest {
     Cache cache = CacheUtils.getCache();
     try {
       createLocalRegion();
-      LocalRegion region = (LocalRegion) cache.getRegion(regionName);
-      final FilterProfile filterProfile = new FilterProfile(region);
+      var region = (LocalRegion) cache.getRegion(regionName);
+      final var filterProfile = new FilterProfile(region);
       filterProfile.registerClientInterest("clientId", ".*", InterestType.REGULAR_EXPRESSION,
           false);
 
-      final FilterProfileTestHook hook = new FilterProfileTestHook();
+      final var hook = new FilterProfileTestHook();
       FilterProfile.testHook = hook;
 
       new Thread(() -> {
@@ -98,10 +96,10 @@ public class FilterProfileIntegrationJUnitTest {
 
   private void createLocalRegion() throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.NORMAL);
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion(regionName, regionAttributes);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion(regionName, regionAttributes);
   }
 
 }

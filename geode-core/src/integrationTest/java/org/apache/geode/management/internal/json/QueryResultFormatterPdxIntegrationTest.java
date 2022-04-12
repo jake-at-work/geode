@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.io.Serializable;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Rule;
@@ -49,10 +48,10 @@ public class QueryResultFormatterPdxIntegrationTest {
 
   private void checkResult(QueryResultFormatter queryResultFormatter, String expectedJsonString)
       throws IOException {
-    String jsonString = queryResultFormatter.toString();
+    var jsonString = queryResultFormatter.toString();
     assertThat(jsonString).isEqualTo(expectedJsonString);
 
-    JsonNode jsonObject = new ObjectMapper().readTree(jsonString);
+    var jsonObject = new ObjectMapper().readTree(jsonString);
     assertThat(jsonObject.get(RESULT)).isNotNull();
   }
 
@@ -62,9 +61,9 @@ public class QueryResultFormatterPdxIntegrationTest {
     pdxInstanceFactory.writeString("status", "active");
     pdxInstanceFactory.writeString("secId", "IBM");
     pdxInstanceFactory.writeObject("object", new SerializableObject(2));
-    PdxInstance pdxInstance = pdxInstanceFactory.create();
+    var pdxInstance = pdxInstanceFactory.create();
 
-    QueryResultFormatter queryResultFormatter =
+    var queryResultFormatter =
         new QueryResultFormatter(100).add(RESULT, pdxInstance);
     checkResult(queryResultFormatter,
         "{\"result\":[[\"org.apache.geode.pdx.PdxInstance\",{\"ID\":[\"java.lang.Integer\",111],\"status\":[\"java.lang.String\",\"active\"],\"secId\":[\"java.lang.String\",\"IBM\"],\"object\":[\"org.apache.geode.management.internal.json.QueryResultFormatterPdxIntegrationTest.SerializableObject\",{}]}]]}");
@@ -75,9 +74,9 @@ public class QueryResultFormatterPdxIntegrationTest {
     pdxInstanceFactory.writeInt("ID", 111);
     pdxInstanceFactory.writeString("status", "active");
     pdxInstanceFactory.writeString("secId", "IBM");
-    PdxContainer pdxContainer = new PdxContainer(pdxInstanceFactory.create(), 1);
+    var pdxContainer = new PdxContainer(pdxInstanceFactory.create(), 1);
 
-    QueryResultFormatter queryResultFormatter =
+    var queryResultFormatter =
         new QueryResultFormatter(100).add(RESULT, pdxContainer);
     checkResult(queryResultFormatter,
         "{\"result\":[[\"org.apache.geode.management.internal.json.QueryResultFormatterPdxIntegrationTest.PdxContainer\",{}]]}");

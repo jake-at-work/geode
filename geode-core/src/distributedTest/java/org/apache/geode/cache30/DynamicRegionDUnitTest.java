@@ -65,7 +65,7 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
     try {
       disconnectAllFromDS();
     } finally {
-      File d = new File("DynamicRegionData" + OSProcess.getId());
+      var d = new File("DynamicRegionData" + OSProcess.getId());
       d.mkdirs();
       DynamicRegionFactory.get().open(new DynamicRegionFactory.Config(d, null));
     }
@@ -83,7 +83,7 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
     LogWriterUtils.getLogWriter().info("Running tearDown in " + this);
     try {
       // Asif destroy dynamic regions at the end of the test
-      CacheSerializableRunnable destroyDynRegn =
+      var destroyDynRegn =
           new CacheSerializableRunnable("Destroy Dynamic regions") {
             @Override
             public void run2() throws CacheException {
@@ -122,16 +122,16 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
   ////////////////////// Test Methods //////////////////////
 
   private VM getOtherVm() {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     return host.getVM(0);
   }
 
   private void doParentCreateOtherVm(final Properties p, final boolean persist) {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("create root") {
       @Override
       public void run2() throws CacheException {
-        File d = new File("DynamicRegionData" + OSProcess.getId());
+        var d = new File("DynamicRegionData" + OSProcess.getId());
         d.mkdirs();
         DynamicRegionFactory.get().open(new DynamicRegionFactory.Config(d, null));
         getSystem(p);
@@ -142,15 +142,15 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void recreateOtherVm() {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("recreate") {
       @Override
       public void run2() throws CacheException {
         beginCacheXml();
         {
-          File d = new File("DynamicRegionData" + OSProcess.getId());
+          var d = new File("DynamicRegionData" + OSProcess.getId());
           d.mkdirs();
-          CacheCreation cc = (CacheCreation) getCache();
+          var cc = (CacheCreation) getCache();
           cc.setDynamicRegionFactoryConfig(new DynamicRegionFactory.Config(d, null));
         }
         createParentRegion("parent", true);
@@ -162,7 +162,7 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void checkForRegionOtherVm(final String fullPath, final boolean shouldExist) {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("checkForRegion") {
       @Override
       public void run2() throws CacheException {
@@ -184,7 +184,7 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void checkForSubregionOtherVm(final String fullPath, final boolean shouldExist) {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("checkForRegion") {
       @Override
       public void run2() throws CacheException {
@@ -204,10 +204,10 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
    * @param persist added this param to fix bug 37439
    */
   protected Region createParentRegion(String name, boolean persist) throws CacheException {
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    File d = new File("DynamicRegionData" + OSProcess.getId());
+    var d = new File("DynamicRegionData" + OSProcess.getId());
     factory.setDiskStoreName(getCache().createDiskStoreFactory().setDiskDirs(new File[] {d})
         .setMaxOplogSize(OPLOG_SIZE).create("DynamicRegionDUnitTest").getName());
     if (persist) {
@@ -215,7 +215,7 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
     }
     factory.setEvictionAttributes(
         EvictionAttributes.createLRUEntryAttributes(100, EvictionAction.OVERFLOW_TO_DISK));
-    final Region r = createRootRegion(name, factory.create());
+    final var r = createRootRegion(name, factory.create());
     return r;
   }
 
@@ -227,13 +227,13 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
     assertEquals(true, DynamicRegionFactory.get().isOpen());
     createParentRegion("parent", true);
 
-    Properties p = new Properties();
+    var p = new Properties();
     doParentCreateOtherVm(p, false);
-    Region dr = DynamicRegionFactory.get().createDynamicRegion("parent", "dynamicRegion1");
-    String drFullPath = dr.getFullPath();
+    var dr = DynamicRegionFactory.get().createDynamicRegion("parent", "dynamicRegion1");
+    var drFullPath = dr.getFullPath();
     dr.put("key1", "value1");
     // test for bug 35528 - support for dynamic subregions of dynamic regions
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       DynamicRegionFactory.get().createDynamicRegion(drFullPath, "subregion" + i);
     }
 
@@ -257,7 +257,7 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
     LogWriterUtils.getLogWriter()
         .info("testPeerRegion - check #3 make sure dynamic region can be recovered from disk");
     checkForRegionOtherVm(drFullPath, true);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       checkForSubregionOtherVm(drFullPath + SEPARATOR + "subregion" + i, true);
     }
 
@@ -278,8 +278,8 @@ public class DynamicRegionDUnitTest extends JUnit4CacheTestCase {
       assertEquals(true, c.getRegion(drFullPath) != null);
 
       // now make sure we can destroy dynamic regions
-      for (int i = 0; i < 10; i++) {
-        String regName = drFullPath + SEPARATOR + "subregion" + i;
+      for (var i = 0; i < 10; i++) {
+        var regName = drFullPath + SEPARATOR + "subregion" + i;
         assertEquals(true, c.getRegion(regName) != null);
         DynamicRegionFactory.get().destroyDynamicRegion(regName);
         assertEquals(null, c.getRegion(regName));

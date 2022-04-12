@@ -182,7 +182,7 @@ public class BucketCreationCrashRegressionTest implements Serializable {
   }
 
   private Properties createLocatorConfig() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     config.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
     config.setProperty(USE_CLUSTER_CONFIGURATION, "false");
@@ -191,15 +191,15 @@ public class BucketCreationCrashRegressionTest implements Serializable {
   }
 
   private Properties createServerConfig() {
-    Properties config = createLocatorConfig();
+    var config = createLocatorConfig();
     config.setProperty(LOCATORS, hostName + "[" + locatorPort + "]");
     return config;
   }
 
   private int startLocator() throws IOException {
-    Properties config = createLocatorConfig();
-    InetAddress bindAddress = InetAddress.getByName(hostName);
-    Locator locator = Locator.startLocatorAndDS(locatorPort, locatorLog, bindAddress, config);
+    var config = createLocatorConfig();
+    var bindAddress = InetAddress.getByName(hostName);
+    var locator = Locator.startLocatorAndDS(locatorPort, locatorLog, bindAddress, config);
     return locator.getPort();
   }
 
@@ -208,10 +208,10 @@ public class BucketCreationCrashRegressionTest implements Serializable {
   }
 
   private void createPartitionedRegion() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(0);
 
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setDataPolicy(DataPolicy.PARTITION);
     af.setPartitionAttributes(paf.create());
 
@@ -221,13 +221,13 @@ public class BucketCreationCrashRegressionTest implements Serializable {
   private void putData(final int startKey, final int endKey, final String value) {
     Region<Integer, String> region = cacheRule.getCache().getRegion(uniqueName);
 
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       region.put(i, value);
     }
   }
 
   private Set<Integer> getBucketList() {
-    PartitionedRegion region = (PartitionedRegion) cacheRule.getCache().getRegion(uniqueName);
+    var region = (PartitionedRegion) cacheRule.getCache().getRegion(uniqueName);
     return new TreeSet<>(region.getDataStore().getAllLocalBucketIds());
   }
 

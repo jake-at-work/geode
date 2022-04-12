@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.test.junit.rules.GfshParserRule;
 
 
@@ -31,7 +30,7 @@ public class ExportDataCommandTest {
 
   @Test
   public void missingMember() throws Exception {
-    GfshParseResult result = parser.parse("export data --region=regionA --file=test");
+    var result = parser.parse("export data --region=regionA --file=test");
     assertThat(result).isNull();
   }
 }

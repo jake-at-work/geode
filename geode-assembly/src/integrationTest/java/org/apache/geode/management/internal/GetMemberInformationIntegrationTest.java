@@ -23,10 +23,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.management.internal.functions.GetMemberInformationFunction;
-import org.apache.geode.management.runtime.MemberInformation;
 import org.apache.geode.test.junit.rules.LocatorLauncherStartupRule;
 import org.apache.geode.test.junit.rules.ServerLauncherStartupRule;
 
@@ -51,10 +49,10 @@ public class GetMemberInformationIntegrationTest {
   @Test
   public void setServerWithNoDefaultServer() throws IOException {
     serverWithNoDefaultServer.start();
-    Cache cache = serverWithNoDefaultServer.getCache();
-    InternalDistributedSystem system = (InternalDistributedSystem) cache.getDistributedSystem();
+    var cache = serverWithNoDefaultServer.getCache();
+    var system = (InternalDistributedSystem) cache.getDistributedSystem();
 
-    MemberInformation memberInformation = getMemberInfoFunction
+    var memberInformation = getMemberInfoFunction
         .getMemberInformation(cache, system.getConfig(), system.getDistributedMember());
     assertThat(memberInformation.isServer()).isTrue();
     assertThat(memberInformation.getCacheServerInfo()).isEmpty();
@@ -64,10 +62,10 @@ public class GetMemberInformationIntegrationTest {
   @Test
   public void regularServer() throws Exception {
     server.start();
-    Cache cache = server.getCache();
-    InternalDistributedSystem system = (InternalDistributedSystem) cache.getDistributedSystem();
+    var cache = server.getCache();
+    var system = (InternalDistributedSystem) cache.getDistributedSystem();
 
-    MemberInformation memberInformation = getMemberInfoFunction
+    var memberInformation = getMemberInfoFunction
         .getMemberInformation(cache, system.getConfig(), system.getDistributedMember());
     assertThat(memberInformation.isServer()).isTrue();
     assertThat(memberInformation.getCacheServerInfo()).hasSize(1);
@@ -77,10 +75,10 @@ public class GetMemberInformationIntegrationTest {
   @Test
   public void regularLocator() throws Exception {
     locator.start();
-    Cache cache = locator.getLauncher().getCache();
-    InternalDistributedSystem system = (InternalDistributedSystem) cache.getDistributedSystem();
+    var cache = locator.getLauncher().getCache();
+    var system = (InternalDistributedSystem) cache.getDistributedSystem();
 
-    MemberInformation memberInformation = getMemberInfoFunction
+    var memberInformation = getMemberInfoFunction
         .getMemberInformation(cache, system.getConfig(), system.getDistributedMember());
     assertThat(memberInformation.isServer()).isFalse();
     assertThat(memberInformation.getCacheServerInfo()).isEmpty();

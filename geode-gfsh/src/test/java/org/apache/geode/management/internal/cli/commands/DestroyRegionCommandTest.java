@@ -41,7 +41,6 @@ import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.configuration.domain.XmlEntity;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.test.junit.rules.GfshParserRule;
@@ -96,7 +95,7 @@ public class DestroyRegionCommandTest {
 
   @Test
   public void regionConverterApplied() {
-    GfshParseResult parseResult = parser.parse("destroy region --name=test");
+    var parseResult = parser.parse("destroy region --name=test");
     assertThat(parseResult.getParamValue("name")).isEqualTo(SEPARATOR + "test");
   }
 

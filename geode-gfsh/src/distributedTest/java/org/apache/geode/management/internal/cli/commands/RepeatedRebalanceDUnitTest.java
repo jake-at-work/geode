@@ -28,7 +28,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.assertions.TabularResultModelAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
@@ -59,7 +58,7 @@ public class RepeatedRebalanceDUnitTest {
 
     locator1 = cluster.startLocatorVM(0);
 
-    for (int i = 0; i < INITIAL_SERVERS; ++i) {
+    for (var i = 0; i < INITIAL_SERVERS; ++i) {
       memberList.add(cluster.startServerVM(i + 1, locator1.getPort()));
     }
 
@@ -95,26 +94,26 @@ public class RepeatedRebalanceDUnitTest {
 
     addOrRestartServers(2, 0);
 
-    CommandResultAssert firstRebalance = gfsh.executeAndAssertThat("rebalance").statusIsSuccess();
+    var firstRebalance = gfsh.executeAndAssertThat("rebalance").statusIsSuccess();
 
-    String parentRegionTableSection = "";
-    for (int i = 0; i < 3; i++) {
+    var parentRegionTableSection = "";
+    for (var i = 0; i < 3; i++) {
       if (firstRebalance.hasTableSection("Table" + i).getActual().getHeader()
           .contains(PARENT_REGION)) {
         parentRegionTableSection = "Table" + i;
       }
     }
 
-    TabularResultModelAssert parentRegionTable =
+    var parentRegionTable =
         firstRebalance.hasTableSection(parentRegionTableSection);
     assertRedundancyNotChanged(parentRegionTable);
     assertBucketsMoved(parentRegionTable);
     assertPrimariesTransfered(parentRegionTable);
 
-    CommandResultAssert secondRebalance =
+    var secondRebalance =
         gfsh.executeAndAssertThat("rebalance").statusIsSuccess();
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       if (secondRebalance.hasTableSection("Table" + i).getActual().getHeader()
           .contains(PARENT_REGION)) {
         parentRegionTableSection = "Table" + i;
@@ -134,26 +133,26 @@ public class RepeatedRebalanceDUnitTest {
 
     addOrRestartServers(2, 1);
 
-    CommandResultAssert firstRebalance = gfsh.executeAndAssertThat("rebalance").statusIsSuccess();
+    var firstRebalance = gfsh.executeAndAssertThat("rebalance").statusIsSuccess();
 
-    String parentRegionTableSection = "";
-    for (int i = 0; i < 3; i++) {
+    var parentRegionTableSection = "";
+    for (var i = 0; i < 3; i++) {
       if (firstRebalance.hasTableSection("Table" + i).getActual().getHeader()
           .contains(PARENT_REGION)) {
         parentRegionTableSection = "Table" + i;
       }
     }
 
-    TabularResultModelAssert parentRegionTable =
+    var parentRegionTable =
         firstRebalance.hasTableSection(parentRegionTableSection);
     assertRedundancyChanged(parentRegionTable);
     assertBucketsMoved(parentRegionTable);
     assertPrimariesTransfered(parentRegionTable);
 
-    CommandResultAssert secondRebalance =
+    var secondRebalance =
         gfsh.executeAndAssertThat("rebalance").statusIsSuccess();
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       if (secondRebalance.hasTableSection("Table" + i).getActual().getHeader()
           .contains(PARENT_REGION)) {
         parentRegionTableSection = "Table" + i;
@@ -174,7 +173,7 @@ public class RepeatedRebalanceDUnitTest {
       Region<String, String> colocatedRegionOne = cache.getRegion(COLOCATED_REGION_ONE);
       Region<String, String> colocatedRegionTwo = cache.getRegion(COLOCATED_REGION_TWO);
 
-      for (int i = 0; i < entriesToAdd; i++) {
+      for (var i = 0; i < entriesToAdd; i++) {
         region.put("key" + i, "value" + i);
         colocatedRegionOne.put("key" + i, "value" + i);
         colocatedRegionTwo.put("key" + i, "value" + i);
@@ -183,11 +182,11 @@ public class RepeatedRebalanceDUnitTest {
   }
 
   public void addOrRestartServers(int serversToAdd, int serversToRestart) {
-    for (int i = 0; i < serversToAdd; ++i) {
+    for (var i = 0; i < serversToAdd; ++i) {
       memberList.add(cluster.startServerVM(INITIAL_SERVERS + i, locator1.getPort()));
     }
 
-    for (int i = 0; i < serversToRestart; ++i) {
+    for (var i = 0; i < serversToRestart; ++i) {
       if (i < INITIAL_SERVERS && i < memberList.size()) {
         memberList.get(i).stop(false);
         memberList.remove(i);

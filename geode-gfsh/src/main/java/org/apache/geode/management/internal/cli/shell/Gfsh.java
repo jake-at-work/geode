@@ -26,7 +26,6 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import jline.Terminal;
 import jline.console.ConsoleReader;
@@ -199,7 +197,7 @@ public class Gfsh extends JLineShell {
 
     // 3. log system properties & gfsh environment TODO: change GFSH to use Geode logging
     @SuppressWarnings("deprecation")
-    final Banner banner = new Banner();
+    final var banner = new Banner();
     gfshFileLogger.info(banner.getString());
 
     // 4. Customized History implementation
@@ -213,13 +211,13 @@ public class Gfsh extends JLineShell {
     // 8. Set max History file size
     setHistorySize(gfshConfig.getHistorySize());
 
-    String envProps = env.toString();
+    var envProps = env.toString();
     envProps = envProps.substring(1, envProps.length() - 1);
     envProps = envProps.replaceAll(",", LINE_SEPARATOR);
     gfshFileLogger.config("***** gfsh Environment ******" + LINE_SEPARATOR + envProps);
 
     if (gfshFileLogger.fineEnabled()) {
-      String gfshConfigStr = this.gfshConfig.toString();
+      var gfshConfigStr = this.gfshConfig.toString();
       gfshConfigStr = gfshConfigStr.substring(0, gfshConfigStr.length() - 1);
       gfshConfigStr = gfshConfigStr.replaceAll(",", LINE_SEPARATOR);
       gfshFileLogger.fine("***** gfsh Configuration ******" + LINE_SEPARATOR + gfshConfigStr);
@@ -253,7 +251,7 @@ public class Gfsh extends JLineShell {
   }
 
   public static Gfsh getInstance(boolean launchShell, String[] args, GfshConfig gfshConfig) {
-    Gfsh localGfshInstance = instance;
+    var localGfshInstance = instance;
     if (localGfshInstance == null) {
       synchronized (INSTANCE_LOCK) {
         localGfshInstance = instance;
@@ -293,7 +291,7 @@ public class Gfsh extends JLineShell {
 
   // See 46369
   private static String readLine(ConsoleReader reader, String prompt) throws IOException {
-    String earlierLine = reader.getCursorBuffer().toString();
+    var earlierLine = reader.getCursorBuffer().toString();
     String readLine;
     try {
       readLine = reader.readLine(prompt);
@@ -325,15 +323,15 @@ public class Gfsh extends JLineShell {
    */
   public void redirectInternalJavaLoggers() {
     // Do we need to this on re-connect?
-    LogManager logManager = LogManager.getLogManager();
+    var logManager = LogManager.getLogManager();
 
     try {
-      Enumeration<String> loggerNames = logManager.getLoggerNames();
+      var loggerNames = logManager.getLoggerNames();
 
       while (loggerNames.hasMoreElements()) {
-        String loggerName = loggerNames.nextElement();
+        var loggerName = loggerNames.nextElement();
         if (loggerName.startsWith("java.") || loggerName.startsWith("javax.")) {
-          Logger javaLogger = logManager.getLogger(loggerName);
+          var javaLogger = logManager.getLogger(loggerName);
           /*
            * From Java Docs: It is also important to note that the Logger associated with the String
            * name may be garbage collected at any time if there is no strong reference to the
@@ -359,7 +357,7 @@ public class Gfsh extends JLineShell {
   }
 
   public static ConsoleReader getConsoleReader() {
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
     return (gfsh == null ? null : gfsh.reader);
   }
 
@@ -388,16 +386,16 @@ public class Gfsh extends JLineShell {
       return string;
     }
 
-    final int maxLineLength = terminalWidth - 1;
-    final StringBuilder stringBuf = new StringBuilder();
-    int index = 0;
-    int startOfCurrentLine = 0;
+    final var maxLineLength = terminalWidth - 1;
+    final var stringBuf = new StringBuilder();
+    var index = 0;
+    var startOfCurrentLine = 0;
     while (index < string.length()) {
       // Add the indentation
-      for (int i = 0; i < indentationLevel; i++) {
+      for (var i = 0; i < indentationLevel; i++) {
         stringBuf.append(LINE_INDENT);
       }
-      int currentLineLength = LINE_INDENT.length() * indentationLevel;
+      var currentLineLength = LINE_INDENT.length() * indentationLevel;
 
       // Find the end of a line:
       // 1. If the end of string is reached
@@ -426,7 +424,7 @@ public class Gfsh extends JLineShell {
         }
 
       } else {
-        final int spaceCharIndex = string.lastIndexOf(" ", index);
+        final var spaceCharIndex = string.lastIndexOf(" ", index);
 
         // If no spaces were found then there's no logical way to split the string
         if (spaceCharIndex == -1 || spaceCharIndex < startOfCurrentLine) {
@@ -531,12 +529,12 @@ public class Gfsh extends JLineShell {
    */
   private void executeInitFileIfPresent() {
 
-    String initFileName = gfshConfig.getInitFileName();
+    var initFileName = gfshConfig.getInitFileName();
     if (initFileName != null) {
       gfshFileLogger.info("Using " + initFileName);
       try {
-        File gfshInitFile = new File(initFileName);
-        boolean continueOnError = false;
+        var gfshInitFile = new File(initFileName);
+        var continueOnError = false;
         executeScript(gfshInitFile, isQuietMode(), continueOnError);
       } catch (Exception exception) {
         gfshFileLogger.severe(initFileName, exception);
@@ -601,15 +599,15 @@ public class Gfsh extends JLineShell {
    */
   @Override
   public boolean executeScriptLine(final String line) {
-    boolean success = false;
-    String withPropsExpanded = line;
+    var success = false;
+    var withPropsExpanded = line;
 
     try {
       // expand env property if the string contains $
       if (line.contains("$")) {
         withPropsExpanded = expandProperties(line);
       }
-      String logMessage = "Command String to execute .. ";
+      var logMessage = "Command String to execute .. ";
       if (!line.equals(withPropsExpanded)) {
         if (!isQuietMode()) {
           Gfsh.println("Post substitution: " + withPropsExpanded);
@@ -657,7 +655,7 @@ public class Gfsh extends JLineShell {
   }
 
   public String getBanner() {
-    final String sb = "    _________________________     __" + LINE_SEPARATOR
+    final var sb = "    _________________________     __" + LINE_SEPARATOR
         + "   / _____/ ______/ ______/ /____/ /" + LINE_SEPARATOR
         + "  / /  __/ /___  /_____  / _____  / " + LINE_SEPARATOR
         + " / /__/ / ____/  _____/ / /    / /  " + LINE_SEPARATOR
@@ -711,8 +709,8 @@ public class Gfsh extends JLineShell {
   protected void handleExecutionResult(Object result) {
     try {
       if (result instanceof Result) {
-        Result commandResult = (Result) result;
-        boolean isError = Result.Status.ERROR.equals(commandResult.getStatus());
+        var commandResult = (Result) result;
+        var isError = Result.Status.ERROR.equals(commandResult.getStatus());
 
         if (isError) {
           setLastExecutionStatus(-2);
@@ -728,7 +726,7 @@ public class Gfsh extends JLineShell {
           if (!isScriptRunning) {
             // Normal Command
             while (commandResult.hasNextLine()) {
-              String nextLine = commandResult.nextLine();
+              var nextLine = commandResult.nextLine();
               write(nextLine, isError);
             }
           } else if (!suppressScriptCmdOutput) {
@@ -752,10 +750,10 @@ public class Gfsh extends JLineShell {
   }
 
   private boolean useExternalViewer(Result result) {
-    boolean flag =
+    var flag =
         EXTERNAL_RESULT_VIEWER.equals(getEnvProperty(Gfsh.ENV_APP_RESULT_VIEWER)) && isUnix();
     if (result instanceof CommandResult) {
-      CommandResult commandResult = (CommandResult) result;
+      var commandResult = (CommandResult) result;
       resultTypeTL.set(commandResult.getType().equals("info"));
       return flag && !commandResult.getType().equals("info");
     } else {
@@ -777,7 +775,7 @@ public class Gfsh extends JLineShell {
 
   @Override
   protected ConsoleReader createConsoleReader() {
-    ConsoleReader consoleReader = super.createConsoleReader();
+    var consoleReader = super.createConsoleReader();
     consoleReader.setHistory(gfshHistory);
     terminal = consoleReader.getTerminal();
     return consoleReader;
@@ -785,7 +783,7 @@ public class Gfsh extends JLineShell {
 
   @Override
   protected void logCommandToOutput(String processedLine) {
-    String originalString = expandedPropCommandsMap.get(processedLine);
+    var originalString = expandedPropCommandsMap.get(processedLine);
     if (originalString != null) {
       // In history log the original command string & expanded line as a comment
       super.logCommandToOutput(ArgumentRedactor.redact(originalString));
@@ -810,8 +808,8 @@ public class Gfsh extends JLineShell {
       return terminal.getWidth();
     }
 
-    Map<String, String> env = System.getenv();
-    String columnsFromEnv = env.get("COLUMNS");
+    var env = System.getenv();
+    var columnsFromEnv = env.get("COLUMNS");
     if (columnsFromEnv != null) {
       return Integer.parseInt(columnsFromEnv);
     }
@@ -898,7 +896,7 @@ public class Gfsh extends JLineShell {
   }
 
   public boolean logToFile(String message, Throwable t) {
-    boolean loggedMessage = false;
+    var loggedMessage = false;
     if (gfshFileLogger != null) {
       gfshFileLogger.info(message, t);
       loggedMessage = true;
@@ -908,7 +906,7 @@ public class Gfsh extends JLineShell {
 
   public ResultModel executeScript(File scriptFile, boolean quiet, boolean continueOnError) {
     ResultModel result = null;
-    String initialIsQuiet = getEnvProperty(ENV_APP_QUIET_EXECUTION);
+    var initialIsQuiet = getEnvProperty(ENV_APP_QUIET_EXECUTION);
     try {
       isScriptRunning = true;
       if (scriptFile == null) {
@@ -919,22 +917,22 @@ public class Gfsh extends JLineShell {
         throw new IllegalArgumentException(scriptFile.getPath() + " is a directory.");
       }
 
-      ScriptExecutionDetails scriptInfo = new ScriptExecutionDetails(scriptFile.getPath());
+      var scriptInfo = new ScriptExecutionDetails(scriptFile.getPath());
       if (scriptFile.exists()) {
         setEnvProperty(ENV_APP_QUIET_EXECUTION, String.valueOf(quiet));
         suppressScriptCmdOutput = quiet;
-        BufferedReader reader = new BufferedReader(new FileReader(scriptFile));
-        String lineRead = "";
-        StringBuilder linesBuffer = new StringBuilder();
-        String linesBufferString = "";
-        int commandSrNum = 0;
-        CommentSkipHelper commentSkipper = new CommentSkipHelper();
+        var reader = new BufferedReader(new FileReader(scriptFile));
+        var lineRead = "";
+        var linesBuffer = new StringBuilder();
+        var linesBufferString = "";
+        var commandSrNum = 0;
+        var commentSkipper = new CommentSkipHelper();
 
         LINEREAD_LOOP: while (exitShellRequest == null && (lineRead = reader.readLine()) != null) {
           if (linesBuffer == null) {
             linesBuffer = new StringBuilder();
           }
-          String lineWithoutComments = commentSkipper.skipComments(lineRead);
+          var lineWithoutComments = commentSkipper.skipComments(lineRead);
           if (lineWithoutComments == null || lineWithoutComments.isEmpty()) {
             continue;
           }
@@ -947,14 +945,14 @@ public class Gfsh extends JLineShell {
           // NOTE: Similar code is in promptLoop()
           if (!linesBufferString.endsWith(GfshParser.CONTINUATION_CHARACTER)) { // see 45893
 
-            List<String> commandList = MultiCommandHelper.getMultipleCommands(linesBufferString);
-            for (String cmdLet : commandList) {
+            var commandList = MultiCommandHelper.getMultipleCommands(linesBufferString);
+            for (var cmdLet : commandList) {
               if (!cmdLet.isEmpty()) {
-                String redactedCmdLet = ArgumentRedactor.redact(cmdLet);
+                var redactedCmdLet = ArgumentRedactor.redact(cmdLet);
                 ++commandSrNum;
                 Gfsh.println(commandSrNum + ". Executing - " + redactedCmdLet);
                 Gfsh.println();
-                boolean executeSuccess = executeScriptLine(cmdLet);
+                var executeSuccess = executeScriptLine(cmdLet);
                 if (!executeSuccess) {
                   setLastExecutionStatus(-1);
                 }
@@ -1015,7 +1013,7 @@ public class Gfsh extends JLineShell {
   }
 
   public String getEnvAppContextPath() {
-    String path = getEnvProperty(Gfsh.ENV_APP_CONTEXT_PATH);
+    var path = getEnvProperty(Gfsh.ENV_APP_CONTEXT_PATH);
     if (path == null) {
       return "";
     }
@@ -1033,15 +1031,15 @@ public class Gfsh extends JLineShell {
   @Override
   public void promptLoop() {
     String line = null;
-    String prompt = getPromptText();
+    var prompt = getPromptText();
     try {
       gfshHistory.setAutoFlush(false);
       // NOTE: Similar code is in executeScript()
       while (exitShellRequest == null && (line = readLine(reader, prompt)) != null) {
         if (!line.endsWith(GfshParser.CONTINUATION_CHARACTER)) { // see 45893
-          List<String> commandList = MultiCommandHelper.getMultipleCommands(line);
-          for (String cmdLet : commandList) {
-            String trimmedCommand = cmdLet.trim();
+          var commandList = MultiCommandHelper.getMultipleCommands(line);
+          for (var cmdLet : commandList) {
+            var trimmedCommand = cmdLet.trim();
             if (!trimmedCommand.isEmpty()) {
               executeCommand(cmdLet);
             }
@@ -1118,12 +1116,12 @@ public class Gfsh extends JLineShell {
 
   @Override
   protected String getPromptText() {
-    String defaultPrompt = gfshConfig.getDefaultPrompt();
-    String contextPath = "";
-    String clusterString = "";
+    var defaultPrompt = gfshConfig.getDefaultPrompt();
+    var contextPath = "";
+    var clusterString = "";
 
     if (getOperationInvoker() != null && isConnectedAndReady()) {
-      int clusterId = getOperationInvoker().getClusterId();
+      var clusterId = getOperationInvoker().getClusterId();
       if (clusterId != OperationInvoker.CLUSTER_ID_WHEN_NOT_CONNECTED) {
         clusterString = "Cluster-" + clusterId + " ";
       }
@@ -1135,7 +1133,7 @@ public class Gfsh extends JLineShell {
   }
 
   public void notifyDisconnect(String endPoints) {
-    String message =
+    var message =
         CliStrings.format(CliStrings.GFSH__MSG__NO_LONGER_CONNECTED_TO_0, new Object[] {endPoints});
     printAsSevere(LINE_SEPARATOR + message);
     if (gfshFileLogger.severeEnabled()) {
@@ -1161,11 +1159,11 @@ public class Gfsh extends JLineShell {
   }
 
   protected String expandProperties(final String input) {
-    String output = input;
-    Scanner s = new Scanner(output);
+    var output = input;
+    var s = new Scanner(output);
     String foundInLine;
     while ((foundInLine = s.findInLine("(\\$[\\{]\\w+[\\}])")) != null) {
-      String envProperty = getEnvProperty(extractKey(foundInLine));
+      var envProperty = getEnvProperty(extractKey(foundInLine));
       envProperty = envProperty != null ? envProperty : "";
       output = output.replace(foundInLine, envProperty);
     }

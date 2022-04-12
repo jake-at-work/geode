@@ -33,13 +33,13 @@ public class Logger {
   private static final int LOGWIDTH = Integer.MAX_VALUE;
   private static final SimpleDateFormat timeFormatter;
   static {
-    final String defaultFormatPattern = "MM/dd/yy HH:mm:ss.SSS z";
-    final String resourceName = "org.apache.persistence.admin.LoggerResources";
-    final String keyName = "logger.timeStampFormat";
-    String formatPattern = defaultFormatPattern;
+    final var defaultFormatPattern = "MM/dd/yy HH:mm:ss.SSS z";
+    final var resourceName = "org.apache.persistence.admin.LoggerResources";
+    final var keyName = "logger.timeStampFormat";
+    var formatPattern = defaultFormatPattern;
     SimpleDateFormat sdf;
     try {
-      ResourceBundle messageRB = ResourceBundle.getBundle(resourceName);
+      var messageRB = ResourceBundle.getBundle(resourceName);
       try {
         formatPattern = messageRB.getString(keyName);
       } catch (MissingResourceException e) {
@@ -68,17 +68,17 @@ public class Logger {
 
   private static void formatText(PrintWriter writer, String target, int maxLength,
       int initialLength) {
-    BreakIterator boundary = BreakIterator.getLineInstance();
+    var boundary = BreakIterator.getLineInstance();
     boundary.setText(target);
-    int start = boundary.first();
-    int end = boundary.next();
-    int lineLength = initialLength;
+    var start = boundary.first();
+    var end = boundary.next();
+    var lineLength = initialLength;
 
     while (end != BreakIterator.DONE) {
       // Look at the end and only accept whitespace breaks
-      char endChar = target.charAt(end - 1);
+      var endChar = target.charAt(end - 1);
       while (!Character.isWhitespace(endChar)) {
-        int lastEnd = end;
+        var lastEnd = end;
         end = boundary.next();
         if (end == BreakIterator.DONE) {
           // give up. We are at the end of the string
@@ -87,7 +87,7 @@ public class Logger {
         }
         endChar = target.charAt(end - 1);
       }
-      int wordEnd = end;
+      var wordEnd = end;
       if (endChar == '\n') {
         // trim off the \n since println will do it for us
         wordEnd--;
@@ -95,7 +95,7 @@ public class Logger {
         // figure tabs use 8 characters
         lineLength += 7;
       }
-      String word = target.substring(start, wordEnd);
+      var word = target.substring(start, wordEnd);
       if ((lineLength + word.length()) >= maxLength) {
         if (lineLength != 0) {
           writer.println();
@@ -219,9 +219,9 @@ public class Logger {
    * @param exception the actual Exception to log
    */
   public static void put(PrintWriter log, String msg, Throwable exception) {
-    java.io.StringWriter sw = new java.io.StringWriter();
+    var sw = new java.io.StringWriter();
     String header;
-    PrintWriter pw = new PrintWriter(sw);
+    var pw = new PrintWriter(sw);
 
     pw.println();
     header = '[' + getTimeStamp() + ' ' + Thread.currentThread().getName() + "] ";
@@ -258,9 +258,9 @@ public class Logger {
    * cause NPEs.
    */
   public static String format(String format, Object[] objs) {
-    String[] strings = new String[objs.length];
-    for (int i = 0; i < objs.length; i++) {
-      Object obj = objs[i];
+    var strings = new String[objs.length];
+    for (var i = 0; i < objs.length; i++) {
+      var obj = objs[i];
       if (obj == null) {
         strings[i] = "null";
 

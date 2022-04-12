@@ -274,7 +274,7 @@ public abstract class UniversalMembershipListenerAdapter implements MembershipLi
       if (!(other instanceof AdaptedMembershipEvent)) {
         return false;
       }
-      final AdaptedMembershipEvent that = (AdaptedMembershipEvent) other;
+      final var that = (AdaptedMembershipEvent) other;
 
       return event == that.event || event != null && event.equals(that.event);
     }
@@ -332,11 +332,11 @@ public abstract class UniversalMembershipListenerAdapter implements MembershipLi
 
     protected boolean isDuplicate(MembershipEvent event, boolean joined) {
       synchronized (eventHistory) {
-        boolean duplicate = false;
-        String memberId = event.getMemberId();
+        var duplicate = false;
+        var memberId = event.getMemberId();
 
         // find memberId in eventHistory...
-        int indexOf = eventHistory.indexOf(memberId);
+        var indexOf = eventHistory.indexOf(memberId);
         if (indexOf > -1) {
           // found an event for this member
           if (eventJoined.get(memberId) == joined) {

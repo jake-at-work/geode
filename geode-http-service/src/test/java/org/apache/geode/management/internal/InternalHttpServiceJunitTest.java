@@ -39,12 +39,12 @@ public class InternalHttpServiceJunitTest {
   private InternalCache cache;
 
   public void setup(String bindAddress, int port) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DistributionConfig.HTTP_SERVICE_BIND_ADDRESS_NAME, bindAddress);
     props.setProperty(DistributionConfig.HTTP_SERVICE_PORT_NAME, "" + port);
     distributionConfig = new DistributionConfigImpl(props);
 
-    InternalDistributedSystem ds = mock(InternalDistributedSystem.class);
+    var ds = mock(InternalDistributedSystem.class);
     when(ds.getConfig()).thenReturn(distributionConfig);
 
     cache = mock(InternalCache.class);
@@ -59,8 +59,8 @@ public class InternalHttpServiceJunitTest {
   public void testSetPortNoBindAddress() {
     setup("", 8090);
 
-    final InternalHttpService jetty = new InternalHttpService();
-    boolean didInit = jetty.init(cache);
+    final var jetty = new InternalHttpService();
+    var didInit = jetty.init(cache);
 
     assertThat(didInit).as("Jetty did not initialize").isTrue();
     assertThat(jetty.getHttpServer().getConnectors()[0]).isNotNull();
@@ -72,8 +72,8 @@ public class InternalHttpServiceJunitTest {
   public void testSetPortWithBindAddress() {
     setup("127.0.0.1", 10480);
 
-    final InternalHttpService jetty = new InternalHttpService();
-    boolean didInit = jetty.init(cache);
+    final var jetty = new InternalHttpService();
+    var didInit = jetty.init(cache);
 
     assertThat(didInit).as("Jetty did not initialize").isTrue();
     assertThat(jetty.getHttpServer().getConnectors()[0]).isNotNull();

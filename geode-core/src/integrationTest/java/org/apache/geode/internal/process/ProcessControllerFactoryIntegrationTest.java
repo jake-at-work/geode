@@ -76,7 +76,7 @@ public class ProcessControllerFactoryIntegrationTest {
     FileUtils.writeStringToFile(pidFile, String.valueOf(pid), Charset.defaultCharset());
 
     // act
-    ProcessController controller =
+    var controller =
         factory.createProcessController(parameters, directory, pidFileName);
 
     // assert
@@ -92,7 +92,7 @@ public class ProcessControllerFactoryIntegrationTest {
     factory = new ProcessControllerFactory();
 
     // act
-    ProcessController controller =
+    var controller =
         factory.createProcessController(parameters, directory, pidFileName);
 
     // assert

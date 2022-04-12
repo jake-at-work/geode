@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.search.Query;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -39,7 +38,7 @@ public class StringQueryProviderJUnitTest {
   @Before
   public void initMocksAndCommonObjects() {
     mockIndex = Mockito.mock(LuceneIndexImpl.class, "mockIndex");
-    String[] fields = {"field-1", "field-2"};
+    var fields = new String[] {"field-1", "field-2"};
     Analyzer analyzer = new StandardAnalyzer();
     Mockito.doReturn(analyzer).when(mockIndex).getAnalyzer();
     Mockito.doReturn(fields).when(mockIndex).getFieldNames();
@@ -49,8 +48,8 @@ public class StringQueryProviderJUnitTest {
 
   @Test
   public void testQueryConstruction() throws LuceneQueryException {
-    StringQueryProvider provider = new StringQueryProvider("foo:bar", DEFAULT_FIELD);
-    Query query = provider.getQuery(mockIndex);
+    var provider = new StringQueryProvider("foo:bar", DEFAULT_FIELD);
+    var query = provider.getQuery(mockIndex);
     Assert.assertNotNull(query);
     assertEquals("foo:bar", query.toString());
   }
@@ -58,30 +57,30 @@ public class StringQueryProviderJUnitTest {
   @Test
   @Ignore("Custom analyzer not yet supported, this is a duplicate test right now")
   public void usesCustomAnalyzer() throws LuceneQueryException {
-    StringQueryProvider provider = new StringQueryProvider("findThis", DEFAULT_FIELD);
-    Query query = provider.getQuery(mockIndex);
+    var provider = new StringQueryProvider("findThis", DEFAULT_FIELD);
+    var query = provider.getQuery(mockIndex);
     Assert.assertNotNull(query);
     assertEquals("field-1:findthis field-2:findthis", query.toString());
   }
 
   @Test(expected = LuceneQueryException.class)
   public void errorsOnMalformedQueryString() throws LuceneQueryException {
-    StringQueryProvider provider =
+    var provider =
         new StringQueryProvider("invalid:lucene:query:string", DEFAULT_FIELD);
     provider.getQuery(mockIndex);
   }
 
   @Test
   public void testSerialization() {
-    StringQueryProvider provider = new StringQueryProvider("text:search", DEFAULT_FIELD);
-    StringQueryProvider copy = CopyHelper.deepCopy(provider);
+    var provider = new StringQueryProvider("text:search", DEFAULT_FIELD);
+    var copy = CopyHelper.deepCopy(provider);
     assertEquals("text:search", copy.getQueryString());
   }
 
   @Test
   public void defaultFieldParameterShouldBeUsedByQuery() throws LuceneQueryException {
-    StringQueryProvider provider = new StringQueryProvider("findThis", "field-2");
-    Query query = provider.getQuery(mockIndex);
+    var provider = new StringQueryProvider("findThis", "field-2");
+    var query = provider.getQuery(mockIndex);
     Assert.assertNotNull(query);
     assertEquals("field-2:findthis", query.toString());
   }

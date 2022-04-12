@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.client.internal.ServerDenyList.DenyListListenerAdapter;
-import org.apache.geode.cache.client.internal.ServerDenyList.FailureTracker;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.util.StopWatch;
 import org.apache.geode.test.junit.categories.ClientServerTest;
@@ -53,16 +52,16 @@ public class ServerDenyListJUnitTest {
 
   @Test
   public void testDenyListing() throws Exception {
-    ServerLocation location1 = new ServerLocation("localhost", 1);
-    FailureTracker tracker1 = denyList.getFailureTracker(location1);
+    var location1 = new ServerLocation("localhost", 1);
+    var tracker1 = denyList.getFailureTracker(location1);
     tracker1.addFailure();
     tracker1.addFailure();
     assertEquals(Collections.EMPTY_SET, denyList.getBadServers());
     tracker1.addFailure();
     assertEquals(Collections.singleton(location1), denyList.getBadServers());
 
-    boolean done = false;
-    for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < 10000; done =
+    var done = false;
+    for (var time = new StopWatch(true); !done && time.elapsedTimeMillis() < 10000; done =
         (denyList.getBadServers().size() == 0)) {
       Thread.sleep(200);
     }
@@ -73,8 +72,8 @@ public class ServerDenyListJUnitTest {
 
   @Test
   public void testListener() throws Exception {
-    final AtomicInteger adds = new AtomicInteger();
-    final AtomicInteger removes = new AtomicInteger();
+    final var adds = new AtomicInteger();
+    final var removes = new AtomicInteger();
     denyList.addListener(new DenyListListenerAdapter() {
 
       @Override
@@ -88,8 +87,8 @@ public class ServerDenyListJUnitTest {
       }
     });
 
-    ServerLocation location1 = new ServerLocation("localhost", 1);
-    FailureTracker tracker1 = denyList.getFailureTracker(location1);
+    var location1 = new ServerLocation("localhost", 1);
+    var tracker1 = denyList.getFailureTracker(location1);
     tracker1.addFailure();
     tracker1.addFailure();
 
@@ -99,8 +98,8 @@ public class ServerDenyListJUnitTest {
     assertEquals(1, adds.get());
     assertEquals(0, removes.get());
 
-    boolean done = false;
-    for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < 10000; done =
+    var done = false;
+    for (var time = new StopWatch(true); !done && time.elapsedTimeMillis() < 10000; done =
         (removes.get() != 0)) {
       Thread.sleep(200);
     }

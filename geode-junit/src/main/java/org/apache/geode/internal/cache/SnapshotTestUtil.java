@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.examples.snapshot.MyObject;
 
@@ -32,10 +31,10 @@ public class SnapshotTestUtil {
   public static <K, V> void checkSnapshotEntries(File dir, Map<K, V> expected, String diskStoreName,
       String regionName) throws Exception {
     final Map<K, V> testData = new HashMap<>(expected);
-    String snapshot = "snapshot-" + diskStoreName + "-" + regionName + ".gfd";
+    var snapshot = "snapshot-" + diskStoreName + "-" + regionName + ".gfd";
     try (SnapshotIterator<Integer, MyObject> iter = SnapshotReader.read(new File(dir, snapshot))) {
       while (iter.hasNext()) {
-        Entry<Integer, MyObject> entry = iter.next();
+        var entry = iter.next();
         Object expectedVal = testData.remove(entry.getKey());
         assertEquals(expectedVal, entry.getValue());
       }

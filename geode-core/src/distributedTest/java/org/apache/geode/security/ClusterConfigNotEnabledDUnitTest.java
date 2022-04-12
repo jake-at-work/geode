@@ -17,8 +17,6 @@ package org.apache.geode.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Properties;
 
 import org.junit.Rule;
@@ -26,10 +24,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.SecurityTest;
 
 @Category({SecurityTest.class})
@@ -39,14 +34,14 @@ public class ClusterConfigNotEnabledDUnitTest {
 
   @Test
   public void serverShouldNotRequestClusterConfig() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, "false");
-    MemberVM locator = lsRule.startLocatorVM(0, properties);
-    MemberVM server = lsRule.startServerVM(1, locator.getPort());
+    var locator = lsRule.startLocatorVM(0, properties);
+    var server = lsRule.startServerVM(1, locator.getPort());
 
     server.invoke(() -> {
-      DistributionManager dm = ClusterStartupRule.getCache().getDistributionManager();
-      Map<InternalDistributedMember, Collection<String>> locatorsWithClusterConfig =
+      var dm = ClusterStartupRule.getCache().getDistributionManager();
+      var locatorsWithClusterConfig =
           dm.getAllHostedLocatorsWithSharedConfiguration();
       assertThat(locatorsWithClusterConfig).isEmpty();
     });

@@ -24,33 +24,27 @@ import static org.junit.Assert.fail;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CommitConflictException;
 import org.apache.geode.cache.CommitIncompleteException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.DistTXState;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.TXStateInterface;
 import org.apache.geode.internal.cache.TXStateProxyImpl;
@@ -127,7 +121,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void execute(VM[] vms, SerializableCallable c) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       execute(vm, c);
     }
   }
@@ -136,11 +130,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     return (Integer) vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        int port = getRandomAvailableTCPPort();
-        CacheServer s = getCache().addCacheServer();
+        var port = getRandomAvailableTCPPort();
+        var s = getCache().addCacheServer();
         s.setPort(port);
         s.start();
-        TXManagerImpl txMgr = (TXManagerImpl) getCache().getCacheTransactionManager();
+        var txMgr = (TXManagerImpl) getCache().getCacheTransactionManager();
         txMgr.setTransactionTimeToLiveForTest(10);
         return port;
       }
@@ -152,7 +146,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   }
 
   void createRR(boolean isEmpty) {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.DISTRIBUTED_ACK);
     if (!isEmpty) {
       af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
@@ -164,7 +158,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   }
 
   void createPR(boolean accessor, int redundantCopies, InterestPolicy interestPolicy) {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setConcurrencyChecksEnabled(getConcurrencyChecksEnabled());
     if (interestPolicy != null) {
       af.setSubscriptionAttributes(new SubscriptionAttributes(interestPolicy));
@@ -179,13 +173,13 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     return props;
   }
 
 
   void createRegions(boolean accessor, int redundantCopies, InterestPolicy interestPolicy) {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.DISTRIBUTED_ACK);
     af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     // af.setConcurrencyChecksEnabled(getConcurrencyChecksEnabled());
@@ -211,7 +205,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void createRegions(VM[] vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(new SerializableCallable() {
         @Override
         public Object call() throws Exception {
@@ -234,7 +228,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void createRR(VM[] vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(new SerializableCallable() {
         @Override
         public Object call() throws Exception {
@@ -256,7 +250,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void createPR(VM[] vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(new SerializableCallable() {
         @Override
         public Object call() throws Exception {
@@ -268,7 +262,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void createPRwithRedundanyCopies(VM[] vms, final int redundency) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(new SerializableCallable() {
         @Override
         public Object call() throws Exception {
@@ -290,7 +284,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void createPersistentPR(VM[] vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(new SerializableCallable() {
         @Override
         public Object call() throws Exception {
@@ -308,12 +302,12 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   protected RegionAttributes getPersistentPRAttributes(final int redundancy,
       final int recoveryDelay, Cache cache, int numBuckets, boolean synchronous) {
-    DiskStore ds = cache.findDiskStore("disk");
+    var ds = cache.findDiskStore("disk");
     if (ds == null) {
       ds = cache.createDiskStoreFactory().setDiskDirs(getDiskDirs()).create("disk");
     }
-    AttributesFactory af = new AttributesFactory();
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(redundancy);
     paf.setRecoveryDelay(recoveryDelay);
     paf.setTotalNumBuckets(numBuckets);
@@ -322,7 +316,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     af.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
     af.setDiskStoreName("disk");
     af.setDiskSynchronous(synchronous);
-    RegionAttributes attr = af.create();
+    var attr = af.create();
     return attr;
   }
 
@@ -331,11 +325,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     Region custRegion = getCache().getRegion(CUSTOMER_PR);
     Region orderRegion = getCache().getRegion(ORDER_PR);
     Region refRegion = getCache().getRegion(D_REFERENCE);
-    for (int i = 0; i < 5; i++) {
-      CustId custId = new CustId(i);
-      Customer customer = new Customer("customer" + i, "address" + i);
-      OrderId orderId = new OrderId(i, custId);
-      Order order = new Order("order" + i);
+    for (var i = 0; i < 5; i++) {
+      var custId = new CustId(i);
+      var customer = new Customer("customer" + i, "address" + i);
+      var orderId = new OrderId(i, custId);
+      var order = new Order("order" + i);
       custRegion.put(custId, customer);
       orderRegion.put(orderId, order);
       refRegion.put(custId, customer);
@@ -344,9 +338,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   void populateRR() {
     Region custRegion = getCache().getRegion(CUSTOMER_RR);
-    for (int i = 0; i < 5; i++) {
-      CustId custId = new CustId(i);
-      Customer customer = new Customer("customer" + i, "address" + i);
+    for (var i = 0; i < 5; i++) {
+      var custId = new CustId(i);
+      var customer = new Customer("customer" + i, "address" + i);
       custRegion.put(custId, customer);
     }
   }
@@ -373,10 +367,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTransactionalPutOnReplicatedRegion() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
 
     createRR(new VM[] {server1, server2, server3});
     execute(server1, new SerializableCallable() {
@@ -389,13 +383,13 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         mgr.begin();
 
         Region<CustId, Customer> custRegion = getCache().getRegion(CUSTOMER_RR);
-        CustId custId = new CustId(1);
-        Customer expectedCustomer = custRegion.get(custId);
+        var custId = new CustId(1);
+        var expectedCustomer = custRegion.get(custId);
         assertNull(expectedCustomer);
 
         // Perform a put
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         custRegion.put(custIdOne, customerOne);
 
         // Rollback the transaction
@@ -408,10 +402,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         assertNull(expectedCustomer);
 
         // Perform two more puts and a commit
-        CustId custIdTwo = new CustId(2);
-        Customer customerTwo = new Customer("name2", "addr2");
-        CustId custIdThree = new CustId(3);
-        Customer customerThree = new Customer("name3", "addr3");
+        var custIdTwo = new CustId(2);
+        var customerTwo = new Customer("name2", "addr2");
+        var custIdThree = new CustId(3);
+        var customerThree = new Customer("name3", "addr3");
         custRegion.put(custIdTwo, customerTwo);
         custRegion.put(custIdThree, customerThree);
 
@@ -443,10 +437,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTransactionalPutOnPartitionedRegion() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
 
     createPR(new VM[] {server1, server2, server3});
     execute(server1, new SerializableCallable() {
@@ -455,7 +449,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         CacheTransactionManager mgr = getGemfireCache().getTxManager();
         mgr.setDistributed(true);
-        LogWriter logger = getGemfireCache().getLogger();
+        var logger = getGemfireCache().getLogger();
 
         mgr.begin();
         logger.fine("TEST:Commit-1");
@@ -463,13 +457,13 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         mgr.begin();
         Region<CustId, Customer> custRegion = getCache().getRegion(CUSTOMER_PR);
-        CustId custId = new CustId(1);
-        Customer expectedCustomer = custRegion.get(custId);
+        var custId = new CustId(1);
+        var expectedCustomer = custRegion.get(custId);
         assertNull(expectedCustomer);
 
         // Perform a put
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         logger.fine("TEST:Put-1");
         custRegion.put(custIdOne, customerOne);
 
@@ -483,10 +477,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         assertNull(expectedCustomer);
 
         // Perform two more puts and a commit
-        CustId custIdTwo = new CustId(2);
-        Customer customerTwo = new Customer("name2", "addr2");
-        CustId custIdThree = new CustId(3);
-        Customer customerThree = new Customer("name3", "addr3");
+        var custIdTwo = new CustId(2);
+        var customerTwo = new Customer("name2", "addr2");
+        var custIdThree = new CustId(3);
+        var customerThree = new Customer("name3", "addr3");
         logger.fine("TEST:Put-2");
         custRegion.put(custIdTwo, customerTwo);
         logger.fine("TEST:Put-3");
@@ -505,7 +499,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         // Perform one more put but don't commit
         logger.fine("TEST:Put-4");
-        Customer customerOneMod = new Customer("name1", "addr11");
+        var customerOneMod = new Customer("name1", "addr11");
 
         custRegion.put(custIdOne, customerOneMod);
 
@@ -525,10 +519,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   @SuppressWarnings("serial")
   @Test
   public void testCommitOnPartitionedAndReplicatedRegions() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
     createPR(new VM[] {server1, server2, server3});
     createRR(new VM[] {server1, server2, server3});
     execute(server1, new SerializableCallable() {
@@ -540,13 +534,13 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         Region<CustId, Customer> rrRegion = getCache().getRegion(CUSTOMER_RR);
         Region<CustId, Customer> prRegion = getCache().getRegion(CUSTOMER_PR);
 
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         prRegion.put(custIdOne, customerOne);
         rrRegion.put(custIdOne, customerOne);
 
-        CustId custIdTwo = new CustId(2);
-        Customer customerTwo = new Customer("name2", "addr2");
+        var custIdTwo = new CustId(2);
+        var customerTwo = new Customer("name2", "addr2");
         rrRegion.put(custIdTwo, customerTwo);
 
         mgr.commit();
@@ -570,10 +564,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testGetIsolated() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
     createPR(new VM[] {server1, server2, server3});
     createRR(new VM[] {server1, server2, server3});
     execute(server1, new SerializableCallable() {
@@ -585,14 +579,14 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         mgr.commit();
         mgr.begin();
         Region<CustId, Customer> custPR = getCache().getRegion(CUSTOMER_PR);
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         custPR.put(custIdOne, customerOne);
 
         Region<CustId, Customer> replicatedRegion = getCache().getRegion(CUSTOMER_RR);
         replicatedRegion.put(custIdOne, customerOne);
-        CustId custIdTwo = new CustId(2);
-        Customer customerTwo = new Customer("name2", "addr2");
+        var custIdTwo = new CustId(2);
+        var customerTwo = new Customer("name2", "addr2");
         replicatedRegion.put(custIdTwo, customerTwo);
 
         // Verify before commit
@@ -615,10 +609,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testCommitAndRollback() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
     createPR(new VM[] {server1, server2, server3});
     execute(server1, new SerializableCallable() {
       @Override
@@ -627,9 +621,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         mgr.setDistributed(true);
         // mgr.begin();
         Region<CustId, Customer> custPR = getCache().getRegion(CUSTOMER_PR);
-        for (int i = 0; i < 1000; i++) {
-          CustId custId = new CustId(i);
-          Customer customer = new Customer("name" + i, "addr" + i);
+        for (var i = 0; i < 1000; i++) {
+          var custId = new CustId(i);
+          var customer = new Customer("name" + i, "addr" + i);
           mgr.begin();
           custPR.put(custId, customer);
           if (i % 2 == 0) {
@@ -640,7 +634,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         }
         // Verify number of puts
         assertEquals(500, custPR.size());
-        Set<Region.Entry<?, ?>> entries = custPR.entrySet(false);
+        var entries = custPR.entrySet(false);
         assertEquals(500, entries.size());
 
         return null;
@@ -654,19 +648,19 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testNonColocatedPutByPartitioning() {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0); // datastore
-    VM server2 = host.getVM(1); // datastore
-    VM server3 = host.getVM(2); // accessor
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0); // datastore
+    var server2 = host.getVM(1); // datastore
+    var server3 = host.getVM(2); // accessor
 
-    final String CUSTOMER_PR1 = "CUSTOMER_PR1";
-    final String CUSTOMER_PR2 = "CUSTOMER_PR2";
+    final var CUSTOMER_PR1 = "CUSTOMER_PR1";
+    final var CUSTOMER_PR2 = "CUSTOMER_PR2";
 
     // Create CUSTOMER_PR1 on server1
     execute(server1, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setConcurrencyChecksEnabled(getConcurrencyChecksEnabled());
         af.setPartitionAttributes(new PartitionAttributesFactory<>()
             .setTotalNumBuckets(4).setLocalMaxMemory(1)
@@ -681,7 +675,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     execute(server2, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setConcurrencyChecksEnabled(getConcurrencyChecksEnabled());
         af.setPartitionAttributes(new PartitionAttributesFactory<>()
             .setTotalNumBuckets(4).setLocalMaxMemory(1)
@@ -696,7 +690,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     execute(server3, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setConcurrencyChecksEnabled(getConcurrencyChecksEnabled());
         af.setPartitionAttributes(new PartitionAttributesFactory<>()
             .setTotalNumBuckets(4).setLocalMaxMemory(0) // since this is an accessor
@@ -710,7 +704,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     execute(server3, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setConcurrencyChecksEnabled(getConcurrencyChecksEnabled());
         af.setPartitionAttributes(new PartitionAttributesFactory<>()
             .setTotalNumBuckets(4).setLocalMaxMemory(0) // since this is an accessor
@@ -730,8 +724,8 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         mgr.begin();
 
         Region<CustId, Customer> custPR1 = getCache().getRegion(CUSTOMER_PR1);
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         custPR1.put(custIdOne, customerOne);
 
         Region<CustId, Customer> custPR2 = getCache().getRegion(CUSTOMER_PR2);
@@ -752,8 +746,8 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region<CustId, Customer> custPR1 = getCache().getRegion(CUSTOMER_PR1);
         assertEquals(1, custPR1.size());
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         assertEquals(customerOne, custPR1.get(custIdOne));
         return null;
       }
@@ -762,10 +756,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTransactionalKeyBasedUpdates() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
     createPR(new VM[] {server1, server2, server3});
 
     execute(server1, new SerializableCallable() {
@@ -774,10 +768,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         CacheTransactionManager mgr = getGemfireCache().getTxManager();
         mgr.setDistributed(true);
         // mgr.begin();
-        LogWriter logger = getGemfireCache().getLogger();
+        var logger = getGemfireCache().getLogger();
 
         Region<CustId, Customer> custPR = getCache().getRegion(CUSTOMER_PR);
-        for (int i = 1; i <= 2; i++) {
+        for (var i = 1; i <= 2; i++) {
           mgr.begin();
           logger.fine("TEST:PUT-" + i);
           custPR.put(new CustId(i), new Customer("name" + i, "addr" + i));
@@ -786,9 +780,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         }
 
         // Updates
-        for (int i = 1; i <= 2; i++) {
-          CustId custId = new CustId(i);
-          Customer customer = custPR.get(custId);
+        for (var i = 1; i <= 2; i++) {
+          var custId = new CustId(i);
+          var customer = custPR.get(custId);
           assertNotNull(customer);
           mgr.begin();
           logger.fine("TEST:UPDATE-" + i);
@@ -799,9 +793,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
           logger.fine("TEST:POSTCOMMIT-" + i + "=" + custId + "," + custPR.get(custId));
         }
         // Verify
-        for (int i = 1; i <= 2; i++) {
-          CustId custId = new CustId(i);
-          Customer customer = custPR.get(custId);
+        for (var i = 1; i <= 2; i++) {
+          var custId = new CustId(i);
+          var customer = custPR.get(custId);
           assertNotNull(customer);
           logger.fine("TEST:VERIFYING-" + i);
           assertEquals(new Customer("name" + i * 2, "addr" + i * 2), customer);
@@ -814,10 +808,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTransactionalKeyBasedDestroys_PR() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
     createPR(new VM[] {server1, server2, server3});
 
     execute(server1, new SerializableCallable() {
@@ -828,15 +822,15 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         // mgr.begin();
 
         Region<CustId, Customer> custPR = getCache().getRegion(CUSTOMER_PR);
-        for (int i = 1; i <= 1000; i++) {
+        for (var i = 1; i <= 1000; i++) {
           mgr.begin();
           custPR.put(new CustId(i), new Customer("name" + i, "addr" + i));
           mgr.commit();
         }
 
         // Destroys
-        for (int i = 1; i <= 100; i++) {
-          CustId custId = new CustId(i);
+        for (var i = 1; i <= 100; i++) {
+          var custId = new CustId(i);
           mgr.begin();
           Object customerRemoved = custPR.remove(custId);
           // Removing this assertion since in case of distributed destroys the
@@ -846,9 +840,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         }
 
         // Verify
-        for (int i = 1; i <= 100; i++) {
-          CustId custId = new CustId(1);
-          Customer customer = custPR.get(custId);
+        for (var i = 1; i <= 100; i++) {
+          var custId = new CustId(1);
+          var customer = custPR.get(custId);
           assertNull(customer);
         }
 
@@ -860,10 +854,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTransactionalKeyBasedDestroys_RR() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
     createRR(new VM[] {server1, server2, server3});
 
     execute(server1, new SerializableCallable() {
@@ -874,15 +868,15 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         // mgr.begin();
 
         Region<CustId, Customer> custRR = getCache().getRegion(CUSTOMER_RR);
-        for (int i = 1; i <= 1000; i++) {
+        for (var i = 1; i <= 1000; i++) {
           mgr.begin();
           custRR.put(new CustId(i), new Customer("name" + i, "addr" + i));
           mgr.commit();
         }
 
         // Destroys
-        for (int i = 1; i <= 100; i++) {
-          CustId custId = new CustId(i);
+        for (var i = 1; i <= 100; i++) {
+          var custId = new CustId(i);
           mgr.begin();
           Object customerRemoved = custRR.remove(custId);
           assertNotNull(customerRemoved);
@@ -890,9 +884,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         }
 
         // Verify
-        for (int i = 1; i <= 100; i++) {
-          CustId custId = new CustId(1);
-          Customer customer = custRR.get(custId);
+        for (var i = 1; i <= 100; i++) {
+          var custId = new CustId(1);
+          var customer = custRR.get(custId);
           assertNull(customer);
         }
 
@@ -904,10 +898,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTransactionalUpdates() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
 
     createPR(new VM[] {server2, server3});
     execute(server1, new SerializableCallable() {
@@ -919,7 +913,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         createPR(false, 0, null);
 
         Region<CustId, Customer> custPR = getCache().getRegion(CUSTOMER_PR);
-        for (int i = 1; i <= 200; i++) {
+        for (var i = 1; i <= 200; i++) {
           custPR.put(new CustId(i), new Customer("name" + i, "addr" + i));
         }
 
@@ -933,13 +927,13 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         mgr.commit();
         mgr.begin();
 
-        for (int i = 1; i <= 200; i++) {
+        for (var i = 1; i <= 200; i++) {
           custPR.put(new CustId(i), new Customer("name" + i, "addr" + i));
         }
 
         mgr.commit();
         // mgr.begin();
-        for (int i = 1; i <= 200; i++) {
+        for (var i = 1; i <= 200; i++) {
           mgr.begin();
           custPR.put(new CustId(i), new Customer("name" + i * 2, "addr" + i * 2));
           mgr.commit();
@@ -949,7 +943,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         assertEquals(200, custPR.size());
 
-        for (int i = 1; i <= 200; i++) {
+        for (var i = 1; i <= 200; i++) {
           assertEquals(new Customer("name" + i * 2, "addr" + i * 2), custPR.get(new CustId(i)));
         }
 
@@ -961,17 +955,17 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPutAllWithTransactions() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
 
     createRegions(new VM[] {server1, server2, server3});
 
     execute(new VM[] {server1, server2, server3}, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setConcurrencyChecksEnabled(getConcurrencyChecksEnabled());
         af.setPartitionAttributes(new PartitionAttributesFactory<>()
             .setTotalNumBuckets(4).setLocalMaxMemory(1)
@@ -990,11 +984,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         Map custMap = new HashMap();
         Map orderMap = new HashMap();
-        for (int i = 0; i < 5; i++) {
-          CustId custId = new CustId(i);
-          Customer customer = new Customer("customer" + i, "address" + i);
-          OrderId orderId = new OrderId(i, custId);
-          Order order = new Order("order" + i);
+        for (var i = 0; i < 5; i++) {
+          var custId = new CustId(i);
+          var customer = new Customer("customer" + i, "address" + i);
+          var orderId = new OrderId(i, custId);
+          var order = new Order("order" + i);
           custMap.put(custId, customer);
           orderMap.put(orderId, order);
         }
@@ -1012,11 +1006,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         custMap = new HashMap();
         orderMap = new HashMap();
-        for (int i = 5; i < 10; i++) {
-          CustId custId = new CustId(i);
-          Customer customer = new Customer("customer" + i, "address" + i);
-          OrderId orderId = new OrderId(i, custId);
-          Order order = new Order("order" + i);
+        for (var i = 5; i < 10; i++) {
+          var custId = new CustId(i);
+          var customer = new Customer("customer" + i, "address" + i);
+          var orderId = new OrderId(i, custId);
+          var order = new Order("order" + i);
           custMap.put(custId, customer);
           orderMap.put(orderId, order);
         }
@@ -1037,11 +1031,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         // Verify operations involving non colocated PR
         Map map = new HashMap();
         custMap.clear();
-        for (int i = 10; i < 15; i++) {
-          CustId custId = new CustId(i);
-          Customer customer = new Customer("customer" + i, "address" + i);
-          OrderId orderId = new OrderId(i, custId);
-          Order order = new Order("order" + i);
+        for (var i = 10; i < 15; i++) {
+          var custId = new CustId(i);
+          var customer = new Customer("customer" + i, "address" + i);
+          var orderId = new OrderId(i, custId);
+          var order = new Order("order" + i);
           custMap.put(custId, customer);
           map.put(custId, customer);
         }
@@ -1057,11 +1051,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         custMap.clear();
         map.clear();
-        for (int i = 15; i < 20; i++) {
-          CustId custId = new CustId(i);
-          Customer customer = new Customer("customer" + i, "address" + i);
-          OrderId orderId = new OrderId(i, custId);
-          Order order = new Order("order" + i);
+        for (var i = 15; i < 20; i++) {
+          var custId = new CustId(i);
+          var customer = new Customer("customer" + i, "address" + i);
+          var orderId = new OrderId(i, custId);
+          var order = new Order("order" + i);
           custMap.put(custId, customer);
           map.put(custId, customer);
         }
@@ -1079,10 +1073,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testRemoveAllWithTransactions() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
 
     createRegions(new VM[] {server1, server2, server3});
 
@@ -1094,11 +1088,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         Map custMap = new HashMap();
         Map orderMap = new HashMap();
-        for (int i = 0; i < 15; i++) {
-          CustId custId = new CustId(i);
-          Customer customer = new Customer("customer" + i, "address" + i);
-          OrderId orderId = new OrderId(i, custId);
-          Order order = new Order("order" + i);
+        for (var i = 0; i < 15; i++) {
+          var custId = new CustId(i);
+          var customer = new Customer("customer" + i, "address" + i);
+          var orderId = new OrderId(i, custId);
+          var order = new Order("order" + i);
           custMap.put(custId, customer);
           orderMap.put(orderId, order);
         }
@@ -1116,11 +1110,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         custMap = new HashMap();
         orderMap = new HashMap();
-        for (int i = 5; i < 10; i++) {
-          CustId custId = new CustId(i);
-          Customer customer = new Customer("customer" + i, "address" + i);
-          OrderId orderId = new OrderId(i, custId);
-          Order order = new Order("order" + i);
+        for (var i = 5; i < 10; i++) {
+          var custId = new CustId(i);
+          var customer = new Customer("customer" + i, "address" + i);
+          var orderId = new OrderId(i, custId);
+          var order = new Order("order" + i);
           custMap.put(custId, customer);
           orderMap.put(orderId, order);
         }
@@ -1149,17 +1143,17 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTxWithSingleDataStore() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0); // datastore
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0); // datastore
 
-    final String CUSTOMER_PR1 = "CUSTOMER_PR1";
-    final String CUSTOMER_PR2 = "CUSTOMER_PR2";
+    final var CUSTOMER_PR1 = "CUSTOMER_PR1";
+    final var CUSTOMER_PR2 = "CUSTOMER_PR2";
 
     // Create CUSTOMER_PR1 on server1
     execute(server1, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setConcurrencyChecksEnabled(getConcurrencyChecksEnabled());
         af.setPartitionAttributes(new PartitionAttributesFactory<>()
             .setTotalNumBuckets(4).setLocalMaxMemory(1)
@@ -1174,7 +1168,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     execute(server1, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setConcurrencyChecksEnabled(getConcurrencyChecksEnabled());
         af.setPartitionAttributes(new PartitionAttributesFactory<>()
             .setTotalNumBuckets(4).setLocalMaxMemory(1)
@@ -1194,8 +1188,8 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         mgr.begin();
 
         Region<CustId, Customer> custPR1 = getCache().getRegion(CUSTOMER_PR1);
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         custPR1.put(custIdOne, customerOne);
 
         Region<CustId, Customer> custPR2 = getCache().getRegion(CUSTOMER_PR2);
@@ -1215,8 +1209,8 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region<CustId, Customer> custPR1 = getCache().getRegion(CUSTOMER_PR1);
         assertEquals(1, custPR1.size());
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         assertEquals(customerOne, custPR1.get(custIdOne));
         return null;
       }
@@ -1225,10 +1219,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testMultipleOpsOnSameKeyInTx() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
 
     createPR(new VM[] {server1, server2, server3});
     execute(server1, new SerializableCallable() {
@@ -1242,13 +1236,13 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         mgr.begin();
         Region<CustId, Customer> custRegion = getCache().getRegion(CUSTOMER_PR);
-        CustId custId = new CustId(1);
-        Customer expectedCustomer = custRegion.get(custId);
+        var custId = new CustId(1);
+        var expectedCustomer = custRegion.get(custId);
         assertNull(expectedCustomer);
 
         // Perform a put
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         custRegion.put(custIdOne, customerOne);
 
         // Rollback the transaction
@@ -1260,10 +1254,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         assertNull(expectedCustomer);
 
         // Add more data
-        CustId custIdTwo = new CustId(2);
-        Customer customerTwo = new Customer("name2", "addr2");
-        CustId custIdThree = new CustId(3);
-        Customer customerThree = new Customer("name3", "addr3");
+        var custIdTwo = new CustId(2);
+        var customerTwo = new Customer("name2", "addr2");
+        var custIdThree = new CustId(3);
+        var customerThree = new Customer("name3", "addr3");
         custRegion.put(custIdTwo, customerTwo);
         custRegion.put(custIdThree, customerThree);
         mgr.commit();
@@ -1287,7 +1281,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         mgr.commit();
 
         assertEquals(3, custRegion.size());
-        Customer c = custRegion.get(custIdOne);
+        var c = custRegion.get(custIdOne);
         return null;
       }
     });
@@ -1302,9 +1296,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
   @Ignore
   @Test
   public void testConcurrentTXAndNonTXOperations() throws Exception {
-    Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
+    var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
 
     createPersistentPR(new VM[] {server1});
 
@@ -1313,16 +1307,16 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region<CustId, Customer> prRegion = getCache().getRegion(PERSISTENT_CUSTOMER_PR);
 
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         prRegion.put(custIdOne, customerOne);
 
-        BucketRegion br = ((PartitionedRegion) prRegion).getBucketRegion(custIdOne);
+        var br = ((PartitionedRegion) prRegion).getBucketRegion(custIdOne);
 
-        String primaryMember = br.getBucketAdvisor().getPrimary().toString();
+        var primaryMember = br.getBucketAdvisor().getPrimary().toString();
         getGemfireCache().getLogger().fine("TEST:PRIMARY:" + primaryMember);
 
-        String memberId = getGemfireCache().getDistributedSystem().getMemberId();
+        var memberId = getGemfireCache().getDistributedSystem().getMemberId();
         getGemfireCache().getLogger().fine("TEST:MEMBERID:" + memberId);
 
         return null;
@@ -1331,25 +1325,25 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
     createPersistentPR(new VM[] {server2});
 
-    Boolean isPrimary = (Boolean) execute(server1, new SerializableCallable() {
+    var isPrimary = (Boolean) execute(server1, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region<CustId, Customer> prRegion = getCache().getRegion(PERSISTENT_CUSTOMER_PR);
-        CustId custIdOne = new CustId(1);
-        BucketRegion br = ((PartitionedRegion) prRegion).getBucketRegion(custIdOne);
+        var custIdOne = new CustId(1);
+        var br = ((PartitionedRegion) prRegion).getBucketRegion(custIdOne);
 
-        String primaryMember = br.getBucketAdvisor().getPrimary().toString();
+        var primaryMember = br.getBucketAdvisor().getPrimary().toString();
         getGemfireCache().getLogger().fine("TEST:PRIMARY:" + primaryMember);
 
-        String memberId = getGemfireCache().getDistributedSystem().getMemberId();
+        var memberId = getGemfireCache().getDistributedSystem().getMemberId();
         getGemfireCache().getLogger().fine("TEST:MEMBERID:" + memberId);
 
         return memberId.equals(primaryMember);
       }
     });
 
-    final VM primary = isPrimary ? server1 : server2;
-    final VM secondary = !isPrimary ? server1 : server2;
+    final var primary = isPrimary ? server1 : server2;
+    final var secondary = !isPrimary ? server1 : server2;
 
     System.out.println("TEST:SERVER-1:VM-" + server1.getId());
     System.out.println("TEST:SERVER-2:VM-" + server2.getId());
@@ -1381,10 +1375,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     }
 
     // Install TX hook
-    SerializableCallable txHook = new SerializableCallable() {
+    var txHook = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CountDownLatch cdl = new CountDownLatch(1);
+        var cdl = new CountDownLatch(1);
         DistTXState.internalBeforeApplyChanges = new WaitRelease(cdl, "TX OP");
         return null;
       }
@@ -1394,10 +1388,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
 
     // Install non-TX hook
-    SerializableCallable nontxHook = new SerializableCallable() {
+    var nontxHook = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CountDownLatch cdl = new CountDownLatch(1);
+        var cdl = new CountDownLatch(1);
         DistTXState.internalBeforeNonTXBasicPut = new WaitRelease(cdl, "NON TX OP");
         return null;
       }
@@ -1423,8 +1417,8 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
             mgr.begin();
             Region<CustId, Customer> prRegion = getCache().getRegion(PERSISTENT_CUSTOMER_PR);
 
-            CustId custIdOne = new CustId(1);
-            Customer customerOne = new Customer("name1_tx", "addr1");
+            var custIdOne = new CustId(1);
+            var customerOne = new Customer("name1_tx", "addr1");
             getGemfireCache().getLogger().fine("TEST:TX UPDATE");
             prRegion.put(custIdOne, customerOne);
             getGemfireCache().getLogger().fine("TEST:TX COMMIT");
@@ -1444,8 +1438,8 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region<CustId, Customer> prRegion = getCache().getRegion(PERSISTENT_CUSTOMER_PR);
 
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1_nontx", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1_nontx", "addr1");
         getGemfireCache().getLogger().fine("TEST:TX NONTXUPDATE");
         prRegion.put(custIdOne, customerOne);
         return null;
@@ -1460,9 +1454,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     execute(secondary, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Runnable r = DistTXState.internalBeforeNonTXBasicPut;
+        var r = DistTXState.internalBeforeNonTXBasicPut;
         assert (r != null && r instanceof WaitRelease);
-        WaitRelease e = (WaitRelease) r;
+        var e = (WaitRelease) r;
         e.release();
         return null;
       }
@@ -1472,25 +1466,25 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     execute(secondary, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Runnable r = DistTXState.internalBeforeApplyChanges;
+        var r = DistTXState.internalBeforeApplyChanges;
         assert (r != null && r instanceof WaitRelease);
-        WaitRelease e = (WaitRelease) r;
+        var e = (WaitRelease) r;
         e.release();
         return null;
       }
     });
 
     // Verify region and entry versions on primary and secondary
-    SerializableCallable verifyPrimary = new SerializableCallable() {
+    var verifyPrimary = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region<CustId, Customer> prRegion = getCache().getRegion(PERSISTENT_CUSTOMER_PR);
 
-        CustId custId = new CustId(1);
-        Customer customer = prRegion.get(custId);
+        var custId = new CustId(1);
+        var customer = prRegion.get(custId);
 
-        BucketRegion br = ((PartitionedRegion) prRegion).getBucketRegion(custId);
-        RegionEntry re = br.getRegionEntry(custId);
+        var br = ((PartitionedRegion) prRegion).getBucketRegion(custId);
+        var re = br.getRegionEntry(custId);
 
         getGemfireCache().getLogger().fine("TEST:TX PRIMARY CUSTOMER=" + customer);
 
@@ -1502,16 +1496,16 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       }
     };
     execute(primary, verifyPrimary);
-    SerializableCallable verifySecondary = new SerializableCallable() {
+    var verifySecondary = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region<CustId, Customer> prRegion = getCache().getRegion(PERSISTENT_CUSTOMER_PR);
 
-        CustId custId = new CustId(1);
-        Customer customer = prRegion.get(custId);
+        var custId = new CustId(1);
+        var customer = prRegion.get(custId);
 
-        BucketRegion br = ((PartitionedRegion) prRegion).getBucketRegion(custId);
-        RegionEntry re = br.getRegionEntry(custId);
+        var br = ((PartitionedRegion) prRegion).getBucketRegion(custId);
+        var re = br.getRegionEntry(custId);
 
         getGemfireCache().getLogger().fine("TEST:TX SECONDARY CUSTOMER=" + customer);
 
@@ -1528,9 +1522,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testBasicDistributedTX() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
 
     createPersistentPR(new VM[] {server1, server2});
     execute(server2, new SerializableCallable() {
@@ -1544,13 +1538,13 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         mgr.begin();
         Region<CustId, Customer> prRegion = getCache().getRegion(PERSISTENT_CUSTOMER_PR);
 
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         getGemfireCache().getLogger().fine("TEST:TX PUT 1");
         prRegion.put(custIdOne, customerOne);
 
-        CustId custIdTwo = new CustId(2);
-        Customer customerTwo = new Customer("name2", "addr2");
+        var custIdTwo = new CustId(2);
+        var customerTwo = new Customer("name2", "addr2");
         getGemfireCache().getLogger().fine("TEST:TX PUT 2");
         prRegion.put(custIdTwo, customerTwo);
 
@@ -1564,9 +1558,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testRegionAndEntryVersionsPR() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
 
     createPersistentPR(new VM[] {server1, server2});
     execute(server2, new SerializableCallable() {
@@ -1580,12 +1574,12 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         Region<CustId, Customer> prRegion = getCache().getRegion(PERSISTENT_CUSTOMER_PR);
 
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         getGemfireCache().getLogger().fine("TEST:TX PUT 1");
         prRegion.put(custIdOne, customerOne);
 
-        BucketRegion br = ((PartitionedRegion) prRegion).getBucketRegion(custIdOne);
+        var br = ((PartitionedRegion) prRegion).getBucketRegion(custIdOne);
 
         assertEquals(0L, br.getVersionVector().getCurrentVersion());
         getGemfireCache().getLogger().fine("TEST:TX COMMIT 1");
@@ -1594,7 +1588,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         // Verify region version on the region
         assertEquals(1L, br.getVersionVector().getCurrentVersion());
 
-        RegionEntry re = br.getRegionEntry(custIdOne);
+        var re = br.getRegionEntry(custIdOne);
         getGemfireCache().getLogger().fine("TEST:VERSION-STAMP:" + re.getVersionStamp());
 
         // Verify region version on the region entry
@@ -1632,14 +1626,14 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region<CustId, Customer> prRegion = getCache().getRegion(PERSISTENT_CUSTOMER_PR);
-        CustId custIdOne = new CustId(1);
-        BucketRegion br = ((PartitionedRegion) prRegion).getBucketRegion(custIdOne);
+        var custIdOne = new CustId(1);
+        var br = ((PartitionedRegion) prRegion).getBucketRegion(custIdOne);
 
         // Verify region version on the region
         assertEquals(2L, br.getVersionVector().getCurrentVersion());
 
         // Verify region version ont the region entry
-        RegionEntry re = br.getRegionEntry(custIdOne);
+        var re = br.getRegionEntry(custIdOne);
         assertEquals(2L, re.getVersionStamp().getRegionVersion());
 
         // Verify entry version
@@ -1653,9 +1647,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testRegionAndEntryVersionsRR() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
 
     createRR(new VM[] {server1, server2});
     execute(server2, new SerializableCallable() {
@@ -1669,12 +1663,12 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
         Region<CustId, Customer> region = getCache().getRegion(CUSTOMER_RR);
 
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         getGemfireCache().getLogger().fine("TEST:TX PUT 1");
         region.put(custIdOne, customerOne);
 
-        LocalRegion lr = (LocalRegion) region;
+        var lr = (LocalRegion) region;
 
         assertEquals(0L, lr.getVersionVector().getCurrentVersion());
         getGemfireCache().getLogger().fine("TEST:TX COMMIT 1");
@@ -1683,7 +1677,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         // Verify region version on the region
         assertEquals(1L, lr.getVersionVector().getCurrentVersion());
 
-        RegionEntry re = lr.getRegionEntry(custIdOne);
+        var re = lr.getRegionEntry(custIdOne);
         getGemfireCache().getLogger().fine("TEST:VERSION-STAMP:" + re.getVersionStamp());
 
         // Verify region version on the region entry
@@ -1721,15 +1715,15 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region<CustId, Customer> region = getCache().getRegion(CUSTOMER_RR);
-        CustId custIdOne = new CustId(1);
+        var custIdOne = new CustId(1);
 
-        LocalRegion lr = (LocalRegion) region;
+        var lr = (LocalRegion) region;
 
         // Verify region version on the region
         assertEquals(2L, lr.getVersionVector().getCurrentVersion());
 
         // Verify region version ont the region entry
-        RegionEntry re = lr.getRegionEntry(custIdOne);
+        var re = lr.getRegionEntry(custIdOne);
         assertEquals(2L, re.getVersionStamp().getRegionVersion());
 
         // Verify entry version
@@ -1744,10 +1738,10 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTxWorksWithNewNodeJoining() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
 
     createPR(new VM[] {server1, server2});
 
@@ -1766,13 +1760,13 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         mgr.begin();
         Region<CustId, Customer> prRegion = getCache().getRegion(CUSTOMER_PR);
 
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         prRegion.put(custIdOne, customerOne);
 
 
         // Install the hook at this point
-        TestObserver o = TestObserver.getInstance();
+        var o = TestObserver.getInstance();
         TestObserver.setFlag(true);
 
         while (o.getFlag()) {
@@ -1799,7 +1793,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
     execute(server1, new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        TestObserver o = TestObserver.getInstance();
+        var o = TestObserver.getInstance();
         TestObserver.setFlag(false);
         return null;
       }
@@ -1841,12 +1835,12 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       // Perform a put
       Region<CustId, Customer> custRegion = getCache().getRegion(regionName);
 
-      CustId custIdOne = new CustId(1);
-      Customer customerOne = new Customer("name1", "addr1");
-      CustId custIdTwo = new CustId(2);
-      Customer customerTwo = new Customer("name2", "addr2");
-      CustId custIdThree = new CustId(3);
-      Customer customerThree = new Customer("name3", "addr3");
+      var custIdOne = new CustId(1);
+      var customerOne = new Customer("name1", "addr1");
+      var custIdTwo = new CustId(2);
+      var customerTwo = new Customer("name2", "addr2");
+      var custIdThree = new CustId(3);
+      var customerThree = new Customer("name3", "addr3");
       custRegion.put(custIdOne, customerOne);
       custRegion.put(custIdTwo, customerTwo);
       custRegion.put(custIdThree, customerThree);
@@ -1859,15 +1853,15 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
           CacheTransactionManager mgr = getGemfireCache().getTxManager();
           mgr.setDistributed(true);
           mgr.begin();
-          CustId custIdOne = new CustId(1);
-          Customer customerOne = new Customer("name1", "addr11");
+          var custIdOne = new CustId(1);
+          var customerOne = new Customer("name1", "addr11");
           Region<CustId, Customer> custRegion = getCache().getRegion(regionName);
           custRegion.put(custIdOne, customerOne);
           mgr.commit();
         }
       }
 
-      TxThread txThread = new TxThread();
+      var txThread = new TxThread();
       txThread.start();
       txThread.join(); // let the tx commit
 
@@ -1899,11 +1893,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCommitConflicts_PR() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
-    VM accessor = host.getVM(3);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
+    var accessor = host.getVM(3);
 
     createPRwithRedundanyCopies(new VM[] {server1, server2, server3}, 1);
     createPRonAccessor(accessor, 1);
@@ -1920,11 +1914,11 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCommitConflicts_RR() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
-    VM accessor = host.getVM(3);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
+    var accessor = host.getVM(3);
 
     createRR(new VM[] {server1, server2, server3});
     createRRonAccessor(accessor);
@@ -1959,8 +1953,8 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
           CacheTransactionManager mgr = getGemfireCache().getTxManager();
           mgr.setDistributed(true);
           mgr.begin();
-          CustId custIdOne = new CustId(1);
-          Customer customerOne = new Customer("name1", "addr11");
+          var custIdOne = new CustId(1);
+          var customerOne = new Customer("name1", "addr11");
           Region<CustId, Customer> custRegion = getCache().getRegion(regionName);
           custRegion.put(custIdOne, customerOne);
           try {
@@ -1976,7 +1970,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         }
       }
 
-      TxThread txThread = new TxThread();
+      var txThread = new TxThread();
       txThread.start();
       try {
         txThread.join(); // let the tx commit
@@ -2009,20 +2003,20 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       // set up a callback to be invoked after locks are acquired at commit time
       ((TXStateProxyImpl) ((TXManagerImpl) mgr).getTXState()).forceLocalBootstrap();
       TXStateInterface txp = ((TXManagerImpl) mgr).getTXState();
-      DistTXState tx = (DistTXState) ((TXStateProxyImpl) txp).getRealDeal(null, null);
+      var tx = (DistTXState) ((TXStateProxyImpl) txp).getRealDeal(null, null);
       tx.setAfterReservation(new TxConflictRunnable(regionName)); // callback
 
       // Perform a put
       Region<CustId, Customer> custRegion = getCache().getRegion(regionName);
 
-      CustId custIdOne = new CustId(1);
-      Customer customerOne = new Customer("name1", "addr1");
-      CustId custIdTwo = new CustId(2);
-      Customer customerTwo = new Customer("name2", "addr2");
-      CustId custIdThree = new CustId(3);
-      Customer customerThree = new Customer("name3", "addr3");
-      CustId custIdFour = new CustId(4);
-      Customer customerFour = new Customer("name4", "addr4");
+      var custIdOne = new CustId(1);
+      var customerOne = new Customer("name1", "addr1");
+      var custIdTwo = new CustId(2);
+      var customerTwo = new Customer("name2", "addr2");
+      var custIdThree = new CustId(3);
+      var customerThree = new Customer("name3", "addr3");
+      var custIdFour = new CustId(4);
+      var customerFour = new Customer("name4", "addr4");
       custRegion.put(custIdOne, customerOne);
       custRegion.put(custIdTwo, customerTwo);
       custRegion.put(custIdThree, customerThree);
@@ -2049,9 +2043,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCommitConflicts_PR_after_locks_acquired() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
 
     // createPRwithRedundanyCopies(new VM[] { server1, server2 }, 1);
 
@@ -2067,9 +2061,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCommitConflicts_RR_after_locks_acquired() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
 
     createRR(new VM[] {server1, server2});
 
@@ -2097,7 +2091,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
           mgr.setDistributed(true);
           mgr.begin();
           Region<CustId, Customer> custRegion = getCache().getRegion(regionName);
-          for (int i = 11; i <= 20; i++) {
+          for (var i = 11; i <= 20; i++) {
             custRegion.put(new CustId(i), new Customer("name" + i, "addr" + i));
           }
           try {
@@ -2110,7 +2104,7 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
         }
       }
 
-      TxThread txThread = new TxThread();
+      var txThread = new TxThread();
       txThread.start();
       try {
         txThread.join(); // let the tx commit
@@ -2141,20 +2135,20 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
       // set up a callback to be invoked after locks are acquired at commit time
       ((TXStateProxyImpl) ((TXManagerImpl) mgr).getTXState()).forceLocalBootstrap();
       TXStateInterface txp = ((TXManagerImpl) mgr).getTXState();
-      DistTXState tx = (DistTXState) ((TXStateProxyImpl) txp).getRealDeal(null, null);
+      var tx = (DistTXState) ((TXStateProxyImpl) txp).getRealDeal(null, null);
       tx.setAfterReservation(new TxRunnable(regionName)); // callback
 
       // Perform a put
       Region<CustId, Customer> custRegion = getCache().getRegion(regionName);
 
-      CustId custIdOne = new CustId(1);
-      Customer customerOne = new Customer("name1", "addr1");
-      CustId custIdTwo = new CustId(2);
-      Customer customerTwo = new Customer("name2", "addr2");
-      CustId custIdThree = new CustId(3);
-      Customer customerThree = new Customer("name3", "addr3");
-      CustId custIdFour = new CustId(4);
-      Customer customerFour = new Customer("name4", "addr4");
+      var custIdOne = new CustId(1);
+      var customerOne = new Customer("name1", "addr1");
+      var custIdTwo = new CustId(2);
+      var customerTwo = new Customer("name2", "addr2");
+      var custIdThree = new CustId(3);
+      var customerThree = new Customer("name3", "addr3");
+      var custIdFour = new CustId(4);
+      var customerFour = new Customer("name4", "addr4");
       custRegion.put(custIdOne, customerOne);
       custRegion.put(custIdTwo, customerTwo);
       custRegion.put(custIdThree, customerThree);
@@ -2177,9 +2171,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCommitNoConflicts_PR() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
 
     createPRwithRedundanyCopies(new VM[] {server1, server2}, 1);
 
@@ -2192,9 +2186,9 @@ public class DistributedTransactionDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCommitNoConflicts_RR() throws Exception {
-    Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
 
     createRR(new VM[] {server1, server2});
 

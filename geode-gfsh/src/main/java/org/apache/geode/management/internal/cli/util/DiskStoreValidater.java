@@ -44,7 +44,7 @@ public class DiskStoreValidater {
     dirList = diskDirs.split(";");
     if (dirList != null && dirList.length > 0) {
       dirs = new File[dirList.length];
-      for (int i = 0; i < dirList.length; ++i) {
+      for (var i = 0; i < dirList.length; ++i) {
         dirs[i] = new File(dirList[i]);
       }
     } else {

@@ -68,8 +68,8 @@ public class HTTPServiceSSLSupportJUnitTest {
   }
 
   public static String makePath(String[] strings) {
-    StringBuilder sb = new StringBuilder();
-    for (final String string : strings) {
+    var sb = new StringBuilder();
+    for (final var string : strings) {
       sb.append(string);
       sb.append(File.separator);
     }
@@ -81,7 +81,7 @@ public class HTTPServiceSSLSupportJUnitTest {
   @SuppressWarnings("deprecation")
   public void testSSLWithClusterSSL() throws Exception {
 
-    Properties localProps = new Properties();
+    var localProps = new Properties();
     localProps.setProperty(MCAST_PORT, "0");
     localProps.setProperty(CLUSTER_SSL_ENABLED, "true");
     localProps.setProperty(CLUSTER_SSL_KEYSTORE, jks.getCanonicalPath());
@@ -92,7 +92,7 @@ public class HTTPServiceSSLSupportJUnitTest {
     localProps.setProperty(CLUSTER_SSL_TRUSTSTORE, jks.getCanonicalPath());
     localProps.setProperty(CLUSTER_SSL_TRUSTSTORE_PASSWORD, "password");
 
-    DistributionConfigImpl config = new DistributionConfigImpl(localProps);
+    var config = new DistributionConfigImpl(localProps);
 
     assertTrue(config.getHttpServiceSSLEnabled());
     assertEquals(config.getHttpServiceSSLKeyStore(), jks.getCanonicalPath());
@@ -108,7 +108,7 @@ public class HTTPServiceSSLSupportJUnitTest {
   @SuppressWarnings("deprecation")
   public void testSSLWithDeprecatedClusterSSL_HTTPService() throws Exception {
 
-    Properties localProps = new Properties();
+    var localProps = new Properties();
     localProps.setProperty(MCAST_PORT, "0");
     localProps.setProperty(CLUSTER_SSL_ENABLED, "true");
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "javax.net.ssl.keyStore",
@@ -123,7 +123,7 @@ public class HTTPServiceSSLSupportJUnitTest {
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "javax.net.ssl.trustStorePassword",
         "password");
 
-    DistributionConfigImpl config = new DistributionConfigImpl(localProps);
+    var config = new DistributionConfigImpl(localProps);
 
     assertTrue(config.getHttpServiceSSLEnabled());
     assertEquals("SSL", config.getHttpServiceSSLProtocols());
@@ -145,14 +145,14 @@ public class HTTPServiceSSLSupportJUnitTest {
   @SuppressWarnings("deprecation")
   public void testSSLWithDeprecatedClusterSSL_HTTPService_WithSSL_Properties() throws Exception {
 
-    Properties localProps = new Properties();
+    var localProps = new Properties();
     localProps.setProperty(MCAST_PORT, "0");
     localProps.setProperty(CLUSTER_SSL_ENABLED, "true");
 
     localProps.setProperty(CLUSTER_SSL_PROTOCOLS, "SSL");
     localProps.setProperty(CLUSTER_SSL_REQUIRE_AUTHENTICATION, "true");
 
-    Properties sslProps = new Properties();
+    var sslProps = new Properties();
     sslProps.setProperty("javax.net.ssl.keyStore", jks.getCanonicalPath());
     sslProps.setProperty("javax.net.ssl.keyStorePassword", "password");
     sslProps.setProperty("javax.net.ssl.trustStore", jks.getCanonicalPath());
@@ -160,7 +160,7 @@ public class HTTPServiceSSLSupportJUnitTest {
 
     localProps.putAll(sslProps);
 
-    DistributionConfigImpl config = new DistributionConfigImpl(localProps);
+    var config = new DistributionConfigImpl(localProps);
 
     assertTrue(config.getHttpServiceSSLEnabled());
     assertEquals(config.getHttpServiceSSLProtocols(), "SSL");

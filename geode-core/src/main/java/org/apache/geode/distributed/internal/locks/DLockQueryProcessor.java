@@ -63,9 +63,9 @@ public class DLockQueryProcessor extends ReplyProcessor21 {
   static DLockQueryReplyMessage query(final InternalDistributedMember grantor,
       final String serviceName, final Object objectName, final boolean lockBatch,
       final DistributionManager dm) {
-    DLockQueryProcessor processor = new DLockQueryProcessor(dm, grantor, serviceName);
+    var processor = new DLockQueryProcessor(dm, grantor, serviceName);
 
-    DLockQueryMessage msg = new DLockQueryMessage();
+    var msg = new DLockQueryMessage();
     msg.processorId = processor.getProcessorId();
     msg.serviceName = serviceName;
     msg.objectName = objectName;
@@ -114,7 +114,7 @@ public class DLockQueryProcessor extends ReplyProcessor21 {
   @Override
   public void process(DistributionMessage msg) {
     try {
-      DLockQueryReplyMessage myReply = (DLockQueryReplyMessage) msg;
+      var myReply = (DLockQueryReplyMessage) msg;
       if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
         logger.trace(LogMarker.DLS_VERBOSE, "Handling: {}", myReply);
       }
@@ -157,7 +157,7 @@ public class DLockQueryProcessor extends ReplyProcessor21 {
      */
     @Override
     protected void process(final ClusterDistributionManager dm) {
-      boolean failed = true;
+      var failed = true;
       ReplyException replyException = null;
       try {
         svc = DLockService.getInternalServiceNamed(serviceName);
@@ -185,7 +185,7 @@ public class DLockQueryProcessor extends ReplyProcessor21 {
           if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
             logger.trace(LogMarker.DLS_VERBOSE, "DLockQueryMessage.process failed for <{}>", this);
           }
-          DLockQueryReplyMessage replyMsg = new DLockQueryReplyMessage();
+          var replyMsg = new DLockQueryReplyMessage();
           replyMsg.setProcessorId(processorId);
           replyMsg.setRecipient(getSender());
           replyMsg.setException(replyException); // might be null
@@ -213,7 +213,7 @@ public class DLockQueryProcessor extends ReplyProcessor21 {
      * this.svc and this.grantor must be set before calling this method.
      */
     private void executeBasicProcess(final DistributionManager dm) {
-      final DLockQueryMessage msg = this;
+      final var msg = this;
       dm.getExecutors().getWaitingThreadPool().execute(() -> {
         if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
           logger.trace(LogMarker.DLS_VERBOSE, "[executeBasicProcess] {}", msg);
@@ -228,11 +228,11 @@ public class DLockQueryProcessor extends ReplyProcessor21 {
      * this.svc and this.grantor must be set before calling this method.
      */
     protected void basicProcess(final DistributionManager dm, final boolean waitForGrantor) {
-      final boolean isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
+      final var isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
       if (isDebugEnabled_DLS) {
         logger.trace(LogMarker.DLS_VERBOSE, "[basicProcess] {}", this);
       }
-      final DLockQueryReplyMessage replyMsg = new DLockQueryReplyMessage();
+      final var replyMsg = new DLockQueryReplyMessage();
       replyMsg.setProcessorId(processorId);
       replyMsg.setRecipient(getSender());
       replyMsg.replyCode = DLockQueryReplyMessage.NOT_GRANTOR;
@@ -468,7 +468,7 @@ public class DLockQueryProcessor extends ReplyProcessor21 {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("DLockQueryReplyMessage@");
+      var sb = new StringBuilder("DLockQueryReplyMessage@");
       sb.append(Integer.toHexString(hashCode()));
       sb.append(", replyCode: ");
       switch (replyCode) {

@@ -56,7 +56,7 @@ public class LuceneClientSecurityWithRegionCreatedBeforeIndexDUnitTest
 
     region.put("key", new org.apache.geode.cache.lucene.test.TestObject("hello", "world"));
 
-    LuceneService luceneService = LuceneServiceProvider.get(cache);
+    var luceneService = LuceneServiceProvider.get(cache);
     ((LuceneIndexFactoryImpl) luceneService.createIndexFactory()).addField("field1")
         .create(INDEX_NAME, REGION_NAME, LuceneServiceImpl.LUCENE_REINDEX);
   }

@@ -44,12 +44,12 @@ public class OfflineSnapshotJUnitTest {
 
   @Test
   public void testExport() throws Exception {
-    int rcount = 0;
-    for (final RegionType rt : RegionType.persistentValues()) {
-      for (final SerializationType st : SerializationType.offlineValues()) {
+    var rcount = 0;
+    for (final var rt : RegionType.persistentValues()) {
+      for (final var st : SerializationType.offlineValues()) {
         Region<Integer, MyObject> region =
             rgen.createRegion(cache, ds.getName(), rt, "test" + rcount++);
-        final Map<Integer, MyObject> expected = createExpected(st, 1000);
+        final var expected = createExpected(st, 1000);
         region.putAll(expected);
         removeAndInvalidateKeys(region, expected);
         cache.close();
@@ -66,8 +66,8 @@ public class OfflineSnapshotJUnitTest {
 
   private void removeAndInvalidateKeys(Region<Integer, MyObject> region,
       Map<Integer, MyObject> expected) {
-    int removed = 5;
-    int invalidated = 7;
+    var removed = 5;
+    var invalidated = 7;
     region.destroy(removed);
     region.invalidate(invalidated);
     expected.remove(removed);
@@ -76,24 +76,24 @@ public class OfflineSnapshotJUnitTest {
 
   @Test
   public void testLargeFileExport() throws Exception {
-    int count = 10000;
+    var count = 10000;
     Region<Integer, MyObject> region =
         rgen.createRegion(cache, ds.getName(), RegionType.PARTITION_PERSISTENT, "test");
 
     System.out.println("Creating entries...");
-    final Map<Integer, MyObject> expected =
+    final var expected =
         createExpected(SerializationType.DATA_SERIALIZABLE, count);
 
     region.putAll(expected);
     cache.close();
 
     System.out.println("Recovering entries...");
-    for (int i = 0; i < 10; i++) {
-      long start = System.currentTimeMillis();
+    for (var i = 0; i < 10; i++) {
+      var start = System.currentTimeMillis();
       DiskStoreImpl.exportOfflineSnapshot(ds.getName(), new File[] {new File(".")}, new File("."));
 
-      long elapsed = System.currentTimeMillis() - start;
-      double rate = 1.0 * count / elapsed;
+      var elapsed = System.currentTimeMillis() - start;
+      var rate = 1.0 * count / elapsed;
 
       System.out.println("Created snapshot with " + count + " entries in " + elapsed + " ms ("
           + rate + " entries/ms)");
@@ -104,7 +104,7 @@ public class OfflineSnapshotJUnitTest {
 
   private Map<Integer, MyObject> createExpected(SerializationType type, int count) {
     Map<Integer, MyObject> expected = new HashMap<>();
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       expected.put(i, rgen.createData(type, i, "The number is " + i));
     }
     return expected;
@@ -112,7 +112,7 @@ public class OfflineSnapshotJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    for (File f : new File(".").listFiles(
+    for (var f : new File(".").listFiles(
         (dir, name) -> name.startsWith("BACKUP") || name.startsWith("snapshot-"))) {
       f.delete();
     }
@@ -129,7 +129,7 @@ public class OfflineSnapshotJUnitTest {
   }
 
   private void reset() {
-    CacheFactory cf = new CacheFactory().set(MCAST_PORT, "0").set(LOG_LEVEL, "error")
+    var cf = new CacheFactory().set(MCAST_PORT, "0").set(LOG_LEVEL, "error")
         .setPdxSerializer(new MyPdxSerializer()).setPdxPersistent(true);
 
     cache = cf.create();

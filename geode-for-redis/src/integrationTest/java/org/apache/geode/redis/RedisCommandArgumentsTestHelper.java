@@ -39,11 +39,11 @@ public class RedisCommandArgumentsTestHelper {
 
   private static void assertExactNumberOfArgs0(BiFunction<Protocol.Command, byte[][], Object> runMe,
       Protocol.Command command, int numArgs) {
-    final int MAX_NUM_ARGS = 5; // currently enough for all implemented commands
+    final var MAX_NUM_ARGS = 5; // currently enough for all implemented commands
 
-    for (int i = 0; i <= MAX_NUM_ARGS; i++) {
+    for (var i = 0; i <= MAX_NUM_ARGS; i++) {
       if (i != numArgs) {
-        byte[][] args = buildArgs(i);
+        var args = buildArgs(i);
         assertThatThrownBy(() -> runMe.apply(command, args))
             .hasMessage(String.format(WRONG_NUMBER_OF_ARGUMENTS_FOR_COMMAND,
                 command.toString().toLowerCase()));
@@ -64,8 +64,8 @@ public class RedisCommandArgumentsTestHelper {
 
   private static void assertAtLeastNArgs0(BiFunction<Protocol.Command, byte[][], Object> runMe,
       Protocol.Command command, int minNumArgs) {
-    for (int i = 0; i < minNumArgs; i++) {
-      byte[][] args = buildArgs(i);
+    for (var i = 0; i < minNumArgs; i++) {
+      var args = buildArgs(i);
       assertThatThrownBy(() -> runMe.apply(command, args))
           .hasMessage(String.format(WRONG_NUMBER_OF_ARGUMENTS_FOR_COMMAND,
               command.toString().toLowerCase()));
@@ -92,8 +92,8 @@ public class RedisCommandArgumentsTestHelper {
 
   private static void assertAtMostNArgs0(BiFunction<Protocol.Command, byte[][], Object> runMe,
       Protocol.Command command, int maxNumArgs) {
-    for (int i = maxNumArgs + 1; i <= 5; i++) {
-      byte[][] args = buildArgs(i);
+    for (var i = maxNumArgs + 1; i <= 5; i++) {
+      var args = buildArgs(i);
       assertThatThrownBy(() -> runMe.apply(command, args))
           .hasMessage(String.format(WRONG_NUMBER_OF_ARGUMENTS_FOR_COMMAND,
               command.toString().toLowerCase()));
@@ -104,8 +104,8 @@ public class RedisCommandArgumentsTestHelper {
       BiFunction<Protocol.Command, byte[][], Object> runMe,
       Protocol.Command command, byte[] firstParameter, int maxNumAdditionalArgs) {
 
-    for (int i = maxNumAdditionalArgs + 2; i <= 5; i++) {
-      byte[][] args = buildArgs(i);
+    for (var i = maxNumAdditionalArgs + 2; i <= 5; i++) {
+      var args = buildArgs(i);
       args[0] = firstParameter;
 
       assertThatThrownBy(() -> runMe.apply(command, args))
@@ -115,13 +115,13 @@ public class RedisCommandArgumentsTestHelper {
   }
 
   private static byte[][] buildArgs(int numArgs) {
-    byte[][] args = new byte[numArgs][];
+    var args = new byte[numArgs][];
 
     if (numArgs == 0) {
       return args;
     }
 
-    for (int i = 0; i < numArgs; i++) {
+    for (var i = 0; i < numArgs; i++) {
       args[i] = ("{A}" + i).getBytes();
     }
 

@@ -18,7 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.LOG_LEVEL;
 import static org.apache.geode.distributed.ConfigurationProperties.SECURITY_MANAGER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -30,7 +29,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.security.AuthenticationFailedException;
 import org.apache.geode.security.SecurityManager;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.categories.LoggingTest;
 import org.apache.geode.test.junit.categories.SecurityTest;
@@ -49,26 +47,26 @@ public class LogNoPasswordDistributedTest {
 
   @Test
   public void testPasswordInLogs() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(LOG_LEVEL, "debug");
     properties.setProperty(SECURITY_MANAGER, MySecurityManager.class.getName());
-    MemberVM locator =
+    var locator =
         lsRule.startLocatorVM(0, l -> l.withHttpService().withProperties(properties));
     gfsh.secureConnectAndVerify(locator.getHttpPort(), GfshCommandRule.PortType.http, "any",
         PASSWORD);
     gfsh.executeAndAssertThat("list members").statusIsSuccess();
 
     // scan all locator log files to find any occurrences of password
-    File[] serverLogFiles =
+    var serverLogFiles =
         locator.getWorkingDir().listFiles(file -> file.toString().endsWith(".log"));
-    File[] gfshLogFiles = gfsh.getWorkingDir().listFiles(file -> file.toString().endsWith(".log"));
+    var gfshLogFiles = gfsh.getWorkingDir().listFiles(file -> file.toString().endsWith(".log"));
 
-    File[] logFiles = ArrayUtils.addAll(serverLogFiles, gfshLogFiles);
+    var logFiles = ArrayUtils.addAll(serverLogFiles, gfshLogFiles);
 
-    for (File logFile : logFiles) {
-      Scanner scanner = new Scanner(logFile);
+    for (var logFile : logFiles) {
+      var scanner = new Scanner(logFile);
       while (scanner.hasNextLine()) {
-        String line = scanner.nextLine();
+        var line = scanner.nextLine();
         assertThat(line).describedAs("File: %s, Line: %s", logFile.getAbsolutePath(), line)
             .doesNotContain(PASSWORD);
       }
@@ -79,8 +77,8 @@ public class LogNoPasswordDistributedTest {
 
     @Override
     public Object authenticate(Properties properties) throws AuthenticationFailedException {
-      String user = properties.getProperty("security-username");
-      String password = properties.getProperty("security-password");
+      var user = properties.getProperty("security-username");
+      var password = properties.getProperty("security-password");
       if (LogNoPasswordDistributedTest.PASSWORD.equals(password)) {
         return user;
       }

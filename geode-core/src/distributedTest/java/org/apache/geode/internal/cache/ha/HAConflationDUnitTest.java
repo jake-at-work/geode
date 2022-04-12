@@ -33,7 +33,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache30.CacheSerializableRunnable;
@@ -98,7 +97,7 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     // Server1 VM
     server1 = host.getVM(0);
 
@@ -199,7 +198,7 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
   }
 
   private CacheSerializableRunnable putFromServer(final String key, final String value) {
-    CacheSerializableRunnable performPut = new CacheSerializableRunnable("putFromServer") {
+    var performPut = new CacheSerializableRunnable("putFromServer") {
       @Override
       public void run2() throws CacheException {
         Region region = basicGetCache().getRegion(SEPARATOR + regionName);
@@ -214,7 +213,7 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
   }
 
   private CacheSerializableRunnable invalidateFromServer(final String key) {
-    CacheSerializableRunnable performInvalidate =
+    var performInvalidate =
         new CacheSerializableRunnable("invalidateFromServer") {
           @Override
           public void run2() throws CacheException {
@@ -230,7 +229,7 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
   }
 
   private CacheSerializableRunnable destroyFromServer(final String key) {
-    CacheSerializableRunnable performDestroy = new CacheSerializableRunnable("performDestroy") {
+    var performDestroy = new CacheSerializableRunnable("performDestroy") {
       @Override
       public void run2() throws CacheException {
         Region region = basicGetCache().getRegion(SEPARATOR + regionName);
@@ -245,12 +244,12 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
   }
 
   private CacheSerializableRunnable checkNoEvents(final int expectedEvents) {
-    CacheSerializableRunnable checkEvents = new CacheSerializableRunnable("checkEvents") {
+    var checkEvents = new CacheSerializableRunnable("checkEvents") {
       final int interval = 200; // millis
 
       @Override
       public void run2() throws CacheException {
-        WaitCriterion w = new WaitCriterion() {
+        var w = new WaitCriterion() {
           @Override
           public boolean done() {
             synchronized (LOCK) {
@@ -296,11 +295,11 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
   public static void createClientCache(String host, Integer port1, Boolean isListenerPresent)
       throws Exception {
     int PORT1 = port1;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAConflationDUnitTest().createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     ClientServerTestCase.configureConnectionPool(factory, host, new int[] {PORT1}, true, -1, -1,
         null);
     factory.setScope(Scope.DISTRIBUTED_ACK);
@@ -309,7 +308,7 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
       CacheListener clientListener = new HAClientCountEventListener();
       factory.setCacheListener(clientListener);
     }
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     basicGetCache().createRegion(regionName, attrs);
     Region region = basicGetCache().getRegion(SEPARATOR + regionName);
     assertNotNull(region);
@@ -325,7 +324,7 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
 
   public static Integer createServerCache(Boolean isListenerPresent) throws Exception {
     new HAConflationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEnableConflation(true);
     factory.setDataPolicy(DataPolicy.REPLICATE);
@@ -333,11 +332,11 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
       CacheListener serverListener = new HAClientCountEventListener();
       factory.setCacheListener(serverListener);
     }
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     basicGetCache().createRegion(regionName, attrs);
-    CacheServerImpl server = (CacheServerImpl) basicGetCache().addCacheServer();
+    var server = (CacheServerImpl) basicGetCache().addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();
@@ -348,7 +347,7 @@ public class HAConflationDUnitTest extends JUnit4CacheTestCase {
 
     @Override
     public void afterCreate(EntryEvent event) {
-      String key = (String) event.getKey();
+      var key = (String) event.getKey();
       if (key.equals(LAST_KEY)) {
         synchronized (LOCK) {
           lastKeyArrived = true;

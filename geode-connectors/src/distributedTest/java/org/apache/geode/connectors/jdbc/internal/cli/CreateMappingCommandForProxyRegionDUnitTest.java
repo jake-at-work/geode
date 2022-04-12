@@ -30,14 +30,10 @@ import static org.apache.geode.connectors.jdbc.internal.cli.MappingConstants.SYN
 import static org.apache.geode.connectors.jdbc.internal.cli.MappingConstants.TABLE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.sql.DataSource;
 
 import junitparams.Parameters;
 import org.junit.After;
@@ -48,10 +44,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.RegionAttributesType;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.connectors.jdbc.JdbcAsyncWriter;
 import org.apache.geode.connectors.jdbc.JdbcLoader;
 import org.apache.geode.connectors.jdbc.JdbcWriter;
@@ -59,7 +52,6 @@ import org.apache.geode.connectors.jdbc.internal.JdbcConnectorService;
 import org.apache.geode.connectors.jdbc.internal.configuration.FieldMapping;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.distributed.internal.InternalLocator;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.jndi.JNDIInvoker;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -69,7 +61,6 @@ import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.JDBCConnectorTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.serializable.SerializableTemporaryFolder;
@@ -130,12 +121,12 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
   }
 
   private void executeSql(String sql) {
-    for (MemberVM server : Arrays.asList(server1, server2)) {
+    for (var server : Arrays.asList(server1, server2)) {
       server.invoke(() -> {
         try {
-          DataSource ds = JNDIInvoker.getDataSource("connection");
-          Connection conn = ds.getConnection();
-          Statement sm = conn.createStatement();
+          var ds = JNDIInvoker.getDataSource("connection");
+          var conn = ds.getConnection();
+          var sm = conn.createStatement();
           sm.execute(sql);
           sm.close();
           conn.close();
@@ -163,9 +154,9 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
 
   private static RegionMapping getRegionMappingFromClusterConfig(String regionName,
       String groups) {
-    CacheConfig cacheConfig =
+    var cacheConfig =
         InternalLocator.getLocator().getConfigurationPersistenceService().getCacheConfig(groups);
-    RegionConfig regionConfig = cacheConfig.getRegions().stream()
+    var regionConfig = cacheConfig.getRegions().stream()
         .filter(region -> region.getName().equals(convertRegionPathToName(regionName))).findFirst()
         .orElse(null);
     return (RegionMapping) regionConfig.getCustomRegionElements().stream()
@@ -180,11 +171,11 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
   private static void validateAsyncEventQueueCreatedInClusterConfig(String regionName,
       String groups,
       boolean isParallel) {
-    CacheConfig cacheConfig =
+    var cacheConfig =
         InternalLocator.getLocator().getConfigurationPersistenceService().getCacheConfig(groups);
-    List<CacheConfig.AsyncEventQueue> queueList = cacheConfig.getAsyncEventQueues();
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
-    CacheConfig.AsyncEventQueue queue = findQueue(queueList, queueName);
+    var queueList = cacheConfig.getAsyncEventQueues();
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var queue = findQueue(queueList, queueName);
     assertThat(queue).isNotNull();
     assertThat(queue.getId()).isEqualTo(queueName);
     assertThat(queue.getAsyncEventListener().getClassName())
@@ -195,7 +186,7 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
   private static CacheConfig.AsyncEventQueue findQueue(
       List<CacheConfig.AsyncEventQueue> queueList,
       String queueName) {
-    for (CacheConfig.AsyncEventQueue queue : queueList) {
+    for (var queue : queueList) {
       if (queue.getId().equals(queueName)) {
         return queue;
       }
@@ -212,40 +203,40 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
 
   private static void validateRegionAlteredInClusterConfig(String regionName,
       String groups, boolean synchronous) {
-    CacheConfig cacheConfig =
+    var cacheConfig =
         InternalLocator.getLocator().getConfigurationPersistenceService().getCacheConfig(groups);
-    RegionConfig regionConfig = cacheConfig.getRegions().stream()
+    var regionConfig = cacheConfig.getRegions().stream()
         .filter(region -> region.getName().equals(convertRegionPathToName(regionName))).findFirst()
         .orElse(null);
-    RegionAttributesType attributes = regionConfig.getRegionAttributes();
+    var attributes = regionConfig.getRegionAttributes();
     assertThat(attributes.getCacheLoader().getClassName()).isEqualTo(JdbcLoader.class.getName());
     if (synchronous) {
       assertThat(attributes.getCacheWriter().getClassName())
           .isEqualTo(JdbcWriter.class.getName());
     } else {
-      String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+      var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
       assertThat(attributes.getAsyncEventQueueIds()).isEqualTo(queueName);
     }
   }
 
   private static void validateAsyncEventQueueCreatedOnServer(String regionName,
       boolean isParallel) {
-    InternalCache cache = ClusterStartupRule.getCache();
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
-    AsyncEventQueue queue = cache.getAsyncEventQueue(queueName);
+    var cache = ClusterStartupRule.getCache();
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var queue = cache.getAsyncEventQueue(queueName);
     assertThat(queue).isNotNull();
     assertThat(queue.getAsyncEventListener()).isInstanceOf(JdbcAsyncWriter.class);
     assertThat(queue.isParallel()).isEqualTo(isParallel);
   }
 
   private static void validateRegionAlteredOnServer(String regionName, boolean synchronous) {
-    InternalCache cache = ClusterStartupRule.getCache();
+    var cache = ClusterStartupRule.getCache();
     Region<?, ?> region = cache.getRegion(regionName);
     assertThat(region.getAttributes().getCacheLoader()).isInstanceOf(JdbcLoader.class);
     if (synchronous) {
       assertThat(region.getAttributes().getCacheWriter()).isInstanceOf(JdbcWriter.class);
     } else {
-      String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+      var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
       assertThat(region.getAttributes().getAsyncEventQueueIds()).contains(queueName);
     }
   }
@@ -254,7 +245,7 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
   @Test
   @Parameters(method = "parametersToTestPRDR")
   public void createMappingTogetherForMultiServerGroupWithEmptyRegion(boolean isPR) {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     if (isPR) {
       setupGroupPartition(regionName, TEST_GROUP1, false);
       setupGroupPartition(regionName, TEST_GROUP2, true);
@@ -262,7 +253,7 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
       setupGroupReplicate(regionName, TEST_GROUP1, false);
       setupGroupReplicate(regionName, TEST_GROUP2, true);
     }
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -274,17 +265,17 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNotNull();
       assertValidMappingOnServer(mapping, regionName, false, isPR);
     });
     server2.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNull();
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
       assertValidMappingOnLocator(regionMapping, regionName, TEST_GROUP1, false, isPR);
       regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP2);
       assertThat(regionMapping).isNull();
@@ -293,7 +284,7 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
     // do describe mapping
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         regionName).addOption(GROUP_NAME, TEST_GROUP1 + "," + TEST_GROUP2);
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
     commandResultAssert.statusIsSuccess();
     commandResultAssert.containsOutput("Mapping for group");
     commandResultAssert.containsOutput(TEST_GROUP1);
@@ -323,7 +314,7 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
   @Test
   @Parameters(method = "parametersToTestPRDR")
   public void createMappingSeparatelyForMultiServerGroupWithEmptyRegion(boolean isPR) {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     if (isPR) {
       setupGroupPartition(regionName, TEST_GROUP1, false);
       setupGroupPartition(regionName, TEST_GROUP2, true);
@@ -331,7 +322,7 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
       setupGroupReplicate(regionName, TEST_GROUP1, false);
       setupGroupReplicate(regionName, TEST_GROUP2, true);
     }
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -355,16 +346,16 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
         .containsOutput(MappingConstants.THERE_IS_NO_JDBC_MAPPING_ON_PROXY_REGION);
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertValidMappingOnServer(mapping, regionName, false, isPR);
     });
     server2.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNull();
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
       assertValidMappingOnLocator(regionMapping, regionName, TEST_GROUP1, false, isPR);
       regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP2);
       assertThat(regionMapping).isNull();
@@ -373,7 +364,7 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
     // do describe mapping for TEST_GROUP2
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         regionName).addOption(GROUP_NAME, TEST_GROUP2);
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
     commandResultAssert.statusIsSuccess()
         .containsOutput(MappingConstants.THERE_IS_NO_JDBC_MAPPING_ON_PROXY_REGION);
 
@@ -420,13 +411,13 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
   @Test
   @Parameters(method = "parametersToTestPRDR")
   public void createEmptyRegionAfterCreateMapping(boolean isPR) {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     if (isPR) {
       setupGroupPartition(regionName, TEST_GROUP1, false);
     } else {
       setupGroupReplicate(regionName, TEST_GROUP1, false);
     }
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -459,16 +450,16 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess().containsOutput("Skipping: ");
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertValidMappingOnServer(mapping, regionName, false, isPR);
     });
     server2.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNull();
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
       assertValidMappingOnLocator(regionMapping, regionName, TEST_GROUP1, false, isPR);
       regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP2);
       assertThat(regionMapping).isNull();
@@ -477,7 +468,7 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
     // do describe mapping for TEST_GROUP2
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         regionName).addOption(GROUP_NAME, TEST_GROUP2);
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
     commandResultAssert.statusIsSuccess()
         .containsOutput(MappingConstants.THERE_IS_NO_JDBC_MAPPING_ON_PROXY_REGION);
 
@@ -551,7 +542,7 @@ public class CreateMappingCommandForProxyRegionDUnitTest {
     assertThat(mapping.getIds()).isEqualTo("myId");
     assertThat(mapping.getCatalog()).isNull();
     assertThat(mapping.getSchema()).isEqualTo("mySchema");
-    List<FieldMapping> fieldMappings = mapping.getFieldMappings();
+    var fieldMappings = mapping.getFieldMappings();
     assertThat(fieldMappings.size()).isEqualTo(2);
     assertThat(fieldMappings.get(0)).isEqualTo(
         new FieldMapping("myid", FieldType.STRING.name(), "MYID", JDBCType.VARCHAR.name(), false));

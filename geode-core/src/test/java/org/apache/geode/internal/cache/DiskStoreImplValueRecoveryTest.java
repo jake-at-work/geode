@@ -41,9 +41,9 @@ public class DiskStoreImplValueRecoveryTest {
 
   @Before
   public void setUp() {
-    InternalCache cache = mock(InternalCache.class);
-    DiskStoreAttributes diskStoreAttributes = new DiskStoreAttributes();
-    StatisticsFactory statisticsFactory = mock(StatisticsFactory.class);
+    var cache = mock(InternalCache.class);
+    var diskStoreAttributes = new DiskStoreAttributes();
+    var statisticsFactory = mock(StatisticsFactory.class);
     internalResourceManager = mock(InternalResourceManager.class);
 
     when(statisticsFactory.createStatistics(any(), any())).thenReturn(mock(Statistics.class));
@@ -82,8 +82,8 @@ public class DiskStoreImplValueRecoveryTest {
 
   @Test
   public void startupTaskCompletesExceptionallyWhenValueRecoveryThrows() {
-    Oplog oplog = mock(Oplog.class);
-    RuntimeException exception = new RuntimeException();
+    var oplog = mock(Oplog.class);
+    var exception = new RuntimeException();
     doThrow(exception).when(oplog).recoverValuesIfNeeded(any());
 
     diskStore.scheduleValueRecovery(Collections.singleton(oplog), Collections.emptyMap());

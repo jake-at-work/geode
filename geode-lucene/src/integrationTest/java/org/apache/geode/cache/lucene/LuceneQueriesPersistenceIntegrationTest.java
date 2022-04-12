@@ -61,24 +61,24 @@ public class LuceneQueriesPersistenceIntegrationTest extends LuceneIntegrationTe
 
   @Test
   public void shouldReturnCorrectResultsWithEntriesOverflowedToDisk() throws Exception {
-    String aeqId = LuceneServiceImpl.getUniqueIndexName(INDEX_NAME, REGION_NAME);
+    var aeqId = LuceneServiceImpl.getUniqueIndexName(INDEX_NAME, REGION_NAME);
 
-    LuceneService service = LuceneServiceProvider.get(cache);
+    var service = LuceneServiceProvider.get(cache);
     service.createIndexFactory().setFields(Type1.fields).create(INDEX_NAME, REGION_NAME);
 
     RegionFactory<String, Type1> regionFactory =
         cache.createRegionFactory(RegionShortcut.PARTITION);
-    EvictionAttributesImpl evicAttr =
+    var evicAttr =
         new EvictionAttributesImpl().setAction(EvictionAction.OVERFLOW_TO_DISK);
     evicAttr.setAlgorithm(EvictionAlgorithm.LRU_ENTRY).setMaximum(1);
     regionFactory.setEvictionAttributes(evicAttr);
 
-    PartitionedRegion userRegion = (PartitionedRegion) regionFactory.create(REGION_NAME);
-    final LuceneIndex index = service.getIndex(INDEX_NAME, REGION_NAME);
+    var userRegion = (PartitionedRegion) regionFactory.create(REGION_NAME);
+    final var index = service.getIndex(INDEX_NAME, REGION_NAME);
 
     Assert.assertEquals(0, userRegion.getDiskRegionStats().getNumOverflowOnDisk());
 
-    Type1 value = new Type1("hello world", 1, 2L, 3.0, 4.0f);
+    var value = new Type1("hello world", 1, 2L, 3.0, 4.0f);
     userRegion.put("value1", value);
     value = new Type1("test world", 1, 2L, 3.0, 4.0f);
     userRegion.put("value2", value);
@@ -87,13 +87,13 @@ public class LuceneQueriesPersistenceIntegrationTest extends LuceneIntegrationTe
 
     service.waitUntilFlushed(INDEX_NAME, REGION_NAME, 60000, TimeUnit.MILLISECONDS);
 
-    PartitionedRegion fileRegion = (PartitionedRegion) cache.getRegion(aeqId + ".files");
+    var fileRegion = (PartitionedRegion) cache.getRegion(aeqId + ".files");
     assertNotNull(fileRegion);
     Assert.assertTrue(0 < userRegion.getDiskRegionStats().getNumOverflowOnDisk());
 
     LuceneQuery<Integer, Type1> query = service.createLuceneQueryFactory().create(INDEX_NAME,
         REGION_NAME, "s:world", DEFAULT_FIELD);
-    PageableLuceneQueryResults<Integer, Type1> results = query.findPages();
+    var results = query.findPages();
     Assert.assertEquals(3, results.size());
   }
 

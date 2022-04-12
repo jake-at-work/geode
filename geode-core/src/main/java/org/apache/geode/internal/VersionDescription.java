@@ -16,7 +16,6 @@ package org.apache.geode.internal;
 
 import static org.apache.geode.internal.SystemDescription.getRunningOnInfo;
 
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -82,7 +81,7 @@ public class VersionDescription {
   private final Optional<String> error;
 
   public VersionDescription(String name) {
-    InputStream is = ClassPathLoader.getLatest().getResourceAsStream(getClass(), name);
+    var is = ClassPathLoader.getLatest().getResourceAsStream(getClass(), name);
     if (is == null) {
       error = Optional
           .of(String.format("<Could not find resource org/apache/geode/internal/%s>",

@@ -68,7 +68,7 @@ public class SqlHandler {
   }
 
   private TableMetaDataView getTableMetaDataView(TableMetaDataManager tableMetaDataManager) {
-    try (Connection connection = getConnection()) {
+    try (var connection = getConnection()) {
       return tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
     } catch (SQLException ex) {
       throw new JdbcConnectorException("Could not connect to datasource \""
@@ -78,7 +78,7 @@ public class SqlHandler {
 
   private static RegionMapping getMappingForRegion(JdbcConnectorService configService,
       String regionName) {
-    RegionMapping regionMapping = configService.getMappingForRegion(regionName);
+    var regionMapping = configService.getMappingForRegion(regionName);
     if (regionMapping == null) {
       throw new JdbcConnectorException("JDBC mapping for region " + regionName
           + " not found. Create the mapping with the gfsh command 'create jdbc-mapping'.");
@@ -88,7 +88,7 @@ public class SqlHandler {
 
   private static DataSource getDataSource(DataSourceFactory dataSourceFactory,
       String dataSourceName) {
-    DataSource dataSource = dataSourceFactory.getDataSource(dataSourceName);
+    var dataSource = dataSourceFactory.getDataSource(dataSourceName);
     if (dataSource == null) {
       throw new JdbcConnectorException("JDBC data-source named \"" + dataSourceName
           + "\" not found. Create it with gfsh 'create data-source --pooled --name="
@@ -98,13 +98,13 @@ public class SqlHandler {
   }
 
   private void initializeFieldMappingMaps() {
-    for (FieldMapping fieldMapping : regionMapping.getFieldMappings()) {
+    for (var fieldMapping : regionMapping.getFieldMappings()) {
       pdxToFieldMappings.put(fieldMapping.getPdxName(), fieldMapping);
     }
   }
 
   private String getColumnNameForField(String fieldName) {
-    FieldMapping match = pdxToFieldMappings.get(fieldName);
+    var match = pdxToFieldMappings.get(fieldName);
     if (match != null) {
       return match.getJdbcName();
     }
@@ -121,12 +121,12 @@ public class SqlHandler {
     }
 
     PdxInstance result;
-    try (Connection connection = getConnection()) {
-      EntryColumnData entryColumnData =
+    try (var connection = getConnection()) {
+      var entryColumnData =
           getEntryColumnData(tableMetaData, key, null, Operation.GET);
-      try (PreparedStatement statement =
+      try (var statement =
           getPreparedStatement(connection, tableMetaData, entryColumnData, Operation.GET)) {
-        try (ResultSet resultSet = executeReadQuery(statement, entryColumnData)) {
+        try (var resultSet = executeReadQuery(statement, entryColumnData)) {
           result = getSqlToPdxInstance().create(resultSet);
         }
       }
@@ -135,7 +135,7 @@ public class SqlHandler {
   }
 
   private SqlToPdxInstance getSqlToPdxInstance() {
-    SqlToPdxInstance result = sqlToPdxInstance;
+    var result = sqlToPdxInstance;
     if (result == null) {
       result = initializeSqlToPdxInstance();
     }
@@ -143,9 +143,9 @@ public class SqlHandler {
   }
 
   private synchronized SqlToPdxInstance initializeSqlToPdxInstance() {
-    SqlToPdxInstanceCreator sqlToPdxInstanceCreator =
+    var sqlToPdxInstanceCreator =
         new SqlToPdxInstanceCreator(cache, regionMapping);
-    SqlToPdxInstance result = sqlToPdxInstanceCreator.create();
+    var result = sqlToPdxInstanceCreator.create();
     sqlToPdxInstance = result;
     return result;
   }
@@ -159,7 +159,7 @@ public class SqlHandler {
   private void setValuesInStatement(PreparedStatement statement, EntryColumnData entryColumnData,
       Operation operation)
       throws SQLException {
-    int index = 0;
+    var index = 0;
     if (operation.isCreate() || operation.isUpdate()) {
       index = setValuesFromColumnData(statement, entryColumnData.getEntryValueColumnData(), index);
     }
@@ -168,7 +168,7 @@ public class SqlHandler {
 
   private int setValuesFromColumnData(PreparedStatement statement, List<ColumnData> columnDataList,
       int index) throws SQLException {
-    for (ColumnData columnData : columnDataList) {
+    for (var columnData : columnDataList) {
       index++;
       setValueOnStatement(statement, index, columnData);
     }
@@ -177,13 +177,13 @@ public class SqlHandler {
 
   private void setValueOnStatement(PreparedStatement statement, int index, ColumnData columnData)
       throws SQLException {
-    Object value = columnData.getValue();
+    var value = columnData.getValue();
     if (value instanceof Character) {
-      Character character = ((Character) value);
+      var character = ((Character) value);
       // if null character, set to null string instead of a string with the null character
       value = character.equals((char) 0) ? null : character.toString();
     } else if (value instanceof Date) {
-      Date jdkDate = (Date) value;
+      var jdkDate = (Date) value;
       switch (columnData.getDataType()) {
         case DATE:
           value = new java.sql.Date(jdkDate.getTime());
@@ -214,12 +214,12 @@ public class SqlHandler {
       throw new IllegalArgumentException("PdxInstance cannot be null for non-destroy operations");
     }
 
-    try (Connection connection = getConnection()) {
-      EntryColumnData entryColumnData =
+    try (var connection = getConnection()) {
+      var entryColumnData =
           getEntryColumnData(tableMetaData, key, value, operation);
-      int updateCount = 0;
+      var updateCount = 0;
       SQLException firstSqlEx = null;
-      try (PreparedStatement statement =
+      try (var statement =
           getPreparedStatement(connection, tableMetaData, entryColumnData, operation)) {
         updateCount = executeWriteStatement(statement, entryColumnData, operation);
       } catch (SQLException e) {
@@ -235,8 +235,8 @@ public class SqlHandler {
       }
 
       if (updateCount <= 0) {
-        Operation upsertOp = getOppositeOperation(operation);
-        try (PreparedStatement upsertStatement =
+        var upsertOp = getOppositeOperation(operation);
+        try (var upsertStatement =
             getPreparedStatement(connection, tableMetaData, entryColumnData, upsertOp)) {
           updateCount = executeWriteStatement(upsertStatement, entryColumnData, operation);
         }
@@ -264,7 +264,7 @@ public class SqlHandler {
   private PreparedStatement getPreparedStatement(Connection connection,
       TableMetaDataView tableMetaData, EntryColumnData entryColumnData, Operation operation)
       throws SQLException {
-    String sqlStr = getSqlString(tableMetaData, entryColumnData, operation);
+    var sqlStr = getSqlString(tableMetaData, entryColumnData, operation);
     if (logger.isDebugEnabled()) {
       logger.debug("Got SQL string:{} with key:{} value:{}", sqlStr,
           entryColumnData.getEntryKeyColumnData(),
@@ -275,9 +275,9 @@ public class SqlHandler {
 
   private String getSqlString(TableMetaDataView tableMetaData, EntryColumnData entryColumnData,
       Operation operation) {
-    SqlStatementFactory statementFactory =
+    var statementFactory =
         new SqlStatementFactory(tableMetaData.getIdentifierQuoteString());
-    String tableName = tableMetaData.getQuotedTablePath();
+    var tableName = tableMetaData.getQuotedTablePath();
     if (operation.isCreate()) {
       return statementFactory.createInsertSqlString(tableName, entryColumnData);
     } else if (operation.isUpdate()) {
@@ -293,7 +293,7 @@ public class SqlHandler {
 
   <K> EntryColumnData getEntryColumnData(TableMetaDataView tableMetaData,
       K key, PdxInstance value, Operation operation) {
-    List<ColumnData> keyColumnData = createKeyColumnDataList(tableMetaData, key);
+    var keyColumnData = createKeyColumnDataList(tableMetaData, key);
     List<ColumnData> valueColumnData = null;
 
     if (operation.isCreate() || operation.isUpdate()) {
@@ -304,11 +304,11 @@ public class SqlHandler {
   }
 
   private <K> List<ColumnData> createKeyColumnDataList(TableMetaDataView tableMetaData, K key) {
-    List<String> keyColumnNames = tableMetaData.getKeyColumnNames();
+    var keyColumnNames = tableMetaData.getKeyColumnNames();
     List<ColumnData> result = new ArrayList<>();
     if (keyColumnNames.size() == 1) {
-      String keyColumnName = keyColumnNames.get(0);
-      ColumnData columnData =
+      var keyColumnName = keyColumnNames.get(0);
+      var columnData =
           new ColumnData(keyColumnName, key, tableMetaData.getColumnDataType(keyColumnName));
       result.add(columnData);
     } else {
@@ -317,24 +317,24 @@ public class SqlHandler {
             "The key \"" + key + "\" of class \"" + key.getClass().getName()
                 + "\" must be a PdxInstance because multiple columns are configured as ids.");
       }
-      PdxInstance compositeKey = (PdxInstance) key;
+      var compositeKey = (PdxInstance) key;
       if (compositeKey.isDeserializable()) {
         throw new JdbcConnectorException(
             "The key \"" + key
                 + "\" must be a PdxInstance created with PdxInstanceFactory.neverDeserialize");
       }
-      List<String> fieldNames = compositeKey.getFieldNames();
+      var fieldNames = compositeKey.getFieldNames();
       if (fieldNames.size() != keyColumnNames.size()) {
         throw new JdbcConnectorException("The key \"" + key + "\" should have "
             + keyColumnNames.size() + " fields but has " + fieldNames.size() + " fields.");
       }
-      for (String fieldName : fieldNames) {
-        String columnName = getColumnNameForField(fieldName);
+      for (var fieldName : fieldNames) {
+        var columnName = getColumnNameForField(fieldName);
         if (columnName == null || !keyColumnNames.contains(columnName)) {
           throw new JdbcConnectorException("The key \"" + key + "\" has the field \"" + fieldName
               + "\" which does not match any of the key columns: " + keyColumnNames);
         }
-        ColumnData columnData = new ColumnData(columnName, compositeKey.getField(fieldName),
+        var columnData = new ColumnData(columnName, compositeKey.getField(fieldName),
             tableMetaData.getColumnDataType(columnName));
         result.add(columnData);
       }
@@ -345,8 +345,8 @@ public class SqlHandler {
   private List<ColumnData> createValueColumnDataList(TableMetaDataView tableMetaData,
       PdxInstance value) {
     List<ColumnData> result = new ArrayList<>();
-    for (String fieldName : value.getFieldNames()) {
-      String columnName = getColumnNameForField(fieldName);
+    for (var fieldName : value.getFieldNames()) {
+      var columnName = getColumnNameForField(fieldName);
       if (columnName == null) {
         // The user must have added a new field to their pdx domain class.
         // To support PDX class versioning we will ignore this field.
@@ -355,7 +355,7 @@ public class SqlHandler {
       if (tableMetaData.getKeyColumnNames().contains(columnName)) {
         continue;
       }
-      ColumnData columnData = new ColumnData(columnName, value.getField(fieldName),
+      var columnData = new ColumnData(columnName, value.getField(fieldName),
           tableMetaData.getColumnDataType(columnName));
       result.add(columnData);
     }

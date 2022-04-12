@@ -65,11 +65,11 @@ public class ClusterConfigurationIndexWithFromClauseDUnitTest {
   @Parameters(method = "getRegionTypes")
   public void indexCreatedWithEntrySetInFromClauseMustPersist(RegionShortcut regionShortcut)
       throws Exception {
-    MemberVM vm1 = lsRule.startServerVM(1, locator.getPort());
+    var vm1 = lsRule.startServerVM(1, locator.getPort());
     gfshCommandRule.connectAndVerify(locator);
     createRegionUsingGfsh(REGION_NAME, regionShortcut, null);
     createIndexUsingGfsh("\"" + REGION_NAME + ".entrySet() z\"", "z.key", INDEX_NAME);
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.LIST_MEMBER);
+    var csb = new CommandStringBuilder(CliStrings.LIST_MEMBER);
     gfshCommandRule.executeAndAssertThat(csb.toString()).statusIsSuccess();
     lsRule.stop(1);
     lsRule.startServerVM(1, locator.getPort());
@@ -82,12 +82,12 @@ public class ClusterConfigurationIndexWithFromClauseDUnitTest {
       RegionShortcut regionShortcut)
       throws Exception {
     IgnoredException.addIgnoredException("java.lang.IllegalStateException");
-    MemberVM vm1 = lsRule.startServerVM(1, locator.getPort());
+    var vm1 = lsRule.startServerVM(1, locator.getPort());
     gfshCommandRule.connectAndVerify(locator);
     createRegionUsingGfsh(REGION_NAME, regionShortcut, null);
     createIndexUsingGfsh("\"" + REGION_NAME + ".entrySet() z\"", "z.key", INDEX_NAME);
-    String serverName = vm1.getName();
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_DEFINED_INDEXES);
+    var serverName = vm1.getName();
+    var csb = new CommandStringBuilder(CliStrings.CREATE_DEFINED_INDEXES);
     gfshCommandRule.executeAndAssertThat(csb.toString()).statusIsSuccess();
     lsRule.stop(1);
     lsRule.startServerVM(1, locator.getPort());
@@ -101,12 +101,12 @@ public class ClusterConfigurationIndexWithFromClauseDUnitTest {
       RegionShortcut regionShortcut)
       throws Exception {
     IgnoredException.addIgnoredException("java.lang.IllegalStateException");
-    MemberVM vm1 = lsRule.startServerVM(1, locator.getPort());
+    var vm1 = lsRule.startServerVM(1, locator.getPort());
     gfshCommandRule.connectAndVerify(locator);
     createRegionUsingGfsh(REGION_NAME, regionShortcut, null);
     createIndexUsingGfsh("\"" + REGION_NAME + " z\"", "z.ID", INDEX_NAME);
-    String serverName = vm1.getName();
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_DEFINED_INDEXES);
+    var serverName = vm1.getName();
+    var csb = new CommandStringBuilder(CliStrings.CREATE_DEFINED_INDEXES);
     gfshCommandRule.executeAndAssertThat(csb.toString()).statusIsSuccess();
     lsRule.stop(1);
     lsRule.startServerVM(1, locator.getPort());
@@ -115,15 +115,15 @@ public class ClusterConfigurationIndexWithFromClauseDUnitTest {
   }
 
   private void verifyIndexRecreated(String indexName) throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.LIST_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.LIST_INDEX);
     gfshCommandRule.executeAndAssertThat(csb.toString()).statusIsSuccess();
-    String resultAsString = gfshCommandRule.getGfshOutput();
+    var resultAsString = gfshCommandRule.getGfshOutput();
     assertTrue(resultAsString.contains(indexName));
   }
 
   private void createIndexUsingGfsh(String regionName, String expression, String indexName)
       throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     csb.addOption(CliStrings.CREATE_INDEX__EXPRESSION, expression);
     csb.addOption(CliStrings.CREATE_INDEX__REGION, regionName);
     csb.addOption(CliStrings.CREATE_INDEX__NAME, indexName);
@@ -132,7 +132,7 @@ public class ClusterConfigurationIndexWithFromClauseDUnitTest {
 
   private void defineIndexUsingGfsh(String regionName, String expression, String indexName)
       throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DEFINE_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DEFINE_INDEX);
     csb.addOption(CliStrings.DEFINE_INDEX__EXPRESSION, expression);
     csb.addOption(CliStrings.DEFINE_INDEX__REGION, regionName);
     csb.addOption(CliStrings.DEFINE_INDEX_NAME, indexName);
@@ -141,7 +141,7 @@ public class ClusterConfigurationIndexWithFromClauseDUnitTest {
 
   private void createRegionUsingGfsh(String regionName, RegionShortcut regionShortCut, String group)
       throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
     csb.addOption(CliStrings.CREATE_REGION__REGION, regionName);
     csb.addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT, regionShortCut.name());
     csb.addOptionWithValueCheck(CliStrings.GROUP, group);

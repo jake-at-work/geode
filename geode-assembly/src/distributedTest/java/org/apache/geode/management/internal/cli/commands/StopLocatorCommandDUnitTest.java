@@ -31,12 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.Query;
-import javax.management.QueryExp;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -81,7 +79,7 @@ public class StopLocatorCommandDUnitTest {
   public static void beforeClass() throws Exception {
     jmxPort = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.JMX_MANAGER_PORT, jmxPort.toString());
     props.setProperty(ConfigurationProperties.JMX_MANAGER_HOSTNAME_FOR_CLIENTS, "localhost");
 
@@ -101,11 +99,11 @@ public class StopLocatorCommandDUnitTest {
   @Before
   public void before() throws Exception {
     workingDir = temporaryFolder.newFolder();
-    int[] availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int locatorPort = availablePorts[0];
-    int toStopJmxPort = availablePorts[1];
+    var availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var locatorPort = availablePorts[0];
+    var toStopJmxPort = availablePorts[1];
 
-    final String command = new CommandStringBuilder(START_LOCATOR)
+    final var command = new CommandStringBuilder(START_LOCATOR)
         .addOption(START_LOCATOR__MEMBER_NAME, memberName)
         .addOption(START_LOCATOR__LOCATORS, locatorConnectionString)
         .addOption(START_LOCATOR__PORT, Integer.toString(locatorPort))
@@ -128,9 +126,9 @@ public class StopLocatorCommandDUnitTest {
 
   @Test
   public void testWithDisconnectedGfsh() throws Exception {
-    final String expectedError = CliStrings.format(STOP_SERVICE__GFSH_NOT_CONNECTED_ERROR_MESSAGE,
+    final var expectedError = CliStrings.format(STOP_SERVICE__GFSH_NOT_CONNECTED_ERROR_MESSAGE,
         CliStrings.LOCATOR_TERM_NAME);
-    final String command = new CommandStringBuilder(STOP_LOCATOR)
+    final var command = new CommandStringBuilder(STOP_LOCATOR)
         .addOption(STOP_LOCATOR__MEMBER, memberName)
         .getCommandString();
 
@@ -146,7 +144,7 @@ public class StopLocatorCommandDUnitTest {
 
   @Test
   public void testWithMemberName() {
-    final String command = new CommandStringBuilder(STOP_LOCATOR)
+    final var command = new CommandStringBuilder(STOP_LOCATOR)
         .addOption(STOP_LOCATOR__MEMBER, memberName)
         .getCommandString();
 
@@ -162,9 +160,9 @@ public class StopLocatorCommandDUnitTest {
   public void testWithMemberID() {
     int port = jmxPort; // this assignment is needed to pass a local var into the invocation below
 
-    final String memberID = locator.invoke(() -> getMemberId(port));
+    final var memberID = locator.invoke(() -> getMemberId(port));
 
-    final String command = new CommandStringBuilder(STOP_LOCATOR)
+    final var command = new CommandStringBuilder(STOP_LOCATOR)
         .addOption(STOP_LOCATOR__MEMBER, memberID)
         .getCommandString();
 
@@ -183,7 +181,7 @@ public class StopLocatorCommandDUnitTest {
 
   @Test
   public void testWithDirOnline() throws IOException {
-    final String command = new CommandStringBuilder(STOP_LOCATOR)
+    final var command = new CommandStringBuilder(STOP_LOCATOR)
         .addOption(STOP_LOCATOR__DIR, workingDir.getCanonicalPath())
         .getCommandString();
 
@@ -197,7 +195,7 @@ public class StopLocatorCommandDUnitTest {
       gfsh.disconnect();
     }
 
-    final String command = new CommandStringBuilder(STOP_LOCATOR)
+    final var command = new CommandStringBuilder(STOP_LOCATOR)
         .addOption(STOP_LOCATOR__DIR, workingDir.getCanonicalPath())
         .getCommandString();
 
@@ -210,7 +208,7 @@ public class StopLocatorCommandDUnitTest {
 
   @Test
   public void testWithInvalidMemberName() {
-    final String command = new CommandStringBuilder(STOP_LOCATOR)
+    final var command = new CommandStringBuilder(STOP_LOCATOR)
         .addOption(STOP_LOCATOR__MEMBER, "invalidMemberName")
         .getCommandString();
 
@@ -220,7 +218,7 @@ public class StopLocatorCommandDUnitTest {
 
   @Test
   public void testWithInvalidMemberID() {
-    final String command = new CommandStringBuilder(STOP_LOCATOR)
+    final var command = new CommandStringBuilder(STOP_LOCATOR)
         .addOption(STOP_LOCATOR__MEMBER, "42")
         .getCommandString();
 
@@ -232,9 +230,9 @@ public class StopLocatorCommandDUnitTest {
     JMXConnector conn = null;
 
     try {
-      final ObjectName objectNamePattern = ObjectName.getInstance("GemFire:type=Member,*");
-      final QueryExp query = Query.eq(Query.attr("Name"), Query.value(memberName));
-      final JMXServiceURL url =
+      final var objectNamePattern = ObjectName.getInstance("GemFire:type=Member,*");
+      final var query = Query.eq(Query.attr("Name"), Query.value(memberName));
+      final var url =
           new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:" + port + "/jmxrmi");
       System.out.println(url);
 
@@ -242,17 +240,17 @@ public class StopLocatorCommandDUnitTest {
       conn = JMXConnectorFactory.connect(url);
       assertThat(conn).isInstanceOf(JMXConnector.class);
 
-      final MBeanServerConnection connection = conn.getMBeanServerConnection();
+      final var connection = conn.getMBeanServerConnection();
       assertThat(connection).isInstanceOf(MBeanServerConnection.class);
 
       GeodeAwaitility.await().untilAsserted(() -> {
-        final Set<ObjectName> objectNames = connection.queryNames(objectNamePattern, query);
+        final var objectNames = connection.queryNames(objectNamePattern, query);
         assertThat(objectNames).isNotNull().isNotEmpty().hasSize(1);
       });
 
-      final Set<ObjectName> objectNames = connection.queryNames(objectNamePattern, query);
-      final ObjectName objectName = objectNames.iterator().next();
-      final Object memberId = connection.getAttribute(objectName, "Id");
+      final var objectNames = connection.queryNames(objectNamePattern, query);
+      final var objectName = objectNames.iterator().next();
+      final var memberId = connection.getAttribute(objectName, "Id");
 
       return ObjectUtils.toString(memberId);
     } finally {

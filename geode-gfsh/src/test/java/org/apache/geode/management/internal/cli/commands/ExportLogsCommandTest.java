@@ -45,7 +45,6 @@ import org.apache.geode.internal.cache.InternalCacheForClientAccess;
 import org.apache.geode.management.ManagementException;
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.functions.SizeExportLogsFunction;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.util.BytesToString;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.categories.LoggingTest;
@@ -128,60 +127,60 @@ public class ExportLogsCommandTest {
 
   @Test
   public void parseSizeLimit_sizeWithoutUnit_shouldReturnMegabytesSize() {
-    ExportLogsCommand exportCmd = new ExportLogsCommand();
+    var exportCmd = new ExportLogsCommand();
     assertThat(exportCmd.parseFileSizeLimit("1000")).isEqualTo(1000 * MEGABYTE);
   }
 
   @Test
   public void parseSizeLimit_sizeWith_K_shouldReturnKilobytesSize() {
-    ExportLogsCommand exportCmd = new ExportLogsCommand();
+    var exportCmd = new ExportLogsCommand();
     assertThat(exportCmd.parseFileSizeLimit("1000k")).isEqualTo(1000 * KILOBYTE);
   }
 
   @Test
   public void parseSizeLimit_sizeWith_M_shouldReturnMegabytesSize() {
-    ExportLogsCommand exportCmd = new ExportLogsCommand();
+    var exportCmd = new ExportLogsCommand();
     assertThat(exportCmd.parseFileSizeLimit("1000m")).isEqualTo(1000 * MEGABYTE);
   }
 
   @Test
   public void parseSizeLimit_sizeWith_G_shouldReturnMegabytesSize() {
-    ExportLogsCommand exportCmd = new ExportLogsCommand();
+    var exportCmd = new ExportLogsCommand();
     assertThat(exportCmd.parseFileSizeLimit("1000g")).isEqualTo(1000 * GIGABYTE);
   }
 
   @Test
   public void parseSizeLimit_sizeWith_T_shouldReturnMegabytesSize() {
-    ExportLogsCommand exportCmd = new ExportLogsCommand();
+    var exportCmd = new ExportLogsCommand();
     assertThat(exportCmd.parseFileSizeLimit("1000t")).isEqualTo(1000 * TERABYTE);
   }
 
   @Test
   public void testTotalEstimateSizeExceedsLocatorAvailableDisk() throws Exception {
-    final InternalCache mockCache = mock(InternalCache.class);
-    final InternalCacheForClientAccess mockCacheFilter = mock(InternalCacheForClientAccess.class);
+    final var mockCache = mock(InternalCache.class);
+    final var mockCacheFilter = mock(InternalCacheForClientAccess.class);
     when(mockCache.getCacheForProcessingClientRequests()).thenReturn(mockCacheFilter);
-    final ExportLogsCommand realCmd = new ExportLogsCommand();
-    ExportLogsCommand spyCmd = spy(realCmd);
+    final var realCmd = new ExportLogsCommand();
+    var spyCmd = spy(realCmd);
 
     String start = null;
     String end = null;
     String logLevel = null;
-    boolean onlyLogLevel = false;
-    boolean logsOnly = false;
-    boolean statsOnly = false;
+    var onlyLogLevel = false;
+    var logsOnly = false;
+    var statsOnly = false;
 
-    InternalDistributedMember member1 = new InternalDistributedMember("member1", 12345);
-    InternalDistributedMember member2 = new InternalDistributedMember("member2", 98765);
+    var member1 = new InternalDistributedMember("member1", 12345);
+    var member2 = new InternalDistributedMember("member2", 98765);
     member1.setName("member1");
     member2.setName("member2");
     Set<DistributedMember> testMembers = new HashSet<>();
     testMembers.add(member1);
     testMembers.add(member2);
 
-    CustomCollector testResults1 = new CustomCollector();
+    var testResults1 = new CustomCollector();
     testResults1.addResult(member1, 75 * MEGABYTE);
-    CustomCollector testResults2 = new CustomCollector();
+    var testResults2 = new CustomCollector();
     testResults2.addResult(member2, 60 * MEGABYTE);
 
     doReturn(mockCache).when(spyCmd).getCache();
@@ -192,7 +191,7 @@ public class ExportLogsCommandTest {
         .estimateLogSize(any(SizeExportLogsFunction.Args.class), eq(member2));
     doReturn(10 * MEGABYTE).when(spyCmd).getLocalDiskAvailable();
 
-    ResultModel res = spyCmd.exportLogs("working dir", null, null, logLevel,
+    var res = spyCmd.exportLogs("working dir", null, null, logLevel,
         onlyLogLevel, false, start, end, logsOnly, statsOnly, "125m");
     assertThat(res.getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(res.toJson())
@@ -201,30 +200,30 @@ public class ExportLogsCommandTest {
 
   @Test
   public void testTotalEstimateSizeExceedsUserSpecifiedValue() throws Exception {
-    final InternalCache mockCache = mock(InternalCache.class);
-    final InternalCacheForClientAccess mockCacheFilter = mock(InternalCacheForClientAccess.class);
+    final var mockCache = mock(InternalCache.class);
+    final var mockCacheFilter = mock(InternalCacheForClientAccess.class);
     when(mockCache.getCacheForProcessingClientRequests()).thenReturn(mockCacheFilter);
-    final ExportLogsCommand realCmd = new ExportLogsCommand();
-    ExportLogsCommand spyCmd = spy(realCmd);
+    final var realCmd = new ExportLogsCommand();
+    var spyCmd = spy(realCmd);
 
     String start = null;
     String end = null;
     String logLevel = null;
-    boolean onlyLogLevel = false;
-    boolean logsOnly = false;
-    boolean statsOnly = false;
+    var onlyLogLevel = false;
+    var logsOnly = false;
+    var statsOnly = false;
 
-    InternalDistributedMember member1 = new InternalDistributedMember("member1", 12345);
-    InternalDistributedMember member2 = new InternalDistributedMember("member2", 98765);
+    var member1 = new InternalDistributedMember("member1", 12345);
+    var member2 = new InternalDistributedMember("member2", 98765);
     member1.setName("member1");
     member2.setName("member2");
     Set<DistributedMember> testMembers = new HashSet<>();
     testMembers.add(member1);
     testMembers.add(member2);
 
-    CustomCollector testResults1 = new CustomCollector();
+    var testResults1 = new CustomCollector();
     testResults1.addResult(member1, 75 * MEGABYTE);
-    CustomCollector testResults2 = new CustomCollector();
+    var testResults2 = new CustomCollector();
     testResults2.addResult(member2, 60 * MEGABYTE);
 
     doReturn(mockCache).when(spyCmd).getCache();
@@ -235,7 +234,7 @@ public class ExportLogsCommandTest {
         .estimateLogSize(any(SizeExportLogsFunction.Args.class), eq(member2));
     doReturn(GIGABYTE).when(spyCmd).getLocalDiskAvailable();
 
-    ResultModel res = spyCmd.exportLogs("working dir", null, null, logLevel,
+    var res = spyCmd.exportLogs("working dir", null, null, logLevel,
         onlyLogLevel, false, start, end, logsOnly, statsOnly, "125m");
     assertThat(res.getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(res.toJson()).contains(
@@ -244,27 +243,27 @@ public class ExportLogsCommandTest {
 
   @Test
   public void estimateLogSizeExceedsServerDisk() throws Exception {
-    final InternalCache mockCache = mock(InternalCache.class);
-    final InternalCacheForClientAccess mockCacheFilter = mock(InternalCacheForClientAccess.class);
+    final var mockCache = mock(InternalCache.class);
+    final var mockCacheFilter = mock(InternalCacheForClientAccess.class);
     when(mockCache.getCacheForProcessingClientRequests()).thenReturn(mockCacheFilter);
-    final ExportLogsCommand realCmd = new ExportLogsCommand();
-    ExportLogsCommand spyCmd = spy(realCmd);
+    final var realCmd = new ExportLogsCommand();
+    var spyCmd = spy(realCmd);
 
     String start = null;
     String end = null;
     String logLevel = null;
-    boolean onlyLogLevel = false;
-    boolean logsOnly = false;
-    boolean statsOnly = false;
+    var onlyLogLevel = false;
+    var logsOnly = false;
+    var statsOnly = false;
 
-    InternalDistributedMember member1 = new InternalDistributedMember("member1", 12345);
+    var member1 = new InternalDistributedMember("member1", 12345);
     member1.setName("member1");
     Set<DistributedMember> testMembers = new HashSet<>();
     testMembers.add(member1);
 
-    BytesToString bytesToString = new BytesToString();
-    CustomCollector testResults1 = new CustomCollector();
-    String sb = "Estimated disk space required (" +
+    var bytesToString = new BytesToString();
+    var testResults1 = new CustomCollector();
+    var sb = "Estimated disk space required (" +
         bytesToString.of(GIGABYTE) + ") to consolidate logs on member " +
         member1.getName() + " will exceed available disk space (" +
         bytesToString.of(500 * MEGABYTE) + ")";
@@ -275,7 +274,7 @@ public class ExportLogsCommandTest {
     doReturn(testResults1).when(spyCmd)
         .estimateLogSize(any(SizeExportLogsFunction.Args.class), eq(member1));
 
-    ResultModel res = spyCmd.exportLogs("working dir", null, null, logLevel,
+    var res = spyCmd.exportLogs("working dir", null, null, logLevel,
         onlyLogLevel, false, start, end, logsOnly, statsOnly, "125m");
     assertThat(res.getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(res.toJson()).contains(

@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 
 @SuppressWarnings("serial")
@@ -28,7 +27,7 @@ public class CacheTestCaseExampleTest extends CacheTestCase {
 
   @Test
   public void getCacheCreatesCache() {
-    InternalCache cache = getCache();
+    var cache = getCache();
     assertThat(cache.isClosed()).isFalse();
   }
 }

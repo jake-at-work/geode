@@ -135,7 +135,7 @@ public class NanoTimer {
    * @return time in nanoseconds since construction or last reset.
    */
   public long reset() {
-    long save = lastResetTime;
+    var save = lastResetTime;
     lastResetTime = timeService.getTime();
     return lastResetTime - save;
   }

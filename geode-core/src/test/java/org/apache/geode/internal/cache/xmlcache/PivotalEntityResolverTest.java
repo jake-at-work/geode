@@ -20,27 +20,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class PivotalEntityResolverTest {
   @Test
   public void resolvesWithHttpUrl() throws IOException, SAXException {
-    InputSource inputSource = new PivotalEntityResolver().resolveEntity(null, null, null,
+    var inputSource = new PivotalEntityResolver().resolveEntity(null, null, null,
         "http://schema.pivotal.io/gemfire/cache/cache-8.1.xsd");
     assertThat(inputSource).isNotNull();
   }
 
   @Test
   public void resolvesWithHttpsUrl() throws IOException, SAXException {
-    InputSource inputSource = new PivotalEntityResolver().resolveEntity(null, null, null,
+    var inputSource = new PivotalEntityResolver().resolveEntity(null, null, null,
         "https://schema.pivotal.io/gemfire/cache/cache-8.1.xsd");
     assertThat(inputSource).isNotNull();
   }
 
   @Test
   public void doesNotResolveUnknownUrl() throws IOException, SAXException {
-    InputSource inputSource = new PivotalEntityResolver().resolveEntity(null, null, null,
+    var inputSource = new PivotalEntityResolver().resolveEntity(null, null, null,
         "http://schema.pivotal.io/gemfire/should/not/exist.xsd");
     assertThat(inputSource).isNull();
   }

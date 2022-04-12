@@ -51,7 +51,7 @@ public class DurableClientAttributes {
     this.id = id;
     this.timeout = timeout;
     poolName = null;
-    int pIdx = id.indexOf(poolSeparator);
+    var pIdx = id.indexOf(poolSeparator);
     if (pIdx != -1) {
       poolName = id.substring(pIdx + poolSeparator.length());
       this.id = id.substring(0, pIdx);
@@ -68,11 +68,11 @@ public class DurableClientAttributes {
     if (id == null || id.isEmpty()) {
       return id;
     }
-    String pn = ClientProxyMembershipID.getPoolName();
+    var pn = ClientProxyMembershipID.getPoolName();
     if (pn != null) {
       poolName = pn;
     }
-    String result = id;
+    var result = id;
     if (poolName != null) {
       result += poolSeparator + poolName;
     }
@@ -114,7 +114,7 @@ public class DurableClientAttributes {
     if (!(other instanceof DurableClientAttributes)) {
       return false;
     }
-    final DurableClientAttributes that = (DurableClientAttributes) other;
+    final var that = (DurableClientAttributes) other;
 
     if (timeout != that.getTimeout()) {
       return false;
@@ -126,8 +126,8 @@ public class DurableClientAttributes {
 
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + timeout;
     result = mult * result + (id == null ? 0 : getId().hashCode());

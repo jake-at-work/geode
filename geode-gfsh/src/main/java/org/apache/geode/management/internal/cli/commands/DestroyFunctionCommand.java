@@ -54,13 +54,13 @@ public class DestroyFunctionCommand extends GfshCommand {
       @CliOption(key = CliStrings.MEMBER, optionContext = ConverterHint.MEMBERIDNAME,
           help = CliStrings.DESTROY_FUNCTION__ONMEMBER__HELP) String memberId) {
     try {
-      Cache cache = getCache();
+      var cache = getCache();
       Set<DistributedMember> dsMembers = new HashSet<>();
       if (groups != null && memberId != null) {
         return ResultModel.createError(CliStrings.DESTROY_FUNCTION__MSG__PROVIDE_OPTION);
       } else if (groups != null && groups.length > 0) {
         // execute on group members
-        for (String grp : groups) {
+        for (var grp : groups) {
           dsMembers.addAll(cache.getDistributedSystem().getGroupMembers(grp));
         }
         return executeFunction(cache, dsMembers, functionId);
@@ -80,7 +80,7 @@ public class DestroyFunctionCommand extends GfshCommand {
   private ResultModel executeFunction(Cache cache, Set<DistributedMember> DsMembers,
       String functionId) {
     // unregister on a set of of members
-    UnregisterFunction unregisterFunction = new UnregisterFunction();
+    var unregisterFunction = new UnregisterFunction();
     FunctionService.registerFunction(unregisterFunction);
 
     if (DsMembers.isEmpty()) {
@@ -103,10 +103,10 @@ public class DestroyFunctionCommand extends GfshCommand {
       return ResultModel.createError(ex.getMessage());
     }
 
-    String resultStr = resultList.get(0);
+    var resultStr = resultList.get(0);
     if (resultStr.equals("Succeeded in unregistering")) {
-      StringBuilder members = new StringBuilder();
-      for (DistributedMember member : DsMembers) {
+      var members = new StringBuilder();
+      for (var member : DsMembers) {
         members.append(member.getId());
         members.append(",");
       }
@@ -123,13 +123,13 @@ public class DestroyFunctionCommand extends GfshCommand {
   public static class Interceptor extends AbstractCliAroundInterceptor {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      String onGroup = parseResult.getParamValueAsString(CliStrings.GROUP);
-      String onMember = parseResult.getParamValueAsString(CliStrings.MEMBER);
+      var onGroup = parseResult.getParamValueAsString(CliStrings.GROUP);
+      var onMember = parseResult.getParamValueAsString(CliStrings.MEMBER);
 
-      String functionId = parseResult.getParamValueAsString(CliStrings.DESTROY_FUNCTION__ID);
+      var functionId = parseResult.getParamValueAsString(CliStrings.DESTROY_FUNCTION__ID);
 
       if ((onGroup == null && onMember == null)) {
-        Response response = readYesNo(
+        var response = readYesNo(
             "Do you really want to destroy " + functionId + " on entire DS?", Response.NO);
         if (response == Response.NO) {
           return ResultModel.createError("Aborted destroy of " + functionId);

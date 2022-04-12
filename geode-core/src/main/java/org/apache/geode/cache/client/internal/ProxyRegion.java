@@ -368,7 +368,7 @@ public class ProxyRegion implements Region {
 
   @Override
   public Region getSubregion(String path) {
-    Region region = realRegion.getSubregion(path);
+    var region = realRegion.getSubregion(path);
     return region != null ? new ProxyRegion(proxyCache, region, statisticsClock) : null;
   }
 

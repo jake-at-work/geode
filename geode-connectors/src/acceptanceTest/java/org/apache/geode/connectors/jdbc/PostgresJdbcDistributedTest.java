@@ -16,7 +16,6 @@ package org.apache.geode.connectors.jdbc;
 
 import java.net.URL;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -65,16 +64,16 @@ public class PostgresJdbcDistributedTest extends JdbcDistributedTest {
   @Override
   protected void insertNullDataForAllSupportedFieldsTable(MemberVM dataserver, String key,
       String tableName) {
-    String finalUrl = getConnectionUrl();
+    var finalUrl = getConnectionUrl();
     dataserver.invoke(() -> {
-      Connection connection = DriverManager.getConnection(finalUrl);
-      DatabaseMetaData metaData = connection.getMetaData();
-      String quote = metaData.getIdentifierQuoteString();
+      var connection = DriverManager.getConnection(finalUrl);
+      var metaData = connection.getMetaData();
+      var quote = metaData.getIdentifierQuoteString();
 
-      String insertQuery =
+      var insertQuery =
           "Insert into " + quote + tableName + quote + " values (" + "?,?,?,?,?,?,?,?,?,?,?,?,?)";
       System.out.println("### Query is :" + insertQuery);
-      PreparedStatement statement = connection.prepareStatement(insertQuery);
+      var statement = connection.prepareStatement(insertQuery);
       createNullStatement(key, statement);
 
       statement.execute();

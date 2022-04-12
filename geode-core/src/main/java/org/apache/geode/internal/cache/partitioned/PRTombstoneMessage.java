@@ -34,7 +34,6 @@ import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.EventID;
-import org.apache.geode.internal.cache.FilterProfile;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.RegionEventImpl;
@@ -77,7 +76,7 @@ public class PRTombstoneMessage extends PartitionMessageWithDirectReply
       return;
     }
     PartitionResponse p = new Response(r.getSystem(), recipients);
-    PRTombstoneMessage m =
+    var m =
         new PRTombstoneMessage(recipients, r.getPartitionedRegion().getPRId(), p, keys, eventID);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     r.getDistributionManager().putOutgoing(m);
@@ -103,10 +102,10 @@ public class PRTombstoneMessage extends PartitionMessageWithDirectReply
     if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
       logger.trace("PRTombstoneMessage operateOnRegion: {}", r.getFullPath());
     }
-    FilterProfile fp = r.getFilterProfile();
+    var fp = r.getFilterProfile();
     if (keys != null && keys.size() > 0) { // sanity check
       if (fp != null && CacheClientNotifier.singletonHasClientProxies() && eventID != null) {
-        RegionEventImpl regionEvent = new RegionEventImpl(r, Operation.REGION_DESTROY, null, true,
+        var regionEvent = new RegionEventImpl(r, Operation.REGION_DESTROY, null, true,
             r.getGemFireCache().getMyId());
         regionEvent.setLocalFilterInfo(fp.getLocalFilterRouting(regionEvent));
         ClientUpdateMessage clientMessage = ClientTombstoneMessage.gc(r, keys, eventID);
@@ -137,9 +136,9 @@ public class PRTombstoneMessage extends PartitionMessageWithDirectReply
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     super.fromData(in, context);
-    int numKeys = in.readInt();
+    var numKeys = in.readInt();
     keys = new HashSet<>(numKeys);
-    for (int i = 0; i < numKeys; i++) {
+    for (var i = 0; i < numKeys; i++) {
       keys.add(DataSerializer.readObject(in));
     }
     eventID = DataSerializer.readObject(in);
@@ -150,7 +149,7 @@ public class PRTombstoneMessage extends PartitionMessageWithDirectReply
       SerializationContext context) throws IOException {
     super.toData(out, context);
     out.writeInt(keys.size());
-    for (Object key : keys) {
+    for (var key : keys) {
       DataSerializer.writeObject(key, out);
     }
     DataSerializer.writeObject(eventID, out);
@@ -166,9 +165,9 @@ public class PRTombstoneMessage extends PartitionMessageWithDirectReply
 
     @Override
     public void process(DistributionMessage msg) {
-      ReplyMessage reply = (ReplyMessage) msg;
+      var reply = (ReplyMessage) msg;
       if (reply.getException() != null) {
-        Throwable cause = reply.getException().getCause();
+        var cause = reply.getException().getCause();
         if (cause instanceof ForceReattemptException || cause instanceof CancelException) {
           // TODO do we need to resend to these recipients? Might they have clients that won't
           // otherwise get

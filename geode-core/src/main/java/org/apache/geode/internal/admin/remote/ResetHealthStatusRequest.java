@@ -37,7 +37,7 @@ public class ResetHealthStatusRequest extends AdminRequest {
    * Returns a <code>ResetHealthStatusRequest</code> to be sent to the specified recipient.
    */
   public static ResetHealthStatusRequest create(int id) {
-    ResetHealthStatusRequest m = new ResetHealthStatusRequest();
+    var m = new ResetHealthStatusRequest();
     m.id = id;
     return m;
   }

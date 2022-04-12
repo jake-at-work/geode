@@ -48,7 +48,7 @@ public class CounterMonitor extends StatisticsMonitor {
 
   @Override
   protected StringBuilder appendToString() {
-    final StringBuilder sb = new StringBuilder();
+    final var sb = new StringBuilder();
     sb.append("threshold=").append(threshold);
     return sb;
   }

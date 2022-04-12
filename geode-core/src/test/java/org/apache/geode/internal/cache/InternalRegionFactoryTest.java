@@ -37,10 +37,10 @@ public class InternalRegionFactoryTest {
 
   @Test
   public void createWithInternalRegionArgumentsCallsCreateVMRegion() throws Exception {
-    InternalRegionFactory<Object, Object> regionFactory = new InternalRegionFactory<>(cache);
+    var regionFactory = new InternalRegionFactory<Object, Object>(cache);
     regionFactory.setInternalRegion(true);
-    InternalRegionArguments internalRegionArguments = regionFactory.getInternalRegionArguments();
-    String regionName = "regionName";
+    var internalRegionArguments = regionFactory.getInternalRegionArguments();
+    var regionName = "regionName";
 
     regionFactory.create(regionName);
 
@@ -50,23 +50,23 @@ public class InternalRegionFactoryTest {
 
   @Test
   public void createWithInternalRegionArgumentsReturnsRegion() throws Exception {
-    InternalRegionFactory<Object, Object> regionFactory = new InternalRegionFactory<>(cache);
+    var regionFactory = new InternalRegionFactory<Object, Object>(cache);
     regionFactory.setInternalRegion(true);
-    InternalRegionArguments internalRegionArguments = regionFactory.getInternalRegionArguments();
-    String regionName = "regionName";
+    var internalRegionArguments = regionFactory.getInternalRegionArguments();
+    var regionName = "regionName";
     Region<Object, Object> expectedRegion = mock(Region.class);
     when(cache.createVMRegion(same(regionName), any(), same(internalRegionArguments)))
         .thenReturn(expectedRegion);
 
-    Region<Object, Object> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
     assertThat(region).isSameAs(expectedRegion);
   }
 
   @Test
   public void createWithoutInternalRegionArgumentsCallsCreateRegion() throws Exception {
-    InternalRegionFactory<Object, Object> regionFactory = new InternalRegionFactory<>(cache);
-    String regionName = "regionName";
+    var regionFactory = new InternalRegionFactory<Object, Object>(cache);
+    var regionName = "regionName";
 
     regionFactory.create(regionName);
 
@@ -75,16 +75,16 @@ public class InternalRegionFactoryTest {
 
   @Test
   public void createSubregionWithInternalRegionArgumentsReturnsRegion() throws Exception {
-    InternalRegionFactory<Object, Object> regionFactory = new InternalRegionFactory<>(cache);
+    var regionFactory = new InternalRegionFactory<Object, Object>(cache);
     regionFactory.setInternalRegion(true);
-    InternalRegionArguments internalRegionArguments = regionFactory.getInternalRegionArguments();
-    String regionName = "regionName";
+    var internalRegionArguments = regionFactory.getInternalRegionArguments();
+    var regionName = "regionName";
     Region<Object, Object> expectedRegion = mock(Region.class);
-    InternalRegion parent = mock(InternalRegion.class);
+    var parent = mock(InternalRegion.class);
     when(parent.createSubregion(same(regionName), any(), same(internalRegionArguments)))
         .thenReturn(expectedRegion);
 
-    Region<Object, Object> region = regionFactory.createSubregion(parent, regionName);
+    var region = regionFactory.createSubregion(parent, regionName);
 
     assertThat(region).isSameAs(expectedRegion);
   }
@@ -92,8 +92,8 @@ public class InternalRegionFactoryTest {
   @Test
   public void createSubregionWithoutInternalRegionArgumentsCallsParentCreateSubregion()
       throws Exception {
-    InternalRegionFactory<Object, Object> regionFactory = new InternalRegionFactory<>(cache);
-    String regionName = "regionName";
+    var regionFactory = new InternalRegionFactory<Object, Object>(cache);
+    var regionName = "regionName";
     Region<?, ?> parent = mock(InternalRegion.class);
 
     regionFactory.createSubregion(parent, regionName);

@@ -34,7 +34,6 @@ import org.apache.geode.internal.cache.persistence.DiskExceptionHandler;
 import org.apache.geode.internal.cache.persistence.DiskRecoveryStore;
 import org.apache.geode.internal.cache.persistence.DiskStoreID;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.util.concurrent.StoppableReentrantReadWriteLock;
 
 /**
@@ -135,9 +134,9 @@ public class DiskRegion extends AbstractDiskRegion {
     rwLock = new StoppableReentrantReadWriteLock(ds.getCancelCriterion());
 
     if (ra != null) {
-      byte raLruAlgorithm = (byte) (ra.getEvictionAttributes().getAlgorithm().getValue());
-      byte raLruAction = (byte) (ra.getEvictionAttributes().getAction().getValue());
-      int raLruLimit = ra.getEvictionAttributes().getMaximum();
+      var raLruAlgorithm = (byte) (ra.getEvictionAttributes().getAlgorithm().getValue());
+      var raLruAction = (byte) (ra.getEvictionAttributes().getAction().getValue());
+      var raLruLimit = ra.getEvictionAttributes().getMaximum();
       if (isRecreated()) {
         // check to see if recovered config differs from current config
         if (raLruAlgorithm != getLruAlgorithm() || raLruAction != getLruAction()
@@ -188,7 +187,7 @@ public class DiskRegion extends AbstractDiskRegion {
   ////////////////////// Instance Methods //////////////////////
 
   private boolean hasSameCompressor(final RegionAttributes<?, ?> ra) {
-    Compressor raCompressor = ra.getCompressor();
+    var raCompressor = ra.getCompressor();
     if (raCompressor == null) {
       return Strings.isNullOrEmpty(getCompressorClassName());
     }
@@ -267,11 +266,11 @@ public class DiskRegion extends AbstractDiskRegion {
   private void destroyOldTomstones(final DiskRecoveryStore drs) {
     // iterate over all region entries in drs
     drs.foreachRegionEntry(regionEntry -> {
-      DiskEntry de = (DiskEntry) regionEntry;
+      var de = (DiskEntry) regionEntry;
       synchronized (de) {
-        DiskId id = de.getDiskId();
+        var id = de.getDiskId();
         if (id != null && regionEntry.isTombstone()) {
-          VersionStamp stamp = regionEntry.getVersionStamp();
+          var stamp = regionEntry.getVersionStamp();
           if (getRegionVersionVector().isTombstoneTooOld(stamp.getMemberID(),
               stamp.getRegionVersion())) {
             drs.destroyRecoveredEntry(de.getKey());
@@ -285,9 +284,9 @@ public class DiskRegion extends AbstractDiskRegion {
   private void destroyRemainingRecoveredEntries(final DiskRecoveryStore drs) {
     // iterate over all region entries in drs
     drs.foreachRegionEntry(regionEntry -> {
-      DiskEntry de = (DiskEntry) regionEntry;
+      var de = (DiskEntry) regionEntry;
       synchronized (de) {
-        DiskId id = de.getDiskId();
+        var id = de.getDiskId();
         if (id != null) {
           if (EntryBits.isRecoveredFromDisk(id.getUserBits())) {
             drs.destroyRecoveredEntry(de.getKey());
@@ -304,9 +303,9 @@ public class DiskRegion extends AbstractDiskRegion {
   public void resetRecoveredEntries(final DiskRecoveryStore drs) {
     // iterate over all region entries in drs
     drs.foreachRegionEntry(regionEntry -> {
-      DiskEntry de = (DiskEntry) regionEntry;
+      var de = (DiskEntry) regionEntry;
       synchronized (de) {
-        DiskId id = de.getDiskId();
+        var id = de.getDiskId();
         if (id != null) {
           id.setRecoveredFromDisk(true);
         }
@@ -471,10 +470,10 @@ public class DiskRegion extends AbstractDiskRegion {
 
   void statsClear(LocalRegion region) {
     if (region instanceof BucketRegion) {
-      BucketRegion owner = (BucketRegion) region;
-      long curInVM = owner.getNumEntriesInVM() * -1;
-      long curOnDisk = owner.getNumOverflowOnDisk() * -1;
-      long curOnDiskBytes = owner.getNumOverflowBytesOnDisk() * -1;
+      var owner = (BucketRegion) region;
+      var curInVM = owner.getNumEntriesInVM() * -1;
+      var curOnDisk = owner.getNumOverflowOnDisk() * -1;
+      var curOnDiskBytes = owner.getNumOverflowBytesOnDisk() * -1;
       incNumEntriesInVM(curInVM);
       incNumOverflowOnDisk(curOnDisk);
       incNumOverflowBytesOnDisk(curOnDiskBytes);
@@ -496,7 +495,7 @@ public class DiskRegion extends AbstractDiskRegion {
    * @since GemFire prPersistSprint1
    */
   public boolean testIsRecoveredAndClear(RegionEntry re) {
-    DiskEntry de = (DiskEntry) re;
+    var de = (DiskEntry) re;
     return testIsRecoveredAndClear(de.getDiskId());
   }
 
@@ -508,7 +507,7 @@ public class DiskRegion extends AbstractDiskRegion {
       return false;
     }
     synchronized (id) {
-      byte bits = id.getUserBits();
+      var bits = id.getUserBits();
       if (EntryBits.isRecoveredFromDisk(bits)) {
         bits = EntryBits.setRecoveredFromDisk(bits, false);
         id.setUserBits(bits);
@@ -601,8 +600,8 @@ public class DiskRegion extends AbstractDiskRegion {
 
   @Override
   public boolean didClearCountChange() {
-    Integer i = childReference.get();
-    boolean result = i != null && i != clearCount.get();
+    var i = childReference.get();
+    var result = i != null && i != clearCount.get();
     // // now that we get a readLock it should not be possible for the lock to change
     // assert !result;
     return result;
@@ -753,18 +752,18 @@ public class DiskRegion extends AbstractDiskRegion {
       return;
     }
     region.foreachRegionEntry(regionEntry -> {
-      DiskEntry de = (DiskEntry) regionEntry;
-      DiskId id = de.getDiskId();
+      var de = (DiskEntry) regionEntry;
+      var id = de.getDiskId();
       if (id != null) {
         synchronized (id) {
           id.unmarkForWriting();
           if (EntryBits.isNeedsValue(id.getUserBits())) {
-            long oplogId = id.getOplogId();
-            long offset = id.getOffsetInOplog();
+            var oplogId = id.getOplogId();
+            var offset = id.getOffsetInOplog();
             // int length = id.getValueLength();
             if (oplogId != -1 && offset != -1) {
               id.setOplogId(-1);
-              OverflowOplog oplog = getDiskStore().overflowOplogs.getChild((int) oplogId);
+              var oplog = getDiskStore().overflowOplogs.getChild((int) oplogId);
               if (oplog != null) {
                 oplog.freeEntry(de);
               }
@@ -777,7 +776,7 @@ public class DiskRegion extends AbstractDiskRegion {
 
   @Override
   public void finishPendingDestroy() {
-    boolean wasFullDestroy = wasAboutToDestroy();
+    var wasFullDestroy = wasAboutToDestroy();
     super.endDestroy(null);
     if (wasFullDestroy) {
       // now do some recreate work

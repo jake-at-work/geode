@@ -16,7 +16,6 @@ package org.apache.geode.internal.cache.execute;
 
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.client.internal.ClientMetadataService;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.test.junit.categories.ClientServerTest;
@@ -35,8 +34,8 @@ public class FunctionServiceClientAccessorPRMultipleMembersDUnitTest
     super.createRegions();
     // Make sure the client is consistently using singlehop by proactively getting
     // the server location metadata.
-    GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
-    ClientMetadataService clientMetadataService = cache.getClientMetadataService();
+    var cache = (GemFireCacheImpl) getCache();
+    var clientMetadataService = cache.getClientMetadataService();
     clientMetadataService.getClientPRMetadata((LocalRegion) region);
   }
 

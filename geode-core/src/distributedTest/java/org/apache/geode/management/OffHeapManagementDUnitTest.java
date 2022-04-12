@@ -172,7 +172,7 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
    */
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
 
     config.setProperty(OFF_HEAP_MEMORY_SIZE, "1m");
     config.setProperty(JMX_MANAGER, "true");
@@ -245,7 +245,7 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
 
     // After allocating large chunk (equal to total memory)
     // we should still have no fragmentation
-    int largeChunk = TOTAL_MEMORY - OffHeapStoredObject.HEADER_SIZE;
+    var largeChunk = TOTAL_MEMORY - OffHeapStoredObject.HEADER_SIZE;
     doPutOnVm(vm, KEY, new byte[largeChunk], OFF_HEAP_REGION_NAME, false);
     // No compaction has run, so fragmentation should be zero
     assertFragmentationStatOnVm(vm, 0, ASSERT_OP.EQUAL);
@@ -260,7 +260,7 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
     assertFragmentationStatOnVm(vm, 0, ASSERT_OP.EQUAL);
 
     // Allocate HALF_TOTAL_MEMORY twice and release one to create one fragment
-    int halfChunk = HALF_TOTAL_MEMORY - OffHeapStoredObject.HEADER_SIZE;
+    var halfChunk = HALF_TOTAL_MEMORY - OffHeapStoredObject.HEADER_SIZE;
     doPutOnVm(vm, KEY + "0", new byte[halfChunk], OFF_HEAP_REGION_NAME, false);
     doPutOnVm(vm, KEY + "1", new byte[halfChunk], OFF_HEAP_REGION_NAME, false);
     doDestroyOnVm(vm, KEY + "0", OFF_HEAP_REGION_NAME);
@@ -272,8 +272,8 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
 
     // Consume the available fragment as below
     // [16][262120][16][262120][16] = [524288] (HALF_TOTAL_MEMORY)
-    int smallChunk = OffHeapStoredObject.MIN_CHUNK_SIZE - OffHeapStoredObject.HEADER_SIZE;
-    int mediumChunk = 262112; // (262120 - ObjectChunk.OFF_HEAP_HEADER_SIZE)
+    var smallChunk = OffHeapStoredObject.MIN_CHUNK_SIZE - OffHeapStoredObject.HEADER_SIZE;
+    var mediumChunk = 262112; // (262120 - ObjectChunk.OFF_HEAP_HEADER_SIZE)
     doPutOnVm(vm, KEY + "S1", new byte[smallChunk], OFF_HEAP_REGION_NAME, false);
     doPutOnVm(vm, KEY + "M1", new byte[mediumChunk], OFF_HEAP_REGION_NAME, false);
     doPutOnVm(vm, KEY + "S2", new byte[smallChunk], OFF_HEAP_REGION_NAME, false);
@@ -327,7 +327,7 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
     assertCompactionTimeStatOnVm(vm, 0, ASSERT_OP.EQUAL);
 
     // Consume all off-heap memory using an allocation size
-    int numAllocations = doConsumeOffHeapMemoryOnVm(vm, ALLOCATION_SIZE);
+    var numAllocations = doConsumeOffHeapMemoryOnVm(vm, ALLOCATION_SIZE);
     assertThat(numAllocations > 0).isTrue();
 
     // Randomly free 3 allocations to produce off-heap gaps
@@ -466,9 +466,9 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
     assertThat(region).isNotNull();
     assertThat(numDestroys <= region.size()).isTrue();
 
-    String key = "KEY0";
+    var key = "KEY0";
     Object value = key;
-    int destroyed = 0;
+    var destroyed = 0;
 
     while (destroyed < numDestroys) {
       key = "KEY" + ((int) (Math.random() * numAllocations));
@@ -501,11 +501,11 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
    * @return the number of successful puts
    */
   private int doConsumeOffHeapMemory(final int allocationSize) {
-    int i = 0;
+    var i = 0;
 
     // Loop until we fail
     try {
-      Stopwatch stopwatch = Stopwatch.createStarted();
+      var stopwatch = Stopwatch.createStarted();
       while (stopwatch.elapsed(MINUTES) < 2) {
         doPut("KEY" + (i++), new byte[allocationSize], OFF_HEAP_REGION_NAME, false);
       }
@@ -534,12 +534,12 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
    * @param op an assert operation.
    */
   private void assertCompactionTimeStat(final long compactionTime, final ASSERT_OP op) {
-    ManagementService service = ManagementService.getExistingManagementService(getCache());
+    var service = ManagementService.getExistingManagementService(getCache());
     assertThat(service).isNotNull();
 
     assertThat(service.isManager()).isTrue();
 
-    MemberMXBean memberBean = service.getMemberMXBean();
+    var memberBean = service.getMemberMXBean();
     assertThat(memberBean).isNotNull();
 
     switch (op) {
@@ -577,12 +577,12 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
    * @param op an assertion operation
    */
   private void assertFragmentationStat(final int fragmentation, final ASSERT_OP op) {
-    ManagementService service = ManagementService.getExistingManagementService(getCache());
+    var service = ManagementService.getExistingManagementService(getCache());
     assertThat(service).isNotNull();
 
     assertThat(service.isManager()).isTrue();
 
-    MemberMXBean memberBean = service.getMemberMXBean();
+    var memberBean = service.getMemberMXBean();
     assertThat(memberBean).isNotNull();
 
     switch (op) {
@@ -635,15 +635,15 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
    * Asserts that the off heap region data is available and enabled.
    */
   private void assertOffHeapRegionAttributes() {
-    ManagementService service = ManagementService.getExistingManagementService(getCache());
+    var service = ManagementService.getExistingManagementService(getCache());
     assertThat(service).isNotNull();
 
     assertThat(service.isManager()).isTrue();
 
-    RegionMXBean regionBean = service.getLocalRegionMBean(OFF_HEAP_REGION_PATH);
+    var regionBean = service.getLocalRegionMBean(OFF_HEAP_REGION_PATH);
     assertThat(regionBean).isNotNull();
 
-    RegionAttributesData regionData = regionBean.listRegionAttributes();
+    var regionData = regionBean.listRegionAttributes();
     assertThat(regionData).isNotNull();
 
     assertThat(regionData.getOffHeap()).isTrue();
@@ -673,12 +673,12 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
    */
   private void assertOffHeapMetrics(final int freeMemory, final int allocatedMemory,
       final int objects, final int fragmentation) {
-    ManagementService service = ManagementService.getExistingManagementService(getCache());
+    var service = ManagementService.getExistingManagementService(getCache());
     assertThat(service).isNotNull();
 
     assertThat(service.isManager()).isTrue();
 
-    MemberMXBean memberBean = service.getMemberMXBean();
+    var memberBean = service.getMemberMXBean();
     assertThat(memberBean).isNotNull();
 
     assertThat(memberBean.getOffHeapFreeMemory()).isEqualTo(freeMemory);
@@ -735,7 +735,7 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
     getSystem(props);
 
     if (management) {
-      ManagementService service = ManagementService.getManagementService(getCache());
+      var service = ManagementService.getManagementService(getCache());
       if (!service.isManager()) {
         service.startManager();
       }
@@ -825,14 +825,14 @@ public class OffHeapManagementDUnitTest extends CacheTestCase {
    */
   private void setupOffHeapMonitor(final String attribute, final int highThreshold,
       final int lowThreshold) throws JMException {
-    ObjectName memberMBeanObjectName = MBeanJMXAdapter.getMemberMBeanName(
+    var memberMBeanObjectName = MBeanJMXAdapter.getMemberMBeanName(
         InternalDistributedSystem.getConnectedInstance().getDistributedMember());
     assertThat(memberMBeanObjectName).isNotNull();
 
-    ObjectName offHeapMonitorName = new ObjectName("monitors:type=Gauge,attr=" + attribute);
+    var offHeapMonitorName = new ObjectName("monitors:type=Gauge,attr=" + attribute);
     mbeanServer.createMBean("javax.management.monitor.GaugeMonitor", offHeapMonitorName);
 
-    AttributeList al = new AttributeList();
+    var al = new AttributeList();
     al.add(new Attribute("ObservedObject", memberMBeanObjectName));
     al.add(new Attribute("GranularityPeriod", 500));
     al.add(new Attribute("ObservedAttribute", attribute));

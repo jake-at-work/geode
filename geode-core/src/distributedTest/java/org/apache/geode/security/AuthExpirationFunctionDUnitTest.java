@@ -32,10 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,13 +42,9 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionService;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.execute.Function;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.management.internal.security.TestFunctions;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -88,12 +82,12 @@ public class AuthExpirationFunctionDUnitTest {
 
   @Before
   public void setup() {
-    MemberVM locatorVM =
+    var locatorVM =
         clusterStartupRule.startLocatorVM(0,
             l -> l.withSecurityManager(ExpirableSecurityManager.class));
-    int locatorPort = locatorVM.getPort();
+    var locatorPort = locatorVM.getPort();
 
-    Properties serverProperties = new Properties();
+    var serverProperties = new Properties();
     serverProperties.setProperty(SECURITY_MANAGER, ExpirableSecurityManager.class.getName());
     serverProperties.setProperty(SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.management.internal.security.TestFunctions*");
@@ -121,11 +115,11 @@ public class AuthExpirationFunctionDUnitTest {
   @Test
   public void clientShouldReAuthenticateWhenCredentialExpiredAndFunctionExecutionOnServerSucceed()
       throws Exception {
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("data1");
     writeFunction = new TestFunctions.WriteFunction();
 
-    ResultCollector rc = onServer(clientCache.getDefaultPool()).execute(writeFunction);
+    var rc = onServer(clientCache.getDefaultPool()).execute(writeFunction);
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
@@ -139,28 +133,27 @@ public class AuthExpirationFunctionDUnitTest {
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
-
-    ExpirableSecurityManager consolidated =
+    var consolidated =
         collectSecurityManagers(serverVM0, serverVM1, serverVM2);
-    Set<String> combinedExpiredUsers = consolidated.getExpiredUsers();
+    var combinedExpiredUsers = consolidated.getExpiredUsers();
     assertThat(combinedExpiredUsers).containsExactly("data1");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("data1")).containsExactly("DATA:WRITE");
     assertThat(authorizedOps.get("data2")).containsExactly("DATA:WRITE");
 
-    Map<String, List<String>> unauthorizedOps = consolidated.getUnAuthorizedOps();
+    var unauthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unauthorizedOps.get("data1")).containsExactly("DATA:WRITE");
   }
 
   @Test
   public void clientShouldReAuthenticateWhenCredentialExpiredAndFunctionExecutionOnServersSucceed()
       throws Exception {
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("data1");
     writeFunction = new TestFunctions.WriteFunction();
 
-    ResultCollector rc = onServers(clientCache.getDefaultPool()).execute(writeFunction);
+    var rc = onServers(clientCache.getDefaultPool()).execute(writeFunction);
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
@@ -174,18 +167,18 @@ public class AuthExpirationFunctionDUnitTest {
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
-    ExpirableSecurityManager consolidated =
+    var consolidated =
         collectSecurityManagers(serverVM0, serverVM1, serverVM2);
-    Set<String> combinedExpiredUsers = consolidated.getExpiredUsers();
+    var combinedExpiredUsers = consolidated.getExpiredUsers();
     assertThat(combinedExpiredUsers).containsExactly("data1");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("data1"))
         .containsExactly("DATA:WRITE", "DATA:WRITE", "DATA:WRITE");
     assertThat(authorizedOps.get("data2"))
         .containsExactly("DATA:WRITE", "DATA:WRITE", "DATA:WRITE");
 
-    Map<String, List<String>> unauthorizedOps = consolidated.getUnAuthorizedOps();
+    var unauthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unauthorizedOps.get("data1"))
         .containsExactly("DATA:WRITE", "DATA:WRITE", "DATA:WRITE");
   }
@@ -193,13 +186,13 @@ public class AuthExpirationFunctionDUnitTest {
   @Test
   public void clientShouldReAuthenticateWhenCredentialExpiredAndFunctionExecutionOnRegionSucceed()
       throws Exception {
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("data1");
-    Region<Object, Object> region =
+    var region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
     writeFunction = new TestFunctions.WriteFunction();
 
-    ResultCollector rc = onRegion(region).execute(writeFunction);
+    var rc = onRegion(region).execute(writeFunction);
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
@@ -213,16 +206,16 @@ public class AuthExpirationFunctionDUnitTest {
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
-    ExpirableSecurityManager consolidated =
+    var consolidated =
         collectSecurityManagers(serverVM0, serverVM1, serverVM2);
-    Set<String> combinedExpiredUsers = consolidated.getExpiredUsers();
+    var combinedExpiredUsers = consolidated.getExpiredUsers();
     assertThat(combinedExpiredUsers).containsExactly("data1");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("data1")).containsExactly("DATA:WRITE");
     assertThat(authorizedOps.get("data2")).containsExactly("DATA:WRITE");
 
-    Map<String, List<String>> unauthorizedOps = consolidated.getUnAuthorizedOps();
+    var unauthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unauthorizedOps.get("data1")).containsExactly("DATA:WRITE");
   }
 
@@ -230,16 +223,16 @@ public class AuthExpirationFunctionDUnitTest {
   public void clientShouldReAuthenticateWhenCredentialExpiredAndFunctionExecutionOnServerWithRegionServiceSucceed()
       throws Exception {
     clientCacheRule.withMultiUser(true);
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("data1");
     writeFunction = new TestFunctions.WriteFunction();
 
-    Properties userSecurityProperties = new Properties();
+    var userSecurityProperties = new Properties();
     userSecurityProperties.put(SECURITY_CLIENT_AUTH_INIT,
         UpdatableUserAuthInitialize.class.getName());
-    RegionService regionService = clientCache.createAuthenticatedView(userSecurityProperties);
+    var regionService = clientCache.createAuthenticatedView(userSecurityProperties);
 
-    ResultCollector rc = onServer(regionService).execute(writeFunction);
+    var rc = onServer(regionService).execute(writeFunction);
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
@@ -253,16 +246,16 @@ public class AuthExpirationFunctionDUnitTest {
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
-    ExpirableSecurityManager consolidated =
+    var consolidated =
         collectSecurityManagers(serverVM0, serverVM1, serverVM2);
-    Set<String> combinedExpiredUsers = consolidated.getExpiredUsers();
+    var combinedExpiredUsers = consolidated.getExpiredUsers();
     assertThat(combinedExpiredUsers).containsExactly("data1");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("data1")).containsExactly("DATA:WRITE");
     assertThat(authorizedOps.get("data2")).containsExactly("DATA:WRITE");
 
-    Map<String, List<String>> unauthorizedOps = consolidated.getUnAuthorizedOps();
+    var unauthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unauthorizedOps.get("data1")).containsExactly("DATA:WRITE");
   }
 
@@ -270,16 +263,16 @@ public class AuthExpirationFunctionDUnitTest {
   public void clientShouldReAuthenticateWhenCredentialExpiredAndFunctionExecutionOnServersWithRegionServiceSucceed()
       throws Exception {
     clientCacheRule.withMultiUser(true);
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("data1");
     writeFunction = new TestFunctions.WriteFunction();
 
-    Properties userSecurityProperties = new Properties();
+    var userSecurityProperties = new Properties();
     userSecurityProperties.put(SECURITY_CLIENT_AUTH_INIT,
         UpdatableUserAuthInitialize.class.getName());
-    RegionService regionService = clientCache.createAuthenticatedView(userSecurityProperties);
+    var regionService = clientCache.createAuthenticatedView(userSecurityProperties);
 
-    ResultCollector rc = onServers(regionService).execute(writeFunction);
+    var rc = onServers(regionService).execute(writeFunction);
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
@@ -293,20 +286,19 @@ public class AuthExpirationFunctionDUnitTest {
     assertThat(((List) rc.getResult()).get(0))
         .isEqualTo(TestFunctions.WriteFunction.SUCCESS_OUTPUT);
 
-
-    ExpirableSecurityManager consolidated =
+    var consolidated =
         collectSecurityManagers(serverVM0, serverVM1, serverVM2);
 
-    Set<String> combinedExpiredUsers = consolidated.getExpiredUsers();
+    var combinedExpiredUsers = consolidated.getExpiredUsers();
     assertThat(combinedExpiredUsers).containsExactly("data1");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("data1"))
         .containsExactly("DATA:WRITE", "DATA:WRITE", "DATA:WRITE");
     assertThat(authorizedOps.get("data2"))
         .containsExactly("DATA:WRITE", "DATA:WRITE", "DATA:WRITE");
 
-    Map<String, List<String>> unauthorizedOps = consolidated.getUnAuthorizedOps();
+    var unauthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unauthorizedOps.get("data1"))
         .containsExactly("DATA:WRITE", "DATA:WRITE", "DATA:WRITE");
   }

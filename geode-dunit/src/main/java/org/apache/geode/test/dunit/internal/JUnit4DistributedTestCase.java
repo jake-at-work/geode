@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -40,7 +39,6 @@ import org.junit.Rule;
 
 import org.apache.geode.CancelException;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -164,14 +162,14 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
 
     if (system == null || !system.isConnected()) {
       // Figure out our distributed system properties
-      Properties p = getAllDistributedSystemProperties(props);
+      var p = getAllDistributedSystemProperties(props);
       lastSystemCreatedInTest = getTestClass(); // used to be getDeclaringClass()
       if (logPerTest) {
-        String testMethod = getTestMethodName();
-        String testName = lastSystemCreatedInTest.getName() + '-' + testMethod;
-        String oldLogFile = p.getProperty(LOG_FILE);
+        var testMethod = getTestMethodName();
+        var testName = lastSystemCreatedInTest.getName() + '-' + testMethod;
+        var oldLogFile = p.getProperty(LOG_FILE);
         p.put(LOG_FILE, oldLogFile.replace("system.log", testName + ".log"));
-        String oldStatFile = p.getProperty(STATISTIC_ARCHIVE_FILE);
+        var oldStatFile = p.getProperty(STATISTIC_ARCHIVE_FILE);
         p.put(STATISTIC_ARCHIVE_FILE, oldStatFile.replace("statArchive.gfs", testName + ".gfs"));
       }
       if (VersionManager.getInstance().getCurrentVersionOrdinal() < 75) {
@@ -182,9 +180,9 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
       lastSystemProperties = p;
 
     } else {
-      boolean needNewSystem = false;
+      var needNewSystem = false;
       if (!getTestClass().equals(lastSystemCreatedInTest)) { // used to be getDeclaringClass()
-        Properties newProps = getAllDistributedSystemProperties(props);
+        var newProps = getAllDistributedSystemProperties(props);
         needNewSystem = !newProps.equals(lastSystemProperties);
         if (needNewSystem) {
           logger
@@ -194,13 +192,13 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
         }
 
       } else {
-        Properties activeProps = system.getConfig().toProperties();
-        for (Entry<Object, Object> entry : props.entrySet()) {
-          String key = (String) entry.getKey();
+        var activeProps = system.getConfig().toProperties();
+        for (var entry : props.entrySet()) {
+          var key = (String) entry.getKey();
           if (key.startsWith("security-")) {
             continue;
           }
-          String value = (String) entry.getValue();
+          var value = (String) entry.getValue();
           if (!value.equals(activeProps.getProperty(key))) {
             needNewSystem = true;
             logger.info("Forcing DS disconnect. For property " + key + " old value = "
@@ -210,12 +208,12 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
         }
         try {
           activeProps = system.getConfig().toSecurityProperties();
-          for (Entry<Object, Object> entry : props.entrySet()) {
-            String key = (String) entry.getKey();
+          for (var entry : props.entrySet()) {
+            var key = (String) entry.getKey();
             if (!key.startsWith("security-")) {
               continue;
             }
-            String value = (String) entry.getValue();
+            var value = (String) entry.getValue();
             if (!value.equals(activeProps.getProperty(key))) {
               needNewSystem = true;
               logger.info("Forcing DS disconnect. For property " + key + " old value = "
@@ -275,7 +273,7 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
    * @since GemFire 6.5
    */
   public final InternalDistributedSystem getLonerSystem() {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.put(MCAST_PORT, "0");
     props.put(LOCATORS, "");
     return getSystem(props);
@@ -375,17 +373,17 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
    * Do not override this method.
    */
   private void doSetUpDistributedTestCase() {
-    final String className = getTestClass().getCanonicalName();
-    final String methodName = getName();
+    final var className = getTestClass().getCanonicalName();
+    final var methodName = getName();
 
     TestHistoryLogger.logTestHistory(getTestClass().getSimpleName(), methodName);
 
     setUpVM(methodName, getDefaultDiskStoreName(0, -1, className, methodName));
 
-    for (int hostIndex = 0; hostIndex < Host.getHostCount(); hostIndex++) {
-      Host host = Host.getHost(hostIndex);
-      for (int vmIndex = 0; vmIndex < host.getVMCount(); vmIndex++) {
-        final String vmDefaultDiskStoreName =
+    for (var hostIndex = 0; hostIndex < Host.getHostCount(); hostIndex++) {
+      var host = Host.getHost(hostIndex);
+      for (var vmIndex = 0; vmIndex < host.getVMCount(); vmIndex++) {
+        final var vmDefaultDiskStoreName =
             getDefaultDiskStoreName(hostIndex, vmIndex, className, methodName);
         host.getVM(vmIndex).invoke("setupVM", () -> setUpVM(methodName, vmDefaultDiskStoreName));
       }
@@ -443,11 +441,11 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
     // the following is moved from InternalDistributedSystem to fix #51058
     InternalDistributedSystem.TEST_CREATION_STACK_GENERATOR
         .set(config -> {
-          StringBuilder sb = new StringBuilder();
-          String[] validAttributeNames = config.getAttributeNames();
-          for (String attName : validAttributeNames) {
-            Object actualAtt = config.getAttributeObject(attName);
-            String actualAttStr = actualAtt.toString();
+          var sb = new StringBuilder();
+          var validAttributeNames = config.getAttributeNames();
+          for (var attName : validAttributeNames) {
+            var actualAtt = config.getAttributeObject(attName);
+            var actualAttStr = actualAtt.toString();
             sb.append("  ");
             sb.append(attName);
             sb.append("=\"");
@@ -559,7 +557,7 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
 
   // TODO: this should move to CacheTestCase
   private static void closeCache() {
-    GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+    var cache = GemFireCacheImpl.getInstance();
     if (cache != null && !cache.isClosed()) {
       destroyRegions(cache);
       cache.close();
@@ -571,8 +569,8 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
     if (cache != null && !cache.isClosed()) {
       // try to destroy the root regions first so that we clean up any persistent files.
       try {
-        for (Region<?, ?> root : cache.rootRegions()) {
-          String regionFullPath = root == null ? null : root.getFullPath();
+        for (var root : cache.rootRegions()) {
+          var regionFullPath = root == null ? null : root.getFullPath();
           // for colocated regions you can't locally destroy a partitioned region.
           if (root.isDestroyed() || root instanceof HARegion || root instanceof PartitionedRegion) {
             continue;

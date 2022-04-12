@@ -49,9 +49,7 @@ import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.InternalClientCache;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
-import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.test.dunit.VM;
@@ -128,8 +126,8 @@ public class ClientProxyWithDeltaDistributedTest implements Serializable {
 
     client1.invoke(() -> {
       Region<Integer, DeltaEnabledObject> region = clientCache.getRegion(CACHING_PROXY_NAME);
-      DeltaEnabledObject objectWithDelta = new DeltaEnabledObject();
-      for (int i = 1; i <= 3; i++) {
+      var objectWithDelta = new DeltaEnabledObject();
+      for (var i = 1; i <= 3; i++) {
         objectWithDelta.setValue(i);
         region.put(1, objectWithDelta);
       }
@@ -157,8 +155,8 @@ public class ClientProxyWithDeltaDistributedTest implements Serializable {
 
     client1.invoke(() -> {
       Region<Integer, DeltaEnabledObject> region = clientCache.getRegion(PROXY_NAME);
-      DeltaEnabledObject objectWithDelta = new DeltaEnabledObject();
-      for (int i = 1; i <= 3; i++) {
+      var objectWithDelta = new DeltaEnabledObject();
+      for (var i = 1; i <= 3; i++) {
         objectWithDelta.setValue(i);
         region.put(1, objectWithDelta);
       }
@@ -179,15 +177,15 @@ public class ClientProxyWithDeltaDistributedTest implements Serializable {
   public void reusingValueForCreatesDoesNotUseDelta() {
     client1.invoke(() -> {
       Region<Integer, DeltaEnabledObject> region = clientCache.getRegion(PROXY_NAME);
-      DeltaEnabledObject objectWithDelta = new DeltaEnabledObject();
-      for (int i = 1; i <= 3; i++) {
+      var objectWithDelta = new DeltaEnabledObject();
+      for (var i = 1; i <= 3; i++) {
         objectWithDelta.setValue(i);
         region.create(i, objectWithDelta);
       }
     });
 
     server.invoke(() -> {
-      CachePerfStats stats = ((InternalRegion) cache.getRegion(PROXY_NAME)).getCachePerfStats();
+      var stats = ((InternalRegion) cache.getRegion(PROXY_NAME)).getCachePerfStats();
       assertThat(stats.getDeltaFailedUpdates()).isEqualTo(0);
       assertThat(DeltaEnabledObject.fromDeltaInvoked()).isFalse();
     });
@@ -203,7 +201,7 @@ public class ClientProxyWithDeltaDistributedTest implements Serializable {
     regionFactory.create(PROXY_NAME);
     regionFactory.create(CACHING_PROXY_NAME);
 
-    CacheServer cacheServer = cache.addCacheServer();
+    var cacheServer = cache.addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
@@ -213,10 +211,10 @@ public class ClientProxyWithDeltaDistributedTest implements Serializable {
     clientCache = (InternalClientCache) new ClientCacheFactory().create();
     assertThat(clientCache.isClient()).isTrue();
 
-    PoolFactory poolFactory = createPoolFactory();
+    var poolFactory = createPoolFactory();
     poolFactory.addServer(hostName, port);
 
-    Pool pool = poolFactory.create(getClass().getSimpleName() + "-Pool");
+    var pool = poolFactory.create(getClass().getSimpleName() + "-Pool");
 
     Region region = createRegionOnClient(PROXY_NAME, ClientRegionShortcut.PROXY, pool);
 
@@ -228,10 +226,10 @@ public class ClientProxyWithDeltaDistributedTest implements Serializable {
     clientCache = (InternalClientCache) new ClientCacheFactory().create();
     assertThat(clientCache.isClient()).isTrue();
 
-    PoolFactory poolFactory = createPoolFactory();
+    var poolFactory = createPoolFactory();
     poolFactory.addServer(hostName, port);
 
-    Pool pool = poolFactory.create(getClass().getSimpleName() + "-Pool");
+    var pool = poolFactory.create(getClass().getSimpleName() + "-Pool");
 
     Region region =
         createRegionOnClient(CACHING_PROXY_NAME, ClientRegionShortcut.CACHING_PROXY, pool);
@@ -250,7 +248,7 @@ public class ClientProxyWithDeltaDistributedTest implements Serializable {
     ClientRegionFactory<Integer, DeltaEnabledObject> regionFactory =
         clientCache.createClientRegionFactory(shortcut);
     regionFactory.setPoolName(pool.getName());
-    Region<Integer, DeltaEnabledObject> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     assertThat(region.getAttributes().getCloningEnabled()).isFalse();
     return region;
   }

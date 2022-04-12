@@ -47,16 +47,16 @@ public class PartitionedRegionDestroyJUnitTest {
   @Test
   public void destroyMessageRequiresReattemptIfRegionInitializing() {
     when(advisor.isInitialized()).thenReturn(Boolean.FALSE);
-    DestroyPartitionedRegionMessage message = new DestroyPartitionedRegionMessage();
-    Throwable exception = message.processCheckForPR(partitionedRegion, manager);
+    var message = new DestroyPartitionedRegionMessage();
+    var exception = message.processCheckForPR(partitionedRegion, manager);
     assertTrue(exception instanceof ForceReattemptException);
   }
 
   @Test
   public void destroyMessageRequiresNoReattemptIfRegionInitialized() {
     when(advisor.isInitialized()).thenReturn(Boolean.TRUE);
-    DestroyPartitionedRegionMessage message = new DestroyPartitionedRegionMessage();
-    Throwable exception = message.processCheckForPR(partitionedRegion, manager);
+    var message = new DestroyPartitionedRegionMessage();
+    var exception = message.processCheckForPR(partitionedRegion, manager);
     assertNull(exception);
   }
 }

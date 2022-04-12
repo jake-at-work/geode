@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 
 /**
@@ -36,7 +35,7 @@ public class BucketRegionQueueHelper {
   public GatewaySenderEventImpl addEvent(Object key) {
     bucketRegionQueue.getEventTracker().setInitialized();
     bucketRegionQueue.entries.disableLruUpdateCallback();
-    GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
+    var event = mock(GatewaySenderEventImpl.class);
     bucketRegionQueue.entries.initialImagePut(key, 0, event, false, false, null, null, false);
     bucketRegionQueue.entries.enableLruUpdateCallback();
     return event;
@@ -48,7 +47,7 @@ public class BucketRegionQueueHelper {
   }
 
   public void initialize(GemFireCacheImpl cache, PartitionedRegion queueRegion) {
-    InternalDistributedMember member = cache.getMyId();
+    var member = cache.getMyId();
     when(queueRegion.getMyId()).thenReturn(member);
     when(cache.getInternalRegionByPath(bucketRegionQueue.getFullPath()))
         .thenReturn(bucketRegionQueue);

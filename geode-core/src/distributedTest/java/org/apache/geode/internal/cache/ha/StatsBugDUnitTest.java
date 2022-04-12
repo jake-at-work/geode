@@ -32,7 +32,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.server.CacheServer;
@@ -98,7 +97,7 @@ public class StatsBugDUnitTest extends JUnit4DistributedTestCase {
   @Override
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     primary = host.getVM(0);
     secondary = host.getVM(1);
     client1 = host.getVM(2);
@@ -178,18 +177,18 @@ public class StatsBugDUnitTest extends JUnit4DistributedTestCase {
    * @throws Exception - thrown if any problem occurs in cache/server creation
    */
   public static Integer createServerCache() throws Exception {
-    StatsBugDUnitTest test = new StatsBugDUnitTest();
-    Properties props = new Properties();
+    var test = new StatsBugDUnitTest();
+    var props = new Properties();
     cache = test.createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
 
     cache.createRegion(REGION_NAME, attrs);
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(false);
     server.setSocketBufferSize(32768);
@@ -206,14 +205,14 @@ public class StatsBugDUnitTest extends JUnit4DistributedTestCase {
    * @throws Exception-thrown if any problem occurs in initializing the client
    */
   public static void createClientCache(String host, Integer port1, Integer port2) throws Exception {
-    StatsBugDUnitTest test = new StatsBugDUnitTest();
+    var test = new StatsBugDUnitTest();
     cache = test.createCache(createProperties1());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     pool = (PoolImpl) ClientServerTestCase.configureConnectionPool(factory, host,
         new int[] {port1, port2}, true, -1, 3, null);
-    RegionAttributes attrs = factory.create();
-    Region region = cache.createRegion(REGION_NAME, attrs);
+    var attrs = factory.create();
+    var region = cache.createRegion(REGION_NAME, attrs);
     region.registerInterest("ALL_KEYS");
     LogWriterUtils.getLogWriter().info("Client cache created");
   }
@@ -227,14 +226,14 @@ public class StatsBugDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void createClientCacheForInvalidates(String host, Integer port1, Integer port2)
       throws Exception {
-    StatsBugDUnitTest test = new StatsBugDUnitTest();
+    var test = new StatsBugDUnitTest();
     cache = test.createCache(createProperties1());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     pool = (PoolImpl) ClientServerTestCase.configureConnectionPool(factory, host,
         new int[] {port1, port2}, true, -1, 3, null);
-    RegionAttributes attrs = factory.create();
-    Region region = cache.createRegion(REGION_NAME, attrs);
+    var attrs = factory.create();
+    var region = cache.createRegion(REGION_NAME, attrs);
     region.registerInterest("ALL_KEYS", false, false);
     LogWriterUtils.getLogWriter().info("Client cache created");
   }
@@ -249,7 +248,7 @@ public class StatsBugDUnitTest extends JUnit4DistributedTestCase {
     LogWriterUtils.getLogWriter()
         .info("invalidatesRecordedByStats = " + invalidatesRecordedByStats);
 
-    int expectedInvalidates = TOTAL_SERVERS * PUTS_PER_SERVER;
+    var expectedInvalidates = TOTAL_SERVERS * PUTS_PER_SERVER;
     LogWriterUtils.getLogWriter().info("expectedInvalidates = " + expectedInvalidates);
 
     if (invalidatesRecordedByStats != expectedInvalidates) {
@@ -267,7 +266,7 @@ public class StatsBugDUnitTest extends JUnit4DistributedTestCase {
     try {
       Iterator iter = cache.getCacheServers().iterator();
       if (iter.hasNext()) {
-        CacheServer server = (CacheServer) iter.next();
+        var server = (CacheServer) iter.next();
         server.stop();
       }
     } catch (Exception e) {
@@ -279,7 +278,7 @@ public class StatsBugDUnitTest extends JUnit4DistributedTestCase {
    * create properties for a loner VM
    */
   private static Properties createProperties1() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     return props;
@@ -294,7 +293,7 @@ public class StatsBugDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void doEntryOperations(String keyPrefix) throws Exception {
     Region r1 = cache.getRegion(SEPARATOR + REGION_NAME);
-    for (int i = 0; i < PUTS_PER_SERVER; i++) {
+    for (var i = 0; i < PUTS_PER_SERVER; i++) {
       r1.put(keyPrefix + i, keyPrefix + "val-" + i);
     }
   }

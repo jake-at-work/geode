@@ -88,7 +88,7 @@ public class GatewayReceiverInfo extends RuntimeInfo {
     if (!super.equals(o)) {
       return false;
     }
-    GatewayReceiverInfo that = (GatewayReceiverInfo) o;
+    var that = (GatewayReceiverInfo) o;
     return isRunning() == that.isRunning() &&
         getPort() == that.getPort() &&
         getSenderCount() == that.getSenderCount() &&
@@ -99,7 +99,7 @@ public class GatewayReceiverInfo extends RuntimeInfo {
 
   @Override
   public int hashCode() {
-    int result =
+    var result =
         Objects
             .hash(super.hashCode(), isRunning(), getPort(), getHostnameForSenders(),
                 getBindAddress(),

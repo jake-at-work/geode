@@ -32,9 +32,9 @@ public class CategoryWithParameterizedRunner extends BlockJUnit4ClassRunnerWithP
 
   @Override
   public Annotation[] getRunnerAnnotations() {
-    Annotation[] allAnnotations = getTestClass().getAnnotations();
+    var allAnnotations = getTestClass().getAnnotations();
     List<Annotation> annotationsWithoutRunWith = new ArrayList<>();
-    for (Annotation annotation : allAnnotations) {
+    for (var annotation : allAnnotations) {
       if (!annotation.annotationType().equals(RunWith.class)) {
         annotationsWithoutRunWith.add(annotation);
       }

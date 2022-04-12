@@ -47,7 +47,7 @@ public class WANBootStrapping_Site1_Remove {
     System.out.println("Starting a locator with negative ds id -1");
 
     // start a stand alone locator with distributed-system-is = -1
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(DISTRIBUTED_SYSTEM_ID, "" + (-1));
     properties.setProperty(REMOTE_LOCATORS, "localhost[" + 20202 + "]");

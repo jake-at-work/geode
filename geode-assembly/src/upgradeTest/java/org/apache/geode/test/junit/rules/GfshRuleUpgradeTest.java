@@ -45,12 +45,12 @@ public class GfshRuleUpgradeTest {
 
   @Before
   public void findGfshCurrentPath() {
-    Path geodeHomePath = Paths.get(GEODE_HOME).toAbsolutePath();
+    var geodeHomePath = Paths.get(GEODE_HOME).toAbsolutePath();
     assertThat(geodeHomePath)
         .as("System.getenv(\"GEODE_HOME\")")
         .exists();
 
-    String gfsh = isWindows() ? "gfsh.bat" : "gfsh";
+    var gfsh = isWindows() ? "gfsh.bat" : "gfsh";
     gfshCurrent = Paths.get(GEODE_HOME, "bin", gfsh);
     assertThat(gfshCurrent)
         .as("GEODE_HOME/bin/" + gfsh + " exists")
@@ -59,12 +59,12 @@ public class GfshRuleUpgradeTest {
 
   @Before
   public void findGfsh130Path() {
-    Path geode130Home = Paths.get(VersionManager.getInstance().getInstall(GFSH_OLD_VERSION));
+    var geode130Home = Paths.get(VersionManager.getInstance().getInstall(GFSH_OLD_VERSION));
     assertThat(geode130Home)
         .as("VersionManager installation for " + GFSH_OLD_VERSION)
         .exists();
 
-    String gfsh = isWindows() ? "gfsh.bat" : "gfsh";
+    var gfsh = isWindows() ? "gfsh.bat" : "gfsh";
     gfsh130 = Paths.get(geode130Home.toString(), "bin", gfsh);
     assertThat(gfsh130)
         .as("geode130Home/bin/" + gfsh + " exists")

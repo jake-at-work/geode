@@ -25,7 +25,6 @@ import static org.apache.geode.test.dunit.Host.getHost;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Properties;
@@ -106,13 +105,13 @@ public class ManagementTestRule implements MethodRule, Serializable {
   }
 
   public void createManagers() {
-    for (VM manager : managers) {
+    for (var manager : managers) {
       manager.invoke(() -> createManager(true));
     }
   }
 
   public void createMembers() {
-    for (VM member : members) {
+    for (var member : members) {
       member.invoke(() -> createMember());
     }
   }
@@ -173,7 +172,7 @@ public class ManagementTestRule implements MethodRule, Serializable {
   }
 
   public void createMember(final VM memberVM) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(NAME, "memberVM-" + memberVM.getId());
     memberVM.invoke("createMember", () -> createMember(properties));
   }
@@ -214,7 +213,7 @@ public class ManagementTestRule implements MethodRule, Serializable {
   }
 
   public void startManager() {
-    SystemManagementService service = getSystemManagementService();
+    var service = getSystemManagementService();
     service.createManager();
     service.startManager();
   }
@@ -274,16 +273,16 @@ public class ManagementTestRule implements MethodRule, Serializable {
     DUnitLauncher.launchIfNeeded();
     JUnit4DistributedTestCase.disconnectAllFromDS();
 
-    int whichVM = 0;
+    var whichVM = 0;
 
     managers = new VM[numberOfManagers];
-    for (int i = 0; i < numberOfManagers; i++) {
+    for (var i = 0; i < numberOfManagers; i++) {
       managers[i] = getHost(0).getVM(whichVM);
       whichVM++;
     }
 
     members = new VM[numberOfMembers];
-    for (int i = 0; i < numberOfMembers; i++) {
+    for (var i = 0; i < numberOfMembers; i++) {
       members[i] = getHost(0).getVM(whichVM);
       whichVM++;
     }
@@ -313,12 +312,12 @@ public class ManagementTestRule implements MethodRule, Serializable {
 
   private void processAnnotations(final Object target) {
     try {
-      Class<?> clazz = target.getClass();
+      var clazz = target.getClass();
 
-      Field[] fields = clazz.getDeclaredFields();
-      for (Field field : fields) {
-        boolean alreadyAssigned = false;
-        for (Annotation annotation : field.getAnnotations()) {
+      var fields = clazz.getDeclaredFields();
+      for (var field : fields) {
+        var alreadyAssigned = false;
+        for (var annotation : field.getAnnotations()) {
           if (annotation.annotationType().equals(Manager.class)) {
             // annotated with @Manager
             throwIfAlreadyAssigned(field, alreadyAssigned);

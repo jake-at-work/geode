@@ -27,7 +27,6 @@ import org.apache.geode.cache.RegionService;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.internal.ProxyQueryService;
-import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.pdx.JSONFormatter;
 import org.apache.geode.pdx.PdxInstance;
@@ -82,7 +81,7 @@ public class ProxyCache implements RegionService {
         proxyQueryService.closeCqs(keepAlive);
       }
       UserAttributes.userAttributes.set(userAttributes);
-      for (final ServerLocation serverLocation : userAttributes.getServerToId().keySet()) {
+      for (final var serverLocation : userAttributes.getServerToId().keySet()) {
         ProxyCacheCloseOp.executeOn(serverLocation, (ExecutablePool) userAttributes.getPool(),
             userAttributes.getCredentials(), keepAlive);
       }
@@ -163,7 +162,7 @@ public class ProxyCache implements RegionService {
   protected class Stopper extends CancelCriterion {
     @Override
     public String cancelInProgress() {
-      String reason = cache.getCancelCriterion().cancelInProgress();
+      var reason = cache.getCancelCriterion().cancelInProgress();
       if (reason != null) {
         return reason;
       }
@@ -175,11 +174,11 @@ public class ProxyCache implements RegionService {
 
     @Override
     public RuntimeException generateCancelledException(Throwable e) {
-      String reason = cancelInProgress();
+      var reason = cancelInProgress();
       if (reason == null) {
         return null;
       }
-      RuntimeException result = cache.getCancelCriterion().generateCancelledException(e);
+      var result = cache.getCancelCriterion().generateCancelledException(e);
       if (result != null) {
         return result;
       }
@@ -207,7 +206,7 @@ public class ProxyCache implements RegionService {
   public Set<Region<?, ?>> rootRegions() {
     preOp();
     Set<Region<?, ?>> rootRegions = new HashSet<>();
-    for (Region<?, ?> region : cache.rootRegions()) {
+    for (var region : cache.rootRegions()) {
       if (!region.getAttributes().getDataPolicy().withStorage()) {
         rootRegions.add(new ProxyRegion(this, region, cache.getStatisticsClock()));
       }

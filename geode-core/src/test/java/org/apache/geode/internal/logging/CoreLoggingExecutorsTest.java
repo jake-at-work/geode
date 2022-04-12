@@ -24,9 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -72,17 +70,17 @@ public class CoreLoggingExecutorsTest {
    */
   @Test
   public void newFixedThreadPoolWithTimeout() {
-    int poolSize = 5;
-    int keepAliveTime = 2;
-    String threadName = "thread";
+    var poolSize = 5;
+    var keepAliveTime = 2;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors
+    var executorService = CoreLoggingExecutors
         .newFixedThreadPoolWithTimeout(poolSize, keepAliveTime, MINUTES, queueStatHelper,
             threadName);
 
     assertThat(executorService).isInstanceOf(ThreadPoolExecutor.class);
 
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) executorService;
+    var executor = (ThreadPoolExecutor) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(poolSize);
     assertThat(executor.getKeepAliveTime(MINUTES)).isEqualTo(keepAliveTime);
@@ -92,13 +90,13 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(ThreadPoolExecutor.AbortPolicy.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    OverflowQueueWithDMStats overflowQueueWithDMStats =
+    var overflowQueueWithDMStats =
         (OverflowQueueWithDMStats) executor.getQueue();
 
     assertThat(overflowQueueWithDMStats.getQueueStatHelper()).isSameAs(queueStatHelper);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -117,17 +115,17 @@ public class CoreLoggingExecutorsTest {
    */
   @Test
   public void newFunctionThreadPoolWithFeedStatistics() {
-    int poolSize = 5;
-    int workQueueSize = 2;
-    String threadName = "thread";
+    var poolSize = 5;
+    var workQueueSize = 2;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors
+    var executorService = CoreLoggingExecutors
         .newFunctionThreadPoolWithFeedStatistics(poolSize, workQueueSize, queueStatHelper,
             threadName, threadInitializer, commandWrapper, poolStatHelper, threadsMonitoring);
 
     assertThat(executorService).isInstanceOf(FunctionExecutionPooledExecutor.class);
 
-    FunctionExecutionPooledExecutor executor = (FunctionExecutionPooledExecutor) executorService;
+    var executor = (FunctionExecutionPooledExecutor) executorService;
 
     assertThat(executor.getBufferQueue()).isInstanceOf(OverflowQueueWithDMStats.class);
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
@@ -138,13 +136,13 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(FunctionExecutionRejectedExecutionHandler.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    OverflowQueueWithDMStats overflowQueueWithDMStats =
+    var overflowQueueWithDMStats =
         (OverflowQueueWithDMStats) executor.getBufferQueue();
 
     assertThat(overflowQueueWithDMStats.getQueueStatHelper()).isSameAs(queueStatHelper);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -159,15 +157,15 @@ public class CoreLoggingExecutorsTest {
   @Test
   public void newSerialThreadPool() {
     BlockingQueue<Runnable> workQueue = mock(BlockingQueue.class);
-    String threadName = "thread";
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors
+    var executorService = CoreLoggingExecutors
         .newSerialThreadPool(workQueue, threadName, threadInitializer, commandWrapper,
             poolStatHelper, threadsMonitoring);
 
     assertThat(executorService).isInstanceOf(SerialQueuedExecutorWithDMStats.class);
 
-    SerialQueuedExecutorWithDMStats executor = (SerialQueuedExecutorWithDMStats) executorService;
+    var executor = (SerialQueuedExecutorWithDMStats) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
     assertThat(executor.getKeepAliveTime(MINUTES)).isEqualTo(1);
@@ -178,8 +176,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(PooledExecutorWithDMStats.BlockHandler.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -193,16 +191,16 @@ public class CoreLoggingExecutorsTest {
    */
   @Test
   public void newSerialThreadPoolWithFeedStatistics() {
-    int workQueueSize = 2;
-    String threadName = "thread";
+    var workQueueSize = 2;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors
+    var executorService = CoreLoggingExecutors
         .newSerialThreadPoolWithFeedStatistics(workQueueSize, queueStatHelper, threadName,
             threadInitializer, commandWrapper, poolStatHelper, threadsMonitoring);
 
     assertThat(executorService).isInstanceOf(SerialQueuedExecutorWithDMStats.class);
 
-    SerialQueuedExecutorWithDMStats executor = (SerialQueuedExecutorWithDMStats) executorService;
+    var executor = (SerialQueuedExecutorWithDMStats) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
     assertThat(executor.getKeepAliveTime(MINUTES)).isEqualTo(1);
@@ -213,8 +211,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(PooledExecutorWithDMStats.BlockHandler.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -229,17 +227,17 @@ public class CoreLoggingExecutorsTest {
    */
   @Test
   public void newScheduledThreadPool() {
-    int poolSize = 10;
+    var poolSize = 10;
     long keepAliveTime = 5000;
-    TimeUnit unit = SECONDS;
-    String threadName = "thread";
+    var unit = SECONDS;
+    var threadName = "thread";
 
     ExecutorService executorService = CoreLoggingExecutors
         .newScheduledThreadPool(poolSize, keepAliveTime, unit, threadName, threadsMonitoring);
 
     assertThat(executorService).isInstanceOf(ScheduledThreadPoolExecutorWithKeepAlive.class);
 
-    ScheduledThreadPoolExecutorWithKeepAlive executor =
+    var executor =
         (ScheduledThreadPoolExecutorWithKeepAlive) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
@@ -251,13 +249,13 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(ScheduledThreadPoolExecutorWithKeepAlive.BlockCallerPolicy.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ScheduledThreadPoolExecutor delegate = executor.getDelegateExecutor();
+    var delegate = executor.getDelegateExecutor();
 
     assertThat(delegate.getContinueExistingPeriodicTasksAfterShutdownPolicy()).isFalse();
     assertThat(delegate.getExecuteExistingDelayedTasksAfterShutdownPolicy()).isFalse();
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -269,17 +267,17 @@ public class CoreLoggingExecutorsTest {
    */
   @Test
   public void newThreadPool() {
-    int poolSize = 10;
+    var poolSize = 10;
     BlockingQueue<Runnable> workQueue = mock(BlockingQueue.class);
-    String threadName = "thread";
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors
+    var executorService = CoreLoggingExecutors
         .newThreadPool(poolSize, workQueue, threadName, threadInitializer, commandWrapper,
             poolStatHelper, threadsMonitoring);
 
     assertThat(executorService).isInstanceOf(PooledExecutorWithDMStats.class);
 
-    PooledExecutorWithDMStats executor = (PooledExecutorWithDMStats) executorService;
+    var executor = (PooledExecutorWithDMStats) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
     assertThat(executor.getKeepAliveTime(MINUTES)).isEqualTo(30);
@@ -289,8 +287,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(PooledExecutorWithDMStats.BufferHandler.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -301,19 +299,19 @@ public class CoreLoggingExecutorsTest {
    */
   @Test
   public void newThreadPoolWithFixedFeed() {
-    int poolSize = 10;
+    var poolSize = 10;
     long keepAliveTime = 5000;
-    TimeUnit unit = SECONDS;
-    int workQueueSize = 2;
-    String threadName = "thread";
+    var unit = SECONDS;
+    var workQueueSize = 2;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors
+    var executorService = CoreLoggingExecutors
         .newThreadPoolWithFixedFeed(poolSize, keepAliveTime, unit, workQueueSize, threadName,
             commandWrapper, poolStatHelper, threadsMonitoring);
 
     assertThat(executorService).isInstanceOf(PooledExecutorWithDMStats.class);
 
-    PooledExecutorWithDMStats executor =
+    var executor =
         (PooledExecutorWithDMStats) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
@@ -324,8 +322,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(PooledExecutorWithDMStats.BufferHandler.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -337,17 +335,17 @@ public class CoreLoggingExecutorsTest {
    */
   @Test
   public void newThreadPoolWithFeedStatistics() {
-    int poolSize = 10;
-    int workQueueSize = 2;
-    String threadName = "thread";
+    var poolSize = 10;
+    var workQueueSize = 2;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors
+    var executorService = CoreLoggingExecutors
         .newThreadPoolWithFeedStatistics(poolSize, workQueueSize, queueStatHelper, threadName,
             threadInitializer, commandWrapper, poolStatHelper, threadsMonitoring);
 
     assertThat(executorService).isInstanceOf(PooledExecutorWithDMStats.class);
 
-    PooledExecutorWithDMStats executor =
+    var executor =
         (PooledExecutorWithDMStats) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
@@ -358,8 +356,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(PooledExecutorWithDMStats.BufferHandler.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -367,15 +365,15 @@ public class CoreLoggingExecutorsTest {
 
   @Test
   public void newThreadPoolWithSynchronousFeed() {
-    int poolSize = 10;
-    String threadName = "thread";
+    var poolSize = 10;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
+    var executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
         poolSize, threadName, commandWrapper);
 
     assertThat(executorService).isInstanceOf(PooledExecutorWithDMStats.class);
 
-    PooledExecutorWithDMStats executor =
+    var executor =
         (PooledExecutorWithDMStats) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
@@ -386,8 +384,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(ThreadPoolExecutor.CallerRunsPolicy.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -395,18 +393,18 @@ public class CoreLoggingExecutorsTest {
 
   @Test
   public void newThreadPoolWithSynchronousFeed_2() {
-    int poolSize = 10;
+    var poolSize = 10;
     long keepAliveTime = 5000;
-    TimeUnit unit = SECONDS;
-    String threadName = "thread";
+    var unit = SECONDS;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
+    var executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
         poolSize, keepAliveTime, unit, threadName, commandWrapper, poolStatHelper,
         threadsMonitoring);
 
     assertThat(executorService).isInstanceOf(PooledExecutorWithDMStats.class);
 
-    PooledExecutorWithDMStats executor =
+    var executor =
         (PooledExecutorWithDMStats) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
@@ -417,8 +415,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(ThreadPoolExecutor.CallerRunsPolicy.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -426,18 +424,18 @@ public class CoreLoggingExecutorsTest {
 
   @Test
   public void newThreadPoolWithSynchronousFeed_3() {
-    int poolSize = 10;
+    var poolSize = 10;
     long keepAliveTime = 5000;
-    TimeUnit unit = SECONDS;
-    String threadName = "thread";
-    RejectedExecutionHandler rejectedExecutionHandler = mock(RejectedExecutionHandler.class);
+    var unit = SECONDS;
+    var threadName = "thread";
+    var rejectedExecutionHandler = mock(RejectedExecutionHandler.class);
 
-    ExecutorService executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
+    var executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
         poolSize, keepAliveTime, unit, threadName, rejectedExecutionHandler, poolStatHelper);
 
     assertThat(executorService).isInstanceOf(PooledExecutorWithDMStats.class);
 
-    PooledExecutorWithDMStats executor =
+    var executor =
         (PooledExecutorWithDMStats) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
@@ -447,8 +445,8 @@ public class CoreLoggingExecutorsTest {
     assertThat(executor.getRejectedExecutionHandler()).isSameAs(rejectedExecutionHandler);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -456,19 +454,19 @@ public class CoreLoggingExecutorsTest {
 
   @Test
   public void newThreadPoolWithSynchronousFeed_4() {
-    int corePoolSize = 10;
-    int maximumPoolSize = 20;
+    var corePoolSize = 10;
+    var maximumPoolSize = 20;
     long keepAliveTime = 5000;
-    TimeUnit unit = SECONDS;
-    String threadName = "thread";
+    var unit = SECONDS;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
+    var executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
         corePoolSize, maximumPoolSize, keepAliveTime, unit, threadName, threadInitializer,
         commandWrapper);
 
     assertThat(executorService).isInstanceOf(ThreadPoolExecutor.class);
 
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) executorService;
+    var executor = (ThreadPoolExecutor) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(corePoolSize);
     assertThat(executor.getKeepAliveTime(unit)).isEqualTo(keepAliveTime);
@@ -478,8 +476,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(ThreadPoolExecutor.AbortPolicy.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -490,18 +488,18 @@ public class CoreLoggingExecutorsTest {
    */
   @Test
   public void newThreadPoolWithSynchronousFeed_5() {
-    int corePoolSize = 10;
-    int maximumPoolSize = 20;
+    var corePoolSize = 10;
+    var maximumPoolSize = 20;
     long keepAliveTime = 5000;
-    TimeUnit unit = SECONDS;
-    String threadName = "thread";
+    var unit = SECONDS;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
+    var executorService = CoreLoggingExecutors.newThreadPoolWithSynchronousFeed(
         corePoolSize, maximumPoolSize, keepAliveTime, unit, threadName);
 
     assertThat(executorService).isInstanceOf(ThreadPoolExecutor.class);
 
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) executorService;
+    var executor = (ThreadPoolExecutor) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(corePoolSize);
     assertThat(executor.getKeepAliveTime(unit)).isEqualTo(keepAliveTime);
@@ -511,8 +509,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(ThreadPoolExecutor.AbortPolicy.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -520,19 +518,19 @@ public class CoreLoggingExecutorsTest {
 
   @Test
   public void newThreadPoolWithSynchronousFeedThatHandlesRejection() {
-    int corePoolSize = 10;
-    int maximumPoolSize = 20;
+    var corePoolSize = 10;
+    var maximumPoolSize = 20;
     long keepAliveTime = 5000;
-    TimeUnit unit = SECONDS;
-    String threadName = "thread";
+    var unit = SECONDS;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors
+    var executorService = CoreLoggingExecutors
         .newThreadPoolWithSynchronousFeedThatHandlesRejection(corePoolSize, maximumPoolSize,
             keepAliveTime, unit, threadName, threadInitializer, commandWrapper);
 
     assertThat(executorService).isInstanceOf(ThreadPoolExecutor.class);
 
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) executorService;
+    var executor = (ThreadPoolExecutor) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(corePoolSize);
     assertThat(executor.getKeepAliveTime(unit)).isEqualTo(keepAliveTime);
@@ -542,8 +540,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(CoreLoggingExecutors.QueuingRejectedExecutionHandler.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);
@@ -551,18 +549,18 @@ public class CoreLoggingExecutorsTest {
 
   @Test
   public void newThreadPoolWithUnlimitedFeed() {
-    int poolSize = 10;
+    var poolSize = 10;
     long keepAliveTime = 5000;
-    TimeUnit unit = SECONDS;
-    String threadName = "thread";
+    var unit = SECONDS;
+    var threadName = "thread";
 
-    ExecutorService executorService = CoreLoggingExecutors.newThreadPoolWithUnlimitedFeed(
+    var executorService = CoreLoggingExecutors.newThreadPoolWithUnlimitedFeed(
         poolSize, keepAliveTime, unit, threadName, threadInitializer, commandWrapper,
         poolStatHelper, threadsMonitoring);
 
     assertThat(executorService).isInstanceOf(ThreadPoolExecutor.class);
 
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) executorService;
+    var executor = (ThreadPoolExecutor) executorService;
 
     assertThat(executor.getCorePoolSize()).isEqualTo(1);
     assertThat(executor.getKeepAliveTime(unit)).isEqualTo(keepAliveTime);
@@ -572,8 +570,8 @@ public class CoreLoggingExecutorsTest {
         .isInstanceOf(PooledExecutorWithDMStats.BufferHandler.class);
     assertThat(executor.getThreadFactory()).isInstanceOf(LoggingThreadFactory.class);
 
-    ThreadFactory threadFactory = executor.getThreadFactory();
-    Thread thread = threadFactory.newThread(runnable);
+    var threadFactory = executor.getThreadFactory();
+    var thread = threadFactory.newThread(runnable);
 
     assertThat(thread).isInstanceOf(LoggingThread.class);
     assertThat(thread.getName()).contains(threadName);

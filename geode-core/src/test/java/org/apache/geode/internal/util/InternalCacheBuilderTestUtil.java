@@ -58,7 +58,7 @@ public class InternalCacheBuilderTestUtil {
   }
 
   public static InternalCache cache(String origin, CacheState state) {
-    InternalCache cache = mock(InternalCache.class, format("%s %s cache", state, origin));
+    var cache = mock(InternalCache.class, format("%s %s cache", state, origin));
     when(cache.isClosed()).thenReturn(state.isClosed());
     doThrow(new CacheExistsException(cache, "cache exists"))
         .when(cache).throwCacheExistsException();
@@ -82,16 +82,16 @@ public class InternalCacheBuilderTestUtil {
   }
 
   public static InternalDistributedSystem systemWith(InternalCache cache) {
-    InternalDistributedSystem system = system("system with " + cache);
+    var system = system("system with " + cache);
     when(system.getCache()).thenReturn(cache);
     return system;
   }
 
   public static InternalDistributedSystem systemWith(String mockName, int systemId,
       String memberName, String hostName) {
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class, mockName);
-    DistributionConfig distributionConfig = mock(DistributionConfig.class);
-    InternalDistributedMember distributedMember = mock(InternalDistributedMember.class);
+    var system = mock(InternalDistributedSystem.class, mockName);
+    var distributionConfig = mock(DistributionConfig.class);
+    var distributedMember = mock(InternalDistributedMember.class);
     when(distributionConfig.getDistributedSystemId()).thenReturn(systemId);
     when(distributedMember.getHost()).thenReturn(hostName);
     when(system.getConfig()).thenReturn(distributionConfig);
@@ -102,14 +102,14 @@ public class InternalCacheBuilderTestUtil {
 
   public static InternalDistributedSystemConstructor constructorOf(
       InternalDistributedSystem constructedSystem) {
-    InternalDistributedSystemConstructor constructor =
+    var constructor =
         mock(InternalDistributedSystemConstructor.class, "internal distributed system constructor");
     when(constructor.construct(any(), any(), any())).thenReturn(constructedSystem);
     return constructor;
   }
 
   public static InternalCacheConstructor constructorOf(InternalCache constructedCache) {
-    InternalCacheConstructor constructor =
+    var constructor =
         mock(InternalCacheConstructor.class, "internal cache constructor");
     when(constructor.construct(anyBoolean(), any(), any(), any(), anyBoolean(), any()))
         .thenReturn(constructedCache);
@@ -121,7 +121,7 @@ public class InternalCacheBuilderTestUtil {
   }
 
   public static CacheConfig throwingCacheConfig(Throwable throwable) {
-    CacheConfig cacheConfig = mock(CacheConfig.class);
+    var cacheConfig = mock(CacheConfig.class);
     doThrow(throwable).when(cacheConfig).validateCacheConfig(any());
     return cacheConfig;
   }

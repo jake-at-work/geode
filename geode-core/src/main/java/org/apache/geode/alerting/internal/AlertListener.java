@@ -56,7 +56,7 @@ public class AlertListener {
     if (!(obj instanceof AlertListener)) {
       return false;
     }
-    AlertListener other = (AlertListener) obj;
+    var other = (AlertListener) obj;
     return member.equals(other.member);
   }
 

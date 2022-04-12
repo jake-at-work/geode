@@ -50,13 +50,13 @@ public class PartitionedRegionStatsUpdateTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = clusterStartUpRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = clusterStartUpRule.startLocatorVM(0);
+    var locatorPort = locator.getPort();
 
     server1 = clusterStartUpRule.startRedisVM(1, locatorPort);
     server2 = clusterStartUpRule.startRedisVM(2, locatorPort);
 
-    int redisServerPort1 = clusterStartUpRule.getRedisPort(1);
+    var redisServerPort1 = clusterStartUpRule.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort1), REDIS_CLIENT_TIMEOUT);
   }
 
@@ -72,13 +72,13 @@ public class PartitionedRegionStatsUpdateTest {
 
   @Test
   public void should_showIncreaseInDatastoreBytesInUse_givenStringValueSizeIncreases() {
-    String LONG_APPEND_VALUE = String.valueOf(Integer.MAX_VALUE);
+    var LONG_APPEND_VALUE = String.valueOf(Integer.MAX_VALUE);
     jedis.set(STRING_KEY, "value");
 
     long initialDataStoreBytesInUse1 =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server1);
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       jedis.append(STRING_KEY, LONG_APPEND_VALUE);
     }
 
@@ -180,7 +180,7 @@ public class PartitionedRegionStatsUpdateTest {
     long initialDataStoreBytesInUse2 =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server2);
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       jedis.set(STRING_KEY, "value");
     }
 
@@ -200,7 +200,7 @@ public class PartitionedRegionStatsUpdateTest {
     long initialDataStoreBytesInUse2 =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server2);
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       jedis.sadd(SET_KEY, "value" + i);
     }
 
@@ -222,7 +222,7 @@ public class PartitionedRegionStatsUpdateTest {
     long initialDataStoreBytesInUse2 =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server2);
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       jedis.sadd(SET_KEY, "value");
     }
 
@@ -257,14 +257,14 @@ public class PartitionedRegionStatsUpdateTest {
 
   @Test
   public void should_showDecreaseInDatastoreBytesInUse_givenSetValueSizeDecreases() {
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       jedis.sadd(SET_KEY, "value" + i);
     }
 
     long initialDataStoreBytesInUse =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server1);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       jedis.srem(SET_KEY, "value" + i);
     }
 
@@ -280,7 +280,7 @@ public class PartitionedRegionStatsUpdateTest {
     long initialDataStoreBytesInUse =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server1);
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       jedis.hset(HASH_KEY, FIELD + i, LONG_APPEND_VALUE);
     }
 
@@ -316,7 +316,7 @@ public class PartitionedRegionStatsUpdateTest {
     long initialDataStoreBytesInUse =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server2);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       jedis.hset(HASH_KEY, FIELD, "value");
     }
 
@@ -334,7 +334,7 @@ public class PartitionedRegionStatsUpdateTest {
     long initialDataStoreBytesInUse =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server1);
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       jedis.hsetnx(HASH_KEY, FIELD + i, "value");
     }
 
@@ -350,7 +350,7 @@ public class PartitionedRegionStatsUpdateTest {
     long initialDataStoreBytesInUse =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server1);
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       jedis.hsetnx(HASH_KEY, FIELD, "value");
     }
 
@@ -370,7 +370,7 @@ public class PartitionedRegionStatsUpdateTest {
     long initialDataStoreBytesInUse =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server2);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       jedis.hset(HASH_KEY, FIELD, "finalvalue");
     }
 
@@ -395,7 +395,7 @@ public class PartitionedRegionStatsUpdateTest {
     long initialDataStoreBytesInUse =
         clusterStartUpRule.getDataStoreBytesInUseForDataRegion(server2);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       jedis.sadd(SET_KEY, "value");
     }
 
@@ -413,8 +413,8 @@ public class PartitionedRegionStatsUpdateTest {
 
   @Test
   public void should_showMembersAgreeUponUsedSetMemory_afterDeltaPropagationWhenRemovingMembers() {
-    String value1 = "value1";
-    String value2 = "value2";
+    var value1 = "value1";
+    var value2 = "value2";
     jedis.sadd(SET_KEY, value1); // two sadds are required to force
     jedis.sadd(SET_KEY, value2); // deserialization on both servers
     // otherwise primary/secondary can disagree on size, and which server is primary varies

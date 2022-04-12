@@ -77,14 +77,14 @@ public class DiskInstantiatorsJUnitTest {
   }
 
   private void connect() throws CacheException {
-    Properties cfg = new Properties();
+    var cfg = new Properties();
     cfg.setProperty(MCAST_PORT, "0");
     cfg.setProperty(LOCATORS, "");
     cfg.setProperty(STATISTIC_SAMPLING_ENABLED, "false");
 
     ds = DistributedSystem.connect(cfg);
     c = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setDiskSynchronous(true);
@@ -110,7 +110,7 @@ public class DiskInstantiatorsJUnitTest {
   public void testDiskInstantiators() throws CacheException {
     try {
       connect();
-      int size = r.entrySet(false).size();
+      var size = r.entrySet(false).size();
       if (size != 0) {
         fail("expected 0 entries but had " + size);
       }
@@ -125,7 +125,7 @@ public class DiskInstantiatorsJUnitTest {
       if (size != 1) {
         fail("expected 1 entry but had " + size);
       }
-      Object value = r.get(new Key(1));
+      var value = r.get(new Key(1));
       ds.getLogWriter().info("found entry");
       if (!(value instanceof Payload)) {
         fail("Expected value to be an instance of Payload but it was " + value.getClass());

@@ -36,12 +36,10 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheTestCase;
-import org.apache.geode.distributed.internal.DSClock;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableCallable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.ClientServerTest;
@@ -56,11 +54,11 @@ public class ClientServerTimeSyncDUnitTest extends JUnit4CacheTestCase {
   @Ignore("Bug 52327")
   @Test
   public void testClientTimeAdvances() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0); // Server
-    VM vm1 = host.getVM(1); // Client
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0); // Server
+    var vm1 = host.getVM(1); // Client
 
-    final String regionName = "testRegion";
+    final var regionName = "testRegion";
     final long TEST_OFFSET = 10000;
 
     ClientCache cache = null;
@@ -93,12 +91,12 @@ public class ClientServerTimeSyncDUnitTest extends JUnit4CacheTestCase {
             }
           });
 
-      final String hostName = getServerHostName(vm0.getHost());
+      final var hostName = getServerHostName(vm0.getHost());
 
       // Start client with proxy region and register interest
 
       disconnectFromDS();
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(LOCATORS, "");
       props = getSystem(props).getProperties();
       cache = new ClientCacheFactory(props).setPoolSubscriptionEnabled(true)
@@ -110,11 +108,11 @@ public class ClientServerTimeSyncDUnitTest extends JUnit4CacheTestCase {
 
       proxyRegion.put("testkey", "testValue1");
 
-      final DSClock clock = ((GemFireCacheImpl) cache).getSystem().getClock();
-      WaitCriterion wc = new WaitCriterion() {
+      final var clock = ((GemFireCacheImpl) cache).getSystem().getClock();
+      var wc = new WaitCriterion() {
         @Override
         public boolean done() {
-          long clientTimeOffset = clock.getCacheTimeOffset();
+          var clientTimeOffset = clock.getCacheTimeOffset();
           getLogWriter()
               .info("Client node's new time offset is: " + clientTimeOffset);
           return clientTimeOffset >= TEST_OFFSET;
@@ -136,11 +134,11 @@ public class ClientServerTimeSyncDUnitTest extends JUnit4CacheTestCase {
   @Ignore("not yet implemented")
   @Test
   public void testClientTimeSlowsDown() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0); // Server
-    VM vm1 = host.getVM(1); // Client
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0); // Server
+    var vm1 = host.getVM(1); // Client
 
-    final String regionName = "testRegion";
+    final var regionName = "testRegion";
     final long TEST_OFFSET = 10000;
 
     ClientCache cache = null;
@@ -175,12 +173,12 @@ public class ClientServerTimeSyncDUnitTest extends JUnit4CacheTestCase {
 
       pause((int) TEST_OFFSET); // let cacheTimeMillis consume the time offset
 
-      final String hostName = getServerHostName(vm0.getHost());
+      final var hostName = getServerHostName(vm0.getHost());
 
       // Start client with proxy region and register interest
 
       disconnectFromDS();
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(LOCATORS, "");
       props = getSystem(props).getProperties();
       cache = new ClientCacheFactory(props).setPoolSubscriptionEnabled(true)
@@ -192,17 +190,17 @@ public class ClientServerTimeSyncDUnitTest extends JUnit4CacheTestCase {
 
       proxyRegion.put("testkey", "testValue1");
 
-      final DSClock clock = ((GemFireCacheImpl) cache).getSystem().getClock();
-      WaitCriterion wc = new WaitCriterion() {
+      final var clock = ((GemFireCacheImpl) cache).getSystem().getClock();
+      var wc = new WaitCriterion() {
         @Override
         public boolean done() {
-          long clientTimeOffset = clock.getCacheTimeOffset();
+          var clientTimeOffset = clock.getCacheTimeOffset();
           getLogWriter()
               .info("Client node's new time offset is: " + clientTimeOffset);
           if (clientTimeOffset >= 0) {
             return false;
           }
-          long cacheTime = clock.cacheTimeMillis();
+          var cacheTime = clock.cacheTimeMillis();
           return abs(currentTimeMillis() - (cacheTime - clientTimeOffset)) < 5;
         }
 

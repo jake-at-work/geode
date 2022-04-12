@@ -26,8 +26,6 @@ import org.apache.geode.cache.persistence.RevokeFailedException;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.persistence.PersistentMemberManager;
 import org.apache.geode.internal.cache.persistence.PersistentMemberPattern;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -67,11 +65,11 @@ public class PrepareRevokePersistentIDRequest extends CliLegacyMessage {
       boolean cancel) {
     Set recipients = dm.getOtherDistributionManagerIds();
     recipients.remove(dm.getId());
-    PrepareRevokePersistentIDRequest request =
+    var request =
         new PrepareRevokePersistentIDRequest(pattern, cancel);
     request.setRecipients(recipients);
 
-    AdminMultipleReplyProcessor replyProcessor = new AdminMultipleReplyProcessor(dm, recipients);
+    var replyProcessor = new AdminMultipleReplyProcessor(dm, recipients);
     request.msgId = replyProcessor.getProcessorId();
     dm.putOutgoing(request);
     try {
@@ -91,9 +89,9 @@ public class PrepareRevokePersistentIDRequest extends CliLegacyMessage {
 
   @Override
   protected AdminResponse createResponse(DistributionManager dm) {
-    InternalCache cache = dm.getCache();
+    var cache = dm.getCache();
     if (cache != null && !cache.isClosed()) {
-      PersistentMemberManager mm = cache.getPersistentMemberManager();
+      var mm = cache.getPersistentMemberManager();
       if (cancel) {
         mm.cancelRevoke(pattern);
       } else {

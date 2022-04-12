@@ -87,7 +87,7 @@ public abstract class AbstractCommand implements CommandProcessor {
     if (getLogger().finerEnabled()) {
       getLogger().finer("keyLength:" + keyLength);
     }
-    byte[] key = new byte[keyLength];
+    var key = new byte[keyLength];
     buffer.position(keyStartIndex);
     buffer.get(key);
     // for (int i=0; i<keyLength; i++) {
@@ -101,10 +101,10 @@ public abstract class AbstractCommand implements CommandProcessor {
 
   protected byte[] getValue(ByteBuffer buffer) {
     int extrasLength = buffer.get(EXTRAS_LENGTH_INDEX);
-    int totalBodyLength = buffer.getInt(TOTAL_BODY_LENGTH_INDEX);
+    var totalBodyLength = buffer.getInt(TOTAL_BODY_LENGTH_INDEX);
     int keyLength = buffer.getShort(KEY_LENGTH_INDEX);
-    int valueLength = totalBodyLength - (keyLength + extrasLength);
-    byte[] value = new byte[valueLength];
+    var valueLength = totalBodyLength - (keyLength + extrasLength);
+    var value = new byte[valueLength];
     buffer.position(HEADER_LENGTH + totalBodyLength - valueLength);
     if (getLogger().finerEnabled()) {
       getLogger().finer("val: totalBody:" + totalBodyLength + " valLen:" + valueLength);
@@ -121,10 +121,10 @@ public abstract class AbstractCommand implements CommandProcessor {
   }
 
   protected String getFirstLine() {
-    CharBuffer buffer = firstLineBuffer.get();
-    StringBuilder builder = new StringBuilder();
+    var buffer = firstLineBuffer.get();
+    var builder = new StringBuilder();
     try {
-      char c = buffer.get();
+      var c = buffer.get();
       for (;;) {
         builder.append(c);
         if (c == N) {
@@ -135,7 +135,7 @@ public abstract class AbstractCommand implements CommandProcessor {
     } catch (BufferUnderflowException e) {
       throw new ClientError("error reading command:" + builder);
     }
-    String firstLine = builder.toString();
+    var firstLine = builder.toString();
     if (getLogger().fineEnabled()) {
       getLogger().fine("gemcached command:" + firstLine);
     }
@@ -158,7 +158,7 @@ public abstract class AbstractCommand implements CommandProcessor {
   }
 
   protected CharBuffer getFirstLineBuffer() {
-    CharBuffer buffer = firstLineBuffer.get();
+    var buffer = firstLineBuffer.get();
     if (buffer == null) {
       buffer = CharBuffer.allocate(256);
       firstLineBuffer.set(buffer);
@@ -168,7 +168,7 @@ public abstract class AbstractCommand implements CommandProcessor {
   }
 
   protected String stripNewline(String str) {
-    int indexOfR = str.indexOf("\r");
+    var indexOfR = str.indexOf("\r");
     if (indexOfR != -1) {
       return str.substring(0, indexOfR);
     }
@@ -177,7 +177,7 @@ public abstract class AbstractCommand implements CommandProcessor {
 
   protected long getLongFromByteArray(byte[] bytes) {
     long value = 0;
-    for (final byte aByte : bytes) {
+    for (final var aByte : bytes) {
       value = (value << 8) + (aByte & 0xff);
     }
     return value;
@@ -185,7 +185,7 @@ public abstract class AbstractCommand implements CommandProcessor {
 
   protected LogWriter getLogger() {
     if (logger == null) {
-      Cache cache = CacheFactory.getAnyInstance();
+      var cache = CacheFactory.getAnyInstance();
       if (cache != null) {
         logger = cache.getLogger();
       } else {
@@ -209,9 +209,9 @@ public abstract class AbstractCommand implements CommandProcessor {
   protected ByteBuffer handleBinaryException(Object key, RequestReader request, ByteBuffer response,
       String operation, Exception e) {
     getLogger().info("Exception occurred while processing " + operation + " :" + key, e);
-    String errStr = e.getMessage() == null ? "SERVER ERROR" : e.getMessage();
-    byte[] errMsg = errStr.getBytes(asciiCharset);
-    int responseLength = HEADER_LENGTH + errMsg.length;
+    var errStr = e.getMessage() == null ? "SERVER ERROR" : e.getMessage();
+    var errMsg = errStr.getBytes(asciiCharset);
+    var responseLength = HEADER_LENGTH + errMsg.length;
     if (response.capacity() < responseLength) {
       response = request.getResponse(responseLength);
     }

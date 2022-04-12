@@ -99,7 +99,7 @@ public class StoppableReentrantReadWriteLock implements /* ReadWriteLock, */ jav
     }
 
     public void lock() {
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         for (;;) {
           try {
@@ -177,7 +177,7 @@ public class StoppableReentrantReadWriteLock implements /* ReadWriteLock, */ jav
     }
 
     public void lock() {
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         for (;;) {
           try {

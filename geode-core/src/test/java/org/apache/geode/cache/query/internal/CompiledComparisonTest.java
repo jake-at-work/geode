@@ -54,7 +54,7 @@ public class CompiledComparisonTest {
   public void getSizeEstimateShouldReturnZeroWhenBothFieldsAreIndexed()
       throws NameResolutionException, TypeMismatchException, FunctionDomainException,
       QueryInvocationTargetException {
-    IndexInfo[] indexInfos = new IndexInfo[] {mock(IndexInfo.class), mock(IndexInfo.class)};
+    var indexInfos = new IndexInfo[] {mock(IndexInfo.class), mock(IndexInfo.class)};
     doReturn(indexInfos).when(compiledComparison).getIndexInfo(queryExecutionContext);
 
     assertThat(compiledComparison.getSizeEstimate(queryExecutionContext)).isEqualTo(0);
@@ -64,9 +64,9 @@ public class CompiledComparisonTest {
   public void getSizeEstimateShouldReturnZeroWhenTheIndexKeyIsUndefined()
       throws NameResolutionException, TypeMismatchException, FunctionDomainException,
       QueryInvocationTargetException {
-    IndexInfo indexInfo = mock(IndexInfo.class);
+    var indexInfo = mock(IndexInfo.class);
     when(indexInfo.evaluateIndexKey(queryExecutionContext)).thenReturn(QueryService.UNDEFINED);
-    IndexInfo[] indexInfos = new IndexInfo[] {indexInfo};
+    var indexInfos = new IndexInfo[] {indexInfo};
     doReturn(indexInfos).when(compiledComparison).getIndexInfo(queryExecutionContext);
 
     assertThat(compiledComparison.getSizeEstimate(queryExecutionContext)).isEqualTo(0);
@@ -82,14 +82,14 @@ public class CompiledComparisonTest {
   public void getSizeEstimateShouldReturnHintSizeWhenTheIndexIsHinted()
       throws NameResolutionException, TypeMismatchException, FunctionDomainException,
       QueryInvocationTargetException {
-    String indexName = "MyIndex";
+    var indexName = "MyIndex";
     when(queryExecutionContext.isHinted(indexName)).thenReturn(true);
     when(queryExecutionContext.getHintSize(indexName)).thenReturn(10);
-    IndexProtocol indexProtocol = mock(IndexProtocol.class);
+    var indexProtocol = mock(IndexProtocol.class);
     when(indexProtocol.getName()).thenReturn(indexName);
-    IndexInfo indexInfo = spy(new IndexInfo(null, null, indexProtocol, 0, null, 0));
+    var indexInfo = spy(new IndexInfo(null, null, indexProtocol, 0, null, 0));
     doReturn("Key1").when(indexInfo).evaluateIndexKey(queryExecutionContext);
-    IndexInfo[] indexInfos = new IndexInfo[] {indexInfo};
+    var indexInfos = new IndexInfo[] {indexInfo};
     doReturn(indexInfos).when(compiledComparison).getIndexInfo(queryExecutionContext);
 
     assertThat(compiledComparison.getSizeEstimate(queryExecutionContext)).isEqualTo(10);
@@ -98,13 +98,13 @@ public class CompiledComparisonTest {
   @Test
   public void getSizeEstimateShouldReturnIndexSizeEstimate() throws NameResolutionException,
       TypeMismatchException, FunctionDomainException, QueryInvocationTargetException {
-    String indexName = "MyIndex";
-    IndexProtocol indexProtocol = mock(IndexProtocol.class);
+    var indexName = "MyIndex";
+    var indexProtocol = mock(IndexProtocol.class);
     when(indexProtocol.getName()).thenReturn(indexName);
     when(indexProtocol.getSizeEstimate(any(), anyInt(), anyInt())).thenReturn(15);
-    IndexInfo indexInfo = spy(new IndexInfo(null, null, indexProtocol, 0, null, 0));
+    var indexInfo = spy(new IndexInfo(null, null, indexProtocol, 0, null, 0));
     doReturn("Key1").when(indexInfo).evaluateIndexKey(queryExecutionContext);
-    IndexInfo[] indexInfos = new IndexInfo[] {indexInfo};
+    var indexInfos = new IndexInfo[] {indexInfo};
     doReturn(indexInfos).when(compiledComparison).getIndexInfo(queryExecutionContext);
 
     assertThat(compiledComparison.getSizeEstimate(queryExecutionContext)).isEqualTo(15);
@@ -114,10 +114,10 @@ public class CompiledComparisonTest {
   public void evaluateHandlesEntryDestroyedExceptionThrownByRegionEntryGetValue()
       throws NameResolutionException, TypeMismatchException, QueryInvocationTargetException,
       FunctionDomainException {
-    CompiledValue left = mock(CompiledValue.class);
-    CompiledValue right = mock(CompiledValue.class);
+    var left = mock(CompiledValue.class);
+    var right = mock(CompiledValue.class);
 
-    ExecutionContext context = mock(ExecutionContext.class);
+    var context = mock(ExecutionContext.class);
     when(context.isCqQueryContext()).thenReturn(true);
     Region.Entry<?, ?> leftEntry = mock(Region.Entry.class);
     when(left.evaluate(context)).thenReturn(leftEntry);
@@ -126,7 +126,7 @@ public class CompiledComparisonTest {
     when(right.evaluate(context)).thenReturn(rightEntry);
     when(rightEntry.getValue()).thenThrow(new EntryDestroyedException());
 
-    CompiledComparison comparison =
+    var comparison =
         spy(new CompiledComparison(left, right, OQLLexerTokenTypes.TOK_EQ));
 
     comparison.evaluate(context);
@@ -136,11 +136,11 @@ public class CompiledComparisonTest {
   public void cannotUseIndexReturnsFalse_WithNullIndex() {
     CompiledValue left = mock(CompiledLiteral.class);
     CompiledValue right = mock(CompiledLiteral.class);
-    IndexData indexData = mock(IndexData.class);
+    var indexData = mock(IndexData.class);
     when(indexData.getIndex()).thenReturn(null);
-    ExecutionContext context = mock(ExecutionContext.class);
+    var context = mock(ExecutionContext.class);
 
-    CompiledComparison comparison =
+    var comparison =
         spy(new CompiledComparison(left, right, OQLLexerTokenTypes.TOK_NE));
 
     assertThat(comparison.indexCannotBeUsed(context, indexData)).isFalse();
@@ -150,13 +150,13 @@ public class CompiledComparisonTest {
   public void cannotUseIndexReturnsFalse_WithoutAllKeysIndex() {
     CompiledValue left = mock(CompiledLiteral.class);
     CompiledValue right = mock(CompiledLiteral.class);
-    AbstractMapIndex indexProtocol = mock(AbstractMapIndex.class);
+    var indexProtocol = mock(AbstractMapIndex.class);
     when(indexProtocol.getIsAllKeys()).thenReturn(false);
-    IndexData indexData = mock(IndexData.class);
+    var indexData = mock(IndexData.class);
     when(indexData.getIndex()).thenReturn(indexProtocol);
-    ExecutionContext context = mock(ExecutionContext.class);
+    var context = mock(ExecutionContext.class);
 
-    CompiledComparison comparison =
+    var comparison =
         spy(new CompiledComparison(left, right, OQLLexerTokenTypes.TOK_NE));
 
     assertThat(comparison.indexCannotBeUsed(context, indexData)).isFalse();
@@ -168,14 +168,14 @@ public class CompiledComparisonTest {
       FunctionDomainException {
     CompiledValue left = mock(CompiledLiteral.class);
     CompiledValue right = mock(CompiledLiteral.class);
-    AbstractMapIndex indexProtocol = mock(AbstractMapIndex.class);
+    var indexProtocol = mock(AbstractMapIndex.class);
     when(indexProtocol.getIsAllKeys()).thenReturn(true);
-    IndexData indexData = mock(IndexData.class);
+    var indexData = mock(IndexData.class);
     when(indexData.getIndex()).thenReturn(indexProtocol);
-    ExecutionContext context = mock(ExecutionContext.class);
+    var context = mock(ExecutionContext.class);
     when(left.evaluate(context)).thenReturn(null);
 
-    CompiledComparison comparison =
+    var comparison =
         spy(new CompiledComparison(left, right, OQLLexerTokenTypes.TOK_NE));
 
     assertThat(comparison.indexCannotBeUsed(context, indexData)).isTrue();
@@ -187,17 +187,16 @@ public class CompiledComparisonTest {
       FunctionDomainException {
     CompiledValue left = mock(CompiledLiteral.class);
     CompiledValue right = mock(CompiledLiteral.class);
-    AbstractMapIndex indexProtocol = mock(AbstractMapIndex.class);
+    var indexProtocol = mock(AbstractMapIndex.class);
     when(indexProtocol.getIsAllKeys()).thenReturn(true);
-    IndexData indexData = mock(IndexData.class);
+    var indexData = mock(IndexData.class);
     when(indexData.getIndex()).thenReturn(indexProtocol);
-    ExecutionContext context = mock(ExecutionContext.class);
+    var context = mock(ExecutionContext.class);
     Region.Entry<?, ?> rightEntry = mock(Region.Entry.class);
     when(left.evaluate(context)).thenReturn(rightEntry);
     when(left.evaluate(context)).thenReturn(null);
 
-
-    CompiledComparison comparison =
+    var comparison =
         spy(new CompiledComparison(left, right, OQLLexerTokenTypes.TOK_EQ));
 
     assertThat(comparison.indexCannotBeUsed(context, indexData)).isTrue();
@@ -209,16 +208,16 @@ public class CompiledComparisonTest {
       FunctionDomainException {
     CompiledValue left = mock(CompiledLiteral.class);
     CompiledValue right = mock(CompiledLiteral.class);
-    AbstractMapIndex indexProtocol = mock(AbstractMapIndex.class);
+    var indexProtocol = mock(AbstractMapIndex.class);
     when(indexProtocol.getIsAllKeys()).thenReturn(true);
-    IndexData indexData = mock(IndexData.class);
+    var indexData = mock(IndexData.class);
     when(indexData.getIndex()).thenReturn(indexProtocol);
-    ExecutionContext context = mock(ExecutionContext.class);
+    var context = mock(ExecutionContext.class);
     Region.Entry<?, ?> leftEntry = mock(Region.Entry.class);
     when(left.evaluate(context)).thenReturn(leftEntry);
     when(right.evaluate(context)).thenReturn(null);
 
-    CompiledComparison comparison =
+    var comparison =
         spy(new CompiledComparison(left, right, OQLLexerTokenTypes.TOK_EQ));
 
     assertThat(comparison.indexCannotBeUsed(context, indexData)).isTrue();
@@ -230,17 +229,17 @@ public class CompiledComparisonTest {
       FunctionDomainException {
     CompiledValue left = mock(CompiledLiteral.class);
     CompiledValue right = mock(CompiledLiteral.class);
-    AbstractMapIndex indexProtocol = mock(AbstractMapIndex.class);
+    var indexProtocol = mock(AbstractMapIndex.class);
     when(indexProtocol.getIsAllKeys()).thenReturn(true);
-    IndexData indexData = mock(IndexData.class);
+    var indexData = mock(IndexData.class);
     when(indexData.getIndex()).thenReturn(indexProtocol);
-    ExecutionContext context = mock(ExecutionContext.class);
+    var context = mock(ExecutionContext.class);
     Region.Entry<?, ?> leftEntry = mock(Region.Entry.class);
     when(left.evaluate(context)).thenReturn(leftEntry);
     Region.Entry<?, ?> rightEntry = mock(Region.Entry.class);
     when(right.evaluate(context)).thenReturn(rightEntry);
 
-    CompiledComparison comparison =
+    var comparison =
         spy(new CompiledComparison(left, right, OQLLexerTokenTypes.TOK_EQ));
 
     assertThat(comparison.indexCannotBeUsed(context, indexData)).isFalse();

@@ -17,30 +17,28 @@ package org.apache.geode.internal.cache;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
-import java.util.List;
-
 import org.junit.Test;
 
 public class TxCommitMessageBCServerToServerTxBothTest extends TxCommitMessageBCTestBase {
 
   @Test
   public void test() throws Exception {
-    String regionNameRepl = REPLICATE_REGION_NAME;
-    String regionNamePart = PARTITION_REGION_NAME;
+    var regionNameRepl = REPLICATE_REGION_NAME;
+    var regionNamePart = PARTITION_REGION_NAME;
 
-    List<Integer> beforeValuesRepl =
+    var beforeValuesRepl =
         server1.invoke(() -> TxCommitMessageBCTestBase.doGets(regionNameRepl));
-    List<Integer> beforeValuesPart =
+    var beforeValuesPart =
         server1.invoke(() -> TxCommitMessageBCTestBase.doGets(regionNamePart));
     server1.invoke(() -> TxCommitMessageBCTestBase.doTxPutsBoth(regionNameRepl,
         regionNamePart));
-    List<Integer> afterValuesRepl1 =
+    var afterValuesRepl1 =
         server1.invoke(() -> TxCommitMessageBCTestBase.doGets(regionNameRepl));
-    List<Integer> afterValuesRepl2 =
+    var afterValuesRepl2 =
         server2.invoke(() -> TxCommitMessageBCTestBase.doGets(regionNameRepl));
-    List<Integer> afterValuesPart1 =
+    var afterValuesPart1 =
         server1.invoke(() -> TxCommitMessageBCTestBase.doGets(regionNamePart));
-    List<Integer> afterValuesPart2 =
+    var afterValuesPart2 =
         server2.invoke(() -> TxCommitMessageBCTestBase.doGets(regionNamePart));
 
     Integer expectedRepl1 = beforeValuesRepl.get(0) == null ? 500 : beforeValuesRepl.get(0) + 500;

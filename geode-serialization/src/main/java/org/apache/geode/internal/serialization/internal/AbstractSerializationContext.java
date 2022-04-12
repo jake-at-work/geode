@@ -28,7 +28,7 @@ public abstract class AbstractSerializationContext {
   <IO> KnownVersion getVersionForDataStream(final IO in) {
     // check if this is a versioned data input
     if (in instanceof VersionedDataStream) {
-      final KnownVersion v = ((VersionedDataStream) in).getVersion();
+      final var v = ((VersionedDataStream) in).getVersion();
       return v != null ? v : KnownVersion.getCurrentVersion();
     } else {
       // assume latest version

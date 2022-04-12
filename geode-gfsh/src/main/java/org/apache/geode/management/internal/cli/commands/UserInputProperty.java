@@ -92,7 +92,7 @@ public class UserInputProperty {
       return defaultValue == null ? "" : defaultValue;
     }
 
-    String value = promptForUserInput(gfsh);
+    var value = promptForUserInput(gfsh);
 
     if (value.length() > 0) {
       return value;
@@ -111,7 +111,7 @@ public class UserInputProperty {
   }
 
   private String promptForUserInput(Gfsh gfsh) {
-    String promptText = (StringUtils.isBlank(defaultValue)) ? prompt + ": "
+    var promptText = (StringUtils.isBlank(defaultValue)) ? prompt + ": "
         : prompt + "(default: " + defaultValue + ")" + ": ";
     String value;
 

@@ -15,9 +15,7 @@
 package org.apache.geode.management.internal.operation;
 
 import java.time.Duration;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.geode.annotations.Experimental;
@@ -69,8 +67,8 @@ public class OperationHistoryManager {
 
   @VisibleForTesting
   void expireHistory() {
-    final long expirationTime = now() - keepCompletedMillis;
-    Set<String> expiredKeys = operationStateStore.list()
+    final var expirationTime = now() - keepCompletedMillis;
+    var expiredKeys = operationStateStore.list()
         .stream()
         .map(this::validateLocatorAndUpdateOperationState)
         .filter(operationInstance -> isExpired(expirationTime, operationInstance))
@@ -85,7 +83,7 @@ public class OperationHistoryManager {
   }
 
   private static boolean isExpired(long expirationTime, OperationState<?, ?> operationInstance) {
-    Date operationEnd = operationInstance.getOperationEnd();
+    var operationEnd = operationInstance.getOperationEnd();
 
     if (operationEnd == null) {
       return false; // always keep while still in-progress

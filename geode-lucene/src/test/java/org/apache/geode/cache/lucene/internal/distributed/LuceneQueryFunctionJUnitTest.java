@@ -118,14 +118,14 @@ public class LuceneQueryFunctionJUnitTest {
     }).when(mockRepository2).query(eq(query), eq(LuceneQueryFactory.DEFAULT_LIMIT),
         any(IndexResultCollector.class));
 
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
 
     function.execute(mockContext);
 
-    ArgumentCaptor<TopEntriesCollector> resultCaptor =
+    var resultCaptor =
         ArgumentCaptor.forClass(TopEntriesCollector.class);
     verify(mockResultSender).lastResult(resultCaptor.capture());
-    TopEntriesCollector result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
 
     List<EntryScore> hits = result.getEntries().getHits();
@@ -159,15 +159,14 @@ public class LuceneQueryFunctionJUnitTest {
       return null;
     }).when(mockRepository2).query(eq(query), eq(3), any(IndexResultCollector.class));
 
-
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
 
     function.execute(mockContext);
 
-    ArgumentCaptor<TopEntriesCollector> resultCaptor =
+    var resultCaptor =
         ArgumentCaptor.forClass(TopEntriesCollector.class);
     verify(mockResultSender).lastResult(resultCaptor.capture());
-    TopEntriesCollector result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     List<EntryScore> hits = result.getEntries().getHits();
     assertEquals(3, hits.size());
@@ -176,7 +175,7 @@ public class LuceneQueryFunctionJUnitTest {
 
   @Test
   public void injectCustomCollectorManager() throws Exception {
-    final CollectorManager mockManager = mock(CollectorManager.class);
+    final var mockManager = mock(CollectorManager.class);
     searchArgs =
         new LuceneFunctionContext<>(queryProvider, "indexName", mockManager);
     when(mockContext.getDataSet()).thenReturn(mockRegion);
@@ -200,8 +199,7 @@ public class LuceneQueryFunctionJUnitTest {
     }).when(mockRepository2).query(eq(query), eq(LuceneQueryFactory.DEFAULT_LIMIT),
         any(IndexResultCollector.class));
 
-
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
 
     function.execute(mockContext);
 
@@ -218,7 +216,7 @@ public class LuceneQueryFunctionJUnitTest {
     doThrow(IOException.class).when(mockRepository1).query(eq(query),
         eq(LuceneQueryFactory.DEFAULT_LIMIT), any(IndexResultCollector.class));
 
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
 
     function.execute(mockContext);
   }
@@ -229,7 +227,7 @@ public class LuceneQueryFunctionJUnitTest {
     when(mockContext.getDataSet()).thenReturn(mockRegion);
     when(mockContext.getArguments()).thenReturn(searchArgs);
 
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
     when(mockService.getIndex(eq("indexName"), eq(regionPath))).thenReturn(null);
     function.execute(mockContext);
   }
@@ -237,7 +235,7 @@ public class LuceneQueryFunctionJUnitTest {
   @Test
   public void whenServiceReturnsNullIndexButHasDefinedLuceneIndexDuringQueryExecutionShouldBlockUntilAvailable()
       throws Exception {
-    LuceneServiceImpl mockServiceImpl = mock(LuceneServiceImpl.class);
+    var mockServiceImpl = mock(LuceneServiceImpl.class);
     when(mockCache.getService(any())).thenReturn(mockServiceImpl);
     when(mockServiceImpl.getIndex(eq("indexName"), eq(regionPath))).thenAnswer(new Answer() {
       private boolean calledFirstTime = false;
@@ -266,10 +264,10 @@ public class LuceneQueryFunctionJUnitTest {
     when(mockContext.getDataSet()).thenReturn(mockRegion);
     when(mockContext.getArguments()).thenReturn(searchArgs);
     when(mockContext.getResultSender()).thenReturn(mockResultSender);
-    CancelCriterion mockCancelCriterion = mock(CancelCriterion.class);
+    var mockCancelCriterion = mock(CancelCriterion.class);
     when(mockCache.getCancelCriterion()).thenReturn(mockCancelCriterion);
     when(mockCancelCriterion.isCancelInProgress()).thenReturn(false);
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
     function.execute(mockContext);
   }
 
@@ -279,7 +277,7 @@ public class LuceneQueryFunctionJUnitTest {
     when(mockContext.getDataSet()).thenReturn(mockRegion);
     when(mockContext.getArguments()).thenReturn(searchArgs);
 
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
     when(mockService.getIndex(eq("indexName"), eq(regionPath)))
         .thenThrow(new CacheClosedException());
     function.execute(mockContext);
@@ -290,7 +288,7 @@ public class LuceneQueryFunctionJUnitTest {
       throws Exception {
     when(mockContext.getDataSet()).thenReturn(mockRegion);
     when(mockContext.getArguments()).thenReturn(searchArgs);
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
     when(mockRepoManager.getRepositories(eq(mockContext), eq(false)))
         .thenThrow(new CacheClosedException());
     function.execute(mockContext);
@@ -298,7 +296,7 @@ public class LuceneQueryFunctionJUnitTest {
 
   @Test(expected = FunctionException.class)
   public void testReduceError() throws Exception {
-    final CollectorManager mockManager = mock(CollectorManager.class);
+    final var mockManager = mock(CollectorManager.class);
     searchArgs =
         new LuceneFunctionContext<>(queryProvider, "indexName", mockManager);
 
@@ -312,7 +310,7 @@ public class LuceneQueryFunctionJUnitTest {
       throw new IOException();
     }).when(mockManager).reduce(any(Collection.class));
 
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
 
     function.execute(mockContext);
   }
@@ -325,14 +323,14 @@ public class LuceneQueryFunctionJUnitTest {
     when(mockContext.getArguments()).thenReturn(searchArgs);
     when(mockContext.getResultSender()).thenReturn(mockResultSender);
     when(queryProvider.getQuery(eq(mockIndex))).thenThrow(LuceneQueryException.class);
-    LuceneQueryFunction function = new LuceneQueryFunction();
+    var function = new LuceneQueryFunction();
 
     function.execute(mockContext);
   }
 
   @Test
   public void testQueryFunctionId() {
-    String id = new LuceneQueryFunction().getId();
+    var id = new LuceneQueryFunction().getId();
     assertEquals(LuceneQueryFunction.class.getName(), id);
   }
 

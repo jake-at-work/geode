@@ -97,7 +97,7 @@ public class HateoasIntegrationTest {
   }
 
   private void prepRegion() {
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("customers");
     regionConfig.setType(RegionType.REPLICATE);
 

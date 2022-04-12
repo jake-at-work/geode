@@ -67,7 +67,7 @@ public class QueuedOperation {
   public void process(LocalRegion lr, DistributedMember src, long lastMod) {
     if (op.isRegion()) {
       // it is a region operation
-      RegionEventImpl re = new RegionEventImpl(lr, op, cbArg, true, src);
+      var re = new RegionEventImpl(lr, op, cbArg, true, src);
       // re.setQueued(true);
       if (op.isRegionInvalidate()) {
         lr.basicInvalidateRegion(re);
@@ -82,14 +82,14 @@ public class QueuedOperation {
       // it is an entry operation
       // TODO :EventID should be passed from the sender & should be reused here
       @Released
-      EntryEventImpl ee = EntryEventImpl.create(lr, op, key, null, cbArg, true, src);
+      var ee = EntryEventImpl.create(lr, op, key, null, cbArg, true, src);
       try {
         // ee.setQueued(true);
         if (op.isCreate() || op.isUpdate()) {
           UpdateOperation.UpdateMessage.setNewValueInEvent(value, valueObj, ee,
               deserializationPolicy);
           try {
-            long time = lastMod;
+            var time = lastMod;
             if (ee.getVersionTag() != null) {
               time = ee.getVersionTag().getVersionTimeStamp();
             }
@@ -116,8 +116,8 @@ public class QueuedOperation {
           }
         } else if (op.isInvalidate()) {
           ee.setOldValueFromRegion();
-          boolean forceNewEntry = lr.getDataPolicy().withReplication() && !lr.isInitialized();
-          boolean invokeCallbacks = lr.isInitialized();
+          var forceNewEntry = lr.getDataPolicy().withReplication() && !lr.isInitialized();
+          var invokeCallbacks = lr.isInitialized();
           try {
             lr.basicInvalidate(ee, invokeCallbacks, forceNewEntry);
           } catch (ConcurrentCacheModificationException e) {
@@ -137,12 +137,12 @@ public class QueuedOperation {
 
   public static QueuedOperation createFromData(DataInput in)
       throws IOException, ClassNotFoundException {
-    Operation op = Operation.fromOrdinal(in.readByte());
+    var op = Operation.fromOrdinal(in.readByte());
     Object key = null;
     byte[] value = null;
     Object valueObj = null;
-    byte deserializationPolicy = DistributedCacheOperation.DESERIALIZATION_POLICY_NONE;
-    Object cbArg = DataSerializer.readObject(in);
+    var deserializationPolicy = DistributedCacheOperation.DESERIALIZATION_POLICY_NONE;
+    var cbArg = DataSerializer.readObject(in);
     if (op.isEntry()) {
       key = DataSerializer.readObject(in);
       if (op.isUpdate() || op.isCreate()) {

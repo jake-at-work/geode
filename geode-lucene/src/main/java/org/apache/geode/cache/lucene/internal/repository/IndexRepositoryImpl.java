@@ -23,12 +23,8 @@ import java.util.function.IntSupplier;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.AlreadyClosedException;
 
 import org.apache.geode.cache.Region;
@@ -86,9 +82,9 @@ public class IndexRepositoryImpl implements IndexRepository {
 
   @Override
   public void create(Object key, Object value) throws IOException {
-    long start = stats.startUpdate();
+    var start = stats.startUpdate();
     Collection<Document> docs = Collections.emptyList();
-    boolean exceptionHappened = false;
+    var exceptionHappened = false;
     try {
       try {
         docs = serializer.toDocuments(index, value);
@@ -108,9 +104,9 @@ public class IndexRepositoryImpl implements IndexRepository {
 
   @Override
   public void update(Object key, Object value) throws IOException {
-    long start = stats.startUpdate();
+    var start = stats.startUpdate();
     Collection<Document> docs = Collections.emptyList();
-    boolean exceptionHappened = false;
+    var exceptionHappened = false;
     try {
       try {
         docs = serializer.toDocuments(index, value);
@@ -121,7 +117,7 @@ public class IndexRepositoryImpl implements IndexRepository {
       }
       if (!exceptionHappened) {
         docs.forEach(doc -> SerializerUtil.addKey(key, doc));
-        Term keyTerm = SerializerUtil.toKeyTerm(key);
+        var keyTerm = SerializerUtil.toKeyTerm(key);
         writer.updateDocuments(keyTerm, docs);
       }
     } finally {
@@ -131,9 +127,9 @@ public class IndexRepositoryImpl implements IndexRepository {
 
   @Override
   public void delete(Object key) throws IOException {
-    long start = stats.startUpdate();
+    var start = stats.startUpdate();
     try {
-      Term keyTerm = SerializerUtil.toKeyTerm(key);
+      var keyTerm = SerializerUtil.toKeyTerm(key);
       writer.deleteDocuments(keyTerm);
     } finally {
       stats.endUpdate(start);
@@ -142,15 +138,15 @@ public class IndexRepositoryImpl implements IndexRepository {
 
   @Override
   public void query(Query query, int limit, IndexResultCollector collector) throws IOException {
-    long start = stats.startRepositoryQuery();
-    int totalHits = 0;
-    IndexSearcher searcher = searcherManager.acquire();
+    var start = stats.startRepositoryQuery();
+    var totalHits = 0;
+    var searcher = searcherManager.acquire();
     try {
-      TopDocs docs = searcher.search(query, limit);
+      var docs = searcher.search(query, limit);
       totalHits = docs.totalHits;
-      for (ScoreDoc scoreDoc : docs.scoreDocs) {
-        Document doc = searcher.doc(scoreDoc.doc);
-        Object key = SerializerUtil.getKey(doc);
+      for (var scoreDoc : docs.scoreDocs) {
+        var doc = searcher.doc(scoreDoc.doc);
+        var key = SerializerUtil.getKey(doc);
         if (logger.isDebugEnabled()) {
           logger.debug("query found doc:" + doc + ":" + scoreDoc);
         }
@@ -164,7 +160,7 @@ public class IndexRepositoryImpl implements IndexRepository {
 
   @Override
   public synchronized void commit() throws IOException {
-    long start = stats.startCommit();
+    var start = stats.startCommit();
     try {
       writer.commit();
       searcherManager.maybeRefresh();

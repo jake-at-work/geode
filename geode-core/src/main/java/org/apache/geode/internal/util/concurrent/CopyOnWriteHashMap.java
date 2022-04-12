@@ -53,8 +53,8 @@ public class CopyOnWriteHashMap<K, V> extends AbstractMap<K, V>
 
   @Override
   public synchronized V put(K key, V value) {
-    HashMap<K, V> tmp = new HashMap<>(map);
-    V result = tmp.put(key, value);
+    var tmp = new HashMap<K, V>(map);
+    var result = tmp.put(key, value);
     map = Collections.unmodifiableMap(tmp);
     return result;
   }
@@ -63,7 +63,7 @@ public class CopyOnWriteHashMap<K, V> extends AbstractMap<K, V>
 
   @Override
   public synchronized void putAll(Map<? extends K, ? extends V> m) {
-    HashMap<K, V> tmp = new HashMap<>(map);
+    var tmp = new HashMap<K, V>(map);
     tmp.putAll(m);
     map = Collections.unmodifiableMap(tmp);
   }
@@ -72,8 +72,8 @@ public class CopyOnWriteHashMap<K, V> extends AbstractMap<K, V>
 
   @Override
   public synchronized V remove(Object key) {
-    HashMap<K, V> tmp = new HashMap<>(map);
-    V result = tmp.remove(key);
+    var tmp = new HashMap<K, V>(map);
+    var result = tmp.remove(key);
     map = Collections.unmodifiableMap(tmp);
     return result;
   }
@@ -158,7 +158,7 @@ public class CopyOnWriteHashMap<K, V> extends AbstractMap<K, V>
 
   @Override
   protected Object clone() throws CloneNotSupportedException {
-    CopyOnWriteHashMap<K, V> clone = new CopyOnWriteHashMap<>();
+    var clone = new CopyOnWriteHashMap<K, V>();
     clone.map = map;
     return clone;
   }
@@ -169,7 +169,7 @@ public class CopyOnWriteHashMap<K, V> extends AbstractMap<K, V>
 
   @Override
   public synchronized V putIfAbsent(K key, V value) {
-    V oldValue = map.get(key);
+    var oldValue = map.get(key);
     if (oldValue == null) {
       put(key, value);
       return null;
@@ -180,7 +180,7 @@ public class CopyOnWriteHashMap<K, V> extends AbstractMap<K, V>
 
   @Override
   public synchronized boolean remove(Object key, Object value) {
-    V oldValue = map.get(key);
+    var oldValue = map.get(key);
     if (oldValue != null && oldValue.equals(value)) {
       remove(key);
       return true;
@@ -191,7 +191,7 @@ public class CopyOnWriteHashMap<K, V> extends AbstractMap<K, V>
 
   @Override
   public synchronized boolean replace(K key, V oldValue, V newValue) {
-    V existingValue = map.get(key);
+    var existingValue = map.get(key);
     if (existingValue != null && existingValue.equals(oldValue)) {
       put(key, newValue);
       return true;

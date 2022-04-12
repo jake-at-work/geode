@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.Serializable;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Before;
@@ -30,7 +29,6 @@ import org.junit.Test;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 
@@ -50,15 +48,15 @@ public class RegionListenerDistributedTest implements Serializable {
 
   @Test
   public void testCleanupFailedInitializationInvoked() {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     // Add RegionListener in both members
     vm0.invoke(this::installRegionListener);
     vm1.invoke(this::installRegionListener);
 
     // Create region in one member
-    String regionName = "testCleanupFailedInitializationInvoked";
+    var regionName = "testCleanupFailedInitializationInvoked";
     vm0.invoke(() -> createRegion(regionName, false));
 
     // Attempt to create the region with incompatible configuration in another member. Verify that
@@ -88,11 +86,11 @@ public class RegionListenerDistributedTest implements Serializable {
   }
 
   private void verifyRegionListenerCleanupFailedInitializationInvoked() {
-    Set<RegionListener> listeners = cacheRule.getCache().getRegionListeners();
+    var listeners = cacheRule.getCache().getRegionListeners();
     assertThat(listeners.size()).isEqualTo(1);
-    RegionListener listener = listeners.iterator().next();
+    var listener = listeners.iterator().next();
     assertThat(listener).isInstanceOf(TestRegionListener.class);
-    TestRegionListener trl = (TestRegionListener) listener;
+    var trl = (TestRegionListener) listener;
     assertThat(trl.getCleanupFailedInitializationInvoked()).isTrue();
   }
 

@@ -31,15 +31,15 @@ public class CommitSessionValveIntegrationTest
 
   @Before
   public void setUp() {
-    final Context context = mock(Context.class);
+    final var context = mock(Context.class);
     doReturn(mock(Log.class)).when(context).getLogger();
 
     request = mock(Request.class);
     doReturn(context).when(request).getContext();
 
-    final OutputBuffer outputBuffer = mock(OutputBuffer.class);
+    final var outputBuffer = mock(OutputBuffer.class);
 
-    final org.apache.coyote.Response coyoteResponse = new org.apache.coyote.Response();
+    final var coyoteResponse = new org.apache.coyote.Response();
     coyoteResponse.setOutputBuffer(outputBuffer);
 
     response = new Response();

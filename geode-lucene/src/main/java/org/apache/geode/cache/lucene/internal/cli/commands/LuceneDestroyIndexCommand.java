@@ -17,26 +17,22 @@ package org.apache.geode.cache.lucene.internal.cli.commands;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.lucene.internal.cli.LuceneCliStrings;
 import org.apache.geode.cache.lucene.internal.cli.LuceneDestroyIndexInfo;
 import org.apache.geode.cache.lucene.internal.cli.functions.LuceneDestroyIndexFunction;
 import org.apache.geode.cache.lucene.internal.security.LucenePermission;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.cli.remote.CommandExecutor;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.configuration.domain.XmlEntity;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -66,7 +62,7 @@ public class LuceneDestroyIndexCommand extends LuceneCommandBase {
         LucenePermission.TARGET);
 
     // Get members >= Geode 1.8 (when the new destroy code path went into the product)
-    Set<DistributedMember> validVersionMembers =
+    var validVersionMembers =
         getNormalMembersWithSameOrNewerVersion(KnownVersion.GEODE_1_7_0);
     if (validVersionMembers.isEmpty()) {
       return ResultModel.createInfo(CliStrings.format(
@@ -75,16 +71,16 @@ public class LuceneDestroyIndexCommand extends LuceneCommandBase {
     }
 
     // Execute the destroy index function
-    LuceneDestroyIndexInfo indexInfo = new LuceneDestroyIndexInfo(indexName, regionPath);
-    ResultCollector<?, ?> rc =
+    var indexInfo = new LuceneDestroyIndexInfo(indexName, regionPath);
+    var rc =
         executeFunction(destroyIndexFunction, indexInfo, validVersionMembers);
 
     // Get the result
-    List<CliFunctionResult> cliFunctionResults = (List<CliFunctionResult>) rc.getResult();
-    ResultModel result = getDestroyIndexResult(cliFunctionResults, indexName, regionPath);
+    var cliFunctionResults = (List<CliFunctionResult>) rc.getResult();
+    var result = getDestroyIndexResult(cliFunctionResults, indexName, regionPath);
 
     // Get and process the xml entity
-    XmlEntity xmlEntity = findXmlEntity(cliFunctionResults);
+    var xmlEntity = findXmlEntity(cliFunctionResults);
 
     // if at least one member returns with successful deletion, we will need to update cc
     InternalConfigurationPersistenceService configurationPersistenceService =
@@ -103,9 +99,9 @@ public class LuceneDestroyIndexCommand extends LuceneCommandBase {
   private ResultModel getDestroyIndexResult(List<CliFunctionResult> cliFunctionResults,
       String indexName, String regionPath) {
 
-    ResultModel result = new ResultModel();
-    TabularResultModel tabularResult = result.addTable("lucene-indexes");
-    for (CliFunctionResult cliFunctionResult : cliFunctionResults) {
+    var result = new ResultModel();
+    var tabularResult = result.addTable("lucene-indexes");
+    for (var cliFunctionResult : cliFunctionResults) {
       tabularResult.accumulate("Member", cliFunctionResult.getMemberIdOrName());
       if (cliFunctionResult.isSuccessful()) {
         tabularResult.accumulate("Status",

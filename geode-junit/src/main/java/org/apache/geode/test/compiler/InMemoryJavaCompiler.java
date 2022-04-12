@@ -25,8 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
@@ -43,7 +41,7 @@ public class InMemoryJavaCompiler {
   }
 
   public List<InMemoryClassFile> compile(File... sourceFiles) {
-    List<InMemorySourceFile> sources = Arrays.stream(sourceFiles)
+    var sources = Arrays.stream(sourceFiles)
         .map(this::readFileToString)
         .map(InMemorySourceFile::fromSourceCode)
         .collect(toList());
@@ -52,7 +50,7 @@ public class InMemoryJavaCompiler {
   }
 
   public List<InMemoryClassFile> compile(String... sourceFileContents) {
-    List<InMemorySourceFile> sources = Arrays.stream(sourceFileContents)
+    var sources = Arrays.stream(sourceFileContents)
         .map(InMemorySourceFile::fromSourceCode)
         .collect(toList());
 
@@ -60,14 +58,14 @@ public class InMemoryJavaCompiler {
   }
 
   public List<InMemoryClassFile> compile(List<InMemorySourceFile> sources) {
-    DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    var diagnostics = new DiagnosticCollector<JavaFileObject>();
+    var compiler = ToolProvider.getSystemJavaCompiler();
     JavaFileManager systemFileManager = compiler.getStandardFileManager(diagnostics, null, null);
-    InMemoryFileManager fileManager = new InMemoryFileManager(systemFileManager);
+    var fileManager = new InMemoryFileManager(systemFileManager);
 
     List<String> options = new ArrayList<>(asList("-classpath", classpath));
 
-    CompilationTask compilationTask =
+    var compilationTask =
         compiler.getTask(null, fileManager, diagnostics, options, null, sources);
 
     boolean succeeded = compilationTask.call();

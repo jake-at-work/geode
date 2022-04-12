@@ -44,12 +44,12 @@ public class TXReservationMgrJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(LOCATORS, "");
     ds = DistributedSystem.connect(p);
     c = CacheFactory.create(ds);
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     r = (LocalRegion) c.createRegion("TXReservationMgrJUnitTest", af.create());
   }
@@ -64,19 +64,19 @@ public class TXReservationMgrJUnitTest {
   private static final int KEY_COUNT = Integer.getInteger("junit.KEY_COUNT", 50);
 
   protected void doThreadBody(final TXReservationMgr mgr) {
-    final String tName = Thread.currentThread().getName();
-    for (int i = 0; i < KEY_COUNT; i++) {
+    final var tName = Thread.currentThread().getName();
+    for (var i = 0; i < KEY_COUNT; i++) {
       final Object key = (long) i;
-      final Boolean isEvent = Boolean.TRUE;
-      boolean done = false;
+      final var isEvent = Boolean.TRUE;
+      var done = false;
       do {
         try {
-          IdentityArrayList l = new IdentityArrayList(1);
-          TXRegionLockRequestImpl lr = new TXRegionLockRequestImpl(r.getCache(), r);
+          var l = new IdentityArrayList(1);
+          var lr = new TXRegionLockRequestImpl(r.getCache(), r);
           lr.addEntryKeys(Collections.singletonMap(key, isEvent));
           l.add(lr);
           mgr.makeReservation(l);
-          String v = (String) r.get(key);
+          var v = (String) r.get(key);
           v += "<" + tName + ">";
           r.put(key, v);
           mgr.releaseReservation(l);
@@ -90,10 +90,10 @@ public class TXReservationMgrJUnitTest {
   }
 
   private boolean checkValue(Object key) {
-    String value = (String) r.get(key);
-    String missing = "";
-    for (int i = 0; i < THREAD_COUNT; i++) {
-      String tName = "<t" + i + ">";
+    var value = (String) r.get(key);
+    var missing = "";
+    for (var i = 0; i < THREAD_COUNT; i++) {
+      var tName = "<t" + i + ">";
       if (value.indexOf(tName) == -1) {
         missing += " " + tName;
       }
@@ -109,21 +109,21 @@ public class TXReservationMgrJUnitTest {
   private void doTestMgr(final TXReservationMgr mgr) throws Exception {
     commitCount = 0;
     conflictCount = 0;
-    for (int i = 0; i < KEY_COUNT; i++) {
+    for (var i = 0; i < KEY_COUNT; i++) {
       r.create((long) i, "VAL");
     }
-    Thread[] threads = new Thread[THREAD_COUNT];
-    for (int i = 0; i < THREAD_COUNT; i++) {
+    var threads = new Thread[THREAD_COUNT];
+    for (var i = 0; i < THREAD_COUNT; i++) {
       threads[i] = new Thread(() -> doThreadBody(mgr), "t" + i);
     }
-    for (int i = 0; i < THREAD_COUNT; i++) {
+    for (var i = 0; i < THREAD_COUNT; i++) {
       threads[i].start();
     }
-    for (int i = 0; i < THREAD_COUNT; i++) {
+    for (var i = 0; i < THREAD_COUNT; i++) {
       ThreadUtils.join(threads[i], 60 * 1000); // increased from 30 to 60 for parallel junit runs
     }
-    int invalidCount = 0;
-    for (int i = 0; i < KEY_COUNT; i++) {
+    var invalidCount = 0;
+    for (var i = 0; i < KEY_COUNT; i++) {
       if (!checkValue((long) i)) {
         invalidCount++;
       }

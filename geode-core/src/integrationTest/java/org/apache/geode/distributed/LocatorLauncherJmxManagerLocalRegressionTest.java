@@ -56,7 +56,7 @@ public class LocatorLauncherJmxManagerLocalRegressionTest
     disconnectFromDS();
     System.setProperty(ProcessType.PROPERTY_TEST_PREFIX, getUniqueName() + "-");
 
-    int[] ports = getRandomAvailableTCPPorts(3);
+    var ports = getRandomAvailableTCPPorts(3);
     defaultLocatorPort = ports[0];
     nonDefaultLocatorPort = ports[1];
     jmxManagerPort = ports[2];

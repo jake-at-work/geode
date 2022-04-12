@@ -25,7 +25,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.lucene.LuceneQuery;
 import org.apache.geode.cache.lucene.LuceneQueryException;
 import org.apache.geode.cache.lucene.LuceneResultStruct;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.PageableLuceneQueryResults;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexDetails;
@@ -61,10 +60,10 @@ public class LuceneSearchIndexFunction<K, V> implements InternalFunction {
   @Override
   public void execute(final FunctionContext context) {
     Set<LuceneSearchResults> result = new HashSet<>();
-    final Cache cache = context.getCache();
-    final LuceneQueryInfo queryInfo = (LuceneQueryInfo) context.getArguments();
+    final var cache = context.getCache();
+    final var queryInfo = (LuceneQueryInfo) context.getArguments();
 
-    LuceneService luceneService = LuceneServiceProvider.get(context.getCache());
+    var luceneService = LuceneServiceProvider.get(context.getCache());
     try {
       if (luceneService.getIndex(queryInfo.getIndexName(), queryInfo.getRegionPath()) == null) {
         throw new Exception("Index " + queryInfo.getIndexName() + " not found on region "

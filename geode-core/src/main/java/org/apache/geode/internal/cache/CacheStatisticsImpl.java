@@ -46,10 +46,10 @@ class CacheStatisticsImpl implements CacheStatistics {
     // Don't worry about write synchronizing. This is just a stat
     // so its ok if the hit ratio is inaccurate because the hit count
     // and miss count are sampled without a write lock.
-    RegionEntry entry = regionEntry;
+    var entry = regionEntry;
     try {
-      long hitCount = entry.getHitCount();
-      long total = hitCount + entry.getMissCount();
+      var hitCount = entry.getHitCount();
+      var total = hitCount + entry.getMissCount();
       return total == 0L ? 0.0f : ((float) hitCount / total);
     } catch (InternalStatisticsDisabledException e) {
       throw new StatisticsDisabledException(e);

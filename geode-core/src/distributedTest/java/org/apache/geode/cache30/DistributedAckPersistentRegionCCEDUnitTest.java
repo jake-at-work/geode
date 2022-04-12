@@ -31,7 +31,7 @@ public class DistributedAckPersistentRegionCCEDUnitTest extends DistributedAckRe
 
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setConcurrencyChecksEnabled(true);
@@ -54,10 +54,10 @@ public class DistributedAckPersistentRegionCCEDUnitTest extends DistributedAckRe
   public void testGetAllWithVersions() {}
 
   private VersionTag getVersionTag(VM vm, final String key) {
-    SerializableCallable getVersionTag = new SerializableCallable("verify recovered entry") {
+    var getVersionTag = new SerializableCallable("verify recovered entry") {
       @Override
       public Object call() {
-        VersionTag tag = CCRegion.getVersionTag(key);
+        var tag = CCRegion.getVersionTag(key);
         return tag;
 
       }

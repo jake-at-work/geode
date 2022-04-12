@@ -26,30 +26,21 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.InterestResultPolicy;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.ConnectionStats;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqExistsException;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.ServerLocation;
-import org.apache.geode.distributed.internal.ServerLocationAndMemberId;
 import org.apache.geode.internal.cache.ClientServerObserverAdapter;
 import org.apache.geode.internal.cache.ClientServerObserverHolder;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -69,9 +60,9 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testCloseCqAndDrainEvents() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start a server
     server1Port = server1VM
@@ -105,7 +96,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
 
-        final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
+        final var ccnInstance = CacheClientNotifier.getInstance();
 
         try {
           ccnInstance.closeClientCq(durableClientId, "All");
@@ -163,9 +154,9 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
   @Test
   public void testDurableCQServerFailoverWithoutHAConfigured()
       throws Exception {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start a server 1
     server1Port = server1VM
@@ -191,9 +182,9 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
     // send client ready
     CacheServerTestUtil.getClientCache().readyForEvents();
 
-    int oldPrimaryPort = getPrimaryServerPort();
+    var oldPrimaryPort = getPrimaryServerPort();
     // Close the server that is hosting subscription queue
-    VM primary = getPrimaryServerVM();
+    var primary = getPrimaryServerVM();
     // Verify durable client on server
     verifyDurableClientPresent(DistributionConfig.DEFAULT_DURABLE_CLIENT_TIMEOUT, durableClientId,
         primary);
@@ -204,7 +195,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
     waitForFailoverToPerform(oldPrimaryPort);
     primary = getPrimaryServerVM();
     waitForDurableClientPresence(durableClientId, primary, 1);
-    int primaryPort = getPrimaryServerPort();
+    var primaryPort = getPrimaryServerPort();
 
     // Stop the durable client
     CacheServerTestUtil.closeCache(true);
@@ -255,15 +246,15 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testCloseAllCqsAndDrainEvents() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
         () -> CacheServerTestUtil.createCacheServer(regionName, Boolean.TRUE));
 
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
     startDurableClient(durableClientVM, durableClientId, server1Port, regionName);
     // register durable cqs
@@ -330,9 +321,9 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testCloseAllCqsAndDrainEventsNoInterestRegistered() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
@@ -428,7 +419,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
 
-        final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
+        final var ccnInstance = CacheClientNotifier.getInstance();
 
         try {
           ccnInstance.closeClientCq(durableClientId, "All");
@@ -447,16 +438,16 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testCloseCqAndDrainEvents2Client() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
         () -> CacheServerTestUtil.createCacheServer(regionName, Boolean.TRUE));
 
-    final String durableClientId = getName() + "_client";
-    final String durableClientId2 = getName() + "_client2";
+    final var durableClientId = getName() + "_client";
+    final var durableClientId2 = getName() + "_client2";
     startDurableClient(durableClientVM, durableClientId, server1Port, regionName);
     // register durable cqs
     createCq(durableClientVM, "GreaterThan5", greaterThan5Query, true);
@@ -501,7 +492,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
 
-        final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
+        final var ccnInstance = CacheClientNotifier.getInstance();
 
         try {
           ccnInstance.closeClientCq(durableClientId, "All");
@@ -581,15 +572,15 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
       IgnoredException.addIgnoredException(
           "Could not initialize a primary queue on startup. No queue servers available.");
 
-      String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-      String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-      String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+      var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+      var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+      var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
       // Start server 1
       server1Port = server1VM.invoke(
           () -> CacheServerTestUtil.createCacheServer(regionName, Boolean.TRUE));
 
-      final String durableClientId = getName() + "_client";
+      final var durableClientId = getName() + "_client";
       durableClientVM.invoke(CacheServerTestUtil::disableShufflingOfEndpoints);
 
       startDurableClient(durableClientVM, durableClientId, server1Port, regionName);
@@ -626,7 +617,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
         @Override
         public void run2() throws CacheException {
 
-          final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
+          final var ccnInstance = CacheClientNotifier.getInstance();
 
           try {
             ccnInstance.closeClientCq(durableClientId, "All");
@@ -700,9 +691,9 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
   @Test
   public void testCqCloseExceptionDueToActivatingClient() throws Exception {
     try {
-      String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-      String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-      String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+      var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+      var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+      var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
       // Start server 1
       server1Port = server1VM.invoke(
@@ -740,15 +731,15 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
               // This test hook will pause during the drain process
               CacheClientProxy.testHook = new CqExceptionDueToActivatingClientTestHook();
 
-              final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
-              final CacheClientProxy clientProxy = ccnInstance.getClientProxy(durableClientId);
-              ClientProxyMembershipID proxyId = clientProxy.getProxyID();
+              final var ccnInstance = CacheClientNotifier.getInstance();
+              final var clientProxy = ccnInstance.getClientProxy(durableClientId);
+              var proxyId = clientProxy.getProxyID();
 
               try {
                 ccnInstance.closeClientCq(durableClientId, "All");
                 fail("Should have thrown an exception due to activating client");
               } catch (CqException e) {
-                String expected =
+                var expected =
                     String.format(
                         "CacheClientProxy: Could not drain cq %s due to client proxy id %s reconnecting.",
                         "All", proxyId.getDurableId());
@@ -810,9 +801,9 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testCqCloseExceptionDueToActiveConnection() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start a server
     server1Port = server1VM
@@ -843,9 +834,9 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
 
-        final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
-        final CacheClientProxy clientProxy = ccnInstance.getClientProxy(durableClientId);
-        ClientProxyMembershipID proxyId = clientProxy.getProxyID();
+        final var ccnInstance = CacheClientNotifier.getInstance();
+        final var clientProxy = ccnInstance.getClientProxy(durableClientId);
+        var proxyId = clientProxy.getProxyID();
 
         try {
           ccnInstance.closeClientCq(durableClientId, "All");
@@ -853,7 +844,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
               "expected a cq exception.  We have an active client proxy, the close cq command should have failed");
         } catch (CqException e) {
           // expected exception;
-          String expected =
+          var expected =
               String.format(
                   "CacheClientProxy: Could not drain cq %s because client proxy id %s is connected.",
                   "All", proxyId.getDurableId());
@@ -911,11 +902,11 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
     sendClientReady(durableClientVM);
 
     // Register durable CQ
-    String cqName = getName() + "_cq";
+    var cqName = getName() + "_cq";
     registerDurableCq(cqName);
 
     // Execute getAllDurableCqsFromServer on the client
-    List<String> durableCqNames =
+    var durableCqNames =
         durableClientVM.invoke(DurableClientCQDUnitTest::getAllDurableCqsFromServer);
 
     durableClientVM.invoke(() -> verifyDurableCqs(durableCqNames, cqName));
@@ -929,7 +920,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
   }
 
   private static List<String> getAllDurableCqsFromServer() throws CqException {
-    QueryService queryService = CacheServerTestUtil.getPool().getQueryService();
+    var queryService = CacheServerTestUtil.getPool().getQueryService();
     return queryService.getAllDurableCqsFromServer();
   }
 
@@ -937,18 +928,18 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
       final String registeredCqName) {
     // Verify the number of durable CQ names is one, and it matches the registered name
     assertEquals(1, durableCqNames.size());
-    String returnedCqName = durableCqNames.get(0);
+    var returnedCqName = durableCqNames.get(0);
     assertEquals(registeredCqName, returnedCqName);
 
     // Get client's primary server
-    PoolImpl pool = CacheServerTestUtil.getPool();
-    ServerLocation primaryServerLocation = pool.getPrimary();
+    var pool = CacheServerTestUtil.getPool();
+    var primaryServerLocation = pool.getPrimary();
 
     // Verify the primary server was used and no other server was used
-    Map<ServerLocationAndMemberId, ConnectionStats> statistics =
+    var statistics =
         pool.getEndpointManager().getAllStats();
-    for (Map.Entry<ServerLocationAndMemberId, ConnectionStats> entry : statistics.entrySet()) {
-      int expectedGetDurableCqInvocations =
+    for (var entry : statistics.entrySet()) {
+      var expectedGetDurableCqInvocations =
           entry.getKey().getServerLocation().equals(primaryServerLocation) ? 1 : 0;
       assertEquals(expectedGetDurableCqInvocations, entry.getValue().getGetDurableCqs());
     }
@@ -962,7 +953,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
   public void testReadyForEventsNotCalledImplicitlyWithCacheXML() throws InterruptedException {
     try {
       setPeriodicACKObserver(durableClientVM);
-      final String cqName = "cqTest";
+      final var cqName = "cqTest";
       // Start a server
       server1Port =
           server1VM.invoke(() -> CacheServerTestUtil.createCacheServerFromXml(
@@ -970,7 +961,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
 
       // Start a durable client that is not kept alive on the server when it
       // stops normally
-      final String durableClientId = getName() + "_client";
+      final var durableClientId = getName() + "_client";
 
       // create client cache from xml
       durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClientFromXml(
@@ -981,7 +972,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
       durableClientVM.invoke(new CacheSerializableRunnable("check readyForEvents not called") {
         @Override
         public void run2() throws CacheException {
-          for (Pool p : PoolManager.getAll().values()) {
+          for (var p : PoolManager.getAll().values()) {
             assertFalse(((PoolImpl) p).getReadyForEventsCalled());
           }
         }
@@ -1000,7 +991,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
           regionName));
 
       // Publish some entries
-      final int numberOfEntries = 10;
+      final var numberOfEntries = 10;
       publishEntries(0, numberOfEntries);
 
       // Verify the durable client received the updates
@@ -1049,7 +1040,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
   }
 
   private void setPeriodicACKObserver(VM vm) {
-    CacheSerializableRunnable cacheSerializableRunnable =
+    var cacheSerializableRunnable =
         new CacheSerializableRunnable("Set ClientServerObserver") {
           @Override
           public void run2() throws CacheException {
@@ -1068,7 +1059,7 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
   }
 
   private void unsetPeriodicACKObserver(VM vm) {
-    CacheSerializableRunnable cacheSerializableRunnable =
+    var cacheSerializableRunnable =
         new CacheSerializableRunnable("Unset ClientServerObserver") {
           @Override
           public void run2() throws CacheException {
@@ -1087,14 +1078,14 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
   }
 
   public int getPrimaryServerPort() {
-    PoolImpl pool = CacheServerTestUtil.getPool();
-    ServerLocation primaryServerLocation = pool.getPrimary();
+    var pool = CacheServerTestUtil.getPool();
+    var primaryServerLocation = pool.getPrimary();
     return primaryServerLocation.getPort();
   }
 
   public void waitForFailoverToPerform(int oldPrimaryPort) {
-    final PoolImpl pool = CacheServerTestUtil.getPool();
-    WaitCriterion ev = new WaitCriterion() {
+    final var pool = CacheServerTestUtil.getPool();
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return pool.getPrimary() != null && pool.getPrimary().getPort() != oldPrimaryPort;
@@ -1116,23 +1107,23 @@ public class DurableClientCQDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
         // Get the region
-        Region<Object, Object> region = CacheServerTestUtil.getCache().getRegion(regionName);
+        var region = CacheServerTestUtil.getCache().getRegion(regionName);
         assertNotNull(region);
 
         // Create CQ Attributes.
-        CqAttributesFactory cqAf = new CqAttributesFactory();
+        var cqAf = new CqAttributesFactory();
 
         // Initialize and set CqListener.
         CqListener[] cqListeners = {new CacheServerTestUtil.ControlCqListener()};
         cqAf.initCqListeners(cqListeners);
-        CqAttributes cqa = cqAf.create();
+        var cqa = cqAf.create();
 
         // Create cq's
         // Get the query service for the Pool
-        QueryService queryService = CacheServerTestUtil.getPool().getQueryService();
+        var queryService = CacheServerTestUtil.getPool().getQueryService();
 
         try {
-          CqQuery query =
+          var query =
               queryService.newCq(cqName, "Select * from " + SEPARATOR + regionName, cqa, true);
           query.execute();
         } catch (CqExistsException | CqException e) {

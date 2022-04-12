@@ -37,17 +37,13 @@ import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.SubscriptionAttributes;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.cache.server.ClientSubscriptionConfig;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.internal.cache.DiskStoreAttributes;
 import org.apache.geode.internal.cache.InitialImageOperation;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
@@ -98,10 +94,10 @@ public class AcceptorImplClientQueueDistributedTest implements Serializable {
 
   @Test
   public void clientSubscriptionQueueInitializationShouldNotBlockNewConnections() throws Exception {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
-    VM vm3 = getVM(3);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
+    var vm3 = getVM(3);
 
     // Start one server
     int vm0_port = vm0.invoke("Start server with subscription turned on",
@@ -110,14 +106,14 @@ public class AcceptorImplClientQueueDistributedTest implements Serializable {
 
     // Create a durable queue and shutdown the client
     vm2.invoke("Start Client1 with durable interest registration turned on", () -> {
-      ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+      var clientCacheFactory = new ClientCacheFactory();
       clientCacheFactory.setPoolSubscriptionEnabled(true);
       clientCacheFactory.setPoolSubscriptionRedundancy(1);
       clientCacheFactory.setPoolReadTimeout(200);
       clientCacheFactory.addPoolServer(hostName, vm0_port);
-      ClientCache cache = clientCacheFactory.set("durable-client-id", "1")
+      var cache = clientCacheFactory.set("durable-client-id", "1")
           .set("durable-client-timeout", "300").set("mcast-port", "0").create();
-      ClientRegionFactory<Object, Object> clientRegionFactory =
+      var clientRegionFactory =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
       Region region = clientRegionFactory.create("subscriptionRegion");
 
@@ -128,14 +124,14 @@ public class AcceptorImplClientQueueDistributedTest implements Serializable {
 
     // Add some entries Which will end up the in the queue
     vm3.invoke("Start Client2 to add entries to region", () -> {
-      ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+      var clientCacheFactory = new ClientCacheFactory();
       clientCacheFactory.addPoolServer(hostName, vm0_port);
-      ClientCache cache = clientCacheFactory.set("mcast-port", "0").create();
-      ClientRegionFactory<Object, Object> clientRegionFactory =
+      var cache = clientCacheFactory.set("mcast-port", "0").create();
+      var clientRegionFactory =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
       Region region = clientRegionFactory.create("subscriptionRegion");
 
-      for (int i = 0; i < NUMBER_OF_ENTRIES; i++) {
+      for (var i = 0; i < NUMBER_OF_ENTRIES; i++) {
         region.put(i, i);
       }
       cache.close();
@@ -143,7 +139,7 @@ public class AcceptorImplClientQueueDistributedTest implements Serializable {
 
     // Start a second server
     int vm1_port = vm1.invoke("Start server2 in with subscriptions turned on", () -> {
-      int serverPort = createSubscriptionServer(cacheRule.getCache());
+      var serverPort = createSubscriptionServer(cacheRule.getCache());
       InitialImageOperation.slowImageProcessing = 500;
       return serverPort;
     });
@@ -155,22 +151,22 @@ public class AcceptorImplClientQueueDistributedTest implements Serializable {
 
     // Restart the durable client, which will try to make a copy of the queue, which will
     // take a long time because we made it slow
-    AsyncInvocation<Boolean> completedClient1 =
+    var completedClient1 =
         vm2.invokeAsync("Start Client1, expecting durable messages to be delivered", () -> {
 
-          ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+          var clientCacheFactory = new ClientCacheFactory();
           clientCacheFactory.setPoolSubscriptionEnabled(true);
           clientCacheFactory.setPoolSubscriptionRedundancy(1);
           clientCacheFactory.setPoolMinConnections(1);
           clientCacheFactory.setPoolMaxConnections(1);
           clientCacheFactory.addPoolServer(hostName, vm1_port);
-          ClientCacheFactory cacheFactory = clientCacheFactory.set("durable-client-id", "1")
+          var cacheFactory = clientCacheFactory.set("durable-client-id", "1")
               .set("durable-client-timeout", "300").set("mcast-port", "0");
-          ClientCache cache = cacheFactory.create();
+          var cache = cacheFactory.create();
 
-          ClientRegionFactory<Object, Object> clientRegionFactory =
+          var clientRegionFactory =
               cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-          AtomicInteger eventCount = new AtomicInteger(0);
+          var eventCount = new AtomicInteger(0);
 
           Region<?, ?> region =
               clientRegionFactory.addCacheListener(new CacheListenerAdapter<Object, Object>() {
@@ -198,18 +194,18 @@ public class AcceptorImplClientQueueDistributedTest implements Serializable {
 
     // Start a second client, which should not be blocked by the queue copying
     vm3.invoke("Start Client2 to add entries to region", () -> {
-      ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+      var clientCacheFactory = new ClientCacheFactory();
       clientCacheFactory.setPoolRetryAttempts(0);
       clientCacheFactory.setPoolMinConnections(1);
       clientCacheFactory.setPoolMaxConnections(1);
       clientCacheFactory.setPoolSocketConnectTimeout(5000);
       clientCacheFactory.addPoolServer(hostName, vm1_port);
-      ClientCache cache = clientCacheFactory.set("mcast-port", "0").create();
+      var cache = clientCacheFactory.set("mcast-port", "0").create();
       ClientRegionFactory<Integer, Integer> clientRegionFactory =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region<Integer, Integer> region = clientRegionFactory.create("subscriptionRegion");
+      var region = clientRegionFactory.create("subscriptionRegion");
 
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         assertThat(region.get(i)).isGreaterThanOrEqualTo(0);
       }
       cache.close();
@@ -235,7 +231,7 @@ public class AcceptorImplClientQueueDistributedTest implements Serializable {
   }
 
   private void initializeDiskStore(InternalCache cache) throws IOException {
-    DiskStoreAttributes diskStoreAttributes = new DiskStoreAttributes();
+    var diskStoreAttributes = new DiskStoreAttributes();
     diskStoreAttributes.name = "clientQueueDS";
     diskStoreAttributes.diskDirs = new File[] {tempDir.newFolder(name + "_dir")};
     cache.createDiskStoreFactory(diskStoreAttributes).create("clientQueueDS");
@@ -248,8 +244,8 @@ public class AcceptorImplClientQueueDistributedTest implements Serializable {
   }
 
   private int initializeCacheServerWithSubscription(InternalCache cache) throws IOException {
-    CacheServer cacheServer1 = cache.addCacheServer();
-    ClientSubscriptionConfig clientSubscriptionConfig = cacheServer1.getClientSubscriptionConfig();
+    var cacheServer1 = cache.addCacheServer();
+    var clientSubscriptionConfig = cacheServer1.getClientSubscriptionConfig();
     clientSubscriptionConfig.setEvictionPolicy("entry");
     clientSubscriptionConfig.setCapacity(5);
     clientSubscriptionConfig.setDiskStoreName("clientQueueDS");

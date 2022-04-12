@@ -22,7 +22,6 @@ import static org.apache.geode.tools.pulse.internal.data.PulseConstants.FOUR_PLA
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -64,21 +63,21 @@ public class ClusterRegionService implements PulseService {
 
   // Comparator based upon regions entry count
   private static final Comparator<Cluster.Region> regionEntryCountComparator = (r1, r2) -> {
-    long r1Cnt = r1.getSystemRegionEntryCount();
-    long r2Cnt = r2.getSystemRegionEntryCount();
+    var r1Cnt = r1.getSystemRegionEntryCount();
+    var r2Cnt = r2.getSystemRegionEntryCount();
     return Long.compare(r1Cnt, r2Cnt);
   };
 
   @Override
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
-    String userName = request.getUserPrincipal().getName();
+    var userName = request.getUserPrincipal().getName();
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     // getting cluster's Regions
     responseJSON.put("clusterName", cluster.getServerName());
@@ -100,37 +99,37 @@ public class ClusterRegionService implements PulseService {
     Long totalHeapSize = cluster.getTotalHeapSize();
     Long totalDiskUsage = cluster.getTotalBytesOnDisk();
 
-    Map<String, Cluster.Region> clusterRegions = cluster.getClusterRegions();
+    var clusterRegions = cluster.getClusterRegions();
 
     List<Cluster.Region> clusterRegionsList = new ArrayList<>(clusterRegions.values());
     clusterRegionsList.sort(regionEntryCountComparator);
 
-    ArrayNode regionListJson = mapper.createArrayNode();
-    for (Cluster.Region reg : clusterRegionsList) {
-      ObjectNode regionJSON = mapper.createObjectNode();
+    var regionListJson = mapper.createArrayNode();
+    for (var reg : clusterRegionsList) {
+      var regionJSON = mapper.createObjectNode();
 
       regionJSON.put("name", reg.getName());
       regionJSON.put("totalMemory", totalHeapSize);
       regionJSON.put("systemRegionEntryCount", reg.getSystemRegionEntryCount());
       regionJSON.put("memberCount", reg.getMemberCount());
 
-      final String regionType = reg.getRegionType();
+      final var regionType = reg.getRegionType();
       regionJSON.put("type", regionType);
       regionJSON.put("getsRate", reg.getGetsRate());
       regionJSON.put("putsRate", reg.getPutsRate());
 
-      Cluster.Member[] clusterMembersList = cluster.getMembers();
+      var clusterMembersList = cluster.getMembers();
 
-      ArrayNode memberNameArray = mapper.createArrayNode();
-      for (String memberName : reg.getMemberName()) {
-        for (Cluster.Member member : clusterMembersList) {
-          String name = member.getName();
+      var memberNameArray = mapper.createArrayNode();
+      for (var memberName : reg.getMemberName()) {
+        for (var member : clusterMembersList) {
+          var name = member.getName();
           name = name.replace(":", "-");
-          String id = member.getId();
+          var id = member.getId();
           id = id.replace(":", "-");
 
           if ((memberName.equals(id)) || (memberName.equals(name))) {
-            ObjectNode regionMember = mapper.createObjectNode();
+            var regionMember = mapper.createObjectNode();
             regionMember.put("id", member.getId());
             regionMember.put("name", member.getName());
             memberNameArray.add(regionMember);
@@ -142,21 +141,21 @@ public class ClusterRegionService implements PulseService {
       regionJSON.set("memberNames", memberNameArray);
       regionJSON.put("entryCount", reg.getSystemRegionEntryCount());
 
-      boolean persistent = reg.getPersistentEnabled();
+      var persistent = reg.getPersistentEnabled();
       if (persistent) {
         regionJSON.put("persistence", VALUE_ON);
       } else {
         regionJSON.put("persistence", VALUE_OFF);
       }
 
-      boolean isEnableOffHeapMemory = reg.isEnableOffHeapMemory();
+      var isEnableOffHeapMemory = reg.isEnableOffHeapMemory();
       if (isEnableOffHeapMemory) {
         regionJSON.put("isEnableOffHeapMemory", VALUE_ON);
       } else {
         regionJSON.put("isEnableOffHeapMemory", VALUE_OFF);
       }
 
-      String regCompCodec = reg.getCompressionCodec();
+      var regCompCodec = reg.getCompressionCodec();
       if (StringUtils.isNotBlank(regCompCodec)) {
         regionJSON.put("compressionCodec", reg.getCompressionCodec());
       } else {
@@ -174,8 +173,8 @@ public class ClusterRegionService implements PulseService {
       regionJSON.set("diskWritesTrend", mapper.valueToTree(
           reg.getRegionStatisticTrend(Cluster.Region.REGION_STAT_DISK_WRITES_PER_SEC_TREND)));
       regionJSON.put("emptyNodes", reg.getEmptyNode());
-      long entrySize = reg.getEntrySize();
-      String entrySizeInMB = FOUR_PLACE_DECIMAL_FORMAT.format(entrySize / (1024f * 1024f));
+      var entrySize = reg.getEntrySize();
+      var entrySizeInMB = FOUR_PLACE_DECIMAL_FORMAT.format(entrySize / (1024f * 1024f));
 
       if (entrySize < 0) {
         regionJSON.put(ENTRY_SIZE, VALUE_NA);

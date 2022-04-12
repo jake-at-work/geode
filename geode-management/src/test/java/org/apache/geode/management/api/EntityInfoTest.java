@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import org.apache.geode.management.configuration.AbstractConfiguration;
@@ -46,17 +45,17 @@ public class EntityInfoTest {
 
   @Test
   public void extractsRuntimeInfosFromGroupResults() {
-    List<String> groups = asList("group1", "group2", "group3");
+    var groups = asList("group1", "group2", "group3");
 
-    Map<String, List<TestRuntimeInfo>> runtimeInfosPerGroup = runtimeInfosFor(groups);
+    var runtimeInfosPerGroup = runtimeInfosFor(groups);
 
-    List<EntityGroupInfo<TestConfiguration, TestRuntimeInfo>> groupResults =
+    var groupResults =
         createGroupResults(configurationsFor(groups), runtimeInfosPerGroup);
 
-    EntityInfo<TestConfiguration, TestRuntimeInfo> entityInfo =
-        new EntityInfo<>("some.element.id", groupResults);
+    var entityInfo =
+        new EntityInfo<TestConfiguration, TestRuntimeInfo>("some.element.id", groupResults);
 
-    List<TestRuntimeInfo> runtimeInfosForAllGroups = runtimeInfosPerGroup.values().stream()
+    var runtimeInfosForAllGroups = runtimeInfosPerGroup.values().stream()
         .flatMap(List::stream)
         .collect(toList());
 
@@ -66,17 +65,17 @@ public class EntityInfoTest {
 
   @Test
   public void extractsConfigurationsFromGroupResults() {
-    List<String> groups = asList("group1", "group2", "group3");
+    var groups = asList("group1", "group2", "group3");
 
-    Map<String, TestConfiguration> configurationPerGroup = configurationsFor(groups);
+    var configurationPerGroup = configurationsFor(groups);
 
-    List<EntityGroupInfo<TestConfiguration, TestRuntimeInfo>> groupResults =
+    var groupResults =
         createGroupResults(configurationPerGroup, runtimeInfosFor(groups));
 
-    EntityInfo<TestConfiguration, TestRuntimeInfo> entityInfo =
-        new EntityInfo<>("some.element.id", groupResults);
+    var entityInfo =
+        new EntityInfo<TestConfiguration, TestRuntimeInfo>("some.element.id", groupResults);
 
-    Collection<TestConfiguration> configurationsForAllGroups = configurationPerGroup.values();
+    var configurationsForAllGroups = configurationPerGroup.values();
 
     assertThat(entityInfo.getConfigurations())
         .containsExactlyInAnyOrderElementsOf(configurationsForAllGroups);
@@ -85,20 +84,21 @@ public class EntityInfoTest {
   @Test
   public void serialization() throws JsonProcessingException {
 
-    Region region = new Region();
-    RuntimeRegionInfo runtimeRegionInfo = new RuntimeRegionInfo();
+    var region = new Region();
+    var runtimeRegionInfo = new RuntimeRegionInfo();
 
-    EntityGroupInfo<Region, RuntimeRegionInfo> entityGroupInfo =
-        new EntityGroupInfo<>(region, singletonList(runtimeRegionInfo));
+    var entityGroupInfo =
+        new EntityGroupInfo<Region, RuntimeRegionInfo>(region, singletonList(runtimeRegionInfo));
 
-    EntityGroupInfo<Region, RuntimeRegionInfo> entityGroupInfo2 =
-        new EntityGroupInfo<>(region, singletonList(runtimeRegionInfo));
+    var entityGroupInfo2 =
+        new EntityGroupInfo<Region, RuntimeRegionInfo>(region, singletonList(runtimeRegionInfo));
 
-    EntityInfo<Region, RuntimeRegionInfo> original =
-        new EntityInfo<>("my.element", asList(entityGroupInfo, entityGroupInfo2));
+    var original =
+        new EntityInfo<Region, RuntimeRegionInfo>("my.element",
+            asList(entityGroupInfo, entityGroupInfo2));
 
-    ObjectMapper mapper = GeodeJsonMapper.getMapper();
-    String json = mapper.writeValueAsString(original);
+    var mapper = GeodeJsonMapper.getMapper();
+    var json = mapper.writeValueAsString(original);
 
     assertThat(json)
         .containsOnlyOnce("id")
@@ -137,7 +137,7 @@ public class EntityInfoTest {
 
   private static <T> List<T> listOf(int count, Class<T> type) {
     List<T> list = new ArrayList<>();
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       list.add(mock(type));
     }
     return list;

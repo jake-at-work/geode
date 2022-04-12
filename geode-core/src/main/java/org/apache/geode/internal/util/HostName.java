@@ -15,7 +15,6 @@
 package org.apache.geode.internal.util;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Scanner;
 
 import org.apache.geode.internal.lang.SystemUtils;
@@ -30,7 +29,7 @@ public class HostName {
   private static final String UNKNOWN = "unknown";
 
   public String determineHostName() {
-    String hostname = getHostNameFromEnv();
+    var hostname = getHostNameFromEnv();
     if (isEmpty(hostname)) {
       hostname = execHostName();
     }
@@ -41,9 +40,9 @@ public class HostName {
   String execHostName() {
     String hostname;
     try {
-      Process process = new ProcessBuilder(HOSTNAME).start();
-      try (InputStream stream = process.getInputStream();
-          Scanner s = new Scanner(stream).useDelimiter(START_OF_STRING)) {
+      var process = new ProcessBuilder(HOSTNAME).start();
+      try (var stream = process.getInputStream();
+          var s = new Scanner(stream).useDelimiter(START_OF_STRING)) {
         hostname = s.hasNext() ? s.next().trim() : UNKNOWN;
       }
     } catch (IOException hostnameBinaryNotFound) {

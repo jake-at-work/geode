@@ -71,9 +71,9 @@ public class AvailableConnectionManager {
    * @return the activated connection or null if none found
    */
   public Connection useFirst(Predicate<Connection> predicate) {
-    final EqualsWithPredicate equalsWithPredicate = new EqualsWithPredicate(predicate);
+    final var equalsWithPredicate = new EqualsWithPredicate(predicate);
     while (connections.removeFirstOccurrence(equalsWithPredicate)) {
-      Connection connection = equalsWithPredicate.getConnectionThatMatched();
+      var connection = equalsWithPredicate.getConnectionThatMatched();
       if (connection.activate()) {
         // Need to recheck the predicate after we have activated.
         // Until activated load conditioning can change the server
@@ -143,7 +143,7 @@ public class AvailableConnectionManager {
       if (!(o instanceof Connection)) {
         return false;
       }
-      Connection pooledConnection = (Connection) o;
+      var pooledConnection = (Connection) o;
       if (predicate.test(pooledConnection)) {
         connectionThatMatched = pooledConnection;
         return true;

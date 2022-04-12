@@ -34,12 +34,10 @@ import org.junit.runners.Parameterized;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.security.templates.SimpleAccessController;
 import org.apache.geode.security.templates.UserPasswordAuthInit;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.SecurityTest;
@@ -84,7 +82,7 @@ public class ClientAuthorizationLegacyConfigurationDUnitTest {
 
   @Test
   public void everythingFailsWithInvalidAuthenticator() throws Exception {
-    Properties clusterProps = getClusterProperties();
+    var clusterProps = getClusterProperties();
 
     locator = csRule.startLocatorVM(0, clusterProps);
     server = csRule.startServerVM(1, clusterProps, locator.getPort());
@@ -94,16 +92,16 @@ public class ClientAuthorizationLegacyConfigurationDUnitTest {
       region.put(initKey, initValue);
     });
 
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
-    ClientVM client = csRule.startClientVM(2, clientVersion, c -> c.withCredential("data", "data")
+    var client = csRule.startClientVM(2, clientVersion, c -> c.withCredential("data", "data")
         .withLocatorConnection(locatorPort));
 
     client.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       ClientRegionFactory<String, String> rf =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region<String, String> region = rf.create(regionName);
+      var region = rf.create(regionName);
 
       // Assert that everything is horrible
       assertThatThrownBy(() -> region.get(initKey))
@@ -127,7 +125,7 @@ public class ClientAuthorizationLegacyConfigurationDUnitTest {
 
   @Test
   public void everythingFailsWithInvalidAccessor() throws Exception {
-    Properties clusterProps = getClusterProperties();
+    var clusterProps = getClusterProperties();
 
     locator = csRule.startLocatorVM(0, clusterProps);
     server = csRule.startServerVM(1, clusterProps, locator.getPort());
@@ -137,12 +135,12 @@ public class ClientAuthorizationLegacyConfigurationDUnitTest {
       region.put(initKey, initValue);
     });
 
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
-    ClientVM client = csRule.startClientVM(2, clientVersion,
+    var client = csRule.startClientVM(2, clientVersion,
         c -> c.withCredential("data", "data").withLocatorConnection(locatorPort));
     client.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       Region region =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
 
@@ -167,7 +165,7 @@ public class ClientAuthorizationLegacyConfigurationDUnitTest {
   }
 
   private Properties getClusterProperties() {
-    Properties clusterProps = new Properties();
+    var clusterProps = new Properties();
     clusterProps.setProperty(SECURITY_CLIENT_AUTHENTICATOR,
         "org.apache.geode.no.such.authenticator.create");
     clusterProps.setProperty(SECURITY_CLIENT_ACCESSOR,

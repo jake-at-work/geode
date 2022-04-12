@@ -102,7 +102,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
     dataOut = new MyDataOutputStream(outStream);
 
     if (trace) {
-      String traceFileName = archiveDescriptor.getArchiveName() + ".trace";
+      var traceFileName = archiveDescriptor.getArchiveName() + ".trace";
       try {
         traceOutStream = new BufferedOutputStream(new FileOutputStream(traceFileName), 32768);
       } catch (IOException ex) {
@@ -199,9 +199,9 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
   }
 
   protected String getMachineInfo() {
-    String machineInfo = System.getProperty("os.arch");
+    var machineInfo = System.getProperty("os.arch");
     try {
-      String hostName = LocalHostUtil.getLocalHostName();
+      var hostName = LocalHostUtil.getLocalHostName();
       machineInfo += " " + hostName;
     } catch (UnknownHostException ignore) {
     }
@@ -220,7 +220,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
       dataOut.writeLong(initialDate);
       dataOut.writeLong(archiveDescriptor.getSystemId());
       dataOut.writeLong(archiveDescriptor.getSystemStartTime());
-      TimeZone timeZone = getTimeZone();
+      var timeZone = getTimeZone();
       dataOut.writeInt(timeZone.getRawOffset());
       dataOut.writeUTF(timeZone.getID());
       dataOut.writeUTF(archiveDescriptor.getSystemDirectoryPath());
@@ -275,7 +275,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
       dataOut.writeInt(resourceType.getId());
       dataOut.writeUTF(resourceType.getStatisticsType().getName());
       dataOut.writeUTF(resourceType.getStatisticsType().getDescription());
-      StatisticDescriptor[] stats = resourceType.getStatisticDescriptors();
+      var stats = resourceType.getStatisticDescriptors();
       dataOut.writeShort(stats.length);
       if (trace && (traceStatisticsTypeName == null
           || traceStatisticsTypeName.equals(resourceType.getStatisticsType().getName()))) {
@@ -291,7 +291,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
                 + resourceType.getStatisticsType().getDescription());
         traceDataOut.println("allocatedResourceType#writeShort stats.length: " + stats.length);
       }
-      for (final StatisticDescriptor stat : stats) {
+      for (final var stat : stats) {
         dataOut.writeUTF(stat.getName());
         dataOut.writeByte(((StatisticDescriptorImpl) stat).getTypeCode());
         dataOut.writeBoolean(stat.isCounter());
@@ -412,7 +412,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
   }
 
   static long calcDelta(long previousMillis, long currentMillis) {
-    long delta = currentMillis - previousMillis;
+    var delta = currentMillis - previousMillis;
     if (delta <= 0) {
       throw new IllegalArgumentException(
           "Sample timestamp must be greater than previous timestamp (millisTimeStamp is "
@@ -423,8 +423,8 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
   }
 
   private void writeTimeStamp(long nanosTimeStamp) throws IOException {
-    final long millisTimeStamp = NanoTimer.nanosToMillis(nanosTimeStamp);
-    final long delta = calcDelta(previousMillisTimeStamp, millisTimeStamp);
+    final var millisTimeStamp = NanoTimer.nanosToMillis(nanosTimeStamp);
+    final var delta = calcDelta(previousMillisTimeStamp, millisTimeStamp);
     if (logger.isTraceEnabled(LogMarker.STATISTICS_VERBOSE)) {
       logger.trace(LogMarker.STATISTICS_VERBOSE,
           "StatArchiveWriter#writeTimeStamp millisTimeStamp={}, delta={}", millisTimeStamp,
@@ -505,7 +505,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
         traceDataOut.println("sampled#writeByte SAMPLE_TOKEN: " + SAMPLE_TOKEN);
       }
       writeTimeStamp(nanosTimeStamp);
-      for (ResourceInstance ri : resourceInstances) {
+      for (var ri : resourceInstances) {
         ri.setStatValuesNotified(true);
         writeSample(ri);
       }
@@ -527,7 +527,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
   }
 
   private void writeSample(ResourceInstance ri) throws IOException {
-    final boolean isDebugEnabled_STATISTICS = logger.isTraceEnabled(LogMarker.STATISTICS_VERBOSE);
+    final var isDebugEnabled_STATISTICS = logger.isTraceEnabled(LogMarker.STATISTICS_VERBOSE);
     if (isDebugEnabled_STATISTICS) {
       logger.trace(LogMarker.STATISTICS_VERBOSE, "StatArchiveWriter#writeSample ri={}", ri);
     }
@@ -541,13 +541,13 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
     if (ri.getStatistics().isClosed()) {
       return;
     }
-    StatisticDescriptor[] stats = ri.getResourceType().getStatisticDescriptors();
+    var stats = ri.getResourceType().getStatisticDescriptors();
     if (stats.length > 254) {
       throw new Error("StatisticsType " + ri.getResourceType().getStatisticsType().getName()
           + " has too many stats: " + stats.length);
     }
-    boolean wroteInstId = false;
-    boolean checkForChange = true;
+    var wroteInstId = false;
+    var checkForChange = true;
 
     if (!sampleWrittenForResources.contains(ri)) {
       // first time for this instance so all values need to be written
@@ -555,7 +555,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
       sampleWrittenForResources.add(ri);
     }
 
-    long[] previousStatValues = ri.getPreviousStatValues();
+    var previousStatValues = ri.getPreviousStatValues();
     if (isDebugEnabled_STATISTICS) {
       logger.trace(LogMarker.STATISTICS_VERBOSE,
           "StatArchiveWriter#writeSample checkForChange={}, previousStatValues={}, stats.length={}",
@@ -566,12 +566,12 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
       ri.setPreviousStatValues(previousStatValues);
     }
 
-    int statsWritten = 0;
+    var statsWritten = 0;
     try {
-      for (int i = 0; i < stats.length; i++) {
-        long value = ri.getLatestStatValues()[i];
+      for (var i = 0; i < stats.length; i++) {
+        var value = ri.getLatestStatValues()[i];
         if (!checkForChange || value != previousStatValues[i]) {
-          long delta = checkForChange ? value - previousStatValues[i] : value;
+          var delta = checkForChange ? value - previousStatValues[i] : value;
           if (!wroteInstId) {
             wroteInstId = true;
             writeResourceInst(ri.getId());
@@ -594,7 +594,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
                   || traceStatisticsName.equals(ri.getStatistics().getTextId()))
               && (traceStatisticsTypeName == null || traceStatisticsTypeName
                   .equals(ri.getResourceType().getStatisticsType().getName()))) {
-            byte typeCode = ((StatisticDescriptorImpl) stats[i]).getTypeCode();
+            var typeCode = ((StatisticDescriptorImpl) stats[i]).getTypeCode();
             switch (typeCode) {
               case BYTE_CODE:
                 traceDataOut.println(
@@ -644,9 +644,9 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
       dataOut.writeByte(COMPACT_VALUE_2_TOKEN);
       dataOut.writeShort((int) v);
     } else {
-      byte[] buffer = new byte[8];
-      int idx = 0;
-      long originalValue = v;
+      var buffer = new byte[8];
+      var idx = 0;
+      var originalValue = v;
       if (v < 0) {
         while (v != -1 && v != 0) {
           buffer[idx++] = (byte) (v & 0xFF);
@@ -686,9 +686,9 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
 
                 idx, originalValue));
       }
-      int token = COMPACT_VALUE_2_TOKEN + (idx - 2);
+      var token = COMPACT_VALUE_2_TOKEN + (idx - 2);
       dataOut.writeByte(token);
-      for (int i = idx - 1; i >= 0; i--) {
+      for (var i = idx - 1; i >= 0; i--) {
         dataOut.writeByte(buffer[i]);
       }
     }
@@ -696,7 +696,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
 
   public static long readCompactValue(DataInput dataIn) throws IOException {
     long v = dataIn.readByte();
-    boolean dump = false;
+    var dump = false;
     if (dump) {
       System.out.print("compactValue(byte1)=" + v);
     }
@@ -707,7 +707,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
           System.out.print("compactValue(short)=" + v);
         }
       } else {
-        int bytesToRead = ((byte) v - COMPACT_VALUE_2_TOKEN) + 2;
+        var bytesToRead = ((byte) v - COMPACT_VALUE_2_TOKEN) + 2;
         v = dataIn.readByte(); // note the first byte will be a signed byte.
         if (dump) {
           System.out.print("compactValue(" + bytesToRead + ")=" + v);
@@ -725,7 +725,7 @@ public class StatArchiveWriter implements StatArchiveFormat, SampleHandler {
 
   protected static void writeStatValue(StatisticDescriptor f, long v, DataOutput dataOut)
       throws IOException {
-    byte typeCode = ((StatisticDescriptorImpl) f).getTypeCode();
+    var typeCode = ((StatisticDescriptorImpl) f).getTypeCode();
     writeStatValue(typeCode, v, dataOut);
   }
 

@@ -95,7 +95,7 @@ class ReferenceCountHelperImpl {
   void setReferenceCountOwner(Object owner) {
     if (trackReferenceCounts()) {
       if (refCountOwner.get() != null) {
-        AtomicInteger reenterCount = refCountReenterCount.get();
+        var reenterCount = refCountReenterCount.get();
         if (owner != null) {
           reenterCount.incrementAndGet();
         } else {
@@ -105,7 +105,7 @@ class ReferenceCountHelperImpl {
           }
         }
       } else {
-        AtomicInteger reenterCount = refCountReenterCount.get();
+        var reenterCount = refCountReenterCount.get();
         if (reenterCount == null) {
           reenterCount = new AtomicInteger(0);
           refCountReenterCount.set(reenterCount);
@@ -167,7 +167,7 @@ class ReferenceCountHelperImpl {
       return null;
     }
 
-    List<RefCountChangeInfo> result = stacktraces.get(address);
+    var result = stacktraces.get(address);
 
     getReferenceCountInfoTestHook(stacktraces, address);
 
@@ -196,18 +196,18 @@ class ReferenceCountHelperImpl {
       return;
     }
 
-    final Object owner = refCountOwner.get();
+    final var owner = refCountOwner.get();
     if (owner == SKIP_REF_COUNT_TRACKING) {
       return;
     }
 
-    List<RefCountChangeInfo> list = stacktraces.get(address);
+    var list = stacktraces.get(address);
 
     if (list == null) {
       refCountChangedTestHook(address, decRefCount, rc);
 
       List<RefCountChangeInfo> newList = new ArrayList<>();
-      List<RefCountChangeInfo> old = stacktraces.putIfAbsent(address, newList);
+      var old = stacktraces.putIfAbsent(address, newList);
       if (old == null) {
         list = newList;
       } else {
@@ -218,8 +218,8 @@ class ReferenceCountHelperImpl {
     if (decRefCount) {
       if (owner != null) {
         synchronized (list) {
-          for (int i = 0; i < list.size(); i++) {
-            RefCountChangeInfo info = list.get(i);
+          for (var i = 0; i < list.size(); i++) {
+            var info = list.get(i);
             if (owner instanceof RegionEntry) {
               if (owner == info.getOwner()) {
                 if (info.getUseCount() > 0) {
@@ -243,16 +243,16 @@ class ReferenceCountHelperImpl {
     }
 
     if (list == LOCKED) {
-      String message = "refCount " + (decRefCount ? "deced" : "inced")
+      var message = "refCount " + (decRefCount ? "deced" : "inced")
           + " after orphan detected for @" + Long.toHexString(address);
       debugLogger.accept(message, true);
       return;
     }
 
-    RefCountChangeInfo refCountChangeInfo = new RefCountChangeInfo(decRefCount, rc, owner);
+    var refCountChangeInfo = new RefCountChangeInfo(decRefCount, rc, owner);
 
     synchronized (list) {
-      for (RefCountChangeInfo otherRefCountChangeInfo : list) {
+      for (var otherRefCountChangeInfo : list) {
         if (otherRefCountChangeInfo.isSameCaller(refCountChangeInfo)) {
           // No need to add it just increment useCount
           otherRefCountChangeInfo.incUseCount();
@@ -272,7 +272,7 @@ class ReferenceCountHelperImpl {
       return;
     }
 
-    List<RefCountChangeInfo> freedInfo = stacktraces.remove(address);
+    var freedInfo = stacktraces.remove(address);
 
     if (freedInfo == LOCKED) {
       debugLogger.accept("freed after orphan detected for @" + Long.toHexString(address), true);

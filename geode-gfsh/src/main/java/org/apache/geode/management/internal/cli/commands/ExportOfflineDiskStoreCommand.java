@@ -41,12 +41,12 @@ public class ExportOfflineDiskStoreCommand extends GfshCommand {
           help = CliStrings.EXPORT_OFFLINE_DISK_STORE__DIR__HELP) String dir) {
 
     try {
-      final File[] dirs = new File[diskDirs.length];
-      for (int i = 0; i < diskDirs.length; i++) {
+      final var dirs = new File[diskDirs.length];
+      for (var i = 0; i < diskDirs.length; i++) {
         dirs[i] = new File((diskDirs[i]));
       }
 
-      File output = new File(dir);
+      var output = new File(dir);
 
       // Note, this can consume a lot of memory, so this should
       // not be moved to a separate process unless we provide a way for the user

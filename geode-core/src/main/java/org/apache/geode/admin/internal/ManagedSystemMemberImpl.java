@@ -17,7 +17,6 @@ package org.apache.geode.admin.internal;
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 
 import org.apache.geode.admin.AdminException;
-import org.apache.geode.admin.ConfigurationParameter;
 import org.apache.geode.admin.ManagedEntityConfig;
 import org.apache.geode.internal.admin.GemFireVM;
 
@@ -97,7 +96,7 @@ public abstract class ManagedSystemMemberImpl extends SystemMemberImpl
   public int setState(int state) {
 
     synchronized (stateChange) {
-      int oldState = this.state;
+      var oldState = this.state;
       this.state = state;
 
       stateChange.notifyAll();
@@ -166,7 +165,7 @@ public abstract class ManagedSystemMemberImpl extends SystemMemberImpl
       throw new InterruptedException();
     }
 
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     while (System.currentTimeMillis() - start < timeout) {
       synchronized (stateChange) {
         if (state == RUNNING) {
@@ -192,7 +191,7 @@ public abstract class ManagedSystemMemberImpl extends SystemMemberImpl
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     while (System.currentTimeMillis() - start < timeout) {
       synchronized (stateChange) {
         if (state == STOPPED) {
@@ -214,26 +213,26 @@ public abstract class ManagedSystemMemberImpl extends SystemMemberImpl
    * Handles certain configuration parameters specially.
    */
   protected void appendConfiguration(StringBuilder sb) {
-    ConfigurationParameter[] params = getConfiguration();
-    for (ConfigurationParameter param : params) {
+    var params = getConfiguration();
+    for (var param : params) {
       if (!param.isModifiable()) {
         continue;
       }
 
-      String name = param.getName();
-      String value = param.getValueAsString();
+      var name = param.getName();
+      var value = param.getValueAsString();
 
       if (value != null && !value.equals("")) {
         if (name.equals(LOCATORS)) {
           // Use the new locator syntax so that is plays nicely with
           // rsh. See bug 32306.
-          String locator = value;
-          int firstBracket = locator.indexOf('[');
-          int lastBracket = locator.indexOf(']');
+          var locator = value;
+          var firstBracket = locator.indexOf('[');
+          var lastBracket = locator.indexOf(']');
 
           if (firstBracket > -1 && lastBracket > -1) {
-            String host = locator.substring(0, firstBracket);
-            String port = locator.substring(firstBracket + 1, lastBracket);
+            var host = locator.substring(0, firstBracket);
+            var port = locator.substring(firstBracket + 1, lastBracket);
             locator = host + ":" + port;
           }
 

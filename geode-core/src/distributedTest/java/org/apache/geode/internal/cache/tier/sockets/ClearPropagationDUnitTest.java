@@ -36,15 +36,12 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.ServerRegionProxy;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.DistributedSystem;
@@ -96,7 +93,7 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     // Server1 VM
     server1 = host.getVM(0);
 
@@ -137,7 +134,7 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testVerifyClearNotReceivedBySenderReceivedByOthers() {
-    CacheSerializableRunnable resetFlags = new CacheSerializableRunnable("resetFlags") {
+    var resetFlags = new CacheSerializableRunnable("resetFlags") {
       @Override
       public void run2() throws CacheException {
         gotClear = false;
@@ -182,7 +179,7 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testEventIdGeneratedInDestroyRegionOperation() throws Exception {
-    CacheSerializableRunnable resetFlags = new CacheSerializableRunnable("resetFlags") {
+    var resetFlags = new CacheSerializableRunnable("resetFlags") {
       @Override
       public void run2() throws CacheException {
         gotClear = false;
@@ -218,7 +215,7 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
 
 
   private CacheSerializableRunnable checkDestroyRegion(final boolean toBlock) {
-    CacheSerializableRunnable checkRegion = new CacheSerializableRunnable("checkDestroyRegion") {
+    var checkRegion = new CacheSerializableRunnable("checkDestroyRegion") {
       @Override
       public void run2() throws CacheException {
         if (toBlock) {
@@ -245,7 +242,7 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
 
   private CacheSerializableRunnable checkSizeRegion(final int size, final boolean toBlock) {
 
-    CacheSerializableRunnable clearRegion = new CacheSerializableRunnable("checkSize") {
+    var clearRegion = new CacheSerializableRunnable("checkSize") {
 
       @Override
       public void run2() throws CacheException {
@@ -276,14 +273,14 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
     try {
       Region r1 = cache.getRegion(SEPARATOR + REGION_NAME);
       assertNotNull(r1);
-      String poolName = r1.getAttributes().getPoolName();
+      var poolName = r1.getAttributes().getPoolName();
       assertNotNull(poolName);
-      PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+      var pool = (PoolImpl) PoolManager.find(poolName);
       assertNotNull(pool);
-      Connection conn1 = pool.acquireConnection(new ServerLocation(host, PORT2));
+      var conn1 = pool.acquireConnection(new ServerLocation(host, PORT2));
       assertNotNull(conn1);
       assertEquals(PORT2, conn1.getServer().getPort());
-      ServerRegionProxy srp = new ServerRegionProxy(SEPARATOR + REGION_NAME, pool);
+      var srp = new ServerRegionProxy(SEPARATOR + REGION_NAME, pool);
       srp.clearOnForTestsOnly(conn1, new EventID(new byte[] {1}, 1, 1), null);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -296,14 +293,14 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
     try {
       Region r1 = cache.getRegion(SEPARATOR + REGION_NAME);
       assertNotNull(r1);
-      String poolName = r1.getAttributes().getPoolName();
+      var poolName = r1.getAttributes().getPoolName();
       assertNotNull(poolName);
-      PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+      var pool = (PoolImpl) PoolManager.find(poolName);
       assertNotNull(pool);
-      Connection conn1 = pool.acquireConnection(new ServerLocation(host, PORT2));
+      var conn1 = pool.acquireConnection(new ServerLocation(host, PORT2));
       assertNotNull(conn1);
       assertEquals(PORT2, conn1.getServer().getPort());
-      ServerRegionProxy srp = new ServerRegionProxy(SEPARATOR + REGION_NAME, pool);
+      var srp = new ServerRegionProxy(SEPARATOR + REGION_NAME, pool);
       srp.destroyRegionOnForTestsOnly(conn1, new EventID(new byte[] {1}, 1, 1), null);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -336,7 +333,7 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
   public static void createClientCache(String host, Integer port1, Integer port2) throws Exception {
     PORT1 = port1;
     PORT2 = port2;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new ClearPropagationDUnitTest().createCache(props);
@@ -352,7 +349,7 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
     } finally {
       CacheServerTestUtil.enableShufflingOfEndpoints();
     }
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
     factory.setCacheListener(new CacheListenerAdapter() {
@@ -373,20 +370,20 @@ public class ClearPropagationDUnitTest extends JUnit4DistributedTestCase {
         }
       }
     });
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
   }
 
   public static Integer createServerCache() throws Exception {
     new ClearPropagationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();

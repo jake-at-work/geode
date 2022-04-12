@@ -30,7 +30,6 @@ import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 
 public class RollingUpgradeConcurrentPutsReplicated extends RollingUpgrade2DUnitTestBase {
 
@@ -41,19 +40,19 @@ public class RollingUpgradeConcurrentPutsReplicated extends RollingUpgrade2DUnit
    */
   @Test
   public void testConcurrentPutsReplicated() {
-    Host host = Host.getHost(0);
-    VM locator = host.getVM(oldVersion, 1);
-    VM server1 = host.getVM(oldVersion, 2);
-    VM server2 = host.getVM(oldVersion, 3);
+    var host = Host.getHost(0);
+    var locator = host.getVM(oldVersion, 1);
+    var server1 = host.getVM(oldVersion, 2);
+    var server2 = host.getVM(oldVersion, 3);
 
-    final String objectType = "strings";
-    final String regionName = "aRegion";
+    final var objectType = "strings";
+    final var regionName = "aRegion";
 
-    RegionShortcut shortcut = RegionShortcut.REPLICATE;
+    var shortcut = RegionShortcut.REPLICATE;
 
-    int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
-    String hostName = NetworkUtils.getServerHostName();
-    String locatorString = getLocatorString(locatorPorts);
+    var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    var hostName = NetworkUtils.getServerHostName();
+    var locatorString = getLocatorString(locatorPorts);
 
     Invoke.invokeInEveryVM(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
@@ -80,7 +79,7 @@ public class RollingUpgradeConcurrentPutsReplicated extends RollingUpgrade2DUnit
             @Override
             public void run2() {
               try {
-                for (int i = 0; i < 500; i++) {
+                for (var i = 0; i < 500; i++) {
                   put(RollingUpgrade2DUnitTestBase.cache, regionName, "" + i, "VALUE(" + i + ")");
                 }
               } catch (Exception e) {
@@ -103,7 +102,7 @@ public class RollingUpgradeConcurrentPutsReplicated extends RollingUpgrade2DUnit
             @Override
             public void run2() {
               try {
-                for (int i = 250; i < 750; i++) {
+                for (var i = 250; i < 750; i++) {
                   put(RollingUpgrade2DUnitTestBase.cache, regionName, "" + i, "VALUE(" + i + ")");
                 }
               } catch (Exception e) {

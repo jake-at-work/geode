@@ -83,7 +83,7 @@ public class UserFunctionExecutionTest {
 
     when(userFunction.getId()).thenReturn("TestFunction");
 
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     DistributedSystem distributedSystem = mock(InternalDistributedSystem.class);
     DistributedMember distributedMember = mock(InternalDistributedMember.class);
     when(distributedMember.getId()).thenReturn("MockMemberId");
@@ -151,7 +151,7 @@ public class UserFunctionExecutionTest {
 
   @Test
   public void loginRequiredShouldReturnTrueWhenSubjectIsNotAuthenticated() {
-    Subject subject = mock(Subject.class);
+    var subject = mock(Subject.class);
     when(subject.isAuthenticated()).thenReturn(false);
     when(securityService.getSubject()).thenReturn(subject);
     when(function.loginRequired(securityService)).thenCallRealMethod();
@@ -170,7 +170,7 @@ public class UserFunctionExecutionTest {
 
   @Test
   public void loginRequiredShouldReturnFalseWhenSubjectIsAuthenticated() {
-    Subject subject = mock(Subject.class);
+    var subject = mock(Subject.class);
     when(subject.isAuthenticated()).thenReturn(true);
     when(securityService.getSubject()).thenReturn(subject);
     when(function.loginRequired(securityService)).thenCallRealMethod();
@@ -185,7 +185,7 @@ public class UserFunctionExecutionTest {
     function.execute(context);
 
     verify(resultSender, times(1)).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getStatusMessage()).isEqualTo("Could not retrieve arguments");
   }
@@ -197,7 +197,7 @@ public class UserFunctionExecutionTest {
     function.execute(context);
 
     verify(resultSender, times(1)).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getStatusMessage())
         .isEqualTo("Function : TestFunction is not registered on member.");
@@ -245,7 +245,7 @@ public class UserFunctionExecutionTest {
     function.execute(context);
 
     verify(resultSender, times(1)).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getStatusMessage()).isEqualTo(SEPARATOR + "TestRegion does not exist");
   }
@@ -257,7 +257,7 @@ public class UserFunctionExecutionTest {
     function.execute(context);
 
     verify(resultSender, times(1)).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getStatusMessage()).isEqualTo(
         "While executing function : TestFunction on member : MockMemberId one region : " + SEPARATOR
@@ -279,7 +279,7 @@ public class UserFunctionExecutionTest {
     verify(execution, times(1)).withCollector(resultCollector);
     verify(execution, times(1)).setArguments(new String[] {"arg1", "arg2"});
     verify(resultSender, times(1)).lastResult(resultCaptor.capture());
-    CliFunctionResult resultFullArguments = resultCaptor.getValue();
+    var resultFullArguments = resultCaptor.getValue();
     assertThat(resultFullArguments.isSuccessful()).isTrue();
 
     reset(resultSender);
@@ -291,7 +291,7 @@ public class UserFunctionExecutionTest {
     verify(execution, never()).setArguments(any());
     verify(execution, never()).withCollector(any());
     verify(resultSender, times(1)).lastResult(resultCaptor.capture());
-    CliFunctionResult resultNoArguments = resultCaptor.getValue();
+    var resultNoArguments = resultCaptor.getValue();
     assertThat(resultNoArguments.isSuccessful()).isTrue();
   }
 
@@ -303,7 +303,7 @@ public class UserFunctionExecutionTest {
 
     function.execute(context);
     verify(resultSender, times(1)).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusMessage()).isEqualTo("[result1, result2]");
     verify(securityService, times(1)).login(any());
@@ -317,7 +317,7 @@ public class UserFunctionExecutionTest {
 
     function.execute(context);
     verify(resultSender, times(1)).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusMessage()).isEqualTo("[]");
     verify(securityService, times(1)).login(any());

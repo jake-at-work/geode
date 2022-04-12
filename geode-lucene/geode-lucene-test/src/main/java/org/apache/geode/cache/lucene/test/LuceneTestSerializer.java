@@ -49,7 +49,7 @@ public class LuceneTestSerializer implements LuceneSerializer {
       return false;
     }
 
-    LuceneTestSerializer that = (LuceneTestSerializer) o;
+    var that = (LuceneTestSerializer) o;
 
     return props.equals(that.props);
   }

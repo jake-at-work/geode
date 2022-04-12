@@ -60,7 +60,7 @@ public class FederatingManagerConcurrencyIntegrationTest {
         .set(LOCATORS, "")
         .create();
 
-    SystemManagementService managementService =
+    var managementService =
         (SystemManagementService) ManagementService.getExistingManagementService(cache);
     managementService.createManager();
     federatingManager = managementService.getFederatingManager();
@@ -74,9 +74,9 @@ public class FederatingManagerConcurrencyIntegrationTest {
 
   @Test
   public void testFederatingManagerConcurrency() throws UnknownHostException {
-    InternalDistributedMember member = member();
+    var member = member();
 
-    for (int i = 1; i <= 100; i++) {
+    for (var i = 1; i <= 100; i++) {
       federatingManager.addMember(member);
     }
 
@@ -86,7 +86,7 @@ public class FederatingManagerConcurrencyIntegrationTest {
   }
 
   private InternalDistributedMember member() throws UnknownHostException {
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var member = mock(InternalDistributedMember.class);
     when(member.getInetAddress()).thenReturn(getLocalHost());
     when(member.getId()).thenReturn("member-1");
     return member;

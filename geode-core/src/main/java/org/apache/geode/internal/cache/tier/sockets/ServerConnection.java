@@ -156,7 +156,7 @@ public class ServerConnection implements Runnable {
       // So the commBuffer should be heap based.
       return ByteBuffer.allocate(size);
     }
-    LinkedBlockingQueue<ByteBuffer> q = commBufferMap.get(size);
+    var q = commBufferMap.get(size);
     ByteBuffer result = null;
     if (q != null) {
       result = q.poll();
@@ -172,10 +172,10 @@ public class ServerConnection implements Runnable {
 
   public static void releaseCommBuffer(ByteBuffer bb) {
     if (bb != null && bb.isDirect()) {
-      LinkedBlockingQueue<ByteBuffer> q = commBufferMap.get(bb.capacity());
+      var q = commBufferMap.get(bb.capacity());
       if (q == null) {
         q = new LinkedBlockingQueue<>();
-        LinkedBlockingQueue<ByteBuffer> oldQ = commBufferMap.putIfAbsent(bb.capacity(), q);
+        var oldQ = commBufferMap.putIfAbsent(bb.capacity(), q);
         if (oldQ != null) {
           q = oldQ;
         }
@@ -185,7 +185,7 @@ public class ServerConnection implements Runnable {
   }
 
   public static void emptyCommBufferPool() {
-    for (LinkedBlockingQueue<ByteBuffer> q : commBufferMap.values()) {
+    for (var q : commBufferMap.values()) {
       q.clear();
     }
   }
@@ -291,7 +291,7 @@ public class ServerConnection implements Runnable {
       final int hsTimeout, final int socketBufferSize, final String communicationModeStr,
       final byte communicationMode, final Acceptor acceptor,
       final SecurityService securityService) {
-    StringBuilder buffer = new StringBuilder(100);
+    var buffer = new StringBuilder(100);
     if (acceptor.isGatewayReceiver()) {
       buffer.append("GatewayReceiver connection from [");
     } else {
@@ -314,7 +314,7 @@ public class ServerConnection implements Runnable {
 
     this.securityService = securityService;
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     try {
       theSocket = socket;
       theSocket.setSendBufferSize(socketBufferSize);
@@ -445,8 +445,8 @@ public class ServerConnection implements Runnable {
 
   private void handleHandshakeAuthenticationException(Exception ex) {
     if (ex instanceof AuthenticationRequiredException) {
-      AuthenticationRequiredException noauth = (AuthenticationRequiredException) ex;
-      String exStr = noauth.getLocalizedMessage();
+      var noauth = (AuthenticationRequiredException) ex;
+      var exStr = noauth.getLocalizedMessage();
       if (noauth.getCause() != null) {
         exStr += " : " + noauth.getCause().getLocalizedMessage();
       }
@@ -457,8 +457,8 @@ public class ServerConnection implements Runnable {
       refuseHandshake(noauth.getMessage(), Handshake.REPLY_EXCEPTION_AUTHENTICATION_REQUIRED);
       failConnectionAttempt();
     } else if (ex instanceof AuthenticationFailedException) {
-      AuthenticationFailedException failed = (AuthenticationFailedException) ex;
-      String exStr = failed.getLocalizedMessage();
+      var failed = (AuthenticationFailedException) ex;
+      var exStr = failed.getLocalizedMessage();
       if (failed.getCause() != null) {
         exStr += " : " + failed.getCause().getLocalizedMessage();
       }
@@ -503,7 +503,7 @@ public class ServerConnection implements Runnable {
 
   public void setHandshake(ServerSideHandshake handshake) {
     this.handshake = handshake;
-    KnownVersion v = handshake.getVersion();
+    var v = handshake.getVersion();
 
     replyMessage.setVersion(v);
     requestMessage.setVersion(v);
@@ -537,7 +537,7 @@ public class ServerConnection implements Runnable {
 
   private long setUserAuthorizeAndPostAuthorizeRequest(AuthorizeRequest authzRequest,
       AuthorizeRequestPP postAuthzRequest) {
-    UserAuthAttributes userAuthAttr = new UserAuthAttributes(authzRequest, postAuthzRequest);
+    var userAuthAttr = new UserAuthAttributes(authzRequest, postAuthzRequest);
     synchronized (clientUserAuthsLock) {
       if (clientUserAuths == null) {
         initializeClientUserAuths();
@@ -570,22 +570,22 @@ public class ServerConnection implements Runnable {
   }
 
   boolean processHandShake() {
-    boolean result = false;
-    boolean clientJoined = false;
+    var result = false;
+    var clientJoined = false;
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     try {
       synchronized (getCleanupTable()) {
-        MutableInt numRefs = getCleanupTable().get(handshake);
-        byte endpointType = (byte) 0;
-        int queueSize = 0;
+        var numRefs = getCleanupTable().get(handshake);
+        var endpointType = (byte) 0;
+        var queueSize = 0;
 
         if (proxyId.isDurable()) {
           if (isDebugEnabled) {
             logger.debug("looking if the Proxy existed for this durable client or not :{}",
                 proxyId);
           }
-          CacheClientProxy proxy =
+          var proxy =
               getAcceptor().getCacheClientNotifier().getClientProxy(proxyId);
           if (proxy != null && proxy.waitRemoval()) {
             proxy = getAcceptor().getCacheClientNotifier().getClientProxy(proxyId);
@@ -608,7 +608,7 @@ public class ServerConnection implements Runnable {
             // the same id is not allowed. In this case, reject the client.
             if (proxy != null && !proxy.isPaused()) {
               // The handshake refusal message must be smaller than 127 bytes.
-              String handshakeRefusalMessage =
+              var handshakeRefusalMessage =
                   String.format("Duplicate durable clientId (%s)", proxyId.getDurableId());
               logger.warn("{} : {}", name, handshakeRefusalMessage);
               refuseHandshake(handshakeRefusalMessage,
@@ -638,9 +638,9 @@ public class ServerConnection implements Runnable {
       if (isTerminated() || !result) {
         return false;
       }
-      boolean registerClient = false;
+      var registerClient = false;
       synchronized (getCleanupProxyIdTable()) {
-        MutableInt numRefs = getCleanupProxyIdTable().get(proxyId);
+        var numRefs = getCleanupProxyIdTable().get(proxyId);
         if (numRefs != null) {
           numRefs.increment();
         } else {
@@ -658,7 +658,7 @@ public class ServerConnection implements Runnable {
         InternalClientMembership.notifyClientJoined(proxyId.getDistributedMember());
       }
 
-      ClientHealthMonitor chm = acceptor.getClientHealthMonitor();
+      var chm = acceptor.getClientHealthMonitor();
       synchronized (chmLock) {
         chmRegistered = true;
       }
@@ -718,20 +718,20 @@ public class ServerConnection implements Runnable {
   }
 
   public void setCq(String cqName, boolean isDurable) throws Exception {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (requestMessage.isSecureMode()) {
       if (isDebugEnabled) {
         logger.debug("setCq() security header found registering CQname = {}", cqName);
       }
       try {
-        byte[] secureBytes = requestMessage.getSecureBytes();
+        var secureBytes = requestMessage.getSecureBytes();
 
         secureBytes = handshake.getEncryptor().decryptBytes(secureBytes);
-        AuthIds aIds = new AuthIds(secureBytes);
+        var aIds = new AuthIds(secureBytes);
 
-        long uniqueId = aIds.getUniqueId();
+        var uniqueId = aIds.getUniqueId();
 
-        CacheClientProxy proxy =
+        var proxy =
             getAcceptor().getCacheClientNotifier().getClientProxy(proxyId);
 
         if (proxy != null) {
@@ -751,7 +751,7 @@ public class ServerConnection implements Runnable {
   }
 
   public void removeCq(String cqName, boolean isDurable) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (requestMessage.isSecureMode()) {
       if (isDebugEnabled) {
         logger.debug("removeCq() security header found registering CQname = {}", cqName);
@@ -815,7 +815,7 @@ public class ServerConnection implements Runnable {
       return;
     }
 
-    Message message = getMessage();
+    var message = getMessage();
     if (!serverConnectionCollection.incrementConnectionsProcessing()) {
       // Client is being disconnected, don't try to process message.
       processMessages = false;
@@ -869,7 +869,7 @@ public class ServerConnection implements Runnable {
           // so let's call receivedPing to let the CHM know client is busy
           acceptor.getClientHealthMonitor().receivedPing(proxyId);
         }
-        Command command = getCommand(message.getMessageType());
+        var command = getCommand(message.getMessageType());
         if (command == null) {
           command = Default.getCommand();
         }
@@ -909,14 +909,14 @@ public class ServerConnection implements Runnable {
       return null;
     }
 
-    long uniqueId = getUniqueId();
-    String messageType = MessageType.getString(requestMessage.getMessageType());
+    var uniqueId = getUniqueId();
+    var messageType = MessageType.getString(requestMessage.getMessageType());
     if (uniqueId == 0 || uniqueId == -1) {
       logger.debug("No unique ID yet. {}, {}", messageType, getName());
       return null;
     }
 
-    Subject subject = clientUserAuths.getSubject(uniqueId);
+    var subject = clientUserAuths.getSubject(uniqueId);
     if (subject == null) {
       secureLogger.warn(
           "Failed to bind the subject of uniqueId {} for message {} with {} : Possible re-authentication required",
@@ -924,7 +924,7 @@ public class ServerConnection implements Runnable {
       throw new AuthenticationRequiredException("Failed to find the authenticated user.");
     }
 
-    ThreadState threadState = securityService.bindSubject(subject);
+    var threadState = securityService.bindSubject(subject);
     secureLogger.debug("Bound {} with uniqueId {} for message {} with {}", subject.getPrincipal(),
         uniqueId, messageType, getName());
 
@@ -985,13 +985,13 @@ public class ServerConnection implements Runnable {
     }
 
     setNotProcessingMessage();
-    boolean clientDeparted = false;
-    boolean cleanupStats = false;
+    var clientDeparted = false;
+    var cleanupStats = false;
     synchronized (getCleanupTable()) {
       if (incedCleanupTableRef) {
         incedCleanupTableRef = false;
         cleanupStats = true;
-        MutableInt numRefs = getCleanupTable().get(handshake);
+        var numRefs = getCleanupTable().get(handshake);
         if (numRefs != null) {
           numRefs.decrement();
           if (numRefs.intValue() <= 0) {
@@ -1008,11 +1008,11 @@ public class ServerConnection implements Runnable {
       }
     }
 
-    boolean unregisterClient = false;
+    var unregisterClient = false;
     synchronized (getCleanupProxyIdTable()) {
       if (incedCleanupProxyIdTableRef) {
         incedCleanupProxyIdTableRef = false;
-        MutableInt numRefs = getCleanupProxyIdTable().get(proxyId);
+        var numRefs = getCleanupProxyIdTable().get(proxyId);
         if (numRefs != null) {
           numRefs.decrement();
           if (numRefs.intValue() <= 0) {
@@ -1038,7 +1038,7 @@ public class ServerConnection implements Runnable {
       }
     }
 
-    boolean needsUnregister = false;
+    var needsUnregister = false;
     synchronized (chmLock) {
       if (chmRegistered) {
         needsUnregister = true;
@@ -1080,11 +1080,12 @@ public class ServerConnection implements Runnable {
   }
 
   static ClientUserAuths getClientUserAuths(ClientProxyMembershipID proxyId) {
-    int proxyIdHashCode = proxyId.hashCode();
-    Consumer<Random> initializer = r -> r.setSeed(proxyIdHashCode + System.currentTimeMillis());
+    var proxyIdHashCode = proxyId.hashCode();
+    var initializer =
+        (Consumer<Random>) r -> r.setSeed(proxyIdHashCode + System.currentTimeMillis());
     SubjectIdGenerator idGenerator = new RandomSubjectIdGenerator(new Random(), initializer);
-    ClientUserAuths clientUserAuths = new ClientUserAuths(idGenerator);
-    ClientUserAuths returnedClientUserAuths =
+    var clientUserAuths = new ClientUserAuths(idGenerator);
+    var returnedClientUserAuths =
         proxyIdVsClientUserAuths.putIfAbsent(proxyId, clientUserAuths);
 
     if (returnedClientUserAuths == null) {
@@ -1096,7 +1097,7 @@ public class ServerConnection implements Runnable {
   void initializeCommands() {
     // The commands are cached here, but are just referencing the ones stored in the
     // CommandInitializer
-    KnownVersion clientVersion = getClientVersion();
+    var clientVersion = getClientVersion();
     // WAN uses KnownVersion.CURRENT, but that might not have a command table, so we look
     // for one that does
     if (!clientVersion.hasClientServerProtocolChange()) {
@@ -1111,14 +1112,14 @@ public class ServerConnection implements Runnable {
 
   public void removeUserAuth(Message message, boolean keepAlive) {
     try {
-      byte[] secureBytes = message.getSecureBytes();
+      var secureBytes = message.getSecureBytes();
 
       secureBytes = handshake.getEncryptor().decryptBytes(secureBytes);
 
       // need to decrypt it first then get connectionid
-      AuthIds aIds = new AuthIds(secureBytes);
+      var aIds = new AuthIds(secureBytes);
 
-      long connId = aIds.getConnectionId();
+      var connId = aIds.getConnectionId();
 
       if (connId != connectionId) {
         throw new AuthenticationFailedException("Authentication failed");
@@ -1180,33 +1181,33 @@ public class ServerConnection implements Runnable {
 
   @VisibleForTesting
   long getUniqueId(Message message, long existingUniqueId) throws Exception {
-    byte[] secureBytes = message.getSecureBytes();
+    var secureBytes = message.getSecureBytes();
     secureBytes = handshake.getEncryptor().decryptBytes(secureBytes);
 
     // need to decrypt it first then get connectionid
-    AuthIds aIds = new AuthIds(secureBytes);
+    var aIds = new AuthIds(secureBytes);
 
-    long connId = aIds.getConnectionId();
+    var connId = aIds.getConnectionId();
 
     if (connId != connectionId) {
       throw new AuthenticationFailedException("Authentication failed");
     }
 
-    byte[] credBytes = message.getPart(0).getSerializedForm();
+    var credBytes = message.getPart(0).getSerializedForm();
     credBytes = handshake.getEncryptor().decryptBytes(credBytes);
 
     Properties credentials;
-    try (ByteArrayDataInput dinp = new ByteArrayDataInput(credBytes)) {
+    try (var dinp = new ByteArrayDataInput(credBytes)) {
       credentials = DataSerializer.readProperties(dinp);
     }
 
     // When here, security is enforced on server, if login returns a subject, then it's the newly
     // integrated security, otherwise, do it the old way.
     long uniqueId;
-    DistributedSystem system = getDistributedSystem();
-    String methodName = system.getProperties().getProperty(SECURITY_CLIENT_AUTHENTICATOR);
+    var system = getDistributedSystem();
+    var methodName = system.getProperties().getProperty(SECURITY_CLIENT_AUTHENTICATOR);
 
-    Object principal = Handshake.verifyCredentials(methodName, credentials,
+    var principal = Handshake.verifyCredentials(methodName, credentials,
         system.getSecurityProperties(), (InternalLogWriter) system.getLogWriter(),
         (InternalLogWriter) system.getSecurityLogWriter(), proxyId.getDistributedMember(),
         securityService);
@@ -1221,9 +1222,9 @@ public class ServerConnection implements Runnable {
 
   @VisibleForTesting
   long putSubject(Subject subject, long existingUniqueId) {
-    final long uniqueId = clientUserAuths.putSubject(subject, existingUniqueId);
+    final var uniqueId = clientUserAuths.putSubject(subject, existingUniqueId);
     // also update the subject in the CacheClientProxy if it's in single user mode
-    CacheClientProxy clientProxy =
+    var clientProxy =
         getAcceptor().getCacheClientNotifier().getClientProxy(getProxyID());
     // update the subject (in single user mode) in clientProxy if exists
     if (clientProxy != null && clientProxy.getSubject() != null
@@ -1251,7 +1252,7 @@ public class ServerConnection implements Runnable {
     try {
       connectionId = randomConnectionIdGen.nextLong();
       securePart = new Part();
-      byte[] id = encryptId(connectionId);
+      var id = encryptId(connectionId);
       securePart.setPartState(id, false);
     } catch (Exception ex) {
       logger.warn("Server failed to encrypt data " + ex);
@@ -1280,8 +1281,8 @@ public class ServerConnection implements Runnable {
   }
 
   public boolean isInternalMessage(Message message, boolean allowOldInternalMessages) {
-    int messageType = message.getMessageType();
-    boolean isInternalMessage = messageType == MessageType.PING
+    var messageType = message.getMessageType();
+    var isInternalMessage = messageType == MessageType.PING
         || messageType == MessageType.REQUEST_EVENT_VALUE || messageType == MessageType.MAKE_PRIMARY
         || messageType == MessageType.REMOVE_USER_AUTH || messageType == MessageType.CLIENT_READY
         || messageType == MessageType.SIZE || messageType == MessageType.TX_FAILOVER
@@ -1313,7 +1314,7 @@ public class ServerConnection implements Runnable {
   @Override
   public void run() {
     if (getAcceptor().isSelector()) {
-      boolean finishedMessage = false;
+      var finishedMessage = false;
       try {
         stats.decThreadQueueSize();
         if (!isTerminated()) {
@@ -1466,7 +1467,7 @@ public class ServerConnection implements Runnable {
   }
 
   boolean hasBeenTimedOutOnClient() {
-    int timeout = getClientReadTimeout();
+    var timeout = getClientReadTimeout();
     // 0 means no timeout
     if (timeout > 0) {
       timeout = timeout + TIMEOUT_BUFFER_FOR_CONNECTION_CLEANUP_MS;
@@ -1560,7 +1561,7 @@ public class ServerConnection implements Runnable {
       // Here we direct closing of sockets to one of two executors. Use of an executor
       // keeps us from causing an explosion of new threads when a server is shut down.
       // Background threads are used in case the close() operation on the socket hangs.
-      final String closerName =
+      final var closerName =
           communicationMode.isWAN() ? "WANSocketCloser" : "CacheServerSocketCloser";
       acceptor.getSocketCloser().asyncClose(theSocket, closerName, () -> {
       },
@@ -1595,7 +1596,7 @@ public class ServerConnection implements Runnable {
   }
 
   private void releaseCommBuffer() {
-    ByteBuffer byteBuffer = commBuffer;
+    var byteBuffer = commBuffer;
     if (byteBuffer != null) {
       commBuffer = null;
       releaseCommBuffer(byteBuffer);
@@ -1607,7 +1608,7 @@ public class ServerConnection implements Runnable {
    */
   public void emergencyClose() {
     terminated = true;
-    Socket s = theSocket;
+    var s = theSocket;
     if (s != null) {
       try {
         s.close();
@@ -1806,7 +1807,7 @@ public class ServerConnection implements Runnable {
 
   private byte[] encryptId(long id) throws Exception {
     // deserialize this using handshake keys
-    try (HeapDataOutputStream heapDataOutputStream =
+    try (var heapDataOutputStream =
         new HeapDataOutputStream(KnownVersion.CURRENT)) {
 
       heapDataOutputStream.writeLong(id);
@@ -1842,7 +1843,7 @@ public class ServerConnection implements Runnable {
       return null;
     }
 
-    long uniqueId = getUniqueId();
+    var uniqueId = getUniqueId();
 
     UserAuthAttributes uaa = null;
     synchronized (clientUserAuthsLock) {
@@ -1857,12 +1858,12 @@ public class ServerConnection implements Runnable {
   }
 
   public AuthorizeRequest getAuthzRequest() throws AuthenticationRequiredException, IOException {
-    UserAuthAttributes uaa = getUserAuthAttributes();
+    var uaa = getUserAuthAttributes();
     if (uaa == null) {
       return null;
     }
 
-    AuthorizeRequest authReq = uaa.getAuthzRequest();
+    var authReq = uaa.getAuthzRequest();
     if (logger.isDebugEnabled()) {
       logger.debug("getAuthzRequest() authrequest: {}",
           authReq == null ? "NULL (only authentication is required)" : "not null");
@@ -1883,7 +1884,7 @@ public class ServerConnection implements Runnable {
     // look client version and return authzrequest
     // for backward client it will be store in member variable userAuthId
     // for other look "requestMessage" here and get unique-id from this to get the authzrequest
-    long uniqueId = getUniqueId();
+    var uniqueId = getUniqueId();
 
     UserAuthAttributes uaa = null;
     synchronized (clientUserAuthsLock) {
@@ -1922,7 +1923,7 @@ public class ServerConnection implements Runnable {
       throws AuthenticationRequiredException, AuthenticationFailedException, ClassNotFoundException,
       NoSuchMethodException, InvocationTargetException, IOException, IllegalAccessException {
     logger.debug("setAttributes()");
-    Object principal = getHandshake().verifyCredentials();
+    var principal = getHandshake().verifyCredentials();
 
     long uniqueId;
     if (principal instanceof Subject) {
@@ -1941,11 +1942,11 @@ public class ServerConnection implements Runnable {
   private long getUniqueId(Principal principal)
       throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
       InvocationTargetException, NotAuthorizedException, IOException {
-    InternalLogWriter securityLogWriter = getSecurityLogWriter();
-    DistributedSystem system = getDistributedSystem();
-    Properties systemProperties = system.getProperties();
-    String authzFactoryName = systemProperties.getProperty(SECURITY_CLIENT_ACCESSOR);
-    String postAuthzFactoryName = systemProperties.getProperty(SECURITY_CLIENT_ACCESSOR_PP);
+    var securityLogWriter = getSecurityLogWriter();
+    var system = getDistributedSystem();
+    var systemProperties = system.getProperties();
+    var authzFactoryName = systemProperties.getProperty(SECURITY_CLIENT_ACCESSOR);
+    var postAuthzFactoryName = systemProperties.getProperty(SECURITY_CLIENT_ACCESSOR_PP);
     AuthorizeRequest authzRequest = null;
 
     if (authzFactoryName != null && !authzFactoryName.isEmpty()) {
@@ -2003,9 +2004,9 @@ public class ServerConnection implements Runnable {
      * Updates time if previously set.
      */
     void updateProcessingMessage() {
-      final long current = processingMessageStartTime.get();
+      final var current = processingMessageStartTime.get();
       if (NOT_PROCESSING != current) {
-        final long now = System.currentTimeMillis();
+        final var now = System.currentTimeMillis();
         if (now > current) {
           // if another thread sets to -1 or updates the time we don't need to update the time.
           processingMessageStartTime.compareAndSet(current, now);
@@ -2018,7 +2019,7 @@ public class ServerConnection implements Runnable {
     }
 
     long getCurrentMessageProcessingTime() {
-      long result = processingMessageStartTime.get();
+      var result = processingMessageStartTime.get();
       if (result != NOT_PROCESSING) {
         result = System.currentTimeMillis() - result;
       }

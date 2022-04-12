@@ -36,7 +36,6 @@ import org.apache.geode.cache.query.internal.utils.LimitIterator;
 import org.apache.geode.cache.query.types.CollectionType;
 import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.internal.HeapDataOutputStream;
-import org.apache.geode.internal.serialization.BufferDataOutputStream.LongUpdater;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -142,9 +141,9 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
       return data.contains(element) ? 1 : 0;
     }
     // expensive!!
-    int count = 0;
+    var count = 0;
     /* this.base.iterator() */
-    for (E v : this) {
+    for (var v : this) {
       if (element == null ? v == null : element.equals(v)) {
         count++;
       }
@@ -190,8 +189,8 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
     @Override
     public int size() {
       if (isDistinct) {
-        Iterator<E> iter = iterator();
-        int count = 0;
+        var iter = iterator();
+        var count = 0;
         while (iter.hasNext()) {
           ++count;
           iter.next();
@@ -199,7 +198,7 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
         return count;
 
       } else {
-        int totalSize = 0;
+        var totalSize = 0;
         for (Collection<E> result : sortedResults) {
           totalSize += result.size();
         }
@@ -234,10 +233,10 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
 
       protected NWayMergeIterator() {
         iterators = new IteratorWrapper[sortedResults.size()];
-        Iterator<? extends Collection<E>> listIter = sortedResults.iterator();
-        int index = 0;
+        var listIter = sortedResults.iterator();
+        var index = 0;
         while (listIter.hasNext()) {
-          IteratorWrapper<E> temp = new IteratorWrapper<>(listIter.next().iterator());
+          var temp = new IteratorWrapper<E>(listIter.next().iterator());
           iterators[index++] = temp;
           // initialize
           temp.move();
@@ -246,8 +245,8 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
 
       @Override
       public boolean hasNext() {
-        boolean hasNext = false;
-        for (int i = 0; i < iterators.length; ++i) {
+        var hasNext = false;
+        for (var i = 0; i < iterators.length; ++i) {
           if (i == lastReturnedIteratorIndex) {
             hasNext = iterators[i].hasNext();
           } else {
@@ -269,11 +268,11 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
           return iterators[0].get();
         }
 
-        int iteratorIndex = -1;
+        var iteratorIndex = -1;
         E refObject = null;
-        for (int j = 0; j < iterators.length; ++j) {
+        for (var j = 0; j < iterators.length; ++j) {
           if (!iterators[j].EOF) {
-            E temp = iterators[j].get();
+            var temp = iterators[j].get();
             iteratorIndex = j;
             refObject = temp;
             break;
@@ -285,17 +284,17 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
         }
 
         E currentOptima = null;
-        int indexOfIteratorForOptima = -1;
+        var indexOfIteratorForOptima = -1;
 
         currentOptima = refObject;
         indexOfIteratorForOptima = iteratorIndex;
-        for (int j = iteratorIndex + 1; j < iterators.length; ++j) {
+        for (var j = iteratorIndex + 1; j < iterators.length; ++j) {
           if (iterators[j].EOF) {
             continue;
           }
-          E temp = iterators[j].get();
+          var temp = iterators[j].get();
 
-          int compareResult = compare(currentOptima, temp);
+          var compareResult = compare(currentOptima, temp);
 
           if (compareResult > 0) {
             currentOptima = temp;
@@ -369,8 +368,8 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
         if (cachedHasNext != null) {
           return cachedHasNext;
         }
-        boolean hasNext = false;
-        for (int i = 0; i < iterators.length; ++i) {
+        var hasNext = false;
+        for (var i = 0; i < iterators.length; ++i) {
           if (uninitialized) {
             hasNext = !iterators[i].EOF;
             if (hasNext) {
@@ -442,14 +441,14 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
       DeserializationContext context) throws IOException, ClassNotFoundException {
     ObjectType elementType = context.getDeserializer().readObject(in);
     collectionType = new CollectionTypeImpl(NWayMergeResults.class, elementType);
-    boolean isStruct = elementType.isStructType();
+    var isStruct = elementType.isStructType();
     isDistinct = DataSerializer.readPrimitiveBoolean(in);
-    long size = in.readLong();
+    var size = in.readLong();
     data = new ArrayList<>((int) size);
-    long numLeft = size;
+    var numLeft = size;
     while (numLeft > 0) {
       if (isStruct) {
-        Object[] fields = DataSerializer.readObjectArray(in);
+        var fields = DataSerializer.readObjectArray(in);
         data.add((E) new StructImpl((StructTypeImpl) elementType, fields));
       } else {
         E element = context.getDeserializer().readObject(in);
@@ -470,17 +469,17 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
   @Override
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
-    boolean isStruct = collectionType.getElementType().isStructType();
+    var isStruct = collectionType.getElementType().isStructType();
     context.getSerializer().writeObject(collectionType.getElementType(), out);
     DataSerializer.writePrimitiveBoolean(isDistinct, out);
-    HeapDataOutputStream hdos = new HeapDataOutputStream(1024, null);
-    LongUpdater lu = hdos.reserveLong();
-    Iterator<E> iter = iterator();
-    int numElements = 0;
+    var hdos = new HeapDataOutputStream(1024, null);
+    var lu = hdos.reserveLong();
+    var iter = iterator();
+    var numElements = 0;
     while (iter.hasNext()) {
-      E data = iter.next();
+      var data = iter.next();
       if (isStruct) {
-        Object[] fields = ((Struct) data).getFieldValues();
+        var fields = ((Struct) data).getFieldValues();
         DataSerializer.writeObjectArray(fields, hdos);
       } else {
         context.getSerializer().writeObject(data, hdos);
@@ -494,10 +493,10 @@ public class NWayMergeResults<E> implements SelectResults<E>, Ordered, DataSeria
 
   @Override
   public String toString() {
-    StringBuilder builder =
+    var builder =
         new StringBuilder("NWayMergeResults:: isDistinct=" + isDistinct).append(":");
     builder.append('[');
-    for (final E e : this) {
+    for (final var e : this) {
       builder.append(e).append(',');
     }
     builder.deleteCharAt(builder.length() - 1);

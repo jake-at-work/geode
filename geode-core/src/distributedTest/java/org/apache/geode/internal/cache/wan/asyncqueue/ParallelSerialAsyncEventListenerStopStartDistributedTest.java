@@ -38,14 +38,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.asyncqueue.internal.InternalAsyncEventQueue;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.internal.cache.InternalCache;
@@ -95,7 +93,7 @@ public class ParallelSerialAsyncEventListenerStopStartDistributedTest implements
     vm2 = getVM(2);
     vm3 = getVM(3);
 
-    String className = getClass().getSimpleName();
+    var className = getClass().getSimpleName();
     basePartitionedRegionName = className + "_PR_";
     baseReplicateRegionName = className + "_RR_";
     baseSerialAsyncEventQueueId = className + "_serialAEQ_";
@@ -125,14 +123,14 @@ public class ParallelSerialAsyncEventListenerStopStartDistributedTest implements
     vm3.invoke(this::createCache);
 
     // Create several serial and parallel AEQs
-    int numAEQs = 3;
+    var numAEQs = 3;
     vm0.invoke(() -> createAsyncEventQueues(numAEQs));
     vm1.invoke(() -> createAsyncEventQueues(numAEQs));
     vm2.invoke(() -> createAsyncEventQueues(numAEQs));
     vm3.invoke(() -> createAsyncEventQueues(numAEQs));
 
     // Create replicated and partitioned regions attached to those AEQs
-    int numRegions = 3;
+    var numRegions = 3;
     vm0.invoke(() -> createRegions(numRegions));
     vm1.invoke(() -> createRegions(numRegions));
     vm2.invoke(() -> createRegions(numRegions));
@@ -167,7 +165,7 @@ public class ParallelSerialAsyncEventListenerStopStartDistributedTest implements
   }
 
   private void createAsyncEventQueues(int numAEQs) {
-    for (int i = 0; i < numAEQs; i++) {
+    for (var i = 0; i < numAEQs; i++) {
       createPersistentAsyncEventQueue(baseSerialAsyncEventQueueId + i,
           createDiskStoreName(baseSerialAsyncEventQueueId + i), false);
       createPersistentAsyncEventQueue(baseParallelAsyncEventQueueId + i,
@@ -176,21 +174,21 @@ public class ParallelSerialAsyncEventListenerStopStartDistributedTest implements
   }
 
   private void createRegions(int numRegions) {
-    for (int i = 0; i < numRegions; i++) {
+    for (var i = 0; i < numRegions; i++) {
       createReplicateRegion(baseReplicateRegionName + i, baseSerialAsyncEventQueueId + i);
       createPartitionedRegion(basePartitionedRegionName + i, baseParallelAsyncEventQueueId + i);
     }
   }
 
   private void waitForAsyncQueuesToEmpty() {
-    for (final AsyncEventQueue aeq : getAsyncEventQueues()) {
+    for (final var aeq : getAsyncEventQueues()) {
       await().until(() -> aeq.size() == 0);
     }
   }
 
   private void stopAsyncQueues() {
-    for (final AsyncEventQueue aeq : getAsyncEventQueues()) {
-      InternalAsyncEventQueue iaeq = (InternalAsyncEventQueue) aeq;
+    for (final var aeq : getAsyncEventQueues()) {
+      var iaeq = (InternalAsyncEventQueue) aeq;
       assertThat(iaeq.getSender().isRunning()).isTrue();
       iaeq.stop();
       assertThat(iaeq.getSender().isRunning()).isFalse();
@@ -198,7 +196,7 @@ public class ParallelSerialAsyncEventListenerStopStartDistributedTest implements
   }
 
   private void startAsyncQueues() {
-    for (final AsyncEventQueue aeq : getAsyncEventQueues()) {
+    for (final var aeq : getAsyncEventQueues()) {
       GatewaySender sender = ((InternalAsyncEventQueue) aeq).getSender();
       assertThat(sender.isRunning()).isFalse();
       sender.start();
@@ -246,9 +244,9 @@ public class ParallelSerialAsyncEventListenerStopStartDistributedTest implements
     assertThat(diskStoreName).isNotEmpty();
     assertThat(asyncEventQueueId).isNotEmpty();
 
-    File directory = createDirectory(createDiskStoreName(asyncEventQueueId));
+    var directory = createDirectory(createDiskStoreName(asyncEventQueueId));
 
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(new File[] {directory});
 
     diskStoreFactory.create(diskStoreName);
@@ -257,7 +255,7 @@ public class ParallelSerialAsyncEventListenerStopStartDistributedTest implements
   private File createDirectory(String name) {
     assertThat(name).isNotEmpty();
 
-    File directory = new File(temporaryFolder.getRoot(), name);
+    var directory = new File(temporaryFolder.getRoot(), name);
     if (!directory.exists()) {
       try {
         return temporaryFolder.newFolder(name);
@@ -278,7 +276,7 @@ public class ParallelSerialAsyncEventListenerStopStartDistributedTest implements
       boolean isParallel) {
     createDiskStore(diskStoreName, asyncEventQueueId);
 
-    AsyncEventQueueFactory asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
     asyncEventQueueFactory.setDiskStoreName(diskStoreName);
     asyncEventQueueFactory.setParallel(isParallel);
     asyncEventQueueFactory.setPersistent(true);
@@ -287,10 +285,10 @@ public class ParallelSerialAsyncEventListenerStopStartDistributedTest implements
   }
 
   private void doPuts(int numRegions, int numPuts) {
-    for (int i = 0; i < numRegions; i++) {
+    for (var i = 0; i < numRegions; i++) {
       Region<Integer, Integer> rr = getCache().getRegion(baseReplicateRegionName + i);
       Region<Integer, Integer> pr = getCache().getRegion(basePartitionedRegionName + i);
-      for (int j = 0; j < numPuts; j++) {
+      for (var j = 0; j < numPuts; j++) {
         rr.put(j, j);
         pr.put(j, j);
       }

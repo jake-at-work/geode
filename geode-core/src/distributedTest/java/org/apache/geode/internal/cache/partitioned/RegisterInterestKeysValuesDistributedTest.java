@@ -39,7 +39,6 @@ import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.internal.InternalClientCache;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.test.dunit.VM;
@@ -268,17 +267,17 @@ public class RegisterInterestKeysValuesDistributedTest implements Serializable {
     doOps();
 
     client1.invoke(() -> {
-      Region<Object, Object> region = clientCache().getRegion(regionName);
+      var region = clientCache().getRegion(regionName);
       region.registerInterest(keys);
       region.registerInterest("UNKNOWN_KEY");
     });
 
     client1.invoke(() -> {
-      InternalRegion region = (InternalRegion) clientCache().getRegion(regionName);
-      for (int i = 0; i < 7; i++) {
+      var region = (InternalRegion) clientCache().getRegion(regionName);
+      for (var i = 0; i < 7; i++) {
         assertTrue(region.containsKey("OPKEY_" + i));
       }
-      for (int i = 7; i < 14; i++) {
+      for (var i = 7; i < 14; i++) {
         assertFalse(region.containsKey("OPKEY_" + i));
         assertTrue(region.containsTombstone("OPKEY_" + i));
       }
@@ -307,11 +306,11 @@ public class RegisterInterestKeysValuesDistributedTest implements Serializable {
 
     RegionFactory rf;
     if (isReplicated) {
-      RegionShortcut rs =
+      var rs =
           isPrimaryEmpty ? RegionShortcut.REPLICATE_PROXY : RegionShortcut.REPLICATE;
       rf = cache().createRegionFactory(rs);
     } else {
-      RegionShortcut rs =
+      var rs =
           isPrimaryEmpty ? RegionShortcut.PARTITION_PROXY : RegionShortcut.PARTITION;
       rf = cache().createRegionFactory(rs);
       rf.setPartitionAttributes(
@@ -319,14 +318,14 @@ public class RegisterInterestKeysValuesDistributedTest implements Serializable {
     }
     rf.create(regionName);
 
-    CacheServer server = cache().addCacheServer();
+    var server = cache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
   }
 
   private void createClientCache(int port) {
-    ClientCacheFactory ccf = new ClientCacheFactory();
+    var ccf = new ClientCacheFactory();
     ccf.addPoolServer(hostName, port).setPoolSubscriptionEnabled(true);
 
     createClientCache(ccf);
@@ -337,7 +336,7 @@ public class RegisterInterestKeysValuesDistributedTest implements Serializable {
   }
 
   private void registerInterest(Object keys, String regEx) {
-    Region<Object, Object> region = clientCache().getRegion(regionName);
+    var region = clientCache().getRegion(regionName);
     if (keys == null && regEx == null) {
       region.registerInterest("ALL_KEYS");
     } else if (keys != null) {
@@ -350,11 +349,11 @@ public class RegisterInterestKeysValuesDistributedTest implements Serializable {
 
   private void doPuts(int count, String regex, int regexNum) {
     Region<String, String> region = cache().getRegion(regionName);
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       region.create("KEY_" + i, "VALUE__" + i);
     }
     if (regex != null) {
-      for (int i = 0; i < regexNum; i++) {
+      for (var i = 0; i < regexNum; i++) {
         region.create("X_KEY_" + i, "X_VALUE__" + i);
       }
     }
@@ -362,11 +361,11 @@ public class RegisterInterestKeysValuesDistributedTest implements Serializable {
 
   private void doOps() {
     Region<String, String> region = clientCache().getRegion(regionName);
-    for (int i = 0; i < 14; i++) {
+    for (var i = 0; i < 14; i++) {
       region.create("OPKEY_" + i, "OPVALUE__" + i);
     }
 
-    for (int i = 7; i < 14; i++) {
+    for (var i = 7; i < 14; i++) {
       region.destroy("OPKEY_" + i);
     }
   }

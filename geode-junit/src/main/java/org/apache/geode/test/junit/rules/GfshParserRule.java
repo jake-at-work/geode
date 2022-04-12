@@ -18,7 +18,6 @@ import static org.mockito.Mockito.spy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.rules.ExternalResource;
 import org.springframework.shell.core.Completion;
@@ -58,17 +57,17 @@ public class GfshParserRule extends ExternalResource {
    * @deprecated use executeAndAssertThat instead
    */
   public <T> CommandResult executeCommandWithInstance(T instance, String command) {
-    GfshParseResult parseResult = parse(command);
+    var parseResult = parse(command);
 
     if (parseResult == null) {
       return new CommandResult(ResultModel.createError("Invalid command: " + command));
     }
 
     CliAroundInterceptor interceptor = null;
-    CliMetaData cliMetaData = parseResult.getMethod().getAnnotation(CliMetaData.class);
+    var cliMetaData = parseResult.getMethod().getAnnotation(CliMetaData.class);
 
     if (cliMetaData != null) {
-      String interceptorClass = cliMetaData.interceptor();
+      var interceptorClass = cliMetaData.interceptor();
       if (!CliMetaData.ANNOTATION_NULL_VALUE.equals(interceptorClass)) {
         try {
           interceptor = (CliAroundInterceptor) ClassPathLoader.getLatest().forName(interceptorClass)
@@ -77,7 +76,7 @@ public class GfshParserRule extends ExternalResource {
           throw new RuntimeException(e);
         }
 
-        ResultModel preExecResult = interceptor.preExecution(parseResult);
+        var preExecResult = interceptor.preExecution(parseResult);
         if (preExecResult instanceof ResultModel) {
           if (preExecResult.getStatus() != Result.Status.OK) {
             return new CommandResult(preExecResult);
@@ -90,12 +89,12 @@ public class GfshParserRule extends ExternalResource {
       }
     }
 
-    Object exeResult = commandExecutor.execute(instance, parseResult);
+    var exeResult = commandExecutor.execute(instance, parseResult);
     return new CommandResult((ResultModel) exeResult);
   }
 
   public <T> CommandResultAssert executeAndAssertThat(T instance, String command) {
-    CommandResult result = executeCommandWithInstance(instance, command);
+    var result = executeCommandWithInstance(instance, command);
     System.out.println("Command Result:");
     System.out.println(result.asString());
     return new CommandResultAssert(result);
@@ -103,12 +102,12 @@ public class GfshParserRule extends ExternalResource {
 
   public CommandCandidate complete(String command) {
     List<Completion> candidates = new ArrayList<>();
-    int cursor = parser.completeAdvanced(command, command.length(), candidates);
+    var cursor = parser.completeAdvanced(command, command.length(), candidates);
     return new CommandCandidate(command, cursor, candidates);
   }
 
   public <T extends Converter> T spyConverter(Class<T> klass) {
-    Set<Converter<?>> converters = parser.getConverters();
+    var converters = parser.getConverters();
     T foundConverter = null, spy = null;
     for (Converter converter : converters) {
       if (klass.isAssignableFrom(converter.getClass())) {

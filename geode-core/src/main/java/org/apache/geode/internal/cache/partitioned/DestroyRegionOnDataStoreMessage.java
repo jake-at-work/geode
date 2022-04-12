@@ -21,7 +21,6 @@ import java.io.IOException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.OperationExecutors;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
@@ -59,10 +58,10 @@ public class DestroyRegionOnDataStoreMessage extends PartitionMessage {
    */
   public static void send(InternalDistributedMember recipient, PartitionedRegion r,
       Object callbackArg) {
-    DistributionManager dm = r.getDistributionManager();
-    ReplyProcessor21 rp = new ReplyProcessor21(dm, recipient);
-    int procId = rp.getProcessorId();
-    DestroyRegionOnDataStoreMessage m =
+    var dm = r.getDistributionManager();
+    var rp = new ReplyProcessor21(dm, recipient);
+    var procId = rp.getProcessorId();
+    var m =
         new DestroyRegionOnDataStoreMessage(recipient, r.getPRId(), rp, callbackArg);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     r.getDistributionManager().putOutgoing(m);
@@ -78,8 +77,7 @@ public class DestroyRegionOnDataStoreMessage extends PartitionMessage {
       return true;
     }
 
-
-    org.apache.logging.log4j.Logger logger = pr.getLogger();
+    var logger = pr.getLogger();
     if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
       logger.trace(LogMarker.DM_VERBOSE,
           "DestroyRegionOnDataStore operateOnRegion: " + pr.getFullPath());

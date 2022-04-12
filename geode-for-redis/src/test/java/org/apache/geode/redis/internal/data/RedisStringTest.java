@@ -48,18 +48,18 @@ public class RedisStringTest {
   @Test
   public void constructorSetsValue() {
     byte[] bytes = {0, 1, 2};
-    RedisString string = new RedisString(bytes);
-    byte[] returnedBytes = string.get();
+    var string = new RedisString(bytes);
+    var returnedBytes = string.get();
     assertThat(returnedBytes).isNotNull();
     assertThat(returnedBytes).isEqualTo(bytes);
   }
 
   @Test
   public void setSetsValue() {
-    RedisString string = new RedisString();
+    var string = new RedisString();
     byte[] bytes = {0, 1, 2};
     string.set(bytes);
-    byte[] returnedBytes = string.get();
+    var returnedBytes = string.get();
     assertThat(returnedBytes).isNotNull();
     assertThat(returnedBytes).isEqualTo(bytes);
   }
@@ -67,8 +67,8 @@ public class RedisStringTest {
   @Test
   public void getReturnsSetValue() {
     byte[] bytes = {0, 1};
-    RedisString string = new RedisString(bytes);
-    byte[] returnedBytes = string.get();
+    var string = new RedisString(bytes);
+    var returnedBytes = string.get();
     assertThat(returnedBytes).isNotNull();
     assertThat(returnedBytes).isEqualTo(bytes);
   }
@@ -78,8 +78,8 @@ public class RedisStringTest {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
     byte[] oldBytes = {0, 1};
     byte[] newBytes = {0, 1, 2};
-    RedisString string = new RedisString(oldBytes);
-    byte[] returnedBytes = string.getset(region, null, newBytes);
+    var string = new RedisString(oldBytes);
+    var returnedBytes = string.getset(region, null, newBytes);
     assertThat(returnedBytes).isNotNull();
     assertThat(returnedBytes).isEqualTo(oldBytes);
     assertThat(string.get()).isNotNull();
@@ -89,11 +89,11 @@ public class RedisStringTest {
   @Test
   public void appendResizesByteArray() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisString redisString = new RedisString(new byte[] {0, 1});
-    int redisStringSize = redisString.strlen();
+    var redisString = new RedisString(new byte[] {0, 1});
+    var redisStringSize = redisString.strlen();
     byte[] bytesToAppend = {2, 3, 4, 5};
-    int appendedSize = bytesToAppend.length;
-    int appendedStringSize = redisString.append(region, null, bytesToAppend);
+    var appendedSize = bytesToAppend.length;
+    var appendedStringSize = redisString.append(region, null, bytesToAppend);
     assertThat(appendedStringSize).isEqualTo(redisStringSize + appendedSize);
   }
 
@@ -105,7 +105,7 @@ public class RedisStringTest {
 
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(baseBytes, invocation));
-    RedisString stringOne = new RedisString(baseBytes);
+    var stringOne = new RedisString(baseBytes);
 
     stringOne.append(region, null, bytesToAppend);
 
@@ -121,7 +121,7 @@ public class RedisStringTest {
 
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(baseBytes, invocation));
-    RedisString stringOne = new RedisString(baseBytes);
+    var stringOne = new RedisString(baseBytes);
 
     stringOne.set(region, null, bytesToSet, null);
 
@@ -136,7 +136,7 @@ public class RedisStringTest {
 
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(baseBytes, invocation));
-    RedisString stringOne = new RedisString(baseBytes);
+    var stringOne = new RedisString(baseBytes);
 
     stringOne.incr(region, null);
 
@@ -151,7 +151,7 @@ public class RedisStringTest {
 
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(baseBytes, invocation));
-    RedisString stringOne = new RedisString(baseBytes);
+    var stringOne = new RedisString(baseBytes);
 
     stringOne.incrby(region, null, 3);
 
@@ -166,7 +166,7 @@ public class RedisStringTest {
 
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(baseBytes, invocation));
-    RedisString stringOne = new RedisString(baseBytes);
+    var stringOne = new RedisString(baseBytes);
 
     stringOne.incrbyfloat(region, null, new BigDecimal("3.0"));
 
@@ -181,7 +181,7 @@ public class RedisStringTest {
 
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(new byte[] {'0', '1'}, invocation));
-    RedisString stringOne = new RedisString(baseBytes);
+    var stringOne = new RedisString(baseBytes);
 
     stringOne.setbit(region, null, 1, 0, (byte) 6);
 
@@ -191,12 +191,12 @@ public class RedisStringTest {
 
   @Test
   public void confirmSerializationIsStable() throws IOException, ClassNotFoundException {
-    RedisString stringOne = new RedisString(new byte[] {0, 1, 2, 3});
-    int expirationTimestamp = 1000;
+    var stringOne = new RedisString(new byte[] {0, 1, 2, 3});
+    var expirationTimestamp = 1000;
     stringOne.setExpirationTimestampNoDelta(expirationTimestamp);
-    HeapDataOutputStream outputStream = new HeapDataOutputStream(100);
+    var outputStream = new HeapDataOutputStream(100);
     DataSerializer.writeObject(stringOne, outputStream);
-    ByteArrayDataInput dataInput = new ByteArrayDataInput(outputStream.toByteArray());
+    var dataInput = new ByteArrayDataInput(outputStream.toByteArray());
     RedisString stringTwo = DataSerializer.readObject(dataInput);
     assertThat(stringTwo).isEqualTo(stringOne);
     assertThat(stringTwo.getExpirationTimestamp())
@@ -211,7 +211,7 @@ public class RedisStringTest {
 
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(baseBytes, invocation));
-    RedisString stringOne = new RedisString(baseBytes);
+    var stringOne = new RedisString(baseBytes);
 
     stringOne.decr(region, null);
 
@@ -226,7 +226,7 @@ public class RedisStringTest {
 
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(baseBytes, invocation));
-    RedisString stringOne = new RedisString(baseBytes);
+    var stringOne = new RedisString(baseBytes);
 
     stringOne.decrby(region, null, 3);
 
@@ -241,7 +241,7 @@ public class RedisStringTest {
 
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(baseBytes, invocation));
-    RedisString stringOne = new RedisString(baseBytes);
+    var stringOne = new RedisString(baseBytes);
 
     stringOne.incrbyfloat(region, null, new BigDecimal("3.0"));
 
@@ -259,24 +259,24 @@ public class RedisStringTest {
   @Test
   public void incrThrowsArithmeticErrorWhenNotALong() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = stringToBytes("10 1");
-    RedisString string = new RedisString(bytes);
+    var bytes = stringToBytes("10 1");
+    var string = new RedisString(bytes);
     assertThatThrownBy(() -> string.incr(region, null)).isInstanceOf(NumberFormatException.class);
   }
 
   @Test
   public void incrErrorsWhenValueOverflows() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = longToBytes(Long.MAX_VALUE);
-    RedisString string = new RedisString(bytes);
+    var bytes = longToBytes(Long.MAX_VALUE);
+    var string = new RedisString(bytes);
     assertThatThrownBy(() -> string.incr(region, null)).isInstanceOf(ArithmeticException.class);
   }
 
   @Test
   public void incrIncrementsValueAtGivenKey() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = stringToBytes("10");
-    RedisString string = new RedisString(bytes);
+    var bytes = stringToBytes("10");
+    var string = new RedisString(bytes);
     string.incr(region, null);
     assertThat(string.get()).isEqualTo(stringToBytes("11"));
   }
@@ -284,8 +284,8 @@ public class RedisStringTest {
   @Test
   public void incrbyThrowsNumberFormatExceptionWhenNotALong() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = stringToBytes("10 1");
-    RedisString string = new RedisString(bytes);
+    var bytes = stringToBytes("10 1");
+    var string = new RedisString(bytes);
     assertThatThrownBy(() -> string.incrby(region, null, 2L))
         .isInstanceOf(NumberFormatException.class);
   }
@@ -293,8 +293,8 @@ public class RedisStringTest {
   @Test
   public void incrbyErrorsWhenValueOverflows() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = longToBytes(Long.MAX_VALUE);
-    RedisString string = new RedisString(bytes);
+    var bytes = longToBytes(Long.MAX_VALUE);
+    var string = new RedisString(bytes);
     assertThatThrownBy(() -> string.incrby(region, null, 2L))
         .isInstanceOf(ArithmeticException.class);
   }
@@ -302,8 +302,8 @@ public class RedisStringTest {
   @Test
   public void incrbyIncrementsValueByGivenLong() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = stringToBytes("10");
-    RedisString string = new RedisString(bytes);
+    var bytes = stringToBytes("10");
+    var string = new RedisString(bytes);
     string.incrby(region, null, 2L);
     assertThat(string.get()).isEqualTo(stringToBytes("12"));
   }
@@ -311,8 +311,8 @@ public class RedisStringTest {
   @Test
   public void incrbyfloatThrowsArithmeticErrorWhenNotADouble() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = stringToBytes("10 1");
-    RedisString string = new RedisString(bytes);
+    var bytes = stringToBytes("10 1");
+    var string = new RedisString(bytes);
     assertThatThrownBy(() -> string.incrbyfloat(region, null, new BigDecimal("1.1")))
         .isInstanceOf(NumberFormatException.class);
   }
@@ -320,8 +320,8 @@ public class RedisStringTest {
   @Test
   public void incrbyfloatIncrementsValueByGivenFloat() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = stringToBytes("10");
-    RedisString string = new RedisString(bytes);
+    var bytes = stringToBytes("10");
+    var string = new RedisString(bytes);
     string.incrbyfloat(region, null, new BigDecimal("2.20"));
     assertThat(string.get()).isEqualTo(stringToBytes("12.20"));
   }
@@ -330,23 +330,23 @@ public class RedisStringTest {
   public void decrThrowsNumberFormatExceptionWhenNotALong() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
     byte[] bytes = {0};
-    RedisString string = new RedisString(bytes);
+    var string = new RedisString(bytes);
     assertThatThrownBy(() -> string.decr(region, null)).isInstanceOf(NumberFormatException.class);
   }
 
   @Test
   public void decrThrowsArithmeticExceptionWhenDecrementingMin() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = longToBytes(Long.MIN_VALUE);
-    RedisString string = new RedisString(bytes);
+    var bytes = longToBytes(Long.MIN_VALUE);
+    var string = new RedisString(bytes);
     assertThatThrownBy(() -> string.decr(region, null)).isInstanceOf(ArithmeticException.class);
   }
 
   @Test
   public void decrDecrementsValue() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = stringToBytes("10");
-    RedisString string = new RedisString(bytes);
+    var bytes = stringToBytes("10");
+    var string = new RedisString(bytes);
     string.decr(region, null);
     assertThat(string.get()).isEqualTo(stringToBytes("9"));
   }
@@ -355,7 +355,7 @@ public class RedisStringTest {
   public void decrbyThrowsNumberFormatExceptionWhenNotALong() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
     byte[] bytes = {1};
-    RedisString string = new RedisString(bytes);
+    var string = new RedisString(bytes);
     assertThatThrownBy(() -> string.decrby(region, null, 2))
         .isInstanceOf(NumberFormatException.class);
   }
@@ -363,8 +363,8 @@ public class RedisStringTest {
   @Test
   public void decrbyThrowsArithmeticExceptionWhenDecrementingMin() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = longToBytes(Long.MIN_VALUE);
-    RedisString string = new RedisString(bytes);
+    var bytes = longToBytes(Long.MIN_VALUE);
+    var string = new RedisString(bytes);
     assertThatThrownBy(() -> string.decrby(region, null, 2))
         .isInstanceOf(ArithmeticException.class);
   }
@@ -372,8 +372,8 @@ public class RedisStringTest {
   @Test
   public void decrbyDecrementsValue() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] bytes = stringToBytes("10");
-    RedisString string = new RedisString(bytes);
+    var bytes = stringToBytes("10");
+    var string = new RedisString(bytes);
     string.decrby(region, null, 2);
     assertThat(string.get()).isEqualTo(stringToBytes("8"));
   }
@@ -381,32 +381,32 @@ public class RedisStringTest {
   @Test
   public void strlenReturnsStringLength() {
     byte[] bytes = {1, 2, 3, 4};
-    RedisString string = new RedisString(bytes);
+    var string = new RedisString(bytes);
     assertThat(string.strlen()).isEqualTo(bytes.length);
   }
 
   @Test
   public void strlenReturnsLengthOfEmptyString() {
-    RedisString string = new RedisString(new byte[] {});
+    var string = new RedisString(new byte[] {});
     assertThat(string.strlen()).isEqualTo(0);
   }
 
   @Test
   public void equals_returnsFalse_givenDifferentExpirationTimes() {
     byte[] bytes = {0, 1, 2, 3};
-    RedisString stringOne = new RedisString(bytes);
+    var stringOne = new RedisString(bytes);
     stringOne.setExpirationTimestampNoDelta(1000);
-    RedisString stringTwo = new RedisString(bytes);
+    var stringTwo = new RedisString(bytes);
     stringTwo.setExpirationTimestampNoDelta(999);
     assertThat(stringOne).isNotEqualTo(stringTwo);
   }
 
   @Test
   public void equals_returnsFalse_givenDifferentValueBytes() {
-    int expirationTimestamp = 1000;
-    RedisString stringOne = new RedisString(new byte[] {0, 1, 2, 3});
+    var expirationTimestamp = 1000;
+    var stringOne = new RedisString(new byte[] {0, 1, 2, 3});
     stringOne.setExpirationTimestampNoDelta(expirationTimestamp);
-    RedisString stringTwo = new RedisString(new byte[] {0, 1, 2, 2});
+    var stringTwo = new RedisString(new byte[] {0, 1, 2, 2});
     stringTwo.setExpirationTimestampNoDelta(expirationTimestamp);
     assertThat(stringOne).isNotEqualTo(stringTwo);
   }
@@ -414,10 +414,10 @@ public class RedisStringTest {
   @Test
   public void equals_returnsTrue_givenEqualValueBytesAndExpiration() {
     byte[] bytes = {0, 1, 2, 3};
-    int expirationTimestamp = 1000;
-    RedisString stringOne = new RedisString(bytes);
+    var expirationTimestamp = 1000;
+    var stringOne = new RedisString(bytes);
     stringOne.setExpirationTimestampNoDelta(expirationTimestamp);
-    RedisString stringTwo = new RedisString(bytes);
+    var stringTwo = new RedisString(bytes);
     stringTwo.setExpirationTimestampNoDelta(expirationTimestamp);
     assertThat(stringOne).isEqualTo(stringTwo);
   }
@@ -428,7 +428,7 @@ public class RedisStringTest {
     final byte[] bytes = {0, 1};
     when(region.put(any(), any()))
         .thenAnswer(invocation -> validateDeltaSerialization(bytes, invocation));
-    RedisString stringOne = new RedisString(bytes);
+    var stringOne = new RedisString(bytes);
 
     stringOne.setExpirationTimestamp(region, null, 999);
 
@@ -438,12 +438,12 @@ public class RedisStringTest {
 
   private Object validateDeltaSerialization(byte[] bytes, InvocationOnMock invocation)
       throws IOException {
-    RedisString value = invocation.getArgument(1, RedisString.class);
+    var value = invocation.getArgument(1, RedisString.class);
     assertThat(value.hasDelta()).isTrue();
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     value.toDelta(out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
-    RedisString stringTwo = new RedisString(bytes);
+    var in = new ByteArrayDataInput(out.toByteArray());
+    var stringTwo = new RedisString(bytes);
     assertThat(stringTwo).isNotEqualTo(value);
     stringTwo.fromDelta(in);
     assertThat(stringTwo).isEqualTo(value);
@@ -452,7 +452,7 @@ public class RedisStringTest {
 
   @Test
   public void bitposReturnsNegativeOneWhenBitIsNotZeroOrOne() {
-    RedisString string = new RedisString(new byte[] {0, 1});
+    var string = new RedisString(new byte[] {0, 1});
     assertThat(string.bitpos(2, 0, 1)).isEqualTo(-1);
   }
 
@@ -460,11 +460,11 @@ public class RedisStringTest {
   /******* constructors *******/
   @Test
   public void should_calculateSize_equalToROSSize_ofLargeStrings() {
-    String javaString = makeStringOfSpecifiedSize(10_000);
-    RedisString string = new RedisString(stringToBytes(javaString));
+    var javaString = makeStringOfSpecifiedSize(10_000);
+    var string = new RedisString(stringToBytes(javaString));
 
-    int actual = string.getSizeInBytes();
-    int expected = reflectionObjectSizer.sizeof(string);
+    var actual = string.getSizeInBytes();
+    var expected = reflectionObjectSizer.sizeof(string);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -472,12 +472,12 @@ public class RedisStringTest {
   @Test
   public void should_calculateSize_equalToROSSize_ofStringOfVariousSizes() {
     String javaString;
-    for (int i = 0; i < 512; i += 8) {
+    for (var i = 0; i < 512; i += 8) {
       javaString = makeStringOfSpecifiedSize(i);
-      RedisString string = new RedisString(stringToBytes(javaString));
+      var string = new RedisString(stringToBytes(javaString));
 
-      int expected = reflectionObjectSizer.sizeof(string);
-      int actual = string.getSizeInBytes();
+      var expected = reflectionObjectSizer.sizeof(string);
+      var actual = string.getSizeInBytes();
 
       assertThat(actual).isEqualTo(expected);
     }
@@ -486,16 +486,16 @@ public class RedisStringTest {
   /******* changing values *******/
   @Test
   public void changingStringValue_toShorterString_shouldDecreaseSizeInBytes() {
-    String baseString = "baseString";
-    String stringToRemove = "asdf1234567890";
-    RedisString string = new RedisString(stringToBytes((baseString + stringToRemove)));
+    var baseString = "baseString";
+    var stringToRemove = "asdf1234567890";
+    var string = new RedisString(stringToBytes((baseString + stringToRemove)));
 
-    int initialSize = string.getSizeInBytes();
+    var initialSize = string.getSizeInBytes();
     assertThat(initialSize).isEqualTo(reflectionObjectSizer.sizeof(string));
 
     string.set(stringToBytes(baseString));
 
-    int finalSize = string.getSizeInBytes();
+    var finalSize = string.getSizeInBytes();
     assertThat(finalSize).isEqualTo(reflectionObjectSizer.sizeof(string));
 
     assertThat(finalSize).isLessThan(initialSize);
@@ -503,16 +503,16 @@ public class RedisStringTest {
 
   @Test
   public void changingStringValue_toLongerString_shouldIncreaseSizeInBytes() {
-    String baseString = "baseString";
-    RedisString string = new RedisString(stringToBytes(baseString));
+    var baseString = "baseString";
+    var string = new RedisString(stringToBytes(baseString));
 
-    int initialSize = string.getSizeInBytes();
+    var initialSize = string.getSizeInBytes();
     assertThat(initialSize).isEqualTo(reflectionObjectSizer.sizeof(string));
 
-    String addedString = "asdf1234567890";
+    var addedString = "asdf1234567890";
     string.set(stringToBytes((baseString + addedString)));
 
-    int finalSize = string.getSizeInBytes();
+    var finalSize = string.getSizeInBytes();
     assertThat(finalSize).isEqualTo(reflectionObjectSizer.sizeof(string));
 
     assertThat(finalSize).isGreaterThan(initialSize);
@@ -520,14 +520,14 @@ public class RedisStringTest {
 
   @Test
   public void changingStringValue_toEmptyString_shouldDecreaseSizeInBytes() {
-    String baseString = "baseString1234567890";
-    final int emptySize = reflectionObjectSizer.sizeof(new RedisString(stringToBytes("")));
-    RedisString string = new RedisString(stringToBytes((baseString)));
-    int baseSize = string.getSizeInBytes();
+    var baseString = "baseString1234567890";
+    final var emptySize = reflectionObjectSizer.sizeof(new RedisString(stringToBytes("")));
+    var string = new RedisString(stringToBytes((baseString)));
+    var baseSize = string.getSizeInBytes();
 
     string.set(stringToBytes(""));
 
-    int finalSize = string.getSizeInBytes();
+    var finalSize = string.getSizeInBytes();
 
     assertThat(finalSize).isEqualTo(emptySize);
     assertThat(finalSize).isLessThan(baseSize);

@@ -14,18 +14,16 @@
  */
 package org.apache.geode.management.internal.configuration.validators;
 
-import java.util.List;
 
-import org.apache.geode.management.configuration.AutoSerializer;
 import org.apache.geode.management.configuration.Pdx;
 import org.apache.geode.management.internal.CacheElementOperation;
 
 public class PdxValidator implements ConfigurationValidator<Pdx> {
   @Override
   public void validate(CacheElementOperation operation, Pdx pdx) {
-    AutoSerializer autoSerializer = pdx.getAutoSerializer();
+    var autoSerializer = pdx.getAutoSerializer();
     if (autoSerializer != null) {
-      List<String> patterns = autoSerializer.getPatterns();
+      var patterns = autoSerializer.getPatterns();
       switch (operation) {
         case CREATE:
           if (patterns == null || patterns.isEmpty()) {

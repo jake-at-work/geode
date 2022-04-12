@@ -38,8 +38,8 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
 
   @Test
   public void testReplicatedSerialPropagationLoopBack() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createCache(lnPort));
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
@@ -75,13 +75,13 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
         () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ny", isOffHeap()));
 
     final Map keyValues = new HashMap();
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       keyValues.put(i, i);
     }
     vm4.invoke(() -> WANTestBase.putGivenKeyValue(getTestMethodName() + "_RR", keyValues));
 
     keyValues.clear();
-    for (int i = 1; i < 2; i++) {
+    for (var i = 1; i < 2; i++) {
       keyValues.put(i, i);
     }
     vm6.invoke(() -> WANTestBase.putGivenKeyValue(getTestMethodName() + "_RR", keyValues));
@@ -102,10 +102,10 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
     Map queueMap1 = vm4.invoke(WANTestBase::checkQueue);
     Map queueMap2 = vm6.invoke(WANTestBase::checkQueue);
 
-    List createList1 = (List) queueMap1.get("Create");
-    List updateList1 = (List) queueMap1.get("Update");
-    List createList2 = (List) queueMap2.get("Create");
-    List updateList2 = (List) queueMap2.get("Update");
+    var createList1 = (List) queueMap1.get("Create");
+    var updateList1 = (List) queueMap1.get("Update");
+    var createList2 = (List) queueMap2.get("Create");
+    var updateList2 = (List) queueMap2.get("Update");
 
     assertEquals(0, updateList1.size());
     assertEquals(0, updateList2.size());
@@ -116,9 +116,9 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
 
   @Test
   public void testReplicatedSerialPropagationLoopBack3SitesLoop() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-    Integer tkPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var tkPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
 
     createCacheInVMs(lnPort, vm3, vm6);
     createCacheInVMs(nyPort, vm4, vm7);
@@ -153,23 +153,23 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
     vm7.invoke(() -> WANTestBase.addQueueListener("ny", false));
     vm5.invoke(() -> WANTestBase.addQueueListener("tk", false));
 
-    int totalSize = 3;
-    int increment = 1;
+    var totalSize = 3;
+    var increment = 1;
 
     final Map keyValues = new HashMap();
-    for (int i = 0; i < increment; i++) {
+    for (var i = 0; i < increment; i++) {
       keyValues.put(i, i);
     }
     vm3.invoke(() -> WANTestBase.putGivenKeyValue(getTestMethodName() + "_RR", keyValues));
 
     keyValues.clear();
-    for (int i = increment; i < 2 * increment; i++) {
+    for (var i = increment; i < 2 * increment; i++) {
       keyValues.put(i, i);
     }
     vm4.invoke(() -> WANTestBase.putGivenKeyValue(getTestMethodName() + "_RR", keyValues));
 
     keyValues.clear();
-    for (int i = 2 * increment; i < totalSize; i++) {
+    for (var i = 2 * increment; i < totalSize; i++) {
       keyValues.put(i, i);
     }
     vm5.invoke(() -> WANTestBase.putGivenKeyValue(getTestMethodName() + "_RR", keyValues));
@@ -192,12 +192,12 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
     Map queueMap2 = vm7.invoke(WANTestBase::checkQueue);
     Map queueMap3 = vm5.invoke(WANTestBase::checkQueue);
 
-    List createList1 = (List) queueMap1.get("Create");
-    List updateList1 = (List) queueMap1.get("Update");
-    List createList2 = (List) queueMap2.get("Create");
-    List updateList2 = (List) queueMap2.get("Update");
-    List createList3 = (List) queueMap3.get("Create");
-    List updateList3 = (List) queueMap3.get("Update");
+    var createList1 = (List) queueMap1.get("Create");
+    var updateList1 = (List) queueMap1.get("Update");
+    var createList2 = (List) queueMap2.get("Create");
+    var updateList2 = (List) queueMap2.get("Update");
+    var createList3 = (List) queueMap3.get("Create");
+    var updateList3 = (List) queueMap3.get("Update");
 
     assertEquals(0, updateList1.size());
     assertEquals(0, updateList2.size());
@@ -211,9 +211,9 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
 
   @Test
   public void testReplicatedSerialPropagationLoopBack3SitesNtoNPutInAllDS() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-    Integer tkPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var tkPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
 
     createCacheInVMs(lnPort, vm3, vm6);
     createCacheInVMs(nyPort, vm4, vm7);
@@ -264,19 +264,19 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
         isOffHeap()));
 
     final Map keyValues = new HashMap();
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       keyValues.put(i, i);
     }
     vm3.invoke(() -> WANTestBase.putGivenKeyValue(getTestMethodName() + "_RR", keyValues));
 
     keyValues.clear();
-    for (int i = 1; i < 2; i++) {
+    for (var i = 1; i < 2; i++) {
       keyValues.put(i, i);
     }
     vm4.invoke(() -> WANTestBase.putGivenKeyValue(getTestMethodName() + "_RR", keyValues));
 
     keyValues.clear();
-    for (int i = 2; i < 3; i++) {
+    for (var i = 2; i < 3; i++) {
 
       keyValues.put(i, i);
     }
@@ -303,21 +303,21 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
     Map queueMap5 = vm7.invoke(WANTestBase::checkQueue2);
     Map queueMap6 = vm5.invoke(WANTestBase::checkQueue2);
 
-    List createList1 = (List) queueMap1.get("Create");
-    List updateList1 = (List) queueMap1.get("Update");
-    List createList2 = (List) queueMap2.get("Create");
-    List updateList2 = (List) queueMap2.get("Update");
-    List createList3 = (List) queueMap3.get("Create");
-    List updateList3 = (List) queueMap3.get("Update");
+    var createList1 = (List) queueMap1.get("Create");
+    var updateList1 = (List) queueMap1.get("Update");
+    var createList2 = (List) queueMap2.get("Create");
+    var updateList2 = (List) queueMap2.get("Update");
+    var createList3 = (List) queueMap3.get("Create");
+    var updateList3 = (List) queueMap3.get("Update");
 
-    List createList4 = (List) queueMap4.get("Create");
-    List updateList4 = (List) queueMap4.get("Update");
+    var createList4 = (List) queueMap4.get("Create");
+    var updateList4 = (List) queueMap4.get("Update");
 
-    List createList5 = (List) queueMap5.get("Create");
-    List updateList5 = (List) queueMap5.get("Update");
+    var createList5 = (List) queueMap5.get("Create");
+    var updateList5 = (List) queueMap5.get("Update");
 
-    List createList6 = (List) queueMap6.get("Create");
-    List updateList6 = (List) queueMap6.get("Update");
+    var createList6 = (List) queueMap6.get("Create");
+    var updateList6 = (List) queueMap6.get("Update");
 
 
     assertEquals(0, updateList1.size());
@@ -338,9 +338,9 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
 
   @Test
   public void testReplicatedSerialPropagationLoopBack3SitesNtoNPutFromOneDS() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-    Integer tkPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var tkPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
 
     vm3.invoke(() -> WANTestBase.createCache(lnPort));
     vm4.invoke(() -> WANTestBase.createCache(nyPort));
@@ -385,7 +385,7 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
     vm5.invoke(() -> WANTestBase.addSecondQueueListener("tk2", false));
 
     final Map keyValues = new HashMap();
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       keyValues.put(i, i);
     }
     vm3.invoke(() -> WANTestBase.putGivenKeyValue(getTestMethodName() + "_RR", keyValues));
@@ -410,21 +410,21 @@ public class SerialWANPropagationLoopBackDUnitTest extends WANTestBase {
     Map queueMap5 = vm4.invoke(WANTestBase::checkQueue2);
     Map queueMap6 = vm5.invoke(WANTestBase::checkQueue2);
 
-    List createList1 = (List) queueMap1.get("Create");
-    List updateList1 = (List) queueMap1.get("Update");
-    List createList2 = (List) queueMap2.get("Create");
-    List updateList2 = (List) queueMap2.get("Update");
-    List createList3 = (List) queueMap3.get("Create");
-    List updateList3 = (List) queueMap3.get("Update");
+    var createList1 = (List) queueMap1.get("Create");
+    var updateList1 = (List) queueMap1.get("Update");
+    var createList2 = (List) queueMap2.get("Create");
+    var updateList2 = (List) queueMap2.get("Update");
+    var createList3 = (List) queueMap3.get("Create");
+    var updateList3 = (List) queueMap3.get("Update");
 
-    List createList4 = (List) queueMap4.get("Create");
-    List updateList4 = (List) queueMap4.get("Update");
+    var createList4 = (List) queueMap4.get("Create");
+    var updateList4 = (List) queueMap4.get("Update");
 
-    List createList5 = (List) queueMap5.get("Create");
-    List updateList5 = (List) queueMap5.get("Update");
+    var createList5 = (List) queueMap5.get("Create");
+    var updateList5 = (List) queueMap5.get("Update");
 
-    List createList6 = (List) queueMap6.get("Create");
-    List updateList6 = (List) queueMap6.get("Update");
+    var createList6 = (List) queueMap6.get("Create");
+    var updateList6 = (List) queueMap6.get("Update");
 
 
     assertEquals(0, updateList1.size());

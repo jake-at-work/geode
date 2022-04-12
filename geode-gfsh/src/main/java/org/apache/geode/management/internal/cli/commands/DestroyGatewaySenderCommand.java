@@ -15,7 +15,6 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -27,14 +26,12 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.functions.GatewaySenderDestroyFunction;
 import org.apache.geode.management.internal.cli.functions.GatewaySenderDestroyFunctionArgs;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -61,15 +58,15 @@ public class DestroyGatewaySenderCommand extends SingleGfshCommand {
       @CliOption(key = CliStrings.IFEXISTS, help = CliStrings.IFEXISTS_HELP,
           specifiedDefaultValue = "true", unspecifiedDefaultValue = "false") boolean ifExist) {
 
-    GatewaySenderDestroyFunctionArgs gatewaySenderDestroyFunctionArgs =
+    var gatewaySenderDestroyFunctionArgs =
         new GatewaySenderDestroyFunctionArgs(id, ifExist);
 
-    Set<DistributedMember> members = getMembers(onGroups, onMember);
+    var members = getMembers(onGroups, onMember);
 
-    List<CliFunctionResult> functionResults = executeAndGetFunctionResult(
+    var functionResults = executeAndGetFunctionResult(
         GatewaySenderDestroyFunction.INSTANCE, gatewaySenderDestroyFunctionArgs, members);
 
-    ResultModel resultModel = ResultModel.createMemberStatusResult(functionResults);
+    var resultModel = ResultModel.createMemberStatusResult(functionResults);
     resultModel.setConfigObject(id);
 
     if (!waitForGatewaySenderMBeanDeletion(id, members)) {
@@ -85,7 +82,7 @@ public class DestroyGatewaySenderCommand extends SingleGfshCommand {
    */
   @VisibleForTesting
   boolean waitForGatewaySenderMBeanDeletion(String id, Set<DistributedMember> members) {
-    DistributedSystemMXBean dsMXBean = getManagementService().getDistributedSystemMXBean();
+    var dsMXBean = getManagementService().getDistributedSystemMXBean();
 
     return poll(MBEAN_DELETION_WAIT_TIME, TimeUnit.MILLISECONDS, () -> members.stream()
         .noneMatch(m -> CreateGatewaySenderCommand.gatewaySenderBeanExists(dsMXBean,

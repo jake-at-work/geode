@@ -39,8 +39,8 @@ public class NestedPdx implements PdxSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + Float.floatToIntBits(myFloat);
     result = prime * result + ((myHashMap == null) ? 0 : myHashMap.hashCode());
     result = prime * result + (int) (myLong ^ (myLong >>> 32));
@@ -60,7 +60,7 @@ public class NestedPdx implements PdxSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    NestedPdx other = (NestedPdx) obj;
+    var other = (NestedPdx) obj;
     if (Float.floatToIntBits(myFloat) != Float.floatToIntBits(other.myFloat)) {
       return false;
     }

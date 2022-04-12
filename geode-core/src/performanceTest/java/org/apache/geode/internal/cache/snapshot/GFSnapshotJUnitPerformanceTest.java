@@ -16,7 +16,6 @@ package org.apache.geode.internal.cache.snapshot;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map.Entry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -29,7 +28,6 @@ import org.apache.geode.cache.snapshot.SnapshotIterator;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.snapshot.GFSnapshot.GFSnapshotExporter;
 import org.apache.geode.internal.cache.snapshot.GFSnapshot.GFSnapshotImporter;
-import org.apache.geode.internal.cache.snapshot.GFSnapshot.SnapshotWriter;
 import org.apache.geode.internal.cache.snapshot.SnapshotPacket.SnapshotRecord;
 import org.apache.geode.test.junit.categories.PerformanceTest;
 
@@ -59,15 +57,15 @@ public class GFSnapshotJUnitPerformanceTest {
 
   @Test
   public void testStreamWritePerformance() throws IOException {
-    int i = 0;
+    var i = 0;
     while (i++ < 10) {
-      long start = System.currentTimeMillis();
-      int count = 100000;
+      var start = System.currentTimeMillis();
+      var count = 100000;
 
       writeFile(count, val);
 
-      long elapsed = System.currentTimeMillis() - start;
-      double rate = 1000.0 * count / elapsed;
+      var elapsed = System.currentTimeMillis() - start;
+      var rate = 1000.0 * count / elapsed;
 
       System.out.println(rate + " stream write operations / sec");
     }
@@ -75,23 +73,23 @@ public class GFSnapshotJUnitPerformanceTest {
 
   @Test
   public void testWritePerformance() throws IOException {
-    int j = 0;
+    var j = 0;
     while (j++ < 10) {
-      long start = System.currentTimeMillis();
-      int count = 100000;
+      var start = System.currentTimeMillis();
+      var count = 100000;
 
-      String s = val;
-      SnapshotWriter ss = GFSnapshot.create(f, "test", cache);
+      var s = val;
+      var ss = GFSnapshot.create(f, "test", cache);
       try {
-        for (int i = 0; i < count; i++) {
+        for (var i = 0; i < count; i++) {
           ss.snapshotEntry(new SnapshotRecord(i, s));
         }
       } finally {
         ss.snapshotComplete();
       }
 
-      long elapsed = System.currentTimeMillis() - start;
-      double rate = 1000.0 * count / elapsed;
+      var elapsed = System.currentTimeMillis() - start;
+      var rate = 1000.0 * count / elapsed;
 
       System.out.println(rate + " write operations / sec");
     }
@@ -101,12 +99,12 @@ public class GFSnapshotJUnitPerformanceTest {
   public void testStreamReadPerformance() throws IOException, ClassNotFoundException {
     writeFile(100000, val);
 
-    int i = 0;
+    var i = 0;
     while (i++ < 10) {
-      long start = System.currentTimeMillis();
-      int count = 0;
+      var start = System.currentTimeMillis();
+      var count = 0;
 
-      GFSnapshotImporter in = new GFSnapshotImporter(f, null);
+      var in = new GFSnapshotImporter(f, null);
 
       SnapshotRecord entry;
       while ((entry = in.readSnapshotRecord()) != null) {
@@ -114,8 +112,8 @@ public class GFSnapshotJUnitPerformanceTest {
       }
       in.close();
 
-      long elapsed = System.currentTimeMillis() - start;
-      double rate = 1000.0 * count / elapsed;
+      var elapsed = System.currentTimeMillis() - start;
+      var rate = 1000.0 * count / elapsed;
 
       System.out.println(rate + " stream read operations / sec");
     }
@@ -123,26 +121,26 @@ public class GFSnapshotJUnitPerformanceTest {
 
   @Test
   public void testCopyPerformance() throws IOException, ClassNotFoundException {
-    int count = 100000;
-    for (int i = 0; i < 10; i++) {
+    var count = 100000;
+    for (var i = 0; i < 10; i++) {
       writeFile(count, val);
 
-      File tmp = File.createTempFile("snapshot-copy", null);
+      var tmp = File.createTempFile("snapshot-copy", null);
       tmp.deleteOnExit();
 
-      final SnapshotWriter writer = GFSnapshot.create(tmp, "test", cache);
+      final var writer = GFSnapshot.create(tmp, "test", cache);
 
-      long start = System.currentTimeMillis();
+      var start = System.currentTimeMillis();
       SnapshotIterator<Integer, String> iter = GFSnapshot.read(f, null);
       try {
         while (iter.hasNext()) {
-          Entry<Integer, String> entry = iter.next();
+          var entry = iter.next();
           writer.snapshotEntry(new SnapshotRecord(null, entry));
         }
         writer.snapshotComplete();
 
-        long elapsed = System.currentTimeMillis() - start;
-        double rate = 1.0 * count / elapsed;
+        var elapsed = System.currentTimeMillis() - start;
+        var rate = 1.0 * count / elapsed;
 
         System.out.println("rate = " + rate + " entries / ms");
       } finally {
@@ -152,10 +150,10 @@ public class GFSnapshotJUnitPerformanceTest {
   }
 
   private void writeFile(int count, String s) throws IOException {
-    GFSnapshotExporter out = new GFSnapshotExporter(f, "test", cache);
+    var out = new GFSnapshotExporter(f, "test", cache);
 
     try {
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         out.writeSnapshotEntry(new SnapshotRecord(i, s));
       }
     } finally {

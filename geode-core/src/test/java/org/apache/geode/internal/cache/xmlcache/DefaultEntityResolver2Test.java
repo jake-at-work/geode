@@ -27,8 +27,8 @@ public class DefaultEntityResolver2Test {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DefaultEntityResolver2 mockDefaultEntityResolver2 = mock(DefaultEntityResolver2.class);
-    InputSource inputSource = new InputSource();
+    var mockDefaultEntityResolver2 = mock(DefaultEntityResolver2.class);
+    var inputSource = new InputSource();
 
     when(mockDefaultEntityResolver2.getClassPathInputSource(eq("publicId"), eq("systemId"),
         eq("path"))).thenReturn(inputSource);

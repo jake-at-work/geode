@@ -105,7 +105,7 @@ public class KeySetTest {
   @Test
   public void retryKeySet_doesNotWriteTransactionException_ifIsNotInTransaction() throws Exception {
     long startTime = 0; // arbitrary value
-    TestableKeySet keySet = new TestableKeySet();
+    var keySet = new TestableKeySet();
     keySet.setIsInTransaction(false);
     when(message.isRetry()).thenReturn(true);
     when(region.getPartitionAttributes()).thenReturn(mock(PartitionAttributes.class));
@@ -118,7 +118,7 @@ public class KeySetTest {
   @Test
   public void nonRetryKeySet_doesNotWriteTransactionException() throws Exception {
     long startTime = 0; // arbitrary value
-    TestableKeySet keySet = new TestableKeySet();
+    var keySet = new TestableKeySet();
     keySet.setIsInTransaction(true);
     when(message.isRetry()).thenReturn(false);
     when(region.getPartitionAttributes()).thenReturn(mock(PartitionAttributes.class));
@@ -132,7 +132,7 @@ public class KeySetTest {
   public void retryKeySet_doesNotWriteTransactionException_ifIsInTransactionAndIsNotPartitionedRegion()
       throws Exception {
     long startTime = 0; // arbitrary value
-    TestableKeySet keySet = new TestableKeySet();
+    var keySet = new TestableKeySet();
     keySet.setIsInTransaction(true);
     when(message.isRetry()).thenReturn(true);
     when(region.getPartitionAttributes()).thenReturn(null);
@@ -146,7 +146,7 @@ public class KeySetTest {
   public void retryKeySet_writesTransactionException_ifIsInTransactionAndIsPartitionedRegion()
       throws Exception {
     long startTime = 0; // arbitrary value
-    TestableKeySet keySet = new TestableKeySet();
+    var keySet = new TestableKeySet();
     keySet.setIsInTransaction(true);
     when(message.isRetry()).thenReturn(true);
     when(region.getPartitionAttributes()).thenReturn(mock(PartitionAttributes.class));
@@ -212,7 +212,7 @@ public class KeySetTest {
 
     verify(authzRequest).keySetAuthorize(eq(REGION_NAME));
 
-    ArgumentCaptor<NotAuthorizedException> argument =
+    var argument =
         ArgumentCaptor.forClass(NotAuthorizedException.class);
     verify(chunkedResponseMessage).addObjPart(argument.capture());
     assertThat(argument.getValue()).isExactlyInstanceOf(NotAuthorizedException.class);

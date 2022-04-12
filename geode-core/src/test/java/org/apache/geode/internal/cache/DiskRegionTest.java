@@ -37,7 +37,7 @@ public class DiskRegionTest {
 
   @Before
   public void setup() {
-    DiskStoreImpl diskStoreImpl = mock(DiskStoreImpl.class);
+    var diskStoreImpl = mock(DiskStoreImpl.class);
     when(diskStoreImpl.getDiskInitFile()).thenReturn(mock(DiskInitFile.class));
     when(diskStoreImpl.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
 

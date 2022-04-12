@@ -43,7 +43,6 @@ import org.apache.geode.internal.cache.execute.AbstractExecution;
 import org.apache.geode.internal.cache.execute.BucketMovedException;
 import org.apache.geode.internal.cache.execute.InternalFunctionException;
 import org.apache.geode.internal.cache.execute.InternalFunctionInvocationTargetException;
-import org.apache.geode.internal.cache.execute.MemberMappedArgument;
 import org.apache.geode.internal.cache.execute.ServerRegionFunctionExecutor;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.internal.cache.tier.MessageType;
@@ -73,19 +72,19 @@ public class ExecuteRegionFunctionSingleHopOp {
 
     Set<String> failedNodes = new HashSet<>();
 
-    ClientMetadataService cms = ((InternalCache) region.getCache()).getClientMetadataService();
+    var cms = ((InternalCache) region.getCache()).getClientMetadataService();
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug("ExecuteRegionFunctionSingleHopOp#execute : The serverToFilterMap is : {}",
           serverToFilterMap);
     }
 
-    List<SingleHopOperationCallable> callableTasks = constructAndGetExecuteFunctionTasks(
+    var callableTasks = constructAndGetExecuteFunctionTasks(
         serverRegionExecutor, serverToFilterMap, (PoolImpl) pool,
         cms, regionFunctionSingleHopOpFunction);
 
-    final int retryAttempts =
+    final var retryAttempts =
         SingleHopClientExecutor.submitAllHA(callableTasks, (LocalRegion) region, isHA,
             resultCollector, failedNodes, ((PoolImpl) pool));
 
@@ -98,7 +97,7 @@ public class ExecuteRegionFunctionSingleHopOp {
     if (retryAttempts > 0) {
       resultCollector.clearResults();
 
-      final ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl executeRegionFunctionOp =
+      final var executeRegionFunctionOp =
           (ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl) executeRegionFunctionOpSupplier
               .get();
 
@@ -119,18 +118,18 @@ public class ExecuteRegionFunctionSingleHopOp {
       ClientMetadataService cms,
       final java.util.function.Function<ServerRegionFunctionExecutor, AbstractOp> opFactory) {
     final List<SingleHopOperationCallable> tasks = new ArrayList<>();
-    ArrayList<ServerLocation> servers = new ArrayList<>(serverToFilterMap.keySet());
+    var servers = new ArrayList<ServerLocation>(serverToFilterMap.keySet());
 
     if (logger.isDebugEnabled()) {
       logger.debug("Constructing tasks for the servers {}", servers);
     }
-    for (ServerLocation server : servers) {
-      ServerRegionFunctionExecutor executor = (ServerRegionFunctionExecutor) serverRegionExecutor
+    for (var server : servers) {
+      var executor = (ServerRegionFunctionExecutor) serverRegionExecutor
           .withFilter(serverToFilterMap.get(server));
 
-      AbstractOp op = opFactory.apply(executor);
+      var op = opFactory.apply(executor);
 
-      SingleHopOperationCallable task =
+      var task =
           new SingleHopOperationCallable(new ServerLocation(server.getHostName(), server.getPort()),
               pool, op, UserAttributes.userAttributes.get());
       tasks.add(task);
@@ -165,11 +164,11 @@ public class ExecuteRegionFunctionSingleHopOp {
           8 + serverRegionExecutor.getFilter().size() + removedNodes.size(), timeoutMs);
       isHA = function.isHA();
       optimizeForWrite = function.optimizeForWrite();
-      byte functionState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
+      var functionState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
           function.optimizeForWrite());
-      Set routingObjects = serverRegionExecutor.getFilter();
-      Object args = serverRegionExecutor.getArguments();
-      MemberMappedArgument memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
+      var routingObjects = serverRegionExecutor.getFilter();
+      var args = serverRegionExecutor.getArguments();
+      var memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
       addBytes(functionState);
       getMessage().addStringPart(region, true);
       if (serverRegionExecutor.isFnSerializationReqd()) {
@@ -181,7 +180,7 @@ public class ExecuteRegionFunctionSingleHopOp {
       getMessage().addObjPart(memberMappedArg);
       getMessage().addBytesPart(new byte[] {(byte) (allBuckets ? 1 : 0)});
       getMessage().addIntPart(routingObjects.size());
-      for (Object key : routingObjects) {
+      for (var key : routingObjects) {
         if (allBuckets) {
           getMessage().addIntPart((Integer) key);
         } else {
@@ -211,11 +210,11 @@ public class ExecuteRegionFunctionSingleHopOp {
           8 + serverRegionExecutor.getFilter().size() + removedNodes.size(), timeoutMs);
       this.isHA = isHA;
       this.optimizeForWrite = optimizeForWrite;
-      Set routingObjects = serverRegionExecutor.getFilter();
-      Object args = serverRegionExecutor.getArguments();
-      byte functionState = AbstractExecution.getFunctionState(isHA,
+      var routingObjects = serverRegionExecutor.getFilter();
+      var args = serverRegionExecutor.getArguments();
+      var functionState = AbstractExecution.getFunctionState(isHA,
           hasResult == (byte) 1, optimizeForWrite);
-      MemberMappedArgument memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
+      var memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
       addBytes(functionState);
       getMessage().addStringPart(region, true);
       getMessage().addStringOrObjPart(functionId);
@@ -223,7 +222,7 @@ public class ExecuteRegionFunctionSingleHopOp {
       getMessage().addObjPart(memberMappedArg);
       getMessage().addBytesPart(new byte[] {(byte) (allBuckets ? 1 : 0)});
       getMessage().addIntPart(routingObjects.size());
-      for (Object key : routingObjects) {
+      for (var key : routingObjects) {
         if (allBuckets) {
           getMessage().addIntPart((Integer) key);
         } else {
@@ -247,7 +246,7 @@ public class ExecuteRegionFunctionSingleHopOp {
       if (getTimeoutMs() == DEFAULT_CLIENT_FUNCTION_TIMEOUT) {
         getMessage().addBytesPart(new byte[] {functionState});
       } else {
-        byte[] bytes = new byte[5];
+        var bytes = new byte[5];
         bytes[0] = functionState;
         Part.encodeInt(getTimeoutMs(), bytes, 1);
         getMessage().addBytesPart(bytes);
@@ -256,12 +255,12 @@ public class ExecuteRegionFunctionSingleHopOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      ChunkedMessage executeFunctionResponseMsg = (ChunkedMessage) msg;
+      var executeFunctionResponseMsg = (ChunkedMessage) msg;
       try {
         executeFunctionResponseMsg.readHeader();
         switch (executeFunctionResponseMsg.getMessageType()) {
           case MessageType.EXECUTE_REGION_FUNCTION_RESULT:
-            final boolean isDebugEnabled = logger.isDebugEnabled();
+            final var isDebugEnabled = logger.isDebugEnabled();
             if (isDebugEnabled) {
               logger.debug(
                   "ExecuteRegionFunctionSingleHopOpImpl#processResponse: received message of type EXECUTE_REGION_FUNCTION_RESULT.");
@@ -269,7 +268,7 @@ public class ExecuteRegionFunctionSingleHopOp {
             Exception exception = null;
             do {
               executeFunctionResponseMsg.receiveChunk();
-              Object resultResponse = executeFunctionResponseMsg.getPart(0).getObject();
+              var resultResponse = executeFunctionResponseMsg.getPart(0).getObject();
               Object result;
               if (resultResponse instanceof ArrayList) {
                 result = ((List) resultResponse).get(0);
@@ -277,15 +276,15 @@ public class ExecuteRegionFunctionSingleHopOp {
                 result = resultResponse;
               }
               if (result instanceof FunctionException) {
-                FunctionException ex = ((FunctionException) result);
+                var ex = ((FunctionException) result);
                 if (isDebugEnabled) {
                   logger.debug(
                       "ExecuteRegionFunctionSingleHopOpImpl#processResponse: received Exception.",
                       ex.getCause());
                 }
                 if (ex instanceof InternalFunctionException) {
-                  Throwable cause = ex.getCause();
-                  DistributedMember memberID = (DistributedMember) ((List) resultResponse).get(1);
+                  var cause = ex.getCause();
+                  var memberID = (DistributedMember) ((List) resultResponse).get(1);
                   resultCollector.addResult(memberID, cause);
                   FunctionStatsManager
                       .getFunctionStats(functionId, executor.getRegion().getSystem())
@@ -293,7 +292,7 @@ public class ExecuteRegionFunctionSingleHopOp {
                   continue;
                 } else if (((FunctionException) result)
                     .getCause() instanceof InternalFunctionInvocationTargetException) {
-                  InternalFunctionInvocationTargetException ifite =
+                  var ifite =
                       (InternalFunctionInvocationTargetException) ex.getCause();
                   failedNodes.addAll(ifite.getFailedNodeSet());
                 }
@@ -310,15 +309,15 @@ public class ExecuteRegionFunctionSingleHopOp {
                     new InternalFunctionInvocationTargetException(
                         ((CacheClosedException) result).getMessage());
                 if (resultResponse instanceof ArrayList) {
-                  DistributedMember memberID = (DistributedMember) ((List) resultResponse).get(1);
+                  var memberID = (DistributedMember) ((List) resultResponse).get(1);
                   failedNodes.add(memberID.getId());
                 }
                 exception = new FunctionException(fite);
               } else if (result instanceof Throwable) {
-                String s = "While performing a remote " + getOpName();
+                var s = "While performing a remote " + getOpName();
                 exception = new ServerOperationException(s, (Throwable) result);
               } else {
-                DistributedMember memberID = (DistributedMember) ((List) resultResponse).get(1);
+                var memberID = (DistributedMember) ((List) resultResponse).get(1);
                 resultCollector.addResult(memberID, result);
                 FunctionStatsManager
                     .getFunctionStats(functionId, executor.getRegion().getSystem())
@@ -342,14 +341,14 @@ public class ExecuteRegionFunctionSingleHopOp {
                   "ExecuteRegionFunctionSingleHopOpImpl#processResponse: received message of type EXCEPTION");
             }
             executeFunctionResponseMsg.receiveChunk();
-            Part part0 = executeFunctionResponseMsg.getPart(0);
-            Object obj = part0.getObject();
+            var part0 = executeFunctionResponseMsg.getPart(0);
+            var obj = part0.getObject();
 
             if (obj instanceof FunctionException) {
-              FunctionException ex = ((FunctionException) obj);
+              var ex = ((FunctionException) obj);
               if (((FunctionException) obj)
                   .getCause() instanceof InternalFunctionInvocationTargetException) {
-                InternalFunctionInvocationTargetException ifite =
+                var ifite =
                     (InternalFunctionInvocationTargetException) ex.getCause();
                 failedNodes.addAll(ifite.getFailedNodeSet());
               }
@@ -358,7 +357,7 @@ public class ExecuteRegionFunctionSingleHopOp {
               }
               return null;
             } else if (obj instanceof Throwable) {
-              String s = "While performing a remote " + getOpName();
+              var s = "While performing a remote " + getOpName();
               throw new ServerOperationException(s, (Throwable) obj);
             }
             break;
@@ -368,7 +367,7 @@ public class ExecuteRegionFunctionSingleHopOp {
                   "ExecuteRegionFunctionSingleHopOpImpl#processResponse: received message of type EXECUTE_REGION_FUNCTION_ERROR");
             }
             executeFunctionResponseMsg.receiveChunk();
-            String errorMessage = executeFunctionResponseMsg.getPart(0).getString();
+            var errorMessage = executeFunctionResponseMsg.getPart(0).getString();
             throw new ServerOperationException(errorMessage);
 
           default:

@@ -17,8 +17,6 @@ package org.apache.geode.management.internal.cli.commands;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,12 +24,8 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
-import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.IgnoredException;
@@ -67,20 +61,20 @@ public class ShowMissingDiskStoreCommandDUnitTest {
 
   @Test
   public void showMissingDiskStoresDoesNotDuplicateDiskStores() {
-    MemberVM server1 = lsRule.startServerVM(1, locator.getPort());
+    var server1 = lsRule.startServerVM(1, locator.getPort());
     @SuppressWarnings("unused")
-    MemberVM server2 = lsRule.startServerVM(2, locator.getPort());
+    var server2 = lsRule.startServerVM(2, locator.getPort());
     @SuppressWarnings("unused")
-    MemberVM server3 = lsRule.startServerVM(3, locator.getPort());
+    var server3 = lsRule.startServerVM(3, locator.getPort());
 
-    final String testRegionName = "regionA";
+    final var testRegionName = "regionA";
     CommandStringBuilder csb;
     csb = new CommandStringBuilder(CliStrings.CREATE_DISK_STORE)
         .addOption(CliStrings.CREATE_DISK_STORE__NAME, "diskStore")
         .addOption(CliStrings.CREATE_DISK_STORE__DIRECTORY_AND_SIZE, "diskStoreDir");
     gfshConnector.executeAndAssertThat(csb.getCommandString()).statusIsSuccess();
 
-    CommandStringBuilder createRegion = new CommandStringBuilder(CliStrings.CREATE_REGION)
+    var createRegion = new CommandStringBuilder(CliStrings.CREATE_REGION)
         .addOption(CliStrings.CREATE_REGION__REGION, testRegionName)
         .addOption(CliStrings.CREATE_REGION__DISKSTORE, "diskStore")
         .addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT,
@@ -95,13 +89,13 @@ public class ShowMissingDiskStoreCommandDUnitTest {
 
     csb = new CommandStringBuilder(CliStrings.SHOW_MISSING_DISK_STORE);
     @SuppressWarnings("deprecation")
-    ResultModel result =
+    var result =
         gfshConnector.executeCommand(csb.getCommandString()).getResultData();
-    TabularResultModel tableSection = result.getTableSection("missing-disk-stores");
-    List<String> missingDiskStoreIds = tableSection.getValuesInColumn("Disk Store ID");
+    var tableSection = result.getTableSection("missing-disk-stores");
+    var missingDiskStoreIds = tableSection.getValuesInColumn("Disk Store ID");
     assertThat(missingDiskStoreIds).hasSize(1);
 
-    String missingId = missingDiskStoreIds.iterator().next();
+    var missingId = missingDiskStoreIds.iterator().next();
 
     csb = new CommandStringBuilder(CliStrings.REVOKE_MISSING_DISK_STORE)
         .addOption(CliStrings.REVOKE_MISSING_DISK_STORE__ID, missingId);
@@ -110,22 +104,22 @@ public class ShowMissingDiskStoreCommandDUnitTest {
 
   @Test
   public void stoppingAndRestartingMemberDoesNotResultInMissingDiskStore() {
-    MemberVM server1 = lsRule.startServerVM(1, locator.getPort());
+    var server1 = lsRule.startServerVM(1, locator.getPort());
     @SuppressWarnings("unused")
-    MemberVM server2 = lsRule.startServerVM(2, locator.getPort());
+    var server2 = lsRule.startServerVM(2, locator.getPort());
     @SuppressWarnings("unused")
-    MemberVM server3 = lsRule.startServerVM(3, locator.getPort());
+    var server3 = lsRule.startServerVM(3, locator.getPort());
     @SuppressWarnings("unused")
-    MemberVM server4 = lsRule.startServerVM(4, locator.getPort());
+    var server4 = lsRule.startServerVM(4, locator.getPort());
 
-    final String testRegionName = "regionA";
+    final var testRegionName = "regionA";
     CommandStringBuilder csb;
     csb = new CommandStringBuilder(CliStrings.CREATE_DISK_STORE)
         .addOption(CliStrings.CREATE_DISK_STORE__NAME, "diskStore")
         .addOption(CliStrings.CREATE_DISK_STORE__DIRECTORY_AND_SIZE, "diskStoreDir");
     gfshConnector.executeAndAssertThat(csb.getCommandString()).statusIsSuccess();
 
-    CommandStringBuilder createRegion = new CommandStringBuilder(CliStrings.CREATE_REGION)
+    var createRegion = new CommandStringBuilder(CliStrings.CREATE_REGION)
         .addOption(CliStrings.CREATE_REGION__REGION, testRegionName)
         .addOption(CliStrings.CREATE_REGION__DISKSTORE, "diskStore")
         .addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT,
@@ -153,10 +147,10 @@ public class ShowMissingDiskStoreCommandDUnitTest {
 
     csb = new CommandStringBuilder(CliStrings.SHOW_MISSING_DISK_STORE);
     @SuppressWarnings("deprecation")
-    CommandResult commandResult = gfshConnector.executeCommand(csb.getCommandString());
-    ResultModel result = commandResult.getResultData();
-    TabularResultModel tableSection = result.getTableSection("missing-disk-stores");
-    List<String> missingDiskStoreIds = tableSection.getValuesInColumn("Disk Store ID");
+    var commandResult = gfshConnector.executeCommand(csb.getCommandString());
+    var result = commandResult.getResultData();
+    var tableSection = result.getTableSection("missing-disk-stores");
+    var missingDiskStoreIds = tableSection.getValuesInColumn("Disk Store ID");
     assertThat(missingDiskStoreIds).isNull();
   }
 
@@ -165,14 +159,14 @@ public class ShowMissingDiskStoreCommandDUnitTest {
   public void stopAllMembersAndStart2ndLocator() throws Exception {
     IgnoredException.addIgnoredException(DistributedSystemDisconnectedException.class);
 
-    MemberVM locator1 = lsRule.startLocatorVM(1, locator.getPort());
+    var locator1 = lsRule.startLocatorVM(1, locator.getPort());
 
     lsRule.startServerVM(2, locator.getPort(), locator1.getPort());
     lsRule.startServerVM(3, locator.getPort(), locator1.getPort());
 
-    final String testRegionName = "regionA";
+    final var testRegionName = "regionA";
 
-    CommandStringBuilder createRegion = new CommandStringBuilder(CliStrings.CREATE_REGION)
+    var createRegion = new CommandStringBuilder(CliStrings.CREATE_REGION)
         .addOption(CliStrings.CREATE_REGION__REGION, testRegionName)
         .addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT,
             RegionShortcut.PARTITION_REDUNDANT.toString());
@@ -187,11 +181,11 @@ public class ShowMissingDiskStoreCommandDUnitTest {
     lsRule.stop(0, false);
 
     lsRule.stop(3, false);
-    final int locatorPort = locator1.getPort();
+    final var locatorPort = locator1.getPort();
 
     // start stale locator
     locator1.invokeAsync("restart locator in vm1", () -> {
-      LocatorStarterRule locatorStarter = new LocatorStarterRule();
+      var locatorStarter = new LocatorStarterRule();
       locatorStarter.withName("locator-1");
       locatorStarter.withPort(locatorPort);
       locatorStarter.withAutoStart();
@@ -202,12 +196,12 @@ public class ShowMissingDiskStoreCommandDUnitTest {
 
     // execute show missing-disk-stores
     await().untilAsserted(() -> {
-      CommandStringBuilder csb1 = new CommandStringBuilder(CliStrings.SHOW_MISSING_DISK_STORE);
+      var csb1 = new CommandStringBuilder(CliStrings.SHOW_MISSING_DISK_STORE);
       @SuppressWarnings("deprecation")
-      CommandResult commandResult = gfshConnector.executeCommand(csb1.getCommandString());
-      ResultModel result = commandResult.getResultData();
-      TabularResultModel tableSection = result.getTableSection("missing-disk-stores");
-      List<String> missingDiskStoreIds = tableSection.getValuesInColumn("Disk Store ID");
+      var commandResult = gfshConnector.executeCommand(csb1.getCommandString());
+      var result = commandResult.getResultData();
+      var tableSection = result.getTableSection("missing-disk-stores");
+      var missingDiskStoreIds = tableSection.getValuesInColumn("Disk Store ID");
       assertThat(missingDiskStoreIds).isNotNull();
     });
   }
@@ -215,15 +209,15 @@ public class ShowMissingDiskStoreCommandDUnitTest {
 
   private void addData(MemberVM server1, String testRegionName) {
     server1.invoke(() -> {
-      Region<Object, Object> region = CacheFactory.getAnyInstance().getRegion(testRegionName);
-      for (int i = 0; i < 113; i++) {
+      var region = CacheFactory.getAnyInstance().getRegion(testRegionName);
+      for (var i = 0; i < 113; i++) {
         region.put(i, "A");
       }
     });
   }
 
   private void rebalance() {
-    CommandStringBuilder rebalance = new CommandStringBuilder(CliStrings.REBALANCE);
+    var rebalance = new CommandStringBuilder(CliStrings.REBALANCE);
     await().untilAsserted(
         () -> gfshConnector.executeAndAssertThat(rebalance.getCommandString()).statusIsSuccess());
   }

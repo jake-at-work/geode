@@ -24,7 +24,7 @@ public class CpUtf8 extends Cp {
   private Vector classes;
 
   CpUtf8(DataInputStream source) throws IOException {
-    int len = source.readUnsignedShort();
+    var len = source.readUnsignedShort();
     int idx;
     value = new StringBuilder();
 
@@ -74,7 +74,7 @@ public class CpUtf8 extends Cp {
   private int decodeNextClassName(int startIdx) {
     int idx, len;
     StringBuilder str;
-    StringBuilder arraySpec = new StringBuilder();
+    var arraySpec = new StringBuilder();
 
     idx = startIdx;
     len = value.length();

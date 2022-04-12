@@ -174,7 +174,7 @@ public class Invalidate70Test {
     verify(authzRequest).invalidateAuthorize(eq(REGION_NAME), eq(KEY_STRING),
         eq(CALLBACK_ARG));
 
-    ArgumentCaptor<NotAuthorizedException> argument =
+    var argument =
         ArgumentCaptor.forClass(NotAuthorizedException.class);
     verify(errorResponseMessage).addObjPart(argument.capture());
     assertThat(argument.getValue()).isExactlyInstanceOf(NotAuthorizedException.class);

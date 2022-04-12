@@ -71,8 +71,8 @@ public class WANRollingUpgradeNewSenderProcessOldEvent
     site2Server2 = host.getVM(oldVersion, 6);
 
     // Get mixed site locator properties
-    String hostName = NetworkUtils.getServerHostName(host);
-    final int[] availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var hostName = NetworkUtils.getServerHostName(host);
+    final var availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
     site1LocatorPort = availablePorts[0];
     site1Locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(site1LocatorPort));
     site1Locators = hostName + "[" + site1LocatorPort + "]";
@@ -262,7 +262,7 @@ public class WANRollingUpgradeNewSenderProcessOldEvent
     // the old sender
     site1Client.invoke(() -> {
       Region region = getCache().getRegion(regionName);
-      for (int i = numPuts; i < numPuts * 2; i++) {
+      for (var i = numPuts; i < numPuts * 2; i++) {
         region.put(i, i);
       }
     });

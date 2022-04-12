@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,7 +44,7 @@ public class GCStatsMonitorTest {
 
   @Before
   public void setUp() {
-    ValueMonitor valueMonitor = mock(ValueMonitor.class);
+    var valueMonitor = mock(ValueMonitor.class);
     gcStatsMonitor = new GCStatsMonitor(testName.getMethodName(), valueMonitor);
 
     assertThat(gcStatsMonitor).isNotNull();
@@ -60,14 +59,14 @@ public class GCStatsMonitorTest {
 
   @Test
   public void addStatsToMonitor() throws Exception {
-    Statistics stats = mock(Statistics.class);
+    var stats = mock(Statistics.class);
     when(stats.getUniqueId()).thenReturn(11L);
-    StatisticDescriptor d1 = mock(StatisticDescriptor.class);
+    var d1 = mock(StatisticDescriptor.class);
     when(d1.getName()).thenReturn(StatsKey.VM_GC_STATS_COLLECTIONS);
-    StatisticDescriptor d2 = mock(StatisticDescriptor.class);
+    var d2 = mock(StatisticDescriptor.class);
     when(d2.getName()).thenReturn(StatsKey.VM_GC_STATS_COLLECTION_TIME);
-    StatisticDescriptor[] descriptors = {d1, d2};
-    StatisticsType type = mock(StatisticsType.class);
+    var descriptors = new StatisticDescriptor[] {d1, d2};
+    var type = mock(StatisticsType.class);
     when(stats.getType()).thenReturn(type);
     when(type.getStatistics()).thenReturn(descriptors);
 
@@ -93,21 +92,21 @@ public class GCStatsMonitorTest {
 
   @Test
   public void handleNotification() throws Exception {
-    StatisticsNotification notification = mock(StatisticsNotification.class);
-    Statistics stats = mock(Statistics.class);
+    var notification = mock(StatisticsNotification.class);
+    var stats = mock(Statistics.class);
     when(stats.getUniqueId()).thenReturn(11L);
 
-    StatisticId s1 = mock(StatisticId.class);
+    var s1 = mock(StatisticId.class);
     when(s1.getStatistics()).thenReturn(stats);
-    StatisticDescriptor d1 = mock(StatisticDescriptor.class);
+    var d1 = mock(StatisticDescriptor.class);
     when(s1.getStatisticDescriptor()).thenReturn(d1);
     when(d1.getName()).thenReturn(StatsKey.VM_GC_STATS_COLLECTIONS);
-    StatisticId s2 = mock(StatisticId.class);
+    var s2 = mock(StatisticId.class);
     when(s2.getStatistics()).thenReturn(stats);
-    StatisticDescriptor d2 = mock(StatisticDescriptor.class);
+    var d2 = mock(StatisticDescriptor.class);
     when(s2.getStatisticDescriptor()).thenReturn(d2);
     when(d2.getName()).thenReturn(StatsKey.VM_GC_STATS_COLLECTION_TIME);
-    List<StatisticId> list = Arrays.asList(s1, s2);
+    var list = Arrays.asList(s1, s2);
     when(notification.iterator()).thenReturn(list.iterator());
     when(notification.getValue(s1)).thenReturn(6L);
     when(notification.getValue(s2)).thenReturn(100L);

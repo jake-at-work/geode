@@ -22,8 +22,6 @@ import static org.apache.geode.management.internal.i18n.CliStrings.IFEXISTS;
 import static org.apache.geode.management.internal.i18n.CliStrings.IFEXISTS_HELP;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -98,11 +96,11 @@ public class AlterAsyncEventQueueCommand extends SingleGfshCommand implements
     }
 
     if (findAEQ(id) == null) {
-      String message = String.format("Can not find an async event queue with id '%s'.", id);
+      var message = String.format("Can not find an async event queue with id '%s'.", id);
       throw new EntityNotFoundException(message, ifExists);
     }
 
-    CacheConfig.AsyncEventQueue aeqConfiguration = new CacheConfig.AsyncEventQueue();
+    var aeqConfiguration = new CacheConfig.AsyncEventQueue();
     aeqConfiguration.setId(id);
     aeqConfiguration.setPauseEventProcessing(pauseEventProcessing);
 
@@ -116,7 +114,7 @@ public class AlterAsyncEventQueueCommand extends SingleGfshCommand implements
       aeqConfiguration.setMaximumQueueMemory(maxQueueMemory + "");
     }
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     result.addInfo().addLine("Please restart the servers to apply any changed configuration");
     result.setConfigObject(aeqConfiguration);
 
@@ -131,8 +129,8 @@ public class AlterAsyncEventQueueCommand extends SingleGfshCommand implements
       return null;
     }
 
-    Set<String> groups = ccService.getGroups();
-    for (String group : groups) {
+    var groups = ccService.getGroups();
+    for (var group : groups) {
       queue =
           Identifiable.find(ccService.getCacheConfig(group).getAsyncEventQueues(), aeqId);
       if (queue != null) {
@@ -145,19 +143,19 @@ public class AlterAsyncEventQueueCommand extends SingleGfshCommand implements
   @Override
   public boolean updateConfigForGroup(String group, CacheConfig config, Object configObject) {
 
-    boolean aeqConfigsHaveBeenUpdated = false;
+    var aeqConfigsHaveBeenUpdated = false;
 
-    List<CacheConfig.AsyncEventQueue> queues = config.getAsyncEventQueues();
+    var queues = config.getAsyncEventQueues();
     if (queues.isEmpty()) {
       return false;
     }
 
-    CacheConfig.AsyncEventQueue aeqConfiguration =
+    var aeqConfiguration =
         ((CacheConfig.AsyncEventQueue) configObject);
 
-    String aeqId = aeqConfiguration.getId();
+    var aeqId = aeqConfiguration.getId();
 
-    for (CacheConfig.AsyncEventQueue queue : queues) {
+    for (var queue : queues) {
       if (aeqId.equals(queue.getId())) {
         if (StringUtils.isNotBlank(aeqConfiguration.getBatchSize())) {
           queue.setBatchSize(aeqConfiguration.getBatchSize());
@@ -184,9 +182,9 @@ public class AlterAsyncEventQueueCommand extends SingleGfshCommand implements
   public static class Interceptor extends AbstractCliAroundInterceptor {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      Object batchSize = parseResult.getParamValue(BATCH_SIZE);
-      Object batchTimeInterval = parseResult.getParamValue(BATCH_TIME_INTERVAL);
-      Object maxQueueMemory = parseResult.getParamValue(MAX_QUEUE_MEMORY);
+      var batchSize = parseResult.getParamValue(BATCH_SIZE);
+      var batchTimeInterval = parseResult.getParamValue(BATCH_TIME_INTERVAL);
+      var maxQueueMemory = parseResult.getParamValue(MAX_QUEUE_MEMORY);
 
       if (batchSize == null && batchTimeInterval == null && maxQueueMemory == null) {
         return ResultModel.createError("need to specify at least one option to modify.");

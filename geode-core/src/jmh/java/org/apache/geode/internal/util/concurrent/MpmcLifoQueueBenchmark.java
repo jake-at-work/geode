@@ -107,7 +107,7 @@ public class MpmcLifoQueueBenchmark {
 
   @Benchmark
   public void workload() {
-    Object o = queue.pollFirst();
+    var o = queue.pollFirst();
     if (null == o) {
       o = new Object();
     }

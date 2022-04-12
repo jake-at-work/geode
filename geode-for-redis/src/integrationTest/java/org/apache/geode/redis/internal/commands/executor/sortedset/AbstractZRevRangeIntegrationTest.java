@@ -62,8 +62,8 @@ public abstract class AbstractZRevRangeIntegrationTest implements RedisIntegrati
   @Test
   public void shouldError_givenNonIntegerRangeValues() {
     jedis.zadd(KEY, 1.0, MEMBER_BASE_NAME);
-    String tooSmall = Long.MIN_VALUE + "0";
-    String tooBig = Long.MAX_VALUE + "0";
+    var tooSmall = Long.MIN_VALUE + "0";
+    var tooBig = Long.MAX_VALUE + "0";
     assertThatThrownBy(
         () -> jedis.sendCommand(KEY, Protocol.Command.ZREVRANGE, KEY, "NOT_AN_INT", "2"))
             .hasMessage(ERROR_NOT_INTEGER);
@@ -90,9 +90,9 @@ public abstract class AbstractZRevRangeIntegrationTest implements RedisIntegrati
   @Parameters({"1,0", "25,30", "8,-3", "8,8", "-8,-8", "-30,-25"})
   @TestCaseName("{method}: start:{0}, end:{1}")
   public void shouldReturnEmptyCollection_givenInvalidRange(long start, long end) {
-    for (int i = 0; i < scores.size(); i++) {
-      String memberName = MEMBER_BASE_NAME + i;
-      Double score = scores.get(i);
+    for (var i = 0; i < scores.size(); i++) {
+      var memberName = MEMBER_BASE_NAME + i;
+      var score = scores.get(i);
       jedis.zadd(KEY, score, memberName);
     }
     assertThat(jedis.zrange(KEY, start, end)).isEmpty();
@@ -103,10 +103,10 @@ public abstract class AbstractZRevRangeIntegrationTest implements RedisIntegrati
   @TestCaseName("{method}: start:{0}, end:{1}")
   public void zrevrange_withValidRanges(long start, long end) {
     List<String> entries = new ArrayList<>();
-    for (int i = 0; i < scores.size(); i++) {
-      String memberName = MEMBER_BASE_NAME + i;
+    for (var i = 0; i < scores.size(); i++) {
+      var memberName = MEMBER_BASE_NAME + i;
       entries.add(memberName);
-      Double score = scores.get(i);
+      var score = scores.get(i);
       jedis.zadd(KEY, score, memberName);
     }
 
@@ -118,20 +118,20 @@ public abstract class AbstractZRevRangeIntegrationTest implements RedisIntegrati
   @TestCaseName("{method}: start:{0}, end:{1}")
   public void zrevrangeWithScores_withValidRanges(long start, long end) {
     List<Tuple> entries = new ArrayList<>();
-    int numOfEntries = scores.size();
-    for (int i = 0; i < numOfEntries; i++) {
-      String memberName = MEMBER_BASE_NAME + i;
-      Double score = scores.get(i);
+    var numOfEntries = scores.size();
+    for (var i = 0; i < numOfEntries; i++) {
+      var memberName = MEMBER_BASE_NAME + i;
+      var score = scores.get(i);
       entries.add(new Tuple(memberName, score));
       jedis.zadd(KEY, score, memberName);
     }
 
-    int subListStartIndex = getSubListStartIndex(end, numOfEntries);
-    int subListEndIndex = getSubListEndIndex(start, numOfEntries);
-    List<Tuple> expectedRevrange = entries.subList(subListStartIndex, subListEndIndex);
+    var subListStartIndex = getSubListStartIndex(end, numOfEntries);
+    var subListEndIndex = getSubListEndIndex(start, numOfEntries);
+    var expectedRevrange = entries.subList(subListStartIndex, subListEndIndex);
     Collections.reverse(expectedRevrange);
 
-    final List<Tuple> revrange = jedis.zrevrangeWithScores(KEY, start, end);
+    final var revrange = jedis.zrevrangeWithScores(KEY, start, end);
 
     assertThat(revrange).containsExactlyElementsOf(expectedRevrange);
   }
@@ -141,8 +141,8 @@ public abstract class AbstractZRevRangeIntegrationTest implements RedisIntegrati
   @TestCaseName("{method}: start:{0}, end:{1}")
   public void zrevrange_withSameScores_shouldOrderLexically(long start, long end) {
     List<String> entries = new ArrayList<>();
-    for (int i = 5; i > 0; i--) {
-      String memberName = MEMBER_BASE_NAME + i;
+    for (var i = 5; i > 0; i--) {
+      var memberName = MEMBER_BASE_NAME + i;
       entries.add(memberName);
       jedis.zadd(KEY, 0.1, memberName);
     }
@@ -170,12 +170,12 @@ public abstract class AbstractZRevRangeIntegrationTest implements RedisIntegrati
   }
 
   private void validateRevrange(long start, long end, List<String> entries) {
-    int subListStartIndex = getSubListStartIndex(end, entries.size());
-    int subListEndIndex = getSubListEndIndex(start, entries.size());
-    List<String> expectedRevrange = entries.subList(subListStartIndex, subListEndIndex);
+    var subListStartIndex = getSubListStartIndex(end, entries.size());
+    var subListEndIndex = getSubListEndIndex(start, entries.size());
+    var expectedRevrange = entries.subList(subListStartIndex, subListEndIndex);
     Collections.reverse(expectedRevrange);
 
-    final List<String> revrange = jedis.zrevrange(KEY, start, end);
+    final var revrange = jedis.zrevrange(KEY, start, end);
 
     assertThat(revrange).containsExactlyElementsOf(expectedRevrange);
   }

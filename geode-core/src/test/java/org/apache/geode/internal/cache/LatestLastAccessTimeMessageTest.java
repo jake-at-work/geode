@@ -22,7 +22,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -40,9 +39,9 @@ public class LatestLastAccessTimeMessageTest {
   private LatestLastAccessTimeMessage<String> lastAccessTimeMessage;
 
   private void setupMessage() {
-    final LatestLastAccessTimeReplyProcessor replyProcessor =
+    final var replyProcessor =
         mock(LatestLastAccessTimeReplyProcessor.class);
-    final Set<InternalDistributedMember> recipients =
+    final var recipients =
         Collections.singleton(mock(InternalDistributedMember.class));
     lastAccessTimeMessage =
         spy(new LatestLastAccessTimeMessage<>(replyProcessor, recipients, region, "foo"));

@@ -16,7 +16,6 @@ package org.apache.geode.internal.cache.execute.util;
 
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.management.internal.RestAgent;
@@ -40,12 +39,12 @@ public class FindRestEnabledServersFunction implements InternalFunction {
   @Override
   public void execute(FunctionContext context) {
     try {
-      InternalCache cache = (InternalCache) context.getCache();
-      DistributionConfig config = cache.getInternalDistributedSystem().getConfig();
+      var cache = (InternalCache) context.getCache();
+      var config = cache.getInternalDistributedSystem().getConfig();
 
-      String bindAddress = RestAgent.getBindAddressForHttpService(config);
+      var bindAddress = RestAgent.getBindAddressForHttpService(config);
 
-      final String protocolType = config.getHttpServiceSSLEnabled() ? "https" : "http";
+      final var protocolType = config.getHttpServiceSSLEnabled() ? "https" : "http";
 
       if (cache.isRESTServiceRunning()) {
         context.getResultSender()

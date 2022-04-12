@@ -45,7 +45,7 @@ public class PdxInstanceFactoryImpl implements PdxInstanceFactory {
     if (name.isEmpty()) {
       expectDomainClass = false;
     }
-    PdxOutputStream pdxOutputStream = new PdxOutputStream();
+    var pdxOutputStream = new PdxOutputStream();
     pdxType = new PdxType(name, expectDomainClass);
     writer = new PdxWriterImpl(pdxType, pdxRegistry, pdxOutputStream);
   }
@@ -210,7 +210,7 @@ public class PdxInstanceFactoryImpl implements PdxInstanceFactory {
   @Override
   public PdxInstanceFactory writeObject(String fieldName, Object value, boolean checkPortability) {
     if (InternalDataSerializer.is662SerializationEnabled()) {
-      boolean alreadyInProgress = InternalDataSerializer.isPdxSerializationInProgress();
+      var alreadyInProgress = InternalDataSerializer.isPdxSerializationInProgress();
       if (!alreadyInProgress) {
         InternalDataSerializer.setPdxSerializationInProgress(true);
         try {
@@ -232,7 +232,7 @@ public class PdxInstanceFactoryImpl implements PdxInstanceFactory {
   public PdxInstanceFactory writeObjectArray(String fieldName, Object[] value,
       boolean checkPortability) {
     if (InternalDataSerializer.is662SerializationEnabled()) {
-      boolean alreadyInProgress = InternalDataSerializer.isPdxSerializationInProgress();
+      var alreadyInProgress = InternalDataSerializer.isPdxSerializationInProgress();
       if (!alreadyInProgress) {
         InternalDataSerializer.setPdxSerializationInProgress(true);
         try {
@@ -253,7 +253,7 @@ public class PdxInstanceFactoryImpl implements PdxInstanceFactory {
   public <CT, VT extends CT> PdxInstanceFactory writeField(String fieldName, VT fieldValue,
       Class<CT> fieldType, boolean checkPortability) {
     if (InternalDataSerializer.is662SerializationEnabled()) {
-      boolean alreadyInProgress = InternalDataSerializer.isPdxSerializationInProgress();
+      var alreadyInProgress = InternalDataSerializer.isPdxSerializationInProgress();
       if (!alreadyInProgress) {
         InternalDataSerializer.setPdxSerializationInProgress(true);
         try {
@@ -278,8 +278,8 @@ public class PdxInstanceFactoryImpl implements PdxInstanceFactory {
     if (enumName == null) {
       throw new IllegalArgumentException("enumName must not be null");
     }
-    TypeRegistry tr = internalCache.getPdxRegistry();
-    EnumInfo ei = new EnumInfo(className, enumName, enumOrdinal);
+    var tr = internalCache.getPdxRegistry();
+    var ei = new EnumInfo(className, enumName, enumOrdinal);
     return ei.getPdxInstance(tr.defineEnum(ei));
   }
 

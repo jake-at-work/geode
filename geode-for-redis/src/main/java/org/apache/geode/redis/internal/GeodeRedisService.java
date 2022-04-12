@@ -18,7 +18,6 @@ package org.apache.geode.redis.internal;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ResourceEvent;
 import org.apache.geode.distributed.internal.ResourceEventsListener;
 import org.apache.geode.internal.cache.CacheService;
@@ -56,11 +55,11 @@ public class GeodeRedisService implements CacheService, ResourceEventsListener {
   }
 
   private void startRedisServer(InternalCache cache) {
-    InternalDistributedSystem system = cache.getInternalDistributedSystem();
+    var system = cache.getInternalDistributedSystem();
 
     if (system.getConfig().getRedisEnabled()) {
-      int port = system.getConfig().getRedisPort();
-      String bindAddress = system.getConfig().getRedisBindAddress();
+      var port = system.getConfig().getRedisPort();
+      var bindAddress = system.getConfig().getRedisBindAddress();
       assert bindAddress != null;
 
       logger.info(

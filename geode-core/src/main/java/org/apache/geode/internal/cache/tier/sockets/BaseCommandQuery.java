@@ -38,9 +38,7 @@ import org.apache.geode.cache.query.types.CollectionType;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.CachedDeserializable;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.MessageType;
-import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.ResourcePermission.Operation;
 import org.apache.geode.security.ResourcePermission.Resource;
@@ -83,12 +81,12 @@ public abstract class BaseCommandQuery extends BaseCommand {
       final boolean sendResults,
       final Object[] params,
       final SecurityService securityService) throws IOException, InterruptedException {
-    ChunkedMessage queryResponseMsg = servConn.getQueryResponseMessage();
-    CacheServerStats stats = servConn.getCacheServerStats();
-    CachedRegionHelper crHelper = servConn.getCachedRegionHelper();
+    var queryResponseMsg = servConn.getQueryResponseMessage();
+    var stats = servConn.getCacheServerStats();
+    var crHelper = servConn.getCachedRegionHelper();
 
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadQueryRequestTime(start - oldStart);
     }
@@ -120,14 +118,14 @@ public abstract class BaseCommandQuery extends BaseCommand {
       // of the regions involved in the query have been destroyed
       // or not. If yes, throw an Exception.
       // This is a workaround/fix for Bug 36969
-      for (final String regionName : regionNames) {
+      for (final var regionName : regionNames) {
         if (crHelper.getRegion(regionName) == null) {
           throw new RegionDestroyedException(
               "Region destroyed during the execution of the query",
               regionName);
         }
       }
-      AuthorizeRequestPP postAuthzRequest = servConn.getPostAuthzRequest();
+      var postAuthzRequest = servConn.getPostAuthzRequest();
       if (postAuthzRequest != null) {
         if (cqQuery == null) {
           queryContext = postAuthzRequest.queryAuthorize(queryString, regionNames, result,
@@ -140,7 +138,7 @@ public abstract class BaseCommandQuery extends BaseCommand {
       }
 
       if (result instanceof SelectResults) {
-        SelectResults<?> selectResults = (SelectResults<?>) result;
+        var selectResults = (SelectResults<?>) result;
 
         if (logger.isDebugEnabled()) {
           logger.debug("Query Result size for : {} is {}", query.getQueryString(),
@@ -149,7 +147,7 @@ public abstract class BaseCommandQuery extends BaseCommand {
 
         // check if resultset has serialized objects, so that they could be sent
         // as ObjectPartList
-        boolean hasSerializedObjects = ((DefaultQuery) query).isKeepSerialized();
+        var hasSerializedObjects = ((DefaultQuery) query).isKeepSerialized();
         if (logger.isDebugEnabled()) {
           logger.debug("Query Result for :{} has serialized objects: {}", query.getQueryString(),
               hasSerializedObjects);
@@ -165,8 +163,8 @@ public abstract class BaseCommandQuery extends BaseCommand {
 
         // Get the collection type (which includes the element type)
         // (used to generate the appropriate instance on the client)
-        CollectionType collectionType = getCollectionType(selectResults);
-        boolean isStructs = collectionType.getElementType().isStructType();
+        var collectionType = getCollectionType(selectResults);
+        var isStructs = collectionType.getElementType().isStructType();
 
         // Check if the Query is from CQ execution.
         if (cqQuery != null) {
@@ -176,14 +174,14 @@ public abstract class BaseCommandQuery extends BaseCommand {
           isStructs = collectionType.getElementType().isStructType();
         }
 
-        int numberOfChunks = (int) Math.ceil(selectResults.size() * 1.0 / MAXIMUM_CHUNK_SIZE);
+        var numberOfChunks = (int) Math.ceil(selectResults.size() * 1.0 / MAXIMUM_CHUNK_SIZE);
 
         if (logger.isTraceEnabled()) {
           logger.trace("{}: Query results size: {}: Entries in chunk: {}: Number of chunks: {}",
               servConn.getName(), selectResults.size(), MAXIMUM_CHUNK_SIZE, numberOfChunks);
         }
 
-        long oldStart = start;
+        var oldStart = start;
         start = DistributionStats.getStatTime();
         stats.incProcessQueryTime(start - oldStart);
 
@@ -243,7 +241,7 @@ public abstract class BaseCommandQuery extends BaseCommand {
       logger.warn(String.format("Unexpected QueryInvalidException while processing query %s",
           queryString),
           e);
-      QueryInvalidException qie = new QueryInvalidException(
+      var qie = new QueryInvalidException(
           String.format("%s : QueryString is: %s.", e.getLocalizedMessage(), queryString));
       writeQueryResponseException(msg, qie, servConn);
       return false;
@@ -285,7 +283,7 @@ public abstract class BaseCommandQuery extends BaseCommand {
 
   protected void sendCqResponse(int msgType, String msgStr, int txId, Throwable e,
       ServerConnection servConn) throws IOException {
-    ChunkedMessage cqMsg = servConn.getChunkedResponseMessage();
+    var cqMsg = servConn.getChunkedResponseMessage();
     if (logger.isDebugEnabled()) {
       logger.debug("CQ Response message :{}", msgStr);
     }
@@ -301,7 +299,7 @@ public abstract class BaseCommandQuery extends BaseCommand {
         break;
 
       case MessageType.CQ_EXCEPTION_TYPE:
-        String exMsg = "";
+        var exMsg = "";
         if (e != null) {
           exMsg = e.getLocalizedMessage();
         }
@@ -338,17 +336,17 @@ public abstract class BaseCommandQuery extends BaseCommand {
       String queryString, ServerCQ cqQuery,
       boolean sendResults)
       throws IOException {
-    int resultIndex = 0;
+    var resultIndex = 0;
     // For CQ only as we dont want CQEntries which have null values.
-    int cqResultIndex = 0;
-    Object[] objs = selectResults.toArray();
-    for (int j = 0; j < numberOfChunks; j++) {
-      boolean incompleteArray = false;
+    var cqResultIndex = 0;
+    var objs = selectResults.toArray();
+    for (var j = 0; j < numberOfChunks; j++) {
+      var incompleteArray = false;
       if (logger.isTraceEnabled()) {
         logger.trace("{}: Creating chunk: {}", servConn.getName(), j);
       }
-      Object[] results = new Object[MAXIMUM_CHUNK_SIZE];
-      for (int i = 0; i < MAXIMUM_CHUNK_SIZE; i++) {
+      var results = new Object[MAXIMUM_CHUNK_SIZE];
+      for (var i = 0; i < MAXIMUM_CHUNK_SIZE; i++) {
         if ((resultIndex) == objs.length) {
           incompleteArray = true;
           break;
@@ -358,7 +356,7 @@ public abstract class BaseCommandQuery extends BaseCommand {
               resultIndex, objs[resultIndex]);
         }
         if (cqQuery != null) {
-          CqEntry e = (CqEntry) objs[resultIndex];
+          var e = (CqEntry) objs[resultIndex];
           // The value may have become null because of entry invalidation.
           if (e.getValue() == null) {
             resultIndex++;
@@ -427,13 +425,13 @@ public abstract class BaseCommandQuery extends BaseCommand {
       boolean sendResults,
       final SecurityService securityService)
       throws IOException {
-    int resultIndex = 0;
-    for (int j = 0; j < numberOfChunks; j++) {
+    var resultIndex = 0;
+    for (var j = 0; j < numberOfChunks; j++) {
       if (logger.isTraceEnabled()) {
         logger.trace("{}: Creating chunk: {}", servConn.getName(), j);
       }
-      ObjectPartList serializedObjs = new ObjectPartList(MAXIMUM_CHUNK_SIZE, false);
-      for (int i = 0; i < MAXIMUM_CHUNK_SIZE; i++) {
+      var serializedObjs = new ObjectPartList(MAXIMUM_CHUNK_SIZE, false);
+      for (var i = 0; i < MAXIMUM_CHUNK_SIZE; i++) {
         if ((resultIndex) == objs.size()) {
           break;
         }
@@ -443,7 +441,7 @@ public abstract class BaseCommandQuery extends BaseCommand {
         }
         Object result;
         if (cqQuery != null) {
-          CqEntry e = (CqEntry) objs.get(resultIndex);
+          var e = (CqEntry) objs.get(resultIndex);
           // The value may have become null because of entry invalidation.
           if (e.getValue() == null) {
             resultIndex++;
@@ -486,20 +484,20 @@ public abstract class BaseCommandQuery extends BaseCommand {
   private void addToObjectPartList(ObjectPartList serializedObjs, Object res,
       boolean isStructs, final SecurityService securityService) {
     if (isStructs && (res instanceof Struct)) {
-      Object[] values = ((Struct) res).getFieldValues();
+      var values = ((Struct) res).getFieldValues();
       // create another ObjectPartList for the struct
-      ObjectPartList serializedValueObjs = new ObjectPartList(values.length, false);
-      for (Object value : values) {
+      var serializedValueObjs = new ObjectPartList(values.length, false);
+      for (var value : values) {
         addObjectToPartList(serializedValueObjs, null, value, securityService);
       }
       serializedObjs.addPart(null, serializedValueObjs, ObjectPartList.OBJECT, null);
     } else if (res instanceof Object[]) {// for CQ key-value pairs
-      Object[] values = ((Object[]) res);
+      var values = ((Object[]) res);
       // create another ObjectPartList for the Object[]
-      ObjectPartList serializedValueObjs = new ObjectPartList(values.length, false);
-      for (int i = 0; i < values.length - 1; i += 2) {
-        Object key = values[i];
-        Object value = values[i + 1];
+      var serializedValueObjs = new ObjectPartList(values.length, false);
+      for (var i = 0; i < values.length - 1; i += 2) {
+        var key = values[i];
+        var value = values[i + 1];
         addObjectToPartList(serializedValueObjs, key, value, securityService);
       }
       serializedObjs.addPart(null, serializedValueObjs, ObjectPartList.OBJECT, null);
@@ -510,8 +508,8 @@ public abstract class BaseCommandQuery extends BaseCommand {
 
   private void addObjectToPartList(ObjectPartList objPartList, Object key, Object value,
       final SecurityService securityService) {
-    Object object = value;
-    boolean isObject = true;
+    var object = value;
+    var isObject = true;
     if (value instanceof CachedDeserializable) {
       object = ((CachedDeserializable) value).getSerializedValue();
     } else if (value instanceof byte[]) {

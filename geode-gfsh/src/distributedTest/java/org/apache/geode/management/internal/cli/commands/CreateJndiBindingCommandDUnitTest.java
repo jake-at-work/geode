@@ -21,15 +21,10 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
-import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.jndi.JNDIInvoker;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.management.internal.configuration.utils.XmlUtils;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
@@ -74,23 +69,23 @@ public class CreateJndiBindingCommandDUnitTest {
 
     // verify cluster config is updated
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      InternalConfigurationPersistenceService ccService =
+      var ccService =
           internalLocator.getConfigurationPersistenceService();
-      Configuration configuration = ccService.getConfiguration("cluster");
-      String xmlContent = configuration.getCacheXmlContent();
+      var configuration = ccService.getConfiguration("cluster");
+      var xmlContent = configuration.getCacheXmlContent();
 
-      Document document = XmlUtils.createDocumentFromXml(xmlContent);
-      NodeList jndiBindings = document.getElementsByTagName("jndi-binding");
+      var document = XmlUtils.createDocumentFromXml(xmlContent);
+      var jndiBindings = document.getElementsByTagName("jndi-binding");
 
       assertThat(jndiBindings.getLength()).isEqualTo(1);
       assertThat(xmlContent).contains("user-name=\"myuser\"");
       assertThat(xmlContent).contains("password=\"mypass\"");
 
-      boolean found = false;
-      for (int i = 0; i < jndiBindings.getLength(); i++) {
-        Element eachBinding = (Element) jndiBindings.item(i);
+      var found = false;
+      for (var i = 0; i < jndiBindings.getLength(); i++) {
+        var eachBinding = (Element) jndiBindings.item(i);
         if (eachBinding.getAttribute("jndi-name").equals("jndi1")) {
           found = true;
           break;
@@ -116,8 +111,8 @@ public class CreateJndiBindingCommandDUnitTest {
   }
 
   private void verifyThatNonExistentClassCausesGfshToError() {
-    SerializableRunnableIF IgnoreClassNotFound = () -> {
-      IgnoredException ex =
+    var IgnoreClassNotFound = (SerializableRunnableIF) () -> {
+      var ex =
           new IgnoredException("non_existent_class_name");
       LogService.getLogger().info(ex.getAddMessage());
     };

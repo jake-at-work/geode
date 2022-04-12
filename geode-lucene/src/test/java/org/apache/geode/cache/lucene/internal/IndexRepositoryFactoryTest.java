@@ -84,7 +84,7 @@ public class IndexRepositoryFactoryTest {
       throws IOException {
     doReturn(null).when(indexRepositoryFactory).getMatchingBucket(fileRegion, bucketId);
 
-    IndexRepository indexRepository = indexRepositoryFactory.finishComputingRepository(0,
+    var indexRepository = indexRepositoryFactory.finishComputingRepository(0,
         serializer, userRegion, oldRepository, luceneIndex);
     assertThat(indexRepository).isNull();
     verify(oldRepository).cleanup();
@@ -95,7 +95,7 @@ public class IndexRepositoryFactoryTest {
       throws IOException {
     when(fileAndChunkBucketAdvisor.isPrimary()).thenReturn(false);
 
-    IndexRepository indexRepository = indexRepositoryFactory.finishComputingRepository(0,
+    var indexRepository = indexRepositoryFactory.finishComputingRepository(0,
         serializer, userRegion, oldRepository, luceneIndex);
     assertThat(indexRepository).isNull();
     verify(oldRepository).cleanup();
@@ -107,7 +107,7 @@ public class IndexRepositoryFactoryTest {
     when(oldRepository.isClosed()).thenReturn(false);
     when(fileAndChunkBucketAdvisor.isPrimary()).thenReturn(true);
 
-    IndexRepository indexRepository = indexRepositoryFactory.finishComputingRepository(0,
+    var indexRepository = indexRepositoryFactory.finishComputingRepository(0,
         serializer, userRegion, oldRepository, luceneIndex);
     assertThat(indexRepository).isNotNull();
     assertThat(indexRepository).isSameAs(oldRepository);
@@ -120,7 +120,7 @@ public class IndexRepositoryFactoryTest {
     when(fileAndChunkBucketAdvisor.isPrimary()).thenReturn(true).thenReturn(false);
     when(distributedLockService.lock(any(), anyLong(), anyLong())).thenReturn(false);
 
-    IndexRepository indexRepository = indexRepositoryFactory.finishComputingRepository(0,
+    var indexRepository = indexRepositoryFactory.finishComputingRepository(0,
         serializer, userRegion, oldRepository, luceneIndex);
     assertThat(indexRepository).isNull();
   }
@@ -156,7 +156,7 @@ public class IndexRepositoryFactoryTest {
   @Test
   public void buildIndexWriterRetriesCreatingIndexWriterWhenIOExceptionEncountered()
       throws IOException {
-    IndexWriter writer = mock(IndexWriter.class);
+    var writer = mock(IndexWriter.class);
     doThrow(new IOException()).doReturn(writer).when(indexRepositoryFactory).getIndexWriter(any(),
         any());
     assertThat(indexRepositoryFactory.buildIndexWriter(bucketId, fileAndChunkBucket, luceneIndex))
@@ -167,7 +167,7 @@ public class IndexRepositoryFactoryTest {
   @Test
   public void buildIndexWriterThrowsExceptionWhenIOExceptionConsistentlyEncountered()
       throws IOException {
-    IOException testException = new IOException("Test exception");
+    var testException = new IOException("Test exception");
     doThrow(testException).when(indexRepositoryFactory).getIndexWriter(any(), any());
     assertThatThrownBy(
         () -> indexRepositoryFactory.buildIndexWriter(bucketId, fileAndChunkBucket, luceneIndex))

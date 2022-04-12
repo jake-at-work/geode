@@ -24,7 +24,6 @@ import java.util.Set;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.deadlock.DeadlockDetector;
 import org.apache.geode.distributed.internal.deadlock.Dependency;
 import org.apache.geode.distributed.internal.deadlock.DependencyGraph;
@@ -33,7 +32,6 @@ import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.CliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -49,15 +47,15 @@ public class ShowDeadlockCommand extends GfshCommand {
       help = CliStrings.SHOW_DEADLOCK__DEPENDENCIES__FILE__HELP,
       mandatory = true) String filename) {
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     try {
       if (!filename.endsWith(".txt")) {
         return ResultModel.createError(
             CliStrings.format(CliStrings.INVALID_FILE_EXTENSION, ".txt"));
       }
-      Set<DistributedMember> allMembers = getAllMembers();
-      GemFireDeadlockDetector gfeDeadLockDetector = new GemFireDeadlockDetector(allMembers);
-      DependencyGraph dependencyGraph = gfeDeadLockDetector.find();
+      var allMembers = getAllMembers();
+      var gfeDeadLockDetector = new GemFireDeadlockDetector(allMembers);
+      var dependencyGraph = gfeDeadLockDetector.find();
       Collection<Dependency> deadlock = dependencyGraph.findCycle();
       DependencyGraph deepest = null;
       if (deadlock == null) {
@@ -66,9 +64,9 @@ public class ShowDeadlockCommand extends GfshCommand {
           deadlock = deepest.getEdges();
         }
       }
-      Set<Dependency> dependencies = (Set<Dependency>) dependencyGraph.getEdges();
+      var dependencies = (Set<Dependency>) dependencyGraph.getEdges();
 
-      InfoResultModel infoResult = result.addInfo();
+      var infoResult = result.addInfo();
 
       if (deadlock != null) {
         if (deepest != null) {
@@ -92,10 +90,10 @@ public class ShowDeadlockCommand extends GfshCommand {
     @Override
     public ResultModel postExecution(GfshParseResult parseResult, ResultModel resultModel,
         Path tempFile) throws IOException {
-      String saveAs =
+      var saveAs =
           parseResult.getParamValueAsString(CliStrings.SHOW_DEADLOCK__DEPENDENCIES__FILE);
 
-      File file = new File(saveAs).getAbsoluteFile();
+      var file = new File(saveAs).getAbsoluteFile();
       resultModel.saveFileTo(file.getParentFile());
       return resultModel;
     }

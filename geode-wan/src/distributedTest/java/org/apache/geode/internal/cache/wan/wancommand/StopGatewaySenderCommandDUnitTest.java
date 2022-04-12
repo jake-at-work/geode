@@ -25,7 +25,6 @@ import static org.apache.geode.internal.cache.wan.wancommand.WANCommandUtils.ver
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Properties;
 
 import org.assertj.core.api.Condition;
@@ -37,7 +36,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -64,7 +62,7 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
 
@@ -86,7 +84,7 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
     server1.invoke(() -> createSender("ln", 2, false, 100, 400, false, false, null, true));
 
     DistributedMember server1DM = getMember(server1.getVM());
-    String command = CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID
+    var command = CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID
         + "=ln --" + CliStrings.MEMBER + "=" + server1DM.getId() + " --" + CliStrings.GROUP
         + "=SenderGroup1";
     gfsh.executeAndAssertThat(command).statusIsError()
@@ -121,15 +119,15 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(
         () -> validateGatewaySenderMXBeanProxy(getMember(server3.getVM()), "ln", true, false));
 
-    String command =
+    var command =
         CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID + "=ln";
-    CommandResult cmdResult = executeCommandWithIgnoredExceptions(command);
+    var cmdResult = executeCommandWithIgnoredExceptions(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYSENDER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "OK");
 
     locatorSite1.invoke(
@@ -161,9 +159,9 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
     server2.invoke(() -> startSender("ln"));
     server3.invoke(() -> startSender("ln"));
 
-    String command =
+    var command =
         CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID + "=ln";
-    CommandResult cmdResult = executeCommandWithIgnoredExceptions(command);
+    var cmdResult = executeCommandWithIgnoredExceptions(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
@@ -196,16 +194,16 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
         () -> validateGatewaySenderMXBeanProxy(getMember(server1.getVM()), "ln", true, false));
 
     DistributedMember server1DM = getMember(server1.getVM());
-    String command = CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID
+    var command = CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID
         + "=ln --" + CliStrings.MEMBER + "=" + server1DM.getId();
-    CommandResult cmdResult = executeCommandWithIgnoredExceptions(command);
+    var cmdResult = executeCommandWithIgnoredExceptions(command);
     assertThat(cmdResult).isNotNull();
 
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYSENDER);
-    List<String> messages = resultData.getValuesInColumn("Message");
+    var messages = resultData.getValuesInColumn("Message");
     assertThat(messages.get(0)).contains("is stopped on member");
 
     locatorSite1.invoke(
@@ -219,7 +217,7 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
    */
   @Test
   public void testStopGatewaySender_Group() {
-    int locator1Port = locatorSite1.getPort();
+    var locator1Port = locatorSite1.getPort();
 
     // setup servers in Site #1 (London)
     server1 = startServerWithGroups(3, "SenderGroup1", locator1Port);
@@ -245,15 +243,15 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(
         () -> validateGatewaySenderMXBeanProxy(getMember(server3.getVM()), "ln", true, false));
 
-    String command = CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID
+    var command = CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID
         + "=ln --" + CliStrings.GROUP + "=SenderGroup1";
-    CommandResult cmdResult = executeCommandWithIgnoredExceptions(command);
+    var cmdResult = executeCommandWithIgnoredExceptions(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYSENDER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "OK");
 
     locatorSite1.invoke(
@@ -274,7 +272,7 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
    */
   @Test
   public void testStopGatewaySender_MultipleGroup() {
-    int locator1Port = locatorSite1.getPort();
+    var locator1Port = locatorSite1.getPort();
 
     // setup servers in Site #1 (London)
     server1 = startServerWithGroups(3, "SenderGroup1", locator1Port);
@@ -312,15 +310,15 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(
         () -> validateGatewaySenderMXBeanProxy(getMember(server5.getVM()), "ln", true, false));
 
-    String command = CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID
+    var command = CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID
         + "=ln --" + CliStrings.GROUP + "=SenderGroup1,SenderGroup2";
-    CommandResult cmdResult = executeCommandWithIgnoredExceptions(command);
+    var cmdResult = executeCommandWithIgnoredExceptions(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYSENDER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "OK", "OK");
 
     locatorSite1.invoke(
@@ -368,22 +366,23 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(
         () -> validateGatewaySenderMXBeanProxy(getMember(server3.getVM()), "ln", false, false));
 
-    String command =
+    var command =
         CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID + "=ln";
-    CommandResult cmdResult = executeCommandWithIgnoredExceptions(command);
+    var cmdResult = executeCommandWithIgnoredExceptions(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYSENDER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "Error");
 
-    List<String> message = resultData.getValuesInColumn("Message");
-    Condition<String> okMsg =
-        new Condition<>(s -> s.startsWith("GatewaySender ln is stopped on member "), "ok");
-    Condition<String> errorMsg =
-        new Condition<>(s -> s.startsWith("GatewaySender ln is not running on member "), "ok");
+    var message = resultData.getValuesInColumn("Message");
+    var okMsg =
+        new Condition<String>(s -> s.startsWith("GatewaySender ln is stopped on member "), "ok");
+    var errorMsg =
+        new Condition<String>(s -> s.startsWith("GatewaySender ln is not running on member "),
+            "ok");
 
     assertThat(message).haveExactly(2, okMsg);
     assertThat(message).haveExactly(1, errorMsg);
@@ -423,22 +422,23 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(
         () -> validateGatewaySenderMXBeanProxy(getMember(server2.getVM()), "ln", true, false));
 
-    String command =
+    var command =
         CliStrings.STOP_GATEWAYSENDER + " --" + CliStrings.STOP_GATEWAYSENDER__ID + "=ln";
-    CommandResult cmdResult = executeCommandWithIgnoredExceptions(command);
+    var cmdResult = executeCommandWithIgnoredExceptions(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYSENDER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "Error");
 
-    List<String> message = resultData.getValuesInColumn("Message");
-    Condition<String> okMsg =
-        new Condition<>(s -> s.startsWith("GatewaySender ln is stopped on member "), "ok");
-    Condition<String> errorMsg =
-        new Condition<>(s -> s.startsWith("GatewaySender ln is not available on member "), "ok");
+    var message = resultData.getValuesInColumn("Message");
+    var okMsg =
+        new Condition<String>(s -> s.startsWith("GatewaySender ln is stopped on member "), "ok");
+    var errorMsg =
+        new Condition<String>(s -> s.startsWith("GatewaySender ln is not available on member "),
+            "ok");
 
     assertThat(message).haveExactly(2, okMsg);
     assertThat(message).haveExactly(1, errorMsg);
@@ -453,13 +453,13 @@ public class StopGatewaySenderCommandDUnitTest implements Serializable {
   }
 
   private CommandResult executeCommandWithIgnoredExceptions(String command) {
-    try (IgnoredException ie = IgnoredException.addIgnoredException("Could not connect")) {
+    try (var ie = IgnoredException.addIgnoredException("Could not connect")) {
       return gfsh.executeCommand(command);
     }
   }
 
   private MemberVM startServerWithGroups(int index, String groups, int locPort) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, groups);
     return clusterStartupRule.startServerVM(index, props, locPort);
   }

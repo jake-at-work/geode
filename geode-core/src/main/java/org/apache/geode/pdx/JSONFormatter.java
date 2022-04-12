@@ -22,8 +22,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.Feature;
-import com.fasterxml.jackson.core.JsonParser.NumberType;
-import com.fasterxml.jackson.core.JsonToken;
 
 import org.apache.geode.cache.RegionService;
 import org.apache.geode.cache.client.internal.ProxyCache;
@@ -182,7 +180,7 @@ public class JSONFormatter {
    */
   public PdxInstance toPdxInstance(Object json, String... identityFields) {
     if (regionService != null && regionService instanceof ProxyCache) {
-      ProxyCache proxyCache = (ProxyCache) regionService;
+      var proxyCache = (ProxyCache) regionService;
       UserAttributes.userAttributes.set(proxyCache.getUserAttributes());
     }
     JsonParser jp = null;
@@ -235,7 +233,7 @@ public class JSONFormatter {
    */
   public String fromPdxInstance(PdxInstance pdxInstance) {
     try {
-      PdxToJSON pj = new PdxToJSON(pdxInstance);
+      var pj = new PdxToJSON(pdxInstance);
       return pj.getJSON();
     } catch (Exception e) {
       throw new JSONFormatterException("Could not create JSON document from PdxInstance", e);
@@ -262,7 +260,7 @@ public class JSONFormatter {
    */
   public byte[] toJsonByteArrayFromPdxInstance(PdxInstance pdxInstance) {
     try {
-      PdxToJSON pj = new PdxToJSON(pdxInstance);
+      var pj = new PdxToJSON(pdxInstance);
       return pj.getJSONByteArray();
     } catch (Exception e) {
       throw new JSONFormatterException("Could not create JSON document from PdxInstance", e);
@@ -285,7 +283,7 @@ public class JSONFormatter {
       currentPdxInstance = createJSONToPdxMapper(null, null, identityFields);// from getlist
     }
     while (true) {
-      JsonToken nt = jp.nextToken();
+      var nt = jp.nextToken();
 
       if (nt == null) {
         return currentPdxInstance;
@@ -297,7 +295,7 @@ public class JSONFormatter {
           // need to create new PdxInstance
           // root object will not name, so create classname lazily from all members.
           // child object will have name; but create this as well lazily from all members
-          JSONToPdxMapper tmp =
+          var tmp =
               createJSONToPdxMapper(currentFieldName, currentPdxInstance, identityFields);
           currentPdxInstance = tmp;
           break;
@@ -310,7 +308,7 @@ public class JSONFormatter {
           if (currentPdxInstance.getParent() == null) {
             return currentPdxInstance;// inner pdxinstance in list
           }
-          JSONToPdxMapper tmp = currentPdxInstance;
+          var tmp = currentPdxInstance;
           currentPdxInstance = currentPdxInstance.getParent();
           currentPdxInstance.addObjectField(tmp.getPdxFieldName(), tmp.getPdxInstance());
           break;
@@ -334,7 +332,7 @@ public class JSONFormatter {
           // need to create array; fieldname may be there; will it case it not there
           arrayStarts(currentState);
           currentState = states.LIST_FOUND;
-          PdxListHelper list = getList(jp, currentState, null);
+          var list = getList(jp, currentState, null);
           currentPdxInstance.addListField(currentFieldName, list);
           currentState = states.LIST_ENDS;
           currentFieldName = null;
@@ -409,14 +407,14 @@ public class JSONFormatter {
 
   private void setNumberField(JsonParser jp, JSONToPdxMapper pih, String fieldName)
       throws IOException {
-    NumberType nt = jp.getNumberType();
+    var nt = jp.getNumberType();
 
     switch (nt) {
       case BIG_DECIMAL:
         pih.addBigDecimalField(fieldName, jp.getDecimalValue());
         break;
       case BIG_INTEGER: {
-        BigInteger bi = jp.getBigIntegerValue();
+        var bi = jp.getBigIntegerValue();
         pih.addBigIntegerField(fieldName, bi);
       }
         break;
@@ -427,7 +425,7 @@ public class JSONFormatter {
         pih.addFloatField(fieldName, jp.getFloatValue());
         break;
       case INT: {
-        int val = jp.getIntValue();
+        var val = jp.getIntValue();
         if (val > Short.MAX_VALUE || val < Short.MIN_VALUE) {
           pih.addIntField(fieldName, val);
         } else if (val > Byte.MAX_VALUE || val < Byte.MIN_VALUE) {
@@ -446,14 +444,14 @@ public class JSONFormatter {
   }
 
   private void setNumberField(JsonParser jp, PdxListHelper pih) throws IOException {
-    NumberType nt = jp.getNumberType();
+    var nt = jp.getNumberType();
 
     switch (nt) {
       case BIG_DECIMAL:
         pih.addBigDecimalField(jp.getDecimalValue());
         break;
       case BIG_INTEGER: {
-        BigInteger bi = jp.getBigIntegerValue();
+        var bi = jp.getBigIntegerValue();
         pih.addBigIntegerField(bi);
       }
         break;
@@ -464,7 +462,7 @@ public class JSONFormatter {
         pih.addFloatField(jp.getFloatValue());
         break;
       case INT: {
-        int val = jp.getIntValue();
+        var val = jp.getIntValue();
         if (val > Short.MAX_VALUE || val < Short.MIN_VALUE) {
           pih.addIntField(val);
         } else if (val > Byte.MAX_VALUE || val < Byte.MIN_VALUE) {
@@ -487,7 +485,7 @@ public class JSONFormatter {
     String currentFieldName = null;
     currentPdxList = new PdxListHelper(currentPdxList, null);
     while (true) {
-      JsonToken nt = jp.nextToken();
+      var nt = jp.nextToken();
 
       if (nt == null) {
         return currentPdxList;
@@ -499,7 +497,7 @@ public class JSONFormatter {
           // need to create new PdxInstance
           // root object will not name, so create classname lazily from all members.
           // child object will have name; but create this as well lazily from all members
-          JSONToPdxMapper tmp = getPdxInstance(jp, currentState, null);
+          var tmp = getPdxInstance(jp, currentState, null);
           currentPdxList.addObjectField(currentFieldName, tmp);
           currentState = states.OBJECT_ENDS;
           break;
@@ -521,7 +519,7 @@ public class JSONFormatter {
         case START_ARRAY: {
           // need to create array; fieldname may be there; will it case it not there
           arrayStarts(currentState);
-          PdxListHelper tmp = currentPdxList.addListField();
+          var tmp = currentPdxList.addListField();
           currentPdxList = tmp;
           currentState = states.LIST_FOUND;
           break;

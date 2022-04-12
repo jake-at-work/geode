@@ -80,12 +80,12 @@ public class RegisterInterestTracker {
 
   public <K> List<K> getInterestList(final @NotNull String regionName,
       final @NotNull InterestType interestType) {
-    RegionInterestEntry rie1 = readRegionInterests(regionName, interestType, false, false);
-    RegionInterestEntry rie2 = readRegionInterests(regionName, interestType, false, true);
-    RegionInterestEntry rie3 = readRegionInterests(regionName, interestType, true, false);
-    RegionInterestEntry rie4 = readRegionInterests(regionName, interestType, true, true);
+    var rie1 = readRegionInterests(regionName, interestType, false, false);
+    var rie2 = readRegionInterests(regionName, interestType, false, true);
+    var rie3 = readRegionInterests(regionName, interestType, true, false);
+    var rie4 = readRegionInterests(regionName, interestType, true, true);
 
-    ArrayList<K> result = new ArrayList<>();
+    var result = new ArrayList<K>();
 
     if (rie1 != null) {
       result.addAll(uncheckedCast(rie1.getInterests().keySet()));
@@ -110,7 +110,7 @@ public class RegisterInterestTracker {
       final @NotNull InterestType interestType,
       final @NotNull InterestResultPolicy pol, final boolean isDurable,
       boolean receiveUpdatesAsInvalidates) {
-    RegionInterestEntry rie =
+    var rie =
         getRegionInterests(r, interestType, false, isDurable, receiveUpdatesAsInvalidates);
     rie.getInterests().put(key, pol);
   }
@@ -118,7 +118,7 @@ public class RegisterInterestTracker {
   boolean removeSingleInterest(final @NotNull LocalRegion r, final @NotNull Object key,
       final @NotNull InterestType interestType,
       final boolean isDurable, final boolean receiveUpdatesAsInvalidates) {
-    RegionInterestEntry rie =
+    var rie =
         getRegionInterests(r, interestType, true, isDurable, receiveUpdatesAsInvalidates);
     if (rie == null) {
       return false;
@@ -139,7 +139,7 @@ public class RegisterInterestTracker {
   void addInterestList(final @NotNull LocalRegion r, final @NotNull List<?> keys,
       final @NotNull InterestResultPolicy pol, final boolean isDurable,
       boolean receiveUpdatesAsInvalidates) {
-    RegionInterestEntry rie =
+    var rie =
         getRegionInterests(r, InterestType.KEY, false, isDurable, receiveUpdatesAsInvalidates);
     for (Object key : keys) {
       rie.getInterests().put(key, pol);
@@ -192,8 +192,8 @@ public class RegisterInterestTracker {
   private void removeAllInterests(ServerRegionProxy srp, final @NotNull InterestType interestType,
       boolean durable,
       boolean keepAlive, boolean receiveUpdatesAsInvalidates) {
-    String regName = srp.getRegionName();
-    ConcurrentMap<String, RegionInterestEntry> allInterests =
+    var regName = srp.getRegionName();
+    var allInterests =
         getRegionToInterestsMap(interestType, durable, receiveUpdatesAsInvalidates);
     if (allInterests.remove(regName) != null) {
       if (logger.isDebugEnabled()) {
@@ -219,7 +219,7 @@ public class RegisterInterestTracker {
   boolean removeInterestList(final @NotNull LocalRegion r, final @NotNull List<?> keys,
       final boolean isDurable,
       final boolean receiveUpdatesAsInvalidates) {
-    RegionInterestEntry rie =
+    var rie =
         getRegionInterests(r, InterestType.KEY, true, isDurable, receiveUpdatesAsInvalidates);
     if (rie == null) {
       return false;
@@ -227,7 +227,7 @@ public class RegisterInterestTracker {
     if (logger.isDebugEnabled()) {
       logger.debug("removeInterestList region={} keys={}", r.getFullPath(), keys);
     }
-    int removeCount = 0;
+    var removeCount = 0;
     for (Object key : keys) {
       Object interest = rie.getInterests().remove(key);
       if (interest != null) {
@@ -250,7 +250,7 @@ public class RegisterInterestTracker {
   ConcurrentMap<String, RegionInterestEntry> getRegionToInterestsMap(InterestType interestType,
       boolean isDurable,
       boolean receiveUpdatesAsInvalidates) {
-    FailoverInterestList fil =
+    var fil =
         failoverInterestLists[getInterestLookupIndex(isDurable, receiveUpdatesAsInvalidates)];
 
     switch (interestType) {
@@ -280,12 +280,12 @@ public class RegisterInterestTracker {
    */
   private RegionInterestEntry getRegionInterests(LocalRegion r, InterestType interestType,
       boolean forRemoval, boolean isDurable, boolean receiveUpdatesAsInvalidates) {
-    final String regionName = r.getFullPath();
-    ConcurrentMap<String, RegionInterestEntry> mapOfInterest =
+    final var regionName = r.getFullPath();
+    var mapOfInterest =
         getRegionToInterestsMap(interestType, isDurable, receiveUpdatesAsInvalidates);
-    RegionInterestEntry result = mapOfInterest.get(regionName);
+    var result = mapOfInterest.get(regionName);
     if (result == null && !forRemoval) {
-      RegionInterestEntry rie = new RegionInterestEntry(r);
+      var rie = new RegionInterestEntry(r);
       result = mapOfInterest.putIfAbsent(regionName, rie);
       if (result == null) {
         result = rie;
@@ -297,7 +297,7 @@ public class RegisterInterestTracker {
   private RegionInterestEntry readRegionInterests(String regionName,
       final @NotNull InterestType interestType,
       boolean isDurable, boolean receiveUpdatesAsInvalidates) {
-    ConcurrentMap<String, RegionInterestEntry> mapOfInterest =
+    var mapOfInterest =
         getRegionToInterestsMap(interestType, isDurable, receiveUpdatesAsInvalidates);
     return mapOfInterest.get(regionName);
   }

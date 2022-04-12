@@ -38,9 +38,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginBuilderFactory;
 import org.apache.geode.internal.logging.ManagerLogWriter;
 import org.apache.geode.internal.logging.ManagerLogWriterFactory;
 import org.apache.geode.internal.logging.ManagerLogWriterFactory.LogFileRolloverDetails;
-import org.apache.geode.internal.statistics.StatisticsConfig;
 import org.apache.geode.logging.internal.LoggingSessionRegistryProvider;
-import org.apache.geode.logging.internal.spi.LogConfig;
 import org.apache.geode.logging.internal.spi.LogConfigListener;
 import org.apache.geode.logging.internal.spi.LogConfigSupplier;
 import org.apache.geode.logging.internal.spi.LogFile;
@@ -194,7 +192,7 @@ public class LogWriterAppender extends AbstractAppender
 
     @Override
     public LogWriterAppender build() {
-      Layout<? extends Serializable> layout = getOrCreateLayout();
+      var layout = getOrCreateLayout();
       return new LogWriterAppender(getName(), layout, getFilter(),
           MemberNamePatternConverter.INSTANCE.getMemberNameSupplier(), memberName, appendLog,
           security, startPaused, debug, LoggingSessionRegistryProvider.get());
@@ -266,15 +264,15 @@ public class LogWriterAppender extends AbstractAppender
 
     logConfigSupplier.addLogConfigListener(this);
 
-    LogConfig logConfig = logConfigSupplier.getLogConfig();
+    var logConfig = logConfigSupplier.getLogConfig();
     if (eagerMemberName == null && lazyMemberName == null) {
-      String memberName = logConfig.getName();
+      var memberName = logConfig.getName();
       memberNameSupplier.set(memberName);
       lazyMemberName = memberName;
     }
 
-    StatisticsConfig statisticsConfig = logConfigSupplier.getStatisticsConfig();
-    ManagerLogWriterFactory managerLogWriterFactory = new ManagerLogWriterFactory()
+    var statisticsConfig = logConfigSupplier.getStatisticsConfig();
+    var managerLogWriterFactory = new ManagerLogWriterFactory()
         .setSecurity(security).setAppendLog(appendLog);
 
     logWriter = managerLogWriterFactory.create(logConfig, statisticsConfig);
@@ -338,7 +336,7 @@ public class LogWriterAppender extends AbstractAppender
     }
     APPENDING.set(Boolean.TRUE);
     try {
-      ManagerLogWriter currentLogWriter = logWriter;
+      var currentLogWriter = logWriter;
       if (currentLogWriter == null || currentLogWriter instanceof NullLogWriter) {
         return;
       }
@@ -349,7 +347,7 @@ public class LogWriterAppender extends AbstractAppender
   }
 
   private void doAppendToLogWriter(final ManagerLogWriter logWriter, final LogEvent event) {
-    byte[] bytes = getLayout().toByteArray(event);
+    var bytes = getLayout().toByteArray(event);
     if (bytes != null && bytes.length > 0) {
       logWriter.writeFormattedMessage(new String(bytes, Charset.defaultCharset()));
     }

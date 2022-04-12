@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -50,13 +49,13 @@ public class LegacyStatCounterTest {
         .baseUnit("my meter base unit")
         .register(registry);
 
-    Counter underlyingCounter = registry.find("my.meter.name").counter();
+    var underlyingCounter = registry.find("my.meter.name").counter();
 
     assertThat(underlyingCounter)
         .as("underlying counter")
         .isNotNull();
 
-    Meter.Id underlyingCounterId = underlyingCounter.getId();
+    var underlyingCounterId = underlyingCounter.getId();
 
     assertThat(underlyingCounterId)
         .as("underlying counter ID")
@@ -90,7 +89,7 @@ public class LegacyStatCounterTest {
     Counter legacyStatCounter = LegacyStatCounter.builder("my.meter.name")
         .register(registry);
 
-    Counter underlyingCounter = registry.find("my.meter.name").counter();
+    var underlyingCounter = registry.find("my.meter.name").counter();
 
     assertThat(legacyStatCounter.getId())
         .isSameAs(underlyingCounter.getId());
@@ -101,7 +100,7 @@ public class LegacyStatCounterTest {
     Counter legacyStatCounter = LegacyStatCounter.builder("my.meter.name")
         .register(registry);
 
-    Counter underlyingCounter = registry.find("my.meter.name").counter();
+    var underlyingCounter = registry.find("my.meter.name").counter();
 
     legacyStatCounter.increment(22.9);
 
@@ -111,8 +110,8 @@ public class LegacyStatCounterTest {
 
   @Test
   public void withDoubleStat_increment_incrementsDoubleStat() {
-    Statistics statistics = mock(Statistics.class);
-    int statId = 93;
+    var statistics = mock(Statistics.class);
+    var statId = 93;
 
     Counter legacyStatCounter = LegacyStatCounter.builder("my.meter.name")
         .doubleStatistic(statistics, statId)
@@ -125,8 +124,8 @@ public class LegacyStatCounterTest {
 
   @Test
   public void withDoubleStat_count_readsFromDoubleStat() {
-    Statistics statistics = mock(Statistics.class);
-    int statId = 93;
+    var statistics = mock(Statistics.class);
+    var statId = 93;
 
     Counter legacyStatCounter = LegacyStatCounter.builder("my.meter.name")
         .doubleStatistic(statistics, statId)
@@ -140,8 +139,8 @@ public class LegacyStatCounterTest {
 
   @Test
   public void withLongStat_increment_incrementsLongStat() {
-    Statistics statistics = mock(Statistics.class);
-    int statId = 93;
+    var statistics = mock(Statistics.class);
+    var statId = 93;
 
     Counter legacyStatCounter = LegacyStatCounter.builder("my.meter.name")
         .longStatistic(statistics, statId)
@@ -154,8 +153,8 @@ public class LegacyStatCounterTest {
 
   @Test
   public void withLongStat_count_readsFromLongStat() {
-    Statistics statistics = mock(Statistics.class);
-    int statId = 93;
+    var statistics = mock(Statistics.class);
+    var statId = 93;
 
     Counter legacyStatCounter = LegacyStatCounter.builder("my.meter.name")
         .longStatistic(statistics, statId)

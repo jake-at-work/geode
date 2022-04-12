@@ -40,7 +40,7 @@ public class MapResultCollector implements ResultCollector<List<PageEntry>, Map<
   @Override
   public void addResult(final DistributedMember memberID,
       final List<PageEntry> resultOfSingleExecution) {
-    for (PageEntry entry : resultOfSingleExecution) {
+    for (var entry : resultOfSingleExecution) {
       results.put(entry.getKey(), entry.getValue());
     }
   }

@@ -35,7 +35,6 @@ import static org.junit.Assert.fail;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
@@ -47,7 +46,6 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheLoader;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CommitConflictException;
 import org.apache.geode.cache.CommitIncompleteException;
 import org.apache.geode.cache.DataPolicy;
@@ -60,8 +58,6 @@ import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.internal.ResourceEvent;
 import org.apache.geode.distributed.internal.ResourceEventsListener;
-import org.apache.geode.distributed.internal.locks.DLockBatch;
-import org.apache.geode.distributed.internal.locks.DLockService;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.membership.api.MembershipManagerHelper;
 import org.apache.geode.internal.cache.CommitReplyException;
@@ -84,7 +80,6 @@ import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
@@ -96,7 +91,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected <K, V> RegionAttributes<K, V> getRegionAttributes(Scope scope) {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(scope);
     if (scope.isDistributedAck()) {
       factory.setEarlyAck(false);
@@ -110,8 +105,8 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRemoteGrantor() throws Exception {
     IgnoredException.addIgnoredException("killing members ds");
-    final CacheTransactionManager txMgr = getCache().getCacheTransactionManager();
-    final String rgnName = getUniqueName();
+    final var txMgr = getCache().getCacheTransactionManager();
+    final var rgnName = getUniqueName();
     Region rgn = getCache().createRegion(rgnName, getRegionAttributes());
     rgn.create("key", null);
 
@@ -127,8 +122,8 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     // VM vm1 = host.getVM(1);
     // VM vm2 = host.getVM(2);
 
@@ -137,7 +132,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       public void run() {
         try {
           Region rgn1 = getCache().getRegion(rgnName);
-          final CacheTransactionManager txMgr2 = getCache().getCacheTransactionManager();
+          final var txMgr2 = getCache().getCacheTransactionManager();
           txMgr2.begin();
           rgn1.put("key", "val1");
           txMgr2.commit();
@@ -173,13 +168,13 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     assertNotNull(TXLockService.getDTLS());
     assertTrue(TXLockService.getDTLS().isLockGrantor());
 
-    SerializableRunnable remoteComm =
+    var remoteComm =
         new SerializableRunnable("testRemoteGrantor: remote grantor commit") {
           @Override
           public void run() {
             try {
               Cache c = getCache();
-              CacheTransactionManager txMgr2 = c.getCacheTransactionManager();
+              var txMgr2 = c.getCacheTransactionManager();
               Region rgn1 = c.getRegion(rgnName);
               if (rgn1 == null) {
                 // This block should only execute on VM0
@@ -213,17 +208,17 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testInternalCallbacks() throws Exception {
-    final CacheTransactionManager txMgr = getCache().getCacheTransactionManager();
-    final String rgnName1 = getUniqueName() + "_1";
-    final String rgnName2 = getUniqueName() + "_2";
-    final String rgnName3 = getUniqueName() + "_3";
+    final var txMgr = getCache().getCacheTransactionManager();
+    final var rgnName1 = getUniqueName() + "_1";
+    final var rgnName2 = getUniqueName() + "_2";
+    final var rgnName3 = getUniqueName() + "_3";
     Region rgn1 = getCache().createRegion(rgnName1, getRegionAttributes());
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    SerializableRunnable createRgn =
+    var createRgn =
         new SerializableRunnable("testInternalCallbacks: initial configuration") {
           @Override
           public void run() {
@@ -247,7 +242,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     txMgr.begin();
     rgn1.put("key", "value0");
     txMgr.commit();
-    SerializableRunnable checkRgn1 =
+    var checkRgn1 =
         new SerializableRunnable("testInternalCallbacks: check rgn1 valus") {
           @Override
           public void run() {
@@ -266,17 +261,17 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       setInternalCallbacks(((TXManagerImpl) txMgr).getTXState(), cbSensors);
       rgn1.put("key", "value1");
       txMgr.commit();
-      for (int i = cbSensors.length - 3; i >= 0; --i) {
+      for (var i = cbSensors.length - 3; i >= 0; --i) {
         assertEquals("Internal callback " + i + " was not called the expected number of times!",
             (byte) 1, cbSensors[i]);
       }
-      for (int i = cbSensors.length - 1; i > cbSensors.length - 3; --i) {
+      for (var i = cbSensors.length - 1; i > cbSensors.length - 3; --i) {
         assertEquals(
             "Internal \"during\" callback " + i + " invoked an unexpected number of times!",
             (byte) 2, cbSensors[i]);
       }
     }
-    SerializableRunnable checkRgn1Again =
+    var checkRgn1Again =
         new SerializableRunnable("testInternalCallbacks: validate remote values") {
           @Override
           public void run() {
@@ -294,7 +289,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     rgn1.put("key", "value2");
     rgn2.put("key", "value2");
     txMgr.commit();
-    SerializableRunnable checkRgn12 =
+    var checkRgn12 =
         new SerializableRunnable("testInternalCallbacks: check rgn1 valus") {
           @Override
           public void run() {
@@ -318,17 +313,17 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       rgn2.put("key", "value3");
       txMgr.commit();
 
-      for (int i = cbSensors.length - 3; i >= 0; i--) {
+      for (var i = cbSensors.length - 3; i >= 0; i--) {
         assertEquals("Internal callback " + i + " was not called the expected number of times!",
             (byte) 1, cbSensors[i]);
       }
-      for (int i = cbSensors.length - 1; i > cbSensors.length - 3; --i) {
+      for (var i = cbSensors.length - 1; i > cbSensors.length - 3; --i) {
         assertEquals(
             "Internal \"during\" callback " + i + " invoked an unexpected number of times!",
             (byte) 2, cbSensors[i]);
       }
     }
-    SerializableRunnable checkRgn12Again =
+    var checkRgn12Again =
         new SerializableRunnable("testInternalCallbacks: validate both regions remote values") {
           @Override
           public void run() {
@@ -350,7 +345,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     rgn2.put("key", "value4");
     rgn3.put("key", "value4");
     txMgr.commit();
-    SerializableRunnable checkRgn123 =
+    var checkRgn123 =
         new SerializableRunnable("testInternalCallbacks: check rgn1 valus") {
           @Override
           public void run() {
@@ -379,17 +374,17 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       rgn3.put("key", "value5");
       txMgr.commit();
 
-      for (int i = cbSensors.length - 3; i >= 0; i--) {
+      for (var i = cbSensors.length - 3; i >= 0; i--) {
         assertEquals("Internal callback " + i + " was not called the expected number of times!",
             (byte) 1, cbSensors[i]);
       }
-      for (int i = cbSensors.length - 1; i > cbSensors.length - 3; --i) {
+      for (var i = cbSensors.length - 1; i > cbSensors.length - 3; --i) {
         assertEquals(
             "Internal \"during\" callback " + i + " invoked an unexpected number of times!",
             (byte) 2, cbSensors[i]);
       }
     }
-    SerializableRunnable checkRgn123Again =
+    var checkRgn123Again =
         new SerializableRunnable("testInternalCallbacks: validate both regions remote values") {
           @Override
           public void run() {
@@ -413,7 +408,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
 
   static void setInternalCallbacks(TXStateInterface txp, final byte[] cbSensors) {
     ((TXStateProxyImpl) txp).forceLocalBootstrap();
-    TXState tx = (TXState) ((TXStateProxyImpl) txp).getRealDeal(null, null);
+    var tx = (TXState) ((TXStateProxyImpl) txp).getRealDeal(null, null);
     assertEquals(9, cbSensors.length);
     tx.setAfterReservation(() -> cbSensors[0]++);
     tx.setAfterConflictCheck(() -> cbSensors[1]++);
@@ -431,9 +426,9 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testDACKLoadedMessage() throws Exception {
-    final CacheTransactionManager txMgr = getCache().getCacheTransactionManager();
-    final String rgnName = getUniqueName();
-    AttributesFactory factory = new AttributesFactory();
+    final var txMgr = getCache().getCacheTransactionManager();
+    final var rgnName = getUniqueName();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEarlyAck(false);
     factory.setCacheLoader(new CacheLoader() {
@@ -445,13 +440,13 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void close() {}
     });
-    Region rgn = getCache().createRegion(rgnName, factory.create());
+    var rgn = getCache().createRegion(rgnName, factory.create());
 
     Invoke.invokeInEveryVM(new SerializableRunnable("testDACKLoadedMessage: intial configuration") {
       @Override
       public void run() {
         try {
-          AttributesFactory factory2 = new AttributesFactory();
+          var factory2 = new AttributesFactory();
           factory2.setScope(Scope.DISTRIBUTED_ACK);
           factory2.setEarlyAck(false);
           // factory.setDataPolicy(DataPolicy.REPLICATE);
@@ -513,7 +508,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties p = super.getDistributedSystemProperties();
+    var p = super.getDistributedSystemProperties();
     p.put(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
     p.put(ENABLE_NETWORK_PARTITION_DETECTION, "false");
     return p;
@@ -522,17 +517,17 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testHighAvailabilityFeatures() throws Exception {
     IgnoredException.addIgnoredException("DistributedSystemDisconnectedException");
-    final String rgnName = getUniqueName();
-    AttributesFactory factory = new AttributesFactory();
+    final var rgnName = getUniqueName();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEarlyAck(false);
-    Region rgn = getCache().createRegion(rgnName, factory.create());
+    var rgn = getCache().createRegion(rgnName, factory.create());
     Invoke.invokeInEveryVM(
         new SerializableRunnable("testHighAvailabilityFeatures: intial region configuration") {
           @Override
           public void run() {
             try {
-              AttributesFactory factory2 = new AttributesFactory();
+              var factory2 = new AttributesFactory();
               factory2.setScope(Scope.DISTRIBUTED_ACK);
               factory2.setEarlyAck(false);
               factory2.setDataPolicy(DataPolicy.REPLICATE);
@@ -547,10 +542,10 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     rgn.put("key0", "val0_0");
     rgn.put("key1", "val1_0");
 
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     // This test assumes that there are at least three VMs; the origin and two recipients
     assertTrue(host.getVMCount() >= 3);
-    final VM originVM = host.getVM(0);
+    final var originVM = host.getVM(0);
 
     // Test that there is no commit after a partial commit message
     // send (only sent to a minority of the recipients)
@@ -560,15 +555,15 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         final Region rgn1 = getCache().getRegion(rgnName);
         assertNotNull(rgn1);
         try {
-          final CacheTransactionManager txMgr2 = getCache().getCacheTransactionManager();
-          final CacheTransactionManager txMgrImpl = txMgr2;
+          final var txMgr2 = getCache().getCacheTransactionManager();
+          final var txMgrImpl = txMgr2;
 
           txMgr2.begin();
           // 1. setup an internal callback on originVM that will call
           // disconnectFromDS() on the 2nd duringIndividualSend
           // call.
           ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState()).forceLocalBootstrap();
-          TXState txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
+          var txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
               .getRealDeal(null, null);
           txState.setDuringIndividualSend(new Runnable() {
             private int numCalled = 0;
@@ -599,7 +594,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       }
     });
     // 3. verify on all VMs that the transaction was not committed
-    final SerializableRunnable noChangeValidator =
+    final var noChangeValidator =
         new SerializableRunnable("testHighAvailabilityFeatures: validate no change in Region") {
           @Override
           public void run() {
@@ -607,7 +602,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
             if (rgn1 == null) {
               // Expect a null region from originVM
               try {
-                AttributesFactory factory2 = new AttributesFactory();
+                var factory2 = new AttributesFactory();
                 factory2.setScope(Scope.DISTRIBUTED_ACK);
                 factory2.setEarlyAck(false);
                 factory2.setDataPolicy(DataPolicy.REPLICATE);
@@ -616,7 +611,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
                 Assert.fail("While creating region", e);
               }
             }
-            Region.Entry re = rgn1.getEntry("key0");
+            var re = rgn1.getEntry("key0");
             assertNotNull(re);
             assertEquals("val0_0", re.getValue());
             re = rgn1.getEntry("key1");
@@ -634,14 +629,14 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         final Region rgn1 = getCache().getRegion(rgnName);
         assertNotNull(rgn1);
         try {
-          final CacheTransactionManager txMgr2 = getCache().getCacheTransactionManager();
-          final CacheTransactionManager txMgrImpl = txMgr2;
+          final var txMgr2 = getCache().getCacheTransactionManager();
+          final var txMgrImpl = txMgr2;
 
           txMgr2.begin();
           // 1. setup an internal callback on originVM that will call
           // disconnectFromDS() on AfterIndividualSend
           ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState()).forceLocalBootstrap();
-          TXState txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
+          var txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
               .getRealDeal(null, null);
           txState.setAfterIndividualSend(new Runnable() {
             @Override
@@ -674,13 +669,13 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         final Region rgn1 = getCache().getRegion(rgnName);
         assertNotNull(rgn1);
         try {
-          final CacheTransactionManager txMgr2 = getCache().getCacheTransactionManager();
-          final CacheTransactionManager txMgrImpl = txMgr2;
+          final var txMgr2 = getCache().getCacheTransactionManager();
+          final var txMgrImpl = txMgr2;
 
           txMgr2.begin();
 
           ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState()).forceLocalBootstrap();
-          TXState txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
+          var txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
               .getRealDeal(null, null);
           // 1. setup an internal callback on originVM that will call
           // disconnectFromDS() on the 2nd internalDuringIndividualCommitProcess
@@ -714,7 +709,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       }
     });
     // 3. verify on all VMs that the transaction was committed (including the orgin, due to GII)
-    SerializableRunnable nonSoloChangeValidator1 = new SerializableRunnable(
+    var nonSoloChangeValidator1 = new SerializableRunnable(
         "testHighAvailabilityFeatures: validate v1 non-solo Region changes") {
       @Override
       public void run() {
@@ -722,7 +717,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         if (rgn1 == null) {
           // Expect a null region from originVM
           try {
-            AttributesFactory factory2 = new AttributesFactory();
+            var factory2 = new AttributesFactory();
             factory2.setScope(Scope.DISTRIBUTED_ACK);
             factory2.setEarlyAck(false);
             factory2.setDataPolicy(DataPolicy.REPLICATE);
@@ -731,10 +726,10 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
             Assert.fail("While creating region", e);
           }
         }
-        long giveUp = System.currentTimeMillis() + 10000;
+        var giveUp = System.currentTimeMillis() + 10000;
         while (giveUp > System.currentTimeMillis()) {
           try {
-            Region.Entry re = rgn1.getEntry("key0");
+            var re = rgn1.getEntry("key0");
             assertNotNull(re);
             assertEquals("val0_3", re.getValue());
             re = rgn1.getEntry("key1");
@@ -754,17 +749,17 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     // Verify successful solo region commit after duringIndividualSend
     // (same as afterIndividualSend).
     // Create a region that only exists on the origin and another VM
-    final String soloRegionName = getUniqueName() + "_solo";
-    SerializableRunnable createSoloRegion =
+    final var soloRegionName = getUniqueName() + "_solo";
+    var createSoloRegion =
         new SerializableRunnable("testHighAvailabilityFeatures: solo region configuration") {
           @Override
           public void run() {
             try {
-              AttributesFactory factory2 = new AttributesFactory();
+              var factory2 = new AttributesFactory();
               factory2.setScope(Scope.DISTRIBUTED_ACK);
               factory2.setEarlyAck(false);
               factory2.setDataPolicy(DataPolicy.REPLICATE);
-              Region rgn1 = getCache().createRegion(soloRegionName, factory2.create());
+              var rgn1 = getCache().createRegion(soloRegionName, factory2.create());
               rgn1.put("soloKey0", "soloVal0_0");
               rgn1.put("soloKey1", "soloVal1_0");
             } catch (CacheException e) {
@@ -772,7 +767,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
             }
           }
         };
-    final VM soloRegionVM = host.getVM(1);
+    final var soloRegionVM = host.getVM(1);
     originVM.invoke(createSoloRegion);
     soloRegionVM.invoke(createSoloRegion);
     originVM
@@ -782,15 +777,15 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
             final Region soloRgn = getCache().getRegion(soloRegionName);
             assertNotNull(soloRgn);
             try {
-              final CacheTransactionManager txMgr2 = getCache().getCacheTransactionManager();
-              final CacheTransactionManager txMgrImpl = txMgr2;
+              final var txMgr2 = getCache().getCacheTransactionManager();
+              final var txMgrImpl = txMgr2;
 
               txMgr2.begin();
               // 1. setup an internal callback on originVM that will call
               // disconnectFromDS() on the 2nd duringIndividualSend
               // call.
               ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState()).forceLocalBootstrap();
-              TXState txState =
+              var txState =
                   (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
                       .getRealDeal(null, null);
               txState.setDuringIndividualSend(new Runnable() {
@@ -822,7 +817,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
           }
         });
     // 3. verify on the soloRegionVM that the transaction was committed
-    final SerializableRunnable soloRegionCommitValidator1 = new SerializableRunnable(
+    final var soloRegionCommitValidator1 = new SerializableRunnable(
         "testHighAvailabilityFeatures: validate successful v1 commit in solo Region") {
       @Override
       public void run() {
@@ -830,7 +825,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         if (soloRgn == null) {
           // Expect a null region from originVM
           try {
-            AttributesFactory factory2 = new AttributesFactory();
+            var factory2 = new AttributesFactory();
             factory2.setScope(Scope.DISTRIBUTED_ACK);
             factory2.setEarlyAck(false);
             factory2.setDataPolicy(DataPolicy.REPLICATE);
@@ -839,7 +834,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
             Assert.fail("While creating region ", e);
           }
         }
-        Region.Entry re = soloRgn.getEntry("soloKey0");
+        var re = soloRgn.getEntry("soloKey0");
         assertNotNull(re);
         assertEquals("soloVal0_1", re.getValue());
         re = soloRgn.getEntry("soloKey1");
@@ -863,15 +858,15 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         final Region soloRgn = getCache().getRegion(soloRegionName);
         assertNotNull(soloRgn);
         try {
-          final CacheTransactionManager txMgr2 = getCache().getCacheTransactionManager();
-          final CacheTransactionManager txMgrImpl = txMgr2;
+          final var txMgr2 = getCache().getCacheTransactionManager();
+          final var txMgrImpl = txMgr2;
 
           txMgr2.begin();
           // 1. setup an internal callback on originVM that will call
           // disconnectFromDS() on the afterIndividualSend
           // call.
           ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState()).forceLocalBootstrap();
-          TXState txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
+          var txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
               .getRealDeal(null, null);
           txState.setAfterIndividualSend(new Runnable() {
             @Override
@@ -915,15 +910,15 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         final Region soloRgn = getCache().getRegion(soloRegionName);
         assertNotNull(soloRgn);
         try {
-          final CacheTransactionManager txMgr2 = getCache().getCacheTransactionManager();
-          final CacheTransactionManager txMgrImpl = txMgr2;
+          final var txMgr2 = getCache().getCacheTransactionManager();
+          final var txMgrImpl = txMgr2;
 
           txMgr2.begin();
           // 1. setup an internal callback on originVM that will call
           // disconnectFromDS() on the afterIndividualSend
           // call.
           ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState()).forceLocalBootstrap();
-          TXState txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
+          var txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgrImpl).getTXState())
               .getRealDeal(null, null);
           txState.setAfterIndividualSend(new Runnable() {
             private int numCalled = 0;
@@ -957,7 +952,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         }
       }
     });
-    final SerializableRunnable soloRegionCommitValidator2 = new SerializableRunnable(
+    final var soloRegionCommitValidator2 = new SerializableRunnable(
         "testHighAvailabilityFeatures: validate successful v2 commit in solo Region") {
       @Override
       public void run() {
@@ -965,7 +960,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         if (soloRgn == null) {
           // Expect a null region from originVM
           try {
-            AttributesFactory factory2 = new AttributesFactory();
+            var factory2 = new AttributesFactory();
             factory2.setScope(Scope.DISTRIBUTED_ACK);
             factory2.setEarlyAck(false);
             factory2.setDataPolicy(DataPolicy.REPLICATE);
@@ -974,7 +969,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
             Assert.fail("While creating region ", e);
           }
         }
-        Region.Entry re = soloRgn.getEntry("soloKey0");
+        var re = soloRgn.getEntry("soloKey0");
         assertNotNull(re);
         assertEquals("soloVal0_3", re.getValue());
         re = soloRgn.getEntry("soloKey1");
@@ -984,7 +979,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     };
     originVM.invoke(soloRegionCommitValidator2);
     soloRegionVM.invoke(soloRegionCommitValidator2);
-    SerializableRunnable nonSoloChangeValidator2 = new SerializableRunnable(
+    var nonSoloChangeValidator2 = new SerializableRunnable(
         "testHighAvailabilityFeatures: validate v2 non-solo Region changes") {
       @Override
       public void run() {
@@ -992,7 +987,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         if (rgn1 == null) {
           // Expect a null region from originVM
           try {
-            AttributesFactory factory2 = new AttributesFactory();
+            var factory2 = new AttributesFactory();
             factory2.setScope(Scope.DISTRIBUTED_ACK);
             factory2.setEarlyAck(false);
             factory2.setDataPolicy(DataPolicy.REPLICATE);
@@ -1001,7 +996,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
             Assert.fail("While creating region", e);
           }
         }
-        Region.Entry re = rgn1.getEntry("key0");
+        var re = rgn1.getEntry("key0");
         assertNotNull(re);
         assertEquals("val0_5", re.getValue());
         re = rgn1.getEntry("key1");
@@ -1030,10 +1025,10 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     @Override
     public void run() {
       Region rgn = myCache.getRegion(rgnName);
-      final CacheTransactionManager txMgr = myCache.getCacheTransactionManager();
+      final var txMgr = myCache.getCacheTransactionManager();
       txMgr.begin();
       ((TXStateProxyImpl) ((TXManagerImpl) txMgr).getTXState()).forceLocalBootstrap();
-      TXState txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgr).getTXState())
+      var txState = (TXState) ((TXStateProxyImpl) ((TXManagerImpl) txMgr).getTXState())
           .getRealDeal(null, null);
       txState.setAfterReservation(() -> {
         try {
@@ -1113,15 +1108,15 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testLockBatchParticipantsUpdate() throws Exception {
-    final String rgnName = getUniqueName();
+    final var rgnName = getUniqueName();
     Region rgn = getCache().createRegion(rgnName, getRegionAttributes());
     rgn.create("key", null);
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    SerializableRunnable initRegions =
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var initRegions =
         new SerializableRunnable("testLockBatchParticipantsUpdate: initial configuration") {
           @Override
           public void run() {
@@ -1152,7 +1147,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       public void run() {
         try {
           Region rgn1 = getCache().getRegion(rgnName);
-          final CacheTransactionManager txMgr2 = getCache().getCacheTransactionManager();
+          final var txMgr2 = getCache().getCacheTransactionManager();
           assertEquals("val1", rgn1.getEntry("key").getValue());
           txMgr2.begin();
           rgn1.put("key", "val2");
@@ -1171,7 +1166,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     assertEquals("val2", rgn.getEntry("key").getValue());
 
     // Build sets of System Ids and set them up on VM0 for future batch member checks
-    HashSet txMembers = new HashSet(4);
+    var txMembers = new HashSet(4);
     txMembers.add(getSystemId());
     txMembers.add(vm0.invoke(TXDistributedDUnitTest::getSystemId));
     vm0.invoke(() -> TXDistributedDUnitTest.setPreTXSystemIds(txMembers));
@@ -1179,7 +1174,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
     vm0.invoke(() -> TXDistributedDUnitTest.setPostTXSystemIds(txMembers));
 
     // Don't include the tx host in the batch member set(s)
-    Serializable vm1HostId = vm1.invoke(TXDistributedDUnitTest::getSystemId);
+    var vm1HostId = vm1.invoke(TXDistributedDUnitTest::getSystemId);
     vm0.invoke(() -> TXDistributedDUnitTest.setTXHostSystemId(vm1HostId));
 
     // Create a TX on VM1 (such that it will ask for locks on VM0) that uses the callbacks
@@ -1192,7 +1187,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         assertNotNull(TXLockService.getDTLS());
         assertFalse(TXLockService.getDTLS().isLockGrantor());
 
-        PausibleTX pauseTXRunnable = new PausibleTX();
+        var pauseTXRunnable = new PausibleTX();
         pauseTXRunnable.rgnName = rgnName;
         pauseTXRunnable.myCache = getCache();
         pauseTXRunnable.key = "key";
@@ -1216,15 +1211,15 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         getCache().getRegion(rgnName);
-        TXLockServiceImpl dtls = (TXLockServiceImpl) TXLockService.getDTLS();
+        var dtls = (TXLockServiceImpl) TXLockService.getDTLS();
         assertNotNull(dtls);
         assertTrue(dtls.isLockGrantor());
-        DLockService dLockSvc = dtls.getInternalDistributedLockService();
+        var dLockSvc = dtls.getInternalDistributedLockService();
         assertNotNull(TXDistributedDUnitTest.txHostId);
-        DLockBatch[] batches = dLockSvc.getGrantor()
+        var batches = dLockSvc.getGrantor()
             .getLockBatches((InternalDistributedMember) TXDistributedDUnitTest.txHostId);
         assertEquals(batches.length, 1);
-        TXLockBatch txLockBatch = (TXLockBatch) batches[0];
+        var txLockBatch = (TXLockBatch) batches[0];
         assertNotNull(txLockBatch);
         assertNotNull(TXDistributedDUnitTest.preTXSystemIds);
         assertTrue(
@@ -1239,7 +1234,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         try {
-          AttributesFactory factory = new AttributesFactory();
+          var factory = new AttributesFactory();
           factory.setScope(Scope.DISTRIBUTED_ACK);
           factory.setEarlyAck(false);
           factory.setDataPolicy(DataPolicy.REPLICATE);
@@ -1274,15 +1269,15 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         getCache().getRegion(rgnName);
-        TXLockServiceImpl dtls = (TXLockServiceImpl) TXLockService.getDTLS();
+        var dtls = (TXLockServiceImpl) TXLockService.getDTLS();
         assertNotNull(dtls);
         assertTrue(dtls.isLockGrantor());
-        DLockService dLockSvc = dtls.getInternalDistributedLockService();
+        var dLockSvc = dtls.getInternalDistributedLockService();
         assertNotNull(TXDistributedDUnitTest.txHostId);
-        DLockBatch[] batches = dLockSvc.getGrantor()
+        var batches = dLockSvc.getGrantor()
             .getLockBatches((InternalDistributedMember) TXDistributedDUnitTest.txHostId);
         assertEquals(batches.length, 1);
-        TXLockBatch txLockBatch = (TXLockBatch) batches[0];
+        var txLockBatch = (TXLockBatch) batches[0];
         assertNotNull(txLockBatch);
         assertNotNull(TXDistributedDUnitTest.preTXSystemIds);
         assertTrue(
@@ -1353,21 +1348,21 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
   public void testRemoteCommitFailure() throws Exception {
     try {
       disconnectAllFromDS();
-      final String rgnName1 = getUniqueName() + "_1";
-      final String rgnName2 = getUniqueName() + "_2";
-      final String diskStoreName = getUniqueName() + "_store";
-      Host host = Host.getHost(0);
-      VM origin = host.getVM(0);
-      VM trouble1 = host.getVM(1);
-      VM trouble2 = host.getVM(2);
-      VM noTrouble = host.getVM(3);
-      CacheSerializableRunnable initRegions =
+      final var rgnName1 = getUniqueName() + "_1";
+      final var rgnName2 = getUniqueName() + "_2";
+      final var diskStoreName = getUniqueName() + "_store";
+      var host = Host.getHost(0);
+      var origin = host.getVM(0);
+      var trouble1 = host.getVM(1);
+      var trouble2 = host.getVM(2);
+      var noTrouble = host.getVM(3);
+      var initRegions =
           new CacheSerializableRunnable("Initialize no trouble regions") {
             @Override
             public void run2() {
               getCache().createDiskStoreFactory().setDiskDirs(getDiskDirs()).create(diskStoreName);
               TXManagerImpl.ALLOW_PERSISTENT_TRANSACTIONS = true;
-              AttributesFactory af = new AttributesFactory();
+              var af = new AttributesFactory();
               af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
               af.setScope(Scope.DISTRIBUTED_ACK);
               af.setDiskStoreName(diskStoreName);
@@ -1406,7 +1401,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
               assertNotNull(r1);
               Region r2 = c.getRegion(rgnName2);
               assertNotNull(r2);
-              CacheTransactionManager txmgr = c.getCacheTransactionManager();
+              var txmgr = c.getCacheTransactionManager();
               txmgr.begin();
               r1.put("k1", "k1");
               r1.put("k2", "k2");
@@ -1418,7 +1413,7 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
                 txmgr.commit();
                 fail("Expected an tx incomplete exception");
               } catch (CommitIncompleteException yay) {
-                String msg = yay.getMessage();
+                var msg = yay.getMessage();
                 // getLogWriter().info("failing exception", yay);
                 // Each region on a trouble VM should be mentioned (two regions per trouble VM)
                 int ind = 0, match = 0;
@@ -1455,15 +1450,15 @@ public class TXDistributedDUnitTest extends JUnit4CacheTestCase {
         }
       }
 
-      SerializableCallable allowCacheToShutdown = new SerializableCallable() {
+      var allowCacheToShutdown = new SerializableCallable() {
         @Override
         public Object call() throws Exception {
-          GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
-          List<ResourceEventsListener> listeners =
+          var cache = (GemFireCacheImpl) getCache();
+          var listeners =
               cache.getInternalDistributedSystem().getResourceListeners();
-          for (ResourceEventsListener l : listeners) {
+          for (var l : listeners) {
             if (l instanceof ShutdownListener) {
-              ShutdownListener shutListener = (ShutdownListener) l;
+              var shutListener = (ShutdownListener) l;
               shutListener.unblockShutdown();
             }
           }

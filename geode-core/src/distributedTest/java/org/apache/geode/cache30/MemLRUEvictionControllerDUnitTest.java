@@ -26,7 +26,6 @@ import java.util.Random;
 import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EvictionAttributes;
@@ -64,12 +63,12 @@ public class MemLRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
    * Returns the <code>EvictionStatistics</code> for the given region
    */
   private EvictionCounters getLRUStats(Region region) {
-    final LocalRegion l = (LocalRegion) region;
+    final var l = (LocalRegion) region;
     return l.getEvictionController().getCounters();
   }
 
   private int getEntryOverhead(Region region) {
-    LocalRegion lRegion = (LocalRegion) region;
+    var lRegion = (LocalRegion) region;
     return ((MemoryLRUController) lRegion.getEvictionController()).getPerEntryOverhead();
   }
 
@@ -81,32 +80,32 @@ public class MemLRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRegionOperations() throws CacheException {
 
-    int threshold = 4;
+    var threshold = 4;
 
-    final String name = getUniqueName();
-    AttributesFactory factory = new AttributesFactory();
+    final var name = getUniqueName();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUMemoryAttributes(threshold));
 
     Region region;
     if (usingMain) {
-      DistributedSystem system = DistributedSystem.connect(new Properties());
-      Cache cache = CacheFactory.create(system);
+      var system = DistributedSystem.connect(new Properties());
+      var cache = CacheFactory.create(system);
       region = cache.createRegion("Test", factory.create());
 
     } else {
       region = createRegion(name, factory.create());
     }
 
-    EvictionCounters lruStats = getLRUStats(region);
+    var lruStats = getLRUStats(region);
     assertNotNull(lruStats);
 
-    String sampleKey = "10000";
-    int stringSize = getObjectHeaderSize() // String object
+    var sampleKey = "10000";
+    var stringSize = getObjectHeaderSize() // String object
         + (2 * 4) + JvmSizeUtils.getReferenceSize(); // 2 ints and a reference on a string
     stringSize = roundUpSize(stringSize);
 
-    int charArraySize = sampleKey.length() * 2 + getObjectHeaderSize() // char array
+    var charArraySize = sampleKey.length() * 2 + getObjectHeaderSize() // char array
                                                                        // object
         + 4; // length of char array
     charArraySize = roundUpSize(charArraySize);
@@ -115,19 +114,19 @@ public class MemLRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
         (new ReflectionSingleObjectSizer()).sizeof(new char[0]));
     assertEquals(charArraySize, (new ReflectionSingleObjectSizer()).sizeof(new char[5]));
 
-    int keySize = stringSize + charArraySize;
+    var keySize = stringSize + charArraySize;
     assertEquals(keySize, WellKnownClassSizer.sizeof(sampleKey));
     assertEquals(keySize, ObjectSizer.DEFAULT.sizeof(sampleKey));
     // now that keys are inlined the keySize is 0
     keySize = 0;
-    byte[] sampleValue = new byte[1000];
-    int valueSize = sampleValue.length + getObjectHeaderSize() // byte array object;
+    var sampleValue = new byte[1000];
+    var valueSize = sampleValue.length + getObjectHeaderSize() // byte array object;
         + 4; // length of byte array
     valueSize = roundUpSize(valueSize);
-    int entrySize = keySize + valueSize + getEntryOverhead(region);
+    var entrySize = keySize + valueSize + getEntryOverhead(region);
     assertEquals(valueSize, ObjectSizer.DEFAULT.sizeof(sampleValue));
 
-    for (int i = 1; i <= 100; i++) {
+    for (var i = 1; i <= 100; i++) {
       Object key = String.valueOf(10000 + i);
       Object value = new byte[1000];
       region.put(key, value);
@@ -135,7 +134,7 @@ public class MemLRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
       assertEquals(0, lruStats.getEvictions());
     }
 
-    for (int i = 100; i >= 1; i--) {
+    for (var i = 100; i >= 1; i--) {
       Object key = String.valueOf(10000 + i);
       region.destroy(key);
       assertEquals((i - 1) * entrySize, lruStats.getCounter());
@@ -149,26 +148,26 @@ public class MemLRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testSizeClassesOnce() throws CacheException {
-    int threshold = 4;
+    var threshold = 4;
 
-    final String name = getUniqueName();
-    AttributesFactory factory = new AttributesFactory();
+    final var name = getUniqueName();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUMemoryAttributes(threshold));
 
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
-    EvictionCounters lruStats = getLRUStats(region);
+    var lruStats = getLRUStats(region);
     assertNotNull(lruStats);
 
-    TestObject object = new TestObject(50);
+    var object = new TestObject(50);
     // keySize is 0 because it is inlined
-    int keySize = 0; // ObjectSizer.DEFAULT.sizeof(new String("10000"));
-    int valueSize = ObjectSizer.DEFAULT.sizeof(object);
-    int entrySize = keySize + valueSize + getEntryOverhead(region);
+    var keySize = 0; // ObjectSizer.DEFAULT.sizeof(new String("10000"));
+    var valueSize = ObjectSizer.DEFAULT.sizeof(object);
+    var entrySize = keySize + valueSize + getEntryOverhead(region);
 
-    Random ran = new Random();
-    for (int i = 1; i <= 100; i++) {
+    var ran = new Random();
+    for (var i = 1; i <= 100; i++) {
       Object key = String.valueOf(10000 + i);
       // Use a randomly sized object.
       Object value = new TestObject(ran.nextInt(100));
@@ -177,7 +176,7 @@ public class MemLRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
       assertEquals(0, lruStats.getEvictions());
     }
 
-    for (int i = 100; i >= 1; i--) {
+    for (var i = 100; i >= 1; i--) {
       Object key = String.valueOf(10000 + i);
       region.destroy(key);
       assertEquals((i - 1) * entrySize, lruStats.getCounter());
@@ -190,15 +189,15 @@ public class MemLRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testEntryOverHead() throws Exception {
-    final String name = getUniqueName();
-    AttributesFactory factory = new AttributesFactory();
+    final var name = getUniqueName();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUMemoryAttributes(50));
 
     Region region;
     region = createRegion(name, factory.create());
 
-    String s = "Each entry occupies " + getEntryOverhead(region) + " bytes";
+    var s = "Each entry occupies " + getEntryOverhead(region) + " bytes";
     region.getCache().getDistributedSystem().getLogWriter().info(s);
   }
 
@@ -234,24 +233,24 @@ public class MemLRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCustomObjectSizer() throws Exception {
-    final String name = getUniqueName();
-    final int entrySize = 1024 * 1024;
-    final int numEntries = 3;
-    AttributesFactory factory = new AttributesFactory();
-    CustomObjectSizer cs = new CustomObjectSizer(entrySize);
+    final var name = getUniqueName();
+    final var entrySize = 1024 * 1024;
+    final var numEntries = 3;
+    var factory = new AttributesFactory();
+    var cs = new CustomObjectSizer(entrySize);
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUMemoryAttributes(1, cs));
-    Region r = createRegion(name, factory.create());
+    var r = createRegion(name, factory.create());
 
-    for (int size = 0; size < numEntries; size++) {
+    for (var size = 0; size < numEntries; size++) {
       // changed to a boolean[] because byte[] does not cause a call to ObjectSizer.sizeof
       // What was calling it before was the key object. But now that keys are inlined we
       // no longer call ObjectSizer.sizeof for the key.
       r.put(size, new boolean[entrySize]);
     }
     assertTrue("ObjectSizer was not triggered", cs.wasCalled());
-    long actualSize = getLRUStats(r).getCounter();
-    int bytesPut = (entrySize * numEntries);
+    var actualSize = getLRUStats(r).getCounter();
+    var bytesPut = (entrySize * numEntries);
     assertTrue("Expected bytes put: " + bytesPut + " is not < " + actualSize,
         actualSize < bytesPut);
   }

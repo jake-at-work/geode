@@ -116,11 +116,11 @@ public class ParallelQueueRemovalMessageJUnitTest {
 
   private void createBucketRegionQueue() {
     // Create BucketRegionQueue
-    BucketRegionQueue realBucketRegionQueue = ParallelGatewaySenderHelper
+    var realBucketRegionQueue = ParallelGatewaySenderHelper
         .createBucketRegionQueue(cache, rootRegion, queueRegion, BUCKET_ID);
     bucketRegionQueue = spy(realBucketRegionQueue);
     // (this.queueRegion.getBucketName(BUCKET_ID), attributes, this.rootRegion, this.cache, ira);
-    EntryEventImpl entryEvent = EntryEventImpl.create(bucketRegionQueue, Operation.DESTROY,
+    var entryEvent = EntryEventImpl.create(bucketRegionQueue, Operation.DESTROY,
         KEY, "value", null, false, mock(DistributedMember.class));
     doReturn(entryEvent).when(bucketRegionQueue).newDestroyEntryEvent(any(), any());
     // when(this.bucketRegionQueue.newDestroyEntryEvent(any(), any())).thenReturn();
@@ -132,10 +132,10 @@ public class ParallelQueueRemovalMessageJUnitTest {
   @Test
   public void ifIsFailedBatchRemovalMessageKeysClearedFlagSetThenAddToFailedBatchRemovalMessageKeysNotCalled()
       throws ForceReattemptException {
-    ParallelQueueRemovalMessage pqrm = new ParallelQueueRemovalMessage();
-    Object object = new Object();
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
-    AbstractBucketRegionQueue brq = mock(AbstractBucketRegionQueue.class);
+    var pqrm = new ParallelQueueRemovalMessage();
+    var object = new Object();
+    var partitionedRegion = mock(PartitionedRegion.class);
+    var brq = mock(AbstractBucketRegionQueue.class);
     doThrow(new EntryNotFoundException("ENTRY NOT FOUND")).when(brq).destroyKey(object);
     when(brq.isFailedBatchRemovalMessageKeysClearedFlag()).thenReturn(true);
     doNothing().when(brq).addToFailedBatchRemovalMessageKeys(object);
@@ -192,11 +192,11 @@ public class ParallelQueueRemovalMessageJUnitTest {
     assertFalse(bucketRegionQueue.isInitialized());
 
     // Create a real ConcurrentParallelGatewaySenderQueue
-    ParallelGatewaySenderEventProcessor processor =
+    var processor =
         ParallelGatewaySenderHelper.createParallelGatewaySenderEventProcessor(sender);
 
     // Add a mock GatewaySenderEventImpl to the temp queue
-    BlockingQueue<GatewaySenderEventImpl> tempQueue =
+    var tempQueue =
         createTempQueueAndAddEvent(processor, mock(GatewaySenderEventImpl.class));
     assertEquals(1, tempQueue.size());
 
@@ -215,16 +215,16 @@ public class ParallelQueueRemovalMessageJUnitTest {
     assertEquals(0, bucketRegionQueue.size());
 
     // Create a real ConcurrentParallelGatewaySenderQueue
-    ParallelGatewaySenderEventProcessor processor =
+    var processor =
         ParallelGatewaySenderHelper.createParallelGatewaySenderEventProcessor(sender);
 
     // Add an event to the BucketRegionQueue and verify BucketRegionQueue state
-    GatewaySenderEventImpl event = bucketRegionQueueHelper.addEvent(KEY);
+    var event = bucketRegionQueueHelper.addEvent(KEY);
     assertEquals(1, bucketRegionQueue.size());
     assertEquals(1, stats.getSecondaryEventQueueSize());
 
     // Add a mock GatewaySenderEventImpl to the temp queue
-    BlockingQueue<GatewaySenderEventImpl> tempQueue = createTempQueueAndAddEvent(processor, event);
+    var tempQueue = createTempQueueAndAddEvent(processor, event);
     assertEquals(1, tempQueue.size());
 
     // Create and process a ParallelQueueRemovalMessage (causes the value of the entry to be set to
@@ -244,13 +244,13 @@ public class ParallelQueueRemovalMessageJUnitTest {
   }
 
   private void createAndProcessParallelQueueRemovalMessage() {
-    ParallelQueueRemovalMessage message =
+    var message =
         new ParallelQueueRemovalMessage(createRegionToDispatchedKeysMap());
     message.process((ClusterDistributionManager) cache.getDistributionManager());
   }
 
   private HashMap<String, Map<Integer, List<Object>>> createRegionToDispatchedKeysMap() {
-    HashMap<String, Map<Integer, List<Object>>> regionToDispatchedKeys = new HashMap<>();
+    var regionToDispatchedKeys = new HashMap<String, Map<Integer, List<Object>>>();
     Map<Integer, List<Object>> bucketIdToDispatchedKeys = new HashMap<>();
     List<Object> dispatchedKeys = new ArrayList<>();
     dispatchedKeys.add(KEY);
@@ -262,8 +262,8 @@ public class ParallelQueueRemovalMessageJUnitTest {
 
   private BlockingQueue<GatewaySenderEventImpl> createTempQueueAndAddEvent(
       ParallelGatewaySenderEventProcessor processor, GatewaySenderEventImpl event) {
-    ParallelGatewaySenderQueue queue = (ParallelGatewaySenderQueue) processor.getQueue();
-    Map<Integer, BlockingQueue<GatewaySenderEventImpl>> tempQueueMap =
+    var queue = (ParallelGatewaySenderQueue) processor.getQueue();
+    var tempQueueMap =
         queue.getBucketToTempQueueMap();
     BlockingQueue<GatewaySenderEventImpl> tempQueue = new LinkedBlockingQueue<>();
     when(event.getShadowKey()).thenReturn(KEY);

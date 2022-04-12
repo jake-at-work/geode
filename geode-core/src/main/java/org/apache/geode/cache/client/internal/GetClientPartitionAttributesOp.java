@@ -24,7 +24,6 @@ import org.apache.geode.cache.FixedPartitionAttributes;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -52,7 +51,7 @@ public class GetClientPartitionAttributesOp {
           op.getMessage(), regionFullPath, pool);
     }
 
-    ClientPartitionAdvisor advisor = (ClientPartitionAdvisor) pool.execute(op);
+    var advisor = (ClientPartitionAdvisor) pool.execute(op);
 
     if (advisor != null) {
       advisor.setServerGroup(((PoolImpl) pool).getServerGroup());
@@ -87,13 +86,13 @@ public class GetClientPartitionAttributesOp {
     protected Object processResponse(final @NotNull Message msg) throws Exception {
       switch (msg.getMessageType()) {
         case MessageType.GET_CLIENT_PARTITION_ATTRIBUTES_ERROR:
-          String errorMsg = msg.getPart(0).getString();
+          var errorMsg = msg.getPart(0).getString();
           if (logger.isDebugEnabled()) {
             logger.debug(errorMsg);
           }
           throw new ServerOperationException(errorMsg);
         case MessageType.RESPONSE_CLIENT_PARTITION_ATTRIBUTES:
-          final boolean isDebugEnabled = logger.isDebugEnabled();
+          final var isDebugEnabled = logger.isDebugEnabled();
           if (isDebugEnabled) {
             logger.debug(
                 "GetClientPartitionAttributesOpImpl#processResponse: received message of type : {}",
@@ -109,7 +108,7 @@ public class GetClientPartitionAttributesOp {
             partitionResolverName = (String) msg.getPart(2).getObject();
             fpaSet = (Set<FixedPartitionAttributes>) msg.getPart(3).getObject();
           } else if (msg.getNumberOfParts() == 3) {
-            Object obj = msg.getPart(2).getObject();
+            var obj = msg.getPart(2).getObject();
             if (obj instanceof String) {
               partitionResolverName = (String) obj;
             } else {
@@ -122,7 +121,7 @@ public class GetClientPartitionAttributesOp {
             logger.debug(
                 "GetClientPartitionAttributesOpImpl#processResponse: received all the results from server successfully.");
           }
-          ClientPartitionAdvisor advisor =
+          var advisor =
               new ClientPartitionAdvisor(bucketCount, colocatedWith, partitionResolverName, fpaSet);
           return advisor;
 
@@ -131,9 +130,9 @@ public class GetClientPartitionAttributesOp {
             logger.debug(
                 "GetClientPartitionAttributesOpImpl#processResponse: received message of type EXCEPTION");
           }
-          Part part = msg.getPart(0);
-          Object obj = part.getObject();
-          String s =
+          var part = msg.getPart(0);
+          var obj = part.getObject();
+          var s =
               "While performing  GetClientPartitionAttributesOp " + ((Throwable) obj).getMessage();
           throw new ServerOperationException(s, (Throwable) obj);
         default:

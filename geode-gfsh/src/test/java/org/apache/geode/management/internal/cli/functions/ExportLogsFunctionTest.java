@@ -39,15 +39,15 @@ public class ExportLogsFunctionTest {
 
   @Test
   public void defaultExportLogLevelShouldBeAllViaArgs() {
-    ExportLogsFunction.Args args = new ExportLogsFunction.Args("", "", "", false, false, false);
+    var args = new ExportLogsFunction.Args("", "", "", false, false, false);
     assertEquals(args.getLogLevel(), Level.ALL);
-    ExportLogsFunction.Args args2 = new ExportLogsFunction.Args("", "", null, false, false, false);
+    var args2 = new ExportLogsFunction.Args("", "", null, false, false, false);
     assertEquals(args2.getLogLevel(), Level.ALL);
   }
 
   @Test
   public void argsCorrectlyBuildALogLevelFilter() {
-    ExportLogsFunction.Args args =
+    var args =
         new ExportLogsFunction.Args(null, null, "info", false, false, false);
     assertThat(args.getLogLevel().toString()).isEqualTo("INFO");
     assertThat(args.isThisLogLevelOnly()).isFalse();
@@ -57,7 +57,7 @@ public class ExportLogsFunctionTest {
 
   @Test
   public void argsCorrectlyBuilt() {
-    ExportLogsFunction.Args args =
+    var args =
         new ExportLogsFunction.Args(null, null, "error", true, true, false);
     assertThat(args.getLogLevel()).isEqualTo(Level.ERROR);
     assertThat(args.isThisLogLevelOnly()).isTrue();
@@ -67,7 +67,7 @@ public class ExportLogsFunctionTest {
 
   @Test
   public void argsCorrectlyBuiltWithGeodeLevel() {
-    ExportLogsFunction.Args args =
+    var args =
         new ExportLogsFunction.Args(null, null, "fine", true, true, false);
     assertThat(args.getLogLevel()).isEqualTo(Level.DEBUG);
     assertThat(args.isThisLogLevelOnly()).isTrue();

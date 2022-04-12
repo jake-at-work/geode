@@ -27,8 +27,8 @@ public class DiskVersionTagTest extends AbstractVersionTagTestBase {
 
   @Override
   protected VersionSource createMemberID() {
-    int high = getRandomUnusedInt();
-    int low = getRandomUnusedInt();
+    var high = getRandomUnusedInt();
+    var low = getRandomUnusedInt();
     return new DiskStoreID(high, low);
   }
 

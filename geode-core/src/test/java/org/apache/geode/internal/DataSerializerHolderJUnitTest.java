@@ -42,12 +42,12 @@ public class DataSerializerHolderJUnitTest extends TestCase {
     // a thread performing a handshake from the client side may receive a list of
     // DataSerializer class names. It registers these with InternalDataSerializer to
     // create placeholders for later lazy loading of the classes
-    Class[] serializers = new Class[] {DataSerializer1.class, DataSerializer2.class,
+    var serializers = new Class[] {DataSerializer1.class, DataSerializer2.class,
         DataSerializer3.class, DataSerializer4.class, DataSerializer5.class, DataSerializer6.class,
         DataSerializer7.class, DataSerializer8.class, DataSerializer9.class, DataSerializer10.class,
         DataSerializer11.class, DataSerializer12.class, DataSerializer13.class};
-    for (final Class value : serializers) {
-      int id = InternalDataSerializer.newInstance(value).getId();
+    for (final var value : serializers) {
+      var id = InternalDataSerializer.newInstance(value).getId();
       InternalDataSerializer.register(value.getName(), false, null, null, id);
     }
 
@@ -62,9 +62,9 @@ public class DataSerializerHolderJUnitTest extends TestCase {
     // Now we perform the second step in the handshake code of registering the classes
     // handled by the DataSerializers. Without the bugfix this causes an NPE
     Map<Integer, List<String>> supportedClasses = new HashMap<>();
-    for (final Class aClass : serializers) {
-      DataSerializer serializer = InternalDataSerializer.newInstance(aClass);
-      List<String> classes = Arrays.<Class>asList(serializer.getSupportedClasses()).stream()
+    for (final var aClass : serializers) {
+      var serializer = InternalDataSerializer.newInstance(aClass);
+      var classes = Arrays.<Class>asList(serializer.getSupportedClasses()).stream()
           .map(Class::getName).collect(Collectors.toList());
       supportedClasses.put(serializer.getId(), classes);
     }

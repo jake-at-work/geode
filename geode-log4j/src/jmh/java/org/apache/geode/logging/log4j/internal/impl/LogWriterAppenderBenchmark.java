@@ -27,9 +27,6 @@ import java.io.File;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -70,25 +67,25 @@ public class LogWriterAppenderBenchmark {
     temporaryFolder = new AccessibleTemporaryFolder();
     temporaryFolder.before();
 
-    String name = getClass().getSimpleName();
-    File logFile = new File(temporaryFolder.getRoot(), name + ".log");
+    var name = getClass().getSimpleName();
+    var logFile = new File(temporaryFolder.getRoot(), name + ".log");
 
-    LogConfig config = mock(LogConfig.class);
+    var config = mock(LogConfig.class);
     when(config.getName()).thenReturn(name);
     when(config.getLogFile()).thenReturn(logFile);
 
-    LogConfigSupplier logConfigSupplier = mock(LogConfigSupplier.class);
+    var logConfigSupplier = mock(LogConfigSupplier.class);
     when(logConfigSupplier.getLogConfig()).thenReturn(config);
 
-    SessionContext sessionContext = mock(SessionContext.class);
+    var sessionContext = mock(SessionContext.class);
     when(sessionContext.getLogConfigSupplier()).thenReturn(logConfigSupplier);
 
-    org.apache.logging.log4j.core.Logger coreLogger =
+    var coreLogger =
         (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
-    LoggerContext context = coreLogger.getContext();
-    Configuration configuration = context.getConfiguration();
+    var context = coreLogger.getContext();
+    var configuration = context.getConfiguration();
 
-    LoggerConfig loggerConfig = configuration.getLoggerConfig(coreLogger.getName());
+    var loggerConfig = configuration.getLoggerConfig(coreLogger.getName());
     loggerConfig.removeAppender(GEODE_CONSOLE_APPENDER_NAME);
     context.updateLoggers();
 

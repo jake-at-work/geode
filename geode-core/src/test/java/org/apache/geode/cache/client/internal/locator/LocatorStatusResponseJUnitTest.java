@@ -48,26 +48,26 @@ public class LocatorStatusResponseJUnitTest {
 
   @Test
   public void testSerialize() throws IOException, ClassNotFoundException {
-    final int locatorPort = 12345;
-    final String locatorHost = "locatorHost";
-    final String locatorLogFile = "LocatorStatusResponseJUnitTest.log";
-    final String locatorName = "LocatorStatusResponseJUnitTest";
+    final var locatorPort = 12345;
+    final var locatorHost = "locatorHost";
+    final var locatorLogFile = "LocatorStatusResponseJUnitTest.log";
+    final var locatorName = "LocatorStatusResponseJUnitTest";
 
-    final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-    final LocatorStatusResponse expectedResponse = new LocatorStatusResponse()
+    final var byteStream = new ByteArrayOutputStream();
+    final var expectedResponse = new LocatorStatusResponse()
         .initialize(locatorPort, locatorHost, locatorLogFile, locatorName);
 
     assertNotNull(expectedResponse);
 
-    DataOutputStream out = new DataOutputStream(byteStream);
+    var out = new DataOutputStream(byteStream);
     expectedResponse.toData(out, InternalDataSerializer.createSerializationContext(out));
 
-    final byte[] bytes = byteStream.toByteArray();
+    final var bytes = byteStream.toByteArray();
 
     assertNotNull(bytes);
     assertFalse(bytes.length == 0);
 
-    final LocatorStatusResponse actualResponse = new LocatorStatusResponse();
+    final var actualResponse = new LocatorStatusResponse();
 
     assertNotNull(actualResponse);
     assertNotSame(expectedResponse, actualResponse);

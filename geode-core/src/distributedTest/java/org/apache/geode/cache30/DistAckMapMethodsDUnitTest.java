@@ -39,7 +39,6 @@ import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
@@ -49,7 +48,6 @@ import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -69,18 +67,18 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(DistAckMapMethodsDUnitTest::createCache);
     vm1.invoke(DistAckMapMethodsDUnitTest::createCache);
   }
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(DistAckMapMethodsDUnitTest::closeCache);
     vm1.invoke(DistAckMapMethodsDUnitTest::closeCache);
     cache = null;
@@ -98,9 +96,9 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
       // ds = DistributedSystem.connect(props);
       ds = (new DistAckMapMethodsDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -119,10 +117,10 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   public static void createMirroredRegion() {
     try {
-      AttributesFactory factory1 = new AttributesFactory();
+      var factory1 = new AttributesFactory();
       factory1.setScope(Scope.DISTRIBUTED_ACK);
       factory1.setDataPolicy(DataPolicy.REPLICATE);
-      RegionAttributes attr1 = factory1.create();
+      var attr1 = factory1.create();
       mirroredRegion = cache.createRegion("mirrored", attr1);
 
     } catch (Exception ex) {
@@ -132,13 +130,13 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   public static void createRegionToTestRemove() {
     try {
-      AttributesFactory factory2 = new AttributesFactory();
+      var factory2 = new AttributesFactory();
       factory2.setScope(Scope.DISTRIBUTED_ACK);
       CacheWriter cacheWriter = new RemoveCacheWriter();
       CacheListener cacheListener = new RemoveCacheListener();
       factory2.setCacheWriter(cacheWriter);
       factory2.setCacheListener(cacheListener);
-      RegionAttributes attr2 = factory2.create();
+      var attr2 = factory2.create();
       remRegion = cache.createRegion("remove", attr2);
 
     } catch (Exception ex) {
@@ -150,13 +148,13 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Test
   public void testPutMethod() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     Object obj1;
     // put from one and get from other
-    int i = 1;
-    Object[] objArr = new Object[1];
+    var i = 1;
+    var objArr = new Object[1];
     objArr[0] = "" + i;
     // Integer in = new Integer(i);
     // objArr[0] = (Object) in;
@@ -181,14 +179,14 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Test
   public void testRemoveMethod() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     Object obj1, obj2;
     boolean ret;
     // put from one and get from other
-    int i = 1;
-    Object[] objArr = new Object[1];
+    var i = 1;
+    var objArr = new Object[1];
     objArr[0] = "" + i;
     // Integer in = new Integer(i);
     // objArr[0] = (Object) in;
@@ -218,9 +216,9 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Test
   public void testRemoveMethodDetails() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     vm0.invoke(DistAckMapMethodsDUnitTest::createRegionToTestRemove);
     vm1.invoke(DistAckMapMethodsDUnitTest::createRegionToTestRemove);
@@ -229,7 +227,7 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
     vm1.invoke(new CacheSerializableRunnable("testRemoveMethodDetails") {
       @Override
       public void run2() throws CacheException {
-        Object ob1 = remRegion.get(1);
+        var ob1 = remRegion.get(1);
         assertEquals("beforeDestroy", ob1.toString());
         // wait till listeber switches afterDestroy to true
         // while(!afterDestroy){
@@ -242,13 +240,13 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Test
   public void testIsEmptyMethod() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     // boolean ret;
     // put from one and get from other
-    int i = 1;
-    Object[] objArr = new Object[1];
+    var i = 1;
+    var objArr = new Object[1];
     objArr[0] = "" + i;
     // Integer in = new Integer(i);
     // objArr[0] = (Object) in;
@@ -267,13 +265,13 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Test
   public void testContainsValueMethod() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     // boolean ret;
     // put from one and get from other
-    int i = 1;
-    Object[] objArr = new Object[1];
+    var i = 1;
+    var objArr = new Object[1];
     objArr[0] = "" + i;
     // Integer in = new Integer(i);
     // objArr[0] = (Object) in;
@@ -292,12 +290,12 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Test
   public void testKeySetMethod() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    int i = 1;
-    Object[] objArr = new Object[1];
+    var i = 1;
+    var objArr = new Object[1];
     objArr[0] = "" + i;
     // Integer in = new Integer(i);
     // objArr[0] = (Object) in;
@@ -327,12 +325,12 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Test
   public void testEntrySetMethod() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    int i = 1;
-    Object[] objArr = new Object[1];
+    var i = 1;
+    var objArr = new Object[1];
     objArr[0] = "" + i;
     // Integer in = new Integer(i);
     // objArr[0] = (Object) in;
@@ -361,12 +359,12 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Test
   public void testSizeMethod() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     int i = 1, j = 0;
-    Object[] objArr = new Object[1];
+    var objArr = new Object[1];
     objArr[0] = "" + i;
     // Integer in = new Integer(i);
     // objArr[0] = (Object) in;
@@ -386,8 +384,8 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   @Test
   public void testallMethodsArgs() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(DistAckMapMethodsDUnitTest::allMethodsArgs);
   }
 
@@ -397,7 +395,7 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
     Object obj = null;
     try {
       if (ob != null) {
-        String str = "first";
+        var str = "first";
         obj = region.put(ob, str);
       }
     } catch (Exception ex) {
@@ -429,7 +427,7 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
   }
 
   public static boolean containsKeyMethod(Object ob) {
-    boolean flag = false;
+    var flag = false;
     try {
       flag = region.containsKey(ob);
     } catch (Exception ex) {
@@ -439,7 +437,7 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
   }
 
   public static boolean isEmptyMethod() {
-    boolean flag = false;
+    var flag = false;
     try {
       flag = region.isEmpty();
     } catch (Exception ex) {
@@ -449,7 +447,7 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
   }
 
   public static boolean containsValueMethod(Object ob) {
-    boolean flag = false;
+    var flag = false;
     try {
       flag = region.containsValue(ob);
     } catch (Exception ex) {
@@ -460,7 +458,7 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   public static int keySetMethod() {
     Set set = new HashSet();
-    int i = 0;
+    var i = 0;
     try {
       set = region.keySet();
       i = set.size();
@@ -473,7 +471,7 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
 
   public static int entrySetMethod() {
     Set set = new HashSet();
-    int i = 0;
+    var i = 0;
     try {
       set = region.entrySet();
       i = set.size();
@@ -485,7 +483,7 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
   }
 
   public static int sizeMethod() {
-    int i = 0;
+    var i = 0;
     try {
       i = region.size();
     } catch (Exception ex) {
@@ -499,7 +497,7 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
   public static Object putOnMirroredRegion(Object ob) {
     Object obj = null;
     try {
-      String str = "mirror";
+      var str = "mirror";
       obj = mirroredRegion.put(ob, str);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -588,15 +586,15 @@ public class DistAckMapMethodsDUnitTest extends JUnit4DistributedTestCase { // T
       region.put(3, "third");
 
       // test args for get method
-      Object ob1 = region.get(1);
+      var ob1 = region.get(1);
       assertEquals("first", ob1.toString());
 
       // test args for containsKey method
-      boolean val1 = region.containsKey(2);
+      var val1 = region.containsKey(2);
       assertEquals(true, val1);
 
       // test args for containsKey method
-      boolean val2 = region.containsValue("second");
+      var val2 = region.containsValue("second");
       // assertIndexDetailsEquals(true, val2);
 
       // test args for remove method

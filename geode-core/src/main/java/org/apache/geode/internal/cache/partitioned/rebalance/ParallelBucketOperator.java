@@ -145,7 +145,7 @@ public class ParallelBucketOperator implements BucketOperator {
    */
   @Override
   public void waitForOperations() {
-    boolean interrupted = false;
+    var interrupted = false;
     while (!executor.isShutdown()) {
       try {
         if (operationSemaphore.tryAcquire(maxParallelOperations, 1, TimeUnit.SECONDS)) {

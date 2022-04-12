@@ -33,18 +33,18 @@ public class StateMarkerMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    StateMarkerMessage mockStateMarkerMessage = mock(StateMarkerMessage.class);
+    var mockStateMarkerMessage = mock(StateMarkerMessage.class);
     when(mockStateMarkerMessage.getProcessorType()).thenReturn(1);
     assertThat(mockStateMarkerMessage.getProcessorType()).isEqualTo(1);
   }
 
   @Test
   public void testProcessWithWaitForCurrentOperationsThatTimesOut() {
-    InternalDistributedMember relayRecipient = mock(InternalDistributedMember.class);
-    ClusterDistributionManager dm = mock(ClusterDistributionManager.class);
-    InternalCache gfc = mock(InternalCache.class);
-    DistributedRegion region = mock(DistributedRegion.class);
-    CacheDistributionAdvisor distributionAdvisor = mock(CacheDistributionAdvisor.class);
+    var relayRecipient = mock(InternalDistributedMember.class);
+    var dm = mock(ClusterDistributionManager.class);
+    var gfc = mock(InternalCache.class);
+    var region = mock(DistributedRegion.class);
+    var distributionAdvisor = mock(CacheDistributionAdvisor.class);
 
     when(dm.getDistributionManagerId()).thenReturn(relayRecipient);
     when(dm.getExistingCache()).thenReturn(gfc);
@@ -54,7 +54,7 @@ public class StateMarkerMessageTest {
     doThrow(new GemFireIOException("expected in fatal log message")).when(distributionAdvisor)
         .waitForCurrentOperations();
 
-    StateMarkerMessage message = new StateMarkerMessage();
+    var message = new StateMarkerMessage();
     message.relayRecipient = relayRecipient;
 
     message.process(dm);

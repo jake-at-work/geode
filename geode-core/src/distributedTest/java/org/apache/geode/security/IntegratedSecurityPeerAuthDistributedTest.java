@@ -50,12 +50,12 @@ public class IntegratedSecurityPeerAuthDistributedTest extends JUnit4CacheTestCa
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     locator = host.getVM(0);
     server1 = host.getVM(1);
     server2 = host.getVM(2);
 
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
     locators = NetworkUtils.getServerHostName(host) + "[" + locatorPort + "]";
 
     locator.invoke(() -> {
@@ -63,7 +63,7 @@ public class IntegratedSecurityPeerAuthDistributedTest extends JUnit4CacheTestCa
 
       DistributedTestUtils.deleteLocatorStateFile(locatorPort);
 
-      final Properties properties = createProperties(locators);
+      final var properties = createProperties(locators);
       properties.setProperty(TestSecurityManager.SECURITY_JSON,
           "org/apache/geode/security/peerAuth.json");
       properties.setProperty(UserPasswordAuthInit.USER_NAME, "locator1");
@@ -77,7 +77,7 @@ public class IntegratedSecurityPeerAuthDistributedTest extends JUnit4CacheTestCa
     server1.invoke(() -> {
       spySecurityManager = new SpySecurityManager();
 
-      final Properties properties = createProperties(locators);
+      final var properties = createProperties(locators);
       properties.setProperty(TestSecurityManager.SECURITY_JSON,
           "org/apache/geode/security/peerAuth.json");
       properties.setProperty(UserPasswordAuthInit.USER_NAME, "server1");
@@ -90,7 +90,7 @@ public class IntegratedSecurityPeerAuthDistributedTest extends JUnit4CacheTestCa
     server2.invoke(() -> {
       spySecurityManager = new SpySecurityManager();
 
-      final Properties properties = createProperties(locators);
+      final var properties = createProperties(locators);
       properties.setProperty(TestSecurityManager.SECURITY_JSON,
           "org/apache/geode/security/peerAuth.json");
       properties.setProperty(UserPasswordAuthInit.USER_NAME, "server2");
@@ -105,7 +105,7 @@ public class IntegratedSecurityPeerAuthDistributedTest extends JUnit4CacheTestCa
   public void initAndCloseTest() throws Exception {
     spySecurityManager = new SpySecurityManager();
 
-    final Properties properties = createProperties(locators);
+    final var properties = createProperties(locators);
     properties.setProperty(TestSecurityManager.SECURITY_JSON,
         "org/apache/geode/security/peerAuth.json");
     properties.setProperty(UserPasswordAuthInit.USER_NAME, "stranger");
@@ -125,7 +125,7 @@ public class IntegratedSecurityPeerAuthDistributedTest extends JUnit4CacheTestCa
   }
 
   private static Properties createProperties(String locators) {
-    Properties allProperties = new Properties();
+    var allProperties = new Properties();
     allProperties.setProperty(LOCATORS, locators);
     allProperties.setProperty(MCAST_PORT, "0");
     allProperties.setProperty(SECURITY_MANAGER, SpySecurityManager.class.getName());

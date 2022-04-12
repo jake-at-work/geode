@@ -34,23 +34,23 @@ class WindowsBackupInspector extends BackupInspector {
 
   @Override
   public String getCopyFromForOplogFile(final String oplogFileName) {
-    String line = getOplogLineFromFilename(oplogFileName);
+    var line = getOplogLineFromFilename(oplogFileName);
     if (line == null) {
       return null;
     }
 
-    String[] parts = line.split("\\s");
+    var parts = line.split("\\s");
     return parts[1].substring(1, parts[1].length() - 1) + File.separator + parts[3];
   }
 
   @Override
   public String getCopyToForOplogFile(final String oplogFileName) {
-    String line = getOplogLineFromFilename(oplogFileName);
+    var line = getOplogLineFromFilename(oplogFileName);
     if (line == null) {
       return null;
     }
 
-    String[] parts = line.split("\\s");
+    var parts = line.split("\\s");
     return parts[2].substring(1, parts[2].length() - 1) + File.separator + parts[3];
   }
 

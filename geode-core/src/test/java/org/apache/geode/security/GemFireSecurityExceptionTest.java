@@ -64,7 +64,7 @@ public class GemFireSecurityExceptionTest {
   }
 
   private void assertPreConditions() {
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> SerializationUtils.clone(nonSerializableNamingException));
     assertThat(thrown).isNotNull();
     assertThat(thrown.getCause())
@@ -86,9 +86,9 @@ public class GemFireSecurityExceptionTest {
 
   @Test
   public void serializes() {
-    GemFireSecurityException instance = new GemFireSecurityException(message);
+    var instance = new GemFireSecurityException(message);
 
-    GemFireSecurityException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned).hasMessage(message);
   }
@@ -96,9 +96,9 @@ public class GemFireSecurityExceptionTest {
   @Test
   public void serializesWithThrowable() {
     Throwable cause = new Exception(causeMessage);
-    GemFireSecurityException instance = new GemFireSecurityException(message, cause);
+    var instance = new GemFireSecurityException(message, cause);
 
-    GemFireSecurityException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned).hasMessage(message).hasCause(cause);
     assertThat(cloned.getCause()).hasMessage(causeMessage);
@@ -106,26 +106,26 @@ public class GemFireSecurityExceptionTest {
 
   @Test
   public void serializesWithNonSerializableNamingException() {
-    GemFireSecurityException instance =
+    var instance =
         new GemFireSecurityException(message, nonSerializableNamingException);
 
-    GemFireSecurityException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned).hasMessage(message).hasCause(nonSerializableNamingException);
-    NamingException cause = (NamingException) cloned.getCause();
+    var cause = (NamingException) cloned.getCause();
     assertThat(cause).hasMessage(causeMessage);
     assertThat(cause.getResolvedObj()).isNull();
   }
 
   @Test
   public void serializesWithSerializableNamingException() {
-    GemFireSecurityException instance =
+    var instance =
         new GemFireSecurityException(message, serializableNamingException);
 
-    GemFireSecurityException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned).hasMessage(message).hasCause(serializableNamingException);
-    NamingException cause = (NamingException) cloned.getCause();
+    var cause = (NamingException) cloned.getCause();
     assertThat(cause).hasMessage(causeMessage);
     assertThat(cause.getResolvedObj()).isNotNull().isEqualTo(serializableResolvedObj);
   }
@@ -159,7 +159,7 @@ public class GemFireSecurityExceptionTest {
         return false;
       }
 
-      SerializableObject that = (SerializableObject) o;
+      var that = (SerializableObject) o;
 
       return name != null ? name.equals(that.name) : that.name == null;
     }

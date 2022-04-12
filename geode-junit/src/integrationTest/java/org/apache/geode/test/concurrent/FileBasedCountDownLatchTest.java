@@ -22,7 +22,7 @@ import org.junit.Test;
 public class FileBasedCountDownLatchTest {
   @Test
   public void singleThreadedBehaviorIsCorrect() throws Exception {
-    FileBasedCountDownLatch fileBasedCountDownLatch = new FileBasedCountDownLatch(2);
+    var fileBasedCountDownLatch = new FileBasedCountDownLatch(2);
     assertThat(fileBasedCountDownLatch.currentValue()).isEqualTo(2);
 
     fileBasedCountDownLatch.countDown();

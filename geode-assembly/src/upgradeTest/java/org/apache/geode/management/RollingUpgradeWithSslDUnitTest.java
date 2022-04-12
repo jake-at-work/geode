@@ -35,7 +35,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -48,7 +47,6 @@ import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
-import org.apache.geode.cache.ssl.CertificateMaterial;
 import org.apache.geode.internal.UniquePortSupplier;
 import org.apache.geode.test.junit.categories.BackwardCompatibilityTest;
 import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
@@ -74,7 +72,7 @@ public class RollingUpgradeWithSslDUnitTest {
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<String> data() {
-    final List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    final var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(s -> TestVersion.compare(s, "1.10.0") < 0);
     return result;
   }
@@ -105,24 +103,24 @@ public class RollingUpgradeWithSslDUnitTest {
      * Since GfshRule provides no way to pass along Properties object to start server etc,
      * we must write the properties to an actual file.
      */
-    final Properties properties = generateSslProperties();
+    final var properties = generateSslProperties();
 
     securityPropertiesFile = tempFolder.newFile("gfsecurity.properties");
-    final FileOutputStream fileOutputStream =
+    final var fileOutputStream =
         new FileOutputStream(securityPropertiesFile.getAbsolutePath());
     properties.store(fileOutputStream, "");
   }
 
   @Test
   public void testRollingUpgradeWithDeployment() throws Exception {
-    final int locatorPort = portSupplier.getAvailablePort();
-    final int locatorJmxPort = portSupplier.getAvailablePort();
-    final int locator2Port = portSupplier.getAvailablePort();
-    final int locator2JmxPort = portSupplier.getAvailablePort();
-    final int server1Port = portSupplier.getAvailablePort();
-    final int server2Port = portSupplier.getAvailablePort();
+    final var locatorPort = portSupplier.getAvailablePort();
+    final var locatorJmxPort = portSupplier.getAvailablePort();
+    final var locator2Port = portSupplier.getAvailablePort();
+    final var locator2JmxPort = portSupplier.getAvailablePort();
+    final var server1Port = portSupplier.getAvailablePort();
+    final var server2Port = portSupplier.getAvailablePort();
 
-    final GfshExecution startupExecution =
+    final var startupExecution =
         GfshScript.of(
             startLocatorCommandWithConfig("locator1", locatorPort, locatorJmxPort, -1))
             .and(startLocatorCommandWithConfig("locator2", locator2Port, locator2JmxPort,
@@ -168,7 +166,7 @@ public class RollingUpgradeWithSslDUnitTest {
   }
 
   private Properties generateSslProperties() {
-    final Properties properties = new Properties();
+    final var properties = new Properties();
 
     properties.setProperty(BIND_ADDRESS, hostName);
     properties.setProperty(SSL_REQUIRE_AUTHENTICATION, "true");
@@ -187,7 +185,7 @@ public class RollingUpgradeWithSslDUnitTest {
   }
 
   private void verifyListMembers(int locatorPort) {
-    final GfshExecution members =
+    final var members =
         GfshScript.of("connect --locator=" + hostName + "[" + locatorPort + "]")
             .and("list members")
             .execute(currentGfsh, tempFolder.getRoot());
@@ -214,7 +212,7 @@ public class RollingUpgradeWithSslDUnitTest {
   }
 
   private String additionalParameters() {
-    final String propertiesFile =
+    final var propertiesFile =
         RollingUpgradeWithSslDUnitTest.class.getResource("gemfire.properties").getFile();
 
     return " --properties-file=" + propertiesFile +
@@ -223,7 +221,7 @@ public class RollingUpgradeWithSslDUnitTest {
   }
 
   private void initializeRegion(int locatorPort) {
-    final GfshExecution getResponse =
+    final var getResponse =
         GfshScript.of("connect --locator=" + hostName + "[" + locatorPort + "]")
             .and("create region --name=region1 --type=REPLICATE")
             .and("list regions")
@@ -235,7 +233,7 @@ public class RollingUpgradeWithSslDUnitTest {
   }
 
   private void causeP2PTraffic(int locatorPort) {
-    final GfshExecution getResponse =
+    final var getResponse =
         GfshScript.of("connect --locator=" + hostName + "[" + locatorPort + "]")
             .and("put --key='123abc' --value='Hello World!!' --region=region1")
             .and("get --key='123abc' --region=region1")
@@ -247,28 +245,28 @@ public class RollingUpgradeWithSslDUnitTest {
   }
 
   public void generateStores() throws IOException, GeneralSecurityException {
-    final String algorithm = "SHA256withRSA";
-    final CertificateMaterial ca = new CertificateBuilder(365, algorithm)
+    final var algorithm = "SHA256withRSA";
+    final var ca = new CertificateBuilder(365, algorithm)
         .commonName("Test CA")
         .isCA()
         .generate();
 
-    final CertificateMaterial certificate = new CertificateBuilder(365, algorithm)
+    final var certificate = new CertificateBuilder(365, algorithm)
         .commonName(hostName)
         .issuedBy(ca)
         .sanDnsName(hostName)
         .generate();
 
-    final CertStores store = new CertStores(hostName);
+    final var store = new CertStores(hostName);
     store.withCertificate("geode", certificate);
     store.trust("ca", ca);
 
-    final File keyStoreFile = new File(tempFolder.getRoot(), keyStoreFileName);
+    final var keyStoreFile = new File(tempFolder.getRoot(), keyStoreFileName);
     keyStoreFile.createNewFile();
     store.createKeyStore(keyStoreFile.getAbsolutePath(), "geode");
     System.out.println("Keystore created: " + keyStoreFile.getAbsolutePath());
 
-    final File trustStoreFile = new File(tempFolder.getRoot(), trustStoreFileName);
+    final var trustStoreFile = new File(tempFolder.getRoot(), trustStoreFileName);
     trustStoreFile.createNewFile();
     store.createTrustStore(trustStoreFile.getPath(), "geode");
     System.out.println("Truststore created: " + trustStoreFile.getAbsolutePath());

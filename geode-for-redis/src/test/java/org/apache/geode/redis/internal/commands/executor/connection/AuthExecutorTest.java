@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.redis.internal.commands.Command;
-import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 import org.apache.geode.security.AuthenticationExpiredException;
 
@@ -51,7 +50,7 @@ public class AuthExecutorTest {
   @Test
   public void notIntegratedService() {
     when(context.isSecurityEnabled()).thenReturn(false);
-    RedisResponse redisResponse = executor.executeCommand(command, context);
+    var redisResponse = executor.executeCommand(command, context);
     assertThat(redisResponse.toString()).contains(ERROR_AUTH_CALLED_WITHOUT_SECURITY_CONFIGURED);
   }
 
@@ -60,7 +59,7 @@ public class AuthExecutorTest {
     when(context.isSecurityEnabled()).thenReturn(true);
     doReturn(new Properties()).when(executor).getSecurityProperties(command, context);
     when(context.login(any())).thenThrow(new AuthenticationExpiredException("expired"));
-    RedisResponse redisResponse = executor.executeCommand(command, context);
+    var redisResponse = executor.executeCommand(command, context);
     assertThat(redisResponse.toString()).contains(ERROR_INVALID_USERNAME_OR_PASSWORD);
   }
 }

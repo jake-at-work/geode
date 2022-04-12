@@ -57,7 +57,7 @@ public class MemberCommandService extends org.apache.geode.management.cli.Comman
 
   @Override
   public Result processCommand(String commandString, Map<String, String> env) {
-    ResultModel resultModel = ResultModel.fromJson(
+    var resultModel = ResultModel.fromJson(
         commandProcessor.executeCommandReturningJson(commandString, env, null));
     return new CommandResult(resultModel);
   }

@@ -64,7 +64,7 @@ public class MBeanJMXAdapterTest {
     // has already been unregistered
     doThrow(new InstanceNotFoundException()).when(mockMBeanServer).unregisterMBean(objectName);
 
-    MBeanJMXAdapter mBeanJMXAdapter = spy(new MBeanJMXAdapter(distMember));
+    var mBeanJMXAdapter = spy(new MBeanJMXAdapter(distMember));
     MBeanJMXAdapter.mbeanServer = mockMBeanServer;
 
     mBeanJMXAdapter.unregisterMBean(objectName);
@@ -85,7 +85,7 @@ public class MBeanJMXAdapterTest {
     doThrow(new InstanceAlreadyExistsException()).when(mockMBeanServer)
         .registerMBean(any(Object.class), eq(objectName));
 
-    MBeanJMXAdapter mBeanJMXAdapter = spy(new MBeanJMXAdapter(distMember));
+    var mBeanJMXAdapter = spy(new MBeanJMXAdapter(distMember));
     MBeanJMXAdapter.mbeanServer = mockMBeanServer;
 
     mBeanJMXAdapter.registerMBeanProxy(objectName, objectName);
@@ -97,10 +97,10 @@ public class MBeanJMXAdapterTest {
 
   @Test
   public void getMemberNameOrUniqueIdReturnsNameIfProvided() {
-    String memberName = "member-name";
+    var memberName = "member-name";
     when(distMember.getName()).thenReturn(memberName);
 
-    String result = MBeanJMXAdapter.getMemberNameOrUniqueId(distMember);
+    var result = MBeanJMXAdapter.getMemberNameOrUniqueId(distMember);
 
     assertThat(result).isEqualTo(memberName);
   }
@@ -109,7 +109,7 @@ public class MBeanJMXAdapterTest {
   public void getMemberNameOrUniqueIdReturnsUniqueIdIfNameIsNotProvided() {
     when(distMember.getName()).thenReturn("");
 
-    String result = MBeanJMXAdapter.getMemberNameOrUniqueId(distMember);
+    var result = MBeanJMXAdapter.getMemberNameOrUniqueId(distMember);
 
     assertThat(result).isEqualTo(UNIQUE_ID);
   }

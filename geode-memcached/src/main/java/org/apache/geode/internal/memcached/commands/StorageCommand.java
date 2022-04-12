@@ -16,7 +16,6 @@ package org.apache.geode.internal.memcached.commands;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -27,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.internal.memcached.KeyWrapper;
 import org.apache.geode.internal.memcached.RequestReader;
 import org.apache.geode.logging.internal.executors.LoggingThreadFactory;
 import org.apache.geode.memcached.GemFireMemcachedServer.Protocol;
@@ -64,7 +62,7 @@ public abstract class StorageCommand extends AbstractCommand {
 
   @Override
   public ByteBuffer processCommand(RequestReader reader, Protocol protocol, Cache cache) {
-    ByteBuffer buffer = reader.getRequest();
+    var buffer = reader.getRequest();
     if (protocol == Protocol.ASCII) {
       return processAsciiCommand(buffer, cache);
     }
@@ -72,20 +70,20 @@ public abstract class StorageCommand extends AbstractCommand {
   }
 
   private ByteBuffer processAsciiCommand(ByteBuffer buffer, Cache cache) {
-    CharBuffer flb = getFirstLineBuffer();
+    var flb = getFirstLineBuffer();
     getAsciiDecoder().decode(buffer, flb, false);
     flb.flip();
-    String firstLine = getFirstLine();
-    String[] firstLineElements = firstLine.split(" ");
-    String key = firstLineElements[1];
-    int flags = Integer.parseInt(firstLineElements[2]);
-    long expTime = Long.parseLong(firstLineElements[3]);
-    int numBytes = Integer.parseInt(stripNewline(firstLineElements[4]));
-    boolean noReply = firstLineElements.length > 5;
-    byte[] value = new byte[numBytes];
+    var firstLine = getFirstLine();
+    var firstLineElements = firstLine.split(" ");
+    var key = firstLineElements[1];
+    var flags = Integer.parseInt(firstLineElements[2]);
+    var expTime = Long.parseLong(firstLineElements[3]);
+    var numBytes = Integer.parseInt(stripNewline(firstLineElements[4]));
+    var noReply = firstLineElements.length > 5;
+    var value = new byte[numBytes];
     buffer.position(firstLine.length());
     try {
-      for (int i = 0; i < numBytes; i++) {
+      for (var i = 0; i < numBytes; i++) {
         value[i] = buffer.get();
       }
     } catch (BufferUnderflowException e) {
@@ -95,7 +93,7 @@ public abstract class StorageCommand extends AbstractCommand {
       getLogger().fine("key:" + key);
       getLogger().fine("value:" + Arrays.toString(value));
     }
-    ByteBuffer retVal = processStorageCommand(key, value, flags, cache);
+    var retVal = processStorageCommand(key, value, flags, cache);
     if (expTime > 0) {
       scheduleExpiration(key, expTime, cache);
     }
@@ -103,11 +101,11 @@ public abstract class StorageCommand extends AbstractCommand {
   }
 
   private ByteBuffer processBinaryComand(RequestReader request, Cache cache) {
-    ByteBuffer buffer = request.getRequest();
+    var buffer = request.getRequest();
     int extrasLength = buffer.get(EXTRAS_LENGTH_INDEX);
     int flags = 0, expTime = 0;
 
-    KeyWrapper key = getKey(buffer, HEADER_LENGTH + extrasLength);
+    var key = getKey(buffer, HEADER_LENGTH + extrasLength);
 
     if (extrasLength > 0) {
       assert extrasLength == 8;
@@ -116,11 +114,11 @@ public abstract class StorageCommand extends AbstractCommand {
       expTime = buffer.getInt();
     }
 
-    byte[] value = getValue(buffer);
+    var value = getValue(buffer);
 
-    long cas = buffer.getLong(POSITION_CAS);
+    var cas = buffer.getLong(POSITION_CAS);
 
-    ByteBuffer retVal = processBinaryStorageCommand(key, value, cas, flags, cache, request);
+    var retVal = processBinaryStorageCommand(key, value, cas, flags, cache, request);
     if (expTime > 0) {
       scheduleExpiration(key, expTime, cache);
     }
@@ -140,7 +138,7 @@ public abstract class StorageCommand extends AbstractCommand {
    *
    */
   private void scheduleExpiration(final Object key, long p_expTime, final Cache cache) {
-    long expTime = p_expTime;
+    var expTime = p_expTime;
     assert expTime > 0;
     if (p_expTime > secsIn30Days) {
       expTime = p_expTime - System.currentTimeMillis();
@@ -170,7 +168,7 @@ public abstract class StorageCommand extends AbstractCommand {
    * @return true if successfully rescheduled, false otherwise
    */
   public static boolean rescheduleExpiration(Cache cache, Object key, int newExpTime) {
-    ScheduledFuture f = expiryFutures.get(key);
+    var f = expiryFutures.get(key);
     if (f != null) {
       if (f.cancel(false)) {
         ScheduledFuture f2 =

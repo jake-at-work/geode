@@ -132,7 +132,7 @@ public class QueryConfigurationServiceImpl implements QueryConfigurationService 
 
   private void invalidateContinuousQueryCache(CqService cqService) {
     cqService.getAllCqs().forEach(cqQuery -> {
-      ServerCQ serverCQ = (ServerCQ) cqQuery;
+      var serverCQ = (ServerCQ) cqQuery;
       serverCQ.invalidateCqResultKeys();
     });
   }
@@ -146,7 +146,7 @@ public class QueryConfigurationServiceImpl implements QueryConfigurationService 
     }
 
     // Throw exception if there are CQs running and forceUpdate flag is false.
-    CqService cqService = ((InternalCache) cache).getCqService();
+    var cqService = ((InternalCache) cache).getCqService();
     if ((!cqService.getAllCqs().isEmpty()) && (!forceUpdate)) {
       throw new QueryConfigurationServiceException(CONTINUOUS_QUERIES_RUNNING_MESSAGE);
     }
@@ -161,14 +161,14 @@ public class QueryConfigurationServiceImpl implements QueryConfigurationService 
       } else if (className.equals(RegExMethodAuthorizer.class.getName())) {
         authorizer = new RegExMethodAuthorizer(cache, parameters);
       } else {
-        Class<?> userClass = ClassPathLoader.getLatest().forName(className);
+        var userClass = ClassPathLoader.getLatest().forName(className);
         if (!Arrays.asList(userClass.getInterfaces()).contains(MethodInvocationAuthorizer.class)) {
           throw new QueryConfigurationServiceException(
               String.format(INTERFACE_NOT_IMPLEMENTED_MESSAGE, userClass.getName(),
                   MethodInvocationAuthorizer.class.getName()));
         }
 
-        MethodInvocationAuthorizer tmpAuthorizer =
+        var tmpAuthorizer =
             (MethodInvocationAuthorizer) userClass.newInstance();
         tmpAuthorizer.initialize(cache, parameters);
         authorizer = tmpAuthorizer;

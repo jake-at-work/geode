@@ -30,12 +30,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -43,24 +40,24 @@ public class ZAddExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    ZAddExecutorState zAddExecutorState = new ZAddExecutorState();
-    List<byte[]> commandElements = command.getProcessedCommand();
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
+    var zAddExecutorState = new ZAddExecutorState();
+    var commandElements = command.getProcessedCommand();
+    var region = context.getRegion();
+    var key = command.getKey();
 
-    Iterator<byte[]> commandIterator = commandElements.iterator();
+    var commandIterator = commandElements.iterator();
     skipCommandAndKey(commandIterator);
 
-    int optionsFoundCount = findAndValidateZAddOptions(command, commandIterator, zAddExecutorState);
+    var optionsFoundCount = findAndValidateZAddOptions(command, commandIterator, zAddExecutorState);
     if (zAddExecutorState.exceptionMessage != null) {
       return RedisResponse.error(zAddExecutorState.exceptionMessage);
     }
 
-    int size = (commandElements.size() - optionsFoundCount - 2) / 2;
+    var size = (commandElements.size() - optionsFoundCount - 2) / 2;
     List<byte[]> members = new ArrayList<>(size);
-    double[] scores = new double[size];
-    int n = 0;
-    for (int i = optionsFoundCount + 2; i < commandElements.size(); i += 2, n++) {
+    var scores = new double[size];
+    var n = 0;
+    for (var i = optionsFoundCount + 2; i < commandElements.size(); i += 2, n++) {
       try {
         scores[n] = Coder.bytesToDouble(commandElements.get(i));
       } catch (NumberFormatException e) {
@@ -68,8 +65,8 @@ public class ZAddExecutor implements CommandExecutor {
       }
       members.add(commandElements.get(i + 1));
     }
-    ZAddOptions options = makeOptions(zAddExecutorState);
-    Object retVal = context.sortedSetLockedExecute(key, false,
+    var options = makeOptions(zAddExecutorState);
+    var retVal = context.sortedSetLockedExecute(key, false,
         zset -> zset.zadd(region, key, members, scores, options));
 
     if (zAddExecutorState.incrFound) {
@@ -89,11 +86,11 @@ public class ZAddExecutor implements CommandExecutor {
 
   private int findAndValidateZAddOptions(Command command, Iterator<byte[]> commandIterator,
       ZAddExecutorState executorState) {
-    boolean scoreFound = false;
-    int optionsFoundCount = 0;
+    var scoreFound = false;
+    var optionsFoundCount = 0;
 
     while (commandIterator.hasNext() && !scoreFound) {
-      byte[] subCommand = toUpperCaseBytes(commandIterator.next());
+      var subCommand = toUpperCaseBytes(commandIterator.next());
       if (Arrays.equals(subCommand, NX)) {
         executorState.nxFound = true;
         optionsFoundCount++;
@@ -125,7 +122,7 @@ public class ZAddExecutor implements CommandExecutor {
   }
 
   private ZAddOptions makeOptions(ZAddExecutorState executorState) {
-    ZAddOptions.Exists existsOption = ZAddOptions.Exists.NONE;
+    var existsOption = ZAddOptions.Exists.NONE;
 
     if (executorState.nxFound) {
       existsOption = ZAddOptions.Exists.NX;

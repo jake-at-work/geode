@@ -124,10 +124,10 @@ class LocalProcessLauncher {
       pidFile.delete();
     }
 
-    File tempPidFile = new File(pidFile.getParent(), pidFile.getName() + ".tmp");
+    var tempPidFile = new File(pidFile.getParent(), pidFile.getName() + ".tmp");
     tempPidFile.createNewFile();
 
-    try (FileWriter writer = new FileWriter(tempPidFile)) {
+    try (var writer = new FileWriter(tempPidFile)) {
       writer.write(String.valueOf(pid));
       writer.flush();
     }
@@ -137,7 +137,7 @@ class LocalProcessLauncher {
   }
 
   private int readOtherPid() {
-    int otherPid = 0;
+    var otherPid = 0;
     try {
       otherPid = ProcessUtils.readPid(pidFile);
     } catch (NumberFormatException | IOException ignore) {

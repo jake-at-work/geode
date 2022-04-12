@@ -28,9 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -50,7 +48,7 @@ public class GrantorFailoverDUnitTest {
     locators.add(clusterStartupRule.startLocatorVM(2, locators.get(0).getPort()));
 
 
-    for (MemberVM locator : locators) {
+    for (var locator : locators) {
       locator.invoke((SerializableRunnableIF) () -> DistributedLockService.create(SERVICE_NAME,
           ClusterStartupRule.getCache().getDistributedSystem()));
     }
@@ -58,17 +56,17 @@ public class GrantorFailoverDUnitTest {
 
   @After
   public void cleanup() {
-    for (MemberVM locator : locators) {
+    for (var locator : locators) {
       locator.invoke(() -> DistributedLockService.destroy(SERVICE_NAME));
     }
   }
 
   @Test
   public void cannotUnlockALockLockedByAnotherVm() {
-    final String lock0 = "lock 0";
-    final String lock1 = "lock 1";
-    final AtomicBoolean lock0Status = new AtomicBoolean(false);
-    final AtomicBoolean lock1Status = new AtomicBoolean(false);
+    final var lock0 = "lock 0";
+    final var lock1 = "lock 1";
+    final var lock0Status = new AtomicBoolean(false);
+    final var lock1Status = new AtomicBoolean(false);
 
     lock0Status.set(locators.get(0)
         .invoke(() -> DistributedLockService.getServiceNamed(SERVICE_NAME).lock(lock0, 20, -1)));
@@ -103,16 +101,16 @@ public class GrantorFailoverDUnitTest {
 
   @Test
   public void lockRecoveryAfterGrantorDies() throws Exception {
-    final String lock1 = "lock 1";
-    final String lock2 = "lock 2";
-    final String lock3 = "lock 3";
+    final var lock1 = "lock 1";
+    final var lock2 = "lock 2";
+    final var lock3 = "lock 3";
 
     locators.get(0).invoke(GrantorFailoverDUnitTest::assertIsElderAndGetId);
 
     // Grantor but not the elder
-    final MemberVM grantorVM = locators.get(1);
-    final MemberVM survivor1 = locators.get(0);
-    final MemberVM survivor2 = locators.get(2);
+    final var grantorVM = locators.get(1);
+    final var survivor1 = locators.get(0);
+    final var survivor2 = locators.get(2);
     grantorVM.invoke(() -> {
       DistributedLockService.becomeLockGrantor(SERVICE_NAME);
       await().untilAsserted(
@@ -138,10 +136,10 @@ public class GrantorFailoverDUnitTest {
         .invoke(() -> DistributedLockService.getServiceNamed(SERVICE_NAME).lock(lock2, 2, -1)))
             .isFalse();
 
-    final AsyncInvocation lock1FailsReleaseOnOtherVM =
+    final var lock1FailsReleaseOnOtherVM =
         survivor2
             .invokeAsync(() -> DistributedLockService.getServiceNamed(SERVICE_NAME).unlock(lock1));
-    final AsyncInvocation lock2FailsReleaseOnOtherVM =
+    final var lock2FailsReleaseOnOtherVM =
         survivor1
             .invokeAsync(() -> DistributedLockService.getServiceNamed(SERVICE_NAME).unlock(lock2));
 
@@ -155,15 +153,15 @@ public class GrantorFailoverDUnitTest {
         .invoke(() -> DistributedLockService.getServiceNamed(SERVICE_NAME).lock(lock3, 20_000, -1)))
             .isTrue();
 
-    final AsyncInvocation lock1SuccessfulRelease =
+    final var lock1SuccessfulRelease =
         survivor1
             .invokeAsync(() -> DistributedLockService.getServiceNamed(SERVICE_NAME).unlock(lock1));
 
-    final AsyncInvocation lock3SuccessfulRelease =
+    final var lock3SuccessfulRelease =
         survivor1
             .invokeAsync(() -> DistributedLockService.getServiceNamed(SERVICE_NAME).unlock(lock3));
 
-    final AsyncInvocation lock2SuccessfulRelease =
+    final var lock2SuccessfulRelease =
         survivor2
             .invokeAsync(() -> DistributedLockService.getServiceNamed(SERVICE_NAME).unlock(lock2));
 
@@ -173,7 +171,7 @@ public class GrantorFailoverDUnitTest {
   }
 
   private static InternalDistributedMember assertIsElderAndGetId() {
-    DistributionManager distributionManager =
+    var distributionManager =
         ClusterStartupRule.getCache().getInternalDistributedSystem().getDistributionManager();
     await("Wait to be elder")
         .untilAsserted(() -> assertThat(distributionManager.isElder()).isTrue());

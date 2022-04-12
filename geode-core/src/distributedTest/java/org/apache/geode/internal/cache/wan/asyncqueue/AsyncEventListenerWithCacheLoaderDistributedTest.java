@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Before;
@@ -51,7 +50,6 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -96,7 +94,7 @@ public class AsyncEventListenerWithCacheLoaderDistributedTest implements Seriali
     vm1 = getVM(1);
     vm2 = getVM(2);
 
-    String className = getClass().getSimpleName();
+    var className = getClass().getSimpleName();
     partitionedRegionName = className + "_PR";
     replicateRegionName = className + "_RR";
 
@@ -233,7 +231,7 @@ public class AsyncEventListenerWithCacheLoaderDistributedTest implements Seriali
     assertThat(asyncEventQueueId).isNotEmpty();
     assertThat(asyncEventListener).isNotNull();
 
-    AsyncEventQueueFactory asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
     asyncEventQueueFactory.setBatchConflationEnabled(false);
     asyncEventQueueFactory.setBatchSize(batchSize);
     asyncEventQueueFactory.setDispatcherThreads(dispatcherThreads);
@@ -246,16 +244,16 @@ public class AsyncEventListenerWithCacheLoaderDistributedTest implements Seriali
 
   private void doGets(String regionName, int numGets) {
     Region<Integer, Integer> region = getCache().getRegion(regionName);
-    for (int i = 0; i < numGets; i++) {
+    for (var i = 0; i < numGets; i++) {
       region.get(i);
     }
   }
 
   private void doPutAll(String regionName, int numPuts, int size) {
     Region<Integer, Integer> region = getCache().getRegion(regionName);
-    for (int i = 0; i < numPuts; i++) {
+    for (var i = 0; i < numPuts; i++) {
       Map<Integer, Integer> putAllMap = new HashMap<>();
-      for (int j = 0; j < size; j++) {
+      for (var j = 0; j < size; j++) {
         putAllMap.put(size * i + j, i);
       }
       region.putAll(putAllMap, "putAllCallback");
@@ -264,7 +262,7 @@ public class AsyncEventListenerWithCacheLoaderDistributedTest implements Seriali
   }
 
   private void validateAsyncEventForOperationDetail(int expectedSize, OperationType operationType) {
-    Map<?, AsyncEvent> eventsMap = (Map<?, AsyncEvent>) getSpyAsyncEventListener().getEventsMap();
+    var eventsMap = (Map<?, AsyncEvent>) getSpyAsyncEventListener().getEventsMap();
 
     await()
         .untilAsserted(() -> assertThat(eventsMap.size()).isEqualTo(expectedSize));
@@ -288,7 +286,7 @@ public class AsyncEventListenerWithCacheLoaderDistributedTest implements Seriali
   }
 
   private AsyncEventListener getAsyncEventListener() {
-    AsyncEventListener asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
+    var asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
     assertThat(asyncEventListener).isNotNull();
     return asyncEventListener;
   }
@@ -296,8 +294,8 @@ public class AsyncEventListenerWithCacheLoaderDistributedTest implements Seriali
   private AsyncEventQueue getAsyncEventQueue() {
     AsyncEventQueue value = null;
 
-    Set<AsyncEventQueue> asyncEventQueues = getCache().getAsyncEventQueues();
-    for (AsyncEventQueue asyncEventQueue : asyncEventQueues) {
+    var asyncEventQueues = getCache().getAsyncEventQueues();
+    for (var asyncEventQueue : asyncEventQueues) {
       if (asyncEventQueueId.equals(asyncEventQueue.getId())) {
         value = asyncEventQueue;
       }

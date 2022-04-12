@@ -22,7 +22,7 @@ public enum PersistentMemberState {
   OFFLINE, ONLINE, EQUAL, REVOKED;
 
   public static PersistentMemberState fromData(DataInput in) throws IOException {
-    byte ordinal = in.readByte();
+    var ordinal = in.readByte();
     return PersistentMemberState.values()[ordinal];
   }
 

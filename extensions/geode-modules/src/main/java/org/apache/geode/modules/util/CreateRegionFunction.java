@@ -26,7 +26,6 @@ import java.util.Collections;
 import org.apache.geode.DataSerializable;
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.EvictionAction;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionShortcut;
@@ -63,13 +62,13 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
   @Override
   @SuppressWarnings("unchecked")
   public void execute(FunctionContext context) {
-    RegionConfiguration configuration = (RegionConfiguration) context.getArguments();
+    var configuration = (RegionConfiguration) context.getArguments();
     if (cache.getLogger().fineEnabled()) {
       cache.getLogger().fine("Function " + ID + " received request: " + configuration);
     }
 
     // Create or retrieve region
-    RegionStatus status = createOrRetrieveRegion(configuration);
+    var status = createOrRetrieveRegion(configuration);
 
     // Dump XML
     if (DUMP_SESSION_CACHE_XML) {
@@ -86,7 +85,7 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
 
   private RegionStatus createOrRetrieveRegion(RegionConfiguration configuration) {
     RegionStatus status;
-    String regionName = configuration.getRegionName();
+    var regionName = configuration.getRegionName();
 
     if (cache.getLogger().fineEnabled()) {
       cache.getLogger().fine("Function " + ID + " retrieving region named: " + regionName);
@@ -98,8 +97,8 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
     } else {
       status = RegionStatus.VALID;
       try {
-        RegionAttributes existingRegionAttributes = region.getAttributes();
-        RegionAttributes requestedRegionAttributes =
+        var existingRegionAttributes = region.getAttributes();
+        var requestedRegionAttributes =
             RegionHelper.getRegionAttributes(cache, configuration);
         compareRegionAttributes(existingRegionAttributes, requestedRegionAttributes);
       } catch (Exception e) {
@@ -135,10 +134,10 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
    */
   void compareRegionAttributes(RegionAttributes existingRegionAttributes,
       RegionAttributes requestedRegionAttributes) {
-    EvictionAttributes evictionAttributes = existingRegionAttributes.getEvictionAttributes();
-    RegionAttributesCreation existingRACreation =
+    var evictionAttributes = existingRegionAttributes.getEvictionAttributes();
+    var existingRACreation =
         new RegionAttributesCreation(existingRegionAttributes, false);
-    RegionAttributesCreation requestedAttributesCreation =
+    var requestedAttributesCreation =
         new RegionAttributesCreation(requestedRegionAttributes, false);
 
     if (existingRegionAttributes.getDataPolicy().withPersistence() || (evictionAttributes != null
@@ -175,7 +174,7 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
 
   private RegionStatus createRegion(RegionConfiguration configuration) {
     // Get a distributed lock
-    DistributedMemberLock dml = getDistributedLock();
+    var dml = getDistributedLock();
     if (cache.getLogger().fineEnabled()) {
       cache.getLogger().fine(this + ": Attempting to lock " + dml);
     }
@@ -194,7 +193,7 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
       }
 
       // Attempt to get the region again after the lock has been obtained
-      String regionName = configuration.getRegionName();
+      var regionName = configuration.getRegionName();
       Region region = cache.getRegion(regionName);
 
       // If it exists now, validate it.
@@ -212,7 +211,7 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
         } else {
           // Create the PR buckets if necessary)
           if (region instanceof PartitionedRegion) {
-            PartitionedRegion pr = (PartitionedRegion) region;
+            var pr = (PartitionedRegion) region;
             createBuckets(pr);
           }
           status = RegionStatus.VALID;
@@ -230,7 +229,7 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
         }
       }
     } catch (Exception e) {
-      String builder = this + ": Caught Exception attempting to create region named "
+      var builder = this + ": Caught Exception attempting to create region named "
           + configuration.getRegionName() + ":";
       cache.getLogger().warning(builder, e);
       status = RegionStatus.INVALID;
@@ -266,10 +265,10 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
   }
 
   private void writeCacheXml() {
-    File file = new File("cache-" + System.currentTimeMillis() + ".xml");
+    var file = new File("cache-" + System.currentTimeMillis() + ".xml");
 
     try {
-      PrintWriter pw = new PrintWriter(new FileWriter(file), true);
+      var pw = new PrintWriter(new FileWriter(file), true);
       CacheXmlGenerator.generate(cache, pw);
       pw.close();
     } catch (IOException ignored) {
@@ -277,15 +276,15 @@ public class CreateRegionFunction implements Function, Declarable, DataSerializa
   }
 
   private DistributedMemberLock getDistributedLock() {
-    String dlsName = regionConfigurationsRegion.getName();
-    DistributedLockService lockService = initializeDistributedLockService(dlsName);
-    String lockToken = dlsName + "_token";
+    var dlsName = regionConfigurationsRegion.getName();
+    var lockService = initializeDistributedLockService(dlsName);
+    var lockToken = dlsName + "_token";
 
     return new DistributedMemberLock(lockService, lockToken);
   }
 
   private DistributedLockService initializeDistributedLockService(String dlsName) {
-    DistributedLockService lockService = DistributedLockService.getServiceNamed(dlsName);
+    var lockService = DistributedLockService.getServiceNamed(dlsName);
     if (lockService == null) {
       lockService = DistributedLockService.create(dlsName, cache.getDistributedSystem());
     }

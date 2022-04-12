@@ -30,10 +30,10 @@ public class TooManyColumnsExceptionTest {
 
   @Test
   public void serializes() {
-    String message = "bad thing happened";
-    TooManyColumnsException instance = new TooManyColumnsException(message);
+    var message = "bad thing happened";
+    var instance = new TooManyColumnsException(message);
 
-    TooManyColumnsException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned).hasMessage(message);
   }

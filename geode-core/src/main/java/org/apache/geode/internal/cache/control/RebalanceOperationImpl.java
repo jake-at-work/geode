@@ -21,7 +21,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,7 +35,6 @@ import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.control.RebalanceResults;
 import org.apache.geode.cache.partition.PartitionRebalanceInfo;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.partitioned.PartitionedRegionRebalanceOp;
 import org.apache.geode.internal.cache.partitioned.rebalance.CompositeDirector;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -65,7 +63,7 @@ public class RebalanceOperationImpl implements RebalanceOperation {
   }
 
   public void start() {
-    final InternalResourceManager manager = cache.getInternalResourceManager();
+    final var manager = cache.getInternalResourceManager();
     synchronized (futureLock) {
       manager.addInProgressRebalance(this);
       scheduleRebalance();
@@ -73,11 +71,11 @@ public class RebalanceOperationImpl implements RebalanceOperation {
   }
 
   private void scheduleRebalance() {
-    ResourceManagerStats stats = cache.getInternalResourceManager().getStats();
+    var stats = cache.getInternalResourceManager().getStats();
 
-    long start = stats.startRebalance();
+    var start = stats.startRebalance();
     try {
-      for (PartitionedRegion region : cache.getPartitionedRegions()) {
+      for (var region : cache.getPartitionedRegions()) {
         if (cancelled.get()) {
           break;
         }
@@ -88,7 +86,7 @@ public class RebalanceOperationImpl implements RebalanceOperation {
             if (region.isFixedPartitionedRegion()) {
               if (Boolean.getBoolean(
                   GeodeGlossary.GEMFIRE_PREFIX + "DISABLE_MOVE_PRIMARIES_ON_STARTUP")) {
-                PartitionedRegionRebalanceOp prOp = new PartitionedRegionRebalanceOp(region,
+                var prOp = new PartitionedRegionRebalanceOp(region,
                     simulation, new CompositeDirector(false, false, false, true), true, true,
                     cancelled, stats);
                 futureList.add(submitRebalanceTask(prOp, start));
@@ -96,7 +94,7 @@ public class RebalanceOperationImpl implements RebalanceOperation {
                 continue;
               }
             } else {
-              PartitionedRegionRebalanceOp prOp =
+              var prOp =
                   new PartitionedRegionRebalanceOp(region, simulation,
                       new CompositeDirector(true, true, true, true), true, true, cancelled, stats);
               futureList.add(submitRebalanceTask(prOp, start));
@@ -116,8 +114,8 @@ public class RebalanceOperationImpl implements RebalanceOperation {
 
   private Future<RebalanceResults> submitRebalanceTask(
       final PartitionedRegionRebalanceOp rebalanceOp, final long rebalanceStartTime) {
-    final InternalResourceManager manager = cache.getInternalResourceManager();
-    ScheduledExecutorService ex = manager.getExecutor();
+    final var manager = cache.getInternalResourceManager();
+    var ex = manager.getExecutor();
 
     synchronized (futureLock) {
       // this update should happen inside this.futureLock
@@ -126,7 +124,7 @@ public class RebalanceOperationImpl implements RebalanceOperation {
       try {
         Future<RebalanceResults> future = ex.submit(() -> {
           try {
-            RebalanceResultsImpl results = new RebalanceResultsImpl();
+            var results = new RebalanceResultsImpl();
             SystemFailure.checkFailure();
             cache.getCancelCriterion().checkCancelInProgress(null);
 
@@ -134,7 +132,7 @@ public class RebalanceOperationImpl implements RebalanceOperation {
 
             detailSet = rebalanceOp.execute();
 
-            for (PartitionRebalanceInfo details : detailSet) {
+            for (var details : detailSet) {
               results.addDetails(details);
             }
             return results;
@@ -171,7 +169,7 @@ public class RebalanceOperationImpl implements RebalanceOperation {
     cancelled.set(true);
 
     synchronized (futureLock) {
-      for (Future<RebalanceResults> fr : getFutureList()) {
+      for (var fr : getFutureList()) {
         if (fr.cancel(false)) {
           pendingTasks--;
         }
@@ -186,11 +184,11 @@ public class RebalanceOperationImpl implements RebalanceOperation {
 
   @Override
   public RebalanceResults getResults() throws CancellationException, InterruptedException {
-    RebalanceResultsImpl results = new RebalanceResultsImpl();
-    List<Future<RebalanceResults>> frlist = getFutureList();
-    for (Future<RebalanceResults> fr : frlist) {
+    var results = new RebalanceResultsImpl();
+    var frlist = getFutureList();
+    for (var fr : frlist) {
       try {
-        RebalanceResults rr = fr.get();
+        var rr = fr.get();
         results.addDetails((RebalanceResultsImpl) rr);
 
       } catch (ExecutionException e) {
@@ -209,14 +207,14 @@ public class RebalanceOperationImpl implements RebalanceOperation {
   @Override
   public RebalanceResults getResults(long timeout, TimeUnit unit)
       throws CancellationException, TimeoutException, InterruptedException {
-    long endTime = unit.toNanos(timeout) + System.nanoTime();
+    var endTime = unit.toNanos(timeout) + System.nanoTime();
 
-    RebalanceResultsImpl results = new RebalanceResultsImpl();
-    List<Future<RebalanceResults>> frlist = getFutureList();
-    for (Future<RebalanceResults> fr : frlist) {
+    var results = new RebalanceResultsImpl();
+    var frlist = getFutureList();
+    for (var fr : frlist) {
       try {
-        long waitTime = endTime - System.nanoTime();
-        RebalanceResults rr = fr.get(waitTime, TimeUnit.NANOSECONDS);
+        var waitTime = endTime - System.nanoTime();
+        var rr = fr.get(waitTime, TimeUnit.NANOSECONDS);
         results.addDetails((RebalanceResultsImpl) rr);
       } catch (ExecutionException e) {
         if (e.getCause() instanceof GemFireException) {
@@ -237,7 +235,7 @@ public class RebalanceOperationImpl implements RebalanceOperation {
   }
 
   private boolean isAllDone() {
-    for (Future<RebalanceResults> fr : getFutureList()) {
+    for (var fr : getFutureList()) {
       if (!fr.isDone()) {
         return false;
       }

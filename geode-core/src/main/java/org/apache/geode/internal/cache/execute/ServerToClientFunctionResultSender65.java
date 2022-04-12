@@ -265,14 +265,14 @@ public class ServerToClientFunctionResultSender65 extends ServerToClientFunction
       logger.debug(" ServerToClientFunctionResultSender sending Function Error Response : {}",
           errormessage);
     }
-    int numParts = 0;
+    var numParts = 0;
     message.clear();
     if (e instanceof FunctionException
         && e.getCause() instanceof InternalFunctionInvocationTargetException) {
       message.setNumberOfParts(3);
       message.addObjPart(e);
       message.addStringPart(BaseCommand.getExceptionTrace(e));
-      InternalFunctionInvocationTargetException fe =
+      var fe =
           (InternalFunctionInvocationTargetException) e.getCause();
       message.addObjPart(fe.getFailedNodeSet());
       numParts = 3;

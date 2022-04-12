@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,16 +30,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -75,7 +71,7 @@ public class RestAPITestBase implements Serializable {
 
   @Before
   public void setUp() {
-    AgentUtil agentUtil = new AgentUtil(GemFireVersion.getGemFireVersion());
+    var agentUtil = new AgentUtil(GemFireVersion.getGemFireVersion());
     if (agentUtil.findWarLocation("geode-web-api") == null) {
       fail("unable to locate geode-web-api WAR file");
     }
@@ -86,14 +82,14 @@ public class RestAPITestBase implements Serializable {
     vm3 = VM.getVM(3);
 
     // gradle sets a property telling us where the build is located
-    final String buildDir = System.getProperty("geode.build.dir", System.getProperty("user.dir"));
+    final var buildDir = System.getProperty("geode.build.dir", System.getProperty("user.dir"));
     Invoke.invokeInEveryVM(() -> System.setProperty("geode.build.dir", buildDir));
   }
 
   String createCacheWithGroups(final String hostName, final String groups, final String context) {
-    final int servicePort = AvailablePortHelper.getRandomAvailableTCPPort();
+    final var servicePort = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    Properties props = new Properties();
+    var props = new Properties();
 
     if (groups != null) {
       props.put(GROUPS, groups);
@@ -109,7 +105,7 @@ public class RestAPITestBase implements Serializable {
   }
 
   private int getInvocationCount(String functionID) {
-    RestFunctionTemplate function = (RestFunctionTemplate) FunctionService.getFunction(functionID);
+    var function = (RestFunctionTemplate) FunctionService.getFunction(functionID);
     return function.invocationCount;
   }
 
@@ -118,11 +114,11 @@ public class RestAPITestBase implements Serializable {
     System.out.println("Entering executeFunctionThroughRestCall");
     CloseableHttpResponse value = null;
     try {
-      CloseableHttpClient httpclient = HttpClients.createDefault();
-      Random randomGenerator = new Random();
-      int restURLIndex = randomGenerator.nextInt(restURLs.size());
+      var httpclient = HttpClients.createDefault();
+      var randomGenerator = new Random();
+      var restURLIndex = randomGenerator.nextInt(restURLs.size());
 
-      HttpPost post =
+      var post =
           createHTTPPost(function, regionName, filter, restURLIndex, groups, members, jsonBody);
 
       System.out.println("Request: POST " + post);
@@ -136,7 +132,7 @@ public class RestAPITestBase implements Serializable {
 
   private HttpPost createHTTPPost(String function, String regionName, String filter,
       int restUrlIndex, String groups, String members, String jsonBody) {
-    StringBuilder restURLBuilder = new StringBuilder();
+    var restURLBuilder = new StringBuilder();
     restURLBuilder.append(restURLs.get(restUrlIndex)).append("/functions/").append(function)
         .append("?");
     if (regionName != null && !regionName.isEmpty()) {
@@ -149,12 +145,12 @@ public class RestAPITestBase implements Serializable {
     if (filter != null && !filter.isEmpty()) {
       restURLBuilder.append("&filter=").append(filter);
     }
-    String restString = restURLBuilder.toString();
-    HttpPost post = new HttpPost(restString);
+    var restString = restURLBuilder.toString();
+    var post = new HttpPost(restString);
     post.addHeader("Content-Type", "application/json");
     post.addHeader("Accept", "application/json");
     if (StringUtils.isNotEmpty(jsonBody)) {
-      StringEntity jsonStringEntity = new StringEntity(jsonBody, ContentType.DEFAULT_TEXT);
+      var jsonStringEntity = new StringEntity(jsonBody, ContentType.DEFAULT_TEXT);
       post.setEntity(jsonStringEntity);
     }
     return post;
@@ -167,12 +163,12 @@ public class RestAPITestBase implements Serializable {
     // verify response has body flag, expected is true.
     assertThat(response.getEntity()).isNotNull();
     try {
-      String httpResponseString = processHttpResponse(response);
+      var httpResponseString = processHttpResponse(response);
       response.close();
       System.out.println("Response : " + httpResponseString);
       // verify function execution result
-      ObjectMapper mapper = new ObjectMapper();
-      JsonNode json = mapper.readTree(httpResponseString);
+      var mapper = new ObjectMapper();
+      var json = mapper.readTree(httpResponseString);
 
       if (json.isArray()) {
         assertThat(json.size()).isEqualTo(expectedServerResponses);
@@ -189,11 +185,11 @@ public class RestAPITestBase implements Serializable {
 
   private String processHttpResponse(HttpResponse response) {
     try {
-      HttpEntity entity = response.getEntity();
-      InputStream content = entity.getContent();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+      var entity = response.getEntity();
+      var content = entity.getContent();
+      var reader = new BufferedReader(new InputStreamReader(content));
       String line;
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       while ((line = reader.readLine()) != null) {
         sb.append(line);
       }
@@ -206,15 +202,15 @@ public class RestAPITestBase implements Serializable {
   }
 
   void assertCorrectInvocationCount(String functionID, int expectedInvocationCount, VM... vms) {
-    int count = 0;
-    for (final VM vm : vms) {
+    var count = 0;
+    for (final var vm : vms) {
       count += vm.invoke("getInvocationCount", () -> getInvocationCount(functionID));
     }
     assertThat(count).isEqualTo(expectedInvocationCount);
   }
 
   void resetInvocationCount(String functionID) {
-    RestFunctionTemplate f = (RestFunctionTemplate) FunctionService.getFunction(functionID);
+    var f = (RestFunctionTemplate) FunctionService.getFunction(functionID);
     f.invocationCount = 0;
   }
 }

@@ -46,7 +46,7 @@ public class DataCommandRequest implements Serializable {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     if (isGet()) {
       sb.append(" Type  : Get").append(NEW_LINE);
       sb.append(" Key  : ").append(key).append(NEW_LINE);

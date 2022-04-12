@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,7 +37,6 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
@@ -83,7 +81,7 @@ class ProcessManager implements ChildVMLauncher {
       throw new IllegalStateException("VM " + vmNum + " is already running.");
     }
 
-    File workingDir = getVMDir(version, vmNum);
+    var workingDir = getVMDir(version, vmNum);
     if (!workingDir.exists()) {
       workingDir.mkdirs();
     } else if (!bouncedVM || DUnitLauncher.MAKE_NEW_WORKING_DIRS) {
@@ -98,7 +96,7 @@ class ProcessManager implements ChildVMLauncher {
       workingDir.mkdirs();
     }
 
-    String[] cmd = buildJavaCommand(vmNum, namingPort, version, remoteStubPort);
+    var cmd = buildJavaCommand(vmNum, namingPort, version, remoteStubPort);
     System.out.println("Executing " + Arrays.toString(cmd));
 
     if (log4jConfig != null) {
@@ -111,9 +109,9 @@ class ProcessManager implements ChildVMLauncher {
       if (!VersionManager.isCurrentVersion(version)) {
         envp = new String[] {"GEODE_HOME=" + versionManager.getInstall(version)};
       }
-      Process process = Runtime.getRuntime().exec(cmd, envp, workingDir);
+      var process = Runtime.getRuntime().exec(cmd, envp, workingDir);
       pendingVMs++;
-      ProcessHolder holder = new ProcessHolder(process);
+      var holder = new ProcessHolder(process);
       processes.put(vmNum, holder);
       linkStreams(version, vmNum, holder, holder.getErrorStream(), System.err);
       linkStreams(version, vmNum, holder, holder.getInputStream(), System.out);
@@ -135,7 +133,7 @@ class ProcessManager implements ChildVMLauncher {
   }
 
   public synchronized void killVMs() {
-    for (ProcessHolder process : processes.values()) {
+    for (var process : processes.values()) {
       if (process != null) {
         process.kill();
       }
@@ -143,7 +141,7 @@ class ProcessManager implements ChildVMLauncher {
   }
 
   public synchronized boolean hasLiveVMs() {
-    for (ProcessHolder process : processes.values()) {
+    for (var process : processes.values()) {
       if (process != null && process.isAlive()) {
         return true;
       }
@@ -153,13 +151,13 @@ class ProcessManager implements ChildVMLauncher {
 
   private void linkStreams(final String version, final int vmNum, final ProcessHolder holder,
       final InputStream in, final PrintStream out) {
-    final String vmName = "[" + VM.getVMName(version, vmNum) + "] ";
-    Thread ioTransport = new Thread() {
+    final var vmName = "[" + VM.getVMName(version, vmNum) + "] ";
+    var ioTransport = new Thread() {
       @Override
       public void run() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        var reader = new BufferedReader(new InputStreamReader(in));
         try {
-          String line = reader.readLine();
+          var line = reader.readLine();
           while (line != null) {
             if (line.length() == 0) {
               out.println();
@@ -183,7 +181,7 @@ class ProcessManager implements ChildVMLauncher {
   }
 
   private String removeModulesFromPath(String classpath, String... modules) {
-    for (String module : modules) {
+    for (var module : modules) {
       classpath = removeModuleFromGradlePath(classpath, module);
       classpath = removeModuleFromEclipsePath(classpath, module);
       classpath = removeModuleFromIntelliJPath(classpath, module);
@@ -192,9 +190,9 @@ class ProcessManager implements ChildVMLauncher {
   }
 
   private String removeModuleFromEclipsePath(String classpath, String module) {
-    String buildDir = File.separator + module + File.separator + "out" + File.separator;
+    var buildDir = File.separator + module + File.separator + "out" + File.separator;
 
-    String mainClasses = buildDir + "production";
+    var mainClasses = buildDir + "production";
     if (!classpath.contains(mainClasses)) {
       return classpath;
     }
@@ -204,8 +202,8 @@ class ProcessManager implements ChildVMLauncher {
   }
 
   private String removeModuleFromIntelliJPath(String p_classpath, String module) {
-    String classpath = p_classpath;
-    String mainClasses = File.separator + "out" + File.separator + "production"
+    var classpath = p_classpath;
+    var mainClasses = File.separator + "out" + File.separator + "production"
         + File.separator + "org.apache.geode." + module + ".main";
     if (classpath.contains(mainClasses)) {
       classpath = removeFromPath(classpath, mainClasses);
@@ -219,18 +217,18 @@ class ProcessManager implements ChildVMLauncher {
   }
 
   private String removeModuleFromGradlePath(String classpath, String module) {
-    String buildDir = File.separator + module + File.separator + "build" + File.separator;
+    var buildDir = File.separator + module + File.separator + "build" + File.separator;
 
-    String mainClasses = buildDir + "classes" + File.separator + "java" + File.separator + "main";
+    var mainClasses = buildDir + "classes" + File.separator + "java" + File.separator + "main";
     classpath = removeFromPath(classpath, mainClasses);
 
-    String libDir = buildDir + "libs";
+    var libDir = buildDir + "libs";
     classpath = removeFromPath(classpath, libDir);
 
-    String mainResources = buildDir + "resources" + File.separator + "main";
+    var mainResources = buildDir + "resources" + File.separator + "main";
     classpath = removeFromPath(classpath, mainResources);
 
-    String generatedResources = buildDir + "generated-resources" + File.separator + "main";
+    var generatedResources = buildDir + "generated-resources" + File.separator + "main";
     classpath = removeFromPath(classpath, generatedResources);
 
     return classpath;
@@ -238,11 +236,11 @@ class ProcessManager implements ChildVMLauncher {
 
   private String[] buildJavaCommand(int vmNum, int namingPort, String version, int remoteStubPort)
       throws IOException {
-    String cmd = System.getProperty("java.home") + File.separator
+    var cmd = System.getProperty("java.home") + File.separator
         + "bin" + File.separator + "java";
     String classPath;
-    String dunitClasspath = System.getProperty("java.class.path");
-    String separator = File.separator;
+    var dunitClasspath = System.getProperty("java.class.path");
+    var separator = File.separator;
     if (VersionManager.isCurrentVersion(version)) {
       classPath = dunitClasspath;
     } else {
@@ -254,20 +252,20 @@ class ProcessManager implements ChildVMLauncher {
                   "geode-serialization", "geode-wan", "geode-gfsh");
       classPath = versionManager.getClasspath(version) + File.pathSeparator + dunitClasspath;
     }
-    String jreLib = separator + "jre" + separator + "lib" + separator;
+    var jreLib = separator + "jre" + separator + "lib" + separator;
     classPath = removeFromPath(classPath, jreLib);
 
     // String tmpDir = System.getProperty("java.io.tmpdir");
-    String agent = getAgentString();
+    var agent = getAgentString();
 
-    String jdkDebug = "";
+    var jdkDebug = "";
     if (debugPort > 0) {
       jdkDebug += ",address=" + debugPort;
       debugPort++;
     }
 
-    String jdkSuspend = vmNum == suspendVM ? "y" : "n"; // ignore version
-    ArrayList<String> cmds = new ArrayList<>();
+    var jdkSuspend = vmNum == suspendVM ? "y" : "n"; // ignore version
+    var cmds = new ArrayList<String>();
     cmds.add(cmd);
     cmds.add("-classpath");
     // Set the classpath via a "pathing" jar to shorten cmd to a length allowed by Windows.
@@ -279,7 +277,7 @@ class ProcessManager implements ChildVMLauncher {
     cmds.add("-D" + DUnitLauncher.WORKSPACE_DIR_PARAM + "=" + new File(".").getAbsolutePath());
     cmds.add("-DAvailablePort.lowerBound=" + AvailablePort.AVAILABLE_PORTS_LOWER_BOUND);
     cmds.add("-DAvailablePort.upperBound=" + AvailablePort.AVAILABLE_PORTS_UPPER_BOUND);
-    String membershipPortRange = System.getProperty(GEMFIRE_PREFIX + MEMBERSHIP_PORT_RANGE_NAME);
+    var membershipPortRange = System.getProperty(GEMFIRE_PREFIX + MEMBERSHIP_PORT_RANGE_NAME);
     if (membershipPortRange != null) {
       cmds.add(
           String.format("-D%s=%s", GEMFIRE_PREFIX + MEMBERSHIP_PORT_RANGE_NAME,
@@ -316,7 +314,7 @@ class ProcessManager implements ChildVMLauncher {
     cmds.add(agent);
     cmds.addAll(getJvmModuleOptions());
     cmds.add(ChildVM.class.getName());
-    String[] rst = new String[cmds.size()];
+    var rst = new String[cmds.size()];
     cmds.toArray(rst);
 
     return rst;
@@ -326,11 +324,11 @@ class ProcessManager implements ChildVMLauncher {
   // classpath by naming only this single file, which shortens the command line to a length that
   // Windows allows.
   private Path createPathingJar(String vmName, String classPath) throws IOException {
-    Path currentWorkingDir = Paths.get("").toAbsolutePath();
-    Path pathingJarPath = currentWorkingDir.resolve(vmName + "-pathing.jar");
+    var currentWorkingDir = Paths.get("").toAbsolutePath();
+    var pathingJarPath = currentWorkingDir.resolve(vmName + "-pathing.jar");
 
-    List<String> originalClassPathEntries = Arrays.asList(classPath.split(File.pathSeparator));
-    String classPathAttributeValue = originalClassPathEntries.stream()
+    var originalClassPathEntries = Arrays.asList(classPath.split(File.pathSeparator));
+    var classPathAttributeValue = originalClassPathEntries.stream()
         .map(Paths::get)
         .filter(Files::exists)
         .map(currentWorkingDir::relativize) // Entries must be relative to pathing jar's dir
@@ -338,22 +336,22 @@ class ProcessManager implements ChildVMLauncher {
         .map(s -> s.replaceAll("\\\\", "/")) // Separator must be /
         .collect(joining(" "));
 
-    Manifest manifest = new Manifest();
-    Attributes mainAttributes = manifest.getMainAttributes();
+    var manifest = new Manifest();
+    var mainAttributes = manifest.getMainAttributes();
     mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
     mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPathAttributeValue);
 
-    FileOutputStream fileOutputStream = new FileOutputStream(pathingJarPath.toFile());
-    JarOutputStream jarOutputStreamStream = new JarOutputStream(fileOutputStream, manifest);
+    var fileOutputStream = new FileOutputStream(pathingJarPath.toFile());
+    var jarOutputStreamStream = new JarOutputStream(fileOutputStream, manifest);
     jarOutputStreamStream.close();
     return pathingJarPath;
   }
 
   private String removeFromPath(String classpath, String partialPath) {
-    String[] jars = classpath.split(File.pathSeparator);
-    StringBuilder sb = new StringBuilder(classpath.length());
+    var jars = classpath.split(File.pathSeparator);
+    var sb = new StringBuilder(classpath.length());
     Boolean firstjar = true;
-    for (String jar : jars) {
+    for (var jar : jars) {
       if (!jar.contains(partialPath)) {
         if (!firstjar) {
           sb.append(File.pathSeparator);
@@ -370,9 +368,9 @@ class ProcessManager implements ChildVMLauncher {
    * support jacoco code coverage reports
    */
   private String getAgentString() {
-    RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+    var runtimeBean = ManagementFactory.getRuntimeMXBean();
     if (runtimeBean != null) {
-      for (String arg : runtimeBean.getInputArguments()) {
+      for (var arg : runtimeBean.getInputArguments()) {
         if (arg.contains("-javaagent:")) {
           // HACK for gradle bug GRADLE-2859. Jacoco is passing a relative path
           // That won't work when we pass this to dunit VMs in a different
@@ -399,9 +397,9 @@ class ProcessManager implements ChildVMLauncher {
   }
 
   public synchronized boolean waitForVMs(long timeout) throws InterruptedException {
-    long end = System.currentTimeMillis() + timeout;
+    var end = System.currentTimeMillis() + timeout;
     while (pendingVMs > 0) {
-      long remaining = end - System.currentTimeMillis();
+      var remaining = end - System.currentTimeMillis();
       if (remaining <= 0) {
         return false;
       }

@@ -24,23 +24,23 @@ import org.junit.Test;
 public class ThreePhraseGeneratorTest {
   @Test
   public void testGenerate() {
-    final ThreePhraseGenerator tpg = new ThreePhraseGenerator();
+    final var tpg = new ThreePhraseGenerator();
 
-    final String phrase = tpg.generate('-');
+    final var phrase = tpg.generate('-');
     assertNotNull("Generated string is null", phrase);
     assertNotEquals("Generated string is empty", "", phrase);
   }
 
   @Test
   public void testGeneratesOnlyLetters() {
-    final ThreePhraseGenerator tpg = new ThreePhraseGenerator();
+    final var tpg = new ThreePhraseGenerator();
 
     // Since there is a random choice of word, try a bunch of times to get coverage.
-    for (int attempt = 1; attempt < 50000; ++attempt) {
-      final String phrase = tpg.generate('x');
+    for (var attempt = 1; attempt < 50000; ++attempt) {
+      final var phrase = tpg.generate('x');
       assertTrue("Generated string does not have at least five characters", 5 <= phrase.length());
-      for (int index = 0; index < phrase.length(); ++index) {
-        final char c = phrase.charAt(index);
+      for (var index = 0; index < phrase.length(); ++index) {
+        final var c = phrase.charAt(index);
         assertTrue(
             "Character in \"" + phrase + "\" at index " + index + ", '" + c + "', is a not letter",
             Character.isLetter(c));

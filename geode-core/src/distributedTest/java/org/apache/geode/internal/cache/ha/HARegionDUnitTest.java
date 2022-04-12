@@ -68,7 +68,7 @@ public class HARegionDUnitTest extends JUnit4DistributedTestCase {
    */
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
   }
@@ -87,7 +87,7 @@ public class HARegionDUnitTest extends JUnit4DistributedTestCase {
    *
    */
   private InternalCache createCache() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     DistributedSystem ds = getSystem(props);
     ds.disconnect();
     ds = getSystem(props);
@@ -213,15 +213,15 @@ public class HARegionDUnitTest extends JUnit4DistributedTestCase {
    */
 
   public static void createRegion() throws Exception {
-    HARegionDUnitTest test = new HARegionDUnitTest();
+    var test = new HARegionDUnitTest();
     cache = test.createCache();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
     // Mock the HARegionQueue and answer the input CachedDeserializable when updateHAEventWrapper is
     // called
-    HARegionQueue harq = mock(HARegionQueue.class);
+    var harq = mock(HARegionQueue.class);
     when(harq.updateHAEventWrapper(any(), any(), any()))
         .thenAnswer(AdditionalAnswers.returnsSecondArg());
 
@@ -234,7 +234,7 @@ public class HARegionDUnitTest extends JUnit4DistributedTestCase {
   // private static int counter = 0;
 
   public static void createRegionQueue() throws Exception {
-    HARegionDUnitTest test = new HARegionDUnitTest();
+    var test = new HARegionDUnitTest();
     cache = test.createCache();
     /*
      * AttributesFactory factory = new AttributesFactory(); factory.setScope(Scope.DISTRIBUTED_ACK);
@@ -242,10 +242,10 @@ public class HARegionDUnitTest extends JUnit4DistributedTestCase {
      */
     hrq = HARegionQueue.getHARegionQueueInstance(REGION_NAME, cache,
         HARegionQueue.NON_BLOCKING_HA_QUEUE, false, disabledClock());
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
-    EventID id2 = new EventID(new byte[] {1}, 1, 2);
-    ConflatableObject c1 = new ConflatableObject("1", "1", id1, false, REGION_NAME);
-    ConflatableObject c2 = new ConflatableObject("2", "2", id2, false, REGION_NAME);
+    var id1 = new EventID(new byte[] {1}, 1, 1);
+    var id2 = new EventID(new byte[] {1}, 1, 2);
+    var c1 = new ConflatableObject("1", "1", id1, false, REGION_NAME);
+    var c2 = new ConflatableObject("2", "2", id2, false, REGION_NAME);
     hrq.put(c1);
     hrq.put(c2);
 

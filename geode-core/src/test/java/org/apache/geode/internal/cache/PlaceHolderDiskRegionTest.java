@@ -25,7 +25,7 @@ public class PlaceHolderDiskRegionTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    PlaceHolderDiskRegion mockPlaceHolderDiskRegion = mock(PlaceHolderDiskRegion.class);
+    var mockPlaceHolderDiskRegion = mock(PlaceHolderDiskRegion.class);
     when(mockPlaceHolderDiskRegion.getName()).thenReturn("NAME");
     assertThat(mockPlaceHolderDiskRegion.getName()).isEqualTo("NAME");
   }

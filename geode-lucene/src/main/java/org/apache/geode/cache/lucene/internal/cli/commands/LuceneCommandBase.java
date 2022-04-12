@@ -17,7 +17,6 @@ package org.apache.geode.cache.lucene.internal.cli.commands;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.geode.cache.execute.Function;
@@ -28,11 +27,9 @@ import org.apache.geode.cache.lucene.internal.cli.LuceneIndexDetails;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexInfo;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexStatus;
 import org.apache.geode.cache.lucene.internal.cli.functions.LuceneDescribeIndexFunction;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.exceptions.UserErrorException;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -46,10 +43,10 @@ public abstract class LuceneCommandBase extends GfshCommand {
   protected ResultModel toTabularResult(final List<LuceneIndexDetails> indexDetailsList,
       boolean stats) {
     if (!indexDetailsList.isEmpty()) {
-      ResultModel result = new ResultModel();
-      TabularResultModel indexData = result.addTable("lucene-indexes");
+      var result = new ResultModel();
+      var indexData = result.addTable("lucene-indexes");
 
-      for (final LuceneIndexDetails indexDetails : indexDetailsList) {
+      for (final var indexDetails : indexDetailsList) {
         indexData.accumulate("Index Name", indexDetails.getIndexName());
         indexData.accumulate("Region Path", indexDetails.getRegionPath());
         indexData.accumulate("Server Name", indexDetails.getServerName());
@@ -59,7 +56,7 @@ public abstract class LuceneCommandBase extends GfshCommand {
         indexData.accumulate("Status", indexDetails.getStatus().toString());
 
         if (stats) {
-          LuceneIndexStatus luceneIndexStatus = indexDetails.getStatus();
+          var luceneIndexStatus = indexDetails.getStatus();
           if (luceneIndexStatus == LuceneIndexStatus.NOT_INITIALIZED
               || luceneIndexStatus == LuceneIndexStatus.INDEXING_IN_PROGRESS) {
             indexData.accumulate("Query Executions", "NA");
@@ -87,15 +84,15 @@ public abstract class LuceneCommandBase extends GfshCommand {
 
   @SuppressWarnings("unchecked")
   protected List<LuceneIndexDetails> getIndexDetails(LuceneIndexInfo indexInfo) throws Exception {
-    final ResultCollector<?, ?> rc =
+    final var rc =
         executeFunctionOnRegion(describeIndexFunction, indexInfo, true);
-    final List<LuceneIndexDetails> funcResults = (List<LuceneIndexDetails>) rc.getResult();
+    final var funcResults = (List<LuceneIndexDetails>) rc.getResult();
     return funcResults.stream().filter(Objects::nonNull).collect(Collectors.toList());
   }
 
   protected ResultCollector<?, ?> executeFunctionOnRegion(Function function,
       LuceneFunctionSerializable functionArguments, boolean returnAllMembers) {
-    Set<DistributedMember> targetMembers = ManagementUtils.getRegionAssociatedMembers(
+    var targetMembers = ManagementUtils.getRegionAssociatedMembers(
         functionArguments.getRegionPath(), (InternalCache) getCache(), returnAllMembers);
     if (targetMembers.isEmpty()) {
       throw new UserErrorException(CliStrings.format(
@@ -106,7 +103,7 @@ public abstract class LuceneCommandBase extends GfshCommand {
   }
 
   protected boolean indexCommandsAvailable() {
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
 
     // command should always be available on the server
     if (gfsh == null) {

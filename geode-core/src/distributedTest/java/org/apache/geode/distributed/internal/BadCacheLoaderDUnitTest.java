@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import org.apache.geode.InternalGemFireException;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.test.dunit.VM;
@@ -52,10 +51,10 @@ public class BadCacheLoaderDUnitTest implements Serializable {
    */
   @Test
   public void testNonSerializableObjectReturnedByCacheLoader() throws Exception {
-    final VM cacheLoaderVM = VM.getVM(0);
-    final VM fetchingVM = VM.getVM(1);
+    final var cacheLoaderVM = VM.getVM(0);
+    final var fetchingVM = VM.getVM(1);
 
-    final Properties properties = new Properties();
+    final var properties = new Properties();
     properties.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         NotSerializableTestException.class.getName());
 
@@ -71,7 +70,7 @@ public class BadCacheLoaderDUnitTest implements Serializable {
 
   private void fetchValueCausingCacheLoad(Properties properties) {
     final Cache cache = cacheRule.getOrCreateCache(properties);
-    final Region<String, Object> testRegion =
+    final var testRegion =
         cache.<String, Object>createRegionFactory(RegionShortcut.PARTITION)
             .setCacheLoader(helper -> new Object())
             .create(TEST_REGION);
@@ -81,7 +80,7 @@ public class BadCacheLoaderDUnitTest implements Serializable {
 
   private void createRegionWithBadCacheLoader(Properties properties) {
     final Cache cache = cacheRule.getOrCreateCache(properties);
-    final Region<String, Object> testRegion =
+    final var testRegion =
         cache.<String, Object>createRegionFactory(RegionShortcut.PARTITION)
             .setCacheLoader(helper -> {
               throw new NotSerializableTestException();

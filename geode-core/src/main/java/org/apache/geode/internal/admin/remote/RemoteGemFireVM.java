@@ -210,7 +210,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   }
 
   private void initialize() {
-    FetchHostResponse response = (FetchHostResponse) sendAndWait(FetchHostRequest.create());
+    var response = (FetchHostResponse) sendAndWait(FetchHostRequest.create());
     name = response.getName();
     host = response.getHost();
     workingDir = response.getWorkingDirectory();
@@ -229,7 +229,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
    */
   @Override
   public StatResource[] getAllStats() {
-    FetchStatsResponse resp = (FetchStatsResponse) sendAndWait(FetchStatsRequest.create(null));
+    var resp = (FetchStatsResponse) sendAndWait(FetchStatsRequest.create(null));
     return resp.getAllStats(this);
   }
 
@@ -243,7 +243,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
    */
   @Override
   public StatResource[] getStats(String statisticsTypeName) {
-    FetchStatsResponse resp =
+    var resp =
         (FetchStatsResponse) sendAndWait(FetchStatsRequest.create(statisticsTypeName));
     return resp.getAllStats(this);
   }
@@ -255,7 +255,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
    */
   @Override
   public DLockInfo[] getDistributedLockInfo() {
-    FetchDistLockInfoResponse resp =
+    var resp =
         (FetchDistLockInfoResponse) sendAndWait(FetchDistLockInfoRequest.create());
     return resp.getLockInfos();
   }
@@ -273,9 +273,9 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   @Override
   public void addStatListener(StatListener observer, StatResource observedResource,
       Stat observedStat) {
-    AddStatListenerResponse resp = (AddStatListenerResponse) sendAndWait(
+    var resp = (AddStatListenerResponse) sendAndWait(
         AddStatListenerRequest.create(observedResource, observedStat));
-    int listenerId = resp.getListenerId();
+    var listenerId = resp.getListenerId();
     synchronized (statListenersLock) {
       statListeners.put(listenerId, observer);
     }
@@ -313,9 +313,9 @@ public abstract class RemoteGemFireVM implements GemFireVM {
       entries = statListeners.entries();
     }
 
-    for (final ListenerIdMap.Entry entry : entries) {
-      int listenerId = entry.getKey();
-      StatListener sl = (StatListener) entry.getValue();
+    for (final var entry : entries) {
+      var listenerId = entry.getKey();
+      var sl = (StatListener) entry.getValue();
       int i;
       for (i = 0; i < listenerIds.length; i++) {
         if (listenerIds[i] == listenerId || listenerIds[i] == -listenerId) {
@@ -332,7 +332,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
     }
 
     synchronized (statListenersLock) {
-      for (final Object o : listenersToRemove) {
+      for (final var o : listenersToRemove) {
         int i = (Integer) o;
         statListeners.remove(i);
         cancelStatListener(i);
@@ -353,11 +353,11 @@ public abstract class RemoteGemFireVM implements GemFireVM {
    */
   @Override
   public void removeStatListener(StatListener observer) {
-    int listenerId = -1;
-    boolean foundIt = false;
+    var listenerId = -1;
+    var foundIt = false;
     synchronized (statListenersLock) {
-      ListenerIdMap.EntryIterator it = statListeners.iterator();
-      ListenerIdMap.Entry e = it.next();
+      var it = statListeners.iterator();
+      var e = it.next();
       while (e != null) {
         if (e.getValue() == observer) {
           foundIt = true;
@@ -382,7 +382,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   public void addHealthListener(HealthListener observer, GemFireHealthConfig cfg) {
     synchronized (healthLock) {
       healthListener = observer;
-      AddHealthListenerResponse response =
+      var response =
           (AddHealthListenerResponse) sendAndWait(AddHealthListenerRequest.create(cfg));
       healthListenerId = response.getHealthListenerId();
     }
@@ -412,7 +412,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   public String[] getHealthDiagnosis(GemFireHealth.Health healthCode) {
     synchronized (healthLock) {
       if (healthListenerId != 0) {
-        FetchHealthDiagnosisResponse response = (FetchHealthDiagnosisResponse) sendAndWait(
+        var response = (FetchHealthDiagnosisResponse) sendAndWait(
             FetchHealthDiagnosisRequest.create(healthListenerId, healthCode));
         return response.getDiagnosis();
       } else {
@@ -442,7 +442,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
 
   @Override
   public Config getConfig() {
-    FetchSysCfgResponse response = (FetchSysCfgResponse) sendAndWait(FetchSysCfgRequest.create());
+    var response = (FetchSysCfgResponse) sendAndWait(FetchSysCfgRequest.create());
     return response.getConfig();
   }
 
@@ -453,7 +453,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
    */
   @Override
   public GemFireMemberStatus getSnapshot() {
-    RefreshMemberSnapshotResponse response =
+    var response =
         (RefreshMemberSnapshotResponse) sendAndWait(RefreshMemberSnapshotRequest.create());
     return response.getSnapshot();
   }
@@ -464,7 +464,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
    */
   @Override
   public RegionSubRegionSnapshot getRegionSnapshot() {
-    RegionSubRegionsSizeResponse response =
+    var response =
         (RegionSubRegionsSizeResponse) sendAndWait(RegionSubRegionSizeRequest.create());
     return response.getSnapshot();
   }
@@ -496,9 +496,9 @@ public abstract class RemoteGemFireVM implements GemFireVM {
 
   @Override
   public String[] getSystemLogs() {
-    TailLogResponse resp = (TailLogResponse) sendAndWait(TailLogRequest.create());
-    String main = resp.getTail();
-    String child = resp.getChildTail();
+    var resp = (TailLogResponse) sendAndWait(TailLogRequest.create());
+    var main = resp.getTail();
+    var child = resp.getChildTail();
     String[] retVal = null;
     if (main != null) {
       if (child != null) {
@@ -514,7 +514,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
 
   @Override
   public String getVersionInfo() {
-    VersionInfoResponse resp = (VersionInfoResponse) sendAndWait(VersionInfoRequest.create());
+    var resp = (VersionInfoResponse) sendAndWait(VersionInfoRequest.create());
     return resp.getVersionInfo();
   }
 
@@ -525,13 +525,13 @@ public abstract class RemoteGemFireVM implements GemFireVM {
    */
   @Override
   public Region[] getRootRegions() {
-    RootRegionResponse resp = (RootRegionResponse) sendAndWait(RootRegionRequest.create());
+    var resp = (RootRegionResponse) sendAndWait(RootRegionRequest.create());
     return resp.getRegions(this);
   }
 
   @Override
   public Region getRegion(CacheInfo c, String path) {
-    RegionResponse resp = (RegionResponse) sendAndWait(RegionRequest.createForGet(c, path));
+    var resp = (RegionResponse) sendAndWait(RegionRequest.createForGet(c, path));
     return resp.getRegion(this);
   }
 
@@ -539,10 +539,10 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   public Region createVMRootRegion(CacheInfo c, String regionPath, RegionAttributes attrs)
       throws AdminException {
 
-    RegionResponse resp =
+    var resp =
         (RegionResponse) sendAndWait(RegionRequest.createForCreateRoot(c, regionPath, attrs));
 
-    Exception ex = resp.getException();
+    var ex = resp.getException();
     if (ex != null) {
       throw new AdminException(
           String.format("An Exception was thrown while creating VM root region %s",
@@ -557,10 +557,10 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   public Region createSubregion(CacheInfo c, String parentPath, String regionPath,
       RegionAttributes attrs) throws AdminException {
 
-    RegionResponse resp = (RegionResponse) sendAndWait(
+    var resp = (RegionResponse) sendAndWait(
         RegionRequest.createForCreateSubregion(c, parentPath, regionPath, attrs));
 
-    Exception ex = resp.getException();
+    var ex = resp.getException();
     if (ex != null) {
       throw new AdminException(String.format("While creating subregion %s of %s",
           regionPath, parentPath), ex);
@@ -603,7 +603,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
 
   // additional instance methods
   RemoteStat[] getResourceStatsByID(long rsrcId) {
-    FetchResourceAttributesResponse response = (FetchResourceAttributesResponse) sendAndWait(
+    var response = (FetchResourceAttributesResponse) sendAndWait(
         FetchResourceAttributesRequest.create(rsrcId));
     return response.getStats();
   }
@@ -636,8 +636,8 @@ public abstract class RemoteGemFireVM implements GemFireVM {
 
   @Override
   public CacheInfo getCacheInfo() {
-    CacheInfoResponse resp = (CacheInfoResponse) sendAndWait(CacheInfoRequest.create());
-    RemoteCacheInfo result = resp.getCacheInfo();
+    var resp = (CacheInfoResponse) sendAndWait(CacheInfoRequest.create());
+    var result = resp.getCacheInfo();
     if (result != null) {
       result.setGemFireVM(this);
     }
@@ -654,10 +654,10 @@ public abstract class RemoteGemFireVM implements GemFireVM {
    * @since GemFire 5.6
    */
   public boolean hasDurableClient(String durableClientId) {
-    DurableClientInfoResponse resp =
+    var resp =
         (DurableClientInfoResponse) sendAndWait(DurableClientInfoRequest.create(durableClientId,
             DurableClientInfoRequest.HAS_DURABLE_CLIENT_REQUEST));
-    boolean result = resp.getResultBoolean();
+    var result = resp.getResultBoolean();
     return result;
   }
 
@@ -671,10 +671,10 @@ public abstract class RemoteGemFireVM implements GemFireVM {
    * @since GemFire 5.6
    */
   public boolean isPrimaryForDurableClient(String durableClientId) {
-    DurableClientInfoResponse resp =
+    var resp =
         (DurableClientInfoResponse) sendAndWait(DurableClientInfoRequest.create(durableClientId,
             DurableClientInfoRequest.IS_PRIMARY_FOR_DURABLE_CLIENT_REQUEST));
-    boolean result = resp.getResultBoolean();
+    var result = resp.getResultBoolean();
     return result;
   }
 
@@ -696,10 +696,10 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   @Override
   public AdminBridgeServer addCacheServer(CacheInfo cache) throws AdminException {
 
-    BridgeServerRequest request = BridgeServerRequest.createForAdd(cache);
-    BridgeServerResponse response = (BridgeServerResponse) sendAndWait(request);
+    var request = BridgeServerRequest.createForAdd(cache);
+    var response = (BridgeServerResponse) sendAndWait(request);
     if (response.getException() != null) {
-      Exception ex = response.getException();
+      var ex = response.getException();
       throw new AdminException(ex.getMessage(), ex);
 
     } else {
@@ -710,10 +710,10 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   @Override
   public AdminBridgeServer getBridgeInfo(CacheInfo cache, int bridgeRef) throws AdminException {
 
-    BridgeServerRequest request = BridgeServerRequest.createForInfo(cache, bridgeRef);
-    BridgeServerResponse response = (BridgeServerResponse) sendAndWait(request);
+    var request = BridgeServerRequest.createForInfo(cache, bridgeRef);
+    var response = (BridgeServerResponse) sendAndWait(request);
     if (response.getException() != null) {
-      Exception ex = response.getException();
+      var ex = response.getException();
       throw new AdminException(ex.getMessage(), ex);
 
     } else {
@@ -725,11 +725,11 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   public AdminBridgeServer startBridgeServer(CacheInfo cache, AdminBridgeServer bridge)
       throws AdminException {
 
-    BridgeServerRequest request =
+    var request =
         BridgeServerRequest.createForStart(cache, (RemoteBridgeServer) bridge);
-    BridgeServerResponse response = (BridgeServerResponse) sendAndWait(request);
+    var response = (BridgeServerResponse) sendAndWait(request);
     if (response.getException() != null) {
-      Exception ex = response.getException();
+      var ex = response.getException();
       throw new AdminException(ex.getMessage(), ex);
 
     } else {
@@ -741,11 +741,11 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   public AdminBridgeServer stopBridgeServer(CacheInfo cache, AdminBridgeServer bridge)
       throws AdminException {
 
-    BridgeServerRequest request =
+    var request =
         BridgeServerRequest.createForStop(cache, (RemoteBridgeServer) bridge);
-    BridgeServerResponse response = (BridgeServerResponse) sendAndWait(request);
+    var response = (BridgeServerResponse) sendAndWait(request);
     if (response.getException() != null) {
-      Exception ex = response.getException();
+      var ex = response.getException();
       throw new AdminException(ex.getMessage(), ex);
 
     } else {
@@ -774,10 +774,10 @@ public abstract class RemoteGemFireVM implements GemFireVM {
     if (c.isClosed()) {
       return c;
     }
-    CacheConfigResponse resp =
+    var resp =
         (CacheConfigResponse) sendAndWait(CacheConfigRequest.create(c, opCode, value));
     if (resp.getException() != null) {
-      Exception ex = resp.getException();
+      var ex = resp.getException();
       throw new AdminException(ex.getMessage(), ex);
 
     } else if (resp.getCacheInfo() == null) {
@@ -814,7 +814,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
   public void disconnect(boolean alertListenerRegistered) {
     // Thread.dumpStack();
     try {
-      AdminConsoleDisconnectMessage msg = AdminConsoleDisconnectMessage.create();
+      var msg = AdminConsoleDisconnectMessage.create();
       msg.setAlertListenerExpected(alertListenerRegistered);
       msg.setCrashed(false);
       sendAsync(msg);
@@ -859,7 +859,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
       while (!stopped) {
         SystemFailure.checkFailure();
         try {
-          DispatchArgs args = (DispatchArgs) queue.take();
+          var args = (DispatchArgs) queue.take();
           internalCallStatListeners(args.timestamp, args.listenerIds, args.values);
 
         } catch (InterruptedException ex) {
@@ -874,7 +874,7 @@ public abstract class RemoteGemFireVM implements GemFireVM {
     protected void put(DispatchArgs args) {
       for (;;) {
         agent.getDM().getCancelCriterion().checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           queue.put(args);
           break;

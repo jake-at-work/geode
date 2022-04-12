@@ -301,11 +301,11 @@ public class GMSMemberData implements MemberData, Comparable<GMSMemberData> {
       throw new ClassCastException(
           "GMSMember.compareTo(): comparison between different classes");
     }
-    byte[] myAddr = inetAddr.getAddress();
-    GMSMemberData his = (GMSMemberData) o;
-    byte[] hisAddr = his.inetAddr.getAddress();
+    var myAddr = inetAddr.getAddress();
+    var his = (GMSMemberData) o;
+    var hisAddr = his.inetAddr.getAddress();
     if (myAddr != hisAddr) {
-      for (int idx = 0; idx < myAddr.length; idx++) {
+      for (var idx = 0; idx < myAddr.length; idx++) {
         if (idx >= hisAddr.length) {
           return 1;
         } else if (myAddr[idx] > hisAddr[idx]) {
@@ -326,7 +326,7 @@ public class GMSMemberData implements MemberData, Comparable<GMSMemberData> {
     if (his.udpPort < udpPort) {
       return 1;
     }
-    int result = 0;
+    var result = 0;
 
     // bug #41983, address of kill-9'd member is reused
     // before it can be ejected from membership
@@ -354,8 +354,8 @@ public class GMSMemberData implements MemberData, Comparable<GMSMemberData> {
 
   @Override
   public int compareAdditionalData(MemberData o) {
-    GMSMemberData his = (GMSMemberData) o;
-    int result = 0;
+    var his = (GMSMemberData) o;
+    var result = 0;
     if (uuidMSBs != 0 && his.uuidMSBs != 0) {
       if (uuidMSBs < his.uuidMSBs) {
         result = -1;
@@ -394,7 +394,7 @@ public class GMSMemberData implements MemberData, Comparable<GMSMemberData> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(100);
+    var sb = new StringBuilder(100);
 
     sb.append("MemberData[");
     if (name != null && name.length() > 0) {
@@ -550,7 +550,7 @@ public class GMSMemberData implements MemberData, Comparable<GMSMemberData> {
       SerializationContext context) throws IOException {
     VersioningIO.writeOrdinal(out, getVersionOrdinal(), true);
 
-    int flags = 0;
+    var flags = 0;
     if (networkPartitionDetectionEnabled) {
       flags |= NPD_ENABLED_BIT;
     }

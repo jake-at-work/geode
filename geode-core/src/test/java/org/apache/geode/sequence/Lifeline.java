@@ -15,7 +15,6 @@
 package org.apache.geode.sequence;
 
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +52,7 @@ public class Lifeline {
   }
 
   public void resize(int x, int lineWidth, long Ybase, double Yscale) {
-    for (LifelineState state : states) {
+    for (var state : states) {
       state.resize(Yscale, Ybase);
     }
 
@@ -62,13 +61,13 @@ public class Lifeline {
   }
 
   public void paint(Graphics2D g, StateColorMap colorMap) {
-    Rectangle boundary = g.getClipBounds();
+    var boundary = g.getClipBounds();
     if (x > boundary.getMaxX() || x + width < boundary.getMinX()) {
       // no need to paint if this line isn't displayed
       return;
     }
     // TODO - we need to clip these to the visible states
-    for (LifelineState state : states) {
+    for (var state : states) {
       state.paint(g, colorMap);
     }
   }
@@ -78,7 +77,7 @@ public class Lifeline {
   }
 
   public LifelineState getStateAt(int y) {
-    for (LifelineState state : states) {
+    for (var state : states) {
       if (state.getStartY() < y && state.getStartY() + state.getHeight() > y) {
         return state;
       }

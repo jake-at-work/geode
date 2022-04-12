@@ -30,14 +30,14 @@ public class SequenceNumber {
   private static final AtomicLong sequenceNumber = new AtomicLong(1);
 
   public static long next() {
-    long retVal = sequenceNumber.incrementAndGet();
+    var retVal = sequenceNumber.incrementAndGet();
 
     if (retVal == Long.MAX_VALUE || retVal < 0) {// retVal <0 is checked for cases where other
                                                  // threads might have incremented sequenceNumber
                                                  // beyond Long.MAX_VALUE
 
       synchronized (SequenceNumber.class) {
-        long currentValue = sequenceNumber.get();
+        var currentValue = sequenceNumber.get();
         if (currentValue == Long.MAX_VALUE || retVal < 0) {
           sequenceNumber.set(1);
           retVal = sequenceNumber.get();

@@ -129,7 +129,7 @@ public abstract class AbstractCommitSessionValveIntegrationTest<CommitSessionVal
   public void invokeShouldCommitTheExistingValidSessionWhenSessionManagerBelongsToGeodeEvenWhenTheNextChainedValveThrowsAnException(
       final RegionShortcut regionShortcut) {
     parameterizedSetUp(regionShortcut);
-    final TestValve exceptionValve = new TestValve(true);
+    final var exceptionValve = new TestValve(true);
     commitSessionValve.setNext(exceptionValve);
     deltaSessionManager.addSessionToTouch(TEST_SESSION_ID);
     doReturn(deltaSessionFacade).when(request).getSession(false);

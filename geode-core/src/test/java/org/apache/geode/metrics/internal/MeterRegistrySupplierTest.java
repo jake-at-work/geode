@@ -27,9 +27,9 @@ import org.apache.geode.internal.cache.InternalCache;
 public class MeterRegistrySupplierTest {
   @Test
   public void get_internalDistributedSystemIsNull_expectNull() {
-    MeterRegistrySupplier meterRegistrySupplier = new MeterRegistrySupplier(() -> null);
+    var meterRegistrySupplier = new MeterRegistrySupplier(() -> null);
 
-    MeterRegistry value = meterRegistrySupplier.get();
+    var value = meterRegistrySupplier.get();
 
     assertThat(value)
         .isNull();
@@ -37,12 +37,12 @@ public class MeterRegistrySupplierTest {
 
   @Test
   public void get_internalCacheIsNull_expectNull() {
-    InternalDistributedSystem internalDistributedSystem = mock(InternalDistributedSystem.class);
+    var internalDistributedSystem = mock(InternalDistributedSystem.class);
     when(internalDistributedSystem.getCache()).thenReturn(null);
-    MeterRegistrySupplier meterRegistrySupplier =
+    var meterRegistrySupplier =
         new MeterRegistrySupplier(() -> internalDistributedSystem);
 
-    MeterRegistry value = meterRegistrySupplier.get();
+    var value = meterRegistrySupplier.get();
 
     assertThat(value)
         .isNull();
@@ -50,14 +50,14 @@ public class MeterRegistrySupplierTest {
 
   @Test
   public void get_meterRegistryIsNull_expectNull() {
-    InternalDistributedSystem internalDistributedSystem = mock(InternalDistributedSystem.class);
-    InternalCache internalCache = mock(InternalCache.class);
+    var internalDistributedSystem = mock(InternalDistributedSystem.class);
+    var internalCache = mock(InternalCache.class);
     when(internalDistributedSystem.getCache()).thenReturn(internalCache);
     when(internalCache.getMeterRegistry()).thenReturn(null);
-    MeterRegistrySupplier meterRegistrySupplier =
+    var meterRegistrySupplier =
         new MeterRegistrySupplier(() -> internalDistributedSystem);
 
-    MeterRegistry value = meterRegistrySupplier.get();
+    var value = meterRegistrySupplier.get();
 
     assertThat(value)
         .isNull();
@@ -65,15 +65,15 @@ public class MeterRegistrySupplierTest {
 
   @Test
   public void get_meterRegistryExists_expectActualMeterRegistry() {
-    InternalDistributedSystem internalDistributedSystem = mock(InternalDistributedSystem.class);
-    InternalCache internalCache = mock(InternalCache.class);
-    MeterRegistry meterRegistry = mock(MeterRegistry.class);
+    var internalDistributedSystem = mock(InternalDistributedSystem.class);
+    var internalCache = mock(InternalCache.class);
+    var meterRegistry = mock(MeterRegistry.class);
     when(internalDistributedSystem.getCache()).thenReturn(internalCache);
     when(internalCache.getMeterRegistry()).thenReturn(meterRegistry);
-    MeterRegistrySupplier meterRegistrySupplier =
+    var meterRegistrySupplier =
         new MeterRegistrySupplier(() -> internalDistributedSystem);
 
-    MeterRegistry value = meterRegistrySupplier.get();
+    var value = meterRegistrySupplier.get();
 
     assertThat(value)
         .isSameAs(meterRegistry);

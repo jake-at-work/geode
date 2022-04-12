@@ -17,7 +17,6 @@ package org.apache.geode.test.junit.rules;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -145,7 +144,7 @@ public class ConcurrencyRule extends ExternalResource {
    * @throws Exception if a thread throws an unexpected exception
    */
   public void executeInParallel() {
-    for (ConcurrentOperation op : toInvoke) {
+    for (var op : toInvoke) {
       futures.add(threadPool.submit(op));
     }
     allThreadsExecuted.set(true);
@@ -167,7 +166,7 @@ public class ConcurrencyRule extends ExternalResource {
    * @throws Exception if a thread throws an unexpected exception
    */
   public void executeInSeries() {
-    for (ConcurrentOperation op : toInvoke) {
+    for (var op : toInvoke) {
       awaitFuture(threadPool.submit(op));
     }
     allThreadsExecuted.set(true);
@@ -215,7 +214,7 @@ public class ConcurrencyRule extends ExternalResource {
   }
 
   private void awaitFutures() {
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       awaitFuture(future);
     }
 
@@ -235,7 +234,7 @@ public class ConcurrencyRule extends ExternalResource {
   private static Object readField(final Class targetClass, final Object targetInstance,
       final String fieldName) {
     try {
-      Field field = targetClass.getDeclaredField(fieldName);
+      var field = targetClass.getDeclaredField(fieldName);
       field.setAccessible(true);
       return field.get(targetInstance);
     } catch (IllegalAccessException | NoSuchFieldException e) {
@@ -412,8 +411,8 @@ public class ConcurrencyRule extends ExternalResource {
 
     @Override
     public Void call() throws Exception {
-      Stopwatch timeRun = duration != DEFAULT_DURATION ? Stopwatch.createStarted() : null;
-      int numRuns = 0;
+      var timeRun = duration != DEFAULT_DURATION ? Stopwatch.createStarted() : null;
+      var numRuns = 0;
 
       do {
         numRuns++;
@@ -427,8 +426,8 @@ public class ConcurrencyRule extends ExternalResource {
     private void callAndValidate() throws Exception {
       Exception exception = null;
       T retVal;
-      int numRuns = 0;
-      Stopwatch timeRun = Stopwatch.createStarted();
+      var numRuns = 0;
+      var timeRun = Stopwatch.createStarted();
 
       try {
         do {

@@ -17,7 +17,6 @@ package org.apache.geode.admin.internal;
 import java.io.InputStream;
 import java.util.Stack;
 
-import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
@@ -57,13 +56,13 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
    * @throws AdminXmlException If an error is encountered while parsing the XML
    */
   public static void parse(InputStream is, DistributedSystemConfig config) {
-    ManagedEntityConfigXmlParser handler = new ManagedEntityConfigXmlParser();
+    var handler = new ManagedEntityConfigXmlParser();
     handler.config = config;
 
     try {
-      SAXParserFactory factory = SAXParserFactory.newInstance();
+      var factory = SAXParserFactory.newInstance();
       factory.setValidating(true);
-      SAXParser parser = factory.newSAXParser();
+      var parser = factory.newSAXParser();
       parser.parse(is, new DefaultHandlerDelegate(handler));
 
     } catch (Exception ex) {
@@ -77,8 +76,8 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
         // Silly JDK 1.4.2 XML parser wraps RunTime exceptions in a
         // SAXException. Pshaw!
 
-        SAXException sax = (SAXException) ex;
-        Exception cause = sax.getException();
+        var sax = (SAXException) ex;
+        var cause = sax.getException();
         if (cause instanceof AdminXmlException) {
           throw (AdminXmlException) cause;
         }
@@ -231,12 +230,12 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   private void startDistributedSystem(Attributes atts) {
     Assert.assertTrue(stack.isEmpty());
 
-    String id = atts.getValue(ID);
+    var id = atts.getValue(ID);
     if (id != null) {
       config.setSystemId(id);
     }
 
-    String disable_tcp = atts.getValue(DISABLE_TCP);
+    var disable_tcp = atts.getValue(DISABLE_TCP);
     if (disable_tcp != null) {
       config.setDisableTcp(DISABLE_TCP.equalsIgnoreCase("true"));
     }
@@ -257,12 +256,12 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
    * appropriately.
    */
   private void startMulticast(Attributes atts) {
-    DistributedSystemConfig config = (DistributedSystemConfig) stack.peek();
+    var config = (DistributedSystemConfig) stack.peek();
 
-    String port = atts.getValue(PORT);
+    var port = atts.getValue(PORT);
     config.setMcastPort(parseInt(port));
 
-    String address = atts.getValue(ADDRESS);
+    var address = atts.getValue(ADDRESS);
     if (address != null) {
       config.setMcastAddress(address);
     }
@@ -286,8 +285,8 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
    * on top of the stack.
    */
   private void endRemoteCommand() {
-    String remoteCommand = popString();
-    Object top = stack.peek();
+    var remoteCommand = popString();
+    var top = stack.peek();
     Assert.assertTrue(top != null);
 
     if (top instanceof DistributedSystemConfig) {
@@ -297,7 +296,7 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
       ((ManagedEntityConfig) top).setRemoteCommand(remoteCommand);
 
     } else {
-      String s = "Did not expect a " + top.getClass().getName() + " on top of the stack";
+      var s = "Did not expect a " + top.getClass().getName() + " on top of the stack";
       Assert.assertTrue(false, s);
     }
   }
@@ -311,12 +310,12 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void startLocator(Attributes atts) {
-    String port = atts.getValue(PORT);
+    var port = atts.getValue(PORT);
 
-    DistributedSystemConfig system = (DistributedSystemConfig) stack.peek();
+    var system = (DistributedSystemConfig) stack.peek();
     system.setMcastPort(0);
 
-    DistributionLocatorConfig config = system.createDistributionLocatorConfig();
+    var config = system.createDistributionLocatorConfig();
 
     config.setPort(parseInt(port));
 
@@ -324,7 +323,7 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void endLocator() {
-    Object o = stack.pop();
+    var o = stack.pop();
     Assert.assertTrue(o instanceof DistributionLocatorConfig);
   }
 
@@ -336,8 +335,8 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
    * We assume that there is a <code>ManagedEntityConfig</code> on top of the stack.
    */
   private void endHost() {
-    String host = popString();
-    ManagedEntityConfig config = (ManagedEntityConfig) stack.peek();
+    var host = popString();
+    var config = (ManagedEntityConfig) stack.peek();
     config.setHost(host);
   }
 
@@ -346,8 +345,8 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void endWorkingDirectory() {
-    String workingDirectory = popString();
-    ManagedEntityConfig config = (ManagedEntityConfig) stack.peek();
+    var workingDirectory = popString();
+    var config = (ManagedEntityConfig) stack.peek();
     config.setWorkingDirectory(workingDirectory);
   }
 
@@ -356,16 +355,16 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void endProductDirectory() {
-    String productDirectory = popString();
-    ManagedEntityConfig config = (ManagedEntityConfig) stack.peek();
+    var productDirectory = popString();
+    var config = (ManagedEntityConfig) stack.peek();
     config.setProductDirectory(productDirectory);
   }
 
   private void startSSL(Attributes atts) {
-    DistributedSystemConfig config = (DistributedSystemConfig) stack.peek();
+    var config = (DistributedSystemConfig) stack.peek();
     config.setSSLEnabled(true);
 
-    String authenticationRequired = atts.getValue(AUTHENTICATION_REQUIRED);
+    var authenticationRequired = atts.getValue(AUTHENTICATION_REQUIRED);
     config.setSSLAuthenticationRequired(Boolean.parseBoolean(authenticationRequired));
   }
 
@@ -378,8 +377,8 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void endProtocols() {
-    String protocols = popString();
-    DistributedSystemConfig config = (DistributedSystemConfig) stack.peek();
+    var protocols = popString();
+    var config = (DistributedSystemConfig) stack.peek();
     config.setSSLProtocols(protocols);
   }
 
@@ -388,8 +387,8 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void endCiphers() {
-    String ciphers = popString();
-    DistributedSystemConfig config = (DistributedSystemConfig) stack.peek();
+    var ciphers = popString();
+    var config = (DistributedSystemConfig) stack.peek();
     config.setSSLCiphers(ciphers);
   }
 
@@ -398,9 +397,9 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void endProperty() {
-    String value = popString();
-    String key = popString();
-    DistributedSystemConfig config = (DistributedSystemConfig) stack.peek();
+    var value = popString();
+    var key = popString();
+    var config = (DistributedSystemConfig) stack.peek();
     config.addSSLProperty(key, value);
   }
 
@@ -409,7 +408,7 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void endKey() {
-    String key = popString();
+    var key = popString();
     stack.push(key);
   }
 
@@ -418,13 +417,13 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void endValue() {
-    String value = popString();
+    var value = popString();
     stack.push(value);
   }
 
   private void startCacheServer(Attributes atts) {
-    DistributedSystemConfig config = (DistributedSystemConfig) stack.peek();
-    CacheServerConfig server = config.createCacheServerConfig();
+    var config = (DistributedSystemConfig) stack.peek();
+    var server = config.createCacheServerConfig();
     stack.push(server);
   }
 
@@ -437,8 +436,8 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   }
 
   private void endClassPath() {
-    String classpath = popString();
-    CacheServerConfig server = (CacheServerConfig) stack.peek();
+    var classpath = popString();
+    var server = (CacheServerConfig) stack.peek();
     server.setClassPath(classpath);
   }
 
@@ -446,10 +445,10 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
    * Pops a <code>String</code> off of the stack.
    */
   private String popString() {
-    Object o = stack.pop();
+    var o = stack.pop();
 
     if (o instanceof StringBuilder) {
-      StringBuilder sb = (StringBuilder) o;
+      var sb = (StringBuilder) o;
       return sb.toString();
 
     } else {
@@ -464,7 +463,7 @@ public class ManagedEntityConfigXmlParser extends ManagedEntityConfigXml impleme
   @Override
   public void characters(char[] ch, int start, int length) throws SAXException {
 
-    Object top = stack.peek();
+    var top = stack.peek();
 
     StringBuilder sb;
     if (top instanceof StringBuilder) {

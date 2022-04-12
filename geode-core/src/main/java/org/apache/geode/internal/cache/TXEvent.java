@@ -62,8 +62,8 @@ public class TXEvent implements TransactionEvent, Releasable {
     if (txevents == null || txevents.isEmpty()) {
       return false;
     }
-    for (CacheEvent<?, ?> txevent : txevents) {
-      LocalRegion region = (LocalRegion) txevent.getRegion();
+    for (var txevent : txevents) {
+      var region = (LocalRegion) txevent.getRegion();
       if (region != null && !region.isPdxTypesRegion() && !region.isInternalRegion()) {
         return false;
       }
@@ -79,7 +79,7 @@ public class TXEvent implements TransactionEvent, Releasable {
   @Override
   public synchronized void release() {
     if (events != null) {
-      for (final Object o : getEvents()) {
+      for (final var o : getEvents()) {
         if (o instanceof EntryEventImpl) {
           ((EntryEventImpl) o).release();
         }

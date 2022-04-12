@@ -19,7 +19,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,15 +28,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.TypeMismatchException;
@@ -45,13 +41,11 @@ import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.IndexTrackingQueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.classloader.ClassPathLoader;
-import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.internal.cli.domain.DataCommandRequest;
 import org.apache.geode.management.internal.cli.domain.DataCommandResult;
@@ -108,7 +102,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
     try {
       InternalCache cache =
           ((InternalCache) functionContext.getCache()).getCacheForProcessingClientRequests();
-      DataCommandRequest request = functionContext.getArguments();
+      var request = functionContext.getArguments();
       if (logger.isDebugEnabled()) {
         logger.debug("Executing function : \n{}\n on member {}", request,
             System.getProperty("memberName"));
@@ -136,44 +130,44 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
   }
 
   public DataCommandResult remove(DataCommandRequest request, InternalCache cache) {
-    String key = request.getKey();
-    String keyClass = request.getKeyClass();
-    String regionName = request.getRegionName();
-    String removeAllKeys = request.getRemoveAllKeys();
+    var key = request.getKey();
+    var keyClass = request.getKeyClass();
+    var regionName = request.getRegionName();
+    var removeAllKeys = request.getRemoveAllKeys();
     return remove(key, keyClass, regionName, removeAllKeys, cache);
   }
 
   public DataCommandResult get(DataCommandRequest request, InternalCache cache) {
-    String key = request.getKey();
-    String keyClass = request.getKeyClass();
-    String valueClass = request.getValueClass();
-    String regionName = request.getRegionName();
+    var key = request.getKey();
+    var keyClass = request.getKeyClass();
+    var valueClass = request.getValueClass();
+    var regionName = request.getRegionName();
     Boolean loadOnCacheMiss = request.isLoadOnCacheMiss();
     return get(request.getPrincipal(), key, keyClass, valueClass, regionName, loadOnCacheMiss,
         cache);
   }
 
   public DataCommandResult locateEntry(DataCommandRequest request, InternalCache cache) {
-    String key = request.getKey();
-    String keyClass = request.getKeyClass();
-    String valueClass = request.getValueClass();
-    String regionName = request.getRegionName();
-    boolean recursive = request.isRecursive();
+    var key = request.getKey();
+    var keyClass = request.getKeyClass();
+    var valueClass = request.getValueClass();
+    var regionName = request.getRegionName();
+    var recursive = request.isRecursive();
     return locateEntry(key, keyClass, valueClass, regionName, recursive, cache);
   }
 
   public DataCommandResult put(DataCommandRequest request, InternalCache cache) {
-    String key = request.getKey();
-    String value = request.getValue();
-    boolean putIfAbsent = request.isPutIfAbsent();
-    String keyClass = request.getKeyClass();
-    String valueClass = request.getValueClass();
-    String regionName = request.getRegionName();
+    var key = request.getKey();
+    var value = request.getValue();
+    var putIfAbsent = request.isPutIfAbsent();
+    var keyClass = request.getKeyClass();
+    var valueClass = request.getValueClass();
+    var regionName = request.getRegionName();
     return put(key, value, putIfAbsent, keyClass, valueClass, regionName, cache);
   }
 
   public DataCommandResult select(DataCommandRequest request, InternalCache cache) {
-    String query = request.getQuery();
+    var query = request.getQuery();
     return select(cache, request.getPrincipal(), query);
   }
 
@@ -200,10 +194,10 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
           CliStrings.QUERY__MSG__QUERY_EMPTY, false);
     }
 
-    QueryService qs = cache.getQueryService();
+    var qs = cache.getQueryService();
 
-    Query query = qs.newQuery(queryString);
-    DefaultQuery tracedQuery = (DefaultQuery) query;
+    var query = qs.newQuery(queryString);
+    var tracedQuery = (DefaultQuery) query;
     WrappedIndexTrackingQueryObserver queryObserver = null;
     String queryVerboseMsg = null;
     long startTime = -1;
@@ -215,7 +209,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
     List<SelectResultRow> list = new ArrayList<>();
 
     try {
-      Object results = query.execute();
+      var results = query.execute();
       if (tracedQuery.isTraced()) {
         queryVerboseMsg = getLogMessage(queryObserver, startTime, queryString);
         queryObserver.reset2();
@@ -249,7 +243,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
 
   private void select_SelectResults(SelectResults selectResults, Object principal,
       List<SelectResultRow> list, InternalCache cache) {
-    for (Object object : selectResults) {
+    for (var object : selectResults) {
       // Post processing
       object = cache.getSecurityService().postProcess(principal, null, null, object, false);
 
@@ -302,12 +296,12 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
         }
 
         if (region.containsKey(keyObject)) {
-          Object value = region.remove(keyObject);
+          var value = region.remove(keyObject);
           if (logger.isDebugEnabled()) {
             logger.debug("Removed key {} successfully", key);
           }
-          Object[] array = getClassAndJson(value);
-          DataCommandResult result =
+          var array = getClassAndJson(value);
+          var result =
               DataCommandResult.createRemoveResult(key, array[1], null, null, true);
           if (array[0] != null) {
             result.setValueClass((String) array[0]);
@@ -318,7 +312,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
               CliStrings.REMOVE__MSG__KEY_NOT_FOUND_REGION, false);
         }
       } else {
-        DataPolicy policy = region.getAttributes().getDataPolicy();
+        var policy = region.getAttributes().getDataPolicy();
         if (!policy.withPartitioning()) {
           region.clear();
           if (logger.isDebugEnabled()) {
@@ -338,7 +332,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
   public DataCommandResult get(Object principal, String key, String keyClass, String valueClass,
       String regionName, Boolean loadOnCacheMiss, InternalCache cache) {
 
-    SecurityService securityService = cache.getSecurityService();
+    var securityService = cache.getSecurityService();
 
     if (StringUtils.isEmpty(regionName)) {
       return DataCommandResult.createGetResult(key, null, null,
@@ -370,10 +364,10 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
             "Error in converting JSON " + e.getMessage(), false);
       }
 
-      boolean doGet = Boolean.TRUE.equals(loadOnCacheMiss);
+      var doGet = Boolean.TRUE.equals(loadOnCacheMiss);
 
       if (doGet || region.containsKey(keyObject)) {
-        Object value = region.get(keyObject);
+        var value = region.get(keyObject);
 
         // run it through post processor. region.get will return the deserialized object already, so
         // we don't need to
@@ -383,9 +377,9 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
         if (logger.isDebugEnabled()) {
           logger.debug("Get for key {} value {}", key, value);
         }
-        Object[] array = getClassAndJson(value);
+        var array = getClassAndJson(value);
         if (value != null) {
-          DataCommandResult result =
+          var result =
               DataCommandResult.createGetResult(key, array[1], null, null, true);
           if (array[0] != null) {
             result.setValueClass((String) array[0]);
@@ -422,7 +416,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
     if (recursive) {
       // Recursively find the keys starting from the specified region path.
       List<String> regionPaths = getAllRegionPaths(cache, true);
-      for (String path : regionPaths) {
+      for (var path : regionPaths) {
         if (path.startsWith(regionPath) || path.startsWith(SEPARATOR + regionPath)) {
           Region targetRegion = cache.getRegion(path);
           listOfRegionsStartingWithRegionPath.add(targetRegion);
@@ -464,22 +458,22 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
     Object value;
     DataCommandResult.KeyInfo keyInfo;
     keyInfo = new DataCommandResult.KeyInfo();
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+    var member = cache.getDistributedSystem().getDistributedMember();
     keyInfo.setHost(member.getHost());
     keyInfo.setMemberId(member.getId());
     keyInfo.setMemberName(member.getName());
 
-    for (Region region : listOfRegionsStartingWithRegionPath) {
+    for (var region : listOfRegionsStartingWithRegionPath) {
       if (region instanceof PartitionedRegion) {
         // Following code is adaptation of which.java of old Gfsh
-        PartitionedRegion pr = (PartitionedRegion) region;
-        Region localRegion = PartitionRegionHelper.getLocalData(region);
+        var pr = (PartitionedRegion) region;
+        var localRegion = PartitionRegionHelper.getLocalData(region);
         value = localRegion.get(keyObject);
         if (value != null) {
-          DistributedMember primaryMember =
+          var primaryMember =
               PartitionRegionHelper.getPrimaryMemberForKey(region, keyObject);
-          int bucketId = pr.getKeyInfo(keyObject).getBucketId();
-          boolean isPrimary = member == primaryMember;
+          var bucketId = pr.getKeyInfo(keyObject).getBucketId();
+          var isPrimary = member == primaryMember;
           keyInfo.addLocation(new Object[] {region.getFullPath(), true, getClassAndJson(value)[1],
               isPrimary, "" + bucketId});
         } else {
@@ -536,7 +530,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
           false);
     }
 
-    Region<Object, Object> region = cache.getRegion(regionName);
+    var region = cache.getRegion(regionName);
     if (region == null) {
       return DataCommandResult.createPutResult(key, null, null,
           CliStrings.format(CliStrings.PUT__MSG__REGION_NOT_FOUND, regionName), false);
@@ -565,8 +559,8 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
       } else {
         returnValue = region.put(keyObject, valueObject);
       }
-      Object[] array = getClassAndJson(returnValue);
-      DataCommandResult result = DataCommandResult.createPutResult(key, array[1], null, null, true);
+      var array = getClassAndJson(returnValue);
+      var result = DataCommandResult.createPutResult(key, array[1], null, null, true);
       if (array[0] != null) {
         result.setValueClass((String) array[0]);
       }
@@ -588,7 +582,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
 
     Object resultObject;
     try {
-      ObjectMapper mapper = GeodeJsonMapper.getMapper();
+      var mapper = GeodeJsonMapper.getMapper();
       resultObject = mapper.readValue(string, klass);
     } catch (IOException e) {
       throw new IllegalArgumentException(
@@ -599,7 +593,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
   }
 
   private Object[] getClassAndJson(Object obj) {
-    Object[] array = new Object[2];
+    var array = new Object[2];
 
     if (obj == null) {
       array[0] = null;
@@ -614,7 +608,7 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
       return array;
     }
 
-    ObjectMapper mapper = new ObjectMapper();
+    var mapper = new ObjectMapper();
     try {
       array[1] = mapper.writeValueAsString(obj);
     } catch (JsonProcessingException e) {
@@ -633,22 +627,22 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static List getAllRegionPaths(InternalCache cache, boolean recursive) {
-    ArrayList list = new ArrayList();
+    var list = new ArrayList();
     if (cache == null) {
       return list;
     }
 
     // get a list of all root regions
-    Set<Region<?, ?>> regions = cache.rootRegions();
+    var regions = cache.rootRegions();
 
     for (Region rootRegion : regions) {
-      String regionPath = rootRegion.getFullPath();
+      var regionPath = rootRegion.getFullPath();
 
       Region region = cache.getRegion(regionPath);
       list.add(regionPath);
       Set<Region> subregionSet = region.subregions(true);
       if (recursive) {
-        for (Region aSubregionSet : subregionSet) {
+        for (var aSubregionSet : subregionSet) {
           list.add(aSubregionSet.getFullPath());
         }
       }
@@ -659,26 +653,26 @@ public class DataCommandFunction implements InternalFunction<DataCommandRequest>
 
   public static String getLogMessage(QueryObserver observer, long startTime, String query) {
     String usedIndexesString = null;
-    float time = 0.0f;
+    var time = 0.0f;
 
     if (startTime > 0L) {
       time = (NanoTimer.getTime() - startTime) / 1.0e6f;
     }
 
     if (observer instanceof IndexTrackingQueryObserver) {
-      IndexTrackingQueryObserver indexObserver = (IndexTrackingQueryObserver) observer;
+      var indexObserver = (IndexTrackingQueryObserver) observer;
       @SuppressWarnings("unchecked")
       Map<Object, Object> usedIndexes = indexObserver.getUsedIndexes();
       indexObserver.reset();
-      StringBuilder buf = new StringBuilder();
+      var buf = new StringBuilder();
       buf.append(" indexesUsed(");
       buf.append(usedIndexes.size());
       buf.append(")");
       if (usedIndexes.size() > 0) {
         buf.append(":");
-        for (Iterator<Map.Entry<Object, Object>> itr = usedIndexes.entrySet().iterator(); itr
+        for (var itr = usedIndexes.entrySet().iterator(); itr
             .hasNext();) {
-          Map.Entry<Object, Object> entry = itr.next();
+          var entry = itr.next();
           buf.append(entry.getKey().toString()).append(entry.getValue());
           if (itr.hasNext()) {
             buf.append(",");

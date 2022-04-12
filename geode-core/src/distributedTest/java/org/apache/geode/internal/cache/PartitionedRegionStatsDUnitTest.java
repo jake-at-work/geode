@@ -24,13 +24,11 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.apache.geode.Statistics;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 
@@ -122,7 +120,7 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
     vm0.invoke(() -> {
       Cache cache = getCache();
       Region<Integer, Integer> region = cache.getRegion(regionName);
-      for (int i = 0; i <= 5; i++) {
+      for (var i = 0; i <= 5; i++) {
         region.put(i, i);
       }
     });
@@ -178,8 +176,8 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
     // Wait for redundancy to be restored. Once it is the entry count should be 2
     vm2.invoke(() -> {
       Cache cache = getCache();
-      PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
-      PartitionedRegionStats prStats = region.getPrStats();
+      var region = (PartitionedRegion) cache.getRegion(regionName);
+      var prStats = region.getPrStats();
       await()
           .untilAsserted(() -> assertThat(prStats.getLowRedundancyBucketCount()).isEqualTo(0));
     });
@@ -188,8 +186,8 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
 
     // A tombstone GC shouldn't affect the count.
     vm0.invoke(() -> {
-      InternalCache cache = getCache();
-      TombstoneService tombstoneService = cache.getTombstoneService();
+      var cache = getCache();
+      var tombstoneService = cache.getTombstoneService();
       tombstoneService.forceBatchExpirationForTests(1);
     });
 
@@ -220,7 +218,7 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
   }
 
   private void createPartitionedRegionWithRedundantCopies(final String regionName) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(2);
 
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
@@ -231,7 +229,7 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
 
   private void createPartitionedRegion(final String regionName, final int localMaxMemory,
       final int redundancy, int totalNumBuckets) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setRedundantCopies(redundancy);
     paf.setTotalNumBuckets(totalNumBuckets);
@@ -244,7 +242,7 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
 
   private void createPartitionedRegionWithRebalance(final String regionName, int redundancy)
       throws InterruptedException, TimeoutException {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(redundancy);
 
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
@@ -252,26 +250,26 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
 
     regionFactory.create(regionName);
 
-    RebalanceOperation op = getCache().getResourceManager().createRebalanceFactory().start();
+    var op = getCache().getResourceManager().createRebalanceFactory().start();
 
     op.getResults(2, MINUTES);
   }
 
   private void validateEntryCount(final String regionName, final int expectedCount) {
     Cache cache = getCache();
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
-    PartitionedRegionStats stats = region.getPrStats();
-    CachePerfStats cachePerfStats = region.getCachePerfStats();
+    var region = (PartitionedRegion) cache.getRegion(regionName);
+    var stats = region.getPrStats();
+    var cachePerfStats = region.getCachePerfStats();
 
     assertThat(stats.getDataStoreEntryCount()).isEqualTo(expectedCount);
-    long actualCount = cachePerfStats.stats.getLong(CachePerfStats.entryCountId);
+    var actualCount = cachePerfStats.stats.getLong(CachePerfStats.entryCountId);
     assertThat(actualCount).isEqualTo(expectedCount);
   }
 
   private void validateTotalNumBucketsCount(final String regionName, final int expectedCount) {
     Cache cache = getCache();
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
-    PartitionedRegionStats stats = region.getPrStats();
+    var region = (PartitionedRegion) cache.getRegion(regionName);
+    var stats = region.getPrStats();
 
     assertThat(stats.getTotalNumBuckets()).isEqualTo(expectedCount);
   }
@@ -283,42 +281,42 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
   private void doOpsOnRegion(final Region<Integer, Integer> region, final int opType) {
     switch (opType) {
       case PUT:
-        for (int k = 0; k < CNT; k++) {
+        for (var k = 0; k < CNT; k++) {
           region.put(k, k);
         }
         break;
       case GET:
-        for (int k = 0; k < CNT; k++) {
+        for (var k = 0; k < CNT; k++) {
           region.get(k);
         }
         break;
       case CONTAINS_KEY:
-        for (int k = 0; k < CNT; k++) {
+        for (var k = 0; k < CNT; k++) {
           region.containsKey(k);
         }
         break;
       case CONTAINS_VALUE_FOR_KEY:
-        for (int k = 0; k < CNT; k++) {
+        for (var k = 0; k < CNT; k++) {
           region.containsValueForKey(k);
         }
         break;
       case INVALIDATE:
-        for (int k = 0; k < CNT; k++) {
+        for (var k = 0; k < CNT; k++) {
           region.invalidate(k);
         }
         break;
       case DESTROY:
-        for (int k = 0; k < CNT; k++) {
+        for (var k = 0; k < CNT; k++) {
           region.destroy(k);
         }
         break;
       case CREATE:
-        for (int k = 0; k < CNT; k++) {
+        for (var k = 0; k < CNT; k++) {
           region.create(k, k);
         }
         break;
       case GET_ENTRY:
-        for (int k = 0; k < CNT; k++) {
+        for (var k = 0; k < CNT; k++) {
           region.getEntry(k);
         }
     }
@@ -326,20 +324,20 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
 
   private void validatePartitionedRegionOpsStats(final String regionName) {
     Cache cache = getCache();
-    PartitionedRegion partitionedRegion = (PartitionedRegion) cache.getRegion(regionName);
+    var partitionedRegion = (PartitionedRegion) cache.getRegion(regionName);
 
     assertThat(partitionedRegion).isNotNull();
 
-    Statistics stats = partitionedRegion.getPrStats().getStats();
+    var stats = partitionedRegion.getPrStats().getStats();
 
-    int putsCompleted = stats.get("putsCompleted").intValue();
-    int getsCompleted = stats.get("getsCompleted").intValue();
-    int getEntryCompleted = stats.get("getEntryCompleted").intValue();
-    int createsCompleted = stats.get("createsCompleted").intValue();
-    int containsKeyCompleted = stats.get("containsKeyCompleted").intValue();
-    int containsValueForKeyCompleted = stats.get("containsValueForKeyCompleted").intValue();
-    int invalidatesCompleted = stats.get("invalidatesCompleted").intValue();
-    int destroysCompleted = stats.get("destroysCompleted").intValue();
+    var putsCompleted = stats.get("putsCompleted").intValue();
+    var getsCompleted = stats.get("getsCompleted").intValue();
+    var getEntryCompleted = stats.get("getEntryCompleted").intValue();
+    var createsCompleted = stats.get("createsCompleted").intValue();
+    var containsKeyCompleted = stats.get("containsKeyCompleted").intValue();
+    var containsValueForKeyCompleted = stats.get("containsValueForKeyCompleted").intValue();
+    var invalidatesCompleted = stats.get("invalidatesCompleted").intValue();
+    var destroysCompleted = stats.get("destroysCompleted").intValue();
 
     assertThat(putsCompleted).isEqualTo(CNT);
     assertThat(getsCompleted).isEqualTo(CNT);
@@ -356,13 +354,13 @@ public class PartitionedRegionStatsDUnitTest extends CacheTestCase {
 
   private void validateRedundantCopiesStats(final String regionName) {
     Cache cache = getCache();
-    PartitionedRegion partitionedRegion = (PartitionedRegion) cache.getRegion(regionName);
+    var partitionedRegion = (PartitionedRegion) cache.getRegion(regionName);
 
     assertThat(partitionedRegion).isNotNull();
 
-    Statistics stats = partitionedRegion.getPrStats().getStats();
-    int configuredRedundantCopies = stats.get(STAT_CONFIGURED_REDUNDANT_COPIES).intValue();
-    int actualRedundantCopies = stats.get(STAT_ACTUAL_REDUNDANT_COPIES).intValue();
+    var stats = partitionedRegion.getPrStats().getStats();
+    var configuredRedundantCopies = stats.get(STAT_CONFIGURED_REDUNDANT_COPIES).intValue();
+    var actualRedundantCopies = stats.get(STAT_ACTUAL_REDUNDANT_COPIES).intValue();
 
     assertThat(configuredRedundantCopies).isEqualTo(1);
     assertThat(actualRedundantCopies).isEqualTo(1);

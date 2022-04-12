@@ -33,7 +33,6 @@ import org.apache.geode.internal.cache.RegionClearedException;
 import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.offheap.MemoryAllocator;
 import org.apache.geode.internal.offheap.MemoryAllocatorImpl;
-import org.apache.geode.internal.util.concurrent.ConcurrentMapWithReusableEntries;
 
 public class ConcurrentRegionOperationIntegrationTest {
 
@@ -55,17 +54,17 @@ public class ConcurrentRegionOperationIntegrationTest {
 
   @Test
   public void replaceWithClearAndDestroy() throws RegionClearedException {
-    Region<Integer, String> region = createRegion();
+    var region = createRegion();
 
     region.put(1, "value");
     region.put(2, "value");
 
-    DiskStore diskStore = cache.findDiskStore(DiskStoreFactory.DEFAULT_DISK_STORE_NAME);
+    var diskStore = cache.findDiskStore(DiskStoreFactory.DEFAULT_DISK_STORE_NAME);
     diskStore.flush();
 
-    ConcurrentMapWithReusableEntries<Object, Object> underlyingMap =
+    var underlyingMap =
         ((LocalRegion) region).getRegionMap().getCustomEntryConcurrentHashMap();
-    RegionEntry spyEntry = spy((RegionEntry) underlyingMap.get(1));
+    var spyEntry = spy((RegionEntry) underlyingMap.get(1));
     underlyingMap.remove(1);
     underlyingMap.put(1, spyEntry);
 

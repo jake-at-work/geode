@@ -105,8 +105,8 @@ public class DistTxEntryEvent extends EntryEventImpl {
     eventID = DataSerializer.readObject(in);
     regionName = DataSerializer.readString(in);
     op = Operation.fromOrdinal(in.readByte());
-    Object key = DataSerializer.readObject(in);
-    Integer bucketId = DataSerializer.readInteger(in);
+    var key = DataSerializer.readObject(in);
+    var bucketId = DataSerializer.readInteger(in);
     keyInfo = new DistTxKeyInfo(key, null/*
                                           * value [DISTTX} TODO see if required
                                           */, null/*
@@ -128,10 +128,10 @@ public class DistTxEntryEvent extends EntryEventImpl {
   private void putAllToData(DataOutput out,
       SerializationContext context) throws IOException {
     DataSerializer.writeInteger(putAllOp.putAllDataSize, out);
-    EntryVersionsList versionTags = new EntryVersionsList(putAllOp.putAllDataSize);
-    boolean hasTags = false;
-    final PutAllEntryData[] putAllData = putAllOp.getPutAllEntryData();
-    for (int i = 0; i < putAllOp.putAllDataSize; i++) {
+    var versionTags = new EntryVersionsList(putAllOp.putAllDataSize);
+    var hasTags = false;
+    final var putAllData = putAllOp.getPutAllEntryData();
+    for (var i = 0; i < putAllOp.putAllDataSize; i++) {
       if (!hasTags && putAllData[i].versionTag != null) {
         hasTags = true;
       }
@@ -150,18 +150,18 @@ public class DistTxEntryEvent extends EntryEventImpl {
   private void putAllFromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     int putAllSize = DataSerializer.readInteger(in);
-    PutAllEntryData[] putAllEntries = new PutAllEntryData[putAllSize];
+    var putAllEntries = new PutAllEntryData[putAllSize];
     if (putAllSize > 0) {
-      final KnownVersion version = StaticSerialization.getVersionForDataStreamOrNull(in);
-      final ByteArrayDataInput bytesIn = new ByteArrayDataInput();
-      for (int i = 0; i < putAllSize; i++) {
+      final var version = StaticSerialization.getVersionForDataStreamOrNull(in);
+      final var bytesIn = new ByteArrayDataInput();
+      for (var i = 0; i < putAllSize; i++) {
         putAllEntries[i] = new PutAllEntryData(in, context, eventID, i);
       }
 
-      boolean hasTags = in.readBoolean();
+      var hasTags = in.readBoolean();
       if (hasTags) {
-        EntryVersionsList versionTags = EntryVersionsList.create(in);
-        for (int i = 0; i < putAllSize; i++) {
+        var versionTags = EntryVersionsList.create(in);
+        for (var i = 0; i < putAllSize; i++) {
           putAllEntries[i].versionTag = versionTags.get(i);
         }
       }
@@ -178,11 +178,11 @@ public class DistTxEntryEvent extends EntryEventImpl {
       SerializationContext context) throws IOException {
     DataSerializer.writeInteger(removeAllOp.removeAllDataSize, out);
 
-    EntryVersionsList versionTags = new EntryVersionsList(removeAllOp.removeAllDataSize);
+    var versionTags = new EntryVersionsList(removeAllOp.removeAllDataSize);
 
-    boolean hasTags = false;
-    final RemoveAllEntryData[] removeAllData = removeAllOp.getRemoveAllEntryData();
-    for (int i = 0; i < removeAllOp.removeAllDataSize; i++) {
+    var hasTags = false;
+    final var removeAllData = removeAllOp.getRemoveAllEntryData();
+    for (var i = 0; i < removeAllOp.removeAllDataSize; i++) {
       if (!hasTags && removeAllData[i].versionTag != null) {
         hasTags = true;
       }
@@ -201,17 +201,17 @@ public class DistTxEntryEvent extends EntryEventImpl {
   private void removeAllFromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     int removeAllSize = DataSerializer.readInteger(in);
-    final RemoveAllEntryData[] removeAllData = new RemoveAllEntryData[removeAllSize];
-    final KnownVersion version = StaticSerialization.getVersionForDataStreamOrNull(in);
-    final ByteArrayDataInput bytesIn = new ByteArrayDataInput();
-    for (int i = 0; i < removeAllSize; i++) {
+    final var removeAllData = new RemoveAllEntryData[removeAllSize];
+    final var version = StaticSerialization.getVersionForDataStreamOrNull(in);
+    final var bytesIn = new ByteArrayDataInput();
+    for (var i = 0; i < removeAllSize; i++) {
       removeAllData[i] = new RemoveAllEntryData(in, eventID, i, context);
     }
 
-    boolean hasTags = in.readBoolean();
+    var hasTags = in.readBoolean();
     if (hasTags) {
-      EntryVersionsList versionTags = EntryVersionsList.create(in);
-      for (int i = 0; i < removeAllSize; i++) {
+      var versionTags = EntryVersionsList.create(in);
+      for (var i = 0; i < removeAllSize; i++) {
         removeAllData[i].versionTag = versionTags.get(i);
       }
     }
@@ -230,7 +230,7 @@ public class DistTxEntryEvent extends EntryEventImpl {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append(getShortClassName());
     buf.append("[");
     buf.append("eventID=");

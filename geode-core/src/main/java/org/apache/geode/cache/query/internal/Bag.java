@@ -85,7 +85,7 @@ public abstract class Bag<E> extends AbstractCollection<E> implements CqResults<
    */
   Bag(Collection c, CachePerfStats stats) {
     this(stats);
-    for (final Object o : c) {
+    for (final var o : c) {
       add(o);
     }
   }
@@ -150,8 +150,8 @@ public abstract class Bag<E> extends AbstractCollection<E> implements CqResults<
     if (hasLimitIterator) {
       // Asif: If limit iterator then occurrence should be calculated
       // via the limit iterator
-      int count = 0;
-      boolean encounteredObject = false;
+      var count = 0;
+      var encounteredObject = false;
       for (Object v : this) {
         if (element == null ? v == null : element.equals(v)) {
           count++;
@@ -220,7 +220,7 @@ public abstract class Bag<E> extends AbstractCollection<E> implements CqResults<
     if (element == null) {
       numNulls++;
     } else {
-      int count = mapGet(element); // 0 if not
+      var count = mapGet(element); // 0 if not
                                    // found
       mapPut(element, count + 1);
     }
@@ -279,7 +279,7 @@ public abstract class Bag<E> extends AbstractCollection<E> implements CqResults<
           return false;
         }
       }
-      int count = mapGet(element); // 0 if not
+      var count = mapGet(element); // 0 if not
                                    // found
       if (count == 0) {
         return false;
@@ -318,7 +318,7 @@ public abstract class Bag<E> extends AbstractCollection<E> implements CqResults<
     if (!(o instanceof Bag)) {
       return false;
     }
-    Bag otherBag = (Bag) o;
+    var otherBag = (Bag) o;
     return size == otherBag.size && elementType.equals(otherBag.elementType)
 
         && getMap().equals(otherBag.getMap()) && numNulls == otherBag.numNulls;
@@ -560,7 +560,7 @@ public abstract class Bag<E> extends AbstractCollection<E> implements CqResults<
 
     @Override
     public int size() {
-      int calculatedSize = mapSize() + (numNulls > 0 ? 1 : 0);
+      var calculatedSize = mapSize() + (numNulls > 0 ? 1 : 0);
       if (localLimit > -1) {
         return Math.min(localLimit, calculatedSize);
       }
@@ -599,7 +599,7 @@ public abstract class Bag<E> extends AbstractCollection<E> implements CqResults<
           currentIsNull = true;
           return null;
         }
-        Object key = it.next();
+        var key = it.next();
         currentIsNull = false;
         return key;
       }
@@ -654,7 +654,7 @@ public abstract class Bag<E> extends AbstractCollection<E> implements CqResults<
             numNulls = 0;
             localLimit--;
           } else {
-            int count = mapRemove(currentKey);
+            var count = mapRemove(currentKey);
             assert count != 0 : "Attempted to remove an element that was not in the map.";
             limit -= count;
             localLimit--;
@@ -686,7 +686,7 @@ public abstract class Bag<E> extends AbstractCollection<E> implements CqResults<
       if (currPos == localLimit) {
         throw new NoSuchElementException();
       } else {
-        Object next = super.next();
+        var next = super.next();
         ++currPos;
         return next;
       }

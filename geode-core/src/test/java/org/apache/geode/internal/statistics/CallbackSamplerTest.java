@@ -57,10 +57,10 @@ public class CallbackSamplerTest {
 
   @Test
   public void taskShouldSampleStatistics() {
-    Runnable sampleTask = invokeStartAndGetTask();
+    var sampleTask = invokeStartAndGetTask();
 
-    StatisticsImpl stats1 = mock(StatisticsImpl.class);
-    StatisticsImpl stats2 = mock(StatisticsImpl.class);
+    var stats1 = mock(StatisticsImpl.class);
+    var stats2 = mock(StatisticsImpl.class);
     when(stats1.updateSuppliedValues()).thenReturn(3);
     when(stats2.updateSuppliedValues()).thenReturn(2);
     when(stats1.getSupplierCount()).thenReturn(7);
@@ -81,7 +81,7 @@ public class CallbackSamplerTest {
 
   @Test
   public void cancelCriterionShouldStopExecutor() {
-    Runnable sampleTask = invokeStartAndGetTask();
+    var sampleTask = invokeStartAndGetTask();
     when(cancelCriterion.isCancelInProgress()).thenReturn(Boolean.TRUE);
     sampleTask.run();
     verify(executorService).shutdown();
@@ -89,7 +89,7 @@ public class CallbackSamplerTest {
 
   private Runnable invokeStartAndGetTask() {
     sampler.start(executorService, statisticsManager, 1, TimeUnit.MILLISECONDS);
-    ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+    var runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
     verify(executorService).scheduleAtFixedRate(runnableCaptor.capture(), eq(1L), eq(1L),
         eq(TimeUnit.MILLISECONDS));
     return runnableCaptor.getValue();

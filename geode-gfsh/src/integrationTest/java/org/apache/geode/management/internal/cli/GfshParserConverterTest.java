@@ -21,8 +21,6 @@ import static org.mockito.Mockito.doReturn;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.ClassRule;
@@ -48,37 +46,37 @@ public class GfshParserConverterTest {
 
   @Test
   public void testStringArrayConverter() {
-    String command = "create disk-store --name=foo --dir=bar";
-    GfshParseResult result = parser.parse(command);
+    var command = "create disk-store --name=foo --dir=bar";
+    var result = parser.parse(command);
     assertThat(result).isNotNull();
     assertThat(result.getParamValueAsString("dir")).isEqualTo("bar");
   }
 
   @Test
   public void testDirConverter() {
-    String command = "compact offline-disk-store --name=foo --disk-dirs=bar";
-    GfshParseResult result = parser.parse(command);
+    var command = "compact offline-disk-store --name=foo --disk-dirs=bar";
+    var result = parser.parse(command);
     assertThat(result).isNotNull();
     assertThat(result.getParamValueAsString("disk-dirs")).isEqualTo("bar");
   }
 
   @Test
   public void testMultiDirInvalid() {
-    String command = "create disk-store --name=testCreateDiskStore1 --group=Group1 "
+    var command = "create disk-store --name=testCreateDiskStore1 --group=Group1 "
         + "--allow-force-compaction=true --auto-compact=false --compaction-threshold=67 "
         + "--max-oplog-size=355 --queue-size=5321 --time-interval=2023 --write-buffer-size=3110 "
         + "--dir=/testCreateDiskStore1.1#1452637463 " + "--dir=/testCreateDiskStore1.2";
-    GfshParseResult result = parser.parse(command);
+    var result = parser.parse(command);
     assertThat(result).isNull();
   }
 
   @Test
   public void testMultiDirValid() {
-    String command = "create disk-store --name=testCreateDiskStore1 --group=Group1 "
+    var command = "create disk-store --name=testCreateDiskStore1 --group=Group1 "
         + "--allow-force-compaction=true --auto-compact=false --compaction-threshold=67 "
         + "--max-oplog-size=355 --queue-size=5321 --time-interval=2023 --write-buffer-size=3110 "
         + "--dir=/testCreateDiskStore1.1#1452637463,/testCreateDiskStore1.2";
-    GfshParseResult result = parser.parse(command);
+    var result = parser.parse(command);
     assertThat(result).isNotNull();
     assertThat(result.getParamValueAsString("dir"))
         .isEqualTo("/testCreateDiskStore1.1#1452637463,/testCreateDiskStore1.2");
@@ -86,38 +84,38 @@ public class GfshParserConverterTest {
 
   @Test
   public void testEmptyKey() {
-    String command = "remove  --key=\"\" --region=" + SEPARATOR + "GemfireDataCommandsTestRegion";
-    GfshParseResult result = parser.parse(command);
+    var command = "remove  --key=\"\" --region=" + SEPARATOR + "GemfireDataCommandsTestRegion";
+    var result = parser.parse(command);
     assertThat(result).isNotNull();
     assertThat(result.getParamValueAsString("key")).isEqualTo("");
   }
 
   @Test
   public void testJsonKey() {
-    String command = "get --key=('id':'testKey0') --region=regionA";
-    GfshParseResult result = parser.parse(command);
+    var command = "get --key=('id':'testKey0') --region=regionA";
+    var result = parser.parse(command);
     assertThat(result).isNotNull();
   }
 
   @Test
   public void testUnspecifiedValueToStringArray() {
-    String command = "change loglevel --loglevel=finer --groups=group1,group2";
+    var command = "change loglevel --loglevel=finer --groups=group1,group2";
     ParseResult result = parser.parse(command);
-    String[] memberIdValue = (String[]) result.getArguments()[1];
+    var memberIdValue = (String[]) result.getArguments()[1];
     assertThat(memberIdValue).isNull();
   }
 
   @Test
   public void testHelpConverterWithNo() {
-    String command = "help --command=";
+    var command = "help --command=";
     commandCandidate = parser.complete(command);
-    Set<String> commands = parser.getCommandManager().getHelper().getCommands();
+    var commands = parser.getCommandManager().getHelper().getCommands();
     assertThat(commandCandidate.size()).isEqualTo(commands.size());
   }
 
   @Test
   public void testHelpConverter() {
-    String command = "help --command=conn";
+    var command = "help --command=conn";
     commandCandidate = parser.complete(command);
     assertThat(commandCandidate.size()).isEqualTo(1);
     assertThat(commandCandidate.getFirstCandidate()).isEqualTo(command + "ect");
@@ -125,9 +123,9 @@ public class GfshParserConverterTest {
 
   @Test
   public void testHintConverter() {
-    String command = "hint --topic=";
+    var command = "hint --topic=";
     commandCandidate = parser.complete(command);
-    Set<String> topics = parser.getCommandManager().getHelper().getTopicNames();
+    var topics = parser.getCommandManager().getHelper().getTopicNames();
     assertThat(commandCandidate.size()).isEqualTo(topics.size());
     assertThat(commandCandidate.getFirstCandidate()).isEqualTo("hint --topic=Client");
   }
@@ -135,12 +133,12 @@ public class GfshParserConverterTest {
   @Test
   public void testDiskStoreNameConverter() {
     // spy the DiskStoreNameConverter
-    DiskStoreNameConverter spy = parser.spyConverter(DiskStoreNameConverter.class);
+    var spy = parser.spyConverter(DiskStoreNameConverter.class);
 
-    Set<String> diskStores = Arrays.stream("name1,name2".split(",")).collect(Collectors.toSet());
+    var diskStores = Arrays.stream("name1,name2".split(",")).collect(Collectors.toSet());
     doReturn(diskStores).when(spy).getCompletionValues();
 
-    String command = "compact disk-store --name=";
+    var command = "compact disk-store --name=";
     commandCandidate = parser.complete(command);
     assertThat(commandCandidate.size()).isEqualTo(2);
 
@@ -148,14 +146,14 @@ public class GfshParserConverterTest {
 
   @Test
   public void testFilePathConverter() {
-    FilePathStringConverter spy = parser.spyConverter(FilePathStringConverter.class);
-    List<String> roots = Arrays.stream("/vol,/logs".split(",")).collect(Collectors.toList());
-    List<String> siblings =
+    var spy = parser.spyConverter(FilePathStringConverter.class);
+    var roots = Arrays.stream("/vol,/logs".split(",")).collect(Collectors.toList());
+    var siblings =
         Arrays.stream("sibling1,sibling11,test1".split(",")).collect(Collectors.toList());
     doReturn(roots).when(spy).getRoots();
     doReturn(siblings).when(spy).getSiblings(any());
 
-    String command = "start server --cache-xml-file=";
+    var command = "start server --cache-xml-file=";
     commandCandidate = parser.complete(command);
     assertThat(commandCandidate.size()).isEqualTo(2);
     assertThat(commandCandidate.getFirstCandidate()).isEqualTo(command + "/logs");
@@ -165,7 +163,7 @@ public class GfshParserConverterTest {
     assertThat(commandCandidate.size()).isEqualTo(2);
     assertThat(commandCandidate.getFirstCandidate()).isEqualTo(command + "1");
 
-    FilePathConverter spyFilePathConverter = parser.spyConverter(FilePathConverter.class);
+    var spyFilePathConverter = parser.spyConverter(FilePathConverter.class);
     spyFilePathConverter.setDelegate(spy);
     command = "run --file=test";
     commandCandidate = parser.complete(command);
@@ -176,12 +174,12 @@ public class GfshParserConverterTest {
 
   @Test
   public void testRegionPathConverter() {
-    RegionPathConverter spy = parser.spyConverter(RegionPathConverter.class);
-    Set<String> regions = Arrays.stream((SEPARATOR + "regionA," + SEPARATOR + "regionB").split(","))
+    var spy = parser.spyConverter(RegionPathConverter.class);
+    var regions = Arrays.stream((SEPARATOR + "regionA," + SEPARATOR + "regionB").split(","))
         .collect(Collectors.toSet());
     doReturn(regions).when(spy).getAllRegionPaths();
 
-    String command = "describe region --name=";
+    var command = "describe region --name=";
     commandCandidate = parser.complete(command);
     assertThat(commandCandidate.size()).isEqualTo(regions.size());
     assertThat(commandCandidate.getFirstCandidate()).isEqualTo(command + SEPARATOR + "regionA");
@@ -189,12 +187,12 @@ public class GfshParserConverterTest {
 
   @Test
   public void testExpirationAction() {
-    String command = "create region --name=A --type=PARTITION --entry-idle-time-expiration-action=";
+    var command = "create region --name=A --type=PARTITION --entry-idle-time-expiration-action=";
     commandCandidate = parser.complete(command);
     assertThat(commandCandidate.size()).isEqualTo(4);
     assertThat(commandCandidate.getFirstCandidate()).isEqualTo(command + "DESTROY");
 
-    GfshParseResult result = parser.parse(command + "DESTROY");
+    var result = parser.parse(command + "DESTROY");
     assertThat(result.getParamValue("entry-idle-time-expiration-action"))
         .isEqualTo(ExpirationAction.DESTROY);
 
@@ -212,7 +210,7 @@ public class GfshParserConverterTest {
 
   @Test
   public void testJarFilesPathConverter() {
-    String command = "deploy --jar=";
+    var command = "deploy --jar=";
     commandCandidate = parser.complete(command);
     assertThat(commandCandidate.size()).isGreaterThan(0);
     assertCandidateEndsWithFirstRoot(commandCandidate.getCandidate(0), command);
@@ -220,7 +218,7 @@ public class GfshParserConverterTest {
 
   @Test
   public void testJarFilesPathConverterWithMultiplePaths() {
-    String command = "deploy --jar=foo.jar,";
+    var command = "deploy --jar=foo.jar,";
     commandCandidate = parser.complete(command);
     assertThat(commandCandidate.size()).isGreaterThan(0);
     assertCandidateEndsWithFirstRoot(commandCandidate.getCandidate(0), command);
@@ -228,14 +226,14 @@ public class GfshParserConverterTest {
 
   @Test
   public void testJarDirPathConverter() {
-    String command = "deploy --dir=";
+    var command = "deploy --dir=";
     commandCandidate = parser.complete(command);
     assertThat(commandCandidate.size()).isGreaterThan(0);
     assertCandidateEndsWithFirstRoot(commandCandidate.getCandidate(0), command);
   }
 
   private void assertCandidateEndsWithFirstRoot(String candidate, String command) {
-    File[] roots = File.listRoots();
+    var roots = File.listRoots();
     assertThat(candidate).isEqualTo(command + roots[0]);
   }
 }

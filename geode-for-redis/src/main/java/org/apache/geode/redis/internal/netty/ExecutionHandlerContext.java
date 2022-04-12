@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -90,7 +89,7 @@ public class ExecutionHandlerContext extends ChannelInboundHandlerAdapter {
   private static final ResourcePermission READ_RESOURCE_PERMISSION;
 
   static {
-    String regionName =
+    var regionName =
         getStringSystemProperty(REDIS_REGION_NAME_PROPERTY, DEFAULT_REDIS_REGION_NAME);
     WRITE_RESOURCE_PERMISSION = new ResourcePermission("DATA", "WRITE", regionName);
     READ_RESOURCE_PERMISSION = new ResourcePermission("DATA", "READ", regionName);
@@ -154,7 +153,7 @@ public class ExecutionHandlerContext extends ChannelInboundHandlerAdapter {
    */
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
-    Command command = (Command) msg;
+    var command = (Command) msg;
     if (!channelInactive.get()) {
       try {
         executeCommand(ctx, command);
@@ -170,7 +169,7 @@ public class ExecutionHandlerContext extends ChannelInboundHandlerAdapter {
    */
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    RedisResponse exceptionResponse = getExceptionResponse(ctx, cause);
+    var exceptionResponse = getExceptionResponse(ctx, cause);
     if (exceptionResponse != null) {
       writeToChannel(exceptionResponse);
     }
@@ -182,7 +181,7 @@ public class ExecutionHandlerContext extends ChannelInboundHandlerAdapter {
       return null;
     }
 
-    Throwable rootCause = getRootCause(cause);
+    var rootCause = getRootCause(cause);
     if (rootCause instanceof RedisDataMovedException) {
       return RedisResponse.moved(rootCause.getMessage());
     } else if (rootCause instanceof RedisDataTypeMismatchException) {
@@ -217,7 +216,7 @@ public class ExecutionHandlerContext extends ChannelInboundHandlerAdapter {
   }
 
   private Throwable getRootCause(Throwable cause) {
-    Throwable root = cause;
+    var root = cause;
     while (root.getCause() != null) {
       root = root.getCause();
     }
@@ -238,7 +237,7 @@ public class ExecutionHandlerContext extends ChannelInboundHandlerAdapter {
   }
 
   public void resubmitCommand(Command command) {
-    ChannelHandlerContext ctx =
+    var ctx =
         channel.pipeline().context(ByteToCommandDecoder.class.getSimpleName());
     ctx.fireChannelRead(command);
   }
@@ -281,7 +280,7 @@ public class ExecutionHandlerContext extends ChannelInboundHandlerAdapter {
         }
       }
 
-      final long start = redisStats.startCommand();
+      final var start = redisStats.startCommand();
       try {
         writeToChannel(command.execute(this));
       } finally {
@@ -352,7 +351,7 @@ public class ExecutionHandlerContext extends ChannelInboundHandlerAdapter {
       return true;
     }
 
-    ResourcePermission permission =
+    var permission =
         commandType.getRequiresWritePermission() ? WRITE_RESOURCE_PERMISSION
             : READ_RESOURCE_PERMISSION;
     try {
@@ -410,7 +409,7 @@ public class ExecutionHandlerContext extends ChannelInboundHandlerAdapter {
   }
 
   public void checkForLowMemory(RedisCommandType commandType) {
-    Set<DistributedMember> criticalMembers = getRegionProvider().getCriticalMembers();
+    var criticalMembers = getRegionProvider().getCriticalMembers();
     if (!criticalMembers.isEmpty()) {
       throw new LowMemoryException(
           String.format(

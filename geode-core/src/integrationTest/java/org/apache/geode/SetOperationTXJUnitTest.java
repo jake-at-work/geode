@@ -34,7 +34,6 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
@@ -73,8 +72,8 @@ public class SetOperationTXJUnitTest {
   @Test
   @Parameters({"true", "false"})
   public void testRegionKeysetWithTx(boolean disableSetOpToStartTx) {
-    Region<Long, String> region = setupAndLoadRegion(disableSetOpToStartTx);
-    CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+    var region = setupAndLoadRegion(disableSetOpToStartTx);
+    var txMgr = cache.getCacheTransactionManager();
     try {
       txMgr.begin();
       Collection<Long> set = region.keySet();
@@ -88,11 +87,11 @@ public class SetOperationTXJUnitTest {
   @Test
   @Parameters({"true", "false"})
   public void testRegionValuesWithTx(boolean disableSetOpToStartTx) {
-    Region<Long, String> region = setupAndLoadRegion(disableSetOpToStartTx);
-    CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+    var region = setupAndLoadRegion(disableSetOpToStartTx);
+    var txMgr = cache.getCacheTransactionManager();
     try {
       txMgr.begin();
-      Collection<String> set = region.values();
+      var set = region.values();
       set.forEach((value) -> assertTrue(testData.containsValue(value)));
     } finally {
       validateTXManager(disableSetOpToStartTx);
@@ -103,8 +102,8 @@ public class SetOperationTXJUnitTest {
   @Test
   @Parameters({"true", "false"})
   public void testRegionEntriesWithTx(boolean disableSetOpToStartTx) {
-    Region<Long, String> region = setupAndLoadRegion(disableSetOpToStartTx);
-    CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+    var region = setupAndLoadRegion(disableSetOpToStartTx);
+    var txMgr = cache.getCacheTransactionManager();
     try {
       txMgr.begin();
       Collection<Map.Entry<Long, String>> set = region.entrySet();
@@ -120,7 +119,7 @@ public class SetOperationTXJUnitTest {
 
   private Region<Long, String> setupAndLoadRegion(boolean disableSetOpToStartTx) {
     cache = createCache(disableSetOpToStartTx);
-    Region<Long, String> region = createRegion(cache);
+    var region = createRegion(cache);
     testData.forEach(region::put);
     return region;
   }
@@ -136,7 +135,7 @@ public class SetOperationTXJUnitTest {
 
   protected Region<Long, String> createRegion(Cache cache) {
     RegionFactory<Long, String> rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    Region<Long, String> r = rf.create(REGION_NAME);
+    var r = rf.create(REGION_NAME);
     return r;
   }
 
@@ -150,14 +149,14 @@ public class SetOperationTXJUnitTest {
       logger.info("setting system property {} to true ", RESTORE_SET_OPERATION_PROPERTY);
       System.setProperty(RESTORE_SET_OPERATION_PROPERTY, "true");
     }
-    CacheFactory cf = new CacheFactory().set(MCAST_PORT, "0");
+    var cf = new CacheFactory().set(MCAST_PORT, "0");
     cache = cf.create();
     return cache;
   }
 
   protected void closeCache() {
     if (cache != null) {
-      Cache c = cache;
+      var c = cache;
       cache = null;
       c.close();
     }

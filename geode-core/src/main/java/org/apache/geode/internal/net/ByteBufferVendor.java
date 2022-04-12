@@ -145,7 +145,7 @@ public class ByteBufferVendor {
   }
 
   private int dropReference() {
-    final int usages = counter.decrementAndGet();
+    final var usages = counter.decrementAndGet();
     if (usages == 0) {
       sharing.releaseBuffer();
     }

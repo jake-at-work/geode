@@ -25,7 +25,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.internal.serialization.BufferDataOutputStream;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
-import org.apache.geode.internal.serialization.DSFIDSerializer;
 import org.apache.geode.internal.serialization.DSFIDSerializerFactory;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.test.junit.categories.MembershipTest;
@@ -38,9 +37,9 @@ public class HostAndPortTest {
    */
   @Test
   public void getSocketInetAddress_returns_resolved_SocketAddress() {
-    HostAndPort locator1 = new HostAndPort("localhost", 8080);
+    var locator1 = new HostAndPort("localhost", 8080);
 
-    InetSocketAddress actual = locator1.getSocketInetAddress();
+    var actual = locator1.getSocketInetAddress();
 
     assertThat(actual.isUnresolved()).isFalse();
   }
@@ -50,9 +49,9 @@ public class HostAndPortTest {
    */
   @Test
   public void getSocketInetAddress_returns_unresolved_SocketAddress() {
-    HostAndPort locator1 = new HostAndPort("fakelocalhost", 8090);
+    var locator1 = new HostAndPort("fakelocalhost", 8090);
 
-    InetSocketAddress actual = locator1.getSocketInetAddress();
+    var actual = locator1.getSocketInetAddress();
 
     assertThat(actual.isUnresolved())
         .as("Hostname resolved unexpectedly. Check for DNS hijacking in addition to code errors.")
@@ -61,13 +60,13 @@ public class HostAndPortTest {
 
   @Test
   public void cachesSocketAddressForIP() {
-    HostAndPort hostAndPort = new HostAndPort("127.0.0.1", 8080);
+    var hostAndPort = new HostAndPort("127.0.0.1", 8080);
     assertThat(hostAndPort.getSocketInetAddress()).isSameAs(hostAndPort.getSocketInetAddress());
   }
 
   @Test
   public void doesNotCacheSocketAddressForHostname() {
-    HostAndPort hostAndPort = new HostAndPort("localhost", 8080);
+    var hostAndPort = new HostAndPort("localhost", 8080);
     assertThat(hostAndPort.getSocketInetAddress()).isNotSameAs(hostAndPort.getSocketInetAddress());
   }
 
@@ -77,10 +76,10 @@ public class HostAndPortTest {
    */
   @Test
   public void equals_LocatorAddress_from_resolved_and_unresolved_SocketAddress() {
-    HostAndPort locator1 = new HostAndPort("localhost", 8080);
+    var locator1 = new HostAndPort("localhost", 8080);
 
-    InetSocketAddress host2address = locator1.getSocketInetAddress();
-    HostAndPort locator2 = new HostAndPort("localhost", host2address.getPort());
+    var host2address = locator1.getSocketInetAddress();
+    var locator2 = new HostAndPort("localhost", host2address.getPort());
 
     assertThat(host2address.isUnresolved()).isFalse();
     assertThat(locator1.equals(locator2)).isTrue();
@@ -88,26 +87,26 @@ public class HostAndPortTest {
 
   @Test
   public void getPort_returns_port() {
-    HostAndPort locator1 = new HostAndPort("localhost", 8090);
+    var locator1 = new HostAndPort("localhost", 8090);
     assertThat(locator1.getPort()).isEqualTo(8090);
   }
 
   @Test
   public void getHostName_returns_hostname() {
-    HostAndPort locator1 = new HostAndPort("fakelocalhost", 8091);
+    var locator1 = new HostAndPort("fakelocalhost", 8091);
     assertThat(locator1.getHostName()).isEqualTo("fakelocalhost");
   }
 
   @Test
   public void hashCode_of_SocketAddress() {
-    InetSocketAddress host1address = InetSocketAddress.createUnresolved("fakelocalhost", 8091);
-    HostAndPort locator1 = new HostAndPort("fakelocalhost", 8091);
+    var host1address = InetSocketAddress.createUnresolved("fakelocalhost", 8091);
+    var locator1 = new HostAndPort("fakelocalhost", 8091);
     assertThat(locator1.hashCode()).isEqualTo(host1address.hashCode());
   }
 
   @Test
   public void constructorWithNoHostName() {
-    HostAndPort hostAndPort = new HostAndPort(null, 8091);
+    var hostAndPort = new HostAndPort(null, 8091);
     assertThat(hostAndPort.getAddress()).isNotNull();
     assertThat(hostAndPort.getHostName()).isEqualTo("0.0.0.0");
     assertThat(hostAndPort.getPort()).isEqualTo(8091);
@@ -116,9 +115,9 @@ public class HostAndPortTest {
 
   @Test
   public void testEquality() {
-    HostAndPort hostAndPort1 = new HostAndPort("127.0.0.1", 8091);
-    HostAndPort hostAndPort2 = new HostAndPort("127.0.0.1", 8091);
-    HostAndPort hostAndPort3 = new HostAndPort("127.0.0.1", 8092);
+    var hostAndPort1 = new HostAndPort("127.0.0.1", 8091);
+    var hostAndPort2 = new HostAndPort("127.0.0.1", 8091);
+    var hostAndPort3 = new HostAndPort("127.0.0.1", 8092);
     assertThat(hostAndPort1.getSocketInetAddress()).isSameAs(hostAndPort1.getSocketInetAddress());
     assertThat(hostAndPort1).isEqualTo(hostAndPort1);
     assertThat(hostAndPort1).isEqualTo(hostAndPort2);
@@ -128,10 +127,10 @@ public class HostAndPortTest {
 
   @Test
   public void testSerializationWithNumericAddress() throws IOException, ClassNotFoundException {
-    DSFIDSerializer dsfidSerializer = new DSFIDSerializerFactory().create();
+    var dsfidSerializer = new DSFIDSerializerFactory().create();
     dsfidSerializer.register(HOST_AND_PORT, HostAndPort.class);
-    HostAndPort hostAndPort1 = new HostAndPort("127.0.0.1", 8091);
-    BufferDataOutputStream out = new BufferDataOutputStream(100, KnownVersion.CURRENT);
+    var hostAndPort1 = new HostAndPort("127.0.0.1", 8091);
+    var out = new BufferDataOutputStream(100, KnownVersion.CURRENT);
     dsfidSerializer.getObjectSerializer().writeObject(hostAndPort1, out);
     HostAndPort hostAndPort2 = dsfidSerializer.getObjectDeserializer()
         .readObject(new ByteArrayDataInput(out.toByteArray()));
@@ -142,10 +141,10 @@ public class HostAndPortTest {
   @Test
   public void testSerializationWithUnresolvableHostName()
       throws IOException, ClassNotFoundException {
-    DSFIDSerializer dsfidSerializer = new DSFIDSerializerFactory().create();
+    var dsfidSerializer = new DSFIDSerializerFactory().create();
     dsfidSerializer.register(HOST_AND_PORT, HostAndPort.class);
-    HostAndPort hostAndPort1 = new HostAndPort("unresolvable host name", 8091);
-    BufferDataOutputStream out = new BufferDataOutputStream(100, KnownVersion.CURRENT);
+    var hostAndPort1 = new HostAndPort("unresolvable host name", 8091);
+    var out = new BufferDataOutputStream(100, KnownVersion.CURRENT);
     dsfidSerializer.getObjectSerializer().writeObject(hostAndPort1, out);
     HostAndPort hostAndPort2 = dsfidSerializer.getObjectDeserializer()
         .readObject(new ByteArrayDataInput(out.toByteArray()));
@@ -162,10 +161,10 @@ public class HostAndPortTest {
 
   @Test
   public void testSerializationWithNoHostName() throws IOException, ClassNotFoundException {
-    DSFIDSerializer dsfidSerializer = new DSFIDSerializerFactory().create();
+    var dsfidSerializer = new DSFIDSerializerFactory().create();
     dsfidSerializer.register(HOST_AND_PORT, HostAndPort.class);
-    HostAndPort hostAndPort1 = new HostAndPort(null, 8091);
-    BufferDataOutputStream out = new BufferDataOutputStream(100, KnownVersion.CURRENT);
+    var hostAndPort1 = new HostAndPort(null, 8091);
+    var out = new BufferDataOutputStream(100, KnownVersion.CURRENT);
     dsfidSerializer.getObjectSerializer().writeObject(hostAndPort1, out);
     HostAndPort hostAndPort2 = dsfidSerializer.getObjectDeserializer()
         .readObject(new ByteArrayDataInput(out.toByteArray()));

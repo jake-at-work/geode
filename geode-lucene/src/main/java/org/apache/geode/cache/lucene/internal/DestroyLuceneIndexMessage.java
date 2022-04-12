@@ -30,7 +30,6 @@ import org.apache.geode.distributed.internal.MessageWithReply;
 import org.apache.geode.distributed.internal.PooledDistributionMessage;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyMessage;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -69,8 +68,8 @@ public class DestroyLuceneIndexMessage extends PooledDistributionMessage
             + "; indexName=" + indexName);
       }
       try {
-        InternalCache cache = dm.getCache();
-        LuceneServiceImpl impl = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
+        var cache = dm.getCache();
+        var impl = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
         try {
           impl.destroyIndex(indexName, regionPath, false);
           if (logger.isDebugEnabled()) {
@@ -79,9 +78,9 @@ public class DestroyLuceneIndexMessage extends PooledDistributionMessage
           }
         } catch (IllegalArgumentException e) {
           // If the IllegalArgumentException is index not found, then its ok; otherwise rethrow it.
-          String fullRegionPath =
+          var fullRegionPath =
               regionPath.startsWith(SEPARATOR) ? regionPath : SEPARATOR + regionPath;
-          String indexNotFoundMessage = String.format("Lucene index %s was not found in region %s",
+          var indexNotFoundMessage = String.format("Lucene index %s was not found in region %s",
               indexName, fullRegionPath);
           if (!e.getLocalizedMessage().equals(indexNotFoundMessage)) {
             throw e;
@@ -97,7 +96,7 @@ public class DestroyLuceneIndexMessage extends PooledDistributionMessage
         }
       }
     } finally {
-      ReplyMessage replyMsg = new ReplyMessage();
+      var replyMsg = new ReplyMessage();
       replyMsg.setRecipient(getSender());
       replyMsg.setProcessorId(processorId);
       if (replyException != null) {

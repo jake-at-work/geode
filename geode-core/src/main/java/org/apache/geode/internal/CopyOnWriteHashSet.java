@@ -90,7 +90,7 @@ public class CopyOnWriteHashSet<T> implements Set<T>, Serializable {
   public boolean add(T e) {
     synchronized (this) {
       Set<T> set = new HashSet<>(snapshot);
-      boolean result = set.add(e);
+      var result = set.add(e);
       snapshot = set;
       return result;
     }
@@ -100,7 +100,7 @@ public class CopyOnWriteHashSet<T> implements Set<T>, Serializable {
   public boolean addAll(Collection<? extends T> c) {
     synchronized (this) {
       Set<T> set = new HashSet<>(snapshot);
-      boolean result = set.addAll(c);
+      var result = set.addAll(c);
       snapshot = set;
       return result;
     }
@@ -132,7 +132,7 @@ public class CopyOnWriteHashSet<T> implements Set<T>, Serializable {
   public boolean remove(Object o) {
     synchronized (this) {
       Set<T> set = new HashSet<>(snapshot);
-      boolean result = set.remove(o);
+      var result = set.remove(o);
       snapshot = set;
       return result;
     }
@@ -142,7 +142,7 @@ public class CopyOnWriteHashSet<T> implements Set<T>, Serializable {
   public boolean retainAll(Collection<?> c) {
     synchronized (this) {
       Set<T> set = new HashSet<>(snapshot);
-      boolean result = set.retainAll(c);
+      var result = set.retainAll(c);
       snapshot = set;
       return result;
     }
@@ -172,7 +172,7 @@ public class CopyOnWriteHashSet<T> implements Set<T>, Serializable {
   public boolean removeAll(Collection<?> c) {
     synchronized (this) {
       Set<T> set = new HashSet<>(snapshot);
-      boolean result = set.removeAll(c);
+      var result = set.removeAll(c);
       snapshot = set;
       return result;
     }

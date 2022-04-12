@@ -62,8 +62,8 @@ public class MemberStarterRuleAwaitIntegrationTest {
 
   @Test
   public void testWithDefaultPresentation() throws Exception {
-    Supplier<Boolean> alwaysFalseProvider = () -> false;
-    String description = "Awaiting until boolean becomes true.";
+    var alwaysFalseProvider = (Supplier<Boolean>) () -> false;
+    var description = "Awaiting until boolean becomes true.";
 
     assertThatThrownBy(printExceptionWrapper(() -> ruleToUse.waitUntilEqual(alwaysFalseProvider,
         UnaryOperator.identity(), true, description, 1, TimeUnit.SECONDS)))
@@ -74,9 +74,9 @@ public class MemberStarterRuleAwaitIntegrationTest {
 
   @Test
   public void waitCanAcceptNullsIfPredicateAcceptsNulls() throws Exception {
-    Supplier<Boolean> alwaysNullProvider = () -> null;
-    Predicate<Boolean> booleanIdentityPredicate = b -> b != null && b.equals(true);
-    String description = "Awaiting until boolean becomes not null and also true.";
+    var alwaysNullProvider = (Supplier<Boolean>) () -> null;
+    var booleanIdentityPredicate = (Predicate<Boolean>) b -> b != null && b.equals(true);
+    var description = "Awaiting until boolean becomes not null and also true.";
     assertThatThrownBy(printExceptionWrapper(() -> ruleToUse.waitUntilEqual(alwaysNullProvider,
         UnaryOperator.identity(), true, description, 1, TimeUnit.SECONDS)))
             .isInstanceOf(ConditionTimeoutException.class)
@@ -86,9 +86,9 @@ public class MemberStarterRuleAwaitIntegrationTest {
 
   @Test
   public void waitCanPrintMoreComplexResults() throws Exception {
-    Supplier<List<String>> abcListProvider = () -> Arrays.asList("A", "B", "C");
-    Function<List<String>, Integer> examiner = List::size;
-    String description = "Awaiting until list becomes empty.";
+    var abcListProvider = (Supplier<List<String>>) () -> Arrays.asList("A", "B", "C");
+    var examiner = (Function<List<String>, Integer>) List::size;
+    var description = "Awaiting until list becomes empty.";
     assertThatThrownBy(printExceptionWrapper(() -> ruleToUse.waitUntilEqual(abcListProvider,
         examiner, 0, description, 1, TimeUnit.SECONDS)))
             .isInstanceOf(ConditionTimeoutException.class)

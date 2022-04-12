@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.partitioned;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -36,7 +35,6 @@ import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -80,12 +78,12 @@ public class RemoveBucketMessage extends PartitionMessage {
 
     Assert.assertTrue(recipient != null, "RemoveBucketMessage NULL recipient");
 
-    RemoveBucketResponse response = new RemoveBucketResponse(region.getSystem(), recipient, region);
-    RemoveBucketMessage msg = new RemoveBucketMessage(recipient, region.getPRId(), response,
+    var response = new RemoveBucketResponse(region.getSystem(), recipient, region);
+    var msg = new RemoveBucketMessage(recipient, region.getPRId(), response,
         bucketId, forceRemovePrimary);
     msg.setTransactionDistributed(region.getCache().getTxManager().isDistributed());
 
-    Set<InternalDistributedMember> failures = region.getDistributionManager().putOutgoing(msg);
+    var failures = region.getDistributionManager().putOutgoing(msg);
     if (failures != null && failures.size() > 0) {
       // throw new ForceReattemptException("Failed sending <" + msg + ">");
       return null;
@@ -108,8 +106,8 @@ public class RemoveBucketMessage extends PartitionMessage {
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm,
       PartitionedRegion region, long startTime) throws ForceReattemptException {
 
-    PartitionedRegionDataStore dataStore = region.getDataStore();
-    boolean removed = dataStore.removeBucket(bucketId, forceRemovePrimary);
+    var dataStore = region.getDataStore();
+    var removed = dataStore.removeBucket(bucketId, forceRemovePrimary);
 
     region.getPrStats().endPartitionMessagesProcessing(startTime);
     RemoveBucketReplyMessage.send(getSender(), getProcessorId(), dm, null, removed);
@@ -167,7 +165,7 @@ public class RemoveBucketMessage extends PartitionMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, ReplyException re, boolean removed) {
       Assert.assertTrue(recipient != null, "RemoveBucketReplyMessage NULL recipient");
-      RemoveBucketReplyMessage m = new RemoveBucketReplyMessage(processorId, re, removed);
+      var m = new RemoveBucketReplyMessage(processorId, re, removed);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -178,7 +176,7 @@ public class RemoveBucketMessage extends PartitionMessage {
 
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "RemoveBucketReplyMessage process invoking reply processor with processorId: {}",
@@ -242,7 +240,7 @@ public class RemoveBucketMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof RemoveBucketReplyMessage) {
-          RemoveBucketReplyMessage reply = (RemoveBucketReplyMessage) msg;
+          var reply = (RemoveBucketReplyMessage) msg;
           removed = reply.removed();
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
             logger.trace(LogMarker.DM_VERBOSE, "RemoveBucketResponse is {}", removed);
@@ -266,21 +264,21 @@ public class RemoveBucketMessage extends PartitionMessage {
       try {
         waitForRepliesUninterruptibly();
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         // Most of these cases indicate that the PR is destroyed on the
         // remote VM. Which is fine, because that means the bucket was "removed"
         if (t instanceof CancelException) {
-          String msg = "RemoveBucketMessage got remote cancellation,";
+          var msg = "RemoveBucketMessage got remote cancellation,";
           logger.debug(msg, t);
           return true;
         }
         if (t instanceof PRLocallyDestroyedException) {
-          String msg = "RemoveBucketMessage got local destroy on the PartitionRegion ";
+          var msg = "RemoveBucketMessage got local destroy on the PartitionRegion ";
           logger.debug(msg, t);
           return true;
         }
         if (t instanceof ForceReattemptException) {
-          String msg =
+          var msg =
               "RemoveBucketMessage got ForceReattemptException due to local destroy on the PartitionRegion";
           logger.debug(msg, t);
           return true;

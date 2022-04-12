@@ -34,8 +34,8 @@ public class ClientProxyMembershipIDTest {
 
   @Test
   public void writeExternalThrowsIfIdentityIsTooLong() throws IOException {
-    final byte[] identity = new byte[Short.MAX_VALUE + 1];
-    final ClientProxyMembershipID clientProxyMembershipID =
+    final var identity = new byte[Short.MAX_VALUE + 1];
+    final var clientProxyMembershipID =
         new ClientProxyMembershipID(identity, 0, null);
     final ObjectOutput out = new ObjectOutputStream(new NullDataOutputStream());
 
@@ -46,14 +46,14 @@ public class ClientProxyMembershipIDTest {
 
   @Test
   public void readExternalThrowsIfIdentityIsTooShort() throws IOException {
-    final ClientProxyMembershipID clientProxyMembershipID = new ClientProxyMembershipID();
-    final ByteArrayOutputStream dos = new ByteArrayOutputStream();
-    final ObjectOutputStream out = new ObjectOutputStream(dos);
+    final var clientProxyMembershipID = new ClientProxyMembershipID();
+    final var dos = new ByteArrayOutputStream();
+    final var out = new ObjectOutputStream(dos);
     out.writeShort(-1);
     out.write(new byte[0]);
     out.writeInt(0);
     out.close();
-    final byte[] bytes = dos.toByteArray();
+    final var bytes = dos.toByteArray();
     final ObjectInput in = new ObjectInputStream(new ByteArrayDataInput(bytes));
 
     assertThatThrownBy(() -> clientProxyMembershipID.readExternal(in))

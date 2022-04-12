@@ -31,8 +31,8 @@ public class SignalTest {
 
   @Test
   public void wrapsSunSignal() {
-    final Signal geodeSignal = new Signal("INT");
-    final sun.misc.Signal sunSignal = new sun.misc.Signal("INT");
+    final var geodeSignal = new Signal("INT");
+    final var sunSignal = new sun.misc.Signal("INT");
 
     assertThat(geodeSignal.signal).isEqualTo(sunSignal);
     assertThat(geodeSignal.getName()).isNotNull().isEqualTo(sunSignal.getName());
@@ -47,14 +47,14 @@ public class SignalTest {
 
   @Test
   public void handleWrapsSunHandler() {
-    final sun.misc.SignalHandler sunHandler = mock(sun.misc.SignalHandler.class);
-    final sun.misc.Signal sunSignal = new sun.misc.Signal("INT");
-    final sun.misc.SignalHandler originalSunHandler = sun.misc.Signal.handle(sunSignal, sunHandler);
+    final var sunHandler = mock(sun.misc.SignalHandler.class);
+    final var sunSignal = new sun.misc.Signal("INT");
+    final var originalSunHandler = sun.misc.Signal.handle(sunSignal, sunHandler);
     try {
-      final Signal geodeSignal = new Signal("INT");
-      final SignalHandler geodeHandler = signal -> {
+      final var geodeSignal = new Signal("INT");
+      final var geodeHandler = (SignalHandler) signal -> {
       };
-      final SignalHandler originalGeodeHandler = Signal.handle(geodeSignal, geodeHandler);
+      final var originalGeodeHandler = Signal.handle(geodeSignal, geodeHandler);
       try {
         assertThat(originalGeodeHandler).isNotNull().isInstanceOf(Signal.SunSignalHandler.class);
         assertThat(((Signal.SunSignalHandler) originalGeodeHandler).signalHandler)
@@ -82,9 +82,9 @@ public class SignalTest {
 
   @Test
   public void raiseInvokesSunRaise() {
-    final sun.misc.SignalHandler sunHandler = mock(sun.misc.SignalHandler.class);
-    final sun.misc.Signal sunSignal = new sun.misc.Signal("INT");
-    final sun.misc.SignalHandler originalSunHandler = sun.misc.Signal.handle(sunSignal, sunHandler);
+    final var sunHandler = mock(sun.misc.SignalHandler.class);
+    final var sunSignal = new sun.misc.Signal("INT");
+    final var originalSunHandler = sun.misc.Signal.handle(sunSignal, sunHandler);
     try {
       Signal.raise(new Signal("INT"));
       await().untilAsserted(() -> verify(sunHandler).handle(sunSignal));
@@ -96,9 +96,9 @@ public class SignalTest {
 
   @Test
   public void raiseInvokesGeodeHandler() {
-    final Signal geodeSignal = new Signal("INT");
-    final SignalHandler geodeHandler = mock(SignalHandler.class);
-    final SignalHandler originalGeodeHandler = Signal.handle(geodeSignal, geodeHandler);
+    final var geodeSignal = new Signal("INT");
+    final var geodeHandler = mock(SignalHandler.class);
+    final var originalGeodeHandler = Signal.handle(geodeSignal, geodeHandler);
     try {
       Signal.raise(geodeSignal);
       await().untilAsserted(() -> verify(geodeHandler).handle(geodeSignal));

@@ -65,7 +65,7 @@ class ComparableDescription {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ComparableDescription that = (ComparableDescription) o;
+    var that = (ComparableDescription) o;
     return Objects.equals(testClass, that.testClass)
         && Objects.equals(displayName, that.displayName)
         && Objects.equals(annotations, that.annotations)

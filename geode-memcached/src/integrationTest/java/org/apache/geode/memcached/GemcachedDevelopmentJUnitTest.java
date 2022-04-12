@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
 import net.spy.memcached.CASResponse;
-import net.spy.memcached.CASValue;
 import net.spy.memcached.MemcachedClient;
 import org.junit.After;
 import org.junit.Before;
@@ -72,7 +71,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testPutGet() throws Exception {
-    MemcachedClient client = createMemcachedClient();
+    var client = createMemcachedClient();
     Future<Boolean> f = client.add("key", 10, "myStringValue");
     assertTrue(f.get());
     Future<Boolean> f1 = client.add("key1", 10, "myStringValue1");
@@ -88,21 +87,21 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testSet() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Future<Boolean> f = client.set("key", 10, "myStringValue");
     assertTrue(f.get());
   }
 
   @Test
   public void testAdd() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Future<Boolean> f = client.add("key", 10, "newVal");
     assertFalse(f.get());
   }
 
   @Test
   public void testReplace() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Future<Boolean> b = client.replace("key", 10, "newVal");
     assertTrue(b.get());
     b = client.replace("nonExistentkey", 10, "val");
@@ -113,8 +112,8 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testMultiGet() throws Exception {
-    MemcachedClient client = bootstrapClient();
-    Map<String, Object> val = client.getBulk("key", "key1");
+    var client = bootstrapClient();
+    var val = client.getBulk("key", "key1");
     assertEquals(2, val.size());
     assertEquals("myStringValue", val.get("key"));
     assertEquals("myStringValue1", val.get("key1"));
@@ -125,7 +124,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testDelete() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Future<Boolean> b = client.delete("key");
     assertTrue(b.get());
     b = client.delete("nonExistentkey");
@@ -134,7 +133,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testFlush() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Future<Boolean> b = client.flush();
     assertTrue(b.get());
     assertNull(client.get("key"));
@@ -143,7 +142,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testFlushDelay() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Future<Boolean> b = client.flush(5);
     assertTrue(b.get());
     assertNotNull(client.get("key"));
@@ -155,14 +154,14 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testExpiration() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Thread.sleep(15 * 1000); // we add with expiration 10 seconds
     assertNull(client.get("key"));
   }
 
   @Test
   public void testLongExpiration() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     client.add("newKey", (int) System.currentTimeMillis() - 60 * 1000, "newValue");
     Thread.sleep(15 * 1000);
     assertEquals("newValue", client.get("newKey"));
@@ -170,7 +169,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testAppend() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Future<Boolean> b = client.append(0, "key", "WithAddition");
     assertTrue(b.get());
     assertEquals("myStringValueWithAddition", client.get("key"));
@@ -181,7 +180,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testPrepend() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Future<Boolean> b = client.prepend(0, "key", "prepended");
     assertTrue(b.get());
     assertEquals("prependedmyStringValue", client.get("key"));
@@ -192,7 +191,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testIncr() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     client.add("incrkey", 10, 99).get();
     assertEquals(104, client.incr("incrkey", 5));
     assertEquals(105, client.incr("incrkey", 1));
@@ -201,7 +200,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testDecr() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     client.add("decrkey", 10, 99).get();
     assertEquals(95, client.decr("decrkey", 4));
     assertEquals(94, client.decr("decrkey", 1));
@@ -210,10 +209,10 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testGets() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     client.add("getskey", 10, "casValue").get();
-    CASValue<Object> val = client.gets("getskey");
-    long oldCas = val.getCas();
+    var val = client.gets("getskey");
+    var oldCas = val.getCas();
     assertEquals("casValue", val.getValue());
     client.replace("getskey", 10, "myNewVal").get();
     val = client.gets("getskey");
@@ -223,11 +222,11 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testCas() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     client.add("caskey", 10, "casValue").get();
-    CASValue<Object> val = client.gets("caskey");
+    var val = client.gets("caskey");
     assertEquals("casValue", val.getValue());
-    CASResponse r = client.cas("caskey", val.getCas(), "newValue");
+    var r = client.cas("caskey", val.getCas(), "newValue");
     assertEquals(CASResponse.OK, r);
     r = client.cas("caskey", val.getCas(), "newValue2");
     assertEquals(CASResponse.EXISTS, r);
@@ -235,7 +234,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   @Test
   public void testStats() throws Exception {
-    MemcachedClient client = bootstrapClient();
+    var client = bootstrapClient();
     Map stats = client.getStats();
     logger.info("stats:" + stats + " val:" + stats.values().toArray()[0]);
     assertEquals(1, stats.size());
@@ -245,7 +244,7 @@ public class GemcachedDevelopmentJUnitTest {
 
   private MemcachedClient bootstrapClient()
       throws IOException, InterruptedException, ExecutionException {
-    MemcachedClient client = createMemcachedClient();
+    var client = createMemcachedClient();
     Future<Boolean> f = client.add("key", 10, "myStringValue");
     f.get();
     Future<Boolean> f1 = client.add("key1", 10, "myStringValue1");
@@ -254,7 +253,7 @@ public class GemcachedDevelopmentJUnitTest {
   }
 
   protected MemcachedClient createMemcachedClient() throws IOException {
-    MemcachedClient client = new MemcachedClient(new ConnectionWithOneMinuteTimeoutFactory(),
+    var client = new MemcachedClient(new ConnectionWithOneMinuteTimeoutFactory(),
         Collections.singletonList(new InetSocketAddress(InetAddress.getLocalHost(), PORT)));
     return client;
   }

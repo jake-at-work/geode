@@ -31,7 +31,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
 
@@ -50,7 +49,7 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Bean
   public AuthenticationFailureHandler failureHandler() {
-    ExceptionMappingAuthenticationFailureHandler exceptionMappingAuthenticationFailureHandler =
+    var exceptionMappingAuthenticationFailureHandler =
         new ExceptionMappingAuthenticationFailureHandler();
     Map<String, String> exceptionMappings = new HashMap<>();
     exceptionMappings.put(BadCredentialsException.class.getName(), "/login.html?error=BAD_CREDS");
@@ -97,7 +96,7 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder)
       throws Exception {
     @SuppressWarnings("deprecation")
-    final PasswordEncoder noOpPasswordEncoder =
+    final var noOpPasswordEncoder =
         org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance();
     authenticationManagerBuilder.inMemoryAuthentication()
         .passwordEncoder(noOpPasswordEncoder)

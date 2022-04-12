@@ -18,7 +18,6 @@ import static org.apache.geode.internal.AvailablePortHelper.getRandomAvailableTC
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 
 import java.io.File;
-import java.nio.file.Path;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,7 +49,7 @@ public class StartServerGlobalSerialFilterAcceptanceTest {
 
   @Test
   public void startDoesNotConfigureGlobalSerialFilter_byDefault() {
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=server",
         "--dir=" + serverFolder.getAbsolutePath(),
@@ -63,7 +62,7 @@ public class StartServerGlobalSerialFilterAcceptanceTest {
 
     gfshRule.execute(startServerCommand);
 
-    Path serverLogFile = serverFolder.toPath().resolve("server.log");
+    var serverLogFile = serverFolder.toPath().resolve("server.log");
     await().untilAsserted(() -> {
       LogFileAssert.assertThat(serverLogFile.toFile()).exists()
           .doesNotContain("Global serial filter is now configured.")
@@ -73,7 +72,7 @@ public class StartServerGlobalSerialFilterAcceptanceTest {
 
   @Test
   public void startDoesNotConfigureGlobalSerialFilter_whenJdkSerialFilterIsNotBlank() {
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=server",
         "--dir=" + serverFolder.getAbsolutePath(),
@@ -87,7 +86,7 @@ public class StartServerGlobalSerialFilterAcceptanceTest {
 
     gfshRule.execute(startServerCommand);
 
-    Path serverLogFile = serverFolder.toPath().resolve("server.log");
+    var serverLogFile = serverFolder.toPath().resolve("server.log");
     await().untilAsserted(() -> {
       LogFileAssert.assertThat(serverLogFile.toFile()).exists()
           .doesNotContain("Global serial filter is now configured.")
@@ -101,7 +100,7 @@ public class StartServerGlobalSerialFilterAcceptanceTest {
    */
   @Test
   public void startConfiguresGlobalSerialFilter_whenEnableGlobalSerialFilterIsTrue() {
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=server",
         "--dir=" + serverFolder.getAbsolutePath(),
@@ -115,7 +114,7 @@ public class StartServerGlobalSerialFilterAcceptanceTest {
 
     gfshRule.execute(startServerCommand);
 
-    Path serverLogFile = serverFolder.toPath().resolve("server.log");
+    var serverLogFile = serverFolder.toPath().resolve("server.log");
     await().untilAsserted(() -> {
       LogFileAssert.assertThat(serverLogFile.toFile()).exists()
           .contains("Global serial filter is now configured.")
@@ -125,7 +124,7 @@ public class StartServerGlobalSerialFilterAcceptanceTest {
 
   @Test
   public void startDoesNotConfigureGlobalSerialFilter_whenEnableGlobalSerialFilterIsTrue_andJdkSerialFilterIsNotBlank() {
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=server",
         "--dir=" + serverFolder.getAbsolutePath(),
@@ -140,7 +139,7 @@ public class StartServerGlobalSerialFilterAcceptanceTest {
 
     gfshRule.execute(startServerCommand);
 
-    Path serverLogFile = serverFolder.toPath().resolve("server.log");
+    var serverLogFile = serverFolder.toPath().resolve("server.log");
     await().untilAsserted(() -> {
       LogFileAssert.assertThat(serverLogFile.toFile()).exists()
           .doesNotContain("Global serial filter is now configured.")

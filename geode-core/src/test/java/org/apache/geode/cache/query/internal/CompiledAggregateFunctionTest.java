@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class CompiledAggregateFunctionTest {
   @Before
   public void setUp() throws Exception {
     cache = mock(InternalCache.class);
-    QueryConfigurationService mockService = mock(QueryConfigurationService.class);
+    var mockService = mock(QueryConfigurationService.class);
     when(mockService.getMethodAuthorizer()).thenReturn(mock(MethodInvocationAuthorizer.class));
     when(cache.getService(QueryConfigurationService.class)).thenReturn(mockService);
 
@@ -60,123 +59,123 @@ public class CompiledAggregateFunctionTest {
 
   @Test
   public void testCount() throws Exception {
-    CompiledAggregateFunction caf1 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.COUNT);
-    ExecutionContext context1 = new ExecutionContext(null, cache);
+    var caf1 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.COUNT);
+    var context1 = new ExecutionContext(null, cache);
     assertThat(caf1.evaluate(context1)).isInstanceOf(Count.class);
 
-    CompiledAggregateFunction caf2 =
+    var caf2 =
         new CompiledAggregateFunction(null, OQLLexerTokenTypes.COUNT, true);
-    ExecutionContext context2 = new ExecutionContext(null, cache);
+    var context2 = new ExecutionContext(null, cache);
     assertThat(caf2.evaluate(context2)).isInstanceOf(CountDistinct.class);
 
-    CompiledAggregateFunction caf3 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.COUNT);
-    ExecutionContext context3 = new ExecutionContext(null, cache);
+    var caf3 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.COUNT);
+    var context3 = new ExecutionContext(null, cache);
     context3.setIsPRQueryNode(true);
     assertThat(caf3.evaluate(context3)).isInstanceOf(CountPRQueryNode.class);
 
-    CompiledAggregateFunction caf4 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.COUNT);
-    QueryExecutionContext context4 = new QueryExecutionContext(null, cache);
+    var caf4 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.COUNT);
+    var context4 = new QueryExecutionContext(null, cache);
 
     context4.setBucketList(bucketList);
     assertThat(caf4.evaluate(context4)).isInstanceOf(Count.class);
 
-    CompiledAggregateFunction caf5 =
+    var caf5 =
         new CompiledAggregateFunction(null, OQLLexerTokenTypes.COUNT, true);
-    ExecutionContext context5 = new ExecutionContext(null, cache);
+    var context5 = new ExecutionContext(null, cache);
     context5.setIsPRQueryNode(true);
     assertThat(caf5.evaluate(context5)).isInstanceOf(CountDistinctPRQueryNode.class);
 
-    CompiledAggregateFunction caf6 =
+    var caf6 =
         new CompiledAggregateFunction(null, OQLLexerTokenTypes.COUNT, true);
-    QueryExecutionContext context6 = new QueryExecutionContext(null, cache);
+    var context6 = new QueryExecutionContext(null, cache);
     context6.setBucketList(bucketList);
     assertThat(caf6.evaluate(context6)).isInstanceOf(DistinctAggregator.class);
   }
 
   @Test
   public void testSum() throws Exception {
-    CompiledAggregateFunction caf1 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.SUM);
-    ExecutionContext context1 = new ExecutionContext(null, cache);
+    var caf1 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.SUM);
+    var context1 = new ExecutionContext(null, cache);
     assertThat(caf1.evaluate(context1)).isInstanceOf(Sum.class);
 
-    CompiledAggregateFunction caf2 =
+    var caf2 =
         new CompiledAggregateFunction(null, OQLLexerTokenTypes.SUM, true);
-    ExecutionContext context2 = new ExecutionContext(null, cache);
+    var context2 = new ExecutionContext(null, cache);
     assertThat(caf2.evaluate(context2)).isInstanceOf(SumDistinct.class);
 
-    CompiledAggregateFunction caf3 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.SUM);
-    ExecutionContext context3 = new ExecutionContext(null, cache);
+    var caf3 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.SUM);
+    var context3 = new ExecutionContext(null, cache);
     context3.setIsPRQueryNode(true);
     assertThat(caf3.evaluate(context3)).isInstanceOf(Sum.class);
 
-    CompiledAggregateFunction caf4 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.SUM);
-    QueryExecutionContext context4 = new QueryExecutionContext(null, cache);
+    var caf4 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.SUM);
+    var context4 = new QueryExecutionContext(null, cache);
     context4.setBucketList(bucketList);
     assertThat(caf4.evaluate(context4)).isInstanceOf(Sum.class);
 
-    CompiledAggregateFunction caf5 =
+    var caf5 =
         new CompiledAggregateFunction(null, OQLLexerTokenTypes.SUM, true);
-    ExecutionContext context5 = new ExecutionContext(null, cache);
+    var context5 = new ExecutionContext(null, cache);
     context5.setIsPRQueryNode(true);
     assertThat(caf5.evaluate(context5)).isInstanceOf(SumDistinctPRQueryNode.class);
 
-    CompiledAggregateFunction caf6 =
+    var caf6 =
         new CompiledAggregateFunction(null, OQLLexerTokenTypes.SUM, true);
-    QueryExecutionContext context6 = new QueryExecutionContext(null, cache);
+    var context6 = new QueryExecutionContext(null, cache);
     context6.setBucketList(bucketList);
     assertThat(caf6.evaluate(context6)).isInstanceOf(DistinctAggregator.class);
   }
 
   @Test
   public void testAvg() throws Exception {
-    CompiledAggregateFunction caf1 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.AVG);
-    ExecutionContext context1 = new ExecutionContext(null, cache);
+    var caf1 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.AVG);
+    var context1 = new ExecutionContext(null, cache);
     assertThat(caf1.evaluate(context1)).isInstanceOf(Avg.class);
 
-    CompiledAggregateFunction caf2 =
+    var caf2 =
         new CompiledAggregateFunction(null, OQLLexerTokenTypes.AVG, true);
-    ExecutionContext context2 = new ExecutionContext(null, cache);
+    var context2 = new ExecutionContext(null, cache);
     assertThat(caf2.evaluate(context2)).isInstanceOf(AvgDistinct.class);
 
-    CompiledAggregateFunction caf3 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.AVG);
-    ExecutionContext context3 = new ExecutionContext(null, cache);
+    var caf3 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.AVG);
+    var context3 = new ExecutionContext(null, cache);
     context3.setIsPRQueryNode(true);
     assertThat(caf3.evaluate(context3)).isInstanceOf(AvgPRQueryNode.class);
 
-    CompiledAggregateFunction caf4 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.AVG);
-    QueryExecutionContext context4 = new QueryExecutionContext(null, cache);
+    var caf4 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.AVG);
+    var context4 = new QueryExecutionContext(null, cache);
     context4.setBucketList(bucketList);
     assertThat(caf4.evaluate(context4)).isInstanceOf(AvgBucketNode.class);
 
-    CompiledAggregateFunction caf5 =
+    var caf5 =
         new CompiledAggregateFunction(null, OQLLexerTokenTypes.AVG, true);
-    ExecutionContext context5 = new ExecutionContext(null, cache);
+    var context5 = new ExecutionContext(null, cache);
     context5.setIsPRQueryNode(true);
     assertThat(caf5.evaluate(context5)).isInstanceOf(AvgDistinctPRQueryNode.class);
 
-    CompiledAggregateFunction caf6 =
+    var caf6 =
         new CompiledAggregateFunction(null, OQLLexerTokenTypes.AVG, true);
-    QueryExecutionContext context6 = new QueryExecutionContext(null, cache);
+    var context6 = new QueryExecutionContext(null, cache);
     context6.setBucketList(bucketList);
     assertThat(caf6.evaluate(context6)).isInstanceOf(DistinctAggregator.class);
   }
 
   @Test
   public void testMaxMin() throws Exception {
-    CompiledAggregateFunction caf1 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.MAX);
-    ExecutionContext context1 = new ExecutionContext(null, cache);
-    Aggregator agg = (Aggregator) caf1.evaluate(context1);
+    var caf1 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.MAX);
+    var context1 = new ExecutionContext(null, cache);
+    var agg = (Aggregator) caf1.evaluate(context1);
     assertThat(agg).isInstanceOf(MaxMin.class);
-    MaxMin maxMin = (MaxMin) agg;
+    var maxMin = (MaxMin) agg;
     Class maxMinClass = MaxMin.class;
-    Field findMax = maxMinClass.getDeclaredField("findMax");
+    var findMax = maxMinClass.getDeclaredField("findMax");
     findMax.setAccessible(true);
     assertThat(findMax.get(maxMin)).isEqualTo(Boolean.TRUE);
 
-    CompiledAggregateFunction caf2 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.MIN);
-    Aggregator agg1 = (Aggregator) caf2.evaluate(context1);
+    var caf2 = new CompiledAggregateFunction(null, OQLLexerTokenTypes.MIN);
+    var agg1 = (Aggregator) caf2.evaluate(context1);
     assertThat(agg1).isInstanceOf(MaxMin.class);
-    MaxMin maxMin1 = (MaxMin) agg1;
+    var maxMin1 = (MaxMin) agg1;
     assertThat(findMax.get(maxMin1)).isEqualTo(Boolean.FALSE);
   }
 }

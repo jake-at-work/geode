@@ -37,8 +37,8 @@ public class WANSSLDUnitTest extends WANTestBase {
 
   @Test
   public void testSenderSSLReceiverSSL() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createReceiverWithSSL(nyPort));
 
@@ -65,18 +65,18 @@ public class WANSSLDUnitTest extends WANTestBase {
     IgnoredException.addIgnoredException("SSL Error");
     IgnoredException.addIgnoredException("Unrecognized SSL message");
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createReceiverWithSSL(nyPort));
 
     vm4.invoke(() -> WANTestBase.createCache(lnPort));
 
-    String senderId = "ln";
+    var senderId = "ln";
     vm4.invoke(
         () -> WANTestBase.createSender(senderId, 2, false, 100, 10, false, false, null, true));
 
-    String regionName = getTestMethodName() + "_RR";
+    var regionName = getTestMethodName() + "_RR";
     vm2.invoke(() -> WANTestBase.createReplicatedRegion(regionName, null, isOffHeap()));
 
     vm4.invoke(() -> WANTestBase.startSender(senderId));
@@ -90,7 +90,7 @@ public class WANSSLDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln", isOffHeap()));
 
     // Do some puts in the sender
-    int numPuts = 10;
+    var numPuts = 10;
     vm4.invoke(() -> WANTestBase.doPuts(regionName, numPuts));
 
     // Verify the sender is still started
@@ -124,8 +124,8 @@ public class WANSSLDUnitTest extends WANTestBase {
     IgnoredException.addIgnoredException("failed accepting client");
     IgnoredException.addIgnoredException("Error in connecting to peer");
     IgnoredException.addIgnoredException("Remote host closed connection during handshake");
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -144,7 +144,7 @@ public class WANSSLDUnitTest extends WANTestBase {
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", 1));
 
-    Boolean doesSizeMatch = vm2
+    var doesSizeMatch = vm2
         .invoke(() -> WANSSLDUnitTest.ValidateSSLRegionSize(getTestMethodName() + "_RR", 1));
 
     assertFalse(doesSizeMatch);

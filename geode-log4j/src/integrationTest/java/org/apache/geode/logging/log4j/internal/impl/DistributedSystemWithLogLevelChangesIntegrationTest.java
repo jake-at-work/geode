@@ -24,13 +24,10 @@ import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.junit.LoggerContextRule;
 import org.junit.After;
 import org.junit.Before;
@@ -86,7 +83,7 @@ public class DistributedSystemWithLogLevelChangesIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
@@ -95,7 +92,7 @@ public class DistributedSystemWithLogLevelChangesIntegrationTest {
   public void setUp() {
     System.setProperty(LOG_LEVEL_UPDATE_OCCURS_PROPERTY, LogLevelUpdateOccurs.ALWAYS.name());
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);
@@ -184,8 +181,8 @@ public class DistributedSystemWithLogLevelChangesIntegrationTest {
   }
 
   private void assertThatLogEventsContains(String message, String loggerName, Level level) {
-    List<LogEvent> logEvents = geodeConsoleAppender.getLogEvents();
-    for (LogEvent logEvent : logEvents) {
+    var logEvents = geodeConsoleAppender.getLogEvents();
+    for (var logEvent : logEvents) {
       if (logEvent.getMessage().getFormattedMessage().contains(message)) {
         assertThat(logEvent.getMessage().getFormattedMessage()).isEqualTo(message);
         assertThat(logEvent.getLoggerName()).isEqualTo(loggerName);
@@ -197,8 +194,8 @@ public class DistributedSystemWithLogLevelChangesIntegrationTest {
   }
 
   private void assertThatLogEventsDoesNotContain(String message, String loggerName, Level level) {
-    List<LogEvent> logEvents = geodeConsoleAppender.getLogEvents();
-    for (LogEvent logEvent : logEvents) {
+    var logEvents = geodeConsoleAppender.getLogEvents();
+    for (var logEvent : logEvents) {
       if (logEvent.getMessage().getFormattedMessage().contains(message) &&
           logEvent.getLoggerName().equals(loggerName) && logEvent.getLevel().equals(level)) {
         fail("Expected message " + message + " should not be contained in " + logEvents);

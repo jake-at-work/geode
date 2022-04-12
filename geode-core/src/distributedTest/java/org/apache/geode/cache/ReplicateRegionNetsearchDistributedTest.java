@@ -77,7 +77,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
     replicate2Dir = temporaryFolder.newFolder(REPLICATE_2_NAME);
     proxyDir = temporaryFolder.newFolder(PROXY_NAME);
 
-    int locatorPort = getLocatorPort();
+    var locatorPort = getLocatorPort();
 
     replicate1.invoke(() -> {
       serverLauncher.set(startServer(REPLICATE_1_NAME, replicate1Dir, locatorPort));
@@ -93,7 +93,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
   @Test
   public void proxyReplicateDoesNetsearchFromFullReplicate() {
     replicate1.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE)
           .create(REGION_NAME);
 
@@ -108,11 +108,11 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     proxy.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getNetsearchesCompleted()).isZero();
 
-      String value = region.get("key-1");
+      var value = region.get("key-1");
 
       assertThat(value).isEqualTo("value-1");
       assertThat(regionPerfStats.getNetsearchesCompleted()).isOne();
@@ -123,7 +123,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
   @Test
   public void fullReplicateDoesNotPerformNetsearch() {
     replicate1.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE)
           .create(REGION_NAME);
 
@@ -138,11 +138,11 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     replicate1.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getNetsearchesCompleted()).isZero();
 
-      String value = region.get("key-1");
+      var value = region.get("key-1");
 
       assertThat(value).isEqualTo("value-1");
       assertThat(regionPerfStats.getNetsearchesCompleted()).isZero();
@@ -152,7 +152,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
   @Test
   public void replicateWithExpirationDoesNetsearchOnMiss() {
     replicate1.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE)
           .create(REGION_NAME);
 
@@ -161,14 +161,14 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
     });
 
     replicate2.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE)
           .setEvictionAttributes(createLRUEntryAttributes(1))
           .create(REGION_NAME);
 
       assertThat(region).hasSize(1);
 
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isOne();
@@ -180,7 +180,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     replicate1.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isZero();
@@ -195,7 +195,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
       assertThat(region).hasSize(1);
 
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isOne();
@@ -204,7 +204,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
       assertThat(regionPerfStats.getHandlingNetsearchesCompleted()).isZero();
       assertThat(regionPerfStats.getHandlingNetsearchesFailed()).isZero();
 
-      String value = region.get("key-1");
+      var value = region.get("key-1");
 
       assertThat(value).isEqualTo("value-1");
 
@@ -220,7 +220,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     replicate1.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isZero();
@@ -235,7 +235,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
       assertThat(region).hasSize(1);
 
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isOne();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isOne();
@@ -244,7 +244,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
       assertThat(regionPerfStats.getHandlingNetsearchesCompleted()).isZero();
       assertThat(regionPerfStats.getHandlingNetsearchesFailed()).isZero();
 
-      String value = region.get("key-1");
+      var value = region.get("key-1");
 
       assertThat(value).isEqualTo("value-1");
 
@@ -263,7 +263,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
       assertThat(region).hasSize(1);
 
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isEqualTo(2);
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isOne();
@@ -272,7 +272,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
       assertThat(regionPerfStats.getHandlingNetsearchesCompleted()).isZero();
       assertThat(regionPerfStats.getHandlingNetsearchesFailed()).isZero();
 
-      String value = region.get("key-2");
+      var value = region.get("key-2");
 
       assertThat(value).isEqualTo("value-2");
 
@@ -288,7 +288,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     replicate1.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isZero();
@@ -302,14 +302,14 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
   @Test
   public void proxyReplicateDoesNetsearchFromOnlyOneFullReplicate() {
     replicate1.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE)
           .create(REGION_NAME);
 
       region.put("key-1", "value-1");
       region.put("key-2", "value-2");
 
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isZero();
@@ -320,11 +320,11 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
     });
 
     replicate2.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE)
           .create(REGION_NAME);
 
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isOne();
@@ -335,10 +335,10 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
     });
 
     proxy.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE_PROXY)
           .create(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isZero();
@@ -348,10 +348,10 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
       assertThat(regionPerfStats.getHandlingNetsearchesFailed()).isZero();
     });
 
-    for (VM vm : asList(replicate1, replicate2)) {
+    for (var vm : asList(replicate1, replicate2)) {
       vm.invoke(() -> {
         Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-        CachePerfStats regionPerfStats = getRegionPerfStats(region);
+        var regionPerfStats = getRegionPerfStats(region);
 
         assertThat(regionPerfStats.getGets()).isZero();
         assertThat(regionPerfStats.getMisses()).isZero();
@@ -365,7 +365,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
       assertThat(region.get("key-1")).isEqualTo("value-1");
 
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isOne();
       assertThat(regionPerfStats.getMisses()).isOne();
@@ -376,13 +376,13 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     long handlingNetsearchesCompletedInReplicate1 = replicate1.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
       return regionPerfStats.getHandlingNetsearchesCompleted();
     });
 
     long handlingNetsearchesCompletedInReplicate2 = replicate2.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
       return regionPerfStats.getHandlingNetsearchesCompleted();
     });
 
@@ -392,7 +392,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     proxy.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isOne();
       assertThat(regionPerfStats.getMisses()).isOne();
@@ -405,7 +405,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
   @Test
   public void clientGetFromProxyReplicateDoesNetsearchFromFullReplicate() {
     replicate1.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE)
           .create(REGION_NAME);
 
@@ -413,10 +413,10 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
     });
 
     replicate2.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE)
           .create(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isOne();
@@ -427,10 +427,10 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
     });
 
     int proxyServerPort = proxy.invoke(() -> {
-      Region<String, String> region = serverLauncher.get().getCache()
+      var region = serverLauncher.get().getCache()
           .<String, String>createRegionFactory(RegionShortcut.REPLICATE_PROXY)
           .create(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isZero();
@@ -446,10 +446,10 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
       clientCache.set(new ClientCacheFactory()
           .addPoolServer("localhost", proxyServerPort)
           .create());
-      Region<String, String> region = clientCache.get()
+      var region = clientCache.get()
           .<String, String>createClientRegionFactory(ClientRegionShortcut.PROXY)
           .create(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isZero();
       assertThat(regionPerfStats.getGetInitialImagesCompleted()).isZero();
@@ -459,10 +459,10 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
       assertThat(regionPerfStats.getHandlingNetsearchesFailed()).isZero();
     });
 
-    for (VM vm : asList(replicate1, replicate2, proxy)) {
+    for (var vm : asList(replicate1, replicate2, proxy)) {
       vm.invoke(() -> {
         Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-        CachePerfStats regionPerfStats = getRegionPerfStats(region);
+        var regionPerfStats = getRegionPerfStats(region);
 
         assertThat(regionPerfStats.getGets()).isZero();
         assertThat(regionPerfStats.getMisses()).isZero();
@@ -474,7 +474,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     client.invoke(() -> {
       Region<String, String> region = clientCache.get().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(region.get("key-1")).isEqualTo("value-1");
 
@@ -485,10 +485,10 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
       assertThat(regionPerfStats.getHandlingNetsearchesFailed()).isZero();
     });
 
-    for (VM vm : asList(replicate1, replicate2)) {
+    for (var vm : asList(replicate1, replicate2)) {
       vm.invoke(() -> {
         Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-        CachePerfStats regionPerfStats = getRegionPerfStats(region);
+        var regionPerfStats = getRegionPerfStats(region);
 
         assertThat(regionPerfStats.getGets()).isZero();
         assertThat(regionPerfStats.getMisses()).isZero();
@@ -499,13 +499,13 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     long handlingNetsearchesCompletedInReplicate1 = replicate1.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
       return regionPerfStats.getHandlingNetsearchesCompleted();
     });
 
     long handlingNetsearchesCompletedInReplicate2 = replicate2.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
       return regionPerfStats.getHandlingNetsearchesCompleted();
     });
 
@@ -515,7 +515,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
 
     proxy.invoke(() -> {
       Region<String, String> region = serverLauncher.get().getCache().getRegion(REGION_NAME);
-      CachePerfStats regionPerfStats = getRegionPerfStats(region);
+      var regionPerfStats = getRegionPerfStats(region);
 
       assertThat(regionPerfStats.getGets()).isOne();
       assertThat(regionPerfStats.getMisses()).isOne();
@@ -526,7 +526,7 @@ public class ReplicateRegionNetsearchDistributedTest implements Serializable {
   }
 
   private ServerLauncher startServer(String serverName, File serverDir, int locatorPort) {
-    ServerLauncher serverLauncher = new ServerLauncher.Builder()
+    var serverLauncher = new ServerLauncher.Builder()
         .setMemberName(serverName)
         .setWorkingDirectory(serverDir.getAbsolutePath())
         .setServerPort(0)

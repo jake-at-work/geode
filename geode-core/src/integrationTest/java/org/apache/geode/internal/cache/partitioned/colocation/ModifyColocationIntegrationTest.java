@@ -85,7 +85,7 @@ public class ModifyColocationIntegrationTest {
     cache.close();
 
     // Restart colocated with "region2"
-    Throwable thrown = catchThrowable(() -> createCacheAndColocatedPRs("region2"));
+    var thrown = catchThrowable(() -> createCacheAndColocatedPRs("region2"));
     assertThat(thrown)
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("For partition region " + SEPARATOR + "region3")
@@ -128,7 +128,7 @@ public class ModifyColocationIntegrationTest {
         .setDiskDirs(new File[] {temporaryFolder.getRoot()})
         .create("disk");
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(0);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);

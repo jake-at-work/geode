@@ -38,7 +38,7 @@ public class RebalanceResultTest {
   public void setUp() {
     mapper = GeodeJsonMapper.getMapper();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    RebalanceRegionResultImpl summary = new RebalanceRegionResultImpl();
+    var summary = new RebalanceRegionResultImpl();
     summary.setRegionName("testRegion");
     List<RebalanceRegionResult> results = Collections.singletonList(summary);
     result = new RebalanceResultImpl();
@@ -47,15 +47,15 @@ public class RebalanceResultTest {
 
   @Test
   public void serializeRebalanceResult() throws Exception {
-    String json = mapper.writeValueAsString(result);
-    RebalanceResult value = mapper.readValue(json, RebalanceResult.class);
+    var json = mapper.writeValueAsString(result);
+    var value = mapper.readValue(json, RebalanceResult.class);
     assertThat(value.getRebalanceRegionResults().get(0).getBucketCreateBytes()).isEqualTo(0);
     assertThat(value.getRebalanceRegionResults().get(0).getRegionName()).isEqualTo("testRegion");
   }
 
   @Test
   public void toStringRebalanceResult() {
-    String toStr = result.toString();
+    var toStr = result.toString();
     assertThat(toStr).isEqualTo(
         "{{bucketCreateBytes=0, bucketCreateTimeInMilliseconds=0, bucketCreatesCompleted=0, bucketTransferBytes=0, bucketTransferTimeInMilliseconds=0, bucketTransfersCompleted=0, primaryTransferTimeInMilliseconds=0, primaryTransfersCompleted=0, timeInMilliseconds=0, numOfMembers=0, regionName=testRegion}}");
   }

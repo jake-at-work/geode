@@ -16,9 +16,7 @@ package org.apache.geode.cache.query.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.CacheException;
@@ -116,9 +114,9 @@ public class CompiledSortCriterion extends AbstractCompiledValue {
 
   private CompiledValue getReconstructedExpression(String projAttribStr, ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    List<CompiledValue> expressions = PathUtils.collectCompiledValuesInThePath(expr, context);
-    StringBuilder tempBuff = new StringBuilder();
-    ListIterator<CompiledValue> listIter = expressions.listIterator(expressions.size());
+    var expressions = PathUtils.collectCompiledValuesInThePath(expr, context);
+    var tempBuff = new StringBuilder();
+    var listIter = expressions.listIterator(expressions.size());
     while (listIter.hasPrevious()) {
       listIter.previous().generateCanonicalizedExpression(tempBuff, context);
       if (tempBuff.toString().equals(projAttribStr)) {
@@ -131,12 +129,12 @@ public class CompiledSortCriterion extends AbstractCompiledValue {
 
     // Now we need to create a new CompiledValue which terminates with
     // ProjectionField
-    CompiledValue cvToRetainTill = listIter.previous();
+    var cvToRetainTill = listIter.previous();
 
     CompiledValue prevCV = null;
     List<Object> reconstruct = new ArrayList<>();
-    CompiledValue cv = expressions.get(0);
-    int index = 0;
+    var cv = expressions.get(0);
+    var index = 0;
     do {
       prevCV = cv;
 
@@ -159,7 +157,7 @@ public class CompiledSortCriterion extends AbstractCompiledValue {
     } while (prevCV != cvToRetainTill);
 
     // Now reconstruct back
-    Iterator<Object> iter = reconstruct.iterator();
+    var iter = reconstruct.iterator();
     CompiledValue currentValue = ProjectionField.getProjectionField();
     while (iter.hasNext()) {
       int type = (Integer) iter.next();
@@ -183,14 +181,14 @@ public class CompiledSortCriterion extends AbstractCompiledValue {
 
   boolean mapExpressionToProjectionField(List projAttrs, ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    boolean mappedColumn = false;
+    var mappedColumn = false;
     originalCorrectedExpression = expr;
     if (projAttrs != null) {
       // if expr is CompiledID , check for alias
       if (expr.getType() == OQLLexerTokenTypes.Identifier) {
 
-        for (int i = 0; i < projAttrs.size() && !mappedColumn; ++i) {
-          Object[] prj = (Object[]) TypeUtils.checkCast(projAttrs.get(i), Object[].class);
+        for (var i = 0; i < projAttrs.size() && !mappedColumn; ++i) {
+          var prj = (Object[]) TypeUtils.checkCast(projAttrs.get(i), Object[].class);
           if (prj[0] != null && prj[0].equals(((CompiledID) expr).getId())) {
             // set the field index
             substituteExpressionWithProjectionField(i);
@@ -206,19 +204,19 @@ public class CompiledSortCriterion extends AbstractCompiledValue {
         StringBuilder orderByExprBuffer = new StringBuilder(),
             projAttribBuffer = new StringBuilder();
         expr.generateCanonicalizedExpression(orderByExprBuffer, context);
-        final String orderByExprStr = orderByExprBuffer.toString();
-        for (int i = 0; i < projAttrs.size(); ++i) {
-          Object[] prj = (Object[]) TypeUtils.checkCast(projAttrs.get(i), Object[].class);
-          CompiledValue cvProj = (CompiledValue) TypeUtils.checkCast(prj[1], CompiledValue.class);
+        final var orderByExprStr = orderByExprBuffer.toString();
+        for (var i = 0; i < projAttrs.size(); ++i) {
+          var prj = (Object[]) TypeUtils.checkCast(projAttrs.get(i), Object[].class);
+          var cvProj = (CompiledValue) TypeUtils.checkCast(prj[1], CompiledValue.class);
           cvProj.generateCanonicalizedExpression(projAttribBuffer, context);
-          final String projAttribStr = projAttribBuffer.toString();
+          final var projAttribStr = projAttribBuffer.toString();
           if (projAttribStr.equals(orderByExprStr)) {
             // set the field index
             substituteExpressionWithProjectionField(i);
             mappedColumn = true;
             break;
           } else if (orderByExprStr.startsWith(projAttribStr)) {
-            CompiledValue newExpr = getReconstructedExpression(projAttribStr, context);
+            var newExpr = getReconstructedExpression(projAttribStr, context);
             substituteExpression(newExpr, i);
             mappedColumn = true;
             break;
@@ -227,26 +225,26 @@ public class CompiledSortCriterion extends AbstractCompiledValue {
         }
       }
     } else {
-      RuntimeIterator rIter = context.findRuntimeIterator(expr);
-      List currentIters = context.getCurrentIterators();
-      for (int i = 0; i < currentIters.size(); ++i) {
-        RuntimeIterator runtimeIter = (RuntimeIterator) currentIters.get(i);
+      var rIter = context.findRuntimeIterator(expr);
+      var currentIters = context.getCurrentIterators();
+      for (var i = 0; i < currentIters.size(); ++i) {
+        var runtimeIter = (RuntimeIterator) currentIters.get(i);
         if (runtimeIter == rIter) {
           /* this.substituteExpressionWithProjectionField( i); */
-          StringBuilder temp = new StringBuilder();
+          var temp = new StringBuilder();
           rIter.generateCanonicalizedExpression(temp, context);
           // this.correctedCanonicalizedExpression = temp.toString();
           /* mappedColumn = true; */
-          String projAttribStr = temp.toString();
+          var projAttribStr = temp.toString();
           temp = new StringBuilder();
           expr.generateCanonicalizedExpression(temp, context);
-          String orderbyStr = temp.toString();
+          var orderbyStr = temp.toString();
           if (projAttribStr.equals(orderbyStr)) {
             substituteExpressionWithProjectionField(i);
             mappedColumn = true;
             break;
           } else {
-            CompiledValue newExpr = getReconstructedExpression(projAttribStr, context);
+            var newExpr = getReconstructedExpression(projAttribStr, context);
             substituteExpression(newExpr, i);
             mappedColumn = true;
             break;

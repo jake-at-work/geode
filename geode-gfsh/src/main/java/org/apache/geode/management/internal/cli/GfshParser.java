@@ -21,12 +21,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.converters.ArrayConverter;
-import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.Completion;
 import org.springframework.shell.core.Converter;
 import org.springframework.shell.core.Parser;
 import org.springframework.shell.core.SimpleParser;
-import org.springframework.shell.event.ParseResult;
 
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -55,13 +53,13 @@ public class GfshParser extends SimpleParser {
   public GfshParser(CommandManager commandManager) {
     this.commandManager = commandManager;
 
-    for (CommandMarker command : commandManager.getCommandMarkers()) {
+    for (var command : commandManager.getCommandMarkers()) {
       add(command);
     }
 
-    for (Converter<?> converter : commandManager.getConverters()) {
+    for (var converter : commandManager.getConverters()) {
       if (converter.getClass().isAssignableFrom(ArrayConverter.class)) {
-        ArrayConverter arrayConverter = (ArrayConverter) converter;
+        var arrayConverter = (ArrayConverter) converter;
         arrayConverter.setConverters(new HashSet<>(commandManager.getConverters()));
       }
       add(converter);
@@ -69,7 +67,7 @@ public class GfshParser extends SimpleParser {
   }
 
   static String convertToSimpleParserInput(String userInput) {
-    List<String> inputTokens = splitUserInput(userInput);
+    var inputTokens = splitUserInput(userInput);
     return getSimpleParserInputFromTokens(inputTokens);
   }
 
@@ -78,10 +76,10 @@ public class GfshParser extends SimpleParser {
    */
   private static List<String> splitWithWhiteSpace(String input) {
     List<String> tokensList = new ArrayList<>();
-    StringBuilder token = new StringBuilder();
-    char insideQuoteOf = Character.MIN_VALUE;
+    var token = new StringBuilder();
+    var insideQuoteOf = Character.MIN_VALUE;
 
-    for (char c : input.toCharArray()) {
+    for (var c : input.toCharArray()) {
       if (Character.isWhitespace(c)) {
         // if we are in the quotes
         if (insideQuoteOf != Character.MIN_VALUE) {
@@ -119,23 +117,23 @@ public class GfshParser extends SimpleParser {
 
   static List<String> splitUserInput(String userInput) {
     // first split with whitespaces except in quotes
-    List<String> splitWithWhiteSpaces = splitWithWhiteSpace(userInput);
+    var splitWithWhiteSpaces = splitWithWhiteSpace(userInput);
 
     List<String> furtherSplitWithEquals = new ArrayList<>();
-    for (String token : splitWithWhiteSpaces) {
+    for (var token : splitWithWhiteSpaces) {
       // do not split with "=" if this part starts with quotes or is part of -D
       if (token.startsWith("'") || token.startsWith("\"") || token.startsWith("-D")) {
         furtherSplitWithEquals.add(token);
         continue;
       }
       // if this token has equal sign, split around the first occurrence of it
-      int indexOfFirstEqual = token.indexOf('=');
+      var indexOfFirstEqual = token.indexOf('=');
       if (indexOfFirstEqual < 0) {
         furtherSplitWithEquals.add(token);
         continue;
       }
-      String left = token.substring(0, indexOfFirstEqual);
-      String right = token.substring(indexOfFirstEqual + 1);
+      var left = token.substring(0, indexOfFirstEqual);
+      var right = token.substring(indexOfFirstEqual + 1);
       if (left.length() > 0) {
         furtherSplitWithEquals.add(left);
       }
@@ -151,11 +149,11 @@ public class GfshParser extends SimpleParser {
     List<String> inputTokens = new ArrayList<>();
 
     // get the --J arguments from the list of tokens
-    int firstJIndex = -1;
+    var firstJIndex = -1;
     List<String> jArguments = new ArrayList<>();
 
-    for (int i = 0; i < tokens.size(); i++) {
-      String token = tokens.get(i);
+    for (var i = 0; i < tokens.size(); i++) {
+      var token = tokens.get(i);
       if ("--J".equals(token)) {
         if (firstJIndex < 1) {
           firstJIndex = i;
@@ -163,7 +161,7 @@ public class GfshParser extends SimpleParser {
         i++;
 
         if (i < tokens.size()) {
-          String jArg = tokens.get(i);
+          var jArg = tokens.get(i);
           // remove the quotes around each --J arugments
           if (jArg.charAt(0) == '"' || jArg.charAt(0) == '\'') {
             jArg = jArg.substring(1, jArg.length() - 1);
@@ -178,9 +176,9 @@ public class GfshParser extends SimpleParser {
     }
 
     // concatenate the remaining tokens with space
-    StringBuilder rawInput = new StringBuilder();
+    var rawInput = new StringBuilder();
     // firstJIndex must be less than or equal to the length of the inputToken
-    for (int i = 0; i <= inputTokens.size(); i++) {
+    for (var i = 0; i <= inputTokens.size(); i++) {
       // stick the --J arguments in the orginal first --J position
       if (i == firstJIndex) {
         rawInput.append("--J ");
@@ -204,15 +202,15 @@ public class GfshParser extends SimpleParser {
 
   @Override
   public GfshParseResult parse(String userInput) {
-    String rawInput = convertToSimpleParserInput(userInput);
+    var rawInput = convertToSimpleParserInput(userInput);
     // this tells the simpleParser not to interpret backslash as escaping character
     rawInput = rawInput.replace("\\", "\\\\");
     // User SimpleParser to parse the input
-    ParseResult result = super.parse(rawInput);
+    var result = super.parse(rawInput);
 
     if (result == null) {
       // do a quick check for required arguments, since SimpleParser unhelpfully suggests everything
-      String missingHelp = commandManager.getHelper().getMiniHelp(userInput);
+      var missingHelp = commandManager.getHelper().getMiniHelp(userInput);
       if (missingHelp != null) {
         System.out.println(missingHelp);
       }
@@ -243,11 +241,11 @@ public class GfshParser extends SimpleParser {
   @Override
   public int completeAdvanced(String userInput, int cursor, final List<Completion> candidates) {
     // move the cursor to the end of the input
-    List<String> inputTokens = splitUserInput(userInput);
+    var inputTokens = splitUserInput(userInput);
 
     // check if the input is before any option is specified, e.g. (start, describe)
-    boolean inputIsBeforeOption = true;
-    for (String token : inputTokens) {
+    var inputIsBeforeOption = true;
+    for (var token : inputTokens) {
       if (token.startsWith("--")) {
         inputIsBeforeOption = false;
         break;
@@ -257,7 +255,7 @@ public class GfshParser extends SimpleParser {
     // in the case of we are still trying to complete the command name
     if (inputIsBeforeOption) {
       // workaround for SimpleParser bugs with "" option key, and spaces in option values
-      int curs =
+      var curs =
           completeSpecial(candidates, userInput, inputTokens, CliStrings.HELP, ConverterHint.HELP);
       if (curs > 0) {
         return curs;
@@ -268,7 +266,7 @@ public class GfshParser extends SimpleParser {
         return curs;
       }
 
-      List<Completion> potentials = getCandidates(userInput);
+      var potentials = getCandidates(userInput);
       if (potentials.size() == 1 && potentials.get(0).getValue().equals(userInput)) {
         potentials = getCandidates(userInput.trim() + " ");
       }
@@ -282,14 +280,14 @@ public class GfshParser extends SimpleParser {
 
     // now we are either trying to complete the option or a value
     // trying to get candidates using the converted input
-    String buffer = getSimpleParserInputFromTokens(inputTokens);
-    String lastToken = inputTokens.get(inputTokens.size() - 1);
-    boolean lastTokenIsOption = lastToken.startsWith("--");
+    var buffer = getSimpleParserInputFromTokens(inputTokens);
+    var lastToken = inputTokens.get(inputTokens.size() - 1);
+    var lastTokenIsOption = lastToken.startsWith("--");
     // In the original user input, where to begin the candidate string for completion
     int candidateBeginAt;
 
     // initially assume we are trying to complete the last token
-    List<Completion> potentials = getCandidates(buffer);
+    var potentials = getCandidates(buffer);
 
     // if the last token is already complete (or user deliberately ends with a space denoting the
     // last token is complete, then add either space or " --" and try again
@@ -341,7 +339,7 @@ public class GfshParser extends SimpleParser {
    * gets a specific String converter from the list of registered converters
    */
   private Converter<?> converterFor(String converterHint) {
-    for (Converter<?> candidate : getConverters()) {
+    for (var candidate : getConverters()) {
       if (candidate.supports(String.class, converterHint)) {
         return candidate;
       }
@@ -356,10 +354,10 @@ public class GfshParser extends SimpleParser {
       List<String> inputTokens, String cmd,
       String converterHint) {
     if (inputTokens.get(0).equals(cmd)) {
-      String prefix = userInput.equals(cmd) ? " " : "";
-      String existing = String.join(" ", inputTokens.subList(1, inputTokens.size())).toLowerCase();
+      var prefix = userInput.equals(cmd) ? " " : "";
+      var existing = String.join(" ", inputTokens.subList(1, inputTokens.size())).toLowerCase();
       List<Completion> all = new ArrayList<>();
-      Converter<?> converter = converterFor(converterHint);
+      var converter = converterFor(converterHint);
       if (converter != null) {
         converter.getAllPossibleValues(all, null, null, null, null);
         candidates.addAll(all.stream().filter(c -> c.getValue().toLowerCase().startsWith(existing))

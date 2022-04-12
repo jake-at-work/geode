@@ -68,9 +68,9 @@ public class ObjectSizeAgent {
     }
 
     final Deque<Object> unseen = new ArrayDeque<>();
-    final Set<Object> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+    final var seen = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    long size = 0L;
+    var size = 0L;
 
     unseen.push(object);
     while (!unseen.isEmpty()) {
@@ -81,7 +81,7 @@ public class ObjectSizeAgent {
   }
 
   private static boolean isSimpleObject(Object object) {
-    final Class<?> clazz = object.getClass();
+    final var clazz = object.getClass();
     return !clazz.isArray() && getFields(clazz).length == 0;
   }
 
@@ -91,19 +91,19 @@ public class ObjectSizeAgent {
       return 0L;
     }
 
-    Class<?> clazz = object.getClass();
+    var clazz = object.getClass();
     if (clazz.isArray()) {
       if (!clazz.getComponentType().isPrimitive()) {
-        final int length = Array.getLength(object);
-        for (int i = 0; i < length; i++) {
+        final var length = Array.getLength(object);
+        for (var i = 0; i < length; i++) {
           addIfNotNull(unseen, Array.get(object, i));
         }
       }
     } else {
       try {
         while (null != clazz) {
-          final Field[] fields = getFields(clazz);
-          for (final Field field : fields) {
+          final var fields = getFields(clazz);
+          for (final var field : fields) {
             addIfNotNull(unseen, field.get(object));
           }
           clazz = clazz.getSuperclass();
@@ -117,22 +117,22 @@ public class ObjectSizeAgent {
   }
 
   private static Field[] getFields(final Class<?> clazz) {
-    final Field[] fields = fieldsCache.get(clazz);
+    final var fields = fieldsCache.get(clazz);
     if (null != fields) {
       return fields;
     }
 
     return fieldsCache.computeIfAbsent(clazz, (k) -> {
-      final Field[] filtered = getFilteredFields(k.getDeclaredFields());
+      final var filtered = getFilteredFields(k.getDeclaredFields());
       Field.setAccessible(filtered, true);
       return filtered;
     });
   }
 
   private static Field[] getFilteredFields(Field[] fields) {
-    int count = getFilteredFieldsCount(fields);
-    final Field[] filtered = new Field[count];
-    for (final Field field : fields) {
+    var count = getFilteredFieldsCount(fields);
+    final var filtered = new Field[count];
+    for (final var field : fields) {
       if (!(isStatic(field.getModifiers()) || field.getType().isPrimitive())) {
         filtered[--count] = field;
       }
@@ -141,8 +141,8 @@ public class ObjectSizeAgent {
   }
 
   private static int getFilteredFieldsCount(Field[] fields) {
-    int counter = fields.length;
-    for (final Field field : fields) {
+    var counter = fields.length;
+    for (final var field : fields) {
       if (isStatic(field.getModifiers()) || field.getType().isPrimitive()) {
         counter--;
       }

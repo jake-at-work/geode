@@ -72,7 +72,7 @@ public class ServerBridge {
    * While starting the cache server stats can be monitored.
    */
   private void startMonitor() {
-    CacheServerStats stats = acceptor.getStats();
+    var stats = acceptor.getStats();
     addCacheServerStats(stats);
 
   }

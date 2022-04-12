@@ -120,8 +120,8 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
     if (PoolImpl.TEST_DURABLE_IS_NET_DOWN) {
       return null;
     }
-    GetAllServersRequest request = new GetAllServersRequest(serverGroup);
-    GetAllServersResponse response = (GetAllServersResponse) queryLocators(request);
+    var request = new GetAllServersRequest(serverGroup);
+    var response = (GetAllServersResponse) queryLocators(request);
     if (response != null) {
       return response.getServers();
     } else {
@@ -135,9 +135,9 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
     if (PoolImpl.TEST_DURABLE_IS_NET_DOWN) {
       return null;
     }
-    ClientReplacementRequest request =
+    var request =
         new ClientReplacementRequest(currentServer, excludedServers, serverGroup);
-    ClientConnectionResponse response = (ClientConnectionResponse) queryLocators(request);
+    var response = (ClientConnectionResponse) queryLocators(request);
     if (response == null) {
       throw new NoAvailableLocatorsException(
           "Unable to connect to any locators in the list " + locators);
@@ -153,8 +153,8 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
     if (PoolImpl.TEST_DURABLE_IS_NET_DOWN) {
       return null;
     }
-    ClientConnectionRequest request = new ClientConnectionRequest(excludedServers, serverGroup);
-    ClientConnectionResponse response = (ClientConnectionResponse) queryLocators(request);
+    var request = new ClientConnectionRequest(excludedServers, serverGroup);
+    var response = (ClientConnectionResponse) queryLocators(request);
     if (response == null) {
       throw new NoAvailableLocatorsException(
           "Unable to connect to any locators in the list " + locators);
@@ -171,9 +171,9 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
     if (PoolImpl.TEST_DURABLE_IS_NET_DOWN) {
       return new ArrayList<>();
     }
-    QueueConnectionRequest request = new QueueConnectionRequest(proxyId, numServers,
+    var request = new QueueConnectionRequest(proxyId, numServers,
         excludedServers, serverGroup, findDurableQueue);
-    QueueConnectionResponse response = (QueueConnectionResponse) queryLocators(request);
+    var response = (QueueConnectionResponse) queryLocators(request);
     if (response == null) {
       throw new NoAvailableLocatorsException(
           "Unable to connect to any locators in the list " + locators);
@@ -206,7 +206,7 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
     try {
       pool.getStats().incLocatorRequests();
       returnObj = locatorConnection.requestToServer(locator, request, connectionTimeout, true);
-      ServerLocationResponse response = (ServerLocationResponse) returnObj;
+      var response = (ServerLocationResponse) returnObj;
       pool.getStats().incLocatorResponses();
       if (response != null) {
         reportLiveLocator(locator.getSocketInetAddress());
@@ -233,13 +233,13 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
 
   ServerLocationResponse queryLocators(ServerLocationRequest request) {
     ServerLocationResponse response = null;
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
-    for (final HostAndPort locator : locators.get()) {
+    for (final var locator : locators.get()) {
       if (isDebugEnabled) {
         logger.debug("Sending query to locator {}: {}", locator, request);
       }
-      ServerLocationResponse tempResponse = queryOneLocator(locator, request);
+      var tempResponse = queryOneLocator(locator, request);
       if (isDebugEnabled) {
         logger.debug("Received query response from locator {}: {}", locator, tempResponse);
       }
@@ -259,15 +259,15 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
       return;
     }
     isBalanced = response.isBalanced();
-    List<ServerLocation> locatorResponse = response.getLocators();
+    var locatorResponse = response.getLocators();
 
     List<HostAndPort> newLocatorAddresses = new ArrayList<>(locatorResponse.size());
     List<HostAndPort> newOnlineLocators = new ArrayList<>(locatorResponse.size());
 
     Set<HostAndPort> badLocators = new HashSet<>(initialLocators);
 
-    for (ServerLocation locator : locatorResponse) {
-      HostAndPort hostAddress = new HostAndPort(locator.getHostName(), locator.getPort());
+    for (var locator : locatorResponse) {
+      var hostAddress = new HostAndPort(locator.getHostName(), locator.getPort());
       newLocatorAddresses.add(hostAddress);
       newOnlineLocators.add(hostAddress);
       badLocators.remove(hostAddress);
@@ -275,19 +275,19 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
 
     addBadLocators(newLocatorAddresses, badLocators);
 
-    LocatorList newLocatorList = new LocatorList(newLocatorAddresses);
+    var newLocatorList = new LocatorList(newLocatorAddresses);
 
-    LocatorList oldLocators = locators.getAndSet(newLocatorList);
+    var oldLocators = locators.getAndSet(newLocatorList);
     onlineLocators.set(new LocatorList(newOnlineLocators));
     pool.getStats().setLocatorCount(newLocatorAddresses.size());
 
     if (logger.isInfoEnabled()
         || !locatorCallback.getClass().equals(LocatorDiscoveryCallbackAdapter.class)) {
-      List<InetSocketAddress> newLocators = newLocatorList.getLocators();
-      ArrayList<InetSocketAddress> removedLocators = new ArrayList<>(oldLocators.getLocators());
+      var newLocators = newLocatorList.getLocators();
+      var removedLocators = new ArrayList<InetSocketAddress>(oldLocators.getLocators());
       removedLocators.removeAll(newLocators);
 
-      ArrayList<InetSocketAddress> addedLocators = new ArrayList<>(newLocators);
+      var addedLocators = new ArrayList<InetSocketAddress>(newLocators);
       addedLocators.removeAll(oldLocators.getLocators());
       if (!addedLocators.isEmpty()) {
         locatorCallback.locatorsDiscovered(Collections.unmodifiableList(addedLocators));
@@ -307,10 +307,10 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
    * list.
    */
   protected void addBadLocators(List<HostAndPort> newLocators, Set<HostAndPort> badLocators) {
-    for (HostAndPort badLocator : badLocators) {
-      boolean addIt = true;
-      for (HostAndPort goodLocator : newLocators) {
-        boolean isSameHost = badLocator.getHostName().equals(goodLocator.getHostName());
+    for (var badLocator : badLocators) {
+      var addIt = true;
+      for (var goodLocator : newLocators) {
+        var isSameHost = badLocator.getHostName().equals(goodLocator.getHostName());
         if (isSameHost && badLocator.getPort() == goodLocator.getPort()) {
           // ip has been changed so don't add this in current
           // list
@@ -377,7 +377,7 @@ public class AutoConnectionSourceImpl implements ConnectionSource {
       if (pool.getCancelCriterion().isCancelInProgress()) {
         return;
       }
-      LocatorListResponse response = (LocatorListResponse) queryLocators(LOCATOR_LIST_REQUEST);
+      var response = (LocatorListResponse) queryLocators(LOCATOR_LIST_REQUEST);
       updateLocatorList(response);
     }
   }

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.cache.InternalCache;
@@ -127,16 +126,16 @@ public class LocatorStarterRule extends MemberStarterRule<LocatorStarterRule> im
   public void waitTilFullyReconnected() {
     try {
       await().until(() -> {
-        InternalLocator intLocator = ClusterStartupRule.getLocator();
-        InternalCache cache = ClusterStartupRule.getCache();
+        var intLocator = ClusterStartupRule.getLocator();
+        var cache = ClusterStartupRule.getCache();
         return intLocator != null && cache != null && intLocator.getDistributedSystem()
             .isConnected() && intLocator.isReconnected();
       });
     } catch (Exception e) {
       // provide more information when condition is not satisfied after awaitility timeout
-      InternalLocator intLocator = ClusterStartupRule.getLocator();
-      InternalCache cache = ClusterStartupRule.getCache();
-      DistributedSystem ds = intLocator.getDistributedSystem();
+      var intLocator = ClusterStartupRule.getLocator();
+      var cache = ClusterStartupRule.getCache();
+      var ds = intLocator.getDistributedSystem();
       System.out.println("locator is: " + (intLocator != null ? "not null" : "null"));
       System.out.println("cache is: " + (cache != null ? "not null" : "null"));
       if (ds != null) {

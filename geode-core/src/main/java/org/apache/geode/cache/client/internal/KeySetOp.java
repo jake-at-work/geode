@@ -25,7 +25,6 @@ import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.serialization.KnownVersion;
 
 /**
@@ -67,19 +66,19 @@ public class KeySetOp {
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
 
-      ChunkedMessage keySetResponseMessage = (ChunkedMessage) msg;
-      final HashSet result = new HashSet();
-      final Exception[] exceptionRef = new Exception[1];
+      var keySetResponseMessage = (ChunkedMessage) msg;
+      final var result = new HashSet();
+      final var exceptionRef = new Exception[1];
 
       keySetResponseMessage.readHeader();
-      final int msgType = keySetResponseMessage.getMessageType();
+      final var msgType = keySetResponseMessage.getMessageType();
       if (msgType == MessageType.RESPONSE) {
         do {
           keySetResponseMessage.receiveChunk();
-          Part part = keySetResponseMessage.getPart(0);
-          Object o = part.getObject();
+          var part = keySetResponseMessage.getPart(0);
+          var o = part.getObject();
           if (o instanceof Throwable) {
-            String s = "While performing a remote keySet";
+            var s = "While performing a remote keySet";
             exceptionRef[0] = new ServerOperationException(s, (Throwable) o);
           } else {
             result.addAll((List) o);
@@ -88,14 +87,14 @@ public class KeySetOp {
       } else {
         if (msgType == MessageType.EXCEPTION) {
           keySetResponseMessage.receiveChunk();
-          Part part = msg.getPart(0);
-          String s = "While performing a remote " + "keySet";
+          var part = msg.getPart(0);
+          var s = "While performing a remote " + "keySet";
           throw new ServerOperationException(s, (Throwable) part.getObject());
           // Get the exception toString part.
           // This was added for c++ thin client and not used in java
         } else if (isErrorResponse(msgType)) {
           keySetResponseMessage.receiveChunk();
-          Part part = msg.getPart(0);
+          var part = msg.getPart(0);
           throw new ServerOperationException(part.getString());
         } else {
           throw new InternalGemFireError(

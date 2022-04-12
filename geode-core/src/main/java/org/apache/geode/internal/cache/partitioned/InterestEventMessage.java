@@ -36,7 +36,6 @@ import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -78,7 +77,7 @@ public class InterestEventMessage extends PartitionMessage {
           r.getFullPath());
     }
 
-    PartitionedRegionDataStore ds = r.getDataStore();
+    var ds = r.getDataStore();
 
     if (ds != null) {
       try {
@@ -130,8 +129,8 @@ public class InterestEventMessage extends PartitionMessage {
    */
   public static InterestEventResponse send(Set recipients, PartitionedRegion region,
       final InterestRegistrationEvent event) throws ForceReattemptException {
-    InterestEventResponse response = new InterestEventResponse(region.getSystem(), recipients);
-    InterestEventMessage m = new InterestEventMessage(recipients, region.getPRId(),
+    var response = new InterestEventResponse(region.getSystem(), recipients);
+    var m = new InterestEventMessage(recipients, region.getPRId(),
         response.getProcessorId(), event, response);
     m.setTransactionDistributed(region.getCache().getTxManager().isDistributed());
 
@@ -163,7 +162,7 @@ public class InterestEventMessage extends PartitionMessage {
     /** Send an ack */
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm) throws ForceReattemptException {
-      InterestEventReplyMessage m = new InterestEventReplyMessage(processorId);
+      var m = new InterestEventReplyMessage(processorId);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -175,7 +174,7 @@ public class InterestEventMessage extends PartitionMessage {
      */
     @Override
     protected void process(final ClusterDistributionManager dm) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "InterestEventReplyMessage process invoking reply processor with processorId: {}",
@@ -183,7 +182,7 @@ public class InterestEventMessage extends PartitionMessage {
       }
 
       try {
-        ReplyProcessor21 processor = ReplyProcessor21.getProcessor(processorId);
+        var processor = ReplyProcessor21.getProcessor(processorId);
 
         if (processor == null) {
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -250,7 +249,7 @@ public class InterestEventMessage extends PartitionMessage {
             e.getMessage(), e);
         throw e;
       } catch (CacheException e) {
-        final String msg =
+        final var msg =
             "InterestEventResponse got remote CacheException, throwing ForceReattemptException";
         logger.debug(msg, e);
         throw new ForceReattemptException(msg, e);

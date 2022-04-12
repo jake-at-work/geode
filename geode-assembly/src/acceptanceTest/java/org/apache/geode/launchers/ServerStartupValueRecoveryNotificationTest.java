@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -62,12 +60,12 @@ public class ServerStartupValueRecoveryNotificationTest {
   public void persistentRegionThatRequiresValueRecovery() throws IOException {
     locatorFolder = temporaryFolder.newFolder(LOCATOR_NAME).toPath().toAbsolutePath();
     server1Folder = temporaryFolder.newFolder(SERVER_1_NAME).toPath().toAbsolutePath();
-    Path diskStore1Folder = temporaryFolder.newFolder(DISKSTORE_1).toPath().toAbsolutePath();
-    Path diskStore2Folder = temporaryFolder.newFolder(DISKSTORE_2).toPath().toAbsolutePath();
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    var diskStore1Folder = temporaryFolder.newFolder(DISKSTORE_1).toPath().toAbsolutePath();
+    var diskStore2Folder = temporaryFolder.newFolder(DISKSTORE_2).toPath().toAbsolutePath();
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
     locatorPort = ports[0];
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + LOCATOR_NAME,
         "--dir=" + locatorFolder,
@@ -81,37 +79,37 @@ public class ServerStartupValueRecoveryNotificationTest {
         "--locators=localhost[" + locatorPort + "]",
         "--disable-default-server");
 
-    String createDiskStore1 = String.join(" ",
+    var createDiskStore1 = String.join(" ",
         "create disk-store",
         "--name=" + DISKSTORE_1,
         "--dir=" + diskStore1Folder);
 
-    String regionName = "myRegion";
-    String createRegionCommand = String.join(" ",
+    var regionName = "myRegion";
+    var createRegionCommand = String.join(" ",
         "create region",
         "--name=" + regionName,
         "--type=REPLICATE_PERSISTENT",
         "--disk-store=" + DISKSTORE_1);
 
-    String createDiskStore2 = String.join(" ",
+    var createDiskStore2 = String.join(" ",
         "create disk-store",
         "--name=" + DISKSTORE_2,
         "--dir=" + diskStore2Folder);
 
-    String regionNameTwo = "mySecondRegion";
-    String createRegionTwoCommand = String.join(" ",
+    var regionNameTwo = "mySecondRegion";
+    var createRegionTwoCommand = String.join(" ",
         "create region",
         "--name=" + regionNameTwo,
         "--type=REPLICATE_PERSISTENT",
         "--disk-store=" + DISKSTORE_2);
 
-    String putCommand = String.join(" ",
+    var putCommand = String.join(" ",
         "put",
         "--region=" + regionName,
         "--key=James",
         "--value=Bond");
 
-    String putCommandInRegionTwo = String.join(" ",
+    var putCommandInRegionTwo = String.join(" ",
         "put",
         "--region=" + regionNameTwo,
         "--key=Derrick",
@@ -121,20 +119,20 @@ public class ServerStartupValueRecoveryNotificationTest {
         createRegionCommand, createDiskStore2, createRegionTwoCommand, putCommand,
         putCommandInRegionTwo);
 
-    String stopServer1Command = "stop server --dir=" + server1Folder;
+    var stopServer1Command = "stop server --dir=" + server1Folder;
     gfshRule.execute(stopServer1Command);
   }
 
   @After
   public void stopAllMembers() {
-    String stopServer1Command = "stop server --dir=" + server1Folder;
-    String stopLocatorCommand = "stop locator --dir=" + locatorFolder;
+    var stopServer1Command = "stop server --dir=" + server1Folder;
+    var stopLocatorCommand = "stop locator --dir=" + locatorFolder;
     gfshRule.execute(stopServer1Command, stopLocatorCommand);
   }
 
   @Test
   public void startupReportsOnlineOnlyAfterRedundancyRestored() throws IOException {
-    String connectCommand = "connect --locator=localhost[" + locatorPort + "]";
+    var connectCommand = "connect --locator=localhost[" + locatorPort + "]";
     server1Folder =
         temporaryFolder.newFolder(SERVER_1_NAME + "secondfolder").toPath().toAbsolutePath();
     startServer1Command = String.join(" ",
@@ -145,24 +143,24 @@ public class ServerStartupValueRecoveryNotificationTest {
 
     gfshRule.execute(connectCommand, startServer1Command);
 
-    Pattern serverOnlinePattern =
+    var serverOnlinePattern =
         Pattern.compile("^\\[info .*].*Server " + SERVER_1_NAME + " startup completed in \\d+ ms");
-    Pattern valuesRecoveredPattern =
+    var valuesRecoveredPattern =
         Pattern.compile(
             "^\\[info .*].* Recovered values for disk store " + DISKSTORE_1 + " with unique id .*");
-    Pattern valuesRecoveredSecondRegionPattern =
+    var valuesRecoveredSecondRegionPattern =
         Pattern.compile(
             "^\\[info .*].* Recovered values for disk store " + DISKSTORE_2 + " with unique id .*");
 
-    Path logFile = server1Folder.resolve(SERVER_1_NAME + ".log");
+    var logFile = server1Folder.resolve(SERVER_1_NAME + ".log");
 
     await()
         .untilAsserted(() -> {
-          final Predicate<String> isRelevantLine = valuesRecoveredPattern.asPredicate()
+          final var isRelevantLine = valuesRecoveredPattern.asPredicate()
               .or(valuesRecoveredSecondRegionPattern.asPredicate())
               .or(serverOnlinePattern.asPredicate());
 
-          final List<String> foundPatterns =
+          final var foundPatterns =
               Files.lines(logFile).filter(isRelevantLine)
                   .collect(Collectors.toList());
 

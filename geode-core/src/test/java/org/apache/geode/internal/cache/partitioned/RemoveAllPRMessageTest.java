@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -66,8 +65,8 @@ public class RemoveAllPRMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    RemoveAllPRMessage mockRemoveAllPRMessage = mock(RemoveAllPRMessage.class);
-    StringBuilder stringBuilder = new StringBuilder();
+    var mockRemoveAllPRMessage = mock(RemoveAllPRMessage.class);
+    var stringBuilder = new StringBuilder();
 
     mockRemoveAllPRMessage.appendFields(stringBuilder);
 
@@ -77,16 +76,16 @@ public class RemoveAllPRMessageTest {
 
   @Test
   public void doPostRemoveAllCallsCheckReadinessBeforeAndAfter() throws Exception {
-    DistributedRemoveAllOperation distributedRemoveAllOperation =
+    var distributedRemoveAllOperation =
         mock(DistributedRemoveAllOperation.class);
-    InternalDataView internalDataView = mock(InternalDataView.class);
+    var internalDataView = mock(InternalDataView.class);
     when(bucketRegion.getDataView()).thenReturn(internalDataView);
-    RemoveAllPRMessage removeAllPRMessage = new RemoveAllPRMessage();
+    var removeAllPRMessage = new RemoveAllPRMessage();
 
     removeAllPRMessage.doPostRemoveAll(partitionedRegion, distributedRemoveAllOperation,
         bucketRegion, true);
 
-    InOrder inOrder = inOrder(partitionedRegion, internalDataView);
+    var inOrder = inOrder(partitionedRegion, internalDataView);
     inOrder.verify(partitionedRegion).checkReadiness();
     inOrder.verify(internalDataView).postRemoveAll(any(), any(), any());
     inOrder.verify(partitionedRegion).checkReadiness();
@@ -94,14 +93,14 @@ public class RemoveAllPRMessageTest {
 
   @Test(expected = PrimaryBucketException.class)
   public void lockedKeysAreRemoved() throws Exception {
-    RemoveAllPRMessage message = spy(new RemoveAllPRMessage(bucketId, 1, false, false, true, null));
+    var message = spy(new RemoveAllPRMessage(bucketId, 1, false, false, true, null));
     message.addEntry(entryData);
     doReturn(keys).when(message).getKeysToBeLocked();
     when(bucketRegion.waitUntilLocked(keys)).thenReturn(true);
     when(bucketRegion.doLockForPrimary(false)).thenThrow(new PrimaryBucketException());
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(bucketRegion.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
     when(ids.getOffHeapStore()).thenReturn(null);
@@ -113,14 +112,14 @@ public class RemoveAllPRMessageTest {
 
   @Test
   public void removeAndNotifyKeysIsNotInvokedIfKeysNotLocked() throws Exception {
-    RemoveAllPRMessage message = spy(new RemoveAllPRMessage(bucketId, 1, false, false, true, null));
+    var message = spy(new RemoveAllPRMessage(bucketId, 1, false, false, true, null));
     message.addEntry(entryData);
     doReturn(keys).when(message).getKeysToBeLocked();
-    RegionDestroyedException regionDestroyedException = new RegionDestroyedException("", "");
+    var regionDestroyedException = new RegionDestroyedException("", "");
     when(bucketRegion.waitUntilLocked(keys)).thenThrow(regionDestroyedException);
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(bucketRegion.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
     when(ids.getOffHeapStore()).thenReturn(null);

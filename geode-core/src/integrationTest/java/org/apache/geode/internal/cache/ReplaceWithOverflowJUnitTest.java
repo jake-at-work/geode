@@ -42,7 +42,7 @@ public class ReplaceWithOverflowJUnitTest {
 
   @BeforeClass
   public static void setUp() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("mcast-port", "0");
     props.setProperty("log-level", "info");
     cache = new CacheFactory(props).create();

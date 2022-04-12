@@ -67,7 +67,7 @@ public class DeltaQueuedSessionAttributes extends AbstractDeltaSessionAttributes
    */
   @Override
   public Object putAttribute(String attr, Object value) {
-    Object obj = attributes.put(attr, value);
+    var obj = attributes.put(attr, value);
     deltas.put(attr, new DeltaEvent(true, attr, value));
     return obj;
   }
@@ -78,7 +78,7 @@ public class DeltaQueuedSessionAttributes extends AbstractDeltaSessionAttributes
    */
   @Override
   public Object removeAttribute(String attr) {
-    Object obj = attributes.remove(attr);
+    var obj = attributes.remove(attr);
     deltas.put(attr, new DeltaEvent(false, attr, null));
     return obj;
   }

@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Properties;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 
 import org.apache.commons.lang3.StringUtils;
@@ -42,11 +41,9 @@ import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.JmxManagerLocatorRequest;
-import org.apache.geode.management.internal.JmxManagerLocatorResponse;
 import org.apache.geode.management.internal.cli.LogWrapper;
 import org.apache.geode.management.internal.cli.converters.ConnectionEndpointConverter;
 import org.apache.geode.management.internal.cli.domain.ConnectToLocatorResult;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.cli.shell.JmxOperationInvoker;
@@ -114,8 +111,8 @@ public class ConnectCommand extends OfflineGfshCommand {
           unspecifiedDefaultValue = "false",
           help = "When connecting via HTTP, connects using 1-way SSL validation rather than 2-way SSL validation.") boolean skipSslValidation) {
 
-    ResultModel result = new ResultModel();
-    Gfsh gfsh = getGfsh();
+    var result = new ResultModel();
+    var gfsh = getGfsh();
 
     // bail out if gfsh is already connected.
     if (gfsh != null && gfsh.isConnectedAndReady()) {
@@ -137,7 +134,7 @@ public class ConnectCommand extends OfflineGfshCommand {
 
     // ssl options are passed in in the order defined in USER_INPUT_PROPERTIES, note the two types
     // are null, because we don't have connect command options for them yet
-    Properties gfProperties = resolveSslProperties(gfsh, useSsl, null, gfSecurityPropertiesFile,
+    var gfProperties = resolveSslProperties(gfsh, useSsl, null, gfSecurityPropertiesFile,
         keystore, keystorePassword, null, truststore, truststorePassword, null, sslCiphers,
         sslProtocols, null);
 
@@ -164,7 +161,7 @@ public class ConnectCommand extends OfflineGfshCommand {
       result = jmxConnect(gfProperties, useSsl, jmxManagerEndPoint, locatorEndPoint, false);
     }
 
-    OperationInvoker invoker = gfsh.getOperationInvoker();
+    var invoker = gfsh.getOperationInvoker();
     if (invoker == null || !invoker.isConnected()) {
       return result;
     }
@@ -180,16 +177,16 @@ public class ConnectCommand extends OfflineGfshCommand {
       gfsh.logInfo("failed to get the the remote version.", ex);
     }
 
-    String ourSerializationVersion = gfsh.getGeodeSerializationVersion();
+    var ourSerializationVersion = gfsh.getGeodeSerializationVersion();
     if (shouldConnect(ourSerializationVersion, remoteVersion, remoteGeodeSerializationVersion)) {
-      InfoResultModel versionInfo = result.addInfo("versionInfo");
+      var versionInfo = result.addInfo("versionInfo");
       versionInfo.addLine("You are connected to a cluster of version: " + remoteVersion);
       return result;
     }
 
     // will reach here only when remoteVersion is not available or does not match
     invoker.stop();
-    String gfshVersion = gfsh.getVersion();
+    var gfshVersion = gfsh.getVersion();
     if (remoteVersion == null) {
       return ResultModel.createError(
           String.format("Cannot use a %s gfsh client to connect to this cluster.", gfshVersion));
@@ -227,22 +224,22 @@ public class ConnectCommand extends OfflineGfshCommand {
 
     // at least 1.12 (but only promise forward compatibility within same major)
     if (remoteSerializationVersion != null) {
-      int ourMajor = versionComponent(ourSerializationVersion, VERSION_MAJOR);
-      int remoteMajor = versionComponent(remoteSerializationVersion, VERSION_MAJOR);
+      var ourMajor = versionComponent(ourSerializationVersion, VERSION_MAJOR);
+      var remoteMajor = versionComponent(remoteSerializationVersion, VERSION_MAJOR);
       // assume Geode 2.x will support backward compatibility to 1.x
       return remoteMajor >= 1 && remoteMajor <= ourMajor;
     }
 
     // after 1.5 but before 1.12, use remoteVersion to determine if 1.10 or after
-    int remoteMajorVersion = versionComponent(remoteVersion, VERSION_MAJOR);
-    int remoteMinorVersion = versionComponent(remoteVersion, VERSION_MINOR);
+    var remoteMajorVersion = versionComponent(remoteVersion, VERSION_MAJOR);
+    var remoteMinorVersion = versionComponent(remoteVersion, VERSION_MINOR);
     return remoteMajorVersion == 9 && remoteMinorVersion == 9 ||
         remoteMajorVersion == 1 && remoteMinorVersion == 10 ||
         remoteMajorVersion == 1 && remoteMinorVersion == 11;
   }
 
   private static int versionComponent(String version, int component) {
-    String[] versionComponents = StringUtils.split(version, '.');
+    var versionComponents = StringUtils.split(version, '.');
     try {
       return versionComponents.length >= component + 1
           ? Integer.parseInt(versionComponents[component]) : -1;
@@ -263,7 +260,7 @@ public class ConnectCommand extends OfflineGfshCommand {
       File gfSecurityPropertiesFile, String... sslOptionValues) {
 
     // first trying to load the sslProperties from the file
-    Properties gfProperties = loadProperties(gfPropertiesFile, gfSecurityPropertiesFile);
+    var gfProperties = loadProperties(gfPropertiesFile, gfSecurityPropertiesFile);
 
     // if the security file is a legacy ssl security file, then the rest of the command options, if
     // any, are ignored. Because we are not trying to add/replace the legacy ssl values using the
@@ -279,13 +276,13 @@ public class ConnectCommand extends OfflineGfshCommand {
 
     // if use ssl is implied by any of the options, then command option will add to/update the
     // properties loaded from file. If the ssl config is not specified anywhere, prompt user for it.
-    for (int i = 0; i < USER_INPUT_PROPERTIES.length; i++) {
-      UserInputProperty userInputProperty = USER_INPUT_PROPERTIES[i];
+    for (var i = 0; i < USER_INPUT_PROPERTIES.length; i++) {
+      var userInputProperty = USER_INPUT_PROPERTIES[i];
       String sslOptionValue = null;
       if (sslOptionValues != null && sslOptionValues.length > i) {
         sslOptionValue = sslOptionValues[i];
       }
-      String sslConfigValue = gfProperties.getProperty(userInputProperty.getKey());
+      var sslConfigValue = gfProperties.getProperty(userInputProperty.getKey());
 
       // if this option is specified, always use this value
       if (sslOptionValue != null) {
@@ -318,9 +315,9 @@ public class ConnectCommand extends OfflineGfshCommand {
 
 
   ResultModel httpConnect(Properties gfProperties, String url, boolean skipSslVerification) {
-    Gfsh gfsh = getGfsh();
+    var gfsh = getGfsh();
     try {
-      SSLConfig sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(gfProperties,
+      var sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(gfProperties,
           SecurableCommunicationChannel.WEB);
       if (sslConfig.isEnabled()) {
         configureHttpsURLConnection(sslConfig, skipSslVerification);
@@ -330,7 +327,7 @@ public class ConnectCommand extends OfflineGfshCommand {
       }
 
       // authentication check will be triggered inside the constructor
-      HttpOperationInvoker operationInvoker = new HttpOperationInvoker(gfsh, url, gfProperties);
+      var operationInvoker = new HttpOperationInvoker(gfsh, url, gfProperties);
 
       gfsh.setOperationInvoker(operationInvoker);
 
@@ -363,7 +360,7 @@ public class ConnectCommand extends OfflineGfshCommand {
       ConnectionEndpoint memberRmiHostPort,
       ConnectionEndpoint locatorTcpHostPort, boolean retry) {
     ConnectionEndpoint jmxHostPortToConnect = null;
-    Gfsh gfsh = getGfsh();
+    var gfsh = getGfsh();
 
     try {
       // trying to find the rmi host and port, if rmi host port exists, use that, otherwise, use
@@ -379,7 +376,7 @@ public class ConnectCommand extends OfflineGfshCommand {
 
         Gfsh.println(CliStrings.format(CliStrings.CONNECT__MSG__CONNECTING_TO_LOCATOR_AT_0,
             new Object[] {locatorTcpHostPort.toString(false)}));
-        ConnectToLocatorResult connectToLocatorResult =
+        var connectToLocatorResult =
             connectToLocator(locatorTcpHostPort.getHost(), locatorTcpHostPort.getPort(),
                 CONNECT_LOCATOR_TIMEOUT_MS, gfProperties);
         jmxHostPortToConnect = connectToLocatorResult.getMemberEndpoint();
@@ -405,9 +402,9 @@ public class ConnectCommand extends OfflineGfshCommand {
             new Object[] {jmxHostPortToConnect.toString(false)}));
       }
 
-      ResultModel result = new ResultModel();
-      InfoResultModel infoResultModel = result.addInfo();
-      JmxOperationInvoker operationInvoker = new JmxOperationInvoker(jmxHostPortToConnect.getHost(),
+      var result = new ResultModel();
+      var infoResultModel = result.addInfo();
+      var operationInvoker = new JmxOperationInvoker(jmxHostPortToConnect.getHost(),
           jmxHostPortToConnect.getPort(), gfProperties);
 
       gfsh.setOperationInvoker(operationInvoker);
@@ -441,15 +438,15 @@ public class ConnectCommand extends OfflineGfshCommand {
 
   public static ConnectToLocatorResult connectToLocator(String host, int port, int timeout,
       Properties props) throws IOException, ClassNotFoundException {
-    JmxManagerLocatorResponse locatorResponse =
+    var locatorResponse =
         JmxManagerLocatorRequest.send(host, port, timeout, props);
 
     if (StringUtils.isBlank(locatorResponse.getHost()) || locatorResponse.getPort() == 0) {
-      Throwable locatorResponseException = locatorResponse.getException();
-      String exceptionMessage = CliStrings.CONNECT__MSG__LOCATOR_COULD_NOT_FIND_MANAGER;
+      var locatorResponseException = locatorResponse.getException();
+      var exceptionMessage = CliStrings.CONNECT__MSG__LOCATOR_COULD_NOT_FIND_MANAGER;
 
       if (locatorResponseException != null) {
-        String locatorResponseExceptionMessage = locatorResponseException.getMessage();
+        var locatorResponseExceptionMessage = locatorResponseException.getMessage();
         locatorResponseExceptionMessage = (StringUtils.isNotBlank(locatorResponseExceptionMessage)
             ? locatorResponseExceptionMessage : locatorResponseException.toString());
         exceptionMessage = "Exception caused JMX Manager startup to fail because: '"
@@ -459,10 +456,10 @@ public class ConnectCommand extends OfflineGfshCommand {
       throw new IllegalStateException(exceptionMessage, locatorResponseException);
     }
 
-    ConnectionEndpoint memberEndpoint =
+    var memberEndpoint =
         new ConnectionEndpoint(locatorResponse.getHost(), locatorResponse.getPort());
 
-    String resultMessage = CliStrings.format(CliStrings.CONNECT__MSG__CONNECTING_TO_MANAGER_AT_0,
+    var resultMessage = CliStrings.format(CliStrings.CONNECT__MSG__CONNECTING_TO_MANAGER_AT_0,
         memberEndpoint.toString(false));
 
     return new ConnectToLocatorResult(memberEndpoint, resultMessage,
@@ -472,7 +469,7 @@ public class ConnectCommand extends OfflineGfshCommand {
 
 
   private void configureHttpsURLConnection(SSLConfig sslConfig, boolean skipSslVerification) {
-    SSLContext ssl = SSLUtil.createAndConfigureSSLContext(sslConfig, skipSslVerification);
+    var ssl = SSLUtil.createAndConfigureSSLContext(sslConfig, skipSslVerification);
     if (skipSslVerification) {
       HttpsURLConnection.setDefaultHostnameVerifier((String s, SSLSession sslSession) -> true);
     }

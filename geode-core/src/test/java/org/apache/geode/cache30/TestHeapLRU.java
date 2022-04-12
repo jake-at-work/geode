@@ -15,11 +15,9 @@
 package org.apache.geode.cache30;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
-import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.logging.internal.executors.LoggingThread;
 
@@ -30,9 +28,9 @@ import org.apache.geode.logging.internal.executors.LoggingThread;
 public class TestHeapLRU {
 
   public static void main(String[] args) throws Exception {
-    DistributedSystem system = DistributedSystem.connect(new java.util.Properties());
-    Cache cache = CacheFactory.create(system);
-    AttributesFactory factory = new AttributesFactory();
+    var system = DistributedSystem.connect(new java.util.Properties());
+    var cache = CacheFactory.create(system);
+    var factory = new AttributesFactory();
 
     factory.setEvictionAttributes(
         EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK));
@@ -40,14 +38,14 @@ public class TestHeapLRU {
     factory.setDiskStoreName(cache.createDiskStoreFactory()
         .setDiskDirs(new java.io.File[] {new java.io.File(System.getProperty("user.dir"))})
         .create("TestHeapLRU").getName());
-    Region region = cache.createRegion("TestDiskRegion", factory.create());
+    var region = cache.createRegion("TestDiskRegion", factory.create());
 
     Thread thread = new LoggingThread("Annoying thread", () -> {
       try {
         while (true) {
           System.out.println("Annoy...");
-          Object[] array = new Object[10 /* * 1024 */];
-          for (int i = 0; i < array.length; i++) {
+          var array = new Object[10 /* * 1024 */];
+          for (var i = 0; i < array.length; i++) {
             array[i] = new byte[1024];
             Thread.sleep(10);
           }
@@ -64,7 +62,7 @@ public class TestHeapLRU {
     // thread.start();
 
     // ArrayList list = new ArrayList();
-    for (int i = 0; i < Integer.MAX_VALUE; i++) {
+    for (var i = 0; i < Integer.MAX_VALUE; i++) {
       if (i % 1000 == 0) {
         // System.out.println("i = " + i);
         // list = new ArrayList();
@@ -74,7 +72,7 @@ public class TestHeapLRU {
       }
 
       Integer key = i % 10000;
-      long[] value = new long[2000];
+      var value = new long[2000];
       // System.out.println("Put " + key + " -> " + value);
       region.put(key, value);
     }

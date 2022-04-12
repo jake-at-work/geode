@@ -40,13 +40,13 @@ public class DistTXWriterJUnitTest extends TXWriterJUnitTest {
 
   @Override
   protected void createCache() throws CacheException {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0"); // loner
     properties.setProperty(ConfigurationProperties.DISTRIBUTED_TRANSACTIONS, "true");
 
     cache = (GemFireCacheImpl) CacheFactory.create(DistributedSystem.connect(properties));
 
-    AttributesFactory<String, String> attributesFactory = new AttributesFactory<>();
+    var attributesFactory = new AttributesFactory<String, String>();
     attributesFactory.setScope(Scope.DISTRIBUTED_NO_ACK);
     attributesFactory.setIndexMaintenanceSynchronous(true);
 

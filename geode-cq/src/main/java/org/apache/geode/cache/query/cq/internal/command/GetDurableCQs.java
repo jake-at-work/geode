@@ -22,17 +22,10 @@ import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.internal.DefaultQueryService;
-import org.apache.geode.cache.query.internal.cq.CqService;
-import org.apache.geode.internal.cache.tier.Acceptor;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
-import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
-import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.ResourcePermission.Operation;
 import org.apache.geode.security.ResourcePermission.Resource;
@@ -54,10 +47,10 @@ public class GetDurableCQs extends BaseCQCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start)
       throws IOException, InterruptedException {
-    Acceptor acceptor = serverConnection.getAcceptor();
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    ClientProxyMembershipID id = serverConnection.getProxyID();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var acceptor = serverConnection.getAcceptor();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var id = serverConnection.getProxyID();
+    var stats = serverConnection.getCacheServerStats();
 
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE);
@@ -69,28 +62,28 @@ public class GetDurableCQs extends BaseCQCommand {
     }
 
     try {
-      DefaultQueryService qService =
+      var qService =
           (DefaultQueryService) crHelper.getCache().getLocalQueryService();
 
       securityService.authorize(Resource.CLUSTER, Operation.READ);
 
       // Authorization check
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       if (authzRequest != null) {
         authzRequest.getDurableCQsAuthorize();
       }
 
-      CqService cqServiceForExec = qService.getCqService();
-      List<String> durableCqs = cqServiceForExec.getAllDurableClientCqs(id);
+      var cqServiceForExec = qService.getCqService();
+      var durableCqs = cqServiceForExec.getAllDurableClientCqs(id);
 
-      ChunkedMessage chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
+      var chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
       chunkedResponseMsg.setMessageType(MessageType.RESPONSE);
       chunkedResponseMsg.setTransactionId(clientMessage.getTransactionId());
       chunkedResponseMsg.sendHeader();
 
       List durableCqList = new ArrayList(MAXIMUM_CHUNK_SIZE);
-      final boolean isTraceEnabled = logger.isTraceEnabled();
-      for (String durableCqName : durableCqs) {
+      final var isTraceEnabled = logger.isTraceEnabled();
+      for (var durableCqName : durableCqs) {
         durableCqList.add(durableCqName);
         if (isTraceEnabled) {
           logger.trace("{}: getDurableCqsResponse <{}>; list size was {}",
@@ -115,7 +108,7 @@ public class GetDurableCQs extends BaseCQCommand {
 
   private void sendDurableCqsResponseChunk(List list, boolean lastChunk, ServerConnection servConn)
       throws IOException {
-    ChunkedMessage chunkedResponseMsg = servConn.getChunkedResponseMessage();
+    var chunkedResponseMsg = servConn.getChunkedResponseMessage();
 
     chunkedResponseMsg.setNumberOfParts(1);
     chunkedResponseMsg.setLastChunk(lastChunk);

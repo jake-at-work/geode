@@ -17,7 +17,6 @@ package org.apache.geode.redis.internal.data;
 import static org.junit.Assert.assertTrue;
 
 import java.util.EnumMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.ClassRule;
@@ -33,7 +32,7 @@ public class MemoryOverheadNativeRedisAcceptanceTest extends AbstractMemoryOverh
 
   @Override
   EnumMap<Measurement, Integer> expectedPerEntryOverhead() {
-    EnumMap<Measurement, Integer> result = new EnumMap<>(Measurement.class);
+    var result = new EnumMap<Measurement, Integer>(Measurement.class);
     result.put(Measurement.STRING, 61);
     result.put(Measurement.SET, 223);
     result.put(Measurement.SET_ENTRY, 75);
@@ -55,10 +54,10 @@ public class MemoryOverheadNativeRedisAcceptanceTest extends AbstractMemoryOverh
 
   @Override
   long getUsedMemory() {
-    String memoryInfo = jedis.info("memory");
-    Matcher matcher = FIND_USED_MEMORY.matcher(memoryInfo);
+    var memoryInfo = jedis.info("memory");
+    var matcher = FIND_USED_MEMORY.matcher(memoryInfo);
     assertTrue(matcher.find());
-    String usedMemory = matcher.group(1);
+    var usedMemory = matcher.group(1);
     return Long.parseLong(usedMemory);
   }
 }

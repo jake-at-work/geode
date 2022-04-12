@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.Properties;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.DistributedSystem;
@@ -33,16 +32,16 @@ import org.apache.geode.distributed.DistributedSystem;
 public class PutDataSerializables {
 
   public static void main(String[] args) throws Throwable {
-    Properties props = new Properties();
-    DistributedSystem system = DistributedSystem.connect(props);
-    Cache cache = CacheFactory.create(system);
-    AttributesFactory factory = new AttributesFactory();
-    Region region = cache.createRegion("DataSerializable", factory.create());
+    var props = new Properties();
+    var system = DistributedSystem.connect(props);
+    var cache = CacheFactory.create(system);
+    var factory = new AttributesFactory();
+    var region = cache.createRegion("DataSerializable", factory.create());
     region.put("User", new User("Fred", 42));
 
     new CompanySerializer();
-    Address address = new Address();
-    Company company = new Company("My Company", address);
+    var address = new Address();
+    var company = new Company("My Company", address);
 
     region.put("Company", company);
     region.put("Employee", new Employee(43, "Bob", new Date(), company));

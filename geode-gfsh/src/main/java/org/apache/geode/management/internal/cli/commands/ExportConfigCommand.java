@@ -18,21 +18,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.functions.ExportConfigFunction;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -67,27 +63,27 @@ public class ExportConfigCommand extends GfshCommand {
       @CliOption(key = {CliStrings.EXPORT_CONFIG__DIR},
           help = CliStrings.EXPORT_CONFIG__DIR__HELP) String dir) {
 
-    ResultModel crm = new ResultModel();
-    InfoResultModel infoData = crm.addInfo(ResultModel.INFO_SECTION);
+    var crm = new ResultModel();
+    var infoData = crm.addInfo(ResultModel.INFO_SECTION);
 
-    Set<DistributedMember> targetMembers = findMembers(group, member);
+    var targetMembers = findMembers(group, member);
     if (targetMembers.isEmpty()) {
       ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
       return crm;
     }
 
-    ResultCollector<?, ?> rc =
+    var rc =
         ManagementUtils.executeFunction(exportConfigFunction, null, targetMembers);
-    List<CliFunctionResult> results = CliFunctionResult.cleanResults((List<?>) rc.getResult());
+    var results = CliFunctionResult.cleanResults((List<?>) rc.getResult());
 
-    for (CliFunctionResult result : results) {
+    for (var result : results) {
       if (result.getThrowable() != null) {
         infoData.addLine(CliStrings.format(CliStrings.EXPORT_CONFIG__MSG__EXCEPTION,
             result.getMemberIdOrName(), result.getThrowable()));
       } else if (result.isSuccessful()) {
-        String cacheFileName = result.getMemberIdOrName() + "-cache.xml";
-        String propsFileName = result.getMemberIdOrName() + "-gf.properties";
-        String[] fileContent = (String[]) result.getSerializables();
+        var cacheFileName = result.getMemberIdOrName() + "-cache.xml";
+        var propsFileName = result.getMemberIdOrName() + "-gf.properties";
+        var fileContent = (String[]) result.getSerializables();
         crm.addFile(cacheFileName, fileContent[0]);
         crm.addFile(propsFileName, fileContent[1]);
       }
@@ -104,7 +100,7 @@ public class ExportConfigCommand extends GfshCommand {
 
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      String dir = parseResult.getParamValueAsString("dir");
+      var dir = parseResult.getParamValueAsString("dir");
       if (StringUtils.isBlank(dir)) {
         saveDirFile = new File(".").getAbsoluteFile();
         return new ResultModel();

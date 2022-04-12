@@ -17,7 +17,6 @@ package org.apache.geode.gfsh.internal.management;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -46,9 +45,9 @@ public class GfshSanctionedSerializablesServiceIntegrationTest
 
   @Test
   public void acceptListContainsCommandProcessingException() throws IOException {
-    SanctionedSerializablesService service = getService();
+    var service = getService();
 
-    Collection<String> serializables = service.getSerializationAcceptlist();
+    var serializables = service.getSerializationAcceptlist();
 
     assertThat(serializables)
         .contains(CommandProcessingException.class.getName());

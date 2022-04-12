@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexStatistics;
@@ -58,7 +57,7 @@ public abstract class AbstractMapIndex extends AbstractIndex {
     super(cache, indexName, region, fromClause, indexedExpression, projectionAttributes,
         origFromClause, origIndxExpr, defintions, stats);
     mapKeyToValueIndex = new ConcurrentHashMap<>(2, 0.75f, 1);
-    RegionAttributes ra = region.getAttributes();
+    var ra = region.getAttributes();
     this.isAllKeys = isAllKeys;
     this.mapKeys = mapKeys;
     if (this.isAllKeys) {
@@ -238,8 +237,8 @@ public abstract class AbstractMapIndex extends AbstractIndex {
       RuntimeIterator runtimeItr, ExecutionContext context, List projAttrib,
       SelectResults intermediateResults, boolean isIntersection) throws TypeMismatchException,
       FunctionDomainException, NameResolutionException, QueryInvocationTargetException {
-    Object[] mapKeyAndVal = (Object[]) key;
-    AbstractIndex ri = mapKeyToValueIndex.get(mapKeyAndVal[1]);
+    var mapKeyAndVal = (Object[]) key;
+    var ri = mapKeyToValueIndex.get(mapKeyAndVal[1]);
     if (ri != null) {
       ri.lockedQuery(mapKeyAndVal[0], operator, results, iterOps, runtimeItr, context, projAttrib,
           intermediateResults, isIntersection);
@@ -260,8 +259,8 @@ public abstract class AbstractMapIndex extends AbstractIndex {
   void lockedQuery(Object key, int operator, Collection results, Set keysToRemove,
       ExecutionContext context) throws TypeMismatchException, FunctionDomainException,
       NameResolutionException, QueryInvocationTargetException {
-    Object[] mapKeyAndVal = (Object[]) key;
-    AbstractIndex ri = mapKeyToValueIndex.get(mapKeyAndVal[1]);
+    var mapKeyAndVal = (Object[]) key;
+    var ri = mapKeyToValueIndex.get(mapKeyAndVal[1]);
     if (ri != null) {
       ri.lockedQuery(mapKeyAndVal[0], operator, results, keysToRemove, context);
     }
@@ -280,9 +279,9 @@ public abstract class AbstractMapIndex extends AbstractIndex {
 
   @Override
   public int getSizeEstimate(Object key, int op, int matchLevel) throws TypeMismatchException {
-    Object[] mapKeyAndVal = (Object[]) key;
-    Object mapKey = mapKeyAndVal[1];
-    AbstractIndex ri = mapKeyToValueIndex.get(mapKey);
+    var mapKeyAndVal = (Object[]) key;
+    var mapKey = mapKeyAndVal[1];
+    var ri = mapKeyToValueIndex.get(mapKey);
     if (ri != null) {
       return ri.getSizeEstimate(mapKeyAndVal[0], op, matchLevel);
     } else {
@@ -329,8 +328,8 @@ public abstract class AbstractMapIndex extends AbstractIndex {
         return;
       }
       for (Map.Entry<?, ?> mapEntry : ((Map<?, ?>) key).entrySet()) {
-        Object mapKey = mapEntry.getKey();
-        Object indexKey = mapEntry.getValue();
+        var mapKey = mapEntry.getKey();
+        var indexKey = mapEntry.getValue();
         if (isAdd) {
           doIndexAddition(mapKey, indexKey, value, entry);
         } else {
@@ -338,7 +337,7 @@ public abstract class AbstractMapIndex extends AbstractIndex {
         }
       }
     } else {
-      for (Object mapKey : mapKeys) {
+      for (var mapKey : mapKeys) {
         Object indexKey;
         if (key == null) {
           indexKey = QueryService.UNDEFINED;
@@ -384,9 +383,9 @@ public abstract class AbstractMapIndex extends AbstractIndex {
       // the canonicalized string
       // stripped of the index arg & see if it matches.
       if (condnExpr instanceof MapIndexable) {
-        MapIndexable mi = (MapIndexable) condnExpr;
-        CompiledValue recvr = mi.getReceiverSansIndexArgs();
-        StringBuilder sb = new StringBuilder();
+        var mi = (MapIndexable) condnExpr;
+        var recvr = mi.getReceiverSansIndexArgs();
+        var sb = new StringBuilder();
         recvr.generateCanonicalizedExpression(sb, context);
         sb.append('[').append(']');
         return sb.toString().equals(patternStr[0]);
@@ -395,7 +394,7 @@ public abstract class AbstractMapIndex extends AbstractIndex {
         return false;
       }
     } else {
-      for (String expr : patternStr) {
+      for (var expr : patternStr) {
         if (expr.equals(conditionExprStr)) {
           return true;
         }

@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.condition.JRE.JAVA_9;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -37,14 +36,14 @@ class JavaModuleHelperTest {
   @Test
   void getJvmModuleOptions_returnsEmptyListIfNoAddOpensOrAddExportsOptions() throws IOException {
     // Options that are not module-related
-    List<String> jvmOptions = Arrays.asList(
+    var jvmOptions = Arrays.asList(
         "-Dsome.system.property=some.value",
         "-ea",
         "-XX:+HeapDumpOnOutOfMemoryError",
         "-Xmx512m");
 
-    Process queryProcess = startQueryProcess(jvmOptions);
-    List<String> queriedModuleOptions = stdOutputFrom(queryProcess);
+    var queryProcess = startQueryProcess(jvmOptions);
+    var queriedModuleOptions = stdOutputFrom(queryProcess);
 
     assertThat(queriedModuleOptions)
         .isEmpty();
@@ -53,7 +52,7 @@ class JavaModuleHelperTest {
   @EnabledForJreRange(min = JAVA_9, disabledReason = "JRE does not recognize module options")
   @Test
   void getJvmModuleOptions_returnsAllAddOpensAndAddExportsOptionsInOrder() throws IOException {
-    List<String> moduleOptions = Arrays.asList(
+    var moduleOptions = Arrays.asList(
         "--add-opens=java.base/java.lang=ALL-UNNAMED",
         "--add-opens=java.base/java.nio=ALL-UNNAMED",
         "--add-opens=java.base/java.text=ALL-UNNAMED",
@@ -70,8 +69,8 @@ class JavaModuleHelperTest {
         "--add-exports=java.management/com.sun.jmx.remote.security=ALL-UNNAMED");
     shuffle(moduleOptions);
 
-    Process queryProcess = startQueryProcess(moduleOptions);
-    List<String> queriedModuleOptions = stdOutputFrom(queryProcess);
+    var queryProcess = startQueryProcess(moduleOptions);
+    var queriedModuleOptions = stdOutputFrom(queryProcess);
 
     assertThat(queriedModuleOptions)
         .containsExactlyElementsOf(moduleOptions);
@@ -81,7 +80,7 @@ class JavaModuleHelperTest {
   @Test
   void getJvmModuleOptions_doesNotIncludeOptionsOtherThanAddOpensAndAddExports()
       throws IOException {
-    List<String> moduleOptions = Arrays.asList(
+    var moduleOptions = Arrays.asList(
         "--add-opens=java.base/java.lang=ALL-UNNAMED",
         "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
         "--add-opens=java.base/java.nio=ALL-UNNAMED",
@@ -95,8 +94,8 @@ class JavaModuleHelperTest {
     jvmOptions.add(2, "-XX:+HeapDumpOnOutOfMemoryError");
     jvmOptions.add(1, "-Xmx512m");
 
-    Process queryProcess = startQueryProcess(jvmOptions);
-    List<String> queriedModuleOptions = stdOutputFrom(queryProcess);
+    var queryProcess = startQueryProcess(jvmOptions);
+    var queriedModuleOptions = stdOutputFrom(queryProcess);
 
     assertThat(queriedModuleOptions)
         .containsExactlyElementsOf(moduleOptions);
@@ -105,7 +104,7 @@ class JavaModuleHelperTest {
   private static List<String> stdOutputFrom(Process process)
       throws IOException {
 
-    try (InputStream stdOut = process.getInputStream()) {
+    try (var stdOut = process.getInputStream()) {
       return new BufferedReader(new InputStreamReader(stdOut))
           .lines()
           .collect(toList());
@@ -114,9 +113,9 @@ class JavaModuleHelperTest {
 
   // Starts a query process with the given options.
   private static Process startQueryProcess(List<String> options) throws IOException {
-    String javaHome = System.getProperty("java.home");
-    String javaBin = Paths.get(javaHome, "bin", "java").toString();
-    String classpath = System.getProperty("java.class.path");
+    var javaHome = System.getProperty("java.home");
+    var javaBin = Paths.get(javaHome, "bin", "java").toString();
+    var classpath = System.getProperty("java.class.path");
     List<String> commandLine = new ArrayList<>(Arrays.asList(javaBin, "-classpath", classpath));
     commandLine.addAll(options);
     commandLine.add(JavaModuleHelperTest.class.getName());

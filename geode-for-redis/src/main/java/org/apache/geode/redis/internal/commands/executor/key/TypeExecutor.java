@@ -29,8 +29,8 @@ public class TypeExecutor implements CommandExecutor {
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
 
-    RedisKey key = command.getKey();
-    String result = type(context, key);
+    var key = command.getKey();
+    var result = type(context, key);
 
     return RedisResponse.bulkString(result);
   }

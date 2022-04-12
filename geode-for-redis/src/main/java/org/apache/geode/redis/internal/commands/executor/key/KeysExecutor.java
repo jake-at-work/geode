@@ -18,7 +18,6 @@ package org.apache.geode.redis.internal.commands.executor.key;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +26,6 @@ import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.GlobPattern;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class KeysExecutor implements CommandExecutor {
@@ -35,15 +33,15 @@ public class KeysExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    byte[] glob = commandElems.get(1);
-    Set<RedisKey> allKeys = context.getRegion().keySet();
+    var commandElems = command.getProcessedCommand();
+    var glob = commandElems.get(1);
+    var allKeys = context.getRegion().keySet();
     List<byte[]> matchingKeys = new ArrayList<>();
 
-    GlobPattern pattern = new GlobPattern(glob);
+    var pattern = new GlobPattern(glob);
 
-    for (RedisKey key : allKeys) {
-      byte[] keyBytes = key.toBytes();
+    for (var key : allKeys) {
+      var keyBytes = key.toBytes();
       if (pattern.matches(keyBytes)) {
         matchingKeys.add(keyBytes);
       }

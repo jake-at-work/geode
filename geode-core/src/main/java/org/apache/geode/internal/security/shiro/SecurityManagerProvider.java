@@ -18,12 +18,10 @@ import static org.apache.geode.logging.internal.spi.LoggingProvider.SECURITY_LOG
 
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
-import org.apache.shiro.session.mgt.SessionManager;
 
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.security.SecurityManager;
@@ -41,9 +39,9 @@ public class SecurityManagerProvider {
   public SecurityManagerProvider(String shiroConfig) {
     securityManager = null;
 
-    IniSecurityManagerFactory factory = new IniSecurityManagerFactory("classpath:" + shiroConfig);
+    var factory = new IniSecurityManagerFactory("classpath:" + shiroConfig);
     // we will need to make sure that shiro uses a case sensitive permission resolver
-    Ini.Section main = factory.getIni().addSection("main");
+    var main = factory.getIni().addSection("main");
     main.put("geodePermissionResolver", GeodePermissionResolver.class.getName());
     if (!main.containsKey("iniRealm.permissionResolver")) {
       main.put("iniRealm.permissionResolver", "$geodePermissionResolver");
@@ -61,11 +59,11 @@ public class SecurityManagerProvider {
   }
 
   private void increaseShiroGlobalSessionTimeout(final DefaultSecurityManager shiroManager) {
-    SessionManager sessionManager = shiroManager.getSessionManager();
+    var sessionManager = shiroManager.getSessionManager();
     if (sessionManager instanceof DefaultSessionManager) {
-      DefaultSessionManager defaultSessionManager = (DefaultSessionManager) sessionManager;
+      var defaultSessionManager = (DefaultSessionManager) sessionManager;
       defaultSessionManager.setGlobalSessionTimeout(Long.MAX_VALUE);
-      long value = defaultSessionManager.getGlobalSessionTimeout();
+      var value = defaultSessionManager.getGlobalSessionTimeout();
       if (value != Long.MAX_VALUE) {
         logger.error("Unable to set Shiro Global Session Timeout. Current value is '{}'.", value);
       }

@@ -61,8 +61,8 @@ public class DSInsidePdx implements PdxSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((myDS == null) ? 0 : myDS.hashCode());
     result = prime * result + Float.floatToIntBits(myFloat);
     result = prime * result + (int) (myLong ^ (myLong >>> 32));
@@ -82,7 +82,7 @@ public class DSInsidePdx implements PdxSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DSInsidePdx other = (DSInsidePdx) obj;
+    var other = (DSInsidePdx) obj;
     if (myDS == null) {
       if (other.myDS != null) {
         return false;

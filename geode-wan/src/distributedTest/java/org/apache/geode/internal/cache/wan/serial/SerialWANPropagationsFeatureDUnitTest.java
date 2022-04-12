@@ -35,8 +35,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
 
   @Test
   public void testSerialReplicatedWanWithOverflow() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
@@ -74,8 +74,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
   @Test
   public void testSerialReplicatedWanWithPersistence() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -113,8 +113,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
   @Test
   public void testReplicatedSerialPropagationWithConflation() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -151,8 +151,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
   @Test
   public void testReplicatedSerialPropagationWithParallelThreads() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -189,8 +189,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
   @Test
   public void testSerialPropagationWithFilter() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -228,8 +228,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
   @Test
   public void testReplicatedSerialPropagationWithFilter() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -261,8 +261,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
 
   @Test
   public void testReplicatedSerialPropagationWithFilter_AfterAck() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm6, vm7);
     createReceiverInVMs(vm6, vm7);
@@ -288,8 +288,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.validateQueueContents("ln", 0));
     vm5.invoke(() -> WANTestBase.validateQueueContents("ln", 0));
 
-    Integer vm4Acks = vm4.invoke(() -> WANTestBase.validateAfterAck("ln"));
-    Integer vm5Acks = vm5.invoke(() -> WANTestBase.validateAfterAck("ln"));
+    var vm4Acks = vm4.invoke(() -> WANTestBase.validateAfterAck("ln"));
+    var vm5Acks = vm5.invoke(() -> WANTestBase.validateAfterAck("ln"));
 
     assertEquals(2000, (vm4Acks + vm5Acks));
 
@@ -311,8 +311,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
    */
   @Test
   public void unstartedSenderShouldNotAddReceivedEventsIntoTmpDropped() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
 
     // create receiver on site-ln and site-ny
     createCacheInVMs(lnPort, vm2, vm4);
@@ -380,8 +380,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
   @Test
   public void startedSenderReceivingEventsWhileStartingShouldDrainQueues()
       throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
 
     createCacheInVMs(lnPort, vm2, vm4);
     createReceiverInVMs(vm2, vm4);
@@ -431,8 +431,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
   @Test
   public void startedSenderReceivingEventsWhileStoppingShouldDrainQueues()
       throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
 
     createCacheInVMs(lnPort, vm2, vm4);
     createReceiverInVMs(vm2, vm4);
@@ -485,8 +485,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
    */
   @Test
   public void stoppedSenderShouldNotAddEventsToTmpDroppedEventsButStillDrainQueuesWhenStarted() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
 
     createCacheInVMs(lnPort, vm2, vm4);
     createReceiverInVMs(vm2, vm4);
@@ -558,8 +558,8 @@ public class SerialWANPropagationsFeatureDUnitTest extends WANTestBase {
    */
   @Test
   public void stoppedPrimarySenderShouldNotAddEventsToTmpDroppedEventsButStillDrainQueuesWhenStarted() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(2));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(1, lnPort));
 
     createCacheInVMs(lnPort, vm2, vm4);
     createReceiverInVMs(vm2, vm4);

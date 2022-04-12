@@ -46,15 +46,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionAttributesImpl;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.assertions.CommandResultAssert;
-import org.apache.geode.test.junit.assertions.InfoResultModelAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 public class StatusRedundancyCommandDUnitTest {
@@ -92,11 +89,11 @@ public class StatusRedundancyCommandDUnitTest {
   public void statusRedundancyWithNoArgumentsReturnsStatusForAllRegions() {
     createAndPopulateRegions();
 
-    String command = new CommandStringBuilder(STATUS_REDUNDANCY).getCommandString();
+    var command = new CommandStringBuilder(STATUS_REDUNDANCY).getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
 
-    List<String> satisfiedRegions =
+    var satisfiedRegions =
         Arrays.asList(SATISFIED_REGION, NO_CONFIGURED_REDUNDANCY_REGION);
 
     verifyGfshOutput(commandResult, Collections.singletonList(ZERO_COPIES_REGION),
@@ -107,15 +104,15 @@ public class StatusRedundancyCommandDUnitTest {
   public void statusRedundancyWithIncludeRegionArgumentReturnsStatusForOnlyThatRegion() {
     createAndPopulateRegions();
 
-    String includedRegion = SATISFIED_REGION;
+    var includedRegion = SATISFIED_REGION;
     List<String> nonIncludedRegions = new ArrayList<>(regionNames);
     nonIncludedRegions.remove(includedRegion);
 
-    String command = new CommandStringBuilder(STATUS_REDUNDANCY)
+    var command = new CommandStringBuilder(STATUS_REDUNDANCY)
         .addOption(REDUNDANCY_INCLUDE_REGION, includedRegion)
         .getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
         .doesNotContainOutput(nonIncludedRegions.toArray(new String[0]));
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(),
@@ -126,16 +123,16 @@ public class StatusRedundancyCommandDUnitTest {
   public void statusRedundancyWithExcludeRegionArgumentReturnsStatusForAllExceptThatRegion() {
     createAndPopulateRegions();
 
-    String excludedRegion = ZERO_COPIES_REGION;
+    var excludedRegion = ZERO_COPIES_REGION;
 
-    String command = new CommandStringBuilder(STATUS_REDUNDANCY)
+    var command = new CommandStringBuilder(STATUS_REDUNDANCY)
         .addOption(REDUNDANCY_EXCLUDE_REGION, excludedRegion)
         .getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
         .doesNotContainOutput(excludedRegion);
 
-    List<String> satisfiedRegions =
+    var satisfiedRegions =
         Arrays.asList(SATISFIED_REGION, NO_CONFIGURED_REDUNDANCY_REGION);
 
     verifyGfshOutput(commandResult, new ArrayList<>(),
@@ -146,16 +143,16 @@ public class StatusRedundancyCommandDUnitTest {
   public void statusRedundancyWithMatchingIncludeAndExcludeRegionArgumentsReturnsStatusForIncludedRegion() {
     createAndPopulateRegions();
 
-    String includedAndExcludedRegion = SATISFIED_REGION;
+    var includedAndExcludedRegion = SATISFIED_REGION;
     List<String> nonIncludedRegions = new ArrayList<>(regionNames);
     nonIncludedRegions.remove(includedAndExcludedRegion);
 
-    String command = new CommandStringBuilder(STATUS_REDUNDANCY)
+    var command = new CommandStringBuilder(STATUS_REDUNDANCY)
         .addOption(REDUNDANCY_INCLUDE_REGION, includedAndExcludedRegion)
         .addOption(REDUNDANCY_EXCLUDE_REGION, includedAndExcludedRegion)
         .getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
         .doesNotContainOutput(nonIncludedRegions.toArray(new String[0]));
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(),
@@ -164,7 +161,7 @@ public class StatusRedundancyCommandDUnitTest {
 
   @Test
   public void statusRedundancyWithNoArgumentsReturnsSuccessWhenNoRegionsArePresent() {
-    String command = new CommandStringBuilder(STATUS_REDUNDANCY).getCommandString();
+    var command = new CommandStringBuilder(STATUS_REDUNDANCY).getCommandString();
     gfsh.executeAndAssertThat(command).statusIsSuccess().hasInfoSection(NO_MEMBERS_SECTION)
         .hasHeader()
         .isEqualTo(NO_MEMBERS_HEADER);
@@ -174,20 +171,20 @@ public class StatusRedundancyCommandDUnitTest {
   public void statusRedundancyWithIncludeRegionReturnsErrorWhenAtLeastOneIncludedRegionIsNotPresent() {
     createAndPopulateRegions();
 
-    String nonexistentRegion = "fakeRegion";
+    var nonexistentRegion = "fakeRegion";
 
-    String includedRegion = SATISFIED_REGION;
+    var includedRegion = SATISFIED_REGION;
     List<String> nonIncludedRegions = new ArrayList<>(regionNames);
     nonIncludedRegions.remove(includedRegion);
 
-    String command = new CommandStringBuilder(STATUS_REDUNDANCY)
+    var command = new CommandStringBuilder(STATUS_REDUNDANCY)
         .addOption(REDUNDANCY_INCLUDE_REGION, nonexistentRegion + "," + includedRegion)
         .getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsError()
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsError()
         .doesNotContainOutput(nonIncludedRegions.toArray(new String[0]));
 
-    InfoResultModelAssert noMembersForRegion =
+    var noMembersForRegion =
         commandResult.hasInfoSection(NO_MEMBERS_FOR_REGION_SECTION);
     noMembersForRegion.hasHeader().isEqualTo(NO_MEMBERS_FOR_REGION_HEADER);
     noMembersForRegion.hasLines().containsExactly(nonexistentRegion);
@@ -199,8 +196,8 @@ public class StatusRedundancyCommandDUnitTest {
   @Test
   public void statusRedundancyReturnsRegionWithNoBucketsCreatedStatusAsNoRedundantCopies() {
     createRegion();
-    String command = new CommandStringBuilder(STATUS_REDUNDANCY).getCommandString();
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var command = new CommandStringBuilder(STATUS_REDUNDANCY).getCommandString();
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
     verifyGfshOutput(commandResult, Collections.singletonList(EMPTY_REGION), new ArrayList<>(),
         new ArrayList<>());
   }
@@ -209,15 +206,15 @@ public class StatusRedundancyCommandDUnitTest {
   public void statusRedundancyReturnsEmptyRegionStatusCorrectly() {
     createRegion();
     doPutAndRemove();
-    String command = new CommandStringBuilder(STATUS_REDUNDANCY).getCommandString();
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var command = new CommandStringBuilder(STATUS_REDUNDANCY).getCommandString();
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(),
         Collections.singletonList(EMPTY_REGION));
   }
 
   private void createRegion() {
     servers.forEach(s -> s.invoke(() -> {
-      InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+      var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
       cache.createRegionFactory(RegionShortcut.PARTITION_REDUNDANT).create(EMPTY_REGION);
     }));
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + EMPTY_REGION, 2);
@@ -225,8 +222,8 @@ public class StatusRedundancyCommandDUnitTest {
 
   private void doPutAndRemove() {
     servers.get(0).invoke(() -> {
-      InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
-      Region<Object, Object> region = cache.getRegion(EMPTY_REGION);
+      var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+      var region = cache.getRegion(EMPTY_REGION);
       region.put(1, 1);
       region.remove(1);
     });
@@ -234,11 +231,11 @@ public class StatusRedundancyCommandDUnitTest {
 
   private void createAndPopulateRegions() {
     servers.forEach(s -> s.invoke(() -> {
-      PartitionAttributesImpl attributes = new PartitionAttributesImpl();
+      var attributes = new PartitionAttributesImpl();
       attributes.setStartupRecoveryDelay(-1);
       attributes.setRecoveryDelay(-1);
 
-      InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+      var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
 
       // Create a region whose redundancy cannot be satisfied due to not enough members
       attributes.setRedundantCopies(UNSATISFIABLE_COPIES);
@@ -258,19 +255,19 @@ public class StatusRedundancyCommandDUnitTest {
 
     servers.get(0).invoke(() -> {
       // Create a region on only server1 so that it will not be able to create any redundant copies
-      PartitionAttributesImpl attributes = new PartitionAttributesImpl();
+      var attributes = new PartitionAttributesImpl();
       attributes.setStartupRecoveryDelay(-1);
       attributes.setRecoveryDelay(-1);
       attributes.setRedundantCopies(SATISFIABLE_COPIES);
 
-      InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+      var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
 
       cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes).create(
           ZERO_COPIES_REGION);
 
       // Populate all the regions
       regionNames.forEach(regionName -> {
-        Region<Object, Object> region = cache.getRegion(regionName);
+        var region = cache.getRegion(regionName);
         IntStream.range(0, 5 * GLOBAL_MAX_BUCKETS_DEFAULT)
             .forEach(i -> region.put("key" + i, "value" + i));
       });
@@ -278,7 +275,7 @@ public class StatusRedundancyCommandDUnitTest {
 
     // Wait for the regions to be ready
     regionNames.forEach(region -> {
-      int expectedServers = region.equals(ZERO_COPIES_REGION) ? 1 : SERVERS_TO_START;
+      var expectedServers = region.equals(ZERO_COPIES_REGION) ? 1 : SERVERS_TO_START;
       locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, expectedServers);
     });
   }
@@ -286,7 +283,7 @@ public class StatusRedundancyCommandDUnitTest {
   private void verifyGfshOutput(CommandResultAssert result, List<String> expectedZeroCopiesRegions,
       List<String> expectedPartiallySatisfiedRegions, List<String> expectedFullySatisfiedRegions) {
     // Verify summary section
-    InfoResultModelAssert summary = result.hasInfoSection(SUMMARY_SECTION);
+    var summary = result.hasInfoSection(SUMMARY_SECTION);
     summary.hasOutput().contains(ZERO_REDUNDANT_COPIES + expectedZeroCopiesRegions.size());
     summary.hasOutput()
         .contains(PARTIALLY_SATISFIED_REDUNDANCY + expectedPartiallySatisfiedRegions.size());
@@ -294,7 +291,7 @@ public class StatusRedundancyCommandDUnitTest {
 
     // Verify zero redundancy section
     if (!expectedZeroCopiesRegions.isEmpty()) {
-      InfoResultModelAssert zeroRedundancy = result.hasInfoSection(ZERO_REDUNDANCY_SECTION);
+      var zeroRedundancy = result.hasInfoSection(ZERO_REDUNDANCY_SECTION);
       zeroRedundancy.hasHeader().isEqualTo(NO_REDUNDANT_COPIES_FOR_REGIONS);
       zeroRedundancy.hasOutput().contains(expectedZeroCopiesRegions);
     } else {
@@ -303,7 +300,7 @@ public class StatusRedundancyCommandDUnitTest {
 
     // Verify under redundancy section
     if (!expectedPartiallySatisfiedRegions.isEmpty()) {
-      InfoResultModelAssert zeroRedundancy = result.hasInfoSection(UNDER_REDUNDANCY_SECTION);
+      var zeroRedundancy = result.hasInfoSection(UNDER_REDUNDANCY_SECTION);
       zeroRedundancy.hasHeader().isEqualTo(REDUNDANCY_NOT_SATISFIED_FOR_REGIONS);
       zeroRedundancy.hasOutput().contains(expectedPartiallySatisfiedRegions);
     } else {
@@ -312,7 +309,7 @@ public class StatusRedundancyCommandDUnitTest {
 
     // Verify fully satisfied section
     if (!expectedFullySatisfiedRegions.isEmpty()) {
-      InfoResultModelAssert zeroRedundancy = result.hasInfoSection(SATISFIED_REDUNDANCY_SECTION);
+      var zeroRedundancy = result.hasInfoSection(SATISFIED_REDUNDANCY_SECTION);
       zeroRedundancy.hasHeader().isEqualTo(REDUNDANCY_SATISFIED_FOR_REGIONS);
       zeroRedundancy.hasOutput().contains(expectedFullySatisfiedRegions);
     } else {

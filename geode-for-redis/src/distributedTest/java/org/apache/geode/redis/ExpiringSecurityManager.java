@@ -29,7 +29,7 @@ public class ExpiringSecurityManager extends SimpleSecurityManager {
 
   @Override
   public Object authenticate(final Properties credentials) throws AuthenticationFailedException {
-    String user = (String) super.authenticate(credentials);
+    var user = (String) super.authenticate(credentials);
     if (expiredUsers.remove(user)) {
       throw new AuthenticationExpiredException("User has expired.");
     }
@@ -39,7 +39,7 @@ public class ExpiringSecurityManager extends SimpleSecurityManager {
 
   @Override
   public boolean authorize(Object principal, ResourcePermission permission) {
-    String user = (String) principal;
+    var user = (String) principal;
     if (expiredUsers.remove(user)) {
       throw new AuthenticationExpiredException("User has expired.");
     }

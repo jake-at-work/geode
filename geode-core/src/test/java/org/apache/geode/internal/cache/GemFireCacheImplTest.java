@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.NotSerializableException;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -50,10 +49,7 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.SerializationException;
-import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.client.PoolFactory;
-import org.apache.geode.cache.query.internal.QueryMonitor;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.DistributionManager;
@@ -100,10 +96,10 @@ public class GemFireCacheImplTest {
     replyProcessor21Factory = mock(ReplyProcessor21Factory.class);
     typeRegistry = mock(TypeRegistry.class);
 
-    DistributionConfig distributionConfig = mock(DistributionConfig.class);
+    var distributionConfig = mock(DistributionConfig.class);
     when(distributionConfig.getUseSharedConfiguration()).thenReturn(false);
-    DistributionManager distributionManager = mock(DistributionManager.class);
-    ReplyProcessor21 replyProcessor21 = mock(ReplyProcessor21.class);
+    var distributionManager = mock(DistributionManager.class);
+    var replyProcessor21 = mock(ReplyProcessor21.class);
 
     when(distributionConfig.getSecurityProps())
         .thenReturn(new Properties());
@@ -130,8 +126,8 @@ public class GemFireCacheImplTest {
 
   @Test
   public void canBeMocked() {
-    GemFireCacheImpl gemFireCacheImpl = mock(GemFireCacheImpl.class);
-    InternalResourceManager internalResourceManager = mock(InternalResourceManager.class);
+    var gemFireCacheImpl = mock(GemFireCacheImpl.class);
+    var internalResourceManager = mock(InternalResourceManager.class);
 
     when(gemFireCacheImpl.getInternalResourceManager())
         .thenReturn(internalResourceManager);
@@ -142,10 +138,10 @@ public class GemFireCacheImplTest {
 
   @Test
   public void checkPurgeCCPTimer() {
-    SystemTimer cacheClientProxyTimer = mock(SystemTimer.class);
+    var cacheClientProxyTimer = mock(SystemTimer.class);
     gemFireCacheImpl.setCCPTimer(cacheClientProxyTimer);
 
-    for (int i = 1; i < GemFireCacheImpl.PURGE_INTERVAL; i++) {
+    for (var i = 1; i < GemFireCacheImpl.PURGE_INTERVAL; i++) {
       gemFireCacheImpl.purgeCCPTimer();
       verify(cacheClientProxyTimer,
           times(0))
@@ -157,7 +153,7 @@ public class GemFireCacheImplTest {
         times(1))
             .timerPurge();
 
-    for (int i = 1; i < GemFireCacheImpl.PURGE_INTERVAL; i++) {
+    for (var i = 1; i < GemFireCacheImpl.PURGE_INTERVAL; i++) {
       gemFireCacheImpl.purgeCCPTimer();
       verify(cacheClientProxyTimer,
           times(1))
@@ -172,7 +168,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void registerPdxMetaDataThrowsIfInstanceNotSerializable() {
-    Throwable thrown = catchThrowable(() -> gemFireCacheImpl.registerPdxMetaData(new Object()));
+    var thrown = catchThrowable(() -> gemFireCacheImpl.registerPdxMetaData(new Object()));
 
     assertThat(thrown)
         .isInstanceOf(SerializationException.class)
@@ -182,7 +178,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void registerPdxMetaDataThrowsIfInstanceIsNotPDX() {
-    Throwable thrown = catchThrowable(() -> gemFireCacheImpl.registerPdxMetaData("string"));
+    var thrown = catchThrowable(() -> gemFireCacheImpl.registerPdxMetaData("string"));
 
     assertThat(thrown)
         .isInstanceOf(SerializationException.class)
@@ -192,7 +188,7 @@ public class GemFireCacheImplTest {
   @Test
   public void checkThatAsyncEventListenersUseAllThreadsInPool() {
     gemFireCacheImpl = gemFireCacheImpl(true);
-    ThreadPoolExecutor eventThreadPoolExecutor =
+    var eventThreadPoolExecutor =
         (ThreadPoolExecutor) gemFireCacheImpl.getEventThreadPool();
 
     assertThat(eventThreadPoolExecutor.getCompletedTaskCount())
@@ -200,10 +196,10 @@ public class GemFireCacheImplTest {
     assertThat(eventThreadPoolExecutor.getActiveCount())
         .isZero();
 
-    int eventThreadLimit = GemFireCacheImpl.EVENT_THREAD_LIMIT;
-    CountDownLatch threadLatch = new CountDownLatch(eventThreadLimit);
+    var eventThreadLimit = GemFireCacheImpl.EVENT_THREAD_LIMIT;
+    var threadLatch = new CountDownLatch(eventThreadLimit);
 
-    for (int i = 1; i <= eventThreadLimit; i++) {
+    for (var i = 1; i <= eventThreadLimit; i++) {
       eventThreadPoolExecutor.execute(() -> {
         threadLatch.countDown();
         try {
@@ -220,7 +216,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheClosedException_withoutReasonOrCauseGivesExceptionWithoutEither() {
-    CacheClosedException value = gemFireCacheImpl.getCacheClosedException(null, null);
+    var value = gemFireCacheImpl.getCacheClosedException(null, null);
 
     assertThat(value.getCause())
         .isNull();
@@ -230,7 +226,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheClosedException_withoutCauseGivesExceptionWithReason() {
-    CacheClosedException value = gemFireCacheImpl.getCacheClosedException("message");
+    var value = gemFireCacheImpl.getCacheClosedException("message");
 
     assertThat(value.getCause())
         .isNull();
@@ -240,9 +236,9 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheClosedException_returnsExceptionWithProvidedCauseAndReason() {
-    Throwable cause = new Throwable();
+    var cause = new Throwable();
 
-    CacheClosedException value = gemFireCacheImpl.getCacheClosedException("message", cause);
+    var value = gemFireCacheImpl.getCacheClosedException("message", cause);
 
     assertThat(value.getCause())
         .isEqualTo(cause);
@@ -253,9 +249,9 @@ public class GemFireCacheImplTest {
   @Test
   public void getCacheClosedException_prefersGivenCauseWhenDisconnectExceptionExists() {
     gemFireCacheImpl.setDisconnectCause(new Throwable("disconnectCause"));
-    Throwable cause = new Throwable();
+    var cause = new Throwable();
 
-    CacheClosedException value = gemFireCacheImpl.getCacheClosedException("message", cause);
+    var value = gemFireCacheImpl.getCacheClosedException("message", cause);
 
     assertThat(value.getCause())
         .isEqualTo(cause);
@@ -265,10 +261,10 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheClosedException_withoutCauseGiven_providesDisconnectExceptionIfExists() {
-    Throwable disconnectCause = new Throwable("disconnectCause");
+    var disconnectCause = new Throwable("disconnectCause");
     gemFireCacheImpl.setDisconnectCause(disconnectCause);
 
-    CacheClosedException value = gemFireCacheImpl.getCacheClosedException("message");
+    var value = gemFireCacheImpl.getCacheClosedException("message");
 
     assertThat(value.getCause())
         .isEqualTo(disconnectCause);
@@ -278,7 +274,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheClosedException_returnsExceptionWithProvidedReason() {
-    CacheClosedException value = gemFireCacheImpl.getCacheClosedException("message");
+    var value = gemFireCacheImpl.getCacheClosedException("message");
 
     assertThat(value.getMessage())
         .isEqualTo("message");
@@ -288,7 +284,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheClosedException_returnsExceptionWithoutMessageWhenReasonNotGiven() {
-    CacheClosedException value = gemFireCacheImpl.getCacheClosedException(null);
+    var value = gemFireCacheImpl.getCacheClosedException(null);
 
     assertThat(value.getMessage())
         .isEqualTo(null);
@@ -298,10 +294,10 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheClosedException_returnsExceptionWithDisconnectCause() {
-    Throwable disconnectCause = new Throwable("disconnectCause");
+    var disconnectCause = new Throwable("disconnectCause");
     gemFireCacheImpl.setDisconnectCause(disconnectCause);
 
-    CacheClosedException value = gemFireCacheImpl.getCacheClosedException("message");
+    var value = gemFireCacheImpl.getCacheClosedException("message");
 
     assertThat(value.getMessage())
         .isEqualTo("message");
@@ -311,8 +307,8 @@ public class GemFireCacheImplTest {
 
   @Test
   public void addGatewayReceiverDoesNotAllowMoreThanOneGatewayReceiver() {
-    GatewayReceiver receiver = mock(GatewayReceiver.class);
-    GatewayReceiver receiver2 = mock(GatewayReceiver.class);
+    var receiver = mock(GatewayReceiver.class);
+    var receiver2 = mock(GatewayReceiver.class);
     gemFireCacheImpl.addGatewayReceiver(receiver);
 
     gemFireCacheImpl.addGatewayReceiver(receiver2);
@@ -323,7 +319,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void addGatewayReceiverRequiresSuppliedGatewayReceiver() {
-    Throwable thrown = catchThrowable(() -> gemFireCacheImpl.addGatewayReceiver(null));
+    var thrown = catchThrowable(() -> gemFireCacheImpl.addGatewayReceiver(null));
 
     assertThat(thrown)
         .isInstanceOf(NullPointerException.class);
@@ -331,7 +327,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void addGatewayReceiverAddsGatewayReceiver() {
-    GatewayReceiver receiver = mock(GatewayReceiver.class);
+    var receiver = mock(GatewayReceiver.class);
 
     gemFireCacheImpl.addGatewayReceiver(receiver);
 
@@ -341,7 +337,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void removeGatewayReceiverRemovesGatewayReceiver() {
-    GatewayReceiver receiver = mock(GatewayReceiver.class);
+    var receiver = mock(GatewayReceiver.class);
     gemFireCacheImpl.addGatewayReceiver(receiver);
 
     gemFireCacheImpl.removeGatewayReceiver(receiver);
@@ -360,7 +356,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void removeCacheServerRemovesSpecifiedCacheServer() {
-    CacheServer cacheServer = gemFireCacheImpl.addCacheServer();
+    var cacheServer = gemFireCacheImpl.addCacheServer();
 
     gemFireCacheImpl.removeCacheServer(cacheServer);
 
@@ -370,8 +366,8 @@ public class GemFireCacheImplTest {
 
   @Test
   public void testIsMisConfigured() {
-    Properties clusterProps = new Properties();
-    Properties serverProps = new Properties();
+    var clusterProps = new Properties();
+    var serverProps = new Properties();
 
     // both does not have the key
     assertThat(GemFireCacheImpl.isMisConfigured(clusterProps, serverProps, "key")).isFalse();
@@ -445,7 +441,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getMeterRegistry_returnsTheSystemMeterRegistry() {
-    MeterRegistry systemMeterRegistry = mock(MeterRegistry.class);
+    var systemMeterRegistry = mock(MeterRegistry.class);
     when(internalDistributedSystem.getMeterRegistry()).thenReturn(systemMeterRegistry);
 
     assertThat(gemFireCacheImpl.getMeterRegistry())
@@ -454,7 +450,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void addGatewayReceiverServer_requiresPreviouslyAddedGatewayReceiver() {
-    Throwable thrown = catchThrowable(
+    var thrown = catchThrowable(
         () -> gemFireCacheImpl.addGatewayReceiverServer(mock(GatewayReceiver.class)));
 
     assertThat(thrown)
@@ -463,10 +459,10 @@ public class GemFireCacheImplTest {
 
   @Test
   public void addGatewayReceiverServer_requiresSuppliedGatewayReceiver() {
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var gatewayReceiver = mock(GatewayReceiver.class);
     gemFireCacheImpl.addGatewayReceiver(gatewayReceiver);
 
-    Throwable thrown = catchThrowable(() -> gemFireCacheImpl.addGatewayReceiverServer(null));
+    var thrown = catchThrowable(() -> gemFireCacheImpl.addGatewayReceiverServer(null));
 
     assertThat(thrown)
         .isInstanceOf(NullPointerException.class);
@@ -474,10 +470,10 @@ public class GemFireCacheImplTest {
 
   @Test
   public void addGatewayReceiverServer_addsCacheServer() {
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var gatewayReceiver = mock(GatewayReceiver.class);
     gemFireCacheImpl.addGatewayReceiver(gatewayReceiver);
 
-    InternalCacheServer receiverServer = gemFireCacheImpl.addGatewayReceiverServer(gatewayReceiver);
+    var receiverServer = gemFireCacheImpl.addGatewayReceiverServer(gatewayReceiver);
 
     assertThat(gemFireCacheImpl.getCacheServersAndGatewayReceiver())
         .containsOnly(receiverServer);
@@ -485,7 +481,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheServers_isEmptyByDefault() {
-    List<CacheServer> value = gemFireCacheImpl.getCacheServers();
+    var value = gemFireCacheImpl.getCacheServers();
 
     assertThat(value)
         .isEmpty();
@@ -493,9 +489,9 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheServers_returnsAddedCacheServer() {
-    CacheServer cacheServer = gemFireCacheImpl.addCacheServer();
+    var cacheServer = gemFireCacheImpl.addCacheServer();
 
-    List<CacheServer> value = gemFireCacheImpl.getCacheServers();
+    var value = gemFireCacheImpl.getCacheServers();
 
     assertThat(value)
         .containsExactly(cacheServer);
@@ -503,11 +499,11 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheServers_returnsMultipleAddedCacheServers() {
-    CacheServer cacheServer1 = gemFireCacheImpl.addCacheServer();
-    CacheServer cacheServer2 = gemFireCacheImpl.addCacheServer();
-    CacheServer cacheServer3 = gemFireCacheImpl.addCacheServer();
+    var cacheServer1 = gemFireCacheImpl.addCacheServer();
+    var cacheServer2 = gemFireCacheImpl.addCacheServer();
+    var cacheServer3 = gemFireCacheImpl.addCacheServer();
 
-    List<CacheServer> value = gemFireCacheImpl.getCacheServers();
+    var value = gemFireCacheImpl.getCacheServers();
 
     assertThat(value)
         .containsExactlyInAnyOrder(cacheServer1, cacheServer2, cacheServer3);
@@ -515,11 +511,11 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheServers_isStillEmptyAfterAddingGatewayReceiverServer() {
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var gatewayReceiver = mock(GatewayReceiver.class);
     gemFireCacheImpl.addGatewayReceiver(gatewayReceiver);
     gemFireCacheImpl.addGatewayReceiverServer(gatewayReceiver);
 
-    List<CacheServer> value = gemFireCacheImpl.getCacheServers();
+    var value = gemFireCacheImpl.getCacheServers();
 
     assertThat(value)
         .isEmpty();
@@ -527,14 +523,14 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheServers_doesNotIncludeGatewayReceiverServer() {
-    CacheServer cacheServer1 = gemFireCacheImpl.addCacheServer();
-    CacheServer cacheServer2 = gemFireCacheImpl.addCacheServer();
-    CacheServer cacheServer3 = gemFireCacheImpl.addCacheServer();
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var cacheServer1 = gemFireCacheImpl.addCacheServer();
+    var cacheServer2 = gemFireCacheImpl.addCacheServer();
+    var cacheServer3 = gemFireCacheImpl.addCacheServer();
+    var gatewayReceiver = mock(GatewayReceiver.class);
     gemFireCacheImpl.addGatewayReceiver(gatewayReceiver);
     gemFireCacheImpl.addGatewayReceiverServer(gatewayReceiver);
 
-    List<CacheServer> value = gemFireCacheImpl.getCacheServers();
+    var value = gemFireCacheImpl.getCacheServers();
 
     assertThat(value)
         .containsExactlyInAnyOrder(cacheServer1, cacheServer2, cacheServer3);
@@ -542,7 +538,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheServersAndGatewayReceiver_isEmptyByDefault() {
-    List<InternalCacheServer> value = gemFireCacheImpl.getCacheServersAndGatewayReceiver();
+    var value = gemFireCacheImpl.getCacheServersAndGatewayReceiver();
 
     assertThat(value)
         .isEmpty();
@@ -550,11 +546,11 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheServersAndGatewayReceiver_includesCacheServers() {
-    InternalCacheServer cacheServer1 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
-    InternalCacheServer cacheServer2 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
-    InternalCacheServer cacheServer3 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
+    var cacheServer1 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
+    var cacheServer2 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
+    var cacheServer3 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
 
-    List<InternalCacheServer> value = gemFireCacheImpl.getCacheServersAndGatewayReceiver();
+    var value = gemFireCacheImpl.getCacheServersAndGatewayReceiver();
 
     assertThat(value)
         .containsExactlyInAnyOrder(cacheServer1, cacheServer2, cacheServer3);
@@ -562,11 +558,11 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheServersAndGatewayReceiver_includesGatewayReceiver() {
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var gatewayReceiver = mock(GatewayReceiver.class);
     gemFireCacheImpl.addGatewayReceiver(gatewayReceiver);
-    InternalCacheServer receiverServer = gemFireCacheImpl.addGatewayReceiverServer(gatewayReceiver);
+    var receiverServer = gemFireCacheImpl.addGatewayReceiverServer(gatewayReceiver);
 
-    List<InternalCacheServer> value = gemFireCacheImpl.getCacheServersAndGatewayReceiver();
+    var value = gemFireCacheImpl.getCacheServersAndGatewayReceiver();
 
     assertThat(value)
         .containsExactly(receiverServer);
@@ -574,14 +570,14 @@ public class GemFireCacheImplTest {
 
   @Test
   public void getCacheServersAndGatewayReceiver_includesCacheServersAndGatewayReceiver() {
-    InternalCacheServer cacheServer1 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
-    InternalCacheServer cacheServer2 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
-    InternalCacheServer cacheServer3 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var cacheServer1 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
+    var cacheServer2 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
+    var cacheServer3 = (InternalCacheServer) gemFireCacheImpl.addCacheServer();
+    var gatewayReceiver = mock(GatewayReceiver.class);
     gemFireCacheImpl.addGatewayReceiver(gatewayReceiver);
-    InternalCacheServer receiverServer = gemFireCacheImpl.addGatewayReceiverServer(gatewayReceiver);
+    var receiverServer = gemFireCacheImpl.addGatewayReceiverServer(gatewayReceiver);
 
-    List<InternalCacheServer> value = gemFireCacheImpl.getCacheServersAndGatewayReceiver();
+    var value = gemFireCacheImpl.getCacheServersAndGatewayReceiver();
 
     assertThat(value)
         .containsExactlyInAnyOrder(cacheServer1, cacheServer2, cacheServer3, receiverServer);
@@ -589,7 +585,7 @@ public class GemFireCacheImplTest {
 
   @Test
   public void isServer_isFalseByDefault() {
-    boolean value = gemFireCacheImpl.isServer();
+    var value = gemFireCacheImpl.isServer();
 
     assertThat(value)
         .isFalse();
@@ -599,7 +595,7 @@ public class GemFireCacheImplTest {
   public void isServer_isTrueIfIsServerIsSet() {
     gemFireCacheImpl.setIsServer(true);
 
-    boolean value = gemFireCacheImpl.isServer();
+    var value = gemFireCacheImpl.isServer();
 
     assertThat(value)
         .isTrue();
@@ -609,7 +605,7 @@ public class GemFireCacheImplTest {
   public void isServer_isTrueIfCacheServerExists() {
     gemFireCacheImpl.addCacheServer();
 
-    boolean value = gemFireCacheImpl.isServer();
+    var value = gemFireCacheImpl.isServer();
 
     assertThat(value)
         .isTrue();
@@ -617,11 +613,11 @@ public class GemFireCacheImplTest {
 
   @Test
   public void isServer_isFalseEvenIfGatewayReceiverServerExists() {
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var gatewayReceiver = mock(GatewayReceiver.class);
     gemFireCacheImpl.addGatewayReceiver(gatewayReceiver);
     gemFireCacheImpl.addGatewayReceiverServer(gatewayReceiver);
 
-    boolean value = gemFireCacheImpl.isServer();
+    var value = gemFireCacheImpl.isServer();
 
     assertThat(value)
         .isFalse();
@@ -635,20 +631,20 @@ public class GemFireCacheImplTest {
 
   @Test
   public void testMultiThreadLockUnlockDiskStore() throws InterruptedException {
-    int nThread = 10;
-    String diskStoreName = "MyDiskStore";
-    AtomicInteger nTrue = new AtomicInteger();
-    AtomicInteger nFalse = new AtomicInteger();
+    var nThread = 10;
+    var diskStoreName = "MyDiskStore";
+    var nTrue = new AtomicInteger();
+    var nFalse = new AtomicInteger();
     IntStream.range(0, nThread).forEach(tid -> executorServiceRule.submit(() -> {
       try {
-        boolean lockResult = gemFireCacheImpl.doLockDiskStore(diskStoreName);
+        var lockResult = gemFireCacheImpl.doLockDiskStore(diskStoreName);
         if (lockResult) {
           nTrue.incrementAndGet();
         } else {
           nFalse.incrementAndGet();
         }
       } finally {
-        boolean unlockResult = gemFireCacheImpl.doUnlockDiskStore(diskStoreName);
+        var unlockResult = gemFireCacheImpl.doUnlockDiskStore(diskStoreName);
         if (unlockResult) {
           nTrue.incrementAndGet();
         } else {
@@ -657,7 +653,7 @@ public class GemFireCacheImplTest {
       }
     }));
     executorServiceRule.getExecutorService().shutdown();
-    boolean terminated =
+    var terminated =
         executorServiceRule.getExecutorService()
             .awaitTermination(GeodeAwaitility.getTimeout().toNanos(), TimeUnit.NANOSECONDS);
     assertThat(terminated).isTrue();
@@ -678,11 +674,11 @@ public class GemFireCacheImplTest {
 
   @Test
   public void anythingThrownDuringInitializeDeclarativeCacheShouldBeCaughtAndFinallyCloseCache() {
-    InternalDistributedMember internalDistributedMember = mock(InternalDistributedMember.class);
+    var internalDistributedMember = mock(InternalDistributedMember.class);
     when(internalDistributedSystem.getDistributedMember()).thenReturn(internalDistributedMember);
-    DistributionConfig distributionConfig = mock(DistributionConfig.class);
+    var distributionConfig = mock(DistributionConfig.class);
     when(internalDistributedSystem.getConfig()).thenReturn(distributionConfig);
-    File file = mock(File.class);
+    var file = mock(File.class);
     when(distributionConfig.getDeployWorkingDir()).thenReturn(file);
     when(file.canWrite()).thenReturn(true);
     when(file.listFiles()).thenReturn(new File[0]);
@@ -700,7 +696,7 @@ public class GemFireCacheImplTest {
   public void getQueryMonitorReturnsNullGivenCriticalHeapPercentageOfZero() {
     when(internalResourceManager.getCriticalHeapPercentage()).thenReturn(0.0f);
 
-    QueryMonitor queryMonitor = gemFireCacheImpl.getQueryMonitor();
+    var queryMonitor = gemFireCacheImpl.getQueryMonitor();
 
     assertThat(queryMonitor).isNull();
   }
@@ -709,7 +705,7 @@ public class GemFireCacheImplTest {
   public void getQueryMonitorReturnsInstanceGivenCriticalHeapPercentage() {
     when(internalResourceManager.getCriticalHeapPercentage()).thenReturn(1.0f);
 
-    QueryMonitor queryMonitor = gemFireCacheImpl.getQueryMonitor();
+    var queryMonitor = gemFireCacheImpl.getQueryMonitor();
 
     assertThat(queryMonitor).isNotNull();
   }
@@ -719,7 +715,7 @@ public class GemFireCacheImplTest {
     when(internalResourceManager.getCriticalHeapPercentage()).thenReturn(0.0f);
     when(internalResourceManager.getCriticalOffHeapPercentage()).thenReturn(1.0f);
 
-    QueryMonitor queryMonitor = gemFireCacheImpl.getQueryMonitor();
+    var queryMonitor = gemFireCacheImpl.getQueryMonitor();
 
     assertThat(queryMonitor).isNull();
   }
@@ -727,10 +723,10 @@ public class GemFireCacheImplTest {
   @Test
   public void getQueryMonitorReturnsInstanceGivenMaxQueryExecutionTimeGreaterThanZero() {
     when(internalResourceManager.getCriticalHeapPercentage()).thenReturn(0.0f);
-    final int originalValue = GemFireCacheImpl.MAX_QUERY_EXECUTION_TIME;
+    final var originalValue = GemFireCacheImpl.MAX_QUERY_EXECUTION_TIME;
     GemFireCacheImpl.MAX_QUERY_EXECUTION_TIME = 1;
     try {
-      QueryMonitor queryMonitor = gemFireCacheImpl.getQueryMonitor();
+      var queryMonitor = gemFireCacheImpl.getQueryMonitor();
       assertThat(queryMonitor).isNotNull();
     } finally {
       GemFireCacheImpl.MAX_QUERY_EXECUTION_TIME = originalValue;

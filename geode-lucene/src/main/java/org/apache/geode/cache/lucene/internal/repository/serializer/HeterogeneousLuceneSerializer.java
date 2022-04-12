@@ -48,7 +48,7 @@ public class HeterogeneousLuceneSerializer implements LuceneSerializer {
   private static final Logger logger = LogService.getLogger();
 
   public HeterogeneousLuceneSerializer() {
-    final PrimitiveSerializer primitiveSerializer = new PrimitiveSerializer();
+    final var primitiveSerializer = new PrimitiveSerializer();
     SerializerUtil.supportedPrimitiveTypes().stream()
         .forEach(type -> mappers.put(type, primitiveSerializer));
 
@@ -62,7 +62,7 @@ public class HeterogeneousLuceneSerializer implements LuceneSerializer {
       return Collections.emptyList();
     }
 
-    LuceneSerializer mapper = getFieldMapper(value, index.getFieldNames());
+    var mapper = getFieldMapper(value, index.getFieldNames());
 
     Collection<Document> docs = mapper.toDocuments(index, value);
     if (logger.isDebugEnabled()) {
@@ -79,8 +79,8 @@ public class HeterogeneousLuceneSerializer implements LuceneSerializer {
     if (value instanceof PdxInstance) {
       return pdxMapper;
     } else {
-      Class<?> clazz = value.getClass();
-      LuceneSerializer mapper = mappers.get(clazz);
+      var clazz = value.getClass();
+      var mapper = mappers.get(clazz);
       if (mapper == null) {
         mapper = new ReflectionLuceneSerializer(clazz, indexedFields);
         mappers.put(clazz, mapper);

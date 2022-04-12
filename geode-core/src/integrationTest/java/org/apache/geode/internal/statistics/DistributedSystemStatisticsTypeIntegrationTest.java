@@ -49,13 +49,13 @@ public class DistributedSystemStatisticsTypeIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(NAME, getUniqueName());
     system = DistributedSystem.connect(props);
 
-    StatisticDescriptor[] stats = {factory().createIntGauge("test", "TEST", "ms")};
+    var stats = new StatisticDescriptor[] {factory().createIntGauge("test", "TEST", "ms")};
 
     type = factory().createType(getUniqueName(), "TEST", stats);
   }

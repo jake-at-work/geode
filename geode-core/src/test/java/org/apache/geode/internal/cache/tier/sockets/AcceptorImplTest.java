@@ -77,7 +77,7 @@ public class AcceptorImplTest {
     system = mock(InternalDistributedSystem.class);
     statisticsManager = mock(StatisticsManager.class);
 
-    ServerSocket serverSocket = mock(ServerSocket.class);
+    var serverSocket = mock(ServerSocket.class);
 
     when(cache.getDistributedSystem()).thenReturn(system);
     when(cache.getInternalDistributedSystem()).thenReturn(system);

@@ -38,10 +38,10 @@ public class DeploymentServiceFactory {
   private static final Logger logger = LogService.getLogger();
 
   private static JarDeploymentService createJarDeploymentService() {
-    ServiceLoader<JarDeploymentService> jarDeploymentServices =
+    var jarDeploymentServices =
         ServiceLoader.load(JarDeploymentService.class);
     if (jarDeploymentServices.iterator().hasNext()) {
-      JarDeploymentService jarDeploymentService = jarDeploymentServices.iterator().next();
+      var jarDeploymentService = jarDeploymentServices.iterator().next();
       return jarDeploymentService;
     } else {
       throw new ServiceLoadingFailureException(
@@ -50,10 +50,10 @@ public class DeploymentServiceFactory {
   }
 
   private static ClasspathService createClassPathService() {
-    ServiceLoader<ClasspathService> jarDeploymentServices =
+    var jarDeploymentServices =
         ServiceLoader.load(ClasspathService.class);
     if (jarDeploymentServices.iterator().hasNext()) {
-      ClasspathService classpathService = jarDeploymentServices.iterator().next();
+      var classpathService = jarDeploymentServices.iterator().next();
       return classpathService;
     } else {
       throw new ServiceLoadingFailureException(

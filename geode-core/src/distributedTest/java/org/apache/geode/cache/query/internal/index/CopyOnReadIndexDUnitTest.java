@@ -21,7 +21,6 @@ import static org.apache.geode.test.dunit.Assert.fail;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -29,20 +28,14 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CommitConflictException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.QueryTestUtils;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.Position;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -79,7 +72,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
         getSystem();
       }
     });
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     vm2 = host.getVM(2);
@@ -93,7 +86,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
   // test different queries against partitioned region
   @Test
   public void testPRQueryOnLocalNode() throws Exception {
-    QueryTestUtils utils = new QueryTestUtils();
+    var utils = new QueryTestUtils();
     configureServers();
     helpTestPRQueryOnLocalNode(utils.queries.get("545"), 100, 100, true);
     helpTestPRQueryOnLocalNode(utils.queries.get("546"), 100, 100, true);
@@ -113,7 +106,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
   // tests different queries with a transaction for replicated region
   @Test
   public void testTransactionsOnReplicatedRegion() throws Exception {
-    QueryTestUtils utils = new QueryTestUtils();
+    var utils = new QueryTestUtils();
     configureServers();
     helpTestTransactionsOnReplicatedRegion(utils.queries.get("545"), 100, 100, true);
     helpTestTransactionsOnReplicatedRegion(utils.queries.get("546"), 100, 100, true);
@@ -133,7 +126,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void configureServers() throws Exception {
-    final int[] port = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    final var port = AvailablePortHelper.getRandomAvailableTCPPorts(3);
     startCacheServer(vm0, port[0]);
     startCacheServer(vm1, port[1]);
     startCacheServer(vm2, port[2]);
@@ -146,7 +139,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
   // In cases where index is present, the objects will be deserialized in the cache
   public void helpTestPRQueryOnLocalNode(final String queryString, final int numPortfolios,
       final int numExpectedResults, final boolean hasIndex) throws Exception {
-    final int numPortfoliosPerVM = numPortfolios / 2;
+    final var numPortfoliosPerVM = numPortfolios / 2;
 
     resetInstanceCount(vm0);
     resetInstanceCount(vm1);
@@ -158,7 +151,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       vm0.invoke(new SerializableCallable() {
         @Override
         public Object call() throws Exception {
-          QueryTestUtils utils = new QueryTestUtils();
+          var utils = new QueryTestUtils();
           utils.createIndex("idIndex", "p.ID", SEPARATOR + "portfolios p");
           return null;
         }
@@ -169,8 +162,8 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion(SEPARATOR + "portfolios");
-        for (int i = 0; i < numPortfoliosPerVM; i++) {
-          Portfolio p = new Portfolio(i);
+        for (var i = 0; i < numPortfoliosPerVM; i++) {
+          var p = new Portfolio(i);
           p.status = "testStatus";
           p.positions = new HashMap();
           p.positions.put("" + i, new Position("" + i, 20));
@@ -181,7 +174,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
           // operations we have done on this vm consist of:
           // numPortfoliosPerVM instances of Portfolio created for put operation
           // Due to index, we have deserialized all of the entries this vm currently host
-          Index index = getCache().getQueryService().getIndex(region, "idIndex");
+          var index = getCache().getQueryService().getIndex(region, "idIndex");
           GeodeAwaitility.await().untilAsserted(verifyPortfolioCount(
               (int) index.getStatistics().getNumberOfValues() + numPortfoliosPerVM));
         } else {
@@ -198,8 +191,8 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion(SEPARATOR + "portfolios");
-        for (int i = numPortfoliosPerVM; i < numPortfolios; i++) {
-          Portfolio p = new Portfolio(i);
+        for (var i = numPortfoliosPerVM; i < numPortfolios; i++) {
+          var p = new Portfolio(i);
           p.status = "testStatus";
           p.positions = new HashMap();
           p.positions.put("" + i, new Position("" + i, 20));
@@ -210,9 +203,9 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
           // operations we have done on this vm consist of:
           // numPortfoliosPerVM instances of Portfolio created for put operation
           // Due to index, we have deserialized all of the entries this vm currently host
-          Index index = getCache().getQueryService().getIndex(region, "idIndex");
+          var index = getCache().getQueryService().getIndex(region, "idIndex");
           if (index == null) {
-            QueryTestUtils utils = new QueryTestUtils();
+            var utils = new QueryTestUtils();
             index = utils.createIndex("idIndex", "p.ID", SEPARATOR + "portfolios p");
           }
           GeodeAwaitility.await().untilAsserted(verifyPortfolioCount(
@@ -231,18 +224,18 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion(SEPARATOR + "portfolios");
-        QueryService qs = getCache().getQueryService();
-        Query query = qs.newQuery(queryString);
-        SelectResults results = (SelectResults) query.execute();
-        Iterator it = results.iterator();
+        var qs = getCache().getQueryService();
+        var query = qs.newQuery(queryString);
+        var results = (SelectResults) query.execute();
+        var it = results.iterator();
         assertEquals("Failed:" + queryString, numExpectedResults, results.size());
-        for (Object o : results) {
+        for (var o : results) {
           if (o instanceof Portfolio) {
-            Portfolio p = (Portfolio) o;
+            var p = (Portfolio) o;
             p.status = "discardStatus";
           } else {
-            Struct struct = (Struct) o;
-            Portfolio p = (Portfolio) struct.getFieldValues()[0];
+            var struct = (Struct) o;
+            var p = (Portfolio) struct.getFieldValues()[0];
             p.status = "discardStatus";
           }
         }
@@ -252,7 +245,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
           // Due to index, we have deserialized all of the entries this vm currently host
           // Since we have deserialized and cached these values, we just need to add the number of
           // results we did a copy of due to copy on read
-          Index index = getCache().getQueryService().getIndex(region, "idIndex");
+          var index = getCache().getQueryService().getIndex(region, "idIndex");
           GeodeAwaitility.await()
               .untilAsserted(verifyPortfolioCount((int) index.getStatistics().getNumberOfValues()
                   + numPortfoliosPerVM + numExpectedResults));
@@ -293,17 +286,17 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion(SEPARATOR + "portfolios");
-        QueryService qs = getCache().getQueryService();
-        Query query = qs.newQuery(queryString);
-        SelectResults results = (SelectResults) query.execute();
+        var qs = getCache().getQueryService();
+        var query = qs.newQuery(queryString);
+        var results = (SelectResults) query.execute();
         assertEquals(numExpectedResults, results.size());
-        for (Object o : results) {
+        for (var o : results) {
           if (o instanceof Portfolio) {
-            Portfolio p = (Portfolio) o;
+            var p = (Portfolio) o;
             assertEquals("status should not have been changed", "testStatus", p.status);
           } else {
-            Struct struct = (Struct) o;
-            Portfolio p = (Portfolio) struct.getFieldValues()[0];
+            var struct = (Struct) o;
+            var p = (Portfolio) struct.getFieldValues()[0];
             assertEquals("status should not have been changed", "testStatus", p.status);
           }
         }
@@ -313,7 +306,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
           // Due to index, we have deserialized all of the entries this vm currently host
           // This is the second query, because we have deserialized and cached these values, we just
           // need to add the number of results a second time
-          Index index = getCache().getQueryService().getIndex(region, "idIndex");
+          var index = getCache().getQueryService().getIndex(region, "idIndex");
           GeodeAwaitility.await()
               .untilAsserted(verifyPortfolioCount((int) index.getStatistics().getNumberOfValues()
                   + numExpectedResults + numExpectedResults + numPortfoliosPerVM));
@@ -357,7 +350,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       vm0.invoke(new SerializableCallable() {
         @Override
         public Object call() throws Exception {
-          QueryTestUtils utils = new QueryTestUtils();
+          var utils = new QueryTestUtils();
           utils.createHashIndex("idIndex", "p.ID", SEPARATOR + "portfolios p");
           return null;
         }
@@ -367,7 +360,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       vm2.invoke(new SerializableCallable() {
         @Override
         public Object call() throws Exception {
-          QueryTestUtils utils = new QueryTestUtils();
+          var utils = new QueryTestUtils();
           utils.createHashIndex("idIndex", "p.ID", SEPARATOR + "portfolios p");
           return null;
         }
@@ -379,8 +372,8 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion(SEPARATOR + "portfolios");
-        for (int i = 0; i < numPortfolios; i++) {
-          Portfolio p = new Portfolio(i);
+        for (var i = 0; i < numPortfolios; i++) {
+          var p = new Portfolio(i);
           p.status = "testStatus";
           p.positions = new HashMap();
           p.positions.put("" + i, new Position("" + i, 20));
@@ -425,21 +418,21 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion(SEPARATOR + "portfolios");
-        CacheTransactionManager txManager = region.getCache().getCacheTransactionManager();
+        var txManager = region.getCache().getCacheTransactionManager();
         try {
           txManager.begin();
 
-          QueryService qs = getCache().getQueryService();
-          Query query = qs.newQuery(queryString);
-          SelectResults results = (SelectResults) query.execute();
+          var qs = getCache().getQueryService();
+          var query = qs.newQuery(queryString);
+          var results = (SelectResults) query.execute();
           assertEquals(numExpectedResults, results.size());
-          for (Object o : results) {
+          for (var o : results) {
             if (o instanceof Portfolio) {
-              Portfolio p = (Portfolio) o;
+              var p = (Portfolio) o;
               p.status = "discardStatus";
             } else {
-              Struct struct = (Struct) o;
-              Portfolio p = (Portfolio) struct.getFieldValues()[0];
+              var struct = (Struct) o;
+              var p = (Portfolio) struct.getFieldValues()[0];
               p.status = "discardStatus";
             }
           }
@@ -462,18 +455,18 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion(SEPARATOR + "portfolios");
-        QueryService qs = getCache().getQueryService();
-        Query query = qs.newQuery(queryString);
-        SelectResults results = (SelectResults) query.execute();
+        var qs = getCache().getQueryService();
+        var query = qs.newQuery(queryString);
+        var results = (SelectResults) query.execute();
         assertEquals(numExpectedResults, results.size());
-        for (Object o : results) {
+        for (var o : results) {
           if (o instanceof Portfolio) {
-            Portfolio p = (Portfolio) o;
+            var p = (Portfolio) o;
             assertEquals("status should not have been changed", "testStatus", p.status);
             p.status = "discardStatus";
           } else {
-            Struct struct = (Struct) o;
-            Portfolio p = (Portfolio) struct.getFieldValues()[0];
+            var struct = (Struct) o;
+            var p = (Portfolio) struct.getFieldValues()[0];
             assertEquals("status should not have been changed", "testStatus", p.status);
             p.status = "discardStatus";
           }
@@ -485,13 +478,13 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
 
         results = (SelectResults) query.execute();
         assertEquals(numExpectedResults, results.size());
-        for (Object o : results) {
+        for (var o : results) {
           if (o instanceof Portfolio) {
-            Portfolio p = (Portfolio) o;
+            var p = (Portfolio) o;
             assertEquals("status should not have been changed", "testStatus", p.status);
           } else {
-            Struct struct = (Struct) o;
-            Portfolio p = (Portfolio) struct.getFieldValues()[0];
+            var struct = (Struct) o;
+            var p = (Portfolio) struct.getFieldValues()[0];
             assertEquals("status should not have been changed", "testStatus", p.status);
           }
         }
@@ -509,18 +502,18 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion(SEPARATOR + "portfolios");
-        QueryService qs = getCache().getQueryService();
-        Query query = qs.newQuery(queryString);
-        SelectResults results = (SelectResults) query.execute();
+        var qs = getCache().getQueryService();
+        var query = qs.newQuery(queryString);
+        var results = (SelectResults) query.execute();
         assertEquals(numExpectedResults, results.size());
-        for (Object o : results) {
+        for (var o : results) {
           if (o instanceof Portfolio) {
-            Portfolio p = (Portfolio) o;
+            var p = (Portfolio) o;
             assertEquals("status should not have been changed", "testStatus", p.status);
             p.status = "discardStatus";
           } else {
-            Struct struct = (Struct) o;
-            Portfolio p = (Portfolio) struct.getFieldValues()[0];
+            var struct = (Struct) o;
+            var p = (Portfolio) struct.getFieldValues()[0];
             assertEquals("status should not have been changed", "testStatus", p.status);
             p.status = "discardStatus";
           }
@@ -530,13 +523,13 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
             .untilAsserted(verifyPortfolioCount(numPortfolios + numExpectedResults));
         results = (SelectResults) query.execute();
         assertEquals(numExpectedResults, results.size());
-        for (Object o : results) {
+        for (var o : results) {
           if (o instanceof Portfolio) {
-            Portfolio p = (Portfolio) o;
+            var p = (Portfolio) o;
             assertEquals("status should not have been changed", "testStatus", p.status);
           } else {
-            Struct struct = (Struct) o;
-            Portfolio p = (Portfolio) struct.getFieldValues()[0];
+            var struct = (Struct) o;
+            var p = (Portfolio) struct.getFieldValues()[0];
             assertEquals("status should not have been changed", "testStatus", p.status);
           }
         }
@@ -563,17 +556,17 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region region = getCache().getRegion(SEPARATOR + "portfolios");
-        QueryService qs = getCache().getQueryService();
-        Query query = qs.newQuery(queryString);
-        SelectResults results = (SelectResults) query.execute();
+        var qs = getCache().getQueryService();
+        var query = qs.newQuery(queryString);
+        var results = (SelectResults) query.execute();
         assertEquals(numExpectedResults, results.size());
-        for (Object o : results) {
+        for (var o : results) {
           if (o instanceof Portfolio) {
-            Portfolio p = (Portfolio) o;
+            var p = (Portfolio) o;
             assertEquals("status should not have been changed", "testStatus", p.status);
           } else {
-            Struct struct = (Struct) o;
-            Portfolio p = (Portfolio) struct.getFieldValues()[0];
+            var struct = (Struct) o;
+            var p = (Portfolio) struct.getFieldValues()[0];
             assertEquals("status should not have been changed", "testStatus", p.status);
           }
         }
@@ -589,11 +582,11 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void destroyRegion(String regionName, VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(new SerializableCallable() {
         @Override
         public Object call() throws Exception {
-          QueryTestUtils utils = new QueryTestUtils();
+          var utils = new QueryTestUtils();
           utils.getCache().getQueryService().removeIndexes();
           Region region = getCache().getRegion(SEPARATOR + "portfolios");
           region.destroyRegion();
@@ -608,7 +601,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        QueryTestUtils utils = new QueryTestUtils();
+        var utils = new QueryTestUtils();
         utils.createPartitionRegion("portfolios", Portfolio.class);
         return null;
       }
@@ -619,7 +612,7 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        QueryTestUtils utils = new QueryTestUtils();
+        var utils = new QueryTestUtils();
         utils.createReplicateRegion("portfolios");
         return null;
       }
@@ -641,11 +634,11 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         getSystem(getServerProperties());
 
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setCopyOnRead(true);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
 
-        CacheServer cacheServer = getCache().addCacheServer();
+        var cacheServer = getCache().addCacheServer();
         cacheServer.setPort(port);
         cacheServer.start();
 
@@ -659,27 +652,27 @@ public class CopyOnReadIndexDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new CacheSerializableRunnable("Start client") {
       @Override
       public void run2() throws CacheException {
-        Properties props = getClientProps();
+        var props = getClientProps();
         getSystem(props);
 
-        final ClientCacheFactory ccf = new ClientCacheFactory(props);
+        final var ccf = new ClientCacheFactory(props);
         ccf.addPoolServer(NetworkUtils.getServerHostName(server.getHost()), port);
         ccf.setPoolSubscriptionEnabled(true);
 
-        ClientCache cache = getClientCache(ccf);
+        var cache = getClientCache(ccf);
       }
     });
   }
 
   protected Properties getClientProps() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(LOCATORS, "");
     return p;
   }
 
   protected Properties getServerProperties() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(LOCATORS, "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
     return p;
   }

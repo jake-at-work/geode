@@ -18,7 +18,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -29,17 +28,17 @@ public class DelayedActionJUnitTest {
 
   @Test
   public void testDelay() throws InterruptedException {
-    final AtomicBoolean hit = new AtomicBoolean(false);
-    final CountDownLatch complete = new CountDownLatch(1);
+    final var hit = new AtomicBoolean(false);
+    final var complete = new CountDownLatch(1);
 
-    Runnable r = () -> {
+    var r = (Runnable) () -> {
       hit.set(true);
       complete.countDown();
     };
 
-    DelayedAction delay = new DelayedAction(r);
+    var delay = new DelayedAction(r);
 
-    ExecutorService exec = Executors.newSingleThreadExecutor();
+    var exec = Executors.newSingleThreadExecutor();
     exec.execute(delay);
 
     delay.waitForArrival();

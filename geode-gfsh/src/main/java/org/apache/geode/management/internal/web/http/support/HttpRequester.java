@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -32,7 +31,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -42,7 +40,6 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import org.apache.geode.internal.version.DistributionVersion;
 import org.apache.geode.management.internal.web.http.converter.SerializableObjectHttpMessageConverter;
 import org.apache.geode.security.AuthenticationFailedException;
 import org.apache.geode.security.NotAuthorizedException;
@@ -65,7 +62,7 @@ public class HttpRequester {
   protected static final String USER_AGENT_HTTP_REQUEST_HEADER_VALUE;
 
   static {
-    final DistributionVersion distributionVersion = getDistributionVersion();
+    final var distributionVersion = getDistributionVersion();
     USER_AGENT_HTTP_REQUEST_HEADER_VALUE =
         "gfsh (pronounced " + distributionVersion.getName() + " shell)/v"
             + distributionVersion.getVersion();
@@ -84,7 +81,7 @@ public class HttpRequester {
   }
 
   HttpRequester(Properties securityProperties, RestTemplate restTemplate) {
-    final SimpleClientHttpRequestFactory clientHttpRequestFactory =
+    final var clientHttpRequestFactory =
         new SimpleClientHttpRequestFactory();
     this.securityProperties = securityProperties;
     if (restTemplate == null) {
@@ -95,9 +92,9 @@ public class HttpRequester {
 
     // add our custom HttpMessageConverter for serializing DTO Objects into the HTTP request message
     // body and de-serializing HTTP response message body content back into DTO Objects
-    List<HttpMessageConverter<?>> converters = this.restTemplate.getMessageConverters();
+    var converters = this.restTemplate.getMessageConverters();
     // remove the MappingJacksonHttpConverter
-    for (int i = converters.size() - 1; i >= 0; i--) {
+    for (var i = converters.size() - 1; i >= 0; i--) {
       HttpMessageConverter converter = converters.get(i);
       if (converter instanceof MappingJackson2HttpMessageConverter) {
         converters.remove(converter);
@@ -108,8 +105,8 @@ public class HttpRequester {
     this.restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
       @Override
       public void handleError(final ClientHttpResponse response) throws IOException {
-        String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-        final String message = String.format("The HTTP request failed with: %1$d - %2$s.",
+        var body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
+        final var message = String.format("The HTTP request failed with: %1$d - %2$s.",
             response.getRawStatusCode(), body);
 
         if (response.getRawStatusCode() == 401) {
@@ -144,12 +141,12 @@ public class HttpRequester {
 
   <T> T exchange(URI url, HttpMethod method, Object content,
       Class<T> responseType) {
-    HttpHeaders headers = new HttpHeaders();
+    var headers = new HttpHeaders();
     addHeaderValues(headers);
 
-    HttpEntity<Object> httpEntity = new HttpEntity<>(content, headers);
+    var httpEntity = new HttpEntity<Object>(content, headers);
 
-    final ResponseEntity<T> response = restTemplate.exchange(url, method, httpEntity, responseType);
+    final var response = restTemplate.exchange(url, method, httpEntity, responseType);
     return response.getBody();
   }
 
@@ -168,11 +165,11 @@ public class HttpRequester {
    * @return either a json representation of ResultModel or a Path
    */
   Object extractResponse(ClientHttpResponse response) throws IOException {
-    MediaType mediaType = response.getHeaders().getContentType();
+    var mediaType = response.getHeaders().getContentType();
     if (mediaType.equals(MediaType.APPLICATION_JSON)) {
       return org.apache.commons.io.IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
     } else {
-      Path tempFile = Files.createTempFile("fileDownload", "");
+      var tempFile = Files.createTempFile("fileDownload", "");
       if (tempFile.toFile().exists()) {
         FileUtils.deleteQuietly(tempFile.toFile());
       }
@@ -187,7 +184,7 @@ public class HttpRequester {
     headers.setAccept(acceptableMediaTypes);
 
     if (securityProperties != null) {
-      for (String key : securityProperties.stringPropertyNames()) {
+      for (var key : securityProperties.stringPropertyNames()) {
         headers.add(key, securityProperties.getProperty(key));
       }
     }
@@ -201,13 +198,13 @@ public class HttpRequester {
    *        paramValue....
    */
   public static URI createURI(String baseUrl, String path, String... queryParams) {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl).path(path);
+    var builder = UriComponentsBuilder.fromHttpUrl(baseUrl).path(path);
 
     if (queryParams != null) {
       if (queryParams.length % 2 != 0) {
         throw new IllegalArgumentException("invalid queryParams count");
       }
-      for (int i = 0; i < queryParams.length; i += 2) {
+      for (var i = 0; i < queryParams.length; i += 2) {
         builder.queryParam(queryParams[i], queryParams[i + 1]);
       }
     }

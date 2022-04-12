@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.configuration.Deployment;
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.test.junit.rules.GfshParserRule;
 
@@ -61,7 +60,7 @@ public class ExportClusterConfigurationCommandTest {
 
   @Test
   public void checkDefaultValue() {
-    GfshParseResult parseResult = gfsh.parse(EXPORT_SHARED_CONFIG + " --xml-file=my.xml");
+    var parseResult = gfsh.parse(EXPORT_SHARED_CONFIG + " --xml-file=my.xml");
     assertThat(parseResult.getParamValue("group")).isEqualTo("cluster");
     assertThat(parseResult.getParamValue("xml-file")).isEqualTo("my.xml");
 
@@ -105,7 +104,7 @@ public class ExportClusterConfigurationCommandTest {
   public void get() {
     when(ccService.getConfiguration(any())).thenReturn(configuration);
     configuration.setCacheXmlContent(CLUSTER_XML);
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put("key1", "value1");
     properties.put("key2", "value2");
     configuration.setGemfireProperties(properties);

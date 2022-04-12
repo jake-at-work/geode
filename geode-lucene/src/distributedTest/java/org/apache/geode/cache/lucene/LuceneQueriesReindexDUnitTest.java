@@ -46,7 +46,7 @@ public class LuceneQueriesReindexDUnitTest extends LuceneQueriesAccessorBase {
   private static final long serialVersionUID = 1L;
 
   private void destroyIndex() {
-    LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var luceneService = LuceneServiceProvider.get(getCache());
     luceneService.destroyIndex(INDEX_NAME, REGION_NAME);
   }
 
@@ -55,8 +55,8 @@ public class LuceneQueriesReindexDUnitTest extends LuceneQueriesAccessorBase {
   }
 
   private void createIndex(String indexName, String fieldName) {
-    LuceneService luceneService = LuceneServiceProvider.get(getCache());
-    LuceneIndexFactoryImpl indexFactory =
+    var luceneService = LuceneServiceProvider.get(getCache());
+    var indexFactory =
         (LuceneIndexFactoryImpl) luceneService.createIndexFactory().addField(fieldName);
     indexFactory.create(indexName, REGION_NAME, true);
   }
@@ -64,8 +64,8 @@ public class LuceneQueriesReindexDUnitTest extends LuceneQueriesAccessorBase {
   @Test
   @Parameters(method = "getListOfRegionTestTypes")
   public void dropAndRecreateIndex(RegionTestableType regionTestType) throws Exception {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().addField("text").create(INDEX_NAME, REGION_NAME);
     };
     dataStore1.invoke(() -> initDataStore(createIndex, regionTestType));
@@ -151,8 +151,8 @@ public class LuceneQueriesReindexDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getListOfRegionTestTypes")
   public void dropAndRecreateIndexWithDifferentFieldsShouldFail(RegionTestableType regionTestType)
       throws Exception {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().addField("text").create(INDEX_NAME, REGION_NAME);
     };
     dataStore1.invoke(() -> initDataStore(createIndex, regionTestType));
@@ -293,9 +293,9 @@ public class LuceneQueriesReindexDUnitTest extends LuceneQueriesAccessorBase {
   @Test
   @Parameters(method = "getListOfRegionTestTypes")
   public void reindexThenQuery(RegionTestableType regionTestType) throws Exception {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
-      LuceneIndexFactoryImpl indexFactory =
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
+      var indexFactory =
           (LuceneIndexFactoryImpl) luceneService.createIndexFactory().addField("text");
       indexFactory.create(INDEX_NAME, REGION_NAME, true);
     };

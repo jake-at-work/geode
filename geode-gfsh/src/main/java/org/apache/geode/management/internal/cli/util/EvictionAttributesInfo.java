@@ -16,8 +16,6 @@ package org.apache.geode.management.internal.cli.util;
 
 import java.io.Serializable;
 
-import org.apache.geode.cache.EvictionAction;
-import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.EvictionAttributes;
 
 public class EvictionAttributesInfo implements Serializable {
@@ -28,12 +26,12 @@ public class EvictionAttributesInfo implements Serializable {
   private int evictionMaxValue = 0;
 
   public EvictionAttributesInfo(EvictionAttributes ea) {
-    EvictionAction evictAction = ea.getAction();
+    var evictAction = ea.getAction();
 
     if (evictAction != null) {
       evictionAction = evictAction.toString();
     }
-    EvictionAlgorithm evictionAlgo = ea.getAlgorithm();
+    var evictionAlgo = ea.getAlgorithm();
     if (evictionAlgo != null) {
       evictionAlgorithm = evictionAlgo.toString();
     }

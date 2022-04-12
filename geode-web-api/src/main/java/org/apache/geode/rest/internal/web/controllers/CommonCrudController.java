@@ -37,8 +37,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.execute.util.FindRestEnabledServersFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.rest.internal.web.controllers.support.RestServersResultCollector;
@@ -72,13 +70,13 @@ public abstract class CommonCrudController extends AbstractBaseController {
   @PreAuthorize("@securityService.authorize('DATA', 'READ')")
   public ResponseEntity<?> regions() {
     logger.debug("Listing all resources (Regions) in Geode...");
-    final HttpHeaders headers = new HttpHeaders();
+    final var headers = new HttpHeaders();
     headers.setLocation(toUri());
     final Set<Region<?, ?>> regions = new HashSet<>();
-    for (InternalRegion region : getCache().getApplicationRegions()) {
+    for (var region : getCache().getApplicationRegions()) {
       regions.add(region);
     }
-    String listRegionsAsJson = JSONUtils.formulateJsonForListRegions(regions, "regions");
+    var listRegionsAsJson = JSONUtils.formulateJsonForListRegions(regions, "regions");
     return new ResponseEntity<>(listRegionsAsJson, headers, HttpStatus.OK);
   }
 
@@ -102,10 +100,10 @@ public abstract class CommonCrudController extends AbstractBaseController {
 
     region = decode(region);
 
-    Object[] keys = getKeys(region, null);
+    var keys = getKeys(region, null);
 
-    String listKeysAsJson = JSONUtils.formulateJsonForListKeys(keys, "keys");
-    final HttpHeaders headers = new HttpHeaders();
+    var listKeysAsJson = JSONUtils.formulateJsonForListKeys(keys, "keys");
+    final var headers = new HttpHeaders();
     headers.setLocation(toUri(region, "keys"));
     return new ResponseEntity<>(listKeysAsJson, headers, HttpStatus.OK);
   }
@@ -162,7 +160,7 @@ public abstract class CommonCrudController extends AbstractBaseController {
     if (encodedKeys == null || encodedKeys.length == 0) {
       return deleteAllRegionData(region);
     } else {
-      String[] decodedKeys = decode(encodedKeys);
+      var decodedKeys = decode(encodedKeys);
       return deleteRegionKeys(region, decodedKeys);
     }
   }
@@ -208,17 +206,17 @@ public abstract class CommonCrudController extends AbstractBaseController {
     }
 
     try {
-      final ResultCollector<?, ?> results =
+      final var results =
           function.withCollector(new RestServersResultCollector<>())
               .execute(FindRestEnabledServersFunction.FIND_REST_ENABLED_SERVERS_FUNCTION_ID);
-      Object functionResult = results.getResult();
+      var functionResult = results.getResult();
 
       if (functionResult instanceof List<?>) {
-        final HttpHeaders headers = new HttpHeaders();
+        final var headers = new HttpHeaders();
         headers.setLocation(toUri("servers"));
         @SuppressWarnings("unchecked")
-        final ArrayList<Object> functionResultList = (ArrayList<Object>) functionResult;
-        String functionResultAsJson =
+        final var functionResultList = (ArrayList<Object>) functionResult;
+        var functionResultAsJson =
             JSONUtils.convertCollectionToJson(functionResultList);
         return new ResponseEntity<>(functionResultAsJson, headers, HttpStatus.OK);
       } else {

@@ -54,23 +54,23 @@ public class PeerTypeRegistrationIntegrationTest {
   @Test
   public void testDefineType() {
 
-    PdxType firstType = new PdxType();
+    var firstType = new PdxType();
     firstType.setClassName("Mock.Test.Class.One");
 
-    PdxType secondType = new PdxType();
+    var secondType = new PdxType();
     secondType.setClassName("Mock.Test.Class.Two");
 
     assertThat(registration.getLocalSize()).isEqualTo(0);
     assertThat(registration.getTypeToIdSize()).isEqualTo(0);
 
-    int firstTypeId1 = registration.defineType(firstType);
+    var firstTypeId1 = registration.defineType(firstType);
 
     // Confirm the PdxType was added to the region and the local map
     assertThat(registration.getLocalSize()).isEqualTo(1);
     assertThat(registration.getTypeToIdSize()).isEqualTo(1);
 
     firstType.setTypeId(firstTypeId1 - 1);
-    int firstTypeId2 = registration.defineType(firstType);
+    var firstTypeId2 = registration.defineType(firstType);
 
     // Defining an existing type with a different TypeId returns the existing TypeId
     assertThat(firstTypeId1).isEqualTo(firstTypeId2);
@@ -82,7 +82,7 @@ public class PeerTypeRegistrationIntegrationTest {
 
     secondType.setTypeId(firstTypeId1);
 
-    int secondTypeId = registration.defineType(secondType);
+    var secondTypeId = registration.defineType(secondType);
 
     // Defining a new type with an existing TypeId does not overwrite the existing type
     assertThat(secondTypeId).isNotEqualTo(firstTypeId1);

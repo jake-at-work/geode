@@ -60,13 +60,13 @@ public class PooledExecutorWithDMStats extends ThreadPoolExecutor {
     if (!(workQueue instanceof SynchronousQueue)) {
       blockingWorkQueue = workQueue;
       // create a thread that takes from bufferQueue and puts into result
-      final BlockingQueue<Runnable> takeQueue = workQueue;
-      final BlockingQueue<Runnable> putQueue = getQueue();
-      Runnable r = () -> {
+      final var takeQueue = workQueue;
+      final var putQueue = getQueue();
+      var r = (Runnable) () -> {
         try {
           for (;;) {
             SystemFailure.checkFailure();
-            Runnable job = takeQueue.take();
+            var job = takeQueue.take();
             putQueue.put(job);
           }
         } catch (InterruptedException ie) {
@@ -113,7 +113,7 @@ public class PooledExecutorWithDMStats extends ThreadPoolExecutor {
   @Override
   public List<Runnable> shutdownNow() {
     terminated();
-    List<Runnable> l = super.shutdownNow();
+    var l = super.shutdownNow();
     if (blockingWorkQueue != null) {
       blockingWorkQueue.drainTo(l);
     }
@@ -177,7 +177,7 @@ public class PooledExecutorWithDMStats extends ThreadPoolExecutor {
         throw new RejectedExecutionException("executor has been shutdown");
       }
       try {
-        PooledExecutorWithDMStats pool = (PooledExecutorWithDMStats) executor;
+        var pool = (PooledExecutorWithDMStats) executor;
         pool.blockingWorkQueue.put(r);
       } catch (InterruptedException ie) {
         Thread.currentThread().interrupt();

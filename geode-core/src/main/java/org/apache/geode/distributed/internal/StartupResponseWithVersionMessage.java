@@ -50,7 +50,7 @@ public class StartupResponseWithVersionMessage extends StartupResponseMessage {
     super(dm, processorId, recipient, rejectionMessage, responderIsAdmin);
     version = GemFireVersion.getGemFireVersion();
     hostedLocators = InternalLocator.getLocatorStrings();
-    InternalLocator locator = InternalLocator.getLocator();
+    var locator = InternalLocator.getLocator();
     if (locator != null) {
       isSharedConfigurationEnabled = locator.isSharedConfigurationEnabled();
     }
@@ -88,7 +88,7 @@ public class StartupResponseWithVersionMessage extends StartupResponseMessage {
       SerializationContext context) throws IOException {
     super.toData(out, context);
     DataSerializer.writeString(version, out);
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
     data.writeIsSharedConfigurationEnabled(isSharedConfigurationEnabled);
     data.writeTo(out);
@@ -99,7 +99,7 @@ public class StartupResponseWithVersionMessage extends StartupResponseMessage {
       DeserializationContext context) throws IOException, ClassNotFoundException {
     super.fromData(in, context);
     version = DataSerializer.readString(in);
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.readFrom(in);
     hostedLocators = data.readHostedLocators();
     isSharedConfigurationEnabled = data.readIsSharedConfigurationEnabled();

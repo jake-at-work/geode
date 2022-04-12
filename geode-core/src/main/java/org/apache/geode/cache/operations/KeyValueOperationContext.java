@@ -76,7 +76,7 @@ public abstract class KeyValueOperationContext extends KeyOperationContext {
    */
   public byte[] getSerializedValue() {
     if (isObject()) {
-      Object tmp = value;
+      var tmp = value;
       if (tmp instanceof byte[]) {
         return (byte[]) tmp;
       }
@@ -94,7 +94,7 @@ public abstract class KeyValueOperationContext extends KeyOperationContext {
    * @since Geode 1.0
    */
   public Object getDeserializedValue() throws SerializationException {
-    byte[] blob = getSerializedValue();
+    var blob = getSerializedValue();
     if (blob != null) {
       return EntryEventImpl.deserialize(blob);
     }

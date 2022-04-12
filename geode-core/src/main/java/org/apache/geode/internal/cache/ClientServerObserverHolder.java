@@ -44,7 +44,7 @@ public class ClientServerObserverHolder {
    */
   public static ClientServerObserver setInstance(ClientServerObserver observer) {
     Support.assertArg(observer != null, "setInstance expects a non-null argument!");
-    ClientServerObserver oldObserver = _instance;
+    var oldObserver = _instance;
     _instance = observer;
     return oldObserver;
   }
@@ -55,7 +55,7 @@ public class ClientServerObserverHolder {
   }
 
   public static ClientServerObserver clearInstance() {
-    ClientServerObserver oldObserver = _instance;
+    var oldObserver = _instance;
     _instance = NO_OBSERVER;
     return oldObserver;
   }

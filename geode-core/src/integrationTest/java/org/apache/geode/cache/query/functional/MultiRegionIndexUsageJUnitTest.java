@@ -143,12 +143,12 @@ public class MultiRegionIndexUsageJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     ds = DistributedSystem.connect(props);
     cache = CacheFactory.create(ds);
     /* create region containing Country objects */
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setValueConstraint(Country.class);
 
@@ -169,9 +169,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testChangedFormClauseOrder1() throws Exception {
     CacheUtils.log("------------- testChangedFormClauseOrder1 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR003
-    String sqlStr = "SELECT DISTINCT * FROM "
+    var sqlStr = "SELECT DISTINCT * FROM "
         + SEPARATOR
         + "Countries1 c1, c1.states s1, s1.districts d1, d1.villages v1, d1.cities ct1, "
         + SEPARATOR + "Countries2 c2, c2.states s2, s2.districts d2, d2.villages v2, d2.cities ct2 "
@@ -180,7 +180,7 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       CacheUtils.log("0000000000000000000000000000");
       q = qs1.newQuery(sqlStr);
       CacheUtils.log("aaaaaaaaaaaaaaaaaa");
@@ -188,10 +188,10 @@ public class MultiRegionIndexUsageJUnitTest {
       CacheUtils.log("11111111111111111111111111111");
       createIndex();
       CacheUtils.log("22222222222222222222222");
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
       CacheUtils.log("333333333333333333");
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
       CacheUtils.log("44444444444444444444444444444");
@@ -199,7 +199,7 @@ public class MultiRegionIndexUsageJUnitTest {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
       while (itr.hasNext()) {
         temp = (String) itr.next();
@@ -234,9 +234,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testChangedFormClauseOrder2() throws Exception {
     CacheUtils.log("------------- testChangedFormClauseOrder2 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR008
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "Countries1 c1, c1.states s1, s1.districts d1, d1.villages v1, d1.cities ct1, "
             + SEPARATOR
@@ -248,14 +248,14 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
@@ -263,7 +263,7 @@ public class MultiRegionIndexUsageJUnitTest {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -294,30 +294,30 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testSelectBestIndex1() throws Exception {
     CacheUtils.log("------------- testSelectBestIndex1 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR010
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT * FROM " + SEPARATOR + "Countries1 c1, " + SEPARATOR
             + "Countries2 c2 WHERE c1.name = 'INDIA' AND c2.name = 'ISRAEL'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("countryNameB", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -333,9 +333,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testSelectBestIndex2() throws Exception {
     CacheUtils.log("------------- testSelectBestIndex2 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR011
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "Countries1 c1, c1.states s1, s1.districts d1, d1.cities ct1, d1.villages v1, "
             + SEPARATOR
@@ -345,21 +345,21 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("countryNameA", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -374,9 +374,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testProjectionAttr1() throws Exception {
     CacheUtils.log("------------- testProjectionAttr1 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR012
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT * FROM " + SEPARATOR + "Countries1 c1, c1.states s1, s1.districts d1, "
             + SEPARATOR + "Countries2 c2, c2.states s2, s2.districts d2, "
             + SEPARATOR + "Countries3 c3, c3.states s3, s3.districts d3 "
@@ -385,21 +385,21 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -430,9 +430,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testCutDown1() throws Exception {
     CacheUtils.log("------------- testCutDown1 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR014
-    String sqlStr = "SELECT DISTINCT c1.name, s1.name, d2.name, ct2.name "
+    var sqlStr = "SELECT DISTINCT c1.name, s1.name, d2.name, ct2.name "
         + "FROM " + SEPARATOR + "Countries1 c1, c1.states s1, s1.districts d1, d1.cities ct1,"
         + SEPARATOR + "Countries2 c2, c2.states s2, s2.districts d2, d2.cities ct2"
         + " WHERE ct1.name = 'MUMBAI' OR ct2.name = 'CHENNAI'";
@@ -440,21 +440,21 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -484,9 +484,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testSelectAsFromClause() throws Exception {
     CacheUtils.log("------------- testSelectAsFromClause start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR016
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT c1.name, s1.name, ct1.name FROM " + SEPARATOR
             + "Countries1 c1, c1.states s1, (SELECT DISTINCT * FROM "
             + SEPARATOR
@@ -496,21 +496,21 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -540,9 +540,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testSelectAsWhereClause() throws Exception {
     CacheUtils.log("------------- testSelectAsWhereClause start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR017
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT c1.name, s1.name, ct1.name FROM " + SEPARATOR
             + "Countries1 c1, c1.states s1, s1.districts d1,"
             + " d1.cities ct1 WHERE ct1.name = element (SELECT DISTINCT ct3.name FROM " + SEPARATOR
@@ -552,21 +552,21 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -597,9 +597,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testFunctionUse1() throws Exception {
     CacheUtils.log("------------- testFunctionUse1 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR018
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT c1.name, s1.name, ct1.name FROM " + SEPARATOR
             + "Countries1 c1, c1.states s1, s1.districts d1, "
             + "d1.cities ct1, d1.getVillages() v1 WHERE v1.getName() = 'PUNJAB_VILLAGE1'";
@@ -607,21 +607,21 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("villageName1", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -637,9 +637,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testFunctionUse2() throws Exception {
     CacheUtils.log("------------- testFunctionUse2 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR019
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT s.name, s.getDistricts(), ct.getName() FROM " + SEPARATOR
             + "Countries1 c, c.states s, "
             + "s.getDistricts() d, d.getCities() ct WHERE ct.name = 'PUNE' OR ct.name = 'CHANDIGARH' "
@@ -648,21 +648,21 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -693,9 +693,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testFunctionUse3() throws Exception {
     CacheUtils.log("------------- testFunctionUse3 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR020
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT d.getName(), d.getCities(), d.getVillages() FROM " + SEPARATOR
             + "Countries3 c, "
             + "c.states s, s.districts d WHERE d.name = 'MUMBAIDIST'";
@@ -703,21 +703,21 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("districtName3", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -732,9 +732,9 @@ public class MultiRegionIndexUsageJUnitTest {
   @Test
   public void testFunctionUse4() throws Exception {
     CacheUtils.log("------------- testFunctionUse4 start------------- ");
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR020
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT * FROM " + SEPARATOR + "Countries1 c1, " + SEPARATOR
             + "Countries3 c3, c1.states s1, c3.states s3, "
             + "s1.districts d1, s3.getDistrictsWithSameName(d1) d3 WHERE c1.name = 'INDIA' OR c3.name = 'ISRAEL' "
@@ -745,14 +745,14 @@ public class MultiRegionIndexUsageJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
@@ -768,7 +768,7 @@ public class MultiRegionIndexUsageJUnitTest {
   }// end of test
 
   private static void areResultsMatching(SelectResults[][] rs, String[] queries) {
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsWithoutAndWithIndexes(rs, 1, queries);
 
   }// end of areResultsMatching
@@ -776,9 +776,9 @@ public class MultiRegionIndexUsageJUnitTest {
   // ////////////// function to pupualte data in single region //////////////
   private void populateData() throws Exception {
     /* create villages */
-    Village v1 = new Village("MAHARASHTRA_VILLAGE1", 123456);
-    Village v2 = new Village("PUNJAB_VILLAGE1", 123789);
-    Village v3 = new Village("KERALA_VILLAGE1", 456789);
+    var v1 = new Village("MAHARASHTRA_VILLAGE1", 123456);
+    var v2 = new Village("PUNJAB_VILLAGE1", 123789);
+    var v3 = new Village("KERALA_VILLAGE1", 456789);
     // Village v4 = new Village("GUJARAT_VILLAGE1", 123478);
     // Village v5 = new Village("AASAM_VILLAGE1", 783456);
     Set villages = new HashSet();
@@ -787,10 +787,10 @@ public class MultiRegionIndexUsageJUnitTest {
     villages.add(v3); // villages.add(v4); villages.add(v5);
 
     /* create cities */
-    City ct1 = new City("MUMBAI", 123456);
-    City ct2 = new City("PUNE", 123789);
-    City ct3 = new City("GANDHINAGAR", 456789);
-    City ct4 = new City("CHANDIGARH", 123478);
+    var ct1 = new City("MUMBAI", 123456);
+    var ct2 = new City("PUNE", 123789);
+    var ct3 = new City("GANDHINAGAR", 456789);
+    var ct4 = new City("CHANDIGARH", 123478);
     Set cities = new HashSet();
     cities.add(ct1);
     cities.add(ct2);
@@ -798,8 +798,8 @@ public class MultiRegionIndexUsageJUnitTest {
     cities.add(ct4);
 
     /* create districts */
-    District d1 = new District("MUMBAIDIST", cities, villages);
-    District d2 = new District("PUNEDIST", cities, villages);
+    var d1 = new District("MUMBAIDIST", cities, villages);
+    var d2 = new District("PUNEDIST", cities, villages);
     // District d3 = new District("GANDHINAGARDIST", cities, villages);
     // District d4 = new District("CHANDIGARHDIST", cities, villages);
     Set districts = new HashSet();
@@ -807,9 +807,9 @@ public class MultiRegionIndexUsageJUnitTest {
     districts.add(d2); // districts.add(d3); districts.add(d4);
 
     /* create states */
-    State s1 = new State("MAHARASHTRA", "west", districts);
-    State s2 = new State("PUNJAB", "north", districts);
-    State s3 = new State("GUJARAT", "west", districts);
+    var s1 = new State("MAHARASHTRA", "west", districts);
+    var s2 = new State("PUNJAB", "north", districts);
+    var s3 = new State("GUJARAT", "west", districts);
     // State s4 = new State("KERALA", "south", districts);
     // State s5 = new State("AASAM", "east", districts);
     Set states = new HashSet();
@@ -818,13 +818,13 @@ public class MultiRegionIndexUsageJUnitTest {
     states.add(s3); // states.add(s4); states.add(s5);
 
     /* create countries */
-    Country c1 = new Country("INDIA", "asia", states);
-    Country c2 = new Country("ISRAEL", "africa", states);
-    Country c3 = new Country("CANADA", "america", states);
-    Country c4 = new Country("AUSTRALIA", "australia", states);
-    Country c5 = new Country("MALAYSIA", "asia", states);
+    var c1 = new Country("INDIA", "asia", states);
+    var c2 = new Country("ISRAEL", "africa", states);
+    var c3 = new Country("CANADA", "america", states);
+    var c4 = new Country("AUSTRALIA", "australia", states);
+    var c5 = new Country("MALAYSIA", "asia", states);
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       int temp;
       temp = i % 5;
       switch (temp) {

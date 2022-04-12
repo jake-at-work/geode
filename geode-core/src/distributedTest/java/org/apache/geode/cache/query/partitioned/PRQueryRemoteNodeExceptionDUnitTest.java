@@ -21,7 +21,6 @@ import static org.apache.geode.test.dunit.Host.getHost;
 import static org.apache.geode.test.dunit.Invoke.invokeInEveryVM;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -84,7 +83,7 @@ public class PRQueryRemoteNodeExceptionDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(SERIALIZABLE_OBJECT_FILTER, "org.apache.geode.cache.query.data.**");
     return config;
   }
@@ -140,7 +139,7 @@ public class PRQueryRemoteNodeExceptionDUnitTest extends CacheTestCase {
     });
 
     vm0.invoke(() -> {
-      DefaultQuery query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
+      var query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
           .newQuery("Select * from " + SEPARATOR + PARTITIONED_REGION_NAME);
       QueryObserverHolder.setInstance(new RuntimeExceptionQueryObserver("vm0"));
       assertThatThrownBy(query::execute).isInstanceOf(RuntimeException.class)
@@ -177,7 +176,7 @@ public class PRQueryRemoteNodeExceptionDUnitTest extends CacheTestCase {
     });
 
     vm0.invoke(() -> {
-      DefaultQuery query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
+      var query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
           .newQuery("Select * from " + SEPARATOR + PARTITIONED_REGION_NAME);
       assertThatThrownBy(query::execute).isInstanceOf(RuntimeException.class)
           .hasMessageContaining("vm1");
@@ -213,7 +212,7 @@ public class PRQueryRemoteNodeExceptionDUnitTest extends CacheTestCase {
     });
 
     vm0.invoke(() -> {
-      DefaultQuery query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
+      var query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
           .newQuery("Select * from " + SEPARATOR + PARTITIONED_REGION_NAME + " p where p.ID > 0");
       QueryObserverHolder.setInstance(new CacheCloseQueryObserver());
       assertThatThrownBy(query::execute).isInstanceOfAny(CacheClosedException.class,
@@ -250,7 +249,7 @@ public class PRQueryRemoteNodeExceptionDUnitTest extends CacheTestCase {
     });
 
     vm0.invoke(() -> {
-      DefaultQuery query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
+      var query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
           .newQuery("Select * from " + SEPARATOR + PARTITIONED_REGION_NAME + " p where p.ID > 0");
       QueryObserverHolder.setInstance(new SleepingQueryObserver());
       assertThatThrownBy(query::execute).isInstanceOf(QueryInvocationTargetException.class);
@@ -289,7 +288,7 @@ public class PRQueryRemoteNodeExceptionDUnitTest extends CacheTestCase {
     });
 
     vm0.invoke(() -> {
-      DefaultQuery query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
+      var query = (DefaultQuery) PRQueryDUnitHelper.getCache().getQueryService()
           .newQuery("Select * from " + SEPARATOR + PARTITIONED_REGION_NAME);
       QueryObserverHolder.setInstance(new CountingBucketDestroyQueryObserver(2));
       query.execute();
@@ -297,7 +296,7 @@ public class PRQueryRemoteNodeExceptionDUnitTest extends CacheTestCase {
   }
 
   private void setCacheInVMs(VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> PRQueryDUnitHelper.setCache(getCache()));
     }
   }
@@ -336,7 +335,7 @@ public class PRQueryRemoteNodeExceptionDUnitTest extends CacheTestCase {
 
     @Override
     public void afterIterationEvaluation(Object result) {
-      for (int i = 0; i <= 10; i++) {
+      for (var i = 0; i <= 10; i++) {
         Region region = PRQueryDUnitHelper.getCache().getRegion(PARTITIONED_REGION_NAME);
         if (region == null || region.isDestroyed()) {
           break;
@@ -362,9 +361,9 @@ public class PRQueryRemoteNodeExceptionDUnitTest extends CacheTestCase {
     public void startQuery(Query query) {
       Object region = ((DefaultQuery) query).getRegionsInQuery(null).iterator().next();
       if (queryCount.incrementAndGet() == queryCountToDestroy) {
-        PartitionedRegion partitionedRegion =
+        var partitionedRegion =
             (PartitionedRegion) PRQueryDUnitHelper.getCache().getRegion(PARTITIONED_REGION_NAME);
-        List<Integer> localPrimaryBuckets = partitionedRegion.getLocalPrimaryBucketsListTestOnly();
+        var localPrimaryBuckets = partitionedRegion.getLocalPrimaryBucketsListTestOnly();
         int bucketId = localPrimaryBuckets.get(0);
         partitionedRegion.getDataStore().getLocalBucketById(bucketId).destroyRegion();
       }

@@ -32,10 +32,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Rule;
@@ -71,40 +69,40 @@ public class MergeLogFilesIntegrationTest {
   @Test
   public void testMultipleThreads() throws Exception {
     // Spawn a bunch of threads that write to a log
-    WorkerGroup group = new WorkerGroup("Workers");
+    var group = new WorkerGroup("Workers");
     Collection<Worker> workers = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
-      Worker worker = new Worker("Worker " + i, group);
+    for (var i = 0; i < 10; i++) {
+      var worker = new Worker("Worker " + i, group);
       workers.add(worker);
       worker.start();
     }
 
-    for (Worker worker : workers) {
+    for (var worker : workers) {
       ThreadUtils.join(worker, TIMEOUT_MILLIS);
     }
 
     // Merge the log files together
     Map<String, InputStream> logs = new HashMap<>();
-    for (Worker worker : workers) {
+    for (var worker : workers) {
       logs.put(worker.getName(), worker.getInputStream());
     }
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw, true);
+    var sw = new StringWriter();
+    var pw = new PrintWriter(sw, true);
     MergeLogFiles.mergeLogFiles(logs, pw);
 
     // Verify that the entries are sorted
-    BufferedReader br = new BufferedReader(new StringReader(sw.toString()));
-    Pattern pattern = Pattern.compile("^Worker \\d+: .* VALUE: (\\d+)");
-    int lastValue = -1;
+    var br = new BufferedReader(new StringReader(sw.toString()));
+    var pattern = Pattern.compile("^Worker \\d+: .* VALUE: (\\d+)");
+    var lastValue = -1;
     while (br.ready()) {
-      String line = br.readLine();
+      var line = br.readLine();
       if (line == null) {
         break;
       }
 
-      Matcher matcher = pattern.matcher(line);
+      var matcher = pattern.matcher(line);
       if (matcher.matches()) {
-        int value = Integer.parseInt(matcher.group(1));
+        var value = Integer.parseInt(matcher.group(1));
         assertThat(value).isGreaterThan(lastValue);
         lastValue = value;
       }
@@ -115,15 +113,15 @@ public class MergeLogFilesIntegrationTest {
 
   @Test
   public void testDircountZero() throws Exception {
-    final String file = MergeLogFilesIntegrationTest.class
+    final var file = MergeLogFilesIntegrationTest.class
         .getResource("MergeLogFilesIntegrationTest.txt").getPath();
-    final String path = new File(file).getParentFile().getPath();
-    final String resourcePath1 = IOUtils.appendToPath(path, "dir1", "systemlog.txt");
-    final String resourcePath2 = IOUtils.appendToPath(path, "dir2", "systemlog.txt");
-    final List<File> files = Arrays.asList(
+    final var path = new File(file).getParentFile().getPath();
+    final var resourcePath1 = IOUtils.appendToPath(path, "dir1", "systemlog.txt");
+    final var resourcePath2 = IOUtils.appendToPath(path, "dir2", "systemlog.txt");
+    final var files = Arrays.asList(
         new File(resourcePath1),
         new File(resourcePath2));
-    Map<String, MergeLogFiles.DisplayNameAndFileStream> logFiles =
+    var logFiles =
         MergeLogFiles.getStringDisplayNameAndFileStreamMap(
             files,
             0, false, null);
@@ -180,11 +178,11 @@ public class MergeLogFilesIntegrationTest {
 
     @Override
     public void run() {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      var baos = new ByteArrayOutputStream();
       LogWriter logWriter = new LocalLogWriter(ALL.intLevel(), new PrintStream(baos, true));
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         synchronized (lock) {
-          int value = next++;
+          var value = next++;
 
           // Have to log with the lock to guarantee ordering
           logWriter.info("VALUE: " + value);

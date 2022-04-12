@@ -51,9 +51,9 @@ public abstract class StatSamplerTestCase {
   }
 
   protected static void waitForFileToExist(final File file, final long millis, final long sleep) {
-    boolean done = false;
+    var done = false;
     try {
-      for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
+      for (var time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
           (file.exists())) {
         Thread.sleep(sleep);
       }
@@ -64,9 +64,9 @@ public abstract class StatSamplerTestCase {
   }
 
   protected static void waitForFileToDelete(final File file, final long millis, final long sleep) {
-    boolean done = false;
+    var done = false;
     try {
-      for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
+      for (var time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
           (!file.exists())) {
         Thread.sleep(sleep);
       }
@@ -78,9 +78,9 @@ public abstract class StatSamplerTestCase {
 
   protected static void waitForExpectedStatValue(final Statistics statSamplerStats,
       final String statName, final int expectedStatValue, final long millis, final long sleep) {
-    boolean done = false;
+    var done = false;
     try {
-      for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
+      for (var time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
           (statSamplerStats.getInt(statName) >= expectedStatValue)) {
         Thread.sleep(sleep);
       }
@@ -97,9 +97,9 @@ public abstract class StatSamplerTestCase {
 
   protected static void assertStatValueDoesNotChange(final Statistics statSamplerStats,
       final String statName, final int expectedStatValue, final long millis, final long sleep) {
-    boolean done = false;
+    var done = false;
     try {
-      for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
+      for (var time = new StopWatch(true); !done && time.elapsedTimeMillis() < millis; done =
           (statSamplerStats.getInt(statName) != expectedStatValue)) {
         Thread.sleep(sleep);
       }
@@ -125,10 +125,10 @@ public abstract class StatSamplerTestCase {
 
       Map<StatisticsType, Set<Statistics>> statsTypeToStats =
           new HashMap<>();
-      Statistics[] stats = statSampler.getStatistics();
-      for (final Statistics stat : stats) {
-        StatisticsType statsType = stat.getType();
-        Set<Statistics> statsSet = statsTypeToStats.get(statsType);
+      var stats = statSampler.getStatistics();
+      for (final var stat : stats) {
+        var statsType = stat.getType();
+        var statsSet = statsTypeToStats.get(statsType);
         if (statsSet == null) {
           statsSet = new HashSet<>();
           statsSet.add(stat);
@@ -145,7 +145,7 @@ public abstract class StatSamplerTestCase {
     }
 
     protected boolean containsStatisticsType(String typeName) throws InterruptedException {
-      for (StatisticsType statType : allStatistics.keySet()) {
+      for (var statType : allStatistics.keySet()) {
         if (statType.getName().equals(typeName)) {
           return true;
         }
@@ -158,8 +158,8 @@ public abstract class StatSamplerTestCase {
     }
 
     protected boolean containsStatistics(String instanceName) throws InterruptedException {
-      for (StatisticsType statType : allStatistics.keySet()) {
-        for (Statistics statistics : allStatistics.get(statType)) {
+      for (var statType : allStatistics.keySet()) {
+        for (var statistics : allStatistics.get(statType)) {
           if (statistics.getTextId().equals(instanceName)) {
             return true;
           }
@@ -183,8 +183,8 @@ public abstract class StatSamplerTestCase {
      * instanceName=javaApp0-proc
      */
     protected void dumpStatistics() throws InterruptedException {
-      Statistics[] stats = statSampler.getStatistics();
-      for (int i = 0; i < stats.length; i++) {
+      var stats = statSampler.getStatistics();
+      for (var i = 0; i < stats.length; i++) {
         logger.info("Statistics[{}]: typeName={} instanceName={}", i, stats[i].getType().getName(),
             stats[i].getTextId());
       }

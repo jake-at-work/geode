@@ -36,11 +36,8 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.eviction.EvictionCounters;
@@ -89,25 +86,25 @@ public class LIFOEvictionAlgoEnabledRegionJUnitTest {
    *
    */
   private static void initializeVM() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(LOG_LEVEL, "info"); // to keep diskPerf logs smaller
     distributedSystem = DistributedSystem.connect(props);
     cache = CacheFactory.create(distributedSystem);
     assertNotNull(cache);
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    AttributesFactory factory = new AttributesFactory();
+    var dsf = cache.createDiskStoreFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
 
-    File dir = new File("testingDirectoryDefault");
+    var dir = new File("testingDirectoryDefault");
     dir.mkdir();
     dir.deleteOnExit();
-    File[] dirs = {dir};
+    var dirs = new File[] {dir};
     dsf.setDiskDirsAndSizes(dirs, new int[] {Integer.MAX_VALUE});
 
     dsf.setAutoCompact(false);
-    DiskStore ds = dsf.create(regionName);
+    var ds = dsf.create(regionName);
     factory.setDiskStoreName(ds.getName());
     factory.setDiskSynchronous(true);
     factory.setDataPolicy(DataPolicy.NORMAL);
@@ -116,7 +113,7 @@ public class LIFOEvictionAlgoEnabledRegionJUnitTest {
 
     factory.setEvictionAttributes(EvictionAttributesImpl.createLIFOEntryAttributes(capacity,
         EvictionAction.OVERFLOW_TO_DISK));
-    RegionAttributes attr = factory.create();
+    var attr = factory.create();
 
     ((GemFireCacheImpl) cache).createRegion(regionName, attr);
     lifoClockHand =
@@ -142,7 +139,7 @@ public class LIFOEvictionAlgoEnabledRegionJUnitTest {
   public void testLIFOStatsUpdation() {
     try {
       assertNotNull(cache);
-      LocalRegion rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
+      var rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
       assertNotNull(rgn);
 
       // check for is LIFO Enable
@@ -150,7 +147,7 @@ public class LIFOEvictionAlgoEnabledRegionJUnitTest {
           (((EvictionAttributesImpl) rgn.getAttributes().getEvictionAttributes()).isLIFO()));
 
       // put four entries into the region
-      for (int i = 0; i < 8; i++) {
+      for (var i = 0; i < 8; i++) {
         rgn.put((long) i, (long) i);
       }
 
@@ -163,7 +160,7 @@ public class LIFOEvictionAlgoEnabledRegionJUnitTest {
       assertTrue("In memory ", rgn.entries.getEntry(7L).isValueNull());
 
       // get an entry back
-      Long value = (Long) rgn.get(4L);
+      var value = (Long) rgn.get(4L);
       value = (Long) rgn.get(5L);
       value = (Long) rgn.get(6L);
 
@@ -198,13 +195,13 @@ public class LIFOEvictionAlgoEnabledRegionJUnitTest {
   public void testLIFOEntryEviction() {
     try {
       assertNotNull(cache);
-      LocalRegion rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
+      var rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
       assertNotNull(rgn);
 
       assertEquals("Region is not properly cleared ", 0, rgn.size());
       assertTrue("Entry count not 0 ", new Long(0).equals(lifoStats.getCounter()));
       // put eight entries into the region
-      for (int i = 0; i < 8; i++) {
+      for (var i = 0; i < 8; i++) {
         rgn.put((long) i, (long) i);
         if (i < capacity) {
           // entries are in memory
@@ -237,7 +234,7 @@ public class LIFOEvictionAlgoEnabledRegionJUnitTest {
 
       assertTrue("Entry count not 0 ", new Long(0).equals(lifoStats.getCounter()));
       // put four entries into the region
-      for (int i = 0; i < 8; i++) {
+      for (var i = 0; i < 8; i++) {
         rgn.put((long) i, (long) i);
       }
 
@@ -262,14 +259,14 @@ public class LIFOEvictionAlgoEnabledRegionJUnitTest {
   public void testEntryFaultinCount() {
     try {
       assertNotNull(cache);
-      LocalRegion rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
+      var rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
       assertNotNull(rgn);
 
-      DiskRegionStats diskRegionStats = rgn.getDiskRegion().getStats();
+      var diskRegionStats = rgn.getDiskRegion().getStats();
       assertTrue("Entry count not 0 ", new Long(0).equals(lifoStats.getCounter()));
 
       // put five entries into the region
-      for (int i = 0; i < 8; i++) {
+      for (var i = 0; i < 8; i++) {
         rgn.put("key" + i, "value" + i);
       }
 
@@ -299,13 +296,13 @@ public class LIFOEvictionAlgoEnabledRegionJUnitTest {
   public void testFaultInEntryValueShouldbeSerialized() {
     try {
       assertNotNull(cache);
-      LocalRegion rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
+      var rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
       assertNotNull(rgn);
 
       assertEquals("Region is not properly cleared ", 0, rgn.size());
       assertTrue("Entry count not 0 ", new Long(0).equals(lifoStats.getCounter()));
       // put eight entries into the region
-      for (int i = 0; i < 8; i++) {
+      for (var i = 0; i < 8; i++) {
         rgn.put((long) i, (long) i);
       }
 

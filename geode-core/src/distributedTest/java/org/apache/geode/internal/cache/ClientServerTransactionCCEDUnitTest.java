@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
@@ -41,7 +40,7 @@ public class ClientServerTransactionCCEDUnitTest extends ClientServerTransaction
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
+    var result = super.getDistributedSystemProperties();
     result.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.**" + ";org.apache.geode.test.dunit.**"
             + ";org.apache.geode.test.junit.**"
@@ -76,16 +75,16 @@ public class ClientServerTransactionCCEDUnitTest extends ClientServerTransaction
       @Override
       public Object call() throws Exception {
         Map<Object, VersionTag> map = new HashMap<>();
-        LocalRegion r = (LocalRegion) getCache().getRegion(regionName);
+        var r = (LocalRegion) getCache().getRegion(regionName);
         Iterator<Object> it = null;
         if (r instanceof PartitionedRegion) {
-          Region l = PartitionRegionHelper.getLocalPrimaryData(r);
+          var l = PartitionRegionHelper.getLocalPrimaryData(r);
           it = l.keySet().iterator();
         } else {
           it = r.keySet().iterator();
         }
         while (it.hasNext()) {
-          Object key = it.next();
+          var key = it.next();
           map.put(key, r.getRegionEntry(key).getVersionStamp().asVersionTag());
         }
         return map;
@@ -104,12 +103,12 @@ public class ClientServerTransactionCCEDUnitTest extends ClientServerTransaction
 
   @Override
   public void verifyVersionTags(VM client, VM server1, VM server2, VM server3) {
-    Map<Object, VersionTag> clientTags = getVersionTagsForRegion(client, D_REFERENCE);
-    Map<Object, VersionTag> serverTags = getVersionTagsForRegion(server1, D_REFERENCE);
+    var clientTags = getVersionTagsForRegion(client, D_REFERENCE);
+    var serverTags = getVersionTagsForRegion(server1, D_REFERENCE);
 
-    InternalDistributedMember serverId = getMemberId(server1);
-    for (Object key : clientTags.keySet()) {
-      VersionTag serverTag = serverTags.get(key);
+    var serverId = getMemberId(server1);
+    for (var key : clientTags.keySet()) {
+      var serverTag = serverTags.get(key);
       serverTag.setMemberID(serverId);
       LogWriterUtils.getLogWriter().fine("SWAP:key:" + key + " clientVersion:" + clientTags.get(key)
           + " serverVersion:" + serverTag);

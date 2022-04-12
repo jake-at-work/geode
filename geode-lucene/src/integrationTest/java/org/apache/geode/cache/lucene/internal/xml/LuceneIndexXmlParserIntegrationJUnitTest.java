@@ -43,14 +43,10 @@ import org.junit.rules.TestName;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheXmlException;
-import org.apache.geode.cache.lucene.LuceneIndex;
-import org.apache.geode.cache.lucene.LuceneSerializer;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.test.LuceneTestSerializer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.extension.Extension;
-import org.apache.geode.internal.cache.xmlcache.CacheCreation;
 import org.apache.geode.internal.cache.xmlcache.CacheXmlParser;
 import org.apache.geode.internal.cache.xmlcache.RegionCreation;
 import org.apache.geode.test.junit.categories.LuceneTest;
@@ -72,7 +68,7 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
    */
   @Test
   public void parseIndex() throws FileNotFoundException {
-    RegionCreation region = createRegionCreation("region");
+    var region = createRegionCreation("region");
     Map<String, String[]> expectedIndexes = new HashMap<>();
     expectedIndexes.put("index1", new String[] {"a", "b", "c", "d"});
     expectedIndexes.put("index2", new String[] {"f", "g"});
@@ -84,7 +80,7 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
    */
   @Test(expected = CacheXmlException.class)
   public void invalidXmlShouldThrowParseException() throws FileNotFoundException {
-    RegionCreation region = createRegionCreation("region");
+    var region = createRegionCreation("region");
   }
 
   /**
@@ -92,7 +88,7 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
    */
   @Test(expected = CacheXmlException.class)
   public void invalidLuceneElementShouldThrowParseException() throws FileNotFoundException {
-    RegionCreation region = createRegionCreation("region");
+    var region = createRegionCreation("region");
   }
 
   /**
@@ -100,12 +96,12 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
    */
   @Test(expected = CacheXmlException.class)
   public void invalidXmlLocationShouldThrowParseException() throws FileNotFoundException {
-    RegionCreation region = createRegionCreation("region");
+    var region = createRegionCreation("region");
   }
 
   @Test
   public void parseIndexWithAnalyzers() throws FileNotFoundException {
-    RegionCreation region = createRegionCreation("region");
+    var region = createRegionCreation("region");
 
     // Validate expected indexes
     Map<String, String[]> expectedIndexes = new HashMap<>();
@@ -124,7 +120,7 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
 
   @Test
   public void parseIndexWithSerializerAndStringProperty() throws FileNotFoundException {
-    RegionCreation region = createRegionCreation("region");
+    var region = createRegionCreation("region");
 
     // Validate expected indexes
     Map<String, String[]> expectedIndexes = new HashMap<>();
@@ -132,14 +128,14 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
     validateExpectedIndexes(region, expectedIndexes);
 
     // Validate expected serializer
-    Properties expected = new Properties();
+    var expected = new Properties();
     expected.setProperty("param_from_xml", "value_from_xml");
     validateExpectedSerializer(region, expected);
   }
 
   @Test
   public void parseIndexWithSerializerAndDeclarableProperty() throws FileNotFoundException {
-    RegionCreation region = createRegionCreation("region");
+    var region = createRegionCreation("region");
 
     // Validate expected indexes
     Map<String, String[]> expectedIndexes = new HashMap<>();
@@ -147,16 +143,16 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
     validateExpectedIndexes(region, expectedIndexes);
 
     // Validate expected serializer
-    LuceneTestSerializer nestedSerializer = new LuceneTestSerializer();
+    var nestedSerializer = new LuceneTestSerializer();
     nestedSerializer.getProperties().setProperty("nested_param", "nested_value");
-    Properties expected = new Properties();
+    var expected = new Properties();
     expected.put("param_from_xml", nestedSerializer);
     validateExpectedSerializer(region, expected);
   }
 
   @Test
   public void parseIndexWithSerializer() throws FileNotFoundException {
-    RegionCreation region = createRegionCreation("region");
+    var region = createRegionCreation("region");
 
     // Validate expected indexes
     Map<String, String[]> expectedIndexes = new HashMap<>();
@@ -164,13 +160,13 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
     validateExpectedIndexes(region, expectedIndexes);
 
     // Validate expected serializer
-    Properties expected = new Properties();
+    var expected = new Properties();
     validateExpectedSerializer(region, expected);
   }
 
   private RegionCreation createRegionCreation(String regionName) throws FileNotFoundException {
-    CacheXmlParser parser = CacheXmlParser.parse(new FileInputStream(getXmlFileForTest()));
-    CacheCreation cacheCreation = parser.getCacheCreation();
+    var parser = CacheXmlParser.parse(new FileInputStream(getXmlFileForTest()));
+    var cacheCreation = parser.getCacheCreation();
     // Some of the tests in this class needs to have the declarables initialized.
     // cacheCreation.create(InternalCache) would do this but it was too much work
     // to mock the InternalCache for all the ways create used it.
@@ -182,7 +178,7 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
   private void validateExpectedIndexes(RegionCreation region,
       Map<String, String[]> expectedIndexes) {
     for (Extension extension : region.getExtensionPoint().getExtensions()) {
-      LuceneIndexCreation index = (LuceneIndexCreation) extension;
+      var index = (LuceneIndexCreation) extension;
       assertEquals(SEPARATOR + "region", index.getRegionPath());
       assertArrayEquals(expectedIndexes.remove(index.getName()), index.getFieldNames());
     }
@@ -192,7 +188,7 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
   private void validateExpectedAnalyzers(RegionCreation region,
       Map<String, Map<String, Class<? extends Analyzer>>> expectedIndexAnalyzers) {
     for (Extension extension : region.getExtensionPoint().getExtensions()) {
-      LuceneIndexCreation index = (LuceneIndexCreation) extension;
+      var index = (LuceneIndexCreation) extension;
       expectedIndexAnalyzers.remove(index.getName());
     }
     assertEquals(Collections.emptyMap(), expectedIndexAnalyzers);
@@ -200,10 +196,10 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
 
   private void validateExpectedSerializer(RegionCreation region, Properties expectedProps) {
     Extension extension = region.getExtensionPoint().getExtensions().iterator().next();
-    LuceneIndexCreation index = (LuceneIndexCreation) extension;
-    LuceneSerializer testSerializer = index.getLuceneSerializer();
+    var index = (LuceneIndexCreation) extension;
+    var testSerializer = index.getLuceneSerializer();
     assertThat(testSerializer).isInstanceOf(LuceneTestSerializer.class);
-    Properties p = ((LuceneTestSerializer) testSerializer).getProperties();
+    var p = ((LuceneTestSerializer) testSerializer).getProperties();
     assertEquals(expectedProps, p);
   }
 
@@ -213,17 +209,17 @@ public class LuceneIndexXmlParserIntegrationJUnitTest {
    */
   @Test
   public void createIndex() throws FileNotFoundException {
-    CacheFactory cf = new CacheFactory();
+    var cf = new CacheFactory();
     cf.set(MCAST_PORT, "0");
     cf.set(CACHE_XML_FILE, getXmlFileForTest());
-    Cache cache = cf.create();
+    var cache = cf.create();
 
     try {
-      LuceneService service = LuceneServiceProvider.get(cache);
+      var service = LuceneServiceProvider.get(cache);
       assertEquals(3, service.getAllIndexes().size());
-      LuceneIndex index1 = service.getIndex("index1", SEPARATOR + "region");
-      LuceneIndex index2 = service.getIndex("index2", SEPARATOR + "region");
-      LuceneIndex index3 = service.getIndex("index3", SEPARATOR + "region");
+      var index1 = service.getIndex("index1", SEPARATOR + "region");
+      var index2 = service.getIndex("index2", SEPARATOR + "region");
+      var index3 = service.getIndex("index3", SEPARATOR + "region");
       assertArrayEquals(index1.getFieldNames(), new String[] {"a", "b", "c", "d"});
       assertArrayEquals(index2.getFieldNames(), new String[] {"f", "g"});
       assertArrayEquals(index3.getFieldNames(), new String[] {"h", "i", "j"});

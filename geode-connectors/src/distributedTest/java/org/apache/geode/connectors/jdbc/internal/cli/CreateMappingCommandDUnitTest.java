@@ -32,14 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -48,10 +44,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.RegionAttributesType;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.connectors.jdbc.JdbcAsyncWriter;
 import org.apache.geode.connectors.jdbc.JdbcLoader;
 import org.apache.geode.connectors.jdbc.JdbcWriter;
@@ -60,7 +53,6 @@ import org.apache.geode.connectors.jdbc.internal.configuration.FieldMapping;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.PdxSerializerObject;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.jndi.JNDIInvoker;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -68,13 +60,11 @@ import org.apache.geode.pdx.FieldType;
 import org.apache.geode.pdx.PdxReader;
 import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
-import org.apache.geode.test.compiler.InMemoryClassFile;
 import org.apache.geode.test.compiler.InMemoryJavaCompiler;
 import org.apache.geode.test.compiler.JarBuilder;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.JDBCConnectorTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.serializable.SerializableTemporaryFolder;
@@ -156,12 +146,12 @@ public class CreateMappingCommandDUnitTest {
   }
 
   private void executeSql(String sql) {
-    for (MemberVM server : Arrays.asList(server1, server2, server3, server4)) {
+    for (var server : Arrays.asList(server1, server2, server3, server4)) {
       server.invoke(() -> {
         try {
-          DataSource ds = JNDIInvoker.getDataSource("connection");
-          Connection conn = ds.getConnection();
-          Statement sm = conn.createStatement();
+          var ds = JNDIInvoker.getDataSource("connection");
+          var conn = ds.getConnection();
+          var sm = conn.createStatement();
           sm.execute(sql);
           sm.close();
           conn.close();
@@ -210,9 +200,9 @@ public class CreateMappingCommandDUnitTest {
   }
 
   private static RegionMapping getRegionMappingFromClusterConfig(String regionName, String groups) {
-    CacheConfig cacheConfig =
+    var cacheConfig =
         InternalLocator.getLocator().getConfigurationPersistenceService().getCacheConfig(groups);
-    RegionConfig regionConfig = cacheConfig.getRegions().stream()
+    var regionConfig = cacheConfig.getRegions().stream()
         .filter(region -> region.getName().equals(convertRegionPathToName(regionName))).findFirst()
         .orElse(null);
     return (RegionMapping) regionConfig.getCustomRegionElements().stream()
@@ -226,11 +216,11 @@ public class CreateMappingCommandDUnitTest {
 
   private static void validateAsyncEventQueueCreatedInClusterConfig(String regionName,
       String groups, boolean isParallel) {
-    CacheConfig cacheConfig =
+    var cacheConfig =
         InternalLocator.getLocator().getConfigurationPersistenceService().getCacheConfig(groups);
-    List<CacheConfig.AsyncEventQueue> queueList = cacheConfig.getAsyncEventQueues();
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
-    CacheConfig.AsyncEventQueue queue = findQueue(queueList, queueName);
+    var queueList = cacheConfig.getAsyncEventQueues();
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var queue = findQueue(queueList, queueName);
     assertThat(queue).isNotNull();
     assertThat(queue.getId()).isEqualTo(queueName);
     assertThat(queue.getAsyncEventListener().getClassName())
@@ -240,7 +230,7 @@ public class CreateMappingCommandDUnitTest {
 
   private static CacheConfig.AsyncEventQueue findQueue(List<CacheConfig.AsyncEventQueue> queueList,
       String queueName) {
-    for (CacheConfig.AsyncEventQueue queue : queueList) {
+    for (var queue : queueList) {
       if (queue.getId().equals(queueName)) {
         return queue;
       }
@@ -257,48 +247,48 @@ public class CreateMappingCommandDUnitTest {
 
   private static void validateRegionAlteredInClusterConfig(String regionName, String groups,
       boolean synchronous) {
-    CacheConfig cacheConfig =
+    var cacheConfig =
         InternalLocator.getLocator().getConfigurationPersistenceService().getCacheConfig(groups);
-    RegionConfig regionConfig = cacheConfig.getRegions().stream()
+    var regionConfig = cacheConfig.getRegions().stream()
         .filter(region -> region.getName().equals(convertRegionPathToName(regionName))).findFirst()
         .orElse(null);
-    RegionAttributesType attributes = regionConfig.getRegionAttributes();
+    var attributes = regionConfig.getRegionAttributes();
     assertThat(attributes.getCacheLoader().getClassName()).isEqualTo(JdbcLoader.class.getName());
     if (synchronous) {
       assertThat(attributes.getCacheWriter().getClassName()).isEqualTo(JdbcWriter.class.getName());
     } else {
-      String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+      var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
       assertThat(attributes.getAsyncEventQueueIds()).isEqualTo(queueName);
     }
   }
 
   private static void validateAsyncEventQueueCreatedOnServer(String regionName,
       boolean isParallel) {
-    InternalCache cache = ClusterStartupRule.getCache();
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
-    AsyncEventQueue queue = cache.getAsyncEventQueue(queueName);
+    var cache = ClusterStartupRule.getCache();
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var queue = cache.getAsyncEventQueue(queueName);
     assertThat(queue).isNotNull();
     assertThat(queue.getAsyncEventListener()).isInstanceOf(JdbcAsyncWriter.class);
     assertThat(queue.isParallel()).isEqualTo(isParallel);
   }
 
   private static void validateRegionAlteredOnServer(String regionName, boolean synchronous) {
-    InternalCache cache = ClusterStartupRule.getCache();
+    var cache = ClusterStartupRule.getCache();
     Region<?, ?> region = cache.getRegion(regionName);
     assertThat(region.getAttributes().getCacheLoader()).isInstanceOf(JdbcLoader.class);
     if (synchronous) {
       assertThat(region.getAttributes().getCacheWriter()).isInstanceOf(JdbcWriter.class);
     } else {
-      String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+      var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
       assertThat(region.getAttributes().getAsyncEventQueueIds()).contains(queueName);
     }
   }
 
   @Test
   public void createMappingSucceedsWithWarningWhenMappingAlreadyExistsAndIfNotExistsIsTrue() {
-    String regionName = REGION_NAME;
+    var regionName = REGION_NAME;
     setupReplicate(regionName);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -318,9 +308,9 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingReplicatedUpdatesServiceAndClusterConfigForServerGroup() {
-    String regionName = GROUP1_REGION;
+    var regionName = GROUP1_REGION;
     setupGroupReplicate(regionName, TEST_GROUP1);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -333,36 +323,36 @@ public class CreateMappingCommandDUnitTest {
 
     // TEST_GROUP1 only contains server2 and server 4
     server2.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertValidMappingOnServer(mapping, regionName, false, false);
     });
 
     server4.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertValidMappingOnServer(mapping, regionName, false, false);
     });
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNull();
     });
 
     server3.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNull();
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
       assertValidMappingOnLocator(regionMapping, regionName, TEST_GROUP1, false, false);
     });
   }
 
   @Test
   public void createMappingPartitionedUpdatesServiceAndClusterConfigForServerGroup() {
-    String regionName = GROUP2_REGION;
+    var regionName = GROUP2_REGION;
     setupGroupPartition(regionName, TEST_GROUP2);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -375,36 +365,36 @@ public class CreateMappingCommandDUnitTest {
 
     // TEST_GROUP2 only contains server3 and server4
     server3.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertValidMappingOnServer(mapping, regionName, false, true);
     });
 
     server4.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertValidMappingOnServer(mapping, regionName, false, true);
     });
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNull();
     });
 
     server2.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNull();
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP2);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP2);
       assertValidMappingOnLocator(regionMapping, regionName, TEST_GROUP2, false, true);
     });
   }
 
   @Test
   public void createMappingReplicatedUpdatesServiceAndClusterConfigForMultiServerGroup() {
-    String regionName = SEPARATOR + GROUP1_GROUP2_REGION;
+    var regionName = SEPARATOR + GROUP1_GROUP2_REGION;
     setupGroupReplicate(regionName, TEST_GROUP1 + "," + TEST_GROUP2);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -416,20 +406,20 @@ public class CreateMappingCommandDUnitTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
     // TEST_GROUP1 and TEST_GROUP2 only contains server 2, server 3, and server 4
-    for (MemberVM server : Arrays.asList(server2, server3, server4)) {
+    for (var server : Arrays.asList(server2, server3, server4)) {
       server.invoke(() -> {
-        RegionMapping mapping = getRegionMappingFromService(regionName);
+        var mapping = getRegionMappingFromService(regionName);
         assertValidMappingOnServer(mapping, regionName, false, false);
       });
     }
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNull();
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
       assertValidMappingOnLocator(regionMapping, regionName, TEST_GROUP1, false, false);
       regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP2);
       assertValidMappingOnLocator(regionMapping, regionName, TEST_GROUP2, false, false);
@@ -438,9 +428,9 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingPartitionedUpdatesServiceAndClusterConfigForMultiServerGroup() {
-    String regionName = SEPARATOR + GROUP1_GROUP2_REGION;
+    var regionName = SEPARATOR + GROUP1_GROUP2_REGION;
     setupGroupPartition(regionName, TEST_GROUP1 + "," + TEST_GROUP2);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -452,20 +442,20 @@ public class CreateMappingCommandDUnitTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
     // TEST_GROUP1 and TEST_GROUP2 only contains server 2, server 3, and server 4
-    for (MemberVM server : Arrays.asList(server2, server3, server4)) {
+    for (var server : Arrays.asList(server2, server3, server4)) {
       server.invoke(() -> {
-        RegionMapping mapping = getRegionMappingFromService(regionName);
+        var mapping = getRegionMappingFromService(regionName);
         assertValidMappingOnServer(mapping, regionName, false, true);
       });
     }
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(regionName);
+      var mapping = getRegionMappingFromService(regionName);
       assertThat(mapping).isNull();
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP1);
       assertValidMappingOnLocator(regionMapping, regionName, TEST_GROUP1, false, true);
       regionMapping = getRegionMappingFromClusterConfig(regionName, TEST_GROUP2);
       assertValidMappingOnLocator(regionMapping, regionName, TEST_GROUP2, false, true);
@@ -497,7 +487,7 @@ public class CreateMappingCommandDUnitTest {
     assertThat(mapping.getIds()).isEqualTo("myId");
     assertThat(mapping.getCatalog()).isNull();
     assertThat(mapping.getSchema()).isEqualTo("mySchema");
-    List<FieldMapping> fieldMappings = mapping.getFieldMappings();
+    var fieldMappings = mapping.getFieldMappings();
     assertThat(fieldMappings.size()).isEqualTo(2);
     assertThat(fieldMappings.get(0)).isEqualTo(
         new FieldMapping("myid", FieldType.STRING.name(), "MYID", JDBCType.VARCHAR.name(), false));
@@ -531,7 +521,7 @@ public class CreateMappingCommandDUnitTest {
     assertThat(mapping.getIds()).isEqualTo("id");
     assertThat(mapping.getCatalog()).isNull();
     assertThat(mapping.getSchema()).isEqualTo("mySchema");
-    List<FieldMapping> fieldMappings = mapping.getFieldMappings();
+    var fieldMappings = mapping.getFieldMappings();
     assertThat(fieldMappings).hasSize(3);
     assertThat(fieldMappings.get(0))
         .isEqualTo(new FieldMapping("id", "STRING", "ID", "VARCHAR", false));
@@ -560,39 +550,39 @@ public class CreateMappingCommandDUnitTest {
   }
 
   private File loadTestResource(String fileName) {
-    String filePath = createTempFileFromResource(getClass(), fileName).getAbsolutePath();
+    var filePath = createTempFileFromResource(getClass(), fileName).getAbsolutePath();
     assertThat(filePath).isNotNull();
 
     return new File(filePath);
   }
 
   private void deployJar() throws IOException {
-    File outputJar = createJar();
+    var outputJar = createJar();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DEPLOY);
+    var csb = new CommandStringBuilder(CliStrings.DEPLOY);
     csb.addOption(CliStrings.JAR, outputJar.getAbsolutePath());
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
   }
 
   private File createJar() throws IOException {
-    JarBuilder jarBuilder = new JarBuilder();
-    File source =
+    var jarBuilder = new JarBuilder();
+    var source =
         loadTestResource("/org/apache/geode/connectors/jdbc/internal/cli/ResourcePDX.java");
 
-    File outputJar = new File(temporaryFolder.getRoot(), "output.jar");
+    var outputJar = new File(temporaryFolder.getRoot(), "output.jar");
     jarBuilder.buildJar(outputJar, source);
     return outputJar;
   }
 
   private File createClassFile() throws IOException {
-    final InMemoryJavaCompiler javaCompiler = new InMemoryJavaCompiler();
-    File source =
+    final var javaCompiler = new InMemoryJavaCompiler();
+    var source =
         loadTestResource("/org/apache/geode/connectors/jdbc/internal/cli/ResourcePDX.java");
-    List<InMemoryClassFile> compiledSourceCodes = javaCompiler.compile(source);
-    String className = compiledSourceCodes.get(0).getName();
-    String fileName = className.substring(className.lastIndexOf(".") + 1) + ".class";
-    File file = new File(temporaryFolder.getRoot(), fileName);
-    FileOutputStream fileOutputStream = new FileOutputStream(file);
+    var compiledSourceCodes = javaCompiler.compile(source);
+    var className = compiledSourceCodes.get(0).getName();
+    var fileName = className.substring(className.lastIndexOf(".") + 1) + ".class";
+    var file = new File(temporaryFolder.getRoot(), fileName);
+    var fileOutputStream = new FileOutputStream(file);
     fileOutputStream.write(compiledSourceCodes.get(0).getByteContent());
     fileOutputStream.close();
     return file;
@@ -600,10 +590,10 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithoutExistingPdxNameFails() {
-    String region1Name = "region1";
+    var region1Name = "region1";
     setupReplicate(region1Name);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, region1Name);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "employeeRegion");
@@ -618,10 +608,10 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithDeployedPdxClassSucceeds() throws IOException {
-    String region1Name = "region1";
+    var region1Name = "region1";
     setupReplicate(region1Name);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, region1Name);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "employeeRegion");
@@ -633,12 +623,12 @@ public class CreateMappingCommandDUnitTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(region1Name);
+      var mapping = getRegionMappingFromService(region1Name);
       assertValidResourcePDXMappingOnServer(mapping, region1Name, false, false, "employeeRegion");
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
+      var regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
       assertValidResourcePDXMappingOnLocator(regionMapping, region1Name, null, false, false,
           "employeeRegion");
     });
@@ -646,11 +636,11 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithPdxClassFileSetToAJarFile() throws IOException {
-    String region1Name = "region1";
+    var region1Name = "region1";
     setupReplicate(region1Name);
-    File jarFile = createJar();
+    var jarFile = createJar();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, region1Name);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "employeeRegion");
@@ -662,12 +652,12 @@ public class CreateMappingCommandDUnitTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(region1Name);
+      var mapping = getRegionMappingFromService(region1Name);
       assertValidResourcePDXMappingOnServer(mapping, region1Name, false, false, "employeeRegion");
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
+      var regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
       assertValidResourcePDXMappingOnLocator(regionMapping, region1Name, null, false, false,
           "employeeRegion");
     });
@@ -675,10 +665,10 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithNonExistingPdxClassFileFails() {
-    String region1Name = "region1";
+    var region1Name = "region1";
     setupReplicate(region1Name);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, region1Name);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "employeeRegion");
@@ -693,12 +683,12 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithInvalidJarPdxClassFileFails() {
-    String region1Name = "region1";
+    var region1Name = "region1";
     setupReplicate(region1Name);
-    File invalidFile =
+    var invalidFile =
         loadTestResource("/org/apache/geode/connectors/jdbc/internal/cli/ResourcePDX.java");
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, region1Name);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "employeeRegion");
@@ -714,11 +704,11 @@ public class CreateMappingCommandDUnitTest {
   @Test
   public void createMappingWithPdxClassFileSetToAClassFile()
       throws IOException {
-    String region1Name = "region1";
+    var region1Name = "region1";
     setupReplicate(region1Name);
-    File classFile = createClassFile();
+    var classFile = createClassFile();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, region1Name);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "employeeRegion");
@@ -730,12 +720,12 @@ public class CreateMappingCommandDUnitTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(region1Name);
+      var mapping = getRegionMappingFromService(region1Name);
       assertValidResourcePDXMappingOnServer(mapping, region1Name, false, false, "employeeRegion");
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
+      var regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
       assertValidResourcePDXMappingOnLocator(regionMapping, region1Name, null, false, false,
           "employeeRegion");
     });
@@ -748,7 +738,7 @@ public class CreateMappingCommandDUnitTest {
     assertThat(mapping.getIds()).isEqualTo("id");
     assertThat(mapping.getCatalog()).isNull();
     assertThat(mapping.getSchema()).isEqualTo("mySchema");
-    List<FieldMapping> fieldMappings = mapping.getFieldMappings();
+    var fieldMappings = mapping.getFieldMappings();
     assertThat(fieldMappings).hasSize(3);
     assertThat(fieldMappings.get(0))
         .isEqualTo(new FieldMapping("id", "STRING", "ID", "VARCHAR", false));
@@ -760,9 +750,9 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingUpdatesServiceAndClusterConfig() {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     setupReplicate(regionName);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -772,27 +762,27 @@ public class CreateMappingCommandDUnitTest {
 
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
-    for (MemberVM server : Arrays.asList(server1, server2)) {
+    for (var server : Arrays.asList(server1, server2)) {
       server.invoke(() -> {
-        RegionMapping mapping = getRegionMappingFromService(regionName);
+        var mapping = getRegionMappingFromService(regionName);
         assertValidMappingOnServer(mapping, regionName, false, false);
       });
     }
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, null);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, null);
       assertValidMappingOnLocator(regionMapping, regionName, null, false, false);
     });
   }
 
   @Test
   public void createMappingWithDomainClassUpdatesServiceAndClusterConfig() {
-    String regionName = SEPARATOR + EMPLOYEE_REGION;
+    var regionName = SEPARATOR + EMPLOYEE_REGION;
     setupReplicate(regionName);
     server1.invoke(() -> {
       ClusterStartupRule.getCache().registerPdxMetaData(new Employee());
     });
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(PDX_NAME, Employee.class.getName());
@@ -806,15 +796,15 @@ public class CreateMappingCommandDUnitTest {
 
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
-    for (MemberVM server : Arrays.asList(server1, server2, server3, server4)) {
+    for (var server : Arrays.asList(server1, server2, server3, server4)) {
       server.invoke(() -> {
-        RegionMapping mapping = getRegionMappingFromService(regionName);
+        var mapping = getRegionMappingFromService(regionName);
         assertValidEmployeeMappingOnServer(mapping, regionName, false, false, null);
       });
     }
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, null);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, null);
       assertValidEmployeeMappingOnLocator(regionMapping, regionName, null, false, false,
           null);
     });
@@ -822,12 +812,12 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createTwoMappingsWithSamePdxName() {
-    String region1Name = "region1";
-    String region2Name = "region2";
+    var region1Name = "region1";
+    var region2Name = "region2";
     setupReplicate(region1Name);
     setupReplicate(region2Name);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, region1Name);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "employeeRegion");
@@ -848,23 +838,23 @@ public class CreateMappingCommandDUnitTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(region1Name);
+      var mapping = getRegionMappingFromService(region1Name);
       assertValidEmployeeMappingOnServer(mapping, region1Name, false, false, "employeeRegion");
     });
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(region2Name);
+      var mapping = getRegionMappingFromService(region2Name);
       assertValidEmployeeMappingOnServer(mapping, region2Name, false, false, "employeeRegion");
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
+      var regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
       assertValidEmployeeMappingOnLocator(regionMapping, region1Name, null, false, false,
           "employeeRegion");
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(region2Name, null);
+      var regionMapping = getRegionMappingFromClusterConfig(region2Name, null);
       assertValidEmployeeMappingOnLocator(regionMapping, region2Name, null, false, false,
           "employeeRegion");
     });
@@ -872,10 +862,10 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingsWithExistingPdxName() {
-    String region1Name = "region1";
+    var region1Name = "region1";
     setupReplicate(region1Name);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, region1Name);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "employeeRegion");
@@ -886,28 +876,28 @@ public class CreateMappingCommandDUnitTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(region1Name);
+      var mapping = getRegionMappingFromService(region1Name);
       assertValidEmployeeMappingOnServer(mapping, region1Name, false, false, "employeeRegion");
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
+      var regionMapping = getRegionMappingFromClusterConfig(region1Name, null);
       assertValidEmployeeMappingOnLocator(regionMapping, region1Name, null, false, false,
           "employeeRegion");
     });
 
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         region1Name);
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
     commandResultAssert.containsOutput("age       | INT      | AGE         | INTEGER   | true");
   }
 
   @Test
   public void createMappingsDoesNotRequirePdxSerializable() {
-    String region1Name = "region1";
+    var region1Name = "region1";
     setupReplicate(region1Name);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, region1Name);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "employeeNumeric");
@@ -919,7 +909,7 @@ public class CreateMappingCommandDUnitTest {
 
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         region1Name);
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
     commandResultAssert.containsOutput("income    | FLOAT    | INCOME      | REAL      | true");
     commandResultAssert.containsOutput("refid     | LONG     | REFID       | BIGINT    | true");
     commandResultAssert.containsOutput("age       | INT      | AGE         | INTEGER   | true");
@@ -929,7 +919,7 @@ public class CreateMappingCommandDUnitTest {
   public void createMappingUsingRegionNameUsesDomainClass() {
     setupReplicate(EMPLOYEE_LOWER);
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, EMPLOYEE_LOWER);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(PDX_NAME, Employee.class.getName());
@@ -941,21 +931,21 @@ public class CreateMappingCommandDUnitTest {
     // TODO We are saving the lower case table name in region mapping,
     // even though the metadata lookup found an upper case table name.
     server1.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromService(EMPLOYEE_LOWER);
+      var mapping = getRegionMappingFromService(EMPLOYEE_LOWER);
       assertValidEmployeeMappingOnServer(mapping, EMPLOYEE_LOWER, false, false, null);
     });
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(EMPLOYEE_LOWER, null);
+      var regionMapping = getRegionMappingFromClusterConfig(EMPLOYEE_LOWER, null);
       assertValidEmployeeMappingOnLocator(regionMapping, EMPLOYEE_LOWER, null, false, false, null);
     });
   }
 
   @Test
   public void createSynchronousMappingUpdatesServiceAndClusterConfig() {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     setupReplicate(regionName);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -966,24 +956,24 @@ public class CreateMappingCommandDUnitTest {
 
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
-    for (MemberVM server : Arrays.asList(server1, server2, server3, server4)) {
+    for (var server : Arrays.asList(server1, server2, server3, server4)) {
       server.invoke(() -> {
-        RegionMapping mapping = getRegionMappingFromService(regionName);
+        var mapping = getRegionMappingFromService(regionName);
         assertValidMappingOnServer(mapping, regionName, true, false);
       });
     }
 
     locator.invoke(() -> {
-      RegionMapping mapping = getRegionMappingFromClusterConfig(regionName, null);
+      var mapping = getRegionMappingFromClusterConfig(regionName, null);
       assertValidMappingOnLocator(mapping, regionName, null, true, false);
     });
   }
 
   @Test
   public void createMappingWithPartitionUpdatesServiceAndClusterConfig() {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     setupPartition(regionName);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(TABLE_NAME, "myTable");
@@ -992,9 +982,9 @@ public class CreateMappingCommandDUnitTest {
 
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
-    for (MemberVM server : Arrays.asList(server1, server2, server3, server4)) {
+    for (var server : Arrays.asList(server1, server2, server3, server4)) {
       server.invoke(() -> {
-        RegionMapping mapping = getRegionMappingFromService(regionName);
+        var mapping = getRegionMappingFromService(regionName);
         assertThat(mapping.getDataSourceName()).isEqualTo("connection");
         assertThat(mapping.getTableName()).isEqualTo("myTable");
         assertThat(mapping.getSchema()).isEqualTo("mySchema");
@@ -1005,7 +995,7 @@ public class CreateMappingCommandDUnitTest {
     }
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, null);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, null);
       assertThat(regionMapping.getDataSourceName()).isEqualTo("connection");
       assertThat(regionMapping.getTableName()).isEqualTo("myTable");
       assertThat(regionMapping.getPdxName()).isEqualTo(IdAndName.class.getName());
@@ -1016,9 +1006,9 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithNoTable() {
-    String regionName = SEPARATOR + "myTable";
+    var regionName = SEPARATOR + "myTable";
     setupReplicate(regionName);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(PDX_NAME, IdAndName.class.getName());
@@ -1026,9 +1016,9 @@ public class CreateMappingCommandDUnitTest {
 
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
-    for (MemberVM server : Arrays.asList(server1, server2, server3, server4)) {
+    for (var server : Arrays.asList(server1, server2, server3, server4)) {
       server.invoke(() -> {
-        RegionMapping mapping = getRegionMappingFromService(regionName);
+        var mapping = getRegionMappingFromService(regionName);
         assertThat(mapping.getDataSourceName()).isEqualTo("connection");
         assertThat(mapping.getTableName()).isNull();
         assertThat(mapping.getPdxName()).isEqualTo(IdAndName.class.getName());
@@ -1038,7 +1028,7 @@ public class CreateMappingCommandDUnitTest {
     }
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, null);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, null);
       assertThat(regionMapping.getDataSourceName()).isEqualTo("connection");
       assertThat(regionMapping.getTableName()).isNull();
       assertThat(regionMapping.getPdxName()).isEqualTo(IdAndName.class.getName());
@@ -1049,9 +1039,9 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createExistingRegionMappingFails() {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     setupReplicate(regionName);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(PDX_NAME, IdAndName.class.getName());
@@ -1068,9 +1058,9 @@ public class CreateMappingCommandDUnitTest {
         .containsOutput(
             "A JDBC mapping for " + convertRegionPathToName(regionName) + " already exists");
 
-    for (MemberVM server : Arrays.asList(server1, server2, server3, server4)) {
+    for (var server : Arrays.asList(server1, server2, server3, server4)) {
       server.invoke(() -> {
-        RegionMapping mapping = getRegionMappingFromService(regionName);
+        var mapping = getRegionMappingFromService(regionName);
         assertThat(mapping.getDataSourceName()).isEqualTo("connection");
         assertThat(mapping.getTableName()).isEqualTo("myTable");
         assertThat(mapping.getPdxName()).isEqualTo(IdAndName.class.getName());
@@ -1078,7 +1068,7 @@ public class CreateMappingCommandDUnitTest {
     }
 
     locator.invoke(() -> {
-      RegionMapping regionMapping = getRegionMappingFromClusterConfig(regionName, null);
+      var regionMapping = getRegionMappingFromClusterConfig(regionName, null);
       assertThat(regionMapping.getDataSourceName()).isEqualTo("connection");
       assertThat(regionMapping.getTableName()).isEqualTo("myTable");
       assertThat(regionMapping.getPdxName()).isEqualTo(IdAndName.class.getName());
@@ -1087,9 +1077,9 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithoutPdxNameFails() {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     setupReplicate(regionName);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
 
@@ -1101,9 +1091,9 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithNonExistentRegionFails() {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     setupReplicate(regionName);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, "bogusRegion");
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(PDX_NAME, Employee.class.getName());
@@ -1114,9 +1104,9 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithRegionThatHasALoaderFails() {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     setupReplicate(regionName, true);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(PDX_NAME, Employee.class.getName());
@@ -1128,10 +1118,10 @@ public class CreateMappingCommandDUnitTest {
 
   @Test
   public void createMappingWithExistingQueueFails() {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     setupReplicate(regionName);
     setupAsyncEventQueue(regionName);
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(PDX_NAME, Employee.class.getName());

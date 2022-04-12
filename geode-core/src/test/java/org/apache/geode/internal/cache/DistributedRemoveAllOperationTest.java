@@ -39,9 +39,9 @@ public class DistributedRemoveAllOperationTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DistributedRemoveAllOperation mockDistributedRemoveAllOperation =
+    var mockDistributedRemoveAllOperation =
         mock(DistributedRemoveAllOperation.class);
-    EntryEventImpl mockEntryEventImpl = mock(EntryEventImpl.class);
+    var mockEntryEventImpl = mock(EntryEventImpl.class);
 
     when(mockDistributedRemoveAllOperation.getBaseEvent()).thenReturn(mockEntryEventImpl);
 
@@ -50,23 +50,23 @@ public class DistributedRemoveAllOperationTest {
 
   @Test
   public void testDoRemoveDestroyTokensFromCqResultKeys() {
-    EntryEventImpl baseEvent = mock(EntryEventImpl.class);
-    EntryEventImpl entryEvent = mock(EntryEventImpl.class);
-    BucketRegion bucketRegion = mock(BucketRegion.class);
-    InternalCache internalCache = mock(InternalCache.class);
-    RegionAttributes regionAttributes = mock(RegionAttributes.class);
-    InternalDistributedSystem internalDistributedSystem = mock(InternalDistributedSystem.class);
-    FilterRoutingInfo.FilterInfo filterInfo = mock(FilterRoutingInfo.FilterInfo.class);
-    CqService cqService = mock(CqService.class);
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
-    ServerCQ serverCQ = mock(ServerCQ.class);
-    int removeAllPRDataSize = 1;
-    DistributedRemoveAllOperation distributedRemoveAllOperation =
+    var baseEvent = mock(EntryEventImpl.class);
+    var entryEvent = mock(EntryEventImpl.class);
+    var bucketRegion = mock(BucketRegion.class);
+    var internalCache = mock(InternalCache.class);
+    var regionAttributes = mock(RegionAttributes.class);
+    var internalDistributedSystem = mock(InternalDistributedSystem.class);
+    var filterInfo = mock(FilterRoutingInfo.FilterInfo.class);
+    var cqService = mock(CqService.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
+    var serverCQ = mock(ServerCQ.class);
+    var removeAllPRDataSize = 1;
+    var distributedRemoveAllOperation =
         new DistributedRemoveAllOperation(baseEvent, removeAllPRDataSize, false);
-    Object key = new Object();
+    var key = new Object();
     when(entryEvent.getKey()).thenReturn(key);
     distributedRemoveAllOperation.addEntry(entryEvent);
-    HashMap hashMap = new HashMap();
+    var hashMap = new HashMap();
     hashMap.put(1L, MessageType.LOCAL_DESTROY);
     when(filterInfo.getCQs()).thenReturn(hashMap);
     when(baseEvent.getRegion()).thenReturn(bucketRegion);

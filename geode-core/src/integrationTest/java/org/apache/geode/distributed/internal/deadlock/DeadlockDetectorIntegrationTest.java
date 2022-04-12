@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +50,7 @@ public class DeadlockDetectorIntegrationTest {
    */
   @After
   public void tearDown() throws Exception {
-    for (Thread thread : stuckThreads) {
+    for (var thread : stuckThreads) {
       thread.interrupt();
     }
 
@@ -63,16 +62,16 @@ public class DeadlockDetectorIntegrationTest {
    */
   @Test
   public void testMonitorDeadlock() throws Exception {
-    final Object lock1 = new Object();
-    final Object lock2 = new Object();
+    final var lock1 = new Object();
+    final var lock2 = new Object();
 
-    Thread thread1 = new Thread() {
+    var thread1 = new Thread() {
       @Override
       public void run() {
         stuckThreads.add(Thread.currentThread());
 
         synchronized (lock1) {
-          Thread thread2 = new Thread() {
+          var thread2 = new Thread() {
             @Override
             public void run() {
               stuckThreads.add(Thread.currentThread());
@@ -101,9 +100,9 @@ public class DeadlockDetectorIntegrationTest {
 
     Thread.sleep(2000);
 
-    DeadlockDetector detector = new DeadlockDetector();
+    var detector = new DeadlockDetector();
     detector.addDependencies(DeadlockDetector.collectAllDependencies("here"));
-    LinkedList<Dependency> deadlocks = detector.findDeadlock();
+    var deadlocks = detector.findDeadlock();
 
     System.out.println("deadlocks=" + DeadlockDetector.prettyFormat(deadlocks));
 
@@ -119,14 +118,14 @@ public class DeadlockDetectorIntegrationTest {
     final Lock lock1 = new ReentrantLock();
     final Lock lock2 = new ReentrantLock();
 
-    Thread thread1 = new Thread() {
+    var thread1 = new Thread() {
       @Override
       public void run() {
         stuckThreads.add(Thread.currentThread());
 
         lock1.lock();
 
-        Thread thread2 = new Thread() {
+        var thread2 = new Thread() {
           @Override
           public void run() {
             stuckThreads.add(Thread.currentThread());
@@ -156,9 +155,9 @@ public class DeadlockDetectorIntegrationTest {
 
     Thread.sleep(2000);
 
-    DeadlockDetector detector = new DeadlockDetector();
+    var detector = new DeadlockDetector();
     detector.addDependencies(DeadlockDetector.collectAllDependencies("here"));
-    LinkedList<Dependency> deadlocks = detector.findDeadlock();
+    var deadlocks = detector.findDeadlock();
 
     System.out.println("deadlocks=" + DeadlockDetector.prettyFormat(deadlocks));
 
@@ -168,10 +167,10 @@ public class DeadlockDetectorIntegrationTest {
   @Ignore("Semaphore deadlock detection is not supported by the JDK")
   @Test
   public void testSemaphoreDeadlock() throws Exception {
-    final Semaphore lock1 = new Semaphore(1);
-    final Semaphore lock2 = new Semaphore(1);
+    final var lock1 = new Semaphore(1);
+    final var lock2 = new Semaphore(1);
 
-    Thread thread1 = new Thread() {
+    var thread1 = new Thread() {
       @Override
       public void run() {
         stuckThreads.add(Thread.currentThread());
@@ -182,7 +181,7 @@ public class DeadlockDetectorIntegrationTest {
           e1.printStackTrace();
         }
 
-        Thread thread2 = new Thread() {
+        var thread2 = new Thread() {
           @Override
           public void run() {
             stuckThreads.add(Thread.currentThread());
@@ -211,9 +210,9 @@ public class DeadlockDetectorIntegrationTest {
 
     Thread.sleep(2000);
 
-    DeadlockDetector detector = new DeadlockDetector();
+    var detector = new DeadlockDetector();
     detector.addDependencies(DeadlockDetector.collectAllDependencies("here"));
-    LinkedList<Dependency> deadlocks = detector.findDeadlock();
+    var deadlocks = detector.findDeadlock();
 
     System.out.println("deadlocks=" + DeadlockDetector.prettyFormat(deadlocks));
 
@@ -226,14 +225,14 @@ public class DeadlockDetectorIntegrationTest {
     final ReadWriteLock lock1 = new ReentrantReadWriteLock();
     final ReadWriteLock lock2 = new ReentrantReadWriteLock();
 
-    Thread thread1 = new Thread() {
+    var thread1 = new Thread() {
       @Override
       public void run() {
         stuckThreads.add(Thread.currentThread());
 
         lock1.readLock().lock();
 
-        Thread thread2 = new Thread() {
+        var thread2 = new Thread() {
           @Override
           public void run() {
             stuckThreads.add(Thread.currentThread());
@@ -262,9 +261,9 @@ public class DeadlockDetectorIntegrationTest {
 
     Thread.sleep(2000);
 
-    DeadlockDetector detector = new DeadlockDetector();
+    var detector = new DeadlockDetector();
     detector.addDependencies(DeadlockDetector.collectAllDependencies("here"));
-    LinkedList<Dependency> deadlocks = detector.findDeadlock();
+    var deadlocks = detector.findDeadlock();
 
     System.out.println("deadlocks=" + deadlocks);
 

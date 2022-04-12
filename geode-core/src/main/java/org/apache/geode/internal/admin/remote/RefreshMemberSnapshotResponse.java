@@ -42,12 +42,12 @@ public class RefreshMemberSnapshotResponse extends AdminResponse {
    */
   public static RefreshMemberSnapshotResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    RefreshMemberSnapshotResponse m = new RefreshMemberSnapshotResponse();
+    var m = new RefreshMemberSnapshotResponse();
     m.setRecipient(recipient);
 
     try {
       DistributedSystem sys = dm.getSystem();
-      InternalCache c = (InternalCache) CacheFactory.getInstance(sys);
+      var c = (InternalCache) CacheFactory.getInstance(sys);
       m.snapshot = new GemFireMemberStatus(c);
     } catch (Exception ignore) {
       m.snapshot = null;

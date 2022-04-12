@@ -85,8 +85,8 @@ public class DistTXStateProxyImplOnDatanode extends DistTXStateProxyImpl {
   public void precommit()
       throws CommitConflictException, UnsupportedOperationInTransactionException {
     try {
-      DistTXState txState = getRealDeal();
-      boolean retVal = txState.applyOpsOnRedundantCopy(preCommitMessage.getSender(),
+      var txState = getRealDeal();
+      var retVal = txState.applyOpsOnRedundantCopy(preCommitMessage.getSender(),
           preCommitMessage.getSecondaryTransactionalOperations());
       if (retVal) {
         setCommitOnBehalfOfRemoteStub(true);

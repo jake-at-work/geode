@@ -14,19 +14,18 @@
  */
 package org.apache.geode.management.internal.cli.util;
 
-import jline.console.ConsoleReader;
 
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 
 public class CLIConsoleBufferUtil {
   public static String processMessegeForExtraCharactersFromConsoleBuffer(String messege) {
 
-    ConsoleReader reader = Gfsh.getConsoleReader();
+    var reader = Gfsh.getConsoleReader();
     if (reader != null) {
-      int bufferLength = reader.getCursorBuffer().length();
+      var bufferLength = reader.getCursorBuffer().length();
       if (bufferLength > messege.length()) {
-        int appendSpaces = bufferLength - messege.length();
-        for (int i = 0; i < appendSpaces; i++) {
+        var appendSpaces = bufferLength - messege.length();
+        for (var i = 0; i < appendSpaces; i++) {
           messege = messege + " ";
         }
       }

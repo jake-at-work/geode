@@ -35,9 +35,9 @@ class MaxLongGauge {
   }
 
   public void recordMax(long currentValue) {
-    boolean done = false;
+    var done = false;
     while (!done) {
-      long maxValue = max.get();
+      var maxValue = max.get();
       if (currentValue <= maxValue) {
         done = true;
       } else {

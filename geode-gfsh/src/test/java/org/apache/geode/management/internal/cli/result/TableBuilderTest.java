@@ -50,15 +50,15 @@ public class TableBuilderTest {
    */
   @Test
   public void testSanity() {
-    Table table = createTableStructure(3, "|", fill(new String[3], "Field"));
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(3, "|", fill(new String[3], "Field"));
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("1")
         .newLeftCol("1")
         .newLeftCol("1");
 
-    List<String> result = validateTable(table, true);
+    var result = validateTable(table, true);
 
     assertThat(result)
         .hasSize(4)
@@ -71,16 +71,16 @@ public class TableBuilderTest {
 
   @Test
   public void testLastColumnTruncated() {
-    Table table = createTableStructure(4, "|", fill(new String[4], "Field"));
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(4, "|", fill(new String[4], "Field"));
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("1")
         .newLeftCol("123456789-")
         .newLeftCol("123456789-")
         .newLeftCol("123456789-123456789-12345");
 
-    List<String> result = validateTable(table, true);
+    var result = validateTable(table, true);
 
     assertThat(result)
         .hasSize(4)
@@ -93,16 +93,16 @@ public class TableBuilderTest {
 
   @Test
   public void testLongestColumnFirstTruncated() {
-    Table table = createTableStructure(4, "|", fill(new String[4], "Field"));
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(4, "|", fill(new String[4], "Field"));
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("123456789-123456789-")
         .newLeftCol("123456789-12345")
         .newLeftCol("123456789-")
         .newLeftCol("1");
 
-    List<String> result = validateTable(table, true);
+    var result = validateTable(table, true);
 
     assertThat(result)
         .hasSize(4)
@@ -115,16 +115,16 @@ public class TableBuilderTest {
 
   @Test
   public void testMultipleColumnsTruncated() {
-    Table table = createTableStructure(4, "|", fill(new String[4], "Field"));
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(4, "|", fill(new String[4], "Field"));
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("1")
         .newLeftCol("123456789-")
         .newLeftCol("123456789-123456789-123456789-")
         .newLeftCol("123456789-123456789-12345");
 
-    List<String> result = validateTable(table, true);
+    var result = validateTable(table, true);
 
     assertThat(result)
         .hasSize(4)
@@ -137,16 +137,16 @@ public class TableBuilderTest {
 
   @Test
   public void testMultipleColumnsTruncatedLongestFirst() {
-    Table table = createTableStructure(4, "|", fill(new String[4], "Field"));
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(4, "|", fill(new String[4], "Field"));
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("123456789-123456789-123456789-")
         .newLeftCol("123456789-123456789-12345")
         .newLeftCol("1")
         .newLeftCol("123456789-");
 
-    List<String> result = validateTable(table, true);
+    var result = validateTable(table, true);
 
     assertThat(result)
         .hasSize(4)
@@ -161,15 +161,15 @@ public class TableBuilderTest {
   public void testColumnsWithShortNames() {
     when(screen.getScreenWidth()).thenReturn(9);
 
-    Table table = createTableStructure(3, "|", "A", "A", "A");
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(3, "|", "A", "A", "A");
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("123")
         .newLeftCol("123")
         .newLeftCol("123");
 
-    List<String> result = validateTable(table, true);
+    var result = validateTable(table, true);
 
     assertThat(result)
         .hasSize(4)
@@ -184,9 +184,9 @@ public class TableBuilderTest {
   public void testExceptionTooSmallWidth() {
     when(screen.getScreenWidth()).thenReturn(7);
 
-    Table table = createTableStructure(3, "|", "A", "A", "A");
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(3, "|", "A", "A", "A");
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("12")
         .newLeftCol("12")
@@ -199,16 +199,16 @@ public class TableBuilderTest {
 
   @Test
   public void testTooLittleSpaceOnNextToLastColumn() {
-    Table table = createTableStructure(4, "|", fill(new String[4], "Field"));
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(4, "|", fill(new String[4], "Field"));
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("1")
         .newLeftCol("123456789-")
         .newLeftCol("123456789-123456789-123456789-")
         .newLeftCol("123456789-");
 
-    List<String> result = validateTable(table, true);
+    var result = validateTable(table, true);
 
     assertThat(result)
         .hasSize(4)
@@ -221,16 +221,16 @@ public class TableBuilderTest {
 
   @Test
   public void testSeparatorWithMultipleChars() {
-    Table table = createTableStructure(4, "<|>", fill(new String[4], "Field"));
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(4, "<|>", fill(new String[4], "Field"));
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("1")
         .newLeftCol("123456789-")
         .newLeftCol("123456789-")
         .newLeftCol("123456789-123456789-12345");
 
-    List<String> result = validateTable(table, true);
+    var result = validateTable(table, true);
 
     assertThat(result)
         .hasSize(4)
@@ -243,9 +243,9 @@ public class TableBuilderTest {
 
   @Test
   public void testManyColumns() {
-    Table table = createTableStructure(8, "|", fill(new String[8], "Field"));
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(8, "|", fill(new String[8], "Field"));
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("123456789-")
         .newLeftCol("123456789-")
@@ -256,7 +256,7 @@ public class TableBuilderTest {
         .newLeftCol("123456789-")
         .newLeftCol("123456789-");
 
-    List<String> result = validateTable(table, true);
+    var result = validateTable(table, true);
 
     assertThat(result)
         .hasSize(4)
@@ -271,9 +271,9 @@ public class TableBuilderTest {
   public void testDisableColumnAdjustment() {
     when(screen.shouldTrimColumns()).thenReturn(false);
 
-    Table table = createTableStructure(5, "|", fill(new String[5], "Field"));
-    RowGroup rowGroup = table.getLastRowGroup();
-    Row row = rowGroup.newRow();
+    var table = createTableStructure(5, "|", fill(new String[5], "Field"));
+    var rowGroup = table.getLastRowGroup();
+    var row = rowGroup.newRow();
     row
         .newLeftCol("1")
         .newLeftCol("123456789-")
@@ -281,7 +281,7 @@ public class TableBuilderTest {
         .newLeftCol("123456789-123456789-12345")
         .newLeftCol("1");
 
-    List<String> result = validateTable(table, false);
+    var result = validateTable(table, false);
 
     assertThat(result)
         .hasSize(4)
@@ -293,15 +293,15 @@ public class TableBuilderTest {
   }
 
   private Table createTableStructure(int columnCount, String separator, String... columnNames) {
-    Table resultTable = tableBuilder.newTable(screen);
+    var resultTable = tableBuilder.newTable(screen);
     resultTable.setTabularResult(true);
     resultTable.setColumnSeparator(separator);
 
     resultTable.newBlankRow();
-    RowGroup rowGroup = resultTable.newRowGroup();
-    Row row = rowGroup.newRow();
+    var rowGroup = resultTable.newRowGroup();
+    var row = rowGroup.newRow();
 
-    for (int column = 0; column < columnCount; column++) {
+    for (var column = 0; column < columnCount; column++) {
       row.newCenterCol(columnNames[column] + column);
     }
 
@@ -311,10 +311,10 @@ public class TableBuilderTest {
   }
 
   private List<String> validateTable(Table table, boolean shouldTrim) {
-    String tableAsString = table.buildTable();
-    List<String> lines = asList(tableAsString.split(GfshParser.LINE_SEPARATOR));
+    var tableAsString = table.buildTable();
+    var lines = asList(tableAsString.split(GfshParser.LINE_SEPARATOR));
 
-    for (String line : lines) {
+    for (var line : lines) {
       if (shouldTrim) {
         assertThat(line.length()).isLessThanOrEqualTo(SCREEN_WIDTH);
       } else {

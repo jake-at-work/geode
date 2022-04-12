@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.CancelException;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.persistence.PersistentID;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
@@ -35,7 +34,6 @@ import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.internal.cache.DiskStoreImpl;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -52,10 +50,10 @@ public class CompactRequest extends CliLegacyMessage {
 
   public static Map<DistributedMember, Set<PersistentID>> send(DistributionManager dm) {
     Set recipients = dm.getOtherDistributionManagerIds();
-    CompactRequest request = new CompactRequest();
+    var request = new CompactRequest();
     request.setRecipients(recipients);
 
-    CompactReplyProcessor replyProcessor = new CompactReplyProcessor(dm, recipients);
+    var replyProcessor = new CompactReplyProcessor(dm, recipients);
     request.msgId = replyProcessor.getProcessorId();
     dm.putOutgoing(request);
 
@@ -82,10 +80,10 @@ public class CompactRequest extends CliLegacyMessage {
 
   @Override
   protected AdminResponse createResponse(DistributionManager dm) {
-    InternalCache cache = dm.getCache();
-    HashSet<PersistentID> compactedStores = new HashSet<>();
+    var cache = dm.getCache();
+    var compactedStores = new HashSet<PersistentID>();
     if (cache != null && !cache.isClosed()) {
-      for (DiskStore store : cache.listDiskStoresIncludingRegionOwned()) {
+      for (var store : cache.listDiskStoresIncludingRegionOwned()) {
         if (store.forceCompaction()) {
           compactedStores.add(((DiskStoreImpl) store).getPersistentID());
         }

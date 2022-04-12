@@ -48,7 +48,7 @@ public class VMEventNotifier implements VMEventListenerRegistry {
    * Concurrent changes to listener registration are ignored while notifying.
    */
   public void notifyAfterCreateVM(VM vm) {
-    for (VMEventListener listener : listeners) {
+    for (var listener : listeners) {
       listener.afterCreateVM(vm);
     }
   }
@@ -58,7 +58,7 @@ public class VMEventNotifier implements VMEventListenerRegistry {
    * Concurrent changes to listener registration are ignored while notifying.
    */
   public void notifyBeforeBounceVM(VM vm) {
-    for (VMEventListener listener : listeners) {
+    for (var listener : listeners) {
       listener.beforeBounceVM(vm);
     }
   }
@@ -68,7 +68,7 @@ public class VMEventNotifier implements VMEventListenerRegistry {
    * Concurrent changes to listener registration are ignored while notifying.
    */
   public void notifyAfterBounceVM(VM vm) {
-    for (VMEventListener listener : listeners) {
+    for (var listener : listeners) {
       listener.afterBounceVM(vm);
     }
   }

@@ -35,9 +35,9 @@ public class CopyOnWriteHashSetJUnitTest {
 
   @Test
   public void testSnapshot() {
-    CopyOnWriteHashSet<String> set = new CopyOnWriteHashSet<>();
+    var set = new CopyOnWriteHashSet<String>();
     set.add("a");
-    Set<String> snap = set.getSnapshot();
+    var snap = set.getSnapshot();
     Set<String> copy = new HashSet<>(set);
     set.add("b");
 
@@ -46,12 +46,12 @@ public class CopyOnWriteHashSetJUnitTest {
 
   @Test
   public void testIteratorRemove() {
-    CopyOnWriteHashSet<String> startingCollection = new CopyOnWriteHashSet<>();
+    var startingCollection = new CopyOnWriteHashSet<String>();
     startingCollection.addAll(Arrays.asList("a", "b", "c", "d"));
 
-    Iterator<String> iterator = startingCollection.iterator();
+    var iterator = startingCollection.iterator();
     while (iterator.hasNext()) {
-      String element = iterator.next();
+      var element = iterator.next();
 
       if (element.equals("b")) {
         iterator.remove();
@@ -65,7 +65,7 @@ public class CopyOnWriteHashSetJUnitTest {
 
   @Test
   public void testAllMethods() throws Exception {
-    CopyOnWriteHashSet<String> set = new CopyOnWriteHashSet<>();
+    var set = new CopyOnWriteHashSet<String>();
     assertTrue(set.add("a"));
     assertFalse(set.add("a"));
     Iterator itr = set.iterator();
@@ -82,7 +82,7 @@ public class CopyOnWriteHashSetJUnitTest {
     assertTrue(set.retainAll(Arrays.asList("a", "b", "c")));
     assertFalse(set.retainAll(Arrays.asList("a", "b", "c")));
 
-    HashSet<String> test = new HashSet<>();
+    var test = new HashSet<String>();
     test.addAll(Arrays.asList("a", "b", "c"));
     assertEquals(test, set);
     assertEquals(set, test);
@@ -107,11 +107,11 @@ public class CopyOnWriteHashSetJUnitTest {
 
     assertEquals(new HashSet(Arrays.asList("d")), set);
 
-    ByteArrayOutputStream boas = new ByteArrayOutputStream();
-    ObjectOutputStream out = new ObjectOutputStream(boas);
+    var boas = new ByteArrayOutputStream();
+    var out = new ObjectOutputStream(boas);
     out.writeObject(set);
-    ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(boas.toByteArray()));
-    Set<String> result = (Set<String>) in.readObject();
+    var in = new ObjectInputStream(new ByteArrayInputStream(boas.toByteArray()));
+    var result = (Set<String>) in.readObject();
     assertEquals(set, result);
     assertTrue(result instanceof CopyOnWriteHashSet);
   }

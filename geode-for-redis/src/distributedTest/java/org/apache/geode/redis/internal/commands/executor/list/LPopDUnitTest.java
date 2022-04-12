@@ -31,7 +31,6 @@ import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
@@ -48,11 +47,11 @@ public class LPopDUnitTest {
 
   @Before
   public void testSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     clusterStartUp.startRedisVM(1, locator.getPort());
     clusterStartUp.startRedisVM(2, locator.getPort());
     clusterStartUp.startRedisVM(3, locator.getPort());
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort), REDIS_CLIENT_TIMEOUT);
     clusterStartUp.flushAll();
   }
@@ -64,12 +63,12 @@ public class LPopDUnitTest {
 
   @Test
   public void shouldDistributeDataAmongCluster_andRetainDataAfterServerCrash() {
-    String key = makeListKeyWithHashtag(1, clusterStartUp.getKeyOnServer("lpop", 1));
-    List<String> elementList = makeElementList(key, INITIAL_LIST_SIZE);
+    var key = makeListKeyWithHashtag(1, clusterStartUp.getKeyOnServer("lpop", 1));
+    var elementList = makeElementList(key, INITIAL_LIST_SIZE);
     lpushPerformAndVerify(key, elementList);
 
     // Remove all but last element
-    for (int i = INITIAL_LIST_SIZE - 1; i > 0; i--) {
+    for (var i = INITIAL_LIST_SIZE - 1; i > 0; i--) {
       assertThat(jedis.lpop(key)).isEqualTo(makeElementString(key, i));
     }
     clusterStartUp.crashVM(1); // kill primary server
@@ -80,31 +79,31 @@ public class LPopDUnitTest {
 
   @Test
   public void givenBucketsMoveDuringLpop_thenOperationsAreNotLost() throws Exception {
-    AtomicBoolean continueRunningLpop = new AtomicBoolean(true);
-    List<String> listHashtags = makeListHashtags();
-    List<String> keys = makeListKeys(listHashtags);
+    var continueRunningLpop = new AtomicBoolean(true);
+    var listHashtags = makeListHashtags();
+    var keys = makeListKeys(listHashtags);
 
-    List<String> elementList1 = makeElementList(keys.get(0), INITIAL_LIST_SIZE);
-    List<String> elementList2 = makeElementList(keys.get(1), INITIAL_LIST_SIZE);
-    List<String> elementList3 = makeElementList(keys.get(2), INITIAL_LIST_SIZE);
+    var elementList1 = makeElementList(keys.get(0), INITIAL_LIST_SIZE);
+    var elementList2 = makeElementList(keys.get(1), INITIAL_LIST_SIZE);
+    var elementList3 = makeElementList(keys.get(2), INITIAL_LIST_SIZE);
 
     lpushPerformAndVerify(keys.get(0), elementList1);
     lpushPerformAndVerify(keys.get(1), elementList2);
     lpushPerformAndVerify(keys.get(2), elementList3);
 
-    Runnable task1 =
-        () -> lpopPerformAndVerify(keys.get(0), continueRunningLpop, elementList1);
-    Runnable task2 =
-        () -> lpopPerformAndVerify(keys.get(1), continueRunningLpop, elementList2);
-    Runnable task3 =
-        () -> lpopPerformAndVerify(keys.get(2), continueRunningLpop, elementList3);
+    var task1 =
+        (Runnable) () -> lpopPerformAndVerify(keys.get(0), continueRunningLpop, elementList1);
+    var task2 =
+        (Runnable) () -> lpopPerformAndVerify(keys.get(1), continueRunningLpop, elementList2);
+    var task3 =
+        (Runnable) () -> lpopPerformAndVerify(keys.get(2), continueRunningLpop, elementList3);
 
     Future<Void> future1 = executor.runAsync(task1);
     Future<Void> future2 = executor.runAsync(task2);
     Future<Void> future3 = executor.runAsync(task3);
 
-    int BUCKET_MOVES = 20;
-    for (int i = 0; i < BUCKET_MOVES; i++) {
+    var BUCKET_MOVES = 20;
+    for (var i = 0; i < BUCKET_MOVES; i++) {
       clusterStartUp.moveBucketForKey(listHashtags.get(i % listHashtags.size()));
       Thread.sleep(500);
     }
@@ -144,10 +143,10 @@ public class LPopDUnitTest {
       List<String> elementList) {
     assertThat(jedis.llen(key)).isEqualTo(INITIAL_LIST_SIZE);
 
-    int elementCount = INITIAL_LIST_SIZE - 1;
+    var elementCount = INITIAL_LIST_SIZE - 1;
     while (continueRunning.get()) {
-      int currentSize = INITIAL_LIST_SIZE;
-      for (int i = 0; i <= elementCount; i++) {
+      var currentSize = INITIAL_LIST_SIZE;
+      for (var i = 0; i <= elementCount; i++) {
         try {
           assertThat(jedis.lpop(key)).isEqualTo(elementList.get(elementCount - i));
           currentSize--;
@@ -173,7 +172,7 @@ public class LPopDUnitTest {
 
   private List<String> makeElementList(String key, int listSize) {
     List<String> elementList = new ArrayList<>();
-    for (int i = 0; i < listSize; i++) {
+    for (var i = 0; i < listSize; i++) {
       elementList.add(makeElementString(key, i));
     }
     return elementList;

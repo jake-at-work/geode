@@ -20,7 +20,6 @@ package org.apache.geode.management.internal.cli.functions;
  * @since GemFire 8.0
  */
 
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.cache.DiskStoreAttributes;
 import org.apache.geode.internal.cache.InternalCache;
@@ -40,12 +39,12 @@ public class CreateDiskStoreFunction extends CliFunction {
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext context) {
-    final Object[] args = (Object[]) context.getArguments();
-    final String diskStoreName = (String) args[0];
-    final DiskStoreAttributes diskStoreAttrs = (DiskStoreAttributes) args[1];
+    final var args = (Object[]) context.getArguments();
+    final var diskStoreName = (String) args[0];
+    final var diskStoreAttrs = (DiskStoreAttributes) args[1];
 
-    InternalCache cache = (InternalCache) context.getCache();
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory(diskStoreAttrs);
+    var cache = (InternalCache) context.getCache();
+    var diskStoreFactory = cache.createDiskStoreFactory(diskStoreAttrs);
     diskStoreFactory.create(diskStoreName);
 
     return new CliFunctionResult(context.getMemberName(), Result.Status.OK,

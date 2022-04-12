@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.After;
@@ -91,7 +90,7 @@ public abstract class AbstractSPopIntegrationTest implements RedisIntegrationTes
     jedis.sadd(SET_KEY, SET_MEMBERS);
 
     List<String> setMembersList = new ArrayList<>(Arrays.asList(SET_MEMBERS));
-    String result = jedis.spop(SET_KEY);
+    var result = jedis.spop(SET_KEY);
     assertThat(result).isIn(setMembersList);
 
     setMembersList.remove(result);
@@ -114,10 +113,10 @@ public abstract class AbstractSPopIntegrationTest implements RedisIntegrationTes
   @Test
   public void spop_withSmallCount_withExistentSet_returnsCorrectNumberOfMembers_removesReturnedMembersFromSet() {
     jedis.sadd(SET_KEY, SET_MEMBERS);
-    int count = 2;
+    var count = 2;
 
     List<String> setMembersList = new ArrayList<>(Arrays.asList(SET_MEMBERS));
-    Set<String> result = jedis.spop(SET_KEY, count);
+    var result = jedis.spop(SET_KEY, count);
     assertThat(result.size()).isEqualTo(count);
     assertThat(result).isSubsetOf(setMembersList);
 
@@ -128,10 +127,10 @@ public abstract class AbstractSPopIntegrationTest implements RedisIntegrationTes
   @Test
   public void spop_withLargeCount_withExistentSet_returnsCorrectNumberOfMembers_removesReturnedMembersFromSet() {
     jedis.sadd(SET_KEY, SET_MEMBERS);
-    int count = 6;
+    var count = 6;
 
     List<String> setMembersList = new ArrayList<>(Arrays.asList(SET_MEMBERS));
-    Set<String> result = jedis.spop(SET_KEY, count);
+    var result = jedis.spop(SET_KEY, count);
     assertThat(result.size()).isEqualTo(count);
     assertThat(result).isSubsetOf(setMembersList);
 
@@ -155,7 +154,7 @@ public abstract class AbstractSPopIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void spop_withoutCount_withWrongKeyType_returnsWrongTypeError() {
-    String key = "ding";
+    var key = "ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.spop(key)).hasMessage(ERROR_WRONG_TYPE);
   }
@@ -163,21 +162,21 @@ public abstract class AbstractSPopIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void spop_withCountAsZero_withWrongKeyType_returnsWrongTypeError() {
-    String key = "ding";
+    var key = "ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.spop(key, 0)).hasMessage(ERROR_WRONG_TYPE);
   }
 
   @Test
   public void spop_withCountAsNegative_withWrongKeyType_returnsWrongTypeError() {
-    String key = "ding";
+    var key = "ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.spop(key, -1)).hasMessage(ERROR_VALUE_MUST_BE_POSITIVE);
   }
 
   @Test
   public void ensureSetConsistency_whenRunningConcurrently() {
-    final AtomicReference<String> spopResultReference = new AtomicReference<>();
+    final var spopResultReference = new AtomicReference<String>();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.sadd(SET_KEY, SET_MEMBERS),
         i -> spopResultReference.set(jedis.spop(SET_KEY)))

@@ -34,7 +34,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedMember;
@@ -315,12 +314,12 @@ public class ClearRvvLockingDUnitTest extends JUnit4CacheTestCase {
   }
 
   private static void doPutAll() {
-    Map<Object, Object> map = generateKeyValues();
+    var map = generateKeyValues();
     region.putAll(map, "putAllCallback");
   }
 
   private static void doRemoveAll() {
-    Map<Object, Object> map = generateKeyValues();
+    var map = generateKeyValues();
     region.removeAll(map.keySet(), "removeAllCallback");
   }
 
@@ -354,21 +353,21 @@ public class ClearRvvLockingDUnitTest extends JUnit4CacheTestCase {
   SerializableRunnable performNoAckPutOperation = new SerializableRunnable("perform NoAckPUT") {
     @Override
     public void run() throws InterruptedException {
-      Runnable putThread1 = () -> {
+      var putThread1 = (Runnable) () -> {
         DistributedSystem.setThreadsSocketPolicy(false);
         doPut();
         DistributedSystem.releaseThreadsSockets();
       };
 
-      Runnable putThread2 = () -> {
+      var putThread2 = (Runnable) () -> {
         DistributedSystem.setThreadsSocketPolicy(false);
         awaitStep1Latch();
         doClear();
         DistributedSystem.releaseThreadsSockets();
       };
 
-      Thread t1 = new Thread(putThread1);
-      Thread t2 = new Thread(putThread2);
+      var t1 = new Thread(putThread1);
+      var t2 = new Thread(putThread2);
       t2.start();
       t1.start();
       t1.join();
@@ -431,23 +430,23 @@ public class ClearRvvLockingDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void setupMembers() {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     vm0ID = createCache(vm0);
     vm1ID = createCache(vm1);
-    String testName = getName();
+    var testName = getName();
     vm0.invoke(() -> createRegion(testName));
     vm1.invoke(() -> createRegion(testName));
   }
 
   private void setupNoAckMembers() {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     vm0ID = createNoConserveSocketsCache(vm0);
     vm1ID = createNoConserveSocketsCache(vm1);
-    String testName = getName();
+    var testName = getName();
     vm0.invoke(() -> createNOACKRegion(testName));
     vm1.invoke(() -> createNOACKRegion(testName));
   }
@@ -457,18 +456,18 @@ public class ClearRvvLockingDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void checkForConsistencyErrors() {
-    Map<Object, Object> r0Contents = vm0.invoke(ClearRvvLockingDUnitTest::getRegionContents);
-    Map<Object, Object> r1Contents = vm1.invoke(ClearRvvLockingDUnitTest::getRegionContents);
+    var r0Contents = vm0.invoke(ClearRvvLockingDUnitTest::getRegionContents);
+    var r1Contents = vm1.invoke(ClearRvvLockingDUnitTest::getRegionContents);
 
-    String key = THE_KEY;
+    var key = THE_KEY;
     softly.assertThat(r1Contents.get(key)).as("region contents are not consistent for key %s", key)
         .isEqualTo(r0Contents.get(key));
     softly.assertThat(checkRegionEntry(vm1, key))
         .as("region entries are not consistent for key %s", key)
         .isEqualTo(checkRegionEntry(vm0, key));
 
-    for (int subi = 1; subi < 3; subi++) {
-      String subkey = key + "-" + subi;
+    for (var subi = 1; subi < 3; subi++) {
+      var subkey = key + "-" + subi;
       if (r0Contents.containsKey(subkey)) {
         softly.assertThat(r1Contents.get(subkey))
             .as("region contents are not consistent for key %s", subkey)
@@ -535,22 +534,22 @@ public class ClearRvvLockingDUnitTest extends JUnit4CacheTestCase {
   }
 
   private static void createRegion(String rgnName) {
-    RegionFactory<Object, Object> rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
+    var rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
     rf.setConcurrencyChecksEnabled(true);
     rf.setScope(Scope.DISTRIBUTED_ACK);
     region = (LocalRegion) rf.create(rgnName);
   }
 
   private static void createNOACKRegion(String rgnName) {
-    RegionFactory<Object, Object> rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
+    var rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
     rf.setConcurrencyChecksEnabled(true);
     rf.setScope(Scope.DISTRIBUTED_NO_ACK);
     region = (LocalRegion) rf.create(rgnName);
   }
 
   private static Map<Object, Object> generateKeyValues() {
-    String key = THE_KEY;
-    String value = THE_VALUE;
+    var key = THE_KEY;
+    var value = THE_VALUE;
     Map<Object, Object> map = new HashMap<>();
     map.put(key, value);
     map.put(key + "-1", value + "-1");
@@ -561,8 +560,8 @@ public class ClearRvvLockingDUnitTest extends JUnit4CacheTestCase {
   @SuppressWarnings("rawtypes")
   private static Map<Object, Object> getRegionContents() {
     Map<Object, Object> result = new HashMap<>();
-    for (final Object o : region.entrySet()) {
-      Region.Entry e = (Region.Entry) o;
+    for (final var o : region.entrySet()) {
+      var e = (Region.Entry) o;
       result.put(e.getKey(), e.getValue());
     }
     return result;

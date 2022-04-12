@@ -68,15 +68,15 @@ public class MissingDiskStoreAfterServerRestartAcceptanceTest {
     server4Folder = temporaryFolder.newFolder(SERVER_4_NAME).toPath().toAbsolutePath();
     server5Folder = temporaryFolder.newFolder(SERVER_5_NAME).toPath().toAbsolutePath();
 
-    int[] ports = getRandomAvailableTCPPorts(6);
+    var ports = getRandomAvailableTCPPorts(6);
     locatorPort = ports[0];
-    int server1Port = ports[1];
-    int server2Port = ports[2];
-    int server3Port = ports[3];
-    int server4Port = ports[4];
-    int server5Port = ports[5];
+    var server1Port = ports[1];
+    var server2Port = ports[2];
+    var server3Port = ports[3];
+    var server4Port = ports[4];
+    var server5Port = ports[5];
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + LOCATOR_NAME,
         "--port=" + locatorPort,
@@ -139,14 +139,14 @@ public class MissingDiskStoreAfterServerRestartAcceptanceTest {
         gfshRule.execute(connectToLocatorCommand, "show missing-disk-stores").getOutputText())
             .contains("Missing Disk Stores");
 
-    Path server4Path = Paths.get(String.valueOf(server4Folder));
-    Path server5Path = Paths.get(String.valueOf(server5Folder));
+    var server4Path = Paths.get(String.valueOf(server4Folder));
+    var server5Path = Paths.get(String.valueOf(server5Folder));
     Files.move(server4Path, server5Path, StandardCopyOption.REPLACE_EXISTING);
 
     gfshRule.execute(startServer5Command);
 
     await().untilAsserted(() -> {
-      String waitingForMembersMessage = String.format(
+      var waitingForMembersMessage = String.format(
           "Server server5 startup completed in");
 
       LogFileAssert.assertThat(server5Folder.resolve(SERVER_5_NAME + ".log").toFile())
@@ -154,7 +154,7 @@ public class MissingDiskStoreAfterServerRestartAcceptanceTest {
           .contains(waitingForMembersMessage);
     });
 
-    String showDiskStoresOutput =
+    var showDiskStoresOutput =
         gfshRule.execute(connectToLocatorCommand, "show missing-disk-stores").getOutputText();
     assertThat(showDiskStoresOutput).contains("No missing disk store found");
   }

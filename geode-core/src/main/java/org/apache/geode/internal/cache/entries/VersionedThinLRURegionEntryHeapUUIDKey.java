@@ -135,10 +135,10 @@ public class VersionedThinLRURegionEntryHeapUUIDKey extends VersionedThinLRURegi
   @Override
   public synchronized int updateEntrySize(final EvictionController evictionController,
       final Object value) {
-    int oldSize = getEntrySize();
-    int newSize = evictionController.entrySize(getKeyForSizing(), value);
+    var oldSize = getEntrySize();
+    var newSize = evictionController.entrySize(getKeyForSizing(), value);
     setEntrySize(newSize);
-    int delta = newSize - oldSize;
+    var delta = newSize - oldSize;
     return delta;
   }
 
@@ -252,7 +252,7 @@ public class VersionedThinLRURegionEntryHeapUUIDKey extends VersionedThinLRURegi
   @Override
   public void setVersions(final VersionTag versionTag) {
     memberId = versionTag.getMemberID();
-    int eVersion = versionTag.getEntryVersion();
+    var eVersion = versionTag.getEntryVersion();
     entryVersionLowBytes = (short) (eVersion & 0xffff);
     entryVersionHighByte = (byte) ((eVersion & 0xff0000) >> 16);
     regionVersionHighBytes = versionTag.getRegionVersionHighBytes();
@@ -283,7 +283,7 @@ public class VersionedThinLRURegionEntryHeapUUIDKey extends VersionedThinLRURegi
   // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
   @Override
   public VersionTag asVersionTag() {
-    VersionTag tag = VersionTag.create(memberId);
+    var tag = VersionTag.create(memberId);
     tag.setEntryVersion(getEntryVersion());
     tag.setRegionVersion(regionVersionHighBytes, regionVersionLowBytes);
     tag.setVersionTimeStamp(getVersionTimeStamp());
@@ -327,7 +327,7 @@ public class VersionedThinLRURegionEntryHeapUUIDKey extends VersionedThinLRURegi
   @Override
   public boolean isKeyEqual(final Object key) {
     if (key instanceof UUID) {
-      UUID uuid = (UUID) key;
+      var uuid = (UUID) key;
       return uuid.getLeastSignificantBits() == keyLeastSigBits
           && uuid.getMostSignificantBits() == keyMostSigBits;
     }

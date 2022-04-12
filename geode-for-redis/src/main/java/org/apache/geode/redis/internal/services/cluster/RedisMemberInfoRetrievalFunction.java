@@ -40,7 +40,7 @@ public class RedisMemberInfoRetrievalFunction implements AllowExecutionInLowMemo
   private RedisMemberInfo myself = null;
 
   public static RedisMemberInfoRetrievalFunction register() {
-    RedisMemberInfoRetrievalFunction infoFunction = new RedisMemberInfoRetrievalFunction();
+    var infoFunction = new RedisMemberInfoRetrievalFunction();
     FunctionService.registerFunction(infoFunction);
     return infoFunction;
   }

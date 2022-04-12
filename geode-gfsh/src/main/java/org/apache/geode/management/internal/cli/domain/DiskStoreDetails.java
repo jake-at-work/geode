@@ -295,7 +295,7 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
 
   @Override
   public int compareTo(final DiskStoreDetails diskStoreDetails) {
-    int comparisonValue = compare(getMemberName(), diskStoreDetails.getMemberName());
+    var comparisonValue = compare(getMemberName(), diskStoreDetails.getMemberName());
     comparisonValue = (comparisonValue != 0 ? comparisonValue
         : compare(getMemberId(), diskStoreDetails.getMemberId()));
     return (comparisonValue != 0 ? comparisonValue
@@ -312,7 +312,7 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
       return false;
     }
 
-    final DiskStoreDetails that = (DiskStoreDetails) obj;
+    final var that = (DiskStoreDetails) obj;
 
     return ObjectUtils.equalsIgnoreNull(getId(), that.getId())
         && ObjectUtils.equals(getName(), that.getName())
@@ -321,7 +321,7 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
 
   @Override
   public int hashCode() {
-    int hashValue = 17;
+    var hashValue = 17;
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getId());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getName());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getMemberId());
@@ -377,8 +377,8 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
   }
 
   protected String toString(final Collection<?> collection) {
-    final StringBuilder buffer = new StringBuilder("[");
-    int count = 0;
+    final var buffer = new StringBuilder("[");
+    var count = 0;
 
     for (final Object element : collection) {
       buffer.append(count++ > 0 ? ", " : "");
@@ -419,14 +419,14 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
         return false;
       }
 
-      final AsyncEventQueueDetails that = (AsyncEventQueueDetails) obj;
+      final var that = (AsyncEventQueueDetails) obj;
 
       return ObjectUtils.equals(getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-      int hashValue = 17;
+      var hashValue = 17;
       hashValue = 37 * hashValue + ObjectUtils.hashCode(getId());
       return hashValue;
     }
@@ -468,7 +468,7 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
 
     @Override
     public int compareTo(final CacheServerDetails cacheServerDetails) {
-      final int valueOfBindAddressComparison =
+      final var valueOfBindAddressComparison =
           getBindAddress().compareTo(cacheServerDetails.getBindAddress());
       return (valueOfBindAddressComparison != 0 ? valueOfBindAddressComparison
           : (getPort() - cacheServerDetails.getPort()));
@@ -484,7 +484,7 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
         return false;
       }
 
-      final CacheServerDetails that = (CacheServerDetails) obj;
+      final var that = (CacheServerDetails) obj;
 
       return ObjectUtils.equals(getBindAddress(), that.getBindAddress())
           && ObjectUtils.equals(getPort(), that.getPort());
@@ -492,7 +492,7 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
 
     @Override
     public int hashCode() {
-      int hashValue = 17;
+      var hashValue = 17;
       hashValue = 37 * hashValue + ObjectUtils.hashCode(getBindAddress());
       hashValue = 37 * hashValue + ObjectUtils.hashCode(getPort());
       return hashValue;
@@ -547,14 +547,14 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
         return false;
       }
 
-      final DiskDirDetails that = (DiskDirDetails) obj;
+      final var that = (DiskDirDetails) obj;
 
       return ObjectUtils.equals(getAbsolutePath(), that.getAbsolutePath());
     }
 
     @Override
     public int hashCode() {
-      int hashValue = 17;
+      var hashValue = 17;
       hashValue = 37 * hashValue + ObjectUtils.hashCode(getAbsolutePath());
       return hashValue;
     }
@@ -609,14 +609,14 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
         return false;
       }
 
-      final GatewayDetails that = (GatewayDetails) obj;
+      final var that = (GatewayDetails) obj;
 
       return ObjectUtils.equals(getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-      int hashValue = 17;
+      var hashValue = 17;
       hashValue = 37 * hashValue + ObjectUtils.hashCode(getId());
       return hashValue;
     }
@@ -684,14 +684,14 @@ public class DiskStoreDetails implements Comparable<DiskStoreDetails>, MutableId
         return false;
       }
 
-      final RegionDetails that = (RegionDetails) obj;
+      final var that = (RegionDetails) obj;
 
       return ObjectUtils.equals(getFullPath(), that.getFullPath());
     }
 
     @Override
     public int hashCode() {
-      int hashValue = 17;
+      var hashValue = 17;
       hashValue = 37 * hashValue + ObjectUtils.hashCode(getFullPath());
       return hashValue;
     }

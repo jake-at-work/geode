@@ -27,7 +27,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.test.dunit.rules.ClientVM;
@@ -51,20 +50,20 @@ public class ClientDestroyInvalidateAuthDUnitTest {
   public void before() throws Exception {
     Region region =
         server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("key" + i, "value" + i);
     }
   }
 
   @Test
   public void testDestroyInvalidate() throws Exception {
-    int serverPort = server.getPort();
+    var serverPort = server.getPort();
     client1 = lsRule.startClientVM(1, c1 -> c1.withCredential("data", "data")
         .withPoolSubscription(true)
         .withServerConnection(serverPort));
     // Delete one key and invalidate another key with an authorized user.
     client1.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       Region region =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(REGION_NAME);
       assertTrue(region.containsKeyOnServer("key1"));
@@ -85,7 +84,7 @@ public class ClientDestroyInvalidateAuthDUnitTest {
         .withServerConnection(serverPort));
     // Delete one key and invalidate another key with an unauthorized user.
     client2.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
 
       Region region =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(REGION_NAME);

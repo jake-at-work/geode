@@ -70,13 +70,13 @@ public abstract class AbstractLPopIntegrationTest implements RedisIntegrationTes
   @Test
   public void lpop_returnsLeftmostMember() {
     jedis.lpush(KEY, "e1", "e2");
-    String result = jedis.lpop(KEY);
+    var result = jedis.lpop(KEY);
     assertThat(result).isEqualTo("e2");
   }
 
   @Test
   public void lpop_removesKey_whenLastElementRemoved() {
-    final String keyWithTagForKeysCommand = "{tag}" + KEY;
+    final var keyWithTagForKeysCommand = "{tag}" + KEY;
 
     jedis.lpush(keyWithTagForKeysCommand, "e1");
     jedis.lpop(keyWithTagForKeysCommand);
@@ -94,11 +94,11 @@ public abstract class AbstractLPopIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void lpop_withConcurrentLPush_returnsCorrectValue() {
-    String[] valuesInitial = new String[] {"un", "deux", "troix"};
-    String[] valuesToAdd = new String[] {"plum", "peach", "orange"};
+    var valuesInitial = new String[] {"un", "deux", "troix"};
+    var valuesToAdd = new String[] {"plum", "peach", "orange"};
     jedis.lpush(KEY, valuesInitial);
 
-    final AtomicReference<String> lpopReference = new AtomicReference<>();
+    final var lpopReference = new AtomicReference<String>();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.lpush(KEY, valuesToAdd),
         i -> lpopReference.set(jedis.lpop(KEY)))

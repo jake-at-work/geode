@@ -44,13 +44,13 @@ public class InspectionClasspathManager {
   public void jumpToModifiedClassLoader(String modifiedClasspath) {
     if (modifiedClasspath != null && modifiedClasspath.length() > 0) {
       // TODO Kirk and Darrel believe this is dead code that is never used
-      ClassLoader current = Thread.currentThread().getContextClassLoader();
+      var current = Thread.currentThread().getContextClassLoader();
       oldClassLoader.set(current);
       synchronized (pathsToLoaders) {
-        ClassLoader newClassLoader = (ClassLoader) pathsToLoaders.get(modifiedClasspath);
+        var newClassLoader = (ClassLoader) pathsToLoaders.get(modifiedClasspath);
         if (newClassLoader == null) {
-          URL[] urls = convertToURLs(modifiedClasspath);
-          URLClassLoader userClassLoader = new URLClassLoader(urls, current);
+          var urls = convertToURLs(modifiedClasspath);
+          var userClassLoader = new URLClassLoader(urls, current);
           pathsToLoaders.put(modifiedClasspath, userClassLoader);
           newClassLoader = userClassLoader;
         }
@@ -60,7 +60,7 @@ public class InspectionClasspathManager {
   }
 
   public void revertToOldClassLoader() {
-    ClassLoader loader = (ClassLoader) oldClassLoader.get();
+    var loader = (ClassLoader) oldClassLoader.get();
     if (loader != null) {
       Thread.currentThread().setContextClassLoader(loader);
       oldClassLoader.set(null);
@@ -70,9 +70,9 @@ public class InspectionClasspathManager {
   private URL[] convertToURLs(String classpath) {
     List urls = new ArrayList();
     // must accept both separators, not just the current system's separator
-    StringTokenizer tokenizer = new StringTokenizer(classpath, ":;");
+    var tokenizer = new StringTokenizer(classpath, ":;");
     while (tokenizer.hasMoreTokens()) {
-      java.io.File f = new java.io.File(tokenizer.nextToken());
+      var f = new java.io.File(tokenizer.nextToken());
       try {
         f = f.getCanonicalFile();
       } catch (IOException ex) {
@@ -84,7 +84,7 @@ public class InspectionClasspathManager {
         continue; // ignore?
       }
     }
-    URL[] array = new URL[urls.size()];
+    var array = new URL[urls.size()];
     return (URL[]) urls.toArray(array);
   }
 

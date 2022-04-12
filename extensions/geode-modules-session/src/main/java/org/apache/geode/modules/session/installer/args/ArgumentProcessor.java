@@ -155,7 +155,7 @@ public class ArgumentProcessor {
    */
   public ArgumentValues process(final String[] programArgs) throws UsageException {
     ArgumentHandler argHandler;
-    final ArgumentValues result = new ArgumentValues();
+    final var result = new ArgumentValues();
     List<Argument> unmatched;
     List<Match> matches;
 
@@ -165,14 +165,14 @@ public class ArgumentProcessor {
     // Find arguments which didnt match
     unmatched = new ArrayList<>();
     unmatched.addAll(args);
-    for (Match match : matches) {
+    for (var match : matches) {
       unmatched.remove(match.getArgument());
     }
 
     // Error on unmatched yet required args
-    for (Argument arg : unmatched) {
+    for (var arg : unmatched) {
       if (arg.isRequired() && !arg.isDefinedInEnv()) {
-        final UsageException usageException =
+        final var usageException =
             new UsageException("Required argument not provided: " + arg);
         usageException.setUsage(getUsage());
         throw usageException;
@@ -180,8 +180,8 @@ public class ArgumentProcessor {
     }
 
     // Handle the arguments
-    for (Match match : matches) {
-      final Argument arg = match.getArgument();
+    for (var match : matches) {
+      final var arg = match.getArgument();
       argHandler = arg.getArgumentHandler();
       if (argHandler != null) {
         argHandler.handleArgument(arg, match.getForm(), match.getParams());
@@ -199,9 +199,9 @@ public class ArgumentProcessor {
    * @return usage to dusplay to user
    */
   public String getUsage() {
-    final StringBuilder builder = new StringBuilder();
+    final var builder = new StringBuilder();
     List<String> descriptionLines;
-    final String blank20 = "                    ";
+    final var blank20 = "                    ";
 
     builder.append("\nUSAGE: ");
     if (programName == null) {
@@ -213,12 +213,12 @@ public class ArgumentProcessor {
       builder.append("\nNo arguments supported.\n");
     } else {
       builder.append(" <args>\nWHERE <args>:\n\n");
-      for (Argument arg : args) {
-        for (String form : arg.getForms()) {
+      for (var arg : args) {
+        for (var form : arg.getForms()) {
           builder.append("    ");
           builder.append(form);
 
-          for (int i = 0; i < arg.getParameterCount(); i++) {
+          for (var i = 0; i < arg.getParameterCount(); i++) {
             builder.append(" <");
             builder.append(arg.getParameterName(i));
             builder.append(">");
@@ -232,7 +232,7 @@ public class ArgumentProcessor {
           builder.append("No argument description provided.");
           builder.append("\n\n");
         } else {
-          for (String line : descriptionLines) {
+          for (var line : descriptionLines) {
             builder.append(blank20);
             builder.append(line.trim());
             builder.append("\n");
@@ -264,7 +264,7 @@ public class ArgumentProcessor {
     Match match;
     String[] params;
     String[] postArgs;
-    int idx = 0;
+    var idx = 0;
     int idx2;
 
     while (idx < programArgs.length) {
@@ -294,7 +294,7 @@ public class ArgumentProcessor {
 
       // Find first argument matches
       match = null;
-      for (Argument arg : args) {
+      for (var arg : args) {
         match = checkMatch(programArgs[idx], arg, params);
         if (match != null) {
           result.add(match);
@@ -306,7 +306,7 @@ public class ArgumentProcessor {
       }
       if (match == null) {
         if (handler == null) {
-          final UsageException usageException = new UsageException(
+          final var usageException = new UsageException(
               "Unknown argument: " + programArgs[idx] + " with " + params.length + " parameters.");
           usageException.setUsage(getUsage());
           throw (usageException);
@@ -331,7 +331,7 @@ public class ArgumentProcessor {
    */
   private Match checkMatch(final String argName, final Argument arg, final String[] params) {
     // Look for a matching form
-    for (String form : arg.getForms()) {
+    for (var form : arg.getForms()) {
       if (form.equals(argName) && arg.getParameterCount() == params.length) {
         return new Match(arg, form, params);
       }
@@ -350,7 +350,7 @@ public class ArgumentProcessor {
    */
   private List<String> breakupString(final String str, final int maxLength) {
     final List<String> result = new ArrayList<>();
-    int startIdx = -1;
+    var startIdx = -1;
     int lastIdx;
     int idx;
 

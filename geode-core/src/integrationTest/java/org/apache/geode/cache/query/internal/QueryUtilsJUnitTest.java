@@ -31,7 +31,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Address;
 import org.apache.geode.cache.query.data.Employee;
 import org.apache.geode.cache.query.data.Portfolio;
@@ -55,11 +54,11 @@ public class QueryUtilsJUnitTest {
 
   @Test
   public void testObtainTheBottomMostCompiledValue() throws Exception {
-    QCompiler compiler = new QCompiler();
-    CompiledRegion cr = new CompiledRegion(SEPARATOR + "portfolio");
-    CompiledID cid = new CompiledID("id");
-    CompiledPath cp1 = new CompiledPath(new CompiledPath(cid, "path1"), "path2");
-    CompiledPath cp2 = new CompiledPath(new CompiledPath(cr, "path1"), "path2");
+    var compiler = new QCompiler();
+    var cr = new CompiledRegion(SEPARATOR + "portfolio");
+    var cid = new CompiledID("id");
+    var cp1 = new CompiledPath(new CompiledPath(cid, "path1"), "path2");
+    var cp2 = new CompiledPath(new CompiledPath(cr, "path1"), "path2");
     assertEquals(QueryUtils.obtainTheBottomMostCompiledValue(cr), cr);
     assertEquals(QueryUtils.obtainTheBottomMostCompiledValue(cid), cid);
     assertEquals(QueryUtils.obtainTheBottomMostCompiledValue(cp1), cid);
@@ -69,25 +68,25 @@ public class QueryUtilsJUnitTest {
   @Test
   public void testCutDownAndExpandIndexResultsWithNoCutDownAndTwoFinalIters() throws Exception {
     region = CacheUtils.createRegion("portfolio", Portfolio.class);
-    Portfolio[] po =
+    var po =
         new Portfolio[] {new Portfolio(0), new Portfolio(1), new Portfolio(2), new Portfolio(3)};
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
     // compileFromClause returns a List<CompiledIteratorDef>
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "portfolio p, p.positions");
-    ExecutionContext context = new ExecutionContext(null, CacheUtils.getCache());
+    var context = new ExecutionContext(null, CacheUtils.getCache());
     context.newScope(context.associateScopeID());
-    RuntimeIterator[] indexToItrMappping = new RuntimeIterator[1];
+    var indexToItrMappping = new RuntimeIterator[1];
     RuntimeIterator expand = null;
-    boolean set = false;
+    var set = false;
 
-    for (final Object o : list) {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+    for (final var o : list) {
+      var iterDef = (CompiledIteratorDef) o;
       context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-      RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+      var rIter = iterDef.getRuntimeIterator(context);
       if (!set) {
         set = true;
         indexToItrMappping[0] = rIter;
@@ -100,8 +99,8 @@ public class QueryUtilsJUnitTest {
     List finalList = new ArrayList();
     finalList.add(indexToItrMappping[0]);
     finalList.add(expand);
-    ResultsSet indexResult = new ResultsSet(new ObjectTypeImpl(Portfolio.class));
-    for (final Portfolio portfolio : po) {
+    var indexResult = new ResultsSet(new ObjectTypeImpl(Portfolio.class));
+    for (final var portfolio : po) {
       indexResult.add(portfolio);
     }
     List expandList = new LinkedList();
@@ -113,44 +112,44 @@ public class QueryUtilsJUnitTest {
     dataList.add(finalList);
     dataList.add(context);
     dataList.add(new ArrayList());
-    SelectResults results = QueryUtils.testCutDownAndExpandIndexResults(dataList);
+    var results = QueryUtils.testCutDownAndExpandIndexResults(dataList);
     assertTrue("Resultset obtained not of type StructBag", results instanceof StructBag);
-    StructBag st = (StructBag) results;
+    var st = (StructBag) results;
     assertTrue("StructBag not of size expected as 8", st.size() == 8);
   }
 
   @Test
   public void testCutDownAndExpandIndexResultsWithNoCutDownAndThreeFinalIters() throws Exception {
     region = CacheUtils.createRegion("portfolio", Portfolio.class);
-    Portfolio[] po =
+    var po =
         new Portfolio[] {new Portfolio(0), new Portfolio(1), new Portfolio(2), new Portfolio(3)};
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
 
-    Region r3 = CacheUtils.createRegion("employees", Employee.class);
+    var r3 = CacheUtils.createRegion("employees", Employee.class);
     Set add1 = new HashSet();
     add1.add(new Address("411045", "Baner"));
     add1.add(new Address("411001", "DholePatilRd"));
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
     }
     // compileFromClause returns a List<CompiledIteratorDef>
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler
         .compileFromClause(SEPARATOR + "portfolio p, p.positions, " + SEPARATOR + "employees e");
-    ExecutionContext context = new ExecutionContext(null, CacheUtils.getCache());
+    var context = new ExecutionContext(null, CacheUtils.getCache());
     context.newScope(context.associateScopeID());
-    RuntimeIterator[] indexToItrMappping = new RuntimeIterator[1];
-    RuntimeIterator[] expand = new RuntimeIterator[2];
-    boolean set = false;
-    int j = 0;
+    var indexToItrMappping = new RuntimeIterator[1];
+    var expand = new RuntimeIterator[2];
+    var set = false;
+    var j = 0;
 
-    for (final Object o : list) {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+    for (final var o : list) {
+      var iterDef = (CompiledIteratorDef) o;
       context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-      RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+      var rIter = iterDef.getRuntimeIterator(context);
       if (!set) {
         set = true;
         indexToItrMappping[0] = rIter;
@@ -163,8 +162,8 @@ public class QueryUtilsJUnitTest {
     List finalList = new ArrayList();
     finalList.add(indexToItrMappping[0]);
 
-    ResultsSet indexResult = new ResultsSet(new ObjectTypeImpl(Portfolio.class));
-    for (final Portfolio portfolio : po) {
+    var indexResult = new ResultsSet(new ObjectTypeImpl(Portfolio.class));
+    for (final var portfolio : po) {
       indexResult.add(portfolio);
     }
     List expandList = new LinkedList();
@@ -178,10 +177,10 @@ public class QueryUtilsJUnitTest {
     dataList.add(finalList);
     dataList.add(context);
     dataList.add(new ArrayList());
-    SelectResults results = QueryUtils.testCutDownAndExpandIndexResults(dataList);
+    var results = QueryUtils.testCutDownAndExpandIndexResults(dataList);
 
     assertTrue("Resultset obtained not of type structbag", results instanceof StructBag);
-    StructBag st = (StructBag) results;
+    var st = (StructBag) results;
     assertTrue("StructSet not of size expected as 32", st.size() == 32);
   }
 }

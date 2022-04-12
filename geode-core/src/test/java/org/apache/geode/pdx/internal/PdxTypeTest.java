@@ -28,7 +28,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -52,7 +51,7 @@ public class PdxTypeTest {
 
   @Test
   public void testNoArgConstructor() {
-    final PdxType type = new PdxType();
+    final var type = new PdxType();
     assertEquals(0, type.getVariableLengthFieldCount());
     assertNull(type.getClassName());
     assertFalse(type.getNoDomainClass());
@@ -63,7 +62,7 @@ public class PdxTypeTest {
 
   @Test
   public void testSomeArgsConstructor() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     assertEquals(0, type.getVariableLengthFieldCount());
     assertEquals(TYPE_NAME, type.getClassName());
     assertEquals(!EXPECT_DOMAIN_CLASS, type.getNoDomainClass());
@@ -74,27 +73,27 @@ public class PdxTypeTest {
 
   @Test
   public void testGetDSId() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.setTypeId(0xDEADBEEF);
     assertEquals(0xDE, type.getDSId());
   }
 
   @Test
   public void testGetTypeNum() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.setTypeId(0xDEADBEEF);
     assertEquals(0xADBEEF, type.getTypeNum());
   }
 
   @Test
   public void testAddField() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     assertEquals(0, type.getFieldCount());
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
     assertEquals(3, type.getFieldCount());
-    final List<PdxField> fields = type.getFields();
+    final var fields = type.getFields();
     assertTrue(fields.contains(FIELD_0));
     assertTrue(fields.contains(FIELD_1));
     assertFalse(fields.contains(FIELD_2));
@@ -104,7 +103,7 @@ public class PdxTypeTest {
 
   @Test
   public void testGetPdxField() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
@@ -117,7 +116,7 @@ public class PdxTypeTest {
 
   @Test
   public void testGetPdxFieldByIndex() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
@@ -128,7 +127,7 @@ public class PdxTypeTest {
 
   @Test
   public void testGetUndeletedFieldCount() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.setHasDeletedField(true);
     type.addField(FIELD_4);
     type.addField(FIELD_3);
@@ -138,11 +137,11 @@ public class PdxTypeTest {
 
   @Test
   public void testGetFieldNames() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
-    final List<String> fieldNames = type.getFieldNames();
+    final var fieldNames = type.getFieldNames();
     assertEquals(3, fieldNames.size());
     assertTrue(fieldNames.contains(FIELD_0.getFieldName()));
     assertTrue(fieldNames.contains(FIELD_1.getFieldName()));
@@ -153,12 +152,12 @@ public class PdxTypeTest {
 
   @Test
   public void testSortedFields() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.setHasDeletedField(true);
     type.addField(FIELD_3);
     type.addField(FIELD_2);
     type.addField(FIELD_1);
-    final Collection<PdxField> fields = type.getSortedFields();
+    final var fields = type.getSortedFields();
     assertEquals(2, fields.size());
     assertFalse(fields.contains(FIELD_0));
     assertTrue(fields.contains(FIELD_1));
@@ -169,7 +168,7 @@ public class PdxTypeTest {
 
   @Test
   public void testSortedIdentityFields() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.setHasDeletedField(true);
     type.addField(FIELD_3);
     type.addField(FIELD_2);
@@ -185,7 +184,7 @@ public class PdxTypeTest {
 
   @Test
   public void testHasExtraFields() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.setHasDeletedField(true);
     type.addField(FIELD_3);
     type.addField(FIELD_2);
@@ -193,18 +192,18 @@ public class PdxTypeTest {
     type.addField(FIELD_0);
     assertFalse(type.hasExtraFields(type));
 
-    final PdxType noDeletedField = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var noDeletedField = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     noDeletedField.addField(FIELD_2);
     noDeletedField.addField(FIELD_1);
     noDeletedField.addField(FIELD_0);
     assertFalse(type.hasExtraFields(noDeletedField));
 
-    final PdxType fewerFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var fewerFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     fewerFields.addField(FIELD_2);
     fewerFields.addField(FIELD_1);
     assertTrue(type.hasExtraFields(fewerFields));
 
-    final PdxType moreFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var moreFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     moreFields.addField(FIELD_4);
     moreFields.addField(FIELD_2);
     moreFields.addField(FIELD_1);
@@ -214,34 +213,34 @@ public class PdxTypeTest {
 
   @Test
   public void testCompatible() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
     assertTrue(type.compatible(type));
     assertFalse(type.compatible(null));
 
-    final PdxType sameTypeNameAndFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var sameTypeNameAndFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     sameTypeNameAndFields.addField(FIELD_4);
     sameTypeNameAndFields.addField(FIELD_0);
     sameTypeNameAndFields.addField(FIELD_1);
     assertTrue(type.compatible(sameTypeNameAndFields));
 
-    final PdxType sameTypeNameAndFieldsDifferentDomain =
+    final var sameTypeNameAndFieldsDifferentDomain =
         new PdxType(TYPE_NAME, !EXPECT_DOMAIN_CLASS);
     sameTypeNameAndFieldsDifferentDomain.addField(FIELD_4);
     sameTypeNameAndFieldsDifferentDomain.addField(FIELD_0);
     sameTypeNameAndFieldsDifferentDomain.addField(FIELD_1);
     assertTrue(type.compatible(sameTypeNameAndFieldsDifferentDomain));
 
-    final PdxType sameTypeNameAndDifferentFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var sameTypeNameAndDifferentFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     sameTypeNameAndDifferentFields.addField(FIELD_3);
     sameTypeNameAndDifferentFields.addField(FIELD_2);
     sameTypeNameAndDifferentFields.addField(FIELD_1);
     assertFalse(type.compatible(sameTypeNameAndDifferentFields));
 
 
-    final PdxType sameTypeNameAndFieldsInDifferentOrder =
+    final var sameTypeNameAndFieldsInDifferentOrder =
         new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     sameTypeNameAndFieldsInDifferentOrder.addField(FIELD_1);
     sameTypeNameAndFieldsInDifferentOrder.addField(FIELD_0);
@@ -251,33 +250,33 @@ public class PdxTypeTest {
 
   @Test
   public void testHashCode() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
     assertEquals(type.hashCode(), type.hashCode());
 
-    final PdxType sameTypeNameAndFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var sameTypeNameAndFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     sameTypeNameAndFields.addField(FIELD_4);
     sameTypeNameAndFields.addField(FIELD_0);
     sameTypeNameAndFields.addField(FIELD_1);
     assertEquals(type.hashCode(), sameTypeNameAndFields.hashCode());
 
-    final PdxType sameTypeNameAndFieldsDifferentDomain =
+    final var sameTypeNameAndFieldsDifferentDomain =
         new PdxType(TYPE_NAME, !EXPECT_DOMAIN_CLASS);
     sameTypeNameAndFieldsDifferentDomain.addField(FIELD_4);
     sameTypeNameAndFieldsDifferentDomain.addField(FIELD_0);
     sameTypeNameAndFieldsDifferentDomain.addField(FIELD_1);
     assertEquals(type.hashCode(), sameTypeNameAndFieldsDifferentDomain.hashCode());
 
-    final PdxType differentTypeNameAndSameFields =
+    final var differentTypeNameAndSameFields =
         new PdxType("Not " + TYPE_NAME, EXPECT_DOMAIN_CLASS);
     differentTypeNameAndSameFields.addField(FIELD_4);
     differentTypeNameAndSameFields.addField(FIELD_0);
     differentTypeNameAndSameFields.addField(FIELD_1);
     assertNotEquals(type.hashCode(), differentTypeNameAndSameFields.hashCode());
 
-    final PdxType sameTypeNameAndDifferentFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var sameTypeNameAndDifferentFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     sameTypeNameAndDifferentFields.addField(FIELD_3);
     sameTypeNameAndDifferentFields.addField(FIELD_2);
     sameTypeNameAndDifferentFields.addField(FIELD_1);
@@ -286,7 +285,7 @@ public class PdxTypeTest {
 
   @Test
   public void testEquals() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
@@ -294,27 +293,27 @@ public class PdxTypeTest {
     assertFalse(type.equals(null));
     assertFalse(type.equals(new Object()));
 
-    final PdxType sameTypeNameAndFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var sameTypeNameAndFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     sameTypeNameAndFields.addField(FIELD_4);
     sameTypeNameAndFields.addField(FIELD_0);
     sameTypeNameAndFields.addField(FIELD_1);
     assertTrue(type.equals(sameTypeNameAndFields));
 
-    final PdxType sameTypeNameAndFieldsDifferentDomain =
+    final var sameTypeNameAndFieldsDifferentDomain =
         new PdxType(TYPE_NAME, !EXPECT_DOMAIN_CLASS);
     sameTypeNameAndFieldsDifferentDomain.addField(FIELD_4);
     sameTypeNameAndFieldsDifferentDomain.addField(FIELD_0);
     sameTypeNameAndFieldsDifferentDomain.addField(FIELD_1);
     assertFalse(type.equals(sameTypeNameAndFieldsDifferentDomain));
 
-    final PdxType differentTypeNameAndSameFields =
+    final var differentTypeNameAndSameFields =
         new PdxType("Not " + TYPE_NAME, EXPECT_DOMAIN_CLASS);
     differentTypeNameAndSameFields.addField(FIELD_4);
     differentTypeNameAndSameFields.addField(FIELD_0);
     differentTypeNameAndSameFields.addField(FIELD_1);
     assertFalse(type.equals(differentTypeNameAndSameFields));
 
-    final PdxType sameTypeNameAndDifferentFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var sameTypeNameAndDifferentFields = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     sameTypeNameAndDifferentFields.addField(FIELD_3);
     sameTypeNameAndDifferentFields.addField(FIELD_2);
     sameTypeNameAndDifferentFields.addField(FIELD_1);
@@ -323,11 +322,11 @@ public class PdxTypeTest {
 
   @Test
   public void testToFormattedString() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
-    final String str = type.toFormattedString();
+    final var str = type.toFormattedString();
     assertNotEquals(-1, str.indexOf(TYPE_NAME));
     assertNotEquals(-1, str.indexOf(FIELD_0.getFieldName()));
     assertNotEquals(-1, str.indexOf(FIELD_1.getFieldName()));
@@ -336,11 +335,11 @@ public class PdxTypeTest {
 
   @Test
   public void testToString() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
-    final String str = type.toString();
+    final var str = type.toString();
     assertNotEquals(-1, str.indexOf(TYPE_NAME));
     assertNotEquals(-1, str.indexOf(FIELD_0.getFieldName()));
     assertNotEquals(-1, str.indexOf(FIELD_1.getFieldName()));
@@ -349,13 +348,13 @@ public class PdxTypeTest {
 
   @Test
   public void testToStream() {
-    final PdxType type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var type = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     type.addField(FIELD_4);
     type.addField(FIELD_0);
     type.addField(FIELD_1);
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    var byteArrayOutputStream = new ByteArrayOutputStream();
     type.toStream(new PrintStream(byteArrayOutputStream), true);
-    final String str = byteArrayOutputStream.toString();
+    final var str = byteArrayOutputStream.toString();
     assertNotEquals(-1, str.indexOf(TYPE_NAME));
     assertNotEquals(-1, str.indexOf(FIELD_0.getFieldName()));
     assertNotEquals(-1, str.indexOf(FIELD_1.getFieldName()));
@@ -364,20 +363,20 @@ public class PdxTypeTest {
 
   @Test
   public void testToDataAndFromData() throws IOException, ClassNotFoundException {
-    final PdxType before = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
+    final var before = new PdxType(TYPE_NAME, EXPECT_DOMAIN_CLASS);
     before.setHasDeletedField(true);
     before.addField(FIELD_4);
     before.addField(FIELD_3);
     before.addField(FIELD_2);
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
-    DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+    var byteArrayOutputStream = new ByteArrayOutputStream(1024);
+    var dataOutputStream = new DataOutputStream(byteArrayOutputStream);
     before.toData(dataOutputStream);
     dataOutputStream.close();
 
-    final PdxType after = new PdxType();
-    ByteArrayInputStream byteArrayInputStream =
+    final var after = new PdxType();
+    var byteArrayInputStream =
         new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-    DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
+    var dataInputStream = new DataInputStream(byteArrayInputStream);
     after.fromData(dataInputStream);
 
     assertEquals(before.getVariableLengthFieldCount(), after.getVariableLengthFieldCount());

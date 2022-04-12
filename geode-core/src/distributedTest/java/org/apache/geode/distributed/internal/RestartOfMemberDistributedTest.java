@@ -45,7 +45,7 @@ public class RestartOfMemberDistributedTest {
 
   @Before
   public void before() {
-    Properties properties = createProperties();
+    var properties = createProperties();
 
     clusterStartupRule.startLocatorVM(locator1, properties);
     locatorPort1 = clusterStartupRule.getMember(locator1).getPort();
@@ -75,7 +75,7 @@ public class RestartOfMemberDistributedTest {
   }
 
   private static Properties createProperties() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(DISABLE_AUTO_RECONNECT, "false");
     properties.setProperty(MAX_WAIT_TIME_RECONNECT, "1000");
     properties.setProperty(MEMBER_TIMEOUT, "2000");

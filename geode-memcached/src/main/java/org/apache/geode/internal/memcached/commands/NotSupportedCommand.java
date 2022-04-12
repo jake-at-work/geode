@@ -26,7 +26,7 @@ public class NotSupportedCommand extends AbstractCommand {
   @Override
   public ByteBuffer processCommand(RequestReader request, Protocol protocol, Cache cache) {
     assert protocol == Protocol.BINARY;
-    ByteBuffer response = request.getResponse();
+    var response = request.getResponse();
     response.putShort(POSITION_RESPONSE_STATUS, ResponseStatus.NOT_SUPPORTED.asShort());
     return response;
   }

@@ -21,11 +21,8 @@ import java.util.concurrent.CancellationException;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.control.RebalanceFactory;
 import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.control.RebalanceResults;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -42,13 +39,13 @@ public class RebalanceFunction implements InternalFunction<Object[]> {
   @Override
   public void execute(FunctionContext<Object[]> context) {
     RebalanceOperation op;
-    Cache cache = context.getCache();
-    ResourceManager manager = cache.getResourceManager();
-    Object[] args = context.getArguments();
-    String simulate = ((String) args[0]);
-    Set<String> includeRegionNames = (Set<String>) args[1];
-    Set<String> excludeRegionNames = (Set<String>) args[2];
-    RebalanceFactory rbFactory = manager.createRebalanceFactory();
+    var cache = context.getCache();
+    var manager = cache.getResourceManager();
+    var args = context.getArguments();
+    var simulate = ((String) args[0]);
+    var includeRegionNames = (Set<String>) args[1];
+    var excludeRegionNames = (Set<String>) args[2];
+    var rbFactory = manager.createRebalanceFactory();
     rbFactory.excludeRegions(excludeRegionNames);
     rbFactory.includeRegions(includeRegionNames);
     RebalanceResults results;
@@ -62,7 +59,7 @@ public class RebalanceFunction implements InternalFunction<Object[]> {
     try {
       results = op.getResults();
       logger.info("Starting RebalanceFunction got results = {}", results);
-      StringBuilder str1 = new StringBuilder();
+      var str1 = new StringBuilder();
       str1.append(results.getTotalBucketCreateBytes()).append(",")
           .append(results.getTotalBucketCreateTime()).append(",")
           .append(results.getTotalBucketCreatesCompleted()).append(",")

@@ -78,13 +78,13 @@ public class StatArchiveHandlerIntegrationTest {
     if (archiveExists) {
       archive.createNewFile();
     }
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
     if (initMainId) {
       handler.initMainArchiveId(archive);
     }
 
-    File file = handler.getRollingArchiveName(archive, archiveClosed);
+    var file = handler.getRollingArchiveName(archive, archiveClosed);
 
     assertThat(file).hasParent(dir).hasName(name + formatIds(1, 1) + ext);
   }
@@ -101,10 +101,10 @@ public class StatArchiveHandlerIntegrationTest {
     if (archiveExists) {
       archive.createNewFile();
     }
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
 
-    File file = handler.getRollingArchiveName(archive, archiveClosed);
+    var file = handler.getRollingArchiveName(archive, archiveClosed);
 
     assertThat(file).hasParent(dir)
         .hasName(name + formatIds(mainCount, childCount + 1) + ext);
@@ -112,7 +112,7 @@ public class StatArchiveHandlerIntegrationTest {
 
   @Test
   public void initMainArchiveId_withEmptyDir_createsMainId_createsFirstMarker() throws Exception {
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
 
     handler.initMainArchiveId(archive);
@@ -125,7 +125,7 @@ public class StatArchiveHandlerIntegrationTest {
   public void initMainArchiveId_withOldArchives_rollsMainId_rollsMarker(final int mainCount,
       final int childCount) throws Exception {
     createEmptyArchiveFiles(dir, name, ext, mainCount, childCount);
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
 
     handler.initMainArchiveId(archive);
@@ -135,32 +135,32 @@ public class StatArchiveHandlerIntegrationTest {
 
   @Test
   public void getRenameArchiveName_withEmptyDir_createsFirstIds() throws Exception {
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
 
-    File renamed = handler.getRenameArchiveName(archive);
+    var renamed = handler.getRenameArchiveName(archive);
 
     assertThat(renamed).isNotNull().isEqualTo(new File(dir, name + "-01-01" + ext));
   }
 
   @Test
   public void getRenameArchiveName_withExtraneousIds_withEmptyDir_appendsIds() throws Exception {
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
     archive = new File(dir, name + "-01-01" + ext);
 
-    File renamed = handler.getRenameArchiveName(archive);
+    var renamed = handler.getRenameArchiveName(archive);
 
     assertThat(renamed).hasParent(dir).hasName(name + "-01-01-01-01" + ext);
   }
 
   @Test
   public void getRenameArchiveName_withExtraneousDots_withEmptyDir_appendsIds() throws Exception {
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
     archive = new File(dir, name + ".test.test" + ext);
 
-    File renamed = handler.getRenameArchiveName(archive);
+    var renamed = handler.getRenameArchiveName(archive);
 
     assertThat(renamed).hasParent(dir).hasName(name + ".test.test-01-01" + ext);
   }
@@ -168,11 +168,11 @@ public class StatArchiveHandlerIntegrationTest {
   @Test
   public void getRenameArchiveName_withExtraneousUnderscores_withEptyDir_appendsIds()
       throws Exception {
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
     archive = new File(dir, name + "_test_test" + ext);
 
-    File renamed = handler.getRenameArchiveName(archive);
+    var renamed = handler.getRenameArchiveName(archive);
 
     assertThat(renamed).hasParent(dir).hasName(name + "_test_test-01-01" + ext);
   }
@@ -180,11 +180,11 @@ public class StatArchiveHandlerIntegrationTest {
   @Test
   public void getRenameArchiveName_withExtraneousHyphens_withEmptyDir_appendsIds()
       throws Exception {
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
     archive = new File(dir, name + "-test-test" + ext);
 
-    File renamed = handler.getRenameArchiveName(archive);
+    var renamed = handler.getRenameArchiveName(archive);
 
     assertThat(renamed).hasParent(dir).hasName(name + "-test-test-01-01" + ext);
   }
@@ -193,11 +193,11 @@ public class StatArchiveHandlerIntegrationTest {
   @Parameters({"1,1", "1,10", "10,1", "10,10"})
   public void getRenameArchiveName_withOldArchives_rollsMainId(final int mainCount,
       final int childCount) throws Exception {
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
     createEmptyArchiveFiles(dir, name, ext, mainCount, childCount);
 
-    File renamed = handler.getRenameArchiveName(archive);
+    var renamed = handler.getRenameArchiveName(archive);
 
     assertThat(renamed).doesNotExist().hasParent(dir)
         .hasName(name + formatIds(mainCount + 1, 1) + ext);
@@ -205,7 +205,7 @@ public class StatArchiveHandlerIntegrationTest {
 
   @Test
   public void getRenameArchiveName_withNullArchive_throwsNullPointerException() throws Exception {
-    StatArchiveHandler handler =
+    var handler =
         new StatArchiveHandler(mockConfig, mockCollector, rollingFileHandler);
     File archive = null;
 
@@ -232,10 +232,10 @@ public class StatArchiveHandlerIntegrationTest {
    */
   private int createEmptyArchiveFiles(final File dir, final String name, final String ext,
       final int mainCount, final int childCount) throws IOException {
-    int mainId = 1;
+    var mainId = 1;
     for (; mainId <= mainCount; mainId++) {
-      for (int childId = 1; childId <= childCount; childId++) {
-        File existing = new File(dir, name + formatIds(mainId, childId) + ext);
+      for (var childId = 1; childId <= childCount; childId++) {
+        var existing = new File(dir, name + formatIds(mainId, childId) + ext);
         existing.createNewFile();
       }
     }

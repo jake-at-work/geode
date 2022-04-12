@@ -20,14 +20,12 @@ package org.apache.geode.tools.pulse.internal.service;
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import org.apache.geode.tools.pulse.internal.data.Cluster;
 import org.apache.geode.tools.pulse.internal.data.Repository;
 
 /**
@@ -54,17 +52,17 @@ public class MembersListService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     // members list
-    ArrayNode memberListJson = mapper.createArrayNode();
-    Cluster.Member[] memberSet = cluster.getMembers();
+    var memberListJson = mapper.createArrayNode();
+    var memberSet = cluster.getMembers();
 
-    for (Cluster.Member member : memberSet) {
-      ObjectNode memberJSON = mapper.createObjectNode();
+    for (var member : memberSet) {
+      var memberJSON = mapper.createObjectNode();
       memberJSON.put("memberId", member.getId());
       memberJSON.put("name", member.getName());
       memberJSON.put("host", member.getHost());

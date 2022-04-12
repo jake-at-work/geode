@@ -25,12 +25,10 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.backup.BackupOperation.MissingPersistentMembersProvider;
-import org.apache.geode.management.BackupStatus;
 import org.apache.geode.management.ManagementException;
 
 public class BackupOperationTest {
@@ -72,13 +70,13 @@ public class BackupOperationTest {
 
   @Test
   public void hasNoBackedUpDiskStoresIfNoMembers() {
-    BackupStatus backupStatus = backupOperation.backupAllMembers(targetDirPath, baselineDirPath);
+    var backupStatus = backupOperation.backupAllMembers(targetDirPath, baselineDirPath);
     assertThat(backupStatus.getBackedUpDiskStores()).hasSize(0);
   }
 
   @Test
   public void hasNoOfflineDiskStoresIfNoMembers() {
-    BackupStatus backupStatus = backupOperation.backupAllMembers(targetDirPath, baselineDirPath);
+    var backupStatus = backupOperation.backupAllMembers(targetDirPath, baselineDirPath);
     assertThat(backupStatus.getOfflineDiskStores()).hasSize(0);
   }
 
@@ -86,7 +84,7 @@ public class BackupOperationTest {
   public void flushPrepareFinishOrdering() {
     backupOperation.backupAllMembers(targetDirPath, baselineDirPath);
 
-    InOrder inOrder = inOrder(flushToDiskFactory, prepareBackupFactory, finishBackupFactory);
+    var inOrder = inOrder(flushToDiskFactory, prepareBackupFactory, finishBackupFactory);
     inOrder.verify(flushToDiskFactory).createFlushToDiskStep(any(), any(), any(), any(), any());
     inOrder.verify(prepareBackupFactory).createPrepareBackupStep(any(), any(), any(), any(), any(),
         any());
@@ -95,8 +93,8 @@ public class BackupOperationTest {
 
   @Test
   public void abortIfPrepareFails() {
-    PrepareBackupStep prepareBackupStep = mock(PrepareBackupStep.class);
-    RuntimeException thrownBySend = new RuntimeException("thrownBySend");
+    var prepareBackupStep = mock(PrepareBackupStep.class);
+    var thrownBySend = new RuntimeException("thrownBySend");
 
     when(prepareBackupFactory.createPrepareBackupStep(any(), any(), any(), any(), any(), any()))
         .thenReturn(prepareBackupStep);
@@ -105,7 +103,7 @@ public class BackupOperationTest {
     assertThatThrownBy(() -> backupOperation.backupAllMembers(targetDirPath, baselineDirPath))
         .isSameAs(thrownBySend);
 
-    InOrder inOrder = inOrder(flushToDiskFactory, prepareBackupFactory, abortBackupFactory);
+    var inOrder = inOrder(flushToDiskFactory, prepareBackupFactory, abortBackupFactory);
     inOrder.verify(flushToDiskFactory).createFlushToDiskStep(any(), any(), any(), any(), any());
     inOrder.verify(prepareBackupFactory).createPrepareBackupStep(any(), any(), any(), any(), any(),
         any());

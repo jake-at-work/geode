@@ -20,15 +20,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.Token.Tombstone;
-import org.apache.geode.internal.cache.versions.VersionSource;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 
 /**
@@ -44,7 +40,7 @@ public class UpdateVersionJUnitTest {
   private static final String regionName = "versionedregion";
 
   private VersionTagHolder createNewEvent(LocalRegion region, VersionTag tag, Object key) {
-    VersionTagHolder updateTimeStampEvent = new VersionTagHolder(tag);
+    var updateTimeStampEvent = new VersionTagHolder(tag);
     updateTimeStampEvent.setOperation(Operation.UPDATE_VERSION_STAMP);
     updateTimeStampEvent.setRegion(region);
     if (region instanceof PartitionedRegion) {
@@ -65,25 +61,25 @@ public class UpdateVersionJUnitTest {
   @Test
   public void testUpdateVersionAfterCreate() {
 
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").create();
+    var cache = new CacheFactory().set(MCAST_PORT, "0").create();
     Region region = cache.createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
     try {
       region.create("key-1", "value-1");
 
-      Entry entry = region.getEntry("key-1");
+      var entry = region.getEntry("key-1");
       assertTrue(entry instanceof NonTXEntry);
-      RegionEntry regionEntry = ((NonTXEntry) entry).getRegionEntry();
+      var regionEntry = ((NonTXEntry) entry).getRegionEntry();
 
-      VersionStamp stamp = regionEntry.getVersionStamp();
+      var stamp = regionEntry.getVersionStamp();
 
       // Create a duplicate entry version tag from stamp with newer time-stamp.
-      VersionTag tag = VersionTag.create(stamp.getMemberID());
+      var tag = VersionTag.create(stamp.getMemberID());
 
-      int entryVersion = stamp.getEntryVersion();
-      VersionSource member = stamp.getMemberID();
-      int dsid = stamp.getDistributedSystemId();
-      long time = System.currentTimeMillis() + 1;
+      var entryVersion = stamp.getEntryVersion();
+      var member = stamp.getMemberID();
+      var dsid = stamp.getDistributedSystemId();
+      var time = System.currentTimeMillis() + 1;
 
       tag.setEntryVersion(entryVersion);
       tag.setDistributedSystemId(dsid);
@@ -115,7 +111,7 @@ public class UpdateVersionJUnitTest {
 
   @Test
   public void testUpdateVersionAfterUpdate() {
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").create();
+    var cache = new CacheFactory().set(MCAST_PORT, "0").create();
     Region region = cache.createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
     try {
@@ -126,19 +122,19 @@ public class UpdateVersionJUnitTest {
       }
       region.put("key-1", "value-2");
 
-      Entry entry = region.getEntry("key-1");
+      var entry = region.getEntry("key-1");
       assertTrue(entry instanceof NonTXEntry);
-      RegionEntry regionEntry = ((NonTXEntry) entry).getRegionEntry();
+      var regionEntry = ((NonTXEntry) entry).getRegionEntry();
 
-      VersionStamp stamp = regionEntry.getVersionStamp();
+      var stamp = regionEntry.getVersionStamp();
 
       // Create a duplicate entry version tag from stamp with newer time-stamp.
-      VersionTag tag = VersionTag.create(stamp.getMemberID());
+      var tag = VersionTag.create(stamp.getMemberID());
 
-      int entryVersion = stamp.getEntryVersion();
-      VersionSource member = stamp.getMemberID();
-      int dsid = stamp.getDistributedSystemId();
-      long time = System.currentTimeMillis() + 1; // Just in case if clock hasn't ticked.
+      var entryVersion = stamp.getEntryVersion();
+      var member = stamp.getMemberID();
+      var dsid = stamp.getDistributedSystemId();
+      var time = System.currentTimeMillis() + 1; // Just in case if clock hasn't ticked.
 
       tag.setEntryVersion(entryVersion);
       tag.setDistributedSystemId(dsid);
@@ -171,7 +167,7 @@ public class UpdateVersionJUnitTest {
   @Test
   public void testUpdateVersionAfterDestroy() {
 
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").create();
+    var cache = new CacheFactory().set(MCAST_PORT, "0").create();
     Region region = cache.createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
     try {
@@ -185,20 +181,20 @@ public class UpdateVersionJUnitTest {
 
       assertTrue(region instanceof LocalRegion);
 
-      Entry entry = ((LocalRegion) region).getEntry("key-1", true);
+      var entry = ((LocalRegion) region).getEntry("key-1", true);
 
       assertTrue(entry instanceof NonTXEntry);
-      RegionEntry regionEntry = ((NonTXEntry) entry).getRegionEntry();
+      var regionEntry = ((NonTXEntry) entry).getRegionEntry();
 
-      VersionStamp stamp = regionEntry.getVersionStamp();
+      var stamp = regionEntry.getVersionStamp();
 
       // Create a duplicate entry version tag from stamp with newer time-stamp.
-      VersionTag tag = VersionTag.create(stamp.getMemberID());
+      var tag = VersionTag.create(stamp.getMemberID());
 
-      int entryVersion = stamp.getEntryVersion();
-      VersionSource member = stamp.getMemberID();
-      int dsid = stamp.getDistributedSystemId();
-      long time = System.currentTimeMillis() + 1;
+      var entryVersion = stamp.getEntryVersion();
+      var member = stamp.getMemberID();
+      var dsid = stamp.getDistributedSystemId();
+      var time = System.currentTimeMillis() + 1;
 
       tag.setEntryVersion(entryVersion);
       tag.setDistributedSystemId(dsid);
@@ -233,25 +229,25 @@ public class UpdateVersionJUnitTest {
   @Test
   public void testUpdateVersionAfterCreateOnPR() {
 
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").create();
+    var cache = new CacheFactory().set(MCAST_PORT, "0").create();
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create(regionName);
 
     try {
       region.create("key-1", "value-1");
 
-      Entry entry = region.getEntry("key-1");
+      var entry = region.getEntry("key-1");
       assertTrue(entry instanceof EntrySnapshot);
-      RegionEntry regionEntry = ((EntrySnapshot) entry).getRegionEntry();
+      var regionEntry = ((EntrySnapshot) entry).getRegionEntry();
 
-      VersionStamp stamp = regionEntry.getVersionStamp();
+      var stamp = regionEntry.getVersionStamp();
 
       // Create a duplicate entry version tag from stamp with newer time-stamp.
-      VersionTag tag = VersionTag.create(stamp.getMemberID());
+      var tag = VersionTag.create(stamp.getMemberID());
 
-      int entryVersion = stamp.getEntryVersion();
-      VersionSource member = stamp.getMemberID();
-      int dsid = stamp.getDistributedSystemId();
-      long time = System.currentTimeMillis();
+      var entryVersion = stamp.getEntryVersion();
+      var member = stamp.getMemberID();
+      var dsid = stamp.getDistributedSystemId();
+      var time = System.currentTimeMillis();
 
       tag.setEntryVersion(entryVersion);
       tag.setDistributedSystemId(dsid);
@@ -283,7 +279,7 @@ public class UpdateVersionJUnitTest {
 
   @Test
   public void testUpdateVersionAfterUpdateOnPR() {
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").create();
+    var cache = new CacheFactory().set(MCAST_PORT, "0").create();
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create(regionName);
 
     try {
@@ -294,19 +290,19 @@ public class UpdateVersionJUnitTest {
       }
       region.put("key-1", "value-2");
 
-      Entry entry = region.getEntry("key-1");
+      var entry = region.getEntry("key-1");
       assertTrue(entry instanceof EntrySnapshot);
-      RegionEntry regionEntry = ((EntrySnapshot) entry).getRegionEntry();
+      var regionEntry = ((EntrySnapshot) entry).getRegionEntry();
 
-      VersionStamp stamp = regionEntry.getVersionStamp();
+      var stamp = regionEntry.getVersionStamp();
 
       // Create a duplicate entry version tag from stamp with newer time-stamp.
-      VersionTag tag = VersionTag.create(stamp.getMemberID());
+      var tag = VersionTag.create(stamp.getMemberID());
 
-      int entryVersion = stamp.getEntryVersion();
-      VersionSource member = stamp.getMemberID();
-      int dsid = stamp.getDistributedSystemId();
-      long time = System.currentTimeMillis();
+      var entryVersion = stamp.getEntryVersion();
+      var member = stamp.getMemberID();
+      var dsid = stamp.getDistributedSystemId();
+      var time = System.currentTimeMillis();
 
       tag.setEntryVersion(entryVersion);
       tag.setDistributedSystemId(dsid);
@@ -339,7 +335,7 @@ public class UpdateVersionJUnitTest {
   @Test
   public void testUpdateVersionAfterDestroyOnPR() {
 
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").create();
+    var cache = new CacheFactory().set(MCAST_PORT, "0").create();
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create(regionName);
 
     try {
@@ -352,19 +348,19 @@ public class UpdateVersionJUnitTest {
       region.destroy("key-1");
 
       assertTrue(region instanceof PartitionedRegion);
-      Entry entry = ((PartitionedRegion) region).getEntry("key-1", true);
+      var entry = ((PartitionedRegion) region).getEntry("key-1", true);
       assertTrue(entry instanceof EntrySnapshot);
-      RegionEntry regionEntry = ((EntrySnapshot) entry).getRegionEntry();
+      var regionEntry = ((EntrySnapshot) entry).getRegionEntry();
 
-      VersionStamp stamp = regionEntry.getVersionStamp();
+      var stamp = regionEntry.getVersionStamp();
 
       // Create a duplicate entry version tag from stamp with newer time-stamp.
-      VersionTag tag = VersionTag.create(stamp.getMemberID());
+      var tag = VersionTag.create(stamp.getMemberID());
 
-      int entryVersion = stamp.getEntryVersion();
-      VersionSource member = stamp.getMemberID();
-      int dsid = stamp.getDistributedSystemId();
-      long time = System.currentTimeMillis();
+      var entryVersion = stamp.getEntryVersion();
+      var member = stamp.getMemberID();
+      var dsid = stamp.getDistributedSystemId();
+      var time = System.currentTimeMillis();
 
       tag.setEntryVersion(entryVersion);
       tag.setDistributedSystemId(dsid);

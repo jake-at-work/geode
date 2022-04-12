@@ -15,12 +15,8 @@
 
 package org.apache.geode.connectors.jdbc.internal.cli;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
-
-import javax.sql.DataSource;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +28,6 @@ import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 public class ListDataSourceCommandDUnitTest {
@@ -47,7 +42,7 @@ public class ListDataSourceCommandDUnitTest {
 
   @Before
   public void before() throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     server = cluster.startServerVM(1, new Properties(), locator.getPort());
 
     gfsh.connectAndVerify(locator);
@@ -60,7 +55,7 @@ public class ListDataSourceCommandDUnitTest {
         "create data-source --name=simple --url=\"jdbc:derby:memory:newDB;create=true\" --username=joe --password=myPassword --pooled=false ")
         .statusIsSuccess().tableHasColumnOnlyWithValues("Member", "server-1");
 
-    CommandResultAssert result = gfsh.executeAndAssertThat("list data-source");
+    var result = gfsh.executeAndAssertThat("list data-source");
 
     result.statusIsSuccess()
         .tableHasRowWithValues("name", "pooled", "in use", "url", "simple", "false", "false",
@@ -81,9 +76,9 @@ public class ListDataSourceCommandDUnitTest {
   private void executeSql(String sql) {
     server.invoke(() -> {
       try {
-        DataSource ds = JNDIInvoker.getDataSource("simple");
-        Connection conn = ds.getConnection();
-        Statement sm = conn.createStatement();
+        var ds = JNDIInvoker.getDataSource("simple");
+        var conn = ds.getConnection();
+        var sm = conn.createStatement();
         sm.execute(sql);
         sm.close();
       } catch (SQLException e) {
@@ -144,7 +139,7 @@ public class ListDataSourceCommandDUnitTest {
             + IdAndName.class.getName() + " --schema=app")
         .statusIsSuccess();
 
-    CommandResultAssert result = gfsh.executeAndAssertThat("list data-source");
+    var result = gfsh.executeAndAssertThat("list data-source");
 
     teardownDatabase();
     result.statusIsSuccess()

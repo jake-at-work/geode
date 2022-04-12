@@ -40,7 +40,6 @@ import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
@@ -89,7 +88,7 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     // Server1 VM
     vm0 = host.getVM(0);
 
@@ -212,11 +211,11 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
         } catch (CacheWriterException ignored) {
         }
 
-        String poolName = r.getAttributes().getPoolName();
+        var poolName = r.getAttributes().getPoolName();
         assertNotNull(poolName);
-        final PoolImpl pool = (PoolImpl) find(poolName);
+        final var pool = (PoolImpl) find(poolName);
         assertNotNull(pool);
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
           @Override
           public boolean done() {
             return pool.getConnectedServerCount() != 2;
@@ -239,11 +238,11 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
       @Override
       public void run2() throws CacheException {
         Region r = cache.getRegion(REGION_NAME);
-        String poolName = r.getAttributes().getPoolName();
+        var poolName = r.getAttributes().getPoolName();
         assertNotNull(poolName);
-        final PoolImpl pool = (PoolImpl) find(poolName);
+        final var pool = (PoolImpl) find(poolName);
         assertNotNull(pool);
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
           @Override
           public boolean done() {
             return pool.getConnectedServerCount() == 2;
@@ -273,11 +272,11 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
     try {
       Region r1 = cache.getRegion(SEPARATOR + REGION_NAME);
       assertNotNull(r1);
-      String poolName = r1.getAttributes().getPoolName();
+      var poolName = r1.getAttributes().getPoolName();
       assertNotNull(poolName);
-      PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+      var pool = (PoolImpl) PoolManager.find(poolName);
       assertNotNull(pool);
-      Connection conn = pool.acquireConnection();
+      var conn = pool.acquireConnection();
       final Connection conn1;
       if (conn.getServer().getPort() != PORT2) {
         conn1 = pool.acquireConnection(); // Ensure we have a server with the proper port
@@ -286,7 +285,7 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
       }
       assertNotNull(conn1);
       assertEquals(PORT2, conn1.getServer().getPort());
-      ServerRegionProxy srp = new ServerRegionProxy(SEPARATOR + REGION_NAME, pool);
+      var srp = new ServerRegionProxy(SEPARATOR + REGION_NAME, pool);
       srp.destroyOnForTestsOnly(conn1, "key1", null, Operation.DESTROY,
           new EventIDHolder(new EventID(new byte[] {1}, 100000, 1)), null);
       srp.destroyOnForTestsOnly(conn1, "key2", null, Operation.DESTROY,
@@ -302,7 +301,7 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
       LogWriterUtils.getLogWriter()
           .fine("Asif: servers running = " + cache.getCacheServers().size());
       if (iter.hasNext()) {
-        CacheServer server = (CacheServer) iter.next();
+        var server = (CacheServer) iter.next();
         LogWriterUtils.getLogWriter().fine("asif : server running on port=" + server.getPort()
             + " asked to kill serevre onport=" + port);
         if (port == server.getPort()) {
@@ -316,7 +315,7 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
 
   private static void startServer(Integer port) {
     try {
-      CacheServer server1 = cache.addCacheServer();
+      var server1 = cache.addCacheServer();
       server1.setPort(port);
       server1.setNotifyBySubscription(true);
       server1.start();
@@ -395,9 +394,9 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
   }
 
   private static void waitForDestroyEvent(Region r, final Object key) {
-    final CertifiableTestCacheListener ccl =
+    final var ccl =
         (CertifiableTestCacheListener) r.getAttributes().getCacheListener();
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return ccl.getDestroys().contains(key);
@@ -416,7 +415,7 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
       throws Exception {
     int PORT1 = port1;
     int PORT2 = port2;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new DestroyEntryPropagationDUnitTest().createCache(props);
@@ -433,26 +432,26 @@ public class DestroyEntryPropagationDUnitTest extends JUnit4DistributedTestCase 
       CacheServerTestUtil.enableShufflingOfEndpoints();
     }
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
     factory.setCacheListener(new CertifiableTestCacheListener());
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
   }
 
   private static Integer createServerCache() throws Exception {
     new DestroyEntryPropagationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setCacheListener(new CertifiableTestCacheListener());
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();

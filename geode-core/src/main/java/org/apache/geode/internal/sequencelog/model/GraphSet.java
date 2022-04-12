@@ -47,8 +47,8 @@ public class GraphSet implements GraphReaderCallback {
     if (dest == null) {
       dest = "ERROR_NULL";
     }
-    GraphID id = new GraphID(graphType, graphName);
-    Graph graph = graphs.get(id);
+    var id = new GraphID(graphType, graphName);
+    var graph = graphs.get(id);
     if (graph == null) {
       graph = new Graph(id);
       graphs.put(id, graph);
@@ -71,7 +71,7 @@ public class GraphSet implements GraphReaderCallback {
   }
 
   private void updateLocations(String location, long timestamp) {
-    Long time = locations.get(location);
+    var time = locations.get(location);
     if (time == null || time > timestamp) {
       locations.put(location, timestamp);
     }
@@ -90,8 +90,8 @@ public class GraphSet implements GraphReaderCallback {
    * Indicate this graphset is done populating. Triggers parsing of all of the graph patterns.
    */
   public void readingDone() {
-    for (EdgePattern edgePattern : edgePatterns) {
-      for (GraphID graphId : graphs.keySet()) {
+    for (var edgePattern : edgePatterns) {
+      for (var graphId : graphs.keySet()) {
         if (edgePattern.graphNamePattern.matcher(graphId.getGraphName()).matches()
             && edgePattern.graphType.equals(graphId.getType())) {
           addEdge(edgePattern.timestamp, graphId.getType(), graphId.getGraphName(),
@@ -116,8 +116,8 @@ public class GraphSet implements GraphReaderCallback {
   public List<String> getLocations() {
     List<String> result = new ArrayList<>(locations.keySet());
     Collections.sort(result, (o1, o2) -> {
-      Long time1 = locations.get(o1);
-      Long time2 = locations.get(o2);
+      var time1 = locations.get(o1);
+      var time2 = locations.get(o2);
       return time1.compareTo(time2);
     });
     return result;
@@ -145,7 +145,7 @@ public class GraphSet implements GraphReaderCallback {
 
     @Override
     public int compareTo(EdgePattern o) {
-      int timeDifference = Long.signum(timestamp - o.timestamp);
+      var timeDifference = Long.signum(timestamp - o.timestamp);
       if (timeDifference != 0) {
         return timeDifference;
       } else {

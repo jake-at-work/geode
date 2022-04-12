@@ -221,7 +221,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
    * bits.
    */
   public static int keyHash(final Object o, final boolean compareValues) {
-    int h = compareValues ? o.hashCode() : System.identityHashCode(o);
+    var h = compareValues ? o.hashCode() : System.identityHashCode(o);
     // Spread bits to regularize both segment and index locations,
     // using variant of single-word Wang/Jenkins hash.
     h += (h << 15) ^ 0xffffcd7d;
@@ -521,7 +521,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * Returns properly casted first entry of bin for given hash.
      */
     HashEntry<K, V> getFirst(final int hash) {
-      final HashEntry<K, V>[] tab = table;
+      final var tab = table;
       return tab[hash & (tab.length - 1)];
     }
 
@@ -531,9 +531,9 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * assignment, which is legal under memory model but is not known to ever occur.
      */
     V readValueUnderLock(final HashEntry<K, V> e) {
-      final ReentrantReadWriteLock.ReadLock readLock = super.readLock();
+      final var readLock = super.readLock();
       readLock.lock();
-      final V v = e.getMapValue();
+      final var v = e.getMapValue();
       readLock.unlock();
       return v;
     }
@@ -564,14 +564,14 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     V get(final Object key, final int hash) {
       if (count != 0) { // read-volatile
         // Geode change to acquire the read lock on list updates
-        final ReentrantReadWriteLock.ReadLock listLock = listUpdateLock.readLock();
+        final var listLock = listUpdateLock.readLock();
         listLock.lock();
-        boolean lockAcquired = true;
-        HashEntry<K, V> e = getFirst(hash);
+        var lockAcquired = true;
+        var e = getFirst(hash);
         try {
           while (e != null) {
             if (e.getEntryHash() == hash && equalityKeyCompare(key, e)) {
-              final V v = e.getMapValue();
+              final var v = e.getMapValue();
               if (v != null) {
                 return v;
               }
@@ -598,7 +598,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
           listLock = listUpdateLock.readLock();
           listLock.lock();
         }
-        HashEntry<K, V> e = getFirst(hash);
+        var e = getFirst(hash);
         try {
           while (e != null) {
             if (e.getEntryHash() == hash && equalityKeyCompare(key, e)) {
@@ -618,9 +618,9 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     boolean containsKey(final Object key, final int hash) {
       if (count != 0) { // read-volatile
         // Geode change to acquire the read lock on list updates
-        final ReentrantReadWriteLock.ReadLock listLock = listUpdateLock.readLock();
+        final var listLock = listUpdateLock.readLock();
         listLock.lock();
-        HashEntry<K, V> e = getFirst(hash);
+        var e = getFirst(hash);
         try {
           while (e != null) {
             if (e.getEntryHash() == hash && equalityKeyCompare(key, e)) {
@@ -638,14 +638,14 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     boolean containsValue(final Object value) {
       if (count != 0) { // read-volatile
         // Geode change to acquire the read lock on list updates
-        ReentrantReadWriteLock.ReadLock readLock = listUpdateLock.readLock();
+        var readLock = listUpdateLock.readLock();
         RETRYLOOP: for (;;) {
           readLock.lock();
-          final HashEntry<K, V>[] tab = table;
-          final int len = tab.length;
-          for (final HashEntry<K, V> kvHashEntry : tab) {
-            for (HashEntry<K, V> e = kvHashEntry; e != null; e = e.getNextEntry()) {
-              V v = e.getMapValue();
+          final var tab = table;
+          final var len = tab.length;
+          for (final var kvHashEntry : tab) {
+            for (var e = kvHashEntry; e != null; e = e.getNextEntry()) {
+              var v = e.getMapValue();
               if (v == null) {
                 // Geode changes BEGIN
                 // go back and retry from the very start with segment read lock
@@ -671,15 +671,15 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     }
 
     boolean replace(final K key, final int hash, final V oldValue, final V newValue) {
-      final ReentrantReadWriteLock.WriteLock writeLock = super.writeLock();
+      final var writeLock = super.writeLock();
       writeLock.lock();
       try {
-        HashEntry<K, V> e = getFirst(hash);
+        var e = getFirst(hash);
         while (e != null && (e.getEntryHash() != hash || !equalityKeyCompare(key, e))) {
           e = e.getNextEntry();
         }
 
-        boolean replaced = false;
+        var replaced = false;
         if (e != null && equalityCompare(oldValue, e.getMapValue())) {
           replaced = true;
           e.setMapValue(newValue);
@@ -691,10 +691,10 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     }
 
     V replace(final K key, final int hash, final V newValue) {
-      final ReentrantReadWriteLock.WriteLock writeLock = super.writeLock();
+      final var writeLock = super.writeLock();
       writeLock.lock();
       try {
-        HashEntry<K, V> e = getFirst(hash);
+        var e = getFirst(hash);
         while (e != null && (e.getEntryHash() != hash || !equalityKeyCompare(key, e))) {
           e = e.getNextEntry();
         }
@@ -711,17 +711,17 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     }
 
     V put(final K key, final int hash, final V value, final boolean onlyIfAbsent) {
-      final ReentrantReadWriteLock.WriteLock writeLock = super.writeLock();
+      final var writeLock = super.writeLock();
       writeLock.lock();
       try {
-        int c = count;
+        var c = count;
         if (c++ > threshold) {
           rehash();
         }
-        final HashEntry<K, V>[] tab = table;
-        final int index = hash & (tab.length - 1);
-        final HashEntry<K, V> first = tab[index];
-        HashEntry<K, V> e = first;
+        final var tab = table;
+        final var index = hash & (tab.length - 1);
+        final var first = tab[index];
+        var e = first;
         while (e != null && (e.getEntryHash() != hash || !equalityKeyCompare(key, e))) {
           e = e.getNextEntry();
         }
@@ -758,15 +758,15 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       // not be as efficient when get succeeds without a read lock (existing
       // entry) that will not need to wait for any writers.
       if (!lockForRead) {
-        final V v = getNoLock(key, hash, true);
+        final var v = getNoLock(key, hash, true);
         if (v != null) {
           return v;
         }
       } else {
-        final ReentrantReadWriteLock.ReadLock readLock = super.readLock();
+        final var readLock = super.readLock();
         readLock.lock();
         try {
-          final V v = getNoLock(key, hash, false);
+          final var v = getNoLock(key, hash, false);
           if (v != null) {
             // invoke the callback before returning
             valueCreator.oldValueRead(v);
@@ -777,17 +777,17 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
       }
 
-      final ReentrantReadWriteLock.WriteLock writeLock = super.writeLock();
+      final var writeLock = super.writeLock();
       writeLock.lock();
       try {
-        int c = count;
+        var c = count;
         if (c++ > threshold) {
           rehash();
         }
-        final HashEntry<K, V>[] tab = table;
-        final int index = hash & (tab.length - 1);
-        final HashEntry<K, V> first = tab[index];
-        HashEntry<K, V> e = first;
+        final var tab = table;
+        final var index = hash & (tab.length - 1);
+        final var first = tab[index];
+        var e = first;
         while (e != null && (e.getEntryHash() != hash || !equalityKeyCompare(key, e))) {
           e = e.getNextEntry();
         }
@@ -813,14 +813,14 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     }
 
     V get(final Object key, final int hash, final MapCallback<K, V, ?, ?> readCallback) {
-      final ReentrantReadWriteLock.ReadLock readLock = super.readLock();
+      final var readLock = super.readLock();
       readLock.lock();
       try {
         if (count != 0) { // read-volatile
-          HashEntry<K, V> e = getFirst(hash);
+          var e = getFirst(hash);
           while (e != null) {
             if (e.getEntryHash() == hash && equalityKeyCompare(key, e)) {
-              final V v = e.getMapValue();
+              final var v = e.getMapValue();
               if (v != null) {
                 if (readCallback != null) {
                   readCallback.oldValueRead(v);
@@ -840,8 +840,8 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     // End Geode additions
 
     void rehash() {
-      final HashEntry<K, V>[] oldTable = table;
-      final int oldCapacity = oldTable.length;
+      final var oldTable = table;
+      final var oldCapacity = oldTable.length;
       if (oldCapacity >= MAXIMUM_CAPACITY) {
         return;
       }
@@ -858,25 +858,25 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
       final HashEntry<K, V>[] newTable = newEntryArray(oldCapacity << 1);
       threshold = (int) (newTable.length * loadFactor);
-      final int sizeMask = newTable.length - 1;
-      for (int i = 0; i < oldCapacity; i++) {
+      final var sizeMask = newTable.length - 1;
+      for (var i = 0; i < oldCapacity; i++) {
         // We need to guarantee that any existing reads of old Map can
         // proceed. So we cannot yet null out each bin.
-        final HashEntry<K, V> e = oldTable[i];
+        final var e = oldTable[i];
 
         if (e != null) {
-          final HashEntry<K, V> next = e.getNextEntry();
-          final int idx = e.getEntryHash() & sizeMask;
+          final var next = e.getNextEntry();
+          final var idx = e.getEntryHash() & sizeMask;
 
           // Single node on list
           if (next == null) {
             newTable[idx] = e;
           } else {
             // Reuse trailing consecutive sequence at same slot
-            HashEntry<K, V> lastRun = e;
-            int lastIdx = idx;
-            for (HashEntry<K, V> last = next; last != null; last = last.getNextEntry()) {
-              final int k = last.getEntryHash() & sizeMask;
+            var lastRun = e;
+            var lastIdx = idx;
+            for (var last = next; last != null; last = last.getNextEntry()) {
+              final var k = last.getEntryHash() & sizeMask;
               if (k != lastIdx) {
                 lastIdx = k;
                 lastRun = last;
@@ -898,7 +898,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
             // the entries leading up to lastRun, because the entries
             // in the last run may have their next pointers changed
             // by a later rehash.
-            for (HashEntry<K, V> p = e; p != null; p = nextp) {
+            for (var p = e; p != null; p = nextp) {
               newe = new HashEntryImpl<>(p.getKey(), p.getEntryHash(),
                   (nextp = p.getNextEntry()), p.getMapValue(), p);
               if (newp != null) {
@@ -909,15 +909,15 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
               newp = newe;
             }
             // take the listUpdate write lock before updating the next refs
-            final ReentrantReadWriteLock.WriteLock listWriteLock = listUpdateLock.writeLock();
+            final var listWriteLock = listUpdateLock.writeLock();
             listWriteLock.lock();
             try {
               if (newFirst != null) {
                 table[i] = newFirst; // deliberately using volatile write
               }
-              for (HashEntry<K, V> p = e; p != lastRun; p = nextp) {
-                final int k = p.getEntryHash() & sizeMask;
-                final HashEntry<K, V> n = newTable[k];
+              for (var p = e; p != lastRun; p = nextp) {
+                final var k = p.getEntryHash() & sizeMask;
+                final var n = newTable[k];
                 nextp = p.getNextEntry();
                 p.setNextEntry(n);
                 newTable[k] = p;
@@ -945,14 +945,14 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     <C, P> V remove(final Object key, final int hash, final Object value,
         final MapCallback<K, V, C, P> condition, final C context, final P removeParams) {
       // End Geode change
-      final ReentrantReadWriteLock.WriteLock writeLock = super.writeLock();
+      final var writeLock = super.writeLock();
       writeLock.lock();
       try {
-        final int c = count - 1;
-        final HashEntry<K, V>[] tab = table;
-        final int index = hash & (tab.length - 1);
-        final HashEntry<K, V> first = tab[index];
-        HashEntry<K, V> e = first;
+        final var c = count - 1;
+        final var tab = table;
+        final var index = hash & (tab.length - 1);
+        final var first = tab[index];
+        var e = first;
         // Geode change
         // the entry previous to the matched one, if any
         HashEntry<K, V> p = null;
@@ -967,7 +967,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
         V oldValue = null;
         if (e != null) {
-          final V v = e.getMapValue();
+          final var v = e.getMapValue();
           // Geode change
           // allow for passing in a null object for comparison during remove;
           // also invoke the provided condition to check for removal
@@ -982,7 +982,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
             // update the next entry instead of cloning the nodes
             // this is primarily because we don't want to change
             // the underlying RegionEntry that may be used elsewhere
-            final ReentrantReadWriteLock.WriteLock listWriteLock = listUpdateLock.writeLock();
+            final var listWriteLock = listUpdateLock.writeLock();
             listWriteLock.lock();
             try {
               if (p == null) {
@@ -1013,19 +1013,19 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
      */
     ArrayList<HashEntry<?, ?>> clear(ArrayList<HashEntry<?, ?>> clearedEntries) {
       if (count != 0) {
-        final ReentrantReadWriteLock.WriteLock writeLock = super.writeLock();
+        final var writeLock = super.writeLock();
         writeLock.lock();
         try {
-          final HashEntry<K, V>[] tab = table;
+          final var tab = table;
           // Geode changes BEGIN
           if (clearedEntries == null) {
-            final boolean checkForGatewaySenderEvent =
+            final var checkForGatewaySenderEvent =
                 OffHeapClearRequired.doesClearNeedToCheckForOffHeap();
             if (checkForGatewaySenderEvent) {
               clearedEntries = new ArrayList<>();
             } else {
               // see if we have a map with off-heap region entries
-              for (HashEntry<K, V> he : tab) {
+              for (var he : tab) {
                 if (he != null) {
                   if (he instanceof OffHeapRegionEntry) {
                     clearedEntries = new ArrayList<>();
@@ -1039,8 +1039,8 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
           if (clearedEntries == null) {
             Arrays.fill(tab, null);
           } else {
-            for (int i = 0; i < tab.length; i++) {
-              HashEntry<K, V> he = tab[i];
+            for (var i = 0; i < tab.length; i++) {
+              var he = tab[i];
               if (he == null) {
                 continue;
               }
@@ -1168,8 +1168,8 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     }
 
     // Find power-of-two sizes best matching arguments
-    int sshift = 0;
-    int ssize = 1;
+    var sshift = 0;
+    var ssize = 1;
     if (concurrencyLevel > 1) {
       while (ssize < concurrencyLevel) {
         ++sshift;
@@ -1182,11 +1182,11 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     if (initialCapacity > MAXIMUM_CAPACITY) {
       initialCapacity = MAXIMUM_CAPACITY;
     }
-    int c = initialCapacity / ssize;
+    var c = initialCapacity / ssize;
     if (c * ssize < initialCapacity) {
       ++c;
     }
-    int cap = 1;
+    var cap = 1;
     while (cap < c) {
       cap <<= 1;
     }
@@ -1198,14 +1198,14 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       compareValues = true;
       segments = Segment.newArray(ssize);
       this.entryCreator = entryCreator;
-      for (int i = 0; i < ssize; ++i) {
+      for (var i = 0; i < ssize; ++i) {
         segments[i] = new Segment<>(cap, loadFactor, entryCreator);
       }
     } else {
       compareValues = false;
       segments = IdentitySegment.newArray(ssize);
       this.entryCreator = entryCreator;
-      for (int i = 0; i < ssize; ++i) {
+      for (var i = 0; i < ssize; ++i) {
         segments[i] = new IdentitySegment<>(cap, loadFactor, entryCreator);
       }
     }
@@ -1286,16 +1286,16 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
    */
   @Override
   public boolean isEmpty() {
-    final Segment<K, V>[] segments = this.segments;
+    final var segments = this.segments;
     /*
      * We keep track of per-segment modCounts to avoid ABA problems in which an element in one
      * segment was added and in another removed during traversal, in which case the table was never
      * actually empty at any point. Note the similar use of modCounts in the size() and
      * containsValue() methods, which are the only other methods also susceptible to ABA problems.
      */
-    final int[] mc = new int[segments.length];
-    int mcsum = 0;
-    for (int i = 0; i < segments.length; ++i) {
+    final var mc = new int[segments.length];
+    var mcsum = 0;
+    for (var i = 0; i < segments.length; ++i) {
       if (segments[i].count != 0) {
         return false;
       } else {
@@ -1306,7 +1306,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     // before any modifications at all were made. This is
     // probably common enough to bother tracking.
     if (mcsum != 0) {
-      for (int i = 0; i < segments.length; ++i) {
+      for (var i = 0; i < segments.length; ++i) {
         if (segments[i].count != 0 || mc[i] != segments[i].modCount) {
           return false;
         }
@@ -1325,22 +1325,22 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "UL_UNRELEASED_LOCK",
       justification = "The lock() calls are followed by unlock() calls without finally-block. Leaving this as is because it's lifted from JDK code and we want to minimize changes.")
   public int size() {
-    final Segment<K, V>[] segments = this.segments;
+    final var segments = this.segments;
     long sum = 0;
     long check = 0;
-    final int[] mc = new int[segments.length];
+    final var mc = new int[segments.length];
     // Try a few times to get accurate count. On failure due to
     // continuous async changes in table, resort to locking.
-    for (int k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
+    for (var k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
       check = 0;
       sum = 0;
-      int mcsum = 0;
-      for (int i = 0; i < segments.length; ++i) {
+      var mcsum = 0;
+      for (var i = 0; i < segments.length; ++i) {
         sum += segments[i].count;
         mcsum += mc[i] = segments[i].modCount;
       }
       if (mcsum != 0) {
-        for (int i = 0; i < segments.length; ++i) {
+        for (var i = 0; i < segments.length; ++i) {
           check += segments[i].count;
           if (mc[i] != segments[i].modCount) {
             check = -1; // force retry
@@ -1354,13 +1354,13 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     }
     if (check != sum) { // Resort to locking all segments
       sum = 0;
-      for (final Segment<K, V> value : segments) {
+      for (final var value : segments) {
         value.readLock().lock();
       }
-      for (final Segment<K, V> kvSegment : segments) {
+      for (final var kvSegment : segments) {
         sum += kvSegment.count;
       }
-      for (final Segment<K, V> segment : segments) {
+      for (final var segment : segments) {
         segment.readLock().unlock();
       }
     }
@@ -1385,7 +1385,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
   @Override
   public V get(final Object key) {
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).get(key, hash);
   }
 
@@ -1400,7 +1400,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
   @Override
   public boolean containsKey(final Object key) {
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).containsKey(key, hash);
   }
 
@@ -1423,21 +1423,21 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
     // See explanation of modCount use above
 
-    final Segment<K, V>[] segments = this.segments;
-    final int[] mc = new int[segments.length];
+    final var segments = this.segments;
+    final var mc = new int[segments.length];
 
     // Try a few times without locking
-    for (int k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
-      int mcsum = 0;
-      for (int i = 0; i < segments.length; ++i) {
+    for (var k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
+      var mcsum = 0;
+      for (var i = 0; i < segments.length; ++i) {
         mcsum += mc[i] = segments[i].modCount;
         if (segments[i].containsValue(value)) {
           return true;
         }
       }
-      boolean cleanSweep = true;
+      var cleanSweep = true;
       if (mcsum != 0) {
-        for (int i = 0; i < segments.length; ++i) {
+        for (var i = 0; i < segments.length; ++i) {
           if (mc[i] != segments[i].modCount) {
             cleanSweep = false;
             break;
@@ -1449,19 +1449,19 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       }
     }
     // Resort to locking all segments
-    for (final Segment<K, V> kvSegment : segments) {
+    for (final var kvSegment : segments) {
       kvSegment.readLock().lock();
     }
-    boolean found = false;
+    var found = false;
     try {
-      for (final Segment<K, V> segment : segments) {
+      for (final var segment : segments) {
         if (segment.containsValue(value)) {
           found = true;
           break;
         }
       }
     } finally {
-      for (final Segment<K, V> segment : segments) {
+      for (final var segment : segments) {
         segment.readLock().unlock();
       }
     }
@@ -1503,7 +1503,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       throw new NullPointerException();
     }
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).put(key, hash, value, false);
   }
 
@@ -1520,7 +1520,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       throw new NullPointerException();
     }
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).put(key, hash, value, true);
   }
 
@@ -1540,8 +1540,8 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
    */
   public boolean create(final K key, final V value) {
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
-    final Segment<K, V> seg = segmentFor(hash);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
+    final var seg = segmentFor(hash);
     if (seg.containsKey(key, hash)) {
       return false;
     }
@@ -1651,7 +1651,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
   public <C, P> V create(final K key, final MapCallback<K, V, C, P> valueCreator, final C context,
       final P createParams, final boolean lockForRead) {
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).create(key, hash, valueCreator, context, createParams, lockForRead);
   }
 
@@ -1672,7 +1672,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
    */
   public V get(final Object key, final MapCallback<K, V, ?, ?> readCallback) {
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).get(key, hash, readCallback);
   }
 
@@ -1712,7 +1712,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
   public <C, P> V removeConditionally(final Object key, final MapCallback<K, V, C, P> condition,
       final C context, final P removeParams) {
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).remove(key, hash, NO_OBJECT_TOKEN, condition, context, removeParams);
   }
 
@@ -1743,7 +1743,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
   @Override
   public V remove(final Object key) {
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).remove(key, hash, NO_OBJECT_TOKEN, null, null, null);
   }
 
@@ -1758,7 +1758,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       return false;
     }
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).remove(key, hash, value, null, null, null) != null;
   }
 
@@ -1773,7 +1773,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       throw new NullPointerException();
     }
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).replace(key, hash, oldValue, newValue);
   }
 
@@ -1790,7 +1790,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       throw new NullPointerException();
     }
     // throws NullPointerException if key null
-    final int hash = entryCreator.keyHashCode(key, compareValues);
+    final var hash = entryCreator.keyHashCode(key, compareValues);
     return segmentFor(hash).replace(key, hash, value);
   }
 
@@ -1799,17 +1799,17 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
   public void clearWithExecutor(Executor executor) {
     ArrayList<HashEntry<?, ?>> entries = null;
     try {
-      for (final Segment<K, V> segment : segments) {
+      for (final var segment : segments) {
         entries = segment.clear(entries);
       }
     } finally {
       if (entries != null) {
-        final ArrayList<HashEntry<?, ?>> clearedEntries = entries;
+        final var clearedEntries = entries;
         Runnable runnable;
         if (OffHeapClearRequired.doesClearNeedToCheckForOffHeap()) {
           runnable = () -> {
-            for (HashEntry<?, ?> he : clearedEntries) {
-              for (HashEntry<?, ?> p = he; p != null; p = p.getNextEntry()) {
+            for (var he : clearedEntries) {
+              for (var p = he; p != null; p = p.getNextEntry()) {
                 if (p instanceof RegionEntry) {
                   synchronized (p) {
                     GatewaySenderEventImpl.release(((RegionEntry) p).getValue()); // OFFHEAP
@@ -1820,8 +1820,8 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
           };
         } else {
           runnable = () -> {
-            for (HashEntry<?, ?> he : clearedEntries) {
-              for (HashEntry<?, ?> p = he; p != null; p = p.getNextEntry()) {
+            for (var he : clearedEntries) {
+              for (var p = he; p != null; p = p.getNextEntry()) {
                 synchronized (p) {
                   ((OffHeapRegionEntry) p).release();
                 }
@@ -1829,7 +1829,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
             }
           };
         }
-        boolean submitted = false;
+        var submitted = false;
         if (executor != null) {
           try {
             executor.execute(runnable);
@@ -1843,7 +1843,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
           }
         }
         if (!submitted) {
-          String name = getClass().getSimpleName() + "@" + hashCode() + " Clear Thread";
+          var name = getClass().getSimpleName() + "@" + hashCode() + " Clear Thread";
           Thread thread = new LoggingThread(name, runnable);
           thread.start();
         }
@@ -1875,7 +1875,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
    */
   @Override
   public Set<K> keySet() {
-    final Set<K> ks = keySet;
+    final var ks = keySet;
     return (ks != null) ? ks : (keySet = new KeySet());
   }
 
@@ -1895,7 +1895,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
    */
   @Override
   public Collection<V> values() {
-    final Collection<V> vs = values;
+    final var vs = values;
     return (vs != null) ? vs : (values = new Values());
   }
 
@@ -1914,7 +1914,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
    */
   @Override
   public Set<Map.Entry<K, V>> entrySet() {
-    final Set<Map.Entry<K, V>> es = entrySet;
+    final var es = entrySet;
     return (es != null) ? es : (entrySet = new EntrySet(false));
   }
 
@@ -1922,7 +1922,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
   @Override
   public Set<Map.Entry<K, V>> entrySetWithReusableEntries() {
-    final Set<Map.Entry<K, V>> es = reusableEntrySet;
+    final var es = reusableEntrySet;
     return (es != null) ? es : (reusableEntrySet = new EntrySet(true));
   }
 
@@ -1988,9 +1988,9 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
       nextEntry = null;
       if (nextTableIndex >= 0) {
-        final Segment<K, V> seg =
+        final var seg =
             segments[currentSegmentIndex];
-        final ReentrantReadWriteLock.ReadLock listLock = seg.listUpdateLock.readLock();
+        final var listLock = seg.listUpdateLock.readLock();
         listLock.lock();
         try {
           do {
@@ -2013,14 +2013,14 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       // Geode changes END
 
       while (currentSegmentIndex > 0) {
-        final Segment<K, V> seg =
+        final var seg =
             segments[--currentSegmentIndex];
         if (seg.count != 0) {
           currentTable = seg.table;
-          final ReentrantReadWriteLock.ReadLock listLock = seg.listUpdateLock.readLock();
+          final var listLock = seg.listUpdateLock.readLock();
           listLock.lock();
           try {
-            for (int j = currentTable.length - 1; j >= 0; --j) {
+            for (var j = currentTable.length - 1; j >= 0; --j) {
               if ((nextEntry = currentTable[j]) != null) {
                 nextTableIndex = j - 1;
                 copyEntriesToList();
@@ -2047,7 +2047,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
       currentList.clear();
       currentListIndex = 0;
-      for (HashEntry<K, V> p = nextEntry.getNextEntry(); p != null; p = p.getNextEntry()) {
+      for (var p = nextEntry.getNextEntry(); p != null; p = p.getNextEntry()) {
         currentList.add(p);
       }
     }
@@ -2163,7 +2163,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
      */
     @Override
     public V setValue(final V value) {
-      final V oldValue = this.value;
+      final var oldValue = this.value;
       this.value = value;
       return oldValue;
     }
@@ -2190,7 +2190,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       if (!(o instanceof Map.Entry<?, ?>)) {
         return false;
       }
-      final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+      final var e = (Map.Entry<?, ?>) o;
       if (compareValues) {
         return ArrayUtils.objectEquals(key, e.getKey())
             && ArrayUtils.objectEquals(value, e.getValue());
@@ -2265,7 +2265,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       if (value == null) {
         throw new NullPointerException();
       }
-      final V v = super.setValue(value);
+      final var v = super.setValue(value);
       put(getKey(), value);
       return v;
     }
@@ -2283,7 +2283,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
     @Override
     public Map.Entry<K, V> next() {
-      final HashEntry<K, V> e = super.nextEntry();
+      final var e = super.nextEntry();
       if (reusableEntry != null) {
         reusableEntry.key = e.getKey();
         reusableEntry.setValue(e.getMapValue());
@@ -2371,8 +2371,8 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       if (!(o instanceof Map.Entry)) {
         return false;
       }
-      final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-      final V v = get(e.getKey());
+      final var e = (Map.Entry<?, ?>) o;
+      final var v = get(e.getKey());
       if (compareValues) {
         return v != null && v.equals(e.getValue());
       }
@@ -2384,7 +2384,7 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
       if (!(o instanceof Map.Entry)) {
         return false;
       }
-      final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+      final var e = (Map.Entry<?, ?>) o;
       return CustomEntryConcurrentHashMap.this.remove(e.getKey(), e.getValue());
     }
 
@@ -2411,13 +2411,13 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
   private void writeObject(final java.io.ObjectOutputStream s) throws IOException {
     s.defaultWriteObject();
 
-    for (final Segment<K, V> seg : segments) {
-      final ReentrantReadWriteLock.ReadLock readLock = seg.readLock();
+    for (final var seg : segments) {
+      final var readLock = seg.readLock();
       readLock.lock();
       try {
-        final HashEntry<K, V>[] tab = seg.table;
-        for (final HashEntry<K, V> kvHashEntry : tab) {
-          for (HashEntry<K, V> e = kvHashEntry; e != null; e = e.getNextEntry()) {
+        final var tab = seg.table;
+        for (final var kvHashEntry : tab) {
+          for (var e = kvHashEntry; e != null; e = e.getNextEntry()) {
             s.writeObject(e.getKey());
             s.writeObject(e.getMapValue());
           }
@@ -2441,14 +2441,14 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
     s.defaultReadObject();
 
     // Initialize each segment to be minimally sized, and let grow.
-    for (final Segment<K, V> segment : segments) {
+    for (final var segment : segments) {
       segment.setTable(new HashEntry[1]);
     }
 
     // Read the keys and values, and put the mappings in the table
     for (;;) {
-      final K key = (K) s.readObject();
-      final V value = (V) s.readObject();
+      final var key = (K) s.readObject();
+      final var value = (V) s.readObject();
       if (key == null) {
         break;
       }
@@ -2458,8 +2458,8 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
   public long estimateMemoryOverhead(SingleObjectSizer sizer) {
 
-    long totalOverhead = sizer.sizeof(this);
-    for (final Segment<K, V> seg : segments) {
+    var totalOverhead = sizer.sizeof(this);
+    for (final var seg : segments) {
       totalOverhead += sizer.sizeof(seg);
     }
 

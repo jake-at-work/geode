@@ -54,7 +54,7 @@ public class ClusterAlertingService implements InternalAlertingService {
       final String formattedMessage,
       final String stackTrace) {
 
-    for (AlertListener listener : listeners) {
+    for (var listener : listeners) {
       if (alertLevel.meetsOrExceeds(listener.getLevel())) {
         break;
       }
@@ -74,12 +74,12 @@ public class ClusterAlertingService implements InternalAlertingService {
     if (alertLevel == AlertLevel.NONE) {
       return;
     }
-    AlertListener listener = new AlertListener(alertLevel, member);
+    var listener = new AlertListener(alertLevel, member);
 
     // Add (or replace) a listener to the list of sorted listeners such that listeners with a
     // greater level (e.g. FATAL) will be at the end of the list.
     listeners.remove(listener);
-    for (int i = 0; i < listeners.size(); i++) {
+    for (var i = 0; i < listeners.size(); i++) {
       if (listener.getLevel().compareTo(listeners.get(i).getLevel()) <= 0) {
         listeners.add(i, listener);
         return;
@@ -92,7 +92,7 @@ public class ClusterAlertingService implements InternalAlertingService {
 
   @Override
   public synchronized boolean removeAlertListener(final DistributedMember member) {
-    boolean memberWasFound = listeners.remove(new AlertListener(null, member));
+    var memberWasFound = listeners.remove(new AlertListener(null, member));
     if (memberWasFound) {
       logger.debug("Removed alert listener for member {}.", member);
     }
@@ -102,7 +102,7 @@ public class ClusterAlertingService implements InternalAlertingService {
   @Override
   public synchronized boolean hasAlertListener(final DistributedMember member,
       final AlertLevel alertLevel) {
-    for (AlertListener listener : listeners) {
+    for (var listener : listeners) {
       if (listener.getMember().equals(member) && listener.getLevel().equals(alertLevel)) {
         return true;
       }

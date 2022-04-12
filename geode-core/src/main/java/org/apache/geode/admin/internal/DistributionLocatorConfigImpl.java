@@ -70,10 +70,10 @@ public class DistributionLocatorConfigImpl extends ManagedEntityConfigImpl
    * @return <code>null</code> if the locator cannot be contacted
    */
   static DistributionLocatorConfig createConfigFor(String host, int port, InetAddress bindAddress) {
-    String[] info = new String[] {"unknown", "unknown"};
+    var info = new String[] {"unknown", "unknown"};
 
     try {
-      TcpClient client = new TcpClient(SocketCreatorFactory
+      var client = new TcpClient(SocketCreatorFactory
           .getSocketCreatorForComponent(SecurableCommunicationChannel.LOCATOR),
           InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
           InternalDataSerializer.getDSFIDSerializer().getObjectDeserializer(),
@@ -90,7 +90,7 @@ public class DistributionLocatorConfigImpl extends ManagedEntityConfigImpl
       // communications are not initialized at this point
     }
 
-    DistributionLocatorConfigImpl config = new DistributionLocatorConfigImpl();
+    var config = new DistributionLocatorConfigImpl();
     config.setHost(host);
     config.setPort(port);
     if (bindAddress != null) {
@@ -191,7 +191,7 @@ public class DistributionLocatorConfigImpl extends ManagedEntityConfigImpl
 
   @Override
   public Object clone() throws CloneNotSupportedException {
-    DistributionLocatorConfigImpl clone = (DistributionLocatorConfigImpl) super.clone();
+    var clone = (DistributionLocatorConfigImpl) super.clone();
     clone.locator = null;
     return clone;
   }

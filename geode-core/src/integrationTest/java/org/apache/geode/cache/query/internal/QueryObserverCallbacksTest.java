@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.After;
@@ -36,7 +35,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Address;
 import org.apache.geode.cache.query.data.Employee;
@@ -58,21 +56,21 @@ public class QueryObserverCallbacksTest {
     queryService = serverStarterRule.getCache().getQueryService();
     QueryObserverHolder.setInstance(myQueryObserver);
 
-    Region<String, Object> portfolio1 =
+    var portfolio1 =
         createRegionWithValueConstraint("portfolio", Portfolio.class);
     portfolio1.put("0", new Portfolio(0));
     portfolio1.put("1", new Portfolio(1));
     portfolio1.put("2", new Portfolio(2));
     portfolio1.put("3", new Portfolio(3));
 
-    Region<String, Object> portfolio2 =
+    var portfolio2 =
         createRegionWithValueConstraint("portfolio1", Portfolio.class);
     portfolio2.put("0", new Portfolio(0));
     portfolio2.put("1", new Portfolio(1));
     portfolio2.put("2", new Portfolio(2));
     portfolio2.put("3", new Portfolio(3));
 
-    Region<String, Object> employees = createRegionWithValueConstraint("employees", Employee.class);
+    var employees = createRegionWithValueConstraint("employees", Employee.class);
     Set<Address> add1 = new HashSet<>();
     add1.add(new Address("411045", "Baner"));
     add1.add(new Address("411001", "DholePatilRd"));
@@ -100,7 +98,7 @@ public class QueryObserverCallbacksTest {
   @Test
   public void testBeforeAndAfterCartesianOfGroupJunctionsInAnAllGroupJunctionOfType_AND()
       throws Exception {
-    Query query = queryService.newQuery(
+    var query = queryService.newQuery(
         "select distinct * from " + SEPARATOR + "portfolio p, p.positions," + SEPARATOR
             + "employees e, " + SEPARATOR
             + "portfolio1 p1 where p.ID = 1 and p1.ID = 2 and e.empId = 1");
@@ -119,7 +117,7 @@ public class QueryObserverCallbacksTest {
   @Test
   public void testBeforeAndAfterCartesianOfCompositeGroupJunctionsInAnAllGroupJunctionOfType_AND()
       throws Exception {
-    Query query = queryService.newQuery(
+    var query = queryService.newQuery(
         "select distinct * from " + SEPARATOR + "portfolio p, p.positions," + SEPARATOR
             + "employees e, " + SEPARATOR
             + "portfolio1 p1 where p.ID =p1.ID   and e.empId = 1 and p1.status = 'active' and p.status='active' ");
@@ -138,7 +136,7 @@ public class QueryObserverCallbacksTest {
 
   @Test
   public void testBeforeAndAfterCutDownAndExpansionOfSingleIndexResult() throws Exception {
-    Query query =
+    var query =
         queryService.newQuery(
             "select distinct * from " + SEPARATOR + "portfolio p, p.positions where p.ID = 1  ");
     queryService.createIndex("idIndex", "ID", SEPARATOR + "portfolio");
@@ -150,7 +148,7 @@ public class QueryObserverCallbacksTest {
 
   @Test
   public void testBeforeAndAfterMergeJoinOfDoubleIndexResults() throws Exception {
-    Query query = queryService.newQuery(
+    var query = queryService.newQuery(
         "select distinct * from " + SEPARATOR + "portfolio p, p.positions," + SEPARATOR
             + "employees e where p.ID =  e.empId  ");
     queryService.createIndex("idIndex", "ID", SEPARATOR + "portfolio");
@@ -163,7 +161,7 @@ public class QueryObserverCallbacksTest {
 
   @Test
   public void testBeforeAndAfterIterJoinOfSingleIndexResults() throws Exception {
-    Query query = queryService.newQuery(
+    var query = queryService.newQuery(
         "select distinct * from " + SEPARATOR + "portfolio p, p.positions," + SEPARATOR
             + "employees e, " + SEPARATOR
             + "portfolio1 p1 where p.ID =p1.ID   and e.empId = p1.ID ");
@@ -183,7 +181,7 @@ public class QueryObserverCallbacksTest {
 
   @Test
   public void testBeforeRangeJunctionDoubleConditionLookup() throws Exception {
-    Query query = queryService
+    var query = queryService
         .newQuery(
             "select distinct * from " + SEPARATOR + "portfolio p where p.ID > 1   and  p.ID < 3 ");
     queryService.createIndex("idIndex", "ID", SEPARATOR + "portfolio");
@@ -197,7 +195,7 @@ public class QueryObserverCallbacksTest {
 
   @Test
   public void beforeAggregationsAndGroupByShouldBeCalledForAggregateFunctions() throws Exception {
-    List<String> queries = Arrays.asList(
+    var queries = Arrays.asList(
         "SELECT MIN(pf.ID) FROM " + SEPARATOR + "portfolio pf WHERE pf.ID > 0",
         "SELECT pf.status, MIN(pf.ID) FROM " + SEPARATOR
             + "portfolio pf WHERE pf.ID > 0 GROUP BY pf.status",
@@ -233,10 +231,10 @@ public class QueryObserverCallbacksTest {
         "SELECT pf.status, MIN(pf.ID), MAX(pf.ID), AVG(DISTINCT pf.ID), SUM(DISTINCT pf.ID), COUNT(DISTINCT pf.ID) FROM "
             + SEPARATOR + "portfolio pf WHERE pf.ID > 0 GROUP BY pf.status");
 
-    MyQueryObserverImpl myQueryObserver = spy(new MyQueryObserverImpl());
+    var myQueryObserver = spy(new MyQueryObserverImpl());
     QueryObserverHolder.setInstance(myQueryObserver);
-    for (String queryString : queries) {
-      Query query = queryService.newQuery(queryString);
+    for (var queryString : queries) {
+      var query = queryService.newQuery(queryString);
       query.execute();
     }
 

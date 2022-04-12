@@ -28,7 +28,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.ClientCacheRule;
@@ -103,7 +102,7 @@ public class MessageTrackingTimeoutRegressionTest implements Serializable {
 
     // no region is created on server
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();

@@ -21,10 +21,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Map;
 import java.util.Stack;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.junit.After;
 import org.junit.Before;
@@ -53,9 +51,9 @@ public class LuceneIndexXmlParserJUnitTest {
   @Before
   public void setUp() {
     parser = new LuceneXmlParser();
-    CacheCreation cache = Mockito.mock(CacheCreation.class);
-    RegionCreation regionCreation = Mockito.mock(RegionCreation.class);
-    RegionAttributesCreation rac = Mockito.mock(RegionAttributesCreation.class);
+    var cache = Mockito.mock(CacheCreation.class);
+    var regionCreation = Mockito.mock(RegionCreation.class);
+    var rac = Mockito.mock(RegionAttributesCreation.class);
     Mockito.when(regionCreation.getFullPath()).thenReturn(SEPARATOR + "region");
     Mockito.when(regionCreation.getAttributes()).thenReturn(rac);
     Mockito.when(regionCreation.getExtensionPoint())
@@ -76,7 +74,7 @@ public class LuceneIndexXmlParserJUnitTest {
 
   @Test
   public void generateWithFields() throws SAXException {
-    AttributesImpl attrs = new AttributesImpl();
+    var attrs = new AttributesImpl();
     XmlGeneratorUtils.addAttribute(attrs, LuceneXmlConstants.NAME, "index");
     parser.startElement(LuceneXmlConstants.NAMESPACE, LuceneXmlConstants.INDEX, null, attrs);
 
@@ -87,13 +85,13 @@ public class LuceneIndexXmlParserJUnitTest {
     parser.endElement(LuceneXmlConstants.NAMESPACE, LuceneXmlConstants.INDEX, null);
     assertEquals(rc, stack.peek());
 
-    LuceneIndexCreation index =
+    var index =
         (LuceneIndexCreation) rc.getExtensionPoint().getExtensions().iterator().next();
     assertEquals("index", index.getName());
     assertArrayEquals(new String[] {"field1", "field2", "field3"}, index.getFieldNames());
 
     // Assert analyzers
-    Map<String, Analyzer> fieldAnalyzers = index.getFieldAnalyzers();
+    var fieldAnalyzers = index.getFieldAnalyzers();
     assertEquals(1, fieldAnalyzers.size());
     assertTrue(fieldAnalyzers.containsKey("field3"));
     assertTrue(fieldAnalyzers.get("field3") instanceof KeywordAnalyzer);
@@ -101,7 +99,7 @@ public class LuceneIndexXmlParserJUnitTest {
 
   @Test
   public void attemptInvalidAnalyzerClass() throws SAXException {
-    AttributesImpl attrs = new AttributesImpl();
+    var attrs = new AttributesImpl();
     XmlGeneratorUtils.addAttribute(attrs, LuceneXmlConstants.NAME, "index");
     parser.startElement(LuceneXmlConstants.NAMESPACE, LuceneXmlConstants.INDEX, null, attrs);
     try {
@@ -116,7 +114,7 @@ public class LuceneIndexXmlParserJUnitTest {
   }
 
   private void addField(String fieldName, String analyzerClassName) throws SAXException {
-    AttributesImpl field = new AttributesImpl();
+    var field = new AttributesImpl();
     XmlGeneratorUtils.addAttribute(field, LuceneXmlConstants.NAME, fieldName);
     if (analyzerClassName != null) {
       XmlGeneratorUtils.addAttribute(field, LuceneXmlConstants.ANALYZER, analyzerClassName);

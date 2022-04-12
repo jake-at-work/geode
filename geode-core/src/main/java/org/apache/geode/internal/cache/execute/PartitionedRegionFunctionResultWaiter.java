@@ -72,19 +72,19 @@ public class PartitionedRegionFunctionResultWaiter extends StreamingFunctionOper
       return rc;
     }
     Set<InternalDistributedMember> recipientsSet = new HashSet<>();
-    for (InternalDistributedMember member : recipMap.keySet()) {
+    for (var member : recipMap.keySet()) {
       recipientsSet.add(member);
     }
     recipients = recipientsSet;
 
-    PRFunctionStreamingResultCollector processor = new PRFunctionStreamingResultCollector(this,
+    var processor = new PRFunctionStreamingResultCollector(this,
         sys, recipientsSet, rc, functionObject, pr, execution);
 
     reply = processor;
 
-    for (Map.Entry<InternalDistributedMember, FunctionRemoteContext> entry : recipMap.entrySet()) {
-      FunctionRemoteContext context = entry.getValue();
-      PartitionMessage m = createRequestMessage(entry.getKey(), processor, context);
+    for (var entry : recipMap.entrySet()) {
+      var context = entry.getValue();
+      var m = createRequestMessage(entry.getKey(), processor, context);
       m.setTransactionDistributed(pr.getCache().getTxManager().isDistributed());
       sys.getDistributionManager().putOutgoing(m);
     }
@@ -93,7 +93,7 @@ public class PartitionedRegionFunctionResultWaiter extends StreamingFunctionOper
 
   protected PartitionMessage createRequestMessage(InternalDistributedMember recipient,
       ReplyProcessor21 processor, FunctionRemoteContext context) {
-    PartitionedRegionFunctionStreamingMessage msg =
+    var msg =
         new PartitionedRegionFunctionStreamingMessage(recipient, regionId, processor, context);
 
     return msg;
@@ -107,7 +107,7 @@ public class PartitionedRegionFunctionResultWaiter extends StreamingFunctionOper
 
   @Override
   public void processData(Object result, boolean lastMsg, DistributedMember memberID) {
-    boolean completelyDone = false;
+    var completelyDone = false;
     if (lastMsg) {
       totalLastMsgReceived++;
     }

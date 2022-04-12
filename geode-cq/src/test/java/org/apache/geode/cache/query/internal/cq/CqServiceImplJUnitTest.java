@@ -33,19 +33,18 @@ public class CqServiceImplJUnitTest {
 
   @Test
   public void closedCacheClientProxyInExecuteCqShouldThrowCQException() {
-    InternalCache cache = mock(InternalCache.class);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var cancelCriterion = mock(CancelCriterion.class);
+    var distributedSystem = mock(DistributedSystem.class);
     doNothing().when(cancelCriterion).checkCancelInProgress(null);
     when(cache.getCancelCriterion()).thenReturn(cancelCriterion);
     when(cache.getDistributedSystem()).thenReturn(distributedSystem);
 
-
-    ClientProxyMembershipID clientProxyMembershipID = mock(ClientProxyMembershipID.class);
-    CacheClientNotifier cacheClientNotifier = mock(CacheClientNotifier.class);
+    var clientProxyMembershipID = mock(ClientProxyMembershipID.class);
+    var cacheClientNotifier = mock(CacheClientNotifier.class);
     when(cacheClientNotifier.getClientProxy(clientProxyMembershipID, true)).thenReturn(null);
 
-    CqServiceImpl cqService = new CqServiceImpl(cache);
+    var cqService = new CqServiceImpl(cache);
     try {
       cqService.getCacheClientProxy(clientProxyMembershipID, cacheClientNotifier);
       fail();

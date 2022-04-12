@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import org.apache.geode.tools.pulse.tests.rules.ScreenshotOnFailureRule;
 import org.apache.geode.tools.pulse.tests.rules.ServerRule;
@@ -53,8 +52,8 @@ public class PulseAnonymousUserTest {
   public void userCanGetToPulseLoginPage() {
     webDriverRule.getDriver().get(serverRule.getPulseURL() + "login.html");
 
-    WebElement userNameElement = webDriverRule.getDriver().findElement(By.id("user_name"));
-    WebElement passwordElement = webDriverRule.getDriver().findElement(By.id("user_password"));
+    var userNameElement = webDriverRule.getDriver().findElement(By.id("user_name"));
+    var passwordElement = webDriverRule.getDriver().findElement(By.id("user_password"));
 
     assertThat(userNameElement).isNotNull();
     assertThat(passwordElement).isNotNull();

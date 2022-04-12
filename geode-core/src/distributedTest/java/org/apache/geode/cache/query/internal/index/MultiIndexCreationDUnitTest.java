@@ -21,28 +21,22 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.cache.query.internal.index.IndexManager.TestHook;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
@@ -60,29 +54,29 @@ public class MultiIndexCreationDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testConcurrentMultiIndexCreationAndQuery() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(1);
 
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
 
     // Start server1
-    AsyncInvocation a1 = server1.invokeAsync(new SerializableCallable("Create Server1") {
+    var a1 = server1.invokeAsync(new SerializableCallable("Create Server1") {
       @Override
       public Object call() throws Exception {
         Region r = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        for (int i = 0; i < numberOfEntries; i++) {
-          Portfolio p = new Portfolio(i);
+        for (var i = 0; i < numberOfEntries; i++) {
+          var p = new Portfolio(i);
           r.put("key-" + i, p);
         }
 
         IndexManager.testHook = new MultiIndexCreationTestHook();
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         qs.defineIndex("statusIndex", "status", r.getFullPath());
         qs.defineIndex("IDIndex", "ID", r.getFullPath());
-        List<Index> indexes = qs.createDefinedIndexes();
+        var indexes = qs.createDefinedIndexes();
 
         assertEquals("Only 2 indexes should have been created. ", 2, indexes.size());
 
@@ -90,20 +84,20 @@ public class MultiIndexCreationDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    final String[] queries = {"select * from " + name + " where status = 'active'",
+    final var queries = new String[] {"select * from " + name + " where status = 'active'",
         "select * from " + name + " where ID > 4"};
 
-    AsyncInvocation a2 = server1.invokeAsync(new SerializableCallable("Create Server1") {
+    var a2 = server1.invokeAsync(new SerializableCallable("Create Server1") {
       @Override
       public Object call() throws Exception {
-        long giveupTime = System.currentTimeMillis() + 60000;
+        var giveupTime = System.currentTimeMillis() + 60000;
         while (!hooked && System.currentTimeMillis() < giveupTime) {
           LogWriterUtils.getLogWriter().info("Query Waiting for index hook.");
           Wait.pause(100);
         }
         assertTrue(hooked);
 
-        QueryObserver old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
+        var old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
           private boolean indexCalled = false;
 
           @Override
@@ -119,7 +113,7 @@ public class MultiIndexCreationDUnitTest extends JUnit4CacheTestCase {
         });
 
         SelectResults sr = null;
-        for (final String query : queries) {
+        for (final var query : queries) {
           try {
             sr = (SelectResults) getCache().getQueryService().newQuery(query).execute();
           } catch (Exception e) {
@@ -149,7 +143,7 @@ public class MultiIndexCreationDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         IndexManager.testHook = null;
-        QueryObserver old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
+        var old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
           private boolean indexCalled = false;
 
           @Override
@@ -165,7 +159,7 @@ public class MultiIndexCreationDUnitTest extends JUnit4CacheTestCase {
         });
 
         SelectResults sr = null;
-        for (final String query : queries) {
+        for (final var query : queries) {
           try {
             sr = (SelectResults) getCache().getQueryService().newQuery(query).execute();
           } catch (Exception e) {
@@ -194,7 +188,7 @@ public class MultiIndexCreationDUnitTest extends JUnit4CacheTestCase {
 
     @Override
     public void hook(int spot) throws RuntimeException {
-      long giveupTime = System.currentTimeMillis() + 60000;
+      var giveupTime = System.currentTimeMillis() + 60000;
       if (spot == 13) {
         hooked = true;
         LogWriterUtils.getLogWriter()

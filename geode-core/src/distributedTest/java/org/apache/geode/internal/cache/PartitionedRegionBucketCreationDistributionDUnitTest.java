@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.After;
@@ -35,7 +33,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.internal.cache.partitioned.RegionAdvisor;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.VM;
@@ -213,7 +210,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
     awaitAllAsyncInvocations();
 
     // validating bucket distribution over all the nodes
-    int numberOfBucketsExpectedOnEachNode = getNumberOfBucketsExpectedOnEachNode();
+    var numberOfBucketsExpectedOnEachNode = getNumberOfBucketsExpectedOnEachNode();
 
     vm0.invoke(() -> validateBucketsDistribution(regionOne, numberOfBucketsExpectedOnEachNode));
     vm1.invoke(() -> validateBucketsDistribution(regionOne, numberOfBucketsExpectedOnEachNode));
@@ -307,7 +304,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
     awaitAllAsyncInvocations();
 
     // validating bucket distribution over all the nodes
-    int numberOfBucketsExpectedOnEachNode = getNumberOfBucketsExpectedOnEachNode() - 4;
+    var numberOfBucketsExpectedOnEachNode = getNumberOfBucketsExpectedOnEachNode() - 4;
 
     vm0.invoke(() -> validateBucketsDistribution(regionOne, numberOfBucketsExpectedOnEachNode));
     vm1.invoke(() -> validateBucketsDistribution(regionOne, numberOfBucketsExpectedOnEachNode));
@@ -352,7 +349,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
     vm2.invoke(() -> createPartitionRegion(regionTwo, localMaxMemory, 0, numberOfBuckets));
 
     // doing put() in multiple partition regions from 3 nodes.
-    int delta = (lastKey - firstKey) / 3;
+    var delta = (lastKey - firstKey) / 3;
 
     asyncInvocations.clear();
 
@@ -447,7 +444,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
 
     awaitAllAsyncInvocations();
 
-    int expectedNumberOfBuckets = 11;
+    var expectedNumberOfBuckets = 11;
 
     vm0.invoke(() -> validateTotalNumberOfBuckets(regionOne, expectedNumberOfBuckets));
     vm1.invoke(() -> validateTotalNumberOfBuckets(regionOne, expectedNumberOfBuckets));
@@ -464,7 +461,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
 
     asyncInvocations.clear();
 
-    int delta = (lastKey - firstKey) / 4;
+    var delta = (lastKey - firstKey) / 4;
 
     invokeAsync(vm0, () -> putFromOneVm(regionOne, firstKey, firstKey + 1 * delta));
     invokeAsync(vm1, () -> putFromOneVm(regionOne, firstKey + 1 * delta, firstKey + 2 * delta));
@@ -478,7 +475,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
 
     firstKey += numberOfBuckets;
     lastKey += numberOfBuckets;
-    int delta2 = (lastKey - firstKey) / 4;
+    var delta2 = (lastKey - firstKey) / 4;
 
     invokeAsync(vm0, () -> putFromOneVm(regionOne, firstKey, firstKey + 1 * delta2));
     invokeAsync(vm1, () -> putFromOneVm(regionOne, firstKey + 1 * delta2, firstKey + 2 * delta2));
@@ -511,7 +508,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
   @Test
   public void testCompleteBucketAllocation() throws Exception {
     invokeInEveryVM(() -> {
-      PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+      var partitionAttributesFactory = new PartitionAttributesFactory();
       partitionAttributesFactory.setLocalMaxMemory(10);
       partitionAttributesFactory.setRedundantCopies(0);
       partitionAttributesFactory.setTotalNumBuckets(23);
@@ -526,7 +523,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
       Cache cache = getCache();
       Region<Integer, String> region = cache.getRegion(regionOne);
       // create all the buckets
-      for (int i = 0; i < numberOfBuckets; i++) {
+      for (var i = 0; i < numberOfBuckets; i++) {
         region.put(i, "value-" + i);
       }
     });
@@ -537,7 +534,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
   private void putFromOneVm(final String regionName, final int firstKey, final int lastKey) {
     Cache cache = getCache();
     Region<Integer, String> region = cache.getRegion(regionName);
-    for (int i = firstKey; i < lastKey; i++) {
+    for (var i = firstKey; i < lastKey; i++) {
       region.put(i, regionName + i);
     }
   }
@@ -545,8 +542,8 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
   private void validateBuckets(final String regionName) {
     Cache cache = getCache();
     Region region = cache.getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-    PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
+    var partitionedRegion = (PartitionedRegion) region;
+    var dataStore = partitionedRegion.getDataStore();
     assertThat(dataStore.getLocalBucket2RegionMap().size()).isGreaterThan(0);
   }
 
@@ -554,20 +551,20 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
     Cache cache = getCache();
     Region prRoot = cache.getRegion(PR_ROOT_REGION_NAME);
     Region region = cache.getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
 
-    RegionAdvisor regionAdvisor = partitionedRegion.getRegionAdvisor();
+    var regionAdvisor = partitionedRegion.getRegionAdvisor();
     assertThat(regionAdvisor.getBucketSet().size()).isGreaterThan(0);
 
-    PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
-    ConcurrentMap<Integer, BucketRegion> localBucket2RegionMap =
+    var dataStore = partitionedRegion.getDataStore();
+    var localBucket2RegionMap =
         dataStore.getLocalBucket2RegionMap();
     assertThat(localBucket2RegionMap.size()).isGreaterThan(0);
 
     // taking the buckets which are local to the node and not all the available buckets.
-    for (Integer bucketId : localBucket2RegionMap.keySet()) {
-      BucketRegion bucketRegion = localBucket2RegionMap.get(bucketId);
-      Region subregion = prRoot.getSubregion(partitionedRegion.getBucketName(bucketId));
+    for (var bucketId : localBucket2RegionMap.keySet()) {
+      var bucketRegion = localBucket2RegionMap.get(bucketId);
+      var subregion = prRoot.getSubregion(partitionedRegion.getBucketName(bucketId));
       assertThat(bucketRegion.getFullPath()).isEqualTo(subregion.getFullPath());
       assertThat(subregion.getParentRegion()).isEqualTo(prRoot);
     }
@@ -576,7 +573,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
   private void validateBucketCreationAfterPutForNode3(final String regionName) {
     Cache cache = getCache();
     Region region = cache.getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
     assertThat(partitionedRegion.getDataStore()).isNull();
   }
 
@@ -584,15 +581,15 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
     Cache cache = getCache();
     Region prRoot = cache.getRegion(PR_ROOT_REGION_NAME);
     Region region = cache.getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
 
-    RegionAdvisor regionAdvisor = partitionedRegion.getRegionAdvisor();
+    var regionAdvisor = partitionedRegion.getRegionAdvisor();
     assertThat(regionAdvisor.getBucketSet().size()).isGreaterThan(0);
 
     // taking the buckets which are local to the node and not all the available buckets.
-    PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
-    for (Integer bucketId : dataStore.getLocalBucket2RegionMap().keySet()) {
-      Region bucketRegion = prRoot.getSubregion(partitionedRegion.getBucketName(bucketId));
+    var dataStore = partitionedRegion.getDataStore();
+    for (var bucketId : dataStore.getLocalBucket2RegionMap().keySet()) {
+      var bucketRegion = prRoot.getSubregion(partitionedRegion.getBucketName(bucketId));
       assertThat(bucketRegion.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_ACK);
     }
   }
@@ -600,30 +597,30 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
   private void validateBucket2NodeBeforePut(final String regionName) {
     Cache cache = getCache();
     Region region = cache.getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
 
-    RegionAdvisor regionAdvisor = partitionedRegion.getRegionAdvisor();
+    var regionAdvisor = partitionedRegion.getRegionAdvisor();
 
     assertThat(regionAdvisor.getNumProfiles()).isGreaterThan(0);
     assertThat(regionAdvisor.getNumDataStores()).isGreaterThan(0);
 
-    int bucketSetSize = regionAdvisor.getCreatedBucketsCount();
+    var bucketSetSize = regionAdvisor.getCreatedBucketsCount();
     assertThat(bucketSetSize).isEqualTo(0);
   }
 
   private void validateBucketsDistribution(final String regionName,
       final int expectedNumberOfBuckets) {
-    InternalCache cache = getCache();
+    var cache = getCache();
     Region prRoot = cache.getRegion(PR_ROOT_REGION_NAME);
 
     Region region = cache.getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
 
     int numberLocalBuckets = partitionedRegion.getDataStore().getBucketsManaged();
     assertThat(numberLocalBuckets).isGreaterThanOrEqualTo(expectedNumberOfBuckets);
 
     partitionedRegion.getDataStore().visitBuckets((bucketId, regionArg) -> {
-      Region bucketRegion = prRoot.getSubregion(partitionedRegion.getBucketName(bucketId));
+      var bucketRegion = prRoot.getSubregion(partitionedRegion.getBucketName(bucketId));
       assertThat(bucketRegion.getFullPath()).isEqualTo(regionArg.getFullPath());
     });
   }
@@ -632,7 +629,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
       final int redundancy, final int numberOfBuckets) {
     Cache cache = getCache();
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setLocalMaxMemory(localMaxMemory);
     partitionAttributesFactory.setRedundantCopies(redundancy);
     partitionAttributesFactory.setTotalNumBuckets(numberOfBuckets);
@@ -647,9 +644,9 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
       final int expectedNumberOfBuckets) {
     Cache cache = getCache();
     Region region = cache.getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
 
-    Set<Integer> bucketSet = partitionedRegion.getRegionAdvisor().getBucketSet();
+    var bucketSet = partitionedRegion.getRegionAdvisor().getBucketSet();
     assertThat(bucketSet).hasSize(expectedNumberOfBuckets);
   }
 
@@ -660,7 +657,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
   private void putInMultiplePartitionRegion(final String regionName, final int firstKey,
       final int lastKey) {
     Region<String, String> region = getCache().getRegion(regionName);
-    for (int i = firstKey; i < lastKey; i++) {
+    for (var i = firstKey; i < lastKey; i++) {
       region.put(i + regionName + i, regionName + i);
     }
   }
@@ -670,7 +667,7 @@ public class PartitionedRegionBucketCreationDistributionDUnitTest extends CacheT
   }
 
   private void awaitAllAsyncInvocations() throws ExecutionException, InterruptedException {
-    for (AsyncInvocation async : asyncInvocations) {
+    for (var async : asyncInvocations) {
       async.await();
     }
   }

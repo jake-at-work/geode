@@ -30,7 +30,7 @@ public class InfoResultModelAssert
   }
 
   public AbstractCharSequenceAssert<?, String> hasOutput() {
-    String output = String.join(System.lineSeparator(), actual.getContent());
+    var output = String.join(System.lineSeparator(), actual.getContent());
     return assertThat(output);
   }
 

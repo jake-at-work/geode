@@ -15,11 +15,9 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.functions.ManageIndexDefinitionFunction;
@@ -37,7 +35,7 @@ public class ClearDefinedIndexesCommand extends GfshCommand {
     IndexDefinition.indexDefinitions.clear();
 
     // clear the definition on the other locators as well
-    Set<DistributedMember> allOtherLocators = findAllOtherLocators();
+    var allOtherLocators = findAllOtherLocators();
     if (allOtherLocators.size() > 0) {
       executeAndGetFunctionResult(new ManageIndexDefinitionFunction(), null, allOtherLocators);
     }

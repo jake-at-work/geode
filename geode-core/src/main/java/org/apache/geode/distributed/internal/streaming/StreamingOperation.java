@@ -101,15 +101,15 @@ public abstract class StreamingOperation {
       return;
     }
 
-    StreamingProcessor processor = new StreamingProcessor(sys, recipients);
-    DistributionMessage m = createRequestMessage(recipients, processor);
+    var processor = new StreamingProcessor(sys, recipients);
+    var m = createRequestMessage(recipients, processor);
     sys.getDistributionManager().putOutgoing(m);
     // while() loop removed for bug 36983 - you can't loop on waitForReplies()
     try {
       // should we allow this to timeout?
       processor.waitForRepliesUninterruptibly();
     } catch (InternalGemFireException ex) {
-      Throwable cause = ex.getCause();
+      var cause = ex.getCause();
       if (cause instanceof org.apache.geode.cache.TimeoutException) {
         throw (org.apache.geode.cache.TimeoutException) cause;
       }
@@ -197,12 +197,12 @@ public abstract class StreamingOperation {
       }
       msgsBeingProcessed.incrementAndGet();
       try {
-        StreamingReplyMessage m = (StreamingReplyMessage) msg;
-        boolean isLast = true; // is last message for this member?
-        List objects = m.getObjects();
+        var m = (StreamingReplyMessage) msg;
+        var isLast = true; // is last message for this member?
+        var objects = m.getObjects();
         if (objects != null) { // CONSTRAINT: objects should only be null if there's no data at all
           // Bug 37461: don't allow abort to be reset.
-          boolean isAborted = abort; // volatile fetch
+          var isAborted = abort; // volatile fetch
           if (!isAborted) {
             isAborted = !processChunk(objects, m.getSender(), m.msgNum, m.lastMsg);
             if (isAborted) {
@@ -293,19 +293,19 @@ public abstract class StreamingOperation {
       ReplyException rex = null;
       Object nextObject = null;
       Object failedObject = null;
-      int socketBufferSize = dm.getSystem().getConfig().getSocketBufferSize();
-      int chunkSize = socketBufferSize - MSG_OVERHEAD;
-      HeapDataOutputStream outStream =
+      var socketBufferSize = dm.getSystem().getConfig().getSocketBufferSize();
+      var chunkSize = socketBufferSize - MSG_OVERHEAD;
+      var outStream =
           new HeapDataOutputStream(chunkSize, Versioning
               .getKnownVersionOrDefault(getSender().getVersion(),
                   KnownVersion.CURRENT));
-      boolean sentFinalMessage = false;
-      boolean receiverCacheClosed = false;
-      int msgNum = 0;
+      var sentFinalMessage = false;
+      var receiverCacheClosed = false;
+      var msgNum = 0;
 
       try {
         do {
-          int numObjectsInChunk = 0;
+          var numObjectsInChunk = 0;
           // boolean firstObject = true;
 
           // always write at least one object, allowing expansion
@@ -464,7 +464,7 @@ public abstract class StreamingOperation {
     public static void send(InternalDistributedMember recipient, int processorId,
         ReplyException exception, DistributionManager dm, HeapDataOutputStream chunkStream,
         int numObjects, int msgNum, boolean lastMsg, boolean pdxReadSerialized) {
-      StreamingReplyMessage replyMessage = new StreamingReplyMessage();
+      var replyMessage = new StreamingReplyMessage();
       replyMessage.processorId = processorId;
 
       if (exception != null) {
@@ -513,8 +513,8 @@ public abstract class StreamingOperation {
       msgNum = in.readInt();
       lastMsg = in.readBoolean();
       pdxReadSerialized = in.readBoolean();
-      KnownVersion senderVersion = StaticSerialization.getVersionForDataStream(in);
-      boolean isSenderAbove_8_1 = senderVersion.isNewerThan(KnownVersion.GFE_81);
+      var senderVersion = StaticSerialization.getVersionForDataStream(in);
+      var isSenderAbove_8_1 = senderVersion.isNewerThan(KnownVersion.GFE_81);
       InternalCache cache = null;
       Boolean initialPdxReadSerialized = false;
       try {
@@ -535,8 +535,8 @@ public abstract class StreamingOperation {
           cache.setPdxReadSerializedOverride(true);
         }
         try {
-          ReplyProcessor21 messageProcessor = ReplyProcessor21.getProcessor(processorId);
-          boolean isQueryMessageProcessor =
+          var messageProcessor = ReplyProcessor21.getProcessor(processorId);
+          var isQueryMessageProcessor =
               messageProcessor instanceof PartitionedRegionQueryEvaluator.StreamingQueryPartitionResponse;
           ObjectType elementType = null;
           if (isQueryMessageProcessor) {
@@ -545,8 +545,8 @@ public abstract class StreamingOperation {
                     .getResultType();
           }
 
-          boolean lowMemoryDetected = false;
-          for (int i = 0; i < n; i++) {
+          var lowMemoryDetected = false;
+          for (var i = 0; i < n; i++) {
             // TestHook used in ResourceManagerWithQueryMonitorDUnitTest.
             // will simulate an critical memory event after a certain number of calls to
             // doTestHook(BEFORE_ADD_OR_UPDATE_MAPPING_OR_DESERIALIZING_NTH_STREAMINGOPERATION)
@@ -559,9 +559,9 @@ public abstract class StreamingOperation {
               lowMemoryDetected = true;
               break;
             }
-            Object o = DataSerializer.readObject(in);
+            var o = DataSerializer.readObject(in);
             if (isQueryMessageProcessor && elementType != null && elementType.isStructType()) {
-              boolean convertToStruct = isSenderAbove_8_1;
+              var convertToStruct = isSenderAbove_8_1;
               if (convertToStruct && i == 0) {
                 convertToStruct = !(o instanceof PRQueryTraceInfo);
               }
@@ -607,13 +607,13 @@ public abstract class StreamingOperation {
 
     @Override
     public String toString() {
-      StringBuilder buff = new StringBuilder();
+      var buff = new StringBuilder();
       buff.append(getClass().getName());
       buff.append("(processorId=");
       buff.append(processorId);
       buff.append(" from ");
       buff.append(getSender());
-      ReplyException ex = getException();
+      var ex = getException();
       if (ex != null) {
         buff.append(" with exception ");
         buff.append(ex);

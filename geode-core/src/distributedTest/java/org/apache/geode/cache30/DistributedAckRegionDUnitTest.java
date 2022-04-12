@@ -27,7 +27,6 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.test.dunit.LogWriterUtils;
 
@@ -45,7 +44,7 @@ public class DistributedAckRegionDUnitTest extends MultiVMRegionTestCase {
    */
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.PRELOADED);
     factory.setConcurrencyChecksEnabled(false);
@@ -54,7 +53,7 @@ public class DistributedAckRegionDUnitTest extends MultiVMRegionTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties p = super.getDistributedSystemProperties();
+    var p = super.getDistributedSystemProperties();
     p.put(STATISTIC_SAMPLING_ENABLED, "true");
     p.put(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
     return p;
@@ -72,13 +71,13 @@ public class DistributedAckRegionDUnitTest extends MultiVMRegionTestCase {
     // distributed system that has the same region with
     // Scope.DISTRIBUTED_ACK.
 
-    final String name = getUniqueName() + "-ACK";
+    final var name = getUniqueName() + "-ACK";
     vm0.invoke("Create ACK Region", () -> {
       createRegion(name, "INCOMPATIBLE_ROOT", getRegionAttributes());
     });
 
     vm1.invoke("Create GLOBAL Region", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
+      var factory = getCache().createRegionFactory(getRegionAttributes());
       factory.setScope(Scope.GLOBAL);
       try {
         createRegion(name, "INCOMPATIBLE_ROOT", factory);
@@ -89,7 +88,7 @@ public class DistributedAckRegionDUnitTest extends MultiVMRegionTestCase {
     });
 
     vm1.invoke("Create NOACK Region", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
+      var factory = getCache().createRegionFactory(getRegionAttributes());
       factory.setScope(Scope.DISTRIBUTED_NO_ACK);
       try {
         createRegion(name, "INCOMPATIBLE_ROOT", factory);

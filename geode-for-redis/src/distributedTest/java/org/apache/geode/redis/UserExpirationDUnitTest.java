@@ -47,12 +47,12 @@ public class UserExpirationDUnitTest {
 
   @BeforeClass
   public static void setup() {
-    MemberVM locator = cluster.startLocatorVM(0, x -> x
+    var locator = cluster.startLocatorVM(0, x -> x
         .withSecurityManager(ExpiringSecurityManager.class));
 
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
-    SerializableFunction<ServerStarterRule> serverOperator = s -> s
+    var serverOperator = (SerializableFunction<ServerStarterRule>) s -> s
         .withCredential("cluster", "cluster")
         .withConnectionToLocator(locatorPort);
 
@@ -85,7 +85,7 @@ public class UserExpirationDUnitTest {
 
   @Test
   public void lettuceReceivesAuthenticationExpiredError() {
-    RedisClusterClient client = RedisClusterClient.create(
+    var client = RedisClusterClient.create(
         String.format("redis://%s:%s@localhost:%d", USER, USER, redisPort));
     RedisClusterCommands<String, String> commands = client.connect().sync();
 

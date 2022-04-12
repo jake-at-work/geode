@@ -22,7 +22,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 
@@ -36,13 +35,13 @@ public class DescribeJndiBindingCommandDUnitTest {
 
   @BeforeClass
   public static void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     // props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
     // ListJndiBindingFunction.class.getName());
 
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     @SuppressWarnings("unused")
-    MemberVM server = cluster.startServerVM(1, props, locator.getPort());
+    var server = cluster.startServerVM(1, props, locator.getPort());
 
     gfsh.connectAndVerify(locator);
   }

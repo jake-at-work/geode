@@ -39,7 +39,6 @@ import org.apache.geode.redis.internal.GeodeRedisServer;
 import org.apache.geode.redis.internal.GeodeRedisService;
 import org.apache.geode.redis.internal.services.RegionProvider;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.categories.IgnoreInRepeatTestTasks;
 
@@ -51,7 +50,7 @@ public class GeodeRedisServerStartupAcceptanceTest {
   @Category(IgnoreInRepeatTestTasks.class)
   @Test
   public void startupOnDefaultPort() {
-    MemberVM server = cluster.startServerVM(0, s -> s
+    var server = cluster.startServerVM(0, s -> s
         .withProperty(GEODE_FOR_REDIS_PORT, "6379")
         .withProperty(GEODE_FOR_REDIS_BIND_ADDRESS, "localhost")
         .withProperty(GEODE_FOR_REDIS_ENABLED, "true"));
@@ -61,7 +60,7 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupOnDefaultPort_whenPortIsNotSpecified() {
-    MemberVM server = cluster.startServerVM(0, s -> s
+    var server = cluster.startServerVM(0, s -> s
         .withProperty(GEODE_FOR_REDIS_BIND_ADDRESS, "localhost")
         .withProperty(GEODE_FOR_REDIS_ENABLED, "true"));
 
@@ -70,7 +69,7 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupOnRandomPort_whenPortIsZero() {
-    MemberVM server = cluster.startServerVM(0, s -> s
+    var server = cluster.startServerVM(0, s -> s
         .withProperty(GEODE_FOR_REDIS_PORT, "0")
         .withProperty(GEODE_FOR_REDIS_BIND_ADDRESS, "localhost")
         .withProperty(GEODE_FOR_REDIS_ENABLED, "true"));
@@ -81,7 +80,7 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void doNotStartup_whenRedisServiceIsNotEnabled() {
-    MemberVM server = cluster.startServerVM(0, s -> s
+    var server = cluster.startServerVM(0, s -> s
         .withProperty(GEODE_FOR_REDIS_PORT, "0")
         .withProperty(GEODE_FOR_REDIS_BIND_ADDRESS, "localhost"));
 
@@ -103,10 +102,10 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupFailsGivenPortAlreadyInUse() throws Exception {
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
 
     addIgnoredException("Could not start server compatible with Redis");
-    try (ServerSocket interferingSocket = new ServerSocket()) {
+    try (var interferingSocket = new ServerSocket()) {
       interferingSocket.bind(new InetSocketAddress("localhost", port));
 
       assertThatThrownBy(() -> cluster.startServerVM(0, s -> s
@@ -119,7 +118,7 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupFailsGivenInvalidBindAddress() {
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
 
     addIgnoredException("Could not start server compatible with Redis");
     assertThatThrownBy(() -> cluster.startServerVM(0, s -> s
@@ -132,7 +131,7 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupFailsGivenInvalidRedundantCopies() {
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
 
     addIgnoredException("Could not start server compatible with Redis");
     assertThatThrownBy(() -> cluster.startServerVM(0, s -> s
@@ -155,7 +154,7 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupOnSpecifiedPort() {
-    MemberVM server = cluster.startServerVM(0, s -> s
+    var server = cluster.startServerVM(0, s -> s
         .withProperty(GEODE_FOR_REDIS_PORT, "4242")
         .withProperty(GEODE_FOR_REDIS_BIND_ADDRESS, "localhost")
         .withProperty(GEODE_FOR_REDIS_ENABLED, "true"));
@@ -165,8 +164,8 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupWorksGivenAnyLocalAddress() {
-    String anyLocal = LocalHostUtil.getAnyLocalAddress().getHostAddress();
-    MemberVM server = cluster.startServerVM(0, s -> s
+    var anyLocal = LocalHostUtil.getAnyLocalAddress().getHostAddress();
+    var server = cluster.startServerVM(0, s -> s
         .withProperty(GEODE_FOR_REDIS_PORT, "0")
         .withProperty(GEODE_FOR_REDIS_BIND_ADDRESS, anyLocal)
         .withProperty(GEODE_FOR_REDIS_ENABLED, "true"));
@@ -177,7 +176,7 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupWorksGivenNoBindAddress() {
-    MemberVM server = cluster.startServerVM(0, s -> s
+    var server = cluster.startServerVM(0, s -> s
         .withProperty(GEODE_FOR_REDIS_PORT, "0")
         .withProperty(GEODE_FOR_REDIS_ENABLED, "true"));
 
@@ -187,13 +186,13 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupWorksGivenRedundantCopiesOfZero() {
-    MemberVM server = cluster.startServerVM(0, s -> s
+    var server = cluster.startServerVM(0, s -> s
         .withProperty(GEODE_FOR_REDIS_REDUNDANT_COPIES, "0")
         .withProperty(GEODE_FOR_REDIS_PORT, "0")
         .withProperty(GEODE_FOR_REDIS_ENABLED, "true"));
 
     int RedundantCopies = cluster.getMember(0).invoke("getRedundantCopies", () -> {
-      PartitionedRegion pr = (PartitionedRegion) RedisClusterStartupRule.getCache()
+      var pr = (PartitionedRegion) RedisClusterStartupRule.getCache()
           .getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
       return pr.getPartitionAttributes().getRedundantCopies();
     });
@@ -202,13 +201,13 @@ public class GeodeRedisServerStartupAcceptanceTest {
 
   @Test
   public void startupWorksGivenRedundantCopiesOfThree() {
-    MemberVM server = cluster.startServerVM(0, s -> s
+    var server = cluster.startServerVM(0, s -> s
         .withProperty(GEODE_FOR_REDIS_REDUNDANT_COPIES, "3")
         .withProperty(GEODE_FOR_REDIS_PORT, "0")
         .withProperty(GEODE_FOR_REDIS_ENABLED, "true"));
 
     int RedundantCopies = cluster.getMember(0).invoke("getRedundantCopies", () -> {
-      PartitionedRegion pr = (PartitionedRegion) RedisClusterStartupRule.getCache()
+      var pr = (PartitionedRegion) RedisClusterStartupRule.getCache()
           .getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
       return pr.getPartitionAttributes().getRedundantCopies();
     });

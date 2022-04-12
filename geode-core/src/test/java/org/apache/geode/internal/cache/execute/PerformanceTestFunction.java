@@ -37,13 +37,13 @@ public class PerformanceTestFunction extends FunctionAdapter {
   @Override
   public void execute(FunctionContext context) {
     if (context instanceof RegionFunctionContext) {
-      RegionFunctionContext prContext = (RegionFunctionContext) context;
+      var prContext = (RegionFunctionContext) context;
       final Set allKeysSet = prContext.getFilter();
 
-      ArrayList vals = new ArrayList();
+      var vals = new ArrayList();
       Region fcd = PartitionRegionHelper.getLocalDataForContext(prContext);
-      for (final Object o : allKeysSet) {
-        Object val = fcd.get(o);
+      for (final var o : allKeysSet) {
+        var val = fcd.get(o);
         assertNotNull(val);
         vals.add(val);
       }

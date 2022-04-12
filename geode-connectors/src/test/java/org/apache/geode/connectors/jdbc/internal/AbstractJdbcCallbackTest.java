@@ -61,16 +61,16 @@ public class AbstractJdbcCallbackTest {
   public void initializedSqlHandlerIfNoneExists() {
     jdbcCallback = spy(AbstractJdbcCallback.class);
     // jdbcCallback = spy(new AbstractJdbcCallback() {});
-    InternalCache cache = mock(InternalCache.class);
-    Region region = mock(Region.class);
+    var cache = mock(InternalCache.class);
+    var region = mock(Region.class);
     when(region.getRegionService()).thenReturn(cache);
     when(region.getName()).thenReturn("regionName");
-    JdbcConnectorService service = mock(JdbcConnectorService.class);
+    var service = mock(JdbcConnectorService.class);
     when(cache.getService(any())).thenReturn(service);
     assertThat(jdbcCallback.getSqlHandler()).isNull();
-    RegionMapping regionMapping = mock(RegionMapping.class);
+    var regionMapping = mock(RegionMapping.class);
     when(service.getMappingForRegion("regionName")).thenReturn(regionMapping);
-    SqlHandler sqlHandler = mock(SqlHandler.class);
+    var sqlHandler = mock(SqlHandler.class);
     doReturn(sqlHandler).when(jdbcCallback).createSqlHandler(same(cache), eq("regionName"), any(),
         same(service));
 
@@ -81,13 +81,13 @@ public class AbstractJdbcCallbackTest {
 
   @Test
   public void verifyLoadsAreIgnored() {
-    boolean ignoreEvent = jdbcCallback.eventCanBeIgnored(Operation.LOCAL_LOAD_CREATE);
+    var ignoreEvent = jdbcCallback.eventCanBeIgnored(Operation.LOCAL_LOAD_CREATE);
     assertThat(ignoreEvent).isTrue();
   }
 
   @Test
   public void verifyCreateAreNotIgnored() {
-    boolean ignoreEvent = jdbcCallback.eventCanBeIgnored(Operation.CREATE);
+    var ignoreEvent = jdbcCallback.eventCanBeIgnored(Operation.CREATE);
     assertThat(ignoreEvent).isFalse();
   }
 }

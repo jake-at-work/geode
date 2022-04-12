@@ -24,12 +24,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -136,14 +134,14 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("kind=");
       switch (kind) {
         case SURPRISE_CONNECT:
           sb.append("connect; member = <").append(member).append(">");
           break;
         case VIEW:
-          String text = gmsView.toString();
+          var text = gmsView.toString();
           sb.append("view <").append(text).append(">");
           break;
         case MESSAGE:
@@ -345,7 +343,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
   public void processView(final MembershipView<ID> newView) {
     // Sanity check...
     if (logger.isDebugEnabled()) {
-      StringBuilder msg = new StringBuilder(200);
+      var msg = new StringBuilder(200);
       msg.append("Membership: Processing view ");
       msg.append(newView);
       msg.append("} on ").append(address.toString());
@@ -362,7 +360,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
     try {
       setIsMulticastAllowedFrom(newView, surpriseMembers);
       // Save previous view, for delta analysis
-      MembershipView<ID> priorView = latestView;
+      var priorView = latestView;
 
       if (newView.getViewId() < priorView.getViewId()) {
         // ignore this view since it is old news
@@ -371,20 +369,20 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
       // update the view to reflect our changes, so that
       // callbacks will see the new (updated) view.
-      MembershipView<ID> newlatestView = newView;
+      var newlatestView = newView;
       final List<ID> newMembers = new ArrayList<>();
 
       // look for additions
-      for (ID m : newView.getMembers()) { // additions
+      for (var m : newView.getMembers()) { // additions
         // Once a member has been seen via a view, remove them from the
         // newborn set. Replace the member data of the surpriseMember ID
         // in case it was a partial ID and is being retained by DistributionManager
         // or some other object
-        boolean wasSurprise = surpriseMembers.containsKey(m);
+        var wasSurprise = surpriseMembers.containsKey(m);
         if (wasSurprise) {
-          for (Iterator<Map.Entry<ID, Long>> iterator =
+          for (var iterator =
               surpriseMembers.entrySet().iterator(); iterator.hasNext();) {
-            Entry<ID, Long> entry = iterator.next();
+            var entry = iterator.next();
             if (entry.getKey().equals(m)) {
               entry.getKey().setMemberData(m.getMemberData());
               iterator.remove();
@@ -402,9 +400,9 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
         // unblock any waiters for this particular member.
         // i.e. signal any waiting threads in tcpconduit.
-        String authInit =
+        var authInit =
             services.getConfig().getSecurityPeerAuthInit();
-        boolean isSecure = authInit != null && authInit.length() != 0;
+        var isSecure = authInit != null && authInit.length() != 0;
 
         if (isSecure) {
           CountDownLatch currentLatch;
@@ -422,7 +420,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
       } // additions
 
       // look for departures
-      for (ID m : priorView.getMembers()) { // departures
+      for (var m : priorView.getMembers()) { // departures
         if (newView.contains(m)) {
           continue; // still alive
         }
@@ -447,14 +445,14 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
       } // departures
 
       // expire surprise members, add others to view
-      long oldestAllowed = System.currentTimeMillis() - surpriseMemberTimeout;
-      for (Iterator<Map.Entry<ID, Long>> it =
+      var oldestAllowed = System.currentTimeMillis() - surpriseMemberTimeout;
+      for (var it =
           surpriseMembers.entrySet().iterator(); it.hasNext();) {
-        Map.Entry<ID, Long> entry = it.next();
-        Long birthtime = entry.getValue();
+        var entry = it.next();
+        var birthtime = entry.getValue();
         if (birthtime < oldestAllowed) {
           it.remove();
-          ID m = entry.getKey();
+          var m = entry.getKey();
           logger.info("Membership: expiring membership of surprise member <{}>",
               m);
           removeWithViewLock(m, true,
@@ -468,10 +466,10 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
       // expire suspected members
       final long suspectMemberTimeout = 180000;
       oldestAllowed = System.currentTimeMillis() - suspectMemberTimeout;
-      for (Iterator<Map.Entry<ID, Long>> it = suspectedMembers.entrySet().iterator(); it
+      for (var it = suspectedMembers.entrySet().iterator(); it
           .hasNext();) {
-        Map.Entry<ID, Long> entry = it.next();
-        Long birthtime = entry.getValue();
+        var entry = it.next();
+        var birthtime = entry.getValue();
         if (birthtime < oldestAllowed) {
           it.remove();
         }
@@ -479,7 +477,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
       // the view is complete - let's install it
       latestView = newlatestView;
-      for (ID newMember : newMembers) {
+      for (var newMember : newMembers) {
         listener.newMemberConnected(newMember);
       }
       listener.viewInstalled(latestView);
@@ -560,7 +558,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
           gmsMembers.iterator().next());
     } else {
       Set<ID> idmMembers = new HashSet<>(gmsMembers.size());
-      for (ID member : gmsMembers) {
+      for (var member : gmsMembers) {
         idmMembers.add(member);
       }
       return idmMembers;
@@ -577,7 +575,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
           .singletonList(gmsMembers.get(0));
     } else {
       List<ID> idmMembers = new ArrayList<>(gmsMembers.size());
-      for (ID member : gmsMembers) {
+      for (var member : gmsMembers) {
         idmMembers.add(member);
       }
       return idmMembers;
@@ -615,7 +613,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
    * member is not already shunned, the uplevel event handler is invoked.
    */
   private void removeWithViewLock(ID dm, boolean crashed, String reason) {
-    final boolean wasShunned = isShunned(dm);
+    final var wasShunned = isShunned(dm);
 
     // Delete resources
     destroyMember(dm, reason);
@@ -676,8 +674,8 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
    */
   @Override
   public boolean addSurpriseMember(ID dm) {
-    final ID member = dm;
-    boolean warn = false;
+    final var member = dm;
+    var warn = false;
 
     latestViewWriteLock.lock();
     try {
@@ -718,7 +716,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
       if (shutdownInProgress()) {
         // Force disconnect, esp. the TCPConduit
-        String msg =
+        var msg =
             "This distributed system is shutting down.";
 
         destroyMember(member, msg);
@@ -768,14 +766,14 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
   private void cleanUpSurpriseMembers() {
     latestViewWriteLock.lock();
     try {
-      long oldestAllowed = System.currentTimeMillis() - surpriseMemberTimeout;
-      for (Iterator<Map.Entry<ID, Long>> it = surpriseMembers.entrySet().iterator(); it
+      var oldestAllowed = System.currentTimeMillis() - surpriseMemberTimeout;
+      for (var it = surpriseMembers.entrySet().iterator(); it
           .hasNext();) {
-        Map.Entry<ID, Long> entry = it.next();
-        Long birthtime = entry.getValue();
+        var entry = it.next();
+        var birthtime = entry.getValue();
         if (birthtime < oldestAllowed) {
           it.remove();
-          ID m = entry.getKey();
+          var m = entry.getKey();
           logger.info("Membership: expiring membership of surprise member <{}>",
               m);
           removeWithViewLock(m, true,
@@ -816,8 +814,8 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
    * @param msg the message
    */
   protected void dispatchMessage(Message<ID> msg) throws MemberShunnedException {
-    ID m = msg.getSender();
-    boolean shunned = false;
+    var m = msg.getSender();
+    var shunned = false;
 
     // If this member is shunned or new, grab the latestViewWriteLock: update the appropriate data
     // structure.
@@ -857,9 +855,9 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
    * @param msg the message holding the sender ID
    */
   public void replacePartialIdentifierInMessage(Message<ID> msg) {
-    ID sender = msg.getSender();
-    ID oldID = sender;
-    ID newID = services.getJoinLeave().getMemberID(oldID);
+    var sender = msg.getSender();
+    var oldID = sender;
+    var newID = services.getJoinLeave().getMemberID(oldID);
     if (newID != null && newID != oldID) {
       sender.setMemberData(newID.getMemberData());
       sender.setIsPartial(false);
@@ -915,8 +913,8 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
     if (!processingEvents) {
       return;
     }
-    ID suspect = gmsMemberToDMember(suspectInfo.suspectedMember);
-    ID who = gmsMemberToDMember(suspectInfo.whoSuspected);
+    var suspect = gmsMemberToDMember(suspectInfo.suspectedMember);
+    var who = gmsMemberToDMember(suspectInfo.whoSuspected);
     suspectedMembers.put(suspect, System.currentTimeMillis());
     listener.memberSuspect(suspect, who, suspectInfo.reason);
   }
@@ -978,7 +976,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
         // drain the queue. This is OK, we'll just keep processing
         // events here until we've caught up.
         synchronized (startupLock) {
-          int remaining = startupMessages.size();
+          var remaining = startupMessages.size();
           if (remaining == 0) {
             // While holding the lock, flip the bit so that
             // no more events get put into startupMessages
@@ -1031,7 +1029,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
         if (processingEvents && startupMessagesDrained) {
           break;
         }
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           startupLock.wait();
         } catch (InterruptedException e) {
@@ -1076,7 +1074,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
    */
   @Override
   public ID getCoordinator() {
-    final MembershipView<ID> view = latestView;
+    final var view = latestView;
     return view == null ? null : view.getCoordinator();
   }
 
@@ -1207,7 +1205,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
     try {
       services.getJoinLeave().remove(mbr, reason);
     } catch (RuntimeException e) {
-      RuntimeException problem = e;
+      var problem = e;
       if (services.getShutdownCause() != null) {
         Throwable cause = services.getShutdownCause();
         // If ForcedDisconnectException occurred then report it as actual
@@ -1236,7 +1234,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
   @Override
   public void suspectMembers(Set<ID> members, String reason) {
-    for (final ID member : members) {
+    for (final var member : members) {
       verifyMember(member, reason);
     }
   }
@@ -1268,7 +1266,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
   @Override
   public ID[] getAllMembers(final ID[] arrayType) {
-    final List<ID> keySet = latestView.getMembers();
+    final var keySet = latestView.getMembers();
     return keySet.toArray(arrayType);
   }
 
@@ -1332,7 +1330,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
       final Message<ID> content)
       throws NotSerializableException {
     checkAddressesForUUIDs(destinations);
-    Set<ID> failures = services.getMessenger().send(content);
+    var failures = services.getMessenger().send(content);
     if (failures == null || failures.size() == 0) {
       return Collections.emptySet();
     }
@@ -1340,8 +1338,8 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
   }
 
   void checkAddressesForUUIDs(ID[] addresses) {
-    GMSMembershipView<ID> view = services.getJoinLeave().getView();
-    for (ID id : addresses) {
+    var view = services.getJoinLeave().getView();
+    for (var id : addresses) {
       if (id != null) {
         if (!id.hasUUID()) {
           id.setMemberData(view.getCanonicalID(id).getMemberData());
@@ -1389,12 +1387,12 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
    */
   @Override
   public boolean isShunned(ID m) {
-    final MembershipView<ID> view = latestView;
+    final var view = latestView;
     return m.getVmViewId() <= view.getViewId() && !view.contains(m);
   }
 
   private boolean isShunnedOrNew(final ID m) {
-    final MembershipView<ID> view = latestView;
+    final var view = latestView;
     if (m.getVmViewId() <= view.getViewId() && view.contains(m)) {
       return false;
     }
@@ -1428,7 +1426,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
     try {
       if (surpriseMembers.containsKey(m)) {
         final long birthTime = surpriseMembers.get(m);
-        final long now = System.currentTimeMillis();
+        final var now = System.currentTimeMillis();
         return (birthTime >= (now - surpriseMemberTimeout));
       }
       return false;
@@ -1493,7 +1491,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
   @Override
   public boolean waitForNewMember(ID remoteId) {
-    boolean foundRemoteId = false;
+    var foundRemoteId = false;
     CountDownLatch currentLatch = null;
     // latestViewWriteLock protects memberLatch from modification while processView is in progress
     latestViewWriteLock.lock();
@@ -1662,7 +1660,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
     public void init(Services<ID> services) throws MembershipConfigurationException {
       GMSMembership.this.services = services;
 
-      MembershipConfig config = services.getConfig();
+      var config = services.getConfig();
 
       membershipCheckTimeout = config.getSecurityPeerMembershipTimeout();
       wasReconnectingSystem = config.getIsReconnectingDS();
@@ -1716,7 +1714,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
     /* Service interface */
     @Override
     public void installView(GMSMembershipView<ID> v) {
-      MembershipView<ID> currentView = latestView;
+      var currentView = latestView;
       if (currentView.getViewId() < 0 && !isConnected()) {
         latestView = createGeodeView(v);
         logger.debug("Membership: initial view is {}", latestView);
@@ -1748,7 +1746,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
     @Override
     public void joinDistributedSystem() throws MemberStartupException {
-      long startTime = System.currentTimeMillis();
+      var startTime = System.currentTimeMillis();
 
       try {
         join();
@@ -1773,7 +1771,7 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
 
     @Override
     public void memberSuspected(ID initiator, ID suspect, String reason) {
-      SuspectMember<ID> s = new SuspectMember<>(initiator, suspect, reason);
+      var s = new SuspectMember<ID>(initiator, suspect, reason);
       handleOrDeferSuspect(s);
     }
 
@@ -1829,13 +1827,13 @@ public class GMSMembership<ID extends MemberIdentifier> implements Membership<ID
       // notify of quorum loss if split-brain detection is enabled (meaning we'll shut down) or
       // if the loss is more than one member
 
-      boolean notify = failures.size() > 1;
+      var notify = failures.size() > 1;
       if (!notify) {
         notify = services.getConfig().isNetworkPartitionDetectionEnabled();
       }
 
       if (notify) {
-        List<ID> remaining =
+        var remaining =
             gmsMemberListToIDList(view.getMembers());
         remaining.removeAll(failures);
 

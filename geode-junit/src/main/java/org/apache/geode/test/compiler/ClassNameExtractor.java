@@ -14,7 +14,6 @@
  */
 package org.apache.geode.test.compiler;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ClassNameExtractor {
@@ -22,7 +21,7 @@ public class ClassNameExtractor {
       Pattern.compile("(?:public|private|protected)* *(?:abstract)* *(?:class|interface) +(\\w+)");
 
   public String extractFromSourceCode(String sourceCode) {
-    Matcher m = EXTRACT_CLASS_NAME_REGEX.matcher(sourceCode);
+    var m = EXTRACT_CLASS_NAME_REGEX.matcher(sourceCode);
     if (m.find()) {
       return m.group(1);
     } else {

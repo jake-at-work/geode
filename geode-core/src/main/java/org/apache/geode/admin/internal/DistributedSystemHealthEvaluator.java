@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.apache.geode.admin.DistributedSystemHealthConfig;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.MembershipListener;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
@@ -69,7 +68,7 @@ class DistributedSystemHealthEvaluator extends AbstractHealthEvaluator
     this.dm = dm;
     this.dm.addMembershipListener(this);
 
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("Distributed System ");
 
     String desc = null;
@@ -81,8 +80,8 @@ class DistributedSystemHealthEvaluator extends AbstractHealthEvaluator
       sb.append(desc);
 
     } else {
-      DistributionConfig dsc = dm.getSystem().getConfig();
-      String locators = dsc.getLocators();
+      var dsc = dm.getSystem().getConfig();
+      var locators = dsc.getLocators();
       if (locators == null || locators.equals("")) {
         sb.append("using multicast ");
         sb.append(dsc.getMcastAddress());
@@ -113,9 +112,9 @@ class DistributedSystemHealthEvaluator extends AbstractHealthEvaluator
    */
   void checkDepartedApplications(List status) {
     synchronized (this) {
-      long threshold = config.getMaxDepartedApplications();
+      var threshold = config.getMaxDepartedApplications();
       if (crashedApplications > threshold) {
-        String s =
+        var s =
             String.format(
                 "The number of applications that have left the distributed system (%s) exceeds the threshold (%s)",
 
@@ -151,7 +150,7 @@ class DistributedSystemHealthEvaluator extends AbstractHealthEvaluator
       return;
     }
     synchronized (this) {
-      int kind = id.getVmKind();
+      var kind = id.getVmKind();
       switch (kind) {
         case ClusterDistributionManager.LOCATOR_DM_TYPE:
         case ClusterDistributionManager.NORMAL_DM_TYPE:

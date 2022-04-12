@@ -32,7 +32,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
-import org.apache.geode.internal.cache.partitioned.RegionAdvisor;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -76,18 +75,18 @@ public class PartitionedRegionCloseDistributedTest implements Serializable {
   @TestCaseName("{method}({params})")
   public void redundantDataIsAvailableAfterRemovingOneDatastore(final RegionRemoval regionRemoval) {
     accessor.invoke("create accessor", this::createAccessor);
-    for (VM vm : datastores) {
+    for (var vm : datastores) {
       vm.invoke("create datastore", this::createDataStore);
     }
 
     accessor.invoke("put operations", () -> {
       Region<Integer, String> region = cacheRule.getCache().getRegion(regionName);
-      for (int i = 0; i < NUM_PUTS; i++) {
+      for (var i = 0; i < NUM_PUTS; i++) {
         region.put(i, "VALUE-" + i);
       }
     });
 
-    Node datastoreToRemove = datastores[0].invoke("get datastore node to remove", () -> {
+    var datastoreToRemove = datastores[0].invoke("get datastore node to remove", () -> {
       Region<Integer, String> region = cacheRule.getCache().getRegion(regionName);
       return ((PartitionedRegion) region).getNode();
     });
@@ -98,24 +97,24 @@ public class PartitionedRegionCloseDistributedTest implements Serializable {
     });
 
     datastores[1].invoke("validate PR metadata", () -> {
-      InternalCache cache = cacheRule.getCache();
+      var cache = cacheRule.getCache();
       Region<Integer, String> region = cache.getRegion(regionName);
 
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-      RegionAdvisor advisor = partitionedRegion.getRegionAdvisor();
+      var partitionedRegion = (PartitionedRegion) region;
+      var advisor = partitionedRegion.getRegionAdvisor();
       for (int bucketId : advisor.getBucketSet()) {
         assertThat(advisor.getBucketOwners(bucketId))
             .doesNotContain(datastoreToRemove.getMemberId());
       }
 
       Region<String, PartitionRegionConfig> prMetaData = PartitionedRegionHelper.getPRRoot(cache);
-      PartitionRegionConfig prConfig = prMetaData.get(partitionedRegion.getRegionIdentifier());
+      var prConfig = prMetaData.get(partitionedRegion.getRegionIdentifier());
       assertThat(prConfig.containsNode(datastoreToRemove)).isFalse();
     });
 
     accessor.invoke("get operations", () -> {
       Region<Integer, String> region = cacheRule.getCache().getRegion(regionName);
-      for (int i = 0; i < NUM_PUTS; i++) {
+      for (var i = 0; i < NUM_PUTS; i++) {
         assertThat(region.get(i)).isEqualTo("VALUE-" + i);
       }
     });
@@ -127,30 +126,30 @@ public class PartitionedRegionCloseDistributedTest implements Serializable {
   @Test
   public void closeAndRecreateInAllHasNoData() {
     accessor.invoke("create accessor", this::createAccessor);
-    for (VM vm : datastores) {
+    for (var vm : datastores) {
       vm.invoke("create datastore", this::createDataStore);
     }
 
     accessor.invoke("put operations", () -> {
       Region<Integer, String> region = cacheRule.getCache().getRegion(regionName);
-      for (int i = 0; i < NUM_PUTS; i++) {
+      for (var i = 0; i < NUM_PUTS; i++) {
         region.put(i, "VALUE-" + i);
       }
     });
 
-    for (VM vm : datastores) {
+    for (var vm : datastores) {
       vm.invoke("close datastore", () -> cacheRule.getCache().getRegion(regionName).close());
     }
     accessor.invoke("close accessor", () -> cacheRule.getCache().getRegion(regionName).close());
 
     accessor.invoke("recreate accessor", this::createAccessor);
-    for (VM vm : datastores) {
+    for (var vm : datastores) {
       vm.invoke("recreate datastore", this::createDataStore);
     }
 
     accessor.invoke("get operations", () -> {
       Region<Integer, String> region = cacheRule.getCache().getRegion(regionName);
-      for (int i = 0; i < NUM_PUTS; i++) {
+      for (var i = 0; i < NUM_PUTS; i++) {
         assertThat(region.get(i)).isNull();
       }
     });
@@ -165,7 +164,7 @@ public class PartitionedRegionCloseDistributedTest implements Serializable {
   }
 
   private void createRegion(final boolean accessor) {
-    PartitionAttributesFactory<String, Integer> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<String, Integer>();
     paf.setRedundantCopies(REDUNDANT_COPIES);
     if (accessor) {
       paf.setLocalMaxMemory(0);

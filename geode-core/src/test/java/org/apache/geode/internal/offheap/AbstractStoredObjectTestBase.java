@@ -45,79 +45,79 @@ public abstract class AbstractStoredObjectTestBase {
 
   @Test
   public void getValueAsDeserializedHeapObjectShouldReturnDeserializedValueIfValueIsSerialized() {
-    Object regionEntryValue = getValue();
-    StoredObject storedObject = createValueAsSerializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValue();
+    var storedObject = createValueAsSerializedStoredObject(regionEntryValue);
 
-    Object actualRegionEntryValue = storedObject.getValueAsDeserializedHeapObject();
+    var actualRegionEntryValue = storedObject.getValueAsDeserializedHeapObject();
     assertEquals(regionEntryValue, actualRegionEntryValue);
   }
 
   @Test
   public void getValueAsDeserializedHeapObjectShouldReturnValueAsIsIfNotSerialized() {
-    byte[] regionEntryValue = getValueAsByteArray();
-    StoredObject storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValueAsByteArray();
+    var storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
 
-    byte[] deserializedValue = (byte[]) storedObject.getValueAsDeserializedHeapObject();
+    var deserializedValue = (byte[]) storedObject.getValueAsDeserializedHeapObject();
     assertArrayEquals(regionEntryValue, deserializedValue);
   }
 
   @Test
   public void getValueAsHeapByteArrayShouldReturnSerializedByteArrayIfValueIsSerialized() {
-    Object regionEntryValue = getValue();
-    StoredObject storedObject = createValueAsSerializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValue();
+    var storedObject = createValueAsSerializedStoredObject(regionEntryValue);
 
-    byte[] valueInSerializedByteArray = storedObject.getValueAsHeapByteArray();
-    Object actualRegionEntryValue = convertSerializedByteArrayToObject(valueInSerializedByteArray);
+    var valueInSerializedByteArray = storedObject.getValueAsHeapByteArray();
+    var actualRegionEntryValue = convertSerializedByteArrayToObject(valueInSerializedByteArray);
 
     assertEquals(regionEntryValue, actualRegionEntryValue);
   }
 
   @Test
   public void getValueAsHeapByteArrayShouldReturnDeserializedByteArrayIfValueIsNotSerialized() {
-    Object regionEntryValue = getValue();
+    var regionEntryValue = getValue();
 
-    StoredObject storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
+    var storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
 
-    byte[] valueInByteArray = storedObject.getValueAsHeapByteArray();
+    var valueInByteArray = storedObject.getValueAsHeapByteArray();
 
-    Object actualRegionEntryValue = convertByteArrayToObject(valueInByteArray);
+    var actualRegionEntryValue = convertByteArrayToObject(valueInByteArray);
 
     assertEquals(regionEntryValue, actualRegionEntryValue);
   }
 
   @Test
   public void getStringFormShouldReturnStringFromDeserializedValue() {
-    Object regionEntryValue = getValue();
-    StoredObject storedObject = createValueAsSerializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValue();
+    var storedObject = createValueAsSerializedStoredObject(regionEntryValue);
 
-    String stringForm = storedObject.getStringForm();
+    var stringForm = storedObject.getStringForm();
     assertEquals(String.valueOf(regionEntryValue), stringForm);
   }
 
   @Test
   public void getValueShouldReturnSerializedValue() {
-    Object regionEntryValue = getValue();
-    StoredObject storedObject = createValueAsSerializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValue();
+    var storedObject = createValueAsSerializedStoredObject(regionEntryValue);
 
-    byte[] valueAsSerializedByteArray = (byte[]) storedObject.getValue();
+    var valueAsSerializedByteArray = (byte[]) storedObject.getValue();
 
-    Object actualValue = convertSerializedByteArrayToObject(valueAsSerializedByteArray);
+    var actualValue = convertSerializedByteArrayToObject(valueAsSerializedByteArray);
 
     assertEquals(regionEntryValue, actualValue);
   }
 
   @Test(expected = IllegalStateException.class)
   public void getValueShouldThrowExceptionIfValueIsNotSerialized() {
-    Object regionEntryValue = getValue();
-    StoredObject storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValue();
+    var storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
 
-    byte[] deserializedValue = (byte[]) storedObject.getValue();
+    var deserializedValue = (byte[]) storedObject.getValue();
   }
 
   @Test
   public void getDeserializedWritableCopyShouldReturnDeserializedValue() {
-    byte[] regionEntryValue = getValueAsByteArray();
-    StoredObject storedObject = createValueAsSerializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValueAsByteArray();
+    var storedObject = createValueAsSerializedStoredObject(regionEntryValue);
 
     assertArrayEquals(regionEntryValue,
         (byte[]) storedObject.getDeserializedWritableCopy(null, null));
@@ -125,10 +125,10 @@ public abstract class AbstractStoredObjectTestBase {
 
   @Test
   public void writeValueAsByteArrayWritesToProvidedDataOutput() throws IOException {
-    byte[] regionEntryValue = getValueAsByteArray();
-    StoredObject storedObject = createValueAsSerializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValueAsByteArray();
+    var storedObject = createValueAsSerializedStoredObject(regionEntryValue);
 
-    DataOutput dataOutput = mock(DataOutput.class);
+    var dataOutput = mock(DataOutput.class);
     storedObject.writeValueAsByteArray(dataOutput);
 
     verify(dataOutput, times(1)).write(storedObject.getSerializedValue(), 0,
@@ -137,10 +137,10 @@ public abstract class AbstractStoredObjectTestBase {
 
   @Test
   public void sendToShouldWriteSerializedValueToDataOutput() throws IOException {
-    Object regionEntryValue = getValue();
-    StoredObject storedObject = createValueAsSerializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValue();
+    var storedObject = createValueAsSerializedStoredObject(regionEntryValue);
 
-    DataOutput dataOutput = mock(DataOutput.class);
+    var dataOutput = mock(DataOutput.class);
     storedObject.sendTo(dataOutput);
 
     verify(dataOutput, times(1)).write(storedObject.getSerializedValue());
@@ -148,10 +148,10 @@ public abstract class AbstractStoredObjectTestBase {
 
   @Test
   public void sendToShouldWriteDeserializedObjectToDataOutput() throws IOException {
-    byte[] regionEntryValue = getValueAsByteArray();
-    StoredObject storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValueAsByteArray();
+    var storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
 
-    DataOutput dataOutput = mock(DataOutput.class);
+    var dataOutput = mock(DataOutput.class);
     storedObject.sendTo(dataOutput);
 
     verify(dataOutput, times(1)).write(regionEntryValue, 0, regionEntryValue.length);
@@ -159,10 +159,10 @@ public abstract class AbstractStoredObjectTestBase {
 
   @Test
   public void sendAsByteArrayShouldWriteSerializedValueToDataOutput() throws IOException {
-    Object regionEntryValue = getValue();
-    StoredObject storedObject = createValueAsSerializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValue();
+    var storedObject = createValueAsSerializedStoredObject(regionEntryValue);
 
-    DataOutput dataOutput = mock(DataOutput.class);
+    var dataOutput = mock(DataOutput.class);
     storedObject.sendAsByteArray(dataOutput);
 
     verify(dataOutput, times(1)).write(storedObject.getSerializedValue(), 0,
@@ -171,10 +171,10 @@ public abstract class AbstractStoredObjectTestBase {
 
   @Test
   public void sendAsByteArrayShouldWriteDeserializedObjectToDataOutput() throws IOException {
-    byte[] regionEntryValue = getValueAsByteArray();
-    StoredObject storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValueAsByteArray();
+    var storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
 
-    DataOutput dataOutput = mock(DataOutput.class);
+    var dataOutput = mock(DataOutput.class);
     storedObject.sendAsByteArray(dataOutput);
 
     verify(dataOutput, times(1)).write(regionEntryValue, 0, regionEntryValue.length);
@@ -183,10 +183,10 @@ public abstract class AbstractStoredObjectTestBase {
   @Test
   public void sendAsCachedDeserializableShouldWriteSerializedValueToDataOutputAndSetsHeader()
       throws IOException {
-    Object regionEntryValue = getValue();
-    StoredObject storedObject = createValueAsSerializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValue();
+    var storedObject = createValueAsSerializedStoredObject(regionEntryValue);
 
-    DataOutput dataOutput = mock(DataOutput.class);
+    var dataOutput = mock(DataOutput.class);
     storedObject.sendAsCachedDeserializable(dataOutput);
 
     verify(dataOutput, times(1)).writeByte((DataSerializableFixedID.VM_CACHED_DESERIALIZABLE));
@@ -197,10 +197,10 @@ public abstract class AbstractStoredObjectTestBase {
   @Test(expected = IllegalStateException.class)
   public void sendAsCachedDeserializableShouldThrowExceptionIfValueIsNotSerialized()
       throws IOException {
-    Object regionEntryValue = getValue();
-    StoredObject storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
+    var regionEntryValue = getValue();
+    var storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
 
-    DataOutput dataOutput = mock(DataOutput.class);
+    var dataOutput = mock(DataOutput.class);
     storedObject.sendAsCachedDeserializable(dataOutput);
   }
 }

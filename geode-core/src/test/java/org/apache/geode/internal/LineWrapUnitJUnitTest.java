@@ -26,7 +26,7 @@ public class LineWrapUnitJUnitTest {
 
   @Test
   public void test() {
-    String test = "aaa aaaaa  aaa aaaa";
+    var test = "aaa aaaaa  aaa aaaa";
 
     assertEquals(list("aaa", "aaaaa", "aaa", "aaaa"), SystemAdmin.lineWrapOut(test, 3));
     assertEquals(list("aaa", "aaaaa", "aaa aaaa"), SystemAdmin.lineWrapOut(test, 8));
@@ -34,7 +34,7 @@ public class LineWrapUnitJUnitTest {
     assertEquals(list("aaa aaaaa", "aaa aaaa"), SystemAdmin.lineWrapOut(test, 9));
     assertEquals(list("aaa aaaaa  aaa", "aaaa"), SystemAdmin.lineWrapOut(test, 14));
 
-    String test2 = "aaa\n aaaaa  aaa aaaa";
+    var test2 = "aaa\n aaaaa  aaa aaaa";
     assertEquals(list("aaa", " aaaaa  aaa", "aaaa"), SystemAdmin.lineWrapOut(test2, 14));
   }
 

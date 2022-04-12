@@ -27,8 +27,8 @@ public class EntryScoreJUnitTest {
 
   @Test
   public void testSerialization() {
-    EntryScore<String> entry = new EntryScore<>("entry", .1f);
-    EntryScore<String> copy = CopyHelper.deepCopy(entry);
+    var entry = new EntryScore<String>("entry", .1f);
+    var copy = CopyHelper.deepCopy(entry);
     assertEquals("entry", copy.getKey());
     assertEquals(.1f, copy.getScore(), 0f);
   }

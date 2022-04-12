@@ -32,7 +32,6 @@ import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.wan.GatewaySender;
@@ -67,9 +66,9 @@ public class DistributedRegionTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DistributedRegion mockDistributedRegion = mock(DistributedRegion.class);
-    EntryEventImpl mockEntryEventImpl = mock(EntryEventImpl.class);
-    Object returnValue = new Object();
+    var mockDistributedRegion = mock(DistributedRegion.class);
+    var mockEntryEventImpl = mock(EntryEventImpl.class);
+    var returnValue = new Object();
 
     when(mockDistributedRegion.validatedDestroy(any(), eq(mockEntryEventImpl)))
         .thenReturn(returnValue);
@@ -80,8 +79,8 @@ public class DistributedRegionTest {
 
   @Test
   public void cleanUpAfterFailedInitialImageHoldsLockForClear() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class, RETURNS_DEEP_STUBS);
-    RegionMap regionMap = mock(RegionMap.class);
+    var distributedRegion = mock(DistributedRegion.class, RETURNS_DEEP_STUBS);
+    var regionMap = mock(RegionMap.class);
 
     doCallRealMethod().when(distributedRegion).cleanUpAfterFailedGII(false);
     when(distributedRegion.getRegionMap()).thenReturn(regionMap);
@@ -96,8 +95,8 @@ public class DistributedRegionTest {
 
   @Test
   public void cleanUpAfterFailedInitialImageDoesNotCloseEntriesIfIsPersistentRegionAndRecoveredFromDisk() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
-    DiskRegion diskRegion = mock(DiskRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
+    var diskRegion = mock(DiskRegion.class);
 
     doCallRealMethod().when(distributedRegion).cleanUpAfterFailedGII(true);
     when(distributedRegion.getDiskRegion()).thenReturn(diskRegion);
@@ -111,7 +110,7 @@ public class DistributedRegionTest {
 
   @Test
   public void lockHeldWhenRegionIsNotInitialized() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).lockWhenRegionIsInitializing();
     when(distributedRegion.isInitialized()).thenReturn(false);
 
@@ -121,7 +120,7 @@ public class DistributedRegionTest {
 
   @Test
   public void lockNotHeldWhenRegionIsInitialized() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).lockWhenRegionIsInitializing();
     when(distributedRegion.isInitialized()).thenReturn(true);
 
@@ -131,7 +130,7 @@ public class DistributedRegionTest {
 
   @Test
   public void versionHolderInvokesSetRegionSynchronizeScheduledIfVectorContainsLostMemberID() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getVersionVector()).thenReturn(vector);
     when(vector.getHolderForMember(lostMemberVersionID)).thenReturn(holder);
     doCallRealMethod().when(distributedRegion).setRegionSynchronizeScheduled(lostMemberVersionID);
@@ -143,7 +142,7 @@ public class DistributedRegionTest {
 
   @Test
   public void versionHolderInvokesSetRegionSynchronizeScheduledOrDoneIfNotIfVectorContainsLostMemberID() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getVersionVector()).thenReturn(vector);
     when(vector.getHolderForMember(lostMemberVersionID)).thenReturn(holder);
     doCallRealMethod().when(distributedRegion)
@@ -158,7 +157,7 @@ public class DistributedRegionTest {
 
   @Test
   public void setRegionSynchronizedWithIfNotScheduledReturnsFalseIfVectorDoesNotContainLostMemberID() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getVersionVector()).thenReturn(vector);
     when(vector.getHolderForMember(lostMemberVersionID)).thenReturn(holder);
 
@@ -170,12 +169,12 @@ public class DistributedRegionTest {
 
   @Test
   public void regionSyncInvokedInPerformSynchronizeForLostMemberTaskAfterRegionInitialized() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getDataPolicy()).thenReturn(mock(DataPolicy.class));
     when(distributedRegion.isInitializedWithWait()).thenReturn(true);
     doCallRealMethod().when(distributedRegion).performSynchronizeForLostMemberTask(member,
         lostMemberVersionID);
-    InOrder inOrder = inOrder(distributedRegion);
+    var inOrder = inOrder(distributedRegion);
 
     distributedRegion.performSynchronizeForLostMemberTask(member, lostMemberVersionID);
 
@@ -185,7 +184,7 @@ public class DistributedRegionTest {
 
   @Test
   public void regionSyncNotInvokedInPerformSynchronizeForLostMemberTaskIfRegionNotInitialized() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getDataPolicy()).thenReturn(mock(DataPolicy.class));
     when(distributedRegion.isInitializedWithWait()).thenReturn(false);
     doCallRealMethod().when(distributedRegion).performSynchronizeForLostMemberTask(member,
@@ -198,10 +197,10 @@ public class DistributedRegionTest {
 
   @Test
   public void validateAsynchronousEventDispatcherShouldDoNothingWhenDispatcherIdCanNotBeFound() {
-    InternalCache internalCache = mock(InternalCache.class);
+    var internalCache = mock(InternalCache.class);
     when(internalCache.getAllGatewaySenders())
         .thenReturn(Collections.singleton(mock(GatewaySender.class)));
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getCache()).thenReturn(internalCache);
     doCallRealMethod().when(distributedRegion).validateAsynchronousEventDispatcher(anyString());
 
@@ -210,13 +209,13 @@ public class DistributedRegionTest {
 
   @Test
   public void validateAsynchronousEventDispatcherShouldDoNothingWhenFoundDispatcherIsSerial() {
-    String senderId = "mySender";
-    GatewaySender serialSender = mock(GatewaySender.class);
+    var senderId = "mySender";
+    var serialSender = mock(GatewaySender.class);
     when(serialSender.isParallel()).thenReturn(false);
     when(serialSender.getId()).thenReturn(senderId);
-    InternalCache internalCache = mock(InternalCache.class);
+    var internalCache = mock(InternalCache.class);
     when(internalCache.getAllGatewaySenders()).thenReturn(Collections.singleton(serialSender));
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getCache()).thenReturn(internalCache);
     doCallRealMethod().when(distributedRegion).validateAsynchronousEventDispatcher(anyString());
 
@@ -225,16 +224,16 @@ public class DistributedRegionTest {
 
   @Test
   public void validateAsynchronousEventDispatcherShouldThrowExceptionWhenDispatcherIdMatchesAnExistingParallelAsyncEventQueue() {
-    String senderId = "senderId";
-    String regionPath = "thisRegion";
-    String internalSenderId = getSenderIdFromAsyncEventQueueId(senderId);
-    GatewaySender parallelAsyncEventQueue = mock(GatewaySender.class);
+    var senderId = "senderId";
+    var regionPath = "thisRegion";
+    var internalSenderId = getSenderIdFromAsyncEventQueueId(senderId);
+    var parallelAsyncEventQueue = mock(GatewaySender.class);
     when(parallelAsyncEventQueue.isParallel()).thenReturn(true);
     when(parallelAsyncEventQueue.getId()).thenReturn(internalSenderId);
-    InternalCache internalCache = mock(InternalCache.class);
+    var internalCache = mock(InternalCache.class);
     when(internalCache.getAllGatewaySenders())
         .thenReturn(Collections.singleton(parallelAsyncEventQueue));
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getCache()).thenReturn(internalCache);
     when(distributedRegion.getFullPath()).thenReturn(regionPath);
     doCallRealMethod().when(distributedRegion).validateAsynchronousEventDispatcher(anyString());
@@ -248,15 +247,15 @@ public class DistributedRegionTest {
 
   @Test
   public void validateAsynchronousEventDispatcherShouldThrowExceptionWhenDispatcherIdMatchesAnExistingParallelGatewaySender() {
-    String senderId = "senderId";
-    String regionPath = "thisRegion";
-    GatewaySender parallelGatewaySender = mock(GatewaySender.class);
+    var senderId = "senderId";
+    var regionPath = "thisRegion";
+    var parallelGatewaySender = mock(GatewaySender.class);
     when(parallelGatewaySender.isParallel()).thenReturn(true);
     when(parallelGatewaySender.getId()).thenReturn(senderId);
-    InternalCache internalCache = mock(InternalCache.class);
+    var internalCache = mock(InternalCache.class);
     when(internalCache.getAllGatewaySenders())
         .thenReturn(Collections.singleton(parallelGatewaySender));
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getCache()).thenReturn(internalCache);
     when(distributedRegion.getFullPath()).thenReturn(regionPath);
     doCallRealMethod().when(distributedRegion).validateAsynchronousEventDispatcher(anyString());
@@ -269,7 +268,7 @@ public class DistributedRegionTest {
 
   @Test
   public void hasSeenEventDoesNotFindAndSetVersionTagIfFoundInEventTrackerAndVersionTagIsSet() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).hasSeenEvent(event);
     when(distributedRegion.getEventTracker()).thenReturn(eventTracker);
     when(eventTracker.hasSeenEvent(event)).thenReturn(true);
@@ -282,7 +281,7 @@ public class DistributedRegionTest {
 
   @Test
   public void hasSeenEventDoesNotFindAndSetVersionTagIfFoundInEventTrackerAndConcurrencyChecksNotEnabled() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).hasSeenEvent(event);
     when(distributedRegion.getEventTracker()).thenReturn(eventTracker);
     when(eventTracker.hasSeenEvent(event)).thenReturn(true);
@@ -296,7 +295,7 @@ public class DistributedRegionTest {
 
   @Test
   public void hasSeenEventDoesNotFindAndSetVersionTagIfFoundInEventTrackerAndEventIdIsNotSet() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).hasSeenEvent(event);
     when(distributedRegion.getEventTracker()).thenReturn(eventTracker);
     when(eventTracker.hasSeenEvent(event)).thenReturn(true);
@@ -311,7 +310,7 @@ public class DistributedRegionTest {
 
   @Test
   public void hasSeenEventWillFindAndSetVersionTagIfFoundInEventTrackerButValidTagNotSet() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).hasSeenEvent(event);
     when(distributedRegion.getEventTracker()).thenReturn(eventTracker);
     when(eventTracker.hasSeenEvent(event)).thenReturn(true);
@@ -326,7 +325,7 @@ public class DistributedRegionTest {
 
   @Test
   public void hasSeenEventDoesNotFindAndSetVersionTagIfNotFoundEventInEventTrackerAndNotADuplicateEvent() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).hasSeenEvent(event);
     when(distributedRegion.getEventTracker()).thenReturn(eventTracker);
     when(eventTracker.hasSeenEvent(event)).thenReturn(false);
@@ -338,7 +337,7 @@ public class DistributedRegionTest {
 
   @Test
   public void hasSeenEventDoesNotFindAndSetVersionTagIfNotFoundInEventTrackerAndConcurrencyChecksNotEnabled() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).hasSeenEvent(event);
     when(distributedRegion.getEventTracker()).thenReturn(eventTracker);
     when(eventTracker.hasSeenEvent(event)).thenReturn(false);
@@ -352,7 +351,7 @@ public class DistributedRegionTest {
 
   @Test
   public void hasSeenEventDoesNotFindAndSetVersionTagIfNotFoundInEventTrackerAndVersionTagIsSet() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).hasSeenEvent(event);
     when(distributedRegion.getEventTracker()).thenReturn(eventTracker);
     when(eventTracker.hasSeenEvent(event)).thenReturn(false);
@@ -367,7 +366,7 @@ public class DistributedRegionTest {
 
   @Test
   public void hasSeenEventDoesNotFindAndSetVersionTagIfNotFoundInEventTrackerAndNoEventId() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).hasSeenEvent(event);
     when(distributedRegion.getEventTracker()).thenReturn(eventTracker);
     when(eventTracker.hasSeenEvent(event)).thenReturn(false);
@@ -382,7 +381,7 @@ public class DistributedRegionTest {
 
   @Test
   public void hasSeenEventWillFindAndSetVersionTagIfNotFoundInEventTrackerAndIsPossibleDuplicateWithConcurrencyChecksEnabled() {
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     doCallRealMethod().when(distributedRegion).hasSeenEvent(event);
     when(distributedRegion.getEventTracker()).thenReturn(eventTracker);
     when(eventTracker.hasSeenEvent(event)).thenReturn(false);

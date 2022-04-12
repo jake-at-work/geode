@@ -52,7 +52,6 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.DeltaTestImpl;
 import org.apache.geode.ToDataException;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.HeapDataOutputStream;
@@ -65,10 +64,8 @@ import org.apache.geode.internal.tcp.ByteBufferInputStream.ByteSourceFactory;
 import org.apache.geode.internal.util.ArrayUtils;
 import org.apache.geode.pdx.internal.DataSize;
 import org.apache.geode.pdx.internal.PdxReaderImpl;
-import org.apache.geode.pdx.internal.PdxType;
 import org.apache.geode.pdx.internal.PdxWriterImpl;
 import org.apache.geode.pdx.internal.PeerTypeRegistration;
-import org.apache.geode.pdx.internal.TypeRegistry;
 import org.apache.geode.test.junit.categories.SerializationTest;
 
 @Category({SerializationTest.class})
@@ -102,7 +99,7 @@ public class PdxSerializableJUnitTest {
     cache.close();
     cache = (GemFireCacheImpl) new CacheFactory().set(MCAST_PORT, "0").setPdxPersistent(true)
         .setPdxDiskStore("doesNotExist").create();
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     PdxSerializable object = new SimpleClass(1, (byte) 5, null);
     try {
       DataSerializer.writeObject(object, out);
@@ -118,7 +115,7 @@ public class PdxSerializableJUnitTest {
     cache = (GemFireCacheImpl) new CacheFactory().set(MCAST_PORT, "0").setPdxPersistent(true)
         .setPdxDiskStore("pdxDS").create();
     try {
-      DiskStoreFactory dsf = cache.createDiskStoreFactory();
+      var dsf = cache.createDiskStoreFactory();
       dsf.create("pdxDS");
       cache.createDiskStoreFactory().create("r2DS");
       Region r1 = cache.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT).create("r1");
@@ -147,8 +144,8 @@ public class PdxSerializableJUnitTest {
       cache.close();
       // use a cache.xml to recover
       cache = (GemFireCacheImpl) new CacheFactory().set(MCAST_PORT, "0").create();
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      PrintWriter pw = new PrintWriter(new OutputStreamWriter(baos), true);
+      var baos = new ByteArrayOutputStream();
+      var pw = new PrintWriter(new OutputStreamWriter(baos), true);
       pw.println("<?xml version=\"1.0\"?>");
       pw.println("<!DOCTYPE cache PUBLIC");
       pw.println("  \"-//GemStone Systems, Inc.//GemFire Declarative Caching 7.0//EN\"");
@@ -163,7 +160,7 @@ public class PdxSerializableJUnitTest {
       pw.println("  </region>");
       pw.println("</cache>");
       pw.close();
-      byte[] bytes = baos.toByteArray();
+      var bytes = baos.toByteArray();
       cache.loadCacheXml(new ByteArrayInputStream(bytes));
       r1 = cache.getRegion(SEPARATOR + "r1");
       r2 = cache.getRegion(SEPARATOR + "r2");
@@ -188,10 +185,10 @@ public class PdxSerializableJUnitTest {
       try {
         cache.close();
       } finally {
-        Pattern pattern = Pattern.compile("BACKUP(DEFAULT|pdxDS|r2DS).*");
-        File[] files = new File(".").listFiles((dir1, name) -> pattern.matcher(name).matches());
+        var pattern = Pattern.compile("BACKUP(DEFAULT|pdxDS|r2DS).*");
+        var files = new File(".").listFiles((dir1, name) -> pattern.matcher(name).matches());
         if (files != null) {
-          for (File file : files) {
+          for (var file : files) {
             Files.delete(file.toPath());
           }
         }
@@ -232,8 +229,8 @@ public class PdxSerializableJUnitTest {
       cache.close();
       // use a cache.xml to recover
       cache = (GemFireCacheImpl) new CacheFactory().set(MCAST_PORT, "0").create();
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      PrintWriter pw = new PrintWriter(new OutputStreamWriter(baos), true);
+      var baos = new ByteArrayOutputStream();
+      var pw = new PrintWriter(new OutputStreamWriter(baos), true);
       pw.println("<?xml version=\"1.0\"?>");
       pw.println("<!DOCTYPE cache PUBLIC");
       pw.println("  \"-//GemStone Systems, Inc.//GemFire Declarative Caching 7.0//EN\"");
@@ -249,7 +246,7 @@ public class PdxSerializableJUnitTest {
       pw.println("  </region>");
       pw.println("</cache>");
       pw.close();
-      byte[] bytes = baos.toByteArray();
+      var bytes = baos.toByteArray();
       cache.loadCacheXml(new ByteArrayInputStream(bytes));
       r1 = cache.getRegion(SEPARATOR + "r1");
       r2 = cache.getRegion(SEPARATOR + "r2");
@@ -271,10 +268,10 @@ public class PdxSerializableJUnitTest {
       try {
         cache.close();
       } finally {
-        Pattern pattern = Pattern.compile("BACKUP(DEFAULT|r2DS).*");
-        File[] files = new File(".").listFiles((dir1, name) -> pattern.matcher(name).matches());
+        var pattern = Pattern.compile("BACKUP(DEFAULT|r2DS).*");
+        var files = new File(".").listFiles((dir1, name) -> pattern.matcher(name).matches());
         if (files != null) {
-          for (File file : files) {
+          for (var file : files) {
             Files.delete(file.toPath());
           }
         }
@@ -284,12 +281,12 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testByteFormatForSimpleClass() throws Exception {
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     PdxSerializable object = new SimpleClass(1, (byte) 5, null);
     DataSerializer.writeObject(object, out);
-    int typeId = getPdxTypeIdForClass(SimpleClass.class);
-    byte[] actual = out.toByteArray();
-    byte[] expected = new byte[] {DSCODE.PDX.toByte(), // byte
+    var typeId = getPdxTypeIdForClass(SimpleClass.class);
+    var actual = out.toByteArray();
+    var expected = new byte[] {DSCODE.PDX.toByte(), // byte
         0, 0, 0, 4 + 1 + 1, // int - length of byte stream = 4(myInt) + 1(myByte) + 1 (myEnum)
         (byte) (typeId >> 24), (byte) (typeId >> 16), (byte) (typeId >> 8), (byte) typeId, // int -
                                                                                            // typeId
@@ -297,17 +294,17 @@ public class PdxSerializableJUnitTest {
         5, // byte - myByte = 5
         DSCODE.NULL.toByte()};
 
-    StringBuilder msg = new StringBuilder("Actual output: ");
-    for (byte val : actual) {
+    var msg = new StringBuilder("Actual output: ");
+    for (var val : actual) {
       msg.append(val + ", ");
     }
     msg.append("\nExpected output: ");
-    for (byte val : expected) {
+    for (var val : expected) {
       msg.append(val + ", ");
     }
     assertTrue("Mismatch in length, actual.length: " + actual.length + " and expected length: "
         + expected.length, actual.length == expected.length);
-    for (int i = 0; i < actual.length; i++) {
+    for (var i = 0; i < actual.length; i++) {
       if (actual[i] != expected[i]) {
         System.out.println(msg);
       }
@@ -326,41 +323,41 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testByteFormatForStrings() throws Exception {
-    boolean myFlag = true;
+    var myFlag = true;
     short myShort = 25;
-    String myString1 = "Class4_myString1";
+    var myString1 = "Class4_myString1";
     long myLong = 15654;
-    String myString2 = "Class4_myString2";
-    String myString3 = "Class4_myString3";
-    int myInt = 1420;
-    float myFloat = 123.023f;
+    var myString2 = "Class4_myString2";
+    var myString3 = "Class4_myString3";
+    var myInt = 1420;
+    var myFloat = 123.023f;
 
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
-    SimpleClass1 pdx =
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var pdx =
         new SimpleClass1(myFlag, myShort, myString1, myLong, myString2, myString3, myInt, myFloat);
     DataSerializer.writeObject(pdx, out);
-    int typeId = getPdxTypeIdForClass(SimpleClass1.class);
+    var typeId = getPdxTypeIdForClass(SimpleClass1.class);
 
-    HeapDataOutputStream hdos1 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos1 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString1, hdos1);
-    byte[] str1Bytes = hdos1.toByteArray();
-    HeapDataOutputStream hdos2 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var str1Bytes = hdos1.toByteArray();
+    var hdos2 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString2, hdos2);
-    byte[] str2Bytes = hdos2.toByteArray();
-    HeapDataOutputStream hdos3 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var str2Bytes = hdos2.toByteArray();
+    var hdos3 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString3, hdos3);
-    byte[] str3Bytes = hdos3.toByteArray();
+    var str3Bytes = hdos3.toByteArray();
 
-    int length = 1 /* myFlag */ + 2 /* myShort */
+    var length = 1 /* myFlag */ + 2 /* myShort */
         + 8 /* myLong */ + 4 /* myInt */ + 4 /* myFloat */ + str1Bytes.length + str2Bytes.length
         + str3Bytes.length + 2 /* byte offset for 3 strings */;
 
-    int offset1 = 1 + 2;
-    int offset2 = offset1 + 8 + str1Bytes.length;
-    int offset3 = offset1 + 8 + str1Bytes.length + str2Bytes.length;
-    byte[] actual = out.toByteArray();
-    int floatBytes = Float.floatToRawIntBits(myFloat);
-    Byte[] expected = new Byte[] {DSCODE.PDX.toByte(), // byte
+    var offset1 = 1 + 2;
+    var offset2 = offset1 + 8 + str1Bytes.length;
+    var offset3 = offset1 + 8 + str1Bytes.length + str2Bytes.length;
+    var actual = out.toByteArray();
+    var floatBytes = Float.floatToRawIntBits(myFloat);
+    var expected = new Byte[] {DSCODE.PDX.toByte(), // byte
         (byte) (length >> 24), (byte) (length >> 16), (byte) (length >> 8), (byte) length, // int -
                                                                                            // length
                                                                                            // of
@@ -381,7 +378,7 @@ public class PdxSerializableJUnitTest {
         (byte) offset2, // offset of myString2
     };
 
-    for (int i = (str1Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str1Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset1 + PdxWriterImpl.HEADER_SIZE, str1Bytes[i]); // +
                                                                                                    // 5
@@ -396,17 +393,17 @@ public class PdxSerializableJUnitTest {
                                                                                                    // stream
                                                                                                    // length
     }
-    for (int i = (str2Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str2Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset2 + PdxWriterImpl.HEADER_SIZE, str2Bytes[i]);
     }
-    for (int i = (str3Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str3Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset3 + PdxWriterImpl.HEADER_SIZE, str3Bytes[i]);
     }
 
-    StringBuilder msg = new StringBuilder("Actual output: ");
-    for (byte val : actual) {
+    var msg = new StringBuilder("Actual output: ");
+    for (var val : actual) {
       msg.append(val + ", ");
     }
     msg.append("\nExpected output: ");
@@ -418,7 +415,7 @@ public class PdxSerializableJUnitTest {
     }
     assertTrue("Mismatch in length, actual.length: " + actual.length + " and expected length: "
         + expected.length, actual.length == expected.length);
-    for (int i = 0; i < actual.length; i++) {
+    for (var i = 0; i < actual.length; i++) {
       if (actual[i] != expected[i]) {
         System.out.println(msg);
       }
@@ -457,8 +454,8 @@ public class PdxSerializableJUnitTest {
       assertEquals(pdx.getMyString3(), pi.getField("myString3"));
       assertEquals(pdx.getMyInt(), pi.getField("myInt"));
       assertEquals(pdx.getMyFloat(), pi.getField("myFloat"));
-      PdxReaderImpl reader = (PdxReaderImpl) pi;
-      PdxType type = reader.getPdxType();
+      var reader = (PdxReaderImpl) pi;
+      var type = reader.getPdxType();
       assertEquals(SimpleClass1.class.getName(), type.getClassName());
       assertEquals(8, type.getFieldCount());
       assertEquals(2, type.getVariableLengthFieldCount());
@@ -537,9 +534,9 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testByteFormatForLongStrings() throws Exception {
-    boolean myFlag = true;
+    var myFlag = true;
     short myShort = 25;
-    String myString1 =
+    var myString1 =
         "A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1."
             + "A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1."
             + "A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1."
@@ -551,43 +548,43 @@ public class PdxSerializableJUnitTest {
             + "A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1."
             + "A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.A very long string1.";
     long myLong = 15654;
-    String myString2 = "Class4_myString2";
-    String myString3 =
+    var myString2 = "Class4_myString2";
+    var myString3 =
         "Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. "
             + "Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. "
             + "Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. "
             + "Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. "
             + "Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. "
             + "Even longer string3. Even longer string3. Even longer string3. Even longer string3. Even longer string3. ";
-    int myInt = 1420;
-    float myFloat = 123.023f;
+    var myInt = 1420;
+    var myFloat = 123.023f;
 
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
-    SimpleClass1 pdx =
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var pdx =
         new SimpleClass1(myFlag, myShort, myString1, myLong, myString2, myString3, myInt, myFloat);
     DataSerializer.writeObject(pdx, out);
-    int typeId = getPdxTypeIdForClass(SimpleClass1.class);
+    var typeId = getPdxTypeIdForClass(SimpleClass1.class);
 
-    HeapDataOutputStream hdos1 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos1 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString1, hdos1);
-    byte[] str1Bytes = hdos1.toByteArray();
-    HeapDataOutputStream hdos2 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var str1Bytes = hdos1.toByteArray();
+    var hdos2 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString2, hdos2);
-    byte[] str2Bytes = hdos2.toByteArray();
-    HeapDataOutputStream hdos3 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var str2Bytes = hdos2.toByteArray();
+    var hdos3 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString3, hdos3);
-    byte[] str3Bytes = hdos3.toByteArray();
+    var str3Bytes = hdos3.toByteArray();
 
-    int length = 1 /* myFlag */ + 2 /* myShort */
+    var length = 1 /* myFlag */ + 2 /* myShort */
         + 8 /* myLong */ + 4 /* myInt */ + 4 /* myFloat */ + str1Bytes.length + str2Bytes.length
         + str3Bytes.length + (2 * 2) /* short offset for 3 strings */;
 
-    int offset1 = 1 + 2;
-    int offset2 = offset1 + 8 + str1Bytes.length;
-    int offset3 = offset1 + 8 + str1Bytes.length + str2Bytes.length;
-    byte[] actual = out.toByteArray();
-    int floatBytes = Float.floatToRawIntBits(myFloat);
-    Byte[] expected = new Byte[] {DSCODE.PDX.toByte(), // byte
+    var offset1 = 1 + 2;
+    var offset2 = offset1 + 8 + str1Bytes.length;
+    var offset3 = offset1 + 8 + str1Bytes.length + str2Bytes.length;
+    var actual = out.toByteArray();
+    var floatBytes = Float.floatToRawIntBits(myFloat);
+    var expected = new Byte[] {DSCODE.PDX.toByte(), // byte
         (byte) (length >> 24), (byte) (length >> 16), (byte) (length >> 8), (byte) length, // int -
                                                                                            // length
                                                                                            // of
@@ -608,7 +605,7 @@ public class PdxSerializableJUnitTest {
         (byte) (offset2 >> 8), (byte) offset2, // offset of myString2
     };
 
-    for (int i = (str1Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str1Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset1 + PdxWriterImpl.HEADER_SIZE, str1Bytes[i]); // +
                                                                                                    // 5
@@ -623,17 +620,17 @@ public class PdxSerializableJUnitTest {
                                                                                                    // stream
                                                                                                    // length
     }
-    for (int i = (str2Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str2Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset2 + PdxWriterImpl.HEADER_SIZE, str2Bytes[i]);
     }
-    for (int i = (str3Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str3Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset3 + PdxWriterImpl.HEADER_SIZE, str3Bytes[i]);
     }
 
-    StringBuilder msg = new StringBuilder("Actual output: ");
-    for (byte val : actual) {
+    var msg = new StringBuilder("Actual output: ");
+    for (var val : actual) {
       msg.append(val + ", ");
     }
     msg.append("\nExpected output: ");
@@ -645,7 +642,7 @@ public class PdxSerializableJUnitTest {
     }
     assertTrue("Mismatch in length, actual.length: " + actual.length + " and expected length: "
         + expected.length, actual.length == expected.length);
-    for (int i = 0; i < actual.length; i++) {
+    for (var i = 0; i < actual.length; i++) {
       if (actual[i] != expected[i]) {
         System.out.println(msg);
       }
@@ -683,8 +680,8 @@ public class PdxSerializableJUnitTest {
       assertEquals(pdx.getMyString3(), pi.getField("myString3"));
       assertEquals(pdx.getMyInt(), pi.getField("myInt"));
       assertEquals(pdx.getMyFloat(), pi.getField("myFloat"));
-      PdxReaderImpl reader = (PdxReaderImpl) pi;
-      PdxType type = reader.getPdxType();
+      var reader = (PdxReaderImpl) pi;
+      var type = reader.getPdxType();
       assertEquals(SimpleClass1.class.getName(), type.getClassName());
       assertEquals(8, type.getFieldCount());
       assertEquals(2, type.getVariableLengthFieldCount());
@@ -763,43 +760,43 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testByteFormatForNestedPDX() throws Exception {
-    String myString1 = "ComplexClass1_myString1";
+    var myString1 = "ComplexClass1_myString1";
     long myLong = 15654;
-    HashMap<String, PdxSerializable> myHashMap = new HashMap<>();
-    String myString2 = "ComplexClass1_myString2";
-    float myFloat = 123.023f;
+    var myHashMap = new HashMap<String, PdxSerializable>();
+    var myString2 = "ComplexClass1_myString2";
+    var myFloat = 123.023f;
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       myHashMap.put("KEY_" + i, new SimpleClass(i, (byte) 5));
     }
 
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     PdxSerializable pdx = new NestedPdx(myString1, myLong, myHashMap, myString2, myFloat);
     DataSerializer.writeObject(pdx, out);
-    int typeId = getPdxTypeIdForClass(NestedPdx.class);
+    var typeId = getPdxTypeIdForClass(NestedPdx.class);
 
-    HeapDataOutputStream hdos1 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos1 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString1, hdos1);
-    byte[] str1Bytes = hdos1.toByteArray();
-    HeapDataOutputStream hdosForMap = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var str1Bytes = hdos1.toByteArray();
+    var hdosForMap = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(myHashMap, hdosForMap);
-    byte[] mapBytes = hdosForMap.toByteArray();
-    HeapDataOutputStream hdos2 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var mapBytes = hdosForMap.toByteArray();
+    var hdos2 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString2, hdos2);
-    byte[] str2Bytes = hdos2.toByteArray();
+    var str2Bytes = hdos2.toByteArray();
 
-    int length = str1Bytes.length + 8 /* myLong */
+    var length = str1Bytes.length + 8 /* myLong */
         + mapBytes.length + str2Bytes.length + 4 /* myFloat */
         + (2 * 1) /*
                    * offset for 3 var-length fields
                    */;
 
-    int offset1 = 0;
-    int offset2 = offset1 + 8 + str1Bytes.length;
-    int offset3 = offset1 + 8 + str1Bytes.length + mapBytes.length;
-    byte[] actual = out.toByteArray();
-    int floatBytes = Float.floatToRawIntBits(myFloat);
-    Byte[] expected = new Byte[] {DSCODE.PDX.toByte(), // byte
+    var offset1 = 0;
+    var offset2 = offset1 + 8 + str1Bytes.length;
+    var offset3 = offset1 + 8 + str1Bytes.length + mapBytes.length;
+    var actual = out.toByteArray();
+    var floatBytes = Float.floatToRawIntBits(myFloat);
+    var expected = new Byte[] {DSCODE.PDX.toByte(), // byte
         (byte) (length >> 24), (byte) (length >> 16), (byte) (length >> 8), (byte) length, // int -
                                                                                            // length
                                                                                            // of
@@ -816,21 +813,21 @@ public class PdxSerializableJUnitTest {
         (byte) offset2, // offset of myHashMap
     };
 
-    for (int i = (str1Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str1Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset1 + PdxWriterImpl.HEADER_SIZE, str1Bytes[i]);
     }
-    for (int i = (mapBytes.length - 1); i >= 0; i--) {
+    for (var i = (mapBytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset2 + PdxWriterImpl.HEADER_SIZE, mapBytes[i]);
     }
-    for (int i = (str2Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str2Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset3 + PdxWriterImpl.HEADER_SIZE, str2Bytes[i]);
     }
 
-    StringBuilder msg = new StringBuilder("Actual output: ");
-    for (byte val : actual) {
+    var msg = new StringBuilder("Actual output: ");
+    for (var val : actual) {
       msg.append(val + ", ");
     }
     msg.append("\nExpected output: ");
@@ -842,7 +839,7 @@ public class PdxSerializableJUnitTest {
     }
     assertTrue("Mismatch in length, actual.length: " + actual.length + " and expected length: "
         + expected.length, actual.length == expected.length);
-    for (int i = 0; i < actual.length; i++) {
+    for (var i = 0; i < actual.length; i++) {
       if (actual[i] != expected[i]) {
         System.out.println(msg);
       }
@@ -860,44 +857,44 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testByteFormatForDSInsidePDX() throws Exception {
-    String myString1 = "ComplexClass1_myString1";
+    var myString1 = "ComplexClass1_myString1";
     long myLong = 15654;
     DataSerializable myDS = new DeltaTestImpl(100, "value");
-    String myString2 = "ComplexClass1_myString2";
-    float myFloat = 123.023f;
+    var myString2 = "ComplexClass1_myString2";
+    var myFloat = 123.023f;
 
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     PdxSerializable pdx = new DSInsidePdx(myString1, myLong, myDS, myString2, myFloat);
     DataSerializer.writeObject(pdx, out);
-    int typeId = getPdxTypeIdForClass(DSInsidePdx.class);
+    var typeId = getPdxTypeIdForClass(DSInsidePdx.class);
 
-    HeapDataOutputStream hdos1 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos1 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString1, hdos1);
-    byte[] str1Bytes = hdos1.toByteArray();
+    var str1Bytes = hdos1.toByteArray();
     System.out.println("Length of string1: " + str1Bytes.length);
 
-    HeapDataOutputStream hdos2 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos2 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(myDS, hdos2);
-    byte[] dsBytes = hdos2.toByteArray();
+    var dsBytes = hdos2.toByteArray();
     System.out.println("Length of DS: " + dsBytes.length);
 
-    HeapDataOutputStream hdos3 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos3 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString2, hdos3);
-    byte[] str2Bytes = hdos3.toByteArray();
+    var str2Bytes = hdos3.toByteArray();
     System.out.println("Length of string2: " + str2Bytes.length);
 
-    int length = str1Bytes.length + 8 /* myLong */
+    var length = str1Bytes.length + 8 /* myLong */
         + dsBytes.length + str2Bytes.length + 4 /* myFloat */
         + (2 * 2) /*
                    * offset for 3 car-length fields
                    */;
 
-    int offset1 = 0;
-    int offset2 = offset1 + 8 + str1Bytes.length;
-    int offset3 = offset1 + 8 + str1Bytes.length + dsBytes.length;
-    byte[] actual = out.toByteArray();
-    int floatBytes = Float.floatToRawIntBits(myFloat);
-    Byte[] expected = new Byte[] {DSCODE.PDX.toByte(), // byte
+    var offset1 = 0;
+    var offset2 = offset1 + 8 + str1Bytes.length;
+    var offset3 = offset1 + 8 + str1Bytes.length + dsBytes.length;
+    var actual = out.toByteArray();
+    var floatBytes = Float.floatToRawIntBits(myFloat);
+    var expected = new Byte[] {DSCODE.PDX.toByte(), // byte
         (byte) (length >> 24), (byte) (length >> 16), (byte) (length >> 8), (byte) length, // int -
                                                                                            // length
                                                                                            // of
@@ -914,7 +911,7 @@ public class PdxSerializableJUnitTest {
         (byte) (offset2 >> 8), (byte) offset2, // offset of myHashMap
     };
 
-    for (int i = (str1Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str1Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset1 + PdxWriterImpl.HEADER_SIZE, str1Bytes[i]); // +
                                                                                                    // 5
@@ -929,17 +926,17 @@ public class PdxSerializableJUnitTest {
                                                                                                    // stream
                                                                                                    // length
     }
-    for (int i = (dsBytes.length - 1); i >= 0; i--) {
+    for (var i = (dsBytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset2 + PdxWriterImpl.HEADER_SIZE, dsBytes[i]);
     }
-    for (int i = (str2Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str2Bytes.length - 1); i >= 0; i--) {
       expected =
           (Byte[]) ArrayUtils.insert(expected, offset3 + PdxWriterImpl.HEADER_SIZE, str2Bytes[i]);
     }
 
-    StringBuilder msg = new StringBuilder("Actual output: ");
-    for (byte val : actual) {
+    var msg = new StringBuilder("Actual output: ");
+    for (var val : actual) {
       msg.append(val + ", ");
     }
     msg.append("\nExpected output: ");
@@ -948,7 +945,7 @@ public class PdxSerializableJUnitTest {
     }
     assertTrue("Mismatch in length, actual.length: " + actual.length + " and expected length: "
         + expected.length, actual.length == expected.length);
-    for (int i = 0; i < actual.length; i++) {
+    for (var i = 0; i < actual.length; i++) {
       if (actual[i] != expected[i]) {
         System.out.println(msg);
       }
@@ -967,63 +964,63 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testByteFormatForPDXInsideDS() throws Exception {
-    String myString1 = "ComplexClass5_myString1";
+    var myString1 = "ComplexClass5_myString1";
     long myLong = 15654;
-    String myString2 = "ComplexClass5_myString2";
-    float myFloat = 123.023f;
+    var myString2 = "ComplexClass5_myString2";
+    var myFloat = 123.023f;
 
-    HashMap<String, PdxSerializable> myHashMap = new HashMap<>();
-    for (int i = 0; i < 2; i++) {
+    var myHashMap = new HashMap<String, PdxSerializable>();
+    for (var i = 0; i < 2; i++) {
       myHashMap.put("KEY_" + i, new SimpleClass(i, (byte) i));
     }
     PdxSerializable myPDX = new NestedPdx(myString1, myLong, myHashMap, myString2, myFloat);
 
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializable ds = new PdxInsideDS(myString1, myLong, myPDX, myString2);
     DataSerializer.writeObject(ds, out);
 
-    HeapDataOutputStream hdosString1 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdosString1 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString1, hdosString1);
-    byte[] str1Bytes = hdosString1.toByteArray();
+    var str1Bytes = hdosString1.toByteArray();
     System.out.println("Length of string1: " + str1Bytes.length);
 
-    HeapDataOutputStream hdosMyPDX = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdosMyPDX = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(myPDX, hdosMyPDX);
-    byte[] pdxBytes = hdosMyPDX.toByteArray();
+    var pdxBytes = hdosMyPDX.toByteArray();
     System.out.println("Length of myPDX: " + pdxBytes.length);
 
-    HeapDataOutputStream hdosString2 = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdosString2 = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString(myString2, hdosString2);
-    byte[] str2Bytes = hdosString2.toByteArray();
+    var str2Bytes = hdosString2.toByteArray();
     System.out.println("Length of string2: " + str2Bytes.length);
 
     Class classInstance = ds.getClass();
-    HeapDataOutputStream hdosClass = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdosClass = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeClass(classInstance, hdosClass);
-    byte[] dsInitBytes = hdosClass.toByteArray();
+    var dsInitBytes = hdosClass.toByteArray();
 
-    int offsetStr1 = 1 + dsInitBytes.length;
-    int offsetPDX = 1 + dsInitBytes.length + str1Bytes.length + 8;
-    int offsetStr2 = 1 + dsInitBytes.length + str1Bytes.length + 8 + pdxBytes.length;
+    var offsetStr1 = 1 + dsInitBytes.length;
+    var offsetPDX = 1 + dsInitBytes.length + str1Bytes.length + 8;
+    var offsetStr2 = 1 + dsInitBytes.length + str1Bytes.length + 8 + pdxBytes.length;
 
-    byte[] actual = out.toByteArray();
-    int floatBytes = Float.floatToRawIntBits(myFloat);
-    Byte[] expected = new Byte[] {DSCODE.DATA_SERIALIZABLE.toByte(), // byte
+    var actual = out.toByteArray();
+    var floatBytes = Float.floatToRawIntBits(myFloat);
+    var expected = new Byte[] {DSCODE.DATA_SERIALIZABLE.toByte(), // byte
         (byte) (myLong >> 56), (byte) (myLong >> 48), (byte) (myLong >> 40), (byte) (myLong >> 32),
         (byte) (myLong >> 24), (byte) (myLong >> 16), (byte) (myLong >> 8), (byte) myLong, // long -
                                                                                            // myLong
     };
 
-    for (int i = (dsInitBytes.length - 1); i >= 0; i--) {
+    for (var i = (dsInitBytes.length - 1); i >= 0; i--) {
       expected = (Byte[]) ArrayUtils.insert(expected, 1, dsInitBytes[i]);
     }
-    for (int i = (str1Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str1Bytes.length - 1); i >= 0; i--) {
       expected = (Byte[]) ArrayUtils.insert(expected, offsetStr1, str1Bytes[i]);
     }
-    for (int i = (pdxBytes.length - 1); i >= 0; i--) {
+    for (var i = (pdxBytes.length - 1); i >= 0; i--) {
       expected = (Byte[]) ArrayUtils.insert(expected, offsetPDX, pdxBytes[i]);
     }
-    for (int i = (str2Bytes.length - 1); i >= 0; i--) {
+    for (var i = (str2Bytes.length - 1); i >= 0; i--) {
       expected = (Byte[]) ArrayUtils.insert(expected, offsetStr2, str2Bytes[i]);
     }
 
@@ -1038,8 +1035,8 @@ public class PdxSerializableJUnitTest {
   }
 
   private void checkBytes(Byte[] expected, byte[] actual) {
-    StringBuilder msg = new StringBuilder("Actual output: ");
-    for (byte val : actual) {
+    var msg = new StringBuilder("Actual output: ");
+    for (var val : actual) {
       msg.append(val + ", ");
     }
     msg.append("\nExpected output: ");
@@ -1051,7 +1048,7 @@ public class PdxSerializableJUnitTest {
     }
     assertTrue("Mismatch in length, actual.length: " + actual.length + " and expected length: "
         + expected.length, actual.length == expected.length);
-    for (int i = 0; i < actual.length; i++) {
+    for (var i = 0; i < actual.length; i++) {
       if (actual[i] != expected[i]) {
         System.out.println(msg);
       }
@@ -1060,12 +1057,12 @@ public class PdxSerializableJUnitTest {
   }
 
   private void checkBytes(byte[] expected, byte[] actual) {
-    StringBuilder msg = new StringBuilder("Actual output: ");
-    for (byte val : actual) {
+    var msg = new StringBuilder("Actual output: ");
+    for (var val : actual) {
       msg.append(val + ", ");
     }
     msg.append("\nExpected output: ");
-    for (byte val : expected) {
+    for (var val : expected) {
       msg.append(val + ", ");
     }
     if (actual.length != expected.length) {
@@ -1073,7 +1070,7 @@ public class PdxSerializableJUnitTest {
     }
     assertTrue("Mismatch in length, actual.length: " + actual.length + " and expected length: "
         + expected.length, actual.length == expected.length);
-    for (int i = 0; i < actual.length; i++) {
+    for (var i = 0; i < actual.length; i++) {
       if (actual[i] != expected[i]) {
         System.out.println(msg);
       }
@@ -1083,24 +1080,24 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testLong() throws IOException, ClassNotFoundException {
-    LongHolder v = (LongHolder) serializeAndDeserialize(new LongHolder(0x69));
+    var v = (LongHolder) serializeAndDeserialize(new LongHolder(0x69));
     assertEquals(0x69, v.getLong());
   }
 
   // this method adds coverage for bug 43236
   @Test
   public void testObjectPdxInstance() throws IOException, ClassNotFoundException {
-    Boolean previousPdxReadSerializedFlag = cache.getPdxReadSerializedOverride();
+    var previousPdxReadSerializedFlag = cache.getPdxReadSerializedOverride();
     cache.setPdxReadSerializedOverride(true);
     PdxReaderImpl.TESTHOOK_TRACKREADS = true;
     try {
-      PdxInstance pi = (PdxInstance) serializeAndDeserialize(new ObjectHolder("hello"));
-      ObjectHolder v3 = (ObjectHolder) pi.getObject();
-      WritablePdxInstance wpi = pi.createWriter();
+      var pi = (PdxInstance) serializeAndDeserialize(new ObjectHolder("hello"));
+      var v3 = (ObjectHolder) pi.getObject();
+      var wpi = pi.createWriter();
       wpi.setField("f1", "goodbye");
       assertEquals("goodbye", wpi.getField("f1"));
-      ObjectHolder v = (ObjectHolder) wpi.getObject();
-      ObjectHolder v2 = (ObjectHolder) wpi.getObject();
+      var v = (ObjectHolder) wpi.getObject();
+      var v2 = (ObjectHolder) wpi.getObject();
       assertEquals("goodbye", v.getObject());
       assertEquals("goodbye", v2.getObject());
       assertEquals("hello", v3.getObject());
@@ -1113,22 +1110,22 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testObjectArrayPdxInstance() throws IOException, ClassNotFoundException {
-    Boolean previousPdxReadSerializedFlag = cache.getPdxReadSerializedOverride();
+    var previousPdxReadSerializedFlag = cache.getPdxReadSerializedOverride();
     cache.setPdxReadSerializedOverride(true);
     PdxReaderImpl.TESTHOOK_TRACKREADS = true;
     try {
-      LongFieldHolder[] v = new LongFieldHolder[] {new LongFieldHolder(1), new LongFieldHolder(2)};
-      PdxInstance pi = (PdxInstance) serializeAndDeserialize(new ObjectArrayHolder(v));
-      ObjectArrayHolder oah = (ObjectArrayHolder) pi.getObject();
-      LongFieldHolder[] nv = (LongFieldHolder[]) oah.getObjectArray();
+      var v = new LongFieldHolder[] {new LongFieldHolder(1), new LongFieldHolder(2)};
+      var pi = (PdxInstance) serializeAndDeserialize(new ObjectArrayHolder(v));
+      var oah = (ObjectArrayHolder) pi.getObject();
+      var nv = (LongFieldHolder[]) oah.getObjectArray();
       if (!Arrays.equals(v, nv)) {
         throw new RuntimeException(
             "expected " + Arrays.toString(v) + " but had " + Arrays.toString(nv));
       }
-      Object[] oa = (Object[]) pi.getField("f1");
+      var oa = (Object[]) pi.getField("f1");
       assertTrue(oa[0] instanceof PdxInstance);
       assertTrue(oa[1] instanceof PdxInstance);
-      LongFieldHolder[] nv2 = new LongFieldHolder[2];
+      var nv2 = new LongFieldHolder[2];
       nv2[0] = (LongFieldHolder) ((PdxInstance) oa[0]).getObject();
       nv2[1] = (LongFieldHolder) ((PdxInstance) oa[1]).getObject();
       if (!Arrays.equals(v, nv2)) {
@@ -1143,21 +1140,21 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testLongField() throws IOException, ClassNotFoundException {
-    LongFieldHolder v =
+    var v =
         (LongFieldHolder) serializeAndDeserialize(new LongFieldHolder(0x1020304050607080L));
     assertEquals(0x1020304050607080L, v.getLong());
   }
 
   @Test
   public void testAll() throws IOException, ClassNotFoundException {
-    AllFieldTypes v1 = new AllFieldTypes(0x1020304050607080L, false);
-    AllFieldTypes v2 = (AllFieldTypes) serializeAndDeserialize(v1);
+    var v1 = new AllFieldTypes(0x1020304050607080L, false);
+    var v2 = (AllFieldTypes) serializeAndDeserialize(v1);
     assertEquals(v1, v2);
   }
 
   @Test
   public void testBasicAll() throws IOException, ClassNotFoundException {
-    BasicAllFieldTypes v1 = new BasicAllFieldTypes(0x1020304050607080L, false);
+    var v1 = new BasicAllFieldTypes(0x1020304050607080L, false);
     try {
       serializeAndDeserialize(v1);
       throw new RuntimeException("expected NotSerializableException");
@@ -1166,7 +1163,7 @@ public class PdxSerializableJUnitTest {
     }
     cache.setPdxSerializer(new BasicAllFieldTypesPdxSerializer());
     try {
-      BasicAllFieldTypes v2 = (BasicAllFieldTypes) serializeAndDeserialize(v1);
+      var v2 = (BasicAllFieldTypes) serializeAndDeserialize(v1);
       assertEquals(v1, v2);
     } finally {
       cache.setPdxSerializer(null);
@@ -1177,8 +1174,8 @@ public class PdxSerializableJUnitTest {
   public void testPdxSerializerFalse() throws IOException, ClassNotFoundException {
     cache.setPdxSerializer(new BasicAllFieldTypesPdxSerializer());
     try {
-      POS v1 = new POS(3);
-      POS v2 = (POS) serializeAndDeserialize(v1);
+      var v1 = new POS(3);
+      var v2 = (POS) serializeAndDeserialize(v1);
       assertEquals(v1, v2);
     } finally {
       cache.setPdxSerializer(null);
@@ -1187,14 +1184,14 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testAllWithNulls() throws IOException, ClassNotFoundException {
-    AllFieldTypes v1 = new AllFieldTypes(0x102030405060708L, true);
-    AllFieldTypes v2 = (AllFieldTypes) serializeAndDeserialize(v1);
+    var v1 = new AllFieldTypes(0x102030405060708L, true);
+    var v2 = (AllFieldTypes) serializeAndDeserialize(v1);
     assertEquals(v1, v2);
   }
 
   @Test
   public void testBasicAllWithNulls() throws IOException, ClassNotFoundException {
-    BasicAllFieldTypes v1 = new BasicAllFieldTypes(0x1020304050607080L, true);
+    var v1 = new BasicAllFieldTypes(0x1020304050607080L, true);
     try {
       serializeAndDeserialize(v1);
       throw new RuntimeException("expected NotSerializableException");
@@ -1203,7 +1200,7 @@ public class PdxSerializableJUnitTest {
     }
     cache.setPdxSerializer(new BasicAllFieldTypesPdxSerializer());
     try {
-      BasicAllFieldTypes v2 = (BasicAllFieldTypes) serializeAndDeserialize(v1);
+      var v2 = (BasicAllFieldTypes) serializeAndDeserialize(v1);
       assertEquals(v1, v2);
     } finally {
       cache.setPdxSerializer(null);
@@ -1212,36 +1209,36 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testAllRF() throws IOException, ClassNotFoundException {
-    AllFieldTypesRF v1 = new AllFieldTypesRF(0x1020304050607080L, false);
-    AllFieldTypesRF v2 = (AllFieldTypesRF) serializeAndDeserialize(v1);
+    var v1 = new AllFieldTypesRF(0x1020304050607080L, false);
+    var v2 = (AllFieldTypesRF) serializeAndDeserialize(v1);
     assertEquals(v1, v2);
   }
 
   @Test
   public void testAllWithNullsRF() throws IOException, ClassNotFoundException {
-    AllFieldTypesRF v1 = new AllFieldTypesRF(0x102030405060708L, true);
-    AllFieldTypesRF v2 = (AllFieldTypesRF) serializeAndDeserialize(v1);
+    var v1 = new AllFieldTypesRF(0x102030405060708L, true);
+    var v2 = (AllFieldTypesRF) serializeAndDeserialize(v1);
     assertEquals(v1, v2);
   }
 
   @Test
   public void testAllWF() throws IOException, ClassNotFoundException {
-    AllFieldTypesWF v1 = new AllFieldTypesWF(0x1020304050607080L, false);
-    AllFieldTypesWF v2 = (AllFieldTypesWF) serializeAndDeserialize(v1);
+    var v1 = new AllFieldTypesWF(0x1020304050607080L, false);
+    var v2 = (AllFieldTypesWF) serializeAndDeserialize(v1);
     assertEquals(v1, v2);
   }
 
   @Test
   public void testAllWithNullsWF() throws IOException, ClassNotFoundException {
-    AllFieldTypesWF v1 = new AllFieldTypesWF(0x102030405060708L, true);
-    AllFieldTypesWF v2 = (AllFieldTypesWF) serializeAndDeserialize(v1);
+    var v1 = new AllFieldTypesWF(0x102030405060708L, true);
+    var v2 = (AllFieldTypesWF) serializeAndDeserialize(v1);
     assertEquals(v1, v2);
   }
 
   private Object serializeAndDeserialize(Object in) throws IOException, ClassNotFoundException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(in, hdos);
-    byte[] bytes = hdos.toByteArray();
+    var bytes = hdos.toByteArray();
     System.out.println("Serialized bytes = " + Arrays.toString(bytes));
     return DataSerializer.readObject(new DataInputStream(new ByteArrayInputStream(bytes)));
   }
@@ -1327,8 +1324,8 @@ public class PdxSerializableJUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + (int) (v ^ (v >>> 32));
       return result;
     }
@@ -1344,7 +1341,7 @@ public class PdxSerializableJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      LongFieldHolder other = (LongFieldHolder) obj;
+      var other = (LongFieldHolder) obj;
       return v == other.v;
     }
 
@@ -1421,7 +1418,7 @@ public class PdxSerializableJUnitTest {
      *        values), if false, then use a valid value (to test non-null values).
      */
     public void fillInBaseValues(long base, boolean useNulls) {
-      final int maxCollectionSize = 100;
+      final var maxCollectionSize = 100;
       aChar = (char) base;
       aBoolean = true;
       aByte = (byte) base;
@@ -1450,7 +1447,7 @@ public class PdxSerializableJUnitTest {
         anObjectArray = null;
         anArrayOfByteArray = null;
       } else {
-        int desiredCollectionSize = (int) Math.min(base, maxCollectionSize);
+        var desiredCollectionSize = (int) Math.min(base, maxCollectionSize);
         anObject = new SimpleClass((int) base, (byte) base);
         aMap = new HashMap();
         aCollection = new ArrayList();
@@ -1466,7 +1463,7 @@ public class PdxSerializableJUnitTest {
         anObjectArray = new Object[desiredCollectionSize];
         anArrayOfByteArray = new byte[desiredCollectionSize][desiredCollectionSize];
         if (desiredCollectionSize > 0) {
-          for (int i = 0; i < desiredCollectionSize - 1; i++) {
+          for (var i = 0; i < desiredCollectionSize - 1; i++) {
             aMap.put(i, i);
             aCollection.add(i);
             aBooleanArray[i] = (i % 2) == 0;
@@ -1532,7 +1529,7 @@ public class PdxSerializableJUnitTest {
       if (!(o instanceof BasicAllFieldTypes)) {
         return false;
       }
-      BasicAllFieldTypes other = (BasicAllFieldTypes) o;
+      var other = (BasicAllFieldTypes) o;
       if (aChar != other.aChar) {
         System.out.println("!= aChar");
         return false;
@@ -1644,7 +1641,7 @@ public class PdxSerializableJUnitTest {
         if (o1.length != o2.length) {
           return false;
         }
-        for (int i = 0; i < o1.length; i++) {
+        for (var i = 0; i < o1.length; i++) {
           if (!Arrays.equals(o1[i], o2[i])) {
             return false;
           }
@@ -1667,7 +1664,7 @@ public class PdxSerializableJUnitTest {
 
   @Test
   public void testVariableFields() throws Exception {
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(new VariableFields(1), out);
     try {
       DataSerializer.writeObject(new VariableFields(2), out);
@@ -1711,7 +1708,7 @@ public class PdxSerializableJUnitTest {
     public void toData(PdxWriter writer) {
       ((PdxWriterImpl) writer).setDoExtraValidation(true);
       writer.writeInt("fieldCount", fieldCount);
-      for (int i = 0; i < fieldCount; i++) {
+      for (var i = 0; i < fieldCount; i++) {
         writer.writeField("f" + i, null, fieldType);
       }
     }
@@ -1758,7 +1755,7 @@ public class PdxSerializableJUnitTest {
     @Override
     public boolean toData(Object o, PdxWriter out) {
       if (o instanceof BasicAllFieldTypes) {
-        BasicAllFieldTypes pdx = (BasicAllFieldTypes) o;
+        var pdx = (BasicAllFieldTypes) o;
         // extra fields for this version
         out.writeChar("aChar", pdx.aChar);
         out.writeBoolean("aBoolean", pdx.aBoolean);
@@ -1793,7 +1790,7 @@ public class PdxSerializableJUnitTest {
     @Override
     public Object fromData(Class<?> clazz, PdxReader in) {
       if (BasicAllFieldTypes.class.isAssignableFrom(clazz)) {
-        BasicAllFieldTypes pdx = new BasicAllFieldTypes();
+        var pdx = new BasicAllFieldTypes();
         fillInData(in, pdx);
         return pdx;
       } else {
@@ -2042,7 +2039,7 @@ public class PdxSerializableJUnitTest {
   }
 
   private byte[] createBlob(Object o) throws IOException {
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(o, out);
     return out.toByteArray();
   }
@@ -2057,7 +2054,7 @@ public class PdxSerializableJUnitTest {
   @Test
   public void testFieldAppend() throws Exception {
     MyEvolvablePdx.setVersion(1);
-    MyEvolvablePdx pdx = new MyEvolvablePdx(7);
+    var pdx = new MyEvolvablePdx(7);
     assertEquals(7, pdx.f1);
     assertEquals(0, pdx.f2);
 
@@ -2065,8 +2062,8 @@ public class PdxSerializableJUnitTest {
     pdx = new MyEvolvablePdx(7);
     assertEquals(7, pdx.f1);
     assertEquals(8, pdx.f2);
-    byte[] v2actual = createBlob(pdx);
-    int v2typeId = getBlobPdxTypeId(v2actual);
+    var v2actual = createBlob(pdx);
+    var v2typeId = getBlobPdxTypeId(v2actual);
 
     cache.getPdxRegistry().removeLocal(pdx);
     MyEvolvablePdx.setVersion(1);
@@ -2075,7 +2072,7 @@ public class PdxSerializableJUnitTest {
     assertEquals(0, pdxv1.f2);
 
     // now reserialize and make sure f2 is preserved
-    byte[] v1actual = createBlob(pdxv1);
+    var v1actual = createBlob(pdxv1);
     assertEquals(v2typeId, getBlobPdxTypeId(v1actual));
     checkBytes(v2actual, v1actual);
     // serialize one more time to make sure internal cache works ok
@@ -2083,7 +2080,7 @@ public class PdxSerializableJUnitTest {
     assertEquals(v2typeId, getBlobPdxTypeId(v1actual));
     checkBytes(v2actual, v1actual);
     // make sure CopyHelper preserves extra fields
-    MyEvolvablePdx pdxv1copy = CopyHelper.copy(pdxv1);
+    var pdxv1copy = CopyHelper.copy(pdxv1);
     v1actual = createBlob(pdxv1copy);
     assertEquals(v2typeId, getBlobPdxTypeId(v1actual));
     checkBytes(v2actual, v1actual);
@@ -2102,7 +2099,7 @@ public class PdxSerializableJUnitTest {
   @Test
   public void testFieldInsert() throws Exception {
     MyEvolvablePdx.setVersion(1);
-    MyEvolvablePdx pdx = new MyEvolvablePdx(7);
+    var pdx = new MyEvolvablePdx(7);
     assertEquals(7, pdx.f1);
     assertEquals(0, pdx.f2);
 
@@ -2110,23 +2107,23 @@ public class PdxSerializableJUnitTest {
     pdx = new MyEvolvablePdx(7);
     assertEquals(7, pdx.f1);
     assertEquals(8, pdx.f2);
-    byte[] v3actual = createBlob(pdx);
-    int v3typeId = getBlobPdxTypeId(v3actual);
+    var v3actual = createBlob(pdx);
+    var v3typeId = getBlobPdxTypeId(v3actual);
     cache.getPdxRegistry().removeLocal(pdx);
     MyEvolvablePdx.setVersion(1);
     MyEvolvablePdx pdxv1 = deblob(v3actual);
     assertEquals(7, pdxv1.f1);
     assertEquals(0, pdxv1.f2);
 
-    int numPdxTypes = getNumPdxTypes();
+    var numPdxTypes = getNumPdxTypes();
     // now reserialize and make sure f2 is preserved
-    byte[] v1actual = createBlob(pdxv1);
+    var v1actual = createBlob(pdxv1);
 
-    int mergedTypeId = getBlobPdxTypeId(v1actual);
+    var mergedTypeId = getBlobPdxTypeId(v1actual);
     assertEquals(numPdxTypes + 1, getNumPdxTypes());
-    TypeRegistry tr = cache.getPdxRegistry();
-    PdxType v3Type = tr.getType(v3typeId);
-    PdxType mergedType = tr.getType(mergedTypeId);
+    var tr = cache.getPdxRegistry();
+    var v3Type = tr.getType(v3typeId);
+    var mergedType = tr.getType(mergedTypeId);
     assertFalse(mergedType.equals(v3Type));
     assertTrue(mergedType.compatible(v3Type));
 
@@ -2142,12 +2139,12 @@ public class PdxSerializableJUnitTest {
     // this test pretends that version 1 is newer than version2
     // so it look like a field was removed.
     MyEvolvablePdx.setVersion(1);
-    MyEvolvablePdx pdx = new MyEvolvablePdx(7);
+    var pdx = new MyEvolvablePdx(7);
     assertEquals(7, pdx.f1);
     assertEquals(0, pdx.f2);
 
-    byte[] v1actual = createBlob(pdx);
-    int v1typeId = getBlobPdxTypeId(v1actual);
+    var v1actual = createBlob(pdx);
+    var v1typeId = getBlobPdxTypeId(v1actual);
 
     cache.getPdxRegistry().removeLocal(pdx);
     MyEvolvablePdx.setVersion(2);
@@ -2156,15 +2153,15 @@ public class PdxSerializableJUnitTest {
     assertEquals(0, pdxv2.f2);
     pdxv2.f2 = 23;
 
-    int numPdxTypes = getNumPdxTypes();
+    var numPdxTypes = getNumPdxTypes();
     // now reserialize and make sure it is version2 and not version1
-    byte[] v2actual = createBlob(pdxv2);
-    int v2typeId = getBlobPdxTypeId(v2actual);
+    var v2actual = createBlob(pdxv2);
+    var v2typeId = getBlobPdxTypeId(v2actual);
     assertEquals(numPdxTypes + 1, getNumPdxTypes());
 
-    TypeRegistry tr = cache.getPdxRegistry();
-    PdxType v2Type = tr.getType(v2typeId);
-    PdxType v1Type = tr.getType(v1typeId);
+    var tr = cache.getPdxRegistry();
+    var v2Type = tr.getType(v2typeId);
+    var v1Type = tr.getType(v1typeId);
     assertFalse(v1Type.equals(v2Type));
     assertFalse(v1Type.compatible(v2Type));
     assertNotNull(v1Type.getPdxField("f1"));
@@ -2180,7 +2177,7 @@ public class PdxSerializableJUnitTest {
   }
 
   private int getBlobPdxTypeId(byte[] blob) {
-    ByteBuffer bb = ByteBuffer.wrap(blob);
+    var bb = ByteBuffer.wrap(blob);
     // skip byte for PDX dscode and integer for pdx length
     return bb.getInt(DataSize.BYTE_SIZE + DataSize.INTEGER_SIZE);
   }
@@ -2255,7 +2252,7 @@ public class PdxSerializableJUnitTest {
       if (!(obj instanceof POS)) {
         return false;
       }
-      POS other = (POS) obj;
+      var other = (POS) obj;
       return f == other.f;
     }
   }

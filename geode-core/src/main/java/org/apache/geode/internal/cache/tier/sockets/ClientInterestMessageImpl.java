@@ -137,7 +137,7 @@ public class ClientInterestMessageImpl implements ClientMessage {
 
   @Override
   public Message getMessage(CacheClientProxy proxy, boolean notify) throws IOException {
-    Message message = new Message(isRegister() ? 7 : 6, KnownVersion.CURRENT);
+    var message = new Message(isRegister() ? 7 : 6, KnownVersion.CURRENT);
     message.setTransactionId(0);
 
     // Set the message type
@@ -149,7 +149,7 @@ public class ClientInterestMessageImpl implements ClientMessage {
         message.setMessageType(MessageType.CLIENT_UNREGISTER_INTEREST);
         break;
       default:
-        String s = "Unknown action: " + action;
+        var s = "Unknown action: " + action;
         throw new IOException(s);
     }
 

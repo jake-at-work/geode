@@ -78,7 +78,6 @@ import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
-import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
 import org.apache.geode.cache.query.internal.index.IndexManager;
 import org.apache.geode.cache.snapshot.RegionSnapshotService;
@@ -88,7 +87,6 @@ import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionAdvisor;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.extension.Extensible;
 import org.apache.geode.internal.cache.extension.ExtensionPoint;
 import org.apache.geode.internal.cache.extension.SimpleExtensionPoint;
@@ -306,7 +304,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
     // found non-null PartitionAttributes and offHeap is true so let's setOffHeap on PA now
     PartitionAttributes<?, ?> partitionAttributes1 = attrs.getPartitionAttributes();
     if (offHeap && partitionAttributes1 != null) {
-      PartitionAttributesImpl impl = (PartitionAttributesImpl) partitionAttributes1;
+      var impl = (PartitionAttributesImpl) partitionAttributes1;
       impl.setOffHeap(true);
     }
 
@@ -366,7 +364,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
     cloningEnable = attrs.getCloningEnabled();
     poolName = attrs.getPoolName();
     if (poolName != null) {
-      PoolImpl cp = getPool();
+      var cp = getPool();
       if (cp == null) {
         throw new IllegalStateException(
             String.format("The connection pool %s has not been created",
@@ -502,7 +500,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   public void clear() {
     checkReadiness();
     checkForLimitedOrNoAccess();
-    RegionEventImpl regionEvent = new RegionEventImpl(this, Operation.REGION_CLEAR, null, false,
+    var regionEvent = new RegionEventImpl(this, Operation.REGION_CLEAR, null, false,
         getMyId(), generateEventID());
     basicClear(regionEvent);
   }
@@ -513,7 +511,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   public void localClear() {
     checkReadiness();
     checkForNoAccess();
-    RegionEventImpl event = new RegionEventImpl(this, Operation.REGION_LOCAL_CLEAR, null, false,
+    var event = new RegionEventImpl(this, Operation.REGION_LOCAL_CLEAR, null, false,
         getMyId(), generateEventID()/* generate EventID */);
     basicLocalClear(event);
   }
@@ -536,7 +534,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   abstract Map basicGetAll(Collection keys, Object callback);
 
   protected StringBuilder getStringBuilder() {
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append(getClass().getName());
     buf.append("[path='").append(getFullPath()).append("';scope=").append(getScope())
         .append("';dataPolicy=").append(getDataPolicy());
@@ -691,7 +689,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
 
   @Override
   public CacheListener getCacheListener() {
-    CacheListener[] listeners = fetchCacheListenersField();
+    var listeners = fetchCacheListenersField();
     if (listeners == null || listeners.length == 0) {
       return null;
     }
@@ -733,11 +731,11 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
    * @param allGatewaySenderIds the set of gateway sender IDs to consider
    */
   List<Integer> getRemoteDsIds(Set<String> allGatewaySenderIds) throws IllegalStateException {
-    int sz = allGatewaySenderIds.size();
-    Set<GatewaySender> allGatewaySenders = cache.getAllGatewaySenders();
+    var sz = allGatewaySenderIds.size();
+    var allGatewaySenders = cache.getAllGatewaySenders();
     if ((sz > 0 || isPdxTypesRegion) && !allGatewaySenders.isEmpty()) {
       List<Integer> allRemoteDSIds = new ArrayList<>(sz);
-      for (GatewaySender sender : allGatewaySenders) {
+      for (var sender : allGatewaySenders) {
         // This is for all regions except pdx Region
         if (!isPdxTypesRegion) {
           // Make sure we are distributing to only those senders whose id
@@ -759,11 +757,11 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
 
   @Override
   public CacheListener[] getCacheListeners() {
-    CacheListener[] listeners = fetchCacheListenersField();
+    var listeners = fetchCacheListenersField();
     if (listeners == null || listeners.length == 0) {
       return EMPTY_LISTENERS;
     } else {
-      CacheListener[] result = new CacheListener[listeners.length];
+      var result = new CacheListener[listeners.length];
       System.arraycopy(listeners, 0, result, 0, listeners.length);
       return result;
     }
@@ -775,7 +773,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   private void storeCacheListenersField(CacheListener[] value) {
     synchronized (clSync) {
       if (value != null && value.length != 0) {
-        CacheListener[] cacheListeners = new CacheListener[value.length];
+        var cacheListeners = new CacheListener[value.length];
         System.arraycopy(value, 0, cacheListeners, 0, cacheListeners.length);
         value = cacheListeners;
       } else {
@@ -967,7 +965,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   // caused by the Bug # 33336
   @Override
   public boolean isIndexCreationThread() {
-    Boolean value = isIndexCreator.get();
+    var value = isIndexCreator.get();
     return value != null ? value : false;
   }
 
@@ -1013,7 +1011,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
       allGatewaySenderIds = Collections.emptySet(); // fix for bug 45774
     }
     Set<String> tmp = new HashSet<>(getGatewaySenderIds());
-    for (String asyncQueueId : getAsyncEventQueueIds()) {
+    for (var asyncQueueId : getAsyncEventQueueIds()) {
       tmp.add(AsyncEventQueueImpl.getSenderIdFromAsyncEventQueueId(asyncQueueId));
     }
     allGatewaySenderIds = Collections.unmodifiableSet(tmp);
@@ -1035,15 +1033,15 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
       throw new IllegalArgumentException(
           "addCacheListener parameter was null");
     }
-    CacheListener wcl = wrapRegionMembershipListener(aListener);
-    boolean changed = false;
+    var wcl = wrapRegionMembershipListener(aListener);
+    var changed = false;
     synchronized (clSync) {
-      CacheListener[] oldListeners = cacheListeners;
+      var oldListeners = cacheListeners;
       if (oldListeners == null || oldListeners.length == 0) {
         cacheListeners = new CacheListener[] {wcl};
         changed = true;
       } else {
-        List<CacheListener> listeners = Arrays.asList(oldListeners);
+        var listeners = Arrays.asList(oldListeners);
         if (!listeners.contains(aListener)) {
           cacheListeners =
               (CacheListener[]) ArrayUtils.insert(oldListeners, oldListeners.length, wcl);
@@ -1076,10 +1074,10 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
     synchronized (clSync) {
       DistributedMember[] members = null;
       CacheListener[] newListeners = null;
-      for (int i = 0; i < cacheListeners.length; i++) {
-        CacheListener cl = cacheListeners[i];
+      for (var i = 0; i < cacheListeners.length; i++) {
+        var cl = cacheListeners[i];
         if (cl instanceof WrappedRegionMembershipListener) {
-          WrappedRegionMembershipListener wrml = (WrappedRegionMembershipListener) cl;
+          var wrml = (WrappedRegionMembershipListener) cl;
           if (!wrml.isInitialized()) {
             if (members == null) {
               members = (DistributedMember[]) initialMembers.toArray(new DistributedMember[0]);
@@ -1105,7 +1103,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
     CacheListener[] listenersToAdd = null;
     if (newListeners != null) {
       listenersToAdd = new CacheListener[newListeners.length];
-      for (int i = 0; i < newListeners.length; i++) {
+      for (var i = 0; i < newListeners.length; i++) {
         listenersToAdd[i] = wrapRegionMembershipListener(newListeners[i]);
       }
     }
@@ -1119,7 +1117,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
           throw new IllegalArgumentException(
               "initCacheListeners parameter had a null element");
         }
-        CacheListener[] newCacheListeners = new CacheListener[listenersToAdd.length];
+        var newCacheListeners = new CacheListener[listenersToAdd.length];
         System.arraycopy(listenersToAdd, 0, newCacheListeners, 0, newCacheListeners.length);
         cacheListeners = newCacheListeners;
       }
@@ -1127,14 +1125,14 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
     // moved the following out of the sync for bug 34512
     if (listenersToAdd == null || listenersToAdd.length == 0) {
       if (oldListeners != null && oldListeners.length > 0) {
-        for (CacheListener oldListener : oldListeners) {
+        for (var oldListener : oldListeners) {
           closeCacheCallback(oldListener);
         }
         cacheListenersChanged(false);
       }
     } else { // we had some listeners to add
       if (oldListeners != null && oldListeners.length > 0) {
-        for (CacheListener oldListener : oldListeners) {
+        for (var oldListener : oldListeners) {
           closeCacheCallback(oldListener);
         }
       } else {
@@ -1150,16 +1148,16 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
       throw new IllegalArgumentException(
           "removeCacheListener parameter was null");
     }
-    boolean changed = false;
+    var changed = false;
     synchronized (clSync) {
-      CacheListener[] oldListeners = cacheListeners;
+      var oldListeners = cacheListeners;
       if (oldListeners != null && oldListeners.length > 0) {
         List<CacheListener> newListeners = new ArrayList<>(Arrays.asList(oldListeners));
         if (newListeners.remove(aListener)) {
           if (newListeners.isEmpty()) {
             cacheListeners = EMPTY_LISTENERS;
           } else {
-            CacheListener[] newCacheListeners = new CacheListener[newListeners.size()];
+            var newCacheListeners = new CacheListener[newListeners.size()];
             newListeners.toArray(newCacheListeners);
             cacheListeners = newCacheListeners;
           }
@@ -1180,7 +1178,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
     readWriteLockForCacheLoader.writeLock().lock();
     try {
       checkReadiness();
-      CacheLoader oldLoader = this.cacheLoader;
+      var oldLoader = this.cacheLoader;
       this.cacheLoader = cacheLoader;
       cacheLoaderChanged(oldLoader);
       return oldLoader;
@@ -1203,7 +1201,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
     readWriteLockForCacheWriter.writeLock().lock();
     try {
       checkReadiness();
-      CacheWriter oldWriter = this.cacheWriter;
+      var oldWriter = this.cacheWriter;
       this.cacheWriter = cacheWriter;
       cacheWriterChanged(oldWriter);
       return oldWriter;
@@ -1243,7 +1241,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
           "Cannot set idle timeout when statistics are disabled.");
     }
 
-    ExpirationAttributes oldAttrs = getEntryIdleTimeout();
+    var oldAttrs = getEntryIdleTimeout();
     entryIdleTimeout = idleTimeout.getTimeout();
     entryIdleTimeoutExpirationAction = idleTimeout.getAction();
     setEntryIdleTimeoutAttributes();
@@ -1260,7 +1258,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
           "Cannot set idle timeout when statistics are disabled.");
     }
 
-    CustomExpiry old = getCustomEntryIdleTimeout();
+    var old = getCustomEntryIdleTimeout();
     customEntryIdleTimeout = custom;
     updateEntryExpiryPossible();
     idleTimeoutChanged(getEntryIdleTimeout());
@@ -1279,7 +1277,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
       throw new IllegalStateException(
           "Cannot set time to live when statistics are disabled");
     }
-    ExpirationAttributes oldAttrs = getEntryTimeToLive();
+    var oldAttrs = getEntryTimeToLive();
     entryTimeToLive = timeToLive.getTimeout();
     entryTimeToLiveExpirationAction = timeToLive.getAction();
     setEntryTimeToLiveAttributes();
@@ -1295,7 +1293,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
       throw new IllegalStateException(
           "Cannot set custom time to live when statistics are disabled");
     }
-    CustomExpiry old = getCustomEntryTimeToLive();
+    var old = getCustomEntryTimeToLive();
     customEntryTimeToLive = custom;
     updateEntryExpiryPossible();
     timeToLiveChanged(getEntryTimeToLive());
@@ -1304,7 +1302,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
 
   public static void validatePRRegionExpirationAttributes(ExpirationAttributes expAtts) {
     if (expAtts.getTimeout() > 0) {
-      ExpirationAction expAction = expAtts.getAction();
+      var expAction = expAtts.getAction();
       if (expAction.isInvalidate() || expAction.isLocalInvalidate()) {
         throw new IllegalStateException(
             "ExpirationAction INVALIDATE or LOCAL_INVALIDATE for region is not supported for Partitioned Region.");
@@ -1335,7 +1333,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
       throw new IllegalStateException(
           "Cannot set idle timeout when statistics are disabled.");
     }
-    ExpirationAttributes oldAttrs = getRegionIdleTimeout();
+    var oldAttrs = getRegionIdleTimeout();
     regionIdleTimeout = idleTimeout.getTimeout();
     regionIdleTimeoutExpirationAction = idleTimeout.getAction();
     setRegionIdleTimeoutAttributes();
@@ -1364,7 +1362,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
           "Cannot set time to live when statistics are disabled");
     }
 
-    ExpirationAttributes oldAttrs = getRegionTimeToLive();
+    var oldAttrs = getRegionTimeToLive();
     regionTimeToLive = timeToLive.getTimeout();
     regionTimeToLiveExpirationAction = timeToLive.getAction();
     setRegionTimeToLiveAtts();
@@ -1406,14 +1404,14 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   @Override
   public synchronized long getLastModifiedTime() {
     checkReadiness();
-    long mostRecent = basicGetLastModifiedTime();
+    var mostRecent = basicGetLastModifiedTime();
 
     // don't need to wait on getInitialImage for this operation in subregions
-    final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+    final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
     try {
-      for (Object region : subregions(false)) {
+      for (var region : subregions(false)) {
         try {
-          LocalRegion localRegion = (LocalRegion) region;
+          var localRegion = (LocalRegion) region;
           if (localRegion.isInitialized()) {
             mostRecent = Math.max(mostRecent, localRegion.getLastModifiedTime());
           }
@@ -1451,13 +1449,13 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   @Override
   public synchronized long getLastAccessedTime() {
     checkReadiness();
-    long mostRecent = basicGetLastAccessedTime();
+    var mostRecent = basicGetLastAccessedTime();
     // don't need to wait on getInitialImage for this operation in subregions
-    final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+    final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
     try {
-      for (Object region : subregions(false)) {
+      for (var region : subregions(false)) {
         try {
-          LocalRegion localRegion = (LocalRegion) region;
+          var localRegion = (LocalRegion) region;
           if (localRegion.isInitialized()) {
             mostRecent = Math.max(mostRecent, localRegion.getLastAccessedTime());
           }
@@ -1475,15 +1473,15 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
    * Update the lastAccessedTime and lastModifiedTimes to reflects those in the subregions
    */
   protected synchronized void updateStats() {
-    long mostRecentAccessed = basicGetLastAccessedTime();
-    long mostRecentModified = basicGetLastModifiedTime();
+    var mostRecentAccessed = basicGetLastAccessedTime();
+    var mostRecentModified = basicGetLastModifiedTime();
 
     // don't need to wait on getInitialImage for this operation in subregions
-    final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+    final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
     try {
-      for (Object region : subregions(false)) {
+      for (var region : subregions(false)) {
         try {
-          LocalRegion localRegion = (LocalRegion) region;
+          var localRegion = (LocalRegion) region;
           if (localRegion.isInitialized()) {
             mostRecentAccessed = Math.max(mostRecentAccessed, localRegion.getLastAccessedTime());
             mostRecentModified = Math.max(mostRecentModified, localRegion.getLastModifiedTime());
@@ -1523,8 +1521,8 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
 
   @Override
   public float getHitRatio() {
-    long hits = getHitCount();
-    long total = hits + getMissCount();
+    var hits = getHitCount();
+    var total = hits + getMissCount();
     return total == 0L ? 0.0f : (float) hits / total;
   }
 
@@ -1706,7 +1704,7 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   @Override
   public Object selectValue(String queryPredicate) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    SelectResults result = query(queryPredicate);
+    var result = query(queryPredicate);
     if (result.isEmpty()) {
       return null;
     }

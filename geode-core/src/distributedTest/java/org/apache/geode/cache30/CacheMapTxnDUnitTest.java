@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -34,7 +33,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
 import org.apache.geode.distributed.DistributedSystem;
@@ -42,7 +40,6 @@ import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -57,9 +54,9 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(CacheMapTxnDUnitTest::createCache);
     vm1.invoke(CacheMapTxnDUnitTest::createCache);
     postSetUpCacheMapTxnDUnitTest();
@@ -69,9 +66,9 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(CacheMapTxnDUnitTest::closeCache);
     vm1.invoke(CacheMapTxnDUnitTest::closeCache);
   }
@@ -82,10 +79,10 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
       // ds = DistributedSystem.connect(props);
       ds = (new CacheMapTxnDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.REPLICATE);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
 
     } catch (Exception ex) {
@@ -105,28 +102,28 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
   @Test
   public void testCommitTxn() {
     // this is to test single VM region transactions
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(CacheMapTxnDUnitTest::commitTxn);
   }// end of testCommitTxn
 
   @Test
   public void testRollbackTxn() {
     // this is to test single VM region transactions
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(CacheMapTxnDUnitTest::rollbackTxn);
   }// end of testRollbackTxn
 
   @Test
   public void testRollbackTxnClear() {
     // this is to test single VM region transactions
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    int i = 0;
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var i = 0;
     Object ob2;
-    Object[] objArr = new Object[1];
+    var objArr = new Object[1];
 
     for (i = 0; i < 5; i++) {
       objArr[0] = "" + i;
@@ -146,9 +143,9 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
 
   @Test
   public void testMiscMethods() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(CacheMapTxnDUnitTest::miscMethodsOwner);
     AsyncInvocation o2 = vm0.invokeAsync(CacheMapTxnDUnitTest::miscMethodsNotOwner);// invoke
                                                                                     // in
@@ -180,7 +177,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
   public static void commitTxn() {
     try {
       cacheTxnMgr = cache.getCacheTransactionManager();
-      int[] i = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+      var i = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
       Object o3;
       o3 = "init";
       region.put("" + i[0], "zero");
@@ -201,7 +198,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
         fail("remove inside transaction returns incorrect object");
       }
 
-      boolean flag = region.containsKey("" + i[2]);
+      var flag = region.containsKey("" + i[2]);
       if (flag) {
         fail("region.containsKey after region.remove inside txn returns incorrect value");
       }
@@ -228,7 +225,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
       }
 
       // test a failed removal
-      boolean succeeded = region.remove("" + i[5], new Object());
+      var succeeded = region.remove("" + i[5], new Object());
       assertTrue(!succeeded);
       assertTrue(region.get("" + i[5]).equals("fifth"));
 
@@ -262,7 +259,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
         fail("containsKey after committed transaction was true");
       }
 
-      boolean val = region.containsValue("updatedZero");
+      var val = region.containsValue("updatedZero");
       if (!val) {
         fail("containsValue after committed transaction returns incorrect result");
       }
@@ -285,7 +282,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
   public static void rollbackTxn() {
     try {
       cacheTxnMgr = cache.getCacheTransactionManager();
-      int[] i = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+      var i = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
       Object o3;
       o3 = "init";
       region.put("" + i[0], "zero");
@@ -299,7 +296,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
       }
 
       // test containsValue
-      boolean flag = region.containsValue("first");
+      var flag = region.containsValue("first");
       // assertIndexDetailsEquals(true, flag);
 
       // test remove
@@ -332,7 +329,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
       }
 
       // test a failed removal
-      boolean succeeded = region.remove("" + i[5], new Object());
+      var succeeded = region.remove("" + i[5], new Object());
       assertTrue(!succeeded);
       assertTrue(region.get("" + i[5]).equals("fifth"));
 
@@ -390,7 +387,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
   public static void rollbackTxnClear() {
     try {
       cacheTxnMgr = cache.getCacheTransactionManager();
-      int[] i = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+      var i = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
       region.put("" + i[0], "zero");
       // begin transaction
       cacheTxnMgr.begin();
@@ -408,7 +405,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
 
       // verify for persistent data now
 
-      boolean val = region.containsValue("updatedZero");
+      var val = region.containsValue("updatedZero");
       if (val) {
         fail("containsValue after region.clear & rolled back transaction returns incorrect result");
       }
@@ -428,7 +425,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
   public static void miscMethodsOwner() {
     try {
       cacheTxnMgr = cache.getCacheTransactionManager();
-      int[] i = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+      var i = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
       region.clear();
       region.put("" + i[0], "zero");
       region.put("" + i[1], "first");
@@ -440,14 +437,14 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
       region.put("" + i[5], "fifth");
 
       // test size method
-      int j = region.size();
+      var j = region.size();
       if (j != 6) {
         fail("region.size inside transaction returns incorrect results");
       }
 
       // test entrySet method
-      Set set = region.entrySet();
-      int k = set.size();
+      var set = region.entrySet();
+      var k = set.size();
       if (j != 6) {
         fail("region.entrySet inside transaction returns incorrect results");
       }
@@ -459,7 +456,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
         fail("region.keySet inside transaction returns incorrect results");
       }
 
-      boolean val = region.containsValue("forth");
+      var val = region.containsValue("forth");
       if (!val) {
         fail("containsValue inside transaction returns incorrect result");
       }
@@ -488,15 +485,15 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
       // int [] i = {0,1,2,3,4,5,6,7,8,9};
       // it is assumed that there are already four committed entried inside region
       // test size method
-      int j = region.size();
+      var j = region.size();
       if (j != 4) {
         fail("region.size for not owner of transaction returns incorrect results, size is " + j
             + " but expected 4");
       }
 
       // test entrySet method
-      Set set = region.entrySet();
-      int k = set.size();
+      var set = region.entrySet();
+      var k = set.size();
       if (j != 4) {
         fail("region.entrySet for not owner of transaction returns incorrect results");
       }
@@ -507,7 +504,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
       if (j != 4) {
         fail("region.keySet for not owner of transaction returns incorrect results");
       }
-      boolean val = region.containsKey("forth");
+      var val = region.containsKey("forth");
       if (val) {
         fail("containsValue for not owner of transaction returns incorrect result");
       }
@@ -524,7 +521,7 @@ public class CacheMapTxnDUnitTest extends JUnit4DistributedTestCase { // TODO: r
     Object obj = null;
     try {
       if (ob != null) {
-        String str = "first";
+        var str = "first";
         obj = region.put(ob, str);
       }
     } catch (Exception ex) {

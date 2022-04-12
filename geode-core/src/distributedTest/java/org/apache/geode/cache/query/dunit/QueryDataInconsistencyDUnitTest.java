@@ -39,8 +39,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.Position;
@@ -94,13 +92,13 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       Region region = cache.createRegionFactory(RegionShortcut.REPLICATE).create(repRegionName);
 
       // Create common Portflios and NewPortfolios
-      for (int j = cnt; j < cntDest; j++) {
+      for (var j = cnt; j < cntDest; j++) {
         region.put(j, new Portfolio(j));
       }
 
-      QueryService queryService = cache.getQueryService();
+      var queryService = cache.getQueryService();
       try {
-        Index index = queryService.createIndex("idIndex", "ID", SEPARATOR + repRegionName);
+        var index = queryService.createIndex("idIndex", "ID", SEPARATOR + repRegionName);
         assertEquals(10, index.getStatistics().getNumberOfKeys());
       } catch (Exception e) {
         logger.error(e);
@@ -117,7 +115,7 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       // above call must be hooked in BEFORE_UPDATE_OP call.
     });
     server.invoke("query on server", () -> {
-      QueryService queryService = cacheRule.getCache().getQueryService();
+      var queryService = cacheRule.getCache().getQueryService();
       await().until(() -> hooked);
       Object resultSet = null;
       try {
@@ -131,7 +129,7 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       }
       assertTrue(resultSet instanceof SelectResults);
       assertEquals(1, ((SelectResults) resultSet).size());
-      Portfolio p1 = (Portfolio) ((SelectResults) resultSet).asList().get(0);
+      var p1 = (Portfolio) ((SelectResults) resultSet).asList().get(0);
       if (p1.getID() != 1) {
         fail("Query thread did not verify index results even when RE is under update");
         IndexManager.testHook = null;
@@ -141,7 +139,7 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
 
     // Client put is again hooked in AFTER_UPDATE_OP call in updateIndex.
     server.invoke("query on server", () -> {
-      QueryService queryService = cacheRule.getCache().getQueryService();
+      var queryService = cacheRule.getCache().getQueryService();
       await().until(() -> hooked);
       Object resultSet = null;
       try {
@@ -156,7 +154,7 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       }
       assertTrue(resultSet instanceof SelectResults);
       if (((SelectResults) resultSet).size() > 0) {
-        Portfolio p1 = (Portfolio) ((SelectResults) resultSet).iterator().next();
+        var p1 = (Portfolio) ((SelectResults) resultSet).iterator().next();
         if (p1.getID() != 1) {
           fail("Query thread did not verify index results even when RE is under update and "
               + "RegionEntry value has been modified before releasing the lock");
@@ -177,15 +175,15 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       IndexManager.testHook = null;
       // Create common Portfolios and NewPortfolios
       Position.cnt = 0;
-      for (int j = cnt; j < cntDest; j++) {
-        Portfolio p = new Portfolio(j);
+      for (var j = cnt; j < cntDest; j++) {
+        var p = new Portfolio(j);
         cache.getLogger().fine("Shobhit: portfolio " + j + " : " + p);
         region.put(j, p);
       }
 
-      QueryService queryService = cache.getQueryService();
+      var queryService = cache.getQueryService();
       try {
-        Index index = queryService.createIndex("posIndex", "pos.secId",
+        var index = queryService.createIndex("posIndex", "pos.secId",
             SEPARATOR + repRegionName + " p, p.positions.values pos");
         assertEquals(12, index.getStatistics().getNumberOfKeys());
       } catch (Exception e) {
@@ -200,7 +198,7 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       Cache cache = cacheRule.getCache();
       Region repRegion = cache.getRegion(repRegionName);
       IndexManager.testHook = new IndexManagerTestHook();
-      Portfolio newPort = new Portfolio(cntDest + 1);
+      var newPort = new Portfolio(cntDest + 1);
       cache.getLogger().fine("Shobhit: New Portfolio" + newPort);
       repRegion.put(new Integer("1"), newPort);
       // above call must be hooked in BEFORE_UPDATE_OP call.
@@ -208,11 +206,11 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
 
     server.invoke("query on server", () -> {
       Cache cache = cacheRule.getCache();
-      QueryService queryService = cache.getQueryService();
+      var queryService = cache.getQueryService();
       Position pos1 = null;
       await().until(() -> hooked);
       try {
-        Object resultSet =
+        var resultSet =
             queryService.newQuery("<trace> select pos from " + SEPARATOR + repRegionName
                 + " p, p.positions.values pos where pos.secId = 'APPL' AND p.ID = 1").execute();
         cache.getLogger().fine("Shobhit: " + resultSet);
@@ -231,13 +229,13 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       }
       await().until(() -> hooked);
       try {
-        Object resultSet =
+        var resultSet =
             queryService.newQuery("<trace> select pos from " + SEPARATOR + repRegionName
                 + " p, p.positions.values pos where pos.secId = 'APPL' AND p.ID = 1").execute();
         cache.getLogger().fine("Shobhit: " + resultSet);
         assertTrue(resultSet instanceof SelectResults);
         if (((SelectResults) resultSet).size() > 0) {
-          Position pos2 = (Position) ((SelectResults) resultSet).iterator().next();
+          var pos2 = (Position) ((SelectResults) resultSet).iterator().next();
           if (pos2.equals(pos1)) {
             fail("Query thread did not verify index results even when RE is under update and "
                 + "RegionEntry value has been modified before releasing the lock");
@@ -263,13 +261,13 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       IndexManager.testHook = null;
       // Create common Portfolios and NewPortfolios
       Position.cnt = 0;
-      for (int j = cnt; j < cntDest; j++) {
+      for (var j = cnt; j < cntDest; j++) {
         region.put(j, new Portfolio(j));
       }
 
-      QueryService queryService = cache.getQueryService();
+      var queryService = cache.getQueryService();
       try {
-        Index index = queryService.createIndex("posIndex", "pos.secId",
+        var index = queryService.createIndex("posIndex", "pos.secId",
             SEPARATOR + repRegionName
                 + " p, p.collectionHolderMap.values coll, p.positions.values pos");
         assertEquals(12, index.getStatistics().getNumberOfKeys());
@@ -291,11 +289,11 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
 
     server.invoke("query on server", () -> {
       Cache cache = cacheRule.getCache();
-      QueryService queryService = cache.getQueryService();
+      var queryService = cache.getQueryService();
       Position pos1 = null;
       await().until(() -> hooked);
       try {
-        Object resultSet =
+        var resultSet =
             queryService.newQuery("<trace> select pos from " + SEPARATOR + repRegionName
                 + " p, p.positions.values pos where pos.secId = 'APPL' AND p.ID = 1").execute();
         cache.getLogger().fine("Shobhit: " + resultSet);
@@ -314,11 +312,11 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       }
       await().until(() -> hooked);
       try {
-        Object resultSet = queryService.newQuery("select pos from " + SEPARATOR + repRegionName
+        var resultSet = queryService.newQuery("select pos from " + SEPARATOR + repRegionName
             + " p, p.positions.values pos where pos.secId = 'APPL' AND p.ID = 1").execute();
         assertTrue(resultSet instanceof SelectResults);
         if (((SelectResults) resultSet).size() > 0) {
-          Position pos2 = (Position) ((SelectResults) resultSet).iterator().next();
+          var pos2 = (Position) ((SelectResults) resultSet).iterator().next();
           if (pos2.equals(pos1)) {
             fail("Query thread did not verify index results even when RE is under update and "
                 + "RegionEntry value has been modified before releasing the lock");
@@ -344,13 +342,13 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       IndexManager.testHook = null;
       // Create common Portfolios and NewPortfolios
       Position.cnt = 0;
-      for (int j = cnt; j < cntDest; j++) {
+      for (var j = cnt; j < cntDest; j++) {
         region.put(j, new Portfolio(j));
       }
 
-      QueryService queryService = cache.getQueryService();
+      var queryService = cache.getQueryService();
       try {
-        Index index = queryService.createIndex("posIndex", "pos.secId",
+        var index = queryService.createIndex("posIndex", "pos.secId",
             SEPARATOR + repRegionName + " p, p.positions.values pos");
         assertEquals(12, index.getStatistics().getNumberOfKeys());
       } catch (Exception e) {
@@ -372,11 +370,11 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
 
     server.invoke("query on server", () -> {
       Cache cache = cacheRule.getCache();
-      QueryService queryService = cache.getQueryService();
+      var queryService = cache.getQueryService();
       Position pos1 = null;
       await().until(() -> hooked);
       try {
-        Object resultSet = queryService
+        var resultSet = queryService
             .newQuery("<trace> select pos from " + SEPARATOR + repRegionName
                 + " p, p.collectionHolderMap.values coll, p.positions.values pos where pos.secId = 'APPL' AND p.ID = 1")
             .execute();
@@ -397,13 +395,13 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
       await().until(() -> hooked);
 
       try {
-        Object resultSet = queryService
+        var resultSet = queryService
             .newQuery("select pos from " + SEPARATOR + repRegionName
                 + " p, p.collectionHolderMap.values coll, p.positions.values pos where pos.secId = 'APPL' AND p.ID = 1")
             .execute();
         assertTrue(resultSet instanceof SelectResults);
         if (((SelectResults) resultSet).size() > 0) {
-          Position pos2 = (Position) ((SelectResults) resultSet).iterator().next();
+          var pos2 = (Position) ((SelectResults) resultSet).iterator().next();
           if (pos2.equals(pos1)) {
             fail("Query thread did not verify index results even when RE is under update and "
                 + "RegionEntry value has been modified before releasing the lock");
@@ -432,14 +430,14 @@ public class QueryDataInconsistencyDUnitTest implements Serializable {
   }
 
   private void createProxyRegs() {
-    ClientCache cache = (ClientCache) cacheRule.getCache();
+    var cache = (ClientCache) cacheRule.getCache();
     cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(repRegionName);
   }
 
   public void createPR() {
     PartitionResolver testKeyBasedResolver = new QueryAPITestPartitionResolver();
     Cache cache = cacheRule.getCache();
-    int numOfBuckets = 20;
+    var numOfBuckets = 20;
     cache.createRegionFactory(RegionShortcut.PARTITION_REDUNDANT)
         .setPartitionAttributes(new PartitionAttributesFactory().setTotalNumBuckets(numOfBuckets)
             .setPartitionResolver(testKeyBasedResolver).create())

@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
@@ -54,31 +53,31 @@ public class DiskRegionStats {
 
 
   static {
-    String statName = "DiskRegionStatistics";
-    String statDescription = "Statistics about a Region's use of the disk";
+    var statName = "DiskRegionStatistics";
+    var statDescription = "Statistics about a Region's use of the disk";
 
-    final String writesDesc =
+    final var writesDesc =
         "The total number of region entries that have been written to disk. A write is done every time an entry is created on disk or every time its value is modified on disk.";
-    final String writeTimeDesc = "The total amount of time spent writing to disk";
-    final String bytesWrittenDesc = "The total number of bytes that have been written to disk";
-    final String readsDesc = "The total number of region entries that have been read from disk";
-    final String readTimeDesc = "The total amount of time spent reading from disk";
-    final String bytesReadDesc = "The total number of bytes that have been read from disk";
-    final String removesDesc =
+    final var writeTimeDesc = "The total amount of time spent writing to disk";
+    final var bytesWrittenDesc = "The total number of bytes that have been written to disk";
+    final var readsDesc = "The total number of region entries that have been read from disk";
+    final var readTimeDesc = "The total amount of time spent reading from disk";
+    final var bytesReadDesc = "The total number of bytes that have been read from disk";
+    final var removesDesc =
         "The total number of region entries that have been removed from disk";
-    final String removeTimeDesc = "The total amount of time spent removing from disk";
-    final String numOverflowOnDiskDesc =
+    final var removeTimeDesc = "The total amount of time spent removing from disk";
+    final var numOverflowOnDiskDesc =
         "The current number of entries whose value is on disk and is not in memory. This is true of overflowed entries. It is also true of recovered entries that have not yet been faulted in.";
-    final String numOverflowBytesOnDiskDesc =
+    final var numOverflowBytesOnDiskDesc =
         "The current number bytes on disk and not in memory. This is true of overflowed entries. It is also true of recovered entries that have not yet been faulted in.";
-    final String numEntriesInVMDesc =
+    final var numEntriesInVMDesc =
         "The current number of entries whose value resides in the VM. The value may also have been written to disk.";
-    final String localInitializationsDesc =
+    final var localInitializationsDesc =
         "The number of times that this region has been initialized solely from the local disk files (0 or 1)";
-    final String remoteInitializationsDesc =
+    final var remoteInitializationsDesc =
         "The number of times that this region has been initialized by doing GII from a peer (0 or 1)";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     type = f.createType(statName, statDescription, new StatisticDescriptor[] {
         f.createLongCounter("writes", writesDesc, "ops"),

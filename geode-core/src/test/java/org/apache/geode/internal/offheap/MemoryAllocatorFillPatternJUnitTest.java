@@ -95,7 +95,7 @@ public class MemoryAllocatorFillPatternJUnitTest {
     /*
      * Pull a chunk off the fragment. This will have no fill because it is a "fresh" chunk.
      */
-    OffHeapStoredObject chunk1 = (OffHeapStoredObject) allocator.allocate(chunkSize);
+    var chunk1 = (OffHeapStoredObject) allocator.allocate(chunkSize);
 
     /*
      * Chunk should have valid fill from initial fragment allocation.
@@ -112,7 +112,7 @@ public class MemoryAllocatorFillPatternJUnitTest {
      * This chunk should have a fill because it was reused from the free list (assuming no
      * fragmentation at this point...)
      */
-    OffHeapStoredObject chunk = (OffHeapStoredObject) allocator.allocate(chunkSize);
+    var chunk = (OffHeapStoredObject) allocator.allocate(chunkSize);
 
     // Make sure we have a fill this time
     chunk.validateFill();
@@ -127,7 +127,7 @@ public class MemoryAllocatorFillPatternJUnitTest {
     // "Dirty up" the free chunk
     chunk.writeDataBytes(OffHeapStoredObject.MIN_CHUNK_SIZE + 1, WRITE_BYTES);
 
-    Throwable thrown = catchThrowable(chunk::validateFill);
+    var thrown = catchThrowable(chunk::validateFill);
     assertTrue(thrown instanceof IllegalStateException);
     assertEquals(
         "Fill pattern violated for chunk " + chunk.getAddress() + " with size " + chunk.getSize(),
@@ -145,12 +145,12 @@ public class MemoryAllocatorFillPatternJUnitTest {
     /*
      * Stores our allocated memory.
      */
-    OffHeapStoredObject[] allocatedChunks = new OffHeapStoredObject[DEFRAGMENTATION_CHUNKS];
+    var allocatedChunks = new OffHeapStoredObject[DEFRAGMENTATION_CHUNKS];
 
     /*
      * Use up most of our memory Our memory looks like [ ][ ][ ]
      */
-    for (int i = 0; i < allocatedChunks.length; ++i) {
+    for (var i = 0; i < allocatedChunks.length; ++i) {
       allocatedChunks[i] =
           (OffHeapStoredObject) allocator.allocate(DEFRAGMENTATION_CHUNK_SIZE);
       allocatedChunks[i].validateFill();
@@ -159,7 +159,7 @@ public class MemoryAllocatorFillPatternJUnitTest {
     /*
      * Release some of our allocated chunks.
      */
-    for (int i = 0; i < 2; ++i) {
+    for (var i = 0; i < 2; ++i) {
       allocatedChunks[i].release();
       allocatedChunks[i].validateFill();
     }
@@ -168,7 +168,7 @@ public class MemoryAllocatorFillPatternJUnitTest {
      * Now, allocate another chunk that is slightly larger than one of our initial chunks. This
      * should force a defragmentation causing our memory to look like [ ][ ].
      */
-    OffHeapStoredObject slightlyLargerChunk =
+    var slightlyLargerChunk =
         (OffHeapStoredObject) allocator.allocate(FORCE_DEFRAGMENTATION_CHUNK_SIZE);
 
     /*

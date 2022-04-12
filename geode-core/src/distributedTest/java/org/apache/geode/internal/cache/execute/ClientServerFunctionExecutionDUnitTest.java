@@ -24,7 +24,6 @@ import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -38,7 +37,6 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
@@ -90,7 +88,7 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
+    var result = super.getDistributedSystemProperties();
     result.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.execute.**;org.apache.geode.test.dunit.**");
     return result;
@@ -268,9 +266,9 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
 
   private static void FunctionExecution_Inline_Bug40714() {
     DistributedSystem.setThreadsSocketPolicy(false);
-    Execution member = FunctionService.onServers(pool);
+    var member = FunctionService.onServers(pool);
     try {
-      ResultCollector rs = member.setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
+      var rs = member.setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
         @Override
         public void execute(FunctionContext context) {
           @SuppressWarnings("unchecked")
@@ -292,7 +290,7 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
           return true;
         }
       });
-      List resultList = (List) rs.getResult();
+      var resultList = (List) rs.getResult();
       assertEquals(3, resultList.size());
       assertEquals(Boolean.TRUE, resultList.get(0));
       assertEquals(Boolean.TRUE, resultList.get(1));
@@ -495,10 +493,10 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     if (toRegister) {
       FunctionService.registerFunction(function);
     }
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
 
     try {
-      ResultCollector rs = execute(member, Boolean.TRUE, function, isByName);
+      var rs = execute(member, Boolean.TRUE, function, isByName);
       assertEquals(Boolean.TRUE, ((List) rs.getResult()).get(0));
 
     } catch (Exception ex) {
@@ -508,15 +506,15 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     }
 
     try {
-      final HashSet<String> testKeysSet = new HashSet<>();
-      for (int i = 0; i < 20; i++) {
+      final var testKeysSet = new HashSet<String>();
+      for (var i = 0; i < 20; i++) {
         testKeysSet.add("execKey-" + i);
       }
 
-      ResultCollector rs = execute(member, testKeysSet, function, isByName);
+      var rs = execute(member, testKeysSet, function, isByName);
 
-      List resultList = (List) rs.getResult();
-      for (int i = 0; i < 20; i++) {
+      var resultList = (List) rs.getResult();
+      for (var i = 0; i < 20; i++) {
         assertTrue(((List) (resultList.get(0))).contains("execKey-" + i));
       }
 
@@ -530,13 +528,13 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
 
   private static void executeRegisteredFunction() {
     DistributedSystem.setThreadsSocketPolicy(false);
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
 
     // remove any existing attributes
     ((AbstractExecution) member).removeFunctionAttributes(TestFunction.TEST_FUNCTION1);
-    ResultCollector rs = member.setArguments(Boolean.TRUE).execute(TestFunction.TEST_FUNCTION1);
+    var rs = member.setArguments(Boolean.TRUE).execute(TestFunction.TEST_FUNCTION1);
     assertEquals(Boolean.TRUE, ((List) rs.getResult()).get(0));
-    byte[] functionAttributes =
+    var functionAttributes =
         ((AbstractExecution) member).getFunctionAttributes(TestFunction.TEST_FUNCTION1);
     assertNotNull(functionAttributes);
   }
@@ -550,10 +548,10 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     if (toRegister) {
       FunctionService.registerFunction(function);
     }
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
 
     try {
-      ResultCollector rs = execute(member, Boolean.TRUE, function, isByName);
+      var rs = execute(member, Boolean.TRUE, function, isByName);
       assertTrue(((List) rs.getResult()).get(0) instanceof MyFunctionExecutionException);
 
     } catch (Exception ex) {
@@ -563,19 +561,19 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     }
 
     try {
-      final HashSet<String> testKeysSet = new HashSet<>();
-      for (int i = 0; i < 20; i++) {
+      final var testKeysSet = new HashSet<String>();
+      for (var i = 0; i < 20; i++) {
         testKeysSet.add("execKey-" + i);
       }
 
-      ResultCollector rs = execute(member, testKeysSet, function, isByName);
+      var rs = execute(member, testKeysSet, function, isByName);
 
-      List resultList = (List) rs.getResult();
+      var resultList = (List) rs.getResult();
       assertEquals((testKeysSet.size() + 1), resultList.size());
-      Iterator resultIterator = resultList.iterator();
-      int exceptionCount = 0;
+      var resultIterator = resultList.iterator();
+      var exceptionCount = 0;
       while (resultIterator.hasNext()) {
-        Object o = resultIterator.next();
+        var o = resultIterator.next();
         if (o instanceof MyFunctionExecutionException) {
           exceptionCount++;
         }
@@ -595,11 +593,11 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
 
   public static void createProxyRegion() {
     CacheServerTestUtil.disableShufflingOfEndpoints();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setDataPolicy(DataPolicy.EMPTY);
     factory.setPoolName(pool.getName());
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     metaDataRegion = cache.createRegion(retryRegionName, attrs);
     assertNotNull(metaDataRegion);
   }
@@ -624,12 +622,12 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
   }
 
   public static void verifyDeadAndLiveServers(final Integer expectedLiveServers) {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       String excuse;
 
       @Override
       public boolean done() {
-        int sz = pool.getConnectedServerCount();
+        var sz = pool.getConnectedServerCount();
         logger.info("Checking for the Live Servers : Expected  : " + expectedLiveServers
             + " Available :" + sz);
         if (sz == expectedLiveServers) {
@@ -655,10 +653,10 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     if (toRegister) {
       FunctionService.registerFunction(function);
     }
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
     ResultCollector rs = null;
     try {
-      ArrayList<String> args = new ArrayList<>();
+      var args = new ArrayList<String>();
       args.add(retryRegionName);
       args.add("serverExecutionHAOneServerDown");
       rs = execute(member, args, function, isByName);
@@ -678,9 +676,9 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     if (toRegister) {
       FunctionService.registerFunction(function);
     }
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
     try {
-      ArrayList<String> args = new ArrayList<>();
+      var args = new ArrayList<String>();
       args.add(retryRegionName);
       args.add("serverExecutionHATwoServerDown");
       execute(member, args, function, isByName);
@@ -702,9 +700,9 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     if (toRegister) {
       FunctionService.registerFunction(function);
     }
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
     try {
-      ArrayList<String> args = new ArrayList<>();
+      var args = new ArrayList<String>();
       args.add(retryRegionName);
       args.add("serverExecutionNonHA");
       execute(member, args, function, isByName);
@@ -728,10 +726,10 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     if (toRegister) {
       FunctionService.registerFunction(function);
     }
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
     try {
-      ResultCollector rs = execute(member, Boolean.TRUE, function, isByName);
-      ArrayList list = (ArrayList) rs.getResult();
+      var rs = execute(member, Boolean.TRUE, function, isByName);
+      var list = (ArrayList) rs.getResult();
       assertEquals("Value of send result of the executed function : " + list.get(0)
           + "does not match the expected value : " + 1, 1, (int) ((Integer) list.get(0)));
       assertTrue("Value of last result of the executed function : " + list.get(0)
@@ -750,10 +748,10 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     if (toRegister) {
       FunctionService.registerFunction(function);
     }
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
 
     try {
-      ResultCollector rs = execute(member, Boolean.TRUE, function, isByName);
+      var rs = execute(member, Boolean.TRUE, function, isByName);
       assertEquals(Boolean.TRUE, ((List) rs.getResult()).get(0));
       fail("Expected FunctionException : Function did not send last result");
     } catch (Exception ex) {
@@ -766,10 +764,10 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
   private static void serverExecution_Inline() {
 
     DistributedSystem.setThreadsSocketPolicy(false);
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
 
     try {
-      ResultCollector rs = member.setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
+      var rs = member.setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
         @Override
         public void execute(FunctionContext context) {
           @SuppressWarnings("unchecked")
@@ -803,7 +801,7 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
   private static void serverExecution_Inline_InvalidAttributes() {
 
     DistributedSystem.setThreadsSocketPolicy(false);
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
 
     try {
       member.setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
@@ -853,11 +851,11 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
       FunctionService.unregisterFunction(function.getId());
       assertNull(FunctionService.getFunction(function.getId()));
     }
-    Execution member = FunctionService.onServers(pool);
+    var member = FunctionService.onServers(pool);
     try {
-      ResultCollector rs = execute(member, Boolean.TRUE, function, isByName);
+      var rs = execute(member, Boolean.TRUE, function, isByName);
 
-      List resultList = (List) rs.getResult();
+      var resultList = (List) rs.getResult();
       assertEquals(Boolean.TRUE, resultList.get(0));
       assertEquals(Boolean.TRUE, resultList.get(1));
       assertEquals(Boolean.TRUE, resultList.get(2));
@@ -870,17 +868,17 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
 
     try {
 
-      final HashSet<String> testKeysSet = new HashSet<>();
-      for (int i = 0; i < 20; i++) {
+      final var testKeysSet = new HashSet<String>();
+      for (var i = 0; i < 20; i++) {
         testKeysSet.add("execKey-" + i);
       }
 
-      ResultCollector rs = execute(member, testKeysSet, function, isByName);
-      List resultList = (List) rs.getResult();
+      var rs = execute(member, testKeysSet, function, isByName);
+      var resultList = (List) rs.getResult();
       assertEquals(3, resultList.size());
 
-      for (int j = 0; j < 3; j++) {
-        for (int k = 0; k < 20; k++) {
+      for (var j = 0; j < 3; j++) {
+        for (var k = 0; k < 20; k++) {
           assertTrue((((List) (resultList).get(j)).contains("execKey-" + k)));
         }
       }
@@ -903,11 +901,11 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
       FunctionService.unregisterFunction(function.getId());
       assertNull(FunctionService.getFunction(function.getId()));
     }
-    Execution member = FunctionService.onServers(pool);
+    var member = FunctionService.onServers(pool);
     try {
-      ResultCollector rs = execute(member, Boolean.TRUE, function, isByName);
+      var rs = execute(member, Boolean.TRUE, function, isByName);
 
-      List resultList = (List) rs.getResult();
+      var resultList = (List) rs.getResult();
       assertTrue(resultList.get(0) instanceof MyFunctionExecutionException);
       assertTrue(resultList.get(1) instanceof MyFunctionExecutionException);
       assertTrue(resultList.get(2) instanceof MyFunctionExecutionException);
@@ -919,18 +917,18 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
     }
 
     try {
-      final HashSet<String> testKeysSet = new HashSet<>();
-      for (int i = 0; i < 20; i++) {
+      final var testKeysSet = new HashSet<String>();
+      for (var i = 0; i < 20; i++) {
         testKeysSet.add("execKey-" + i);
       }
 
-      ResultCollector rs = execute(member, testKeysSet, function, isByName);
-      List resultList = (List) rs.getResult();
+      var rs = execute(member, testKeysSet, function, isByName);
+      var resultList = (List) rs.getResult();
       assertEquals(((testKeysSet.size() * 3) + 3), resultList.size());
-      Iterator resultIterator = resultList.iterator();
-      int exceptionCount = 0;
+      var resultIterator = resultList.iterator();
+      var exceptionCount = 0;
       while (resultIterator.hasNext()) {
-        Object o = resultIterator.next();
+        var o = resultIterator.next();
         if (o instanceof MyFunctionExecutionException) {
           exceptionCount++;
         }
@@ -955,9 +953,9 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
       FunctionService.unregisterFunction(function.getId());
       assertNull(FunctionService.getFunction(function.getId()));
     }
-    Execution member = FunctionService.onServers(pool);
+    var member = FunctionService.onServers(pool);
     try {
-      ResultCollector rs = execute(member, Boolean.TRUE, function, isByName);
+      var rs = execute(member, Boolean.TRUE, function, isByName);
       rs.getResult();
       fail("Expected FunctionException : Function did not send last result");
     } catch (Exception ex) {
@@ -967,9 +965,9 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
 
   private static void allServerExecution_Inline() {
     DistributedSystem.setThreadsSocketPolicy(false);
-    Execution member = FunctionService.onServers(pool);
+    var member = FunctionService.onServers(pool);
     try {
-      ResultCollector rs = member.setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
+      var rs = member.setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
         @Override
         public void execute(FunctionContext context) {
           @SuppressWarnings("unchecked")
@@ -991,7 +989,7 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
           return true;
         }
       });
-      List resultList = (List) rs.getResult();
+      var resultList = (List) rs.getResult();
       assertEquals(Boolean.TRUE, resultList.get(0));
       assertEquals(Boolean.TRUE, resultList.get(1));
       assertEquals(Boolean.TRUE, resultList.get(2));
@@ -1007,7 +1005,7 @@ public class ClientServerFunctionExecutionDUnitTest extends PRClientServerTestBa
       Boolean isByName) {
     if (isByName) {// by name
       logger.info("The function name to execute : " + function.getId());
-      Execution me = member.setArguments(args);
+      var me = member.setArguments(args);
       logger.info("The args passed  : " + args);
       return me.execute(function.getId());
     } else { // By Instance

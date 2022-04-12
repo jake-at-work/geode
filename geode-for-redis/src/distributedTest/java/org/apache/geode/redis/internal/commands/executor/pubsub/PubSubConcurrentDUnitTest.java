@@ -30,7 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.After;
 import org.junit.Before;
@@ -97,8 +96,8 @@ public class PubSubConcurrentDUnitTest {
 
   @Before
   public void before() throws Exception {
-    int locatorPort = locator.getPort();
-    SerializableFunction<ServerStarterRule> operator = x -> x
+    var locatorPort = locator.getPort();
+    var operator = (SerializableFunction<ServerStarterRule>) x -> x
         .withSystemProperty("io.netty.eventLoopThreads", "10")
         .withConnectionToLocator(locatorPort);
 
@@ -106,9 +105,9 @@ public class PubSubConcurrentDUnitTest {
     server2 = cluster.startRedisVM(2, operator);
     subscriberVM = cluster.getVM(3);
 
-    for (VM v : Host.getHost(0).getAllVMs()) {
+    for (var v : Host.getHost(0).getAllVMs()) {
       v.invoke(() -> {
-        Logger logger = LogService.getLogger("org.apache.geode.redis");
+        var logger = LogService.getLogger("org.apache.geode.redis");
         Configurator.setAllLevels(logger.getName(), Level.getLevel("INFO"));
         FastLogger.setDelegating(true);
       });
@@ -141,21 +140,21 @@ public class PubSubConcurrentDUnitTest {
   }
 
   private void concurrentPubSub(boolean usePattern) {
-    int[] ports = new int[] {redisServerPort1, redisServerPort2};
+    var ports = new int[] {redisServerPort1, redisServerPort2};
 
     subscriberVM.invoke(new CreateSubscribers(ports, usePattern));
 
     List<Future<Void>> futures = new LinkedList<>();
-    for (int i = 0; i < PUBLISHER_COUNT; i++) {
-      Jedis publisher = new Jedis(LOCAL_HOST, ports[i % ports.length]);
-      int localI = i;
-      Callable<Void> callable = () -> {
-        long start = System.nanoTime();
-        for (int j = 0; j < PUBLISH_ITERATIONS; j++) {
+    for (var i = 0; i < PUBLISHER_COUNT; i++) {
+      var publisher = new Jedis(LOCAL_HOST, ports[i % ports.length]);
+      var localI = i;
+      var callable = (Callable<Void>) () -> {
+        var start = System.nanoTime();
+        for (var j = 0; j < PUBLISH_ITERATIONS; j++) {
           publisher.publish(CHANNEL_NAME,
               String.format("hello-%d-%d-%d", localI, j, System.nanoTime()));
         }
-        long end = System.nanoTime();
+        var end = System.nanoTime();
         System.out.println("Did " + PUBLISH_ITERATIONS + " publishes in "
             + TimeUnit.SECONDS.convert(end - start, TimeUnit.NANOSECONDS) + " seconds to "
             + SUBSCRIBER_COUNT + " subscribers. Nanos/op=" + (end - start) / PUBLISH_ITERATIONS);
@@ -166,7 +165,7 @@ public class PubSubConcurrentDUnitTest {
       futures.add(executor.submit(callable));
     }
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       GeodeAwaitility.await().untilAsserted(future::get);
     }
 
@@ -186,16 +185,16 @@ public class PubSubConcurrentDUnitTest {
 
     @Override
     public void onMessage(String channel, String message) {
-      long end = System.nanoTime();
-      long start = Long.parseLong(message.substring(message.lastIndexOf('-') + 1));
+      var end = System.nanoTime();
+      var start = Long.parseLong(message.substring(message.lastIndexOf('-') + 1));
       totalLatency += end - start;
       messageCount++;
-      int publisherIdStart = message.indexOf('-') + 1;
-      int publisherIdEnd = message.indexOf('-', publisherIdStart);
-      int publisherId = Integer.parseInt(message.substring(publisherIdStart, publisherIdEnd));
-      int messageIdStart = publisherIdEnd + 1;
-      int messageIdEnd = message.indexOf('-', messageIdStart);
-      int messageId = Integer.parseInt(message.substring(messageIdStart, messageIdEnd));
+      var publisherIdStart = message.indexOf('-') + 1;
+      var publisherIdEnd = message.indexOf('-', publisherIdStart);
+      var publisherId = Integer.parseInt(message.substring(publisherIdStart, publisherIdEnd));
+      var messageIdStart = publisherIdEnd + 1;
+      var messageIdEnd = message.indexOf('-', messageIdStart);
+      var messageId = Integer.parseInt(message.substring(messageIdStart, messageIdEnd));
       if (receivedMessages.containsKey(publisherId)) {
         assertThat(messageId).isEqualTo(receivedMessages.get(publisherId) + 1);
       } else {
@@ -241,11 +240,11 @@ public class PubSubConcurrentDUnitTest {
     @Override
     public void run() throws Exception {
       subscribeExecutor = LoggingExecutors.newCachedThreadPool("subscribers", true);
-      CountDownLatch latch = new CountDownLatch(SUBSCRIBER_COUNT);
-      for (int i = 0; i < SUBSCRIBER_COUNT; i++) {
-        Jedis subscriber = new Jedis(LOCAL_HOST, ports[i % ports.length], 120000);
+      var latch = new CountDownLatch(SUBSCRIBER_COUNT);
+      for (var i = 0; i < SUBSCRIBER_COUNT; i++) {
+        var subscriber = new Jedis(LOCAL_HOST, ports[i % ports.length], 120000);
         subscribers.add(subscriber);
-        LatencySubscriber mockSubscriber = new LatencySubscriber(latch);
+        var mockSubscriber = new LatencySubscriber(latch);
         mockSubscribers.add(mockSubscriber);
         if (usePattern) {
           subscriberFutures.add((Future<Void>) subscribeExecutor
@@ -269,13 +268,13 @@ public class PubSubConcurrentDUnitTest {
 
     @Override
     public void run() throws Exception {
-      for (LatencySubscriber mockSubscriber : mockSubscribers) {
+      for (var mockSubscriber : mockSubscribers) {
         GeodeAwaitility.await()
             .untilAsserted(() -> assertThat(mockSubscriber.getMessageCount())
                 .isEqualTo(EXPECTED_MESSAGES));
       }
 
-      for (LatencySubscriber mockSubscriber : mockSubscribers) {
+      for (var mockSubscriber : mockSubscribers) {
         System.out.println(mockSubscriber.getLatencyReport());
         if (usePattern) {
           mockSubscriber.punsubscribe("*");
@@ -284,10 +283,10 @@ public class PubSubConcurrentDUnitTest {
         }
       }
 
-      for (Future<Void> subscriberFuture : subscriberFutures) {
+      for (var subscriberFuture : subscriberFutures) {
         subscriberFuture.get();
       }
-      for (Jedis subscriber : subscribers) {
+      for (var subscriber : subscribers) {
         subscriber.disconnect();
       }
     }

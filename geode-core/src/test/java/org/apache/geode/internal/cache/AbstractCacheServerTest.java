@@ -48,23 +48,23 @@ public class AbstractCacheServerTest {
 
   @Test
   public void getMaximumTimeBetweenPings_returnsDefault() {
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     CacheServer server = new TestableCacheServer(cache);
 
-    int value = server.getMaximumTimeBetweenPings();
+    var value = server.getMaximumTimeBetweenPings();
 
     assertThat(value).isEqualTo(DEFAULT_MAXIMUM_TIME_BETWEEN_PINGS);
   }
 
   @Test
   public void getMaximumTimeBetweenPings_returnsValueOfSystemProperty() {
-    int maximumTimeBetweenPings = DEFAULT_MAXIMUM_TIME_BETWEEN_PINGS * 2;
-    String maximumTimeBetweenPingsString = String.valueOf(maximumTimeBetweenPings);
+    var maximumTimeBetweenPings = DEFAULT_MAXIMUM_TIME_BETWEEN_PINGS * 2;
+    var maximumTimeBetweenPingsString = String.valueOf(maximumTimeBetweenPings);
     System.setProperty(MAXIMUM_TIME_BETWEEN_PINGS_PROPERTY, maximumTimeBetweenPingsString);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     CacheServer server = new TestableCacheServer(cache);
 
-    int value = server.getMaximumTimeBetweenPings();
+    var value = server.getMaximumTimeBetweenPings();
 
     assertThat(value).isEqualTo(maximumTimeBetweenPings);
   }

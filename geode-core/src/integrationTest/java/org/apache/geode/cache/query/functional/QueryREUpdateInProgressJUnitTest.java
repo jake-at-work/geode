@@ -32,13 +32,10 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.NonTXEntry;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 
 /**
@@ -144,9 +141,9 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Create Indexes.
     Cache cache = CacheUtils.getCache();
-    QueryService qs = cache.getQueryService();
-    String[] queries = getQueries(); // Get Queries.
-    Object[][] results = new Object[queries.length][2];
+    var qs = cache.getQueryService();
+    var queries = getQueries(); // Get Queries.
+    var results = new Object[queries.length][2];
 
     // Put values in Region.
     putREWithUpdateInProgressTrue(regionName);
@@ -155,7 +152,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Run queries without indexes
     // Run all queries.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][0] = qs.newQuery("<trace> " + queries[i]).execute();
       } catch (Exception e) {
@@ -185,7 +182,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
 
     // Run all queries with Indexes.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][1] = qs.newQuery("<trace> " + queries[i]).execute();
       } catch (Exception e) {
@@ -206,9 +203,9 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Create Indexes.
     Cache cache = CacheUtils.getCache();
-    QueryService qs = cache.getQueryService();
-    String[] queries = getQueries(); // Get Queries.
-    Object[][] results = new Object[queries.length][2];
+    var qs = cache.getQueryService();
+    var queries = getQueries(); // Get Queries.
+    var results = new Object[queries.length][2];
 
     // Put values in Region.
     putREWithUpdateInProgressTrue(regionName);
@@ -217,7 +214,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Run queries without indexes
     // Run all queries.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][0] = qs.newQuery("<trace> " + queries[i]).execute();
       } catch (Exception e) {
@@ -229,7 +226,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
 
     // Run all queries with Indexes.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][1] = qs.newQuery("<trace> " + queries[i]).execute();
       } catch (Exception e) {
@@ -249,12 +246,12 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Create Indexes.
     Cache cache = CacheUtils.getCache();
-    QueryService qs = cache.getQueryService();
-    String[] queries = new String[] {
+    var qs = cache.getQueryService();
+    var queries = new String[] {
         "select * from " + SEPARATOR + regionName + " z, " + SEPARATOR + regionName
             + " q where z.position1.secId = 'IBM' and q.ID > 0",
         "select * from " + SEPARATOR + regionName + " y where position1.secId='IBM'"};
-    Object[][] results = new Object[queries.length][2];
+    var results = new Object[queries.length][2];
 
     // Put values in Region.
     putREWithUpdateInProgressTrue(regionName);
@@ -263,7 +260,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Run queries without indexes
     // Run all queries.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][0] = qs.newQuery("" + queries[i]).execute();
       } catch (Exception e) {
@@ -275,7 +272,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
 
     // Run all queries with Indexes.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][1] = qs.newQuery("" + queries[i]).execute();
       } catch (Exception e) {
@@ -295,12 +292,12 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Create Indexes.
     Cache cache = CacheUtils.getCache();
-    QueryService qs = cache.getQueryService();
-    String[] queries = new String[] {
+    var qs = cache.getQueryService();
+    var queries = new String[] {
         "select * from " + SEPARATOR + regionName + " pf where pf.positions['IBM'] != null",
         "select * from " + SEPARATOR + regionName
             + " pf, pf.positions.values pos where pf.positions['IBM'] != null"};
-    Object[][] results = new Object[queries.length][2];
+    var results = new Object[queries.length][2];
 
     // Put values in Region.
     putREWithUpdateInProgressTrue(regionName);
@@ -309,7 +306,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Run queries without indexes
     // Run all queries.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][0] = qs.newQuery("" + queries[i]).execute();
       } catch (Exception e) {
@@ -322,7 +319,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
 
     // Run all queries with Indexes.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][1] = qs.newQuery("" + queries[i]).execute();
       } catch (Exception e) {
@@ -345,9 +342,9 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Create Indexes.
     Cache cache = CacheUtils.getCache();
-    QueryService qs = cache.getQueryService();
-    String[] queries = getLimitQueries(); // Get Queries.
-    Object[][] results = new Object[queries.length][2];
+    var qs = cache.getQueryService();
+    var queries = getLimitQueries(); // Get Queries.
+    var results = new Object[queries.length][2];
 
     // Put values in Region.
     putREWithUpdateInProgressTrue(regionName);
@@ -355,7 +352,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
     // Run queries without indexes
     // Run all queries.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][0] = qs.newQuery("<trace> " + queries[i]).execute();
       } catch (Exception e) {
@@ -379,7 +376,7 @@ public class QueryREUpdateInProgressJUnitTest {
 
 
     // Run all queries with Indexes.
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         results[i][1] = qs.newQuery("<trace> " + queries[i]).execute();
       } catch (Exception e) {
@@ -397,7 +394,7 @@ public class QueryREUpdateInProgressJUnitTest {
     Set set2 = null;
     ObjectType type1, type2;
 
-    for (int j = 0; j < len; j++) {
+    for (var j = 0; j < len; j++) {
       if ((r[j][0] != null) && (r[j][1] != null)) {
         type1 = ((SelectResults) r[j][0]).getCollectionType().getElementType();
         assertNotNull("#compareTwoQueryResults: Type 1 is NULL " + type1, type1);
@@ -407,8 +404,8 @@ public class QueryREUpdateInProgressJUnitTest {
           fail("#compareTwoQueryResults: FAILED:Search result Type is different in both the cases: "
               + type1.getClass().getName() + " " + type2.getClass().getName());
         }
-        int size0 = ((SelectResults) r[j][0]).size();
-        int size1 = ((SelectResults) r[j][1]).size();
+        var size0 = ((SelectResults) r[j][0]).size();
+        var size1 = ((SelectResults) r[j][1]).size();
         if (size0 != size1) {
           fail(
               "#compareTwoQueryResults: FAILED:Search resultSet size are different in both cases; size0="
@@ -429,19 +426,19 @@ public class QueryREUpdateInProgressJUnitTest {
   }
 
   private void putREWithUpdateInProgressTrue(String region) {
-    Region reg = CacheUtils.getRegion(region);
-    Portfolio[] values = createPortfoliosAndPositions(numOfEntries);
+    var reg = CacheUtils.getRegion(region);
+    var values = createPortfoliosAndPositions(numOfEntries);
 
-    int i = 0;
+    var i = 0;
     for (Object val : values) {
       reg.put(i, val);
       i++;
     }
 
     // Set all RegionEntries to be updateInProgress.
-    for (final Object o : reg.entrySet()) {
-      Region.Entry nonTxEntry = (Region.Entry) o;
-      RegionEntry entry = ((NonTXEntry) nonTxEntry).getRegionEntry();
+    for (final var o : reg.entrySet()) {
+      var nonTxEntry = (Region.Entry) o;
+      var entry = ((NonTXEntry) nonTxEntry).getRegionEntry();
       entry.setUpdateInProgress(true);
       assertTrue(entry.isUpdateInProgress());
     }
@@ -452,7 +449,7 @@ public class QueryREUpdateInProgressJUnitTest {
     CacheUtils.startCache();
     CacheUtils.createRegion(regionName, null, Scope.DISTRIBUTED_ACK);
     CacheUtils.createRegion(exampleRegionName, null, Scope.DISTRIBUTED_ACK);
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setIndexMaintenanceSynchronous(false);
     CacheUtils.createRegion(regionForAsyncIndex, attr.create(), false);
   }

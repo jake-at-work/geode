@@ -56,12 +56,12 @@ public class RedisPartitionResolverDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     server1 = cluster.startRedisVM(1, locator.getPort());
     server2 = cluster.startRedisVM(2, locator.getPort());
     server3 = cluster.startRedisVM(3, locator.getPort());
 
-    int redisServerPort1 = cluster.getRedisPort(1);
+    var redisServerPort1 = cluster.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort1), REDIS_CLIENT_TIMEOUT);
   }
 
@@ -77,15 +77,15 @@ public class RedisPartitionResolverDUnitTest {
 
   @Test
   public void testRedisHashesMapToCorrectBuckets() {
-    int numKeys = 1000;
-    for (int i = 0; i < numKeys; i++) {
-      String key = "key-" + i;
+    var numKeys = 1000;
+    for (var i = 0; i < numKeys; i++) {
+      var key = "key-" + i;
       jedis.set(key, "value-" + i);
     }
 
-    Map<String, Integer> keyToBucketMap1 = getKeyToBucketMap(server1);
-    Map<String, Integer> keyToBucketMap2 = getKeyToBucketMap(server2);
-    Map<String, Integer> keyToBucketMap3 = getKeyToBucketMap(server3);
+    var keyToBucketMap1 = getKeyToBucketMap(server1);
+    var keyToBucketMap2 = getKeyToBucketMap(server2);
+    var keyToBucketMap3 = getKeyToBucketMap(server3);
 
     Set<Integer> buckets1 = new HashSet<>(keyToBucketMap1.values());
     Set<Integer> buckets2 = new HashSet<>(keyToBucketMap2.values());
@@ -104,7 +104,7 @@ public class RedisPartitionResolverDUnitTest {
   }
 
   private void validateBucketMapping(Map<String, Integer> bucketMap) {
-    for (Map.Entry<String, Integer> e : bucketMap.entrySet()) {
+    for (var e : bucketMap.entrySet()) {
       assertThat(new RedisKey(e.getKey().getBytes()).getBucketId()).isEqualTo(e.getValue());
     }
   }
@@ -114,11 +114,11 @@ public class RedisPartitionResolverDUnitTest {
       Region<RedisKey, RedisData> region =
           RedisClusterStartupRule.getCache().getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
 
-      LocalDataSet local = (LocalDataSet) PartitionRegionHelper.getLocalPrimaryData(region);
+      var local = (LocalDataSet) PartitionRegionHelper.getLocalPrimaryData(region);
       Map<String, Integer> keyMap = new HashMap<>();
 
       for (Object key : local.localKeys()) {
-        int id = local.getProxy().getKeyInfo(key).getBucketId();
+        var id = local.getProxy().getKeyInfo(key).getBucketId();
         keyMap.put(key.toString(), id);
       }
 

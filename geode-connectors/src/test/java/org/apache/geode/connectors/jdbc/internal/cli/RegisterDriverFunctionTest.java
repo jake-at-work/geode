@@ -51,7 +51,7 @@ public class RegisterDriverFunctionTest {
 
   @Test
   public void testExecuteFunctionDoesNotReturnError() {
-    CliFunctionResult functionResult = function.executeFunction(context);
+    var functionResult = function.executeFunction(context);
     assertThat(functionResult.getStatusMessage())
         .contains(DRIVER_CLASS_NAME + " was successfully registered.");
     assertThat(functionResult.getStatus()).contains(CliFunctionResult.StatusState.OK.toString());
@@ -60,10 +60,10 @@ public class RegisterDriverFunctionTest {
   @Test
   public void testExecuteFunctionReturnsWithException()
       throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
-    String exceptionString = "Test class not found";
+    var exceptionString = "Test class not found";
     doThrow(new ClassNotFoundException(exceptionString)).when(util)
         .registerDriver(DRIVER_CLASS_NAME);
-    CliFunctionResult functionResult = function.executeFunction(context);
+    var functionResult = function.executeFunction(context);
     assertThat(functionResult.getStatusMessage()).contains(exceptionString);
     assertThat(functionResult.getStatus()).contains(CliFunctionResult.StatusState.ERROR.toString());
   }

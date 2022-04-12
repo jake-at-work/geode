@@ -39,12 +39,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsGemfirePasswordWithHyphenD() {
-    String string = "-Dgemfire.password=%s";
-    String sensitive = "__this_should_be_redacted__";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "-Dgemfire.password=%s";
+    var sensitive = "__this_should_be_redacted__";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -54,12 +54,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsPasswordWithHyphens() {
-    String string = "--password=%s";
-    String sensitive = "__this_should_be_redacted__";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "--password=%s";
+    var sensitive = "__this_should_be_redacted__";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -69,12 +69,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsOptionEndingWithPasswordWithHyphensJDd() {
-    String string = "--J=-Dgemfire.some.very.qualified.item.password=%s";
-    String sensitive = "__this_should_be_redacted__";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "--J=-Dgemfire.some.very.qualified.item.password=%s";
+    var sensitive = "__this_should_be_redacted__";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -84,12 +84,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsOptionStartingWithSyspropHyphenWithHyphensJD() {
-    String string = "--J=-Dsysprop-secret.information=%s";
-    String sensitive = "__this_should_be_redacted__";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "--J=-Dsysprop-secret.information=%s";
+    var sensitive = "__this_should_be_redacted__";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -99,12 +99,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsGemfireSecurityPasswordWithHyphenD() {
-    String string = "-Dgemfire.security-password=%s";
-    String sensitive = "secret";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "-Dgemfire.security-password=%s";
+    var sensitive = "secret";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -113,9 +113,9 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void doesNotRedactOptionEndingWithSecurityPropertiesWithHyphenD1() {
-    String input = "-Dgemfire.security-properties=argument-value";
+    var input = "-Dgemfire.security-properties=argument-value";
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -124,9 +124,9 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void doesNotRedactOptionEndingWithSecurityPropertiesWithHyphenD2() {
-    String input = "-Dgemfire.security-properties=\"c:\\Program Files (x86)\\My Folder\"";
+    var input = "-Dgemfire.security-properties=\"c:\\Program Files (x86)\\My Folder\"";
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -135,9 +135,9 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void doesNotRedactOptionEndingWithSecurityPropertiesWithHyphenD3() {
-    String input = "-Dgemfire.security-properties=./security-properties";
+    var input = "-Dgemfire.security-properties=./security-properties";
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -146,9 +146,9 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void doesNotRedactOptionContainingSecurityHyphenWithHyphensJD() {
-    String input = "--J=-Dgemfire.sys.security-option=someArg";
+    var input = "--J=-Dgemfire.sys.security-option=someArg";
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -157,9 +157,9 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void doesNotRedactNonMatchingGemfireOptionWithHyphenD() {
-    String input = "-Dgemfire.sys.option=printable";
+    var input = "-Dgemfire.sys.option=printable";
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -168,9 +168,9 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsGemfireUseClusterConfigurationWithHyphenD() {
-    String input = "-Dgemfire.use-cluster-configuration=true";
+    var input = "-Dgemfire.use-cluster-configuration=true";
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -179,9 +179,9 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void returnsNonMatchingString() {
-    String input = "someotherstringoption";
+    var input = "someotherstringoption";
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -190,9 +190,9 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void doesNotRedactClasspathWithHyphens() {
-    String input = "--classpath=.";
+    var input = "--classpath=.";
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -201,12 +201,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsMatchingOptionWithNonMatchingOptionAndFlagAndMultiplePrefixes() {
-    String string = "--J=-Dflag -Duser-password=%s --classpath=.";
-    String sensitive = "foo";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "--J=-Dflag -Duser-password=%s --classpath=.";
+    var sensitive = "foo";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -216,13 +216,13 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsMultipleMatchingOptionsWithFlags() {
-    String string = "-DmyArg -Duser-password=%s -DOtherArg -Dsystem-password=%s";
-    String sensitive1 = "foo";
-    String sensitive2 = "bar";
-    String input = String.format(string, sensitive1, sensitive2);
-    String expected = String.format(string, REDACTED, REDACTED);
+    var string = "-DmyArg -Duser-password=%s -DOtherArg -Dsystem-password=%s";
+    var sensitive1 = "foo";
+    var sensitive2 = "bar";
+    var input = String.format(string, sensitive1, sensitive2);
+    var expected = String.format(string, REDACTED, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -233,19 +233,19 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsMultipleMatchingOptionsWithMultipleNonMatchingOptionsAndMultiplePrefixes() {
-    String string =
+    var string =
         "-Dlogin-password=%s -Dlogin-name=%s -Dgemfire-password = %s --geode-password= %s --J=-Dsome-other-password =%s";
-    String sensitive1 = "secret";
-    String nonSensitive = "admin";
-    String sensitive2 = "super-secret";
-    String sensitive3 = "confidential";
-    String sensitive4 = "shhhh";
-    String input = String.format(
+    var sensitive1 = "secret";
+    var nonSensitive = "admin";
+    var sensitive2 = "super-secret";
+    var sensitive3 = "confidential";
+    var sensitive4 = "shhhh";
+    var input = String.format(
         string, sensitive1, nonSensitive, sensitive2, sensitive3, sensitive4);
-    String expected = String.format(
+    var expected = String.format(
         string, REDACTED, nonSensitive, REDACTED, REDACTED, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -259,12 +259,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsMatchingOptionWithNonMatchingOptionAfterCommand() {
-    String string = "connect --password=%s --user=%s";
-    String reusedSensitive = "test";
-    String input = String.format(string, reusedSensitive, reusedSensitive);
-    String expected = String.format(string, REDACTED, reusedSensitive);
+    var string = "connect --password=%s --user=%s";
+    var reusedSensitive = "test";
+    var input = String.format(string, reusedSensitive, reusedSensitive);
+    var expected = String.format(string, REDACTED, reusedSensitive);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -274,13 +274,13 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsMultipleMatchingOptionsButNotKeyUsingSameStringAsValue() {
-    String string = "connect --%s-password=%s --product-password=%s";
-    String reusedSensitive = "test";
-    String sensitive = "test1";
-    String input = String.format(string, reusedSensitive, reusedSensitive, sensitive);
-    String expected = String.format(string, reusedSensitive, REDACTED, REDACTED);
+    var string = "connect --%s-password=%s --product-password=%s";
+    var reusedSensitive = "test";
+    var sensitive = "test1";
+    var input = String.format(string, reusedSensitive, reusedSensitive, sensitive);
+    var expected = String.format(string, reusedSensitive, REDACTED, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -291,12 +291,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactRedactsGemfireSslTruststorePassword() {
-    String string = "-Dgemfire.ssl-truststore-password=%s";
-    String sensitive = "gibberish";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "-Dgemfire.ssl-truststore-password=%s";
+    var sensitive = "gibberish";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -306,12 +306,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsGemfireSslKeystorePassword() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "gibberish";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "gibberish";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -321,12 +321,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsValueEndingWithHyphen() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "supersecret-";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "supersecret-";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -336,12 +336,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsValueContainingHyphen() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "super-secret";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "super-secret";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -351,12 +351,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsValueContainingManyHyphens() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "this-is-super-secret";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "this-is-super-secret";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -366,12 +366,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsValueStartingWithHyphen() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "-supersecret";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "-supersecret";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -381,12 +381,12 @@ public class RegexRedactionStrategyTest {
 
   @Test
   public void redactsQuotedValueStartingWithHyphen() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "\"-supersecret\"";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, REDACTED);
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "\"-supersecret\"";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, REDACTED);
 
-    String output = regexRedactionStrategy.redact(input);
+    var output = regexRedactionStrategy.redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")

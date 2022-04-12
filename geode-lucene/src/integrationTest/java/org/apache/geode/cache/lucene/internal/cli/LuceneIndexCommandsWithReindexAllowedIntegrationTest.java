@@ -22,10 +22,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.After;
@@ -33,8 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.lucene.LuceneIndex;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.internal.repository.serializer.PrimitiveSerializer;
@@ -58,15 +54,15 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
   @Test
   public void whenLuceneReindexingInProgressThenListIndexCommandMustExecuteSuccessfully() {
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "__REGION_VALUE_FIELD");
 
     createRegion();
-    AtomicBoolean stopped = new AtomicBoolean();
-    Thread ai = new Thread(() -> {
-      int count = 0;
+    var stopped = new AtomicBoolean();
+    var ai = new Thread(() -> {
+      var count = 0;
       while (!stopped.get()) {
         server.getCache().getRegion(REGION_NAME).put(count, "hello world" + count);
         count++;
@@ -84,7 +80,7 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
 
   @Test
   public void whenLuceneReindexAllowedCreateIndexShouldCreateANewIndex() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -93,8 +89,8 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .containsOutput("Successfully created lucene index");
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    var luceneService = LuceneServiceProvider.get(server.getCache());
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
     assertArrayEquals(new String[] {"field1", "field2", "field3"}, index.getFieldNames());
 
   }
@@ -107,7 +103,7 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
     analyzerNames.add(KeywordAnalyzer.class.getCanonicalName());
     analyzerNames.add(StandardAnalyzer.class.getCanonicalName());
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -118,9 +114,9 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .containsOutput("Successfully created lucene index");
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
-    final Map<String, Analyzer> fieldAnalyzers = index.getFieldAnalyzers();
+    var luceneService = LuceneServiceProvider.get(server.getCache());
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    final var fieldAnalyzers = index.getFieldAnalyzers();
     assertEquals(StandardAnalyzer.class, fieldAnalyzers.get("field1").getClass());
     assertEquals(KeywordAnalyzer.class, fieldAnalyzers.get("field2").getClass());
     assertEquals(StandardAnalyzer.class, fieldAnalyzers.get("field3").getClass());
@@ -129,7 +125,7 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
 
   @Test
   public void whenLuceneReindexAllowedCreateIndexWithALuceneSerializerShouldCreateANewIndex() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -141,8 +137,8 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .containsOutput("Successfully created lucene index");
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    var luceneService = LuceneServiceProvider.get(server.getCache());
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
     assertThat(index.getLuceneSerializer()).isInstanceOf(PrimitiveSerializer.class);
   }
 
@@ -153,7 +149,7 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
     analyzerNames.add(KeywordAnalyzer.class.getCanonicalName());
     analyzerNames.add(StandardAnalyzer.class.getCanonicalName());
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -164,9 +160,9 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .containsOutput("Successfully created lucene index");
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
-    final Map<String, Analyzer> fieldAnalyzers = index.getFieldAnalyzers();
+    var luceneService = LuceneServiceProvider.get(server.getCache());
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    final var fieldAnalyzers = index.getFieldAnalyzers();
     assertEquals(StandardAnalyzer.class, fieldAnalyzers.get("field1").getClass());
     assertEquals(KeywordAnalyzer.class, fieldAnalyzers.get("field2").getClass());
     assertEquals(StandardAnalyzer.class, fieldAnalyzers.get("field3").getClass());
@@ -178,9 +174,9 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
     createRegion();
 
     // Test whitespace analyzer name
-    String analyzerList = StandardAnalyzer.class.getCanonicalName() + ",     ,"
+    var analyzerList = StandardAnalyzer.class.getCanonicalName() + ",     ,"
         + KeywordAnalyzer.class.getCanonicalName();
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, "space");
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -213,15 +209,15 @@ public class LuceneIndexCommandsWithReindexAllowedIntegrationTest
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .containsOutput("Successfully created lucene index");
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
-    final LuceneIndex spaceIndex = luceneService.getIndex("space", REGION_NAME);
-    final Map<String, Analyzer> spaceFieldAnalyzers = spaceIndex.getFieldAnalyzers();
+    var luceneService = LuceneServiceProvider.get(server.getCache());
+    final var spaceIndex = luceneService.getIndex("space", REGION_NAME);
+    final var spaceFieldAnalyzers = spaceIndex.getFieldAnalyzers();
 
-    final LuceneIndex emptyIndex = luceneService.getIndex("empty", REGION_NAME);
-    final Map<String, Analyzer> emptyFieldAnalyzers2 = emptyIndex.getFieldAnalyzers();
+    final var emptyIndex = luceneService.getIndex("empty", REGION_NAME);
+    final var emptyFieldAnalyzers2 = emptyIndex.getFieldAnalyzers();
 
-    final LuceneIndex keywordIndex = luceneService.getIndex("keyword", REGION_NAME);
-    final Map<String, Analyzer> keywordFieldAnalyzers = keywordIndex.getFieldAnalyzers();
+    final var keywordIndex = luceneService.getIndex("keyword", REGION_NAME);
+    final var keywordFieldAnalyzers = keywordIndex.getFieldAnalyzers();
 
     // Test whitespace analyzers
     assertEquals(StandardAnalyzer.class.getCanonicalName(),

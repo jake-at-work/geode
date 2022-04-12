@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import org.apache.geode.LogWriter;
-import org.apache.geode.logging.internal.log4j.LogWriterLogger;
 
 public class LogWriterFactoryTest {
 
@@ -32,7 +31,7 @@ public class LogWriterFactoryTest {
 
   @Test
   public void createLogWriterLoggerReturnsLogWriter() {
-    LogWriterLogger logWriterLogger =
+    var logWriterLogger =
         LogWriterFactory.createLogWriterLogger(getClass().getName(), testName.getMethodName(),
             false);
 
@@ -41,7 +40,7 @@ public class LogWriterFactoryTest {
 
   @Test
   public void createLogWriterLoggerReturnsLoggerWithSpecifiedName() {
-    LogWriterLogger logWriterLogger =
+    var logWriterLogger =
         LogWriterFactory.createLogWriterLogger(getClass().getName(), testName.getMethodName(),
             false);
 
@@ -50,7 +49,7 @@ public class LogWriterFactoryTest {
 
   @Test
   public void createLogWriterLoggerReturnsLoggerWithSpecifiedConnectionName() {
-    LogWriterLogger logWriterLogger =
+    var logWriterLogger =
         LogWriterFactory.createLogWriterLogger(getClass().getName(), testName.getMethodName(),
             false);
 
@@ -59,7 +58,7 @@ public class LogWriterFactoryTest {
 
   @Test
   public void createLogWriterLoggerWithSecureFalseReturnsSecureLogWriter() {
-    LogWriterLogger logWriterLogger =
+    var logWriterLogger =
         LogWriterFactory.createLogWriterLogger(getClass().getName(), testName.getMethodName(),
             false);
 
@@ -68,7 +67,7 @@ public class LogWriterFactoryTest {
 
   @Test
   public void createLogWriterLoggerWithSecureTrueReturnsSecureLogWriter() {
-    LogWriterLogger logWriterLogger =
+    var logWriterLogger =
         LogWriterFactory.createLogWriterLogger(getClass().getName(), testName.getMethodName(),
             true);
 

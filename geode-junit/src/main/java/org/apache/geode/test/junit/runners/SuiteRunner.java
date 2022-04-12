@@ -54,19 +54,19 @@ public class SuiteRunner extends Suite {
   }
 
   private static List<Runner> getRunners(final Class<?> testClass) throws InitializationError {
-    SuiteClasses annotation = testClass.getAnnotation(SuiteClasses.class);
+    var annotation = testClass.getAnnotation(SuiteClasses.class);
     if (annotation == null) {
       throw new InitializationError(
           String.format("class '%s' must have a SuiteClasses annotation", testClass.getName()));
     }
 
-    SuiteRunner.Candidate candidate = testClass.getAnnotation(Candidate.class);
+    var candidate = testClass.getAnnotation(Candidate.class);
     Class<?> candidateClass = null;
     if (candidate != null) {
       candidateClass = candidate.value();
     }
 
-    Class<?>[] childClasses = annotation.value();
+    var childClasses = annotation.value();
     List<Runner> runners = new ArrayList<>();
     for (Class childClass : childClasses) {
       runners.add(new SuiteBlockRunner(testClass, childClass));

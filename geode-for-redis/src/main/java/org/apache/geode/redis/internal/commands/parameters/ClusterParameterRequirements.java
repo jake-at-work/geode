@@ -25,7 +25,7 @@ public class ClusterParameterRequirements {
 
   public static Consumer<Command> checkParameters() {
     return command -> {
-      int numberOfArguments = command.getProcessedCommand().size();
+      var numberOfArguments = command.getProcessedCommand().size();
 
       if (numberOfArguments < 2) {
         throw new RedisParametersMismatchException(command.wrongNumberOfArgumentsErrorMessage());

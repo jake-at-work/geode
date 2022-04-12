@@ -22,12 +22,12 @@ import java.util.List;
 public class RegionVersionHolderUtilities {
   static void assertSameExceptions(List<RVVException> actualExceptions,
       RVVException[] exceptions) {
-    List<RVVException> expectedExceptions = Arrays.asList(exceptions);
+    var expectedExceptions = Arrays.asList(exceptions);
     assertThat(actualExceptions)
         .withFailMessage("Expected exceptions %s but got %s", expectedExceptions, actualExceptions)
         .hasSize(exceptions.length);
 
-    for (int i = 0; i < exceptions.length; i++) {
+    for (var i = 0; i < exceptions.length; i++) {
       assertThat(actualExceptions.get(i).sameAs(expectedExceptions.get(i)))
           .withFailMessage("Expected exceptions %s but got %s", expectedExceptions,
               actualExceptions)

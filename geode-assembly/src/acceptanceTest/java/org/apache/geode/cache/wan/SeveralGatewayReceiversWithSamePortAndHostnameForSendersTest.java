@@ -49,9 +49,7 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.persistence.PartitionOfflineException;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.internal.cache.ForceReattemptException;
-import org.apache.geode.internal.cache.PoolStats;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.GatewaySenderStats;
 import org.apache.geode.internal.cache.wan.InternalGatewaySenderFactory;
 import org.apache.geode.rules.DockerComposeRule;
 import org.apache.geode.test.dunit.IgnoredException;
@@ -113,7 +111,7 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
         "-e", "create region --name=region-wan --type=PARTITION");
 
     // Create gateway receiver
-    String createGatewayReceiverCommand = createGatewayReceiverCommand();
+    var createGatewayReceiverCommand = createGatewayReceiverCommand();
     docker.execForService("locator", "gfsh", "-e",
         "connect --locator=locator[20334]", "-e", createGatewayReceiverCommand);
   }
@@ -131,13 +129,13 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
   @Test
   public void testPingsToReceiversWithSamePortAndHostnameForSendersReachTheRightReceivers()
       throws InterruptedException {
-    String senderId = "ln";
-    String regionName = "region-wan";
+    var senderId = "ln";
+    var regionName = "region-wan";
     final int remoteLocPort = docker.getExternalPortForService("haproxy", 20334);
 
-    int locPort = createLocator(VM.getVM(0), 1, remoteLocPort);
+    var locPort = createLocator(VM.getVM(0), 1, remoteLocPort);
 
-    VM vm1 = VM.getVM(1);
+    var vm1 = VM.getVM(1);
     createCache(vm1, locPort);
 
     // We must use more than one dispatcher thread. With just one dispatcher thread, only one
@@ -150,7 +148,7 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
 
     createPartitionedRegion(vm1, regionName, senderId, 0, 10);
 
-    int NUM_PUTS = 10;
+    var NUM_PUTS = 10;
 
     putKeyValues(vm1, NUM_PUTS, regionName);
 
@@ -162,22 +160,22 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
     // maximum-time-between-pings: 10000 (see geode-starter-create.gfsh)
     // to verify that connections are not closed
     // by the receivers because each has received the pings timely.
-    int maxTimeBetweenPingsInReceiver = 15000;
+    var maxTimeBetweenPingsInReceiver = 15000;
     Thread.sleep(maxTimeBetweenPingsInReceiver);
 
-    int senderPoolDisconnects = getSenderPoolDisconnects(vm1, senderId);
+    var senderPoolDisconnects = getSenderPoolDisconnects(vm1, senderId);
     assertEquals(0, senderPoolDisconnects);
   }
 
   @Test
   public void testSerialGatewaySenderThreadsConnectToSameReceiver() {
-    String senderId = "ln";
-    String regionName = "region-wan";
+    var senderId = "ln";
+    var regionName = "region-wan";
     final int remoteLocPort = docker.getExternalPortForService("haproxy", 20334);
 
-    int locPort = createLocator(VM.getVM(0), 1, remoteLocPort);
+    var locPort = createLocator(VM.getVM(0), 1, remoteLocPort);
 
-    VM vm1 = VM.getVM(1);
+    var vm1 = VM.getVM(1);
     createCache(vm1, locPort);
 
     createGatewaySender(vm1, senderId, 2, false, 5,
@@ -192,21 +190,21 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
 
   @Test
   public void testTwoSendersWithSameIdShouldUseSameValueForEnforceThreadsConnectToSameServer() {
-    String senderId = "ln";
+    var senderId = "ln";
     final int remoteLocPort = docker.getExternalPortForService("haproxy", 20334);
 
-    int locPort = createLocator(VM.getVM(0), 1, remoteLocPort);
+    var locPort = createLocator(VM.getVM(0), 1, remoteLocPort);
 
-    VM vm1 = VM.getVM(1);
+    var vm1 = VM.getVM(1);
     createCache(vm1, locPort);
 
-    VM vm2 = VM.getVM(2);
+    var vm2 = VM.getVM(2);
     createCache(vm2, locPort);
 
     createGatewaySender(vm1, senderId, 2, false, 5,
         3, GatewaySender.DEFAULT_ORDER_POLICY);
 
-    Exception exception =
+    var exception =
         assertThrows(Exception.class, () -> createGatewaySender(vm2, senderId, 2, false, 5,
             3, GatewaySender.DEFAULT_ORDER_POLICY, false));
     assertEquals(exception.getCause().getMessage(), "Cannot create Gateway Sender " + senderId
@@ -216,10 +214,10 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
 
   private boolean allDispatchersConnectedToSameReceiver(int server) {
 
-    String gfshOutput = runListGatewayReceiversCommandInServer(server);
-    Vector<String> sendersConnectedToServer = parseSendersConnectedFromGfshOutput(gfshOutput);
-    String firstSenderId = "";
-    for (String senderId : sendersConnectedToServer) {
+    var gfshOutput = runListGatewayReceiversCommandInServer(server);
+    var sendersConnectedToServer = parseSendersConnectedFromGfshOutput(gfshOutput);
+    var firstSenderId = "";
+    for (var senderId : sendersConnectedToServer) {
       if (firstSenderId.equals("")) {
         firstSenderId = senderId;
       } else {
@@ -238,10 +236,10 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
   }
 
   private Vector<String> parseSendersConnectedFromGfshOutput(String gfshOutput) {
-    String[] lines = gfshOutput.split(lineSeparator());
-    final String sendersConnectedColumnHeader = "Senders Connected";
+    var lines = gfshOutput.split(lineSeparator());
+    final var sendersConnectedColumnHeader = "Senders Connected";
     String receiverInfo = null;
-    for (int i = 0; i < lines.length; i++) {
+    for (var i = 0; i < lines.length; i++) {
       if (lines[i].contains(sendersConnectedColumnHeader)) {
         receiverInfo = lines[i + 2];
         break;
@@ -250,10 +248,10 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
     assertNotNull(
         "Error parsing gfsh output. '" + sendersConnectedColumnHeader + "' column header not found",
         receiverInfo);
-    String[] tableRow = receiverInfo.split("\\|");
-    String sendersConnectedColumnValue = tableRow[3].trim();
-    Vector<String> senders = new Vector<>();
-    for (String sender : sendersConnectedColumnValue.split(",")) {
+    var tableRow = receiverInfo.split("\\|");
+    var sendersConnectedColumnValue = tableRow[3].trim();
+    var senders = new Vector<String>();
+    for (var sender : sendersConnectedColumnValue.split(",")) {
       senders.add(sender.trim());
     }
     return senders;
@@ -261,7 +259,7 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
 
   private int createLocator(VM memberVM, int dsId, int remoteLocPort) {
     return memberVM.invoke("create locator", () -> {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + dsId);
       props.setProperty(REMOTE_LOCATORS, "localhost[" + remoteLocPort + "]");
       return Locator.startLocatorAndDS(0, new File(""), props)
@@ -271,9 +269,9 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
 
   private static void createCache(VM vm, Integer locPort) {
     vm.invoke(() -> {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(LOCATORS, "localhost[" + locPort + "]");
-      CacheFactory cacheFactory = new CacheFactory(props);
+      var cacheFactory = new CacheFactory(props);
       cache = cacheFactory.create();
     });
   }
@@ -292,9 +290,9 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
       GatewaySender.OrderPolicy orderPolicy,
       boolean enforceThreadsConnectToSameReceiver) {
     vm.invoke(() -> {
-      final IgnoredException exln = IgnoredException.addIgnoredException("Could not connect");
+      final var exln = IgnoredException.addIgnoredException("Could not connect");
       try {
-        InternalGatewaySenderFactory gateway =
+        var gateway =
             (InternalGatewaySenderFactory) cache.createGatewaySenderFactory();
         gateway.setParallel(isParallel);
         gateway.setBatchSize(batchSize);
@@ -312,25 +310,25 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
   private static void createPartitionedRegion(VM vm, String regionName, String senderIds,
       Integer redundantCopies, Integer totalNumBuckets) {
     vm.invoke(() -> {
-      IgnoredException exp =
+      var exp =
           IgnoredException.addIgnoredException(ForceReattemptException.class.getName());
-      IgnoredException exp1 =
+      var exp1 =
           IgnoredException.addIgnoredException(PartitionOfflineException.class.getName());
       try {
         RegionFactory fact = cache.createRegionFactory(RegionShortcut.PARTITION);
         if (senderIds != null) {
-          StringTokenizer tokenizer = new StringTokenizer(senderIds, ",");
+          var tokenizer = new StringTokenizer(senderIds, ",");
           while (tokenizer.hasMoreTokens()) {
-            String senderId = tokenizer.nextToken();
+            var senderId = tokenizer.nextToken();
             fact.addGatewaySenderId(senderId);
           }
         }
-        PartitionAttributesFactory pfact = new PartitionAttributesFactory();
+        var pfact = new PartitionAttributesFactory();
         pfact.setTotalNumBuckets(totalNumBuckets);
         pfact.setRedundantCopies(redundantCopies);
         pfact.setRecoveryDelay(0);
         fact.setPartitionAttributes(pfact.create());
-        Region r = fact.create(regionName);
+        var r = fact.create(regionName);
         assertNotNull(r);
       } finally {
         exp.remove();
@@ -341,25 +339,25 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
 
   private static int getQueuedEvents(VM vm, String senderId) {
     return vm.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender(senderId);
-      GatewaySenderStats statistics = sender.getStatistics();
+      var sender = (AbstractGatewaySender) cache.getGatewaySender(senderId);
+      var statistics = sender.getStatistics();
       return statistics.getEventQueueSize();
     });
   }
 
   private static int getSenderPoolDisconnects(VM vm, String senderId) {
     return vm.invoke(() -> {
-      AbstractGatewaySender sender =
+      var sender =
           (AbstractGatewaySender) CacheFactory.getAnyInstance().getGatewaySender(senderId);
       assertNotNull(sender);
-      PoolStats poolStats = sender.getProxy().getStats();
+      var poolStats = sender.getProxy().getStats();
       return poolStats.getDisConnects();
     });
   }
 
   private static void putKeyValues(VM vm, int numPuts, String region) {
-    final HashMap<Integer, Integer> keyValues = new HashMap<>();
-    for (int i = 0; i < numPuts; i++) {
+    final var keyValues = new HashMap<Integer, Integer>();
+    for (var i = 0; i < numPuts; i++) {
       keyValues.put(i, i);
     }
     vm.invoke(() -> putGivenKeyValue(region, keyValues));
@@ -374,13 +372,13 @@ public class SeveralGatewayReceiversWithSamePortAndHostnameForSendersTest {
   }
 
   private static String createGatewayReceiverCommand() {
-    String ipAddress = docker.getIpAddressForService("haproxy", "geode-wan-test");
+    var ipAddress = docker.getIpAddressForService("haproxy", "geode-wan-test");
     return "create gateway-receiver --hostname-for-senders=" + ipAddress
         + " --start-port=2324 --end-port=2324 --maximum-time-between-pings=10000";
   }
 
   private static String startLocatorCommand() {
-    String ipAddress = docker.getIpAddressForService("haproxy", "geode-wan-test");
+    var ipAddress = docker.getIpAddressForService("haproxy", "geode-wan-test");
     return "start locator --name=locator --port=20334 --connect=false --redirect-output --enable-cluster-configuration=true --hostname-for-clients="
         + ipAddress + " --J=-Dgemfire.distributed-system-id=2";
 

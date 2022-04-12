@@ -24,7 +24,6 @@ import org.apache.geode.cache.configuration.CacheElement;
 import org.apache.geode.cache.configuration.JndiBindingsType;
 import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
-import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.commands.CreateJndiBindingCommand.DATASOURCE_TYPE;
@@ -47,16 +46,16 @@ public class ListDataSourceCommand extends GfshCommand {
       operation = ResourcePermission.Operation.READ)
   public ResultModel listDataSources() {
 
-    ResultModel resultModel = new ResultModel();
+    var resultModel = new ResultModel();
     resultModel.setHeader(EXPERIMENTAL);
-    TabularResultModel tabularData = resultModel.addTable(DATA_SOURCE_PROPERTIES_SECTION);
+    var tabularData = resultModel.addTable(DATA_SOURCE_PROPERTIES_SECTION);
     tabularData.setColumnHeader("name", "pooled", "in use", "url");
 
-    ConfigurationPersistenceService ccService = getConfigurationPersistenceService();
+    var ccService = getConfigurationPersistenceService();
     if (ccService == null) {
       return ResultModel.createError("Cluster configuration service must be enabled.");
     }
-    CacheConfig cacheConfig = ccService.getCacheConfig(null);
+    var cacheConfig = ccService.getCacheConfig(null);
     if (cacheConfig == null) {
       return ResultModel.createInfo("No data sources found");
     }
@@ -70,7 +69,7 @@ public class ListDataSourceCommand extends GfshCommand {
   private void addDataSourceToResult(JndiBindingsType.JndiBinding binding, CacheConfig cacheConfig,
       TabularResultModel tabularData) {
     boolean pooled;
-    String type = binding.getType();
+    var type = binding.getType();
     if (DATASOURCE_TYPE.SIMPLE.getType().equals(type)) {
       pooled = false;
     } else if (DATASOURCE_TYPE.POOLED.getType().equals(type)) {
@@ -80,7 +79,7 @@ public class ListDataSourceCommand extends GfshCommand {
       return;
     }
 
-    String dataSourceName = binding.getJndiName();
+    var dataSourceName = binding.getJndiName();
     tabularData.addRow(dataSourceName, Boolean.toString(pooled),
         Boolean.toString(isDataSourceUsedByRegion(cacheConfig, dataSourceName)),
         binding.getConnectionUrl());
@@ -103,7 +102,7 @@ public class ListDataSourceCommand extends GfshCommand {
     if (!(cacheElement instanceof RegionMapping)) {
       return false;
     }
-    RegionMapping regionMapping = (RegionMapping) cacheElement;
+    var regionMapping = (RegionMapping) cacheElement;
     return dataSourceName.equals(regionMapping.getDataSourceName());
   }
 

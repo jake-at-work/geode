@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache.xmlcache;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -59,12 +58,12 @@ public abstract class DefaultEntityResolver2 implements EntityResolver2 {
    */
   protected InputSource getClassPathInputSource(final String publicId, final String systemId,
       final String path) {
-    final InputStream stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), path);
+    final var stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), path);
     if (null == stream) {
       return null;
     }
 
-    final InputSource inputSource = new InputSource(stream);
+    final var inputSource = new InputSource(stream);
     inputSource.setPublicId(publicId);
     inputSource.setSystemId(systemId);
 

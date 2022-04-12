@@ -71,7 +71,7 @@ public class TombstoneServiceTest {
 
   @Test
   public void validateThatRemoveIsCalledOnTombstoneInRegionThatIsInitialized() {
-    RegionVersionVector regionVersionVector = mock(RegionVersionVector.class);
+    var regionVersionVector = mock(RegionVersionVector.class);
 
     when(region.isInitialized()).thenReturn(true);
     when(region.getRegionMap()).thenReturn(regionMap);

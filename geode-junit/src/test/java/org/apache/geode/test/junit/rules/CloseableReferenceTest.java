@@ -28,7 +28,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.Result;
 
 import org.apache.geode.test.junit.runners.TestRunner;
 
@@ -47,7 +46,7 @@ public class CloseableReferenceTest {
   public void closesAutoCloseable() throws Exception {
     VALUE.set(mock(AutoCloseable.class));
 
-    Result result = TestRunner.runTest(WithCloseableReference.class);
+    var result = TestRunner.runTest(WithCloseableReference.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     AutoCloseable value = uncheckedCast(VALUE.get());
@@ -58,7 +57,7 @@ public class CloseableReferenceTest {
   public void nullsOutAutoCloseable() {
     VALUE.set(mock(AutoCloseable.class));
 
-    Result result = TestRunner.runTest(WithCloseableReference.class);
+    var result = TestRunner.runTest(WithCloseableReference.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     CloseableReference<AutoCloseable> reference = uncheckedCast(RULE.get());
@@ -69,7 +68,7 @@ public class CloseableReferenceTest {
   public void closesCloseable() throws IOException {
     VALUE.set(mock(Closeable.class));
 
-    Result result = TestRunner.runTest(WithCloseableReference.class);
+    var result = TestRunner.runTest(WithCloseableReference.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     Closeable value = uncheckedCast(VALUE.get());
@@ -80,7 +79,7 @@ public class CloseableReferenceTest {
   public void nullsOutCloseable() {
     VALUE.set(mock(Closeable.class));
 
-    Result result = TestRunner.runTest(WithCloseableReference.class);
+    var result = TestRunner.runTest(WithCloseableReference.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     CloseableReference<Closeable> reference = uncheckedCast(RULE.get());
@@ -91,7 +90,7 @@ public class CloseableReferenceTest {
   public void disconnectDisconnectable() {
     VALUE.set(mock(Disconnectable.class));
 
-    Result result = TestRunner.runTest(WithCloseableReference.class);
+    var result = TestRunner.runTest(WithCloseableReference.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     Disconnectable value = uncheckedCast(VALUE.get());
@@ -102,7 +101,7 @@ public class CloseableReferenceTest {
   public void nullsOutDisconnectable() {
     VALUE.set(mock(Disconnectable.class));
 
-    Result result = TestRunner.runTest(WithCloseableReference.class);
+    var result = TestRunner.runTest(WithCloseableReference.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     CloseableReference<Disconnectable> reference = uncheckedCast(RULE.get());
@@ -113,7 +112,7 @@ public class CloseableReferenceTest {
   public void disconnectStoppable() {
     VALUE.set(mock(Stoppable.class));
 
-    Result result = TestRunner.runTest(WithCloseableReference.class);
+    var result = TestRunner.runTest(WithCloseableReference.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     Stoppable value = uncheckedCast(VALUE.get());
@@ -124,7 +123,7 @@ public class CloseableReferenceTest {
   public void nullsOutStoppable() {
     VALUE.set(mock(Stoppable.class));
 
-    Result result = TestRunner.runTest(WithCloseableReference.class);
+    var result = TestRunner.runTest(WithCloseableReference.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     CloseableReference<Stoppable> reference = uncheckedCast(RULE.get());
@@ -135,7 +134,7 @@ public class CloseableReferenceTest {
   public void skipsCloseIfAutoCloseIsFalse() {
     VALUE.set(mock(AutoCloseable.class));
 
-    Result result = TestRunner.runTest(WithAutoCloseFalse.class);
+    var result = TestRunner.runTest(WithAutoCloseFalse.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     AutoCloseable value = uncheckedCast(VALUE.get());
@@ -146,7 +145,7 @@ public class CloseableReferenceTest {
   public void nullsOutValueEvenIfAutoCloseIsFalse() {
     VALUE.set(mock(AutoCloseable.class));
 
-    Result result = TestRunner.runTest(WithAutoCloseFalse.class);
+    var result = TestRunner.runTest(WithAutoCloseFalse.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     CloseableReference<AutoCloseable> reference = uncheckedCast(RULE.get());

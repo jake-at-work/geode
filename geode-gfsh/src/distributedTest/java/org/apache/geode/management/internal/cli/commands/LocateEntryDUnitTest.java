@@ -47,7 +47,7 @@ public class LocateEntryDUnitTest {
   public static void beforeClass() throws Exception {
     locator = lsRule.startLocatorVM(0);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.management.internal.cli.dto.*");
 

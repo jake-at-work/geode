@@ -51,14 +51,14 @@ public class SizeClassOnceObjectSizer implements ObjectSizer, Serializable, Decl
     if (o == null) {
       return 0;
     }
-    int wellKnownObjectSize = WellKnownClassSizer.sizeof(o);
+    var wellKnownObjectSize = WellKnownClassSizer.sizeof(o);
     if (wellKnownObjectSize != 0) {
       return wellKnownObjectSize;
     }
 
     // Now do the sizing
     Class clazz = o.getClass();
-    Integer size = savedSizes.get(clazz);
+    var size = savedSizes.get(clazz);
     if (size == null) {
       size = sizer.sizeof(o);
       savedSizes.put(clazz, size);

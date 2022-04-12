@@ -49,7 +49,7 @@ public class NativeProcessUtilsIntegrationTest {
 
   @Before
   public void before() throws Exception {
-    File directory = temporaryFolder.getRoot();
+    var directory = temporaryFolder.getRoot();
 
     List<String> command = new ArrayList<>();
     command
@@ -106,7 +106,7 @@ public class NativeProcessUtilsIntegrationTest {
   protected static class ProcessSleeps {
     public static void main(final String... args) throws Exception {
       new LocalProcessLauncher(new File(FILE_NAME), false);
-      StopWatch stopWatch = new StopWatch(true);
+      var stopWatch = new StopWatch(true);
       while (stopWatch.elapsedTimeMillis() < PROCESS_TIMEOUT_MILLIS) {
         Thread.sleep(1000);
       }

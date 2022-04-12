@@ -266,16 +266,16 @@ public class MsgOutputStream extends OutputStream implements ObjToByteArraySeria
    */
   @Override
   public void writeBytes(String str) throws IOException {
-    int strlen = str.length();
+    var strlen = str.length();
     if (strlen > 0) {
       // I know this is a deprecated method but it is PERFECT for this impl.
       if (buffer.hasArray()) {
         // I know this is a deprecated method but it is PERFECT for this impl.
-        int pos = buffer.position();
+        var pos = buffer.position();
         str.getBytes(0, strlen, buffer.array(), buffer.arrayOffset() + pos);
         buffer.position(pos + strlen);
       } else {
-        byte[] bytes = new byte[strlen];
+        var bytes = new byte[strlen];
         str.getBytes(0, strlen, bytes, 0);
         buffer.put(bytes);
       }
@@ -298,9 +298,9 @@ public class MsgOutputStream extends OutputStream implements ObjToByteArraySeria
    */
   @Override
   public void writeChars(String s) throws IOException {
-    int len = s.length();
+    var len = s.length();
     if (len > 0) {
-      for (int i = 0; i < len; i++) {
+      for (var i = 0; i < len; i++) {
         buffer.putChar(s.charAt(i));
       }
     }
@@ -363,16 +363,16 @@ public class MsgOutputStream extends OutputStream implements ObjToByteArraySeria
   }
 
   private void writeFullUTF(String str) throws IOException {
-    int strlen = str.length();
+    var strlen = str.length();
     if (strlen > 65535) {
       throw new UTFDataFormatException(
           "String too long for java serialization");
     }
     // make room for worst case space 3 bytes for each char and 2 for len
-    int utfSizeIdx = buffer.position();
+    var utfSizeIdx = buffer.position();
     // skip bytes reserved for length
     buffer.position(utfSizeIdx + 2);
-    for (int i = 0; i < strlen; i++) {
+    for (var i = 0; i < strlen; i++) {
       int c = str.charAt(i);
       if ((c >= 0x0001) && (c <= 0x007F)) {
         buffer.put((byte) c);
@@ -385,7 +385,7 @@ public class MsgOutputStream extends OutputStream implements ObjToByteArraySeria
         buffer.put((byte) (0x80 | ((c >> 0) & 0x3F)));
       }
     }
-    int utflen = buffer.position() - (utfSizeIdx + 2);
+    var utflen = buffer.position() - (utfSizeIdx + 2);
     if (utflen > 65535) {
       // act as if we wrote nothing to this buffer
       buffer.position(utfSizeIdx);
@@ -401,12 +401,12 @@ public class MsgOutputStream extends OutputStream implements ObjToByteArraySeria
    */
   @Override
   public void writeAsSerializedByteArray(Object v) throws IOException {
-    ByteBuffer sizeBuf = buffer;
-    int sizePos = sizeBuf.position();
+    var sizeBuf = buffer;
+    var sizePos = sizeBuf.position();
     sizeBuf.position(sizePos + 5);
-    final int preArraySize = size();
+    final var preArraySize = size();
     DataSerializer.writeObject(v, this);
-    int arraySize = size() - preArraySize;
+    var arraySize = size() - preArraySize;
     sizeBuf.put(sizePos, StaticSerialization.INT_ARRAY_LEN);
     sizeBuf.putInt(sizePos + 1, arraySize);
   }

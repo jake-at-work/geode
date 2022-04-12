@@ -43,7 +43,6 @@ import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.cache.query.internal.StructImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.VMCachedDeserializable;
@@ -101,24 +100,24 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void functionWithStructTypeInInnerQueryShouldNotThrowException() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM client = host.getVM(3);
-    PortfolioPdx[] portfolios = new PortfolioPdx[10];
-    for (int i = 0; i < portfolios.length; i++) {
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var client = host.getVM(3);
+    var portfolios = new PortfolioPdx[10];
+    for (var i = 0; i < portfolios.length; i++) {
       portfolios[i] = new PortfolioPdx(i);
     }
 
     // create servers and regions
-    final int port1 = startPartitionedCacheServer(server1, portfolios);
+    final var port1 = startPartitionedCacheServer(server1, portfolios);
 
     // create client
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regName);
         return null;
       }
@@ -129,7 +128,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r1 = getRootRegion(regName);
-        for (int i = 10; i < 100; i++) {
+        for (var i = 10; i < 100; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
         }
         return null;
@@ -144,7 +143,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         QueryService remoteQS = null;
         try {
           remoteQS = getCache().getQueryService();
-          SelectResults sr = (SelectResults) remoteQS
+          var sr = (SelectResults) remoteQS
               .newQuery("select distinct oP.ID, oP.status, oP.getType from " + SEPARATOR + regName
                   + " oP where element(select distinct p.ID, p.status, p.getType from " + SEPARATOR
                   + regName
@@ -166,30 +165,30 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void functionWithStructTypeInInnerQueryShouldNotThrowExceptionWhenRunOnMultipleNodes()
       throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM server3 = host.getVM(2);
-    final VM client = host.getVM(3);
-    PortfolioPdx[] portfolios = new PortfolioPdx[10];
-    for (int i = 0; i < portfolios.length; i++) {
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var server3 = host.getVM(2);
+    final var client = host.getVM(3);
+    var portfolios = new PortfolioPdx[10];
+    for (var i = 0; i < portfolios.length; i++) {
       portfolios[i] = new PortfolioPdx(i);
     }
 
     // create servers and regions
-    final int port1 = startPartitionedCacheServer(server1, portfolios);
-    final int port2 = startPartitionedCacheServer(server2, portfolios);
-    final int port3 = startPartitionedCacheServer(server3, portfolios);
+    final var port1 = startPartitionedCacheServer(server1, portfolios);
+    final var port2 = startPartitionedCacheServer(server2, portfolios);
+    final var port3 = startPartitionedCacheServer(server3, portfolios);
 
     // create client
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port1);
         cf.addPoolServer(getServerHostName(server2.getHost()), port2);
         cf.addPoolServer(getServerHostName(server3.getHost()), port3);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regName);
         return null;
       }
@@ -200,7 +199,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r1 = getRootRegion(regName);
-        for (int i = 10; i < 100; i++) {
+        for (var i = 10; i < 100; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
         }
         return null;
@@ -215,7 +214,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         QueryService remoteQS = null;
         try {
           remoteQS = getCache().getQueryService();
-          SelectResults sr = (SelectResults) remoteQS
+          var sr = (SelectResults) remoteQS
               .newQuery("select distinct oP.ID, oP.status, oP.getType from " + SEPARATOR + regName
                   + " oP where element(select distinct p.ID, p.status, p.getType from " + SEPARATOR
                   + regName
@@ -238,20 +237,20 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSelectStarQueryForPartitionedRegion() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM server3 = host.getVM(2);
-    final VM client = host.getVM(3);
-    PortfolioPdx[] portfolios = new PortfolioPdx[10];
-    for (int i = 0; i < portfolios.length; i++) {
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var server3 = host.getVM(2);
+    final var client = host.getVM(3);
+    var portfolios = new PortfolioPdx[10];
+    for (var i = 0; i < portfolios.length; i++) {
       portfolios[i] = new PortfolioPdx(i);
     }
 
     // create servers and regions
-    final int port1 = startPartitionedCacheServer(server1, portfolios);
-    final int port2 = startPartitionedCacheServer(server2, portfolios);
-    final int port3 = startPartitionedCacheServer(server3, portfolios);
+    final var port1 = startPartitionedCacheServer(server1, portfolios);
+    final var port2 = startPartitionedCacheServer(server2, portfolios);
+    final var port3 = startPartitionedCacheServer(server3, portfolios);
 
     server1.invoke(new SerializableCallable("Set observer") {
       @Override
@@ -265,11 +264,11 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port1);
         cf.addPoolServer(getServerHostName(server2.getHost()), port2);
         cf.addPoolServer(getServerHostName(server3.getHost()), port3);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName);
         return null;
       }
@@ -280,7 +279,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r1 = getRootRegion(regName);
-        for (int i = 10; i < 20; i++) {
+        for (var i = 10; i < 20; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
         }
         return null;
@@ -300,9 +299,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         } catch (Exception e) {
           fail("Exception getting query service ", e);
         }
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
         SelectResults res = null;
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             res = (SelectResults) localQS.newQuery(queries[i]).execute();
             sr[0][0] = res;
@@ -317,9 +316,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             int cnt = ((Integer) res.iterator().next());
             assertEquals(20, cnt);
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
                     fail("Result objects for remote client query: " + queries[i]
@@ -342,10 +341,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Get observer") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.getInstance();
+        var observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertTrue(resultObserver.isObjectSerialized());
         return null;
       }
@@ -355,7 +354,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Query") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
+        var observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
         QueryService qs = null;
         try {
           qs = getCache().getQueryService();
@@ -363,7 +362,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             res = (SelectResults) qs.newQuery(queries[i]).execute();
           } catch (Exception e) {
@@ -374,9 +373,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             int cnt = ((Integer) res.iterator().next());
             assertEquals(20, cnt);
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
                     fail("Result objects for remote client query: " + queries[i]
@@ -394,7 +393,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertFalse(resultObserver.isObjectSerialized());
         // reset observer
         QueryObserverHolder.setInstance(oldObserver);
@@ -410,11 +409,11 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSelectStarQueryForReplicatedRegion() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(1);
-    final VM client = host.getVM(3);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(1);
+    final var client = host.getVM(3);
     // create servers and regions
-    final int port1 = startReplicatedCacheServer(server1);
+    final var port1 = startReplicatedCacheServer(server1);
 
     server1.invoke(new SerializableCallable("Set observer") {
       @Override
@@ -428,9 +427,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName2);
         return null;
@@ -443,7 +442,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region r1 = getRootRegion(regName);
         Region r2 = getRootRegion(regName2);
-        for (int i = 10; i < 20; i++) {
+        for (var i = 10; i < 20; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
           r2.put("key-" + i, new PortfolioPdx(i));
         }
@@ -465,9 +464,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
 
-        for (int i = 0; i < multipleRegionQueries.length; i++) {
+        for (var i = 0; i < multipleRegionQueries.length; i++) {
           try {
             res = (SelectResults) localQS.newQuery(multipleRegionQueries[i]).execute();
             sr[0][0] = res;
@@ -483,9 +482,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(400, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
                     fail("Result objects for remote client query: " + multipleRegionQueries[i]
@@ -509,10 +508,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Get observer") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.getInstance();
+        var observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertTrue(resultObserver.isObjectSerialized());
         return null;
       }
@@ -522,7 +521,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Query") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
+        var observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
         QueryService qs = null;
         try {
           qs = getCache().getQueryService();
@@ -530,7 +529,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        for (int i = 0; i < multipleRegionQueries.length; i++) {
+        for (var i = 0; i < multipleRegionQueries.length; i++) {
           try {
             res = (SelectResults) qs.newQuery(multipleRegionQueries[i]).execute();
           } catch (Exception e) {
@@ -542,9 +541,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(400, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
                     fail("Result objects for remote client query: " + multipleRegionQueries[i]
@@ -563,7 +562,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertFalse(resultObserver.isObjectSerialized());
         // reset observer
         QueryObserverHolder.setInstance(oldObserver);
@@ -577,10 +576,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testByteArrayReplicatedRegion() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM client = host.getVM(3);
-    final byte[] ba = new byte[] {1, 2, 3, 4, 5};
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var client = host.getVM(3);
+    final var ba = new byte[] {1, 2, 3, 4, 5};
 
     // create servers and regions
     final int port = (Integer) server1.invoke(new SerializableCallable("Create Server1") {
@@ -588,11 +587,11 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regName);
         // put domain objects
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           r1.put("key-" + i, ba);
         }
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -611,9 +610,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName);
         return null;
       }
@@ -624,7 +623,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r1 = getRootRegion(regName);
-        for (int i = 10; i < 20; i++) {
+        for (var i = 10; i < 20; i++) {
           r1.put("key-" + i, ba);
         }
         return null;
@@ -645,9 +644,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
 
-        for (int i = 0; i < 6; i++) {
+        for (var i = 0; i < 6; i++) {
           try {
             res = (SelectResults) localQS.newQuery(queries[i]).execute();
             sr[0][0] = res;
@@ -663,10 +662,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object o : res) {
+            for (var o : res) {
               if (o instanceof byte[]) {
-                int j = 0;
-                for (byte b : ((byte[]) o)) {
+                var j = 0;
+                for (var b : ((byte[]) o)) {
                   if (b != ba[j++]) {
                     fail("Bytes in byte array are different when queried from client");
                   }
@@ -686,10 +685,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Get observer") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.getInstance();
+        var observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertFalse(resultObserver.isObjectSerialized());
         return null;
       }
@@ -699,7 +698,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Query") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
+        var observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
         QueryService qs = null;
         try {
           qs = getCache().getQueryService();
@@ -707,7 +706,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        for (int i = 0; i < 6; i++) {
+        for (var i = 0; i < 6; i++) {
           try {
             res = (SelectResults) qs.newQuery(queries[i]).execute();
           } catch (Exception e) {
@@ -719,10 +718,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object o : res) {
+            for (var o : res) {
               if (o instanceof byte[]) {
-                int j = 0;
-                for (byte b : ((byte[]) o)) {
+                var j = 0;
+                for (var b : ((byte[]) o)) {
                   if (b != ba[j++]) {
                     fail("Bytes in byte array are different when queried locally on server");
                   }
@@ -737,7 +736,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertFalse(resultObserver.isObjectSerialized());
         // reset observer
         QueryObserverHolder.setInstance(oldObserver);
@@ -751,21 +750,21 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testByteArrayPartitionedRegion() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM client = host.getVM(3);
-    final VM server2 = host.getVM(1);
-    final VM server3 = host.getVM(2);
-    final byte[][] objs = new byte[10][5];
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var client = host.getVM(3);
+    final var server2 = host.getVM(1);
+    final var server3 = host.getVM(2);
+    final var objs = new byte[10][5];
 
-    for (int i = 0; i < objs.length; i++) {
+    for (var i = 0; i < objs.length; i++) {
       objs[i] = new byte[] {1, 2, 3, 4, 5};
     }
 
     // create servers and regions
-    final int port1 = startPartitionedCacheServer(server1, objs);
-    final int port2 = startPartitionedCacheServer(server2, objs);
-    final int port3 = startPartitionedCacheServer(server3, objs);
+    final var port1 = startPartitionedCacheServer(server1, objs);
+    final var port2 = startPartitionedCacheServer(server2, objs);
+    final var port3 = startPartitionedCacheServer(server3, objs);
 
     server1.invoke(new SerializableCallable("Set observer") {
       @Override
@@ -779,11 +778,11 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port1);
         cf.addPoolServer(getServerHostName(server2.getHost()), port2);
         cf.addPoolServer(getServerHostName(server3.getHost()), port3);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName);
         return null;
       }
@@ -794,7 +793,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r1 = getRootRegion(regName);
-        for (int i = 10; i < 20; i++) {
+        for (var i = 10; i < 20; i++) {
           r1.put("key-" + i, new byte[] {1, 2, 3, 4, 5});
         }
         return null;
@@ -815,9 +814,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
 
-        for (int i = 0; i < 6; i++) {
+        for (var i = 0; i < 6; i++) {
           try {
             res = (SelectResults) localQS.newQuery(queries[i]).execute();
             sr[0][0] = res;
@@ -833,10 +832,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object o : res) {
+            for (var o : res) {
               if (o instanceof byte[]) {
-                int j = 0;
-                for (byte b : ((byte[]) o)) {
+                var j = 0;
+                for (var b : ((byte[]) o)) {
                   if (b != objs[0][j++]) {
                     fail("Bytes in byte array are different when queried from client");
                   }
@@ -856,10 +855,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Get observer") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.getInstance();
+        var observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertFalse(resultObserver.isObjectSerialized());
         return null;
       }
@@ -869,7 +868,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Query") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
+        var observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
         QueryService qs = null;
         try {
           qs = getCache().getQueryService();
@@ -877,7 +876,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        for (int i = 0; i < 6; i++) {
+        for (var i = 0; i < 6; i++) {
           try {
             res = (SelectResults) qs.newQuery(queries[i]).execute();
           } catch (Exception e) {
@@ -889,10 +888,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object o : res) {
+            for (var o : res) {
               if (o instanceof byte[]) {
-                int j = 0;
-                for (byte b : ((byte[]) o)) {
+                var j = 0;
+                for (var b : ((byte[]) o)) {
                   if (b != objs[0][j++]) {
                     fail("Bytes in byte array are different when queried locally on server");
                   }
@@ -908,7 +907,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertFalse(resultObserver.isObjectSerialized());
         // reset observer
         QueryObserverHolder.setInstance(oldObserver);
@@ -923,18 +922,18 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSelectStarQueryForIndexes() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM client = host.getVM(3);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var client = host.getVM(3);
     // create servers and regions
-    final int port1 = startReplicatedCacheServer(server1);
+    final var port1 = startReplicatedCacheServer(server1);
     // create client
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName2);
         return null;
@@ -947,7 +946,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region r1 = getRootRegion(regName);
         Region r2 = getRootRegion(regName2);
-        for (int i = 10; i < 20; i++) {
+        for (var i = 10; i < 20; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
           r2.put("key-" + i, new PortfolioPdx(i));
         }
@@ -985,9 +984,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
 
-        for (int i = 0; i < multipleRegionQueries.length; i++) {
+        for (var i = 0; i < multipleRegionQueries.length; i++) {
           try {
             res = (SelectResults) localQS.newQuery(multipleRegionQueries[i]).execute();
             sr[0][0] = res;
@@ -1003,9 +1002,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(400, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
                     fail("Result objects for remote client query: " + multipleRegionQueries[i]
@@ -1055,9 +1054,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
 
-        for (int i = 0; i < multipleRegionQueries.length; i++) {
+        for (var i = 0; i < multipleRegionQueries.length; i++) {
           try {
             res = (SelectResults) localQS.newQuery(multipleRegionQueries[i]).execute();
             sr[0][0] = res;
@@ -1073,9 +1072,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(400, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
                     fail("Result objects for remote client query: " + multipleRegionQueries[i]
@@ -1101,11 +1100,11 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSelectStarQueryForPdxObjects() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM client = host.getVM(3);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var client = host.getVM(3);
     // create servers and regions
-    final int port1 = startReplicatedCacheServer(server1);
+    final var port1 = startReplicatedCacheServer(server1);
 
     server1.invoke(new SerializableCallable("Set observer") {
       @Override
@@ -1119,9 +1118,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName);
         return null;
       }
@@ -1132,7 +1131,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r1 = getRootRegion(regName);
-        for (int i = 0; i < 20; i++) {
+        for (var i = 0; i < 20; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
         }
         return null;
@@ -1153,9 +1152,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             res = (SelectResults) localQS.newQuery(queries[i]).execute();
             sr[0][0] = res;
@@ -1171,9 +1170,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
                     fail("Result objects for remote client query: " + queries[i]
@@ -1196,10 +1195,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Get observer") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.getInstance();
+        var observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertTrue(resultObserver.isObjectSerialized());
         return null;
       }
@@ -1209,7 +1208,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Query") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
+        var observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
         QueryService qs = null;
         try {
           qs = getCache().getQueryService();
@@ -1217,7 +1216,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             res = (SelectResults) qs.newQuery(queries[i]).execute();
           } catch (Exception e) {
@@ -1229,9 +1228,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
                     fail("Result objects for remote client query: " + queries[i]
@@ -1249,7 +1248,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertFalse(resultObserver.isObjectSerialized());
         QueryObserverHolder.setInstance(oldObserver);
         return null;
@@ -1261,7 +1260,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Query") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
         QueryService qs = null;
         try {
@@ -1270,7 +1269,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             res = (SelectResults) qs.newQuery(queries[i]).execute();
           } catch (Exception e) {
@@ -1282,9 +1281,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PdxInstance) {
                   } else {
                     fail("Result objects for remote client query: " + queries[i]
@@ -1309,12 +1308,12 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSelectStarQueryForPdxAndNonPdxObjects() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM client = host.getVM(3);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var client = host.getVM(3);
     // create servers and regions
     // put domain objects
-    final int port1 = startReplicatedCacheServer(server1);
+    final var port1 = startReplicatedCacheServer(server1);
 
     server1.invoke(new SerializableCallable("Set observer") {
       @Override
@@ -1328,9 +1327,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName);
         return null;
       }
@@ -1341,7 +1340,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r1 = getRootRegion(regName);
-        for (int i = 10; i < 20; i++) {
+        for (var i = 10; i < 20; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
         }
         return null;
@@ -1362,9 +1361,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             res = (SelectResults) localQS.newQuery(queries[i]).execute();
             sr[0][0] = res;
@@ -1380,9 +1379,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
@@ -1407,10 +1406,10 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Get observer") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.getInstance();
+        var observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertTrue(resultObserver.isObjectSerialized());
         return null;
       }
@@ -1420,7 +1419,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Query") {
       @Override
       public Object call() throws Exception {
-        QueryObserver observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
+        var observer = QueryObserverHolder.setInstance(new QueryResultTrackingObserver());
         QueryService qs = null;
         try {
           qs = getCache().getQueryService();
@@ -1428,7 +1427,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             res = (SelectResults) qs.newQuery(queries[i]).execute();
           } catch (Exception e) {
@@ -1440,9 +1439,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
@@ -1462,7 +1461,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
         assertTrue(observer instanceof QueryResultTrackingObserver);
-        QueryResultTrackingObserver resultObserver = (QueryResultTrackingObserver) observer;
+        var resultObserver = (QueryResultTrackingObserver) observer;
         assertFalse(resultObserver.isObjectSerialized());
         QueryObserverHolder.setInstance(oldObserver);
         return null;
@@ -1472,7 +1471,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(new SerializableCallable("Query") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
         QueryService qs = null;
         try {
@@ -1481,7 +1480,7 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             res = (SelectResults) qs.newQuery(queries[i]).execute();
           } catch (Exception e) {
@@ -1493,9 +1492,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else if (obj instanceof PdxInstance) {
                   } else {
@@ -1521,17 +1520,17 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSelectStarQueryForPdxObjectsReadSerializedTrue() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM client = host.getVM(3);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var client = host.getVM(3);
     // create servers and regions
     final int port = (Integer) server1.invoke(new SerializableCallable("Create Server1") {
       @Override
       public Object call() throws Exception {
         getCache().setReadSerializedForTest(true);
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regName);
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -1542,12 +1541,12 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(getServerHostName(server1.getHost()), port);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regName);
         Region r1 = getRootRegion(regName);
-        for (int i = 0; i < 20; i++) {
+        for (var i = 0; i < 20; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
         }
         return null;
@@ -1568,9 +1567,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
           fail("Exception getting query service ", e);
         }
         SelectResults res = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             res = (SelectResults) localQS.newQuery(queries[i]).execute();
             sr[0][0] = res;
@@ -1586,9 +1585,9 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
             assertEquals(20, cnt);
 
           } else {
-            for (Object rs : res) {
+            for (var rs : res) {
               if (rs instanceof StructImpl) {
-                for (Object obj : ((StructImpl) rs).getFieldValues()) {
+                for (var obj : ((StructImpl) rs).getFieldValues()) {
                   if (obj instanceof PortfolioPdx || obj instanceof PositionPdx) {
                   } else {
                     fail("Result objects for remote client query: " + queries[i]
@@ -1617,12 +1616,12 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.PARTITION).create(regName);
         // put domain objects
-        for (int i = 0; i < objs.length; i++) {
+        for (var i = 0; i < objs.length; i++) {
           r1.put("key-" + i, objs[i]);
         }
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -1638,13 +1637,13 @@ public class SelectStarQueryDUnitTest extends JUnit4CacheTestCase {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regName);
         Region r2 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regName2);
         // put domain objects
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
           r2.put("key-" + i, new PortfolioPdx(i));
         }
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;

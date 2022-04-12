@@ -62,7 +62,7 @@ public class ElementTypeTest {
   @Test
   public void endElementForQueryServiceAddsQueryServiceCreationToCacheCreation() {
     stack.push(cacheCreation);
-    QueryConfigurationServiceCreation queryConfigurationServiceCreation =
+    var queryConfigurationServiceCreation =
         new QueryConfigurationServiceCreation();
     stack.push(queryConfigurationServiceCreation);
 
@@ -81,21 +81,21 @@ public class ElementTypeTest {
 
   @Test
   public void startElementForMethodAuthorizerAddsClassNameToMethodAuthorizerCreationField() {
-    String className = "testClass";
+    var className = "testClass";
     when(attributes.getValue(QueryServiceXmlParser.CLASS_NAME)).thenReturn(className);
 
     stack.push(queryConfigurationServiceCreation);
 
     ElementType.METHOD_AUTHORIZER.startElement(stack, attributes);
 
-    QueryMethodAuthorizerCreation authorizerCreation = (QueryMethodAuthorizerCreation) stack.pop();
+    var authorizerCreation = (QueryMethodAuthorizerCreation) stack.pop();
     assertThat(authorizerCreation.getClassName()).isEqualTo(className);
   }
 
   @Test
   public void endElementForMethodAuthorizerAddsMethodAuthorizerCreationToQueryServiceCreation() {
     stack.push(queryConfigurationServiceCreation);
-    QueryMethodAuthorizerCreation authorizerCreation = new QueryMethodAuthorizerCreation();
+    var authorizerCreation = new QueryMethodAuthorizerCreation();
     stack.push(authorizerCreation);
 
     ElementType.METHOD_AUTHORIZER.endElement(stack);
@@ -112,14 +112,14 @@ public class ElementTypeTest {
 
   @Test
   public void startElementForParameterAddsParameterToMethodAuthorizerCreationField() {
-    String parameterValue = "testValue";
+    var parameterValue = "testValue";
     when(attributes.getValue(QueryServiceXmlParser.PARAMETER_VALUE)).thenReturn(parameterValue);
 
     stack.push(new QueryMethodAuthorizerCreation());
 
     ElementType.PARAMETER.startElement(stack, attributes);
 
-    QueryMethodAuthorizerCreation authorizerCreation = (QueryMethodAuthorizerCreation) stack.pop();
+    var authorizerCreation = (QueryMethodAuthorizerCreation) stack.pop();
     assertThat(authorizerCreation.getParameters().size()).isEqualTo(1);
     assertThat(authorizerCreation.getParameters().contains(parameterValue)).isTrue();
   }

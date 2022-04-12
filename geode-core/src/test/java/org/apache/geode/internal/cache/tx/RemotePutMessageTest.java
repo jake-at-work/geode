@@ -53,17 +53,17 @@ public class RemotePutMessageTest {
 
   @Test
   public void testDistributeNotFailWithRegionDestroyedException() throws RemoteOperationException {
-    EntryEventImpl event = mock(EntryEventImpl.class);
-    EventID eventID = mock(EventID.class);
-    DistributedRegion region = mock(DistributedRegion.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
-    DistributionManager dm = mock(DistributionManager.class);
-    CancelCriterion cc = mock(CancelCriterion.class);
-    CacheDistributionAdvisor advisor = mock(CacheDistributionAdvisor.class);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var event = mock(EntryEventImpl.class);
+    var eventID = mock(EventID.class);
+    var region = mock(DistributedRegion.class);
+    var ids = mock(InternalDistributedSystem.class);
+    var dm = mock(DistributionManager.class);
+    var cc = mock(CancelCriterion.class);
+    var advisor = mock(CacheDistributionAdvisor.class);
+    var member = mock(InternalDistributedMember.class);
     Set<InternalDistributedMember> replicates = new HashSet<>(Arrays.asList(member));
-    RemotePutMessage.RemotePutResponse response = mock(RemotePutMessage.RemotePutResponse.class);
-    Object expectedOldValue = new Object();
+    var response = mock(RemotePutMessage.RemotePutResponse.class);
+    var expectedOldValue = new Object();
 
     when(event.getRegion()).thenReturn(region);
     when(event.getEventId()).thenReturn(eventID);
@@ -82,32 +82,32 @@ public class RemotePutMessageTest {
   @Test
   public void testSendReplyInvokedOnceWithFalseResult() throws RemoteOperationException {
     // Create the RemotePutMessage
-    InternalDistributedMember recipient = mock(InternalDistributedMember.class);
-    EntryEventImpl event = mock(EntryEventImpl.class);
-    EventID eventID = mock(EventID.class);
+    var recipient = mock(InternalDistributedMember.class);
+    var event = mock(EntryEventImpl.class);
+    var eventID = mock(EventID.class);
     when(event.getEventId()).thenReturn(eventID);
-    RemotePutMessage.RemotePutResponse response = mock(RemotePutMessage.RemotePutResponse.class);
-    long lastModified = 0l;
+    var response = mock(RemotePutMessage.RemotePutResponse.class);
+    var lastModified = 0l;
     boolean ifNew = false, ifOld = false, requiredOldValue = false;
     Object expectedOldValue = null;
-    RemotePutMessage message = new RemotePutMessage(recipient, testName.getMethodName(),
+    var message = new RemotePutMessage(recipient, testName.getMethodName(),
         response, event, lastModified, ifNew,
         ifOld, expectedOldValue, requiredOldValue, false,
         false);
     message.setSender(mock(InternalDistributedMember.class));
-    RemotePutMessage messageSpy = spy(message);
+    var messageSpy = spy(message);
 
     // Invoke operateOnRegion on the spy
-    ClusterDistributionManager manager = mock(ClusterDistributionManager.class);
-    LocalRegion region = mock(LocalRegion.class);
-    InternalCache cache = mock(InternalCache.class);
+    var manager = mock(ClusterDistributionManager.class);
+    var region = mock(LocalRegion.class);
+    var cache = mock(InternalCache.class);
     when(region.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(mock(InternalDistributedSystem.class));
-    InternalDataView dataView = mock(InternalDataView.class);
+    var dataView = mock(InternalDataView.class);
     when(region.getDataView()).thenReturn(dataView);
     when(dataView.putEntry(event, ifNew, ifOld, expectedOldValue, requiredOldValue, lastModified,
         true)).thenReturn(false);
-    long startTime = 0l;
+    var startTime = 0l;
     messageSpy.operateOnRegion(manager, region, startTime);
 
     // Verify the sendReply method containing the exception was called once

@@ -17,7 +17,6 @@
 package org.apache.geode.cache.query.internal.parse;
 
 import antlr.Token;
-import antlr.collections.AST;
 
 import org.apache.geode.cache.query.internal.QCompiler;
 
@@ -36,7 +35,7 @@ public class ASTPostfix extends GemFireAST {
 
   @Override
   public void compile(QCompiler compiler) {
-    AST child = getFirstChild();
+    var child = getFirstChild();
     // push receiver, which is any CompiledValue
     ((GemFireAST) child).compile(compiler);
     child = child.getNextSibling();

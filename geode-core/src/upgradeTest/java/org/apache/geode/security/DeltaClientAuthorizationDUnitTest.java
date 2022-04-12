@@ -35,8 +35,6 @@ import org.apache.geode.DeltaTestImpl;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.operations.OperationContext.OperationCode;
 import org.apache.geode.internal.cache.TestObjectWithIdentifier;
-import org.apache.geode.security.generator.AuthzCredentialGenerator;
-import org.apache.geode.security.generator.CredentialGenerator;
 import org.apache.geode.test.junit.categories.SecurityTest;
 
 /**
@@ -59,30 +57,30 @@ public class DeltaClientAuthorizationDUnitTest extends ClientAuthorizationTestCa
 
   @Test
   public void testAllowPutsGets() throws Exception {
-    AuthzCredentialGenerator gen = getXmlAuthzGenerator();
-    CredentialGenerator cGen = gen.getCredentialGenerator();
+    var gen = getXmlAuthzGenerator();
+    var cGen = gen.getCredentialGenerator();
 
-    Properties extraAuthProps = cGen.getSystemProperties();
-    Properties javaProps = cGen.getJavaProperties();
-    Properties extraAuthzProps = gen.getSystemProperties();
+    var extraAuthProps = cGen.getSystemProperties();
+    var javaProps = cGen.getJavaProperties();
+    var extraAuthzProps = gen.getSystemProperties();
 
-    String authenticator = cGen.getAuthenticator();
-    String authInit = cGen.getAuthInit();
-    String accessor = gen.getAuthorizationCallback();
+    var authenticator = cGen.getAuthenticator();
+    var authInit = cGen.getAuthInit();
+    var accessor = gen.getAuthorizationCallback();
 
     getLogWriter().info("testAllowPutsGets: Using authinit: " + authInit);
     getLogWriter().info("testAllowPutsGets: Using authenticator: " + authenticator);
     getLogWriter().info("testAllowPutsGets: Using accessor: " + accessor);
 
     // Start servers with all required properties
-    Properties serverProps =
+    var serverProps =
         buildProperties(authenticator, accessor, false, extraAuthProps, extraAuthzProps);
 
-    int port1 = createServer1(javaProps, serverProps);
-    int port2 = createServer2(javaProps, serverProps);
+    var port1 = createServer1(javaProps, serverProps);
+    var port2 = createServer2(javaProps, serverProps);
 
     // Start client1 with valid CREATE credentials
-    Properties createCredentials = gen.getAllowedCredentials(
+    var createCredentials = gen.getAllowedCredentials(
         new OperationCode[] {OperationCode.PUT}, new String[] {REGION_NAME}, 1);
     javaProps = cGen.getJavaProperties();
 
@@ -91,7 +89,7 @@ public class DeltaClientAuthorizationDUnitTest extends ClientAuthorizationTestCa
     createClient1(javaProps, authInit, port1, port2, createCredentials);
 
     // Start client2 with valid GET credentials
-    Properties getCredentials = gen.getAllowedCredentials(new OperationCode[] {OperationCode.GET},
+    var getCredentials = gen.getAllowedCredentials(new OperationCode[] {OperationCode.GET},
         new String[] {REGION_NAME}, 2);
     javaProps = cGen.getJavaProperties();
 
@@ -133,10 +131,10 @@ public class DeltaClientAuthorizationDUnitTest extends ClientAuthorizationTestCa
     assertTrue(num <= KEYS.length);
     Region region = getCache().getRegion(REGION_NAME);
     assertNotNull(region);
-    for (int index = 0; index < num; ++index) {
+    for (var index = 0; index < num; ++index) {
       region.put(KEYS[index], deltas[0]);
     }
-    for (int index = 0; index < num; ++index) {
+    for (var index = 0; index < num; ++index) {
       region.put(KEYS[index], deltas[index]);
       if (expectedResult != NO_EXCEPTION) {
         fail("Expected a NotAuthorizedException while doing puts");
@@ -150,9 +148,9 @@ public class DeltaClientAuthorizationDUnitTest extends ClientAuthorizationTestCa
     Region region = getCache().getRegion(REGION_NAME);
     assertNotNull(region);
 
-    for (int index = 0; index < num; ++index) {
+    for (var index = 0; index < num; ++index) {
       region.localInvalidate(KEYS[index]);
-      Object value = region.get(KEYS[index]);
+      var value = region.get(KEYS[index]);
       if (expectedResult != NO_EXCEPTION) {
         fail("Expected a NotAuthorizedException while doing gets");
       }
@@ -162,7 +160,7 @@ public class DeltaClientAuthorizationDUnitTest extends ClientAuthorizationTestCa
   }
 
   private void setUpDeltas() {
-    for (int i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       deltas[i] = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
           new TestObjectWithIdentifier("0", 0));
     }

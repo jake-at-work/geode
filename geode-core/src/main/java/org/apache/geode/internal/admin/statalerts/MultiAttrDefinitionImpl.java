@@ -19,8 +19,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.StatisticDescriptor;
-import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.internal.admin.StatAlert;
 import org.apache.geode.internal.admin.StatAlertDefinition;
@@ -65,7 +63,7 @@ public class MultiAttrDefinitionImpl implements StatAlertDefinition {
     if (!(o instanceof MultiAttrDefinitionImpl)) {
       return false;
     }
-    MultiAttrDefinitionImpl that = (MultiAttrDefinitionImpl) o;
+    var that = (MultiAttrDefinitionImpl) o;
     return _id == that._id;
   }
 
@@ -75,19 +73,19 @@ public class MultiAttrDefinitionImpl implements StatAlertDefinition {
       // System.out.println("No attributes defined for this definition.");
       return false;
     }
-    boolean result = false;
+    var result = false;
 
-    for (final StatisticInfo info : statisticInfo) {
+    for (final var info : statisticInfo) {
 
       if (info != null) {
-        Statistics[] temp = factory.findStatisticsByTextId(info.getStatisticsTextId());
+        var temp = factory.findStatisticsByTextId(info.getStatisticsTextId());
 
         if (temp == null || temp.length == 0) {
           return false;
         }
 
-        StatisticDescriptor[] temp1 = temp[0].getType().getStatistics();
-        for (final StatisticDescriptor statisticDescriptor : temp1) {
+        var temp1 = temp[0].getType().getStatistics();
+        for (final var statisticDescriptor : temp1) {
           if (info.getStatisticName().equals(statisticDescriptor.getName())) {
             result = true;
             break;
@@ -104,11 +102,11 @@ public class MultiAttrDefinitionImpl implements StatAlertDefinition {
 
   @Override // GemStoneAddition
   public String toString() {
-    StringBuilder buffer = new StringBuilder();
+    var buffer = new StringBuilder();
     buffer.append("Name:" + getName() + "\n");
     buffer.append("Attributes:\n");
     if (statisticInfo != null) {
-      for (final StatisticInfo info : statisticInfo) {
+      for (final var info : statisticInfo) {
         buffer.append(info.toString() + "\n");
       }
     }
@@ -161,8 +159,8 @@ public class MultiAttrDefinitionImpl implements StatAlertDefinition {
 
   @Override
   public Number[] getValue() {
-    Number[] vals = new Number[statisticInfo.length];
-    for (int i = 0; i < vals.length; i++) {
+    var vals = new Number[statisticInfo.length];
+    for (var i = 0; i < vals.length; i++) {
       vals[i] = statisticInfo[i].getStatistics().get(statisticInfo[i].getStatisticDescriptor());
     }
     return vals;

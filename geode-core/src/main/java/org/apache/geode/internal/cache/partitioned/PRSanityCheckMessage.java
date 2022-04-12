@@ -24,7 +24,6 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.query.QueryException;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.OperationExecutors;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.internal.SystemTimer;
@@ -102,10 +101,10 @@ public class PRSanityCheckMessage extends PartitionMessage {
    */
   public static void schedule(final PartitionedRegion pr) {
     if (!Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "PRSanityCheckDisabled")) {
-      final DistributionManager dm = pr.getDistributionManager();
+      final var dm = pr.getDistributionManager();
       // RegionAdvisor ra = pr.getRegionAdvisor();
       // final Set recipients = ra.adviseAllPRNodes();
-      DistributedRegion prRoot =
+      var prRoot =
           (DistributedRegion) PartitionedRegionHelper.getPRRoot(pr.getCache(), false);
       if (prRoot == null) {
         return;
@@ -114,18 +113,18 @@ public class PRSanityCheckMessage extends PartitionMessage {
       if (recipients.size() <= 0) {
         return;
       }
-      final PRSanityCheckMessage delayedInstance =
+      final var delayedInstance =
           new PRSanityCheckMessage(recipients, pr.getPRId(), null, pr.getRegionIdentifier());
       delayedInstance.setTransactionDistributed(pr.getCache().getTxManager().isDistributed());
-      PRSanityCheckMessage instance =
+      var instance =
           new PRSanityCheckMessage(recipients, pr.getPRId(), null, pr.getRegionIdentifier());
       instance.setTransactionDistributed(pr.getCache().getTxManager().isDistributed());
       dm.putOutgoing(instance);
       int sanityCheckInterval = Integer
           .getInteger(GeodeGlossary.GEMFIRE_PREFIX + "PRSanityCheckInterval", 5000);
       if (sanityCheckInterval != 0) {
-        final SystemTimer tm = new SystemTimer(dm.getSystem());
-        SystemTimer.SystemTimerTask st = new SystemTimer.SystemTimerTask() {
+        final var tm = new SystemTimer(dm.getSystem());
+        var st = new SystemTimer.SystemTimerTask() {
           @Override
           public void run2() {
             try {

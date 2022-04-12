@@ -25,17 +25,17 @@ public class RepeatedRebalancePartitionResolver implements PartitionResolver {
 
   @Override
   public Object getRoutingObject(EntryOperation opDetails) {
-    String key = (String) opDetails.getKey();
+    var key = (String) opDetails.getKey();
 
     // This partition resolver requires keys to be Strings starting with the letters "key" followed
     // by an integer
-    int number = Integer.parseInt(key.substring(3));
+    var number = Integer.parseInt(key.substring(3));
 
     // The partitioned regions that use this partition resolver in RepeatedRebalanceDUnitTest have
     // 48 buckets. In order to create an unbalanced distribution of data between the buckets, for
     // every 108 entries, one of three "big buckets" (associated with the values 0, 1 and 2) are
     // each assigned an additional 20 entries.
-    int mod = number % 108;
+    var mod = number % 108;
     if (mod > 48) {
       mod = number % 3;
     }

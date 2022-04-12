@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.geode.LogWriter;
-import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.data.Portfolio;
@@ -66,11 +65,11 @@ public class CqTimeTestListener implements CqListener {
   public void onEvent(CqEvent cqEvent) {
     totalEventCount++;
 
-    long currentTime = System.currentTimeMillis();
+    var currentTime = System.currentTimeMillis();
 
-    Operation baseOperation = cqEvent.getBaseOperation();
-    Operation queryOperation = cqEvent.getQueryOperation();
-    Object key = cqEvent.getKey();
+    var baseOperation = cqEvent.getBaseOperation();
+    var queryOperation = cqEvent.getQueryOperation();
+    var key = cqEvent.getKey();
     // logger.info("### Got CQ Event ###; baseOp=" + baseOperation
     // + ";queryOp=" + queryOperation);
     //
@@ -94,11 +93,11 @@ public class CqTimeTestListener implements CqListener {
 
     if (queryOperation.isUpdate()) {
       eventQueryUpdateCount++;
-      long createTime = ((Portfolio) cqEvent.getNewValue()).getCreateTime();
+      var createTime = ((Portfolio) cqEvent.getNewValue()).getCreateTime();
       eventQueryUpdateTime += (currentTime - createTime);
     } else if (queryOperation.isCreate()) {
       eventQueryInsertCount++;
-      long createTime = ((Portfolio) cqEvent.getNewValue()).getCreateTime();
+      var createTime = ((Portfolio) cqEvent.getNewValue()).getCreateTime();
       eventQueryInsertTime += (currentTime - createTime);
     } else if (queryOperation.isDestroy()) {
       eventQueryDeleteCount++;
@@ -177,7 +176,7 @@ public class CqTimeTestListener implements CqListener {
   }
 
   public boolean waitForCreated(final Object key) {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return creates.contains(key);
@@ -193,7 +192,7 @@ public class CqTimeTestListener implements CqListener {
   }
 
   public boolean waitForDestroyed(final Object key) {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return destroys.contains(key);
@@ -209,7 +208,7 @@ public class CqTimeTestListener implements CqListener {
   }
 
   public boolean waitForInvalidated(final Object key) {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return invalidates.contains(key);
@@ -225,7 +224,7 @@ public class CqTimeTestListener implements CqListener {
   }
 
   public boolean waitForUpdated(final Object key) {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return updates.contains(key);
@@ -241,7 +240,7 @@ public class CqTimeTestListener implements CqListener {
   }
 
   public boolean waitForClose() {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return eventClose;

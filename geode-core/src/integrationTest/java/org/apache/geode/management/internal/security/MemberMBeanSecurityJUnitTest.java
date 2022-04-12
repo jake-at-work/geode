@@ -105,7 +105,7 @@ public class MemberMBeanSecurityJUnitTest {
   @Test
   @ConnectionConfiguration(user = "data-user", password = "1234567")
   public void testDataUser() throws Exception {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
 
     softly.assertThatThrownBy(() -> bean.shutDownMember())
         .hasMessageContaining(ResourcePermissions.CLUSTER_MANAGE.toString());

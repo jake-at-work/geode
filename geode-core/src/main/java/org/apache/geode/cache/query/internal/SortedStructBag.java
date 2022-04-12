@@ -77,7 +77,7 @@ public class SortedStructBag extends SortedResultsBag<Object[]> implements Struc
       throw new IllegalArgumentException(
           "This set only accepts StructImpl");
     }
-    StructImpl s = (StructImpl) obj;
+    var s = (StructImpl) obj;
     if (!elementType.equals(s.getStructType())) {
       throw new IllegalArgumentException(
           String.format(
@@ -101,7 +101,7 @@ public class SortedStructBag extends SortedResultsBag<Object[]> implements Struc
     if (!(obj instanceof Struct)) {
       return false;
     }
-    Struct s = (Struct) obj;
+    var s = (Struct) obj;
     if (!elementType.equals(StructTypeImpl.typeFromStruct(s))) {
       return false;
     }
@@ -122,7 +122,7 @@ public class SortedStructBag extends SortedResultsBag<Object[]> implements Struc
     // null , then the the getFieldValues would have returned
     // a zero size Object array. So we need not bother about null here
     if (hasLimitIterator) {
-      Iterator fieldItr = fieldValuesIterator();
+      var fieldItr = fieldValuesIterator();
       while (fieldItr.hasNext()) {
         if (Arrays.equals((Object[]) fieldItr.next(), fieldValues)) {
           return true;
@@ -139,16 +139,16 @@ public class SortedStructBag extends SortedResultsBag<Object[]> implements Struc
     if (!(element instanceof Struct)) {
       return 0;
     }
-    Struct s = (Struct) element;
+    var s = (Struct) element;
     if (!elementType.equals(StructTypeImpl.typeFromStruct(s))) {
       return 0;
     }
     if (hasLimitIterator) {
-      int count = 0;
-      boolean encounteredObject = false;
-      Object[] fields = s.getFieldValues();
-      for (Iterator itr = fieldValuesIterator(); itr.hasNext();) {
-        Object[] structFields = (Object[]) itr.next();
+      var count = 0;
+      var encounteredObject = false;
+      var fields = s.getFieldValues();
+      for (var itr = fieldValuesIterator(); itr.hasNext();) {
+        var structFields = (Object[]) itr.next();
         if (Arrays.equals(fields, structFields)) {
           count++;
           encounteredObject = true;
@@ -169,7 +169,7 @@ public class SortedStructBag extends SortedResultsBag<Object[]> implements Struc
     if (!(o instanceof Struct)) {
       return false;
     }
-    Struct s = (Struct) o;
+    var s = (Struct) o;
     if (!elementType.equals(StructTypeImpl.typeFromStruct(s))) {
       return false;
     }
@@ -181,7 +181,7 @@ public class SortedStructBag extends SortedResultsBag<Object[]> implements Struc
   public boolean removeFieldValues(Object[] fieldValues) {
     if (hasLimitIterator) {
       // Asif : Get the field value Iterator
-      Iterator fieldItr = fieldValuesIterator();
+      var fieldItr = fieldValuesIterator();
       while (fieldItr.hasNext()) {
         if (Arrays.equals((Object[]) fieldItr.next(), fieldValues)) {
           fieldItr.remove();
@@ -220,17 +220,17 @@ public class SortedStructBag extends SortedResultsBag<Object[]> implements Struc
   }
 
   public boolean addAll(StructFields sb) {
-    boolean modified = false;
+    var modified = false;
     if (!elementType.equals(sb.getCollectionType().getElementType())) {
       throw new IllegalArgumentException(
           "types do not match");
     }
 
-    for (Iterator itr = sb.fieldValuesIterator(); itr.hasNext();) {
+    for (var itr = sb.fieldValuesIterator(); itr.hasNext();) {
       // Check if query execution on this thread is canceled.
       QueryMonitor.throwExceptionIfQueryOnCurrentThreadIsCanceled();
 
-      Object[] vals = (Object[]) itr.next();
+      var vals = (Object[]) itr.next();
       if (super.add(vals)) {
         modified = true;
       }
@@ -239,12 +239,12 @@ public class SortedStructBag extends SortedResultsBag<Object[]> implements Struc
   }
 
   public boolean removeAll(StructFields ss) {
-    boolean modified = false;
+    var modified = false;
     if (!elementType.equals(ss.getCollectionType().getElementType())) {
       return false; // nothing // modified
     }
-    for (Iterator itr = ss.fieldValuesIterator(); itr.hasNext();) {
-      Object[] vals = (Object[]) itr.next();
+    for (var itr = ss.fieldValuesIterator(); itr.hasNext();) {
+      var vals = (Object[]) itr.next();
       if (removeFieldValues(vals)) {
         modified = true;
       }
@@ -261,12 +261,12 @@ public class SortedStructBag extends SortedResultsBag<Object[]> implements Struc
         return true; // nothing retained in receiver collection
       }
     }
-    boolean changed = false;
-    int size = size();
+    var changed = false;
+    var size = size();
     Iterator it;
     it = fieldValuesIterator();
     while (size-- > 0) {
-      Object[] vals = (Object[]) it.next();
+      var vals = (Object[]) it.next();
       if (!ss.containsFieldValues(vals)) {
         it.remove();
         changed = true;

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,14 +32,11 @@ import java.util.concurrent.ConcurrentMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -51,7 +47,6 @@ import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.RegionsTest;
 
@@ -65,12 +60,12 @@ public class StreamingPartitionOperationOneDUnitTest extends JUnit4CacheTestCase
         @Override
         public void run2() throws CacheException {
           Cache cache = getCache();
-          AttributesFactory attr = new AttributesFactory();
-          PartitionAttributesFactory paf = new PartitionAttributesFactory();
+          var attr = new AttributesFactory();
+          var paf = new PartitionAttributesFactory();
           paf.setTotalNumBuckets(5);
-          PartitionAttributes prAttr = paf.create();
+          var prAttr = paf.create();
           attr.setPartitionAttributes(prAttr);
-          RegionAttributes regionAttribs = attr.create();
+          var regionAttribs = attr.create();
           cache.createRegion("PR1", regionAttribs);
         }
       };
@@ -92,8 +87,8 @@ public class StreamingPartitionOperationOneDUnitTest extends JUnit4CacheTestCase
 
     // ask another VM to connect to the distributed system
     // this will be the data provider, and get their member id at the same time
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
     // get the other member id that connected
     InternalDistributedMember otherId =
@@ -104,11 +99,11 @@ public class StreamingPartitionOperationOneDUnitTest extends JUnit4CacheTestCase
     // also create the PR here so we can get the regionId
     createPrRegionWithDS_DACK.run2();
 
-    int regionId = ((PartitionedRegion) getCache().getRegion("PR1")).getPRId();
+    var regionId = ((PartitionedRegion) getCache().getRegion("PR1")).getPRId();
 
     Set setOfIds = Collections.singleton(otherId);
 
-    TestStreamingPartitionOperationOneProviderNoExceptions streamOp =
+    var streamOp =
         new TestStreamingPartitionOperationOneProviderNoExceptions(getSystem(), regionId);
     try {
       streamOp.getPartitionedDataFrom(setOfIds);
@@ -138,7 +133,7 @@ public class StreamingPartitionOperationOneDUnitTest extends JUnit4CacheTestCase
 
     @Override
     protected DistributionMessage createRequestMessage(Set recipients, ReplyProcessor21 processor) {
-      TestStreamingPartitionMessageOneProviderNoExceptions msg =
+      var msg =
           new TestStreamingPartitionMessageOneProviderNoExceptions(recipients, regionId,
               processor);
       return msg;
@@ -147,10 +142,10 @@ public class StreamingPartitionOperationOneDUnitTest extends JUnit4CacheTestCase
     @Override
     protected synchronized boolean processData(List objects, InternalDistributedMember sender,
         int sequenceNum, boolean lastInSequence) {
-      LogWriter logger = sys.getLogWriter();
+      var logger = sys.getLogWriter();
 
       // assert that we haven't gotten this sequence number yet
-      Object prevValue = chunkMap.putIfAbsent(sequenceNum, objects);
+      var prevValue = chunkMap.putIfAbsent(sequenceNum, objects);
       if (prevValue != null) {
         logger.severe("prevValue != null");
       }
@@ -184,20 +179,20 @@ public class StreamingPartitionOperationOneDUnitTest extends JUnit4CacheTestCase
     private void validateData() {
       List[] arrayOfLists = new ArrayList[numChunks];
       List objList;
-      int expectedInt = 0;
-      LogWriter logger = sys.getLogWriter();
+      var expectedInt = 0;
+      var logger = sys.getLogWriter();
 
       // sort the input streams
-      for (final Object o : chunkMap.entrySet()) {
-        Map.Entry entry = (Map.Entry) o;
+      for (final var o : chunkMap.entrySet()) {
+        var entry = (Map.Entry) o;
         int seqNum = (Integer) entry.getKey();
         objList = (List) entry.getValue();
         arrayOfLists[seqNum] = objList;
       }
 
-      int count = 0;
-      for (int i = 0; i < numChunks; i++) {
-        Iterator itr = arrayOfLists[i].iterator();
+      var count = 0;
+      for (var i = 0; i < numChunks; i++) {
+        var itr = arrayOfLists[i].iterator();
         Integer nextInteger;
         while (itr.hasNext()) {
           nextInteger = (Integer) itr.next();

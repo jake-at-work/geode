@@ -43,7 +43,7 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
   @Test
   public void nullManagerShouldReturnNull() throws Exception {
     assertThat(securityProps).doesNotContainKey(SECURITY_MANAGER);
-    String result =
+    var result =
         authenticator.authenticate(member, securityProps, securityProps);
     assertThat(result).isNull();
   }
@@ -51,7 +51,7 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
   @Test
   public void emptyAuthenticatorShouldReturnNull() throws Exception {
     securityProps.setProperty(SECURITY_MANAGER, "");
-    String result =
+    var result =
         authenticator.authenticate(member, securityProps, securityProps);
     assertThat(result).isNull();
   }
@@ -61,7 +61,7 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
     securityProps.setProperty(SECURITY_PEER_AUTH_INIT, "dummy1");
     securityProps.setProperty(SECURITY_MANAGER, "dummy2");
 
-    Properties secProps = authenticator.getSecurityProps();
+    var secProps = authenticator.getSecurityProps();
 
     assertThat(secProps.size()).isEqualTo(2);
     assertThat(secProps.getProperty(SECURITY_PEER_AUTH_INIT)).isEqualTo("dummy1");
@@ -73,11 +73,11 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
     props.setProperty(SECURITY_PEER_AUTH_INIT, SpyAuthInit.class.getName() + ".create");
     props.setProperty(SECURITY_MANAGER, "dummy");
 
-    SpyAuthInit auth = new SpyAuthInit();
+    var auth = new SpyAuthInit();
     assertThat(auth.isClosed()).isFalse();
 
     SpyAuthInit.setAuthInitialize(auth);
-    Properties credentials = authenticator.getCredentials(member, props);
+    var credentials = authenticator.getCredentials(member, props);
 
     assertThat(credentials).isEqualTo(props);
     assertThat(auth.isClosed()).isTrue();
@@ -86,20 +86,20 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
 
   @Test
   public void getCredentialsShouldReturnNullIfNoPeerAuthInit() throws Exception {
-    Properties credentials = authenticator.getCredentials(member, props);
+    var credentials = authenticator.getCredentials(member, props);
     assertThat(credentials).isNull();
   }
 
   @Test
   public void getCredentialsShouldReturnNullIfEmptyPeerAuthInit() throws Exception {
     props.setProperty(SECURITY_PEER_AUTH_INIT, "");
-    Properties credentials = authenticator.getCredentials(member, props);
+    var credentials = authenticator.getCredentials(member, props);
     assertThat(credentials).isNull();
   }
 
   @Test
   public void getCredentialsShouldThrowIfPeerAuthInitDoesNotExist() throws Exception {
-    String authInit = getClass().getName() + "$NotExistAuth.create";
+    var authInit = getClass().getName() + "$NotExistAuth.create";
     props.setProperty(SECURITY_PEER_AUTH_INIT, authInit);
     assertThatThrownBy(() -> authenticator.getCredentials(member, props))
         .hasMessageContaining("Instance could not be obtained");
@@ -132,13 +132,13 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
   @Test
   public void authenticateShouldReturnNullIfSuccessful() throws Exception {
     props.setProperty(SECURITY_MANAGER, "dummy");
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
     assertThat(result).isNull();
   }
 
   @Test
   public void authenticateShouldReturnNullIfNoSecurityManager() throws Exception {
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
     assertThat(result).isNull();
   }
 
@@ -147,14 +147,14 @@ public class GMSAuthenticatorWithSecurityManagerTest extends AbstractGMSAuthenti
     when(securityService.login(any(Properties.class)))
         .thenThrow(new GemFireSecurityException("dummy"));
     props.setProperty(SECURITY_MANAGER, "dummy");
-    String result = authenticator.authenticate(member, props, props);
+    var result = authenticator.authenticate(member, props, props);
     assertThat(result).startsWith("Security check failed. dummy");
   }
 
   @Test
   public void authenticateShouldReturnFailureMessageIfNullCredentials() throws Exception {
     props.setProperty(SECURITY_MANAGER, "dummy");
-    String result = authenticator.authenticate(member, null, props);
+    var result = authenticator.authenticate(member, null, props);
     assertThat(result).startsWith("Failed to find credentials from");
   }
 

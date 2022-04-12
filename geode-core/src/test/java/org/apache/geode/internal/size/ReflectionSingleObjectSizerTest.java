@@ -31,43 +31,43 @@ public class ReflectionSingleObjectSizerTest {
 
   @Test
   public void sizeofReturnsSafeSizeofGivenUnsafeFieldOffsetUnsupported() {
-    Unsafe unsafe = mock(Unsafe.class);
+    var unsafe = mock(Unsafe.class);
     when(unsafe.fieldOffset(any())).thenThrow(UnsupportedOperationException.class);
 
-    long result = sizeof(TestClass.class, false, unsafe);
+    var result = sizeof(TestClass.class, false, unsafe);
 
     assertThat(result).isEqualTo(safeSizeof(TestClass.class));
   }
 
   @Test
   public void sizeofReturnsSafeSizeofGivenNullUnsafe() {
-    long result = sizeof(TestClass.class, false, null);
+    var result = sizeof(TestClass.class, false, null);
     assertThat(result).isEqualTo(safeSizeof(TestClass.class));
   }
 
   @Test
   public void unsafeSizeofReturnsMinusOneGivenNullUnsafe() {
-    long result = unsafeSizeof(TestClass.class, null);
+    var result = unsafeSizeof(TestClass.class, null);
     assertThat(result).isEqualTo(-1);
   }
 
   @Test
   public void unsafeSizeofReturnsFieldOffsetGivenMockedUnsafeFieldOffset() {
-    Unsafe unsafe = mock(Unsafe.class);
+    var unsafe = mock(Unsafe.class);
     final long FIELD_OFFSET = 37;
     when(unsafe.fieldOffset(any())).thenReturn(FIELD_OFFSET);
 
-    long result = unsafeSizeof(TestClass.class, unsafe);
+    var result = unsafeSizeof(TestClass.class, unsafe);
 
     assertThat(result).isEqualTo(FIELD_OFFSET + REFERENCE_SIZE);
   }
 
   @Test
   public void unsafeSizeofReturnsMinusOneGivenUnsafeFieldOffsetUnsupported() {
-    Unsafe unsafe = mock(Unsafe.class);
+    var unsafe = mock(Unsafe.class);
     when(unsafe.fieldOffset(any())).thenThrow(UnsupportedOperationException.class);
 
-    long result = unsafeSizeof(TestClass.class, unsafe);
+    var result = unsafeSizeof(TestClass.class, unsafe);
 
     assertThat(result).isEqualTo(-1);
   }

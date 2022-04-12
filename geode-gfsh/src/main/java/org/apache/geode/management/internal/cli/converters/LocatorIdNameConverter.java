@@ -37,10 +37,10 @@ public class LocatorIdNameConverter extends BaseStringConverter {
   public Set<String> getCompletionValues() {
     final Set<String> locatorIdsAndNames = new TreeSet<>();
 
-    final Gfsh gfsh = Gfsh.getCurrentInstance();
+    final var gfsh = Gfsh.getCurrentInstance();
 
     if (gfsh != null && gfsh.isConnectedAndReady()) {
-      final String[] locatorIds =
+      final var locatorIds =
           gfsh.getOperationInvoker().getDistributedSystemMXBean().listLocatorMembers(true);
 
       if (locatorIds != null && locatorIds.length != 0) {

@@ -19,14 +19,11 @@ import static org.apache.geode.management.internal.web.util.UriUtils.decode;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
@@ -83,7 +80,7 @@ public class ShellCommandsController extends AbstractCommandsController {
   public ResponseEntity<InputStreamResource> command(@RequestParam(value = "cmd") String command,
       @RequestParam(value = "resources", required = false) MultipartFile[] fileResource)
       throws IOException {
-    String result = processCommand(command, getEnvironment(), fileResource);
+    var result = processCommand(command, getEnvironment(), fileResource);
     return getResponse(result);
   }
 
@@ -95,7 +92,7 @@ public class ShellCommandsController extends AbstractCommandsController {
           defaultValue = DEFAULT_INDEX_TYPE) String type)
       throws IOException {
 
-    CommandStringBuilder command = new CommandStringBuilder(CliStrings.CREATE_INDEX);
+    var command = new CommandStringBuilder(CliStrings.CREATE_INDEX);
 
     command.addOption(CliStrings.CREATE_INDEX__NAME, name);
     command.addOption(CliStrings.CREATE_INDEX__EXPRESSION, expression);
@@ -114,7 +111,7 @@ public class ShellCommandsController extends AbstractCommandsController {
           defaultValue = "PARTITION") RegionShortcut type)
       throws IOException {
 
-    CommandStringBuilder command = new CommandStringBuilder(CliStrings.CREATE_REGION);
+    var command = new CommandStringBuilder(CliStrings.CREATE_REGION);
 
     command.addOption(CliStrings.CREATE_REGION__REGION, namePath);
     command.addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT, type.name());
@@ -131,10 +128,10 @@ public class ShellCommandsController extends AbstractCommandsController {
       throws AttributeNotFoundException, MBeanException, ReflectionException,
       InstanceNotFoundException, IOException, MalformedObjectNameException {
     // Exceptions are caught by the @ExceptionHandler AbstractCommandsController.handleAppException
-    MBeanServer mBeanServer = getMBeanServer();
-    ObjectName objectName = ObjectName.getInstance(decode(resourceName));
-    final Object attributeValue = mBeanServer.getAttribute(objectName, decode(attributeName));
-    byte[] serializedResult = IOUtils.serializeObject(attributeValue);
+    var mBeanServer = getMBeanServer();
+    var objectName = ObjectName.getInstance(decode(resourceName));
+    final var attributeValue = mBeanServer.getAttribute(objectName, decode(attributeName));
+    var serializedResult = IOUtils.serializeObject(attributeValue);
     return new ResponseEntity<>(serializedResult, HttpStatus.OK);
   }
 
@@ -148,16 +145,16 @@ public class ShellCommandsController extends AbstractCommandsController {
     // Exceptions are caught by the @ExceptionHandler AbstractCommandsController.handleAppException
     signature = (signature != null ? signature : ArrayUtils.EMPTY_STRING_ARRAY);
     parameters = (parameters != null ? parameters : ArrayUtils.EMPTY_OBJECT_ARRAY);
-    MBeanServer mBeanServer = getMBeanServer();
-    ObjectName objectName = ObjectName.getInstance(decode(resourceName));
+    var mBeanServer = getMBeanServer();
+    var objectName = ObjectName.getInstance(decode(resourceName));
     // GEODE-6182
-    for (int i = 0; i < signature.length; i++) {
+    for (var i = 0; i < signature.length; i++) {
       parameters[i] = GeodeConverter.convertToActualType(parameters[i].toString(), signature[i]);
     }
 
-    final Object result =
+    final var result =
         mBeanServer.invoke(objectName, decode(operationName), parameters, signature);
-    byte[] serializedResult = IOUtils.serializeObject(result);
+    var serializedResult = IOUtils.serializeObject(result);
     return new ResponseEntity<>(serializedResult, HttpStatus.OK);
   }
 
@@ -165,7 +162,7 @@ public class ShellCommandsController extends AbstractCommandsController {
   public ResponseEntity<?> queryNames(@RequestBody final QueryParameterSource query)
       throws IOException {
     // Exceptions are caught by the @ExceptionHandler AbstractCommandsController.handleAppException
-    final Set<ObjectName> objectNames =
+    final var objectNames =
         getMBeanServer().queryNames(query.getObjectName(), query.getQueryExpression());
     return new ResponseEntity<>(IOUtils.serializeObject(objectNames), HttpStatus.OK);
   }
@@ -200,7 +197,7 @@ public class ShellCommandsController extends AbstractCommandsController {
   }
 
   private ResponseEntity<InputStreamResource> getResponse(String result) {
-    ResultModel commandResult = ResultModel.fromJson(result);
+    var commandResult = ResultModel.fromJson(result);
     if (commandResult.getStatus().equals(Result.Status.OK)
         && commandResult.getFileToDownload() != null) {
       return getFileDownloadResponse(commandResult);
@@ -210,9 +207,9 @@ public class ShellCommandsController extends AbstractCommandsController {
   }
 
   private ResponseEntity<InputStreamResource> getJsonResponse(String result) {
-    HttpHeaders respHeaders = new HttpHeaders();
+    var respHeaders = new HttpHeaders();
     try {
-      InputStreamResource isr = new InputStreamResource(toInputStream(result, "UTF-8"));
+      var isr = new InputStreamResource(toInputStream(result, "UTF-8"));
       respHeaders.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
       return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
     } catch (Exception e) {
@@ -221,10 +218,10 @@ public class ShellCommandsController extends AbstractCommandsController {
   }
 
   private ResponseEntity<InputStreamResource> getFileDownloadResponse(ResultModel commandResult) {
-    HttpHeaders respHeaders = new HttpHeaders();
-    Path filePath = commandResult.getFileToDownload();
+    var respHeaders = new HttpHeaders();
+    var filePath = commandResult.getFileToDownload();
     try {
-      InputStreamResource isr = new InputStreamResource(new FileInputStream(filePath.toFile()));
+      var isr = new InputStreamResource(new FileInputStream(filePath.toFile()));
       respHeaders.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
       return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
     } catch (Exception e) {

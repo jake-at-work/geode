@@ -37,13 +37,10 @@ import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.snapshot.SnapshotOptions.SnapshotFormat;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CacheWriterAdapter;
@@ -69,15 +66,15 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testExport() throws Exception {
-    int count = 10000;
-    for (int i = 0; i < count; i++) {
+    var count = 10000;
+    for (var i = 0; i < count; i++) {
       region.put(i, new MyObject(i, "clienttest " + i));
     }
 
-    SerializableCallable export = new SerializableCallable() {
+    var export = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        File f = new File(getDiskDirs()[0], "client-export.snapshot.gfd");
+        var f = new File(getDiskDirs()[0], "client-export.snapshot.gfd");
         Region<Integer, MyObject> r = getCache().getRegion("clienttest");
 
         r.getSnapshotService().save(f, SnapshotFormat.GEODE);
@@ -86,7 +83,7 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
       }
     };
 
-    File snapshot = (File) Host.getHost(0).getVM(3).invoke(export);
+    var snapshot = (File) Host.getHost(0).getVM(3).invoke(export);
 
     SnapshotIterator<Integer, MyObject> iter = SnapshotReader.read(snapshot);
     try {
@@ -102,7 +99,7 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
+    var result = super.getDistributedSystemProperties();
     result.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "com.examples.snapshot.MyObject");
     return result;
@@ -110,15 +107,15 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testImport() throws Exception {
-    int count = 1000;
-    for (int i = 0; i < count; i++) {
+    var count = 1000;
+    for (var i = 0; i < count; i++) {
       region.put(i, new MyObject(i, "clienttest " + i));
     }
 
-    SerializableCallable export = new SerializableCallable() {
+    var export = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        File f = new File(getDiskDirs()[0], "client-import.snapshot.gfd");
+        var f = new File(getDiskDirs()[0], "client-import.snapshot.gfd");
         Region<Integer, MyObject> r = getCache().getRegion("clienttest");
 
         r.getSnapshotService().save(f, SnapshotFormat.GEODE);
@@ -128,15 +125,15 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
     };
 
     Host.getHost(0).getVM(3).invoke(export);
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       region.put(i, new MyObject(i, "XXX"));
     }
 
-    SerializableCallable imp = new SerializableCallable() {
+    var imp = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        final AtomicBoolean cqtest = new AtomicBoolean(false);
-        CqAttributesFactory af = new CqAttributesFactory();
+        final var cqtest = new AtomicBoolean(false);
+        var af = new CqAttributesFactory();
         af.addCqListener(new CqListenerAdapter() {
           @Override
           public void onEvent(CqEvent aCqEvent) {
@@ -145,12 +142,12 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
         });
 
         Region<Integer, MyObject> r = getCache().getRegion("clienttest");
-        CqQuery cq =
+        var cq =
             r.getRegionService().getQueryService()
                 .newCq("SELECT * FROM " + SEPARATOR + "clienttest", af.create());
         cq.execute();
 
-        File f = new File(getDiskDirs()[0], "client-import.snapshot.gfd");
+        var f = new File(getDiskDirs()[0], "client-import.snapshot.gfd");
         r.getSnapshotService().load(f, SnapshotFormat.GEODE);
 
         return cqtest.get();
@@ -165,7 +162,7 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    final AtomicBoolean cltest = new AtomicBoolean(false);
+    final var cltest = new AtomicBoolean(false);
     region.getAttributesMutator().addCacheListener(new CacheListenerAdapter<Integer, MyObject>() {
       @Override
       public void afterUpdate(EntryEvent<Integer, MyObject> event) {
@@ -177,26 +174,26 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
     assertEquals("CacheListener invoked during import", false, cltest.get());
     assertEquals("CqListener invoked during import", false, cqtest);
 
-    for (MyObject obj : region.values()) {
+    for (var obj : region.values()) {
       assertTrue(obj.getF2().startsWith("clienttest"));
     }
   }
 
   @Test
   public void testClientCallbacks() throws Exception {
-    int count = 1000;
-    for (int i = 0; i < count; i++) {
+    var count = 1000;
+    for (var i = 0; i < count; i++) {
       region.put(i, new MyObject(i, "clienttest " + i));
     }
 
-    File f = new File(getDiskDirs()[0], "client-callback.snapshot.gfd");
+    var f = new File(getDiskDirs()[0], "client-callback.snapshot.gfd");
     region.getSnapshotService().save(f, SnapshotFormat.GEODE);
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       region.put(i, new MyObject(i, "XXX"));
     }
 
-    SerializableCallable callbacks = new SerializableCallable() {
+    var callbacks = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region<Integer, MyObject> r = getCache().getRegion("clienttest");
@@ -216,8 +213,8 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
           }
         });
 
-        final AtomicBoolean cqtest = new AtomicBoolean(false);
-        CqAttributesFactory af = new CqAttributesFactory();
+        final var cqtest = new AtomicBoolean(false);
+        var af = new CqAttributesFactory();
         af.addCqListener(new CqListenerAdapter() {
           @Override
           public void onEvent(CqEvent aCqEvent) {
@@ -225,7 +222,7 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
           }
         });
 
-        CqQuery cq =
+        var cq =
             r.getRegionService().getQueryService()
                 .newCq("SELECT * FROM " + SEPARATOR + "clienttest", af.create());
         cq.execute();
@@ -240,7 +237,7 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testInvalidate() throws Exception {
-    SerializableCallable invalid = new SerializableCallable() {
+    var invalid = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region<Integer, MyObject> r = getCache().getRegion("clienttest");
@@ -248,7 +245,7 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
         r.put(1, new MyObject(1, "invalidate"));
         r.invalidate(1);
 
-        File f = new File(getDiskDirs()[0], "client-invalidate.snapshot.gfd");
+        var f = new File(getDiskDirs()[0], "client-invalidate.snapshot.gfd");
         r.getSnapshotService().save(f, SnapshotFormat.GEODE);
         r.getSnapshotService().load(f, SnapshotFormat.GEODE);
 
@@ -265,23 +262,23 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @SuppressWarnings("serial")
   public void loadCache() throws Exception {
-    CacheFactory cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
+    var cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
     cf.set(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER, "com.examples.snapshot.MyObject");
     Cache cache = getCache(cf);
 
-    CacheServer server = cache.addCacheServer();
-    final int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    final var port = AvailablePortHelper.getRandomAvailableTCPPort();
     server.setPort(port);
     server.start();
 
     region =
         cache.<Integer, MyObject>createRegionFactory(RegionShortcut.REPLICATE).create("clienttest");
 
-    final Host host = Host.getHost(0);
-    SerializableCallable client = new SerializableCallable() {
+    final var host = Host.getHost(0);
+    var client = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf =
+        var cf =
             new ClientCacheFactory().set(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel())
                 .setPdxSerializer(new MyPdxSerializer())
                 .addPoolServer(NetworkUtils.getServerHostName(host), port)
@@ -289,7 +286,7 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
         cf.set(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
             "com.examples.snapshot.MyObject");
 
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region r = cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY_HEAP_LRU)
             .setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(5))
             .create("clienttest");
@@ -297,10 +294,10 @@ public class ClientSnapshotDUnitTest extends JUnit4CacheTestCase {
       }
     };
 
-    SerializableCallable remote = new SerializableCallable() {
+    var remote = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheFactory cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
+        var cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
         cf.set(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
             "com.examples.snapshot.MyObject");
         Cache cache = getCache(cf);

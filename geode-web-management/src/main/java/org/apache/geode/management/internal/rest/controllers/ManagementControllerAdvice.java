@@ -16,9 +16,6 @@ package org.apache.geode.management.internal.rest.controllers;
 
 import static org.apache.geode.management.rest.internal.Constants.INCLUDE_CLASS_HEADER;
 
-import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -67,16 +64,16 @@ public class ManagementControllerAdvice implements ResponseBodyAdvice<Object> {
       MediaType selectedContentType, Class selectedConverterType,
       ServerHttpRequest request, ServerHttpResponse response) {
 
-    List<String> values = request.getHeaders().get(INCLUDE_CLASS_HEADER);
-    boolean includeClass = values != null && values.contains("true");
+    var values = request.getHeaders().get(INCLUDE_CLASS_HEADER);
+    var includeClass = values != null && values.contains("true");
 
     if (requestContext == null) {
       requestContext = ServletUriComponentsBuilder.fromCurrentContextPath().build().toString();
     }
 
     try {
-      ObjectMapper objectMapper = objectMapperFactory.getObject();
-      String json = objectMapper.writeValueAsString(body);
+      var objectMapper = objectMapperFactory.getObject();
+      var json = objectMapper.writeValueAsString(body);
       if (!includeClass) {
         json = removeClassFromJsonText(json);
       }
@@ -127,14 +124,14 @@ public class ManagementControllerAdvice implements ResponseBodyAdvice<Object> {
 
   @ExceptionHandler(ClusterManagementException.class)
   public ResponseEntity<ClusterManagementResult> clusterManagementException(final Exception e) {
-    ClusterManagementResult result = ((ClusterManagementException) e).getResult();
+    var result = ((ClusterManagementException) e).getResult();
     return new ResponseEntity<>(result, mapToHttpStatus(result.getStatusCode()));
   }
 
   @ExceptionHandler(ClusterManagementRealizationException.class)
   public ResponseEntity<ClusterManagementRealizationResult> clusterManagementRealizationException(
       final Exception e) {
-    ClusterManagementRealizationResult result =
+    var result =
         (ClusterManagementRealizationResult) ((ClusterManagementException) e).getResult();
     return new ResponseEntity<>(result, mapToHttpStatus(result.getStatusCode()));
   }

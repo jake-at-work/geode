@@ -40,7 +40,7 @@ public class StopCQTest {
 
   @Test
   public void needClusterManageQueryToStopCQ() throws Exception {
-    StopCQ stopCQ = (StopCQ) StopCQ.getCommand();
+    var stopCQ = (StopCQ) StopCQ.getCommand();
 
     stopCQ.cmdExecute(cqRule.message, cqRule.connection, cqRule.securityService, 0);
 
@@ -49,10 +49,10 @@ public class StopCQTest {
 
   @Test
   public void callsWriteChunkedExceptionOnAuthorizationExpiredException() throws Exception {
-    AuthenticationExpiredException authenticationExpiredException =
+    var authenticationExpiredException =
         new AuthenticationExpiredException("ouch");
-    StopCQ stopCQ = (StopCQ) StopCQ.getCommand();
-    ChunkedMessage chunkedMessage = mock(ChunkedMessage.class);
+    var stopCQ = (StopCQ) StopCQ.getCommand();
+    var chunkedMessage = mock(ChunkedMessage.class);
     when(cqRule.connection.getChunkedResponseMessage()).thenReturn(chunkedMessage);
     doThrow(authenticationExpiredException).when(cqRule.securityService).authorize(Resource.CLUSTER,
         Operation.MANAGE, Target.QUERY);

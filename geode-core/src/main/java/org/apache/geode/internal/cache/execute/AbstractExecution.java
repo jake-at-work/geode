@@ -41,7 +41,6 @@ import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.execute.metrics.FunctionStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -268,7 +267,7 @@ public abstract class AbstractExecution implements InternalExecution {
         }
       } else {
 
-        final ClusterDistributionManager newDM = (ClusterDistributionManager) dm;
+        final var newDM = (ClusterDistributionManager) dm;
         newDM.getExecutors().getFunctionExecutor().execute(() -> {
           executeFunctionLocally(fn, cx, sender, newDM);
           if (!sender.isLastResultReceived() && fn.hasResult()) {
@@ -294,7 +293,7 @@ public abstract class AbstractExecution implements InternalExecution {
   public void executeFunctionOnLocalNode(final Function<?> fn, final FunctionContext cx,
       final ResultSender sender, DistributionManager dm, final boolean isTx) {
     if (dm instanceof ClusterDistributionManager && !isTx) {
-      final ClusterDistributionManager newDM = (ClusterDistributionManager) dm;
+      final var newDM = (ClusterDistributionManager) dm;
       newDM.getExecutors().getFunctionExecutor().execute(() -> {
         executeFunctionLocally(fn, cx, sender, newDM);
         if (!((InternalResultSender) sender).isLastResultReceived() && fn.hasResult()) {
@@ -316,9 +315,9 @@ public abstract class AbstractExecution implements InternalExecution {
   private void executeFunctionLocally(final Function<?> fn, final FunctionContext cx,
       final ResultSender sender, DistributionManager dm) {
 
-    FunctionStats stats = FunctionStatsManager.getFunctionStats(fn.getId(), dm.getSystem());
+    var stats = FunctionStatsManager.getFunctionStats(fn.getId(), dm.getSystem());
 
-    long start = stats.startFunctionExecution(fn.hasResult());
+    var start = stats.startFunctionExecution(fn.hasResult());
     try {
       if (logger.isDebugEnabled()) {
         logger.debug("Executing Function: {} on local node with context: {}", fn.getId(),
@@ -366,7 +365,7 @@ public abstract class AbstractExecution implements InternalExecution {
           "The input function for the execute function request is null");
     }
     isFnSerializationReqd = false;
-    Function functionObject = FunctionService.getFunction(functionName);
+    var functionObject = FunctionService.getFunction(functionName);
     if (functionObject == null) {
       throw new FunctionException(
           String.format("Function named %s is not registered to FunctionService",
@@ -388,7 +387,7 @@ public abstract class AbstractExecution implements InternalExecution {
           "For Functions with isHA true, hasResult must also be true.");
     }
 
-    String id = function.getId();
+    var id = function.getId();
     if (id == null) {
       throw new IllegalArgumentException(
           "The Function#getID() returned null");
@@ -482,7 +481,7 @@ public abstract class AbstractExecution implements InternalExecution {
 
   private void handleException(Throwable functionException, final Function fn,
       final ResultSender sender, DistributionManager dm, long startTime) {
-    FunctionStats stats = FunctionStatsManager.getFunctionStats(fn.getId(), dm.getSystem());
+    var stats = FunctionStatsManager.getFunctionStats(fn.getId(), dm.getSystem());
 
     if (logger.isDebugEnabled()) {
       logger.debug("Exception occurred on local node while executing Function: {}", fn.getId(),

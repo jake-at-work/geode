@@ -52,12 +52,12 @@ public class LdapUserCredentialGenerator extends CredentialGenerator {
 
   @Override
   protected Properties initialize() throws IllegalArgumentException {
-    final String ldapServer = System.getProperty("gf.ldap.server", "ldap");
-    final String ldapBaseDN =
+    final var ldapServer = System.getProperty("gf.ldap.server", "ldap");
+    final var ldapBaseDN =
         System.getProperty("gf.ldap.basedn", "ou=ldapTesting,dc=pune,dc=gemstone,dc=com");
-    final String ldapUseSSL = System.getProperty("gf.ldap.usessl");
+    final var ldapUseSSL = System.getProperty("gf.ldap.usessl");
 
-    final Properties extraProps = new Properties();
+    final var extraProps = new Properties();
     extraProps.setProperty(LdapUserAuthenticator.LDAP_SERVER_NAME, ldapServer);
     extraProps.setProperty(LdapUserAuthenticator.LDAP_BASEDN_NAME, ldapBaseDN);
 
@@ -66,7 +66,7 @@ public class LdapUserCredentialGenerator extends CredentialGenerator {
     }
 
     if (serverAuthEnabled) {
-      String keyStoreFile =
+      var keyStoreFile =
           createTempFileFromResource(LdapUserCredentialGenerator.class,
               PKCSCredentialGenerator.keyStoreDir + "/gemfire1.keystore").getAbsolutePath();
       extraProps.setProperty(Handshake.PRIVATE_KEY_FILE_PROP, keyStoreFile);
@@ -98,13 +98,13 @@ public class LdapUserCredentialGenerator extends CredentialGenerator {
 
   @Override
   public Properties getValidCredentials(final int index) {
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.setProperty(UserPasswordAuthInit.USER_NAME, USER_PREFIX + ((index % 10) + 1));
     props.setProperty(UserPasswordAuthInit.PASSWORD, USER_PREFIX + ((index % 10) + 1));
     props.setProperty(SECURITY_CLIENT_DHALGO, CIPHERS[RANDOM.nextInt(CIPHERS.length)]);
 
     if (serverAuthEnabled) {
-      final String keyStoreFile =
+      final var keyStoreFile =
           createTempFileFromResource(PKCSCredentialGenerator.class,
               PKCSCredentialGenerator.keyStoreDir + "/publickeyfile").getAbsolutePath();
       props.setProperty(Handshake.PUBLIC_KEY_FILE_PROP, keyStoreFile);
@@ -117,13 +117,13 @@ public class LdapUserCredentialGenerator extends CredentialGenerator {
   @Override
   public Properties getValidCredentials(final Principal principal) {
     Properties props = null;
-    final String userName = principal.getName();
+    final var userName = principal.getName();
 
     if (userName != null && userName.startsWith(USER_PREFIX)) {
       boolean isValid;
 
       try {
-        final int suffix = Integer.parseInt(userName.substring(USER_PREFIX.length()));
+        final var suffix = Integer.parseInt(userName.substring(USER_PREFIX.length()));
         isValid = (suffix >= 1 && suffix <= 10);
       } catch (Exception ex) {
         isValid = false;
@@ -143,7 +143,7 @@ public class LdapUserCredentialGenerator extends CredentialGenerator {
     props.setProperty(SECURITY_CLIENT_DHALGO, CIPHERS[RANDOM.nextInt(CIPHERS.length)]);
 
     if (serverAuthEnabled) {
-      final String keyStoreFile =
+      final var keyStoreFile =
           createTempFileFromResource(PKCSCredentialGenerator.class,
               PKCSCredentialGenerator.keyStoreDir + "/publickeyfile").getAbsolutePath();
       props.setProperty(Handshake.PUBLIC_KEY_FILE_PROP, keyStoreFile);
@@ -155,13 +155,13 @@ public class LdapUserCredentialGenerator extends CredentialGenerator {
 
   @Override
   public Properties getInvalidCredentials(final int index) {
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.setProperty(UserPasswordAuthInit.USER_NAME, "invalid" + index);
     props.setProperty(UserPasswordAuthInit.PASSWORD, "none");
     props.setProperty(SECURITY_CLIENT_DHALGO, CIPHERS[RANDOM.nextInt(CIPHERS.length)]);
 
     if (serverAuthEnabled) {
-      final String keyStoreFile =
+      final var keyStoreFile =
           createTempFileFromResource(PKCSCredentialGenerator.class,
               PKCSCredentialGenerator.keyStoreDir + "/publickeyfile").getAbsolutePath();
       props.setProperty(Handshake.PUBLIC_KEY_FILE_PROP, keyStoreFile);

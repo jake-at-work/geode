@@ -25,7 +25,6 @@ import static org.apache.geode.redis.internal.netty.StringBytesGlossary.WEIGHTS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
@@ -38,9 +37,9 @@ public abstract class ZStoreExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElements = command.getProcessedCommand();
-    ListIterator<byte[]> argIterator = commandElements.listIterator();
-    RedisResponse syntaxErrorResponse = RedisResponse.error(ERROR_SYNTAX);
+    var commandElements = command.getProcessedCommand();
+    var argIterator = commandElements.listIterator();
+    var syntaxErrorResponse = RedisResponse.error(ERROR_SYNTAX);
 
     // Skip command and destination key
     argIterator.next();
@@ -60,11 +59,11 @@ public abstract class ZStoreExecutor implements CommandExecutor {
     }
 
     List<ZKeyWeight> keyWeights = new ArrayList<>(numKeys);
-    ZAggregator aggregator = ZAggregator.SUM;
+    var aggregator = ZAggregator.SUM;
     byte[] argument;
 
     // get all the keys
-    for (int i = 0; i < numKeys; i++) {
+    for (var i = 0; i < numKeys; i++) {
       if (!argIterator.hasNext()) {
         return syntaxErrorResponse;
       }
@@ -87,7 +86,7 @@ public abstract class ZStoreExecutor implements CommandExecutor {
         }
         // found WEIGHTS keyword; parse weights
       } else if (Arrays.equals(toUpperCaseBytes(argument), WEIGHTS)) {
-        for (int i = 0; i < numKeys; i++) {
+        for (var i = 0; i < numKeys; i++) {
           if (!argIterator.hasNext()) {
             return syntaxErrorResponse;
           }
@@ -108,7 +107,7 @@ public abstract class ZStoreExecutor implements CommandExecutor {
 
   protected List<RedisKey> getKeysToLock(RedisKey destinationKey, List<ZKeyWeight> keyWeights) {
     List<RedisKey> keysToLock = new ArrayList<>(keyWeights.size());
-    for (ZKeyWeight kw : keyWeights) {
+    for (var kw : keyWeights) {
       keysToLock.add(kw.getKey());
     }
     keysToLock.add(destinationKey);

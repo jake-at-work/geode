@@ -57,7 +57,7 @@ public class ProcessorKeeper21 {
   }
 
   private int getNextId() {
-    int id = nextKey.getAndIncrement();
+    var id = nextKey.getAndIncrement();
     if (id <= 0) {
       // id must be >= 0 since ObjIdMap does not supports keys < 0.
       // We don't use 0 just to keep it reserved as an illegal id.
@@ -103,7 +103,7 @@ public class ProcessorKeeper21 {
   public Object retrieve(int id) {
     Object o = null;
     if (useWeakRefs) {
-      final WeakReference<?> ref = (WeakReference<?>) map.get(id);
+      final var ref = (WeakReference<?>) map.get(id);
       if (ref != null) {
         o = ref.get();
         if (o == null) {

@@ -58,7 +58,7 @@ public class ListDriversFunctionTest {
   @Test
   public void testExecuteFunctionDoesNotReturnError() {
     when(util.getRegisteredDriverNames()).thenReturn(driverNames);
-    CliFunctionResult functionResult = function.executeFunction(context);
+    var functionResult = function.executeFunction(context);
     assertThat(functionResult.getResultObject().equals(driverNames));
     assertThat(functionResult.getStatusMessage())
         .isEqualTo("{Driver.Class.One, Driver.Class.Two, Driver.Class.Three}");
@@ -67,9 +67,9 @@ public class ListDriversFunctionTest {
 
   @Test
   public void testExecuteFunctionReturnsWithException() {
-    String exceptionString = "Test null pointer exception";
+    var exceptionString = "Test null pointer exception";
     doThrow(new NullPointerException(exceptionString)).when(util).getRegisteredDriverNames();
-    CliFunctionResult functionResult = function.executeFunction(context);
+    var functionResult = function.executeFunction(context);
     assertThat(functionResult.getStatusMessage()).contains(exceptionString);
     assertThat(functionResult.getStatus()).contains(CliFunctionResult.StatusState.ERROR.toString());
   }

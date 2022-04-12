@@ -34,7 +34,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.ClientSession;
 import org.apache.geode.cache.InterestRegistrationEvent;
 import org.apache.geode.cache.InterestRegistrationListener;
 import org.apache.geode.cache.InterestResultPolicy;
@@ -51,7 +50,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
@@ -112,10 +110,10 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public void setUpServerVM() throws Exception {
-    Properties gemFireProps = new Properties();
+    var gemFireProps = new Properties();
     createCache(gemFireProps);
     RegionFactory factory = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    Region r = factory.create("serverRegion");
+    var r = factory.create("serverRegion");
     r.put("serverkey", "servervalue");
   }
 
@@ -141,20 +139,20 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
   private void doExpressInterestOnServer(boolean isDurable) {
     LogWriterUtils.getLogWriter()
         .info("Total ClientSessions " + cacheServer.getAllClientSessions().size());
-    for (ClientSession c : cacheServer.getAllClientSessions()) {
+    for (var c : cacheServer.getAllClientSessions()) {
       c.registerInterestRegex(SEPARATOR + "serverRegion", ".*", isDurable);
     }
   }
 
   private void doRegisterListener() {
-    InterestRegistrationListener listener = new InterestRegistrationListener() {
+    var listener = new InterestRegistrationListener() {
       @Override
       public void close() {}
 
       @Override
       public void afterUnregisterInterest(InterestRegistrationEvent event) {
-        Integer count = listnerMap.get(UNREGISTER_INTEREST);
-        int intCount = 0;
+        var count = listnerMap.get(UNREGISTER_INTEREST);
+        var intCount = 0;
         if (count != null) {
           intCount = count;
         }
@@ -168,8 +166,8 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
 
       @Override
       public void afterRegisterInterest(InterestRegistrationEvent event) {
-        Integer count = listnerMap.get(REGISTER_INTEREST);
-        int intCount = 0;
+        var count = listnerMap.get(REGISTER_INTEREST);
+        var intCount = 0;
         if (count != null) {
           intCount = count;
         }
@@ -186,19 +184,19 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public void setUpClientVM(String host, int port, boolean isDurable, String vmID) {
-    Properties gemFireProps = new Properties();
+    var gemFireProps = new Properties();
     if (isDurable) {
       gemFireProps.put(DURABLE_CLIENT_ID, vmID);
       gemFireProps.put(DURABLE_CLIENT_TIMEOUT, "" + DURABLE_CLIENT_TIMEOUT_TEST);
     }
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory(gemFireProps);
+    var clientCacheFactory = new ClientCacheFactory(gemFireProps);
     clientCacheFactory.addPoolServer(host, port);
     clientCacheFactory.setPoolSubscriptionEnabled(true);
     clientCacheFactory.setPoolMinConnections(5);
     clientCache = clientCacheFactory.create();
     ClientRegionFactory<String, String> regionFactory =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-    Region<String, String> region = regionFactory.create("serverRegion");
+    var region = regionFactory.create("serverRegion");
 
     LogWriterUtils.getLogWriter()
         .info("Client Cache is created in this vm connected to cacheServer " + host + ":" + port
@@ -242,7 +240,7 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static Object[] getCacheServerEndPointTask() {
-    Object[] array = new Object[2];
+    var array = new Object[2];
     array[0] = instance.getCacheServerHost();
     array[1] = instance.getCacheServerPort();
     return array;
@@ -262,20 +260,20 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testDurableClientExit_ClientExpressedInterest() throws Exception {
-    final Host host = Host.getHost(0);
-    VM serverVM = host.getVM(0);
-    VM clientVM_1 = host.getVM(1);
-    VM clientVM_2 = host.getVM(2);
-    VM clientVM_3 = host.getVM(3);
+    final var host = Host.getHost(0);
+    var serverVM = host.getVM(0);
+    var clientVM_1 = host.getVM(1);
+    var clientVM_2 = host.getVM(2);
+    var clientVM_3 = host.getVM(3);
 
     serverVM.invoke(InterestRegrListenerDUnitTest::setUpServerVMTask);
     serverVM.invoke(InterestRegrListenerDUnitTest::createServerTask);
 
-    Object[] array = serverVM
+    var array = serverVM
         .invoke(InterestRegrListenerDUnitTest::getCacheServerEndPointTask);
-    String hostName = (String) array[0];
+    var hostName = (String) array[0];
     int port = (Integer) array[1];
-    Object[] params = new Object[4];
+    var params = new Object[4];
     params[0] = hostName;
     params[1] = port;
     params[2] = true;
@@ -315,11 +313,11 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
     clientVM_2.invoke(() -> InterestRegrListenerDUnitTest.closeClientCacheTask(true));
     clientVM_3.invoke(() -> InterestRegrListenerDUnitTest.closeClientCacheTask(true));
     Thread.sleep(2);
-    Map<String, Integer> listnerMap = serverVM
+    var listnerMap = serverVM
         .invoke(InterestRegrListenerDUnitTest::getListenerMapTask);
     LogWriterUtils.getLogWriter().info("Listener Map " + listnerMap);
-    int registerCount = getMapValueForKey(listnerMap, REGISTER_INTEREST);
-    int unregisterCount = getMapValueForKey(listnerMap, UNREGISTER_INTEREST);
+    var registerCount = getMapValueForKey(listnerMap, REGISTER_INTEREST);
+    var unregisterCount = getMapValueForKey(listnerMap, UNREGISTER_INTEREST);
     assertEquals(3, registerCount);
     assertEquals(0, unregisterCount);
     LogWriterUtils.getLogWriter().info(
@@ -337,20 +335,20 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testDurableClientExit_ServerExpressedInterest() throws Exception {
-    final Host host = Host.getHost(0);
-    VM serverVM = host.getVM(0);
-    VM clientVM_1 = host.getVM(1);
-    VM clientVM_2 = host.getVM(2);
-    VM clientVM_3 = host.getVM(3);
+    final var host = Host.getHost(0);
+    var serverVM = host.getVM(0);
+    var clientVM_1 = host.getVM(1);
+    var clientVM_2 = host.getVM(2);
+    var clientVM_3 = host.getVM(3);
 
     serverVM.invoke(InterestRegrListenerDUnitTest::setUpServerVMTask);
     serverVM.invoke(InterestRegrListenerDUnitTest::createServerTask);
 
-    Object[] array = serverVM
+    var array = serverVM
         .invoke(InterestRegrListenerDUnitTest::getCacheServerEndPointTask);
-    String hostName = (String) array[0];
+    var hostName = (String) array[0];
     int port = (Integer) array[1];
-    Object[] params = new Object[4];
+    var params = new Object[4];
     params[0] = hostName;
     params[1] = port;
     params[2] = true;
@@ -384,11 +382,11 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
     clientVM_2.invoke(() -> InterestRegrListenerDUnitTest.closeClientCacheTask(true));
     clientVM_3.invoke(() -> InterestRegrListenerDUnitTest.closeClientCacheTask(true));
     Thread.sleep(2);
-    Map<String, Integer> listnerMap = serverVM
+    var listnerMap = serverVM
         .invoke(InterestRegrListenerDUnitTest::getListenerMapTask);
     LogWriterUtils.getLogWriter().info("Listener Map " + listnerMap);
-    int registerCount = getMapValueForKey(listnerMap, REGISTER_INTEREST);
-    int unregisterCount = getMapValueForKey(listnerMap, UNREGISTER_INTEREST);
+    var registerCount = getMapValueForKey(listnerMap, REGISTER_INTEREST);
+    var unregisterCount = getMapValueForKey(listnerMap, UNREGISTER_INTEREST);
     assertEquals(3, registerCount);
     assertEquals(0, unregisterCount);
     LogWriterUtils.getLogWriter().info(
@@ -406,20 +404,20 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testDurableClientExit_ServerExpressedInterest_NonDurableInterest() throws Exception {
-    final Host host = getHost(0);
-    final VM serverVM = host.getVM(0);
-    final VM clientVM_1 = host.getVM(1);
-    final VM clientVM_2 = host.getVM(2);
-    final VM clientVM_3 = host.getVM(3);
+    final var host = getHost(0);
+    final var serverVM = host.getVM(0);
+    final var clientVM_1 = host.getVM(1);
+    final var clientVM_2 = host.getVM(2);
+    final var clientVM_3 = host.getVM(3);
 
     serverVM.invoke(InterestRegrListenerDUnitTest::setUpServerVMTask);
     serverVM.invoke(InterestRegrListenerDUnitTest::createServerTask);
 
-    Object[] array = serverVM
+    var array = serverVM
         .invoke(InterestRegrListenerDUnitTest::getCacheServerEndPointTask);
-    String hostName = (String) array[0];
+    var hostName = (String) array[0];
     int port = (Integer) array[1];
-    Object[] params = new Object[4];
+    var params = new Object[4];
     params[0] = hostName;
     params[1] = port;
     params[2] = true;
@@ -456,13 +454,13 @@ public class InterestRegrListenerDUnitTest extends JUnit4DistributedTestCase {
 
     sleep(2);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       int registerCount = 0;
       int unregisterCount = 0;
 
       @Override
       public boolean done() {
-        Map<String, Integer> listnerMap = serverVM
+        var listnerMap = serverVM
             .invoke(InterestRegrListenerDUnitTest::getListenerMapTask);
         getLogWriter().info("Listener Map " + listnerMap);
         registerCount = getMapValueForKey(listnerMap, REGISTER_INTEREST);

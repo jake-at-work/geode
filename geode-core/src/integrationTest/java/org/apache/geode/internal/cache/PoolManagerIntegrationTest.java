@@ -32,7 +32,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -45,7 +44,6 @@ import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.client.internal.DataSerializerRecoveryListener;
-import org.apache.geode.cache.client.internal.EndpointManager;
 import org.apache.geode.cache.client.internal.EndpointManagerImpl;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.RegisterDataSerializersOp;
@@ -82,8 +80,8 @@ public class PoolManagerIntegrationTest {
 
   @Test
   public void whenMultiUserAuthenticationIsEnabledDataSerializerSynchronizationMessagesAreNotSent() {
-    InternalDistributedSystem mockSystem = setupFakeSystem(true);
-    DataSerializer dataSerializer = setupFakeEventAndDataSerializer(mockSystem);
+    var mockSystem = setupFakeSystem(true);
+    var dataSerializer = setupFakeEventAndDataSerializer(mockSystem);
     PoolManagerImpl.allPoolsRegisterDataSerializers(dataSerializer);
     verify(pool, times(0))
         .execute(any(RegisterDataSerializersOp.RegisterDataSerializersOpImpl.class));
@@ -91,8 +89,8 @@ public class PoolManagerIntegrationTest {
 
   @Test
   public void whenMultiUserAuthenticationIsDisabledDataSerializerSynchronizationMessagesAreSent() {
-    InternalDistributedSystem mockSystem = setupFakeSystem(false);
-    DataSerializer dataSerializer = setupFakeEventAndDataSerializer(mockSystem);
+    var mockSystem = setupFakeSystem(false);
+    var dataSerializer = setupFakeEventAndDataSerializer(mockSystem);
     PoolManagerImpl.allPoolsRegisterDataSerializers(dataSerializer);
     verify(pool, times(1))
         .execute(any(RegisterDataSerializersOp.RegisterDataSerializersOpImpl.class));
@@ -102,9 +100,9 @@ public class PoolManagerIntegrationTest {
   public void whenUsingMultiUserAuthModeDataSerializerRecoveryTaskNotStarted()
       throws UnknownHostException {
 
-    PoolImpl poolImpl = setupPool(true);
-    EndpointManagerImpl endpointManager = (EndpointManagerImpl) poolImpl.getEndpointManager();
-    Set<EndpointManager.EndpointListener> listeners = endpointManager.getListeners();
+    var poolImpl = setupPool(true);
+    var endpointManager = (EndpointManagerImpl) poolImpl.getEndpointManager();
+    var listeners = endpointManager.getListeners();
 
     assertThat(listeners).allSatisfy(
         listener -> assertThat(listener).isNotInstanceOf(DataSerializerRecoveryListener.class));
@@ -114,9 +112,9 @@ public class PoolManagerIntegrationTest {
   public void whenNotUsingMultiUserAuthModeDataSerializerRecoveryTaskIsStarted()
       throws UnknownHostException {
 
-    PoolImpl poolImpl = setupPool(false);
-    EndpointManagerImpl endpointManager = (EndpointManagerImpl) poolImpl.getEndpointManager();
-    Set<EndpointManager.EndpointListener> listeners = endpointManager.getListeners();
+    var poolImpl = setupPool(false);
+    var endpointManager = (EndpointManagerImpl) poolImpl.getEndpointManager();
+    var listeners = endpointManager.getListeners();
 
     assertThat(listeners).anySatisfy(
         listener -> assertThat(listener).isInstanceOf(DataSerializerRecoveryListener.class));
@@ -140,13 +138,13 @@ public class PoolManagerIntegrationTest {
   }
 
   private InternalDistributedSystem setupFakeSystem(boolean multiUserAuthentication) {
-    PoolManagerImpl poolManagerImpl = poolManager;
-    InternalDistributedSystem mockSystem = mock(InternalDistributedSystem.class);
+    var poolManagerImpl = poolManager;
+    var mockSystem = mock(InternalDistributedSystem.class);
     InternalDistributedSystem.addTestSystem(mockSystem);
-    InternalDistributedMember mockMember = mock(InternalDistributedMember.class);
+    var mockMember = mock(InternalDistributedMember.class);
     doReturn(mockMember).when(mockSystem).getDistributedMember();
 
-    PoolFactory poolFactory = mock(PoolFactory.class);
+    var poolFactory = mock(PoolFactory.class);
     when(poolManagerImpl.createFactory()).thenReturn(poolFactory);
     when(poolFactory.create(any())).thenReturn(pool);
 
@@ -161,29 +159,29 @@ public class PoolManagerIntegrationTest {
   }
 
   private DataSerializer setupFakeEventAndDataSerializer(InternalDistributedSystem mockSystem) {
-    DataSerializer dataSerializer = mock(DataSerializer.class);
-    EventID eventID = new EventID(mockSystem);
+    var dataSerializer = mock(DataSerializer.class);
+    var eventID = new EventID(mockSystem);
     doReturn(eventID).when(dataSerializer).getEventId();
     return dataSerializer;
   }
 
   private PoolImpl setupPool(boolean multiUserAuthEnabled) throws UnknownHostException {
-    PoolManagerImpl poolManagerImpl = poolManager;
-    Properties properties = new Properties();
+    var poolManagerImpl = poolManager;
+    var properties = new Properties();
     properties.setProperty(DURABLE_CLIENT_ID, "1");
     DistributionConfig distributionConfig = new DistributionConfigImpl(properties);
-    InternalDistributedSystem.BuilderForTesting builderForTesting =
+    var builderForTesting =
         new InternalDistributedSystem.BuilderForTesting(properties);
 
-    InternalDistributedSystem mockSystem = spy(builderForTesting.build());
+    var mockSystem = spy(builderForTesting.build());
     doReturn(distributionConfig).when(mockSystem).getConfig();
-    InternalDistributedMember mockMember =
+    var mockMember =
         new InternalDistributedMember(InetAddress.getByName("localhost"), 50505, false,
             false);
     doReturn(mockMember).when(mockSystem).getDistributedMember();
 
     InternalDistributedSystem.addTestSystem(mockSystem);
-    PoolFactory poolFactory = poolManagerImpl.createFactory();
+    var poolFactory = poolManagerImpl.createFactory();
     poolFactory.setMultiuserAuthentication(multiUserAuthEnabled);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 

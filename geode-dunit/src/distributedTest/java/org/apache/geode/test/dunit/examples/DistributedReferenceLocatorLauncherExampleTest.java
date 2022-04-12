@@ -32,10 +32,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.distributed.LocatorLauncher;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedReference;
 import org.apache.geode.test.junit.rules.serializable.SerializableTemporaryFolder;
 
@@ -50,10 +48,10 @@ public class DistributedReferenceLocatorLauncherExampleTest implements Serializa
 
   @Before
   public void setUp() {
-    String hostName = getHostName();
-    int[] randomPorts = AvailablePortHelper.getRandomAvailableTCPPorts(5);
+    var hostName = getHostName();
+    var randomPorts = AvailablePortHelper.getRandomAvailableTCPPorts(5);
 
-    StringBuilder locators = new StringBuilder()
+    var locators = new StringBuilder()
         .append(hostName).append('[').append(getLocatorPort()).append(']').append(',')
         .append(hostName).append('[').append(randomPorts[0]).append(']').append(',')
         .append(hostName).append('[').append(randomPorts[1]).append(']').append(',')
@@ -61,12 +59,12 @@ public class DistributedReferenceLocatorLauncherExampleTest implements Serializa
         .append(hostName).append('[').append(randomPorts[3]).append(']').append(',')
         .append(hostName).append('[').append(randomPorts[4]).append(']');
 
-    int index = 0;
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
-      int whichPort = index++;
+    var index = 0;
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      var whichPort = index++;
       vm.invoke(() -> {
-        String name = "locator-" + getVMId();
-        LocatorLauncher locatorLauncher = new LocatorLauncher.Builder()
+        var name = "locator-" + getVMId();
+        var locatorLauncher = new LocatorLauncher.Builder()
             .setWorkingDirectory(temporaryFolder.newFolder(name).getAbsolutePath())
             .setMemberName(name)
             .setPort(randomPorts[whichPort])
@@ -82,12 +80,12 @@ public class DistributedReferenceLocatorLauncherExampleTest implements Serializa
 
   @Test
   public void eachVmHasItsOwnLocatorLauncher() {
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         assertThat(locatorLauncher.get()).isNotNull();
 
-        InternalCache cache = (InternalCache) locatorLauncher.get().getCache();
-        InternalDistributedSystem system = cache.getInternalDistributedSystem();
+        var cache = (InternalCache) locatorLauncher.get().getCache();
+        var system = cache.getInternalDistributedSystem();
         assertThat(system.getAllOtherMembers()).hasSize(5);
       });
     }

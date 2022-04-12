@@ -15,7 +15,6 @@
 package org.apache.geode.sequence;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,30 +52,30 @@ public class SelectGraphDialog extends JDialog {
 
     final List<GraphID> ids = new ArrayList<>(graphs.getMap().keySet());
     Collections.sort(ids);
-    final FilterableListModel listModel = new FilterableListModel(ids);
-    final JList list = new JList(listModel);
+    final var listModel = new FilterableListModel(ids);
+    final var list = new JList(listModel);
 
-    JScrollPane selectGraphPane = new JScrollPane(list);
+    var selectGraphPane = new JScrollPane(list);
     selectGraphPane.setPreferredSize(new Dimension(500, 500));
 
-    JButton apply = new JButton("Apply");
+    var apply = new JButton("Apply");
     apply.addActionListener(e -> {
       selectedIds = (List) Arrays.asList(list.getSelectedValues());
       fireSelectionChanged();
       setVisible(false);
     });
 
-    JButton cancel = new JButton("Cancel");
+    var cancel = new JButton("Cancel");
     cancel.addActionListener(e -> setVisible(false));
 
-    JPanel buttonPane = new JPanel();
+    var buttonPane = new JPanel();
     buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
     buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
     buttonPane.add(Box.createHorizontalGlue());
     buttonPane.add(apply);
     buttonPane.add(cancel);
 
-    final JTextField searchField = new JTextField(10);
+    final var searchField = new JTextField(10);
     searchField.getDocument().addDocumentListener(new DocumentListener() {
       @Override
       public void removeUpdate(DocumentEvent e) {
@@ -98,15 +97,14 @@ public class SelectGraphDialog extends JDialog {
       }
     });
 
-
-    Container contentPane = getContentPane();
+    var contentPane = getContentPane();
     contentPane.add(searchField, BorderLayout.PAGE_START);
     contentPane.add(selectGraphPane, BorderLayout.CENTER);
     contentPane.add(buttonPane, BorderLayout.PAGE_END);
   }
 
   private void fireSelectionChanged() {
-    for (SelectionListener listener : listeners) {
+    for (var listener : listeners) {
       listener.selectionChanged(selectedIds);
     }
   }
@@ -147,7 +145,7 @@ public class SelectGraphDialog extends JDialog {
     }
 
     public void updateFilter(String filter) {
-      Pattern pattern = Pattern.compile(filter);
+      var pattern = Pattern.compile(filter);
       filteredElements = new ArrayList<>();
       for (Object element : allElements) {
         if (pattern.matcher(element.toString()).find()) {

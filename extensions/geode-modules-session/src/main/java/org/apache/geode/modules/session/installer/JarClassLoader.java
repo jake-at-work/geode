@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -38,7 +37,7 @@ public class JarClassLoader extends URLClassLoader {
     super(urls, parent);
 
     try {
-      for (URL url : urls) {
+      for (var url : urls) {
         if (isJar(url.getFile())) {
           addJarResource(new File(url.getPath()));
         }
@@ -49,11 +48,11 @@ public class JarClassLoader extends URLClassLoader {
   }
 
   private void addJarResource(File file) throws IOException {
-    try (JarFile jarFile = new JarFile(file)) {
+    try (var jarFile = new JarFile(file)) {
       addURL(file.toURL());
-      Enumeration<JarEntry> jarEntries = jarFile.entries();
+      var jarEntries = jarFile.entries();
       while (jarEntries.hasMoreElements()) {
-        JarEntry jarEntry = jarEntries.nextElement();
+        var jarEntry = jarEntries.nextElement();
         if (!jarEntry.isDirectory() && isJar(jarEntry.getName())) {
           addJarResource(jarEntryAsFile(jarFile, jarEntry));
         }
@@ -65,7 +64,7 @@ public class JarClassLoader extends URLClassLoader {
   protected synchronized Class<?> loadClass(String name, boolean resolve)
       throws ClassNotFoundException {
     try {
-      Class<?> clazz = findLoadedClass(name);
+      var clazz = findLoadedClass(name);
       if (clazz == null) {
         clazz = findClass(name);
         if (resolve) {
@@ -97,16 +96,16 @@ public class JarClassLoader extends URLClassLoader {
     InputStream input = null;
     OutputStream output = null;
     try {
-      String name = jarEntry.getName().replace('/', '_');
-      int i = name.lastIndexOf(".");
-      String extension = i > -1 ? name.substring(i) : "";
-      File file = File.createTempFile(name.substring(0, name.length() - extension.length()) + ".",
+      var name = jarEntry.getName().replace('/', '_');
+      var i = name.lastIndexOf(".");
+      var extension = i > -1 ? name.substring(i) : "";
+      var file = File.createTempFile(name.substring(0, name.length() - extension.length()) + ".",
           extension);
       file.deleteOnExit();
       input = jarFile.getInputStream(jarEntry);
       output = new FileOutputStream(file);
       int readCount;
-      byte[] buffer = new byte[4096];
+      var buffer = new byte[4096];
       while ((readCount = input.read(buffer)) != -1) {
         output.write(buffer, 0, readCount);
       }

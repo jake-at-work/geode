@@ -17,13 +17,11 @@ package org.apache.geode.distributed.internal.deadlock;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.locks.DLockService;
-import org.apache.geode.distributed.internal.locks.DLockToken;
 
 /**
  * Report dependencies on dlocks that exist in theis VM.
@@ -46,14 +44,14 @@ public class DLockDependencyMonitor implements DependencyMonitor {
 
     DLockService.dumpAllServices(); // for investigating bug #43496
 
-    Map<String, DLockService> services = DLockService.snapshotAllServices();
-    for (Map.Entry<String, DLockService> entry : services.entrySet()) {
-      String serviceName = entry.getKey();
-      DLockService service = entry.getValue();
+    var services = DLockService.snapshotAllServices();
+    for (var entry : services.entrySet()) {
+      var serviceName = entry.getKey();
+      var service = entry.getValue();
 
-      UnsafeThreadLocal<Object> blockedThreadLocal = service.getBlockedOn();
-      for (Thread thread : allThreads) {
-        Object lockName = blockedThreadLocal.get(thread);
+      var blockedThreadLocal = service.getBlockedOn();
+      for (var thread : allThreads) {
+        var lockName = blockedThreadLocal.get(thread);
         if (lockName != null) {
           results.add(new Dependency<>(thread,
               new LockId(serviceName, (Serializable) lockName)));
@@ -67,22 +65,22 @@ public class DLockDependencyMonitor implements DependencyMonitor {
   @Override
   public Set<Dependency<Serializable, Thread>> getHeldResources(Thread[] allThreads) {
 
-    InternalDistributedSystem ds = InternalDistributedSystem.getAnyInstance();
+    var ds = InternalDistributedSystem.getAnyInstance();
     if (ds == null) {
       return Collections.emptySet();
     }
     Set<Dependency<Serializable, Thread>> results = new HashSet<>();
 
-    Map<String, DLockService> services = DLockService.snapshotAllServices();
-    for (Map.Entry<String, DLockService> entry : services.entrySet()) {
-      String serviceName = entry.getKey();
-      DLockService service = entry.getValue();
-      Map<Object, DLockToken> tokens = service.snapshotService();
-      for (Map.Entry<Object, DLockToken> tokenEntry : tokens.entrySet()) {
-        Object tokenName = tokenEntry.getKey();
-        DLockToken token = tokenEntry.getValue();
+    var services = DLockService.snapshotAllServices();
+    for (var entry : services.entrySet()) {
+      var serviceName = entry.getKey();
+      var service = entry.getValue();
+      var tokens = service.snapshotService();
+      for (var tokenEntry : tokens.entrySet()) {
+        var tokenName = tokenEntry.getKey();
+        var token = tokenEntry.getValue();
         synchronized (token) {
-          Thread holdingThread = token.getThread();
+          var holdingThread = token.getThread();
           if (holdingThread != null) {
             results.add(
                 new Dependency(new LockId(serviceName, (Serializable) tokenName), holdingThread));
@@ -105,8 +103,8 @@ public class DLockDependencyMonitor implements DependencyMonitor {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((serviceName == null) ? 0 : serviceName.hashCode());
       result = prime * result + ((tokenName == null) ? 0 : tokenName.hashCode());
       return result;
@@ -123,7 +121,7 @@ public class DLockDependencyMonitor implements DependencyMonitor {
       if (!(obj instanceof LockId)) {
         return false;
       }
-      LockId other = (LockId) obj;
+      var other = (LockId) obj;
       if (serviceName == null) {
         if (other.serviceName != null) {
           return false;

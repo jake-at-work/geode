@@ -174,7 +174,7 @@ public class ConcurrentHashMapObjectBenchmark {
     }
 
     keys = new Object[keyCount];
-    for (int i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       keys[i] = new Object();
       try {
         put(keys[i]);
@@ -195,8 +195,8 @@ public class ConcurrentHashMapObjectBenchmark {
    */
   @Benchmark
   public RegionEntry workload(Blackhole blackhole) throws RegionClearedException {
-    final Object key = getKey();
-    final RegionEntry entry = map.get(key);
+    final var key = getKey();
+    final var entry = map.get(key);
     blackhole.consume(entry);
     consumeCPU(10);
     return put(key);
@@ -215,7 +215,7 @@ public class ConcurrentHashMapObjectBenchmark {
 
   @NotNull
   public RegionEntry put(@NotNull final Object key) throws RegionClearedException {
-    final RegionEntry regionEntry = getOrCreateRegionEntry(key);
+    final var regionEntry = getOrCreateRegionEntry(key);
     regionEntry.setValue(null, key);
     return regionEntry;
   }

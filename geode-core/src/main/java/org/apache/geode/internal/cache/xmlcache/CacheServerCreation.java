@@ -77,12 +77,12 @@ public class CacheServerCreation extends AbstractCacheServer {
     setGroups(other.getGroups());
     setLoadProbe(other.getLoadProbe());
     setLoadPollInterval(other.getLoadPollInterval());
-    ClientSubscriptionConfig cscOther = other.getClientSubscriptionConfig();
-    ClientSubscriptionConfig cscThis = getClientSubscriptionConfig();
+    var cscOther = other.getClientSubscriptionConfig();
+    var cscThis = getClientSubscriptionConfig();
     // added for configuration of ha overflow
     cscThis.setEvictionPolicy(cscOther.getEvictionPolicy());
     cscThis.setCapacity(cscOther.getCapacity());
-    String diskStoreName = cscOther.getDiskStoreName();
+    var diskStoreName = cscOther.getDiskStoreName();
     if (diskStoreName != null) {
       cscThis.setDiskStoreName(diskStoreName);
     } else {
@@ -174,9 +174,9 @@ public class CacheServerCreation extends AbstractCacheServer {
    */
   @Override
   public boolean sameAs(CacheServer other) {
-    ClientSubscriptionConfig cscThis = getClientSubscriptionConfig();
-    ClientSubscriptionConfig cscOther = other.getClientSubscriptionConfig();
-    boolean result =
+    var cscThis = getClientSubscriptionConfig();
+    var cscOther = other.getClientSubscriptionConfig();
+    var result =
         isCacheServerPortEquals(other) && getSocketBufferSize() == other.getSocketBufferSize()
             && getMaximumTimeBetweenPings() == other.getMaximumTimeBetweenPings()
             && getNotifyBySubscription() == other.getNotifyBySubscription()
@@ -187,7 +187,7 @@ public class CacheServerCreation extends AbstractCacheServer {
             && getTcpNoDelay() == other.getTcpNoDelay()
             && cscThis.getCapacity() == cscOther.getCapacity()
             && cscThis.getEvictionPolicy().equals(cscOther.getEvictionPolicy());
-    String diskStoreName = cscThis.getDiskStoreName();
+    var diskStoreName = cscThis.getDiskStoreName();
     if (diskStoreName != null) {
       result = result && diskStoreName.equals(cscOther.getDiskStoreName());
     } else {

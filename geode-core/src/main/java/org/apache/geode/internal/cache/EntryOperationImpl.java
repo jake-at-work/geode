@@ -80,11 +80,11 @@ public class EntryOperationImpl implements EntryOperation {
 
   @Override
   public Object getCallbackArgument() {
-    Object result = callbackArgument;
+    var result = callbackArgument;
     if (result == Token.NOT_AVAILABLE) {
       result = AbstractRegion.handleNotAvailable(result);
     } else if (result instanceof WrappedCallbackArgument) {
-      WrappedCallbackArgument wca = (WrappedCallbackArgument) result;
+      var wca = (WrappedCallbackArgument) result;
       result = wca.getOriginalCallbackArg();
     }
     return result;

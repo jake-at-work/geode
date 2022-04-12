@@ -47,14 +47,11 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InitialImageOperation;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.TombstoneService;
 import org.apache.geode.internal.cache.UpdateOperation;
 import org.apache.geode.internal.cache.VersionTagHolder;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.VMVersionTag;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.vmotion.VMotionObserver;
 import org.apache.geode.internal.cache.vmotion.VMotionObserverHolder;
@@ -73,7 +70,7 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties p = super.getDistributedSystemProperties();
+    var p = super.getDistributedSystemProperties();
     p.put(CONSERVE_SOCKETS, "false");
     if (distributedSystemID > 0) {
       p.put(DISTRIBUTED_SYSTEM_ID, "" + distributedSystemID);
@@ -86,7 +83,7 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
    */
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setConcurrencyChecksEnabled(true);
@@ -99,7 +96,7 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
     if (ra == null) {
       throw new IllegalStateException("The region shortcut " + type + " has been removed.");
     }
-    AttributesFactory<K, V> factory = new AttributesFactory<>(ra);
+    var factory = new AttributesFactory<K, V>(ra);
     factory.setConcurrencyChecksEnabled(true);
     return factory.create();
   }
@@ -138,10 +135,10 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
     if (getClass() != DistributedAckRegionCCEDUnitTest.class) {
       return; // not really a scope-related thing
     }
-    final String name = getUniqueName() + "-CC";
-    final String key = "mykey";
-    VM vm1 = VM.getVM(1);
-    VM vm2 = VM.getVM(2);
+    final var name = getUniqueName() + "-CC";
+    final var key = "mykey";
+    var vm1 = VM.getVM(1);
+    var vm2 = VM.getVM(2);
 
     // create some destroyed entries so the GC service is populated
     // do conflicting update() and destroy() on the region. We want the update() to
@@ -156,7 +153,7 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
     AsyncInvocation partialCreate =
         vm2.invokeAsync("create region with stall", () -> {
 
-          final GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+          final var cache = (GemFireCacheImpl) getCache();
           RegionFactory f = cache.createRegionFactory(getRegionAttributes());
           InitialImageOperation.VMOTION_DURING_GII = true;
           // this will stall region creation at the point of asking for an initial image
@@ -170,9 +167,9 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
             @Override
             public void vMotionDuringGII(Set recipientSet, LocalRegion region) {
               InitialImageOperation.VMOTION_DURING_GII = false;
-              final InitializationLevel oldLevel =
+              final var oldLevel =
                   LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
-              LocalRegion ccregion = (LocalRegion) cache.getInternalRegionByPath(SEPARATOR + name);
+              var ccregion = (LocalRegion) cache.getInternalRegionByPath(SEPARATOR + name);
               try {
                 // wait for the update op (sent below from vm1) to arrive, then allow the GII to
                 // happen
@@ -214,11 +211,11 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
       }
 
       // generate a fake version tag for the message
-      final VersionStamp versionStamp = CCRegion.getRegionEntry(key).getVersionStamp();
-      VersionTag<InternalDistributedMember> tag =
+      final var versionStamp = CCRegion.getRegionEntry(key).getVersionStamp();
+      var tag =
           (VersionTag<InternalDistributedMember>) versionStamp.asVersionTag();
       // create a fake member ID that will be < mine and lose a concurrency check
-      InternalDistributedMember nm =
+      var nm =
           CCRegion.getDistributionManager().getDistributionManagerId();
       InternalDistributedMember mbr = null;
 
@@ -229,7 +226,7 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
 
 
       // generate an event to distribute that contains the fake version tag
-      EntryEventImpl event =
+      var event =
           EntryEventImpl.create(CCRegion, Operation.UPDATE, key, false, mbr, true, false);
       event.setNewValue("newValue");
       event.setVersionTag(tag);
@@ -280,11 +277,11 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
    */
   @Test
   public void testTombstoneExpirationRace() {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
 
-    final String name = getUniqueName() + "-CC";
-    SerializableRunnable createRegion = new SerializableRunnable() {
+    final var name = getUniqueName() + "-CC";
+    var createRegion = new SerializableRunnable() {
       @Override
       public void run() {
         RegionFactory f = getCache().createRegionFactory(getRegionAttributes());
@@ -300,8 +297,8 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
       // make the entry for cckey0 a tombstone in this VM and set its modification time to be
       // older than the tombstone GC interval. This means it could be in the process of being
       // reaped by distributed-GC
-      RegionEntry entry = CCRegion.getRegionEntry("cckey0");
-      VersionTag tag = entry.getVersionStamp().asVersionTag();
+      var entry = CCRegion.getRegionEntry("cckey0");
+      var tag = entry.getVersionStamp().asVersionTag();
       assertThat(tag.getEntryVersion()).isGreaterThan(1);
       tag.setVersionTimeStamp(
           System.currentTimeMillis() - TombstoneService.REPLICATE_TOMBSTONE_TIMEOUT - 1000);
@@ -319,7 +316,7 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
       CCRegion.put("cckey0", "updateAfterReap");
     });
     vm1.invoke("Check that the create() was applied", () -> {
-      RegionEntry entry = CCRegion.getRegionEntry("cckey0");
+      var entry = CCRegion.getRegionEntry("cckey0");
       assertThat(entry.getVersionStamp().getEntryVersion()).isEqualTo(1);
     });
     disconnectAllFromDS();
@@ -331,18 +328,18 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
    */
   @Test
   public void testAggressiveTombstoneReaping() throws InterruptedException {
-    final String name = getUniqueName() + "-CC";
+    final var name = getUniqueName() + "-CC";
 
-    final int saveExpiredTombstoneLimit = TombstoneService.EXPIRED_TOMBSTONE_LIMIT;
-    final long saveTombstoneTimeout = TombstoneService.REPLICATE_TOMBSTONE_TIMEOUT;
+    final var saveExpiredTombstoneLimit = TombstoneService.EXPIRED_TOMBSTONE_LIMIT;
+    final var saveTombstoneTimeout = TombstoneService.REPLICATE_TOMBSTONE_TIMEOUT;
     TombstoneService.EXPIRED_TOMBSTONE_LIMIT = 50;
     TombstoneService.REPLICATE_TOMBSTONE_TIMEOUT = 500;
     try {
       // create some destroyed entries so the GC service is populated
-      RegionFactory<Object, Object> f = getCache().createRegionFactory(getRegionAttributes());
+      var f = getCache().createRegionFactory(getRegionAttributes());
       CCRegion = (LocalRegion) f.create(name);
-      final long initialCount = CCRegion.getCachePerfStats().getTombstoneGCCount();
-      for (int i = 0; i < 100; i++) {
+      final var initialCount = CCRegion.getCachePerfStats().getTombstoneGCCount();
+      for (var i = 0; i < 100; i++) {
         CCRegion.put("cckey" + i, "ccvalue" + i);
         CCRegion.destroy("cckey" + i);
       }
@@ -352,7 +349,7 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
           .until(() -> CCRegion.getCachePerfStats().getTombstoneGCCount() > initialCount);
 
       Thread.sleep(5000);
-      long gcCount = CCRegion.getCachePerfStats().getTombstoneGCCount();
+      var gcCount = CCRegion.getCachePerfStats().getTombstoneGCCount();
       assertThat(gcCount)
           .withFailMessage("expected a few GCs, but not " + (gcCount - initialCount))
           .isLessThan(initialCount + 20);
@@ -390,14 +387,14 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
   public void testEntryVersionRollover() throws Exception {
     assumeThat(getClass() == DistributedAckRegionCCEDUnitTest.class).isTrue();
 
-    final String name = getUniqueName() + "-CC";
-    final int numEntries = 1;
-    SerializableRunnable createRegion = new SerializableRunnable() {
+    final var name = getUniqueName() + "-CC";
+    final var numEntries = 1;
+    var createRegion = new SerializableRunnable() {
       @Override
       public void run() {
         RegionFactory f = getCache().createRegionFactory(getRegionAttributes());
         CCRegion = (LocalRegion) f.create(name);
-        for (int i = 0; i < numEntries; i++) {
+        for (var i = 0; i < numEntries; i++) {
           CCRegion.put("cckey" + i, "ccvalue");
         }
         assertThat(CCRegion.getCachePerfStats().getConflatedEventsCount())
@@ -406,7 +403,7 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
 
       }
     };
-    VM vm0 = VM.getVM(0);
+    var vm0 = VM.getVM(0);
     vm0.invoke("Create Region", createRegion);
     try {
       createRegion.run();
@@ -417,8 +414,8 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
       tag.setEntryVersion(0xFFFFFF);
       tag.setDistributedSystemId(1);
       tag.setRegionVersion(CCRegion.getVersionVector().getNextVersion());
-      VersionTagHolder holder = new VersionTagHolder(tag);
-      ClientProxyMembershipID id = ClientProxyMembershipID
+      var holder = new VersionTagHolder(tag);
+      var id = ClientProxyMembershipID
           .getNewProxyMembership(CCRegion.getDistributionManager().getSystem());
       CCRegion.basicBridgePut("cckey0", "newvalue", null, true, null, id, holder, true);
       vm0.invoke("check conflation count", () -> {

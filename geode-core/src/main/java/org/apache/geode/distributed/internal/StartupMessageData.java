@@ -64,12 +64,12 @@ class StartupMessageData {
       return null;
     }
     Collection<String> hostedLocators = null;
-    String hostedLocatorsString = optionalFields.getProperty(HOSTED_LOCATORS);
+    var hostedLocatorsString = optionalFields.getProperty(HOSTED_LOCATORS);
     if (hostedLocatorsString != null && !hostedLocatorsString.isEmpty()) {
-      StringTokenizer st = new StringTokenizer(hostedLocatorsString, COMMA_DELIMITER);
+      var st = new StringTokenizer(hostedLocatorsString, COMMA_DELIMITER);
       hostedLocators = new ArrayList<>();
       while (st.hasMoreTokens()) {
-        String locatorString = st.nextToken();
+        var locatorString = st.nextToken();
         if (locatorString != null && !locatorString.isEmpty()) {
           hostedLocators.add(locatorString);
         }
@@ -124,7 +124,7 @@ class StartupMessageData {
       return;
     }
     if (hostedLocators != null && !hostedLocators.isEmpty()) {
-      String hostedLocatorsString = asCommaDelimitedString(hostedLocators);
+      var hostedLocatorsString = asCommaDelimitedString(hostedLocators);
       if (hostedLocatorsString != null && !hostedLocatorsString.isEmpty()) {
         optionalFields.setProperty(HOSTED_LOCATORS, hostedLocatorsString);
       }
@@ -155,9 +155,9 @@ class StartupMessageData {
   }
 
   int readMcastPort() {
-    int result = 0;
+    var result = 0;
     if (optionalFields != null) {
-      String resultString = optionalFields.getProperty(MCAST_PORT);
+      var resultString = optionalFields.getProperty(MCAST_PORT);
       if (resultString != null && !resultString.isEmpty()) {
         result = Integer.parseInt(resultString);
       }
@@ -213,8 +213,8 @@ class StartupMessageData {
    * is null or empty.
    */
   public static String asCommaDelimitedString(Collection<String> strings) {
-    StringBuilder sb = new StringBuilder();
-    for (String string : strings) {
+    var sb = new StringBuilder();
+    for (var string : strings) {
       if (sb.length() > 0) {
         sb.append(COMMA_DELIMITER);
       }

@@ -33,7 +33,6 @@ import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InitialImageOperation.GIITestHook;
 import org.apache.geode.internal.cache.InitialImageOperation.GIITestHookType;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionMap;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableCallable;
@@ -73,13 +72,13 @@ public class ConcurrentLeaveDuringGIIDUnitTest extends JUnit4CacheTestCase {
   @Ignore
   @Test
   public void testBug48962() throws Exception {
-    VM X = Host.getHost(0).getVM(1);
-    VM A = Host.getHost(0).getVM(2);
-    VM B = Host.getHost(0).getVM(3);
+    var X = Host.getHost(0).getVM(1);
+    var A = Host.getHost(0).getVM(2);
+    var B = Host.getHost(0).getVM(3);
 
-    final String regionName = getUniqueName() + "_Region";
+    final var regionName = getUniqueName() + "_Region";
 
-    SerializableCallable createRegionXB = new SerializableCallable("create region in X and B") {
+    var createRegionXB = new SerializableCallable("create region in X and B") {
       @Override
       public Object call() {
         Region r = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
@@ -97,20 +96,20 @@ public class ConcurrentLeaveDuringGIIDUnitTest extends JUnit4CacheTestCase {
       }
     };
 
-    SerializableCallable createRegionA = new SerializableCallable("create region in A") {
+    var createRegionA = new SerializableCallable("create region in A") {
       @Override
       public Object call() {
-        final GiiCallback cb = new GiiCallback(
+        final var cb = new GiiCallback(
             BeforeGetInitialImage, regionName);
         setGIITestHook(cb);
-        Thread t = new Thread("create region in a thread that will block before GII") {
+        var t = new Thread("create region in a thread that will block before GII") {
           @Override
           public void run() {
             Region r = getCache().createRegionFactory(REPLICATE).create(regionName);
           }
         };
         t.start();
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public boolean done() {
             return cb.isRunning;
@@ -128,20 +127,20 @@ public class ConcurrentLeaveDuringGIIDUnitTest extends JUnit4CacheTestCase {
 
     A.invoke(createRegionA);
 
-    final InternalDistributedMember Xid = (InternalDistributedMember) X.invoke(createRegionXB);
+    final var Xid = (InternalDistributedMember) X.invoke(createRegionXB);
 
     A.invoke(new SerializableRunnable("make sure A got keyFromX from X") {
       @Override
       public void run() {
         // use internal methods to get the region since it's still initializing
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
-        final RegionMap r = cache.getRegionByPathForProcessing(regionName).getRegionMap();
+        var cache = (GemFireCacheImpl) getCache();
+        final var r = cache.getRegionByPathForProcessing(regionName).getRegionMap();
 
         // X's update should have been propagated to A and put into the cache.
         // If this throws an assertion error then there's no point in
         // continuing the test because we didn't set up the initial
         // condition needed for the next step.
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public boolean done() {
             return r.containsKey("keyFromX");
@@ -162,12 +161,12 @@ public class ConcurrentLeaveDuringGIIDUnitTest extends JUnit4CacheTestCase {
     A.invoke(new SerializableRunnable("allow A to continue GII from B") {
       @Override
       public void run() {
-        GiiCallback cb = (GiiCallback) getGIITestHookForCheckingPurpose(
+        var cb = (GiiCallback) getGIITestHookForCheckingPurpose(
             BeforeGetInitialImage);
         synchronized (cb.lockObject) {
           cb.lockObject.notify();
         }
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public boolean done() {
             return getCache().getRegion(regionName) != null;
@@ -180,7 +179,7 @@ public class ConcurrentLeaveDuringGIIDUnitTest extends JUnit4CacheTestCase {
         };
         GeodeAwaitility.await().untilAsserted(wc);
         // ensure that the RVV has recorded the event
-        DistributedRegion r = (DistributedRegion) getCache().getRegion(regionName);
+        var r = (DistributedRegion) getCache().getRegion(regionName);
         if (!r.getVersionVector().contains(Xid, 1)) {
           getLogWriter()
               .info("r's version vector is " + r.getVersionVector().fullToString());
@@ -198,7 +197,7 @@ public class ConcurrentLeaveDuringGIIDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         final Region r = getCache().getRegion(regionName);
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public boolean done() {
             return r.containsKey("keyFromX");

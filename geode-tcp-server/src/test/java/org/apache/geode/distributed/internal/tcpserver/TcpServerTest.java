@@ -41,7 +41,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.internal.serialization.BasicSerializable;
-import org.apache.geode.internal.serialization.DSFIDSerializer;
 import org.apache.geode.internal.serialization.DSFIDSerializerFactory;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -59,7 +58,7 @@ public class TcpServerTest {
   private void startTcpServerWithHandler(TcpHandler handler) throws IOException {
     localhost = InetAddress.getLocalHost();
 
-    DSFIDSerializer serializer = new DSFIDSerializerFactory().create();
+    var serializer = new DSFIDSerializerFactory().create();
     server = new TcpServer(port, localhost, handler,
         "server thread",
         (x, y, z) -> false,
@@ -80,9 +79,9 @@ public class TcpServerTest {
 
   @Test
   public void testConnectToUnknownHost() {
-    final TcpClient tcpClient = createTcpClient();
+    final var tcpClient = createTcpClient();
     @SuppressWarnings("deprecation")
-    InfoRequest testInfoRequest = new InfoRequest();
+    var testInfoRequest = new InfoRequest();
     assertThatThrownBy(
         () -> tcpClient.requestToServer(new HostAndPort("unknown host name", port), testInfoRequest,
             TIMEOUT, true))
@@ -96,16 +95,16 @@ public class TcpServerTest {
     TcpHandler handler = new InfoRequestHandler();
     startTcpServerWithHandler(handler);
 
-    final TcpClient tcpClient = createTcpClient();
+    final var tcpClient = createTcpClient();
 
-    InfoRequest testInfoRequest = new InfoRequest();
-    InfoResponse testInfoResponse =
+    var testInfoRequest = new InfoRequest();
+    var testInfoResponse =
         (InfoResponse) tcpClient.requestToServer(new HostAndPort(localhost.getHostAddress(), port),
             testInfoRequest, TIMEOUT, true);
     assertThat(testInfoResponse).isNotNull();
     assertThat(testInfoResponse.getInfo()[0]).contains("geode-tcp-server");
 
-    String[] requestedInfo = tcpClient.getInfo(new HostAndPort(localhost.getHostAddress(), port));
+    var requestedInfo = tcpClient.getInfo(new HostAndPort(localhost.getHostAddress(), port));
     assertNotNull(requestedInfo);
     assertTrue(requestedInfo.length > 1);
     assertThat(requestedInfo[0]).contains("geode-tcp-server");
@@ -114,7 +113,7 @@ public class TcpServerTest {
   }
 
   private TcpClient createTcpClient() {
-    DSFIDSerializer serializer = new DSFIDSerializerFactory().create();
+    var serializer = new DSFIDSerializerFactory().create();
     TcpSocketCreator socketCreator = new TcpSocketCreatorImpl();
     return new TcpClient(socketCreator,
         serializer.getObjectSerializer(),
@@ -123,13 +122,13 @@ public class TcpServerTest {
 
   @Test
   public void testConcurrency() throws Exception {
-    CountDownLatch latch = new CountDownLatch(1);
-    DelayHandler handler = new DelayHandler(latch);
+    var latch = new CountDownLatch(1);
+    var handler = new DelayHandler(latch);
     startTcpServerWithHandler(handler);
-    final TcpClient tcpClient = createTcpClient();
+    final var tcpClient = createTcpClient();
 
-    final AtomicBoolean done = new AtomicBoolean();
-    Thread delayedThread = new Thread(() -> {
+    final var done = new AtomicBoolean();
+    var delayedThread = new Thread(() -> {
       try {
         tcpClient.requestToServer(new HostAndPort(localhost.getHostAddress(), port),
             new TestObject(1), TIMEOUT, true);
@@ -162,10 +161,10 @@ public class TcpServerTest {
       ClassNotFoundException, InterruptedException {
     // Initially mock the handler to throw a SocketException. We want to verify that the server
     // can recover and serve new client requests after a SocketException is thrown.
-    TcpHandler mockTcpHandler = mock(TcpHandler.class);
+    var mockTcpHandler = mock(TcpHandler.class);
     doThrow(SocketException.class).when(mockTcpHandler).processRequest(any(Object.class));
     startTcpServerWithHandler(mockTcpHandler);
-    final TcpClient tcpClient = createTcpClient();
+    final var tcpClient = createTcpClient();
 
     // Due to the mocked handler, an EOFException will be thrown on the client. This is expected.
     assertThatThrownBy(
@@ -178,9 +177,9 @@ public class TcpServerTest {
         .processRequest(any(Object.class));
 
     // Perform another request and validate that it was served successfully
-    TestObject test = new TestObject();
+    var test = new TestObject();
     test.id = 5;
-    TestObject result =
+    var result =
         (TestObject) tcpClient.requestToServer(new HostAndPort(localhost.getHostAddress(), port),
             test, TIMEOUT, true);
 
@@ -234,7 +233,7 @@ public class TcpServerTest {
 
     @Override
     public Object processRequest(Object request) {
-      TestObject delay = (TestObject) request;
+      var delay = (TestObject) request;
       if (delay.id > 0) {
         try {
           // noinspection ResultOfMethodCallIgnored
@@ -263,7 +262,7 @@ public class TcpServerTest {
     @SuppressWarnings("deprecation")
     @Override
     public Object processRequest(final Object request) {
-      String[] info = new String[2];
+      var info = new String[2];
       info[0] = System.getProperty("user.dir");
       info[1] = System.getProperty("java.version");
       return new InfoResponse(info);

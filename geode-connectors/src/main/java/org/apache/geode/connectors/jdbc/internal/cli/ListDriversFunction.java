@@ -58,7 +58,7 @@ public class ListDriversFunction extends CliFunction<Object[]> {
     } else {
       message = "{" + driverNames.get(0);
 
-      for (int i = 1; i < driverNames.size(); i++) {
+      for (var i = 1; i < driverNames.size(); i++) {
         message += ", ";
         message += driverNames.get(i);
       }

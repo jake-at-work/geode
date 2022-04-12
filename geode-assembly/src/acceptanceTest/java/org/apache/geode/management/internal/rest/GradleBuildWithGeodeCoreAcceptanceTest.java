@@ -19,12 +19,7 @@ import static org.apache.geode.test.util.ResourceUtils.copyDirectoryResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
-import java.net.URL;
-
-import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProjectConnection;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -42,24 +37,24 @@ public class GradleBuildWithGeodeCoreAcceptanceTest {
 
   @Test
   public void testBasicGradleBuild() {
-    URL projectDir = getResource("/gradle-test-projects/management");
+    var projectDir = getResource("/gradle-test-projects/management");
     assertThat(projectDir).isNotNull();
 
-    String projectGroup = System.getProperty("projectGroup");
+    var projectGroup = System.getProperty("projectGroup");
     assertThat(projectGroup).as("'projectGroup' is not available as a system property")
         .isNotBlank();
 
-    String geodeVersion = GemFireVersion.getGemFireVersion();
+    var geodeVersion = GemFireVersion.getGemFireVersion();
 
-    File buildDir = temp.getRoot();
+    var buildDir = temp.getRoot();
     copyDirectoryResource(projectDir, buildDir);
 
-    GradleConnector connector = GradleConnector.newConnector();
+    var connector = GradleConnector.newConnector();
     connector.useBuildDistribution();
     connector.forProjectDirectory(buildDir);
 
-    ProjectConnection connection = connector.connect();
-    BuildLauncher build = connection.newBuild();
+    var connection = connector.connect();
+    var build = connection.newBuild();
 
     build.setStandardError(System.err);
     build.setStandardOutput(System.out);

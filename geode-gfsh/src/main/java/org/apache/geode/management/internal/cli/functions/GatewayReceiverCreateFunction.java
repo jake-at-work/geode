@@ -23,7 +23,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.configuration.GatewayReceiverConfig;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
@@ -54,16 +53,16 @@ public class GatewayReceiverCreateFunction implements InternalFunction<Object[]>
 
   @Override
   public void execute(FunctionContext<Object[]> context) {
-    ResultSender<Object> resultSender = context.getResultSender();
+    var resultSender = context.getResultSender();
 
-    Cache cache = context.getCache();
-    String memberNameOrId = context.getMemberName();
+    var cache = context.getCache();
+    var memberNameOrId = context.getMemberName();
 
-    Object[] gatewayReceiverCreateArgs =
+    var gatewayReceiverCreateArgs =
         context.getArguments();
-    GatewayReceiverConfig gatewayReceiverConfig =
+    var gatewayReceiverConfig =
         (GatewayReceiverConfig) gatewayReceiverCreateArgs[0];
-    Boolean ifNotExist = (Boolean) gatewayReceiverCreateArgs[1];
+    var ifNotExist = (Boolean) gatewayReceiverCreateArgs[1];
 
     // Exit early if a receiver already exists.
     // Consider this a failure unless --if-not-exists was provided.
@@ -83,7 +82,7 @@ public class GatewayReceiverCreateFunction implements InternalFunction<Object[]>
 
 
     try {
-      GatewayReceiver createdGatewayReceiver = createGatewayReceiver(cache, gatewayReceiverConfig);
+      var createdGatewayReceiver = createGatewayReceiver(cache, gatewayReceiverConfig);
 
       resultSender.lastResult(new CliFunctionResult(memberNameOrId,
           CliFunctionResult.StatusState.OK,
@@ -102,7 +101,7 @@ public class GatewayReceiverCreateFunction implements InternalFunction<Object[]>
 
   GatewayReceiver createGatewayReceiver(Cache cache,
       GatewayReceiverConfig gatewayReceiverConfig) {
-    GatewayReceiverRealizer receiverRealizer = new GatewayReceiverRealizer();
+    var receiverRealizer = new GatewayReceiverRealizer();
     receiverRealizer.create(gatewayReceiverConfig, (InternalCache) cache);
 
     return cache.getGatewayReceivers().iterator().next();

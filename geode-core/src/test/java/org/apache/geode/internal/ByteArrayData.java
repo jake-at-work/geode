@@ -55,14 +55,14 @@ public class ByteArrayData {
    * Returns a <code>DataInput</code> to read from
    */
   public DataInput getDataInput() {
-    ByteBuffer bb = ByteBuffer.wrap(baos.toByteArray());
-    ByteBufferInputStream bbis = new ByteBufferInputStream(bb);
+    var bb = ByteBuffer.wrap(baos.toByteArray());
+    var bbis = new ByteBufferInputStream(bb);
     return bbis;
   }
 
   public DataInputStream getDataInputStream() {
-    ByteBuffer bb = ByteBuffer.wrap(baos.toByteArray());
-    ByteBufferInputStream bbis = new ByteBufferInputStream(bb);
+    var bb = ByteBuffer.wrap(baos.toByteArray());
+    var bbis = new ByteBufferInputStream(bb);
     return new DataInputStream(bbis);
   }
 

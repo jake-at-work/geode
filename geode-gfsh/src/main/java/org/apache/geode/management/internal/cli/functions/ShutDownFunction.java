@@ -15,8 +15,6 @@
 package org.apache.geode.management.internal.cli.functions;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.apache.logging.log4j.Logger;
 
@@ -49,11 +47,11 @@ public class ShutDownFunction implements InternalFunction<Void> {
   @Override
   public void execute(FunctionContext<Void> context) {
     try {
-      final InternalDistributedSystem system = InternalDistributedSystem.getConnectedInstance();
+      final var system = InternalDistributedSystem.getConnectedInstance();
       if (system == null) {
         return;
       }
-      String memberName = system.getDistributedMember().getId();
+      var memberName = system.getDistributedMember().getId();
       logger.info("Received GFSH shutdown. Shutting down member " + memberName);
 
       disconnectInNonDaemonThread(system);
@@ -71,8 +69,8 @@ public class ShutDownFunction implements InternalFunction<Void> {
    */
   private void disconnectInNonDaemonThread(final InternalDistributedSystem ids)
       throws InterruptedException, ExecutionException {
-    ExecutorService exec = LoggingExecutors.newSingleThreadExecutor("Shutdown Disconnector", false);
-    Future<?> future = exec.submit(() -> {
+    var exec = LoggingExecutors.newSingleThreadExecutor("Shutdown Disconnector", false);
+    var future = exec.submit(() -> {
       try {
         // Allow the function call to exit so we don't get disconnect exceptions in the client
         // making the call.

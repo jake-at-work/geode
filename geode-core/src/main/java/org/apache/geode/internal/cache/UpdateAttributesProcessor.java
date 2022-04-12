@@ -30,9 +30,7 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionAdvisee;
-import org.apache.geode.distributed.internal.DistributionAdvisor;
 import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.HighPriorityDistributionMessage;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -103,7 +101,7 @@ public class UpdateAttributesProcessor {
     if (processor == null) {
       return;
     }
-    DistributionManager mgr = advisee.getDistributionManager();
+    var mgr = advisee.getDistributionManager();
     try {
       // bug 36983 - you can't loop on a reply processor
       mgr.getCancelCriterion().checkCancelInProgress(null);
@@ -118,8 +116,8 @@ public class UpdateAttributesProcessor {
   }
 
   public void sendProfileUpdate(boolean exchangeProfiles) {
-    DistributionManager mgr = advisee.getDistributionManager();
-    DistributionAdvisor advisor = advisee.getDistributionAdvisor();
+    var mgr = advisee.getDistributionManager();
+    var advisor = advisee.getDistributionAdvisor();
     profileExchange = exchangeProfiles;
 
     // if this is not intended for the purpose of exchanging profiles but
@@ -157,9 +155,9 @@ public class UpdateAttributesProcessor {
     // Scope scope = this.region.scope;
 
     // always require an ack to prevent misordering of messages
-    InternalDistributedSystem system = advisee.getSystem();
+    var system = advisee.getSystem();
     processor = new UpdateAttributesReplyProcessor(system, recipients);
-    UpdateAttributesMessage message = getUpdateAttributesMessage(processor, recipients);
+    var message = getUpdateAttributesMessage(processor, recipients);
     mgr.putOutgoing(message);
     this.processor = processor;
   }
@@ -167,7 +165,7 @@ public class UpdateAttributesProcessor {
 
   UpdateAttributesMessage getUpdateAttributesMessage(ReplyProcessor21 processor, Set recipients) {
 
-    UpdateAttributesMessage msg = new UpdateAttributesMessage();
+    var msg = new UpdateAttributesMessage();
     msg.adviseePath = advisee.getFullPath();
     msg.setRecipients(recipients);
     if (processor != null) {
@@ -193,7 +191,7 @@ public class UpdateAttributesProcessor {
      */
     @Override
     protected Set addListenerAndGetMembers() {
-      DistributionAdvisor da = advisee.getDistributionAdvisor();
+      var da = advisee.getDistributionAdvisor();
       if (da.useAdminMembersForDefault()) {
         return getDistributionManager().addAllMembershipListenerAndGetAllIds(this);
       } else {
@@ -208,7 +206,7 @@ public class UpdateAttributesProcessor {
      */
     @Override
     protected void removeListener() {
-      DistributionAdvisor da = advisee.getDistributionAdvisor();
+      var da = advisee.getDistributionAdvisor();
       if (da.useAdminMembersForDefault()) {
         getDistributionManager().removeAllMembershipListener(this);
       } else {
@@ -224,7 +222,7 @@ public class UpdateAttributesProcessor {
      */
     @Override
     protected Set getDistributionManagerIds() {
-      DistributionAdvisor da = advisee.getDistributionAdvisor();
+      var da = advisee.getDistributionAdvisor();
       if (da.useAdminMembersForDefault()) {
         return getDistributionManager().getDistributionManagerIdsIncludingAdmin();
       } else {
@@ -236,9 +234,9 @@ public class UpdateAttributesProcessor {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof ProfilesReplyMessage) {
-          ProfilesReplyMessage reply = (ProfilesReplyMessage) msg;
+          var reply = (ProfilesReplyMessage) msg;
           if (reply.profiles != null) {
-            for (int i = 0; i < reply.profiles.length; i++) {
+            for (var i = 0; i < reply.profiles.length; i++) {
               // @todo Add putProfiles to DistributionAdvisor to do this
               // with one call atomically?
               advisee.getDistributionAdvisor()
@@ -246,7 +244,7 @@ public class UpdateAttributesProcessor {
             }
           }
         } else if (msg instanceof ProfileReplyMessage) {
-          ProfileReplyMessage reply = (ProfileReplyMessage) msg;
+          var reply = (ProfileReplyMessage) msg;
           if (reply.profile != null) {
             advisee.getDistributionAdvisor()
                 .putProfile(reply.profile);
@@ -281,7 +279,7 @@ public class UpdateAttributesProcessor {
     @Override
     protected void process(ClusterDistributionManager dm) {
       Throwable thr = null;
-      boolean sendReply = processorId != 0;
+      var sendReply = processorId != 0;
       List<Profile> replyProfiles = null;
       try {
         if (profile != null) {
@@ -321,7 +319,7 @@ public class UpdateAttributesProcessor {
             }
             ProfileReplyMessage.send(getSender(), processorId, rex, dm, p);
           } else {
-            Profile[] profiles = new Profile[replyProfiles.size()];
+            var profiles = new Profile[replyProfiles.size()];
             replyProfiles.toArray(profiles);
             ProfilesReplyMessage.send(getSender(), processorId, rex, dm, profiles);
           }
@@ -331,7 +329,7 @@ public class UpdateAttributesProcessor {
 
     @Override
     public String toString() {
-      StringBuilder buff = new StringBuilder();
+      var buff = new StringBuilder();
       buff.append("UpdateAttributesMessage (adviseePath=");
       buff.append(adviseePath);
       buff.append("; processorId=");
@@ -386,7 +384,7 @@ public class UpdateAttributesProcessor {
     public static void send(InternalDistributedMember recipient, int processorId,
         ReplyException exception, ClusterDistributionManager dm, Profile profile) {
       Assert.assertTrue(recipient != null, "Sending a ProfileReplyMessage to ALL");
-      ProfileReplyMessage m = new ProfileReplyMessage();
+      var m = new ProfileReplyMessage();
 
       m.processorId = processorId;
       m.profile = profile;
@@ -455,7 +453,7 @@ public class UpdateAttributesProcessor {
     public static void send(InternalDistributedMember recipient, int processorId,
         ReplyException exception, ClusterDistributionManager dm, Profile[] profiles) {
       Assert.assertTrue(recipient != null, "Sending a ProfilesReplyMessage to ALL");
-      ProfilesReplyMessage m = new ProfilesReplyMessage();
+      var m = new ProfilesReplyMessage();
 
       m.processorId = processorId;
       m.profiles = profiles;
@@ -482,12 +480,12 @@ public class UpdateAttributesProcessor {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      int length = in.readInt();
+      var length = in.readInt();
       if (length == -1) {
         profiles = null;
       } else {
-        Profile[] array = new Profile[length];
-        for (int i = 0; i < length; i++) {
+        var array = new Profile[length];
+        for (var i = 0; i < length; i++) {
           array[i] = DataSerializer.readObject(in);
         }
         profiles = array;
@@ -501,9 +499,9 @@ public class UpdateAttributesProcessor {
       if (profiles == null) {
         out.writeInt(-1);
       } else {
-        int length = profiles.length;
+        var length = profiles.length;
         out.writeInt(length);
-        for (final Profile profile : profiles) {
+        for (final var profile : profiles) {
           DataSerializer.writeObject(profile, out);
         }
       }
@@ -511,7 +509,7 @@ public class UpdateAttributesProcessor {
 
     @Override
     public String toString() {
-      final StringBuilder buff = new StringBuilder();
+      final var buff = new StringBuilder();
       buff.append("ProfilesReplyMessage");
       buff.append(" (processorId=");
       buff.append(super.processorId);

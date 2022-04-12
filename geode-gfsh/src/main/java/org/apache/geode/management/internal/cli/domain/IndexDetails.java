@@ -68,7 +68,7 @@ public class IndexDetails implements Comparable<IndexDetails>, Serializable {
 
   protected static IndexStatisticsDetails createIndexStatisticsDetails(
       final IndexStatistics indexStatistics) {
-    final IndexStatisticsDetails indexStatisticsDetails = new IndexStatisticsDetails();
+    final var indexStatisticsDetails = new IndexStatisticsDetails();
 
     indexStatisticsDetails.setNumberOfKeys(indexStatistics.getNumberOfKeys());
     indexStatisticsDetails.setNumberOfUpdates(indexStatistics.getNumUpdates());
@@ -190,7 +190,7 @@ public class IndexDetails implements Comparable<IndexDetails>, Serializable {
 
   @Override
   public int compareTo(final IndexDetails indexDetails) {
-    int comparisonValue = compare(getMemberName(), indexDetails.getMemberName());
+    var comparisonValue = compare(getMemberName(), indexDetails.getMemberName());
     comparisonValue = (comparisonValue != 0 ? comparisonValue
         : compare(getMemberId(), indexDetails.getMemberId()));
     comparisonValue = (comparisonValue != 0 ? comparisonValue
@@ -209,7 +209,7 @@ public class IndexDetails implements Comparable<IndexDetails>, Serializable {
       return false;
     }
 
-    final IndexDetails that = (IndexDetails) obj;
+    final var that = (IndexDetails) obj;
 
     return ObjectUtils.equals(getMemberId(), that.getMemberId())
         && ObjectUtils.equals(getRegionPath(), that.getRegionPath())
@@ -218,7 +218,7 @@ public class IndexDetails implements Comparable<IndexDetails>, Serializable {
 
   @Override
   public int hashCode() {
-    int hashValue = 17;
+    var hashValue = 17;
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getMemberId());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getRegionPath());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getIndexName());

@@ -143,11 +143,11 @@ public class ResultsSet extends HashSet implements SelectResults, DataSerializab
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    int size = in.readInt();
-    ObjectTypeImpl clt = new ObjectTypeImpl();
+    var size = in.readInt();
+    var clt = new ObjectTypeImpl();
     InternalDataSerializer.invokeFromData(clt, in);
     setElementType(clt);
-    for (int k = size; k > 0; k--) {
+    for (var k = size; k > 0; k--) {
       add(context.getDeserializer().readObject(in));
     }
   }
@@ -156,10 +156,10 @@ public class ResultsSet extends HashSet implements SelectResults, DataSerializab
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
     out.writeInt(size());
-    ObjectTypeImpl ctImpl = (ObjectTypeImpl) getCollectionType().getElementType();
+    var ctImpl = (ObjectTypeImpl) getCollectionType().getElementType();
     Assert.assertTrue(ctImpl != null, "ctImpl can not be null");
     InternalDataSerializer.invokeToData(ctImpl, out);
-    for (final Object o : this) {
+    for (final var o : this) {
       context.getSerializer().writeObject(o, out);
     }
   }

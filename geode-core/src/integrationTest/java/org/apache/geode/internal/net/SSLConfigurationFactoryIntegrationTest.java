@@ -51,10 +51,10 @@ class SSLConfigurationFactoryIntegrationTest {
   @SetSystemProperty(key = JAVAX_TRUSTSTORE_TYPE, value = A_TRUSTSTOR_TYPE)
   @SetSystemProperty(key = JAVAX_TRUSTSTORE_PASSWORD, value = A_TRUSTSTOR_PASSWORD)
   void getSSLConfigUsingJavaProperties() {
-    final Properties properties = new Properties();
+    final var properties = new Properties();
     properties.setProperty(ConfigurationProperties.SSL_ENABLED_COMPONENTS, "cluster");
-    final DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
-    final SSLConfig sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(distributionConfig,
+    final var distributionConfig = new DistributionConfigImpl(properties);
+    final var sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(distributionConfig,
         SecurableCommunicationChannel.CLUSTER);
 
     assertThat(sslConfig.isEnabled()).isTrue();

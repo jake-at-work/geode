@@ -33,10 +33,8 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -103,15 +101,15 @@ public class SelectToDateJUnitTest {
 
   private void executeQueryTest(Cache cache, String[] queries, int[] expectedResults) {
     CacheUtils.log("********Execute Query Test********");
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query = null;
     String queryString = null;
-    int numQueries = queries.length;
+    var numQueries = queries.length;
     try {
-      for (int i = 0; i < numQueries; i++) {
+      for (var i = 0; i < numQueries; i++) {
         queryString = queries[0];
         query = queryService.newQuery(queries[0]);
-        SelectResults result = (SelectResults) query.execute();
+        var result = (SelectResults) query.execute();
         assertEquals(queries[0], expectedResults[0], result.size());
       }
     } catch (Exception e) {
@@ -125,8 +123,8 @@ public class SelectToDateJUnitTest {
   }
 
   private void printoutResults(SelectResults results) {
-    for (final Object result : results) {
-      Portfolio p = (Portfolio) result;
+    for (final var result : results) {
+      var p = (Portfolio) result;
       CacheUtils.log("->" + p + ";" + p.createDate);
     }
   }
@@ -198,44 +196,44 @@ public class SelectToDateJUnitTest {
    */
   private void createLocalRegion() throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.NORMAL);
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion(regionName, regionAttributes);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion(regionName, regionAttributes);
 
-    for (int i = 1; i <= numElem; i++) {
+    for (var i = 1; i <= numElem; i++) {
       putData(i, region);
     }
   }
 
   private void createReplicatedRegion() throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion(regionName, regionAttributes);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion(regionName, regionAttributes);
 
-    for (int i = 1; i <= numElem; i++) {
+    for (var i = 1; i <= numElem; i++) {
       putData(i, region);
     }
   }
 
   private void createPartitionedRegion() throws ParseException {
     Cache cache = CacheUtils.getCache();
-    PartitionAttributesFactory prAttFactory = new PartitionAttributesFactory();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var prAttFactory = new PartitionAttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setPartitionAttributes(prAttFactory.create());
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion(regionName, regionAttributes);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion(regionName, regionAttributes);
 
-    for (int i = 1; i <= numElem; i++) {
+    for (var i = 1; i <= numElem; i++) {
       putData(i, region);
     }
   }
 
   // creates a portfolio object and puts it into the specified region
   private void putData(int id, Region region) throws ParseException {
-    Portfolio obj = new Portfolio(id);
+    var obj = new Portfolio(id);
     obj.createDate = getCreateDate(id);
     region.put(id, obj);
     region.put(id + numElem, obj);
@@ -244,8 +242,8 @@ public class SelectToDateJUnitTest {
 
   // creates a date object
   private Date getCreateDate(int i) throws ParseException {
-    int month = (i % 12) + 1;
-    String format = "MMddyyyyHHmmss";
+    var month = (i % 12) + 1;
+    var format = "MMddyyyyHHmmss";
     String dateString;
     if (month < 10) {
       dateString = "0" + month + "202012100559";
@@ -253,7 +251,7 @@ public class SelectToDateJUnitTest {
       dateString = month + "202012100559";
     }
 
-    SimpleDateFormat sdf = new SimpleDateFormat(format);
+    var sdf = new SimpleDateFormat(format);
     return sdf.parse(dateString);
   }
 

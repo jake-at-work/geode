@@ -14,7 +14,6 @@
  */
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,10 +28,7 @@ import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.domain.MemberConfigurationInfo;
 import org.apache.geode.management.internal.cli.functions.GetMemberConfigInformationFunction;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -60,7 +56,7 @@ public class DescribeConfigCommand extends GfshCommand {
           help = CliStrings.DESCRIBE_CONFIG__HIDE__DEFAULTS__HELP, unspecifiedDefaultValue = "true",
           specifiedDefaultValue = "true") boolean hideDefaults) {
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
     DistributedMember targetMember = null;
 
@@ -68,20 +64,20 @@ public class DescribeConfigCommand extends GfshCommand {
       targetMember = getMember(memberNameOrId);
     }
 
-    CliFunctionResult functionResult =
+    var functionResult =
         executeFunctionAndGetFunctionResult(getMemberConfigFunction, hideDefaults, targetMember);
-    Object obj = functionResult.getResultObject();
+    var obj = functionResult.getResultObject();
 
     if (obj != null && obj instanceof MemberConfigurationInfo) {
-      MemberConfigurationInfo memberConfigInfo = (MemberConfigurationInfo) obj;
+      var memberConfigInfo = (MemberConfigurationInfo) obj;
 
       result
           .setHeader(CliStrings.format(CliStrings.DESCRIBE_CONFIG__HEADER__TEXT, memberNameOrId));
 
-      List<String> jvmArgsList = memberConfigInfo.getJvmInputArguments();
-      TabularResultModel jvmInputArgs = result.addTable(JVM_ARGS_SECTION);
+      var jvmArgsList = memberConfigInfo.getJvmInputArguments();
+      var jvmInputArgs = result.addTable(JVM_ARGS_SECTION);
 
-      for (String jvmArg : jvmArgsList) {
+      for (var jvmArg : jvmArgsList) {
         // This redaction should be redundant, since jvmArgs should have already been redacted in
         // MemberConfigurationInfo. Still, better redundant than missing.
         jvmInputArgs.accumulate("JVM command line arguments", ArgumentRedactor.redact(jvmArg));
@@ -99,11 +95,11 @@ public class DescribeConfigCommand extends GfshCommand {
       addSection(CACHE_ATTRIBUTES_SECTION, result, memberConfigInfo.getCacheAttributes(),
           "Cache attributes");
 
-      List<Map<String, String>> cacheServerAttributesList =
+      var cacheServerAttributesList =
           memberConfigInfo.getCacheServerAttributes();
 
       if (cacheServerAttributesList != null && !cacheServerAttributesList.isEmpty()) {
-        for (Map<String, String> cacheServerAttributes : cacheServerAttributesList) {
+        for (var cacheServerAttributes : cacheServerAttributesList) {
           addSection(CACHESERVER_ATTRIBUTES_SECTION, result, cacheServerAttributes,
               "Cache-server attributes");
         }
@@ -116,12 +112,12 @@ public class DescribeConfigCommand extends GfshCommand {
   private void addSection(String namedSection, ResultModel model, Map<String, String> attrMap,
       String headerText) {
     if (attrMap != null && !attrMap.isEmpty()) {
-      DataResultModel dataSection = model.addData(namedSection);
+      var dataSection = model.addData(namedSection);
       dataSection.setHeader(headerText);
       Set<String> attributes = new TreeSet<>(attrMap.keySet());
 
-      for (String attribute : attributes) {
-        String attributeValue = attrMap.get(attribute);
+      for (var attribute : attributes) {
+        var attributeValue = attrMap.get(attribute);
         dataSection.addData(attribute,
             ArgumentRedactor.redactArgumentIfNecessary(attribute, attributeValue));
       }

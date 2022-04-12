@@ -21,8 +21,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.Set;
-
 import org.junit.Test;
 
 import org.apache.geode.internal.util.CollectionUtils;
@@ -69,15 +67,15 @@ public class AbstractSignalNotificationHandlerTest {
 
   @Test
   public void registerListener() {
-    AbstractSignalNotificationHandler signalHandler = createSignalNotificationHandler();
+    var signalHandler = createSignalNotificationHandler();
 
-    SignalListener mockListenerOne = mock(SignalListener.class, "SIGALL1");
-    SignalListener mockListenerTwo = mock(SignalListener.class, "SIGALL2");
+    var mockListenerOne = mock(SignalListener.class, "SIGALL1");
+    var mockListenerTwo = mock(SignalListener.class, "SIGALL2");
 
     assertThat(signalHandler.isListening(mockListenerOne)).isFalse();
     assertThat(signalHandler.isListening(mockListenerTwo)).isFalse();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isFalse();
       assertThat(signalHandler.isListening(mockListenerOne, signal)).isFalse();
       assertThat(signalHandler.isListening(mockListenerTwo, signal)).isFalse();
@@ -89,7 +87,7 @@ public class AbstractSignalNotificationHandlerTest {
     assertThat(signalHandler.isListening(mockListenerOne)).isTrue();
     assertThat(signalHandler.isListening(mockListenerTwo)).isTrue();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isTrue();
       assertThat(signalHandler.isListening(mockListenerOne, signal)).isTrue();
       assertThat(signalHandler.isListening(mockListenerTwo, signal)).isTrue();
@@ -105,15 +103,15 @@ public class AbstractSignalNotificationHandlerTest {
 
   @Test
   public void registerListenerWithSignal() {
-    AbstractSignalNotificationHandler signalHandler = createSignalNotificationHandler();
+    var signalHandler = createSignalNotificationHandler();
 
-    SignalListener mockSigIntListener = mock(SignalListener.class, "SIGINT");
-    SignalListener mockSigIntTermListener = mock(SignalListener.class, "SIGINT + SIGTERM");
+    var mockSigIntListener = mock(SignalListener.class, "SIGINT");
+    var mockSigIntTermListener = mock(SignalListener.class, "SIGINT + SIGTERM");
 
     assertThat(signalHandler.isListening(mockSigIntListener)).isFalse();
     assertThat(signalHandler.isListening(mockSigIntTermListener)).isFalse();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isFalse();
       assertThat(signalHandler.isListening(mockSigIntListener, signal)).isFalse();
       assertThat(signalHandler.isListening(mockSigIntTermListener, signal)).isFalse();
@@ -126,9 +124,9 @@ public class AbstractSignalNotificationHandlerTest {
     assertThat(signalHandler.isListening(mockSigIntListener)).isTrue();
     assertThat(signalHandler.isListening(mockSigIntTermListener)).isTrue();
 
-    Set<Signal> expectedSignals = CollectionUtils.asSet(Signal.SIGINT, Signal.SIGTERM);
+    var expectedSignals = CollectionUtils.asSet(Signal.SIGINT, Signal.SIGTERM);
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isEqualTo(expectedSignals.contains(signal));
       switch (signal) {
         case SIGINT:
@@ -164,21 +162,21 @@ public class AbstractSignalNotificationHandlerTest {
 
   @Test
   public void unregisterListener() {
-    AbstractSignalNotificationHandler signalHandler = createSignalNotificationHandler();
-    SignalListener mockSignalListener = mock(SignalListener.class, "SIGALL");
+    var signalHandler = createSignalNotificationHandler();
+    var mockSignalListener = mock(SignalListener.class, "SIGALL");
 
     assertThat(signalHandler.isListening(mockSignalListener)).isFalse();
     assertThat(signalHandler.registerListener(mockSignalListener)).isTrue();
     assertThat(signalHandler.isListening(mockSignalListener)).isTrue();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isTrue();
     }
 
     assertThat(signalHandler.unregisterListener(mockSignalListener)).isTrue();
     assertThat(signalHandler.isListening(mockSignalListener)).isFalse();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isFalse();
     }
 
@@ -187,14 +185,14 @@ public class AbstractSignalNotificationHandlerTest {
 
   @Test
   public void unregisterListenerWithSignalListenerAndAllSignals() {
-    AbstractSignalNotificationHandler signalHandler = createSignalNotificationHandler();
-    SignalListener mockSignalListener = mock(SignalListener.class, "SIGALL");
+    var signalHandler = createSignalNotificationHandler();
+    var mockSignalListener = mock(SignalListener.class, "SIGALL");
 
     assertThat(signalHandler.isListening(mockSignalListener)).isFalse();
     assertThat(signalHandler.registerListener(mockSignalListener)).isTrue();
     assertThat(signalHandler.isListening(mockSignalListener)).isTrue();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isTrue();
       assertThat(signalHandler.isListening(mockSignalListener, signal)).isTrue();
       assertThat(signalHandler.unregisterListener(mockSignalListener, signal)).isTrue();
@@ -207,15 +205,15 @@ public class AbstractSignalNotificationHandlerTest {
 
   @Test
   public void unregisterListenerWithSignalListenerAndSigint() {
-    AbstractSignalNotificationHandler signalHandler = createSignalNotificationHandler();
-    SignalListener mockSignalListener = mock(SignalListener.class, "SIGALL");
+    var signalHandler = createSignalNotificationHandler();
+    var mockSignalListener = mock(SignalListener.class, "SIGALL");
 
     assertThat(signalHandler.isListening(mockSignalListener)).isFalse();
     assertThat(signalHandler.registerListener(mockSignalListener, Signal.SIGINT)).isTrue();
     assertThat(signalHandler.isListening(mockSignalListener)).isTrue();
     assertThat(signalHandler.isListening(mockSignalListener, Signal.SIGINT)).isTrue();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       if (!Signal.SIGINT.equals(signal)) {
         assertThat(signalHandler.hasListeners(signal)).isFalse();
         assertThat(signalHandler.isListening(mockSignalListener, signal)).isFalse();
@@ -228,7 +226,7 @@ public class AbstractSignalNotificationHandlerTest {
     assertThat(signalHandler.isListening(mockSignalListener, Signal.SIGINT)).isFalse();
     assertThat(signalHandler.isListening(mockSignalListener)).isFalse();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isFalse();
     }
 
@@ -245,17 +243,17 @@ public class AbstractSignalNotificationHandlerTest {
 
   @Test
   public void unregisterListeners() {
-    AbstractSignalNotificationHandler signalHandler = createSignalNotificationHandler();
+    var signalHandler = createSignalNotificationHandler();
 
-    SignalListener mockSigQuitListener = mock(SignalListener.class, "SIGQUIT");
-    SignalListener mockSigTermListener = mock(SignalListener.class, "SIGTERM");
-    SignalListener mockSigTermQuitListener = mock(SignalListener.class, "SIGTERM + SIGQUIT");
+    var mockSigQuitListener = mock(SignalListener.class, "SIGQUIT");
+    var mockSigTermListener = mock(SignalListener.class, "SIGTERM");
+    var mockSigTermQuitListener = mock(SignalListener.class, "SIGTERM + SIGQUIT");
 
     assertThat(signalHandler.isListening(mockSigQuitListener)).isFalse();
     assertThat(signalHandler.isListening(mockSigTermListener)).isFalse();
     assertThat(signalHandler.isListening(mockSigTermQuitListener)).isFalse();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isFalse();
     }
 
@@ -310,24 +308,24 @@ public class AbstractSignalNotificationHandlerTest {
 
   @Test
   public void notifyListeners() {
-    AbstractSignalNotificationHandler signalHandler = createSignalNotificationHandler();
+    var signalHandler = createSignalNotificationHandler();
 
-    SignalListener mockSigAllListener = mock(SignalListener.class, "SIGALL");
-    SignalListener mockSigIntListener = mock(SignalListener.class, "SIGINT");
-    SignalListener mockSigQuitListener = mock(SignalListener.class, "SIGQUIT");
-    SignalListener mockSigQuitTermListener = mock(SignalListener.class, "SIGQUIT + SIGTERM");
+    var mockSigAllListener = mock(SignalListener.class, "SIGALL");
+    var mockSigIntListener = mock(SignalListener.class, "SIGINT");
+    var mockSigQuitListener = mock(SignalListener.class, "SIGQUIT");
+    var mockSigQuitTermListener = mock(SignalListener.class, "SIGQUIT + SIGTERM");
 
-    SignalEvent sigintEvent = new SignalEvent(this, Signal.SIGINT);
-    SignalEvent sigioEvent = new SignalEvent(this, Signal.SIGIO);
-    SignalEvent sigquitEvent = new SignalEvent(this, Signal.SIGQUIT);
-    SignalEvent sigtermEvent = new SignalEvent(this, Signal.SIGTERM);
+    var sigintEvent = new SignalEvent(this, Signal.SIGINT);
+    var sigioEvent = new SignalEvent(this, Signal.SIGIO);
+    var sigquitEvent = new SignalEvent(this, Signal.SIGQUIT);
+    var sigtermEvent = new SignalEvent(this, Signal.SIGTERM);
 
     assertThat(signalHandler.isListening(mockSigAllListener)).isFalse();
     assertThat(signalHandler.isListening(mockSigIntListener)).isFalse();
     assertThat(signalHandler.isListening(mockSigQuitListener)).isFalse();
     assertThat(signalHandler.isListening(mockSigQuitTermListener)).isFalse();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isFalse();
     }
 
@@ -341,7 +339,7 @@ public class AbstractSignalNotificationHandlerTest {
     assertThat(signalHandler.isListening(mockSigQuitListener)).isTrue();
     assertThat(signalHandler.isListening(mockSigQuitTermListener)).isTrue();
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       assertThat(signalHandler.hasListeners(signal)).isTrue();
       assertThat(signalHandler.isListening(mockSigAllListener, signal)).isTrue();
 

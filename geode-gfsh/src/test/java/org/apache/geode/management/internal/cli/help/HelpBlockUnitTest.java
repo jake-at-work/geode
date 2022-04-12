@@ -37,7 +37,7 @@ public class HelpBlockUnitTest {
 
   @Test
   public void testChildLevel() {
-    HelpBlock block = new HelpBlock();
+    var block = new HelpBlock();
     assertThat(block.getLevel()).isEqualTo(-1);
 
     firstBlock.addChild(secondBlock);
@@ -69,11 +69,11 @@ public class HelpBlockUnitTest {
     firstBlock.addChild(secondBlock);
     secondBlock.addChild(thirdBlock);
 
-    final String expected = "First Line" + GfshParser.LINE_SEPARATOR
+    final var expected = "First Line" + GfshParser.LINE_SEPARATOR
         + "Second Line" + GfshParser.LINE_SEPARATOR
         + "Third Line" + GfshParser.LINE_SEPARATOR;
 
-    String result = firstBlock.toString(-1);
+    var result = firstBlock.toString(-1);
     assertThat(result).isEqualTo(expected);
   }
 }

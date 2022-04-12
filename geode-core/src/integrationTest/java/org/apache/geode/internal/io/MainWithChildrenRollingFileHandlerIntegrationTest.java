@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
-import java.util.regex.Pattern;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,7 +45,7 @@ public class MainWithChildrenRollingFileHandlerIntegrationTest {
 
   @Test
   public void getFilePattern_matchesFilesWithBothIds() throws Exception {
-    Pattern pattern = handler.getFilePattern(name);
+    var pattern = handler.getFilePattern(name);
 
     assertThat(pattern).isNotNull();
     assertThat(pattern.matcher(name).matches()).isFalse();
@@ -65,7 +64,7 @@ public class MainWithChildrenRollingFileHandlerIntegrationTest {
   @Test
   public void getFilePattern_withNumbers_matchesFiles() throws Exception {
     name = "a1s2d3f4_cache1_statistics";
-    Pattern pattern = handler.getFilePattern(name);
+    var pattern = handler.getFilePattern(name);
 
     assertThat(pattern).isNotNull();
     assertThat(pattern.matcher(name + "-01-41").matches()).isTrue();
@@ -74,7 +73,7 @@ public class MainWithChildrenRollingFileHandlerIntegrationTest {
   @Test
   public void getFilePattern_withHyphens_matchesFiles() throws Exception {
     name = "a1s2d3f4_cache1-statistics";
-    Pattern pattern = handler.getFilePattern(name);
+    var pattern = handler.getFilePattern(name);
 
     assertThat(pattern).isNotNull();
     assertThat(pattern.matcher(name + "-01-41").matches()).isTrue();
@@ -98,7 +97,7 @@ public class MainWithChildrenRollingFileHandlerIntegrationTest {
 
   @Test
   public void calcNextChildId_noExtensionInFilename_doesNotThrow() {
-    File file = new File(temporaryFolder.getRoot(), "fileWithoutExtension");
+    var file = new File(temporaryFolder.getRoot(), "fileWithoutExtension");
     assertThat(handler.calcNextChildId(file, 0)).isEqualTo(1);
   }
 

@@ -134,7 +134,7 @@ public class UnsharedImageState implements ImageState {
   public Iterator<Object> getDestroyedEntries() {
     // assert if ri then writeLock held
     // assert if gii then lock held
-    Iterator<Object> result = destroyedEntryKeys.keySet().iterator();
+    var result = destroyedEntryKeys.keySet().iterator();
     destroyedEntryKeys = new ConcurrentHashMap<>();
     return result;
   }
@@ -150,7 +150,7 @@ public class UnsharedImageState implements ImageState {
 
   @Override
   public Iterator<VersionTagEntry> getVersionTags() {
-    Iterator<VersionTagEntry> result = versionTags.iterator();
+    var result = versionTags.iterator();
     initVersionTagsSet();
     return result;
   }
@@ -166,7 +166,7 @@ public class UnsharedImageState implements ImageState {
 
   @Override
   public Set<VersionSource> getLeftMembers() {
-    Set<VersionSource> result = leftMembers;
+    var result = leftMembers;
     initFailedMembersSet();
     return result;
   }
@@ -219,7 +219,7 @@ public class UnsharedImageState implements ImageState {
   @Override
   public boolean wasRegionClearedDuringGII() {
     if (isReplicate()) {
-      boolean result = wasRegionClearedDuringGII;
+      var result = wasRegionClearedDuringGII;
       if (result) {
         wasRegionClearedDuringGII = false;
       }

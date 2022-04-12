@@ -20,7 +20,6 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.internal.cache.partitioned.rebalance.model.BucketRollup;
-import org.apache.geode.internal.cache.partitioned.rebalance.model.Member;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.Move;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.PartitionedRegionLoadModel;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -58,8 +57,8 @@ public class SatisfyRedundancyFPR extends RebalanceDirectorAdapter {
   public void createFPRBucketsForThisNode() {
     final Map<BucketRollup, Move> moves = new HashMap<>();
 
-    for (BucketRollup bucket : model.getLowRedundancyBuckets()) {
-      Move move = model.findBestTargetForFPR(bucket, true);
+    for (var bucket : model.getLowRedundancyBuckets()) {
+      var move = model.findBestTargetForFPR(bucket, true);
 
       if (move == null && !model.enforceUniqueZones()) {
         move = model.findBestTargetForFPR(bucket, false);
@@ -76,10 +75,10 @@ public class SatisfyRedundancyFPR extends RebalanceDirectorAdapter {
     }
     // TODO: This can be done in a thread pool to speed things up as all buckets
     // are different, there will not be any contention for lock
-    for (Map.Entry<BucketRollup, Move> bucketMove : moves.entrySet()) {
-      BucketRollup bucket = bucketMove.getKey();
-      Move move = bucketMove.getValue();
-      Member targetMember = move.getTarget();
+    for (var bucketMove : moves.entrySet()) {
+      var bucket = bucketMove.getKey();
+      var move = bucketMove.getValue();
+      var targetMember = move.getTarget();
 
       model.createRedundantBucket(bucket, targetMember);
     }

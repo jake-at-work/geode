@@ -61,7 +61,7 @@ public class CompactRangeIndexTest {
 
   @Before
   public void setup() {
-    QueryConfigurationService mockService = mock(QueryConfigurationService.class);
+    var mockService = mock(QueryConfigurationService.class);
     when(mockService.getMethodAuthorizer()).thenReturn(mock(MethodInvocationAuthorizer.class));
 
     when(region.getCache()).thenReturn(cache);

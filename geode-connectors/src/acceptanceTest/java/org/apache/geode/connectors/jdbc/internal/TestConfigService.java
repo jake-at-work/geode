@@ -44,7 +44,7 @@ public class TestConfigService {
       List<FieldMapping> fieldMappings)
       throws RegionMappingExistsException {
 
-    JdbcConnectorServiceImpl service = new JdbcConnectorServiceImpl();
+    var service = new JdbcConnectorServiceImpl();
     service.init(cache);
     service.createRegionMapping(
         createRegionMapping(pdxClassName, ids, catalog, schema, fieldMappings));
@@ -52,7 +52,7 @@ public class TestConfigService {
   }
 
   private static InternalCache createMockCache() {
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     @SuppressWarnings("unchecked")
     final ExtensionPoint<Cache> mockExtensionPoint = mock(ExtensionPoint.class);
     when(cache.getExtensionPoint()).thenReturn(mockExtensionPoint);
@@ -61,9 +61,9 @@ public class TestConfigService {
 
   private static RegionMapping createRegionMapping(String pdxClassName, String ids, String catalog,
       String schema, List<FieldMapping> fieldMappings) {
-    RegionMapping result = new RegionMapping(REGION_NAME, pdxClassName, REGION_TABLE_NAME,
+    var result = new RegionMapping(REGION_NAME, pdxClassName, REGION_TABLE_NAME,
         CONNECTION_CONFIG_NAME, ids, catalog, schema);
-    for (FieldMapping fieldMapping : fieldMappings) {
+    for (var fieldMapping : fieldMappings) {
       result.addFieldMapping(fieldMapping);
     }
     return result;

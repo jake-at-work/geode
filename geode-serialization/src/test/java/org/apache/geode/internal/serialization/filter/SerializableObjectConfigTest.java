@@ -24,22 +24,22 @@ public class SerializableObjectConfigTest {
 
   @Test
   public void getSerializableObjectFilterIfEnabled_returnsFilter_ifValidateIsTrue() {
-    SerializableObjectConfig config = spy(SerializableObjectConfig.class);
+    var config = spy(SerializableObjectConfig.class);
     when(config.getSerializableObjectFilter()).thenReturn("filter-string");
     when(config.getValidateSerializableObjects()).thenReturn(true);
 
-    String result = config.getSerializableObjectFilterIfEnabled();
+    var result = config.getSerializableObjectFilterIfEnabled();
 
     assertThat(result).isEqualTo("filter-string");
   }
 
   @Test
   public void getSerializableObjectFilterIfEnabled_returnsNull_ifValidateIsFalse() {
-    SerializableObjectConfig config = spy(SerializableObjectConfig.class);
+    var config = spy(SerializableObjectConfig.class);
     when(config.getSerializableObjectFilter()).thenReturn("filter-string");
     when(config.getValidateSerializableObjects()).thenReturn(false);
 
-    String result = config.getSerializableObjectFilterIfEnabled();
+    var result = config.getSerializableObjectFilterIfEnabled();
 
     assertThat(result).isNull();
   }

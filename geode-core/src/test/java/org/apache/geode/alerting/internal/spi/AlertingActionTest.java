@@ -61,7 +61,7 @@ public class AlertingActionTest {
 
   @Test
   public void executeDoesNothingIfIsThreadAlertingIsTrue() {
-    AtomicBoolean executed = new AtomicBoolean();
+    var executed = new AtomicBoolean();
     setThreadAlerting(true);
 
     execute(() -> executed.set(true));

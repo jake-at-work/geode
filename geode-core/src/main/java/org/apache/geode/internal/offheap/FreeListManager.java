@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,23 +57,23 @@ public class FreeListManager {
   }
 
   List<OffHeapStoredObject> getLiveChunks() {
-    ArrayList<OffHeapStoredObject> result = new ArrayList<>();
-    for (final Slab slab : slabs) {
+    var result = new ArrayList<OffHeapStoredObject>();
+    for (final var slab : slabs) {
       getLiveChunks(slab, result);
     }
     return result;
   }
 
   private void getLiveChunks(Slab slab, List<OffHeapStoredObject> result) {
-    long addr = slab.getMemoryAddress();
+    var addr = slab.getMemoryAddress();
     while (addr <= (slab.getMemoryAddress() + slab.getSize()
         - OffHeapStoredObject.MIN_CHUNK_SIZE)) {
-      Fragment f = isAddrInFragmentFreeSpace(addr);
+      var f = isAddrInFragmentFreeSpace(addr);
       if (f != null) {
         addr = f.getAddress() + f.getSize();
       } else {
-        int curChunkSize = OffHeapStoredObject.getSize(addr);
-        int refCount = ReferenceCounter.getRefCount(addr);
+        var curChunkSize = OffHeapStoredObject.getSize(addr);
+        var refCount = ReferenceCounter.getRefCount(addr);
         if (refCount > 0) {
           result.add(new OffHeapStoredObject(addr));
         }
@@ -87,7 +86,7 @@ public class FreeListManager {
    * If addr is in the free space of a fragment then return that fragment; otherwise return null.
    */
   private Fragment isAddrInFragmentFreeSpace(long addr) {
-    for (Fragment f : fragmentList) {
+    for (var f : fragmentList) {
       if (addr >= (f.getAddress() + f.getFreeIndex()) && addr < (f.getAddress() + f.getSize())) {
         return f;
       }
@@ -105,8 +104,8 @@ public class FreeListManager {
 
   long getFreeFragmentMemory() {
     long result = 0;
-    for (Fragment f : fragmentList) {
-      int freeSpace = f.freeSpace();
+    for (var f : fragmentList) {
+      var freeSpace = f.freeSpace();
       if (freeSpace >= OffHeapStoredObject.MIN_CHUNK_SIZE) {
         result += freeSpace;
       }
@@ -116,8 +115,8 @@ public class FreeListManager {
 
   long getFreeTinyMemory() {
     long tinyFree = 0;
-    for (int i = 0; i < tinyFreeLists.length(); i++) {
-      OffHeapStoredObjectAddressStack cl = tinyFreeLists.get(i);
+    for (var i = 0; i < tinyFreeLists.length(); i++) {
+      var cl = tinyFreeLists.get(i);
       if (cl != null) {
         tinyFree += cl.computeTotalSize();
       }
@@ -127,7 +126,7 @@ public class FreeListManager {
 
   long getFreeHugeMemory() {
     long hugeFree = 0;
-    for (OffHeapStoredObject c : hugeChunkSet) {
+    for (var c : hugeChunkSet) {
       hugeFree += c.getSize();
     }
     return hugeFree;
@@ -144,8 +143,8 @@ public class FreeListManager {
     this.ma = ma;
     this.slabs = slabs;
     long total = 0;
-    Fragment[] tmp = new Fragment[slabs.length];
-    for (int i = 0; i < slabs.length; i++) {
+    var tmp = new Fragment[slabs.length];
+    for (var i = 0; i < slabs.length; i++) {
       tmp[i] = createFragment(slabs[i].getMemoryAddress(), slabs[i].getSize());
       total += slabs[i].getSize();
     }
@@ -170,7 +169,7 @@ public class FreeListManager {
     if (!validateMemoryWithFill) {
       return;
     }
-    for (Fragment fragment : fragmentList) {
+    for (var fragment : fragmentList) {
       fragment.fill();
     }
   }
@@ -193,7 +192,7 @@ public class FreeListManager {
   public OffHeapStoredObject allocate(int size) {
     assert size > 0;
 
-    OffHeapStoredObject result = basicAllocate(size, true);
+    var result = basicAllocate(size, true);
 
     result.setDataSize(size);
     allocatedSize.addAndGet(result.getSize());
@@ -219,15 +218,15 @@ public class FreeListManager {
 
   private OffHeapStoredObject allocateFromFragments(int chunkSize) {
     do {
-      final int lastAllocationId = lastFragmentAllocation.get();
-      for (int i = lastAllocationId; i < fragmentList.size(); i++) {
-        OffHeapStoredObject result = allocateFromFragment(i, chunkSize);
+      final var lastAllocationId = lastFragmentAllocation.get();
+      for (var i = lastAllocationId; i < fragmentList.size(); i++) {
+        var result = allocateFromFragment(i, chunkSize);
         if (result != null) {
           return result;
         }
       }
-      for (int i = 0; i < lastAllocationId; i++) {
-        OffHeapStoredObject result = allocateFromFragment(i, chunkSize);
+      for (var i = 0; i < lastAllocationId; i++) {
+        var result = allocateFromFragment(i, chunkSize);
         if (result != null) {
           return result;
         }
@@ -235,7 +234,7 @@ public class FreeListManager {
     } while (defragment(chunkSize));
     // We tried all the fragments and didn't find any free memory.
     logOffHeapState(chunkSize);
-    final OutOfOffHeapMemoryException failure = new OutOfOffHeapMemoryException(
+    final var failure = new OutOfOffHeapMemoryException(
         "Out of off-heap memory. Could not allocate size of " + chunkSize);
     try {
       throw failure;
@@ -249,7 +248,7 @@ public class FreeListManager {
   }
 
   void logOffHeapState(Logger lw, int chunkSize) {
-    OffHeapMemoryStats stats = ma.getStats();
+    var stats = ma.getStats();
     lw.info("OutOfOffHeapMemory allocating size of " + chunkSize + ". allocated="
         + allocatedSize.get() + " defragmentations=" + defragmentationCount.get()
         + " objects=" + stats.getObjects() + " free=" + stats.getFreeMemory()
@@ -263,14 +262,14 @@ public class FreeListManager {
   }
 
   private void logHugeState(Logger lw) {
-    for (OffHeapStoredObject c : hugeChunkSet) {
+    for (var c : hugeChunkSet) {
       lw.info("Free huge of size " + c.getSize());
     }
   }
 
   private void logTinyState(Logger lw) {
-    for (int i = 0; i < tinyFreeLists.length(); i++) {
-      OffHeapStoredObjectAddressStack cl = tinyFreeLists.get(i);
+    for (var i = 0; i < tinyFreeLists.length(); i++) {
+      var cl = tinyFreeLists.get(i);
       if (cl != null) {
         cl.logSizes(lw, "Free tiny of size ");
       }
@@ -278,8 +277,8 @@ public class FreeListManager {
   }
 
   private void logFragmentState(Logger lw) {
-    for (Fragment f : fragmentList) {
-      int freeSpace = f.freeSpace();
+    for (var f : fragmentList) {
+      var freeSpace = f.freeSpace();
       if (freeSpace > 0) {
         lw.info("Fragment at " + f.getAddress() + " of size " + f.getSize() + " has " + freeSpace
             + " bytes free.");
@@ -331,10 +330,10 @@ public class FreeListManager {
    */
   boolean combineIfAdjacentAndSmallEnough(long lowAddr, long highAddr) {
     assert lowAddr <= highAddr;
-    int lowSize = OffHeapStoredObject.getSize(lowAddr);
+    var lowSize = OffHeapStoredObject.getSize(lowAddr);
     if (isAdjacent(lowAddr, lowSize, highAddr)) {
-      int highSize = OffHeapStoredObject.getSize(highAddr);
-      int combinedSize = lowSize + highSize;
+      var highSize = OffHeapStoredObject.getSize(highAddr);
+      var combinedSize = lowSize + highSize;
       if (isSmallEnough(combinedSize)) {
         // append the highAddr chunk to lowAddr
         OffHeapStoredObject.setSize(lowAddr, combinedSize);
@@ -364,8 +363,8 @@ public class FreeListManager {
    * returns false;
    */
   boolean defragment(int chunkSize) {
-    final long startDefragmentationTime = ma.getStats().startDefragmentation();
-    final int countPreSync = defragmentationCount.get();
+    final var startDefragmentationTime = ma.getStats().startDefragmentation();
+    final var countPreSync = defragmentationCount.get();
     afterDefragmentationCountFetched();
     try {
       synchronized (this) {
@@ -374,7 +373,7 @@ public class FreeListManager {
           // So just return true causing the caller to retry the allocation.
           return true;
         }
-        boolean result = doDefragment(chunkSize);
+        var result = doDefragment(chunkSize);
 
         // Signal any waiters that a defragmentation happened.
         defragmentationCount.incrementAndGet();
@@ -424,7 +423,7 @@ public class FreeListManager {
 
     public void add(long l) {
       if (size >= data.length) {
-        long[] newData = new long[data.length + SORT_ARRAY_BLOCK_SIZE];
+        var newData = new long[data.length + SORT_ARRAY_BLOCK_SIZE];
         System.arraycopy(data, 0, newData, 0, data.length);
         data = newData;
       }
@@ -434,7 +433,7 @@ public class FreeListManager {
 
     public void insert(int idx, long l) {
       if (size >= data.length) {
-        long[] newData = new long[data.length + SORT_ARRAY_BLOCK_SIZE];
+        var newData = new long[data.length + SORT_ARRAY_BLOCK_SIZE];
         System.arraycopy(data, 0, newData, 0, idx);
         newData[idx] = l;
         System.arraycopy(data, idx, newData, idx + 1, size - idx);
@@ -453,17 +452,17 @@ public class FreeListManager {
    * for a concurrent defragment. It should only be called by defragment and unit tests.
    */
   boolean doDefragment(int chunkSize) {
-    boolean result = false;
-    ArrayList<LongStack> freeChunks = new ArrayList<>();
+    var result = false;
+    var freeChunks = new ArrayList<LongStack>();
     collectFreeChunks(freeChunks);
-    ResizableLongArray sorted = new ResizableLongArray();
-    for (LongStack l : freeChunks) {
-      long addr = l.poll();
+    var sorted = new ResizableLongArray();
+    for (var l : freeChunks) {
+      var addr = l.poll();
       while (addr != 0) {
-        int idx = sorted.binarySearch(addr);
+        var idx = sorted.binarySearch(addr);
         idx = -idx;
         idx--;
-        int sortedSize = sorted.size();
+        var sortedSize = sorted.size();
         if (idx == sortedSize) {
           // addr is > everything in the array
           if (sortedSize == 0) {
@@ -486,22 +485,22 @@ public class FreeListManager {
         addr = l.poll();
       }
     }
-    for (int i = sorted.size() - 1; i > 0; i--) {
+    for (var i = sorted.size() - 1; i > 0; i--) {
       if (combineIfAdjacentAndSmallEnough(sorted.get(i - 1), sorted.get(i))) {
         sorted.set(i, 0L);
       }
     }
 
-    int largestFragment = 0;
+    var largestFragment = 0;
     lastFragmentAllocation.set(0);
-    ArrayList<Fragment> tmp = new ArrayList<>();
-    for (int i = sorted.size() - 1; i >= 0; i--) {
-      long addr = sorted.get(i);
+    var tmp = new ArrayList<Fragment>();
+    for (var i = sorted.size() - 1; i >= 0; i--) {
+      var addr = sorted.get(i);
       if (addr == 0L) {
         continue;
       }
-      int addrSize = OffHeapStoredObject.getSize(addr);
-      Fragment f = createFragment(addr, addrSize);
+      var addrSize = OffHeapStoredObject.getSize(addr);
+      var f = createFragment(addr, addrSize);
       if (addrSize >= chunkSize) {
         result = true;
       }
@@ -531,18 +530,18 @@ public class FreeListManager {
   }
 
   public int getFreedChunks() {
-    int elementCountFromTinyFreeLists =
+    var elementCountFromTinyFreeLists =
         getElementCountFromTinyFreeLists();
-    int elementCountFromHugeFreeLists =
+    var elementCountFromHugeFreeLists =
         getElementCountFromHugeFreeLists();
 
     return elementCountFromTinyFreeLists + elementCountFromHugeFreeLists;
   }
 
   private int getElementCountFromTinyFreeLists() {
-    int fragmentCount = 0;
-    for (int i = 0; i < tinyFreeLists.length(); i++) {
-      OffHeapStoredObjectAddressStack cl = tinyFreeLists.get(i);
+    var fragmentCount = 0;
+    for (var i = 0; i < tinyFreeLists.length(); i++) {
+      var cl = tinyFreeLists.get(i);
       if (cl != null) {
         fragmentCount += cl.size();
       }
@@ -555,9 +554,9 @@ public class FreeListManager {
   }
 
   private int largestFragmentSize() {
-    int largestFreeSpaceFromFragments = 0;
-    for (Fragment f : fragmentList) {
-      int fragmentFreeSpace = f.freeSpace();
+    var largestFreeSpaceFromFragments = 0;
+    for (var f : fragmentList) {
+      var fragmentFreeSpace = f.freeSpace();
       if (fragmentFreeSpace > largestFreeSpaceFromFragments) {
         largestFreeSpaceFromFragments = fragmentFreeSpace;
       }
@@ -606,7 +605,7 @@ public class FreeListManager {
       // when no memory is used then there is no fragmentation
       return 0;
     } else {
-      int availableFragments = getFragmentCount();
+      var availableFragments = getFragmentCount();
       if (availableFragments == 0) {
         // zero fragments means no free memory then no fragmentation
         return 0;
@@ -615,10 +614,10 @@ public class FreeListManager {
         return 0;
       } else {
         // more than 1 fragment is available so freeMemory is > ObjectChunk.MIN_CHUNK_SIZE
-        long freeMemory = getFreeMemory();
+        var freeMemory = getFreeMemory();
         assert freeMemory > OffHeapStoredObject.MIN_CHUNK_SIZE;
-        long maxPossibleFragments = freeMemory / OffHeapStoredObject.MIN_CHUNK_SIZE;
-        double fragmentation = ((double) availableFragments / (double) maxPossibleFragments) * 100d;
+        var maxPossibleFragments = freeMemory / OffHeapStoredObject.MIN_CHUNK_SIZE;
+        var fragmentation = ((double) availableFragments / (double) maxPossibleFragments) * 100d;
         return (int) Math.rint(fragmentation);
       }
     }
@@ -638,8 +637,8 @@ public class FreeListManager {
     if (fragmentList.size() == 0) {
       return;
     }
-    OffHeapStoredObjectAddressStack result = new OffHeapStoredObjectAddressStack();
-    for (Fragment f : fragmentList) {
+    var result = new OffHeapStoredObjectAddressStack();
+    for (var f : fragmentList) {
       int offset;
       int diff;
       do {
@@ -654,7 +653,7 @@ public class FreeListManager {
         // The current fragment is completely allocated so just skip it.
         continue;
       }
-      long chunkAddr = f.getAddress() + offset;
+      var chunkAddr = f.getAddress() + offset;
       OffHeapStoredObject.setSize(chunkAddr, diff);
       result.offer(chunkAddr);
     }
@@ -667,10 +666,10 @@ public class FreeListManager {
   }
 
   private void collectFreeTinyChunks(List<LongStack> l) {
-    for (int i = 0; i < tinyFreeLists.length(); i++) {
-      OffHeapStoredObjectAddressStack cl = tinyFreeLists.get(i);
+    for (var i = 0; i < tinyFreeLists.length(); i++) {
+      var cl = tinyFreeLists.get(i);
       if (cl != null) {
-        long head = cl.clear();
+        var head = cl.clear();
         if (head != 0L) {
           l.add(new OffHeapStoredObjectAddressStack(head));
         }
@@ -679,7 +678,7 @@ public class FreeListManager {
   }
 
   private void collectFreeHugeChunks(List<LongStack> l) {
-    OffHeapStoredObject c = hugeChunkSet.pollFirst();
+    var c = hugeChunkSet.pollFirst();
     OffHeapStoredObjectAddressStack result = null;
     while (c != null) {
       if (result == null) {
@@ -705,13 +704,13 @@ public class FreeListManager {
     boolean retryFragment;
     do {
       retryFragment = false;
-      int oldOffset = fragment.getFreeIndex();
-      int fragmentSize = fragment.getSize();
-      int fragmentFreeSize = fragmentSize - oldOffset;
+      var oldOffset = fragment.getFreeIndex();
+      var fragmentSize = fragment.getSize();
+      var fragmentFreeSize = fragmentSize - oldOffset;
       if (fragmentFreeSize >= chunkSize) {
         // this fragment has room
-        int newOffset = oldOffset + chunkSize;
-        int extraSize = fragmentSize - newOffset;
+        var newOffset = oldOffset + chunkSize;
+        var extraSize = fragmentSize - newOffset;
         if (extraSize < OffHeapStoredObject.MIN_CHUNK_SIZE) {
           // include these last few bytes of the fragment in the allocation.
           // If we don't then they will be lost forever.
@@ -723,12 +722,12 @@ public class FreeListManager {
         if (fragment.allocate(oldOffset, newOffset)) {
           // We did the allocate!
           lastFragmentAllocation.set(fragIdx);
-          OffHeapStoredObject result =
+          var result =
               new OffHeapStoredObject(fragment.getAddress() + oldOffset, chunkSize + extraSize);
           checkDataIntegrity(result);
           return result;
         } else {
-          OffHeapStoredObject result = basicAllocate(chunkSize, false);
+          var result = basicAllocate(chunkSize, false);
           if (result != null) {
             return result;
           }
@@ -750,11 +749,11 @@ public class FreeListManager {
 
   private OffHeapStoredObject basicAllocate(int idx, int multiple, int offset,
       AtomicReferenceArray<OffHeapStoredObjectAddressStack> freeLists, boolean useFragments) {
-    OffHeapStoredObjectAddressStack clq = freeLists.get(idx);
+    var clq = freeLists.get(idx);
     if (clq != null) {
-      long memAddr = clq.poll();
+      var memAddr = clq.poll();
       if (memAddr != 0) {
-        OffHeapStoredObject result = new OffHeapStoredObject(memAddr);
+        var result = new OffHeapStoredObject(memAddr);
         checkDataIntegrity(result);
         result.readyForAllocation();
         return result;
@@ -770,8 +769,8 @@ public class FreeListManager {
   private OffHeapStoredObject allocateHuge(int size, boolean useFragments) {
     // sizeHolder is a fake Chunk used to search our sorted hugeChunkSet.
     OffHeapStoredObject sizeHolder = new SearchMarker(size);
-    NavigableSet<OffHeapStoredObject> ts = hugeChunkSet.tailSet(sizeHolder);
-    OffHeapStoredObject result = ts.pollFirst();
+    var ts = hugeChunkSet.tailSet(sizeHolder);
+    var result = ts.pollFirst();
     if (result != null) {
       if (result.getSize() - (HUGE_MULTIPLE - OffHeapStoredObject.HEADER_SIZE) < size) {
         // close enough to the requested size; just return it.
@@ -825,9 +824,9 @@ public class FreeListManager {
   }
 
   private void free(long addr, boolean updateStats) {
-    int cSize = OffHeapStoredObject.getSize(addr);
+    var cSize = OffHeapStoredObject.getSize(addr);
     if (updateStats) {
-      OffHeapMemoryStats stats = ma.getStats();
+      var stats = ma.getStats();
       stats.incObjects(-1);
       allocatedSize.addAndGet(-cSize);
       stats.incUsedMemory(-cSize);
@@ -847,7 +846,7 @@ public class FreeListManager {
 
   private void basicFree(long addr, int idx,
       AtomicReferenceArray<OffHeapStoredObjectAddressStack> freeLists) {
-    OffHeapStoredObjectAddressStack clq = freeLists.get(idx);
+    var clq = freeLists.get(idx);
     if (clq != null) {
       clq.offer(addr);
     } else {
@@ -889,25 +888,25 @@ public class FreeListManager {
   }
 
   private void addBlocksFromChunks(Collection<OffHeapStoredObject> src, List<MemoryBlock> dest) {
-    for (OffHeapStoredObject chunk : src) {
+    for (var chunk : src) {
       dest.add(new MemoryBlockNode(ma, chunk));
     }
   }
 
   private void addMemoryBlocks(Collection<MemoryBlock> src, List<MemoryBlock> dest) {
-    for (MemoryBlock block : src) {
+    for (var block : src) {
       dest.add(new MemoryBlockNode(ma, block));
     }
   }
 
   private List<MemoryBlock> getTinyFreeBlocks() {
     final List<MemoryBlock> value = new ArrayList<>();
-    final MemoryAllocatorImpl sma = ma;
-    for (int i = 0; i < tinyFreeLists.length(); i++) {
+    final var sma = ma;
+    for (var i = 0; i < tinyFreeLists.length(); i++) {
       if (tinyFreeLists.get(i) == null) {
         continue;
       }
-      long addr = tinyFreeLists.get(i).getTopAddress();
+      var addr = tinyFreeLists.get(i).getTopAddress();
       while (addr != 0L) {
         value.add(new MemoryBlockNode(sma, new TinyMemoryBlock(addr, i)));
         addr = OffHeapStoredObject.getNext(addr);
@@ -1000,7 +999,7 @@ public class FreeListManager {
 
     @Override
     public int hashCode() {
-      long value = getAddress();
+      var value = getAddress();
       return (int) (value ^ (value >>> 32));
     }
   }
@@ -1010,7 +1009,7 @@ public class FreeListManager {
   }
 
   void freeSlabs() {
-    for (final Slab slab : slabs) {
+    for (final var slab : slabs) {
       slab.free();
     }
   }
@@ -1030,9 +1029,9 @@ public class FreeListManager {
   }
 
   int findSlab(long addr) {
-    for (int i = 0; i < slabs.length; i++) {
-      Slab slab = slabs[i];
-      long slabAddr = slab.getMemoryAddress();
+    for (var i = 0; i < slabs.length; i++) {
+      var slab = slabs[i];
+      var slabAddr = slab.getMemoryAddress();
       if (addr >= slabAddr) {
         if (addr < slabAddr + slab.getSize()) {
           return i;
@@ -1043,16 +1042,16 @@ public class FreeListManager {
   }
 
   void getSlabDescriptions(StringBuilder sb) {
-    for (final Slab slab : slabs) {
-      long startAddr = slab.getMemoryAddress();
-      long endAddr = startAddr + slab.getSize();
+    for (final var slab : slabs) {
+      var startAddr = slab.getMemoryAddress();
+      var endAddr = startAddr + slab.getSize();
       sb.append("[").append(Long.toString(startAddr, 16)).append("..")
           .append(Long.toString(endAddr, 16)).append("] ");
     }
   }
 
   boolean validateAddressAndSizeWithinSlab(long addr, int size) {
-    for (final Slab slab : slabs) {
+    for (final var slab : slabs) {
       if (slab.getMemoryAddress() <= addr
           && addr < (slab.getMemoryAddress() + slab.getSize())) {
         // validate addr + size is within the same slab

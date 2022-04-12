@@ -19,7 +19,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.geode.DataSerializer;
@@ -74,10 +73,10 @@ public class RoleEventImpl extends RegionEventImpl implements RoleEvent {
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
     super.toData(out, context);
-    String[] requiredRoleNames = new String[requiredRoles.size()];
-    Iterator iter = requiredRoles.iterator();
-    for (int i = 0; i < requiredRoleNames.length; i++) {
-      Role role = (Role) iter.next();
+    var requiredRoleNames = new String[requiredRoles.size()];
+    var iter = requiredRoles.iterator();
+    for (var i = 0; i < requiredRoleNames.length; i++) {
+      var role = (Role) iter.next();
       requiredRoleNames[i] = role.getName();
     }
     DataSerializer.writeStringArray(requiredRoleNames, out);
@@ -87,9 +86,9 @@ public class RoleEventImpl extends RegionEventImpl implements RoleEvent {
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     super.fromData(in, context);
-    String[] requiredRoleNames = DataSerializer.readStringArray(in);
+    var requiredRoleNames = DataSerializer.readStringArray(in);
     Set requiredRolesSet = new HashSet(requiredRoleNames.length);
-    for (final String requiredRoleName : requiredRoleNames) {
+    for (final var requiredRoleName : requiredRoleNames) {
       Role role = InternalRole.getRole(requiredRoleName);
       requiredRolesSet.add(role);
     }

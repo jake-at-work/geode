@@ -150,7 +150,7 @@ public class SpmcFifoQueueBenchmark {
   @GroupThreads(1)
   public void producer(final Control control, final OpCounters opCounters) {
     simulateProducerWorkload();
-    final Object o = new Object();
+    final var o = new Object();
     while (!accessor.offer(o)) {
       if (control.stopMeasurement) {
         return;
@@ -187,7 +187,7 @@ public class SpmcFifoQueueBenchmark {
   @GroupThreads(11)
   public Object blockingConsumer()
       throws InterruptedException {
-    final Object o = accessor.poll(1, SECONDS);
+    final var o = accessor.poll(1, SECONDS);
     simulateConsumerWorkload();
     return o;
   }
@@ -296,7 +296,7 @@ public class SpmcFifoQueueBenchmark {
     @Override
     public boolean offer(@NotNull final Object value, long timeout, TimeUnit timeUnit)
         throws InterruptedException {
-      final long expires = now() + timeUnit.toNanos(timeout);
+      final var expires = now() + timeUnit.toNanos(timeout);
       while (!offer(value)) {
         if (now() > expires) {
           return false;
@@ -308,7 +308,7 @@ public class SpmcFifoQueueBenchmark {
 
     @Override
     public Object poll(long timeout, TimeUnit timeUnit) throws InterruptedException {
-      final long expires = now() + timeUnit.toNanos(timeout);
+      final var expires = now() + timeUnit.toNanos(timeout);
       Object value;
       while ((value = poll()) == null) {
         if (now() > expires) {

@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,7 +47,7 @@ public class ClusterManagementResultTest {
 
   @Test
   public void failsWhenNotAppliedOnAllMembers() {
-    ClusterManagementRealizationResult result = new ClusterManagementRealizationResult();
+    var result = new ClusterManagementRealizationResult();
     result.addMemberStatus(new RealizationResult().setMemberName("member-1")
         .setSuccess(true).setMessage("msg-1"));
     result.addMemberStatus(new RealizationResult().setMemberName("member-2")
@@ -58,7 +57,7 @@ public class ClusterManagementResultTest {
 
   @Test
   public void successfulOnlyWhenResultIsSuccessfulOnAllMembers() {
-    ClusterManagementRealizationResult result = new ClusterManagementRealizationResult();
+    var result = new ClusterManagementRealizationResult();
     result.addMemberStatus(new RealizationResult().setMemberName("member-1")
         .setSuccess(true).setMessage("msg-1"));
     result.addMemberStatus(new RealizationResult().setMemberName("member-2")
@@ -119,7 +118,7 @@ public class ClusterManagementResultTest {
 
   @Test
   public void unsuccessfulMemeberStatusSetsErrorCode() {
-    ClusterManagementRealizationResult result =
+    var result =
         new ClusterManagementRealizationResult(StatusCode.OK, "message");
     result.addMemberStatus(new RealizationResult().setMemberName("member-1")
         .setSuccess(true).setMessage("message-1"));
@@ -131,30 +130,30 @@ public class ClusterManagementResultTest {
 
   @Test
   public void deserialize() throws Exception {
-    String json = "{\"statusCode\":\"OK\"}";
-    ClusterManagementListResult result =
+    var json = "{\"statusCode\":\"OK\"}";
+    var result =
         GeodeJsonMapper.getMapper().readValue(json, ClusterManagementListResult.class);
     assertThat(result.getEntityGroupInfo()).isNotNull().isEmpty();
   }
 
   @Test
   public void serializeResult() throws Exception {
-    ObjectMapper mapper = GeodeJsonMapper.getMapper();
-    ClusterManagementListResult<Region, RuntimeRegionInfo> result =
-        new ClusterManagementListResult<>();
-    EntityGroupInfo<Region, RuntimeRegionInfo> response = new EntityGroupInfo<>();
-    Region region = new Region();
+    var mapper = GeodeJsonMapper.getMapper();
+    var result =
+        new ClusterManagementListResult<Region, RuntimeRegionInfo>();
+    var response = new EntityGroupInfo<Region, RuntimeRegionInfo>();
+    var region = new Region();
     region.setName("region");
     region.setType(RegionType.REPLICATE);
     region.setGroup("group1");
     response.setConfiguration(region);
 
-    RuntimeRegionInfo info = new RuntimeRegionInfo();
+    var info = new RuntimeRegionInfo();
     info.setEntryCount(3);
     response.setRuntimeInfo(Collections.singletonList(info));
     result.setEntityGroupInfo(Collections.singletonList(response));
 
-    String json = mapper.writeValueAsString(result);
+    var json = mapper.writeValueAsString(result);
     System.out.println(json);
     ClusterManagementListResult<Region, RuntimeRegionInfo> result1 =
         mapper.readValue(json, ClusterManagementListResult.class);

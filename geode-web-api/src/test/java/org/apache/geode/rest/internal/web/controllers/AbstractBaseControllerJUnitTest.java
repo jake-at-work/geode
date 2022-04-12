@@ -42,9 +42,9 @@ public class AbstractBaseControllerJUnitTest {
    */
   @Test
   public void testConvertErrorAsJsonErrorCause() throws Exception {
-    String message = "This is an error message";
-    String json = abstractBaseController.convertErrorAsJson(message);
-    ErrorCause errorCause = mapper.readValue(json, ErrorCause.class);
+    var message = "This is an error message";
+    var json = abstractBaseController.convertErrorAsJson(message);
+    var errorCause = mapper.readValue(json, ErrorCause.class);
     assertEquals(message, errorCause.cause);
   }
 
@@ -53,10 +53,10 @@ public class AbstractBaseControllerJUnitTest {
    */
   @Test
   public void testConvertErrorAsJsonT() throws Exception {
-    String message = "This is an error message";
+    var message = "This is an error message";
     Exception e = new GemfireRestException(message, new NullPointerException());
-    String json = abstractBaseController.convertErrorAsJson(e);
-    ErrorMessage errorMessage = mapper.readValue(json, ErrorMessage.class);
+    var json = abstractBaseController.convertErrorAsJson(e);
+    var errorMessage = mapper.readValue(json, ErrorMessage.class);
     assertEquals(message, errorMessage.message);
   }
 

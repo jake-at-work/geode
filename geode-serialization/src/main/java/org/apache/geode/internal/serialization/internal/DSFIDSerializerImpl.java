@@ -145,8 +145,8 @@ public class DSFIDSerializerImpl implements DSFIDSerializer {
       return;
     }
     if (bs instanceof DataSerializableFixedID) {
-      final DataSerializableFixedID dsfid = (DataSerializableFixedID) bs;
-      final int id = dsfid.getDSFID();
+      final var dsfid = (DataSerializableFixedID) bs;
+      final var id = dsfid.getDSFID();
       if (id == NO_FIXED_ID) {
         throw new IllegalArgumentException(
             "NO_FIXED_ID is not supported by BasicDSFIDSerializer - use InternalDataSerializer instead: "
@@ -174,7 +174,7 @@ public class DSFIDSerializerImpl implements DSFIDSerializer {
 
     final SerializationContext context = new SerializationContextImpl(out, this);
 
-    boolean isDSFID = ds instanceof DataSerializableFixedID;
+    var isDSFID = ds instanceof DataSerializableFixedID;
 
     if (!isDSFID) {
       if (ds instanceof BasicSerializable) {
@@ -186,17 +186,17 @@ public class DSFIDSerializerImpl implements DSFIDSerializer {
     }
 
     try {
-      boolean invoked = false;
-      KnownVersion v = context.getSerializationVersion();
+      var invoked = false;
+      var v = context.getSerializationVersion();
 
       if (!KnownVersion.CURRENT.equals(v)) {
         // get versions where DataOutput was upgraded
-        SerializationVersions sv = (SerializationVersions) ds;
-        KnownVersion[] versions = sv.getSerializationVersions();
+        var sv = (SerializationVersions) ds;
+        var versions = sv.getSerializationVersions();
         // check if the version of the peer or diskstore is different and
         // there has been a change in the message
         if (versions != null) {
-          for (KnownVersion version : versions) {
+          for (var version : versions) {
             // if peer version is less than the greatest upgraded version
             if (v.compareTo(version) < 0) {
               ds.getClass().getMethod("toDataPre_" + version.getMethodSuffix(),
@@ -221,7 +221,7 @@ public class DSFIDSerializerImpl implements DSFIDSerializer {
 
   private Object readDSFID(final DataInput in) throws IOException, ClassNotFoundException {
     checkIn(in);
-    DSCODE dsHeaderType = DscodeHelper.toDSCODE(in.readByte());
+    var dsHeaderType = DscodeHelper.toDSCODE(in.readByte());
     if (dsHeaderType == DSCODE.NULL) {
       return null;
     }
@@ -289,18 +289,18 @@ public class DSFIDSerializerImpl implements DSFIDSerializer {
   @Override
   public void invokeFromData(Object ds, DataInput in)
       throws IOException, ClassNotFoundException {
-    DeserializationContextImpl context = new DeserializationContextImpl(in, this);
+    var context = new DeserializationContextImpl(in, this);
     try {
-      boolean invoked = false;
-      KnownVersion v = context.getSerializationVersion();
+      var invoked = false;
+      var v = context.getSerializationVersion();
       if (!KnownVersion.CURRENT.equals(v) && ds instanceof SerializationVersions) {
         // get versions where DataOutput was upgraded
-        SerializationVersions vds = (SerializationVersions) ds;
-        KnownVersion[] versions = vds.getSerializationVersions();
+        var vds = (SerializationVersions) ds;
+        var versions = vds.getSerializationVersions();
         // check if the version of the peer or diskstore is different and
         // there has been a change in the message
         if (versions != null) {
-          for (KnownVersion version : versions) {
+          for (var version : versions) {
             // if peer version is less than the greatest upgraded version
             if (v.compareTo(version) < 0) {
               ds.getClass().getMethod("fromDataPre" + '_' + version.getMethodSuffix(),
@@ -345,7 +345,7 @@ public class DSFIDSerializerImpl implements DSFIDSerializer {
             "default constructor not accessible " + "for DSFID=" + fixedId + ": " + fixedIdClass);
       }
       if (fixedId >= Byte.MIN_VALUE && fixedId <= Byte.MAX_VALUE) {
-        int index = fixedId + Byte.MAX_VALUE + 1;
+        var index = fixedId + Byte.MAX_VALUE + 1;
         if (dsfidMap[index] != null) {
           throw new IllegalArgumentException("A DataSerializableFixedID already exists for "
               + fixedId + " : " + dsfidMap[index].getName());
@@ -373,13 +373,13 @@ public class DSFIDSerializerImpl implements DSFIDSerializer {
     }
     if (cons != null) {
       try {
-        Object ds = cons.newInstance((Object[]) null);
+        var ds = cons.newInstance((Object[]) null);
         invokeFromData(ds, in);
         return ds;
       } catch (InstantiationException | IllegalAccessException ie) {
         throw new IOException(ie.getMessage(), ie);
       } catch (InvocationTargetException ite) {
-        Throwable targetEx = ite.getTargetException();
+        var targetEx = ite.getTargetException();
         if (targetEx instanceof IOException) {
           throw (IOException) targetEx;
         } else if (targetEx instanceof ClassNotFoundException) {
@@ -394,11 +394,11 @@ public class DSFIDSerializerImpl implements DSFIDSerializer {
 
   private Object readDataSerializable(final DataInput in)
       throws IOException, ClassNotFoundException {
-    Class<?> c = StaticSerialization.readClass(in);
+    var c = StaticSerialization.readClass(in);
     try {
-      Constructor<?> init = c.getConstructor();
+      var init = c.getConstructor();
       init.setAccessible(true);
-      Object o = init.newInstance();
+      var o = init.newInstance();
 
       invokeFromData(o, in);
 

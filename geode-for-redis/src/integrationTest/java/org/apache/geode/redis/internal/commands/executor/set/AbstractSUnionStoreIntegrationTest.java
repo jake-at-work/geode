@@ -92,12 +92,13 @@ public abstract class AbstractSUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sunionstore_withNonOverlappingSets_returnsUnionSize_storesUnion() {
-    String[] secondSetMembers = new String[] {"apple", "microsoft", "linux", "peach"};
+    var secondSetMembers = new String[] {"apple", "microsoft", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String[] result =
-        {"one", "two", "three", "four", "five", "apple", "microsoft", "linux", "peach"};
+    var result =
+        new String[] {"one", "two", "three", "four", "five", "apple", "microsoft", "linux",
+            "peach"};
     assertThat(jedis.sunionstore(DESTINATION_KEY, SET_KEY_1, SET_KEY_2)).isEqualTo(result.length);
     assertThat(jedis.smembers(DESTINATION_KEY)).containsExactlyInAnyOrder(result);
 
@@ -105,11 +106,11 @@ public abstract class AbstractSUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sunionstore_withSomeSharedValues_returnsUnionSize_storesUnion() {
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String[] result = {"one", "two", "three", "four", "five", "linux", "peach"};
+    var result = new String[] {"one", "two", "three", "four", "five", "linux", "peach"};
     assertThat(jedis.sunionstore(DESTINATION_KEY, SET_KEY_1, SET_KEY_2)).isEqualTo(result.length);
     assertThat(jedis.smembers(DESTINATION_KEY)).containsExactlyInAnyOrder(result);
   }
@@ -148,7 +149,7 @@ public abstract class AbstractSUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sunionstore_withNonSetDestKey_withExistentSet_returnsUnionSize_destKeyOverwrittenWithUnion() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
@@ -158,7 +159,7 @@ public abstract class AbstractSUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sunionstore_withNonSetDestKey_withNonExistentSet_returnsZero_destKeyIsDeleted() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     assertThat(jedis.sunionstore(stringKey, NON_EXISTENT_SET)).isEqualTo(0);
@@ -167,7 +168,7 @@ public abstract class AbstractSUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sunionstore_withNonExistentDest_withNonSetKeyAsFirstKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
@@ -178,7 +179,7 @@ public abstract class AbstractSUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sunionstore_withExistentDest_withNonSetKeyAsThirdKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(DESTINATION_KEY, DESTINATION_MEMBERS);
@@ -190,7 +191,7 @@ public abstract class AbstractSUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sunionstore_withNonExistentDest_withNonSetKeyAsThirdKeyAndNonExistentSetAsFirstKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
@@ -202,8 +203,8 @@ public abstract class AbstractSUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void sunionstore_withSetsFromDifferentSlots_returnsCrossSlotError() {
-    String setKeyDifferentSlot = "{tag2}setKey2";
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var setKeyDifferentSlot = "{tag2}setKey2";
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(setKeyDifferentSlot, secondSetMembers);
 
@@ -213,12 +214,12 @@ public abstract class AbstractSUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void ensureSetConsistency_whenRunningConcurrently() {
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String[] unionMembers = {"one", "two", "three", "four", "five", "linux", "peach"};
-    final AtomicLong sunionstoreResultReference = new AtomicLong(0);
+    var unionMembers = new String[] {"one", "two", "three", "four", "five", "linux", "peach"};
+    final var sunionstoreResultReference = new AtomicLong(0);
     new ConcurrentLoopingThreads(1000,
         i -> jedis.srem(SET_KEY_2, secondSetMembers),
         i -> sunionstoreResultReference

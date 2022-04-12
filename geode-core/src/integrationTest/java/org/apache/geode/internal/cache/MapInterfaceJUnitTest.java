@@ -46,10 +46,10 @@ public class MapInterfaceJUnitTest {
 
   @Test
   public void testLocalClear() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    DistributedSystem ds = DistributedSystem.connect(props);
+    var ds = DistributedSystem.connect(props);
     Cache cache = null;
     Region region = null;
     AttributesFactory factory = null;
@@ -61,7 +61,7 @@ public class MapInterfaceJUnitTest {
     } catch (Exception e) {
       throw new AssertionError(" failed due to ", e);
     }
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(i, i);
     }
     assertEquals(50, region.get(50));
@@ -75,7 +75,7 @@ public class MapInterfaceJUnitTest {
     } catch (Exception e) {
       throw new AssertionError(" failed in creating region due to ", e);
     }
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
     try {
       region.localClear();
     } catch (UnsupportedOperationException e) {
@@ -94,10 +94,10 @@ public class MapInterfaceJUnitTest {
    */
   @Test
   public void testLocalPutAll() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    DistributedSystem ds = DistributedSystem.connect(props);
+    var ds = DistributedSystem.connect(props);
     Cache cache = null;
     Region region = null;
     AttributesFactory factory = null;
@@ -109,13 +109,13 @@ public class MapInterfaceJUnitTest {
     } catch (Exception e) {
       throw new AssertionError(" failed due to ", e);
     }
-    HashMap m = new HashMap();
+    var m = new HashMap();
     m.put("aKey", "aValue");
     m.put("bKey", "bValue");
     region.putAll(m);
     assertEquals("aValue", region.get("aKey"));
     assertEquals("bValue", region.get("bKey"));
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(i, i);
     }
     assertEquals(50, region.get(50));
@@ -129,7 +129,7 @@ public class MapInterfaceJUnitTest {
     } catch (Exception e) {
       throw new AssertionError(" failed in creating region due to ", e);
     }
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
     try {
       region.localClear();
     } catch (UnsupportedOperationException e) {
@@ -145,10 +145,10 @@ public class MapInterfaceJUnitTest {
 
   @Test
   public void testBeforeRegionClearCallBack() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    DistributedSystem ds = DistributedSystem.connect(props);
+    var ds = DistributedSystem.connect(props);
     Cache cache = null;
     Region region = null;
     AttributesFactory factory = null;
@@ -167,7 +167,7 @@ public class MapInterfaceJUnitTest {
         }
       });
       region = cache.createRegion("testingRegion", factory.create());
-      DoesClear doesClear = new DoesClear(region);
+      var doesClear = new DoesClear(region);
       new Thread(doesClear).start();
       synchronized (this) {
         if (!hasBeenNotified) {
@@ -180,7 +180,7 @@ public class MapInterfaceJUnitTest {
     } catch (Exception e) {
       throw new AssertionError(" failed due to ", e);
     }
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(i, i);
     }
     assertEquals(50, region.get(50));
@@ -194,7 +194,7 @@ public class MapInterfaceJUnitTest {
     } catch (Exception e) {
       throw new AssertionError(" failed in creating region due to ", e);
     }
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
     try {
       region.localClear();
     } catch (UnsupportedOperationException e) {
@@ -210,10 +210,10 @@ public class MapInterfaceJUnitTest {
 
   @Test
   public void testSetValue() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    DistributedSystem ds = DistributedSystem.connect(props);
+    var ds = DistributedSystem.connect(props);
     Cache cache = null;
 
     AttributesFactory factory = null;
@@ -236,7 +236,7 @@ public class MapInterfaceJUnitTest {
       region2 = cache.createRegion("testingRegion", factory.create());
       region2.put(2, 2);
       hasBeenNotified = false;
-      DoesPut doesPut = new DoesPut();
+      var doesPut = new DoesPut();
       new Thread(doesPut).start();
       synchronized (this) {
         if (!hasBeenNotified) {

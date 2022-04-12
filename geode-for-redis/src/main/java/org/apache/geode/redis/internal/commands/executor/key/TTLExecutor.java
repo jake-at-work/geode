@@ -17,11 +17,9 @@ package org.apache.geode.redis.internal.commands.executor.key;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
 import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -30,9 +28,9 @@ public class TTLExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    RedisKey key = command.getKey();
+    var key = command.getKey();
 
-    long result = pttl(context, key);
+    var result = pttl(context, key);
     if (result > 0 && !timeUnitMillis()) {
       // Round up because redis does
       result = MILLISECONDS.toSeconds(result + 500);
@@ -46,7 +44,7 @@ public class TTLExecutor implements CommandExecutor {
   }
 
   private static long pttl(ExecutionHandlerContext context, RedisKey key) {
-    Region<RedisKey, RedisData> region = context.getRegion();
+    var region = context.getRegion();
     long result = context.dataLockedExecute(key, false, data -> data.pttl(region, key));
     // note that we can't use "updateStats==true" here because
     // AbstractRedisData.pttl will return -2 if it finds the existing value is expired.

@@ -15,15 +15,12 @@
 package org.apache.geode.management.internal.cli.functions;
 
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.ConfigSource;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
@@ -44,19 +41,19 @@ public class AlterRuntimeConfigFunction implements InternalFunction<Map<String, 
 
   @Override
   public void execute(FunctionContext<Map<String, String>> context) {
-    String memberId = "";
+    var memberId = "";
 
     try {
-      InternalCache cache = (InternalCache) context.getCache();
-      DistributionConfig config = cache.getInternalDistributedSystem().getConfig();
+      var cache = (InternalCache) context.getCache();
+      var config = cache.getInternalDistributedSystem().getConfig();
       memberId = cache.getDistributedSystem().getDistributedMember().getId();
 
-      Map<String, String> runtimeAttributes = context.getArguments();
-      Set<Entry<String, String>> entries = runtimeAttributes.entrySet();
+      var runtimeAttributes = context.getArguments();
+      var entries = runtimeAttributes.entrySet();
 
-      for (Entry<String, String> entry : entries) {
-        String attributeName = entry.getKey();
-        String attributeValue = entry.getValue();
+      for (var entry : entries) {
+        var attributeName = entry.getKey();
+        var attributeValue = entry.getValue();
 
         switch (attributeName) {
           case CliStrings.ALTER_RUNTIME_CONFIG__COPY__ON__READ:
@@ -66,7 +63,7 @@ public class AlterRuntimeConfigFunction implements InternalFunction<Map<String, 
             cache.setLockLease(Integer.parseInt(attributeValue));
             break;
           case CliStrings.ALTER_RUNTIME_CONFIG__LOCK__TIMEOUT:
-            int lockTimeout = Integer.parseInt(attributeValue);
+            var lockTimeout = Integer.parseInt(attributeValue);
             cache.setLockTimeout(lockTimeout);
             break;
           case CliStrings.ALTER_RUNTIME_CONFIG__SEARCH__TIMEOUT:
@@ -81,16 +78,16 @@ public class AlterRuntimeConfigFunction implements InternalFunction<Map<String, 
         }
       }
 
-      CliFunctionResult cliFuncResult = new CliFunctionResult(memberId, true, null);
+      var cliFuncResult = new CliFunctionResult(memberId, true, null);
       context.getResultSender().lastResult(cliFuncResult);
 
     } catch (CacheClosedException cce) {
-      CliFunctionResult result = new CliFunctionResult(memberId, false, null);
+      var result = new CliFunctionResult(memberId, false, null);
       context.getResultSender().lastResult(result);
 
     } catch (Exception e) {
       logger.error("Exception happened on : " + memberId, e);
-      CliFunctionResult cliFuncResult =
+      var cliFuncResult =
           new CliFunctionResult(memberId, e, ExceptionUtils.getStackTrace(e));
       context.getResultSender().lastResult(cliFuncResult);
     }

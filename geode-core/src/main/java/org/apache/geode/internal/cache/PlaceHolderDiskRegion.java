@@ -61,7 +61,7 @@ public class PlaceHolderDiskRegion extends AbstractDiskRegion
   @Override
   public String getPrName() {
     assert isBucket();
-    String bn = PartitionedRegionHelper.getBucketName(name);
+    var bn = PartitionedRegionHelper.getBucketName(name);
     return PartitionedRegionHelper.getPRPath(bn);
   }
 
@@ -90,7 +90,7 @@ public class PlaceHolderDiskRegion extends AbstractDiskRegion
 
   @Override
   public DiskEntry getDiskEntry(Object key) {
-    RegionEntry re = getRecoveredEntryMap().getEntry(key);
+    var re = getRecoveredEntryMap().getEntry(key);
     if (re != null && re.isRemoved() && !re.isTombstone()) {
       re = null;
     }
@@ -99,7 +99,7 @@ public class PlaceHolderDiskRegion extends AbstractDiskRegion
 
   @Override
   public DiskEntry initializeRecoveredEntry(Object key, DiskEntry.RecoveredEntry value) {
-    RegionEntry re = getRecoveredEntryMap().initRecoveredEntry(key, value);
+    var re = getRecoveredEntryMap().initRecoveredEntry(key, value);
     if (re == null) {
       throw new InternalGemFireError(
           String.format("Entry already existed: %s", key));
@@ -168,7 +168,7 @@ public class PlaceHolderDiskRegion extends AbstractDiskRegion
 
   @Override
   public void close() {
-    RegionMap rm = getRecoveredEntryMap();
+    var rm = getRecoveredEntryMap();
     if (rm != null) {
       rm.close(null);
     }

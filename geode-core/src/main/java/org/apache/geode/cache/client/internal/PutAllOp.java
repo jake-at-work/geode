@@ -40,7 +40,6 @@ import org.apache.geode.internal.cache.RegionMapOwner;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -69,7 +68,7 @@ public class PutAllOp {
    */
   public static VersionedObjectList execute(ExecutablePool pool, Region region, Map map,
       EventID eventId, boolean skipCallbacks, boolean isRetry, Object callbackArg) {
-    PutAllOpImpl op = new PutAllOpImpl(region, map, eventId,
+    var op = new PutAllOpImpl(region, map, eventId,
         ((Pool) pool).getPRSingleHopEnabled(), skipCallbacks, callbackArg);
     op.initMessagePart();
     if (isRetry) {
@@ -90,10 +89,10 @@ public class PutAllOp {
   public static VersionedObjectList execute(ExecutablePool pool, Region<Object, Object> region,
       Map<Object, Object> map, EventID eventId, boolean skipCallbacks, int retryAttempts,
       Object callbackArg) {
-    ClientMetadataService clientMetadataService =
+    var clientMetadataService =
         ((RegionMapOwner) region).getCache().getClientMetadataService();
 
-    Map<ServerLocation, Set> serverToFilterMap =
+    var serverToFilterMap =
         clientMetadataService.getServerToFilterMap(map.keySet(), region, true);
 
     if (serverToFilterMap == null || serverToFilterMap.isEmpty()) {
@@ -103,23 +102,23 @@ public class PutAllOp {
       return (VersionedObjectList) pool.execute(op);
     }
 
-    List callableTasks = constructAndGetPutAllTasks(region, map, eventId, skipCallbacks,
+    var callableTasks = constructAndGetPutAllTasks(region, map, eventId, skipCallbacks,
         serverToFilterMap, (InternalPool) pool, callbackArg);
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug("PutAllOp#execute : Number of putAll tasks is : {}", callableTasks.size());
     }
     Map<ServerLocation, RuntimeException> failedServers = new HashMap<>();
-    PutAllPartialResult result = new PutAllPartialResult(map.size());
+    var result = new PutAllPartialResult(map.size());
     try {
-      Map<ServerLocation, Object> results = SingleHopClientExecutor
+      var results = SingleHopClientExecutor
           .submitBulkOp(callableTasks, clientMetadataService,
               (LocalRegion) region, failedServers);
-      for (Map.Entry<ServerLocation, Object> entry : results.entrySet()) {
-        Object value = entry.getValue();
+      for (var entry : results.entrySet()) {
+        var value = entry.getValue();
         if (value instanceof PutAllPartialResultException) {
-          PutAllPartialResultException pap = (PutAllPartialResultException) value;
+          var pap = (PutAllPartialResultException) value;
           if (isDebugEnabled) {
             logger.debug(
                 "PutAll SingleHop encountered PutAllPartialResultException exception: {}, failedServers are {}",
@@ -128,7 +127,7 @@ public class PutAllOp {
           result.consolidate(pap.getResult());
         } else {
           if (value != null) {
-            VersionedObjectList list = (VersionedObjectList) value;
+            var list = (VersionedObjectList) value;
             result.addKeysAndVersions(list);
           }
         }
@@ -155,8 +154,8 @@ public class PutAllOp {
         // succeedKeySet is used to send back to client in PartialResult case
         // so it's not a must to use LinkedHashSet
         Set succeedKeySet = new LinkedHashSet();
-        Set<ServerLocation> serverSet = serverToFilterMap.keySet();
-        for (ServerLocation server : serverSet) {
+        var serverSet = serverToFilterMap.keySet();
+        for (var server : serverSet) {
           if (!failedServers.containsKey(server)) {
             succeedKeySet.addAll(serverToFilterMap.get(server));
           }
@@ -170,10 +169,10 @@ public class PutAllOp {
       // them into one big map. The reason is, we have to keep the same event
       // ids for each sub map. There is a unit test in PutAllCSDUnitTest for
       // the otherwise case.
-      boolean oneSubMapRetryFailed = false;
-      Set<ServerLocation> failedServerSet = failedServers.keySet();
-      for (ServerLocation failedServer : failedServerSet) {
-        RuntimeException savedRTE = failedServers.get(failedServer);
+      var oneSubMapRetryFailed = false;
+      var failedServerSet = failedServers.keySet();
+      for (var failedServer : failedServerSet) {
+        var savedRTE = failedServers.get(failedServer);
         if (savedRTE instanceof PutAllPartialResultException) {
           // will not retry for PutAllPartialResultException
           // but it means at least one sub map ever failed
@@ -181,13 +180,13 @@ public class PutAllOp {
           continue;
         }
         Map newMap = new LinkedHashMap();
-        Set keySet = serverToFilterMap.get(failedServer);
-        for (Object key : keySet) {
+        var keySet = serverToFilterMap.get(failedServer);
+        for (var key : keySet) {
           newMap.put(key, map.get(key));
         }
 
         try {
-          VersionedObjectList v =
+          var v =
               PutAllOp.execute(pool, region, newMap, eventId, skipCallbacks, true, callbackArg);
           if (v == null) {
             result.addKeys(keySet);
@@ -203,7 +202,7 @@ public class PutAllOp {
           result.consolidate(pre.getResult());
         } catch (Exception rte) {
           oneSubMapRetryFailed = true;
-          Object firstKey = newMap.keySet().iterator().next();
+          var firstKey = newMap.keySet().iterator().next();
           result.saveFailedKey(firstKey, rte);
         }
       } // for failedServer
@@ -231,17 +230,17 @@ public class PutAllOp {
     if (logger.isDebugEnabled()) {
       logger.debug("Constructing tasks for the servers {}", servers);
     }
-    for (ServerLocation server : servers) {
-      Set filterSet = serverToFilterMap.get(server);
+    for (var server : servers) {
+      var filterSet = serverToFilterMap.get(server);
       Map newKeysValuesMap = new LinkedHashMap();
       // iterator 1: for single hop, both iterator filterSet and newKeysValuesMap
-      for (Object key : filterSet) {
+      for (var key : filterSet) {
         newKeysValuesMap.put(key, map.get(key));
       }
       AbstractOp putAllOp =
           new PutAllOpImpl(region, newKeysValuesMap, eventId, true, skipCallbacks, callbackArg);
 
-      SingleHopOperationCallable task =
+      var task =
           new SingleHopOperationCallable(new ServerLocation(server.getHostName(), server.getPort()),
               pool, putAllOp, UserAttributes.userAttributes.get());
       tasks.add(task);
@@ -277,8 +276,8 @@ public class PutAllOp {
 
     @Override
     protected void initMessagePart() {
-      int size = map.size();
-      int flags = 0;
+      var size = map.size();
+      var flags = 0;
       if (region.getDataPolicy() == DataPolicy.EMPTY) {
         flags |= FLAG_EMPTY;
       }
@@ -291,19 +290,19 @@ public class PutAllOp {
         getMessage().addObjPart(callbackArg);
       }
       keys = new ArrayList(size);
-      for (final Object o : map.entrySet()) {
-        Map.Entry mapEntry = (Map.Entry) o;
-        Object key = mapEntry.getKey();
+      for (final var o : map.entrySet()) {
+        var mapEntry = (Map.Entry) o;
+        var key = mapEntry.getKey();
         keys.add(key);
         getMessage().addStringOrObjPart(key);
-        Object value = mapEntry.getValue();
+        var value = mapEntry.getValue();
         if (value instanceof CachedDeserializable) {
-          CachedDeserializable cd = (CachedDeserializable) value;
+          var cd = (CachedDeserializable) value;
           if (!cd.isSerialized()) {
             // it is a byte[]
             getMessage().addObjPart(cd.getDeserializedForReading());
           } else {
-            Object cdValue = cd.getValue();
+            var cdValue = cd.getValue();
             if (cdValue instanceof byte[]) {
               getMessage().addRawPart((byte[]) cdValue, true);
             } else {
@@ -329,20 +328,20 @@ public class PutAllOp {
     @Override
     protected Object processResponse(final @NotNull Message msg, final @NotNull Connection con)
         throws Exception {
-      final VersionedObjectList result = new VersionedObjectList();
-      final Exception[] exceptionRef = new Exception[1];
+      final var result = new VersionedObjectList();
+      final var exceptionRef = new Exception[1];
       try {
         processChunkedResponse((ChunkedMessage) msg, "putAll", cm -> {
-          int numParts = msg.getNumberOfParts();
-          final boolean isDebugEnabled = logger.isDebugEnabled();
+          var numParts = msg.getNumberOfParts();
+          final var isDebugEnabled = logger.isDebugEnabled();
           if (isDebugEnabled) {
             logger.debug("putAllOp.processChunkedResponse processing message with {} parts",
                 numParts);
           }
-          for (int partNo = 0; partNo < numParts; partNo++) {
-            Part part = cm.getPart(partNo);
+          for (var partNo = 0; partNo < numParts; partNo++) {
+            var part = cm.getPart(partNo);
             try {
-              Object o = part.getObject();
+              var o = part.getObject();
               if (isDebugEnabled) {
                 logger.debug("part({}) contained {}", partNo, o);
               }
@@ -350,11 +349,11 @@ public class PutAllOp {
                 // no response is an okay response
               } else if (o instanceof byte[]) {
                 if (prSingleHopEnabled) {
-                  byte[] bytesReceived = part.getSerializedForm();
+                  var bytesReceived = part.getSerializedForm();
                   if (bytesReceived[0] != ClientMetadataService.INITIAL_VERSION) { // nw hop
                     if (region != null) {
                       try {
-                        ClientMetadataService cms = region.getCache().getClientMetadataService();
+                        var cms = region.getCache().getClientMetadataService();
                         cms.scheduleGetPRMetaData(region, false, bytesReceived[1]);
                       } catch (CacheClosedException ignored) {
                       }
@@ -362,10 +361,10 @@ public class PutAllOp {
                   }
                 }
               } else if (o instanceof Throwable) {
-                String s = "While performing a remote putAll";
+                var s = "While performing a remote putAll";
                 exceptionRef[0] = new ServerOperationException(s, (Throwable) o);
               } else {
-                VersionedObjectList chunk = (VersionedObjectList) o;
+                var chunk = (VersionedObjectList) o;
                 chunk.replaceNullIDs(con.getEndpoint().getMemberId());
                 result.addAll(chunk);
               }
@@ -376,7 +375,7 @@ public class PutAllOp {
         });
       } catch (ServerOperationException e) {
         if (e.getCause() instanceof PutAllPartialResultException) {
-          PutAllPartialResultException cause = (PutAllPartialResultException) e.getCause();
+          var cause = (PutAllPartialResultException) e.getCause();
           cause.getSucceededKeysAndVersions().replaceNullIDs(con.getEndpoint().getMemberId());
           throw cause;
         } else {

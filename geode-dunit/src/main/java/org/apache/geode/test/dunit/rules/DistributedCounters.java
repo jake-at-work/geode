@@ -105,7 +105,7 @@ public class DistributedCounters extends AbstractDistributedRule {
   @Override
   protected void before() {
     invoker().invokeInEveryVMAndController(() -> counters = new ConcurrentHashMap<>());
-    for (Serializable id : idsToInitInBefore) {
+    for (var id : idsToInitInBefore) {
       invoker().invokeInEveryVMAndController(() -> initialize(id));
     }
   }
@@ -119,11 +119,11 @@ public class DistributedCounters extends AbstractDistributedRule {
   protected void afterCreateVM(VM vm) {
     vm.invoke(() -> counters = new ConcurrentHashMap<>());
 
-    for (Serializable id : idsToInitInBefore) {
+    for (var id : idsToInitInBefore) {
       vm.invoke(() -> initialize(id));
     }
 
-    for (Serializable id : counters.keySet()) {
+    for (var id : counters.keySet()) {
       vm.invoke(() -> counters.putIfAbsent(id, new AtomicInteger()));
     }
   }
@@ -137,17 +137,17 @@ public class DistributedCounters extends AbstractDistributedRule {
   protected void afterBounceVM(VM vm) {
     vm.invoke(() -> counters = new ConcurrentHashMap<>());
 
-    Map<Serializable, AtomicInteger> beforeBounceCountersForVM =
+    var beforeBounceCountersForVM =
         beforeBounceCounters.remove(vm.getId());
-    for (Serializable id : beforeBounceCountersForVM.keySet()) {
+    for (var id : beforeBounceCountersForVM.keySet()) {
       vm.invoke(() -> counters.putIfAbsent(id, beforeBounceCountersForVM.get(id)));
     }
 
-    for (Serializable id : idsToInitInBefore) {
+    for (var id : idsToInitInBefore) {
       vm.invoke(() -> counters.putIfAbsent(id, new AtomicInteger()));
     }
 
-    for (Serializable id : counters.keySet()) {
+    for (var id : counters.keySet()) {
       vm.invoke(() -> counters.putIfAbsent(id, new AtomicInteger()));
     }
   }
@@ -205,8 +205,8 @@ public class DistributedCounters extends AbstractDistributedRule {
    * Returns the total value of the {@code AtomicInteger} combined across every VM.
    */
   public int getTotal(final Serializable id) {
-    int total = counters.get(id).get();
-    for (VM vm : getAllVMs()) {
+    var total = counters.get(id).get();
+    for (var vm : getAllVMs()) {
       total += vm.invoke(() -> counters.get(id).get());
     }
     return total;

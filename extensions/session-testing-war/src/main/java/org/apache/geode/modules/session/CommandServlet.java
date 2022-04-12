@@ -16,7 +16,6 @@
 package org.apache.geode.modules.session;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.function.Function;
 
 import javax.servlet.ServletConfig;
@@ -45,13 +44,13 @@ public class CommandServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    QueryCommand cmd = QueryCommand.UNKNOWN;
-    String param = request.getParameter("param");
-    String value = request.getParameter("value");
-    PrintWriter out = response.getWriter();
+    var cmd = QueryCommand.UNKNOWN;
+    var param = request.getParameter("param");
+    var value = request.getParameter("value");
+    var out = response.getWriter();
 
     try {
-      String cmdStr = request.getParameter("cmd");
+      var cmdStr = request.getParameter("cmd");
       if (cmdStr != null) {
         cmd = QueryCommand.valueOf(cmdStr);
       }
@@ -69,7 +68,7 @@ public class CommandServlet extends HttpServlet {
           break;
         case GET:
           session = request.getSession();
-          String val = (String) session.getAttribute(param);
+          var val = (String) session.getAttribute(param);
           if (val != null) {
             out.write(val);
           }
@@ -83,11 +82,11 @@ public class CommandServlet extends HttpServlet {
           session.invalidate();
           break;
         case FUNCTION:
-          String functionClass = request.getParameter("function");
-          Class<? extends Function> clazz = (Class<? extends Function>) Thread.currentThread()
+          var functionClass = request.getParameter("function");
+          var clazz = (Class<? extends Function>) Thread.currentThread()
               .getContextClassLoader().loadClass(functionClass);
           Function<HttpServletRequest, String> function = clazz.newInstance();
-          String result = function.apply(request);
+          var result = function.apply(request);
           if (result != null) {
             out.write(result);
           }

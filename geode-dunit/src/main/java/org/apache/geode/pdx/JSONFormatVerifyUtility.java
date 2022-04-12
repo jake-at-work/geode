@@ -18,14 +18,13 @@ package org.apache.geode.pdx;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 
 public class JSONFormatVerifyUtility {
   static void verifyJsonWithJavaObject(String json, TestObjectForJSONFormatter testObject)
       throws IOException {
-    JsonNode jsonObject = new ObjectMapper().readTree(json);
+    var jsonObject = new ObjectMapper().readTree(json);
 
     // Testcase-1: Validate json string against the pdxInstance.
     // validation for primitive types

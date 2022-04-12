@@ -26,9 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.InterestResultPolicy;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
@@ -55,7 +53,7 @@ public class DurableClientFailoverDUnitTest {
   @Before
   public void setup() {
     locator = cluster.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server1 =
         cluster.startServerVM(1, s -> s.withRegion(RegionShortcut.REPLICATE_PERSISTENT, "region")
             .withConnectionToLocator(locatorPort));
@@ -66,39 +64,39 @@ public class DurableClientFailoverDUnitTest {
 
   @Test
   public void durableClientGetAllEvents() throws Exception {
-    String clientId = "client0";
+    var clientId = "client0";
     clientCacheRule
         .withCacheSetup(cf -> cf.setPoolSubscriptionEnabled(true).setPoolSubscriptionRedundancy(2))
         .withProperty(DURABLE_CLIENT_ID, clientId)
         .withLocatorConnection(locator.getPort());
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
 
-    KeysCacheListener mylistener = new KeysCacheListener();
-    Region<Object, Object> clientRegion =
+    var mylistener = new KeysCacheListener();
+    var clientRegion =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY)
             .addCacheListener(mylistener).create("region");
     clientRegion.registerInterestForAllKeys(InterestResultPolicy.NONE, true);
     clientCache.readyForEvents();
 
     // find out which server is the primary subscription end point, server1 or server2
-    boolean server1IsPrimary = false;
-    PoolImpl pool = (PoolImpl) PoolManager.find(clientRegion.getAttributes().getPoolName());
-    QueueConnectionImpl connection = (QueueConnectionImpl) pool.getPrimaryConnection();
+    var server1IsPrimary = false;
+    var pool = (PoolImpl) PoolManager.find(clientRegion.getAttributes().getPoolName());
+    var connection = (QueueConnectionImpl) pool.getPrimaryConnection();
     if (connection.toString().contains("server-1")) {
       server1IsPrimary = true;
     }
 
     // use server3 to input data constantly
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server3 =
         cluster.startServerVM(3, s -> s.withRegion(RegionShortcut.REPLICATE_PERSISTENT, "region")
             .withConnectionToLocator(locatorPort));
 
-    FileBasedCountDownLatch latch = new FileBasedCountDownLatch(1);
-    int size = 100;
+    var latch = new FileBasedCountDownLatch(1);
+    var size = 100;
     AsyncInvocation<Void> putAsync = server3.invokeAsync(() -> {
-      Region<Object, Object> region = ClusterStartupRule.getCache().getRegion("region");
-      for (int i = 0; i < size; i++) {
+      var region = ClusterStartupRule.getCache().getRegion("region");
+      for (var i = 0; i < size; i++) {
         if (i == size / 2) {
           latch.countDown();
         }

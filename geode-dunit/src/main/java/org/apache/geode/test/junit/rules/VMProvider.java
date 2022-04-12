@@ -44,7 +44,7 @@ public abstract class VMProvider {
       throw new IllegalArgumentException("Array of members must not be null nor empty.");
     }
 
-    int randomMemberIndex = new Random().nextInt(members.length);
+    var randomMemberIndex = new Random().nextInt(members.length);
     members[randomMemberIndex].invoke(runnableIF);
   }
 

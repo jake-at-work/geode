@@ -27,13 +27,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.CancelException;
-import org.apache.geode.cache.partition.PartitionMemberInfo;
 import org.apache.geode.cache.partition.PartitionRebalanceInfo;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.MembershipListener;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Assert;
-import org.apache.geode.internal.cache.BucketAdvisor;
 import org.apache.geode.internal.cache.ColocationHelper;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -41,9 +39,6 @@ import org.apache.geode.internal.cache.PartitionedRegion.RecoveryLock;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.PartitionRebalanceDetailsImpl;
 import org.apache.geode.internal.cache.control.ResourceManagerStats;
-import org.apache.geode.internal.cache.partitioned.BecomePrimaryBucketMessage.BecomePrimaryBucketResponse;
-import org.apache.geode.internal.cache.partitioned.MoveBucketMessage.MoveBucketResponse;
-import org.apache.geode.internal.cache.partitioned.RemoveBucketMessage.RemoveBucketResponse;
 import org.apache.geode.internal.cache.partitioned.rebalance.BucketOperator;
 import org.apache.geode.internal.cache.partitioned.rebalance.BucketOperatorImpl;
 import org.apache.geode.internal.cache.partitioned.rebalance.BucketOperatorWrapper;
@@ -130,7 +125,7 @@ public class PartitionedRegionRebalanceOp {
       RebalanceDirector director, boolean replaceOfflineData, boolean isRebalance,
       AtomicBoolean cancelled, ResourceManagerStats stats) {
 
-    PartitionedRegion leader = ColocationHelper.getLeaderRegion(region);
+    var leader = ColocationHelper.getLeaderRegion(region);
     Assert.assertTrue(leader != null);
 
     // set the region we are rebalancing to be leader of the colocation group.
@@ -150,8 +145,8 @@ public class PartitionedRegionRebalanceOp {
    * @return the details of the rebalance.
    */
   public Set<PartitionRebalanceInfo> execute() {
-    long start = System.nanoTime();
-    InternalResourceManager resourceManager =
+    var start = System.nanoTime();
+    var resourceManager =
         InternalResourceManager.getInternalResourceManager(leaderRegion.getCache());
     MembershipListener listener = new MembershipChangeListener();
     if (isRebalance) {
@@ -190,19 +185,19 @@ public class PartitionedRegionRebalanceOp {
       leaderRegion.getRegionAdvisor().addMembershipListener(listener);
       PartitionedRegionLoadModel loadModel = null;
 
-      InternalCache cache = leaderRegion.getCache();
-      Map<PartitionedRegion, InternalPRInfo> detailsMap = fetchDetails(cache);
-      BucketOperatorWrapper serialOperator = getBucketOperator(detailsMap);
-      ParallelBucketOperator parallelOperator = new ParallelBucketOperator(MAX_PARALLEL_OPERATIONS,
+      var cache = leaderRegion.getCache();
+      var detailsMap = fetchDetails(cache);
+      var serialOperator = getBucketOperator(detailsMap);
+      var parallelOperator = new ParallelBucketOperator(MAX_PARALLEL_OPERATIONS,
           cache.getDistributionManager().getExecutors().getWaitingThreadPool(), serialOperator);
       loadModel = buildModel(parallelOperator, detailsMap, resourceManager);
-      for (PartitionRebalanceDetailsImpl details : serialOperator.getDetailSet()) {
+      for (var details : serialOperator.getDetailSet()) {
         details.setPartitionMemberDetailsBefore(
             loadModel.getPartitionedMemberDetails(details.getRegionPath()));
       }
 
       director.initialize(loadModel);
-      String operationType = "Rebalancing";
+      var operationType = "Rebalancing";
       if (director instanceof CompositeDirector
           && ((CompositeDirector) director).isRestoreRedundancy()) {
         operationType = "Restoring redundancy";
@@ -241,9 +236,9 @@ public class PartitionedRegionRebalanceOp {
       }
 
       debug(operationType + " {} complete. Model:{}\n", leaderRegion, loadModel);
-      long end = System.nanoTime();
+      var end = System.nanoTime();
 
-      for (PartitionRebalanceDetailsImpl details : serialOperator.getDetailSet()) {
+      for (var details : serialOperator.getDetailSet()) {
         if (!simulate) {
           details.setTime(end - start);
         }
@@ -301,11 +296,11 @@ public class PartitionedRegionRebalanceOp {
     // TODO rebalance - this should really be all of the regions which are colocated
     // anywhere I think. We need to make sure we don't do a rebalance unless we have
     // all of the colocated regions others do.
-    Map<String, PartitionedRegion> colocatedRegionsMap =
+    var colocatedRegionsMap =
         ColocationHelper.getAllColocationRegions(targetRegion);
     colocatedRegionsMap.put(targetRegion.getFullPath(), targetRegion);
-    final LinkedList<PartitionedRegion> colocatedRegions = new LinkedList<>();
-    for (PartitionedRegion colocatedRegion : colocatedRegionsMap.values()) {
+    final var colocatedRegions = new LinkedList<PartitionedRegion>();
+    for (var colocatedRegion : colocatedRegionsMap.values()) {
 
       // Fix for 49340 - make sure all colocated regions are initialized, so
       // that we know the region has recovered from disk
@@ -334,9 +329,9 @@ public class PartitionedRegionRebalanceOp {
       logger.debug("Rebalancing buckets for fixed partitioned region {}", targetRegion);
     }
 
-    long start = System.nanoTime();
-    InternalCache cache = leaderRegion.getCache();
-    InternalResourceManager resourceManager =
+    var start = System.nanoTime();
+    var cache = leaderRegion.getCache();
+    var resourceManager =
         InternalResourceManager.getInternalResourceManager(cache);
     InternalResourceManager.getResourceObserver().recoveryStarted(targetRegion);
     try {
@@ -350,11 +345,11 @@ public class PartitionedRegionRebalanceOp {
       // who goes down.
 
       PartitionedRegionLoadModel model = null;
-      Map<PartitionedRegion, InternalPRInfo> detailsMap = fetchDetails(cache);
-      BucketOperatorWrapper operator = getBucketOperator(detailsMap);
+      var detailsMap = fetchDetails(cache);
+      var operator = getBucketOperator(detailsMap);
 
       model = buildModel(operator, detailsMap, resourceManager);
-      for (PartitionRebalanceDetailsImpl details : operator.getDetailSet()) {
+      for (var details : operator.getDetailSet()) {
         details.setPartitionMemberDetailsBefore(
             model.getPartitionedMemberDetails(details.getRegionPath()));
       }
@@ -377,9 +372,9 @@ public class PartitionedRegionRebalanceOp {
       if (logger.isDebugEnabled()) {
         logger.debug("Rebalancing FPR {} complete. Model:{}\n", leaderRegion, model);
       }
-      long end = System.nanoTime();
+      var end = System.nanoTime();
 
-      for (PartitionRebalanceDetailsImpl details : operator.getDetailSet()) {
+      for (var details : operator.getDetailSet()) {
         if (!simulate) {
           details.setTime(end - start);
         }
@@ -398,12 +393,12 @@ public class PartitionedRegionRebalanceOp {
   }
 
   private Map<PartitionedRegion, InternalPRInfo> fetchDetails(InternalCache cache) {
-    LoadProbe probe = cache.getInternalResourceManager().getLoadProbe();
+    var probe = cache.getInternalResourceManager().getLoadProbe();
     Map<PartitionedRegion, InternalPRInfo> detailsMap =
         new LinkedHashMap<>(colocatedRegions.size());
-    for (PartitionedRegion colocatedRegion : colocatedRegions) {
+    for (var colocatedRegion : colocatedRegions) {
       if (ColocationHelper.isColocationComplete(colocatedRegion)) {
-        InternalPRInfo info =
+        var info =
             colocatedRegion.getRedundancyProvider().buildPartitionedRegionInfo(true, probe);
         detailsMap.put(colocatedRegion, info);
       }
@@ -415,12 +410,12 @@ public class PartitionedRegionRebalanceOp {
       Map<PartitionedRegion, InternalPRInfo> detailsMap) {
     Set<PartitionRebalanceDetailsImpl> rebalanceDetails =
         new HashSet<>(detailsMap.size());
-    for (Map.Entry<PartitionedRegion, InternalPRInfo> entry : detailsMap.entrySet()) {
+    for (var entry : detailsMap.entrySet()) {
       rebalanceDetails.add(new PartitionRebalanceDetailsImpl(entry.getKey()));
     }
-    BucketOperator operator =
+    var operator =
         simulate ? new SimulatedBucketOperator() : new BucketOperatorImpl(this);
-    BucketOperatorWrapper wrapper =
+    var wrapper =
         new BucketOperatorWrapper(operator, rebalanceDetails, stats, leaderRegion);
     return wrapper;
   }
@@ -434,10 +429,10 @@ public class PartitionedRegionRebalanceOp {
       Map<PartitionedRegion, InternalPRInfo> detailsMap, InternalResourceManager resourceManager) {
     PartitionedRegionLoadModel model;
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
-    final DistributionManager dm = leaderRegion.getDistributionManager();
-    AddressComparor comparor = new AddressComparor() {
+    final var dm = leaderRegion.getDistributionManager();
+    var comparor = new AddressComparor() {
 
       @Override
       public boolean areSameZone(InternalDistributedMember member1,
@@ -451,12 +446,11 @@ public class PartitionedRegionRebalanceOp {
       }
     };
 
-
-    int redundantCopies = leaderRegion.getRedundantCopies();
-    int totalNumberOfBuckets = leaderRegion.getTotalNumberOfBuckets();
-    Set<InternalDistributedMember> criticalMembers =
+    var redundantCopies = leaderRegion.getRedundantCopies();
+    var totalNumberOfBuckets = leaderRegion.getTotalNumberOfBuckets();
+    var criticalMembers =
         resourceManager.getResourceAdvisor().adviseCriticalMembers();
-    boolean removeOverRedundancy = true;
+    var removeOverRedundancy = true;
 
     debug("Building Model for rebalancing " + leaderRegion + ". redundantCopies=" + redundantCopies
         + ", totalNumBuckets=" + totalNumberOfBuckets + ", criticalMembers=" + criticalMembers
@@ -466,9 +460,9 @@ public class PartitionedRegionRebalanceOp {
     model = new PartitionedRegionLoadModel(operator, redundantCopies, totalNumberOfBuckets,
         comparor, criticalMembers, leaderRegion);
 
-    for (Map.Entry<PartitionedRegion, InternalPRInfo> entry : detailsMap.entrySet()) {
-      PartitionedRegion region = entry.getKey();
-      InternalPRInfo details = entry.getValue();
+    for (var entry : detailsMap.entrySet()) {
+      var region = entry.getKey();
+      var details = entry.getValue();
 
       OfflineMemberDetails offlineDetails;
       if (replaceOfflineData) {
@@ -476,18 +470,18 @@ public class PartitionedRegionRebalanceOp {
       } else {
         offlineDetails = details.getOfflineMembers();
       }
-      boolean enforceLocalMaxMemory = !region.isEntryEvictionPossible();
+      var enforceLocalMaxMemory = !region.isEntryEvictionPossible();
 
       debug("Added Region to model region=" + region + ", offlineDetails=" + offlineDetails
           + ", enforceLocalMaxMemory=" + enforceLocalMaxMemory);
 
-      for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
+      for (var memberDetails : details.getPartitionMemberInfo()) {
         debug("For Region: " + region + ", Member: " + memberDetails.getDistributedMember()
             + "LOAD=" + ((InternalPartitionDetails) memberDetails).getPRLoad()
             + ", equivalentMembers=" + dm.getMembersInSameZone(
                 (InternalDistributedMember) memberDetails.getDistributedMember()));
       }
-      Set<InternalPartitionDetails> memberDetailSet = details.getInternalPartitionDetails();
+      var memberDetailSet = details.getInternalPartitionDetails();
 
       model.addRegion(region.getFullPath(), memberDetailSet, offlineDetails, enforceLocalMaxMemory);
     }
@@ -528,13 +522,13 @@ public class PartitionedRegionRebalanceOp {
    * @return true if the redundant bucket was removed
    */
   public boolean removeRedundantBucketForRegion(InternalDistributedMember target, int bucketId) {
-    boolean removed = false;
+    var removed = false;
     if (getLeaderRegion().getDistributionManager().getId().equals(target)) {
       // invoke directly on local member...
       removed = getLeaderRegion().getDataStore().removeBucket(bucketId, false);
     } else {
       // send message to remote member...
-      RemoveBucketResponse response =
+      var response =
           RemoveBucketMessage.send(target, getLeaderRegion(), bucketId, false);
       if (response != null) {
         removed = response.waitForResponse();
@@ -551,16 +545,16 @@ public class PartitionedRegionRebalanceOp {
    * @return true if the move was successful
    */
   public boolean movePrimaryBucketForRegion(InternalDistributedMember target, int bucketId) {
-    boolean movedPrimary = false;
+    var movedPrimary = false;
     if (getLeaderRegion().getDistributionManager().getId().equals(target)) {
       // invoke directly on local member...
-      BucketAdvisor bucketAdvisor = getLeaderRegion().getRegionAdvisor().getBucketAdvisor(bucketId);
+      var bucketAdvisor = getLeaderRegion().getRegionAdvisor().getBucketAdvisor(bucketId);
       if (bucketAdvisor.isHosting()) {
         movedPrimary = bucketAdvisor.becomePrimary(isRebalance);
       }
     } else {
       // send message to remote member...
-      BecomePrimaryBucketResponse response =
+      var response =
           BecomePrimaryBucketMessage.send(target, getLeaderRegion(), bucketId, isRebalance);
       if (response != null) {
         movedPrimary = response.waitForResponse();
@@ -579,13 +573,13 @@ public class PartitionedRegionRebalanceOp {
    */
   public boolean moveBucketForRegion(InternalDistributedMember source,
       InternalDistributedMember target, int bucketId) {
-    boolean movedBucket = false;
+    var movedBucket = false;
     if (getLeaderRegion().getDistributionManager().getId().equals(target)) {
       // invoke directly on local member...
       movedBucket = getLeaderRegion().getDataStore().moveBucket(bucketId, source, false);
     } else {
       // send message to remote member...
-      MoveBucketResponse response =
+      var response =
           MoveBucketMessage.send(target, getLeaderRegion(), bucketId, source);
       if (response != null) {
         movedBucket = response.waitForResponse();

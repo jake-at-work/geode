@@ -15,7 +15,6 @@
 package org.apache.geode.cache.client.internal;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.client.internal.PoolImpl.PoolTask;
-import org.apache.geode.internal.cache.ClientServerObserver;
 import org.apache.geode.internal.cache.ClientServerObserverHolder;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -76,7 +74,7 @@ public class QueueStateImpl implements QueueState {
   }
 
   public void handleMarker() {
-    ArrayList regions = new ArrayList();
+    var regions = new ArrayList();
     Cache cache = GemFireCacheImpl.getInstance();
     if (cache == null) {
       return;
@@ -84,12 +82,12 @@ public class QueueStateImpl implements QueueState {
 
     Set rootRegions = cache.rootRegions();
 
-    for (final Object value : rootRegions) {
-      Region rootRegion = (Region) value;
+    for (final var value : rootRegions) {
+      var rootRegion = (Region) value;
       regions.add(rootRegion);
       try {
-        Set subRegions = rootRegion.subregions(true); // throws RDE
-        for (final Object subRegion : subRegions) {
+        var subRegions = rootRegion.subregions(true); // throws RDE
+        for (final var subRegion : subRegions) {
           regions.add(subRegion);
         }
       } catch (RegionDestroyedException e) {
@@ -97,8 +95,8 @@ public class QueueStateImpl implements QueueState {
       }
     }
 
-    for (final Object o : regions) {
-      LocalRegion region = (LocalRegion) o;
+    for (final var o : regions) {
+      var region = (LocalRegion) o;
       try {
         if (region.getAttributes().getPoolName() != null
             && region.getAttributes().getPoolName().equals(qManager.getPool().getName())) {
@@ -136,8 +134,8 @@ public class QueueStateImpl implements QueueState {
 
   @Override
   public boolean verifyIfDuplicate(EventID eid, boolean addToMap) {
-    ThreadIdentifier tid = new ThreadIdentifier(eid.getMembershipID(), eid.getThreadID());
-    long seqId = eid.getSequenceID();
+    var tid = new ThreadIdentifier(eid.getMembershipID(), eid.getThreadID());
+    var seqId = eid.getSequenceID();
     SequenceIdAndExpirationObject seo = null;
 
     // Fix 36930: save the max sequence id for each non-putAll operation's thread
@@ -166,7 +164,7 @@ public class QueueStateImpl implements QueueState {
         seo.setAckSend(false);
         return true;
       } else if (addToMap) {
-        ThreadIdentifier real_tid = new ThreadIdentifier(eid.getMembershipID(),
+        var real_tid = new ThreadIdentifier(eid.getMembershipID(),
             ThreadIdentifier.getRealThreadIDIncludingWan(eid.getThreadID()));
         if (ThreadIdentifier.isPutAllFakeThreadID(eid.getThreadID())) {
           // it's a putAll
@@ -256,7 +254,7 @@ public class QueueStateImpl implements QueueState {
         return;
       }
       if (PoolImpl.BEFORE_SENDING_CLIENT_ACK_CALLBACK_FLAG) {
-        ClientServerObserver bo = ClientServerObserverHolder.getInstance();
+        var bo = ClientServerObserverHolder.getInstance();
         bo.beforeSendingClientAck();
       }
       sendPeriodicAck();
@@ -265,8 +263,8 @@ public class QueueStateImpl implements QueueState {
 
     void checkForExpiry() {
       synchronized (threadIdToSequenceId) {
-        Iterator iterator = threadIdToSequenceId.entrySet().iterator();
-        long currentTime = System.currentTimeMillis();
+        var iterator = threadIdToSequenceId.entrySet().iterator();
+        var currentTime = System.currentTimeMillis();
         Map.Entry entry;
         SequenceIdAndExpirationObject seo;
 
@@ -290,13 +288,13 @@ public class QueueStateImpl implements QueueState {
      */
     void sendPeriodicAck() {
       List events = new ArrayList();
-      boolean success = false;
+      var success = false;
       synchronized (threadIdToSequenceId) {
-        for (final Object o : threadIdToSequenceId.entrySet()) {
-          Map.Entry entry = (Map.Entry) o;
-          SequenceIdAndExpirationObject seo = (SequenceIdAndExpirationObject) entry.getValue();
+        for (final var o : threadIdToSequenceId.entrySet()) {
+          var entry = (Map.Entry) o;
+          var seo = (SequenceIdAndExpirationObject) entry.getValue();
           if (!seo.getAckSend()) {
-            ThreadIdentifier tid = (ThreadIdentifier) entry.getKey();
+            var tid = (ThreadIdentifier) entry.getKey();
             events.add(new EventID(tid.getMembershipID(), tid.getThreadID(), seo.getSequenceId()));
             seo.setAckSend(true);
           } // if ends
@@ -314,17 +312,17 @@ public class QueueStateImpl implements QueueState {
           }
         } finally {
           if (!success) {
-            for (final Object event : events) {
-              EventID eid = (EventID) event;
-              ThreadIdentifier tid = new ThreadIdentifier(eid.getMembershipID(), eid.getThreadID());
+            for (final var event : events) {
+              var eid = (EventID) event;
+              var tid = new ThreadIdentifier(eid.getMembershipID(), eid.getThreadID());
               synchronized (threadIdToSequenceId) {
-                SequenceIdAndExpirationObject seo =
+                var seo =
                     (SequenceIdAndExpirationObject) threadIdToSequenceId.get(tid);
                 if (seo != null && seo.getAckSend()) {
                   seo = (SequenceIdAndExpirationObject) threadIdToSequenceId.remove(tid);
                   if (seo != null) {
                     // put back the old seqId with a new time stamp
-                    SequenceIdAndExpirationObject siaeo = new SequenceIdAndExpirationObject(
+                    var siaeo = new SequenceIdAndExpirationObject(
                         seo.getSequenceId(), seo.getPutAllSequenceId());
                     threadIdToSequenceId.put(tid, siaeo);
                   }

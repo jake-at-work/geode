@@ -40,7 +40,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.InOrder;
 
 import org.apache.geode.cache.CommitConflictException;
 import org.apache.geode.cache.EntryNotFoundException;
@@ -81,7 +80,7 @@ public class TXStateTest {
 
   @Test
   public void doBeforeCompletionThrowsIfReserveAndCheckFails() {
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
     doThrow(exception).when(txState).reserveAndCheck();
 
     assertThatThrownBy(txState::doBeforeCompletion)
@@ -90,7 +89,7 @@ public class TXStateTest {
 
   @Test
   public void doAfterCompletionThrowsIfCommitFails() {
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
     txState.reserveAndCheck();
     doThrow(transactionDataNodeHasDepartedException).when(txState).commit();
 
@@ -100,16 +99,16 @@ public class TXStateTest {
 
   @Test
   public void attachFilterProfileAfterApplyingChanges() {
-    TXState txState = spy(new TXState(txStateProxy, false, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, false, disabledClock()));
     doReturn(new ArrayList()).when(txState).generateEventOffsets();
     doNothing().when(txState).attachFilterProfileInformation(any());
     doNothing().when(txState).applyChanges(any());
-    TXCommitMessage txCommitMessage = mock(TXCommitMessage.class);
+    var txCommitMessage = mock(TXCommitMessage.class);
     doReturn(txCommitMessage).when(txState).buildMessage();
 
     txState.commit();
 
-    InOrder inOrder = inOrder(txState, txCommitMessage);
+    var inOrder = inOrder(txState, txCommitMessage);
     inOrder.verify(txState).applyChanges(any());
     inOrder.verify(txState).attachFilterProfileInformation(any());
     inOrder.verify(txState).buildMessage();
@@ -119,7 +118,7 @@ public class TXStateTest {
 
   @Test
   public void doAfterCompletionCanCommitJTA() {
-    TXState txState = spy(new TXState(txStateProxy, false, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, false, disabledClock()));
     txState.reserveAndCheck();
     txState.closed = true;
     txState.doAfterCompletionCommit();
@@ -130,13 +129,13 @@ public class TXStateTest {
 
   @Test(expected = FailedSynchronizationException.class)
   public void afterCompletionThrowsExceptionIfBeforeCompletionNotCalled() {
-    TXState txState = new TXState(txStateProxy, true, disabledClock());
+    var txState = new TXState(txStateProxy, true, disabledClock());
     txState.afterCompletion(Status.STATUS_COMMITTED);
   }
 
   @Test
   public void afterCompletionInvokesExecuteAfterCompletionCommitIfBeforeCompletionCalled() {
-    TXState txState = spy(new TXState(txStateProxy, true, executor, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, executor, disabledClock()));
     doReturn(true).when(txState).wasBeforeCompletionCalled();
 
     txState.afterCompletion(Status.STATUS_COMMITTED);
@@ -146,17 +145,17 @@ public class TXStateTest {
 
   @Test
   public void afterCompletionThrowsWithUnexpectedStatusIfBeforeCompletionCalled() {
-    TXState txState = spy(new TXState(txStateProxy, true, executor, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, executor, disabledClock()));
     doReturn(true).when(txState).wasBeforeCompletionCalled();
 
-    Throwable thrown = catchThrowable(() -> txState.afterCompletion(Status.STATUS_NO_TRANSACTION));
+    var thrown = catchThrowable(() -> txState.afterCompletion(Status.STATUS_NO_TRANSACTION));
 
     assertThat(thrown).isInstanceOf(TransactionException.class);
   }
 
   @Test
   public void afterCompletionInvokesExecuteAfterCompletionRollbackIfBeforeCompletionCalled() {
-    TXState txState = spy(new TXState(txStateProxy, true, executor, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, executor, disabledClock()));
     doReturn(true).when(txState).wasBeforeCompletionCalled();
 
     txState.afterCompletion(Status.STATUS_ROLLEDBACK);
@@ -166,7 +165,7 @@ public class TXStateTest {
 
   @Test
   public void afterCompletionCanRollbackJTA() {
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
     txState.afterCompletion(Status.STATUS_ROLLEDBACK);
 
     verify(txState, times(1)).rollback();
@@ -175,13 +174,13 @@ public class TXStateTest {
 
   @Test
   public void closeWillCleanupIfLocksObtained() {
-    TXState txState = spy(new TXState(txStateProxy, false, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, false, disabledClock()));
     txState.closed = false;
     txState.locks = mock(TXLockRequest.class);
-    TXRegionState regionState1 = mock(TXRegionState.class);
-    TXRegionState regionState2 = mock(TXRegionState.class);
-    InternalRegion region1 = mock(InternalRegion.class);
-    InternalRegion region2 = mock(InternalRegion.class);
+    var regionState1 = mock(TXRegionState.class);
+    var regionState2 = mock(TXRegionState.class);
+    var region1 = mock(InternalRegion.class);
+    var region2 = mock(InternalRegion.class);
     txState.regions.put(region1, regionState1);
     txState.regions.put(region2, regionState2);
     doReturn(mock(InternalCache.class)).when(txState).getCache();
@@ -196,13 +195,13 @@ public class TXStateTest {
 
   @Test
   public void closeWillCloseTXRegionStatesIfLocksNotObtained() {
-    TXState txState = spy(new TXState(txStateProxy, false, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, false, disabledClock()));
     txState.closed = false;
     // txState.locks = mock(TXLockRequest.class);
-    TXRegionState regionState1 = mock(TXRegionState.class);
-    TXRegionState regionState2 = mock(TXRegionState.class);
-    InternalRegion region1 = mock(InternalRegion.class);
-    InternalRegion region2 = mock(InternalRegion.class);
+    var regionState1 = mock(TXRegionState.class);
+    var regionState2 = mock(TXRegionState.class);
+    var region1 = mock(InternalRegion.class);
+    var region2 = mock(InternalRegion.class);
     txState.regions.put(region1, regionState1);
     txState.regions.put(region2, regionState2);
     doReturn(mock(InternalCache.class)).when(txState).getCache();
@@ -217,19 +216,19 @@ public class TXStateTest {
 
   @Test
   public void getOriginatingMemberReturnsNullIfNotOriginatedFromClient() {
-    TXState txState = spy(new TXState(txStateProxy, false, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, false, disabledClock()));
 
     assertThat(txState.getOriginatingMember()).isSameAs(txStateProxy.getOnBehalfOfClientMember());
   }
 
   @Test
   public void txReadEntryDoesNotCleanupTXEntriesIfRegionCreateReadEntryReturnsNull() {
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
-    KeyInfo keyInfo = mock(KeyInfo.class);
-    Object key = new Object();
-    InternalRegion internalRegion = mock(InternalRegion.class);
-    InternalRegion dataRegion = mock(InternalRegion.class);
-    TXRegionState txRegionState = mock(TXRegionState.class);
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var keyInfo = mock(KeyInfo.class);
+    var key = new Object();
+    var internalRegion = mock(InternalRegion.class);
+    var dataRegion = mock(InternalRegion.class);
+    var txRegionState = mock(TXRegionState.class);
     when(internalRegion.getDataRegionForWrite(keyInfo)).thenReturn(dataRegion);
     when(txState.txReadRegion(dataRegion)).thenReturn(txRegionState);
     when(keyInfo.getKey()).thenReturn(key);
@@ -242,14 +241,14 @@ public class TXStateTest {
 
   @Test
   public void txReadEntryDoesNotCleanupTXEntriesIfEntryNotFound() {
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
-    KeyInfo keyInfo = mock(KeyInfo.class);
-    Object key = new Object();
-    Object expectedValue = new Object();
-    InternalRegion internalRegion = mock(InternalRegion.class);
-    InternalRegion dataRegion = mock(InternalRegion.class);
-    TXRegionState txRegionState = mock(TXRegionState.class);
-    TXEntryState txEntryState = mock(TXEntryState.class);
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var keyInfo = mock(KeyInfo.class);
+    var key = new Object();
+    var expectedValue = new Object();
+    var internalRegion = mock(InternalRegion.class);
+    var dataRegion = mock(InternalRegion.class);
+    var txRegionState = mock(TXRegionState.class);
+    var txEntryState = mock(TXEntryState.class);
     when(internalRegion.getDataRegionForWrite(keyInfo)).thenReturn(dataRegion);
     when(internalRegion.getAttributes()).thenReturn(mock(RegionAttributes.class));
     when(internalRegion.getCache()).thenReturn(mock(InternalCache.class));
@@ -266,13 +265,13 @@ public class TXStateTest {
 
   @Test
   public void doCleanupContinuesWhenReleasingLockGotIllegalArgumentExceptionIfCacheIsClosing() {
-    TXState txState = spy(new TXState(txStateProxy, false, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, false, disabledClock()));
     txState.locks = mock(TXLockRequest.class);
     doReturn(cache).when(txStateProxy).getCache();
     doThrow(new IllegalArgumentException()).when(txState.locks).cleanup(internalDistributedSystem);
     when(cache.isClosed()).thenReturn(true);
-    TXRegionState regionState1 = mock(TXRegionState.class);
-    InternalRegion region1 = mock(InternalRegion.class);
+    var regionState1 = mock(TXRegionState.class);
+    var region1 = mock(InternalRegion.class);
     txState.regions.put(region1, regionState1);
 
     txState.doCleanup();
@@ -282,14 +281,14 @@ public class TXStateTest {
 
   @Test
   public void doCleanupContinuesWhenReleasingLockGotIllegalMonitorStateExceptionIfCacheIsClosing() {
-    TXState txState = spy(new TXState(txStateProxy, false, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, false, disabledClock()));
     txState.locks = mock(TXLockRequest.class);
     doReturn(cache).when(txStateProxy).getCache();
     doThrow(new IllegalMonitorStateException()).when(txState.locks)
         .cleanup(internalDistributedSystem);
     when(cache.isClosed()).thenReturn(true);
-    TXRegionState regionState1 = mock(TXRegionState.class);
-    InternalRegion region1 = mock(InternalRegion.class);
+    var regionState1 = mock(TXRegionState.class);
+    var region1 = mock(InternalRegion.class);
     txState.regions.put(region1, regionState1);
 
     txState.doCleanup();
@@ -299,16 +298,16 @@ public class TXStateTest {
 
   @Test
   public void doCleanupThrowsWhenReleasingLockGotIllegalArgumentExceptionIfCacheIsNotClosing() {
-    TXState txState = spy(new TXState(txStateProxy, false, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, false, disabledClock()));
     txState.locks = mock(TXLockRequest.class);
     doReturn(cache).when(txStateProxy).getCache();
     doThrow(new IllegalArgumentException()).when(txState.locks).cleanup(internalDistributedSystem);
     when(cache.isClosed()).thenReturn(false);
-    TXRegionState regionState1 = mock(TXRegionState.class);
-    InternalRegion region1 = mock(InternalRegion.class);
+    var regionState1 = mock(TXRegionState.class);
+    var region1 = mock(InternalRegion.class);
     txState.regions.put(region1, regionState1);
 
-    Throwable thrown = catchThrowable(txState::doCleanup);
+    var thrown = catchThrowable(txState::doCleanup);
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
     verify(regionState1).cleanup(region1);
@@ -316,17 +315,17 @@ public class TXStateTest {
 
   @Test
   public void doCleanupThrowsWhenReleasingLockGotIllegalMonitorStateExceptionIfCacheIsNotClosing() {
-    TXState txState = spy(new TXState(txStateProxy, false, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, false, disabledClock()));
     txState.locks = mock(TXLockRequest.class);
     doReturn(cache).when(txStateProxy).getCache();
     doThrow(new IllegalMonitorStateException()).when(txState.locks)
         .cleanup(internalDistributedSystem);
     when(cache.isClosed()).thenReturn(false);
-    TXRegionState regionState1 = mock(TXRegionState.class);
-    InternalRegion region1 = mock(InternalRegion.class);
+    var regionState1 = mock(TXRegionState.class);
+    var region1 = mock(InternalRegion.class);
     txState.regions.put(region1, regionState1);
 
-    Throwable thrown = catchThrowable(txState::doCleanup);
+    var thrown = catchThrowable(txState::doCleanup);
 
     assertThat(thrown).isInstanceOf(IllegalMonitorStateException.class);
     verify(regionState1).cleanup(region1);
@@ -334,7 +333,7 @@ public class TXStateTest {
 
   @Test
   public void getRecordedResultsReturnsFalseIfRecordedFalse() {
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
     txState.recordEventAndResult(event, false);
 
     assertThat(txState.getRecordedResult(event)).isFalse();
@@ -342,7 +341,7 @@ public class TXStateTest {
 
   @Test
   public void getRecordedResultsReturnsTrueIfRecordedTrue() {
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
     txState.recordEventAndResult(event, true);
 
     assertThat(txState.getRecordedResult(event)).isTrue();
@@ -351,7 +350,7 @@ public class TXStateTest {
   @Test
   public void getRecordedResultOrExceptionThrowsIfRecordedException() {
     expectedException.expect(TransactionDataRebalancedException.class);
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
     txState.recordEventAndResult(event, false);
     txState.recordEventException(event, new TransactionDataRebalancedException(""));
 
@@ -360,7 +359,7 @@ public class TXStateTest {
 
   @Test
   public void getRecordedResultOrExceptionReturnFalseIfRecordedFalse() {
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
     txState.recordEventAndResult(event, false);
 
     assertThat(txState.getRecordedResultOrException(event)).isFalse();
@@ -368,7 +367,7 @@ public class TXStateTest {
 
   @Test
   public void getRecordedResultOrExceptionReturnTrueIfRecordedTrue() {
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
     txState.recordEventAndResult(event, true);
 
     assertThat(txState.getRecordedResultOrException(event)).isTrue();
@@ -377,12 +376,12 @@ public class TXStateTest {
   @Test
   public void txPutEntryRecordExceptionIfFailedWithTransactionDataRebalancedException() {
     expectedException.expect(TransactionDataRebalancedException.class);
-    TXState txState = spy(new TXState(txStateProxy, true, disabledClock()));
-    boolean ifNew = true;
-    boolean requireOldValue = false;
-    boolean checkResources = false;
-    TransactionDataRebalancedException exception = new TransactionDataRebalancedException("");
-    InternalRegion region = mock(InternalRegion.class);
+    var txState = spy(new TXState(txStateProxy, true, disabledClock()));
+    var ifNew = true;
+    var requireOldValue = false;
+    var checkResources = false;
+    var exception = new TransactionDataRebalancedException("");
+    var region = mock(InternalRegion.class);
     when(event.getRegion()).thenReturn(region);
     doThrow(exception).when(txState).txWriteEntry(region, event, ifNew, requireOldValue, null);
 

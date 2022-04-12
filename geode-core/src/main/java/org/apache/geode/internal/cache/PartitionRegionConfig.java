@@ -28,7 +28,6 @@ import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.partition.PartitionListener;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.ExternalizableDSFID;
 import org.apache.geode.internal.InternalDataSerializer;
@@ -128,9 +127,9 @@ public class PartitionRegionConfig extends ExternalizableDSFID implements Versio
     isColocationComplete = colocatedWith == null;
     fullPath = path;
     elderFPAs = new LinkedHashSet<>();
-    PartitionListener[] prListeners = prAtt.getPartitionListeners();
+    var prListeners = prAtt.getPartitionListeners();
     if (prListeners != null && prListeners.length != 0) {
-      for (PartitionListener listener : prListeners) {
+      for (var listener : prListeners) {
         partitionListenerClassNames.add(listener.getClass().getName());
       }
     }
@@ -184,7 +183,7 @@ public class PartitionRegionConfig extends ExternalizableDSFID implements Versio
    */
   boolean containsMember(InternalDistributedMember memberId) {
     if (nodes != null) {
-      for (Node node : nodes) {
+      for (var node : nodes) {
         if (memberId.equals(node.getMemberId())) {
           return true;
         }
@@ -226,7 +225,7 @@ public class PartitionRegionConfig extends ExternalizableDSFID implements Versio
 
   @Override
   public String toString() {
-    String ret = "PartitionRegionConfig@" + System.identityHashCode(this) + ";prId=" + prId
+    var ret = "PartitionRegionConfig@" + System.identityHashCode(this) + ";prId=" + prId
         + ";scope=" + scope + ";partition attributes=" + pAttrs + ";partitionResolver="
         + partitionResolver + ";colocatedWith=" + colocatedWith + ";eviction attributes="
         + ea + ";regionIdleTimeout= " + regionIdleTimeout + ";regionTimeToLive= "
@@ -414,14 +413,14 @@ public class PartitionRegionConfig extends ExternalizableDSFID implements Versio
   }
 
   public boolean hasSameDataStoreMembers(PartitionRegionConfig prConfig) {
-    for (Node node : getNodes()) {
+    for (var node : getNodes()) {
       if (!prConfig.containsMember(node.getMemberId())
           && ((node.getPRType() == Node.ACCESSOR_DATASTORE)
               || (node.getPRType() == Node.FIXED_PR_DATASTORE))) {
         return false;
       }
     }
-    for (Node node : prConfig.getNodes()) {
+    for (var node : prConfig.getNodes()) {
       if (!containsMember(node.getMemberId()) && ((node.getPRType() == Node.ACCESSOR_DATASTORE)
           || (node.getPRType() == Node.FIXED_PR_DATASTORE))) {
         return false;

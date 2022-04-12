@@ -17,14 +17,11 @@ package org.apache.geode.internal.cache.persistence;
 import static java.lang.System.lineSeparator;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -49,7 +46,6 @@ import org.apache.geode.internal.cache.CacheDistributionAdvisor.CacheProfile;
 import org.apache.geode.internal.cache.CacheDistributionAdvisor.InitialImageAdvice;
 import org.apache.geode.internal.cache.DiskRegionStats;
 import org.apache.geode.internal.cache.persistence.PersistentMemberManager.MemberRevocationListener;
-import org.apache.geode.internal.cache.persistence.PersistentStateQueryMessage.PersistentStateQueryReplyProcessor;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.process.StartupStatus;
 import org.apache.geode.internal.util.TransformUtils;
@@ -146,7 +142,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
     // initialize. We will still report these members as equal, but if we crash and recover they
     // will no longer be considered equal.
     equalMembers = new CopyOnWriteHashSet<>(persistentMemberView.getOfflineAndEqualMembers());
-    for (PersistentMemberID id : equalMembers) {
+    for (var id : equalMembers) {
       persistentMemberView.memberOnline(id);
     }
   }
@@ -167,7 +163,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
     Set<PersistentMemberPattern> revokedMembers = persistentMemberManager
         .addRevocationListener(profileChangeListener, persistentMemberView.getRevokedMembers());
 
-    for (PersistentMemberPattern pattern : revokedMembers) {
+    for (var pattern : revokedMembers) {
       memberRevoked(pattern);
     }
 
@@ -215,9 +211,9 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
   private PersistentStateQueryResults fetchPersistentStateQueryResults(
       Set<InternalDistributedMember> members, DistributionManager dm,
       PersistentMemberID persistentMemberID, PersistentMemberID initializingMemberId) {
-    PersistentStateQueryReplyProcessor replyProcessor = persistentStateQueryMessageSenderFactory
+    var replyProcessor = persistentStateQueryMessageSenderFactory
         .createPersistentStateQueryReplyProcessor(dm, members);
-    PersistentStateQueryMessage message =
+    var message =
         persistentStateQueryMessageSenderFactory.createPersistentStateQueryMessage(regionPath,
             persistentMemberID, initializingMemberId, replyProcessor.getProcessorId());
     return message.send(members, dm, replyProcessor);
@@ -239,7 +235,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
 
     // If we have a member that is marked as online that is an older version of the peers id, tell
     // them they are online
-    for (PersistentMemberID onlineMember : persistentMemberView.getOnlineMembers()) {
+    for (var onlineMember : persistentMemberView.getOnlineMembers()) {
       if (onlineMember.isOlderOrEqualVersionOf(id)) {
         return PersistentMemberState.ONLINE;
       }
@@ -247,7 +243,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
 
     // If we have a member that is marked as offline that is a newer version of the peers id, tell
     // them they are online
-    for (PersistentMemberID offline : persistentMemberView.getOfflineMembers()) {
+    for (var offline : persistentMemberView.getOfflineMembers()) {
       if (id.isOlderOrEqualVersionOf(offline)) {
         return PersistentMemberState.OFFLINE;
       }
@@ -258,8 +254,8 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
   @Override
   public void updateMembershipView(InternalDistributedMember peer, boolean targetReinitializing) {
     beginUpdatingPersistentView();
-    DistributionManager dm = cacheDistributionAdvisor.getDistributionManager();
-    PersistentMembershipView peersPersistentMembershipView =
+    var dm = cacheDistributionAdvisor.getDistributionManager();
+    var peersPersistentMembershipView =
         MembershipViewRequest.send(peer, dm, regionPath, targetReinitializing);
     if (logger.isDebugEnabled(LogMarker.PERSIST_ADVISOR_VERBOSE)) {
       logger.debug(LogMarker.PERSIST_ADVISOR_VERBOSE, "{}-{}: Updating persistent view from {}",
@@ -267,13 +263,13 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
     }
 
     synchronized (lock) {
-      PersistentMemberID myId = getPersistentID();
-      Map<InternalDistributedMember, PersistentMemberID> peersOnlineMembers =
+      var myId = getPersistentID();
+      var peersOnlineMembers =
           peersPersistentMembershipView.getOnlineMembers();
-      Set<PersistentMemberID> peersOfflineMembers =
+      var peersOfflineMembers =
           peersPersistentMembershipView.getOfflineMembers();
 
-      for (PersistentMemberID id : peersOnlineMembers.values()) {
+      for (var id : peersOnlineMembers.values()) {
         if (!isRevoked(id) && !removedMembers.contains(id)) {
           if (!id.equals(myId) && !recoveredMembers.remove(id)
               && !id.getDiskStoreId().equals(getDiskStoreID())) {
@@ -287,7 +283,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
         }
       }
 
-      for (PersistentMemberID id : peersOfflineMembers) {
+      for (var id : peersOfflineMembers) {
         if (!isRevoked(id) && !removedMembers.contains(id)) {
           // This method is called before the current member is online. if the peer knows about a
           // member that the current member doesn't know about, that means that member must have
@@ -306,7 +302,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
         }
       }
 
-      for (PersistentMemberID id : recoveredMembers) {
+      for (var id : recoveredMembers) {
         if (logger.isDebugEnabled(LogMarker.PERSIST_ADVISOR_VERBOSE)) {
           logger.debug(LogMarker.PERSIST_ADVISOR_VERBOSE,
               "{}-{}: Processing membership view from peer. Removing {} because {} doesn't have it",
@@ -318,8 +314,8 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
 
     // Update the set of revoked members from the peer. This should be called without holding the
     // lock to avoid deadlocks
-    Set<PersistentMemberPattern> revokedMembers = peersPersistentMembershipView.getRevokedMembers();
-    for (PersistentMemberPattern revoked : revokedMembers) {
+    var revokedMembers = peersPersistentMembershipView.getRevokedMembers();
+    for (var revoked : revokedMembers) {
       persistentMemberManager.revokeMember(revoked);
     }
   }
@@ -366,21 +362,21 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
         // as our equal members, because all have is a persistent id of the equal members. The
         // persistent id of the running member may be different than what we have marked as equal,
         // because the id in the profile is the new id for the member.
-        Collection<PersistentMemberID> allMembers =
+        var allMembers =
             cacheDistributionAdvisor.advisePersistentMembers().values();
         Set<DiskStoreID> runningDiskStores = new HashSet<>();
-        for (PersistentMemberID mem : allMembers) {
+        for (var mem : allMembers) {
           runningDiskStores.add(mem.getDiskStoreId());
         }
         // Remove any equal members which are not actually running right now.
-        for (PersistentMemberID id : equalMembers) {
+        for (var id : equalMembers) {
           if (!runningDiskStores.contains(id.getDiskStoreId())) {
             equalMembers.remove(id);
           }
         }
         membersToMarkOffline.removeAll(equalMembers);
       }
-      for (PersistentMemberID id : membersToMarkOffline) {
+      for (var id : membersToMarkOffline) {
         persistentMemberView.memberOffline(id);
       }
       if (logger.isDebugEnabled(LogMarker.PERSIST_ADVISOR_VERBOSE)) {
@@ -411,9 +407,9 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
       // Only update the view if it is has not already happened.
       if (!shouldUpdatePersistentView) {
         shouldUpdatePersistentView = true;
-        Map<InternalDistributedMember, PersistentMemberID> onlineMembers =
+        var onlineMembers =
             cacheDistributionAdvisor.adviseInitializedPersistentMembers();
-        for (Map.Entry<InternalDistributedMember, PersistentMemberID> entry : onlineMembers
+        for (var entry : onlineMembers
             .entrySet()) {
           memberOnline(entry.getKey(), entry.getValue());
         }
@@ -425,12 +421,12 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
   public void setInitializing(PersistentMemberID newId) {
     beginUpdatingPersistentView();
 
-    DistributionManager dm = cacheDistributionAdvisor.getDistributionManager();
+    var dm = cacheDistributionAdvisor.getDistributionManager();
 
-    PersistentMemberID oldId = getPersistentID();
-    PersistentMemberID initializingId = getInitializingID();
+    var oldId = getPersistentID();
+    var initializingId = getInitializingID();
 
-    Set<InternalDistributedMember> profileUpdateRecipients =
+    var profileUpdateRecipients =
         cacheDistributionAdvisor.adviseProfileUpdate();
     if (newId == null || !newId.equals(oldId) && !newId.equals(initializingId)) {
       // If we have not yet prepared the old id, prepare it now.
@@ -444,7 +440,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
               "{}-{}: We still have an initializing id: {}. Telling peers to remove the old id {} and transitioning this initializing id to old id. recipients {}",
               shortDiskStoreId(), regionPath, initializingId, oldId, profileUpdateRecipients);
         }
-        long viewVersion = cacheDistributionAdvisor.startOperation();
+        var viewVersion = cacheDistributionAdvisor.startOperation();
         try {
           PrepareNewPersistentMemberMessage.send(profileUpdateRecipients, dm, regionPath, oldId,
               initializingId);
@@ -483,12 +479,12 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
     if (!initialized) {
       return null;
     }
-    Set<PersistentMemberID> offlineMembers = getPersistedMembers();
-    Map<InternalDistributedMember, PersistentMemberID> onlineMembers =
+    var offlineMembers = getPersistedMembers();
+    var onlineMembers =
         cacheDistributionAdvisor.adviseInitializedPersistentMembers();
     offlineMembers.removeAll(onlineMembers.values());
 
-    PersistentMemberID myId = getPersistentID();
+    var myId = getPersistentID();
     if (myId != null) {
       onlineMembers
           .put(cacheDistributionAdvisor.getDistributionManager().getDistributionManagerId(), myId);
@@ -510,19 +506,19 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
   @Override
   public boolean checkMyStateOnMembers(Set<InternalDistributedMember> replicates)
       throws ReplyException {
-    PersistentStateQueryResults remoteStates = getMyStateOnMembers(replicates);
+    var remoteStates = getMyStateOnMembers(replicates);
     Set<InternalDistributedMember> copyOfReplicates = null;
 
     persistenceAdvisorObserver.observe(regionPath);
 
-    boolean equal = false;
-    PersistentMemberID myId = getPersistentID();
-    for (Map.Entry<InternalDistributedMember, PersistentMemberState> entry : remoteStates
+    var equal = false;
+    var myId = getPersistentID();
+    for (var entry : remoteStates
         .getStateOnPeers().entrySet()) {
-      InternalDistributedMember member = entry.getKey();
-      PersistentMemberID remoteId = remoteStates.getPersistentIds().get(member);
+      var member = entry.getKey();
+      var remoteId = remoteStates.getPersistentIds().get(member);
 
-      PersistentMemberState stateOnPeer = entry.getValue();
+      var stateOnPeer = entry.getValue();
       if (PersistentMemberState.REVOKED.equals(stateOnPeer)) {
         throw new RevokedPersistentDataException(
             String.format(
@@ -531,7 +527,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
       }
 
       if (myId != null && stateOnPeer == null) {
-        String message = String.format(
+        var message = String.format(
             "Region %s remote member %s with persistent data %s was not part of the same distributed system as the local data from %s",
             regionPath, member, remoteId, myId);
         // Conceptually the removed member due to not knowing current member, should be equal to
@@ -555,9 +551,9 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
 
       // The other member changes its ID when it comes back online.
       if (remoteId != null) {
-        PersistentMemberState remoteState = getPersistedStateOfMember(remoteId);
+        var remoteState = getPersistedStateOfMember(remoteId);
         if (remoteState == PersistentMemberState.OFFLINE) {
-          String message =
+          var message =
               String.format(
                   "Region %s refusing to initialize from member %s with persistent data %s which was offline when the local data from %s was last online",
                   regionPath, member, remoteId, myId);
@@ -589,7 +585,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
           distributedMember, persistentID);
     }
     synchronized (lock) {
-      boolean foundMember = recoveredMembers.remove(persistentID);
+      var foundMember = recoveredMembers.remove(persistentID);
       foundMember |= equalMembers.remove(persistentID);
       foundMember |= getPersistedMembers().contains(persistentID);
       // Don't persist members as offline until we are online. Otherwise, we may think we have later
@@ -651,17 +647,17 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
     persistentMemberView.memberRevoked(pattern);
 
     // Remove the revoked member from our view.
-    for (PersistentMemberID id : persistentMemberView.getOfflineMembers()) {
+    for (var id : persistentMemberView.getOfflineMembers()) {
       if (pattern.matches(id)) {
         memberRemoved(id, true);
       }
     }
-    for (PersistentMemberID id : persistentMemberView.getOnlineMembers()) {
+    for (var id : persistentMemberView.getOnlineMembers()) {
       if (pattern.matches(id)) {
         memberRemoved(id, true);
       }
     }
-    for (PersistentMemberID id : persistentMemberView.getOfflineAndEqualMembers()) {
+    for (var id : persistentMemberView.getOfflineAndEqualMembers()) {
       if (pattern.matches(id)) {
         memberRemoved(id, true);
       }
@@ -687,7 +683,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
         }
 
         // Purge any IDs that are old versions of the the id that we just removed
-        for (PersistentMemberID persistedId : getPersistedMembers()) {
+        for (var persistedId : getPersistedMembers()) {
           if (persistedId.isOlderOrEqualVersionOf(id)) {
             persistentMemberView.memberRemoved(persistedId);
           }
@@ -738,27 +734,27 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
 
   private void notifyListenersMemberOnline(InternalDistributedMember member,
       PersistentMemberID persistentID) {
-    for (PersistentStateListener listener : persistentStateListeners) {
+    for (var listener : persistentStateListeners) {
       listener.memberOnline(member, persistentID);
     }
   }
 
   private void notifyListenersMemberOffline(InternalDistributedMember member,
       PersistentMemberID persistentID) {
-    for (PersistentStateListener listener : persistentStateListeners) {
+    for (var listener : persistentStateListeners) {
       listener.memberOffline(member, persistentID);
     }
   }
 
   private void notifyListenersMemberRemoved(PersistentMemberID persistentID, boolean revoked) {
-    for (PersistentStateListener listener : persistentStateListeners) {
+    for (var listener : persistentStateListeners) {
       listener.memberRemoved(persistentID, revoked);
     }
   }
 
   @Override
   public HashSet<PersistentMemberID> getPersistedOnlineOrEqualMembers() {
-    HashSet<PersistentMemberID> members = new HashSet<>(persistentMemberView.getOnlineMembers());
+    var members = new HashSet<PersistentMemberID>(persistentMemberView.getOnlineMembers());
     members.addAll(equalMembers);
     return members;
   }
@@ -794,7 +790,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
   }
 
   protected String shortDiskStoreId() {
-    DiskStoreID diskStoreID = getDiskStoreID();
+    var diskStoreID = getDiskStoreID();
     return diskStoreID == null ? "mem" : diskStoreID.abbrev();
   }
 
@@ -827,7 +823,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
 
   public void finishPendingDestroy() {
     // send a message to peers indicating that they should remove this profile
-    long viewVersion = cacheDistributionAdvisor.startOperation();
+    var viewVersion = cacheDistributionAdvisor.startOperation();
     try {
       RemovePersistentMemberMessage.send(cacheDistributionAdvisor.adviseProfileUpdate(),
           cacheDistributionAdvisor.getDistributionManager(), regionPath, getPersistentID(),
@@ -857,7 +853,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
   @Override
   public InitialImageAdvice getInitialImageAdvice(InitialImageAdvice previousAdvice,
       boolean hasDiskImageToRecoverFrom) {
-    PersistenceInitialImageAdvisor piia = new PersistenceInitialImageAdvisor(this,
+    var piia = new PersistenceInitialImageAdvisor(this,
         shortDiskStoreId(), regionPath, cacheDistributionAdvisor, hasDiskImageToRecoverFrom);
     return piia.getAdvice(previousAdvice);
   }
@@ -874,8 +870,8 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
   public Set<PersistentMemberID> getMembersToWaitFor(
       Set<PersistentMemberID> previouslyOnlineMembers, Set<PersistentMemberID> offlineMembers)
       throws ReplyException {
-    PersistentMemberID myPersistentID = getPersistentID();
-    PersistentMemberID myInitializingId = getInitializingID();
+    var myPersistentID = getPersistentID();
+    var myInitializingId = getInitializingID();
 
     // This is the set of members that are currently waiting for this member
     // to come online.
@@ -884,12 +880,12 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
 
     // If our persistent ID is null, we need to wait for all of the previously online members.
     if (myPersistentID != null || myInitializingId != null) {
-      Set<InternalDistributedMember> members = cacheDistributionAdvisor.adviseProfileUpdate();
-      Set<InternalDistributedMember> membersHostingThisRegion =
+      var members = cacheDistributionAdvisor.adviseProfileUpdate();
+      var membersHostingThisRegion =
           cacheDistributionAdvisor.adviseGeneric();
 
       // Fetch the persistent view from all of our peers.
-      PersistentStateQueryResults results = fetchPersistentStateQueryResults(members,
+      var results = fetchPersistentStateQueryResults(members,
           cacheDistributionAdvisor.getDistributionManager(), myPersistentID, myInitializingId);
 
       // iterate through all of the peers. For each peer: if the member was previously online
@@ -897,19 +893,19 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
       // to us, grab its online members and add them to the members to wait for set. We may need to
       // do this several times until we discover all of the members that may have newer data than
       // us.
-      boolean addedMembers = true;
+      var addedMembers = true;
       while (addedMembers) {
         addedMembers = false;
-        for (Entry<InternalDistributedMember, Set<PersistentMemberID>> entry : results
+        for (var entry : results
             .getOnlineMemberMap()
             .entrySet()) {
-          InternalDistributedMember memberId = entry.getKey();
-          Set<PersistentMemberID> peersOnlineMembers = entry.getValue();
-          PersistentMemberID persistentID = results.getPersistentIds().get(memberId);
-          PersistentMemberID initializingID = results.getInitializingIds().get(memberId);
+          var memberId = entry.getKey();
+          var peersOnlineMembers = entry.getValue();
+          var persistentID = results.getPersistentIds().get(memberId);
+          var initializingID = results.getInitializingIds().get(memberId);
           if (membersToWaitFor.contains(persistentID)
               || membersToWaitFor.contains(initializingID)) {
-            for (PersistentMemberID peerOnlineMember : peersOnlineMembers) {
+            for (var peerOnlineMember : peersOnlineMembers) {
               if (!isRevoked(peerOnlineMember)
                   && !peerOnlineMember.getDiskStoreId().equals(getDiskStoreID())
                   && !persistentMemberView.getOfflineMembers().contains(peerOnlineMember)) {
@@ -936,13 +932,13 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
       }
 
       // For each of our peers, see what our state is according to their view.
-      for (Map.Entry<InternalDistributedMember, PersistentMemberState> entry : results
+      for (var entry : results
           .getStateOnPeers().entrySet()) {
-        InternalDistributedMember memberId = entry.getKey();
-        PersistentMemberID persistentID = results.getPersistentIds().get(memberId);
-        PersistentMemberID initializingID = results.getInitializingIds().get(memberId);
-        DiskStoreID diskStoreID = results.getDiskStoreIds().get(memberId);
-        PersistentMemberState state = entry.getValue();
+        var memberId = entry.getKey();
+        var persistentID = results.getPersistentIds().get(memberId);
+        var initializingID = results.getInitializingIds().get(memberId);
+        var diskStoreID = results.getDiskStoreIds().get(memberId);
+        var state = entry.getValue();
 
         if (PersistentMemberState.REVOKED.equals(state)) {
           throw new RevokedPersistentDataException(
@@ -1024,14 +1020,14 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
   protected void removeOlderMembers(Set<PersistentMemberID> persistentMemberSet) {
     Map<DiskStoreID, PersistentMemberID> mostRecentMap = new HashMap<>();
     List<PersistentMemberID> idsToRemove = new ArrayList<>();
-    for (PersistentMemberID persistentMember : persistentMemberSet) {
-      DiskStoreID diskStoreId = persistentMember.getDiskStoreId();
-      PersistentMemberID mostRecent = mostRecentMap.get(diskStoreId);
+    for (var persistentMember : persistentMemberSet) {
+      var diskStoreId = persistentMember.getDiskStoreId();
+      var mostRecent = mostRecentMap.get(diskStoreId);
       if (mostRecent == null) {
         mostRecentMap.put(diskStoreId, persistentMember);
       } else {
-        PersistentMemberID older = persistentMember;
-        boolean persistentMemberIsNewer =
+        var older = persistentMember;
+        var persistentMemberIsNewer =
             !persistentMember.isOlderOrEqualVersionOf(mostRecent);
         if (persistentMemberIsNewer) {
           older = mostRecent;
@@ -1051,8 +1047,8 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
    */
   private void removeNewerPersistentID(Set<PersistentMemberID> membersToWaitFor,
       PersistentMemberID persistentID) {
-    for (Iterator<PersistentMemberID> itr = membersToWaitFor.iterator(); itr.hasNext();) {
-      PersistentMemberID id = itr.next();
+    for (var itr = membersToWaitFor.iterator(); itr.hasNext();) {
+      var id = itr.next();
       if (persistentID.isOlderOrEqualVersionOf(id)) {
         if (logger.isDebugEnabled(LogMarker.PERSIST_ADVISOR_VERBOSE)) {
           logger.debug(LogMarker.PERSIST_ADVISOR_VERBOSE,
@@ -1069,8 +1065,8 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
    */
   private void removeByDiskStoreID(Set<PersistentMemberID> membersToWaitFor,
       DiskStoreID diskStoreID, boolean updateAdvisor) {
-    for (Iterator<PersistentMemberID> itr = membersToWaitFor.iterator(); itr.hasNext();) {
-      PersistentMemberID id = itr.next();
+    for (var itr = membersToWaitFor.iterator(); itr.hasNext();) {
+      var id = itr.next();
       if (id.getDiskStoreId().equals(diskStoreID)) {
         if (logger.isDebugEnabled(LogMarker.PERSIST_ADVISOR_VERBOSE)) {
           logger.debug(LogMarker.PERSIST_ADVISOR_VERBOSE,
@@ -1213,7 +1209,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
   @Override
   public void persistMembersOfflineAndEqual(
       Map<InternalDistributedMember, PersistentMemberID> map) {
-    for (PersistentMemberID persistentID : map.values()) {
+    for (var persistentID : map.values()) {
       persistentMemberView.memberOfflineAndEqual(persistentID);
     }
   }
@@ -1243,7 +1239,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
 
     @Override
     public void profileRemoved(Profile profile, boolean destroyed) {
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       if (cp.persistentID != null) {
         if (destroyed) {
           memberRemoved(cp.persistentID, false);
@@ -1255,7 +1251,7 @@ public class PersistenceAdvisorImpl implements InternalPersistenceAdvisor {
 
     @Override
     public void profileUpdated(Profile profile) {
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       if (cp.persistentID != null && cp.persistenceInitialized) {
         memberOnline(profile.getDistributedMember(), cp.persistentID);
       }

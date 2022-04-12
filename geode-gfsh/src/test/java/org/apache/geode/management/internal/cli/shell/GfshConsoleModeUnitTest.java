@@ -17,9 +17,7 @@ package org.apache.geode.management.internal.cli.shell;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Enumeration;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,14 +35,14 @@ public class GfshConsoleModeUnitTest extends GfshAbstractUnitTest {
   @Test
   public void consoleModeShouldRedirectOnlyJDKLoggers() {
     gfsh = new Gfsh(true, null, new GfshConfig());
-    LogManager logManager = LogManager.getLogManager();
-    Enumeration<String> loggerNames = logManager.getLoggerNames();
+    var logManager = LogManager.getLogManager();
+    var loggerNames = logManager.getLoggerNames();
     // when initialized in console mode, all log messages will show up in console
     // initially. so that we see messages when "start locator", "start server" command
     // are executed. Only after connection, JDK's logging is turned off
     while (loggerNames.hasMoreElements()) {
-      String loggerName = loggerNames.nextElement();
-      Logger logger = logManager.getLogger(loggerName);
+      var loggerName = loggerNames.nextElement();
+      var logger = logManager.getLogger(loggerName);
       // make sure jdk's logging goes to the gfsh log file
       if (loggerName.startsWith("java")) {
         assertThat(logger.getParent().getName()).endsWith("LogWrapper");

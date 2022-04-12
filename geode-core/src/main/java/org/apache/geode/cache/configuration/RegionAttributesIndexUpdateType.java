@@ -63,7 +63,7 @@ public enum RegionAttributesIndexUpdateType implements Serializable {
   }
 
   public static RegionAttributesIndexUpdateType fromValue(String v) {
-    for (RegionAttributesIndexUpdateType c : RegionAttributesIndexUpdateType.values()) {
+    for (var c : RegionAttributesIndexUpdateType.values()) {
       if (c.value.equals(v)) {
         return c;
       }

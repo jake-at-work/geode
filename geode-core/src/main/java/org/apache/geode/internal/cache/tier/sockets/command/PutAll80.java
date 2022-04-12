@@ -28,7 +28,6 @@ import org.apache.geode.cache.DynamicRegionFactory;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.ResourceException;
 import org.apache.geode.cache.client.internal.PutAllOp;
-import org.apache.geode.cache.operations.PutAllOperationContext;
 import org.apache.geode.cache.operations.internal.UpdateOnlyMap;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.CachedDeserializableFactory;
@@ -38,18 +37,14 @@ import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PutAllPartialResultException;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
-import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.util.Breadcrumbs;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -83,32 +78,32 @@ public class PutAll80 extends BaseCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long startp)
       throws IOException, InterruptedException {
-    long start = startp; // copy this since we need to modify it
+    var start = startp; // copy this since we need to modify it
 
-    StringBuilder errMessage = new StringBuilder();
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var errMessage = new StringBuilder();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var stats = serverConnection.getCacheServerStats();
 
     // requiresResponse = true;
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE); // new in 8.0
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadPutAllRequestTime(start - oldStart);
     }
 
     final String regionName;
-    boolean replyWithMetaData = false;
+    var replyWithMetaData = false;
     VersionedObjectList response;
     try {
       // Retrieve the data from the message parts
       // part 0: region name
-      Part regionNamePart = clientMessage.getPart(0);
+      var regionNamePart = clientMessage.getPart(0);
       regionName = regionNamePart.getCachedString();
 
       if (regionName == null) {
-        String putAllMsg =
+        var putAllMsg =
             "The input region name for the putAll request is null";
         logger.warn("{}: {}", serverConnection.getName(), putAllMsg);
         errMessage.append(putAllMsg);
@@ -118,43 +113,43 @@ public class PutAll80 extends BaseCommand {
         return;
       }
 
-      LocalRegion region = (LocalRegion) crHelper.getRegion(regionName);
+      var region = (LocalRegion) crHelper.getRegion(regionName);
       if (region == null) {
-        String reason = " was not found during putAll request";
+        var reason = " was not found during putAll request";
         writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
         serverConnection.setAsTrue(RESPONDED);
         return;
       }
 
-      final int BASE_PART_COUNT = getBasePartCount();
+      final var BASE_PART_COUNT = getBasePartCount();
 
       // part 1: eventID
-      Part eventPart = clientMessage.getPart(1);
-      ByteBuffer eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
-      long threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-      long sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-      EventID eventId =
+      var eventPart = clientMessage.getPart(1);
+      var eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
+      var threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+      var sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+      var eventId =
           new EventID(serverConnection.getEventMemberIDByteArray(), threadId, sequenceId);
 
       Breadcrumbs.setEventId(eventId);
 
       // part 2: invoke callbacks (used by import)
-      Part callbacksPart = clientMessage.getPart(2);
-      boolean skipCallbacks = callbacksPart.getInt() == 1;
+      var callbacksPart = clientMessage.getPart(2);
+      var skipCallbacks = callbacksPart.getInt() == 1;
 
       // part 3: flags
-      int flags = clientMessage.getPart(3).getInt();
-      boolean clientIsEmpty = (flags & PutAllOp.FLAG_EMPTY) != 0;
-      boolean clientHasCCEnabled = (flags & PutAllOp.FLAG_CONCURRENCY_CHECKS) != 0;
+      var flags = clientMessage.getPart(3).getInt();
+      var clientIsEmpty = (flags & PutAllOp.FLAG_EMPTY) != 0;
+      var clientHasCCEnabled = (flags & PutAllOp.FLAG_CONCURRENCY_CHECKS) != 0;
 
       // part 4: number of keys
-      Part numberOfKeysPart = clientMessage.getPart(4);
-      int numberOfKeys = numberOfKeysPart.getInt();
+      var numberOfKeysPart = clientMessage.getPart(4);
+      var numberOfKeys = numberOfKeysPart.getInt();
 
-      Object callbackArg = getOptionalCallbackArg(clientMessage);
+      var callbackArg = getOptionalCallbackArg(clientMessage);
 
       if (logger.isDebugEnabled()) {
-        final String buffer = serverConnection.getName() + ": Received "
+        final var buffer = serverConnection.getName() + ": Received "
             + putAllClassName() + " request from "
             + serverConnection.getSocketString() + " for region " + regionName
             + (callbackArg != null ? (" callbackArg " + callbackArg) : "") + " with "
@@ -167,11 +162,11 @@ public class PutAll80 extends BaseCommand {
       // Map isObjectMap = new LinkedHashMap();
       Part valuePart;
       Object key;
-      for (int i = 0; i < numberOfKeys; i++) {
-        Part keyPart = clientMessage.getPart(BASE_PART_COUNT + i * 2);
+      for (var i = 0; i < numberOfKeys; i++) {
+        var keyPart = clientMessage.getPart(BASE_PART_COUNT + i * 2);
         key = keyPart.getStringOrObject();
         if (key == null) {
-          String putAllMsg =
+          var putAllMsg =
               "One of the input keys for the putAll request is null";
           logger.warn("{}: {}", serverConnection.getName(), putAllMsg);
           errMessage.append(putAllMsg);
@@ -183,7 +178,7 @@ public class PutAll80 extends BaseCommand {
 
         valuePart = clientMessage.getPart(BASE_PART_COUNT + i * 2 + 1);
         if (valuePart.isNull()) {
-          String putAllMsg =
+          var putAllMsg =
               "One of the input values for the putAll request is null";
           logger.warn("{}: {}", serverConnection.getName(), putAllMsg);
           errMessage.append(putAllMsg);
@@ -215,19 +210,19 @@ public class PutAll80 extends BaseCommand {
           // put all map
 
           // The sequence id is constructed from the base sequence id and the offset
-          EventID entryEventId = new EventID(eventId, i);
+          var entryEventId = new EventID(eventId, i);
 
           // For PRs, the thread id assigned as a fake thread id.
           if (region instanceof PartitionedRegion) {
-            PartitionedRegion pr = (PartitionedRegion) region;
-            int bucketId = pr.getKeyInfo(key).getBucketId();
-            long entryThreadId =
+            var pr = (PartitionedRegion) region;
+            var bucketId = pr.getKeyInfo(key).getBucketId();
+            var entryThreadId =
                 ThreadIdentifier.createFakeThreadIDForBulkOp(bucketId, entryEventId.getThreadID());
             entryEventId = new EventID(entryEventId.getMembershipID(), entryThreadId,
                 entryEventId.getSequenceID());
           }
 
-          VersionTag<?> tag = findVersionTagsForRetriedBulkOp(region, entryEventId);
+          var tag = findVersionTagsForRetriedBulkOp(region, entryEventId);
           if (tag != null) {
             retryVersions.put(key, tag);
           }
@@ -242,18 +237,18 @@ public class PutAll80 extends BaseCommand {
                                                                                          // optional
         // timeout has been
         // added
-        int timeout = clientMessage.getPart(BASE_PART_COUNT + 2 * numberOfKeys).getInt();
+        var timeout = clientMessage.getPart(BASE_PART_COUNT + 2 * numberOfKeys).getInt();
         serverConnection.setRequestSpecificTimeout(timeout);
       }
 
       securityService.authorize(Resource.DATA, Operation.WRITE, regionName);
 
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       if (authzRequest != null) {
         if (DynamicRegionFactory.regionIsDynamicRegionList(regionName)) {
           authzRequest.createRegionAuthorize(regionName);
         } else {
-          PutAllOperationContext putAllContext =
+          var putAllContext =
               authzRequest.putAllAuthorize(regionName, map, callbackArg);
           map = putAllContext.getMap();
           if (map instanceof UpdateOnlyMap) {
@@ -278,7 +273,7 @@ public class PutAll80 extends BaseCommand {
       }
 
       if (region instanceof PartitionedRegion) {
-        PartitionedRegion pr = (PartitionedRegion) region;
+        var pr = (PartitionedRegion) region;
         if (pr.getNetworkHopType() != PartitionedRegion.NETWORK_HOP_NONE) {
           writeReplyWithRefreshMetadata(clientMessage, response, serverConnection, pr,
               pr.getNetworkHopType());
@@ -301,7 +296,7 @@ public class PutAll80 extends BaseCommand {
           serverConnection.getName()), ce);
       return;
     } finally {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessPutAllTime(start - oldStart);
     }
@@ -329,10 +324,10 @@ public class PutAll80 extends BaseCommand {
   protected void writeReply(Message origMsg, VersionedObjectList response,
       ServerConnection servConn) throws IOException {
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
-    ChunkedMessage replyMsg = servConn.getChunkedResponseMessage();
+    var replyMsg = servConn.getChunkedResponseMessage();
     replyMsg.setMessageType(MessageType.RESPONSE);
     replyMsg.setTransactionId(origMsg.getTransactionId());
-    int listSize = (response == null) ? 0 : response.size();
+    var listSize = (response == null) ? 0 : response.size();
     if (response != null) {
       response.setKeys(null);
     }
@@ -342,12 +337,12 @@ public class PutAll80 extends BaseCommand {
     }
     replyMsg.sendHeader();
     if (listSize > 0) {
-      int chunkSize = 2 * MAXIMUM_CHUNK_SIZE;
+      var chunkSize = 2 * MAXIMUM_CHUNK_SIZE;
       // Chunker will stream over the list in its toData method
-      VersionedObjectList.Chunker chunk =
+      var chunk =
           new VersionedObjectList.Chunker(response, chunkSize, false, false);
-      for (int i = 0; i < listSize; i += chunkSize) {
-        boolean lastChunk = (i + chunkSize >= listSize);
+      for (var i = 0; i < listSize; i += chunkSize) {
+        var lastChunk = (i + chunkSize >= listSize);
         replyMsg.setNumberOfParts(1);
         replyMsg.setMessageType(MessageType.RESPONSE);
         replyMsg.setLastChunk(lastChunk);
@@ -376,11 +371,11 @@ public class PutAll80 extends BaseCommand {
   private void writeReplyWithRefreshMetadata(Message origMsg, VersionedObjectList response,
       ServerConnection servConn, PartitionedRegion pr, byte nwHop) throws IOException {
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
-    ChunkedMessage replyMsg = servConn.getChunkedResponseMessage();
+    var replyMsg = servConn.getChunkedResponseMessage();
     replyMsg.setMessageType(MessageType.RESPONSE);
     replyMsg.setTransactionId(origMsg.getTransactionId());
     replyMsg.sendHeader();
-    int listSize = (response == null) ? 0 : response.size();
+    var listSize = (response == null) ? 0 : response.size();
     if (logger.isDebugEnabled()) {
       logger.debug(
           "sending chunked response header with metadata refresh status. Version list size = {}{}",
@@ -396,12 +391,12 @@ public class PutAll80 extends BaseCommand {
       replyMsg.setLastChunk(false);
       replyMsg.sendChunk(servConn);
 
-      int chunkSize = 2 * MAXIMUM_CHUNK_SIZE; // MAXIMUM_CHUNK_SIZE
+      var chunkSize = 2 * MAXIMUM_CHUNK_SIZE; // MAXIMUM_CHUNK_SIZE
       // Chunker will stream over the list in its toData method
-      VersionedObjectList.Chunker chunk =
+      var chunk =
           new VersionedObjectList.Chunker(response, chunkSize, false, false);
-      for (int i = 0; i < listSize; i += chunkSize) {
-        boolean lastChunk = (i + chunkSize >= listSize);
+      for (var i = 0; i < listSize; i += chunkSize) {
+        var lastChunk = (i + chunkSize >= listSize);
         replyMsg.setNumberOfParts(1); // resets the message
         replyMsg.setMessageType(MessageType.RESPONSE);
         replyMsg.setLastChunk(lastChunk);

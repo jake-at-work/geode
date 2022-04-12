@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Instant;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,31 +53,31 @@ public class FunctionToFileTrackerIntegrationTest {
 
   @Test
   public void registerFunctions() throws IOException {
-    File functionJar = registerFunctionJar();
+    var functionJar = registerFunctionJar();
 
-    Deployment deployment = createDeploymentFromJar(functionJar);
+    var deployment = createDeploymentFromJar(functionJar);
     ClassPathLoader.getLatest().getJarDeploymentService().deploy(deployment);
 
-    Set<String> registeredFunctions = FunctionService.getRegisteredFunctions().keySet();
+    var registeredFunctions = FunctionService.getRegisteredFunctions().keySet();
     assertThat(registeredFunctions.size()).isEqualTo(1);
     assertThat(registeredFunctions).containsExactly("JarClassLoaderJUnitFunction");
   }
 
   private File registerFunctionJar() throws IOException {
-    final File parentJarFile = temporaryFolder.newFile("JarClassLoaderJUnitParent.jar");
-    final File usesJarFile = temporaryFolder.newFile("JarClassLoaderJUnitUses.jar");
+    final var parentJarFile = temporaryFolder.newFile("JarClassLoaderJUnitParent.jar");
+    final var usesJarFile = temporaryFolder.newFile("JarClassLoaderJUnitUses.jar");
 
     // Write out a JAR files.
-    StringBuilder StringBuilder = new StringBuilder();
+    var StringBuilder = new StringBuilder();
     StringBuilder.append("package jcljunit.parent;");
     StringBuilder.append("public class JarClassLoaderJUnitParent {");
     StringBuilder.append("public String getValueParent() {");
     StringBuilder.append("return \"PARENT\";}}");
 
-    byte[] jarBytes = classBuilder.createJarFromClassContent(
+    var jarBytes = classBuilder.createJarFromClassContent(
         "jcljunit/parent/JarClassLoaderJUnitParent", StringBuilder.toString());
     writeJarBytesToFile(parentJarFile, jarBytes);
-    Deployment parentDeployment = createDeploymentFromJar(parentJarFile);
+    var parentDeployment = createDeploymentFromJar(parentJarFile);
     ClassPathLoader.getLatest().getJarDeploymentService().deploy(parentDeployment);
 
     StringBuilder = new StringBuilder();
@@ -90,7 +89,7 @@ public class FunctionToFileTrackerIntegrationTest {
     jarBytes = classBuilder.createJarFromClassContent("jcljunit/uses/JarClassLoaderJUnitUses",
         StringBuilder.toString());
     writeJarBytesToFile(usesJarFile, jarBytes);
-    Deployment userDeployment = createDeploymentFromJar(usesJarFile);
+    var userDeployment = createDeploymentFromJar(usesJarFile);
     ClassPathLoader.getLatest().getJarDeploymentService().deploy(userDeployment);
 
     StringBuilder = new StringBuilder();
@@ -109,24 +108,24 @@ public class FunctionToFileTrackerIntegrationTest {
     StringBuilder.append("public boolean optimizeForWrite() {return false;}");
     StringBuilder.append("public boolean isHA() {return false;}}");
 
-    ClassBuilder functionClassBuilder = new ClassBuilder();
+    var functionClassBuilder = new ClassBuilder();
     functionClassBuilder.addToClassPath(parentJarFile.getAbsolutePath());
     functionClassBuilder.addToClassPath(usesJarFile.getAbsolutePath());
     jarBytes = functionClassBuilder.createJarFromClassContent(
         "jcljunit/function/JarClassLoaderJUnitFunction", StringBuilder.toString());
-    File functionJar = temporaryFolder.newFile("JarClassLoaderJUnitFunction.jar");
+    var functionJar = temporaryFolder.newFile("JarClassLoaderJUnitFunction.jar");
     writeJarBytesToFile(functionJar, jarBytes);
     return functionJar;
   }
 
   @Test
   public void unregisterFunctionsForDeployment() throws IOException {
-    File functionJar = registerFunctionJar();
+    var functionJar = registerFunctionJar();
 
-    Deployment deployment = createDeploymentFromJar(functionJar);
+    var deployment = createDeploymentFromJar(functionJar);
     ClassPathLoader.getLatest().getJarDeploymentService().deploy(deployment);
 
-    Set<String> registeredFunctions = FunctionService.getRegisteredFunctions().keySet();
+    var registeredFunctions = FunctionService.getRegisteredFunctions().keySet();
     assertThat(registeredFunctions.size()).isEqualTo(1);
     assertThat(registeredFunctions).containsExactly("JarClassLoaderJUnitFunction");
 
@@ -137,7 +136,7 @@ public class FunctionToFileTrackerIntegrationTest {
   }
 
   private Deployment createDeploymentFromJar(File jar) {
-    Deployment deployment = new Deployment(jar.getName(), "test", Instant.now().toString());
+    var deployment = new Deployment(jar.getName(), "test", Instant.now().toString());
     deployment.setFile(jar);
     return deployment;
   }

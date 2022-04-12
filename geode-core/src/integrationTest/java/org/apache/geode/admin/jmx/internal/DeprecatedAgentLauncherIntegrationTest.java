@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -42,7 +41,6 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
-import org.apache.geode.admin.jmx.internal.AgentLauncher.Status;
 import org.apache.geode.internal.lang.SystemUtils;
 import org.apache.geode.test.process.ProcessWrapper;
 
@@ -71,26 +69,26 @@ public class DeprecatedAgentLauncherIntegrationTest {
 
   @Test
   public void testGetStartOptions() throws Exception {
-    final String[] commandLineArguments =
-        {"start", "appendto-log-file=true", "log-level=warn", "mcast-port=0",
+    final var commandLineArguments =
+        new String[] {"start", "appendto-log-file=true", "log-level=warn", "mcast-port=0",
             "-dir=" + temporaryFolder.getRoot().getAbsolutePath(), "-J-Xms256M", "-J-Xmx1024M"};
 
-    final AgentLauncher launcher = new AgentLauncher("Agent");
+    final var launcher = new AgentLauncher("Agent");
 
-    final Map<String, Object> startOptions = launcher.getStartOptions(commandLineArguments);
+    final var startOptions = launcher.getStartOptions(commandLineArguments);
 
     assertThat(startOptions).isNotNull();
     assertThat(startOptions.get(APPENDTO_LOG_FILE)).isEqualTo("true");
     assertThat(startOptions.get(DIR)).isEqualTo(temporaryFolder.getRoot());
 
-    final Properties props = (Properties) startOptions.get(AGENT_PROPS);
+    final var props = (Properties) startOptions.get(AGENT_PROPS);
 
     assertThat(props).isNotNull();
     assertThat(props).hasSize(2);
     assertThat(props.getProperty("log-level")).isEqualTo("warn");
     assertThat(props.getProperty("mcast-port")).isEqualTo("0");
 
-    final List<String> vmArgs = (List<String>) startOptions.get(VMARGS);
+    final var vmArgs = (List<String>) startOptions.get(VMARGS);
 
     assertThat(vmArgs).isNotNull();
     assertThat(vmArgs).hasSize(2);
@@ -110,19 +108,19 @@ public class DeprecatedAgentLauncherIntegrationTest {
    */
   @Test
   public void testGetStartOptionsWithPropertyFileOption() throws Exception {
-    final String[] commandLineArguments = {"start",
+    final var commandLineArguments = new String[] {"start",
         "-dir=" + temporaryFolder.getRoot().getAbsolutePath(), "-J-Xms512M", "log-level=warn",
         "mcast-port=0", "property-file=/path/to/custom/property/file.properties",};
 
-    final AgentLauncher launcher = new AgentLauncher("Agent");
+    final var launcher = new AgentLauncher("Agent");
 
-    final Map<String, Object> startOptions = launcher.getStartOptions(commandLineArguments);
+    final var startOptions = launcher.getStartOptions(commandLineArguments);
 
     assertThat(startOptions).isNotNull();
     assertThat(startOptions).isNotEmpty();
     assertThat(startOptions.get(DIR)).isEqualTo(temporaryFolder.getRoot());
 
-    final Properties props = (Properties) startOptions.get(AGENT_PROPS);
+    final var props = (Properties) startOptions.get(AGENT_PROPS);
 
     assertThat(props).isNotNull();
     assertThat(props).hasSize(3);
@@ -131,7 +129,7 @@ public class DeprecatedAgentLauncherIntegrationTest {
     assertThat(props.getProperty(AgentConfigImpl.PROPERTY_FILE_NAME))
         .isEqualTo("/path/to/custom/property/file.properties");
 
-    final List<String> vmArgs = (List<String>) startOptions.get(VMARGS);
+    final var vmArgs = (List<String>) startOptions.get(VMARGS);
 
     assertThat(vmArgs).isNotNull();
     assertThat(vmArgs).hasSize(1);
@@ -144,12 +142,12 @@ public class DeprecatedAgentLauncherIntegrationTest {
 
   @Test
   public void testGetStopOptions() throws Exception {
-    final String[] commandLineArguments =
-        {"stop", "-dir=" + temporaryFolder.getRoot().getAbsolutePath()};
+    final var commandLineArguments =
+        new String[] {"stop", "-dir=" + temporaryFolder.getRoot().getAbsolutePath()};
 
-    final AgentLauncher launcher = new AgentLauncher("Agent");
+    final var launcher = new AgentLauncher("Agent");
 
-    final Map<String, Object> stopOptions = launcher.getStopOptions(commandLineArguments);
+    final var stopOptions = launcher.getStopOptions(commandLineArguments);
 
     assertThat(stopOptions).isNotNull();
     assertThat(stopOptions.get(DIR)).isEqualTo(temporaryFolder.getRoot());
@@ -157,7 +155,7 @@ public class DeprecatedAgentLauncherIntegrationTest {
 
   @Test
   public void testCreateStatus() throws Exception {
-    final Status status = AgentLauncher.createStatus("agent", RUNNING, 12345);
+    final var status = AgentLauncher.createStatus("agent", RUNNING, 12345);
 
     assertThat(status).isNotNull();
     assertThat(status.baseName).isEqualTo("agent");
@@ -169,7 +167,7 @@ public class DeprecatedAgentLauncherIntegrationTest {
 
   @Test
   public void testCreateStatusWithMessageAndException() throws Exception {
-    final Status status = AgentLauncher.createStatus("agent", STARTING, 11235, "Test Message!",
+    final var status = AgentLauncher.createStatus("agent", STARTING, 11235, "Test Message!",
         new Exception("Test Exception!"));
 
     assertThat(status).isNotNull();
@@ -182,9 +180,9 @@ public class DeprecatedAgentLauncherIntegrationTest {
 
   @Test
   public void testGetStatusWhenStatusFileDoesNotExists() throws Exception {
-    final AgentLauncher launcher = new AgentLauncher("Agent");
+    final var launcher = new AgentLauncher("Agent");
 
-    final Status status = launcher.getStatus();
+    final var status = launcher.getStatus();
 
     assertAgentLauncherStatus(status, "Agent", SHUTDOWN, 0);
     assertThat(status.msg)
@@ -195,16 +193,16 @@ public class DeprecatedAgentLauncherIntegrationTest {
 
   @Test
   public void testPause() throws Exception {
-    final long t0 = System.currentTimeMillis();
+    final var t0 = System.currentTimeMillis();
     AgentLauncher.pause(100);
-    final long t1 = System.currentTimeMillis();
+    final var t1 = System.currentTimeMillis();
     assertThat(t1 - t0).isGreaterThanOrEqualTo(100);
   }
 
   @Test
   public void testStartStatusAndStop() throws Exception {
-    final File agentWorkingDirectory = getAgentWorkingDirectory(testName.getMethodName());
-    final File agentStatusFile = new File(agentWorkingDirectory, ".agent.ser");
+    final var agentWorkingDirectory = getAgentWorkingDirectory(testName.getMethodName());
+    final var agentStatusFile = new File(agentWorkingDirectory, ".agent.ser");
 
     assertThat(deleteAgentWorkingDirectory(agentWorkingDirectory)).isTrue();
 
@@ -228,14 +226,14 @@ public class DeprecatedAgentLauncherIntegrationTest {
 
   @Test
   public void testWriteReadAndDeleteStatus() throws Exception {
-    final File expectedStatusFile = new File(temporaryFolder.getRoot(), ".agent.ser");
-    final AgentLauncher launcher = new AgentLauncher("Agent");
+    final var expectedStatusFile = new File(temporaryFolder.getRoot(), ".agent.ser");
+    final var launcher = new AgentLauncher("Agent");
 
     launcher.getStartOptions(new String[] {"-dir=" + temporaryFolder.getRoot().getAbsolutePath()});
 
     assertThat(expectedStatusFile).doesNotExist();
 
-    final AgentLauncher.Status expectedStatus = AgentLauncher.createStatus("agent", RUNNING, 13579);
+    final var expectedStatus = AgentLauncher.createStatus("agent", RUNNING, 13579);
 
     assertAgentLauncherStatus(expectedStatus, "agent", RUNNING, 13579);
 
@@ -243,7 +241,7 @@ public class DeprecatedAgentLauncherIntegrationTest {
 
     assertThat(expectedStatusFile).exists();
 
-    final AgentLauncher.Status actualStatus = launcher.readStatus(temporaryFolder.getRoot());
+    final var actualStatus = launcher.readStatus(temporaryFolder.getRoot());
 
     assertThat(actualStatus).isNotNull();
     assertAgentLauncherStatusEquals(expectedStatus, actualStatus);
@@ -274,10 +272,10 @@ public class DeprecatedAgentLauncherIntegrationTest {
   }
 
   private static boolean deleteFileRecursive(final File file) {
-    boolean result = true;
+    var result = true;
 
     if (file.isDirectory()) {
-      for (final File childFile : file.listFiles()) {
+      for (final var childFile : file.listFiles()) {
         result &= deleteFileRecursive(childFile);
       }
     }
@@ -291,7 +289,7 @@ public class DeprecatedAgentLauncherIntegrationTest {
 
   private static void runAgent(final String processOutputPattern, final String... args)
       throws Exception {
-    final ProcessWrapper agentProcess =
+    final var agentProcess =
         new ProcessWrapper.Builder().mainClass(AgentLauncher.class).mainArguments(args).build();
 
     agentProcess.execute();

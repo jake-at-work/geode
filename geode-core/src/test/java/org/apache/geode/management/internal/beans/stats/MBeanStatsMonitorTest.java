@@ -64,9 +64,9 @@ public class MBeanStatsMonitorTest {
     MockitoAnnotations.initMocks(this);
 
     expectedStatsMap = new HashMap<>();
-    StatisticDescriptor[] descriptors = new StatisticDescriptor[3];
-    for (int i = 0; i < descriptors.length; i++) {
-      String key = "stat-" + (i + 1);
+    var descriptors = new StatisticDescriptor[3];
+    for (var i = 0; i < descriptors.length; i++) {
+      var key = "stat-" + (i + 1);
       Number value = i + 1;
 
       expectedStatsMap.put(key, value);

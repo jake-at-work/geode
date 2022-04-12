@@ -24,7 +24,6 @@ import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.Token;
-import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.persistence.DiskRegionView;
 
 /**
@@ -86,7 +85,7 @@ public class HeapLRUController extends SizeLRUController {
       return 0;
     }
 
-    int size = getPerEntryOverhead();
+    var size = getPerEntryOverhead();
     size += sizeof(key);
     size += sizeof(value);
     return size;
@@ -101,9 +100,9 @@ public class HeapLRUController extends SizeLRUController {
    */
   @Override
   public boolean mustEvict(EvictionCounters stats, InternalRegion region, int delta) {
-    InternalCache cache = (InternalCache) region.getRegionService();
-    boolean offheap = region.getAttributes().getOffHeap();
-    boolean shouldEvict =
+    var cache = (InternalCache) region.getRegionService();
+    var offheap = region.getAttributes().getOffHeap();
+    var shouldEvict =
         cache.getInternalResourceManager().getMemoryMonitor(offheap).getState().isEviction();
 
     if (region instanceof BucketRegion) {
@@ -114,7 +113,7 @@ public class HeapLRUController extends SizeLRUController {
 
   @Override
   public boolean lruLimitExceeded(EvictionCounters stats, DiskRegionView diskRegionView) {
-    InternalResourceManager resourceManager =
+    var resourceManager =
         diskRegionView.getDiskStore().getCache().getInternalResourceManager();
     return resourceManager.getMemoryMonitor(diskRegionView.getOffHeap()).getState().isEviction();
   }

@@ -31,8 +31,8 @@ public class SemaphoreReadWriteLock implements ReadWriteLock {
   private final SemaphoreWriteLock writeLock;
 
   public SemaphoreReadWriteLock() {
-    Semaphore writerSemaphore = new Semaphore(1);
-    Semaphore readerSemaphore = new Semaphore(1);
+    var writerSemaphore = new Semaphore(1);
+    var readerSemaphore = new Semaphore(1);
     readLock = new SemaphoreReadLock(readerSemaphore, writerSemaphore);
     writeLock = new SemaphoreWriteLock(writerSemaphore);
   }
@@ -59,7 +59,7 @@ public class SemaphoreReadWriteLock implements ReadWriteLock {
 
     @Override
     public void lock() {
-      boolean interrupted = false;
+      var interrupted = false;
       try {
         for (;;) {
           try {
@@ -92,7 +92,7 @@ public class SemaphoreReadWriteLock implements ReadWriteLock {
 
     @Override
     public boolean tryLock() {
-      boolean interrupted = false;
+      var interrupted = false;
       try {
         for (;;) {
           try {
@@ -111,7 +111,7 @@ public class SemaphoreReadWriteLock implements ReadWriteLock {
     @Override
     public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
       if (readerSemaphore.tryAcquire(time, unit)) {
-        int oldNumReaders = numReaders;
+        var oldNumReaders = numReaders;
         numReaders++;
         if (numReaders == 1) {
           if (writerSemaphore.tryAcquire(time, unit)) {
@@ -133,7 +133,7 @@ public class SemaphoreReadWriteLock implements ReadWriteLock {
     @Override
     public void unlock() {
       for (;;) {
-        boolean interrupted = false;
+        var interrupted = false;
         try {
           readerSemaphore.acquire();
         } catch (InterruptedException e) {
@@ -173,7 +173,7 @@ public class SemaphoreReadWriteLock implements ReadWriteLock {
 
     @Override
     public void lock() {
-      boolean interrupted = false;
+      var interrupted = false;
       try {
         for (;;) {
           try {

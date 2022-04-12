@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.query.internal.QueryConfigurationService;
@@ -64,8 +63,8 @@ public class AlterQueryServiceFunction extends CliFunction<Object[]> {
   @SuppressWarnings({"unchecked", "deprecation"})
   public CliFunctionResult executeFunction(FunctionContext<Object[]> context) {
     Set<String> parameterSet;
-    boolean forceUpdate = (boolean) context.getArguments()[0];
-    String authorizerName = (String) context.getArguments()[1];
+    var forceUpdate = (boolean) context.getArguments()[0];
+    var authorizerName = (String) context.getArguments()[1];
 
     if (context.getArguments()[2] != null) {
       parameterSet = (Set<String>) context.getArguments()[2];
@@ -90,7 +89,7 @@ public class AlterQueryServiceFunction extends CliFunction<Object[]> {
     }
 
     try {
-      Cache cache = context.getCache();
+      var cache = context.getCache();
       ((InternalCache) cache).getService(QueryConfigurationService.class)
           .updateMethodAuthorizer(cache, forceUpdate, authorizerName, parameterSet);
     } catch (Exception ex) {
@@ -98,7 +97,7 @@ public class AlterQueryServiceFunction extends CliFunction<Object[]> {
           ex.getMessage());
     }
 
-    String message = AUTHORIZER_UPDATED_MESSAGE + authorizerName + (parameterSet.size() > 0
+    var message = AUTHORIZER_UPDATED_MESSAGE + authorizerName + (parameterSet.size() > 0
         ? AUTHORIZER_PARAMETERS_MESSAGE + String.join(", ", parameterSet) : "");
     return new CliFunctionResult(context.getMemberName(), CliFunctionResult.StatusState.OK,
         message);

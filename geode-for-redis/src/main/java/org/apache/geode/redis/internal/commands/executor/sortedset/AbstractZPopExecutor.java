@@ -32,9 +32,9 @@ public abstract class AbstractZPopExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElements = command.getProcessedCommand();
+    var commandElements = command.getProcessedCommand();
 
-    int count = 1;
+    var count = 1;
     if (commandElements.size() > 2) {
       try {
         count = Coder.narrowLongToInt(Coder.bytesToLong(commandElements.get(2)));

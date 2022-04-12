@@ -40,7 +40,7 @@ public class ZRangeExecutor extends AbstractSortedSetRangeExecutor<SortedSetRank
   @Override
   public RedisResponse executeRangeCommand(ExecutionHandlerContext context, RedisKey key,
       SortedSetRankRangeOptions options) {
-    List<byte[]> result = context.sortedSetLockedExecute(key, true,
+    var result = context.sortedSetLockedExecute(key, true,
         zset -> zset.zrange(options));
     return RedisResponse.array(result, true);
   }

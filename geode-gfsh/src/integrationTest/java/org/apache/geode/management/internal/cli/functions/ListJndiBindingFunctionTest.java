@@ -51,7 +51,7 @@ public class ListJndiBindingFunctionTest {
   public void setup() throws Exception {
     listJndiBindingFunction = spy(new ListJndiBindingFunction());
     context = mock(FunctionContext.class);
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    var distributedSystem = mock(DistributedSystem.class);
     resultSender = mock(ResultSender.class);
     resultCaptor = ArgumentCaptor.forClass(CliFunctionResult.class);
 
@@ -59,7 +59,7 @@ public class ListJndiBindingFunctionTest {
 
     JNDIInvoker.mapTransactions(distributedSystem);
 
-    JndiBindingsType.JndiBinding config = new JndiBindingsType.JndiBinding();
+    var config = new JndiBindingsType.JndiBinding();
     config.setJndiName("jndi1");
     config.setType(CreateJndiBindingCommand.DATASOURCE_TYPE.SIMPLE.getType());
     config.setJdbcDriverClass("org.apache.derby.jdbc.EmbeddedDriver");
@@ -78,7 +78,7 @@ public class ListJndiBindingFunctionTest {
     listJndiBindingFunction.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getSerializables()).containsExactlyInAnyOrder("java:UserTransaction",

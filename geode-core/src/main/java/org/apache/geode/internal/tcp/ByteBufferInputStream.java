@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -133,7 +132,7 @@ public class ByteBufferInputStream extends InputStream
       // we might not even need the ByteSource abstraction any more.
       // But it is possible that createByteBuffer will not work on a different jdk so keep it for
       // now.
-      ByteBuffer bb = so.createDirectByteBuffer();
+      var bb = so.createDirectByteBuffer();
       if (bb != null) {
         return create(bb);
       } else {
@@ -167,9 +166,9 @@ public class ByteBufferInputStream extends InputStream
      */
     @Override
     public int hashCode() {
-      int h = 1;
-      int p = position();
-      for (int i = limit() - 1; i >= p; i--) {
+      var h = 1;
+      var p = position();
+      for (var i = limit() - 1; i >= p; i--) {
         h = 31 * h + (int) get(i);
       }
       return h;
@@ -183,11 +182,11 @@ public class ByteBufferInputStream extends InputStream
       if (!(ob instanceof ByteSource)) {
         return false;
       }
-      ByteSource that = (ByteSource) ob;
+      var that = (ByteSource) ob;
       if (remaining() != that.remaining()) {
         return false;
       }
-      int p = position();
+      var p = position();
       for (int i = limit() - 1, j = that.limit() - 1; i >= p; i--, j--) {
         if (get(i) != that.get(j)) {
           return false;
@@ -326,14 +325,14 @@ public class ByteBufferInputStream extends InputStream
       if (length < 0) {
         throw new IllegalArgumentException();
       }
-      ByteBuffer dup = bb.duplicate();
+      var dup = bb.duplicate();
       dup.limit(dup.position() + length);
       return ByteSourceFactory.create(dup.slice());
     }
 
     @Override
     public ByteSource slice(int pos, int limit) {
-      ByteBuffer dup = bb.duplicate();
+      var dup = bb.duplicate();
       dup.limit(limit);
       dup.position(pos);
       return ByteSourceFactory.create(dup.slice());
@@ -351,7 +350,7 @@ public class ByteBufferInputStream extends InputStream
 
     @Override
     public void sendTo(DataOutput out) throws IOException {
-      int len = remaining();
+      var len = remaining();
       if (len == 0) {
         return;
       }
@@ -360,8 +359,8 @@ public class ByteBufferInputStream extends InputStream
         return;
       }
       if (bb.hasArray()) {
-        byte[] bytes = bb.array();
-        int offset = bb.arrayOffset() + bb.position();
+        var bytes = bb.array();
+        var offset = bb.arrayOffset() + bb.position();
         out.write(bytes, offset, len);
         bb.position(bb.limit());
       } else {
@@ -413,9 +412,9 @@ public class ByteBufferInputStream extends InputStream
      */
     @Override
     public int hashCode() {
-      int h = 1;
-      int p = position();
-      for (int i = limit() - 1; i >= p; i--) {
+      var h = 1;
+      var p = position();
+      for (var i = limit() - 1; i >= p; i--) {
         h = 31 * h + (int) get(i);
       }
       return h;
@@ -429,11 +428,11 @@ public class ByteBufferInputStream extends InputStream
       if (!(ob instanceof ByteSource)) {
         return false;
       }
-      ByteSource that = (ByteSource) ob;
+      var that = (ByteSource) ob;
       if (remaining() != that.remaining()) {
         return false;
       }
-      int p = position();
+      var p = position();
       for (int i = limit() - 1, j = that.limit() - 1; i >= p; i--, j--) {
         if (get(i) != that.get(j)) {
           return false;
@@ -482,7 +481,7 @@ public class ByteBufferInputStream extends InputStream
     }
 
     private int nextGetIndex() {
-      int p = position;
+      var p = position;
       if (p >= limit) {
         throw new BufferUnderflowException();
       }
@@ -491,7 +490,7 @@ public class ByteBufferInputStream extends InputStream
     }
 
     private int nextGetIndex(int nb) {
-      int p = position;
+      var p = position;
       if (limit - p < nb) {
         throw new BufferUnderflowException();
       }
@@ -536,7 +535,7 @@ public class ByteBufferInputStream extends InputStream
       if (length > remaining()) {
         throw new BufferUnderflowException();
       }
-      int p = position;
+      var p = position;
       position += length;
       chunk.readDataBytes(p, dst, offset, length);
     }
@@ -558,7 +557,7 @@ public class ByteBufferInputStream extends InputStream
     private static boolean determineUnaligned() {
       try {
         Class c = Class.forName("java.nio.Bits");
-        Method m = c.getDeclaredMethod("unaligned");
+        var m = c.getDeclaredMethod("unaligned");
         m.setAccessible(true);
         return (boolean) m.invoke(null);
       } catch (ClassNotFoundException | NoSuchMethodException | SecurityException
@@ -582,9 +581,9 @@ public class ByteBufferInputStream extends InputStream
     }
 
     private short basicGetShort(int pos) {
-      long addr = chunk.getAddressForReadingData(pos, 2);
+      var addr = chunk.getAddressForReadingData(pos, 2);
       if (unaligned) {
-        short result = AddressableMemoryManager.readShort(addr);
+        var result = AddressableMemoryManager.readShort(addr);
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
           result = Short.reverseBytes(result);
         }
@@ -608,9 +607,9 @@ public class ByteBufferInputStream extends InputStream
     }
 
     private char basicGetChar(int pos) {
-      long addr = chunk.getAddressForReadingData(pos, 2);
+      var addr = chunk.getAddressForReadingData(pos, 2);
       if (unaligned) {
-        char result = AddressableMemoryManager.readChar(addr);
+        var result = AddressableMemoryManager.readChar(addr);
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
           result = Character.reverseBytes(result);
         }
@@ -634,18 +633,18 @@ public class ByteBufferInputStream extends InputStream
     }
 
     private int basicGetInt(final int pos) {
-      long addr = chunk.getAddressForReadingData(pos, 4);
+      var addr = chunk.getAddressForReadingData(pos, 4);
       if (unaligned) {
-        int result = AddressableMemoryManager.readInt(addr);
+        var result = AddressableMemoryManager.readInt(addr);
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
           result = Integer.reverseBytes(result);
         }
         return result;
       } else {
-        byte b0 = AddressableMemoryManager.readByte(addr++);
-        byte b1 = AddressableMemoryManager.readByte(addr++);
-        byte b2 = AddressableMemoryManager.readByte(addr++);
-        byte b3 = AddressableMemoryManager.readByte(addr);
+        var b0 = AddressableMemoryManager.readByte(addr++);
+        var b1 = AddressableMemoryManager.readByte(addr++);
+        var b2 = AddressableMemoryManager.readByte(addr++);
+        var b3 = AddressableMemoryManager.readByte(addr);
         return (b0 << 24) + ((b1 & 255) << 16) + ((b2 & 255) << 8) + ((b3 & 255) << 0);
       }
     }
@@ -662,22 +661,22 @@ public class ByteBufferInputStream extends InputStream
     }
 
     private long basicGetLong(final int pos) {
-      long addr = chunk.getAddressForReadingData(pos, 8);
+      var addr = chunk.getAddressForReadingData(pos, 8);
       if (unaligned) {
-        long result = AddressableMemoryManager.readLong(addr);
+        var result = AddressableMemoryManager.readLong(addr);
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
           result = Long.reverseBytes(result);
         }
         return result;
       } else {
-        byte b0 = AddressableMemoryManager.readByte(addr++);
-        byte b1 = AddressableMemoryManager.readByte(addr++);
-        byte b2 = AddressableMemoryManager.readByte(addr++);
-        byte b3 = AddressableMemoryManager.readByte(addr++);
-        byte b4 = AddressableMemoryManager.readByte(addr++);
-        byte b5 = AddressableMemoryManager.readByte(addr++);
-        byte b6 = AddressableMemoryManager.readByte(addr++);
-        byte b7 = AddressableMemoryManager.readByte(addr);
+        var b0 = AddressableMemoryManager.readByte(addr++);
+        var b1 = AddressableMemoryManager.readByte(addr++);
+        var b2 = AddressableMemoryManager.readByte(addr++);
+        var b3 = AddressableMemoryManager.readByte(addr++);
+        var b4 = AddressableMemoryManager.readByte(addr++);
+        var b5 = AddressableMemoryManager.readByte(addr++);
+        var b6 = AddressableMemoryManager.readByte(addr++);
+        var b7 = AddressableMemoryManager.readByte(addr);
         return (((long) b0 << 56) + ((long) (b1 & 255) << 48) + ((long) (b2 & 255) << 40)
             + ((long) (b3 & 255) << 32) + ((long) (b4 & 255) << 24) + ((b5 & 255) << 16)
             + ((b6 & 255) << 8) + ((b7 & 255) << 0));
@@ -755,7 +754,7 @@ public class ByteBufferInputStream extends InputStream
 
     @Override
     public void sendTo(ByteBuffer out) {
-      int len = remaining();
+      var len = remaining();
       while (len > 0) {
         out.put(get());
         len--;
@@ -773,7 +772,7 @@ public class ByteBufferInputStream extends InputStream
 
     @Override
     public void sendTo(DataOutput out) throws IOException {
-      int len = remaining();
+      var len = remaining();
       while (len > 0) {
         out.writeByte(get());
         len--;
@@ -1058,7 +1057,7 @@ public class ByteBufferInputStream extends InputStream
    */
   @Override
   public int skipBytes(int n) {
-    int newPosition = buffer.position() + n;
+    var newPosition = buffer.position() + n;
     if (newPosition > buffer.limit()) {
       newPosition = buffer.limit();
       n = newPosition - buffer.position();
@@ -1118,7 +1117,7 @@ public class ByteBufferInputStream extends InputStream
       out.writeInt(buffer.capacity());
       out.writeInt(buffer.limit());
       out.writeInt(buffer.position());
-      for (int i = 0; i < buffer.capacity(); i++) {
+      for (var i = 0; i < buffer.capacity(); i++) {
         out.write(buffer.get(i));
       }
     }
@@ -1126,13 +1125,13 @@ public class ByteBufferInputStream extends InputStream
 
   @Override
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    boolean hasBuffer = in.readBoolean();
+    var hasBuffer = in.readBoolean();
     if (hasBuffer) {
-      int capacity = in.readInt();
-      int limit = in.readInt();
-      int position = in.readInt();
-      byte[] bytes = new byte[capacity];
-      int bytesRead = in.read(bytes);
+      var capacity = in.readInt();
+      var limit = in.readInt();
+      var position = in.readInt();
+      var bytes = new byte[capacity];
+      var bytesRead = in.read(bytes);
       if (bytesRead != capacity) {
         throw new IOException(
             "Expected to read " + capacity + " bytes but only read " + bytesRead + " bytes.");

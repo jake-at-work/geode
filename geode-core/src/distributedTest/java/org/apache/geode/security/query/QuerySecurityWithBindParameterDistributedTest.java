@@ -84,7 +84,7 @@ public class QuerySecurityWithBindParameterDistributedTest
 
     specificUserClient.invoke(() -> {
       Region region = getClientCache().getRegion(regionName);
-      HashSet<Region> hashSet = new HashSet<>(Collections.singletonList(region));
+      var hashSet = new HashSet<Region>(Collections.singletonList(region));
       assertQueryResults(getClientCache(), queryString, new Object[] {hashSet},
           Arrays.asList(values));
     });
@@ -97,11 +97,11 @@ public class QuerySecurityWithBindParameterDistributedTest
   @Test
   public void queryWithQRegionAsBindParameterShouldThrowSerializationException() throws Exception {
     setUpSpecificClient("dataReaderRegionKey");
-    String regexForExpectedException = ".*failed serializing object.*";
+    var regexForExpectedException = ".*failed serializing object.*";
 
     specificUserClient.invoke(() -> {
       Region region = getClientCache().getRegion(regionName);
-      HashSet<QRegion> hashSet = new HashSet<>(Collections.singletonList(new DummyQRegion(region)));
+      var hashSet = new HashSet<QRegion>(Collections.singletonList(new DummyQRegion(region)));
 
       assertThatThrownBy(() -> getClientCache().getQueryService().newQuery(queryString)
           .execute(new Object[] {hashSet}))
@@ -114,11 +114,11 @@ public class QuerySecurityWithBindParameterDistributedTest
   public void queryWithRegionAsBindParameterShouldThrowSecurityExceptionWhenUserDoesNotHaveTheCorrectPrivileges()
       throws Exception {
     setUpSpecificClient("dataReaderRegionKey");
-    String regexForExpectedException = ".*values.*";
+    var regexForExpectedException = ".*values.*";
 
     specificUserClient.invoke(() -> {
       Region region = getClientCache().getRegion(regionName);
-      HashSet<Region> hashSet = new HashSet<>(Collections.singletonList(region));
+      var hashSet = new HashSet<Region>(Collections.singletonList(region));
       assertExceptionOccurred(getClientCache().getQueryService(), new Object[] {hashSet},
           regexForExpectedException);
     });

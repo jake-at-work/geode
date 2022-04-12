@@ -34,7 +34,7 @@ public class ServerLauncherGlobalSerialFilterExistsIntegrationTest
   @Test
   public void startDoesNotConfigureGlobalSerialFilter_whenFilterExists()
       throws InvocationTargetException, IllegalAccessException {
-    Object existingGlobalSerialFilter = OBJECT_INPUT_FILTER_API.createFilter("!*");
+    var existingGlobalSerialFilter = OBJECT_INPUT_FILTER_API.createFilter("!*");
     OBJECT_INPUT_FILTER_API.setSerialFilter(existingGlobalSerialFilter);
 
     server.set(new ServerLauncher.Builder()

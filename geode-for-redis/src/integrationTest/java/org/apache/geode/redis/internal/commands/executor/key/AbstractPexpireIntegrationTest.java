@@ -62,9 +62,9 @@ public abstract class AbstractPexpireIntegrationTest implements RedisIntegration
   @Test
   public void should_SetExpiration_givenKeyTo_StringValueInMilliSeconds() {
 
-    String key = "key";
-    String value = "value";
-    long millisecondsToLive = 20000L;
+    var key = "key";
+    var value = "value";
+    var millisecondsToLive = 20000L;
 
     jedis.set(key, value);
     Long timeToLive = jedis.ttl(key);
@@ -79,8 +79,8 @@ public abstract class AbstractPexpireIntegrationTest implements RedisIntegration
 
   @Test
   public void should_removeKey_AfterExpirationPeriod() {
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
     jedis.set(key, value);
 
     jedis.pexpire(key, 10);
@@ -90,8 +90,8 @@ public abstract class AbstractPexpireIntegrationTest implements RedisIntegration
 
   @Test
   public void should_removeSetKey_AfterExpirationPeriod() {
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
     jedis.sadd(key, value);
 
     jedis.pexpire(key, 10);

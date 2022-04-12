@@ -123,7 +123,7 @@ abstract class RegionExpiryTask extends ExpiryTask {
 
   @Override
   public String toString() {
-    String expireTime = "<unavailable>";
+    var expireTime = "<unavailable>";
     try {
       expireTime = String.valueOf(getExpirationTime());
     } catch (VirtualMachineError err) {

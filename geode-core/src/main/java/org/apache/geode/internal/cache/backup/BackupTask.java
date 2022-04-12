@@ -84,8 +84,8 @@ class BackupTask {
   }
 
   private void prepareForBackup() {
-    for (DiskStore store : cache.listDiskStoresIncludingRegionOwned()) {
-      DiskStoreImpl storeImpl = (DiskStoreImpl) store;
+    for (var store : cache.listDiskStoresIncludingRegionOwned()) {
+      var storeImpl = (DiskStoreImpl) store;
 
       storeImpl.lockStoreBeforeBackup();
       if (logger.isDebugEnabled()) {
@@ -105,20 +105,20 @@ class BackupTask {
     }
 
     try {
-      Collection<DiskStore> diskStores = cache.listDiskStoresIncludingRegionOwned();
+      var diskStores = cache.listDiskStoresIncludingRegionOwned();
       temporaryFiles = TemporaryBackupFiles.create();
       fileCopier = new BackupFileCopier(cache,
           ClassPathLoader.getLatest().getJarDeploymentService(), temporaryFiles);
 
-      Map<DiskStoreImpl, DiskStoreBackup> backupByDiskStores = startDiskStoreBackups(diskStores);
+      var backupByDiskStores = startDiskStoreBackups(diskStores);
 
       allowDestroys.countDown();
 
-      HashSet<PersistentID> persistentIds = finishDiskStoreBackups(backupByDiskStores);
+      var persistentIds = finishDiskStoreBackups(backupByDiskStores);
 
       if (!backupByDiskStores.isEmpty()) {
         backupAdditionalFiles();
-        BackupDefinition backupDefinition = fileCopier.getBackupDefinition();
+        var backupDefinition = fileCopier.getBackupDefinition();
         backupDefinition.setRestoreScript(restoreScript);
         backupWriter.backupFiles(backupDefinition);
       }
@@ -130,9 +130,9 @@ class BackupTask {
 
   private HashSet<PersistentID> finishDiskStoreBackups(
       Map<DiskStoreImpl, DiskStoreBackup> backupByDiskStores) throws IOException {
-    HashSet<PersistentID> persistentIds = new HashSet<>();
-    for (Map.Entry<DiskStoreImpl, DiskStoreBackup> entry : backupByDiskStores.entrySet()) {
-      DiskStoreImpl diskStore = entry.getKey();
+    var persistentIds = new HashSet<PersistentID>();
+    for (var entry : backupByDiskStores.entrySet()) {
+      var diskStore = entry.getKey();
       completeBackup(diskStore, entry.getValue());
       diskStore.getStats().endBackup();
       persistentIds.add(diskStore.getPersistentID());
@@ -144,11 +144,11 @@ class BackupTask {
       Collection<DiskStore> diskStores) throws IOException {
     Map<DiskStoreImpl, DiskStoreBackup> backupByDiskStore = new HashMap<>();
 
-    for (DiskStore store : diskStores) {
-      DiskStoreImpl diskStore = (DiskStoreImpl) store;
+    for (var store : diskStores) {
+      var diskStore = (DiskStoreImpl) store;
       try {
         if (diskStore.hasPersistedData()) {
-          DiskStoreBackup backup = startDiskStoreBackup(diskStore);
+          var backup = startDiskStoreBackup(diskStore);
           backupByDiskStore.put(diskStore, backup);
         }
       } finally {
@@ -188,7 +188,7 @@ class BackupTask {
   }
 
   private void releaseBackupLocks() {
-    for (DiskStore store : cache.listDiskStoresIncludingRegionOwned()) {
+    for (var store : cache.listDiskStoresIncludingRegionOwned()) {
       ((DiskStoreImpl) store).releaseBackupLock();
     }
   }
@@ -212,7 +212,7 @@ class BackupTask {
       diskStore.waitForDelayedWrites();
 
       // Backup all of the oplogs
-      for (Oplog oplog : backup.getPendingBackup()) {
+      for (var oplog : backup.getPendingBackup()) {
         if (isCancelled()) {
           break;
         }
@@ -234,10 +234,10 @@ class BackupTask {
    */
   private DiskStoreBackup startDiskStoreBackup(DiskStoreImpl diskStore) throws IOException {
     DiskStoreBackup backup = null;
-    boolean done = false;
+    var done = false;
     try {
       for (;;) {
-        Oplog childOplog = diskStore.getPersistentOplogSet().getChild();
+        var childOplog = diskStore.getPersistentOplogSet().getChild();
         if (childOplog == null) {
           backup = new DiskStoreBackup(new Oplog[0]);
           backupByDiskStore.put(diskStore, backup);
@@ -245,7 +245,7 @@ class BackupTask {
         }
 
         // Get an appropriate lock object for each set of oplogs.
-        Object childLock = childOplog.getLock();
+        var childLock = childOplog.getLock();
 
         // TODO: We really should move this lock into the disk store, but until then we need to do
         // this magic to make sure we're actually locking the latest child for both types of oplogs
@@ -268,7 +268,7 @@ class BackupTask {
           restoreScript.addExistenceTest(diskStore.getDiskInitFile().getIFFile());
 
           // Contains all oplogs that will backed up
-          Oplog[] allOplogs = diskStore.getAllOplogsForBackup();
+          var allOplogs = diskStore.getAllOplogsForBackup();
           backup = new DiskStoreBackup(allOplogs);
           backupByDiskStore.put(diskStore, backup);
 

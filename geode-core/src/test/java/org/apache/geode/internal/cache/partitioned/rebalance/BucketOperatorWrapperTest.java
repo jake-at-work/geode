@@ -79,7 +79,7 @@ public class BucketOperatorWrapperTest {
     doReturn(PR_COLOCATED_REGION_NAME).when(colocatedRegion).getFullPath();
 
     rebalanceDetails = new HashSet<>();
-    PartitionRebalanceDetailsImpl details = spy(new PartitionRebalanceDetailsImpl(leaderRegion));
+    var details = spy(new PartitionRebalanceDetailsImpl(leaderRegion));
     rebalanceDetails.add(details);
 
     delegate = mock(BucketOperatorImpl.class);
@@ -89,7 +89,7 @@ public class BucketOperatorWrapperTest {
 
   @Test
   public void bucketWrapperShouldDelegateCreateBucketToEnclosedOperator() {
-    Completion completionSentToWrapper = mock(Completion.class);
+    var completionSentToWrapper = mock(Completion.class);
 
     doNothing().when(delegate).createRedundantBucket(targetMember, bucketId, colocatedRegionBytes,
         completionSentToWrapper);
@@ -110,12 +110,12 @@ public class BucketOperatorWrapperTest {
     }).when(delegate).createRedundantBucket(eq(targetMember), eq(bucketId),
         eq(colocatedRegionBytes), any(Completion.class));
 
-    Completion completionSentToWrapper = mock(Completion.class);
+    var completionSentToWrapper = mock(Completion.class);
     wrapper.createRedundantBucket(targetMember, bucketId, colocatedRegionBytes,
         completionSentToWrapper);
 
     // verify create buckets is recorded
-    for (PartitionRebalanceDetailsImpl details : rebalanceDetails) {
+    for (var details : rebalanceDetails) {
       if (details.getRegionPath().equalsIgnoreCase(PR_LEADER_REGION_NAME)) {
         verify(details, times(1)).incCreates(eq(colocatedRegionBytes.get(PR_LEADER_REGION_NAME)),
             anyLong());
@@ -135,12 +135,12 @@ public class BucketOperatorWrapperTest {
     }).when(delegate).createRedundantBucket(eq(targetMember), eq(bucketId),
         eq(colocatedRegionBytes), any(Completion.class));
 
-    Completion completionSentToWrapper = mock(Completion.class);
+    var completionSentToWrapper = mock(Completion.class);
     wrapper.createRedundantBucket(targetMember, bucketId, colocatedRegionBytes,
         completionSentToWrapper);
 
     // verify create buckets is not recorded
-    for (PartitionRebalanceDetailsImpl details : rebalanceDetails) {
+    for (var details : rebalanceDetails) {
       verify(details, times(0)).incTransfers(anyLong(), anyLong());
     }
   }
@@ -154,7 +154,7 @@ public class BucketOperatorWrapperTest {
     }).when(delegate).createRedundantBucket(eq(targetMember), eq(bucketId),
         eq(colocatedRegionBytes), any(Completion.class));
 
-    Completion completionSentToWrapper = mock(Completion.class);
+    var completionSentToWrapper = mock(Completion.class);
     wrapper.createRedundantBucket(targetMember, bucketId, colocatedRegionBytes,
         completionSentToWrapper);
 
@@ -171,7 +171,7 @@ public class BucketOperatorWrapperTest {
     }).when(delegate).createRedundantBucket(eq(targetMember), eq(bucketId),
         eq(colocatedRegionBytes), any(Completion.class));
 
-    Completion completionSentToWrapper = mock(Completion.class);
+    var completionSentToWrapper = mock(Completion.class);
     wrapper.createRedundantBucket(targetMember, bucketId, colocatedRegionBytes,
         completionSentToWrapper);
 
@@ -202,7 +202,7 @@ public class BucketOperatorWrapperTest {
     wrapper.moveBucket(sourceMember, targetMember, bucketId, colocatedRegionBytes);
 
     // verify the details is updated with bytes transfered
-    for (PartitionRebalanceDetailsImpl details : rebalanceDetails) {
+    for (var details : rebalanceDetails) {
       if (details.getRegionPath().equalsIgnoreCase(PR_LEADER_REGION_NAME)) {
         verify(details, times(1)).incTransfers(eq(colocatedRegionBytes.get(PR_LEADER_REGION_NAME)),
             anyLong());
@@ -225,7 +225,7 @@ public class BucketOperatorWrapperTest {
     wrapper.moveBucket(sourceMember, targetMember, bucketId, colocatedRegionBytes);
 
     // verify the details is not updated with bytes transfered
-    for (PartitionRebalanceDetailsImpl details : rebalanceDetails) {
+    for (var details : rebalanceDetails) {
       verify(details, times(0)).incTransfers(anyLong(), anyLong());
     }
 
@@ -253,7 +253,7 @@ public class BucketOperatorWrapperTest {
     wrapper.removeBucket(targetMember, bucketId, colocatedRegionBytes);
 
     // verify the details is updated with bytes transfered
-    for (PartitionRebalanceDetailsImpl details : rebalanceDetails) {
+    for (var details : rebalanceDetails) {
       if (details.getRegionPath().equalsIgnoreCase(PR_LEADER_REGION_NAME)) {
         verify(details, times(1)).incRemoves((eq(colocatedRegionBytes.get(PR_LEADER_REGION_NAME))),
             anyLong());
@@ -280,7 +280,7 @@ public class BucketOperatorWrapperTest {
     wrapper.removeBucket(targetMember, bucketId, colocatedRegionBytes);
 
     // verify the details is not updated with bytes transfered
-    for (PartitionRebalanceDetailsImpl details : rebalanceDetails) {
+    for (var details : rebalanceDetails) {
       verify(details, times(0)).incTransfers(anyLong(), anyLong());
     }
 
@@ -308,7 +308,7 @@ public class BucketOperatorWrapperTest {
     wrapper.movePrimary(sourceMember, targetMember, bucketId);
 
     // verify the details is updated with bytes transfered
-    for (PartitionRebalanceDetailsImpl details : rebalanceDetails) {
+    for (var details : rebalanceDetails) {
       if (details.getRegionPath().equalsIgnoreCase(PR_LEADER_REGION_NAME)) {
         verify(details, times(1)).incPrimaryTransfers(anyLong());
       } else if (details.getRegionPath().equals(PR_COLOCATED_REGION_NAME)) {
@@ -328,7 +328,7 @@ public class BucketOperatorWrapperTest {
     wrapper.movePrimary(sourceMember, targetMember, bucketId);
 
     // verify the details is not updated with bytes transfered
-    for (PartitionRebalanceDetailsImpl details : rebalanceDetails) {
+    for (var details : rebalanceDetails) {
       verify(details, times(0)).incTransfers(anyLong(), anyLong());
     }
 

@@ -183,14 +183,14 @@ public class StatisticsRegistry implements StatisticsManager {
 
   @Override
   public Statistics createAtomicStatistics(StatisticsType type, String textId, long numericId) {
-    long uniqueId = nextUniqueId.getAndIncrement();
+    var uniqueId = nextUniqueId.getAndIncrement();
     return newAtomicStatistics(type, uniqueId, numericId, textId);
   }
 
   @Override
   public Statistics createOsStatistics(StatisticsType type, String textId, long numericId,
       int osStatFlags) {
-    long uniqueId = nextUniqueId.getAndIncrement();
+    var uniqueId = nextUniqueId.getAndIncrement();
     return newOsStatistics(type, uniqueId, numericId, textId, osStatFlags);
   }
 
@@ -297,7 +297,7 @@ public class StatisticsRegistry implements StatisticsManager {
 
   protected Statistics newAtomicStatistics(StatisticsType type, long uniqueId, long numericId,
       String textId) {
-    Statistics statistics =
+    var statistics =
         atomicStatisticsFactory.create(type, textId, numericId, uniqueId, this);
     registerNewStatistics(statistics);
     return statistics;
@@ -305,7 +305,7 @@ public class StatisticsRegistry implements StatisticsManager {
 
   protected Statistics newOsStatistics(StatisticsType type, long uniqueId, long numericId,
       String textId, int osStatFlags) {
-    Statistics statistics = osStatisticsFactory.create(type, textId, numericId, uniqueId,
+    var statistics = osStatisticsFactory.create(type, textId, numericId, uniqueId,
         osStatFlags, this);
     registerNewStatistics(statistics);
     return statistics;

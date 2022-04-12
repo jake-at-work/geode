@@ -16,13 +16,10 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
@@ -55,20 +52,20 @@ public class CloseDurableCQsCommand extends GfshCommand {
           help = CliStrings.CLOSE_DURABLE_CQS__GROUP__HELP,
           optionContext = ConverterHint.MEMBERGROUP) final String[] group) {
 
-    Set<DistributedMember> targetMembers = findMembers(group, memberNameOrId);
+    var targetMembers = findMembers(group, memberNameOrId);
 
     if (targetMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    String[] params = new String[2];
+    var params = new String[2];
     params[0] = durableClientId;
     params[1] = cqName;
 
-    final ResultCollector<?, ?> rc =
+    final var rc =
         executeFunction(new CloseDurableCqFunction(), params, targetMembers);
     @SuppressWarnings("unchecked")
-    final List<CliFunctionResult> results = (List<CliFunctionResult>) rc.getResult();
+    final var results = (List<CliFunctionResult>) rc.getResult();
     return ResultModel.createMemberStatusResult(results);
   }
 }

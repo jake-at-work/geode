@@ -59,9 +59,7 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Declarable;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryOperation;
-import org.apache.geode.cache.FixedPartitionAttributes;
 import org.apache.geode.cache.FixedPartitionResolver;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.PartitionResolver;
@@ -70,24 +68,16 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
-import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueStats;
 import org.apache.geode.cache.asyncqueue.internal.InternalAsyncEventQueue;
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.RebalanceOperation;
-import org.apache.geode.cache.control.RebalanceResults;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserver;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserverAdapter;
 import org.apache.geode.internal.cache.partitioned.BecomePrimaryBucketMessage;
-import org.apache.geode.internal.cache.partitioned.BecomePrimaryBucketMessage.BecomePrimaryBucketResponse;
 import org.apache.geode.internal.cache.wan.AsyncEventQueueConfigurationException;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.InternalGatewaySender;
@@ -146,7 +136,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     vm2 = getVM(2);
     vm3 = getVM(3);
 
-    String className = getClass().getSimpleName();
+    var className = getClass().getSimpleName();
     partitionedRegionName = className + "_PR";
     childPartitionedRegionName = className + "_PR_child";
     replicateRegionName = className + "_RR";
@@ -178,9 +168,9 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     vm1.invoke(() -> createAsyncEventQueue(asyncEventQueueId, new SpyAsyncEventListener(), false,
         100, dispatcherThreadCount, 100, true));
 
-    String partition1 = "partition1";
-    String partition2 = "partition2";
-    List<String> allPartitions = Arrays.asList(partition1, partition2);
+    var partition1 = "partition1";
+    var partition2 = "partition2";
+    var allPartitions = Arrays.asList(partition1, partition2);
 
     vm0.invoke(() -> createFixedPartitionedRegion(partitionedRegionName, asyncEventQueueId, 0, 16,
         partition1, new SimpleFixedPartitionResolver(allPartitions)));
@@ -195,7 +185,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     int sizeInVM0 = vm0.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
     int sizeInVM1 = vm1.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
 
-    String description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1;
+    var description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1;
     assertThat(sizeInVM0 + sizeInVM1).as(description).isEqualTo(256);
   }
 
@@ -246,7 +236,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     int sizeInVM2 = vm2.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
     int sizeInVM3 = vm3.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
 
-    String description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1 + ", sizeInVM2="
+    var description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1 + ", sizeInVM2="
         + sizeInVM2 + ", sizeInVM3=" + sizeInVM3;
     assertThat(sizeInVM0 + sizeInVM1 + sizeInVM2 + sizeInVM3).as(description).isEqualTo(256);
   }
@@ -324,7 +314,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     vm3.invoke(this::waitForDispatcherToPause);
 
     Map<Integer, Integer> keyValues = new HashMap<>();
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       keyValues.put(i, i);
     }
 
@@ -335,7 +325,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     });
 
     Map<Integer, String> updateKeyValues = new HashMap<>();
-    for (int i = 0; i < 500; i++) {
+    for (var i = 0; i < 500; i++) {
       updateKeyValues.put(i, i + "_updated");
     }
 
@@ -366,7 +356,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     int sizeInVM2 = vm2.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
     int sizeInVM3 = vm3.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
 
-    String description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1 + ", sizeInVM2="
+    var description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1 + ", sizeInVM2="
         + sizeInVM2 + ", sizeInVM3=" + sizeInVM3;
     assertThat(sizeInVM0 + sizeInVM1 + sizeInVM2 + sizeInVM3).as(description)
         .isEqualTo(keyValues.size());
@@ -417,7 +407,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     vm3.invoke(this::waitForDispatcherToPause);
 
     Map<Integer, Integer> keyValues = new HashMap<>();
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       keyValues.put(i, i);
     }
 
@@ -428,7 +418,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     });
 
     Map<Integer, String> updateKeyValues = new HashMap<>();
-    for (int i = 0; i < 500; i++) {
+    for (var i = 0; i < 500; i++) {
       updateKeyValues.put(i, i + "_updated");
     }
 
@@ -454,7 +444,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     int sizeInVM2 = vm2.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
     int sizeInVM3 = vm3.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
 
-    String description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1 + ", sizeInVM2="
+    var description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1 + ", sizeInVM2="
         + sizeInVM2 + ", sizeInVM3=" + sizeInVM3;
     assertThat(sizeInVM0 + sizeInVM1 + sizeInVM2 + sizeInVM3).as(description)
         .isEqualTo(keyValues.size());
@@ -495,7 +485,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     int sizeInVM2 = vm2.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
     int sizeInVM3 = vm3.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
 
-    String description =
+    var description =
         "sizeInVM1=" + sizeInVM1 + ", sizeInVM2=" + sizeInVM2 + ", sizeInVM3=" + sizeInVM3;
     assertThat(sizeInVM1 + sizeInVM2 + sizeInVM3).as(description).isEqualTo(256);
   }
@@ -537,7 +527,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     int sizeInVM2 = vm2.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
     int sizeInVM3 = vm3.invoke(() -> getSpyAsyncEventListener().getEventsMap().size());
 
-    String description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1 + ", sizeInVM2="
+    var description = "sizeInVM0=" + sizeInVM0 + ", sizeInVM1=" + sizeInVM1 + ", sizeInVM2="
         + sizeInVM2 + ", sizeInVM3=" + sizeInVM3;
     assertThat(sizeInVM0 + sizeInVM1 + sizeInVM2 + sizeInVM3).as(description).isEqualTo(256);
   }
@@ -569,9 +559,9 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
 
     vm0.invoke(() -> doPuts(partitionedRegionName, 80));
 
-    Set<Integer> primaryBucketsInVM1 =
+    var primaryBucketsInVM1 =
         vm0.invoke(() -> getAllLocalPrimaryBucketIds(partitionedRegionName));
-    Set<Integer> primaryBucketsInVM2 =
+    var primaryBucketsInVM2 =
         vm1.invoke(() -> getAllLocalPrimaryBucketIds(partitionedRegionName));
 
     assertThat(primaryBucketsInVM1.size() + primaryBucketsInVM2.size()).isEqualTo(16);
@@ -614,7 +604,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
 
     vm0.invoke(() -> doPuts(partitionedRegionName, 80));
 
-    Set<Integer> primaryBucketsInVM1 =
+    var primaryBucketsInVM1 =
         vm1.invoke(() -> getAllLocalPrimaryBucketIds(partitionedRegionName));
     assertThat(primaryBucketsInVM1).isNotEmpty();
 
@@ -634,11 +624,11 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
       createPartitionedRegionAndAwaitRecovery(partitionedRegionName, asyncEventQueueId, 1, 16);
     });
 
-    Set<Integer> primaryBucketsInVM0 =
+    var primaryBucketsInVM0 =
         vm0.invoke(() -> getAllLocalPrimaryBucketIds(partitionedRegionName));
     assertThat(primaryBucketsInVM0).isNotEmpty();
 
-    Set<Integer> primaryBucketsInVM2 =
+    var primaryBucketsInVM2 =
         vm2.invoke(() -> getAllLocalPrimaryBucketIds(partitionedRegionName));
     assertThat(primaryBucketsInVM2).isNotEmpty();
 
@@ -690,7 +680,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
 
     vm0.invoke(this::doRebalance);
 
-    Set<Integer> primaryBucketsInVM3 =
+    var primaryBucketsInVM3 =
         vm2.invoke(() -> getAllLocalPrimaryBucketIds(partitionedRegionName));
 
     vm0.invoke(() -> getInternalGatewaySender().resume());
@@ -742,9 +732,9 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     vm0.invoke(this::createCache);
     vm1.invoke(this::createCache);
 
-    DistributedMember memberInVM0 =
+    var memberInVM0 =
         vm0.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
-    DistributedMember memberInVM1 =
+    var memberInVM1 =
         vm1.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
 
     vm0.invoke(() -> {
@@ -773,7 +763,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     allKeys.addAll(vm0.invoke(() -> getBucketMovingAsyncEventListener().getKeysSeen()));
     allKeys.addAll(vm1.invoke(() -> getBucketMovingAsyncEventListener().getKeysSeen()));
 
-    Set<Integer> expectedKeys = IntStream.range(0, 113).boxed().collect(toSet());
+    var expectedKeys = IntStream.range(0, 113).boxed().collect(toSet());
     assertThat(allKeys).isEqualTo(expectedKeys);
 
     assertThat(vm0.invoke(() -> getBucketMovingAsyncEventListener().isMoved())).isTrue();
@@ -788,7 +778,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     vm0.invoke(this::setDisableMovePrimary);
     vm1.invoke(this::setDisableMovePrimary);
 
-    int numPuts = 30;
+    var numPuts = 30;
 
     vm0.invoke(() -> {
       // Create cache and async event queue in member 1
@@ -835,9 +825,9 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     vm0.invoke(this::createCache);
     vm1.invoke(this::createCache);
 
-    DistributedMember memberInVM0 =
+    var memberInVM0 =
         vm0.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
-    DistributedMember memberInVM1 =
+    var memberInVM1 =
         vm1.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
 
     vm0.invoke(() -> {
@@ -873,7 +863,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     allKeys.addAll(vm0.invoke(() -> getPrimaryMovingAsyncEventListener().getKeysSeen()));
     allKeys.addAll(vm1.invoke(() -> getPrimaryMovingAsyncEventListener().getKeysSeen()));
 
-    Set<Integer> expectedKeys = IntStream.range(0, 113).boxed().collect(toSet());
+    var expectedKeys = IntStream.range(0, 113).boxed().collect(toSet());
     assertThat(allKeys).isEqualTo(expectedKeys);
   }
 
@@ -954,7 +944,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     assertThat(partitionName).isNotEmpty();
     assertThat(partitionResolver).isNotNull();
 
-    FixedPartitionAttributes fixedPartitionAttributes = createFixedPartition(partitionName, true);
+    var fixedPartitionAttributes = createFixedPartition(partitionName, true);
 
     PartitionAttributesFactory<?, ?> partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.addFixedPartitionAttributes(fixedPartitionAttributes);
@@ -995,7 +985,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
       int redundantCopies,
       int totalNumBuckets)
       throws InterruptedException {
-    CountDownLatch recoveryDone = new CountDownLatch(2);
+    var recoveryDone = new CountDownLatch(2);
 
     ResourceObserver resourceObserver = new ResourceObserverAdapter() {
       @Override
@@ -1024,9 +1014,9 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     assertThat(diskStoreName).isNotEmpty();
     assertThat(asyncEventQueueId).isNotEmpty();
 
-    File directory = createDirectory(createDiskStoreName(asyncEventQueueId));
+    var directory = createDirectory(createDiskStoreName(asyncEventQueueId));
 
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(new File[] {directory});
 
     diskStoreFactory.create(diskStoreName);
@@ -1035,7 +1025,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   private File createDirectory(String name) {
     assertThat(name).isNotEmpty();
 
-    File directory = new File(temporaryFolder.getRoot(), name);
+    var directory = new File(temporaryFolder.getRoot(), name);
     if (!directory.exists()) {
       try {
         return temporaryFolder.newFolder(name);
@@ -1068,7 +1058,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
 
     createDiskStore(diskStoreName, asyncEventQueueId);
 
-    AsyncEventQueueFactory asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
     asyncEventQueueFactory.setBatchConflationEnabled(isBatchConflationEnabled);
     asyncEventQueueFactory.setBatchSize(batchSize);
     asyncEventQueueFactory.setDiskStoreName(diskStoreName);
@@ -1091,7 +1081,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     assertThat(asyncEventQueueId).isNotEmpty();
     assertThat(asyncEventListener).isNotNull();
 
-    AsyncEventQueueFactory asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
     asyncEventQueueFactory.setBatchConflationEnabled(isBatchConflationEnabled);
     asyncEventQueueFactory.setBatchSize(batchSize);
     asyncEventQueueFactory.setDispatcherThreads(dispatcherThreads);
@@ -1104,21 +1094,21 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
 
   private void doPuts(String regionName, int numPuts) {
     Region<Integer, Integer> region = getCache().getRegion(regionName);
-    for (int i = 0; i < numPuts; i++) {
+    for (var i = 0; i < numPuts; i++) {
       region.put(i, i);
     }
   }
 
   private void doRebalance() throws InterruptedException, TimeoutException {
-    ResourceManager resourceManager = getCache().getResourceManager();
-    RebalanceFactory rebalanceFactory = resourceManager.createRebalanceFactory();
-    RebalanceOperation rebalanceOperation = rebalanceFactory.start();
-    RebalanceResults rebalanceResults = rebalanceOperation.getResults(2, MINUTES);
+    var resourceManager = getCache().getResourceManager();
+    var rebalanceFactory = resourceManager.createRebalanceFactory();
+    var rebalanceOperation = rebalanceFactory.start();
+    var rebalanceResults = rebalanceOperation.getResults(2, MINUTES);
     assertThat(rebalanceResults).isNotNull();
   }
 
   private Set<Integer> getAllLocalPrimaryBucketIds(String regionName) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
     return region.getDataStore().getAllLocalPrimaryBucketIds();
   }
 
@@ -1132,9 +1122,9 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   private boolean areRegionQueuesEmpty(InternalGatewaySender gatewaySender) {
     assertThat(gatewaySender).isNotNull();
 
-    Set<RegionQueue> regionQueues = gatewaySender.getQueues();
-    int totalSize = 0;
-    for (RegionQueue regionQueue : regionQueues) {
+    var regionQueues = gatewaySender.getQueues();
+    var totalSize = 0;
+    for (var regionQueue : regionQueues) {
       totalSize += regionQueue.size();
     }
     return totalSize == 0;
@@ -1145,8 +1135,8 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
       int eventsReceived,
       int eventsQueued,
       int eventsDistributed) {
-    InternalAsyncEventQueue asyncEventQueue = getInternalAsyncEventQueue();
-    AsyncEventQueueStats asyncEventQueueStats = asyncEventQueue.getStatistics();
+    var asyncEventQueue = getInternalAsyncEventQueue();
+    var asyncEventQueueStats = asyncEventQueue.getStatistics();
     assertThat(asyncEventQueueStats).isNotNull();
 
     await()
@@ -1171,9 +1161,9 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   }
 
   private void validateParallelAsyncEventQueueSize(int expectedRegionQueueSize) {
-    InternalGatewaySender gatewaySender = getInternalGatewaySender();
+    var gatewaySender = getInternalGatewaySender();
 
-    Set<RegionQueue> regionQueues = gatewaySender.getQueues();
+    var regionQueues = gatewaySender.getQueues();
     assertThat(regionQueues).isNotEmpty().hasSize(1);
 
     Region<?, ?> region = regionQueues.iterator().next().getRegion();
@@ -1181,7 +1171,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   }
 
   private void validatePossibleDuplicateEvents(int numEvents) {
-    PossibleDuplicateAsyncEventListener listener = getPossibleDuplicateAsyncEventListener();
+    var listener = getPossibleDuplicateAsyncEventListener();
 
     // Verify all events were processed
     assertThat(listener.getTotalEvents()).isEqualTo(numEvents);
@@ -1193,16 +1183,16 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   private void validatePossibleDuplicateEvents(Set<Integer> bucketIds, int batchSize) {
     assertThat(bucketIds.size()).isGreaterThan(1);
 
-    Map<Integer, List<GatewaySenderEventImpl>> bucketToEventsMap =
+    var bucketToEventsMap =
         getGatewaySenderAsyncEventListener().getBucketToEventsMap();
 
     for (int bucketId : bucketIds) {
-      List<GatewaySenderEventImpl> eventsForBucket = bucketToEventsMap.get(bucketId);
+      var eventsForBucket = bucketToEventsMap.get(bucketId);
       assertThat(eventsForBucket).as("bucketToEventsMap: " + bucketToEventsMap).isNotNull()
           .hasSize(batchSize);
 
-      for (int i = 0; i < batchSize; i++) {
-        GatewaySenderEventImpl gatewaySenderEvent = eventsForBucket.get(i);
+      for (var i = 0; i < batchSize; i++) {
+        var gatewaySenderEvent = eventsForBucket.get(i);
         assertThat(gatewaySenderEvent.getPossibleDuplicate()).isTrue();
       }
     }
@@ -1214,7 +1204,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   }
 
   private void waitForAsyncQueueToEmpty() {
-    InternalGatewaySender gatewaySender = getInternalGatewaySender();
+    var gatewaySender = getInternalGatewaySender();
     await().until(() -> areRegionQueuesEmpty(gatewaySender));
   }
 
@@ -1223,10 +1213,10 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   }
 
   private void waitForParallelAsyncEventQueueSize(int expectedRegionQueueSize) {
-    InternalGatewaySender gatewaySender = getInternalGatewaySender();
+    var gatewaySender = getInternalGatewaySender();
 
     await().untilAsserted(() -> {
-      Set<RegionQueue> regionQueues = gatewaySender.getQueues();
+      var regionQueues = gatewaySender.getQueues();
       assertThat(regionQueues).isNotEmpty().hasSize(1);
 
       Region<?, ?> region = regionQueues.iterator().next().getRegion();
@@ -1239,7 +1229,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   }
 
   private InternalGatewaySender getInternalGatewaySender() {
-    InternalGatewaySender gatewaySender = getInternalAsyncEventQueue().getSender();
+    var gatewaySender = getInternalAsyncEventQueue().getSender();
     assertThat(gatewaySender).isNotNull();
     return gatewaySender;
   }
@@ -1265,7 +1255,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   }
 
   private AsyncEventListener getAsyncEventListener() {
-    AsyncEventListener asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
+    var asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
     assertThat(asyncEventListener).isNotNull();
     return asyncEventListener;
   }
@@ -1277,8 +1267,8 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
   private AsyncEventQueue getAsyncEventQueue() {
     AsyncEventQueue value = null;
 
-    Set<AsyncEventQueue> asyncEventQueues = getCache().getAsyncEventQueues();
-    for (AsyncEventQueue asyncEventQueue : asyncEventQueues) {
+    var asyncEventQueues = getCache().getAsyncEventQueues();
+    for (var asyncEventQueue : asyncEventQueues) {
       if (asyncEventQueueId.equals(asyncEventQueue.getId())) {
         value = asyncEventQueue;
       }
@@ -1302,13 +1292,13 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     public boolean processEvents(final List<AsyncEvent> events) {
       if (!moved) {
 
-        AsyncEvent event1 = events.get(0);
+        var event1 = events.get(0);
         move(event1);
         moved = true;
         return false;
       }
 
-      Set<Object> keysInThisBatch = events.stream()
+      var keysInThisBatch = events.stream()
           .map(AsyncEvent::getKey)
           .collect(toSet());
       keysSeen.addAll(keysInThisBatch);
@@ -1344,9 +1334,9 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
 
     @Override
     protected void move(final AsyncEvent event) {
-      Object key = event.getKey();
-      Region<Object, Object> region = cache.getRegion(regionName);
-      DistributedMember source = cache.getDistributedSystem().getDistributedMember();
+      var key = event.getKey();
+      var region = cache.getRegion(regionName);
+      var source = cache.getDistributedSystem().getDistributedMember();
       PartitionRegionHelper.moveBucketByKey(region, source, getDestination(), key);
     }
   }
@@ -1362,10 +1352,10 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
 
     @Override
     public synchronized boolean processEvents(List<AsyncEvent> events) {
-      for (AsyncEvent event : events) {
-        GatewaySenderEventImpl gatewayEvent = (GatewaySenderEventImpl) event;
-        int bucketId = gatewayEvent.getBucketId();
-        List<GatewaySenderEventImpl> bucketEvents = bucketToEventsMap.get(bucketId);
+      for (var event : events) {
+        var gatewayEvent = (GatewaySenderEventImpl) event;
+        var bucketId = gatewayEvent.getBucketId();
+        var bucketEvents = bucketToEventsMap.get(bucketId);
         if (bucketEvents == null) {
           bucketEvents = new ArrayList<>();
           bucketEvents.add(gatewayEvent);
@@ -1437,10 +1427,10 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
 
     @Override
     protected void move(final AsyncEvent event) {
-      Object key = event.getKey();
-      PartitionedRegion region = (PartitionedRegion) event.getRegion();
+      var key = event.getKey();
+      var region = (PartitionedRegion) event.getRegion();
 
-      BecomePrimaryBucketResponse response =
+      var response =
           BecomePrimaryBucketMessage.send((InternalDistributedMember) getDestination(), region,
               region.getKeyInfo(key).getBucketId(), true);
       assertThat(response).isNotNull();
@@ -1459,7 +1449,7 @@ public class ParallelAsyncEventListenerDistributedTest implements Serializable {
     @Override
     public String getPartitionName(final EntryOperation opDetails,
         @Deprecated final Set targetPartitions) {
-      int hash = Math.abs(opDetails.getKey().hashCode() % allPartitions.size());
+      var hash = Math.abs(opDetails.getKey().hashCode() % allPartitions.size());
       return allPartitions.get(hash);
     }
 

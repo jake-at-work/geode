@@ -18,7 +18,6 @@ package org.apache.geode.tools.pulse;
 import static org.apache.geode.cache.RegionShortcut.REPLICATE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.apache.http.HttpResponse;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,7 +45,7 @@ public class EmbeddedPulseHttpSecurityTest {
 
   @Test
   public void loginWithIncorrectPassword() throws Exception {
-    HttpResponse response = client.loginToPulse("data", "wrongPassword");
+    var response = client.loginToPulse("data", "wrongPassword");
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(302);
     assertThat(response.getFirstHeader("Location").getValue())
         .contains("/pulse/login.html?error=BAD_CREDS");
@@ -59,7 +58,7 @@ public class EmbeddedPulseHttpSecurityTest {
     client.loginToPulseAndVerify("data", "data");
 
     // this would request cluster permission
-    HttpResponse response = client.get("/pulse/clusterDetail.html");
+    var response = client.get("/pulse/clusterDetail.html");
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(403);
 
     // this would require both cluster and data permission
@@ -71,7 +70,7 @@ public class EmbeddedPulseHttpSecurityTest {
   public void loginAllAccess() throws Exception {
     client.loginToPulseAndVerify("CLUSTER,DATA", "CLUSTER,DATA");
 
-    HttpResponse response = client.get("/pulse/clusterDetail.html");
+    var response = client.get("/pulse/clusterDetail.html");
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
 
     response = client.get("/pulse/dataBrowser.html");
@@ -82,7 +81,7 @@ public class EmbeddedPulseHttpSecurityTest {
   public void loginWithClusterOnly() throws Exception {
     client.loginToPulseAndVerify("cluster", "cluster");
 
-    HttpResponse response = client.get("/pulse/clusterDetail.html");
+    var response = client.get("/pulse/clusterDetail.html");
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
 
     // accessing data browser will be denied

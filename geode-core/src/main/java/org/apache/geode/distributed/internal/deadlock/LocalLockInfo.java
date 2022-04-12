@@ -56,8 +56,8 @@ class LocalLockInfo implements Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((info == null) ? 0 : info.getClassName().hashCode());
     result = prime * result + ((info == null) ? 0 : info.getIdentityHashCode());
     result = prime * result + ((locatility == null) ? 0 : locatility.hashCode());
@@ -75,7 +75,7 @@ class LocalLockInfo implements Serializable {
     if (!(obj instanceof LocalLockInfo)) {
       return false;
     }
-    LocalLockInfo other = (LocalLockInfo) obj;
+    var other = (LocalLockInfo) obj;
     if (info == null) {
       if (other.info != null) {
         return false;

@@ -55,7 +55,7 @@ public class UpdateAlertDefinitionMessage extends PooledDistributionMessage {
   public static UpdateAlertDefinitionMessage create(StatAlertDefinition[] alertDefs,
       int actionCode) {
 
-    UpdateAlertDefinitionMessage m = new UpdateAlertDefinitionMessage();
+    var m = new UpdateAlertDefinitionMessage();
     m._alertDefinitions = alertDefs;
     m._actionCode = actionCode;
 
@@ -138,9 +138,9 @@ public class UpdateAlertDefinitionMessage extends PooledDistributionMessage {
   @Override
   public String toString() {
     // instance specific for VM that executes this
-    InternalDistributedSystem internalDS = InternalDistributedSystem.getAnyInstance();
+    var internalDS = InternalDistributedSystem.getAnyInstance();
 
-    String stringInfo = "";
+    var stringInfo = "";
 
     if (internalDS != null && internalDS.isConnected()) {
       stringInfo = "Add/update the alert definitions" + " to " + internalDS.getDistributedMember()

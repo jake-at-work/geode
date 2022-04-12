@@ -225,7 +225,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
       throw new IllegalArgumentException("The specified length (" + length
           + ") is greater than the array size (" + a.length + ")");
     }
-    final IdentityArrayList<K> l = new IdentityArrayList<>(a, false);
+    final var l = new IdentityArrayList<K>(a, false);
     l.size = length;
     return l;
   }
@@ -251,7 +251,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
       a = ObjectArrays.ensureCapacity(a, capacity, size);
     } else {
       if (capacity > a.length) {
-        final Object[] t = new Object[capacity];
+        final var t = new Object[capacity];
         System.arraycopy(a, 0, t, 0, size);
         a = (K[]) t;
       }
@@ -271,9 +271,9 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
       a = ObjectArrays.grow(a, capacity, size);
     } else {
       if (capacity > a.length) {
-        final int newLength = (int) Math
+        final var newLength = (int) Math
             .max(Math.min(2L * a.length, it.unimi.dsi.fastutil.Arrays.MAX_ARRAY_SIZE), capacity);
-        final Object[] t = new Object[newLength];
+        final var t = new Object[newLength];
         System.arraycopy(a, 0, t, 0, size);
         a = (K[]) t;
       }
@@ -312,7 +312,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
 
   @Override
   public int indexOf(final Object k) {
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       if (((k) == null ? (a[i]) == null : (k) == (a[i]))) {
         return i;
       }
@@ -322,7 +322,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
 
   @Override
   public int lastIndexOf(final Object k) {
-    for (int i = size; i-- != 0;) {
+    for (var i = size; i-- != 0;) {
       if (((k) == null ? (a[i]) == null : (k) == (a[i]))) {
         return i;
       }
@@ -336,7 +336,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
     }
-    final K old = a[index];
+    final var old = a[index];
     size--;
     if (index != size) {
       System.arraycopy(a, index + 1, a, index, size - index);
@@ -347,7 +347,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
   }
 
   public boolean rem(final Object k) {
-    int index = indexOf(k);
+    var index = indexOf(k);
     if (index == -1) {
       return false;
     }
@@ -367,7 +367,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
     }
-    K old = a[index];
+    var old = a[index];
     a[index] = k;
     return old;
   }
@@ -432,7 +432,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
     if (n >= a.length || size == a.length) {
       return;
     }
-    final K[] t = (K[]) new Object[Math.max(n, size)];
+    final var t = (K[]) new Object[Math.max(n, size)];
     System.arraycopy(a, 0, t, 0, size);
     a = t;
     assert !ASSERTS || size <= a.length;
@@ -463,7 +463,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
     it.unimi.dsi.fastutil.Arrays.ensureFromTo(size, from, to);
     System.arraycopy(a, to, a, from, size - to);
     size -= (to - from);
-    int i = to - from;
+    var i = to - from;
     while (i-- != 0) {
       a[size + i] = null;
     }
@@ -566,7 +566,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
 
   @Override
   public IdentityArrayList<K> clone() {
-    IdentityArrayList<K> c = new IdentityArrayList<>(size);
+    var c = new IdentityArrayList<K>(size);
     System.arraycopy(a, 0, c.a, 0, size);
     c.size = size;
     return c;
@@ -590,12 +590,12 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
     if (l == this) {
       return true;
     }
-    int s = size();
+    var s = size();
     if (s != l.size()) {
       return false;
     }
-    final K[] a1 = a;
-    final K[] a2 = l.a;
+    final var a1 = a;
+    final var a2 = l.a;
     while (s-- != 0) {
       if (!valEquals(a1[s], a2[s])) {
         return false;
@@ -633,7 +633,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
 
   private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
     s.defaultWriteObject();
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       s.writeObject(a[i]);
     }
   }
@@ -643,7 +643,7 @@ public class IdentityArrayList<K> extends AbstractObjectList<K>
       throws java.io.IOException, ClassNotFoundException {
     s.defaultReadObject();
     a = (K[]) new Object[size];
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       a[i] = (K) s.readObject();
     }
   }

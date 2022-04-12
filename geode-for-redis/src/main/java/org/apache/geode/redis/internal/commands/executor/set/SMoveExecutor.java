@@ -17,24 +17,22 @@ package org.apache.geode.redis.internal.commands.executor.set;
 import static org.apache.geode.redis.internal.data.RedisSet.smove;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
-import org.apache.geode.redis.internal.services.RegionProvider;
 
 public class SMoveExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    RedisKey sourceKey = command.getKey();
-    RedisKey destKey = new RedisKey(commandElems.get(2));
-    byte[] member = commandElems.get(3);
-    RegionProvider regionProvider = context.getRegionProvider();
+    var commandElems = command.getProcessedCommand();
+    var sourceKey = command.getKey();
+    var destKey = new RedisKey(commandElems.get(2));
+    var member = commandElems.get(3);
+    var regionProvider = context.getRegionProvider();
 
     int removed = context.lockedExecuteInTransaction(sourceKey, Arrays.asList(sourceKey, destKey),
         () -> smove(sourceKey, destKey, member, regionProvider));

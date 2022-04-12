@@ -49,14 +49,14 @@ class DisconnectingOutOfOffHeapMemoryListener implements OutOfOffHeapMemoryListe
         return;
       }
 
-      final InternalDistributedSystem dsToDisconnect = ids;
+      final var dsToDisconnect = ids;
       ids = null; // set null to prevent memory leak after closure!
 
       if (dsToDisconnect.getDistributionManager().getRootCause() == null) {
         dsToDisconnect.getDistributionManager().setRootCause(cause);
       }
 
-      Runnable runnable = () -> {
+      var runnable = (Runnable) () -> {
         dsToDisconnect.getLogWriter()
             .info("OffHeapStorage about to invoke disconnect on " + dsToDisconnect);
         dsToDisconnect.disconnect(cause.getMessage(), false);
@@ -65,7 +65,7 @@ class DisconnectingOutOfOffHeapMemoryListener implements OutOfOffHeapMemoryListe
       // invoking disconnect is async because caller may be a DM pool thread which will block until
       // DM shutdown times out
 
-      String name = getClass().getSimpleName() + "@" + hashCode()
+      var name = getClass().getSimpleName() + "@" + hashCode()
           + " Handle OutOfOffHeapMemoryException Thread";
       Thread thread = new LoggingThread(name, runnable);
       thread.start();

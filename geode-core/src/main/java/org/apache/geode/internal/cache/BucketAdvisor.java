@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
@@ -49,16 +48,11 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.client.internal.locator.SerializationHelper;
-import org.apache.geode.cache.partition.PartitionListener;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
 import org.apache.geode.distributed.LockNotHeldException;
 import org.apache.geode.distributed.LockServiceDestroyedException;
-import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.MembershipListener;
-import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.locks.DLockService;
 import org.apache.geode.distributed.internal.locks.DistributedMemberLock;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
@@ -66,7 +60,6 @@ import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.partitioned.Bucket;
 import org.apache.geode.internal.cache.partitioned.BucketProfileUpdateMessage;
 import org.apache.geode.internal.cache.partitioned.DeposePrimaryBucketMessage;
-import org.apache.geode.internal.cache.partitioned.DeposePrimaryBucketMessage.DeposePrimaryBucketResponse;
 import org.apache.geode.internal.cache.partitioned.RegionAdvisor;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
@@ -184,18 +177,18 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   }
 
   public static BucketAdvisor createBucketAdvisor(Bucket bucket, RegionAdvisor regionAdvisor) {
-    BucketAdvisor advisor = new BucketAdvisor(bucket, regionAdvisor);
+    var advisor = new BucketAdvisor(bucket, regionAdvisor);
     advisor.initialize();
     return advisor;
   }
 
   private void resetParentAdvisor(int bucketId) {
-    PartitionedRegion colocatedRegion = ColocationHelper.getColocatedRegion(pRegion);
+    var colocatedRegion = ColocationHelper.getColocatedRegion(pRegion);
     if (colocatedRegion != null) {
       if (colocatedRegion.isFixedPartitionedRegion()) {
-        List<FixedPartitionAttributesImpl> fpas = colocatedRegion.getFixedPartitionAttributesImpl();
+        var fpas = colocatedRegion.getFixedPartitionAttributesImpl();
         if (fpas != null) {
-          for (FixedPartitionAttributesImpl fpa : fpas) {
+          for (var fpa : fpas) {
             if (fpa.hasBucket(bucketId)) {
               parentAdvisor =
                   colocatedRegion.getRegionAdvisor().getBucketAdvisor(fpa.getStartingBucketID());
@@ -217,10 +210,10 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
       return;
     }
     if (pRegion.isFixedPartitionedRegion()) {
-      List<FixedPartitionAttributesImpl> fpas = pRegion.getFixedPartitionAttributesImpl();
+      var fpas = pRegion.getFixedPartitionAttributesImpl();
       if (fpas != null) {
-        int bucketId = getBucket().getId();
-        for (FixedPartitionAttributesImpl fpa : fpas) {
+        var bucketId = getBucket().getId();
+        for (var fpa : fpas) {
           if (fpa.hasBucket(bucketId) && bucketId != fpa.getStartingBucketID()) {
             startingBucketAdvisor = regionAdvisor.getBucketAdvisor(fpa.getStartingBucketID());
             break;
@@ -276,7 +269,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   public boolean deposePrimary() {
     if (isPrimary()) {
       primaryMoveWriteLock.lock();
-      boolean needToSendProfileUpdate = false;
+      var needToSendProfileUpdate = false;
       try {
         removePrimary(getDistributionManager().getId());
         synchronized (this) {
@@ -310,16 +303,16 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    *
    */
   private void deposePrimaryForColocatedChildren() {
-    boolean deposedChildPrimaries = true;
-    List<PartitionedRegion> colocatedChildPRs = ColocationHelper.getColocatedChildRegions(pRegion);
+    var deposedChildPrimaries = true;
+    var colocatedChildPRs = ColocationHelper.getColocatedChildRegions(pRegion);
     if (colocatedChildPRs != null) {
-      for (PartitionedRegion pr : colocatedChildPRs) {
-        Bucket b = pr.getRegionAdvisor().getBucket(getBucket().getId());
+      for (var pr : colocatedChildPRs) {
+        var b = pr.getRegionAdvisor().getBucket(getBucket().getId());
         if (b != null) {
-          BucketAdvisor ba = b.getBucketAdvisor();
+          var ba = b.getBucketAdvisor();
           deposedChildPrimaries = ba.deposePrimary() && deposedChildPrimaries;
           if (b instanceof BucketRegionQueue) {
-            BucketRegionQueue brq = (BucketRegionQueue) b;
+            var brq = (BucketRegionQueue) b;
             brq.decQueueSize(brq.size());
             brq.incSecondaryQueueSize(brq.size());
           }
@@ -329,16 +322,16 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   }
 
   private void deposeOtherPrimaryBucketForFixedPartition() {
-    boolean deposedOtherPrimaries = true;
-    int bucketId = getBucket().getId();
-    List<FixedPartitionAttributesImpl> fpas = pRegion.getFixedPartitionAttributesImpl();
+    var deposedOtherPrimaries = true;
+    var bucketId = getBucket().getId();
+    var fpas = pRegion.getFixedPartitionAttributesImpl();
     if (fpas != null) {
-      for (FixedPartitionAttributesImpl fpa : fpas) {
+      for (var fpa : fpas) {
         if (fpa.getStartingBucketID() == bucketId) {
-          for (int i = (bucketId + 1); i <= fpa.getLastBucketID(); i++) {
-            Bucket b = regionAdvisor.getBucket(i);
+          for (var i = (bucketId + 1); i <= fpa.getLastBucketID(); i++) {
+            var b = regionAdvisor.getBucket(i);
             if (b != null) {
-              BucketAdvisor ba = b.getBucketAdvisor();
+              var ba = b.getBucketAdvisor();
               deposedOtherPrimaries = ba.deposePrimary() && deposedOtherPrimaries;
             }
           }
@@ -364,12 +357,12 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
       return getDistributionManager().getId();
     }
 
-    Profile[] locProfiles = profiles; // volatile read
+    var locProfiles = profiles; // volatile read
     if (locProfiles.length == 0) {
       return null;
     }
 
-    Profile selectedProfile = selectNotInitializingProfile(locProfiles);
+    var selectedProfile = selectNotInitializingProfile(locProfiles);
 
     if (selectedProfile == null) {
       return null;
@@ -384,16 +377,16 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    *
    */
   private Profile selectNotInitializingProfile(Profile[] inProfiles) {
-    int index = 0;
-    int offset = 0;
+    var index = 0;
+    var offset = 0;
     if (inProfiles.length > 1) {
       // Pick random offset.
       offset = myRand.nextInt(inProfiles.length);
     }
 
-    for (int i = 0; i < inProfiles.length; i++) {
+    for (var i = 0; i < inProfiles.length; i++) {
       index = (offset + i) % inProfiles.length;
-      BucketProfile bp = (BucketProfile) inProfiles[index];
+      var bp = (BucketProfile) inProfiles[index];
       if (!bp.isInitializing) {
         return inProfiles[index];
       }
@@ -492,13 +485,13 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
 
   @Override
   public boolean shouldSyncForCrashedMember(InternalDistributedMember id) {
-    BucketProfile profile = (BucketProfile) getProfile(id);
+    var profile = (BucketProfile) getProfile(id);
     return (profile != null) && (profile.isPrimary);
   }
 
   @Override
   public DistributedRegion getRegionForDeltaGII() {
-    DistributedRegion result = super.getRegionForDeltaGII();
+    var result = super.getRegionForDeltaGII();
     if (result == null && getAdvisee() instanceof ProxyBucketRegion) {
       result = ((ProxyBucketRegion) getAdvisee()).getHostedBucketRegion();
     }
@@ -545,7 +538,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   @Override
   public synchronized boolean putProfile(Profile profile, boolean forceProfile) {
     assert profile instanceof BucketProfile;
-    BucketProfile bp = (BucketProfile) profile;
+    var bp = (BucketProfile) profile;
 
     // Only hosting buckets will be initializing, the isInitializing boolean is to
     // allow for early entry into the advisor for GII purposes
@@ -689,10 +682,10 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * repopulates the RegionAdvisor's location information for this bucket
    */
   private void updateServerBucketProfile() {
-    int bucketId = getBucket().getId();
+    var bucketId = getBucket().getId();
     Set<ServerBucketProfile> serverProfiles =
         newSetFromMap(new HashMap<>());
-    for (Profile p : profiles) {
+    for (var p : profiles) {
       if (p instanceof ServerBucketProfile) {
         serverProfiles.add((ServerBucketProfile) p);
       }
@@ -715,7 +708,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   @Override
   public boolean removeId(ProfileId memberId, boolean crashed, boolean destroyed,
       boolean fromMembershipListener) {
-    boolean hadBucketRegion = super.removeId(memberId, crashed, destroyed, fromMembershipListener);
+    var hadBucketRegion = super.removeId(memberId, crashed, destroyed, fromMembershipListener);
     if (hadBucketRegion) {
       // do NOT call notPrimary under synchronization
       try {
@@ -738,7 +731,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   @Override
   public boolean removeIdWithSerial(InternalDistributedMember memberId, int serialNum,
       boolean regionDestroyed) {
-    boolean hadBucketRegion = super.removeIdWithSerial(memberId, serialNum, regionDestroyed);
+    var hadBucketRegion = super.removeIdWithSerial(memberId, serialNum, regionDestroyed);
     if (hadBucketRegion) {
       // do NOT call notPrimary under synchronization
       notPrimary(memberId);
@@ -789,7 +782,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * @return the member who is primary for this bucket
    */
   public InternalDistributedMember getPrimary() {
-    InternalDistributedMember primary = getExistingPrimary();
+    var primary = getExistingPrimary();
     if (primary == null) {
       primary = waitForNewPrimary();
     }
@@ -815,10 +808,10 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * @return the new primary
    */
   private InternalDistributedMember waitForNewPrimary() {
-    DistributionManager dm = regionAdvisor.getDistributionManager();
-    DistributionConfig config = dm.getConfig();
+    var dm = regionAdvisor.getDistributionManager();
+    var config = dm.getConfig();
     // failure detection period
-    long timeout = config.getMemberTimeout() * 3L;
+    var timeout = config.getMemberTimeout() * 3L;
     // plus time for a new member to become primary
     timeout += Long.getLong(GeodeGlossary.GEMFIRE_PREFIX + "BucketAdvisor.getPrimaryTimeout",
         15000L);
@@ -846,15 +839,15 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * @param member the member who is not primary
    */
   private void removePrimary(InternalDistributedMember member) {
-    boolean needToVolunteerForPrimary = false;
+    var needToVolunteerForPrimary = false;
     if (!isClosed()) { // hole: requestPrimaryState not hosting
       initializationGate();
     }
-    boolean lostPrimary = false;
+    var lostPrimary = false;
     try {
       synchronized (this) {
-        boolean wasPrimary = isPrimary() && getDistributionManager().getId().equals(member);
-        final InternalDistributedMember currentPrimary = primaryMember.get();
+        var wasPrimary = isPrimary() && getDistributionManager().getId().equals(member);
+        final var currentPrimary = primaryMember.get();
         if (currentPrimary != null && currentPrimary.equals(member)) {
           if (logger.isDebugEnabled()) {
             logger.debug("[BucketAdvisor.notPrimary] {} for {}", member, this);
@@ -872,7 +865,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
         if (isHosting()) {
           requestPrimaryState(NO_PRIMARY_HOSTING);
           if (pRegion.isFixedPartitionedRegion()) {
-            InternalDistributedMember primaryMember =
+            var primaryMember =
                 regionAdvisor.adviseFixedPrimaryPartitionDataStore(getBucket().getId());
             needToVolunteerForPrimary = primaryMember == null || primaryMember.equals(member);
           } else {
@@ -891,7 +884,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
     } finally {
       if (lostPrimary) {
         invokeAfterSecondaryInPartitionListeners();
-        Bucket br = regionAdvisor.getBucket(getBucket().getId());
+        var br = regionAdvisor.getBucket(getBucket().getId());
         if (br instanceof BucketRegion) {
           ((BucketRegion) br).beforeReleasingPrimaryLockDuringDemotion();
         }
@@ -985,7 +978,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * @return true if this member is currently hosting real bucket
    */
   public boolean isHosting() {
-    final byte primaryState = this.primaryState;
+    final var primaryState = this.primaryState;
     return primaryState == NO_PRIMARY_HOSTING || primaryState == OTHER_PRIMARY_HOSTING
         || primaryState == VOLUNTEERING_HOSTING || primaryState == BECOMING_HOSTING
         || primaryState == IS_PRIMARY_HOSTING;
@@ -996,7 +989,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * an executor (waiting pool) and returns early.
    */
   public void volunteerForPrimary() {
-    InternalDistributedMember elector = primaryElector;
+    var elector = primaryElector;
     if (elector != null && regionAdvisor.hasPartitionedRegion(elector)) {
       // another server will determine the primary node
       return;
@@ -1033,13 +1026,13 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   public boolean becomePrimary(boolean isRebalance) {
     initializationGate();
 
-    long startTime = getPartitionedRegionStats().startPrimaryTransfer(isRebalance);
+    var startTime = getPartitionedRegionStats().startPrimaryTransfer(isRebalance);
     try {
       long waitTime = 2000; // time each iteration will wait
       while (!isPrimary()) {
         getAdvisee().getCancelCriterion().checkCancelInProgress(null);
-        boolean attemptToBecomePrimary = false;
-        boolean attemptToDeposePrimary = false;
+        var attemptToBecomePrimary = false;
+        var attemptToDeposePrimary = false;
 
         if (Thread.currentThread().isInterrupted()) {
           if (logger.isDebugEnabled()) {
@@ -1100,12 +1093,12 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
         // RACE: slight race condition with thread that's actually requesting the lock
 
         if (attemptToDeposePrimary) {
-          InternalDistributedMember otherPrimary = getPrimary();
+          var otherPrimary = getPrimary();
           if (otherPrimary != null && !getDistributionManager().getId().equals(otherPrimary)) {
             if (logger.isDebugEnabled()) {
               logger.debug("Attempting to depose primary on {} for {}", otherPrimary, this);
             }
-            DeposePrimaryBucketResponse response =
+            var response =
                 DeposePrimaryBucketMessage.send(otherPrimary, pRegion, getBucket().getId());
             if (response != null) {
               response.waitForRepliesUninterruptibly();
@@ -1150,17 +1143,17 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
       logger.debug("Acquired primary lock for BucketID {} PR : {}", getBucket().getId(),
           regionAdvisor.getPartitionedRegion().getFullPath());
     }
-    boolean changedStateToIsPrimary = false;
+    var changedStateToIsPrimary = false;
     // Hold the primary move lock until we send a
     // profile update. This will prevent writes
     // from occurring until all members know that
     // this member is now the primary.
-    boolean shouldInvokeListeners = false;
+    var shouldInvokeListeners = false;
     primaryMoveWriteLock.lock();
     try {
       synchronized (this) {
         if (isHosting() && (isVolunteering() || isBecomingPrimary())) {
-          Bucket br = regionAdvisor.getBucket(getBucket().getId());
+          var br = regionAdvisor.getBucket(getBucket().getId());
           if (br instanceof BucketRegion) {
             ((BucketRegion) br).beforeAcquiringPrimaryState();
           }
@@ -1188,12 +1181,12 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
           // send profile update AFTER releasing sync
           sendProfileUpdate();
 
-          Bucket br = regionAdvisor.getBucket(getBucket().getId());
+          var br = regionAdvisor.getBucket(getBucket().getId());
           if (br instanceof BucketRegion) {
             ((BucketRegion) br).processPendingSecondaryExpires();
           }
           if (br instanceof BucketRegionQueue) { // Shouldn't it be AbstractBucketRegionQueue
-            BucketRegionQueue brq = (BucketRegionQueue) br;
+            var brq = (BucketRegionQueue) br;
             brq.incQueueSize(brq.size());
             brq.decSecondaryQueueSize(brq.size());
           }
@@ -1211,11 +1204,11 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   }
 
   private void invokePartitionListeners() {
-    PartitionListener[] listeners = pRegion.getPartitionListeners();
+    var listeners = pRegion.getPartitionListeners();
     if (listeners == null || listeners.length == 0) {
       return;
     }
-    for (PartitionListener listener : listeners) {
+    for (var listener : listeners) {
       if (listener != null) {
         listener.afterPrimary(getBucket().getId());
       }
@@ -1223,11 +1216,11 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   }
 
   private void invokeAfterSecondaryInPartitionListeners() {
-    PartitionListener[] listeners = pRegion.getPartitionListeners();
+    var listeners = pRegion.getPartitionListeners();
     if (listeners == null || listeners.length == 0) {
       return;
     }
-    for (PartitionListener listener : listeners) {
+    for (var listener : listeners) {
       if (listener != null) {
         listener.afterSecondary(getBucket().getId());
       }
@@ -1245,7 +1238,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   private DistributedMemberLock getPrimaryLock(boolean createDLS) {
     synchronized (this) {
       if (primaryLock == null) {
-        DistributedLockService dls = DistributedLockService
+        var dls = DistributedLockService
             .getServiceNamed(PartitionedRegionHelper.PARTITION_LOCK_SERVICE_NAME);
         if (dls == null) {
           if (!createDLS || getProxyBucketRegion().getCache().isClosed()) {
@@ -1281,14 +1274,14 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   }
 
   private void acquirePrimaryRecursivelyForColocated() {
-    final List<PartitionedRegion> colocatedWithList =
+    final var colocatedWithList =
         ColocationHelper.getColocatedChildRegions(regionAdvisor.getPartitionedRegion());
     if (colocatedWithList != null) {
-      for (PartitionedRegion childPR : colocatedWithList) {
-        Bucket b = childPR.getRegionAdvisor().getBucket(getBucket().getId());
-        BucketAdvisor childBA = b.getBucketAdvisor();
+      for (var childPR : colocatedWithList) {
+        var b = childPR.getRegionAdvisor().getBucket(getBucket().getId());
+        var childBA = b.getBucketAdvisor();
         Assert.assertHoldsLock(childBA, false);
-        boolean acquireForChild = false;
+        var acquireForChild = false;
 
         if (logger.isDebugEnabled()) {
           logger.debug(
@@ -1301,7 +1294,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
             if (isPrimary()) {
               if (!childBA.isPrimary()) {
                 childBA.setVolunteering();
-                boolean acquired = childBA.acquiredPrimaryLock();
+                var acquired = childBA.acquiredPrimaryLock();
                 acquireForChild = true;
                 if (acquired && pRegion.isFixedPartitionedRegion()) {
                   childBA.acquirePrimaryForRestOfTheBucket();
@@ -1322,15 +1315,15 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   }
 
   private void acquirePrimaryForRestOfTheBucket() {
-    List<FixedPartitionAttributesImpl> fpas = pRegion.getFixedPartitionAttributesImpl();
+    var fpas = pRegion.getFixedPartitionAttributesImpl();
     if (fpas != null) {
-      int bucketId = getBucket().getId();
-      for (FixedPartitionAttributesImpl fpa : fpas) {
+      var bucketId = getBucket().getId();
+      for (var fpa : fpas) {
         if (fpa.getStartingBucketID() == bucketId) {
-          for (int i = bucketId + 1; i <= fpa.getLastBucketID();) {
-            Bucket b = regionAdvisor.getBucket(i++);
+          for (var i = bucketId + 1; i <= fpa.getLastBucketID();) {
+            var b = regionAdvisor.getBucket(i++);
             if (b != null) {
-              BucketAdvisor ba = b.getBucketAdvisor();
+              var ba = b.getBucketAdvisor();
               ba.primaryMoveWriteLock.lock();
               try {
                 if (ba.isHosting()) {
@@ -1378,14 +1371,14 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   private InternalDistributedMember waitForPrimaryMember(long timeout) {
     synchronized (this) {
       // let's park this thread and wait for a primary!
-      StopWatch timer = new StopWatch(true);
-      long warnTime = getDistributionManager().getConfig().getAckWaitThreshold() * 1000L;
-      boolean loggedWarning = false;
+      var timer = new StopWatch(true);
+      var warnTime = getDistributionManager().getConfig().getAckWaitThreshold() * 1000L;
+      var loggedWarning = false;
       try {
         for (;;) {
           // bail out if the system starts closing
           getAdvisee().getCancelCriterion().checkCancelInProgress(null);
-          final InternalCache cache = getBucket().getCache();
+          final var cache = getBucket().getCache();
           if (cache != null && cache.isCacheAtShutdownAll()) {
             throw cache.getCacheClosedException("Cache is shutting down");
           }
@@ -1398,15 +1391,15 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
           if (isClosed()) {
             break;
           }
-          long elapsed = timer.elapsedTimeMillis();
-          long timeLeft = timeout - elapsed;
+          var elapsed = timer.elapsedTimeMillis();
+          var timeLeft = timeout - elapsed;
           if (timeLeft <= 0) {
             break;
           }
           if (getBucketRedundancy() == -1 || isClosed()) {
             break; // early out... all bucket regions are gone or we closed
           }
-          InternalDistributedMember primary = basicGetPrimaryMember();
+          var primary = basicGetPrimaryMember();
           if (primary != null) {
             return primary;
           }
@@ -1417,7 +1410,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
 
           // Log a warning if we have waited for the ack wait threshold time.
           if (!loggedWarning) {
-            long timeUntilWarning = warnTime - elapsed;
+            var timeUntilWarning = warnTime - elapsed;
             if (timeUntilWarning <= 0) {
               logger
                   .warn(
@@ -1458,7 +1451,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   public boolean waitForRedundancy(int minRedundancy) {
     synchronized (this) {
       // let's park this thread and wait for redundancy!
-      StopWatch timer = new StopWatch(true);
+      var timer = new StopWatch(true);
       try {
         for (;;) {
           if (getBucketRedundancy() >= minRedundancy) {
@@ -1468,7 +1461,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
           if (isClosed()) {
             return false;
           }
-          long timeLeft = BUCKET_REDUNDANCY_WAIT - timer.elapsedTimeMillis();
+          var timeLeft = BUCKET_REDUNDANCY_WAIT - timer.elapsedTimeMillis();
           if (timeLeft <= 0) {
             return false;
           }
@@ -1524,7 +1517,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    */
   protected void setHosting(boolean value) {
     // boolean needToNotPrimarySelf = false;
-    boolean needToVolunteerForPrimary = false;
+    var needToVolunteerForPrimary = false;
     boolean wasPrimary;
     synchronized (this) {
       wasPrimary = isPrimary();
@@ -1598,20 +1591,20 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
         "Attempting to sendProfileUpdate while synchronized may result in deadlock");
     // NOTE: if this assert fails, you COULD use the WaitingThreadPool in DM
 
-    final int partitionedRegionId = pRegion.getPRId();
-    final int bucketId = ((ProxyBucketRegion) getAdvisee()).getBucketId();
+    final var partitionedRegionId = pRegion.getPRId();
+    final var bucketId = ((ProxyBucketRegion) getAdvisee()).getBucketId();
 
-    BucketProfile bp = (BucketProfile) createProfile();
+    var bp = (BucketProfile) createProfile();
     updateServerBucketProfile(bp);
-    InternalDistributedMember primary = basicGetPrimaryMember();
-    HashSet<InternalDistributedMember> hostsAndProxyMembers = new HashSet<>();
+    var primary = basicGetPrimaryMember();
+    var hostsAndProxyMembers = new HashSet<InternalDistributedMember>();
     if (primary != null && !primary.equals(getDistributionManager().getId())) {
       hostsAndProxyMembers.add(primary); // Add the primary
     }
     hostsAndProxyMembers.addAll(adviseGeneric()); // Add all members hosting the bucket
     hostsAndProxyMembers.addAll(adviseProfileUpdate()); // Add all proxy instances that could use
                                                         // the bucket
-    ReplyProcessor21 reply = BucketProfileUpdateMessage.send(hostsAndProxyMembers,
+    var reply = BucketProfileUpdateMessage.send(hostsAndProxyMembers,
         getDistributionManager(), partitionedRegionId, bucketId, bp, true);
     if (reply != null) {
       reply.waitForRepliesUninterruptibly();
@@ -1622,7 +1615,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * Returns true if the a primary is known.
    */
   private boolean hasPrimary() {
-    final byte primaryState = this.primaryState;
+    final var primaryState = this.primaryState;
     return primaryState == OTHER_PRIMARY_NOT_HOSTING || primaryState == OTHER_PRIMARY_HOSTING
         || primaryState == IS_PRIMARY_HOSTING;
   }
@@ -1630,7 +1623,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   @Override
   protected Profile instantiateProfile(InternalDistributedMember memberId, int version) {
     if (!pRegion.isShadowPR()) {
-      Set<BucketServerLocation66> serverLocations = getBucketServerLocations(version);
+      var serverLocations = getBucketServerLocations(version);
       if (!serverLocations.isEmpty()) {
         return new ServerBucketProfile(memberId, version, getBucket(), (HashSet) serverLocations);
       }
@@ -1639,18 +1632,18 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   }
 
   protected Set<BucketServerLocation66> getBucketServerLocations(int version) {
-    InternalCache cache = getProxyBucketRegion().getCache();
-    List<CacheServer> servers = cache.getCacheServers();
+    var cache = getProxyBucketRegion().getCache();
+    var servers = cache.getCacheServers();
     if (servers.isEmpty()) {
       return Collections.emptySet();
     }
-    HashSet<BucketServerLocation66> serverLocations = new HashSet<>();
-    for (CacheServer cacheServer : servers) {
-      CacheServerImpl server = (CacheServerImpl) cacheServer;
+    var serverLocations = new HashSet<BucketServerLocation66>();
+    for (var cacheServer : servers) {
+      var server = (CacheServerImpl) cacheServer;
       try {
         String serverExternalAddress;
         if (server.isRunning() && ((serverExternalAddress = server.getExternalAddress()) != null)) {
-          BucketServerLocation66 location = new BucketServerLocation66(getBucket().getId(),
+          var location = new BucketServerLocation66(getBucket().getId(),
               server.getPort(), serverExternalAddress, getBucket().isPrimary(),
               Integer.valueOf(version).byteValue(), server.getCombinedGroups());
           serverLocations.add(location);
@@ -1706,7 +1699,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * @return number of current bucket hosts
    */
   private int updateRedundancy() {
-    int numBucketHosts = getNumInitializedBuckets();
+    var numBucketHosts = getNumInitializedBuckets();
     if (!isClosed()) {
       redundancyTracker.updateStatistics(numBucketHosts);
     }
@@ -1725,9 +1718,9 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * @return zero or greater array of primary members
    */
   private InternalDistributedMember[] findPrimaryMembers() {
-    Set<InternalDistributedMember> primaryMembers = adviseFilter(profile -> {
+    var primaryMembers = adviseFilter(profile -> {
       assert profile instanceof BucketProfile;
-      BucketProfile srp = (BucketProfile) profile;
+      var srp = (BucketProfile) profile;
       return srp.isPrimary;
     });
     if (primaryMembers.size() > 1 && logger.isDebugEnabled()) {
@@ -1749,7 +1742,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
       setPrimaryMember(getDistributionManager().getDistributionManagerId());
       return true;
     }
-    InternalDistributedMember[] primaryMembers = findPrimaryMembers();
+    var primaryMembers = findPrimaryMembers();
     if (primaryMembers.length > 0) {
       setPrimaryMember(primaryMembers[0]);
       return true;
@@ -1771,7 +1764,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   public Set<InternalDistributedMember> adviseInitialized() {
     return adviseFilter(profile -> {
       assert profile instanceof BucketProfile;
-      BucketProfile bucketProfile = (BucketProfile) profile;
+      var bucketProfile = (BucketProfile) profile;
       return bucketProfile.isHosting;
     });
 
@@ -1788,10 +1781,10 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * bucket. If it is used more frequently, it might be better to cache this count.
    */
   private int getNumInitializedBuckets() {
-    Profile[] locProfiles = profiles; // grab current profiles
-    int count = 0;
-    for (Profile profile : locProfiles) {
-      BucketProfile bucketProfile = (BucketProfile) profile;
+    var locProfiles = profiles; // grab current profiles
+    var count = 0;
+    for (var profile : locProfiles) {
+      var bucketProfile = (BucketProfile) profile;
       if (bucketProfile.isHosting) {
         count++;
       }
@@ -1819,7 +1812,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
       return;
     }
     try {
-      DistributedMemberLock thePrimaryLock = getPrimaryLock(false);
+      var thePrimaryLock = getPrimaryLock(false);
       if (thePrimaryLock != null) {
         thePrimaryLock.unlock();
       }
@@ -1873,7 +1866,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
    * @throws IllegalStateException if an illegal state change was attempted
    */
   private boolean requestPrimaryState(byte requestedState) {
-    final byte fromState = primaryState;
+    final var fromState = primaryState;
     switch (fromState) {
       case NO_PRIMARY_NOT_HOSTING:
         switch (requestedState) {
@@ -1916,13 +1909,13 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
             return false;
           case VOLUNTEERING_HOSTING:
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.putStartTime(this, stats.startVolunteering());
           }
             break;
           case BECOMING_HOSTING:
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.putStartTime(this, stats.startVolunteering());
           }
             break;
@@ -1987,7 +1980,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
             return false;
           case BECOMING_HOSTING:
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.putStartTime(this, stats.startVolunteering());
           }
             break;
@@ -2008,7 +2001,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
           case NO_PRIMARY_NOT_HOSTING:
             // May occur when setHosting(false) is called
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.endVolunteeringClosed(stats.removeStartTime(this));
           }
             break;
@@ -2016,7 +2009,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
             // May occur when setHosting(false) is called
             // Profile update for other primary may have slipped in
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.endVolunteeringClosed(stats.removeStartTime(this));
           }
             break;
@@ -2025,14 +2018,14 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
             return false;
           case IS_PRIMARY_HOSTING:
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.incPrimaryBucketCount(1);
             stats.endVolunteeringBecamePrimary(stats.removeStartTime(this));
           }
             break;
           case OTHER_PRIMARY_HOSTING:
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.endVolunteeringOtherPrimary(stats.removeStartTime(this));
           }
             break;
@@ -2044,7 +2037,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
             return false;
           case CLOSED:
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.endVolunteeringClosed(stats.removeStartTime(this));
           }
             break;
@@ -2059,7 +2052,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
           case NO_PRIMARY_NOT_HOSTING:
             // May occur when setHosting(false) is called
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.endVolunteeringClosed(stats.removeStartTime(this));
           }
             break;
@@ -2067,7 +2060,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
             // May occur when setHosting(false) is called
             // Profile update for other primary may have slipped in
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.endVolunteeringClosed(stats.removeStartTime(this));
           }
             break;
@@ -2076,7 +2069,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
             return false;
           case IS_PRIMARY_HOSTING:
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.incPrimaryBucketCount(1);
             stats.endVolunteeringBecamePrimary(stats.removeStartTime(this));
           }
@@ -2091,7 +2084,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
             return false;
           case CLOSED:
             primaryState = requestedState; {
-            PartitionedRegionStats stats = getPartitionedRegionStats();
+            var stats = getPartitionedRegionStats();
             stats.endVolunteeringClosed(stats.removeStartTime(this));
           }
             break;
@@ -2136,7 +2129,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
       case CLOSED:
         switch (requestedState) {
           case CLOSED:
-            Exception e = new Exception(
+            var e = new Exception(
                 "Attempted to close BucketAdvisor that is already CLOSED");
             logger.warn("Attempted to close BucketAdvisor that is already CLOSED",
                 e);
@@ -2193,7 +2186,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
   private Set<InternalDistributedMember> adviseNotInitialized() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       return !cp.regionInitialized;
     });
   }
@@ -2206,7 +2199,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder("[BucketAdvisor ").append(getAdvisee().getFullPath())
+    final var sb = new StringBuilder("[BucketAdvisor ").append(getAdvisee().getFullPath())
         .append(':').append(getAdvisee().getSerialNumber()).append(": ");
     sb.append("state=").append(primaryStateToString());
     sb.append("]");
@@ -2325,7 +2318,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
     @Override
     public void fillInToString(StringBuilder sb) {
       super.fillInToString(sb);
-      for (BucketServerLocation66 location : bucketServerLocations) {
+      for (var location : bucketServerLocations) {
         sb.append("; hostName=").append(location.getHostName());
         sb.append("; port=").append(location.getPort());
       }
@@ -2358,7 +2351,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
 
     @Override
     public int hashCode() {
-      BucketServerLocation66 sl = (BucketServerLocation66) bucketServerLocations.toArray()[0];
+      var sl = (BucketServerLocation66) bucketServerLocations.toArray()[0];
       return 31 * bucketId + sl.getPort();
     }
 
@@ -2373,7 +2366,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
       if (!(obj instanceof ServerBucketProfile)) {
         return false;
       }
-      final ServerBucketProfile other = (ServerBucketProfile) obj;
+      final var other = (ServerBucketProfile) obj;
       if (other.bucketId != bucketId) {
         return false;
       }
@@ -2415,10 +2408,10 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
      * BucketAdvisor. Caller must be synchronized on BucketAdvisor.
      */
     void volunteerForPrimary() {
-      boolean handedOff = false;
+      var handedOff = false;
       while (!handedOff) {
         getAdvisee().getCancelCriterion().checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           execute(this::doVolunteerForPrimary);
           handedOff = true;
@@ -2456,7 +2449,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
       if (!beginVolunteering()) {
         return;
       }
-      boolean dlsDestroyed = false;
+      var dlsDestroyed = false;
       try {
 
         if (logger.isDebugEnabled()) {
@@ -2469,7 +2462,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
           // Holding the primaryMoveWriteLock here instead prevents any
           // operations from being performed on this primary until the child regions
           // are synced up. It also prevents a depose from happening until then.
-          BucketAdvisor parentBA = parentAdvisor;
+          var parentBA = parentAdvisor;
           primaryMoveWriteLock.lock();
           try {
             boolean acquiredLock;
@@ -2576,7 +2569,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
      * @param loggit true if message should be logged if shutdown condition is not met
      */
     private void handleException(Exception e, boolean loggit) {
-      boolean safe = isClosed() || getAdvisee().getCancelCriterion().isCancelInProgress();
+      var safe = isClosed() || getAdvisee().getCancelCriterion().isCancelInProgress();
       if (!safe) {
         if (ENFORCE_SAFE_CLOSE) {
           Assert.assertTrue(safe,
@@ -2597,7 +2590,7 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
           return false;
         }
         volunteeringThread = Thread.currentThread();
-        boolean changedState = false;
+        var changedState = false;
         try {
           if (isAggressive()) {
             changedState = setBecoming();
@@ -2677,13 +2670,13 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
       if (Thread.interrupted()) {
         throw new InterruptedException();
       }
-      Queue<Runnable> volunteeringQueue = getVolunteeringQueue();
+      var volunteeringQueue = getVolunteeringQueue();
       synchronized (volunteeringQueue) {
         // add the volunteering task
         volunteeringQueue.add(volunteeringTask);
         if (getVolunteeringSemaphore().tryAcquire()) {
           // ensure there is a thread consuming the queue
-          boolean handedOff = false;
+          var handedOff = false;
           try {
             getDistributionManager().getExecutors().getWaitingThreadPool().execute(consumeQueue());
             handedOff = true;
@@ -2705,9 +2698,9 @@ public class BucketAdvisor extends CacheDistributionAdvisor {
     private Runnable consumeQueue() {
       return () -> {
         getPartitionedRegionStats().incVolunteeringThreads(1);
-        boolean releaseSemaphore = true;
+        var releaseSemaphore = true;
         try {
-          Queue<Runnable> volunteeringQueue = getVolunteeringQueue();
+          var volunteeringQueue = getVolunteeringQueue();
           Runnable queuedWork;
           while (true) {
             // SystemFailure.checkFailure();

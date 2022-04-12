@@ -47,7 +47,6 @@ import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
-import org.apache.geode.management.internal.ManagementAgent;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.beans.FileUploader;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
@@ -82,7 +81,7 @@ public abstract class AbstractCommandsController {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<String> internalError(final Exception e) {
-    final String stackTrace = getPrintableStackTrace(e);
+    final var stackTrace = getPrintableStackTrace(e);
     logger.fatal(stackTrace);
     return new ResponseEntity<>(stackTrace, HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -119,7 +118,7 @@ public abstract class AbstractCommandsController {
    * @see java.lang.Throwable#printStackTrace(java.io.PrintWriter)
    */
   private static String getPrintableStackTrace(final Throwable t) {
-    final StringWriter stackTraceWriter = new StringWriter();
+    final var stackTraceWriter = new StringWriter();
     t.printStackTrace(new PrintWriter(stackTraceWriter));
     return stackTraceWriter.toString();
   }
@@ -148,10 +147,10 @@ public abstract class AbstractCommandsController {
    * @see javax.management.MBeanServer
    */
   protected MBeanServer getMBeanServer() {
-    InternalCache cache = getInternalCache();
-    SystemManagementService service =
+    var cache = getInternalCache();
+    var service =
         (SystemManagementService) ManagementService.getExistingManagementService(cache);
-    ManagementAgent managementAgent = service.getManagementAgent();
+    var managementAgent = service.getManagementAgent();
     return managementAgent.getJmxConnectorServer().getMBeanServer();
   }
 
@@ -173,8 +172,8 @@ public abstract class AbstractCommandsController {
    */
   private synchronized MemberMXBean getManagingMemberMXBean() {
     if (managingMemberMXBeanProxy == null) {
-      MBeanServer mbs = getMBeanServer();
-      DistributedSystemMXBean distributedSystemMXBean = JMX.newMXBeanProxy(mbs,
+      var mbs = getMBeanServer();
+      var distributedSystemMXBean = JMX.newMXBeanProxy(mbs,
           MBeanJMXAdapter.getDistributedSystemName(), DistributedSystemMXBean.class);
       managingMemberMXBeanProxy = createMemberMXBeanForManagerUsingProxy(mbs,
           distributedSystemMXBean.getMemberObjectName());
@@ -184,8 +183,8 @@ public abstract class AbstractCommandsController {
   }
 
   protected synchronized ObjectName getMemberObjectName() {
-    MBeanServer platformMBeanServer = getMBeanServer();
-    DistributedSystemMXBean distributedSystemMXBean = JMX.newMXBeanProxy(platformMBeanServer,
+    var platformMBeanServer = getMBeanServer();
+    var distributedSystemMXBean = JMX.newMXBeanProxy(platformMBeanServer,
         MBeanJMXAdapter.getDistributedSystemName(), DistributedSystemMXBean.class);
     return distributedSystemMXBean.getMemberObjectName();
   }
@@ -247,14 +246,14 @@ public abstract class AbstractCommandsController {
       tempDir = FileUploader.createSecuredTempDirectory("uploaded-");
       // staging the files to local
       filePaths = new ArrayList<>();
-      for (MultipartFile multipartFile : multipartFiles) {
-        File dest = new File(tempDir.toFile(), multipartFile.getOriginalFilename());
+      for (var multipartFile : multipartFiles) {
+        var dest = new File(tempDir.toFile(), multipartFile.getOriginalFilename());
         multipartFile.transferTo(dest);
         filePaths.add(dest.getAbsolutePath());
       }
     }
 
-    MemberMXBean manager = getManagingMemberMXBean();
+    var manager = getManagingMemberMXBean();
     try {
       return manager.processCommand(command, environment, filePaths);
     } finally {

@@ -108,7 +108,7 @@ public class RestoreRedundancyResultsImpl implements RestoreRedundancyResults {
 
   @Override
   public Status getRegionOperationStatus() {
-    boolean fullySatisfied =
+    var fullySatisfied =
         zeroRedundancyRegionsResults.isEmpty() && underRedundancyRegionsResults.isEmpty();
     return fullySatisfied ? Status.SUCCESS : Status.FAILURE;
   }
@@ -144,7 +144,7 @@ public class RestoreRedundancyResultsImpl implements RestoreRedundancyResults {
 
   private String getResultsMessage(Map<String, RegionRedundancyStatus> regionResults,
       String baseMessage) {
-    String message = baseMessage + System.lineSeparator();
+    var message = baseMessage + System.lineSeparator();
     message += regionResults.values().stream().map(RegionRedundancyStatus::toString)
         .collect(Collectors.joining("," + System.lineSeparator()));
     return message;

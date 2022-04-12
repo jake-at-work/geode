@@ -25,9 +25,7 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 
@@ -71,7 +69,7 @@ public class CreateRegionFactoryNewInstanceRegressionTest {
 
   @Test
   public void createRegionFactoryShouldReturnNewInstanceWithDefaultValues() {
-    PartitionAttributesFactory<Integer, String> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<Integer, String>();
     paf.setTotalNumBuckets(111);
     paf.setRedundantCopies(0);
     paf.addFixedPartitionAttributes(createFixedPartition("one", true, 111));
@@ -80,9 +78,9 @@ public class CreateRegionFactoryNewInstanceRegressionTest {
         cache.createRegionFactory(RegionShortcut.PARTITION);
     regionFactory1.setPartitionAttributes(paf.create());
 
-    Region<Integer, String> region1 = regionFactory1.create("region1");
+    var region1 = regionFactory1.create("region1");
 
-    PartitionAttributesFactory<String, Object> paf2 = new PartitionAttributesFactory<>();
+    var paf2 = new PartitionAttributesFactory<String, Object>();
     paf2.setColocatedWith(region1.getFullPath());
     paf2.setTotalNumBuckets(111);
     paf2.setRedundantCopies(0);
@@ -90,7 +88,7 @@ public class CreateRegionFactoryNewInstanceRegressionTest {
     RegionFactory<String, Object> regionFactory2 =
         cache.createRegionFactory(RegionShortcut.PARTITION);
 
-    PartitionAttributes<String, Object> attrs2 = paf2.create();
+    var attrs2 = paf2.create();
     regionFactory2.setPartitionAttributes(attrs2);
     assertThatCode(() -> regionFactory2.create("region2")).doesNotThrowAnyException();
   }

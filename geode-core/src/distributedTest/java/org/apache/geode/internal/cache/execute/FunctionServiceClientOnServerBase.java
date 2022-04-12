@@ -16,20 +16,18 @@ package org.apache.geode.internal.cache.execute;
 
 import org.junit.Before;
 
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 
 public abstract class FunctionServiceClientOnServerBase extends FunctionServiceClientBase {
 
   @Before
   public void createServers() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    ClientCache cache = createServersAndClient(numberOfExecutions());
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var cache = createServersAndClient(numberOfExecutions());
   }
 
   @Override

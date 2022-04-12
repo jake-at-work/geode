@@ -79,7 +79,7 @@ public class ForceReattemptException extends DataLocationException {
       return; // ???
     }
 
-    int expected = key.hashCode();
+    var expected = key.hashCode();
     if (expected == keyHash) {
       return;
     }
@@ -108,7 +108,7 @@ public class ForceReattemptException extends DataLocationException {
 
   @Override
   public String toString() {
-    String result = super.toString();
+    var result = super.toString();
     if (hasHash()) {
       result = result + " (hash = " + keyHash + ")";
     }

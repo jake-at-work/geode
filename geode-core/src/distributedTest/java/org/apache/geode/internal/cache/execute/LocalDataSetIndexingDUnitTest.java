@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -38,7 +37,6 @@ import org.apache.geode.cache.execute.RegionFunctionContext;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.ExecutionContext;
@@ -48,7 +46,6 @@ import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.Assert;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.LocalDataSet;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -70,14 +67,14 @@ public class LocalDataSetIndexingDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     dataStore1 = host.getVM(0);
     dataStore2 = host.getVM(1);
   }
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
+    var result = super.getDistributedSystemProperties();
     result.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.execute.**;org.apache.geode.test.dunit.**");
     return result;
@@ -86,27 +83,27 @@ public class LocalDataSetIndexingDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testLocalDataSetIndexing() {
-    final CacheSerializableRunnable createPRs = new CacheSerializableRunnable("create prs ") {
+    final var createPRs = new CacheSerializableRunnable("create prs ") {
       @Override
       public void run2() {
-        AttributesFactory<Integer, RegionValue> factory =
-            new AttributesFactory<>();
+        var factory =
+            new AttributesFactory<Integer, RegionValue>();
         factory.setPartitionAttributes(new PartitionAttributesFactory<>()
             .setRedundantCopies(1).setTotalNumBuckets(8).create());
-        final PartitionedRegion pr1 = (PartitionedRegion) createRootRegion("pr1", factory.create());
+        final var pr1 = (PartitionedRegion) createRootRegion("pr1", factory.create());
         factory = new AttributesFactory<>();
         factory.setPartitionAttributes(new PartitionAttributesFactory<>()
             .setRedundantCopies(1).setTotalNumBuckets(8).setColocatedWith(pr1.getName()).create());
-        final PartitionedRegion pr2 = (PartitionedRegion) createRootRegion("pr2", factory.create());
+        final var pr2 = (PartitionedRegion) createRootRegion("pr2", factory.create());
       }
     };
 
-    final CacheSerializableRunnable createIndexesOnPRs =
+    final var createIndexesOnPRs =
         new CacheSerializableRunnable("create prs ") {
           @Override
           public void run2() {
             try {
-              QueryService qs = getCache().getQueryService();
+              var qs = getCache().getQueryService();
               qs.createIndex("valueIndex1", IndexType.FUNCTIONAL, "e1.value", SEPARATOR + "pr1 e1");
               qs.createIndex("valueIndex2", IndexType.FUNCTIONAL, "e2.value", SEPARATOR + "pr2 e2");
             } catch (Exception e) {
@@ -115,15 +112,15 @@ public class LocalDataSetIndexingDUnitTest extends JUnit4CacheTestCase {
             }
           }
         };
-    final CacheSerializableRunnable execute = new CacheSerializableRunnable("execute function") {
+    final var execute = new CacheSerializableRunnable("execute function") {
       @Override
       public void run2() {
 
-        final PartitionedRegion pr1 = (PartitionedRegion) getRootRegion("pr1");
-        final PartitionedRegion pr2 = (PartitionedRegion) getRootRegion("pr2");
+        final var pr1 = (PartitionedRegion) getRootRegion("pr1");
+        final var pr2 = (PartitionedRegion) getRootRegion("pr2");
 
         final Set<Integer> filter = new HashSet<>();
-        for (int i = 1; i <= 80; i++) {
+        for (var i = 1; i <= 80; i++) {
           pr1.put(i, new RegionValue(i));
           if (i <= 20) {
             pr2.put(i, new RegionValue(i));
@@ -133,26 +130,26 @@ public class LocalDataSetIndexingDUnitTest extends JUnit4CacheTestCase {
           }
         }
 
-        ArrayList<List> result = (ArrayList<List>) FunctionService.onRegion(pr1).withFilter(filter)
+        var result = (ArrayList<List>) FunctionService.onRegion(pr1).withFilter(filter)
             .execute(new FunctionAdapter() {
               @Override
               public void execute(FunctionContext context) {
                 try {
-                  RegionFunctionContext rContext = (RegionFunctionContext) context;
+                  var rContext = (RegionFunctionContext) context;
                   Region pr1 = rContext.getDataSet();
-                  LocalDataSet localCust =
+                  var localCust =
                       (LocalDataSet) PartitionRegionHelper.getLocalDataForContext(rContext);
-                  Map<String, Region<?, ?>> colocatedRegions =
+                  var colocatedRegions =
                       PartitionRegionHelper.getColocatedRegions(pr1);
-                  Map<String, Region<?, ?>> localColocatedRegions =
+                  var localColocatedRegions =
                       PartitionRegionHelper.getLocalColocatedRegions(rContext);
                   Region pr2 = colocatedRegions.get(SEPARATOR + "pr2");
-                  LocalDataSet localOrd =
+                  var localOrd =
                       (LocalDataSet) localColocatedRegions.get(SEPARATOR + "pr2");
-                  QueryObserverImpl observer = new QueryObserverImpl();
+                  var observer = new QueryObserverImpl();
                   QueryObserverHolder.setInstance(observer);
-                  QueryService qs = pr1.getCache().getQueryService();
-                  DefaultQuery query = (DefaultQuery) qs.newQuery(
+                  var qs = pr1.getCache().getQueryService();
+                  var query = (DefaultQuery) qs.newQuery(
                       "select distinct e1.value from " + SEPARATOR + "pr1 e1, " + SEPARATOR
                           + "pr2  e2 where e1.value=e2.value");
                   final ExecutionContext executionContext =
@@ -161,28 +158,28 @@ public class LocalDataSetIndexingDUnitTest extends JUnit4CacheTestCase {
                   GemFireCacheImpl.getInstance().getLogger()
                       .fine(" Num BUCKET SET: " + localCust.getBucketSet());
                   GemFireCacheImpl.getInstance().getLogger().fine("VALUES FROM PR1 bucket:");
-                  for (Integer bId : localCust.getBucketSet()) {
-                    BucketRegion br =
+                  for (var bId : localCust.getBucketSet()) {
+                    var br =
                         ((PartitionedRegion) pr1).getDataStore().getLocalBucketById(bId);
-                    String val = "";
-                    for (Object e : br.values()) {
+                    var val = "";
+                    for (var e : br.values()) {
                       val += (e + ",");
                     }
                     GemFireCacheImpl.getInstance().getLogger().fine(": " + val);
                   }
 
                   GemFireCacheImpl.getInstance().getLogger().fine("VALUES FROM PR2 bucket:");
-                  for (Integer bId : localCust.getBucketSet()) {
-                    BucketRegion br =
+                  for (var bId : localCust.getBucketSet()) {
+                    var br =
                         ((PartitionedRegion) pr2).getDataStore().getLocalBucketById(bId);
-                    String val = "";
-                    for (Object e : br.values()) {
+                    var val = "";
+                    for (var e : br.values()) {
                       val += (e + ",");
                     }
                     GemFireCacheImpl.getInstance().getLogger().fine(": " + val);
                   }
 
-                  SelectResults r =
+                  var r =
                       (SelectResults) localCust.executeQuery(query, executionContext, null,
                           localCust.getBucketSet());
 
@@ -208,8 +205,8 @@ public class LocalDataSetIndexingDUnitTest extends JUnit4CacheTestCase {
               }
 
             }).getResult();
-        int numResults = 0;
-        for (List oneNodeResult : result) {
+        var numResults = 0;
+        for (var oneNodeResult : result) {
           GemFireCacheImpl.getInstance().getLogger()
               .fine("Result :" + numResults + " oneNodeResult.size(): " + oneNodeResult.size()
                   + " oneNodeResult :" + oneNodeResult);

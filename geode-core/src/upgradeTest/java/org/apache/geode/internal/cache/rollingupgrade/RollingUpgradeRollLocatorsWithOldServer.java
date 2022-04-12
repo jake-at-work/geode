@@ -24,7 +24,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 
 public class RollingUpgradeRollLocatorsWithOldServer extends RollingUpgrade2DUnitTestBase {
 
@@ -34,17 +33,17 @@ public class RollingUpgradeRollLocatorsWithOldServer extends RollingUpgrade2DUni
    */
   @Test
   public void testRollLocatorsWithOldServer() {
-    final Host host = Host.getHost(0);
-    VM locator1 = host.getVM(oldVersion, 0);
-    VM locator2 = host.getVM(oldVersion, 1);
-    VM server4 = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var locator1 = host.getVM(oldVersion, 0);
+    var locator2 = host.getVM(oldVersion, 1);
+    var server4 = host.getVM(oldVersion, 3);
 
-    int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(3);
     locator1.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
     locator2.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
-    String hostName = NetworkUtils.getServerHostName();
-    String locatorString = getLocatorString(locatorPorts);
+    var hostName = NetworkUtils.getServerHostName();
+    var locatorString = getLocatorString(locatorPorts);
     try {
       locator1.invoke(invokeStartLocator(hostName, locatorPorts[0], getTestMethodName(),
           getLocatorProperties(locatorString), true));

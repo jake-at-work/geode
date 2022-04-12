@@ -20,8 +20,6 @@ import static org.apache.geode.test.junit.rules.GfshCommandRule.PortType.jmxMana
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,13 +28,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.TabularResultModelAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.GfshCommandRule.PortType;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
@@ -70,10 +66,10 @@ public class RebalanceCommandAcceptanceTest implements Serializable {
       assertThat(cache).isNotNull();
       RegionFactory<String, String> dataRegionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
-      Region<String, String> region1 = dataRegionFactory.create(REGION_ONE_NAME);
-      Region<String, String> region2 = dataRegionFactory.create(REGION_TWO_NAME);
+      var region1 = dataRegionFactory.create(REGION_ONE_NAME);
+      var region2 = dataRegionFactory.create(REGION_TWO_NAME);
 
-      for (int i = 0; i < ENTRIES_PER_REGION; i++) {
+      for (var i = 0; i < ENTRIES_PER_REGION; i++) {
         region1.put("key" + i, "Value" + i);
         region2.put("key" + i, "Value" + i);
       }
@@ -86,9 +82,9 @@ public class RebalanceCommandAcceptanceTest implements Serializable {
       RegionFactory<String, String> dataRegionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
       dataRegionFactory.create(REGION_ONE_NAME);
-      Region<String, String> region3 = dataRegionFactory.create(REGION_THREE_NAME);
+      var region3 = dataRegionFactory.create(REGION_THREE_NAME);
 
-      for (int i = 0; i < ENTRIES_PER_REGION; i++) {
+      for (var i = 0; i < ENTRIES_PER_REGION; i++) {
         region3.put("key" + i, "Value" + i);
       }
     });
@@ -97,7 +93,7 @@ public class RebalanceCommandAcceptanceTest implements Serializable {
   @Before
   public void setUp() throws Exception {
     locator = cluster.startLocatorVM(0, MemberStarterRule::withHttpService);
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
     server1 = cluster.startServerVM(1, "localhost", locatorPort);
     server2 = cluster.startServerVM(2, "localhost", locatorPort);
@@ -123,7 +119,7 @@ public class RebalanceCommandAcceptanceTest implements Serializable {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + REGION_TWO_NAME, 1);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + REGION_THREE_NAME, 1);
 
-    String command = "rebalance --simulate=true --time-out=-1";
+    var command = "rebalance --simulate=true --time-out=-1";
 
     gfsh.executeAndAssertThat(command).statusIsSuccess();
   }
@@ -133,9 +129,9 @@ public class RebalanceCommandAcceptanceTest implements Serializable {
     // check if DistributedRegionMXBean is available so that command will not fail
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + REGION_ONE_NAME, 2);
 
-    String command = "rebalance";
+    var command = "rebalance";
 
-    TabularResultModelAssert rebalanceResult =
+    var rebalanceResult =
         gfsh.executeAndAssertThat(command).statusIsSuccess().hasTableSection();
 
     rebalanceResult.hasHeader().contains("Rebalanced partition regions");
@@ -153,7 +149,7 @@ public class RebalanceCommandAcceptanceTest implements Serializable {
 
   @Test
   public void testRebalanceResultOutputMemberCount() {
-    MemberVM server3 = cluster.startServerVM(3, "localhost", locator.getPort());
+    var server3 = cluster.startServerVM(3, "localhost", locator.getPort());
     server3.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
@@ -163,13 +159,13 @@ public class RebalanceCommandAcceptanceTest implements Serializable {
     // check if DistributedRegionMXBean is available so that command will not fail
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + REGION_ONE_NAME, 3);
 
-    Map<String, List<String>> listMembersResult = gfsh.executeAndAssertThat("list members")
+    var listMembersResult = gfsh.executeAndAssertThat("list members")
         .hasTableSection().getActual().getContent();
     assertThat(listMembersResult.get("Name").size()).isEqualTo(4);
 
     server3.forceDisconnect();
 
-    Map<String, List<String>> rebalanceResult = gfsh.executeAndAssertThat("rebalance")
+    var rebalanceResult = gfsh.executeAndAssertThat("rebalance")
         .statusIsSuccess().hasTableSection().getActual().getContent();
 
     server3.waitTilFullyReconnected();

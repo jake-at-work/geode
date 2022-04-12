@@ -48,7 +48,7 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
   public void testFuture() throws InterruptedException, ExecutionException {
     ex = new ScheduledThreadPoolExecutorWithKeepAlive(5, 60, TimeUnit.SECONDS,
         Executors.defaultThreadFactory(), null);
-    final AtomicBoolean done = new AtomicBoolean();
+    final var done = new AtomicBoolean();
     Future f = ex.submit(() -> {
       try {
         Thread.sleep(1000);
@@ -82,7 +82,7 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
     ex = new ScheduledThreadPoolExecutorWithKeepAlive(50, 1, TimeUnit.SECONDS,
         Executors.defaultThreadFactory(), null);
 
-    Runnable waitForABit = () -> {
+    var waitForABit = (Runnable) () -> {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
@@ -90,16 +90,16 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
       }
     };
 
-    Future[] futures = new Future[50];
-    for (int i = 0; i < 50; i++) {
+    var futures = new Future[50];
+    for (var i = 0; i < 50; i++) {
       futures[i] = ex.submit(waitForABit);
     }
-    long start = System.nanoTime();
+    var start = System.nanoTime();
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       futures[i].get();
     }
-    long end = System.nanoTime();
+    var end = System.nanoTime();
 
     assertTrue("Tasks executed in parallel", TimeUnit.NANOSECONDS.toSeconds(end - start) < 50);
 
@@ -115,8 +115,8 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
     ex = new ScheduledThreadPoolExecutorWithKeepAlive(50, 1, TimeUnit.SECONDS,
         Executors.defaultThreadFactory(), null);
 
-    final AtomicInteger counter = new AtomicInteger();
-    Runnable waitForABit = () -> {
+    final var counter = new AtomicInteger();
+    var waitForABit = (Runnable) () -> {
       try {
         counter.incrementAndGet();
         Thread.sleep(500);
@@ -125,14 +125,14 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
       }
     };
 
-    Future[] futures = new Future[50];
-    for (int i = 0; i < 50; i++) {
+    var futures = new Future[50];
+    for (var i = 0; i < 50; i++) {
       futures[i] = ex.scheduleAtFixedRate(waitForABit, 0, 1, TimeUnit.SECONDS);
     }
 
     Thread.sleep(10000);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       futures[i].cancel(true);
     }
 
@@ -156,11 +156,11 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
   public void testDelayedExcecution() throws InterruptedException, ExecutionException {
     ex = new ScheduledThreadPoolExecutorWithKeepAlive(50, 1, TimeUnit.SECONDS,
         Executors.defaultThreadFactory(), null);
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     Future f = ex.schedule(() -> {
     }, 10, TimeUnit.SECONDS);
     f.get();
-    long end = System.nanoTime();
+    var end = System.nanoTime();
     assertTrue("Execution was not delayed 10 seconds, only " + (end - start),
         TimeUnit.SECONDS.toNanos(10) <= end - start + SLOP);
   }
@@ -170,8 +170,8 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
     ex = new ScheduledThreadPoolExecutorWithKeepAlive(50, 1, TimeUnit.SECONDS,
         Executors.defaultThreadFactory(), null);
 
-    final AtomicInteger counter = new AtomicInteger();
-    Runnable run = counter::incrementAndGet;
+    final var counter = new AtomicInteger();
+    var run = (Runnable) counter::incrementAndGet;
     ScheduledFuture f = ex.scheduleAtFixedRate(run, 0, 1, TimeUnit.SECONDS);
     await()
         .untilAsserted(
@@ -181,7 +181,7 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
     await()
         .untilAsserted(
             () -> assertEquals("Task was not cancelled within 30 sec", true, f.isCancelled()));
-    int oldValue = counter.get();
+    var oldValue = counter.get();
     Thread.sleep(5000);
     assertEquals("Task was not cancelled", oldValue, counter.get());
   }
@@ -199,10 +199,10 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
         fail("interrupted");
       }
     }, 2, TimeUnit.SECONDS);
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     ex.shutdown();
     assertTrue(ex.awaitTermination(10, TimeUnit.SECONDS));
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     assertTrue("Shutdown did not wait for task to complete. Only waited "
         + TimeUnit.NANOSECONDS.toMillis(elapsed), TimeUnit.SECONDS.toNanos(4) < elapsed + SLOP);
   }
@@ -221,9 +221,9 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
     // give it a chance to get in the worker pool
     Thread.sleep(500);
     ex.shutdown();
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     assertTrue(ex.awaitTermination(10, TimeUnit.SECONDS));
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     assertTrue("Shutdown did not wait to task to complete. Only waited "
         + TimeUnit.NANOSECONDS.toMillis(elapsed), TimeUnit.SECONDS.toNanos(2) < elapsed);
   }
@@ -240,9 +240,9 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
       }
     }, 2, TimeUnit.SECONDS);
     ex.shutdownNow();
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     assertTrue(ex.awaitTermination(1, TimeUnit.SECONDS));
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     assertTrue(
         "ShutdownNow should not have waited. Waited " + TimeUnit.NANOSECONDS.toMillis(elapsed),
         TimeUnit.SECONDS.toNanos(2) > elapsed);
@@ -262,9 +262,9 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
     // give it a chance to get in the worker pool.
     Thread.sleep(500);
     ex.shutdownNow();
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     assertTrue(ex.awaitTermination(1, TimeUnit.SECONDS));
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     assertTrue(
         "ShutdownNow should not have waited. Waited " + TimeUnit.NANOSECONDS.toMillis(elapsed),
         TimeUnit.SECONDS.toNanos(2) > elapsed);
@@ -283,9 +283,9 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
       }
     }, 5000, TimeUnit.MILLISECONDS);
     ex.shutdown();
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     assertTrue(ex.awaitTermination(30, TimeUnit.SECONDS));
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     assertTrue("Shutdown should not have waited. Waited " + TimeUnit.NANOSECONDS.toMillis(elapsed),
         TimeUnit.SECONDS.toNanos(2) > elapsed);
   }
@@ -294,10 +294,10 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
   public void testAllWorkersActive() throws InterruptedException {
     ex = new ScheduledThreadPoolExecutorWithKeepAlive(6, 1, TimeUnit.SECONDS,
         Executors.defaultThreadFactory(), null);
-    final AtomicInteger counter = new AtomicInteger();
+    final var counter = new AtomicInteger();
 
-    long start = System.nanoTime();
-    for (int i = 0; i < 100; i++) {
+    var start = System.nanoTime();
+    for (var i = 0; i < 100; i++) {
       ex.submit(() -> {
         try {
           Thread.sleep(500);
@@ -308,7 +308,7 @@ public class ScheduledThreadPoolExecutorWithKeepAliveJUnitTest {
       });
     }
 
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     assertTrue("calling ex.submit blocked the caller", TimeUnit.SECONDS.toNanos(1) > elapsed);
 
     Thread.sleep(20 * 500 + 1000);

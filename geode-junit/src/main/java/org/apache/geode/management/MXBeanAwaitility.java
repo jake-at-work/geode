@@ -17,8 +17,6 @@ package org.apache.geode.management;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.management.ObjectName;
-
 import org.apache.geode.cache.Cache;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -28,7 +26,7 @@ import org.apache.geode.test.awaitility.GeodeAwaitility;
 public class MXBeanAwaitility {
 
   public static LocatorMXBean awaitLocalLocatorMXBean() {
-    SystemManagementService service = getSystemManagementService();
+    var service = getSystemManagementService();
 
     GeodeAwaitility.await()
         .untilAsserted(() -> assertThat(service.getLocalLocatorMXBean()).isNotNull());
@@ -37,10 +35,10 @@ public class MXBeanAwaitility {
   }
 
   public static LocatorMXBean awaitLocatorMXBeanProxy(final DistributedMember member) {
-    SystemManagementService service = getSystemManagementService();
-    ObjectName objectName = service.getLocatorMBeanName(member);
+    var service = getSystemManagementService();
+    var objectName = service.getLocatorMBeanName(member);
 
-    String alias = "Awaiting LocatorMXBean proxy for " + member;
+    var alias = "Awaiting LocatorMXBean proxy for " + member;
     GeodeAwaitility.await(alias).untilAsserted(
         () -> assertThat(service.getMBeanProxy(objectName, LocatorMXBean.class)).isNotNull());
 
@@ -49,10 +47,10 @@ public class MXBeanAwaitility {
 
   public static GatewaySenderMXBean awaitGatewaySenderMXBeanProxy(final DistributedMember member,
       final String senderId) {
-    SystemManagementService service = getSystemManagementService();
-    ObjectName objectName = service.getGatewaySenderMBeanName(member, senderId);
+    var service = getSystemManagementService();
+    var objectName = service.getGatewaySenderMBeanName(member, senderId);
 
-    String alias = "Awaiting GatewaySenderMXBean proxy for " + member;
+    var alias = "Awaiting GatewaySenderMXBean proxy for " + member;
     GeodeAwaitility.await(alias).untilAsserted(
         () -> assertThat(service.getMBeanProxy(objectName, GatewaySenderMXBean.class)).isNotNull());
 
@@ -61,10 +59,10 @@ public class MXBeanAwaitility {
 
   public static GatewayReceiverMXBean awaitGatewayReceiverMXBeanProxy(
       final DistributedMember member) {
-    SystemManagementService service = getSystemManagementService();
-    ObjectName objectName = service.getGatewayReceiverMBeanName(member);
+    var service = getSystemManagementService();
+    var objectName = service.getGatewayReceiverMBeanName(member);
 
-    String alias = "Awaiting GatewayReceiverMXBean proxy for " + member;
+    var alias = "Awaiting GatewayReceiverMXBean proxy for " + member;
     GeodeAwaitility.await(alias)
         .untilAsserted(
             () -> assertThat(service.getMBeanProxy(objectName, GatewayReceiverMXBean.class))
@@ -84,9 +82,9 @@ public class MXBeanAwaitility {
 
   public static MemberMXBean awaitMemberMXBeanProxy(final DistributedMember member,
       final SystemManagementService managementService) {
-    ObjectName objectName = managementService.getMemberMBeanName(member);
+    var objectName = managementService.getMemberMBeanName(member);
 
-    String alias = "Awaiting MemberMXBean proxy for " + member;
+    var alias = "Awaiting MemberMXBean proxy for " + member;
     GeodeAwaitility.await(alias)
         .untilAsserted(
             () -> assertThat(managementService.getMBeanProxy(objectName, MemberMXBean.class))

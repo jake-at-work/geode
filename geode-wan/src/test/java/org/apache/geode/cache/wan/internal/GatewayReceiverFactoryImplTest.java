@@ -57,7 +57,7 @@ public class GatewayReceiverFactoryImplTest {
   public static Collection<InternalCache> cacheTypes() {
     InternalCache gemFireCacheImpl = mock(GemFireCacheImpl.class, "GemFireCacheImpl");
     InternalCache cacheCreation = mock(CacheCreation.class, "CacheCreation");
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
+    var system = mock(InternalDistributedSystem.class);
 
     when(gemFireCacheImpl.addGatewayReceiverServer(any()))
         .thenReturn(mock(InternalCacheServer.class));
@@ -77,7 +77,7 @@ public class GatewayReceiverFactoryImplTest {
 
   @Test
   public void createDoesNotUseManualStartByDefault() {
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.isManualStart()).isFalse();
   }
@@ -86,38 +86,38 @@ public class GatewayReceiverFactoryImplTest {
   public void createUsesSpecifiedManualStart() {
     gatewayReceiverFactory.setManualStart(true);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.isManualStart()).isTrue();
   }
 
   @Test
   public void createDoesNotUseGatewayTransportFiltersByDefault() {
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getGatewayTransportFilters()).isEmpty();
   }
 
   @Test
   public void createUsesSpecifiedGatewayTransportFilter() {
-    GatewayTransportFilter gatewayTransportFilter = mock(GatewayTransportFilter.class);
+    var gatewayTransportFilter = mock(GatewayTransportFilter.class);
     gatewayReceiverFactory.addGatewayTransportFilter(gatewayTransportFilter);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getGatewayTransportFilters()).containsOnly(gatewayTransportFilter);
   }
 
   @Test
   public void createUsesMultipleSpecifiedGatewayTransportFilters() {
-    GatewayTransportFilter gatewayTransportFilter1 = mock(GatewayTransportFilter.class);
-    GatewayTransportFilter gatewayTransportFilter2 = mock(GatewayTransportFilter.class);
-    GatewayTransportFilter gatewayTransportFilter3 = mock(GatewayTransportFilter.class);
+    var gatewayTransportFilter1 = mock(GatewayTransportFilter.class);
+    var gatewayTransportFilter2 = mock(GatewayTransportFilter.class);
+    var gatewayTransportFilter3 = mock(GatewayTransportFilter.class);
     gatewayReceiverFactory.addGatewayTransportFilter(gatewayTransportFilter1);
     gatewayReceiverFactory.addGatewayTransportFilter(gatewayTransportFilter2);
     gatewayReceiverFactory.addGatewayTransportFilter(gatewayTransportFilter3);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getGatewayTransportFilters())
         .containsExactlyInAnyOrder(gatewayTransportFilter1, gatewayTransportFilter2,
@@ -126,70 +126,70 @@ public class GatewayReceiverFactoryImplTest {
 
   @Test
   public void createUsesEndPortDefault() {
-    int endPortDefault = 5500;
+    var endPortDefault = 5500;
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getEndPort()).isEqualTo(endPortDefault);
   }
 
   @Test
   public void createUsesSpecifiedEndPort() {
-    int endPort = 6000;
+    var endPort = 6000;
     gatewayReceiverFactory.setEndPort(endPort);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getEndPort()).isEqualTo(endPort);
   }
 
   @Test
   public void createThrowsIllegalStateExceptionIfEndPortIsLessThanStartPortDefault() {
-    int endPort = 2500;
+    var endPort = 2500;
     gatewayReceiverFactory.setEndPort(endPort);
 
-    Throwable thrown = catchThrowable(() -> gatewayReceiverFactory.create());
+    var thrown = catchThrowable(() -> gatewayReceiverFactory.create());
 
     assertThat(thrown).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void createUsesStartPortDefault() {
-    int startPortDefault = 5000;
+    var startPortDefault = 5000;
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getStartPort()).isEqualTo(startPortDefault);
   }
 
   @Test
   public void createUsesSpecifiedStartPort() {
-    int startPort = 2500;
+    var startPort = 2500;
     gatewayReceiverFactory.setStartPort(startPort);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getStartPort()).isEqualTo(startPort);
   }
 
   @Test
   public void createThrowsIllegalStateExceptionIfSpecifiedStartPortIsGreaterThanEndPortDefault() {
-    int startPort = 6000;
+    var startPort = 6000;
     gatewayReceiverFactory.setStartPort(startPort);
 
-    Throwable thrown = catchThrowable(() -> gatewayReceiverFactory.create());
+    var thrown = catchThrowable(() -> gatewayReceiverFactory.create());
 
     assertThat(thrown).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void createUsesSpecifiedStartPortAndEndPort() {
-    int startPort = 4000;
-    int endPort = 6000;
+    var startPort = 4000;
+    var endPort = 6000;
     gatewayReceiverFactory.setStartPort(startPort);
     gatewayReceiverFactory.setEndPort(endPort);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getStartPort()).isEqualTo(startPort);
     assertThat(receiver.getEndPort()).isEqualTo(endPort);
@@ -197,91 +197,91 @@ public class GatewayReceiverFactoryImplTest {
 
   @Test
   public void createThrowsIllegalStateExceptionIfSpecifiedEndPortIsLessThanSpecifiedStartPort() {
-    int startPort = 6000;
-    int endPort = 4000;
+    var startPort = 6000;
+    var endPort = 4000;
     gatewayReceiverFactory.setStartPort(startPort);
     gatewayReceiverFactory.setEndPort(endPort);
 
-    Throwable thrown = catchThrowable(() -> gatewayReceiverFactory.create());
+    var thrown = catchThrowable(() -> gatewayReceiverFactory.create());
 
     assertThat(thrown).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void createUsesBindAddressDefault() {
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getBindAddress()).isEqualTo("");
   }
 
   @Test
   public void createUsesSpecifiedBindAddress() {
-    String bindAddress = "kaos";
+    var bindAddress = "kaos";
     gatewayReceiverFactory.setBindAddress(bindAddress);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getBindAddress()).isEqualTo(bindAddress);
   }
 
   @Test
   public void createUsesSocketBufferSizeDefault() {
-    String socketBufferSizeDefault = "524288";
+    var socketBufferSizeDefault = "524288";
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getSocketBufferSize()).isEqualTo(Integer.valueOf(socketBufferSizeDefault));
   }
 
   @Test
   public void createUsesSpecifiedSocketBufferSize() {
-    int socketBufferSize = 128;
+    var socketBufferSize = 128;
     gatewayReceiverFactory.setSocketBufferSize(socketBufferSize);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getSocketBufferSize()).isEqualTo(socketBufferSize);
   }
 
   @Test
   public void createUsesHostnameForSendersDefault() {
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getHostnameForSenders()).isEqualTo("");
   }
 
   @Test
   public void createUsesSpecifiedHostnameForSenders() {
-    String hostnameForSenders = "kaos.com";
+    var hostnameForSenders = "kaos.com";
     gatewayReceiverFactory.setHostnameForSenders(hostnameForSenders);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getHostnameForSenders()).isEqualTo(hostnameForSenders);
   }
 
   @Test
   public void createUsesMaximumTimeBetweenPingsDefault() {
-    int maximumTimeBetweenPingsDefault = 60000;
+    var maximumTimeBetweenPingsDefault = 60000;
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getMaximumTimeBetweenPings()).isEqualTo(maximumTimeBetweenPingsDefault);
   }
 
   @Test
   public void createUsesSpecifiedMaximumTimeBetweenPings() {
-    int timeoutBetweenPings = 1;
+    var timeoutBetweenPings = 1;
     gatewayReceiverFactory.setMaximumTimeBetweenPings(timeoutBetweenPings);
 
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     assertThat(receiver.getMaximumTimeBetweenPings()).isEqualTo(timeoutBetweenPings);
   }
 
   @Test
   public void createAddsGatewayReceiverToCache() {
-    GatewayReceiver receiver = gatewayReceiverFactory.create();
+    var receiver = gatewayReceiverFactory.create();
 
     verify(cache).addGatewayReceiver(receiver);
   }
@@ -290,7 +290,7 @@ public class GatewayReceiverFactoryImplTest {
   public void createThrowsIllegalStateExceptionIfGatewayReceiverAlreadyExists() {
     when(cache.getGatewayReceivers()).thenReturn(singleton(mock(GatewayReceiver.class)));
 
-    Throwable thrown = catchThrowable(() -> gatewayReceiverFactory.create());
+    var thrown = catchThrowable(() -> gatewayReceiverFactory.create());
 
     assertThat(thrown).isInstanceOf(IllegalStateException.class);
   }

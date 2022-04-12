@@ -60,7 +60,7 @@ public class NonDistributedEventTrackerTest {
 
   @Test
   public void syncBulkOpExecutesProvidedRunnable() {
-    Runnable runnable = mock(Runnable.class);
+    var runnable = mock(Runnable.class);
     tracker.syncBulkOp(runnable, mock(EventID.class), false);
     tracker.syncBulkOp(runnable, mock(EventID.class), true);
     verify(runnable, times(2)).run();

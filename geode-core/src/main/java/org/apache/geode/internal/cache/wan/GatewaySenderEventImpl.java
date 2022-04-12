@@ -269,7 +269,7 @@ public class GatewaySenderEventImpl
       Object substituteValue, boolean initialize,
       final TransactionMetadataDisposition transactionMetadataDisposition) throws IOException {
     // Set the operation and event
-    final EntryEventImpl event = (EntryEventImpl) ce;
+    final var event = (EntryEventImpl) ce;
     this.operation = operation;
     this.substituteValue = substituteValue;
 
@@ -488,7 +488,7 @@ public class GatewaySenderEventImpl
   public Object getCallbackArgument() {
     Object result = getSenderCallbackArgument();
     while (result instanceof WrappedCallbackArgument) {
-      WrappedCallbackArgument wca = (WrappedCallbackArgument) result;
+      var wca = (WrappedCallbackArgument) result;
       result = wca.getOriginalCallbackArg();
     }
     return result;
@@ -522,7 +522,7 @@ public class GatewaySenderEventImpl
           if (valueObjReleased) {
             result = null;
           } else {
-            StoredObject ohref = (StoredObject) result;
+            var ohref = (StoredObject) result;
             if (!ohref.retain()) {
               result = null;
             } else if (valueObjReleased) {
@@ -547,7 +547,7 @@ public class GatewaySenderEventImpl
       Object result = value;
       if (result == null) {
         @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-        Object so = valueObj;
+        var so = valueObj;
         if (valueObjReleased) {
           throw new IllegalStateException(
               "Value is no longer available. getDeserializedValue must be called before processEvents returns.");
@@ -561,18 +561,18 @@ public class GatewaySenderEventImpl
       }
       return result;
     } else {
-      Object vo = valueObj;
+      var vo = valueObj;
       if (vo != null) {
         if (vo instanceof StoredObject) {
           @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-          StoredObject so = (StoredObject) vo;
+          var so = (StoredObject) vo;
           return so.getValueAsDeserializedHeapObject();
         } else {
           return vo; // it is already deserialized
         }
       } else {
         if (value != null) {
-          Object result = EntryEventImpl.deserialize(value);
+          var result = EntryEventImpl.deserialize(value);
           valueObj = result;
           return result;
         } else if (substituteValue != null) {
@@ -608,14 +608,14 @@ public class GatewaySenderEventImpl
     }
     if (v == null) {
       @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-      Object ov = valueObj;
+      var ov = valueObj;
       if (ov instanceof CachedDeserializable) {
         return ((CachedDeserializable) ov).getStringForm();
       }
     }
     if (v != null) {
       if (v instanceof byte[]) {
-        byte[] bav = (byte[]) v;
+        var bav = (byte[]) v;
         // Using Arrays.toString(bav) can cause us to run out of memory
         return "byte[" + bav.length + "]";
       } else {
@@ -643,7 +643,7 @@ public class GatewaySenderEventImpl
    */
   @Override
   public byte[] getSerializedValue() {
-    byte[] result = value;
+    var result = value;
     if (result == null) {
       if (substituteValue != null) {
         // The substitute value is set. Serialize it
@@ -653,12 +653,12 @@ public class GatewaySenderEventImpl
         return result;
       }
       @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-      Object vo = valueObj;
+      var vo = valueObj;
       if (vo instanceof StoredObject) {
         synchronized (this) {
           result = value;
           if (result == null) {
-            StoredObject so = (StoredObject) vo;
+            var so = (StoredObject) vo;
             result = so.getValueAsHeapByteArray();
             value = result;
           }
@@ -712,7 +712,7 @@ public class GatewaySenderEventImpl
   public void toDataPre_GEODE_1_15_0_0(DataOutput out,
       SerializationContext context) throws IOException {
     toDataPre_GEODE_1_14_0_0(out, context);
-    boolean hasTransaction = transactionId != null;
+    var hasTransaction = transactionId != null;
     DataSerializer.writeBoolean(hasTransaction, out);
     if (hasTransaction) {
       DataSerializer.writeBoolean(isLastEventInTransaction, out);
@@ -984,7 +984,7 @@ public class GatewaySenderEventImpl
         // can share a reference to the off-heap value.
         value = event.getCachedSerializedNewValue();
       } else {
-        final Object newValue = event.getRawNewValue();
+        final var newValue = event.getRawNewValue();
         assert !(newValue instanceof StoredObject); // since we already called getOffHeapNewValue()
                                                     // and it returned null
         if (newValue instanceof CachedDeserializable) {
@@ -1133,7 +1133,7 @@ public class GatewaySenderEventImpl
     // - the id (an instance of EventId)
     // - the callbackArgument (an instance of GatewayEventCallbackArgument)
 
-    int size = 0;
+    var size = 0;
 
     // Add this event overhead
     size += Sizeable.PER_OBJECT_OVERHEAD;
@@ -1183,7 +1183,7 @@ public class GatewaySenderEventImpl
   }
 
   private int sizeOf(Object obj) {
-    int size = 0;
+    var size = 0;
     if (obj == null) {
       return size;
     }
@@ -1257,7 +1257,7 @@ public class GatewaySenderEventImpl
       return false;
     }
 
-    GatewaySenderEventImpl that = (GatewaySenderEventImpl) obj;
+    var that = (GatewaySenderEventImpl) obj;
 
     return shadowKey.equals(that.shadowKey)
         && id.equals(that.id)
@@ -1269,7 +1269,7 @@ public class GatewaySenderEventImpl
   }
 
   public int hashCode() {
-    int hashCode = 17;
+    var hashCode = 17;
     hashCode = 37 * hashCode + ObjectUtils.hashCode(shadowKey);
     hashCode = 37 * hashCode + ObjectUtils.hashCode(id);
     hashCode = 37 * hashCode + bucketId;
@@ -1287,12 +1287,12 @@ public class GatewaySenderEventImpl
   }
 
   public int getSerializedValueSize() {
-    int localSerializedValueSize = serializedValueSize;
+    var localSerializedValueSize = serializedValueSize;
     if (localSerializedValueSize != DEFAULT_SERIALIZED_VALUE_SIZE) {
       return localSerializedValueSize;
     }
     @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-    Object vo = valueObj;
+    var vo = valueObj;
     if (vo instanceof StoredObject) {
       localSerializedValueSize = ((StoredObject) vo).getSizeInBytes();
     } else {
@@ -1310,7 +1310,7 @@ public class GatewaySenderEventImpl
   @Released(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
   public synchronized void release() {
     @Released(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-    Object vo = valueObj;
+    var vo = valueObj;
     if (OffHeapHelper.releaseAndTrackOwner(vo, this)) {
       valueObj = null;
       valueObjReleased = true;
@@ -1334,7 +1334,7 @@ public class GatewaySenderEventImpl
       // we have the value stored on the heap so return this
       return this;
     } else {
-      Object v = valueObj;
+      var v = valueObj;
       if (v == null) {
         if (valueObjReleased) {
           // this means that the original off heap value was freed

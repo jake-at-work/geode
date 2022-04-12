@@ -67,7 +67,7 @@ public class ValuesAreLazilyDeserializedRegressionTest extends CacheTestCase {
    */
   @Test
   public void valueShouldBeLazilyDeserialized() throws Exception {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.PRELOADED);
 
@@ -128,7 +128,7 @@ public class ValuesAreLazilyDeserializedRegressionTest extends CacheTestCase {
           }
         };
 
-        AttributesFactory<String, HomeBoy> factory = new AttributesFactory<>();
+        var factory = new AttributesFactory<String, HomeBoy>();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setDataPolicy(DataPolicy.PRELOADED);
         factory.setCacheListener(listener);
@@ -153,12 +153,12 @@ public class ValuesAreLazilyDeserializedRegressionTest extends CacheTestCase {
     @Override
     public void fromData(final DataInput in) throws IOException, ClassNotFoundException {
       DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-      DistributedMember me = ds.getDistributedMember();
+      var me = ds.getDistributedMember();
       DistributedMember hb = DataSerializer.readObject(in);
       if (me.equals(hb)) {
         ds.getLogWriter().info("HomeBoy was deserialized on his home");
       } else {
-        String msg = "HomeBoy was deserialized on " + me + " instead of his home " + hb;
+        var msg = "HomeBoy was deserialized on " + me + " instead of his home " + hb;
         ds.getLogWriter().error(msg);
         throw new IllegalStateException(msg);
       }

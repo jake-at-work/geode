@@ -43,11 +43,11 @@ import org.apache.geode.test.junit.categories.OffHeapTest;
 @Category({OffHeapTest.class})
 public class InlineKeyJUnitTest {
   private GemFireCacheImpl createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, "1m");
-    GemFireCacheImpl result = (GemFireCacheImpl) new CacheFactory(props).create();
+    var result = (GemFireCacheImpl) new CacheFactory(props).create();
     return result;
   }
 
@@ -57,11 +57,11 @@ public class InlineKeyJUnitTest {
 
   @Test
   public void testInlineKeys() {
-    GemFireCacheImpl gfc = createCache();
+    var gfc = createCache();
     try {
       Region r = gfc.createRegionFactory(RegionShortcut.LOCAL).setConcurrencyChecksEnabled(false)
           .setOffHeap(true).create("inlineKeyRegion");
-      LocalRegion lr = (LocalRegion) r;
+      var lr = (LocalRegion) r;
       Object key = 1;
       r.create(key, null);
       assertEquals(true, r.containsKey(key));

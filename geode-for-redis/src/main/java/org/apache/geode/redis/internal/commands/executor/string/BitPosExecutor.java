@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class BitPosExecutor implements CommandExecutor {
@@ -34,16 +33,16 @@ public class BitPosExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    RedisKey key = command.getKey();
+    var commandElems = command.getProcessedCommand();
+    var key = command.getKey();
 
     try {
-      int bit = getBit(commandElems);
+      var bit = getBit(commandElems);
       if (bit != 0 && bit != 1) {
         return RedisResponse.error(ERROR_BIT);
       }
-      int start = getStart(commandElems);
-      Integer end = getEnd(commandElems);
+      var start = getStart(commandElems);
+      var end = getEnd(commandElems);
 
       int bitPosition = context.stringLockedExecute(key, true,
           string -> string.bitpos(bit, start, end));
@@ -55,14 +54,14 @@ public class BitPosExecutor implements CommandExecutor {
   }
 
   private int getBit(List<byte[]> commandElems) throws NumberFormatException {
-    byte[] bitAr = commandElems.get(2);
+    var bitAr = commandElems.get(2);
     return narrowLongToInt(bytesToLong(bitAr));
   }
 
   private int getStart(List<byte[]> commandElems) throws NumberFormatException {
-    int result = 0;
+    var result = 0;
     if (commandElems.size() > 3) {
-      byte[] startAr = commandElems.get(3);
+      var startAr = commandElems.get(3);
       result = narrowLongToInt(bytesToLong(startAr));
     }
     return result;
@@ -71,7 +70,7 @@ public class BitPosExecutor implements CommandExecutor {
   private Integer getEnd(List<byte[]> commandElems) throws NumberFormatException {
     Integer result = null;
     if (commandElems.size() > 4) {
-      byte[] endAr = commandElems.get(4);
+      var endAr = commandElems.get(4);
       result = narrowLongToInt(bytesToLong(endAr));
     }
     return result;

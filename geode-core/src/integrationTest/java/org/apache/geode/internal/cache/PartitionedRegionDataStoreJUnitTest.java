@@ -29,9 +29,7 @@ import org.junit.Test;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.distributed.DistributedSystem;
 
@@ -54,7 +52,7 @@ public class PartitionedRegionDataStoreJUnitTest {
 
   @Before
   public void setUp() {
-    Properties dsProps = new Properties();
+    var dsProps = new Properties();
     dsProps.setProperty(MCAST_PORT, "0");
 
     // Connect to a DS and create a Cache.
@@ -70,12 +68,12 @@ public class PartitionedRegionDataStoreJUnitTest {
   @Test
   public void testRemoveBrokenNode() throws Exception {
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
 
-    PartitionAttributes pa = paf.setRedundantCopies(0).setLocalMaxMemory(0).create();
-    AttributesFactory af = new AttributesFactory();
+    var pa = paf.setRedundantCopies(0).setLocalMaxMemory(0).create();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(pa);
-    RegionAttributes ra = af.create();
+    var ra = af.create();
 
     PartitionedRegion pr = null;
     pr = (PartitionedRegion) cache.createRegion("PR2", ra);
@@ -89,21 +87,21 @@ public class PartitionedRegionDataStoreJUnitTest {
 
   @Test
   public void testLocalPut() throws Exception {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
 
-    Properties globalProps = new Properties();
+    var globalProps = new Properties();
     globalProps.put(PartitionAttributesFactory.GLOBAL_MAX_BUCKETS_PROPERTY, "100");
 
-    PartitionAttributes pa = paf.setRedundantCopies(0).setLocalMaxMemory(100).create();
-    AttributesFactory af = new AttributesFactory();
+    var pa = paf.setRedundantCopies(0).setLocalMaxMemory(100).create();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(pa);
-    RegionAttributes ra = af.create();
+    var ra = af.create();
 
     PartitionedRegion pr = null;
     pr = (PartitionedRegion) cache.createRegion("PR3", ra);
 
-    String key = "User";
-    String value = "1";
+    var key = "User";
+    var value = "1";
 
     pr.put(key, value);
     assertEquals(pr.get(key), value);
@@ -117,22 +115,22 @@ public class PartitionedRegionDataStoreJUnitTest {
    */
   @Test
   public void testCanAccommodateMoreBytesSafely() throws Exception {
-    int key = 0;
-    final int numMBytes = 5;
+    var key = 0;
+    final var numMBytes = 5;
 
-    final PartitionedRegion regionAck = (PartitionedRegion) new RegionFactory()
+    final var regionAck = (PartitionedRegion) new RegionFactory()
         .setPartitionAttributes(new PartitionAttributesFactory().setRedundantCopies(0)
             .setLocalMaxMemory(numMBytes).create())
         .create(regionName);
 
     assertTrue(regionAck.getDataStore().canAccommodateMoreBytesSafely(0));
 
-    int numk = numMBytes * 1024;
-    int num = numk * 1024;
+    var numk = numMBytes * 1024;
+    var num = numk * 1024;
     assertTrue(regionAck.getDataStore().canAccommodateMoreBytesSafely(num - 1));
     assertFalse(regionAck.getDataStore().canAccommodateMoreBytesSafely(num));
     assertFalse(regionAck.getDataStore().canAccommodateMoreBytesSafely(num + 1));
-    final int OVERHEAD = CachedDeserializableFactory.getByteSize(new byte[0]);
+    final var OVERHEAD = CachedDeserializableFactory.getByteSize(new byte[0]);
     for (key = 0; key < numk; key++) {
       regionAck.put(key, new byte[1024 - OVERHEAD]);
     }
@@ -171,26 +169,26 @@ public class PartitionedRegionDataStoreJUnitTest {
 
   @Test
   public void doesNotCreateBucketIfOverMemoryLimit() {
-    final int numMBytes = 5;
-    final PartitionedRegion regionAck = (PartitionedRegion) new RegionFactory()
+    final var numMBytes = 5;
+    final var regionAck = (PartitionedRegion) new RegionFactory()
         .setPartitionAttributes(new PartitionAttributesFactory().setRedundantCopies(0)
             .setLocalMaxMemory(numMBytes).create())
         .create(regionName);
 
-    boolean createdBucket =
+    var createdBucket =
         regionAck.getDataStore().handleManageBucketRequest(1, Integer.MAX_VALUE, null, false);
     assertFalse(createdBucket);
   }
 
   @Test
   public void createsBucketWhenForcedIfOverMemoryLimit() {
-    final int numMBytes = 5;
-    final PartitionedRegion regionAck = (PartitionedRegion) new RegionFactory()
+    final var numMBytes = 5;
+    final var regionAck = (PartitionedRegion) new RegionFactory()
         .setPartitionAttributes(new PartitionAttributesFactory().setRedundantCopies(0)
             .setLocalMaxMemory(numMBytes).create())
         .create(regionName);
 
-    boolean createdBucket =
+    var createdBucket =
         regionAck.getDataStore().handleManageBucketRequest(1, Integer.MAX_VALUE, null, true);
     assertTrue(createdBucket);
   }

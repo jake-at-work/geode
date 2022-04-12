@@ -45,21 +45,21 @@ public class BeanUtilFuncs {
     if (logFile == null || logFile.equals(new File(""))) {
       return null;
     }
-    int maxBuffer = 65500; // DataOutput.writeUTF will only accept 65535 bytes
-    long fileLength = logFile.length();
+    var maxBuffer = 65500; // DataOutput.writeUTF will only accept 65535 bytes
+    var fileLength = logFile.length();
     if (fileLength == 0) {
       return null;
     }
-    byte[] buffer = (fileLength > maxBuffer) ? new byte[maxBuffer] : new byte[(int) fileLength];
+    var buffer = (fileLength > maxBuffer) ? new byte[maxBuffer] : new byte[(int) fileLength];
 
-    int readSize = buffer.length;
-    RandomAccessFile f = new RandomAccessFile(logFile, "r");
+    var readSize = buffer.length;
+    var f = new RandomAccessFile(logFile, "r");
 
-    int linesRead = 0;
-    long seekPosition = fileLength - readSize;
-    StringBuilder returnStr = new StringBuilder();
-    StringBuilder workingString = new StringBuilder();
-    String separator = lineSeparator();
+    var linesRead = 0;
+    var seekPosition = fileLength - readSize;
+    var returnStr = new StringBuilder();
+    var workingString = new StringBuilder();
+    var separator = lineSeparator();
 
     while (linesRead < numLines) {
 
@@ -68,12 +68,12 @@ public class BeanUtilFuncs {
 
       workingString.insert(0, new String(buffer, 0, readSize));
 
-      String[] splits = workingString.toString().split("\\r?\\n");
+      var splits = workingString.toString().split("\\r?\\n");
 
       // The first element may be part of a line, so we don't count that
       // but we need to save it for the next time around.
       if (splits.length > 1) {
-        for (int i = splits.length - 1; i > 0; i--) {
+        for (var i = splits.length - 1; i > 0; i--) {
           returnStr.insert(0, separator).insert(0, splits[i]);
           if (++linesRead >= numLines) {
             break;
@@ -107,7 +107,7 @@ public class BeanUtilFuncs {
    * @return tail of log
    */
   public static String tailSystemLog(DistributionConfig sc, final int numLines) throws IOException {
-    File logFile = sc.getLogFile();
+    var logFile = sc.getLogFile();
     if (logFile == null || logFile.equals(new File(""))) {
       return null;
     }
@@ -118,11 +118,11 @@ public class BeanUtilFuncs {
   }
 
   public static GemFireProperties initGemfireProperties(DistributionConfig config) {
-    String memberGroups = "";
+    var memberGroups = "";
     String configFile = null;
     String includeFile = null;
 
-    GemFireProperties gemFirePropertyData = new GemFireProperties();
+    var gemFirePropertyData = new GemFireProperties();
 
     gemFirePropertyData.setMemberName(config.getName());
     gemFirePropertyData.setMemberGroups(memberGroups);
@@ -317,11 +317,11 @@ public class BeanUtilFuncs {
     if (str == null || str.length() == 0) {
       return null;
     }
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    GZIPOutputStream gzip = new GZIPOutputStream(out);
+    var out = new ByteArrayOutputStream();
+    var gzip = new GZIPOutputStream(out);
     gzip.write(str.getBytes(StandardCharsets.UTF_8));
     gzip.close();
-    byte[] outBytes = out.toByteArray();
+    var outBytes = out.toByteArray();
     return outBytes;
   }
 
@@ -333,9 +333,9 @@ public class BeanUtilFuncs {
     if (bytes == null || bytes.length == 0) {
       return null;
     }
-    GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(bytes));
-    BufferedReader bf = new BufferedReader(new InputStreamReader(gis, StandardCharsets.UTF_8));
-    String outStr = "";
+    var gis = new GZIPInputStream(new ByteArrayInputStream(bytes));
+    var bf = new BufferedReader(new InputStreamReader(gis, StandardCharsets.UTF_8));
+    var outStr = "";
     String line;
     while ((line = bf.readLine()) != null) {
       outStr += line;

@@ -58,7 +58,7 @@ public class NioPlainEngine implements NioFilter {
   @Override
   public ByteBuffer ensureWrappedCapacity(int amount, ByteBuffer wrappedBuffer,
       BufferPool.BufferType bufferType) {
-    ByteBuffer buffer = wrappedBuffer;
+    var buffer = wrappedBuffer;
 
     if (buffer == null) {
       buffer = bufferPool.acquireDirectBuffer(bufferType, amount);
@@ -75,7 +75,7 @@ public class NioPlainEngine implements NioFilter {
         lastProcessedPosition = 0;
       }
     } else {
-      ByteBuffer oldBuffer = buffer;
+      var oldBuffer = buffer;
       oldBuffer.limit(lastReadPosition);
       oldBuffer.position(lastProcessedPosition);
       buffer = bufferPool.acquireDirectBuffer(bufferType, amount);
@@ -91,7 +91,7 @@ public class NioPlainEngine implements NioFilter {
   @Override
   public ByteBufferSharing readAtLeast(SocketChannel channel, int bytes, ByteBuffer wrappedBuffer)
       throws IOException {
-    ByteBuffer buffer = wrappedBuffer;
+    var buffer = wrappedBuffer;
 
     Assert.assertTrue(buffer.capacity() - lastProcessedPosition >= bytes);
 
@@ -100,7 +100,7 @@ public class NioPlainEngine implements NioFilter {
     buffer.position(lastReadPosition);
 
     while (buffer.position() < (lastProcessedPosition + bytes)) {
-      int amountRead = channel.read(buffer);
+      var amountRead = channel.read(buffer);
       if (amountRead < 0) {
         throw new EOFException();
       }

@@ -86,7 +86,7 @@ public class ClusterAlertMessagingTest {
 
   @Test
   public void sendAlertProcessesMessageIfMemberIsLocal() {
-    ClusterAlertMessaging clusterAlertMessaging = spyClusterAlertMessaging(
+    var clusterAlertMessaging = spyClusterAlertMessaging(
         mock(ClusterDistributionManager.class), currentThreadExecutorService());
 
     clusterAlertMessaging.sendAlert(localMember, AlertLevel.WARNING, Instant.now(), "threadName",
@@ -98,7 +98,7 @@ public class ClusterAlertMessagingTest {
   @Test
   public void sendAlertSendsMessageIfMemberIsRemote() {
     DistributionManager distributionManager = mock(ClusterDistributionManager.class);
-    ClusterAlertMessaging clusterAlertMessaging =
+    var clusterAlertMessaging =
         spyClusterAlertMessaging(distributionManager, currentThreadExecutorService());
 
     clusterAlertMessaging.sendAlert(remoteMember, AlertLevel.WARNING, Instant.now(), "threadName",
@@ -109,8 +109,8 @@ public class ClusterAlertMessagingTest {
 
   @Test
   public void sendAlertUsesExecutorService() {
-    ExecutorService executor = currentThreadExecutorService();
-    ClusterAlertMessaging clusterAlertMessaging =
+    var executor = currentThreadExecutorService();
+    var clusterAlertMessaging =
         spyClusterAlertMessaging(mock(ClusterDistributionManager.class), executor);
 
     clusterAlertMessaging.sendAlert(remoteMember, AlertLevel.WARNING, Instant.now(), "threadName",
@@ -121,9 +121,9 @@ public class ClusterAlertMessagingTest {
 
   @Test
   public void sendAlertUsesAlertingAction() {
-    ExecutorService executor = currentThreadExecutorService();
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
-    ClusterAlertMessaging clusterAlertMessaging =
+    var executor = currentThreadExecutorService();
+    var distributionManager = mock(ClusterDistributionManager.class);
+    var clusterAlertMessaging =
         spyClusterAlertMessaging(distributionManager, executor);
     when(distributionManager.putOutgoing(any()))
         .thenAnswer(invocation -> {
@@ -139,10 +139,10 @@ public class ClusterAlertMessagingTest {
 
   @Test
   public void sendAlertLogsWarning_ifAlertingIOExceptionIsCaught() {
-    ExecutorService executor = currentThreadExecutorService();
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
+    var executor = currentThreadExecutorService();
+    var distributionManager = mock(ClusterDistributionManager.class);
     Consumer<AlertingIOException> alertingIOExceptionLogger = uncheckedCast(mock(Consumer.class));
-    ClusterAlertMessaging clusterAlertMessaging =
+    var clusterAlertMessaging =
         spyClusterAlertMessaging(distributionManager, executor, alertingIOExceptionLogger);
     doThrow(new AlertingIOException(new IOException("Cannot form connection to alert listener")))
         .when(distributionManager).putOutgoing(any());
@@ -150,7 +150,7 @@ public class ClusterAlertMessagingTest {
     clusterAlertMessaging.sendAlert(remoteMember, AlertLevel.WARNING, Instant.now(), "threadName",
         Thread.currentThread().getId(), "formattedMessage", "stackTrace");
 
-    ArgumentCaptor<AlertingIOException> captor = ArgumentCaptor.forClass(AlertingIOException.class);
+    var captor = ArgumentCaptor.forClass(AlertingIOException.class);
     verify(alertingIOExceptionLogger).accept(captor.capture());
 
     assertThat(captor.getValue())
@@ -160,10 +160,10 @@ public class ClusterAlertMessagingTest {
 
   @Test
   public void sendAlertLogsWarningOnce_ifAlertingIOExceptionIsCaught() {
-    ExecutorService executor = currentThreadExecutorService();
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
+    var executor = currentThreadExecutorService();
+    var distributionManager = mock(ClusterDistributionManager.class);
     Consumer<AlertingIOException> alertingIOExceptionLogger = uncheckedCast(mock(Consumer.class));
-    ClusterAlertMessaging clusterAlertMessaging =
+    var clusterAlertMessaging =
         spyClusterAlertMessaging(distributionManager, executor, alertingIOExceptionLogger);
     doThrow(new AlertingIOException(new IOException("Cannot form connection to alert listener")))
         .when(distributionManager).putOutgoing(any());
@@ -171,7 +171,7 @@ public class ClusterAlertMessagingTest {
     clusterAlertMessaging.sendAlert(remoteMember, AlertLevel.WARNING, Instant.now(), "threadName",
         Thread.currentThread().getId(), "formattedMessage", "stackTrace");
 
-    ArgumentCaptor<AlertingIOException> captor = ArgumentCaptor.forClass(AlertingIOException.class);
+    var captor = ArgumentCaptor.forClass(AlertingIOException.class);
     verify(alertingIOExceptionLogger).accept(captor.capture());
 
     assertThat(captor.getAllValues()).hasSize(1);
@@ -179,9 +179,9 @@ public class ClusterAlertMessagingTest {
 
   @Test
   public void sendAlertDoesNotSend_ifAlertingIOExceptionIsCaught() {
-    ExecutorService executor = currentThreadExecutorService();
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
-    ClusterAlertMessaging clusterAlertMessaging =
+    var executor = currentThreadExecutorService();
+    var distributionManager = mock(ClusterDistributionManager.class);
+    var clusterAlertMessaging =
         spyClusterAlertMessaging(distributionManager, executor);
     when(distributionManager.putOutgoing(any()))
         .thenAnswer(invocation -> {
@@ -197,10 +197,10 @@ public class ClusterAlertMessagingTest {
 
   @Test
   public void processAlertListenerMessage_requires_ClusterDistributionManager() {
-    ClusterAlertMessaging clusterAlertMessaging = spy(new ClusterAlertMessaging(system,
+    var clusterAlertMessaging = spy(new ClusterAlertMessaging(system,
         mock(DistributionManager.class), alertListenerMessageFactory, mock(ExecutorService.class)));
 
-    Throwable thrown = catchThrowable(
+    var thrown = catchThrowable(
         () -> clusterAlertMessaging.processAlertListenerMessage(alertListenerMessage));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
@@ -239,7 +239,7 @@ public class ClusterAlertMessagingTest {
   }
 
   private ExecutorService currentThreadExecutorService() {
-    ExecutorService executor = mock(ExecutorService.class);
+    var executor = mock(ExecutorService.class);
     when(executor.submit(isA(Runnable.class)))
         .thenAnswer((Answer<Future<?>>) invocation -> {
           Runnable task = invocation.getArgument(0);

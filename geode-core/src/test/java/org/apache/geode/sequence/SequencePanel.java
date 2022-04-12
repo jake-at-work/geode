@@ -16,7 +16,6 @@ package org.apache.geode.sequence;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
@@ -34,21 +33,21 @@ public class SequencePanel extends JPanel {
 
   public SequencePanel(SequenceDiagram sequenceDiagram) {
     // Set up the drawing area.
-    ZoomingPanel drawingPane = new ZoomingPanel();
+    var drawingPane = new ZoomingPanel();
     drawingPane.setBackground(Color.white);
     drawingPane.setSequenceDiagram(sequenceDiagram);
 
     // Put the drawing area in a scroll pane.
-    final JScrollPane scroller = new JScrollPane(drawingPane);
+    final var scroller = new JScrollPane(drawingPane);
     scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
     scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-    final TimeAxis timeAxis =
+    final var timeAxis =
         new TimeAxis(TimeAxis.VERTICAL, sequenceDiagram.getMinTime(), sequenceDiagram.getMaxTime());
     timeAxis.setPreferredHeight(drawingPane.getHeight());
     scroller.setRowHeaderView(timeAxis);
     scroller.setColumnHeaderView(sequenceDiagram.createMemberAxis());
-    int preferredWidth = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - 100);
-    int preferredHeight = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 100);
+    var preferredWidth = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - 100);
+    var preferredHeight = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 100);
     scroller.setPreferredSize(new Dimension(preferredWidth, preferredHeight));
     scroller.setAutoscrolls(true);
     // scroller.setPreferredSize(new Dimension(200,200));
@@ -56,13 +55,13 @@ public class SequencePanel extends JPanel {
     sequenceDiagram.addComponentListener(new ComponentAdapter() {
       @Override
       public void componentResized(ComponentEvent e) {
-        int height = e.getComponent().getHeight();
+        var height = e.getComponent().getHeight();
         timeAxis.setPreferredHeight(height);
         timeAxis.revalidate();
       }
     });
 
-    BorderLayout layout = new BorderLayout();
+    var layout = new BorderLayout();
     // layout.setHgap(0);
     // layout.setVgap(0);
     setLayout(layout);
@@ -73,7 +72,7 @@ public class SequencePanel extends JPanel {
     addComponentListener(new ComponentAdapter() {
       @Override
       public void componentResized(ComponentEvent e) {
-        Component source = e.getComponent();
+        var source = e.getComponent();
         scroller.setSize(source.getSize());
         scroller.revalidate();
       }

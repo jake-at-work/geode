@@ -29,11 +29,9 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.distributed.internal.ResourceEvent;
-import org.apache.geode.internal.cache.backup.BackupService;
 import org.apache.geode.internal.cache.xmlcache.CacheCreation;
 import org.apache.geode.internal.cache.xmlcache.CacheXml;
 import org.apache.geode.internal.cache.xmlcache.DiskStoreAttributesCreation;
-import org.apache.geode.pdx.internal.TypeRegistry;
 
 /**
  * Implementation of DiskStoreFactory
@@ -128,7 +126,7 @@ public class DiskStoreFactoryImpl implements DiskStoreFactory {
       InternalRegionArguments internalRegionArgs) {
     attrs.name = name;
     synchronized (cache) {
-      DiskStoreImpl ds =
+      var ds =
           new DiskStoreImpl(cache, attrs, true/* ownedByRegion */, internalRegionArgs);
       if (isOwnedByPR) {
         initializeDiskStore(ds);
@@ -147,8 +145,8 @@ public class DiskStoreFactoryImpl implements DiskStoreFactory {
       result = findExisting(name);
       if (result == null) {
         if (cache instanceof GemFireCacheImpl) {
-          TypeRegistry registry = cache.getPdxRegistry();
-          DiskStoreImpl dsi = new DiskStoreImpl(cache, attrs);
+          var registry = cache.getPdxRegistry();
+          var dsi = new DiskStoreImpl(cache, attrs);
           result = dsi;
           // Added for M&M
           cache.getInternalDistributedSystem()
@@ -159,7 +157,7 @@ public class DiskStoreFactoryImpl implements DiskStoreFactory {
             registry.creatingDiskStore(dsi);
           }
         } else if (cache instanceof CacheCreation) {
-          CacheCreation creation = (CacheCreation) cache;
+          var creation = (CacheCreation) cache;
           result = new DiskStoreAttributesCreation(attrs);
           creation.addDiskStore(result);
         }
@@ -174,7 +172,7 @@ public class DiskStoreFactoryImpl implements DiskStoreFactory {
     // member depends on state that goes into this disk store
     // that isn't backed up.
     if (cache instanceof GemFireCacheImpl) {
-      BackupService backup = cache.getBackupService();
+      var backup = cache.getBackupService();
       if (backup != null) {
         backup.waitForBackup();
       }
@@ -233,7 +231,7 @@ public class DiskStoreFactoryImpl implements DiskStoreFactory {
    * Checks if directories exist, if they don't then create those directories
    */
   public static void checkIfDirectoriesExist(File[] diskDirs) {
-    for (File diskDir : diskDirs) {
+    for (var diskDir : diskDirs) {
       if (!diskDir.isDirectory()) {
         if (!diskDir.mkdirs()) {
           throw new GemFireIOException(
@@ -249,7 +247,7 @@ public class DiskStoreFactoryImpl implements DiskStoreFactory {
   @Override
   public DiskStoreFactory setDiskDirs(File[] diskDirs) {
     checkIfDirectoriesExist(diskDirs);
-    int[] diskSizes = new int[diskDirs.length];
+    var diskSizes = new int[diskDirs.length];
     Arrays.fill(diskSizes, DEFAULT_DISK_DIR_SIZE);
     return setDiskDirsAndSizes(diskDirs, diskSizes);
   }

@@ -45,7 +45,7 @@ public class StatListenerMessage extends PooledDistributionMessage implements Ad
    * @param maxChanges The number of statistics that are reported in the message
    */
   public static StatListenerMessage create(long timestamp, int maxChanges) {
-    StatListenerMessage m = new StatListenerMessage();
+    var m = new StatListenerMessage();
     m.timestamp = timestamp;
     m.changeCount = 0;
     m.listenerIds = new int[maxChanges];
@@ -66,9 +66,9 @@ public class StatListenerMessage extends PooledDistributionMessage implements Ad
 
   @Override
   public void process(ClusterDistributionManager dm) {
-    RemoteGfManagerAgent agent = dm.getAgent();
+    var agent = dm.getAgent();
     if (agent != null) {
-      RemoteGemFireVM mgr = agent.getMemberById(getSender());
+      var mgr = agent.getMemberById(getSender());
       if (mgr != null) {
         mgr.callStatListeners(timestamp, listenerIds, values);
       }
@@ -91,7 +91,7 @@ public class StatListenerMessage extends PooledDistributionMessage implements Ad
     super.toData(out, context);
     out.writeLong(timestamp);
     out.writeInt(changeCount);
-    for (int i = 0; i < changeCount; i++) {
+    for (var i = 0; i < changeCount; i++) {
       out.writeInt(listenerIds[i]);
       out.writeDouble(values[i]);
     }
@@ -105,7 +105,7 @@ public class StatListenerMessage extends PooledDistributionMessage implements Ad
     changeCount = in.readInt();
     listenerIds = new int[changeCount];
     values = new double[changeCount];
-    for (int i = 0; i < changeCount; i++) {
+    for (var i = 0; i < changeCount; i++) {
       listenerIds[i] = in.readInt();
       values[i] = in.readDouble();
     }

@@ -71,7 +71,7 @@ public class CacheXmlParameterizationRegressionTest {
 
   @Test
   public void testResolveReplacePropertyStringForLonerCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     System.setProperty("gemfirePropertyFile", GEMFIRE_PROPERTIES);
@@ -82,7 +82,7 @@ public class CacheXmlParameterizationRegressionTest {
     System.setProperty(CONCAT_ELEMENT_PROPERTY_STRING, CONCAT_ELEMENT_PROPERTY_VALUE);
 
     // create the directory where data is going to be stored
-    File dir = new File("persistData1");
+    var dir = new File("persistData1");
     dir.mkdir();
 
     ds = DistributedSystem.connect(props);
@@ -102,7 +102,7 @@ public class CacheXmlParameterizationRegressionTest {
 
   @Test
   public void testResolveReplacePropertyStringForNonLonerCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "10333");
     props.setProperty(LOCATORS, "");
     System.setProperty("gemfirePropertyFile", GEMFIRE_PROPERTIES);
@@ -113,7 +113,7 @@ public class CacheXmlParameterizationRegressionTest {
     System.setProperty(CONCAT_ELEMENT_PROPERTY_STRING, CONCAT_ELEMENT_PROPERTY_VALUE);
 
     // create the directory where data is going to be stored
-    File dir = new File("persistData1");
+    var dir = new File("persistData1");
     dir.mkdir();
 
     ds = DistributedSystem.connect(props);

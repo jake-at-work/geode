@@ -61,17 +61,17 @@ public class MissingPersistentIDsResponse extends AdminResponse {
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     super.fromData(in, context);
-    int size = in.readInt();
+    var size = in.readInt();
     missingIds = new HashSet<>(size);
-    for (int i = 0; i < size; i++) {
-      PersistentMemberPattern pattern = new PersistentMemberPattern();
+    for (var i = 0; i < size; i++) {
+      var pattern = new PersistentMemberPattern();
       InternalDataSerializer.invokeFromData(pattern, in);
       missingIds.add(pattern);
     }
     size = in.readInt();
     localIds = new HashSet<>(size);
-    for (int i = 0; i < size; i++) {
-      PersistentMemberPattern pattern = new PersistentMemberPattern();
+    for (var i = 0; i < size; i++) {
+      var pattern = new PersistentMemberPattern();
       InternalDataSerializer.invokeFromData(pattern, in);
       localIds.add(pattern);
     }
@@ -82,11 +82,11 @@ public class MissingPersistentIDsResponse extends AdminResponse {
       SerializationContext context) throws IOException {
     super.toData(out, context);
     out.writeInt(missingIds.size());
-    for (PersistentID pattern : missingIds) {
+    for (var pattern : missingIds) {
       InternalDataSerializer.invokeToData(pattern, out);
     }
     out.writeInt(localIds.size());
-    for (PersistentID pattern : localIds) {
+    for (var pattern : localIds) {
       InternalDataSerializer.invokeToData(pattern, out);
     }
   }

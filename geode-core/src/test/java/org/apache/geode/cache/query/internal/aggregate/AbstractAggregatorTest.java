@@ -25,8 +25,8 @@ public class AbstractAggregatorTest {
 
   @Test
   public void downcastShouldReturnIntegerWhenValueIsAnIntegerAndFitsWithinTheIntegerRange() {
-    int randomInteger = random.nextInt();
-    Number integerResult = AbstractAggregator.downCast(randomInteger);
+    var randomInteger = random.nextInt();
+    var integerResult = AbstractAggregator.downCast(randomInteger);
 
     assertThat(integerResult).isInstanceOf(Number.class);
     assertThat(integerResult).isInstanceOf(Integer.class);
@@ -34,8 +34,8 @@ public class AbstractAggregatorTest {
 
   @Test
   public void downcastShouldReturnLongWhenValueIsAnIntegerButDoesNotFitsWithinTheIntegerRange() {
-    long randomLong = random.nextLong();
-    Number longResult = AbstractAggregator.downCast(randomLong);
+    var randomLong = random.nextLong();
+    var longResult = AbstractAggregator.downCast(randomLong);
 
     assertThat(longResult).isInstanceOf(Number.class);
     assertThat(longResult).isInstanceOf(Long.class);
@@ -43,8 +43,8 @@ public class AbstractAggregatorTest {
 
   @Test
   public void downcastShouldReturnFloatWhenValueIsNotAnIntegerAndFitsWithinTheFloatRange() {
-    float randomFloat = random.nextFloat();
-    Number floatResult = AbstractAggregator.downCast(randomFloat);
+    var randomFloat = random.nextFloat();
+    var floatResult = AbstractAggregator.downCast(randomFloat);
 
     assertThat(floatResult).isInstanceOf(Number.class);
     assertThat(floatResult).isInstanceOf(Float.class);
@@ -52,8 +52,8 @@ public class AbstractAggregatorTest {
 
   @Test
   public void downcastShouldReturnDoubleWhenValueIsNotAnIntegerAndDoesNotFitsWithinTheFloatRange() {
-    double randomDouble = Float.MIN_VALUE - random.nextDouble();
-    Number doubleResult = AbstractAggregator.downCast(randomDouble);
+    var randomDouble = Float.MIN_VALUE - random.nextDouble();
+    var doubleResult = AbstractAggregator.downCast(randomDouble);
 
     assertThat(doubleResult).isInstanceOf(Number.class);
     assertThat(doubleResult).isInstanceOf(Double.class);

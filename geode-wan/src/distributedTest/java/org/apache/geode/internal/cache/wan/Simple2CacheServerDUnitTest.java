@@ -19,14 +19,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.internal.cache.ClientServerObserverAdapter;
@@ -55,7 +53,7 @@ public class Simple2CacheServerDUnitTest extends WANTestBase {
   }
 
   public void doMultipleCacheServer(boolean durable) throws Exception {
-    Integer lnPort = vm1.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm1.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     vm2.invoke(() -> WANTestBase.createCache(lnPort));
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName() + "_PR",
         null, 1, 100, isOffHeap()));
@@ -101,12 +99,12 @@ public class Simple2CacheServerDUnitTest extends WANTestBase {
   }
 
   private static int findCacheServerForPrimaryProxy() {
-    List<CacheServer> cacheServers = cache.getCacheServers();
+    var cacheServers = cache.getCacheServers();
     CacheServerImpl server = null;
-    for (CacheServer cs : cacheServers) {
+    for (var cs : cacheServers) {
       server = (CacheServerImpl) cs;
-      long acceptorId = server.getAcceptor().getAcceptorId();
-      for (CacheClientProxy proxy : CacheClientNotifier.getInstance().getClientProxies()) {
+      var acceptorId = server.getAcceptor().getAcceptorId();
+      for (var proxy : CacheClientNotifier.getInstance().getClientProxies()) {
         if (proxy.isPrimary() == false) {
           continue;
         }
@@ -154,16 +152,16 @@ public class Simple2CacheServerDUnitTest extends WANTestBase {
   }
 
   private boolean checkProxyIsPrimary(VM vm) {
-    SerializableCallable checkProxyIsPrimary = new SerializableCallable() {
+    var checkProxyIsPrimary = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        final CacheClientNotifier ccn = CacheClientNotifier.getInstance();
+        final var ccn = CacheClientNotifier.getInstance();
         await().until(() -> {
           return (ccn.getClientProxies().size() == 1);
         });
 
         Iterator iter_prox = ccn.getClientProxies().iterator();
-        CacheClientProxy proxy = (CacheClientProxy) iter_prox.next();
+        var proxy = (CacheClientProxy) iter_prox.next();
         return proxy.isPrimary();
       }
     };

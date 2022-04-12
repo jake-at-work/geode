@@ -42,11 +42,11 @@ public class ReflectionObjectSizerJUnitTest {
   }
 
   private void checkSizeDoesNotChange(final Object referenceObject) {
-    final ReflectionObjectSizer sizer = ReflectionObjectSizer.getInstance();
-    final TestObject nullReference = new TestObject(null);
-    int sizeWithoutReference = sizer.sizeof(nullReference);
-    final TestObject distributedSystemReference = new TestObject(referenceObject);
-    final TestObject stringReference = new TestObject("hello");
+    final var sizer = ReflectionObjectSizer.getInstance();
+    final var nullReference = new TestObject(null);
+    var sizeWithoutReference = sizer.sizeof(nullReference);
+    final var distributedSystemReference = new TestObject(referenceObject);
+    final var stringReference = new TestObject("hello");
 
     assertEquals(sizeWithoutReference, sizer.sizeof(distributedSystemReference));
     assertNotEquals(sizeWithoutReference, sizer.sizeof(stringReference));

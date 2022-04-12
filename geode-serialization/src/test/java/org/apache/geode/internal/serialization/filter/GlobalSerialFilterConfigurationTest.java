@@ -73,7 +73,7 @@ public class GlobalSerialFilterConfigurationTest {
         serializableObjectConfig,
         (pattern, sanctionedClasses) -> globalSerialFilter);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       filterConfiguration.configure();
     });
 
@@ -94,7 +94,7 @@ public class GlobalSerialFilterConfigurationTest {
         serializableObjectConfig,
         (pattern, sanctionedClasses) -> globalSerialFilter);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       filterConfiguration.configure();
     });
 

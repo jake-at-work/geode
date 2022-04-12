@@ -27,7 +27,6 @@ import static org.apache.geode.test.dunit.Assert.fail;
 import static org.apache.geode.test.dunit.Invoke.invokeInEveryVM;
 import static org.apache.geode.test.dunit.LogWriterUtils.getLogWriter;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -38,22 +37,16 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.operations.OperationContext.OperationCode;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqExistsException;
 import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.cq.dunit.CqQueryTestListener;
 import org.apache.geode.cache.query.cq.internal.ClientCQImpl;
-import org.apache.geode.cache.query.internal.cq.CqService;
-import org.apache.geode.cache.query.internal.cq.InternalCqQuery;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.security.generator.AuthzCredentialGenerator;
-import org.apache.geode.security.generator.CredentialGenerator;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.WaitCriterion;
@@ -130,33 +123,33 @@ public class ClientCQPostAuthorizationDUnitTest extends ClientAuthorizationTestC
 
   private void doStartUp(final int numOfUsers, final int numOfPuts,
       final boolean[] postAuthzAllowed, final boolean failover) throws Exception {
-    AuthzCredentialGenerator authzGenerator = getXmlAuthzGenerator();
-    CredentialGenerator credentialGenerator = authzGenerator.getCredentialGenerator();
-    Properties extraAuthProps = credentialGenerator.getSystemProperties();
-    Properties javaProps = credentialGenerator.getJavaProperties();
-    Properties extraAuthzProps = authzGenerator.getSystemProperties();
-    String authenticator = credentialGenerator.getAuthenticator();
-    String accessor = authzGenerator.getAuthorizationCallback();
-    String authInit = credentialGenerator.getAuthInit();
-    TestAuthzCredentialGenerator tgen = new TestAuthzCredentialGenerator(authzGenerator);
+    var authzGenerator = getXmlAuthzGenerator();
+    var credentialGenerator = authzGenerator.getCredentialGenerator();
+    var extraAuthProps = credentialGenerator.getSystemProperties();
+    var javaProps = credentialGenerator.getJavaProperties();
+    var extraAuthzProps = authzGenerator.getSystemProperties();
+    var authenticator = credentialGenerator.getAuthenticator();
+    var accessor = authzGenerator.getAuthorizationCallback();
+    var authInit = credentialGenerator.getAuthInit();
+    var tgen = new TestAuthzCredentialGenerator(authzGenerator);
 
-    Properties serverProps =
+    var serverProps =
         buildProperties(authenticator, accessor, true, extraAuthProps, extraAuthzProps);
 
     Properties opCredentials;
     credentialGenerator = tgen.getCredentialGenerator();
-    final Properties javaProps2 =
+    final var javaProps2 =
         credentialGenerator == null ? null : credentialGenerator.getJavaProperties();
 
-    int[] indices = new int[numOfPuts];
-    for (int index = 0; index < numOfPuts; ++index) {
+    var indices = new int[numOfPuts];
+    for (var index = 0; index < numOfPuts; ++index) {
       indices[index] = index;
     }
 
-    Random rnd = new Random();
-    Properties[] authProps = new Properties[numOfUsers];
-    for (int i = 0; i < numOfUsers; i++) {
-      int rand = rnd.nextInt(100) + 1;
+    var rnd = new Random();
+    var authProps = new Properties[numOfUsers];
+    for (var i = 0; i < numOfUsers; i++) {
+      var rand = rnd.nextInt(100) + 1;
 
       if (postAuthzAllowed[i]) {
         // For callback, GET should be allowed
@@ -174,9 +167,9 @@ public class ClientCQPostAuthorizationDUnitTest extends ClientAuthorizationTestC
     }
 
     // Get ports for the servers
-    int[] randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int port1 = randomAvailableTCPPorts[0];
-    int port2 = randomAvailableTCPPorts[1];
+    var randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var port1 = randomAvailableTCPPorts[0];
+    var port2 = randomAvailableTCPPorts[1];
 
     // Close down any running servers
     server1.invoke(() -> closeCache());
@@ -237,22 +230,22 @@ public class ClientCQPostAuthorizationDUnitTest extends ClientAuthorizationTestC
   }
 
   private void createCQ(final int num) throws CqException, CqExistsException {
-    for (int i = 0; i < num; i++) {
-      QueryService cqService = getProxyCaches(i).getQueryService();
-      String cqName = "CQ_" + i;
-      String queryStr =
+    for (var i = 0; i < num; i++) {
+      var cqService = getProxyCaches(i).getQueryService();
+      var cqName = "CQ_" + i;
+      var queryStr =
           cqNameToQueryStrings.get(cqName) + getProxyCaches(i).getRegion(REGION_NAME).getFullPath();
 
       // Create CQ Attributes.
-      CqAttributesFactory cqf = new CqAttributesFactory();
+      var cqf = new CqAttributesFactory();
       CqListener[] cqListeners = {new CqQueryTestListener(getLogWriter())};
       ((CqQueryTestListener) cqListeners[0]).cqName = cqName;
 
       cqf.initCqListeners(cqListeners);
-      CqAttributes cqa = cqf.create();
+      var cqa = cqf.create();
 
       // Create CQ.
-      CqQuery cq1 = cqService.newCq(cqName, queryStr, cqa);
+      var cq1 = cqService.newCq(cqName, queryStr, cqa);
       assertTrue("newCq() state mismatch", cq1.getState().isStopped());
     }
   }
@@ -260,17 +253,17 @@ public class ClientCQPostAuthorizationDUnitTest extends ClientAuthorizationTestC
   private void executeCQ(final int num, final boolean[] initialResults,
       final int expectedResultsSize, final String[] expectedErr, final boolean[] postAuthzAllowed)
       throws RegionNotFoundException, CqException {
-    for (int i = 0; i < num; i++) {
+    for (var i = 0; i < num; i++) {
       try {
         if (expectedErr[i] != null) {
           getLogWriter()
               .info("<ExpectedException action=add>" + expectedErr[i] + "</ExpectedException>");
         }
         CqQuery cq1 = null;
-        String cqName = "CQ_" + i;
+        var cqName = "CQ_" + i;
         // String queryStr = cqNameToQueryStrings.get(cqName) +
         // getProxyCaches(i).getRegion(REGION_NAME).getFullPath();
-        QueryService cqService = getProxyCaches(i).getQueryService();
+        var cqService = getProxyCaches(i).getQueryService();
 
         // Get CqQuery object.
         cq1 = cqService.getCq(cqName);
@@ -327,7 +320,7 @@ public class ClientCQPostAuthorizationDUnitTest extends ClientAuthorizationTestC
 
   private void doPuts(final int num, final boolean putLastKey) {
     Region region = getProxyCaches(0).getRegion(REGION_NAME);
-    for (int i = 0; i < num; i++) {
+    for (var i = 0; i < num; i++) {
       region.put("CQ_key" + i, "CQ_value" + i);
     }
     if (putLastKey) {
@@ -336,27 +329,27 @@ public class ClientCQPostAuthorizationDUnitTest extends ClientAuthorizationTestC
   }
 
   private void waitForLastKey(final int cqIndex) {
-    String cqName = "CQ_" + cqIndex;
-    QueryService qService = getProxyCaches(cqIndex).getQueryService();
-    ClientCQImpl cqQuery = (ClientCQImpl) qService.getCq(cqName);
+    var cqName = "CQ_" + cqIndex;
+    var qService = getProxyCaches(cqIndex).getQueryService();
+    var cqQuery = (ClientCQImpl) qService.getCq(cqName);
     ((CqQueryTestListener) cqQuery.getCqListeners()[0]).waitForCreated("LAST_KEY");
   }
 
   private void waitForLastKeyUpdate(final int cqIndex) {
-    String cqName = "CQ_" + cqIndex;
-    QueryService qService = getProxyCaches(cqIndex).getQueryService();
-    ClientCQImpl cqQuery = (ClientCQImpl) qService.getCq(cqName);
+    var cqName = "CQ_" + cqIndex;
+    var qService = getProxyCaches(cqIndex).getQueryService();
+    var cqQuery = (ClientCQImpl) qService.getCq(cqName);
     ((CqQueryTestListener) cqQuery.getCqListeners()[0]).waitForUpdated("LAST_KEY");
   }
 
   private void allowCQsToRegister(final int number) {
-    final int num = number;
-    WaitCriterion wc = new WaitCriterion() {
+    final var num = number;
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
-        CqService cqService = getInstance().getCqService();
+        var cqService = getInstance().getCqService();
         cqService.start();
-        Collection<? extends InternalCqQuery> cqs = cqService.getAllCqs();
+        var cqs = cqService.getAllCqs();
         if (cqs != null) {
           return cqs.size() >= num;
         } else {
@@ -374,18 +367,18 @@ public class ClientCQPostAuthorizationDUnitTest extends ClientAuthorizationTestC
 
   private boolean checkCQListeners(final int numOfUsers, final boolean[] expectedListenerInvocation,
       final int createEventsSize, final int updateEventsSize, final boolean closeCache) {
-    for (int i = 0; i < numOfUsers; i++) {
-      String cqName = "CQ_" + i;
-      QueryService qService = getProxyCaches(i).getQueryService();
-      ClientCQImpl cqQuery = (ClientCQImpl) qService.getCq(cqName);
+    for (var i = 0; i < numOfUsers; i++) {
+      var cqName = "CQ_" + i;
+      var qService = getProxyCaches(i).getQueryService();
+      var cqQuery = (ClientCQImpl) qService.getCq(cqName);
 
       if (expectedListenerInvocation[i]) {
-        for (CqListener listener : cqQuery.getCqListeners()) {
+        for (var listener : cqQuery.getCqListeners()) {
           assertEquals(createEventsSize, ((CqQueryTestListener) listener).getCreateEventCount());
           assertEquals(updateEventsSize, ((CqQueryTestListener) listener).getUpdateEventCount());
         }
       } else {
-        for (CqListener listener : cqQuery.getCqListeners()) {
+        for (var listener : cqQuery.getCqListeners()) {
           assertEquals(0, ((CqQueryTestListener) listener).getTotalEventCount());
         }
       }

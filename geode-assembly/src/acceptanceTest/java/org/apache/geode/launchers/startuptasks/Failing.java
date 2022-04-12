@@ -30,11 +30,11 @@ public class Failing implements ServerLauncherCacheProvider {
 
   @Override
   public Cache createCache(Properties gemfireProperties, ServerLauncher serverLauncher) {
-    final CacheFactory cacheFactory = new CacheFactory(gemfireProperties);
+    final var cacheFactory = new CacheFactory(gemfireProperties);
 
-    InternalCache cache = (InternalCache) cacheFactory.create();
+    var cache = (InternalCache) cacheFactory.create();
 
-    CompletableFuture<Void> failingStartupTask = new CompletableFuture<>();
+    var failingStartupTask = new CompletableFuture<Void>();
     failingStartupTask.completeExceptionally(EXCEPTION);
 
     cache.getInternalResourceManager().addStartupTask(failingStartupTask);

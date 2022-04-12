@@ -19,17 +19,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.shell.core.annotation.CliCommand;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.domain.AsyncEventQueueDetails;
 import org.apache.geode.management.internal.cli.functions.ListAsyncEventQueuesFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -47,20 +44,20 @@ public class ListAsyncEventQueuesCommand extends GfshCommand {
   @ResourceOperation(resource = ResourcePermission.Resource.CLUSTER,
       operation = ResourcePermission.Operation.READ)
   public ResultModel listAsyncEventQueues() {
-    Set<DistributedMember> targetMembers = getAllNormalMembers();
+    var targetMembers = getAllNormalMembers();
     if (targetMembers.isEmpty()) {
       return ResultModel.createInfo(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
     // Each (successful) member returns a list of AsyncEventQueueDetails.
-    List<CliFunctionResult> results = executeAndGetFunctionResult(
+    var results = executeAndGetFunctionResult(
         new ListAsyncEventQueuesFunction(), new Object[] {}, targetMembers);
 
-    ResultModel result = buildAsyncEventQueueInfo(results);
+    var result = buildAsyncEventQueueInfo(results);
 
     // Report any explicit errors as well.
     if (results.stream().anyMatch(r -> !r.isSuccessful())) {
-      TabularResultModel errors = result.addTable(MEMBER_ERRORS_TABLE_SECTION);
+      var errors = result.addTable(MEMBER_ERRORS_TABLE_SECTION);
       errors.setColumnHeader("Member", "Error");
       results.stream().filter(r -> !r.isSuccessful()).forEach(errorResult -> errors
           .addRow(errorResult.getMemberIdOrName(), errorResult.getStatusMessage()));
@@ -77,21 +74,21 @@ public class ListAsyncEventQueuesCommand extends GfshCommand {
     if (results.stream().filter(CliFunctionResult::isSuccessful)
         .noneMatch(r -> {
           @SuppressWarnings("unchecked")
-          final List<AsyncEventQueueDetails> resultObject =
+          final var resultObject =
               (List<AsyncEventQueueDetails>) r.getResultObject();
           return resultObject.size() > 0;
         })) {
       return ResultModel.createInfo(CliStrings.LIST_ASYNC_EVENT_QUEUES__NO_QUEUES_FOUND_MESSAGE);
     }
 
-    ResultModel result = new ResultModel();
-    TabularResultModel detailsTable = result.addTable(ASYNC_EVENT_QUEUES_TABLE_SECTION);
+    var result = new ResultModel();
+    var detailsTable = result.addTable(ASYNC_EVENT_QUEUES_TABLE_SECTION);
     detailsTable.setColumnHeader(DETAILS_OUTPUT_COLUMNS);
 
     results.stream().filter(CliFunctionResult::isSuccessful).forEach(successfulResult -> {
-      String memberName = successfulResult.getMemberIdOrName();
+      var memberName = successfulResult.getMemberIdOrName();
       @SuppressWarnings("unchecked")
-      final List<AsyncEventQueueDetails> resultObject =
+      final var resultObject =
           (List<AsyncEventQueueDetails>) successfulResult.getResultObject();
       resultObject
           .forEach(entry -> detailsTable.addRow(memberName, entry.getId(),
@@ -118,8 +115,8 @@ public class ListAsyncEventQueuesCommand extends GfshCommand {
     if (props == null || props.isEmpty()) {
       return "";
     }
-    ObjectMapper mapper = new ObjectMapper();
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    var mapper = new ObjectMapper();
+    var baos = new ByteArrayOutputStream();
     try {
       mapper.writeValue(baos, props);
     } catch (IOException e) {

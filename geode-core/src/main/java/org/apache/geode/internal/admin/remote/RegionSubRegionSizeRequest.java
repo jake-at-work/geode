@@ -35,7 +35,7 @@ public class RegionSubRegionSizeRequest extends AdminRequest implements Cancella
    * Returns a <code>RegionSubRegionSizeRequest</code> to be sent to the specified recipient.
    */
   public static RegionSubRegionSizeRequest create() {
-    RegionSubRegionSizeRequest m = new RegionSubRegionSizeRequest();
+    var m = new RegionSubRegionSizeRequest();
     return m;
   }
 

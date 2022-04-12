@@ -75,15 +75,15 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void createsStatisticsManagerViaFactory() {
-    StatisticsManagerFactory statisticsManagerFactory =
+    var statisticsManagerFactory =
         mock(StatisticsManagerFactory.class, "statisticsManagerFactory");
-    StatisticsManager statisticsManagerCreatedByFactory =
+    var statisticsManagerCreatedByFactory =
         mock(StatisticsManager.class, "statisticsManagerCreatedByFactory");
     when(statisticsManagerFactory
         .create(any(), anyLong(), eq(false)))
             .thenReturn(statisticsManagerCreatedByFactory);
 
-    InternalDistributedSystem result =
+    var result =
         new InternalDistributedSystem.BuilderForTesting(new Properties())
             .setDistributionManager(distributionManager)
             .setStatisticsManagerFactory(statisticsManagerFactory)
@@ -95,14 +95,14 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateTypeToStatisticsManager() {
-    String typeName = "type-name";
-    String typeDescription = "type-description";
+    var typeName = "type-name";
+    var typeDescription = "type-description";
     StatisticDescriptor[] descriptors = {};
-    StatisticsType typeReturnedByManager = mock(StatisticsType.class);
+    var typeReturnedByManager = mock(StatisticsType.class);
     when(statisticsManager.createType(typeName, typeDescription, descriptors))
         .thenReturn(typeReturnedByManager);
 
-    StatisticsType result =
+    var result =
         internalDistributedSystem.createType(typeName, typeDescription, descriptors);
 
     assertThat(result)
@@ -117,7 +117,7 @@ public class InternalDistributedSystemStatisticsManagerTest {
     when(statisticsManager.createTypesFromXml(same(reader)))
         .thenReturn(typesReturnedByManager);
 
-    StatisticsType[] result = internalDistributedSystem.createTypesFromXml(reader);
+    var result = internalDistributedSystem.createTypesFromXml(reader);
 
     assertThat(result)
         .isSameAs(typesReturnedByManager);
@@ -125,12 +125,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesFindTypeToStatisticsManager() {
-    String soughtTypeName = "the-name";
-    StatisticsType typeReturnedByManager = mock(StatisticsType.class);
+    var soughtTypeName = "the-name";
+    var typeReturnedByManager = mock(StatisticsType.class);
     when(statisticsManager.findType(soughtTypeName))
         .thenReturn(typeReturnedByManager);
 
-    StatisticsType result = internalDistributedSystem.findType(soughtTypeName);
+    var result = internalDistributedSystem.findType(soughtTypeName);
 
     assertThat(result)
         .isSameAs(typeReturnedByManager);
@@ -138,12 +138,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateIntCounterToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(
         statisticsManager.createLongCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createIntCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS);
 
     assertThat(result)
@@ -152,12 +152,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateLongCounterToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createLongCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createLongCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS);
 
     assertThat(result)
@@ -166,12 +166,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateDoubleCounterToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createDoubleCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createDoubleCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS);
 
     assertThat(result)
@@ -180,12 +180,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateIntGaugeToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createLongGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createIntGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS);
 
     assertThat(result)
@@ -194,11 +194,11 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateLongGaugeToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager.createLongGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS))
         .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createLongGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS);
 
     assertThat(result)
@@ -207,12 +207,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateDoubleGaugeToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createDoubleGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createDoubleGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS);
 
     assertThat(result)
@@ -221,12 +221,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateLargerBetterIntCounterToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createLongCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createIntCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false);
 
     assertThat(result)
@@ -235,12 +235,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateLargerBetterLongCounterToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createLongCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createLongCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false);
 
     assertThat(result)
@@ -249,12 +249,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateLargerBetterDoubleCounterToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createDoubleCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createDoubleCounter(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false);
 
     assertThat(result)
@@ -263,12 +263,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateLargerBetterIntGaugeToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createLongGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createIntGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false);
 
     assertThat(result)
@@ -277,12 +277,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateLargerBetterLongGaugeToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createLongGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createLongGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false);
 
     assertThat(result)
@@ -291,12 +291,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateLargerBetterDoubleGaugeToStatisticsManager() {
-    StatisticDescriptor descriptorReturnedByManager = mock(StatisticDescriptor.class);
+    var descriptorReturnedByManager = mock(StatisticDescriptor.class);
     when(statisticsManager
         .createDoubleGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false))
             .thenReturn(descriptorReturnedByManager);
 
-    StatisticDescriptor result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createDoubleGauge(STATISTIC_NAME, STATISTIC_DESCRIPTION, STATISTIC_UNITS, false);
 
     assertThat(result)
@@ -305,11 +305,11 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateStatisticsToStatisticsManager() {
-    Statistics statisticsReturnedByManager = mock(Statistics.class);
+    var statisticsReturnedByManager = mock(Statistics.class);
     when(statisticsManager.createStatistics(STATISTICS_TYPE))
         .thenReturn(statisticsReturnedByManager);
 
-    Statistics result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createStatistics(STATISTICS_TYPE);
 
     assertThat(result)
@@ -318,11 +318,11 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateStatisticsWithTextIdToStatisticsManager() {
-    Statistics statisticsReturnedByManager = mock(Statistics.class);
+    var statisticsReturnedByManager = mock(Statistics.class);
     when(statisticsManager.createStatistics(STATISTICS_TYPE, STATISTICS_TEXT_ID))
         .thenReturn(statisticsReturnedByManager);
 
-    Statistics result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createStatistics(STATISTICS_TYPE, STATISTICS_TEXT_ID);
 
     assertThat(result)
@@ -331,12 +331,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateStatisticsWithNumericIdToStatisticsManager() {
-    Statistics statisticsReturnedByManager = mock(Statistics.class);
+    var statisticsReturnedByManager = mock(Statistics.class);
     when(statisticsManager
         .createStatistics(STATISTICS_TYPE, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID))
             .thenReturn(statisticsReturnedByManager);
 
-    Statistics result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createStatistics(STATISTICS_TYPE, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
 
     assertThat(result)
@@ -345,11 +345,11 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateAtomicStatisticsToStatisticsManager() {
-    Statistics statisticsReturnedByManager = mock(Statistics.class);
+    var statisticsReturnedByManager = mock(Statistics.class);
     when(statisticsManager.createAtomicStatistics(STATISTICS_TYPE))
         .thenReturn(statisticsReturnedByManager);
 
-    Statistics result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createAtomicStatistics(STATISTICS_TYPE);
 
     assertThat(result)
@@ -358,11 +358,11 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateAtomicStatisticsWithTextIdToStatisticsManager() {
-    Statistics statisticsReturnedByManager = mock(Statistics.class);
+    var statisticsReturnedByManager = mock(Statistics.class);
     when(statisticsManager.createAtomicStatistics(STATISTICS_TYPE, STATISTICS_TEXT_ID))
         .thenReturn(statisticsReturnedByManager);
 
-    Statistics result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createAtomicStatistics(STATISTICS_TYPE, STATISTICS_TEXT_ID);
 
     assertThat(result)
@@ -371,12 +371,12 @@ public class InternalDistributedSystemStatisticsManagerTest {
 
   @Test
   public void delegatesCreateAtomicStatisticsWithNumericIdToStatisticsManager() {
-    Statistics statisticsReturnedByManager = mock(Statistics.class);
+    var statisticsReturnedByManager = mock(Statistics.class);
     when(statisticsManager
         .createAtomicStatistics(STATISTICS_TYPE, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID))
             .thenReturn(statisticsReturnedByManager);
 
-    Statistics result = internalDistributedSystem
+    var result = internalDistributedSystem
         .createAtomicStatistics(STATISTICS_TYPE, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID);
 
     assertThat(result)
@@ -389,7 +389,7 @@ public class InternalDistributedSystemStatisticsManagerTest {
     when(statisticsManager.findStatisticsByType(STATISTICS_TYPE))
         .thenReturn(statisticsReturnedByManager);
 
-    Statistics[] result = internalDistributedSystem
+    var result = internalDistributedSystem
         .findStatisticsByType(STATISTICS_TYPE);
 
     assertThat(result)
@@ -399,11 +399,11 @@ public class InternalDistributedSystemStatisticsManagerTest {
   @Test
   public void delegatesFindStatisticsByTextIdToStatisticsManager() {
     Statistics[] statisticsReturnedByManager = {};
-    String soughtTextId = "sought-text-id";
+    var soughtTextId = "sought-text-id";
     when(statisticsManager.findStatisticsByTextId(soughtTextId))
         .thenReturn(statisticsReturnedByManager);
 
-    Statistics[] result = internalDistributedSystem
+    var result = internalDistributedSystem
         .findStatisticsByTextId(soughtTextId);
 
     assertThat(result)
@@ -418,7 +418,7 @@ public class InternalDistributedSystemStatisticsManagerTest {
     when(statisticsManager.findStatisticsByNumericId(soughtNumericId))
         .thenReturn(statisticsReturnedByManager);
 
-    Statistics[] result = internalDistributedSystem
+    var result = internalDistributedSystem
         .findStatisticsByNumericId(soughtNumericId);
 
     assertThat(result)

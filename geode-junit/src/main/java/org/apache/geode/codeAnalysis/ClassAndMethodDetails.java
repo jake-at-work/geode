@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.geode.codeAnalysis.decode.CompiledCode;
 import org.apache.geode.codeAnalysis.decode.CompiledMethod;
 
 /**
@@ -35,11 +34,11 @@ public class ClassAndMethodDetails implements Comparable {
   Map<String, Integer> methods = new HashMap<>();
 
   static {
-    String[] digits = new String[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c",
+    var digits = new String[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c",
         "d", "e", "f"};
 
     hexChars = new String[256];
-    for (int i = 0; i < 256; i++) {
+    for (var i = 0; i < 256; i++) {
       hexChars[i] = digits[(i >> 4) & 0xf] + digits[i & 0xf];
     }
   }
@@ -60,16 +59,16 @@ public class ClassAndMethodDetails implements Comparable {
     if (line == null) {
       return null;
     }
-    ClassAndMethodDetails instance = new ClassAndMethodDetails();
-    String[] fields = line.split(",");
+    var instance = new ClassAndMethodDetails();
+    var fields = line.split(",");
     try {
       instance.className = fields[0];
-      int numMethods = Integer.parseInt(fields[1]);
-      for (int i = 0; i < numMethods; i++) {
+      var numMethods = Integer.parseInt(fields[1]);
+      for (var i = 0; i < numMethods; i++) {
         line = in.readLine();
         fields = line.split(",");
-        String methodName = fields[0];
-        int codeLength = Integer.parseInt(fields[1]);
+        var methodName = fields[0];
+        var codeLength = Integer.parseInt(fields[1]);
         if (fields.length != 2) {
           System.err.println("Method detail has been tampered with on line " + in.getLineNumber());
           continue;
@@ -87,13 +86,13 @@ public class ClassAndMethodDetails implements Comparable {
    * ClassAndMethodDetails
    */
   public static String convertForStoring(ClassAndMethods cam) {
-    StringBuilder sb = new StringBuilder(150);
+    var sb = new StringBuilder(150);
     sb.append(cam.dclass.fullyQualifiedName());
     List<CompiledMethod> methods = new ArrayList<>(cam.methods.values());
     Collections.sort(methods);
     sb.append(',').append(methods.size()).append("\n");
-    for (CompiledMethod method : methods) {
-      CompiledCode c = method.getCode();
+    for (var method : methods) {
+      var c = method.getCode();
       if (c != null) {
         sb.append(method.name()).append(',').append(c.code.length).append("\n");
       }
@@ -103,9 +102,9 @@ public class ClassAndMethodDetails implements Comparable {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(80);
+    var sb = new StringBuilder(80);
     sb.append(className).append(',').append(methods.size()).append("\n");
-    for (Map.Entry<String, Integer> entry : methods.entrySet()) {
+    for (var entry : methods.entrySet()) {
       sb.append(entry.getKey()).append(',');
       sb.append(entry.getValue());
       sb.append("\n");

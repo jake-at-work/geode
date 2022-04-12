@@ -18,7 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.GROUPS;
 import static org.apache.geode.distributed.ConfigurationProperties.LOG_LEVEL;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.FileWriter;
 
 import org.junit.Before;
@@ -27,7 +26,6 @@ import org.junit.Test;
 
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 
@@ -52,37 +50,37 @@ public class ClusterConfigDeployJarDUnitTest extends ClusterConfigTestBase {
 
   @Test
   public void testDeployToNoServer() throws Exception {
-    String clusterJarPath = clusterJar;
+    var clusterJarPath = clusterJar;
     // set up the locator/servers
-    MemberVM locator = lsRule.startLocatorVM(0, locatorProps);
+    var locator = lsRule.startLocatorVM(0, locatorProps);
 
     gfshConnector.connect(locator);
     assertThat(gfshConnector.isConnected()).isTrue();
 
     gfshConnector.executeAndAssertThat("deploy --jar=" + clusterJarPath).statusIsSuccess();
-    ConfigGroup cluster = new ConfigGroup("cluster").jars("cluster.jar");
-    ClusterConfig expectedClusterConfig = new ClusterConfig(cluster);
+    var cluster = new ConfigGroup("cluster").jars("cluster.jar");
+    var expectedClusterConfig = new ClusterConfig(cluster);
 
     expectedClusterConfig.verify(locator);
 
     // start a server and verify that the server gets the jar
-    MemberVM server1 = lsRule.startServerVM(1, locator.getPort());
+    var server1 = lsRule.startServerVM(1, locator.getPort());
     expectedClusterConfig.verify(server1);
   }
 
   @Test
   public void testDeployToMultipleLocators() throws Exception {
-    MemberVM locator = lsRule.startLocatorVM(0, locatorProps);
-    MemberVM locator2 = lsRule.startLocatorVM(1, locator.getPort());
-    MemberVM locator3 = lsRule.startLocatorVM(2, locator.getPort(), locator2.getPort());
+    var locator = lsRule.startLocatorVM(0, locatorProps);
+    var locator2 = lsRule.startLocatorVM(1, locator.getPort());
+    var locator3 = lsRule.startLocatorVM(2, locator.getPort(), locator2.getPort());
 
     gfshConnector.connect(locator);
     assertThat(gfshConnector.isConnected()).isTrue();
 
     gfshConnector.executeAndAssertThat("deploy --jar=" + clusterJar).statusIsSuccess();
 
-    ConfigGroup cluster = new ConfigGroup("cluster").jars("cluster.jar");
-    ClusterConfig expectedClusterConfig = new ClusterConfig(cluster);
+    var cluster = new ConfigGroup("cluster").jars("cluster.jar");
+    var expectedClusterConfig = new ClusterConfig(cluster);
 
     expectedClusterConfig.verify(locator);
     expectedClusterConfig.verify(locator2);
@@ -92,23 +90,23 @@ public class ClusterConfigDeployJarDUnitTest extends ClusterConfigTestBase {
   @Test
   public void testDeploy() throws Exception {
     // set up the locator/servers
-    MemberVM locator = lsRule.startLocatorVM(0, locatorProps);
+    var locator = lsRule.startLocatorVM(0, locatorProps);
     // server1 in no group
-    MemberVM server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
+    var server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
     // server2 in group1
     serverProps.setProperty(GROUPS, "group1");
-    MemberVM server2 = lsRule.startServerVM(2, serverProps, locator.getPort());
+    var server2 = lsRule.startServerVM(2, serverProps, locator.getPort());
     // server3 in group1 and group2
     serverProps.setProperty(GROUPS, "group1,group2");
-    MemberVM server3 = lsRule.startServerVM(3, serverProps, locator.getPort());
+    var server3 = lsRule.startServerVM(3, serverProps, locator.getPort());
 
     gfshConnector.connect(locator);
     assertThat(gfshConnector.isConnected()).isTrue();
 
     gfshConnector.executeAndAssertThat("deploy --jar=" + clusterJar).statusIsSuccess();
 
-    ConfigGroup cluster = new ConfigGroup("cluster").jars("cluster.jar");
-    ClusterConfig expectedClusterConfig = new ClusterConfig(cluster);
+    var cluster = new ConfigGroup("cluster").jars("cluster.jar");
+    var expectedClusterConfig = new ClusterConfig(cluster);
     expectedClusterConfig.verify(locator);
     expectedClusterConfig.verify(server1);
     expectedClusterConfig.verify(server2);
@@ -117,8 +115,8 @@ public class ClusterConfigDeployJarDUnitTest extends ClusterConfigTestBase {
     gfshConnector.executeAndAssertThat("deploy --jar=" + group1Jar + " --group=group1")
         .statusIsSuccess();
 
-    ConfigGroup group1 = new ConfigGroup("group1").jars("group1.jar");
-    ClusterConfig expectedGroup1Config = new ClusterConfig(cluster, group1);
+    var group1 = new ConfigGroup("group1").jars("group1.jar");
+    var expectedGroup1Config = new ClusterConfig(cluster, group1);
     expectedGroup1Config.verify(locator);
     expectedClusterConfig.verify(server1);
     expectedGroup1Config.verify(server2);
@@ -127,8 +125,8 @@ public class ClusterConfigDeployJarDUnitTest extends ClusterConfigTestBase {
     gfshConnector.executeAndAssertThat("deploy --jar=" + group2Jar + " --group=group2")
         .statusIsSuccess();
 
-    ConfigGroup group2 = new ConfigGroup("group2").jars("group2.jar");
-    ClusterConfig expectedGroup1and2Config = new ClusterConfig(cluster, group1, group2);
+    var group2 = new ConfigGroup("group2").jars("group2.jar");
+    var expectedGroup1and2Config = new ClusterConfig(cluster, group1, group2);
 
     expectedGroup1and2Config.verify(locator);
     expectedClusterConfig.verify(server1);
@@ -141,15 +139,15 @@ public class ClusterConfigDeployJarDUnitTest extends ClusterConfigTestBase {
     IgnoredException.addIgnoredException(IllegalArgumentException.class);
 
     // set up the locator/servers
-    MemberVM locator = lsRule.startLocatorVM(0, locatorProps);
+    var locator = lsRule.startLocatorVM(0, locatorProps);
     // server1 in no group
-    MemberVM server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
+    var server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
 
     gfshConnector.connect(locator);
     assertThat(gfshConnector.isConnected()).isTrue();
 
-    File junkFile = temporaryFolder.newFile("junk");
-    FileWriter writer = new FileWriter(junkFile);
+    var junkFile = temporaryFolder.newFile("junk");
+    var writer = new FileWriter(junkFile);
     writer.write("this is not a real jar");
     writer.close();
 
@@ -159,30 +157,30 @@ public class ClusterConfigDeployJarDUnitTest extends ClusterConfigTestBase {
     gfshConnector.executeAndAssertThat("list deployed").statusIsSuccess()
         .containsOutput("No JAR Files Found");
 
-    ConfigGroup cluster = new ConfigGroup("cluster").jars();
-    ClusterConfig expectedClusterConfig = new ClusterConfig(cluster);
+    var cluster = new ConfigGroup("cluster").jars();
+    var expectedClusterConfig = new ClusterConfig(cluster);
     expectedClusterConfig.verify(locator);
   }
 
   @Test
   public void testUndeploy() throws Exception {
     // set up the locator/servers
-    MemberVM locator = lsRule.startLocatorVM(0, locatorProps);
+    var locator = lsRule.startLocatorVM(0, locatorProps);
     serverProps.setProperty(GROUPS, "group1");
-    MemberVM server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
+    var server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
     serverProps.setProperty(GROUPS, "group2");
-    MemberVM server2 = lsRule.startServerVM(2, serverProps, locator.getPort());
+    var server2 = lsRule.startServerVM(2, serverProps, locator.getPort());
     serverProps.setProperty(GROUPS, "group1,group2");
     serverProps.setProperty(LOG_LEVEL, "info");
-    MemberVM server3 = lsRule.startServerVM(3, serverProps, locator.getPort());
+    var server3 = lsRule.startServerVM(3, serverProps, locator.getPort());
 
-    ConfigGroup cluster = new ConfigGroup("cluster");
-    ConfigGroup group1 = new ConfigGroup("group1");
-    ConfigGroup group2 = new ConfigGroup("group2");
-    ClusterConfig expectedClusterConfig = new ClusterConfig(cluster);
-    ClusterConfig server1Config = new ClusterConfig(cluster, group1);
-    ClusterConfig server2Config = new ClusterConfig(cluster, group2);
-    ClusterConfig server3Config = new ClusterConfig(cluster, group1, group2);
+    var cluster = new ConfigGroup("cluster");
+    var group1 = new ConfigGroup("group1");
+    var group2 = new ConfigGroup("group2");
+    var expectedClusterConfig = new ClusterConfig(cluster);
+    var server1Config = new ClusterConfig(cluster, group1);
+    var server2Config = new ClusterConfig(cluster, group2);
+    var server3Config = new ClusterConfig(cluster, group1, group2);
 
     gfshConnector.connect(locator);
     assertThat(gfshConnector.isConnected()).isTrue();
@@ -226,7 +224,7 @@ public class ClusterConfigDeployJarDUnitTest extends ClusterConfigTestBase {
      * cluster_config/group2/group1.jar on locator) whereas server3 (also in group1,group2) does not
      * have this jar.
      */
-    ClusterConfig weirdServer3Config =
+    var weirdServer3Config =
         new ClusterConfig(cluster, group1, new ConfigGroup(group2).removeJar("group1.jar"));
 
     server3Config.verify(locator);
@@ -238,22 +236,22 @@ public class ClusterConfigDeployJarDUnitTest extends ClusterConfigTestBase {
   @Test
   public void testUndeployWithServerBounce() throws Exception {
     // set up the locator/servers
-    MemberVM locator = lsRule.startLocatorVM(0, locatorProps);
+    var locator = lsRule.startLocatorVM(0, locatorProps);
     serverProps.setProperty(GROUPS, "group1");
-    MemberVM server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
+    var server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
     serverProps.setProperty(GROUPS, "group2");
-    MemberVM server2 = lsRule.startServerVM(2, serverProps, locator.getPort());
+    var server2 = lsRule.startServerVM(2, serverProps, locator.getPort());
     serverProps.setProperty(GROUPS, "group1,group2");
     serverProps.setProperty(LOG_LEVEL, "info");
-    MemberVM server3 = lsRule.startServerVM(3, serverProps, locator.getPort());
+    var server3 = lsRule.startServerVM(3, serverProps, locator.getPort());
 
-    ConfigGroup cluster = new ConfigGroup("cluster");
-    ConfigGroup group1 = new ConfigGroup("group1");
-    ConfigGroup group2 = new ConfigGroup("group2");
-    ClusterConfig expectedClusterConfig = new ClusterConfig(cluster);
-    ClusterConfig server1Config = new ClusterConfig(cluster, group1);
-    ClusterConfig server2Config = new ClusterConfig(cluster, group2);
-    ClusterConfig server3Config = new ClusterConfig(cluster, group1, group2);
+    var cluster = new ConfigGroup("cluster");
+    var group1 = new ConfigGroup("group1");
+    var group2 = new ConfigGroup("group2");
+    var expectedClusterConfig = new ClusterConfig(cluster);
+    var server1Config = new ClusterConfig(cluster, group1);
+    var server2Config = new ClusterConfig(cluster, group2);
+    var server3Config = new ClusterConfig(cluster, group1, group2);
 
     gfshConnector.connect(locator);
     assertThat(gfshConnector.isConnected()).isTrue();
@@ -300,7 +298,7 @@ public class ClusterConfigDeployJarDUnitTest extends ClusterConfigTestBase {
      * cluster_config/group2/group1.jar on locator) whereas server3 (also in group1,group2) does not
      * have this jar.
      */
-    ClusterConfig weirdServer3Config =
+    var weirdServer3Config =
         new ClusterConfig(cluster, group1, new ConfigGroup(group2).removeJar("group1.jar"));
 
     server3Config.verify(locator);

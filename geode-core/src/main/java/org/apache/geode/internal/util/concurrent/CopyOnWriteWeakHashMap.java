@@ -47,21 +47,21 @@ public class CopyOnWriteWeakHashMap<K, V> extends AbstractMap<K, V> {
 
   @Override
   public synchronized V put(K key, V value) {
-    WeakHashMap<K, V> tmp = new WeakHashMap<>(map);
-    V result = tmp.put(key, value);
+    var tmp = new WeakHashMap<K, V>(map);
+    var result = tmp.put(key, value);
     map = Collections.unmodifiableMap(tmp);
     return result;
   }
 
   @Override
   public synchronized V putIfAbsent(K key, V value) {
-    V oldValue = map.get(key);
+    var oldValue = map.get(key);
     if (oldValue != null) {
       return oldValue;
     }
 
-    WeakHashMap<K, V> tmp = new WeakHashMap<>(map);
-    V result = tmp.put(key, value);
+    var tmp = new WeakHashMap<K, V>(map);
+    var result = tmp.put(key, value);
     map = Collections.unmodifiableMap(tmp);
     return result;
   }
@@ -70,7 +70,7 @@ public class CopyOnWriteWeakHashMap<K, V> extends AbstractMap<K, V> {
 
   @Override
   public synchronized void putAll(Map<? extends K, ? extends V> m) {
-    WeakHashMap<K, V> tmp = new WeakHashMap<>(map);
+    var tmp = new WeakHashMap<K, V>(map);
     tmp.putAll(m);
     map = Collections.unmodifiableMap(tmp);
   }
@@ -79,8 +79,8 @@ public class CopyOnWriteWeakHashMap<K, V> extends AbstractMap<K, V> {
 
   @Override
   public synchronized V remove(Object key) {
-    WeakHashMap<K, V> tmp = new WeakHashMap<>(map);
-    V result = tmp.remove(key);
+    var tmp = new WeakHashMap<K, V>(map);
+    var result = tmp.remove(key);
     map = Collections.unmodifiableMap(tmp);
     return result;
   }

@@ -36,7 +36,7 @@ public class RegionOperationBenchmark {
 
     @Setup
     public void setup() {
-      Cache cache = new CacheFactory().set("mcast-port", "0").set("locators", "").create();
+      var cache = new CacheFactory().set("mcast-port", "0").set("locators", "").create();
 
       region = cache.createRegionFactory(RegionShortcut.REPLICATE).create("region");
     }

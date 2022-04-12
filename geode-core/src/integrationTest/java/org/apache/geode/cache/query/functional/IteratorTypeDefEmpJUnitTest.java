@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.data.Address;
@@ -50,7 +49,7 @@ public class IteratorTypeDefEmpJUnitTest {
     add1.add(new Address("Hp4 9yf", "Apsleyss"));
     add2.add(new Address("Hp3 8DZ", "Hemel"));
     add2.add(new Address("Hp4 8DZ", "Hemel"));
-    Region region = CacheUtils.createRegion("employees", Employee.class);
+    var region = CacheUtils.createRegion("employees", Employee.class);
     region.put("1", new Manager("aaa", 27, 270, "QA", 1800, add1, 2701));
     region.put("2", new Manager("bbb", 28, 280, "QA", 1900, add2, 2801));
   }
@@ -62,14 +61,14 @@ public class IteratorTypeDefEmpJUnitTest {
 
   @Test
   public void testIteratorDef() throws Exception {
-    String[] queries = {"IMPORT org.apache.geode.cache.\"query\".data.Manager;"
+    var queries = new String[] {"IMPORT org.apache.geode.cache.\"query\".data.Manager;"
         + "SELECT DISTINCT manager_id FROM (set<Manager>)" + SEPARATOR
         + "employees where empId > 0"};
     Query q = null;
-    for (final String query : queries) {
+    for (final var query : queries) {
       try {
         q = CacheUtils.getQueryService().newQuery(query);
-        Object r = q.execute();
+        var r = q.execute();
       } catch (Exception e) {
         e.printStackTrace();
         fail(q.getQueryString());

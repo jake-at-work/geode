@@ -33,9 +33,9 @@ public class DeltaSessionDestroyAttributeEventIntegrationTest
   @Test
   public void toDataAndFromDataShouldWorkProperly()
       throws IOException, IllegalAccessException, ClassNotFoundException, InstantiationException {
-    DeltaSessionDestroyAttributeEvent originalEvent =
+    var originalEvent =
         new DeltaSessionDestroyAttributeEvent(FIRST_ATTRIBUTE_KEY);
-    DeltaSessionDestroyAttributeEvent deserializeEvent =
+    var deserializeEvent =
         (DeltaSessionDestroyAttributeEvent) serializeDeserializeObject(originalEvent);
 
     assertThat(deserializeEvent.getAttributeName()).isEqualTo(originalEvent.getAttributeName());
@@ -46,11 +46,11 @@ public class DeltaSessionDestroyAttributeEventIntegrationTest
   public void applyShouldDestroyTheSessionAttributeFromTheLocalCacheEntry(
       RegionShortcut regionShortcut) {
     parameterizedSetUp(regionShortcut);
-    DeltaSessionDestroyAttributeEvent destroyEvent =
+    var destroyEvent =
         new DeltaSessionDestroyAttributeEvent(FIRST_ATTRIBUTE_KEY);
 
     // Apply event and verify local session entry is modified.
-    DeltaSession deltaSessionInterface = (DeltaSession) httpSessionRegion.get(TEST_SESSION_ID);
+    var deltaSessionInterface = (DeltaSession) httpSessionRegion.get(TEST_SESSION_ID);
     destroyEvent.apply(deltaSessionInterface);
     assertThat((DeltaSession) httpSessionRegion.get(TEST_SESSION_ID)
         .getAttribute(FIRST_ATTRIBUTE_KEY)).isNull();

@@ -29,11 +29,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.MockClock;
 import io.micrometer.core.instrument.Tag;
-import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.Test;
@@ -58,13 +56,13 @@ public class LegacyStatTimerTest {
         .description("my meter description")
         .register(registry);
 
-    Timer underlyingTimer = registry.find("my.meter.name").timer();
+    var underlyingTimer = registry.find("my.meter.name").timer();
 
     assertThat(underlyingTimer)
         .as("underlying timer")
         .isNotNull();
 
-    Meter.Id underlyingTimerId = underlyingTimer.getId();
+    var underlyingTimerId = underlyingTimer.getId();
 
     assertThat(underlyingTimerId)
         .as("underlying timer ID")
@@ -91,10 +89,10 @@ public class LegacyStatTimerTest {
 
   @Test
   public void hasSameIdAsUnderlyingTimer() {
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .register(registry);
 
-    Timer underlyingTimer = registry.find("my.meter.name").timer();
+    var underlyingTimer = registry.find("my.meter.name").timer();
 
     assertThat(legacyStatTimer.getId())
         .isSameAs(underlyingTimer.getId());
@@ -102,10 +100,10 @@ public class LegacyStatTimerTest {
 
   @Test
   public void hasSameBaseTimeUnitAsUnderlyingTimer() {
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .register(registry);
 
-    Timer underlyingTimer = registry.find("my.meter.name").timer();
+    var underlyingTimer = registry.find("my.meter.name").timer();
 
     assertThat(legacyStatTimer.baseTimeUnit())
         .isEqualTo(underlyingTimer.baseTimeUnit());
@@ -113,10 +111,10 @@ public class LegacyStatTimerTest {
 
   @Test
   public void recordDuration_recordsToUnderlyingTimer() {
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .register(registry);
 
-    Timer underlyingTimer = registry.find("my.meter.name").timer();
+    var underlyingTimer = registry.find("my.meter.name").timer();
 
     legacyStatTimer.record(17, SECONDS);
     legacyStatTimer.record(5, SECONDS);
@@ -132,15 +130,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void recordRunnable_recordsToUnderlyingTimer() {
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .register(registry);
 
-    Duration duration = Duration.ofNanos(543_234_234_234L);
-    Runnable timeConsumingRunnable = () -> clock.add(duration);
+    var duration = Duration.ofNanos(543_234_234_234L);
+    var timeConsumingRunnable = (Runnable) () -> clock.add(duration);
 
     legacyStatTimer.record(timeConsumingRunnable);
 
-    Timer underlyingTimer = registry.find("my.meter.name").timer();
+    var underlyingTimer = registry.find("my.meter.name").timer();
 
     assertThat(underlyingTimer.count())
         .as("underlying timer count")
@@ -153,18 +151,18 @@ public class LegacyStatTimerTest {
 
   @Test
   public void recordSupplier_recordsToUnderlyingTimer() {
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .register(registry);
 
-    Duration duration = Duration.ofNanos(543_234_234_234L);
-    Supplier<Void> timeConsumingSupplier = () -> {
+    var duration = Duration.ofNanos(543_234_234_234L);
+    var timeConsumingSupplier = (Supplier<Void>) () -> {
       clock.add(duration);
       return null;
     };
 
     legacyStatTimer.record(timeConsumingSupplier);
 
-    Timer underlyingTimer = registry.find("my.meter.name").timer();
+    var underlyingTimer = registry.find("my.meter.name").timer();
 
     assertThat(underlyingTimer.count())
         .as("underlying timer count")
@@ -177,18 +175,18 @@ public class LegacyStatTimerTest {
 
   @Test
   public void recordCallable_recordsToUnderlyingTimer() throws Exception {
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .register(registry);
 
-    Duration duration = Duration.ofNanos(543_234_234_234L);
-    Callable<Void> timeConsumingCallable = () -> {
+    var duration = Duration.ofNanos(543_234_234_234L);
+    var timeConsumingCallable = (Callable<Void>) () -> {
       clock.add(duration);
       return null;
     };
 
     legacyStatTimer.recordCallable(timeConsumingCallable);
 
-    Timer underlyingTimer = registry.find("my.meter.name").timer();
+    var underlyingTimer = registry.find("my.meter.name").timer();
 
     assertThat(underlyingTimer.count())
         .as("underlying timer count")
@@ -201,10 +199,10 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleCountStat_recordDuration_incrementsCountStat() {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleCountStatistic(statistics, countStatId)
         .register(registry);
 
@@ -215,15 +213,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleCountStat_recordRunnable_incrementsCountStat() {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleCountStatistic(statistics, countStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(234L);
-    Runnable timeConsumingRunnable = () -> clock.add(duration);
+    var duration = Duration.ofNanos(234L);
+    var timeConsumingRunnable = (Runnable) () -> clock.add(duration);
 
     legacyStatTimer.record(timeConsumingRunnable);
 
@@ -232,15 +230,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleCountStat_recordSupplier_incrementsCountStat() {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleCountStatistic(statistics, countStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(17L);
-    Supplier<Void> timeConsumingSupplier = () -> {
+    var duration = Duration.ofNanos(17L);
+    var timeConsumingSupplier = (Supplier<Void>) () -> {
       clock.add(duration);
       return null;
     };
@@ -252,15 +250,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleCountStat_recordCallable_incrementsCountStat() throws Exception {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleCountStatistic(statistics, countStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(543_234_234_234L);
-    Callable<Void> timeConsumingCallable = () -> {
+    var duration = Duration.ofNanos(543_234_234_234L);
+    var timeConsumingCallable = (Callable<Void>) () -> {
       clock.add(duration);
       return null;
     };
@@ -272,11 +270,11 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleCountStat_count_returnsCountStatAsLong() {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
     when(statistics.getDouble(countStatId)).thenReturn(92.0);
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleCountStatistic(statistics, countStatId)
         .register(registry);
 
@@ -285,10 +283,10 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleTimeStat_recordDuration_addsNanosToTimeStat() {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleTimeStatistic(statistics, timeStatId)
         .register(registry);
 
@@ -299,15 +297,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleTimeStat_recordRunnable_addsNanosToTimeStat() {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleTimeStatistic(statistics, timeStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(543_234_234_234L);
-    Runnable timeConsumingRunnable = () -> clock.add(duration);
+    var duration = Duration.ofNanos(543_234_234_234L);
+    var timeConsumingRunnable = (Runnable) () -> clock.add(duration);
 
     legacyStatTimer.record(timeConsumingRunnable);
 
@@ -316,15 +314,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleTimeStat_recordSupplier_addsNanosToTimeStat() {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleTimeStatistic(statistics, timeStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(222L);
-    Supplier<Void> timeConsumingSupplier = () -> {
+    var duration = Duration.ofNanos(222L);
+    var timeConsumingSupplier = (Supplier<Void>) () -> {
       clock.add(duration);
       return null;
     };
@@ -336,15 +334,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleTimeStat_recordCallable_addsNanosToTimeStat() throws Exception {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleTimeStatistic(statistics, timeStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(222L);
-    Callable<Void> timeConsumingCallable = () -> {
+    var duration = Duration.ofNanos(222L);
+    var timeConsumingCallable = (Callable<Void>) () -> {
       clock.add(duration);
       return null;
     };
@@ -356,11 +354,11 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withDoubleTimeStat_totalTime_returnsTimeStatInGivenUnits() {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
     when(statistics.getDouble(timeStatId)).thenReturn(92_123.0);
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .doubleTimeStatistic(statistics, timeStatId)
         .register(registry);
 
@@ -369,10 +367,10 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongCountStat_recordDuration_incrementsCountStat() {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longCountStatistic(statistics, countStatId)
         .register(registry);
 
@@ -383,15 +381,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongCountStat_recordRunnable_incrementsCountStat() {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longCountStatistic(statistics, countStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(234L);
-    Runnable timeConsumingRunnable = () -> clock.add(duration);
+    var duration = Duration.ofNanos(234L);
+    var timeConsumingRunnable = (Runnable) () -> clock.add(duration);
 
     legacyStatTimer.record(timeConsumingRunnable);
 
@@ -400,15 +398,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongCountStat_recordSupplier_incrementsCountStat() {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longCountStatistic(statistics, countStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(17L);
-    Supplier<Void> timeConsumingSupplier = () -> {
+    var duration = Duration.ofNanos(17L);
+    var timeConsumingSupplier = (Supplier<Void>) () -> {
       clock.add(duration);
       return null;
     };
@@ -420,15 +418,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongCountStat_recordCallable_incrementsCountStat() throws Exception {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longCountStatistic(statistics, countStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(543_234_234_234L);
-    Callable<Void> timeConsumingCallable = () -> {
+    var duration = Duration.ofNanos(543_234_234_234L);
+    var timeConsumingCallable = (Callable<Void>) () -> {
       clock.add(duration);
       return null;
     };
@@ -440,11 +438,11 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongCountStat_count_returnsCountStat() {
-    Statistics statistics = mock(Statistics.class);
-    int countStatId = 18;
+    var statistics = mock(Statistics.class);
+    var countStatId = 18;
     when(statistics.getLong(countStatId)).thenReturn(123_456_789_000L);
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longCountStatistic(statistics, countStatId)
         .register(registry);
 
@@ -453,10 +451,10 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongTimeStat_recordDuration_addsNanosToTimeStat() {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longTimeStatistic(statistics, timeStatId)
         .register(registry);
 
@@ -467,15 +465,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongTimeStat_recordRunnable_addsNanosToTimeStat() {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longTimeStatistic(statistics, timeStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(543_234_234_234L);
-    Runnable timeConsumingRunnable = () -> clock.add(duration);
+    var duration = Duration.ofNanos(543_234_234_234L);
+    var timeConsumingRunnable = (Runnable) () -> clock.add(duration);
 
     legacyStatTimer.record(timeConsumingRunnable);
 
@@ -484,15 +482,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongTimeStat_recordSupplier_addsNanosToTimeStat() {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longTimeStatistic(statistics, timeStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(222L);
-    Supplier<Void> timeConsumingSupplier = () -> {
+    var duration = Duration.ofNanos(222L);
+    var timeConsumingSupplier = (Supplier<Void>) () -> {
       clock.add(duration);
       return null;
     };
@@ -504,15 +502,15 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongTimeStat_recordCallable_addsNanosToTimeStat() throws Exception {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longTimeStatistic(statistics, timeStatId)
         .register(registry);
 
-    Duration duration = Duration.ofNanos(222L);
-    Callable<Void> timeConsumingCallable = () -> {
+    var duration = Duration.ofNanos(222L);
+    var timeConsumingCallable = (Callable<Void>) () -> {
       clock.add(duration);
       return null;
     };
@@ -524,11 +522,11 @@ public class LegacyStatTimerTest {
 
   @Test
   public void withLongTimeStat_totalTime_returnsTimeStatInGivenUnits() {
-    Statistics statistics = mock(Statistics.class);
-    int timeStatId = 18;
+    var statistics = mock(Statistics.class);
+    var timeStatId = 18;
     when(statistics.getLong(timeStatId)).thenReturn(987_654_321_000L);
 
-    Timer legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
+    var legacyStatTimer = LegacyStatTimer.builder("my.meter.name")
         .longTimeStatistic(statistics, timeStatId)
         .register(registry);
 

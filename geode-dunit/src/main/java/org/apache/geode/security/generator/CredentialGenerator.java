@@ -261,7 +261,7 @@ public abstract class CredentialGenerator {
      */
     public static List getAll() {
       final List codes = new ArrayList();
-      for (final Object o : CODE_NAME_MAP.values()) {
+      for (final var o : CODE_NAME_MAP.values()) {
         codes.add(o);
       }
       return codes;
@@ -299,7 +299,7 @@ public abstract class CredentialGenerator {
       if (!(obj instanceof ClassCode)) {
         return false;
       }
-      final ClassCode other = (ClassCode) obj;
+      final var other = (ClassCode) obj;
       return other.ordinal == ordinal;
     }
 

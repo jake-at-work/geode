@@ -24,18 +24,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.UpdateOperation.UpdateMessage;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.Invoke;
@@ -79,18 +75,18 @@ public class InterruptClientServerDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testClientPutWithInterrupt() throws Throwable {
     IgnoredException.addIgnoredException("InterruptedException");
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
 
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     createRegionAndServer(vm0, port);
 
     // put some data in vm0
     createData(vm0, 0, 10, "a");
 
-    final SerializableCallable interruptTask = new SerializableCallable() {
+    final var interruptTask = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         puttingThread.interrupt();
@@ -124,14 +120,14 @@ public class InterruptClientServerDUnitTest extends JUnit4CacheTestCase {
     createRegion(vm1);
     createClientRegion(vm2, port);
 
-    SerializableCallable doPuts = new SerializableCallable() {
+    var doPuts = new SerializableCallable() {
 
       @Override
       public Object call() throws Exception {
         puttingThread = Thread.currentThread();
-        Region<Object, Object> region = getCache().getRegion("region");
+        var region = getCache().getRegion("region");
         long value = 0;
-        long end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(MAX_WAIT);
+        var end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(MAX_WAIT);
         while (!Thread.currentThread().isInterrupted()) {
           region.put(0, value);
           if (System.nanoTime() > end) {
@@ -142,7 +138,7 @@ public class InterruptClientServerDUnitTest extends JUnit4CacheTestCase {
       }
     };
 
-    AsyncInvocation async0 = vm2.invokeAsync(doPuts);
+    var async0 = vm2.invokeAsync(doPuts);
 
     vm1.invoke(new SerializableCallable() {
       @Override
@@ -171,8 +167,8 @@ public class InterruptClientServerDUnitTest extends JUnit4CacheTestCase {
 
     async0.getResult();
 
-    Object value0 = checkCacheAndGetValue(vm0);
-    Object value1 = checkCacheAndGetValue(vm1);
+    var value0 = checkCacheAndGetValue(vm0);
+    var value1 = checkCacheAndGetValue(vm1);
 
     assertEquals(value0, value1);
 
@@ -183,10 +179,10 @@ public class InterruptClientServerDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         disconnectFromDS();
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer("localhost", port);
         cf.setPoolReadTimeout(60 * 2 * 1000);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
         return null;
       }
@@ -199,7 +195,7 @@ public class InterruptClientServerDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         getCache().createRegionFactory(RegionShortcut.REPLICATE).create("region");
         Cache cache = getCache();
-        CacheServer server = cache.addCacheServer();
+        var server = cache.addCacheServer();
         server.setPort(port);
         server.start();
         return null;
@@ -213,7 +209,7 @@ public class InterruptClientServerDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         assertFalse(basicGetCache().isClosed());
-        Region<Object, Object> region = getCache().getRegion("region");
+        var region = getCache().getRegion("region");
         return region.get(0);
       }
     });
@@ -235,8 +231,8 @@ public class InterruptClientServerDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Region<Object, Object> region = getCache().getRegion("region");
-        for (int i = start; i < end; i++) {
+        var region = getCache().getRegion("region");
+        for (var i = start; i < end; i++) {
           region.put(i, value);
         }
         return null;

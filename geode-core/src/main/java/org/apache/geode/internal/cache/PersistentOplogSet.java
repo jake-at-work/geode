@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,25 +107,25 @@ public class PersistentOplogSet implements OplogSet {
 
   Oplog[] getAllOplogs() {
     synchronized (getOplogIdToOplog()) {
-      int rollNum = getOplogIdToOplog().size();
-      int inactiveNum = inactiveOplogs.size();
-      int drfOnlyNum = drfOnlyOplogs.size();
-      int num = rollNum + inactiveNum + drfOnlyNum + 1;
-      Oplog[] oplogs = new Oplog[num];
+      var rollNum = getOplogIdToOplog().size();
+      var inactiveNum = inactiveOplogs.size();
+      var drfOnlyNum = drfOnlyOplogs.size();
+      var num = rollNum + inactiveNum + drfOnlyNum + 1;
+      var oplogs = new Oplog[num];
       oplogs[0] = getChild();
 
-      Iterator<Oplog> oplogIterator = getOplogIdToOplog().values().iterator();
-      for (int i = 1; i <= rollNum; i++) {
+      var oplogIterator = getOplogIdToOplog().values().iterator();
+      for (var i = 1; i <= rollNum; i++) {
         oplogs[i] = oplogIterator.next();
       }
 
       oplogIterator = inactiveOplogs.values().iterator();
-      for (int i = 1; i <= inactiveNum; i++) {
+      for (var i = 1; i <= inactiveNum; i++) {
         oplogs[i + rollNum] = oplogIterator.next();
       }
 
       oplogIterator = drfOnlyOplogs.values().iterator();
-      for (int i = 1; i <= drfOnlyNum; i++) {
+      for (var i = 1; i <= drfOnlyNum; i++) {
         oplogs[i + rollNum + inactiveNum] = oplogIterator.next();
       }
 
@@ -144,7 +143,7 @@ public class PersistentOplogSet implements OplogSet {
     TreeSet<Oplog> result = new TreeSet<>(
         (Comparator) (arg0, arg1) -> Long
             .signum(((Oplog) arg1).getOplogId() - ((Oplog) arg0).getOplogId()));
-    for (Oplog oplog : getAllOplogs()) {
+    for (var oplog : getAllOplogs()) {
       if (oplog != null) {
         result.add(oplog);
       }
@@ -160,13 +159,13 @@ public class PersistentOplogSet implements OplogSet {
    */
   @Override
   public Oplog getChild(long id) {
-    Oplog localOplog = child;
+    var localOplog = child;
     if (localOplog != null && id == localOplog.getOplogId()) {
       return localOplog;
     }
 
     synchronized (getOplogIdToOplog()) {
-      Oplog result = getOplogIdToOplog().get(id);
+      var result = getOplogIdToOplog().get(id);
       if (result == null) {
         result = inactiveOplogs.get(id);
       }
@@ -195,7 +194,7 @@ public class PersistentOplogSet implements OplogSet {
   }
 
   public void forceRoll(DiskRegion dr) {
-    Oplog child = getChild();
+    var child = getChild();
     if (child != null) {
       child.forceRolling(dr);
     }
@@ -204,12 +203,12 @@ public class PersistentOplogSet implements OplogSet {
   Map<File, DirectoryHolder> findFiles(String partialFileName) {
     dirCounter = 0;
     Map<File, DirectoryHolder> backupFiles = new HashMap<>();
-    FilenameFilter backupFileFilter = getFileNameFilter(partialFileName);
+    var backupFileFilter = getFileNameFilter(partialFileName);
 
-    for (DirectoryHolder dh : parent.directories) {
-      File[] backupList = dh.getDir().listFiles(backupFileFilter);
+    for (var dh : parent.directories) {
+      var backupList = dh.getDir().listFiles(backupFileFilter);
       if (backupList != null) {
-        for (File f : backupList) {
+        for (var f : backupList) {
           backupFiles.put(f, dh);
         }
       }
@@ -223,17 +222,17 @@ public class PersistentOplogSet implements OplogSet {
   }
 
   void createOplogs(boolean needsOplogs, Map<File, DirectoryHolder> backupFiles) {
-    LongOpenHashSet foundCrfs = new LongOpenHashSet();
-    LongOpenHashSet foundDrfs = new LongOpenHashSet();
+    var foundCrfs = new LongOpenHashSet();
+    var foundDrfs = new LongOpenHashSet();
 
-    for (Map.Entry<File, DirectoryHolder> entry : backupFiles.entrySet()) {
-      File file = entry.getKey();
-      String absolutePath = file.getAbsolutePath();
+    for (var entry : backupFiles.entrySet()) {
+      var file = entry.getKey();
+      var absolutePath = file.getAbsolutePath();
 
-      int underscorePosition = absolutePath.lastIndexOf('_');
-      int pointPosition = absolutePath.lastIndexOf('.');
-      String oplogIdString = absolutePath.substring(underscorePosition + 1, pointPosition);
-      long oplogId = Long.parseLong(oplogIdString);
+      var underscorePosition = absolutePath.lastIndexOf('_');
+      var pointPosition = absolutePath.lastIndexOf('.');
+      var oplogIdString = absolutePath.substring(underscorePosition + 1, pointPosition);
+      var oplogId = Long.parseLong(oplogIdString);
 
       maxRecoveredOplogId = Math.max(maxRecoveredOplogId, oplogId);
 
@@ -244,8 +243,8 @@ public class PersistentOplogSet implements OplogSet {
         if (!isCrfOplogIdPresent(oplogId)) {
           deleteFileOnRecovery(file);
           try {
-            String krfFileName = Oplog.getKRFFilenameFromCRFFilename(file.getAbsolutePath());
-            File krfFile = new File(krfFileName);
+            var krfFileName = Oplog.getKRFFilenameFromCRFFilename(file.getAbsolutePath());
+            var krfFile = new File(krfFileName);
             deleteFileOnRecovery(krfFile);
           } catch (Exception ignore) {
             // ignore
@@ -262,7 +261,7 @@ public class PersistentOplogSet implements OplogSet {
         }
       }
 
-      Oplog oplog = getChild(oplogId);
+      var oplog = getChild(oplogId);
       if (oplog == null) {
         oplog = new Oplog(oplogId, this);
         addRecoveredOplog(oplog);
@@ -325,7 +324,7 @@ public class PersistentOplogSet implements OplogSet {
     } else {
       parent.getStats().incCompactableOplogs(1);
       Long key = oplog.getOplogId();
-      int inactivePromotedCount = 0;
+      var inactivePromotedCount = 0;
 
       synchronized (getOplogIdToOplog()) {
         if (inactiveOplogs.remove(key) != null) {
@@ -360,7 +359,7 @@ public class PersistentOplogSet implements OplogSet {
         return;
       }
 
-      for (DiskRecoveryStore drs : currentRecoveryMap.values()) {
+      for (var drs : currentRecoveryMap.values()) {
         // Call prepare early to fix bug 41119.
         drs.getDiskRegionView().prepareForRecovery();
       }
@@ -372,7 +371,7 @@ public class PersistentOplogSet implements OplogSet {
         updateOplogEntryId(parent.getDiskInitFile().getMaxRecoveredClearEntryId());
       }
 
-      long start = parent.getStats().startRecovery();
+      var start = parent.getStats().startRecovery();
       EntryLogger.setSource(parent.getDiskStoreID(), "recovery");
 
       long byteCount = 0;
@@ -387,8 +386,8 @@ public class PersistentOplogSet implements OplogSet {
           prBuckets = new HashMap<>();
         }
 
-        for (DiskRecoveryStore drs : currentRecoveryMap.values()) {
-          for (Oplog oplog : getAllOplogs()) {
+        for (var drs : currentRecoveryMap.values()) {
+          for (var oplog : getAllOplogs()) {
             if (oplog != null) {
               // Need to do this AFTER recovery to protect from concurrent compactions
               // trying to remove the oplogs.
@@ -401,9 +400,9 @@ public class PersistentOplogSet implements OplogSet {
 
           if (parent.isValidating()) {
             if (drs instanceof ValidatingDiskRegion) {
-              ValidatingDiskRegion vdr = (ValidatingDiskRegion) drs;
+              var vdr = (ValidatingDiskRegion) drs;
               if (vdr.isBucket()) {
-                String prName = vdr.getPrName();
+                var prName = vdr.getPrName();
                 if (prSizes.containsKey(prName)) {
                   int oldSize = prSizes.get(prName);
                   oldSize += vdr.size();
@@ -424,7 +423,7 @@ public class PersistentOplogSet implements OplogSet {
         }
 
         if (parent.isValidating()) {
-          for (Map.Entry<String, Integer> me : prSizes.entrySet()) {
+          for (var me : prSizes.entrySet()) {
             parent.incLiveEntryCount(me.getValue());
             out.println(me.getKey() + " entryCount=" + me.getValue() + " bucketCount="
                 + prBuckets.get(me.getKey()));
@@ -440,8 +439,8 @@ public class PersistentOplogSet implements OplogSet {
   }
 
   private long recoverOplogs(long byteCount) {
-    OplogEntryIdSet deletedIds = new OplogEntryIdSet();
-    TreeSet<Oplog> oplogSet = getSortedOplogs();
+    var deletedIds = new OplogEntryIdSet();
+    var oplogSet = getSortedOplogs();
 
     if (!getAlreadyRecoveredOnce().get()) {
       if (getChild() != null && !getChild().hasBeenUsed()) {
@@ -455,11 +454,11 @@ public class PersistentOplogSet implements OplogSet {
     Set<Oplog> oplogsNeedingValueRecovery = new HashSet<>();
 
     if (!oplogSet.isEmpty()) {
-      long startOpLogRecovery = System.currentTimeMillis();
+      var startOpLogRecovery = System.currentTimeMillis();
 
       // first figure out all entries that have been destroyed
-      boolean latestOplog = true;
-      for (Oplog oplog : oplogSet) {
+      var latestOplog = true;
+      for (var oplog : oplogSet) {
         byteCount += oplog.recoverDrf(deletedIds, getAlreadyRecoveredOnce().get(), latestOplog);
         latestOplog = false;
         if (!getAlreadyRecoveredOnce().get()) {
@@ -471,9 +470,9 @@ public class PersistentOplogSet implements OplogSet {
 
       // now figure out live entries
       latestOplog = true;
-      for (Oplog oplog : oplogSet) {
-        long startOpLogRead = parent.getStats().startOplogRead();
-        long bytesRead = oplog.recoverCrf(deletedIds, recoverValues(), recoverValuesSync(),
+      for (var oplog : oplogSet) {
+        var startOpLogRead = parent.getStats().startOplogRead();
+        var bytesRead = oplog.recoverCrf(deletedIds, recoverValues(), recoverValuesSync(),
             getAlreadyRecoveredOnce().get(), oplogsNeedingValueRecovery, latestOplog);
         latestOplog = false;
         if (!getAlreadyRecoveredOnce().get()) {
@@ -484,28 +483,28 @@ public class PersistentOplogSet implements OplogSet {
 
         // Callback to the disk regions to indicate the oplog is recovered
         // Used for offline export
-        for (DiskRecoveryStore drs : currentRecoveryMap.values()) {
+        for (var drs : currentRecoveryMap.values()) {
           drs.getDiskRegionView().oplogRecovered(oplog.oplogId);
         }
       }
 
-      long endOpLogRecovery = System.currentTimeMillis();
-      long elapsed = endOpLogRecovery - startOpLogRecovery;
+      var endOpLogRecovery = System.currentTimeMillis();
+      var elapsed = endOpLogRecovery - startOpLogRecovery;
       logger.info("recovery oplog load took {} ms", elapsed);
     }
 
     if (!parent.isOfflineCompacting()) {
-      long startRegionInit = System.currentTimeMillis();
+      var startRegionInit = System.currentTimeMillis();
 
       // create the oplogs now so that loadRegionData can have them available
       // Create an array of Oplogs so that we are able to add it in a single shot
       // to the map
-      for (DiskRecoveryStore drs : currentRecoveryMap.values()) {
+      for (var drs : currentRecoveryMap.values()) {
         drs.getDiskRegionView().initRecoveredEntryCount();
       }
 
       if (!getAlreadyRecoveredOnce().get()) {
-        for (Oplog oplog : oplogSet) {
+        for (var oplog : oplogSet) {
           if (oplog != getChild()) {
             oplog.initAfterRecovery(parent.isOffline());
           }
@@ -523,7 +522,7 @@ public class PersistentOplogSet implements OplogSet {
 
         if (!getAlreadyRecoveredOnce().get()) {
           // Create krfs for oplogs that are missing them
-          for (Oplog oplog : oplogSet) {
+          for (var oplog : oplogSet) {
             if (oplog.needsKrf()) {
               oplog.createKrfAsync();
             }
@@ -531,7 +530,7 @@ public class PersistentOplogSet implements OplogSet {
           parent.scheduleCompaction();
         }
 
-        long endRegionInit = System.currentTimeMillis();
+        var endRegionInit = System.currentTimeMillis();
         logger.info("recovery region initialization took {} ms", endRegionInit - startRegionInit);
       }
     }
@@ -552,8 +551,8 @@ public class PersistentOplogSet implements OplogSet {
     }
 
     if (!oplogSet.isEmpty()) {
-      Oplog first = oplogSet.first();
-      DirectoryHolder dh = first.getDirectoryHolder();
+      var first = oplogSet.first();
+      var dh = first.getDirectoryHolder();
       dirCounter = dh.getArrayIndex();
       dirCounter = ++dirCounter % parent.dirLength;
       // we want the first child to go in the directory after the directory
@@ -618,8 +617,8 @@ public class PersistentOplogSet implements OplogSet {
 
     DirectoryHolder selectedHolder = null;
     synchronized (parent.getDirectoryHolders()) {
-      for (int i = 0; i < parent.dirLength; ++i) {
-        DirectoryHolder dirHolder = parent.directories[dirCounter];
+      for (var i = 0; i < parent.dirLength; ++i) {
+        var dirHolder = parent.directories[dirCounter];
 
         // Increment the directory counter to next position so that next time when this operation
         // is invoked, it checks for the Directory Space in a cyclical fashion.
@@ -718,7 +717,7 @@ public class PersistentOplogSet implements OplogSet {
       }
     }
 
-    Oplog oldestLiveOplog = getOldestLiveOplog();
+    var oldestLiveOplog = getOldestLiveOplog();
     List<Oplog> toDestroy = new ArrayList<>();
 
     if (oldestLiveOplog == null) {
@@ -730,7 +729,7 @@ public class PersistentOplogSet implements OplogSet {
     } else {
       // remove all empty oplogs that are older than the oldest live one
       synchronized (getOplogIdToOplog()) {
-        for (Oplog oplog : drfOnlyOplogs.values()) {
+        for (var oplog : drfOnlyOplogs.values()) {
           if (oplog.getOplogId() < oldestLiveOplog.getOplogId()) {
             toDestroy.add(oplog);
           }
@@ -738,7 +737,7 @@ public class PersistentOplogSet implements OplogSet {
       }
     }
 
-    for (Oplog oplog : toDestroy) {
+    for (var oplog : toDestroy) {
       oplog.destroy();
     }
   }
@@ -746,14 +745,14 @@ public class PersistentOplogSet implements OplogSet {
   private Oplog getOldestLiveOplog() {
     Oplog result = null;
     synchronized (getOplogIdToOplog()) {
-      for (Oplog oplog : getOplogIdToOplog().values()) {
+      for (var oplog : getOplogIdToOplog().values()) {
         if (result == null || oplog.getOplogId() < result.getOplogId()) {
           result = oplog;
         }
       }
 
       // since the inactiveOplogs map is an LRU we need to check each one
-      for (Oplog oplog : inactiveOplogs.values()) {
+      for (var oplog : inactiveOplogs.values()) {
         if (result == null || oplog.getOplogId() < result.getOplogId()) {
           result = oplog;
         }
@@ -784,7 +783,7 @@ public class PersistentOplogSet implements OplogSet {
     List<Oplog> openlist = null;
     synchronized (getOplogIdToOplog()) {
 
-      boolean isInactive = true;
+      var isInactive = true;
       if (reopen) {
         // It is possible that 'oplog' is compactible instead of inactive. So set isInactive.
         isInactive = inactiveOplogs.get(key) != null;
@@ -795,7 +794,7 @@ public class PersistentOplogSet implements OplogSet {
       if (reopen && isInactive || oplog.isRAFOpen()) {
         if (inactiveOpenCount.incrementAndGet() > DiskStoreImpl.MAX_OPEN_INACTIVE_OPLOGS) {
           openlist = new ArrayList<>();
-          for (Oplog inactiveOplog : inactiveOplogs.values()) {
+          for (var inactiveOplog : inactiveOplogs.values()) {
             if (inactiveOplog.isRAFOpen()) {
               // add to my list
               openlist.add(inactiveOplog);
@@ -806,7 +805,7 @@ public class PersistentOplogSet implements OplogSet {
     }
 
     if (openlist != null) {
-      for (Oplog openOplog : openlist) {
+      for (var openOplog : openlist) {
         if (openOplog.closeRAF()) {
           if (inactiveOpenCount.decrementAndGet() <= DiskStoreImpl.MAX_OPEN_INACTIVE_OPLOGS) {
             break;
@@ -827,20 +826,20 @@ public class PersistentOplogSet implements OplogSet {
       oplogsToClear.addAll(getOplogIdToOplog().values());
       oplogsToClear.addAll(inactiveOplogs.values());
 
-      Oplog child = getChild();
+      var child = getChild();
       if (child != null) {
         oplogsToClear.add(child);
       }
     }
 
-    for (Oplog oplog : oplogsToClear) {
+    for (var oplog : oplogsToClear) {
       oplog.clear(diskRegion, regionVersionVector);
     }
 
     if (regionVersionVector != null) {
       parent.getDiskInitFile().clearRegion(diskRegion, regionVersionVector);
     } else {
-      long clearedOplogEntryId = getOplogEntryId();
+      var clearedOplogEntryId = getOplogEntryId();
       parent.getDiskInitFile().clearRegion(diskRegion, clearedOplogEntryId);
     }
   }
@@ -877,10 +876,10 @@ public class PersistentOplogSet implements OplogSet {
   /** closes all the oplogs except the current one * */
   private void closeOtherOplogs() {
     // get a snapshot to prevent CME
-    Oplog[] oplogs = getAllOplogs();
+    var oplogs = getAllOplogs();
 
     // if there are oplogs which are to be compacted, destroy them do not do oplogs[0]
-    for (int i = 1; i < oplogs.length; i++) {
+    for (var i = 1; i < oplogs.length; i++) {
       oplogs[i].finishKrf();
       oplogs[i].close();
       removeOplog(oplogs[i].getOplogId());
@@ -899,8 +898,8 @@ public class PersistentOplogSet implements OplogSet {
 
   Oplog removeOplog(long id, boolean deleting, Oplog olgToAddToDrfOnly) {
     Oplog oplog;
-    boolean drfOnly = false;
-    boolean inactive = false;
+    var drfOnly = false;
+    var inactive = false;
 
     synchronized (getOplogIdToOplog()) {
       Long key = id;
@@ -949,13 +948,13 @@ public class PersistentOplogSet implements OplogSet {
       oplogsToClose.addAll(inactiveOplogs.values());
       oplogsToClose.addAll(drfOnlyOplogs.values());
 
-      Oplog child = getChild();
+      var child = getChild();
       if (child != null) {
         oplogsToClose.add(child);
       }
     }
 
-    for (Oplog oplog : oplogsToClose) {
+    for (var oplog : oplogsToClose) {
       oplog.close(dr);
     }
   }
@@ -967,10 +966,10 @@ public class PersistentOplogSet implements OplogSet {
       oplogsToPrepare.addAll(inactiveOplogs.values());
     }
 
-    boolean childPreparedForClose = false;
-    long childOplogId = getChild() == null ? -1 : getChild().oplogId;
+    var childPreparedForClose = false;
+    var childOplogId = getChild() == null ? -1 : getChild().oplogId;
 
-    for (Oplog oplog : oplogsToPrepare) {
+    for (var oplog : oplogsToPrepare) {
       oplog.prepareForClose();
       if (childOplogId != -1 && oplog.oplogId == childOplogId) {
         childPreparedForClose = true;
@@ -989,20 +988,20 @@ public class PersistentOplogSet implements OplogSet {
       oplogsToDestroy.addAll(inactiveOplogs.values());
       oplogsToDestroy.addAll(drfOnlyOplogs.values());
 
-      Oplog child = getChild();
+      var child = getChild();
       if (child != null) {
         oplogsToDestroy.add(child);
       }
     }
 
-    for (Oplog oplog : oplogsToDestroy) {
+    for (var oplog : oplogsToDestroy) {
       oplog.destroy(diskRegion);
     }
   }
 
   void destroyAllOplogs() {
     // get a snapshot to prevent ConcurrentModificationException
-    for (Oplog oplog : getAllOplogs()) {
+    for (var oplog : getAllOplogs()) {
       if (oplog != null) {
         oplog.destroy();
         removeOplog(oplog.getOplogId());
@@ -1015,7 +1014,7 @@ public class PersistentOplogSet implements OplogSet {
    */
   void getCompactableOplogs(List<CompactableOplog> compactableOplogs, int max) {
     synchronized (getOplogIdToOplog()) {
-      for (Oplog oplog : getOplogIdToOplog().values()) {
+      for (var oplog : getOplogIdToOplog().values()) {
         if (compactableOplogs.size() >= max) {
           return;
         }
@@ -1027,7 +1026,7 @@ public class PersistentOplogSet implements OplogSet {
   }
 
   void scheduleForRecovery(DiskRecoveryStore diskRecoveryStore) {
-    DiskRegionView diskRegionView = diskRecoveryStore.getDiskRegionView();
+    var diskRegionView = diskRecoveryStore.getDiskRegionView();
     if (diskRegionView.isRecreated() &&
         (diskRegionView.getMyPersistentID() != null
             || diskRegionView.getMyInitializingID() != null)) {
@@ -1064,14 +1063,14 @@ public class PersistentOplogSet implements OplogSet {
     // remove any oplogs that only have a drf
     Collection<Oplog> oplogsToDestroy = new ArrayList<>();
     synchronized (getOplogIdToOplog()) {
-      for (Oplog oplog : getOplogIdToOplog().values()) {
+      for (var oplog : getOplogIdToOplog().values()) {
         if (oplog.isDrfOnly()) {
           oplogsToDestroy.add(oplog);
         }
       }
     }
 
-    for (Oplog oplog : oplogsToDestroy) {
+    for (var oplog : oplogsToDestroy) {
       oplog.destroy();
     }
 
@@ -1083,7 +1082,7 @@ public class PersistentOplogSet implements OplogSet {
   }
 
   void updateDiskRegion(AbstractDiskRegion diskRegion) {
-    for (Oplog oplog : getAllOplogs()) {
+    for (var oplog : getAllOplogs()) {
       if (oplog != null) {
         oplog.updateDiskRegion(diskRegion);
       }
@@ -1091,7 +1090,7 @@ public class PersistentOplogSet implements OplogSet {
   }
 
   void flushChild() {
-    Oplog oplog = getChild();
+    var oplog = getChild();
     if (oplog != null) {
       oplog.flushAll();
     }

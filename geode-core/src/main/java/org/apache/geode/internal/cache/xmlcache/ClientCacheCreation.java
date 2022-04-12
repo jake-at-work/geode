@@ -18,7 +18,6 @@ import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -26,12 +25,9 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheWriterException;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.DynamicRegionFactory;
 import org.apache.geode.cache.GatewayException;
 import org.apache.geode.cache.InterestPolicy;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionExistsException;
 import org.apache.geode.cache.RegionService;
@@ -82,7 +78,7 @@ public class ClientCacheCreation extends CacheCreation implements ClientCache {
   private static final RegionAttributes clientDefaults = createClientDefaults();
 
   private static RegionAttributes createClientDefaults() {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     // af.setIgnoreJTA(true); In 6.6 and later releases client regions support JTA
     af.setSubscriptionAttributes(new SubscriptionAttributes(InterestPolicy.ALL));
@@ -184,10 +180,10 @@ public class ClientCacheCreation extends CacheCreation implements ClientCache {
     }
 
     // create connection pools
-    Map<String, Pool> pools = getPools();
+    var pools = getPools();
     if (!pools.isEmpty()) {
-      for (final Pool cp : pools.values()) {
-        PoolFactoryImpl poolFactory = (PoolFactoryImpl) PoolManager.createFactory();
+      for (final var cp : pools.values()) {
+        var poolFactory = (PoolFactoryImpl) PoolManager.createFactory();
         poolFactory.init(cp);
         poolFactory.create(cp.getName());
       }
@@ -198,21 +194,21 @@ public class ClientCacheCreation extends CacheCreation implements ClientCache {
       getResourceManager().configure(cache.getResourceManager());
     }
 
-    DiskStoreAttributesCreation pdxRegDSC = initializePdxDiskStore(cache);
+    var pdxRegDSC = initializePdxDiskStore(cache);
 
     cache.initializePdxRegistry();
 
-    for (DiskStore diskStore : listDiskStores()) {
-      DiskStoreAttributesCreation creation = (DiskStoreAttributesCreation) diskStore;
+    for (var diskStore : listDiskStores()) {
+      var creation = (DiskStoreAttributesCreation) diskStore;
       if (creation != pdxRegDSC) {
         createDiskStore(creation, cache);
       }
     }
-    for (DiskStore diskStore : listDiskStores()) {
-      DiskStoreAttributesCreation creation = (DiskStoreAttributesCreation) diskStore;
+    for (var diskStore : listDiskStores()) {
+      var creation = (DiskStoreAttributesCreation) diskStore;
 
       // Don't let the DiskStoreAttributesCreation escape to the user
-      DiskStoreFactory factory = cache.createDiskStoreFactory(creation);
+      var factory = cache.createDiskStoreFactory(creation);
       factory.create(creation.getName());
     }
 
@@ -239,19 +235,19 @@ public class ClientCacheCreation extends CacheCreation implements ClientCache {
 
     cache.initializePdxRegistry();
 
-    for (String id : getRegionAttributesNames()) {
-      RegionAttributesCreation creation = (RegionAttributesCreation) getRegionAttributes(id);
+    for (var id : getRegionAttributesNames()) {
+      var creation = (RegionAttributesCreation) getRegionAttributes(id);
       creation.inheritAttributes(cache, false);
 
       // Don't let the RegionAttributesCreation escape to the user
-      AttributesFactory factory = new AttributesFactory(creation);
-      RegionAttributes attrs = factory.createRegionAttributes();
+      var factory = new AttributesFactory(creation);
+      var attrs = factory.createRegionAttributes();
 
       cache.setRegionAttributes(id, attrs);
     }
 
-    for (final Region<?, ?> region : roots.values()) {
-      RegionCreation regionCreation = (RegionCreation) region;
+    for (final var region : roots.values()) {
+      var regionCreation = (RegionCreation) region;
       regionCreation.createRoot(cache);
     }
 
@@ -261,9 +257,9 @@ public class ClientCacheCreation extends CacheCreation implements ClientCache {
 
   public String getDefaultPoolName() {
     String result = null;
-    Map<String, Pool> pools = getPools();
+    var pools = getPools();
     if (pools.size() == 1) {
-      Pool pool = pools.values().iterator().next();
+      var pool = pools.values().iterator().next();
       result = pool.getName();
     } else if (pools.isEmpty()) {
       result = "DEFAULT";

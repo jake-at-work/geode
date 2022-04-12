@@ -37,7 +37,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -58,7 +57,6 @@ import org.apache.geode.CancelException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.SerializationException;
 import org.apache.geode.annotations.VisibleForTesting;
-import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.DiskAccessException;
 import org.apache.geode.cache.EntryDestroyedException;
@@ -551,8 +549,8 @@ public class Oplog implements CompactableOplog, Flushable {
     // which allows the maxDirSize to be checked.
     firstRecord = false;
     opState = new OpState();
-    long maxOplogSizeParam = getParent().getMaxOplogSizeInBytes();
-    long availableSpace = this.dirHolder.getAvailableSpace();
+    var maxOplogSizeParam = getParent().getMaxOplogSizeInBytes();
+    var availableSpace = this.dirHolder.getAvailableSpace();
     if (availableSpace < maxOplogSizeParam) {
       if (DiskStoreImpl.PREALLOCATE_OPLOGS && !DiskStoreImpl.SET_IGNORE_PREALLOCATE) {
         throw new DiskAccessException(
@@ -577,7 +575,7 @@ public class Oplog implements CompactableOplog, Flushable {
     compactOplogs = getParent().getAutoCompact();
 
     closed = false;
-    String n = getParent().getName();
+    var n = getParent().getName();
     diskFile = new File(this.dirHolder.getDir(), oplogSet.getPrefix() + n + "_" + oplogId);
     try {
       createDrf(null);
@@ -617,8 +615,8 @@ public class Oplog implements CompactableOplog, Flushable {
     oplogSet = prevOplog.oplogSet;
     this.dirHolder = dirHolder;
     opState = new OpState();
-    long maxOplogSizeParam = getParent().getMaxOplogSizeInBytes();
-    long availableSpace = this.dirHolder.getAvailableSpace();
+    var maxOplogSizeParam = getParent().getMaxOplogSizeInBytes();
+    var availableSpace = this.dirHolder.getAvailableSpace();
     if (prevOplog.compactOplogs) {
       maxOplogSize = maxOplogSizeParam;
     } else {
@@ -641,7 +639,7 @@ public class Oplog implements CompactableOplog, Flushable {
     dataVersion = prevOplog.getDataVersionIfOld();
 
     closed = false;
-    String n = getParent().getName();
+    var n = getParent().getName();
     diskFile = new File(this.dirHolder.getDir(), oplogSet.getPrefix() + n + "_" + oplogId);
     try {
       createDrf(prevOplog.drf);
@@ -668,7 +666,7 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   public void replaceIncompatibleEntry(DiskRegionView dr, DiskEntry old, DiskEntry repl) {
-    boolean useNextOplog = false;
+    var useNextOplog = false;
     // No need to get the backup lock prior to synchronizing (correct lock order) since the
     // synchronized block does not attempt to get the backup lock (incorrect lock order)
     synchronized (lock) {
@@ -733,7 +731,7 @@ public class Oplog implements CompactableOplog, Flushable {
     if (gfversion == null) {
       gfversion = KnownVersion.CURRENT;
     }
-    KnownVersion dataVersion = getDataVersionIfOld();
+    var dataVersion = getDataVersionIfOld();
     if (dataVersion == null) {
       dataVersion = KnownVersion.CURRENT;
     }
@@ -793,9 +791,9 @@ public class Oplog implements CompactableOplog, Flushable {
       return false;
     }
     wroteNewEntryBase = true;
-    long newEntryBase = getOplogSet().getOplogEntryId();
+    var newEntryBase = getOplogSet().getOplogEntryId();
 
-    OpState saved = opState;
+    var saved = opState;
     try {
       opState = new OpState();
       opState.initialize(newEntryBase);
@@ -844,7 +842,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Returns true if added file was crf; false if drf
    */
   boolean addRecoveredFile(File f, DirectoryHolder dh) {
-    String fname = f.getName();
+    var fname = f.getName();
     if (dirHolder != null) {
       if (!dh.equals(dirHolder)) {
         throw new DiskAccessException(
@@ -897,7 +895,7 @@ public class Oplog implements CompactableOplog, Flushable {
     isRecovering = false;
     closed = false;
     deleted.set(false);
-    String n = getParent().getName();
+    var n = getParent().getName();
     // crf might not exist; but drf always will
     diskFile =
         new File(drf.f.getParentFile(), oplogSet.getPrefix() + n + "_" + oplogId);
@@ -1000,7 +998,7 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private void preblow(OplogFile olf, long maxSize) {
-    long availableSpace = dirHolder.getAvailableSpace();
+    var availableSpace = dirHolder.getAvailableSpace();
     if (availableSpace >= maxSize) {
       try {
         NativeCalls.getInstance().preBlow(olf.f.getAbsolutePath(), maxSize,
@@ -1063,7 +1061,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Creates the crf oplog file
    */
   private void createCrf(OplogFile prevOlf) throws IOException {
-    File f = new File(diskFile.getPath() + CRF_FILE_EXT);
+    var f = new File(diskFile.getPath() + CRF_FILE_EXT);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Creating operation log file {}", f);
@@ -1097,7 +1095,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
   @VisibleForTesting
   Integer getWriteBufferCapacity() {
-    Integer writeBufferSizeProperty = getWriteBufferSizeProperty();
+    var writeBufferSizeProperty = getWriteBufferSizeProperty();
     if (writeBufferSizeProperty != null) {
       return writeBufferSizeProperty;
     }
@@ -1106,7 +1104,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
   private ByteBuffer allocateWriteBuf(OplogFile prevOlf) {
     if (prevOlf != null && prevOlf.writeBuf != null) {
-      ByteBuffer result = prevOlf.writeBuf;
+      var result = prevOlf.writeBuf;
       prevOlf.writeBuf = null;
       return result;
     } else {
@@ -1118,7 +1116,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Creates the drf oplog file
    */
   private void createDrf(OplogFile prevOlf) throws IOException {
-    File f = new File(diskFile.getPath() + DRF_FILE_EXT);
+    var f = new File(diskFile.getPath() + DRF_FILE_EXT);
     drf.f = f;
     if (logger.isDebugEnabled()) {
       logger.debug("Creating operation log file {}", f);
@@ -1193,7 +1191,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
     // KRF match?
     if (getParent().getDiskInitFile().hasKrf(oplogId)) {
-      File krfFile = getKrfFile();
+      var krfFile = getKrfFile();
       if (krfFile.exists() && oplogFileNames.contains(krfFile.getName())) {
         matchingFiles.add(krfFile.getName());
       }
@@ -1223,7 +1221,7 @@ public class Oplog implements CompactableOplog, Flushable {
     Oplog retryOplog = null;
     long offset = 0;
     synchronized (id) {
-      long opId = id.getOplogId();
+      var opId = id.getOplogId();
       if (opId != getOplogId()) {
         // the oplog changed on us so we need to do a recursive
         // call after unsyncing
@@ -1236,7 +1234,7 @@ public class Oplog implements CompactableOplog, Flushable {
     if (retryOplog != null) {
       return retryOplog.getBytesAndBits(dr, id, faultIn, bitOnly);
     }
-    long start = stats.startRead();
+    var start = stats.startRead();
 
     // If the offset happens to be -1, still it is possible that
     // the data is present in the current oplog file.
@@ -1302,9 +1300,9 @@ public class Oplog implements CompactableOplog, Flushable {
     // while a krf is being created can not close a region
     lockCompactor();
     try {
-      DiskRegionInfo dri = getDRI(dr);
+      var dri = getDRI(dr);
       if (dri != null) {
-        long clearCount = dri.clear(null);
+        var clearCount = dri.clear(null);
         if (clearCount != 0) {
           totalLiveCount.addAndGet(-clearCount);
           // no need to call handleNoLiveValues because we now have an
@@ -1319,9 +1317,9 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   void clear(DiskRegion dr, RegionVersionVector rvv) {
-    DiskRegionInfo dri = getDRI(dr);
+    var dri = getDRI(dr);
     if (dri != null) {
-      long clearCount = dri.clear(rvv);
+      var clearCount = dri.clear(rvv);
       if (clearCount != 0) {
         totalLiveCount.addAndGet(-clearCount);
         if (!isCompacting() || calledByCompactorThread()) {
@@ -1332,9 +1330,9 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   void destroy(DiskRegion dr) {
-    DiskRegionInfo dri = getDRI(dr);
+    var dri = getDRI(dr);
     if (dri != null) {
-      long clearCount = dri.clear(null);
+      var clearCount = dri.clear(null);
       if (clearCount != 0) {
         totalLiveCount.addAndGet(-clearCount);
         if (!isCompacting() || calledByCompactorThread()) {
@@ -1346,7 +1344,7 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   long getMaxRecoveredOplogEntryId() {
-    long result = recoverNewEntryId;
+    var result = recoverNewEntryId;
     if (recoverModEntryIdHWM > result) {
       result = recoverModEntryIdHWM;
     }
@@ -1408,7 +1406,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Given a delta calculate the OplogEntryId for a MOD_ENTRY.
    */
   public long calcModEntryId(long delta) {
-    long oplogKeyId = recoverModEntryId + delta;
+    var oplogKeyId = recoverModEntryId + delta;
     if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
       logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
           "calcModEntryId delta={} recoverModEntryId={}  oplogKeyId={}", delta,
@@ -1425,7 +1423,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Given a delta calculate the OplogEntryId for a DEL_ENTRY.
    */
   public long calcDelEntryId(long delta) {
-    long oplogKeyId = recoverDelEntryId + delta;
+    var oplogKeyId = recoverDelEntryId + delta;
     if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
       logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
           "calcDelEntryId delta={} recoverModEntryId={}  oplogKeyId={}", delta,
@@ -1442,7 +1440,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Return bytes read.
    */
   long recoverDrf(OplogEntryIdSet deletedIds, boolean alreadyRecoveredOnce, boolean latestOplog) {
-    File drfFile = drf.f;
+    var drfFile = drf.f;
     if (drfFile == null) {
       haveRecoveredDrf = true;
       return 0L;
@@ -1458,23 +1456,23 @@ public class Oplog implements CompactableOplog, Flushable {
       logger.info("Recovering {} {} for disk store {}.",
           new Object[] {toString(), drfFile.getAbsolutePath(), getParent().getName()});
       recoverDelEntryId = DiskStoreImpl.INVALID_ID;
-      boolean readLastRecord = true;
+      var readLastRecord = true;
       CountingDataInputStream dis = null;
       try {
-        int recordCount = 0;
-        boolean foundDiskStoreRecord = false;
+        var recordCount = 0;
+        var foundDiskStoreRecord = false;
         FileInputStream fis = null;
         try {
           fis = new FileInputStream(drfFile);
           dis = new CountingDataInputStream(new BufferedInputStream(fis, 32 * 1024),
               drfFile.length());
-          boolean endOfLog = false;
+          var endOfLog = false;
           while (!endOfLog) {
             if (dis.atEndOfFile()) {
               break;
             }
             readLastRecord = false;
-            byte opCode = dis.readByte();
+            var opCode = dis.readByte();
             if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
               logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "drf byte={} location={}", opCode,
                   Long.toHexString(dis.getCount()));
@@ -1600,7 +1598,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
   private boolean readKrf(OplogEntryIdSet deletedIds, boolean recoverValues,
       boolean recoverValuesSync, Set<Oplog> oplogsNeedingValueRecovery, boolean latestOplog) {
-    File f = new File(diskFile.getPath() + KRF_FILE_EXT);
+    var f = new File(diskFile.getPath() + KRF_FILE_EXT);
     if (!f.exists()) {
       return false;
     }
@@ -1634,11 +1632,11 @@ public class Oplog implements CompactableOplog, Flushable {
       recoverNewEntryId = DiskStoreImpl.INVALID_ID;
       recoverModEntryId = DiskStoreImpl.INVALID_ID;
       recoverModEntryIdHWM = DiskStoreImpl.INVALID_ID;
-      long oplogKeyIdHWM = DiskStoreImpl.INVALID_ID;
-      int krfEntryCount = 0;
-      DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
-      final KnownVersion version = getProductVersionIfOld();
-      final ByteArrayDataInput in = new ByteArrayDataInput();
+      var oplogKeyIdHWM = DiskStoreImpl.INVALID_ID;
+      var krfEntryCount = 0;
+      var dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
+      final var version = getProductVersionIfOld();
+      final var in = new ByteArrayDataInput();
       try {
         try {
           validateOpcode(dis, OPLOG_MAGIC_SEQ_ID);
@@ -1661,13 +1659,13 @@ public class Oplog implements CompactableOplog, Flushable {
         readTotalCountRecord(dis);
         readRVVRecord(dis, false, latestOplog);
         long lastOffset = 0;
-        byte[] keyBytes = DataSerializer.readByteArray(dis);
+        var keyBytes = DataSerializer.readByteArray(dis);
         while (keyBytes != null) {
-          byte userBits = dis.readByte();
-          int valueLength = InternalDataSerializer.readArrayLength(dis);
+          var userBits = dis.readByte();
+          var valueLength = InternalDataSerializer.readArrayLength(dis);
           byte[] valueBytes = null;
-          long drId = DiskInitFile.readDiskRegionID(dis);
-          DiskRecoveryStore drs = getOplogSet().getCurrentlyRecovering(drId);
+          var drId = DiskInitFile.readDiskRegionID(dis);
+          var drs = getOplogSet().getCurrentlyRecovering(drId);
 
           // read version
           VersionTag tag = null;
@@ -1687,7 +1685,7 @@ public class Oplog implements CompactableOplog, Flushable {
             }
           }
 
-          long oplogKeyId = InternalDataSerializer.readVLOld(dis);
+          var oplogKeyId = InternalDataSerializer.readVLOld(dis);
           long oplogOffset;
           if (EntryBits.isAnyInvalid(userBits) || EntryBits.isTombstone(userBits)) {
             oplogOffset = -1;
@@ -1717,9 +1715,9 @@ public class Oplog implements CompactableOplog, Flushable {
             } else if (EntryBits.isTombstone(userBits)) {
               valueBytes = DiskEntry.TOMBSTONE_BYTES;
             }
-            Object key = deserializeKey(keyBytes, version, in);
+            var key = deserializeKey(keyBytes, version, in);
             {
-              Object oldValue = getRecoveryMap().put(oplogKeyId, key);
+              var oldValue = getRecoveryMap().put(oplogKeyId, key);
               if (oldValue != null) {
                 throw new AssertionError(
                     String.format(
@@ -1728,14 +1726,14 @@ public class Oplog implements CompactableOplog, Flushable {
               }
             }
             if (drs != null) {
-              DiskEntry de = drs.getDiskEntry(key);
+              var de = drs.getDiskEntry(key);
               if (de == null) {
                 if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
                   logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
                       "readNewEntry oplogKeyId=<{}> drId={} userBits={} oplogOffset={} valueLen={}",
                       oplogKeyId, drId, userBits, oplogOffset, valueLength);
                 }
-                DiskEntry.RecoveredEntry re =
+                var re =
                     createRecoveredEntry(valueBytes, valueLength, userBits,
                         getOplogId(), oplogOffset, oplogKeyId, false, version, in);
                 if (tag != null) {
@@ -1746,7 +1744,7 @@ public class Oplog implements CompactableOplog, Flushable {
                 stats.incRecoveredEntryCreates();
                 krfEntryCount++;
               } else {
-                DiskId curdid = de.getDiskId();
+                var curdid = de.getDiskId();
                 // assert curdid.getOplogId() != getOplogId();
                 if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
                   logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -1759,7 +1757,7 @@ public class Oplog implements CompactableOplog, Flushable {
           keyBytes = DataSerializer.readByteArray(dis);
         } // while
         setRecoverNewEntryId(oplogKeyIdHWM);
-        long tlc = totalLiveCount.get();
+        var tlc = totalLiveCount.get();
         if (totalCount.get() == 0 && tlc > 0) {
           totalCount.set(tlc);
         }
@@ -1800,7 +1798,7 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private void validateOpcode(DataInputStream dis, byte expect) throws IOException {
-    byte opCode = dis.readByte();
+    var opCode = dis.readByte();
     if (opCode != expect) {
       if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
         logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "expected opcode id absent: {}", expect);
@@ -1816,26 +1814,26 @@ public class Oplog implements CompactableOplog, Flushable {
     recoverNewEntryId = DiskStoreImpl.INVALID_ID;
     recoverModEntryId = DiskStoreImpl.INVALID_ID;
     recoverModEntryIdHWM = DiskStoreImpl.INVALID_ID;
-    boolean readLastRecord = true;
+    var readLastRecord = true;
     CountingDataInputStream dis = null;
     try {
-      final KnownVersion version = getProductVersionIfOld();
-      final ByteArrayDataInput in = new ByteArrayDataInput();
-      final HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
-      int recordCount = 0;
-      boolean foundDiskStoreRecord = false;
+      final var version = getProductVersionIfOld();
+      final var in = new ByteArrayDataInput();
+      final var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+      var recordCount = 0;
+      var foundDiskStoreRecord = false;
       FileInputStream fis = null;
       try {
         fis = new FileInputStream(crf.f);
         dis = new CountingDataInputStream(new BufferedInputStream(fis, 1024 * 1024),
             crf.f.length());
-        boolean endOfLog = false;
+        var endOfLog = false;
         while (!endOfLog) {
           if (dis.atEndOfFile()) {
             break;
           }
           readLastRecord = false;
-          byte opCode = dis.readByte();
+          var opCode = dis.readByte();
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "Oplog opCode={}", opCode);
           }
@@ -1849,7 +1847,7 @@ public class Oplog implements CompactableOplog, Flushable {
               readVersionTagOnlyEntry(dis);
               break;
             case OPLOG_NEW_ENTRY_BASE_ID: {
-              long newEntryBase = dis.readLong();
+              var newEntryBase = dis.readLong();
               if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
                 logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "newEntryBase={}", newEntryBase);
               }
@@ -1963,14 +1961,14 @@ public class Oplog implements CompactableOplog, Flushable {
    * @throws DiskAccessException if this file does not belong to our parent
    */
   private void readDiskStoreRecord(DataInput dis, File f) throws IOException {
-    long leastSigBits = dis.readLong();
-    long mostSigBits = dis.readLong();
-    DiskStoreID readDSID = new DiskStoreID(mostSigBits, leastSigBits);
+    var leastSigBits = dis.readLong();
+    var mostSigBits = dis.readLong();
+    var readDSID = new DiskStoreID(mostSigBits, leastSigBits);
     if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
       logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "diskStoreId={}", readDSID);
     }
     readEndOfRecord(dis);
-    DiskStoreID dsid = getParent().getDiskStoreID();
+    var dsid = getParent().getDiskStoreID();
     if (!readDSID.equals(dsid)) {
       throw new DiskAccessException("The oplog file \"" + f
           + "\" does not belong to the init file \"" + getParent().getInitFile() + "\".",
@@ -1983,9 +1981,9 @@ public class Oplog implements CompactableOplog, Flushable {
    * This method will throw a DiskAccessException in that case too.
    */
   private void readOplogMagicSeqRecord(DataInput dis, File f, OPLOG_TYPE type) throws IOException {
-    byte[] seq = new byte[OPLOG_TYPE.getLen()];
+    var seq = new byte[OPLOG_TYPE.getLen()];
     dis.readFully(seq);
-    for (int i = 0; i < OPLOG_TYPE.getLen(); i++) {
+    for (var i = 0; i < OPLOG_TYPE.getLen(); i++) {
       if (seq[i] != type.getBytes()[i]) {
         if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
           logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -1996,8 +1994,8 @@ public class Oplog implements CompactableOplog, Flushable {
       }
     }
     if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < OPLOG_TYPE.getLen(); i++) {
+      var sb = new StringBuilder();
+      for (var i = 0; i < OPLOG_TYPE.getLen(); i++) {
         sb.append(" ").append(seq[i]);
       }
       logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "oplog magic code: {}", sb);
@@ -2009,11 +2007,11 @@ public class Oplog implements CompactableOplog, Flushable {
    * @throws DiskAccessException if this file does not belong to our parent
    */
   private void readGemfireVersionRecord(DataInput dis) throws IOException {
-    KnownVersion recoveredGFVersion = readProductVersionRecord(dis);
+    var recoveredGFVersion = readProductVersionRecord(dis);
     final boolean hasDataVersion;
     if ((hasDataVersion = (recoveredGFVersion == KnownVersion.TOKEN))) {
       // actual GFE version will be the next record in this case
-      byte opCode = dis.readByte();
+      var opCode = dis.readByte();
       if (opCode != OPLOG_GEMFIRE_VERSION) {
         throw new DiskAccessException(
             String.format("Unknown opCode %s found in disk operation log.",
@@ -2028,7 +2026,7 @@ public class Oplog implements CompactableOplog, Flushable {
       assert gfversion == recoveredGFVersion;
     }
     if (hasDataVersion) {
-      byte opCode = dis.readByte();
+      var opCode = dis.readByte();
       if (opCode != OPLOG_GEMFIRE_VERSION) {
         throw new DiskAccessException(
             String.format("Unknown opCode %s found in disk operation log.",
@@ -2045,8 +2043,8 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private KnownVersion readProductVersionRecord(DataInput dis) throws IOException {
-    short ver = VersioningIO.readOrdinal(dis);
-    final KnownVersion recoveredGFVersion =
+    var ver = VersioningIO.readOrdinal(dis);
+    final var recoveredGFVersion =
         Versioning.getKnownVersionOrDefault(
             Versioning.getVersion(ver), null);
     if (recoveredGFVersion == null) {
@@ -2062,7 +2060,7 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private void readTotalCountRecord(DataInput dis) throws IOException {
-    long recoveredCount = InternalDataSerializer.readUnsignedVL(dis);
+    var recoveredCount = InternalDataSerializer.readUnsignedVL(dis);
     totalCount.set(recoveredCount);
 
     if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
@@ -2073,18 +2071,18 @@ public class Oplog implements CompactableOplog, Flushable {
 
   private void readRVVRecord(DataInput dis, boolean gcRVV, boolean latestOplog)
       throws IOException {
-    final boolean isPersistRecoveryDebugEnabled =
+    final var isPersistRecoveryDebugEnabled =
         logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE);
 
-    long numRegions = InternalDataSerializer.readUnsignedVL(dis);
+    var numRegions = InternalDataSerializer.readUnsignedVL(dis);
     if (isPersistRecoveryDebugEnabled) {
       logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "readRVV entry numRegions={}", numRegions);
     }
-    for (int region = 0; region < numRegions; region++) {
-      long drId = InternalDataSerializer.readUnsignedVL(dis);
+    for (var region = 0; region < numRegions; region++) {
+      var drId = InternalDataSerializer.readUnsignedVL(dis);
       // Get the drs. This may be null if this region is not currently
       // recovering
-      DiskRecoveryStore drs = getOplogSet().getCurrentlyRecovering(drId);
+      var drs = getOplogSet().getCurrentlyRecovering(drId);
       if (isPersistRecoveryDebugEnabled) {
         logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "readRVV drId={} region={}", drId, drs);
       }
@@ -2092,15 +2090,15 @@ public class Oplog implements CompactableOplog, Flushable {
       if (gcRVV) {
 
         // Read the GCC RV
-        long rvvSize = InternalDataSerializer.readUnsignedVL(dis);
-        for (int memberNum = 0; memberNum < rvvSize; memberNum++) {
+        var rvvSize = InternalDataSerializer.readUnsignedVL(dis);
+        for (var memberNum = 0; memberNum < rvvSize; memberNum++) {
           // for each member, read the member id and version
-          long memberId = InternalDataSerializer.readUnsignedVL(dis);
-          long gcVersion = InternalDataSerializer.readUnsignedVL(dis);
+          var memberId = InternalDataSerializer.readUnsignedVL(dis);
+          var gcVersion = InternalDataSerializer.readUnsignedVL(dis);
 
           // if we have a recovery store, add the recovered regions
           if (drs != null) {
-            Object member = getParent().getDiskInitFile().getCanonicalObject((int) memberId);
+            var member = getParent().getDiskInitFile().getCanonicalObject((int) memberId);
             drs.recordRecoveredGCVersion((VersionSource) member, gcVersion);
             if (isPersistRecoveryDebugEnabled) {
               logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -2126,14 +2124,14 @@ public class Oplog implements CompactableOplog, Flushable {
           }
         }
         // Read a regular RVV
-        long rvvSize = InternalDataSerializer.readUnsignedVL(dis);
-        for (int memberNum = 0; memberNum < rvvSize; memberNum++) {
+        var rvvSize = InternalDataSerializer.readUnsignedVL(dis);
+        for (var memberNum = 0; memberNum < rvvSize; memberNum++) {
 
           // for each member, read the member id and version
-          long memberId = InternalDataSerializer.readUnsignedVL(dis);
-          RegionVersionHolder versionHolder = new RegionVersionHolder(dis);
+          var memberId = InternalDataSerializer.readUnsignedVL(dis);
+          var versionHolder = new RegionVersionHolder(dis);
           if (drs != null) {
-            Object member = getParent().getDiskInitFile().getCanonicalObject((int) memberId);
+            var member = getParent().getDiskInitFile().getCanonicalObject((int) memberId);
             drs.recordRecoveredVersionHolder((VersionSource) member, versionHolder, latestOplog);
             if (isPersistRecoveryDebugEnabled) {
               logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -2164,7 +2162,7 @@ public class Oplog implements CompactableOplog, Flushable {
     diskFile = new File(drf.f.getParentFile(),
         oplogSet.getPrefix() + getParent().getName() + "_" + oplogId);
 
-    File crfFile = crf.f;
+    var crfFile = crf.f;
     if (crfFile == null) {
       haveRecoveredCrf = true;
       return 0L;
@@ -2196,8 +2194,8 @@ public class Oplog implements CompactableOplog, Flushable {
         if (getParent().isOfflineCompacting()) {
           getParent().incLiveEntryCount(getRecoveryMap().size());
         }
-        long tc = totalCount.get();
-        long tlc = totalLiveCount.get();
+        var tc = totalCount.get();
+        var tlc = totalLiveCount.get();
         if (getParent().isValidating() && tlc >= 0
             && tc > tlc) {
           getParent().incDeadRecordCount(tc - tlc);
@@ -2255,7 +2253,7 @@ public class Oplog implements CompactableOplog, Flushable {
     } else {
       // For every live entry in this oplog add it to the deleted set
       // so that we will skip it when we recovery the next oplogs.
-      for (OplogEntryIdMap.Iterator it = getRecoveryMap().iterator(); it.hasNext();) {
+      for (var it = getRecoveryMap().iterator(); it.hasNext();) {
         it.advance();
         deletedIds.add(it.key());
       }
@@ -2315,7 +2313,7 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private static void forceSkipBytes(CountingDataInputStream dis, int len) throws IOException {
-    int skipped = dis.skipBytes(len);
+    var skipped = dis.skipBytes(len);
     while (skipped < len) {
       dis.readByte();
       skipped++;
@@ -2333,13 +2331,13 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private VersionTag readVersionsFromOplog(DataInput dis) throws IOException {
-    int entryVersion = (int) InternalDataSerializer.readSignedVL(dis);
-    long regionVersion = InternalDataSerializer.readUnsignedVL(dis);
-    int memberId = (int) InternalDataSerializer.readUnsignedVL(dis);
-    Object member = getParent().getDiskInitFile().getCanonicalObject(memberId);
-    long timestamp = InternalDataSerializer.readUnsignedVL(dis);
-    int dsId = (int) InternalDataSerializer.readSignedVL(dis);
-    VersionTag vt = VersionTag.create((VersionSource) member);
+    var entryVersion = (int) InternalDataSerializer.readSignedVL(dis);
+    var regionVersion = InternalDataSerializer.readUnsignedVL(dis);
+    var memberId = (int) InternalDataSerializer.readUnsignedVL(dis);
+    var member = getParent().getDiskInitFile().getCanonicalObject(memberId);
+    var timestamp = InternalDataSerializer.readUnsignedVL(dis);
+    var dsId = (int) InternalDataSerializer.readSignedVL(dis);
+    var vt = VersionTag.create((VersionSource) member);
     vt.setEntryVersion(entryVersion);
     vt.setRegionVersion(regionVersion);
     vt.setMemberID((VersionSource) member);
@@ -2349,10 +2347,10 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private synchronized VersionTag createDummyTag(DiskRecoveryStore drs) {
-    DiskStoreID member = getParent().getDiskStoreID();
+    var member = getParent().getDiskStoreID();
     getParent().getDiskInitFile().getOrCreateCanonicalId(member);
-    long regionVersion = drs.getVersionForMember(member);
-    VersionTag vt = VersionTag.create(member);
+    var regionVersion = drs.getVersionForMember(member);
+    var vt = VersionTag.create(member);
     vt.setEntryVersion(1);
     vt.setRegionVersion(regionVersion + 1);
     vt.setMemberID(member);
@@ -2388,16 +2386,16 @@ public class Oplog implements CompactableOplog, Flushable {
       boolean recoverValue,
       KnownVersion version,
       ByteArrayDataInput in) throws IOException {
-    final boolean isPersistRecoveryDebugEnabled =
+    final var isPersistRecoveryDebugEnabled =
         logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE);
 
     long oplogOffset = -1;
-    byte userBits = dis.readByte();
+    var userBits = dis.readByte();
     byte[] objValue = null;
-    int valueLength = 0;
-    long oplogKeyId = incRecoverNewEntryId();
-    long drId = DiskInitFile.readDiskRegionID(dis);
-    DiskRecoveryStore drs = getOplogSet().getCurrentlyRecovering(drId);
+    var valueLength = 0;
+    var oplogKeyId = incRecoverNewEntryId();
+    var drId = DiskInitFile.readDiskRegionID(dis);
+    var drs = getOplogSet().getCurrentlyRecovering(drId);
     // read versions
     VersionTag tag = null;
     if (EntryBits.isWithVersions(userBits)) {
@@ -2414,7 +2412,7 @@ public class Oplog implements CompactableOplog, Flushable {
       userBits = EntryBits.setWithVersions(userBits, false);
     }
 
-    OkToSkipResult skipResult = okToSkipModifyRecord(deletedIds, drId, drs, oplogKeyId, true, tag);
+    var skipResult = okToSkipModifyRecord(deletedIds, drId, drs, oplogKeyId, true, tag);
     if (skipResult.skip()) {
       if (!isPhase2()) {
         stats.incRecoveryRecordsSkipped();
@@ -2444,7 +2442,7 @@ public class Oplog implements CompactableOplog, Flushable {
         }
       }
     } else {
-      int len = dis.readInt();
+      var len = dis.readInt();
       oplogOffset = dis.getCount();
       crOffset = oplogOffset;
       valueLength = len;
@@ -2457,7 +2455,7 @@ public class Oplog implements CompactableOplog, Flushable {
         }
       }
       if (recoverValue && !skipResult.skip()) {
-        byte[] valueBytes = new byte[len];
+        var valueBytes = new byte[len];
         dis.readFully(valueBytes);
         objValue = valueBytes;
         validateValue(valueBytes, userBits, version, in);
@@ -2466,13 +2464,13 @@ public class Oplog implements CompactableOplog, Flushable {
       }
     }
     {
-      int len = dis.readInt();
+      var len = dis.readInt();
       incTotalCount();
       if (skipResult.skip()) {
         if (skipResult.skipKey()) {
           forceSkipBytes(dis, len);
         } else {
-          byte[] keyBytes = new byte[len];
+          var keyBytes = new byte[len];
           dis.readFully(keyBytes);
           skippedKeyBytes.put(oplogKeyId, keyBytes);
         }
@@ -2508,7 +2506,7 @@ public class Oplog implements CompactableOplog, Flushable {
         }
         if (getParent().isOfflineCompacting()) {
           if (isPhase1()) {
-            CompactionRecord cr = new CompactionRecord(keyBytes, crOffset);
+            var cr = new CompactionRecord(keyBytes, crOffset);
             getRecoveryMap().put(oplogKeyId, cr);
             if (drs != null) {
               drs.getDiskRegionView().incRecoveredEntryCount();
@@ -2527,9 +2525,9 @@ public class Oplog implements CompactableOplog, Flushable {
             deletedIds.add(oplogKeyId);
           }
         } else {
-          Object key = deserializeKey(keyBytes, version, in);
+          var key = deserializeKey(keyBytes, version, in);
           {
-            Object oldValue = getRecoveryMap().put(oplogKeyId, key);
+            var oldValue = getRecoveryMap().put(oplogKeyId, key);
             if (oldValue != null) {
               throw new AssertionError(
                   String.format(
@@ -2538,14 +2536,14 @@ public class Oplog implements CompactableOplog, Flushable {
             }
           }
           if (drs != null) {
-            DiskEntry de = drs.getDiskEntry(key);
+            var de = drs.getDiskEntry(key);
             if (de == null) {
               if (isPersistRecoveryDebugEnabled) {
                 logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
                     "readNewEntry oplogKeyId=<{}> drId={} key={} userBits={} oplogOffset={} valueLen={} tag={}",
                     oplogKeyId, drId, key, userBits, oplogOffset, valueLength, tag);
               }
-              DiskEntry.RecoveredEntry re = createRecoveredEntry(objValue, valueLength, userBits,
+              var re = createRecoveredEntry(objValue, valueLength, userBits,
                   getOplogId(), oplogOffset, oplogKeyId, recoverValue, version, in);
               if (tag != null) {
                 re.setVersionTag(tag);
@@ -2555,7 +2553,7 @@ public class Oplog implements CompactableOplog, Flushable {
               stats.incRecoveredEntryCreates();
 
             } else {
-              DiskId curdid = de.getDiskId();
+              var curdid = de.getDiskId();
               assert curdid.getOplogId() != getOplogId();
               if (isPersistRecoveryDebugEnabled) {
                 logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -2578,16 +2576,16 @@ public class Oplog implements CompactableOplog, Flushable {
   private void readModifyEntry(CountingDataInputStream dis, byte opcode, OplogEntryIdSet deletedIds,
       boolean recoverValue, KnownVersion version,
       ByteArrayDataInput in) throws IOException {
-    final boolean isPersistRecoveryDebugEnabled =
+    final var isPersistRecoveryDebugEnabled =
         logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE);
 
     long oplogOffset = -1;
-    byte userBits = dis.readByte();
+    var userBits = dis.readByte();
 
-    int idByteCount = (opcode - OPLOG_MOD_ENTRY_1ID) + 1;
-    long oplogKeyId = getModEntryId(dis, idByteCount);
-    long drId = DiskInitFile.readDiskRegionID(dis);
-    DiskRecoveryStore drs = getOplogSet().getCurrentlyRecovering(drId);
+    var idByteCount = (opcode - OPLOG_MOD_ENTRY_1ID) + 1;
+    var oplogKeyId = getModEntryId(dis, idByteCount);
+    var drId = DiskInitFile.readDiskRegionID(dis);
+    var drs = getOplogSet().getCurrentlyRecovering(drId);
     // read versions
     VersionTag tag = null;
     if (EntryBits.isWithVersions(userBits)) {
@@ -2603,7 +2601,7 @@ public class Oplog implements CompactableOplog, Flushable {
       tag = null;
       userBits = EntryBits.setWithVersions(userBits, false);
     }
-    OkToSkipResult skipResult = okToSkipModifyRecord(deletedIds, drId, drs, oplogKeyId, false, tag);
+    var skipResult = okToSkipModifyRecord(deletedIds, drId, drs, oplogKeyId, false, tag);
     if (skipResult.skip()) {
       if (!isPhase2()) {
         incSkipped();
@@ -2614,7 +2612,7 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     byte[] objValue = null;
-    int valueLength = 0;
+    var valueLength = 0;
     CompactionRecord p2cr = null;
     long crOffset;
     if (EntryBits.isAnyInvalid(userBits) || EntryBits.isTombstone(userBits)) {
@@ -2635,7 +2633,7 @@ public class Oplog implements CompactableOplog, Flushable {
         }
       }
     } else {
-      int len = dis.readInt();
+      var len = dis.readInt();
       oplogOffset = dis.getCount();
       crOffset = oplogOffset;
       valueLength = len;
@@ -2648,7 +2646,7 @@ public class Oplog implements CompactableOplog, Flushable {
         }
       }
       if (!skipResult.skip() && recoverValue) {
-        byte[] valueBytes = new byte[len];
+        var valueBytes = new byte[len];
         dis.readFully(valueBytes);
         objValue = valueBytes;
         validateValue(valueBytes, userBits, version, in);
@@ -2667,12 +2665,12 @@ public class Oplog implements CompactableOplog, Flushable {
 
     incTotalCount();
     if (!skipResult.skip()) {
-      Object key = getRecoveryMap().get(oplogKeyId);
+      var key = getRecoveryMap().get(oplogKeyId);
 
       // if the key is not in the recover map, it's possible it
       // was previously skipped. Check the skipped bytes map for the key.
       if (key == null) {
-        byte[] keyBytes = (byte[]) skippedKeyBytes.get(oplogKeyId);
+        var keyBytes = (byte[]) skippedKeyBytes.get(oplogKeyId);
         if (keyBytes != null) {
           key = deserializeKey(keyBytes, version, in);
         }
@@ -2688,7 +2686,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
       if (getParent().isOfflineCompacting()) {
         if (isPhase1()) {
-          CompactionRecord cr = (CompactionRecord) key;
+          var cr = (CompactionRecord) key;
           incSkipped(); // we are going to compact the previous record away
           cr.update(crOffset);
         } else { // phase2
@@ -2706,14 +2704,14 @@ public class Oplog implements CompactableOplog, Flushable {
         // Check the actual region to see if it has this key from
         // a previous recovered oplog.
         if (drs != null) {
-          DiskEntry de = drs.getDiskEntry(key);
+          var de = drs.getDiskEntry(key);
 
           // This may actually be create, if the previous create or modify
           // of this entry was cleared through the RVV clear.
           if (de == null) {
-            DiskRegionView drv = drs.getDiskRegionView();
+            var drv = drs.getDiskRegionView();
             // and create an entry
-            DiskEntry.RecoveredEntry re = createRecoveredEntry(objValue, valueLength, userBits,
+            var re = createRecoveredEntry(objValue, valueLength, userBits,
                 getOplogId(), oplogOffset, oplogKeyId, recoverValue, version, in);
             if (tag != null) {
               re.setVersionTag(tag);
@@ -2728,7 +2726,7 @@ public class Oplog implements CompactableOplog, Flushable {
             stats.incRecoveredEntryCreates();
 
           } else {
-            DiskEntry.RecoveredEntry re = createRecoveredEntry(objValue, valueLength, userBits,
+            var re = createRecoveredEntry(objValue, valueLength, userBits,
                 getOplogId(), oplogOffset, oplogKeyId, recoverValue, version, in);
             if (tag != null) {
               re.setVersionTag(tag);
@@ -2751,10 +2749,10 @@ public class Oplog implements CompactableOplog, Flushable {
 
   private void readVersionTagOnlyEntry(CountingDataInputStream dis)
       throws IOException {
-    long drId = DiskInitFile.readDiskRegionID(dis);
-    DiskRecoveryStore drs = getOplogSet().getCurrentlyRecovering(drId);
+    var drId = DiskInitFile.readDiskRegionID(dis);
+    var drs = getOplogSet().getCurrentlyRecovering(drId);
     // read versions
-    VersionTag tag = readVersionsFromOplog(dis);
+    var tag = readVersionsFromOplog(dis);
     if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
       logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "readVersionTagOnlyEntry drId={} tag={}",
           drId, tag);
@@ -2797,12 +2795,12 @@ public class Oplog implements CompactableOplog, Flushable {
       KnownVersion version, ByteArrayDataInput in) throws IOException {
     long oplogOffset = -1;
 
-    byte userBits = dis.readByte();
+    var userBits = dis.readByte();
 
-    int idByteCount = (opcode - OPLOG_MOD_ENTRY_WITH_KEY_1ID) + 1;
-    long oplogKeyId = getModEntryId(dis, idByteCount);
-    long drId = DiskInitFile.readDiskRegionID(dis);
-    DiskRecoveryStore drs = getOplogSet().getCurrentlyRecovering(drId);
+    var idByteCount = (opcode - OPLOG_MOD_ENTRY_WITH_KEY_1ID) + 1;
+    var oplogKeyId = getModEntryId(dis, idByteCount);
+    var drId = DiskInitFile.readDiskRegionID(dis);
+    var drs = getOplogSet().getCurrentlyRecovering(drId);
 
     // read version
     VersionTag tag = null;
@@ -2819,7 +2817,7 @@ public class Oplog implements CompactableOplog, Flushable {
       tag = null;
       userBits = EntryBits.setWithVersions(userBits, false);
     }
-    OkToSkipResult skipResult = okToSkipModifyRecord(deletedIds, drId, drs, oplogKeyId, true, tag);
+    var skipResult = okToSkipModifyRecord(deletedIds, drId, drs, oplogKeyId, true, tag);
     if (skipResult.skip()) {
       if (!isPhase2()) {
         incSkipped();
@@ -2830,7 +2828,7 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     byte[] objValue = null;
-    int valueLength = 0;
+    var valueLength = 0;
     CompactionRecord p2cr = null;
     long crOffset;
     if (EntryBits.isAnyInvalid(userBits) || EntryBits.isTombstone(userBits)) {
@@ -2851,7 +2849,7 @@ public class Oplog implements CompactableOplog, Flushable {
         }
       }
     } else {
-      int len = dis.readInt();
+      var len = dis.readInt();
       oplogOffset = dis.getCount();
       crOffset = oplogOffset;
       valueLength = len;
@@ -2864,7 +2862,7 @@ public class Oplog implements CompactableOplog, Flushable {
         }
       }
       if (!skipResult.skip() && recoverValue) {
-        byte[] valueBytes = new byte[len];
+        var valueBytes = new byte[len];
         dis.readFully(valueBytes);
         objValue = valueBytes;
         validateValue(valueBytes, userBits, version, in);
@@ -2873,14 +2871,14 @@ public class Oplog implements CompactableOplog, Flushable {
       }
     }
 
-    int keyLen = dis.readInt();
+    var keyLen = dis.readInt();
 
     incTotalCount();
     if (skipResult.skip()) {
       if (skipResult.skipKey()) {
         forceSkipBytes(dis, keyLen);
       } else {
-        byte[] keyBytes = new byte[keyLen];
+        var keyBytes = new byte[keyLen];
         dis.readFully(keyBytes);
         skippedKeyBytes.put(oplogKeyId, keyBytes);
       }
@@ -2908,7 +2906,7 @@ public class Oplog implements CompactableOplog, Flushable {
       assert oplogKeyId >= 0;
       if (getParent().isOfflineCompacting()) {
         if (isPhase1()) {
-          CompactionRecord cr = new CompactionRecord(keyBytes, crOffset);
+          var cr = new CompactionRecord(keyBytes, crOffset);
           getRecoveryMap().put(oplogKeyId, cr);
           if (drs != null) {
             drs.getDiskRegionView().incRecoveredEntryCount();
@@ -2926,8 +2924,8 @@ public class Oplog implements CompactableOplog, Flushable {
           deletedIds.add(oplogKeyId);
         }
       } else {
-        Object key = deserializeKey(keyBytes, version, in);
-        Object oldValue = getRecoveryMap().put(oplogKeyId, key);
+        var key = deserializeKey(keyBytes, version, in);
+        var oldValue = getRecoveryMap().put(oplogKeyId, key);
         if (oldValue != null) {
           throw new AssertionError(
               String.format(
@@ -2937,11 +2935,11 @@ public class Oplog implements CompactableOplog, Flushable {
         // Check the actual region to see if it has this key from
         // a previous recovered oplog.
         if (drs != null) {
-          DiskEntry de = drs.getDiskEntry(key);
+          var de = drs.getDiskEntry(key);
           if (de == null) {
-            DiskRegionView drv = drs.getDiskRegionView();
+            var drv = drs.getDiskRegionView();
             // and create an entry
-            DiskEntry.RecoveredEntry re = createRecoveredEntry(objValue, valueLength, userBits,
+            var re = createRecoveredEntry(objValue, valueLength, userBits,
                 getOplogId(), oplogOffset, oplogKeyId, recoverValue, version, in);
             if (tag != null) {
               re.setVersionTag(tag);
@@ -2956,7 +2954,7 @@ public class Oplog implements CompactableOplog, Flushable {
             stats.incRecoveredEntryCreates();
 
           } else {
-            DiskId curdid = de.getDiskId();
+            var curdid = de.getDiskId();
             assert curdid
                 .getOplogId() != getOplogId() : "Mutiple ModEntryWK in the same oplog for getOplogId()="
                     + getOplogId() + " , curdid.getOplogId()=" + curdid.getOplogId()
@@ -2981,8 +2979,8 @@ public class Oplog implements CompactableOplog, Flushable {
    */
   private void readDelEntry(CountingDataInputStream dis, byte opcode, OplogEntryIdSet deletedIds)
       throws IOException {
-    int idByteCount = (opcode - OPLOG_DEL_ENTRY_1ID) + 1;
-    long oplogKeyId = getDelEntryId(dis, idByteCount);
+    var idByteCount = (opcode - OPLOG_DEL_ENTRY_1ID) + 1;
+    var oplogKeyId = getDelEntryId(dis, idByteCount);
     readEndOfRecord(dis);
     deletedIds.add(oplogKeyId);
     setHasDeletes(true);
@@ -2999,7 +2997,7 @@ public class Oplog implements CompactableOplog, Flushable {
   private final AtomicInteger unrecoveredRegionCount = new AtomicInteger();
 
   private void addUnrecoveredRegion(long drId) {
-    DiskRegionInfo dri = getOrCreateDRI(drId);
+    var dri = getOrCreateDRI(drId);
     if (dri.testAndSetUnrecovered()) {
       unrecoveredRegionCount.incrementAndGet();
     }
@@ -3011,7 +3009,7 @@ public class Oplog implements CompactableOplog, Flushable {
    */
   void checkForRecoverableRegion(DiskRegionView dr) {
     if (unrecoveredRegionCount.get() > 0) {
-      DiskRegionInfo dri = getDRI(dr);
+      var dri = getDRI(dr);
       if (dri != null) {
         if (dri.testAndSetRecovered(dr)) {
           unrecoveredRegionCount.decrementAndGet();
@@ -3021,7 +3019,7 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   void updateDiskRegion(DiskRegionView dr) {
-    DiskRegionInfo dri = getDRI(dr);
+    var dri = getDRI(dr);
     if (dri != null) {
       dri.setDiskRegion(dr);
     }
@@ -3049,11 +3047,11 @@ public class Oplog implements CompactableOplog, Flushable {
       return OkToSkipResult.SKIP_RECORD;
     }
     if (!checkRecoveryMap) {
-      Object key = getRecoveryMap().get(oplogEntryId);
+      var key = getRecoveryMap().get(oplogEntryId);
       if (key != null) {
-        DiskEntry de = drs.getDiskEntry(key);
+        var de = drs.getDiskEntry(key);
         if (de != null) {
-          DiskId curdid = de.getDiskId();
+          var curdid = de.getDiskId();
           if (curdid != null) {
             if (curdid.getOplogId() != getOplogId()) {
               if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
@@ -3075,7 +3073,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * done on the drId region
    */
   private OkToSkipResult okToSkipRegion(DiskRegionView drv, long oplogKeyId, VersionTag tag) {
-    long lastClearKeyId = drv.getClearOplogEntryId();
+    var lastClearKeyId = drv.getClearOplogEntryId();
     if (lastClearKeyId != DiskStoreImpl.INVALID_ID) {
       if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
         logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "lastClearKeyId={} oplogKeyId={}",
@@ -3366,7 +3364,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Returns true if the given entry has not yet been written to this oplog.
    */
   private boolean modNeedsKey(DiskEntry entry) {
-    DiskId did = entry.getDiskId();
+    var did = entry.getDiskId();
     synchronized (did) {
       // the last record for it was written in a different oplog
       // so we need the key.
@@ -3387,14 +3385,14 @@ public class Oplog implements CompactableOplog, Flushable {
     if (this != getOplogSet().getChild()) {
       getOplogSet().getChild().create(region, entry, value, async);
     } else {
-      DiskId did = entry.getDiskId();
-      boolean exceptionOccurred = false;
-      byte prevUsrBit = did.getUserBits();
-      int len = did.getValueLength();
+      var did = entry.getDiskId();
+      var exceptionOccurred = false;
+      var prevUsrBit = did.getUserBits();
+      var len = did.getValueLength();
       try {
         // It is ok to do this outside of "lock" because
         // create records do not need to change.
-        byte userBits = calcUserBits(value);
+        var userBits = calcUserBits(value);
         // save versions for creates and updates even if value is bytearrary in
         // 7.0
         if (entry.getVersionStamp() != null) {
@@ -3448,8 +3446,8 @@ public class Oplog implements CompactableOplog, Flushable {
    */
   private void basicCreate(DiskRegion dr, DiskEntry entry, ValueWrapper value, byte userBits,
       boolean async) throws IOException, InterruptedException {
-    DiskId id = entry.getDiskId();
-    boolean useNextOplog = false;
+    var id = entry.getDiskId();
+    var useNextOplog = false;
     long startPosForSynchOp = -1;
     if (DiskStoreImpl.KRF_DEBUG) {
       // wait for cache close to create krf
@@ -3464,7 +3462,7 @@ public class Oplog implements CompactableOplog, Flushable {
         initOpState(OPLOG_NEW_ENTRY_0ID, dr, entry, value, userBits, false);
         // Check if the current data in ByteBuffer will cause a
         // potential increase in the size greater than the max allowed
-        long temp = (getOpStateSize() + crf.currSize);
+        var temp = (getOpStateSize() + crf.currSize);
         if (!wroteNewEntryBase) {
           temp += OPLOG_NEW_ENTRY_BASE_REC_SIZE;
         }
@@ -3475,7 +3473,7 @@ public class Oplog implements CompactableOplog, Flushable {
           useNextOplog = true;
         } else {
           if (lockedForKRFcreate) {
-            CacheClosedException cce =
+            var cce =
                 getParent().getCache().getCacheClosedException("The disk store is closed.");
             dr.getCancelCriterion().checkCancelInProgress(cce);
             throw cce;
@@ -3487,13 +3485,13 @@ public class Oplog implements CompactableOplog, Flushable {
           // are written in the same order as they are created.
           // This allows us to not encode the oplogEntryId explicitly in the
           // record
-          long createOplogEntryId = getOplogSet().newOplogEntryId();
+          var createOplogEntryId = getOplogSet().newOplogEntryId();
           id.setKeyId(createOplogEntryId);
 
           // startPosForSynchOp = this.crf.currSize;
           // Allow it to be added to the OpLOg so increase the
           // size of currenstartPosForSynchOpt oplog
-          int dataLength = getOpStateSize();
+          var dataLength = getOpStateSize();
           // It is necessary that we set the
           // Oplog ID here without releasing the lock on object as we are
           // writing to the file after releasing the lock. This can cause
@@ -3558,7 +3556,7 @@ public class Oplog implements CompactableOplog, Flushable {
           // Update the region version vector for the disk store.
           // This needs to be done under lock so that we don't switch oplogs
           // unit the version vector accurately represents what is in this oplog
-          RegionVersionVector rvv = dr.getRegionVersionVector();
+          var rvv = dr.getRegionVersionVector();
           if (rvv != null && entry.getVersionStamp() != null) {
             rvv.recordVersion(entry.getVersionStamp().getMemberID(),
                 entry.getVersionStamp().getRegionVersion());
@@ -3672,9 +3670,9 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     try {
-      DirectoryHolder nextDirHolder =
+      var nextDirHolder =
           getOplogSet().getNextDir(lengthOfOperationCausingSwitch, true);
-      Oplog newOplog = new Oplog(oplogId + 1, nextDirHolder, this);
+      var newOplog = new Oplog(oplogId + 1, nextDirHolder, this);
       newOplog.firstRecord = true;
       getOplogSet().setChild(newOplog);
 
@@ -3740,17 +3738,17 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private void writeOneKeyEntryForKRF(KRFEntry ke) throws IOException {
-    DiskEntry de = ke.getDiskEntry();
-    long diskRegionId = ke.getDiskRegionView().getId();
+    var de = ke.getDiskEntry();
+    var diskRegionId = ke.getDiskRegionView().getId();
     long oplogKeyId;
     byte userBits;
     long valueOffset;
     int valueLength;
     Object deKey;
-    VersionHolder tag = ke.versionTag;
+    var tag = ke.versionTag;
 
     synchronized (de) {
-      DiskId di = de.getDiskId();
+      var di = de.getDiskId();
       if (di == null) {
         return;
       }
@@ -3786,7 +3784,7 @@ public class Oplog implements CompactableOplog, Flushable {
           oplogId, deKey, oplogKeyId, System.identityHashCode(de), valueOffset, valueLength,
           diskRegionId, tag);
     }
-    byte[] keyBytes = EntryEventImpl.serialize(deKey);
+    var keyBytes = EntryEventImpl.serialize(deKey);
 
     // skip the invalid entries, theire valueOffset is -1
     writeOneKeyEntryForKRF(keyBytes, userBits, valueLength, diskRegionId, oplogKeyId, valueOffset,
@@ -3855,7 +3853,7 @@ public class Oplog implements CompactableOplog, Flushable {
     // write both gemfire and data versions if the two are different else write
     // only gemfire version; a token distinguishes the two cases while reading
     // like in writeGemFireVersionRecord
-    KnownVersion dataVersion = getDataVersionIfOld();
+    var dataVersion = getDataVersionIfOld();
     if (dataVersion == null) {
       dataVersion = KnownVersion.CURRENT;
     }
@@ -3878,8 +3876,8 @@ public class Oplog implements CompactableOplog, Flushable {
     krf.dos.writeByte(END_OF_RECORD_ID);
 
     // Write the RVV to the krf.
-    Map<Long, AbstractDiskRegion> drMap = getParent().getAllDiskRegions();
-    byte[] rvvBytes = serializeRVVs(drMap, false);
+    var drMap = getParent().getAllDiskRegions();
+    var rvvBytes = serializeRVVs(drMap, false);
     krf.dos.write(rvvBytes);
     krf.dos.writeByte(END_OF_RECORD_ID);
   }
@@ -3914,7 +3912,7 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   public void krfClose() {
-    boolean allClosed = false;
+    var allClosed = false;
     try {
       if (krf.fos != null) {
         DataSerializer.writeByteArray(null, krf.dos);
@@ -4003,33 +4001,33 @@ public class Oplog implements CompactableOplog, Flushable {
             return;
           }
 
-          int tlc = (int) totalLiveCount.get();
+          var tlc = (int) totalLiveCount.get();
           if (tlc <= 0) {
             // no need to create a KRF since this oplog will be deleted.
             // TODO should we create an empty KRF anyway?
             return;
           }
 
-          Collection<DiskRegionInfo> regions = regionMap.values();
-          List<KRFEntry> sortedLiveEntries = getSortedLiveEntries(regions);
+          var regions = regionMap.values();
+          var sortedLiveEntries = getSortedLiveEntries(regions);
           if (sortedLiveEntries == null) {
             // no need to create a krf if there are no live entries.
             return;
           }
 
-          boolean krfCreateSuccess = false;
+          var krfCreateSuccess = false;
           try {
             krfFileCreate();
 
             // sortedLiveEntries are now sorted
             // so we can start writing them to disk.
-            for (KRFEntry ke : sortedLiveEntries) {
+            for (var ke : sortedLiveEntries) {
               writeOneKeyEntryForKRF(ke);
             }
 
             krfClose();
             krfCreateSuccess = true;
-            for (DiskRegionInfo dri : regions) {
+            for (var dri : regions) {
               dri.afterKrfCreated();
             }
             if (LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER) {
@@ -4061,24 +4059,24 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   public List<KRFEntry> getSortedLiveEntries(Collection<DiskRegionInfo> targetRegions) {
-    int tlc = (int) totalLiveCount.get();
+    var tlc = (int) totalLiveCount.get();
     if (tlc <= 0) {
       // no need to create a KRF since this oplog will be deleted.
       // TODO should we create an empty KRF anyway?
       return null;
     }
 
-    KRFEntry[] sortedLiveEntries = new KRFEntry[tlc];
-    int idx = 0;
-    for (DiskRegionInfo dri : targetRegions) {
+    var sortedLiveEntries = new KRFEntry[tlc];
+    var idx = 0;
+    for (var dri : targetRegions) {
       if (dri.getDiskRegion() != null) {
         idx = dri.addLiveEntriesToList(sortedLiveEntries, idx);
       }
     }
     // idx is now the length of sortedLiveEntries
     Arrays.sort(sortedLiveEntries, 0, idx, (o1, o2) -> {
-      long val1 = o1.getOffsetInOplogForSorting();
-      long val2 = o2.getOffsetInOplogForSorting();
+      var val1 = o1.getOffsetInOplogForSorting();
+      var val2 = o2.getOffsetInOplogForSorting();
       return Long.signum(val1 - val2);
     });
 
@@ -4100,13 +4098,13 @@ public class Oplog implements CompactableOplog, Flushable {
   private boolean getBytesAndBitsForCompaction(DiskRegionView dr, DiskEntry entry,
       BytesAndBitsForCompactor wrapper) {
     // caller is synced on did
-    DiskId did = entry.getDiskId();
+    var did = entry.getDiskId();
     byte userBits;
-    long oplogOffset = did.getOffsetInOplog();
+    var oplogOffset = did.getOffsetInOplog();
     ReferenceCountHelper.skipRefCountTracking();
     @Retained
     @Released
-    Object value = entry.getValueRetain(dr, true);
+    var value = entry.getValueRetain(dr, true);
     ReferenceCountHelper.unskipRefCountTracking();
     boolean foundData;
     if (value == null) {
@@ -4168,10 +4166,10 @@ public class Oplog implements CompactableOplog, Flushable {
         wrapper.setData(DiskEntry.TOMBSTONE_BYTES, userBits, DiskEntry.TOMBSTONE_BYTES.length,
             false);
       } else if (value instanceof CachedDeserializable) {
-        CachedDeserializable proxy = (CachedDeserializable) value;
+        var proxy = (CachedDeserializable) value;
         if (proxy instanceof StoredObject) {
           @Released
-          StoredObject ohproxy = (StoredObject) proxy;
+          var ohproxy = (StoredObject) proxy;
           try {
             ohproxy.fillSerializedValue(wrapper, userBits);
           } finally {
@@ -4182,7 +4180,7 @@ public class Oplog implements CompactableOplog, Flushable {
           proxy.fillSerializedValue(wrapper, userBits);
         }
       } else if (value instanceof byte[]) {
-        byte[] valueBytes = (byte[]) value;
+        var valueBytes = (byte[]) value;
         // If the value is already a byte array then the user bit
         // is 0, which is the default value of the userBits variable,
         // indicating that it is non serialized data. Thus it is
@@ -4240,12 +4238,12 @@ public class Oplog implements CompactableOplog, Flushable {
     if (getOplogSet().getChild() != this) {
       getOplogSet().getChild().modify(region, entry, value, async);
     } else {
-      DiskId did = entry.getDiskId();
-      boolean exceptionOccurred = false;
-      byte prevUsrBit = did.getUserBits();
-      int len = did.getValueLength();
+      var did = entry.getDiskId();
+      var exceptionOccurred = false;
+      var prevUsrBit = did.getUserBits();
+      var len = did.getValueLength();
       try {
-        byte userBits = calcUserBits(value);
+        var userBits = calcUserBits(value);
         // save versions for creates and updates even if value is bytearrary in
         // 7.0
         if (entry.getVersionStamp() != null) {
@@ -4284,9 +4282,9 @@ public class Oplog implements CompactableOplog, Flushable {
       boolean isSerializedObject) {
     try {
       ValueWrapper vw = new DiskEntry.Helper.ByteArrayValueWrapper(isSerializedObject, value);
-      byte userBits = calcUserBits(vw);
+      var userBits = calcUserBits(vw);
       // save versions for creates and updates even if value is bytearrary in 7.0
-      VersionStamp vs = entry.getVersionStamp();
+      var vs = entry.getVersionStamp();
       if (vs != null) {
         if (vs.getMemberID() == null) {
           throw new AssertionError(
@@ -4295,7 +4293,7 @@ public class Oplog implements CompactableOplog, Flushable {
         // Since we are modifying this entry's value while offline make sure its version stamp
         // has this disk store as its member id and bump the version
         vs.setMemberID(getParent().getDiskStoreID());
-        VersionTag vt = vs.asVersionTag();
+        var vt = vs.asVersionTag();
         vt.setRegionVersion(drv.getRegionVersionVector().getNextVersion());
         vt.setEntryVersion(vt.getEntryVersion() + 1);
         vt.setVersionTimeStamp(System.currentTimeMillis());
@@ -4361,12 +4359,12 @@ public class Oplog implements CompactableOplog, Flushable {
     if (getOplogSet().getChild() != this) {
       getOplogSet().getChild().copyForwardModifyForCompact(dr, entry, wrapper);
     } else {
-      DiskId did = entry.getDiskId();
-      boolean exceptionOccurred = false;
-      int len = did.getValueLength();
+      var did = entry.getDiskId();
+      var exceptionOccurred = false;
+      var len = did.getValueLength();
       try {
         // TODO: compaction needs to get version?
-        byte userBits = wrapper.getBits();
+        var userBits = wrapper.getBits();
         ValueWrapper vw;
         if (wrapper.getOffHeapData() != null) {
           vw = new DiskEntry.Helper.OffHeapValueWrapper(wrapper.getOffHeapData());
@@ -4412,9 +4410,9 @@ public class Oplog implements CompactableOplog, Flushable {
    */
   private void basicModify(DiskRegionView dr, DiskEntry entry, ValueWrapper value, byte userBits,
       boolean async, boolean calledByCompactor) throws IOException, InterruptedException {
-    DiskId id = entry.getDiskId();
-    boolean useNextOplog = false;
-    long startPosForSynchOp = -1L;
+    var id = entry.getDiskId();
+    var useNextOplog = false;
+    var startPosForSynchOp = -1L;
     Oplog emptyOplog = null;
     if (DiskStoreImpl.KRF_DEBUG) {
       // wait for cache close to create krf
@@ -4429,16 +4427,16 @@ public class Oplog implements CompactableOplog, Flushable {
           useNextOplog = true;
         } else {
           initOpState(OPLOG_MOD_ENTRY_1ID, dr, entry, value, userBits, false);
-          final int adjustment = getOpStateSize();
+          final var adjustment = getOpStateSize();
           assert adjustment > 0;
-          long temp = (crf.currSize + adjustment);
+          var temp = (crf.currSize + adjustment);
           if (temp > getMaxCrfSize() && !isFirstRecord()) {
             switchOpLog(dr, adjustment, entry);
             // we can't reuse it since it contains variable length data
             useNextOplog = true;
           } else {
             if (lockedForKRFcreate) {
-              CacheClosedException cce =
+              var cce =
                   getParent().getCache().getCacheClosedException("The disk store is closed.");
               dr.getCancelCriterion().checkCancelInProgress(cce);
               throw cce;
@@ -4488,7 +4486,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
             EntryLogger.logPersistPut(dr.getName(), entry.getKey(), dr.getDiskStoreID());
             if (oldOplogId != getOplogId()) {
-              Oplog oldOplog = getOplogSet().getChild(oldOplogId);
+              var oldOplog = getOplogSet().getChild(oldOplogId);
               if (oldOplog != null) {
                 oldOplog.rmLive(dr, entry);
                 emptyOplog = oldOplog;
@@ -4505,7 +4503,7 @@ public class Oplog implements CompactableOplog, Flushable {
             // Update the region version vector for the disk store.
             // This needs to be done under lock so that we don't switch oplogs
             // unit the version vector accurately represents what is in this oplog
-            RegionVersionVector rvv = dr.getRegionVersionVector();
+            var rvv = dr.getRegionVersionVector();
             if (rvv != null && entry.getVersionStamp() != null) {
               rvv.recordVersion(entry.getVersionStamp().getMemberID(),
                   entry.getVersionStamp().getRegionVersion());
@@ -4548,7 +4546,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
   private void basicSaveConflictVersionTag(DiskRegionView dr, VersionTag tag, boolean async)
       throws IOException, InterruptedException {
-    boolean useNextOplog = false;
+    var useNextOplog = false;
     getParent().getBackupLock().lock();
     try {
       synchronized (lock) {
@@ -4556,16 +4554,16 @@ public class Oplog implements CompactableOplog, Flushable {
           useNextOplog = true;
         } else {
           opState.initialize(OPLOG_CONFLICT_VERSION, dr.getId(), tag);
-          final int adjustment = getOpStateSize();
+          final var adjustment = getOpStateSize();
           assert adjustment > 0;
-          long temp = (crf.currSize + adjustment);
+          var temp = (crf.currSize + adjustment);
           if (temp > getMaxCrfSize() && !isFirstRecord()) {
             switchOpLog(dr, adjustment, null);
             // we can't reuse it since it contains variable length data
             useNextOplog = true;
           } else {
             if (lockedForKRFcreate) {
-              CacheClosedException cce =
+              var cce =
                   getParent().getCache().getCacheClosedException("The disk store is closed.");
               dr.getCancelCriterion().checkCancelInProgress(cce);
               throw cce;
@@ -4582,7 +4580,7 @@ public class Oplog implements CompactableOplog, Flushable {
             // Update the region version vector for the disk store.
             // This needs to be done under lock so that we don't switch oplogs
             // unit the version vector accurately represents what is in this oplog
-            RegionVersionVector rvv = dr.getRegionVersionVector();
+            var rvv = dr.getRegionVersionVector();
             if (rvv != null && dr.getFlags().contains(DiskRegionFlag.IS_WITH_VERSIONING)) {
               rvv.recordVersion(tag.getMemberID(), tag.getRegionVersion());
             }
@@ -4605,7 +4603,7 @@ public class Oplog implements CompactableOplog, Flushable {
   private void basicCopyForwardForOfflineCompact(long oplogKeyId, byte[] keyBytes,
       byte[] valueBytes, byte userBits, long drId, VersionTag tag)
       throws IOException, InterruptedException {
-    boolean useNextOplog = false;
+    var useNextOplog = false;
     // No need to get the backup lock since this is only for offline compaction
     synchronized (lock) {
       // synchronized (this.crf) {
@@ -4613,9 +4611,9 @@ public class Oplog implements CompactableOplog, Flushable {
         useNextOplog = true;
       } else {
         opState.initialize(oplogKeyId, keyBytes, valueBytes, userBits, drId, tag, false);
-        final int adjustment = getOpStateSize();
+        final var adjustment = getOpStateSize();
         assert adjustment > 0;
-        long temp = (crf.currSize + adjustment);
+        var temp = (crf.currSize + adjustment);
         if (temp > getMaxCrfSize() && !isFirstRecord()) {
           switchOpLog(null, adjustment, null);
           // we can't reuse it since it contains variable length data
@@ -4624,7 +4622,7 @@ public class Oplog implements CompactableOplog, Flushable {
           firstRecord = false;
           // do the io while holding lock so that switch can set doneAppending
           // Write the data to the opLog async since we are offline compacting
-          long startPosForSynchOp = writeOpLogBytes(crf, true, true);
+          var startPosForSynchOp = writeOpLogBytes(crf, true, true);
           crf.currSize = temp;
           startPosForSynchOp += getOpStateValueOffset();
           getOplogSet().getChild().writeOneKeyEntryForKRF(keyBytes, userBits, valueBytes.length,
@@ -4663,7 +4661,7 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private void rmLive(DiskRegionView dr, DiskEntry de) {
-    DiskRegionInfo dri = getOrCreateDRI(dr);
+    var dri = getOrCreateDRI(dr);
     synchronized (dri) {
       dri.rmLive(de, this);
     }
@@ -4678,12 +4676,12 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private DiskRegionInfo getOrCreateDRI(DiskRegionView dr) {
-    DiskRegionInfo dri = getDRI(dr);
+    var dri = getDRI(dr);
     if (dri == null) {
       dri = (isCompactionPossible() || couldHaveKrf())
           ? new DiskRegionInfoWithList(dr, couldHaveKrf(), krfCreated.get())
           : new DiskRegionInfoNoList(dr);
-      DiskRegionInfo oldDri = regionMap.putIfAbsent(dr.getId(), dri);
+      var oldDri = regionMap.putIfAbsent(dr.getId(), dri);
       if (oldDri != null) {
         dri = oldDri;
       }
@@ -4703,12 +4701,12 @@ public class Oplog implements CompactableOplog, Flushable {
   }
 
   private DiskRegionInfo getOrCreateDRI(long drId) {
-    DiskRegionInfo dri = getDRI(drId);
+    var dri = getDRI(drId);
     if (dri == null) {
       dri = (isCompactionPossible() || couldHaveKrf())
           ? new DiskRegionInfoWithList(null, couldHaveKrf(), krfCreated.get())
           : new DiskRegionInfoNoList(null);
-      DiskRegionInfo oldDri = regionMap.putIfAbsent(drId, dri);
+      var oldDri = regionMap.putIfAbsent(drId, dri);
       if (oldDri != null) {
         dri = oldDri;
       }
@@ -4722,14 +4720,14 @@ public class Oplog implements CompactableOplog, Flushable {
    * @param entry DiskEntry object on which remove operation is called
    */
   public void remove(InternalRegion region, DiskEntry entry, boolean async, boolean isClear) {
-    DiskRegion dr = region.getDiskRegion();
+    var dr = region.getDiskRegion();
     if (getOplogSet().getChild() != this) {
       getOplogSet().getChild().remove(region, entry, async, isClear);
     } else {
-      DiskId did = entry.getDiskId();
-      boolean exceptionOccurred = false;
-      byte prevUsrBit = did.getUserBits();
-      int len = did.getValueLength();
+      var did = entry.getDiskId();
+      var exceptionOccurred = false;
+      var prevUsrBit = did.getUserBits();
+      var len = did.getValueLength();
       try {
         basicRemove(dr, entry, async, isClear);
       } catch (IOException ex) {
@@ -4759,7 +4757,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Write the GC RVV for a single region to disk
    */
   public void writeGCRVV(DiskRegion dr) {
-    boolean useNextOplog = false;
+    var useNextOplog = false;
     getParent().getBackupLock().lock();
     try {
       synchronized (lock) {
@@ -4794,7 +4792,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Oplog.writeRVV(null,sourceRVV!=null)
    */
   public void writeRVV(DiskRegion dr, RegionVersionVector sourceRVV, Boolean isRVVTrusted) {
-    boolean useNextOplog = false;
+    var useNextOplog = false;
     getParent().getBackupLock().lock();
     try {
       synchronized (lock) {
@@ -4863,9 +4861,9 @@ public class Oplog implements CompactableOplog, Flushable {
    */
   private void basicRemove(DiskRegionView dr, DiskEntry entry, boolean async, boolean isClear)
       throws IOException, InterruptedException {
-    DiskId id = entry.getDiskId();
+    var id = entry.getDiskId();
 
-    boolean useNextOplog = false;
+    var useNextOplog = false;
     long startPosForSynchOp = -1;
     Oplog emptyOplog = null;
     if (DiskStoreImpl.KRF_DEBUG) {
@@ -4884,18 +4882,18 @@ public class Oplog implements CompactableOplog, Flushable {
           useNextOplog = true;
         } else {
           if (lockedForKRFcreate) {
-            CacheClosedException cce =
+            var cce =
                 parent.getCache().getCacheClosedException("The disk store is closed.");
             dr.getCancelCriterion().checkCancelInProgress(cce);
             throw cce;
           }
-          long oldOplogId = id.setOplogId(getOplogId());
+          var oldOplogId = id.setOplogId(getOplogId());
           if (!isClear) {
             firstRecord = false;
             // Ok now we can go ahead and find out its actual size
             // This is the only place to set notToUseUserBits=true
             initOpState(OPLOG_DEL_ENTRY_1ID, dr, entry, null, (byte) 0, true);
-            int adjustment = getOpStateSize();
+            var adjustment = getOpStateSize();
 
             drf.currSize += adjustment;
             // do the io while holding lock so that switch can set doneAppending
@@ -5006,17 +5004,17 @@ public class Oplog implements CompactableOplog, Flushable {
         if (olf.RAFClosed) {
           return;
         }
-        ByteBuffer bb = olf.writeBuf;
+        var bb = olf.writeBuf;
         if (bb != null && bb.position() != 0) {
           bb.flip();
-          int flushed = 0;
-          int numChannelRetries = 0;
+          var flushed = 0;
+          var numChannelRetries = 0;
           do {
-            final int bbStartPos = bb.position();
-            final long channelStartPos = olf.channel.position();
+            final var bbStartPos = bb.position();
+            final var channelStartPos = olf.channel.position();
             // differentiate between bytes written on this channel.write() iteration and the
             // total number of bytes written to the channel on this call
-            int channelBytesWritten = olf.channel.write(bb);
+            var channelBytesWritten = olf.channel.write(bb);
             // Expect channelBytesWritten and the changes in pp.position() and channel.position() to
             // be the same. If they are not, then the channel.write() silently failed. The following
             // retry separates spurious failures from permanent channel failures.
@@ -5146,7 +5144,7 @@ public class Oplog implements CompactableOplog, Flushable {
         // Also need to add in offset in writeBuf in case we are not flushing
         // writeBuf
         startPos = olf.channel.position() + olf.writeBuf.position();
-        long bytesWritten = opState.write(olf);
+        var bytesWritten = opState.write(olf);
         if (!async && doFlushIfSync) {
           flushAndSync();
         }
@@ -5204,7 +5202,7 @@ public class Oplog implements CompactableOplog, Flushable {
     // No need to get the backup lock prior to synchronizing (correct lock order) since the
     // synchronized block does not attempt to get the backup lock (incorrect lock order)
     synchronized (lock/* crf */) {
-      boolean result = !crf.RAFClosed;
+      var result = !crf.RAFClosed;
       if (!result && okToReopen) {
         result = true;
         crf.raf = new UninterruptibleRandomAccessFile(crf.f, "r");
@@ -5218,8 +5216,8 @@ public class Oplog implements CompactableOplog, Flushable {
 
   private BytesAndBits attemptGet(DiskRegionView dr, long offsetInOplog,
       int valueLength, byte userBits) throws IOException {
-    boolean didReopen = false;
-    boolean accessedInactive = false;
+    var didReopen = false;
+    var accessedInactive = false;
     try {
       // No need to get the backup lock prior to synchronizing (correct lock order) since the
       // synchronized block does not attempt to get the backup lock (incorrect lock order)
@@ -5244,7 +5242,7 @@ public class Oplog implements CompactableOplog, Flushable {
             accessedInactive = true;
           }
           try {
-            final long writePosition =
+            final var writePosition =
                 (doneAppending) ? crf.bytesFlushed : myRAF.getFilePointer();
             if ((offsetInOplog + valueLength) > writePosition) {
               throw new DiskAccessException(
@@ -5262,12 +5260,12 @@ public class Oplog implements CompactableOplog, Flushable {
             try {
               myRAF.seek(offsetInOplog);
               stats.incOplogSeeks();
-              byte[] valueBytes = new byte[valueLength];
+              var valueBytes = new byte[valueLength];
               myRAF.readFully(valueBytes);
               stats.incOplogReads();
               bb = new BytesAndBits(valueBytes, userBits);
               // also set the product version for an older product
-              final KnownVersion version = getProductVersionIfOld();
+              final var version = getProductVersionIfOld();
               if (version != null) {
                 bb.setVersion(version);
               }
@@ -5331,7 +5329,7 @@ public class Oplog implements CompactableOplog, Flushable {
       try {
         for (;;) {
           dr.getCancelCriterion().checkCancelInProgress(null);
-          boolean interrupted = Thread.interrupted();
+          var interrupted = Thread.interrupted();
           try {
             bb = attemptGet(dr, offsetInOplog, valueLength, userBits);
             break;
@@ -5405,7 +5403,7 @@ public class Oplog implements CompactableOplog, Flushable {
           if (!reopenFileIfClosed()) {
             return false; // fix for bug 40648
           }
-          final long writePosition =
+          final var writePosition =
               (doneAppending) ? crf.bytesFlushed : crf.raf.getFilePointer();
           if ((offsetInOplog + valueLength) > writePosition) {
             throw new DiskAccessException(
@@ -5466,7 +5464,7 @@ public class Oplog implements CompactableOplog, Flushable {
   void deleteFiles(boolean crfOnly) {
     // try doing the removeOplog unconditionally since I'm see an infinite loop
     // in destroyOldestReadyToCompact
-    boolean needsDestroy = deleted.compareAndSet(false, true);
+    var needsDestroy = deleted.compareAndSet(false, true);
 
     if (needsDestroy) {
       // I don't under stand why the compactor would have anything to do with
@@ -5492,7 +5490,7 @@ public class Oplog implements CompactableOplog, Flushable {
       // of oplogs until it has been removed from the init file. This guarantees
       // that if the oplog is in the init file, the backup code can find it and
       // try to back it up.
-      boolean addToDrfOnly = crfOnly && getHasDeletes();
+      var addToDrfOnly = crfOnly && getHasDeletes();
       getOplogSet().removeOplog(getOplogId(), true, addToDrfOnly ? this : null);
     } else if (!crfOnly && getHasDeletes()) {
       setHasDeletes(false);
@@ -5513,7 +5511,7 @@ public class Oplog implements CompactableOplog, Flushable {
     deleteFile(crf);
     // replace .crf at the end with .krf
     if (crf.f != null) {
-      final File krf = new File(
+      final var krf = new File(
           crf.f.getAbsolutePath().replaceFirst("\\" + CRF_FILE_EXT + "$", KRF_FILE_EXT));
       if (!krf.exists()) {
         return;
@@ -5547,8 +5545,8 @@ public class Oplog implements CompactableOplog, Flushable {
    * Returns "crf" or "drf".
    */
   private static String getFileType(OplogFile olf) {
-    String name = olf.f.getName();
-    int index = name.lastIndexOf('.');
+    var name = olf.f.getName();
+    var index = name.lastIndexOf('.');
     return name.substring(index + 1);
   }
 
@@ -5669,9 +5667,9 @@ public class Oplog implements CompactableOplog, Flushable {
       return false;
     }
     // otherwise check if we have enough garbage to collect with a compact
-    long rvHWMtmp = totalCount.get();
+    var rvHWMtmp = totalCount.get();
     if (rvHWMtmp > 0) {
-      long tlc = totalLiveCount.get();
+      var tlc = totalLiveCount.get();
       if (tlc < 0) {
         tlc = 0;
       }
@@ -5776,7 +5774,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * Return true if this oplog is the oldest one of those ready to compact
    */
   private boolean isOldest() {
-    long myId = getOplogId();
+    var myId = getOplogId();
     return getOplogSet().isOldestExistingOplog(myId);
   }
 
@@ -5802,7 +5800,7 @@ public class Oplog implements CompactableOplog, Flushable {
    */
   private void updateRecoveredEntry(DiskRegionView drv, DiskEntry de, DiskEntry.RecoveredEntry re) {
     if (getOplogId() != re.getOplogId()) {
-      Oplog oldOplog = getOplogSet().getChild(re.getOplogId());
+      var oldOplog = getOplogSet().getChild(re.getOplogId());
       oldOplog.rmLive(drv, de);
       initRecoveredEntry(drv, de);
     } else {
@@ -5852,17 +5850,17 @@ public class Oplog implements CompactableOplog, Flushable {
         // Start with a fresh wrapper on every compaction so that
         // if previous run used some high memory byte array which was
         // exceptional, it gets garbage collected.
-        long opStart = getStats().getStatTime();
-        BytesAndBitsForCompactor wrapper = new BytesAndBitsForCompactor();
+        var opStart = getStats().getStatTime();
+        var wrapper = new BytesAndBitsForCompactor();
 
         DiskEntry de;
         DiskEntry lastDe = null;
-        boolean compactFailed = /*
-                                 * getParent().getOwner().isDestroyed ||
-                                 */!compactor.keepCompactorRunning();
-        int totalCount = 0;
-        for (DiskRegionInfo dri : regionMap.values()) {
-          final DiskRegionView dr = dri.getDiskRegion();
+        var compactFailed = /*
+                             * getParent().getOwner().isDestroyed ||
+                             */!compactor.keepCompactorRunning();
+        var totalCount = 0;
+        for (var dri : regionMap.values()) {
+          final var dr = dri.getDiskRegion();
           if (dr == null) {
             continue;
           }
@@ -5882,14 +5880,14 @@ public class Oplog implements CompactableOplog, Flushable {
             lastDe = de;
             didCompact = false;
             synchronized (de) {
-              DiskId did = de.getDiskId();
+              var did = de.getDiskId();
               assert did != null;
               synchronized (did) {
-                long oplogId = did.getOplogId();
+                var oplogId = did.getOplogId();
                 if (oplogId != getOplogId()) {
                   continue;
                 }
-                boolean toCompact = getBytesAndBitsForCompaction(dr, de, wrapper);
+                var toCompact = getBytesAndBitsForCompaction(dr, de, wrapper);
                 if (toCompact) {
                   if (oplogId != did.getOplogId()) {
                     // @todo: Is this even possible? Perhaps I should just assert here
@@ -5976,7 +5974,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
     List<KRFEntry> sortedLiveEntries;
 
-    HashMap<Long, DiskRegionInfo> targetRegions = new HashMap<>(regionMap);
+    var targetRegions = new HashMap<Long, DiskRegionInfo>(regionMap);
     synchronized (diskRecoveryStores) {
       diskRecoveryStores.values()
           .removeIf(store -> isLruValueRecoveryDisabled(store) || store.lruLimitExceeded());
@@ -5990,16 +5988,16 @@ public class Oplog implements CompactableOplog, Flushable {
       return;
     }
 
-    final ByteArrayDataInput in = new ByteArrayDataInput();
-    for (KRFEntry entry : sortedLiveEntries) {
+    final var in = new ByteArrayDataInput();
+    for (var entry : sortedLiveEntries) {
       // Early out if we start closing the parent.
       if (getParent().isClosing()) {
         return;
       }
 
-      DiskEntry diskEntry = entry.getDiskEntry();
-      DiskRegionView diskRegionView = entry.getDiskRegionView();
-      long diskRegionId = diskRegionView.getId();
+      var diskEntry = entry.getDiskEntry();
+      var diskRegionView = entry.getDiskRegionView();
+      var diskRegionId = diskRegionView.getId();
 
       // TODO DAN ok, here's what we need to do
       // 1) lock and obtain the correct RegionEntry that we are recovering too.
@@ -6012,7 +6010,7 @@ public class Oplog implements CompactableOplog, Flushable {
       // disk is still valid. That is going to be something like
 
       synchronized (diskRecoveryStores) {
-        DiskRecoveryStore diskRecoveryStore = diskRecoveryStores.get(diskRegionId);
+        var diskRecoveryStore = diskRecoveryStores.get(diskRegionId);
         if (diskRecoveryStore == null) {
           continue;
         }
@@ -6072,14 +6070,14 @@ public class Oplog implements CompactableOplog, Flushable {
 
   private byte[] serializeRVVs(Map<Long, AbstractDiskRegion> drMap, boolean gcRVV)
       throws IOException {
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
 
     // Filter out any regions that do not have versioning enabled
     drMap = new HashMap<>(drMap);
-    for (Iterator<Map.Entry<Long, AbstractDiskRegion>> itr = drMap.entrySet().iterator(); itr
+    for (var itr = drMap.entrySet().iterator(); itr
         .hasNext();) {
-      Map.Entry<Long, AbstractDiskRegion> regionEntry = itr.next();
-      AbstractDiskRegion dr = regionEntry.getValue();
+      var regionEntry = itr.next();
+      var dr = regionEntry.getValue();
       if (!dr.getFlags().contains(DiskRegionFlag.IS_WITH_VERSIONING)) {
         itr.remove();
       }
@@ -6087,13 +6085,13 @@ public class Oplog implements CompactableOplog, Flushable {
     // Write the size first
     InternalDataSerializer.writeUnsignedVL(drMap.size(), out);
     // Now write regions RVV.
-    for (Map.Entry<Long, AbstractDiskRegion> regionEntry : drMap.entrySet()) {
+    for (var regionEntry : drMap.entrySet()) {
       // For each region, write the RVV for the region.
 
-      Long diskRegionID = regionEntry.getKey();
-      AbstractDiskRegion dr = regionEntry.getValue();
+      var diskRegionID = regionEntry.getKey();
+      var dr = regionEntry.getValue();
 
-      RegionVersionVector rvv = dr.getRegionVersionVector();
+      var rvv = dr.getRegionVersionVector();
       if (logger.isTraceEnabled(LogMarker.PERSIST_WRITES_VERBOSE)) {
         logger.trace(LogMarker.PERSIST_WRITES_VERBOSE,
             "serializeRVVs: isGCRVV={} drId={} rvv={} oplog#{}", gcRVV, diskRegionID,
@@ -6107,14 +6105,14 @@ public class Oplog implements CompactableOplog, Flushable {
         // For the GC RVV, we will just write the GC versions
         Map<VersionSource, Long> memberToVersion = rvv.getMemberToGCVersion();
         InternalDataSerializer.writeUnsignedVL(memberToVersion.size(), out);
-        for (Entry<VersionSource, Long> memberEntry : memberToVersion.entrySet()) {
+        for (var memberEntry : memberToVersion.entrySet()) {
 
           // For each member, write the canonicalized member id,
           // and the version number for that member
-          VersionSource member = memberEntry.getKey();
-          Long gcVersion = memberEntry.getValue();
+          var member = memberEntry.getKey();
+          var gcVersion = memberEntry.getValue();
 
-          int id = getParent().getDiskInitFile().getOrCreateCanonicalId(member);
+          var id = getParent().getDiskInitFile().getOrCreateCanonicalId(member);
           InternalDataSerializer.writeUnsignedVL(id, out);
           InternalDataSerializer.writeUnsignedVL(gcVersion, out);
         }
@@ -6124,14 +6122,14 @@ public class Oplog implements CompactableOplog, Flushable {
         // member
         Map<VersionSource, RegionVersionHolder> memberToVersion = rvv.getMemberToVersion();
         InternalDataSerializer.writeUnsignedVL(memberToVersion.size(), out);
-        for (Map.Entry<VersionSource, RegionVersionHolder> memberEntry : memberToVersion
+        for (var memberEntry : memberToVersion
             .entrySet()) {
 
           // For each member, right the canonicalized member id,
           // and the version number with exceptions for that member
-          VersionSource member = memberEntry.getKey();
-          RegionVersionHolder versionHolder = memberEntry.getValue();
-          int id = getParent().getDiskInitFile().getOrCreateCanonicalId(member);
+          var member = memberEntry.getKey();
+          var versionHolder = memberEntry.getValue();
+          var id = getParent().getDiskInitFile().getOrCreateCanonicalId(member);
           InternalDataSerializer.writeUnsignedVL(id, out);
           synchronized (versionHolder) {
             InternalDataSerializer.invokeToData(versionHolder, out);
@@ -6154,7 +6152,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * @return original channel object
    */
   UninterruptibleFileChannel testSetCrfChannel(UninterruptibleFileChannel ch) {
-    UninterruptibleFileChannel chPrev = crf.channel;
+    var chPrev = crf.channel;
     crf.channel = ch;
     return chPrev;
   }
@@ -6167,50 +6165,50 @@ public class Oplog implements CompactableOplog, Flushable {
     if (ba == null) {
       return "null";
     }
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < len; i++) {
+    var sb = new StringBuilder();
+    for (var i = 0; i < len; i++) {
       sb.append(ba[i]).append(", ");
     }
     return sb.toString();
   }
 
   void serializeVersionTag(VersionHolder tag, DataOutput out) throws IOException {
-    int entryVersion = tag.getEntryVersion();
-    long regionVersion = tag.getRegionVersion();
-    VersionSource versionMember = tag.getMemberID();
-    long timestamp = tag.getVersionTimeStamp();
-    int dsId = tag.getDistributedSystemId();
+    var entryVersion = tag.getEntryVersion();
+    var regionVersion = tag.getRegionVersion();
+    var versionMember = tag.getMemberID();
+    var timestamp = tag.getVersionTimeStamp();
+    var dsId = tag.getDistributedSystemId();
     serializeVersionTag(entryVersion, regionVersion, versionMember, timestamp, dsId, out);
   }
 
   byte[] serializeVersionTag(VersionTag tag) throws IOException {
-    int entryVersion = tag.getEntryVersion();
-    long regionVersion = tag.getRegionVersion();
-    VersionSource versionMember = tag.getMemberID();
-    long timestamp = tag.getVersionTimeStamp();
-    int dsId = tag.getDistributedSystemId();
+    var entryVersion = tag.getEntryVersion();
+    var regionVersion = tag.getRegionVersion();
+    var versionMember = tag.getMemberID();
+    var timestamp = tag.getVersionTimeStamp();
+    var dsId = tag.getDistributedSystemId();
     return serializeVersionTag(entryVersion, regionVersion, versionMember, timestamp, dsId);
   }
 
   byte[] serializeVersionTag(VersionStamp stamp) throws IOException {
-    int entryVersion = stamp.getEntryVersion();
-    long regionVersion = stamp.getRegionVersion();
-    VersionSource versionMember = stamp.getMemberID();
-    long timestamp = stamp.getVersionTimeStamp();
-    int dsId = stamp.getDistributedSystemId();
+    var entryVersion = stamp.getEntryVersion();
+    var regionVersion = stamp.getRegionVersion();
+    var versionMember = stamp.getMemberID();
+    var timestamp = stamp.getVersionTimeStamp();
+    var dsId = stamp.getDistributedSystemId();
     return serializeVersionTag(entryVersion, regionVersion, versionMember, timestamp, dsId);
   }
 
   private byte[] serializeVersionTag(int entryVersion, long regionVersion,
       VersionSource versionMember, long timestamp, int dsId) throws IOException {
-    HeapDataOutputStream out = new HeapDataOutputStream(4 + 8 + 4 + 8 + 4, KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(4 + 8 + 4 + 8 + 4, KnownVersion.CURRENT);
     serializeVersionTag(entryVersion, regionVersion, versionMember, timestamp, dsId, out);
     return out.toByteArray();
   }
 
   private void serializeVersionTag(int entryVersion, long regionVersion,
       VersionSource versionMember, long timestamp, int dsId, DataOutput out) throws IOException {
-    int memberId = getParent().getDiskInitFile().getOrCreateCanonicalId(versionMember);
+    var memberId = getParent().getDiskInitFile().getOrCreateCanonicalId(versionMember);
     InternalDataSerializer.writeSignedVL(entryVersion, out);
     InternalDataSerializer.writeUnsignedVL(regionVersion, out);
     InternalDataSerializer.writeUnsignedVL(memberId, out);
@@ -6248,7 +6246,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * return null.
    */
   public KnownVersion getProductVersionIfOld() {
-    final KnownVersion version = gfversion;
+    final var version = gfversion;
     if (version == KnownVersion.CURRENT) {
       return null;
     }
@@ -6262,7 +6260,7 @@ public class Oplog implements CompactableOplog, Flushable {
    * {@link KnownVersion} else return null.
    */
   public KnownVersion getDataVersionIfOld() {
-    final KnownVersion version = dataVersion;
+    final var version = dataVersion;
     if (version == KnownVersion.CURRENT) {
       return null;
     }
@@ -6327,7 +6325,7 @@ public class Oplog implements CompactableOplog, Flushable {
     public KRFEntry(DiskRegionView drv, DiskEntry de, VersionHolder tag) {
       this.de = de;
       this.drv = drv;
-      DiskId diskId = de.getDiskId();
+      var diskId = de.getDiskId();
       offsetInOplog = diskId != null ? diskId.getOffsetInOplog() : 0;
       versionTag = tag;
     }
@@ -6401,12 +6399,12 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     private void write(OplogFile olf, byte[] bytes, int byteLength) {
-      int offset = 0;
-      ByteBuffer bb = olf.writeBuf;
+      var offset = 0;
+      var bb = olf.writeBuf;
       while (offset < byteLength) {
 
-        int bytesThisTime = byteLength - offset;
-        boolean needsFlush = false;
+        var bytesThisTime = byteLength - offset;
+        var needsFlush = false;
         if (bytesThisTime > bb.remaining()) {
           needsFlush = true;
           bytesThisTime = bb.remaining();
@@ -6420,7 +6418,7 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     private void writeByte(OplogFile olf, byte v) {
-      ByteBuffer bb = olf.writeBuf;
+      var bb = olf.writeBuf;
       if (1 > bb.remaining()) {
         flushNoSync();
       }
@@ -6428,7 +6426,7 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     private void writeOrdinal(OplogFile olf, short ordinal) {
-      ByteBuffer bb = olf.writeBuf;
+      var bb = olf.writeBuf;
       if (3 > bb.remaining()) {
         flushNoSync();
       }
@@ -6437,7 +6435,7 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     private void writeInt(OplogFile olf, int v) {
-      ByteBuffer bb = olf.writeBuf;
+      var bb = olf.writeBuf;
       if (4 > bb.remaining()) {
         flushNoSync();
       }
@@ -6445,7 +6443,7 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     private void writeLong(OplogFile olf, long v) {
-      ByteBuffer bb = olf.writeBuf;
+      var bb = olf.writeBuf;
       if (8 > bb.remaining()) {
         flushNoSync();
       }
@@ -6478,7 +6476,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
     public void initialize(Map<Long, AbstractDiskRegion> drMap, boolean gcRVV) throws IOException {
       opCode = OPLOG_RVV;
-      byte[] rvvBytes = serializeRVVs(drMap, gcRVV);
+      var rvvBytes = serializeRVVs(drMap, gcRVV);
       value = new DiskEntry.Helper.ByteArrayValueWrapper(true, rvvBytes);
       // Size is opCode + length + end of record
       size = 1 + rvvBytes.length + 1;
@@ -6506,11 +6504,11 @@ public class Oplog implements CompactableOplog, Flushable {
       }
       deltaIdBytesLength = 0;
       {
-        long delta = calcDelta(oplogKeyId, opCode);
+        var delta = calcDelta(oplogKeyId, opCode);
         deltaIdBytesLength = bytesNeeded(delta);
         size += deltaIdBytesLength;
         opCode += (byte) ((deltaIdBytesLength & 0xFF) - 1);
-        for (int i = deltaIdBytesLength - 1; i >= 0; i--) {
+        for (var i = deltaIdBytesLength - 1; i >= 0; i--) {
           deltaIdBytes[i] = (byte) (delta & 0xFF);
           delta >>= 8;
         }
@@ -6535,7 +6533,7 @@ public class Oplog implements CompactableOplog, Flushable {
       // TODO: This method will be called 2 times, one for persisting into crf
       // another for persisting into krf, since we did not save the byte arrary
       // for the verstion tag.
-      VersionStamp stamp = entry.getVersionStamp();
+      var stamp = entry.getVersionStamp();
       if (EntryBits.isWithVersions(userBits)) {
         assert (stamp != null);
         versionsBytes = serializeVersionTag(stamp);
@@ -6554,7 +6552,7 @@ public class Oplog implements CompactableOplog, Flushable {
         throw new IllegalStateException("userBits==1 and valueLength is 0");
       }
 
-      boolean needsKey = false;
+      var needsKey = false;
       if (this.opCode == OPLOG_MOD_ENTRY_1ID) {
         if (modNeedsKey(entry)) {
           needsKey = true;
@@ -6572,7 +6570,7 @@ public class Oplog implements CompactableOplog, Flushable {
       }
 
       if (needsKey) {
-        Object key = entry.getKey();
+        var key = entry.getKey();
         keyBytes = EntryEventImpl.serialize(key);
         size += (4 + keyBytes.length);
       } else {
@@ -6581,7 +6579,7 @@ public class Oplog implements CompactableOplog, Flushable {
       if (this.opCode == OPLOG_DEL_ENTRY_1ID) {
         drIdLength = 0;
       } else {
-        long drId = dr.getId();
+        var drId = dr.getId();
         saveDrId(drId);
       }
       if (needsValue) {
@@ -6589,16 +6587,16 @@ public class Oplog implements CompactableOplog, Flushable {
       }
       deltaIdBytesLength = 0;
       if (this.opCode != OPLOG_NEW_ENTRY_0ID) {
-        long keyId = entry.getDiskId().getKeyId();
+        var keyId = entry.getDiskId().getKeyId();
         if (keyId == 0) {
           Assert.fail("Attempting to write an entry with keyId=0 to oplog. Entry key="
               + entry.getKey() + " diskId=" + entry.getDiskId() + " region=" + dr);
         }
-        long delta = calcDelta(keyId, this.opCode);
+        var delta = calcDelta(keyId, this.opCode);
         deltaIdBytesLength = bytesNeeded(delta);
         size += deltaIdBytesLength;
         this.opCode += (byte) ((deltaIdBytesLength & 0xFF) - 1);
-        for (int i = deltaIdBytesLength - 1; i >= 0; i--) {
+        for (var i = deltaIdBytesLength - 1; i >= 0; i--) {
           deltaIdBytes[i] = (byte) (delta & 0xFF);
           delta >>= 8;
         }
@@ -6628,7 +6626,7 @@ public class Oplog implements CompactableOplog, Flushable {
         drIdLength = 1;
         drIdBytes[0] = (byte) drId;
       } else {
-        byte bytesNeeded = bytesNeeded(drId);
+        var bytesNeeded = bytesNeeded(drId);
         drIdLength = bytesNeeded + 1;
         drIdBytes[0] = bytesNeeded;
         for (int i = bytesNeeded; i >= 1; i--) {
@@ -6657,7 +6655,7 @@ public class Oplog implements CompactableOplog, Flushable {
       if (!needsValue) {
         return 0;
       }
-      int result = deltaIdBytesLength
+      var result = deltaIdBytesLength
           // + 8 /* HACK DEBUG */
           + drIdLength + 1/* opcode */
           + 4/* value length */;
@@ -6720,7 +6718,7 @@ public class Oplog implements CompactableOplog, Flushable {
           bytesWritten += versionsBytes.length;
         }
         if (needsValue) {
-          int len = value.getLength();
+          var len = value.getLength();
           writeInt(olf, len);
           bytesWritten += 4;
           if (len > 0) {
@@ -6807,11 +6805,11 @@ public class Oplog implements CompactableOplog, Flushable {
      * Clear without an RVV. Empties the entire list.
      */
     private int clear() {
-      int result = 0;
+      var result = 0;
       // Need to iterate over the list and set each prev field to null
       // so that if remove is called it will know that the DiskEntry
       // has already been removed.
-      DiskEntry n = getNext();
+      var n = getNext();
       setNext(this);
       setPrev(this);
       while (n != this) {
@@ -6823,10 +6821,10 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     public synchronized boolean remove(DiskEntry v) {
-      DiskEntry p = v.getPrev();
+      var p = v.getPrev();
       if (p != null) {
         v.setPrev(null);
-        DiskEntry n = v.getNext();
+        var n = v.getNext();
         v.setNext(null);
         n.setPrev(p);
         p.setNext(n);
@@ -6839,7 +6837,7 @@ public class Oplog implements CompactableOplog, Flushable {
     public synchronized void insert(DiskEntry v) {
       assert v.getPrev() == null;
       // checkForDuplicate(v);
-      DiskEntry n = getNext();
+      var n = getNext();
       setNext(v);
       n.setPrev(v);
       v.setNext(n);
@@ -6847,14 +6845,14 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     public synchronized void replace(DiskEntry old, DiskEntry v) {
-      DiskEntry p = old.getPrev();
+      var p = old.getPrev();
       if (p != null) {
         old.setPrev(null);
         v.setPrev(p);
         p.setNext(v);
       }
 
-      DiskEntry n = old.getNext();
+      var n = old.getNext();
       if (n != null) {
         old.setNext(null);
         v.setNext(n);
@@ -6942,7 +6940,7 @@ public class Oplog implements CompactableOplog, Flushable {
      */
     public synchronized int addLiveEntriesToList(KRFEntry[] liveEntries, int idx,
         DiskRegionView drv, Map<DiskEntry, VersionHolder> pendingKrfTags) {
-      DiskEntry de = getPrev();
+      var de = getPrev();
       while (de != this) {
         VersionHolder tag = null;
         if (pendingKrfTags != null) {
@@ -7312,7 +7310,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
     @Override
     public synchronized boolean testAndSetUnrecovered() {
-      boolean result = !unrecovered;
+      var result = !unrecovered;
       if (result) {
         unrecovered = true;
         dr = null;
@@ -7327,7 +7325,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
     @Override
     public synchronized boolean testAndSetRecovered(DiskRegionView dr) {
-      boolean result = unrecovered;
+      var result = unrecovered;
       if (result) {
         unrecovered = false;
         this.dr = dr;
@@ -7442,7 +7440,7 @@ public class Oplog implements CompactableOplog, Flushable {
     @Override
     public boolean rmLive(DiskEntry de, Oplog oplog) {
       synchronized (liveEntries) {
-        boolean removed = liveEntries.remove(de);
+        var removed = liveEntries.remove(de);
         if (removed && pendingKrfTags != null) {
           pendingKrfTags.remove(de);
         }
@@ -7455,7 +7453,7 @@ public class Oplog implements CompactableOplog, Flushable {
 
     @Override
     public DiskEntry getNextLiveEntry() {
-      DiskEntry result = liveEntries.getPrev();
+      var result = liveEntries.getPrev();
       if (result == liveEntries) {
         result = null;
       }
@@ -7474,7 +7472,7 @@ public class Oplog implements CompactableOplog, Flushable {
      */
     @Override
     public synchronized boolean testAndSetUnrecovered() {
-      boolean result = super.testAndSetUnrecovered();
+      var result = super.testAndSetUnrecovered();
       if (result) {
         liveEntries.clear();
       }

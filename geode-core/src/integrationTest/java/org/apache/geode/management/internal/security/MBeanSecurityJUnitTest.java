@@ -20,13 +20,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.util.Set;
 
 import javax.management.DynamicMBean;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
@@ -38,7 +34,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.ManagementException;
 import org.apache.geode.management.ManagementService;
-import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.security.TestSecurityManager;
 import org.apache.geode.test.junit.categories.SecurityTest;
@@ -66,7 +61,7 @@ public class MBeanSecurityJUnitTest {
   @Test
   @ConnectionConfiguration(user = "super-user", password = "1234567")
   public void testNoAccessWithWhoever() throws Exception {
-    MBeanServerConnection con = connectionRule.getMBeanServerConnection();
+    var con = connectionRule.getMBeanServerConnection();
     assertThatThrownBy(
         () -> con.createMBean("FakeClassName", new ObjectName("GemFire", "name", "foo")))
             .isInstanceOf(SecurityException.class);
@@ -87,8 +82,8 @@ public class MBeanSecurityJUnitTest {
   @Test
   @ConnectionConfiguration(user = "stranger", password = "1234567")
   public void testQueryBean() throws MalformedObjectNameException, IOException {
-    MBeanServerConnection con = connectionRule.getMBeanServerConnection();
-    Set<ObjectInstance> objects =
+    var con = connectionRule.getMBeanServerConnection();
+    var objects =
         con.queryMBeans(ObjectName.getInstance(ResourceConstants.OBJECT_NAME_ACCESSCONTROL), null);
     assertThat(objects.size()).isEqualTo(0); // no AccessControlMBean in the query result
 
@@ -102,12 +97,12 @@ public class MBeanSecurityJUnitTest {
    */
   @Test
   public void testLocalCalls() throws Exception {
-    MBeanServer server = MBeanJMXAdapter.mbeanServer;
+    var server = MBeanJMXAdapter.mbeanServer;
     assertThatThrownBy(
         () -> server.createMBean("FakeClassName", new ObjectName("GemFire", "name", "foo")))
             .isInstanceOf(ReflectionException.class);
 
-    MBeanJMXAdapter adapter = new MBeanJMXAdapter(mock(DistributedMember.class));
+    var adapter = new MBeanJMXAdapter(mock(DistributedMember.class));
     assertThatThrownBy(() -> adapter.registerMBean(mock(DynamicMBean.class),
         new ObjectName("MockDomain", "name", "mock"), false))
             .isInstanceOf(ManagementException.class);
@@ -117,8 +112,8 @@ public class MBeanSecurityJUnitTest {
   @ConnectionConfiguration(user = "stranger", password = "1234567")
   public void testServerSideCalls() {
     // calls through ManagementService is not going through authorization checks
-    ManagementService service = ManagementService.getManagementService(server.getCache());
-    MemberMXBean bean = service.getMemberMXBean();
+    var service = ManagementService.getManagementService(server.getCache());
+    var bean = service.getMemberMXBean();
     bean.compactAllDiskStores();
   }
 }

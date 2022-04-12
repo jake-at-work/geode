@@ -42,8 +42,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.PartitionAttributesFactory;
@@ -53,16 +51,10 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.internal.LocatorDiscoveryCallbackAdapter;
 import org.apache.geode.cache.wan.GatewayEventFilter;
-import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
-import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.cache.wan.GatewaySenderFactory;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.partitioned.PRLocallyDestroyedException;
 import org.apache.geode.internal.cache.versions.VersionSource;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.InternalGatewaySenderFactory;
 import org.apache.geode.test.dunit.Host;
@@ -91,18 +83,18 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testUpdateVersionAfterCreateWithSerialSender() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0); // locator site1
-    VM vm1 = host.getVM(1); // server2 site1
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0); // locator site1
+    var vm1 = host.getVM(1); // server2 site1
 
-    VM vm2 = host.getVM(2); // locator site2
-    VM vm3 = host.getVM(3); // server1 site2
-    VM vm4 = host.getVM(4); // server2 site2
+    var vm2 = host.getVM(2); // locator site2
+    var vm3 = host.getVM(3); // server1 site2
+    var vm4 = host.getVM(4); // server2 site2
 
-    final String key = "key-1";
+    final var key = "key-1";
 
     // Site 1
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> createCache(lnPort));
     vm1.invoke(() -> createSender("ln1", 2, false, 10, 1, false, false, null, true));
@@ -112,15 +104,15 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
     vm1.invoke(() -> waitForSenderRunningState("ln1"));
 
     // Site 2
-    Integer nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
-    Integer nyRecPort = vm3.invoke(() -> createReceiver(nyPort));
+    var nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var nyRecPort = vm3.invoke(() -> createReceiver(nyPort));
 
     vm3.invoke(() -> createPartitionedRegion(regionName, "", 1, 1));
     vm4.invoke(() -> createCache(nyPort));
     vm4.invoke(() -> createPartitionedRegion(regionName, "", 1, 1));
 
-    VersionTag localTag = vm1.invoke(() -> putEntryAndGetPartitionedRegionVersionTag(key));
-    VersionTag remoteTag = vm4.invoke(() -> getPartitionedRegionVersionTag(key, localTag));
+    var localTag = vm1.invoke(() -> putEntryAndGetPartitionedRegionVersionTag(key));
+    var remoteTag = vm4.invoke(() -> getPartitionedRegionVersionTag(key, localTag));
 
     assertEquals("Local and remote site have different timestamps", localTag.getVersionTimeStamp(),
         remoteTag.getVersionTimeStamp());
@@ -128,18 +120,18 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testUpdateVersionAfterCreateWithSerialSenderOnDR() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0); // locator site1
-    VM vm1 = host.getVM(1); // server1 site1
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0); // locator site1
+    var vm1 = host.getVM(1); // server1 site1
 
-    VM vm2 = host.getVM(2); // locator site2
-    VM vm3 = host.getVM(3); // server1 site2
-    VM vm4 = host.getVM(4); // server2 site2
+    var vm2 = host.getVM(2); // locator site2
+    var vm3 = host.getVM(3); // server1 site2
+    var vm4 = host.getVM(4); // server2 site2
 
-    final String key = "key-1";
+    final var key = "key-1";
 
     // Site 1
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> createCache(lnPort));
     vm1.invoke(() -> createSender("ln1", 2, false, 10, 1, false, false, null, true));
@@ -149,15 +141,15 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
     vm1.invoke(() -> waitForSenderRunningState("ln1"));
 
     // Site 2
-    Integer nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
-    Integer nyRecPort = vm3.invoke(() -> createReceiver(nyPort));
+    var nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var nyRecPort = vm3.invoke(() -> createReceiver(nyPort));
 
     vm3.invoke(() -> createReplicatedRegion(regionName, ""));
     vm4.invoke(() -> createCache(nyPort));
     vm4.invoke(() -> createReplicatedRegion(regionName, ""));
 
-    VersionTag localTag = vm1.invoke(() -> putEntryAndGetReplicatedRegionVersionTag(key));
-    VersionTag remoteTag = vm4.invoke(() -> getReplicatedRegionVersionTag(key, localTag));
+    var localTag = vm1.invoke(() -> putEntryAndGetReplicatedRegionVersionTag(key));
+    var remoteTag = vm4.invoke(() -> getReplicatedRegionVersionTag(key, localTag));
 
     assertEquals("Local and remote site have different timestamps", localTag.getVersionTimeStamp(),
         remoteTag.getVersionTimeStamp());
@@ -165,18 +157,18 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testUpdateVersionAfterCreateWithParallelSender() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0); // locator site1
-    VM vm1 = host.getVM(1); // server1 site1
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0); // locator site1
+    var vm1 = host.getVM(1); // server1 site1
 
-    VM vm2 = host.getVM(2); // locator site2
-    VM vm3 = host.getVM(3); // server1 site2
-    VM vm4 = host.getVM(4); // server2 site2
+    var vm2 = host.getVM(2); // locator site2
+    var vm3 = host.getVM(3); // server1 site2
+    var vm4 = host.getVM(4); // server2 site2
 
     // Site 1
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
-    final String key = "key-1";
+    final var key = "key-1";
 
     vm1.invoke(() -> createCache(lnPort));
     vm1.invoke(() -> createSender("ln1", 2, true, 10, 1, false, false, null, true));
@@ -186,15 +178,15 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
     vm1.invoke(() -> waitForSenderRunningState("ln1"));
 
     // Site 2
-    Integer nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
-    Integer nyRecPort = vm3.invoke(() -> createReceiver(nyPort));
+    var nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var nyRecPort = vm3.invoke(() -> createReceiver(nyPort));
 
     vm3.invoke(() -> createPartitionedRegion(regionName, "", 1, 1));
     vm4.invoke(() -> createCache(nyPort));
     vm4.invoke(() -> createPartitionedRegion(regionName, "", 1, 1));
 
-    VersionTag localTag = vm1.invoke(() -> putEntryAndGetPartitionedRegionVersionTag(key));
-    VersionTag remoteTag = vm4.invoke(() -> getPartitionedRegionVersionTag(key, localTag));
+    var localTag = vm1.invoke(() -> putEntryAndGetPartitionedRegionVersionTag(key));
+    var remoteTag = vm4.invoke(() -> getPartitionedRegionVersionTag(key, localTag));
 
     assertEquals("Local and remote site have different timestamps", localTag.getVersionTimeStamp(),
         remoteTag.getVersionTimeStamp());
@@ -202,18 +194,18 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testUpdateVersionAfterCreateWithConcurrentSerialSender() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0); // locator site1
-    VM vm1 = host.getVM(1); // server1 site1
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0); // locator site1
+    var vm1 = host.getVM(1); // server1 site1
 
-    VM vm2 = host.getVM(2); // locator site2
-    VM vm3 = host.getVM(3); // server1 site2
-    VM vm4 = host.getVM(4); // server2 site2
+    var vm2 = host.getVM(2); // locator site2
+    var vm3 = host.getVM(3); // server1 site2
+    var vm4 = host.getVM(4); // server2 site2
 
     // Site 1
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
-    final String key = "key-1";
+    final var key = "key-1";
 
     vm1.invoke(() -> createCache(lnPort));
     vm1.invoke(
@@ -224,15 +216,15 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
     vm1.invoke(() -> waitForSenderRunningState("ln1"));
 
     // Site 2
-    Integer nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
-    Integer nyRecPort = vm3.invoke(() -> createReceiver(nyPort));
+    var nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var nyRecPort = vm3.invoke(() -> createReceiver(nyPort));
 
     vm3.invoke(() -> createPartitionedRegion(regionName, "", 1, 1));
     vm4.invoke(() -> createCache(nyPort));
     vm4.invoke(() -> createPartitionedRegion(regionName, "", 1, 1));
 
-    VersionTag localTag = vm1.invoke(() -> putEntryAndGetPartitionedRegionVersionTag(key));
-    VersionTag remoteTag = vm4.invoke(() -> getPartitionedRegionVersionTag(key, localTag));
+    var localTag = vm1.invoke(() -> putEntryAndGetPartitionedRegionVersionTag(key));
+    var remoteTag = vm4.invoke(() -> getPartitionedRegionVersionTag(key, localTag));
 
     assertEquals("Local and remote site have different timestamps", localTag.getVersionTimeStamp(),
         remoteTag.getVersionTimeStamp());
@@ -244,24 +236,24 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
 
     region.put(key, "value-1");
     region.put(key, "value-2");
-    Entry entry = region.getEntry(key);
+    var entry = region.getEntry(key);
     assertTrue(entry instanceof NonTXEntry);
-    RegionEntry regionEntry = ((NonTXEntry) entry).getRegionEntry();
+    var regionEntry = ((NonTXEntry) entry).getRegionEntry();
 
-    VersionStamp stamp = regionEntry.getVersionStamp();
+    var stamp = regionEntry.getVersionStamp();
 
     // Create a duplicate entry version tag from stamp with newer
     // time-stamp.
-    VersionSource memberId = (VersionSource) cache.getDistributedSystem().getDistributedMember();
-    VersionTag versionTag = VersionTag.create(memberId);
+    var memberId = (VersionSource) cache.getDistributedSystem().getDistributedMember();
+    var versionTag = VersionTag.create(memberId);
 
-    int entryVersion = stamp.getEntryVersion() - 1;
-    int dsid = stamp.getDistributedSystemId();
+    var entryVersion = stamp.getEntryVersion() - 1;
+    var dsid = stamp.getDistributedSystemId();
 
     // Increment the time by 1 in case the time is the same as the previous event.
     // The entry's version timestamp can be incremented by 1 in certain circumstances.
     // See AbstractRegionEntry.generateVersionTag.
-    long time = System.currentTimeMillis() + 1;
+    var time = System.currentTimeMillis() + 1;
 
     versionTag.setEntryVersion(entryVersion);
     versionTag.setDistributedSystemId(dsid);
@@ -292,24 +284,24 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
 
     region.put(key, "value-1");
     region.put(key, "value-2");
-    Entry entry = region.getEntry(key);
+    var entry = region.getEntry(key);
     assertTrue(entry instanceof EntrySnapshot);
-    RegionEntry regionEntry = ((EntrySnapshot) entry).getRegionEntry();
+    var regionEntry = ((EntrySnapshot) entry).getRegionEntry();
 
-    VersionStamp stamp = regionEntry.getVersionStamp();
+    var stamp = regionEntry.getVersionStamp();
 
     // Create a duplicate entry version tag from stamp with newer
     // time-stamp.
-    VersionSource memberId = (VersionSource) cache.getDistributedSystem().getDistributedMember();
-    VersionTag versionTag = VersionTag.create(memberId);
+    var memberId = (VersionSource) cache.getDistributedSystem().getDistributedMember();
+    var versionTag = VersionTag.create(memberId);
 
-    int entryVersion = stamp.getEntryVersion() - 1;
-    int dsid = stamp.getDistributedSystemId();
+    var entryVersion = stamp.getEntryVersion() - 1;
+    var dsid = stamp.getDistributedSystemId();
 
     // Increment the time by 1 in case the time is the same as the previous event.
     // The entry's version timestamp can be incremented by 1 in certain circumstances.
     // See AbstractRegionEntry.generateVersionTag.
-    long time = System.currentTimeMillis() + 1;
+    var time = System.currentTimeMillis() + 1;
 
     versionTag.setEntryVersion(entryVersion);
     versionTag.setDistributedSystemId(dsid);
@@ -341,23 +333,23 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
     await().until(() -> region.getEntry(key) != null);
 
     await().until(() -> {
-      Entry entry = region.getEntry(key);
+      var entry = region.getEntry(key);
       assertTrue(entry instanceof NonTXEntry);
-      RegionEntry regionEntry = ((NonTXEntry) entry).getRegionEntry();
+      var regionEntry = ((NonTXEntry) entry).getRegionEntry();
       return regionEntry.getVersionStamp().getVersionTimeStamp() == localTag.getVersionTimeStamp();
     });
 
-    Entry entry = region.getEntry(key);
+    var entry = region.getEntry(key);
     assertTrue(entry instanceof NonTXEntry);
-    RegionEntry regionEntry = ((NonTXEntry) entry).getRegionEntry();
+    var regionEntry = ((NonTXEntry) entry).getRegionEntry();
 
-    VersionStamp stamp = regionEntry.getVersionStamp();
+    var stamp = regionEntry.getVersionStamp();
 
     return stamp.asVersionTag();
   }
 
   private VersionTag getPartitionedRegionVersionTag(final String key, final VersionTag localTag) {
-    final PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
+    final var region = (PartitionedRegion) cache.getRegion(regionName);
 
     await().until(() -> {
       Entry<?, ?> entry = null;
@@ -375,24 +367,24 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
     });
 
     await().until(() -> {
-      Entry entry = region.getEntry(key);
+      var entry = region.getEntry(key);
       assertTrue(entry instanceof EntrySnapshot);
-      RegionEntry regionEntry = ((EntrySnapshot) entry).getRegionEntry();
+      var regionEntry = ((EntrySnapshot) entry).getRegionEntry();
       return regionEntry.getVersionStamp().getVersionTimeStamp() == localTag.getVersionTimeStamp();
     });
 
-    Entry entry = region.getEntry(key);
+    var entry = region.getEntry(key);
     assertTrue(entry instanceof EntrySnapshot);
-    RegionEntry regionEntry = ((EntrySnapshot) entry).getRegionEntry();
+    var regionEntry = ((EntrySnapshot) entry).getRegionEntry();
 
-    VersionStamp stamp = regionEntry.getVersionStamp();
+    var stamp = regionEntry.getVersionStamp();
 
     return stamp.asVersionTag();
   }
 
   private VersionTagHolder createNewEvent(LocalRegion region, VersionTag tag, Object key,
       Object value) {
-    VersionTagHolder updateEvent = new VersionTagHolder(tag);
+    var updateEvent = new VersionTagHolder(tag);
     updateEvent.setOperation(Operation.UPDATE);
     updateEvent.setRegion(region);
     if (region instanceof PartitionedRegion) {
@@ -412,16 +404,16 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
    */
 
   private void createCache(Integer locPort) {
-    UpdateVersionDUnitTest test = new UpdateVersionDUnitTest();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new UpdateVersionDUnitTest();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "localhost[" + locPort + "]");
     props.setProperty(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
     props.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     props.setProperty(USE_CLUSTER_CONFIGURATION, "false");
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
-    IgnoredException ex =
+    var ex =
         new IgnoredException("could not get remote locator information for remote site");
     cache.getLogger().info(ex.getAddMessage());
     expectedExceptions.add(ex);
@@ -432,7 +424,7 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
 
   private void closeCache() {
     if (cache != null && !cache.isClosed()) {
-      for (IgnoredException expectedException : expectedExceptions) {
+      for (var expectedException : expectedExceptions) {
         cache.getLogger().info(expectedException.getRemoveMessage());
       }
       expectedExceptions.clear();
@@ -445,13 +437,13 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
   public void createSender(String dsName, int remoteDsId, boolean isParallel, Integer maxMemory,
       Integer batchSize, boolean isConflation, boolean isPersistent, GatewayEventFilter filter,
       boolean isManualStart) {
-    File persistentDirectory =
+    var persistentDirectory =
         new File(dsName + "_disk_" + System.currentTimeMillis() + "_" + VM.getCurrentVMNum());
     persistentDirectory.mkdir();
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    File[] dirs1 = new File[] {persistentDirectory};
+    var dsf = cache.createDiskStoreFactory();
+    var dirs1 = new File[] {persistentDirectory};
     if (isParallel) {
-      GatewaySenderFactory gateway = cache.createGatewaySenderFactory();
+      var gateway = cache.createGatewaySenderFactory();
       gateway.setParallel(true);
       gateway.setMaximumQueueMemory(maxMemory);
       gateway.setBatchSize(batchSize);
@@ -464,14 +456,14 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
         gateway.setPersistenceEnabled(true);
         gateway.setDiskStoreName(dsf.setDiskDirs(dirs1).create(dsName).getName());
       } else {
-        DiskStore store = dsf.setDiskDirs(dirs1).create(dsName);
+        var store = dsf.setDiskDirs(dirs1).create(dsName);
         gateway.setDiskStoreName(store.getName());
       }
       gateway.setBatchConflationEnabled(isConflation);
       gateway.create(dsName, remoteDsId);
 
     } else {
-      GatewaySenderFactory gateway = cache.createGatewaySenderFactory();
+      var gateway = cache.createGatewaySenderFactory();
       gateway.setMaximumQueueMemory(maxMemory);
       gateway.setBatchSize(batchSize);
       gateway.setManualStart(isManualStart);
@@ -484,7 +476,7 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
         gateway.setPersistenceEnabled(true);
         gateway.setDiskStoreName(dsf.setDiskDirs(dirs1).create(dsName).getName());
       } else {
-        DiskStore store = dsf.setDiskDirs(dirs1).create(dsName);
+        var store = dsf.setDiskDirs(dirs1).create(dsName);
         gateway.setDiskStoreName(store.getName());
       }
       gateway.create(dsName, remoteDsId);
@@ -496,19 +488,19 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
     RegionFactory fact = cache.createRegionFactory(RegionShortcut.PARTITION);
 
     if (senderIds != null) {
-      StringTokenizer tokenizer = new StringTokenizer(senderIds, ",");
+      var tokenizer = new StringTokenizer(senderIds, ",");
       while (tokenizer.hasMoreTokens()) {
-        String senderId = tokenizer.nextToken();
+        var senderId = tokenizer.nextToken();
         fact.addGatewaySenderId(senderId);
       }
     }
 
-    PartitionAttributesFactory pFact = new PartitionAttributesFactory();
+    var pFact = new PartitionAttributesFactory();
     pFact.setTotalNumBuckets(totalNumBuckets);
     pFact.setRedundantCopies(redundantCopies);
     pFact.setRecoveryDelay(0);
     fact.setPartitionAttributes(pFact.create());
-    Region r = fact.create(regionName);
+    var r = fact.create(regionName);
     assertNotNull(r);
   }
 
@@ -516,27 +508,27 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
     RegionFactory fact = cache.createRegionFactory(RegionShortcut.REPLICATE);
 
     if (senderIds != null) {
-      StringTokenizer tokenizer = new StringTokenizer(senderIds, ",");
+      var tokenizer = new StringTokenizer(senderIds, ",");
       while (tokenizer.hasMoreTokens()) {
-        String senderId = tokenizer.nextToken();
+        var senderId = tokenizer.nextToken();
         fact.addGatewaySenderId(senderId);
       }
     }
 
-    Region r = fact.create(regionName);
+    var r = fact.create(regionName);
     assertNotNull(r);
   }
 
   private void waitForSenderRunningState(String senderId) {
-    GatewaySender sender = cache.getGatewaySender(senderId);
+    var sender = cache.getGatewaySender(senderId);
     await()
         .until(() -> sender != null && sender.isRunning());
   }
 
   private Integer createFirstRemoteLocator(int dsId, int remoteLocPort) {
-    UpdateVersionDUnitTest test = new UpdateVersionDUnitTest();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new UpdateVersionDUnitTest();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + dsId);
     props.setProperty(LOCATORS, "localhost[" + port + "]");
@@ -562,14 +554,14 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
   private void createConcurrentSender(String dsName, int remoteDsId, boolean isParallel,
       Integer maxMemory, Integer batchSize, boolean isConflation, boolean isPersistent,
       GatewayEventFilter filter, boolean isManualStart, int concurrencyLevel) {
-    File persistentDirectory =
+    var persistentDirectory =
         new File(dsName + "_disk_" + System.currentTimeMillis() + "_" + VM.getCurrentVMNum());
     persistentDirectory.mkdir();
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    File[] dirs1 = new File[] {persistentDirectory};
+    var dsf = cache.createDiskStoreFactory();
+    var dirs1 = new File[] {persistentDirectory};
 
     if (isParallel) {
-      GatewaySenderFactory gateway = cache.createGatewaySenderFactory();
+      var gateway = cache.createGatewaySenderFactory();
       gateway.setParallel(true);
       gateway.setMaximumQueueMemory(maxMemory);
       gateway.setBatchSize(batchSize);
@@ -582,14 +574,14 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
         gateway.setPersistenceEnabled(true);
         gateway.setDiskStoreName(dsf.setDiskDirs(dirs1).create(dsName).getName());
       } else {
-        DiskStore store = dsf.setDiskDirs(dirs1).create(dsName);
+        var store = dsf.setDiskDirs(dirs1).create(dsName);
         gateway.setDiskStoreName(store.getName());
       }
       gateway.setBatchConflationEnabled(isConflation);
       gateway.create(dsName, remoteDsId);
 
     } else {
-      GatewaySenderFactory gateway = cache.createGatewaySenderFactory();
+      var gateway = cache.createGatewaySenderFactory();
       gateway.setMaximumQueueMemory(maxMemory);
       gateway.setBatchSize(batchSize);
       gateway.setManualStart(isManualStart);
@@ -602,7 +594,7 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
         gateway.setPersistenceEnabled(true);
         gateway.setDiskStoreName(dsf.setDiskDirs(dirs1).create(dsName).getName());
       } else {
-        DiskStore store = dsf.setDiskDirs(dirs1).create(dsName);
+        var store = dsf.setDiskDirs(dirs1).create(dsName);
         gateway.setDiskStoreName(store.getName());
       }
       gateway.setDispatcherThreads(concurrencyLevel);
@@ -611,18 +603,18 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private int createReceiver(int locPort) {
-    UpdateVersionDUnitTest test = new UpdateVersionDUnitTest();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new UpdateVersionDUnitTest();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "localhost[" + locPort + "]");
 
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var fact = cache.createGatewayReceiverFactory();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     fact.setStartPort(port);
     fact.setEndPort(port);
-    GatewayReceiver receiver = fact.create();
+    var receiver = fact.create();
     try {
       receiver.start();
     } catch (IOException e) {
@@ -633,8 +625,8 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void startSender(String senderId) {
-    Set<GatewaySender> senders = cache.getGatewaySenders();
-    for (GatewaySender sender : senders) {
+    var senders = cache.getGatewaySenders();
+    for (var sender : senders) {
       if (sender.getId().equals(senderId)) {
         sender.start();
         break;
@@ -671,8 +663,8 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
 
     private synchronized boolean waitFor(Set set, InetSocketAddress locator, long time)
         throws InterruptedException {
-      long remaining = time;
-      long endTime = System.currentTimeMillis() + time;
+      var remaining = time;
+      var endTime = System.currentTimeMillis() + time;
       while (!set.contains(locator) && remaining >= 0) {
         wait(remaining);
         remaining = endTime - System.currentTimeMillis();
@@ -690,9 +682,9 @@ public class UpdateVersionDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private Integer createFirstLocatorWithDSId(int dsId) {
-    UpdateVersionDUnitTest test = new UpdateVersionDUnitTest();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new UpdateVersionDUnitTest();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + dsId);
     props.setProperty(LOCATORS, "localhost[" + port + "]");

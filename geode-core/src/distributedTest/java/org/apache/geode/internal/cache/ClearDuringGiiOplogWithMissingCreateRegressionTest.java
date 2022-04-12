@@ -28,8 +28,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
@@ -74,10 +72,10 @@ public class ClearDuringGiiOplogWithMissingCreateRegressionTest extends CacheTes
     uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
     regionName = uniqueName;
 
-    File server1Disk1 = temporaryFolder.newFolder(uniqueName + "_server1_disk1");
+    var server1Disk1 = temporaryFolder.newFolder(uniqueName + "_server1_disk1");
     foldersForServer1 = new File[] {server1Disk1};
 
-    File server2Disk1 = temporaryFolder.newFolder(uniqueName + "_server2_disk1");
+    var server2Disk1 = temporaryFolder.newFolder(uniqueName + "_server2_disk1");
     foldersForServer2 = new File[] {server2Disk1};
   }
 
@@ -96,7 +94,7 @@ public class ClearDuringGiiOplogWithMissingCreateRegressionTest extends CacheTes
     server1.invoke(this::createCacheForVM0);
     server1.invoke(() -> {
       Region<Integer, Integer> region = getCache().getRegion(regionName);
-      for (int i = 0; i < PUT_COUNT; i++) {
+      for (var i = 0; i < PUT_COUNT; i++) {
         region.put(i, i);
       }
     });
@@ -118,12 +116,12 @@ public class ClearDuringGiiOplogWithMissingCreateRegressionTest extends CacheTes
    * This method is used to create Cache in VM0
    */
   private void createCacheForVM0() {
-    DiskStoreFactory dsf = getCache().createDiskStoreFactory();
+    var dsf = getCache().createDiskStoreFactory();
     dsf.setDiskDirs(foldersForServer1);
 
-    DiskStore diskStore = dsf.create(uniqueName);
+    var diskStore = dsf.create(uniqueName);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setDiskSynchronous(false);
@@ -136,17 +134,17 @@ public class ClearDuringGiiOplogWithMissingCreateRegressionTest extends CacheTes
    * This method is used to create Cache in VM1
    */
   private void createCacheForVM1() throws IOException, ClassNotFoundException {
-    DiskStoreFactory dsf = getCache().createDiskStoreFactory();
+    var dsf = getCache().createDiskStoreFactory();
     dsf.setDiskDirs(foldersForServer2);
 
-    DiskStore diskStore = dsf.create(uniqueName);
+    var diskStore = dsf.create(uniqueName);
 
     InternalRegionFactory factory =
         getCache().createInternalRegionFactory(RegionShortcut.REPLICATE_PERSISTENT);
     factory.setDiskSynchronous(false);
     factory.setDiskStoreName(diskStore.getName());
 
-    DistributedRegion distRegion =
+    var distRegion =
         new DistributedRegion(regionName, factory.getCreateAttributes(), null,
             getCache(),
             new InternalRegionArguments().setDestroyLockFlag(true).setRecreateFlag(false)

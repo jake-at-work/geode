@@ -109,15 +109,17 @@ public class MeterSubregistryReconnectDistributedTest implements Serializable {
 
   @Test
   public void reconnect_restoresOnlyUserRegistriesFromCacheFactory() throws InterruptedException {
-    MeterRegistry userRegistryFromCacheFactory = meterRegistryFrom("CacheFactory");
-    MeterRegistry publishingRegistryFromPublishingService =
+    var userRegistryFromCacheFactory = meterRegistryFrom("CacheFactory");
+    var publishingRegistryFromPublishingService =
         meterRegistryFrom("MetricsPublishingService");
 
-    Consumer<CompositeMeterRegistry> addPublishingRegistryViaPublishingService =
-        compositeRegistry -> compositeRegistry.add(publishingRegistryFromPublishingService);
+    var addPublishingRegistryViaPublishingService =
+        (Consumer<CompositeMeterRegistry>) compositeRegistry -> compositeRegistry
+            .add(publishingRegistryFromPublishingService);
 
-    Consumer<CacheFactory> addUserRegistryViaCacheFactory =
-        cacheFactory -> cacheFactory.addMeterSubregistry(userRegistryFromCacheFactory);
+    var addUserRegistryViaCacheFactory =
+        (Consumer<CacheFactory>) cacheFactory -> cacheFactory
+            .addMeterSubregistry(userRegistryFromCacheFactory);
 
     createServer(NAME_OF_SERVER_TO_RECONNECT,
         addUserRegistryViaCacheFactory,
@@ -131,7 +133,7 @@ public class MeterSubregistryReconnectDistributedTest implements Serializable {
   }
 
   private CompositeMeterRegistry cacheMeterRegistry() {
-    InternalCache cache = system.getCache();
+    var cache = system.getCache();
     return (CompositeMeterRegistry) cache.getMeterRegistry();
   }
 
@@ -144,7 +146,7 @@ public class MeterSubregistryReconnectDistributedTest implements Serializable {
   }
 
   private int createLocator() {
-    LocatorLauncher.Builder builder = new LocatorLauncher.Builder();
+    var builder = new LocatorLauncher.Builder();
     builder.setMemberName(LOCATOR_NAME);
     builder.setWorkingDirectory(locatorDir.getAbsolutePath());
     builder.setPort(0);
@@ -169,7 +171,7 @@ public class MeterSubregistryReconnectDistributedTest implements Serializable {
 
   private void createServer(String serverName, Consumer<CacheFactory> cacheInitializer,
       Consumer<CompositeMeterRegistry> registryInitializer) {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(LOCATORS, "localHost[" + locatorPort + "]");
     configProperties.setProperty(DISABLE_AUTO_RECONNECT, "false");
     configProperties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
@@ -177,12 +179,12 @@ public class MeterSubregistryReconnectDistributedTest implements Serializable {
     configProperties.setProperty(MEMBER_TIMEOUT, "2000");
     configProperties.setProperty(NAME, serverName);
 
-    CacheFactory cacheFactory = new CacheFactory(configProperties);
+    var cacheFactory = new CacheFactory(configProperties);
     cacheInitializer.accept(cacheFactory);
 
-    InternalCache cache = (InternalCache) cacheFactory.create();
+    var cache = (InternalCache) cacheFactory.create();
 
-    CompositeMeterRegistry compositeMeterRegistry =
+    var compositeMeterRegistry =
         (CompositeMeterRegistry) cache.getMeterRegistry();
 
     registryInitializer.accept(compositeMeterRegistry);
@@ -191,7 +193,7 @@ public class MeterSubregistryReconnectDistributedTest implements Serializable {
   }
 
   private static MeterRegistry meterRegistryFrom(String registrySource) {
-    SimpleMeterRegistry registry = spy(SimpleMeterRegistry.class);
+    var registry = spy(SimpleMeterRegistry.class);
     doReturn("Subregistry added by " + registrySource).when(registry).toString();
     return registry;
   }

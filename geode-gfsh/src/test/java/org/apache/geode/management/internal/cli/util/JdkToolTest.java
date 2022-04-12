@@ -58,7 +58,7 @@ public class JdkToolTest {
   @Test
   public void testGetJdkToolPathnameForNonExistingTool() {
     try {
-      final GemFireException expected = new GemFireException() {
+      final var expected = new GemFireException() {
         @Override
         public String getMessage() {
           return "expected";

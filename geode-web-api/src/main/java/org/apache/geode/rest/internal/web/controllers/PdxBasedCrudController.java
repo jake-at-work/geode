@@ -105,14 +105,14 @@ public class PdxBasedCrudController extends CommonCrudController {
     Object existingPdxObj;
 
     // Check whether the user has supplied single JSON doc or Array of JSON docs
-    final JSONTypes jsonType = validateJsonAndFindType(json);
+    final var jsonType = validateJsonAndFindType(json);
     if (JSONTypes.JSON_ARRAY.equals(jsonType)) {
       existingPdxObj = postValue(region, key, convertJsonArrayIntoPdxCollection(json));
     } else {
       existingPdxObj = postValue(region, key, convert(json));
     }
 
-    final HttpHeaders headers = new HttpHeaders();
+    final var headers = new HttpHeaders();
     if (keyInQueryParam) {
       headers.setLocation(toUriWithKeys(new String[] {encode(key)}, region));
     } else {
@@ -120,7 +120,7 @@ public class PdxBasedCrudController extends CommonCrudController {
     }
 
     if (existingPdxObj != null) {
-      final RegionEntryData<Object> data = new RegionEntryData<>(region);
+      final var data = new RegionEntryData<Object>(region);
       data.add(existingPdxObj);
       headers.setContentType(APPLICATION_JSON_UTF8);
       return new ResponseEntity<RegionEntryData<?>>(data, headers, HttpStatus.CONFLICT);
@@ -161,7 +161,7 @@ public class PdxBasedCrudController extends CommonCrudController {
     if (encodedKeys == null || encodedKeys.length == 0) {
       return getAllRegionData(region, limit);
     } else {
-      String[] decodedKeys = decode(encodedKeys);
+      var decodedKeys = decode(encodedKeys);
       return getRegionKeys(region, ignoreMissingKey, decodedKeys, true);
     }
   }
@@ -170,16 +170,16 @@ public class PdxBasedCrudController extends CommonCrudController {
     securityService.authorize("DATA", "READ", region);
     logger.debug("Reading all data in Region ({})...", region);
     Map<Object, Object> valueObjs = null;
-    final RegionData<Object> data = new RegionData<>(region);
+    final var data = new RegionData<Object>(region);
 
-    final HttpHeaders headers = new HttpHeaders();
+    final var headers = new HttpHeaders();
     String keyList;
-    int regionSize = getRegion(region).size();
+    var regionSize = getRegion(region).size();
     List<Object> keys = new ArrayList<>(regionSize);
     List<Object> values = new ArrayList<>(regionSize);
 
-    for (Map.Entry<Object, Object> entry : getValues(region).entrySet()) {
-      Object value = entry.getValue();
+    for (var entry : getValues(region).entrySet()) {
+      var value = entry.getValue();
       if (value != null) {
         keys.add(entry.getKey());
         values.add(value);
@@ -191,14 +191,14 @@ public class PdxBasedCrudController extends CommonCrudController {
       keyList = StringUtils.collectionToCommaDelimitedString(keys);
     } else {
       try {
-        int maxLimit = Integer.parseInt(limit);
+        var maxLimit = Integer.parseInt(limit);
         if (maxLimit < 0) {
-          String errorMessage =
+          var errorMessage =
               String.format("Negative limit param (%1$s) is not valid!", maxLimit);
           return new ResponseEntity<>(convertErrorAsJson(errorMessage), HttpStatus.BAD_REQUEST);
         }
 
-        int mapSize = keys.size();
+        var mapSize = keys.size();
         if (maxLimit > mapSize) {
           maxLimit = mapSize;
         }
@@ -209,7 +209,7 @@ public class PdxBasedCrudController extends CommonCrudController {
       } catch (NumberFormatException e) {
         // limit param is not specified in proper format. set the HTTPHeader
         // for BAD_REQUEST
-        String errorMessage = String.format("limit param (%1$s) is not valid!", limit);
+        var errorMessage = String.format("limit param (%1$s) is not valid!", limit);
         return new ResponseEntity<>(convertErrorAsJson(errorMessage), HttpStatus.BAD_REQUEST);
       }
     }
@@ -247,21 +247,21 @@ public class PdxBasedCrudController extends CommonCrudController {
       boolean keysInQueryParam) {
     logger.debug("Reading data for keys ({}) in Region ({})", ArrayUtils.toString(keys), region);
     securityService.authorize("READ", region, keys);
-    final HttpHeaders headers = new HttpHeaders();
+    final var headers = new HttpHeaders();
     if (keys.length == 1) {
       /* GET op on single key */
-      Object value = getValue(region, keys[0]);
+      var value = getValue(region, keys[0]);
       // if region.get(K) return null (i.e INVLD or TOMBSTONE case) We consider 404, NOT Found case
       if (value == null) {
         throw new ResourceNotFoundException(String
             .format("Key (%1$s) does not exist for region (%2$s) in cache!", keys[0], region));
       }
 
-      final RegionEntryData<Object> data = new RegionEntryData<>(region);
+      final var data = new RegionEntryData<Object>(region);
       URI uri;
       if (keysInQueryParam) {
-        String[] encodedKeys = encode(keys);
-        String encodedRegion = encode(region);
+        var encodedKeys = encode(keys);
+        var encodedRegion = encode(region);
         uri = toUriWithKeys(encodedKeys, encodedRegion);
       } else {
         uri = toUri(region, keys[0]);
@@ -274,27 +274,27 @@ public class PdxBasedCrudController extends CommonCrudController {
       // fail fast for the case where ignoreMissingKey param is not specified correctly.
       if (ignoreMissingKey != null && !(ignoreMissingKey.equalsIgnoreCase("true")
           || ignoreMissingKey.equalsIgnoreCase("false"))) {
-        String errorMessage = String.format(
+        var errorMessage = String.format(
             "ignoreMissingKey param (%1$s) is not valid. valid usage is ignoreMissingKey=true!",
             ignoreMissingKey);
         return new ResponseEntity<>(convertErrorAsJson(errorMessage), HttpStatus.BAD_REQUEST);
       }
 
-      final Map<Object, Object> valueObjs = getValues(region, keys);
+      final var valueObjs = getValues(region, keys);
       // valueObjs will have as its keys all of "keys".
       // valueObjs will have a null value if the key did not exist.
       // So if ignoreMissingKey is false we can use "null" values to detect the missing keys.
       if (!("true".equalsIgnoreCase(ignoreMissingKey))) {
         List<String> unknownKeys = new ArrayList<>();
         // use "keys" to iterate so we get the original key ordering from user.
-        for (String key : keys) {
+        for (var key : keys) {
           if (valueObjs.get(key) == null) {
             unknownKeys.add(key);
           }
         }
         if (!unknownKeys.isEmpty()) {
-          String unknownKeysAsStr = StringUtils.collectionToCommaDelimitedString(unknownKeys);
-          String errorString = String.format("Requested keys (%1$s) do not exist in region (%2$s)",
+          var unknownKeysAsStr = StringUtils.collectionToCommaDelimitedString(unknownKeys);
+          var errorString = String.format("Requested keys (%1$s) do not exist in region (%2$s)",
               unknownKeysAsStr, region);
           return new ResponseEntity<>(convertErrorAsJson(errorString), headers,
               HttpStatus.BAD_REQUEST);
@@ -308,19 +308,19 @@ public class PdxBasedCrudController extends CommonCrudController {
 
       URI uri;
       if (keysInQueryParam) {
-        String[] encodedKeys = encode(keys);
-        String encodedRegion = encode(region);
+        var encodedKeys = encode(keys);
+        var encodedRegion = encode(region);
         uri = toUriWithKeys(encodedKeys, encodedRegion);
       } else {
-        String keyList = StringUtils.arrayToCommaDelimitedString(keys);
+        var keyList = StringUtils.arrayToCommaDelimitedString(keys);
         uri = toUri(region, keyList);
       }
 
       headers.set(HttpHeaders.CONTENT_LOCATION, uri.toASCIIString());
-      final RegionData<Object> data = new RegionData<>(region);
+      final var data = new RegionData<Object>(region);
       // add the values in the same order as the original keys
       // the code used to use valueObj.values() which used "hash" ordering.
-      for (String key : keys) {
+      for (var key : keys) {
         data.add(valueObjs.get(key));
       }
       return new ResponseEntity<RegionData<?>>(data, headers, HttpStatus.OK);
@@ -362,20 +362,20 @@ public class PdxBasedCrudController extends CommonCrudController {
 
     region = decode(region);
     if (!validOp(opValue)) {
-      String errorMessage = String.format(
+      var errorMessage = String.format(
           "The op parameter (%1$s) is not valid. Valid values are PUT, REPLACE, or CAS.",
           opValue);
       return new ResponseEntity<>(convertErrorAsJson(errorMessage), HttpStatus.BAD_REQUEST);
     }
     if (keys.length > 1) {
       updateMultipleKeys(region, keys, json);
-      HttpHeaders headers = new HttpHeaders();
+      var headers = new HttpHeaders();
       headers.setLocation(toUri(region, StringUtils.arrayToCommaDelimitedString(keys)));
       return new ResponseEntity<>(headers, HttpStatus.OK);
     } else {
       // put case
       Object existingValue = updateSingleKey(region, keys[0], json, opValue);
-      final HttpHeaders headers = new HttpHeaders();
+      final var headers = new HttpHeaders();
       headers.setLocation(toUri(region, keys[0]));
       return new ResponseEntity<>(existingValue, headers,
           (existingValue == null ? HttpStatus.OK : HttpStatus.CONFLICT));
@@ -427,10 +427,10 @@ public class PdxBasedCrudController extends CommonCrudController {
       @RequestParam(value = "op", defaultValue = "PUT") final String opValue,
       @RequestBody final String json) {
 
-    String decodedRegion = decode(encodedRegion);
-    String[] decodedKeys = decode(encodedKeys);
+    var decodedRegion = decode(encodedRegion);
+    var decodedKeys = decode(encodedKeys);
     if (!validOp(opValue) && !opValue.equalsIgnoreCase("CREATE")) {
-      String errorMessage = String.format(
+      var errorMessage = String.format(
           "The op parameter (%1$s) is not valid. Valid values are PUT, CREATE, REPLACE, or CAS.",
           opValue);
       return new ResponseEntity<>(convertErrorAsJson(errorMessage), HttpStatus.BAD_REQUEST);
@@ -441,7 +441,7 @@ public class PdxBasedCrudController extends CommonCrudController {
       logger.debug("updating keys ({}) for region ({}) op={}", decodedKeys, decodedRegion, opValue);
       securityService.authorize("WRITE", decodedRegion, decodedKeys);
       updateMultipleKeys(decodedRegion, decodedKeys, json);
-      HttpHeaders headers = new HttpHeaders();
+      var headers = new HttpHeaders();
       headers.setLocation(toUriWithKeys(encodedKeys, encodedRegion));
       return new ResponseEntity<>(headers, HttpStatus.OK);
     } else if (opValue.equalsIgnoreCase("CREATE")) {
@@ -452,7 +452,7 @@ public class PdxBasedCrudController extends CommonCrudController {
       logger.debug("updating keys ({}) for region ({}) op={}", decodedKeys, decodedRegion, opValue);
       securityService.authorize("WRITE", decodedRegion, decodedKeys);
       Object existingValue = updateSingleKey(decodedRegion, decodedKeys[0], json, opValue);
-      final HttpHeaders headers = new HttpHeaders();
+      final var headers = new HttpHeaders();
       headers.setLocation(toUriWithKeys(encodedKeys, encodedRegion));
       return new ResponseEntity<>(existingValue, headers,
           (existingValue == null ? HttpStatus.OK : HttpStatus.CONFLICT));
@@ -475,7 +475,7 @@ public class PdxBasedCrudController extends CommonCrudController {
 
     region = decode(region);
 
-    final HttpHeaders headers = new HttpHeaders();
+    final var headers = new HttpHeaders();
 
     headers.set("Resource-Count", String.valueOf(getRegion(region).size()));
     return new ResponseEntity<RegionData<?>>(headers, HttpStatus.OK);

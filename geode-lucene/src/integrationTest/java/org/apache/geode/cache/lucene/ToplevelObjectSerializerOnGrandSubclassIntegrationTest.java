@@ -38,15 +38,15 @@ public class ToplevelObjectSerializerOnGrandSubclassIntegrationTest extends Luce
   protected Region createRegionAndIndex() {
     luceneService.createIndexFactory().addField("name").create(INDEX_NAME, REGION_NAME);
 
-    Region region = createRegion(REGION_NAME, RegionShortcut.PARTITION);
+    var region = createRegion(REGION_NAME, RegionShortcut.PARTITION);
     return region;
   }
 
   @Test
   public void shouldIndexOnToplevelFieldUsingDefaultSerializer()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
-    GrandSubCustomer grandSubCustomer = new GrandSubCustomer("Tommy Jackson", null, null, null);
+    var region = createRegionAndIndex();
+    var grandSubCustomer = new GrandSubCustomer("Tommy Jackson", null, null, null);
     region.put("key-1", grandSubCustomer);
     luceneService.waitUntilFlushed(INDEX_NAME, REGION_NAME, WAIT_FOR_FLUSH_TIME,
         TimeUnit.MILLISECONDS);

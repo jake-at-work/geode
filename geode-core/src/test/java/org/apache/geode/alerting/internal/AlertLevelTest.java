@@ -45,7 +45,7 @@ public class AlertLevelTest {
 
   @Test
   public void serializes() {
-    AlertLevel logLevel = SerializationUtils.clone(NONE);
+    var logLevel = SerializationUtils.clone(NONE);
 
     assertThat(logLevel).isEqualTo(NONE).isSameAs(NONE);
   }

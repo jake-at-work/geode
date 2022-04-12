@@ -55,11 +55,11 @@ public abstract class AbstractMGetIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testMGet_requestNonexistentKey_respondsWithNil() {
-    String key1 = "existingKey" + hashTag;
-    String key2 = "notReallyAKey" + hashTag;
-    String value1 = "theRealValue" + hashTag;
-    String[] keys = new String[2];
-    String[] expectedVals = new String[2];
+    var key1 = "existingKey" + hashTag;
+    var key2 = "notReallyAKey" + hashTag;
+    var value1 = "theRealValue" + hashTag;
+    var keys = new String[2];
+    var expectedVals = new String[2];
     keys[0] = key1;
     keys[1] = key2;
     expectedVals[0] = value1;
@@ -72,9 +72,9 @@ public abstract class AbstractMGetIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testMget_returnsNil_forNonStringKey() {
-    String setKey = "set" + hashTag;
-    String hashKey = "hash" + hashTag;
-    String stringKey = "string" + hashTag;
+    var setKey = "set" + hashTag;
+    var hashKey = "hash" + hashTag;
+    var stringKey = "string" + hashTag;
     jedis.sadd(setKey, "a");
     jedis.hset(hashKey, "a", "b");
     jedis.set(stringKey, "ok");
@@ -85,7 +85,7 @@ public abstract class AbstractMGetIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testMget_whileConcurrentUpdates() {
-    String[] keys = IntStream.range(0, 10)
+    var keys = IntStream.range(0, 10)
         .mapToObj(x -> "key-" + x + hashTag)
         .toArray(String[]::new);
 

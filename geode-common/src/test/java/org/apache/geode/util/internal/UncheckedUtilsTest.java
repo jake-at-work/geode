@@ -53,7 +53,7 @@ public class UncheckedUtilsTest {
     rawList.add(2);
     List<String> wrongType = uncheckedCast(rawList);
 
-    Throwable thrown = catchThrowable(() -> wrongType.get(0));
+    var thrown = catchThrowable(() -> wrongType.get(0));
 
     assertThat(thrown).isInstanceOf(ClassCastException.class);
   }

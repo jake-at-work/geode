@@ -28,7 +28,6 @@ import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.data.AbstractRedisData;
-import org.apache.geode.redis.internal.data.RedisData;
 import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.data.RedisKeyExistsException;
 import org.apache.geode.redis.internal.eventing.NotificationEvent;
@@ -41,10 +40,10 @@ public class RestoreExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    RedisKey key = command.getKey();
+    var commandElems = command.getProcessedCommand();
+    var key = command.getKey();
 
-    byte[] ttlByteArray = commandElems.get(TTL_INDEX);
+    var ttlByteArray = commandElems.get(TTL_INDEX);
     long ttl;
     try {
       ttl = Coder.bytesToLong(ttlByteArray);
@@ -73,8 +72,8 @@ public class RestoreExecutor implements CommandExecutor {
   }
 
   private RestoreOptions parseOptions(List<byte[]> options) {
-    RestoreOptions restoreOptions = new RestoreOptions();
-    for (byte[] optionBytes : options) {
+    var restoreOptions = new RestoreOptions();
+    for (var optionBytes : options) {
       if (Coder.equalsIgnoreCaseBytes(optionBytes, REPLACE)) {
         restoreOptions.setReplace(true);
       } else if (Coder.equalsIgnoreCaseBytes(optionBytes, ABSTTL)) {
@@ -101,7 +100,7 @@ public class RestoreExecutor implements CommandExecutor {
     }
 
     context.dataLockedExecute(key, false, data -> {
-      RedisData value = data.restore(dataBytes, options.isReplace());
+      var value = data.restore(dataBytes, options.isReplace());
       ((AbstractRedisData) value).setExpirationTimestampNoDelta(expireAt);
       context.getRegion().put(key, value);
       context.fireEvent(NotificationEvent.RESTORE, key);

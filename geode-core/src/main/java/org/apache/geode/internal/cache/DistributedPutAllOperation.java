@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -36,10 +35,8 @@ import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.Operation;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.persistence.PersistentReplicatesOfflineException;
-import org.apache.geode.cache.query.internal.cq.CqService;
 import org.apache.geode.cache.query.internal.cq.ServerCQ;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
@@ -117,7 +114,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
   }
 
   public void setPutAllEntryData(PutAllEntryData[] putAllEntryData) {
-    for (int i = 0; i < putAllEntryData.length; i++) {
+    for (var i = 0; i < putAllEntryData.length; i++) {
       putAllData[i] = putAllEntryData[i];
     }
     putAllDataSize = putAllEntryData.length;
@@ -172,7 +169,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
    * @param status whether the entry is using fake event id
    */
   public void setUseFakeEventId(boolean status) {
-    for (int i = 0; i < putAllDataSize; i++) {
+    for (var i = 0; i < putAllDataSize; i++) {
       putAllData[i].setUsedFakeEventId(status);
     }
   }
@@ -195,7 +192,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
       @Unretained
       public Object next() {
         @Unretained
-        EntryEventImpl ev = getEventForPosition(position);
+        var ev = getEventForPosition(position);
         position++;
         return ev;
       }
@@ -210,8 +207,8 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
   public void freeOffHeapResources() {
     // I do not use eventIterator here because it forces the lazy creation of EntryEventImpl by
     // calling getEventForPosition.
-    for (int i = 0; i < putAllDataSize; i++) {
-      PutAllEntryData entry = putAllData[i];
+    for (var i = 0; i < putAllDataSize; i++) {
+      var entry = putAllData[i];
       if (entry != null && entry.event != null) {
         entry.event.release();
       }
@@ -220,23 +217,23 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
 
   @Unretained
   public EntryEventImpl getEventForPosition(int position) {
-    PutAllEntryData entry = putAllData[position];
+    var entry = putAllData[position];
     if (entry == null) {
       return null;
     }
     if (entry.event != null) {
       return entry.event;
     }
-    LocalRegion region = (LocalRegion) event.getRegion();
+    var region = (LocalRegion) event.getRegion();
     @Retained
-    EntryEventImpl ev = EntryEventImpl.create(region, entry.getOp(), entry.getKey(),
+    var ev = EntryEventImpl.create(region, entry.getOp(), entry.getKey(),
         null/* value */, event.getCallbackArgument(), false /* originRemote */,
         event.getDistributedMember(), event.isGenerateCallbacks(), entry.getEventID());
-    boolean returnedEv = false;
+    var returnedEv = false;
     try {
       ev.setPossibleDuplicate(entry.isPossibleDuplicate());
       if (entry.versionTag != null && region.getConcurrencyChecksEnabled()) {
-        VersionSource id = entry.versionTag.getMemberID();
+        var id = entry.versionTag.getMemberID();
         if (id != null) {
           entry.versionTag.setMemberID(ev.getRegion().getVersionVector().getCanonicalId(id));
         }
@@ -245,14 +242,14 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
 
       entry.event = ev;
       returnedEv = true;
-      Object entryValue = entry.getValue(region.getCache());
+      var entryValue = entry.getValue(region.getCache());
       if (entryValue == null
           && ev.getRegion().getAttributes().getDataPolicy() == DataPolicy.NORMAL) {
         ev.setLocalInvalid(true);
       }
       ev.setNewValue(entryValue);
       ev.setOldValue(entry.getOldValue());
-      CqService cqService = region.getCache().getCqService();
+      var cqService = region.getCache().getCqService();
       if (cqService.isRunning() && !entry.getOp().isCreate() && !ev.hasOldValue()) {
         ev.setOldValueForQueryProcessing();
       }
@@ -315,7 +312,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
 
       key = event.getKey();
       value = event.getRawNewValueAsHeapObject();
-      Object oldValue = event.getRawOldValueAsHeapObject();
+      var oldValue = event.getRawOldValueAsHeapObject();
 
       if (oldValue == Token.NOT_AVAILABLE || Token.isRemoved(oldValue)) {
         this.oldValue = null;
@@ -340,11 +337,11 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
     public PutAllEntryData(DataInput in, DeserializationContext context, EventID baseEventID,
         int idx) throws IOException, ClassNotFoundException {
       key = context.getDeserializer().readObject(in);
-      byte flgs = in.readByte();
+      var flgs = in.readByte();
       if ((flgs & IS_OBJECT) != 0) {
         value = context.getDeserializer().readObject(in);
       } else {
-        byte[] bb = DataSerializer.readByteArray(in);
+        var bb = DataSerializer.readByteArray(in);
         if ((flgs & IS_CACHED_DESER) != 0) {
           value = new FutureCachedDeserializable(bb);
         } else {
@@ -358,7 +355,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
         filterRouting = context.getDeserializer().readObject(in);
       }
       if ((flags & VERSION_TAG) != 0) {
-        boolean persistentTag = (flags & PERSISTENT_TAG) != 0;
+        var persistentTag = (flags & PERSISTENT_TAG) != 0;
         versionTag = VersionTag.create(persistentTag, in);
       }
       if (isUsedFakeEventId()) {
@@ -374,7 +371,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder(50);
+      var sb = new StringBuilder(50);
       sb.append("(").append(getKey()).append(",").append(value).append(",")
           .append(getOldValue());
       if (bucketId > 0) {
@@ -409,15 +406,15 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
      */
     public void toData(final DataOutput out,
         SerializationContext context) throws IOException {
-      Object key = this.key;
-      final Object v = value;
+      var key = this.key;
+      final var v = value;
       context.getSerializer().writeObject(key, out);
 
       if (v instanceof byte[] || v == null) {
         out.writeByte(0);
         DataSerializer.writeByteArray((byte[]) v, out);
       } else if (v instanceof CachedDeserializable) {
-        CachedDeserializable cd = (CachedDeserializable) v;
+        var cd = (CachedDeserializable) v;
         out.writeByte(IS_CACHED_DESER);
         DataSerializer.writeByteArray(cd.getSerializedValue(), out);
       } else {
@@ -425,7 +422,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
         DataSerializer.writeObjectAsByteArray(v, out);
       }
       out.writeByte(op.ordinal);
-      byte bits = flags;
+      var bits = flags;
       if (filterRouting != null) {
         bits |= FILTER_ROUTING;
       }
@@ -468,9 +465,9 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
      * Returns the value
      */
     public Object getValue(InternalCache cache) {
-      Object result = value;
+      var result = value;
       if (result instanceof FutureCachedDeserializable) {
-        FutureCachedDeserializable future = (FutureCachedDeserializable) result;
+        var future = (FutureCachedDeserializable) result;
         result = future.create(cache);
         value = result;
       }
@@ -545,7 +542,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
       if (!isUsedFakeEventId()) {
         // assign a fake big thread id. bucket id starts from 0. In order to distinguish
         // with other read thread, let bucket id starts from 1 in fake thread id
-        long threadId = ThreadIdentifier.createFakeThreadIDForBulkOp(bucketId,
+        var threadId = ThreadIdentifier.createFakeThreadIDForBulkOp(bucketId,
             eventID.getThreadID());
         eventID = new EventID(eventID.getMembershipID(), threadId, eventID.getSequenceID());
         setUsedFakeEventId(true);
@@ -619,14 +616,14 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
 
     public static EntryVersionsList create(DataInput in)
         throws IOException, ClassNotFoundException {
-      EntryVersionsList newList = new EntryVersionsList();
+      var newList = new EntryVersionsList();
       InternalDataSerializer.invokeFromData(newList, in);
       return newList;
     }
 
     private boolean extractVersion(PutAllEntryData entry) {
 
-      VersionTag versionTag = entry.versionTag;
+      var versionTag = entry.versionTag;
       // version tag can be null if only keys are sent in InitialImage.
       if (versionTag != null) {
         add(versionTag);
@@ -654,7 +651,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
      *
      */
     public void replaceNullIDs(DistributedMember sender) {
-      for (VersionTag versionTag : this) {
+      for (var versionTag : this) {
         if (versionTag != null) {
           versionTag.replaceNullIDs((InternalDistributedMember) sender);
         }
@@ -674,13 +671,13 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
     @Override
     public void toData(DataOutput out,
         SerializationContext context) throws IOException {
-      int flags = 0;
-      boolean hasTags = false;
+      var flags = 0;
+      var hasTags = false;
 
       if (size() > 0) {
         flags |= 0x04;
         hasTags = true;
-        for (VersionTag tag : this) {
+        for (var tag : this) {
           if (tag != null) {
             if (tag instanceof DiskVersionTag) {
               flags |= 0x20;
@@ -699,18 +696,18 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
 
       if (hasTags) {
         InternalDataSerializer.writeUnsignedVL(size(), out);
-        Object2IntOpenHashMap ids = new Object2IntOpenHashMap(size());
-        int idCount = 0;
-        for (VersionTag tag : this) {
+        var ids = new Object2IntOpenHashMap(size());
+        var idCount = 0;
+        for (var tag : this) {
           if (tag == null) {
             out.writeByte(FLAG_NULL_TAG);
           } else {
-            VersionSource id = tag.getMemberID();
+            var id = tag.getMemberID();
             if (id == null) {
               out.writeByte(FLAG_FULL_TAG);
               InternalDataSerializer.invokeToData(tag, out);
             } else {
-              int idNumber = ids.getInt(id);
+              var idNumber = ids.getInt(id);
               if (idNumber == 0) {
                 out.writeByte(FLAG_TAG_WITH_NEW_ID);
                 idNumber = ++idCount;
@@ -732,8 +729,8 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       int flags = in.readByte();
-      boolean hasTags = (flags & 0x04) == 0x04;
-      boolean persistent = (flags & 0x20) == 0x20;
+      var hasTags = (flags & 0x04) == 0x04;
+      var persistent = (flags & 0x20) == 0x20;
 
       if (logger.isTraceEnabled(LogMarker.INITIAL_IMAGE_VERSIONED_VERBOSE)) {
         logger.trace(LogMarker.INITIAL_IMAGE_VERSIONED_VERBOSE,
@@ -742,13 +739,13 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
       }
 
       if (hasTags) {
-        int size = (int) InternalDataSerializer.readUnsignedVL(in);
+        var size = (int) InternalDataSerializer.readUnsignedVL(in);
         if (logger.isTraceEnabled(LogMarker.INITIAL_IMAGE_VERSIONED_VERBOSE)) {
           logger.trace(LogMarker.INITIAL_IMAGE_VERSIONED_VERBOSE, "reading {} version tags", size);
         }
         List<VersionSource> ids = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-          byte entryType = in.readByte();
+        for (var i = 0; i < size; i++) {
+          var entryType = in.readByte();
           switch (entryType) {
             case FLAG_NULL_TAG:
               add(null);
@@ -757,13 +754,13 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
               add(VersionTag.create(persistent, in));
               break;
             case FLAG_TAG_WITH_NEW_ID:
-              VersionTag tag = VersionTag.create(persistent, in);
+              var tag = VersionTag.create(persistent, in);
               ids.add(tag.getMemberID());
               add(tag);
               break;
             case FLAG_TAG_WITH_NUMBER_ID:
               tag = VersionTag.create(persistent, in);
-              int idNumber = (int) InternalDataSerializer.readUnsignedVL(in);
+              var idNumber = (int) InternalDataSerializer.readUnsignedVL(in);
               tag.setMemberID(ids.get(idNumber));
               add(tag);
               break;
@@ -794,7 +791,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
     // create a consolidated routing object representing all events that can be
     // used for distribution
     CacheDistributionAdvisor advisor;
-    LocalRegion region = (LocalRegion) event.getRegion();
+    var region = (LocalRegion) event.getRegion();
     if (region instanceof PartitionedRegion) {
       advisor = ((PartitionedRegion) region).getCacheDistributionAdvisor();
     } else if (region.isUsedForPartitionedRegionBucket()) {
@@ -802,12 +799,12 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
     } else {
       advisor = ((DistributedRegion) region).getCacheDistributionAdvisor();
     }
-    FilterRoutingInfo consolidated = new FilterRoutingInfo();
-    for (int i = 0; i < putAllData.length; i++) {
+    var consolidated = new FilterRoutingInfo();
+    for (var i = 0; i < putAllData.length; i++) {
       @Unretained
-      EntryEventImpl ev = getEventForPosition(i);
+      var ev = getEventForPosition(i);
       if (ev != null) {
-        FilterRoutingInfo eventRouting = advisor.adviseFilterRouting(ev, cacheOpRecipients);
+        var eventRouting = advisor.adviseFilterRouting(ev, cacheOpRecipients);
         if (eventRouting != null) {
           consolidated.addFilterInfo(eventRouting);
         }
@@ -820,13 +817,13 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
 
   @Override
   void doRemoveDestroyTokensFromCqResultKeys(FilterInfo filterInfo, ServerCQ cq) {
-    for (Map.Entry<Long, Integer> e : filterInfo.getCQs().entrySet()) {
-      Long cqID = e.getKey();
+    for (var e : filterInfo.getCQs().entrySet()) {
+      var cqID = e.getKey();
       // For the CQs satisfying the event with destroy CQEvent, remove
       // the entry from CQ cache.
-      for (int i = 0; i < putAllData.length; i++) {
+      for (var i = 0; i < putAllData.length; i++) {
         @Unretained
-        EntryEventImpl entryEvent = getEventForPosition(i);
+        var entryEvent = getEventForPosition(i);
         if (entryEvent != null && entryEvent.getKey() != null && cq != null
             && cq.getFilterID() != null && cq.getFilterID().equals(cqID)
             && e.getValue() != null && e.getValue().equals(MessageType.LOCAL_DESTROY)) {
@@ -839,7 +836,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
   @Override
   protected FilterInfo getLocalFilterRouting(FilterRoutingInfo frInfo) {
     // long start = NanoTimer.getTime();
-    FilterProfile fp = getRegion().getFilterProfile();
+    var fp = getRegion().getFilterProfile();
     if (fp == null) {
       return null;
     }
@@ -856,8 +853,8 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
 
   @Override
   protected CacheOperationMessage createMessage() {
-    EntryEventImpl event = getBaseEvent();
-    PutAllMessage msg = new PutAllMessage();
+    var event = getBaseEvent();
+    var msg = new PutAllMessage();
     msg.eventId = event.getEventId();
     msg.context = event.getContext();
     return msg;
@@ -869,15 +866,15 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
    * @param bucketId create message to send to this bucket
    */
   public PutAllPRMessage createPRMessagesNotifyOnly(int bucketId) {
-    final EntryEventImpl event = getBaseEvent();
-    PutAllPRMessage prMsg = new PutAllPRMessage(bucketId, putAllDataSize, true,
+    final var event = getBaseEvent();
+    var prMsg = new PutAllPRMessage(bucketId, putAllDataSize, true,
         event.isPossibleDuplicate(), !event.isGenerateCallbacks(), event.getCallbackArgument());
     if (event.getContext() != null) {
       prMsg.setBridgeContext(event.getContext());
     }
 
     // will not recover event id here
-    for (int i = 0; i < putAllDataSize; i++) {
+    for (var i = 0; i < putAllDataSize; i++) {
       prMsg.addEntry(putAllData[i]);
     }
 
@@ -891,12 +888,12 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
    */
   public HashMap createPRMessages() {
     // getFilterRecipients(Collections.EMPTY_SET); // establish filter recipient routing information
-    HashMap prMsgMap = new HashMap();
-    final EntryEventImpl event = getBaseEvent();
+    var prMsgMap = new HashMap();
+    final var event = getBaseEvent();
 
-    for (int i = 0; i < putAllDataSize; i++) {
-      Integer bucketId = putAllData[i].bucketId;
-      PutAllPRMessage prMsg = (PutAllPRMessage) prMsgMap.get(bucketId);
+    for (var i = 0; i < putAllDataSize; i++) {
+      var bucketId = putAllData[i].bucketId;
+      var prMsg = (PutAllPRMessage) prMsgMap.get(bucketId);
       if (prMsg == null) {
         prMsg = new PutAllPRMessage(bucketId, putAllDataSize, false,
             event.isPossibleDuplicate(), !event.isGenerateCallbacks(), event.getCallbackArgument());
@@ -925,19 +922,19 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
   @Override
   protected void initMessage(CacheOperationMessage msg, DirectReplyProcessor proc) {
     super.initMessage(msg, proc);
-    PutAllMessage m = (PutAllMessage) msg;
+    var m = (PutAllMessage) msg;
 
     // if concurrency checks are enabled and this is not a replicated
     // region we need to see if any of the entries have no versions and,
     // if so, cull them out and send a 1-hop message to a replicate that
     // can generate a version for the operation
 
-    RegionAttributes attr = event.getRegion().getAttributes();
+    var attr = event.getRegion().getAttributes();
     if (attr.getConcurrencyChecksEnabled() && !attr.getDataPolicy().withReplication()
         && attr.getScope() != Scope.GLOBAL) {
       if (attr.getDataPolicy() == DataPolicy.EMPTY) {
         // all entries are without version tags
-        boolean success = RemotePutAllMessage.distribute((EntryEventImpl) event,
+        var success = RemotePutAllMessage.distribute((EntryEventImpl) event,
             putAllData, putAllDataSize);
         if (success) {
           m.callbackArg = event.getCallbackArgument();
@@ -954,16 +951,16 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
         }
       } else {
         // some entries may have Create ops - these will not have version tags
-        PutAllEntryData[] versionless = selectVersionlessEntries();
+        var versionless = selectVersionlessEntries();
         if (logger.isTraceEnabled()) {
           logger.trace("Found these versionless entries: {}", Arrays.toString(versionless));
         }
         if (versionless.length > 0) {
-          boolean success = RemotePutAllMessage.distribute((EntryEventImpl) event, versionless,
+          var success = RemotePutAllMessage.distribute((EntryEventImpl) event, versionless,
               versionless.length);
           if (success) {
             versionless = null;
-            PutAllEntryData[] versioned = selectVersionedEntries();
+            var versioned = selectVersionedEntries();
             if (logger.isTraceEnabled()) {
               logger.trace("Found these remaining versioned entries: {}",
                   Arrays.toString(versioned));
@@ -1003,17 +1000,17 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
   }
 
   private PutAllEntryData[] selectVersionlessEntries() {
-    int resultSize = putAllData.length;
-    for (PutAllEntryData p : putAllData) {
+    var resultSize = putAllData.length;
+    for (var p : putAllData) {
       if (p == null || p.isInhibitDistribution()) {
         resultSize--;
       } else if (p.versionTag != null && p.versionTag.hasValidVersion()) {
         resultSize--;
       }
     }
-    PutAllEntryData[] result = new PutAllEntryData[resultSize];
-    int ri = 0;
-    for (PutAllEntryData p : putAllData) {
+    var result = new PutAllEntryData[resultSize];
+    var ri = 0;
+    for (var p : putAllData) {
       if (p == null || p.isInhibitDistribution()) {
         continue; // skip blanks
       } else if (p.versionTag != null && p.versionTag.hasValidVersion()) {
@@ -1026,17 +1023,17 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
   }
 
   private PutAllEntryData[] selectVersionedEntries() {
-    int resultSize = 0;
-    for (PutAllEntryData p : putAllData) {
+    var resultSize = 0;
+    for (var p : putAllData) {
       if (p == null || p.isInhibitDistribution()) {
         continue; // skip blanks
       } else if (p.versionTag != null && p.versionTag.hasValidVersion()) {
         resultSize++;
       }
     }
-    PutAllEntryData[] result = new PutAllEntryData[resultSize];
-    int ri = 0;
-    for (PutAllEntryData p : putAllData) {
+    var result = new PutAllEntryData[resultSize];
+    var ri = 0;
+    for (var p : putAllData) {
       if (p == null || p.isInhibitDistribution()) {
         continue; // skip blanks
       } else if (p.versionTag != null && p.versionTag.hasValidVersion()) {
@@ -1052,7 +1049,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
    *
    */
   protected void fillVersionedObjectList(VersionedObjectList list) {
-    for (PutAllEntryData entry : putAllData) {
+    for (var entry : putAllData) {
       if (entry.versionTag != null) {
         list.addKeyAndVersion(entry.key, entry.versionTag);
       }
@@ -1090,7 +1087,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
       // Gester: We have to specify eventId for the message of MAP
       @Retained
-      EntryEventImpl event = EntryEventImpl.create(rgn, Operation.PUTALL_UPDATE /* op */,
+      var event = EntryEventImpl.create(rgn, Operation.PUTALL_UPDATE /* op */,
           null /* key */, null/* value */, callbackArg, true /* originRemote */, getSender());
       if (context != null) {
         event.context = context;
@@ -1122,7 +1119,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
      */
     public void doEntryPut(PutAllEntryData entry, DistributedRegion rgn) {
       @Released
-      EntryEventImpl ev = PutAllMessage.createEntryEvent(entry, getSender(), context, rgn,
+      var ev = PutAllMessage.createEntryEvent(entry, getSender(), context, rgn,
           possibleDuplicate, needsRouting, callbackArg, true, skipCallbacks);
       // we don't need to set old value here, because the msg is from remote. local old value will
       // get from next step
@@ -1148,17 +1145,17 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
         InternalDistributedMember sender, ClientProxyMembershipID context, DistributedRegion rgn,
         boolean possibleDuplicate, boolean needsRouting, Object callbackArg, boolean originRemote,
         boolean skipCallbacks) {
-      final Object key = entry.getKey();
-      EventID evId = entry.getEventID();
+      final var key = entry.getKey();
+      var evId = entry.getEventID();
       @Retained
-      EntryEventImpl ev = EntryEventImpl.create(rgn, entry.getOp(), key, null/* value */,
+      var ev = EntryEventImpl.create(rgn, entry.getOp(), key, null/* value */,
           callbackArg, originRemote, sender, !skipCallbacks, evId);
-      boolean returnedEv = false;
+      var returnedEv = false;
       try {
         if (context != null) {
           ev.context = context;
         }
-        Object entryValue = entry.getValue(rgn.getCache());
+        var entryValue = entry.getValue(rgn.getCache());
         if (entryValue == null && rgn.getDataPolicy() == DataPolicy.NORMAL) {
           ev.setLocalInvalid(true);
         }
@@ -1173,7 +1170,7 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
         // }
         // }
         if (entry.filterRouting != null) {
-          InternalDistributedMember id = rgn.getMyId();
+          var id = rgn.getMyId();
           ev.setLocalFilterInfo(entry.filterRouting.getFilterInfo(id));
         }
         /*
@@ -1191,15 +1188,15 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
 
     @Override
     protected void basicOperateOnRegion(EntryEventImpl ev, final DistributedRegion rgn) {
-      for (int i = 0; i < putAllDataSize; ++i) {
+      for (var i = 0; i < putAllDataSize; ++i) {
         if (putAllData[i].versionTag != null) {
           checkVersionTag(rgn, putAllData[i].versionTag);
         }
       }
 
       rgn.syncBulkOp(() -> {
-        final boolean isDebugEnabled = logger.isDebugEnabled();
-        for (int i = 0; i < putAllDataSize; ++i) {
+        final var isDebugEnabled = logger.isDebugEnabled();
+        for (var i = 0; i < putAllDataSize; ++i) {
           if (isDebugEnabled) {
             logger.debug("putAll processing {} with {} sender={}", putAllData[i],
                 putAllData[i].versionTag, sender);
@@ -1224,16 +1221,16 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
       putAllDataSize = (int) InternalDataSerializer.readUnsignedVL(in);
       putAllData = new PutAllEntryData[putAllDataSize];
       if (putAllDataSize > 0) {
-        final KnownVersion version = StaticSerialization.getVersionForDataStreamOrNull(in);
-        final ByteArrayDataInput bytesIn = new ByteArrayDataInput();
-        for (int i = 0; i < putAllDataSize; i++) {
+        final var version = StaticSerialization.getVersionForDataStreamOrNull(in);
+        final var bytesIn = new ByteArrayDataInput();
+        for (var i = 0; i < putAllDataSize; i++) {
           putAllData[i] = new PutAllEntryData(in, context, eventId, i);
         }
 
-        boolean hasTags = in.readBoolean();
+        var hasTags = in.readBoolean();
         if (hasTags) {
-          EntryVersionsList versionTags = EntryVersionsList.create(in);
-          for (int i = 0; i < putAllDataSize; i++) {
+          var versionTags = EntryVersionsList.create(in);
+          for (var i = 0; i < putAllDataSize; i++) {
             putAllData[i].versionTag = versionTags.get(i);
           }
         }
@@ -1252,10 +1249,10 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
       context.getSerializer().writeObject(eventId, out);
       InternalDataSerializer.writeUnsignedVL(putAllDataSize, out);
       if (putAllDataSize > 0) {
-        EntryVersionsList versionTags = new EntryVersionsList(putAllDataSize);
+        var versionTags = new EntryVersionsList(putAllDataSize);
 
-        boolean hasTags = false;
-        for (int i = 0; i < putAllDataSize; i++) {
+        var hasTags = false;
+        for (var i = 0; i < putAllDataSize; i++) {
           if (!hasTags && putAllData[i].versionTag != null) {
             hasTags = true;
           }

@@ -31,8 +31,8 @@ public class FunctionExceptionTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    FunctionException mockFunctionException = mock(FunctionException.class);
-    Exception cause = new Exception();
+    var mockFunctionException = mock(FunctionException.class);
+    var cause = new Exception();
     List<Exception> exceptions = new ArrayList<>();
     exceptions.add(cause);
 

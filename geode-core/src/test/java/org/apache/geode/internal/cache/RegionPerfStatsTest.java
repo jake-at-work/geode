@@ -89,7 +89,7 @@ public class RegionPerfStatsTest {
 
   @Test
   public void createsStatisticsUsingTextId() {
-    StatisticsFactory statisticsFactory = mock(StatisticsFactory.class);
+    var statisticsFactory = mock(StatisticsFactory.class);
     when(statisticsFactory.createAtomicStatistics(any(), any())).thenReturn(mock(Statistics.class));
 
     new RegionPerfStats(statisticsFactory, TEXT_ID, disabledClock(), cachePerfStats, region,
@@ -128,7 +128,7 @@ public class RegionPerfStatsTest {
 
   @Test
   public void suppliesEntryCountStatWithRegionLocalSize() {
-    ArgumentCaptor<LongSupplier> supplierCaptor = ArgumentCaptor.forClass(LongSupplier.class);
+    var supplierCaptor = ArgumentCaptor.forClass(LongSupplier.class);
 
     verify(statistics).setLongSupplier(eq(RegionPerfStats.entryCountId), supplierCaptor.capture());
 
@@ -157,7 +157,7 @@ public class RegionPerfStatsTest {
   public void entryCountGaugeFetchesValueFromRegionLocalSize() {
     when(region.getLocalSize()).thenReturn(3);
 
-    Gauge entriesGauge = meterRegistry
+    var entriesGauge = meterRegistry
         .find("geode.cache.entries")
         .tag("region", REGION_NAME)
         .gauge();
@@ -273,7 +273,7 @@ public class RegionPerfStatsTest {
 
   @Test
   public void close_doesNotRemoveMetersItDoesNotOwn() {
-    String foreignMeterName = "some.meter.not.created.by.the.gateway.receiver.stats";
+    var foreignMeterName = "some.meter.not.created.by.the.gateway.receiver.stats";
 
     Timer.builder(foreignMeterName)
         .register(meterRegistry);
@@ -289,9 +289,9 @@ public class RegionPerfStatsTest {
 
   @Test
   public void close_closesMeters() {
-    Gauge entriesGauge = mock(Gauge.class);
-    Timer cacheGetsHitTimer = mock(Timer.class);
-    Timer cacheGetsMissTimer = mock(Timer.class);
+    var entriesGauge = mock(Gauge.class);
+    var cacheGetsHitTimer = mock(Timer.class);
+    var cacheGetsMissTimer = mock(Timer.class);
     regionPerfStats = new RegionPerfStats(statisticsFactory, TEXT_ID, statisticsClock,
         cachePerfStats, region, mock(MeterRegistry.class), entriesGauge, cacheGetsHitTimer,
         cacheGetsMissTimer);

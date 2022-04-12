@@ -37,7 +37,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
@@ -73,13 +72,13 @@ public class IndexMaintenanceAsynchJUnitTest {
       Object result;
       Cache cache = CacheUtils.getCache();
       region = CacheUtils.createRegion("portfolios", Portfolio.class, false);
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         region.put("" + i, new Portfolio(i));
       }
       qs = cache.getQueryService();
       index = (IndexProtocol) qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status",
           SEPARATOR + "portfolios");
-      IndexStatistics stats = index.getStatistics();
+      var stats = index.getStatistics();
       assertEquals(4, stats.getNumUpdates());
 
       // queryString= "SELECT DISTINCT * FROM /portfolios p, p.positions.values pos where
@@ -101,12 +100,12 @@ public class IndexMaintenanceAsynchJUnitTest {
     Object result;
     Query query;
     try {
-      IndexStatistics stats = index.getStatistics();
-      for (int i = 5; i < 9; i++) {
+      var stats = index.getStatistics();
+      for (var i = 5; i < 9; i++) {
         region.put("" + i, new Portfolio(i));
       }
-      final IndexStatistics st = stats;
-      WaitCriterion ev = new WaitCriterion() {
+      final var st = stats;
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           return st.getNumUpdates() == 8;
@@ -123,7 +122,7 @@ public class IndexMaintenanceAsynchJUnitTest {
       // pos.secId='IBM'";
       queryString = "SELECT DISTINCT * FROM " + SEPARATOR + "portfolios where status = 'active'";
       query = getQueryService().newQuery(queryString);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       setInstance(observer);
 
       result = query.execute();

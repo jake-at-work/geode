@@ -70,7 +70,7 @@ public class RestoreRedundancyOperationImplTest {
 
   @Test
   public void doRestoreRedundancyReturnsEmptyResultsWhenRegionDestroyedExceptionIsThrown() {
-    PartitionedRegion region = mock(PartitionedRegion.class);
+    var region = mock(PartitionedRegion.class);
     doThrow(new RegionDestroyedException("message", SEPARATOR + "regionPath")).when(operation)
         .getPartitionedRegionRebalanceOp(region);
 
@@ -79,9 +79,9 @@ public class RestoreRedundancyOperationImplTest {
 
   @Test
   public void doRestoreRedundancyAddsRegionResultForRegionIfDetailSetIsEmpty() {
-    PartitionedRegion region = mock(PartitionedRegion.class);
+    var region = mock(PartitionedRegion.class);
 
-    PartitionedRegionRebalanceOp op = mock(PartitionedRegionRebalanceOp.class);
+    var op = mock(PartitionedRegionRebalanceOp.class);
     doReturn(op).when(operation).getPartitionedRegionRebalanceOp(region);
     when(op.execute()).thenReturn(new HashSet<>());
 
@@ -96,16 +96,16 @@ public class RestoreRedundancyOperationImplTest {
   @Test
   @SuppressWarnings("unchecked")
   public void doRestoreRedundancyAddsRegionResultAndPrimaryDetailsWhenDetailSetIsNotEmpty() {
-    PartitionedRegion region = mock(PartitionedRegion.class);
+    var region = mock(PartitionedRegion.class);
 
-    PartitionedRegionRebalanceOp op = mock(PartitionedRegionRebalanceOp.class);
+    var op = mock(PartitionedRegionRebalanceOp.class);
     doReturn(op).when(operation).getPartitionedRegionRebalanceOp(region);
 
-    PartitionRebalanceInfo details1 = mock(PartitionRebalanceInfo.class);
-    String regionPath1 = SEPARATOR + "region1";
+    var details1 = mock(PartitionRebalanceInfo.class);
+    var regionPath1 = SEPARATOR + "region1";
     when(details1.getRegionPath()).thenReturn(regionPath1);
-    PartitionRebalanceInfo details2 = mock(PartitionRebalanceInfo.class);
-    String regionPath2 = SEPARATOR + "region2";
+    var details2 = mock(PartitionRebalanceInfo.class);
+    var regionPath2 = SEPARATOR + "region2";
     when(details2.getRegionPath()).thenReturn(regionPath2);
 
     Set<PartitionRebalanceInfo> detailSet = new HashSet<>();
@@ -114,8 +114,8 @@ public class RestoreRedundancyOperationImplTest {
 
     when(op.execute()).thenReturn(detailSet);
 
-    PartitionedRegion detailRegion1 = mock(PartitionedRegion.class);
-    PartitionedRegion detailRegion2 = mock(PartitionedRegion.class);
+    var detailRegion1 = mock(PartitionedRegion.class);
+    var detailRegion2 = mock(PartitionedRegion.class);
     when(cache.getRegion(regionPath1)).thenReturn(detailRegion1);
     when(cache.getRegion(regionPath2)).thenReturn(detailRegion2);
 
@@ -136,10 +136,10 @@ public class RestoreRedundancyOperationImplTest {
   @SuppressWarnings("unchecked")
   public void getRestoreRedundancyResultsReturnsCombinedResultsFromAllFutures() {
     CompletableFuture<RestoreRedundancyResults> future1 = mock(CompletableFuture.class);
-    RestoreRedundancyResults result1 = mock(RestoreRedundancyResults.class);
+    var result1 = mock(RestoreRedundancyResults.class);
     when(future1.join()).thenReturn(result1);
     CompletableFuture<RestoreRedundancyResults> future2 = mock(CompletableFuture.class);
-    RestoreRedundancyResults result2 = mock(RestoreRedundancyResults.class);
+    var result2 = mock(RestoreRedundancyResults.class);
     when(future2.join()).thenReturn(result2);
 
     List<CompletableFuture<RestoreRedundancyResults>> futures = new ArrayList<>();
@@ -155,11 +155,11 @@ public class RestoreRedundancyOperationImplTest {
   @Test
   @SuppressWarnings("unchecked")
   public void startCreatesRedundancyOpFutureForAllIncludedRegions() {
-    RegionFilter filter = mock(RegionFilter.class);
+    var filter = mock(RegionFilter.class);
     doReturn(filter).when(operation).getRegionFilter();
 
-    PartitionedRegion includeRegion = mock(PartitionedRegion.class);
-    PartitionedRegion excludeRegion = mock(PartitionedRegion.class);
+    var includeRegion = mock(PartitionedRegion.class);
+    var excludeRegion = mock(PartitionedRegion.class);
     Set<PartitionedRegion> regions = new HashSet<>();
     regions.add(includeRegion);
     regions.add(excludeRegion);
@@ -183,10 +183,10 @@ public class RestoreRedundancyOperationImplTest {
   @Test
   @SuppressWarnings("unchecked")
   public void startAddsInProgressRestoreRedundancyAndRemovesInProgressRestoreRedundancyAndUpdatesStatsOnCompletion() {
-    RegionFilter filter = mock(RegionFilter.class);
+    var filter = mock(RegionFilter.class);
     doReturn(filter).when(operation).getRegionFilter();
 
-    PartitionedRegion includeRegion = mock(PartitionedRegion.class);
+    var includeRegion = mock(PartitionedRegion.class);
     when(cache.getPartitionedRegions()).thenReturn(Collections.singleton(includeRegion));
 
     when(filter.include(includeRegion)).thenReturn(true);
@@ -207,11 +207,11 @@ public class RestoreRedundancyOperationImplTest {
 
   @Test
   public void redundancyStatusReturnsResultsForAllIncludedRegions() {
-    RegionFilter filter = mock(RegionFilter.class);
+    var filter = mock(RegionFilter.class);
     doReturn(filter).when(operation).getRegionFilter();
 
-    PartitionedRegion includeRegion = mock(PartitionedRegion.class);
-    PartitionedRegion excludeRegion = mock(PartitionedRegion.class);
+    var includeRegion = mock(PartitionedRegion.class);
+    var excludeRegion = mock(PartitionedRegion.class);
     Set<PartitionedRegion> regions = new HashSet<>();
     regions.add(includeRegion);
     regions.add(excludeRegion);
@@ -220,7 +220,7 @@ public class RestoreRedundancyOperationImplTest {
     when(filter.include(includeRegion)).thenReturn(true);
     when(filter.include(excludeRegion)).thenReturn(false);
 
-    RegionRedundancyStatus regionResult = mock(RegionRedundancyStatus.class);
+    var regionResult = mock(RegionRedundancyStatus.class);
     doReturn(regionResult).when(operation).getRegionResult(any());
 
     operation.redundancyStatus();

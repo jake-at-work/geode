@@ -48,7 +48,7 @@ public class NotificationKey implements Serializable {
       return true;
     }
     if (anObject instanceof NotificationKey) {
-      NotificationKey anotherFedComp = (NotificationKey) anObject;
+      var anotherFedComp = (NotificationKey) anObject;
       return anotherFedComp.objectName.equals(objectName)
           && anotherFedComp.currentTime == currentTime;
     }

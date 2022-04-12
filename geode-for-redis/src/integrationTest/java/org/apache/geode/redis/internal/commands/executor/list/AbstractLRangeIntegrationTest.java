@@ -88,19 +88,20 @@ public abstract class AbstractLRangeIntegrationTest implements RedisIntegrationT
   public void lrange_withValidRange_returnsElementsInRange() {
     jedis.lpush(LIST_KEY, LIST_ELEMENTS);
 
-    String[] result1 = {"goat", "flamingo", "elephant", "deer"};
+    var result1 = new String[] {"goat", "flamingo", "elephant", "deer"};
     assertThat(getLRangeResult(0, -4)).containsExactly(result1);
     assertThat(getLRangeResult(-10, 3)).containsExactly(result1);
 
-    String[] result2 = {"chameleon", "bats", "aardvark"};
+    var result2 = new String[] {"chameleon", "bats", "aardvark"};
     assertThat(getLRangeResult(4, -1)).containsExactly(result2);
     assertThat(getLRangeResult(4, 10)).containsExactly(result2);
     assertThat(getLRangeResult(-3, 10)).containsExactly(result2);
 
-    String[] result3 = {"goat", "flamingo", "elephant", "deer", "chameleon", "bats"};
+    var result3 = new String[] {"goat", "flamingo", "elephant", "deer", "chameleon", "bats"};
     assertThat(getLRangeResult(-10, -2)).containsExactly(result3);
 
-    String[] result4 = {"goat", "flamingo", "elephant", "deer", "chameleon", "bats", "aardvark"};
+    var result4 =
+        new String[] {"goat", "flamingo", "elephant", "deer", "chameleon", "bats", "aardvark"};
     assertThat(getLRangeResult(0, 6)).containsExactly(result4);
     assertThat(getLRangeResult(-10, 10)).containsExactly(result4);
   }
@@ -136,7 +137,7 @@ public abstract class AbstractLRangeIntegrationTest implements RedisIntegrationT
 
   @Test
   public void lrange_withWrongTypeKey_returnsErrorWrongType() {
-    String key = "{tag1}ding";
+    var key = "{tag1}ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.sendCommand(key, Protocol.Command.LRANGE, key, "0", "2"))
         .hasMessage(ERROR_WRONG_TYPE);
@@ -144,7 +145,7 @@ public abstract class AbstractLRangeIntegrationTest implements RedisIntegrationT
 
   @Test
   public void lrange_withWrongTypeKey_withInvalidInputs_returnsErrorNotInteger() {
-    String key = "{tag1}ding";
+    var key = "{tag1}ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.sendCommand(key, Protocol.Command.LRANGE, key, "b", "2"))
         .hasMessage(ERROR_NOT_INTEGER);
@@ -157,15 +158,16 @@ public abstract class AbstractLRangeIntegrationTest implements RedisIntegrationT
   public void ensureListConsistency_whenRunningConcurrently() {
     jedis.lpush(LIST_KEY, LIST_ELEMENTS);
 
-    final String[] result =
-        {"goat", "flamingo", "elephant", "deer", "chameleon", "bats", "aardvark"};
+    final var result =
+        new String[] {"goat", "flamingo", "elephant", "deer", "chameleon", "bats", "aardvark"};
 
-    final String[] elementsToAdd =
-        {"vainglorious", "williwaw", "xiphoid", "ypsiliform", "zinziberaceous"};
-    final String[] resultWithElementsAdded =
-        {"zinziberaceous", "ypsiliform", "xiphoid", "williwaw", "vainglorious", "goat", "flamingo",
+    final var elementsToAdd =
+        new String[] {"vainglorious", "williwaw", "xiphoid", "ypsiliform", "zinziberaceous"};
+    final var resultWithElementsAdded =
+        new String[] {"zinziberaceous", "ypsiliform", "xiphoid", "williwaw", "vainglorious",
+            "goat", "flamingo",
             "elephant", "deer", "chameleon", "bats", "aardvark"};
-    final AtomicReference<List<String>> lrangeResultReference = new AtomicReference<>();
+    final var lrangeResultReference = new AtomicReference<List<String>>();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.lpush(LIST_KEY, elementsToAdd),
         i -> lrangeResultReference.set(jedis.lrange(LIST_KEY, -15, 15)))

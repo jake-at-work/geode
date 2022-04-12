@@ -91,13 +91,13 @@ public class RegionDistributionException extends RegionRoleException {
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {
     out.defaultWriteObject();
     // transform roles to string names which are serializable...
-    Set fr = failedRoles;
+    var fr = failedRoles;
     if (fr == null) {
       fr = Collections.EMPTY_SET;
     }
     Set roleNames = new HashSet(fr.size());
-    for (final Object o : fr) {
-      String name = ((Role) o).getName();
+    for (final var o : fr) {
+      var name = ((Role) o).getName();
       roleNames.add(name);
     }
     out.writeObject(roleNames);
@@ -110,10 +110,10 @@ public class RegionDistributionException extends RegionRoleException {
   private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
     in.defaultReadObject();
     // transform string names which are serializable back into roles...
-    Set roleNames = (Set) in.readObject();
+    var roleNames = (Set) in.readObject();
     Set roles = new HashSet(roleNames.size());
-    for (final Object roleName : roleNames) {
-      String name = (String) roleName;
+    for (final var roleName : roleNames) {
+      var name = (String) roleName;
       roles.add(InternalRole.getRole(name));
     }
     failedRoles = roles;

@@ -28,7 +28,6 @@ import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.tcpserver.HostAndPort;
-import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.net.SocketCreator;
 import org.apache.geode.internal.net.SocketCreatorFactory;
@@ -60,9 +59,9 @@ public class ContextAwareSSLRMIClientSocketFactory implements RMIClientSocketFac
       try {
         // In gfsh the ssl config is stored within the GEODE_SSL_CONFIG_PROPERTIES system property.
         // See the constructor for JMXOperationInvoker.
-        Properties gfProperties = new Properties();
+        var gfProperties = new Properties();
         gfProperties.load(new StringReader(System.getProperty(GEODE_SSL_CONFIG_PROPERTIES)));
-        SSLConfig sslConfig = SSLConfigurationFactory
+        var sslConfig = SSLConfigurationFactory
             .getSSLConfigForComponent(gfProperties, SecurableCommunicationChannel.JMX);
         socketCreator = new SocketCreator(sslConfig);
         return socketCreator.forClient().connect(new HostAndPort(host, port), 0);

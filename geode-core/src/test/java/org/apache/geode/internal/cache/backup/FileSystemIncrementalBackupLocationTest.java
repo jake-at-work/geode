@@ -22,12 +22,9 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Rule;
@@ -45,33 +42,33 @@ public class FileSystemIncrementalBackupLocationTest {
 
   @Test
   public void testNonExistentBackupLocation() throws IOException {
-    DiskStore diskstore = mock(DiskStore.class);
-    File nonExistingDir = Paths.get("nonexistent").toFile();
-    FileSystemIncrementalBackupLocation backupLocation =
+    var diskstore = mock(DiskStore.class);
+    var nonExistingDir = Paths.get("nonexistent").toFile();
+    var backupLocation =
         new FileSystemIncrementalBackupLocation(nonExistingDir, "member1");
     assertThat(backupLocation.getBackedUpOplogs(diskstore)).isEmpty();
   }
 
   @Test
   public void testNonExistentMemberBackupLocation() throws IOException {
-    File backupLocation = tempDir.newFolder("backup");
-    DiskStore diskstore = mock(DiskStore.class);
-    FileSystemIncrementalBackupLocation fileBackupLocation =
+    var backupLocation = tempDir.newFolder("backup");
+    var diskstore = mock(DiskStore.class);
+    var fileBackupLocation =
         new FileSystemIncrementalBackupLocation(backupLocation, "member1");
     assertThat(fileBackupLocation.getBackedUpOplogs(diskstore)).isEmpty();
   }
 
   @Test
   public void testWhenDiskstoresAreEmpty() throws IOException {
-    String memberId = "member1";
-    File backupLocation = tempDir.newFolder("backup");
-    Path memberBackupLocation = Files.createDirectories(backupLocation.toPath().resolve(memberId));
-    Path diskStoreMemberBackupLocation =
+    var memberId = "member1";
+    var backupLocation = tempDir.newFolder("backup");
+    var memberBackupLocation = Files.createDirectories(backupLocation.toPath().resolve(memberId));
+    var diskStoreMemberBackupLocation =
         Files.createDirectories(memberBackupLocation.resolve(BackupWriter.DATA_STORES_DIRECTORY));
 
-    DiskStoreImpl diskStore = mock(DiskStoreImpl.class);
+    var diskStore = mock(DiskStoreImpl.class);
     when(diskStore.getDiskStoreID()).thenReturn(new DiskStoreID(1, 2));
-    FileSystemIncrementalBackupLocation fileBackupLocation =
+    var fileBackupLocation =
         new FileSystemIncrementalBackupLocation(backupLocation, "member1");
 
     Files.createDirectories(
@@ -84,25 +81,25 @@ public class FileSystemIncrementalBackupLocationTest {
 
   @Test
   public void returnsFilesFromDiskstoreDirectory() throws IOException {
-    String memberId = "member1";
-    File backupLocation = tempDir.newFolder("backup");
-    Path memberBackupLocation = Files.createDirectories(backupLocation.toPath().resolve(memberId));
-    Path diskStoreMemberBackupLocation =
+    var memberId = "member1";
+    var backupLocation = tempDir.newFolder("backup");
+    var memberBackupLocation = Files.createDirectories(backupLocation.toPath().resolve(memberId));
+    var diskStoreMemberBackupLocation =
         Files.createDirectories(memberBackupLocation.resolve(BackupWriter.DATA_STORES_DIRECTORY));
 
-    DiskStoreImpl diskStore = mock(DiskStoreImpl.class);
+    var diskStore = mock(DiskStoreImpl.class);
     when(diskStore.getDiskStoreID()).thenReturn(new DiskStoreID(1, 2));
-    FileSystemIncrementalBackupLocation fileBackupLocation =
+    var fileBackupLocation =
         new FileSystemIncrementalBackupLocation(backupLocation, "member1");
 
-    Path diskStorePath = Files.createDirectories(
+    var diskStorePath = Files.createDirectories(
         diskStoreMemberBackupLocation.resolve(fileBackupLocation.getBackupDirName(diskStore)));
 
-    Path crf = Files.createFile(diskStorePath.resolve("oplog1.crf"));
-    Path krf = Files.createFile(diskStorePath.resolve("oplog1.krf"));
-    Path drf = Files.createFile(diskStorePath.resolve("oplog1.drf"));
+    var crf = Files.createFile(diskStorePath.resolve("oplog1.crf"));
+    var krf = Files.createFile(diskStorePath.resolve("oplog1.krf"));
+    var drf = Files.createFile(diskStorePath.resolve("oplog1.drf"));
 
-    Collection<File> logFiles = fileBackupLocation
+    var logFiles = fileBackupLocation
         .getBackedUpOplogs(fileBackupLocation.getMemberBackupLocationDir().toFile(), diskStore);
     assertThat(logFiles).isNotEmpty();
     assertThat(logFiles).contains(crf.toFile());
@@ -112,34 +109,34 @@ public class FileSystemIncrementalBackupLocationTest {
 
   @Test
   public void returnsPreviouslyBackedFilesFromBackupLocation() throws IOException {
-    String memberId = "member1";
-    File backupLocation = tempDir.newFolder("backup");
+    var memberId = "member1";
+    var backupLocation = tempDir.newFolder("backup");
     Files.createDirectories(backupLocation.toPath().resolve(memberId));
 
-    TestableFileSystemIncrementalBackupLocation fileBackupLocation =
+    var fileBackupLocation =
         new TestableFileSystemIncrementalBackupLocation(backupLocation, "member1");
 
     initializeBackupInspector(fileBackupLocation);
 
-    Collection<File> logFiles = fileBackupLocation
+    var logFiles = fileBackupLocation
         .getPreviouslyBackedUpOpLogs(fileBackupLocation.getMemberBackupLocationDir().toFile());
     assertThat(logFiles).isNotEmpty();
   }
 
   @Test
   public void returnsCurrentAndPreviouslyBackedFiles() throws IOException {
-    String memberId = "member1";
-    File backupLocation = tempDir.newFolder("backup");
-    Path memberBackupLocation = Files.createDirectories(backupLocation.toPath().resolve(memberId));
-    Path diskStoreMemberBackupLocation =
+    var memberId = "member1";
+    var backupLocation = tempDir.newFolder("backup");
+    var memberBackupLocation = Files.createDirectories(backupLocation.toPath().resolve(memberId));
+    var diskStoreMemberBackupLocation =
         Files.createDirectories(memberBackupLocation.resolve(BackupWriter.DATA_STORES_DIRECTORY));
 
-    DiskStoreImpl diskStore = mock(DiskStoreImpl.class);
+    var diskStore = mock(DiskStoreImpl.class);
     when(diskStore.getDiskStoreID()).thenReturn(new DiskStoreID(1, 2));
-    TestableFileSystemIncrementalBackupLocation fileBackupLocation =
+    var fileBackupLocation =
         new TestableFileSystemIncrementalBackupLocation(backupLocation, "member1");
 
-    Path diskStorePath = Files.createDirectories(
+    var diskStorePath = Files.createDirectories(
         diskStoreMemberBackupLocation.resolve(fileBackupLocation.getBackupDirName(diskStore)));
 
     Files.createFile(diskStorePath.resolve("2.crf"));
@@ -148,7 +145,7 @@ public class FileSystemIncrementalBackupLocationTest {
 
     initializeBackupInspector(fileBackupLocation);
 
-    Map<String, File> allBackedFiles = fileBackupLocation.getBackedUpOplogs(diskStore);
+    var allBackedFiles = fileBackupLocation.getBackedUpOplogs(diskStore);
     assertThat(allBackedFiles.size()).isEqualTo(6);
     assertThat(allBackedFiles.keySet()).contains("1.crf", "1.drf", "1.krf", "2.crf", "2.drf",
         "2.krf");
@@ -156,7 +153,7 @@ public class FileSystemIncrementalBackupLocationTest {
 
   private void initializeBackupInspector(
       TestableFileSystemIncrementalBackupLocation fileSystemBackupLocation) {
-    BackupInspector backupInspector = mock(BackupInspector.class);
+    var backupInspector = mock(BackupInspector.class);
     when(backupInspector.isIncremental()).thenReturn(true);
     Set<String> previousBackupFiles =
         new HashSet<>(Arrays.asList("1.crf", "1.drf", "1.krf"));

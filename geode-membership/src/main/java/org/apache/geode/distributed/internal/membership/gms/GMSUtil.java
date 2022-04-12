@@ -65,12 +65,12 @@ public class GMSUtil {
   public static <ID extends MemberIdentifier> Set<ID> readHashSetOfMemberIDs(DataInput in,
       DeserializationContext context)
       throws IOException, ClassNotFoundException {
-    int size = StaticSerialization.readArrayLength(in);
+    var size = StaticSerialization.readArrayLength(in);
     if (size == -1) {
       return null;
     }
     Set<ID> result = new HashSet<>();
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       result.add(context.getDeserializer().readObject(in));
     }
     return result;
@@ -88,13 +88,13 @@ public class GMSUtil {
     List<HostAndPort> result = new ArrayList<>(2);
     Set<InetSocketAddress> inetAddresses = new HashSet<>();
     String host;
-    final boolean isLoopback = ((bindAddress != null) && bindAddress.isLoopbackAddress());
+    final var isLoopback = ((bindAddress != null) && bindAddress.isLoopbackAddress());
 
-    StringTokenizer parts = new StringTokenizer(locatorsString, ",");
+    var parts = new StringTokenizer(locatorsString, ",");
     while (parts.hasMoreTokens()) {
-      String str = parts.nextToken();
+      var str = parts.nextToken();
 
-      final int portSpecificationStart = str.indexOf('[');
+      final var portSpecificationStart = str.indexOf('[');
 
       if (portSpecificationStart == -1) {
         throw createBadPortException(str);
@@ -102,11 +102,11 @@ public class GMSUtil {
 
       host = str.substring(0, portSpecificationStart);
 
-      int idx = host.lastIndexOf('@');
+      var idx = host.lastIndexOf('@');
       if (idx < 0) {
         idx = host.lastIndexOf(':');
       }
-      String start = host.substring(0, idx > -1 ? idx : host.length());
+      var start = host.substring(0, idx > -1 ? idx : host.length());
       if (start.indexOf(':') >= 0) { // a single numeric ipv6 address
         idx = host.lastIndexOf('@');
       }
@@ -114,8 +114,8 @@ public class GMSUtil {
         host = host.substring(idx + 1);
       }
 
-      int startIdx = portSpecificationStart + 1;
-      int endIdx = str.indexOf(']');
+      var startIdx = portSpecificationStart + 1;
+      var endIdx = str.indexOf(']');
 
       if (endIdx == -1) {
         throw createBadPortException(str);
@@ -129,10 +129,10 @@ public class GMSUtil {
         throw createBadPortException(str);
       }
 
-      final InetSocketAddress isa = new InetSocketAddress(host, port);
+      final var isa = new InetSocketAddress(host, port);
 
       if (isLoopback) {
-        final InetAddress locatorAddress = isa.getAddress();
+        final var locatorAddress = isa.getAddress();
 
         if (locatorAddress == null) {
           throw new MembershipConfigurationException("This process is attempting to use a locator" +
@@ -147,7 +147,7 @@ public class GMSUtil {
         }
       }
 
-      HostAndPort hostAndPort = new HostAndPort(host, port);
+      var hostAndPort = new HostAndPort(host, port);
       if (!inetAddresses.contains(isa)) {
         inetAddresses.add(isa);
         result.add(hostAndPort);
@@ -175,9 +175,9 @@ public class GMSUtil {
     if (csv == null || csv.length() == 0) {
       return;
     }
-    StringTokenizer st = new StringTokenizer(csv, ",");
+    var st = new StringTokenizer(csv, ",");
     while (st.hasMoreTokens()) {
-      String groupName = st.nextToken().trim();
+      var groupName = st.nextToken().trim();
       if (!groups.contains(groupName)) { // only add each group once
         groups.add(groupName);
       }
@@ -188,9 +188,9 @@ public class GMSUtil {
    * replaces all occurrences of a given string in the properties argument with the given value
    */
   public static String replaceStrings(String properties, String property, String value) {
-    StringBuilder sb = new StringBuilder();
-    int start = 0;
-    int index = properties.indexOf(property);
+    var sb = new StringBuilder();
+    var start = 0;
+    var index = properties.indexOf(property);
     while (index != -1) {
       sb.append(properties, start, index);
       sb.append(value);
@@ -205,12 +205,12 @@ public class GMSUtil {
   public static <ID extends MemberIdentifier> List<ID> readArrayOfIDs(DataInput in,
       DeserializationContext context)
       throws IOException, ClassNotFoundException {
-    int size = StaticSerialization.readArrayLength(in);
+    var size = StaticSerialization.readArrayLength(in);
     if (size == -1) {
       return null;
     }
     List<ID> result = new ArrayList<>(size);
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       result.add(context.getDeserializer().readObject(in));
     }
     return result;
@@ -226,7 +226,7 @@ public class GMSUtil {
     }
     StaticSerialization.writeArrayLength(size, out);
     if (size > 0) {
-      for (ID member : set) {
+      for (var member : set) {
         context.getSerializer().writeObject(member, out);
       }
     }

@@ -129,7 +129,7 @@ public class PartitionRegionInfoImpl implements InternalPRInfo, Serializable {
     if (!(other instanceof PartitionRegionInfoImpl)) {
       return false;
     }
-    PartitionRegionInfoImpl o = (PartitionRegionInfoImpl) other;
+    var o = (PartitionRegionInfoImpl) other;
     return regionPath.equals(o.regionPath);
   }
 

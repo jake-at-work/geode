@@ -43,11 +43,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.IncompatibleSystemException;
-import org.apache.geode.distributed.internal.Distribution;
 import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.HighPriorityAckedMessage;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.membership.api.MembershipManagerHelper;
 import org.apache.geode.distributed.internal.membership.gms.GMSMembership;
@@ -71,21 +68,21 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testDefaults() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     config.setProperty(ROLES, "");
     config.setProperty(GROUPS, "");
     config.setProperty(NAME, "");
 
-    InternalDistributedSystem system = getSystem(config);
+    var system = getSystem(config);
     try {
       assertTrue(system.getConfig().getRoles().equals(DistributionConfig.DEFAULT_ROLES));
       assertTrue(system.getConfig().getGroups().equals(DistributionConfig.DEFAULT_ROLES));
       assertTrue(system.getConfig().getName().equals(DistributionConfig.DEFAULT_NAME));
 
-      DistributionManager dm = system.getDistributionManager();
-      InternalDistributedMember member = dm.getDistributionManagerId();
+      var dm = system.getDistributionManager();
+      var member = dm.getDistributionManagerId();
 
       Set roles = member.getRoles();
       assertEquals(0, roles.size());
@@ -98,17 +95,17 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testNonDefaultName() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     config.setProperty(NAME, "nondefault");
 
-    InternalDistributedSystem system = getSystem(config);
+    var system = getSystem(config);
     try {
       assertEquals("nondefault", system.getConfig().getName());
 
-      DistributionManager dm = system.getDistributionManager();
-      InternalDistributedMember member = dm.getDistributionManagerId();
+      var dm = system.getDistributionManager();
+      var member = dm.getDistributionManagerId();
 
       assertEquals("nondefault", member.getName());
     } finally {
@@ -122,29 +119,29 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testRolesInOneVM() {
-    final String rolesProp = "A,B,C";
-    final String groupsProp = "D,E,F,G";
+    final var rolesProp = "A,B,C";
+    final var groupsProp = "D,E,F,G";
     final List bothList = Arrays.asList("A", "B", "C", "D", "E", "F", "G");
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     config.setProperty(ROLES, rolesProp);
     config.setProperty(GROUPS, groupsProp);
 
-    InternalDistributedSystem system = getSystem(config);
+    var system = getSystem(config);
     try {
       assertEquals(rolesProp, system.getConfig().getRoles());
       assertEquals(groupsProp, system.getConfig().getGroups());
 
-      DistributionManager dm = system.getDistributionManager();
-      InternalDistributedMember member = dm.getDistributionManagerId();
+      var dm = system.getDistributionManager();
+      var member = dm.getDistributionManagerId();
 
       Set roles = member.getRoles();
       assertEquals(bothList.size(), roles.size());
 
-      for (final Object o : roles) {
-        Role role = (Role) o;
+      for (final var o : roles) {
+        var role = (Role) o;
         assertTrue(bothList.contains(role.getName()));
       }
 
@@ -160,7 +157,7 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
     Host.getHost(0).getVM(0).invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(NAME, "name0");
         getSystem(config);
       }
@@ -168,7 +165,7 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
     Host.getHost(0).getVM(1).invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(NAME, "name1");
         getSystem(config);
       }
@@ -176,7 +173,7 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
     Host.getHost(0).getVM(2).invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(NAME, "name0");
         try {
           getSystem(config);
@@ -196,14 +193,14 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
     disconnectAllFromDS(); // or assertion on # members fails when run-dunit-tests
 
     // connect all four vms...
-    final String[] vmRoles = new String[] {"VM_A", "VM_B", "VM_C", "VM_D"};
-    for (int i = 0; i < vmRoles.length; i++) {
-      final int vm = i;
+    final var vmRoles = new String[] {"VM_A", "VM_B", "VM_C", "VM_D"};
+    for (var i = 0; i < vmRoles.length; i++) {
+      final var vm = i;
       Host.getHost(0).getVM(vm).invoke(new SerializableRunnable() {
         @Override
         public void run() {
           // disconnectFromDS();
-          Properties config = new Properties();
+          var config = new Properties();
           config.setProperty(ROLES, vmRoles[vm]);
           config.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
           getSystem(config);
@@ -212,36 +209,36 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
     }
 
     // validate roles from each vm...
-    for (int i = 0; i < vmRoles.length; i++) {
-      final int vm = i;
+    for (var i = 0; i < vmRoles.length; i++) {
+      final var vm = i;
       Host.getHost(0).getVM(vm).invoke(new SerializableRunnable() {
         @Override
         public void run() {
-          InternalDistributedSystem sys = getSystem();
+          var sys = getSystem();
           assertNotNull(sys.getConfig().getRoles());
           assertTrue(sys.getConfig().getRoles().equals(vmRoles[vm]));
 
-          DistributionManager dm = sys.getDistributionManager();
-          InternalDistributedMember self = dm.getDistributionManagerId();
+          var dm = sys.getDistributionManager();
+          var self = dm.getDistributionManagerId();
 
           Set myRoles = self.getRoles();
           assertEquals(1, myRoles.size());
 
-          Role myRole = (Role) myRoles.iterator().next();
+          var myRole = (Role) myRoles.iterator().next();
           assertTrue(vmRoles[vm].equals(myRole.getName()));
 
           await()
               .until(() -> dm.getOtherNormalDistributionManagerIds().size() == 3);
-          Set<InternalDistributedMember> members = dm.getOtherNormalDistributionManagerIds();
+          var members = dm.getOtherNormalDistributionManagerIds();
 
-          for (InternalDistributedMember member : members) {
+          for (var member : members) {
             Set roles = member.getRoles();
             assertEquals(1, roles.size());
-            for (final Object o : roles) {
-              Role role = (Role) o;
+            for (final var o : roles) {
+              var role = (Role) o;
               assertTrue(!role.getName().equals(myRole.getName()));
-              boolean foundRole = false;
-              for (final String vmRole : vmRoles) {
+              var foundRole = false;
+              for (final var vmRole : vmRoles) {
                 if (vmRole.equals(role.getName())) {
                   foundRole = true;
                   break;
@@ -257,18 +254,18 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
 
 
   private InternalDistributedMember connectAndSetUpPartialID() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put("name", "myName");
-    InternalDistributedSystem system = getSystem(properties);
+    var system = getSystem(properties);
     assertTrue(system == basicGetSystem()); // senders will use basicGetSystem()
-    InternalDistributedMember internalDistributedMember = system.getDistributedMember();
+    var internalDistributedMember = system.getDistributedMember();
 
     internalDistributedMember.setName(null);
-    HeapDataOutputStream outputStream = new HeapDataOutputStream(100);
+    var outputStream = new HeapDataOutputStream(100);
     internalDistributedMember.writeEssentialData(outputStream);
-    DataInputStream dataInputStream =
+    var dataInputStream =
         new DataInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
-    InternalDistributedMember partialID =
+    var partialID =
         InternalDistributedMember.readEssentialData(dataInputStream);
     return partialID;
   }
@@ -281,9 +278,9 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testMemberNameIgnoredInPartialID() throws Exception {
-    InternalDistributedMember partialID = connectAndSetUpPartialID();
+    var partialID = connectAndSetUpPartialID();
 
-    InternalDistributedMember internalDistributedMember = basicGetSystem().getDistributedMember();
+    var internalDistributedMember = basicGetSystem().getDistributedMember();
     assertTrue(partialID.isPartial());
     assertFalse(internalDistributedMember.isPartial());
 
@@ -300,12 +297,12 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testPartialIDInMessageReplacedWithFullID() throws Exception {
-    InternalDistributedMember partialID = connectAndSetUpPartialID();
+    var partialID = connectAndSetUpPartialID();
 
-    HighPriorityAckedMessage message = new HighPriorityAckedMessage();
+    var message = new HighPriorityAckedMessage();
     message.setSender(partialID);
 
-    Distribution manager =
+    var manager =
         MembershipManagerHelper.getDistribution(basicGetSystem());
     ((GMSMembership) manager.getMembership()).replacePartialIdentifierInMessage(message);
 
@@ -329,13 +326,13 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
     disconnectFromDS(); // or assertion on # members fails when run-dunit-tests
 
     // connect all four vms...
-    for (int i = 0; i < 4; i++) {
-      final int vm = i;
+    for (var i = 0; i < 4; i++) {
+      final var vm = i;
       Host.getHost(0).getVM(vm).invoke(new SerializableRunnable() {
         @Override
         public void run() {
           // disconnectFromDS();
-          Properties config = new Properties();
+          var config = new Properties();
           config.setProperty(GROUPS, makeGroupsString(vm));
           getSystem(config);
         }
@@ -343,38 +340,38 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
     }
 
     // validate group from each vm...
-    for (int i = 0; i < 4; i++) {
-      final int vm = i;
+    for (var i = 0; i < 4; i++) {
+      final var vm = i;
       Host.getHost(0).getVM(vm).invoke(new SerializableRunnable() {
         @Override
         public void run() {
-          InternalDistributedSystem sys = getSystem();
-          final String expectedMyGroup = makeGroupsString(vm);
+          var sys = getSystem();
+          final var expectedMyGroup = makeGroupsString(vm);
           assertEquals(expectedMyGroup, sys.getConfig().getGroups());
 
-          DistributionManager dm = sys.getDistributionManager();
+          var dm = sys.getDistributionManager();
           DistributedMember self = sys.getDistributedMember();
 
-          List<String> myGroups = self.getGroups();
+          var myGroups = self.getGroups();
 
           assertEquals(Arrays.asList("" + vm, makeOddEvenString(vm)), myGroups);
 
           await()
               .until(() -> dm.getOtherNormalDistributionManagerIds().size() == 3);
-          Set<InternalDistributedMember> members = dm.getOtherNormalDistributionManagerIds();
+          var members = dm.getOtherNormalDistributionManagerIds();
 
           // Make sure getAllOtherMembers returns a set
           // containing our three peers plus an admin member.
-          Set<DistributedMember> others = sys.getAllOtherMembers();
+          var others = sys.getAllOtherMembers();
           assertEquals(4, others.size());
           others.removeAll(dm.getOtherNormalDistributionManagerIds());
           assertEquals(1, others.size());
           // test getGroupMembers
-          HashSet<DistributedMember> evens = new HashSet<>();
-          HashSet<DistributedMember> odds = new HashSet<>();
-          boolean isEvens = true;
-          for (String groupName : Arrays.asList("0", "1", "2", "3")) {
-            Set<DistributedMember> gm = sys.getGroupMembers(groupName);
+          var evens = new HashSet<DistributedMember>();
+          var odds = new HashSet<DistributedMember>();
+          var isEvens = true;
+          for (var groupName : Arrays.asList("0", "1", "2", "3")) {
+            var gm = sys.getGroupMembers(groupName);
             if (isEvens) {
               evens.addAll(gm);
             } else {
@@ -407,15 +404,15 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testGetId() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     config.setProperty(NAME, "foobar");
 
-    InternalDistributedSystem system = getSystem(config);
+    var system = getSystem(config);
     try {
 
-      DistributionManager dm = system.getDistributionManager();
+      var dm = system.getDistributionManager();
       DistributedMember member = dm.getDistributionManagerId();
 
       assertEquals(member.getId(), system.getMemberId());
@@ -428,12 +425,12 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testFindMemberByName() {
     disconnectAllFromDS(); // or assertion on # members fails when run-dunit-tests
-    VM vm0 = Host.getHost(0).getVM(0);
-    VM vm1 = Host.getHost(0).getVM(1);
-    VM vm2 = Host.getHost(0).getVM(2);
-    final DistributedMember member0 = createSystemAndGetId(vm0, "name0");
-    final DistributedMember member1 = createSystemAndGetId(vm1, "name1");
-    final DistributedMember member2 = createSystemAndGetId(vm2, "name2");
+    var vm0 = Host.getHost(0).getVM(0);
+    var vm1 = Host.getHost(0).getVM(1);
+    var vm2 = Host.getHost(0).getVM(2);
+    final var member0 = createSystemAndGetId(vm0, "name0");
+    final var member1 = createSystemAndGetId(vm1, "name1");
+    final var member2 = createSystemAndGetId(vm2, "name2");
     vm0.invoke(new SerializableRunnable() {
       @Override
       public void run() {
@@ -446,7 +443,7 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
         Set<DistributedMember> members;
         try {
           members = system.findDistributedMembers(InetAddress.getByName(member0.getHost()));
-          HashSet expected = new HashSet();
+          var expected = new HashSet();
           expected.add(member0);
           expected.add(member1);
           expected.add(member2);
@@ -467,7 +464,7 @@ public class DistributedMemberDUnitTest extends JUnit4DistributedTestCase {
 
       @Override
       public Object call() throws Exception {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(NAME, name);
         DistributedSystem ds = getSystem(config);
         return ds.getDistributedMember();

@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +51,7 @@ public abstract class TomcatSessionBackwardsCompatibilityTestBase {
 
   @Parameterized.Parameters
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(s -> TestVersion.compare(s, "1.2.0") < 0);
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
@@ -87,7 +86,7 @@ public abstract class TomcatSessionBackwardsCompatibilityTestBase {
   protected String locatorDir;
 
   protected TomcatSessionBackwardsCompatibilityTestBase(String version) {
-    VersionManager versionManager = VersionManager.getInstance();
+    var versionManager = VersionManager.getInstance();
     String installLocation = installLocation = versionManager.getInstall(version);
     oldBuild = new File(installLocation);
     oldModules = new File(installLocation + "/tools/Modules/");
@@ -95,7 +94,7 @@ public abstract class TomcatSessionBackwardsCompatibilityTestBase {
 
   protected void startServer(String name, String classPath, int locatorPort) throws Exception {
     serverDir = tempFolder.newFolder("server").getPath();
-    CommandStringBuilder command = new CommandStringBuilder(CliStrings.START_SERVER);
+    var command = new CommandStringBuilder(CliStrings.START_SERVER);
     command.addOption(CliStrings.START_SERVER__NAME, name);
     command.addOption(CliStrings.START_SERVER__SERVER_PORT, "0");
     command.addOption(CliStrings.START_SERVER__CLASSPATH, classPath);
@@ -106,7 +105,7 @@ public abstract class TomcatSessionBackwardsCompatibilityTestBase {
 
   protected void startLocator(String name, String classPath, int port) throws Exception {
     locatorDir = tempFolder.newFolder("locator").getPath();
-    CommandStringBuilder locStarter = new CommandStringBuilder(CliStrings.START_LOCATOR);
+    var locStarter = new CommandStringBuilder(CliStrings.START_LOCATOR);
     locStarter.addOption(CliStrings.START_LOCATOR__MEMBER_NAME, name);
     locStarter.addOption(CliStrings.START_LOCATOR__CLASSPATH, classPath);
     locStarter.addOption(CliStrings.START_LOCATOR__PORT, Integer.toString(port));
@@ -173,11 +172,11 @@ public abstract class TomcatSessionBackwardsCompatibilityTestBase {
     manager.stopAllActiveContainers();
     manager.cleanUp();
 
-    CommandStringBuilder command = new CommandStringBuilder(CliStrings.STOP_SERVER);
+    var command = new CommandStringBuilder(CliStrings.STOP_SERVER);
     command.addOption(CliStrings.STOP_SERVER__DIR, serverDir);
     gfsh.executeAndAssertThat(command.toString()).statusIsSuccess();
 
-    CommandStringBuilder locStop = new CommandStringBuilder(CliStrings.STOP_LOCATOR);
+    var locStop = new CommandStringBuilder(CliStrings.STOP_LOCATOR);
     locStop.addOption(CliStrings.STOP_LOCATOR__DIR, locatorDir);
     gfsh.executeAndAssertThat(locStop.toString()).statusIsSuccess();
   }
@@ -186,14 +185,14 @@ public abstract class TomcatSessionBackwardsCompatibilityTestBase {
     // This has to happen at the start of every test
     manager.startAllInactiveContainers();
 
-    String key = "value_testSessionPersists";
-    String value = "Foo";
+    var key = "value_testSessionPersists";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response resp = client.set(key, value);
-    String cookie = resp.getSessionCookie();
+    var resp = client.set(key, value);
+    var cookie = resp.getSessionCookie();
 
-    for (int i = 0; i < manager.numContainers(); i++) {
+    for (var i = 0; i < manager.numContainers(); i++) {
       System.out.println("Checking get for container:" + i);
       client.setPort(Integer.parseInt(manager.getContainerPort(i)));
       resp = client.get(key);

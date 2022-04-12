@@ -15,7 +15,6 @@
 package org.apache.geode.management;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,7 +24,6 @@ import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.BackwardCompatibilityTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.version.TestVersion;
@@ -38,7 +36,7 @@ public class GfshRebalanceCommandCompatibilityTest {
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(s -> TestVersion.compare(s, "1.11.0") < 0);
     return result;
   }
@@ -56,11 +54,11 @@ public class GfshRebalanceCommandCompatibilityTest {
   @Test
   public void whenCurrentVersionLocatorsExecuteRebalanceOnOldServersThenItMustSucceed()
       throws Exception {
-    MemberVM locator1 = cluster.startLocatorVM(0, oldVersion);
-    int locatorPort1 = locator1.getPort();
-    MemberVM locator2 =
+    var locator1 = cluster.startLocatorVM(0, oldVersion);
+    var locatorPort1 = locator1.getPort();
+    var locator2 =
         cluster.startLocatorVM(1, 0, oldVersion, x -> x.withConnectionToLocator(locatorPort1));
-    int locatorPort2 = locator2.getPort();
+    var locatorPort2 = locator2.getPort();
     cluster
         .startServerVM(2, oldVersion, s -> s.withRegion(RegionShortcut.PARTITION, "region")
             .withConnectionToLocator(locatorPort1, locatorPort2));
@@ -70,7 +68,7 @@ public class GfshRebalanceCommandCompatibilityTest {
     cluster.stop(0);
     locator1 = cluster.startLocatorVM(0, x -> x.withConnectionToLocator(locatorPort2));
     cluster.stop(1);
-    int locatorPort1_v2 = locator1.getPort();
+    var locatorPort1_v2 = locator1.getPort();
     cluster.startLocatorVM(1, x -> x.withConnectionToLocator(locatorPort1_v2));
     gfsh.connectAndVerify(locator1);
     gfsh.executeAndAssertThat("rebalance ")

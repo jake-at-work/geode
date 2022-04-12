@@ -19,12 +19,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -50,10 +48,10 @@ public class JarBuilderTest {
 
   @Test
   public void jarWithSingleClass() throws Exception {
-    File classContents = loadTestResource("AbstractClass.java");
+    var classContents = loadTestResource("AbstractClass.java");
     jarBuilder.buildJar(outputJar, classContents);
 
-    Set<String> jarEntryNames = jarEntryNamesFromFile(outputJar);
+    var jarEntryNames = jarEntryNamesFromFile(outputJar);
     assertThat(jarEntryNames).containsExactlyInAnyOrder(
         "timestamp",
         "org/apache/geode/test/compiler/AbstractClass.class");
@@ -61,12 +59,12 @@ public class JarBuilderTest {
 
   @Test
   public void jarWithTwoDependentClasses() throws Exception {
-    File sourceFileOne = loadTestResource("AbstractClass.java");
-    File sourceFileTwo = loadTestResource("ConcreteClass.java");
+    var sourceFileOne = loadTestResource("AbstractClass.java");
+    var sourceFileTwo = loadTestResource("ConcreteClass.java");
 
     jarBuilder.buildJar(outputJar, sourceFileOne, sourceFileTwo);
 
-    Set<String> jarEntryNames = jarEntryNamesFromFile(outputJar);
+    var jarEntryNames = jarEntryNamesFromFile(outputJar);
 
     assertThat(jarEntryNames).containsExactlyInAnyOrder(
         "timestamp",
@@ -76,11 +74,11 @@ public class JarBuilderTest {
 
   @Test
   public void jarWithClassInDefaultPackage() throws Exception {
-    String classInFooBarPackage = "package foo.bar; public class ClassInFooBarPackage {}";
-    String classInDefaultPackage = "public class ClassInDefaultPackage {}";
+    var classInFooBarPackage = "package foo.bar; public class ClassInFooBarPackage {}";
+    var classInDefaultPackage = "public class ClassInDefaultPackage {}";
     jarBuilder.buildJar(outputJar, classInFooBarPackage, classInDefaultPackage);
 
-    Set<String> jarEntryNames = jarEntryNamesFromFile(outputJar);
+    var jarEntryNames = jarEntryNamesFromFile(outputJar);
     assertThat(jarEntryNames).containsExactlyInAnyOrder(
         "timestamp",
         "ClassInDefaultPackage.class",
@@ -90,22 +88,22 @@ public class JarBuilderTest {
 
   @Test
   public void jarFromOnlyClassNames() throws Exception {
-    String defaultPackageClassName = "DefaultClass";
-    String otherPackageClassName = "foo.bar.OtherClass";
+    var defaultPackageClassName = "DefaultClass";
+    var otherPackageClassName = "foo.bar.OtherClass";
     jarBuilder.buildJarFromClassNames(outputJar, defaultPackageClassName, otherPackageClassName);
 
-    Set<String> jarEntryNames = jarEntryNamesFromFile(outputJar);
+    var jarEntryNames = jarEntryNamesFromFile(outputJar);
     assertThat(jarEntryNames).containsExactlyInAnyOrder("DefaultClass.class",
         "foo/bar/OtherClass.class", "timestamp");
   }
 
   @Test
   public void canLoadClassesFromJar() throws Exception {
-    String defaultPackageClassName = "DefaultClass";
-    String otherPackageClassName = "foo.bar.OtherClass";
+    var defaultPackageClassName = "DefaultClass";
+    var otherPackageClassName = "foo.bar.OtherClass";
     jarBuilder.buildJarFromClassNames(outputJar, defaultPackageClassName, otherPackageClassName);
 
-    URLClassLoader jarClassLoader = new URLClassLoader(new URL[] {outputJar.toURL()});
+    var jarClassLoader = new URLClassLoader(new URL[] {outputJar.toURL()});
 
     jarClassLoader.loadClass("DefaultClass");
     jarClassLoader.loadClass("foo.bar.OtherClass");
@@ -114,15 +112,15 @@ public class JarBuilderTest {
   private Set<String> jarEntryNamesFromFile(File jarFile) throws Exception {
     assertThat(jarFile).exists();
 
-    Enumeration<JarEntry> jarEntries = new JarFile(jarFile).entries();
+    var jarEntries = new JarFile(jarFile).entries();
     return Collections.list(jarEntries).stream().map(JarEntry::getName).collect(toSet());
   }
 
   private File loadTestResource(String fileName) throws URISyntaxException {
-    URL resourceFileURL = getClass().getResource(fileName);
+    var resourceFileURL = getClass().getResource(fileName);
     assertThat(resourceFileURL).isNotNull();
 
-    URI resourceUri = resourceFileURL.toURI();
+    var resourceUri = resourceFileURL.toURI();
     return new File(resourceUri);
   }
 }

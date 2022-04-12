@@ -26,22 +26,22 @@ import org.junit.Test;
 public class ByteArrayDataInputTest {
   @Test
   public void readFullyThatReadsPastEndOfDataThrowsEOFException() throws IOException {
-    byte[] inputBytes = new byte[1];
-    DataInput input = createDataInput(inputBytes);
-    byte[] outputBytes = new byte[2];
+    var inputBytes = new byte[1];
+    var input = createDataInput(inputBytes);
+    var outputBytes = new byte[2];
 
-    Throwable t = catchThrowable(() -> input.readFully(outputBytes));
+    var t = catchThrowable(() -> input.readFully(outputBytes));
 
     assertThat(t).isInstanceOf(EOFException.class);
   }
 
   @Test
   public void readLineGivenInputAtEOFReturnsNull() throws IOException {
-    byte[] inputBytes = new byte[1];
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[1];
+    var input = createDataInput(inputBytes);
     input.readByte();
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isNull();
     assertThat(dataRemaining(input)).isEqualTo(0);
@@ -49,10 +49,10 @@ public class ByteArrayDataInputTest {
 
   @Test
   public void readLineGivenEmptyLineTerminatedByLineFeedReturnsEmptyString() throws IOException {
-    byte[] inputBytes = new byte[] {'\n'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'\n'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEmpty();
     assertThat(dataRemaining(input)).isEqualTo(0);
@@ -61,10 +61,10 @@ public class ByteArrayDataInputTest {
   @Test
   public void readLineGivenEmptyLineTerminatedByLineFeedReturnsEmptyStringDoesNotConsumeNextByte()
       throws IOException {
-    byte[] inputBytes = new byte[] {'\n', 'a'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'\n', 'a'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEmpty();
     assertThat(dataRemaining(input)).isEqualTo(1);
@@ -74,10 +74,10 @@ public class ByteArrayDataInputTest {
   @Test
   public void readLineGivenEmptyLineTerminatedByCarriageReturnReturnsEmptyString()
       throws IOException {
-    byte[] inputBytes = new byte[] {'\r'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'\r'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEmpty();
     assertThat(dataRemaining(input)).isEqualTo(0);
@@ -86,10 +86,10 @@ public class ByteArrayDataInputTest {
   @Test
   public void readLineGivenEmptyLineTerminatedByCarriageReturnReturnsEmptyStringAndDoesNotConsumeNextByte()
       throws IOException {
-    byte[] inputBytes = new byte[] {'\r', 'a'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'\r', 'a'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEmpty();
     assertThat(dataRemaining(input)).isEqualTo(1);
@@ -99,10 +99,10 @@ public class ByteArrayDataInputTest {
   @Test
   public void readLineGivenEmptyLineTerminatedByCarriageReturnLineFeedReturnsEmptyString()
       throws IOException {
-    byte[] inputBytes = new byte[] {'\r', '\n'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'\r', '\n'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEmpty();
     assertThat(dataRemaining(input)).isEqualTo(0);
@@ -111,10 +111,10 @@ public class ByteArrayDataInputTest {
   @Test
   public void readLineGivenEmptyLineTerminatedByCarriageReturnLineFeedReturnsEmptyStringDoesNotConsumeNextByte()
       throws IOException {
-    byte[] inputBytes = new byte[] {'\r', '\n', 'a'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'\r', '\n', 'a'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEmpty();
     assertThat(dataRemaining(input)).isEqualTo(1);
@@ -123,10 +123,10 @@ public class ByteArrayDataInputTest {
 
   @Test
   public void readLineGivenLineTerminatedByEOFReturnsCorrectLineData() throws IOException {
-    byte[] inputBytes = new byte[] {'a', 'b', 'c'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'a', 'b', 'c'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEqualTo("abc");
     assertThat(dataRemaining(input)).isEqualTo(0);
@@ -134,10 +134,10 @@ public class ByteArrayDataInputTest {
 
   @Test
   public void readLineGivenLineTerminatedByLineFeedReturnsCorrectLineData() throws IOException {
-    byte[] inputBytes = new byte[] {'a', 'b', 'c', '\n', '2'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'a', 'b', 'c', '\n', '2'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEqualTo("abc");
     assertThat(dataRemaining(input)).isEqualTo(1);
@@ -147,10 +147,10 @@ public class ByteArrayDataInputTest {
   @Test
   public void readLineGivenLineTerminatedByCarriageReturnReturnsCorrectLineData()
       throws IOException {
-    byte[] inputBytes = new byte[] {'a', 'b', 'c', '\r', '2'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'a', 'b', 'c', '\r', '2'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEqualTo("abc");
     assertThat(dataRemaining(input)).isEqualTo(1);
@@ -160,10 +160,10 @@ public class ByteArrayDataInputTest {
   @Test
   public void readLineGivenLineTerminatedByCarriageReturnLineFeedReturnsCorrectLineData()
       throws IOException {
-    byte[] inputBytes = new byte[] {'a', 'b', 'c', '\r', '\n', '2'};
-    DataInput input = createDataInput(inputBytes);
+    var inputBytes = new byte[] {'a', 'b', 'c', '\r', '\n', '2'};
+    var input = createDataInput(inputBytes);
 
-    String result = input.readLine();
+    var result = input.readLine();
 
     assertThat(result).isEqualTo("abc");
     assertThat(dataRemaining(input)).isEqualTo(1);
@@ -172,12 +172,12 @@ public class ByteArrayDataInputTest {
 
   @Test
   public void readUTFHandlesEmptyString() throws IOException {
-    BufferDataOutputStream output = new BufferDataOutputStream(KnownVersion.CURRENT);
+    var output = new BufferDataOutputStream(KnownVersion.CURRENT);
     output.writeUTF("");
     output.writeByte(1);
-    DataInput input = createDataInput(output.toByteArray());
+    var input = createDataInput(output.toByteArray());
 
-    String result = input.readUTF();
+    var result = input.readUTF();
 
     assertThat(result).isEmpty();
     assertThat(dataRemaining(input)).isEqualTo(1);
@@ -186,13 +186,13 @@ public class ByteArrayDataInputTest {
 
   @Test
   public void readUTFHandlesAsciiString() throws IOException {
-    BufferDataOutputStream output = new BufferDataOutputStream(KnownVersion.CURRENT);
-    String string = "\u0001test\u007f";
+    var output = new BufferDataOutputStream(KnownVersion.CURRENT);
+    var string = "\u0001test\u007f";
     output.writeUTF(string);
     output.writeByte(1);
-    DataInput input = createDataInput(output.toByteArray());
+    var input = createDataInput(output.toByteArray());
 
-    String result = input.readUTF();
+    var result = input.readUTF();
 
     assertThat(result).isEqualTo(string);
     assertThat(dataRemaining(input)).isEqualTo(1);
@@ -201,13 +201,13 @@ public class ByteArrayDataInputTest {
 
   @Test
   public void readUTFHandlesUTF16String() throws IOException {
-    BufferDataOutputStream output = new BufferDataOutputStream(KnownVersion.CURRENT);
-    String string = "\u0000test\u0080\uffff";
+    var output = new BufferDataOutputStream(KnownVersion.CURRENT);
+    var string = "\u0000test\u0080\uffff";
     output.writeUTF(string);
     output.writeByte(1);
-    DataInput input = createDataInput(output.toByteArray());
+    var input = createDataInput(output.toByteArray());
 
-    String result = input.readUTF();
+    var result = input.readUTF();
 
     assertThat(result).isEqualTo(string);
     assertThat(dataRemaining(input)).isEqualTo(1);
@@ -216,11 +216,11 @@ public class ByteArrayDataInputTest {
 
   @Test
   public void readUTFOnInputWithJustLengthThrowsEOF() {
-    BufferDataOutputStream output = new BufferDataOutputStream(KnownVersion.CURRENT);
+    var output = new BufferDataOutputStream(KnownVersion.CURRENT);
     output.writeShort(1);
-    DataInput input = createDataInput(output.toByteArray());
+    var input = createDataInput(output.toByteArray());
 
-    Throwable t = catchThrowable(input::readUTF);
+    var t = catchThrowable(input::readUTF);
 
     assertThat(t).isInstanceOf(EOFException.class);
   }
@@ -236,7 +236,7 @@ public class ByteArrayDataInputTest {
     if (testJDK) {
       return new java.io.DataInputStream(new java.io.ByteArrayInputStream(inputBytes));
     } else {
-      ByteArrayDataInput input = new ByteArrayDataInput();
+      var input = new ByteArrayDataInput();
       input.initialize(inputBytes, null);
       return input;
     }

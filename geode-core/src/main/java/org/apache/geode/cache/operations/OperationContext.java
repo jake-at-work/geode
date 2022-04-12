@@ -311,7 +311,7 @@ public abstract class OperationContext {
    */
   @Deprecated
   public boolean isClientUpdate(OperationContext context) {
-    OperationCode opCode = context.getOperationCode();
+    var opCode = context.getOperationCode();
     return context.isPostOperation() && (opCode.isPut() || opCode.isPutAll() || opCode.isDestroy()
         || opCode.isRemoveAll() || opCode.isInvalidate() || opCode.isRegionCreate()
         || opCode.isRegionDestroy() || opCode.isRegionClear());

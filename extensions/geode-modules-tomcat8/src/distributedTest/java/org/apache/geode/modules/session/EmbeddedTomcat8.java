@@ -19,8 +19,6 @@ import java.io.File;
 import javax.security.auth.message.config.AuthConfigFactory;
 
 import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.authenticator.jaspic.AuthConfigFactoryImpl;
@@ -44,7 +42,7 @@ class EmbeddedTomcat8 {
     container = new Tomcat();
     container.setBaseDir(System.getProperty("user.dir") + "/tomcat");
 
-    Host localHost = container.getHost();// ("127.0.0.1", new File("").getAbsolutePath());
+    var localHost = container.getHost();// ("127.0.0.1", new File("").getAbsolutePath());
     localHost.setDeployOnStartup(true);
     localHost.getCreateDirs();
 
@@ -63,7 +61,7 @@ class EmbeddedTomcat8 {
     AuthConfigFactory.setFactory(factory);
 
     // create engine
-    Engine engine = container.getEngine();
+    var engine = container.getEngine();
     engine.setName("localEngine");
     engine.setJvmRoute(jvmRoute);
 
@@ -101,7 +99,7 @@ class EmbeddedTomcat8 {
   }
 
   StandardWrapper addServlet(String path, String name, String clazz) {
-    StandardWrapper servlet = (StandardWrapper) rootContext.createWrapper();
+    var servlet = (StandardWrapper) rootContext.createWrapper();
     servlet.setName(name);
     servlet.setServletClass(clazz);
     servlet.setLoadOnStartup(1);

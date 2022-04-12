@@ -49,70 +49,70 @@ public class CompiledInJUnitTest {
 
   @Test
   public void testEnumsShouldCompareCorrectlyToACollectionOfOnePdxEnumInfo() throws Exception {
-    Object[] objectValues = new Object[] {createPdxInstanceEnumInfo(EnumForTest.ONE, 1)};
+    var objectValues = new Object[] {createPdxInstanceEnumInfo(EnumForTest.ONE, 1)};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(EnumForTest.ONE);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(objectValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEnumsShouldNotCompareCorrectlyIfNotInCollectionOfPdxInstanceEnum()
       throws Exception {
-    Object[] objectValues = new Object[] {createPdxInstanceEnumInfo(EnumForTest.ONE, 1)};
+    var objectValues = new Object[] {createPdxInstanceEnumInfo(EnumForTest.ONE, 1)};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(EnumForTest.TWO);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(objectValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
   @Test
   public void testEnumsShouldCompareCorrectlyToACollectionOfPdxEnums() throws Exception {
-    Object[] objectValues = new Object[] {createPdxInstanceEnumInfo(EnumForTest.ONE, 1),
+    var objectValues = new Object[] {createPdxInstanceEnumInfo(EnumForTest.ONE, 1),
         createPdxInstanceEnumInfo(EnumForTest.TWO, 1)};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(EnumForTest.ONE);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(objectValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testPdxEnumsShouldCompareCorrectlyToACollectionOfOneEnum() throws Exception {
-    Object[] objectValues = new Object[] {EnumForTest.ONE};
+    var objectValues = new Object[] {EnumForTest.ONE};
     when(elm.evaluate(isA(ExecutionContext.class)))
         .thenReturn(createPdxInstanceEnumInfo(EnumForTest.ONE, 1));
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(objectValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testShouldNotThrowTypeMismatchWithNullElementAndObjectArray() throws Exception {
-    Object[] objectValues = new Object[] {true, true};
+    var objectValues = new Object[] {true, true};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(null);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(objectValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
   }
 
   @Test
   public void testTypeMismatchWithNullElementAndPrimitiveArray() throws Exception {
-    boolean[] booleanValues = new boolean[] {true, true};
+    var booleanValues = new boolean[] {true, true};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(null);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(booleanValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
+    var compiledIn = new CompiledIn(elm, colln);
     try {
-      Object result = compiledIn.evaluate(context);
+      var result = compiledIn.evaluate(context);
       fail("TypeMismatchException should be thrown");
     } catch (TypeMismatchException ignored) {
 
@@ -121,221 +121,221 @@ public class CompiledInJUnitTest {
 
   @Test
   public void testEvaluatesFalseForStringAgainstShortArray() throws Exception {
-    short[] shortValues = new short[] {1, 1};
+    var shortValues = new short[] {1, 1};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn("1");
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(shortValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueForFloatAgainstShortArray() throws Exception {
-    short[] shortValues = new short[] {1, 1};
+    var shortValues = new short[] {1, 1};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(1.0F);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(shortValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueForShortAgainstShortArray() throws Exception {
-    short[] shortValues = new short[] {1, 2};
+    var shortValues = new short[] {1, 2};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(1);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(shortValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueForIntegerAgainstShortArray() throws Exception {
-    short[] shortValues = new short[] {1, 2};
+    var shortValues = new short[] {1, 2};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(1);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(shortValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesFalseForStringAgainstBooleanArray() throws Exception {
-    boolean[] booleanValues = new boolean[] {true, true};
+    var booleanValues = new boolean[] {true, true};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn("true");
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(booleanValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
   @Test
   public void testEvaluatesFalseWithBooleanArrayNotMatchingBooleanElement() throws Exception {
-    boolean[] booleanValues = new boolean[] {true, true};
+    var booleanValues = new boolean[] {true, true};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(false);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(booleanValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueWithBooleanArrayMatchingBooleanElement() throws Exception {
-    boolean[] booleanValues = new boolean[] {true, true};
+    var booleanValues = new boolean[] {true, true};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(true);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(booleanValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueWithBooleanArrayMatchingBooleanFalseElement() throws Exception {
-    boolean[] booleanValues = new boolean[] {false, false};
+    var booleanValues = new boolean[] {false, false};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(false);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(booleanValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueWithCharArrayMatchingCharElement() throws Exception {
-    char[] charValues = new char[] {'a', 'b', '1'};
+    var charValues = new char[] {'a', 'b', '1'};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn('a');
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(charValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueWitCharArrayNotMatchingCharElement() throws Exception {
-    char[] charValues = new char[] {'a', 'b', '1'};
+    var charValues = new char[] {'a', 'b', '1'};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn('c');
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(charValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
   @Test
   public void testStringDoesNotMatchCharElements() throws Exception {
-    char[] charValues = new char[] {'a', 'b', '1'};
+    var charValues = new char[] {'a', 'b', '1'};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn("a");
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(charValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
   @Test
   public void testIntegerDoesNotMatchCharElements() throws Exception {
-    char[] charValues = new char[] {'a', 'b', '1'};
+    var charValues = new char[] {'a', 'b', '1'};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(97);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(charValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
   @Test
   public void testEvaluatesFalseWithByteArrayNotMatchingIntegerElement() throws Exception {
-    byte[] byteValues = new byte[] {127, 2, 3};
+    var byteValues = new byte[] {127, 2, 3};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(127);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(byteValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesFalseWithByteArrayNotMatchingLargerIntegerElement() throws Exception {
-    byte[] byteValues = new byte[] {127, 2, 3};
+    var byteValues = new byte[] {127, 2, 3};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(128);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(byteValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueWithByteArrayMatchingByteElement() throws Exception {
-    byte[] byteValues = new byte[] {1, 2, 3};
+    var byteValues = new byte[] {1, 2, 3};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn((Byte.valueOf("1")));
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(byteValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluateNotMatchingLongElement() throws Exception {
-    long[] longValues = new long[] {1, 2, 3};
+    var longValues = new long[] {1, 2, 3};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(4L);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(longValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueWithLongArrayMatchingLongElement() throws Exception {
-    long[] longValues = new long[] {1, 2, 3};
+    var longValues = new long[] {1, 2, 3};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(1L);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(longValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueWithSecondElementOfLongArrayMatchingLongElement() throws Exception {
-    long[] longValues = new long[] {1, 2, 3};
+    var longValues = new long[] {1, 2, 3};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(2L);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(longValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueWithLongArrayMatchingAndDoubleElement() throws Exception {
-    long[] longValues = new long[] {1, 2, 3};
+    var longValues = new long[] {1, 2, 3};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(1D);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(longValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testEvaluatesTrueWithLongArrayMatchingAndIntegerElement() throws Exception {
-    long[] longValues = new long[] {1, 2, 3};
+    var longValues = new long[] {1, 2, 3};
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(1);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(longValues);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
@@ -343,9 +343,9 @@ public class CompiledInJUnitTest {
   public void testExceptionThrownWhenEvaluateAgainstANonCollection() throws Exception {
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn("NotACollection");
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
+    var compiledIn = new CompiledIn(elm, colln);
     try {
-      Object result = compiledIn.evaluate(context);
+      var result = compiledIn.evaluate(context);
       fail("should throw a TypeMismatchException");
     } catch (TypeMismatchException e) {
       // expected
@@ -360,8 +360,8 @@ public class CompiledInJUnitTest {
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(3);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(collection);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
@@ -373,8 +373,8 @@ public class CompiledInJUnitTest {
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(1);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(collection);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
@@ -385,8 +385,8 @@ public class CompiledInJUnitTest {
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(1);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(collection);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
@@ -399,8 +399,8 @@ public class CompiledInJUnitTest {
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn(1);
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(collection);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
@@ -412,8 +412,8 @@ public class CompiledInJUnitTest {
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn("3");
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(collection);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertFalse((Boolean) result);
   }
 
@@ -425,8 +425,8 @@ public class CompiledInJUnitTest {
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn("1");
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(collection);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
@@ -437,23 +437,23 @@ public class CompiledInJUnitTest {
     when(elm.evaluate(isA(ExecutionContext.class))).thenReturn("1");
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(collection);
 
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertTrue((Boolean) result);
   }
 
   @Test
   public void testCompiledInCanEvaluate() throws Exception {
     when(colln.evaluate(isA(ExecutionContext.class))).thenReturn(new ArrayList());
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
-    Object result = compiledIn.evaluate(context);
+    var compiledIn = new CompiledIn(elm, colln);
+    var result = compiledIn.evaluate(context);
     assertNotNull(result);
   }
 
   @Test
   public void whenPassingIntegerArrayToSingleCollectionFilterEvaluateDoesNotThrowTypeMismatchException()
       throws Exception {
-    int[] intCollection = new int[] {1, 2};
+    var intCollection = new int[] {1, 2};
     when(colln.evaluate(any())).thenReturn(intCollection);
     callSingleCollectionFilterEvaluateBehavior(intCollection);
   }
@@ -461,63 +461,63 @@ public class CompiledInJUnitTest {
   @Test
   public void whenPassingLongArrayToSingleCollectionFilterEvaluateDoesNotThrowTypeMismatchException()
       throws Exception {
-    long[] longCollection = new long[] {1, 2};
+    var longCollection = new long[] {1, 2};
     callSingleCollectionFilterEvaluateBehavior(longCollection);
   }
 
   @Test
   public void whenPassingDoubleArrayToSingleCollectionFilterEvaluateDoesNotThrowTypeMismatchException()
       throws Exception {
-    double[] doubleCollection = new double[] {1, 2};
+    var doubleCollection = new double[] {1, 2};
     callSingleCollectionFilterEvaluateBehavior(doubleCollection);
   }
 
   @Test
   public void whenPassingCharArrayToSingleCollectionFilterEvaluateDoesNotThrowTypeMismatchException()
       throws Exception {
-    char[] charCollection = new char[] {1, 2};
+    var charCollection = new char[] {1, 2};
     callSingleCollectionFilterEvaluateBehavior(charCollection);
   }
 
   @Test
   public void whenPassingFloatArrayToSingleCollectionFilterEvaluateDoesNotThrowTypeMismatchException()
       throws Exception {
-    float[] floatCollection = new float[] {1, 2};
+    var floatCollection = new float[] {1, 2};
     callSingleCollectionFilterEvaluateBehavior(floatCollection);
   }
 
   @Test
   public void whenPassingShortArrayToSingleCollectionFilterEvaluateDoesNotThrowTypeMismatchException()
       throws Exception {
-    short[] shortCollection = new short[] {1, 2};
+    var shortCollection = new short[] {1, 2};
     callSingleCollectionFilterEvaluateBehavior(shortCollection);
   }
 
   @Test
   public void whenPassingByteArrayToSingleCollectionFilterEvaluateDoesNotThrowTypeMismatchException()
       throws Exception {
-    byte[] byteCollection = new byte[] {1, 2};
+    var byteCollection = new byte[] {1, 2};
     callSingleCollectionFilterEvaluateBehavior(byteCollection);
   }
 
   @Test
   public void whenPassingObjectArrayToSingleCollectionFilterEvaluateDoesNotThrowTypeMismatchException()
       throws Exception {
-    Object[] objectCollection = new Object[] {1, 2};
+    var objectCollection = new Object[] {1, 2};
     callSingleCollectionFilterEvaluateBehavior(objectCollection);
   }
 
   public void callSingleCollectionFilterEvaluateBehavior(Object collection) throws Exception {
-    CompiledIn compiledIn = new CompiledIn(elm, colln);
+    var compiledIn = new CompiledIn(elm, colln);
     when(colln.evaluate(any())).thenReturn(collection);
-    IndexInfo indexInfo =
+    var indexInfo =
         new IndexInfo(null, null, mock(IndexProtocol.class), 1, new int[] {1}, 90);
     compiledIn.singleBaseCollectionFilterEvaluate(context, new ResultsSet(), false, null, indexInfo,
         null, false, false, false);
   }
 
   private PdxInstanceEnumInfo createPdxInstanceEnumInfo(Enum<?> e, int enumId) {
-    EnumInfo ei = new EnumInfo(e);
+    var ei = new EnumInfo(e);
     return (PdxInstanceEnumInfo) ei.getPdxInstance(enumId);
   }
 

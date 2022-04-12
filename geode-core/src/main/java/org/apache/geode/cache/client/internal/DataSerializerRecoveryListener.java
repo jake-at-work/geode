@@ -25,8 +25,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.CancelException;
 import org.apache.geode.cache.client.internal.PoolImpl.PoolTask;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.InternalDataSerializer.SerializerAttributesHolder;
-import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 public class DataSerializerRecoveryListener extends EndpointManager.EndpointListenerAdapter {
@@ -47,7 +45,7 @@ public class DataSerializerRecoveryListener extends EndpointManager.EndpointList
 
   @Override
   public void endpointCrashed(Endpoint endpoint) {
-    int count = endpointCount.decrementAndGet();
+    var count = endpointCount.decrementAndGet();
     if (logger.isDebugEnabled()) {
       logger.debug("DataSerializerRecoveryTask - EndpointCrashed. Now have {} endpoints", count);
     }
@@ -55,7 +53,7 @@ public class DataSerializerRecoveryListener extends EndpointManager.EndpointList
 
   @Override
   public void endpointNoLongerInUse(Endpoint endpoint) {
-    int count = endpointCount.decrementAndGet();
+    var count = endpointCount.decrementAndGet();
     if (logger.isDebugEnabled()) {
       logger.debug("DataSerializerRecoveryTask - EndpointNoLongerInUse. Now have {} endpoints",
           count);
@@ -64,7 +62,7 @@ public class DataSerializerRecoveryListener extends EndpointManager.EndpointList
 
   @Override
   public void endpointNowInUse(Endpoint endpoint) {
-    int count = endpointCount.incrementAndGet();
+    var count = endpointCount.incrementAndGet();
     if (logger.isDebugEnabled()) {
       logger.debug("DataSerializerRecoveryTask - EndpointNowInUse. Now have {} endpoints", count);
     }
@@ -96,12 +94,12 @@ public class DataSerializerRecoveryListener extends EndpointManager.EndpointList
       }
 
       logger.debug("DataSerializerRecoveryTask - Attempting to recover dataSerializers");
-      SerializerAttributesHolder[] holders = InternalDataSerializer.getSerializersForDistribution();
+      var holders = InternalDataSerializer.getSerializersForDistribution();
       if (holders.length == 0) {
         return;
       }
 
-      EventID eventId = InternalDataSerializer.generateEventId();
+      var eventId = InternalDataSerializer.generateEventId();
       // Fix for bug:40930
       if (eventId == null) {
         try {
@@ -127,8 +125,8 @@ public class DataSerializerRecoveryListener extends EndpointManager.EndpointList
           }
 
           // If ClassNotFoundException occurred on server, don't retry
-          Throwable cause = e.getCause();
-          boolean cnfException = false;
+          var cause = e.getCause();
+          var cnfException = false;
           if (cause instanceof ClassNotFoundException) {
             logger.warn("DataSerializerRecoveryTask - Error ClassNotFoundException: {}",
                 cause.getMessage());

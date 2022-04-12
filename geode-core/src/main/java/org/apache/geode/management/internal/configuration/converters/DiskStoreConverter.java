@@ -29,7 +29,7 @@ import org.apache.geode.management.configuration.DiskStore;
 public class DiskStoreConverter extends ConfigurationConverter<DiskStore, DiskStoreType> {
   @Override
   protected DiskStore fromNonNullXmlObject(DiskStoreType xmlObject) {
-    DiskStore diskStore = new DiskStore();
+    var diskStore = new DiskStore();
 
     diskStore.setName(xmlObject.getName());
     if (xmlObject.isAllowForceCompaction() != null) {
@@ -67,7 +67,7 @@ public class DiskStoreConverter extends ConfigurationConverter<DiskStore, DiskSt
 
 
     diskStore.setDirectories(xmlObject.getDiskDirs().stream().map(diskDirType -> {
-      DiskDir diskDir = new DiskDir();
+      var diskDir = new DiskDir();
       if (diskDirType.getDirSize() != null) {
         diskDir.setDirSize(Integer.parseInt(diskDirType.getDirSize()));
       }
@@ -80,7 +80,7 @@ public class DiskStoreConverter extends ConfigurationConverter<DiskStore, DiskSt
 
   @Override
   protected DiskStoreType fromNonNullConfigObject(DiskStore configObject) {
-    DiskStoreType diskStoreType = new DiskStoreType();
+    var diskStoreType = new DiskStoreType();
 
     diskStoreType.setName(configObject.getName());
     if (configObject.isAllowForceCompaction() != null) {
@@ -113,7 +113,7 @@ public class DiskStoreConverter extends ConfigurationConverter<DiskStore, DiskSt
       diskStoreType.setWriteBufferSize(configObject.getWriteBufferSize().toString());
     }
     diskStoreType.setDiskDirs(configObject.getDirectories().stream().map(diskDir -> {
-      DiskDirType diskDirType = new DiskDirType();
+      var diskDirType = new DiskDirType();
       diskDirType.setContent(diskDir.getName());
       if (diskDir.getDirSize() != null) {
         diskDirType.setDirSize(diskDir.getDirSize().toString());

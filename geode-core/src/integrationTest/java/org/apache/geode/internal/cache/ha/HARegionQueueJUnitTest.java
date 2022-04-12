@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +44,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -132,7 +130,7 @@ public class HARegionQueueJUnitTest {
   @Test
   public void testQueuePutWithoutConflation() throws Exception {
     haRegionQueue = createHARegionQueue(testName.getMethodName());
-    int putPerProducer = 20;
+    var putPerProducer = 20;
     createAndRunProducers(false, false, false, putPerProducer);
     assertThat(haRegionQueue.size(), is(putPerProducer * TOTAL_PUT_THREADS));
   }
@@ -148,7 +146,7 @@ public class HARegionQueueJUnitTest {
   @Test
   public void testQueuePutWithConflation() throws Exception {
     haRegionQueue = createHARegionQueue(testName.getMethodName());
-    int putPerProducer = 20;
+    var putPerProducer = 20;
     createAndRunProducers(true, false, true, putPerProducer);
     assertThat(haRegionQueue.size(), is(putPerProducer));
   }
@@ -164,7 +162,7 @@ public class HARegionQueueJUnitTest {
   @Test
   public void testQueuePutWithDuplicates() throws Exception {
     haRegionQueue = createHARegionQueue(testName.getMethodName());
-    int putPerProducer = 20;
+    var putPerProducer = 20;
     createAndRunProducers(false, false, true, putPerProducer);
     assertThat(haRegionQueue.size(), is(putPerProducer * TOTAL_PUT_THREADS));
   }
@@ -188,25 +186,25 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testBlockQueue() throws Exception {
-    HARegionQueue regionQueue = HARegionQueue.getHARegionQueueInstance(testName.getMethodName(),
+    var regionQueue = HARegionQueue.getHARegionQueueInstance(testName.getMethodName(),
         cache, HARegionQueue.BLOCKING_HA_QUEUE, false, disabledClock());
-    Thread[] threads = new Thread[10];
-    int threadsLength = threads.length;
-    CyclicBarrier barrier = new CyclicBarrier(threadsLength + 1);
+    var threads = new Thread[10];
+    var threadsLength = threads.length;
+    var barrier = new CyclicBarrier(threadsLength + 1);
 
-    for (int i = 0; i < threadsLength; i++) {
+    for (var i = 0; i < threadsLength; i++) {
       threads[i] = new Thread() {
         @Override
         public void run() {
           try {
             barrier.await();
-            long startTime = System.currentTimeMillis();
-            Object obj = regionQueue.peek();
+            var startTime = System.currentTimeMillis();
+            var obj = regionQueue.peek();
             if (obj == null) {
               errorCollector.addError(new AssertionError(
                   "Failed :  failed since object was null and was not expected to be null"));
             }
-            long totalTime = System.currentTimeMillis() - startTime;
+            var totalTime = System.currentTimeMillis() - startTime;
 
             if (totalTime < 2000) {
               errorCollector.addError(new AssertionError(
@@ -219,7 +217,7 @@ public class HARegionQueueJUnitTest {
       };
     }
 
-    for (Thread thread1 : threads) {
+    for (var thread1 : threads) {
       thread1.start();
     }
 
@@ -227,15 +225,15 @@ public class HARegionQueueJUnitTest {
 
     Thread.sleep(5000);
 
-    EventID id = new EventID(new byte[] {1}, 1, 1);
+    var id = new EventID(new byte[] {1}, 1, 1);
     regionQueue.put(new ConflatableObject("key", "value", id, false, testName.getMethodName()));
 
-    long startTime = System.currentTimeMillis();
-    for (Thread thread : threads) {
+    var startTime = System.currentTimeMillis();
+    for (var thread : threads) {
       ThreadUtils.join(thread, 60 * 1000);
     }
 
-    long totalTime = System.currentTimeMillis() - startTime;
+    var totalTime = System.currentTimeMillis() - startTime;
 
     if (totalTime >= 60000) {
       fail(" Test taken too long ");
@@ -247,16 +245,16 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testExpiryPositive() throws Exception {
-    HARegionQueueAttributes haa = new HARegionQueueAttributes();
+    var haa = new HARegionQueueAttributes();
     haa.setExpiryTime(1);
 
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName(), haa);
-    long start = System.currentTimeMillis();
+    var regionQueue = createHARegionQueue(testName.getMethodName(), haa);
+    var start = System.currentTimeMillis();
 
     regionQueue.put(new ConflatableObject("key", "value", new EventID(new byte[] {1}, 1, 1), true,
         testName.getMethodName()));
 
-    Map map = (Map) regionQueue.getConflationMapForTesting().get(testName.getMethodName());
+    var map = (Map) regionQueue.getConflationMapForTesting().get(testName.getMethodName());
     waitAtLeast(1000, start, () -> {
       assertThat(map, is(Collections.emptyMap()));
       assertThat(regionQueue.getRegion().keys(), is(Collections.emptySet()));
@@ -268,11 +266,11 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testExpiryPositiveWithConflation() throws Exception {
-    HARegionQueueAttributes haa = new HARegionQueueAttributes();
+    var haa = new HARegionQueueAttributes();
     haa.setExpiryTime(1);
 
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName(), haa);
-    long start = System.currentTimeMillis();
+    var regionQueue = createHARegionQueue(testName.getMethodName(), haa);
+    var start = System.currentTimeMillis();
 
     regionQueue.put(new ConflatableObject("key", "value", new EventID(new byte[] {1}, 1, 1), true,
         testName.getMethodName()));
@@ -310,17 +308,17 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testNoExpiryOfThreadId() throws Exception {
-    HARegionQueueAttributes haa = new HARegionQueueAttributes();
+    var haa = new HARegionQueueAttributes();
     haa.setExpiryTime(45);
 
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName(), haa);
-    EventID ev1 = new EventID(new byte[] {1}, 1, 1);
-    EventID ev2 = new EventID(new byte[] {1}, 1, 2);
+    var regionQueue = createHARegionQueue(testName.getMethodName(), haa);
+    var ev1 = new EventID(new byte[] {1}, 1, 1);
+    var ev2 = new EventID(new byte[] {1}, 1, 2);
     Conflatable cf1 = new ConflatableObject("key", "value", ev1, true, testName.getMethodName());
     Conflatable cf2 = new ConflatableObject("key", "value2", ev2, true, testName.getMethodName());
 
     regionQueue.put(cf1);
-    long tailKey = regionQueue.tailKey.get();
+    var tailKey = regionQueue.tailKey.get();
     regionQueue.put(cf2);
 
     // Invalidate will trigger the expiration of the entry
@@ -346,8 +344,8 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testQRMComingBeforeLocalPut() throws Exception {
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName());
-    EventID id = new EventID(new byte[] {1}, 1, 1);
+    var regionQueue = createHARegionQueue(testName.getMethodName());
+    var id = new EventID(new byte[] {1}, 1, 1);
 
     regionQueue.removeDispatchedEvents(id);
     regionQueue.put(new ConflatableObject("key", "value", id, true, testName.getMethodName()));
@@ -361,12 +359,12 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testOnlyQRMComing() throws Exception {
-    HARegionQueueAttributes harqAttr = new HARegionQueueAttributes();
+    var harqAttr = new HARegionQueueAttributes();
     harqAttr.setExpiryTime(1);
 
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName(), harqAttr);
-    EventID id = new EventID(new byte[] {1}, 1, 1);
-    long start = System.currentTimeMillis();
+    var regionQueue = createHARegionQueue(testName.getMethodName(), harqAttr);
+    var id = new EventID(new byte[] {1}, 1, 1);
+    var start = System.currentTimeMillis();
 
     regionQueue.removeDispatchedEvents(id);
 
@@ -385,7 +383,7 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testPutPath() throws Exception {
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName());
+    var regionQueue = createHARegionQueue(testName.getMethodName());
     Conflatable cf = new ConflatableObject("key", "value", new EventID(new byte[] {1}, 1, 1), true,
         testName.getMethodName());
 
@@ -410,11 +408,11 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testQRMDispatch() throws Exception {
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName());
-    Conflatable[] cf = new Conflatable[10];
+    var regionQueue = createHARegionQueue(testName.getMethodName());
+    var cf = new Conflatable[10];
 
     // put 10 conflatable objects
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       cf[i] = new ConflatableObject("key" + i, "value", new EventID(new byte[] {1}, 1, i), true,
           testName.getMethodName());
       regionQueue.put(cf[i]);
@@ -424,46 +422,46 @@ public class HARegionQueueJUnitTest {
     regionQueue.removeDispatchedEvents(new EventID(new byte[] {1}, 1, 4));
 
     // verify 1-5 not in region
-    for (int i = 1; i < 6; i++) {
+    for (var i = 1; i < 6; i++) {
       assertThat(!regionQueue.getRegion().containsKey((long) i), is(true));
     }
 
     // verify 6-10 still in region queue
-    for (int i = 6; i < 11; i++) {
+    for (var i = 6; i < 11; i++) {
       assertThat(regionQueue.getRegion().containsKey((long) i), is(true));
     }
 
     // verify 1-5 not in conflation map
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       assertThat(!((Map) regionQueue.getConflationMapForTesting().get(testName.getMethodName()))
           .containsKey("key" + i), is(true));
     }
 
     // verify 6-10 in conflation map
-    for (int i = 5; i < 10; i++) {
+    for (var i = 5; i < 10; i++) {
       assertThat(((Map) regionQueue.getConflationMapForTesting().get(testName.getMethodName()))
           .containsKey("key" + i), is(true));
     }
 
-    EventID eid = new EventID(new byte[] {1}, 1, 6);
+    var eid = new EventID(new byte[] {1}, 1, 6);
 
     // verify 1-5 not in eventMap
-    for (int i = 1; i < 6; i++) {
+    for (var i = 1; i < 6; i++) {
       assertThat(!regionQueue.getCurrentCounterSet(eid).contains((long) i), is(true));
     }
 
     // verify 6-10 in event Map
-    for (int i = 6; i < 11; i++) {
+    for (var i = 6; i < 11; i++) {
       assertThat(regionQueue.getCurrentCounterSet(eid).contains((long) i), is(true));
     }
 
     // verify 1-5 not in available Id's map
-    for (int i = 1; i < 6; i++) {
+    for (var i = 1; i < 6; i++) {
       assertThat(!regionQueue.getAvailableIds().contains((long) i), is(true));
     }
 
     // verify 6-10 in available id's map
-    for (int i = 6; i < 11; i++) {
+    for (var i = 6; i < 11; i++) {
       assertThat(regionQueue.getAvailableIds().contains((long) i), is(true));
     }
   }
@@ -474,69 +472,69 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testQRMBeforePut() throws Exception {
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName());
+    var regionQueue = createHARegionQueue(testName.getMethodName());
 
-    EventID[] ids = new EventID[10];
+    var ids = new EventID[10];
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       ids[i] = new EventID(new byte[] {1}, 1, i);
     }
 
     // first get the qrm message for the seventh id
     regionQueue.removeDispatchedEvents(ids[6]);
-    Conflatable[] cf = new Conflatable[10];
+    var cf = new Conflatable[10];
 
     // put 10 conflatable objects
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       cf[i] = new ConflatableObject("key" + i, "value", ids[i], true, testName.getMethodName());
       regionQueue.put(cf[i]);
     }
 
     // verify 1-7 not in region
-    Set values = (Set) regionQueue.getRegion().values();
+    var values = (Set) regionQueue.getRegion().values();
 
-    for (int i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
       System.out.println(i);
       assertThat(!values.contains(cf[i]), is(true));
     }
 
     // verify 8-10 still in region queue
-    for (int i = 7; i < 10; i++) {
+    for (var i = 7; i < 10; i++) {
       System.out.println(i);
       assertThat(values.contains(cf[i]), is(true));
     }
 
     // verify 1-8 not in conflation map
-    for (int i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
       assertThat(!((Map) regionQueue.getConflationMapForTesting().get(testName.getMethodName()))
           .containsKey("key" + i), is(true));
     }
 
     // verify 8-10 in conflation map
-    for (int i = 7; i < 10; i++) {
+    for (var i = 7; i < 10; i++) {
       assertThat(((Map) regionQueue.getConflationMapForTesting().get(testName.getMethodName()))
           .containsKey("key" + i), is(true));
     }
 
-    EventID eid = new EventID(new byte[] {1}, 1, 6);
+    var eid = new EventID(new byte[] {1}, 1, 6);
 
     // verify 1-7 not in eventMap
-    for (int i = 4; i < 11; i++) {
+    for (var i = 4; i < 11; i++) {
       assertThat(!regionQueue.getCurrentCounterSet(eid).contains((long) i), is(true));
     }
 
     // verify 8-10 in event Map
-    for (int i = 1; i < 4; i++) {
+    for (var i = 1; i < 4; i++) {
       assertThat(regionQueue.getCurrentCounterSet(eid).contains((long) i), is(true));
     }
 
     // verify 1-7 not in available Id's map
-    for (int i = 4; i < 11; i++) {
+    for (var i = 4; i < 11; i++) {
       assertThat(!regionQueue.getAvailableIds().contains((long) i), is(true));
     }
 
     // verify 8-10 in available id's map
-    for (int i = 1; i < 4; i++) {
+    for (var i = 1; i < 4; i++) {
       assertThat(regionQueue.getAvailableIds().contains((long) i), is(true));
     }
   }
@@ -546,14 +544,14 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testConflation() throws Exception {
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName());
-    EventID ev1 = new EventID(new byte[] {1}, 1, 1);
-    EventID ev2 = new EventID(new byte[] {1}, 2, 2);
+    var regionQueue = createHARegionQueue(testName.getMethodName());
+    var ev1 = new EventID(new byte[] {1}, 1, 1);
+    var ev2 = new EventID(new byte[] {1}, 2, 2);
     Conflatable cf1 = new ConflatableObject("key", "value", ev1, true, testName.getMethodName());
     Conflatable cf2 = new ConflatableObject("key", "value2", ev2, true, testName.getMethodName());
     regionQueue.put(cf1);
 
-    Map conflationMap = regionQueue.getConflationMapForTesting();
+    var conflationMap = regionQueue.getConflationMapForTesting();
     assertThat(((Map) conflationMap.get(testName.getMethodName())).get("key"), is(1L));
 
     regionQueue.put(cf2);
@@ -580,23 +578,23 @@ public class HARegionQueueJUnitTest {
   public void testQRM() throws Exception {
     RegionQueue regionqueue = createHARegionQueue(testName.getMethodName());
 
-    for (int i = 0; i < 10; ++i) {
+    for (var i = 0; i < 10; ++i) {
       regionqueue.put(new ConflatableObject("key" + (i + 1), "value",
           new EventID(new byte[] {1}, 1, i + 1), true, testName.getMethodName()));
     }
 
-    EventID qrmID = new EventID(new byte[] {1}, 1, 5);
+    var qrmID = new EventID(new byte[] {1}, 1, 5);
     ((HARegionQueue) regionqueue).removeDispatchedEvents(qrmID);
-    Map conflationMap = ((HARegionQueue) regionqueue).getConflationMapForTesting();
+    var conflationMap = ((HARegionQueue) regionqueue).getConflationMapForTesting();
     assertThat(((Map) conflationMap.get(testName.getMethodName())).size(), is(5));
 
-    Set availableIDs = ((HARegionQueue) regionqueue).getAvailableIds();
-    Set counters = ((HARegionQueue) regionqueue).getCurrentCounterSet(qrmID);
+    var availableIDs = ((HARegionQueue) regionqueue).getAvailableIds();
+    var counters = ((HARegionQueue) regionqueue).getCurrentCounterSet(qrmID);
 
     assertThat(availableIDs.size(), is(5));
     assertThat(counters.size(), is(5));
 
-    for (int i = 5; i < 10; ++i) {
+    for (var i = 5; i < 10; ++i) {
       assertThat(((Map) (conflationMap.get(testName.getMethodName()))).containsKey("key" + (i + 1)),
           is(true));
       assertThat(availableIDs.contains((long) (i + 1)), is(true));
@@ -620,7 +618,7 @@ public class HARegionQueueJUnitTest {
     hrqForTestSafeConflationRemoval.put(cf1);
     hrqForTestSafeConflationRemoval.removeDispatchedEvents(new EventID(new byte[] {1}, 1, 1));
 
-    Map map = (Map) hrqForTestSafeConflationRemoval.getConflationMapForTesting()
+    var map = (Map) hrqForTestSafeConflationRemoval.getConflationMapForTesting()
         .get("testSafeConflationRemoval");
 
     assertThat(
@@ -648,16 +646,16 @@ public class HARegionQueueJUnitTest {
   @Test
   public void testConcurrentDispatcherAndRemovalForSameRegionSameThreadId() throws Exception {
     long numberOfIterations = 1000;
-    HARegionQueue hrq = createHARegionQueue(testName.getMethodName());
+    var hrq = createHARegionQueue(testName.getMethodName());
     HARegionQueue.stopQRMThread();
-    ThreadIdentifier[] ids = new ThreadIdentifier[(int) numberOfIterations];
+    var ids = new ThreadIdentifier[(int) numberOfIterations];
 
-    for (int i = 0; i < numberOfIterations; i++) {
+    for (var i = 0; i < numberOfIterations; i++) {
       ids[i] = new ThreadIdentifier(new byte[] {1}, i);
       hrq.addDispatchedMessage(ids[i], i);
     }
 
-    Thread thread1 = new Thread() {
+    var thread1 = new Thread() {
       @Override
       public void run() {
         try {
@@ -669,7 +667,7 @@ public class HARegionQueueJUnitTest {
       }
     };
 
-    Thread thread2 = new Thread() {
+    var thread2 = new Thread() {
       @Override
       public void run() {
         try {
@@ -677,7 +675,7 @@ public class HARegionQueueJUnitTest {
         } catch (InterruptedException e) {
           errorCollector.addError(e);
         }
-        for (int i = 0; i < numberOfIterations; i++) {
+        for (var i = 0; i < numberOfIterations; i++) {
           hrq.addDispatchedMessage(ids[i], i + numberOfIterations);
         }
       }
@@ -687,9 +685,9 @@ public class HARegionQueueJUnitTest {
     thread2.start();
     ThreadUtils.join(thread1, 30 * 1000);
     ThreadUtils.join(thread2, 30 * 1000);
-    List list2 = HARegionQueue.createMessageListForTesting();
-    Iterator iterator = list1.iterator();
-    boolean doOnce = false;
+    var list2 = HARegionQueue.createMessageListForTesting();
+    var iterator = list1.iterator();
+    var doOnce = false;
     EventID id;
     Map map = new HashMap();
 
@@ -721,7 +719,7 @@ public class HARegionQueueJUnitTest {
     iterator = map.values().iterator();
     Long max = numberOfIterations;
     while (iterator.hasNext()) {
-      Long next = (Long) iterator.next();
+      var next = (Long) iterator.next();
       assertThat(
           " Expected all the sequence ID's to be greater than " + max
               + " but it is not so. Got sequence id " + next,
@@ -747,17 +745,17 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testConcurrentDispatcherAndRemovalForSameRegionDifferentThreadId() throws Exception {
-    int numberOfIterations = 1000;
-    HARegionQueue hrq = createHARegionQueue(testName.getMethodName());
+    var numberOfIterations = 1000;
+    var hrq = createHARegionQueue(testName.getMethodName());
     HARegionQueue.stopQRMThread();
-    ThreadIdentifier[] ids = new ThreadIdentifier[(int) numberOfIterations];
+    var ids = new ThreadIdentifier[(int) numberOfIterations];
 
-    for (int i = 0; i < numberOfIterations; i++) {
+    for (var i = 0; i < numberOfIterations; i++) {
       ids[i] = new ThreadIdentifier(new byte[] {1}, i);
       hrq.addDispatchedMessage(ids[i], i);
     }
 
-    Thread thread1 = new Thread() {
+    var thread1 = new Thread() {
       @Override
       public void run() {
         try {
@@ -769,7 +767,7 @@ public class HARegionQueueJUnitTest {
       }
     };
 
-    Thread thread2 = new Thread() {
+    var thread2 = new Thread() {
       @Override
       public void run() {
         try {
@@ -777,7 +775,7 @@ public class HARegionQueueJUnitTest {
         } catch (InterruptedException e) {
           errorCollector.addError(e);
         }
-        for (int i = 0; i < numberOfIterations; i++) {
+        for (var i = 0; i < numberOfIterations; i++) {
           ids[i] = new ThreadIdentifier(new byte[] {1}, i + numberOfIterations);
           hrq.addDispatchedMessage(ids[i], i + numberOfIterations);
         }
@@ -788,9 +786,9 @@ public class HARegionQueueJUnitTest {
     thread2.start();
     ThreadUtils.join(thread1, 30 * 1000);
     ThreadUtils.join(thread2, 30 * 1000);
-    List list2 = HARegionQueue.createMessageListForTesting();
-    Iterator iterator = list1.iterator();
-    boolean doOnce = false;
+    var list2 = HARegionQueue.createMessageListForTesting();
+    var iterator = list1.iterator();
+    var doOnce = false;
     EventID id;
     Map map = new HashMap();
 
@@ -843,25 +841,25 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testConcurrentDispatcherAndRemovalForMultipleRegionsSameThreadId() throws Exception {
-    int numberOfIterations = 10000;
-    HARegionQueue hrq1 = createHARegionQueue(testName.getMethodName() + "-1");
-    HARegionQueue hrq2 = createHARegionQueue(testName.getMethodName() + "-2");
-    HARegionQueue hrq3 = createHARegionQueue(testName.getMethodName() + "-3");
-    HARegionQueue hrq4 = createHARegionQueue(testName.getMethodName() + "-4");
-    HARegionQueue hrq5 = createHARegionQueue(testName.getMethodName() + "-5");
+    var numberOfIterations = 10000;
+    var hrq1 = createHARegionQueue(testName.getMethodName() + "-1");
+    var hrq2 = createHARegionQueue(testName.getMethodName() + "-2");
+    var hrq3 = createHARegionQueue(testName.getMethodName() + "-3");
+    var hrq4 = createHARegionQueue(testName.getMethodName() + "-4");
+    var hrq5 = createHARegionQueue(testName.getMethodName() + "-5");
 
     HARegionQueue.stopQRMThread();
 
-    ThreadIdentifier[] ids = new ThreadIdentifier[(int) numberOfIterations];
+    var ids = new ThreadIdentifier[(int) numberOfIterations];
 
-    for (int i = 0; i < numberOfIterations; i++) {
+    for (var i = 0; i < numberOfIterations; i++) {
       ids[i] = new ThreadIdentifier(new byte[] {1}, i);
       hrq1.addDispatchedMessage(ids[i], i);
       hrq2.addDispatchedMessage(ids[i], i);
 
     }
 
-    Thread thread1 = new Thread() {
+    var thread1 = new Thread() {
       @Override
       public void run() {
         try {
@@ -873,7 +871,7 @@ public class HARegionQueueJUnitTest {
       }
     };
 
-    Thread thread2 = new Thread() {
+    var thread2 = new Thread() {
       @Override
       public void run() {
         try {
@@ -881,7 +879,7 @@ public class HARegionQueueJUnitTest {
         } catch (InterruptedException e) {
           errorCollector.addError(e);
         }
-        for (int i = 0; i < numberOfIterations; i++) {
+        for (var i = 0; i < numberOfIterations; i++) {
           hrq3.addDispatchedMessage(ids[i], i);
           hrq4.addDispatchedMessage(ids[i], i);
           hrq5.addDispatchedMessage(ids[i], i);
@@ -893,9 +891,9 @@ public class HARegionQueueJUnitTest {
     thread2.start();
     ThreadUtils.join(thread1, 30 * 1000);
     ThreadUtils.join(thread2, 30 * 1000);
-    List list2 = HARegionQueue.createMessageListForTesting();
-    Iterator iterator = list1.iterator();
-    boolean doOnce = true;
+    var list2 = HARegionQueue.createMessageListForTesting();
+    var iterator = list1.iterator();
+    var doOnce = true;
     EventID id;
     Map map = new HashMap();
 
@@ -906,7 +904,7 @@ public class HARegionQueueJUnitTest {
       } else {
         iterator.next();// region name;
         int size = (Integer) iterator.next();
-        for (int i = 0; i < size; i++) {
+        for (var i = 0; i < size; i++) {
           id = (EventID) iterator.next();
           map.put(new ThreadIdentifier(id.getMembershipID(), id.getThreadID()), id.getSequenceID());
         }
@@ -923,7 +921,7 @@ public class HARegionQueueJUnitTest {
       } else {
         iterator.next();// region name;
         int size = (Integer) iterator.next();
-        for (int i = 0; i < size; i++) {
+        for (var i = 0; i < size; i++) {
           id = (EventID) iterator.next();
           map.put(new ThreadIdentifier(id.getMembershipID(), id.getThreadID()), id.getSequenceID());
         }
@@ -957,22 +955,22 @@ public class HARegionQueueJUnitTest {
   @Test
   public void testConcurrentDispatcherAndRemovalForMultipleRegionsDifferentThreadId()
       throws Exception {
-    int numberOfIterations = 1000;
-    HARegionQueue hrq1 = createHARegionQueue(testName.getMethodName() + "-1");
-    HARegionQueue hrq2 = createHARegionQueue(testName.getMethodName() + "-2");
-    HARegionQueue hrq3 = createHARegionQueue(testName.getMethodName() + "-3");
-    HARegionQueue hrq4 = createHARegionQueue(testName.getMethodName() + "-4");
-    HARegionQueue hrq5 = createHARegionQueue(testName.getMethodName() + "-5");
+    var numberOfIterations = 1000;
+    var hrq1 = createHARegionQueue(testName.getMethodName() + "-1");
+    var hrq2 = createHARegionQueue(testName.getMethodName() + "-2");
+    var hrq3 = createHARegionQueue(testName.getMethodName() + "-3");
+    var hrq4 = createHARegionQueue(testName.getMethodName() + "-4");
+    var hrq5 = createHARegionQueue(testName.getMethodName() + "-5");
 
     HARegionQueue.stopQRMThread();
 
-    ThreadIdentifier[] ids1 = new ThreadIdentifier[(int) numberOfIterations];
-    ThreadIdentifier[] ids2 = new ThreadIdentifier[(int) numberOfIterations];
-    ThreadIdentifier[] ids3 = new ThreadIdentifier[(int) numberOfIterations];
-    ThreadIdentifier[] ids4 = new ThreadIdentifier[(int) numberOfIterations];
-    ThreadIdentifier[] ids5 = new ThreadIdentifier[(int) numberOfIterations];
+    var ids1 = new ThreadIdentifier[(int) numberOfIterations];
+    var ids2 = new ThreadIdentifier[(int) numberOfIterations];
+    var ids3 = new ThreadIdentifier[(int) numberOfIterations];
+    var ids4 = new ThreadIdentifier[(int) numberOfIterations];
+    var ids5 = new ThreadIdentifier[(int) numberOfIterations];
 
-    for (int i = 0; i < numberOfIterations; i++) {
+    for (var i = 0; i < numberOfIterations; i++) {
       ids1[i] = new ThreadIdentifier(new byte[] {1}, i);
       ids2[i] = new ThreadIdentifier(new byte[] {2}, i);
       ids3[i] = new ThreadIdentifier(new byte[] {3}, i);
@@ -985,7 +983,7 @@ public class HARegionQueueJUnitTest {
       hrq5.addDispatchedMessage(ids5[i], i);
     }
 
-    Thread thread1 = new Thread() {
+    var thread1 = new Thread() {
       @Override
       public void run() {
         try {
@@ -997,7 +995,7 @@ public class HARegionQueueJUnitTest {
       }
     };
 
-    Thread thread2 = new Thread() {
+    var thread2 = new Thread() {
       @Override
       public void run() {
         try {
@@ -1005,7 +1003,7 @@ public class HARegionQueueJUnitTest {
         } catch (InterruptedException e) {
           errorCollector.addError(e);
         }
-        for (int i = 0; i < numberOfIterations; i++) {
+        for (var i = 0; i < numberOfIterations; i++) {
           ids1[i] = new ThreadIdentifier(new byte[] {1}, i + numberOfIterations);
           ids2[i] = new ThreadIdentifier(new byte[] {2}, i + numberOfIterations);
           ids3[i] = new ThreadIdentifier(new byte[] {3}, i + numberOfIterations);
@@ -1025,9 +1023,9 @@ public class HARegionQueueJUnitTest {
     thread2.start();
     ThreadUtils.join(thread1, 30 * 1000);
     ThreadUtils.join(thread2, 30 * 1000);
-    List list2 = HARegionQueue.createMessageListForTesting();
-    Iterator iterator = list1.iterator();
-    boolean doOnce = true;
+    var list2 = HARegionQueue.createMessageListForTesting();
+    var iterator = list1.iterator();
+    var doOnce = true;
     EventID id = null;
     Map map = new HashMap();
 
@@ -1039,7 +1037,7 @@ public class HARegionQueueJUnitTest {
         iterator.next(); // region name;
         int size = (Integer) iterator.next();
         System.out.println(" size of list 1 iteration x " + size);
-        for (int i = 0; i < size; i++) {
+        for (var i = 0; i < size; i++) {
           id = (EventID) iterator.next();
           map.put(new ThreadIdentifier(id.getMembershipID(), id.getThreadID()), id.getSequenceID());
         }
@@ -1057,7 +1055,7 @@ public class HARegionQueueJUnitTest {
         iterator.next(); // region name;
         int size = (Integer) iterator.next();
         System.out.println(" size of list 2 iteration x " + size);
-        for (int i = 0; i < size; i++) {
+        for (var i = 0; i < size; i++) {
           id = (EventID) iterator.next();
           map.put(new ThreadIdentifier(id.getMembershipID(), id.getThreadID()), id.getSequenceID());
         }
@@ -1075,23 +1073,23 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testBlockingQueueForConcurrentPeekAndTake() throws Exception {
-    TestBlockingHARegionQueue regionQueue =
+    var regionQueue =
         new TestBlockingHARegionQueue("testBlockQueueForConcurrentPeekAndTake", cache,
             disabledClock());
-    Thread[] threads = new Thread[3];
+    var threads = new Thread[3];
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       threads[i] = new Thread() {
         @Override
         public void run() {
           try {
-            long startTime = System.currentTimeMillis();
-            Object obj = regionQueue.peek();
+            var startTime = System.currentTimeMillis();
+            var obj = regionQueue.peek();
             if (obj == null) {
               errorCollector.addError(new AssertionError(
                   "Failed :  failed since object was null and was not expected to be null"));
             }
-            long totalTime = System.currentTimeMillis() - startTime;
+            var totalTime = System.currentTimeMillis() - startTime;
 
             if (totalTime < 4000) {
               errorCollector.addError(new AssertionError(
@@ -1104,14 +1102,14 @@ public class HARegionQueueJUnitTest {
       };
     }
 
-    for (int k = 0; k < 3; k++) {
+    for (var k = 0; k < 3; k++) {
       threads[k].start();
     }
 
     Thread.sleep(4000);
 
-    EventID id = new EventID(new byte[] {1}, 1, 1);
-    EventID id1 = new EventID(new byte[] {1}, 1, 2);
+    var id = new EventID(new byte[] {1}, 1, 1);
+    var id1 = new EventID(new byte[] {1}, 1, 2);
 
     regionQueue.takeFirst = true;
     regionQueue.put(new ConflatableObject("key", "value", id, true, testName.getMethodName()));
@@ -1120,12 +1118,12 @@ public class HARegionQueueJUnitTest {
 
     regionQueue.put(new ConflatableObject("key1", "value1", id1, true, testName.getMethodName()));
 
-    long startTime = System.currentTimeMillis();
-    for (int k = 0; k < 3; k++) {
+    var startTime = System.currentTimeMillis();
+    for (var k = 0; k < 3; k++) {
       ThreadUtils.join(threads[k], 180 * 1000);
     }
 
-    long totalTime = System.currentTimeMillis() - startTime;
+    var totalTime = System.currentTimeMillis() - startTime;
     if (totalTime >= 180000) {
       fail(" Test taken too long ");
     }
@@ -1137,23 +1135,23 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testBlockingQueueForTakeWhenPeekInProgress() throws Exception {
-    TestBlockingHARegionQueue regionQueue =
+    var regionQueue =
         new TestBlockingHARegionQueue("testBlockQueueForTakeWhenPeekInProgress", cache,
             disabledClock());
-    Thread[] threads = new Thread[3];
+    var threads = new Thread[3];
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       threads[i] = new Thread() {
         @Override
         public void run() {
           try {
-            long startTime = System.currentTimeMillis();
-            Object obj = regionQueue.peek();
+            var startTime = System.currentTimeMillis();
+            var obj = regionQueue.peek();
             if (obj == null) {
               errorCollector.addError(new AssertionError(
                   "Failed :  failed since object was null and was not expected to be null"));
             }
-            long totalTime = System.currentTimeMillis() - startTime;
+            var totalTime = System.currentTimeMillis() - startTime;
 
             if (totalTime < 4000) {
               errorCollector.addError(new AssertionError(
@@ -1166,14 +1164,14 @@ public class HARegionQueueJUnitTest {
       };
     }
 
-    for (int k = 0; k < 3; k++) {
+    for (var k = 0; k < 3; k++) {
       threads[k].start();
     }
 
     Thread.sleep(4000);
 
-    EventID id = new EventID(new byte[] {1}, 1, 1);
-    EventID id1 = new EventID(new byte[] {1}, 1, 2);
+    var id = new EventID(new byte[] {1}, 1, 1);
+    var id1 = new EventID(new byte[] {1}, 1, 2);
 
     regionQueue.takeWhenPeekInProgress = true;
     regionQueue.put(new ConflatableObject("key", "value", id, true, testName.getMethodName()));
@@ -1182,12 +1180,12 @@ public class HARegionQueueJUnitTest {
 
     regionQueue.put(new ConflatableObject("key1", "value1", id1, true, testName.getMethodName()));
 
-    long startTime = System.currentTimeMillis();
-    for (int k = 0; k < 3; k++) {
+    var startTime = System.currentTimeMillis();
+    for (var k = 0; k < 3; k++) {
       ThreadUtils.join(threads[k], 60 * 1000);
     }
 
-    long totalTime = System.currentTimeMillis() - startTime;
+    var totalTime = System.currentTimeMillis() - startTime;
     if (totalTime >= 60000) {
       fail(" Test taken too long ");
     }
@@ -1204,11 +1202,11 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testConcurrentEventExpiryAndTake() throws Exception {
-    AtomicBoolean complete = new AtomicBoolean(false);
-    AtomicBoolean expiryCalled = new AtomicBoolean(false);
-    AtomicBoolean allowExpiryToProceed = new AtomicBoolean(false);
+    var complete = new AtomicBoolean(false);
+    var expiryCalled = new AtomicBoolean(false);
+    var allowExpiryToProceed = new AtomicBoolean(false);
 
-    HARegionQueueAttributes haa = new HARegionQueueAttributes();
+    var haa = new HARegionQueueAttributes();
     haa.setExpiryTime(3);
 
     RegionQueue regionqueue =
@@ -1257,7 +1255,7 @@ public class HARegionQueueJUnitTest {
           }
         };
 
-    EventID ev1 = new EventID(new byte[] {1}, 1, 1);
+    var ev1 = new EventID(new byte[] {1}, 1, 1);
     Conflatable cf1 = new ConflatableObject("key", "value", ev1, true, testName.getMethodName());
     regionqueue.put(cf1);
 
@@ -1268,7 +1266,7 @@ public class HARegionQueueJUnitTest {
     }
 
     try {
-      Object o = regionqueue.take();
+      var o = regionqueue.take();
       assertThat(o, nullValue());
 
     } catch (Exception e) {
@@ -1306,21 +1304,21 @@ public class HARegionQueueJUnitTest {
 
   private void testBatchPeekWithRemove(boolean createBlockingQueue)
       throws InterruptedException, IOException, ClassNotFoundException {
-    HARegionQueue regionQueue = createHARegionQueue(createBlockingQueue);
+    var regionQueue = createHARegionQueue(createBlockingQueue);
 
-    for (int i = 0; i < 10; ++i) {
-      EventID ev1 = new EventID(new byte[] {1}, 1, i);
+    for (var i = 0; i < 10; ++i) {
+      var ev1 = new EventID(new byte[] {1}, 1, i);
       Conflatable cf1 = new ConflatableObject("key", "value", ev1, false, testName.getMethodName());
       regionQueue.put(cf1);
     }
 
-    List objs = regionQueue.peek(10, 5000);
+    var objs = regionQueue.peek(10, 5000);
     assertThat(objs.size(), is(10));
-    Iterator itr = objs.iterator();
-    int j = 0;
+    var itr = objs.iterator();
+    var j = 0;
 
     while (itr.hasNext()) {
-      Conflatable conf = (Conflatable) itr.next();
+      var conf = (Conflatable) itr.next();
       assertThat(conf, notNullValue());
       assertThat("The sequence ID of the objects in the queue are not as expected",
           conf.getEventId().getSequenceID(), is((long) j++));
@@ -1332,7 +1330,7 @@ public class HARegionQueueJUnitTest {
 
   private HARegionQueue createHARegionQueue(boolean createBlockingQueue)
       throws InterruptedException, IOException, ClassNotFoundException {
-    HARegionQueueAttributes haa = new HARegionQueueAttributes();
+    var haa = new HARegionQueueAttributes();
     haa.setExpiryTime(300);
 
     if (createBlockingQueue) {
@@ -1352,14 +1350,14 @@ public class HARegionQueueJUnitTest {
   public void testExpiryUsingSystemProperty() throws Exception {
     System.setProperty(SystemProperty.DEFAULT_PREFIX + HA_REGION_QUEUE_EXPIRY_TIME_PROPERTY, "1");
 
-    HARegionQueueAttributes haa = new HARegionQueueAttributes();
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName(), haa);
-    long start = System.currentTimeMillis();
+    var haa = new HARegionQueueAttributes();
+    var regionQueue = createHARegionQueue(testName.getMethodName(), haa);
+    var start = System.currentTimeMillis();
 
     regionQueue.put(new ConflatableObject("key", "value", new EventID(new byte[] {1}, 1, 1), true,
         testName.getMethodName()));
 
-    Map map = (Map) regionQueue.getConflationMapForTesting().get(testName.getMethodName());
+    var map = (Map) regionQueue.getConflationMapForTesting().get(testName.getMethodName());
     assertThat(!map.isEmpty(), is(true));
 
     waitAtLeast(1000, start, () -> {
@@ -1374,14 +1372,14 @@ public class HARegionQueueJUnitTest {
    */
   @Test
   public void testUpdateOfMessageSyncInterval() throws Exception {
-    int initialMessageSyncInterval = 5;
+    var initialMessageSyncInterval = 5;
     cache.setMessageSyncInterval(initialMessageSyncInterval);
     createHARegionQueue(testName.getMethodName());
 
     assertThat("messageSyncInterval not set properly", HARegionQueue.getMessageSyncInterval(),
         is(initialMessageSyncInterval));
 
-    int updatedMessageSyncInterval = 10;
+    var updatedMessageSyncInterval = 10;
     cache.setMessageSyncInterval(updatedMessageSyncInterval);
 
     await()
@@ -1391,40 +1389,40 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testPutEventInHARegion_Conflatable() throws Exception {
-    HARegionQueue regionQueue = createHARegionQueue(testName.getMethodName());
+    var regionQueue = createHARegionQueue(testName.getMethodName());
 
     Conflatable expectedConflatable =
         new ConflatableObject("key", "value", new EventID(new byte[] {1}, 1, 1), true,
             testName.getMethodName());
 
-    final long position = 0L;
-    Conflatable returnedConflatable = regionQueue.putEventInHARegion(expectedConflatable, position);
+    final var position = 0L;
+    var returnedConflatable = regionQueue.putEventInHARegion(expectedConflatable, position);
 
     Assert.assertEquals(expectedConflatable, returnedConflatable);
 
-    Conflatable conflatableInRegion = (Conflatable) regionQueue.getRegion().get(position);
+    var conflatableInRegion = (Conflatable) regionQueue.getRegion().get(position);
 
     Assert.assertEquals(expectedConflatable, conflatableInRegion);
   }
 
   @Test
   public void testPutEventInHARegion_HAEventWrapper_New() throws Exception {
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(testName.getMethodName(), HARegionQueue.BLOCKING_HA_QUEUE);
-    HARegionQueue regionQueueSpy = Mockito.spy(regionQueue);
+    var regionQueueSpy = Mockito.spy(regionQueue);
 
-    HAEventWrapper newHAEventWrapper = new HAEventWrapper(mock(EventID.class));
+    var newHAEventWrapper = new HAEventWrapper(mock(EventID.class));
 
     doReturn(newHAEventWrapper).when(regionQueueSpy)
         .putEntryConditionallyIntoHAContainer(newHAEventWrapper);
 
-    final long position = 0L;
-    Conflatable returnedHAEventWrapper =
+    final var position = 0L;
+    var returnedHAEventWrapper =
         regionQueueSpy.putEventInHARegion(newHAEventWrapper, position);
 
     Assert.assertEquals(newHAEventWrapper, returnedHAEventWrapper);
 
-    HAEventWrapper haEventWrapperInRegion =
+    var haEventWrapperInRegion =
         (HAEventWrapper) regionQueueSpy.getRegion().get(position);
 
     Assert.assertEquals(newHAEventWrapper, haEventWrapperInRegion);
@@ -1433,25 +1431,25 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testPutEventInHARegion_HAEventWrapper_EntryAlreadyExisted() throws Exception {
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(testName.getMethodName(), HARegionQueue.BLOCKING_HA_QUEUE);
-    HARegionQueue regionQueueSpy = Mockito.spy(regionQueue);
+    var regionQueueSpy = Mockito.spy(regionQueue);
 
     // Mock out an existing entry and increment ref count as if it had already been added to the HA
     // container
-    HAEventWrapper existingHAEventWrapper = new HAEventWrapper(mock(EventID.class));
-    HAEventWrapper newHAEventWrapper = new HAEventWrapper(mock(EventID.class));
+    var existingHAEventWrapper = new HAEventWrapper(mock(EventID.class));
+    var newHAEventWrapper = new HAEventWrapper(mock(EventID.class));
 
     doReturn(existingHAEventWrapper).when(regionQueueSpy)
         .putEntryConditionallyIntoHAContainer(newHAEventWrapper);
 
-    final long position = 0L;
-    Conflatable returnedHAEventWrapper =
+    final var position = 0L;
+    var returnedHAEventWrapper =
         regionQueueSpy.putEventInHARegion(newHAEventWrapper, position);
 
     Assert.assertEquals(existingHAEventWrapper, returnedHAEventWrapper);
 
-    HAEventWrapper haEventWrapperInRegion =
+    var haEventWrapperInRegion =
         (HAEventWrapper) regionQueueSpy.getRegion().get(position);
 
     Assert.assertEquals(existingHAEventWrapper, haEventWrapperInRegion);
@@ -1460,24 +1458,24 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testPutEventInHARegion_HAEventWrapper_QueueNotInitialized() throws Exception {
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(testName.getMethodName(), HARegionQueue.BLOCKING_HA_QUEUE);
 
     // Mock that the regionQueue is not yet initialized
     regionQueue.initialized.set(false);
 
-    HARegionQueue regionQueueSpy = Mockito.spy(regionQueue);
+    var regionQueueSpy = Mockito.spy(regionQueue);
     // Mock out an existing entry and increment ref count as if it had already been added to the HA
     // container
-    HAEventWrapper expectedHAEventWrapper = new HAEventWrapper(mock(EventID.class));
+    var expectedHAEventWrapper = new HAEventWrapper(mock(EventID.class));
 
-    final long position = 0L;
-    Conflatable returnedHAEventWrapper =
+    final var position = 0L;
+    var returnedHAEventWrapper =
         regionQueueSpy.putEventInHARegion(expectedHAEventWrapper, position);
 
     Assert.assertEquals(expectedHAEventWrapper, returnedHAEventWrapper);
 
-    HAEventWrapper haEventWrapperInRegion =
+    var haEventWrapperInRegion =
         (HAEventWrapper) regionQueueSpy.getRegion().get(position);
 
     Assert.assertEquals(expectedHAEventWrapper, haEventWrapperInRegion);
@@ -1488,36 +1486,36 @@ public class HARegionQueueJUnitTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testPutEventInHARegion_HAEventWrapper_NullClientUpdateMessage() throws Exception {
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(testName.getMethodName(), HARegionQueue.BLOCKING_HA_QUEUE);
 
-    HAEventWrapper haEventWrapperWithNullCUMI = new HAEventWrapper(mock(EventID.class));
+    var haEventWrapperWithNullCUMI = new HAEventWrapper(mock(EventID.class));
     haEventWrapperWithNullCUMI.setClientUpdateMessage(null);
 
-    final long position = 0L;
+    final var position = 0L;
     regionQueue.putEventInHARegion(haEventWrapperWithNullCUMI, 0L);
   }
 
   @Test
   public void testPutEntryConditionallyIntoHAContainer_MultipleThreads_SameWrapperInstanceAndCorrectRefCount()
       throws Exception {
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(testName.getMethodName(), HARegionQueue.BLOCKING_HA_QUEUE);
 
-    HAEventWrapper mockHaEventWrapper = mock(HAEventWrapper.class);
+    var mockHaEventWrapper = mock(HAEventWrapper.class);
     doReturn(true).when(mockHaEventWrapper).getPutInProgress();
 
-    ClientUpdateMessageImpl mockClientUpdateMessage = mock(ClientUpdateMessageImpl.class);
+    var mockClientUpdateMessage = mock(ClientUpdateMessageImpl.class);
     doReturn(mockClientUpdateMessage).when(mockHaEventWrapper).getClientUpdateMessage();
 
-    int numClients = 100;
-    ExecutorService executorService = Executors.newFixedThreadPool(numClients);
+    var numClients = 100;
+    var executorService = Executors.newFixedThreadPool(numClients);
 
     Collection<Callable<Conflatable>> concurrentPuts =
         Collections.nCopies(numClients, () -> regionQueue
             .putEntryConditionallyIntoHAContainer(mockHaEventWrapper));
 
-    List<Future<Conflatable>> futures = executorService.invokeAll(concurrentPuts);
+    var futures = executorService.invokeAll(concurrentPuts);
 
     List<Conflatable> conflatables = new ArrayList<>();
 
@@ -1525,7 +1523,7 @@ public class HARegionQueueJUnitTest {
       conflatables.add((Conflatable) future.get());
     }
 
-    boolean areAllConflatablesEqual = conflatables.stream().allMatch(conflatables.get(0)::equals);
+    var areAllConflatablesEqual = conflatables.stream().allMatch(conflatables.get(0)::equals);
 
     Assert.assertTrue(areAllConflatablesEqual);
     verify(mockHaEventWrapper, times(numClients)).incAndGetReferenceCount();
@@ -1534,29 +1532,29 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testPutEntryConditionallyIntoHAContainer_AddCQAndInterestList() throws Exception {
-    final String haRegionName = testName.getMethodName();
+    final var haRegionName = testName.getMethodName();
 
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(haRegionName, HARegionQueue.BLOCKING_HA_QUEUE);
 
-    ClientProxyMembershipID mockClientProxyMembershipId = mock(ClientProxyMembershipID.class);
-    CacheClientProxy mockCacheClientProxy = mock(CacheClientProxy.class);
+    var mockClientProxyMembershipId = mock(ClientProxyMembershipID.class);
+    var mockCacheClientProxy = mock(CacheClientProxy.class);
 
     doReturn(mockClientProxyMembershipId).when(mockCacheClientProxy).getProxyID();
     ((HAContainerWrapper) regionQueue.haContainer).putProxy(haRegionName, mockCacheClientProxy);
 
-    ClientUpdateMessageImpl.ClientCqConcurrentMap mockClientCqConcurrentMap =
+    var mockClientCqConcurrentMap =
         mock(ClientUpdateMessageImpl.ClientCqConcurrentMap.class);
-    ClientUpdateMessageImpl.CqNameToOp mockCqNameToOp =
+    var mockCqNameToOp =
         mock(ClientUpdateMessageImpl.CqNameToOp.class);
 
     doReturn(mockCqNameToOp).when(mockClientCqConcurrentMap).get(mockClientProxyMembershipId);
 
-    ClientUpdateMessageImpl mockClientUpdateMessage = mock(ClientUpdateMessageImpl.class);
+    var mockClientUpdateMessage = mock(ClientUpdateMessageImpl.class);
     doReturn(true).when(mockClientUpdateMessage)
         .isClientInterestedInUpdates(mockClientProxyMembershipId);
 
-    HAEventWrapper mockHAEventWrapper = mock(HAEventWrapper.class);
+    var mockHAEventWrapper = mock(HAEventWrapper.class);
     doReturn(mockClientUpdateMessage).when(mockHAEventWrapper).getClientUpdateMessage();
     doReturn(mockClientCqConcurrentMap).when(mockHAEventWrapper).getClientCqs();
 
@@ -1588,13 +1586,13 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testDecAndRemoveFromHAContainer_WrapperInContainer() throws Exception {
-    final String haRegionName = testName.getMethodName();
+    final var haRegionName = testName.getMethodName();
 
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(haRegionName, HARegionQueue.BLOCKING_HA_QUEUE);
 
-    HAContainerWrapper mockHAContainer = mock(HAContainerWrapper.class);
-    HAEventWrapper mockHAEventWrapper = mock(HAEventWrapper.class);
+    var mockHAContainer = mock(HAContainerWrapper.class);
+    var mockHAEventWrapper = mock(HAEventWrapper.class);
 
     doReturn(mockHAEventWrapper).when(mockHAContainer).getKey(mockHAEventWrapper);
 
@@ -1608,14 +1606,14 @@ public class HARegionQueueJUnitTest {
   @Test
   public void testDecAndRemoveFromHAContainer_RemoteWrapperNotInContainer_Removed()
       throws Exception {
-    final String haRegionName = testName.getMethodName();
+    final var haRegionName = testName.getMethodName();
 
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(haRegionName, HARegionQueue.BLOCKING_HA_QUEUE);
 
-    HAContainerWrapper mockHAContainer = mock(HAContainerWrapper.class);
-    HAEventWrapper mockHAEventWrapperInContainer = mock(HAEventWrapper.class);
-    HAEventWrapper mockRemoteHAEventWrapper = mock(HAEventWrapper.class);
+    var mockHAContainer = mock(HAContainerWrapper.class);
+    var mockHAEventWrapperInContainer = mock(HAEventWrapper.class);
+    var mockRemoteHAEventWrapper = mock(HAEventWrapper.class);
 
     doReturn(mockHAEventWrapperInContainer).when(mockHAContainer).getKey(mockRemoteHAEventWrapper);
 
@@ -1628,13 +1626,13 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testDecAndRemoveFromHAContainer_DecrementedButNotRemoved() throws Exception {
-    final String haRegionName = testName.getMethodName();
+    final var haRegionName = testName.getMethodName();
 
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(haRegionName, HARegionQueue.BLOCKING_HA_QUEUE);
 
-    HAContainerWrapper mockHAContainer = mock(HAContainerWrapper.class);
-    HAEventWrapper mockHAEventWrapper = mock(HAEventWrapper.class);
+    var mockHAContainer = mock(HAContainerWrapper.class);
+    var mockHAEventWrapper = mock(HAEventWrapper.class);
 
     doReturn(mockHAEventWrapper).when(mockHAContainer).getKey(mockHAEventWrapper);
     doReturn(1L).when(mockHAEventWrapper).decAndGetReferenceCount();
@@ -1649,14 +1647,14 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testDecAndRemoveFromHAContainer_AlreadyRemoved() throws Exception {
-    final String haRegionName = testName.getMethodName();
+    final var haRegionName = testName.getMethodName();
 
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(haRegionName, HARegionQueue.BLOCKING_HA_QUEUE);
 
-    HAContainerWrapper mockHAContainer = mock(HAContainerWrapper.class);
-    HAEventWrapper mockHAEventWrapperInContainer = mock(HAEventWrapper.class);
-    HAEventWrapper mockRemoteHAEventWrapper = mock(HAEventWrapper.class);
+    var mockHAContainer = mock(HAContainerWrapper.class);
+    var mockHAEventWrapperInContainer = mock(HAEventWrapper.class);
+    var mockRemoteHAEventWrapper = mock(HAEventWrapper.class);
 
     doReturn(null).when(mockHAContainer).getKey(mockRemoteHAEventWrapper);
 
@@ -1670,15 +1668,15 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testDecAndRemoveFromHAContainer_RefChangedAfterGettingKey() throws Exception {
-    final String haRegionName = testName.getMethodName();
+    final var haRegionName = testName.getMethodName();
 
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(haRegionName, HARegionQueue.BLOCKING_HA_QUEUE);
 
-    HAContainerWrapper mockHAContainer = mock(HAContainerWrapper.class);
-    HAEventWrapper mockOriginalHAEventWrapperInContainer = mock(HAEventWrapper.class);
-    HAEventWrapper mockNewHAEventWrapperInContainer = mock(HAEventWrapper.class);
-    HAEventWrapper mockRemoteHAEventWrapper = mock(HAEventWrapper.class);
+    var mockHAContainer = mock(HAContainerWrapper.class);
+    var mockOriginalHAEventWrapperInContainer = mock(HAEventWrapper.class);
+    var mockNewHAEventWrapperInContainer = mock(HAEventWrapper.class);
+    var mockRemoteHAEventWrapper = mock(HAEventWrapper.class);
 
     // First call will return original wrapper in container, then second call will return a new one
     // to simulate the key being replaced by a new one in a different thread
@@ -1698,16 +1696,16 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testDecAndRemoveFromHAContainer_MultipleThreadsDecrementing() throws Exception {
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(testName.getMethodName(), HARegionQueue.BLOCKING_HA_QUEUE);
 
-    HAEventWrapper mockHAEventWrapper = mock(HAEventWrapper.class);
+    var mockHAEventWrapper = mock(HAEventWrapper.class);
 
-    HAContainerWrapper mockHAContainer = mock(HAContainerWrapper.class);
+    var mockHAContainer = mock(HAContainerWrapper.class);
     doReturn(mockHAEventWrapper).when(mockHAContainer).getKey(mockHAEventWrapper);
     regionQueue.haContainer = mockHAContainer;
 
-    final int numClients = 100;
+    final var numClients = 100;
 
     doAnswer(new Answer() {
       private long mockRefCount = numClients;
@@ -1718,7 +1716,7 @@ public class HARegionQueueJUnitTest {
       }
     }).when(mockHAEventWrapper).decAndGetReferenceCount();
 
-    ExecutorService executorService = Executors.newFixedThreadPool(numClients);
+    var executorService = Executors.newFixedThreadPool(numClients);
 
     Collection<Callable<Void>> concurrentDecAndRemoves =
         Collections.nCopies(numClients, () -> {
@@ -1727,9 +1725,9 @@ public class HARegionQueueJUnitTest {
           return null;
         });
 
-    List<Future<Void>> futures = executorService.invokeAll(concurrentDecAndRemoves);
+    var futures = executorService.invokeAll(concurrentDecAndRemoves);
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get();
     }
 
@@ -1739,25 +1737,25 @@ public class HARegionQueueJUnitTest {
 
   @Test
   public void testPutEntryConditionallyIntoHAContainerUpdatesInterestList() throws Exception {
-    final String haRegionName = testName.getMethodName();
+    final var haRegionName = testName.getMethodName();
 
-    HARegionQueue regionQueue =
+    var regionQueue =
         createHARegionQueue(haRegionName, HARegionQueue.BLOCKING_HA_QUEUE);
 
-    ClientProxyMembershipID mockClientProxyMembershipId = mock(ClientProxyMembershipID.class);
-    CacheClientProxy mockCacheClientProxy = mock(CacheClientProxy.class);
+    var mockClientProxyMembershipId = mock(ClientProxyMembershipID.class);
+    var mockCacheClientProxy = mock(CacheClientProxy.class);
 
     doReturn(mockClientProxyMembershipId).when(mockCacheClientProxy).getProxyID();
     ((HAContainerWrapper) regionQueue.haContainer).putProxy(haRegionName, mockCacheClientProxy);
 
-    EventID mockEventID = mock(EventID.class);
-    ClientUpdateMessageImpl mockClientUpdateMessage = mock(ClientUpdateMessageImpl.class);
+    var mockEventID = mock(EventID.class);
+    var mockClientUpdateMessage = mock(ClientUpdateMessageImpl.class);
     mockClientUpdateMessage.setEventIdentifier(mockEventID);
 
     doReturn(true).when(mockClientUpdateMessage)
         .isClientInterestedInUpdates(mockClientProxyMembershipId);
 
-    HAEventWrapper originalHAEventWrapper = new HAEventWrapper(mockEventID);
+    var originalHAEventWrapper = new HAEventWrapper(mockEventID);
     originalHAEventWrapper.setClientUpdateMessage(mockClientUpdateMessage);
 
     // allow putInProgress to be false (so we null out the msg field in the wrapper)
@@ -1769,7 +1767,7 @@ public class HARegionQueueJUnitTest {
         true);
 
     // create a new wrapper with the same id and message
-    HAEventWrapper newHAEventWrapper = new HAEventWrapper(mockEventID);
+    var newHAEventWrapper = new HAEventWrapper(mockEventID);
     newHAEventWrapper.setClientUpdateMessage(mockClientUpdateMessage);
 
     regionQueue.putEntryConditionallyIntoHAContainer(newHAEventWrapper);
@@ -1789,7 +1787,7 @@ public class HARegionQueueJUnitTest {
   private void waitAtLeast(final int minimumElapsedTime, final long start,
       final ThrowingRunnable runnable) {
     await().untilAsserted(runnable);
-    long elapsed = System.currentTimeMillis() - start;
+    var elapsed = System.currentTimeMillis() - start;
     assertThat(elapsed >= minimumElapsedTime, is(true));
   }
 
@@ -1807,11 +1805,11 @@ public class HARegionQueueJUnitTest {
    */
   private void createAndRunProducers(boolean generateSameKeys, boolean generateSameIds,
       boolean conflationEnabled, int putPerProducer) {
-    Producer[] putThreads = new Producer[TOTAL_PUT_THREADS];
+    var putThreads = new Producer[TOTAL_PUT_THREADS];
 
     // Create the put-threads, each generating same/different set of ids/keys as
     // per the parameters
-    for (int i = 0; i < TOTAL_PUT_THREADS; i++) {
+    for (var i = 0; i < TOTAL_PUT_THREADS; i++) {
       String keyPrefix;
       long startId;
       if (generateSameKeys) {
@@ -1829,13 +1827,13 @@ public class HARegionQueueJUnitTest {
     }
 
     // start the put-threads
-    for (int i = 0; i < TOTAL_PUT_THREADS; i++) {
+    for (var i = 0; i < TOTAL_PUT_THREADS; i++) {
       putThreads[i].start();
     }
 
     // call join on the put-threads so that this thread waits till they complete
     // before doing verification
-    for (int i = 0; i < TOTAL_PUT_THREADS; i++) {
+    for (var i = 0; i < TOTAL_PUT_THREADS; i++) {
       ThreadUtils.join(putThreads[i], 30 * 1000);
     }
   }
@@ -1962,8 +1960,8 @@ public class HARegionQueueJUnitTest {
       }
       for (long i = 0; i < totalPuts; i++) {
         try {
-          String regionName = "test";
-          ConflatableObject event = new ConflatableObject(keyPrefix + i, "val" + i,
+          var regionName = "test";
+          var event = new ConflatableObject(keyPrefix + i, "val" + i,
               new EventID(new byte[] {1}, startingId, startingId + i), createConflatables,
               regionName);
 

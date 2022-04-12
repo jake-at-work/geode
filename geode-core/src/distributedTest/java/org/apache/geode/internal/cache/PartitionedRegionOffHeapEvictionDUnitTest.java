@@ -22,7 +22,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceType;
-import org.apache.geode.internal.cache.control.OffHeapMemoryMonitor;
 import org.apache.geode.internal.cache.eviction.HeapEvictor;
 import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.SerializableRunnable;
@@ -33,7 +32,7 @@ public class PartitionedRegionOffHeapEvictionDUnitTest extends PartitionedRegion
 
   @Override
   public final void preTearDownAssertions() throws Exception {
-    SerializableRunnable checkOrphans = new SerializableRunnable() {
+    var checkOrphans = new SerializableRunnable() {
 
       @Override
       public void run() {
@@ -48,7 +47,7 @@ public class PartitionedRegionOffHeapEvictionDUnitTest extends PartitionedRegion
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.setProperty(OFF_HEAP_MEMORY_SIZE, "100m");
 
     return properties;
@@ -79,7 +78,7 @@ public class PartitionedRegionOffHeapEvictionDUnitTest extends PartitionedRegion
     getCache().getOffHeapEvictor().setTestAbortAfterLoopCount(1);
 
     setEvictionPercentage(85);
-    OffHeapMemoryMonitor ohmm =
+    var ohmm =
         getCache().getInternalResourceManager().getOffHeapMonitor();
     ohmm.stopMonitoring(true);
 

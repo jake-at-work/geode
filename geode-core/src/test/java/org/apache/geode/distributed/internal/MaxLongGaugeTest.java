@@ -31,13 +31,13 @@ public class MaxLongGaugeTest {
 
   @Before
   public void setup() {
-    StatisticDescriptor descriptor1 =
+    var descriptor1 =
         createLongGauge("1", "", "", true);
-    StatisticDescriptor descriptor2 =
+    var descriptor2 =
         createLongGauge("2", "", "", true);
 
-    StatisticDescriptor[] descriptors = {descriptor1, descriptor2};
-    StatisticsTypeImpl statisticsType = new StatisticsTypeImpl("abc", "test",
+    var descriptors = new StatisticDescriptor[] {descriptor1, descriptor2};
+    var statisticsType = new StatisticsTypeImpl("abc", "test",
         descriptors);
     statId1 = descriptor1.getId();
     statId2 = descriptor2.getId();
@@ -49,7 +49,7 @@ public class MaxLongGaugeTest {
 
   @Test
   public void recordMax_singleRecord() {
-    MaxLongGauge maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
+    var maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
 
     maxLongGauge.recordMax(12);
 
@@ -58,7 +58,7 @@ public class MaxLongGaugeTest {
 
   @Test
   public void recordMax_multipleRecords() {
-    MaxLongGauge maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
+    var maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
 
     maxLongGauge.recordMax(12);
     maxLongGauge.recordMax(13);
@@ -68,7 +68,7 @@ public class MaxLongGaugeTest {
 
   @Test
   public void recordMax_recordNothing_ifMaxIsNotExceeded() {
-    MaxLongGauge maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
+    var maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
 
     maxLongGauge.recordMax(12);
     maxLongGauge.recordMax(11);
@@ -78,7 +78,7 @@ public class MaxLongGaugeTest {
 
   @Test
   public void recordMax_ignoresNegatives() {
-    MaxLongGauge maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
+    var maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
 
     maxLongGauge.recordMax(-12);
 
@@ -87,7 +87,7 @@ public class MaxLongGaugeTest {
 
   @Test
   public void recordMax_ignoresZero() {
-    MaxLongGauge maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
+    var maxLongGauge = new MaxLongGauge(statId1, fakeStatistics);
 
     maxLongGauge.recordMax(0);
 
@@ -96,7 +96,7 @@ public class MaxLongGaugeTest {
 
   @Test
   public void recordMax_usesStatId() {
-    MaxLongGauge maxLongGauge = new MaxLongGauge(statId2, fakeStatistics);
+    var maxLongGauge = new MaxLongGauge(statId2, fakeStatistics);
 
     maxLongGauge.recordMax(17);
 

@@ -43,7 +43,7 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testValuesNotRecoveredSynchronously() throws InterruptedException {
-    Region region = createRegion();
+    var region = createRegion();
 
     putEntries(region, 0, 50, "A");
 
@@ -51,8 +51,8 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
     cache = createCache();
 
-    final CountDownLatch suspendRecovery = new CountDownLatch(1);
-    final CountDownLatch recoveryDone = new CountDownLatch(1);
+    final var suspendRecovery = new CountDownLatch(1);
+    final var recoveryDone = new CountDownLatch(1);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
 
       @Override
@@ -94,7 +94,7 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testBug42728() throws InterruptedException, IOException {
-    Region region = createRegion();
+    var region = createRegion();
 
     putEntries(region, 0, 5, "A");
     putEntries(region, 0, 1, "B");
@@ -117,8 +117,8 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
     cache.close();
     cache = createCache();
 
-    final CountDownLatch suspendRecovery = new CountDownLatch(1);
-    final CountDownLatch recoveryDone = new CountDownLatch(1);
+    final var suspendRecovery = new CountDownLatch(1);
+    final var recoveryDone = new CountDownLatch(1);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
 
       @Override
@@ -162,7 +162,7 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
    */
   @Test
   public void testKrfCreatedAfterRestart() throws InterruptedException, IOException {
-    LocalRegion region = (LocalRegion) createRegion();
+    var region = (LocalRegion) createRegion();
 
     putEntries(region, 0, 5, "A");
     putEntries(region, 0, 1, "B");
@@ -181,18 +181,18 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
     region = (LocalRegion) createRegion();
 
     putEntries(region, 5, 10, "A");
-    DiskStoreImpl store =
+    var store =
         (DiskStoreImpl) cache.findDiskStore(region.getAttributes().getDiskStoreName());
     // Create a new oplog, to make sure we still create a krf for the old oplog.
     store.forceRoll();
     putEntries(region, 10, 15, "A");
 
-    PersistentOplogSet set = store.getPersistentOplogSet(region.getDiskRegion());
-    String currentChild = set.getChild().getOplogFileForTest().getName();
+    var set = store.getPersistentOplogSet(region.getDiskRegion());
+    var currentChild = set.getChild().getOplogFileForTest().getName();
     // Wait for the krfs to be created
     Set<String> crfs;
     Set<String> krfs;
-    long end = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+    var end = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
     do {
       crfs = new HashSet<>();
       krfs = new HashSet<>();
@@ -213,9 +213,9 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
   }
 
   protected void getCrfsAndKrfs(Set<String> crfs, Set<String> krfs) {
-    for (File dir : dirs) {
-      File[] files = dir.listFiles();
-      for (File file : files) {
+    for (var dir : dirs) {
+      var files = dir.listFiles();
+      for (var file : files) {
         if (file.getName().endsWith(".crf")) {
           crfs.add(file.getName().split("\\.")[0]);
         } else if (file.getName().endsWith(".krf")) {
@@ -227,7 +227,7 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testValuesRecoveredIntoPlaceholder() throws InterruptedException {
-    Region region = createRegion();
+    var region = createRegion();
 
     putEntries(region, 0, 50, "A");
 
@@ -235,7 +235,7 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
     cache = createCache();
 
-    final CountDownLatch recoveryDone = new CountDownLatch(1);
+    final var recoveryDone = new CountDownLatch(1);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
 
       @Override
@@ -252,8 +252,8 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testMultipleRegions() throws InterruptedException {
-    Region region = createRegion();
-    Region region2 = createRegion("region2");
+    var region = createRegion();
+    var region2 = createRegion("region2");
 
     putEntries(region, 0, 50, "A");
     putEntries(region2, 0, 50, "A");
@@ -262,8 +262,8 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
     cache = createCache();
 
-    final CountDownLatch suspendRecovery = new CountDownLatch(1);
-    final CountDownLatch recoveryDone = new CountDownLatch(1);
+    final var suspendRecovery = new CountDownLatch(1);
+    final var recoveryDone = new CountDownLatch(1);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
 
       @Override
@@ -319,11 +319,11 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testCloseOpenRegion() throws InterruptedException {
-    Region region = createRegion();
+    var region = createRegion();
 
     putEntries(region, 0, 50, "A");
 
-    final CountDownLatch recoveryDone1 = new CountDownLatch(1);
+    final var recoveryDone1 = new CountDownLatch(1);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
 
       @Override
@@ -342,8 +342,8 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
     region.close();
 
-    final CountDownLatch suspendRecovery = new CountDownLatch(1);
-    final CountDownLatch recoveryDone = new CountDownLatch(1);
+    final var suspendRecovery = new CountDownLatch(1);
+    final var recoveryDone = new CountDownLatch(1);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
 
       @Override
@@ -388,7 +388,7 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testSynchronousProperty() throws InterruptedException {
     System.setProperty(DiskStoreImpl.RECOVER_VALUES_SYNC_PROPERTY_NAME, "true");
-    Region region = createRegion();
+    var region = createRegion();
 
     putEntries(region, 0, 50, "A");
 
@@ -396,7 +396,7 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
     cache = createCache();
 
-    final CountDownLatch suspendRecovery = new CountDownLatch(1);
+    final var suspendRecovery = new CountDownLatch(1);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
 
       @Override
@@ -424,7 +424,7 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testNoValuesProperty() throws InterruptedException {
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
-    Region region = createRegion();
+    var region = createRegion();
 
     putEntries(region, 0, 50, "A");
 
@@ -445,9 +445,9 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
    */
   private void checkEntriesInMemory(Region r, int start, int end, Object invalid,
       boolean inMemory) {
-    LocalRegion region = (LocalRegion) r;
-    for (int i = start; i < end; i++) {
-      Object inMemoryValue = region.getValueInVM(i);
+    var region = (LocalRegion) r;
+    for (var i = start; i < end; i++) {
+      var inMemoryValue = region.getValueInVM(i);
       if (inMemory) {
         if (inMemoryValue instanceof VMCachedDeserializable) {
           inMemoryValue = ((VMCachedDeserializable) inMemoryValue).getDeserializedForReading();
@@ -460,15 +460,15 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
   }
 
   private void checkEntries(Region r, int start, int end, String value) {
-    LocalRegion region = (LocalRegion) r;
-    for (int i = start; i < end; i++) {
+    var region = (LocalRegion) r;
+    for (var i = start; i < end; i++) {
       assertEquals(value, region.get(i));
     }
   }
 
   private void checkInvalid(Region r, int start, int end) {
-    LocalRegion region = (LocalRegion) r;
-    for (int i = start; i < end; i++) {
+    var region = (LocalRegion) r;
+    for (var i = start; i < end; i++) {
       assertTrue(region.containsKey(i));
       assertNull(region.get(i));
     }
@@ -489,35 +489,35 @@ public class DiskRegionAsyncRecoveryJUnitTest extends DiskRegionTestingBase {
 
   private void backupDisk() throws IOException {
 
-    File tmpDir = new File(dirs[0].getParent(), "backupDir");
+    var tmpDir = new File(dirs[0].getParent(), "backupDir");
     tmpDir.mkdirs();
-    for (File file : dirs) {
+    for (var file : dirs) {
       FileUtils.copyDirectory(file, new File(tmpDir, file.getName()));
     }
   }
 
   private void restoreDisk() throws IOException {
-    File tmpDir = new File(dirs[0].getParent(), "backupDir");
-    for (File file : dirs) {
+    var tmpDir = new File(dirs[0].getParent(), "backupDir");
+    for (var file : dirs) {
       FileUtils.deleteDirectory(file);
       FileUtils.copyDirectory(new File(tmpDir, file.getName()), file);
     }
   }
 
   private void putEntries(Region region, int start, int end, String value) {
-    for (int i = start; i < end; i++) {
+    for (var i = start; i < end; i++) {
       region.put(i, value);
     }
   }
 
   private void invalidateEntries(Region region, int start, int end) {
-    for (int i = start; i < end; i++) {
+    for (var i = start; i < end; i++) {
       region.invalidate(i);
     }
   }
 
   private void removeEntries(Region region, int start, int end) {
-    for (int i = start; i < end; i++) {
+    for (var i = start; i < end; i++) {
       region.remove(i);
     }
   }

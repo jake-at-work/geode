@@ -55,23 +55,23 @@ public abstract class AbstractRedisMemoryStatsIntegrationTest implements RedisIn
 
   @Test
   public void maxMemory_shouldBeASensibleValue() {
-    long maxMemory = Long.parseLong(RedisTestHelper.getInfo(jedis).get(MAX_MEMORY));
+    var maxMemory = Long.parseLong(RedisTestHelper.getInfo(jedis).get(MAX_MEMORY));
     assertThat(maxMemory).isGreaterThan(0L);
   }
 
   @Test
   public void memoryFragmentationRatio_shouldBeGreaterThanZero() {
-    double memoryFragmentationRatio =
+    var memoryFragmentationRatio =
         Double.parseDouble(RedisTestHelper.getInfo(jedis).get(MEM_FRAGMENTATION_RATIO));
     assertThat(memoryFragmentationRatio).isGreaterThan(0.0);
   }
 
   @Test
   public void usedMemory_shouldIncrease_givenAdditionalValuesAdded() {
-    long initialUsedMemory = Long.parseLong(RedisTestHelper.getInfo(jedis).get(USED_MEMORY));
+    var initialUsedMemory = Long.parseLong(RedisTestHelper.getInfo(jedis).get(USED_MEMORY));
     long finalUsedMemory = 0;
 
-    for (int i = 0; i < 1_000_000; i++) {
+    for (var i = 0; i < 1_000_000; i++) {
       jedis.set("key-" + i, "some kinda long value that just wastes a bunch of memory - " + i);
 
       // Check every 50,000 entries to see if we've increased in memory.

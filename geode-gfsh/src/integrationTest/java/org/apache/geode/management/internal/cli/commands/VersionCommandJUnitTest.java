@@ -54,7 +54,7 @@ public class VersionCommandJUnitTest {
   @Test
   @Parameters({"version", "version --full=false"})
   public void versionShort(String versionCommand) throws Exception {
-    String result = gfsh.execute(versionCommand);
+    var result = gfsh.execute(versionCommand);
     assertThat(result).contains(GemFireVersion.getGemFireVersion());
   }
 
@@ -69,8 +69,8 @@ public class VersionCommandJUnitTest {
   @Test
   @Parameters({"version --full", "version --full=true"})
   public void versionFull(String versionCommand) throws Exception {
-    String result = gfsh.execute(versionCommand);
-    for (String datum : EXPECTED_FULL_DATA) {
+    var result = gfsh.execute(versionCommand);
+    for (var datum : EXPECTED_FULL_DATA) {
       assertThat(result).contains(datum);
     }
   }

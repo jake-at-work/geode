@@ -48,7 +48,7 @@ public class RepeatRule implements TestRule, Serializable {
   protected void evaluate(final Statement statement, final Description description)
       throws Throwable {
     if (isTest(description)) {
-      Repeat repeat = description.getAnnotation(Repeat.class);
+      var repeat = description.getAnnotation(Repeat.class);
 
       for (int count = 0, repetitions = getRepetitions(repeat); count < repetitions; count++) {
         statement.evaluate();
@@ -57,7 +57,7 @@ public class RepeatRule implements TestRule, Serializable {
   }
 
   private int getRepetitions(final Repeat repeat) {
-    int repetitions = DEFAULT_REPETITIONS;
+    var repetitions = DEFAULT_REPETITIONS;
 
     if (repeat != null) {
       if (!"".equals(repeat.property())) {

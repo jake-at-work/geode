@@ -40,7 +40,7 @@ public class DistributedSystemJUnitTest {
 
   @Test
   public void getPropertiesFileShouldUseSystemProperty() throws Exception {
-    String propertiesFileName = "test.properties";
+    var propertiesFileName = "test.properties";
     System.setProperty(DistributedSystem.PROPERTIES_FILE_PROPERTY, propertiesFileName);
 
     assertThat(DistributedSystem.getPropertiesFile()).isEqualTo(propertiesFileName);
@@ -48,7 +48,7 @@ public class DistributedSystemJUnitTest {
 
   @Test
   public void getPropertiesFileShouldUseSystemPropertyPath() throws Exception {
-    String propertiesFileName = "/home/test.properties";
+    var propertiesFileName = "/home/test.properties";
     System.setProperty(DistributedSystem.PROPERTIES_FILE_PROPERTY, propertiesFileName);
 
     assertThat(DistributedSystem.getPropertiesFile()).isEqualTo(propertiesFileName);
@@ -62,7 +62,7 @@ public class DistributedSystemJUnitTest {
 
   @Test
   public void getSecurityPropertiesFileShouldUseSystemProperty() throws Exception {
-    String propertiesFileName = "testsecurity.properties";
+    var propertiesFileName = "testsecurity.properties";
     System.setProperty(DistributedSystem.SECURITY_PROPERTIES_FILE_PROPERTY, propertiesFileName);
 
     assertThat(DistributedSystem.getSecurityPropertiesFile()).isEqualTo(propertiesFileName);
@@ -70,7 +70,7 @@ public class DistributedSystemJUnitTest {
 
   @Test
   public void getSecurityPropertiesFileShouldUseSystemPropertyPath() throws Exception {
-    String propertiesFileName = "/home/testsecurity.properties";
+    var propertiesFileName = "/home/testsecurity.properties";
     System.setProperty(DistributedSystem.SECURITY_PROPERTIES_FILE_PROPERTY, propertiesFileName);
 
     assertThat(DistributedSystem.getSecurityPropertiesFile()).isEqualTo(propertiesFileName);

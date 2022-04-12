@@ -46,7 +46,7 @@ public class CacheProfileTest {
 
   @Test
   public void getsRegionFromCacheFromDM() {
-    CacheProfile profile = new CacheProfile();
+    var profile = new CacheProfile();
     profile.processIncoming(dm, adviseePath, false, false, null);
     verify(dm, times(1)).getCache();
     verify(cache, times(1)).getInternalRegionByPath(adviseePath);

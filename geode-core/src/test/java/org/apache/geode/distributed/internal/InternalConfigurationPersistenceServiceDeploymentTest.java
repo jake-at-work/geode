@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -64,7 +63,7 @@ public class InternalConfigurationPersistenceServiceDeploymentTest {
     lockService = mock(DistributedLockService.class);
     cache = mock(InternalCache.class);
     when(cache.getRegion(any())).thenReturn(configRegion);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var member = mock(InternalDistributedMember.class);
     when(member.getId()).thenReturn("member");
     when(cache.getMyId()).thenReturn(member);
     stagingDir = tempDir.newFolder("stagingDir").toPath();
@@ -75,16 +74,16 @@ public class InternalConfigurationPersistenceServiceDeploymentTest {
 
   @Test
   public void addPlainJarToThisLocator() throws Exception {
-    Path jar1 = Files.createFile(stagingDir.resolve("abc.jar"));
+    var jar1 = Files.createFile(stagingDir.resolve("abc.jar"));
     FileUtils.writeStringToFile(jar1.toFile(), "version1", "UTF-8");
-    Path jar2 = Files.createFile(stagingDir.resolve("def.jar"));
-    List<String> paths = Stream.of(jar1, jar2).map(Path::toString).collect(toList());
+    var jar2 = Files.createFile(stagingDir.resolve("def.jar"));
+    var paths = Stream.of(jar1, jar2).map(Path::toString).collect(toList());
     service.addJarsToThisLocator("DEPLOYEDBY1", "DEPLOYEDTIME1", paths, null);
     assertThat(workingDir.resolve("cluster").toFile().list()).containsExactlyInAnyOrder("abc.jar",
         "def.jar");
-    ArgumentCaptor<Configuration> argumentCaptor = ArgumentCaptor.forClass(Configuration.class);
+    var argumentCaptor = ArgumentCaptor.forClass(Configuration.class);
     verify(configRegion).put(eq("cluster"), argumentCaptor.capture(), eq("member"));
-    Configuration configuration = argumentCaptor.getValue();
+    var configuration = argumentCaptor.getValue();
     assertThat(configuration.getDeployments()).containsExactlyInAnyOrder(
         createDeployment("abc.jar", "DEPLOYEDBY1", "DEPLOYEDTIME1"),
         createDeployment("def.jar", "DEPLOYEDBY1", "DEPLOYEDTIME1"));
@@ -112,21 +111,21 @@ public class InternalConfigurationPersistenceServiceDeploymentTest {
   }
 
   private Deployment createDeployment(String jarFileName, String deployedby, String deployedtime) {
-    Deployment result = new Deployment(jarFileName, deployedby, deployedtime);
+    var result = new Deployment(jarFileName, deployedby, deployedtime);
     return result;
   }
 
   @Test
   public void addSemanticJarToThisLocator() throws Exception {
-    Path jar1 = Files.createFile(stagingDir.resolve("abc-1.0.jar"));
-    Path jar2 = Files.createFile(stagingDir.resolve("def-1.0.jar"));
-    List<String> paths = Stream.of(jar1, jar2).map(Path::toString).collect(toList());
+    var jar1 = Files.createFile(stagingDir.resolve("abc-1.0.jar"));
+    var jar2 = Files.createFile(stagingDir.resolve("def-1.0.jar"));
+    var paths = Stream.of(jar1, jar2).map(Path::toString).collect(toList());
     service.addJarsToThisLocator("DEPLOYEDBY1", "DEPLOYEDTIME1", paths, null);
     assertThat(workingDir.resolve("cluster").toFile().list())
         .containsExactlyInAnyOrder("abc-1.0.jar", "def-1.0.jar");
-    ArgumentCaptor<Configuration> argumentCaptor = ArgumentCaptor.forClass(Configuration.class);
+    var argumentCaptor = ArgumentCaptor.forClass(Configuration.class);
     verify(configRegion).put(eq("cluster"), argumentCaptor.capture(), eq("member"));
-    Configuration configuration = argumentCaptor.getValue();
+    var configuration = argumentCaptor.getValue();
     assertThat(configuration.getDeployments()).containsExactlyInAnyOrder(
         createDeployment("abc-1.0.jar", "DEPLOYEDBY1", "DEPLOYEDTIME1"),
         createDeployment("def-1.0.jar", "DEPLOYEDBY1", "DEPLOYEDTIME1"));
@@ -135,7 +134,7 @@ public class InternalConfigurationPersistenceServiceDeploymentTest {
     when(configRegion.get("cluster")).thenReturn(configuration);
 
     // deploy abc-1.1.jar
-    Path jar3 = Files.createFile(stagingDir.resolve("abc-1.1.jar"));
+    var jar3 = Files.createFile(stagingDir.resolve("abc-1.1.jar"));
     paths = Stream.of(jar3).map(Path::toString).collect(toList());
     service.addJarsToThisLocator("DEPLOYEDBY2", "DEPLOYEDTIME2", paths, null);
     assertThat(workingDir.resolve("cluster").toFile().list())
@@ -152,21 +151,21 @@ public class InternalConfigurationPersistenceServiceDeploymentTest {
   @Test
   public void addSemanticAndPlainJarToThisLocator() throws Exception {
     // deploy abc-1.0.jar and def-1.0.jar
-    Path jar1 = Files.createFile(stagingDir.resolve("abc-1.0.jar"));
-    Path jar2 = Files.createFile(stagingDir.resolve("def-1.0.jar"));
-    List<String> paths = Stream.of(jar1, jar2).map(Path::toString).collect(toList());
+    var jar1 = Files.createFile(stagingDir.resolve("abc-1.0.jar"));
+    var jar2 = Files.createFile(stagingDir.resolve("def-1.0.jar"));
+    var paths = Stream.of(jar1, jar2).map(Path::toString).collect(toList());
     service.addJarsToThisLocator("DEPLOYEDBY1", "DEPLOYEDTIME1", paths, null);
-    ArgumentCaptor<Configuration> argumentCaptor = ArgumentCaptor.forClass(Configuration.class);
+    var argumentCaptor = ArgumentCaptor.forClass(Configuration.class);
     verify(configRegion).put(eq("cluster"), argumentCaptor.capture(), eq("member"));
-    Configuration configuration = argumentCaptor.getValue();
+    var configuration = argumentCaptor.getValue();
     // this makes sure the configuration of the first deploy is retained
     when(configRegion.get("cluster")).thenReturn(configuration);
-    Deployment defDeployment = createDeployment("def-1.0.jar", "DEPLOYEDBY1", "DEPLOYEDTIME1");
+    var defDeployment = createDeployment("def-1.0.jar", "DEPLOYEDBY1", "DEPLOYEDTIME1");
     assertThat(configuration.getDeployments()).containsExactlyInAnyOrder(
         createDeployment("abc-1.0.jar", "DEPLOYEDBY1", "DEPLOYEDTIME1"), defDeployment);
 
     // deploy abc.jar
-    Path jar3 = Files.createFile(stagingDir.resolve("abc.jar"));
+    var jar3 = Files.createFile(stagingDir.resolve("abc.jar"));
     paths = singletonList(jar3.toString());
     service.addJarsToThisLocator("DEPLOYEDBY2", "DEPLOYEDTIME2", paths, null);
     assertThat(workingDir.resolve("cluster").toFile().list())
@@ -179,20 +178,20 @@ public class InternalConfigurationPersistenceServiceDeploymentTest {
 
   @Test
   public void addsDeploymentsFromJarFileNames() {
-    String deployedBy = "deployedBy";
-    String deployedTime = Instant.now().toString();
+    var deployedBy = "deployedBy";
+    var deployedTime = Instant.now().toString();
 
     Collection<String> allFileNames = new HashSet<>();
     Collection<String> jarFileNames = asList("jar1.jar", "jar2.jar", "jar3.jar");
     allFileNames.addAll(jarFileNames);
     allFileNames.addAll(asList("nonJar.xml", "nonJar.pdf"));
 
-    Configuration configuration = new Configuration();
+    var configuration = new Configuration();
 
     InternalConfigurationPersistenceService
         .loadDeploymentsFromFileNames(allFileNames, configuration, deployedBy, deployedTime);
 
-    List<Deployment> expectedDeployments = jarFileNames.stream()
+    var expectedDeployments = jarFileNames.stream()
         .map(jarFileName -> new Deployment(jarFileName, deployedBy, deployedTime))
         .collect(toList());
 

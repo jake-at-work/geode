@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +47,7 @@ class LocatorHelperTest {
 
   @Test
   void addServerLocatorDoesNotAddSameLocatorWithSameDistributedSystemId() {
-    final DistributionLocatorId locator = new DistributionLocatorId("localhost[1234]");
+    final var locator = new DistributionLocatorId("localhost[1234]");
 
     addServerLocator(1, locatorMembershipListener, locator);
     assertThat(locators).containsExactly(entry(1, singleton("localhost[1234]")));
@@ -59,8 +58,8 @@ class LocatorHelperTest {
 
   @Test
   void addServerLocatorDoesNotAddEqualLocatorWithSameDistributedSystemId() {
-    final DistributionLocatorId locator1 = new DistributionLocatorId("localhost[1234]");
-    final DistributionLocatorId locator2 = new DistributionLocatorId("localhost[1234]");
+    final var locator1 = new DistributionLocatorId("localhost[1234]");
+    final var locator2 = new DistributionLocatorId("localhost[1234]");
 
     addServerLocator(1, locatorMembershipListener, locator1);
     assertThat(locators).containsExactly(entry(1, singleton("localhost[1234]")));
@@ -71,8 +70,8 @@ class LocatorHelperTest {
 
   @Test
   void addServerLocatorAddsUniqueLocatorWithSameDistributedSystemId() {
-    final DistributionLocatorId locator1 = new DistributionLocatorId("localhost[1234]");
-    final DistributionLocatorId locator2 = new DistributionLocatorId("localhost[1235]");
+    final var locator1 = new DistributionLocatorId("localhost[1234]");
+    final var locator2 = new DistributionLocatorId("localhost[1235]");
 
     addServerLocator(1, locatorMembershipListener, locator1);
     addServerLocator(1, locatorMembershipListener, locator2);
@@ -83,8 +82,8 @@ class LocatorHelperTest {
 
   @Test
   void addServerLocatorDoesNotAddsLocatorWithDifferentDistributedSystemId() {
-    final DistributionLocatorId locator1 = new DistributionLocatorId("localhost[1234]");
-    final DistributionLocatorId locator2 = new DistributionLocatorId("localhost[1235]");
+    final var locator1 = new DistributionLocatorId("localhost[1234]");
+    final var locator2 = new DistributionLocatorId("localhost[1235]");
 
     addServerLocator(1, locatorMembershipListener, locator1);
     addServerLocator(2, locatorMembershipListener, locator2);
@@ -96,7 +95,7 @@ class LocatorHelperTest {
 
   @Test
   void addServerLocatorUsesHostnameForClients() {
-    final DistributionLocatorId locator =
+    final var locator =
         new DistributionLocatorId(1234, "bind-address.example.com",
             "hostname-for-clients.example.com");
 
@@ -107,7 +106,7 @@ class LocatorHelperTest {
 
   @Test
   void addServerLocatorUsesBindAddress() {
-    final DistributionLocatorId locator =
+    final var locator =
         new DistributionLocatorId(1234, "bind-address.example.com");
 
     addServerLocator(1, locatorMembershipListener, locator);
@@ -117,12 +116,12 @@ class LocatorHelperTest {
   @Test
   void addServerLocatorUsesLocalHostNameLocatorWhenBindAddressAndHostnameForClientNotSet()
       throws UnknownHostException {
-    final InetAddress localHost = LocalHostUtil.getLocalHost();
+    final var localHost = LocalHostUtil.getLocalHost();
 
     final Locator locator = mock(InternalLocator.class);
     when(locator.getPort()).thenReturn(1234);
 
-    final DistributionLocatorId locatorId = new DistributionLocatorId(localHost, locator);
+    final var locatorId = new DistributionLocatorId(localHost, locator);
 
     addServerLocator(1, locatorMembershipListener, locatorId);
     assertThat(locators)
@@ -132,13 +131,13 @@ class LocatorHelperTest {
   @Test
   void addServerLocatorUsesBindAddressWhenLocatorBindAddressSetAndHostnameForClientNotSet()
       throws UnknownHostException {
-    final InetAddress localHost = LocalHostUtil.getLocalHost();
+    final var localHost = LocalHostUtil.getLocalHost();
 
-    final InternalLocator locator = mock(InternalLocator.class);
+    final var locator = mock(InternalLocator.class);
     when(locator.getPort()).thenReturn(1234);
     when(locator.getBindAddressString()).thenReturn("bind-address.example.com");
 
-    final DistributionLocatorId locatorId = new DistributionLocatorId(localHost, locator);
+    final var locatorId = new DistributionLocatorId(localHost, locator);
 
     addServerLocator(1, locatorMembershipListener, locatorId);
     assertThat(locators).containsExactly(entry(1, singleton("bind-address.example.com[1234]")));
@@ -147,14 +146,14 @@ class LocatorHelperTest {
   @Test
   void addServerLocatorUsesBindAddressWhenLocatorBindAddressAndHostnameForClientSet()
       throws UnknownHostException {
-    final InetAddress localHost = LocalHostUtil.getLocalHost();
+    final var localHost = LocalHostUtil.getLocalHost();
 
-    final InternalLocator locator = mock(InternalLocator.class);
+    final var locator = mock(InternalLocator.class);
     when(locator.getPort()).thenReturn(1234);
     when(locator.getBindAddressString()).thenReturn("bind-address.example.com");
     when(locator.getHostnameForClients()).thenReturn("hostname-for-clients.example.com");
 
-    final DistributionLocatorId locatorId = new DistributionLocatorId(localHost, locator);
+    final var locatorId = new DistributionLocatorId(localHost, locator);
 
     addServerLocator(1, locatorMembershipListener, locatorId);
     assertThat(locators)

@@ -20,9 +20,7 @@ import static java.util.Collections.singletonList;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileStore;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import com.sun.jna.Callback;
@@ -32,7 +30,6 @@ import com.sun.jna.Platform;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
-import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.IntByReference;
 import org.apache.logging.log4j.Logger;
 
@@ -173,11 +170,11 @@ public class NativeCallsJNAImpl {
       }
       // set umask to something consistent for servers
       @SuppressWarnings("OctalInteger")
-      final int newMask = 022;
-      int oldMask = umask(newMask);
+      final var newMask = 022;
+      var oldMask = umask(newMask);
       // check if old umask was more restrictive, and if so then set it back
       @SuppressWarnings("OctalInteger")
-      final int OCTAL_077 = 077;
+      final var OCTAL_077 = 077;
       if ((oldMask & OCTAL_077) > newMask) {
         umask(oldMask);
       }
@@ -185,7 +182,7 @@ public class NativeCallsJNAImpl {
       rehashCallback = callback;
       hupHandler = signum -> {
         // invoke the rehash function if provided
-        final RehashServerOnSIGHUP rehashCb = rehashCallback;
+        final var rehashCb = rehashCallback;
         if (signum == Signal.SIGHUP.getNumber() && rehashCb != null) {
           rehashCb.rehash();
         }
@@ -211,11 +208,11 @@ public class NativeCallsJNAImpl {
         }
         return;
       }
-      int fd = -1;
-      boolean unknownError = false;
+      var fd = -1;
+      var unknownError = false;
       try {
         @SuppressWarnings("OctalInteger")
-        final int OCTAL_0644 = 00644;
+        final var OCTAL_0644 = 00644;
         fd = createFD(path, OCTAL_0644);
         if (!isOnLocalFileSystem(path)) {
           super.preBlow(path, maxSize, preAllocate);
@@ -350,8 +347,8 @@ public class NativeCallsJNAImpl {
       static {
         try {
           Native.register("rt");
-          StatFS struct = new StatFS();
-          int ret = statfs(".", struct);
+          var struct = new StatFS();
+          var ret = statfs(".", struct);
           isStatFSEnabled = ret == 0;
         } catch (VirtualMachineError e) {
           SystemFailure.initiateFailure(e);
@@ -384,7 +381,7 @@ public class NativeCallsJNAImpl {
           new int[] { /* 4283649346, */ 1937076805, 22092, 26985, 20859, 16914836};
 
       public boolean isTypeLocal() {
-        for (int remoteType : REMOTE_TYPES) {
+        for (var remoteType : REMOTE_TYPES) {
           if (remoteType == f_type) {
             return false;
           }
@@ -448,8 +445,8 @@ public class NativeCallsJNAImpl {
       static {
         try {
           Native.register("rt");
-          StatFS64 struct = new StatFS64();
-          int ret = statfs(".", struct);
+          var struct = new StatFS64();
+          var ret = statfs(".", struct);
           isStatFSEnabled = ret == 0;
         } catch (Throwable t) {
           System.out.println("got error t: " + t.getMessage());
@@ -468,7 +465,7 @@ public class NativeCallsJNAImpl {
 
 
       public boolean isTypeLocal() {
-        for (long remoteType : REMOTE_TYPES) {
+        for (var remoteType : REMOTE_TYPES) {
           if (remoteType == f_type) {
             return false;
           }
@@ -488,14 +485,14 @@ public class NativeCallsJNAImpl {
      * @return file store type
      */
     public String getFileStoreType(final String path) {
-      File diskFile = new File(path);
+      var diskFile = new File(path);
       if (!diskFile.exists()) {
         diskFile = diskFile.getParentFile();
       }
-      Path currentPath = diskFile.toPath();
+      var currentPath = diskFile.toPath();
       if (currentPath.isAbsolute() && Files.exists(currentPath)) {
         try {
-          FileStore store = Files.getFileStore(currentPath);
+          var store = Files.getFileStore(currentPath);
           return store.type();
         } catch (IOException e) {
           return null;
@@ -519,11 +516,11 @@ public class NativeCallsJNAImpl {
         // }
         return false;
       }
-      final int numTries = 10;
-      for (int i = 1; i <= numTries; i++) {
+      final var numTries = 10;
+      for (var i = 1; i <= numTries; i++) {
         try {
           if (Platform.is64Bit()) {
-            StatFS64 stat = new StatFS64();
+            var stat = new StatFS64();
             StatFS64.statfs(path, stat);
             // if (logger != null && logger.fineEnabled()) {
             // logger.info("DEBUG 64 isOnLocalFileSystem returning " + stat.isTypeLocal() + " for
@@ -531,7 +528,7 @@ public class NativeCallsJNAImpl {
             // }
             return stat.isTypeLocal();
           } else {
-            StatFS stat = new StatFS();
+            var stat = new StatFS();
             StatFS.statfs(path, stat);
             // if (logger != null && logger.fineEnabled()) {
             // logger.fine("DEBUG 32 isOnLocalFileSystem returning " + stat.isTypeLocal() + " for
@@ -555,8 +552,8 @@ public class NativeCallsJNAImpl {
 
     @Override
     protected boolean hasFallocate(String path) {
-      String fstype = getFileStoreType(path);
-      for (String type : FallocateFileSystems) {
+      var fstype = getFileStoreType(path);
+      for (var type : FallocateFileSystems) {
         if (type.equalsIgnoreCase(fstype)) {
           return true;
         }
@@ -571,7 +568,7 @@ public class NativeCallsJNAImpl {
 
     @Override
     protected void fallocateFD(int fd, long offset, long len) throws LastErrorException {
-      int errno = posix_fallocate64(fd, offset, len);
+      var errno = posix_fallocate64(fd, offset, len);
       if (errno != 0) {
         throw new LastErrorException(errno);
       }
@@ -588,10 +585,10 @@ public class NativeCallsJNAImpl {
       if (name == null) {
         throw new UnsupportedOperationException("getEnvironment() for name=NULL");
       }
-      int psize = Kernel32.INSTANCE.GetEnvironmentVariable(name, null, 0);
+      var psize = Kernel32.INSTANCE.GetEnvironmentVariable(name, null, 0);
       if (psize > 0) {
         for (;;) {
-          char[] result = new char[psize];
+          var result = new char[psize];
           psize = Kernel32.INSTANCE.GetEnvironmentVariable(name, result, psize);
           if (psize == (result.length - 1)) {
             return new String(result, 0, psize);
@@ -612,13 +609,13 @@ public class NativeCallsJNAImpl {
     @Override
     public boolean isProcessActive(final int processId) {
       try {
-        final HANDLE procHandle =
+        final var procHandle =
             Kernel32.INSTANCE.OpenProcess(Kernel32.PROCESS_QUERY_INFORMATION, false, processId);
         if (procHandle == null || WinBase.INVALID_HANDLE_VALUE.equals(procHandle)) {
           return false;
         } else {
-          final IntByReference status = new IntByReference();
-          final boolean result = Kernel32.INSTANCE.GetExitCodeProcess(procHandle, status)
+          final var status = new IntByReference();
+          final var result = Kernel32.INSTANCE.GetExitCodeProcess(procHandle, status)
               && status.getValue() == Kernel32.STILL_ACTIVE;
           Kernel32.INSTANCE.CloseHandle(procHandle);
           return result;
@@ -632,12 +629,12 @@ public class NativeCallsJNAImpl {
     @Override
     public boolean killProcess(final int processId) {
       try {
-        final HANDLE procHandle =
+        final var procHandle =
             Kernel32.INSTANCE.OpenProcess(Kernel32.PROCESS_TERMINATE, false, processId);
         if (procHandle == null || Kernel32.INVALID_HANDLE_VALUE.equals(procHandle)) {
           return false;
         } else {
-          final boolean result = Kernel32.INSTANCE.TerminateProcess(procHandle, -1);
+          final var result = Kernel32.INSTANCE.TerminateProcess(procHandle, -1);
           Kernel32.INSTANCE.CloseHandle(procHandle);
           return result;
         }

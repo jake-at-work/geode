@@ -14,14 +14,11 @@
  */
 package org.apache.geode.cache.util;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,15 +34,11 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.control.RebalanceOperation;
-import org.apache.geode.cache.control.RebalanceResults;
-import org.apache.geode.cache.partition.PartitionMemberInfo;
 import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.internal.locks.DLockService;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.partitioned.InternalPRInfo;
-import org.apache.geode.internal.cache.partitioned.LoadProbe;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -201,7 +194,7 @@ public class AutoBalancer implements Declarable {
 
     CronScheduler() {
       trigger = Executors.newSingleThreadScheduledExecutor(r -> {
-        Thread thread = new Thread(r, "AutoBalancer");
+        var thread = new Thread(r, "AutoBalancer");
         thread.setDaemon(true);
         return thread;
       });
@@ -227,13 +220,13 @@ public class AutoBalancer implements Declarable {
     }
 
     private void submitNext() {
-      long currentTime = clock.currentTimeMillis();
-      Instant currentInstant = new Date(currentTime).toInstant();
-      ZoneId localTimeZone = ZoneId.systemDefault();
-      LocalDateTime now = currentInstant.atZone(localTimeZone).toLocalDateTime();
-      LocalDateTime next = generator.next(now);
-      long nextSchedule = 1000 * next.toEpochSecond(localTimeZone.getRules().getOffset(next));
-      long delay = nextSchedule - currentTime;
+      var currentTime = clock.currentTimeMillis();
+      var currentInstant = new Date(currentTime).toInstant();
+      var localTimeZone = ZoneId.systemDefault();
+      var now = currentInstant.atZone(localTimeZone).toLocalDateTime();
+      var next = generator.next(now);
+      var nextSchedule = 1000 * next.toEpochSecond(localTimeZone.getRules().getOffset(next));
+      var delay = nextSchedule - currentTime;
 
       if (logger.isDebugEnabled()) {
         logger.debug("Now={}, next audit time={}, delay={} ms", new Date(currentTime), nextSchedule,
@@ -303,7 +296,7 @@ public class AutoBalancer implements Declarable {
 
     @Override
     public void execute() {
-      boolean result = cache.acquireAutoBalanceLock();
+      var result = cache.acquireAutoBalanceLock();
       if (!result) {
         if (logger.isDebugEnabled()) {
           logger.debug(
@@ -334,16 +327,16 @@ public class AutoBalancer implements Declarable {
      */
     boolean needsRebalancing() {
       // test cluster level status
-      long transferSize = cache.getTotalTransferSize();
+      var transferSize = cache.getTotalTransferSize();
       if (transferSize <= sizeMinimum) {
         return false;
       }
 
-      Map<PartitionedRegion, InternalPRInfo> details = cache.getRegionMemberDetails();
-      long totalSize = cache.getTotalDataSize(details);
+      var details = cache.getRegionMemberDetails();
+      var totalSize = cache.getTotalDataSize(details);
 
       if (totalSize > 0) {
-        int transferPercent = (int) ((100.0 * transferSize) / totalSize);
+        var transferPercent = (int) ((100.0 * transferSize) / totalSize);
         return transferPercent >= sizeThreshold;
       }
 
@@ -379,11 +372,11 @@ public class AutoBalancer implements Declarable {
 
     @Override
     public Map<PartitionedRegion, InternalPRInfo> getRegionMemberDetails() {
-      InternalCache cache = getCache();
+      var cache = getCache();
       Map<PartitionedRegion, InternalPRInfo> detailsMap = new HashMap<>();
-      for (PartitionedRegion region : cache.getPartitionedRegions()) {
-        LoadProbe probe = cache.getInternalResourceManager().getLoadProbe();
-        InternalPRInfo info =
+      for (var region : cache.getPartitionedRegions()) {
+        var probe = cache.getInternalResourceManager().getLoadProbe();
+        var info =
             region.getRedundancyProvider().buildPartitionedRegionInfo(true, probe);
         detailsMap.put(region, info);
       }
@@ -394,10 +387,10 @@ public class AutoBalancer implements Declarable {
     public long getTotalDataSize(Map<PartitionedRegion, InternalPRInfo> details) {
       long totalSize = 0;
       if (details != null) {
-        for (PartitionedRegion region : details.keySet()) {
-          InternalPRInfo info = details.get(region);
-          Set<PartitionMemberInfo> membersInfo = info.getPartitionMemberInfo();
-          for (PartitionMemberInfo member : membersInfo) {
+        for (var region : details.keySet()) {
+          var info = details.get(region);
+          var membersInfo = info.getPartitionMemberInfo();
+          for (var member : membersInfo) {
             if (logger.isDebugEnabled()) {
               logger.debug("Region:{}, Member: {}, Size: {}", region.getFullPath(), member,
                   member.getSize());
@@ -412,9 +405,9 @@ public class AutoBalancer implements Declarable {
     @Override
     public long getTotalTransferSize() {
       try {
-        RebalanceOperation operation =
+        var operation =
             getCache().getResourceManager().createRebalanceFactory().simulate();
-        RebalanceResults result = operation.getResults();
+        var result = operation.getResults();
         if (logger.isDebugEnabled()) {
           logger.debug("Rebalance estimate: RebalanceResultsImpl [TotalBucketCreateBytes="
               + result.getTotalBucketCreateBytes() + ", TotalBucketCreatesCompleted="
@@ -434,7 +427,7 @@ public class AutoBalancer implements Declarable {
 
     @Override
     public void incrementAttemptCounter() {
-      InternalCache cache = getCache();
+      var cache = getCache();
       try {
         cache.getInternalResourceManager().getStats().incAutoRebalanceAttempts();
       } catch (Exception e) {
@@ -445,9 +438,9 @@ public class AutoBalancer implements Declarable {
     @Override
     public void rebalance() {
       try {
-        RebalanceOperation operation =
+        var operation =
             getCache().getResourceManager().createRebalanceFactory().start();
-        RebalanceResults result = operation.getResults();
+        var result = operation.getResults();
         logger
             .info("Rebalance result: [TotalBucketCreateBytes=" + result.getTotalBucketCreateBytes()
                 + ", TotalBucketCreateTime=" + result.getTotalBucketCreateTime()
@@ -466,7 +459,7 @@ public class AutoBalancer implements Declarable {
     }
 
     InternalCache getCache() {
-      InternalCache result = cache;
+      var result = cache;
       if (result == null) {
         throw new IllegalStateException("Missing cache instance.");
       }
@@ -482,9 +475,9 @@ public class AutoBalancer implements Declarable {
       if (!isLockAcquired.get()) {
         synchronized (isLockAcquired) {
           if (!isLockAcquired.get()) {
-            DistributedLockService dls = getDLS();
+            var dls = getDLS();
 
-            boolean result = dls.lock(AUTO_BALANCER_LOCK, 0, -1);
+            var result = dls.lock(AUTO_BALANCER_LOCK, 0, -1);
             if (result) {
               isLockAcquired.set(true);
               if (logger.isDebugEnabled()) {
@@ -504,8 +497,8 @@ public class AutoBalancer implements Declarable {
 
     @Override
     public DistributedLockService getDLS() {
-      InternalCache cache = getCache();
-      DistributedLockService dls =
+      var cache = getCache();
+      var dls =
           DistributedLockService.getServiceNamed(AUTO_BALANCER_LOCK_SERVICE_NAME);
       if (dls == null) {
         if (logger.isDebugEnabled()) {

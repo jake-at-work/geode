@@ -43,7 +43,6 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache30.CacheTestCase;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.statistics.HostStatSampler;
-import org.apache.geode.internal.statistics.SampleCollector;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -86,7 +85,7 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
     Region<Number, Number> region3 = getCache().getRegion(SEPARATOR + "testRegion3");
     regionFactory.createSubregion(region3, "testSubRegion3");
 
-    for (int i = 1; i < 1 + 200; i++) {
+    for (var i = 1; i < 1 + 200; i++) {
       region1.put(i, i);
       region2.put(i, i);
       region3.put(i, i);
@@ -94,7 +93,7 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
 
     sampleStatistics();
 
-    MemberMXBean memberMXBean = getSystemManagementService().getMemberMXBean();
+    var memberMXBean = getSystemManagementService().getMemberMXBean();
 
     assertThat(memberMXBean.getTotalRegionCount()).isEqualTo(6);
     assertThat(memberMXBean.getTotalRegionEntryCount()).isEqualTo(600);
@@ -115,7 +114,7 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
     Region<Number, Number> region2 = getCache().getRegion(SEPARATOR + "testPRRegion2");
     Region<Number, Number> region3 = getCache().getRegion(SEPARATOR + "testPRRegion3");
 
-    for (int i = 1; i < 1 + 200; i++) {
+    for (var i = 1; i < 1 + 200; i++) {
       region1.put(i, i);
       region2.put(i, i);
       region3.put(i, i);
@@ -123,7 +122,7 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
 
     sampleStatistics();
 
-    MemberMXBean memberMXBean = getSystemManagementService().getMemberMXBean();
+    var memberMXBean = getSystemManagementService().getMemberMXBean();
 
     assertThat(memberMXBean.getPartitionRegionCount()).isEqualTo(3);
     assertThat(memberMXBean.getTotalBucketCount()).isEqualTo(339);
@@ -132,7 +131,7 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
 
   @Test
   public void testOSAttributes() {
-    MemberMXBean memberMXBean = getSystemManagementService().getMemberMXBean();
+    var memberMXBean = getSystemManagementService().getMemberMXBean();
 
     await().untilAsserted(() -> assertThat(memberMXBean.getMemberUpTime()).isGreaterThan(0));
 
@@ -154,7 +153,7 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
 
   @Test
   public void testConfigAttributes() {
-    MemberMXBean memberMXBean = getSystemManagementService().getMemberMXBean();
+    var memberMXBean = getSystemManagementService().getMemberMXBean();
 
     assertThat(memberMXBean.hasGatewayReceiver()).isFalse();
     assertThat(memberMXBean.hasGatewaySender()).isFalse();
@@ -166,10 +165,10 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
 
   @Test
   public void testOffHeapMemoryAttributes() {
-    MemberMXBean memberMXBean = getSystemManagementService().getMemberMXBean();
+    var memberMXBean = getSystemManagementService().getMemberMXBean();
     sampleStatistics();
 
-    int initialLargestFragment = (int) (((4096 * BYTES_PER_MEGABYTE) / 2) - 1);
+    var initialLargestFragment = (int) (((4096 * BYTES_PER_MEGABYTE) / 2) - 1);
     assertThat(memberMXBean.getOffHeapFragments()).isEqualTo(2);
     assertThat(memberMXBean.getOffHeapLargestFragment()).isEqualTo(initialLargestFragment);
     assertThat(memberMXBean.getOffHeapFreedChunks()).isEqualTo(0);
@@ -183,11 +182,11 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
     Region region1 = getCache().getRegion(SEPARATOR + "testPRRegion1");
 
     // fill first fragment
-    int hugeAllocations = 100;
-    for (int i = 0; i < hugeAllocations; i++) {
+    var hugeAllocations = 100;
+    for (var i = 0; i < hugeAllocations; i++) {
       region1.put(i + 10, new byte[initialLargestFragment / hugeAllocations]);
     }
-    for (int i = 0; i < hugeAllocations; i++) {
+    for (var i = 0; i < hugeAllocations; i++) {
       region1.remove(i + 10);
     }
 
@@ -210,7 +209,7 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
 
     props.setProperty(ENABLE_TIME_STATISTICS, "true");
     props.setProperty(STATISTIC_SAMPLING_ENABLED, "true");
@@ -220,14 +219,14 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
   }
 
   private void createMember() {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.setProperty(OFF_HEAP_MEMORY_SIZE, "4096");
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "off-heap-stats-update-frequency-ms", "1000");
     getCache(props);
   }
 
   private void createManager() {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
 
     props.setProperty(JMX_MANAGER, "true");
     props.setProperty(JMX_MANAGER_START, "false");
@@ -238,7 +237,7 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
   }
 
   private void startManager() {
-    SystemManagementService service = getSystemManagementService();
+    var service = getSystemManagementService();
     service.createManager();
     service.startManager();
   }
@@ -253,7 +252,7 @@ public class MemberMXBeanAttributesDistributedTest extends CacheTestCase {
 
   private void sampleStatistics() {
     HostStatSampler sampler = getSystem().getStatSampler();
-    SampleCollector sampleCollector = sampler.getSampleCollector();
+    var sampleCollector = sampler.getSampleCollector();
     sampleCollector.sample(NanoTimer.getTime());
   }
 }

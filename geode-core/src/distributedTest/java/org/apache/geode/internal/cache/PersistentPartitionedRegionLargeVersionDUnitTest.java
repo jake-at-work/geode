@@ -22,7 +22,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.persistence.DiskStoreID;
-import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 
@@ -33,16 +32,16 @@ public class PersistentPartitionedRegionLargeVersionDUnitTest extends CacheTestC
    */
   @Test
   public void canRecoverWithLargeGCVersionInFiles() {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
 
-    final DiskStoreID vm0_memberId = vm0.invoke(() -> {
+    final var vm0_memberId = vm0.invoke(() -> {
       createRegion();
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion("region");
+      var region = (PartitionedRegion) getCache().getRegion("region");
       region.put(0, 0);
 
       // Manually set the version in bucket 0 to be greater than Integer.MAX_VALUE
-      RegionVersionVector vectorVector = region.getBucketRegion(0).getVersionVector();
+      var vectorVector = region.getBucketRegion(0).getVersionVector();
       vectorVector.recordVersion(vectorVector.getOwnerId(), ((long) Integer.MAX_VALUE) + 10L);
 
       // Do an update, which will pick up the large version
@@ -60,8 +59,8 @@ public class PersistentPartitionedRegionLargeVersionDUnitTest extends CacheTestC
     vm1.invoke(() -> {
       createRegion();
       getCache().getResourceManager().createRebalanceFactory().start().getResults();
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion("region");
-      RegionVersionVector vectorVector = region.getBucketRegion(0).getVersionVector();
+      var region = (PartitionedRegion) getCache().getRegion("region");
+      var vectorVector = region.getBucketRegion(0).getVersionVector();
       assertThat(vectorVector.getGCVersion(vm0_memberId))
           .isEqualTo(((long) Integer.MAX_VALUE) + 12L);
     });
@@ -73,16 +72,16 @@ public class PersistentPartitionedRegionLargeVersionDUnitTest extends CacheTestC
     // Restart both members
     vm1.invoke(() -> {
       createRegion();
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion("region");
-      RegionVersionVector vectorVector = region.getBucketRegion(0).getVersionVector();
+      var region = (PartitionedRegion) getCache().getRegion("region");
+      var vectorVector = region.getBucketRegion(0).getVersionVector();
       assertThat(vectorVector.getGCVersion(vm0_memberId))
           .isEqualTo(((long) Integer.MAX_VALUE) + 12L);
     });
     vm0.invoke(() -> {
       createRegion();
       getCache().getResourceManager().createRebalanceFactory().start().getResults();
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion("region");
-      RegionVersionVector vectorVector = region.getBucketRegion(0).getVersionVector();
+      var region = (PartitionedRegion) getCache().getRegion("region");
+      var vectorVector = region.getBucketRegion(0).getVersionVector();
       assertThat(vectorVector.getCurrentVersion()).isEqualTo(((long) Integer.MAX_VALUE) + 12L);
     });
   }

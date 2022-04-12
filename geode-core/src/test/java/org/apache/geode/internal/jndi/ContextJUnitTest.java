@@ -49,7 +49,7 @@ public class ContextJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Hashtable table = new Hashtable();
+    var table = new Hashtable();
     table.put(Context.INITIAL_CONTEXT_FACTORY,
         "org.apache.geode.internal.jndi.InitialContextFactoryImpl");
     initialContext = new InitialContext(table);
@@ -75,7 +75,7 @@ public class ContextJUnitTest {
    */
   private void clearContext(Context context) throws NamingException {
     for (NamingEnumeration e = context.listBindings(""); e.hasMoreElements();) {
-      Binding binding = (Binding) e.nextElement();
+      var binding = (Binding) e.nextElement();
       if (binding.getObject() instanceof Context) {
         clearContext((Context) binding.getObject());
       }
@@ -164,7 +164,7 @@ public class ContextJUnitTest {
   @Test
   public void testSubcontextInvokingMethodsOnDestroyedContext() throws Exception {
     // Create subcontext and destroy it.
-    Context sub = dataSourceContext.createSubcontext("sub4");
+    var sub = dataSourceContext.createSubcontext("sub4");
     initialContext.destroySubcontext("java:gf/env/datasource/sub4");
 
     try {
@@ -203,7 +203,7 @@ public class ContextJUnitTest {
     } catch (NoPermissionException expected) {
     }
     try {
-      NameParserImpl parser = new NameParserImpl();
+      var parser = new NameParserImpl();
       sub.composeName(parser.parse("a"), parser.parse("b"));
       fail();
     } catch (NoPermissionException expected) {
@@ -280,21 +280,21 @@ public class ContextJUnitTest {
 
   private void verifyListBindings(Context c, String name, Object obj1, Object obj2)
       throws NamingException {
-    boolean datasourceFoundFlg = false;
-    boolean o2FoundFlg = false;
-    boolean datasourceO1FoundFlg = false;
-    boolean datasourceNullFoundFlg = false;
+    var datasourceFoundFlg = false;
+    var o2FoundFlg = false;
+    var datasourceO1FoundFlg = false;
+    var datasourceNullFoundFlg = false;
 
     // List bindings for the specified context
     for (NamingEnumeration en = c.listBindings(name); en.hasMore();) {
-      Binding b = (Binding) en.next();
+      var b = (Binding) en.next();
       if (b.getName().equals("datasource")) {
         assertEquals(b.getObject(), dataSourceContext);
         datasourceFoundFlg = true;
 
-        Context nextCon = (Context) b.getObject();
+        var nextCon = (Context) b.getObject();
         for (NamingEnumeration en1 = nextCon.listBindings(""); en1.hasMore();) {
-          Binding b1 = (Binding) en1.next();
+          var b1 = (Binding) en1.next();
           if (b1.getName().equals("sub41")) {
             assertEquals(b1.getObject(), obj1);
             datasourceO1FoundFlg = true;
@@ -316,8 +316,8 @@ public class ContextJUnitTest {
 
   @Test
   public void testCompositeName() throws Exception {
-    ContextImpl c = new ContextImpl();
-    Object o = new Object();
+    var c = new ContextImpl();
+    var o = new Object();
 
     c.rebind("/a/b/c/", o);
     assertEquals(c.lookup("a/b/c"), o);
@@ -326,8 +326,8 @@ public class ContextJUnitTest {
 
   @Test
   public void testLookup() throws Exception {
-    ContextImpl ctx = new ContextImpl();
-    Object obj = new Object();
+    var ctx = new ContextImpl();
+    var obj = new Object();
     ctx.rebind("a/b/c/d", obj);
     assertEquals(obj, ctx.lookup("a/b/c/d"));
 
@@ -340,7 +340,7 @@ public class ContextJUnitTest {
    */
   @Test
   public void testGetCompositeName() throws Exception {
-    ContextImpl ctx = new ContextImpl();
+    var ctx = new ContextImpl();
     ctx.rebind("a/b/c/d", new Object());
 
     ContextImpl subCtx;
@@ -357,8 +357,8 @@ public class ContextJUnitTest {
    */
   @Test
   public void testTwoSeparatorNames() throws Exception {
-    ContextImpl ctx = new ContextImpl();
-    Object obj = new Object();
+    var ctx = new ContextImpl();
+    var obj = new Object();
 
     ctx.bind("a/b.c.d/e", obj);
     assertEquals(ctx.lookup("a/b/c/d/e"), obj);

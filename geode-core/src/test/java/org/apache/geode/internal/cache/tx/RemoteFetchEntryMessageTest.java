@@ -28,10 +28,10 @@ public class RemoteFetchEntryMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    RemoteFetchEntryMessage mockRemoteFetchEntryMessage = mock(RemoteFetchEntryMessage.class);
-    ClusterDistributionManager mockDistributionManager = mock(ClusterDistributionManager.class);
-    LocalRegion mockLocalRegion = mock(LocalRegion.class);
-    long startTime = System.currentTimeMillis();
+    var mockRemoteFetchEntryMessage = mock(RemoteFetchEntryMessage.class);
+    var mockDistributionManager = mock(ClusterDistributionManager.class);
+    var mockLocalRegion = mock(LocalRegion.class);
+    var startTime = System.currentTimeMillis();
 
     when(mockRemoteFetchEntryMessage.operateOnRegion(eq(mockDistributionManager),
         eq(mockLocalRegion), eq(startTime))).thenReturn(true);

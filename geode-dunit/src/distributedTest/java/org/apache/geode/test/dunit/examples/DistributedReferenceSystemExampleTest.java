@@ -31,7 +31,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedReference;
 
 @SuppressWarnings("serial")
@@ -42,10 +41,10 @@ public class DistributedReferenceSystemExampleTest implements Serializable {
 
   @Before
   public void setUp() {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(LOCATORS, getLocators());
 
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         system.set(DistributedSystem.connect(configProperties));
       });
@@ -54,7 +53,7 @@ public class DistributedReferenceSystemExampleTest implements Serializable {
 
   @Test
   public void eachVmHasItsOwnSystemConnection() {
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         assertThat(system.get()).isNotNull();
       });

@@ -41,8 +41,6 @@ import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.IndexNameConflictException;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.dunit.DistributedTestUtils;
@@ -79,7 +77,7 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   }
 
   private Properties getSystemProperties(String cacheXML) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
     props.setProperty(CACHE_XML_FILE,
         createTempFileFromResource(getClass(), cacheXML).getAbsolutePath());
@@ -102,10 +100,10 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   @Test
   public void testGIIUpdateWithIndexDoesNotDuplicateEntryInIndexWhenAlreadyRecoveredFromPersistence() {
     // this region is created via cache.xml
-    String regionName = "testRegion";
-    String idQuery = "select * from " + SEPARATOR + regionName + " p where p.ID = 1";
-    int idQueryExpectedSize = 1;
-    int numEntries = 100;
+    var regionName = "testRegion";
+    var idQuery = "select * from " + SEPARATOR + regionName + " p where p.ID = 1";
+    var idQueryExpectedSize = 1;
+    var numEntries = 100;
     Map<String, Portfolio> entries = new HashMap<>();
     IntStream.range(0, numEntries).forEach(i -> entries.put("key-" + i, new Portfolio(i)));
 
@@ -129,8 +127,8 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   public void giiWithPersistenceAndStaleDataDueToUpdatesShouldCorrectlyPopulateIndexes()
       throws Exception {
     // this region is created via cache.xml
-    String regionName = "testRegionWithEntrySetIndex";
-    int numEntries = 100;
+    var regionName = "testRegionWithEntrySetIndex";
+    var numEntries = 100;
     Map<String, Portfolio> entries = new HashMap<>();
     IntStream.range(0, numEntries).forEach(i -> entries.put("key-" + i, new Portfolio(10000 + i)));
     server3.invoke(() -> populateRegion(regionName, entries));
@@ -144,10 +142,10 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
     clusterStartupRule.stop(1, false);
     clusterStartupRule.stop(3, false);
 
-    Thread t3 =
+    var t3 =
         new Thread(() -> clusterStartupRule.startServerVM(3, props, locator.getPort()));
     t3.start();
-    Thread t1 =
+    var t1 =
         new Thread(() -> clusterStartupRule.startServerVM(1, props, locator.getPort()));
     t1.start();
     clusterStartupRule.startServerVM(2, props, locator.getPort());
@@ -176,8 +174,8 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
     // This test requires the oldKeyValuePair to be instantiated, to do so, we need the gii thread
     // to gii some updates or removes on existing (non-tombstone) values before processing the
     // scenario of tombstone to tombstone
-    String regionName = "testRegion";
-    int numEntries = 10;
+    var regionName = "testRegion";
+    var numEntries = 10;
     Map<String, Portfolio> entries = new HashMap<>();
     IntStream.range(0, numEntries).forEach(i -> entries.put("key-" + i, new Portfolio(i)));
     Set halfEntries = new HashSet();
@@ -218,8 +216,8 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   public void giiWithPersistenceAndStaleDataDueToSameUpdatesShouldCorrectlyPopulateIndexes()
       throws Exception {
     // this region is created via cache.xml
-    String regionName = "testRegionWithEntrySetIndex";
-    int numEntries = 100;
+    var regionName = "testRegionWithEntrySetIndex";
+    var numEntries = 100;
     Map<String, Portfolio> entries = new HashMap<>();
     IntStream.range(0, numEntries).forEach(i -> entries.put("key-" + i, new Portfolio(i)));
     server3.invoke(() -> populateRegion(regionName, entries));
@@ -233,10 +231,10 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
     clusterStartupRule.stop(1, false);
     clusterStartupRule.stop(3, false);
 
-    Thread t3 =
+    var t3 =
         new Thread(() -> clusterStartupRule.startServerVM(3, props, locator.getPort()));
     t3.start();
-    Thread t1 =
+    var t1 =
         new Thread(() -> clusterStartupRule.startServerVM(1, props, locator.getPort()));
     t1.start();
     clusterStartupRule.startServerVM(2, props, locator.getPort());
@@ -263,8 +261,8 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   public void giiWithPersistenceAndStaleDataDueToUpdatesShouldCorrectlyPopulateIndexesWithEntrySet()
       throws Exception {
     // this region is created via cache.xml
-    String regionName = "testRegionWithEntrySetIndex";
-    int numEntries = 100;
+    var regionName = "testRegionWithEntrySetIndex";
+    var numEntries = 100;
     Map<String, Portfolio> entries = new HashMap<>();
     IntStream.range(0, numEntries).forEach(i -> entries.put("key-" + i, new Portfolio(10000 + i)));
     server3.invoke(() -> populateRegion(regionName, entries));
@@ -279,10 +277,10 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
     clusterStartupRule.stop(1, false);
     clusterStartupRule.stop(3, false);
 
-    Thread t3 =
+    var t3 =
         new Thread(() -> clusterStartupRule.startServerVM(3, props, locator.getPort()));
     t3.start();
-    Thread t1 =
+    var t1 =
         new Thread(() -> clusterStartupRule.startServerVM(1, props, locator.getPort()));
     t1.start();
     clusterStartupRule.startServerVM(2, props, locator.getPort());
@@ -312,8 +310,8 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   public void giiWithPersistenceAndStaleDataDueToDeletesShouldProvideCorrectResultsWithEntrySet()
       throws Exception {
     // this region is created via cache.xml
-    String regionName = "testRegionWithEntrySetIndex";
-    int numEntries = 100;
+    var regionName = "testRegionWithEntrySetIndex";
+    var numEntries = 100;
     Map<String, Portfolio> entries = new HashMap<>();
     IntStream.range(0, numEntries).forEach(i -> entries.put("key-" + i, new Portfolio(i)));
     server3.invoke(() -> populateRegion(regionName, entries));
@@ -324,10 +322,10 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
     clusterStartupRule.stop(1, false);
     clusterStartupRule.stop(3, false);
 
-    Thread t3 =
+    var t3 =
         new Thread(() -> clusterStartupRule.startServerVM(3, props, locator.getPort()));
     t3.start();
-    Thread t1 =
+    var t1 =
         new Thread(() -> clusterStartupRule.startServerVM(1, props, locator.getPort()));
     t1.start();
     clusterStartupRule.startServerVM(2, props, locator.getPort());
@@ -357,8 +355,8 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   public void giiWithPersistenceAndStaleDataDueToDeletesShouldHaveEmptyIndexesWithEntrySet()
       throws Exception {
     // this region is created via cache.xml
-    String regionName = "testRegionWithEntrySetIndex";
-    int numEntries = 100;
+    var regionName = "testRegionWithEntrySetIndex";
+    var numEntries = 100;
     Map<String, Portfolio> entries = new HashMap<>();
     IntStream.range(0, numEntries).forEach(i -> entries.put("key-" + i, new Portfolio(i)));
     server3.invoke(() -> populateRegion(regionName, entries));
@@ -369,10 +367,10 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
     clusterStartupRule.stop(1, false);
     clusterStartupRule.stop(3, false);
 
-    Thread t3 =
+    var t3 =
         new Thread(() -> clusterStartupRule.startServerVM(3, props, locator.getPort()));
     t3.start();
-    Thread t1 =
+    var t1 =
         new Thread(() -> clusterStartupRule.startServerVM(1, props, locator.getPort()));
     t1.start();
     clusterStartupRule.startServerVM(2, props, locator.getPort());
@@ -390,8 +388,8 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   public void giiWithPersistenceAndStaleDataDueToDeletesShouldProvideCorrectResultsWithIndexes()
       throws Exception {
     // this region is created via cache.xml
-    String regionName = "testRegion";
-    int numEntries = 100;
+    var regionName = "testRegion";
+    var numEntries = 100;
     Map<String, Portfolio> entries = new HashMap<>();
     IntStream.range(0, numEntries).forEach(i -> entries.put("key-" + i, new Portfolio(i)));
     server3.invoke(() -> populateRegion(regionName, entries));
@@ -401,10 +399,10 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
     clusterStartupRule.stop(1, false);
     clusterStartupRule.stop(3, false);
 
-    Thread t3 =
+    var t3 =
         new Thread(() -> clusterStartupRule.startServerVM(3, props, locator.getPort()));
     t3.start();
-    Thread t1 =
+    var t1 =
         new Thread(() -> clusterStartupRule.startServerVM(1, props, locator.getPort()));
     t1.start();
     clusterStartupRule.startServerVM(2, props, locator.getPort());
@@ -431,8 +429,8 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   public void giiWithPersistenceAndStaleDataDueToDeletesShouldHaveEmptyIndexes()
       throws Exception {
     // this region is created via cache.xml
-    String regionName = "testRegion";
-    int numEntries = 100;
+    var regionName = "testRegion";
+    var numEntries = 100;
     Map<String, Portfolio> entries = new HashMap<>();
     IntStream.range(0, numEntries).forEach(i -> entries.put("key-" + i, new Portfolio(i)));
     server3.invoke(() -> populateRegion(regionName, entries));
@@ -443,10 +441,10 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
     clusterStartupRule.stop(1, false);
     clusterStartupRule.stop(3, false);
 
-    Thread t3 =
+    var t3 =
         new Thread(() -> clusterStartupRule.startServerVM(3, props, locator.getPort()));
     t3.start();
-    Thread t1 =
+    var t1 =
         new Thread(() -> clusterStartupRule.startServerVM(1, props, locator.getPort()));
     t1.start();
     clusterStartupRule.startServerVM(2, props, locator.getPort());
@@ -462,7 +460,7 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
 
   private void verifyAllEntries(String query, Supplier<IntStream> idsSupplier, int numTimes,
       int expectedSize) {
-    for (int j = 0; j < numTimes; j++) {
+    for (var j = 0; j < numTimes; j++) {
       idsSupplier.get().forEach(i -> {
         try {
           verifyQueryResultsSize(query + i, expectedSize).run();
@@ -478,9 +476,9 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
       @Override
       public void run() {
         try {
-          QueryService qs = ClusterStartupRule.getCache().getQueryService();
-          Query q = qs.newQuery(query);
-          SelectResults sr = (SelectResults) q.execute();
+          var qs = ClusterStartupRule.getCache().getQueryService();
+          var q = qs.newQuery(query);
+          var sr = (SelectResults) q.execute();
           assertEquals(expectedSize, sr.size());
         } catch (Exception e) {
           throw new RuntimeException(
@@ -491,7 +489,7 @@ public class PersistentRegionCompactRangeIndexDUnitTest implements Serializable 
   }
 
   private void verifyIndexKeysAreEmpty() {
-    QueryService qs = ClusterStartupRule.getCache().getQueryService();
+    var qs = ClusterStartupRule.getCache().getQueryService();
     qs.getIndexes().forEach(index -> assertEquals(0, index.getStatistics().getNumberOfKeys()));
   }
 

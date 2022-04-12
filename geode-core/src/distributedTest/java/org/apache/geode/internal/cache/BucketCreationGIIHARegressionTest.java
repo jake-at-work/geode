@@ -77,11 +77,11 @@ public class BucketCreationGIIHARegressionTest extends CacheTestCase {
     server2.invoke(() -> createRegion());
 
     server3.invoke(() -> {
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
       paf.setRedundantCopies(1);
       paf.setLocalMaxMemory(0);
 
-      AttributesFactory af = new AttributesFactory();
+      var af = new AttributesFactory();
       af.setPartitionAttributes(paf.create());
 
       Region<Integer, String> region = getCache().createRegion(uniqueName, af.create());
@@ -93,10 +93,10 @@ public class BucketCreationGIIHARegressionTest extends CacheTestCase {
   private void createRegion() {
     DistributionMessageObserver.setInstance(new MyDistributionMessageObserver());
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(1);
 
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
 
     getCache().createRegion(uniqueName, af.create());
@@ -107,7 +107,7 @@ public class BucketCreationGIIHARegressionTest extends CacheTestCase {
     @Override
     public void beforeProcessMessage(ClusterDistributionManager dm, DistributionMessage message) {
       if (message instanceof RequestImageMessage) {
-        RequestImageMessage rim = (RequestImageMessage) message;
+        var rim = (RequestImageMessage) message;
         Region region = getCache().getRegion(rim.regionPath);
         if (region instanceof BucketRegion) {
           getCache().close();

@@ -64,7 +64,7 @@ public class BridgeServerRequest extends AdminRequest {
    * Creates a <code>BridgeServerRequest</code> for adding a new cache server.
    */
   public static BridgeServerRequest createForAdd(CacheInfo cache) {
-    BridgeServerRequest request = new BridgeServerRequest();
+    var request = new BridgeServerRequest();
     request.cacheId = cache.getId();
     request.operation = ADD_OPERATION;
     request.friendlyName =
@@ -77,7 +77,7 @@ public class BridgeServerRequest extends AdminRequest {
    * Creates a <code>BridgeServerRequest</code> for adding a new cache server.
    */
   public static BridgeServerRequest createForInfo(CacheInfo cache, int id) {
-    BridgeServerRequest request = new BridgeServerRequest();
+    var request = new BridgeServerRequest();
     request.cacheId = cache.getId();
     request.operation = INFO_OPERATION;
     request.friendlyName = String.format("Get info about cache server %s",
@@ -91,7 +91,7 @@ public class BridgeServerRequest extends AdminRequest {
    * Creates a <code>BridgeServerRequest</code> for starting a cache server.
    */
   public static BridgeServerRequest createForStart(CacheInfo cache, RemoteBridgeServer bridge) {
-    BridgeServerRequest request = new BridgeServerRequest();
+    var request = new BridgeServerRequest();
     request.cacheId = cache.getId();
     request.operation = START_OPERATION;
     request.friendlyName =
@@ -104,7 +104,7 @@ public class BridgeServerRequest extends AdminRequest {
    * Creates a <code>BridgeServerRequest</code> for stopping a cache server.
    */
   public static BridgeServerRequest createForStop(CacheInfo cache, RemoteBridgeServer bridge) {
-    BridgeServerRequest request = new BridgeServerRequest();
+    var request = new BridgeServerRequest();
     request.cacheId = cache.getId();
     request.operation = STOP_OPERATION;
     request.friendlyName =

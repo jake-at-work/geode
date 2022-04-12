@@ -69,7 +69,7 @@ public class RegionRequest extends AdminRequest {
    * @param path The full path to the region
    */
   public static RegionRequest createForGet(CacheInfo c, String path) {
-    RegionRequest m = new RegionRequest();
+    var m = new RegionRequest();
     m.action = GET_REGION;
     m.cacheId = c.getId();
     m.path = path;
@@ -83,7 +83,7 @@ public class RegionRequest extends AdminRequest {
    */
   public static RegionRequest createForCreateRoot(CacheInfo c, String name,
       RegionAttributes attrs) {
-    RegionRequest m = new RegionRequest();
+    var m = new RegionRequest();
     m.action = CREATE_VM_ROOT;
     m.cacheId = c.getId();
     m.newRegionName = name;
@@ -98,7 +98,7 @@ public class RegionRequest extends AdminRequest {
    */
   public static RegionRequest createForCreateSubregion(CacheInfo c, String parentPath, String name,
       RegionAttributes attrs) {
-    RegionRequest m = new RegionRequest();
+    var m = new RegionRequest();
     m.action = CREATE_VM_REGION;
     m.cacheId = c.getId();
     m.path = parentPath;

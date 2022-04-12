@@ -18,7 +18,6 @@ package org.apache.geode.redis.internal.commands.executor.connection;
 import static org.apache.geode.redis.internal.RedisConstants.ERROR_AUTH_CALLED_WITHOUT_SECURITY_CONFIGURED;
 import static org.apache.geode.redis.internal.netty.Coder.bytesToString;
 
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.geode.redis.internal.commands.Command;
@@ -39,7 +38,7 @@ public class AuthExecutor implements CommandExecutor {
       return RedisResponse.error(ERROR_AUTH_CALLED_WITHOUT_SECURITY_CONFIGURED);
     }
 
-    Properties props = getSecurityProperties(command, context);
+    var props = getSecurityProperties(command, context);
     try {
       context.login(props);
     } catch (AuthenticationFailedException | AuthenticationExpiredException ex) {
@@ -50,8 +49,8 @@ public class AuthExecutor implements CommandExecutor {
   }
 
   Properties getSecurityProperties(Command command, ExecutionHandlerContext context) {
-    Properties properties = new Properties();
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var properties = new Properties();
+    var commandElems = command.getProcessedCommand();
     if (commandElems.size() == 2) {
       properties.setProperty(SecurityManager.USER_NAME, context.getRedisUsername());
       properties.setProperty(SecurityManager.PASSWORD, bytesToString(commandElems.get(1)));

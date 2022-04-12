@@ -24,7 +24,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
@@ -55,7 +54,7 @@ public class IndexRepositoryFactoryIntegrationTest {
   @Before
   public void setUp() {
     cache = new CacheFactory().create();
-    String fieldName = "field1";
+    var fieldName = "field1";
     LuceneServiceProvider.get(cache)
         .createIndexFactory()
         .setFields(fieldName)
@@ -77,7 +76,7 @@ public class IndexRepositoryFactoryIntegrationTest {
 
   @After
   public void tearDown() {
-    ExecutorService lonerDistributionThreads =
+    var lonerDistributionThreads =
         ((InternalCache) cache).getDistributionManager().getExecutors().getThreadPool();
     PartitionedRepositoryManager.indexRepositoryFactory = new IndexRepositoryFactory();
     if (cache != null) {

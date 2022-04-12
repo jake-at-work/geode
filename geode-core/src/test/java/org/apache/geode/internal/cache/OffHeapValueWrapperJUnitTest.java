@@ -30,12 +30,11 @@ import org.apache.geode.internal.offheap.MemoryAllocatorImpl;
 import org.apache.geode.internal.offheap.NullOffHeapMemoryStats;
 import org.apache.geode.internal.offheap.NullOutOfOffHeapMemoryListener;
 import org.apache.geode.internal.offheap.SlabImpl;
-import org.apache.geode.internal.offheap.StoredObject;
 
 public class OffHeapValueWrapperJUnitTest {
 
   private OffHeapValueWrapper createChunkValueWrapper(byte[] bytes, boolean isSerialized) {
-    StoredObject c =
+    var c =
         MemoryAllocatorImpl.getAllocator().allocateAndInitialize(bytes, isSerialized, false);
     return new OffHeapValueWrapper(c);
   }
@@ -77,9 +76,9 @@ public class OffHeapValueWrapperJUnitTest {
 
   @Test
   public void testSendTo() throws IOException {
-    final ByteBuffer bb = ByteBuffer.allocateDirect(18);
+    final var bb = ByteBuffer.allocateDirect(18);
     bb.limit(8);
-    OffHeapValueWrapper vw = createChunkValueWrapper(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}, false);
+    var vw = createChunkValueWrapper(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}, false);
     vw.sendTo(bb, new Flushable() {
       @Override
       public void flush() throws IOException {
@@ -105,7 +104,7 @@ public class OffHeapValueWrapperJUnitTest {
     bb.clear();
     bb.limit(8);
     vw = createChunkValueWrapper(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}, false);
-    final int[] flushCalls = new int[1];
+    final var flushCalls = new int[1];
     vw.sendTo(bb, new Flushable() {
       @Override
       public void flush() throws IOException {
@@ -114,7 +113,7 @@ public class OffHeapValueWrapperJUnitTest {
         }
         flushCalls[0]++;
         assertEquals(8, bb.position());
-        for (int i = 0; i < 8; i++) {
+        for (var i = 0; i < 8; i++) {
           assertEquals(i + 1, bb.get(i));
         }
         bb.clear();
@@ -142,7 +141,7 @@ public class OffHeapValueWrapperJUnitTest {
           fail("expected flush to only be called twice");
         }
         assertEquals(8, bb.position());
-        for (int i = 0; i < 8; i++) {
+        for (var i = 0; i < 8; i++) {
           assertEquals((flushCalls[0] * 8) + i + 1, bb.get(i));
         }
         flushCalls[0]++;
@@ -178,7 +177,7 @@ public class OffHeapValueWrapperJUnitTest {
         bb.flip();
         assertEquals(0, bb.get());
         assertEquals(19, chunkbb.remaining());
-        for (int i = 1; i <= 19; i++) {
+        for (var i = 1; i <= 19; i++) {
           assertEquals(i, chunkbb.get());
         }
       }

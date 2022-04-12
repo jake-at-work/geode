@@ -27,18 +27,18 @@ public class LuceneDistributedTestUtilities extends LuceneTestUtilities {
 
   public static Region initDataStoreForFixedPR(final Cache cache) throws Exception {
     List<FixedPartitionAttributes> fpaList = new ArrayList<>();
-    int vmNum = VM.getCurrentVMNum();
+    var vmNum = VM.getCurrentVMNum();
     if (vmNum % 2 == 0) {
-      FixedPartitionAttributes fpa1 = FixedPartitionAttributes.createFixedPartition(Quarter1, true);
-      FixedPartitionAttributes fpa2 =
+      var fpa1 = FixedPartitionAttributes.createFixedPartition(Quarter1, true);
+      var fpa2 =
           FixedPartitionAttributes.createFixedPartition(Quarter2, false);
       fpaList.clear();
       fpaList.add(fpa1);
       fpaList.add(fpa2);
     } else {
-      FixedPartitionAttributes fpa1 =
+      var fpa1 =
           FixedPartitionAttributes.createFixedPartition(Quarter1, false);
-      FixedPartitionAttributes fpa2 = FixedPartitionAttributes.createFixedPartition(Quarter2, true);
+      var fpa2 = FixedPartitionAttributes.createFixedPartition(Quarter2, true);
       fpaList.clear();
       fpaList.add(fpa1);
       fpaList.add(fpa2);

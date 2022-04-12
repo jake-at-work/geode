@@ -238,7 +238,7 @@ public class CacheServerStats implements MessageStats {
       // Create statistics later when needed
       return;
     }
-    StatisticDescriptor[] serverStatDescriptors = new StatisticDescriptor[] {
+    var serverStatDescriptors = new StatisticDescriptor[] {
         statisticsFactory.createIntCounter("getRequests", "Number of cache client get requests.",
             "operations"),
         statisticsFactory.createLongCounter("readGetRequestTime",
@@ -477,7 +477,7 @@ public class CacheServerStats implements MessageStats {
         statisticsFactory.createDoubleGauge("loadPerQueue",
             "The estimate of how much load is added for each new connection as reported by the load probe installed in this server",
             "load")};
-    StatisticDescriptor[] alldescriptors = serverStatDescriptors;
+    var alldescriptors = serverStatDescriptors;
     if (descriptors != null) {
       alldescriptors = new StatisticDescriptor[descriptors.length + serverStatDescriptors.length];
       System.arraycopy(descriptors, 0, alldescriptors, 0, descriptors.length);

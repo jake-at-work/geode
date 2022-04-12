@@ -69,9 +69,9 @@ public class DiskBackupStatusImpl implements DiskBackupStatus {
       Map<DistributedMember, Set<PersistentID>> backedUpDiskStores) {
     Map<String, String[]> diskStores = new HashMap<>();
     backedUpDiskStores.entrySet().forEach(entry -> {
-      DistributedMember member = entry.getKey();
-      Set<PersistentID> ids = entry.getValue();
-      String[] setOfDiskStr = new String[ids.size()];
+      var member = entry.getKey();
+      var ids = entry.getValue();
+      var setOfDiskStr = new String[ids.size()];
       entry.getValue().stream().map(PersistentID::getDirectory).collect(Collectors.toList())
           .toArray(setOfDiskStr);
       diskStores.put(member.getId(), setOfDiskStr);
@@ -84,7 +84,7 @@ public class DiskBackupStatusImpl implements DiskBackupStatus {
    * occurred.
    */
   public void generateOfflineDiskStores(Set<PersistentID> offLineDiskStores) {
-    String[] diskStores = new String[offLineDiskStores.size()];
+    var diskStores = new String[offLineDiskStores.size()];
     offLineDiskStores.stream().map(PersistentID::getDirectory).collect(Collectors.toList())
         .toArray(diskStores);
     setOfflineDiskStores(diskStores);

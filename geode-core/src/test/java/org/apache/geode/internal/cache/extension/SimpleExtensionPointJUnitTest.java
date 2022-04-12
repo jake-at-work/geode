@@ -20,7 +20,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,7 +41,7 @@ public class SimpleExtensionPointJUnitTest {
    */
   @Test
   public void testSimpleExtensionPoint() {
-    final MockImpl m = new MockImpl();
+    final var m = new MockImpl();
     assertSame(m.extensionPoint.extensible, m.extensionPoint.target);
     assertNotNull(m.extensionPoint.extensions);
     assertNotNull(m.extensionPoint.iterable);
@@ -53,16 +52,16 @@ public class SimpleExtensionPointJUnitTest {
    */
   @Test
   public void testGetExtensions() {
-    final MockImpl m = new MockImpl();
+    final var m = new MockImpl();
 
     assertEquals(0, m.extensionPoint.extensions.size());
     assertTrue(!m.extensionPoint.iterable.iterator().hasNext());
 
-    final Iterable<Extension<MockInterface>> extensions = m.getExtensionPoint().getExtensions();
+    final var extensions = m.getExtensionPoint().getExtensions();
     assertNotNull(extensions);
 
     // extensions should be empty
-    final Iterator<Extension<MockInterface>> iterator = extensions.iterator();
+    final var iterator = extensions.iterator();
     assertTrue(!iterator.hasNext());
     try {
       iterator.next();
@@ -77,18 +76,18 @@ public class SimpleExtensionPointJUnitTest {
    */
   @Test
   public void testAddExtension() {
-    final MockImpl m = new MockImpl();
-    final MockExtension extension = new MockExtension();
+    final var m = new MockImpl();
+    final var extension = new MockExtension();
 
     m.getExtensionPoint().addExtension(extension);
     assertEquals(1, m.extensionPoint.extensions.size());
 
-    final Iterable<Extension<MockInterface>> extensions = m.getExtensionPoint().getExtensions();
+    final var extensions = m.getExtensionPoint().getExtensions();
     assertNotNull(extensions);
-    final Iterator<Extension<MockInterface>> iterator = extensions.iterator();
+    final var iterator = extensions.iterator();
 
     // first and only entry should be our extension.
-    final Extension<MockInterface> actual = iterator.next();
+    final var actual = iterator.next();
     assertSame(extension, actual);
 
     // should only be one extension in the iterator.
@@ -105,17 +104,17 @@ public class SimpleExtensionPointJUnitTest {
    */
   @Test
   public void testRemoveExtension() {
-    final MockImpl m = new MockImpl();
-    final MockExtension extension = new MockExtension();
+    final var m = new MockImpl();
+    final var extension = new MockExtension();
     m.getExtensionPoint().addExtension(extension);
 
-    final Iterable<Extension<MockInterface>> extensions = m.getExtensionPoint().getExtensions();
+    final var extensions = m.getExtensionPoint().getExtensions();
     assertNotNull(extensions);
 
-    final Iterator<Extension<MockInterface>> i = extensions.iterator();
+    final var i = extensions.iterator();
 
     // first and only entry should be our extension.
-    final Extension<MockInterface> actual = i.next();
+    final var actual = i.next();
     assertSame(extension, actual);
 
     // should not be able to remove it via iterator.
@@ -130,7 +129,7 @@ public class SimpleExtensionPointJUnitTest {
     assertEquals(0, m.extensionPoint.extensions.size());
 
     // extensions should be empty
-    final Iterable<Extension<MockInterface>> extensionsRemoved =
+    final var extensionsRemoved =
         m.getExtensionPoint().getExtensions();
     try {
       extensionsRemoved.iterator().next();
@@ -145,8 +144,8 @@ public class SimpleExtensionPointJUnitTest {
    */
   @Test
   public void testGetTarget() {
-    final MockImpl m = new MockImpl();
-    final MockInterface a = m.getExtensionPoint().getTarget();
+    final var m = new MockImpl();
+    final var a = m.getExtensionPoint().getTarget();
 
     assertSame(m, a);
   }
@@ -156,9 +155,9 @@ public class SimpleExtensionPointJUnitTest {
    */
   @Test
   public void testFireCreate() {
-    final MockImpl m = new MockImpl();
-    final AtomicInteger counter = new AtomicInteger(0);
-    final MockExtension extension = new MockExtension() {
+    final var m = new MockImpl();
+    final var counter = new AtomicInteger(0);
+    final var extension = new MockExtension() {
       @Override
       public void onCreate(Extensible<MockInterface> source, Extensible<MockInterface> target) {
         counter.incrementAndGet();
@@ -183,10 +182,10 @@ public class SimpleExtensionPointJUnitTest {
    */
   @Test
   public void testBeforeCreate() {
-    final MockImpl m = new MockImpl();
+    final var m = new MockImpl();
     final Cache c = Fakes.cache();
-    final AtomicInteger counter = new AtomicInteger(0);
-    final MockExtension extension = new MockExtension() {
+    final var counter = new AtomicInteger(0);
+    final var extension = new MockExtension() {
       @Override
       public void beforeCreate(Extensible<MockInterface> source, Cache cache) {
         counter.incrementAndGet();

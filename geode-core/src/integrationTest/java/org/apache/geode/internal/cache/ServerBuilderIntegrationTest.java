@@ -34,7 +34,6 @@ import org.mockito.junit.MockitoRule;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
-import org.apache.geode.internal.cache.tier.Acceptor;
 import org.apache.geode.internal.statistics.StatisticsClockFactory;
 import org.apache.geode.test.junit.categories.ClientServerTest;
 
@@ -72,7 +71,7 @@ public class ServerBuilderIntegrationTest {
 
     server.start();
 
-    Acceptor acceptor = server.getAcceptor();
+    var acceptor = server.getAcceptor();
     assertThat(acceptor.isGatewayReceiver()).isFalse();
   }
 
@@ -88,14 +87,14 @@ public class ServerBuilderIntegrationTest {
 
     server.start();
 
-    Acceptor acceptor = server.getAcceptor();
+    var acceptor = server.getAcceptor();
     assertThat(acceptor.isGatewayReceiver()).isTrue();
   }
 
   @Test
   public void byDefaultCreatesServerWithMembershipGroup() {
     cache.close();
-    String membershipGroup = "group-m0";
+    var membershipGroup = "group-m0";
     cache = (InternalCache) new CacheFactory().set(GROUPS, membershipGroup).create();
     server = new ServerBuilder(cache, cache.getSecurityService(),
         StatisticsClockFactory.disabledClock())
@@ -109,7 +108,7 @@ public class ServerBuilderIntegrationTest {
     when(gatewayReceiver.getGatewayTransportFilters())
         .thenReturn(singletonList(mock(GatewayTransportFilter.class)));
     cache.close();
-    String membershipGroup = "group-m0";
+    var membershipGroup = "group-m0";
     cache = (InternalCache) new CacheFactory().set(GROUPS, membershipGroup).create();
     server = new ServerBuilder(cache, cache.getSecurityService(),
         StatisticsClockFactory.disabledClock())

@@ -18,7 +18,6 @@ package org.apache.geode.pdx.internal;
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
-import org.apache.geode.StatisticsType;
 
 class TypeRegistrationStatistics {
   static final String TYPE_DEFINED = "typeDefined";
@@ -38,7 +37,7 @@ class TypeRegistrationStatistics {
       final TypeRegistration typeRegistration) {
     this.typeRegistration = typeRegistration;
 
-    final StatisticsType statisticsType =
+    final var statisticsType =
         statisticsFactory.createType("PdxTypeRegistration", "PDX type registration statistics.",
             new StatisticDescriptor[] {
                 statisticsFactory.createLongCounter(TYPE_DEFINED, "Number of PDX types defined.",

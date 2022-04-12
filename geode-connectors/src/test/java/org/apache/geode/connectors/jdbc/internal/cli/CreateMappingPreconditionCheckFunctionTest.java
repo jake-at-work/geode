@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -121,7 +120,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(context.getMemberName()).thenReturn(MEMBER_NAME);
 
     dataSource = mock(DataSource.class);
-    Connection connection = mock(Connection.class);
+    var connection = mock(Connection.class);
     when(dataSource.getConnection()).thenReturn(connection);
     when(typeRegistry.getExistingTypeForClass(PdxClassDummy.class)).thenReturn(pdxType);
     tableMetaDataManager = mock(TableMetaDataManager.class);
@@ -170,7 +169,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
   public void executeFunctionThrowsIfDataSourceDoesNotExist() {
     doReturn(null).when(function).getDataSource(DATA_SOURCE_NAME);
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessage("JDBC data-source named \"" + DATA_SOURCE_NAME
@@ -180,20 +179,20 @@ public class CreateMappingPreconditionCheckFunctionTest {
 
   @Test
   public void executeFunctionThrowsIfDataSourceGetConnectionThrows() throws SQLException {
-    String reason = "connection failed";
+    var reason = "connection failed";
     when(dataSource.getConnection()).thenThrow(new SQLException(reason));
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class).hasMessageContaining(reason);
   }
 
   @Test
   public void executeFunctionThrowsIfClassNotFound() throws ClassNotFoundException {
-    ClassNotFoundException ex = new ClassNotFoundException("class not found");
+    var ex = new ClassNotFoundException("class not found");
     doThrow(ex).when(function).loadClass(PDX_CLASS_NAME);
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessage("The pdx class \"" + PDX_CLASS_NAME
@@ -205,10 +204,10 @@ public class CreateMappingPreconditionCheckFunctionTest {
     Set<String> columnNames = Collections.emptySet();
     when(tableMetaDataView.getColumnNames()).thenReturn(columnNames);
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
-    ArrayList<FieldMapping> fieldsMappings = getFieldMappings(result);
+    var fieldsMappings = getFieldMappings(result);
     assertThat(fieldsMappings).isEmpty();
   }
 
@@ -221,19 +220,19 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(tableMetaDataView.isColumnNullable("col2")).thenReturn(true);
     when(tableMetaDataView.getColumnDataType("col2")).thenReturn(JDBCType.DATE);
     when(pdxType.getFieldCount()).thenReturn(2);
-    PdxField field1 = mock(PdxField.class);
+    var field1 = mock(PdxField.class);
     when(field1.getFieldName()).thenReturn("col1");
     when(field1.getFieldType()).thenReturn(FieldType.DATE);
-    PdxField field2 = mock(PdxField.class);
+    var field2 = mock(PdxField.class);
     when(field2.getFieldName()).thenReturn("col2");
     when(field2.getFieldType()).thenReturn(FieldType.DATE);
-    List<PdxField> pdxFields = Arrays.asList(field1, field2);
+    var pdxFields = Arrays.asList(field1, field2);
     when(pdxType.getFields()).thenReturn(pdxFields);
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
-    ArrayList<FieldMapping> fieldsMappings = getFieldMappings(result);
+    var fieldsMappings = getFieldMappings(result);
     assertThat(fieldsMappings).hasSize(2);
     assertThat(fieldsMappings.get(0))
         .isEqualTo(
@@ -249,16 +248,16 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(tableMetaDataView.getColumnNames()).thenReturn(columnNames);
     when(tableMetaDataView.isColumnNullable("col1")).thenReturn(false);
     when(tableMetaDataView.getColumnDataType("col1")).thenReturn(JDBCType.DATE);
-    PdxField pdxField1 = mock(PdxField.class);
+    var pdxField1 = mock(PdxField.class);
     when(pdxField1.getFieldName()).thenReturn("COL1");
     when(pdxField1.getFieldType()).thenReturn(FieldType.LONG);
     when(pdxType.getFieldCount()).thenReturn(1);
     when(pdxType.getFields()).thenReturn(singletonList(pdxField1));
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
-    ArrayList<FieldMapping> fieldsMappings = getFieldMappings(result);
+    var fieldsMappings = getFieldMappings(result);
     assertThat(fieldsMappings).hasSize(1);
     assertThat(fieldsMappings.get(0))
         .isEqualTo(
@@ -271,7 +270,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(tableMetaDataView.getColumnNames()).thenReturn(columnNames);
     when(tableMetaDataView.isColumnNullable("col1")).thenReturn(false);
     when(tableMetaDataView.getColumnDataType("col1")).thenReturn(JDBCType.DATE);
-    PdxField pdxField1 = mock(PdxField.class);
+    var pdxField1 = mock(PdxField.class);
     when(pdxField1.getFieldName()).thenReturn("COL1");
     when(pdxField1.getFieldType()).thenReturn(FieldType.LONG);
     when(pdxType.getFieldCount()).thenReturn(1);
@@ -279,11 +278,11 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(typeRegistry.getExistingTypeForClass(PdxClassDummy.class)).thenReturn(null)
         .thenReturn(pdxType);
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
     verify(cache).registerPdxMetaData(any());
-    ArrayList<FieldMapping> fieldsMappings = getFieldMappings(result);
+    var fieldsMappings = getFieldMappings(result);
     assertThat(fieldsMappings).hasSize(1);
     assertThat(fieldsMappings.get(0))
         .isEqualTo(
@@ -297,7 +296,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(tableMetaDataView.getColumnNames()).thenReturn(columnNames);
     when(tableMetaDataView.isColumnNullable("col1")).thenReturn(false);
     when(tableMetaDataView.getColumnDataType("col1")).thenReturn(JDBCType.DATE);
-    PdxField pdxField1 = mock(PdxField.class);
+    var pdxField1 = mock(PdxField.class);
     when(pdxField1.getFieldName()).thenReturn("COL1");
     when(pdxField1.getFieldType()).thenReturn(FieldType.LONG);
     when(pdxType.getFieldCount()).thenReturn(1);
@@ -305,7 +304,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
     doReturn(PdxClassDummyNoZeroArg.class).when(function).loadClass(PDX_CLASS_NAME);
     when(typeRegistry.getExistingTypeForClass(PdxClassDummyNoZeroArg.class)).thenReturn(null);
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessage(
@@ -318,29 +317,29 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(tableMetaDataView.getColumnNames()).thenReturn(columnNames);
     when(tableMetaDataView.isColumnNullable("col1")).thenReturn(false);
     when(tableMetaDataView.getColumnDataType("col1")).thenReturn(JDBCType.DATE);
-    PdxField pdxField1 = mock(PdxField.class);
+    var pdxField1 = mock(PdxField.class);
     when(pdxField1.getFieldName()).thenReturn("COL1");
     when(pdxField1.getFieldType()).thenReturn(FieldType.LONG);
     when(pdxType.getFieldCount()).thenReturn(1);
     when(pdxType.getFields()).thenReturn(singletonList(pdxField1));
     when(typeRegistry.getExistingTypeForClass(PdxClassDummy.class)).thenReturn(null)
         .thenReturn(pdxType);
-    String domainClassNameInAutoSerializer = "\\Q" + PdxClassDummy.class.getName() + "\\E";
-    ReflectionBasedAutoSerializer reflectionedBasedAutoSerializer =
+    var domainClassNameInAutoSerializer = "\\Q" + PdxClassDummy.class.getName() + "\\E";
+    var reflectionedBasedAutoSerializer =
         mock(ReflectionBasedAutoSerializer.class);
-    PdxWriter pdxWriter = mock(PdxWriter.class);
+    var pdxWriter = mock(PdxWriter.class);
     when(reflectionedBasedAutoSerializer.toData(any(), same(pdxWriter))).thenReturn(true);
     doReturn(reflectionedBasedAutoSerializer).when(function)
         .getReflectionBasedAutoSerializer(domainClassNameInAutoSerializer);
     doReturn(pdxWriter).when(function).createPdxWriter(same(typeRegistry), any());
-    SerializationException ex = new SerializationException("test");
+    var ex = new SerializationException("test");
     doThrow(ex).when(cache).registerPdxMetaData(any());
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
     verify(function).getReflectionBasedAutoSerializer(domainClassNameInAutoSerializer);
-    ArrayList<FieldMapping> fieldsMappings = getFieldMappings(result);
+    var fieldsMappings = getFieldMappings(result);
     assertThat(fieldsMappings).hasSize(1);
     assertThat(fieldsMappings.get(0))
         .isEqualTo(
@@ -349,7 +348,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
 
   @SuppressWarnings("unchecked")
   private ArrayList<FieldMapping> getFieldMappings(CliFunctionResult result) {
-    Object[] outputs = (Object[]) result.getResultObject();
+    var outputs = (Object[]) result.getResultObject();
     return (ArrayList<FieldMapping>) outputs[1];
   }
 
@@ -359,27 +358,27 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(tableMetaDataView.getColumnNames()).thenReturn(columnNames);
     when(tableMetaDataView.isColumnNullable("col1")).thenReturn(false);
     when(tableMetaDataView.getColumnDataType("col1")).thenReturn(JDBCType.DATE);
-    PdxField pdxField1 = mock(PdxField.class);
+    var pdxField1 = mock(PdxField.class);
     when(pdxField1.getFieldName()).thenReturn("COL1");
     when(pdxField1.getFieldType()).thenReturn(FieldType.LONG);
     when(pdxType.getFieldCount()).thenReturn(1);
     when(pdxType.getFields()).thenReturn(singletonList(pdxField1));
     when(typeRegistry.getExistingTypeForClass(PdxClassDummy.class)).thenReturn(null)
         .thenReturn(pdxType);
-    String domainClassNameInAutoSerializer = "\\Q" + PdxClassDummy.class.getName() + "\\E";
-    ReflectionBasedAutoSerializer reflectionedBasedAutoSerializer =
+    var domainClassNameInAutoSerializer = "\\Q" + PdxClassDummy.class.getName() + "\\E";
+    var reflectionedBasedAutoSerializer =
         mock(ReflectionBasedAutoSerializer.class);
-    PdxWriter pdxWriter = mock(PdxWriter.class);
+    var pdxWriter = mock(PdxWriter.class);
     when(reflectionedBasedAutoSerializer.toData(any(), same(pdxWriter))).thenReturn(false);
     doReturn(reflectionedBasedAutoSerializer).when(function)
         .getReflectionBasedAutoSerializer(domainClassNameInAutoSerializer);
-    SerializationException ex = new SerializationException("test");
+    var ex = new SerializationException("test");
     doThrow(ex).when(cache).registerPdxMetaData(any());
     doReturn(reflectionedBasedAutoSerializer).when(function)
         .getReflectionBasedAutoSerializer(PdxClassDummy.class.getName());
     doReturn(pdxWriter).when(function).createPdxWriter(same(typeRegistry), any());
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessage(
@@ -393,15 +392,15 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(tableMetaDataView.isColumnNullable("col1")).thenReturn(false);
     when(tableMetaDataView.getColumnDataType("col1")).thenReturn(JDBCType.DATE);
     when(pdxType.getFieldCount()).thenReturn(1);
-    PdxField pdxField1 = mock(PdxField.class);
+    var pdxField1 = mock(PdxField.class);
     when(pdxField1.getFieldName()).thenReturn("COL1");
     when(pdxField1.getFieldType()).thenReturn(FieldType.DATE);
-    PdxField pdxField2 = mock(PdxField.class);
+    var pdxField2 = mock(PdxField.class);
     when(pdxField2.getFieldName()).thenReturn("Col1");
     when(pdxField2.getFieldType()).thenReturn(FieldType.DATE);
     when(pdxType.getFields()).thenReturn(Arrays.asList(pdxField1, pdxField2));
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessage("More than one PDX field name matched the column name \"col1\"");
@@ -414,15 +413,15 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(tableMetaDataView.isColumnNullable("col1")).thenReturn(false);
     when(tableMetaDataView.getColumnDataType("col1")).thenReturn(JDBCType.DATE);
     when(pdxType.getFieldCount()).thenReturn(1);
-    PdxField pdxField1 = mock(PdxField.class);
+    var pdxField1 = mock(PdxField.class);
     when(pdxField1.getFieldName()).thenReturn("pdxCOL1");
     when(pdxField1.getFieldType()).thenReturn(FieldType.DATE);
-    PdxField pdxField2 = mock(PdxField.class);
+    var pdxField2 = mock(PdxField.class);
     when(pdxField2.getFieldName()).thenReturn("pdxCol1");
     when(pdxField2.getFieldType()).thenReturn(FieldType.DATE);
     when(pdxType.getFields()).thenReturn(Arrays.asList(pdxField1, pdxField2));
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessage("No PDX field name matched the column name \"col1\"");
@@ -436,7 +435,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(tableMetaDataView.getColumnDataType("col1")).thenReturn(JDBCType.DATE);
     when(pdxType.getFieldCount()).thenReturn(2);
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessage(
@@ -447,7 +446,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
   public void executeFunctionReturnsResultWithCorrectMemberName() {
     when(regionMapping.getIds()).thenReturn("myId");
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getMemberIdOrName()).isEqualTo(MEMBER_NAME);
@@ -457,10 +456,10 @@ public class CreateMappingPreconditionCheckFunctionTest {
   public void executeFunctionReturnsNullInSlotZeroIfRegionMappingHasIds() {
     when(regionMapping.getIds()).thenReturn("myId");
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
-    Object[] outputs = (Object[]) result.getResultObject();
+    var outputs = (Object[]) result.getResultObject();
     assertThat(outputs[0]).isNull();
   }
 
@@ -469,10 +468,10 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(regionMapping.getIds()).thenReturn(null);
     when(tableMetaDataView.getKeyColumnNames()).thenReturn(Arrays.asList("keyCol1", "keyCol2"));
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
-    Object[] outputs = (Object[]) result.getResultObject();
+    var outputs = (Object[]) result.getResultObject();
     assertThat(outputs[0]).isEqualTo("keyCol1,keyCol2");
   }
 
@@ -481,10 +480,10 @@ public class CreateMappingPreconditionCheckFunctionTest {
     when(regionMapping.getIds()).thenReturn("");
     when(tableMetaDataView.getKeyColumnNames()).thenReturn(singletonList("keyCol1"));
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
-    Object[] outputs = (Object[]) result.getResultObject();
+    var outputs = (Object[]) result.getResultObject();
     assertThat(outputs[0]).isEqualTo("keyCol1");
   }
 
@@ -496,7 +495,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
     setupInputArgs();
     doThrow(ClassNotFoundException.class).when(function).loadClass(eq(PDX_CLASS_NAME), any());
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessageContaining(
@@ -514,7 +513,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
     setupInputArgs();
     doThrow(IOException.class).when(function).createTempDirectory(any());
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessageContaining(
@@ -532,7 +531,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
     setupInputArgs();
     doThrow(IOException.class).when(function).copyFile(any(), any());
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessageContaining(
@@ -550,11 +549,11 @@ public class CreateMappingPreconditionCheckFunctionTest {
     remoteInputStreamName = "remoteInputStreamName.class";
     remoteInputStream = mock(RemoteInputStream.class);
     setupInputArgs();
-    String PDX_CLASS_NAME_WITH_PACKAGE = "foo.bar.MyPdxClassName";
+    var PDX_CLASS_NAME_WITH_PACKAGE = "foo.bar.MyPdxClassName";
     when(regionMapping.getPdxName()).thenReturn(PDX_CLASS_NAME_WITH_PACKAGE);
     doReturn(PdxClassDummy.class).when(function).loadClass(eq(PDX_CLASS_NAME_WITH_PACKAGE), any());
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
     verify(function).createTemporaryDirectory(any());
@@ -569,7 +568,7 @@ public class CreateMappingPreconditionCheckFunctionTest {
     setupInputArgs();
     doReturn(PdxClassDummy.class).when(function).loadClass(eq(PDX_CLASS_NAME), any());
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
     verify(function).createTemporaryDirectory(any());

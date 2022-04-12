@@ -36,7 +36,7 @@ public class MyAsyncEventListener implements AsyncEventListener, Declarable {
 
   @Override
   public synchronized boolean processEvents(List<AsyncEvent> events) {
-    for (AsyncEvent event : events) {
+    for (var event : events) {
       if (eventsMap.containsKey(event.getKey())) {
         logger.debug("This is a duplicate event --> {}", event.getKey());
       }

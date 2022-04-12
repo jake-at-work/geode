@@ -35,7 +35,6 @@ import org.springframework.web.client.ResourceAccessException;
 
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.management.api.ClusterManagementResult;
-import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.builder.GeodeClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
@@ -71,7 +70,7 @@ public class ClusterManagementServiceOnServerTest implements Serializable {
   @Test
   public void serverHasNoSslPropertyAndDoNotUseDefaultSSL() {
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withProperties(sslProps));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server = cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort));
 
     server.invoke(() -> {
@@ -86,14 +85,14 @@ public class ClusterManagementServiceOnServerTest implements Serializable {
   @Test
   public void serverHasNoSslPropertyAndDoUseIncorrectDefaultSSL() {
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withProperties(sslProps));
-    int locatorPort = locator.getPort();
-    Properties serverProps = new Properties();
+    var locatorPort = locator.getPort();
+    var serverProps = new Properties();
     serverProps.setProperty(SSL_USE_DEFAULT_CONTEXT, "true");
     server = cluster.startServerVM(1,
         s -> s.withConnectionToLocator(locatorPort).withProperties(serverProps));
 
     server.invoke(() -> {
-      ClusterManagementService service = new GeodeClusterManagementServiceBuilder()
+      var service = new GeodeClusterManagementServiceBuilder()
           .setCache(ClusterStartupRule.getCache())
           .build();
       assertThat(service).isNotNull();
@@ -108,8 +107,8 @@ public class ClusterManagementServiceOnServerTest implements Serializable {
   @Test
   public void serverHasNoSslPropertyAndDoUseCorrectDefaultSSL() {
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withProperties(sslProps));
-    int locatorPort = locator.getPort();
-    Properties serverProps = new Properties();
+    var locatorPort = locator.getPort();
+    var serverProps = new Properties();
     serverProps.setProperty(SSL_USE_DEFAULT_CONTEXT, "true");
     server = cluster.startServerVM(1,
         s -> s.withConnectionToLocator(locatorPort).withProperties(serverProps));
@@ -122,7 +121,7 @@ public class ClusterManagementServiceOnServerTest implements Serializable {
       System.setProperty("javax.net.ssl.trustStorePassword", "password");
       System.setProperty("javax.net.ssl.trustStoreType", "JKS");
 
-      ClusterManagementService service =
+      var service =
           new GeodeClusterManagementServiceBuilder()
               .setCache(ClusterStartupRule.getCache())
               .build();
@@ -139,8 +138,8 @@ public class ClusterManagementServiceOnServerTest implements Serializable {
   @Test
   public void useDefaultSSLPropertyTakesPrecedence() {
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withProperties(sslProps));
-    int locatorPort = locator.getPort();
-    Properties serverProps = new Properties(sslProps);
+    var locatorPort = locator.getPort();
+    var serverProps = new Properties(sslProps);
     serverProps.setProperty(SSL_USE_DEFAULT_CONTEXT, "true");
     server = cluster.startServerVM(1,
         s -> s.withConnectionToLocator(locatorPort).withProperties(serverProps));
@@ -148,7 +147,7 @@ public class ClusterManagementServiceOnServerTest implements Serializable {
     server.invoke(() -> {
       // default SSL context not set here, and ssl config inside sslProps is ignored because
       // use_default_ssl_context is true
-      ClusterManagementService service =
+      var service =
           new GeodeClusterManagementServiceBuilder()
               .setCache(ClusterStartupRule.getCache())
               .build();

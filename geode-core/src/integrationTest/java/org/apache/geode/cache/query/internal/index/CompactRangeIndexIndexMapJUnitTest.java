@@ -30,11 +30,7 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.Position;
@@ -70,9 +66,9 @@ public class CompactRangeIndexIndexMapJUnitTest {
   @Test
   public void testLDMIndexCreation() throws Exception {
     Cache cache = CacheUtils.getCache();
-    Region region = createLDMRegion("portfolios");
-    QueryService queryService = cache.getQueryService();
-    Index index =
+    var region = createLDMRegion("portfolios");
+    var queryService = cache.getQueryService();
+    var index =
         queryService.createIndex("IDIndex", "p.ID", SEPARATOR + "portfolios p, p.positions ps");
     assertTrue(index instanceof CompactRangeIndex);
   }
@@ -89,8 +85,8 @@ public class CompactRangeIndexIndexMapJUnitTest {
 
   @Test
   public void testSecondLevelEqualityQuery() throws Exception {
-    boolean oldTestLDMValue = IndexManager.IS_TEST_LDM;
-    boolean oldTestExpansionValue = IndexManager.IS_TEST_EXPANSION;
+    var oldTestLDMValue = IndexManager.IS_TEST_LDM;
+    var oldTestExpansionValue = IndexManager.IS_TEST_EXPANSION;
     testIndexAndQuery("p.ID", SEPARATOR + "portfolios p, p.positions.values ps",
         "Select * from " + SEPARATOR + "portfolios p where p.ID = 1");
     testIndexAndQuery("p.ID", SEPARATOR + "portfolios p, p.positions.values ps",
@@ -106,8 +102,8 @@ public class CompactRangeIndexIndexMapJUnitTest {
 
   @Test
   public void testMultipleSecondLevelMatches() throws Exception {
-    boolean oldTestLDMValue = IndexManager.IS_TEST_LDM;
-    boolean oldTestExpansionValue = IndexManager.IS_TEST_EXPANSION;
+    var oldTestLDMValue = IndexManager.IS_TEST_LDM;
+    var oldTestExpansionValue = IndexManager.IS_TEST_EXPANSION;
     testIndexAndQuery("ps.secId", SEPARATOR + "portfolios p, p.positions.values ps",
         "Select * from " + SEPARATOR
             + "portfolios p, p.positions.values ps where ps.secId = 'VMW'");
@@ -120,24 +116,24 @@ public class CompactRangeIndexIndexMapJUnitTest {
   private void testIndexAndQuery(String indexExpression, String regionPath, String queryString)
       throws Exception {
     Cache cache = CacheUtils.getCache();
-    int numEntries = 20;
-    QueryService queryService = cache.getQueryService();
+    var numEntries = 20;
+    var queryService = cache.getQueryService();
     IndexManager.IS_TEST_LDM = false;
     IndexManager.IS_TEST_EXPANSION = false;
-    Region region = createReplicatedRegion("portfolios");
+    var region = createReplicatedRegion("portfolios");
     createPortfolios(region, numEntries);
 
     // Test no index
     // Index index = queryService.createIndex("IDIndex", indexExpression, regionPath);
-    Query query = queryService.newQuery(queryString);
-    SelectResults noIndexResults = (SelectResults) query.execute();
+    var query = queryService.newQuery(queryString);
+    var noIndexResults = (SelectResults) query.execute();
     // clean up
     queryService.removeIndexes();
 
     // creates indexes that may be used by the queries
-    Index index = queryService.createIndex("IDIndex", indexExpression, regionPath);
+    var index = queryService.createIndex("IDIndex", indexExpression, regionPath);
     query = queryService.newQuery(queryString);
-    SelectResults memResults = (SelectResults) query.execute();
+    var memResults = (SelectResults) query.execute();
     // clean up
     queryService.removeIndexes();
     region.destroyRegion();
@@ -151,7 +147,7 @@ public class CompactRangeIndexIndexMapJUnitTest {
 
     index = queryService.createIndex("IDIndex", indexExpression, regionPath);
     query = queryService.newQuery(queryString);
-    SelectResults ldmResults = (SelectResults) query.execute();
+    var ldmResults = (SelectResults) query.execute();
 
     assertEquals("Size for no index and index results should be equal", noIndexResults.size(),
         memResults.size());
@@ -159,7 +155,7 @@ public class CompactRangeIndexIndexMapJUnitTest {
         ldmResults.size());
     CacheUtils.log("Size is:" + memResults.size());
     // now check elements for both
-    for (Object o : ldmResults) {
+    for (var o : ldmResults) {
       assertTrue(memResults.contains(o));
     }
     queryService.removeIndexes();
@@ -173,23 +169,23 @@ public class CompactRangeIndexIndexMapJUnitTest {
   private Region createLDMRegion(String regionName) throws ParseException {
     IndexManager.IS_TEST_LDM = true;
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     return cache.createRegion(regionName, regionAttributes);
   }
 
   private Region createReplicatedRegion(String regionName) throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     return cache.createRegion(regionName, regionAttributes);
   }
 
   private void createPortfolios(Region region, int num) {
-    for (int i = 0; i < num; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 0; i < num; i++) {
+      var p = new Portfolio(i);
       p.positions = new HashMap();
       p.positions.put("VMW", new Position("VMW", Position.cnt * 1000));
       p.positions.put("IBM", new Position("IBM", Position.cnt * 1000));

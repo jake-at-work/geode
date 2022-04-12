@@ -149,7 +149,7 @@ public class PdxInputStream extends ImmutableByteBufferInputStream {
   }
 
   public Date readDate(int offset) {
-    long time = readLong(offset);
+    var time = readLong(offset);
     return convertLongToDate(time);
   }
 
@@ -347,7 +347,7 @@ public class PdxInputStream extends ImmutableByteBufferInputStream {
   }
 
   public Date readDate() {
-    long time = readLong();
+    var time = readLong();
     return convertLongToDate(time);
   }
 

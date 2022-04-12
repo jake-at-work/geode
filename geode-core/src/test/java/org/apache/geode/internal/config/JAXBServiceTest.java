@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -62,7 +61,7 @@ public class JAXBServiceTest {
 
   @Test
   public void getPackagesToScanWithoutSystemProperty() {
-    Set<String> packages = JAXBService.getPackagesToScan();
+    var packages = JAXBService.getPackagesToScan();
     assertThat(packages).containsExactly("*");
   }
 
@@ -70,13 +69,13 @@ public class JAXBServiceTest {
   public void getPackagesToScanWithSystemProperty() {
     System.setProperty("geode." + SystemPropertyHelper.PACKAGES_TO_SCAN,
         "org.apache.geode,io.pivotal");
-    Set<String> packages = JAXBService.getPackagesToScan();
+    var packages = JAXBService.getPackagesToScan();
     assertThat(packages).containsExactly("org.apache.geode", "io.pivotal");
   }
 
   @Test
   public void testCacheMarshall() {
-    CacheConfig cacheConfig = new CacheConfig();
+    var cacheConfig = new CacheConfig();
     setBasicValues(cacheConfig);
 
     xml = service.marshall(cacheConfig);
@@ -93,7 +92,7 @@ public class JAXBServiceTest {
 
   @Test
   public void invalidXmlShouldFail() {
-    CacheConfig cacheConfig = new CacheConfig();
+    var cacheConfig = new CacheConfig();
     // missing version attribute
     assertThatThrownBy(() -> service.marshall(cacheConfig))
         .hasStackTraceContaining("Attribute 'version' must appear on element 'cache'");
@@ -101,7 +100,7 @@ public class JAXBServiceTest {
 
   @Test
   public void testCacheOneMarshall() {
-    CacheConfig cache = new CacheConfig();
+    var cache = new CacheConfig();
     setBasicValues(cache);
     cache.getCustomCacheElements().add(new ElementOne("test"));
 
@@ -114,7 +113,7 @@ public class JAXBServiceTest {
 
   @Test
   public void testMixMarshall() {
-    CacheConfig cache = new CacheConfig();
+    var cache = new CacheConfig();
     setBasicValues(cache);
     cache.getCustomCacheElements().add(new ElementOne("testOne"));
 
@@ -137,12 +136,12 @@ public class JAXBServiceTest {
 
   @Test
   public void xmlWithCustomElementsCanBeUnMarshalledByAnotherService() {
-    CacheConfig cache = new CacheConfig();
+    var cache = new CacheConfig();
     setBasicValues(cache);
     cache.getCustomCacheElements().add(new ElementOne("test"));
     cache.getCustomCacheElements().add(new ElementTwo("test"));
 
-    String prettyXml = service.marshall(cache);
+    var prettyXml = service.marshall(cache);
     System.out.println(prettyXml);
 
     CacheConfig cacheConfig = service2.unMarshall(prettyXml);
@@ -150,33 +149,33 @@ public class JAXBServiceTest {
     assertThat(elements.get(0)).isNotInstanceOf(ElementOne.class);
     assertThat(elements.get(1)).isNotInstanceOf(ElementTwo.class);
 
-    String uglyXml = service2.marshall(cacheConfig);
+    var uglyXml = service2.marshall(cacheConfig);
     System.out.println(uglyXml);
     assertThat(uglyXml).isNotEqualTo(prettyXml);
 
     // the xml can be unmarshalled correctly by the first service
-    String newXml = service.marshall(service.unMarshall(uglyXml));
+    var newXml = service.marshall(service.unMarshall(uglyXml));
     assertThat(newXml).isEqualTo(prettyXml);
   }
 
   @Test
   public void unmarshallPartialElement() {
-    String xml = "<region name=\"one\">\n"
+    var xml = "<region name=\"one\">\n"
         + "        <region-attributes scope=\"distributed-ack\" data-policy=\"replicate\"/>\n"
         + "    </region>";
 
-    RegionConfig config = service2.unMarshall(xml, RegionConfig.class);
+    var config = service2.unMarshall(xml, RegionConfig.class);
     assertThat(config.getName()).isEqualTo("one");
   }
 
   @Test
   public void unmarshallAnyElement() {
-    String xml = "<region name=\"one\">\n"
+    var xml = "<region name=\"one\">\n"
         + "        <region-attributes scope=\"distributed-ack\" data-policy=\"replicate\"/>\n"
         + "        <custom:any xmlns:custom=\"http://geode.apache.org/schema/custom\" id=\"any\"/>"
         + "    </region>";
 
-    RegionConfig config = service2.unMarshall(xml, RegionConfig.class);
+    var config = service2.unMarshall(xml, RegionConfig.class);
     assertThat(config.getName()).isEqualTo("one");
     assertThat(config.getCustomRegionElements()).hasSize(1);
   }
@@ -184,7 +183,7 @@ public class JAXBServiceTest {
   @Test
   public void unmarshallIgnoresUnknownProperties() {
     // say xml has a type attribute that is removed in the new version
-    String existingXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+    var existingXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
         + "<cache version=\"1.0\" xsi:schemaLocation=\"http://geode.apache.org/schema/cache "
         + "http://geode.apache.org/schema/cache/cache-1.0.xsd\" "
         + "xmlns=\"http://geode.apache.org/schema/cache\" "
@@ -200,7 +199,7 @@ public class JAXBServiceTest {
 
   @Test
   public void marshalOlderNameSpace() {
-    String xml =
+    var xml =
         "<cache xsi:schemaLocation=\"http://schema.pivotal.io/gemfire/cache http://schema.pivotal.io/gemfire/cache/cache-8.1.xsd\"\n"
             +
             "       version=\"8.1\"\n" +
@@ -218,7 +217,7 @@ public class JAXBServiceTest {
 
   @Test
   public void marshallNoNameSpace() {
-    String xml = "<cache version=\"1.0\">\n" +
+    var xml = "<cache version=\"1.0\">\n" +
         "    <region name=\"one\">\n" +
         "        <region-attributes scope=\"distributed-ack\" data-policy=\"replicate\"/>\n" +
         "    </region>\n" +
@@ -230,13 +229,13 @@ public class JAXBServiceTest {
   }
 
   private void setBasicValues(CacheConfig cache) {
-    GatewayReceiverConfig receiver = new GatewayReceiverConfig();
+    var receiver = new GatewayReceiverConfig();
     receiver.setBindAddress("localhost");
     receiver.setEndPort("8080");
     receiver.setManualStart(false);
     receiver.setStartPort("6000");
 
-    RegionConfig region = new RegionConfig();
+    var region = new RegionConfig();
     region.setName("testRegion");
     region.setType(RegionType.REPLICATE);
 

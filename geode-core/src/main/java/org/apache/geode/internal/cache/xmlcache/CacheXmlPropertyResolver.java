@@ -96,7 +96,7 @@ public class CacheXmlPropertyResolver implements PropertyResolver {
     // Override system property if replacement is null or we want to override system property.
     if ((replacement == null || getPropertyOverridden() == SYSTEM_PROPERTIES_OVERRIDE)
         && props != null) {
-      String userDefined = props.getProperty(replaceString);
+      var userDefined = props.getProperty(replaceString);
       if (userDefined != null) {
         replacement = userDefined;
       }

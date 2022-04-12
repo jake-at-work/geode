@@ -51,8 +51,8 @@ class PatternSubscriptionManager
 
   @Override
   public int getSubscriptionCount(byte[] channel) {
-    int result = 0;
-    for (PatternSubscriptions patternSubscriptions : getPatternSubscriptions(channel)) {
+    var result = 0;
+    for (var patternSubscriptions : getPatternSubscriptions(channel)) {
       result += patternSubscriptions.getSubscriptions().size();
     }
     return result;
@@ -77,8 +77,8 @@ class PatternSubscriptionManager
     if (isEmpty()) {
       return emptyList();
     }
-    SubscriptionId channelId = new SubscriptionId(channel);
-    List<PatternSubscriptions> result = patternSubscriptionCache.get(channelId);
+    var channelId = new SubscriptionId(channel);
+    var result = patternSubscriptionCache.get(channelId);
     if (result == null) {
       result = createPatternSubscriptions(channelId);
       if (!result.isEmpty()) {
@@ -90,7 +90,7 @@ class PatternSubscriptionManager
 
   private List<PatternSubscriptions> createPatternSubscriptions(SubscriptionId channelId) {
     List<PatternSubscriptions> result = null;
-    for (Map.Entry<SubscriptionId, ClientSubscriptionManager> entry : clientManagers.entrySet()) {
+    for (var entry : clientManagers.entrySet()) {
       if (matches(entry.getKey(), channelId.getSubscriptionIdBytes())) {
         if (result == null) {
           result = new ArrayList<>();

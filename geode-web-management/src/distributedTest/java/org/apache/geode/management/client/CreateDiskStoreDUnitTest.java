@@ -40,14 +40,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.management.api.ClusterManagementException;
-import org.apache.geode.management.api.ClusterManagementGetResult;
-import org.apache.geode.management.api.ClusterManagementRealizationResult;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.api.ClusterManagementService;
-import org.apache.geode.management.api.RealizationResult;
 import org.apache.geode.management.api.RestTemplateClusterManagementServiceTransport;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.DiskDir;
@@ -56,7 +52,6 @@ import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
 import org.apache.geode.management.internal.rest.LocatorWebContext;
 import org.apache.geode.management.internal.rest.PlainLocatorContextLoader;
-import org.apache.geode.management.runtime.DiskStoreInfo;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -97,8 +92,8 @@ public class CreateDiskStoreDUnitTest {
   @After
   public void after() {
     // for the test to be run multiple times, we need to clean out the cluster config
-    InternalConfigurationPersistenceService cps = getLocator().getConfigurationPersistenceService();
-    UnaryOperator<CacheConfig> mutator = config -> {
+    var cps = getLocator().getConfigurationPersistenceService();
+    var mutator = (UnaryOperator<CacheConfig>) config -> {
       config.getDiskStores().clear();
       return config;
     };
@@ -112,9 +107,9 @@ public class CreateDiskStoreDUnitTest {
   }
 
   private DiskStore createDiskStoreConfigObject(String diskStoreName) throws IOException {
-    DiskStore diskStore = new DiskStore();
+    var diskStore = new DiskStore();
     diskStore.setName(diskStoreName);
-    DiskDir diskDir = new DiskDir(
+    var diskDir = new DiskDir(
         temporaryFolder.getRoot().getAbsolutePath() + File.pathSeparator + diskStoreName, null);
     List<DiskDir> directories = new ArrayList<>();
     directories.add(diskDir);
@@ -132,7 +127,7 @@ public class CreateDiskStoreDUnitTest {
     assertThatThrownBy(() -> client.get(diskStore)).isInstanceOf(ClusterManagementException.class)
         .hasMessageContaining("ENTITY_NOT_FOUND");
 
-    ClusterManagementRealizationResult result = client.create(diskStore);
+    var result = client.create(diskStore);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
     assertThat(result.getMemberStatuses()).hasSize(0);
@@ -160,8 +155,8 @@ public class CreateDiskStoreDUnitTest {
 
     client.create(diskStore);
     // verify the get
-    ClusterManagementGetResult<DiskStore, DiskStoreInfo> getResult = client.get(diskStore);
-    DiskStore configResult = getResult.getResult().getConfigurations().get(0);
+    var getResult = client.get(diskStore);
+    var configResult = getResult.getResult().getConfigurations().get(0);
     assertThat(configResult.getName()).isEqualTo(diskStoreName);
     assertThat(configResult.getDirectories().size()).isEqualTo(1);
     assertThat(getResult.getResult().getRuntimeInfos()).hasSize(0);
@@ -174,11 +169,11 @@ public class CreateDiskStoreDUnitTest {
 
     server = cluster.startServerVM(1, webContext.getLocator().getPort());
 
-    ClusterManagementRealizationResult result = client.create(diskStore);
+    var result = client.create(diskStore);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
 
-    RealizationResult status = result.getMemberStatuses().get(0);
+    var status = result.getMemberStatuses().get(0);
     assertThat(status.getMemberName()).isEqualTo("server-1");
     assertThat(status.getMessage()).contains(
         "DiskStore " + diskStoreName + " created successfully.");
@@ -209,10 +204,10 @@ public class CreateDiskStoreDUnitTest {
 
     client.create(diskStore);
 
-    ClusterManagementGetResult<DiskStore, DiskStoreInfo> getResult = client.get(diskStore);
-    DiskStore configResult = getResult.getResult().getConfigurations().get(0);
+    var getResult = client.get(diskStore);
+    var configResult = getResult.getResult().getConfigurations().get(0);
     assertThat(configResult.getName()).isEqualTo(diskStoreName);
-    List<DiskStoreInfo> runtimeResults = getResult.getResult().getRuntimeInfos();
+    var runtimeResults = getResult.getResult().getRuntimeInfos();
     assertThat(runtimeResults).hasSize(1);
   }
 
@@ -224,10 +219,10 @@ public class CreateDiskStoreDUnitTest {
     client.create(diskStore);
     server = cluster.startServerVM(1, webContext.getLocator().getPort());
 
-    ClusterManagementGetResult<DiskStore, DiskStoreInfo> getResult = client.get(diskStore);
-    DiskStore configResult = getResult.getResult().getConfigurations().get(0);
+    var getResult = client.get(diskStore);
+    var configResult = getResult.getResult().getConfigurations().get(0);
     assertThat(configResult.getName()).isEqualTo(diskStoreName);
-    List<DiskStoreInfo> runtimeResults = getResult.getResult().getRuntimeInfos();
+    var runtimeResults = getResult.getResult().getRuntimeInfos();
     assertThat(runtimeResults).hasSize(1);
   }
 
@@ -240,7 +235,7 @@ public class CreateDiskStoreDUnitTest {
     server = cluster.startServerVM(1, webContext.getLocator().getPort());
 
     server.stop();
-    ClusterManagementRealizationResult deleteResult = client.delete(diskStore);
+    var deleteResult = client.delete(diskStore);
     assertThat(deleteResult.getStatusMessage())
         .isEqualTo("Successfully updated configuration for cluster.");
 
@@ -254,7 +249,7 @@ public class CreateDiskStoreDUnitTest {
         .hasMessageContaining("ENTITY_NOT_FOUND");
 
     client.create(diskStore);
-    ClusterManagementRealizationResult deleteResult = client.delete(diskStore);
+    var deleteResult = client.delete(diskStore);
     assertThat(deleteResult.getStatusMessage())
         .isEqualTo("Successfully updated configuration for cluster.");
 
@@ -294,7 +289,7 @@ public class CreateDiskStoreDUnitTest {
     client.create(diskStore);
     server = cluster.startServerVM(1, webContext.getLocator().getPort());
 
-    Region region = new Region();
+    var region = new Region();
     region.setName("testregion");
     region.setType(RegionType.PARTITION_PERSISTENT);
     region.setDiskStoreName(diskStoreName);
@@ -304,7 +299,7 @@ public class CreateDiskStoreDUnitTest {
         .hasMessageContaining("Disk store is currently in use by these regions");
 
     client.delete(region);
-    ClusterManagementRealizationResult deleteResult = client.delete(diskStore);
+    var deleteResult = client.delete(diskStore);
     assertThat(deleteResult.isSuccessful()).isTrue();
   }
 
@@ -316,7 +311,7 @@ public class CreateDiskStoreDUnitTest {
     server = cluster.startServerVM(1, "OtherGroup", webContext.getLocator().getPort());
 
     diskStore.setGroup("SameGroup");
-    ClusterManagementRealizationResult createResult = client.create(diskStore);
+    var createResult = client.create(diskStore);
     assertThat(createResult.getMemberStatuses().size()).isEqualTo(0);
     assertThat(client.list(new DiskStore()).getResult().size()).isEqualTo(1);
   }

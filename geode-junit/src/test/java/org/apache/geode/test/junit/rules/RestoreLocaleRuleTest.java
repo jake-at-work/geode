@@ -28,7 +28,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.Result;
 
 import org.apache.geode.test.junit.runners.TestRunner;
 
@@ -41,9 +40,9 @@ public class RestoreLocaleRuleTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    Locale[] locales = Locale.getAvailableLocales();
+    var locales = Locale.getAvailableLocales();
     while (notDefaultLocale == null) {
-      Locale l = locales[new Random().nextInt(locales.length)];
+      var l = locales[new Random().nextInt(locales.length)];
       if (l != Locale.getDefault()) {
         notDefaultLocale = l;
       }
@@ -57,8 +56,8 @@ public class RestoreLocaleRuleTest {
 
   @Test
   public void shouldRestoreLocaleInAfter() throws Throwable {
-    Locale originalLocale = Locale.getDefault();
-    Result result = TestRunner.runTest(ShouldRestoreLocaleInAfter.class);
+    var originalLocale = Locale.getDefault();
+    var result = TestRunner.runTest(ShouldRestoreLocaleInAfter.class);
 
     assertTrue(result.wasSuccessful());
     assertThat(Locale.getDefault(), is(originalLocale));
@@ -67,8 +66,8 @@ public class RestoreLocaleRuleTest {
 
   @Test
   public void setInitLocaleShouldRestoreLocaleInAfter() throws Throwable {
-    Locale originalLocale = Locale.getDefault();
-    Result result = TestRunner.runTest(SetInitLocaleShouldRestoreLocaleInAfter.class);
+    var originalLocale = Locale.getDefault();
+    var result = TestRunner.runTest(SetInitLocaleShouldRestoreLocaleInAfter.class);
 
     assertTrue(result.wasSuccessful());
     assertThat(Locale.getDefault(), is(originalLocale));
@@ -77,8 +76,8 @@ public class RestoreLocaleRuleTest {
 
   @Test
   public void shouldRestoreLocaleInAfterWithConsumer() throws Throwable {
-    Locale originalLocale = Locale.getDefault();
-    Result result = TestRunner.runTest(ShouldRestoreLocaleInAfterWithConsumer.class);
+    var originalLocale = Locale.getDefault();
+    var result = TestRunner.runTest(ShouldRestoreLocaleInAfterWithConsumer.class);
 
     assertTrue(result.wasSuccessful());
     assertThat(Locale.getDefault(), is(originalLocale));
@@ -90,8 +89,8 @@ public class RestoreLocaleRuleTest {
 
   @Test
   public void setInitLocaleShouldRestoreLocaleInAfterWithConsumer() throws Throwable {
-    Locale originalLocale = Locale.getDefault();
-    Result result = TestRunner.runTest(SetInitLocaleShouldRestoreLocaleInAfterWithConsumer.class);
+    var originalLocale = Locale.getDefault();
+    var result = TestRunner.runTest(SetInitLocaleShouldRestoreLocaleInAfterWithConsumer.class);
 
     assertTrue(result.wasSuccessful());
     assertThat(Locale.getDefault(), is(originalLocale));
@@ -149,7 +148,7 @@ public class RestoreLocaleRuleTest {
 
     @Test
     public void doTest() throws Exception {
-      Locale originalLocale = Locale.getDefault();
+      var originalLocale = Locale.getDefault();
       Locale.setDefault(localeInTest);
       assertThat(Locale.getDefault(), is(localeInTest));
       assertThat(locales.size(), is(1));

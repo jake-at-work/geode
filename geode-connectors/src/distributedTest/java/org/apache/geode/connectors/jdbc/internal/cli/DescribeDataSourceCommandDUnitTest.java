@@ -17,27 +17,21 @@ package org.apache.geode.connectors.jdbc.internal.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
-
-import javax.sql.DataSource;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.internal.jndi.JNDIInvoker;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.pdx.PdxReader;
 import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 public class DescribeDataSourceCommandDUnitTest {
@@ -52,7 +46,7 @@ public class DescribeDataSourceCommandDUnitTest {
 
   @Before
   public void before() throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     server = cluster.startServerVM(1, new Properties(), locator.getPort());
 
     gfsh.connectAndVerify(locator);
@@ -65,7 +59,7 @@ public class DescribeDataSourceCommandDUnitTest {
         "create data-source --name=simple --pooled=false --url=\"jdbc:derby:memory:newDB;create=true\" --username=joe --password=myPassword")
         .statusIsSuccess().tableHasColumnOnlyWithValues("Member", "server-1");
 
-    CommandResultAssert result = gfsh.executeAndAssertThat("describe data-source --name=simple");
+    var result = gfsh.executeAndAssertThat("describe data-source --name=simple");
 
     result.statusIsSuccess()
         .tableHasRowWithValues("Property", "Value", "name", "simple")
@@ -88,9 +82,9 @@ public class DescribeDataSourceCommandDUnitTest {
   private void executeSql(String sql) {
     server.invoke(() -> {
       try {
-        DataSource ds = JNDIInvoker.getDataSource("pool");
-        Connection conn = ds.getConnection();
-        Statement sm = conn.createStatement();
+        var ds = JNDIInvoker.getDataSource("pool");
+        var conn = ds.getConnection();
+        var sm = conn.createStatement();
         sm.execute(sql);
         sm.close();
         conn.close();
@@ -151,13 +145,13 @@ public class DescribeDataSourceCommandDUnitTest {
           "create jdbc-mapping --region=region2 --data-source=pool --pdx-name="
               + IdAndName.class.getName() + " --schema=mySchema");
 
-      CommandResultAssert result = gfsh.executeAndAssertThat("describe data-source --name=pool");
+      var result = gfsh.executeAndAssertThat("describe data-source --name=pool");
 
       result.statusIsSuccess()
           .tableHasRowWithValues("Property", "Value", "name", "pool")
           .tableHasRowWithValues("Property", "Value", "pooled", "true")
           .tableHasRowWithValues("Property", "Value", "url", "jdbc:derby:memory:newDB;create=true");
-      InfoResultModel infoSection = result.getResultModel()
+      var infoSection = result.getResultModel()
           .getInfoSection(DescribeDataSourceCommand.REGIONS_USING_DATA_SOURCE_SECTION);
       assertThat(new HashSet<>(infoSection.getContent()))
           .isEqualTo(new HashSet<>(Arrays.asList("region1", "region2")));

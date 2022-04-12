@@ -58,8 +58,8 @@ public class AlterAsyncEventQueueCommandTest {
     groupSet.add("group2");
     doReturn(groupSet).when(service).getGroups();
 
-    CacheConfig config = new CacheConfig();
-    CacheConfig.AsyncEventQueue aeq1 = new CacheConfig.AsyncEventQueue();
+    var config = new CacheConfig();
+    var aeq1 = new CacheConfig.AsyncEventQueue();
     aeq1.setId("queue1");
 
     config.getAsyncEventQueues().add(aeq1);

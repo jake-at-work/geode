@@ -46,7 +46,7 @@ public abstract class BaseManagementServiceBuilder<T extends BaseManagementServi
 
   private ClusterManagementServiceTransport configureTransport() {
     if (transport == null) {
-      ConnectionConfig connectionConfig = createConnectionConfig();
+      var connectionConfig = createConnectionConfig();
       connectionConfig = configureConnectionConfig(connectionConfig);
       return new RestTemplateClusterManagementServiceTransport(connectionConfig);
     }

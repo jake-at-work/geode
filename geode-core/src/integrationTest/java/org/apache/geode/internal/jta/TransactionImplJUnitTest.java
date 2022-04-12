@@ -43,7 +43,7 @@ public class TransactionImplJUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     ds = DistributedSystem.connect(props);
     tm = TransactionManagerImpl.getTransactionManager();
@@ -67,7 +67,7 @@ public class TransactionImplJUnitTest {
   @Test
   public void testRegisterSynchronization() throws Exception {
     utx.begin();
-    TransactionImpl txn = (TransactionImpl) tm.getTransaction();
+    var txn = (TransactionImpl) tm.getTransaction();
     Synchronization sync = new SyncImpl();
     txn.registerSynchronization(sync);
     assertTrue("Synchronization not registered successfully", txn.getSyncList().contains(sync));
@@ -77,8 +77,8 @@ public class TransactionImplJUnitTest {
   @Test
   public void testNotifyBeforeCompletion() throws Exception {
     utx.begin();
-    TransactionImpl txn = (TransactionImpl) tm.getTransaction();
-    SyncImpl sync = new SyncImpl();
+    var txn = (TransactionImpl) tm.getTransaction();
+    var sync = new SyncImpl();
     txn.registerSynchronization(sync);
     txn.notifyBeforeCompletion();
     assertTrue("Notify before completion not executed successfully", sync.befCompletion);
@@ -88,8 +88,8 @@ public class TransactionImplJUnitTest {
   @Test
   public void testNotifyAfterCompletion() throws Exception {
     utx.begin();
-    TransactionImpl txn = (TransactionImpl) tm.getTransaction();
-    SyncImpl sync = new SyncImpl();
+    var txn = (TransactionImpl) tm.getTransaction();
+    var sync = new SyncImpl();
     txn.registerSynchronization(sync);
     txn.notifyAfterCompletion(1);
     assertTrue("Notify after completion not executed successfully", sync.aftCompletion);

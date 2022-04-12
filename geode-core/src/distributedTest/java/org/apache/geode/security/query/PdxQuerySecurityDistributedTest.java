@@ -19,7 +19,6 @@ import static org.apache.geode.cache.RegionShortcut.PARTITION;
 import static org.apache.geode.cache.RegionShortcut.REPLICATE;
 
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -72,36 +71,36 @@ public class PdxQuerySecurityDistributedTest extends AbstractQuerySecurityDistri
 
   @Test
   public void queryWithPublicFieldAccessOnWhereClauseShouldNotThrowSecurityException() {
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 3";
-    List<Object> expectedResults = Collections.singletonList(values[1]);
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 3";
+    var expectedResults = Collections.singletonList(values[1]);
     executeQueryAndAssertExpectedResults(specificUserClient, query, expectedResults);
   }
 
   @Test
   public void queryWithPdxNamedFieldAccessOnWhereClauseShouldNotThrowSecurityException() {
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
-    List<Object> expectedResults = Collections.singletonList(values[1]);
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
+    var expectedResults = Collections.singletonList(values[1]);
     executeQueryAndAssertExpectedResults(specificUserClient, query, expectedResults);
   }
 
   @Test
   public void queryWithMethodInvocationShouldThrowSecurityExceptionForPdxObjects() {
-    String query1 = "SELECT r.getAge FROM " + SEPARATOR + regionName + " r";
+    var query1 = "SELECT r.getAge FROM " + SEPARATOR + regionName + " r";
     executeQueryAndAssertThatNoAuthorizedExceptionWasThrown(specificUserClient, query1,
         regexForExpectedExceptions);
 
-    String query2 = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
+    var query2 = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
     executeQueryAndAssertThatNoAuthorizedExceptionWasThrown(specificUserClient, query2,
         regexForExpectedExceptions);
   }
 
   @Test
   public void queryWithPermanentlyForbiddenMethodShouldThrowSecurityExceptionForPdxObjects() {
-    String query1 = "SELECT r.getClass FROM " + SEPARATOR + regionName + " r";
+    var query1 = "SELECT r.getClass FROM " + SEPARATOR + regionName + " r";
     executeQueryAndAssertThatNoAuthorizedExceptionWasThrown(specificUserClient, query1,
         regexForExpectedExceptions);
 
-    String query2 = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getClass() != 3";
+    var query2 = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getClass() != 3";
     executeQueryAndAssertThatNoAuthorizedExceptionWasThrown(specificUserClient, query2,
         regexForExpectedExceptions);
   }

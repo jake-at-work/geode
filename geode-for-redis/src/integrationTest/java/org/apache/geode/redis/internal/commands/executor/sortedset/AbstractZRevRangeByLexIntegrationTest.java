@@ -144,7 +144,7 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnMember_givenMemberNameInRange() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range n >= member name >= m
@@ -157,7 +157,7 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnMember_givenMinEqualToMemberNameAndMinInclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range n >= member name >= member
@@ -166,7 +166,7 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnMember_givenMaxEqualToMemberNameAndMaxInclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range member >= member name >= a
@@ -175,7 +175,7 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnMember_givenMinAndMaxEqualToMemberNameAndMinAndMaxInclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range member >= member name >= member
@@ -194,7 +194,7 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnEmptyCollection_givenMinEqualToMemberNameAndMinExclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range n >= member name > member
@@ -203,7 +203,7 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnEmptyCollection_givenMaxEqualToMemberNameAndMaxExclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range member > member name >= a
@@ -212,7 +212,7 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnEmptyCollection_givenRangeExcludingMember() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range o >= member name >= n
@@ -221,16 +221,16 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnRange_givenMultipleMembersInRange_withInclusiveMinAndMax() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 3;
-    int maxLength = 6;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 3;
+    var maxLength = 6;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
-    int sublistMin = members.size() - maxLength;
-    int sublistMax = members.size() - minLength + 1;
-    List<String> expected = members.subList(sublistMin, sublistMax);
+    var sublistMin = members.size() - maxLength;
+    var sublistMax = members.size() - minLength + 1;
+    var expected = members.subList(sublistMin, sublistMax);
 
     // Range (v * 6) >= member name >= (v * 3)
     assertThat(jedis.zrevrangeByLex(KEY, "[" + max, "[" + min))
@@ -239,16 +239,16 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnRange_givenMultipleMembersInRange_withExclusiveMinAndMax() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 1;
-    int maxLength = 7;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 1;
+    var maxLength = 7;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
-    int sublistMin = members.size() - maxLength + 1;
-    int sublistMax = members.size() - minLength;
-    List<String> expected = members.subList(sublistMin, sublistMax);
+    var sublistMin = members.size() - maxLength + 1;
+    var sublistMax = members.size() - minLength;
+    var expected = members.subList(sublistMin, sublistMax);
 
     // Range (v * 7) > member name > (v * 1)
     assertThat(jedis.zrevrangeByLex(KEY, "(" + max, "(" + min))
@@ -257,16 +257,16 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnRange_givenMultipleMembersInRange_withInclusiveMinAndExclusiveMax() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 5;
-    int maxLength = 8;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 5;
+    var maxLength = 8;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
-    int sublistMin = members.size() - maxLength + 1;
-    int sublistMax = members.size() - minLength + 1;
-    List<String> expected = members.subList(sublistMin, sublistMax);
+    var sublistMin = members.size() - maxLength + 1;
+    var sublistMax = members.size() - minLength + 1;
+    var expected = members.subList(sublistMin, sublistMax);
 
     // Range (v * 8) > member name >= (v * 5)
     assertThat(jedis.zrevrangeByLex(KEY, "(" + max, "[" + min))
@@ -275,14 +275,14 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnRange_givenMultipleMembersInRange_withExclusiveMinAndInclusiveMax() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 2;
-    int maxLength = 5;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 2;
+    var maxLength = 5;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
-    List<String> expected = members.subList(members.size() - maxLength, members.size() - minLength);
+    var expected = members.subList(members.size() - maxLength, members.size() - minLength);
 
     // Range (v * 5) >= member name > (v * 2)
     assertThat(jedis.zrevrangeByLex(KEY, "[" + max, "(" + min))
@@ -291,14 +291,14 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnRange_givenMultipleMembersInRangeUsingMinusAndPlusArguments() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 4;
-    int maxLength = 8;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 4;
+    var maxLength = 8;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
-    List<String> expected = members.subList(members.size() - maxLength, members.size());
+    var expected = members.subList(members.size() - maxLength, members.size());
 
     // Range (v * 8) >= member name >= -infinity
     assertThat(jedis.zrevrangeByLex(KEY, "[" + max, "-"))
@@ -317,21 +317,21 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnRange_givenValidLimit() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 1;
-    int maxLength = 7;
+    var minLength = 1;
+    var maxLength = 7;
 
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
-    int offset = 2;
-    int count = 3;
+    var offset = 2;
+    var count = 3;
 
-    int sublistMin = members.size() - maxLength + offset;
-    int sublistMax = sublistMin + count;
+    var sublistMin = members.size() - maxLength + offset;
+    var sublistMax = sublistMin + count;
 
-    List<String> expected = members.subList(sublistMin, sublistMax);
+    var expected = members.subList(sublistMin, sublistMax);
 
     // Range (v * 7) >= member name >= (v * 1), offset = 2, count = 3
     assertThat(jedis.zrevrangeByLex(KEY, "[" + max, "[" + min, offset, count))
@@ -340,16 +340,16 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnAllElementsInRange_givenNegativeCount() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 1;
+    var minLength = 1;
 
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
 
-    int offset = 2;
+    var offset = 2;
 
-    int sublistMin = minLength + offset - 1;
-    List<String> expected = members.subList(sublistMin, members.size());
+    var sublistMin = minLength + offset - 1;
+    var expected = members.subList(sublistMin, members.size());
 
     // Range +infinity >= member name >= (v * 1), offset = 2, count = -1
     assertThat(jedis.zrevrangeByLex(KEY, "+", "[" + min, offset, -1))
@@ -358,17 +358,17 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnRange_givenCountLargerThanRange() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 4;
-    int maxLength = 6;
+    var minLength = 4;
+    var maxLength = 6;
 
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
-    int sublistMin = members.size() - maxLength;
-    int sublistMax = members.size() - minLength + 1;
-    List<String> expected = members.subList(sublistMin, sublistMax);
+    var sublistMin = members.size() - maxLength;
+    var sublistMax = members.size() - minLength + 1;
+    var expected = members.subList(sublistMin, sublistMax);
 
     // Range (v * 6) >= member name >= (v * 4), offset = 0, count = 10
     assertThat(jedis.zrevrangeByLex(KEY, "[" + max, "[" + min, 0, 10))
@@ -386,13 +386,13 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
   public void shouldReturnEmptyCollection_givenOffsetLargerThanRange() {
     populateSortedSet();
 
-    int minLength = 1;
-    int maxLength = 3;
+    var minLength = 1;
+    var maxLength = 3;
 
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
-    int offset = 7;
+    var offset = 7;
 
     // Range (v * 3) >= member name >= (v * 1), offset = 7, count = 10
     assertThat(jedis.zrevrangeByLex(KEY, "[" + max, "[" + min, offset, 10)).isEmpty();
@@ -400,22 +400,22 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldUseLastLimit_givenMultipleValidLimitsProvided() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 2;
-    int maxLength = 8;
+    var minLength = 2;
+    var maxLength = 8;
 
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
-    int offset = 2;
-    int count = 3;
+    var offset = 2;
+    var count = 3;
 
-    int sublistMin = members.size() - maxLength + offset;
-    int sublistMax = sublistMin + count;
+    var sublistMin = members.size() - maxLength + offset;
+    var sublistMax = sublistMin + count;
 
     // Add 1 to sublistMax, as subList uses exclusive maximum
-    List<String> expected = members.subList(sublistMin, sublistMax);
+    var expected = members.subList(sublistMin, sublistMax);
 
     // Range (v * 8) >= member name >= (v * 2), offset = 2, count = 3
     List<byte[]> result = uncheckedCast(
@@ -423,7 +423,7 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
             "LIMIT", "0", "10",
             "LIMIT", String.valueOf(offset), String.valueOf(count)));
 
-    List<String> actual = result.stream().map(Coder::bytesToString).collect(Collectors.toList());
+    var actual = result.stream().map(Coder::bytesToString).collect(Collectors.toList());
     assertThat(actual).containsExactlyElementsOf(expected);
   }
 
@@ -431,8 +431,8 @@ public abstract class AbstractZRevRangeByLexIntegrationTest implements RedisInte
   // number of times
   private List<String> populateSortedSet() {
     List<String> members = new ArrayList<>();
-    for (int i = 10; i > 0; --i) {
-      String memberName = StringUtils.repeat("v", i);
+    for (var i = 10; i > 0; --i) {
+      var memberName = StringUtils.repeat("v", i);
       jedis.zadd(KEY, SCORE, memberName);
       members.add(memberName);
     }

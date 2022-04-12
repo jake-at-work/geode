@@ -41,20 +41,20 @@ public class CancellationRegistry {
   }
 
   public synchronized void cancelMessage(InternalDistributedMember console, int msgId) {
-    Key key = new Key(console, msgId);
-    AdminRequest msg = (AdminRequest) map.get(key);
+    var key = new Key(console, msgId);
+    var msg = (AdminRequest) map.get(key);
     if (msg instanceof Cancellable) {
       ((Cancellable) msg).cancel();
     }
   }
 
   public synchronized void registerMessage(AdminRequest msg) {
-    Key key = new Key(msg.getSender(), msg.getMsgId());
+    var key = new Key(msg.getSender(), msg.getMsgId());
     map.put(key, msg);
   }
 
   public synchronized void deregisterMessage(AdminRequest msg) {
-    Key key = new Key(msg.getSender(), msg.getMsgId());
+    var key = new Key(msg.getSender(), msg.getMsgId());
     map.remove(key);
   }
 
@@ -80,7 +80,7 @@ public class CancellationRegistry {
         return true;
       }
       if (other instanceof Key) {
-        Key toTest = (Key) other;
+        var toTest = (Key) other;
         return (toTest.console.equals(console) && toTest.msgId == msgId);
       }
       return false;
@@ -88,7 +88,7 @@ public class CancellationRegistry {
 
     @Override
     public int hashCode() {
-      int result = 17;
+      var result = 17;
       result = 37 * result + msgId;
       result = 37 * result + console.hashCode();
       return result;

@@ -67,7 +67,7 @@ public class CompressionCacheConfigDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCreateCacheWithGoodCompressor() throws Exception {
-    File cacheXml = createCacheXml(GOOD_COMPRESSOR);
+    var cacheXml = createCacheXml(GOOD_COMPRESSOR);
     assertTrue(createCacheOnVM(getVM(0), cacheXml.getCanonicalPath()));
     assertCompressorOnVM(getVM(0), new SnappyCompressor(), REGION_NAME);
     cleanup(getVM(0));
@@ -81,8 +81,8 @@ public class CompressionCacheConfigDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testCreateCacheWithBadCompressor() throws Exception {
     IgnoredException.addIgnoredException("Unable to load class BAD_COMPRESSOR");
-    File cacheXml = createCacheXml(BAD_COMPRESSOR);
-    IgnoredException expectedException =
+    var cacheXml = createCacheXml(BAD_COMPRESSOR);
+    var expectedException =
         IgnoredException.addIgnoredException("While reading Cache XML file");
     try {
       assertFalse(createCacheOnVM(getVM(0), cacheXml.getCanonicalPath()));
@@ -124,7 +124,7 @@ public class CompressionCacheConfigDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         try {
           disconnectFromDS();
-          Properties props = new Properties();
+          var props = new Properties();
           props.setProperty(CACHE_XML_FILE, cacheXml);
           LogWriterUtils.getLogWriter()
               .info("<ExpectedException action=add>ClassNotFoundException</ExpectedException>");
@@ -150,8 +150,8 @@ public class CompressionCacheConfigDUnitTest extends JUnit4CacheTestCase {
    * @throws IOException something bad happened.
    */
   private File createCacheXml(String contents) throws IOException {
-    File cacheXml = File.createTempFile("cache", "xml");
-    PrintStream pstream = new PrintStream(cacheXml);
+    var cacheXml = File.createTempFile("cache", "xml");
+    var pstream = new PrintStream(cacheXml);
     pstream.print(contents);
     pstream.close();
 

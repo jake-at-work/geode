@@ -31,7 +31,6 @@ import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.SystemTimer;
 import org.apache.geode.internal.logging.CoreLoggingExecutors;
 import org.apache.geode.internal.tcp.ConnectionTable;
@@ -83,8 +82,8 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
    *         time-to-live or idle-timeout (whichever will occur first), or 0 if neither are used.
    */
   public long getExpirationTime() throws EntryNotFoundException {
-    long ttl = getTTLExpirationTime();
-    long idle = getIdleExpirationTime();
+    var ttl = getTTLExpirationTime();
+    var idle = getIdleExpirationTime();
     if (ttl == 0) {
       return idle;
     } else if (idle == 0) {
@@ -106,7 +105,7 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
 
   /** Return true if the expiration unit is seconds; false if milliseconds */
   public boolean isExpiryUnitSeconds() {
-    boolean isSeconds = getLocalRegion() == null || !getLocalRegion().isExpiryUnitsMilliseconds();
+    var isSeconds = getLocalRegion() == null || !getLocalRegion().isExpiryUnitsMilliseconds();
     return isSeconds;
   }
 
@@ -134,7 +133,7 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
 
   /** Return the absolute time when idle expiration occurs, or 0 if not used */
   public long getIdleExpirationTime() throws EntryNotFoundException {
-    long idle = getIdleTimeoutInMillis();
+    var idle = getIdleTimeoutInMillis();
     if (idle > 0) {
       return getLastAccessedTime() + idle;
     }
@@ -154,7 +153,7 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
    * be negative.
    */
   long getExpiryMillis() throws EntryNotFoundException {
-    long extm = getExpirationTime() - getNow();
+    var extm = getExpirationTime() - getNow();
     if (extm < 0L) {
       return 0L;
     } else {
@@ -166,9 +165,9 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
    * Return true if current task could have expired. Return false if expiration is impossible.
    */
   protected boolean isExpirationPossible() throws EntryNotFoundException {
-    long expTime = getExpirationTime();
+    var expTime = getExpirationTime();
     if (expTime > 0L) {
-      long now = getNow();
+      var now = getNow();
       if (hasExpired(now, expTime)) {
         if (isIdleExpiredOnOthers()) {
           return true;
@@ -245,7 +244,7 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
     for (;;) {
       getLocalRegion().getCancelCriterion().checkCancelInProgress(null);
       synchronized (suspendLock) {
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           while (expirationSuspended) {
             suspendLock.wait();
@@ -265,11 +264,11 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
   }
 
   protected boolean expire(boolean isPending) throws CacheException {
-    ExpirationAction action = getAction();
+    var action = getAction();
     if (action == null) {
       return false;
     }
-    boolean result = expire(action, isPending);
+    var result = expire(action, isPending);
     if (result && expiryTaskListener != null) {
       expiryTaskListener.afterExpire(this);
     }
@@ -282,8 +281,8 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
    * @return the action to perform or null if NONE
    */
   protected ExpirationAction getAction() {
-    long ttl = getTTLExpirationTime();
-    long idle = getIdleExpirationTime();
+    var ttl = getTTLExpirationTime();
+    var idle = getIdleExpirationTime();
     if (ttl == 0) {
       if (idle == 0) {
         return null;
@@ -303,7 +302,7 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
 
   /** Returns true if the ExpirationAction is a distributed action. */
   protected boolean isDistributedAction() {
-    ExpirationAction action = getAction();
+    var action = getAction();
     return action != null && (action.isInvalidate() || action.isDestroy());
   }
 
@@ -334,8 +333,8 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
    */
   @Override
   public boolean cancel() {
-    boolean superCancel = super.cancel();
-    LocalRegion lr = getLocalRegion();
+    var superCancel = super.cancel();
+    var lr = getLocalRegion();
     if (lr != null) {
       if (superCancel) {
         region = null; // this is the only place it is nulled
@@ -445,8 +444,8 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
 
   @Override
   public String toString() {
-    String expTtl = "<unavailable>";
-    String expIdle = "<unavailable>";
+    var expTtl = "<unavailable>";
+    var expIdle = "<unavailable>";
     try {
       if (getTTLAttributes() != null) {
         expTtl = String.valueOf(getTTLExpirationTime());
@@ -514,7 +513,7 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
    */
   protected long getNow() {
     long result;
-    Long tl = now.get();
+    var tl = now.get();
     if (tl != null) {
       result = tl;
     } else {
@@ -530,7 +529,7 @@ public abstract class ExpiryTask extends SystemTimer.SystemTimerTask {
   public static long calculateNow(InternalCache cache) {
     if (cache != null) {
       // Use cache.cacheTimeMillis here. See bug 52267.
-      InternalDistributedSystem ids = cache.getInternalDistributedSystem();
+      var ids = cache.getInternalDistributedSystem();
       if (ids != null) {
         return ids.getClock().cacheTimeMillis();
       }

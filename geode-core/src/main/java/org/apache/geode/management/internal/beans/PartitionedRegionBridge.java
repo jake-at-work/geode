@@ -14,11 +14,9 @@
  */
 package org.apache.geode.management.internal.beans;
 
-import java.util.Set;
 
 import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.Region;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionStats;
 import org.apache.geode.management.FixedPartitionAttributesData;
@@ -138,7 +136,7 @@ public class PartitionedRegionBridge<K, V> extends RegionMBeanBridge<K, V> {
     putRemoteLatency = new StatsLatency(StatsKey.REMOTE_PUTS, StatType.INT_TYPE,
         StatsKey.REMOTE_PUT_TIME, parRegionMonitor);
 
-    String[] writesRates = new String[] {StatsKey.PUTALL_COMPLETED, StatsKey.PUTS_COMPLETED,
+    var writesRates = new String[] {StatsKey.PUTALL_COMPLETED, StatsKey.PUTS_COMPLETED,
         StatsKey.CREATES_COMPLETED};
     averageWritesRate = new StatsRate(writesRates, StatType.INT_TYPE, parRegionMonitor);
     averageReadsRate = new StatsRate(StatsKey.GETS_COMPLETED, StatType.INT_TYPE, parRegionMonitor);
@@ -283,11 +281,11 @@ public class PartitionedRegionBridge<K, V> extends RegionMBeanBridge<K, V> {
   @Override
   public long getEntryCount() {
     if (parRegion.isDataStore()) {
-      int numLocalEntries = 0;
-      Set<BucketRegion> localPrimaryBucketRegions =
+      var numLocalEntries = 0;
+      var localPrimaryBucketRegions =
           parRegion.getDataStore().getAllLocalPrimaryBucketRegions();
       if (localPrimaryBucketRegions != null && localPrimaryBucketRegions.size() > 0) {
-        for (BucketRegion br : localPrimaryBucketRegions) {
+        for (var br : localPrimaryBucketRegions) {
           // TODO soplog, fix this for griddb regions
           numLocalEntries += br.getRegionMap().sizeInVM() - br.getTombstoneCount();
 

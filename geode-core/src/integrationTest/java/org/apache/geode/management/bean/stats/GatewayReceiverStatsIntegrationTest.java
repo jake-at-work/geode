@@ -57,7 +57,7 @@ public class GatewayReceiverStatsIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(MCAST_PORT, "0");
     configProperties.setProperty(ENABLE_TIME_STATISTICS, "true");
     configProperties.setProperty(STATISTIC_SAMPLING_ENABLED, "false");
@@ -70,12 +70,12 @@ public class GatewayReceiverStatsIntegrationTest {
     new CacheFactory().create();
 
     StatisticsFactory statisticsFactory = system.getStatisticsManager();
-    SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
+    var meterRegistry = new SimpleMeterRegistry();
     receiverStats = createGatewayReceiverStats(statisticsFactory, "Test Sock Name",
         meterRegistry);
 
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
-    InternalCacheServer receiverServer = mock(InternalCacheServer.class);
+    var gatewayReceiver = mock(GatewayReceiver.class);
+    var receiverServer = mock(InternalCacheServer.class);
 
     when(gatewayReceiver.getServer()).thenReturn(receiverServer);
 
@@ -93,7 +93,7 @@ public class GatewayReceiverStatsIntegrationTest {
 
   @Test
   public void testServerStats() throws InterruptedException {
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
 
     receiverStats.incCurrentClients();
     receiverStats.incConnectionThreads();
@@ -109,7 +109,7 @@ public class GatewayReceiverStatsIntegrationTest {
     receiverStats.incReadPutRequestTime(startTime);
     receiverStats.incProcessPutTime(startTime);
 
-    ServerLoad load = new ServerLoad(1, 1, 1, 1);
+    var load = new ServerLoad(1, 1, 1, 1);
     receiverStats.setLoad(load);
 
     sample();

@@ -107,8 +107,8 @@ public class PartitionedRegionTest {
   public void setUp() {
     system = mock(InternalDistributedSystem.class);
     distributionManager = mock(DistributionManager.class);
-    InternalDistributedMember distributedMember = mock(InternalDistributedMember.class);
-    InternalResourceManager resourceManager = mock(InternalResourceManager.class);
+    var distributedMember = mock(InternalDistributedMember.class);
+    var resourceManager = mock(InternalResourceManager.class);
 
     cache = mock(InternalCache.class);
     attributesFactory = new AttributesFactory();
@@ -138,8 +138,8 @@ public class PartitionedRegionTest {
   }
 
   private Object[] cacheLoaderAndWriter() {
-    CacheLoader mockLoader = mock(CacheLoader.class);
-    CacheWriter mockWriter = mock(CacheWriter.class);
+    var mockLoader = mock(CacheLoader.class);
+    var mockWriter = mock(CacheWriter.class);
     return new Object[] {
         new Object[] {mockLoader, null},
         new Object[] {null, mockWriter},
@@ -154,16 +154,16 @@ public class PartitionedRegionTest {
   public void verifyPRConfigUpdatedAfterLoaderUpdate(CacheLoader cacheLoader,
       CacheWriter cacheWriter) {
     // ARRANGE
-    PartitionRegionConfig partitionRegionConfig = mock(PartitionRegionConfig.class);
+    var partitionRegionConfig = mock(PartitionRegionConfig.class);
     Region<String, PartitionRegionConfig> partitionedRegionRoot = mock(LocalRegion.class);
-    PartitionedRegion.RegionLock regionLock = mock(PartitionedRegion.RegionLock.class);
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    InternalDistributedMember ourMember = spyPartitionedRegion.getDistributionManager().getId();
-    InternalDistributedMember otherMember1 = mock(InternalDistributedMember.class);
-    InternalDistributedMember otherMember2 = mock(InternalDistributedMember.class);
-    Node ourNode = mock(Node.class, "ourNode");
-    Node otherNode1 = mock(Node.class, "otherNode1");
-    Node otherNode2 = mock(Node.class, "otherNode2");
+    var regionLock = mock(PartitionedRegion.RegionLock.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var ourMember = spyPartitionedRegion.getDistributionManager().getId();
+    var otherMember1 = mock(InternalDistributedMember.class);
+    var otherMember2 = mock(InternalDistributedMember.class);
+    var ourNode = mock(Node.class, "ourNode");
+    var otherNode1 = mock(Node.class, "otherNode1");
+    var otherNode2 = mock(Node.class, "otherNode2");
 
     when(otherNode1.getMemberId())
         .thenReturn(otherMember1);
@@ -197,7 +197,7 @@ public class PartitionedRegionTest {
         .contains(ourNode);
 
     Node verifyOurNode = null;
-    for (Node node : partitionRegionConfig.getNodes()) {
+    for (var node : partitionRegionConfig.getNodes()) {
       if (node.getMemberId().equals(ourMember)) {
         verifyOurNode = node;
       }
@@ -222,20 +222,20 @@ public class PartitionedRegionTest {
   @Test
   public void getBucketNodeForReadOrWriteReturnsPrimaryNodeForRegisterInterest() {
     // ARRANGE
-    EntryEventImpl clientEvent = mock(EntryEventImpl.class);
-    InternalDistributedMember primaryMember = mock(InternalDistributedMember.class);
-    InternalDistributedMember secondaryMember = mock(InternalDistributedMember.class);
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var clientEvent = mock(EntryEventImpl.class);
+    var primaryMember = mock(InternalDistributedMember.class);
+    var secondaryMember = mock(InternalDistributedMember.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
     when(clientEvent.getOperation())
         .thenReturn(Operation.GET_FOR_REGISTER_INTEREST);
 
-    int bucketId = 0;
+    var bucketId = 0;
     doReturn(primaryMember)
         .when(spyPartitionedRegion).getNodeForBucketWrite(eq(bucketId), isNull());
 
     // ACT
-    InternalDistributedMember memberForRegisterInterestRead =
+    var memberForRegisterInterestRead =
         spyPartitionedRegion.getBucketNodeForReadOrWrite(bucketId, clientEvent);
 
     // ASSERT
@@ -248,20 +248,20 @@ public class PartitionedRegionTest {
   @Test
   public void getBucketNodeForReadOrWriteReturnsSecondaryNodeForNonRegisterInterest() {
     // ARRANGE
-    EntryEventImpl clientEvent = mock(EntryEventImpl.class);
-    InternalDistributedMember primaryMember = mock(InternalDistributedMember.class);
-    InternalDistributedMember secondaryMember = mock(InternalDistributedMember.class);
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var clientEvent = mock(EntryEventImpl.class);
+    var primaryMember = mock(InternalDistributedMember.class);
+    var secondaryMember = mock(InternalDistributedMember.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
     when(clientEvent.getOperation())
         .thenReturn(Operation.GET);
 
-    int bucketId = 0;
+    var bucketId = 0;
     doReturn(secondaryMember)
         .when(spyPartitionedRegion).getNodeForBucketRead(eq(bucketId));
 
     // ACT
-    InternalDistributedMember memberForRegisterInterestRead =
+    var memberForRegisterInterestRead =
         spyPartitionedRegion.getBucketNodeForReadOrWrite(bucketId, clientEvent);
 
     // ASSERT
@@ -274,16 +274,16 @@ public class PartitionedRegionTest {
   @Test
   public void getBucketNodeForReadOrWriteReturnsSecondaryNodeWhenClientEventIsNotPresent() {
     // ARRANGE
-    InternalDistributedMember primaryMember = mock(InternalDistributedMember.class);
-    InternalDistributedMember secondaryMember = mock(InternalDistributedMember.class);
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var primaryMember = mock(InternalDistributedMember.class);
+    var secondaryMember = mock(InternalDistributedMember.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
-    int bucketId = 0;
+    var bucketId = 0;
     doReturn(secondaryMember)
         .when(spyPartitionedRegion).getNodeForBucketRead(eq(bucketId));
 
     // ACT
-    InternalDistributedMember memberForRegisterInterestRead =
+    var memberForRegisterInterestRead =
         spyPartitionedRegion.getBucketNodeForReadOrWrite(bucketId, null);
 
     // ASSERT
@@ -296,16 +296,16 @@ public class PartitionedRegionTest {
   @Test
   public void getBucketNodeForReadOrWriteReturnsSecondaryNodeWhenClientEventOperationIsNotPresent() {
     // ARRANGE
-    InternalDistributedMember primaryMember = mock(InternalDistributedMember.class);
-    InternalDistributedMember secondaryMember = mock(InternalDistributedMember.class);
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var primaryMember = mock(InternalDistributedMember.class);
+    var secondaryMember = mock(InternalDistributedMember.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
-    int bucketId = 0;
+    var bucketId = 0;
     doReturn(secondaryMember)
         .when(spyPartitionedRegion).getNodeForBucketRead(eq(bucketId));
 
     // ACT
-    InternalDistributedMember memberForRegisterInterestRead =
+    var memberForRegisterInterestRead =
         spyPartitionedRegion.getBucketNodeForReadOrWrite(bucketId, null);
 
     // ASSERT
@@ -318,14 +318,14 @@ public class PartitionedRegionTest {
   @Test
   public void updateBucketMapsForInterestRegistrationWithSetOfKeysFetchesPrimaryBucketsForRead() {
     // ARRANGE
-    InternalDistributedMember primaryMember = mock(InternalDistributedMember.class);
-    InternalDistributedMember secondaryMember = mock(InternalDistributedMember.class);
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var primaryMember = mock(InternalDistributedMember.class);
+    var secondaryMember = mock(InternalDistributedMember.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
     doReturn(primaryMember)
         .when(spyPartitionedRegion).getNodeForBucketWrite(anyInt(), isNull());
 
-    HashMap<InternalDistributedMember, HashSet<Integer>> nodeToBuckets = new HashMap<>();
+    var nodeToBuckets = new HashMap<InternalDistributedMember, HashSet<Integer>>();
 
     // ACT
     spyPartitionedRegion.updateNodeToBucketMap(nodeToBuckets, asSet(0, 1));
@@ -338,14 +338,14 @@ public class PartitionedRegionTest {
   @Test
   public void updateBucketMapsForInterestRegistrationWithAllKeysFetchesPrimaryBucketsForRead() {
     // ARRANGE
-    InternalDistributedMember primaryMember = mock(InternalDistributedMember.class);
-    InternalDistributedMember secondaryMember = mock(InternalDistributedMember.class);
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var primaryMember = mock(InternalDistributedMember.class);
+    var secondaryMember = mock(InternalDistributedMember.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
     doReturn(primaryMember)
         .when(spyPartitionedRegion).getNodeForBucketWrite(anyInt(), isNull());
 
-    HashMap<InternalDistributedMember, HashMap<Integer, HashSet>> nodeToBuckets = new HashMap<>();
+    var nodeToBuckets = new HashMap<InternalDistributedMember, HashMap<Integer, HashSet>>();
     HashMap<Integer, HashSet> bucketKeys = (HashMap) asMapOfSet(0, (HashSet) asSet(0, 1));
 
     // ACT
@@ -359,9 +359,9 @@ public class PartitionedRegionTest {
   @Test
   public void filterOutNonParallelGatewaySendersShouldReturnCorrectly() {
     // ARRANGE
-    GatewaySender parallelSender = mock(GatewaySender.class);
-    GatewaySender anotherParallelSender = mock(GatewaySender.class);
-    GatewaySender serialSender = mock(GatewaySender.class);
+    var parallelSender = mock(GatewaySender.class);
+    var anotherParallelSender = mock(GatewaySender.class);
+    var serialSender = mock(GatewaySender.class);
 
     when(parallelSender.isParallel())
         .thenReturn(true);
@@ -394,9 +394,9 @@ public class PartitionedRegionTest {
   @Test
   public void filterOutNonParallelAsyncEventQueuesShouldReturnCorrectly() {
     // ARRANGE
-    AsyncEventQueue parallelQueue = mock(AsyncEventQueue.class);
-    AsyncEventQueue anotherParallelQueue = mock(AsyncEventQueue.class);
-    AsyncEventQueue serialQueue = mock(AsyncEventQueue.class);
+    var parallelQueue = mock(AsyncEventQueue.class);
+    var anotherParallelQueue = mock(AsyncEventQueue.class);
+    var serialQueue = mock(AsyncEventQueue.class);
 
     when(parallelQueue.isParallel())
         .thenReturn(true);
@@ -440,8 +440,8 @@ public class PartitionedRegionTest {
   @Test
   public void generatePRIdShouldNotThrowNumberFormatExceptionIfAnErrorOccursWhileReleasingTheLock() {
     // ARRANGE
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    DistributedLockService lockService = mock(DistributedLockService.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var lockService = mock(DistributedLockService.class);
 
     when(system.getDistributionManager().getCancelCriterion())
         .thenReturn(mock(CancelCriterion.class));
@@ -463,7 +463,7 @@ public class PartitionedRegionTest {
   @Test
   public void registerPartitionedRegionShouldHandleLockServiceDestroyedException()
       throws ClassNotFoundException {
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setPartitionAttributes(
         new PartitionAttributesFactory().setTotalNumBuckets(1).setRedundantCopies(1)
             .setLocalMaxMemory(0).create());
@@ -471,13 +471,13 @@ public class PartitionedRegionTest {
     partitionedRegion = new PartitionedRegion("region", attributesFactory.create(), null, cache,
         mock(InternalRegionArguments.class), disabledClock(), ColocationLoggerFactory.create());
 
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
-    InternalDistributedMember imageTarget = mock(InternalDistributedMember.class);
-    InternalRegionFactory factory = mock(InternalRegionFactory.class);
-    DistributedRegion partitionedRegionRoot = mock(DistributedRegion.class);
-    CacheDistributionAdvisor cda = mock(CacheDistributionAdvisor.class);
-    PartitionedRegion.RegionLock regionLock = mock(PartitionedRegion.RegionLock.class);
+    var imageTarget = mock(InternalDistributedMember.class);
+    var factory = mock(InternalRegionFactory.class);
+    var partitionedRegionRoot = mock(DistributedRegion.class);
+    var cda = mock(CacheDistributionAdvisor.class);
+    var regionLock = mock(PartitionedRegion.RegionLock.class);
 
     when(cache.createInternalRegionFactory(RegionShortcut.REPLICATE)).thenReturn(factory);
     when(factory.create(PR_ROOT_REGION_NAME)).thenReturn(partitionedRegionRoot);
@@ -496,13 +496,13 @@ public class PartitionedRegionTest {
 
   @Test
   public void getDataRegionForWriteThrowsTransactionExceptionIfNotDataStore() {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
-    KeyInfo keyInfo = mock(KeyInfo.class);
+    var keyInfo = mock(KeyInfo.class);
     when(keyInfo.getBucketId()).thenReturn(1);
     doReturn(null).when(spyPartitionedRegion).getDataStore();
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> spyPartitionedRegion.getDataRegionForWrite(keyInfo));
 
     assertThat(caughtException).isInstanceOf(TransactionException.class).hasMessage(
@@ -512,11 +512,11 @@ public class PartitionedRegionTest {
   @Test
   public void getDataRegionForWriteThrowsTransactionDataRebalancedExceptionIfGetInitializedBucketThrowsForceReattemptException()
       throws Exception {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
-    KeyInfo keyInfo = mock(KeyInfo.class);
-    Object key = new Object();
-    PartitionedRegionDataStore dataStore = mock(PartitionedRegionDataStore.class);
+    var keyInfo = mock(KeyInfo.class);
+    var key = new Object();
+    var dataStore = mock(PartitionedRegionDataStore.class);
     when(keyInfo.getBucketId()).thenReturn(1);
     when(keyInfo.getKey()).thenReturn(key);
     when(keyInfo.isCheckPrimary()).thenReturn(true);
@@ -526,7 +526,7 @@ public class PartitionedRegionTest {
     doReturn(mock(InternalDistributedMember.class)).when(spyPartitionedRegion).createBucket(1, 0,
         null);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> spyPartitionedRegion.getDataRegionForWrite(keyInfo));
 
     assertThat(caughtException).isInstanceOf(TransactionDataRebalancedException.class)
@@ -536,18 +536,18 @@ public class PartitionedRegionTest {
   @Test
   public void getDataRegionForWriteThrowsTransactionDataRebalancedExceptionIfGetInitializedBucketThrowsRegionDestroyedException()
       throws Exception {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var spyPartitionedRegion = spy(partitionedRegion);
 
-    KeyInfo keyInfo = mock(KeyInfo.class);
-    Object key = new Object();
-    PartitionedRegionDataStore dataStore = mock(PartitionedRegionDataStore.class);
+    var keyInfo = mock(KeyInfo.class);
+    var key = new Object();
+    var dataStore = mock(PartitionedRegionDataStore.class);
     when(keyInfo.getBucketId()).thenReturn(1);
     when(keyInfo.getKey()).thenReturn(key);
     doReturn(dataStore).when(spyPartitionedRegion).getDataStore();
     doThrow(new RegionDestroyedException("", "")).when(dataStore)
         .getInitializedBucketWithKnownPrimaryForId(key, 1);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> spyPartitionedRegion.getDataRegionForWrite(keyInfo));
 
     assertThat(caughtException).isInstanceOf(TransactionDataRebalancedException.class)
@@ -556,10 +556,10 @@ public class PartitionedRegionTest {
 
   @Test
   public void transactionThrowsTransactionDataRebalancedExceptionIfBucketNotFoundException() {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
+    var spyPartitionedRegion = spy(partitionedRegion);
     ForceReattemptException exception = mock(BucketNotFoundException.class);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(
             () -> spyPartitionedRegion.handleForceReattemptExceptionWithTransaction(exception));
 
@@ -569,12 +569,12 @@ public class PartitionedRegionTest {
 
   @Test
   public void transactionThrowsPrimaryBucketExceptionIfForceReattemptExceptionIsCausedByPrimaryBucketException() {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    ForceReattemptException exception = mock(ForceReattemptException.class);
-    PrimaryBucketException primaryBucketException = new PrimaryBucketException();
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var exception = mock(ForceReattemptException.class);
+    var primaryBucketException = new PrimaryBucketException();
     when(exception.getCause()).thenReturn(primaryBucketException);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(
             () -> spyPartitionedRegion.handleForceReattemptExceptionWithTransaction(exception));
 
@@ -583,13 +583,13 @@ public class PartitionedRegionTest {
 
   @Test
   public void transactionThrowsTransactionDataRebalancedExceptionIfForceReattemptExceptionIsCausedByTransactionDataRebalancedException() {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    ForceReattemptException exception = mock(ForceReattemptException.class);
-    TransactionDataRebalancedException transactionDataRebalancedException =
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var exception = mock(ForceReattemptException.class);
+    var transactionDataRebalancedException =
         new TransactionDataRebalancedException("");
     when(exception.getCause()).thenReturn(transactionDataRebalancedException);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(
             () -> spyPartitionedRegion.handleForceReattemptExceptionWithTransaction(exception));
 
@@ -598,12 +598,12 @@ public class PartitionedRegionTest {
 
   @Test
   public void transactionThrowsTransactionDataRebalancedExceptionIfForceReattemptExceptionIsCausedByRegionDestroyedException() {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    ForceReattemptException exception = mock(ForceReattemptException.class);
-    RegionDestroyedException regionDestroyedException = new RegionDestroyedException("", "");
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var exception = mock(ForceReattemptException.class);
+    var regionDestroyedException = new RegionDestroyedException("", "");
     when(exception.getCause()).thenReturn(regionDestroyedException);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(
             () -> spyPartitionedRegion.handleForceReattemptExceptionWithTransaction(exception));
 
@@ -613,10 +613,10 @@ public class PartitionedRegionTest {
 
   @Test
   public void transactionThrowsTransactionDataRebalancedExceptionIfIsAForceReattemptException() {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    ForceReattemptException exception = mock(ForceReattemptException.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var exception = mock(ForceReattemptException.class);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(
             () -> spyPartitionedRegion.handleForceReattemptExceptionWithTransaction(exception));
 
@@ -650,14 +650,14 @@ public class PartitionedRegionTest {
 
   @Test
   public void populateEmptyIndexesThrowsIfBucketRegionDestroyedDueToCacheClose() {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    BucketRegion bucketRegion = mock(BucketRegion.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var bucketRegion = mock(BucketRegion.class);
     when(bucketRegion.isDestroyed()).thenReturn(true);
 
-    Set<Index> indexes = setupIndexes();
-    ConcurrentMap<Integer, BucketRegion> map = setupBuckets(bucketRegion);
+    var indexes = setupIndexes();
+    var map = setupBuckets(bucketRegion);
     setupDataStore(spyPartitionedRegion, map);
-    CacheClosedException cacheClosedException = new CacheClosedException();
+    var cacheClosedException = new CacheClosedException();
     setupCancelCriterion(cacheClosedException);
 
     assertThatThrownBy(() -> spyPartitionedRegion.populateEmptyIndexes(indexes, new HashMap<>()))
@@ -667,7 +667,7 @@ public class PartitionedRegionTest {
   @NotNull
   private Set<Index> setupIndexes() {
     Set<Index> indexes = new HashSet<>();
-    Index index = mock(Index.class);
+    var index = mock(Index.class);
     indexes.add(index);
     return indexes;
   }
@@ -681,26 +681,26 @@ public class PartitionedRegionTest {
 
   private void setupDataStore(PartitionedRegion spyPartitionedRegion,
       ConcurrentMap<Integer, BucketRegion> map) {
-    PartitionedRegionDataStore dataStore = mock(PartitionedRegionDataStore.class);
+    var dataStore = mock(PartitionedRegionDataStore.class);
     doReturn(dataStore).when(spyPartitionedRegion).getDataStore();
     when(dataStore.getAllLocalBuckets()).thenReturn(map.entrySet());
   }
 
   private void setupCancelCriterion(CacheClosedException cacheClosedException) {
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(cache.getCancelCriterion()).thenReturn(cancelCriterion);
     doThrow(cacheClosedException).when(cancelCriterion).checkCancelInProgress();
   }
 
   @Test
   public void populateEmptyIndexesReturnsFalseIfIndexManagerPopulateIndexesSuccessfully() {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    IndexManager indexManager = mock(IndexManager.class);
-    BucketRegion bucketRegion = mock(BucketRegion.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var indexManager = mock(IndexManager.class);
+    var bucketRegion = mock(BucketRegion.class);
     when(bucketRegion.getIndexManager()).thenReturn(indexManager);
 
-    Set<Index> indexes = setupIndexes();
-    ConcurrentMap<Integer, BucketRegion> map = setupBuckets(bucketRegion);
+    var indexes = setupIndexes();
+    var map = setupBuckets(bucketRegion);
     setupDataStore(spyPartitionedRegion, map);
     doReturn(indexes).when(spyPartitionedRegion).getBucketIndexesForPRIndexes(bucketRegion,
         indexes);
@@ -711,14 +711,14 @@ public class PartitionedRegionTest {
   @Test
   public void populateEmptyIndexesReturnsTrueIfIndexManagerPopulateIndexesThrows()
       throws Exception {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    IndexManager indexManager = mock(IndexManager.class);
-    BucketRegion bucketRegion = mock(BucketRegion.class);
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var indexManager = mock(IndexManager.class);
+    var bucketRegion = mock(BucketRegion.class);
     when(bucketRegion.getIndexManager()).thenReturn(indexManager);
-    MultiIndexCreationException exception = mock(MultiIndexCreationException.class);
+    var exception = mock(MultiIndexCreationException.class);
 
-    Set<Index> indexes = setupIndexes();
-    ConcurrentMap<Integer, BucketRegion> map = setupBuckets(bucketRegion);
+    var indexes = setupIndexes();
+    var map = setupBuckets(bucketRegion);
     setupDataStore(spyPartitionedRegion, map);
     doReturn(indexes).when(spyPartitionedRegion).getBucketIndexesForPRIndexes(bucketRegion,
         indexes);
@@ -729,10 +729,10 @@ public class PartitionedRegionTest {
 
   @Test
   public void createEmptyIndexesCanAddIndexToIndexSet() throws Exception {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    HashSet<IndexCreationData> indexDefinitions = setupIndexCreationData();
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var indexDefinitions = setupIndexCreationData();
     Set<Index> indexes = new HashSet<>();
-    HashMap<String, Exception> exceptionsMap = new HashMap<>();
+    var exceptionsMap = new HashMap<String, Exception>();
     doReturn(index).when(spyPartitionedRegion).createIndex(true, null, indexName, null, null, null,
         false, false);
 
@@ -746,9 +746,9 @@ public class PartitionedRegionTest {
   @Test
   public void createEmptyIndexesThrowsIfCreateIndexFailedWithCacheClosedException()
       throws Exception {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    HashSet<IndexCreationData> indexDefinitions = setupIndexCreationData();
-    CacheClosedException exception = new CacheClosedException();
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var indexDefinitions = setupIndexCreationData();
+    var exception = new CacheClosedException();
     doThrow(exception).when(spyPartitionedRegion).createIndex(true, null, indexName, null, null,
         null, false, false);
 
@@ -758,11 +758,11 @@ public class PartitionedRegionTest {
 
   @Test
   public void createEmptyIndexesAddsExceptionToMapIfCreateIndexFailed() throws Exception {
-    PartitionedRegion spyPartitionedRegion = spy(partitionedRegion);
-    HashSet<IndexCreationData> indexDefinitions = setupIndexCreationData();
+    var spyPartitionedRegion = spy(partitionedRegion);
+    var indexDefinitions = setupIndexCreationData();
     Set<Index> indexes = new HashSet<>();
-    HashMap<String, Exception> exceptionsMap = new HashMap<>();
-    RuntimeException runtimeException = new RuntimeException();
+    var exceptionsMap = new HashMap<String, Exception>();
+    var runtimeException = new RuntimeException();
     doThrow(runtimeException).when(spyPartitionedRegion).createIndex(true, null, indexName, null,
         null, null, false, false);
 
@@ -775,8 +775,8 @@ public class PartitionedRegionTest {
 
   @NotNull
   private HashSet<IndexCreationData> setupIndexCreationData() {
-    HashSet<IndexCreationData> indexDefinitions = new HashSet<>();
-    IndexCreationData indexCreationData = new IndexCreationData(indexName);
+    var indexDefinitions = new HashSet<IndexCreationData>();
+    var indexCreationData = new IndexCreationData(indexName);
     indexDefinitions.add(indexCreationData);
     return indexDefinitions;
   }

@@ -44,7 +44,6 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.tcpserver.HostAndPort;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.pdx.internal.TypeRegistry;
 
 /**
  * Implementation of PoolFactory.
@@ -282,7 +281,7 @@ public class PoolFactoryImpl implements InternalPoolFactory {
           "A server has already been added. You can only add locators or servers; not both.");
     }
     validatePort(port);
-    HostAndPort address = new HostAndPort(host, port);
+    var address = new HostAndPort(host, port);
     attributes.locators.add(address);
     locatorAddresses.add(address);
     return this;
@@ -308,7 +307,7 @@ public class PoolFactoryImpl implements InternalPoolFactory {
   @Override
   public PoolFactory reset() {
     // preserve the startDisabled across resets
-    boolean sd = attributes.startDisabled;
+    var sd = attributes.startDisabled;
     attributes = new PoolAttributes();
     attributes.startDisabled = sd;
     return this;
@@ -337,7 +336,7 @@ public class PoolFactoryImpl implements InternalPoolFactory {
     setServerGroup(cp.getServerGroup());
     setMultiuserAuthentication(cp.getMultiuserAuthentication());
     setSocketFactory(cp.getSocketFactory());
-    for (InetSocketAddress address : cp.getLocators()) {
+    for (var address : cp.getLocators()) {
       addLocator(address.getHostString(), address.getPort());
     }
     attributes.servers.addAll(cp.getServers().stream()
@@ -365,12 +364,12 @@ public class PoolFactoryImpl implements InternalPoolFactory {
    */
   @Override
   public Pool create(String name) throws CacheException {
-    InternalDistributedSystem distributedSystem = InternalDistributedSystem.getAnyInstance();
+    var distributedSystem = InternalDistributedSystem.getAnyInstance();
     InternalCache cache = getInternalCache();
     ThreadsMonitoring threadMonitoring = null;
     if (cache != null) {
       threadMonitoring = cache.getDistributionManager().getThreadMonitoring();
-      TypeRegistry registry = cache.getPdxRegistry();
+      var registry = cache.getPdxRegistry();
       if (registry != null && !attributes.isGateway()) {
         registry.creatingPool();
       }
@@ -398,7 +397,7 @@ public class PoolFactoryImpl implements InternalPoolFactory {
     if (!(o instanceof PoolFactoryImpl)) {
       return false;
     }
-    PoolFactoryImpl that = (PoolFactoryImpl) o;
+    var that = (PoolFactoryImpl) o;
     return Objects.equals(attributes, that.attributes)
         && Objects.equals(new HashSet<>(locatorAddresses), new HashSet<>(that.locatorAddresses));
   }
@@ -700,7 +699,7 @@ public class PoolFactoryImpl implements InternalPoolFactory {
       if (!(o instanceof PoolAttributes)) {
         return false;
       }
-      PoolAttributes that = (PoolAttributes) o;
+      var that = (PoolAttributes) o;
       return socketConnectTimeout == that.socketConnectTimeout
           && connectionTimeout == that.connectionTimeout
           && serverConnectionTimeout == that.serverConnectionTimeout

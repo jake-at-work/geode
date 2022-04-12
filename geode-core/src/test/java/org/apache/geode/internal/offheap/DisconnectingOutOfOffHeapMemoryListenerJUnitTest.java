@@ -49,14 +49,14 @@ public class DisconnectingOutOfOffHeapMemoryListenerJUnitTest {
 
   @Test
   public void constructWithNullSupportsClose() {
-    DisconnectingOutOfOffHeapMemoryListener listener =
+    var listener =
         new DisconnectingOutOfOffHeapMemoryListener(null);
     listener.close();
   }
 
   @Test
   public void constructWithNullSupportsOutOfOffHeapMemory() {
-    DisconnectingOutOfOffHeapMemoryListener listener =
+    var listener =
         new DisconnectingOutOfOffHeapMemoryListener(null);
     listener.outOfOffHeapMemory(null);
   }
@@ -64,7 +64,7 @@ public class DisconnectingOutOfOffHeapMemoryListenerJUnitTest {
   @Test
   public void disconnectNotCalledWhenSysPropIsSet() {
     System.setProperty(OffHeapStorage.STAY_CONNECTED_ON_OUTOFOFFHEAPMEMORY_PROPERTY, "true");
-    DisconnectingOutOfOffHeapMemoryListener listener =
+    var listener =
         new DisconnectingOutOfOffHeapMemoryListener(ids);
     listener.outOfOffHeapMemory(ex);
     verify(ids, never()).disconnect(ex.getMessage(), false);
@@ -72,7 +72,7 @@ public class DisconnectingOutOfOffHeapMemoryListenerJUnitTest {
 
   @Test
   public void disconnectNotCalledWhenListenerClosed() {
-    DisconnectingOutOfOffHeapMemoryListener listener =
+    var listener =
         new DisconnectingOutOfOffHeapMemoryListener(ids);
     listener.close();
     listener.outOfOffHeapMemory(ex);
@@ -81,7 +81,7 @@ public class DisconnectingOutOfOffHeapMemoryListenerJUnitTest {
 
   @Test
   public void setRootCauseCalledWhenGetRootCauseReturnsNull() {
-    DisconnectingOutOfOffHeapMemoryListener listener =
+    var listener =
         new DisconnectingOutOfOffHeapMemoryListener(ids);
     when(dm.getRootCause()).thenReturn(null);
     listener.outOfOffHeapMemory(ex);
@@ -90,7 +90,7 @@ public class DisconnectingOutOfOffHeapMemoryListenerJUnitTest {
 
   @Test
   public void setRootCauseNotCalledWhenGetRootCauseReturnsNonNull() {
-    DisconnectingOutOfOffHeapMemoryListener listener =
+    var listener =
         new DisconnectingOutOfOffHeapMemoryListener(ids);
     when(dm.getRootCause()).thenReturn(ex);
     listener.outOfOffHeapMemory(ex);
@@ -99,7 +99,7 @@ public class DisconnectingOutOfOffHeapMemoryListenerJUnitTest {
 
   @Test
   public void disconnectCalledAsyncAfterCallingOutOfOffHeapMemory() {
-    DisconnectingOutOfOffHeapMemoryListener listener =
+    var listener =
         new DisconnectingOutOfOffHeapMemoryListener(ids);
     listener.outOfOffHeapMemory(ex);
     verify(ids, timeout(5000).atLeastOnce()).disconnect(ex.getMessage(), false);

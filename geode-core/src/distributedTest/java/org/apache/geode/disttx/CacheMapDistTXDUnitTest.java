@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache30.CacheMapTxnDUnitTest;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 
 
 /**
@@ -37,9 +36,9 @@ public class CacheMapDistTXDUnitTest extends CacheMapTxnDUnitTest {
 
   @Override
   public final void preSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     vm0.invoke(CacheMapDistTXDUnitTest::setDistributedTX);
     vm1.invoke(CacheMapDistTXDUnitTest::setDistributedTX);
@@ -47,9 +46,9 @@ public class CacheMapDistTXDUnitTest extends CacheMapTxnDUnitTest {
 
   @Override
   public final void postSetUpCacheMapTxnDUnitTest() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     // make sure that "distributed-transactions" is true
     vm0.invoke(CacheMapDistTXDUnitTest::checkIsDistributedTX);

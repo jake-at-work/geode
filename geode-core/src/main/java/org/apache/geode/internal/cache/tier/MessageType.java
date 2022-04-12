@@ -395,7 +395,7 @@ public class MessageType {
     if (messageType == -1 || messageType == 4) {
       return false;
     }
-    boolean valid = (messageType >= 0 && messageType <= LAST_VALID_MESSAGE_ID);
+    var valid = (messageType >= 0 && messageType <= LAST_VALID_MESSAGE_ID);
     // logger.warning("Message type is valid: " + valid);
     return valid;
   }

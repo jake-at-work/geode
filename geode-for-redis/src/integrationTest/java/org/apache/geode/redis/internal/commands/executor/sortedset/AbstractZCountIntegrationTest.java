@@ -92,7 +92,7 @@ public abstract class AbstractZCountIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturnZero_givenRangeExcludingScore() {
-    int score = 1;
+    var score = 1;
     jedis.zadd(KEY, score, "member");
 
     // Count 2 <= score <= 3
@@ -101,7 +101,7 @@ public abstract class AbstractZCountIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturnCount_givenMinAndMaxEqualToScore() {
-    int score = 1;
+    var score = 1;
     jedis.zadd(KEY, score, "member");
 
     // Count 1 <= score <= 1
@@ -183,7 +183,7 @@ public abstract class AbstractZCountIntegrationTest implements RedisIntegrationT
     double score = 1;
     jedis.zadd(KEY, score, "member");
 
-    String scoreExclusive = "(" + score;
+    var scoreExclusive = "(" + score;
     assertThat(jedis.zcount(KEY, scoreExclusive, scoreExclusive)).isEqualTo(0);
   }
 

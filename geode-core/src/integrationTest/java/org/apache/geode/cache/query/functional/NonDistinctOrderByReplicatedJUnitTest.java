@@ -55,7 +55,7 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
 
   @Override
   public Region createRegion(String regionName, Class valueConstraint) {
-    Region r1 = CacheUtils.createRegion(regionName, valueConstraint);
+    var r1 = CacheUtils.createRegion(regionName, valueConstraint);
     return r1;
   }
 
@@ -76,7 +76,7 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
 
   @Test
   public void testLimitAndOrderByApplicationOnPrimaryKeyIndexQuery() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // The PK index should be used but limit should not be applied as order
         // by cannot be applied while data is fetched
         // from index
@@ -87,20 +87,20 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
 
     };
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -115,22 +115,22 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
 
     qs.createIndex("PKIDIndexPf1", IndexType.PRIMARY_KEY, "ID", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute("10");
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
-        boolean orderByQuery = queries[i].indexOf("order by") != -1;
-        SelectResults rcw = (SelectResults) r[i][1];
+        var orderByQuery = queries[i].indexOf("order by") != -1;
+        var rcw = (SelectResults) r[i][1];
         if (orderByQuery) {
           assertTrue(rcw.getCollectionType().isOrdered());
         }
@@ -147,15 +147,15 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
           assertFalse(observer.limitAppliedAtIndex);
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("PKIDIndexPf1")) {
             fail("<PKIDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -165,7 +165,7 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
 
   }
@@ -173,27 +173,27 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
   @Test
   public void testLimitApplicationOnPrimaryKeyIndex() throws Exception {
 
-    String[] queries = {
+    var queries = new String[] {
         // The PK index should be used but limit should not be applied as order by
         // cannot be applied while data is fetched
         // from index
         "SELECT   ID, description, createTime FROM " + SEPARATOR
             + "portfolio1 pf1 where pf1.ID != $1 limit 10",};
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 200; i++) {
+    for (var i = 0; i < 200; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -208,30 +208,30 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
 
     qs.createIndex("PKIDIndexPf1", IndexType.PRIMARY_KEY, "ID", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute("10");
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
-        boolean orderByQuery = queries[i].indexOf("order by") != -1;
-        SelectResults rcw = (SelectResults) r[i][1];
+        var orderByQuery = queries[i].indexOf("order by") != -1;
+        var rcw = (SelectResults) r[i][1];
         if (orderByQuery) {
           assertEquals("Ordered", rcw.getCollectionType().getSimpleClassName());
         }
         if (!observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
-        int indexDistinct = queries[i].indexOf("distinct");
-        boolean distinctQuery = indexDistinct != -1;
+        var indexDistinct = queries[i].indexOf("distinct");
+        var distinctQuery = indexDistinct != -1;
 
         if (limitQuery) {
           if (orderByQuery) {
@@ -243,15 +243,15 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
           assertFalse(observer.limitAppliedAtIndex);
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("PKIDIndexPf1")) {
             fail("<PKIDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -293,8 +293,8 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
     itert1 = coll1.iterator();
     itert2 = coll2.iterator();
     while (itert1.hasNext()) {
-      Object[] values1 = ((Struct) itert1.next()).getFieldValues();
-      Object[] values2 = ((Struct) itert2.next()).getFieldValues();
+      var values1 = ((Struct) itert1.next()).getFieldValues();
+      var values2 = ((Struct) itert2.next()).getFieldValues();
       assertEquals(values1.length, values2.length);
       assertTrue(((Integer) values1[0] != 10));
       assertTrue(((Integer) values2[0] != 10));
@@ -304,30 +304,30 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
 
   @Test
   public void testNonDistinctOrderbyResultSetForReplicatedRegion() throws Exception {
-    final int numElements = 200;
+    final var numElements = 200;
     CacheUtils.getCache();
-    Region region = createRegion("portfolios", Portfolio.class);
-    Short[] expectedArray = new Short[numElements - 1];
-    for (int i = 1; i < numElements; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var region = createRegion("portfolios", Portfolio.class);
+    var expectedArray = new Short[numElements - 1];
+    for (var i = 1; i < numElements; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       region.put("" + i, pf);
       expectedArray[i - 1] = pf.shortID;
     }
     Arrays.sort(expectedArray, (o1, o2) -> o1 - o2);
 
-    String query = "select pf.shortID from " + SEPARATOR + "portfolios pf order by pf.shortID";
-    QueryService qs = CacheUtils.getQueryService();
+    var query = "select pf.shortID from " + SEPARATOR + "portfolios pf order by pf.shortID";
+    var qs = CacheUtils.getQueryService();
 
-    SelectResults sr = (SelectResults) qs.newQuery(query).execute();
-    Object[] results = sr.toArray();
+    var sr = (SelectResults) qs.newQuery(query).execute();
+    var results = sr.toArray();
     assertTrue(Arrays.equals(expectedArray, results));
   }
 
 
   @Test
   public void testOrderedResultsReplicatedRegion() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
 
         "select  status as st from " + SEPARATOR + "portfolio1 where ID > 0 order by status",
 
@@ -341,20 +341,20 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
             + "portfolio1 key where key.status = 'inactive' order by key.status desc, key.ID"
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 200; i++) {
+    for (var i = 0; i < 200; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -371,12 +371,12 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
     qs.createIndex("i3", IndexType.FUNCTIONAL, "p.position1.secId", SEPARATOR + "portfolio1 p");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
 
@@ -385,7 +385,7 @@ public class NonDistinctOrderByReplicatedJUnitTest extends NonDistinctOrderByTes
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }

@@ -50,7 +50,7 @@ public class RemoteObjectName implements DataSerializable {
       return false;
     }
     if (o instanceof RemoteObjectName) {
-      RemoteObjectName n = (RemoteObjectName) o;
+      var n = (RemoteObjectName) o;
       return (hashCode == n.hashCode) && className.equals(n.className) && value.equals(n.value);
     } else {
       // this should only happen on the server side when we are trying

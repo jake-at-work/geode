@@ -40,15 +40,12 @@ import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache30.ClientServerTestCase;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.EventID;
-import org.apache.geode.internal.cache.FilterRoutingInfo.FilterInfo;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.RegionEventImpl;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
@@ -88,7 +85,7 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
 
     // server
     server0 = host.getVM(0);
@@ -112,7 +109,7 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testGIIRegionQueue() {
-    try (IgnoredException ignoredException =
+    try (var ignoredException =
         IgnoredException.addIgnoredException(ConnectException.class)) {
       client0.invoke(HAGIIDUnitTest::createEntries);
       client0.invoke(HAGIIDUnitTest::registerInterestList);
@@ -141,28 +138,28 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
   public static void createClientCache(String host, Integer port1, Integer port2) throws Exception {
     int PORT1 = port1;
     int PORT2 = port2;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAGIIDUnitTest().createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     ClientServerTestCase.configureConnectionPool(factory, host, new int[] {PORT1, PORT2}, true, -1,
         2, null, 1000, -1, -1);
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.addCacheListener(HAGIIDUnitTest.checker);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
   }
 
   public static Integer createServer1Cache() throws Exception {
     new HAGIIDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    int port = getRandomAvailableTCPPort();
-    CacheServer server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
     server1.start();
@@ -171,12 +168,12 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
 
   public static void createServer2Cache(Integer port) throws Exception {
     new HAGIIDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    CacheServer server1 = cache.addCacheServer();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
     server1.start();
@@ -211,7 +208,7 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
     try {
       Iterator iter = cache.getCacheServers().iterator();
       if (iter.hasNext()) {
-        CacheServer server = (CacheServer) iter.next();
+        var server = (CacheServer) iter.next();
         server.stop();
       }
     } catch (Exception e) {
@@ -235,19 +232,19 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
 
   /** queue a tombstone GC message for the client. See bug #46832 */
   public static void tombstonegc() throws Exception {
-    LocalRegion r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
+    var r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r);
 
-    DistributedMember id = r.getCache().getDistributedSystem().getDistributedMember();
-    RegionEventImpl regionEvent = new RegionEventImpl(r, Operation.REGION_DESTROY, null, true, id);
+    var id = r.getCache().getDistributedSystem().getDistributedMember();
+    var regionEvent = new RegionEventImpl(r, Operation.REGION_DESTROY, null, true, id);
 
-    FilterInfo clientRouting = r.getFilterProfile().getLocalFilterRouting(regionEvent);
+    var clientRouting = r.getFilterProfile().getLocalFilterRouting(regionEvent);
     assertTrue(clientRouting.getInterestedClients().size() > 0);
 
     regionEvent.setLocalFilterInfo(clientRouting);
 
     Map<VersionSource<?>, Long> map = Collections.emptyMap();
-    ClientTombstoneMessage message =
+    var message =
         ClientTombstoneMessage.gc(r, map, new EventID(r.getCache().getDistributedSystem()));
     CacheClientNotifier.notifyClients(regionEvent, message);
   }
@@ -259,7 +256,7 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
       // wait until we
       // have a dead
       // server
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           return r.getEntry("key-1").getValue().equals("key-1");
@@ -312,7 +309,7 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
   public static void verifyEntriesAfterGiiViaListener() {
 
     // Check whether just the 3 expected updates arrive.
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return checker.gotFirst();
@@ -361,7 +358,7 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
       // wait until
       // we have a
       // dead server
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           return r.getEntry("key-1").getValue().equals("value-1");
@@ -452,8 +449,8 @@ public class HAGIIDUnitTest extends JUnit4DistributedTestCase {
 
       updates++;
 
-      String key = (String) event.getKey();
-      String value = (String) event.getNewValue();
+      var key = (String) event.getKey();
+      var value = (String) event.getNewValue();
 
       if (key.equals("key-1") && value.equals("value-1")) {
         gotFirst = true;

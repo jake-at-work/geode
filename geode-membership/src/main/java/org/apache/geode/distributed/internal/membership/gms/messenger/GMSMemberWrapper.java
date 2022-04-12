@@ -41,7 +41,7 @@ public class GMSMemberWrapper {
     if (!(obj instanceof GMSMemberWrapper)) {
       return false;
     }
-    MemberIdentifier other = ((GMSMemberWrapper) obj).mbr;
+    var other = ((GMSMemberWrapper) obj).mbr;
     // here we must compare member data rather than identifiers since the view identifiers and
     // UUID identifiers need to be ignored
     return mbr.getMemberData().compareTo(other.getMemberData(), false, false) == 0;

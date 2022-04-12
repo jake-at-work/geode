@@ -32,9 +32,9 @@ import org.apache.geode.management.configuration.Pdx;
 public class PdxValidatorTest {
   @Test
   public void validateForAnyOperation_acceptsDefaultPdx() {
-    PdxValidator validator = new PdxValidator();
+    var validator = new PdxValidator();
 
-    Pdx pdx = new Pdx();
+    var pdx = new Pdx();
 
     Stream.of(CREATE, UPDATE, DELETE)
         .forEach(operation -> assertThatCode(() -> validator.validate(operation, pdx))
@@ -44,8 +44,8 @@ public class PdxValidatorTest {
 
   @Test
   public void validateForCreate_throwsIfAutoSerializerHasNoPatterns() {
-    PdxValidator validator = new PdxValidator();
-    Pdx pdx = new Pdx();
+    var validator = new PdxValidator();
+    var pdx = new Pdx();
 
     List<String> noPatterns = emptyList();
     pdx.setAutoSerializer(new AutoSerializer(false, noPatterns));
@@ -57,8 +57,8 @@ public class PdxValidatorTest {
 
   @Test
   public void validateForCreate_throwsIfAutoSerializerHasNullPatterns() {
-    PdxValidator validator = new PdxValidator();
-    Pdx pdx = new Pdx();
+    var validator = new PdxValidator();
+    var pdx = new Pdx();
 
     pdx.setAutoSerializer(new AutoSerializer(false, (List<String>) null));
 
@@ -69,8 +69,8 @@ public class PdxValidatorTest {
 
   @Test
   public void validateForDelete_acceptsAutoSerializerWithNoPatterns() {
-    PdxValidator validator = new PdxValidator();
-    Pdx pdx = new Pdx();
+    var validator = new PdxValidator();
+    var pdx = new Pdx();
 
     List<String> noPatterns = emptyList();
     pdx.setAutoSerializer(new AutoSerializer(false, noPatterns));
@@ -81,8 +81,8 @@ public class PdxValidatorTest {
 
   @Test
   public void validateForDelete_acceptsAutoSerializerWithNullPatterns() {
-    PdxValidator validator = new PdxValidator();
-    Pdx pdx = new Pdx();
+    var validator = new PdxValidator();
+    var pdx = new Pdx();
 
     pdx.setAutoSerializer(new AutoSerializer(false, (List<String>) null));
 
@@ -92,8 +92,8 @@ public class PdxValidatorTest {
 
   @Test
   public void validateForUpdate_acceptsAutoSerializerWithNullPatterns() {
-    PdxValidator validator = new PdxValidator();
-    Pdx pdx = new Pdx();
+    var validator = new PdxValidator();
+    var pdx = new Pdx();
 
     pdx.setAutoSerializer(new AutoSerializer(false, (List<String>) null));
 
@@ -103,8 +103,8 @@ public class PdxValidatorTest {
 
   @Test
   public void validateForUpdate_throwsIfAutoSerializerHasNoPatterns() {
-    PdxValidator validator = new PdxValidator();
-    Pdx pdx = new Pdx();
+    var validator = new PdxValidator();
+    var pdx = new Pdx();
 
     List<String> noPatterns = emptyList();
     pdx.setAutoSerializer(new AutoSerializer(false, noPatterns));

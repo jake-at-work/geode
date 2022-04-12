@@ -92,7 +92,7 @@ public class MessageDispatcherTest {
 
   @Test
   public void onlyAuthorizeClientUpdateMessage() throws Exception {
-    ClientMessage message = mock(ClientMessage.class);
+    var message = mock(ClientMessage.class);
     when(securityService.isIntegratedSecurity()).thenReturn(true);
     dispatcher.dispatchMessage(message);
     verify(securityService, never()).authorize(any(ResourcePermission.class), any(Subject.class));
@@ -118,9 +118,9 @@ public class MessageDispatcherTest {
   public void useCqNameToFindSubjectToAuthorize() throws Exception {
     when(securityService.isIntegratedSecurity()).thenReturn(true);
     when(proxy.getSubject()).thenReturn(null);
-    CqNameToOp clientCqs = mock(CqNameToOp.class);
+    var clientCqs = mock(CqNameToOp.class);
     when(message.getClientCq(any())).thenReturn(clientCqs);
-    String[] names = {"cq1"};
+    var names = new String[] {"cq1"};
     when(clientCqs.getNames()).thenReturn(names);
     when(proxy.getSubject("cq1")).thenReturn(subject);
     dispatcher.dispatchMessage(message);

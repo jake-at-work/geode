@@ -90,7 +90,7 @@ public class PRInvalidQueryDUnitTest extends CacheTestCase {
         PortfolioData.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    PortfolioData[] portfolioData =
+    var portfolioData =
         createPortfolioData(START_PORTFOLIO_DATA_INDEX, TOTAL_DATA_SIZE);
 
     // Putting the data into the PR's created

@@ -63,7 +63,7 @@ public class PidFile {
     isTrue(directory.isDirectory() && directory.exists(),
         "Nonexistent directory '" + directory + "' specified");
 
-    File file = new File(directory, filename);
+    var file = new File(directory, filename);
     if (!file.exists() || file.isDirectory()) {
       throw new FileNotFoundException(
           "Unable to find PID file '" + filename + "' in directory '" + directory + "'");
@@ -82,10 +82,10 @@ public class PidFile {
    */
   public int readPid() throws IOException {
     String pidValue = null;
-    try (BufferedReader fileReader = new BufferedReader(new FileReader(pidFile))) {
+    try (var fileReader = new BufferedReader(new FileReader(pidFile))) {
       pidValue = fileReader.readLine();
 
-      int pid = Integer.parseInt(pidValue);
+      var pid = Integer.parseInt(pidValue);
 
       if (pid < 1) {
         throw new IllegalArgumentException(

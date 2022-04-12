@@ -25,9 +25,9 @@ public class SocketMessageWriterTest {
 
   @Test
   public void writeHandshakeMessageWithClientVersionNull() throws IOException {
-    final SocketMessageWriter writer = new SocketMessageWriter();
+    final var writer = new SocketMessageWriter();
     // can't mock DataOutputStream
-    final DataOutputStream outputStream = new DataOutputStream(new ByteArrayOutputStream());
+    final var outputStream = new DataOutputStream(new ByteArrayOutputStream());
     writer.writeHandshakeMessage(outputStream, (byte) 1, "", null, (byte) 0, 0);
   }
 }

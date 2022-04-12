@@ -31,16 +31,12 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerConnectivityException;
-import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.ServerRegionProxy;
 import org.apache.geode.cache.server.CacheServer;
@@ -103,10 +99,10 @@ public class ClientHealthMonitorIntegrationTest {
    * Initializes proxy object and creates region for client
    */
   private void createProxyAndRegionForClient() throws Exception {
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     proxy = (PoolImpl) pf.addServer("localhost", PORT)
         .setReadTimeout(10000).setPingInterval(10000).setMinConnections(0).create("junitPool");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     cache.createVMRegion(regionName, factory.createRegionAttributes());
   }
@@ -118,7 +114,7 @@ public class ClientHealthMonitorIntegrationTest {
    */
   private int createServer() throws Exception {
     CacheServer server = null;
-    Properties p = new Properties();
+    var p = new Properties();
     // make it a loner
     p.put(MCAST_PORT, "0");
     p.put(LOCATORS, "");
@@ -126,7 +122,7 @@ public class ClientHealthMonitorIntegrationTest {
     system = DistributedSystem.connect(p);
     cache = CacheFactory.create(system);
     server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setMaximumTimeBetweenPings(TIME_BETWEEN_PINGS);
     server.setMaxThreads(getMaxThreads());
     server.setPort(port);
@@ -136,7 +132,7 @@ public class ClientHealthMonitorIntegrationTest {
 
   @Test
   public void settingMonitorIntervalViaProperty() {
-    int monitorInterval = 10;
+    var monitorInterval = 10;
     System.setProperty(ClientHealthMonitor.CLIENT_HEALTH_MONITOR_INTERVAL_PROPERTY,
         String.valueOf(monitorInterval));
 
@@ -155,7 +151,7 @@ public class ClientHealthMonitorIntegrationTest {
 
   @Test
   public void monitorIntervalDefaultsWhenInvalidValue() {
-    String monitorInterval = "this isn't a number";
+    var monitorInterval = "this isn't a number";
     System.setProperty(ClientHealthMonitor.CLIENT_HEALTH_MONITOR_INTERVAL_PROPERTY,
         monitorInterval);
 
@@ -179,14 +175,14 @@ public class ClientHealthMonitorIntegrationTest {
     System.setProperty(ClientHealthMonitor.CLIENT_HEALTH_MONITOR_INTERVAL_PROPERTY, "100");
     PORT = createServer();
     createProxyAndRegionForClient();
-    StatisticsType statisticsType = system.findType("CacheServerStats");
-    final Statistics statistics = system.findStatisticsByType(statisticsType)[0];
+    var statisticsType = system.findType("CacheServerStats");
+    final var statistics = system.findStatisticsByType(statisticsType)[0];
     assertEquals(0, statistics.getInt("currentClients"));
     assertEquals(0, statistics.getInt("currentClientConnections"));
     system.getLogWriter()
         .info("beforeAcquireConnection clients=" + statistics.getInt("currentClients") + " cnxs="
             + statistics.getInt("currentClientConnections"));
-    Connection connection1 = proxy.acquireConnection();
+    var connection1 = proxy.acquireConnection();
     system.getLogWriter()
         .info("afterAcquireConnection clients=" + statistics.getInt("currentClients") + " cnxs="
             + statistics.getInt("currentClientConnections"));
@@ -197,7 +193,7 @@ public class ClientHealthMonitorIntegrationTest {
 
     assertEquals(1, statistics.getInt("currentClients"));
     assertEquals(1, statistics.getInt("currentClientConnections"));
-    ServerRegionProxy srp = new ServerRegionProxy("region1", proxy);
+    var srp = new ServerRegionProxy("region1", proxy);
 
     srp.putOnForTestsOnly(connection1, "key-1", "value-1", new EventID(new byte[] {1}, 1, 1), null);
     system.getLogWriter().info("did put 1");

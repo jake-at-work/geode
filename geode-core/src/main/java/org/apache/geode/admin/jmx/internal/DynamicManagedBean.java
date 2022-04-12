@@ -66,7 +66,7 @@ public class DynamicManagedBean extends org.apache.commons.modeler.ManagedBean {
     }
     synchronized (attributes) {
       List attributesList = new ArrayList(attributes.length);
-      for (final AttributeInfo attribute : attributes) {
+      for (final var attribute : attributes) {
         if (!name.equals(attribute.getName())) {
           attributesList.add(attribute);
         }
@@ -98,7 +98,7 @@ public class DynamicManagedBean extends org.apache.commons.modeler.ManagedBean {
 
     synchronized (operations) {
       List operationsList = new ArrayList(operations.length);
-      for (final OperationInfo operation : operations) {
+      for (final var operation : operations) {
         if (!name.equals(operation.getName())) {
           operationsList.add(operation);
         }
@@ -122,7 +122,7 @@ public class DynamicManagedBean extends org.apache.commons.modeler.ManagedBean {
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("DynamicManagedBean[");
+    var sb = new StringBuilder("DynamicManagedBean[");
     sb.append("name=");
     sb.append(name);
     sb.append(", className=");

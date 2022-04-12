@@ -40,7 +40,7 @@ public class ObjectDetailsRequest extends RegionAdminRequest implements Cancella
    * Returns a <code>ObjectValueRequest</code> to be sent to the specified recipient.
    */
   public static ObjectDetailsRequest create(Object objName, int inspectionType) {
-    ObjectDetailsRequest m = new ObjectDetailsRequest();
+    var m = new ObjectDetailsRequest();
     m.objName = objName;
     m.inspectionType = inspectionType;
     return m;

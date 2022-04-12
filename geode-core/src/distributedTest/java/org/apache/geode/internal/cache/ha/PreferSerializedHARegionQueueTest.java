@@ -24,16 +24,13 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.PoolFactory;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.internal.cache.tier.sockets.HAEventWrapper;
 import org.apache.geode.test.dunit.DUnitEnv;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
 
@@ -43,14 +40,14 @@ public class PreferSerializedHARegionQueueTest extends JUnit4CacheTestCase {
 
   @Test
   public void copyingHARegionQueueShouldNotThrowException() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    VM vm4 = host.getVM(4);
-    VM vm5 = host.getVM(5);
-    VM vm6 = host.getVM(6);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    var vm4 = host.getVM(4);
+    var vm5 = host.getVM(5);
+    var vm6 = host.getVM(6);
 
     // Set prefer serialized
     vm1.invoke(PreferSerializedHARegionQueueTest::setPreferSerialized);
@@ -58,7 +55,7 @@ public class PreferSerializedHARegionQueueTest extends JUnit4CacheTestCase {
     vm3.invoke(PreferSerializedHARegionQueueTest::setPreferSerialized);
     vm4.invoke(PreferSerializedHARegionQueueTest::setPreferSerialized);
 
-    String regionName = getTestMethodName() + "_PR";
+    var regionName = getTestMethodName() + "_PR";
     try {
       // Initialize initial cache servers
       vm1.invoke(() -> initializeServer(regionName));
@@ -72,7 +69,7 @@ public class PreferSerializedHARegionQueueTest extends JUnit4CacheTestCase {
       vm2.invoke(() -> waitForCacheClientProxies(1));
 
       // Create client loader and load entries
-      int numPuts = 10;
+      var numPuts = 10;
       vm6.invoke(
           () -> createClient(regionName, false, 0, PoolFactory.DEFAULT_SUBSCRIPTION_ACK_INTERVAL));
       vm6.invoke(() -> {
@@ -123,7 +120,7 @@ public class PreferSerializedHARegionQueueTest extends JUnit4CacheTestCase {
   public void initializeServer(String regionName) throws IOException {
     getCache().createRegionFactory(RegionShortcut.PARTITION).create(regionName);
 
-    final CacheServer cacheServer = getCache().addCacheServer();
+    final var cacheServer = getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
   }
@@ -131,13 +128,13 @@ public class PreferSerializedHARegionQueueTest extends JUnit4CacheTestCase {
   public void createClient(String regionName, boolean subscriptionEnabled,
       int subscriptionRedundancy, int subscriptionAckInterval) {
 
-    ClientCacheFactory clientCacheFactory =
+    var clientCacheFactory =
         new ClientCacheFactory().setPoolSubscriptionAckInterval(subscriptionAckInterval)
             .setPoolSubscriptionEnabled(subscriptionEnabled)
             .setPoolSubscriptionRedundancy(subscriptionRedundancy)
             .addPoolLocator("localhost", DUnitEnv.get().getLocatorPort());
 
-    ClientCache cache = getClientCache(clientCacheFactory);
+    var cache = getClientCache(clientCacheFactory);
 
     Region region = cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
     if (subscriptionEnabled) {
@@ -154,14 +151,14 @@ public class PreferSerializedHARegionQueueTest extends JUnit4CacheTestCase {
   }
 
   public void waitForCacheClientProxies(final int expectedSize) {
-    final CacheServer cs = getCache().getCacheServers().iterator().next();
+    final var cs = getCache().getCacheServers().iterator().next();
     await()
         .untilAsserted(() -> assertEquals(expectedSize, cs.getAllClientSessions().size()));
   }
 
   public void waitForHARegionSize(final int expectedSize) {
-    final CacheServer cs = getCache().getCacheServers().iterator().next();
-    final CacheClientProxy ccp = (CacheClientProxy) cs.getAllClientSessions().iterator().next();
+    final var cs = getCache().getCacheServers().iterator().next();
+    final var ccp = (CacheClientProxy) cs.getAllClientSessions().iterator().next();
     await()
         .untilAsserted(() -> assertEquals(expectedSize, getHAEventsCount(ccp)));
   }
@@ -171,8 +168,8 @@ public class PreferSerializedHARegionQueueTest extends JUnit4CacheTestCase {
     if (haRegion == null) {
       return 0;
     }
-    int count = 0;
-    for (Object value : haRegion.values()) {
+    var count = 0;
+    for (var value : haRegion.values()) {
       if (value instanceof HAEventWrapper) {
         count += 1;
       }

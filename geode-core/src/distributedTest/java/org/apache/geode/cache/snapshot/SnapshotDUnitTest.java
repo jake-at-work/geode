@@ -36,14 +36,10 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.snapshot.RegionGenerator.RegionType;
 import org.apache.geode.cache.snapshot.RegionGenerator.SerializationType;
 import org.apache.geode.cache.snapshot.SnapshotOptions.SnapshotFormat;
@@ -66,7 +62,7 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         SerializationType.class.getName() + ";" + MyObject.class.getName() + ";"
             + SnapshotProblem.class.getName());
@@ -75,7 +71,7 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testExportAndImport() throws Exception {
-    File dir = new File(getDiskDirs()[0], "snap");
+    var dir = new File(getDiskDirs()[0], "snap");
     dir.mkdir();
 
     // save all regions
@@ -84,12 +80,12 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
     // update regions with data to be overwritten by import
     updateRegions();
 
-    SerializableCallable callbacks = new SerializableCallable() {
+    var callbacks = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        for (final RegionType rt : RegionType.values()) {
-          for (final SerializationType st : SerializationType.values()) {
-            String name = "test-" + rt.name() + "-" + st.name();
+        for (final var rt : RegionType.values()) {
+          for (final var st : SerializationType.values()) {
+            var name = "test-" + rt.name() + "-" + st.name();
 
             Cache c = getCache();
             Region<Integer, MyObject> region = c.getRegion(name);
@@ -123,22 +119,22 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testExportAndImportWithInvokeCallbacksEnabled() throws Exception {
-    File dir = new File(getDiskDirs()[0], "callbacks");
+    var dir = new File(getDiskDirs()[0], "callbacks");
     dir.mkdir();
 
     // save all regions
-    CacheSnapshotService service = getCache().getSnapshotService();
+    var service = getCache().getSnapshotService();
     service.save(dir, SnapshotFormat.GEODE);
 
     // update regions with data to be overwritten by importdir
     updateRegions();
 
-    SerializableCallable callbacks = new SerializableCallable() {
+    var callbacks = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        for (final RegionType rt : RegionType.values()) {
-          for (final SerializationType st : SerializationType.values()) {
-            String name = "test-" + rt.name() + "-" + st.name();
+        for (final var rt : RegionType.values()) {
+          for (final var st : SerializationType.values()) {
+            var name = "test-" + rt.name() + "-" + st.name();
             Cache cache = getCache();
             Region<Integer, MyObject> region = cache.getRegion(name);
             // add CacheWriter and CacheListener
@@ -166,22 +162,22 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void addAsyncEventQueue(Region region, String name) {
-    DiskStoreFactory dsFactory = getCache().createDiskStoreFactory();
+    var dsFactory = getCache().createDiskStoreFactory();
     dsFactory.create(name);
-    AsyncEventQueueFactory aeqFactory = getCache().createAsyncEventQueueFactory();
+    var aeqFactory = getCache().createAsyncEventQueueFactory();
     aeqFactory.setDiskStoreName(name);
     aeqFactory.create(name, new CountingAsyncEventListener());
     region.getAttributesMutator().addAsyncEventQueueId(name);
   }
 
   private void updateRegions() {
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        String name = "test-" + rt.name() + "-" + st.name();
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var name = "test-" + rt.name() + "-" + st.name();
 
         // overwrite region with bad data
         Region<Integer, MyObject> region = getCache().getRegion(name);
-        for (Entry<Integer, MyObject> entry : region.entrySet()) {
+        for (var entry : region.entrySet()) {
           region.put(entry.getKey(), new MyObject(Integer.MAX_VALUE, "bad!!"));
         }
       }
@@ -189,17 +185,17 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void loadRegions(File dir, SnapshotOptions options) throws Exception {
-    RegionGenerator rgen = new RegionGenerator();
+    var rgen = new RegionGenerator();
     if (options != null) {
       getCache().getSnapshotService().load(dir.listFiles(), SnapshotFormat.GEODE, options);
     } else {
       getCache().getSnapshotService().load(dir, SnapshotFormat.GEODE);
     }
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
         Region<Integer, MyObject> region =
             getCache().getRegion("test-" + rt.name() + "-" + st.name());
-        for (Entry<Integer, MyObject> entry : createExpected(st, rgen).entrySet()) {
+        for (var entry : createExpected(st, rgen).entrySet()) {
           assertEquals("Comparison failure for " + rt.name() + "/" + st.name(), entry.getValue(),
               region.get(entry.getKey()));
         }
@@ -208,22 +204,22 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void verifyCallbacksInvoked() throws Exception {
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        SerializableCallable counts = new SerializableCallable() {
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var counts = new SerializableCallable() {
           @Override
           public Object call() throws Exception {
-            String name = "test-" + rt.name() + "-" + st.name();
+            var name = "test-" + rt.name() + "-" + st.name();
             Region<Integer, MyObject> region = getCache().getRegion(name);
             // get CacheWriter and CacheListener events
-            CountingCacheWriter writer =
+            var writer =
                 (CountingCacheWriter) region.getAttributes().getCacheWriter();
-            CountingCacheListener listener =
+            var listener =
                 (CountingCacheListener) region.getAttributes().getCacheListener();
             // get AsyncEventListener events
-            int numAeqEvents = 0;
-            AsyncEventQueue aeq = getCache().getAsyncEventQueue(name);
-            CountingAsyncEventListener aeqListener =
+            var numAeqEvents = 0;
+            var aeq = getCache().getAsyncEventQueue(name);
+            var aeqListener =
                 (CountingAsyncEventListener) aeq.getAsyncEventListener();
             if (aeq.isPrimary()) {
               await()
@@ -233,10 +229,10 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
             return new int[] {writer.getEvents(), listener.getEvents(), numAeqEvents};
           }
         };
-        Object result = forEachVm(counts, true);
+        var result = forEachVm(counts, true);
         int totalWriterUpdates = 0, totalListenerUpdates = 0, totalAeqEvents = 0;
         List<int[]> list = (List) result;
-        for (int[] vmResult : list) {
+        for (var vmResult : list) {
           totalWriterUpdates += vmResult[0];
           totalListenerUpdates += vmResult[1];
           totalAeqEvents += vmResult[2];
@@ -263,12 +259,12 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
   public void testCacheExportFilterException() throws Exception {
     SnapshotFilter<Object, Object> oops = new SnapshotProblem();
 
-    CacheSnapshotService css = getCache().getSnapshotService();
-    SnapshotOptions<Object, Object> options = css.createOptions().setFilter(oops);
+    var css = getCache().getSnapshotService();
+    var options = css.createOptions().setFilter(oops);
 
-    boolean caughtException = false;
+    var caughtException = false;
     try {
-      File dir = new File(getDiskDirs()[0], "export");
+      var dir = new File(getDiskDirs()[0], "export");
       dir.mkdir();
 
       css.save(dir, SnapshotFormat.GEODE, options);
@@ -281,20 +277,20 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testCacheImportFilterException() throws Exception {
-    SnapshotFilter<Object, Object> oops = entry -> {
+    var oops = (SnapshotFilter<Object, Object>) entry -> {
       throw new RuntimeException();
     };
 
-    File dir = new File(getDiskDirs()[0], "import");
+    var dir = new File(getDiskDirs()[0], "import");
     dir.mkdir();
 
     // save all regions
-    CacheSnapshotService css = getCache().getSnapshotService();
+    var css = getCache().getSnapshotService();
     css.save(dir, SnapshotFormat.GEODE);
 
-    SnapshotOptions<Object, Object> options = css.createOptions().setFilter(oops);
+    var options = css.createOptions().setFilter(oops);
 
-    boolean caughtException = false;
+    var caughtException = false;
     try {
       css.load(dir.listFiles(), SnapshotFormat.GEODE, options);
     } catch (Exception e) {
@@ -308,9 +304,9 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
   public final void postSetUp() throws Exception {
     loadCache();
 
-    RegionGenerator rgen = new RegionGenerator();
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
+    var rgen = new RegionGenerator();
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
         Region<Integer, MyObject> region =
             getCache().getRegion("test-" + rt.name() + "-" + st.name());
         region.putAll(createExpected(st, rgen));
@@ -321,27 +317,27 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
   public static Map<Integer, MyObject> createExpected(SerializationType type,
       RegionGenerator rgen) {
     Map<Integer, MyObject> expected = new HashMap<>();
-    for (int i = 0; i < NUM_ENTRIES; i++) {
+    for (var i = 0; i < NUM_ENTRIES; i++) {
       expected.put(i, rgen.createData(type, i, "The number is " + i));
     }
     return expected;
   }
 
   public void loadCache() throws Exception {
-    SerializableCallable setup = new SerializableCallable() {
+    var setup = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheFactory cf =
+        var cf =
             new CacheFactory().setPdxSerializer(new MyPdxSerializer()).setPdxPersistent(true);
 
         Cache cache = getCache(cf);
-        DiskStore ds = cache.createDiskStoreFactory().setMaxOplogSize(1).setDiskDirs(getDiskDirs())
+        var ds = cache.createDiskStoreFactory().setMaxOplogSize(1).setDiskDirs(getDiskDirs())
             .create("snapshotTest");
 
-        RegionGenerator rgen = new RegionGenerator();
+        var rgen = new RegionGenerator();
 
-        for (final RegionType rt : RegionType.values()) {
-          for (final SerializationType st : SerializationType.values()) {
+        for (final var rt : RegionType.values()) {
+          for (final var st : SerializationType.values()) {
             rgen.createRegion(cache, ds.getName(), rt, "test-" + rt.name() + "-" + st.name());
           }
         }
@@ -354,10 +350,10 @@ public class SnapshotDUnitTest extends JUnit4CacheTestCase {
 
   public static Object forEachVm(SerializableCallable call, boolean local) throws Exception {
     List result = new ArrayList();
-    Host host = Host.getHost(0);
-    int vms = host.getVMCount();
+    var host = Host.getHost(0);
+    var vms = host.getVMCount();
 
-    for (int i = 0; i < vms; ++i) {
+    for (var i = 0; i < vms; ++i) {
       result.add(host.getVM(i).invoke(call));
     }
 

@@ -99,7 +99,7 @@ public abstract class ThrowableUtils {
    * Set the root cause of an exception, if possible, to be newRootCause
    */
   public static void setRootCause(Throwable exception, Throwable newRootCause) {
-    Throwable nt = exception;
+    var nt = exception;
     while (nt.getCause() != null) {
       nt = nt.getCause();
     }

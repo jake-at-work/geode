@@ -35,7 +35,7 @@ public class SimpleLoggingProviderTest {
 
   @Test
   public void getConfigurationInfoReturnsClassName() {
-    String configurationInfo = nullProviderAgent.getConfigurationInfo();
+    var configurationInfo = nullProviderAgent.getConfigurationInfo();
 
     assertThat(configurationInfo).isEqualTo(SimpleLoggingProvider.class.getName());
   }

@@ -51,7 +51,7 @@ public class ManagementCacheListener extends CacheListenerAdapter<String, Object
 
     try {
       objectName = ObjectName.getInstance(event.getKey());
-      Object newObject = event.getNewValue();
+      var newObject = event.getNewValue();
       proxyHelper.createProxy(event.getDistributedMember(), objectName, event.getRegion(),
           newObject);
     } catch (Exception e) {
@@ -68,7 +68,7 @@ public class ManagementCacheListener extends CacheListenerAdapter<String, Object
 
     try {
       objectName = ObjectName.getInstance(event.getKey());
-      Object oldObject = event.getOldValue();
+      var oldObject = event.getOldValue();
       proxyHelper.removeProxy(event.getDistributedMember(), objectName, oldObject);
     } catch (Exception e) {
       if (logger.isDebugEnabled()) {
@@ -88,15 +88,15 @@ public class ManagementCacheListener extends CacheListenerAdapter<String, Object
       }
       objectName = ObjectName.getInstance(event.getKey());
 
-      ProxyInfo proxyInfo = proxyHelper.findProxyInfo(objectName);
+      var proxyInfo = proxyHelper.findProxyInfo(objectName);
       if (proxyInfo != null) {
-        ProxyInterface proxyObj = (ProxyInterface) proxyInfo.getProxyInstance();
+        var proxyObj = (ProxyInterface) proxyInfo.getProxyInstance();
         // Will return null if proxy is filtered out
         if (proxyObj != null) {
           proxyObj.setLastRefreshedTime(System.currentTimeMillis());
         }
-        Object oldObject = event.getOldValue();
-        Object newObject = event.getNewValue();
+        var oldObject = event.getOldValue();
+        var newObject = event.getNewValue();
         proxyHelper.updateProxy(objectName, proxyInfo, newObject, oldObject);
       }
 

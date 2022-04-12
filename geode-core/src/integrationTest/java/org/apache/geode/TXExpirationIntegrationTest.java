@@ -53,7 +53,6 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
 
 /**
@@ -78,7 +77,7 @@ public class TXExpirationIntegrationTest {
   }
 
   protected Properties getConfig() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(MCAST_PORT, "0");
     return config;
@@ -100,10 +99,10 @@ public class TXExpirationIntegrationTest {
       "ENTRY_TTL_INVALIDATE"})
   @TestCaseName("{method}({params})")
   public void entryExpirationDoesNotCauseConflict(ExpirationOperation operation) throws Exception {
-    InternalRegion region = createRegion(REGION_NAME);
+    var region = createRegion(REGION_NAME);
     AttributesMutator<String, String> mutator = region.getAttributesMutator();
 
-    KeyCacheListener keyCacheListener = spy(new KeyCacheListener());
+    var keyCacheListener = spy(new KeyCacheListener());
     mutator.addCacheListener(keyCacheListener);
 
     ExpiryTask.suspendExpiration();
@@ -134,9 +133,9 @@ public class TXExpirationIntegrationTest {
       throws Exception {
     Region<String, String> region = createRegion(REGION_NAME);
 
-    AttributesMutator<String, String> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
 
-    KeyCacheListener keyCacheListener = spy(new KeyCacheListener());
+    var keyCacheListener = spy(new KeyCacheListener());
     mutator.addCacheListener(keyCacheListener);
 
     ExpiryTask.suspendExpiration();
@@ -152,8 +151,8 @@ public class TXExpirationIntegrationTest {
 
     ExpiryTask.suspendExpiration();
 
-    TXManagerImpl txManagerImpl = (TXManagerImpl) transactionManager;
-    TXStateProxy txStateProxy = txManagerImpl.pauseTransaction();
+    var txManagerImpl = (TXManagerImpl) transactionManager;
+    var txStateProxy = txManagerImpl.pauseTransaction();
     region.put(KEY, "conflict");
     txManagerImpl.unpauseTransaction(txStateProxy);
 
@@ -173,9 +172,9 @@ public class TXExpirationIntegrationTest {
       throws Exception {
     Region<String, String> region = createRegion(REGION_NAME);
 
-    AttributesMutator<String, String> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
 
-    KeyCacheListener keyCacheListener = spy(new KeyCacheListener());
+    var keyCacheListener = spy(new KeyCacheListener());
     mutator.addCacheListener(keyCacheListener);
 
     ExpiryTask.suspendExpiration();
@@ -204,9 +203,9 @@ public class TXExpirationIntegrationTest {
   public void regionExpirationDoesNotCauseConflict(ExpirationOperation operation) throws Exception {
     Region<String, String> region = createRegion(REGION_NAME);
 
-    KeyCacheListener keyCacheListener = spy(new KeyCacheListener());
+    var keyCacheListener = spy(new KeyCacheListener());
 
-    AttributesMutator<String, String> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     mutator.addCacheListener(keyCacheListener);
 
     ExpiryTask.suspendExpiration();
@@ -295,7 +294,7 @@ public class TXExpirationIntegrationTest {
   }
 
   private void awaitEntryExpiration(Region region, String key) {
-    InternalRegion internalRegion = (InternalRegion) region;
+    var internalRegion = (InternalRegion) region;
     try {
       ExpirationDetector detector;
       do {
@@ -310,7 +309,7 @@ public class TXExpirationIntegrationTest {
   }
 
   private void awaitRegionExpiration(Region region) {
-    InternalRegion internalRegion = (InternalRegion) region;
+    var internalRegion = (InternalRegion) region;
     try {
       ExpirationDetector detector;
       do {

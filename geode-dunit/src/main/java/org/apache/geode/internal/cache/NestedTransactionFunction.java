@@ -23,9 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
@@ -65,10 +63,10 @@ public class NestedTransactionFunction implements Function, DataSerializable {
 
   @Override
   public void execute(FunctionContext context) {
-    Cache cache = CacheFactory.getAnyInstance();
-    ArrayList args = (ArrayList) context.getArguments();
+    var cache = CacheFactory.getAnyInstance();
+    var args = (ArrayList) context.getArguments();
     TXId txId = null;
-    int action = 0;
+    var action = 0;
     try {
       txId = (TXId) args.get(0);
       action = (Integer) args.get(1);
@@ -77,9 +75,9 @@ public class NestedTransactionFunction implements Function, DataSerializable {
           "CommitFunction should be invoked with a TransactionId as an argument i.e. setArguments(txId).execute(function)");
       throw e;
     }
-    CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+    var txMgr = cache.getCacheTransactionManager();
     Boolean result = false;
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (txMgr.tryResume(txId)) {
       if (isDebugEnabled) {
         logger.debug("CommitFunction: resumed transaction: {}", txId);

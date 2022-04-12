@@ -17,7 +17,6 @@ package org.apache.geode.internal.util.concurrent;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -42,8 +41,8 @@ public class CompactConcurrentHashSetJUnitTest {
     Set s1, s2;
     s1 = new CompactConcurrentHashSet2();
     s2 = new HashSet();
-    for (int i = 0; i < 10000; i++) {
-      int nexti = random.nextInt(RANGE);
+    for (var i = 0; i < 10000; i++) {
+      var nexti = random.nextInt(RANGE);
       s1.add(nexti);
       s2.add(nexti);
       assertTrue("expected s1 and s2 to be equal", s1.equals(s2));
@@ -60,12 +59,12 @@ public class CompactConcurrentHashSetJUnitTest {
   public void testIterator() {
     Set<Integer> s1;
     s1 = new CompactConcurrentHashSet2<>();
-    for (int i = 0; i < 10000; i++) {
-      int nexti = random.nextInt(RANGE);
+    for (var i = 0; i < 10000; i++) {
+      var nexti = random.nextInt(RANGE);
       s1.add(nexti);
     }
-    for (Iterator<Integer> it = s1.iterator(); it.hasNext();) {
-      Integer i = it.next();
+    for (var it = s1.iterator(); it.hasNext();) {
+      var i = it.next();
       assertTrue(s1.contains(i));
       it.remove();
       if (s1.contains(i)) {
@@ -80,17 +79,17 @@ public class CompactConcurrentHashSetJUnitTest {
     Set<Integer> s1, s2;
     s1 = new CompactConcurrentHashSet2<>();
     s2 = new HashSet<>();
-    for (int i = 0; i < 10000; i++) {
-      int nexti = random.nextInt(RANGE);
+    for (var i = 0; i < 10000; i++) {
+      var nexti = random.nextInt(RANGE);
       s1.add(nexti);
       s2.add(nexti);
     }
-    int size = s2.size(); // trust HashSet.size()
+    var size = s2.size(); // trust HashSet.size()
     assertTrue(s1.size() == size);
     s2 = new CompactConcurrentHashSet2<>(s1);
     assertTrue(s2.size() == size);
-    int i = size - 1;
-    for (Iterator<Integer> it = s2.iterator(); it.hasNext(); i--) {
+    var i = size - 1;
+    for (var it = s2.iterator(); it.hasNext(); i--) {
       s1.remove(it.next());
       assertTrue(s1.size() == i);
     }

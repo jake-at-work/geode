@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -45,11 +44,9 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.compression.Compressor;
 import org.apache.geode.compression.SnappyCompressor;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.RegionEntryContext;
@@ -128,7 +125,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void multipleTemplateRegionTypes() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName + " --type=REPLICATE --group=group1")
         .statusIsSuccess();
@@ -146,7 +143,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testCreateRegionWithGoodCompressor() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName
         + " --type=REPLICATE --compressor=" + RegionEntryContext.DEFAULT_COMPRESSION_PROVIDER)
         .statusIsSuccess();
@@ -168,7 +165,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void testCreateRegionWithBadCompressor() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName + " --type=REPLICATE --compressor=BAD_COMPRESSOR")
         .statusIsError();
@@ -182,7 +179,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void testCreateRegionWithNoCompressor() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=REPLICATE")
         .statusIsSuccess();
 
@@ -196,18 +193,18 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void testCreateRegionWithSubregion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=REPLICATE")
         .statusIsSuccess();
-    String subRegionName = "subregion";
-    String subRegionPath = regionName + SEPARATOR + subRegionName;
+    var subRegionName = "subregion";
+    var subRegionPath = regionName + SEPARATOR + subRegionName;
 
     gfsh.executeAndAssertThat("create region --name=" + subRegionPath +
         " --type=REPLICATE")
         .statusIsSuccess();
 
-    String subSubRegionName = "subregion2";
-    String subSubRegionPath = regionName + SEPARATOR + subRegionName + SEPARATOR + subSubRegionName;
+    var subSubRegionName = "subregion2";
+    var subSubRegionPath = regionName + SEPARATOR + subRegionName + SEPARATOR + subSubRegionName;
     gfsh.executeAndAssertThat("create region --name=" + subSubRegionPath +
         " --type=REPLICATE")
         .statusIsSuccess();
@@ -225,14 +222,14 @@ public class CreateRegionCommandDUnitTest {
     });
 
     locator.invoke(() -> {
-      CacheConfig config = ClusterStartupRule.getLocator().getConfigurationPersistenceService()
+      var config = ClusterStartupRule.getLocator().getConfigurationPersistenceService()
           .getCacheConfig("cluster");
       assertThat(find(config.getRegions(), regionName)).isNotNull();
 
-      RegionConfig parentConfig = find(config.getRegions(), regionName);
+      var parentConfig = find(config.getRegions(), regionName);
       assertThat(find(parentConfig.getRegions(), subRegionName)).isNotNull();
 
-      RegionConfig subRegionConfig = find(parentConfig.getRegions(),
+      var subRegionConfig = find(parentConfig.getRegions(),
           subRegionName);
       assertThat(find(subRegionConfig.getRegions(), subSubRegionName))
           .isNotNull();
@@ -241,14 +238,14 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void testCreateRegionWithPartitionResolver() throws Exception {
-    String regionName = testName.getMethodName();
-    String PR_STRING = "package io.pivotal; "
+    var regionName = testName.getMethodName();
+    var PR_STRING = "package io.pivotal; "
         + "public class TestPartitionResolver implements org.apache.geode.cache.PartitionResolver { "
         + "   @Override" + "   public void close() {" + "   }" + "   @Override"
         + "   public Object getRoutingObject(org.apache.geode.cache.EntryOperation opDetails) { "
         + "    return null; " + "   }" + "   @Override" + "   public String getName() { "
         + "    return \"TestPartitionResolver\";" + "   }" + " }";
-    final File prJarFile = new File(tmpDir.getRoot(), "myPartitionResolver.jar");
+    final var prJarFile = new File(tmpDir.getRoot(), "myPartitionResolver.jar");
     new JarBuilder().buildJar(prJarFile, PR_STRING);
 
     gfsh.executeAndAssertThat("deploy --jar=" + prJarFile.getAbsolutePath()).statusIsSuccess();
@@ -259,7 +256,7 @@ public class CreateRegionCommandDUnitTest {
 
     server1.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
-      PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
+      var region = (PartitionedRegion) cache.getRegion(regionName);
       PartitionResolver<?, ?> resolver = region.getPartitionAttributes().getPartitionResolver();
       assertThat(resolver).isNotNull();
       assertThat(resolver.getName()).isEqualTo("TestPartitionResolver");
@@ -317,7 +314,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void testCreateRegionForReplicatedRegionWithPartitionResolver() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName
         + " --type=REPLICATE --partition-resolver=InvalidPartitionResolver")
         .containsOutput("can be used only for creating a Partitioned Region").statusIsError();
@@ -334,7 +331,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void overrideListenerFromTemplate() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName + " --type=PARTITION_REDUNDANT"
             + " --cache-listener=" + TestCacheListener.class.getName())
@@ -357,7 +354,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void cannotSetRegionExpirationForPartitionedTemplate() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=PARTITION")
         .statusIsSuccess();
 
@@ -371,7 +368,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void cannotCreateTemplateWithInconsistentPersistence() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName + " --type=PARTITION_PERSISTENT")
         .statusIsSuccess();
@@ -386,13 +383,13 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void ensureOverridingCallbacksFromTemplateDoNotRequireClassesOnLocator() throws Exception {
-    String regionName = testName.getMethodName();
-    final File prJarFile = new File(tmpDir.getRoot(), "myCacheListener.jar");
+    var regionName = testName.getMethodName();
+    final var prJarFile = new File(tmpDir.getRoot(), "myCacheListener.jar");
     new JarBuilder().buildJar(prJarFile, getUniversalClassCode("MyCallback"),
         getUniversalClassCode("MyNewCallback"));
     gfsh.executeAndAssertThat("deploy --jar=" + prJarFile.getAbsolutePath()).statusIsSuccess();
 
-    String myCallback = "io.pivotal.MyCallback";
+    var myCallback = "io.pivotal.MyCallback";
     gfsh.executeAndAssertThat(
         String
             .format(
@@ -402,7 +399,7 @@ public class CreateRegionCommandDUnitTest {
                 myCallback))
         .statusIsSuccess();
 
-    String myNewCallback = "io.pivotal.MyNewCallback";
+    var myNewCallback = "io.pivotal.MyNewCallback";
     gfsh.executeAndAssertThat(String
         .format("create region --name=" + regionName + "_COPY --template-region=" + regionName
             + " --cache-listener=%1$s "
@@ -434,8 +431,8 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void ensureNewCallbacksFromTemplateDoNotRequireClassesOnLocator() throws Exception {
-    String regionName = testName.getMethodName();
-    final File prJarFile = new File(tmpDir.getRoot(), "myCacheListener.jar");
+    var regionName = testName.getMethodName();
+    final var prJarFile = new File(tmpDir.getRoot(), "myCacheListener.jar");
     new JarBuilder().buildJar(prJarFile, getUniversalClassCode("MyNewCallback"));
     gfsh.executeAndAssertThat("deploy --jar=" + prJarFile.getAbsolutePath()).statusIsSuccess();
 
@@ -443,7 +440,7 @@ public class CreateRegionCommandDUnitTest {
         "create region --name=" + regionName + " --type=PARTITION_REDUNDANT")
         .statusIsSuccess();
 
-    String myNewCallback = "io.pivotal.MyNewCallback";
+    var myNewCallback = "io.pivotal.MyNewCallback";
     gfsh.executeAndAssertThat(String
         .format("create region --name=" + regionName + "_COPY --template-region=" + regionName
             + " --cache-listener=%1$s "
@@ -475,12 +472,12 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void ensureOriginalCallbacksFromTemplateDoNotRequireClassesOnLocator() throws Exception {
-    String regionName = testName.getMethodName();
-    final File prJarFile = new File(tmpDir.getRoot(), "myCacheListener.jar");
+    var regionName = testName.getMethodName();
+    final var prJarFile = new File(tmpDir.getRoot(), "myCacheListener.jar");
     new JarBuilder().buildJar(prJarFile, getUniversalClassCode("MyCallback"));
     gfsh.executeAndAssertThat("deploy --jar=" + prJarFile.getAbsolutePath()).statusIsSuccess();
 
-    String myCallback = "io.pivotal.MyCallback";
+    var myCallback = "io.pivotal.MyCallback";
     gfsh.executeAndAssertThat(
         String
             .format(
@@ -516,7 +513,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void startWithNonProxyRegion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --type=REPLICATE --group=group1 --name=" + regionName)
         .statusIsSuccess().tableHasRowWithValues("Member", "server-1");
     gfsh.executeAndAssertThat("create region --type=REPLICATE --group=group2 --name=" + regionName)
@@ -541,7 +538,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void startWithReplicateProxyRegion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --type=REPLICATE_PROXY --group=group1 --name=" + regionName)
         .statusIsSuccess().tableHasRowWithValues("Member", "server-1");
@@ -561,7 +558,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void startWithReplicateProxyThenPartitionRegion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --type=REPLICATE_PROXY --group=group1 --name=" + regionName)
         .statusIsSuccess().tableHasRowWithValues("Member", "server-1");
@@ -578,7 +575,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void startWithPartitionProxyThenReplicate() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --type=PARTITION_PROXY --group=group1 --name=" + regionName)
         .statusIsSuccess().tableHasRowWithValues("Member", "server-1");
@@ -594,7 +591,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void startWithLocalPersistent() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --type=LOCAL_PERSISTENT --group=group1 --name=" + regionName)
         .statusIsSuccess().tableHasRowWithValues("Member", "server-1");
@@ -611,7 +608,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void startWithReplicateHeapLRU() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --type=REPLICATE_HEAP_LRU --group=group1 --name=" + regionName)
         .statusIsSuccess().tableHasRowWithValues("Member", "server-1");
@@ -627,7 +624,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void startWithReplicateThenPartition() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --type=REPLICATE --group=group1 --name=" + regionName)
         .statusIsSuccess().tableHasRowWithValues("Member", "server-1");
     gfsh.executeAndAssertThat("create region --type=PARTITION --group=group2 --name=" + regionName)
@@ -645,7 +642,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void startWithPartitionThenReplicate() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --type=PARTITION --group=group1 --name=" + regionName)
         .statusIsSuccess().tableHasRowWithValues("Member", "server-1");
     gfsh.executeAndAssertThat("create region --type=REPLICATE --group=group2 --name=" + regionName)
@@ -663,7 +660,7 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void startWithPartitionProxyRegion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --type=PARTITION_PROXY --group=group1 --name=" + regionName)
         .statusIsSuccess().tableHasRowWithValues("Member", "server-1");
@@ -686,7 +683,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void startWithLocalRegion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --type=LOCAL --group=group1 --name=" + regionName)
         .statusIsSuccess();
     gfsh.executeAndAssertThat("create region --type=REPLICATE --name=" + regionName).statusIsError()
@@ -704,7 +701,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void cannotDisableCloningWhenCompressorIsSet() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
         + " --type=REPLICATE"
@@ -714,7 +711,7 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void cannotColocateWithNonexistentRegion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
         + " --type=PARTITION"
@@ -729,7 +726,7 @@ public class CreateRegionCommandDUnitTest {
         "create region --type=REPLICATE --name=" + SEPARATOR + "nonpartitioned")
         .statusIsSuccess();
 
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
         + " --type=PARTITION"
@@ -757,13 +754,13 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void testCreateRegionFromTemplateWithAsyncEventListeners() {
-    String queueId = "queue1";
+    var queueId = "queue1";
     gfsh.executeAndAssertThat(
         "create async-event-queue --id=" + queueId
             + " --listener=" + CreateRegionCommandDUnitTest.DummyAEQListener.class.getName())
         .statusIsSuccess();
 
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName
             + " --type=REPLICATE"
@@ -788,8 +785,8 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void testCreateRegionFromTemplateWithPartitionResolver() {
-    String regionName = testName.getMethodName();
-    String regionFromTemplateName = regionName + "-from-template";
+    var regionName = testName.getMethodName();
+    var regionFromTemplateName = regionName + "-from-template";
 
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
@@ -815,24 +812,24 @@ public class CreateRegionCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void createRegionCommandCreateCorrectClusterConfigXml() {
-    URL xmlResource =
+    var xmlResource =
         CreateRegionCommandDUnitTest.class.getResource("CreateRegionCommandDUnitTest.xml");
 
-    RegionShortcut[] shortcuts = RegionShortcut.values();
-    for (RegionShortcut shortcut : shortcuts) {
+    var shortcuts = RegionShortcut.values();
+    for (var shortcut : shortcuts) {
       gfsh.executeAndAssertThat(
           "create region --name=" + shortcut.name() + " --type=" + shortcut.name());
     }
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService persistenceService =
+      var persistenceService =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
       CacheConfig expected = persistenceService.getJaxbService()
           .unMarshall(FileUtils.readFileToString(new File(xmlResource.getFile()), "UTF-8"));
 
-      CacheConfig actual = persistenceService.getCacheConfig("cluster");
+      var actual = persistenceService.getCacheConfig("cluster");
 
-      for (RegionShortcut shortcut : shortcuts) {
+      for (var shortcut : shortcuts) {
         assertThat(find(actual.getRegions(), shortcut.name()))
             .isEqualToComparingFieldByFieldRecursively(
                 find(expected.getRegions(), shortcut.name()));

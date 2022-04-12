@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.regex.Pattern;
@@ -62,8 +61,6 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EntrySnapshot;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.FindVersionTagOperation;
-import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.NonTXEntry;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -73,7 +70,6 @@ import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.VersionTagHolder;
 import org.apache.geode.internal.cache.execute.ServerToClientFunctionResultSender;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.InterestType;
 import org.apache.geode.internal.cache.tier.MessageType;
@@ -164,17 +160,17 @@ public abstract class BaseCommand implements Command {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService) {
     // Read the request and update the statistics
-    long start = DistributionStats.getStatTime();
+    var start = DistributionStats.getStatTime();
     if (EntryLogger.isEnabled()) {
       EntryLogger.setSource(serverConnection.getMembershipID(), "c2s");
     }
-    boolean shouldMasquerade = shouldMasqueradeForTx(clientMessage);
+    var shouldMasquerade = shouldMasqueradeForTx(clientMessage);
     try {
       if (shouldMasquerade) {
-        InternalCache cache = serverConnection.getCache();
-        InternalDistributedMember member =
+        var cache = serverConnection.getCache();
+        var member =
             (InternalDistributedMember) serverConnection.getProxyID().getDistributedMember();
-        TXManagerImpl txMgr = cache.getTxManager();
+        var txMgr = cache.getTxManager();
         TXStateProxy tx = null;
         try {
           tx = txMgr.masqueradeAs(clientMessage, member, false);
@@ -230,7 +226,7 @@ public abstract class BaseCommand implements Command {
    * the operation.
    */
   public boolean recoverVersionTagForRetriedOperation(EntryEventImpl clientEvent) {
-    InternalRegion r = clientEvent.getRegion();
+    var r = clientEvent.getRegion();
     VersionTag<?> tag = r.findVersionTagForEvent(clientEvent.getEventId());
     if (tag == null) {
       if (r instanceof DistributedRegion || r instanceof PartitionedRegion) {
@@ -286,7 +282,7 @@ public abstract class BaseCommand implements Command {
 
   protected void writeReply(final @NotNull Message origMsg,
       final @NotNull ServerConnection serverConnection) throws IOException {
-    Message replyMsg = serverConnection.getReplyMessage();
+    var replyMsg = serverConnection.getReplyMessage();
     serverConnection.getCache().getCancelCriterion().checkCancelInProgress(null);
     replyMsg.setMessageType(MessageType.REPLY);
     replyMsg.setNumberOfParts(1);
@@ -301,9 +297,9 @@ public abstract class BaseCommand implements Command {
   private static void handleEOFException(final @Nullable Message msg,
       final @NotNull ServerConnection serverConnection,
       Exception eof) {
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
-    boolean potentialModification = serverConnection.getPotentialModification();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var stats = serverConnection.getCacheServerStats();
+    var potentialModification = serverConnection.getPotentialModification();
     if (!crHelper.isShutdown()) {
       if (potentialModification) {
         stats.incAbandonedWriteRequests();
@@ -312,7 +308,7 @@ public abstract class BaseCommand implements Command {
       }
       if (!SUPPRESS_IO_EXCEPTION_LOGGING) {
         if (potentialModification) {
-          int transId = msg != null ? msg.getTransactionId() : Integer.MIN_VALUE;
+          var transId = msg != null ? msg.getTransactionId() : Integer.MIN_VALUE;
           logger.warn(
               "{}: EOFException during a write operation on region : {} key: {} messageId: {}",
               new Object[] {serverConnection.getName(), serverConnection.getModRegion(),
@@ -330,7 +326,7 @@ public abstract class BaseCommand implements Command {
 
   private static void handleInterruptedIOException(final @NotNull ServerConnection serverConnection,
       final @NotNull Exception e) {
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
+    var crHelper = serverConnection.getCachedRegionHelper();
     if (!crHelper.isShutdown() && serverConnection.isOpen()) {
       if (!SUPPRESS_IO_EXCEPTION_LOGGING) {
         if (logger.isDebugEnabled()) {
@@ -345,13 +341,13 @@ public abstract class BaseCommand implements Command {
   private static void handleIOException(final @Nullable Message msg,
       final @NotNull ServerConnection serverConnection,
       Exception e) {
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    boolean potentialModification = serverConnection.getPotentialModification();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var potentialModification = serverConnection.getPotentialModification();
 
     if (!crHelper.isShutdown() && serverConnection.isOpen()) {
       if (!SUPPRESS_IO_EXCEPTION_LOGGING) {
         if (potentialModification) {
-          int transId = msg != null ? msg.getTransactionId() : Integer.MIN_VALUE;
+          var transId = msg != null ? msg.getTransactionId() : Integer.MIN_VALUE;
           logger.warn(String.format(
               "%s: Unexpected IOException during operation for region: %s key: %s messId: %s",
               serverConnection.getName(), serverConnection.getModRegion(),
@@ -370,12 +366,12 @@ public abstract class BaseCommand implements Command {
   private static void handleShutdownException(final @Nullable Message msg,
       final @NotNull ServerConnection serverConnection,
       final @NotNull Exception e) {
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    boolean potentialModification = serverConnection.getPotentialModification();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var potentialModification = serverConnection.getPotentialModification();
 
     if (!crHelper.isShutdown()) {
       if (potentialModification) {
-        int transId = msg != null ? msg.getTransactionId() : Integer.MIN_VALUE;
+        var transId = msg != null ? msg.getTransactionId() : Integer.MIN_VALUE;
         logger.warn(String.format(
             "%s: Unexpected ShutdownException during operation on region: %s key: %s messageId: %s",
             serverConnection.getName(), serverConnection.getModRegion(),
@@ -394,13 +390,13 @@ public abstract class BaseCommand implements Command {
   private static void handleExceptionNoDisconnect(final @NotNull Message msg,
       final @NotNull ServerConnection serverConnection,
       final @NotNull Exception e) {
-    boolean requiresResponse = serverConnection.getTransientFlag(REQUIRES_RESPONSE);
-    boolean responded = serverConnection.getTransientFlag(RESPONDED);
-    boolean requiresChunkedResponse = serverConnection.getTransientFlag(REQUIRES_CHUNKED_RESPONSE);
-    boolean potentialModification = serverConnection.getPotentialModification();
+    var requiresResponse = serverConnection.getTransientFlag(REQUIRES_RESPONSE);
+    var responded = serverConnection.getTransientFlag(RESPONDED);
+    var requiresChunkedResponse = serverConnection.getTransientFlag(REQUIRES_CHUNKED_RESPONSE);
+    var potentialModification = serverConnection.getPotentialModification();
 
     try {
-      boolean wroteExceptionResponse = false;
+      var wroteExceptionResponse = false;
       try {
         if (requiresResponse && !responded) {
           if (requiresChunkedResponse) {
@@ -413,7 +409,7 @@ public abstract class BaseCommand implements Command {
         }
       } finally { // inner try-finally to ensure proper ordering of logging
         if (potentialModification) {
-          int transId = msg.getTransactionId();
+          var transId = msg.getTransactionId();
           if (!wroteExceptionResponse) {
             logger.warn(String.format(
                 "%s: Unexpected Exception during operation on region: %s key: %s messageId: %s",
@@ -449,10 +445,10 @@ public abstract class BaseCommand implements Command {
   private static void handleThrowable(final @Nullable Message msg,
       final @NotNull ServerConnection serverConnection,
       final @NotNull Throwable th) {
-    boolean requiresResponse = serverConnection.getTransientFlag(REQUIRES_RESPONSE);
-    boolean responded = serverConnection.getTransientFlag(RESPONDED);
-    boolean requiresChunkedResponse = serverConnection.getTransientFlag(REQUIRES_CHUNKED_RESPONSE);
-    boolean potentialModification = serverConnection.getPotentialModification();
+    var requiresResponse = serverConnection.getTransientFlag(REQUIRES_RESPONSE);
+    var responded = serverConnection.getTransientFlag(RESPONDED);
+    var requiresChunkedResponse = serverConnection.getTransientFlag(REQUIRES_CHUNKED_RESPONSE);
+    var potentialModification = serverConnection.getPotentialModification();
 
     try {
       try {
@@ -472,7 +468,7 @@ public abstract class BaseCommand implements Command {
       } finally { // inner try-finally to ensure proper ordering of logging
         if (!(th instanceof Error || th instanceof CacheLoaderException)) {
           if (potentialModification) {
-            int transId = msg != null ? msg.getTransactionId() : Integer.MIN_VALUE;
+            var transId = msg != null ? msg.getTransactionId() : Integer.MIN_VALUE;
             logger.warn(String.format(
                 "%s: Unexpected Exception during operation on region: %s key: %s messageId: %s",
                 serverConnection.getName(), serverConnection.getModRegion(),
@@ -514,8 +510,8 @@ public abstract class BaseCommand implements Command {
       final @NotNull ServerConnection serverConnection,
       final @NotNull ChunkedMessage originalResponse, final int numOfParts)
       throws IOException {
-    Throwable e = getClientException(serverConnection, exception);
-    ChunkedMessage chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
+    var e = getClientException(serverConnection, exception);
+    var chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
     chunkedResponseMsg.setServerConnection(serverConnection);
     if (originalResponse.headerHasBeenSent()) {
       chunkedResponseMsg.setNumberOfParts(numOfParts);
@@ -548,8 +544,8 @@ public abstract class BaseCommand implements Command {
 
   // Get the exception stacktrace for native clients
   public static String getExceptionTrace(final @NotNull Throwable ex) {
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var pw = new PrintWriter(sw);
     ex.printStackTrace(pw);
     pw.close();
     return sw.toString();
@@ -563,9 +559,9 @@ public abstract class BaseCommand implements Command {
 
   private static Throwable getClientException(final @NotNull ServerConnection serverConnection,
       final @NotNull Throwable e) {
-    InternalCache cache = serverConnection.getCache();
+    var cache = serverConnection.getCache();
     if (cache != null) {
-      OldClientSupportService svc = cache.getService(OldClientSupportService.class);
+      var svc = cache.getService(OldClientSupportService.class);
       if (svc != null) {
         return svc.getThrowable(e, serverConnection.getClientVersion());
       }
@@ -576,13 +572,13 @@ public abstract class BaseCommand implements Command {
   protected static void writeException(final @NotNull Message origMsg, final int msgType,
       final @NotNull Throwable e, final boolean isSevere,
       final @NotNull ServerConnection serverConnection) throws IOException {
-    Throwable theException = getClientException(serverConnection, e);
-    Message errorMsg = serverConnection.getErrorResponseMessage();
+    var theException = getClientException(serverConnection, e);
+    var errorMsg = serverConnection.getErrorResponseMessage();
     errorMsg.setMessageType(msgType);
     errorMsg.setNumberOfParts(2);
     errorMsg.setTransactionId(origMsg.getTransactionId());
     if (isSevere) {
-      String msg = theException.getMessage();
+      var msg = theException.getMessage();
       if (msg == null) {
         msg = theException.toString();
       }
@@ -601,7 +597,7 @@ public abstract class BaseCommand implements Command {
 
   protected static void writeErrorResponse(final Message origMsg, final int messageType,
       final @NotNull ServerConnection serverConnection) throws IOException {
-    Message errorMsg = serverConnection.getErrorResponseMessage();
+    var errorMsg = serverConnection.getErrorResponseMessage();
     errorMsg.setMessageType(messageType);
     errorMsg.setNumberOfParts(1);
     errorMsg.setTransactionId(origMsg.getTransactionId());
@@ -613,7 +609,7 @@ public abstract class BaseCommand implements Command {
   protected static void writeErrorResponse(final @NotNull Message origMsg, final int messageType,
       final @NotNull String msg,
       final @NotNull ServerConnection serverConnection) throws IOException {
-    Message errorMsg = serverConnection.getErrorResponseMessage();
+    var errorMsg = serverConnection.getErrorResponseMessage();
     errorMsg.setMessageType(messageType);
     errorMsg.setNumberOfParts(1);
     errorMsg.setTransactionId(origMsg.getTransactionId());
@@ -624,8 +620,8 @@ public abstract class BaseCommand implements Command {
   protected static void writeRegionDestroyedEx(final @NotNull Message msg,
       final @NotNull String regionName, final @NotNull String reason,
       final @NotNull ServerConnection serverConnection) throws IOException {
-    String exceptionMessage = serverConnection.getName() + ": Region named " + regionName + reason;
-    RegionDestroyedException ex = new RegionDestroyedException(exceptionMessage, regionName);
+    var exceptionMessage = serverConnection.getName() + ": Region named " + regionName + reason;
+    var ex = new RegionDestroyedException(exceptionMessage, regionName);
     if (serverConnection.getTransientFlag(REQUIRES_CHUNKED_RESPONSE)) {
       writeChunkedException(msg, ex, serverConnection);
     } else {
@@ -636,7 +632,7 @@ public abstract class BaseCommand implements Command {
   public void writeResponse(final @Nullable Object data, final @Nullable Object callbackArg,
       final @NotNull Message origMsg,
       final boolean isObject, final @NotNull ServerConnection serverConnection) throws IOException {
-    Message responseMsg = serverConnection.getResponseMessage();
+    var responseMsg = serverConnection.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setTransactionId(origMsg.getTransactionId());
 
@@ -663,7 +659,7 @@ public abstract class BaseCommand implements Command {
   protected static void writeResponseWithFunctionAttribute(final byte @NotNull [] data,
       final @NotNull Message origMsg,
       final @NotNull ServerConnection serverConnection) throws IOException {
-    Message responseMsg = serverConnection.getResponseMessage();
+    var responseMsg = serverConnection.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setTransactionId(origMsg.getTransactionId());
     responseMsg.setNumberOfParts(1);
@@ -689,7 +685,7 @@ public abstract class BaseCommand implements Command {
       final @Nullable CollectionType collectionType,
       final boolean lastChunk, final @NotNull ServerConnection serverConnection)
       throws IOException {
-    ChunkedMessage queryResponseMsg = serverConnection.getQueryResponseMessage();
+    var queryResponseMsg = serverConnection.getQueryResponseMessage();
     queryResponseMsg.setNumberOfParts(2);
     queryResponseMsg.setLastChunk(lastChunk);
     queryResponseMsg.addObjPart(collectionType, false);
@@ -700,9 +696,9 @@ public abstract class BaseCommand implements Command {
   protected static void writeQueryResponseException(final @NotNull Message origMsg,
       final @NotNull Throwable exception,
       final @NotNull ServerConnection serverConnection) throws IOException {
-    Throwable e = getClientException(serverConnection, exception);
-    ChunkedMessage queryResponseMsg = serverConnection.getQueryResponseMessage();
-    ChunkedMessage chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
+    var e = getClientException(serverConnection, exception);
+    var queryResponseMsg = serverConnection.getQueryResponseMessage();
+    var chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
     if (queryResponseMsg.headerHasBeenSent()) {
       // fix for bug 35442
       // This client is expecting 2 parts in this message so send 2 parts
@@ -737,7 +733,7 @@ public abstract class BaseCommand implements Command {
       final int messageType, final @NotNull String message,
       final @NotNull ServerConnection serverConnection) throws IOException {
     // Send chunked response header identifying error message
-    ChunkedMessage chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
+    var chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
     if (logger.isDebugEnabled()) {
       logger.debug("{}: Sending error message header type: {} transaction: {}",
           serverConnection.getName(), messageType, origMsg.getTransactionId());
@@ -760,9 +756,9 @@ public abstract class BaseCommand implements Command {
       final int messageType,
       final @NotNull ServerConnection serverConnection, final @NotNull Throwable exception)
       throws IOException {
-    Throwable e = getClientException(serverConnection, exception);
-    ChunkedMessage functionResponseMsg = serverConnection.getFunctionResponseMessage();
-    ChunkedMessage chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
+    var e = getClientException(serverConnection, exception);
+    var functionResponseMsg = serverConnection.getFunctionResponseMessage();
+    var chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
     if (functionResponseMsg.headerHasBeenSent()) {
       functionResponseMsg.setServerConnection(serverConnection);
       functionResponseMsg.setNumberOfParts(2);
@@ -794,8 +790,8 @@ public abstract class BaseCommand implements Command {
   protected static void writeFunctionResponseError(final @NotNull Message origMsg,
       final int messageType, final @NotNull String message,
       final @NotNull ServerConnection servConn) throws IOException {
-    ChunkedMessage functionResponseMsg = servConn.getFunctionResponseMessage();
-    ChunkedMessage chunkedResponseMsg = servConn.getChunkedResponseMessage();
+    var functionResponseMsg = servConn.getFunctionResponseMessage();
+    var chunkedResponseMsg = servConn.getChunkedResponseMessage();
     if (functionResponseMsg.headerHasBeenSent()) {
       functionResponseMsg.setNumberOfParts(1);
       functionResponseMsg.setLastChunk(true);
@@ -823,7 +819,7 @@ public abstract class BaseCommand implements Command {
       final int messageType, final @NotNull String message,
       final @NotNull ServerConnection servConn) throws IOException {
     // Send chunked response header identifying error message
-    ChunkedMessage chunkedResponseMsg = servConn.getKeySetResponseMessage();
+    var chunkedResponseMsg = servConn.getKeySetResponseMessage();
     if (logger.isDebugEnabled()) {
       logger.debug("{}: Sending error message header type: {} transaction: {}", servConn.getName(),
           messageType, origMsg.getTransactionId());
@@ -907,7 +903,7 @@ public abstract class BaseCommand implements Command {
             "not yet supported");
 
       case REGULAR_EXPRESSION:
-        String regEx = (String) riKey;
+        var regEx = (String) riKey;
         if (regEx.equals(".*")) {
           handleAllKeys(region, policy, servConn);
         } else {
@@ -951,7 +947,7 @@ public abstract class BaseCommand implements Command {
             "not yet supported");
 
       case REGULAR_EXPRESSION:
-        String regEx = (String) riKey;
+        var regEx = (String) riKey;
         if (regEx.equals(".*")) {
           handleKVAllKeys(region, null, serializeValues, servConn);
         } else {
@@ -980,12 +976,12 @@ public abstract class BaseCommand implements Command {
       final @NotNull Object riKey,
       final @NotNull List<?> list, final boolean lastChunk,
       final @NotNull ServerConnection servConn) throws IOException {
-    ChunkedMessage chunkedResponseMsg = servConn.getRegisterInterestResponseMessage();
+    var chunkedResponseMsg = servConn.getRegisterInterestResponseMessage();
     chunkedResponseMsg.setNumberOfParts(1);
     chunkedResponseMsg.setLastChunk(lastChunk);
     chunkedResponseMsg.addObjPart(list, false);
     if (logger.isDebugEnabled()) {
-      final String regionName = region == null ? " null " : region.getFullPath();
+      final var regionName = region == null ? " null " : region.getFullPath();
       logger.debug(
           "{}: Sending{}register interest response chunk for region: {} for keys: {} chunk=<{}>",
           servConn.getName(), lastChunk ? " last " : " ", regionName, riKey, chunkedResponseMsg);
@@ -1041,15 +1037,15 @@ public abstract class BaseCommand implements Command {
   private static void handleKVSingleton(final @Nullable LocalRegion region,
       final @NotNull Object entryKey,
       final boolean serializeValues, final @NotNull ServerConnection servConn) throws IOException {
-    final VersionedObjectList values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, true,
+    final var values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, true,
         region == null || region.getAttributes().getConcurrencyChecksEnabled(), serializeValues);
 
     if (region != null) {
       if (region.containsKey(entryKey) || region.containsTombstone(entryKey)) {
-        final VersionTagHolder versionHolder = createVersionTagHolder();
-        final ClientProxyMembershipID id = servConn.getProxyID();
+        final var versionHolder = createVersionTagHolder();
+        final var id = servConn.getProxyID();
         // From Get70.getValueAndIsObject()
-        final Object data = region.get(entryKey, null, true, true, true, id, versionHolder, true);
+        final var data = region.get(entryKey, null, true, true, true, id, versionHolder, true);
         final VersionTag<?> vt = versionHolder.getVersionTag();
 
         updateValues(values, entryKey, data, vt);
@@ -1099,7 +1095,7 @@ public abstract class BaseCommand implements Command {
       final @NotNull ServerConnection servConn) throws IOException {
     final List<Object> keyList = new ArrayList<>(MAXIMUM_CHUNK_SIZE);
     if (region != null) {
-      for (Object entryKey : region.keySet(sendTombstonesInRIResults(policy))) {
+      for (var entryKey : region.keySet(sendTombstonesInRIResults(policy))) {
         appendInterestResponseKey(region, "ALL_KEYS", entryKey, keyList, servConn);
       }
     }
@@ -1117,7 +1113,7 @@ public abstract class BaseCommand implements Command {
       return;
     }
 
-    VersionedObjectList values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, true,
+    var values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, true,
         region == null || region.getAttributes().getConcurrencyChecksEnabled(), serializeValues);
 
     if (region != null) {
@@ -1127,8 +1123,8 @@ public abstract class BaseCommand implements Command {
         keyPattern = Pattern.compile(regex);
       }
 
-      for (Object key : region.keySet(true)) {
-        VersionTagHolder versionHolder = createVersionTagHolder();
+      for (var key : region.keySet(true)) {
+        var versionHolder = createVersionTagHolder();
         if (keyPattern != null) {
           if (!(key instanceof String)) {
             // key is not a String, cannot apply regex to this entry
@@ -1141,8 +1137,8 @@ public abstract class BaseCommand implements Command {
           }
         }
 
-        ClientProxyMembershipID id = servConn.getProxyID();
-        Object data = region.get(key, null, true, true, true, id, versionHolder, true);
+        var id = servConn.getProxyID();
+        var data = region.get(key, null, true, true, true, id, versionHolder, true);
         VersionTag<?> versionTag = versionHolder.getVersionTag();
         updateValues(values, key, data, versionTag);
 
@@ -1164,17 +1160,17 @@ public abstract class BaseCommand implements Command {
       final @Nullable Object keyInfo,
       final boolean serializeValues, final @NotNull ServerConnection servConn) throws IOException {
 
-    VersionedObjectList values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, true,
+    var values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, true,
         region.getConcurrencyChecksEnabled(), serializeValues);
 
     if (keyInfo instanceof List) {
-      HashMap<Integer, HashSet<Object>> bucketKeys = new HashMap<>();
+      var bucketKeys = new HashMap<Integer, HashSet<Object>>();
       for (Object key : (List<?>) keyInfo) {
-        int id = PartitionedRegionHelper.getHashKey(region, null, key, null, null);
+        var id = PartitionedRegionHelper.getHashKey(region, null, key, null, null);
         if (bucketKeys.containsKey(id)) {
           bucketKeys.get(id).add(key);
         } else {
-          HashSet<Object> keys = new HashSet<>();
+          var keys = new HashSet<Object>();
           keys.add(key);
           bucketKeys.put(id, keys);
         }
@@ -1197,14 +1193,14 @@ public abstract class BaseCommand implements Command {
   private static void updateValues(final @NotNull VersionedObjectList values,
       final @NotNull Object key, @Nullable Object value,
       final @Nullable VersionTag<?> versionTag) {
-    boolean isObject = true;
+    var isObject = true;
 
     // If the value in the VM is a CachedDeserializable,
     // get its value. If it is Token.REMOVED, Token.DESTROYED,
     // Token.INVALID, or Token.LOCAL_INVALID
     // set it to null. If it is NOT_AVAILABLE, get the value from
     // disk. If it is already a byte[], set isObject to false.
-    boolean wasInvalid = false;
+    var wasInvalid = false;
     if (value instanceof CachedDeserializable) {
       value = ((CachedDeserializable) value).getValue();
     } else if (isRemovalToken(value)) {
@@ -1215,7 +1211,7 @@ public abstract class BaseCommand implements Command {
     } else if (value instanceof byte[]) {
       isObject = false;
     }
-    boolean keyNotPresent = !wasInvalid && (value == null || value == Token.TOMBSTONE);
+    var keyNotPresent = !wasInvalid && (value == null || value == Token.TOMBSTONE);
 
     if (keyNotPresent) {
       values.addObjectPartForAbsentKey(key, value, versionTag);
@@ -1234,11 +1230,11 @@ public abstract class BaseCommand implements Command {
       final @NotNull VersionedObjectList values, final @NotNull Object riKeys,
       final @NotNull Set<?> keySet, final @NotNull ServerConnection servConn)
       throws IOException {
-    ClientProxyMembershipID requestingClient = servConn.getProxyID();
+    var requestingClient = servConn.getProxyID();
     for (Object key : keySet) {
-      VersionTagHolder versionHolder = createVersionTagHolder();
+      var versionHolder = createVersionTagHolder();
 
-      Object value = region.get(key, null, true, true, true, requestingClient, versionHolder, true);
+      var value = region.get(key, null, true, true, true, requestingClient, versionHolder, true);
 
       updateValues(values, key, value, versionHolder.getVersionTag());
 
@@ -1254,7 +1250,7 @@ public abstract class BaseCommand implements Command {
       final @NotNull Set<Map.Entry<?, ?>> set,
       final @NotNull ServerConnection servConn)
       throws IOException {
-    for (Entry<?, ?> entry : set) {
+    for (var entry : set) {
       if (entry instanceof Region.Entry) { // local entries
         VersionTag<?> vt;
         Object key;
@@ -1276,9 +1272,9 @@ public abstract class BaseCommand implements Command {
           }
         }
       } else { // Map.Entry (remote entries)
-        List<?> list = (List<?>) entry.getValue();
-        Object value = list.get(0);
-        VersionTag<?> tag = (VersionTag<?>) list.get(1);
+        var list = (List<?>) entry.getValue();
+        var value = list.get(0);
+        var tag = (VersionTag<?>) list.get(1);
         updateValues(values, entry.getKey(), value, tag);
       }
       if (values.size() == MAXIMUM_CHUNK_SIZE) {
@@ -1295,12 +1291,12 @@ public abstract class BaseCommand implements Command {
       final @NotNull VersionedObjectList list, final boolean lastChunk,
       final @NotNull ServerConnection servConn)
       throws IOException {
-    final ChunkedMessage chunkedResponseMsg = servConn.getRegisterInterestResponseMessage();
+    final var chunkedResponseMsg = servConn.getRegisterInterestResponseMessage();
     chunkedResponseMsg.setNumberOfParts(1);
     chunkedResponseMsg.setLastChunk(lastChunk);
     chunkedResponseMsg.addObjPart(list, false);
     if (logger.isDebugEnabled()) {
-      final String regionName = region == null ? " null " : region.getFullPath();
+      final var regionName = region == null ? " null " : region.getFullPath();
       logger.debug(
           "{}: Sending{}register interest response chunk for region: {} for keys: {} chunk=<{}>",
           servConn.getName(), lastChunk ? " last " : " ", regionName, riKey, chunkedResponseMsg);
@@ -1322,8 +1318,8 @@ public abstract class BaseCommand implements Command {
     List<Object> keyList = new ArrayList<>(MAXIMUM_CHUNK_SIZE);
     // Handle the regex pattern
     if (region != null) {
-      Pattern keyPattern = Pattern.compile(regex);
-      for (Object entryKey : region.keySet(sendTombstonesInRIResults(policy))) {
+      var keyPattern = Pattern.compile(regex);
+      for (var entryKey : region.keySet(sendTombstonesInRIResults(policy))) {
         if (!(entryKey instanceof String)) {
           // key is not a String, cannot apply regex to this entry
           continue;
@@ -1364,7 +1360,7 @@ public abstract class BaseCommand implements Command {
       final @NotNull List<?> keyList,
       final @NotNull InterestResultPolicy policy, final @NotNull ServerConnection servConn)
       throws IOException {
-    int chunkSize = min(keyList.size(), MAXIMUM_CHUNK_SIZE);
+    var chunkSize = min(keyList.size(), MAXIMUM_CHUNK_SIZE);
     final List<Object> newKeyList = new ArrayList<>(chunkSize);
     region.getKeysWithList(keyList, sendTombstonesInRIResults(policy),
         theSet -> appendInterestResponseKeys(region, keyList, uncheckedCast(theSet), newKeyList,
@@ -1381,17 +1377,17 @@ public abstract class BaseCommand implements Command {
       handleKVKeysPR((PartitionedRegion) region, keyList, serializeValues, servConn);
       return;
     }
-    VersionedObjectList values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, true,
+    var values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, true,
         region == null || region.getAttributes().getConcurrencyChecksEnabled(), serializeValues);
 
     // Handle list of keys
     if (region != null) {
       for (Object key : keyList) {
         if (region.containsKey(key) || region.containsTombstone(key)) {
-          VersionTagHolder versionHolder = createVersionTagHolder();
+          var versionHolder = createVersionTagHolder();
 
-          ClientProxyMembershipID id = servConn.getProxyID();
-          Object data = region.get(key, null, true, true, true, id, versionHolder, true);
+          var id = servConn.getProxyID();
+          var data = region.get(key, null, true, true, true, id, versionHolder, true);
           VersionTag<?> versionTag = versionHolder.getVersionTag();
           updateValues(values, key, data, versionTag);
 
@@ -1410,7 +1406,7 @@ public abstract class BaseCommand implements Command {
   }
 
   private static @NotNull VersionTagHolder createVersionTagHolder() {
-    VersionTagHolder versionHolder = new VersionTagHolder();
+    var versionHolder = new VersionTagHolder();
     versionHolder.setOperation(Operation.GET_FOR_REGISTER_INTEREST);
     return versionHolder;
   }
@@ -1444,7 +1440,7 @@ public abstract class BaseCommand implements Command {
       final @NotNull Collection<Object> entryKeys, final @NotNull List<Object> collector,
       final @NotNull ServerConnection servConn)
       throws IOException {
-    for (final Object entryKey : entryKeys) {
+    for (final var entryKey : entryKeys) {
       appendInterestResponseKey(region, riKey, entryKey, collector, servConn);
     }
   }

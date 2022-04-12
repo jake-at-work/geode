@@ -49,7 +49,7 @@ public class RestoreRedundancyOperationController extends AbstractManagementCont
     operation.setOperator(
         Optional.ofNullable(securityService).map(SecurityService::getSubject).map(Object::toString)
             .orElse(null));
-    ClusterManagementOperationResult<RestoreRedundancyRequest, RestoreRedundancyResults> result =
+    var result =
         clusterManagementService
             .start(operation);
     return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
@@ -67,7 +67,7 @@ public class RestoreRedundancyOperationController extends AbstractManagementCont
   @GetMapping(RESTORE_REDUNDANCY_ENDPOINT + "/{id:.+}")
   public ClusterManagementOperationResult<RestoreRedundancyRequest, RestoreRedundancyResults> getRestoreRedundancy(
       @PathVariable String id) {
-    ClusterManagementOperationResult<RestoreRedundancyRequest, RestoreRedundancyResults> result =
+    var result =
         clusterManagementService.get(new RestoreRedundancyRequest(), id);
     return result;
   }

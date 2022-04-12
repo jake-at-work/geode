@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,7 +40,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.test.junit.categories.GfshTest;
 
 /**
@@ -64,7 +62,7 @@ public class HeadlessGfshIntegrationTest {
   public void setup() throws IOException {
     port = getRandomAvailableTCPPort();
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put(NAME, testName.getMethodName());
     properties.put(JMX_MANAGER, "true");
     properties.put(JMX_MANAGER_START, "true");
@@ -95,7 +93,7 @@ public class HeadlessGfshIntegrationTest {
   @Test
   public void testHeadlessGfshTest() throws InterruptedException {
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       gfsh.executeCommand("connect --jmx-manager=localhost[" + port + "]");
       Object result = gfsh.getResult();
       assertTrue(gfsh.isConnectedAndReady());
@@ -108,11 +106,11 @@ public class HeadlessGfshIntegrationTest {
       gfsh.getResult();
     }
 
-    long l1 = System.currentTimeMillis();
+    var l1 = System.currentTimeMillis();
     gfsh.executeCommand("exit");
-    long l2 = System.currentTimeMillis();
+    var l2 = System.currentTimeMillis();
     gfsh.getResult();
-    long l3 = System.currentTimeMillis();
+    var l3 = System.currentTimeMillis();
     System.out.println("L3-l2=" + (l3 - l2) + " Total time= " + (l3 - l1) / 1000);
   }
 
@@ -121,10 +119,10 @@ public class HeadlessGfshIntegrationTest {
     gfsh.clear();
     gfsh.executeCommand("list members");
 
-    LinkedBlockingQueue<Object> headlessQueue = gfsh.getQueue();
+    var headlessQueue = gfsh.getQueue();
     headlessQueue.clear();
     headlessQueue.put("ERROR RESULT");
-    CommandResult result = gfsh.getResult();
+    var result = gfsh.getResult();
     assertNotNull(result);
     assertSame(result.getStatus(), Result.Status.ERROR);
     System.out.println(result);

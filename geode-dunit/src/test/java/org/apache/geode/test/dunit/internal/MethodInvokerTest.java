@@ -26,13 +26,13 @@ public class MethodInvokerTest {
 
   @Test
   public void invokesMethodWithReturn() {
-    MethodInvokerResult result = MethodInvoker.execute(getClass().getName(), "methodWithReturn");
+    var result = MethodInvoker.execute(getClass().getName(), "methodWithReturn");
     assertThat(result.getResult()).isInstanceOf(String.class);
   }
 
   @Test
   public void invokesMethodThatThrows() {
-    MethodInvokerResult result = MethodInvoker.execute(getClass().getName(), "methodThatThrows");
+    var result = MethodInvoker.execute(getClass().getName(), "methodThatThrows");
     assertThat(result.getException()).isInstanceOf(ArrayIndexOutOfBoundsException.class);
   }
 

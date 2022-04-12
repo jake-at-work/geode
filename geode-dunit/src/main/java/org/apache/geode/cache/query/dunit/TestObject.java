@@ -78,7 +78,7 @@ public class TestObject implements DataSerializable {
     if (!(o instanceof TestObject)) {
       return false;
     }
-    TestObject other = (TestObject) o;
+    var other = (TestObject) o;
     return (id == other.id) && (_ticker.equals(other._ticker));
   }
 

@@ -18,8 +18,6 @@ import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URL;
-
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.junit.LoggerContextRule;
 import org.junit.Before;
@@ -73,7 +71,7 @@ public class GeodeConsoleAppenderWithSystemOutRuleIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }

@@ -32,7 +32,6 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
@@ -81,9 +80,9 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
     diskProps.setRegionName("RecoveryTestRegion");
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
     verifyOplogSizeZeroAfterRecovery(region);
-    final byte[] value = new byte[ENTRY_SIZE];
+    final var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(i, value);
     }
     // for recovery test:
@@ -113,7 +112,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
     assertEquals(107L, region.get("107"));
     assertEquals(108F, region.get("108"));
     assertEquals(109d, region.get("109"));
-    int origSize = region.size();
+    var origSize = region.size();
     /**
      * close the cache after that create it again and then put few more values
      */
@@ -305,9 +304,9 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
     diskProps.setRegionName("RecoveryTestRegion");
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
     verifyOplogSizeZeroAfterRecovery(region);
-    final byte[] value = new byte[ENTRY_SIZE];
+    final var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
 
       region.put(i, value);
     }
@@ -333,7 +332,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       diskProps.setRegionName("RecoveryTestRegion");
       region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
       // Remove the recovered entries
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region.remove(i);
       }
 
@@ -393,11 +392,11 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
     diskProps.setRegionName("RecoveryTestRegion");
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
     verifyOplogSizeZeroAfterRecovery(region);
-    final byte[] value = new byte[ENTRY_SIZE];
-    final byte[] value2 = new byte[ENTRY_SIZE + 1];
+    final var value = new byte[ENTRY_SIZE];
+    final var value2 = new byte[ENTRY_SIZE + 1];
     Arrays.fill(value, (byte) 77);
     Arrays.fill(value2, (byte) 77);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       region.put(i, value);
     }
 
@@ -423,12 +422,12 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
       assertEquals(10, region.size());
       // Remove the recovered entries
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region.remove(i);
       }
 
       // add new entries
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region.put(i, value2);
       }
 
@@ -476,11 +475,11 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
    * To validate the get operation performed on a byte array.
    */
   private void getByteArrVal(String key, Region region) {
-    byte[] val = (byte[]) region.get(key);
+    var val = (byte[]) region.get(key);
     // verify that the retrieved byte[] equals to the value put initially.
     // val should be an unitialized array of bytes of length 1024
     assertEquals(1024, val.length);
-    for (int i = 0; i < 1024; i++) {
+    for (var i = 0; i < 1024; i++) {
       assertEquals(0, val[i]);
     }
   }
@@ -490,7 +489,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
    */
   private boolean getByteArrValZeroLnth(String key, Region region) {
     Object val0 = null;
-    byte[] val2 = new byte[0];
+    var val2 = new byte[0];
     try {
       val0 = region.get(key);
     } catch (Exception ex) {
@@ -498,7 +497,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       fail("Failed to get the value on disk");
     }
     // verify that the retrieved byte[] equals to the value put initially.
-    boolean result = false;
+    var result = false;
     byte[] x = null;
     x = (byte[]) val0;
     // verify that the value of the entry is an instance of byte []
@@ -523,30 +522,30 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testNoEvictionDuringRecoveryIfNoGIIRecoverValuesTrue() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
-    String oldLruValue = System.getProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldLruValue = System.getProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
     System.setProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME, "true");
     try {
       diskProps.setDiskDirs(dirs);
       diskProps.setPersistBackup(true);
-      int overflowCapacity = 5;
+      var overflowCapacity = 5;
       diskProps.setOverFlowCapacity(overflowCapacity);
       diskProps.setRegionName("RecoveryTestRegion");
       region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, diskProps);
 
-      int size = 1000;
+      var size = 1000;
 
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         region.put(i, i);
       }
       region.close();
       region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, diskProps);
 
-      int serilizedValuesInVm = 0;
-      for (int i = 0; i < size; i++) {
+      var serilizedValuesInVm = 0;
+      for (var i = 0; i < size; i++) {
         try {
-          Object value = ((LocalRegion) region).getValueInVM(i);
+          var value = ((LocalRegion) region).getValueInVM(i);
           if (value instanceof CachedDeserializable) {
             serilizedValuesInVm++;
           }
@@ -561,7 +560,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       }
 
       // verifyOplogSizeZeroAfterRecovery(region);
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         Assert.assertTrue(region.get(i).equals(i));
       }
       // region.close();
@@ -582,7 +581,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testNoEvictionDuringRecoveryIfNoGIIRecoverValuesFalse() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
     try {
       diskProps.setDiskDirs(dirs);
@@ -591,7 +590,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       diskProps.setRegionName("RecoveryTestRegion");
       region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, diskProps);
 
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         region.put(i, i);
       }
 
@@ -599,7 +598,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
       region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, diskProps);
 
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         try {
           ((LocalRegion) region).getValueInVM(i);
         } catch (EntryNotFoundException e) {
@@ -608,14 +607,14 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       }
 
       // verifyOplogSizeZeroAfterRecovery(region);
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         try {
           Assert.assertTrue(((LocalRegion) region).getValueInVM(i) == null);
         } catch (EntryNotFoundException e) {
           fail("Entry not found not expected but occurred ");
         }
       }
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         try {
           Assert.assertTrue(
               ((LocalRegion) region).getValueOnDisk(i).equals(i));
@@ -663,7 +662,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
     diskProps.setDiskDirs(dirs);
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
 
-    byte[] value = new byte[1024];
+    var value = new byte[1024];
 
     region.put("1", value);
     region.put("2", value);
@@ -679,13 +678,13 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
     }
     region.close();
     try {
-      FileInputStream fis = new FileInputStream(oplogFile);
-      DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
-      byte[] values = new byte[1000 * 3];
+      var fis = new FileInputStream(oplogFile);
+      var dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
+      var values = new byte[1000 * 3];
       dis.read(values);
       dis.close();
       fis.close();
-      FileOutputStream fos = new FileOutputStream(oplogFile);
+      var fos = new FileOutputStream(oplogFile);
       fos.write(values);
       fos.close();
 
@@ -713,7 +712,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = false;
 
     // set cache observer to check oplogs rolling
-    CacheObserver co = CacheObserverHolder.setInstance(new CacheObserverAdapter() {
+    var co = CacheObserverHolder.setInstance(new CacheObserverAdapter() {
       @Override
       public void afterHavingCompacted() {
         synchronized (region) {
@@ -726,7 +725,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       }
     });
 
-    byte[] value = new byte[900]; // two values per oplog
+    var value = new byte[900]; // two values per oplog
     region.put("0", value);
     region.put("1", value);
     region.put("2", value);
@@ -758,7 +757,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
     assertEquals(true, rollingDone);
 
     synchronized (region) {
-      boolean condition = ((LocalRegion) region).getDiskRegion().getOplogToBeCompacted() == null;
+      var condition = ((LocalRegion) region).getDiskRegion().getOplogToBeCompacted() == null;
       Assert.assertTrue(condition, "Oplogs still remain after having compacted");
     }
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = false;
@@ -788,7 +787,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
     logWriter
         .info("<ExpectedException action=add>" + "KillCompactorException" + "</ExpectedException>");
     try {
-      CacheObserver cob = CacheObserverHolder.setInstance(new CacheObserverAdapter() {
+      var cob = CacheObserverHolder.setInstance(new CacheObserverAdapter() {
         @Override
         public void beforeDeletingCompactedOplog(Oplog compactedOplog) {
           // killed compactor after rolling but before deleting oplogs
@@ -836,7 +835,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testDiskIDFieldsForPersistOnlyRecoverValuesTrue() throws Exception {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
     try {
       diskProps.setDiskDirs(dirs);
@@ -848,13 +847,13 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
 
       // the creates which will go in first oplog
-      for (int i = 0; i < 3; ++i) {
+      for (var i = 0; i < 3; ++i) {
         region.put("" + i, "" + i);
       }
       // Ensure that next few entries go in the second oplog while the first set
       // of entries go in the first oplog
       region.forceRolling();
-      for (int i = 3; i < 6; ++i) {
+      for (var i = 3; i < 6; ++i) {
         region.put("" + i, "" + i);
       }
 
@@ -863,16 +862,16 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       diskProps.setRolling(false);
       region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
       // Now verify the DiskIds of each of the siz entries & the values.
-      LocalRegion rgn = (LocalRegion) region;
+      var rgn = (LocalRegion) region;
       byte b = 0;
       b = EntryBits.setSerialized(b, true);
       b = EntryBits.setRecoveredFromDisk(b, true);
       b = EntryBits.setWithVersions(b, true);
 
       // TODO need to wait for async recovery
-      for (int i = 0; i < 3; ++i) {
-        DiskEntry de = (DiskEntry) rgn.basicGetEntry("" + i);
-        DiskId did = de.getDiskId();
+      for (var i = 0; i < 3; ++i) {
+        var de = (DiskEntry) rgn.basicGetEntry("" + i);
+        var did = de.getDiskId();
         assertTrue(did.getKeyId() > 0);
         assertEquals(1, did.getOplogId());
         assertTrue(did.getOffsetInOplog() > -1);
@@ -884,9 +883,9 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       }
       // this last oplog does not have a krf because this disk store has not
       // been closed. So its value should be in memory now.
-      for (int i = 3; i < 6; ++i) {
-        DiskEntry de = (DiskEntry) rgn.basicGetEntry("" + i);
-        DiskId did = de.getDiskId();
+      for (var i = 3; i < 6; ++i) {
+        var de = (DiskEntry) rgn.basicGetEntry("" + i);
+        var did = de.getDiskId();
         assertTrue(did.getKeyId() > 0);
         assertFalse(de.isValueNull());
         assertEquals(2, did.getOplogId());
@@ -910,7 +909,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testDiskIDFieldsForPersistOverFlowRecoverValuesTrue() throws Exception {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
     try {
       diskProps.setDiskDirs(dirs);
@@ -923,14 +922,14 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, diskProps);
 
       // the creates which will go in first oplog
-      for (int i = 0; i < 3; ++i) {
+      for (var i = 0; i < 3; ++i) {
         region.put("" + i, "" + i);
       }
       // Ensure that next few entries go in the second oplog while the first set
       // of entries go in the first oplog
       region.forceRolling();
 
-      for (int i = 3; i < 6; ++i) {
+      for (var i = 3; i < 6; ++i) {
         region.put("" + i, "" + i);
       }
 
@@ -939,15 +938,15 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       diskProps.setRolling(false);
       region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, diskProps);
       // Now verify the DiskIds of each of the siz entries & the values.
-      LocalRegion rgn = (LocalRegion) region;
+      var rgn = (LocalRegion) region;
       byte b = 0;
       b = EntryBits.setSerialized(b, true);
       b = EntryBits.setRecoveredFromDisk(b, true);
       b = EntryBits.setWithVersions(b, true);
 
-      for (int i = 0; i < 3; ++i) {
-        DiskEntry de = (DiskEntry) rgn.basicGetEntry("" + i);
-        DiskId did = de.getDiskId();
+      for (var i = 0; i < 3; ++i) {
+        var de = (DiskEntry) rgn.basicGetEntry("" + i);
+        var did = de.getDiskId();
         assertEquals(1, did.getOplogId());
         assertTrue(did.getOffsetInOplog() > -1);
         assertEquals(b, did.getUserBits());
@@ -955,9 +954,9 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
         assertEquals("" + i, rgn.get("" + i));
         assertTrue(did.getKeyId() > 0);
       }
-      for (int i = 3; i < 6; ++i) {
-        DiskEntry de = (DiskEntry) rgn.basicGetEntry("" + i);
-        DiskId did = de.getDiskId();
+      for (var i = 3; i < 6; ++i) {
+        var de = (DiskEntry) rgn.basicGetEntry("" + i);
+        var did = de.getDiskId();
         assertEquals(2, did.getOplogId());
         assertTrue(did.getOffsetInOplog() > -1);
         assertEquals(b, did.getUserBits());
@@ -982,7 +981,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testDiskIDFieldsForPersistOnlyRecoverValuesFalse() throws Exception {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
     try {
       diskProps.setDiskDirs(dirs);
@@ -994,7 +993,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
 
       // the creates which will go in first oplog
-      for (int i = 0; i < 3; ++i) {
+      for (var i = 0; i < 3; ++i) {
         region.put("" + i, "" + i);
       }
 
@@ -1002,7 +1001,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       // of entries go in the first oplog
       region.forceRolling();
 
-      for (int i = 3; i < 6; ++i) {
+      for (var i = 3; i < 6; ++i) {
         region.put("" + i, "" + i);
       }
 
@@ -1011,15 +1010,15 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       diskProps.setRolling(false);
       region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
       // Now verify the DiskIds of each of the siz entries & the values.
-      LocalRegion rgn = (LocalRegion) region;
+      var rgn = (LocalRegion) region;
       byte b = 0;
       b = EntryBits.setSerialized(b, true);
       b = EntryBits.setRecoveredFromDisk(b, true);
       b = EntryBits.setWithVersions(b, true);
 
-      for (int i = 0; i < 3; ++i) {
-        DiskEntry de = (DiskEntry) rgn.basicGetEntry("" + i);
-        DiskId did = de.getDiskId();
+      for (var i = 0; i < 3; ++i) {
+        var de = (DiskEntry) rgn.basicGetEntry("" + i);
+        var did = de.getDiskId();
         assertTrue(did.getKeyId() > 0);
         assertTrue(de.isValueNull());
         assertEquals(1, did.getOplogId());
@@ -1030,9 +1029,9 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
         assertFalse(de.isValueNull());
         assertTrue(did.getKeyId() > 0);
       }
-      for (int i = 3; i < 6; ++i) {
-        DiskEntry de = (DiskEntry) rgn.basicGetEntry("" + i);
-        DiskId did = de.getDiskId();
+      for (var i = 3; i < 6; ++i) {
+        var de = (DiskEntry) rgn.basicGetEntry("" + i);
+        var did = de.getDiskId();
         assertTrue(de.isValueNull());
         assertTrue(did.getKeyId() > 0);
         assertEquals(2, did.getOplogId());
@@ -1059,7 +1058,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testDiskIDFieldsForPersistOverFlowRecoverValuesFalse() throws Exception {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
     try {
       diskProps.setDiskDirs(dirs);
@@ -1072,14 +1071,14 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, diskProps);
 
       // the creates which will go in first oplog
-      for (int i = 0; i < 3; ++i) {
+      for (var i = 0; i < 3; ++i) {
         region.put("" + i, "" + i);
       }
       // Ensure that next few entries go in the second oplog while the first set
       // of entries go in the first oplog
       region.forceRolling();
 
-      for (int i = 3; i < 6; ++i) {
+      for (var i = 3; i < 6; ++i) {
         region.put("" + i, "" + i);
       }
 
@@ -1088,15 +1087,15 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
       diskProps.setRolling(false);
       region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, diskProps);
       // Now verify the DiskIds of each of the siz entries & the values.
-      LocalRegion rgn = (LocalRegion) region;
+      var rgn = (LocalRegion) region;
       byte b = 0;
       b = EntryBits.setSerialized(b, true);
       b = EntryBits.setRecoveredFromDisk(b, true);
       b = EntryBits.setWithVersions(b, true);
 
-      for (int i = 0; i < 3; ++i) {
-        DiskEntry de = (DiskEntry) rgn.basicGetEntry("" + i);
-        DiskId did = de.getDiskId();
+      for (var i = 0; i < 3; ++i) {
+        var de = (DiskEntry) rgn.basicGetEntry("" + i);
+        var did = de.getDiskId();
         assertEquals(1, did.getOplogId());
         assertTrue(did.getOffsetInOplog() > -1);
         assertEquals(b, did.getUserBits());
@@ -1104,9 +1103,9 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
         assertEquals("" + i, rgn.get("" + i));
         assertTrue(did.getKeyId() > 0);
       }
-      for (int i = 3; i < 6; ++i) {
-        DiskEntry de = (DiskEntry) rgn.basicGetEntry("" + i);
-        DiskId did = de.getDiskId();
+      for (var i = 3; i < 6; ++i) {
+        var de = (DiskEntry) rgn.basicGetEntry("" + i);
+        var did = de.getDiskId();
         assertEquals(2, did.getOplogId());
         assertTrue(did.getOffsetInOplog() > -1);
         assertEquals(b, did.getUserBits());
@@ -1180,7 +1179,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
 
     // Create another oplog
-    DiskStore store = cache.findDiskStore(region.getAttributes().getDiskStoreName());
+    var store = cache.findDiskStore(region.getAttributes().getDiskStoreName());
     store.forceRoll();
 
     // Now create and destroy all of the entries in the new
@@ -1220,7 +1219,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testRecoverValuesFalse() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
     try {
       diskProps.setDiskDirs(dirs);
@@ -1246,7 +1245,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testRecoverValuesTrue() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
     try {
       diskProps.setDiskDirs(dirs);
@@ -1272,7 +1271,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testBug41119() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
     try {
       diskProps.setDiskDirs(dirs);
@@ -1303,7 +1302,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
    * test.
    */
   private void basicVerifyStats(boolean recovValues) {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "" + recovValues);
     try {
       diskProps.setDiskDirs(dirs);
@@ -1316,7 +1315,7 @@ public class DiskRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
       region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
 
-      DiskRegion dr = ((LocalRegion) region).getDiskRegion();
+      var dr = ((LocalRegion) region).getDiskRegion();
       if (recovValues) {
         waitForInVMToBe(dr, 1);
         assertEquals(0, dr.getNumOverflowOnDisk());

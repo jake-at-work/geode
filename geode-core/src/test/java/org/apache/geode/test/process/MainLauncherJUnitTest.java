@@ -17,8 +17,6 @@ package org.apache.geode.test.process;
 import static org.junit.Assert.assertTrue;
 import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.emptyStandardInputStream;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -53,7 +51,7 @@ public class MainLauncherJUnitTest {
   @Test
   public void testInvokeMainWithNullArgs() throws Exception {
     Class<?> clazz = getClass();
-    Method mainMethod = clazz.getMethod("main", String[].class);
+    var mainMethod = clazz.getMethod("main", String[].class);
     String[] args = null;
     mainMethod.invoke(null, new Object[] {args});
     assertTrue(flag);
@@ -62,8 +60,8 @@ public class MainLauncherJUnitTest {
   @Test
   public void testInvokeMainWithEmptyArgs() throws Exception {
     Class<?> clazz = getClass();
-    Method mainMethod = clazz.getMethod("main", String[].class);
-    String[] args = new String[0];
+    var mainMethod = clazz.getMethod("main", String[].class);
+    var args = new String[0];
     mainMethod.invoke(null, new Object[] {args});
     assertTrue(flag);
   }
@@ -71,8 +69,8 @@ public class MainLauncherJUnitTest {
   @Test
   public void testInvokeMainWithOneArg() throws Exception {
     Class<?> clazz = getClass();
-    Method mainMethod = clazz.getMethod("main", String[].class);
-    String[] args = new String[] {"arg0"};
+    var mainMethod = clazz.getMethod("main", String[].class);
+    var args = new String[] {"arg0"};
     mainMethod.invoke(null, new Object[] {args});
     assertTrue(flag);
   }
@@ -80,18 +78,18 @@ public class MainLauncherJUnitTest {
   @Test
   public void testInvokeMainWithTwoArgs() throws Exception {
     Class<?> clazz = getClass();
-    Method mainMethod = clazz.getMethod("main", String[].class);
-    String[] args = new String[] {"arg0", "arg1"};
+    var mainMethod = clazz.getMethod("main", String[].class);
+    var args = new String[] {"arg0", "arg1"};
     mainMethod.invoke(null, new Object[] {args});
     assertTrue(flag);
   }
 
   @Test
   public void testInvokeMainWithMainLauncherWithNoArgs() throws Exception {
-    Future<Boolean> future = executorServiceRule.submit(() -> {
+    var future = executorServiceRule.submit(() -> {
       Class<?> clazz = MainLauncher.class;
-      Method mainMethod = clazz.getMethod("main", String[].class);
-      String[] args = new String[] {launchedClass};
+      var mainMethod = clazz.getMethod("main", String[].class);
+      var args = new String[] {launchedClass};
       // this will block until "\n" is fed to System.in
       mainMethod.invoke(null, new Object[] {args});
       return true;
@@ -103,10 +101,10 @@ public class MainLauncherJUnitTest {
 
   @Test
   public void testInvokeMainWithMainLauncherWithOneArg() throws Exception {
-    Future<Boolean> future = executorServiceRule.submit(() -> {
+    var future = executorServiceRule.submit(() -> {
       Class<?> clazz = MainLauncher.class;
-      Method mainMethod = clazz.getMethod("main", String[].class);
-      String[] args = new String[] {launchedClass, "arg0"};
+      var mainMethod = clazz.getMethod("main", String[].class);
+      var args = new String[] {launchedClass, "arg0"};
       mainMethod.invoke(null, new Object[] {args});
       return true;
     });
@@ -117,10 +115,10 @@ public class MainLauncherJUnitTest {
 
   @Test
   public void testInvokeMainWithMainLauncherWithTwoArgs() throws Exception {
-    Future<Boolean> future = executorServiceRule.submit(() -> {
+    var future = executorServiceRule.submit(() -> {
       Class<?> clazz = MainLauncher.class;
-      Method mainMethod = clazz.getMethod("main", String[].class);
-      String[] args = new String[] {launchedClass, "arg0", "arg1"};
+      var mainMethod = clazz.getMethod("main", String[].class);
+      var args = new String[] {launchedClass, "arg0", "arg1"};
       mainMethod.invoke(null, new Object[] {args});
       return true;
     });

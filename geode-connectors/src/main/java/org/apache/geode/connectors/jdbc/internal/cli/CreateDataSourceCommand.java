@@ -16,9 +16,6 @@ package org.apache.geode.connectors.jdbc.internal.cli;
 
 import static org.apache.geode.lang.Identifiable.exists;
 
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
@@ -27,14 +24,12 @@ import org.apache.geode.annotations.Experimental;
 import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.JndiBindingsType;
 import org.apache.geode.cache.configuration.JndiBindingsType.JndiBinding.ConfigProperty;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.commands.CreateJndiBindingCommand.DATASOURCE_TYPE;
 import org.apache.geode.management.internal.cli.functions.CreateJndiBindingFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -101,7 +96,7 @@ public class CreateDataSourceCommand extends SingleGfshCommand {
       @CliOption(key = POOL_PROPERTIES, optionContext = "splittingRegex=,(?![^{]*\\})",
           help = POOL_PROPERTIES_HELP) PoolProperty[] poolProperties) {
 
-    JndiBindingsType.JndiBinding configuration = new JndiBindingsType.JndiBinding();
+    var configuration = new JndiBindingsType.JndiBinding();
     if (pooled) {
       if (pooledDataSourceFactoryClass == null) {
         pooledDataSourceFactoryClass = DEFAULT_POOLED_DATA_SOURCE_FACTORY_CLASS;
@@ -121,10 +116,10 @@ public class CreateDataSourceCommand extends SingleGfshCommand {
       configuration.setJdbcDriverClass(jdbcDriver);
     }
     if (poolProperties != null && poolProperties.length > 0) {
-      List<ConfigProperty> configProperties = configuration.getConfigProperties();
-      for (PoolProperty dataSourceProperty : poolProperties) {
-        String propName = dataSourceProperty.getName();
-        String propValue = dataSourceProperty.getValue();
+      var configProperties = configuration.getConfigProperties();
+      for (var dataSourceProperty : poolProperties) {
+        var propName = dataSourceProperty.getName();
+        var propValue = dataSourceProperty.getValue();
         configProperties.add(new ConfigProperty(propName, "type", propValue));
       }
     }
@@ -132,27 +127,27 @@ public class CreateDataSourceCommand extends SingleGfshCommand {
     InternalConfigurationPersistenceService service = getConfigurationPersistenceService();
 
     if (service != null) {
-      CacheConfig cacheConfig = service.getCacheConfig("cluster");
+      var cacheConfig = service.getCacheConfig("cluster");
       if (cacheConfig != null && exists(cacheConfig.getJndiBindings(), name)) {
-        String message =
+        var message =
             CliStrings.format("Jndi binding with jndi-name \"{0}\" already exists.", name);
         return ifNotExists ? ResultModel.createInfo("Skipping: " + message)
             : ResultModel.createError(message);
       }
     }
 
-    Set<DistributedMember> targetMembers = findMembers(null, null);
+    var targetMembers = findMembers(null, null);
     if (targetMembers.size() > 0) {
-      Object[] arguments = new Object[] {configuration, true};
-      List<CliFunctionResult> jndiCreationResult = executeAndGetFunctionResult(
+      var arguments = new Object[] {configuration, true};
+      var jndiCreationResult = executeAndGetFunctionResult(
           new CreateJndiBindingFunction(), arguments, targetMembers);
-      ResultModel result =
+      var result =
           ResultModel.createMemberStatusResult(jndiCreationResult, EXPERIMENTAL, null, false, true);
       result.setConfigObject(configuration);
       return result;
     } else {
       if (service != null) {
-        ResultModel result =
+        var result =
             ResultModel.createInfo("No members found, data source saved to cluster configuration.");
         result.setConfigObject(configuration);
         return result;

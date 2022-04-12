@@ -27,7 +27,6 @@ import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.management.configuration.RegionType;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 
 
 
@@ -39,13 +38,13 @@ public class CacheConfigDAODUnitTest {
 
   @Test
   public void xmlCreatedByCCServiceCanBeLoadedByServer() {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     locator.invoke(() -> {
       ConfigurationPersistenceService ccService =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
       ccService.updateCacheConfig("cluster", cc -> {
-        RegionConfig regionConfig = new RegionConfig();
+        var regionConfig = new RegionConfig();
         regionConfig.setName("regionB");
         regionConfig.setType(RegionType.REPLICATE);
         cc.getRegions().add(regionConfig);
@@ -53,7 +52,7 @@ public class CacheConfigDAODUnitTest {
       });
     });
 
-    MemberVM server = cluster.startServerVM(1, locator.getPort());
+    var server = cluster.startServerVM(1, locator.getPort());
 
     server.invoke(() -> {
       assertThat(ClusterStartupRule.getCache().getRegion(SEPARATOR + "regionB")).isNotNull();

@@ -43,16 +43,16 @@ public class ConnectionTableTest {
 
   @Before
   public void initConnectionTable() throws Exception {
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
+    var system = mock(InternalDistributedSystem.class);
     when(system.isShareSockets()).thenReturn(false);
 
-    DistributionManager dm = mock(DistributionManager.class);
+    var dm = mock(DistributionManager.class);
     when(dm.getSystem()).thenReturn(system);
 
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
-    DMStats dmStats = mock(DMStats.class);
+    var cancelCriterion = mock(CancelCriterion.class);
+    var dmStats = mock(DMStats.class);
 
-    TCPConduit tcpConduit = mock(TCPConduit.class);
+    var tcpConduit = mock(TCPConduit.class);
     when(tcpConduit.getDM()).thenReturn(dm);
     when(tcpConduit.getCancelCriterion()).thenReturn(cancelCriterion);
     when(tcpConduit.getStats()).thenReturn(dmStats);
@@ -100,7 +100,7 @@ public class ConnectionTableTest {
 
   @Test
   public void testThreadOwnedSocketsAreRemoved() {
-    Boolean wantsResources = ConnectionTable.getThreadOwnsResourcesRegistration();
+    var wantsResources = ConnectionTable.getThreadOwnsResourcesRegistration();
     ConnectionTable.threadWantsOwnResources();
     try {
       Map<DistributedMember, Connection> threadConnectionMap = new HashMap<>();

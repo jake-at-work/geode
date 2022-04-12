@@ -48,7 +48,7 @@ public class RegionConfigRealizerIntegrationTest {
     config.setType(RegionType.REPLICATE);
     realizer.create(config, server.getCache());
 
-    org.apache.geode.cache.Region<Object, Object> region = server.getCache().getRegion("test");
+    var region = server.getCache().getRegion("test");
     assertThat(region).isNotNull();
     assertThat(region.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
     assertThat(region.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_ACK);

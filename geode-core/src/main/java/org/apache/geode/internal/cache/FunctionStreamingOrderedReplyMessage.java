@@ -30,7 +30,7 @@ public class FunctionStreamingOrderedReplyMessage extends FunctionStreamingReply
   public static void send(InternalDistributedMember recipient, int processorId,
       ReplyException exception, DistributionManager dm, Object result, int msgNum,
       boolean lastMsg) {
-    FunctionStreamingOrderedReplyMessage m = new FunctionStreamingOrderedReplyMessage();
+    var m = new FunctionStreamingOrderedReplyMessage();
     m.processorId = processorId;
     if (exception != null) {
       m.setException(exception);

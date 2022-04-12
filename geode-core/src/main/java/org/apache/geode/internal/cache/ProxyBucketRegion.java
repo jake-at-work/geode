@@ -19,8 +19,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,10 +29,8 @@ import org.apache.geode.CancelCriterion;
 import org.apache.geode.InternalGemFireError;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.DiskAccessException;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.persistence.PartitionOfflineException;
-import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionAdvisee;
 import org.apache.geode.distributed.internal.DistributionAdvisor;
@@ -48,9 +44,6 @@ import org.apache.geode.internal.cache.DiskInitFile.DiskRegionFlag;
 import org.apache.geode.internal.cache.PartitionedRegion.BucketLock;
 import org.apache.geode.internal.cache.PartitionedRegionDataStore.CreateBucketResult;
 import org.apache.geode.internal.cache.partitioned.Bucket;
-import org.apache.geode.internal.cache.persistence.PersistentMemberID;
-import org.apache.geode.internal.cache.persistence.PersistentMemberManager;
-import org.apache.geode.internal.cache.persistence.PersistentMembershipView;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -101,26 +94,26 @@ public class ProxyBucketRegion implements Bucket {
 
     if (this.partitionedRegion.getDataPolicy().withPersistence()) {
 
-      String regionPath = getFullPath();
-      PersistentMemberManager memberManager =
+      var regionPath = getFullPath();
+      var memberManager =
           partitionedRegion.getGemFireCache().getPersistentMemberManager();
-      DiskRegionStats diskStats = partitionedRegion.getDiskRegionStats();
-      DistributedLockService dl =
+      var diskStats = partitionedRegion.getDiskRegionStats();
+      var dl =
           partitionedRegion.getGemFireCache().getPartitionedRegionLockService();
-      DiskStoreImpl ds = partitionedRegion.getDiskStore();
-      EvictionAttributes ea = partitionedRegion.getAttributes().getEvictionAttributes();
-      EnumSet<DiskRegionFlag> diskFlags = EnumSet.noneOf(DiskRegionFlag.class);
+      var ds = partitionedRegion.getDiskStore();
+      var ea = partitionedRegion.getAttributes().getEvictionAttributes();
+      var diskFlags = EnumSet.noneOf(DiskRegionFlag.class);
       // Add flag if this region has versioning enabled
       if (partitionedRegion.getConcurrencyChecksEnabled()) {
         diskFlags.add(DiskRegionFlag.IS_WITH_VERSIONING);
       }
-      boolean overflowEnabled = ea != null && ea.getAction().isOverflowToDisk();
-      int startingBucketID = -1;
-      String partitionName = NO_FIXED_PARTITION_NAME;
-      List<FixedPartitionAttributesImpl> fpaList =
+      var overflowEnabled = ea != null && ea.getAction().isOverflowToDisk();
+      var startingBucketID = -1;
+      var partitionName = NO_FIXED_PARTITION_NAME;
+      var fpaList =
           partitionedRegion.getFixedPartitionAttributesImpl();
       if (fpaList != null) {
-        for (FixedPartitionAttributesImpl fpa : fpaList) {
+        for (var fpa : fpaList) {
           if (fpa.hasBucket(bid)) {
             startingBucketID = fpa.getStartingBucketID();
             partitionName = fpa.getPartitionName();
@@ -136,7 +129,7 @@ public class ProxyBucketRegion implements Bucket {
               startingBucketID, partitionedRegion.getCompressor(), partitionedRegion.getOffHeap());
 
       if (fpaList != null) {
-        for (FixedPartitionAttributesImpl fpa : fpaList) {
+        for (var fpa : fpaList) {
           if (fpa.getPartitionName().equals(diskRegion.getPartitionName())
               && diskRegion.getStartingBucketId() != -1) {
             fpa.setStartingBucketID(diskRegion.getStartingBucketId());
@@ -261,13 +254,13 @@ public class ProxyBucketRegion implements Bucket {
 
   public void setHosting(boolean value) {
     if (value) {
-      PartitionedRegion region = getPartitionedRegion();
+      var region = getPartitionedRegion();
       Assert.assertTrue(realBucket != null);
       Assert.assertTrue(!advisor.isHosting());
       if (region.isFixedPartitionedRegion()) {
-        List<FixedPartitionAttributesImpl> list = region.getFixedPartitionAttributesImpl();
+        var list = region.getFixedPartitionAttributesImpl();
         if (list != null) {
-          for (FixedPartitionAttributesImpl info : list) {
+          for (var info : list) {
             if (info.hasBucket(bid)) {
               advisor.setHosting(true);
               break;
@@ -340,7 +333,7 @@ public class ProxyBucketRegion implements Bucket {
     if (logger.isDebugEnabled()) {
       logger.debug("ProxyBucketRegion filling in profile: {}", profile);
     }
-    BucketRegion bucket = realBucket;
+    var bucket = realBucket;
     if (bucket != null) {
       bucket.fillInProfile(profile);
     }
@@ -355,7 +348,7 @@ public class ProxyBucketRegion implements Bucket {
 
   @Override
   public Set<InternalDistributedMember> getBucketOwners() {
-    Set<InternalDistributedMember> s = advisor.adviseInitialized();
+    var s = advisor.adviseInitialized();
     if (s.isEmpty()) {
       // getBucketOwners needs to return a modifiable set.
       // adviseInitialized returns an unmodifiable set when it is empty.
@@ -409,13 +402,13 @@ public class ProxyBucketRegion implements Bucket {
   void recoverFromDiskRecursively() {
     recoverFromDisk();
 
-    List<PartitionedRegion> colocatedWithList =
+    var colocatedWithList =
         ColocationHelper.getColocatedChildRegions(partitionedRegion);
-    for (PartitionedRegion childPR : colocatedWithList) {
+    for (var childPR : colocatedWithList) {
       if (childPR.getDataPolicy().withPersistence()) {
-        ProxyBucketRegion[] childBucketArray = childPR.getRegionAdvisor().getProxyBucketArray();
+        var childBucketArray = childPR.getRegionAdvisor().getProxyBucketArray();
         if (childBucketArray != null) {
-          ProxyBucketRegion childBucket = childBucketArray[getBucketId()];
+          var childBucket = childBucketArray[getBucketId()];
           childBucket.recoverFromDisk();
         }
       }
@@ -423,7 +416,7 @@ public class ProxyBucketRegion implements Bucket {
   }
 
   public void recoverFromDisk() {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
     RuntimeException exception = null;
     if (isDebugEnabled) {
@@ -451,7 +444,7 @@ public class ProxyBucketRegion implements Bucket {
         } else {
           if (partitionedRegion.isShadowPR()
               && partitionedRegion.getColocatedWith() != null) {
-            PartitionedRegion colocatedRegion =
+            var colocatedRegion =
                 ColocationHelper.getColocatedRegion(partitionedRegion);
 
             if (partitionedRegion.getDataPolicy().withPersistence()
@@ -522,7 +515,7 @@ public class ProxyBucketRegion implements Bucket {
    * Destroy the offline data just for this bucket.
    */
   void destroyOfflineData() {
-    Map<InternalDistributedMember, PersistentMemberID> onlineMembers =
+    var onlineMembers =
         advisor.adviseInitializedPersistentMembers();
     persistenceAdvisor.checkMyStateOnMembers(onlineMembers.keySet());
     diskRegion.beginDestroyDataStorage();
@@ -555,12 +548,12 @@ public class ProxyBucketRegion implements Bucket {
   void initializePersistenceAdvisor() {
     persistenceAdvisor.initialize();
 
-    List<PartitionedRegion> colocatedWithList =
+    var colocatedWithList =
         ColocationHelper.getColocatedChildRegions(partitionedRegion);
-    for (PartitionedRegion childPR : colocatedWithList) {
-      ProxyBucketRegion[] childBucketArray = childPR.getRegionAdvisor().getProxyBucketArray();
+    for (var childPR : colocatedWithList) {
+      var childBucketArray = childPR.getRegionAdvisor().getProxyBucketArray();
       if (childBucketArray != null) {
-        ProxyBucketRegion childBucket = childBucketArray[getBucketId()];
+        var childBucket = childBucketArray[getBucketId()];
         if (childBucket.persistenceAdvisor != null) {
           childBucket.persistenceAdvisor.initialize();
         }
@@ -570,12 +563,12 @@ public class ProxyBucketRegion implements Bucket {
 
   boolean checkBucketRedundancyBeforeGrab(InternalDistributedMember moveSource,
       boolean replaceOfflineData) {
-    int redundancy = getBucketAdvisor().getBucketRedundancy();
+    var redundancy = getBucketAdvisor().getBucketRedundancy();
     // Skip any checks if this is a colocated bucket. We need to create
     // the colocated bucket if we managed to create the parent bucket. There are
     // race conditions where the parent region may know that a member is no longer
     // hosting the bucket, but the child region doesn't know that yet.
-    PartitionedRegion colocatedRegion = ColocationHelper.getColocatedRegion(partitionedRegion);
+    var colocatedRegion = ColocationHelper.getColocatedRegion(partitionedRegion);
     if (colocatedRegion != null) {
       return true;
     }
@@ -584,7 +577,7 @@ public class ProxyBucketRegion implements Bucket {
     // Even if we intend to replace offline data, we still need to make
     // sure the bucket isn't completely offline
     if (!replaceOfflineData || redundancy == -1) {
-      BucketPersistenceAdvisor persistAdvisor = getPersistenceAdvisor();
+      var persistAdvisor = getPersistenceAdvisor();
       if (persistAdvisor != null) {
         // If we haven't finished recovering from disk, don't allow the bucket creation.
         // if(persistAdvisor.isRecovering()) {
@@ -594,7 +587,7 @@ public class ProxyBucketRegion implements Bucket {
         // If this bucket never had a primary, go ahead and initialize,
         // any offline buckets should be empty
         if (!persistAdvisor.wasHosting() && advisor.getHadPrimary()) {
-          final PersistentMembershipView membershipView = persistAdvisor.getMembershipView();
+          final var membershipView = persistAdvisor.getMembershipView();
           if (membershipView == null) {
             // Fix for 42327 - There must be a race where we are being told to create a bucket
             // before we recover from disk. In that case, the membership view can be null.
@@ -606,7 +599,7 @@ public class ProxyBucketRegion implements Bucket {
             }
             return false;
           }
-          Set<PersistentMemberID> offlineMembers = membershipView.getOfflineMembers();
+          var offlineMembers = membershipView.getOfflineMembers();
           if (logger.isDebugEnabled()) {
             logger.debug(
                 "We didn't host the bucket. Checking redundancy level before creating the bucket. Redundancy={} offline members={}",
@@ -616,7 +609,7 @@ public class ProxyBucketRegion implements Bucket {
           if (offlineMembers != null && !offlineMembers.isEmpty() && redundancy == -1) {
             // If there are offline members, and no online members, throw
             // an exception indicating that we can't create the bucket.
-            String message = String.format(
+            var message = String.format(
                 "Region %s bucket %s has persistent data that is no longer online stored at these locations: %s",
                 partitionedRegion.getFullPath(), bid, offlineMembers);
             throw new PartitionOfflineException((Set) offlineMembers, message);

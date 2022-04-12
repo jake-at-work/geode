@@ -38,7 +38,6 @@ import org.apache.geode.cache.lucene.internal.LuceneIndexImpl;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexDetails;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexInfo;
-import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.test.fake.Fakes;
 import org.apache.geode.test.junit.categories.LuceneTest;
 
@@ -49,15 +48,15 @@ public class LuceneDescribeIndexFunctionJUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testExecute() throws Throwable {
-    GemFireCacheImpl cache = Fakes.cache();
-    final String serverName = "mockServer";
-    LuceneServiceImpl service = mock(LuceneServiceImpl.class);
+    var cache = Fakes.cache();
+    final var serverName = "mockServer";
+    var service = mock(LuceneServiceImpl.class);
     when(cache.getService(InternalLuceneService.class)).thenReturn(service);
-    FunctionContext context = mock(FunctionContext.class);
-    ResultSender resultSender = mock(ResultSender.class);
-    LuceneIndexInfo indexInfo = getMockLuceneInfo("index1");
-    LuceneIndexImpl index1 = getMockLuceneIndex("index1");
-    LuceneDescribeIndexFunction function = new LuceneDescribeIndexFunction();
+    var context = mock(FunctionContext.class);
+    var resultSender = mock(ResultSender.class);
+    var indexInfo = getMockLuceneInfo("index1");
+    var index1 = getMockLuceneIndex("index1");
+    var function = new LuceneDescribeIndexFunction();
 
     doReturn(indexInfo).when(context).getArguments();
     doReturn(resultSender).when(context).getResultSender();
@@ -65,11 +64,11 @@ public class LuceneDescribeIndexFunctionJUnitTest {
     when(service.getIndex(indexInfo.getIndexName(), indexInfo.getRegionPath())).thenReturn(index1);
 
     function.execute(context);
-    ArgumentCaptor<LuceneIndexDetails> resultCaptor =
+    var resultCaptor =
         ArgumentCaptor.forClass(LuceneIndexDetails.class);
     verify(resultSender).lastResult(resultCaptor.capture());
-    LuceneIndexDetails result = resultCaptor.getValue();
-    LuceneIndexDetails expected = new LuceneIndexDetails(index1, "mockServer");
+    var result = resultCaptor.getValue();
+    var expected = new LuceneIndexDetails(index1, "mockServer");
 
     assertEquals(expected.getIndexName(), result.getIndexName());
     assertEquals(expected.getRegionPath(), result.getRegionPath());
@@ -79,19 +78,19 @@ public class LuceneDescribeIndexFunctionJUnitTest {
   }
 
   private LuceneIndexInfo getMockLuceneInfo(final String index1) {
-    LuceneIndexInfo mockInfo = mock(LuceneIndexInfo.class);
+    var mockInfo = mock(LuceneIndexInfo.class);
     doReturn(index1).when(mockInfo).getIndexName();
     doReturn(SEPARATOR + "region").when(mockInfo).getRegionPath();
     return mockInfo;
   }
 
   private LuceneIndexImpl getMockLuceneIndex(final String indexName) {
-    String[] searchableFields = {"field1", "field2"};
+    var searchableFields = new String[] {"field1", "field2"};
     Map<String, Analyzer> fieldAnalyzers = new HashMap<>();
     fieldAnalyzers.put("field1", new StandardAnalyzer());
     fieldAnalyzers.put("field2", new KeywordAnalyzer());
 
-    LuceneIndexImpl index = mock(LuceneIndexImpl.class);
+    var index = mock(LuceneIndexImpl.class);
     when(index.getName()).thenReturn(indexName);
     when(index.getRegionPath()).thenReturn(SEPARATOR + "region");
     when(index.getFieldNames()).thenReturn(searchableFields);

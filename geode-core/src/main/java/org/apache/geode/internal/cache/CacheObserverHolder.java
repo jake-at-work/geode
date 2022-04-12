@@ -65,7 +65,7 @@ public class CacheObserverHolder {
     if (observer == null) {
       observer = NO_OBSERVER;
     }
-    CacheObserver oldObserver = _instance;
+    var oldObserver = _instance;
     _instance = observer;
     return oldObserver;
   }

@@ -31,7 +31,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
@@ -39,7 +38,6 @@ import org.apache.geode.cache.TransactionDataRebalancedException;
 import org.apache.geode.cache.TransactionException;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.execute.Execution;
@@ -48,8 +46,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -130,7 +126,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     Region replicateRegion = clientCacheRule.getClientCache().getRegion(replicateRegionName);
     doPuts(region);
     doPuts(replicateRegion);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     doFunction(region, new MyPartitionRegionFunction(), Type.ON_REGION, true);
@@ -147,7 +143,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
 
     Region replicateRegion = clientCacheRule.getClientCache().getRegion(replicateRegionName);
     doPuts(replicateRegion);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     doFunction(replicateRegion, new MyReplicateRegionFunction(), Type.ON_REGION, false);
@@ -183,10 +179,10 @@ public class FunctionExecutionWithTransactionDistributedTest implements
 
     Region region = clientCacheRule.getClientCache().getRegion(partitionedRegionName);
     doPuts(region);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
-    Throwable caughtException = catchThrowable(() -> doFunction(region,
+    var caughtException = catchThrowable(() -> doFunction(region,
         new MyPartitionRegionFunction(), Type.ON_REGION, false));
     assertThat(caughtException).isInstanceOf(FunctionException.class);
     assertThat(caughtException.getCause()).isInstanceOf(TransactionException.class)
@@ -213,7 +209,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     Region replicateRegion = clientCacheRule.getClientCache().getRegion(replicateRegionName);
     doPuts(region);
     doPuts(replicateRegion);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     doFunction(region, new MyPartitionRegionFunction(), Type.ON_REGION, true, true, true);
@@ -231,10 +227,10 @@ public class FunctionExecutionWithTransactionDistributedTest implements
 
     Region region = clientCacheRule.getClientCache().getRegion(partitionedRegionName);
     doPuts(region);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
-    Throwable caughtException = catchThrowable(() -> doFunction(region,
+    var caughtException = catchThrowable(() -> doFunction(region,
         new MyPartitionRegionFunction(), Type.ON_REGION, true, true, false));
     assertThat(caughtException).isInstanceOf(FunctionException.class);
     assertThat(caughtException.getCause()).isInstanceOf(TransactionException.class)
@@ -256,13 +252,13 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     Region replicateRegion = clientCacheRule.getClientCache().getRegion(replicateRegionName);
     doPuts(region);
     doPuts(replicateRegion);
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     doFunction(region, new MyPartitionRegionFunction(), Type.ON_REGION, true);
     doFunction(replicateRegion, new MyReplicateRegionFunction(), Type.ON_REGION, false);
 
-    Throwable caughtException = catchThrowable(() -> doFunction2(region,
+    var caughtException = catchThrowable(() -> doFunction2(region,
         new MyPartitionRegionFunction(), Type.ON_REGION));
     assertThat(caughtException).isInstanceOf(FunctionException.class);
     assertThat(caughtException.getCause()).isInstanceOf(TransactionDataRebalancedException.class)
@@ -281,7 +277,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     server1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(partitionedRegionName);
       Region replicateRegion = cacheRule.getCache().getRegion(replicateRegionName);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
       doFunction(region, new MyPartitionRegionFunction(), Type.ON_REGION, true);
@@ -303,7 +299,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
   }
 
   private void setupServerRegions(boolean doPut) {
-    int redundantCopies = 1;
+    var redundantCopies = 1;
     server1.invoke(() -> {
       createServerRegions(redundantCopies, 3, false);
       if (doPut) {
@@ -332,7 +328,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     server1.invoke(() -> {
       Region replicateRegion = cacheRule.getCache().getRegion(replicateRegionName);
       doPuts(replicateRegion);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
       doFunction(replicateRegion, new MyReplicateRegionFunction(), Type.ON_REGION, false);
@@ -351,7 +347,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     accessor.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(partitionedRegionName);
       Region replicateRegion = cacheRule.getCache().getRegion(replicateRegionName);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
       doFunction(region, new MyPartitionRegionFunction(), Type.ON_REGION, true);
@@ -370,10 +366,10 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     server1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(partitionedRegionName);
       doPuts(region);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
-      Throwable caughtException = catchThrowable(() -> doFunction(region,
+      var caughtException = catchThrowable(() -> doFunction(region,
           new MyPartitionRegionFunction(), Type.ON_REGION, false));
       assertThat(caughtException).isInstanceOf(TransactionException.class)
           .hasMessage("Function inside a transaction cannot execute on more than one node");
@@ -391,7 +387,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     server1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(partitionedRegionName);
       Region replicateRegion = cacheRule.getCache().getRegion(replicateRegionName);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
       doFunction(region, new MyPartitionRegionFunction(), Type.ON_REGION, true, true, true);
@@ -409,10 +405,10 @@ public class FunctionExecutionWithTransactionDistributedTest implements
 
     server1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(partitionedRegionName);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
-      Throwable caughtException = catchThrowable(() -> doFunction(region,
+      var caughtException = catchThrowable(() -> doFunction(region,
           new MyPartitionRegionFunction(), Type.ON_REGION, true, true, false));
       assertThat(caughtException).isInstanceOf(TransactionException.class)
           .hasMessage("Function inside a transaction cannot execute on more than one node");
@@ -431,13 +427,13 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     server1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(partitionedRegionName);
       Region replicateRegion = cacheRule.getCache().getRegion(replicateRegionName);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
       doFunction(region, new MyPartitionRegionFunction(), Type.ON_REGION, true);
       doFunction(replicateRegion, new MyReplicateRegionFunction(), Type.ON_REGION, false);
 
-      Throwable caughtException = catchThrowable(() -> doFunction2(region,
+      var caughtException = catchThrowable(() -> doFunction2(region,
           new MyPartitionRegionFunction(), Type.ON_REGION));
       assertThat(caughtException).isInstanceOf(TransactionDataRebalancedException.class)
           .hasMessageContaining("Function execution is not colocated with transaction.");
@@ -455,10 +451,10 @@ public class FunctionExecutionWithTransactionDistributedTest implements
 
     server1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(partitionedRegionName);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
-      Throwable caughtException = catchThrowable(() -> doFunction(region,
+      var caughtException = catchThrowable(() -> doFunction(region,
           new MyPartitionRegionFunction(), Type.ON_MEMBER, false));
       assertThat(caughtException).isInstanceOf(TransactionException.class)
           .hasMessage("Function inside a transaction cannot execute on more than one node");
@@ -482,10 +478,10 @@ public class FunctionExecutionWithTransactionDistributedTest implements
 
     server1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(partitionedRegionName);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
-      Throwable caughtException = catchThrowable(() -> doFunction(region,
+      var caughtException = catchThrowable(() -> doFunction(region,
           new MyPartitionRegionFunction(), Type.ON_MEMBER, false));
       assertThat(caughtException).isInstanceOf(TransactionException.class)
           .hasMessage("Function inside a transaction cannot execute on more than one node");
@@ -507,7 +503,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
 
     accessor.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(partitionedRegionName);
-      CacheTransactionManager txManager =
+      var txManager =
           cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
       doFunction(region, new MyPartitionRegionFunction(), Type.ON_MEMBER, false);
@@ -548,7 +544,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     Region region = cacheRule.getCache().getRegion(partitionedRegionName);
     Region replicateRegion = null;
     replicateRegion = cacheRule.getCache().getRegion(replicateRegionName);
-    CacheTransactionManager txManager =
+    var txManager =
         cacheRule.getCache().getCacheTransactionManager();
     txManager.begin();
     doFunction(region, new MyPartitionRegionFunction(), Type.ON_REGION, true);
@@ -559,7 +555,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
 
   private int createServerRegions(int redundantCopies, int totalNumOfBuckets,
       boolean isAccessor) throws Exception {
-    PartitionAttributesFactory factory = new PartitionAttributesFactory();
+    var factory = new PartitionAttributesFactory();
     factory.setRedundantCopies(redundantCopies).setTotalNumBuckets(totalNumOfBuckets);
     if (isAccessor) {
       factory.setLocalMaxMemory(0);
@@ -569,7 +565,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
         .setPartitionAttributes(factory.create()).create(partitionedRegionName);
     cacheRule.getCache().createRegionFactory(RegionShortcut.REPLICATE)
         .create(replicateRegionName);
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -597,8 +593,8 @@ public class FunctionExecutionWithTransactionDistributedTest implements
   }
 
   private PoolImpl getPool(boolean singleHopEnabled, int... ports) {
-    PoolFactory factory = PoolManager.createFactory();
-    for (int port : ports) {
+    var factory = PoolManager.createFactory();
+    for (var port : ports) {
       factory.addServer(hostName, port);
     }
     factory.setPRSingleHopEnabled(singleHopEnabled);
@@ -676,7 +672,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
         throw new RuntimeException("unexpected type");
     }
 
-    ResultCollector resultCollector = execution.execute(function);
+    var resultCollector = execution.execute(function);
     resultCollector.getResult();
   }
 
@@ -696,7 +692,7 @@ public class FunctionExecutionWithTransactionDistributedTest implements
         throw new RuntimeException("unexpected type");
     }
 
-    ResultCollector resultCollector = execution.execute(function);
+    var resultCollector = execution.execute(function);
     resultCollector.getResult();
   }
 
@@ -704,14 +700,14 @@ public class FunctionExecutionWithTransactionDistributedTest implements
     @Override
     public void execute(FunctionContext context) {
       if (context instanceof RegionFunctionContext) {
-        PartitionedRegion region =
+        var region =
             (PartitionedRegion) ((RegionFunctionContext) context).getDataSet();
         Set keySet = ((RegionFunctionContext) context).getFilter();
-        for (final Object key : keySet) {
+        for (final var key : keySet) {
           region.destroy(key);
         }
       } else if (context instanceof FunctionContextImpl) {
-        String regionName = context.getArguments().toString();
+        var regionName = context.getArguments().toString();
         Region region = context.getCache().getRegion(regionName);
         region.destroy(KEY4);
       }

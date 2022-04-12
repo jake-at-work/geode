@@ -14,7 +14,6 @@
  */
 package org.apache.geode.management.internal.beans;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -434,7 +433,7 @@ public class MemberMBean extends NotificationBroadcasterSupport implements Membe
    */
   public String processCommand(String commandString, Map<String, String> env, Byte[][] binaryData) {
     // save the binaryData into stagedFile first, and then call the new api
-    File tempDir = FileUtils.getTempDirectory();
+    var tempDir = FileUtils.getTempDirectory();
     List<String> filePaths = null;
     try {
       filePaths = ManagementUtils.bytesToFiles(binaryData, tempDir.getAbsolutePath());

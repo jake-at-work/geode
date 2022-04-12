@@ -25,7 +25,6 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -55,8 +54,8 @@ public class DumpBucketsMessage extends PartitionMessage {
 
   public static PartitionResponse send(Set recipients, PartitionedRegion r,
       final boolean validateOnly, final boolean onlyBuckets) {
-    PartitionResponse p = new PartitionResponse(r.getSystem(), recipients);
-    DumpBucketsMessage m =
+    var p = new PartitionResponse(r.getSystem(), recipients);
+    var m =
         new DumpBucketsMessage(recipients, r.getPRId(), p, validateOnly, onlyBuckets);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
 
@@ -73,7 +72,7 @@ public class DumpBucketsMessage extends PartitionMessage {
           pr.getFullPath());
     }
 
-    PartitionedRegionDataStore ds = pr.getDataStore();
+    var ds = pr.getDataStore();
     if (ds != null) {
       if (bucketsOnly) {
         ds.dumpBuckets();

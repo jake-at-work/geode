@@ -26,9 +26,9 @@ public class FunctionToTimeWithoutResult implements Function<String[]> {
 
   @Override
   public void execute(FunctionContext<String[]> context) {
-    String[] arguments = context.getArguments();
-    long sleepTimeMillis = Long.parseLong(arguments[0]);
-    boolean successful = Boolean.parseBoolean(arguments[1]);
+    var arguments = context.getArguments();
+    var sleepTimeMillis = Long.parseLong(arguments[0]);
+    var successful = Boolean.parseBoolean(arguments[1]);
 
     sleepForAtLeast(ofMillis(sleepTimeMillis));
 

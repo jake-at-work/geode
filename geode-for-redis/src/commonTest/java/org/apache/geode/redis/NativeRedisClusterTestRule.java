@@ -20,13 +20,11 @@ import static org.apache.geode.test.dunit.rules.RedisClusterStartupRule.REDIS_CL
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.dockerjava.api.model.ContainerNetwork;
 import org.apache.logging.log4j.Logger;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.RuleChain;
@@ -66,16 +64,16 @@ public class NativeRedisClusterTestRule extends ExternalResource {
 
   @Override
   public Statement apply(Statement base, Description description) {
-    Statement containerStatement = new Statement() {
+    var containerStatement = new Statement() {
       @Override
       public void evaluate() throws Throwable {
-        URL composeYml = getClass().getResource(REDIS_COMPOSE_YML);
+        var composeYml = getClass().getResource(REDIS_COMPOSE_YML);
         assertThat(composeYml).as("Cannot load resource " + REDIS_COMPOSE_YML)
             .isNotNull();
 
         redisCluster =
             new DockerComposeContainer<>("acceptance", new File(composeYml.getFile()));
-        for (int i = 0; i < NODE_COUNT; i++) {
+        for (var i = 0; i < NODE_COUNT; i++) {
           redisCluster.withExposedService("redis-node-" + i, REDIS_PORT);
         }
 
@@ -85,7 +83,7 @@ public class NativeRedisClusterTestRule extends ExternalResource {
         redisCluster.start();
 
         List<ClusterNode> nodes = null;
-        for (int i = 0; i < NODE_COUNT; i++) {
+        for (var i = 0; i < NODE_COUNT; i++) {
           int port = redisCluster.getServicePort("redis-node-" + i, REDIS_PORT);
           nodes = waitForRedisNodes(port, 3);
         }
@@ -97,15 +95,15 @@ public class NativeRedisClusterTestRule extends ExternalResource {
         Map<HostPort, HostPort> translationMappings = new HashMap<>();
         List<RedisProxy> proxies = new ArrayList<>();
 
-        for (int i = 0; i < NODE_COUNT; i++) {
-          Map<String, ContainerNetwork> networks =
+        for (var i = 0; i < NODE_COUNT; i++) {
+          var networks =
               redisCluster.getContainerByServiceName("redis-node-" + i + "_1").get()
                   .getContainerInfo().getNetworkSettings().getNetworks();
-          ContainerNetwork network = networks.values().iterator().next();
-          String containerIp = network.getIpAddress();
+          var network = networks.values().iterator().next();
+          var containerIp = network.getIpAddress();
           int socatPort = redisCluster.getServicePort("redis-node-" + i, REDIS_PORT);
 
-          RedisProxy proxy = new RedisProxy(socatPort);
+          var proxy = new RedisProxy(socatPort);
           Integer exposedPort = proxy.getExposedPort();
           exposedPorts.add(exposedPort);
           translationMappings.put(new HostPort(containerIp, REDIS_PORT),
@@ -134,7 +132,7 @@ public class NativeRedisClusterTestRule extends ExternalResource {
 
   public void dumpContainerLogs() {
     dumpContainerLogs("redis-cluster-init_1");
-    for (int i = 0; i < NODE_COUNT; i++) {
+    for (var i = 0; i < NODE_COUNT; i++) {
       dumpContainerLogs("redis-node-" + i + "_1");
     }
   }
@@ -149,11 +147,11 @@ public class NativeRedisClusterTestRule extends ExternalResource {
    */
   private List<ClusterNode> waitForRedisNodes(int port, int wantedPrimaries) {
     List<ClusterNode> nodes = null;
-    int primaryCount = 0;
-    int replicaCount = 0;
+    var primaryCount = 0;
+    var replicaCount = 0;
 
-    try (Jedis jedis = new Jedis(BIND_ADDRESS, port, REDIS_CLIENT_TIMEOUT)) {
-      for (int i = 0; i < 60; i++) {
+    try (var jedis = new Jedis(BIND_ADDRESS, port, REDIS_CLIENT_TIMEOUT)) {
+      for (var i = 0; i < 60; i++) {
         nodes = ClusterNodes.parseClusterNodes(jedis.clusterNodes()).getNodes();
         primaryCount = nodes.stream().mapToInt(x -> x.primary ? 1 : 0).sum();
         replicaCount = nodes.stream().mapToInt(x -> x.primary ? 0 : 1).sum();
@@ -183,15 +181,15 @@ public class NativeRedisClusterTestRule extends ExternalResource {
 
   public void flushAll() {
     ClusterNodes nodes;
-    try (Jedis jedis = new Jedis("localhost", exposedPorts.get(0))) {
+    try (var jedis = new Jedis("localhost", exposedPorts.get(0))) {
       nodes = ClusterNodes.parseClusterNodes(jedis.clusterNodes());
     }
 
-    for (ClusterNode node : nodes.getNodes()) {
+    for (var node : nodes.getNodes()) {
       if (!node.primary) {
         continue;
       }
-      try (Jedis jedis = new Jedis(node.ipAddress, (int) node.port)) {
+      try (var jedis = new Jedis(node.ipAddress, (int) node.port)) {
         jedis.flushAll();
       }
     }

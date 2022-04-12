@@ -77,8 +77,8 @@ public class AllBucketProfilesUpdateMessage extends DistributionMessage
   @Override
   protected void process(ClusterDistributionManager dm) {
     try {
-      PartitionedRegion pr = PartitionedRegion.getPRFromId(prId);
-      for (Map.Entry<Integer, BucketAdvisor.BucketProfile> profile : profiles.entrySet()) {
+      var pr = PartitionedRegion.getPRFromId(prId);
+      for (var profile : profiles.entrySet()) {
         pr.getRegionAdvisor().putBucketProfile(profile.getKey(), profile.getValue());
       }
     } catch (PRLocallyDestroyedException fre) {
@@ -128,10 +128,10 @@ public class AllBucketProfilesUpdateMessage extends DistributionMessage
       return null;
     }
     ReplyProcessor21 rp = null;
-    int procId = 0;
+    var procId = 0;
     rp = new ReplyProcessor21(dm, recipients);
     procId = rp.getProcessorId();
-    AllBucketProfilesUpdateMessage m =
+    var m =
         new AllBucketProfilesUpdateMessage(recipients, prId, procId, profiles);
     dm.putOutgoing(m);
     return rp;

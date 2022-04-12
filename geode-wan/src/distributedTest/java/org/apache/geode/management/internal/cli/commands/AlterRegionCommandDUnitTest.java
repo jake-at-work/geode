@@ -27,9 +27,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.RegionConfig;
-import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.cache.wan.AsyncEventQueueConfigurationException;
 import org.apache.geode.internal.cache.wan.GatewaySenderConfigurationException;
 import org.apache.geode.internal.cache.wan.MyAsyncEventListener;
@@ -70,8 +67,8 @@ public class AlterRegionCommandDUnitTest {
 
   @Test
   public void alterPartitionRegionWithParallelAsynchronousEventQueueShouldPersistTheChangesIntoTheClusterConfigurationService() {
-    String regionName = testName.getMethodName();
-    String asyncEventQueueName = "asyncEventQueue1";
+    var regionName = testName.getMethodName();
+    var asyncEventQueueName = "asyncEventQueue1";
 
     gfsh.executeAndAssertThat(
         "create async-event-queue --parallel=true --persistent=false --listener=org.apache.geode.internal.cache.wan.MyAsyncEventListener --id="
@@ -90,12 +87,12 @@ public class AlterRegionCommandDUnitTest {
 
     // Check the cluster configuration service.
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      CacheConfig config =
+      var config =
           internalLocator.getConfigurationPersistenceService().getCacheConfig("cluster");
 
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
       assertThat(regionConfig.getRegionAttributes().getAsyncEventQueueIds()).isNotEmpty()
@@ -108,9 +105,9 @@ public class AlterRegionCommandDUnitTest {
     addIgnoredException(
         "Non colocated regions (.*) cannot have the same parallel async event queue id (.*) configured.");
 
-    String asyncEventQueue = "asyncEventQueue";
-    String region1Name = testName.getMethodName() + "1";
-    String region2Name = testName.getMethodName() + "2";
+    var asyncEventQueue = "asyncEventQueue";
+    var region1Name = testName.getMethodName() + "1";
+    var region2Name = testName.getMethodName() + "2";
 
     gfsh.executeAndAssertThat(
         "create async-event-queue --parallel=true --persistent=false --listener=org.apache.geode.internal.cache.wan.MyAsyncEventListener --id="
@@ -141,18 +138,18 @@ public class AlterRegionCommandDUnitTest {
     // The exception must be thrown early in the initialization, so the change shouldn't be
     // persisted to the cluster configuration service for the second region.
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      CacheConfig config =
+      var config =
           internalLocator.getConfigurationPersistenceService().getCacheConfig("cluster");
 
-      RegionConfig regionConfig = find(config.getRegions(), region1Name);
+      var regionConfig = find(config.getRegions(), region1Name);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
       assertThat(regionConfig.getRegionAttributes().getAsyncEventQueueIds())
           .isEqualTo(asyncEventQueue);
 
-      RegionConfig region2Config = find(config.getRegions(), region2Name);
+      var region2Config = find(config.getRegions(), region2Name);
       assertThat(region2Config).isNotNull();
       assertThat(region2Config.getRegionAttributes()).isNotNull();
       assertThat(region2Config.getRegionAttributes().getAsyncEventQueueIds()).isBlank();
@@ -163,8 +160,8 @@ public class AlterRegionCommandDUnitTest {
   public void alterPartitionPersistentRegionWithParallelNonPersistentAsynchronousEventQueueShouldThrowExceptionAndPreventTheClusterConfigurationServiceFromBeingUpdated() {
     addIgnoredException(
         "Non persistent asynchronous event queue (.*) can not be attached to persistent region (.*)");
-    String regionName = testName.getMethodName();
-    String asyncEventQueueName = "asyncEventQueue";
+    var regionName = testName.getMethodName();
+    var asyncEventQueueName = "asyncEventQueue";
 
     gfsh.executeAndAssertThat(
         "create async-event-queue --parallel=true --persistent=false --listener=org.apache.geode.internal.cache.wan.MyAsyncEventListener --id="
@@ -200,12 +197,12 @@ public class AlterRegionCommandDUnitTest {
     // The exception must be thrown early in the initialization, so the change shouldn't be
     // persisted to the cluster configuration service.
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      CacheConfig config =
+      var config =
           internalLocator.getConfigurationPersistenceService().getCacheConfig("cluster");
 
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
       assertThat(regionConfig.getRegionAttributes().getAsyncEventQueueIds()).isBlank();
@@ -215,8 +212,8 @@ public class AlterRegionCommandDUnitTest {
   @Test
   public void alterPartitionRegionWithParallelGatewaySenderShouldPersistTheChangesIntoTheClusterConfigurationService() {
     addIgnoredException("could not get remote locator information");
-    String regionName = testName.getMethodName();
-    String gatewaySenderName = "gatewaySender";
+    var regionName = testName.getMethodName();
+    var gatewaySenderName = "gatewaySender";
 
     gfsh.executeAndAssertThat(
         "create gateway-sender --parallel=true --enable-persistence=false --remote-distributed-system-id=2 --id="
@@ -235,12 +232,12 @@ public class AlterRegionCommandDUnitTest {
 
     // Check the cluster configuration service.
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      CacheConfig config =
+      var config =
           internalLocator.getConfigurationPersistenceService().getCacheConfig("cluster");
 
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
       assertThat(regionConfig.getRegionAttributes().getGatewaySenderIds()).isNotEmpty()
@@ -254,9 +251,9 @@ public class AlterRegionCommandDUnitTest {
     addIgnoredException(
         "Non colocated regions (.*) cannot have the same parallel gateway sender id (.*) configured.");
 
-    String gatewaySenderName = "gatewaySender";
-    String region1Name = testName.getMethodName() + "1";
-    String region2Name = testName.getMethodName() + "2";
+    var gatewaySenderName = "gatewaySender";
+    var region1Name = testName.getMethodName() + "1";
+    var region2Name = testName.getMethodName() + "2";
 
     gfsh.executeAndAssertThat(
         "create gateway-sender --parallel=true --enable-persistence=false --remote-distributed-system-id=2 --id="
@@ -287,18 +284,18 @@ public class AlterRegionCommandDUnitTest {
     // The exception must be thrown early in the initialization, so the change shouldn't be
     // persisted to the cluster configuration service for the second region.
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      CacheConfig config =
+      var config =
           internalLocator.getConfigurationPersistenceService().getCacheConfig("cluster");
 
-      RegionConfig regionConfig = find(config.getRegions(), region1Name);
+      var regionConfig = find(config.getRegions(), region1Name);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
       assertThat(regionConfig.getRegionAttributes().getGatewaySenderIds())
           .isEqualTo(gatewaySenderName);
 
-      RegionConfig region2Config = find(config.getRegions(), region2Name);
+      var region2Config = find(config.getRegions(), region2Name);
       assertThat(region2Config).isNotNull();
       assertThat(region2Config.getRegionAttributes()).isNotNull();
       assertThat(region2Config.getRegionAttributes().getGatewaySenderIds()).isBlank();
@@ -310,8 +307,8 @@ public class AlterRegionCommandDUnitTest {
     addIgnoredException("could not get remote locator information");
     addIgnoredException(
         "Non persistent gateway sender (.*) can not be attached to persistent region (.*)");
-    String regionName = testName.getMethodName();
-    String gatewaySenderName = "gatewaySender";
+    var regionName = testName.getMethodName();
+    var gatewaySenderName = "gatewaySender";
 
     gfsh.executeAndAssertThat(
         "create gateway-sender --parallel=true --enable-persistence=false --remote-distributed-system-id=2 --id="
@@ -344,12 +341,12 @@ public class AlterRegionCommandDUnitTest {
     // The exception must be thrown early in the initialization, so the change shouldn't be
     // persisted to the cluster configuration service.
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      CacheConfig config =
+      var config =
           internalLocator.getConfigurationPersistenceService().getCacheConfig("cluster");
 
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
       assertThat(regionConfig.getRegionAttributes().getGatewaySenderIds()).isBlank();
@@ -360,10 +357,10 @@ public class AlterRegionCommandDUnitTest {
   public void alterReplicateRegionWithParallelGatewaySenderShouldFailAndDoNotPersistChangesIntoTheClusterConfigurationService() {
     addIgnoredException(GatewaySenderConfigurationException.class);
     addIgnoredException("could not get remote locator information");
-    String regionName = testName.getMethodName();
-    String gatewaySenderId = testName.getMethodName() + "_parallelGatewaySender";
+    var regionName = testName.getMethodName();
+    var gatewaySenderId = testName.getMethodName() + "_parallelGatewaySender";
 
-    CommandStringBuilder createSenderBuilder = new CommandStringBuilder("create gateway-sender")
+    var createSenderBuilder = new CommandStringBuilder("create gateway-sender")
         .addOption("id", gatewaySenderId)
         .addOption("parallel", "true")
         .addOption("enable-persistence", "false")
@@ -371,14 +368,14 @@ public class AlterRegionCommandDUnitTest {
     gfsh.executeAndAssertThat(createSenderBuilder.getCommandString())
         .statusIsSuccess().doesNotContainOutput("Did not complete waiting");
 
-    CommandStringBuilder createRegionBuilder = new CommandStringBuilder("create region")
+    var createRegionBuilder = new CommandStringBuilder("create region")
         .addOption("name", regionName)
         .addOption("type", RegionShortcut.REPLICATE.toString());
     gfsh.executeAndAssertThat(createRegionBuilder.getCommandString()).statusIsSuccess();
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + regionName, 1);
 
     // Associate the gateway-sender
-    CommandStringBuilder alterRegionBuilder = new CommandStringBuilder("alter region")
+    var alterRegionBuilder = new CommandStringBuilder("alter region")
         .addOption("name", regionName)
         .addOption("gateway-sender-id", gatewaySenderId);
     gfsh.executeAndAssertThat(alterRegionBuilder.getCommandString())
@@ -388,12 +385,12 @@ public class AlterRegionCommandDUnitTest {
 
     // Check the cluster configuration service.
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      CacheConfig config =
+      var config =
           internalLocator.getConfigurationPersistenceService().getCacheConfig("cluster");
 
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
       assertThat(regionConfig.getRegionAttributes().getGatewaySenderIds()).isNull();
@@ -403,10 +400,10 @@ public class AlterRegionCommandDUnitTest {
   @Test
   public void alterReplicateRegionWithParallelAsynchronousEventQueueShouldFailAndDoNotPersistChangesIntoTheClusterConfigurationService() {
     addIgnoredException(AsyncEventQueueConfigurationException.class);
-    String regionName = testName.getMethodName();
-    String asyncEventQueueName = testName.getMethodName() + "_asyncEventQueue";
+    var regionName = testName.getMethodName();
+    var asyncEventQueueName = testName.getMethodName() + "_asyncEventQueue";
 
-    CommandStringBuilder createAsyncQueueBuilder =
+    var createAsyncQueueBuilder =
         new CommandStringBuilder("create async-event-queue")
             .addOption("id", asyncEventQueueName)
             .addOption("parallel", "true")
@@ -415,14 +412,14 @@ public class AlterRegionCommandDUnitTest {
     gfsh.executeAndAssertThat(createAsyncQueueBuilder.getCommandString()).statusIsSuccess();
     locator.waitUntilAsyncEventQueuesAreReadyOnExactlyThisManyServers(asyncEventQueueName, 1);
 
-    CommandStringBuilder createRegionBuilder = new CommandStringBuilder("create region")
+    var createRegionBuilder = new CommandStringBuilder("create region")
         .addOption("name", regionName)
         .addOption("type", RegionShortcut.REPLICATE.toString());
     gfsh.executeAndAssertThat(createRegionBuilder.getCommandString()).statusIsSuccess();
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + regionName, 1);
 
     // Associate the async-event-queue
-    CommandStringBuilder alterRegionBuilder = new CommandStringBuilder("alter region")
+    var alterRegionBuilder = new CommandStringBuilder("alter region")
         .addOption("name", regionName)
         .addOption("async-event-queue-id", asyncEventQueueName);
     gfsh.executeAndAssertThat(alterRegionBuilder.getCommandString())
@@ -432,12 +429,12 @@ public class AlterRegionCommandDUnitTest {
 
     // Check the cluster configuration service.
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      CacheConfig config =
+      var config =
           internalLocator.getConfigurationPersistenceService().getCacheConfig("cluster");
 
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
       assertThat(regionConfig.getRegionAttributes().getAsyncEventQueueIds()).isNull();

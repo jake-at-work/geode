@@ -38,8 +38,6 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
@@ -99,13 +97,13 @@ public class OutOfMemoryDUnitTest {
     IgnoredException.addIgnoredException("Member: .*? above .*? critical threshold");
     IgnoredException.addIgnoredException("LowMemoryException");
 
-    int[] locatorPorts = getRandomAvailableTCPPorts(3);
+    var locatorPorts = getRandomAvailableTCPPorts(3);
 
     locatorPort = String.valueOf(locatorPorts[0]);
-    int httpPort = locatorPorts[1];
-    int rmiPort = locatorPorts[2];
+    var httpPort = locatorPorts[1];
+    var rmiPort = locatorPorts[2];
 
-    CommandStringBuilder startLocatorCommand = new CommandStringBuilder(START_LOCATOR)
+    var startLocatorCommand = new CommandStringBuilder(START_LOCATOR)
         .addOption(START_LOCATOR__DIR, temporaryFolder.newFolder().getAbsolutePath())
         .addOption(START_LOCATOR__PORT, locatorPort)
         .addOption(START_LOCATOR__J, "-Dgemfire.jmx-manager=true")
@@ -120,7 +118,7 @@ public class OutOfMemoryDUnitTest {
     startServer(redisServerPorts[1]);
 
     List<ClusterNode> nodes;
-    try (Jedis singleNodeJedis =
+    try (var singleNodeJedis =
         new Jedis(BIND_ADDRESS, redisServerPorts[0], REDIS_CLIENT_TIMEOUT)) {
       nodes = ClusterNodes.parseClusterNodes(singleNodeJedis.clusterNodes()).getNodes();
     }
@@ -133,7 +131,7 @@ public class OutOfMemoryDUnitTest {
   }
 
   private static void startServer(int redisPort) throws Exception {
-    CommandStringBuilder startServerCommand = new CommandStringBuilder(START_SERVER)
+    var startServerCommand = new CommandStringBuilder(START_SERVER)
         .addOption(START_SERVER__DIR, temporaryFolder.newFolder().getAbsolutePath())
         .addOption(START_SERVER__SERVER_PORT, "0")
         .addOption(START_SERVER__LOCATORS, "localhost[" + locatorPort + "]")
@@ -150,7 +148,7 @@ public class OutOfMemoryDUnitTest {
 
   private static String getHashtagForServerWithRedisPort(List<ClusterNode> nodes, int redisPort) {
     // Find the node with the port that we're interested in
-    ClusterNode serverNode = nodes
+    var serverNode = nodes
         .stream()
         .filter(node -> node.port == redisPort)
         .findFirst()
@@ -158,10 +156,10 @@ public class OutOfMemoryDUnitTest {
             "Could not find a server with the provided redis port"));
 
     // Find a key that maps to a slot on that node
-    String key = "";
-    for (int i = 0; i < 1000; ++i) {
+    var key = "";
+    for (var i = 0; i < 1000; ++i) {
       key = "tag" + i;
-      int slot = JedisClusterCRC16.getSlot(key);
+      var slot = JedisClusterCRC16.getSlot(key);
       if (serverNode.isSlotOnNode(slot)) {
         break;
       }
@@ -184,7 +182,7 @@ public class OutOfMemoryDUnitTest {
   @Test
   public void shouldReturnOOMError_forWriteOperations_whenThresholdReached() {
     fillServer1Memory(jedis, false);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, false));
 
     await()
@@ -196,12 +194,12 @@ public class OutOfMemoryDUnitTest {
 
   @Test
   public void shouldReturnOOMError_forSubscribe_whenThresholdReached() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
-    JedisCluster subJedis =
+    var mockSubscriber = new MockSubscriber();
+    var subJedis =
         new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPorts[0]), REDIS_CLIENT_TIMEOUT);
 
     fillServer1Memory(jedis, false);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, false));
 
     await()
@@ -216,7 +214,7 @@ public class OutOfMemoryDUnitTest {
   @Test
   public void shouldReturnOOMError_forPublish_whenThresholdReached() {
     fillServer1Memory(jedis, false);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, false));
 
     await().untilAsserted(() -> assertThatThrownBy(() -> jedis.publish("channel", "message"))
@@ -228,7 +226,7 @@ public class OutOfMemoryDUnitTest {
   @Test
   public void shouldReturnOOMError_onOtherServer_forWriteOperations_whenThresholdReached() {
     fillServer1Memory(jedis, false);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, false));
 
     await()
@@ -241,7 +239,7 @@ public class OutOfMemoryDUnitTest {
   @Test
   public void shouldAllowDeleteOperations_afterThresholdReached() {
     fillServer1Memory(jedis, false);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, false));
 
     await().untilAsserted(
@@ -253,7 +251,7 @@ public class OutOfMemoryDUnitTest {
   @Test
   public void shouldAllowExpiration_afterThresholdReached() {
     fillServer1Memory(jedis, true);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, true));
 
     await().untilAsserted(() -> assertThat(jedis.ttl(server1Tag + KEY + 1)).isEqualTo(-2));
@@ -264,7 +262,7 @@ public class OutOfMemoryDUnitTest {
   @Test
   public void shouldAllowWriteOperations_afterDroppingBelowCriticalThreshold() {
     fillServer1Memory(jedis, false);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, false));
 
     await()
@@ -283,7 +281,7 @@ public class OutOfMemoryDUnitTest {
   @Test
   public void shouldAllowWriteOperations_onOtherServer_afterDroppingBelowCriticalThreshold() {
     fillServer1Memory(jedis, false);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, false));
 
     await()
@@ -301,15 +299,15 @@ public class OutOfMemoryDUnitTest {
 
   @Test
   public void shouldAllowSubscribe_afterDroppingBelowCriticalThreshold() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
-    JedisCluster subJedis =
+    var mockSubscriber = new MockSubscriber();
+    var subJedis =
         new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPorts[0]), REDIS_CLIENT_TIMEOUT);
 
     fillServer1Memory(jedis, false);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, false));
 
-    String channel = "channel";
+    var channel = "channel";
     await().untilAsserted(() -> assertThatThrownBy(
         () -> subJedis.subscribe(mockSubscriber, channel))
             .hasMessage(ERROR_OOM_COMMAND_NOT_ALLOWED));
@@ -329,7 +327,7 @@ public class OutOfMemoryDUnitTest {
   @Test
   public void shouldAllowPublish_afterDroppingBelowCriticalThreshold() {
     fillServer1Memory(jedis, false);
-    Future<Void> memoryPressure =
+    var memoryPressure =
         executor.submit(() -> maintainMemoryPressure(jedis, false));
 
     await().untilAsserted(() -> assertThatThrownBy(() -> jedis.publish("channel", "message"))
@@ -348,7 +346,7 @@ public class OutOfMemoryDUnitTest {
     assertThatThrownBy(() -> {
       // First force GC to reduce the chances of dropping back below critical accidentally
       gfsh.execute("gc");
-      for (int count = 0; count < MAX_ITERATION_COUNT; ++count) {
+      for (var count = 0; count < MAX_ITERATION_COUNT; ++count) {
         if (withExpiration) {
           jedis.setex(server1Tag + KEY + numberOfKeys.get(), KEY_TTL_SECONDS, LARGE_VALUE);
         } else {
@@ -367,9 +365,9 @@ public class OutOfMemoryDUnitTest {
 
   void removeAllKeysAndForceGC() throws Exception {
     // Remove all the keys to allow memory to drop below critical
-    Set<String> keys = jedis.keys(server1Tag + "*");
+    var keys = jedis.keys(server1Tag + "*");
     keys.addAll(jedis.keys(server2Tag + "*"));
-    for (String key : keys) {
+    for (var key : keys) {
       jedis.del(key);
     }
 

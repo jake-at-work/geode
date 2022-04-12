@@ -54,7 +54,7 @@ public class DistributionLocator {
     if (portOption == null || portOption.equals("")) {
       return Integer.getInteger(TEST_OVERRIDE_DEFAULT_PORT_PROPERTY, DEFAULT_LOCATOR_PORT);
     } else {
-      int result = Integer.parseInt(portOption);
+      var result = Integer.parseInt(portOption);
       if (result < 1 || result > 65535) {
         throw new IllegalArgumentException(
             "The -port= argument must be greater than 0 and less than 65536.");
@@ -83,7 +83,7 @@ public class DistributionLocator {
     }
     if (lockFile != null) {
       if (!lockFile.delete() && lockFile.exists()) {
-        IOException e = new IOException("Unable to delete " + lockFile.getAbsolutePath());
+        var e = new IOException("Unable to delete " + lockFile.getAbsolutePath());
         e.printStackTrace(); // What else to do?
       }
     }
@@ -108,7 +108,7 @@ public class DistributionLocator {
     }
     SystemFailure.loadEmergencyClasses();
 
-    final int port = parsePort(args[0]);
+    final var port = parsePort(args[0]);
     HostAddress hostAddress = null;
     String hostnameForClients = null;
     try {
@@ -129,7 +129,7 @@ public class DistributionLocator {
         hostnameForClients = args[4];
       }
 
-      final InetAddress inetAddress = hostAddress == null ? null : hostAddress.getAddress();
+      final var inetAddress = hostAddress == null ? null : hostAddress.getAddress();
       if (!Boolean.getBoolean(InternalDistributedSystem.DISABLE_SHUTDOWN_HOOK_PROPERTY)) {
         Runtime.getRuntime()
             .addShutdownHook(new LoggingThread("LocatorShutdownThread", false, () -> {
@@ -144,9 +144,9 @@ public class DistributionLocator {
       lockFile = ManagerInfo.setLocatorStarting(directory, port, inetAddress);
       lockFile.deleteOnExit();
 
-      InetAddress address = hostAddress == null ? null : hostAddress.getAddress();
+      var address = hostAddress == null ? null : hostAddress.getAddress();
       try {
-        InternalLocator locator = InternalLocator.startLocator(port, new File(DEFAULT_LOG_FILE),
+        var locator = InternalLocator.startLocator(port, new File(DEFAULT_LOG_FILE),
             null, null, hostAddress, true, null, hostnameForClients);
         ManagerInfo.setLocatorStarted(directory, port, address);
         locator.waitToStop();

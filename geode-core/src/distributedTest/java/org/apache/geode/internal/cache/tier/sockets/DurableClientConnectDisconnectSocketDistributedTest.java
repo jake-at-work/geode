@@ -24,11 +24,8 @@ import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.InternalCacheServer;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
 
 public class DurableClientConnectDisconnectSocketDistributedTest implements Serializable {
@@ -42,14 +39,14 @@ public class DurableClientConnectDisconnectSocketDistributedTest implements Seri
   @Test
   public void testSocketClosedOnClientDisconnect() throws Exception {
     // Start Locator
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     // Start server
-    int locatorPort = locator.getPort();
-    MemberVM server = cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort));
+    var locatorPort = locator.getPort();
+    var server = cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort));
 
     // Connect client
-    ClientVM client =
+    var client =
         cluster.startClientVM(2, getDurableClientProperties(testName.getMethodName()),
             (ccf) -> {
               ccf.setPoolSubscriptionEnabled(true);
@@ -90,7 +87,7 @@ public class DurableClientConnectDisconnectSocketDistributedTest implements Seri
   }
 
   protected Properties getDurableClientProperties(String durableClientId) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(DURABLE_CLIENT_ID, durableClientId);
     return properties;
   }
@@ -104,27 +101,27 @@ public class DurableClientConnectDisconnectSocketDistributedTest implements Seri
   }
 
   private AcceptorImpl getAcceptor() {
-    CacheServer cacheServer = ClusterStartupRule.getCache().getCacheServers().get(0);
+    var cacheServer = ClusterStartupRule.getCache().getCacheServers().get(0);
     return (AcceptorImpl) ((InternalCacheServer) cacheServer).getAcceptor();
   }
 
   private void verifyCacheClientProxySocketIsOpen() {
     // Get the acceptor
-    AcceptorImpl acceptor = getAcceptor();
+    var acceptor = getAcceptor();
 
     // Wait for the CacheClientProxy to be created since its asynchronous
     await().until(() -> acceptor.getCacheClientNotifier().getClientProxies().size() == 1);
 
-    CacheClientProxy proxy = acceptor.getCacheClientNotifier().getClientProxies().iterator().next();
+    var proxy = acceptor.getCacheClientNotifier().getClientProxies().iterator().next();
     assertThat(proxy.getSocket().isClosed()).isFalse();
   }
 
   private void waitForCacheClientProxySocketToBeClosed() {
     // Get the acceptor
-    AcceptorImpl acceptor = getAcceptor();
+    var acceptor = getAcceptor();
 
     // Get the CacheClientProxy
-    CacheClientProxy proxy = acceptor.getCacheClientNotifier().getClientProxies().iterator().next();
+    var proxy = acceptor.getCacheClientNotifier().getClientProxies().iterator().next();
 
     // Wait for the CacheClientProxy's socket to be closed
     await().until(() -> proxy.getSocket().isClosed());

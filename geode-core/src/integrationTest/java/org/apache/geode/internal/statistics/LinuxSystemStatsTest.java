@@ -31,7 +31,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.CancelCriterion;
-import org.apache.geode.Statistics;
 import org.apache.geode.internal.statistics.platform.LinuxProcFsStatistics;
 import org.apache.geode.internal.statistics.platform.LinuxSystemStats;
 import org.apache.geode.test.junit.categories.StatisticsTest;
@@ -55,13 +54,13 @@ public class LinuxSystemStatsTest extends StatSamplerTestCase {
 
   @Before
   public void setUp() throws Exception {
-    File testDir = temporaryFolder.getRoot();
+    var testDir = temporaryFolder.getRoot();
     assertThat(testDir.exists()).isTrue();
     System.setProperty(SimpleStatSampler.ARCHIVE_FILE_NAME_PROPERTY, testDir.getAbsolutePath()
         + File.separator + SimpleStatSampler.DEFAULT_ARCHIVE_FILE_NAME);
     LinuxProcFsStatistics.init();
     initStats();
-    StatisticsTypeImpl statisticsType = (StatisticsTypeImpl) LinuxSystemStats.getType();
+    var statisticsType = (StatisticsTypeImpl) LinuxSystemStats.getType();
     localStats = (LocalStatisticsImpl) getStatisticsManager()
         .createStatistics(statisticsType, statisticsType.getName());
   }
@@ -77,7 +76,7 @@ public class LinuxSystemStatsTest extends StatSamplerTestCase {
   @Test
   public void testFlatStealTime() throws Exception {
     // add on 4 clicks 4 idle 0 steal
-    String mockStats = LinuxSystemStatsTest.class.getResource("FlatStealTime.txt").getFile();
+    var mockStats = LinuxSystemStatsTest.class.getResource("FlatStealTime.txt").getFile();
 
     doStealTimeTest(mockStats, 0);
   }
@@ -85,7 +84,7 @@ public class LinuxSystemStatsTest extends StatSamplerTestCase {
   @Test
   public void test25PercentStealTime() throws Exception {
     // add on 4 clicks 3 idle 1 steal
-    String mockStats = LinuxSystemStatsTest.class.getResource("25PercentStealTime.txt").getFile();
+    var mockStats = LinuxSystemStatsTest.class.getResource("25PercentStealTime.txt").getFile();
 
     doStealTimeTest(mockStats, 25);
   }
@@ -93,7 +92,7 @@ public class LinuxSystemStatsTest extends StatSamplerTestCase {
   @Test
   public void test66PercentStealTime() throws Exception {
     // add on 3 clicks 1 idle 2 steal
-    String mockStats = LinuxSystemStatsTest.class.getResource("66PercentStealTime.txt").getFile();
+    var mockStats = LinuxSystemStatsTest.class.getResource("66PercentStealTime.txt").getFile();
 
     doStealTimeTest(mockStats, 66);
   }
@@ -101,28 +100,28 @@ public class LinuxSystemStatsTest extends StatSamplerTestCase {
   @Test
   public void test100PercentStealTime() throws Exception {
     // add on 1 clicks 0 idle 1 steal
-    String mockStats = LinuxSystemStatsTest.class.getResource("100PercentStealTime.txt").getFile();
+    var mockStats = LinuxSystemStatsTest.class.getResource("100PercentStealTime.txt").getFile();
 
     doStealTimeTest(mockStats, 100);
   }
 
   @Test
   public void netstatStatsTest() throws Exception {
-    long expectedSyncookiesSent = 1L;
-    long expectedSyncookiesRecv = 2L;
-    long expectedListenOverflows = 3L;
-    long expectedListenDrops = 4L;
+    var expectedSyncookiesSent = 1L;
+    var expectedSyncookiesRecv = 2L;
+    var expectedListenOverflows = 3L;
+    var expectedListenDrops = 4L;
 
     // This file simulates the contents of the /proc/net/netstat file, omitting all stats that
     // aren't parsed in the LinuxProcFsStatistics.getNetStatStats() method and including a dummy
     // stat that should not be parsed
-    String mockNetstatStats =
+    var mockNetstatStats =
         LinuxSystemStatsTest.class.getResource("mockNetstatStats.txt").getFile();
     LinuxProcFsStatistics.refreshSystem(localStats,
         LinuxSystemStatsTest.class.getResource("100PercentStealTime.txt").getFile(),
         mockNetstatStats);
 
-    Statistics statistics = getStatisticsManager().findStatisticsByTextId("LinuxSystemStats")[0];
+    var statistics = getStatisticsManager().findStatisticsByTextId("LinuxSystemStats")[0];
     assertThat(statistics.getLong(TCP_EXT_SYN_COOKIES_SENT)).isEqualTo(expectedSyncookiesSent);
     assertThat(statistics.getLong(TCP_EXT_SYN_COOKIES_RECV)).isEqualTo(expectedSyncookiesRecv);
     assertThat(statistics.getLong(TCP_EXT_LISTEN_OVERFLOWS)).isEqualTo(expectedListenOverflows);
@@ -133,7 +132,7 @@ public class LinuxSystemStatsTest extends StatSamplerTestCase {
     LinuxProcFsStatistics.refreshSystem(localStats, fileInputPath,
         LinuxSystemStatsTest.class.getResource("mockNetstatStats.txt").getFile());
 
-    Statistics[] statistics = getStatisticsManager().findStatisticsByTextId("LinuxSystemStats");
+    var statistics = getStatisticsManager().findStatisticsByTextId("LinuxSystemStats");
     waitForExpectedStatValue(statistics[0], "cpuSteal", expectedStatValue, 20000, 10);
   }
 

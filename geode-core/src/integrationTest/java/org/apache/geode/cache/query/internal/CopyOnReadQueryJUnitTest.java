@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.QueryTestUtils;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
@@ -72,10 +70,10 @@ public class CopyOnReadQueryJUnitTest {
   }
 
   private void createData(Region region, int numObjects, int objectsAndResultsMultiplier) {
-    for (int i = 0; i < numObjects; i++) {
-      for (int j = 0; j < objectsAndResultsMultiplier; j++) {
-        int regionKey = i * objectsAndResultsMultiplier + j;
-        Portfolio p = new Portfolio(regionKey);
+    for (var i = 0; i < numObjects; i++) {
+      for (var j = 0; j < objectsAndResultsMultiplier; j++) {
+        var regionKey = i * objectsAndResultsMultiplier + j;
+        var p = new Portfolio(regionKey);
         p.indexKey = i;
         p.status = "testStatus";
         p.positions = new HashMap();
@@ -127,7 +125,7 @@ public class CopyOnReadQueryJUnitTest {
   @Test
   public void testCopyOnReadFalseWithNoIndexWithPartitionedRegion() throws Exception {
     utils.getCache().setCopyOnRead(false);
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Portfolio.instanceCount.set(0);
       utils.createPartitionRegion(regionName, null);
       Region region = utils.getCache().getRegion(SEPARATOR + regionName);
@@ -244,7 +242,7 @@ public class CopyOnReadQueryJUnitTest {
       int objectsAndResultsMultiplier, boolean hasIndex, boolean isPR) throws Exception {
     Region region = utils.getCache().getRegion(SEPARATOR + regionName);
     createData(region, numObjects, objectsAndResultsMultiplier);
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Portfolio.instanceCount.set(numObjects * objectsAndResultsMultiplier);
       if (hasIndex && isPR) {
         Portfolio.instanceCount.set(numObjects * objectsAndResultsMultiplier * 2);
@@ -259,7 +257,7 @@ public class CopyOnReadQueryJUnitTest {
       throws Exception {
     Region region = utils.getCache().getRegion(SEPARATOR + regionName);
     createData(region, numObjects, objectsAndResultsMultiplier);
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Portfolio.instanceCount.set(numObjects * objectsAndResultsMultiplier);
       if (hasIndex && isPR) {
         Portfolio.instanceCount.set(numObjects * objectsAndResultsMultiplier * 2);
@@ -272,8 +270,8 @@ public class CopyOnReadQueryJUnitTest {
   private void helpTestCopyOnRead(String queryString, int expectedResultsSize, int numObjects,
       int objectsAndResultsMultiplier, boolean hasIndex, boolean isPR, boolean containsInnerQuery)
       throws Exception {
-    int expectedResultsSizeMultiplied = expectedResultsSize * objectsAndResultsMultiplier;
-    int numInstances = numObjects * objectsAndResultsMultiplier;
+    var expectedResultsSizeMultiplied = expectedResultsSize * objectsAndResultsMultiplier;
+    var numInstances = numObjects * objectsAndResultsMultiplier;
 
     // We are a 1 VM test, replicated regions would put the actual domain object into the cache
     if (hasIndex && isPR) {
@@ -286,18 +284,18 @@ public class CopyOnReadQueryJUnitTest {
         Portfolio.instanceCount.get());
 
     // execute query
-    QueryService qs = utils.getCache().getQueryService();
-    Query query = qs.newQuery(queryString);
-    SelectResults results = (SelectResults) query.execute();
+    var qs = utils.getCache().getQueryService();
+    var query = qs.newQuery(queryString);
+    var results = (SelectResults) query.execute();
     assertEquals("Results did not match expected count for query" + queryString,
         expectedResultsSizeMultiplied, results.size());
-    for (Object o : results) {
+    for (var o : results) {
       if (o instanceof Portfolio) {
-        Portfolio p = (Portfolio) o;
+        var p = (Portfolio) o;
         p.status = "discardStatus";
       } else {
-        Struct struct = (Struct) o;
-        Portfolio p = (Portfolio) struct.getFieldValues()[0];
+        var struct = (Struct) o;
+        var p = (Portfolio) struct.getFieldValues()[0];
         p.status = "discardStatus";
       }
     }
@@ -319,13 +317,13 @@ public class CopyOnReadQueryJUnitTest {
 
     results = (SelectResults) query.execute();
     assertEquals("No results were found", expectedResultsSizeMultiplied, results.size());
-    for (Object o : results) {
+    for (var o : results) {
       if (o instanceof Portfolio) {
-        Portfolio p = (Portfolio) o;
+        var p = (Portfolio) o;
         assertEquals("status should not have been changed", "testStatus", p.status);
       } else {
-        Struct struct = (Struct) o;
-        Portfolio p = (Portfolio) struct.getFieldValues()[0];
+        var struct = (Struct) o;
+        var p = (Portfolio) struct.getFieldValues()[0];
         assertEquals("status should not have been changed", "testStatus", p.status);
       }
     }
@@ -349,7 +347,7 @@ public class CopyOnReadQueryJUnitTest {
   private void helpTestCopyOnReadFalse(String queryString, int expectedResultsSize, int numObjects,
       int objectsAndResultsMultiplier, boolean hasIndex, boolean isPR, boolean containsInnerQuery)
       throws Exception {
-    int numInstances = numObjects * objectsAndResultsMultiplier;
+    var numInstances = numObjects * objectsAndResultsMultiplier;
 
     if (hasIndex && isPR) {
       numInstances += numObjects * objectsAndResultsMultiplier;
@@ -358,18 +356,18 @@ public class CopyOnReadQueryJUnitTest {
         Portfolio.instanceCount.get());
 
     // execute query
-    QueryService qs = utils.getCache().getQueryService();
-    Query query = qs.newQuery(queryString);
-    SelectResults results = (SelectResults) query.execute();
+    var qs = utils.getCache().getQueryService();
+    var query = qs.newQuery(queryString);
+    var results = (SelectResults) query.execute();
     assertEquals("No results were found for query: " + queryString,
         expectedResultsSize * objectsAndResultsMultiplier, results.size());
-    for (Object o : results) {
+    for (var o : results) {
       if (o instanceof Portfolio) {
-        Portfolio p = (Portfolio) o;
+        var p = (Portfolio) o;
         p.status = "discardStatus";
       } else {
-        Struct struct = (Struct) o;
-        Portfolio p = (Portfolio) struct.getFieldValues()[0];
+        var struct = (Struct) o;
+        var p = (Portfolio) struct.getFieldValues()[0];
         p.status = "discardStatus";
       }
     }
@@ -385,13 +383,13 @@ public class CopyOnReadQueryJUnitTest {
     results = (SelectResults) query.execute();
     assertEquals("No results were found", expectedResultsSize * objectsAndResultsMultiplier,
         results.size());
-    for (Object o : results) {
+    for (var o : results) {
       if (o instanceof Portfolio) {
-        Portfolio p = (Portfolio) o;
+        var p = (Portfolio) o;
         assertEquals("status should have been changed", "discardStatus", p.status);
       } else {
-        Struct struct = (Struct) o;
-        Portfolio p = (Portfolio) struct.getFieldValues()[0];
+        var struct = (Struct) o;
+        var p = (Portfolio) struct.getFieldValues()[0];
         assertEquals("status should have been changed", "discardStatus", p.status);
       }
     }

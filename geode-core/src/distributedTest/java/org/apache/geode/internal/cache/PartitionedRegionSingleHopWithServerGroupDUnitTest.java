@@ -27,7 +27,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
@@ -48,9 +47,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.ClientMetadataService;
-import org.apache.geode.cache.client.internal.ClientPartitionAdvisor;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.internal.cache.execute.data.CustId;
 import org.apache.geode.internal.cache.execute.data.OrderId;
@@ -156,9 +152,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWith2ServerGroup() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -190,9 +186,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWith2ServerGroup2() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -224,9 +220,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWith2ServerGroup2WithoutSystemProperty() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -253,9 +249,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWithServerGroupAccessor() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -286,9 +282,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWithServerGroupOneServerInTwoGroups() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -319,9 +315,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWithServerGroupWithOneDefaultServer() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -352,9 +348,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWithServerGroupClientServerGroupNull() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -385,9 +381,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWithServerGroupTwoClientServerGroup() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -432,9 +428,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWithServerGroupTwoClientServerGroup2() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -476,9 +472,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWithServerGroupTwoClientOneWithOneWithoutServerGroup() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -515,9 +511,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWithServerGroup2ClientInOneVMServerGroup() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -559,9 +555,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   @Test
   public void test_SingleHopWithServerGroupColocatedRegionsInDifferentGroup() {
-    int port3 = getRandomAvailableTCPPort();
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locator = host0 + "[" + port3 + "]";
+    var port3 = getRandomAvailableTCPPort();
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locator = host0 + "[" + port3 + "]";
     member3
         .invoke(() -> PartitionedRegionSingleHopWithServerGroupDUnitTest.startLocatorInVM(port3));
     try {
@@ -591,8 +587,8 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   }
 
   private static void verifyMetadata(final int numRegions, final int numBucketLocations) {
-    ClientMetadataService cms = ((GemFireCacheImpl) cache).getClientMetadataService();
-    final Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+    var cms = ((GemFireCacheImpl) cache).getClientMetadataService();
+    final var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
 
 
     await().alias("expected metadata for each region to be" + numRegions + " but it is "
@@ -601,7 +597,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
     if (numRegions != 0) {
       assertThat(regionMetaData.containsKey(testRegion.getFullPath())).isTrue();
-      ClientPartitionAdvisor prMetaData = regionMetaData.get(testRegion.getFullPath());
+      var prMetaData = regionMetaData.get(testRegion.getFullPath());
       if (logger.getLevel() == Level.DEBUG) {
         for (Entry e : prMetaData.getBucketServerLocationsMap_TEST_ONLY().entrySet()) {
           logger.debug("For bucket id " + e.getKey() + " the locations are " + e.getValue());
@@ -615,8 +611,8 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   }
 
   private static void verifyMetadataForColocatedRegionWithDiffPool() {
-    ClientMetadataService cms = ((GemFireCacheImpl) cache).getClientMetadataService();
-    final Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+    var cms = ((GemFireCacheImpl) cache).getClientMetadataService();
+    final var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
 
 
     await().alias("expected metadata for each region to be " + 4 + " but it is "
@@ -624,7 +620,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
         .until(() -> regionMetaData.size() == 4);
 
     assertThat(regionMetaData.containsKey(testRegion.getFullPath())).isTrue();
-    ClientPartitionAdvisor prMetaData = regionMetaData.get(testRegion.getFullPath());
+    var prMetaData = regionMetaData.get(testRegion.getFullPath());
     for (Entry e : prMetaData.getBucketServerLocationsMap_TEST_ONLY().entrySet()) {
       logger.debug("For bucket id " + e.getKey() + " the locations are " + e.getValue());
     }
@@ -667,8 +663,8 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   private static void verifyMetadataFor2ClientsInOneVM(final int numBucketLocations,
       final int numBucketLocations2) {
-    ClientMetadataService cms = ((GemFireCacheImpl) cache).getClientMetadataService();
-    final Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+    var cms = ((GemFireCacheImpl) cache).getClientMetadataService();
+    final var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
 
     await().alias("expected metadata for each region to be " + 8 + " but it is "
         + regionMetaData.size() + " they are " + regionMetaData.keySet())
@@ -676,7 +672,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
     if (8 != 0) {
       assertThat(regionMetaData.containsKey(testRegion.getFullPath())).isTrue();
-      ClientPartitionAdvisor prMetaData = regionMetaData.get(testRegion.getFullPath());
+      var prMetaData = regionMetaData.get(testRegion.getFullPath());
       for (Entry e : prMetaData.getBucketServerLocationsMap_TEST_ONLY().entrySet()) {
         logger.debug("For bucket id " + e.getKey() + " the locations are " + e.getValue());
       }
@@ -711,26 +707,26 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   private static int createServerWithLocatorAndServerGroup(String locator, int localMaxMemory,
       String group) {
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, locator);
 
     System.setProperty(
         GeodeGlossary.GEMFIRE_PREFIX + "PoolImpl.honourServerGroupsInPRSingleHop", "true");
-    CacheFactory cacheFactory = new CacheFactory(props);
+    var cacheFactory = new CacheFactory(props);
     cache = cacheFactory.create();
 
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     if (group.length() != 0) {
-      StringTokenizer t = new StringTokenizer(group, ",");
-      String[] a = new String[t.countTokens()];
-      int i = 0;
+      var t = new StringTokenizer(group, ",");
+      var a = new String[t.countTokens()];
+      var i = 0;
       while (t.hasMoreTokens()) {
         a[i] = t.nextToken();
         i++;
       }
       server.setGroups(a);
     }
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setHostnameForClients("localhost");
     try {
@@ -739,12 +735,12 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
       fail("Failed to start server ", e);
     }
 
-    PartitionAttributesFactory<Object, Object> paf = new PartitionAttributesFactory<>();
-    int redundantCopies = 2;
-    int numBuckets = 8;
+    var paf = new PartitionAttributesFactory<Object, Object>();
+    var redundantCopies = 2;
+    var numBuckets = 8;
     paf.setRedundantCopies(redundantCopies).setLocalMaxMemory(localMaxMemory).setTotalNumBuckets(
         numBuckets);
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory();
+    var regionFactory = cache.createRegionFactory();
     regionFactory.setPartitionAttributes(paf.create());
     PartitionedRegionSingleHopWithServerGroupDUnitTest.testRegion = regionFactory.create(PR_NAME);
     assertThat(PartitionedRegionSingleHopWithServerGroupDUnitTest.testRegion).isNotNull();
@@ -769,7 +765,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
       int totalNoofBuckets,
       int localMaxMemory) {
 
-    PartitionAttributesFactory<K, V> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<K, V>();
     paf.setRedundantCopies(redundantCopies).setTotalNumBuckets(totalNoofBuckets)
         .setPartitionResolver(new CustomerIDPartitionResolver<>("CustomerIDPartitionResolver"));
 
@@ -784,7 +780,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
     RegionFactory<K, V> regionFactory = cache.createRegionFactory();
     regionFactory.setPartitionAttributes(paf.create());
     regionFactory.setConcurrencyChecksEnabled(true);
-    Region<K, V> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     assertThat(region).isNotNull();
     logger.info("Partitioned Region " + regionName + " created Successfully :" + region);
     return region;
@@ -794,26 +790,26 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   private static int createServerWithLocatorAndServerGroup2Regions(String locator,
       String group) {
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, locator);
 
     System.setProperty(
         GeodeGlossary.GEMFIRE_PREFIX + "PoolImpl.honourServerGroupsInPRSingleHop", "true");
-    CacheFactory cacheFactory = new CacheFactory(props);
+    var cacheFactory = new CacheFactory(props);
     cache = cacheFactory.create();
 
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     if (group.length() != 0) {
-      StringTokenizer t = new StringTokenizer(group, ",");
-      String[] a = new String[t.countTokens()];
-      int i = 0;
+      var t = new StringTokenizer(group, ",");
+      var a = new String[t.countTokens()];
+      var i = 0;
       while (t.hasMoreTokens()) {
         a[i] = t.nextToken();
         i++;
       }
       server.setGroups(a);
     }
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setHostnameForClients("localhost");
     try {
@@ -822,9 +818,9 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
       fail("Failed to start server ", e);
     }
 
-    final int redundantCopies = 2;
-    final int localMaxMemory = 100;
-    final int totalnoofBuckets = 8;
+    final var redundantCopies = 2;
+    final var localMaxMemory = 100;
+    final var totalnoofBuckets = 8;
     testRegion =
         createBasicPartitionedRegion(redundantCopies, totalnoofBuckets, localMaxMemory, PR_NAME);
 
@@ -859,14 +855,14 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
       int totalNoofBuckets,
       int localMaxMemory,
       final String regionName) {
-    PartitionAttributesFactory<K, V> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<K, V>();
     paf.setRedundantCopies(redundantCopies).setTotalNumBuckets(totalNoofBuckets)
         .setLocalMaxMemory(localMaxMemory);
     RegionFactory<K, V> regionFactory = cache.createRegionFactory();
 
     regionFactory.setPartitionAttributes(paf.create());
 
-    Region<K, V> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     assertThat(region).isNotNull();
     logger
         .info("Partitioned Region " + regionName + " created Successfully :" + region);
@@ -874,11 +870,11 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   }
 
   private static void createClientWithLocator(String host, int port0, String group) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(LOG_FILE, "");
-    CacheFactory cacheFactory = new CacheFactory(props);
+    var cacheFactory = new CacheFactory(props);
     cache = cacheFactory.create();
     assertThat(cache).isNotNull();
     CacheServerTestUtil.disableShufflingOfEndpoints();
@@ -897,10 +893,10 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   private static void create2ClientWithLocator(String host, int port0, String group1,
       String group2) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    CacheFactory cacheFactory = new CacheFactory(props);
+    var cacheFactory = new CacheFactory(props);
     cache = cacheFactory.create();
     assertThat(cache).isNotNull();
     CacheServerTestUtil.disableShufflingOfEndpoints();
@@ -922,10 +918,10 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   }
 
   private static void createClientWith3PoolLocator(String host, int port0) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    CacheFactory cacheFactory = new CacheFactory(props);
+    var cacheFactory = new CacheFactory(props);
     cache = cacheFactory.create();
     assertThat(cache).isNotNull();
     CacheServerTestUtil.disableShufflingOfEndpoints();
@@ -953,7 +949,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
       final String regionName) {
     RegionFactory<K, V> factory = cache.createRegionFactory();
     factory.setPoolName(poolName);
-    Region<K, V> region = factory.create(regionName);
+    var region = factory.create(regionName);
     assertThat(region).isNotNull();
     logger.info("Distributed Region " + regionName + " created Successfully :" + region);
     return region;
@@ -1001,7 +997,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
     RegionFactory<K, V> factory = cache.createRegionFactory();
     factory.setPoolName(poolName1);
     factory.setDataPolicy(DataPolicy.EMPTY);
-    Region<K, V> tmpRegion = factory.create(regionName);
+    var tmpRegion = factory.create(regionName);
     assertThat(tmpRegion).isNotNull();
     logger.info(
         "Distributed Region " + regionName + " created Successfully :" + tmpRegion);
@@ -1009,22 +1005,22 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   }
 
   private static void putIntoPartitionedRegions() {
-    for (int i = 0; i <= 800; i++) {
-      CustId custid = new CustId(i);
-      Customer customer = new Customer("name" + i, "Address" + i);
+    for (var i = 0; i <= 800; i++) {
+      var custid = new CustId(i);
+      var customer = new Customer("name" + i, "Address" + i);
       customerRegion.put(custid, customer);
     }
-    for (int j = 0; j <= 800; j++) {
-      CustId custid = new CustId(j);
-      OrderId orderId = new OrderId(j, custid);
-      Order order = new Order(ORDER + j);
+    for (var j = 0; j <= 800; j++) {
+      var custid = new CustId(j);
+      var orderId = new OrderId(j, custid);
+      var order = new Order(ORDER + j);
       orderRegion.put(orderId, order);
     }
-    for (int k = 0; k <= 800; k++) {
-      CustId custid = new CustId(k);
-      OrderId orderId = new OrderId(k, custid);
-      ShipmentId shipmentId = new ShipmentId(k, orderId);
-      Shipment shipment = new Shipment("Shipment" + k);
+    for (var k = 0; k <= 800; k++) {
+      var custid = new CustId(k);
+      var orderId = new OrderId(k, custid);
+      var shipmentId = new ShipmentId(k, orderId);
+      var shipment = new Shipment("Shipment" + k);
       shipmentRegion.put(shipmentId, shipment);
     }
 
@@ -1057,24 +1053,24 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   }
 
   private static void putIntoPartitionedRegions2Client() {
-    for (int i = 0; i <= 800; i++) {
-      CustId custid = new CustId(i);
-      Customer customer = new Customer("name" + i, "Address" + i);
+    for (var i = 0; i <= 800; i++) {
+      var custid = new CustId(i);
+      var customer = new Customer("name" + i, "Address" + i);
       customerRegion.put(custid, customer);
       customerRegion2.put(custid, customer);
     }
-    for (int j = 0; j <= 800; j++) {
-      CustId custid = new CustId(j);
-      OrderId orderId = new OrderId(j, custid);
-      Order order = new Order(ORDER + j);
+    for (var j = 0; j <= 800; j++) {
+      var custid = new CustId(j);
+      var orderId = new OrderId(j, custid);
+      var order = new Order(ORDER + j);
       orderRegion.put(orderId, order);
       orderRegion2.put(orderId, order);
     }
-    for (int k = 0; k <= 800; k++) {
-      CustId custid = new CustId(k);
-      OrderId orderId = new OrderId(k, custid);
-      ShipmentId shipmentId = new ShipmentId(k, orderId);
-      Shipment shipment = new Shipment("Shipment" + k);
+    for (var k = 0; k <= 800; k++) {
+      var custid = new CustId(k);
+      var orderId = new OrderId(k, custid);
+      var shipmentId = new ShipmentId(k, orderId);
+      var shipment = new Shipment("Shipment" + k);
       shipmentRegion.put(shipmentId, shipment);
       shipmentRegion2.put(shipmentId, shipment);
     }
@@ -1135,19 +1131,19 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   }
 
   private static void getFromPartitionedRegions() {
-    for (int i = 0; i <= 800; i++) {
-      CustId custid = new CustId(i);
+    for (var i = 0; i <= 800; i++) {
+      var custid = new CustId(i);
       customerRegion.get(custid);
     }
-    for (int j = 0; j <= 800; j++) {
-      CustId custid = new CustId(j);
-      OrderId orderId = new OrderId(j, custid);
+    for (var j = 0; j <= 800; j++) {
+      var custid = new CustId(j);
+      var orderId = new OrderId(j, custid);
       orderRegion.get(orderId);
     }
-    for (int k = 0; k <= 800; k++) {
-      CustId custid = new CustId(k);
-      OrderId orderId = new OrderId(k, custid);
-      ShipmentId shipmentId = new ShipmentId(k, orderId);
+    for (var k = 0; k <= 800; k++) {
+      var custid = new CustId(k);
+      var orderId = new OrderId(k, custid);
+      var shipmentId = new ShipmentId(k, orderId);
       shipmentRegion.get(shipmentId);
     }
 
@@ -1163,21 +1159,21 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
 
   private static void getFromPartitionedRegions2Client() {
 
-    for (int i = 0; i <= 800; i++) {
-      CustId custid = new CustId(i);
+    for (var i = 0; i <= 800; i++) {
+      var custid = new CustId(i);
       customerRegion.get(custid);
       customerRegion2.get(custid);
     }
-    for (int j = 0; j <= 800; j++) {
-      CustId custid = new CustId(j);
-      OrderId orderId = new OrderId(j, custid);
+    for (var j = 0; j <= 800; j++) {
+      var custid = new CustId(j);
+      var orderId = new OrderId(j, custid);
       orderRegion.get(orderId);
       orderRegion2.get(orderId);
     }
-    for (int k = 0; k <= 800; k++) {
-      CustId custid = new CustId(k);
-      OrderId orderId = new OrderId(k, custid);
-      ShipmentId shipmentId = new ShipmentId(k, orderId);
+    for (var k = 0; k <= 800; k++) {
+      var custid = new CustId(k);
+      var orderId = new OrderId(k, custid);
+      var shipmentId = new ShipmentId(k, orderId);
       shipmentRegion.get(shipmentId);
       shipmentRegion2.get(shipmentId);
     }
@@ -1202,7 +1198,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
   }
 
   private static void startLocatorInVM(final int locatorPort) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     props.setProperty(LOG_FILE, "");
@@ -1269,7 +1265,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
         return false;
       }
 
-      Customer cust = (Customer) o;
+      var cust = (Customer) o;
       return cust.name.equals(name) && cust.address.equals(address);
     }
 
@@ -1312,7 +1308,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
       }
 
       if (obj instanceof Order) {
-        Order other = (Order) obj;
+        var other = (Order) obj;
         return other.orderName != null && other.orderName.equals(orderName);
       }
       return false;
@@ -1360,7 +1356,7 @@ public class PartitionedRegionSingleHopWithServerGroupDUnitTest extends JUnit4Ca
       }
 
       if (obj instanceof Shipment) {
-        Shipment other = (Shipment) obj;
+        var other = (Shipment) obj;
         return other.shipmentName != null && other.shipmentName.equals(shipmentName);
       }
       return false;

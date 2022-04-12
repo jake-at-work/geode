@@ -18,7 +18,6 @@ import org.apache.geode.StatisticsFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.EvictionAttributes;
-import org.apache.geode.cache.util.ObjectSizer;
 import org.apache.geode.internal.cache.BucketRegion;
 
 /**
@@ -58,10 +57,10 @@ public abstract class AbstractEvictionController implements EvictionController {
    */
   public static EvictionController create(EvictionAttributes evictionAttributes, boolean isOffHeap,
       StatisticsFactory statsFactory, String statsName) {
-    EvictionAlgorithm algorithm = evictionAttributes.getAlgorithm();
-    EvictionAction action = evictionAttributes.getAction();
-    ObjectSizer sizer = evictionAttributes.getObjectSizer();
-    int maximum = evictionAttributes.getMaximum();
+    var algorithm = evictionAttributes.getAlgorithm();
+    var action = evictionAttributes.getAction();
+    var sizer = evictionAttributes.getObjectSizer();
+    var maximum = evictionAttributes.getMaximum();
     EvictionStats evictionStats;
     EvictionCounters evictionCounters;
     if (algorithm == EvictionAlgorithm.LRU_HEAP) {

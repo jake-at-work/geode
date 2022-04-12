@@ -25,7 +25,6 @@ import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.management.internal.cli.functions.ListJndiBindingFunction;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 
@@ -41,7 +40,7 @@ public class ListJndiBindingCommandDUnitTest {
 
   @BeforeClass
   public static void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         ListJndiBindingFunction.class.getName());
 
@@ -59,7 +58,7 @@ public class ListJndiBindingCommandDUnitTest {
         .hasTableSection()
         .hasColumn("Member").containsExactly("server-1");
 
-    CommandResultAssert commandResultAssert =
+    var commandResultAssert =
         gfsh.executeAndAssertThat("list jndi-binding").statusIsSuccess();
     commandResultAssert
         .hasTableSection("clusterConfiguration")

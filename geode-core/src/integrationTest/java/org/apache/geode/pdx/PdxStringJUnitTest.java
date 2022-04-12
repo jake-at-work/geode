@@ -54,14 +54,14 @@ public class PdxStringJUnitTest {
 
   @Test
   public void testEquals() throws Exception {
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, c);
+    var pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, c);
     pf.writeString("secId", "abc");
-    PdxInstanceImpl pi = (PdxInstanceImpl) pf.create();
-    PdxString pdx1 = (PdxString) pi.getRawField("secId");
+    var pi = (PdxInstanceImpl) pf.create();
+    var pdx1 = (PdxString) pi.getRawField("secId");
     assertEquals(false, pdx1.equals(null));
     assertEquals(false, pdx1.equals(new Date(37)));
 
-    PdxString pdx2 = new PdxString("abc");
+    var pdx2 = new PdxString("abc");
     assertEquals(pdx1, pdx2);
 
     pdx2 = new PdxString("ABC");
@@ -71,14 +71,14 @@ public class PdxStringJUnitTest {
 
   @Test
   public void testHashCodeEquals() throws Exception {
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, c);
+    var pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, c);
     pf.writeString("secId", "abc");
-    PdxInstanceImpl pi = (PdxInstanceImpl) pf.create();
-    PdxString pdx1 = (PdxString) pi.getRawField("secId");
+    var pi = (PdxInstanceImpl) pf.create();
+    var pdx1 = (PdxString) pi.getRawField("secId");
     Map<PdxString, String> map = new HashMap<>();
     map.put(pdx1, "abc");
 
-    PdxString pdx2 = new PdxString("abc");
+    var pdx2 = new PdxString("abc");
     assertEquals(map.get(pdx2), "abc");
 
     map = new Object2ObjectOpenHashMap();
@@ -89,19 +89,19 @@ public class PdxStringJUnitTest {
 
   @Test
   public void testCompareTo() throws Exception {
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, c);
+    var pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, c);
     pf.writeString("secId", "abc");
-    PdxInstanceImpl pi = (PdxInstanceImpl) pf.create();
-    PdxString pdx1 = (PdxString) pi.getRawField("secId");
+    var pi = (PdxInstanceImpl) pf.create();
+    var pdx1 = (PdxString) pi.getRawField("secId");
 
-    PdxString pdx2 = new PdxString("abc");
+    var pdx2 = new PdxString("abc");
     assertEquals(pdx1.compareTo(pdx2), 0);
 
     pdx2 = new PdxString("ABC");
     assertEquals(pdx1.compareTo(pdx2), 32); // a - A = 32
 
-    String str1 = "A" + "\u00e9" + "\u00f1";
-    String str2 = "A" + "\u00ea" + "\u00f1";
+    var str1 = "A" + "\u00e9" + "\u00f1";
+    var str2 = "A" + "\u00ea" + "\u00f1";
     pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, c);
     pf.writeString("secId", str1);
     pi = (PdxInstanceImpl) pf.create();
@@ -110,8 +110,8 @@ public class PdxStringJUnitTest {
     assertEquals(-1, pdx1.compareTo(pdx2)); // str1 < str2
 
     // test compareTo for a huge string and small string
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < 200000; i++) {
+    var sb = new StringBuilder();
+    for (var i = 0; i < 200000; i++) {
       sb.append("a");
     }
     str1 = sb.toString();
@@ -127,7 +127,7 @@ public class PdxStringJUnitTest {
 
     // huge utf8 string and compareto
     sb = new StringBuilder();
-    for (int i = 0; i < 65535; i++) {
+    for (var i = 0; i < 65535; i++) {
       sb.append("\u00e9");
     }
     str1 = sb.toString();
@@ -145,13 +145,13 @@ public class PdxStringJUnitTest {
 
   @Test
   public void testToString() throws Exception {
-    String s = "abc";
-    PdxString pdx = new PdxString(s);
+    var s = "abc";
+    var pdx = new PdxString(s);
     assertEquals(s, pdx.toString());
 
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, c);
+    var pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, c);
     pf.writeString("secId", "abc");
-    PdxInstanceImpl pi = (PdxInstanceImpl) pf.create();
+    var pi = (PdxInstanceImpl) pf.create();
     pdx = (PdxString) pi.getRawField("secId");
     assertEquals(s, pdx.toString());
 
@@ -164,12 +164,12 @@ public class PdxStringJUnitTest {
    */
   @Test
   public void testJSONFieldNameAsPdxString() throws Exception {
-    String verifyString = "ValueExist";
-    String jsonString = "{name:\"" + verifyString + "\", age:14}";
-    PdxString pdx = new PdxString(verifyString);
+    var verifyString = "ValueExist";
+    var jsonString = "{name:\"" + verifyString + "\", age:14}";
+    var pdx = new PdxString(verifyString);
     assertEquals(verifyString, pdx.toString());
 
-    PdxInstanceImpl pi = (PdxInstanceImpl) JSONFormatter.fromJSON(jsonString);
+    var pi = (PdxInstanceImpl) JSONFormatter.fromJSON(jsonString);
     pdx = (PdxString) pi.getRawField("name");
     assertEquals(verifyString, pdx.toString());
   }
@@ -177,10 +177,10 @@ public class PdxStringJUnitTest {
   @Test
   public void testJSONFieldNameAsNull() throws Exception {
     String verifyString = null;
-    String jsonString = "{name:null, age:14}";
+    var jsonString = "{name:null, age:14}";
 
-    PdxInstanceImpl pi = (PdxInstanceImpl) JSONFormatter.fromJSON(jsonString);
-    PdxString pdx = (PdxString) pi.getRawField("name");
+    var pi = (PdxInstanceImpl) JSONFormatter.fromJSON(jsonString);
+    var pdx = (PdxString) pi.getRawField("name");
     assertEquals(verifyString, pdx);
   }
 

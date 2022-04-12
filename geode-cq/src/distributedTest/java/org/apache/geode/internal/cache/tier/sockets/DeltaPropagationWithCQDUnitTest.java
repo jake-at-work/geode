@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -37,17 +36,11 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CqListenerAdapter;
 import org.apache.geode.cache30.ClientServerTestCase;
@@ -93,7 +86,7 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     server1 = host.getVM(0);
     server2 = host.getVM(1);
     client1 = host.getVM(2);
@@ -132,7 +125,7 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
     // 5. update the key with new value, on client1
     client1.invoke(() -> doPut("SAMPLE_KEY", "NEW_VALUE"));
     // 6. Wait for some time
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return cqEvents == 2 && cqErrors == 0;
@@ -152,9 +145,9 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testFullValueRequestsWithCqWithoutRI() throws Exception {
-    int numOfListeners = 5;
-    int numOfKeys = 10;
-    int numOfCQs = 3;
+    var numOfListeners = 5;
+    var numOfKeys = 10;
+    var numOfCQs = 3;
     // 1. setup a cache server
     int port = server1.invoke(DeltaPropagationWithCQDUnitTest::createCacheServer);
     // 2. setup a client with register interest
@@ -162,7 +155,7 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port, Boolean.TRUE));
     // 3. setup another client with cqs but without interest.
     createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port, false/* RI */);
-    for (int i = 0; i < numOfCQs; i++) {
+    for (var i = 0; i < numOfCQs; i++) {
       registerCQs(numOfListeners, "Query_" + i);
     }
     // 4. do delta creates
@@ -184,7 +177,7 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void verifyCqListeners(final Integer events) throws Exception {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public String description() {
         return "Expected " + events + " listener invocations but found " + (cqEvents + cqErrors);
@@ -201,10 +194,10 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void verifyFullValueRequestsFromClients(Long expected) throws Exception {
-    List<CacheServer> servers = ((GemFireCacheImpl) cache).getCacheServers();
+    var servers = ((GemFireCacheImpl) cache).getCacheServers();
     assertEquals("expected one server but found these: " + servers, 1, servers.size());
 
-    CacheClientProxy[] proxies = ((CacheServerImpl) servers.get(0)).getAcceptor()
+    var proxies = ((CacheServerImpl) servers.get(0)).getAcceptor()
         .getCacheClientNotifier().getClientProxies().toArray(new CacheClientProxy[0]);
 
     // find the proxy for the client that processed the CQs - it will have
@@ -212,8 +205,8 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
     // getValue() on the event and caused a RequestEventValue command to be
     // invoked on the server
     long fullValueRequests = 0;
-    for (int i = 0; (i < proxies.length) && (fullValueRequests <= 0l); i++) {
-      CacheClientProxy proxy = proxies[i];
+    for (var i = 0; (i < proxies.length) && (fullValueRequests <= 0l); i++) {
+      var proxy = proxies[i];
       fullValueRequests = proxy.getStatistics().getDeltaFullMessagesSent();
     }
 
@@ -221,15 +214,15 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void doPut(Object key, Object value) throws Exception {
-    Region<Object, Object> region = cache.getRegion(regionName);
+    var region = cache.getRegion(regionName);
     region.put(key, value);
   }
 
   public static void doPuts(Integer num, Boolean useDelta) throws Exception {
-    Region<Object, Object> region = cache.getRegion(regionName);
-    for (int i = 0; i < num; i++) {
+    var region = cache.getRegion(regionName);
+    for (var i = 0; i < num; i++) {
       if (useDelta) {
-        DeltaTestImpl delta = new DeltaTestImpl(i, "VALUE_" + i);
+        var delta = new DeltaTestImpl(i, "VALUE_" + i);
         delta.setIntVar(i);
         region.put("KEY_" + i, delta);
       } else {
@@ -239,35 +232,35 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static Integer createCacheServer() throws Exception {
-    DeltaPropagationWithCQDUnitTest instance = new DeltaPropagationWithCQDUnitTest();
-    Properties props = new Properties();
+    var instance = new DeltaPropagationWithCQDUnitTest();
+    var props = new Properties();
     DistributedSystem ds = instance.getSystem(props);
     ds.disconnect();
     ds = instance.getSystem(props);
     assertNotNull(ds);
     cache = CacheFactory.create(ds);
     assertNotNull(cache);
-    RegionFactory<Object, Object> rf =
+    var rf =
         ((Cache) cache).createRegionFactory(RegionShortcut.REPLICATE);
     rf.create(regionName);
-    CacheServer server = ((Cache) cache).addCacheServer();
+    var server = ((Cache) cache).addCacheServer();
     server.setPort(getRandomAvailableTCPPort());
     server.start();
     return server.getPort();
   }
 
   public static void createClientCache(String host, Integer port, Boolean doRI) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    DeltaPropagationWithCQDUnitTest instance = new DeltaPropagationWithCQDUnitTest();
+    var instance = new DeltaPropagationWithCQDUnitTest();
     DistributedSystem ds = instance.getSystem(props);
     ds.disconnect();
     ds = instance.getSystem(props);
     assertNotNull(ds);
     cache = CacheFactory.create(ds);
     assertNotNull(cache);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     pool = ClientServerTestCase.configureConnectionPool(factory, "localhost", new int[] {port},
         true, 1, 2, null, 1000, 250, -2);
 
@@ -293,20 +286,20 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
         totalEvents++;
       }
     });
-    RegionAttributes attr = factory.create();
-    Region region = ((Cache) cache).createRegion(regionName, attr);
+    var attr = factory.create();
+    var region = ((Cache) cache).createRegion(regionName, attr);
     if (doRI) {
       region.registerInterest("ALL_KEYS");
     }
   }
 
   public static void registerCQs(Integer numOfListeners, String name) throws Exception {
-    QueryService qs = pool.getQueryService();
+    var qs = pool.getQueryService();
 
-    CqAttributesFactory caf = new CqAttributesFactory();
+    var caf = new CqAttributesFactory();
 
-    CqListenerAdapter[] cqListeners = new CqListenerAdapter[numOfListeners];
-    for (int i = 0; i < numOfListeners; i++) {
+    var cqListeners = new CqListenerAdapter[numOfListeners];
+    for (var i = 0; i < numOfListeners; i++) {
       cqListeners[i] = new CqListenerAdapter() {
         @Override
         public void onEvent(CqEvent event) {
@@ -347,7 +340,7 @@ public class DeltaPropagationWithCQDUnitTest extends JUnit4DistributedTestCase {
       caf.addCqListener(cqListeners[i]);
     }
 
-    CqQuery cQuery = qs.newCq(name, CQ1, caf.create());
+    var cQuery = qs.newCq(name, CQ1, caf.create());
     cQuery.execute();
 
     if (qs.getCq(name) == null) {

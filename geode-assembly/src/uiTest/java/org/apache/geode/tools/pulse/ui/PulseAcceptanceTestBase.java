@@ -40,14 +40,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 
 import java.text.DecimalFormat;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -70,62 +68,62 @@ public abstract class PulseAcceptanceTestBase {
   }
 
   private void searchByLinkAndClick(String linkText) {
-    WebElement element = new WebDriverWait(getWebDriver(), 2)
+    var element = new WebDriverWait(getWebDriver(), 2)
         .until(ExpectedConditions.elementToBeClickable(By.linkText(linkText)));
     assertNotNull(element);
     element.click();
   }
 
   private void searchByIdAndClick(String id) {
-    WebElement element = getWebDriver().findElement(By.id(id));
+    var element = getWebDriver().findElement(By.id(id));
     assertNotNull(element);
     element.click();
   }
 
   private void searchByXPathAndClick(String xpath) {
-    WebElement element = getWebDriver().findElement(By.xpath(xpath));
+    var element = getWebDriver().findElement(By.xpath(xpath));
     assertNotNull(element);
     element.click();
   }
 
   @Test
   public void testClusterDetailsAndWidgets() {
-    String displayedLocatorCount =
+    var displayedLocatorCount =
         getWebDriver().findElement(By.id(CLUSTER_VIEW_LOCATORS_ID)).getText();
     assertThat(String.valueOf(getCluster().getLocatorCount())).isEqualTo(displayedLocatorCount);
 
-    String displayedRegionCount =
+    var displayedRegionCount =
         getWebDriver().findElement(By.id(CLUSTER_VIEW_REGIONS_ID)).getText();
     assertThat(String.valueOf(getCluster().getTotalRegionCount())).isEqualTo(displayedRegionCount);
 
-    String displayedClusterMemberCount =
+    var displayedClusterMemberCount =
         getWebDriver().findElement(By.id(CLUSTER_VIEW_MEMBERS_ID)).getText();
     assertThat(String.valueOf(getCluster().getMemberCount()))
         .isEqualTo(displayedClusterMemberCount);
 
-    String displyedClusterClients = getWebDriver().findElement(By.id(CLUSTER_CLIENTS_ID)).getText();
+    var displyedClusterClients = getWebDriver().findElement(By.id(CLUSTER_CLIENTS_ID)).getText();
     assertThat(String.valueOf(getCluster().getClientConnectionCount()))
         .isEqualTo(displyedClusterClients);
 
-    String displayedFnRunningCount =
+    var displayedFnRunningCount =
         getWebDriver().findElement(By.id(CLUSTER_FUNCTIONS_ID)).getText();
     assertThat(String.valueOf(getCluster().getRunningFunctionCount()))
         .isEqualTo(displayedFnRunningCount);
 
-    String displayedUniqueCQs = getWebDriver().findElement(By.id(CLUSTER_UNIQUECQS_ID)).getText();
+    var displayedUniqueCQs = getWebDriver().findElement(By.id(CLUSTER_UNIQUECQS_ID)).getText();
     assertThat(String.valueOf(getCluster().getRegisteredCQCount())).isEqualTo(displayedUniqueCQs);
 
-    String displayedSubscriptionCount =
+    var displayedSubscriptionCount =
         getWebDriver().findElement(By.id(CLUSTER_SUBSCRIPTION_ID)).getText();
     assertThat(String.valueOf(getCluster().getSubscriptionCount()))
         .isEqualTo(displayedSubscriptionCount);
 
     // TODO: verify it is the right counter
-    String displayedGCPauses = getWebDriver().findElement(By.id(CLUSTER_GCPAUSES_ID)).getText();
+    var displayedGCPauses = getWebDriver().findElement(By.id(CLUSTER_GCPAUSES_ID)).getText();
     assertThat(String.valueOf(getCluster().getPreviousJVMPauseCount()))
         .isEqualTo(displayedGCPauses);
 
-    String clusterQueriesPerSec =
+    var clusterQueriesPerSec =
         getWebDriver().findElement(By.id(CLUSTER_QUERIESPERSEC_ID)).getText();
     assertThat(df.format(getCluster().getQueriesPerSec())).isEqualTo(clusterQueriesPerSec);
   }
@@ -134,28 +132,28 @@ public abstract class PulseAcceptanceTestBase {
   @Ignore("flaky")
   public void testClusterGridViewMemberDetails() {
     searchByIdAndClick("default_grid_button");
-    List<WebElement> elements =
+    var elements =
         getWebDriver().findElements(By.xpath("//table[@id='memberList']/tbody/tr"));
 
-    Cluster.Member[] actualMembers = getCluster().getMembers();
+    var actualMembers = getCluster().getMembers();
     // table contains header row so actual members is one less than the tr elements.
     assertThat(actualMembers.length).isEqualTo(elements.size() - 1);
 
-    for (Cluster.Member actualMember : actualMembers) {
+    for (var actualMember : actualMembers) {
       // reset from member view as we are looping
       searchByXPathAndClick("//a[text()='Cluster View']");
       searchByIdAndClick("default_grid_button");
-      String displayedMemberId =
+      var displayedMemberId =
           getWebDriver().findElement(By.xpath("//table[@id='memberList']/tbody/tr[contains(@id, '"
               + actualMember.getName() + "')]/td")).getText();
       assertThat(actualMember.getId()).contains(displayedMemberId);
 
-      String displayedMemberName =
+      var displayedMemberName =
           getWebDriver().findElement(By.xpath("//table[@id='memberList']/tbody/tr[contains(@id, '"
               + actualMember.getName() + "')]/td[2]")).getText();
       assertThat(actualMember.getName()).isEqualTo(displayedMemberName);
 
-      String displayedMemberHost =
+      var displayedMemberHost =
           getWebDriver().findElement(By.xpath("//table[@id='memberList']/tbody/tr[contains(@id, '"
               + actualMember.getName() + "')]/td[3]")).getText();
       assertThat(actualMember.getHost()).isEqualTo(displayedMemberHost);
@@ -164,12 +162,12 @@ public abstract class PulseAcceptanceTestBase {
       searchByXPathAndClick("//table[@id='memberList']/tbody/tr[contains(@id, '"
           + actualMember.getName() + "')]/td");
 
-      String displayedRegionCount =
+      var displayedRegionCount =
           getWebDriver().findElement(By.id(MEMBER_VIEW_REGION_ID)).getText();
       assertThat(String.valueOf(actualMember.getTotalRegionCount()))
           .isEqualTo(displayedRegionCount);
 
-      String displaySocketCount =
+      var displaySocketCount =
           getWebDriver().findElement(By.id(MEMBER_VIEW_SOCKETS_ID)).getText();
       if (actualMember.getTotalFileDescriptorOpen() < 0) {
         assertThat("NA").isEqualTo(displaySocketCount);
@@ -178,7 +176,7 @@ public abstract class PulseAcceptanceTestBase {
             .isEqualTo(displaySocketCount);
       }
 
-      String displayedJVMPauses =
+      var displayedJVMPauses =
           getWebDriver().findElement(By.id(MEMBER_VIEW_JVMPAUSES_ID)).getText();
       assertThat(String.valueOf(actualMember.getPreviousJVMPauseCount()))
           .isEqualTo(displayedJVMPauses);
@@ -209,26 +207,26 @@ public abstract class PulseAcceptanceTestBase {
     searchByXPathAndClick("//a[@id='btngridIcon']");
 
     // get the number of rows on the grid
-    List<WebElement> displayedRegionsList =
+    var displayedRegionsList =
         getWebDriver().findElements(By.xpath("//table[@id='memberRegionsList']/tbody/tr"));
-    Cluster.Region[] actualRegions = getCluster().getMember("server-1").getMemberRegionsList();
+    var actualRegions = getCluster().getMember("server-1").getMemberRegionsList();
     // table contains header row so actual regions is one less than the tr elements.
     assertThat(actualRegions.length).isEqualTo(displayedRegionsList.size() - 1);
 
-    for (int i = 0; i < actualRegions.length; i++) {
-      String displayedMemberRegionName = getWebDriver()
+    for (var i = 0; i < actualRegions.length; i++) {
+      var displayedMemberRegionName = getWebDriver()
           .findElement(By.xpath(
               "//table[@id='memberRegionsList']/tbody/tr[contains(@id, '" + (i + 1) + "')]/td[1]"))
           .getText();
       assertThat(actualRegions[i].getName()).isEqualTo(displayedMemberRegionName);
 
-      String displayedMemberRegionType = getWebDriver()
+      var displayedMemberRegionType = getWebDriver()
           .findElement(By.xpath(
               "//table[@id='memberRegionsList']/tbody/tr[contains(@id, '" + (i + 1) + "')]/td[2]"))
           .getText();
       assertThat(actualRegions[i].getRegionType()).isEqualTo(displayedMemberRegionType);
 
-      String displayedMemberRegionEntryCount = getWebDriver()
+      var displayedMemberRegionEntryCount = getWebDriver()
           .findElement(By.xpath(
               "//table[@id='memberRegionsList']/tbody/tr[contains(@id, '" + (i + 1) + "')]/td[3]"))
           .getText();
@@ -240,33 +238,33 @@ public abstract class PulseAcceptanceTestBase {
   @Test
   public void testDataBrowserRegionName() {
     if (getCluster().getTotalRegionCount() > 0) {
-      Cluster.Member server = getCluster().getMember("server-1");
+      var server = getCluster().getMember("server-1");
       // click data browser
       searchByLinkAndClick(DATA_BROWSER_LABEL);
 
-      List<WebElement> regionList =
+      var regionList =
           getWebDriver().findElements(By.xpath("//ul[@id='treeDemo']/li"));
       assertThat(getCluster().getTotalRegionCount()).isEqualTo(regionList.size());
-      String displayedRegionName =
+      var displayedRegionName =
           getWebDriver().findElement(By.id(DATA_BROWSER_REGIONName1)).getText();
       assertThat(server.getMemberRegionsList()[0].getName()).isEqualTo(displayedRegionName);
 
       searchByIdAndClick(DATA_BROWSER_REGION1_CHECKBOX);
-      List<WebElement> memberList =
+      var memberList =
           getWebDriver().findElements(By.xpath("//ul[@id='membersList']/li"));
       assertThat(getCluster().getClusterRegion(SEPARATOR + "FOO").getMemberCount())
           .isEqualTo(memberList.size());
-      String DataBrowserMember1Name1 =
+      var DataBrowserMember1Name1 =
           getWebDriver().findElement(By.xpath("//label[@for='Member0']")).getText();
       assertThat("server-1").isEqualTo(DataBrowserMember1Name1);
       searchByIdAndClick(DATA_BROWSER_REGION1_CHECKBOX);
 
       // execute a query
-      WebElement queryTextArea = getWebDriver().findElement(By.id("dataBrowserQueryText"));
+      var queryTextArea = getWebDriver().findElement(By.id("dataBrowserQueryText"));
       queryTextArea.sendKeys("select * from " + SEPARATOR + "FOO");
-      WebElement executeButton = getWebDriver().findElement(By.id("btnExecuteQuery"));
+      var executeButton = getWebDriver().findElement(By.id("btnExecuteQuery"));
       executeButton.click();
-      String queryResultHeader = getWebDriver()
+      var queryResultHeader = getWebDriver()
           .findElement(By.xpath("//div[@id='clusterDetails']/div/div/span[@class='n-title']"))
           .getText();
       assertThat("java.lang.String").isEqualTo(queryResultHeader);
@@ -285,25 +283,25 @@ public abstract class PulseAcceptanceTestBase {
   @Test
   public void testDataViewTreeMapPopUpData() {
     if (getCluster().getTotalRegionCount() > 0) {
-      Cluster.Region actualRegion = getCluster().getClusterRegion(SEPARATOR + "FOO");
+      var actualRegion = getCluster().getClusterRegion(SEPARATOR + "FOO");
       searchByLinkAndClick(CLUSTER_VIEW_LABEL);
       searchByLinkAndClick(DATA_DROPDOWN_ID);
-      WebElement TreeMapMember =
+      var TreeMapMember =
           getWebDriver().findElement(By.id("GraphTreeMapClusterData-canvas"));
-      Actions builder = new Actions(getWebDriver());
+      var builder = new Actions(getWebDriver());
       builder.clickAndHold(TreeMapMember).perform();
 
-      String displayedRegionType = getWebDriver()
+      var displayedRegionType = getWebDriver()
           .findElement(By.xpath("//div[@id='_tooltip']/div/div/div[2]/div/div[2]/div")).getText();
       assertThat(actualRegion.getRegionType()).isEqualTo(displayedRegionType);
 
-      String displayedEntryCount = getWebDriver()
+      var displayedEntryCount = getWebDriver()
           .findElement(By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[2]/div[2]/div"))
           .getText();
       assertThat(String.valueOf(actualRegion.getSystemRegionEntryCount()))
           .isEqualTo(displayedEntryCount);
 
-      String displayedEntrySize = getWebDriver()
+      var displayedEntrySize = getWebDriver()
           .findElement(By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[3]/div[2]/div"))
           .getText();
       if (actualRegion.getEntrySize() > 0) {
@@ -317,30 +315,30 @@ public abstract class PulseAcceptanceTestBase {
   }
 
   private void testTreeMapPopUpData(String gridIcon) {
-    for (String member : getCluster().getMembersHMap().keySet()) {
+    for (var member : getCluster().getMembersHMap().keySet()) {
       searchByLinkAndClick(CLUSTER_VIEW_LABEL);
       if (gridIcon.equals(SERVER_GROUP_GRID_ID)) {
-        WebElement serverGroupRadio =
+        var serverGroupRadio =
             getWebDriver().findElement(By.xpath("//label[@for='radio-servergroups']"));
         serverGroupRadio.click();
       } else if (gridIcon.equals(REDUNDANCY_GRID_ID)) {
-        WebElement redundancyGroupRadio =
+        var redundancyGroupRadio =
             getWebDriver().findElement(By.xpath("//label[@for='radio-redundancyzones']"));
         redundancyGroupRadio.click();
       }
       searchByIdAndClick(gridIcon);
-      WebElement TreeMapMember = new WebDriverWait(getWebDriver(), 5).until(ExpectedConditions
+      var TreeMapMember = new WebDriverWait(getWebDriver(), 5).until(ExpectedConditions
           .elementToBeClickable(By.xpath("//*[contains(text(), '" + member + "')]")));
-      Actions builder = new Actions(getWebDriver());
+      var builder = new Actions(getWebDriver());
       builder.clickAndHold(TreeMapMember).perform();
 
-      Cluster.Member actualMember = getCluster().getMembersHMap().get(member);
-      String displayedThreadCount = getWebDriver()
+      var actualMember = getCluster().getMembersHMap().get(member);
+      var displayedThreadCount = getWebDriver()
           .findElement(By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[4]/div[2]/div"))
           .getText();
       assertThat(String.valueOf(actualMember.getNumThreads())).isEqualTo(displayedThreadCount);
 
-      String displayedSocketCount = getWebDriver()
+      var displayedSocketCount = getWebDriver()
           .findElement(By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[5]/div[2]/div"))
           .getText();
       if (actualMember.getTotalFileDescriptorOpen() > 0) {

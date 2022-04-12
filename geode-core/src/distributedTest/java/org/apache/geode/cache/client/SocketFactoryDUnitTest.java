@@ -49,7 +49,7 @@ public class SocketFactoryDUnitTest {
 
   @Test
   public void customSocketFactoryUsedForLocators() throws IOException {
-    ClientCache client = new ClientCacheFactory()
+    var client = new ClientCacheFactory()
         // Add a locator with the wrong hostname
         .addPoolLocator("notarealhostname", locatorPort)
         // Set a socket factory that switches the hostname back
@@ -62,7 +62,7 @@ public class SocketFactoryDUnitTest {
 
   @Test
   public void customSocketFactoryUsedForServers() {
-    ClientCache client = new ClientCacheFactory()
+    var client = new ClientCacheFactory()
         // Add a locator with the wrong hostname
         .addPoolServer("notarealhostname", serverPort)
         // Set a socket factory that switches the hostname back
@@ -76,7 +76,7 @@ public class SocketFactoryDUnitTest {
 
   private void verifyConnection(ClientCache client) {
     // Verify connectivity with servers
-    Object functionResult =
+    var functionResult =
         FunctionService.onServers(client).execute(new TestFunction()).getResult();
 
     assertThat(functionResult).isEqualTo(Arrays.asList("test"));
@@ -119,7 +119,7 @@ public class SocketFactoryDUnitTest {
 
       @Override
       public void connect(SocketAddress endpoint, int timeout) throws IOException {
-        InetSocketAddress oldEndpoint = (InetSocketAddress) endpoint;
+        var oldEndpoint = (InetSocketAddress) endpoint;
         super.connect(new InetSocketAddress(newHost, oldEndpoint.getPort()), timeout);
       }
     }

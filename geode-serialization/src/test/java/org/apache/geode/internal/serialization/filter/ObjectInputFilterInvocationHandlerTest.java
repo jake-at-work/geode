@@ -41,14 +41,14 @@ public class ObjectInputFilterInvocationHandlerTest {
   @Before
   public void setUp()
       throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-    ReflectiveObjectInputFilterApi api =
+    var api =
         (ReflectiveObjectInputFilterApi) new ReflectiveObjectInputFilterApiFactory()
             .createObjectInputFilterApi();
 
     ObjectInputFilter = api.ObjectInputFilter;
     ObjectInputFilter_checkInput = api.ObjectInputFilter_checkInput;
-    Class<?> objectInputFilter_Config = api.ObjectInputFilter_Config;
-    Method objectInputFilter_Config_createFilter = api.ObjectInputFilter_Config_createFilter;
+    var objectInputFilter_Config = api.ObjectInputFilter_Config;
+    var objectInputFilter_Config_createFilter = api.ObjectInputFilter_Config_createFilter;
     ObjectInputFilter_Status_ALLOWED = api.ObjectInputFilter_Status_ALLOWED;
     ObjectInputFilter_Status_REJECTED = api.ObjectInputFilter_Status_REJECTED;
     ObjectInputFilter_FilterInfo_serialClass = api.ObjectInputFilter_FilterInfo_serialClass;
@@ -59,7 +59,7 @@ public class ObjectInputFilterInvocationHandlerTest {
 
   @Test
   public void sanctionedClassesIsRequired() {
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       new ObjectInputFilterInvocationHandler(
           ObjectInputFilter_checkInput,
           ObjectInputFilter_FilterInfo_serialClass,
@@ -81,9 +81,9 @@ public class ObjectInputFilterInvocationHandlerTest {
         ObjectInputFilter_Status_REJECTED,
         objectInputFilter,
         emptySet());
-    Object proxy = objectInputFilterProxy(invocationHandler);
+    var proxy = objectInputFilterProxy(invocationHandler);
 
-    String result = proxy.toString();
+    var result = proxy.toString();
 
     assertThat(result).isEqualTo(PATTERN);
   }

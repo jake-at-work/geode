@@ -20,12 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -76,16 +74,16 @@ public abstract class TableMetaDataManagerIntegrationTest {
   protected abstract Connection getConnection() throws SQLException;
 
   protected void createTable() throws SQLException {
-    DatabaseMetaData metaData = connection.getMetaData();
-    String quote = metaData.getIdentifierQuoteString();
+    var metaData = connection.getMetaData();
+    var quote = metaData.getIdentifierQuoteString();
     statement.execute("CREATE TABLE " + REGION_TABLE_NAME + " (" + quote + "id" + quote
         + " VARCHAR(10) primary key not null," + quote + "name" + quote + " VARCHAR(10)," + quote
         + "age" + quote + " int)");
   }
 
   protected void createTableWithSchema() throws SQLException {
-    DatabaseMetaData metaData = connection.getMetaData();
-    String quote = metaData.getIdentifierQuoteString();
+    var metaData = connection.getMetaData();
+    var quote = metaData.getIdentifierQuoteString();
     statement.execute("CREATE SCHEMA MYSCHEMA");
     statement.execute("CREATE TABLE MYSCHEMA." + REGION_TABLE_NAME + " (" + quote + "id" + quote
         + " VARCHAR(10) primary key not null," + quote + "name" + quote + " VARCHAR(10)," + quote
@@ -93,16 +91,16 @@ public abstract class TableMetaDataManagerIntegrationTest {
   }
 
   protected void createTableWithNoPrimaryKey() throws SQLException {
-    DatabaseMetaData metaData = connection.getMetaData();
-    String quote = metaData.getIdentifierQuoteString();
+    var metaData = connection.getMetaData();
+    var quote = metaData.getIdentifierQuoteString();
     statement.execute("CREATE TABLE " + REGION_TABLE_NAME + " (" + quote + "nonprimaryid" + quote
         + " VARCHAR(10)," + quote + "name" + quote + " VARCHAR(10)," + quote
         + "age" + quote + " int)");
   }
 
   protected void createTableWithMultiplePrimaryKeys() throws SQLException {
-    DatabaseMetaData metaData = connection.getMetaData();
-    String quote = metaData.getIdentifierQuoteString();
+    var metaData = connection.getMetaData();
+    var quote = metaData.getIdentifierQuoteString();
     statement.execute("CREATE TABLE " + REGION_TABLE_NAME + " (" + quote + "id" + quote
         + " VARCHAR(10)," + quote + "name" + quote + " VARCHAR(10)," + quote
         + "age" + quote + " int, PRIMARY KEY (id, name))");
@@ -111,9 +109,9 @@ public abstract class TableMetaDataManagerIntegrationTest {
   @Test
   public void validateKeyColumnName() throws SQLException {
     createTable();
-    TableMetaDataView metaData = manager.getTableMetaDataView(connection, regionMapping);
+    var metaData = manager.getTableMetaDataView(connection, regionMapping);
 
-    List<String> keyColumnNames = metaData.getKeyColumnNames();
+    var keyColumnNames = metaData.getKeyColumnNames();
 
     assertThat(keyColumnNames).isEqualTo(Arrays.asList("id"));
   }
@@ -124,9 +122,9 @@ public abstract class TableMetaDataManagerIntegrationTest {
   public void validateKeyColumnNameWithSchema() throws SQLException {
     createTableWithSchema();
     setSchemaOrCatalogOnMapping(regionMapping, "MYSCHEMA");
-    TableMetaDataView metaData = manager.getTableMetaDataView(connection, regionMapping);
+    var metaData = manager.getTableMetaDataView(connection, regionMapping);
 
-    List<String> keyColumnNames = metaData.getKeyColumnNames();
+    var keyColumnNames = metaData.getKeyColumnNames();
 
     assertThat(keyColumnNames).isEqualTo(Arrays.asList("id"));
   }
@@ -154,9 +152,9 @@ public abstract class TableMetaDataManagerIntegrationTest {
   @Test
   public void validateMultipleKeyColumnNames() throws SQLException {
     createTableWithMultiplePrimaryKeys();
-    TableMetaDataView metaData = manager.getTableMetaDataView(connection, regionMapping);
+    var metaData = manager.getTableMetaDataView(connection, regionMapping);
 
-    List<String> keyColumnNames = metaData.getKeyColumnNames();
+    var keyColumnNames = metaData.getKeyColumnNames();
 
     assertThat(keyColumnNames).isEqualTo(Arrays.asList("id", "name"));
   }
@@ -165,10 +163,10 @@ public abstract class TableMetaDataManagerIntegrationTest {
   public void validateKeyColumnNameOnNonPrimaryKey() throws SQLException {
     createTableWithNoPrimaryKey();
     regionMapping.setIds("nonprimaryid");
-    TableMetaDataView metaData =
+    var metaData =
         manager.getTableMetaDataView(connection, regionMapping);
 
-    List<String> keyColumnNames = metaData.getKeyColumnNames();
+    var keyColumnNames = metaData.getKeyColumnNames();
 
     assertThat(keyColumnNames).isEqualTo(Arrays.asList("nonprimaryid"));
   }
@@ -177,10 +175,10 @@ public abstract class TableMetaDataManagerIntegrationTest {
   public void validateKeyColumnNameOnNonPrimaryKeyWithInExactMatch() throws SQLException {
     createTableWithNoPrimaryKey();
     regionMapping.setIds("NonPrimaryId");
-    TableMetaDataView metaData =
+    var metaData =
         manager.getTableMetaDataView(connection, regionMapping);
 
-    List<String> keyColumnNames = metaData.getKeyColumnNames();
+    var keyColumnNames = metaData.getKeyColumnNames();
 
     assertThat(keyColumnNames).isEqualTo(Arrays.asList("NonPrimaryId"));
   }
@@ -188,9 +186,9 @@ public abstract class TableMetaDataManagerIntegrationTest {
   @Test
   public void validateColumnDataTypeForName() throws SQLException {
     createTable();
-    TableMetaDataView metaData = manager.getTableMetaDataView(connection, regionMapping);
+    var metaData = manager.getTableMetaDataView(connection, regionMapping);
 
-    JDBCType nameDataType = metaData.getColumnDataType("name");
+    var nameDataType = metaData.getColumnDataType("name");
 
     assertThat(nameDataType).isEqualTo(JDBCType.VARCHAR);
   }
@@ -198,9 +196,9 @@ public abstract class TableMetaDataManagerIntegrationTest {
   @Test
   public void validateIsColumnNullableForName() throws SQLException {
     createTable();
-    TableMetaDataView metaData = manager.getTableMetaDataView(connection, regionMapping);
+    var metaData = manager.getTableMetaDataView(connection, regionMapping);
 
-    boolean nullable = metaData.isColumnNullable("name");
+    var nullable = metaData.isColumnNullable("name");
 
     assertThat(nullable).isTrue();
   }
@@ -208,9 +206,9 @@ public abstract class TableMetaDataManagerIntegrationTest {
   @Test
   public void validateIsColumnNullableForId() throws SQLException {
     createTable();
-    TableMetaDataView metaData = manager.getTableMetaDataView(connection, regionMapping);
+    var metaData = manager.getTableMetaDataView(connection, regionMapping);
 
-    boolean nullable = metaData.isColumnNullable("id");
+    var nullable = metaData.isColumnNullable("id");
 
     assertThat(nullable).isFalse();
   }
@@ -218,9 +216,9 @@ public abstract class TableMetaDataManagerIntegrationTest {
   @Test
   public void validateColumnDataTypeForId() throws SQLException {
     createTable();
-    TableMetaDataView metaData = manager.getTableMetaDataView(connection, regionMapping);
+    var metaData = manager.getTableMetaDataView(connection, regionMapping);
 
-    JDBCType nameDataType = metaData.getColumnDataType("id");
+    var nameDataType = metaData.getColumnDataType("id");
 
     assertThat(nameDataType).isEqualTo(JDBCType.VARCHAR);
   }
@@ -228,9 +226,9 @@ public abstract class TableMetaDataManagerIntegrationTest {
   @Test
   public void validateColumnDataTypeForAge() throws SQLException {
     createTable();
-    TableMetaDataView metaData = manager.getTableMetaDataView(connection, regionMapping);
+    var metaData = manager.getTableMetaDataView(connection, regionMapping);
 
-    JDBCType nameDataType = metaData.getColumnDataType("age");
+    var nameDataType = metaData.getColumnDataType("age");
 
     assertThat(nameDataType).isEqualTo(JDBCType.INTEGER);
   }

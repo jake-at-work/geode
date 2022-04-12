@@ -123,7 +123,7 @@ public class PartitionedRegionLocalMaxMemoryDUnitTest extends CacheTestCase {
   private void putOneObjectInPartitionedRegion(final int objectId) {
     Region<TestObjectWithIdentifier, TestObjectWithIdentifier> region =
         getCache().getRegion(regionName);
-    TestObjectWithIdentifier kv =
+    var kv =
         new TestObjectWithIdentifier("TestObjectWithIdentifier-" + 0, objectId);
     region.put(kv, kv);
   }
@@ -133,18 +133,18 @@ public class PartitionedRegionLocalMaxMemoryDUnitTest extends CacheTestCase {
         getCache().getRegion(regionName);
     fillAllMemoryWithPuts(region, objectId);
 
-    PartitionedRegionDataStore dataStore = ((PartitionedRegion) region).getDataStore();
+    var dataStore = ((PartitionedRegion) region).getDataStore();
     assertThat(dataStore.getLocalBucket2RegionMap()).hasSize(1);
   }
 
   private void fillAllMemoryWithPuts(
       final Region<TestObjectWithIdentifier, TestObjectWithIdentifier> region, final int objectId) {
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
     assertThat(partitionedRegion.getLocalMaxMemory()).isEqualTo(LOCAL_MAX_MEMORY);
 
-    PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
-    for (int i = 0; dataStore.currentAllocatedMemory() <= EXPECTED_LOCAL_MAX_MEMORY; i++) {
-      TestObjectWithIdentifier id =
+    var dataStore = partitionedRegion.getDataStore();
+    for (var i = 0; dataStore.currentAllocatedMemory() <= EXPECTED_LOCAL_MAX_MEMORY; i++) {
+      var id =
           new TestObjectWithIdentifier("TestObjectWithIdentifier-" + i, objectId);
       region.put(id, id);
     }
@@ -154,10 +154,10 @@ public class PartitionedRegionLocalMaxMemoryDUnitTest extends CacheTestCase {
   private long validateDataStoreExceedsLocalMaxMemory() {
     Region<TestObjectWithIdentifier, TestObjectWithIdentifier> region =
         getCache().getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
     assertThat(partitionedRegion.getLocalMaxMemory()).isEqualTo(LOCAL_MAX_MEMORY);
 
-    PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
+    var dataStore = partitionedRegion.getDataStore();
     assertThat(dataStore.currentAllocatedMemory())
         .isGreaterThanOrEqualTo(EXPECTED_LOCAL_MAX_MEMORY);
 
@@ -167,9 +167,9 @@ public class PartitionedRegionLocalMaxMemoryDUnitTest extends CacheTestCase {
   private void validateDataStoreExceeds(final long memory) {
     Region<TestObjectWithIdentifier, TestObjectWithIdentifier> region =
         getCache().getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
 
-    PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
+    var dataStore = partitionedRegion.getDataStore();
     assertThat(dataStore.currentAllocatedMemory()).isGreaterThanOrEqualTo(memory);
   }
 
@@ -185,9 +185,9 @@ public class PartitionedRegionLocalMaxMemoryDUnitTest extends CacheTestCase {
   }
 
   private void createMultiplePartitionRegion(final boolean evict) {
-    String value = setSystemProperty(RETRY_TIMEOUT_PROPERTY, RETRY_TIMEOUT_PROPERTY_VALUE);
+    var value = setSystemProperty(RETRY_TIMEOUT_PROPERTY, RETRY_TIMEOUT_PROPERTY_VALUE);
     try {
-      EvictionAttributes evictionAttributes = getEvictionAttributes(evict);
+      var evictionAttributes = getEvictionAttributes(evict);
       getCache().createRegion(regionName, createRegionAttrsForPR(REDUNDANCY, LOCAL_MAX_MEMORY,
           RECOVERY_DELAY_DEFAULT, evictionAttributes));
     } finally {

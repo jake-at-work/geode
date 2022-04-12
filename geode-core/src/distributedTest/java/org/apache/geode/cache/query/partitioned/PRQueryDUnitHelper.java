@@ -28,21 +28,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import util.TestException;
 
 import org.apache.geode.CancelException;
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EntryExistsException;
 import org.apache.geode.cache.EntryNotFoundException;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
@@ -58,17 +54,14 @@ import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexNameConflictException;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.MultiIndexCreationException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryException;
 import org.apache.geode.cache.query.QueryInvalidException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.functional.StructSetOrResultsSet;
 import org.apache.geode.cache.query.internal.index.PartitionedIndex;
-import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.internal.cache.ForceReattemptException;
@@ -104,10 +97,10 @@ public class PRQueryDUnitHelper implements Serializable {
     return new CacheSerializableRunnable(regionName) {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
+        var cache = getCache();
         Region localRegion = null;
         try {
-          AttributesFactory attr = new AttributesFactory();
+          var attr = new AttributesFactory();
           attr.setValueConstraint(constraint);
           attr.setScope(Scope.LOCAL);
           localRegion = cache.createRegion(regionName, attr.create());
@@ -135,13 +128,13 @@ public class PRQueryDUnitHelper implements Serializable {
     return new CacheSerializableRunnable(regionName) {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
+        var cache = getCache();
 
-        AttributesFactory attr = new AttributesFactory();
+        var attr = new AttributesFactory();
         attr.setValueConstraint(constraint);
         attr.setScope(Scope.LOCAL);
         attr.setIndexMaintenanceSynchronous(false);
-        Region localRegion = cache.createRegion(regionName, attr.create());
+        var localRegion = cache.createRegion(regionName, attr.create());
 
         assertNotNull(
             "PRQueryDUnitHelper#getCacheSerializableRunnableForPRCreate: Partitioned Region "
@@ -162,7 +155,7 @@ public class PRQueryDUnitHelper implements Serializable {
     return new CacheSerializableRunnable(regionName) {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
+        var cache = getCache();
 
         Region localRegion = cache.createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
@@ -190,16 +183,16 @@ public class PRQueryDUnitHelper implements Serializable {
     return new CacheSerializableRunnable(regionName) {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
+        var cache = getCache();
+        var attr = new AttributesFactory();
         attr.setValueConstraint(constraint);
 
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
-        PartitionAttributes prAttr = paf.setRedundantCopies(redundancy).create();
+        var paf = new PartitionAttributesFactory();
+        var prAttr = paf.setRedundantCopies(redundancy).create();
 
         attr.setPartitionAttributes(prAttr);
 
-        Region partitionedregion = cache.createRegion(regionName, attr.create());
+        var partitionedregion = cache.createRegion(regionName, attr.create());
         assertNotNull(
             "PRQueryDUnitHelper#getCacheSerializableRunnableForPRCreateWithRedundancy: Partitioned Region "
                 + regionName + " not in cache",
@@ -223,17 +216,17 @@ public class PRQueryDUnitHelper implements Serializable {
   CacheSerializableRunnable getCacheSerializableRunnableForColocatedPRCreate(
       final String regionName, final int redundancy, final Class constraint,
       boolean makePersistent) {
-    String childRegionName = regionName + "Child";
-    String diskName = "disk";
+    var childRegionName = regionName + "Child";
+    var diskName = "disk";
 
     return new CacheSerializableRunnable(regionName) {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
+        var cache = getCache();
+        var attr = new AttributesFactory();
         attr.setValueConstraint(constraint);
         if (makePersistent) {
-          DiskStore ds = cache.findDiskStore(diskName);
+          var ds = cache.findDiskStore(diskName);
           if (ds == null) {
             ds = cache.createDiskStoreFactory().setDiskDirs(JUnit4CacheTestCase.getDiskDirs())
                 .create(diskName);
@@ -245,12 +238,12 @@ public class PRQueryDUnitHelper implements Serializable {
           attr.setDiskStoreName(null);
         }
 
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(redundancy);
         attr.setPartitionAttributes(paf.create());
 
         // parent region
-        Region partitionedregion = cache.createRegion(regionName, attr.create());
+        var partitionedregion = cache.createRegion(regionName, attr.create());
         assertNotNull(
             "PRQueryDUnitHelper#getCacheSerializableRunnableForPRCreateWithRedundancy: Partitioned Region "
                 + regionName + " not in cache",
@@ -281,16 +274,16 @@ public class PRQueryDUnitHelper implements Serializable {
   CacheSerializableRunnable getCacheSerializableRunnableForColocatedParentCreate(
       final String regionName, final int redundancy, final Class constraint,
       boolean makePersistent) {
-    String diskName = "disk";
+    var diskName = "disk";
 
     return new CacheSerializableRunnable(regionName + "-NoChildRegion") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
+        var cache = getCache();
+        var attr = new AttributesFactory();
         attr.setValueConstraint(constraint);
         if (makePersistent) {
-          DiskStore ds = cache.findDiskStore(diskName);
+          var ds = cache.findDiskStore(diskName);
           if (ds == null) {
             ds = cache.createDiskStoreFactory().setDiskDirs(JUnit4CacheTestCase.getDiskDirs())
                 .create(diskName);
@@ -302,12 +295,12 @@ public class PRQueryDUnitHelper implements Serializable {
           attr.setDiskStoreName(null);
         }
 
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(redundancy);
         attr.setPartitionAttributes(paf.create());
 
         // parent region
-        Region partitionedregion = cache.createRegion(regionName, attr.create());
+        var partitionedregion = cache.createRegion(regionName, attr.create());
         assertNotNull(
             "PRQueryDUnitHelper#getCacheSerializableRunnableForPRCreateWithRedundancy: Partitioned Region "
                 + regionName + " not in cache",
@@ -331,19 +324,19 @@ public class PRQueryDUnitHelper implements Serializable {
   CacheSerializableRunnable getCacheSerializableRunnableForColocatedChildCreate(
       final String regionName, final int redundancy, final Class constraint, boolean isPersistent) {
 
-    final String childRegionName = regionName + "Child";
-    final String diskName = "disk";
+    final var childRegionName = regionName + "Child";
+    final var diskName = "disk";
     SerializableRunnable createPrRegion =
         new CacheSerializableRunnable(regionName + "-ChildRegion") {
           @Override
           public void run2() throws CacheException {
 
-            Cache cache = getCache();
+            var cache = getCache();
             Region partitionedregion = null;
-            AttributesFactory attr = new AttributesFactory();
+            var attr = new AttributesFactory();
             attr.setValueConstraint(constraint);
             if (isPersistent) {
-              DiskStore ds = cache.findDiskStore(diskName);
+              var ds = cache.findDiskStore(diskName);
               if (ds == null) {
                 // ds = cache.createDiskStoreFactory().setDiskDirs(getDiskDirs())
                 ds = cache.createDiskStoreFactory()
@@ -358,7 +351,7 @@ public class PRQueryDUnitHelper implements Serializable {
               attr.setDiskStoreName(null);
             }
 
-            PartitionAttributesFactory paf = new PartitionAttributesFactory();
+            var paf = new PartitionAttributesFactory();
             paf.setRedundantCopies(redundancy);
             attr.setPartitionAttributes(paf.create());
 
@@ -369,7 +362,7 @@ public class PRQueryDUnitHelper implements Serializable {
             attr.setValueConstraint(constraint);
             paf.setColocatedWith(regionName);
             attr.setPartitionAttributes(paf.create());
-            Region childRegion = cache.createRegion(childRegionName, attr.create());
+            var childRegion = cache.createRegion(childRegionName, attr.create());
           }
         };
 
@@ -383,12 +376,12 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         Region partitionedregion = null;
         try {
-          AttributesFactory attr = new AttributesFactory();
-          PartitionAttributesFactory paf = new PartitionAttributesFactory();
-          PartitionAttributes prAttr =
+          var attr = new AttributesFactory();
+          var paf = new PartitionAttributesFactory();
+          var prAttr =
               paf.setRedundantCopies(redundancy).setTotalNumBuckets(buckets).create();
           attr.setPartitionAttributes(prAttr);
           partitionedregion = cache.createRegion(regionName, attr.create());
@@ -420,18 +413,18 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         Region partitionedregion = null;
         try {
           cache.createDiskStoreFactory().setDiskDirs(JUnit4CacheTestCase.getDiskDirs())
               .create("diskstore");
-          AttributesFactory attr = new AttributesFactory();
+          var attr = new AttributesFactory();
           attr.setValueConstraint(constraint);
           attr.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
           attr.setDiskStoreName("diskstore");
 
-          PartitionAttributesFactory paf = new PartitionAttributesFactory();
-          PartitionAttributes prAttr = paf.setRedundantCopies(redundancy).create();
+          var paf = new PartitionAttributesFactory();
+          var prAttr = paf.setRedundantCopies(redundancy).create();
 
           attr.setPartitionAttributes(prAttr);
 
@@ -470,15 +463,15 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         Region partitionedregion = null;
         try {
           Region colocatedRegion = cache.getRegion(coloRegionName);
           assertNotNull(colocatedRegion);
-          AttributesFactory attr = new AttributesFactory();
+          var attr = new AttributesFactory();
 
-          PartitionAttributesFactory paf = new PartitionAttributesFactory();
-          PartitionAttributes prAttr = paf.setRedundantCopies(redundancy)
+          var paf = new PartitionAttributesFactory();
+          var prAttr = paf.setRedundantCopies(redundancy)
               .setColocatedWith(colocatedRegion.getFullPath()).create();
           attr.setPartitionAttributes(prAttr);
 
@@ -515,9 +508,9 @@ public class PRQueryDUnitHelper implements Serializable {
     SerializableRunnable prPuts = new CacheSerializableRunnable("PRPuts") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
+        var cache = getCache();
         Region region = cache.getRegion(regionName);
-        for (int j = from; j < to; j++) {
+        for (var j = from; j < to; j++) {
           region.put(j, portfolio[j]);
         }
       }
@@ -538,12 +531,12 @@ public class PRQueryDUnitHelper implements Serializable {
     SerializableRunnable prPuts = new CacheSerializableRunnable("PRPuts") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
+        var cache = getCache();
         Region region = cache.getRegion(regionName);
 
-        for (int i = 0; i < 3; i++) {
-          for (int j = from; j < to; j++) {
-            int op = new Random().nextInt(4);
+        for (var i = 0; i < 3; i++) {
+          for (var j = from; j < to; j++) {
+            var op = new Random().nextInt(4);
             try {
               switch (op) {
                 case 0:
@@ -597,7 +590,7 @@ public class PRQueryDUnitHelper implements Serializable {
     SerializableRunnable prPuts = new CacheSerializableRunnable("PRPuts") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
+        var cache = getCache();
         Region region = cache.getRegion(regionName);
         for (int j = from, i = to; j < to; j++, i++) {
           region.put(i, portfolio[j]);
@@ -617,9 +610,9 @@ public class PRQueryDUnitHelper implements Serializable {
     SerializableRunnable prPuts = new CacheSerializableRunnable("PRPuts") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
+        var cache = getCache();
         Region region = cache.getRegion(regionName);
-        for (int j = from; j < to; j++) {
+        for (var j = from; j < to; j++) {
           region.put(portfolio[j], portfolio[j]);
         }
       }
@@ -647,7 +640,7 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the localRegion and the PR region
 
         String[] queries;
@@ -680,24 +673,24 @@ public class PRQueryDUnitHelper implements Serializable {
               "ID <= 5"};
         }
 
-        Object[][] r = new Object[queries.length][2];
+        var r = new Object[queries.length][2];
         Region local = cache.getRegion(localRegion);
         Region region = cache.getRegion(regionName);
         assertNotNull(region);
 
-        final String[] expectedExceptions =
+        final var expectedExceptions =
             new String[] {RegionDestroyedException.class.getName(), ReplyException.class.getName(),
                 CacheClosedException.class.getName(), ForceReattemptException.class.getName(),
                 QueryInvocationTargetException.class.getName()};
 
-        for (final String exception : expectedExceptions) {
+        for (final var exception : expectedExceptions) {
           getCache().getLogger().info(
               "<ExpectedException action=add>" + exception + "</ExpectedException>");
         }
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         try {
-          for (int j = 0; j < queries.length; j++) {
+          for (var j = 0; j < queries.length; j++) {
             synchronized (region) {
               Object[] params;
               if (fullQueryOnPortfolioPositions) {
@@ -717,7 +710,7 @@ public class PRQueryDUnitHelper implements Serializable {
           compareTwoQueryResults(r, queries.length);
         } catch (QueryInvocationTargetException e) {
           // If cause is RegionDestroyedException then its ok
-          Throwable cause = e.getCause();
+          var cause = e.getCause();
           if (!(cause instanceof RegionDestroyedException)) {
             // throw an unchecked exception so the controller can examine the cause and see whether
             // or not it's okay
@@ -748,7 +741,7 @@ public class PRQueryDUnitHelper implements Serializable {
               cce);
 
         } finally {
-          for (final String expectedException : expectedExceptions) {
+          for (final var expectedException : expectedExceptions) {
             getCache().getLogger().info(
                 "<ExpectedException action=remove>" + expectedException + "</ExpectedException>");
           }
@@ -767,10 +760,10 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the localRegion and the PR region
 
-        String[] queries =
+        var queries =
             new String[] {"p.status from " + SEPARATOR + "REGION_NAME p order by p.status",
                 "* from " + SEPARATOR + "REGION_NAME order by status, ID desc",
                 "status, ID from " + SEPARATOR + "REGION_NAME order by status",
@@ -825,30 +818,30 @@ public class PRQueryDUnitHelper implements Serializable {
                 "p, pos from " + SEPARATOR
                     + "REGION_NAME p, p.positions.values pos order by p.ID, pos.secId",};
 
-        Object[][] r = new Object[queries.length][2];
+        var r = new Object[queries.length][2];
         Region region = cache.getRegion(regionName);
         assertNotNull(region);
 
-        final String[] expectedExceptions =
+        final var expectedExceptions =
             new String[] {RegionDestroyedException.class.getName(), ReplyException.class.getName(),
                 CacheClosedException.class.getName(), ForceReattemptException.class.getName(),
                 QueryInvocationTargetException.class.getName()};
 
-        for (final String expectedException : expectedExceptions) {
+        for (final var expectedException : expectedExceptions) {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + expectedException + "</ExpectedException>");
         }
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         Object[] params;
 
 
         try {
-          String distinct = "SELECT DISTINCT ";
-          for (int j = 0; j < queries.length; j++) {
+          var distinct = "SELECT DISTINCT ";
+          for (var j = 0; j < queries.length; j++) {
             synchronized (region) {
               // Execute on local region.
-              String qStr = (distinct + queries[j].replace("REGION_NAME", localRegion));
+              var qStr = (distinct + queries[j].replace("REGION_NAME", localRegion));
               r[j][0] = qs.newQuery(qStr).execute();
 
               // Execute on remote region.
@@ -860,7 +853,7 @@ public class PRQueryDUnitHelper implements Serializable {
           LogWriterUtils.getLogWriter().info(
               "PRQueryDUnitHelper#getCacheSerializableRunnableForPRQueryAndCompareResults: Queries Executed successfully on Local region & PR Region");
 
-          StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+          var ssORrs = new StructSetOrResultsSet();
           ssORrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
 
         } catch (QueryInvocationTargetException e) {
@@ -892,7 +885,7 @@ public class PRQueryDUnitHelper implements Serializable {
               cce);
 
         } finally {
-          for (final String expectedException : expectedExceptions) {
+          for (final var expectedException : expectedExceptions) {
             getCache().getLogger().info(
                 "<ExpectedException action=remove>" + expectedException + "</ExpectedException>");
           }
@@ -910,30 +903,30 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the localRegion and the PR region
 
         Region region = cache.getRegion(regionName);
         assertNotNull(region);
 
-        final String[] expectedExceptions =
+        final var expectedExceptions =
             new String[] {RegionDestroyedException.class.getName(), ReplyException.class.getName(),
                 CacheClosedException.class.getName(), ForceReattemptException.class.getName(),
                 QueryInvocationTargetException.class.getName()};
 
-        for (final String expectedException : expectedExceptions) {
+        for (final var expectedException : expectedExceptions) {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + expectedException + "</ExpectedException>");
         }
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         Object[] params;
-        StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+        var ssORrs = new StructSetOrResultsSet();
 
         try {
-          String distinct = "SELECT DISTINCT ";
-          Object[][] r = new Object[1][2];
-          String[] queries =
+          var distinct = "SELECT DISTINCT ";
+          var r = new Object[1][2];
+          var queries =
               new String[] {"p.status from " + SEPARATOR + "REGION_NAME p order by p.status",
                   "status, ID from " + SEPARATOR + "REGION_NAME order by status, ID",
                   "p.status, p.ID from " + SEPARATOR + "REGION_NAME p order by p.status, p.ID",
@@ -978,10 +971,10 @@ public class PRQueryDUnitHelper implements Serializable {
                       + "REGION_NAME p, p.positions.values pos order by p.ID desc, pos.secId desc",
                   "p.ID, pos.secId from " + SEPARATOR
                       + "REGION_NAME p, p.positions.values pos order by p.ID desc, pos.secId",};
-          for (final String query : queries) {
+          for (final var query : queries) {
             synchronized (region) {
               // Execute on local region.
-              String qStr = (distinct + query.replace("REGION_NAME", localRegion));
+              var qStr = (distinct + query.replace("REGION_NAME", localRegion));
               r[0][0] = qs.newQuery(qStr).execute();
 
               // Execute on remote region.
@@ -1022,7 +1015,7 @@ public class PRQueryDUnitHelper implements Serializable {
               cce);
 
         } finally {
-          for (final String expectedException : expectedExceptions) {
+          for (final var expectedException : expectedExceptions) {
             getCache().getLogger().info(
                 "<ExpectedException action=remove>" + expectedException + "</ExpectedException>");
           }
@@ -1040,10 +1033,10 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the localRegion and the PR region
 
-        String[] queries =
+        var queries =
             new String[] {"status as st from " + SEPARATOR + "REGION_NAME order by status",
                 "p.status from " + SEPARATOR + "REGION_NAME p order by p.status",
                 "p.position1.secId, p.ID from " + SEPARATOR
@@ -1085,35 +1078,35 @@ public class PRQueryDUnitHelper implements Serializable {
 
             };
 
-        Object[][] r = new Object[queries.length][2];
+        var r = new Object[queries.length][2];
         Region local = cache.getRegion(localRegion);
         Region region = cache.getRegion(regionName);
         assertNotNull(region);
 
-        final String[] expectedExceptions =
+        final var expectedExceptions =
             new String[] {RegionDestroyedException.class.getName(), ReplyException.class.getName(),
                 CacheClosedException.class.getName(), ForceReattemptException.class.getName(),
                 QueryInvocationTargetException.class.getName()};
 
-        for (final String expectedException : expectedExceptions) {
+        for (final var expectedException : expectedExceptions) {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + expectedException + "</ExpectedException>");
         }
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         Object[] params;
 
         try {
-          String distinct = "<TRACE>SELECT DISTINCT ";
-          for (int l = 1; l <= 3; l++) {
-            String[] rq = new String[queries.length];
-            for (int j = 0; j < queries.length; j++) {
+          var distinct = "<TRACE>SELECT DISTINCT ";
+          for (var l = 1; l <= 3; l++) {
+            var rq = new String[queries.length];
+            for (var j = 0; j < queries.length; j++) {
               synchronized (region) {
                 // Execute on local region.
-                String qStr = (distinct + queries[j].replace("REGION_NAME", localRegion));
+                var qStr = (distinct + queries[j].replace("REGION_NAME", localRegion));
                 qStr += (" LIMIT " + (l * l));
                 rq[j] = qStr;
-                SelectResults sr = (SelectResults) qs.newQuery(qStr).execute();
+                var sr = (SelectResults) qs.newQuery(qStr).execute();
                 r[j][0] = sr;
                 if (sr.asList().size() > l * l) {
                   fail("The resultset size exceeds limit size. Limit size=" + l * l
@@ -1124,7 +1117,7 @@ public class PRQueryDUnitHelper implements Serializable {
                 qStr = (distinct + queries[j].replace("REGION_NAME", regionName));
                 qStr += (" LIMIT " + (l * l));
                 rq[j] = qStr;
-                SelectResults srr = (SelectResults) qs.newQuery(qStr).execute();
+                var srr = (SelectResults) qs.newQuery(qStr).execute();
                 r[j][1] = srr;
                 if (srr.size() > l * l) {
                   fail("The resultset size exceeds limit size. Limit size=" + l * l
@@ -1136,7 +1129,7 @@ public class PRQueryDUnitHelper implements Serializable {
                 // getCache().getLogger().info("Finished executing PR query: " + qStr);
               }
             }
-            StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+            var ssORrs = new StructSetOrResultsSet();
             ssORrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, rq);
 
           }
@@ -1171,7 +1164,7 @@ public class PRQueryDUnitHelper implements Serializable {
               cce);
 
         } finally {
-          for (final String expectedException : expectedExceptions) {
+          for (final var expectedException : expectedExceptions) {
             getCache().getLogger().info(
                 "<ExpectedException action=remove>" + expectedException + "</ExpectedException>");
           }
@@ -1189,10 +1182,10 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the localRegion and the PR region
 
-        String[] queries = new String[] {"select COUNT(*) from " + SEPARATOR + regionName,
+        var queries = new String[] {"select COUNT(*) from " + SEPARATOR + regionName,
             "select COUNT(*) from " + SEPARATOR + regionName + " where ID > 0",
             "select COUNT(*) from " + SEPARATOR + regionName + " where ID > 0 AND status='active'",
             "select COUNT(*) from " + SEPARATOR + regionName + " where ID > 0 OR status='active'",
@@ -1234,34 +1227,34 @@ public class PRQueryDUnitHelper implements Serializable {
             // p.ID > 0 OR p.status = 'active' OR pos.secId = 'IBM' ORDER BY p.ID",
         };
 
-        Object[][] r = new Object[queries.length][2];
+        var r = new Object[queries.length][2];
         Region region = cache.getRegion(regionName);
         assertNotNull(region);
 
-        final String[] expectedExceptions =
+        final var expectedExceptions =
             new String[] {RegionDestroyedException.class.getName(), ReplyException.class.getName(),
                 CacheClosedException.class.getName(), ForceReattemptException.class.getName(),
                 QueryInvocationTargetException.class.getName()};
 
-        for (final String expectedException : expectedExceptions) {
+        for (final var expectedException : expectedExceptions) {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + expectedException + "</ExpectedException>");
         }
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         Object[] params;
 
         try {
-          for (int j = 0; j < queries.length; j++) {
+          for (var j = 0; j < queries.length; j++) {
             synchronized (region) {
               // Execute on PR region.
-              String qStr = queries[j];
-              SelectResults sr = (SelectResults) qs.newQuery(qStr).execute();
+              var qStr = queries[j];
+              var sr = (SelectResults) qs.newQuery(qStr).execute();
               r[j][0] = sr;
 
               // Execute on local region.
               qStr = queries[j];
-              SelectResults srr =
+              var srr =
                   (SelectResults) qs.newQuery(qStr.replace(regionName, localRegion)).execute();
               r[j][1] = srr;
             }
@@ -1269,7 +1262,7 @@ public class PRQueryDUnitHelper implements Serializable {
           LogWriterUtils.getLogWriter().info(
               "PRQueryDUnitHelper#getCacheSerializableRunnableForPRQueryAndCompareResults: Queries Executed successfully on Local region & PR Region");
 
-          StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+          var ssORrs = new StructSetOrResultsSet();
           ssORrs.CompareCountStarQueryResultsWithoutAndWithIndexes(r, queries.length, true,
               queries);
 
@@ -1302,7 +1295,7 @@ public class PRQueryDUnitHelper implements Serializable {
               cce);
 
         } finally {
-          for (final String expectedException : expectedExceptions) {
+          for (final var expectedException : expectedExceptions) {
             getCache().getLogger().info(
                 "<ExpectedException action=remove>" + expectedException + "</ExpectedException>");
           }
@@ -1321,14 +1314,14 @@ public class PRQueryDUnitHelper implements Serializable {
     SerializableRunnable PrIndexCheck = new CacheSerializableRunnable("PrIndexCheck") {
       @Override
       public void run2() {
-        Cache cache = getCache();
+        var cache = getCache();
 
-        QueryService qs = cache.getQueryService();
-        LogWriter logger = cache.getLogger();
+        var qs = cache.getQueryService();
+        var logger = cache.getLogger();
 
         Collection indexes = qs.getIndexes();
-        for (final Object index : indexes) {
-          PartitionedIndex ind = (PartitionedIndex) index;
+        for (final var index : indexes) {
+          var ind = (PartitionedIndex) index;
           /*
            * List bucketIndex = ind.getBucketIndexes(); int k = 0;
            * logger.info("Total number of bucket index : "+bucketIndex.size()); while ( k <
@@ -1356,7 +1349,7 @@ public class PRQueryDUnitHelper implements Serializable {
 
           // Anil : With aquiringReadLock during Index.getSizeEstimate(), the
           // Index usage in case of "ID = 0 OR ID = 1" is increased by 3.
-          int indexUsageWithSizeEstimation = 3;
+          var indexUsageWithSizeEstimation = 3;
 
           logger.info("index uses for " + ind.getNumberOfIndexedBuckets() + " index "
               + ind.getName() + ": " + ind.getStatistics().getTotalUses());
@@ -1384,16 +1377,16 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the localRegion and the PR region
 
-        String[] query = {"TRUE", "FALSE", "UNDEFINED", "NULL"};
-        Object[][] r = new Object[query.length][2];
+        var query = new String[] {"TRUE", "FALSE", "UNDEFINED", "NULL"};
+        var r = new Object[query.length][2];
         Region local = cache.getRegion(localRegion);
         Region region = cache.getRegion(regionName);
         try {
 
-          for (int j = 0; j < query.length; j++) {
+          for (var j = 0; j < query.length; j++) {
             r[j][0] = local.query(query[j]);
             r[j][1] = region.query(query[j]);
           }
@@ -1429,15 +1422,15 @@ public class PRQueryDUnitHelper implements Serializable {
     SerializableRunnable createPrRegion = new CacheSerializableRunnable(regionName) {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
+        var cache = getCache();
+        var attr = new AttributesFactory();
         attr.setValueConstraint(constraint);
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
-        int maxMem = 0;
-        PartitionAttributes prAttr =
+        var paf = new PartitionAttributesFactory();
+        var maxMem = 0;
+        var prAttr =
             paf.setLocalMaxMemory(maxMem).setRedundantCopies(redundancy).create();
         attr.setPartitionAttributes(prAttr);
-        Region partitionedregion = cache.createRegion(regionName, attr.create());
+        var partitionedregion = cache.createRegion(regionName, attr.create());
         assertNotNull(
             "PRQueryDUnitHelper#getCacheSerializableRunnableForPRAccessorCreate: Partitioned Region "
                 + regionName + " not in cache",
@@ -1463,11 +1456,11 @@ public class PRQueryDUnitHelper implements Serializable {
 
   private void compareTwoQueryResults(Object[][] r, int len) {
 
-    for (int j = 0; j < len; j++) {
+    for (var j = 0; j < len; j++) {
       if ((r[j][0] != null) && (r[j][1] != null)) {
-        ObjectType type1 = ((SelectResults) r[j][0]).getCollectionType().getElementType();
+        var type1 = ((SelectResults) r[j][0]).getCollectionType().getElementType();
         assertNotNull("PRQueryDUnitHelper#compareTwoQueryResults: Type 1 is NULL " + type1, type1);
-        ObjectType type2 = ((SelectResults) r[j][1]).getCollectionType().getElementType();
+        var type2 = ((SelectResults) r[j][1]).getCollectionType().getElementType();
         assertNotNull("PRQueryDUnitHelper#compareTwoQueryResults: Type 2 is NULL " + type2, type2);
         if ((type1.getClass().getName()).equals(type2.getClass().getName())) {
           LogWriterUtils.getLogWriter().info(
@@ -1482,8 +1475,8 @@ public class PRQueryDUnitHelper implements Serializable {
           fail(
               "PRQueryDUnitHelper#compareTwoQueryResults: FAILED:Search result Type is different in both the cases");
         }
-        int size0 = ((SelectResults) r[j][0]).size();
-        int size1 = ((SelectResults) r[j][1]).size();
+        var size0 = ((SelectResults) r[j][0]).size();
+        var size1 = ((SelectResults) r[j][1]).size();
         if (size0 == size1) {
           LogWriterUtils.getLogWriter().info(
               "PRQueryDUnitHelper#compareTwoQueryResults: Both Search Results are non-zero and are of Same Size i.e.  Size= "
@@ -1497,8 +1490,8 @@ public class PRQueryDUnitHelper implements Serializable {
               "PRQueryDUnitHelper#compareTwoQueryResults: FAILED:Search resultSet size are different in both cases; size0="
                   + size0 + ";size1=" + size1 + ";j=" + j);
         }
-        Set set2 = (((SelectResults) r[j][1]).asSet());
-        Set set1 = (((SelectResults) r[j][0]).asSet());
+        var set2 = (((SelectResults) r[j][1]).asSet());
+        var set1 = (((SelectResults) r[j][0]).asSet());
 
         assertEquals("PRQueryDUnitHelper#compareTwoQueryResults: FAILED: "
             + "result contents are not equal, ", set1, set2);
@@ -1523,13 +1516,13 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the PR region with an Invalid query string
 
         Region region = cache.getRegion(regionName);
         try {
 
-          String query = "INVALID QUERY";
+          var query = "INVALID QUERY";
           region.query(query);
           fail(
               "PRQueryDUnitHelper#getCacheSerializableRunnableForPRInvalidQuery: InvalidQueryException expected");
@@ -1565,11 +1558,11 @@ public class PRQueryDUnitHelper implements Serializable {
     SerializableRunnable PrRegion = new CacheSerializableRunnable("regionClose") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = getCache();
-        final String expectedRegionDestroyedException = RegionDestroyedException.class.getName();
+        var cache = getCache();
+        final var expectedRegionDestroyedException = RegionDestroyedException.class.getName();
         getCache().getLogger().info("<ExpectedException action=add>"
             + expectedRegionDestroyedException + "</ExpectedException>");
-        final String expectedReplyException = ReplyException.class.getName();
+        final var expectedReplyException = ReplyException.class.getName();
         getCache().getLogger().info(
             "<ExpectedException action=add>" + expectedReplyException + "</ExpectedException>");
 
@@ -1579,10 +1572,10 @@ public class PRQueryDUnitHelper implements Serializable {
         region.close();
         LogWriterUtils.getLogWriter().info(
             "PROperationWithQueryDUnitTest#getCacheSerializableRunnableForRegionClose: Region Closed on VM ");
-        AttributesFactory attr = new AttributesFactory();
+        var attr = new AttributesFactory();
         attr.setValueConstraint(constraint);
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
-        PartitionAttributes prAttr = paf.setRedundantCopies(redundancy).create();
+        var paf = new PartitionAttributesFactory();
+        var prAttr = paf.setRedundantCopies(redundancy).create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion(regionName, attr.create());
         LogWriterUtils.getLogWriter().info(
@@ -1608,22 +1601,22 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() {
         try {
-          Cache cache = getCache();
-          QueryService qs = cache.getQueryService();
+          var cache = getCache();
+          var qs = cache.getQueryService();
           Region region = cache.getRegion(prRegionName);
-          LogWriter logger = cache.getLogger();
+          var logger = cache.getLogger();
           if (null != fromClause) {
             logger.info("Test Creating index with Name : [ " + indexName + " ] "
                 + "IndexedExpression : [ " + indexedExpression + " ] Alias : [ " + alias
                 + " ] FromClause : [ " + fromClause + " " + alias + " ] ");
-            Index parIndex =
+            var parIndex =
                 qs.createIndex(indexName, IndexType.FUNCTIONAL, indexedExpression, fromClause);
             logger.info("Index creted on partitioned region : " + parIndex);
           } else {
             logger.info("Test Creating index with Name : [ " + indexName + " ] "
                 + "IndexedExpression : [ " + indexedExpression + " ] Alias : [ " + alias
                 + " ] FromClause : [ " + region.getFullPath() + " " + alias + " ] ");
-            Index parIndex = qs.createIndex(indexName, IndexType.FUNCTIONAL, indexedExpression,
+            var parIndex = qs.createIndex(indexName, IndexType.FUNCTIONAL, indexedExpression,
                 region.getFullPath() + " " + alias);
             logger.info("Index creted on partitioned region : " + parIndex);
             logger.info("Number of buckets indexed in the partitioned region locally : " + ""
@@ -1665,18 +1658,18 @@ public class PRQueryDUnitHelper implements Serializable {
       public void run2() {
         List<Index> indexes = null;
         try {
-          Cache cache = getCache();
-          QueryService qs = cache.getQueryService();
+          var cache = getCache();
+          var qs = cache.getQueryService();
           Region region = cache.getRegion(prRegionName);
-          for (int i = 0; i < indexName.size(); i++) {
+          for (var i = 0; i < indexName.size(); i++) {
             qs.defineIndex(indexName.get(i), indexedExpression.get(i),
                 fromClause == null ? region.getFullPath() : fromClause.get(i));
           }
           indexes = qs.createDefinedIndexes();
         } catch (Exception ex) {
           if (ex instanceof MultiIndexCreationException) {
-            StringBuilder sb = new StringBuilder();
-            for (Exception e : ((MultiIndexCreationException) ex).getExceptionsMap().values()) {
+            var sb = new StringBuilder();
+            for (var e : ((MultiIndexCreationException) ex).getExceptionsMap().values()) {
               sb.append(e.getMessage()).append("\n");
             }
             fail("Multi index creation failed, " + sb);
@@ -1699,15 +1692,15 @@ public class PRQueryDUnitHelper implements Serializable {
           @Override
           public void run2() {
             try {
-              Cache cache = getCache();
-              QueryService qs = cache.getQueryService();
+              var cache = getCache();
+              var qs = cache.getQueryService();
               Region region = cache.getRegion(rrRegionName);
-              LogWriter logger = cache.getLogger();
+              var logger = cache.getLogger();
               if (null != fromClause) {
                 logger.info("Test Creating index with Name : [ " + indexName + " ] "
                     + "IndexedExpression : [ " + indexedExpression + " ] Alias : [ " + alias
                     + " ] FromClause : [ " + fromClause + " " + alias + " ] ");
-                Index parIndex =
+                var parIndex =
                     qs.createIndex(indexName, IndexType.FUNCTIONAL, indexedExpression, fromClause);
                 logger.info("Index creted on replicated region : " + parIndex);
 
@@ -1715,7 +1708,7 @@ public class PRQueryDUnitHelper implements Serializable {
                 logger.info("Test Creating index with Name : [ " + indexName + " ] "
                     + "IndexedExpression : [ " + indexedExpression + " ] Alias : [ " + alias
                     + " ] FromClause : [ " + region.getFullPath() + " " + alias + " ] ");
-                Index parIndex = qs.createIndex(indexName, IndexType.FUNCTIONAL, indexedExpression,
+                var parIndex = qs.createIndex(indexName, IndexType.FUNCTIONAL, indexedExpression,
                     region.getFullPath() + " " + alias);
                 logger.info("Index creted on replicated region : " + parIndex);
               }
@@ -1741,14 +1734,14 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() {
         try {
-          Cache cache = getCache();
-          LogWriter logger = cache.getLogger();
-          PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
-          Map indexMap = region.getIndex();
-          Set indexSet = indexMap.entrySet();
-          for (final Object o : indexSet) {
-            Map.Entry entry = (Map.Entry) o;
-            Index index = (Index) entry.getValue();
+          var cache = getCache();
+          var logger = cache.getLogger();
+          var region = (PartitionedRegion) cache.getRegion(regionName);
+          var indexMap = region.getIndex();
+          var indexSet = indexMap.entrySet();
+          for (final var o : indexSet) {
+            var entry = (Map.Entry) o;
+            var index = (Index) entry.getValue();
             logger.info("The partitioned index created on this region " + " " + index);
             logger.info("Current number of buckets indexed : " + ""
                 + ((PartitionedIndex) index).getNumberOfIndexedBuckets());
@@ -1774,14 +1767,14 @@ public class PRQueryDUnitHelper implements Serializable {
     return new CacheSerializableRunnable("PrIndexCreationCheck") {
       @Override
       public void run2() {
-        Cache cache1 = getCache();
-        LogWriter logger = cache1.getLogger();
-        PartitionedRegion region = (PartitionedRegion) cache1.getRegion(name);
-        Map indexMap = region.getIndex();
-        Set indexSet = indexMap.entrySet();
-        for (final Object o : indexSet) {
-          Map.Entry entry = (Map.Entry) o;
-          Index index = (Index) entry.getValue();
+        var cache1 = getCache();
+        var logger = cache1.getLogger();
+        var region = (PartitionedRegion) cache1.getRegion(name);
+        var indexMap = region.getIndex();
+        var indexSet = indexMap.entrySet();
+        for (final var o : indexSet) {
+          var entry = (Map.Entry) o;
+          var index = (Index) entry.getValue();
           logger.info("the partitioned index created on this region " + " " + index);
           logger.info("Current number of buckets indexed : " + ""
               + ((PartitionedIndex) index).getNumberOfIndexedBuckets());
@@ -1805,9 +1798,9 @@ public class PRQueryDUnitHelper implements Serializable {
         new CacheSerializableRunnable("DuplicatePartitionedIndexCreator") {
           @Override
           public void run2() {
-            Cache cache = getCache();
-            LogWriter logger = cache.getLogger();
-            QueryService qs = cache.getQueryService();
+            var cache = getCache();
+            var logger = cache.getLogger();
+            var qs = cache.getQueryService();
             Region region = cache.getRegion(prRegionName);
             try {
               if (null != fromClause) {
@@ -1846,15 +1839,15 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() {
 
-        Cache cache1 = getCache();
-        LogWriter logger = cache1.getLogger();
+        var cache1 = getCache();
+        var logger = cache1.getLogger();
         logger.info("Got the following cache : " + cache1);
         Region parRegion = cache1.getRegion(name);
-        QueryService qs = cache1.getQueryService();
+        var qs = cache1.getQueryService();
         if (!random) {
           Collection indexes = qs.getIndexes();
           assertEquals(3, indexes.size());
-          for (final Object index : indexes) {
+          for (final var index : indexes) {
             logger.info("Following indexes found : " + index);
           }
           qs.removeIndexes(parRegion);
@@ -1871,8 +1864,8 @@ public class PRQueryDUnitHelper implements Serializable {
           assertEquals(3, indexes.size());
           assertEquals(3, ((LocalRegion) parRegion).getIndexManager().getIndexes().size());
           synchronized (indexes) {
-            for (final Object index : indexes) {
-              Index in = (Index) index;
+            for (final var index : indexes) {
+              var in = (Index) index;
               qs.removeIndex(in);
             }
           }
@@ -1893,10 +1886,10 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the PR region
 
-        String[] queries = new String[] {"r1.ID = r2.id", "r1.ID = r2.id AND r1.ID > 5",
+        var queries = new String[] {"r1.ID = r2.id", "r1.ID = r2.id AND r1.ID > 5",
             "r1.ID = r2.id AND r1.status = 'active'",
             // "r1.ID = r2.id LIMIT 10",
             "r1.ID = r2.id ORDER BY r1.ID", "r1.ID = r2.id ORDER BY r2.id",
@@ -1909,7 +1902,7 @@ public class PRQueryDUnitHelper implements Serializable {
             "r1.ID = r2.id AND (r1.positions.size > r2.positions.size OR r2.positions.size > 0)",
             "r1.ID = r2.id AND (r1.positions.size < r2.positions.size OR r1.positions.size > 0)",};
 
-        Object[][] r = new Object[queries.length][2];
+        var r = new Object[queries.length][2];
         Region region = cache.getRegion(name);
         assertNotNull(region);
         region = cache.getRegion(coloName);
@@ -1919,24 +1912,24 @@ public class PRQueryDUnitHelper implements Serializable {
         region = cache.getRegion(coloLocalName);
         assertNotNull(region);
 
-        final String[] expectedExceptions =
+        final var expectedExceptions =
             new String[] {RegionDestroyedException.class.getName(), ReplyException.class.getName(),
                 CacheClosedException.class.getName(), ForceReattemptException.class.getName(),
                 QueryInvocationTargetException.class.getName()};
 
-        for (final String expectedException : expectedExceptions) {
+        for (final var expectedException : expectedExceptions) {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + expectedException + "</ExpectedException>");
         }
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         Object[] params;
         try {
-          for (int j = 0; j < queries.length; j++) {
+          for (var j = 0; j < queries.length; j++) {
             getCache().getLogger().info("About to execute local query: " + queries[j]);
             Function func = new TestQueryFunction("testfunction");
 
-            Object funcResult = FunctionService
+            var funcResult = FunctionService
                 .onRegion((getCache().getRegion(name) instanceof PartitionedRegion)
                     ? getCache().getRegion(name) : getCache().getRegion(coloName))
                 .setArguments(
@@ -1948,7 +1941,7 @@ public class PRQueryDUnitHelper implements Serializable {
             r[j][0] = ((ArrayList) funcResult).get(0);
             getCache().getLogger().info("About to execute local query: " + queries[j]);
 
-            SelectResults r2 = (SelectResults) qs
+            var r2 = (SelectResults) qs
                 .newQuery(
                     "Select " + (queries[j].contains("ORDER BY") ? "DISTINCT" : "") + " * from "
                         + SEPARATOR + localName + " r1, " + SEPARATOR + coloLocalName + " r2 where "
@@ -1960,7 +1953,7 @@ public class PRQueryDUnitHelper implements Serializable {
               "PRQueryDUnitHelper#getCacheSerializableRunnableForPRQueryAndCompareResults: Queries Executed successfully on Local region & PR Region");
 
           // compareTwoQueryResults(r, queries.length);
-          StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+          var ssORrs = new StructSetOrResultsSet();
           ssORrs.CompareQueryResultsAsListWithoutAndWithIndexes(r, queries.length, false, false,
               queries);
 
@@ -1989,7 +1982,7 @@ public class PRQueryDUnitHelper implements Serializable {
               cce);
 
         } finally {
-          for (final String expectedException : expectedExceptions) {
+          for (final var expectedException : expectedExceptions) {
             getCache().getLogger().info(
                 "<ExpectedException action=remove>" + expectedException + "</ExpectedException>");
           }
@@ -2009,10 +2002,10 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the PR region
 
-        String[] queries = new String[] {"r1.ID = r2.id", "r1.ID = r2.id AND r1.ID > 5",
+        var queries = new String[] {"r1.ID = r2.id", "r1.ID = r2.id AND r1.ID > 5",
             "r1.ID = r2.id AND r1.status = 'active'",
             // "r1.ID = r2.id LIMIT 10",
             "r1.ID = r2.id ORDER BY r1.ID", "r1.ID = r2.id ORDER BY r2.id",
@@ -2025,7 +2018,7 @@ public class PRQueryDUnitHelper implements Serializable {
             "r1.ID = r2.id AND (r1.positions.size > r2.positions.size OR r2.positions.size > 0)",
             "r1.ID = r2.id AND (r1.positions.size < r2.positions.size OR r1.positions.size > 0)",};
 
-        Object[][] r = new Object[queries.length][2];
+        var r = new Object[queries.length][2];
         Region region = cache.getRegion(name);
         assertNotNull(region);
         region = cache.getRegion(coloName);
@@ -2035,24 +2028,24 @@ public class PRQueryDUnitHelper implements Serializable {
         region = cache.getRegion(coloLocalName);
         assertNotNull(region);
 
-        final String[] expectedExceptions =
+        final var expectedExceptions =
             new String[] {RegionDestroyedException.class.getName(), ReplyException.class.getName(),
                 CacheClosedException.class.getName(), ForceReattemptException.class.getName(),
                 QueryInvocationTargetException.class.getName()};
 
-        for (final String expectedException : expectedExceptions) {
+        for (final var expectedException : expectedExceptions) {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + expectedException + "</ExpectedException>");
         }
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         Object[] params;
         try {
-          for (int j = 0; j < queries.length; j++) {
+          for (var j = 0; j < queries.length; j++) {
             getCache().getLogger().info("About to execute local query: " + queries[j]);
             Function func = new TestQueryFunction("testfunction");
 
-            Object funcResult = FunctionService
+            var funcResult = FunctionService
                 .onRegion((getCache().getRegion(name) instanceof PartitionedRegion)
                     ? getCache().getRegion(name) : getCache().getRegion(coloName))
                 .setArguments("<trace> Select "
@@ -2065,7 +2058,7 @@ public class PRQueryDUnitHelper implements Serializable {
             r[j][0] = ((ArrayList) funcResult).get(0);
             getCache().getLogger().info("About to execute local query: " + queries[j]);
 
-            SelectResults r2 = (SelectResults) qs.newQuery("Select "
+            var r2 = (SelectResults) qs.newQuery("Select "
                 + (queries[j].contains("ORDER BY") ? "DISTINCT" : "") + " * from " + SEPARATOR
                 + localName
                 + " r1, " + SEPARATOR + coloLocalName + " r2, r2.positions.values pos2 where "
@@ -2077,7 +2070,7 @@ public class PRQueryDUnitHelper implements Serializable {
               "PRQueryDUnitHelper#getCacheSerializableRunnableForPRQueryAndCompareResults: Queries Executed successfully on Local region & PR Region");
 
           // compareTwoQueryResults(r, queries.length);
-          StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+          var ssORrs = new StructSetOrResultsSet();
           ssORrs.CompareQueryResultsAsListWithoutAndWithIndexes(r, queries.length, false, false,
               queries);
 
@@ -2106,7 +2099,7 @@ public class PRQueryDUnitHelper implements Serializable {
               cce);
 
         } finally {
-          for (final String expectedException : expectedExceptions) {
+          for (final var expectedException : expectedExceptions) {
             getCache().getLogger().info(
                 "<ExpectedException action=remove>" + expectedException + "</ExpectedException>");
           }
@@ -2127,10 +2120,10 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the PR region
 
-        String[] queries = new String[] {"r1.ID = pos2.id", "r1.ID = pos2.id AND r1.ID > 5",
+        var queries = new String[] {"r1.ID = pos2.id", "r1.ID = pos2.id AND r1.ID > 5",
             "r1.ID = pos2.id AND r1.status = 'active'", "r1.ID = pos2.id ORDER BY r1.ID",
             "r1.ID = pos2.id ORDER BY pos2.id", "r1.ID = pos2.id ORDER BY r2.status",
             "r1.ID = pos2.id AND r1.status != r2.status",
@@ -2142,7 +2135,7 @@ public class PRQueryDUnitHelper implements Serializable {
             "r1.ID = pos2.id AND (r1.positions.size > r2.positions.size OR r2.positions.size > 0)",
             "r1.ID = pos2.id AND (r1.positions.size < r2.positions.size OR r1.positions.size > 0)",};
 
-        Object[][] r = new Object[queries.length][2];
+        var r = new Object[queries.length][2];
         Region region = cache.getRegion(name);
         assertNotNull(region);
         region = cache.getRegion(coloName);
@@ -2152,23 +2145,23 @@ public class PRQueryDUnitHelper implements Serializable {
         region = cache.getRegion(coloLocalName);
         assertNotNull(region);
 
-        final String[] expectedExceptions =
+        final var expectedExceptions =
             new String[] {RegionDestroyedException.class.getName(), ReplyException.class.getName(),
                 CacheClosedException.class.getName(), ForceReattemptException.class.getName(),
                 QueryInvocationTargetException.class.getName()};
 
-        for (final String expectedException : expectedExceptions) {
+        for (final var expectedException : expectedExceptions) {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + expectedException + "</ExpectedException>");
         }
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         try {
-          for (int j = 0; j < queries.length; j++) {
+          for (var j = 0; j < queries.length; j++) {
             getCache().getLogger().info("About to execute local query: " + queries[j]);
             Function func = new TestQueryFunction("testfunction");
 
-            Object funcResult = FunctionService
+            var funcResult = FunctionService
                 .onRegion((getCache().getRegion(name) instanceof PartitionedRegion)
                     ? getCache().getRegion(name) : getCache().getRegion(coloName))
                 .setArguments("<trace> Select "
@@ -2181,7 +2174,7 @@ public class PRQueryDUnitHelper implements Serializable {
             r[j][0] = ((ArrayList) funcResult).get(0);
             getCache().getLogger().info("About to execute local query: " + queries[j]);
 
-            SelectResults r2 = (SelectResults) qs.newQuery("Select "
+            var r2 = (SelectResults) qs.newQuery("Select "
                 + (queries[j].contains("ORDER BY") ? "DISTINCT" : "") + " * from " + SEPARATOR
                 + localName
                 + " r1, " + SEPARATOR + coloLocalName + " r2, r2.positions.values pos2 where "
@@ -2192,7 +2185,7 @@ public class PRQueryDUnitHelper implements Serializable {
           LogWriterUtils.getLogWriter().info(
               "PRQueryDUnitHelper#getCacheSerializableRunnableForPRQueryAndCompareResults: Queries Executed successfully on Local region & PR Region");
 
-          StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+          var ssORrs = new StructSetOrResultsSet();
           ssORrs.CompareQueryResultsAsListWithoutAndWithIndexes(r, queries.length, false, false,
               queries);
 
@@ -2221,7 +2214,7 @@ public class PRQueryDUnitHelper implements Serializable {
               cce);
 
         } finally {
-          for (final String expectedException : expectedExceptions) {
+          for (final var expectedException : expectedExceptions) {
             getCache().getLogger().info(
                 "<ExpectedException action=remove>" + expectedException + "</ExpectedException>");
           }
@@ -2242,10 +2235,10 @@ public class PRQueryDUnitHelper implements Serializable {
       @Override
       public void run2() throws CacheException {
 
-        Cache cache = getCache();
+        var cache = getCache();
         // Querying the PR region
 
-        String[] queries = new String[] {"r1.ID = r2.id",
+        var queries = new String[] {"r1.ID = r2.id",
             "r1.ID = r2.id AND r1.ID > 5",
             "r1.ID = r2.id AND r1.status = 'active'",
             // "r1.ID = r2.id LIMIT 10",
@@ -2261,7 +2254,7 @@ public class PRQueryDUnitHelper implements Serializable {
             "r1.ID = r2.id AND (r1.positions.size > r2.positions.size OR r2.positions.size > 0)",
             "r1.ID = r2.id AND (r1.positions.size < r2.positions.size OR r1.positions.size > 0)",};
 
-        Object[][] r = new Object[queries.length][2];
+        var r = new Object[queries.length][2];
         Region region = cache.getRegion(name);
         assertNotNull(region);
         region = cache.getRegion(coloName);
@@ -2271,23 +2264,23 @@ public class PRQueryDUnitHelper implements Serializable {
         region = cache.getRegion(coloLocalName);
         assertNotNull(region);
 
-        final String[] expectedExceptions =
+        final var expectedExceptions =
             new String[] {RegionDestroyedException.class.getName(), ReplyException.class.getName(),
                 CacheClosedException.class.getName(), ForceReattemptException.class.getName(),
                 QueryInvocationTargetException.class.getName()};
 
-        for (final String expectedException : expectedExceptions) {
+        for (final var expectedException : expectedExceptions) {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + expectedException + "</ExpectedException>");
         }
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         try {
-          for (int j = 0; j < queries.length; j++) {
+          for (var j = 0; j < queries.length; j++) {
             getCache().getLogger().info("About to execute local query: " + queries[j]);
             Function func = new TestQueryFunction("testfunction");
 
-            Object funcResult = FunctionService
+            var funcResult = FunctionService
                 .onRegion((getCache().getRegion(name) instanceof PartitionedRegion)
                     ? getCache().getRegion(name) : getCache().getRegion(coloName))
                 .setArguments("<trace> Select "
@@ -2300,7 +2293,7 @@ public class PRQueryDUnitHelper implements Serializable {
             r[j][0] = ((ArrayList) funcResult).get(0);
             getCache().getLogger().info("About to execute local query: " + queries[j]);
 
-            SelectResults r2 = (SelectResults) qs.newQuery("Select "
+            var r2 = (SelectResults) qs.newQuery("Select "
                 + (queries[j].contains("ORDER BY") ? "DISTINCT" : "") + " * from " + SEPARATOR
                 + localName
                 + " r1, r1.positions.values pos1, " + SEPARATOR + coloLocalName + " r2 where "
@@ -2311,7 +2304,7 @@ public class PRQueryDUnitHelper implements Serializable {
           LogWriterUtils.getLogWriter().info(
               "PRQueryDUnitHelper#getCacheSerializableRunnableForPRQueryAndCompareResults: Queries Executed successfully on Local region & PR Region");
 
-          StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+          var ssORrs = new StructSetOrResultsSet();
           ssORrs.CompareQueryResultsAsListWithoutAndWithIndexes(r, queries.length, false, false,
               queries);
 
@@ -2340,7 +2333,7 @@ public class PRQueryDUnitHelper implements Serializable {
               cce);
 
         } finally {
-          for (final String expectedException : expectedExceptions) {
+          for (final var expectedException : expectedExceptions) {
             getCache().getLogger().info(
                 "<ExpectedException action=remove>" + expectedException + "</ExpectedException>");
           }
@@ -2371,11 +2364,11 @@ public class PRQueryDUnitHelper implements Serializable {
 
     @Override
     public void execute(FunctionContext context) {
-      Cache cache = context.getCache();
-      QueryService queryService = cache.getQueryService();
-      String qstr = (String) context.getArguments();
+      var cache = context.getCache();
+      var queryService = cache.getQueryService();
+      var qstr = (String) context.getArguments();
       try {
-        Query query = queryService.newQuery(qstr);
+        var query = queryService.newQuery(qstr);
         context.getResultSender().sendResult(
             ((SelectResults) query.execute((RegionFunctionContext) context)).asList());
         context.getResultSender().lastResult(null);

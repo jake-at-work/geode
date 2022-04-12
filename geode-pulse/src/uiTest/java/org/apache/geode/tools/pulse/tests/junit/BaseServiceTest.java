@@ -19,21 +19,15 @@ package org.apache.geode.tools.pulse.tests.junit;
 import static org.apache.geode.cache.Region.SEPARATOR;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.List;
 import java.util.Properties;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -91,7 +85,7 @@ public abstract class BaseServiceTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    InputStream stream =
+    var stream =
         BaseServiceTest.class.getClassLoader().getResourceAsStream("pulse.properties");
 
     try {
@@ -142,21 +136,21 @@ public abstract class BaseServiceTest {
 
     CloseableHttpResponse loginResponse = null;
     try {
-      BasicCookieStore cookieStore = new BasicCookieStore();
+      var cookieStore = new BasicCookieStore();
       httpclient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
-      HttpUriRequest login = RequestBuilder.post().setUri(new URI(LOGIN_URL))
+      var login = RequestBuilder.post().setUri(new URI(LOGIN_URL))
           .addParameter("j_username", "admin").addParameter("j_password", "admin").build();
       loginResponse = httpclient.execute(login);
       try {
-        HttpEntity entity = loginResponse.getEntity();
+        var entity = loginResponse.getEntity();
         EntityUtils.consume(entity);
         System.out
             .println("BaseServiceTest :: HTTP request status : " + loginResponse.getStatusLine());
 
-        List<Cookie> cookies = cookieStore.getCookies();
+        var cookies = cookieStore.getCookies();
         if (cookies.isEmpty()) {
         } else {
-          for (int i = 0; i < cookies.size(); i++) {
+          for (var i = 0; i < cookies.size(); i++) {
           }
         }
       } finally {
@@ -182,10 +176,10 @@ public abstract class BaseServiceTest {
     if (httpclient != null) {
       CloseableHttpResponse logoutResponse = null;
       try {
-        HttpUriRequest logout = RequestBuilder.get().setUri(new URI(LOGOUT_URL)).build();
+        var logout = RequestBuilder.get().setUri(new URI(LOGOUT_URL)).build();
         logoutResponse = httpclient.execute(logout);
         try {
-          HttpEntity entity = logoutResponse.getEntity();
+          var entity = logoutResponse.getEntity();
           EntityUtils.consume(entity);
         } finally {
           if (logoutResponse != null) {
@@ -209,8 +203,8 @@ public abstract class BaseServiceTest {
    *
    */
   protected static void logException(Exception failed) {
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var pw = new PrintWriter(sw);
     failed.printStackTrace(pw);
     System.out
         .println("BaseServiceTest :: Logging exception details : " + sw.getBuffer().toString());
@@ -229,27 +223,27 @@ public abstract class BaseServiceTest {
     try {
       doLogin();
 
-      HttpUriRequest pulseupdate =
+      var pulseupdate =
           RequestBuilder.get().setUri(new URI(IS_AUTHENTICATED_USER_URL)).build();
-      CloseableHttpResponse response = httpclient.execute(pulseupdate);
+      var response = httpclient.execute(pulseupdate);
       try {
-        HttpEntity entity = response.getEntity();
+        var entity = response.getEntity();
 
         System.out.println("BaseServiceTest :: HTTP request status : " + response.getStatusLine());
 
-        BufferedReader respReader = new BufferedReader(new InputStreamReader(entity.getContent()));
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
+        var respReader = new BufferedReader(new InputStreamReader(entity.getContent()));
+        var sw = new StringWriter();
+        var pw = new PrintWriter(sw);
         String sz = null;
         while ((sz = respReader.readLine()) != null) {
           pw.print(sz);
         }
-        String jsonResp = sw.getBuffer().toString();
+        var jsonResp = sw.getBuffer().toString();
         System.out.println("BaseServiceTest :: JSON response returned : " + jsonResp);
         EntityUtils.consume(entity);
 
-        JsonNode jsonObj = mapper.readTree(jsonResp);
-        boolean isUserLoggedIn = jsonObj.get("isUserLoggedIn").booleanValue();
+        var jsonObj = mapper.readTree(jsonResp);
+        var isUserLoggedIn = jsonObj.get("isUserLoggedIn").booleanValue();
         Assert.assertNotNull("BaseServiceTest :: Server returned null response in 'isUserLoggedIn'",
             isUserLoggedIn);
         Assert.assertTrue("BaseServiceTest :: User login failed for this username, password",

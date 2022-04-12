@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -47,7 +46,6 @@ import org.apache.geode.management.internal.BaseManagementService;
 import org.apache.geode.management.internal.functions.RestoreRedundancyFunction;
 import org.apache.geode.management.operation.RestoreRedundancyRequest;
 import org.apache.geode.management.runtime.RegionRedundancyStatus;
-import org.apache.geode.management.runtime.RestoreRedundancyResults;
 
 public class RestoreRedundancyPerformerTest {
 
@@ -63,14 +61,14 @@ public class RestoreRedundancyPerformerTest {
 
   @Before
   public void setup() {
-    BaseManagementService baseManagementService = mock(BaseManagementService.class);
-    DistributedSystemMXBean distributedSystemMXBean = mock(DistributedSystemMXBean.class);
-    DistributedRegionMXBean distributedRegionMXBean = mock(DistributedRegionMXBean.class);
+    var baseManagementService = mock(BaseManagementService.class);
+    var distributedSystemMXBean = mock(DistributedSystemMXBean.class);
+    var distributedRegionMXBean = mock(DistributedRegionMXBean.class);
     server1 = mock(InternalDistributedMember.class);
     server2 = mock(InternalDistributedMember.class);
     internalCacheForClientAccess = mock(InternalCacheForClientAccess.class);
-    InternalDistributedSystem internalDistributedSystem = mock(InternalDistributedSystem.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var internalDistributedSystem = mock(InternalDistributedSystem.class);
+    var distributionManager = mock(DistributionManager.class);
     when(baseManagementService.getDistributedSystemMXBean()).thenReturn(distributedSystemMXBean);
     when(baseManagementService.getDistributedRegionMXBean(anyString()))
         .thenReturn(distributedRegionMXBean);
@@ -104,28 +102,28 @@ public class RestoreRedundancyPerformerTest {
   @Test
   public void executePerformWithIncludeRegionsSuccess() {
     // Setup a request to restore redundancy for region 1
-    RestoreRedundancyRequest restoreRedundancyRequest = new RestoreRedundancyRequest();
+    var restoreRedundancyRequest = new RestoreRedundancyRequest();
     restoreRedundancyRequest.setReassignPrimaries(true);
     restoreRedundancyRequest.setIncludeRegions(Collections.singletonList(REGION_1));
     restoreRedundancyRequest.setExcludeRegions(new ArrayList<>());
 
 
     // Setup a successful response from executeFunctionAndGetFunctionResult
-    RestoreRedundancyResultsImpl restoreRedundancyResultsImpl = new RestoreRedundancyResultsImpl();
+    var restoreRedundancyResultsImpl = new RestoreRedundancyResultsImpl();
     restoreRedundancyResultsImpl.setStatusMessage(BOGUS_PASS_MESSAGE);
     restoreRedundancyResultsImpl.setSuccess(true);
 
-    Map<String, RegionRedundancyStatus> satisfied =
+    var satisfied =
         restoreRedundancyResultsImpl.getSatisfiedRedundancyRegionResults();
 
     // Create and add the RegionRedundancyStatus to the response
-    RegionRedundancyStatusImpl regionRedundancyStatusImpl = new RegionRedundancyStatusImpl(1, 1,
+    var regionRedundancyStatusImpl = new RegionRedundancyStatusImpl(1, 1,
         REGION_1, RegionRedundancyStatus.RedundancyStatus.SATISFIED);
 
     satisfied.put(REGION_1, regionRedundancyStatusImpl);
 
     // intercept the executeFunctionAndGetFunctionResult method call on the performer
-    RestoreRedundancyPerformer spyRedundancyPerformer = spy(restoreRedundancyPerformer);
+    var spyRedundancyPerformer = spy(restoreRedundancyPerformer);
     doReturn(restoreRedundancyResultsImpl).when(spyRedundancyPerformer)
         .executeFunctionAndGetFunctionResult(any(RestoreRedundancyFunction.class),
             any(Object.class),
@@ -133,7 +131,7 @@ public class RestoreRedundancyPerformerTest {
                 DistributedMember.class));
 
     // invoke perform
-    RestoreRedundancyResults restoreRedundancyResult = spyRedundancyPerformer
+    var restoreRedundancyResult = spyRedundancyPerformer
         .perform(internalCacheForClientAccess, restoreRedundancyRequest, false);
 
     assertThat(restoreRedundancyResult.getSuccess()).isTrue();
@@ -142,26 +140,26 @@ public class RestoreRedundancyPerformerTest {
   @Test
   public void executePerformWithNoIncludeRegionsSuccess() {
     // Setup a request to restore redundancy for region 1
-    RestoreRedundancyRequest restoreRedundancyRequest = new RestoreRedundancyRequest();
+    var restoreRedundancyRequest = new RestoreRedundancyRequest();
     restoreRedundancyRequest.setReassignPrimaries(true);
 
 
     // Setup a successful response from executeFunctionAndGetFunctionResult
-    RestoreRedundancyResultsImpl restoreRedundancyResultsImpl = new RestoreRedundancyResultsImpl();
+    var restoreRedundancyResultsImpl = new RestoreRedundancyResultsImpl();
     restoreRedundancyResultsImpl.setStatusMessage(BOGUS_PASS_MESSAGE);
     restoreRedundancyResultsImpl.setSuccess(true);
 
-    Map<String, RegionRedundancyStatus> satisfied =
+    var satisfied =
         restoreRedundancyResultsImpl.getSatisfiedRedundancyRegionResults();
 
     // Create and add the RegionRedundancyStatus to the response
-    RegionRedundancyStatusImpl regionRedundancyStatusImpl = new RegionRedundancyStatusImpl(1, 1,
+    var regionRedundancyStatusImpl = new RegionRedundancyStatusImpl(1, 1,
         REGION_1, RegionRedundancyStatus.RedundancyStatus.SATISFIED);
 
     satisfied.put(REGION_1, regionRedundancyStatusImpl);
 
     // intercept the executeFunctionAndGetFunctionResult method call on the performer
-    RestoreRedundancyPerformer spyRedundancyPerformer = spy(restoreRedundancyPerformer);
+    var spyRedundancyPerformer = spy(restoreRedundancyPerformer);
     doReturn(restoreRedundancyResultsImpl).when(spyRedundancyPerformer)
         .executeFunctionAndGetFunctionResult(any(RestoreRedundancyFunction.class),
             any(Object.class),
@@ -169,7 +167,7 @@ public class RestoreRedundancyPerformerTest {
                 DistributedMember.class));
 
     // invoke perform
-    RestoreRedundancyResults restoreRedundancyResult = spyRedundancyPerformer
+    var restoreRedundancyResult = spyRedundancyPerformer
         .perform(internalCacheForClientAccess, restoreRedundancyRequest, false);
 
     assertThat(restoreRedundancyResult.getSuccess()).isTrue();
@@ -178,29 +176,29 @@ public class RestoreRedundancyPerformerTest {
   @Test
   public void executePerformFailure() {
     // Setup a request to restore redundancy for region 1
-    RestoreRedundancyRequest restoreRedundancyRequest = new RestoreRedundancyRequest();
+    var restoreRedundancyRequest = new RestoreRedundancyRequest();
     restoreRedundancyRequest.setReassignPrimaries(true);
     restoreRedundancyRequest.setIncludeRegions(Collections.singletonList(REGION_1));
     restoreRedundancyRequest.setExcludeRegions(new ArrayList<>());
 
 
     // Setup a successful response from executeFunctionAndGetFunctionResult
-    RestoreRedundancyResultsImpl restoreRedundancyResultsImpl = new RestoreRedundancyResultsImpl();
+    var restoreRedundancyResultsImpl = new RestoreRedundancyResultsImpl();
     restoreRedundancyResultsImpl.setStatusMessage(BOGUS_PASS_MESSAGE);
     restoreRedundancyResultsImpl.setSuccess(false);
 
-    Map<String, RegionRedundancyStatus> underRedundancyRegionResults =
+    var underRedundancyRegionResults =
         restoreRedundancyResultsImpl.getUnderRedundancyRegionResults();
 
     // Create and add the RegionRedundancyStatus to the response
-    RegionRedundancyStatusImpl regionRedundancyStatusImpl = new RegionRedundancyStatusImpl(1, 1,
+    var regionRedundancyStatusImpl = new RegionRedundancyStatusImpl(1, 1,
         REGION_1, RegionRedundancyStatus.RedundancyStatus.NOT_SATISFIED);
 
     underRedundancyRegionResults.put(REGION_1, regionRedundancyStatusImpl);
 
 
     // intercept the executeFunctionAndGetFunctionResult method call on the performer
-    RestoreRedundancyPerformer spyRedundancyPerformer = spy(restoreRedundancyPerformer);
+    var spyRedundancyPerformer = spy(restoreRedundancyPerformer);
     doReturn(restoreRedundancyResultsImpl).when(spyRedundancyPerformer)
         .executeFunctionAndGetFunctionResult(any(RestoreRedundancyFunction.class),
             any(Object.class),
@@ -208,7 +206,7 @@ public class RestoreRedundancyPerformerTest {
                 DistributedMember.class));
 
     // invoke perform
-    RestoreRedundancyResults restoreRedundancyResult = spyRedundancyPerformer
+    var restoreRedundancyResult = spyRedundancyPerformer
         .perform(internalCacheForClientAccess, restoreRedundancyRequest, false);
 
     assertThat(restoreRedundancyResult.getSuccess()).isFalse();
@@ -218,22 +216,22 @@ public class RestoreRedundancyPerformerTest {
   @Test
   public void executePerformNoViableMembers() {
     // Setup a request to restore redundancy for region 1
-    RestoreRedundancyRequest restoreRedundancyRequest = new RestoreRedundancyRequest();
+    var restoreRedundancyRequest = new RestoreRedundancyRequest();
     restoreRedundancyRequest.setReassignPrimaries(true);
     restoreRedundancyRequest.setIncludeRegions(Collections.singletonList(REGION_1));
     restoreRedundancyRequest.setExcludeRegions(new ArrayList<>());
 
 
     // Setup a successful response from executeFunctionAndGetFunctionResult
-    RestoreRedundancyResultsImpl restoreRedundancyResultsImpl = new RestoreRedundancyResultsImpl();
+    var restoreRedundancyResultsImpl = new RestoreRedundancyResultsImpl();
     restoreRedundancyResultsImpl.setStatusMessage("Bogus pass message");
     restoreRedundancyResultsImpl.setSuccess(false);
 
-    Map<String, RegionRedundancyStatus> underRedundancyRegionResults =
+    var underRedundancyRegionResults =
         restoreRedundancyResultsImpl.getUnderRedundancyRegionResults();
 
     // Create and add the RegionRedundancyStatus to the response
-    RegionRedundancyStatusImpl regionRedundancyStatusImpl = new RegionRedundancyStatusImpl(1, 1,
+    var regionRedundancyStatusImpl = new RegionRedundancyStatusImpl(1, 1,
         REGION_1, RegionRedundancyStatus.RedundancyStatus.NOT_SATISFIED);
 
     underRedundancyRegionResults.put(REGION_1, regionRedundancyStatusImpl);
@@ -246,7 +244,7 @@ public class RestoreRedundancyPerformerTest {
 
 
     // intercept the executeFunctionAndGetFunctionResult method call on the performer
-    RestoreRedundancyPerformer spyRedundancyPerformer = spy(restoreRedundancyPerformer);
+    var spyRedundancyPerformer = spy(restoreRedundancyPerformer);
     doReturn(restoreRedundancyResultsImpl).when(spyRedundancyPerformer)
         .executeFunctionAndGetFunctionResult(any(RestoreRedundancyFunction.class),
             any(Object.class),
@@ -254,7 +252,7 @@ public class RestoreRedundancyPerformerTest {
                 DistributedMember.class));
 
     // invoke perform
-    RestoreRedundancyResults restoreRedundancyResult = spyRedundancyPerformer
+    var restoreRedundancyResult = spyRedundancyPerformer
         .perform(internalCacheForClientAccess, restoreRedundancyRequest, false);
 
     assertThat(restoreRedundancyResult.getSuccess()).isFalse();

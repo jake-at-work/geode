@@ -24,7 +24,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -47,17 +46,17 @@ public class MsgStreamerList implements BaseMsgStreamer {
 
   @Override
   public void reserveConnections(long startTime, long ackTimeout, long ackSDTimeout) {
-    for (final MsgStreamer streamer : streamers) {
+    for (final var streamer : streamers) {
       streamer.reserveConnections(startTime, ackTimeout, ackSDTimeout);
     }
   }
 
   @Override
   public int writeMessage() throws IOException {
-    int result = 0;
+    var result = 0;
     RuntimeException runtimeException = null;
     IOException ioException = null;
-    for (final MsgStreamer streamer : streamers) {
+    for (final var streamer : streamers) {
       if (runtimeException != null) {
         streamer.release();
       } else {
@@ -88,7 +87,7 @@ public class MsgStreamerList implements BaseMsgStreamer {
     }
 
     final List<Connection> connections = new ArrayList<>();
-    for (final MsgStreamer streamer : streamers) {
+    for (final var streamer : streamers) {
       connections.addAll(streamer.getSentConnections());
     }
     return connections;
@@ -97,16 +96,16 @@ public class MsgStreamerList implements BaseMsgStreamer {
   @Override
   public @Nullable ConnectExceptions getConnectExceptions() {
     ConnectExceptions ce = null;
-    for (final MsgStreamer streamer : streamers) {
+    for (final var streamer : streamers) {
       if (ce == null) {
         ce = streamer.getConnectExceptions();
       } else {
         // loop through all failures and add to base ConnectionException
-        final ConnectExceptions e = streamer.getConnectExceptions();
+        final var e = streamer.getConnectExceptions();
         if (e != null) {
-          final List<InternalDistributedMember> members = e.getMembers();
-          final List<Throwable> exs = e.getCauses();
-          for (int i = 0; i < exs.size(); i++) {
+          final var members = e.getMembers();
+          final var exs = e.getCauses();
+          for (var i = 0; i < exs.size(); i++) {
             ce.addFailure(members.get(i), exs.get(i));
           }
         }
@@ -119,7 +118,7 @@ public class MsgStreamerList implements BaseMsgStreamer {
   public void close() throws IOException {
     // only throw the first exception and try to close all
     IOException ex = null;
-    for (MsgStreamer m : streamers) {
+    for (var m : streamers) {
       try {
         m.close();
       } catch (IOException e) {

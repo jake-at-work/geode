@@ -29,22 +29,18 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.data.PortfolioPdx;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 
@@ -69,20 +65,20 @@ public class PutAllWithIndexPerfDUnitTest extends JUnit4CacheTestCase {
   @Ignore("TODO: test is disabled")
   @Test
   public void testPutAllWithIndexes() {
-    final String name = "testRegion";
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final int numberOfEntries = 10000;
+    final var name = "testRegion";
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var numberOfEntries = 10000;
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.put(LOCATORS, "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
-        Cache cache = new CacheFactory(config).create();
-        AttributesFactory factory = new AttributesFactory();
+        var cache = new CacheFactory(config).create();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         cache.createRegionFactory(factory.create()).create(name);
         try {
@@ -101,14 +97,14 @@ public class PutAllWithIndexPerfDUnitTest extends JUnit4CacheTestCase {
 
     // Create client region
     final int port = vm0.invoke(PutAllWithIndexPerfDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
     vm1.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
-        ClientCache cache = new ClientCacheFactory().addPoolServer(host0, port).create();
-        AttributesFactory factory = new AttributesFactory();
+        var cache = new ClientCacheFactory().addPoolServer(host0, port).create();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(name);
       }
@@ -122,7 +118,7 @@ public class PutAllWithIndexPerfDUnitTest extends JUnit4CacheTestCase {
 
         Map warmupMap = new HashMap();
         Map data = new HashMap();
-        for (int i = 0; i < 10000; i++) {
+        for (var i = 0; i < 10000; i++) {
           Object p = new PortfolioPdx(i);
           if (i < 1000) {
             warmupMap.put(i, p);
@@ -130,15 +126,15 @@ public class PutAllWithIndexPerfDUnitTest extends JUnit4CacheTestCase {
           data.put(i, p);
         }
 
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           exampleRegion.putAll(warmupMap);
         }
 
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 10; i++) {
+        var start = System.currentTimeMillis();
+        for (var i = 0; i < 10; i++) {
           exampleRegion.putAll(data);
         }
-        long end = System.currentTimeMillis();
+        var end = System.currentTimeMillis();
         timeWithoutStructTypeIndex = ((end - start) / 10);
         System.out
             .println("Total putall time for 10000 objects is: " + ((end - start) / 10) + "ms");
@@ -151,7 +147,7 @@ public class PutAllWithIndexPerfDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         try {
-          Cache cache = CacheFactory.getAnyInstance();
+          var cache = CacheFactory.getAnyInstance();
           cache.getQueryService().removeIndexes();
           cache.getRegion(name).clear();
           cache.getQueryService().createIndex("idIndex", "p.ID", SEPARATOR + name + " p");
@@ -169,7 +165,7 @@ public class PutAllWithIndexPerfDUnitTest extends JUnit4CacheTestCase {
         exampleRegion.clear();
         Map warmupMap = new HashMap();
         Map data = new HashMap();
-        for (int i = 0; i < 10000; i++) {
+        for (var i = 0; i < 10000; i++) {
           Object p = new PortfolioPdx(i);
           if (i < 1000) {
             warmupMap.put(i, p);
@@ -177,15 +173,15 @@ public class PutAllWithIndexPerfDUnitTest extends JUnit4CacheTestCase {
           data.put(i, p);
         }
 
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           exampleRegion.putAll(warmupMap);
         }
 
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 10; i++) {
+        var start = System.currentTimeMillis();
+        for (var i = 0; i < 10; i++) {
           exampleRegion.putAll(data);
         }
-        long end = System.currentTimeMillis();
+        var end = System.currentTimeMillis();
         timeWithStructTypeIndex = ((end - start) / 10);
         System.out
             .println("Total putall time for 10000 objects is: " + ((end - start) / 10) + "ms");
@@ -204,8 +200,8 @@ public class PutAllWithIndexPerfDUnitTest extends JUnit4CacheTestCase {
    */
   protected void startBridgeServer(int port, boolean notifyBySubscription) throws IOException {
 
-    Cache cache = CacheFactory.getAnyInstance();
-    CacheServer bridge = cache.addCacheServer();
+    var cache = CacheFactory.getAnyInstance();
+    var bridge = cache.addCacheServer();
     bridge.setPort(port);
     bridge.start();
     bridgeServerPort = bridge.getPort();

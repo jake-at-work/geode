@@ -30,8 +30,8 @@ public class CacheOperationMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    CacheOperationMessage mockCacheOperationMessage = mock(CacheOperationMessage.class);
-    ClusterDistributionManager mockDistributionManager = mock(ClusterDistributionManager.class);
+    var mockCacheOperationMessage = mock(CacheOperationMessage.class);
+    var mockDistributionManager = mock(ClusterDistributionManager.class);
 
     when(mockCacheOperationMessage.supportsDirectAck()).thenReturn(true);
     when(mockCacheOperationMessage.notifiesSerialGatewaySender(eq(mockDistributionManager)))

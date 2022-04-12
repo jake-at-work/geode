@@ -62,16 +62,16 @@ public class ConditionalIgnoreRule implements TestRule, Serializable {
 
   protected Statement throwOnIgnoreTest(Statement statement, Description description) {
     if (isTest(description)) {
-      boolean ignoreTest = false;
-      String message = "";
+      var ignoreTest = false;
+      var message = "";
 
-      ConditionalIgnore testCaseAnnotation = description.getAnnotation(ConditionalIgnore.class);
+      var testCaseAnnotation = description.getAnnotation(ConditionalIgnore.class);
 
       if (testCaseAnnotation != null) {
         ignoreTest = evaluate(testCaseAnnotation, description);
         message = testCaseAnnotation.value();
       } else if (description.getTestClass().isAnnotationPresent(ConditionalIgnore.class)) {
-        ConditionalIgnore testClassAnnotation =
+        var testClassAnnotation =
             description.getTestClass().getAnnotation(ConditionalIgnore.class);
 
         ignoreTest = evaluate(testClassAnnotation, description);

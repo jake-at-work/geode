@@ -31,7 +31,7 @@ public class RegionManagementAcceptanceTest {
     GfshScript.of("start locator --port=0").execute(gfsh);
 
     // verify the management rest api is started correctly
-    GeodeDevRestClient client =
+    var client =
         new GeodeDevRestClient("/management/v1", "localhost", 7070, false);
 
     client.doGetAndAssert("/ping").hasStatusCode(200).hasResponseBody().isEqualTo("pong");

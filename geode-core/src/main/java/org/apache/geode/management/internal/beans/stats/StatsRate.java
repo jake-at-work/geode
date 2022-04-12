@@ -42,7 +42,7 @@ public class StatsRate {
   }
 
   public float getRate() {
-    long currentTime = System.currentTimeMillis();
+    var currentTime = System.currentTimeMillis();
     return getRate(currentTime);
   }
 
@@ -50,12 +50,12 @@ public class StatsRate {
     float rate = 0;
     switch (type) {
       case INT_TYPE:
-        int currentIntCounter = getCurrentIntCounter();
+        var currentIntCounter = getCurrentIntCounter();
         rate = currentIntCounter - prevIntCounter;
         prevIntCounter = currentIntCounter;
         return rate;
       case LONG_TYPE:
-        long currentLongCounter = getCurrentLongCounter();
+        var currentLongCounter = getCurrentLongCounter();
         rate = currentLongCounter - prevLongCounter;
         prevLongCounter = currentLongCounter;
         return rate;
@@ -65,8 +65,8 @@ public class StatsRate {
   }
 
   private int getCurrentIntCounter() {
-    int currentCounter = 0;
-    for (String statKey : statsKeys) {
+    var currentCounter = 0;
+    for (var statKey : statsKeys) {
       currentCounter += monitor.getStatistic(statKey).intValue();
     }
     return currentCounter;
@@ -74,7 +74,7 @@ public class StatsRate {
 
   private long getCurrentLongCounter() {
     long currentCounter = 0;
-    for (String statKey : statsKeys) {
+    for (var statKey : statsKeys) {
       currentCounter += monitor.getStatistic(statKey).longValue();
     }
 

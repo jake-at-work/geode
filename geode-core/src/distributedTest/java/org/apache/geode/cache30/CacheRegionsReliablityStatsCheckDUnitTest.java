@@ -28,15 +28,12 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.LossAction;
 import org.apache.geode.cache.MembershipAttributes;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.ResumptionAction;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
 
@@ -48,23 +45,23 @@ public class CacheRegionsReliablityStatsCheckDUnitTest extends JUnit4CacheTestCa
    */
   @Test
   public void testRegionsReliablityStats() throws Exception {
-    final String rr1 = "roleA";
-    final String regionNoAccess = "regionNoAccess";
-    final String regionLimitedAccess = "regionLimitedAccess";
-    final String regionFullAccess = "regionFullAccess";
+    final var rr1 = "roleA";
+    final var regionNoAccess = "regionNoAccess";
+    final var regionLimitedAccess = "regionLimitedAccess";
+    final var regionFullAccess = "regionFullAccess";
     // final String regionNameRoleA = "roleA";
-    String[] requiredRoles = {rr1};
+    var requiredRoles = new String[] {rr1};
     Cache myCache = getCache();
 
-    MembershipAttributes ra =
+    var ra =
         new MembershipAttributes(requiredRoles, LossAction.NO_ACCESS, ResumptionAction.NONE);
 
-    AttributesFactory fac = new AttributesFactory();
+    var fac = new AttributesFactory();
     fac.setMembershipAttributes(ra);
     fac.setScope(Scope.DISTRIBUTED_ACK);
     fac.setDataPolicy(DataPolicy.REPLICATE);
 
-    RegionAttributes attr = fac.create();
+    var attr = fac.create();
     myCache.createRegion(regionNoAccess, attr);
 
     ra = new MembershipAttributes(requiredRoles, LossAction.LIMITED_ACCESS, ResumptionAction.NONE);
@@ -83,7 +80,7 @@ public class CacheRegionsReliablityStatsCheckDUnitTest extends JUnit4CacheTestCa
     attr = fac.create();
     myCache.createRegion(regionFullAccess, attr);
 
-    CachePerfStats stats = ((GemFireCacheImpl) myCache).getCachePerfStats();
+    var stats = ((GemFireCacheImpl) myCache).getCachePerfStats();
 
     assertEquals(stats.getReliableRegionsMissingNoAccess(), 1);
     assertEquals(stats.getReliableRegionsMissingLimitedAccess(), 1);
@@ -92,24 +89,24 @@ public class CacheRegionsReliablityStatsCheckDUnitTest extends JUnit4CacheTestCa
         (stats.getReliableRegionsMissingNoAccess() + stats.getReliableRegionsMissingLimitedAccess()
             + stats.getReliableRegionsMissingFullAccess()));
 
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(1);
 
     SerializableRunnable roleAPlayer = new CacheSerializableRunnable("ROLEAPLAYER") {
       @Override
       public void run2() throws CacheException {
 
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
         props.setProperty(ROLES, rr1);
 
         getSystem(props);
         Cache cache = getCache();
-        AttributesFactory fac = new AttributesFactory();
+        var fac = new AttributesFactory();
         fac.setScope(Scope.DISTRIBUTED_ACK);
         fac.setDataPolicy(DataPolicy.REPLICATE);
 
-        RegionAttributes attr = fac.create();
+        var attr = fac.create();
         cache.createRegion(regionNoAccess, attr);
         cache.createRegion(regionLimitedAccess, attr);
         cache.createRegion(regionFullAccess, attr);

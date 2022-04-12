@@ -24,7 +24,6 @@ import org.apache.geode.cache.client.internal.GetOp;
 import org.apache.geode.cache.operations.GetOperationContext;
 import org.apache.geode.cache.operations.internal.GetOperationContextImpl;
 import org.apache.geode.distributed.internal.DistributionStats;
-import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.CachedDeserializable;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.LocalRegion;
@@ -34,17 +33,12 @@ import org.apache.geode.internal.cache.VersionTagHolder;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
-import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.offheap.OffHeapHelper;
 import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.offheap.annotations.Unretained;
-import org.apache.geode.internal.security.AuthorizeRequest;
-import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -63,23 +57,23 @@ public class Get70 extends BaseCommand {
   public void cmdExecute(final @NotNull Message clientMessage,
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long startparam) throws IOException {
-    long start = startparam;
-    final CacheServerStats stats = serverConnection.getCacheServerStats();
+    var start = startparam;
+    final var stats = serverConnection.getCacheServerStats();
 
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadGetRequestTime(start - oldStart);
     }
     // Retrieve the data from the message parts
-    final int parts = clientMessage.getNumberOfParts();
-    final Part regionNamePart = clientMessage.getPart(0);
-    final Part keyPart = clientMessage.getPart(1);
+    final var parts = clientMessage.getNumberOfParts();
+    final var regionNamePart = clientMessage.getPart(0);
+    final var keyPart = clientMessage.getPart(1);
     // valuePart = null; (redundant assignment)
     Object callbackArg = null;
     if (parts > 2) {
-      Part valuePart = clientMessage.getPart(2);
+      var valuePart = clientMessage.getPart(2);
       try {
         callbackArg = valuePart.getObject();
       } catch (Exception e) {
@@ -89,7 +83,7 @@ public class Get70 extends BaseCommand {
         return;
       }
     }
-    final String regionName = regionNamePart.getCachedString();
+    final var regionName = regionNamePart.getCachedString();
     final Object key;
     try {
       key = keyPart.getStringOrObject();
@@ -124,7 +118,7 @@ public class Get70 extends BaseCommand {
 
     final Region<?, ?> region = serverConnection.getCache().getRegion(regionName);
     if (region == null) {
-      String reason = " was not found during get request";
+      var reason = " was not found during get request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
@@ -135,7 +129,7 @@ public class Get70 extends BaseCommand {
       // for integrated security
       securityService.authorize(Resource.DATA, Operation.READ, regionName, key);
 
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       if (authzRequest != null) {
         getContext = authzRequest.getAuthorize(regionName, key, callbackArg);
         callbackArg = getContext.getCallbackArg();
@@ -158,20 +152,20 @@ public class Get70 extends BaseCommand {
     }
 
     @Retained
-    final Object originalData = entry.value;
-    Object data = originalData;
+    final var originalData = entry.value;
+    var data = originalData;
     try {
-      boolean isObject = entry.isObject;
-      final VersionTag<?> versionTag = entry.versionTag;
-      final boolean keyNotPresent = entry.keyNotPresent;
+      var isObject = entry.isObject;
+      final var versionTag = entry.versionTag;
+      final var keyNotPresent = entry.keyNotPresent;
 
       try {
-        AuthorizeRequestPP postAuthzRequest = serverConnection.getPostAuthzRequest();
+        var postAuthzRequest = serverConnection.getPostAuthzRequest();
         if (postAuthzRequest != null) {
           try {
             getContext = postAuthzRequest.getAuthorize(regionName, key, data, isObject, getContext);
-            GetOperationContextImpl gci = (GetOperationContextImpl) getContext;
-            Object newData = gci.getRawValue();
+            var gci = (GetOperationContextImpl) getContext;
+            var newData = gci.getRawValue();
             if (newData != data) {
               // user changed the value
               isObject = getContext.isObject();
@@ -192,12 +186,12 @@ public class Get70 extends BaseCommand {
       // post process
       data = securityService.postProcess(regionName, key, data, entry.isObject);
 
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessGetTime(start - oldStart);
 
       if (region instanceof PartitionedRegion) {
-        PartitionedRegion pr = (PartitionedRegion) region;
+        var pr = (PartitionedRegion) region;
         if (pr.getNetworkHopType() != PartitionedRegion.NETWORK_HOP_NONE) {
           writeResponseWithRefreshMetadata(data, callbackArg, clientMessage, isObject,
               serverConnection, pr, pr.getNetworkHopType(), versionTag, keyNotPresent);
@@ -221,7 +215,7 @@ public class Get70 extends BaseCommand {
     }
     stats.incWriteGetResponseTime(DistributionStats.getStatTime() - start);
 
-    CachePerfStats regionPerfStats = ((InternalRegion) region).getRegionPerfStats();
+    var regionPerfStats = ((InternalRegion) region).getRegionPerfStats();
     if (regionPerfStats != null) {
       regionPerfStats.endGetForClient(startparam, entry.keyNotPresent);
     }
@@ -246,14 +240,14 @@ public class Get70 extends BaseCommand {
       ServerConnection servConn) {
 
     // Region.Entry entry;
-    String regionName = region.getFullPath();
+    var regionName = region.getFullPath();
     if (servConn != null) {
       servConn.setModificationInfo(true, regionName, key);
     }
 
-    final ClientProxyMembershipID id = servConn == null ? null : servConn.getProxyID();
-    final VersionTagHolder versionHolder = new VersionTagHolder();
-    Object data =
+    final var id = servConn == null ? null : servConn.getProxyID();
+    final var versionHolder = new VersionTagHolder();
+    var data =
         ((LocalRegion) region).get(key, callbackArg, true, true, true, id, versionHolder, true);
     final VersionTag<?> versionTag = versionHolder.getVersionTag();
 
@@ -262,10 +256,10 @@ public class Get70 extends BaseCommand {
     // Token.INVALID, or Token.LOCAL_INVALID
     // set it to null. If it is NOT_AVAILABLE, get the value from
     // disk. If it is already a byte[], set isObject to false.
-    boolean wasInvalid = false;
-    boolean isObject = true;
+    var wasInvalid = false;
+    var isObject = true;
     if (data instanceof CachedDeserializable) {
-      CachedDeserializable cd = (CachedDeserializable) data;
+      var cd = (CachedDeserializable) data;
       if (!cd.isSerialized()) {
         // it is a byte[]
         isObject = false;
@@ -282,7 +276,7 @@ public class Get70 extends BaseCommand {
     } else if (data instanceof byte[]) {
       isObject = false;
     }
-    boolean keyNotPresent = !wasInvalid && (data == null || data == Token.TOMBSTONE);
+    var keyNotPresent = !wasInvalid && (data == null || data == Token.TOMBSTONE);
     return new Entry(data, isObject, keyNotPresent, versionTag);
   }
 
@@ -294,16 +288,16 @@ public class Get70 extends BaseCommand {
       ServerConnection servConn) {
 
     // Region.Entry entry;
-    String regionName = region.getFullPath();
+    var regionName = region.getFullPath();
     if (servConn != null) {
       servConn.setModificationInfo(true, regionName, key);
     }
 
-    ClientProxyMembershipID id = servConn == null ? null : servConn.getProxyID();
-    VersionTagHolder versionHolder = new VersionTagHolder();
+    var id = servConn == null ? null : servConn.getProxyID();
+    var versionHolder = new VersionTagHolder();
 
     @Retained
-    Object data =
+    var data =
         ((LocalRegion) region).getRetained(key, callbackArg, true, true, id, versionHolder, true);
     final VersionTag<?> versionTag = versionHolder.getVersionTag();
 
@@ -311,8 +305,8 @@ public class Get70 extends BaseCommand {
     // Token.INVALID, or Token.LOCAL_INVALID
     // set it to null. If it is NOT_AVAILABLE, get the value from
     // disk. If it is already a byte[], set isObject to false.
-    boolean wasInvalid = false;
-    boolean isObject = true;
+    var wasInvalid = false;
+    var isObject = true;
     if (data == Token.REMOVED_PHASE1 || data == Token.REMOVED_PHASE2 || data == Token.DESTROYED) {
       data = null;
     } else if (data == Token.INVALID || data == Token.LOCAL_INVALID) {
@@ -321,13 +315,13 @@ public class Get70 extends BaseCommand {
     } else if (data instanceof byte[]) {
       isObject = false;
     } else if (data instanceof CachedDeserializable) {
-      CachedDeserializable cd = (CachedDeserializable) data;
+      var cd = (CachedDeserializable) data;
       isObject = cd.isSerialized();
       if (cd.usesHeapForStorage()) {
         data = cd.getValue();
       }
     }
-    boolean keyNotPresent = !wasInvalid && (data == null || data == Token.TOMBSTONE);
+    var keyNotPresent = !wasInvalid && (data == null || data == Token.TOMBSTONE);
     return new Entry(data, isObject, keyNotPresent, versionTag);
   }
 
@@ -361,12 +355,12 @@ public class Get70 extends BaseCommand {
   private void writeResponse(@Unretained Object data, Object callbackArg, Message origMsg,
       boolean isObject, VersionTag<?> versionTag, boolean keyNotPresent, ServerConnection servConn)
       throws IOException {
-    Message responseMsg = servConn.getResponseMessage();
+    var responseMsg = servConn.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setTransactionId(origMsg.getTransactionId());
 
-    int numParts = 2;
-    int flags = 0;
+    var numParts = 2;
+    var flags = 0;
 
     if (callbackArg != null) {
       numParts++;
@@ -404,13 +398,13 @@ public class Get70 extends BaseCommand {
   private void writeResponseWithRefreshMetadata(@Unretained Object data, Object callbackArg,
       Message origMsg, boolean isObject, ServerConnection servConn, PartitionedRegion pr,
       byte nwHop, VersionTag<?> versionTag, boolean keyNotPresent) throws IOException {
-    Message responseMsg = servConn.getResponseMessage();
+    var responseMsg = servConn.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setTransactionId(origMsg.getTransactionId());
 
-    int numParts = 3;
+    var numParts = 3;
 
-    int flags = 0;
+    var flags = 0;
 
     if (callbackArg != null) {
       numParts++;

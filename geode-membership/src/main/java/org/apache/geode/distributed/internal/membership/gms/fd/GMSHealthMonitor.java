@@ -18,8 +18,6 @@ package org.apache.geode.distributed.internal.membership.gms.fd;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -29,10 +27,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,7 +46,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
-import org.jgroups.util.UUID;
 
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.distributed.internal.membership.api.MemberIdentifier;
@@ -254,7 +249,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     @Override
     public void run() {
 
-      ID neighbor = nextNeighbor;
+      var neighbor = nextNeighbor;
       if (logger.isDebugEnabled()) {
         logger.debug("cluster health monitor invoked with {}", neighbor);
       }
@@ -264,14 +259,14 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
         }
 
         // TODO - why are we taking two clock readings and setting currentTimeStamp twice?
-        long currentTime = System.currentTimeMillis();
+        var currentTime = System.currentTimeMillis();
         // this is the start of interval to record member activity
         currentTimeStamp = currentTime;
 
-        long oldTimeStamp = currentTimeStamp;
+        var oldTimeStamp = currentTimeStamp;
         currentTimeStamp = System.currentTimeMillis();
 
-        GMSMembershipView<ID> myView = currentView;
+        var myView = currentView;
         if (myView == null) {
           return;
         }
@@ -281,7 +276,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
           logger.info(
               "Failure detector has noticed a JVM pause and is giving all members a heartbeat in view {}",
               currentView);
-          for (ID member : myView.getMembers()) {
+          for (var member : myView.getMembers()) {
             contactedBy(member);
           }
           return;
@@ -296,13 +291,13 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
           if (nextNeighborTS == null) {
             logger.debug("timestamp for {} was found null - setting current time as timestamp",
                 neighbor);
-            TimeStamp customTS = new TimeStamp(currentTime);
+            var customTS = new TimeStamp(currentTime);
             memberTimeStamps.put(neighbor, customTS);
             return;
           }
 
-          long interval = memberTimeoutInMillis / GMSHealthMonitor.LOGICAL_INTERVAL;
-          long lastTS = currentTime - nextNeighborTS.getTime();
+          var interval = memberTimeoutInMillis / GMSHealthMonitor.LOGICAL_INTERVAL;
+          var lastTS = currentTime - nextNeighborTS.getTime();
           if (lastTS + interval >= memberTimeoutInMillis) {
             logger.debug("Checking member {} ", neighbor);
             // now do check request for this member;
@@ -346,21 +341,21 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
 
     @Override
     public void run() {
-      try (DataInputStream in = new DataInputStream(socket.getInputStream())) {
+      try (var in = new DataInputStream(socket.getInputStream())) {
         socket.setTcpNoDelay(true);
-        OutputStream out = socket.getOutputStream();
+        var out = socket.getOutputStream();
         @SuppressWarnings("UnusedVariable")
-        short version = in.readShort();
-        int vmViewId = in.readInt();
-        long uuidLSBs = in.readLong();
-        long uuidMSBs = in.readLong();
+        var version = in.readShort();
+        var vmViewId = in.readInt();
+        var uuidLSBs = in.readLong();
+        var uuidMSBs = in.readLong();
         stats.incFinalCheckRequestsReceived();
         stats.incTcpFinalCheckRequestsReceived();
-        ID gmbr = localAddress;
-        UUID myUUID = gmbr.getUUID();
+        var gmbr = localAddress;
+        var myUUID = gmbr.getUUID();
         // during reconnect or rapid restart we will have a zero viewId but there may still
         // be an old ID in the membership view that we do not want to respond to
-        int myVmViewId = gmbr.getVmViewId();
+        var myVmViewId = gmbr.getVmViewId();
         if (playingDead) {
           logger.debug("HealthMonitor: simulating sick member in health check");
         } else if (uuidLSBs == myUUID.getLeastSignificantBits()
@@ -427,7 +422,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
    * Record member activity at a specified time
    */
   private void contactedBy(ID sender, long timeStamp) {
-    final TimeStamp cTS = JavaWorkarounds.computeIfAbsent(memberTimeStamps, sender, (s) -> {
+    final var cTS = JavaWorkarounds.computeIfAbsent(memberTimeStamps, sender, (s) -> {
       return new TimeStamp(timeStamp);
     });
     if (cTS != null && cTS.getTime() < timeStamp) {
@@ -442,15 +437,15 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
 
   private HeartbeatRequestMessage<ID> constructHeartbeatRequestMessage(
       final ID mbr) {
-    final int reqId = requestId.getAndIncrement();
-    final HeartbeatRequestMessage<ID> hrm = new HeartbeatRequestMessage<>(mbr, reqId);
+    final var reqId = requestId.getAndIncrement();
+    final var hrm = new HeartbeatRequestMessage<ID>(mbr, reqId);
     hrm.setRecipient(mbr);
 
     return hrm;
   }
 
   private void checkMember(final ID mbr) {
-    final GMSMembershipView<ID> cv = currentView;
+    final var cv = currentView;
 
     // as check may take time
     setNextNeighbor(cv, mbr);
@@ -465,7 +460,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
       }
 
       if (!pinged) {
-        String reason = "Member isn't responding to heartbeat requests";
+        var reason = "Member isn't responding to heartbeat requests";
         memberSuspected(localAddress, mbr, reason);
         initiateSuspicion(mbr, reason);
         setNextNeighbor(currentView, null);
@@ -497,9 +492,9 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
       // messages by returning true.
       return true;
     }
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
     logger.debug("Requesting heartbeat from {}", member);
-    final HeartbeatRequestMessage<ID> hrm = constructHeartbeatRequestMessage(member);
+    final var hrm = constructHeartbeatRequestMessage(member);
     Response pingResp = null;
     if (waitForResponse) {
       pingResp = new Response();
@@ -508,7 +503,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
       hrm.clearRequestId();
     }
     try {
-      Set<ID> membersNotReceivedMsg = services.getMessenger().send(hrm);
+      var membersNotReceivedMsg = services.getMessenger().send(hrm);
       stats.incHeartbeatRequestsSent();
       if (membersNotReceivedMsg != null && membersNotReceivedMsg.contains(member)) {
         // member is not part of current view.
@@ -518,7 +513,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
           if (pingResp.getResponseMsg() == null) {
             pingResp.wait(memberTimeout);
           }
-          TimeStamp ts = memberTimeStamps.get(member);
+          var ts = memberTimeStamps.get(member);
           if (ts != null && ts.getTime() > startTime) {
             return true;
           }
@@ -563,9 +558,9 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     // make sure we try to check on the member for the contracted memberTimeout period
     // in case a timed socket.connect() returns immediately. Use milliseconds to be in
     // sync with the socket timeout parameter unit of measure
-    long giveupTime = System.currentTimeMillis() + services.getConfig().getMemberTimeout();
-    boolean passed = false;
-    int iteration = 0;
+    var giveupTime = System.currentTimeMillis() + services.getConfig().getMemberTimeout();
+    var passed = false;
+    var iteration = 0;
     do {
       iteration++;
       if (iteration > 1) {
@@ -615,14 +610,14 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     try {
       if (clientSocket.isConnected()) {
         clientSocket.setSoTimeout((int) services.getConfig().getMemberTimeout());
-        InputStream in = clientSocket.getInputStream();
-        DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
-        ID gmbr = suspectMember;
+        var in = clientSocket.getInputStream();
+        var out = new DataOutputStream(clientSocket.getOutputStream());
+        var gmbr = suspectMember;
         writeMemberToStream(gmbr, out);
         stats.incFinalCheckRequestsSent();
         stats.incTcpFinalCheckRequestsSent();
         logger.debug("Connected to suspect member - reading response");
-        int b = in.read();
+        var b = in.read();
         if (logger.isDebugEnabled()) {
           logger.debug("Received {}",
               (b == OK ? "OK" : (b == ERROR ? "ERROR" : "unknown response: " + b)));
@@ -632,7 +627,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
           stats.incTcpFinalCheckResponsesReceived();
         }
         if (b == OK) {
-          TimeStamp ts = memberTimeStamps.get(suspectMember);
+          var ts = memberTimeStamps.get(suspectMember);
           if (ts != null) {
             ts.setTime(System.currentTimeMillis());
           }
@@ -687,7 +682,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
   public void start() throws MemberStartupException {
     scheduler = LoggingExecutors.newScheduledThreadPool(1, "Geode Failure Detection Scheduler");
     checkExecutor = LoggingExecutors.newCachedThreadPool("Geode Failure Detection thread ", true);
-    Monitor m = new Monitor(memberTimeout);
+    var m = new Monitor(memberTimeout);
     monitorInterval = memberTimeout / LOGICAL_INTERVAL;
     monitorFuture =
         scheduler.scheduleAtFixedRate(m, monitorInterval, monitorInterval, TimeUnit.MILLISECONDS);
@@ -696,7 +691,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
   }
 
   ServerSocket createServerSocket(InetAddress socketAddress, int[] portRange) throws IOException {
-    ServerSocket newSocket = socketCreator.forAdvancedUse()
+    var newSocket = socketCreator.forAdvancedUse()
         .createServerSocketUsingPortRange(socketAddress, 50/* backlog */, true/* isBindAddress */,
             false/* useNIO */, 65536/* tcpBufferSize */, portRange, false);
     socketPort = newSocket.getLocalPort();
@@ -766,13 +761,13 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     synchronized (suspectRequestsInView) {
       suspectRequestsInView.clear();
     }
-    for (Iterator<ID> it = memberTimeStamps.keySet().iterator(); it
+    for (var it = memberTimeStamps.keySet().iterator(); it
         .hasNext();) {
       if (!newView.contains(it.next())) {
         it.remove();
       }
     }
-    for (Iterator<ID> it = suspectedMemberIds.keySet().iterator(); it
+    for (var it = suspectedMemberIds.keySet().iterator(); it
         .hasNext();) {
       if (!newView.contains(it.next())) {
         it.remove();
@@ -807,11 +802,11 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
       nextTo = localAddress;
     }
 
-    List<ID> allMembers = newView.getMembers();
+    var allMembers = newView.getMembers();
 
     if (allMembers.size() > 1 && suspectedMemberIds.size() >= allMembers.size() - 1) {
-      boolean nonSuspectFound = false;
-      for (ID member : allMembers) {
+      var nonSuspectFound = false;
+      for (var member : allMembers) {
         if (member.equals(localAddress)) {
           continue;
         }
@@ -827,15 +822,15 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
       }
     }
 
-    int index = allMembers.indexOf(nextTo);
+    var index = allMembers.indexOf(nextTo);
     if (index != -1) {
-      int nextNeighborIndex = (index + 1) % allMembers.size();
-      ID newNeighbor = allMembers.get(nextNeighborIndex);
+      var nextNeighborIndex = (index + 1) % allMembers.size();
+      var newNeighbor = allMembers.get(nextNeighborIndex);
       if (suspectedMemberIds.containsKey(newNeighbor)) {
         setNextNeighbor(newView, newNeighbor);
         return;
       }
-      ID oldNeighbor = nextNeighbor;
+      var oldNeighbor = nextNeighbor;
       if (oldNeighbor != newNeighbor) {
         logger.debug("Failure detection is now watching " + newNeighbor);
         nextNeighbor = newNeighbor;
@@ -902,8 +897,8 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
       scheduler.shutdown();
     }
 
-    Collection<Response> val = requestIdVsResponse.values();
-    for (Response r : val) {
+    var val = requestIdVsResponse.values();
+    for (var r : val) {
       synchronized (r) {
         r.notify();
       }
@@ -960,12 +955,12 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     synchronized (suspectRequestsInView) {
       suspectedMemberIds.put(suspect, currentView);
       Collection<SuspectRequest<ID>> requests = suspectRequestsInView.get(currentView);
-      boolean found = false;
+      var found = false;
       if (requests == null) {
         requests = new HashSet<>();
         requests.add(new SuspectRequest<>(suspect, reason));
       }
-      for (SuspectRequest<ID> request : requests) {
+      for (var request : requests) {
         if (suspect.equals(request.getSuspectMember())) {
           found = true;
           break;
@@ -985,7 +980,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
       Collection<SuspectRequest<ID>> suspectRequests = suspectRequestsInView.get(currentView);
       if (suspectRequests != null) {
         Collection<SuspectRequest<ID>> removals = new ArrayList<>(suspectRequests.size());
-        for (SuspectRequest<ID> suspectRequest : suspectRequests) {
+        for (var suspectRequest : suspectRequests) {
           if (mbr.equals(suspectRequest.getSuspectMember())) {
             removals.add(suspectRequest);
           }
@@ -1037,12 +1032,12 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     }
 
     // only respond if the intended recipient is this member
-    ID me = localAddress;
+    var me = localAddress;
 
     if (me == null || me.getVmViewId() >= 0 && m.getTarget().equals(me)) {
-      HeartbeatMessage<ID> hm = new HeartbeatMessage<>(m.getRequestId());
+      var hm = new HeartbeatMessage<ID>(m.getRequestId());
       hm.setRecipient(m.getSender());
-      Set<ID> membersNotReceivedMsg = services.getMessenger().send(hm);
+      var membersNotReceivedMsg = services.getMessenger().send(hm);
       stats.incHeartbeatsSent();
       if (membersNotReceivedMsg != null && membersNotReceivedMsg.contains(m.getSender())) {
         logger.debug("Unable to send heartbeat to member: {}", m.getSender());
@@ -1065,7 +1060,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
 
     stats.incHeartbeatsReceived();
     if (m.getRequestId() >= 0) {
-      Response resp = requestIdVsResponse.get(m.getRequestId());
+      var resp = requestIdVsResponse.get(m.getRequestId());
       logger.trace("Got heartbeat from member {}. {}", m.getSender(),
           (resp != null ? "Check thread still waiting" : "Check thread is not waiting"));
       if (resp != null) {
@@ -1098,16 +1093,16 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
 
     stats.incSuspectsReceived();
 
-    GMSMembershipView<ID> cv = currentView;
+    var cv = currentView;
 
     if (cv == null) {
       return;
     }
 
-    List<SuspectRequest<ID>> suspectRequests = incomingRequest.getMembers();
+    var suspectRequests = incomingRequest.getMembers();
 
-    ID sender = incomingRequest.getSender();
-    int viewId = sender.getVmViewId();
+    var sender = incomingRequest.getSender();
+    var viewId = sender.getVmViewId();
     if (cv.getViewId() >= viewId && !cv.contains(incomingRequest.getSender())) {
       logger.info("Membership ignoring suspect request for " + incomingRequest + " from non-member "
           + incomingRequest.getSender());
@@ -1117,10 +1112,10 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     }
 
     // take care of any suspicion of this member by sending a heartbeat back
-    for (Iterator<SuspectRequest<ID>> it = incomingRequest.getMembers().iterator(); it.hasNext();) {
-      SuspectRequest<ID> req = it.next();
+    for (var it = incomingRequest.getMembers().iterator(); it.hasNext();) {
+      var req = it.next();
       if (req.getSuspectMember().equals(localAddress)) {
-        HeartbeatMessage<ID> message = new HeartbeatMessage<>(-1);
+        var message = new HeartbeatMessage<ID>(-1);
         message.setRecipient(sender);
         try {
           services.getMessenger().send(message);
@@ -1141,19 +1136,19 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
       // Another process has raised suspicion - check to see if
       // this process should become the membership coordinator if
       // all current suspects are gone
-      GMSMembershipView<ID> check = new GMSMembershipView<>(cv, cv.getViewId() + 1);
-      ArrayList<SuspectRequest<ID>> membersToCheck = new ArrayList<>();
+      var check = new GMSMembershipView<ID>(cv, cv.getViewId() + 1);
+      var membersToCheck = new ArrayList<SuspectRequest<ID>>();
       synchronized (suspectRequestsInView) {
         recordSuspectRequests(suspectRequests, cv);
-        Set<SuspectRequest<ID>> suspectsInView = suspectRequestsInView.get(cv);
+        var suspectsInView = suspectRequestsInView.get(cv);
         logger.debug("Current suspects are {}", suspectsInView);
-        for (final SuspectRequest<ID> sr : suspectsInView) {
+        for (final var sr : suspectsInView) {
           check.remove(sr.getSuspectMember());
           membersToCheck.add(sr);
         }
       }
       List<ID> membersLeaving = new ArrayList<>();
-      for (ID member : cv.getMembers()) {
+      for (var member : cv.getMembers()) {
         if (services.getJoinLeave().isMemberLeaving(member)) {
           membersLeaving.add(member);
         }
@@ -1167,7 +1162,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
           check,
           check.getCoordinator(), localAddress);
 
-      ID coordinator = check.getCoordinator();
+      var coordinator = check.getCoordinator();
       if (coordinator != null && coordinator.equals(localAddress)) {
         // new coordinator
         checkIfAvailable(sender, membersToCheck, cv);
@@ -1191,8 +1186,8 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
 
   private void logSuspectRequests(SuspectMembersMessage<ID> incomingRequest,
       ID sender) {
-    for (SuspectRequest<ID> req : incomingRequest.getMembers()) {
-      String who = sender.equals(localAddress) ? "myself" : sender.toString();
+    for (var req : incomingRequest.getMembers()) {
+      var who = sender.equals(localAddress) ? "myself" : sender.toString();
       logger.info("received suspect message from {} for {}: {}", who, req.getSuspectMember(),
           req.getReason());
     }
@@ -1224,8 +1219,8 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
   private void checkIfAvailable(final ID initiator,
       List<SuspectRequest<ID>> sMembers, final GMSMembershipView<ID> cv) {
 
-    for (final SuspectRequest<ID> sr : sMembers) {
-      final ID mbr = sr.getSuspectMember();
+    for (final var sr : sMembers) {
+      final var mbr = sr.getSuspectMember();
 
       if (!cv.contains(mbr) || membersInFinalCheck.contains(mbr)) {
         continue;
@@ -1235,7 +1230,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
         continue;// self
       }
 
-      final String reason = sr.getReason();
+      final var reason = sr.getReason();
       logger.debug("Scheduling availability check for member {}; reason={}", mbr, reason);
       // its a coordinator
       checkExecutor.execute(() -> {
@@ -1268,7 +1263,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
       return false;
     }
 
-    boolean failed = false;
+    var failed = false;
 
     logger.info("Performing availability check for suspect member {} reason={}", mbr, reason);
     membersInFinalCheck.add(mbr);
@@ -1276,13 +1271,13 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
 
     try {
       services.memberSuspected(initiator, mbr, reason);
-      long startTime = System.currentTimeMillis();
+      var startTime = System.currentTimeMillis();
       // for some reason we used to update the timestamp for the member
       // with the startTime, but we don't want to do that because it looks
       // like a heartbeat has been received
 
       boolean pinged;
-      int port = cv.getFailureDetectionPort(mbr);
+      var port = cv.getFailureDetectionPort(mbr);
       if (port <= 0) {
         logger.info("Unable to locate failure detection port - requesting a heartbeat");
         if (logger.isDebugEnabled()) {
@@ -1303,13 +1298,13 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
         doCheckMember(mbr, false);
         // now, while waiting for a heartbeat, try connecting to the suspect's failure detection
         // port
-        final boolean retryIfConnectFails = isFinalCheck;
+        final var retryIfConnectFails = isFinalCheck;
         pinged = doTCPCheckMember(mbr, port, retryIfConnectFails);
       }
 
       if (!pinged && !isStopping) {
         failed = true;
-        TimeStamp ts = memberTimeStamps.get(mbr);
+        var ts = memberTimeStamps.get(mbr);
         if (ts == null || ts.getTime() < startTime) {
           logger.info("Availability check failed for member {}", mbr);
           // if the final check fails & this VM is the coordinator we don't need to do another final
@@ -1327,8 +1322,8 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
               // tell peers about this member and then perform another availability check
               memberSuspected(localAddress, mbr, reason);
               initiateSuspicion(mbr, reason);
-              SuspectMembersMessage<ID> suspectMembersMessage =
-                  new SuspectMembersMessage<>(Collections.singletonList(localAddress),
+              var suspectMembersMessage =
+                  new SuspectMembersMessage<ID>(Collections.singletonList(localAddress),
                       Collections
                           .singletonList(new SuspectRequest<>(mbr, "failed availability check")));
               suspectMembersMessage.setSender(localAddress);
@@ -1353,10 +1348,10 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
         if (!isStopping
             && initiator.getVersionOrdinal() >= KnownVersion.GEODE_1_4_0.ordinal()) {
           // let others know that this member is no longer suspect
-          FinalCheckPassedMessage<ID> message = new FinalCheckPassedMessage<>(initiator, mbr);
-          List<ID> members = cv.getMembers();
+          var message = new FinalCheckPassedMessage<ID>(initiator, mbr);
+          var members = cv.getMembers();
           List<ID> recipients = new ArrayList<>(members.size());
-          for (ID member : members) {
+          for (var member : members) {
             if (!isSuspectMember(member) && !membersInFinalCheck.contains(member) &&
                 !member.equals(localAddress)) {
               recipients.add(member);
@@ -1392,8 +1387,8 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     logger.debug("Sending suspect request for members {}", requests);
     List<ID> recipients;
     if (currentView.size() > MembershipConfig.SMALL_CLUSTER_SIZE) {
-      HashSet<ID> filter = new HashSet<>();
-      for (Enumeration<ID> e = suspectedMemberIds.keys(); e
+      var filter = new HashSet<ID>();
+      for (var e = suspectedMemberIds.keys(); e
           .hasMoreElements();) {
         filter.add(e.nextElement());
       }
@@ -1408,7 +1403,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     }
 
     logger.trace("Sending suspect messages to {}", recipients);
-    SuspectMembersMessage<ID> smm = new SuspectMembersMessage<>(recipients, requests);
+    var smm = new SuspectMembersMessage<ID>(recipients, requests);
     smm.setSender(localAddress);
     Set<ID> failedRecipients;
     try {
@@ -1500,10 +1495,10 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
         final Warner warner) {
       while (!isStopping && !services.getCancelCriterion().isCancelInProgress()) {
         try {
-          final long timeBeforeSleep = nanoTimer.nanoTime();
+          final var timeBeforeSleep = nanoTimer.nanoTime();
           sleeper.sleep(sleepPeriodMillis);
-          final long timeAfterSleep = nanoTimer.nanoTime();
-          final long asleepNanos = timeAfterSleep - timeBeforeSleep;
+          final var timeAfterSleep = nanoTimer.nanoTime();
+          final var asleepNanos = timeAfterSleep - timeBeforeSleep;
           if (asleepNanos > sleepLimitNanos) {
             warner.warn(
                 String.format(
@@ -1514,10 +1509,10 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
           Thread.currentThread().interrupt();
           return;
         }
-        GMSMembershipView<ID> v = currentView;
+        var v = currentView;
         if (v != null) {
-          List<ID> mbrs = v.getMembers();
-          int index = mbrs.indexOf(localAddress);
+          var mbrs = v.getMembers();
+          var index = mbrs.indexOf(localAddress);
           if (index < 0 || mbrs.size() < 2) {
             continue;
           }
@@ -1529,9 +1524,9 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
     }
 
     private void sendHeartbeats(List<ID> mbrs, int startIndex) {
-      ID coordinator = currentView.getCoordinator();
+      var coordinator = currentView.getCoordinator();
       if (coordinator != null && !coordinator.equals(localAddress)) {
-        HeartbeatMessage<ID> message = new HeartbeatMessage<>(-1);
+        var message = new HeartbeatMessage<ID>(-1);
         message.setRecipient(coordinator);
         try {
           if (isStopping) {
@@ -1544,14 +1539,14 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
         }
       }
 
-      int index = startIndex;
-      int numSent = 0;
+      var index = startIndex;
+      var numSent = 0;
       for (;;) {
         index--;
         if (index < 0) {
           index = mbrs.size() - 1;
         }
-        ID mbr = mbrs.get(index);
+        var mbr = mbrs.get(index);
         if (mbr.equals(localAddress)) {
           break;
         }
@@ -1561,7 +1556,7 @@ public class GMSHealthMonitor<ID extends MemberIdentifier> implements HealthMoni
         if (isStopping) {
           return;
         }
-        HeartbeatMessage<ID> message = new HeartbeatMessage<>(-1);
+        var message = new HeartbeatMessage<ID>(-1);
         message.setRecipient(mbr);
         try {
           services.getMessenger().sendUnreliably(message);

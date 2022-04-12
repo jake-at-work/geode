@@ -36,7 +36,6 @@ import org.apache.geode.GemFireConfigException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.util.AutoBalancer.CacheOperationFacade;
 import org.apache.geode.cache.util.AutoBalancer.GeodeCacheFacade;
-import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.locks.DLockService;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -63,7 +62,7 @@ public class AutoBalancerIntegrationJUnitTest {
       DLockService.destroy(AutoBalancer.AUTO_BALANCER_LOCK_SERVICE_NAME);
     }
 
-    AutoBalancer autoBalancer = (AutoBalancer) cache.getInitializer();
+    var autoBalancer = (AutoBalancer) cache.getInitializer();
     if (autoBalancer != null) {
       autoBalancer.destroy();
     }
@@ -84,9 +83,9 @@ public class AutoBalancerIntegrationJUnitTest {
   @Test
   public void testAutoRebalaceStatsOnLockSuccess() throws InterruptedException {
     assertEquals(0, cache.getInternalResourceManager().getStats().getAutoRebalanceAttempts());
-    AutoBalancer balancer = new AutoBalancer();
-    final String someSchedule = "1 * * * 1 *";
-    final Properties props = new Properties();
+    var balancer = new AutoBalancer();
+    final var someSchedule = "1 * * * 1 *";
+    final var props = new Properties();
     props.put(AutoBalancer.SCHEDULE, someSchedule);
     balancer.initialize(cache, props);
     balancer.getOOBAuditor().execute();
@@ -97,9 +96,9 @@ public class AutoBalancerIntegrationJUnitTest {
   public void testAutoRebalaceStatsOnLockFailure() throws InterruptedException {
     acquireLockInDifferentThread(1);
     assertEquals(0, cache.getInternalResourceManager().getStats().getAutoRebalanceAttempts());
-    AutoBalancer balancer = new AutoBalancer();
-    final String someSchedule = "1 * * * 1 *";
-    final Properties props = new Properties();
+    var balancer = new AutoBalancer();
+    final var someSchedule = "1 * * * 1 *";
+    final var props = new Properties();
     props.put(AutoBalancer.SCHEDULE, someSchedule);
     balancer.initialize(cache, props);
     balancer.getOOBAuditor().execute();
@@ -116,25 +115,25 @@ public class AutoBalancerIntegrationJUnitTest {
   @Test
   public void testLockSuccess() throws InterruptedException {
     acquireLockInDifferentThread(1);
-    DistributedLockService dls = new GeodeCacheFacade(cache).getDLS();
+    var dls = new GeodeCacheFacade(cache).getDLS();
     assertFalse(dls.lock(AutoBalancer.AUTO_BALANCER_LOCK, 0, -1));
   }
 
   @Test
   public void canReacquireLock() throws InterruptedException {
     acquireLockInDifferentThread(2);
-    DistributedLockService dls = new GeodeCacheFacade(cache).getDLS();
+    var dls = new GeodeCacheFacade(cache).getDLS();
     assertFalse(dls.lock(AutoBalancer.AUTO_BALANCER_LOCK, 0, -1));
   }
 
   @Test
   public void testLockAlreadyTakenElsewhere() throws InterruptedException {
-    DistributedLockService dls = new GeodeCacheFacade(cache).getDLS();
+    var dls = new GeodeCacheFacade(cache).getDLS();
     assertTrue(dls.lock(AutoBalancer.AUTO_BALANCER_LOCK, 0, -1));
 
-    final AtomicBoolean success = new AtomicBoolean(true);
+    final var success = new AtomicBoolean(true);
 
-    Thread thread = new Thread(() -> {
+    var thread = new Thread(() -> {
       CacheOperationFacade cacheFacade = new GeodeCacheFacade(cache);
       success.set(cacheFacade.acquireAutoBalanceLock());
     });
@@ -146,7 +145,7 @@ public class AutoBalancerIntegrationJUnitTest {
 
   @Test
   public void testInitializerCacheXML() {
-    String configStr =
+    var configStr =
         "<cache xmlns=\"http://geode.apache.org/schema/cache\"                          "
             + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"                                      "
             + " xsi:schemaLocation=\"http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd\""
@@ -164,7 +163,7 @@ public class AutoBalancerIntegrationJUnitTest {
 
   @Test(expected = GemFireConfigException.class)
   public void testInitFailOnMissingScheduleConf() {
-    String configStr =
+    var configStr =
         "<cache xmlns=\"http://geode.apache.org/schema/cache\"                          "
             + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"                                      "
             + " xsi:schemaLocation=\"http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd\""
@@ -186,11 +185,11 @@ public class AutoBalancerIntegrationJUnitTest {
   }
 
   private void acquireLockInDifferentThread(final int num) throws InterruptedException {
-    final CountDownLatch latch = new CountDownLatch(num);
-    Thread thread = new Thread(() -> {
+    final var latch = new CountDownLatch(num);
+    var thread = new Thread(() -> {
       CacheOperationFacade cacheFacade = new GeodeCacheFacade(cache);
-      for (int i = 0; i < num; i++) {
-        boolean result = cacheFacade.acquireAutoBalanceLock();
+      for (var i = 0; i < num; i++) {
+        var result = cacheFacade.acquireAutoBalanceLock();
         if (result) {
           latch.countDown();
         }

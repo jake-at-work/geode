@@ -16,7 +16,6 @@ package org.apache.geode.management.internal.cli.domain;
 
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -42,7 +41,7 @@ public class MemberConfigurationInfo implements Serializable {
   private Map<String, String> pdxAttributes;
 
   public MemberConfigurationInfo() {
-    RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+    var runtimeBean = ManagementFactory.getRuntimeMXBean();
     setJvmInputArguments(ArgumentRedactor.redactEachInList(runtimeBean.getInputArguments()));
 
   }

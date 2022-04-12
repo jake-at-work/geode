@@ -46,7 +46,7 @@ public class PartitionedRegionStatus extends RegionStatus {
     // If there is a data store (meaning that the PR has storage
     // in this VM), get the number of entries and heap size. Else,
     // set these to 0.
-    PartitionedRegionDataStore ds = region.getDataStore();
+    var ds = region.getDataStore();
     long heapSize = 0;
     if (ds != null) {
       heapSize = ds.currentAllocatedMemory();

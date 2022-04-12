@@ -61,9 +61,9 @@ public class LocalManagerTest {
     regionFactory2 = mock(InternalRegionFactory.class);
     statisticsFactory = mock(StatisticsFactory.class);
     statisticsClock = mock(StatisticsClock.class);
-    InternalCacheForClientAccess cacheForClientAccess = mock(InternalCacheForClientAccess.class);
-    DistributedSystemMXBean distributedSystemMXBean = mock(DistributedSystemMXBean.class);
-    DistributionConfig config = mock(DistributionConfig.class);
+    var cacheForClientAccess = mock(InternalCacheForClientAccess.class);
+    var distributedSystemMXBean = mock(DistributedSystemMXBean.class);
+    var config = mock(DistributionConfig.class);
 
     when(cache.getCacheForProcessingClientRequests())
         .thenReturn(cacheForClientAccess);
@@ -83,9 +83,9 @@ public class LocalManagerTest {
 
   @Test
   public void startLocalManagementCreatesMonitoringRegion() {
-    InternalDistributedMember member = member(1, 20);
+    var member = member(1, 20);
     when(system.getDistributedMember()).thenReturn(member);
-    LocalManager localManager =
+    var localManager =
         new LocalManager(repo, system, service, cache, statisticsFactory, statisticsClock);
 
     localManager.startManager();
@@ -95,14 +95,14 @@ public class LocalManagerTest {
 
   @Test
   public void addMemberArtifactsCreatesMonitoringRegionWithHasOwnStats() {
-    InternalDistributedMember member = member(2, 40);
+    var member = member(2, 40);
     when(system.getDistributedMember()).thenReturn(member);
-    LocalManager localManager =
+    var localManager =
         new LocalManager(repo, system, service, cache, statisticsFactory, statisticsClock);
 
     localManager.startManager();
 
-    ArgumentCaptor<HasCachePerfStats> captor =
+    var captor =
         ArgumentCaptor.forClass(HasCachePerfStats.class);
     verify(regionFactory1).setCachePerfStatsHolder(captor.capture());
     assertThat(captor.getValue().hasOwnStats()).isTrue();
@@ -110,9 +110,9 @@ public class LocalManagerTest {
 
   @Test
   public void addMemberArtifactsCreatesNotificationRegion() {
-    InternalDistributedMember member = member(3, 60);
+    var member = member(3, 60);
     when(system.getDistributedMember()).thenReturn(member);
-    LocalManager localManager =
+    var localManager =
         new LocalManager(repo, system, service, cache, statisticsFactory, statisticsClock);
 
     localManager.startManager();
@@ -122,21 +122,21 @@ public class LocalManagerTest {
 
   @Test
   public void addMemberArtifactsCreatesNotificationRegionWithHasOwnStats() {
-    InternalDistributedMember member = member(4, 80);
+    var member = member(4, 80);
     when(system.getDistributedMember()).thenReturn(member);
-    LocalManager localManager =
+    var localManager =
         new LocalManager(repo, system, service, cache, statisticsFactory, statisticsClock);
 
     localManager.startManager();
 
-    ArgumentCaptor<HasCachePerfStats> captor =
+    var captor =
         ArgumentCaptor.forClass(HasCachePerfStats.class);
     verify(regionFactory2).setCachePerfStatsHolder(captor.capture());
     assertThat(captor.getValue().hasOwnStats()).isTrue();
   }
 
   private InternalDistributedMember member(int viewId, int port) {
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var member = mock(InternalDistributedMember.class);
     when(member.getInetAddress()).thenReturn(mock(InetAddress.class));
     when(member.getVmViewId()).thenReturn(viewId);
     when(member.getMembershipPort()).thenReturn(port);

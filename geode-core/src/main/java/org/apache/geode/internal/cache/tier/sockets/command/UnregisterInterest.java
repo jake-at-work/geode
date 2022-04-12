@@ -20,15 +20,12 @@ import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.DynamicRegionFactory;
-import org.apache.geode.cache.operations.UnregisterInterestOperationContext;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.InterestType;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -52,13 +49,13 @@ public class UnregisterInterest extends BaseCommand {
       throws ClassNotFoundException, IOException {
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
 
-    final Part regionNamePart = clientMessage.getPart(0);
-    final InterestType interestType = InterestType.valueOf(clientMessage.getPart(1).getInt());
-    final Part keyPart = clientMessage.getPart(2);
-    final Part isClosingPart = clientMessage.getPart(3);
-    final byte[] isClosingPartBytes = (byte[]) isClosingPart.getObject();
-    final boolean isClosing = isClosingPartBytes[0] == 0x01;
-    final String regionName = regionNamePart.getCachedString();
+    final var regionNamePart = clientMessage.getPart(0);
+    final var interestType = InterestType.valueOf(clientMessage.getPart(1).getInt());
+    final var keyPart = clientMessage.getPart(2);
+    final var isClosingPart = clientMessage.getPart(3);
+    final var isClosingPartBytes = (byte[]) isClosingPart.getObject();
+    final var isClosing = isClosingPartBytes[0] == 0x01;
+    final var regionName = regionNamePart.getCachedString();
     Object key;
     try {
       key = keyPart.getStringOrObject();
@@ -69,8 +66,8 @@ public class UnregisterInterest extends BaseCommand {
     }
     final boolean keepAlive;
     try {
-      final Part keepAlivePart = clientMessage.getPart(4);
-      final byte[] keepAliveBytes = (byte[]) keepAlivePart.getObject();
+      final var keepAlivePart = clientMessage.getPart(4);
+      final var keepAliveBytes = (byte[]) keepAlivePart.getObject();
       keepAlive = keepAliveBytes[0] != 0x00;
     } catch (Exception e) {
       writeException(clientMessage, e, false, serverConnection);
@@ -114,11 +111,11 @@ public class UnregisterInterest extends BaseCommand {
       return;
     }
 
-    AuthorizeRequest authorizeRequest = serverConnection.getAuthzRequest();
+    var authorizeRequest = serverConnection.getAuthzRequest();
     if (authorizeRequest != null) {
       if (!DynamicRegionFactory.regionIsDynamicRegionList(regionName)) {
         try {
-          UnregisterInterestOperationContext unregisterContext =
+          var unregisterContext =
               authorizeRequest.unregisterInterestAuthorize(regionName, key, interestType);
           key = unregisterContext.getKey();
         } catch (NotAuthorizedException ex) {

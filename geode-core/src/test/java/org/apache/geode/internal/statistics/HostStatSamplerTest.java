@@ -53,7 +53,7 @@ public class HostStatSamplerTest {
 
   @Test
   public void getSpecialStatsId_returnsPidFromPidSupplier_ifValueIsGreaterThanZero() {
-    int thePid = 42;
+    var thePid = 42;
     when(statisticsManager.getPid()).thenReturn(thePid);
     long anySystemId = 2;
     hostStatSampler = new TestableHostStatSampler(cancelCriterion, statSamplerStats, timer, logFile,

@@ -68,8 +68,8 @@ public class CauseFinder {
    */
   private static int indexOfCause(Throwable parent, Class<? extends Throwable> causeClass,
       final int cindex, final boolean isSubtypeOk) {
-    int resultIndex = cindex;
-    Throwable cause = parent.getCause();
+    var resultIndex = cindex;
+    var cause = parent.getCause();
 
     // (cause is not null & cause is not of type causeClass)
     if (cause != null && !isMatching(cause, causeClass, isSubtypeOk)) {
@@ -130,7 +130,7 @@ public class CauseFinder {
         throw new IllegalArgumentException("Given parent Throwable is null.");
       }
     }
-    Throwable theCause = parent.getCause();
+    var theCause = parent.getCause();
     if (theCause != null) {
       // recurse deeper
       return getRootCause(theCause, depth + 1);
@@ -179,7 +179,7 @@ public class CauseFinder {
   public static Throwable causeByType(Throwable parent, Class<? extends Throwable> causeType,
       boolean isSubtypeOk) {
     Throwable cause = null;
-    int foundAtIndex = indexOfCause(parent, causeType, isSubtypeOk);
+    var foundAtIndex = indexOfCause(parent, causeType, isSubtypeOk);
     if (foundAtIndex != -1) {
       cause = causeAt(parent, foundAtIndex);
     }

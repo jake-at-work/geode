@@ -17,22 +17,20 @@ package org.apache.geode.redis.internal.commands.executor.list;
 import static org.apache.geode.redis.internal.data.RedisList.rpoplpush;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class RPopLPushExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<RedisKey> keys = command.getProcessedCommandKeys();
-    RedisKey source = keys.get(0);
-    RedisKey destination = keys.get(1);
+    var keys = command.getProcessedCommandKeys();
+    var source = keys.get(0);
+    var destination = keys.get(1);
 
-    byte[] moved = context.lockedExecuteInTransaction(source, Arrays.asList(source, destination),
+    var moved = context.lockedExecuteInTransaction(source, Arrays.asList(source, destination),
         () -> rpoplpush(context, source, destination));
 
     return RedisResponse.bulkString(moved);

@@ -20,12 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
-import javax.management.ObjectName;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,19 +29,13 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.internal.cache.DiskRegionStats;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
-import org.apache.geode.internal.cache.persistence.PersistentMemberID;
-import org.apache.geode.internal.cache.persistence.PersistentMemberManager;
 import org.apache.geode.internal.process.ProcessUtils;
-import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.VM;
@@ -86,12 +76,12 @@ public class DiskManagementDUnitTest implements Serializable {
    */
   @Test
   public void testDiskCompact() throws Exception {
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       createPersistentRegion(memberVM);
       makeDiskCompactable(memberVM);
     }
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       compactAllDiskStores(memberVM);
     }
   }
@@ -102,7 +92,7 @@ public class DiskManagementDUnitTest implements Serializable {
    */
   @Test
   public void testDiskCompactRemote() throws Exception {
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       createPersistentRegion(memberVM);
       makeDiskCompactable(memberVM);
     }
@@ -115,7 +105,7 @@ public class DiskManagementDUnitTest implements Serializable {
    */
   @Test
   public void testDiskOps() throws Exception {
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       createPersistentRegion(memberVM);
       makeDiskCompactable(memberVM);
       invokeFlush(memberVM);
@@ -126,7 +116,7 @@ public class DiskManagementDUnitTest implements Serializable {
 
   @Test
   public void testDiskBackupAllMembers() throws Exception {
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       createPersistentRegion(memberVM);
       makeDiskCompactable(memberVM);
     }
@@ -139,8 +129,8 @@ public class DiskManagementDUnitTest implements Serializable {
    */
   @Test
   public void testMissingMembers() throws Exception {
-    VM memberVM1 = memberVMs[0];
-    VM memberVM2 = memberVMs[1];
+    var memberVM1 = memberVMs[0];
+    var memberVM2 = memberVMs[1];
 
     createPersistentRegion(memberVM1);
     createPersistentRegion(memberVM2);
@@ -148,9 +138,9 @@ public class DiskManagementDUnitTest implements Serializable {
     putAnEntry(memberVM1);
 
     managerVM.invoke("checkForMissingDiskStores", () -> {
-      ManagementService service = managementTestRule.getManagementService();
-      DistributedSystemMXBean distributedSystemMXBean = service.getDistributedSystemMXBean();
-      PersistentMemberDetails[] missingDiskStores = distributedSystemMXBean.listMissingDiskStores();
+      var service = managementTestRule.getManagementService();
+      var distributedSystemMXBean = service.getDistributedSystemMXBean();
+      var missingDiskStores = distributedSystemMXBean.listMissingDiskStores();
 
       assertThat(missingDiskStores).isEmpty();
     });
@@ -161,21 +151,21 @@ public class DiskManagementDUnitTest implements Serializable {
 
     closeCache(memberVM2);
 
-    AsyncInvocation creatingPersistentRegionAsync = createPersistentRegionAsync(memberVM1);
+    var creatingPersistentRegionAsync = createPersistentRegionAsync(memberVM1);
 
     memberVM1.invoke(() -> GeodeAwaitility.await().until(() -> {
-      GemFireCacheImpl cache = (GemFireCacheImpl) managementTestRule.getCache();
-      PersistentMemberManager persistentMemberManager = cache.getPersistentMemberManager();
-      Map<String, Set<PersistentMemberID>> regions = persistentMemberManager.getWaitingRegions();
+      var cache = (GemFireCacheImpl) managementTestRule.getCache();
+      var persistentMemberManager = cache.getPersistentMemberManager();
+      var regions = persistentMemberManager.getWaitingRegions();
       return !regions.isEmpty();
     }));
 
     assertThat(creatingPersistentRegionAsync.isAlive()).isTrue();
 
     managerVM.invoke("revokeMissingDiskStore", () -> {
-      ManagementService service = managementTestRule.getManagementService();
-      DistributedSystemMXBean bean = service.getDistributedSystemMXBean();
-      PersistentMemberDetails[] missingDiskStores = bean.listMissingDiskStores();
+      var service = managementTestRule.getManagementService();
+      var bean = service.getDistributedSystemMXBean();
+      var missingDiskStores = bean.listMissingDiskStores();
 
       assertThat(missingDiskStores).isNotNull().hasSize(1);
 
@@ -200,12 +190,12 @@ public class DiskManagementDUnitTest implements Serializable {
   private void invokeFlush(final VM memberVM) {
     memberVM.invoke("invokeFlush", () -> {
       Cache cache = managementTestRule.getCache();
-      DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
-      String name = "testFlush_" + ProcessUtils.identifyPid();
-      DiskStore diskStore = diskStoreFactory.create(name);
+      var diskStoreFactory = cache.createDiskStoreFactory();
+      var name = "testFlush_" + ProcessUtils.identifyPid();
+      var diskStore = diskStoreFactory.create(name);
 
-      ManagementService service = managementTestRule.getManagementService();
-      DiskStoreMXBean diskStoreMXBean = service.getLocalDiskStoreMBean(name);
+      var service = managementTestRule.getManagementService();
+      var diskStoreMXBean = service.getLocalDiskStoreMBean(name);
       assertThat(diskStoreMXBean).isNotNull();
       assertThat(diskStoreMXBean.getName()).isEqualTo(diskStore.getName());
 
@@ -219,12 +209,12 @@ public class DiskManagementDUnitTest implements Serializable {
   private void invokeForceRoll(final VM memberVM) {
     memberVM.invoke("invokeForceRoll", () -> {
       Cache cache = managementTestRule.getCache();
-      DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
-      String name = "testForceRoll_" + ProcessUtils.identifyPid();
-      DiskStore diskStore = diskStoreFactory.create(name);
+      var diskStoreFactory = cache.createDiskStoreFactory();
+      var name = "testForceRoll_" + ProcessUtils.identifyPid();
+      var diskStore = diskStoreFactory.create(name);
 
-      ManagementService service = managementTestRule.getManagementService();
-      DiskStoreMXBean diskStoreMXBean = service.getLocalDiskStoreMBean(name);
+      var service = managementTestRule.getManagementService();
+      var diskStoreMXBean = service.getLocalDiskStoreMBean(name);
       assertThat(diskStoreMXBean).isNotNull();
       assertThat(diskStoreMXBean.getName()).isEqualTo(diskStore.getName());
 
@@ -238,13 +228,13 @@ public class DiskManagementDUnitTest implements Serializable {
   private void invokeForceCompaction(final VM memberVM) {
     memberVM.invoke("invokeForceCompaction", () -> {
       Cache cache = managementTestRule.getCache();
-      DiskStoreFactory dsf = cache.createDiskStoreFactory();
+      var dsf = cache.createDiskStoreFactory();
       dsf.setAllowForceCompaction(true);
-      String name = "testForceCompaction_" + ProcessUtils.identifyPid();
-      DiskStore diskStore = dsf.create(name);
+      var name = "testForceCompaction_" + ProcessUtils.identifyPid();
+      var diskStore = dsf.create(name);
 
-      ManagementService service = managementTestRule.getManagementService();
-      DiskStoreMXBean diskStoreMXBean = service.getLocalDiskStoreMBean(name);
+      var service = managementTestRule.getManagementService();
+      var diskStoreMXBean = service.getLocalDiskStoreMBean(name);
       assertThat(diskStoreMXBean).isNotNull();
       assertThat(diskStoreMXBean.getName()).isEqualTo(diskStore.getName());
 
@@ -272,9 +262,9 @@ public class DiskManagementDUnitTest implements Serializable {
    */
   private void compactAllDiskStores(final VM memberVM) throws Exception {
     memberVM.invoke("compactAllDiskStores", () -> {
-      ManagementService service = managementTestRule.getManagementService();
-      MemberMXBean memberMXBean = service.getMemberMXBean();
-      String[] compactedDiskStores = memberMXBean.compactAllDiskStores();
+      var service = managementTestRule.getManagementService();
+      var memberMXBean = service.getMemberMXBean();
+      var compactedDiskStores = memberMXBean.compactAllDiskStores();
       assertThat(compactedDiskStores).hasSize(1);
     });
   }
@@ -284,11 +274,11 @@ public class DiskManagementDUnitTest implements Serializable {
    */
   private void backupAllMembers(final VM managerVM, final int memberCount) {
     managerVM.invoke("backupAllMembers", () -> {
-      ManagementService service = managementTestRule.getManagementService();
-      DistributedSystemMXBean bean = service.getDistributedSystemMXBean();
-      File backupDir = temporaryFolder.newFolder("backupDir");
+      var service = managementTestRule.getManagementService();
+      var bean = service.getDistributedSystemMXBean();
+      var backupDir = temporaryFolder.newFolder("backupDir");
 
-      DiskBackupStatus status = bean.backupAllMembers(backupDir.getAbsolutePath(), null);
+      var status = bean.backupAllMembers(backupDir.getAbsolutePath(), null);
 
       assertThat(status.getBackedUpDiskStores().keySet().size()).isEqualTo(memberCount);
       assertThat(status.getOfflineDiskStores()).isEmpty(); // TODO: fix GEODE-1946
@@ -300,18 +290,18 @@ public class DiskManagementDUnitTest implements Serializable {
    */
   private void compactDiskStoresRemote(final VM managerVM, final int memberCount) {
     managerVM.invoke("compactDiskStoresRemote", () -> {
-      Set<DistributedMember> otherMemberSet = managementTestRule.getOtherNormalMembers();
+      var otherMemberSet = managementTestRule.getOtherNormalMembers();
       assertThat(otherMemberSet.size()).isEqualTo(memberCount);
 
-      SystemManagementService service = managementTestRule.getSystemManagementService();
+      var service = managementTestRule.getSystemManagementService();
 
-      for (DistributedMember member : otherMemberSet) {
-        MemberMXBean memberMXBean = awaitMemberMXBeanProxy(member);
+      for (var member : otherMemberSet) {
+        var memberMXBean = awaitMemberMXBeanProxy(member);
 
-        String[] allDisks = memberMXBean.listDiskStores(true);
+        var allDisks = memberMXBean.listDiskStores(true);
         assertThat(allDisks).isNotNull().hasSize(1);
 
-        String[] compactedDiskStores = memberMXBean.compactAllDiskStores();
+        var compactedDiskStores = memberMXBean.compactAllDiskStores();
         assertThat(compactedDiskStores).hasSize(1);
       }
     });
@@ -348,16 +338,16 @@ public class DiskManagementDUnitTest implements Serializable {
 
   private AsyncInvocation createPersistentRegionAsync(final VM memberVM) {
     return memberVM.invokeAsync("createPersistentRegionAsync", () -> {
-      File dir = new File(diskDir, String.valueOf(ProcessUtils.identifyPid()));
+      var dir = new File(diskDir, String.valueOf(ProcessUtils.identifyPid()));
 
       Cache cache = managementTestRule.getCache();
 
-      DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+      var diskStoreFactory = cache.createDiskStoreFactory();
       diskStoreFactory.setDiskDirs(new File[] {dir});
       diskStoreFactory.setMaxOplogSize(1);
       diskStoreFactory.setAllowForceCompaction(true);
       diskStoreFactory.setAutoCompact(false);
-      DiskStore diskStore = diskStoreFactory.create(REGION_NAME);
+      var diskStore = diskStoreFactory.create(REGION_NAME);
 
       RegionFactory regionFactory = cache.createRegionFactory();
       regionFactory.setDiskStoreName(diskStore.getName());
@@ -372,8 +362,8 @@ public class DiskManagementDUnitTest implements Serializable {
     memberVM.invoke("verifyRecoveryStats", () -> {
       Cache cache = managementTestRule.getCache();
       Region region = cache.getRegion(REGION_NAME);
-      DistributedRegion distributedRegion = (DistributedRegion) region;
-      DiskRegionStats stats = distributedRegion.getDiskRegion().getStats();
+      var distributedRegion = (DistributedRegion) region;
+      var stats = distributedRegion.getDiskRegion().getStats();
 
       if (localRecovery) {
         assertThat(stats.getLocalInitializations()).isEqualTo(1);
@@ -386,8 +376,8 @@ public class DiskManagementDUnitTest implements Serializable {
   }
 
   private MemberMXBean awaitMemberMXBeanProxy(final DistributedMember member) {
-    SystemManagementService service = managementTestRule.getSystemManagementService();
-    ObjectName objectName = service.getMemberMBeanName(member);
+    var service = managementTestRule.getSystemManagementService();
+    var objectName = service.getMemberMBeanName(member);
     GeodeAwaitility.await()
         .untilAsserted(
             () -> assertThat(service.getMBeanProxy(objectName, MemberMXBean.class)).isNotNull());

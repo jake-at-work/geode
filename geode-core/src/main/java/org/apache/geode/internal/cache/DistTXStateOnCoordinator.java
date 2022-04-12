@@ -84,7 +84,7 @@ public class DistTXStateOnCoordinator extends DistTXState implements DistTXCoord
 
   @Override
   public void precommit() {
-    boolean retVal =
+    var retVal =
         applyOpsOnRedundantCopy(proxy.getCache().getDistributedSystem().getDistributedMember(),
             secondaryTransactionalOperations);
     if (retVal) {
@@ -127,7 +127,7 @@ public class DistTXStateOnCoordinator extends DistTXState implements DistTXCoord
                                                                              */);
     }
 
-    boolean returnValue = super.putEntry(event, ifNew, ifOld, expectedOldValue, requireOldValue,
+    var returnValue = super.putEntry(event, ifNew, ifOld, expectedOldValue, requireOldValue,
         lastModified, overwriteDestroyed, invokeCallbacks, throwsConcurrentModification);
 
     // putAll event is already added in postPutAll, don't add individual events
@@ -157,7 +157,7 @@ public class DistTXStateOnCoordinator extends DistTXState implements DistTXCoord
                                         */);
     }
 
-    boolean returnValue = super.putEntryOnRemote(event, ifNew, ifOld, expectedOldValue,
+    var returnValue = super.putEntryOnRemote(event, ifNew, ifOld, expectedOldValue,
         requireOldValue, lastModified, overwriteDestroyed);
 
     // putAll event is already added in postPutAll, don't add individual events
@@ -244,10 +244,10 @@ public class DistTXStateOnCoordinator extends DistTXState implements DistTXCoord
       InternalRegion reg) {
     super.postPutAll(putallOp, successfulPuts, reg);
     // TODO DISTTX: event is never released
-    EntryEventImpl event = EntryEventImpl.createPutAllEvent(putallOp, reg, Operation.PUTALL_CREATE,
+    var event = EntryEventImpl.createPutAllEvent(putallOp, reg, Operation.PUTALL_CREATE,
         putallOp.getBaseEvent().getKey(), putallOp.getBaseEvent().getValue());
     event.setEventId(putallOp.getBaseEvent().getEventId());
-    DistTxEntryEvent dtop = new DistTxEntryEvent(event);
+    var dtop = new DistTxEntryEvent(event);
     dtop.setPutAllOperation(putallOp);
     addPrimaryTransactionalOperations(dtop);
   }
@@ -257,10 +257,10 @@ public class DistTXStateOnCoordinator extends DistTXState implements DistTXCoord
       VersionedObjectList successfulOps, InternalRegion reg) {
     super.postRemoveAll(removeAllOp, successfulOps, reg);
     // TODO DISTTX: event is never released
-    EntryEventImpl event =
+    var event =
         EntryEventImpl.createRemoveAllEvent(removeAllOp, reg, removeAllOp.getBaseEvent().getKey());
     event.setEventId(removeAllOp.getBaseEvent().getEventId());
-    DistTxEntryEvent dtop = new DistTxEntryEvent(event);
+    var dtop = new DistTxEntryEvent(event);
     dtop.setRemoveAllOperation(removeAllOp);
     addPrimaryTransactionalOperations(dtop);
   }
@@ -304,12 +304,12 @@ public class DistTXStateOnCoordinator extends DistTXState implements DistTXCoord
       boolean includePrimaryRegions, boolean includeRedundantRegions)
       throws UnsupportedOperationInTransactionException {
     if (includePrimaryRegions) {
-      for (DistTxEntryEvent dtos : primaryTransactionalOperations) {
+      for (var dtos : primaryTransactionalOperations) {
         regionSet.add(dtos.getRegion());
       }
     }
     if (includeRedundantRegions) {
-      for (DistTxEntryEvent dtos : secondaryTransactionalOperations) {
+      for (var dtos : secondaryTransactionalOperations) {
         regionSet.add(dtos.getRegion());
       }
     }
@@ -329,8 +329,8 @@ public class DistTXStateOnCoordinator extends DistTXState implements DistTXCoord
 
   public static void gatherAffectedRegions(TreeSet<String> sortedRegionName,
       ArrayList<DistTxEntryEvent> regionOps) {
-    for (DistTxEntryEvent dtos : regionOps) {
-      InternalRegion ir = dtos.getRegion();
+    for (var dtos : regionOps) {
+      var ir = dtos.getRegion();
       if (ir instanceof PartitionedRegion) {
         sortedRegionName.add(PartitionedRegionHelper.getBucketFullPath(ir.getFullPath(),
             dtos.getKeyInfo().getBucketId()));
@@ -346,12 +346,12 @@ public class DistTXStateOnCoordinator extends DistTXState implements DistTXCoord
    */
   @Override
   protected boolean applyIndividualOp(DistTxEntryEvent dtop) throws DataLocationException {
-    boolean result = true;
+    var result = true;
     if (dtop.op.isUpdate() || dtop.op.isCreate()) {
       if (dtop.op.isPutAll()) {
         assert (dtop.getPutAllOperation() != null);
         // [DISTTX] TODO what do with versions next?
-        final VersionedObjectList versions =
+        final var versions =
             new VersionedObjectList(dtop.getPutAllOperation().putAllDataSize, true,
                 dtop.getRegion().getConcurrencyChecksEnabled());
         postPutAll(dtop.getPutAllOperation(), versions, dtop.getRegion());
@@ -365,7 +365,7 @@ public class DistTXStateOnCoordinator extends DistTXState implements DistTXCoord
       if (dtop.op.isRemoveAll()) {
         assert (dtop.getRemoveAllOperation() != null);
         // [DISTTX] TODO what do with versions next?
-        final VersionedObjectList versions =
+        final var versions =
             new VersionedObjectList(dtop.getRemoveAllOperation().removeAllDataSize, true,
                 dtop.getRegion().getConcurrencyChecksEnabled());
         postRemoveAll(dtop.getRemoveAllOperation(), versions, dtop.getRegion());

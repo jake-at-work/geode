@@ -34,11 +34,8 @@ import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.BucketPersistenceAdvisor;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.ProxyBucketRegion;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 
@@ -56,8 +53,8 @@ public class MembershipFlushRequest extends PooledDistributionMessage implements
 
   public static void send(Set<InternalDistributedMember> recipients, DistributionManager dm,
       String regionPath) throws ReplyException {
-    ReplyProcessor21 processor = new ReplyProcessor21(dm, recipients);
-    MembershipFlushRequest msg = new MembershipFlushRequest(regionPath, processor.getProcessorId());
+    var processor = new ReplyProcessor21(dm, recipients);
+    var msg = new MembershipFlushRequest(regionPath, processor.getProcessorId());
     msg.setRecipients(recipients);
     dm.putOutgoing(msg);
     processor.waitForRepliesUninterruptibly();
@@ -66,7 +63,7 @@ public class MembershipFlushRequest extends PooledDistributionMessage implements
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+    final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
 
     ReplyException exception = null;
     try {
@@ -74,13 +71,13 @@ public class MembershipFlushRequest extends PooledDistributionMessage implements
       // otherwise we could have a distributed deadlock
 
       Cache cache = dm.getExistingCache();
-      PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionPath);
+      var region = (PartitionedRegion) cache.getRegion(regionPath);
       if (region != null && region.getRegionAdvisor().isInitialized()) {
-        ProxyBucketRegion[] proxyBuckets = region.getRegionAdvisor().getProxyBucketArray();
+        var proxyBuckets = region.getRegionAdvisor().getProxyBucketArray();
         // buckets are null if initPRInternals is still not complete
         if (proxyBuckets != null) {
-          for (ProxyBucketRegion bucket : proxyBuckets) {
-            final BucketPersistenceAdvisor persistenceAdvisor = bucket.getPersistenceAdvisor();
+          for (var bucket : proxyBuckets) {
+            final var persistenceAdvisor = bucket.getPersistenceAdvisor();
             if (persistenceAdvisor != null) {
               persistenceAdvisor.flushMembershipChanges();
             }
@@ -99,7 +96,7 @@ public class MembershipFlushRequest extends PooledDistributionMessage implements
       exception = new ReplyException(t);
     } finally {
       LocalRegion.setThreadInitLevelRequirement(oldLevel);
-      ReplyMessage replyMsg = new ReplyMessage();
+      var replyMsg = new ReplyMessage();
       replyMsg.setRecipient(getSender());
       replyMsg.setProcessorId(processorId);
       if (exception != null) {

@@ -22,8 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -66,7 +64,7 @@ public class ServerStartupRedundancyRecoveryNotificationTest {
 
     locatorPort = getRandomAvailableTCPPort();
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + LOCATOR_NAME,
         "--dir=" + locatorFolder,
@@ -80,7 +78,7 @@ public class ServerStartupRedundancyRecoveryNotificationTest {
         "--locators=localhost[" + locatorPort + "]",
         "--disable-default-server");
 
-    String startServer2Command = String.join(" ",
+    var startServer2Command = String.join(" ",
         "start server",
         "--name=" + SERVER_2_NAME,
         "--dir=" + server2Folder,
@@ -88,26 +86,26 @@ public class ServerStartupRedundancyRecoveryNotificationTest {
         "--disable-default-server");
 
     regionName = "myRegion";
-    String createRegionCommand = String.join(" ",
+    var createRegionCommand = String.join(" ",
         "create region",
         "--name=" + regionName,
         "--type=PARTITION_REDUNDANT",
         "--redundant-copies=1");
 
     regionNameTwo = "mySecondRegion";
-    String createRegionTwoCommand = String.join(" ",
+    var createRegionTwoCommand = String.join(" ",
         "create region",
         "--name=" + regionNameTwo,
         "--type=PARTITION_REDUNDANT",
         "--redundant-copies=1");
 
-    String putCommand = String.join(" ",
+    var putCommand = String.join(" ",
         "put",
         "--region=" + regionName,
         "--key=James",
         "--value=Bond");
 
-    String putCommandInRegionTwo = String.join(" ",
+    var putCommandInRegionTwo = String.join(" ",
         "put",
         "--region=" + regionNameTwo,
         "--key=Derrick",
@@ -116,21 +114,21 @@ public class ServerStartupRedundancyRecoveryNotificationTest {
     gfshRule.execute(startLocatorCommand, startServer1Command, startServer2Command,
         createRegionCommand, createRegionTwoCommand, putCommand, putCommandInRegionTwo);
 
-    String stopServer1Command = "stop server --dir=" + server1Folder;
+    var stopServer1Command = "stop server --dir=" + server1Folder;
     gfshRule.execute(stopServer1Command);
   }
 
   @After
   public void stopAllMembers() {
-    String stopServer1Command = "stop server --dir=" + server1Folder;
-    String stopServer2Command = "stop server --dir=" + server2Folder;
-    String stopLocatorCommand = "stop locator --dir=" + locatorFolder;
+    var stopServer1Command = "stop server --dir=" + server1Folder;
+    var stopServer2Command = "stop server --dir=" + server2Folder;
+    var stopLocatorCommand = "stop locator --dir=" + locatorFolder;
     gfshRule.execute(stopServer1Command, stopServer2Command, stopLocatorCommand);
   }
 
   @Test
   public void startupReportsOnlineOnlyAfterRedundancyRestored() throws IOException {
-    String connectCommand = "connect --locator=localhost[" + locatorPort + "]";
+    var connectCommand = "connect --locator=localhost[" + locatorPort + "]";
     server1Folder =
         temporaryFolder.newFolder(SERVER_1_NAME + "_test").toPath().toAbsolutePath();
     startServer1Command = String.join(" ",
@@ -142,28 +140,28 @@ public class ServerStartupRedundancyRecoveryNotificationTest {
 
     gfshRule.execute(connectCommand, startServer1Command);
 
-    Pattern serverOnlinePattern =
+    var serverOnlinePattern =
         Pattern.compile("^\\[info .*].*Server " + SERVER_1_NAME + " startup completed in \\d+ ms");
-    Pattern redundancyRestoredPattern =
+    var redundancyRestoredPattern =
         Pattern.compile(
             "^\\[info .*].*Configured redundancy of 2 copies has been restored to " + SEPARATOR
                 + regionName
                 + ".*");
-    Pattern redundancyRestoredSecondRegionPattern =
+    var redundancyRestoredSecondRegionPattern =
         Pattern.compile(
             "^\\[info .*].*Configured redundancy of 2 copies has been restored to " + SEPARATOR
                 + regionNameTwo
                 + ".*");
 
-    Path logFile = server1Folder.resolve(SERVER_1_NAME + ".log");
+    var logFile = server1Folder.resolve(SERVER_1_NAME + ".log");
 
     await()
         .untilAsserted(() -> {
-          final Predicate<String> isRelevantLine = redundancyRestoredPattern.asPredicate()
+          final var isRelevantLine = redundancyRestoredPattern.asPredicate()
               .or(redundancyRestoredSecondRegionPattern.asPredicate())
               .or(serverOnlinePattern.asPredicate());
 
-          final List<String> foundPatterns =
+          final var foundPatterns =
               Files.lines(logFile).filter(isRelevantLine)
                   .collect(Collectors.toList());
 

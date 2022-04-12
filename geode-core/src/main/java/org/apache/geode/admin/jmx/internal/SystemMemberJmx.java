@@ -29,15 +29,11 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.SystemFailure;
 import org.apache.geode.admin.AdminException;
-import org.apache.geode.admin.ConfigurationParameter;
 import org.apache.geode.admin.OperationCancelledException;
-import org.apache.geode.admin.StatisticResource;
 import org.apache.geode.admin.SystemMember;
-import org.apache.geode.admin.SystemMemberCache;
 import org.apache.geode.admin.SystemMemberCacheEvent;
 import org.apache.geode.admin.SystemMemberRegionEvent;
 import org.apache.geode.annotations.internal.MakeNotStatic;
-import org.apache.geode.cache.Operation;
 import org.apache.geode.internal.admin.ClientMembershipMessage;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -207,7 +203,7 @@ public interface SystemMemberJmx extends SystemMember, NotificationListener {
     private static final AtomicInteger notificationSequenceNumber = new AtomicInteger();
 
     public static int setAndReturnRefreshInterval(SystemMemberJmx member, int refreshInterval) {
-      int ret = refreshInterval;
+      var ret = refreshInterval;
 
       try {
         MBeanUtils.registerRefreshNotification(member, // NotificationListener
@@ -239,15 +235,15 @@ public interface SystemMemberJmx extends SystemMember, NotificationListener {
 
     public static ObjectName manageCache(SystemMemberJmx member)
         throws AdminException, MalformedObjectNameException {
-      boolean IthrewIt = false;
+      var IthrewIt = false;
       try {
-        SystemMemberCache cache = member.getCache();
+        var cache = member.getCache();
         if (cache == null) {
           IthrewIt = true;
           throw new AdminException(
               "This System Member does not have a Cache.");
         }
-        SystemMemberCacheJmxImpl cacheJmx = (SystemMemberCacheJmxImpl) cache;
+        var cacheJmx = (SystemMemberCacheJmxImpl) cache;
         return ObjectName.getInstance(cacheJmx.getMBeanName());
       } catch (AdminException e) {
         if (!IthrewIt) {
@@ -277,10 +273,10 @@ public interface SystemMemberJmx extends SystemMember, NotificationListener {
     public static ObjectName[] manageStats(SystemMemberJmx member)
         throws AdminException, MalformedObjectNameException {
       try {
-        StatisticResource[] stats = member.getStats();
-        ObjectName[] onames = new ObjectName[stats.length];
-        for (int i = 0; i < stats.length; i++) {
-          StatisticResourceJmxImpl stat = (StatisticResourceJmxImpl) stats[i];
+        var stats = member.getStats();
+        var onames = new ObjectName[stats.length];
+        for (var i = 0; i < stats.length; i++) {
+          var stat = (StatisticResourceJmxImpl) stats[i];
           onames[i] = ObjectName.getInstance(stat.getMBeanName());
         }
         return onames;
@@ -310,13 +306,13 @@ public interface SystemMemberJmx extends SystemMember, NotificationListener {
     public static ObjectName[] manageStat(SystemMemberJmx member, String statisticsTypeName)
         throws AdminException, MalformedObjectNameException {
       try {
-        StatisticResource[] stats = member.getStat(statisticsTypeName);
+        var stats = member.getStat(statisticsTypeName);
         if (stats == null) {
           return null;
         } else {
-          ObjectName[] statNames = new ObjectName[stats.length];
-          for (int i = 0; i < stats.length; i++) {
-            StatisticResourceJmxImpl statJMX = (StatisticResourceJmxImpl) stats[i];
+          var statNames = new ObjectName[stats.length];
+          for (var i = 0; i < stats.length; i++) {
+            var statJMX = (StatisticResourceJmxImpl) stats[i];
             statNames[i] = ObjectName.getInstance(statJMX.getMBeanName());
           }
           return statNames;
@@ -382,10 +378,10 @@ public interface SystemMemberJmx extends SystemMember, NotificationListener {
 
       // need to create a new instance of ManagedBean to clean the "slate"...
       ManagedBean newManagedBean = new DynamicManagedBean(managed);
-      ConfigurationParameter[] params = member.getConfiguration();
-      for (final ConfigurationParameter param : params) {
-        ConfigurationParameterJmxImpl parm = (ConfigurationParameterJmxImpl) param;
-        ConfigAttributeInfo attrInfo = new ConfigAttributeInfo(parm);
+      var params = member.getConfiguration();
+      for (final var param : params) {
+        var parm = (ConfigurationParameterJmxImpl) param;
+        var attrInfo = new ConfigAttributeInfo(parm);
 
         attrInfo.setName(parm.getName());
         attrInfo.setDisplayName(parm.getName());
@@ -417,8 +413,8 @@ public interface SystemMemberJmx extends SystemMember, NotificationListener {
      * @return the cache event details extracted from the given SystemMemberCacheEvent
      */
     /* default */static String getCacheEventDetails(SystemMemberCacheEvent event) {
-      String memberId = event.getMemberId();
-      Operation operation = event.getOperation();
+      var memberId = event.getMemberId();
+      var operation = event.getOperation();
 
       return "CacheEvent[MemberId: " + memberId + ", operation: " + operation + "]";
     }
@@ -430,8 +426,8 @@ public interface SystemMemberJmx extends SystemMember, NotificationListener {
      * @return the cache event details extracted from the given SystemMemberRegionEvent
      */
     /* default */static String getRegionEventDetails(SystemMemberRegionEvent event) {
-      String memberId = event.getMemberId();
-      Operation operation = event.getOperation();
+      var memberId = event.getMemberId();
+      var operation = event.getOperation();
 
       return "RegionEvent[MemberId: " + memberId + ", operation: " + operation + ", region:"
           + event.getRegionPath() + "]";

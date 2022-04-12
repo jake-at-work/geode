@@ -15,7 +15,6 @@
 package org.apache.geode.security;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class ClientAuthenticationDUnitTest extends ClientAuthenticationTestCase 
 
   @Parameters(name = "{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersions();
+    var result = VersionManager.getInstance().getVersions();
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
     }

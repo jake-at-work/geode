@@ -70,12 +70,12 @@ abstract class BackupInspector {
       throw new IOException("Backup directory " + backupDir.getAbsolutePath() + " does not exist.");
     }
 
-    File restoreFile = getRestoreFile(backupDir);
+    var restoreFile = getRestoreFile(backupDir);
     if (!restoreFile.exists()) {
       throw new IOException("Restore file " + restoreFile.getName() + " does not exist.");
     }
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(restoreFile))) {
+    try (var reader = new BufferedReader(new FileReader(restoreFile))) {
       parseRestoreFile(reader);
     }
   }
@@ -95,7 +95,7 @@ abstract class BackupInspector {
    * @param reader restore file reader.
    */
   private void parseRestoreFile(final BufferedReader reader) throws IOException {
-    boolean markerFound = false;
+    var markerFound = false;
 
     String line;
     while (!markerFound && null != (line = reader.readLine())) {

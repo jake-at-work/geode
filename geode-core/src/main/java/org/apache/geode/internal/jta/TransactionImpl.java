@@ -15,7 +15,6 @@
 package org.apache.geode.internal.jta;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.transaction.HeuristicMixedException;
@@ -27,7 +26,6 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
-import org.apache.geode.LogWriter;
 
 /**
  * TransactionImpl implements the JTA Transaction interface.
@@ -111,9 +109,9 @@ public class TransactionImpl implements Transaction {
   public void setRollbackOnly() throws IllegalStateException, SystemException {
     gtx = tm.getGlobalTransaction();
     if (gtx == null) {
-      String exception =
+      var exception =
           "TransactionImpl::setRollbackOnly: No global transaction exists.";
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (writer.fineEnabled()) {
         writer.fine(exception);
       }
@@ -140,9 +138,9 @@ public class TransactionImpl implements Transaction {
    * not supported
    */
   public void setTransactionTimeout(int seconds) throws SystemException {
-    String exception =
+    var exception =
         "setTransactionTimeout is not supported.";
-    LogWriter writer = TransactionUtils.getLogWriter();
+    var writer = TransactionUtils.getLogWriter();
     if (writer.fineEnabled()) {
       writer.fine(exception);
     }
@@ -168,9 +166,9 @@ public class TransactionImpl implements Transaction {
       throws RollbackException, IllegalStateException, SystemException {
     gtx = tm.getGlobalTransaction();
     if (gtx == null) {
-      String exception =
+      var exception =
           "TransactionImpl::enlistResource: No global transaction exists";
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (writer.fineEnabled()) {
         writer.fine(exception);
       }
@@ -197,9 +195,9 @@ public class TransactionImpl implements Transaction {
       throws IllegalStateException, SystemException {
     gtx = tm.getGlobalTransaction();
     if (gtx == null) {
-      String exception =
+      var exception =
           "TransactionImpl::delistResource: No global transaction exists";
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (writer.fineEnabled()) {
         writer.fine(exception);
       }
@@ -220,7 +218,7 @@ public class TransactionImpl implements Transaction {
   public void registerSynchronization(Synchronization synchronisation)
       throws SystemException, IllegalStateException, RollbackException {
     {
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (writer.fineEnabled()) {
         writer.fine("registering JTA synchronization: " + synchronisation);
       }
@@ -235,19 +233,19 @@ public class TransactionImpl implements Transaction {
           "no transaction present");
     }
     synchronized (gtx) {
-      int status = -1;
+      var status = -1;
       if ((status = gtx.getStatus()) == Status.STATUS_MARKED_ROLLBACK) {
-        String exception =
+        var exception =
             "TransactionImpl::registerSynchronization: Synchronization cannot be registered because the transaction has been marked for rollback";
-        LogWriter writer = TransactionUtils.getLogWriter();
+        var writer = TransactionUtils.getLogWriter();
         if (writer.fineEnabled()) {
           writer.fine(exception);
         }
         throw new RollbackException(exception);
       } else if (status != Status.STATUS_ACTIVE) {
-        String exception =
+        var exception =
             "TransactionImpl::registerSynchronization: Synchronization cannot be registered on a transaction which is not active";
-        LogWriter writer = TransactionUtils.getLogWriter();
+        var writer = TransactionUtils.getLogWriter();
         if (writer.fineEnabled()) {
           writer.fine(exception);
         }
@@ -262,8 +260,8 @@ public class TransactionImpl implements Transaction {
    * completion
    */
   boolean notifyBeforeCompletion() {
-    Iterator iterator = syncList.iterator();
-    boolean result = true;
+    var iterator = syncList.iterator();
+    var result = true;
     while (iterator.hasNext()) {
       sync = ((Synchronization) iterator.next());
       sync.beforeCompletion();
@@ -278,7 +276,7 @@ public class TransactionImpl implements Transaction {
    * @param status int The status of the Global transaction associated with the transaction
    */
   void notifyAfterCompletion(int status) throws SystemException {
-    for (final Object o : syncList) {
+    for (final var o : syncList) {
       sync = ((Synchronization) o);
       sync.afterCompletion(status);
     }

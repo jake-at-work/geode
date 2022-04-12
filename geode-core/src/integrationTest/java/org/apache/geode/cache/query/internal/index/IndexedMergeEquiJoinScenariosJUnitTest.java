@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
@@ -55,58 +54,58 @@ public class IndexedMergeEquiJoinScenariosJUnitTest {
   public void setUp() throws java.lang.Exception {
     CacheUtils.log("Creating regions");
     CacheUtils.startCache();
-    Region region1 = CacheUtils.createRegion("Portfolios1", Portfolio.class);
-    for (int i = 0; i < 5; i++) {
+    var region1 = CacheUtils.createRegion("Portfolios1", Portfolio.class);
+    for (var i = 0; i < 5; i++) {
       region1.put("" + i, new Portfolio(i));
     }
-    Region region2 = CacheUtils.createRegion("Portfolios2", Portfolio.class);
-    for (int i = 0; i < 2; i++) {
+    var region2 = CacheUtils.createRegion("Portfolios2", Portfolio.class);
+    for (var i = 0; i < 2; i++) {
       region2.put("" + i, new Portfolio(i));
     }
-    Region region3 = CacheUtils.createRegion("Portfolios3", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region3 = CacheUtils.createRegion("Portfolios3", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region3.put("" + i, new Portfolio(i));
     }
     CacheUtils.log("Portfolio regions created and populated");
-    Region region4 = CacheUtils.createRegion("Countries1", Country.class);
-    Region region5 = CacheUtils.createRegion("Countries2", Country.class);
-    Region region6 = CacheUtils.createRegion("Countries3", Country.class);
-    Village v1 = new Village("MAHARASHTRA_VILLAGE1", 123456);
-    Village v2 = new Village("PUNJAB_VILLAGE1", 123789);
+    var region4 = CacheUtils.createRegion("Countries1", Country.class);
+    var region5 = CacheUtils.createRegion("Countries2", Country.class);
+    var region6 = CacheUtils.createRegion("Countries3", Country.class);
+    var v1 = new Village("MAHARASHTRA_VILLAGE1", 123456);
+    var v2 = new Village("PUNJAB_VILLAGE1", 123789);
 
     Set villages = new HashSet();
     villages.add(v1);
     villages.add(v2); // villages.add(v3); //villages.add(v4); villages.add(v5);
 
     /* create cities */
-    City ct1 = new City("MUMBAI", 123456);
-    City ct2 = new City("PUNE", 123789);
+    var ct1 = new City("MUMBAI", 123456);
+    var ct2 = new City("PUNE", 123789);
 
     Set cities = new HashSet();
     cities.add(ct1);
     cities.add(ct2); // cities.add(ct3); cities.add(ct4);
 
     /* create districts */
-    District d1 = new District("MUMBAIDIST", cities, villages);
-    District d2 = new District("PUNEDIST", cities, villages);
+    var d1 = new District("MUMBAIDIST", cities, villages);
+    var d2 = new District("PUNEDIST", cities, villages);
 
     Set districts = new HashSet();
     districts.add(d1);
     districts.add(d2); // districts.add(d3); districts.add(d4);
 
     /* create states */
-    State s1 = new State("MAHARASHTRA", "west", districts);
-    State s2 = new State("PUNJAB", "north", districts);
+    var s1 = new State("MAHARASHTRA", "west", districts);
+    var s2 = new State("PUNJAB", "north", districts);
 
     Set states = new HashSet();
     states.add(s1);
     states.add(s2); // states.add(s3); //states.add(s4); states.add(s5);
 
     /* create countries */
-    Country c1 = new Country("INDIA", "asia", states);
-    Country c2 = new Country("ISRAEL", "africa", states);
+    var c1 = new Country("INDIA", "asia", states);
+    var c2 = new Country("ISRAEL", "africa", states);
 
-    for (int i = 1; i < 3; i++) {
+    for (var i = 1; i < 3; i++) {
       int temp;
       temp = i % 3;
       switch (temp) {
@@ -137,7 +136,7 @@ public class IndexedMergeEquiJoinScenariosJUnitTest {
     CacheUtils.getQueryService();
     IndexManager.TEST_RANGEINDEX_ONLY = true;
     try {
-      String[] queries = {
+      var queries = new String[] {
           /*
            * 1*
            * "select distinct * from /Portfolios1 pf1, /Portfolios2 pf2, /Countries1 c1, /Countries2 c2 "
@@ -310,8 +309,6 @@ public class IndexedMergeEquiJoinScenariosJUnitTest {
               + "pfo3.status != 'inactive' and "
               + "pfo3.status = pfos.status and villgs1.name = 'MAHARASHTRA_VILLAGE1' or pfos.ID != 0",
 
-
-
           /* 23 */ "Select distinct * " + "from " + SEPARATOR + "Portfolios1 pfos, "
               + "pfos.positions.values Pos1, " + SEPARATOR + "Countries1 c1, " + SEPARATOR
               + "Countries2 c2, "
@@ -468,9 +465,9 @@ public class IndexedMergeEquiJoinScenariosJUnitTest {
               + "Portfolios2 pf2, " + SEPARATOR + "Countries1 c1, " + SEPARATOR + "Countries2 c2 "
               + "where pf1.status = pf2.status or c1.name = c2.name and false and pf1.ID = pf2.ID and c1.name = 'INDIA' and pf2.ID = 2",};
 
-      SelectResults[][] rs = new SelectResults[queries.length][2];
+      var rs = new SelectResults[queries.length][2];
 
-      for (int i = 0; i < queries.length; i++) {
+      for (var i = 0; i < queries.length; i++) {
         CacheUtils.log("Running query number :" + (i + 1) + " without Index");
         Query q = null;
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -480,14 +477,14 @@ public class IndexedMergeEquiJoinScenariosJUnitTest {
       createIndex();
       CacheUtils.log("All indexes created ");
 
-      for (int j = 0; j < queries.length; j++) {
+      for (var j = 0; j < queries.length; j++) {
         CacheUtils.log("Running query number :" + (j + 1) + " with Index");
         if (j == 4) {
           System.out.print("Hi");
         }
         Query q2 = null;
         q2 = CacheUtils.getQueryService().newQuery(queries[j]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         try {
           rs[j][1] = (SelectResults) q2.execute();
@@ -502,7 +499,7 @@ public class IndexedMergeEquiJoinScenariosJUnitTest {
           fail();
         }
       }
-      StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+      var ssORrs = new StructSetOrResultsSet();
       ssORrs.CompareQueryResultsWithoutAndWithIndexes(rs, queries.length, queries);
     } finally {
       IndexManager.TEST_RANGEINDEX_ONLY = false;

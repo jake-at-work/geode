@@ -52,7 +52,7 @@ public class PRDataStoreMemoryJUnitTest {
   }
 
   protected Properties getDistributedSystemProperties() {
-    Properties dsProps = new Properties();
+    var dsProps = new Properties();
     dsProps.setProperty(MCAST_PORT, "0");
     return dsProps;
   }
@@ -67,36 +67,36 @@ public class PRDataStoreMemoryJUnitTest {
 
   @Test
   public void testCurrentAllocatedMemory() throws Exception {
-    PartitionedRegion regionAck1 =
+    var regionAck1 =
         (PartitionedRegion) defineRegionFactory().create("testCurrentAllocatedemory");
 
     assertEquals(0, regionAck1.getDataStore().currentAllocatedMemory());
 
     Integer val1 = 16;
     regionAck1.put(1, val1);
-    Object storedVal =
+    var storedVal =
         regionAck1.getBucketRegion(1).getRegionEntry(1).getValue();
-    final int size1 = CachedDeserializableFactory.calcMemSize(storedVal);
-    int size = size1;
+    final var size1 = CachedDeserializableFactory.calcMemSize(storedVal);
+    var size = size1;
     assertEquals(size, regionAck1.getDataStore().currentAllocatedMemory());
 
-    byte[] val2 = new byte[1000];
+    var val2 = new byte[1000];
     regionAck1.put(2, val2);
     storedVal =
         regionAck1.getBucketRegion(2).getRegionEntry(2).getValue();
-    final int size2 = CachedDeserializableFactory.calcMemSize(storedVal);
+    final var size2 = CachedDeserializableFactory.calcMemSize(storedVal);
     size += size2;
     assertEquals(size, regionAck1.getDataStore().currentAllocatedMemory());
 
-    String val3 = "0123456789";
+    var val3 = "0123456789";
     regionAck1.put(3, val3);
     storedVal =
         regionAck1.getBucketRegion(3).getRegionEntry(3).getValue();
-    final int size3 = CachedDeserializableFactory.calcMemSize(storedVal);
+    final var size3 = CachedDeserializableFactory.calcMemSize(storedVal);
     size += size3;
     assertEquals(size, regionAck1.getDataStore().currentAllocatedMemory());
 
-    long beforeSize = regionAck1.getDataStore().currentAllocatedMemory();
+    var beforeSize = regionAck1.getDataStore().currentAllocatedMemory();
     regionAck1.invalidate(3);
     size -= size3;
     assertEquals(

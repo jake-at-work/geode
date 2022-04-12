@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.shiro.subject.Subject;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
@@ -38,7 +37,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.query.RegionNotFoundException;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.classloader.ClassPathLoader;
@@ -77,7 +75,7 @@ public class UserFunctionExecution implements InternalFunction<Object[]> {
     try {
       // if the function is executed on a server with jmx-manager that user is already logged into
       // then we do not need to do login/logout here.
-      Subject subject = securityService.getSubject();
+      var subject = securityService.getSubject();
       return subject == null || !subject.isAuthenticated();
     } catch (AuthenticationRequiredException e) {
       return true;
@@ -120,7 +118,7 @@ public class UserFunctionExecution implements InternalFunction<Object[]> {
   Execution<Object, Object, List<Object>> buildExecution(Cache cache, String onRegion)
       throws RegionNotFoundException {
     Execution<Object, Object, List<Object>> execution;
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+    var member = cache.getDistributedSystem().getDistributedMember();
 
     if (onRegion != null && onRegion.length() > 0) {
       Region<?, ?> region = cache.getRegion(onRegion);
@@ -140,24 +138,24 @@ public class UserFunctionExecution implements InternalFunction<Object[]> {
   @Override
   public void execute(FunctionContext<Object[]> context) {
     Cache cache = ((InternalCache) context.getCache()).getCacheForProcessingClientRequests();
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+    var member = cache.getDistributedSystem().getDistributedMember();
 
-    Object[] args = context.getArguments();
+    var args = context.getArguments();
     if (args == null) {
       context.getResultSender().lastResult(new CliFunctionResult(context.getMemberName(), ERROR,
           CliStrings.EXECUTE_FUNCTION__MSG__COULD_NOT_RETRIEVE_ARGUMENTS));
       return;
     }
 
-    String functionId = ((String) args[0]);
-    String filterString = ((String) args[1]);
-    String resultCollectorName = ((String) args[2]);
-    String argumentsString = ((String) args[3]);
-    String onRegion = ((String) args[4]);
-    Properties credentials = (Properties) args[5];
-    SecurityService securityService = ((InternalCache) context.getCache()).getSecurityService();
+    var functionId = ((String) args[0]);
+    var filterString = ((String) args[1]);
+    var resultCollectorName = ((String) args[2]);
+    var argumentsString = ((String) args[3]);
+    var onRegion = ((String) args[4]);
+    var credentials = (Properties) args[5];
+    var securityService = ((InternalCache) context.getCache()).getSecurityService();
 
-    boolean loginSuccessful = false;
+    var loginSuccessful = false;
     try {
 
       // Authenticate If Needed
@@ -167,7 +165,7 @@ public class UserFunctionExecution implements InternalFunction<Object[]> {
       }
 
       // Load User Function
-      Function<?> function = loadFunction(functionId);
+      var function = loadFunction(functionId);
       if (function == null) {
         context.getResultSender()
             .lastResult(new CliFunctionResult(context.getMemberName(), ERROR,
@@ -178,16 +176,16 @@ public class UserFunctionExecution implements InternalFunction<Object[]> {
       }
 
       // Parse Arguments
-      Set<String> filters = parseFilters(filterString);
-      String[] functionArgs = parseArguments(argumentsString);
-      ResultCollector<Object, List<Object>> resultCollectorInstance =
+      var filters = parseFilters(filterString);
+      var functionArgs = parseArguments(argumentsString);
+      var resultCollectorInstance =
           parseResultCollector(resultCollectorName);
 
       // Security check
       function.getRequiredPermissions(onRegion, functionArgs).forEach(securityService::authorize);
 
       // Build & Configure Execution Context
-      Execution<Object, Object, List<Object>> execution = buildExecution(cache, onRegion);
+      var execution = buildExecution(cache, onRegion);
       if (execution == null) {
         context.getResultSender()
             .lastResult(new CliFunctionResult(context.getMemberName(), ERROR,
@@ -212,16 +210,16 @@ public class UserFunctionExecution implements InternalFunction<Object[]> {
 
       // Execute Function and gather results
       List<Object> results = null;
-      boolean functionSuccess = true;
+      var functionSuccess = true;
       List<String> resultMessage = new ArrayList<>();
 
-      ResultCollector<Object, List<Object>> rc = execution.execute(function.getId());
+      var rc = execution.execute(function.getId());
       if (function.hasResult()) {
         results = rc.getResult();
       }
 
       if (results != null) {
-        for (Object resultObj : results) {
+        for (var resultObj : results) {
           if (resultObj != null) {
             if (resultObj instanceof Exception) {
               resultMessage.add(((Exception) resultObj).getMessage());

@@ -15,22 +15,17 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.Set;
 
-import javax.management.ObjectName;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.GatewaySenderMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -51,24 +46,24 @@ public class LoadBalanceGatewaySenderCommand extends GfshCommand {
       senderId = senderId.trim();
     }
 
-    Cache cache = getCache();
+    var cache = getCache();
     SystemManagementService service = getManagementService();
 
-    Set<DistributedMember> dsMembers = getAllNormalMembers();
+    var dsMembers = getAllNormalMembers();
     if (dsMembers.isEmpty()) {
       return ResultModel.createInfo(CliStrings.GATEWAY_MSG_MEMBERS_NOT_FOUND);
     }
 
-    ResultModel resultModel = new ResultModel();
-    TabularResultModel resultData = resultModel.addTable(CliStrings.LOAD_BALANCE_GATEWAYSENDER);
+    var resultModel = new ResultModel();
+    var resultData = resultModel.addTable(CliStrings.LOAD_BALANCE_GATEWAYSENDER);
 
-    boolean gatewaySenderExists = false;
-    for (DistributedMember member : dsMembers) {
+    var gatewaySenderExists = false;
+    for (var member : dsMembers) {
       GatewaySenderMXBean bean;
       if (cache.getDistributedSystem().getDistributedMember().getId().equals(member.getId())) {
         bean = service.getLocalGatewaySenderMXBean(senderId);
       } else {
-        ObjectName objectName = service.getGatewaySenderMBeanName(member, senderId);
+        var objectName = service.getGatewaySenderMBeanName(member, senderId);
         bean = service.getMBeanProxy(objectName, GatewaySenderMXBean.class);
       }
       if (bean != null) {

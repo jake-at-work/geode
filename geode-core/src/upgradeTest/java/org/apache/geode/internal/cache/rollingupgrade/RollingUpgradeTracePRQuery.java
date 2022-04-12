@@ -18,8 +18,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Properties;
-
 import org.junit.Test;
 
 import org.apache.geode.cache.RegionShortcut;
@@ -28,28 +26,27 @@ import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.version.VersionManager;
 
 public class RollingUpgradeTracePRQuery extends RollingUpgrade2DUnitTestBase {
 
   @Test
   public void testTracePRQuery() throws Exception {
-    final Host host = Host.getHost(0);
-    VM currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
-    VM oldServer = host.getVM(oldVersion, 1);
-    VM currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
-    VM oldServerAndLocator = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
+    var oldServer = host.getVM(oldVersion, 1);
+    var currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    var oldServerAndLocator = host.getVM(oldVersion, 3);
 
-    String regionName = "cqs";
+    var regionName = "cqs";
 
-    RegionShortcut shortcut = RegionShortcut.REPLICATE;
+    var shortcut = RegionShortcut.REPLICATE;
     shortcut = RegionShortcut.PARTITION;
 
-    String serverHostName = NetworkUtils.getServerHostName();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var serverHostName = NetworkUtils.getServerHostName();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     try {
-      Properties props = getSystemProperties();
+      var props = getSystemProperties();
       props.remove(DistributionConfig.LOCATORS_NAME);
       invokeRunnableInVMs(invokeStartLocatorAndServer(serverHostName, port, props),
           oldServerAndLocator);

@@ -41,10 +41,10 @@ public abstract class JMXBaseBean {
   }
 
   protected Long[] getLongArray(String key) {
-    String value = JMXProperties.getInstance().getProperty(getKey(key), "");
-    String[] values = value.split(",");
-    Long[] longValues = new Long[values.length];
-    for (int i = 0; i < values.length; i++) {
+    var value = JMXProperties.getInstance().getProperty(getKey(key), "");
+    var values = value.split(",");
+    var longValues = new Long[values.length];
+    for (var i = 0; i < values.length; i++) {
       longValues[i] = Long.parseLong(values[i]);
     }
     return longValues;

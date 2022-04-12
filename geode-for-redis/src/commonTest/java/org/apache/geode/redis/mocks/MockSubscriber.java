@@ -62,8 +62,8 @@ public class MockSubscriber extends JedisPubSub {
   }
 
   private void switchThreadName(String suffix) {
-    String threadName = Thread.currentThread().getName();
-    int suffixIndex = threadName.indexOf(" -- ");
+    var threadName = Thread.currentThread().getName();
+    var suffixIndex = threadName.indexOf(" -- ");
     if (suffixIndex >= 0) {
       threadName = threadName.substring(0, suffixIndex);
     }
@@ -220,7 +220,7 @@ public class MockSubscriber extends JedisPubSub {
       if (!(o instanceof UnsubscribeInfo)) {
         return false;
       }
-      UnsubscribeInfo that = (UnsubscribeInfo) o;
+      var that = (UnsubscribeInfo) o;
       return count == that.count &&
           Objects.equals(channel, that.channel);
     }

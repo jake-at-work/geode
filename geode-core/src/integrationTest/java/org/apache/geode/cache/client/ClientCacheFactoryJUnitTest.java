@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Properties;
@@ -49,9 +48,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.cache.RegionService;
 import org.apache.geode.cache.client.internal.ProxyCache;
-import org.apache.geode.cache.client.internal.UserAttributes;
 import org.apache.geode.cache.client.proxy.SniProxySocketFactory;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
@@ -93,7 +90,7 @@ public class ClientCacheFactoryJUnitTest {
 
   @AfterClass
   public static void afterClass() {
-    InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+    var ids = InternalDistributedSystem.getAnyInstance();
     if (ids != null) {
       ids.disconnect();
     }
@@ -102,14 +99,14 @@ public class ClientCacheFactoryJUnitTest {
   @Test
   public void test000Defaults() throws Exception {
     clientCache = new ClientCacheFactory().create();
-    GemFireCacheImpl gfc = (GemFireCacheImpl) clientCache;
+    var gfc = (GemFireCacheImpl) clientCache;
     assertThat(gfc.isClient()).isTrue();
 
-    Properties dsProps = clientCache.getDistributedSystem().getProperties();
+    var dsProps = clientCache.getDistributedSystem().getProperties();
     assertThat(dsProps.getProperty(MCAST_PORT)).isEqualTo("0");
     assertThat(dsProps.getProperty(LOCATORS)).isEqualTo("");
 
-    Pool defPool = gfc.getDefaultPool();
+    var defPool = gfc.getDefaultPool();
     assertThat(defPool.getName()).isEqualTo("DEFAULT");
     assertThat(defPool.getLocators()).isEqualTo(Collections.emptyList());
     assertThat(defPool.getSocketConnectTimeout())
@@ -117,7 +114,7 @@ public class ClientCacheFactoryJUnitTest {
     assertThat(defPool.getServers()).isEqualTo(Collections.singletonList(
         new InetSocketAddress(InetAddress.getLocalHost(), CacheServer.DEFAULT_PORT)));
 
-    ClientCache cc2 = new ClientCacheFactory().create();
+    var cc2 = new ClientCacheFactory().create();
     assertThat(cc2).as("expected cc2 and cc to be == " + cc2 + clientCache)
         .isSameAs(clientCache);
     assertThatThrownBy(() -> new ClientCacheFactory().set(LOG_LEVEL, "severe").create())
@@ -128,21 +125,21 @@ public class ClientCacheFactoryJUnitTest {
 
   @Test
   public void test001FindDefaultPoolFromXML() throws Exception {
-    File cacheXmlFile = temporaryFolder.newFile("ClientCacheFactoryJUnitTest.xml");
-    URL url = ClientCacheFactoryJUnitTest.class
+    var cacheXmlFile = temporaryFolder.newFile("ClientCacheFactoryJUnitTest.xml");
+    var url = ClientCacheFactoryJUnitTest.class
         .getResource("ClientCacheFactoryJUnitTest_single_pool.xml");
     FileUtils.copyFile(new File(url.getFile()), cacheXmlFile);
 
     clientCache =
         new ClientCacheFactory().set(CACHE_XML_FILE, cacheXmlFile.getAbsolutePath()).create();
-    GemFireCacheImpl gfc = (GemFireCacheImpl) clientCache;
+    var gfc = (GemFireCacheImpl) clientCache;
     assertThat(gfc.isClient()).isTrue();
 
-    Properties dsProps = clientCache.getDistributedSystem().getProperties();
+    var dsProps = clientCache.getDistributedSystem().getProperties();
     assertThat(dsProps.getProperty(MCAST_PORT)).isEqualTo("0");
     assertThat(dsProps.getProperty(LOCATORS)).isEqualTo("");
 
-    Pool defPool = gfc.getDefaultPool();
+    var defPool = gfc.getDefaultPool();
     assertThat(defPool.getName()).isEqualTo("my_pool_name");
     assertThat(defPool.getLocators()).isEqualTo(Collections.emptyList());
     assertThat(defPool.getSocketConnectTimeout())
@@ -151,9 +148,9 @@ public class ClientCacheFactoryJUnitTest {
         Collections.singletonList(new InetSocketAddress("localhost", CacheServer.DEFAULT_PORT)));
 
     // verify that the SocketCreator settings were correctly picked up from the xml file
-    SocketFactory factory = defPool.getSocketFactory();
+    var factory = defPool.getSocketFactory();
     assertThat(factory).isInstanceOf(SniProxySocketFactory.class);
-    SniProxySocketFactory sniProxySocketFactory = (SniProxySocketFactory) factory;
+    var sniProxySocketFactory = (SniProxySocketFactory) factory;
     assertThat(sniProxySocketFactory.getPort()).isEqualTo(40404);
     assertThat(sniProxySocketFactory.getHostname()).isEqualTo("localhost");
   }
@@ -163,35 +160,35 @@ public class ClientCacheFactoryJUnitTest {
    */
   @Test
   public void test002DPsinglePool() throws Exception {
-    Properties dsProps = new Properties();
+    var dsProps = new Properties();
     dsProps.setProperty(MCAST_PORT, "0");
     DistributedSystem.connect(dsProps);
-    Pool p = PoolManager.createFactory().addServer(InetAddress.getLocalHost().getHostName(), 7777)
+    var p = PoolManager.createFactory().addServer(InetAddress.getLocalHost().getHostName(), 7777)
         .setSocketConnectTimeout(1400).create("singlePool");
 
     clientCache = new ClientCacheFactory().create();
-    GemFireCacheImpl gfc = (GemFireCacheImpl) clientCache;
+    var gfc = (GemFireCacheImpl) clientCache;
     assertThat(gfc.isClient()).isTrue();
 
-    Pool defPool = gfc.getDefaultPool();
+    var defPool = gfc.getDefaultPool();
     assertThat(defPool).isEqualTo(p);
     assertThat(defPool.getSocketConnectTimeout()).isEqualTo(1400);
 
     // make sure if we can not create a secure user cache when one pool exists that is not multiuser
     // enabled
-    Properties suProps = new Properties();
+    var suProps = new Properties();
     suProps.setProperty("user", "foo");
     assertThatThrownBy(() -> clientCache.createAuthenticatedView(suProps))
         .isInstanceOf(IllegalStateException.class);
 
     // however we should be to to create it by configuring a pool
-    Pool pool = PoolManager.createFactory()
+    var pool = PoolManager.createFactory()
         .addServer(InetAddress.getLocalHost().getHostName(), CacheServer.DEFAULT_PORT)
         .setMultiuserAuthentication(true).setSocketConnectTimeout(2345).create("pool1");
-    RegionService cc = clientCache.createAuthenticatedView(suProps, pool.getName());
-    ProxyCache pc = (ProxyCache) cc;
-    UserAttributes ua = pc.getUserAttributes();
-    Pool proxyDefPool = ua.getPool();
+    var cc = clientCache.createAuthenticatedView(suProps, pool.getName());
+    var pc = (ProxyCache) cc;
+    var ua = pc.getUserAttributes();
+    var proxyDefPool = ua.getPool();
     assertThat(proxyDefPool.getServers()).isEqualTo(Collections.singletonList(
         new InetSocketAddress(InetAddress.getLocalHost(), CacheServer.DEFAULT_PORT)));
     assertThat(proxyDefPool.getMultiuserAuthentication()).isTrue();
@@ -203,7 +200,7 @@ public class ClientCacheFactoryJUnitTest {
    */
   @Test
   public void test003DPmultiplePool() throws Exception {
-    Properties dsProps = new Properties();
+    var dsProps = new Properties();
     dsProps.setProperty(MCAST_PORT, "0");
     DistributedSystem.connect(dsProps);
     PoolManager.createFactory().addServer(InetAddress.getLocalHost().getHostName(), 7777)
@@ -212,29 +209,29 @@ public class ClientCacheFactoryJUnitTest {
         .setSocketConnectTimeout(5200).create("p6");
 
     clientCache = new ClientCacheFactory().create();
-    GemFireCacheImpl gfc = (GemFireCacheImpl) clientCache;
+    var gfc = (GemFireCacheImpl) clientCache;
     assertThat(gfc.isClient()).isTrue();
 
-    Pool defPool = gfc.getDefaultPool();
+    var defPool = gfc.getDefaultPool();
     assertThat(defPool).isNull();
     assertThat(PoolManager.find("p7").getSocketConnectTimeout()).isEqualTo(2500);
     assertThat(PoolManager.find("p6").getSocketConnectTimeout()).isEqualTo(5200);
 
     // make sure if we can not create a secure user cache when more than one pool exists that is not
     // multiuser enabled
-    Properties suProps = new Properties();
+    var suProps = new Properties();
     suProps.setProperty("user", "foo");
     assertThatThrownBy(() -> clientCache.createAuthenticatedView(suProps))
         .isInstanceOf(IllegalStateException.class);
 
     // however we should be to to create it by configuring a pool
-    Pool pool = PoolManager.createFactory()
+    var pool = PoolManager.createFactory()
         .addServer(InetAddress.getLocalHost().getHostName(), CacheServer.DEFAULT_PORT)
         .setMultiuserAuthentication(true).create("pool1");
-    RegionService cc = clientCache.createAuthenticatedView(suProps, pool.getName());
-    ProxyCache pc = (ProxyCache) cc;
-    UserAttributes ua = pc.getUserAttributes();
-    Pool proxyDefPool = ua.getPool();
+    var cc = clientCache.createAuthenticatedView(suProps, pool.getName());
+    var pc = (ProxyCache) cc;
+    var ua = pc.getUserAttributes();
+    var proxyDefPool = ua.getPool();
     assertThat(proxyDefPool.getServers()).isEqualTo(Collections.singletonList(
         new InetSocketAddress(InetAddress.getLocalHost(), CacheServer.DEFAULT_PORT)));
     assertThat(proxyDefPool.getMultiuserAuthentication()).isTrue();
@@ -246,10 +243,10 @@ public class ClientCacheFactoryJUnitTest {
   public void test004SetMethod() {
     clientCache =
         new ClientCacheFactory().set(LOG_LEVEL, "severe").setPoolSocketConnectTimeout(0).create();
-    GemFireCacheImpl gfc = (GemFireCacheImpl) clientCache;
+    var gfc = (GemFireCacheImpl) clientCache;
     assertThat(gfc.isClient()).isTrue();
 
-    Properties dsProps = clientCache.getDistributedSystem().getProperties();
+    var dsProps = clientCache.getDistributedSystem().getProperties();
     assertThat(dsProps.getProperty(MCAST_PORT)).isEqualTo("0");
     assertThat(dsProps.getProperty(LOCATORS)).isEqualTo("");
     assertThat(dsProps.getProperty(LOG_LEVEL)).isEqualTo("severe");
@@ -261,19 +258,19 @@ public class ClientCacheFactoryJUnitTest {
 
   @Test
   public void test005SecureUserDefaults() throws Exception {
-    Properties suProps = new Properties();
+    var suProps = new Properties();
     suProps.setProperty("user", "foo");
-    GemFireCacheImpl gfc =
+    var gfc =
         (GemFireCacheImpl) new ClientCacheFactory().setPoolMultiuserAuthentication(true).create();
     clientCache = gfc;
 
-    RegionService cc1 = clientCache.createAuthenticatedView(suProps);
+    var cc1 = clientCache.createAuthenticatedView(suProps);
     assertThat(gfc.isClient()).isTrue();
-    Properties dsProps = clientCache.getDistributedSystem().getProperties();
+    var dsProps = clientCache.getDistributedSystem().getProperties();
     assertThat(dsProps.getProperty(MCAST_PORT)).isEqualTo("0");
     assertThat(dsProps.getProperty(LOCATORS)).isEqualTo("");
 
-    Pool defPool = gfc.getDefaultPool();
+    var defPool = gfc.getDefaultPool();
     assertThat(defPool.getName()).isEqualTo("DEFAULT");
     assertThat(defPool.getMultiuserAuthentication()).isTrue();
     assertThat(defPool.getLocators()).isEqualTo(Collections.emptyList());
@@ -281,7 +278,7 @@ public class ClientCacheFactoryJUnitTest {
         new InetSocketAddress(InetAddress.getLocalHost(), CacheServer.DEFAULT_PORT)));
 
     // make sure we can create another secure user cache
-    RegionService cc2 = clientCache.createAuthenticatedView(suProps);
+    var cc2 = clientCache.createAuthenticatedView(suProps);
     assertThat(gfc.isClient()).isTrue();
     assertThat(dsProps.getProperty(MCAST_PORT)).isEqualTo("0");
     assertThat(dsProps.getProperty(LOCATORS)).isEqualTo("");
@@ -300,14 +297,14 @@ public class ClientCacheFactoryJUnitTest {
   public void test006NonDefaultPool() throws Exception {
     clientCache = new ClientCacheFactory()
         .addPoolServer(InetAddress.getLocalHost().getHostName(), 55555).create();
-    GemFireCacheImpl gfc = (GemFireCacheImpl) clientCache;
+    var gfc = (GemFireCacheImpl) clientCache;
     assertThat(gfc.isClient()).isTrue();
 
-    Properties dsProps = clientCache.getDistributedSystem().getProperties();
+    var dsProps = clientCache.getDistributedSystem().getProperties();
     assertThat(dsProps.getProperty(LOCATORS)).isEqualTo("");
     assertThat(dsProps.getProperty(MCAST_PORT)).isEqualTo("0");
 
-    Pool defPool = gfc.getDefaultPool();
+    var defPool = gfc.getDefaultPool();
     assertThat(defPool.getName()).isEqualTo("DEFAULT");
     assertThat(defPool.getLocators()).isEqualTo(Collections.emptyList());
     assertThat(defPool.getServers()).isEqualTo(
@@ -342,7 +339,7 @@ public class ClientCacheFactoryJUnitTest {
   public void testDefaultPoolTimeoutMultiplier() throws Exception {
     clientCache = new ClientCacheFactory().setPoolSubscriptionTimeoutMultiplier(2)
         .addPoolServer(InetAddress.getLocalHost().getHostName(), 7777).create();
-    Pool defaultPool = clientCache.getDefaultPool();
+    var defaultPool = clientCache.getDefaultPool();
     assertThat(defaultPool.getSubscriptionTimeoutMultiplier()).isEqualTo(2);
   }
 
@@ -350,20 +347,20 @@ public class ClientCacheFactoryJUnitTest {
   public void testOldClientIDDeserialization() throws Exception {
     // during a HandShake a clientID is read w/o knowing the client's version
     clientCache = new ClientCacheFactory().create();
-    InternalDistributedMember memberID =
+    var memberID =
         (InternalDistributedMember) clientCache.getDistributedSystem().getDistributedMember();
     memberID.setVersionForTest(KnownVersion.GFE_81);
     assertThat(memberID.getVersion()).isEqualTo(KnownVersion.GFE_81);
 
-    ClientProxyMembershipID clientID = ClientProxyMembershipID.getClientId(memberID);
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.GFE_81);
+    var clientID = ClientProxyMembershipID.getClientId(memberID);
+    var out = new HeapDataOutputStream(KnownVersion.GFE_81);
     DataSerializer.writeObject(clientID, out);
 
     DataInputStream in =
         new VersionedDataInputStream(new ByteArrayInputStream(out.toByteArray()),
             KnownVersion.CURRENT);
     ClientProxyMembershipID newID = DataSerializer.readObject(in);
-    InternalDistributedMember newMemberID =
+    var newMemberID =
         (InternalDistributedMember) newID.getDistributedMember();
     assertThat(newMemberID.getVersion()).isEqualTo(KnownVersion.GFE_81);
     assertThat(newID.getClientVersion()).isEqualTo(KnownVersion.GFE_81);
@@ -392,7 +389,7 @@ public class ClientCacheFactoryJUnitTest {
 
   @Test
   public void configuringPdxPersistenceThroughAPIShouldLogWarningMessage() throws IOException {
-    File logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
+    var logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
     clientCache = new ClientCacheFactory()
         .set(LOG_LEVEL, "warn")
         .set(LOG_FILE, logFile.getAbsolutePath())
@@ -406,7 +403,7 @@ public class ClientCacheFactoryJUnitTest {
 
   @Test
   public void configuringPdxDiskStoreThroughAPIShouldLogWarningMessage() throws IOException {
-    File logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
+    var logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
     clientCache = new ClientCacheFactory()
         .set(LOG_LEVEL, "warn")
         .set(LOG_FILE, logFile.getAbsolutePath())
@@ -420,14 +417,14 @@ public class ClientCacheFactoryJUnitTest {
 
   @Test
   public void configuringPdxPersistenceThroughXMLShouldLogWarningMessage() throws IOException {
-    ClientCacheCreation clientCacheCreation = new ClientCacheCreation();
+    var clientCacheCreation = new ClientCacheCreation();
     clientCacheCreation.setPdxPersistent(true);
     clientCacheCreation.setPdxSerializer(new ReflectionBasedAutoSerializer());
 
-    File logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
-    File cacheXmlFile = temporaryFolder.newFile(testName.getMethodName() + ".xml");
+    var logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
+    var cacheXmlFile = temporaryFolder.newFile(testName.getMethodName() + ".xml");
 
-    try (PrintWriter printWriter = new PrintWriter(new FileWriter(cacheXmlFile), true)) {
+    try (var printWriter = new PrintWriter(new FileWriter(cacheXmlFile), true)) {
       CacheXmlGenerator.generate(clientCacheCreation, printWriter, false, false);
       clientCache = new ClientCacheFactory()
           .set(LOG_LEVEL, "warn")
@@ -442,13 +439,13 @@ public class ClientCacheFactoryJUnitTest {
 
   @Test
   public void configuringPdxDiskStoreThroughXMLShouldLogWarningMessage() throws IOException {
-    ClientCacheCreation clientCacheCreation = new ClientCacheCreation();
+    var clientCacheCreation = new ClientCacheCreation();
     clientCacheCreation.setPdxDiskStore("pdxDiskStore");
     clientCacheCreation.setPdxSerializer(new ReflectionBasedAutoSerializer());
 
-    File logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
-    File cacheXmlFile = temporaryFolder.newFile(testName.getMethodName() + ".xml");
-    try (PrintWriter printWriter = new PrintWriter(new FileWriter(cacheXmlFile), true)) {
+    var logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
+    var cacheXmlFile = temporaryFolder.newFile(testName.getMethodName() + ".xml");
+    try (var printWriter = new PrintWriter(new FileWriter(cacheXmlFile), true)) {
       CacheXmlGenerator.generate(clientCacheCreation, printWriter, false, false);
       clientCache = new ClientCacheFactory()
           .set(LOG_LEVEL, "warn")

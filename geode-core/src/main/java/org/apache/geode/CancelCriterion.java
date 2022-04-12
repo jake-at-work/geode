@@ -76,7 +76,7 @@ public abstract class CancelCriterion {
    */
   public void checkCancelInProgress(Throwable e) {
     SystemFailure.checkFailure();
-    String reason = cancelInProgress();
+    var reason = cancelInProgress();
     if (reason == null) {
       return;
     }

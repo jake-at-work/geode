@@ -29,7 +29,7 @@ public enum GraphType {
 
   public static EnumSet<GraphType> parse(String enabledTypesString) {
 
-    EnumSet<GraphType> set = EnumSet.noneOf(GraphType.class);
+    var set = EnumSet.noneOf(GraphType.class);
     if (enabledTypesString.contains("region")) {
       set.add(REGION);
     }

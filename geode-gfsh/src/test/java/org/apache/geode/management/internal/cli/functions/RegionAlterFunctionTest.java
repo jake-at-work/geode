@@ -51,7 +51,6 @@ import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.internal.cache.AbstractRegion;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalCacheForClientAccess;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 
 public class RegionAlterFunctionTest {
   private RegionAlterFunction function;
@@ -84,7 +83,7 @@ public class RegionAlterFunctionTest {
     regionAttributes = new RegionAttributesType();
     config.setRegionAttributes(regionAttributes);
 
-    InternalCache internalCache = mock(InternalCache.class);
+    var internalCache = mock(InternalCache.class);
     cache = mock(InternalCacheForClientAccess.class);
     mutator = mock(AttributesMutator.class);
     evictionMutator = mock(EvictionAttributesMutator.class);
@@ -104,7 +103,7 @@ public class RegionAlterFunctionTest {
   public void executeFunctionHappyPathReturnsStatusOK() {
     doNothing().when(function).alterRegion(any(), any());
     config.setName("regionA");
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
     assertThat(result.getMemberIdOrName()).isEqualTo("member");
     assertThat(result.getStatus()).isEqualTo("OK");
     assertThat(result.getStatusMessage()).isEqualTo("Region regionA altered");
@@ -135,9 +134,9 @@ public class RegionAlterFunctionTest {
 
   @Test
   public void updateWithEvictionAttributes() {
-    RegionAttributesType.EvictionAttributes evictionAttributes =
+    var evictionAttributes =
         new RegionAttributesType.EvictionAttributes();
-    RegionAttributesType.EvictionAttributes.LruEntryCount lruEntryCount =
+    var lruEntryCount =
         new RegionAttributesType.EvictionAttributes.LruEntryCount();
     lruEntryCount.setMaximum("10");
     evictionAttributes.setLruEntryCount(lruEntryCount);
@@ -150,18 +149,18 @@ public class RegionAlterFunctionTest {
 
   @Test
   public void updateWithEntryIdleTime_timeoutAndAction() {
-    RegionAttributesType.ExpirationAttributesType expiration =
+    var expiration =
         new RegionAttributesType.ExpirationAttributesType();
     regionAttributes.setEntryIdleTime(expiration);
     expiration.setTimeout("10");
     expiration.setAction("invalidate");
 
-    ExpirationAttributes existing = new ExpirationAttributes();
+    var existing = new ExpirationAttributes();
     when(region.getEntryIdleTimeout()).thenReturn(existing);
 
     function.alterRegion(cache, config);
 
-    ArgumentCaptor<ExpirationAttributes> updatedCaptor =
+    var updatedCaptor =
         ArgumentCaptor.forClass(ExpirationAttributes.class);
     verify(mutator).setEntryIdleTimeout(updatedCaptor.capture());
     assertThat(updatedCaptor.getValue().getTimeout()).isEqualTo(10);
@@ -171,17 +170,17 @@ public class RegionAlterFunctionTest {
 
   @Test
   public void updateWithEntryIdleTime_TimeoutOnly() {
-    RegionAttributesType.ExpirationAttributesType expiration =
+    var expiration =
         new RegionAttributesType.ExpirationAttributesType();
     regionAttributes.setEntryIdleTime(expiration);
     expiration.setTimeout("10");
 
-    ExpirationAttributes existing = new ExpirationAttributes(20, ExpirationAction.DESTROY);
+    var existing = new ExpirationAttributes(20, ExpirationAction.DESTROY);
     when(region.getEntryIdleTimeout()).thenReturn(existing);
 
     function.alterRegion(cache, config);
 
-    ArgumentCaptor<ExpirationAttributes> updatedCaptor =
+    var updatedCaptor =
         ArgumentCaptor.forClass(ExpirationAttributes.class);
     verify(mutator).setEntryIdleTimeout(updatedCaptor.capture());
     assertThat(updatedCaptor.getValue().getTimeout()).isEqualTo(10);
@@ -191,10 +190,10 @@ public class RegionAlterFunctionTest {
 
   @Test
   public void updateWithCustomExpiry() {
-    RegionAttributesType.ExpirationAttributesType expiration =
+    var expiration =
         new RegionAttributesType.ExpirationAttributesType();
     regionAttributes.setEntryIdleTime(expiration);
-    DeclarableType mockExpiry = mock(DeclarableType.class);
+    var mockExpiry = mock(DeclarableType.class);
     when(mockExpiry.getClassName()).thenReturn(MyCustomExpiry.class.getName());
     expiration.setCustomExpiry(mockExpiry);
 
@@ -206,7 +205,7 @@ public class RegionAlterFunctionTest {
 
   @Test
   public void deleteCustomExpiry() {
-    RegionAttributesType.ExpirationAttributesType expiration =
+    var expiration =
         new RegionAttributesType.ExpirationAttributesType();
     regionAttributes.setEntryIdleTime(expiration);
     expiration.setCustomExpiry(DeclarableType.EMPTY);
@@ -278,7 +277,7 @@ public class RegionAlterFunctionTest {
     CacheListener<Object, Object> oldOne = mock(CacheListener.class);
     when(region.getCacheListeners()).thenReturn(new CacheListener[] {oldOne});
 
-    DeclarableType newCacheListenerType = mock(DeclarableType.class);
+    var newCacheListenerType = mock(DeclarableType.class);
     when(newCacheListenerType.getClassName()).thenReturn(MyCacheListener.class.getName());
     regionAttributes.getCacheListeners().add(newCacheListenerType);
 
@@ -307,7 +306,7 @@ public class RegionAlterFunctionTest {
 
   @Test
   public void updateWithCacheWriter() {
-    DeclarableType newCacheWriterDeclarable = mock(DeclarableType.class);
+    var newCacheWriterDeclarable = mock(DeclarableType.class);
     when(newCacheWriterDeclarable.getClassName()).thenReturn(MyCacheWriter.class.getName());
     regionAttributes.setCacheWriter(newCacheWriterDeclarable);
 

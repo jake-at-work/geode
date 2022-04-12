@@ -34,7 +34,7 @@ public class LuceneQueryFunctionContextJUnitTest {
 
   @Test
   public void testLuceneFunctionArgsDefaults() {
-    LuceneFunctionContext<IndexResultCollector> context = new LuceneFunctionContext<>();
+    var context = new LuceneFunctionContext<IndexResultCollector>();
     assertEquals(LuceneQueryFactory.DEFAULT_LIMIT, context.getLimit());
     assertEquals(DataSerializableFixedID.LUCENE_FUNCTION_CONTEXT, context.getDSFID());
   }
@@ -43,10 +43,10 @@ public class LuceneQueryFunctionContextJUnitTest {
   public void testSerialization() {
     LuceneQueryProvider provider = new StringQueryProvider("text", DEFAULT_FIELD);
     CollectorManager<TopEntriesCollector> manager = new TopEntriesCollectorManager("test");
-    LuceneFunctionContext<TopEntriesCollector> context =
-        new LuceneFunctionContext<>(provider, "testIndex", manager, 123);
+    var context =
+        new LuceneFunctionContext<TopEntriesCollector>(provider, "testIndex", manager, 123);
 
-    LuceneFunctionContext<TopEntriesCollector> copy = CopyHelper.deepCopy(context);
+    var copy = CopyHelper.deepCopy(context);
     assertEquals(123, copy.getLimit());
     assertNotNull(copy.getQueryProvider());
     assertEquals("text", ((StringQueryProvider) copy.getQueryProvider()).getQueryString());

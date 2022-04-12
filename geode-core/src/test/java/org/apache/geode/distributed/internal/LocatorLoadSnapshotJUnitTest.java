@@ -48,7 +48,7 @@ public class LocatorLoadSnapshotJUnitTest {
    */
   @Test
   public void testEmptySnapshot() {
-    final LocatorLoadSnapshot sn = new LocatorLoadSnapshot();
+    final var sn = new LocatorLoadSnapshot();
     assertNull(sn.getServerForConnection("group", Collections.EMPTY_SET));
     assertNull(sn.getServerForConnection(null, Collections.EMPTY_SET));
     assertEquals(Collections.EMPTY_LIST, sn.getServersForQueue(null, Collections.EMPTY_SET, 5));
@@ -61,17 +61,17 @@ public class LocatorLoadSnapshotJUnitTest {
    */
   @Test
   public void testTwoServers() {
-    final LocatorLoadSnapshot sn = new LocatorLoadSnapshot();
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLoad ld1 = new ServerLoad(3, 1, 1.01f, 1);
-    final ServerLoad ld2 = new ServerLoad(5, .2f, 1f, .2f);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var sn = new LocatorLoadSnapshot();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var ld1 = new ServerLoad(3, 1, 1.01f, 1);
+    final var ld2 = new ServerLoad(5, .2f, 1f, .2f);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
     sn.addServer(l1, uniqueId1, new String[0], ld1, LOAD_POLL_INTERVAL);
     sn.addServer(l2, uniqueId2, new String[0], ld2, LOAD_POLL_INTERVAL);
 
-    HashMap expectedLoad = new HashMap();
+    var expectedLoad = new HashMap();
     expectedLoad.put(l1, ld1);
     expectedLoad.put(l2, ld2);
     assertEquals(expectedLoad, sn.getLoadMap());
@@ -106,11 +106,11 @@ public class LocatorLoadSnapshotJUnitTest {
    */
   @Test
   public void testUpdateLoad() {
-    final LocatorLoadSnapshot sn = new LocatorLoadSnapshot();
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var sn = new LocatorLoadSnapshot();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
     sn.addServer(l1, uniqueId1, new String[0], new ServerLoad(1, 1, 1, 1), LOAD_POLL_INTERVAL);
     sn.addServer(l2, uniqueId2, new String[0], new ServerLoad(100, .2f, 1, .2f),
         LOAD_POLL_INTERVAL);
@@ -128,11 +128,11 @@ public class LocatorLoadSnapshotJUnitTest {
    */
   @Test
   public void testRemoveServer() {
-    final LocatorLoadSnapshot sn = new LocatorLoadSnapshot();
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var sn = new LocatorLoadSnapshot();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
     sn.addServer(l1, uniqueId1, new String[0], new ServerLoad(1, 1, 1, 1), LOAD_POLL_INTERVAL);
     sn.addServer(l2, uniqueId2, new String[0], new ServerLoad(100, .2f, 10, .2f),
         LOAD_POLL_INTERVAL);
@@ -151,11 +151,11 @@ public class LocatorLoadSnapshotJUnitTest {
    */
   @Test
   public void testGroups() {
-    final LocatorLoadSnapshot sn = new LocatorLoadSnapshot();
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var sn = new LocatorLoadSnapshot();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
     sn.addServer(l1, uniqueId1, new String[] {"a", "b"}, new ServerLoad(1, 1, 1, 1),
         LOAD_POLL_INTERVAL);
     sn.addServer(l2, uniqueId2, new String[] {"b", "c"}, new ServerLoad(1, 1, 1, 1),
@@ -194,13 +194,13 @@ public class LocatorLoadSnapshotJUnitTest {
    */
   @Test
   public void testIntersectingGroups() {
-    final LocatorLoadSnapshot sn = new LocatorLoadSnapshot();
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var sn = new LocatorLoadSnapshot();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
     sn.addServer(l1, uniqueId1, new String[] {"a",}, new ServerLoad(0, 1, 0, 1),
         LOAD_POLL_INTERVAL);
     sn.addServer(l2, uniqueId2, new String[] {"a", "b"}, new ServerLoad(0, 1, 0, 1),
@@ -208,15 +208,15 @@ public class LocatorLoadSnapshotJUnitTest {
     sn.addServer(l3, uniqueId3, new String[] {"b"}, new ServerLoad(0, 1, 0, 1), LOAD_POLL_INTERVAL);
 
     // Test with interleaving requests for either group
-    for (int i = 0; i < 60; i++) {
-      ServerLocation l = sn.getServerForConnection("a", Collections.EMPTY_SET);
+    for (var i = 0; i < 60; i++) {
+      var l = sn.getServerForConnection("a", Collections.EMPTY_SET);
       assertTrue(l1.equals(l) || l2.equals(l));
       l = sn.getServerForConnection("b", Collections.EMPTY_SET);
       assertTrue(l2.equals(l) || l3.equals(l));
     }
 
     Map expected = new HashMap();
-    ServerLoad expectedLoad = new ServerLoad(40f, 1f, 0f, 1f);
+    var expectedLoad = new ServerLoad(40f, 1f, 0f, 1f);
     expected.put(l1, expectedLoad);
     expected.put(l2, expectedLoad);
     expected.put(l3, expectedLoad);
@@ -229,8 +229,8 @@ public class LocatorLoadSnapshotJUnitTest {
 
     // Now do the same test, but make all the requests for one group first,
     // then the second group.
-    for (int i = 0; i < 60; i++) {
-      ServerLocation l = sn.getServerForConnection("a", Collections.EMPTY_SET);
+    for (var i = 0; i < 60; i++) {
+      var l = sn.getServerForConnection("a", Collections.EMPTY_SET);
       assertTrue(l1.equals(l) || l2.equals(l));
     }
 
@@ -240,8 +240,8 @@ public class LocatorLoadSnapshotJUnitTest {
     expected.put(l3, new ServerLoad(0f, 1f, 0f, 1f));
     assertEquals(expected, sn.getLoadMap());
 
-    for (int i = 0; i < 60; i++) {
-      ServerLocation l = sn.getServerForConnection("b", Collections.EMPTY_SET);
+    for (var i = 0; i < 60; i++) {
+      var l = sn.getServerForConnection("b", Collections.EMPTY_SET);
       assertTrue(l2.equals(l) || l3.equals(l));
     }
 
@@ -263,15 +263,15 @@ public class LocatorLoadSnapshotJUnitTest {
    */
   @Test
   public void testExcludes() {
-    final LocatorLoadSnapshot sn = new LocatorLoadSnapshot();
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var sn = new LocatorLoadSnapshot();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
     sn.addServer(l1, uniqueId1, new String[0], new ServerLoad(1, 1, 1, 1), LOAD_POLL_INTERVAL);
     sn.addServer(l2, uniqueId2, new String[0], new ServerLoad(100, 1, 100, 1), LOAD_POLL_INTERVAL);
 
-    HashSet excludeAll = new HashSet();
+    var excludeAll = new HashSet();
     excludeAll.add(l1);
     excludeAll.add(l2);
 
@@ -288,15 +288,15 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testAreBalanced() {
-    final LocatorLoadSnapshot sn = new LocatorLoadSnapshot();
+    final var sn = new LocatorLoadSnapshot();
     assertTrue(sn.hasBalancedConnections(null));
     assertTrue(sn.hasBalancedConnections("a"));
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
     sn.addServer(l1, uniqueId1, new String[] {"a"}, new ServerLoad(0, 1, 0, 1), LOAD_POLL_INTERVAL);
     sn.addServer(l2, uniqueId2, new String[] {"a", "b"}, new ServerLoad(0, 1, 0, 1),
         LOAD_POLL_INTERVAL);
@@ -319,19 +319,19 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testThatReplacementServerIsSelected() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
-    float defaultLoadImbalanceThreshold = LocatorLoadSnapshot.DEFAULT_LOAD_IMBALANCE_THRESHOLD;
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    var defaultLoadImbalanceThreshold = LocatorLoadSnapshot.DEFAULT_LOAD_IMBALANCE_THRESHOLD;
 
-    float l1ConnectionLoad = 50 + defaultLoadImbalanceThreshold;
+    var l1ConnectionLoad = 50 + defaultLoadImbalanceThreshold;
     float l2ConnectionLoad = 50;
-    float l3ConnectionLoad = 50 - defaultLoadImbalanceThreshold;
+    var l3ConnectionLoad = 50 - defaultLoadImbalanceThreshold;
     loadSnapshot.addServer(l1, uniqueId1, new String[] {"a"},
         new ServerLoad(l1ConnectionLoad, 1, 0, 1),
         LOAD_POLL_INTERVAL);
@@ -357,30 +357,30 @@ public class LocatorLoadSnapshotJUnitTest {
     assertFalse(loadSnapshot.isRebalancing());
 
     // all load snapshots should now be balanced
-    Map<ServerLocation, ServerLoad> loadMap = loadSnapshot.getLoadMap();
-    ServerLoad l1Load = loadMap.get(l1);
+    var loadMap = loadSnapshot.getLoadMap();
+    var l1Load = loadMap.get(l1);
     assertEquals(50, l1Load.getConnectionLoad(), 0.01);
-    ServerLoad l2Load = loadMap.get(l2);
+    var l2Load = loadMap.get(l2);
     assertEquals(50, l1Load.getConnectionLoad(), 0.01);
-    ServerLoad l3Load = loadMap.get(l3);
+    var l3Load = loadMap.get(l3);
     assertEquals(50, l3Load.getConnectionLoad(), 0.01);
   }
 
   @Test
   public void testThatReplacementServerIsNotSelectedIfThresholdNotReached() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
-    float defaultLoadImbalanceThreshold = LocatorLoadSnapshot.DEFAULT_LOAD_IMBALANCE_THRESHOLD;
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    var defaultLoadImbalanceThreshold = LocatorLoadSnapshot.DEFAULT_LOAD_IMBALANCE_THRESHOLD;
 
-    float l1ConnectionLoad = 50 + defaultLoadImbalanceThreshold - 1;
+    var l1ConnectionLoad = 50 + defaultLoadImbalanceThreshold - 1;
     float l2ConnectionLoad = 50;
-    float l3ConnectionLoad = 50 + (defaultLoadImbalanceThreshold / 2);
+    var l3ConnectionLoad = 50 + (defaultLoadImbalanceThreshold / 2);
     loadSnapshot.addServer(l1, uniqueId1, new String[] {"a"},
         new ServerLoad(l1ConnectionLoad, 1, 0, 1),
         LOAD_POLL_INTERVAL);
@@ -390,38 +390,38 @@ public class LocatorLoadSnapshotJUnitTest {
         new ServerLoad(l3ConnectionLoad, 1, 0, 1),
         LOAD_POLL_INTERVAL);
 
-    ServerLocation newServer =
+    var newServer =
         loadSnapshot.getReplacementServerForConnection(l1, "", Collections.EMPTY_SET);
     assertEquals(l1, newServer);
-    Map<ServerLocation, ServerLoad> loadMap = loadSnapshot.getLoadMap();
-    ServerLoad l1Load = loadMap.get(l1);
+    var loadMap = loadSnapshot.getLoadMap();
+    var l1Load = loadMap.get(l1);
     assertEquals(l1ConnectionLoad, l1Load.getConnectionLoad(), 0.01);
   }
 
   @Test
   public void testisCurrentServerMostLoaded() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
 
-    final ServerLocationAndMemberId sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
-    final ServerLocationAndMemberId sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
-    final ServerLocationAndMemberId sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
+    final var sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
+    final var sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
+    final var sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
 
     float l1ConnectionLoad = 50;
     float l2ConnectionLoad = 40;
     float l3ConnectionLoad = 30;
 
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(l1, l1ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(l2, l2ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder3 =
+    var loadHolder3 =
         new LocatorLoadSnapshot.LoadHolder(l3, l3ConnectionLoad, 1, LOAD_POLL_INTERVAL);
 
     Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
@@ -437,14 +437,14 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testGetReplacementServerForConnection() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
 
     float l1ConnectionLoad = 50;
     float l2ConnectionLoad = 40;
@@ -459,44 +459,44 @@ public class LocatorLoadSnapshotJUnitTest {
         new ServerLoad(l3ConnectionLoad, 1, 0, 1),
         LOAD_POLL_INTERVAL);
 
-    ServerLocation newServer1 =
+    var newServer1 =
         loadSnapshot.getReplacementServerForConnection(l1, "", Collections.EMPTY_SET);
     assertEquals(l3, newServer1);
-    ServerLocation newServer2 =
+    var newServer2 =
         loadSnapshot.getReplacementServerForConnection(l1, "a", Collections.EMPTY_SET);
     assertEquals(l2, newServer2);
-    ServerLocation newServer3 =
+    var newServer3 =
         loadSnapshot.getReplacementServerForConnection(l3, "b", Collections.EMPTY_SET);
     assertEquals(l3, newServer3);
-    ServerLocation newServer4 =
+    var newServer4 =
         loadSnapshot.getReplacementServerForConnection(l2, "b", Collections.EMPTY_SET);
     assertEquals(l3, newServer4);
   }
 
   @Test
   public void testFindBestServersReturnOneServer() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
 
-    final ServerLocationAndMemberId sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
-    final ServerLocationAndMemberId sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
-    final ServerLocationAndMemberId sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
+    final var sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
+    final var sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
+    final var sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
 
     float l1ConnectionLoad = 50;
     float l2ConnectionLoad = 30;
     float l3ConnectionLoad = 40;
 
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(l1, l1ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(l2, l2ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder3 =
+    var loadHolder3 =
         new LocatorLoadSnapshot.LoadHolder(l3, l3ConnectionLoad, 1, LOAD_POLL_INTERVAL);
 
     Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
@@ -513,28 +513,28 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testFindBestServersReturnMoreThanOneServer() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
 
-    final ServerLocationAndMemberId sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
-    final ServerLocationAndMemberId sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
-    final ServerLocationAndMemberId sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
+    final var sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
+    final var sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
+    final var sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
 
     float l1ConnectionLoad = 50;
     float l2ConnectionLoad = 30;
     float l3ConnectionLoad = 40;
 
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(l1, l1ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(l2, l2ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder3 =
+    var loadHolder3 =
         new LocatorLoadSnapshot.LoadHolder(l3, l3ConnectionLoad, 1, LOAD_POLL_INTERVAL);
 
     Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
@@ -555,28 +555,28 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testFindBestServersCalledWithZeroCount() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
 
-    final ServerLocationAndMemberId sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
-    final ServerLocationAndMemberId sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
-    final ServerLocationAndMemberId sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
+    final var sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
+    final var sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
+    final var sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
 
     float l1ConnectionLoad = 50;
     float l2ConnectionLoad = 30;
     float l3ConnectionLoad = 40;
 
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(l1, l1ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(l2, l2ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder3 =
+    var loadHolder3 =
         new LocatorLoadSnapshot.LoadHolder(l3, l3ConnectionLoad, 1, LOAD_POLL_INTERVAL);
 
     Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
@@ -592,28 +592,28 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testFindBestServersCalledWithNegativeCount() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
 
-    final ServerLocationAndMemberId sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
-    final ServerLocationAndMemberId sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
-    final ServerLocationAndMemberId sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
+    final var sli1 = new ServerLocationAndMemberId(l1, uniqueId1);
+    final var sli2 = new ServerLocationAndMemberId(l2, uniqueId2);
+    final var sli3 = new ServerLocationAndMemberId(l3, uniqueId3);
 
     float l1ConnectionLoad = 50;
     float l2ConnectionLoad = 30;
     float l3ConnectionLoad = 40;
 
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(l1, l1ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(l2, l2ConnectionLoad, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder3 =
+    var loadHolder3 =
         new LocatorLoadSnapshot.LoadHolder(l3, l3ConnectionLoad, 1, LOAD_POLL_INTERVAL);
 
     Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
@@ -632,12 +632,12 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void updateMapWithServerLocationAndMemberId() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation serverLocation = new ServerLocation("localhost", 1);
-    final String uniqueId = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final ServerLocationAndMemberId sli = new ServerLocationAndMemberId(serverLocation, uniqueId);
-    LocatorLoadSnapshot.LoadHolder loadHolder =
+    final var serverLocation = new ServerLocation("localhost", 1);
+    final var uniqueId = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var sli = new ServerLocationAndMemberId(serverLocation, uniqueId);
+    var loadHolder =
         new LocatorLoadSnapshot.LoadHolder(serverLocation, 50, 1, LOAD_POLL_INTERVAL);
     Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
     groupServers.put(sli, loadHolder);
@@ -647,7 +647,7 @@ public class LocatorLoadSnapshotJUnitTest {
 
     loadSnapshot.updateMap(map, serverLocation, uniqueId, 60, 2);
 
-    LocatorLoadSnapshot.LoadHolder expectedLoadHolder =
+    var expectedLoadHolder =
         new LocatorLoadSnapshot.LoadHolder(serverLocation, 60, 2, LOAD_POLL_INTERVAL);
 
     assertEquals(expectedLoadHolder.getLoad(), groupServers.get(sli).getLoad(), 0);
@@ -657,11 +657,11 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void updateMapWithServerLocationAndMemberIdKeyNotFound() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation serverLocation = new ServerLocation("localhost", 1);
-    final String uniqueId = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final ServerLocationAndMemberId sli = new ServerLocationAndMemberId(serverLocation, uniqueId);
+    final var serverLocation = new ServerLocation("localhost", 1);
+    final var uniqueId = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var sli = new ServerLocationAndMemberId(serverLocation, uniqueId);
     Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
     Map<String, Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder>> map =
         new HashMap<>();
@@ -674,10 +674,10 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void updateMapWithServerLocation() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation serverLocation = new ServerLocation("localhost", 1);
-    LocatorLoadSnapshot.LoadHolder loadHolder =
+    final var serverLocation = new ServerLocation("localhost", 1);
+    var loadHolder =
         new LocatorLoadSnapshot.LoadHolder(serverLocation, 50, 1, LOAD_POLL_INTERVAL);
     Map<ServerLocation, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
     groupServers.put(serverLocation, loadHolder);
@@ -687,7 +687,7 @@ public class LocatorLoadSnapshotJUnitTest {
 
     loadSnapshot.updateMap(map, serverLocation, 60, 2);
 
-    LocatorLoadSnapshot.LoadHolder expectedLoadHolder =
+    var expectedLoadHolder =
         new LocatorLoadSnapshot.LoadHolder(serverLocation, 60, 2, LOAD_POLL_INTERVAL);
 
     assertEquals(expectedLoadHolder.getLoad(), groupServers.get(serverLocation).getLoad(), 0);
@@ -697,9 +697,9 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void updateMapWithServerLocationKeyNotFound() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation serverLocation = new ServerLocation("localhost", 1);
+    final var serverLocation = new ServerLocation("localhost", 1);
     Map<ServerLocation, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
     Map<String, Map<ServerLocation, LocatorLoadSnapshot.LoadHolder>> map =
         new HashMap<>();
@@ -712,17 +712,17 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testRemoveFromMapWithServerLocationAndMemberId() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation sl1 = new ServerLocation("localhost", 1);
-    final ServerLocation sl2 = new ServerLocation("localhost", 2);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final ServerLocationAndMemberId sli1 = new ServerLocationAndMemberId(sl1, uniqueId1);
-    final ServerLocationAndMemberId sli2 = new ServerLocationAndMemberId(sl2, uniqueId2);
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    final var sl1 = new ServerLocation("localhost", 1);
+    final var sl2 = new ServerLocation("localhost", 2);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var sli1 = new ServerLocationAndMemberId(sl1, uniqueId1);
+    final var sli2 = new ServerLocationAndMemberId(sl2, uniqueId2);
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(sl1, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(sl2, 50, 1, LOAD_POLL_INTERVAL);
 
     Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
@@ -740,22 +740,22 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testRemoveFromMapWithServerLocationAndMemberIdAndGroups() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation sl1 = new ServerLocation("localhost", 1);
-    final ServerLocation sl2 = new ServerLocation("localhost", 2);
-    final ServerLocation sl3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
-    final ServerLocationAndMemberId sli1 = new ServerLocationAndMemberId(sl1, uniqueId1);
-    final ServerLocationAndMemberId sli2 = new ServerLocationAndMemberId(sl2, uniqueId2);
-    final ServerLocationAndMemberId sli3 = new ServerLocationAndMemberId(sl3, uniqueId3);
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    final var sl1 = new ServerLocation("localhost", 1);
+    final var sl2 = new ServerLocation("localhost", 2);
+    final var sl3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var sli1 = new ServerLocationAndMemberId(sl1, uniqueId1);
+    final var sli2 = new ServerLocationAndMemberId(sl2, uniqueId2);
+    final var sli3 = new ServerLocationAndMemberId(sl3, uniqueId3);
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(sl1, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(sl2, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder3 =
+    var loadHolder3 =
         new LocatorLoadSnapshot.LoadHolder(sl2, 50, 1, LOAD_POLL_INTERVAL);
 
     Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
@@ -783,14 +783,14 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testRemoveFromMapWithServerLocation() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation sl1 = new ServerLocation("localhost", 1);
-    final ServerLocation sl2 = new ServerLocation("localhost", 2);
+    final var sl1 = new ServerLocation("localhost", 1);
+    final var sl2 = new ServerLocation("localhost", 2);
 
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(sl1, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(sl2, 50, 1, LOAD_POLL_INTERVAL);
 
     Map<ServerLocation, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
@@ -808,17 +808,17 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testRemoveFromMapWithServerLocationAndGroups() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation sl1 = new ServerLocation("localhost", 1);
-    final ServerLocation sl2 = new ServerLocation("localhost", 2);
-    final ServerLocation sl3 = new ServerLocation("localhost", 3);
+    final var sl1 = new ServerLocation("localhost", 1);
+    final var sl2 = new ServerLocation("localhost", 2);
+    final var sl3 = new ServerLocation("localhost", 3);
 
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(sl1, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(sl2, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder3 =
+    var loadHolder3 =
         new LocatorLoadSnapshot.LoadHolder(sl3, 50, 1, LOAD_POLL_INTERVAL);
 
     Map<ServerLocation, LocatorLoadSnapshot.LoadHolder> groupServers = new HashMap<>();
@@ -846,22 +846,22 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testAddGroupsWithServerLocationAndMemberId() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation sl1 = new ServerLocation("localhost", 1);
-    final ServerLocation sl2 = new ServerLocation("localhost", 2);
-    final ServerLocation sl3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
-    final ServerLocationAndMemberId sli1 = new ServerLocationAndMemberId(sl1, uniqueId1);
-    final ServerLocationAndMemberId sli2 = new ServerLocationAndMemberId(sl2, uniqueId2);
-    final ServerLocationAndMemberId sli3 = new ServerLocationAndMemberId(sl3, uniqueId3);
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    final var sl1 = new ServerLocation("localhost", 1);
+    final var sl2 = new ServerLocation("localhost", 2);
+    final var sl3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var sli1 = new ServerLocationAndMemberId(sl1, uniqueId1);
+    final var sli2 = new ServerLocationAndMemberId(sl2, uniqueId2);
+    final var sli3 = new ServerLocationAndMemberId(sl3, uniqueId3);
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(sl1, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(sl2, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder3 =
+    var loadHolder3 =
         new LocatorLoadSnapshot.LoadHolder(sl3, 50, 1, LOAD_POLL_INTERVAL);
 
     Map<String, Map<ServerLocationAndMemberId, LocatorLoadSnapshot.LoadHolder>> map =
@@ -886,17 +886,17 @@ public class LocatorLoadSnapshotJUnitTest {
 
   @Test
   public void testAddGroupsWithServerLocation() {
-    final LocatorLoadSnapshot loadSnapshot = new LocatorLoadSnapshot();
+    final var loadSnapshot = new LocatorLoadSnapshot();
 
-    final ServerLocation sl1 = new ServerLocation("localhost", 1);
-    final ServerLocation sl2 = new ServerLocation("localhost", 2);
-    final ServerLocation sl3 = new ServerLocation("localhost", 3);
+    final var sl1 = new ServerLocation("localhost", 1);
+    final var sl2 = new ServerLocation("localhost", 2);
+    final var sl3 = new ServerLocation("localhost", 3);
 
-    LocatorLoadSnapshot.LoadHolder loadHolder1 =
+    var loadHolder1 =
         new LocatorLoadSnapshot.LoadHolder(sl1, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder2 =
+    var loadHolder2 =
         new LocatorLoadSnapshot.LoadHolder(sl2, 50, 1, LOAD_POLL_INTERVAL);
-    LocatorLoadSnapshot.LoadHolder loadHolder3 =
+    var loadHolder3 =
         new LocatorLoadSnapshot.LoadHolder(sl3, 50, 1, LOAD_POLL_INTERVAL);
 
     Map<String, Map<ServerLocation, LocatorLoadSnapshot.LoadHolder>> map =

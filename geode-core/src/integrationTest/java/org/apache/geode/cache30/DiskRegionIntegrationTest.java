@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.junit.After;
@@ -40,7 +39,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
@@ -81,7 +79,7 @@ public class DiskRegionIntegrationTest {
     cache = new CacheFactory().create();
     diskDir = tempDir.newFolder();
 
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setDiskDirs(new File[] {diskDir});
     diskStore = dsf.create(REGION_NAME);
 
@@ -102,7 +100,7 @@ public class DiskRegionIntegrationTest {
    * Returns the <code>EvictionStatistics</code> for the given region
    */
   private EvictionCounters getLRUStats(Region region) {
-    final LocalRegion l = (LocalRegion) region;
+    final var l = (LocalRegion) region;
     return l.getEvictionController().getCounters();
   }
 
@@ -113,8 +111,8 @@ public class DiskRegionIntegrationTest {
    */
   @Test
   public void testDiskRegionOverflow() {
-    DiskRegionStats diskStats = diskRegion.getStats();
-    EvictionCounters lruStats = getLRUStats(region);
+    var diskStats = diskRegion.getStats();
+    var lruStats = getLRUStats(region);
 
     IntStream.range(0, MAX_ENTRIES + 1).forEach((i) -> region.put(i, "value"));
 
@@ -136,13 +134,13 @@ public class DiskRegionIntegrationTest {
    */
   @Test
   public void testNoFaults() {
-    DiskRegionStats diskStats = diskRegion.getStats();
-    EvictionCounters lruStats = getLRUStats(region);
+    var diskStats = diskRegion.getStats();
+    var lruStats = getLRUStats(region);
 
     IntStream.range(0, MAX_ENTRIES + 1).forEach((i) -> region.put(i, "value"));
 
-    long firstEvictions = lruStats.getEvictions();
-    long firstReads = diskStats.getReads();
+    var firstEvictions = lruStats.getEvictions();
+    var firstReads = diskStats.getReads();
 
     IntStream.range(1, MAX_ENTRIES + 1).forEach((key) -> {
       region.get(key);
@@ -156,8 +154,8 @@ public class DiskRegionIntegrationTest {
    */
   @Test
   public void testDestroy() {
-    DiskRegionStats diskStats = diskRegion.getStats();
-    EvictionCounters lruStats = getLRUStats(region);
+    var diskStats = diskRegion.getStats();
+    var lruStats = getLRUStats(region);
 
     IntStream.range(0, MAX_ENTRIES + 1).forEach((i) -> region.put(i, "value"));
     assertEquals(0, diskStats.getRemoves());
@@ -180,7 +178,7 @@ public class DiskRegionIntegrationTest {
    */
   @Test
   public void testCacheEvents() {
-    TestCacheListener listener = new TestCacheListener() {
+    var listener = new TestCacheListener() {
       @Override
       public void afterCreate2(EntryEvent event) {}
     };
@@ -225,7 +223,7 @@ public class DiskRegionIntegrationTest {
     Collection values = region.values();
     assertEquals(MAX_ENTRIES + 1, values.size());
 
-    for (Object value : values) {
+    for (var value : values) {
       assertEquals("value", value);
     }
   }
@@ -242,7 +240,7 @@ public class DiskRegionIntegrationTest {
     IntStream.range(0, MAX_ENTRIES + 1).forEach((i) -> region.put(i, "value"));
     ((LocalRegion) region).evictValue(2);
 
-    Object value = ((LocalRegion) region).getValueInVM(2);
+    var value = ((LocalRegion) region).getValueInVM(2);
     assertNull(value);
   }
 
@@ -273,7 +271,7 @@ public class DiskRegionIntegrationTest {
         .create(REGION_NAME + 2);
     diskRegion = ((InternalRegion) region).getDiskRegion();
 
-    DiskRegionStats diskStats = diskRegion.getStats();
+    var diskStats = diskRegion.getStats();
 
     assertEquals(0, diskStats.getWrites());
     assertEquals(0, diskStats.getNumEntriesInVM());
@@ -308,9 +306,9 @@ public class DiskRegionIntegrationTest {
 
   public void assertArrayEquals(Object expected, Object v) {
     assertEquals(expected.getClass(), v.getClass());
-    int vLength = Array.getLength(v);
+    var vLength = Array.getLength(v);
     assertEquals(Array.getLength(expected), vLength);
-    for (int i = 0; i < vLength; i++) {
+    for (var i = 0; i < vLength; i++) {
       assertEquals(Array.get(expected, i), Array.get(v, i));
     }
   }
@@ -346,7 +344,7 @@ public class DiskRegionIntegrationTest {
 
     cache.close();
     cache = new CacheFactory().create();
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setDiskDirs(new File[] {diskDir});
     diskStore = dsf.create(REGION_NAME);
 
@@ -370,10 +368,10 @@ public class DiskRegionIntegrationTest {
   public void testRegionEntryValues() {
     IntStream.range(0, MAX_ENTRIES + 1).forEach((i) -> region.put(i, Integer.toString(i)));
 
-    Set<Region.Entry<?, ?>> entries = region.entrySet(false);
+    var entries = region.entrySet(false);
     assertEquals(MAX_ENTRIES + 1, entries.size());
 
-    for (Region.Entry<?, ?> entry : entries) {
+    for (var entry : entries) {
       assertEquals(entry.getKey(), Integer.parseInt((String) entry.getValue()));
     }
   }
@@ -415,7 +413,7 @@ public class DiskRegionIntegrationTest {
   public void testTestHookStatistics() {
     diskRegion = ((InternalRegion) region).getDiskRegion();
 
-    DiskRegionStats diskStats = diskRegion.getStats();
+    var diskStats = diskRegion.getStats();
 
     IntStream.range(0, MAX_ENTRIES + 1).forEach((i) -> region.put(i, "value"));
 
@@ -485,13 +483,13 @@ public class DiskRegionIntegrationTest {
 
     Integer key = 0;
     assertNull(((LocalRegion) region).getValueInVM(key));
-    String valueOnDisk = (String) ((LocalRegion) region).getValueOnDisk(key);
+    var valueOnDisk = (String) ((LocalRegion) region).getValueOnDisk(key);
     assertNotNull(valueOnDisk);
     assertEquals("value", valueOnDisk);
 
     region.get(key);
 
-    CachedDeserializable cd = (CachedDeserializable) ((LocalRegion) region).getValueInVM(key);
+    var cd = (CachedDeserializable) ((LocalRegion) region).getValueInVM(key);
     valueOnDisk = (String) cd.getValue();
     assertNotNull(valueOnDisk);
     assertEquals("value", valueOnDisk);
@@ -507,8 +505,8 @@ public class DiskRegionIntegrationTest {
   @Test
   public void testLRUCapacityController() throws CacheException {
 
-    DiskRegionStats diskStats = diskRegion.getStats();
-    EvictionCounters lruStats = getLRUStats(region);
+    var diskStats = diskRegion.getStats();
+    var lruStats = getLRUStats(region);
 
     IntStream.range(0, MAX_ENTRIES).forEach((i) -> region.put(i, "value"));
 
@@ -562,7 +560,7 @@ public class DiskRegionIntegrationTest {
 
     });
 
-    EvictionCounters lruStats = getLRUStats(region);
+    var lruStats = getLRUStats(region);
 
     IntStream.range(0, MAX_ENTRIES).forEach((i) -> region.put(i, "value"));
     assertEquals(MAX_ENTRIES, lruStats.getCounter());

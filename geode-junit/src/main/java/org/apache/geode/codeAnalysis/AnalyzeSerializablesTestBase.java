@@ -26,7 +26,6 @@ import java.io.DataInputStream;
 import java.io.Externalizable;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
@@ -38,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -52,7 +50,6 @@ import org.apache.geode.CancelException;
 import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.codeAnalysis.decode.CompiledClass;
-import org.apache.geode.codeAnalysis.decode.CompiledField;
 import org.apache.geode.internal.DistributedSerializableObjectConfig;
 import org.apache.geode.internal.serialization.BufferDataOutputStream;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
@@ -90,26 +87,26 @@ public abstract class AnalyzeSerializablesTestBase
     findClasses();
     loadExpectedSerializables();
 
-    File actualSerializablesFile = createEmptyFile(ACTUAL_SERIALIZABLES_DAT);
+    var actualSerializablesFile = createEmptyFile(ACTUAL_SERIALIZABLES_DAT);
     System.out.println(testName.getMethodName() + " actualSerializablesFile="
         + actualSerializablesFile.getAbsolutePath());
 
-    List<ClassAndVariables> actualSerializables = findSerializables();
+    var actualSerializables = findSerializables();
     CompiledClassUtils.storeClassesAndVariables(actualSerializables, actualSerializablesFile);
 
-    String diff = CompiledClassUtils
+    var diff = CompiledClassUtils
         .diffSortedClassesAndVariables(expectedSerializables, actualSerializables);
     if (!diff.isEmpty()) {
       System.out.println(
           "++++++++++++++++++++++++++++++testSerializables found discrepancies++++++++++++++++++++++++++++++++++++");
       System.out.println(diff);
 
-      String codeAnalysisPackageDir = getPackageDirForClass(getClass());
-      Path excludedClassesSourceFile = INTEGRATION_TEST_RESOURCES_SOURCE_ROOT
+      var codeAnalysisPackageDir = getPackageDirForClass(getClass());
+      var excludedClassesSourceFile = INTEGRATION_TEST_RESOURCES_SOURCE_ROOT
           .resolve(codeAnalysisPackageDir)
           .resolve(EXCLUDED_CLASSES_TXT);
 
-      String failureMessage = getModuleClass()
+      var failureMessage = getModuleClass()
           .map(clazz -> failWithServiceMessage(
               actualSerializablesFile, diff, excludedClassesSourceFile, clazz))
           .orElse(failWithoutServiceMessage(
@@ -123,7 +120,7 @@ public abstract class AnalyzeSerializablesTestBase
       String diff,
       Path excludedClassesSourceFile,
       Class<?> serviceClass) {
-    Path sanctionedSerializablesSourceFile =
+    var sanctionedSerializablesSourceFile =
         getSanctionedSerializablesSourceFileForServiceClass(serviceClass);
     return String.format(diff + FAIL_MESSAGE,
         excludedClassesSourceFile,
@@ -138,7 +135,7 @@ public abstract class AnalyzeSerializablesTestBase
   }
 
   private Path getSanctionedSerializablesSourceFileForServiceClass(Class<?> serviceClass) {
-    String moduleServicePackageDir = getPackageDirForClass(serviceClass);
+    var moduleServicePackageDir = getPackageDirForClass(serviceClass);
     return MAIN_RESOURCES_SOURCE_ROOT
         .resolve(moduleServicePackageDir)
         .resolve(expectedSerializablesFileName);
@@ -151,12 +148,12 @@ public abstract class AnalyzeSerializablesTestBase
 
     initializeSerializationService();
 
-    for (ClassAndVariableDetails details : expectedSerializables) {
+    for (var details : expectedSerializables) {
       if (openBugs.contains(details.className)) {
         System.out.println("Skipping " + details.className + " because it is in openBugs.txt");
         continue;
       }
-      String className = details.className.replaceAll("/", ".");
+      var className = details.className.replaceAll("/", ".");
       System.out.println("testing class " + details.className);
 
       Class<?> sanctionedClass = null;
@@ -201,9 +198,9 @@ public abstract class AnalyzeSerializablesTestBase
             className + " is not serializable.  Remove it from " + expectedSerializablesFileName);
       }
       try {
-        boolean isThrowable = Throwable.class.isAssignableFrom(sanctionedClass);
+        var isThrowable = Throwable.class.isAssignableFrom(sanctionedClass);
 
-        Constructor<?> constructor =
+        var constructor =
             isThrowable ? sanctionedClass.getDeclaredConstructor(String.class)
                 : sanctionedClass.getDeclaredConstructor((Class<?>[]) null);
         constructor.setAccessible(true);
@@ -222,10 +219,10 @@ public abstract class AnalyzeSerializablesTestBase
         continue;
       }
       try {
-        Class<?> superClass = sanctionedClass;
+        var superClass = sanctionedClass;
         Constructor<?> constructor = null;
         if (Externalizable.class.isAssignableFrom(sanctionedClass)) {
-          Constructor<?> cons = sanctionedClass.getDeclaredConstructor((Class<?>[]) null);
+          var cons = sanctionedClass.getDeclaredConstructor((Class<?>[]) null);
           cons.setAccessible(true);
         } else {
           while (Serializable.class.isAssignableFrom(superClass)) {
@@ -252,14 +249,14 @@ public abstract class AnalyzeSerializablesTestBase
   @Test
   public void testOpenBugsAreInSanctionedSerializables() throws Exception {
     loadExpectedSerializables();
-    List<String> openBugs = loadOpenBugs(getResourceAsFile(OPEN_BUGS_TXT));
+    var openBugs = loadOpenBugs(getResourceAsFile(OPEN_BUGS_TXT));
     Set<String> expectedSerializableClasses = new HashSet<>();
 
-    for (ClassAndVariableDetails details : expectedSerializables) {
+    for (var details : expectedSerializables) {
       expectedSerializableClasses.add(details.className);
     }
 
-    for (String openBugClass : openBugs) {
+    for (var openBugClass : openBugs) {
       assertTrue(
           "open bug class: " + openBugClass + " is not present in " + expectedSerializablesFileName,
           expectedSerializableClasses.contains(openBugClass));
@@ -271,13 +268,13 @@ public abstract class AnalyzeSerializablesTestBase
     loadExpectedSerializables();
     Set<String> expectedSerializableClasses = new HashSet<>();
 
-    for (ClassAndVariableDetails details : expectedSerializables) {
+    for (var details : expectedSerializables) {
       expectedSerializableClasses.add(details.className);
     }
 
-    List<String> excludedClasses = loadExcludedClasses(getResourceAsFile(EXCLUDED_CLASSES_TXT));
+    var excludedClasses = loadExcludedClasses(getResourceAsFile(EXCLUDED_CLASSES_TXT));
 
-    for (String excludedClass : excludedClasses) {
+    for (var excludedClass : excludedClasses) {
       assertFalse(
           "Excluded class: " + excludedClass + " was found in " + expectedSerializablesFileName,
           expectedSerializableClasses.contains(excludedClass));
@@ -289,7 +286,7 @@ public abstract class AnalyzeSerializablesTestBase
   }
 
   private void loadSanctionedSerializables(Class<?> clazz) {
-    try (InputStream expectedSerializablesStream =
+    try (var expectedSerializablesStream =
         getResourceAsStream(clazz, expectedSerializablesFileName)) {
       // the expectedSerializablesStream will be automatically closed when we exit this block
       expectedSerializables.addAll(
@@ -301,11 +298,11 @@ public abstract class AnalyzeSerializablesTestBase
 
   private List<ClassAndVariables> findSerializables() throws IOException {
     List<ClassAndVariables> result = new ArrayList<>(2000);
-    List<String> excludedClasses = loadExcludedClasses(getResourceAsFile(EXCLUDED_CLASSES_TXT));
+    var excludedClasses = loadExcludedClasses(getResourceAsFile(EXCLUDED_CLASSES_TXT));
     System.out.println("excluded classes are " + excludedClasses);
     Set<String> setOfExclusions = new HashSet<>(excludedClasses);
-    for (Map.Entry<String, CompiledClass> entry : classes.entrySet()) {
-      CompiledClass compiledClass = entry.getValue();
+    for (var entry : classes.entrySet()) {
+      var compiledClass = entry.getValue();
       if (setOfExclusions.contains(compiledClass.fullyQualifiedName())) {
         System.out.println("excluding class " + compiledClass.fullyQualifiedName());
         continue;
@@ -313,9 +310,9 @@ public abstract class AnalyzeSerializablesTestBase
       // System.out.println("processing class " + compiledClass.fullyQualifiedName());
 
       if (!compiledClass.isInterface() && isSerializableAndNotDataSerializable(compiledClass)) {
-        ClassAndVariables classAndVariables = new ClassAndVariables(compiledClass);
-        for (int i = 0; i < compiledClass.fields_count; i++) {
-          CompiledField compiledField = compiledClass.fields[i];
+        var classAndVariables = new ClassAndVariables(compiledClass);
+        for (var i = 0; i < compiledClass.fields_count; i++) {
+          var compiledField = compiledClass.fields[i];
           if (!compiledField.isStatic() && !compiledField.isTransient()) {
             classAndVariables.variables.put(compiledField.name(), compiledField);
           }
@@ -329,7 +326,7 @@ public abstract class AnalyzeSerializablesTestBase
 
   @Override
   protected void initializeSerializationService() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(VALIDATE_SERIALIZABLE_OBJECTS, "true");
     properties.setProperty(SERIALIZABLE_OBJECT_FILTER, "!*");
 
@@ -350,7 +347,7 @@ public abstract class AnalyzeSerializablesTestBase
   }
 
   private void serializeAndDeserializeSanctionedObject(Object object) throws Exception {
-    BufferDataOutputStream outputStream = new BufferDataOutputStream(KnownVersion.CURRENT);
+    var outputStream = new BufferDataOutputStream(KnownVersion.CURRENT);
 
     try {
       serializeObject(object, outputStream);
@@ -374,13 +371,13 @@ public abstract class AnalyzeSerializablesTestBase
   private boolean isSerializableAndNotDataSerializable(CompiledClass compiledClass) {
     // these classes throw exceptions or log ugly messages when you try to load them
     // in junit
-    String name = compiledClass.fullyQualifiedName().replace('/', '.');
+    var name = compiledClass.fullyQualifiedName().replace('/', '.');
     if (name.startsWith("org.apache.geode.internal.shared.NativeCallsJNAImpl")
         || name.startsWith("org.apache.geode.internal.statistics.HostStatHelper")) {
       return false;
     }
     try {
-      Class<?> realClass = Class.forName(name);
+      var realClass = Class.forName(name);
       return Serializable.class.isAssignableFrom(realClass)
           && !DataSerializable.class.isAssignableFrom(realClass)
           && !DataSerializableFixedID.class.isAssignableFrom(realClass);

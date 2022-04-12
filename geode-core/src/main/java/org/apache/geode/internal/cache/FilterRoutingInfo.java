@@ -19,7 +19,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.geode.DataSerializer;
@@ -101,7 +100,7 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
    * @param cqInfo map of server side CQ Name to CQ event type.
    */
   public void setCqRoutingInfo(InternalDistributedMember member, HashMap<Long, Integer> cqInfo) {
-    FilterInfo fInfo = new FilterInfo();
+    var fInfo = new FilterInfo();
     fInfo.setCQs(cqInfo);
     serverFilterInfo.put(member, fInfo);
     if (cqInfo.size() > 0) {
@@ -121,7 +120,7 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
       Set<Long> clientsInv,
       boolean longIDs) {
     memberWithFilterInfoExists = true;
-    FilterInfo fInfo = serverFilterInfo.get(member);
+    var fInfo = serverFilterInfo.get(member);
     if (fInfo == null) {
       fInfo = new FilterInfo();
       serverFilterInfo.put(member, fInfo);
@@ -172,9 +171,9 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
    * @param eventRouting the routing information for a single putAll event
    */
   public void addFilterInfo(FilterRoutingInfo eventRouting) {
-    for (Map.Entry<InternalDistributedMember, FilterInfo> entry : eventRouting.serverFilterInfo
+    for (var entry : eventRouting.serverFilterInfo
         .entrySet()) {
-      FilterInfo existing = serverFilterInfo.get(entry.getKey());
+      var existing = serverFilterInfo.get(entry.getKey());
       if (existing == null) {
         existing = new FilterInfo();
         serverFilterInfo.put(entry.getKey(), existing);
@@ -198,10 +197,10 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
     if (cache != null) {
       myID = cache.getMyId();
     }
-    int size = in.readInt();
-    for (int i = 0; i < size; i++) {
-      InternalDistributedMember member = InternalDistributedMember.readEssentialData(in);
-      FilterInfo fInfo = new FilterInfo();
+    var size = in.readInt();
+    for (var i = 0; i < size; i++) {
+      var member = InternalDistributedMember.readEssentialData(in);
+      var fInfo = new FilterInfo();
       InternalDataSerializer.invokeFromData(fInfo, in);
       // we only need to retain the recipient's entry
       if (myID == null || myID.equals(member)) {
@@ -212,12 +211,12 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
 
   @Override
   public void toData(DataOutput out) throws IOException {
-    int size = serverFilterInfo.size();
+    var size = serverFilterInfo.size();
     out.writeInt(size);
-    for (Map.Entry<InternalDistributedMember, FilterInfo> e : serverFilterInfo.entrySet()) {
-      InternalDistributedMember member = e.getKey();
+    for (var e : serverFilterInfo.entrySet()) {
+      var member = e.getKey();
       member.writeEssentialData(out);
-      FilterInfo fInfo = e.getValue();
+      var fInfo = e.getValue();
       InternalDataSerializer.invokeToData(fInfo, out);
     }
   }
@@ -229,7 +228,7 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
 
   @Override
   public String toString() {
-    String result = "FilterRoutingInfo(";
+    var result = "FilterRoutingInfo(";
     if (localFilterInfo != null) {
       result += "local=";
       result += localFilterInfo;
@@ -275,7 +274,7 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
         if (cqs == null) {
           cqs = new HashMap<>();
         }
-        for (Map.Entry<Long, Integer> entry : other.cqs.entrySet()) {
+        for (var entry : other.cqs.entrySet()) {
           cqs.put(entry.getKey(), entry.getValue());
         }
       }
@@ -315,11 +314,11 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
     @Override
     public void toData(DataOutput out) throws IOException {
       HeapDataOutputStream hdos;
-      int size = 9;
+      var size = 9;
       size += interestedClients == null ? 4 : interestedClients.size() * 8 + 5;
       size += interestedClientsInv == null ? 4 : interestedClientsInv.size() * 8 + 5;
       size += cqs == null ? 0 : cqs.size() * 12;
-      byte[] myData = StaticSerialization.getThreadLocalByteArray(size);
+      var myData = StaticSerialization.getThreadLocalByteArray(size);
       hdos = new HeapDataOutputStream(myData);
       hdos.disallowExpansion();
       if (cqs == null) {
@@ -327,7 +326,7 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
       } else {
         hdos.writeBoolean(true);
         InternalDataSerializer.writeArrayLength(cqs.size(), hdos);
-        for (final Map.Entry<Long, Integer> longIntegerEntry : cqs.entrySet()) {
+        for (final var longIntegerEntry : cqs.entrySet()) {
           // most cq IDs and all event types are small ints, so we use an optimized
           // write that serializes 7 bits at a time in a compact form
           InternalDataSerializer.writeUnsignedVL(longIntegerEntry.getKey(), hdos);
@@ -379,12 +378,12 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
      * routing, so there is no need to deserialize the routings for other members
      */
     private void deserialize() {
-      try (ByteArrayDataInput dis = new ByteArrayDataInput(myData)) {
-        boolean hasCQs = dis.readBoolean();
+      try (var dis = new ByteArrayDataInput(myData)) {
+        var hasCQs = dis.readBoolean();
         if (hasCQs) {
-          int numEntries = InternalDataSerializer.readArrayLength(dis);
+          var numEntries = InternalDataSerializer.readArrayLength(dis);
           cqs = new HashMap<>(numEntries);
-          for (int i = 0; i < numEntries; i++) {
+          for (var i = 0; i < numEntries; i++) {
             Long key = InternalDataSerializer.readUnsignedVL(dis);
             Integer value = (int) InternalDataSerializer.readUnsignedVL(dis);
             cqs.put(key, value);
@@ -400,7 +399,7 @@ public class FilterRoutingInfo implements VersionedDataSerializable {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       if (interestedClients != null && interestedClients.size() > 0) {
         sb.append("interestedClients:");
         sb.append(interestedClients);

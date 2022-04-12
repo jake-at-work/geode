@@ -22,12 +22,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -50,12 +44,12 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testHashCode() {
-    ByteSource bs = createByteSource(new byte[] {});
+    var bs = createByteSource(new byte[] {});
     bs.hashCode();
     bs = createByteSource(new byte[] {1, 2, 3, 4, 5});
-    int hc1 = bs.hashCode();
+    var hc1 = bs.hashCode();
     bs = createByteSource(new byte[] {1, 2, 3, 4, 5});
-    int hc2 = bs.hashCode();
+    var hc2 = bs.hashCode();
     assertEquals(hc1, hc2);
   }
 
@@ -72,8 +66,8 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testDuplicate() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-    ByteSource dup = bs.duplicate();
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var dup = bs.duplicate();
     assertEquals(bs, dup);
     dup.position(1);
     assertNotEquals(bs, dup);
@@ -84,14 +78,14 @@ public class ByteSourceJUnitTest {
     dup.limit(bs.limit());
     assertEquals(bs, dup);
     if (bs.hasArray()) {
-      byte[] bsBytes = bs.array();
-      byte[] dupBytes = dup.array();
+      var bsBytes = bs.array();
+      var dupBytes = dup.array();
       assertEquals(bsBytes, dupBytes);
       assertNotEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0}, dupBytes);
     }
     bs.position(1);
     bs.limit(2);
-    ByteSource dup2 = bs.duplicate();
+    var dup2 = bs.duplicate();
     assertEquals(bs, dup2);
     assertEquals(1, dup2.position());
     assertEquals(2, dup2.limit());
@@ -100,7 +94,7 @@ public class ByteSourceJUnitTest {
   @Test
   public void testPosition() {
     assertEquals(0, createByteSource(new byte[] {}).position());
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     assertEquals(0, bs.position());
     try {
       bs.position(-1);
@@ -127,7 +121,7 @@ public class ByteSourceJUnitTest {
   @Test
   public void testLimit() {
     assertEquals(0, createByteSource(new byte[] {}).limit());
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     assertEquals(10, bs.limit());
     try {
       bs.limit(11);
@@ -146,7 +140,7 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testCapacity() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     assertEquals(10, bs.capacity());
     bs = createByteSource(new byte[] {});
     assertEquals(0, bs.capacity());
@@ -155,7 +149,7 @@ public class ByteSourceJUnitTest {
   @Test
   public void testRemaining() {
     assertEquals(0, createByteSource(new byte[] {}).remaining());
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     assertEquals(10, bs.remaining());
     bs.position(1);
     assertEquals(9, bs.remaining());
@@ -169,8 +163,8 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGet() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-    byte b = bs.get();
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var b = bs.get();
     assertEquals(1, b);
     assertEquals(1, bs.position());
     b = bs.get();
@@ -189,9 +183,9 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetInt() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     bs.position(4);
-    byte b = bs.get(0);
+    var b = bs.get(0);
     assertEquals(1, b);
     assertEquals(4, bs.position());
     b = bs.get(1);
@@ -208,8 +202,8 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetByteArray() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-    byte[] bytes = new byte[2];
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bytes = new byte[2];
     bs.get(bytes);
     assertArrayEquals(new byte[] {1, 2}, bytes);
     assertEquals(2, bs.position());
@@ -249,8 +243,8 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetByteArrayIntInt() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-    byte[] bytes = new byte[10];
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bytes = new byte[10];
     bs.get(bytes, 0, 2);
     assertEquals(2, bs.position());
 
@@ -298,12 +292,12 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetChar() {
-    ByteBuffer bb = ByteBuffer.allocate(10);
-    CharBuffer cb = bb.asCharBuffer();
+    var bb = ByteBuffer.allocate(10);
+    var cb = bb.asCharBuffer();
     cb.put("abcde");
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
-    char c = bs.getChar();
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
+    var c = bs.getChar();
     assertEquals('a', c);
     assertEquals(2, bs.position());
     c = bs.getChar();
@@ -322,13 +316,13 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetCharInt() {
-    ByteBuffer bb = ByteBuffer.allocate(10);
-    CharBuffer cb = bb.asCharBuffer();
+    var bb = ByteBuffer.allocate(10);
+    var cb = bb.asCharBuffer();
     cb.put("abcde");
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
     bs.position(3);
-    char c = bs.getChar(0);
+    var c = bs.getChar(0);
     assertEquals('a', c);
     assertEquals(3, bs.position());
     c = bs.getChar(2);
@@ -346,16 +340,16 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetShort() {
-    ByteBuffer bb = ByteBuffer.allocate(10);
-    ShortBuffer sb = bb.asShortBuffer();
+    var bb = ByteBuffer.allocate(10);
+    var sb = bb.asShortBuffer();
     sb.put((short) 0x1110);
     sb.put((short) 0x2220);
     sb.put((short) 0x3330);
     sb.put((short) 0x4440);
     sb.put((short) 0x5550);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
-    short s = bs.getShort();
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
+    var s = bs.getShort();
     assertEquals(0x1110, s);
     assertEquals(2, bs.position());
     s = bs.getShort();
@@ -374,17 +368,17 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetShortInt() {
-    ByteBuffer bb = ByteBuffer.allocate(10);
-    ShortBuffer sb = bb.asShortBuffer();
+    var bb = ByteBuffer.allocate(10);
+    var sb = bb.asShortBuffer();
     sb.put((short) 0x1110);
     sb.put((short) 0x2220);
     sb.put((short) 0x3330);
     sb.put((short) 0x4440);
     sb.put((short) 0x5550);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
     bs.position(3);
-    short s = bs.getShort(0);
+    var s = bs.getShort(0);
     assertEquals(0x1110, s);
     assertEquals(3, bs.position());
     s = bs.getShort(2);
@@ -402,16 +396,16 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetInt1() {
-    ByteBuffer bb = ByteBuffer.allocate(20);
-    IntBuffer ib = bb.asIntBuffer();
+    var bb = ByteBuffer.allocate(20);
+    var ib = bb.asIntBuffer();
     ib.put(0x11102233);
     ib.put(0x22203344);
     ib.put(0x33304455);
     ib.put(0x44405566);
     ib.put(0x55506677);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
-    int i = bs.getInt();
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
+    var i = bs.getInt();
     assertEquals(0x11102233, i);
     assertEquals(4, bs.position());
     i = bs.getInt();
@@ -430,17 +424,17 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetIntInt() {
-    ByteBuffer bb = ByteBuffer.allocate(20);
-    IntBuffer ib = bb.asIntBuffer();
+    var bb = ByteBuffer.allocate(20);
+    var ib = bb.asIntBuffer();
     ib.put(0x11102233);
     ib.put(0x22203344);
     ib.put(0x33304455);
     ib.put(0x44405566);
     ib.put(0x55506677);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
     bs.position(3);
-    int i = bs.getInt(0);
+    var i = bs.getInt(0);
     assertEquals(0x11102233, i);
     assertEquals(3, bs.position());
     i = bs.getInt(4);
@@ -458,16 +452,16 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetLong() {
-    ByteBuffer bb = ByteBuffer.allocate(40);
-    LongBuffer lb = bb.asLongBuffer();
+    var bb = ByteBuffer.allocate(40);
+    var lb = bb.asLongBuffer();
     lb.put(0x1110223344556677L);
     lb.put(0x2220334455667788L);
     lb.put(0x3330445566778899L);
     lb.put(0x4440556677889900L);
     lb.put(0x55506677889900AAL);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
-    long l = bs.getLong();
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
+    var l = bs.getLong();
     assertEquals(0x1110223344556677L, l);
     assertEquals(8, bs.position());
     l = bs.getLong();
@@ -486,17 +480,17 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetLongInt() {
-    ByteBuffer bb = ByteBuffer.allocate(40);
-    LongBuffer lb = bb.asLongBuffer();
+    var bb = ByteBuffer.allocate(40);
+    var lb = bb.asLongBuffer();
     lb.put(0x1110223344556677L);
     lb.put(0x2220334455667788L);
     lb.put(0x3330445566778899L);
     lb.put(0x4440556677889900L);
     lb.put(0x55506677889900AAL);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
     bs.position(3);
-    long l = bs.getLong(0);
+    var l = bs.getLong(0);
     assertEquals(0x1110223344556677L, l);
     assertEquals(3, bs.position());
     l = bs.getLong(8);
@@ -514,16 +508,16 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetFloat() {
-    ByteBuffer bb = ByteBuffer.allocate(20);
-    FloatBuffer fb = bb.asFloatBuffer();
+    var bb = ByteBuffer.allocate(20);
+    var fb = bb.asFloatBuffer();
     fb.put(1.1f);
     fb.put(2.2f);
     fb.put(3.3f);
     fb.put(4.4f);
     fb.put(5.5f);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
-    float f = bs.getFloat();
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
+    var f = bs.getFloat();
     assertEquals(1.1f, f, 0.0001);
     assertEquals(4, bs.position());
     f = bs.getFloat();
@@ -542,17 +536,17 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetFloatInt() {
-    ByteBuffer bb = ByteBuffer.allocate(20);
-    FloatBuffer fb = bb.asFloatBuffer();
+    var bb = ByteBuffer.allocate(20);
+    var fb = bb.asFloatBuffer();
     fb.put(1.1f);
     fb.put(2.2f);
     fb.put(3.3f);
     fb.put(4.4f);
     fb.put(5.5f);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
     bs.position(3);
-    float f = bs.getFloat(0);
+    var f = bs.getFloat(0);
     assertEquals(1.1f, f, 0.0001);
     assertEquals(3, bs.position());
     f = bs.getFloat(4);
@@ -570,16 +564,16 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetDouble() {
-    ByteBuffer bb = ByteBuffer.allocate(40);
-    DoubleBuffer db = bb.asDoubleBuffer();
+    var bb = ByteBuffer.allocate(40);
+    var db = bb.asDoubleBuffer();
     db.put(1.1d);
     db.put(2.2d);
     db.put(3.3d);
     db.put(4.4d);
     db.put(5.5d);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
-    double d = bs.getDouble();
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
+    var d = bs.getDouble();
     assertEquals(1.1d, d, 0.0001);
     assertEquals(8, bs.position());
     d = bs.getDouble();
@@ -598,17 +592,17 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testGetDoubleInt() {
-    ByteBuffer bb = ByteBuffer.allocate(40);
-    DoubleBuffer db = bb.asDoubleBuffer();
+    var bb = ByteBuffer.allocate(40);
+    var db = bb.asDoubleBuffer();
     db.put(1.1d);
     db.put(2.2d);
     db.put(3.3d);
     db.put(4.4d);
     db.put(5.5d);
-    byte[] bytes = bb.array();
-    ByteSource bs = createByteSource(bytes);
+    var bytes = bb.array();
+    var bs = createByteSource(bytes);
     bs.position(3);
-    double d = bs.getDouble(0);
+    var d = bs.getDouble(0);
     assertEquals(1.1d, d, 0.0001);
     assertEquals(3, bs.position());
     d = bs.getDouble(8);
@@ -633,17 +627,17 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testHasArray() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     assertEquals(!isTestOffHeap(), bs.hasArray());
   }
 
   @Test
   public void testArray() {
-    byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
-    ByteSource bs = createByteSource(bytes);
+    var bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    var bs = createByteSource(bytes);
     if (bs.hasArray()) {
       assertEquals(bytes, bs.array());
-      ByteBuffer bb = ByteBuffer.wrap(bytes);
+      var bb = ByteBuffer.wrap(bytes);
       bb.position(1);
       bs = ByteSourceFactory.create(bb.slice());
       assertEquals(bytes, bs.array());
@@ -658,11 +652,11 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testArrayOffset() {
-    byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
-    ByteSource bs = createByteSource(bytes);
+    var bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    var bs = createByteSource(bytes);
     if (bs.hasArray()) {
       assertEquals(0, bs.arrayOffset());
-      ByteBuffer bb = ByteBuffer.wrap(bytes);
+      var bb = ByteBuffer.wrap(bytes);
       bb.position(1);
       bs = ByteSourceFactory.create(bb.slice());
       assertEquals(1, bs.arrayOffset());
@@ -677,7 +671,7 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testSliceInt() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     bs.position(1);
     try {
       bs.slice(10);
@@ -690,7 +684,7 @@ public class ByteSourceJUnitTest {
     } catch (IllegalArgumentException ignored) {
     }
     assertEquals(0, bs.slice(0).remaining());
-    ByteSource slice = bs.slice(2);
+    var slice = bs.slice(2);
     assertEquals(createByteSource(new byte[] {2, 3}), slice);
     assertEquals(0, slice.position());
     assertEquals(2, slice.limit());
@@ -702,7 +696,7 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testSliceIntInt() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     try {
       bs.slice(-1, 9);
       fail("expected IllegalArgumentException");
@@ -714,14 +708,14 @@ public class ByteSourceJUnitTest {
     } catch (IllegalArgumentException ignored) {
     }
     assertEquals(bs, bs.slice(0, 10));
-    ByteSource slice = bs.slice(1, 9);
+    var slice = bs.slice(1, 9);
     assertEquals(createByteSource(new byte[] {2, 3, 4, 5, 6, 7, 8, 9}), slice);
   }
 
   @Test
   public void testSendToByteBuffer() {
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-    ByteBuffer bb = ByteBuffer.allocate(10);
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var bb = ByteBuffer.allocate(10);
     bs.sendTo(bb);
     assertEquals(0, bs.remaining());
     assertEquals(10, bb.position());
@@ -741,11 +735,11 @@ public class ByteSourceJUnitTest {
 
   @Test
   public void testSendToDataOutput() throws IOException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream((KnownVersion) null);
-    ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    var hdos = new HeapDataOutputStream((KnownVersion) null);
+    var bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     bs.sendTo(hdos);
     assertEquals(0, bs.remaining());
-    ByteBuffer bb = hdos.toByteBuffer();
+    var bb = hdos.toByteBuffer();
     assertEquals(10, bb.limit());
     assertEquals(ByteBuffer.wrap(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0}), bb);
 

@@ -59,7 +59,7 @@ public class CacheConfigTest {
         classNameTypeXml + "<parameter name=\"key\"><string>value</string></parameter>";
 
     declarableWithParam = new DeclarableType("my.className");
-    ParameterType param = new ParameterType("key");
+    var param = new ParameterType("key");
     param.setDeclarable(declarableWithString);
     declarableWithParam.getParameters().add(param);
     declarableWithParamXml = classNameTypeXml + "<parameter name=\"key\"><declarable>"
@@ -74,12 +74,12 @@ public class CacheConfigTest {
 
   @Test
   public void indexType() {
-    String xml = cacheXml + regionXml
+    var xml = cacheXml + regionXml
         + "<index name=\"indexName\" expression=\"expression\" key-index=\"true\"/>"
         + "</region></cache>";
 
     cacheConfig = service.unMarshall(xml);
-    RegionConfig.Index index = cacheConfig.getRegions().get(0).getIndexes().get(0);
+    var index = cacheConfig.getRegions().get(0).getIndexes().get(0);
     assertThat(index.isKeyIndex()).isTrue();
     assertThat(index.getName()).isEqualTo("indexName");
     assertThat(index.getExpression()).isEqualTo("expression");
@@ -89,13 +89,13 @@ public class CacheConfigTest {
 
   @Test
   public void regionEntry() {
-    String xml = cacheXml + regionXml + "<entry>" + "<key><string>key1</string></key>"
+    var xml = cacheXml + regionXml + "<entry>" + "<key><string>key1</string></key>"
         + "<value><declarable>" + declarableWithStringXml + "</declarable></value>" + "</entry>"
         + "<entry>" + "<key><string>key2</string></key>" + "<value><declarable>"
         + declarableWithParamXml + "</declarable></value>" + "</entry>" + "</region></cache>";
 
     cacheConfig = service.unMarshall(xml);
-    RegionConfig.Entry entry = cacheConfig.getRegions().get(0).getEntries().get(0);
+    var entry = cacheConfig.getRegions().get(0).getEntries().get(0);
     assertThat(entry.getKey().toString()).isEqualTo("key1");
     assertThat(entry.getValue().getDeclarable()).isEqualTo(declarableWithString);
 
@@ -106,7 +106,7 @@ public class CacheConfigTest {
 
   @Test
   public void cacheTransactionManager() {
-    String xml = cacheXml + "<cache-transaction-manager>" + "<transaction-listener>"
+    var xml = cacheXml + "<cache-transaction-manager>" + "<transaction-listener>"
         + declarableWithStringXml + "</transaction-listener>" + "<transaction-writer>"
         + declarableWithStringXml + "</transaction-writer>"
         + "</cache-transaction-manager></cache>";
@@ -120,7 +120,7 @@ public class CacheConfigTest {
 
   @Test
   public void declarables() {
-    String xml = cacheXml + "<region-attributes>" + "<cache-loader>" + declarableWithStringXml
+    var xml = cacheXml + "<region-attributes>" + "<cache-loader>" + declarableWithStringXml
         + "</cache-loader>" + "<cache-listener>" + declarableWithStringXml + "</cache-listener>"
         + "<cache-writer>" + declarableWithStringXml + "</cache-writer>" + "<compressor>"
         + classNameTypeXml + "</compressor>"
@@ -155,12 +155,12 @@ public class CacheConfigTest {
     assertThat(cacheConfig.getGatewayHubs().get(0).getGateway().get(0).getGatewayListeners().get(0))
         .isEqualTo(declarableWithString);
 
-    CacheConfig.AsyncEventQueue asyncEventQueue = cacheConfig.getAsyncEventQueues().get(0);
+    var asyncEventQueue = cacheConfig.getAsyncEventQueues().get(0);
     assertThat(asyncEventQueue.getAsyncEventListener()).isEqualTo(declarableWithString);
     assertThat(asyncEventQueue.getGatewayEventFilters().get(0)).isEqualTo(declarableWithString);
     assertThat(asyncEventQueue.getGatewayEventSubstitutionFilter()).isEqualTo(declarableWithString);
 
-    RegionAttributesType regionAttributes = cacheConfig.getRegionAttributes().get(0);
+    var regionAttributes = cacheConfig.getRegionAttributes().get(0);
     assertThat(regionAttributes.getCacheListeners().get(0)).isEqualTo(declarableWithString);
     assertThat(regionAttributes.getCompressor().toString()).isEqualTo("my.className");
     assertThat(regionAttributes.getCacheLoader()).isEqualTo(declarableWithString);
@@ -172,16 +172,16 @@ public class CacheConfigTest {
   @Test
   public void regionConfig() {
     cacheConfig = new CacheConfig("1.0");
-    RegionConfig regionConfig = new RegionConfig();
+    var regionConfig = new RegionConfig();
     regionConfig.setName("test");
     regionConfig.setType(RegionType.REPLICATE);
-    RegionAttributesType attributes = new RegionAttributesType();
+    var attributes = new RegionAttributesType();
     attributes.setCacheLoader(new DeclarableType("abc.Foo"));
     regionConfig.setRegionAttributes(attributes);
     cacheConfig.getRegions().add(regionConfig);
 
     // make sure the xml marshed by this config can be validated with xsd
-    String xml = service.marshall(cacheConfig);
+    var xml = service.marshall(cacheConfig);
 
     CacheConfig newCache = service.unMarshall(xml);
     assertThat(cacheConfig).isEqualToComparingFieldByFieldRecursively(newCache);
@@ -189,7 +189,7 @@ public class CacheConfigTest {
 
   @Test
   public void regionAttributeType() throws Exception {
-    String xml = "<region name=\"test\">\n"
+    var xml = "<region name=\"test\">\n"
         + "        <region-attributes>\n"
         + "            <region-time-to-live>\n"
         + "                <expiration-attributes action=\"invalidate\" timeout=\"20\">\n"
@@ -208,13 +208,13 @@ public class CacheConfigTest {
         + "        </region-attributes>\n"
         + "    </region>";
 
-    RegionConfig regionConfig = service.unMarshall(xml, RegionConfig.class);
-    RegionAttributesType.ExpirationAttributesType entryTimeToLive =
+    var regionConfig = service.unMarshall(xml, RegionConfig.class);
+    var entryTimeToLive =
         regionConfig.getRegionAttributes().getEntryTimeToLive();
     assertThat(entryTimeToLive.getTimeout()).isEqualTo("10");
     assertThat(entryTimeToLive.getAction()).isEqualTo("destroy");
     assertThat(entryTimeToLive.getCustomExpiry().getClassName()).isEqualTo("foo");
-    RegionAttributesType.ExpirationAttributesType regionTimeToLive =
+    var regionTimeToLive =
         regionConfig.getRegionAttributes().getRegionTimeToLive();
     assertThat(regionTimeToLive.getTimeout()).isEqualTo("20");
     assertThat(regionTimeToLive.getAction()).isEqualTo("invalidate");
@@ -225,12 +225,12 @@ public class CacheConfigTest {
 
   @Test
   public void findRegionConfiguration() throws Exception {
-    CacheConfig config = new CacheConfig();
+    var config = new CacheConfig();
     assertThat(config.findRegionConfiguration(SEPARATOR + "test")).isNull();
     assertThat(config.findRegionConfiguration("test")).isNull();
     assertThat(config.findRegionConfiguration("test" + SEPARATOR + "test1")).isNull();
 
-    RegionConfig testRegion = new RegionConfig();
+    var testRegion = new RegionConfig();
     testRegion.setName("test");
     config.getRegions().add(testRegion);
 
@@ -238,7 +238,7 @@ public class CacheConfigTest {
     assertThat(config.findRegionConfiguration("test")).isNotNull();
     assertThat(config.findRegionConfiguration("test" + SEPARATOR + "test1")).isNull();
 
-    RegionConfig test1Region = new RegionConfig();
+    var test1Region = new RegionConfig();
     test1Region.setName("test1");
     testRegion.getRegions().add(test1Region);
 

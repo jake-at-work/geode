@@ -87,10 +87,10 @@ public class VMThinRegionEntryOffHeapStringKey2 extends VMThinRegionEntryOffHeap
     super(context, value);
     // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
     // caller has already confirmed that key.length <= MAX_INLINE_STRING_KEY
-    long tempBits1 = 0L;
-    long tempBits2 = 0L;
+    var tempBits1 = 0L;
+    var tempBits2 = 0L;
     if (byteEncode) {
-      for (int i = key.length() - 1; i >= 0; i--) {
+      for (var i = key.length() - 1; i >= 0; i--) {
         // Note: we know each byte is <= 0x7f so the "& 0xff" is not needed. But I added it in to
         // keep findbugs happy.
         if (i < 7) {
@@ -103,7 +103,7 @@ public class VMThinRegionEntryOffHeapStringKey2 extends VMThinRegionEntryOffHeap
       }
       tempBits1 |= 1 << 6;
     } else {
-      for (int i = key.length() - 1; i >= 0; i--) {
+      for (var i = key.length() - 1; i >= 0; i--) {
         if (i < 3) {
           tempBits1 |= key.charAt(i);
           tempBits1 <<= 16;
@@ -207,12 +207,12 @@ public class VMThinRegionEntryOffHeapStringKey2 extends VMThinRegionEntryOffHeap
 
   @Override
   public Object getKey() {
-    int keyLength = getKeyLength();
-    char[] chars = new char[keyLength];
-    long tempBits1 = bits1;
-    long tempBits2 = bits2;
+    var keyLength = getKeyLength();
+    var chars = new char[keyLength];
+    var tempBits1 = bits1;
+    var tempBits2 = bits2;
     if (getEncoding() == 1) {
-      for (int i = 0; i < keyLength; i++) {
+      for (var i = 0; i < keyLength; i++) {
         if (i < 7) {
           tempBits1 >>= 8;
           chars[i] = (char) (tempBits1 & 0x00ff);
@@ -222,7 +222,7 @@ public class VMThinRegionEntryOffHeapStringKey2 extends VMThinRegionEntryOffHeap
         }
       }
     } else {
-      for (int i = 0; i < keyLength; i++) {
+      for (var i = 0; i < keyLength; i++) {
         if (i < 3) {
           tempBits1 >>= 16;
           chars[i] = (char) (tempBits1 & 0x00FFff);
@@ -239,13 +239,13 @@ public class VMThinRegionEntryOffHeapStringKey2 extends VMThinRegionEntryOffHeap
   @Override
   public boolean isKeyEqual(final Object key) {
     if (key instanceof String) {
-      String stringKey = (String) key;
-      int keyLength = getKeyLength();
+      var stringKey = (String) key;
+      var keyLength = getKeyLength();
       if (stringKey.length() == keyLength) {
-        long tempBits1 = bits1;
-        long tempBits2 = bits2;
+        var tempBits1 = bits1;
+        var tempBits2 = bits2;
         if (getEncoding() == 1) {
-          for (int i = 0; i < keyLength; i++) {
+          for (var i = 0; i < keyLength; i++) {
             char character;
             if (i < 7) {
               tempBits1 >>= 8;
@@ -259,7 +259,7 @@ public class VMThinRegionEntryOffHeapStringKey2 extends VMThinRegionEntryOffHeap
             }
           }
         } else {
-          for (int i = 0; i < keyLength; i++) {
+          for (var i = 0; i < keyLength; i++) {
             char character;
             if (i < 3) {
               tempBits1 >>= 16;

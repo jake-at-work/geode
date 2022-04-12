@@ -20,9 +20,7 @@ package org.apache.geode.cache.query.internal;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Random;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.junit.Test;
@@ -34,14 +32,14 @@ public class SelectResultsComparatorJUnitTest implements OQLLexerTokenTypes {
 
   @Test
   public void testComparatorForSortedSet() throws Exception {
-    int sameSizeVar = 0;
-    boolean sameSizeVarSetFlag = false;
-    SortedSet testSet =
+    var sameSizeVar = 0;
+    var sameSizeVarSetFlag = false;
+    var testSet =
         Collections.synchronizedSortedSet(new TreeSet(new SelectResultsComparator()));
-    for (int i = 0; i < 10; i++) {
-      Random rand = new Random();
+    for (var i = 0; i < 10; i++) {
+      var rand = new Random();
       SelectResults resultsSet = new ResultsSet();
-      int size = rand.nextInt();
+      var size = rand.nextInt();
       if (size < 0) {
         size = 0 - size;
       }
@@ -50,27 +48,27 @@ public class SelectResultsComparatorJUnitTest implements OQLLexerTokenTypes {
         sameSizeVar = size;
         sameSizeVarSetFlag = true;
       }
-      for (int j = 0; j < size; j++) {
+      for (var j = 0; j < size; j++) {
         resultsSet.add(new Object());
       }
       testSet.add(resultsSet);
     }
 
     SelectResults resultsSet = new ResultsSet();
-    for (int j = 0; j < sameSizeVar; j++) {
+    for (var j = 0; j < sameSizeVar; j++) {
       resultsSet.add(new Object());
     }
     testSet.add(resultsSet);
     if (testSet.size() != 11) {
       fail("Same size resultSets were overwritten");
     }
-    Iterator iter1 = testSet.iterator();
-    Iterator iter2 = testSet.iterator();
+    var iter1 = testSet.iterator();
+    var iter2 = testSet.iterator();
     iter2.next();
 
     while (iter2.hasNext()) {
-      SelectResults sr1 = (SelectResults) iter1.next();
-      SelectResults sr2 = (SelectResults) iter2.next();
+      var sr1 = (SelectResults) iter1.next();
+      var sr2 = (SelectResults) iter2.next();
       if (sr1.size() > sr2.size()) {
         fail("This is not expected behaviour");
       }

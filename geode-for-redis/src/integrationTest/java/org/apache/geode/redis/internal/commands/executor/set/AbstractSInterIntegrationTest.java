@@ -59,7 +59,7 @@ public abstract class AbstractSInterIntegrationTest implements RedisIntegrationT
 
   @Test
   public void sinter_withSetsFromDifferentSlots_returnsCrossSlotError() {
-    String setKeyDifferentSlot = "{tag2}set2";
+    var setKeyDifferentSlot = "{tag2}set2";
     jedis.sadd(SET1, "member1");
     jedis.sadd(setKeyDifferentSlot, "member2");
 
@@ -69,23 +69,23 @@ public abstract class AbstractSInterIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testSInter_givenIntersection_returnsIntersectedMembers() {
-    String[] firstSet = new String[] {"peach"};
-    String[] secondSet = new String[] {"linux", "apple", "peach"};
-    String[] thirdSet = new String[] {"luigi", "apple", "bowser", "peach", "mario"};
+    var firstSet = new String[] {"peach"};
+    var secondSet = new String[] {"linux", "apple", "peach"};
+    var thirdSet = new String[] {"luigi", "apple", "bowser", "peach", "mario"};
     jedis.sadd(SET1, firstSet);
     jedis.sadd(SET2, secondSet);
     jedis.sadd(SET3, thirdSet);
 
-    Set<String> resultSet = jedis.sinter(SET1, SET2, SET3);
+    var resultSet = jedis.sinter(SET1, SET2, SET3);
 
-    String[] expected = new String[] {"peach"};
+    var expected = new String[] {"peach"};
     assertThat(resultSet).containsExactlyInAnyOrder(expected);
   }
 
   @Test
   public void testSInter_givenNonSet_returnsErrorWrongType() {
-    String[] firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
-    String nonSet = "apple";
+    var firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var nonSet = "apple";
     jedis.sadd(SET1, firstSet);
     jedis.set("{tag1}nonSet", nonSet);
 
@@ -94,12 +94,12 @@ public abstract class AbstractSInterIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testSInter_givenNonSetKeyAsFirstKey_returnsWrongTypeError() {
-    String[] firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
-    String[] secondSet = new String[] {"apple", "pear", "plum", "peach", "orange",};
+    var firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var secondSet = new String[] {"apple", "pear", "plum", "peach", "orange",};
     jedis.sadd(SET1, firstSet);
     jedis.sadd(SET2, secondSet);
 
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     assertThatThrownBy(() -> jedis.sinter(stringKey, SET1, SET2)).hasMessage(ERROR_WRONG_TYPE);
@@ -107,12 +107,12 @@ public abstract class AbstractSInterIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testSInter_givenNonSetKeyAsThirdKey_returnsWrongTypeError() {
-    String[] firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
-    String[] secondSet = new String[] {"apple", "pear", "plum", "peach", "orange",};
+    var firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var secondSet = new String[] {"apple", "pear", "plum", "peach", "orange",};
     jedis.sadd(SET1, firstSet);
     jedis.sadd(SET2, secondSet);
 
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     assertThatThrownBy(() -> jedis.sinter(SET1, SET2, stringKey)).hasMessage(ERROR_WRONG_TYPE);
@@ -120,10 +120,10 @@ public abstract class AbstractSInterIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testSInter_givenNonSetKeyAsThirdKeyAndNonExistentSetAsFirstKey_returnsWrongTypeError() {
-    String[] firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
     jedis.sadd(SET1, firstSet);
 
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     assertThatThrownBy(() -> jedis.sinter("{tag1}nonExistent", SET1, stringKey))
@@ -132,50 +132,50 @@ public abstract class AbstractSInterIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testSInter_givenNoIntersection_returnsEmptySet() {
-    String[] firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
-    String[] secondSet = new String[] {"ubuntu", "microsoft", "linux", "solaris"};
+    var firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var secondSet = new String[] {"ubuntu", "microsoft", "linux", "solaris"};
     jedis.sadd(SET1, firstSet);
     jedis.sadd(SET2, secondSet);
 
-    Set<String> emptyResultSet = jedis.sinter(SET1, SET2);
+    var emptyResultSet = jedis.sinter(SET1, SET2);
     assertThat(emptyResultSet).isEmpty();
   }
 
   @Test
   public void testSInter_givenSingleSet_returnsAllMembers() {
-    String[] firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
     jedis.sadd(SET1, firstSet);
 
-    Set<String> resultSet = jedis.sinter(SET1);
+    var resultSet = jedis.sinter(SET1);
     assertThat(resultSet).containsExactlyInAnyOrder(firstSet);
   }
 
   @Test
   public void testSInter_givenFullyMatchingSet_returnsAllMembers() {
-    String[] firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
-    String[] secondSet = new String[] {"apple", "pear", "plum", "peach", "orange",};
+    var firstSet = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var secondSet = new String[] {"apple", "pear", "plum", "peach", "orange",};
     jedis.sadd(SET1, firstSet);
     jedis.sadd(SET2, secondSet);
 
-    Set<String> resultSet = jedis.sinter(SET1, SET2);
+    var resultSet = jedis.sinter(SET1, SET2);
     assertThat(resultSet).containsExactlyInAnyOrder(firstSet);
   }
 
   @Test
   public void testSInter_givenNonExistentSingleSet_returnsEmptySet() {
-    Set<String> emptyResultSet = jedis.sinter(SET1);
+    var emptyResultSet = jedis.sinter(SET1);
     assertThat(emptyResultSet).isEmpty();
   }
 
   @Test
   public void ensureSetConsistency_whenRunningConcurrently() {
-    String[] values = new String[] {"pear", "apple", "plum", "orange", "peach"};
-    String[] newValues = new String[] {"ubuntu", "orange", "peach", "linux"};
+    var values = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var newValues = new String[] {"ubuntu", "orange", "peach", "linux"};
     jedis.sadd(SET1, values);
     jedis.sadd(SET2, values);
 
-    final AtomicReference<Set<String>> sinterResultReference = new AtomicReference<>();
-    String[] result = new String[] {"orange", "peach"};
+    final var sinterResultReference = new AtomicReference<Set<String>>();
+    var result = new String[] {"orange", "peach"};
     new ConcurrentLoopingThreads(1000,
         i -> jedis.sadd(SET3, newValues),
         i -> sinterResultReference.set(

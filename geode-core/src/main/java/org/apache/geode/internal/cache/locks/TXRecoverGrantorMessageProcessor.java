@@ -53,20 +53,20 @@ public class TXRecoverGrantorMessageProcessor
       final DLockRecoverGrantorProcessor.DLockRecoverGrantorMessage msg) {
 
     ReplyException replyException = null;
-    int replyCode = DLockRecoverGrantorProcessor.DLockRecoverGrantorReplyMessage.OK;
-    DLockRemoteToken[] heldLocks = new DLockRemoteToken[0];
+    var replyCode = DLockRecoverGrantorProcessor.DLockRecoverGrantorReplyMessage.OK;
+    var heldLocks = new DLockRemoteToken[0];
 
     if (logger.isDebugEnabled()) {
       logger.debug("[TXRecoverGrantorMessageProcessor.process]");
     }
-    boolean gotRecoveryLock = false;
+    var gotRecoveryLock = false;
     TXLockServiceImpl dtls = null;
     try {
       Assert.assertTrue(msg.getServiceName().startsWith(DLockService.DTLS),
           "TXRecoverGrantorMessageProcessor cannot handle service " + msg.getServiceName());
 
       // get the service from the name
-      DLockService svc = DLockService.getInternalServiceNamed(msg.getServiceName());
+      var svc = DLockService.getInternalServiceNamed(msg.getServiceName());
 
       if (svc != null) {
         dtls = (TXLockServiceImpl) TXLockService.getDTLS();
@@ -117,7 +117,7 @@ public class TXRecoverGrantorMessageProcessor
         dtls.releaseRecoveryWriteLock();
       }
 
-      DLockRecoverGrantorProcessor.DLockRecoverGrantorReplyMessage replyMsg =
+      var replyMsg =
           new DLockRecoverGrantorProcessor.DLockRecoverGrantorReplyMessage();
       replyMsg.setReplyCode(replyCode);
       replyMsg.setHeldLocks(heldLocks);

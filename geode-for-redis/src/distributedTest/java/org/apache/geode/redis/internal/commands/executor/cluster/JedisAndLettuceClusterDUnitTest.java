@@ -23,14 +23,12 @@ import java.time.Duration;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.cluster.RedisClusterClient;
-import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 
 public class JedisAndLettuceClusterDUnitTest {
@@ -43,7 +41,7 @@ public class JedisAndLettuceClusterDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     cluster.startRedisVM(1, locator.getPort());
     cluster.startRedisVM(2, locator.getPort());
 
@@ -52,13 +50,13 @@ public class JedisAndLettuceClusterDUnitTest {
 
   @Test
   public void testJedisClusterCompatibility() {
-    try (JedisCluster jedis =
+    try (var jedis =
         new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort1),
             REDIS_CLIENT_TIMEOUT)) {
 
-      for (int i = 0; i < KEYS; i++) {
-        String key = "jedis-" + i;
-        String value = "value-" + i;
+      for (var i = 0; i < KEYS; i++) {
+        var key = "jedis-" + i;
+        var value = "value-" + i;
         jedis.set(key, value);
         assertThat(jedis.get(key)).isEqualTo(value);
       }
@@ -67,14 +65,14 @@ public class JedisAndLettuceClusterDUnitTest {
 
   @Test
   public void testLettuceClusterCompatibility() {
-    RedisClusterClient clusterClient = RedisClusterClient.create(
+    var clusterClient = RedisClusterClient.create(
         new RedisURI("localhost", redisServerPort1, Duration.ofSeconds(60)));
-    RedisAdvancedClusterCommands<String, String> commands =
+    var commands =
         clusterClient.connect().sync();
 
-    for (int i = 0; i < KEYS; i++) {
-      String key = "lettuce-" + i;
-      String value = "value-" + i;
+    for (var i = 0; i < KEYS; i++) {
+      var key = "lettuce-" + i;
+      var value = "value-" + i;
       commands.set(key, value);
       assertThat(commands.get(key)).isEqualTo(value);
     }

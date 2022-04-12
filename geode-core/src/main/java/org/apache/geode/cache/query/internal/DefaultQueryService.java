@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -32,7 +31,6 @@ import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.LowMemoryException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.client.internal.InternalPool;
 import org.apache.geode.cache.client.internal.ProxyCache;
 import org.apache.geode.cache.client.internal.ServerProxy;
@@ -70,7 +68,6 @@ import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.MemoryThresholdInfo;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.control.MemoryThresholds;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -110,7 +107,7 @@ public class DefaultQueryService implements InternalQueryService {
     if (cache == null) {
       throw new IllegalArgumentException("Cache must not be null");
     }
-    QueryConfigurationService queryConfigurationService =
+    var queryConfigurationService =
         cache.getService(QueryConfigurationService.class);
 
     this.cache = cache;
@@ -134,7 +131,7 @@ public class DefaultQueryService implements InternalQueryService {
   @Override
   public Query newQuery(String queryString) {
     if (QueryMonitor.isLowMemory()) {
-      String reason = String.format(
+      var reason = String.format(
           "Query execution canceled due to memory threshold crossed in system, memory used: %s bytes.",
           QueryMonitor.getMemoryUsedBytes());
       throw new QueryExecutionLowMemoryException(reason);
@@ -147,14 +144,14 @@ public class DefaultQueryService implements InternalQueryService {
       throw new QueryInvalidException(
           "The query string must not be empty");
     }
-    ServerProxy serverProxy = pool == null ? null : new ServerProxy(pool);
-    DefaultQuery query = new DefaultQuery(queryString, cache, serverProxy != null);
+    var serverProxy = pool == null ? null : new ServerProxy(pool);
+    var query = new DefaultQuery(queryString, cache, serverProxy != null);
     query.setServerProxy(serverProxy);
     return query;
   }
 
   public Query newQuery(String queryString, ProxyCache proxyCache) {
-    Query query = newQuery(queryString);
+    var query = newQuery(queryString);
     ((DefaultQuery) query).setProxyCache(proxyCache);
     return query;
   }
@@ -218,7 +215,7 @@ public class DefaultQueryService implements InternalQueryService {
     if (region == null) {
       region = getRegionFromPath(imports, fromClause);
     }
-    RegionAttributes ra = region.getAttributes();
+    var ra = region.getAttributes();
 
 
     // Asif: If the evistion action is Overflow to disk then do not allow index creation
@@ -231,8 +228,8 @@ public class DefaultQueryService implements InternalQueryService {
     // }
     // if its a pr the create index on all of the local buckets.
     if (!MemoryThresholds.isLowMemoryExceptionDisabled()) {
-      InternalRegion internalRegion = (InternalRegion) region;
-      MemoryThresholdInfo info = internalRegion.getAtomicThresholdInfo();
+      var internalRegion = (InternalRegion) region;
+      var info = internalRegion.getAtomicThresholdInfo();
       if (info.isMemoryThresholdReached()) {
         throw new LowMemoryException(
             String.format(
@@ -258,8 +255,8 @@ public class DefaultQueryService implements InternalQueryService {
 
     } else {
 
-      IndexManager indexManager = IndexUtils.getIndexManager(cache, region, true);
-      Index index = indexManager.createIndex(indexName, indexType, indexedExpression, fromClause,
+      var indexManager = IndexUtils.getIndexManager(cache, region, true);
+      var index = indexManager.createIndex(indexName, indexType, indexedExpression, fromClause,
           imports, null, null, loadEntries);
 
       return index;
@@ -277,12 +274,12 @@ public class DefaultQueryService implements InternalQueryService {
 
   private Region getRegionFromPath(String imports, String fromClause)
       throws RegionNotFoundException {
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     if (imports != null) {
       compiler.compileImports(imports);
     }
     List list = compiler.compileFromClause(fromClause);
-    CompiledValue cv = QueryUtils
+    var cv = QueryUtils
         .obtainTheBottomMostCompiledValue(((CompiledIteratorDef) list.get(0)).getCollectionExpr());
     String regionPath = null;
     if (cv.getType() == OQLLexerTokenTypes.RegionPath) {
@@ -322,8 +319,8 @@ public class DefaultQueryService implements InternalQueryService {
     if (region == null) {
       return null;
     }
-    IndexManager indexManager = IndexUtils.getIndexManager(cache, region, true);
-    IndexData indexData = indexManager.getIndex(indexType, definitions, indexedExpression, context);
+    var indexManager = IndexUtils.getIndexManager(cache, region, true);
+    var indexData = indexManager.getIndex(indexType, definitions, indexedExpression, context);
     return indexData;
   }
 
@@ -339,7 +336,7 @@ public class DefaultQueryService implements InternalQueryService {
     if (region instanceof PartitionedRegion) {
       return (Index) ((PartitionedRegion) region).getIndex().get(indexName);
     } else {
-      IndexManager indexManager = IndexUtils.getIndexManager(cache, region, false);
+      var indexManager = IndexUtils.getIndexManager(cache, region, false);
       if (indexManager == null) {
         return null;
       }
@@ -380,7 +377,7 @@ public class DefaultQueryService implements InternalQueryService {
     }
     // return getBestMatchIndex(region, indexType, definitions,
     // indexedExpression);
-    IndexManager indexManager = IndexUtils.getIndexManager(cache, region, false);
+    var indexManager = IndexUtils.getIndexManager(cache, region, false);
     if (indexManager == null) {
       return null;
     }
@@ -389,12 +386,12 @@ public class DefaultQueryService implements InternalQueryService {
 
   @Override
   public Collection getIndexes() {
-    ArrayList allIndexes = new ArrayList();
-    for (final Region<?, ?> value : cache.rootRegions()) {
-      Region region = (Region) value;
+    var allIndexes = new ArrayList();
+    for (final var value : cache.rootRegions()) {
+      var region = (Region) value;
       allIndexes.addAll(getIndexes(region));
 
-      for (final Object o : region.subregions(true)) {
+      for (final var o : region.subregions(true)) {
         allIndexes.addAll(getIndexes((Region) o));
       }
     }
@@ -414,7 +411,7 @@ public class DefaultQueryService implements InternalQueryService {
       return ((PartitionedRegion) region).getIndexes();
     }
 
-    IndexManager indexManager = IndexUtils.getIndexManager(cache, region, false);
+    var indexManager = IndexUtils.getIndexManager(cache, region, false);
     if (indexManager == null) {
       return Collections.emptyList();
     }
@@ -430,7 +427,7 @@ public class DefaultQueryService implements InternalQueryService {
           "Index Operation is not supported on the Server Region.");
     }
 
-    IndexManager indexManager = IndexUtils.getIndexManager(cache, region, false);
+    var indexManager = IndexUtils.getIndexManager(cache, region, false);
     if (indexManager == null) {
       return Collections.emptyList();
     }
@@ -459,7 +456,7 @@ public class DefaultQueryService implements InternalQueryService {
     // for PR lock will be taken in PartitionRegion.removeIndex
     ((AbstractIndex) index).acquireIndexWriteLockForRemove();
     try {
-      IndexManager indexManager = ((LocalRegion) index.getRegion()).getIndexManager();
+      var indexManager = ((LocalRegion) index.getRegion()).getIndexManager();
       indexManager.removeIndex(index);
     } finally {
       ((AbstractIndex) index).releaseIndexWriteLockForRemove();
@@ -473,9 +470,9 @@ public class DefaultQueryService implements InternalQueryService {
           "Index Operation is not supported on the Server Region.");
     }
 
-    for (final Region<?, ?> value : cache.rootRegions()) {
-      Region region = (Region) value;
-      for (final Object o : region.subregions(true)) {
+    for (final var value : cache.rootRegions()) {
+      var region = (Region) value;
+      for (final var o : region.subregions(true)) {
         removeIndexes((Region) o);
       }
       removeIndexes(region);
@@ -501,7 +498,7 @@ public class DefaultQueryService implements InternalQueryService {
         logger.info(String.format("Exception removing index : %s", ex));
       }
     }
-    IndexManager indexManager = IndexUtils.getIndexManager(cache, region, false);
+    var indexManager = IndexUtils.getIndexManager(cache, region, false);
     if (indexManager == null) {
       return;
     }
@@ -602,7 +599,7 @@ public class DefaultQueryService implements InternalQueryService {
       throw new IllegalArgumentException(
           "cqName must not be null");
     }
-    ClientCQ cq =
+    var cq =
         getCqService().newCq(cqName, queryString, cqAttributes, pool, false);
     return cq;
   }
@@ -634,7 +631,7 @@ public class DefaultQueryService implements InternalQueryService {
       throw new IllegalArgumentException(
           "cqName must not be null");
     }
-    ClientCQ cq =
+    var cq =
         getCqService().newCq(cqName, queryString, cqAttributes, pool, isDurable);
     return cq;
   }
@@ -692,7 +689,7 @@ public class DefaultQueryService implements InternalQueryService {
   }
 
   private CqQuery[] toArray(Collection<? extends InternalCqQuery> allCqs) {
-    CqQuery[] cqs = new CqQuery[allCqs.size()];
+    var cqs = new CqQuery[allCqs.size()];
     allCqs.toArray(cqs);
     return cqs;
   }
@@ -821,7 +818,7 @@ public class DefaultQueryService implements InternalQueryService {
   }
 
   public CqService getCqService() throws CqException {
-    CqService service = cache.getCqService();
+    var service = cache.getCqService();
     service.start();
     return service;
   }
@@ -890,11 +887,11 @@ public class DefaultQueryService implements InternalQueryService {
 
   public void defineIndex(String indexName, IndexType indexType, String indexedExpression,
       String fromClause, String imports) throws RegionNotFoundException {
-    IndexCreationData indexData = new IndexCreationData(indexName);
+    var indexData = new IndexCreationData(indexName);
     indexData.setIndexData(indexType, fromClause, indexedExpression, imports);
-    Region r = getRegionFromPath(imports, fromClause);
+    var r = getRegionFromPath(imports, fromClause);
     synchronized (indexDefinitions) {
-      HashSet<IndexCreationData> s = indexDefinitions.get(r);
+      var s = indexDefinitions.get(r);
       if (s == null) {
         s = new HashSet<>();
       }
@@ -905,14 +902,14 @@ public class DefaultQueryService implements InternalQueryService {
 
   @Override
   public List<Index> createDefinedIndexes() throws MultiIndexCreationException {
-    HashSet<Index> indexes = new HashSet<>();
-    boolean throwException = false;
-    HashMap<String, Exception> exceptionsMap = new HashMap<>();
+    var indexes = new HashSet<Index>();
+    var throwException = false;
+    var exceptionsMap = new HashMap<String, Exception>();
 
     synchronized (indexDefinitions) {
-      for (Entry<Region, HashSet<IndexCreationData>> e : indexDefinitions.entrySet()) {
-        Region region = e.getKey();
-        HashSet<IndexCreationData> icds = e.getValue();
+      for (var e : indexDefinitions.entrySet()) {
+        var region = e.getKey();
+        var icds = e.getValue();
         if (region instanceof PartitionedRegion) {
           throwException =
               createDefinedIndexesForPR(indexes, (PartitionedRegion) region, icds, exceptionsMap);
@@ -955,8 +952,8 @@ public class DefaultQueryService implements InternalQueryService {
 
   private boolean createDefinedIndexesForReplicatedRegion(HashSet<Index> indexes, Region region,
       Set<IndexCreationData> icds, HashMap<String, Exception> exceptionsMap) {
-    boolean throwException = false;
-    for (IndexCreationData icd : icds) {
+    var throwException = false;
+    for (var icd : icds) {
       try {
         // First step is creating all the defined indexes. Do this only if
         // the region is not PR. For PR creation and population is done in
@@ -981,9 +978,9 @@ public class DefaultQueryService implements InternalQueryService {
     }
     // Second step is iterating over REs and populating all the created
     // indexes
-    IndexManager indexManager = IndexUtils.getIndexManager(cache, region, false);
+    var indexManager = IndexUtils.getIndexManager(cache, region, false);
     if (indexManager == null) {
-      for (IndexCreationData icd : icds) {
+      for (var icd : icds) {
         exceptionsMap.put(icd.getIndexName(),
             new IndexCreationException("Index Creation Failed due to region destroy"));
       }

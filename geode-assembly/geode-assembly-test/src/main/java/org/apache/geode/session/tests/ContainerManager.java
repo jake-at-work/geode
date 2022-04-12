@@ -46,7 +46,7 @@ public class ContainerManager {
   }
 
   public void cleanUp() throws IOException {
-    for (int i = 0; i < numContainers(); i++) {
+    for (var i = 0; i < numContainers(); i++) {
       getContainer(i).cleanUp();
     }
   }
@@ -66,7 +66,7 @@ public class ContainerManager {
    * The containers will not be running until one of the start methods is called.
    */
   public void addContainers(int numContainers, ContainerInstall install) throws IOException {
-    for (int i = 0; i < numContainers; i++) {
+    for (var i = 0; i < numContainers; i++) {
       addContainer(install);
     }
   }
@@ -127,7 +127,7 @@ public class ContainerManager {
   }
 
   public void dumpLogs() throws IOException {
-    for (ServerContainer container : containers) {
+    for (var container : containers) {
       container.dumpLogs();
     }
   }
@@ -156,8 +156,8 @@ public class ContainerManager {
               + state);
     }
 
-    ArrayList<Integer> indexes = new ArrayList<>();
-    for (int i = 0; i < numContainers(); i++) {
+    var indexes = new ArrayList<Integer>();
+    for (var i = 0; i < numContainers(); i++) {
       if (getContainer(i).getState().toString().equals(state)) {
         indexes.add(i);
       }
@@ -169,7 +169,7 @@ public class ContainerManager {
    * Return the cargo container of all of the containers in the given state
    */
   public ArrayList<ServerContainer> getContainersWithState(String state) {
-    ArrayList<ServerContainer> statedContainers = new ArrayList<>();
+    var statedContainers = new ArrayList<ServerContainer>();
     for (int index : getContainerIndexesWithState(state)) {
       statedContainers.add(getContainer(index));
     }
@@ -202,7 +202,7 @@ public class ContainerManager {
    * Create a container to manage, given an installation.
    */
   private ServerContainer addContainer(ContainerInstall install, int index) throws IOException {
-    ServerContainer container = install.generateContainer(testName + "_" + index);
+    var container = install.generateContainer(testName + "_" + index);
 
     containers.add(index, container);
 
@@ -242,7 +242,7 @@ public class ContainerManager {
    * Get the indexes of all inactive containers
    */
   private ArrayList<Integer> getInactiveContainerIndexes() {
-    ArrayList<Integer> indexes = getContainerIndexesWithState(State.STOPPED.toString());
+    var indexes = getContainerIndexesWithState(State.STOPPED.toString());
     indexes.addAll(getContainerIndexesWithState(State.UNKNOWN.toString()));
     return indexes;
   }
@@ -251,7 +251,7 @@ public class ContainerManager {
    * Get all inactive containers
    */
   private ArrayList<ServerContainer> getInactiveContainers() {
-    ArrayList<ServerContainer> inactiveContainers =
+    var inactiveContainers =
         getContainersWithState(State.STOPPED.toString());
     inactiveContainers.addAll(getContainersWithState(State.UNKNOWN.toString()));
     return inactiveContainers;

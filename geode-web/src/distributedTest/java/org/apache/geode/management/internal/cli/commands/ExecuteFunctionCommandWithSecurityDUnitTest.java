@@ -52,10 +52,10 @@ public class ExecuteFunctionCommandWithSecurityDUnitTest {
     locator = lsRule.startLocatorVM(0,
         l -> l.withHttpService().withSecurityManager(SimpleSecurityManager.class));
 
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty(ResourceConstants.USER_NAME, "clusterManage");
     serverProps.setProperty(ResourceConstants.PASSWORD, "clusterManage");
-    MemberVM server = lsRule.startServerVM(1, serverProps, locator.getPort());
+    var server = lsRule.startServerVM(1, serverProps, locator.getPort());
 
     server.invoke(() -> {
       FunctionService.registerFunction(new ReadFunction());

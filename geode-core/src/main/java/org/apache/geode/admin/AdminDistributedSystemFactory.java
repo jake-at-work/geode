@@ -67,7 +67,7 @@ public class AdminDistributedSystemFactory {
   public static DistributedSystemConfig defineDistributedSystem() {
     DistributionConfig dc = new DistributionConfigImpl(new Properties());
 
-    String remoteCommand = DistributedSystemConfig.DEFAULT_REMOTE_COMMAND;
+    var remoteCommand = DistributedSystemConfig.DEFAULT_REMOTE_COMMAND;
     return new DistributedSystemConfigImpl(dc, remoteCommand);
   }
 
@@ -112,12 +112,12 @@ public class AdminDistributedSystemFactory {
   public static DistributedSystemConfig defineDistributedSystem(DistributedSystem system,
       String remoteCommand) throws AdminException {
 
-    InternalDistributedSystem internal = (InternalDistributedSystem) system;
+    var internal = (InternalDistributedSystem) system;
     if (remoteCommand == null) {
       remoteCommand = DistributedSystemConfig.DEFAULT_REMOTE_COMMAND;
     }
 
-    DistributedSystemConfigImpl impl =
+    var impl =
         new DistributedSystemConfigImpl(internal.getConfig(), remoteCommand);
     return impl;
   }

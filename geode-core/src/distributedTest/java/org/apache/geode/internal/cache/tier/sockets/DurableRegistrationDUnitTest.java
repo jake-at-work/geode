@@ -27,22 +27,18 @@ import static org.junit.Assert.fail;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.cache.CacheServerImpl;
-import org.apache.geode.internal.cache.FilterProfile;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PoolFactoryImpl;
@@ -105,7 +101,7 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     server1VM = host.getVM(0);
     server2VM = host.getVM(1);
     durableClientVM = host.getVM(2);
@@ -125,9 +121,9 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
     // Step 2: Bring Up the Client
     // Start a durable client that is not kept alive on the server when it
     // stops normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
-    final int durableClientTimeout = 600; // keep the client alive for 600
+    final var durableClientTimeout = 600; // keep the client alive for 600
     // seconds
     durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClient(
         getClientPool(NetworkUtils.getServerHostName(durableClientVM.getHost()), PORT1, PORT2, true,
@@ -255,9 +251,9 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
     // Step 2: Bring Up the Client
     // Start a durable client that is not kept alive on the server when it
     // stops normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     // keep the client alive for 600 seconds
-    final int durableClientTimeout = 600;
+    final var durableClientTimeout = 600;
     durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClient(
         getClientPool(NetworkUtils.getServerHostName(durableClientVM.getHost()), PORT1, PORT2, true,
             0),
@@ -414,9 +410,9 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
     PORT2 = getRandomAvailableTCPPort();
 
     // Step 2: Bring Up the Client
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     // keep the client alive for 600 seconds
-    final int durableClientTimeout = 600;
+    final var durableClientTimeout = 600;
     durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClient(
         getClientPool(NetworkUtils.getServerHostName(durableClientVM.getHost()), PORT1, PORT2, true,
             1),
@@ -453,11 +449,11 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
       public void run2() throws CacheException {
         LogWriterUtils.getLogWriter()
             .info("### Verifying interests registered by DurableClient. ###");
-        CacheClientNotifier ccn = CacheClientNotifier.getInstance();
+        var ccn = CacheClientNotifier.getInstance();
         CacheClientProxy p = null;
 
         // Get proxy for the client.
-        for (int i = 0; i < 60; i++) {
+        for (var i = 0; i < 60; i++) {
           Iterator ps = ccn.getClientProxies().iterator();
           if (!ps.hasNext()) {
             Wait.pause(1000);
@@ -473,14 +469,14 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
         }
 
         Iterator rs = p.getInterestRegisteredRegions().iterator();
-        String rName = (String) rs.next();
+        var rName = (String) rs.next();
         assertNotNull("Null region Name found.", rs);
-        LocalRegion r = (LocalRegion) GemFireCacheImpl.getInstance().getRegion(rName);
+        var r = (LocalRegion) GemFireCacheImpl.getInstance().getRegion(rName);
         assertNotNull("Null region found.", r);
-        FilterProfile pf = r.getFilterProfile();
-        Set intrests = Collections.EMPTY_SET;
+        var pf = r.getFilterProfile();
+        var intrests = Collections.EMPTY_SET;
 
-        Set interestKeys = pf.getKeysOfInterest(p.getProxyID().getDurableId());
+        var interestKeys = pf.getKeysOfInterest(p.getProxyID().getDurableId());
         assertNotNull("durable Interests not found for the proxy", interestKeys);
         assertEquals("The number of durable keys registered during HARegion GII doesn't match.",
             interestKeys.size(), 2);
@@ -512,9 +508,9 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
     PORT2 = getRandomAvailableTCPPort();
 
     // Step 2: Bring Up the Client
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     // keep the client alive for 600 seconds
-    final int durableClientTimeout = 600;
+    final var durableClientTimeout = 600;
     durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClient(
         getClientPool(NetworkUtils.getServerHostName(durableClientVM.getHost()), PORT1, PORT2, true,
             1),
@@ -570,11 +566,11 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
       public void run2() throws CacheException {
         LogWriterUtils.getLogWriter()
             .info("### Verifying interests registered by DurableClient. ###");
-        CacheClientNotifier ccn = CacheClientNotifier.getInstance();
+        var ccn = CacheClientNotifier.getInstance();
         CacheClientProxy p = null;
 
         // Get proxy for the client.
-        for (int i = 0; i < 60; i++) {
+        for (var i = 0; i < 60; i++) {
           Iterator ps = ccn.getClientProxies().iterator();
           if (!ps.hasNext()) {
             Wait.pause(1000);
@@ -590,14 +586,14 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
         }
 
         Iterator rs = p.getInterestRegisteredRegions().iterator();
-        String rName = (String) rs.next();
+        var rName = (String) rs.next();
         assertNotNull("Null region Name found.", rs);
-        LocalRegion r = (LocalRegion) GemFireCacheImpl.getInstance().getRegion(rName);
+        var r = (LocalRegion) GemFireCacheImpl.getInstance().getRegion(rName);
         assertNotNull("Null region found.", r);
-        FilterProfile pf = r.getFilterProfile();
-        Set intrests = Collections.EMPTY_SET;
+        var pf = r.getFilterProfile();
+        var intrests = Collections.EMPTY_SET;
 
-        Set interestKeys = pf.getKeysOfInterest(p.getProxyID().getDurableId());
+        var interestKeys = pf.getKeysOfInterest(p.getProxyID().getDurableId());
         assertNotNull("durable Interests not found for the proxy", interestKeys);
         assertEquals("The number of durable keys registered during HARegion GII doesn't match.",
             interestKeys.size(), 2);
@@ -660,7 +656,7 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
     assertNotNull(r);
     // String value = (String)r.get(key);
     // String value = (String)r.getEntry(key).getValue();
-    Region.Entry re = r.getEntry(key);
+    var re = r.getEntry(key);
 
     if (re == null) {
       return null;
@@ -718,7 +714,7 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
 
   private Pool getClientPool(String host, int server1Port, int server2Port,
       boolean establishCallbackConnection, int redundancyLevel) {
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     pf.addServer(host, server1Port).addServer(host, server2Port)
         .setSubscriptionEnabled(establishCallbackConnection)
         .setSubscriptionRedundancy(redundancyLevel);
@@ -731,7 +727,7 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static void checkNumberOfClientProxies(final int expected) {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return expected == getNumberOfClientProxies();
@@ -751,7 +747,7 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
 
   private Properties getClientDistributedSystemProperties(String durableClientId,
       int durableClientTimeout) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     properties.setProperty(DURABLE_CLIENT_ID, durableClientId);
@@ -761,7 +757,7 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
 
   private static CacheClientProxy getClientProxy() {
     // Get the CacheClientNotifier
-    CacheClientNotifier notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
+    var notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
 
     // Get the CacheClientProxy or not (if proxy set is empty)
     CacheClientProxy proxy = null;
@@ -773,14 +769,14 @@ public class DurableRegistrationDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static CacheServerImpl getBridgeServer() {
-    CacheServerImpl bridgeServer =
+    var bridgeServer =
         (CacheServerImpl) CacheServerTestUtil.getCache().getCacheServers().iterator().next();
     assertNotNull(bridgeServer);
     return bridgeServer;
   }
 
   public static void closeCache() {
-    Cache cache = CacheServerTestUtil.getCache();
+    var cache = CacheServerTestUtil.getCache();
     if (cache != null && !cache.isClosed()) {
       cache.close(true);
       cache.getDistributedSystem().disconnect();

@@ -23,12 +23,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Method;
 import java.net.ConnectException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -39,23 +36,18 @@ import org.mockito.Mockito;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.Versioning;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.BackwardCompatibilityTest;
 import org.apache.geode.test.junit.categories.ClientServerTest;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
@@ -67,7 +59,7 @@ import org.apache.geode.test.version.VersionManager;
 public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
   @Parameterized.Parameters
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
     } else {
@@ -99,20 +91,20 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
    */
   @Test
   public void testClientProtocolVersion() {
-    int serverPort = initServerCache(true);
-    VM client1 = Host.getHost(0).getVM(testVersion, 1);
-    String hostname = NetworkUtils.getServerHostName();
+    var serverPort = initServerCache(true);
+    var client1 = Host.getHost(0).getVM(testVersion, 1);
+    var hostname = NetworkUtils.getServerHostName();
     short ordinal = client1.invoke("create client1 cache", () -> {
       createClientCache(hostname, serverPort);
       populateCache();
       registerInterest();
-      InternalDistributedMember distributedMember = (InternalDistributedMember) static_cache
+      var distributedMember = (InternalDistributedMember) static_cache
           .getDistributedSystem().getDistributedMember();
       // older versions of Geode have a different Version class so we have to use reflection here
       try {
-        Method getter = InternalDistributedMember.class.getMethod("getVersionObject");
-        Object versionObject = getter.invoke(distributedMember);
-        Method getOrdinal = versionObject.getClass().getMethod("ordinal");
+        var getter = InternalDistributedMember.class.getMethod("getVersionObject");
+        var versionObject = getter.invoke(distributedMember);
+        var getOrdinal = versionObject.getClass().getMethod("ordinal");
         return (Short) getOrdinal.invoke(versionObject);
       } catch (NoSuchMethodException ignore) {
       }
@@ -122,9 +114,9 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     short protocolOrdinal = server1.invoke("fetch client's protocol version",
         () -> CacheClientNotifier.getInstance().getClientProxies()
             .iterator().next().getVersion().ordinal());
-    KnownVersion clientProductVersion = Versioning.getKnownVersionOrDefault(
+    var clientProductVersion = Versioning.getKnownVersionOrDefault(
         Versioning.getVersion(ordinal), null);
-    KnownVersion clientProtocolVersion = Versioning.getKnownVersionOrDefault(
+    var clientProtocolVersion = Versioning.getKnownVersionOrDefault(
         Versioning.getVersion(protocolOrdinal), null);
     assertThat(clientProductVersion.getClientServerProtocolVersion())
         .isEqualTo(clientProtocolVersion);
@@ -133,17 +125,17 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
   @Test
   public void testSubscriptionWithCurrentServerAndOldClients() throws Exception {
     // start server first
-    int serverPort = initServerCache(true);
-    VM client1 = Host.getHost(0).getVM(testVersion, 1);
-    VM client2 = Host.getHost(0).getVM(testVersion, 3);
-    String hostname = NetworkUtils.getServerHostName(Host.getHost(0));
+    var serverPort = initServerCache(true);
+    var client1 = Host.getHost(0).getVM(testVersion, 1);
+    var client2 = Host.getHost(0).getVM(testVersion, 3);
+    var hostname = NetworkUtils.getServerHostName(Host.getHost(0));
     client1.invoke("create client1 cache", () -> {
       createClientCache(hostname, serverPort);
       populateCache();
       registerInterest();
     });
     client2.invoke("create client2 cache", () -> {
-      Pool ignore = createClientCache(hostname, serverPort);
+      var ignore = createClientCache(hostname, serverPort);
     });
 
     client2.invoke("putting data in client2", ClientServerMiscDUnitTestBase::putForClient);
@@ -151,14 +143,14 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     // client1 will receive client2's updates asynchronously
     client1.invoke(() -> {
       Region r2 = getCache().getRegion(REGION_NAME2);
-      MemberIDVerifier verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
+      var verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
       await().until(() -> verifier.eventReceived);
     });
 
     // client2's update should have included a memberID - GEODE-2954
     client1.invoke(() -> {
       Region r2 = getCache().getRegion(REGION_NAME2);
-      MemberIDVerifier verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
+      var verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
       assertFalse(verifier.memberIDNotReceived);
     });
   }
@@ -182,23 +174,23 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
       boolean usePeerForFeed) {
     server1 = Host.getHost(0).getVM(testVersion, 2);
     server2 = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, 3);
-    VM server3 = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, 4);
-    VM interestClient = Host.getHost(0).getVM(testVersion, 0);
-    VM feeder = Host.getHost(0).getVM(version, 1);
+    var server3 = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, 4);
+    var interestClient = Host.getHost(0).getVM(testVersion, 0);
+    var feeder = Host.getHost(0).getVM(version, 1);
 
     // start servers first
-    int server1Port = initServerCache(true);
+    var server1Port = initServerCache(true);
 
-    int server2Port = initServerCache2();
+    var server2Port = initServerCache2();
 
-    int server3Port = getRandomAvailableTCPPort();
+    var server3Port = getRandomAvailableTCPPort();
     server3.invoke(() -> createServerCache(true, getMaxThreads(), false, server3Port));
 
     System.out.println("old server is vm 2 and new server is vm 3");
     System.out
         .println("old server port is " + server1Port + " and new server port is " + server2Port);
 
-    String hostname = NetworkUtils.getServerHostName(Host.getHost(0));
+    var hostname = NetworkUtils.getServerHostName(Host.getHost(0));
     interestClient.invoke("create interestClient cache", () -> {
       createClientCache(hostname, 300000, false, server1Port, server2Port, server3Port);
       populateCache();
@@ -207,7 +199,7 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
 
     if (!usePeerForFeed) {
       feeder.invoke("create client cache for feed", () -> {
-        Pool ignore = createClientCache(hostname, server1Port);
+        var ignore = createClientCache(hostname, server1Port);
       });
     }
     feeder.invoke("putting data in feeder", ClientServerMiscDUnitTestBase::putForClient);
@@ -215,7 +207,7 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     // interestClient will receive feeder's updates asynchronously
     interestClient.invoke("verification 1", () -> {
       Region r2 = getCache().getRegion(REGION_NAME2);
-      MemberIDVerifier verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
+      var verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
       await().until(() -> verifier.eventReceived);
       verifier.reset();
     });
@@ -225,7 +217,7 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     });
 
     server2.invoke("wait for failover queue to drain", () -> {
-      CacheClientProxy proxy =
+      var proxy =
           CacheClientNotifier.getInstance().getClientProxies().iterator().next();
       await()
           .until(() -> proxy.getHARegionQueue().isEmpty());
@@ -235,11 +227,11 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     interestClient.invoke("verification 2", () -> {
       Cache cache = getCache();
       Region r2 = cache.getRegion(REGION_NAME2);
-      MemberIDVerifier verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
+      var verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
       assertFalse(verifier.eventReceived); // no duplicate events should have arrived
-      PoolImpl pool = (PoolImpl) PoolManager.find("ClientServerMiscDUnitTestPool");
+      var pool = (PoolImpl) PoolManager.find("ClientServerMiscDUnitTestPool");
 
-      Map seqMap = pool.getThreadIdToSequenceIdMap();
+      var seqMap = pool.getThreadIdToSequenceIdMap();
       assertEquals(3, seqMap.size()); // one for each server and one for the feed
       verifier.reset();
     });
@@ -249,7 +241,7 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     });
 
     server3.invoke("wait for failover queue to drain", () -> {
-      CacheClientProxy proxy =
+      var proxy =
           CacheClientNotifier.getInstance().getClientProxies().iterator().next();
       await()
           .until(() -> proxy.getHARegionQueue().isEmpty());
@@ -259,11 +251,11 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     interestClient.invoke("verification 3", () -> {
       Cache cache = getCache();
       Region r2 = cache.getRegion(REGION_NAME2);
-      MemberIDVerifier verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
+      var verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
       assertFalse(verifier.eventReceived); // no duplicate events should have arrived
-      PoolImpl pool = (PoolImpl) PoolManager.find("ClientServerMiscDUnitTestPool");
+      var pool = (PoolImpl) PoolManager.find("ClientServerMiscDUnitTestPool");
 
-      Map seqMap = pool.getThreadIdToSequenceIdMap();
+      var seqMap = pool.getThreadIdToSequenceIdMap();
       assertEquals(4, seqMap.size()); // one for each server and one for the feed
     });
   }
@@ -275,7 +267,7 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
 
   @Test
   public void giiEventQueueFromCurrentToOldMemberShouldSucceed() {
-    final IgnoredException expectedEx =
+    final var expectedEx =
         IgnoredException.addIgnoredException(ConnectException.class.getName());
     giiEventQueueShouldSucceedWithMixedVersions(VersionManager.CURRENT_VERSION, testVersion);
     expectedEx.remove();
@@ -283,20 +275,19 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
 
   public void giiEventQueueShouldSucceedWithMixedVersions(String server1Version,
       String server2Version) {
-    VM interestClient = Host.getHost(0).getVM(testVersion, 0);
-    VM feeder = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, 1);
+    var interestClient = Host.getHost(0).getVM(testVersion, 0);
+    var feeder = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, 1);
     server1 = Host.getHost(0).getVM(server1Version, 2);
     server2 = Host.getHost(0).getVM(server2Version, 3);
 
     // start servers first
-    int server1Port = initServerCache(true, server1, true);
-    int server2Port = initServerCache(true, server2, true);
+    var server1Port = initServerCache(true, server1, true);
+    var server2Port = initServerCache(true, server2, true);
     server2.invoke(() -> {
       getCache().getCacheServers().stream().forEach(CacheServer::stop);
     });
 
-
-    String hostname = NetworkUtils.getServerHostName(Host.getHost(0));
+    var hostname = NetworkUtils.getServerHostName(Host.getHost(0));
     interestClient.invoke("create interestClient cache", () -> {
       createClientCache(hostname, 300000, false, server1Port, server2Port);
       registerInterest();
@@ -307,7 +298,7 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
 
     // Start server 2
     server2.invoke(() -> {
-      for (CacheServer server : getCache().getCacheServers()) {
+      for (var server : getCache().getCacheServers()) {
         server.start();
       }
     });
@@ -315,10 +306,10 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     // Make sure server 2 copies the queue
     server2.invoke(() -> {
       await().untilAsserted(() -> {
-        final Collection<CacheClientProxy> clientProxies =
+        final var clientProxies =
             CacheClientNotifier.getInstance().getClientProxies();
         assertFalse(clientProxies.isEmpty());
-        CacheClientProxy proxy = clientProxies.iterator().next();
+        var proxy = clientProxies.iterator().next();
         assertFalse(proxy.getHARegionQueue().isEmpty());
       });
     });
@@ -326,7 +317,7 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     // interestClient will receive feeder's updates asynchronously
     interestClient.invoke("verification 1", () -> {
       Region r2 = getCache().getRegion(REGION_NAME2);
-      MemberIDVerifier verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
+      var verifier = (MemberIDVerifier) ((LocalRegion) r2).getCacheListener();
       await().until(() -> verifier.eventReceived);
       verifier.reset();
     });
@@ -336,7 +327,7 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     });
 
     server2.invoke("wait for failover queue to drain", () -> {
-      CacheClientProxy proxy =
+      var proxy =
           CacheClientNotifier.getInstance().getClientProxies().iterator().next();
       await()
           .until(() -> proxy.getHARegionQueue().isEmpty());
@@ -347,9 +338,9 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
     Cache cache = new ClientServerMiscDUnitTestBase().getCache();
     Region r = cache.getRegion(SEPARATOR + REGION_NAME2);
     assertNotNull(r);
-    CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+    var cqAttributesFactory = new CqAttributesFactory();
     cqAttributesFactory.addCqListener(Mockito.mock(CqListener.class));
-    final CqQuery cq = cache.getQueryService().newCq("testCQ", "select * from " + r.getFullPath(),
+    final var cq = cache.getQueryService().newCq("testCQ", "select * from " + r.getFullPath(),
         cqAttributesFactory.create());
     cq.execute();
   }
@@ -357,26 +348,26 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
   @Test
   public void testDistributedMemberBytesWithCurrentServerAndOldClient() throws Exception {
     // Start current version server
-    int serverPort = initServerCache(true);
+    var serverPort = initServerCache(true);
 
     // Start old version client and do puts
-    VM client = Host.getHost(0).getVM(testVersion, 1);
-    String hostname = NetworkUtils.getServerHostName(Host.getHost(0));
+    var client = Host.getHost(0).getVM(testVersion, 1);
+    var hostname = NetworkUtils.getServerHostName(Host.getHost(0));
     client.invoke("create client cache", () -> {
       createClientCache(hostname, serverPort);
       populateCache();
     });
 
     // Get client member id byte array on client
-    byte[] clientMembershipIdBytesOnClient =
+    var clientMembershipIdBytesOnClient =
         client.invoke(this::getClientMembershipIdBytesOnClient);
 
     // Get client member id byte array on server
-    byte[] clientMembershipIdBytesOnServer =
+    var clientMembershipIdBytesOnServer =
         server1.invoke(this::getClientMembershipIdBytesOnServer);
 
     // Verify member id bytes on client and server are equal
-    String complaint = "size on client=" + clientMembershipIdBytesOnClient.length
+    var complaint = "size on client=" + clientMembershipIdBytesOnClient.length
         + "; size on server=" + clientMembershipIdBytesOnServer.length + "\nclient bytes="
         + Arrays.toString(clientMembershipIdBytesOnClient) + "\nserver bytes="
         + Arrays.toString(clientMembershipIdBytesOnServer);
@@ -385,8 +376,8 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
   }
 
   private byte[] getClientMembershipIdBytesOnClient() {
-    DistributedSystem system = getCache().getDistributedSystem();
-    byte[] result =
+    var system = getCache().getDistributedSystem();
+    var result =
         EventID.getMembershipId(new ClientProxyMembershipID(system.getDistributedMember()));
     System.out.println("client ID bytes are " + Arrays.toString(result));
     return result;
@@ -395,9 +386,9 @@ public class ClientServerMiscBCDUnitTest extends ClientServerMiscDUnitTestBase {
   private byte[] getClientMembershipIdBytesOnServer() {
     Set cpmIds = ClientHealthMonitor.getInstance().getClientHeartbeats().keySet();
     assertEquals(1, cpmIds.size());
-    ClientProxyMembershipID cpmId = (ClientProxyMembershipID) cpmIds.iterator().next();
+    var cpmId = (ClientProxyMembershipID) cpmIds.iterator().next();
     System.out.println("client ID on server is " + cpmId.getDistributedMember());
-    byte[] result = EventID.getMembershipId(cpmId);
+    var result = EventID.getMembershipId(cpmId);
     System.out.println("client ID bytes are " + Arrays.toString(result));
     return result;
   }

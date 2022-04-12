@@ -63,7 +63,7 @@ public class OsStatisticsProvider {
    * stats and storing them in the instance.
    */
   private void refreshProcess(LocalStatisticsImpl statistics) {
-    int pid = (int) statistics.getNumericId();
+    var pid = (int) statistics.getNumericId();
     LinuxProcFsStatistics.refreshProcess(pid, statistics);
   }
 
@@ -79,7 +79,7 @@ public class OsStatisticsProvider {
    * The call should have already checked to make sure usesSystemCalls returns true.
    */
   public void refresh(LocalStatisticsImpl statistics) {
-    int flags = statistics.getOsStatFlags();
+    var flags = statistics.getOsStatFlags();
     if ((flags & PROCESS_STAT_FLAG) != 0) {
       refreshProcess(statistics);
     } else if ((flags & SYSTEM_STAT_FLAG) != 0) {

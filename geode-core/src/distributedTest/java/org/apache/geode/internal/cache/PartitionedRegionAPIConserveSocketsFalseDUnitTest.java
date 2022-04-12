@@ -31,7 +31,7 @@ public class PartitionedRegionAPIConserveSocketsFalseDUnitTest
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(CONSERVE_SOCKETS, "false");
     return config;
   }

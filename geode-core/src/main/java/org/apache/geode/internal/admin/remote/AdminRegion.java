@@ -61,8 +61,8 @@ public class AdminRegion implements Region {
    * Creates a root region
    */
   public AdminRegion(String localName, RemoteGemFireVM vm, String userAttributeDesc) {
-    String gn = localName;
-    int idx = localName.lastIndexOf(nameSep);
+    var gn = localName;
+    var idx = localName.lastIndexOf(nameSep);
     if (idx != -1) {
       localName = localName.substring(idx + 1);
     } else {
@@ -77,7 +77,7 @@ public class AdminRegion implements Region {
   public AdminRegion(String localName, AdminRegion parent, String userAttributeDesc) {
     this.localName = localName;
     this.userAttributeDesc = userAttributeDesc;
-    String gn = parent.getFullPath() + nameSep + localName;
+    var gn = parent.getFullPath() + nameSep + localName;
     globalName = gn;
     vm = parent.vm;
   }
@@ -100,7 +100,7 @@ public class AdminRegion implements Region {
   @Override
   public RegionAttributes getAttributes() {
     try {
-      RegionAttributesResponse resp =
+      var resp =
           (RegionAttributesResponse) sendAndWait(RegionAttributesRequest.create());
       return resp.getRegionAttributes();
     } catch (CacheException c) {
@@ -116,7 +116,7 @@ public class AdminRegion implements Region {
   @Override
   public CacheStatistics getStatistics() {
     try {
-      RegionStatisticsResponse resp =
+      var resp =
           (RegionStatisticsResponse) sendAndWait(RegionStatisticsRequest.create());
       return resp.getRegionStatistics();
     } catch (CacheException c) {
@@ -187,7 +187,7 @@ public class AdminRegion implements Region {
       throw new UnsupportedOperationException();
     }
     try {
-      SubRegionResponse resp = (SubRegionResponse) sendAndWait(SubRegionRequest.create());
+      var resp = (SubRegionResponse) sendAndWait(SubRegionRequest.create());
       return resp.getRegionSet(this);
     } catch (CacheException c) {
       throw new RuntimeAdminException(c);
@@ -197,7 +197,7 @@ public class AdminRegion implements Region {
   @Override
   public Entry getEntry(Object key) {
     try {
-      ObjectDetailsResponse resp = (ObjectDetailsResponse) sendAndWait(
+      var resp = (ObjectDetailsResponse) sendAndWait(
           ObjectDetailsRequest.create(key, vm.getCacheInspectionMode()));
 
       return new DummyEntry(this, key, resp.getObjectValue(), resp.getUserAttribute(),
@@ -300,7 +300,7 @@ public class AdminRegion implements Region {
   @Override
   public Set keySet() {
     try {
-      ObjectNamesResponse resp = (ObjectNamesResponse) sendAndWait(ObjectNamesRequest.create());
+      var resp = (ObjectNamesResponse) sendAndWait(ObjectNamesRequest.create());
       return resp.getNameSet();
     } catch (CacheException ce) {
       throw new RuntimeAdminException(ce);
@@ -518,7 +518,7 @@ public class AdminRegion implements Region {
    * count
    */
   public int[] sizes() throws CacheException {
-    RegionSizeResponse resp = (RegionSizeResponse) sendAndWait(RegionSizeRequest.create());
+    var resp = (RegionSizeResponse) sendAndWait(RegionSizeRequest.create());
     return new int[] {resp.getEntryCount(), resp.getSubregionCount()};
   }
 
@@ -531,7 +531,7 @@ public class AdminRegion implements Region {
     try {
       return vm.sendAndWait(msg);
     } catch (RuntimeAdminException ex) {
-      Throwable cause = ex.getRootCause();
+      var cause = ex.getRootCause();
       if (cause instanceof CacheException) {
         throw (CacheException) cause;
       } else if (cause instanceof CacheRuntimeException) {

@@ -62,7 +62,7 @@ public class TXLockRequest {
     if (localLocks == null || regionFullPath == null) {
       return null;
     }
-    for (final TXRegionLockRequestImpl rlr : (Iterable<TXRegionLockRequestImpl>) localLocks) {
+    for (final var rlr : (Iterable<TXRegionLockRequestImpl>) localLocks) {
       if (rlr.getRegionFullPath().equals(regionFullPath)) {
         return rlr;
       }
@@ -103,7 +103,7 @@ public class TXLockRequest {
   public void releaseDistributed(InternalDistributedSystem system) {
     if (distLockId != null) {
       try {
-        TXLockService txls = TXLockService.createDTLS(system);
+        var txls = TXLockService.createDTLS(system);
         txls.release(distLockId);
       } catch (IllegalStateException ignore) {
         // IllegalStateException: TXLockService cannot be created
@@ -121,12 +121,12 @@ public class TXLockRequest {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append(getClass().getCanonicalName()).append("@").append(System.identityHashCode(this));
     sb.append(" RegionLockRequests:");
     if (localLocks != null) {
-      for (final Object localLock : localLocks) {
-        TXRegionLockRequest rlr = (TXRegionLockRequest) localLock;
+      for (final var localLock : localLocks) {
+        var rlr = (TXRegionLockRequest) localLock;
         sb.append(" TXRegionLockRequest:");
         sb.append(rlr.getRegionFullPath()).append(" keys:").append(rlr.getKeys());
       }

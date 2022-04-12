@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -37,16 +36,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -59,7 +54,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
@@ -151,15 +145,15 @@ public class RestAPIsAndInterOpsDUnitTest
   @SuppressWarnings("unchecked")
   private CacheServer createRegionAndStartCacheServer(String[] regions, Cache cache)
       throws IOException {
-    RegionAttributesCreation regionAttributes = new RegionAttributesCreation();
+    var regionAttributes = new RegionAttributesCreation();
     regionAttributes.setEnableBridgeConflation(true);
     regionAttributes.setDataPolicy(DataPolicy.REPLICATE);
 
-    for (String region : regions) {
+    for (var region : regions) {
       cache.createRegionFactory(regionAttributes).create(region);
     }
 
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     server.setPort(0);
     server.setLoadProbe(CacheServer.DEFAULT_LOAD_PROBE);
     server.start();
@@ -168,9 +162,9 @@ public class RestAPIsAndInterOpsDUnitTest
   }
 
   private int startManager(final String locators, final String[] regions) throws IOException {
-    int httpPort = getRandomAvailableTCPPort();
+    var httpPort = getRandomAvailableTCPPort();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, String.valueOf(0));
     props.setProperty(LOCATORS, locators);
 
@@ -183,26 +177,26 @@ public class RestAPIsAndInterOpsDUnitTest
     props.setProperty(HTTP_SERVICE_BIND_ADDRESS, "localhost");
     props.setProperty(HTTP_SERVICE_PORT, String.valueOf(httpPort));
 
-    Cache cache = new CacheFactory(props).create();
-    CacheServer server = createRegionAndStartCacheServer(regions, cache);
+    var cache = new CacheFactory(props).create();
+    var server = createRegionAndStartCacheServer(regions, cache);
 
     return server.getPort();
   }
 
   private String startBridgeServerWithRestService(final String hostName, final String locators,
       final String[] regions) throws IOException {
-    final int serverPort = getRandomAvailableTCPPort();
+    final var serverPort = getRandomAvailableTCPPort();
     // create Cache of given VM and start HTTP service with REST APIs service
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, String.valueOf(0));
     props.setProperty(LOCATORS, locators);
     props.setProperty(START_DEV_REST_API, "true");
     props.setProperty(HTTP_SERVICE_BIND_ADDRESS, hostName);
     props.setProperty(HTTP_SERVICE_PORT, String.valueOf(serverPort));
 
-    InternalCache cache =
+    var cache =
         (InternalCache) new CacheFactory(props).setPdxReadSerialized(true).create();
-    CacheServer server = createRegionAndStartCacheServer(regions, cache);
+    var server = createRegionAndStartCacheServer(regions, cache);
 
     remoteObjects.put(CACHE_KEY, cache);
     server.getPort();
@@ -211,20 +205,20 @@ public class RestAPIsAndInterOpsDUnitTest
   }
 
   private void doPutsInClientCache() {
-    ClientCache cache = ClientCacheFactory.getAnyInstance();
+    var cache = ClientCacheFactory.getAnyInstance();
     assertThat(cache).isNotNull();
     Region<String, Object> region = cache.getRegion(PEOPLE_REGION_NAME);
 
     // put person object
-    final Person person1 = new Person(101L, "Mithali", "Dorai", "Raj",
+    final var person1 = new Person(101L, "Mithali", "Dorai", "Raj",
         DateTimeUtils.createDate(1982, Calendar.DECEMBER, 4), Gender.FEMALE);
-    final Person person2 = new Person(102L, "Sachin", "Ramesh", "Tendulkar",
+    final var person2 = new Person(102L, "Sachin", "Ramesh", "Tendulkar",
         DateTimeUtils.createDate(1975, Calendar.DECEMBER, 14), Gender.MALE);
-    final Person person3 = new Person(103L, "Saurabh", "Baburav", "Ganguly",
+    final var person3 = new Person(103L, "Saurabh", "Baburav", "Ganguly",
         DateTimeUtils.createDate(1972, Calendar.AUGUST, 29), Gender.MALE);
-    final Person person4 = new Person(104L, "Rahul", "subrymanyam", "Dravid",
+    final var person4 = new Person(104L, "Rahul", "subrymanyam", "Dravid",
         DateTimeUtils.createDate(1979, Calendar.MARCH, 17), Gender.MALE);
-    final Person person5 = new Person(105L, "Jhulan", "Chidambaram", "Goswami",
+    final var person5 = new Person(105L, "Jhulan", "Chidambaram", "Goswami",
         DateTimeUtils.createDate(1983, Calendar.NOVEMBER, 25), Gender.FEMALE);
 
     region.put("1", person1);
@@ -233,28 +227,28 @@ public class RestAPIsAndInterOpsDUnitTest
     region.put("4", person4);
     region.put("5", person5);
 
-    final Person person6 = new Person(101L, "Rahul", "Rajiv", "Gndhi",
+    final var person6 = new Person(101L, "Rahul", "Rajiv", "Gndhi",
         DateTimeUtils.createDate(1970, Calendar.MAY, 14), Gender.MALE);
-    final Person person7 = new Person(102L, "Narendra", "Damodar", "Modi",
+    final var person7 = new Person(102L, "Narendra", "Damodar", "Modi",
         DateTimeUtils.createDate(1945, Calendar.DECEMBER, 24), Gender.MALE);
-    final Person person8 = new Person(103L, "Atal", "Bihari", "Vajpayee",
+    final var person8 = new Person(103L, "Atal", "Bihari", "Vajpayee",
         DateTimeUtils.createDate(1920, Calendar.AUGUST, 9), Gender.MALE);
-    final Person person9 = new Person(104L, "Soniya", "Rajiv", "Gandhi",
+    final var person9 = new Person(104L, "Soniya", "Rajiv", "Gandhi",
         DateTimeUtils.createDate(1929, Calendar.MARCH, 27), Gender.FEMALE);
-    final Person person10 = new Person(104L, "Priyanka", "Robert", "Gandhi",
+    final var person10 = new Person(104L, "Priyanka", "Robert", "Gandhi",
         DateTimeUtils.createDate(1973, Calendar.APRIL, 15), Gender.FEMALE);
 
-    final Person person11 = new Person(104L, "Murali", "Manohar", "Joshi",
+    final var person11 = new Person(104L, "Murali", "Manohar", "Joshi",
         DateTimeUtils.createDate(1923, Calendar.APRIL, 25), Gender.MALE);
-    final Person person12 = new Person(104L, "Lalkrishna", "Parmhansh", "Advani",
+    final var person12 = new Person(104L, "Lalkrishna", "Parmhansh", "Advani",
         DateTimeUtils.createDate(1910, Calendar.JANUARY, 1), Gender.MALE);
-    final Person person13 = new Person(104L, "Shushma", "kumari", "Swaraj",
+    final var person13 = new Person(104L, "Shushma", "kumari", "Swaraj",
         DateTimeUtils.createDate(1943, Calendar.AUGUST, 10), Gender.FEMALE);
-    final Person person14 = new Person(104L, "Arun", "raman", "jetly",
+    final var person14 = new Person(104L, "Arun", "raman", "jetly",
         DateTimeUtils.createDate(1942, Calendar.OCTOBER, 27), Gender.MALE);
-    final Person person15 = new Person(104L, "Amit", "kumar", "shah",
+    final var person15 = new Person(104L, "Amit", "kumar", "shah",
         DateTimeUtils.createDate(1958, Calendar.DECEMBER, 21), Gender.MALE);
-    final Person person16 = new Person(104L, "Shila", "kumari", "Dixit",
+    final var person16 = new Person(104L, "Shila", "kumari", "Dixit",
         DateTimeUtils.createDate(1927, Calendar.FEBRUARY, 15), Gender.FEMALE);
 
     Map<String, Object> userMap = new HashMap<>();
@@ -278,11 +272,11 @@ public class RestAPIsAndInterOpsDUnitTest
   private void doQueryOpsUsingRestApis(String restEndpoint) throws IOException {
     // Query TestCase-1 :: Prepare parameterized Queries
 
-    CloseableHttpClient httpclient = HttpClients.createDefault();
-    HttpPost post = new HttpPost(restEndpoint + findAllPeopleQuery);
+    var httpclient = HttpClients.createDefault();
+    var post = new HttpPost(restEndpoint + findAllPeopleQuery);
     post.addHeader("Content-Type", "application/json");
     post.addHeader("Accept", "application/json");
-    CloseableHttpResponse createNamedQueryResponse = httpclient.execute(post);
+    var createNamedQueryResponse = httpclient.execute(post);
     assertThat(createNamedQueryResponse.getStatusLine().getStatusCode()).isEqualTo(201);
     assertThat(createNamedQueryResponse.getEntity()).isNotNull();
     createNamedQueryResponse.close();
@@ -305,17 +299,17 @@ public class RestAPIsAndInterOpsDUnitTest
 
     // Query TestCase-2 :: List all parameterized queries
 
-    HttpGet get = new HttpGet(restEndpoint + "/queries");
+    var get = new HttpGet(restEndpoint + "/queries");
     httpclient = HttpClients.createDefault();
-    CloseableHttpResponse listAllQueriesResponse = httpclient.execute(get);
+    var listAllQueriesResponse = httpclient.execute(get);
     assertThat(listAllQueriesResponse.getStatusLine().getStatusCode()).isEqualTo(200);
     assertThat(listAllQueriesResponse.getEntity()).isNotNull();
 
-    HttpEntity entity = listAllQueriesResponse.getEntity();
-    InputStream content = entity.getContent();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+    var entity = listAllQueriesResponse.getEntity();
+    var content = entity.getContent();
+    var reader = new BufferedReader(new InputStreamReader(content));
     String line;
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     while ((line = reader.readLine()) != null) {
       sb.append(line);
     }
@@ -323,10 +317,10 @@ public class RestAPIsAndInterOpsDUnitTest
 
     // Check whether received response contains expected query IDs.
 
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode jsonObject = mapper.readTree(sb.toString());
-    JsonNode queries = jsonObject.get("queries");
-    for (int i = 0; i < queries.size(); i++) {
+    var mapper = new ObjectMapper();
+    var jsonObject = mapper.readTree(sb.toString());
+    var queries = jsonObject.get("queries");
+    for (var i = 0; i < queries.size(); i++) {
       assertThat(Arrays.asList(PARAM_QUERY_IDS_ARRAY))
           .contains(queries.get(i).get("id").asText());
     }
@@ -340,25 +334,25 @@ public class RestAPIsAndInterOpsDUnitTest
     post.addHeader("Accept", "application/json");
     entity = new StringEntity(QUERY_ARGS);
     post.setEntity(entity);
-    CloseableHttpResponse runNamedQueryResponse = httpclient.execute(post);
+    var runNamedQueryResponse = httpclient.execute(post);
 
     assertThat(runNamedQueryResponse.getStatusLine().getStatusCode()).isEqualTo(200);
     assertThat(runNamedQueryResponse.getEntity()).isNotNull();
   }
 
   private void verifyUpdatesInClientCache() {
-    ClientCache cache = ClientCacheFactory.getAnyInstance();
+    var cache = ClientCacheFactory.getAnyInstance();
     assertThat(cache).isNotNull();
     Region<String, Object> region = cache.getRegion(PEOPLE_REGION_NAME);
 
-    Person expectedPerson = new Person(3L, "Nishka3", "Nilkanth3", "Patel3",
+    var expectedPerson = new Person(3L, "Nishka3", "Nilkanth3", "Patel3",
         DateTimeUtils.createDate(2009, Calendar.JULY, 31), Gender.FEMALE);
-    Object value = region.get("3");
+    var value = region.get("3");
 
     assertThat(value).isInstanceOf(PdxInstance.class);
 
-    PdxInstance pi3 = (PdxInstance) value;
-    Person actualPerson = (Person) pi3.getObject();
+    var pi3 = (PdxInstance) value;
+    var actualPerson = (Person) pi3.getObject();
     assertThat(actualPerson.getId()).isEqualTo(expectedPerson.getId());
     assertThat(actualPerson.getFirstName()).isEqualTo(expectedPerson.getFirstName());
     assertThat(actualPerson.getMiddleName()).isEqualTo(expectedPerson.getMiddleName());
@@ -385,7 +379,7 @@ public class RestAPIsAndInterOpsDUnitTest
 
     // verify Deleted key "13"
 
-    Object obj = region.get("13");
+    var obj = region.get("13");
     assertThat(obj).isNull();
 
     obj = region.get("14");
@@ -401,19 +395,19 @@ public class RestAPIsAndInterOpsDUnitTest
   private void doUpdatesUsingRestApis(String restEndpoint) throws IOException {
     // Update keys using REST calls
 
-    CloseableHttpClient httpclient = HttpClients.createDefault();
-    HttpPut put = new HttpPut(restEndpoint + "/People/3,4,5,6,7,8,9,10,11,12");
+    var httpclient = HttpClients.createDefault();
+    var put = new HttpPut(restEndpoint + "/People/3,4,5,6,7,8,9,10,11,12");
     put.addHeader("Content-Type", "application/json");
     put.addHeader("Accept", "application/json");
-    StringEntity entity = new StringEntity(PERSON_LIST_AS_JSON);
+    var entity = new StringEntity(PERSON_LIST_AS_JSON);
     put.setEntity(entity);
-    CloseableHttpResponse result = httpclient.execute(put);
+    var result = httpclient.execute(put);
     assertThat(result).isNotNull();
 
     // Delete Single keys
 
     httpclient = HttpClients.createDefault();
-    HttpDelete delete = new HttpDelete(restEndpoint + "/People/13");
+    var delete = new HttpDelete(restEndpoint + "/People/13");
     delete.addHeader("Content-Type", "application/json");
     delete.addHeader("Accept", "application/json");
     result = httpclient.execute(delete);
@@ -443,17 +437,17 @@ public class RestAPIsAndInterOpsDUnitTest
   }
 
   private void fetchRestServerEndpoints(String restEndpoint) throws IOException {
-    HttpGet get = new HttpGet(restEndpoint + "/servers");
+    var get = new HttpGet(restEndpoint + "/servers");
     get.addHeader("Content-Type", "application/json");
     get.addHeader("Accept", "application/json");
-    CloseableHttpClient httpclient = HttpClients.createDefault();
+    var httpclient = HttpClients.createDefault();
 
-    CloseableHttpResponse response = httpclient.execute(get);
-    HttpEntity entity = response.getEntity();
-    InputStream content = entity.getContent();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+    var response = httpclient.execute(get);
+    var entity = response.getEntity();
+    var content = entity.getContent();
+    var reader = new BufferedReader(new InputStreamReader(content));
     String line;
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     while ((line = reader.readLine()) != null) {
       sb.append(line);
     }
@@ -461,8 +455,8 @@ public class RestAPIsAndInterOpsDUnitTest
     // validate the status code
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
 
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode jsonArray = mapper.readTree(sb.toString());
+    var mapper = new ObjectMapper();
+    var jsonArray = mapper.readTree(sb.toString());
 
     // verify total number of REST service endpoints in DS
     assertThat(jsonArray.size()).isEqualTo(2);
@@ -471,23 +465,23 @@ public class RestAPIsAndInterOpsDUnitTest
   private void doGetsUsingRestApis(String restEndpoint) throws IOException {
     // 1. Get on key="1" and validate result.
 
-    HttpGet get = new HttpGet(restEndpoint + "/People/1");
+    var get = new HttpGet(restEndpoint + "/People/1");
     get.addHeader("Content-Type", "application/json");
     get.addHeader("Accept", "application/json");
-    CloseableHttpClient httpclient = HttpClients.createDefault();
-    CloseableHttpResponse response = httpclient.execute(get);
+    var httpclient = HttpClients.createDefault();
+    var response = httpclient.execute(get);
 
-    HttpEntity entity = response.getEntity();
-    InputStream content = entity.getContent();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+    var entity = response.getEntity();
+    var content = entity.getContent();
+    var reader = new BufferedReader(new InputStreamReader(content));
     String line;
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     while ((line = reader.readLine()) != null) {
       sb.append(line);
     }
 
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode json = mapper.readTree(sb.toString());
+    var mapper = new ObjectMapper();
+    var json = mapper.readTree(sb.toString());
 
     assertThat(json.get("id").asInt()).isEqualTo(101);
     assertThat(json.get("firstName").asText()).isEqualTo("Mithali");
@@ -525,7 +519,7 @@ public class RestAPIsAndInterOpsDUnitTest
     get.addHeader("Content-Type", "application/json");
     get.addHeader("Accept", "application/json");
     httpclient = HttpClients.createDefault();
-    CloseableHttpResponse result = httpclient.execute(get);
+    var result = httpclient.execute(get);
     assertThat(result.getStatusLine().getStatusCode()).isEqualTo(200);
     assertThat(result.getEntity()).isNotNull();
 
@@ -606,7 +600,7 @@ public class RestAPIsAndInterOpsDUnitTest
   }
 
   private void createRegionInClientCache() {
-    ClientCache cache = ClientCacheFactory.getAnyInstance();
+    var cache = ClientCacheFactory.getAnyInstance();
     assertThat(cache).isNotNull();
     ClientRegionFactory<String, Object> crf =
         cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
@@ -614,7 +608,7 @@ public class RestAPIsAndInterOpsDUnitTest
   }
 
   private void createRegion() {
-    Cache cache = CacheFactory.getAnyInstance();
+    var cache = CacheFactory.getAnyInstance();
     assertThat(cache).isNotNull();
 
     RegionFactory<String, Object> rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
@@ -623,7 +617,7 @@ public class RestAPIsAndInterOpsDUnitTest
 
   private void createClientCache(final String host, final int port) {
     // Connect using the GemFire locator and create a Caching_Proxy cache
-    ClientCache clientCache =
+    var clientCache =
         new ClientCacheFactory().setPdxReadSerialized(true).addPoolLocator(host, port).create();
 
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(REGION_NAME);
@@ -634,24 +628,24 @@ public class RestAPIsAndInterOpsDUnitTest
    */
   @Test
   public void testInterOpsWithReplicatedRegion() throws Exception {
-    VM locator = VM.getVM(0);
-    VM manager = VM.getVM(1);
-    VM server = VM.getVM(2);
-    VM client = VM.getVM(3);
+    var locator = VM.getVM(0);
+    var manager = VM.getVM(1);
+    var server = VM.getVM(2);
+    var client = VM.getVM(3);
 
     // start locator
-    final String hostName = NetworkUtils.getServerHostName();
+    final var hostName = NetworkUtils.getServerHostName();
     int locatorPort = locator.invoke(() -> startLocator(hostName, ""));
 
     // find locators
-    String locators = hostName + "[" + locatorPort + "]";
+    var locators = hostName + "[" + locatorPort + "]";
 
     // start manager (peer cache)
     manager.invoke(() -> startManager(locators, new String[] {REGION_NAME}));
 
     // start startCacheServer With RestService enabled
-    final String serverHostName = server.getHost().getHostName();
-    String restEndpoint = server.invoke(() -> startBridgeServerWithRestService(serverHostName,
+    final var serverHostName = server.getHost().getHostName();
+    var restEndpoint = server.invoke(() -> startBridgeServerWithRestService(serverHostName,
         locators, new String[] {REGION_NAME}));
 
     // create a client cache

@@ -39,12 +39,9 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.MirrorType;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.CacheServerImpl;
@@ -88,7 +85,7 @@ public final class DataSerializerPropagationDUnitTest extends JUnit4DistributedT
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     client1 = host.getVM(0);
     client2 = host.getVM(1);
     server1 = host.getVM(2);
@@ -107,17 +104,17 @@ public final class DataSerializerPropagationDUnitTest extends JUnit4DistributedT
   }
 
   public static void createClientCache(String host, Integer port1) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new DataSerializerPropagationDUnitTest().createCache(props);
-    Pool p = PoolManager.createFactory().addServer(host, port1).setMinConnections(1)
+    var p = PoolManager.createFactory().addServer(host, port1).setMinConnections(1)
         .setSubscriptionEnabled(true).setPingInterval(200)
         .create("ClientServerDataSerializersRegistrationDUnitTestPool");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
-    Region r = cache.createRegion(REGION_NAME, factory.create());
+    var r = cache.createRegion(REGION_NAME, factory.create());
     r.registerInterest("ALL_KEYS");
   }
 
@@ -177,15 +174,15 @@ public final class DataSerializerPropagationDUnitTest extends JUnit4DistributedT
 
   public static void stopServer() {
     assertEquals("Expected exactly one CacheServer", 1, cache.getCacheServers().size());
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertNotNull(bs);
     bs.stop();
   }
 
   public static void startServer() throws Exception {
-    Cache c = CacheFactory.getAnyInstance();
+    var c = CacheFactory.getAnyInstance();
     assertEquals("Expected exactly one CacheServer", 1, c.getCacheServers().size());
-    CacheServerImpl bs = (CacheServerImpl) c.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) c.getCacheServers().iterator().next();
     assertNotNull(bs);
     bs.start();
   }
@@ -202,7 +199,7 @@ public final class DataSerializerPropagationDUnitTest extends JUnit4DistributedT
 
     server1.invoke(() -> DataSerializerPropagationDUnitTest.verifyDataSerializers(2));
 
-    final String hostName = NetworkUtils.getServerHostName();
+    final var hostName = NetworkUtils.getServerHostName();
     client1.invoke(() -> DataSerializerPropagationDUnitTest.createClientCache(hostName, PORT1));
 
     client1.invoke(() -> DataSerializerPropagationDUnitTest.verifyDataSerializers(2));
@@ -210,7 +207,7 @@ public final class DataSerializerPropagationDUnitTest extends JUnit4DistributedT
     // Put some entries from the client
     client1.invoke(() -> {
       Region region = cache.getRegion(REGION_NAME);
-      for (int i = 1; i <= 10; i++) {
+      for (var i = 1; i <= 10; i++) {
         region.put(i, i);
       }
     });
@@ -222,7 +219,7 @@ public final class DataSerializerPropagationDUnitTest extends JUnit4DistributedT
 
     server1.invoke(() -> {
       Region region = cache.getRegion(REGION_NAME);
-      for (int i = 1; i <= 10; i++) {
+      for (var i = 1; i <= 10; i++) {
         assertEquals(i, region.get(i));
       }
     });
@@ -297,7 +294,7 @@ public final class DataSerializerPropagationDUnitTest extends JUnit4DistributedT
     client2.invoke(() -> DataSerializerPropagationDUnitTest.verifyDataSerializers(1));
 
     // can get server connectivity exception
-    final IgnoredException expectedEx =
+    final var expectedEx =
         IgnoredException.addIgnoredException("Server unreachable", client1);
 
     // stop the cache server
@@ -365,7 +362,7 @@ public final class DataSerializerPropagationDUnitTest extends JUnit4DistributedT
         .verifyDataSerializers(instanceCountWithOnePut));
 
     // can get server connectivity exception
-    try (IgnoredException removedLater =
+    try (var removedLater =
         IgnoredException.addIgnoredException("Server unreachable", client1)) {
 
       server1.invoke(DataSerializerPropagationDUnitTest::stopServer);
@@ -506,35 +503,35 @@ public final class DataSerializerPropagationDUnitTest extends JUnit4DistributedT
   }
 
   private static void verifyLoadedDataSerializers(int expected) {
-    int actual = InternalDataSerializer.getLoadedDataSerializers();
+    var actual = InternalDataSerializer.getLoadedDataSerializers();
     assertEquals(expected, actual);
   }
 
   private static void verifyDataSerializerClassNamesMap(int expected) {
-    int actual = InternalDataSerializer.getDsClassesToHoldersMap().size();
+    var actual = InternalDataSerializer.getDsClassesToHoldersMap().size();
     assertEquals(expected, actual);
   }
 
   private static void verifyDataSerializerIDMap(int expected) {
-    int actual = InternalDataSerializer.getIdsToHoldersMap().size();
+    var actual = InternalDataSerializer.getIdsToHoldersMap().size();
     assertEquals(expected, actual);
   }
 
   private static void verifyDataSerializerSupportedClassNamesMap(int expected) {
-    int actual = InternalDataSerializer.getSupportedClassesToHoldersMap().size();
+    var actual = InternalDataSerializer.getSupportedClassesToHoldersMap().size();
     assertEquals(expected, actual);
   }
 
   private static Integer createServerCache() throws Exception {
     new DataSerializerPropagationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setMirrorType(MirrorType.KEYS_VALUES);
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    int port = getRandomAvailableTCPPort();
-    CacheServer server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setMaxThreads(0);
     server1.setNotifyBySubscription(true);

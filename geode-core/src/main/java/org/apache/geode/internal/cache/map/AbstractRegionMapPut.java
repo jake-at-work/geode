@@ -114,7 +114,7 @@ public abstract class AbstractRegionMapPut {
   protected abstract void serializeNewValueIfNeeded();
 
   protected void runWhileLockedForCacheModification(Runnable r) {
-    final boolean locked = getOwner().lockWhenRegionIsInitializing();
+    final var locked = getOwner().lockWhenRegionIsInitializing();
     try {
       r.run();
     } finally {
@@ -175,7 +175,7 @@ public abstract class AbstractRegionMapPut {
   }
 
   private void doPut() {
-    final boolean disabledEviction = getRegionMap().disableLruUpdateCallback();
+    final var disabledEviction = getRegionMap().disableLruUpdateCallback();
     try {
       doWithIndexInUpdateMode(this::doPutRetryingIfNeeded);
     } catch (DiskAccessException dae) {
@@ -187,7 +187,7 @@ public abstract class AbstractRegionMapPut {
   }
 
   private void doWithIndexInUpdateMode(Runnable r) {
-    final IndexManager oqlIndexManager = getInitializedIndexManager();
+    final var oqlIndexManager = getInitializedIndexManager();
     if (oqlIndexManager != null) {
       try {
         r.run();
@@ -200,7 +200,7 @@ public abstract class AbstractRegionMapPut {
   }
 
   private IndexManager getInitializedIndexManager() {
-    final IndexManager oqlIndexManager = getOwner().getIndexManager();
+    final var oqlIndexManager = getOwner().getIndexManager();
     if (oqlIndexManager != null) {
       oqlIndexManager.waitForIndexInit();
     }
@@ -223,7 +223,7 @@ public abstract class AbstractRegionMapPut {
    *         an existing one; otherwise returns true.
    */
   private boolean findAndSaveExistingEntry() {
-    RegionEntry re = getRegionMap().getEntry(getEvent());
+    var re = getRegionMap().getEntry(getEvent());
     if (isOnlyExisting() && !entryExists(re)) {
       setRegionEntry(null);
       return false;
@@ -235,8 +235,8 @@ public abstract class AbstractRegionMapPut {
   private void createNewEntryIfNeeded() {
     setCreate(getRegionEntry() == null);
     if (isCreate()) {
-      final Object key = getEvent().getKey();
-      RegionEntry newEntry =
+      final var key = getEvent().getKey();
+      var newEntry =
           getRegionMap().getEntryFactory().createEntry(getOwner(), key, Token.REMOVED_PHASE1);
       setRegionEntry(newEntry);
     }
@@ -254,7 +254,7 @@ public abstract class AbstractRegionMapPut {
 
   private void putIfAbsentNewEntry() {
     if (isCreate()) {
-      RegionEntry oldRe = getRegionMap().putEntryIfAbsent(getEvent().getKey(), getRegionEntry());
+      var oldRe = getRegionMap().putEntryIfAbsent(getEvent().getKey(), getRegionEntry());
       if (oldRe != null) {
         setCreate(false);
         setRegionEntry(oldRe);
@@ -321,7 +321,7 @@ public abstract class AbstractRegionMapPut {
    * @return true if the entry is in the final stage of removal
    */
   private boolean isRegionEntryRemoved() {
-    final RegionEntry re = getRegionEntry();
+    final var re = getRegionEntry();
     if (re.isRemovedPhase2()) {
       getOwner().getCachePerfStats().incRetries();
       getRegionMap().getEntryMap().remove(getEvent().getKey(), re);

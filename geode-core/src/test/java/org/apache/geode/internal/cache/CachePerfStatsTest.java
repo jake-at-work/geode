@@ -68,7 +68,6 @@ import org.junit.Test;
 
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.internal.statistics.StatisticsManager;
 import org.apache.geode.internal.statistics.StripedStatisticsImpl;
@@ -87,10 +86,10 @@ public class CachePerfStatsTest {
 
   @Before
   public void setUp() {
-    StatisticsType statisticsType = CachePerfStats.getStatisticsType();
+    var statisticsType = CachePerfStats.getStatisticsType();
 
-    StatisticsManager statisticsManager = mock(StatisticsManager.class);
-    StatisticsFactory statisticsFactory = mock(StatisticsFactory.class);
+    var statisticsManager = mock(StatisticsManager.class);
+    var statisticsFactory = mock(StatisticsFactory.class);
 
     statistics = new StripedStatisticsImpl(statisticsType, TEXT_ID, 1, 1, statisticsManager);
     statisticsClock = mock(StatisticsClock.class);
@@ -1186,7 +1185,7 @@ public class CachePerfStatsTest {
   @Test
   public void endHandlingNetsearchIncreasesHandlingNetsearchesCompletedIfSuccess() {
     doReturn(1L, 10L).when(statisticsClock).getTime();
-    long startTime = cachePerfStats.startHandlingNetsearch();
+    var startTime = cachePerfStats.startHandlingNetsearch();
 
     cachePerfStats.endHandlingNetsearch(startTime, true);
 
@@ -1196,7 +1195,7 @@ public class CachePerfStatsTest {
   @Test
   public void endHandlingNetsearchIncreasesHandlingNetsearchesTimeIfSuccess() {
     doReturn(1L, 10L).when(statisticsClock).getTime();
-    long startTime = cachePerfStats.startHandlingNetsearch();
+    var startTime = cachePerfStats.startHandlingNetsearch();
 
     cachePerfStats.endHandlingNetsearch(startTime, true);
 
@@ -1206,7 +1205,7 @@ public class CachePerfStatsTest {
   @Test
   public void endHandlingNetsearchIncreasesHandlingNetsearchesFailedIfNotSuccess() {
     doReturn(1L, 10L).when(statisticsClock).getTime();
-    long startTime = cachePerfStats.startHandlingNetsearch();
+    var startTime = cachePerfStats.startHandlingNetsearch();
 
     cachePerfStats.endHandlingNetsearch(startTime, false);
 
@@ -1216,7 +1215,7 @@ public class CachePerfStatsTest {
   @Test
   public void endHandlingNetsearchIncreasesHandlingNetsearchesFailedTimeIfNotSuccess() {
     doReturn(1L, 10L).when(statisticsClock).getTime();
-    long startTime = cachePerfStats.startHandlingNetsearch();
+    var startTime = cachePerfStats.startHandlingNetsearch();
 
     cachePerfStats.endHandlingNetsearch(startTime, false);
 
@@ -1226,7 +1225,7 @@ public class CachePerfStatsTest {
   @Test
   public void endHandlingNetsearchDecreasesHandlingNetsearchesInProgressIfSuccess() {
     doReturn(1L, 10L).when(statisticsClock).getTime();
-    long startTime = cachePerfStats.startHandlingNetsearch();
+    var startTime = cachePerfStats.startHandlingNetsearch();
 
     cachePerfStats.endHandlingNetsearch(startTime, true);
 
@@ -1236,7 +1235,7 @@ public class CachePerfStatsTest {
   @Test
   public void endHandlingNetsearchDecreasesHandlingNetsearchesInProgressIfNotSuccess() {
     doReturn(1L, 10L).when(statisticsClock).getTime();
-    long startTime = cachePerfStats.startHandlingNetsearch();
+    var startTime = cachePerfStats.startHandlingNetsearch();
 
     cachePerfStats.endHandlingNetsearch(startTime, false);
 

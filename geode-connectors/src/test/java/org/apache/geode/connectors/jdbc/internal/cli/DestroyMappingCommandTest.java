@@ -48,7 +48,6 @@ import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 
 public class DestroyMappingCommandTest {
@@ -91,13 +90,13 @@ public class DestroyMappingCommandTest {
 
   @Test
   public void destroyMappingGivenARegionNameForServerGroup() throws PreconditionException {
-    ConfigurationPersistenceService service = mock(ConfigurationPersistenceService.class);
+    var service = mock(ConfigurationPersistenceService.class);
     doReturn(service).when(destroyRegionMappingCommand).checkForClusterConfiguration();
     when(service.getCacheConfig("testGroup1")).thenReturn(cacheConfig);
     List<RegionConfig> list = new ArrayList<>();
-    RegionConfig region = mock(RegionConfig.class);
+    var region = mock(RegionConfig.class);
     List<CacheElement> listCacheElements = new ArrayList<>();
-    RegionMapping mapping = mock(RegionMapping.class);
+    var mapping = mock(RegionMapping.class);
     listCacheElements.add(mapping);
     when(region.getCustomRegionElements()).thenReturn(listCacheElements);
     list.add(region);
@@ -107,7 +106,7 @@ public class DestroyMappingCommandTest {
         null);
     results.add(successFunctionResult);
 
-    ResultModel result =
+    var result =
         destroyRegionMappingCommand.destroyMapping(regionName, new String[] {"testGroup1"});
 
     assertThat(result.getStatus()).isSameAs(Result.Status.OK);
@@ -117,20 +116,20 @@ public class DestroyMappingCommandTest {
   @Test
   public void destroyMappingGivenARegionNameReturnsTheNameAsTheConfigObject()
       throws PreconditionException {
-    ConfigurationPersistenceService service = mock(ConfigurationPersistenceService.class);
+    var service = mock(ConfigurationPersistenceService.class);
     doReturn(service).when(destroyRegionMappingCommand).checkForClusterConfiguration();
     when(service.getCacheConfig("cluster")).thenReturn(cacheConfig);
     List<RegionConfig> list = new ArrayList<>();
-    RegionConfig region = mock(RegionConfig.class);
+    var region = mock(RegionConfig.class);
     List<CacheElement> listCacheElements = new ArrayList<>();
-    RegionMapping mapping = mock(RegionMapping.class);
+    var mapping = mock(RegionMapping.class);
     listCacheElements.add(mapping);
     when(region.getCustomRegionElements()).thenReturn(listCacheElements);
     list.add(region);
     when(cacheConfig.getRegions()).thenReturn(list);
     results.add(successFunctionResult);
 
-    ResultModel result = destroyRegionMappingCommand.destroyMapping(regionName, null);
+    var result = destroyRegionMappingCommand.destroyMapping(regionName, null);
 
     assertThat(result.getStatus()).isSameAs(Result.Status.OK);
     assertThat(result.getConfigObject()).isEqualTo(regionName);
@@ -139,20 +138,20 @@ public class DestroyMappingCommandTest {
   @Test
   public void destroyMappingGivenARegionPathReturnsTheNoSlashRegionNameAsTheConfigObject()
       throws PreconditionException {
-    ConfigurationPersistenceService service = mock(ConfigurationPersistenceService.class);
+    var service = mock(ConfigurationPersistenceService.class);
     doReturn(service).when(destroyRegionMappingCommand).checkForClusterConfiguration();
     when(service.getCacheConfig("cluster")).thenReturn(cacheConfig);
     List<RegionConfig> list = new ArrayList<>();
-    RegionConfig region = mock(RegionConfig.class);
+    var region = mock(RegionConfig.class);
     List<CacheElement> listCacheElements = new ArrayList<>();
-    RegionMapping mapping = mock(RegionMapping.class);
+    var mapping = mock(RegionMapping.class);
     listCacheElements.add(mapping);
     when(region.getCustomRegionElements()).thenReturn(listCacheElements);
     list.add(region);
     when(cacheConfig.getRegions()).thenReturn(list);
     results.add(successFunctionResult);
 
-    ResultModel result = destroyRegionMappingCommand.destroyMapping(SEPARATOR + regionName, null);
+    var result = destroyRegionMappingCommand.destroyMapping(SEPARATOR + regionName, null);
 
     verify(destroyRegionMappingCommand, times(1)).executeAndGetFunctionResult(any(), eq(regionName),
         any());
@@ -164,7 +163,7 @@ public class DestroyMappingCommandTest {
   public void updateClusterConfigWithNoRegionsDoesNotThrowException() {
     when(cacheConfig.getRegions()).thenReturn(Collections.emptyList());
 
-    boolean modified =
+    var modified =
         destroyRegionMappingCommand.updateConfigForGroup(null, cacheConfig, regionName);
 
     assertThat(modified).isFalse();
@@ -173,16 +172,16 @@ public class DestroyMappingCommandTest {
   @Test
   public void updateClusterConfigWithOneNonMatchingRegionDoesNotRemoveMapping() {
     List<RegionConfig> list = new ArrayList<>();
-    RegionConfig nonMatchingRegion = mock(RegionConfig.class);
+    var nonMatchingRegion = mock(RegionConfig.class);
     when(nonMatchingRegion.getName()).thenReturn("nonMatchingRegion");
     List<CacheElement> listCacheElements = new ArrayList<>();
-    RegionMapping nonMatchingMapping = mock(RegionMapping.class);
+    var nonMatchingMapping = mock(RegionMapping.class);
     listCacheElements.add(nonMatchingMapping);
     when(nonMatchingRegion.getCustomRegionElements()).thenReturn(listCacheElements);
     list.add(nonMatchingRegion);
     when(cacheConfig.getRegions()).thenReturn(list);
 
-    boolean modified =
+    var modified =
         destroyRegionMappingCommand.updateConfigForGroup(null, cacheConfig, regionName);
 
     assertThat(listCacheElements).isEqualTo(Arrays.asList(nonMatchingMapping));
@@ -193,13 +192,13 @@ public class DestroyMappingCommandTest {
   public void updateClusterConfigWithOneMatchingRegionDoesRemoveMapping() {
     List<RegionConfig> list = new ArrayList<>();
     List<CacheElement> listCacheElements = new ArrayList<>();
-    RegionMapping matchingMapping = mock(RegionMapping.class);
+    var matchingMapping = mock(RegionMapping.class);
     listCacheElements.add(matchingMapping);
     when(matchingRegion.getCustomRegionElements()).thenReturn(listCacheElements);
     list.add(matchingRegion);
     when(cacheConfig.getRegions()).thenReturn(list);
 
-    boolean modified =
+    var modified =
         destroyRegionMappingCommand.updateConfigForGroup(null, cacheConfig, regionName);
 
     assertThat(listCacheElements).isEmpty();
@@ -210,19 +209,19 @@ public class DestroyMappingCommandTest {
   public void updateClusterConfigWithOneMatchingRegionAndJdbcAsyncQueueRemovesTheQueue() {
     List<RegionConfig> list = new ArrayList<>();
     List<CacheElement> listCacheElements = new ArrayList<>();
-    RegionMapping matchingMapping = mock(RegionMapping.class);
+    var matchingMapping = mock(RegionMapping.class);
     listCacheElements.add(matchingMapping);
     when(matchingRegion.getCustomRegionElements()).thenReturn(listCacheElements);
     list.add(matchingRegion);
     when(cacheConfig.getRegions()).thenReturn(list);
-    AsyncEventQueue queue = mock(AsyncEventQueue.class);
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var queue = mock(AsyncEventQueue.class);
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
     when(queue.getId()).thenReturn(queueName);
     List<AsyncEventQueue> queueList = new ArrayList<>();
     queueList.add(queue);
     when(cacheConfig.getAsyncEventQueues()).thenReturn(queueList);
 
-    boolean modified =
+    var modified =
         destroyRegionMappingCommand.updateConfigForGroup(null, cacheConfig, regionName);
 
     assertThat(queueList).isEmpty();
@@ -233,16 +232,16 @@ public class DestroyMappingCommandTest {
   public void updateClusterConfigWithOneMatchingRegionAndJdbcWriterRemovesTheWriter() {
     List<RegionConfig> list = new ArrayList<>();
     List<CacheElement> listCacheElements = new ArrayList<>();
-    RegionMapping matchingMapping = mock(RegionMapping.class);
+    var matchingMapping = mock(RegionMapping.class);
     listCacheElements.add(matchingMapping);
     when(matchingRegion.getCustomRegionElements()).thenReturn(listCacheElements);
     list.add(matchingRegion);
     when(cacheConfig.getRegions()).thenReturn(list);
-    DeclarableType cacheWriter = mock(DeclarableType.class);
+    var cacheWriter = mock(DeclarableType.class);
     when(cacheWriter.getClassName()).thenReturn(JdbcWriter.class.getName());
     when(matchingRegionAttributes.getCacheWriter()).thenReturn(cacheWriter);
 
-    boolean modified =
+    var modified =
         destroyRegionMappingCommand.updateConfigForGroup(null, cacheConfig, regionName);
 
     verify(matchingRegionAttributes, times(1)).setCacheWriter(null);
@@ -253,15 +252,15 @@ public class DestroyMappingCommandTest {
   public void updateClusterConfigWithOneMatchingRegionAndJdbcAsyncQueueIdRemovesTheId() {
     List<RegionConfig> list = new ArrayList<>();
     List<CacheElement> listCacheElements = new ArrayList<>();
-    RegionMapping matchingMapping = mock(RegionMapping.class);
+    var matchingMapping = mock(RegionMapping.class);
     listCacheElements.add(matchingMapping);
     when(matchingRegion.getCustomRegionElements()).thenReturn(listCacheElements);
     list.add(matchingRegion);
     when(cacheConfig.getRegions()).thenReturn(list);
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
     when(matchingRegionAttributes.getAsyncEventQueueIds()).thenReturn(queueName);
 
-    boolean modified =
+    var modified =
         destroyRegionMappingCommand.updateConfigForGroup(null, cacheConfig, regionName);
 
     verify(matchingRegionAttributes, times(1)).setAsyncEventQueueIds("");
@@ -272,16 +271,16 @@ public class DestroyMappingCommandTest {
   public void updateClusterConfigWithOneMatchingRegionAndJdbcAsyncQueueIdsRemovesTheId() {
     List<RegionConfig> list = new ArrayList<>();
     List<CacheElement> listCacheElements = new ArrayList<>();
-    RegionMapping matchingMapping = mock(RegionMapping.class);
+    var matchingMapping = mock(RegionMapping.class);
     listCacheElements.add(matchingMapping);
     when(matchingRegion.getCustomRegionElements()).thenReturn(listCacheElements);
     list.add(matchingRegion);
     when(cacheConfig.getRegions()).thenReturn(list);
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
     when(matchingRegionAttributes.getAsyncEventQueueIds())
         .thenReturn(queueName + "1," + queueName + "," + queueName + "2");
 
-    boolean modified =
+    var modified =
         destroyRegionMappingCommand.updateConfigForGroup(null, cacheConfig, regionName);
 
     verify(matchingRegionAttributes, times(1))

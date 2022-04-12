@@ -51,7 +51,6 @@ import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 import org.apache.geode.test.junit.categories.MembershipTest;
 
@@ -75,8 +74,8 @@ public class SSLNoClientAuthDUnitTest extends JUnit4DistributedTestCase {
 
   @After
   public void tearDown() {
-    VM serverVM = getVM(1);
-    VM clientVM = getVM(2);
+    var serverVM = getVM(1);
+    var clientVM = getVM(2);
 
     clientVM.invoke(SSLNoClientAuthDUnitTest::closeClientCacheTask);
     serverVM.invoke(SSLNoClientAuthDUnitTest::closeCacheTask);
@@ -84,20 +83,20 @@ public class SSLNoClientAuthDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testSSLServerWithNoAuth() {
-    VM serverVM = getVM(1);
-    VM clientVM = getVM(2);
+    var serverVM = getVM(1);
+    var clientVM = getVM(2);
 
-    boolean cacheServerSslenabled = true;
-    boolean cacheClientSslenabled = true;
-    boolean cacheClientSslRequireAuth = true;
+    var cacheServerSslenabled = true;
+    var cacheClientSslenabled = true;
+    var cacheClientSslRequireAuth = true;
 
     serverVM.invoke(() -> setUpServerVMTask(cacheServerSslenabled));
     serverVM.invoke(SSLNoClientAuthDUnitTest::createServerTask);
 
-    Object[] array = serverVM.invoke(SSLNoClientAuthDUnitTest::getCacheServerEndPointTask);
-    String hostName = (String) array[0];
+    var array = serverVM.invoke(SSLNoClientAuthDUnitTest::getCacheServerEndPointTask);
+    var hostName = (String) array[0];
     int port = (Integer) array[1];
-    Object[] params = new Object[6];
+    var params = new Object[6];
     params[0] = hostName;
     params[1] = port;
     params[2] = cacheClientSslenabled;
@@ -137,11 +136,11 @@ public class SSLNoClientAuthDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void setUpServerVM(boolean cacheServerSslenabled) throws Exception {
-    Properties gemFireProps = new Properties();
+    var gemFireProps = new Properties();
 
-    String cacheServerSslprotocols = "any";
-    String cacheServerSslciphers = "any";
-    boolean cacheServerSslRequireAuth = false;
+    var cacheServerSslprotocols = "any";
+    var cacheServerSslciphers = "any";
+    var cacheServerSslRequireAuth = false;
 
     gemFireProps.setProperty(SERVER_SSL_ENABLED, String.valueOf(cacheServerSslenabled));
     gemFireProps.setProperty(SERVER_SSL_PROTOCOLS, cacheServerSslprotocols);
@@ -149,10 +148,10 @@ public class SSLNoClientAuthDUnitTest extends JUnit4DistributedTestCase {
     gemFireProps
         .setProperty(SERVER_SSL_REQUIRE_AUTHENTICATION, String.valueOf(cacheServerSslRequireAuth));
 
-    String keyStore =
+    var keyStore =
         createTempFileFromResource(SSLNoClientAuthDUnitTest.class, DEFAULT_STORE)
             .getAbsolutePath();
-    String trustStore =
+    var trustStore =
         createTempFileFromResource(SSLNoClientAuthDUnitTest.class, DEFAULT_STORE)
             .getAbsolutePath();
     gemFireProps.setProperty(SERVER_SSL_KEYSTORE_TYPE, "jks");
@@ -161,27 +160,27 @@ public class SSLNoClientAuthDUnitTest extends JUnit4DistributedTestCase {
     gemFireProps.setProperty(SERVER_SSL_TRUSTSTORE, trustStore);
     gemFireProps.setProperty(SERVER_SSL_TRUSTSTORE_PASSWORD, "password");
 
-    StringWriter sw = new StringWriter();
-    PrintWriter writer = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var writer = new PrintWriter(sw);
     gemFireProps.list(writer);
     createCache(gemFireProps);
 
     RegionFactory factory = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    Region r = factory.create("serverRegion");
+    var r = factory.create("serverRegion");
     r.put("serverkey", "servervalue");
   }
 
   private void setUpClientVM(String host, int port, boolean cacheServerSslenabled,
       boolean cacheServerSslRequireAuth, String keyStore, String trustStore) {
-    Properties gemFireProps = new Properties();
+    var gemFireProps = new Properties();
 
-    String cacheServerSslprotocols = "any";
-    String cacheServerSslciphers = "any";
+    var cacheServerSslprotocols = "any";
+    var cacheServerSslciphers = "any";
 
-    String keyStorePath =
+    var keyStorePath =
         createTempFileFromResource(SSLNoClientAuthDUnitTest.class, keyStore)
             .getAbsolutePath();
-    String trustStorePath =
+    var trustStorePath =
         createTempFileFromResource(SSLNoClientAuthDUnitTest.class, trustStore)
             .getAbsolutePath();
     // using new server-ssl-* properties
@@ -197,17 +196,17 @@ public class SSLNoClientAuthDUnitTest extends JUnit4DistributedTestCase {
     gemFireProps.setProperty(SERVER_SSL_TRUSTSTORE, trustStorePath);
     gemFireProps.setProperty(SERVER_SSL_TRUSTSTORE_PASSWORD, "password");
 
-    StringWriter sw = new StringWriter();
-    PrintWriter writer = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var writer = new PrintWriter(sw);
     gemFireProps.list(writer);
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory(gemFireProps);
+    var clientCacheFactory = new ClientCacheFactory(gemFireProps);
     clientCacheFactory.addPoolServer(host, port);
     clientCache = clientCacheFactory.create();
 
     ClientRegionFactory<String, String> regionFactory =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-    Region<String, String> region = regionFactory.create("serverRegion");
+    var region = regionFactory.create("serverRegion");
     assertNotNull(region);
   }
 
@@ -247,7 +246,7 @@ public class SSLNoClientAuthDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static Object[] getCacheServerEndPointTask() {
-    Object[] array = new Object[2];
+    var array = new Object[2];
     array[0] = instance.getCacheServerHost();
     array[1] = instance.getCacheServerPort();
     return array;

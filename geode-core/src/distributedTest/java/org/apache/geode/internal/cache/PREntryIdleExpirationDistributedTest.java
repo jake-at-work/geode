@@ -66,8 +66,8 @@ public class PREntryIdleExpirationDistributedTest implements Serializable {
 
     regionName = getClass().getSimpleName();
 
-    VM[] vms = new VM[] {member1, member2, member3};
-    for (VM vm : vms) {
+    var vms = new VM[] {member1, member2, member3};
+    for (var vm : vms) {
       vm.invoke(() -> {
         KEEP_READING.set(true);
         cacheRule.createCache();
@@ -85,8 +85,8 @@ public class PREntryIdleExpirationDistributedTest implements Serializable {
 
   @After
   public void tearDown() throws Exception {
-    VM[] vms = new VM[] {member1, member2, member3};
-    for (VM vm : vms) {
+    var vms = new VM[] {member1, member2, member3};
+    for (var vm : vms) {
       vm.invoke(() -> {
         KEEP_READING.set(false);
         ExpiryTask.permitExpiration();
@@ -95,8 +95,8 @@ public class PREntryIdleExpirationDistributedTest implements Serializable {
   }
 
   private void waitForExpirationInEachMember() {
-    VM[] vms = new VM[] {member1, member2, member3};
-    for (VM vm : vms) {
+    var vms = new VM[] {member1, member2, member3};
+    for (var vm : vms) {
       vm.invoke(() -> {
         Region<String, String> region = cacheRule.getCache().getRegion(regionName);
         await().until(() -> !region.containsKey(KEY));
@@ -129,7 +129,7 @@ public class PREntryIdleExpirationDistributedTest implements Serializable {
       assertThat(region.containsKey(KEY)).isTrue();
 
       ExpiryTask.permitExpiration();
-      Stopwatch stopwatch = Stopwatch.createStarted();
+      var stopwatch = Stopwatch.createStarted();
       while (stopwatch.elapsed(SECONDS) <= 5 && region.containsKey(KEY)) {
         Thread.sleep(10);
       }

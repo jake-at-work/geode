@@ -14,12 +14,8 @@
  */
 package org.apache.geode.admin.jmx.internal;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -30,7 +26,6 @@ import org.apache.logging.log4j.Level;
 
 import org.apache.geode.SystemFailure;
 import org.apache.geode.admin.AdminException;
-import org.apache.geode.admin.SystemMemberCacheServer;
 import org.apache.geode.admin.SystemMemberRegion;
 import org.apache.geode.admin.internal.SystemMemberBridgeServerImpl;
 import org.apache.geode.cache.Region;
@@ -96,12 +91,12 @@ public class SystemMemberCacheJmxImpl extends org.apache.geode.admin.internal.Sy
   protected SystemMemberRegion createSystemMemberRegion(Region r)
       throws org.apache.geode.admin.AdminException {
     SystemMemberRegionJmxImpl managedSystemMemberRegion = null;
-    boolean needsRefresh = false;
+    var needsRefresh = false;
     synchronized (managedRegionResourcesMap) {
       /*
        * Ensuring that a single instance of System Member Region is created per Region.
        */
-      SystemMemberRegionJmxImpl managedResource = managedRegionResourcesMap.get(r.getFullPath());
+      var managedResource = managedRegionResourcesMap.get(r.getFullPath());
       if (managedResource != null) {
         managedSystemMemberRegion = managedResource;
       } else {
@@ -133,7 +128,7 @@ public class SystemMemberCacheJmxImpl extends org.apache.geode.admin.internal.Sy
        * Ensuring that a single instance of SystemMember BridgeServer is created per
        * AdminBridgeServer.
        */
-      SystemMemberBridgeServerJmxImpl managedCacheServerResource =
+      var managedCacheServerResource =
           managedCacheServerResourcesMap.get(bridge.getId());
       if (managedCacheServerResource != null) {
         managedSystemMemberBridgeServer = managedCacheServerResource;
@@ -167,8 +162,8 @@ public class SystemMemberCacheJmxImpl extends org.apache.geode.admin.internal.Sy
 
     // need to create a new instance of ManagedBean to clean the "slate"...
     ManagedBean newManagedBean = new DynamicManagedBean(managed);
-    for (final org.apache.geode.admin.Statistic statistic : statistics) {
-      StatisticAttributeInfo attrInfo = new StatisticAttributeInfo();
+    for (final var statistic : statistics) {
+      var attrInfo = new StatisticAttributeInfo();
 
       attrInfo.setName(statistic.getName());
       attrInfo.setDisplayName(statistic.getName());
@@ -244,7 +239,7 @@ public class SystemMemberCacheJmxImpl extends org.apache.geode.admin.internal.Sy
   public ObjectName manageCacheServer() throws AdminException, MalformedObjectNameException {
 
     try {
-      SystemMemberBridgeServerJmxImpl bridge = (SystemMemberBridgeServerJmxImpl) addCacheServer();
+      var bridge = (SystemMemberBridgeServerJmxImpl) addCacheServer();
       return ObjectName.getInstance(bridge.getMBeanName());
     } catch (AdminException e) {
       MBeanUtils.logStackTrace(Level.WARN, e);
@@ -278,10 +273,10 @@ public class SystemMemberCacheJmxImpl extends org.apache.geode.admin.internal.Sy
   public ObjectName[] manageCacheServers() throws AdminException, MalformedObjectNameException {
 
     try {
-      SystemMemberCacheServer[] bridges = getCacheServers();
-      ObjectName[] names = new ObjectName[bridges.length];
-      for (int i = 0; i < bridges.length; i++) {
-        SystemMemberBridgeServerJmxImpl bridge = (SystemMemberBridgeServerJmxImpl) bridges[i];
+      var bridges = getCacheServers();
+      var names = new ObjectName[bridges.length];
+      for (var i = 0; i < bridges.length; i++) {
+        var bridge = (SystemMemberBridgeServerJmxImpl) bridges[i];
         names[i] = ObjectName.getInstance(bridge.getMBeanName());
       }
 
@@ -367,9 +362,9 @@ public class SystemMemberCacheJmxImpl extends org.apache.geode.admin.internal.Sy
   @Override
   public void cleanupResource() {
     synchronized (managedRegionResourcesMap) {
-      Collection<SystemMemberRegionJmxImpl> values = managedRegionResourcesMap.values();
+      var values = managedRegionResourcesMap.values();
 
-      for (SystemMemberRegionJmxImpl systemMemberRegionJmxImpl : values) {
+      for (var systemMemberRegionJmxImpl : values) {
         MBeanUtils.unregisterMBean(systemMemberRegionJmxImpl);
       }
 
@@ -377,9 +372,9 @@ public class SystemMemberCacheJmxImpl extends org.apache.geode.admin.internal.Sy
     }
 
     synchronized (managedCacheServerResourcesMap) {
-      Collection<SystemMemberBridgeServerJmxImpl> values = managedCacheServerResourcesMap.values();
+      var values = managedCacheServerResourcesMap.values();
 
-      for (SystemMemberBridgeServerJmxImpl SystemMemberBridgeServerJmxImpl : values) {
+      for (var SystemMemberBridgeServerJmxImpl : values) {
         MBeanUtils.unregisterMBean(SystemMemberBridgeServerJmxImpl);
       }
 
@@ -398,14 +393,14 @@ public class SystemMemberCacheJmxImpl extends org.apache.geode.admin.internal.Sy
     ManagedResource cleaned = null;
 
     synchronized (managedRegionResourcesMap) {
-      Set<Entry<String, SystemMemberRegionJmxImpl>> entries = managedRegionResourcesMap.entrySet();
-      for (Iterator<Entry<String, SystemMemberRegionJmxImpl>> it = entries.iterator(); it
+      var entries = managedRegionResourcesMap.entrySet();
+      for (var it = entries.iterator(); it
           .hasNext();) {
-        Entry<String, SystemMemberRegionJmxImpl> entry = it.next();
-        SystemMemberRegionJmxImpl managedResource = entry.getValue();
-        ObjectName objName = managedResource.getObjectName();
+        var entry = it.next();
+        var managedResource = entry.getValue();
+        var objName = managedResource.getObjectName();
 
-        String pathProp = objName.getKeyProperty("path");
+        var pathProp = objName.getKeyProperty("path");
         if (pathProp != null && pathProp.equals(regionPath)) {
           cleaned = managedResource;
           it.remove();
@@ -432,7 +427,7 @@ public class SystemMemberCacheJmxImpl extends org.apache.geode.admin.internal.Sy
       return false;
     }
 
-    SystemMemberCacheJmxImpl other = (SystemMemberCacheJmxImpl) obj;
+    var other = (SystemMemberCacheJmxImpl) obj;
 
     return getMBeanName().equals(other.getMBeanName());
   }

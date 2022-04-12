@@ -31,11 +31,11 @@ public class RedisMemberInfoTest {
 
   @Test
   public void constructor_setsValues() {
-    DistributedMember mockDistributedMember = mock(DistributedMember.class);
-    String hostAddress = "127.0.0.1";
-    int redisPort = 12345;
+    var mockDistributedMember = mock(DistributedMember.class);
+    var hostAddress = "127.0.0.1";
+    var redisPort = 12345;
 
-    RedisMemberInfo info = new RedisMemberInfo(mockDistributedMember, hostAddress, redisPort);
+    var info = new RedisMemberInfo(mockDistributedMember, hostAddress, redisPort);
 
     assertThat(info.getMember()).isEqualTo(mockDistributedMember);
     assertThat(info.getHostAddress()).isEqualTo(hostAddress);
@@ -45,14 +45,14 @@ public class RedisMemberInfoTest {
   @Test
   public void serialization_isStable() throws IOException, ClassNotFoundException {
     DistributedMember distributedMember = new InternalDistributedMember("hostName", 123);
-    String hostAddress = "127.0.0.1";
-    int redisPort = 12345;
+    var hostAddress = "127.0.0.1";
+    var redisPort = 12345;
 
-    RedisMemberInfo info1 = new RedisMemberInfo(distributedMember, hostAddress, redisPort);
+    var info1 = new RedisMemberInfo(distributedMember, hostAddress, redisPort);
 
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     DataSerializer.writeObject(info1, out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
+    var in = new ByteArrayDataInput(out.toByteArray());
 
     RedisMemberInfo info2 = DataSerializer.readObject(in);
     assertThat(info2.getMember()).isEqualTo(info1.getMember());
@@ -62,12 +62,12 @@ public class RedisMemberInfoTest {
 
   @Test
   public void equals_returnsTrue_givenEquivalentInfo() {
-    DistributedMember mockDistributedMember = mock(DistributedMember.class);
-    String hostAddress = "127.0.0.1";
-    int redisPort = 12345;
+    var mockDistributedMember = mock(DistributedMember.class);
+    var hostAddress = "127.0.0.1";
+    var redisPort = 12345;
 
-    RedisMemberInfo info1 = new RedisMemberInfo(mockDistributedMember, hostAddress, redisPort);
-    RedisMemberInfo info2 = new RedisMemberInfo(mockDistributedMember, hostAddress, redisPort);
+    var info1 = new RedisMemberInfo(mockDistributedMember, hostAddress, redisPort);
+    var info2 = new RedisMemberInfo(mockDistributedMember, hostAddress, redisPort);
 
     assertThat(info1).isNotSameAs(info2);
     assertThat(info1.equals(info2)).isTrue();
@@ -76,16 +76,16 @@ public class RedisMemberInfoTest {
 
   @Test
   public void equals_returnsFalse_givenNonEquivalentInfo() {
-    DistributedMember mockDistributedMember1 = mock(DistributedMember.class);
-    String hostAddress1 = "127.0.0.1";
-    int redisPort1 = 12345;
+    var mockDistributedMember1 = mock(DistributedMember.class);
+    var hostAddress1 = "127.0.0.1";
+    var redisPort1 = 12345;
 
-    DistributedMember mockDistributedMember2 = mock(DistributedMember.class);
-    String hostAddress2 = "1.1.1.0";
-    int redisPort2 = 54321;
+    var mockDistributedMember2 = mock(DistributedMember.class);
+    var hostAddress2 = "1.1.1.0";
+    var redisPort2 = 54321;
 
-    RedisMemberInfo info1 = new RedisMemberInfo(mockDistributedMember1, hostAddress1, redisPort1);
-    RedisMemberInfo info2 = new RedisMemberInfo(mockDistributedMember2, hostAddress2, redisPort2);
+    var info1 = new RedisMemberInfo(mockDistributedMember1, hostAddress1, redisPort1);
+    var info2 = new RedisMemberInfo(mockDistributedMember2, hostAddress2, redisPort2);
 
     assertThat(info1.equals(info2)).isFalse();
     assertThat(info2.equals(info1)).isFalse();

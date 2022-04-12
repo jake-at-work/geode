@@ -37,8 +37,8 @@ public class ByteComparator implements Comparator<Object> {
 
   @Override
   public int compare(Object o1, Object o2) {
-    byte[] o1Bytes = getBytes(o1);
-    byte[] o2Bytes = getBytes(o2);
+    var o1Bytes = getBytes(o1);
+    var o2Bytes = getBytes(o2);
 
     if (o1Bytes == o2Bytes) {
       return 0;
@@ -57,11 +57,11 @@ public class ByteComparator implements Comparator<Object> {
       return -1;
     }
 
-    for (int i = 0; i < o1Bytes.length; i++) {
+    for (var i = 0; i < o1Bytes.length; i++) {
       if (i >= o2Bytes.length) {
         return 1;
       } else {
-        int result = o1Bytes[i] - o2Bytes[i];
+        var result = o1Bytes[i] - o2Bytes[i];
         if (result != 0) {
           return result;
         }

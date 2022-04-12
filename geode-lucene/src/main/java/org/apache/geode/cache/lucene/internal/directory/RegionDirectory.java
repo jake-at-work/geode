@@ -16,7 +16,6 @@
 package org.apache.geode.cache.lucene.internal.directory;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -29,7 +28,6 @@ import org.apache.lucene.store.IndexOutput;
 import org.apache.lucene.store.OutputStreamIndexOutput;
 import org.apache.lucene.store.SingleInstanceLockFactory;
 
-import org.apache.geode.cache.lucene.internal.filesystem.File;
 import org.apache.geode.cache.lucene.internal.filesystem.FileSystem;
 import org.apache.geode.cache.lucene.internal.filesystem.FileSystemStats;
 
@@ -55,7 +53,7 @@ public class RegionDirectory extends BaseDirectory {
   @Override
   public String[] listAll() throws IOException {
     ensureOpen();
-    String[] array = fs.listFileNames().toArray(new String[] {});
+    var array = fs.listFileNames().toArray(new String[] {});
     Arrays.sort(array);
     return array;
   }
@@ -75,8 +73,8 @@ public class RegionDirectory extends BaseDirectory {
   @Override
   public IndexOutput createOutput(final String name, final IOContext context) throws IOException {
     ensureOpen();
-    final File file = fs.createFile(name);
-    final OutputStream out = file.getOutputStream();
+    final var file = fs.createFile(name);
+    final var out = file.getOutputStream();
 
     return new OutputStreamIndexOutput(name, name, out, 1000);
   }
@@ -84,9 +82,9 @@ public class RegionDirectory extends BaseDirectory {
   @Override
   public IndexOutput createTempOutput(String prefix, String suffix, IOContext context)
       throws IOException {
-    String name = prefix + "_temp_" + UUID.randomUUID() + suffix;
-    final File file = fs.createTemporaryFile(name);
-    final OutputStream out = file.getOutputStream();
+    var name = prefix + "_temp_" + UUID.randomUUID() + suffix;
+    final var file = fs.createTemporaryFile(name);
+    final var out = file.getOutputStream();
 
     return new OutputStreamIndexOutput(name, name, out, 1000);
   }
@@ -112,7 +110,7 @@ public class RegionDirectory extends BaseDirectory {
   @Override
   public IndexInput openInput(String name, IOContext context) throws IOException {
     ensureOpen();
-    final File file = fs.getFile(name);
+    final var file = fs.getFile(name);
     return new FileIndexInput(name, file);
   }
 

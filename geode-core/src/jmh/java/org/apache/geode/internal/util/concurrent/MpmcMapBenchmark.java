@@ -114,8 +114,8 @@ public class MpmcMapBenchmark {
 
   @Benchmark
   public void workload() {
-    Object key = randomKey();
-    Object value = map.get(key);
+    var key = randomKey();
+    var value = map.get(key);
     if (null == value) {
       value = new Object();
     }

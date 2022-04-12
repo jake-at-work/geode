@@ -39,7 +39,6 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.internal.HttpService;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.CacheService;
 import org.apache.geode.internal.cache.InternalCache;
@@ -66,9 +65,9 @@ public class InternalHttpService implements HttpService {
 
   @Override
   public boolean init(Cache cache) {
-    InternalDistributedSystem distributedSystem =
+    var distributedSystem =
         (InternalDistributedSystem) cache.getDistributedSystem();
-    DistributionConfig systemConfig = distributedSystem.getConfig();
+    var systemConfig = distributedSystem.getConfig();
 
     if (((InternalCache) cache).isClient()) {
       return false;
@@ -101,12 +100,12 @@ public class InternalHttpService implements HttpService {
     httpServer.setHandler(new HandlerCollection(true));
     final ServerConnector connector;
 
-    HttpConfiguration httpConfig = new HttpConfiguration();
+    var httpConfig = new HttpConfiguration();
     httpConfig.setSecureScheme(HTTPS);
     httpConfig.setSecurePort(port);
 
     if (sslConfig.isEnabled()) {
-      SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+      var sslContextFactory = new SslContextFactory.Server();
 
       if (StringUtils.isNotBlank(sslConfig.getAlias())) {
         sslContextFactory.setCertAlias(sslConfig.getAlias());
@@ -178,7 +177,7 @@ public class InternalHttpService implements HttpService {
       return;
     }
 
-    WebAppContext webapp = new WebAppContext();
+    var webapp = new WebAppContext();
     webapp.setContextPath(webAppContext);
     webapp.setWar(warFilePath.toString());
     webapp.setParentLoaderPriority(false);
@@ -197,7 +196,7 @@ public class InternalHttpService implements HttpService {
       attributeNameValuePairs.forEach(webapp::setAttribute);
     }
 
-    File tmpPath = new File(getWebAppBaseDirectory(webAppContext));
+    var tmpPath = new File(getWebAppBaseDirectory(webAppContext));
     tmpPath.mkdirs();
     webapp.setTempDirectory(tmpPath);
     logger.info("Adding webapp " + webAppContext);
@@ -215,8 +214,8 @@ public class InternalHttpService implements HttpService {
   }
 
   private String getWebAppBaseDirectory(final String context) {
-    String underscoredContext = context.replace("/", "_");
-    String uuid = UUID.randomUUID().toString().substring(0, 8);
+    var underscoredContext = context.replace("/", "_");
+    var uuid = UUID.randomUUID().toString().substring(0, 8);
 
     return USER_DIR.concat(FILE_PATH_SEPARATOR)
         .concat("GemFire_" + USER_NAME).concat(FILE_PATH_SEPARATOR).concat("services")
@@ -233,7 +232,7 @@ public class InternalHttpService implements HttpService {
 
     logger.debug("Stopping the HTTP service...");
     try {
-      for (WebAppContext webapp : webApps) {
+      for (var webapp : webApps) {
         webapp.stop();
       }
       httpServer.stop();

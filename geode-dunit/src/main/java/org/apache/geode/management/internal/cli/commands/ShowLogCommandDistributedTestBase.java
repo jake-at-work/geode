@@ -32,7 +32,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.internal.util.ManagementUtils;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -61,7 +60,7 @@ public class ShowLogCommandDistributedTestBase implements Serializable {
 
   @BeforeClass
   public static void setup() throws Exception {
-    Properties managerProps = new Properties();
+    var managerProps = new Properties();
     managerProps.setProperty(NAME, MANAGER_NAME);
     managerProps.setProperty(GROUPS, GROUP0);
     managerProps.setProperty(LOG_FILE, MANAGER_NAME + ".log");
@@ -70,7 +69,7 @@ public class ShowLogCommandDistributedTestBase implements Serializable {
     locator =
         clusterStartupRule.startLocatorVM(0, l -> l.withHttpService().withProperties(managerProps));
 
-    Properties server1Props = new Properties();
+    var server1Props = new Properties();
     server1Props.setProperty(NAME, SERVER1_NAME);
     server1Props.setProperty(GROUPS, GROUP1);
     server1Props.setProperty(LOG_FILE, SERVER1_NAME + ".log");
@@ -78,7 +77,7 @@ public class ShowLogCommandDistributedTestBase implements Serializable {
 
     server1 = clusterStartupRule.startServerVM(1, server1Props, locator.getPort());
 
-    Properties server2Props = new Properties();
+    var server2Props = new Properties();
     server2Props.setProperty(NAME, SERVER2_NAME);
     server2Props.setProperty(GROUPS, GROUP2);
     server2Props.setProperty(LOG_FILE, SERVER2_NAME + ".log");
@@ -110,7 +109,7 @@ public class ShowLogCommandDistributedTestBase implements Serializable {
   @Test
   public void testShowLogDefault() {
     writeLogMessages();
-    String command = "show log --member=" + MANAGER_NAME;
+    var command = "show log --member=" + MANAGER_NAME;
 
     gfsh.executeAndAssertThat(command).statusIsSuccess();
     assertThat(gfsh.getGfshOutput()).contains(MESSAGE_ON_MANAGER);
@@ -122,11 +121,11 @@ public class ShowLogCommandDistributedTestBase implements Serializable {
   public void testShowLogNumLines() throws InterruptedException {
     writeLogMessages();
 
-    String command = "show log --member=" + SERVER1_NAME + " --lines=50";
+    var command = "show log --member=" + SERVER1_NAME + " --lines=50";
 
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
-    String output = gfsh.getGfshOutput();
+    var output = gfsh.getGfshOutput();
     assertThat(output).contains(MESSAGE_ON_SERVER1);
     assertThat(gfsh.getGfshOutput()).doesNotContain(MESSAGE_ON_MANAGER);
     assertThat(gfsh.getGfshOutput()).doesNotContain(MESSAGE_ON_SERVER2);
@@ -137,25 +136,25 @@ public class ShowLogCommandDistributedTestBase implements Serializable {
   @Test
   public void testShowLogInvalidMember() throws Exception {
     writeLogMessages();
-    String command = "show log --member=NotAValidMember";
+    var command = "show log --member=NotAValidMember";
     gfsh.executeAndAssertThat(command).statusIsError()
         .containsOutput("Member NotAValidMember could not be found");
   }
 
   protected static boolean allMembersAreConnected() {
     return locator.getVM().invoke(() -> {
-      DistributedMember server1 =
+      var server1 =
           ManagementUtils.getDistributedMemberByNameOrId(SERVER1_NAME,
               ClusterStartupRule.getCache());
-      DistributedMember server2 =
+      var server2 =
           ManagementUtils.getDistributedMemberByNameOrId(SERVER2_NAME,
               ClusterStartupRule.getCache());
 
-      ShowLogCommand showLogCommand = new ShowLogCommand();
+      var showLogCommand = new ShowLogCommand();
       showLogCommand.setCache(ClusterStartupRule.getCache());
 
-      boolean server1isConnected = showLogCommand.getMemberMxBean(server1) != null;
-      boolean server2isConnected = showLogCommand.getMemberMxBean(server2) != null;
+      var server1isConnected = showLogCommand.getMemberMxBean(server1) != null;
+      var server2isConnected = showLogCommand.getMemberMxBean(server2) != null;
       return server1isConnected && server2isConnected;
     });
   }

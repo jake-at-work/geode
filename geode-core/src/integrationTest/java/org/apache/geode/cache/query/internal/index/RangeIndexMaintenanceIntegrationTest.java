@@ -29,9 +29,9 @@ public class RangeIndexMaintenanceIntegrationTest extends AbstractIndexMaintenan
   protected AbstractIndex createIndex(final QueryService qs, String name, String indexExpression,
       String regionPath)
       throws IndexNameConflictException, IndexExistsException, RegionNotFoundException {
-    boolean oldTestValue = IndexManager.TEST_RANGEINDEX_ONLY;
+    var oldTestValue = IndexManager.TEST_RANGEINDEX_ONLY;
     IndexManager.TEST_RANGEINDEX_ONLY = true;
-    RangeIndex index = (RangeIndex) qs.createIndex(name, indexExpression, regionPath);
+    var index = (RangeIndex) qs.createIndex(name, indexExpression, regionPath);
     IndexManager.TEST_RANGEINDEX_ONLY = oldTestValue;
     return index;
   }

@@ -46,13 +46,13 @@ public class UserPasswordWithExtraPropsAuthInit extends UserPasswordAuthInit {
   @Override
   public Properties getCredentials(final Properties securityProperties,
       final DistributedMember server, final boolean isPeer) throws AuthenticationFailedException {
-    final Properties securityPropertiesCopy =
+    final var securityPropertiesCopy =
         super.getCredentials(securityProperties, server, isPeer);
-    final String extraProps = securityProperties.getProperty(EXTRA_PROPS);
+    final var extraProps = securityProperties.getProperty(EXTRA_PROPS);
 
     if (extraProps != null) {
-      for (final Object o : securityProperties.keySet()) {
-        final String key = (String) o;
+      for (final var o : securityProperties.keySet()) {
+        final var key = (String) o;
         if (key.startsWith(SECURITY_PREFIX) && key.equalsIgnoreCase(USER_NAME) == false
             && key.equalsIgnoreCase(PASSWORD) == false
             && key.equalsIgnoreCase(EXTRA_PROPS) == false) {

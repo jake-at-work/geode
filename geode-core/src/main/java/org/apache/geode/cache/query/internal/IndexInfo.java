@@ -49,7 +49,7 @@ public class IndexInfo {
     if (((AbstractIndex) _index).isMapType()) {
       // assert _path.getType() == OQLLexerTokenTypes.METHOD_INV;
       // Get the map key & value. both need to be passed as index key.
-      CompiledValue mapKey = ((MapIndexable) _path).getMapLookupKey();
+      var mapKey = ((MapIndexable) _path).getMapLookupKey();
       return new Object[] {_key.evaluate(context), mapKey.evaluate(context)};
     } else {
       return _key.evaluate(context);

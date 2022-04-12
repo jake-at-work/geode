@@ -38,8 +38,6 @@ import org.apache.geode.management.model.EmptyObject;
 import org.apache.geode.management.model.Item;
 import org.apache.geode.management.model.Order;
 import org.apache.geode.management.model.SubOrder;
-import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.pdx.PdxInstanceFactory;
 import org.apache.geode.pdx.internal.PdxInstanceFactoryImpl;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
@@ -88,19 +86,19 @@ public class DataQueryEngineIntegrationTest {
    */
   @Test
   public void testCyclicWithNestedObjectReference() throws Exception {
-    Order order = new Order();
+    var order = new Order();
     order.setId("test");
 
-    for (int subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
-      Item item = new Item(order, "ID_" + subOrderIndex, "Book");
+    for (var subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
+      var item = new Item(order, "ID_" + subOrderIndex, "Book");
       order.addItem(item);
     }
 
     region.put("order1", order);
 
-    String expectedResult =
+    var expectedResult =
         "{\"result\":[[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"test\"],\"items\":[\"java.util.ArrayList\",{\"0\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_1\"],\"order\":\"duplicate org.apache.geode.management.model.Order\"}],\"1\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_2\"],\"order\":\"duplicate org.apache.geode.management.model.Order\"}],\"2\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_3\"],\"order\":\"duplicate org.apache.geode.management.model.Order\"}],\"3\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_4\"],\"order\":\"duplicate org.apache.geode.management.model.Order\"}],\"4\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_5\"],\"order\":\"duplicate org.apache.geode.management.model.Order\"}]}]}]]}";
-    String queryResult =
+    var queryResult =
         queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit, queryCollectionsDepth);
 
     assertThat(queryResult).isEqualToIgnoringWhitespace(expectedResult);
@@ -114,23 +112,23 @@ public class DataQueryEngineIntegrationTest {
    */
   @Test
   public void testCyclicWithNestedClasses() throws Exception {
-    Order order = new Order();
+    var order = new Order();
     order.setId("test");
 
-    for (int subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
-      Order subOrder = new Order();
+    for (var subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
+      var subOrder = new Order();
       subOrder.setId("ORDER_ID_" + subOrderIndex);
 
-      Item item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
+      var item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
       order.addItem(item);
     }
 
     region.put("order1", order);
 
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
 
-    String expectedResult =
+    var expectedResult =
         "{\"result\":[[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"test\"],\"items\":[\"java.util.ArrayList\",{\"0\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_1\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_1\"],\"items\":[\"java.util.ArrayList\",{}]}]}],\"1\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_2\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_2\"],\"items\":[\"java.util.ArrayList\",{}]}]}],\"2\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_3\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_3\"],\"items\":[\"java.util.ArrayList\",{}]}]}],\"3\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_4\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_4\"],\"items\":[\"java.util.ArrayList\",{}]}]}],\"4\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_5\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_5\"],\"items\":[\"java.util.ArrayList\",{}]}]}]}]}]]}";
     assertThat(queryResult).isEqualToIgnoringWhitespace(expectedResult);
 
@@ -145,22 +143,22 @@ public class DataQueryEngineIntegrationTest {
   @Test
   public void testCyclicWithNestedRefernce2ndLayer() throws Exception {
     Collection<Item> items = new ArrayList<>();
-    Order order = new Order("ORDER_TEST", items);
+    var order = new Order("ORDER_TEST", items);
 
-    for (int subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
-      Order subOrder = new Order();
+    for (var subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
+      var subOrder = new Order();
       subOrder.setId("ORDER_ID_" + subOrderIndex);
       subOrder.setItems(items);
 
-      Item item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
+      var item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
       order.addItem(item);
     }
 
     region.put("order1", order);
 
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
-    String expectedResult =
+    var expectedResult =
         "{\"result\":[[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_TEST\"],\"items\":[\"java.util.ArrayList\",{\"0\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_1\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_1\"],\"items\":[\"java.util.ArrayList\",{\"0\":\"duplicate org.apache.geode.management.model.Item\",\"1\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_2\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_2\"],\"items\":[\"java.util.ArrayList\",{\"0\":\"duplicate org.apache.geode.management.model.Item\",\"1\":\"duplicate org.apache.geode.management.model.Item\",\"2\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_3\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_3\"],\"items\":[\"java.util.ArrayList\",{\"0\":\"duplicate org.apache.geode.management.model.Item\",\"1\":\"duplicate org.apache.geode.management.model.Item\",\"2\":\"duplicate org.apache.geode.management.model.Item\",\"3\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_4\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_4\"],\"items\":[\"java.util.ArrayList\",{\"0\":\"duplicate org.apache.geode.management.model.Item\",\"1\":\"duplicate org.apache.geode.management.model.Item\",\"2\":\"duplicate org.apache.geode.management.model.Item\",\"3\":\"duplicate org.apache.geode.management.model.Item\",\"4\":[\"org.apache.geode.management.model.Item\",{\"itemDescription\":[\"java.lang.String\",\"Book\"],\"itemId\":[\"java.lang.String\",\"ID_5\"],\"order\":[\"org.apache.geode.management.model.Order\",{\"id\":[\"java.lang.String\",\"ORDER_ID_5\"],\"items\":[\"java.util.ArrayList\",{\"0\":\"duplicate org.apache.geode.management.model.Item\",\"1\":\"duplicate org.apache.geode.management.model.Item\",\"2\":\"duplicate org.apache.geode.management.model.Item\",\"3\":\"duplicate org.apache.geode.management.model.Item\",\"4\":\"duplicate org.apache.geode.management.model.Item\"}]}]}]}]}]}],\"4\":\"duplicate org.apache.geode.management.model.Item\"}]}]}],\"3\":\"duplicate org.apache.geode.management.model.Item\",\"4\":\"duplicate org.apache.geode.management.model.Item\"}]}]}],\"2\":\"duplicate org.apache.geode.management.model.Item\",\"3\":\"duplicate org.apache.geode.management.model.Item\",\"4\":\"duplicate org.apache.geode.management.model.Item\"}]}]}],\"1\":\"duplicate org.apache.geode.management.model.Item\",\"2\":\"duplicate org.apache.geode.management.model.Item\",\"3\":\"duplicate org.apache.geode.management.model.Item\",\"4\":\"duplicate org.apache.geode.management.model.Item\"}]}]]}";
     assertThat(queryResult).isEqualToIgnoringWhitespace(expectedResult);
 
@@ -171,20 +169,20 @@ public class DataQueryEngineIntegrationTest {
   @Test
   public void testCyclicWithCollection1stLayer() throws Exception {
     Collection<Item> items = new ArrayList<>();
-    Order order = new Order("ORDER_TEST", items);
+    var order = new Order("ORDER_TEST", items);
 
-    for (int subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
-      Order subOrder = new Order();
+    for (var subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
+      var subOrder = new Order();
       subOrder.setId("ORDER_ID_" + subOrderIndex);
       subOrder.setItems(items);
 
-      Item item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
+      var item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
       order.addItem(item);
     }
 
     region.put("items", items);
 
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
     System.out.println("Query Result: " + queryResult);
 
@@ -194,23 +192,23 @@ public class DataQueryEngineIntegrationTest {
 
   @Test
   public void testCyclicCollectionWithMultipleObjects() throws Exception {
-    for (int orderIndex = 1; orderIndex <= 5; orderIndex++) {
+    for (var orderIndex = 1; orderIndex <= 5; orderIndex++) {
       Collection<Item> items = new ArrayList<>();
-      Order order = new Order("ORDER_TEST_" + orderIndex, items);
+      var order = new Order("ORDER_TEST_" + orderIndex, items);
 
-      for (int subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
-        Order subOrder = new Order();
+      for (var subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
+        var subOrder = new Order();
         subOrder.setId("ORDER_ID_" + subOrderIndex);
         subOrder.setItems(items);
 
-        Item item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
+        var item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
         order.addItem(item);
       }
 
       region.put("items_" + orderIndex, items);
     }
 
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
     System.out.println("Query Result: " + queryResult);
 
@@ -220,23 +218,23 @@ public class DataQueryEngineIntegrationTest {
 
   @Test
   public void testCyclicArrayMultipleObjects() throws Exception {
-    for (int orderIndex = 1; orderIndex <= 5; orderIndex++) {
+    for (var orderIndex = 1; orderIndex <= 5; orderIndex++) {
       Collection<Item> items = new ArrayList<>();
-      Order order = new Order("ORDER_TEST_" + orderIndex, items);
+      var order = new Order("ORDER_TEST_" + orderIndex, items);
 
-      for (int subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
-        Order subOrder = new Order();
+      for (var subOrderIndex = 1; subOrderIndex <= 5; subOrderIndex++) {
+        var subOrder = new Order();
         subOrder.setId("ORDER_ID_" + subOrderIndex);
         subOrder.setItems(items);
 
-        Item item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
+        var item = new Item(subOrder, "ID_" + subOrderIndex, "Book");
         order.addItem(item);
       }
 
       region.put("items_" + orderIndex, items);
     }
 
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
     System.out.println("Query Result: " + queryResult);
 
@@ -249,7 +247,7 @@ public class DataQueryEngineIntegrationTest {
   public void testCyclicArrayMultipleObjectsMemberWise() throws Exception {
     region.put(1, new Portfolio(0));
 
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, "server", 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, "server", 0, queryResultSetLimit,
         queryCollectionsDepth);
     System.out.println(queryResult);
 
@@ -259,11 +257,11 @@ public class DataQueryEngineIntegrationTest {
 
   @Test
   public void testEmptyObject() throws Exception {
-    EmptyObject emptyObject = new EmptyObject();
+    var emptyObject = new EmptyObject();
     region.put("port", emptyObject);
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
-    String expectedResult = "{\"result\":[[\"org.apache.geode.management.model.EmptyObject\",{}]]}";
+    var expectedResult = "{\"result\":[[\"org.apache.geode.management.model.EmptyObject\",{}]]}";
     assertThat(queryResult).isEqualToIgnoringWhitespace(expectedResult);
 
     // If not correct JSON format this will throw a JSONException
@@ -272,11 +270,11 @@ public class DataQueryEngineIntegrationTest {
 
   @Test
   public void testSubClassOverridingMethods() throws Exception {
-    SubOrder subOrder = new SubOrder();
+    var subOrder = new SubOrder();
     region.put("port", subOrder);
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
-    String expectedResult =
+    var expectedResult =
         "{\"result\":[[\"org.apache.geode.management.model.SubOrder\",{\"id\":[\"java.lang.String\",\"null1\"],\"items\":[\"java.util.ArrayList\",{}]}]]}";
     assertThat(queryResult).isEqualToIgnoringWhitespace(expectedResult);
 
@@ -286,20 +284,20 @@ public class DataQueryEngineIntegrationTest {
 
   @Test
   public void testNestedPDXObject() throws Exception {
-    PdxInstanceFactory factory = PdxInstanceFactoryImpl.newCreator("Portfolio", false,
+    var factory = PdxInstanceFactoryImpl.newCreator("Portfolio", false,
         (InternalCache) region.getRegionService());
 
     factory.writeInt("ID", 111);
     factory.writeString("status", "active");
     factory.writeString("secId", "IBM");
 
-    PdxInstance pdxInstance = factory.create();
+    var pdxInstance = factory.create();
 
     region.put("port", pdxInstance);
 
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
-    String expectedResult =
+    var expectedResult =
         "{\"result\":[[\"org.apache.geode.pdx.PdxInstance\",{\"ID\":[\"java.lang.Integer\",111],\"status\":[\"java.lang.String\",\"active\"],\"secId\":[\"java.lang.String\",\"IBM\"]}]]}";
     assertThat(queryResult).isEqualToIgnoringWhitespace(expectedResult);
 
@@ -309,15 +307,15 @@ public class DataQueryEngineIntegrationTest {
 
   @Test
   public void testArrayWithNullValues() throws Exception {
-    SubOrder[] subOrderArray = new SubOrder[2];
+    var subOrderArray = new SubOrder[2];
     subOrderArray[0] = new SubOrder();
     subOrderArray[1] = null;
 
     region.put("p1", subOrderArray);
 
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
-    String expectedResult =
+    var expectedResult =
         "{\"result\":[[\"org.apache.geode.management.model.SubOrder[]\",[{\"id\":[\"java.lang.String\",\"null1\"],\"items\":[\"java.util.ArrayList\",{}]},null]]]}";
     assertThat(queryResult).isEqualToIgnoringWhitespace(expectedResult);
 
@@ -327,15 +325,15 @@ public class DataQueryEngineIntegrationTest {
 
   @Test
   public void testWithSqlDate() throws Exception {
-    SubOrder[] subOrderArray = new SubOrder[2];
+    var subOrderArray = new SubOrder[2];
     subOrderArray[0] = new SubOrder();
     subOrderArray[1] = null;
 
     region.put("p1", subOrderArray);
 
-    String queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
+    var queryResult = queryEngine.queryForJsonResult(QUERY_1, 0, queryResultSetLimit,
         queryCollectionsDepth);
-    String expectedResult =
+    var expectedResult =
         "{\"result\":[[\"org.apache.geode.management.model.SubOrder[]\",[{\"id\":[\"java.lang.String\",\"null1\"],\"items\":[\"java.util.ArrayList\",{}]},null]]]}";
     assertThat(queryResult).isEqualToIgnoringWhitespace(expectedResult);
 
@@ -345,7 +343,7 @@ public class DataQueryEngineIntegrationTest {
 
   @Test
   public void testWithUnknownRegion() throws Exception {
-    String queryResult =
+    var queryResult =
         queryEngine.queryForJsonResult("select * from " + SEPARATOR + "unknonwn", 1, 1, 1);
     assertThat(queryResult)
         .isEqualTo("{\"message\":\"Cannot find regions " + SEPARATOR

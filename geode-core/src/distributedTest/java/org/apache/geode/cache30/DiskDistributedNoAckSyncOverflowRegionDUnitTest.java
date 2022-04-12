@@ -34,7 +34,7 @@ public class DiskDistributedNoAckSyncOverflowRegionDUnitTest
 
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
 
     factory.setDiskStoreName(getCache().createDiskStoreFactory().setDiskDirs(getDiskDirs())

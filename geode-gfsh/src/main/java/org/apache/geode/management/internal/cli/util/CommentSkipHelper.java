@@ -31,7 +31,7 @@ public class CommentSkipHelper {
     // We support simple block comments; ie a single pair per line
     if (!inBlockComment && line.contains("/*") && line.contains("*/")) {
       blockCommentBegin();
-      String lhs = line.substring(0, line.lastIndexOf("/*"));
+      var lhs = line.substring(0, line.lastIndexOf("/*"));
       if (line.contains("*/")) {
         line = lhs + line.substring(line.lastIndexOf("*/") + 2);
         blockCommentFinish();

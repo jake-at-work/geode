@@ -20,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.Message;
@@ -28,7 +27,6 @@ import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.pdx.internal.PdxType;
-import org.apache.geode.pdx.internal.TypeRegistry;
 
 public class AddPdxType extends BaseCommand {
   private static final Logger logger = LogService.getLogger();
@@ -54,16 +52,16 @@ public class AddPdxType extends BaseCommand {
           serverConnection.getSocketString());
     }
 
-    PdxType type = (PdxType) clientMessage.getPart(0).getObject();
-    int typeId = clientMessage.getPart(1).getInt();
+    var type = (PdxType) clientMessage.getPart(0).getObject();
+    var typeId = clientMessage.getPart(1).getInt();
 
     // The native client needs this line
     // because it doesn't set the type id on the
     // client side.
     type.setTypeId(typeId);
     try {
-      InternalCache cache = serverConnection.getCache();
-      TypeRegistry registry = cache.getPdxRegistry();
+      var cache = serverConnection.getCache();
+      var registry = cache.getPdxRegistry();
       registry.addRemoteType(typeId, type);
     } catch (Exception e) {
       writeException(clientMessage, e, false, serverConnection);

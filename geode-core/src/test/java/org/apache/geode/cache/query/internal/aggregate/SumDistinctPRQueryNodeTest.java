@@ -48,7 +48,7 @@ public class SumDistinctPRQueryNodeTest extends DistinctAggregatorTest {
     distinctAggregator.accumulate(new HashSet<>(Arrays.asList(5, 6, 3)));
     distinctAggregator.accumulate(new HashSet<>(Arrays.asList(3, 7, 8)));
 
-    Object result = distinctAggregator.terminate();
+    var result = distinctAggregator.terminate();
     assertThat(result).isInstanceOf(Number.class);
     assertThat(((Number) result).intValue()).isEqualTo(29);
   }

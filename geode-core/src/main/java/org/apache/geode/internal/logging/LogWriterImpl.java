@@ -86,7 +86,7 @@ public abstract class LogWriterImpl implements InternalLogWriter {
     Assert.assertTrue(INFO_LEVEL == Level.INFO.intValue());
     Assert.assertTrue(WARNING_LEVEL == Level.WARNING.intValue());
     Assert.assertTrue(SEVERE_LEVEL == Level.SEVERE.intValue());
-    int logLevels = FINEST_LEVEL | FINER_LEVEL | FINE_LEVEL | CONFIG_LEVEL | INFO_LEVEL
+    var logLevels = FINEST_LEVEL | FINER_LEVEL | FINE_LEVEL | CONFIG_LEVEL | INFO_LEVEL
         | WARNING_LEVEL | SEVERE_LEVEL;
     Assert.assertTrue(logLevels == (logLevels & LOGGING_FLAGS_MASK));
     Assert.assertTrue(0 == (logLevels & SECURITY_LOGGING_FLAG));
@@ -116,8 +116,8 @@ public abstract class LogWriterImpl implements InternalLogWriter {
   }
 
   public static String allowedLogLevels() {
-    StringBuilder sb = new StringBuilder(64);
-    for (int i = 0; i < levelNames.size(); i++) {
+    var sb = new StringBuilder(64);
+    for (var i = 0; i < levelNames.size(); i++) {
       if (i != 0) {
         sb.append('|');
       }
@@ -163,7 +163,7 @@ public abstract class LogWriterImpl implements InternalLogWriter {
   private static String levelToStringSpecialCase(int levelWithFlags) {
     if ((levelWithFlags & SECURITY_LOGGING_FLAG) != 0) {
       // We know the flag is set so XOR will zero it out.
-      int level = levelWithFlags ^ SECURITY_LOGGING_FLAG;
+      var level = levelWithFlags ^ SECURITY_LOGGING_FLAG;
       return SecurityLogWriter.SECURITY_PREFIX + levelToString(level);
     } else {
       // Needed to prevent infinite recursion
@@ -192,8 +192,8 @@ public abstract class LogWriterImpl implements InternalLogWriter {
   }
 
   public static String join(List<?> list, String joinString) {
-    StringBuilder result = new StringBuilder(80);
-    boolean firstTime = true;
+    var result = new StringBuilder(80);
+    var firstTime = true;
     for (Object object : list) {
       if (firstTime) {
         firstTime = false;
@@ -243,7 +243,7 @@ public abstract class LogWriterImpl implements InternalLogWriter {
     }
     try {
       if (levelName.startsWith("level-")) {
-        String levelValue = levelName.substring("level-".length());
+        var levelValue = levelName.substring("level-".length());
         return Integer.parseInt(levelValue);
       }
     } catch (NullPointerException | NumberFormatException ignore) {
@@ -943,9 +943,9 @@ public abstract class LogWriterImpl implements InternalLogWriter {
    * @since GemFire 7.0
    */
   public void startup(StringId msgID, Object[] params) {
-    String message = msgID.toLocalizedString(params);
+    var message = msgID.toLocalizedString(params);
 
-    StartupStatusListener listener = startupListener;
+    var listener = startupListener;
     if (listener != null) {
       listener.setStatus(message);
     }
@@ -981,17 +981,17 @@ public abstract class LogWriterImpl implements InternalLogWriter {
    * formatText manipulates \n and \r chars but supports Windows and Linux/Unix/Mac
    */
   static void formatText(PrintWriter writer, String target, int initialLength) {
-    BreakIterator boundary = BreakIterator.getLineInstance();
+    var boundary = BreakIterator.getLineInstance();
     boundary.setText(target);
-    int start = boundary.first();
-    int end = boundary.next();
-    int lineLength = initialLength;
+    var start = boundary.first();
+    var end = boundary.next();
+    var lineLength = initialLength;
 
     while (end != BreakIterator.DONE) {
       // Look at the end and only accept whitespace breaks
-      char endChar = target.charAt(end - 1);
+      var endChar = target.charAt(end - 1);
       while (!Character.isWhitespace(endChar)) {
-        int lastEnd = end;
+        var lastEnd = end;
         end = boundary.next();
         if (end == BreakIterator.DONE) {
           // give up. We are at the end of the string
@@ -1000,7 +1000,7 @@ public abstract class LogWriterImpl implements InternalLogWriter {
         }
         endChar = target.charAt(end - 1);
       }
-      int wordEnd = end;
+      var wordEnd = end;
       if (endChar == '\n') {
         // trim off the \n since println will do it for us
         wordEnd--;
@@ -1011,7 +1011,7 @@ public abstract class LogWriterImpl implements InternalLogWriter {
         // figure tabs use 8 characters
         lineLength += 7;
       }
-      String word = target.substring(start, wordEnd);
+      var word = target.substring(start, wordEnd);
       lineLength += word.length();
       writer.print(word);
       if (endChar == '\n' || endChar == '\r') {
@@ -1073,7 +1073,7 @@ public abstract class LogWriterImpl implements InternalLogWriter {
 
   /** Utility to get a stack trace as a string from a Throwable */
   public static String getStackTrace(Throwable throwable) {
-    StringWriter sw = new StringWriter();
+    var sw = new StringWriter();
     throwable.printStackTrace(new PrintWriter(sw, true));
     return sw.toString();
   }
@@ -1101,15 +1101,15 @@ public abstract class LogWriterImpl implements InternalLogWriter {
               return;
             }
             if (!done.get() && targetThread.isAlive()) {
-              StringBuilder sb = new StringBuilder(500);
+              var sb = new StringBuilder(500);
               if (toStdout) {
                 sb.append("[trace ").append(getTimeStamp()).append("] ");
               }
-              StackTraceElement[] els = targetThread.getStackTrace();
+              var els = targetThread.getStackTrace();
               sb.append("Stack trace for '").append(targetThread).append("'")
                   .append(lineSeparator());
               if (els.length > 0) {
-                for (final StackTraceElement el : els) {
+                for (final var el : els) {
                   sb.append("\tat ").append(el).append(lineSeparator());
                 }
               } else {
@@ -1128,11 +1128,11 @@ public abstract class LogWriterImpl implements InternalLogWriter {
 
   /** Utility to get a stack trace for a thread */
   public static StringBuilder getStackTrace(Thread targetThread) {
-    StringBuilder sb = new StringBuilder(500);
-    StackTraceElement[] els = targetThread.getStackTrace();
+    var sb = new StringBuilder(500);
+    var els = targetThread.getStackTrace();
     sb.append("Stack trace for '").append(targetThread).append("'").append(lineSeparator());
     if (els.length > 0) {
-      for (final StackTraceElement el : els) {
+      for (final var el : els) {
         sb.append("\tat ").append(el).append(lineSeparator());
       }
     } else {

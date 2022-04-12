@@ -39,10 +39,10 @@ import org.apache.geode.internal.cache.entries.VMThinRegionEntryHeapUUIDKey;
 
 public class InlineKeyJUnitTest {
   private GemFireCacheImpl createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
-    GemFireCacheImpl result = (GemFireCacheImpl) new CacheFactory(props).create();
+    var result = (GemFireCacheImpl) new CacheFactory(props).create();
     return result;
   }
 
@@ -52,11 +52,11 @@ public class InlineKeyJUnitTest {
 
   @Test
   public void testInlineKeys() {
-    GemFireCacheImpl gfc = createCache();
+    var gfc = createCache();
     try {
       Region r = gfc.createRegionFactory(RegionShortcut.LOCAL).setConcurrencyChecksEnabled(false)
           .create("inlineKeyRegion");
-      LocalRegion lr = (LocalRegion) r;
+      var lr = (LocalRegion) r;
       Object key = 1;
       r.create(key, null);
       assertEquals(true, r.containsKey(key));
@@ -78,14 +78,14 @@ public class InlineKeyJUnitTest {
       assertTrue("expected string entry but was " + lr.getRegionEntry(key).getClass(),
           lr.getRegionEntry(key) instanceof VMThinRegionEntryHeapStringKey1);
 
-      for (int i = 1; i <= 7; i++) {
+      for (var i = 1; i <= 7; i++) {
         key = getAsciiString(i);
         r.create(key, null);
         assertEquals(true, r.containsKey(key));
         assertTrue("expected string entry but was " + lr.getRegionEntry(key).getClass(),
             lr.getRegionEntry(key) instanceof VMThinRegionEntryHeapStringKey1);
       }
-      for (int i = 8; i <= 15; i++) {
+      for (var i = 8; i <= 15; i++) {
         key = getAsciiString(i);
         r.create(key, null);
         assertEquals(true, r.containsKey(key));
@@ -99,14 +99,14 @@ public class InlineKeyJUnitTest {
       assertTrue("expected object entry but was " + lr.getRegionEntry(key).getClass(),
           lr.getRegionEntry(key) instanceof VMThinRegionEntryHeapObjectKey);
 
-      for (int i = 1; i <= 3; i++) {
+      for (var i = 1; i <= 3; i++) {
         key = getNonAsciiString(i);
         r.create(key, null);
         assertEquals(true, r.containsKey(key));
         assertTrue("expected string entry but was " + lr.getRegionEntry(key).getClass(),
             lr.getRegionEntry(key) instanceof VMThinRegionEntryHeapStringKey1);
       }
-      for (int i = 4; i <= 7; i++) {
+      for (var i = 4; i <= 7; i++) {
         key = getNonAsciiString(i);
         r.create(key, null);
         assertEquals(true, r.containsKey(key));
@@ -126,18 +126,18 @@ public class InlineKeyJUnitTest {
   }
 
   private static String getAsciiString(int len) {
-    StringBuilder sb = new StringBuilder();
-    char asciiChar = 'a';
-    for (int i = 0; i < len; i++) {
+    var sb = new StringBuilder();
+    var asciiChar = 'a';
+    for (var i = 0; i < len; i++) {
       sb.append(asciiChar);
     }
     return sb.toString();
   }
 
   private static String getNonAsciiString(int len) {
-    StringBuilder sb = new StringBuilder();
-    char nonAsciiChar = '\u8888';
-    for (int i = 0; i < len; i++) {
+    var sb = new StringBuilder();
+    var nonAsciiChar = '\u8888';
+    for (var i = 0; i < len; i++) {
       sb.append(nonAsciiChar);
     }
     return sb.toString();

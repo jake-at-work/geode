@@ -43,7 +43,7 @@ public class ServerLocationAndMemberId {
     if (!(obj instanceof ServerLocationAndMemberId)) {
       return false;
     }
-    final ServerLocationAndMemberId other = (ServerLocationAndMemberId) obj;
+    final var other = (ServerLocationAndMemberId) obj;
 
     if (!serverLocation.equals(other.getServerLocation())) {
       return false;
@@ -59,8 +59,8 @@ public class ServerLocationAndMemberId {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result =
         prime * result + serverLocation.hashCode() + memberId.hashCode();
     return result;

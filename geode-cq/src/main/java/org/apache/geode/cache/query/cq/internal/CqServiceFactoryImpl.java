@@ -61,7 +61,7 @@ public class CqServiceFactoryImpl implements CqServiceFactory {
 
   @Override
   public ServerCQ readCqQuery(DataInput in) throws ClassNotFoundException, IOException {
-    ServerCQImpl cq = new ServerCQImpl();
+    var cq = new ServerCQImpl();
     cq.fromData(in);
     return cq;
   }

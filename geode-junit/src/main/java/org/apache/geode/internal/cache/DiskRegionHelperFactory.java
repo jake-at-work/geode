@@ -19,7 +19,6 @@ import java.io.File;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
@@ -38,17 +37,17 @@ public class DiskRegionHelperFactory {
 
   private static Region<Object, Object> getRegion(Cache cache, DiskRegionProperties diskProps,
       Scope regionScope) {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    AttributesFactory factory = new AttributesFactory();
+    var dsf = cache.createDiskStoreFactory();
+    var factory = new AttributesFactory();
     if (diskProps.getDiskDirs() == null) {
-      File dir = new File("testingDirectoryDefault");
+      var dir = new File("testingDirectoryDefault");
       dir.mkdir();
       dir.deleteOnExit();
-      File[] dirs = {dir};
+      var dirs = new File[] {dir};
       dsf.setDiskDirsAndSizes(dirs, new int[] {Integer.MAX_VALUE});
     } else if (diskProps.getDiskDirSizes() == null) {
-      int[] ints = new int[diskProps.getDiskDirs().length];
-      for (int i = 0; i < ints.length; i++) {
+      var ints = new int[diskProps.getDiskDirs().length];
+      for (var i = 0; i < ints.length; i++) {
         ints[i] = Integer.MAX_VALUE;
       }
       dsf.setDiskDirsAndSizes(diskProps.getDiskDirs(), ints);
@@ -78,7 +77,7 @@ public class DiskRegionHelperFactory {
     factory.setScope(regionScope);
 
     if (diskProps.isOverflow()) {
-      int capacity = diskProps.getOverFlowCapacity();
+      var capacity = diskProps.getOverFlowCapacity();
       factory.setEvictionAttributes(
           EvictionAttributes.createLRUEntryAttributes(capacity, EvictionAction.OVERFLOW_TO_DISK));
 

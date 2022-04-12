@@ -67,7 +67,7 @@ public class SocketCreatorFactory {
   public static SocketCreator getSocketCreatorForComponent(
       final DistributionConfig distributionConfig,
       final SecurableCommunicationChannel sslEnabledComponent) {
-    final SSLConfig sslConfigForComponent =
+    final var sslConfigForComponent =
         SSLConfigurationFactory.getSSLConfigForComponent(distributionConfig,
             sslEnabledComponent);
     return getInstance().getOrCreateSocketCreatorForSSLEnabledComponent(sslEnabledComponent,
@@ -98,7 +98,7 @@ public class SocketCreatorFactory {
 
   private SocketCreator getOrCreateSocketCreatorForSSLEnabledComponent(
       final SecurableCommunicationChannel sslEnabledComponent, final SSLConfig sslConfig) {
-    SocketCreator socketCreator = getRegisteredSocketCreatorForComponent(sslEnabledComponent);
+    var socketCreator = getRegisteredSocketCreatorForComponent(sslEnabledComponent);
     if (socketCreator == null) {
       return getSSLSocketCreator(sslEnabledComponent, sslConfig);
     } else {
@@ -144,13 +144,13 @@ public class SocketCreatorFactory {
   public static SocketCreator createNonDefaultInstance(final boolean useSSL,
       final boolean needClientAuth, final String protocols, final String ciphers,
       final Properties gfsecurityProps) {
-    SSLConfig sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(useSSL, needClientAuth,
+    var sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(useSSL, needClientAuth,
         protocols, ciphers, gfsecurityProps, null);
     return new SocketCreator(sslConfig);
   }
 
   public static void close() {
-    SocketCreatorFactory socketCreatorFactory = getInstance(true);
+    var socketCreatorFactory = getInstance(true);
     if (socketCreatorFactory != null) {
       socketCreatorFactory.clearSocketCreators();
       socketCreatorFactory.distributionConfig = null;

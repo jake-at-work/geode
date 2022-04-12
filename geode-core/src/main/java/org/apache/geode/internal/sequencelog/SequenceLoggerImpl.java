@@ -36,7 +36,7 @@ public class SequenceLoggerImpl implements SequenceLogger {
   private final EnumSet<GraphType> enabledTypes;
 
   static {
-    SequenceLoggerImpl logger = new SequenceLoggerImpl();
+    var logger = new SequenceLoggerImpl();
     logger.start();
     INSTANCE = logger;
   }
@@ -71,24 +71,24 @@ public class SequenceLoggerImpl implements SequenceLogger {
   public void logTransition(GraphType type, Object graphName, Object edgeName, Object state,
       Object source, Object dest) {
     if (isEnabled(type)) {
-      Transition edge = new Transition(type, graphName, edgeName, state, source, dest);
+      var edge = new Transition(type, graphName, edgeName, state, source, dest);
       edges.add(edge);
     }
   }
 
   @Override
   public void flush() throws InterruptedException {
-    FlushToken token = new FlushToken();
+    var token = new FlushToken();
     edges.add(token);
     token.cdl.await();
   }
 
   private SequenceLoggerImpl() {
-    String enabledTypesString = System.getProperty(ENABLED_TYPES_PROPERTY, "");
+    var enabledTypesString = System.getProperty(ENABLED_TYPES_PROPERTY, "");
     enabledTypes = GraphType.parse(enabledTypesString);
     if (!enabledTypes.isEmpty()) {
       try {
-        String name = "states" + OSProcess.getId() + ".graph";
+        var name = "states" + OSProcess.getId() + ".graph";
         appender = new OutputStreamAppender(new File(name));
       } catch (FileNotFoundException ignored) {
       }

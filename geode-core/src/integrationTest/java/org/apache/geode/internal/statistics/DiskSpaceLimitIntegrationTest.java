@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.StatisticDescriptor;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.io.MainWithChildrenRollingFileHandler;
@@ -91,14 +89,14 @@ public class DiskSpaceLimitIntegrationTest {
 
     archiveFileName = new File(dir, name + ".gfs").getAbsolutePath();
 
-    LocalStatisticsFactory factory = new LocalStatisticsFactory(null);
-    StatisticDescriptor[] statisticDescriptors = new StatisticDescriptor[] {
+    var factory = new LocalStatisticsFactory(null);
+    var statisticDescriptors = new StatisticDescriptor[] {
         factory.createIntCounter("stat1", "description of stat1", "units", true)};
-    StatisticsType statisticsType =
+    var statisticsType =
         factory.createType("statisticsType1", "statisticsType1", statisticDescriptors);
     factory.createAtomicStatistics(statisticsType, "statistics1", 1);
 
-    StatisticsSampler sampler = mock(StatisticsSampler.class);
+    var sampler = mock(StatisticsSampler.class);
     when(sampler.getStatistics()).thenReturn(factory.getStatistics());
 
     config = mock(StatArchiveHandlerConfig.class);
@@ -113,7 +111,7 @@ public class DiskSpaceLimitIntegrationTest {
 
     sampleCollector = new SampleCollector(sampler);
 
-    NanoTimer timer = new NanoTimer();
+    var timer = new NanoTimer();
     initTimeStamp = timer.getConstructionTime() - getNanoRate();
     nanosTimeStamp = timer.getConstructionTime();
 
@@ -130,8 +128,8 @@ public class DiskSpaceLimitIntegrationTest {
     sampleCollector.initialize(config, initTimeStamp, movingRollingFileHandler);
     when(config.getArchiveDiskSpaceLimit()).thenReturn(0L);
 
-    File fileWithChildId1 = archiveFile(1);
-    File fileWithChildId2 = archiveFile(2);
+    var fileWithChildId1 = archiveFile(1);
+    var fileWithChildId2 = archiveFile(2);
 
     // sample until file with childId 1 exists
     sampleUntilFileExists(fileWithChildId1);
@@ -150,8 +148,8 @@ public class DiskSpaceLimitIntegrationTest {
     sampleCollector.initialize(config, initTimeStamp, movingRollingFileHandler);
     when(config.getArchiveDiskSpaceLimit()).thenReturn(DISK_SPACE_LIMIT_BYTES);
 
-    File fileWithChildId1 = archiveFile(1);
-    File fileWithChildId2 = archiveFile(2);
+    var fileWithChildId1 = archiveFile(1);
+    var fileWithChildId2 = archiveFile(2);
 
     // sample until file with childId 1 exists
     sampleUntilFileExists(fileWithChildId1);
@@ -165,7 +163,7 @@ public class DiskSpaceLimitIntegrationTest {
         .doesNotExist();
 
     // different file systems may have different children created/deleted
-    int latestChildId = 2;
+    var latestChildId = 2;
     for (; latestChildId < 10; latestChildId++) {
       if (archiveFile(latestChildId).exists()) {
         break;
@@ -173,7 +171,7 @@ public class DiskSpaceLimitIntegrationTest {
     }
     assertThat(latestChildId).isLessThan(10);
 
-    File fileWithLatestChildId = archiveFile(latestChildId);
+    var fileWithLatestChildId = archiveFile(latestChildId);
 
     assertThat(fileWithLatestChildId).withFailMessage(fileShouldExist(fileWithLatestChildId))
         .exists();
@@ -183,29 +181,29 @@ public class DiskSpaceLimitIntegrationTest {
 
   @Test
   public void aboveZeroDeletesPreviousFiles() throws Exception {
-    int oldMainId = 1;
-    int newMainId = 2;
+    var oldMainId = 1;
+    var newMainId = 2;
 
-    int numberOfPreviousFiles = 100;
-    int numberOfLines = 100;
+    var numberOfPreviousFiles = 100;
+    var numberOfLines = 100;
     createPreviousFiles(oldMainId, numberOfPreviousFiles, numberOfLines);
 
     validateNumberFiles(numberOfPreviousFiles);
 
-    for (int childId = 1; childId <= numberOfPreviousFiles; childId++) {
-      File fileWithOldMainId = archiveFile(oldMainId, childId);
+    for (var childId = 1; childId <= numberOfPreviousFiles; childId++) {
+      var fileWithOldMainId = archiveFile(oldMainId, childId);
       assertThatFileExists(fileWithOldMainId);
     }
 
     // current archive file does not exist yet
-    File archiveFile = archiveFile();
+    var archiveFile = archiveFile();
     assertThatFileDoesNotExist(archiveFile);
 
     // rolling files for mainId 2 do not exist yet
-    File markerFileWithNewMainId = markerFile(newMainId);
+    var markerFileWithNewMainId = markerFile(newMainId);
     assertThatFileDoesNotExist(markerFileWithNewMainId);
 
-    File fileWithNewMainId = archiveFile(newMainId, 1);
+    var fileWithNewMainId = archiveFile(newMainId, 1);
     assertThatFileDoesNotExist(fileWithNewMainId);
 
     when(config.getArchiveDiskSpaceLimit())
@@ -225,8 +223,8 @@ public class DiskSpaceLimitIntegrationTest {
 
     validateNumberFilesIsAtLeast(2);
 
-    for (int childId = 1; childId <= numberOfPreviousFiles; childId++) {
-      File fileWithOldMainId = archiveFile(oldMainId, childId);
+    for (var childId = 1; childId <= numberOfPreviousFiles; childId++) {
+      var fileWithOldMainId = archiveFile(oldMainId, childId);
       assertThatFileDoesNotExist(fileWithOldMainId);
     }
   }
@@ -237,28 +235,28 @@ public class DiskSpaceLimitIntegrationTest {
     archiveFileName = new File(dir, name + ".gfs").getAbsolutePath();
     when(config.getArchiveFileName()).thenReturn(new File(archiveFileName));
 
-    int oldMainId = 1;
-    int newMainId = 2;
+    var oldMainId = 1;
+    var newMainId = 2;
 
-    int numberOfPreviousFiles = 100;
-    int numberOfLines = 100;
+    var numberOfPreviousFiles = 100;
+    var numberOfLines = 100;
     createPreviousFiles(oldMainId, numberOfPreviousFiles, numberOfLines);
     validateNumberFiles(numberOfPreviousFiles);
 
-    for (int childId = 1; childId <= numberOfPreviousFiles; childId++) {
-      File fileWithOldMainId = archiveFile(oldMainId, childId);
+    for (var childId = 1; childId <= numberOfPreviousFiles; childId++) {
+      var fileWithOldMainId = archiveFile(oldMainId, childId);
       assertThatFileExists(fileWithOldMainId);
     }
 
     // current archive file does not exist yet
-    File archiveFile = archiveFile();
+    var archiveFile = archiveFile();
     assertThatFileDoesNotExist(archiveFile);
 
     // rolling files for mainId 2 do not exist yet
-    File markerFileWithNewMainId = markerFile(newMainId);
+    var markerFileWithNewMainId = markerFile(newMainId);
     assertThatFileDoesNotExist(markerFileWithNewMainId);
 
-    File fileWithNewMainId = archiveFile(newMainId, 1);
+    var fileWithNewMainId = archiveFile(newMainId, 1);
     assertThatFileDoesNotExist(fileWithNewMainId);
 
     when(config.getArchiveDiskSpaceLimit())
@@ -278,8 +276,8 @@ public class DiskSpaceLimitIntegrationTest {
 
     validateNumberFilesIsAtLeast(2);
 
-    for (int childId = 1; childId <= numberOfPreviousFiles; childId++) {
-      File fileWithOldMainId = archiveFile(oldMainId, childId);
+    for (var childId = 1; childId <= numberOfPreviousFiles; childId++) {
+      var fileWithOldMainId = archiveFile(oldMainId, childId);
       assertThatFileDoesNotExist(fileWithOldMainId);
     }
   }
@@ -313,9 +311,9 @@ public class DiskSpaceLimitIntegrationTest {
   }
 
   private Map<File, String> filesAndSizes() {
-    Collection<File> existingFiles = FileUtils.listFiles(dir, null, true);
+    var existingFiles = FileUtils.listFiles(dir, null, true);
     Map<File, String> filesAndSizes = new HashMap<>();
-    for (File existingFile : existingFiles) {
+    for (var existingFile : existingFiles) {
       filesAndSizes.put(existingFile, FileUtils.sizeOf(existingFile) + " bytes");
     }
     return filesAndSizes;
@@ -339,8 +337,8 @@ public class DiskSpaceLimitIntegrationTest {
 
   private void sampleNumberOfTimes(final int value) throws InterruptedException {
     long minutes = 1;
-    long timeout = System.nanoTime() + MINUTES.toNanos(minutes);
-    int count = 0;
+    var timeout = System.nanoTime() + MINUTES.toNanos(minutes);
+    var count = 0;
     do {
       sample(advanceNanosTimeStamp());
       count++;
@@ -352,8 +350,8 @@ public class DiskSpaceLimitIntegrationTest {
   private void sampleUntilFileExists(final File file)
       throws InterruptedException, TimeoutException {
     long minutes = 1;
-    long timeout = System.nanoTime() + MINUTES.toNanos(minutes);
-    int count = 0;
+    var timeout = System.nanoTime() + MINUTES.toNanos(minutes);
+    var count = 0;
     do {
       sample(advanceNanosTimeStamp());
       count++;
@@ -369,8 +367,8 @@ public class DiskSpaceLimitIntegrationTest {
   private void sampleUntilFileDeleted(final File file)
       throws InterruptedException, TimeoutException {
     long minutes = 1;
-    long timeout = System.nanoTime() + MINUTES.toNanos(minutes);
-    int count = 0;
+    var timeout = System.nanoTime() + MINUTES.toNanos(minutes);
+    var count = 0;
     do {
       sample(advanceNanosTimeStamp());
       count++;
@@ -387,7 +385,7 @@ public class DiskSpaceLimitIntegrationTest {
     if (file.exists()) {
       return true;
     } else { // check dirOfDeletedFiles
-      File deleted = new File(dirOfDeletedFiles, file.getName());
+      var deleted = new File(dirOfDeletedFiles, file.getName());
       return deleted.exists();
     }
   }
@@ -458,7 +456,7 @@ public class DiskSpaceLimitIntegrationTest {
   }
 
   private List<File> listFiles(final File dir) {
-    List<File> files = ArrayUtils.asList(dir.listFiles());
+    var files = ArrayUtils.asList(dir.listFiles());
     files.remove(dirOfDeletedFiles);
     return files;
   }
@@ -474,24 +472,24 @@ public class DiskSpaceLimitIntegrationTest {
 
   private void createPreviousFiles(final String name, final int mainId, final int fileCount,
       final int lineCount) throws IOException {
-    int childId = 1;
-    List<String> lines = lines(lineCount);
-    for (int i = 0; i < fileCount; i++) {
-      File file = createFile(name, mainId, childId);
+    var childId = 1;
+    var lines = lines(lineCount);
+    for (var i = 0; i < fileCount; i++) {
+      var file = createFile(name, mainId, childId);
       writeFile(file, lines);
       childId++;
     }
   }
 
   private File createFile(final String name, final int mainId, final int childId) {
-    File file = new File(dir, name + "-" + leftPad(valueOf(mainId), 2, "0") + "-"
+    var file = new File(dir, name + "-" + leftPad(valueOf(mainId), 2, "0") + "-"
         + leftPad(valueOf(childId), 2, "0") + ".gfs");
     return file;
   }
 
   private void writeFile(final File file, final List<String> lines) throws IOException {
-    PrintWriter writer = new PrintWriter(file, "UTF-8");
-    for (String line : lines) {
+    var writer = new PrintWriter(file, "UTF-8");
+    for (var line : lines) {
       writer.println(line);
     }
     writer.close();
@@ -499,7 +497,7 @@ public class DiskSpaceLimitIntegrationTest {
 
   private List<String> lines(final int lineCount) {
     List<String> lines = new ArrayList<>();
-    for (int i = 0; i < lineCount; i++) {
+    for (var i = 0; i < lineCount; i++) {
       lines.add(testName.getMethodName());
     }
     return lines;

@@ -60,8 +60,8 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturn1_givenStringExists() {
-    String stringKey = "stringKey";
-    String stringValue = "stringValue";
+    var stringKey = "stringKey";
+    var stringValue = "stringValue";
     jedis.set(stringKey, stringValue);
 
     assertThat(jedis.exists(toArray(stringKey))).isEqualTo(1L);
@@ -69,8 +69,8 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturn0_givenStringDoesNotExist() {
-    String stringKey = "stringKey";
-    String stringValue = "stringValue";
+    var stringKey = "stringKey";
+    var stringValue = "stringValue";
     jedis.set(stringKey, stringValue);
     jedis.del(stringKey);
 
@@ -79,8 +79,8 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturn1_givenSetExists() {
-    String setKey = "setKey";
-    String setMember = "setValue";
+    var setKey = "setKey";
+    var setMember = "setValue";
 
     jedis.sadd(setKey, setMember);
 
@@ -89,8 +89,8 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturn0_givenSetDoesNotExist() {
-    String setKey = "setKey";
-    String setMember = "setValue";
+    var setKey = "setKey";
+    var setMember = "setValue";
 
     jedis.sadd(setKey, setMember);
     jedis.del(setKey);
@@ -100,9 +100,9 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturn1_givenHashExists() {
-    String hashKey = "hashKey";
-    String hashField = "hashField";
-    String hashValue = "hashValue";
+    var hashKey = "hashKey";
+    var hashField = "hashField";
+    var hashValue = "hashValue";
 
     jedis.hset(hashKey, hashField, hashValue);
 
@@ -111,9 +111,9 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturn0_givenHashDoesNotExist() {
-    String hashKey = "hashKey";
-    String hashField = "hashField";
-    String hashValue = "hashValue";
+    var hashKey = "hashKey";
+    var hashField = "hashField";
+    var hashValue = "hashValue";
 
     jedis.hset(hashKey, hashField, hashValue);
     jedis.del(hashKey);
@@ -123,8 +123,8 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturn1_givenBitMapExists() {
-    String bitMapKey = "bitMapKey";
-    long offset = 1L;
+    var bitMapKey = "bitMapKey";
+    var offset = 1L;
 
     jedis.setbit(bitMapKey, offset, false);
 
@@ -133,8 +133,8 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturn0_givenBitMapDoesNotExist() {
-    String bitMapKey = "bitMapKey";
-    long offset = 1L;
+    var bitMapKey = "bitMapKey";
+    var offset = 1L;
 
     jedis.setbit(bitMapKey, offset, false);
     jedis.del(bitMapKey);
@@ -144,8 +144,8 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturnTotalNumber_givenMultipleKeys() {
-    String key1 = "{tag1}key1";
-    String key2 = "{tag1}key2";
+    var key1 = "{tag1}key1";
+    var key2 = "{tag1}key2";
 
     jedis.set(key1, "value1");
     jedis.set(key2, "value2");
@@ -156,11 +156,11 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldCorrectlyVerifyKeysExistConcurrently() {
-    int iterationCount = 5000;
+    var iterationCount = 5000;
 
     new ConcurrentLoopingThreads(iterationCount, (i) -> jedis.set("key" + i, "value" + i)).run();
 
-    AtomicLong existsCount = new AtomicLong(0);
+    var existsCount = new AtomicLong(0);
     new ConcurrentLoopingThreads(
         iterationCount,
         (i) -> existsCount.addAndGet(jedis.exists(toArray("key" + i))),
@@ -173,7 +173,7 @@ public abstract class AbstractExistsIntegrationTest implements RedisIntegrationT
   @Test
   public void shouldNotThrowExceptionsWhenConcurrentlyCreatingCheckingAndDeletingKeys() {
 
-    int iterationCount = 5000;
+    var iterationCount = 5000;
     new ConcurrentLoopingThreads(
         iterationCount,
         (i) -> jedis.set("key", "value"),

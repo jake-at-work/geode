@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 
@@ -49,51 +48,51 @@ public class CqNameToOpHashMapIntegrationTest {
   public void testSendToWhileConcurrentlyModifyingMapContentsAndVerifyProperSerialization()
       throws IOException, ClassNotFoundException, InterruptedException, ExecutionException,
       TimeoutException {
-    final int numEntries = 1000000;
+    final var numEntries = 1000000;
 
-    ClientUpdateMessageImpl.CqNameToOpHashMap originalCqNameToOpHashMap =
+    var originalCqNameToOpHashMap =
         new ClientUpdateMessageImpl.CqNameToOpHashMap(numEntries);
-    ClientUpdateMessageImpl.CqNameToOpHashMap modifiedCqNameToOpHashMap =
+    var modifiedCqNameToOpHashMap =
         new ClientUpdateMessageImpl.CqNameToOpHashMap(numEntries);
 
-    for (int i = 0; i < numEntries; ++i) {
+    for (var i = 0; i < numEntries; ++i) {
       originalCqNameToOpHashMap.add(String.valueOf(i), i);
       modifiedCqNameToOpHashMap.add(String.valueOf(i), i);
     }
 
-    CompletableFuture<Void> removeFromHashMapTask = CompletableFuture.runAsync(() -> {
-      for (int i = 0; i < numEntries; ++i) {
+    var removeFromHashMapTask = CompletableFuture.runAsync(() -> {
+      for (var i = 0; i < numEntries; ++i) {
         modifiedCqNameToOpHashMap.remove(String.valueOf(i), i);
       }
     });
 
-    CompletableFuture<Void> serializeReconstructHashMapTask = CompletableFuture.runAsync(() -> {
+    var serializeReconstructHashMapTask = CompletableFuture.runAsync(() -> {
       try {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);
+        var byteArrayOutputStream = new ByteArrayOutputStream();
+        var outputStream = new DataOutputStream(byteArrayOutputStream);
 
         modifiedCqNameToOpHashMap.sendTo(outputStream);
 
-        ByteArrayInputStream byteArrayInputStream =
+        var byteArrayInputStream =
             new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
-        DataInputStream inputStream = new DataInputStream(byteArrayInputStream);
+        var inputStream = new DataInputStream(byteArrayInputStream);
 
-        byte typeByte = inputStream.readByte();
-        int cqNamesSize = InternalDataSerializer.readArrayLength(inputStream);
+        var typeByte = inputStream.readByte();
+        var cqNamesSize = InternalDataSerializer.readArrayLength(inputStream);
 
-        ClientUpdateMessageImpl.CqNameToOpHashMap reconstructedCqNameToOpHashMap =
+        var reconstructedCqNameToOpHashMap =
             new ClientUpdateMessageImpl.CqNameToOpHashMap(cqNamesSize);
 
-        for (int j = 0; j < cqNamesSize; j++) {
+        for (var j = 0; j < cqNamesSize; j++) {
           String cqNamesKey = DataSerializer.readObject(inputStream);
-          Integer cqNamesValue = DataSerializer.<Integer>readObject(inputStream);
+          var cqNamesValue = DataSerializer.<Integer>readObject(inputStream);
           reconstructedCqNameToOpHashMap.add(cqNamesKey, cqNamesValue);
         }
 
         // The reconstructed map should have some subset of the entries in the cqNameToOpHashMap,
         // but the specific contents will depend on timing with the removeFromHashMap task.
-        MapDifference<String, Integer> reconstructedVersusOriginalHashMapDifference =
+        var reconstructedVersusOriginalHashMapDifference =
             Maps.difference(reconstructedCqNameToOpHashMap, originalCqNameToOpHashMap);
         assertThat(reconstructedVersusOriginalHashMapDifference.entriesInCommon().size() >= 0)
             .isTrue();

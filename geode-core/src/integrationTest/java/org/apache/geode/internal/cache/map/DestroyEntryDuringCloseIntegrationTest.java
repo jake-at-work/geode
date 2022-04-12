@@ -50,7 +50,7 @@ public class DestroyEntryDuringCloseIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(OFF_HEAP_MEMORY_SIZE, "2m");
@@ -73,7 +73,7 @@ public class DestroyEntryDuringCloseIntegrationTest {
   public void testEntryDestroyWithCacheClose(boolean offheap) throws Exception {
     RegionMapDestroy.testHookRunnableForConcurrentOperation = () -> cache.close();
 
-    Region<Object, Object> region = createRegion(offheap);
+    var region = createRegion(offheap);
     region.put(KEY, VALUE);
 
     assertThatThrownBy(() -> region.destroy(KEY)).isInstanceOf(CacheClosedException.class);
@@ -85,7 +85,7 @@ public class DestroyEntryDuringCloseIntegrationTest {
     RegionMapDestroy.testHookRunnableForConcurrentOperation =
         () -> cache.getRegion(REGION).destroyRegion();
 
-    Region<Object, Object> region = createRegion(offheap);
+    var region = createRegion(offheap);
     region.put(KEY, VALUE);
 
     assertThatThrownBy(() -> region.destroy(KEY)).isInstanceOf(RegionDestroyedException.class);

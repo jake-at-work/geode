@@ -87,10 +87,10 @@ class GlobalSerialFilterConfiguration implements FilterConfiguration {
     serializableObjectConfig.setValidateSerializableObjects(true);
 
     // create a GlobalSerialFilter
-    String pattern = filterPatternFactory
+    var pattern = filterPatternFactory
         .create(serializableObjectConfig.getSerializableObjectFilterIfEnabled());
-    Set<String> sanctionedClasses = sanctionedClassesSupplier.get();
-    GlobalSerialFilter globalSerialFilter =
+    var sanctionedClasses = sanctionedClassesSupplier.get();
+    var globalSerialFilter =
         globalSerialFilterFactory.create(pattern, sanctionedClasses);
 
     // invoke setFilter on GlobalSerialFilter to set the process-wide filter

@@ -48,7 +48,7 @@ public abstract class SqlDatabaseConnectionRule extends ExternalResource
 
   @Override
   public Statement apply(Statement base, Description description) {
-    Statement dbStatement = new Statement() {
+    var dbStatement = new Statement() {
       @Override
       public void evaluate() throws Throwable {
 
@@ -77,10 +77,10 @@ public abstract class SqlDatabaseConnectionRule extends ExternalResource
 
   @Override
   public Connection getConnection() throws SQLException {
-    String connectionUrl = getConnectionUrl();
+    var connectionUrl = getConnectionUrl();
     await().ignoreExceptions()
         .untilAsserted(() -> assertThat(DriverManager.getConnection(connectionUrl)).isNotNull());
-    Connection connection = DriverManager.getConnection(connectionUrl);
+    var connection = DriverManager.getConnection(connectionUrl);
     return connection;
   }
 

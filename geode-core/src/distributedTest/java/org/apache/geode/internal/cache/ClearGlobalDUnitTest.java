@@ -30,7 +30,6 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.TimeoutException;
@@ -73,7 +72,7 @@ public class ClearGlobalDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     server1 = host.getVM(0);
     server1.invoke(ClearGlobalDUnitTest::createCacheServer1);
     createCacheServer2();
@@ -101,8 +100,8 @@ public class ClearGlobalDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testClearGlobalMultiVM() throws Exception {
-    Object[] objArr = new Object[1];
-    for (int i = 1; i < 4; i++) {
+    var objArr = new Object[1];
+    for (var i = 1; i < 4; i++) {
       objArr[0] = "" + i;
       server1.invoke(ClearGlobalDUnitTest.class, "putMethod", objArr);
     }
@@ -114,23 +113,23 @@ public class ClearGlobalDUnitTest extends JUnit4DistributedTestCase {
   public static void createCacheServer1() throws Exception {
     ds = (new ClearGlobalDUnitTest()).getSystem(props);
     cache = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.GLOBAL);
-    RegionAttributes attr = factory.create();
+    var attr = factory.create();
     region = cache.createRegion(REGION_NAME, attr);
 
   } // end of create cache for VM0
 
   public static void createCacheServer2() throws Exception {
     ds = (new ClearGlobalDUnitTest()).getSystem(props);
-    CacheObserverImpl observer = new CacheObserverImpl();
+    var observer = new CacheObserverImpl();
     origObserver = CacheObserverHolder.setInstance(observer);
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
 
     cache = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.GLOBAL);
-    RegionAttributes attr = factory.create();
+    var attr = factory.create();
     region = cache.createRegion(REGION_NAME, attr);
     cache.setLockTimeout(3);
 
@@ -138,7 +137,7 @@ public class ClearGlobalDUnitTest extends JUnit4DistributedTestCase {
 
   public static void putMethod(Object ob) throws Exception {
     if (ob != null) {
-      String str = "first";
+      var str = "first";
       region.put(ob, str);
     }
   }

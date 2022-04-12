@@ -28,7 +28,7 @@ public class PartitionedRegionHelperJUnitTest {
 
   @Test
   public void testEscapeUnescape() {
-    String bucketName =
+    var bucketName =
         PartitionedRegionHelper.getBucketName(SEPARATOR + "root" + SEPARATOR + "region", 5);
     assertThat(bucketName).as("Name = " + bucketName).doesNotContain(SEPARATOR);
     assertThat(PartitionedRegionHelper.getPRPath(bucketName))
@@ -43,8 +43,8 @@ public class PartitionedRegionHelperJUnitTest {
 
   @Test
   public void testGetPartitionedRegionUsingBucketRegionName() {
-    Cache cache = mock(Cache.class);
-    String fullPath = "__PR/_B__partitionedRegion_66";
+    var cache = mock(Cache.class);
+    var fullPath = "__PR/_B__partitionedRegion_66";
 
     // cache == null
     assertThat(PartitionedRegionHelper.getPartitionedRegionUsingBucketRegionName(null, fullPath))
@@ -63,20 +63,20 @@ public class PartitionedRegionHelperJUnitTest {
         .isNull();
 
     // fullPath represents an InternalRegion
-    InternalRegion internalRegion = mock(InternalRegion.class);
+    var internalRegion = mock(InternalRegion.class);
     when(cache.getRegion("partitionedRegion")).thenReturn(internalRegion);
     assertThat(PartitionedRegionHelper.getPartitionedRegionUsingBucketRegionName(cache, fullPath))
         .isNull();
 
     // fullPath represents a PartitionedRegion
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
     when(cache.getRegion("/partitionedRegion")).thenReturn(partitionedRegion);
     assertThat(PartitionedRegionHelper.getPartitionedRegionUsingBucketRegionName(cache, fullPath))
         .isEqualTo(partitionedRegion);
   }
 
   public void testEscapeUnescapeWhenRegionHasUnderscoreInTheName() {
-    String bucketName =
+    var bucketName =
         PartitionedRegionHelper.getBucketName(SEPARATOR + "_region", 5);
     assertThat(bucketName).as("Name = " + bucketName).doesNotContain(SEPARATOR);
     assertThat(PartitionedRegionHelper.getPRPath(bucketName))

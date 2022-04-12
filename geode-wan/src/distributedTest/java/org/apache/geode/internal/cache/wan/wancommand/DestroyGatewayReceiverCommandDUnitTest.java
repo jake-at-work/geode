@@ -30,7 +30,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.management.internal.cli.commands.DestroyGatewayReceiverCommand;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -52,7 +51,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
 
@@ -61,7 +60,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
   }
 
   private MemberVM startServerWithGroups(int index, String groups, int locPort) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, groups);
     return clusterStartupRule.startServerVM(index, props, locPort);
   }
@@ -72,7 +71,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
   }
 
   private String createGatewayReceiverCommand(String manualStart, String memberOrGroup) {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYRECEIVER)
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYRECEIVER)
         .addOption(CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART, manualStart)
         .addOption(CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS, "localhost")
         .addOption(CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT, "10000")
@@ -85,7 +84,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
 
   private void addOptionAndValue(CommandStringBuilder csb, String optionAndValue) {
     if (StringUtils.isNotBlank(optionAndValue)) {
-      String[] memberOption = optionAndValue.split(":");
+      var memberOption = optionAndValue.split(":");
       if (memberOption.length == 1) {
         csb.addOption(memberOption[0]);
       } else {
@@ -96,7 +95,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
 
   private void verifyConfigHasGatewayReceiver(String groupName) {
     locatorSite1.invoke(() -> {
-      String sharedConfigXml = ClusterStartupRule.getLocator().getConfigurationPersistenceService()
+      var sharedConfigXml = ClusterStartupRule.getLocator().getConfigurationPersistenceService()
           .getConfiguration(groupName).getCacheXmlContent();
       assertThat(sharedConfigXml).contains("<gateway-receiver");
     });
@@ -104,9 +103,9 @@ public class DestroyGatewayReceiverCommandDUnitTest {
 
   private void verifyConfigDoesNotHaveGatewayReceiver(String groupName) {
     locatorSite1.invoke(() -> {
-      Configuration groupConfig = ClusterStartupRule.getLocator()
+      var groupConfig = ClusterStartupRule.getLocator()
           .getConfigurationPersistenceService().getConfiguration(groupName);
-      String sharedConfigXml = groupConfig == null ? "" : groupConfig.getCacheXmlContent();
+      var sharedConfigXml = groupConfig == null ? "" : groupConfig.getCacheXmlContent();
       // Null or emnpty XML doesn't have gateway-receiver element, so it's OK
       if (StringUtils.isNotEmpty(sharedConfigXml)) {
         assertThat(sharedConfigXml).doesNotContain("<gateway-receiver");
@@ -134,7 +133,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
                 512000, null, GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS),
             server3, server4, server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .doesNotContainOutput("change is not persisted")
@@ -164,7 +163,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
                 512000, null, GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS),
             server3, server4, server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.MEMBER, server3.getName());
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -199,7 +198,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
                 512000, null, GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS),
             server3, server4, server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.MEMBER, server3.getName());
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -233,7 +232,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
                 512000, null, GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS),
             server3/* , server4, server5 */);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.MEMBER, server3.getName());
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -267,7 +266,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
                 512000, null, GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS),
             server3/* , server4, server5 */);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.MEMBER, server3.getName());
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -305,7 +304,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
                 512000, null, GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS),
             server3, server4, server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.MEMBER, server3.getName());
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -332,7 +331,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
             "GatewayReceiver created on member \"server-5\"");
     VMProvider.invokeInEveryMember(WANCommandUtils::verifyReceiverDoesNotExist, server3);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.MEMBER, server3.getName());
     gfsh.executeAndAssertThat(csb.toString()).statusIsError()
@@ -345,7 +344,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
     server3 = clusterStartupRule.startServerVM(3, locator1Port);
     server4 = clusterStartupRule.startServerVM(4, locator1Port);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER);
     gfsh.executeAndAssertThat(csb.toString()).statusIsError()
         .doesNotContainOutput("change is not persisted")
@@ -362,7 +361,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
     VMProvider.invokeInEveryMember(WANCommandUtils::verifyReceiverDoesNotExist, server3, server4,
         server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.IFEXISTS, "true").addOption(CliStrings.MEMBER, server3.getName());
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -390,7 +389,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
         server4);
     VMProvider.invokeInEveryMember(WANCommandUtils::verifyReceiverDoesNotExist, server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.GROUP, "Grp1");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -426,7 +425,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
         server4);
     VMProvider.invokeInEveryMember(WANCommandUtils::verifyReceiverDoesNotExist, server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.GROUP, "Grp1,Grp2");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -463,7 +462,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
         server4);
     VMProvider.invokeInEveryMember(WANCommandUtils::verifyReceiverDoesNotExist, server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.GROUP, "Grp1");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -499,7 +498,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
         "localhost", 100000, 512000, null, GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS), server4);
     VMProvider.invokeInEveryMember(WANCommandUtils::verifyReceiverDoesNotExist, server3, server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.GROUP, "Grp1,Grp2,Grp3");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -532,7 +531,7 @@ public class DestroyGatewayReceiverCommandDUnitTest {
         "localhost", 100000, 512000, null, GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS), server4);
     VMProvider.invokeInEveryMember(WANCommandUtils::verifyReceiverDoesNotExist, server3, server5);
 
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(DestroyGatewayReceiverCommand.DESTROY_GATEWAYRECEIVER)
             .addOption(CliStrings.IFEXISTS, "true").addOption(CliStrings.GROUP, "Grp1,Grp2,Grp3");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()

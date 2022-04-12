@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -32,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.InternalGemFireException;
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.distributed.internal.DMStats;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
@@ -66,7 +64,7 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
   private static final ObjectMapper mapper = USE_STATIC_MAPPER ? createObjectMapper() : null;
 
   private static ObjectMapper createObjectMapper() {
-    ObjectMapper mapper = new ObjectMapper();
+    var mapper = new ObjectMapper();
     mapper.setDateFormat(new SimpleDateFormat("MM/dd/yyyy"));
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES,
@@ -102,8 +100,8 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
     if (in instanceof PdxInputStream) {
       dis = new PdxInputStream((ByteBufferInputStream) in, len);
       try {
-        int bytesSkipped = in.skipBytes(len);
-        int bytesRemaining = len - bytesSkipped;
+        var bytesSkipped = in.skipBytes(len);
+        var bytesRemaining = len - bytesSkipped;
         while (bytesRemaining > 0) {
           in.readByte();
           bytesRemaining--;
@@ -112,7 +110,7 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
         throw new PdxSerializationException("Could not deserialize PDX", ex);
       }
     } else {
-      byte[] bytes = new byte[len];
+      var bytes = new byte[len];
       try {
         in.readFully(bytes);
       } catch (IOException ex) {
@@ -141,13 +139,13 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
   }
 
   private PdxWriterImpl convertToTypeWithNoDeletedFields(PdxReaderImpl ur) {
-    PdxOutputStream os = new PdxOutputStream();
-    PdxType pt = new PdxType(ur.getPdxType().getClassName(), !ur.getPdxType().getNoDomainClass());
+    var os = new PdxOutputStream();
+    var pt = new PdxType(ur.getPdxType().getClassName(), !ur.getPdxType().getNoDomainClass());
     InternalCache cache = GemFireCacheImpl
         .getForPdx("PDX registry is unavailable because the Cache has been closed.");
-    TypeRegistry tr = cache.getPdxRegistry();
-    PdxWriterImpl writer = new PdxWriterImpl(pt, tr, os);
-    for (PdxField field : pt.getFields()) {
+    var tr = cache.getPdxRegistry();
+    var writer = new PdxWriterImpl(pt, tr, os);
+    for (var field : pt.getFields()) {
       if (!field.isDeleted()) {
         writer.writeRawField(field, ur.getRaw(field));
       }
@@ -158,9 +156,9 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
 
   @Override
   public void sendTo(DataOutput out) throws IOException {
-    PdxReaderImpl ur = getUnmodifiableReader();
+    var ur = getUnmodifiableReader();
     if (ur.getPdxType().getHasDeletedField()) {
-      PdxWriterImpl writer = convertToTypeWithNoDeletedFields(ur);
+      var writer = convertToTypeWithNoDeletedFields(ur);
       writer.sendTo(out);
     } else {
       out.write(DSCODE.PDX.toByte());
@@ -172,13 +170,13 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
 
   @Override
   public byte[] toBytes() {
-    PdxReaderImpl ur = getUnmodifiableReader();
+    var ur = getUnmodifiableReader();
     if (ur.getPdxType().getHasDeletedField()) {
-      PdxWriterImpl writer = convertToTypeWithNoDeletedFields(ur);
+      var writer = convertToTypeWithNoDeletedFields(ur);
       return writer.toByteArray();
     } else {
-      byte[] result = new byte[PdxWriterImpl.HEADER_SIZE + ur.basicSize()];
-      ByteBuffer bb = ByteBuffer.wrap(result);
+      var result = new byte[PdxWriterImpl.HEADER_SIZE + ur.basicSize()];
+      var bb = ByteBuffer.wrap(result);
       bb.put(DSCODE.PDX.toByte());
       bb.putInt(ur.basicSize());
       bb.putInt(ur.getPdxType().getTypeId());
@@ -189,7 +187,7 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
 
   @Override
   public Object getCachedObject() {
-    Object result = cachedObjectForm;
+    var result = cachedObjectForm;
     if (result == null) {
       result = getObject();
       cachedObjectForm = result;
@@ -198,7 +196,7 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
   }
 
   private String extractTypeMetaData() {
-    Object type = getField("@type");
+    var type = getField("@type");
     if (type != null) {
       if (type instanceof String) {
         return (String) type;
@@ -219,13 +217,13 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
       if (getClassName().equals(JSONFormatter.JSON_CLASSNAME)) {
 
         // introspect the JSON, does the @type meta-data exist.
-        String className = extractTypeMetaData();
+        var className = extractTypeMetaData();
 
         if (StringUtils.isNotBlank(className)) {
           try {
-            String JSON = JSONFormatter.toJSON(this);
-            ObjectMapper objMapper = USE_STATIC_MAPPER ? mapper : createObjectMapper();
-            Object classInstance =
+            var JSON = JSONFormatter.toJSON(this);
+            var objMapper = USE_STATIC_MAPPER ? mapper : createObjectMapper();
+            var classInstance =
                 objMapper.readValue(JSON, ClassPathLoader.getLatest().forName(className));
             return classInstance;
           } catch (Exception e) {
@@ -236,7 +234,7 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
       }
       return this;
     }
-    boolean wouldReadSerialized = PdxInstanceImpl.getPdxReadSerialized();
+    var wouldReadSerialized = PdxInstanceImpl.getPdxReadSerialized();
     if (!wouldReadSerialized) {
       return getUnmodifiableReader().basicGetObject();
     } else {
@@ -255,12 +253,12 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
       // Already computed.
       return cachedHashCode;
     }
-    PdxReaderImpl ur = getUnmodifiableReader();
+    var ur = getUnmodifiableReader();
 
     // Compute hash code.
     Collection<PdxField> fields = ur.getPdxType().getSortedIdentityFields();
-    int hashCode = 1;
-    for (PdxField ft : fields) {
+    var hashCode = 1;
+    for (var ft : fields) {
       switch (ft.getFieldType()) {
         case CHAR:
         case BOOLEAN:
@@ -282,14 +280,14 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
         case DOUBLE_ARRAY:
         case STRING_ARRAY:
         case ARRAY_OF_BYTE_ARRAYS: {
-          ByteSource buffer = ur.getRaw(ft);
+          var buffer = ur.getRaw(ft);
           if (!buffer.equals(ByteSourceFactory.create(ft.getFieldType().getDefaultBytes()))) {
             hashCode = hashCode * 31 + buffer.hashCode();
           }
           break;
         }
         case OBJECT_ARRAY: {
-          Object[] oArray = ur.readObjectArray(ft);
+          var oArray = ur.readObjectArray(ft);
           if (oArray != null) {
             // default value of null does not modify hashCode.
             hashCode = hashCode * 31 + Arrays.deepHashCode(oArray);
@@ -297,13 +295,13 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
           break;
         }
         case OBJECT: {
-          Object objectValue = ur.readObject(ft);
+          var objectValue = ur.readObject(ft);
           if (objectValue == null) {
             // default value of null does not modify hashCode.
           } else if (objectValue.getClass().isArray()) {
-            Class<?> myComponentType = objectValue.getClass().getComponentType();
+            var myComponentType = objectValue.getClass().getComponentType();
             if (myComponentType.isPrimitive()) {
-              ByteSource buffer = getRaw(ft);
+              var buffer = getRaw(ft);
               hashCode = hashCode * 31 + buffer.hashCode();
             } else {
               hashCode = hashCode * 31 + Arrays.deepHashCode((Object[]) objectValue);
@@ -317,7 +315,7 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
           throw new InternalGemFireException("Unhandled field type " + ft.getFieldType());
       }
     }
-    int result = (hashCode == UNUSED_HASH_CODE) ? (hashCode + 1) : hashCode;
+    var result = (hashCode == UNUSED_HASH_CODE) ? (hashCode + 1) : hashCode;
     cachedHashCode = result;
     return result;
   }
@@ -334,16 +332,16 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
     if (!(obj instanceof PdxInstanceImpl)) {
       return false;
     }
-    final PdxInstanceImpl other = (PdxInstanceImpl) obj;
-    PdxReaderImpl ur2 = other.getUnmodifiableReader();
-    PdxReaderImpl ur1 = getUnmodifiableReader();
+    final var other = (PdxInstanceImpl) obj;
+    var ur2 = other.getUnmodifiableReader();
+    var ur1 = getUnmodifiableReader();
 
     if (!ur1.getPdxType().getClassName().equals(ur2.getPdxType().getClassName())) {
       return false;
     }
 
-    SortedSet<PdxField> myFields = ur1.getPdxType().getSortedIdentityFields();
-    SortedSet<PdxField> otherFields = ur2.getPdxType().getSortedIdentityFields();
+    var myFields = ur1.getPdxType().getSortedIdentityFields();
+    var otherFields = ur2.getPdxType().getSortedIdentityFields();
     if (!myFields.equals(otherFields)) {
       if (ur1.getPdxType().getClassName().isEmpty()) {
         return false;
@@ -355,11 +353,11 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
       addDefaultFields(otherFields, myFields);
     }
 
-    Iterator<PdxField> myFieldIterator = myFields.iterator();
-    Iterator<PdxField> otherFieldIterator = otherFields.iterator();
+    var myFieldIterator = myFields.iterator();
+    var otherFieldIterator = otherFields.iterator();
     while (myFieldIterator.hasNext()) {
-      PdxField myType = myFieldIterator.next();
-      PdxField otherType = otherFieldIterator.next();
+      var myType = myFieldIterator.next();
+      var otherType = otherFieldIterator.next();
 
       switch (myType.getFieldType()) {
         case CHAR:
@@ -382,8 +380,8 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
         case DOUBLE_ARRAY:
         case STRING_ARRAY:
         case ARRAY_OF_BYTE_ARRAYS: {
-          ByteSource myBuffer = ur1.getRaw(myType);
-          ByteSource otherBuffer = ur2.getRaw(otherType);
+          var myBuffer = ur1.getRaw(myType);
+          var otherBuffer = ur2.getRaw(otherType);
           if (!myBuffer.equals(otherBuffer)) {
             return false;
           }
@@ -391,8 +389,8 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
           break;
 
         case OBJECT_ARRAY: {
-          Object[] myArray = ur1.readObjectArray(myType);
-          Object[] otherArray = ur2.readObjectArray(otherType);
+          var myArray = ur1.readObjectArray(myType);
+          var otherArray = ur2.readObjectArray(otherType);
           if (!Arrays.deepEquals(myArray, otherArray)) {
             return false;
           }
@@ -400,8 +398,8 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
           break;
 
         case OBJECT: {
-          Object myObject = ur1.readObject(myType);
-          Object otherObject = ur2.readObject(otherType);
+          var myObject = ur1.readObject(myType);
+          var otherObject = ur2.readObject(otherType);
           if (myObject != otherObject) {
             if (myObject == null) {
               return false;
@@ -410,14 +408,14 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
               return false;
             }
             if (myObject.getClass().isArray()) { // for bug 42976
-              Class<?> myComponentType = myObject.getClass().getComponentType();
-              Class<?> otherComponentType = otherObject.getClass().getComponentType();
+              var myComponentType = myObject.getClass().getComponentType();
+              var otherComponentType = otherObject.getClass().getComponentType();
               if (!myComponentType.equals(otherComponentType)) {
                 return false;
               }
               if (myComponentType.isPrimitive()) {
-                ByteSource myBuffer = getRaw(myType);
-                ByteSource otherBuffer = other.getRaw(otherType);
+                var myBuffer = getRaw(myType);
+                var otherBuffer = other.getRaw(otherType);
                 if (!myBuffer.equals(otherBuffer)) {
                   return false;
                 }
@@ -447,7 +445,7 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
    */
   private static void addDefaultFields(SortedSet<PdxField> myFields,
       SortedSet<PdxField> otherFields) {
-    for (PdxField f : otherFields) {
+    for (var f : otherFields) {
       if (!myFields.contains(f)) {
         myFields.add(new DefaultPdxField(f));
       }
@@ -456,12 +454,12 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
 
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder();
-    PdxReaderImpl ur = getUnmodifiableReader();
+    var result = new StringBuilder();
+    var ur = getUnmodifiableReader();
     result.append("PDX[").append(ur.getPdxType().getTypeId()).append(",")
         .append(ur.getPdxType().getClassName()).append("]{");
-    boolean firstElement = true;
-    for (PdxField fieldType : ur.getPdxType().getSortedIdentityFields()) {
+    var firstElement = true;
+    for (var fieldType : ur.getPdxType().getSortedIdentityFields()) {
       if (firstElement) {
         firstElement = false;
       } else {
@@ -470,7 +468,7 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
       result.append(fieldType.getFieldName());
       result.append("=");
       try {
-        final Object value = ur.readField(fieldType.getFieldName());
+        final var value = ur.readField(fieldType.getFieldName());
         if (value instanceof byte[]) {
           result.append(Hex.toHex((byte[]) value));
         } else if (value.getClass().isArray()) {
@@ -622,8 +620,8 @@ public class PdxInstanceImpl extends PdxReaderImpl implements InternalPdxInstanc
 
   @Override
   protected synchronized Object basicGetObject() {
-    DMStats stats = InternalDataSerializer.getDMStats(null);
-    long start = stats.startPdxInstanceDeserialization();
+    var stats = InternalDataSerializer.getDMStats(null);
+    var start = stats.startPdxInstanceDeserialization();
     try {
       return super.basicGetObject();
     } finally {

@@ -17,7 +17,6 @@ package org.apache.geode.security.generator;
 import static org.apache.geode.test.util.ResourceUtils.createTempFileFromResource;
 
 import java.security.Principal;
-import java.security.Provider;
 import java.security.Security;
 import java.util.Properties;
 
@@ -31,8 +30,8 @@ public class PKCSCredentialGenerator extends CredentialGenerator {
 
   // Checks if the current JVM uses only IBM JSSE providers.
   private static boolean usesIBMProviders() {
-    final Provider[] providers = Security.getProviders();
-    for (final Provider provider : providers) {
+    final var providers = Security.getProviders();
+    for (final var provider : providers) {
       if (!provider.getName().toLowerCase().startsWith("ibm")) {
         return false;
       }
@@ -51,11 +50,11 @@ public class PKCSCredentialGenerator extends CredentialGenerator {
 
   @Override
   protected Properties initialize() throws IllegalArgumentException {
-    final String keyStoreFile =
+    final var keyStoreFile =
         createTempFileFromResource(PKCSCredentialGenerator.class,
             keyStoreDir + "/publickeyfile").getAbsolutePath();
 
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.setProperty(PKCSAuthenticator.PUBLIC_KEY_FILE, keyStoreFile);
     props.setProperty(PKCSAuthenticator.PUBLIC_KEYSTORE_PASSWORD, "gemfire");
 
@@ -79,11 +78,11 @@ public class PKCSCredentialGenerator extends CredentialGenerator {
 
   @Override
   public Properties getInvalidCredentials(int index) {
-    final String keyStoreFile =
+    final var keyStoreFile =
         createTempFileFromResource(PKCSCredentialGenerator.class,
             keyStoreDir + "/gemfire11.keystore").getAbsolutePath();
 
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.setProperty(PKCSAuthInit.KEYSTORE_FILE_PATH, keyStoreFile);
     props.setProperty(PKCSAuthInit.KEYSTORE_ALIAS, "gemfire11");
     props.setProperty(PKCSAuthInit.KEYSTORE_PASSWORD, "gemfire");
@@ -93,12 +92,12 @@ public class PKCSCredentialGenerator extends CredentialGenerator {
 
   @Override
   public Properties getValidCredentials(int index) {
-    final int aliasnum = (index % 10) + 1;
-    final String keyStoreFile =
+    final var aliasnum = (index % 10) + 1;
+    final var keyStoreFile =
         createTempFileFromResource(PKCSCredentialGenerator.class,
             keyStoreDir + "/gemfire" + aliasnum + ".keystore").getAbsolutePath();
 
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.setProperty(PKCSAuthInit.KEYSTORE_FILE_PATH, keyStoreFile);
     props.setProperty(PKCSAuthInit.KEYSTORE_ALIAS, "gemfire" + aliasnum);
     props.setProperty(PKCSAuthInit.KEYSTORE_PASSWORD, "gemfire");
@@ -108,11 +107,11 @@ public class PKCSCredentialGenerator extends CredentialGenerator {
 
   @Override
   public Properties getValidCredentials(Principal principal) {
-    final String keyStoreFile =
+    final var keyStoreFile =
         createTempFileFromResource(PKCSCredentialGenerator.class,
             keyStoreDir + principal.getName() + ".keystore").getAbsolutePath();
 
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.setProperty(PKCSAuthInit.KEYSTORE_FILE_PATH, keyStoreFile);
     props.setProperty(PKCSAuthInit.KEYSTORE_ALIAS, principal.getName());
     props.setProperty(PKCSAuthInit.KEYSTORE_PASSWORD, "gemfire");

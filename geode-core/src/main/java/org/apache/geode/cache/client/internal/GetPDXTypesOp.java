@@ -22,7 +22,6 @@ import org.apache.geode.InternalGemFireError;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.pdx.internal.PdxType;
 
 /**
@@ -49,14 +48,14 @@ public class GetPDXTypesOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      Part part = msg.getPart(0);
-      int msgType = msg.getMessageType();
+      var part = msg.getPart(0);
+      var msgType = msg.getMessageType();
       if (msgType == MessageType.RESPONSE) {
         return part.getObject();
 
       } else {
         if (msgType == MessageType.EXCEPTION) {
-          String s = "While performing a remote " + "getPdxTypes";
+          var s = "While performing a remote " + "getPdxTypes";
           throw new ServerOperationException(s, (Throwable) part.getObject());
 
         } else if (isErrorResponse(msgType)) {

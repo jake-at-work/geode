@@ -45,7 +45,6 @@ import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.InternalClientCache;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalCacheServer;
 import org.apache.geode.test.dunit.VM;
@@ -160,7 +159,7 @@ public class RegisterInterestServerMetaDataDistributedTest implements Serializab
     regionFactory.create(PROXY_REGION_NAME);
     regionFactory.create(CACHING_PROXY_REGION_NAME);
 
-    CacheServer cacheServer = cache.addCacheServer();
+    var cacheServer = cache.addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
@@ -169,13 +168,13 @@ public class RegisterInterestServerMetaDataDistributedTest implements Serializab
   private void createClientCacheWithTwoRegions(final String host, final int port) {
     createClientCache();
 
-    PoolFactory poolFactory = createPoolFactory();
+    var poolFactory = createPoolFactory();
     poolFactory.addServer(host, port);
 
-    Pool pool = poolFactory.create(getClass().getSimpleName() + "-Pool");
+    var pool = poolFactory.create(getClass().getSimpleName() + "-Pool");
 
     createRegionOnClient(PROXY_REGION_NAME, ClientRegionShortcut.PROXY, pool);
-    Region<Integer, Object> region2 =
+    var region2 =
         createRegionOnClient(CACHING_PROXY_REGION_NAME, ClientRegionShortcut.CACHING_PROXY, pool);
 
     region2.getAttributesMutator().setCloningEnabled(true);
@@ -198,13 +197,13 @@ public class RegisterInterestServerMetaDataDistributedTest implements Serializab
     ClientRegionFactory<Integer, Object> regionFactory =
         clientCache.createClientRegionFactory(shortcut);
     regionFactory.setPoolName(pool.getName());
-    Region<Integer, Object> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     assertThat(region.getAttributes().getCloningEnabled()).isFalse();
     return region;
   }
 
   private CacheClientProxy getClientProxy() {
-    CacheClientNotifier notifier = getCacheServer().getAcceptor().getCacheClientNotifier();
+    var notifier = getCacheServer().getAcceptor().getCacheClientNotifier();
     return notifier.getClientProxies().stream().findFirst().orElse(null);
   }
 
@@ -227,7 +226,7 @@ public class RegisterInterestServerMetaDataDistributedTest implements Serializab
     Region<Object, ?> region = clientCache.getRegion(regionName);
 
     List<Integer> list = new ArrayList<>();
-    for (int key : keys) {
+    for (var key : keys) {
       list.add(key);
     }
 
@@ -245,7 +244,7 @@ public class RegisterInterestServerMetaDataDistributedTest implements Serializab
             getCacheServer().getAcceptor().getCacheClientNotifier().getClientProxies().size())
                 .isEqualTo(1));
 
-    CacheClientProxy proxy = getClientProxy();
+    var proxy = getClientProxy();
     assertThat(proxy).isNotNull();
 
     await().until(() -> getClientProxy().isAlive() && getClientProxy()
@@ -253,12 +252,12 @@ public class RegisterInterestServerMetaDataDistributedTest implements Serializab
   }
 
   private void validateServerMetaDataKnowsThatClientRegisteredInterest() {
-    CacheClientProxy proxy = getClientProxy();
+    var proxy = getClientProxy();
     assertThat(proxy.hasRegisteredInterested()).isTrue();
   }
 
   private void validateServerMetaDataKnowsWhichClientRegionIsEmpty() {
-    CacheClientProxy proxy = getClientProxy();
+    var proxy = getClientProxy();
     assertThat(proxy.getRegionsWithEmptyDataPolicy()).containsKey(SEPARATOR + PROXY_REGION_NAME);
     assertThat(proxy.getRegionsWithEmptyDataPolicy())
         .doesNotContainKey(SEPARATOR + CACHING_PROXY_REGION_NAME);

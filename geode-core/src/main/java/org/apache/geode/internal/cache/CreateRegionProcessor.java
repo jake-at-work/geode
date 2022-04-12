@@ -20,7 +20,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,13 +30,9 @@ import org.apache.geode.CancelException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.cache.DynamicRegionFactory;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
-import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.DistributionAdvisee;
-import org.apache.geode.distributed.internal.DistributionAdvisor;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.HighPriorityDistributionMessage;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -50,7 +45,6 @@ import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.CacheDistributionAdvisor.CacheProfile;
 import org.apache.geode.internal.cache.CacheDistributionAdvisor.InitialImageAdvice;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.event.EventSequenceNumberHolder;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.partitioned.Bucket;
@@ -80,10 +74,10 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
   /** this method tells other members that the region is being created */
   @Override
   public void initializeRegion() {
-    InternalDistributedSystem system = newRegion.getSystem();
+    var system = newRegion.getSystem();
     // try 5 times, see CreateRegionMessage#skipDuringInitialization
-    for (int retry = 0; retry < 5; retry++) {
-      Set recps = getRecipients();
+    for (var retry = 0; retry < 5; retry++) {
+      var recps = getRecipients();
 
       if (logger.isDebugEnabled()) {
         logger.debug("Creating region {}", newRegion);
@@ -99,11 +93,11 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
         return;
       }
 
-      CreateRegionReplyProcessor replyProc = new CreateRegionReplyProcessor(recps);
+      var replyProc = new CreateRegionReplyProcessor(recps);
       newRegion.registerCreateRegionReplyProcessor(replyProc);
 
-      boolean useMcast = false; // multicast is disabled for this message for now
-      CreateRegionMessage msg = getCreateRegionMessage(recps, replyProc, useMcast);
+      var useMcast = false; // multicast is disabled for this message for now
+      var msg = getCreateRegionMessage(recps, replyProc, useMcast);
 
       // since PR buckets can be created during cache entry operations, enable
       // severe alert processing if we're creating one of them
@@ -129,7 +123,7 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
             break;
           }
         } catch (ReplyException e) {
-          Throwable t = e.getCause();
+          var t = e.getCause();
           if (t instanceof IllegalStateException) {
             // region is incompatible with region in another cache
             throw (IllegalStateException) t;
@@ -153,10 +147,10 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
   }
 
   protected Set getRecipients() {
-    DistributionAdvisee parent = newRegion.getParentAdvisee();
+    var parent = newRegion.getParentAdvisee();
     Set recps = null;
     if (parent == null) { // root region, all recipients
-      InternalDistributedSystem system = newRegion.getSystem();
+      var system = newRegion.getSystem();
       recps = system.getDistributionManager().getOtherDistributionManagerIds();
     } else {
       // get recipients that have the parent region defined as distributed.
@@ -174,15 +168,15 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
     if (newRegion instanceof BucketRegion) {
       return ((Bucket) newRegion).getBucketAdvisor().adviseProfileExchange();
     } else {
-      DistributionAdvisee rgn = newRegion.getParentAdvisee();
-      DistributionAdvisor advisor = rgn.getDistributionAdvisor();
+      var rgn = newRegion.getParentAdvisee();
+      var advisor = rgn.getDistributionAdvisor();
       return advisor.adviseGeneric();
     }
   }
 
   protected CreateRegionMessage getCreateRegionMessage(Set recps, ReplyProcessor21 proc,
       boolean useMcast) {
-    CreateRegionMessage msg = new CreateRegionMessage();
+    var msg = new CreateRegionMessage();
     msg.regionPath = newRegion.getFullPath();
     msg.profile = (CacheProfile) newRegion.getProfile();
     msg.processorId = proc.getProcessorId();
@@ -227,15 +221,15 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
     public void process(DistributionMessage msg) {
       Assert.assertTrue(msg instanceof CreateRegionReplyMessage,
           "CreateRegionProcessor is unable to process message of type " + msg.getClass());
-      CreateRegionReplyMessage reply = (CreateRegionReplyMessage) msg;
-      LocalRegion lr = (LocalRegion) newRegion;
+      var reply = (CreateRegionReplyMessage) msg;
+      var lr = (LocalRegion) newRegion;
       if (logger.isDebugEnabled()) {
         logger.debug("CreateRegionProcessor processing {}", msg);
       }
       try {
         if (reply.profile != null) {
           if (newRegion instanceof DistributedRegion) {
-            DistributedRegion dr = (DistributedRegion) newRegion;
+            var dr = (DistributedRegion) newRegion;
             if (!dr.getDataPolicy().withPersistence() && reply.profile.isPersistent) {
               dr.setGeneratedVersionTag(false);
             }
@@ -244,11 +238,11 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
             lr.enableConcurrencyChecks();
           }
 
-          CacheDistributionAdvisor cda =
+          var cda =
               newRegion.getCacheDistributionAdvisor();
           cda.putProfile(reply.profile);
           if (reply.bucketProfiles != null) {
-            RegionAdvisor ra = (RegionAdvisor) cda;
+            var ra = (RegionAdvisor) cda;
             ra.putBucketRegionProfiles(reply.bucketProfiles);
           }
 
@@ -264,14 +258,14 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
           // Process any delta filter-profile messages received during profile
           // exchange.
           // The pending messages are queued in the local profile.
-          FilterProfile remoteFP = reply.profile.filterProfile;
+          var remoteFP = reply.profile.filterProfile;
           if (remoteFP != null) {
-            FilterProfile localFP = ((LocalRegion) newRegion).filterProfile;
+            var localFP = ((LocalRegion) newRegion).filterProfile;
             // localFP can be null and remoteFP not null when upgrading from 7.0.1.14 to 7.0.1.15
             if (localFP != null) {
-              List messages = localFP.getQueuedFilterProfileMsgs(reply.getSender());
+              var messages = localFP.getQueuedFilterProfileMsgs(reply.getSender());
               // Thread init level is set since region is used during CQ registration.
-              final InitializationLevel oldLevel =
+              final var oldLevel =
                   LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
               try {
                 remoteFP.processQueuedFilterProfileMsgs(messages);
@@ -283,7 +277,7 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
           }
         }
         if (reply.destroyedId != null && newRegion instanceof DistributedRegion) {
-          DistributedRegion dr = (DistributedRegion) newRegion;
+          var dr = (DistributedRegion) newRegion;
           dr.getPersistenceAdvisor().removeMember(reply.destroyedId);
         }
         if (!reply.skippedCompatibilityChecks) {
@@ -342,7 +336,7 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
     @Override
     protected void process(ClusterDistributionManager dm) {
       // Set thread local flag to allow entrance through initialization Latch
-      final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+      final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
       LocalRegion lclRgn = null;
 
       PersistentMemberID destroyedId = null;
@@ -350,11 +344,11 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
         // get the region from the path, but do NOT wait on initialization,
         // otherwise we could have a distributed deadlock
 
-        InternalCache cache = dm.getExistingCache();
+        var cache = dm.getExistingCache();
 
         // Fix for bug 42051 - Discover any regions that are in the process
         // of being destroyed
-        DistributedRegion destroyingRegion = cache.getRegionInDestroy(regionPath);
+        var destroyingRegion = cache.getRegionInDestroy(regionPath);
         if (destroyingRegion != null) {
           destroyedId = destroyingRegion.getPersistentID();
         }
@@ -417,7 +411,7 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
         }
       } finally {
         LocalRegion.setThreadInitLevelRequirement(oldLevel);
-        CreateRegionReplyMessage replyMsg = new CreateRegionReplyMessage();
+        var replyMsg = new CreateRegionReplyMessage();
         replyMsg.profile = replyProfile;
         replyMsg.bucketProfiles = replyBucketProfiles;
         replyMsg.eventState = eventState;
@@ -478,14 +472,14 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
           if (isLocalAccessor(cda) && profile.isPersistent) {
             // #45934 need to set the generateVersionTag flag
             if (cda instanceof DistributedRegion) {
-              DistributedRegion dr = (DistributedRegion) cda;
+              var dr = (DistributedRegion) cda;
               if (!dr.getDataPolicy().withPersistence()) {
                 dr.setGeneratedVersionTag(false);
               }
             }
 
             assert cda instanceof LocalRegion;
-            LocalRegion lr = (LocalRegion) cda;
+            var lr = (LocalRegion) cda;
             lr.enableConcurrencyChecks();
           }
         }
@@ -499,7 +493,7 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
           replyProfile = (CacheProfile) cda.getProfile();
           if (cda instanceof PartitionedRegion) {
             // partitioned region needs to also answer back all real bucket profiles
-            PartitionedRegion pr = (PartitionedRegion) cda;
+            var pr = (PartitionedRegion) cda;
             replyBucketProfiles = pr.getRegionAdvisor().getBucketRegionProfiles();
           } else if (((LocalRegion) cda).isUsedForPartitionedRegionBucket()) {
             eventState = ((LocalRegion) cda).getEventState();
@@ -509,17 +503,17 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
     }
 
     protected String checkCompatibility(CacheDistributionAdvisee rgn, CacheProfile profile) {
-      Scope otherScope = rgn.getAttributes().getScope();
+      var otherScope = rgn.getAttributes().getScope();
       String result = null;
 
       // Verify both VMs are gateway-enabled or neither are. Note that since
       // this string is sent back to the caller, the 'other' and the 'my'
       // below are from the caller's point of view.
       final DistributedMember myId = rgn.getDistributionManager().getId();
-      boolean otherCCEnabled = rgn.getAttributes().getConcurrencyChecksEnabled();
-      boolean skipCheckForAccessor = skipCheckForAccessor(rgn, profile);
-      boolean skipConcurrencyChecks = skipChecksForInternalRegion(rgn);
-      boolean initializing = skipDuringInitialization(rgn);
+      var otherCCEnabled = rgn.getAttributes().getConcurrencyChecksEnabled();
+      var skipCheckForAccessor = skipCheckForAccessor(rgn, profile);
+      var skipConcurrencyChecks = skipChecksForInternalRegion(rgn);
+      var initializing = skipDuringInitialization(rgn);
 
       if (initializing) {
         skippedCompatibilityChecks = true;
@@ -549,8 +543,8 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
                 regionPath, concurrencyChecksEnabled, myId, otherCCEnabled);
       }
 
-      Set<String> otherGatewaySenderIds = ((LocalRegion) rgn).getGatewaySenderIds();
-      Set<String> myGatewaySenderIds = profile.gatewaySenderIds;
+      var otherGatewaySenderIds = ((LocalRegion) rgn).getGatewaySenderIds();
+      var myGatewaySenderIds = profile.gatewaySenderIds;
       if (!otherGatewaySenderIds.equals(myGatewaySenderIds)) {
         if (!rgn.getFullPath().contains(DynamicRegionFactory.DYNAMIC_REGION_LIST_NAME)) {
           result =
@@ -560,8 +554,8 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
         }
       }
 
-      Set<String> otherAsynEventQueueIds = ((LocalRegion) rgn).getVisibleAsyncEventQueueIds();
-      Set<String> myAsyncEventQueueIds = profile.asyncEventQueueIds;
+      var otherAsynEventQueueIds = ((LocalRegion) rgn).getVisibleAsyncEventQueueIds();
+      var myAsyncEventQueueIds = profile.asyncEventQueueIds;
       if (!isLocalOrRemoteAccessor(rgn, profile)
           && !otherAsynEventQueueIds.equals(myAsyncEventQueueIds)) {
         result =
@@ -570,7 +564,7 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
                 regionPath, myAsyncEventQueueIds, otherAsynEventQueueIds);
       }
 
-      final PartitionAttributes pa = rgn.getAttributes().getPartitionAttributes();
+      final var pa = rgn.getAttributes().getPartitionAttributes();
       if (pa == null && profile.isPartitioned) {
         result =
             String.format(
@@ -592,9 +586,9 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
         }
       }
 
-      final boolean otherIsOffHeap = rgn.getAttributes().getOffHeap();
+      final var otherIsOffHeap = rgn.getAttributes().getOffHeap();
 
-      boolean thisIsRemoteAccessor = !rgn.getAttributes().getDataPolicy().withStorage()
+      var thisIsRemoteAccessor = !rgn.getAttributes().getDataPolicy().withStorage()
           || (pa != null && pa.getLocalMaxMemory() == 0);
 
       if (!isRemoteAccessor(profile) && !thisIsRemoteAccessor
@@ -606,10 +600,10 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
       }
 
       String cspResult = null;
-      Map<String, CacheServiceProfile> myProfiles = ((LocalRegion) rgn).getCacheServiceProfiles();
+      var myProfiles = ((LocalRegion) rgn).getCacheServiceProfiles();
       // Iterate and compare the remote CacheServiceProfiles to the local ones
-      for (CacheServiceProfile remoteProfile : profile.cacheServiceProfiles) {
-        CacheServiceProfile localProfile = myProfiles.get(remoteProfile.getId());
+      for (var remoteProfile : profile.cacheServiceProfiles) {
+        var localProfile = myProfiles.get(remoteProfile.getId());
         if (localProfile == null) {
           cspResult = getMissingProfileMessage(remoteProfile, true);
         } else {
@@ -626,7 +620,7 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
       // (as opposed to returning something like 'the profiles don't match').
       if (cspResult == null) {
         if (myProfiles.size() > profile.cacheServiceProfiles.size()) {
-          for (CacheServiceProfile localProfile : myProfiles.values()) {
+          for (var localProfile : myProfiles.values()) {
             if (!profile.cacheServiceProfiles.stream()
                 .anyMatch(remoteProfile -> remoteProfile.getId().equals(localProfile.getId()))) {
               cspResult = getMissingProfileMessage(localProfile, false);
@@ -664,11 +658,11 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
      * checks, then the CreateRegionMessage should be retried. fixes #45186
      */
     private boolean skipDuringInitialization(CacheDistributionAdvisee rgn) {
-      boolean skip = false;
+      var skip = false;
       if (rgn instanceof LocalRegion) {
-        LocalRegion lr = (LocalRegion) rgn;
+        var lr = (LocalRegion) rgn;
         if (!lr.isInitialized()) {
-          Set recipients = new CreateRegionProcessor(rgn).getRecipients();
+          var recipients = new CreateRegionProcessor(rgn).getRecipients();
           recipients.remove(getSender());
           if (!recipients.isEmpty()) {
             skip = true;
@@ -683,9 +677,9 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
      * after profile exchange if required.
      */
     private boolean skipChecksForInternalRegion(CacheDistributionAdvisee rgn) {
-      boolean skip = false;
+      var skip = false;
       if (rgn instanceof LocalRegion) {
-        LocalRegion lr = (LocalRegion) rgn;
+        var lr = (LocalRegion) rgn;
         skip = lr.isInternalRegion();
       }
       return skip;
@@ -696,9 +690,9 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
      * DistributedRegion does not generate entry versions.
      */
     private boolean skipCheckForAccessor(CacheDistributionAdvisee rgn, CacheProfile profile) {
-      boolean skip = false;
+      var skip = false;
       if (rgn instanceof DistributedRegion) {
-        DistributedRegion dr = (DistributedRegion) rgn;
+        var dr = (DistributedRegion) rgn;
         skip = !dr.getGenerateVersionTag();
       }
       return skip || isLocalOrRemoteAccessor(rgn, profile);
@@ -725,7 +719,7 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
         return true;
       }
       if (profile.isPartitioned) {
-        PartitionProfile prProfile = (PartitionProfile) profile;
+        var prProfile = (PartitionProfile) profile;
         return prProfile.localMaxMemory == 0;
       }
       return false;
@@ -807,13 +801,13 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
       if (in.readBoolean()) {
         profile = DataSerializer.readObject(in);
       }
-      int size = in.readInt();
+      var size = in.readInt();
       if (size == 0) {
         bucketProfiles = null;
       } else {
         bucketProfiles = new ArrayList(size);
-        for (int i = 0; i < size; i++) {
-          RegionAdvisor.BucketProfileAndId bp = new RegionAdvisor.BucketProfileAndId();
+        for (var i = 0; i < size; i++) {
+          var bp = new RegionAdvisor.BucketProfileAndId();
           InternalDataSerializer.invokeFromData(bp, in);
           bucketProfiles.add(bp);
         }
@@ -840,10 +834,10 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
       if (bucketProfiles == null) {
         out.writeInt(0);
       } else {
-        int size = bucketProfiles.size();
+        var size = bucketProfiles.size();
         out.writeInt(size);
-        for (Object bucketProfile : bucketProfiles) {
-          RegionAdvisor.BucketProfileAndId bp =
+        for (var bucketProfile : bucketProfiles) {
+          var bp =
               (RegionAdvisor.BucketProfileAndId) bucketProfile;
           InternalDataSerializer.invokeToData(bp, out);
         }
@@ -869,7 +863,7 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
 
     @Override
     public String toString() {
-      StringBuilder buff = new StringBuilder();
+      var buff = new StringBuilder();
       buff.append("CreateRegionReplyMessage");
       buff.append("(sender=").append(getSender());
       buff.append("; processorId=");

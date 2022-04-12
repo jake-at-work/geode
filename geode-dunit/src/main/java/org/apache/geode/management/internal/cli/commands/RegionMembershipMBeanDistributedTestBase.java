@@ -24,22 +24,15 @@ import static org.apache.geode.test.junit.rules.GfshCommandRule.PortType.jmxMana
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.DistributedRegionMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.internal.util.ManagementUtils;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -86,11 +79,11 @@ public class RegionMembershipMBeanDistributedTestBase {
 
   @Before
   public void before() throws Exception {
-    Properties props = locatorProperties();
+    var props = locatorProperties();
     props.setProperty(SERIALIZABLE_OBJECT_FILTER, SERIALIZATION_FILTER);
     props.setProperty(NAME, "locator");
 
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty(SERIALIZABLE_OBJECT_FILTER, SERIALIZATION_FILTER);
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withProperties(props));
     server1 = cluster.startServerVM(1, serverProps, locator.getPort());
@@ -105,36 +98,36 @@ public class RegionMembershipMBeanDistributedTestBase {
   }
 
   private static void setupDataRegionAndSubregions() {
-    InternalCache cache = ClusterStartupRule.getCache();
-    RegionFactory<Object, Object> regionFactory =
+    var cache = ClusterStartupRule.getCache();
+    var regionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
 
-    Region<Object, Object> dataRegion = regionFactory.create(DATA_REGION_NAME);
+    var dataRegion = regionFactory.create(DATA_REGION_NAME);
 
-    Region<Object, Object> dataSubRegion =
+    var dataSubRegion =
         regionFactory.createSubregion(dataRegion, DATA_REGION_NAME_CHILD_1);
 
     regionFactory.createSubregion(dataSubRegion, DATA_REGION_NAME_CHILD_1_2);
   }
 
   private static void setupReplicatedRegion(String regionName) {
-    InternalCache cache = ClusterStartupRule.getCache();
-    RegionFactory<Object, Object> regionFactory =
+    var cache = ClusterStartupRule.getCache();
+    var regionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
 
-    Region<Object, Object> dataRegion = regionFactory.create(regionName);
+    var dataRegion = regionFactory.create(regionName);
     assertThat(dataRegion.getFullPath()).contains(regionName);
   }
 
   private static void setupPartitionedRegion(String regionName) {
-    InternalCache cache = ClusterStartupRule.getCache();
-    PartitionAttributes<Object, Object> partitionAttrs =
+    var cache = ClusterStartupRule.getCache();
+    var partitionAttrs =
         new PartitionAttributesFactory<>().setRedundantCopies(2).create();
-    RegionFactory<Object, Object> partitionRegionFactory =
+    var partitionRegionFactory =
         cache.createRegionFactory(RegionShortcut.PARTITION);
 
     partitionRegionFactory.setPartitionAttributes(partitionAttrs);
-    Region<Object, Object> dataParRegion = partitionRegionFactory.create(regionName);
+    var dataParRegion = partitionRegionFactory.create(regionName);
 
     assertThat(dataParRegion.getFullPath()).contains(regionName);
   }
@@ -144,8 +137,8 @@ public class RegionMembershipMBeanDistributedTestBase {
     server1.invoke(() -> setupReplicatedRegion(DATA_REGION_NAME));
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_PATH, 1);
 
-    Integer memSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_PATH);
-    Integer memSizeFromFunctionCall =
+    var memSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_PATH);
+    var memSizeFromFunctionCall =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_PATH);
     assertThat(memSizeFromFunctionCall).isEqualTo(memSizeFromMBean).isEqualTo(1);
   }
@@ -165,8 +158,8 @@ public class RegionMembershipMBeanDistributedTestBase {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_VM1_PATH, 1);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_VM2_PATH, 1);
 
-    Integer memSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_PATH);
-    Integer memSizeFromFunctionCall =
+    var memSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_PATH);
+    var memSizeFromFunctionCall =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_PATH);
     assertThat(memSizeFromFunctionCall).isEqualTo(memSizeFromMBean);
 
@@ -198,49 +191,49 @@ public class RegionMembershipMBeanDistributedTestBase {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_CHILD_1_PATH, 2);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_CHILD_1_2_PATH, 2);
 
-    Integer initialMemberSizeFromMBean =
+    var initialMemberSizeFromMBean =
         distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_PATH);
-    Integer initialMemberSizeFromFunction =
+    var initialMemberSizeFromFunction =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_PATH);
     assertThat(initialMemberSizeFromFunction).isEqualTo(initialMemberSizeFromMBean);
 
-    Integer initialMemberSizeChild1FromMBean =
+    var initialMemberSizeChild1FromMBean =
         distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_CHILD_1_PATH);
-    Integer initialMemberSizeChild1FromFunction =
+    var initialMemberSizeChild1FromFunction =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_CHILD_1_PATH);
     assertThat(initialMemberSizeChild1FromFunction).isEqualTo(initialMemberSizeChild1FromMBean);
 
-    Integer initialMemberSizeChild2FromMBean =
+    var initialMemberSizeChild2FromMBean =
         distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_CHILD_1_2_PATH);
-    Integer initialMemberSizeChild2FromFunction =
+    var initialMemberSizeChild2FromFunction =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_CHILD_1_2_PATH);
     assertThat(initialMemberSizeChild2FromFunction).isEqualTo(initialMemberSizeChild2FromMBean);
 
-    MemberVM server3 = cluster.startServerVM(3, locator.getPort());
+    var server3 = cluster.startServerVM(3, locator.getPort());
     server3.invoke(RegionMembershipMBeanDistributedTestBase::setupDataRegionAndSubregions);
 
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_PATH, 3);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_CHILD_1_PATH, 3);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_CHILD_1_2_PATH, 3);
 
-    Integer intermediateMemberSizeFromMBean =
+    var intermediateMemberSizeFromMBean =
         distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_PATH);
-    Integer intermediateMemberSizeFromFunction =
+    var intermediateMemberSizeFromFunction =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_PATH);
     assertThat(intermediateMemberSizeFromFunction).isEqualTo(intermediateMemberSizeFromMBean)
         .isEqualTo(initialMemberSizeFromFunction + 1);
 
-    Integer intermediateMemberSizeChild1FromMBean =
+    var intermediateMemberSizeChild1FromMBean =
         distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_CHILD_1_PATH);
-    Integer intermediateMemberSizeChild1FromFunction =
+    var intermediateMemberSizeChild1FromFunction =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_CHILD_1_PATH);
     assertThat(intermediateMemberSizeChild1FromMBean)
         .isEqualTo(intermediateMemberSizeChild1FromFunction)
         .isEqualTo(initialMemberSizeChild1FromFunction + 1);
 
-    Integer intermediateMemberSizeChild2FromMBean =
+    var intermediateMemberSizeChild2FromMBean =
         distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_CHILD_1_2_PATH);
-    Integer intermediateMemberSizeChild2FromFunction =
+    var intermediateMemberSizeChild2FromFunction =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_CHILD_1_2_PATH);
     assertThat(intermediateMemberSizeChild2FromFunction)
         .isEqualTo(intermediateMemberSizeChild2FromMBean)
@@ -252,22 +245,22 @@ public class RegionMembershipMBeanDistributedTestBase {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_CHILD_1_PATH, 2);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_REGION_NAME_CHILD_1_2_PATH, 2);
 
-    Integer finalMemberSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_PATH);
-    Integer finalMemberSizeFromFunction =
+    var finalMemberSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_PATH);
+    var finalMemberSizeFromFunction =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_PATH);
     assertThat(finalMemberSizeFromFunction).isEqualTo(finalMemberSizeFromMBean)
         .isEqualTo(initialMemberSizeFromFunction);
 
-    Integer finalMemberSizeChild1FromMBean =
+    var finalMemberSizeChild1FromMBean =
         distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_CHILD_1_PATH);
-    Integer finalMemberSizeChild1FromFunction =
+    var finalMemberSizeChild1FromFunction =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_CHILD_1_PATH);
     assertThat(finalMemberSizeChild1FromMBean).isEqualTo(finalMemberSizeChild1FromFunction)
         .isEqualTo(initialMemberSizeChild1FromFunction);
 
-    Integer finalMemberSizeChild2FromMBean =
+    var finalMemberSizeChild2FromMBean =
         distributedRegionMembersSizeFromMBean(DATA_REGION_NAME_CHILD_1_2_PATH);
-    Integer finalMemberSizeChild2FromFunction =
+    var finalMemberSizeChild2FromFunction =
         distributedRegionMembersSizeFromFunction(DATA_REGION_NAME_CHILD_1_2_PATH);
     assertThat(finalMemberSizeChild2FromFunction).isEqualTo(finalMemberSizeChild2FromMBean)
         .isEqualTo(initialMemberSizeChild2FromMBean);
@@ -278,8 +271,8 @@ public class RegionMembershipMBeanDistributedTestBase {
     server1.invoke(() -> setupPartitionedRegion(DATA_PAR_REGION_NAME));
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_PAR_REGION_NAME_PATH, 1);
 
-    Integer memSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_PAR_REGION_NAME_PATH);
-    Integer memSizeFromFunctionCall =
+    var memSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_PAR_REGION_NAME_PATH);
+    var memSizeFromFunctionCall =
         distributedRegionMembersSizeFromFunction(DATA_PAR_REGION_NAME_PATH);
     assertThat(memSizeFromFunctionCall).isEqualTo(memSizeFromMBean).isEqualTo(1);
   }
@@ -296,8 +289,8 @@ public class RegionMembershipMBeanDistributedTestBase {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_PAR_REGION_NAME_VM1_PATH, 1);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_PAR_REGION_NAME_VM2_PATH, 1);
 
-    Integer memSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_PAR_REGION_NAME_PATH);
-    Integer memSizeFromFunctionCall =
+    var memSizeFromMBean = distributedRegionMembersSizeFromMBean(DATA_PAR_REGION_NAME_PATH);
+    var memSizeFromFunctionCall =
         distributedRegionMembersSizeFromFunction(DATA_PAR_REGION_NAME_PATH);
     assertThat(memSizeFromFunctionCall).isEqualTo(memSizeFromMBean);
 
@@ -318,28 +311,28 @@ public class RegionMembershipMBeanDistributedTestBase {
     server2.invoke(() -> setupPartitionedRegion(DATA_PAR_REGION_NAME));
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_PAR_REGION_NAME_PATH, 2);
 
-    Integer initialMemberSizeFromMBean =
+    var initialMemberSizeFromMBean =
         distributedRegionMembersSizeFromMBean(DATA_PAR_REGION_NAME_PATH);
-    Integer initialMemberSizeFromFunctionCall =
+    var initialMemberSizeFromFunctionCall =
         distributedRegionMembersSizeFromFunction(DATA_PAR_REGION_NAME_PATH);
     assertThat(initialMemberSizeFromFunctionCall).isEqualTo(initialMemberSizeFromMBean);
 
-    MemberVM server3 = cluster.startServerVM(3, locator.getPort());
+    var server3 = cluster.startServerVM(3, locator.getPort());
     server3.invoke(() -> setupPartitionedRegion(DATA_PAR_REGION_NAME));
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(DATA_PAR_REGION_NAME_PATH, 3);
 
-    Integer intermediateMemberSizeFromMBean =
+    var intermediateMemberSizeFromMBean =
         distributedRegionMembersSizeFromMBean(DATA_PAR_REGION_NAME_PATH);
-    Integer intermediateMemberSizeFromFunctionCall =
+    var intermediateMemberSizeFromFunctionCall =
         distributedRegionMembersSizeFromFunction(DATA_PAR_REGION_NAME_PATH);
     assertThat(intermediateMemberSizeFromFunctionCall).isEqualTo(intermediateMemberSizeFromMBean)
         .isEqualTo(initialMemberSizeFromMBean + 1);
 
     server3.stop(Boolean.TRUE);
 
-    Integer finalMemberSizeFromMBean =
+    var finalMemberSizeFromMBean =
         distributedRegionMembersSizeFromMBean(DATA_PAR_REGION_NAME_PATH);
-    Integer finalMemberSizeFromFunctionCall =
+    var finalMemberSizeFromFunctionCall =
         distributedRegionMembersSizeFromFunction(DATA_PAR_REGION_NAME_PATH);
     assertThat(finalMemberSizeFromFunctionCall).isEqualTo(finalMemberSizeFromMBean)
         .isEqualTo(initialMemberSizeFromFunctionCall);
@@ -347,8 +340,8 @@ public class RegionMembershipMBeanDistributedTestBase {
 
   private Integer distributedRegionMembersSizeFromFunction(String regionName) {
     return locator.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      Set<DistributedMember> distributedMembers =
+      var cache = ClusterStartupRule.getCache();
+      var distributedMembers =
           ManagementUtils.getRegionAssociatedMembers(regionName, cache, true);
 
       return distributedMembers.size();
@@ -360,20 +353,20 @@ public class RegionMembershipMBeanDistributedTestBase {
       Cache cache = ClusterStartupRule.getCache();
 
       await().untilAsserted(() -> {
-        DistributedRegionMXBean bean = ManagementService.getManagementService(cache)
+        var bean = ManagementService.getManagementService(cache)
             .getDistributedRegionMXBean(regionPath);
         assertThat(bean).isNotNull();
       });
 
-      DistributedRegionMXBean bean = ManagementService.getManagementService(cache)
+      var bean = ManagementService.getManagementService(cache)
           .getDistributedRegionMXBean(regionPath);
-      String[] membersName = bean.getMembers();
+      var membersName = bean.getMembers();
       return membersName.length;
     });
   }
 
   private Properties locatorProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOG_LEVEL, "fine");
     props.setProperty(ConfigurationProperties.JMX_MANAGER_HOSTNAME_FOR_CLIENTS, "localhost");

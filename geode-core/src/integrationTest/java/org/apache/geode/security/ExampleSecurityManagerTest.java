@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -30,7 +29,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.examples.security.ExampleSecurityManager;
-import org.apache.geode.examples.security.ExampleSecurityManager.User;
 import org.apache.geode.security.ResourcePermission.Operation;
 import org.apache.geode.security.ResourcePermission.Resource;
 import org.apache.geode.security.ResourcePermission.Target;
@@ -51,7 +49,7 @@ public class ExampleSecurityManagerTest {
   public void setUp() throws Exception {
     // resource file
     jsonResource = "org/apache/geode/security/templates/security.json";
-    InputStream inputStream = ClassLoader.getSystemResourceAsStream(jsonResource);
+    var inputStream = ClassLoader.getSystemResourceAsStream(jsonResource);
 
     assertThat(inputStream).isNotNull();
 
@@ -84,7 +82,7 @@ public class ExampleSecurityManagerTest {
 
   @Test
   public void initShouldUsePropertyAsJsonResource() throws Exception {
-    Properties securityProperties = new Properties();
+    var securityProperties = new Properties();
     securityProperties.setProperty(TestSecurityManager.SECURITY_JSON, jsonResource);
     exampleSecurityManager.init(securityProperties);
     verifySecurityManagerState();
@@ -92,32 +90,32 @@ public class ExampleSecurityManagerTest {
 
   @Test
   public void userThatDoesNotExistInJson() throws Exception {
-    Properties securityProperties = new Properties();
+    var securityProperties = new Properties();
     securityProperties.setProperty(TestSecurityManager.SECURITY_JSON, jsonResource);
     exampleSecurityManager.init(securityProperties);
-    ResourcePermission permission =
+    var permission =
         new ResourcePermission(Resource.CLUSTER, Operation.MANAGE, Target.DISK);
     assertThat(exampleSecurityManager.authorize("diskWriter", permission)).isFalse();
   }
 
   @Test
   public void roleThatDoesNotExistInJson() throws Exception {
-    Properties securityProperties = new Properties();
+    var securityProperties = new Properties();
     securityProperties.setProperty(TestSecurityManager.SECURITY_JSON, jsonResource);
     exampleSecurityManager.init(securityProperties);
-    ResourcePermission permission =
+    var permission =
         new ResourcePermission(Resource.CLUSTER, Operation.MANAGE, Target.DISK);
     assertThat(exampleSecurityManager.authorize("phantom", permission)).isFalse();
   }
 
   private void verifySecurityManagerState() {
-    User adminUser = exampleSecurityManager.getUser("admin");
+    var adminUser = exampleSecurityManager.getUser("admin");
     assertThat(adminUser).isNotNull();
     assertThat(adminUser.getName()).isEqualTo("admin");
     assertThat(adminUser.getPassword()).isEqualTo("secret");
     assertThat(adminUser.getRoles()).hasSize(1);
 
-    User guestUser = exampleSecurityManager.getUser("guest");
+    var guestUser = exampleSecurityManager.getUser("guest");
     assertThat(guestUser).isNotNull();
     assertThat(guestUser.getName()).isEqualTo("guest");
     assertThat(guestUser.getPassword()).isEqualTo("guest");

@@ -65,7 +65,7 @@ public class QueueSynchronizationProcessorTest {
 
   @Test
   public void processMessageSetsReply() {
-    QueueSynchronizationProcessor processor =
+    var processor =
         spy(new QueueSynchronizationProcessor(manager, primary));
     replyMessage = mock(QueueSynchronizationProcessor.QueueSynchronizationReplyMessage.class);
 
@@ -107,7 +107,7 @@ public class QueueSynchronizationProcessorTest {
     expectedException.expect(RuntimeException.class);
     message = spy(new QueueSynchronizationProcessor.QueueSynchronizationMessage());
     setupMessage();
-    RuntimeException runtimeException = new RuntimeException();
+    var runtimeException = new RuntimeException();
     doThrow(runtimeException).when(message).getDispatchedEvents(cache);
 
     message.process(manager);
@@ -131,7 +131,7 @@ public class QueueSynchronizationProcessorTest {
   @Test
   public void getDispatchedEventsReturnsNullIfHARegionIsNull() {
     message = new QueueSynchronizationProcessor.QueueSynchronizationMessage();
-    String regionName = "queueName";
+    var regionName = "queueName";
     message.setRegionName(regionName);
     when(cache.getRegion(regionName)).thenReturn(null);
 
@@ -141,9 +141,9 @@ public class QueueSynchronizationProcessorTest {
   @Test
   public void getDispatchedEventsReturnsNullIfQueueNotInitialized() {
     message = new QueueSynchronizationProcessor.QueueSynchronizationMessage();
-    String regionName = "queueName";
+    var regionName = "queueName";
     message.setRegionName(regionName);
-    HARegion region = mock(HARegion.class);
+    var region = mock(HARegion.class);
     when(cache.getRegion(regionName)).thenReturn(uncheckedCast(region));
     when(region.getOwner()).thenReturn(null);
 
@@ -153,11 +153,11 @@ public class QueueSynchronizationProcessorTest {
   @Test
   public void getDispatchedEventsReturns() {
     message = new QueueSynchronizationProcessor.QueueSynchronizationMessage();
-    String regionName = "queueName";
+    var regionName = "queueName";
     message.setRegionName(regionName);
     message.setEventIdList(eventIDs);
-    HARegion region = mock(HARegion.class);
-    HARegionQueue queue = mock(HARegionQueue.class);
+    var region = mock(HARegion.class);
+    var queue = mock(HARegionQueue.class);
     when(cache.getRegion(regionName)).thenReturn(uncheckedCast(region));
     when(region.getOwner()).thenReturn(queue);
     when(queue.getDispatchedEvents(eventIDs)).thenReturn(dispatched);

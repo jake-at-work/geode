@@ -39,7 +39,7 @@ public class StoreSysCfgRequest extends AdminRequest {
    * are known by <code>dm</code> to be started.
    */
   public static StoreSysCfgRequest create(Config sc) {
-    StoreSysCfgRequest m = new StoreSysCfgRequest();
+    var m = new StoreSysCfgRequest();
     m.sc = sc;
     return m;
   }

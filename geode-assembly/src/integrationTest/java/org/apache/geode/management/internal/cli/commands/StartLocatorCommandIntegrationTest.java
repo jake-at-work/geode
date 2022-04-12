@@ -48,7 +48,7 @@ public class StartLocatorCommandIntegrationTest {
 
   @Before
   public void before() throws IOException {
-    final Process process = mock(Process.class);
+    final var process = mock(Process.class);
     when(process.getInputStream()).thenReturn(mock(InputStream.class));
     when(process.getErrorStream()).thenReturn(mock(InputStream.class));
     when(process.getOutputStream()).thenReturn(mock(OutputStream.class));
@@ -62,27 +62,27 @@ public class StartLocatorCommandIntegrationTest {
   public void startLocatorWorksWithNoOptions() throws Exception {
     commandRule.executeAndAssertThat(spy, "start locator");
 
-    ArgumentCaptor<Properties> gemfirePropertiesCaptor = ArgumentCaptor.forClass(Properties.class);
+    var gemfirePropertiesCaptor = ArgumentCaptor.forClass(Properties.class);
     verify(spy).createStartLocatorCommandLine(any(), any(), any(),
         gemfirePropertiesCaptor.capture(), any(), any(), any(), any(), any());
 
-    Properties gemfireProperties = gemfirePropertiesCaptor.getValue();
+    var gemfireProperties = gemfirePropertiesCaptor.getValue();
     assertThat(gemfireProperties).containsKey(ENABLE_CLUSTER_CONFIGURATION);
     assertThat(gemfireProperties.get(ENABLE_CLUSTER_CONFIGURATION)).isEqualTo("true");
   }
 
   @Test
   public void startLocatorRespectsJmxManagerHostnameForClients() throws Exception {
-    String startLocatorCommand = new CommandStringBuilder("start locator")
+    var startLocatorCommand = new CommandStringBuilder("start locator")
         .addOption(JMX_MANAGER_HOSTNAME_FOR_CLIENTS, FAKE_HOSTNAME).toString();
 
     commandRule.executeAndAssertThat(spy, startLocatorCommand);
 
-    ArgumentCaptor<Properties> gemfirePropertiesCaptor = ArgumentCaptor.forClass(Properties.class);
+    var gemfirePropertiesCaptor = ArgumentCaptor.forClass(Properties.class);
     verify(spy).createStartLocatorCommandLine(any(), any(), any(),
         gemfirePropertiesCaptor.capture(), any(), any(), any(), any(), any());
 
-    Properties gemfireProperties = gemfirePropertiesCaptor.getValue();
+    var gemfireProperties = gemfirePropertiesCaptor.getValue();
     assertThat(gemfireProperties).containsKey(JMX_MANAGER_HOSTNAME_FOR_CLIENTS);
     assertThat(gemfireProperties.get(JMX_MANAGER_HOSTNAME_FOR_CLIENTS)).isEqualTo(FAKE_HOSTNAME);
   }
@@ -91,22 +91,22 @@ public class StartLocatorCommandIntegrationTest {
   public void startWithBindAddress() throws Exception {
     commandRule.executeAndAssertThat(spy, "start locator --bind-address=127.0.0.1");
 
-    ArgumentCaptor<String[]> commandLines = ArgumentCaptor.forClass(String[].class);
+    var commandLines = ArgumentCaptor.forClass(String[].class);
     verify(spy).getProcess(any(), commandLines.capture());
 
-    String[] lines = commandLines.getValue();
+    var lines = commandLines.getValue();
     assertThat(lines[12]).isEqualTo("--bind-address=127.0.0.1");
   }
 
   @Test
   public void startLocatorRespectsHostnameForClients() throws Exception {
-    String startLocatorCommand = new CommandStringBuilder("start locator")
+    var startLocatorCommand = new CommandStringBuilder("start locator")
         .addOption("hostname-for-clients", FAKE_HOSTNAME).toString();
 
     commandRule.executeAndAssertThat(spy, startLocatorCommand);
-    ArgumentCaptor<String[]> commandLines = ArgumentCaptor.forClass(String[].class);
+    var commandLines = ArgumentCaptor.forClass(String[].class);
     verify(spy).getProcess(any(), commandLines.capture());
-    String[] lines = commandLines.getValue();
+    var lines = commandLines.getValue();
     assertThat(lines).containsOnlyOnce("--hostname-for-clients=" + FAKE_HOSTNAME);
   }
 }

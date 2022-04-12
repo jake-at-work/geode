@@ -61,7 +61,7 @@ public class EchoArgumentFunction implements Function<Object> {
    */
   @Override
   public void execute(final FunctionContext<Object> context) {
-    Object args = context.getArguments();
+    var args = context.getArguments();
 
     // Echo the arguments back to the caller for assertion
     if (args != null && args.getClass().isAssignableFrom(Object.class)) {

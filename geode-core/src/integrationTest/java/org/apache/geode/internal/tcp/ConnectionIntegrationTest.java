@@ -68,7 +68,7 @@ public class ConnectionIntegrationTest {
   public void setUp() throws Exception {
     logFile = temporaryFolder.newFile();
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(LOCATORS, "");
     properties.setProperty(LOG_FILE, logFile.getAbsolutePath());
 
@@ -84,10 +84,10 @@ public class ConnectionIntegrationTest {
 
   @Test
   public void badHeaderMessageIsCorrectlyLogged() {
-    ConnectionTable connectionTable = mock(ConnectionTable.class);
-    DistributionConfig config = mock(DistributionConfig.class);
-    Socket socket = mock(Socket.class);
-    TCPConduit tcpConduit = mock(TCPConduit.class);
+    var connectionTable = mock(ConnectionTable.class);
+    var config = mock(DistributionConfig.class);
+    var socket = mock(Socket.class);
+    var tcpConduit = mock(TCPConduit.class);
 
     when(connectionTable.getConduit()).thenReturn(tcpConduit);
     when(tcpConduit.getSocketId()).thenReturn(new InetSocketAddress("localhost", 1234));
@@ -96,9 +96,9 @@ public class ConnectionIntegrationTest {
     when(tcpConduit.getMemberId()).thenReturn(new InternalDistributedMember("localhost", 2345));
     when(connectionTable.getSocketCloser()).thenReturn(mock(SocketCloser.class));
 
-    Connection connection = new Connection(connectionTable, socket);
-    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[] {99});
-    DataInputStream inputStream = new DataInputStream(byteArrayInputStream);
+    var connection = new Connection(connectionTable, socket);
+    var byteArrayInputStream = new ByteArrayInputStream(new byte[] {99});
+    var inputStream = new DataInputStream(byteArrayInputStream);
 
     connection.readHandshakeForSender(inputStream, ByteBuffer.allocate(100));
 

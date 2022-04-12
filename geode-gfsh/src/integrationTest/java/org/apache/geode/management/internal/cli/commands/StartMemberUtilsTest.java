@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +50,7 @@ public class StartMemberUtilsTest {
 
   @Test
   public void workingDirCantBeCreatedThrowsException() {
-    File userSpecifiedDir = spy(new File("cantCreateDir"));
+    var userSpecifiedDir = spy(new File("cantCreateDir"));
     when(userSpecifiedDir.exists()).thenReturn(false);
     when(userSpecifiedDir.mkdirs()).thenReturn(false);
     assertThatThrownBy(
@@ -62,17 +61,17 @@ public class StartMemberUtilsTest {
 
   @Test
   public void workingDirDefaultsToMemberName() {
-    String workingDir = StartMemberUtils.resolveWorkingDirectory(null, "server1");
+    var workingDir = StartMemberUtils.resolveWorkingDirectory(null, "server1");
     assertThat(new File(workingDir)).exists();
     assertThat(workingDir).endsWith("server1");
   }
 
   @Test
   public void workingDirGetsCreatedIfNecessary() throws Exception {
-    File workingDir = temporaryFolder.newFolder("foo");
+    var workingDir = temporaryFolder.newFolder("foo");
     FileUtils.deleteQuietly(workingDir);
-    String workingDirString = workingDir.getAbsolutePath();
-    String resolvedWorkingDir =
+    var workingDirString = workingDir.getAbsolutePath();
+    var resolvedWorkingDir =
         StartMemberUtils.resolveWorkingDirectory(workingDirString, "server1");
     assertThat(new File(resolvedWorkingDir)).exists();
     assertThat(workingDirString).endsWith("foo");
@@ -80,25 +79,25 @@ public class StartMemberUtilsTest {
 
   @Test
   public void testWorkingDirWithRelativePath() throws Exception {
-    Path relativePath = Paths.get("some").resolve("relative").resolve("path");
+    var relativePath = Paths.get("some").resolve("relative").resolve("path");
     assertThat(relativePath.isAbsolute()).isFalse();
-    String resolvedWorkingDir =
+    var resolvedWorkingDir =
         StartMemberUtils.resolveWorkingDirectory(relativePath.toString(), "server1");
     assertThat(resolvedWorkingDir).isEqualTo(relativePath.toAbsolutePath().toString());
   }
 
   @Test
   public void testReadPid() throws IOException {
-    final int expectedPid = 12345;
-    File folder = temporaryFolder.newFolder();
-    File pidFile = new File(folder, "my.pid");
+    final var expectedPid = 12345;
+    var folder = temporaryFolder.newFolder();
+    var pidFile = new File(folder, "my.pid");
 
     assertTrue(pidFile.createNewFile());
 
     pidFile.deleteOnExit();
     writePid(pidFile, expectedPid);
 
-    final int actualPid = StartMemberUtils.readPid(pidFile);
+    final var actualPid = StartMemberUtils.readPid(pidFile);
     assertEquals(expectedPid, actualPid);
   }
 
@@ -111,14 +110,14 @@ public class StartMemberUtilsTest {
    */
   @Test
   public void testGeodeOnClasspathIsFirst() {
-    String currentClasspath = System.getProperty("java.class.path");
-    final Path customGeodeJarPATH =
+    var currentClasspath = System.getProperty("java.class.path");
+    final var customGeodeJarPATH =
         Paths.get("/custom", "geode-core-" + GemFireVersion.getGemFireVersion() + ".jar");
-    final Path prependJar1 = Paths.get("/prepend", "pre1.jar");
-    final Path prependJar2 = Paths.get("/prepend", "pre2.jar");
-    final Path otherJar1 = Paths.get("/other", "one.jar");
-    final Path otherJar2 = Paths.get("/other", "two.jar");
-    final String customGeodeCore = FileSystems.getDefault().getPath(customGeodeJarPATH.toString())
+    final var prependJar1 = Paths.get("/prepend", "pre1.jar");
+    final var prependJar2 = Paths.get("/prepend", "pre2.jar");
+    final var otherJar1 = Paths.get("/other", "one.jar");
+    final var otherJar2 = Paths.get("/other", "two.jar");
+    final var customGeodeCore = FileSystems.getDefault().getPath(customGeodeJarPATH.toString())
         .toAbsolutePath().toString();
 
     currentClasspath = prependToClasspath("java.class.path", customGeodeCore, currentClasspath);
@@ -126,11 +125,11 @@ public class StartMemberUtilsTest {
         prependToClasspath("java.class.path", prependJar2.toString(), currentClasspath);
     prependToClasspath("java.class.path", prependJar1.toString(), currentClasspath);
 
-    String[] otherJars = new String[] {
+    var otherJars = new String[] {
         FileSystems.getDefault().getPath(otherJar1.toString()).toAbsolutePath().toString(),
         FileSystems.getDefault().getPath(otherJar2.toString()).toAbsolutePath().toString()};
 
-    String gemfireClasspath = StartMemberUtils.toClasspath(true, otherJars);
+    var gemfireClasspath = StartMemberUtils.toClasspath(true, otherJars);
     assertThat(gemfireClasspath).startsWith(customGeodeCore);
 
     gemfireClasspath = StartMemberUtils.toClasspath(false, otherJars);
@@ -147,12 +146,12 @@ public class StartMemberUtilsTest {
   public void testExtensionsJars() throws IOException {
 
     // when there is no `extensions` directory
-    String gemfireClasspath = StartMemberUtils.toClasspath(true, new String[0]);
+    var gemfireClasspath = StartMemberUtils.toClasspath(true, new String[0]);
     assertThat(gemfireClasspath).doesNotContain("extensions");
 
     // when there is a `test.jar` in `extensions` directory
-    File folder = temporaryFolder.newFolder("extensions");
-    File jarFile = new File(folder, "test.jar");
+    var folder = temporaryFolder.newFolder("extensions");
+    var jarFile = new File(folder, "test.jar");
     jarFile.createNewFile();
     gemfireClasspath = StartMemberUtils.toClasspath(true, new String[] {jarFile.getAbsolutePath()});
     assertThat(gemfireClasspath).contains(jarFile.getName());
@@ -186,7 +185,7 @@ public class StartMemberUtilsTest {
   }
 
   private void writePid(final File pidFile, final int pid) throws IOException {
-    final FileWriter fileWriter = new FileWriter(pidFile, false);
+    final var fileWriter = new FileWriter(pidFile, false);
     fileWriter.write(String.valueOf(pid));
     fileWriter.write("\n");
     fileWriter.flush();
@@ -196,8 +195,8 @@ public class StartMemberUtilsTest {
   @Test
   public void whenResolveWorkingDirectoryIsCalledWithTwoNonEmptyStrings_thenTheUserSpecifiedDirectoryIsReturned()
       throws Exception {
-    String userSpecifiedDir = "locator1Directory";
-    String memberNameDir = "member1";
+    var userSpecifiedDir = "locator1Directory";
+    var memberNameDir = "member1";
     assertThat(StartMemberUtils.resolveWorkingDirectory(userSpecifiedDir, memberNameDir))
         .isEqualTo(new File(userSpecifiedDir).getAbsolutePath());
   }
@@ -205,7 +204,7 @@ public class StartMemberUtilsTest {
   @Test
   public void whenResolveWorkingDirectoryIsCalledWithNullUserSpecifiedDir_thenTheMemberNameDirectoryIsReturned()
       throws Exception {
-    String memberNameDir = "member1";
+    var memberNameDir = "member1";
     assertThat(StartMemberUtils.resolveWorkingDirectory(null, memberNameDir))
         .isEqualTo(new File(memberNameDir).getAbsolutePath());
   }
@@ -213,8 +212,8 @@ public class StartMemberUtilsTest {
   @Test
   public void whenResolveWorkingDirectoryIsCalledWithEmptyUserSpecifiedDir_thenTheMemberNameDirectoryIsReturned()
       throws Exception {
-    String userSpecifiedDir = "";
-    String memberNameDir = "member1";
+    var userSpecifiedDir = "";
+    var memberNameDir = "member1";
     assertThat(StartMemberUtils.resolveWorkingDirectory(userSpecifiedDir, memberNameDir))
         .isEqualTo(new File(memberNameDir).getAbsolutePath());
   }
@@ -222,8 +221,8 @@ public class StartMemberUtilsTest {
   @Test
   public void whenResolveWorkingDirectoryIsCalledWithUserSpecifiedDirAsDot_thenTheUserSpecifiedDirectoryIsReturned()
       throws Exception {
-    String userSpecifiedDir = ".";
-    String memberNameDir = "member1";
+    var userSpecifiedDir = ".";
+    var memberNameDir = "member1";
     assertThat(StartMemberUtils.resolveWorkingDirectory(userSpecifiedDir, memberNameDir))
         .isEqualTo(
             StartMemberUtils.resolveWorkingDirectory(new File(userSpecifiedDir)));
@@ -232,8 +231,8 @@ public class StartMemberUtilsTest {
   @Test
   public void whenResolveWorkingDirectoryIsCalledWithUserSpecifiedDirAsAbsolutePath_thenTheUserSpecifiedDirectoryIsReturned()
       throws Exception {
-    String userSpecifiedDir = new File(System.getProperty("user.dir")).getAbsolutePath();
-    String memberNameDir = "member1";
+    var userSpecifiedDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+    var memberNameDir = "member1";
     assertThat(StartMemberUtils.resolveWorkingDirectory(userSpecifiedDir, memberNameDir))
         .isEqualTo(new File(userSpecifiedDir).getAbsolutePath());
   }

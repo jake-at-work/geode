@@ -20,7 +20,6 @@ import static org.apache.geode.redis.internal.netty.StringBytesGlossary.PING_RES
 import static org.apache.geode.redis.internal.netty.StringBytesGlossary.PING_RESPONSE_LOWERCASE;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
@@ -31,7 +30,7 @@ public class PingExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
     RedisResponse redisResponse;
 
     if (!context.getClient().hasSubscriptions()) {

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +29,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -60,14 +58,14 @@ public class RegionVersionVectorIntegrationTest {
 
   private void createData() {
     // create buckets
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       region.put(i, "value");
     }
   }
 
   @Test
   public void partitionedRegionDoesNotCreateRegionVersionVector() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(10);
     region = cache.createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(paf.create()).create(REGION_NAME);
@@ -77,7 +75,7 @@ public class RegionVersionVectorIntegrationTest {
 
   @Test
   public void persistPartitionedRegionDoesNotCreateRegionVersionVector() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(10);
     region = cache.createRegionFactory(RegionShortcut.PARTITION_PERSISTENT)
         .setPartitionAttributes(paf.create()).create(REGION_NAME);
@@ -87,42 +85,42 @@ public class RegionVersionVectorIntegrationTest {
 
   @Test
   public void bucketRegionCreatesRegionVersionVector() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(10);
     region = cache.createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(paf.create()).create(REGION_NAME);
     createData();
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-    Set<BucketRegion> bucketRegions = partitionedRegion.getDataStore().getAllLocalBucketRegions();
-    for (BucketRegion bucketRegion : bucketRegions) {
+    var partitionedRegion = (PartitionedRegion) region;
+    var bucketRegions = partitionedRegion.getDataStore().getAllLocalBucketRegions();
+    for (var bucketRegion : bucketRegions) {
       assertNotNull(bucketRegion.getVersionVector());
     }
   }
 
   @Test
   public void persistBucketRegionCreatesRegionVersionVector() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(10);
     region = cache.createRegionFactory(RegionShortcut.PARTITION_PERSISTENT)
         .setPartitionAttributes(paf.create()).create(REGION_NAME);
     createData();
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-    Set<BucketRegion> bucketRegions = partitionedRegion.getDataStore().getAllLocalBucketRegions();
-    for (BucketRegion bucketRegion : bucketRegions) {
+    var partitionedRegion = (PartitionedRegion) region;
+    var bucketRegions = partitionedRegion.getDataStore().getAllLocalBucketRegions();
+    for (var bucketRegion : bucketRegions) {
       assertNotNull(bucketRegion.getVersionVector());
     }
   }
 
   @Test
   public void bucketRegionOnPartitionedRegionWithConcurrencyCheckDisabledDoesNotCreateRegionVersionVector() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(10);
     region = cache.createRegionFactory(RegionShortcut.PARTITION).setConcurrencyChecksEnabled(false)
         .setPartitionAttributes(paf.create()).create(REGION_NAME);
     createData();
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-    Set<BucketRegion> bucketRegions = partitionedRegion.getDataStore().getAllLocalBucketRegions();
-    for (BucketRegion bucketRegion : bucketRegions) {
+    var partitionedRegion = (PartitionedRegion) region;
+    var bucketRegions = partitionedRegion.getDataStore().getAllLocalBucketRegions();
+    for (var bucketRegion : bucketRegions) {
       assertNull(bucketRegion.getVersionVector());
     }
   }

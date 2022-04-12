@@ -41,9 +41,9 @@ public class DriverJarUtilsTest {
   @Test
   public void registerDriverSucceedsWithClassName()
       throws IllegalAccessException, InstantiationException, ClassNotFoundException, SQLException {
-    String driverName = "driver-name";
+    var driverName = "driver-name";
 
-    Driver driver = mock(Driver.class);
+    var driver = mock(Driver.class);
     doReturn(driver).when(util).getDriverInstanceByClassName(driverName);
 
     util.registerDriver(driverName);
@@ -52,10 +52,10 @@ public class DriverJarUtilsTest {
 
   @Test
   public void deregisterDriverSucceedsWithClassName() throws SQLException {
-    String driverName = "driver-name";
+    var driverName = "driver-name";
     Enumeration<Driver> drivers = mock(Enumeration.class);
     doReturn(drivers).when(util).getDrivers();
-    Driver driver = mock(Driver.class);
+    var driver = mock(Driver.class);
     when(drivers.hasMoreElements()).thenReturn(true).thenReturn(false);
     when(drivers.nextElement()).thenReturn(driver);
     doReturn(true).when(util).compareDriverClassName(driver, driverName);

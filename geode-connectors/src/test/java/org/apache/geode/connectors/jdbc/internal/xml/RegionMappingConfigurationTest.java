@@ -126,13 +126,13 @@ public class RegionMappingConfigurationTest {
         new FieldMapping("name", "string", VALUE_COLUMN_NAME, JDBCType.VARCHAR.getName(), true));
 
     when(pdxType.getFieldCount()).thenReturn(2);
-    PdxField field1 = mock(PdxField.class);
+    var field1 = mock(PdxField.class);
     when(field1.getFieldName()).thenReturn("id");
     when(field1.getFieldType()).thenReturn(FieldType.INT);
-    PdxField field2 = mock(PdxField.class);
+    var field2 = mock(PdxField.class);
     when(field2.getFieldName()).thenReturn("name");
     when(field2.getFieldType()).thenReturn(FieldType.STRING);
-    List<PdxField> pdxFields = Arrays.asList(field1, field2);
+    var pdxFields = Arrays.asList(field1, field2);
     when(pdxType.getFields()).thenReturn(pdxFields);
 
     when(cache.getPdxRegistry()).thenReturn(typeRegistry);
@@ -143,7 +143,7 @@ public class RegionMappingConfigurationTest {
 
   @Test
   public void createDefaultFieldMappingSucceedsWithExactMatchPdxFields() {
-    List<FieldMapping> fieldsMappings = config.createDefaultFieldMapping(service, pdxType);
+    var fieldsMappings = config.createDefaultFieldMapping(service, pdxType);
 
     assertThat(fieldsMappings).hasSize(2);
     assertThat(fieldsMappings).contains(
@@ -155,16 +155,16 @@ public class RegionMappingConfigurationTest {
   @Test
   public void createDefaultFieldMappingSucceedsWithIgnoreCaseMatchPdxFields() {
     when(pdxType.getFieldCount()).thenReturn(2);
-    PdxField field1 = mock(PdxField.class);
+    var field1 = mock(PdxField.class);
     when(field1.getFieldName()).thenReturn("ID");
     when(field1.getFieldType()).thenReturn(FieldType.INT);
-    PdxField field2 = mock(PdxField.class);
+    var field2 = mock(PdxField.class);
     when(field2.getFieldName()).thenReturn("NAME");
     when(field2.getFieldType()).thenReturn(FieldType.STRING);
-    List<PdxField> pdxFields = Arrays.asList(field1, field2);
+    var pdxFields = Arrays.asList(field1, field2);
     when(pdxType.getFields()).thenReturn(pdxFields);
 
-    List<FieldMapping> fieldsMappings = config.createDefaultFieldMapping(service, pdxType);
+    var fieldsMappings = config.createDefaultFieldMapping(service, pdxType);
 
     assertThat(fieldsMappings).hasSize(2);
     assertThat(fieldsMappings).contains(
@@ -176,16 +176,16 @@ public class RegionMappingConfigurationTest {
   @Test
   public void createDefaultFieldMappingThrowsExceptionWhenGivenUnMatchPdxFieldName() {
     when(pdxType.getFieldCount()).thenReturn(2);
-    PdxField field1 = mock(PdxField.class);
+    var field1 = mock(PdxField.class);
     when(field1.getFieldName()).thenReturn("id");
     when(field1.getFieldType()).thenReturn(FieldType.INT);
-    PdxField field2 = mock(PdxField.class);
+    var field2 = mock(PdxField.class);
     when(field2.getFieldName()).thenReturn("nameString");
     when(field2.getFieldType()).thenReturn(FieldType.STRING);
-    List<PdxField> pdxFields = Arrays.asList(field1, field2);
+    var pdxFields = Arrays.asList(field1, field2);
     when(pdxType.getFields()).thenReturn(pdxFields);
 
-    Throwable throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
+    var throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class).hasMessageContaining(
         String.format("No PDX field name matched the column name \"%s\"",
@@ -195,19 +195,19 @@ public class RegionMappingConfigurationTest {
   @Test
   public void createDefaultFieldMappingThrowsExceptionWhenGivenDuplicatePdxFieldName() {
     when(pdxType.getFieldCount()).thenReturn(2);
-    PdxField field1 = mock(PdxField.class);
+    var field1 = mock(PdxField.class);
     when(field1.getFieldName()).thenReturn("id");
     when(field1.getFieldType()).thenReturn(FieldType.INT);
-    PdxField field2 = mock(PdxField.class);
+    var field2 = mock(PdxField.class);
     when(field2.getFieldName()).thenReturn("NAME");
     when(field2.getFieldType()).thenReturn(FieldType.STRING);
-    PdxField field3 = mock(PdxField.class);
+    var field3 = mock(PdxField.class);
     when(field3.getFieldName()).thenReturn("Name");
     when(field3.getFieldType()).thenReturn(FieldType.STRING);
-    List<PdxField> pdxFields = Arrays.asList(field2, field3, field1);
+    var pdxFields = Arrays.asList(field2, field3, field1);
     when(pdxType.getFields()).thenReturn(pdxFields);
 
-    Throwable throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
+    var throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class).hasMessageContaining(
         String.format("More than one PDX field name matched the column name \"%s\"",
@@ -217,7 +217,7 @@ public class RegionMappingConfigurationTest {
   @Test
   public void createDefaultFieldMappingThrowsExceptionWhenDataSourceDoesNotExist() {
     doReturn(null).when(config).getDataSource(DATA_SOURCE_NAME);
-    Throwable throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
+    var throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class).hasMessageContaining(
         String.format("No datasource \"%s\" found when creating default field mapping",
             mapping.getDataSourceName()));
@@ -227,7 +227,7 @@ public class RegionMappingConfigurationTest {
   public void createDefaultFieldMappingThrowsExceptionWhenGetConnectionHasSqlException()
       throws SQLException {
     when(dataSource.getConnection()).thenThrow(SQLException.class);
-    Throwable throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
+    var throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class);
     verify(connection, never()).close();
   }
@@ -235,7 +235,7 @@ public class RegionMappingConfigurationTest {
   @Test
   public void createDefaultFieldMappingThrowsExceptionWhenGivenExistingPdxTypeWithWrongNumberOfFields() {
     doReturn(3).when(pdxType).getFieldCount();
-    Throwable throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
+    var throwable = catchThrowable(() -> config.createDefaultFieldMapping(service, pdxType));
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class).hasMessageContaining(
         String.format(
             "The table and pdx class must have the same number of columns/fields. But the table has %d columns and the pdx class has %d fields.",
@@ -246,7 +246,7 @@ public class RegionMappingConfigurationTest {
   public void getPdxTypeForClassSucceedsWithExistingPdxType() {
     when(typeRegistry.getExistingTypeForClass(PdxClassDummy.class)).thenReturn(pdxType);
 
-    PdxType result = config.getPdxTypeForClass(cache, PdxClassDummy.class);
+    var result = config.getPdxTypeForClass(cache, PdxClassDummy.class);
     verify(config, never()).generatePdxTypeForClass(cache, typeRegistry, PdxClassDummy.class);
     assertThat(result).isEqualTo(pdxType);
   }
@@ -256,7 +256,7 @@ public class RegionMappingConfigurationTest {
     when(typeRegistry.getExistingTypeForClass(PdxClassDummy.class)).thenReturn(null)
         .thenReturn(pdxType);
 
-    PdxType result = config.getPdxTypeForClass(cache, PdxClassDummy.class);
+    var result = config.getPdxTypeForClass(cache, PdxClassDummy.class);
     verify(config, times(1)).generatePdxTypeForClass(cache, typeRegistry, PdxClassDummy.class);
     verify(cache, times(1)).registerPdxMetaData(any());
     assertThat(result).isEqualTo(pdxType);
@@ -267,18 +267,18 @@ public class RegionMappingConfigurationTest {
     when(typeRegistry.getExistingTypeForClass(PdxClassDummy.class)).thenReturn(null)
         .thenReturn(pdxType);
 
-    SerializationException ex = new SerializationException("test");
+    var ex = new SerializationException("test");
     doThrow(ex).when(cache).registerPdxMetaData(any());
 
-    ReflectionBasedAutoSerializer serializer = mock(ReflectionBasedAutoSerializer.class);
-    PdxWriter pdxWriter = mock(PdxWriter.class);
-    String domainClassNameInAutoSerializer = "\\Q" + PdxClassDummy.class.getName() + "\\E";
+    var serializer = mock(ReflectionBasedAutoSerializer.class);
+    var pdxWriter = mock(PdxWriter.class);
+    var domainClassNameInAutoSerializer = "\\Q" + PdxClassDummy.class.getName() + "\\E";
     doReturn(serializer).when(config)
         .getReflectionBasedAutoSerializer(domainClassNameInAutoSerializer);
     doReturn(pdxWriter).when(config).createPdxWriter(same(typeRegistry), any());
     when(serializer.toData(any(), same(pdxWriter))).thenReturn(true);
 
-    PdxType result = config.getPdxTypeForClass(cache, PdxClassDummy.class);
+    var result = config.getPdxTypeForClass(cache, PdxClassDummy.class);
     verify(config, times(1)).generatePdxTypeForClass(cache, typeRegistry, PdxClassDummy.class);
     verify(cache, times(1)).registerPdxMetaData(any());
     verify(config, times(1)).getReflectionBasedAutoSerializer(domainClassNameInAutoSerializer);
@@ -289,18 +289,18 @@ public class RegionMappingConfigurationTest {
   public void getPdxTypeForClassThrowsExceptionWhenGivenPdxRegistrationFailsAndReflectionBasedAutoSerializer() {
     when(typeRegistry.getExistingTypeForClass(PdxClassDummy.class)).thenReturn(null);
 
-    SerializationException ex = new SerializationException("test");
+    var ex = new SerializationException("test");
     doThrow(ex).when(cache).registerPdxMetaData(any());
 
-    ReflectionBasedAutoSerializer serializer = mock(ReflectionBasedAutoSerializer.class);
-    PdxWriter pdxWriter = mock(PdxWriter.class);
-    String domainClassNameInAutoSerializer = "\\Q" + PdxClassDummy.class.getName() + "\\E";
+    var serializer = mock(ReflectionBasedAutoSerializer.class);
+    var pdxWriter = mock(PdxWriter.class);
+    var domainClassNameInAutoSerializer = "\\Q" + PdxClassDummy.class.getName() + "\\E";
     doReturn(serializer).when(config)
         .getReflectionBasedAutoSerializer(domainClassNameInAutoSerializer);
     doReturn(pdxWriter).when(config).createPdxWriter(same(typeRegistry), any());
     when(serializer.toData(any(), same(pdxWriter))).thenReturn(false);
 
-    Throwable throwable =
+    var throwable =
         catchThrowable(() -> config.getPdxTypeForClass(cache, PdxClassDummy.class));
     verify(config, times(1)).generatePdxTypeForClass(cache, typeRegistry, PdxClassDummy.class);
     verify(cache, times(1)).registerPdxMetaData(any());
@@ -313,7 +313,7 @@ public class RegionMappingConfigurationTest {
 
   @Test
   public void getPdxTypeForClassThrowsExceptionWhenGivenPdxSerializableWithNoZeroArgConstructor() {
-    Throwable throwable =
+    var throwable =
         catchThrowable(() -> config.getPdxTypeForClass(cache, PdxClassDummyNoZeroArg.class));
     verify(config, times(1)).generatePdxTypeForClass(cache, typeRegistry,
         PdxClassDummyNoZeroArg.class);

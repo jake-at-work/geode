@@ -41,27 +41,27 @@ public class LuceneGetPageFunctionJUnitTest {
 
   @Test
   public void shouldReturnMapWithKeyAndValue() {
-    PartitionedRegion region = mock(PartitionedRegion.class);
-    InternalRegionFunctionContext context = mock(InternalRegionFunctionContext.class);
+    var region = mock(PartitionedRegion.class);
+    var context = mock(InternalRegionFunctionContext.class);
     when(context.getDataSet()).thenReturn(region);
-    ResultSender resultSender = mock(ResultSender.class);
+    var resultSender = mock(ResultSender.class);
     when(context.getResultSender()).thenReturn(resultSender);
-    LuceneGetPageFunction function = new LuceneGetPageFunction();
+    var function = new LuceneGetPageFunction();
     when(context.getLocalDataSet(any())).thenReturn(region);
-    final EntrySnapshot entry = mock(EntrySnapshot.class);
+    final var entry = mock(EntrySnapshot.class);
     when(region.getEntry(any())).thenReturn(entry);
-    final RegionEntry regionEntry = mock(RegionEntry.class);
+    final var regionEntry = mock(RegionEntry.class);
     when(entry.getRegionEntry()).thenReturn(regionEntry);
     when(regionEntry.getValue(any())).thenReturn("value");
     when(context.getFilter()).thenReturn((Set) Collections.singleton("key"));
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     when(context.getCache()).thenReturn(cache);
     SecurityService securityService = mock(LegacySecurityService.class);
     when(cache.getSecurityService()).thenReturn(securityService);
 
     function.execute(context);
 
-    PageResults expectedResults = new PageResults();
+    var expectedResults = new PageResults();
     expectedResults.add(new PageEntry("key", "value"));
     verify(resultSender).lastResult(eq(expectedResults));
   }

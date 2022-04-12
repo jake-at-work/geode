@@ -15,18 +15,15 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.configuration.RegionConfig;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.functions.ManageIndexDefinitionFunction;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -50,9 +47,9 @@ public class DefineIndexCommand extends GfshCommand {
           optionContext = ConverterHint.INDEX_TYPE,
           help = CliStrings.DEFINE_INDEX__TYPE__HELP) final org.apache.geode.cache.query.IndexType indexType) {
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
-    RegionConfig.Index indexInfo = new RegionConfig.Index();
+    var indexInfo = new RegionConfig.Index();
     indexInfo.setName(indexName);
     indexInfo.setExpression(indexedExpression);
     indexInfo.setFromClause(regionPath);
@@ -61,13 +58,13 @@ public class DefineIndexCommand extends GfshCommand {
     IndexDefinition.indexDefinitions.add(indexInfo);
 
     // send the indexDefinition to the other locators to keep in memory
-    Set<DistributedMember> allOtherLocators = findAllOtherLocators();
+    var allOtherLocators = findAllOtherLocators();
     if (allOtherLocators.size() > 0) {
       executeAndGetFunctionResult(new ManageIndexDefinitionFunction(),
           indexInfo, allOtherLocators);
     }
 
-    InfoResultModel infoResult = result.addInfo();
+    var infoResult = result.addInfo();
     infoResult.addLine(CliStrings.DEFINE_INDEX__SUCCESS__MSG);
     infoResult.addLine(CliStrings.format(CliStrings.DEFINE_INDEX__NAME__MSG, indexName));
     infoResult

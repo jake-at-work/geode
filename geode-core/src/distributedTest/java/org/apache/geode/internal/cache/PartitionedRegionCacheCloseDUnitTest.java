@@ -25,7 +25,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 
 /**
@@ -39,8 +38,8 @@ public class PartitionedRegionCacheCloseDUnitTest extends CacheTestCase {
 
   @Test
   public void partitionRegionConfigNodesMatchesRegionMembership() throws Exception {
-    VM vm0 = Host.getHost(0).getVM(0);
-    VM vm1 = Host.getHost(0).getVM(1);
+    var vm0 = Host.getHost(0).getVM(0);
+    var vm1 = Host.getHost(0).getVM(1);
 
     // Create PRs on only 2 VMs
     vm0.invoke(() -> createPartitionedRegion());
@@ -53,7 +52,7 @@ public class PartitionedRegionCacheCloseDUnitTest extends CacheTestCase {
       Region prRootRegion = PartitionedRegionHelper.getPRRoot(getCache());
 
       await().untilAsserted(() -> {
-        PartitionRegionConfig partitionRegionConfig =
+        var partitionRegionConfig =
             (PartitionRegionConfig) prRootRegion.get("#" + REGION_NAME);
         assertThat(partitionRegionConfig.getNodes()).hasSize(1);
       });
@@ -63,7 +62,7 @@ public class PartitionedRegionCacheCloseDUnitTest extends CacheTestCase {
   private void createPartitionedRegion() {
     Cache cache = getCache();
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(1);
     partitionAttributesFactory.setLocalMaxMemory(20);
     partitionAttributesFactory.setTotalNumBuckets(TOTAL_NUM_BUCKETS);

@@ -176,7 +176,7 @@ public class TestMemoryThresholdListener implements ResourceListener<MemoryEvent
    */
   private int convertToIntPercent(final double percentHeap) {
     assert percentHeap >= 0.0 && percentHeap <= 1.0;
-    int ret = (int) Math.ceil(percentHeap * 100.0);
+    var ret = (int) Math.ceil(percentHeap * 100.0);
     assert ret >= 0 && ret <= 100;
     return ret;
   }

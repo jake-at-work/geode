@@ -67,10 +67,10 @@ public abstract class AbstractZScoreIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturnScoreWithSamePrecision() {
-    String key = "key";
-    String member = "member";
-    double score = 0.6792199922163132d;
-    byte[] byteScore = "0.6792199922163132".getBytes();
+    var key = "key";
+    var member = "member";
+    var score = 0.6792199922163132d;
+    var byteScore = "0.6792199922163132".getBytes();
 
     jedis.zadd(key, score, member);
 
@@ -82,10 +82,10 @@ public abstract class AbstractZScoreIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldReturnScoreWithCloseToSamePrecision_givenTooPreciseAScore() {
-    String key = "key";
-    String member = "member";
-    double score = 0.6792199922163132456d;
-    byte[] byteScore = "0.6792199922163132".getBytes();
+    var key = "key";
+    var member = "member";
+    var score = 0.6792199922163132456d;
+    var byteScore = "0.6792199922163132".getBytes();
 
     jedis.zadd(key, score, member);
 

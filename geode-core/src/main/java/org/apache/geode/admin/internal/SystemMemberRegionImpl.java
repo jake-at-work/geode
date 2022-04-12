@@ -70,12 +70,12 @@ public class SystemMemberRegionImpl implements SystemMemberRegion {
       rs = null;
     }
     { // set subregionNames
-      Set s = r.subregions(false);
+      var s = r.subregions(false);
       Set names = new TreeSet();
       Set paths = new TreeSet();
-      for (final Object o : s) {
-        Region r = (Region) o;
-        String name = r.getName();
+      for (final var o : s) {
+        var r = (Region) o;
+        var name = r.getName();
         names.add(name);
         paths.add(getFullPath() + SEPARATOR_CHAR + name);
       }
@@ -83,7 +83,7 @@ public class SystemMemberRegionImpl implements SystemMemberRegion {
       subregionFullPaths = paths;
     }
     try {
-      int[] sizes = r.sizes();
+      var sizes = r.sizes();
       entryCount = sizes[0];
       subregionCount = sizes[1];
     } catch (CacheException ignore) {
@@ -140,7 +140,7 @@ public class SystemMemberRegionImpl implements SystemMemberRegion {
 
   @Override
   public String getKeyConstraint() {
-    Class constraint = ra.getKeyConstraint();
+    var constraint = ra.getKeyConstraint();
     if (constraint == null) {
       return "";
     } else {
@@ -150,7 +150,7 @@ public class SystemMemberRegionImpl implements SystemMemberRegion {
 
   @Override
   public String getValueConstraint() {
-    Class constraint = ra.getValueConstraint();
+    var constraint = ra.getValueConstraint();
     if (constraint == null) {
       return "";
     } else {
@@ -255,7 +255,7 @@ public class SystemMemberRegionImpl implements SystemMemberRegion {
   @Override
   @Deprecated
   public String getCacheListener() {
-    String[] o = getCacheListeners();
+    var o = getCacheListeners();
     if (o.length == 0) {
       return "";
     } else {
@@ -279,7 +279,7 @@ public class SystemMemberRegionImpl implements SystemMemberRegion {
       ret = new String[0];
     } else {
       ret = new String[o.length];
-      for (int i = 0; i < o.length; i++) {
+      for (var i = 0; i < o.length; i++) {
         ret[i] = o[i].toString();
       }
     }
@@ -401,7 +401,7 @@ public class SystemMemberRegionImpl implements SystemMemberRegion {
   public SystemMemberRegion createSubregion(String name, RegionAttributes attrs)
       throws AdminException {
 
-    Region r = cache.getVM().createSubregion(cache.getCacheInfo(), getFullPath(),
+    var r = cache.getVM().createSubregion(cache.getCacheInfo(), getFullPath(),
         name, attrs);
     if (r == null) {
       return null;

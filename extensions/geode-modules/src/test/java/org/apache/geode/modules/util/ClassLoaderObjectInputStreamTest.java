@@ -29,7 +29,6 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import org.apache.bcel.Const;
-import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.generic.ClassGen;
 import org.junit.After;
 import org.junit.Before;
@@ -62,8 +61,8 @@ public class ClassLoaderObjectInputStreamTest {
 
   @Test
   public void resolveClassFromTCCLThrowsIfTCCLDisabled() throws Exception {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    var baos = new ByteArrayOutputStream();
+    var oos = new ObjectOutputStream(baos);
     oos.writeObject(instanceOfTCCLClass);
     oos.close();
 
@@ -77,15 +76,15 @@ public class ClassLoaderObjectInputStreamTest {
   public void resolveClassFindsClassFromTCCLIfTCCLEnabled() throws Exception {
     Thread.currentThread().setContextClassLoader(newTCCL);
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    var baos = new ByteArrayOutputStream();
+    var oos = new ObjectOutputStream(baos);
     oos.writeObject(instanceOfTCCLClass);
     oos.close();
 
     ObjectInputStream ois = new ClassLoaderObjectInputStream(
         new ByteArrayInputStream(baos.toByteArray()), getClass().getClassLoader());
 
-    Object objectFromTCCL = ois.readObject();
+    var objectFromTCCL = ois.readObject();
 
     assertThat(objectFromTCCL).isNotNull();
     assertThat(objectFromTCCL.getClass()).isNotNull();
@@ -94,7 +93,7 @@ public class ClassLoaderObjectInputStreamTest {
 
   private Object createInstanceOfTCCLClass()
       throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-    Class<?> clazz = Class.forName(classToLoad, false, newTCCL);
+    var clazz = Class.forName(classToLoad, false, newTCCL);
     return clazz.newInstance();
   }
 
@@ -124,11 +123,11 @@ public class ClassLoaderObjectInputStreamTest {
 
     @Override
     protected Class<?> findClass(String name) {
-      ClassGen cg = new ClassGen(name, Object.class.getName(), "<generated>",
+      var cg = new ClassGen(name, Object.class.getName(), "<generated>",
           Const.ACC_PUBLIC | Const.ACC_SUPER, new String[] {Serializable.class.getName()});
       cg.addEmptyConstructor(Const.ACC_PUBLIC);
-      JavaClass jClazz = cg.getJavaClass();
-      byte[] bytes = jClazz.getBytes();
+      var jClazz = cg.getJavaClass();
+      var bytes = jClazz.getBytes();
       return defineClass(jClazz.getClassName(), bytes, 0, bytes.length);
     }
 
@@ -153,7 +152,7 @@ public class ClassLoaderObjectInputStreamTest {
       } catch (IOException e) {
         throw new Error(e);
       }
-      Vector<URL> urls = new Vector<>();
+      var urls = new Vector<URL>();
       urls.add(url);
       return urls.elements();
     }

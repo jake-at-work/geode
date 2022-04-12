@@ -37,7 +37,8 @@ public class District implements Serializable {
   }// end of contructor 1
 
   public District(int i, Set cities, Set villages) {
-    String[] arr1 = {"MUMBAIDIST", "PUNEDIST", "GANDHINAGARDIST", "CHANDIGARHDIST", "KOLKATADIST"};
+    var arr1 =
+        new String[] {"MUMBAIDIST", "PUNEDIST", "GANDHINAGARDIST", "CHANDIGARHDIST", "KOLKATADIST"};
     /* this is for the test to have 20% of the objects belonging to one districtr */
     name = arr1[i % 5];
     this.cities = cities;

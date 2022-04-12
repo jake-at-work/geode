@@ -19,13 +19,11 @@ import static org.apache.geode.management.internal.cli.commands.ExportLogsComman
 import static org.apache.geode.management.internal.i18n.CliStrings.EXPORT_LOGS__ENDTIME;
 import static org.apache.geode.management.internal.i18n.CliStrings.EXPORT_LOGS__STARTTIME;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -65,29 +63,29 @@ public class ExportLogsInterceptor extends AbstractCliAroundInterceptor {
     }
 
     // validate log level
-    String logLevel = parseResult.getParamValueAsString("log-level");
+    var logLevel = parseResult.getParamValueAsString("log-level");
     if (StringUtils.isBlank(logLevel) || LogLevel.getLevel(logLevel) == null) {
       return ResultModel.createError("Invalid log level: " + logLevel);
     }
 
-    String start = parseResult.getParamValueAsString(EXPORT_LOGS__STARTTIME);
-    String end = parseResult.getParamValueAsString(EXPORT_LOGS__ENDTIME);
+    var start = parseResult.getParamValueAsString(EXPORT_LOGS__STARTTIME);
+    var end = parseResult.getParamValueAsString(EXPORT_LOGS__ENDTIME);
 
     // First check start date and end date format
-    ResultModel formatErrorResult = checkStartAndEndFormat(start, end);
+    var formatErrorResult = checkStartAndEndFormat(start, end);
     if (formatErrorResult != null) {
       return formatErrorResult;
     }
 
     // Check if start date and end date are able to be parsed correctly
-    ResultModel parseErrorResult = checkStartAndEndParsing(start, end);
+    var parseErrorResult = checkStartAndEndParsing(start, end);
     if (parseErrorResult != null) {
       return parseErrorResult;
     }
 
     // Check that end is later than start
-    LocalDateTime startTime = ExportLogsFunction.parseTime(start);
-    LocalDateTime endTime = ExportLogsFunction.parseTime(end);
+    var startTime = ExportLogsFunction.parseTime(start);
+    var endTime = ExportLogsFunction.parseTime(end);
     if (startTime != null && endTime != null) {
       if (startTime.isAfter(endTime)) {
         return ResultModel.createError("start-time has to be earlier than end-time.");
@@ -95,8 +93,8 @@ public class ExportLogsInterceptor extends AbstractCliAroundInterceptor {
     }
 
     // validate onlyLogs and onlyStats
-    boolean onlyLogs = (boolean) parseResult.getParamValue("logs-only");
-    boolean onlyStats = (boolean) parseResult.getParamValue("stats-only");
+    var onlyLogs = (boolean) parseResult.getParamValue("logs-only");
+    var onlyStats = (boolean) parseResult.getParamValue("stats-only");
     if (onlyLogs && onlyStats) {
       return ResultModel.createError("logs-only and stats-only can't both be true");
     }
@@ -108,10 +106,10 @@ public class ExportLogsInterceptor extends AbstractCliAroundInterceptor {
   public ResultModel postExecution(GfshParseResult parseResult, ResultModel commandResult,
       Path tempFile) {
 
-    StringBuilder output = new StringBuilder();
+    var output = new StringBuilder();
 
     // Output start time as used by ExportLogsFunction, if specified
-    String startTime = parseResult.getParamValueAsString(EXPORT_LOGS__STARTTIME);
+    var startTime = parseResult.getParamValueAsString(EXPORT_LOGS__STARTTIME);
     if (startTime != null && !startTime.isEmpty()) {
       output.append("Start time parsed as ")
           .append(ExportLogsFunction.parseTime(startTime))
@@ -121,7 +119,7 @@ public class ExportLogsInterceptor extends AbstractCliAroundInterceptor {
     }
 
     // Output end time as used by ExportLogsFunction, if specified
-    String endTime = parseResult.getParamValueAsString(EXPORT_LOGS__ENDTIME);
+    var endTime = parseResult.getParamValueAsString(EXPORT_LOGS__ENDTIME);
     if (endTime != null && !endTime.isEmpty()) {
       output.append("End time parsed as ")
           .append(ExportLogsFunction.parseTime(endTime))
@@ -133,14 +131,14 @@ public class ExportLogsInterceptor extends AbstractCliAroundInterceptor {
     if (tempFile != null) {
       // in the command over http case, the command result is in the downloaded temp file
       Path dirPath;
-      String dirName = parseResult.getParamValueAsString("dir");
+      var dirName = parseResult.getParamValueAsString("dir");
       if (StringUtils.isBlank(dirName)) {
         dirPath = Paths.get(System.getProperty("user.dir")).toAbsolutePath();
       } else {
         dirPath = Paths.get(dirName).toAbsolutePath();
       }
-      String fileName = "exportedLogs_" + System.currentTimeMillis() + ".zip";
-      File exportedLogFile = dirPath.resolve(fileName).toFile();
+      var fileName = "exportedLogs_" + System.currentTimeMillis() + ".zip";
+      var exportedLogFile = dirPath.resolve(fileName).toFile();
       try {
         FileUtils.copyFile(tempFile.toFile(), exportedLogFile);
         FileUtils.deleteQuietly(tempFile.toFile());
@@ -165,8 +163,8 @@ public class ExportLogsInterceptor extends AbstractCliAroundInterceptor {
   }
 
   private ResultModel checkStartAndEndFormat(String start, String end) {
-    StringBuilder formatErrorMessage = new StringBuilder();
-    boolean formatError = false;
+    var formatErrorMessage = new StringBuilder();
+    var formatError = false;
     if (start != null && !DATE_AND_TIME_PATTERN.matcher(start).matches()
         && !DATE_ONLY_PATTERN.matcher(start).matches()) {
       formatErrorMessage.append(EXPORT_LOGS__STARTTIME);
@@ -191,11 +189,11 @@ public class ExportLogsInterceptor extends AbstractCliAroundInterceptor {
   }
 
   private ResultModel checkStartAndEndParsing(String start, String end) {
-    StringBuilder parseErrorMessage = new StringBuilder();
-    boolean parseError = false;
+    var parseErrorMessage = new StringBuilder();
+    var parseError = false;
 
-    SimpleDateFormat dateAndTimeFormat = new SimpleDateFormat(FORMAT);
-    SimpleDateFormat dateOnlyFormat = new SimpleDateFormat(ONLY_DATE_FORMAT);
+    var dateAndTimeFormat = new SimpleDateFormat(FORMAT);
+    var dateOnlyFormat = new SimpleDateFormat(ONLY_DATE_FORMAT);
     if (start != null) {
       try {
         // If the input is intended to be parsed as date and time, use the date and time format

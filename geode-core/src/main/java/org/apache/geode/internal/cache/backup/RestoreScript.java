@@ -82,8 +82,8 @@ class RestoreScript {
   }
 
   File generate(final File outputDir) throws IOException {
-    File outputFile = new File(outputDir, generator.getScriptName());
-    try (BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath())) {
+    var outputFile = new File(outputDir, generator.getScriptName());
+    try (var writer = Files.newBufferedWriter(outputFile.toPath())) {
 
       writePreamble(writer);
       writeAbout(writer);
@@ -103,7 +103,7 @@ class RestoreScript {
   }
 
   private void writeAbout(BufferedWriter writer) throws IOException {
-    for (String comment : ABOUT_SCRIPT_COMMENT) {
+    for (var comment : ABOUT_SCRIPT_COMMENT) {
       generator.writeComment(writer, comment);
     }
     writer.newLine();
@@ -111,7 +111,7 @@ class RestoreScript {
 
   private void writeExistenceTest(BufferedWriter writer) throws IOException {
     generator.writeComment(writer, EXISTENCE_CHECK_COMMENT);
-    for (File file : existenceTests) {
+    for (var file : existenceTests) {
       generator.writeExistenceTest(writer, file);
     }
     writer.newLine();
@@ -119,13 +119,13 @@ class RestoreScript {
 
   private void writeRestoreData(BufferedWriter writer, Path outputDir) throws IOException {
     generator.writeComment(writer, RESTORE_DATA_COMMENT);
-    for (Map.Entry<File, File> entry : backedUpFiles.entrySet()) {
-      File backup = entry.getKey();
-      String[] backupFiles = backup.list();
-      boolean backupHasFiles =
+    for (var entry : backedUpFiles.entrySet()) {
+      var backup = entry.getKey();
+      var backupFiles = backup.list();
+      var backupHasFiles =
           backup.isDirectory() && backupFiles != null && backupFiles.length != 0;
       backup = outputDir.relativize(backup.toPath()).toFile();
-      File original = entry.getValue();
+      var original = entry.getValue();
       if (original.isDirectory()) {
         generator.writeCopyDirectoryContents(writer, backup, original, backupHasFiles);
       } else {
@@ -143,7 +143,7 @@ class RestoreScript {
 
     writer.newLine();
     generator.writeComment(writer, INCREMENTAL_MARKER_COMMENT);
-    for (Map.Entry<File, File> entry : baselineFiles.entrySet()) {
+    for (var entry : baselineFiles.entrySet()) {
       generator.writeCopyFile(writer, entry.getKey(), entry.getValue());
     }
   }

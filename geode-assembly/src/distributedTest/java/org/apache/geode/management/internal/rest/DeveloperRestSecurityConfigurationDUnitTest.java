@@ -37,7 +37,7 @@ public class DeveloperRestSecurityConfigurationDUnitTest {
     server = cluster.startServerVM(0,
         x -> x.withRestService()
             .withSecurityManager(SimpleSecurityManager.class));
-    GeodeDevRestClient client =
+    var client =
         new GeodeDevRestClient("/geode", "localhost", server.getHttpPort(), false);
 
     // Unsecured no credentials
@@ -62,7 +62,7 @@ public class DeveloperRestSecurityConfigurationDUnitTest {
   @Test
   public void testWithoutSecurityManager() {
     server = cluster.startServerVM(1, ServerStarterRule::withRestService);
-    GeodeDevRestClient client =
+    var client =
         new GeodeDevRestClient("/geode", "localhost", server.getHttpPort(), false);
 
     // Unsecured no credentials

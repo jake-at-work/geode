@@ -56,7 +56,7 @@ abstract class BackupStep implements BackupResultCollector {
   }
 
   Map<DistributedMember, Set<PersistentID>> send() {
-    ReplyProcessor21 replyProcessor = createReplyProcessor();
+    var replyProcessor = createReplyProcessor();
 
     dm.putOutgoing(createDistributionMessage(replyProcessor));
 

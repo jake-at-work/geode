@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.zip.Adler32;
 import java.util.zip.CheckedInputStream;
 import java.util.zip.CheckedOutputStream;
@@ -32,13 +31,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
-import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
-import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.wan.InternalGatewaySenderFactory;
 import org.apache.geode.internal.cache.wan.WANTestBase;
@@ -50,9 +43,9 @@ public class SenderWithTransportFilterDUnitTest extends WANTestBase {
 
   @Test
   public void testSerialSenderWithTransportFilter() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> SenderWithTransportFilterDUnitTest.createReceiverWithTransportFilters(nyPort));
     vm2.invoke(
@@ -75,9 +68,9 @@ public class SenderWithTransportFilterDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelSenderWithTransportFilter() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> SenderWithTransportFilterDUnitTest.createReceiverWithTransportFilters(nyPort));
     vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 10,
@@ -99,25 +92,25 @@ public class SenderWithTransportFilterDUnitTest extends WANTestBase {
   }
 
   public static int createReceiverWithTransportFilters(int locPort) {
-    WANTestBase test = new WANTestBase();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new WANTestBase();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "localhost[" + locPort + "]");
 
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var fact = cache.createGatewayReceiverFactory();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     fact.setStartPort(port);
     fact.setEndPort(port);
-    ArrayList<GatewayTransportFilter> transportFilters = new ArrayList<>();
+    var transportFilters = new ArrayList<GatewayTransportFilter>();
     transportFilters.add(new CheckSumTransportFilter("CheckSumTransportFilter"));
     if (!transportFilters.isEmpty()) {
-      for (GatewayTransportFilter filter : transportFilters) {
+      for (var filter : transportFilters) {
         fact.addGatewayTransportFilter(filter);
       }
     }
-    GatewayReceiver receiver = fact.create();
+    var receiver = fact.create();
     try {
       receiver.start();
     } catch (IOException e) {
@@ -129,22 +122,22 @@ public class SenderWithTransportFilterDUnitTest extends WANTestBase {
   public static void createSenderWithTransportFilter(String dsName, int remoteDsId,
       boolean isParallel, Integer maxMemory, Integer batchSize, boolean isConflation,
       boolean isPersistent, boolean isManualStart) {
-    File persistentDirectory =
+    var persistentDirectory =
         new File(dsName + "_disk_" + System.currentTimeMillis() + "_" + VM.getCurrentVMNum());
     persistentDirectory.mkdir();
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    File[] dirs1 = new File[] {persistentDirectory};
+    var dsf = cache.createDiskStoreFactory();
+    var dirs1 = new File[] {persistentDirectory};
 
     if (isParallel) {
-      GatewaySenderFactory gateway = cache.createGatewaySenderFactory();
+      var gateway = cache.createGatewaySenderFactory();
       gateway.setParallel(true);
       gateway.setMaximumQueueMemory(maxMemory);
       gateway.setBatchSize(batchSize);
       ((InternalGatewaySenderFactory) gateway).setLocatorDiscoveryCallback(new MyLocatorCallback());
-      ArrayList<GatewayTransportFilter> transportFilters = new ArrayList<>();
+      var transportFilters = new ArrayList<GatewayTransportFilter>();
       transportFilters.add(new CheckSumTransportFilter("CheckSumTransportFilter"));
       if (!transportFilters.isEmpty()) {
-        for (GatewayTransportFilter filter : transportFilters) {
+        for (var filter : transportFilters) {
           gateway.addGatewayTransportFilter(filter);
         }
       }
@@ -152,22 +145,22 @@ public class SenderWithTransportFilterDUnitTest extends WANTestBase {
         gateway.setPersistenceEnabled(true);
         gateway.setDiskStoreName(dsf.setDiskDirs(dirs1).create(dsName).getName());
       } else {
-        DiskStore store = dsf.setDiskDirs(dirs1).create(dsName);
+        var store = dsf.setDiskDirs(dirs1).create(dsName);
         gateway.setDiskStoreName(store.getName());
       }
       gateway.setBatchConflationEnabled(isConflation);
       gateway.create(dsName, remoteDsId);
 
     } else {
-      GatewaySenderFactory gateway = cache.createGatewaySenderFactory();
+      var gateway = cache.createGatewaySenderFactory();
       gateway.setMaximumQueueMemory(maxMemory);
       gateway.setBatchSize(batchSize);
       gateway.setManualStart(isManualStart);
       ((InternalGatewaySenderFactory) gateway).setLocatorDiscoveryCallback(new MyLocatorCallback());
-      ArrayList<GatewayTransportFilter> transportFilters = new ArrayList<>();
+      var transportFilters = new ArrayList<GatewayTransportFilter>();
       transportFilters.add(new CheckSumTransportFilter("CheckSumTransportFilter"));
       if (!transportFilters.isEmpty()) {
-        for (GatewayTransportFilter filter : transportFilters) {
+        for (var filter : transportFilters) {
           gateway.addGatewayTransportFilter(filter);
         }
       }
@@ -176,7 +169,7 @@ public class SenderWithTransportFilterDUnitTest extends WANTestBase {
         gateway.setPersistenceEnabled(true);
         gateway.setDiskStoreName(dsf.setDiskDirs(dirs1).create(dsName).getName());
       } else {
-        DiskStore store = dsf.setDiskDirs(dirs1).create(dsName);
+        var store = dsf.setDiskDirs(dirs1).create(dsName);
         gateway.setDiskStoreName(store.getName());
       }
       gateway.create(dsName, remoteDsId);

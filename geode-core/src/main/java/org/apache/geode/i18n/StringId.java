@@ -62,9 +62,9 @@ public class StringId {
   public static final StringId LITERAL = new StringId(1, "{0}");
 
   static {
-    Locale locale = Locale.getDefault();
+    var locale = Locale.getDefault();
 
-    AbstractStringIdResourceBundle tempResourceBundle = StringId.getBundle(locale);
+    var tempResourceBundle = StringId.getBundle(locale);
     currentLocale = locale;
     rb = tempResourceBundle;
     // do we want message ids included in output?
@@ -119,7 +119,7 @@ public class StringId {
    * @return the translation of this StringId based on the current {@link java.util.Locale}
    **/
   public String toLocalizedString() {
-    String idStr = "";
+    var idStr = "";
     if (includeMsgIDs) {
       idStr = "msgID " + id + ": ";
     }
@@ -133,7 +133,7 @@ public class StringId {
    * @return the translation of this StringId based on the current {@link java.util.Locale}
    **/
   public String toLocalizedString(Object... params) {
-    String idStr = "";
+    var idStr = "";
     if (includeMsgIDs) {
       idStr = "msgID " + id + ": ";
     }

@@ -31,7 +31,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
 import org.apache.geode.CancelCriterion;
-import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionStats;
@@ -76,9 +75,9 @@ public class MemberLevelStatsTest {
     DistributionStats.enableClockStats = true;
 
     statisticsManager = new StatisticsRegistry("TestStatisticsRegistry", 1);
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
-    StatisticsConfig statisticsConfig = mock(StatisticsConfig.class);
-    StatSamplerStats statSamplerStats =
+    var system = mock(InternalDistributedSystem.class);
+    var statisticsConfig = mock(StatisticsConfig.class);
+    var statSamplerStats =
         new StatSamplerStats(statisticsManager, statisticsManager.getPid());
 
     statSampler = new GemFireStatSampler(mock(CancelCriterion.class), statSamplerStats,
@@ -109,16 +108,16 @@ public class MemberLevelStatsTest {
     memberMBeanBridge.addStatSamplerStats(statSamplerStats);
 
     diskStoreStatsArray = new DiskStoreStats[4];
-    for (int i = 0; i < diskStoreStatsArray.length; i++) {
-      DiskStoreStats stats = new DiskStoreStats(statisticsManager, name.getMethodName() + i,
+    for (var i = 0; i < diskStoreStatsArray.length; i++) {
+      var stats = new DiskStoreStats(statisticsManager, name.getMethodName() + i,
           clockTime::get);
       diskStoreStatsArray[i] = stats;
       memberMBeanBridge.addDiskStoreStats(stats);
     }
 
     partitionedRegionStatsArray = new PartitionedRegionStats[4];
-    for (int i = 0; i < 4; i++) {
-      PartitionedRegionStats stats = new PartitionedRegionStats(
+    for (var i = 0; i < 4; i++) {
+      var stats = new PartitionedRegionStats(
           statisticsManager, name.getMethodName() + i, disabledClock());
       partitionedRegionStatsArray[i] = stats;
       memberMBeanBridge.addPartitionedRegionStats(stats);
@@ -160,7 +159,7 @@ public class MemberLevelStatsTest {
     dlockStats.incServices(5);
     dlockStats.incGrantors(2);
     dlockStats.incRequestQueues(10);
-    long startLockWait = dlockStats.startLockWait();
+    var startLockWait = dlockStats.startLockWait();
 
     sampleStats();
     tickClock();
@@ -179,14 +178,14 @@ public class MemberLevelStatsTest {
 
   @Test
   public void testTimeBasedCounters() {
-    long startCacheListenerCall = cachePerfStats.startCacheListenerCall();
-    long startCacheWriterCall = cachePerfStats.startCacheWriterCall();
-    long startGetHit = cachePerfStats.startGet();
-    long startGetMiss = cachePerfStats.startGet();
-    long startGetInitialImage = cachePerfStats.startGetInitialImage();
-    long startLoad = cachePerfStats.startLoad();
-    long startNetload = cachePerfStats.startNetload();
-    long startNetsearch = cachePerfStats.startNetsearch();
+    var startCacheListenerCall = cachePerfStats.startCacheListenerCall();
+    var startCacheWriterCall = cachePerfStats.startCacheWriterCall();
+    var startGetHit = cachePerfStats.startGet();
+    var startGetMiss = cachePerfStats.startGet();
+    var startGetInitialImage = cachePerfStats.startGetInitialImage();
+    var startLoad = cachePerfStats.startLoad();
+    var startNetload = cachePerfStats.startNetload();
+    var startNetsearch = cachePerfStats.startNetsearch();
 
     cachePerfStats.endPutAll(clockTime.get());
 
@@ -237,7 +236,7 @@ public class MemberLevelStatsTest {
 
   @Test
   public void testRates() {
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       cachePerfStats.incCreates();
       cachePerfStats.incDestroys();
 
@@ -260,7 +259,7 @@ public class MemberLevelStatsTest {
   @Test
   public void testDistributionStats() {
     distributionStats.incNodes(20);
-    long startReplyWait = distributionStats.startReplyWait();
+    var startReplyWait = distributionStats.startReplyWait();
 
     sampleStats();
     tickClock();
@@ -279,12 +278,12 @@ public class MemberLevelStatsTest {
 
   @Test
   public void testDiskCounters() {
-    long[] startReadArray = new long[diskStoreStatsArray.length];
-    long[] startWriteArray = new long[diskStoreStatsArray.length];
-    long[] startFlushArray = new long[diskStoreStatsArray.length];
+    var startReadArray = new long[diskStoreStatsArray.length];
+    var startWriteArray = new long[diskStoreStatsArray.length];
+    var startFlushArray = new long[diskStoreStatsArray.length];
 
-    for (int i = 0; i < diskStoreStatsArray.length; i++) {
-      DiskStoreStats diskStoreStats = diskStoreStatsArray[i];
+    for (var i = 0; i < diskStoreStatsArray.length; i++) {
+      var diskStoreStats = diskStoreStatsArray[i];
       diskStoreStats.startBackup();
       diskStoreStats.incWrittenBytes(200, false);
       startReadArray[i] = diskStoreStats.startRead();
@@ -298,8 +297,8 @@ public class MemberLevelStatsTest {
     assertThat(memberMBeanBridge.getTotalBackupInProgress()).isEqualTo(4);
     assertThat(memberMBeanBridge.getDiskWritesRate()).isEqualTo(800);
 
-    for (int i = 0; i < diskStoreStatsArray.length; i++) {
-      DiskStoreStats diskStoreStats = diskStoreStatsArray[i];
+    for (var i = 0; i < diskStoreStatsArray.length; i++) {
+      var diskStoreStats = diskStoreStatsArray[i];
       diskStoreStats.endBackup();
       diskStoreStats.endRead(startReadArray[i], 20);
       diskStoreStats.endWrite(startWriteArray[i]);
@@ -316,7 +315,7 @@ public class MemberLevelStatsTest {
 
   @Test
   public void testRegionCounters() {
-    for (PartitionedRegionStats stats : partitionedRegionStatsArray) {
+    for (var stats : partitionedRegionStatsArray) {
       stats.incBucketCount(1);
       stats.incPrimaryBucketCount(1);
       stats.incDataStoreEntryCount(1);
@@ -329,7 +328,7 @@ public class MemberLevelStatsTest {
     assertThat(memberMBeanBridge.getTotalBucketSize()).isEqualTo(4);
     assertThat(memberMBeanBridge.getTotalPrimaryBucketCount()).isEqualTo(4);
 
-    for (PartitionedRegionStats stats : partitionedRegionStatsArray) {
+    for (var stats : partitionedRegionStatsArray) {
       memberMBeanBridge.removePartitionedRegionStats(stats);
       stats.close();
     }
@@ -344,13 +343,13 @@ public class MemberLevelStatsTest {
 
   @Test
   public void testVMStats() {
-    Statistics[] realStats = statisticsManager.findStatisticsByType(VMStats50.getGCType());
-    long[] totals = modifyStatsAndReturnTotalCountAndTime(10, 2500, realStats);
+    var realStats = statisticsManager.findStatisticsByType(VMStats50.getGCType());
+    var totals = modifyStatsAndReturnTotalCountAndTime(10, 2500, realStats);
     memberMBeanBridge.addVMStats(statSampler.getVMStats());
     assertThat(memberMBeanBridge.getGarbageCollectionCount()).isEqualTo(totals[0]);
     assertThat(memberMBeanBridge.getGarbageCollectionTime()).isEqualTo(totals[1]);
 
-    long[] newTotals = modifyStatsAndReturnTotalCountAndTime(20, 3500, realStats);
+    var newTotals = modifyStatsAndReturnTotalCountAndTime(20, 3500, realStats);
     sampleStats();
     assertThat(memberMBeanBridge.getGarbageCollectionCount()).isEqualTo(newTotals[0]);
     assertThat(memberMBeanBridge.getGarbageCollectionTime()).isEqualTo(newTotals[1]);
@@ -360,9 +359,9 @@ public class MemberLevelStatsTest {
       long baseCount, long baseTime,
       Statistics[] modifiedStats) {
     long[] totalCountAndTime = {0, 0};
-    for (Statistics gcStat : modifiedStats) {
-      StatisticDescriptor[] statistics = gcStat.getType().getStatistics();
-      for (StatisticDescriptor d : statistics) {
+    for (var gcStat : modifiedStats) {
+      var statistics = gcStat.getType().getStatistics();
+      for (var d : statistics) {
         if ("collections".equals(d.getName())) {
           baseCount += 1;
           gcStat.setLong(d, baseCount);

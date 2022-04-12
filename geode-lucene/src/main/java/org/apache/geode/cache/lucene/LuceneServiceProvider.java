@@ -33,7 +33,7 @@ public class LuceneServiceProvider {
    * @return the LuceneService instance
    */
   public static LuceneService get(GemFireCache cache) {
-    InternalCache internalCache = (InternalCache) cache;
+    var internalCache = (InternalCache) cache;
     return internalCache.getService(InternalLuceneService.class);
   }
 

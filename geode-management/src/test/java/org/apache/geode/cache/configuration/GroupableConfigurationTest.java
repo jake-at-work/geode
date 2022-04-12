@@ -92,8 +92,8 @@ public class GroupableConfigurationTest {
 
   @Test
   public void equality() {
-    TestGroupableConfiguration configuration1 = new TestGroupableConfiguration();
-    TestGroupableConfiguration configuration2 = new TestGroupableConfiguration();
+    var configuration1 = new TestGroupableConfiguration();
+    var configuration2 = new TestGroupableConfiguration();
 
     configuration1.setGroup("group");
     configuration2.setGroup("group");

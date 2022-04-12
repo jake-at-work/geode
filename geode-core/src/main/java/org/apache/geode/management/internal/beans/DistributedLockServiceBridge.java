@@ -16,7 +16,6 @@ package org.apache.geode.management.internal.beans;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -115,10 +114,10 @@ public class DistributedLockServiceBridge {
    * @return member name of the grantor
    */
   public String fetchGrantorMember() {
-    Iterator<LockServiceMXBean> it = mapOfProxy.values().iterator();
+    var it = mapOfProxy.values().iterator();
     if (it != null) {
       while (it.hasNext()) {
-        String grantorMember = it.next().fetchGrantorMember();
+        var grantorMember = it.next().fetchGrantorMember();
         return grantorMember;
       }
     }
@@ -139,10 +138,10 @@ public class DistributedLockServiceBridge {
    * @return list of members using this lock service
    */
   public String[] getMemberNames() {
-    Iterator<LockServiceMXBean> it = mapOfProxy.values().iterator();
+    var it = mapOfProxy.values().iterator();
     if (it != null) {
       while (it.hasNext()) {
-        String[] memberNames = it.next().getMemberNames();
+        var memberNames = it.next().getMemberNames();
         return memberNames;
       }
 
@@ -155,10 +154,10 @@ public class DistributedLockServiceBridge {
    * @return name of the lock service
    */
   public String getName() {
-    Iterator<LockServiceMXBean> it = mapOfProxy.values().iterator();
+    var it = mapOfProxy.values().iterator();
     if (it != null) {
       while (it.hasNext()) {
-        String name = it.next().getName();
+        var name = it.next().getName();
         return name;
       }
 
@@ -171,13 +170,13 @@ public class DistributedLockServiceBridge {
    * @return lists the name of locks held by this member's threads
    */
   public String[] listHeldLocks() {
-    Iterator<LockServiceMXBean> it = mapOfProxy.values().iterator();
+    var it = mapOfProxy.values().iterator();
     listHeldLock.clear();
     if (it != null) {
       while (it.hasNext()) {
-        String[] locks = it.next().listHeldLocks();
+        var locks = it.next().listHeldLocks();
         if (locks != null && locks.length > 0) {
-          for (String lock : locks) {
+          for (var lock : locks) {
             listHeldLock.add(lock);
           }
         }
@@ -185,7 +184,7 @@ public class DistributedLockServiceBridge {
       }
 
     }
-    String[] tmpStr = new String[listHeldLock.size()];
+    var tmpStr = new String[listHeldLock.size()];
     return listHeldLock.toArray(tmpStr);
 
   }
@@ -195,11 +194,11 @@ public class DistributedLockServiceBridge {
    * @return a map of object name and thread name if this member holds lock or null/none
    */
   public Map<String, String> listThreadsHoldingLock() {
-    Iterator<LockServiceMXBean> it = mapOfProxy.values().iterator();
+    var it = mapOfProxy.values().iterator();
     threadsHoldingLock.clear();
     if (it != null) {
       while (it.hasNext()) {
-        Map<String, String> threadLockMap = it.next().listThreadsHoldingLock();
+        var threadLockMap = it.next().listThreadsHoldingLock();
         if (threadLockMap != null) {
           threadsHoldingLock.putAll(threadLockMap);
         }

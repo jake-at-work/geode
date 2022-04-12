@@ -32,18 +32,14 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
@@ -52,17 +48,13 @@ import org.apache.geode.cache.query.data.PortfolioPdx;
 import org.apache.geode.cache.query.data.PositionPdx;
 import org.apache.geode.cache.query.internal.index.CompactRangeIndex;
 import org.apache.geode.cache.query.internal.index.IndexManager;
-import org.apache.geode.cache.query.internal.index.IndexStore.IndexStoreEntry;
 import org.apache.geode.cache.query.internal.index.PartitionedIndex;
 import org.apache.geode.cache.query.internal.index.RangeIndex;
-import org.apache.geode.cache.query.types.CollectionType;
 import org.apache.geode.cache.query.types.ObjectType;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
-import org.apache.geode.internal.cache.persistence.query.CloseableIterator;
 import org.apache.geode.pdx.internal.PdxString;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
@@ -149,12 +141,12 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testReplicatedRegionNoIndex() throws CacheException {
-    final Host host = Host.getHost(0);
-    VM server0 = host.getVM(0);
-    VM server1 = host.getVM(1);
-    VM server2 = host.getVM(2);
-    VM client = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var server0 = host.getVM(0);
+    var server1 = host.getVM(1);
+    var server2 = host.getVM(2);
+    var client = host.getVM(3);
+    final var numberOfEntries = 10;
 
     // Start server1 and create index
     server0.invoke(new CacheSerializableRunnable("Create Server1") {
@@ -205,22 +197,22 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     final int port1 = server1.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
     final int port2 = server2.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(server0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(client, poolName, new String[] {host0}, new int[] {port0, port1, port2}, true);
 
     // Create client region and put PortfolioPdx objects (PdxInstances)
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
         LogWriterUtils.getLogWriter().info("Put PortfolioPdx");
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new PortfolioPdx(i));
         }
       }
@@ -232,11 +224,11 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
-        SelectResults[] resWithoutIndexRemote = new SelectResults[queryString.length];
-        SelectResults[] resWithIndexRemote = new SelectResults[queryString2.length];
-        SelectResults[] resWithoutIndexLocal = new SelectResults[queryString.length];
-        SelectResults[] resWithIndexLocal = new SelectResults[queryString2.length];
+        var rs = new SelectResults[1][2];
+        var resWithoutIndexRemote = new SelectResults[queryString.length];
+        var resWithIndexRemote = new SelectResults[queryString2.length];
+        var resWithoutIndexLocal = new SelectResults[queryString.length];
+        var resWithIndexLocal = new SelectResults[queryString2.length];
 
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
@@ -245,11 +237,11 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query on remote server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
+            var query = remoteQueryService.newQuery(queryString[i]);
             rs[0][0] = (SelectResults) query.execute();
             resWithoutIndexRemote[i] = rs[0][0];
             LogWriterUtils.getLogWriter().info("RR remote indexType: no index  size of resultset: "
@@ -272,7 +264,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
             // to compare remote query results with and without index
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query on remote server for region2:" + queryString2[i]);
-            Query query = remoteQueryService.newQuery(queryString2[i]);
+            var query = remoteQueryService.newQuery(queryString2[i]);
             resWithIndexRemote[i] = (SelectResults) query.execute();
             LogWriterUtils.getLogWriter().info("RR  remote region2 size of resultset: "
                 + resWithIndexRemote[i].size() + " for query: " + queryString2[i]);
@@ -302,7 +294,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
 
         }
         // compare remote query results with and without index
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           rs[0][0] = resWithoutIndexRemote[i];
           rs[0][1] = resWithIndexRemote[i];
           if (i < orderByQueryIndex) {
@@ -315,7 +307,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           }
         }
         // compare local query results with and without index
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           rs[0][0] = resWithoutIndexLocal[i];
           rs[0][1] = resWithIndexLocal[i];
           if (i < orderByQueryIndex) {
@@ -340,17 +332,17 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regionName);
 
         LogWriterUtils.getLogWriter().info("Put Objects locally on server");
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new Portfolio(i));
         }
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
         // Query server1 locally to check if PdxString is not being returned
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + queryString[i]);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(queryString[i]).execute();
+            var rs = (SelectResults) localQueryService.newQuery(queryString[i]).execute();
             LogWriterUtils.getLogWriter().info("RR server local indexType: no  size of resultset: "
                 + rs.size() + " for query: " + queryString[i]);
             // The results should not be PdxString
@@ -360,7 +352,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
             Assert.fail("Failed executing " + queryString[i], e);
           }
           try {
-            SelectResults rs =
+            var rs =
                 (SelectResults) localQueryService.newQuery(queryString2[i]).execute();
             LogWriterUtils.getLogWriter().info("RR server local indexType: no size of resultset: "
                 + rs.size() + " for query: " + queryString2[i]);
@@ -377,16 +369,16 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     server0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter().info(
                 "isPR: false server local readSerializedTrue: indexType: false size of resultset: "
                     + rs.size() + " for query: " + s);
@@ -403,16 +395,16 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
 
         // Query server1 remotely to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs =
+            var rs =
                 (SelectResults) remoteQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("RR server remote readSerializedTrue: indexType: false size of resultset: "
@@ -434,12 +426,12 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testRepliacatedRegionCompactRangeIndex() throws CacheException {
-    final Host host = Host.getHost(0);
-    VM server0 = host.getVM(0);
-    VM server1 = host.getVM(1);
-    VM server2 = host.getVM(2);
-    VM client = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var server0 = host.getVM(0);
+    var server1 = host.getVM(1);
+    var server2 = host.getVM(2);
+    var client = host.getVM(3);
+    final var numberOfEntries = 10;
 
     // Start server1 and create index
     server0.invoke(new CacheSerializableRunnable("Create Server1") {
@@ -489,22 +481,22 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     final int port1 = server1.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
     final int port2 = server2.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(server0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(client, poolName, new String[] {host0}, new int[] {port0, port1, port2}, true);
 
     // Create client region and put PortfolioPdx objects (PdxInstances)
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
         LogWriterUtils.getLogWriter().info("Put PortfolioPdx");
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new PortfolioPdx(i));
         }
       }
@@ -515,13 +507,13 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
-        Index index = localQueryService.getIndex(region, "statusIndex");
-        CloseableIterator<IndexStoreEntry> iter =
+        var index = localQueryService.getIndex(region, "statusIndex");
+        var iter =
             ((CompactRangeIndex) index).getIndexStorage().iterator(null);
         while (iter.hasNext()) {
-          Object key = iter.next().getDeserializedKey();
+          var key = iter.next().getDeserializedKey();
           if (!(key instanceof PdxString)) {
             fail(
                 "All keys of the CompactRangeIndex should be PdxStrings and not " + key.getClass());
@@ -536,7 +528,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
           localQueryService = getCache().getQueryService();
@@ -544,11 +536,11 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query on remote server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
+            var query = remoteQueryService.newQuery(queryString[i]);
             rs[0][0] = (SelectResults) query.execute();
             LogWriterUtils.getLogWriter()
                 .info("RR remote indexType: CompactRange size of resultset: " + rs[0][0].size()
@@ -591,17 +583,17 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regionName);
 
         LogWriterUtils.getLogWriter().info("Put Objects locally on server");
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new Portfolio(i));
         }
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("RR server local indexType:Range  size of resultset: " + rs.size()
                     + " for query: " + s);
@@ -618,15 +610,15 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     server0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter().info(
                 "RR server local readSerializedTrue: indexType: CompactRange size of resultset: "
                     + rs.size() + " for query: " + s);
@@ -643,16 +635,16 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
 
         // Query server1 remotely to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs =
+            var rs =
                 (SelectResults) remoteQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter().info(
                 "RR server remote readSerializedTrue: indexType:CompactRange size of resultset: "
@@ -674,12 +666,12 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testReplicatedRegionRangeIndex() throws CacheException {
-    final Host host = Host.getHost(0);
-    VM server0 = host.getVM(0);
-    VM server1 = host.getVM(1);
-    VM server2 = host.getVM(2);
-    VM client = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var server0 = host.getVM(0);
+    var server1 = host.getVM(1);
+    var server2 = host.getVM(2);
+    var client = host.getVM(3);
+    final var numberOfEntries = 10;
     // Start server1 and create index
     server0.invoke(new CacheSerializableRunnable("Create Server1") {
       @Override
@@ -728,22 +720,22 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     final int port0 = server0.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
     final int port1 = server1.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
     final int port2 = server2.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(client, poolName, new String[] {host0}, new int[] {port0, port1, port2}, true);
 
     // Create client region and put PortfolioPdx objects (PdxInstances)
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
         LogWriterUtils.getLogWriter().info("Put PortfolioPdx");
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new PortfolioPdx(i));
         }
       }
@@ -754,9 +746,9 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        QueryService localQueryService = getCache().getQueryService();
-        Index index = localQueryService.getIndex(region, "secIdIndex");
-        for (Object key : ((RangeIndex) index).getValueToEntriesMap().keySet()) {
+        var localQueryService = getCache().getQueryService();
+        var index = localQueryService.getIndex(region, "secIdIndex");
+        for (var key : ((RangeIndex) index).getValueToEntriesMap().keySet()) {
           if (!(key instanceof PdxString)) {
             fail("All keys of the RangeIndex should be PdxStrings and not " + key.getClass());
           }
@@ -770,7 +762,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
 
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
@@ -779,11 +771,11 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query on remote server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
+            var query = remoteQueryService.newQuery(queryString[i]);
             rs[0][0] = (SelectResults) query.execute();
             LogWriterUtils.getLogWriter().info("RR remote indexType: Range size of resultset: "
                 + rs[0][0].size() + " for query: " + queryString[i]);
@@ -824,17 +816,17 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regionName);
 
         LogWriterUtils.getLogWriter().info("Put Objects locally on server");
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new Portfolio(i));
         }
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("RR server local indexType:Range  size of resultset: " + rs.size()
                     + " for query: " + s);
@@ -850,15 +842,15 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     server0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("RR  server local readSerializedTrue: indexType: Range size of resultset: "
                     + rs.size() + " for query: " + s);
@@ -874,15 +866,15 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
         // Query server1 remotely to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs =
+            var rs =
                 (SelectResults) remoteQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("RR server remote readSerializedTrue: indexType: Range size of resultset: "
@@ -904,13 +896,13 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPartitionRegionNoIndex() throws CacheException {
-    final Host host = Host.getHost(0);
-    VM server0 = host.getVM(0);
-    VM server1 = host.getVM(1);
-    VM server2 = host.getVM(2);
-    VM client = host.getVM(3);
-    final int numberOfEntries = 10;
-    final boolean isPr = true;
+    final var host = Host.getHost(0);
+    var server0 = host.getVM(0);
+    var server1 = host.getVM(1);
+    var server2 = host.getVM(2);
+    var client = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var isPr = true;
     // Start server1 and create index
     server0.invoke(new CacheSerializableRunnable("Create Server1") {
       @Override
@@ -931,7 +923,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           index = localQueryService.createIndex("secIdIndex", "pos.secIdIndexed",
               regName + " p, p.positions.values pos");
           if (index instanceof PartitionedIndex) {
-            for (Object o : ((PartitionedIndex) index).getBucketIndexes()) {
+            for (var o : ((PartitionedIndex) index).getBucketIndexes()) {
               if (!(o instanceof RangeIndex)) {
                 fail("RangeIndex Index should have been created instead of " + index.getClass());
               }
@@ -968,22 +960,22 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     final int port1 = server1.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
     final int port2 = server2.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(server0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(client, poolName, new String[] {host0}, new int[] {port0, port1, port2}, true);
 
     // Create client region and put PortfolioPdx objects (PdxInstances)
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
         LogWriterUtils.getLogWriter().info("Put PortfolioPdx");
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new PortfolioPdx(i));
         }
       }
@@ -995,11 +987,11 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
-        SelectResults[] resWithoutIndexRemote = new SelectResults[queryString.length];
-        SelectResults[] resWithIndexRemote = new SelectResults[queryString.length];
-        SelectResults[] resWithoutIndexLocal = new SelectResults[queryString.length];
-        SelectResults[] resWithIndexLocal = new SelectResults[queryString.length];
+        var rs = new SelectResults[1][2];
+        var resWithoutIndexRemote = new SelectResults[queryString.length];
+        var resWithIndexRemote = new SelectResults[queryString.length];
+        var resWithoutIndexLocal = new SelectResults[queryString.length];
+        var resWithIndexLocal = new SelectResults[queryString.length];
 
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
@@ -1008,11 +1000,11 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query on remote server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
+            var query = remoteQueryService.newQuery(queryString[i]);
             rs[0][0] = (SelectResults) query.execute();
             resWithoutIndexRemote[i] = rs[0][0];
             LogWriterUtils.getLogWriter().info("RR remote no index size of resultset: "
@@ -1035,7 +1027,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
             // to compare remote query results with and without index
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query on remote server for region2:" + queryString2[i]);
-            Query query = remoteQueryService.newQuery(queryString2[i]);
+            var query = remoteQueryService.newQuery(queryString2[i]);
             resWithIndexRemote[i] = (SelectResults) query.execute();
             LogWriterUtils.getLogWriter()
                 .info("isPR: " + isPr + "  remote region2 size of resultset: "
@@ -1068,7 +1060,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           }
         }
 
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           rs[0][0] = resWithoutIndexRemote[i];
           rs[0][1] = resWithIndexRemote[i];
           if (i < orderByQueryIndex) {
@@ -1082,7 +1074,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           }
         }
 
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           rs[0][0] = resWithoutIndexLocal[i];
           rs[0][1] = resWithIndexLocal[i];
           if (i < orderByQueryIndex) {
@@ -1106,17 +1098,17 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regionName);
 
         LogWriterUtils.getLogWriter().info("Put Objects locally on server");
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new Portfolio(i));
         }
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
         // Query server1 locally to check if PdxString is not being returned
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + queryString[i]);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(queryString[i]).execute();
+            var rs = (SelectResults) localQueryService.newQuery(queryString[i]).execute();
             LogWriterUtils.getLogWriter().info("PR server local indexType:no  size of resultset: "
                 + rs.size() + " for query: " + queryString[i]);
             // The results should not be PdxString
@@ -1125,7 +1117,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
             Assert.fail("Failed executing " + queryString[i], e);
           }
           try {
-            SelectResults rs =
+            var rs =
                 (SelectResults) localQueryService.newQuery(queryString2[i]).execute();
             LogWriterUtils.getLogWriter().info("PR server local indexType: no size of resultset: "
                 + rs.size() + " for query: " + queryString2[i]);
@@ -1143,15 +1135,15 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     server0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("isPR: " + isPr
                     + " server local readSerializedTrue: indexType: no index size of resultset: "
@@ -1169,15 +1161,15 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
         // Query server1 remotely to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs =
+            var rs =
                 (SelectResults) remoteQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("RR server remote readSerializedTrue: indexType:no index size of resultset: "
@@ -1199,13 +1191,13 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPartitionRegionCompactRangeIndex() throws CacheException {
-    final Host host = Host.getHost(0);
-    VM server0 = host.getVM(0);
-    VM server1 = host.getVM(1);
-    VM server2 = host.getVM(2);
-    VM client = host.getVM(3);
-    final int numberOfEntries = 10;
-    final boolean isPr = true;
+    final var host = Host.getHost(0);
+    var server0 = host.getVM(0);
+    var server1 = host.getVM(1);
+    var server2 = host.getVM(2);
+    var client = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var isPr = true;
     // Start server1 and create index
     server0.invoke(new CacheSerializableRunnable("Create Server1") {
       @Override
@@ -1223,7 +1215,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         try {
           index = localQueryService.createIndex("statusIndex", "status", regName);
           if (index instanceof PartitionedIndex) {
-            for (Object o : ((PartitionedIndex) index).getBucketIndexes()) {
+            for (var o : ((PartitionedIndex) index).getBucketIndexes()) {
               if (!(o instanceof CompactRangeIndex)) {
                 fail("CompactRangeIndex Index should have been created instead of "
                     + index.getClass());
@@ -1261,22 +1253,22 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     final int port1 = server1.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
     final int port2 = server2.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(server0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(client, poolName, new String[] {host0}, new int[] {port0, port1, port2}, true);
 
     // Create client region and put PortfolioPdx objects (PdxInstances)
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
         LogWriterUtils.getLogWriter().info("Put PortfolioPdx");
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new PortfolioPdx(i));
         }
       }
@@ -1287,14 +1279,14 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        QueryService localQueryService = getCache().getQueryService();
-        Index index = localQueryService.getIndex(region, "statusIndex");
+        var localQueryService = getCache().getQueryService();
+        var index = localQueryService.getIndex(region, "statusIndex");
         if (index instanceof PartitionedIndex) {
-          for (Object o : ((PartitionedIndex) index).getBucketIndexes()) {
-            CloseableIterator<IndexStoreEntry> iter =
+          for (var o : ((PartitionedIndex) index).getBucketIndexes()) {
+            var iter =
                 ((CompactRangeIndex) o).getIndexStorage().iterator(null);
             while (iter.hasNext()) {
-              Object key = iter.next().getDeserializedKey();
+              var key = iter.next().getDeserializedKey();
               if (!(key instanceof PdxString)) {
                 fail(
                     "All keys of the CompactRangeIndex in the Partitioned index should be PdxStrings and not "
@@ -1314,7 +1306,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
 
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
@@ -1323,11 +1315,11 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query on remote server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
+            var query = remoteQueryService.newQuery(queryString[i]);
             rs[0][0] = (SelectResults) query.execute();
             LogWriterUtils.getLogWriter()
                 .info("RR remote indexType:CompactRange size of resultset: " + rs[0][0].size()
@@ -1368,17 +1360,17 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regionName);
 
         LogWriterUtils.getLogWriter().info("Put Objects locally on server");
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new Portfolio(i));
         }
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("RR server local indexType:Range  size of resultset: " + rs.size()
                     + " for query: " + s);
@@ -1395,16 +1387,16 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     server0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("isPR: " + isPr
                     + " server local readSerializedTrue: indexType:CompactRange size of resultset: "
@@ -1422,16 +1414,16 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
 
         // Query server1 remotely to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs =
+            var rs =
                 (SelectResults) remoteQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter().info(
                 "RR server remote readSerializedTrue: indexType: indexType:CompactRange size of resultset: "
@@ -1453,13 +1445,13 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPartitionRegionRangeIndex() throws CacheException {
-    final Host host = Host.getHost(0);
-    VM server0 = host.getVM(0);
-    VM server1 = host.getVM(1);
-    VM server2 = host.getVM(2);
-    VM client = host.getVM(3);
-    final int numberOfEntries = 10;
-    final boolean isPr = true;
+    final var host = Host.getHost(0);
+    var server0 = host.getVM(0);
+    var server1 = host.getVM(1);
+    var server2 = host.getVM(2);
+    var client = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var isPr = true;
     // Start server1 and create index
     server0.invoke(new CacheSerializableRunnable("Create Server1") {
       @Override
@@ -1478,7 +1470,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           index = localQueryService.createIndex("secIdIndex", "pos.secId",
               regName + " p, p.positions.values pos");
           if (index instanceof PartitionedIndex) {
-            for (Object o : ((PartitionedIndex) index).getBucketIndexes()) {
+            for (var o : ((PartitionedIndex) index).getBucketIndexes()) {
               if (!(o instanceof RangeIndex)) {
                 fail("Range Index should have been created instead of " + index.getClass());
               }
@@ -1515,22 +1507,22 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     final int port1 = server1.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
     final int port2 = server2.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(server0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(client, poolName, new String[] {host0}, new int[] {port0, port1, port2}, true);
 
     // Create client region and put PortfolioPdx objects (PdxInstances)
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
         LogWriterUtils.getLogWriter().info("Put PortfolioPdx");
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new PortfolioPdx(i));
         }
       }
@@ -1541,12 +1533,12 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
-        Index index = localQueryService.getIndex(region, "secIdIndex");
+        var index = localQueryService.getIndex(region, "secIdIndex");
         if (index instanceof PartitionedIndex) {
-          for (Object o : ((PartitionedIndex) index).getBucketIndexes()) {
-            for (Object key : ((RangeIndex) o).getValueToEntriesMap().keySet()) {
+          for (var o : ((PartitionedIndex) index).getBucketIndexes()) {
+            for (var key : ((RangeIndex) o).getValueToEntriesMap().keySet()) {
               if (!(key instanceof PdxString)) {
                 fail(
                     "All keys of the RangeIndex in the Partitioned index should be PdxStrings and not "
@@ -1566,7 +1558,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
 
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
@@ -1575,11 +1567,11 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query on remote server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
+            var query = remoteQueryService.newQuery(queryString[i]);
             rs[0][0] = (SelectResults) query.execute();
             LogWriterUtils.getLogWriter().info("RR remote indexType: Range size of resultset: "
                 + rs[0][0].size() + " for query: " + queryString[i]);
@@ -1622,17 +1614,17 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regionName);
 
         LogWriterUtils.getLogWriter().info("Put Objects locally on server");
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new Portfolio(i));
         }
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("RR server local indexType:Range  size of resultset: " + rs.size()
                     + " for query: " + s);
@@ -1649,16 +1641,16 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     server0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService localQueryService = getCache().getQueryService();
+        var localQueryService = getCache().getQueryService();
 
         // Query server1 locally to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs = (SelectResults) localQueryService.newQuery(s).execute();
+            var rs = (SelectResults) localQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("isPR: " + isPr
                     + " server local readSerializedTrue: indexType: Range size of resultset: "
@@ -1676,16 +1668,16 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
 
         // Query server1 remotely to check if PdxString is not being returned
-        for (final String s : queryString) {
+        for (final var s : queryString) {
           try {
             LogWriterUtils.getLogWriter()
                 .info("### Executing Query locally on server:" + s);
-            SelectResults rs =
+            var rs =
                 (SelectResults) remoteQueryService.newQuery(s).execute();
             LogWriterUtils.getLogWriter()
                 .info("RR server remote readSerializedTrue: indexType: Range size of resultset: "
@@ -1707,13 +1699,13 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testNullPdxString() throws CacheException {
-    final Host host = Host.getHost(0);
-    VM server0 = host.getVM(0);
-    VM server1 = host.getVM(1);
-    VM server2 = host.getVM(2);
-    VM client = host.getVM(3);
-    final int numberOfEntries = 10;
-    final boolean isPr = true;
+    final var host = Host.getHost(0);
+    var server0 = host.getVM(0);
+    var server1 = host.getVM(1);
+    var server2 = host.getVM(2);
+    var client = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var isPr = true;
     // Start server1 and create index
     server0.invoke(new CacheSerializableRunnable("Create Server1") {
       @Override
@@ -1731,7 +1723,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         try {
           index = localQueryService.createIndex("statusIndex", "status", regName);
           if (index instanceof PartitionedIndex) {
-            for (Object o : ((PartitionedIndex) index).getBucketIndexes()) {
+            for (var o : ((PartitionedIndex) index).getBucketIndexes()) {
               if (!(o instanceof CompactRangeIndex)) {
                 fail("CompactRangeIndex Index should have been created instead of "
                     + index.getClass());
@@ -1769,33 +1761,33 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     final int port1 = server1.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
     final int port2 = server2.invoke(PdxStringQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(server0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(client, poolName, new String[] {host0}, new int[] {port0, port1, port2}, true);
 
     // Create client region and put PortfolioPdx objects (PdxInstances)
     client.invoke(new CacheSerializableRunnable("Create client") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
 
         LogWriterUtils.getLogWriter().info("Put PortfolioPdx");
         // Put some PortfolioPdx objects with null Status and secIds
-        for (int i = 0; i < numberOfEntries * 2; i++) {
-          PortfolioPdx portfolioPdx = new PortfolioPdx(i);
+        for (var i = 0; i < numberOfEntries * 2; i++) {
+          var portfolioPdx = new PortfolioPdx(i);
           portfolioPdx.status = null; // this will create NULL PdxStrings
           portfolioPdx.positions = new HashMap();
           portfolioPdx.positions.put(null, new PositionPdx(null, PositionPdx.cnt * 1000));
           region.put("key-" + i, portfolioPdx);
         }
         // Put some PortfolioPdx with non null status to reproduce bug#45351
-        for (int i = 0; i < numberOfEntries; i++) {
-          PortfolioPdx portfolioPdx = new PortfolioPdx(i);
+        for (var i = 0; i < numberOfEntries; i++) {
+          var portfolioPdx = new PortfolioPdx(i);
           region.put("key-" + i, portfolioPdx);
         }
       }
@@ -1806,14 +1798,14 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        QueryService localQueryService = getCache().getQueryService();
-        Index index = localQueryService.getIndex(region, "statusIndex");
+        var localQueryService = getCache().getQueryService();
+        var index = localQueryService.getIndex(region, "statusIndex");
         if (index instanceof PartitionedIndex) {
-          for (Object o : ((PartitionedIndex) index).getBucketIndexes()) {
-            CloseableIterator<IndexStoreEntry> iter =
+          for (var o : ((PartitionedIndex) index).getBucketIndexes()) {
+            var iter =
                 ((CompactRangeIndex) o).getIndexStorage().iterator(null);
             while (iter.hasNext()) {
-              Object key = iter.next().getDeserializedKey();
+              var key = iter.next().getDeserializedKey();
               if (!(key instanceof PdxString) && !(key == IndexManager.NULL)) {
                 fail(
                     "All keys of the CompactRangeIndex in the Partitioned index should be PdxStrings and not "
@@ -1833,7 +1825,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
 
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
@@ -1843,19 +1835,19 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         }
 
         // Querying the fields with null values
-        String[] qs = {
+        var qs = new String[] {
             "SELECT pos.secId FROM " + regName
                 + "  p, p.positions.values pos where p.status = null",
             "SELECT p.pkid FROM " + regName + "  p, p.positions.values pos where pos.secId = null"};
 
-        for (int i = 0; i < 2; i++) {
+        for (var i = 0; i < 2; i++) {
           try {
-            Query query = remoteQueryService.newQuery(qs[i]);
-            SelectResults res = (SelectResults) query.execute();
+            var query = remoteQueryService.newQuery(qs[i]);
+            var res = (SelectResults) query.execute();
             LogWriterUtils.getLogWriter().info("PR NULL Pdxstring test size of resultset: "
                 + res.size() + " for query: " + qs[i]);
             if (i == 0) {
-              for (Object o : res) {
+              for (var o : res) {
                 if (o != null) {
                   fail("Query : " + qs[i] + " should have returned null and not " + o);
                 }
@@ -1878,9 +1870,9 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
 
 
   private void compareResultsOrder(SelectResults[][] r, boolean isPr) {
-    for (final SelectResults[] selectResults : r) {
-      Object[] r1 = (selectResults[0]).toArray();
-      Object[] r2 = (selectResults[1]).toArray();
+    for (final var selectResults : r) {
+      var r1 = (selectResults[0]).toArray();
+      var r2 = (selectResults[1]).toArray();
       if (r1.length != r2.length) {
         fail("Size of results not equal: " + r1.length + " vs " + r2.length);
       }
@@ -1894,18 +1886,18 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void checkForPdxString(List results, String query) {
-    boolean isGroupByQuery = false;
-    for (int i : groupByQueryIndex) {
+    var isGroupByQuery = false;
+    for (var i : groupByQueryIndex) {
       if (query.equals(queryString[i]) || query.equals(queryString2[i])) {
         isGroupByQuery = true;
         break;
       }
     }
-    for (Object o : results) {
+    for (var o : results) {
       if (o instanceof Struct) {
         if (!isGroupByQuery) {
-          Object o1 = ((Struct) o).getFieldValues()[0];
-          Object o2 = ((Struct) o).getFieldValues()[1];
+          var o1 = ((Struct) o).getFieldValues()[0];
+          var o2 = ((Struct) o).getFieldValues()[1];
           if (!(o1 instanceof String)) {
             fail(
                 "Returned instance of " + o1.getClass() + " instead of String for query: " + query);
@@ -1927,15 +1919,15 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
   }
 
   public boolean compareResultsOfWithAndWithoutIndex(SelectResults[][] r) {
-    boolean ok = true;
+    var ok = true;
     Set set1 = null;
     Set set2 = null;
     Iterator itert1 = null;
     Iterator itert2 = null;
     ObjectType type1, type2;
-    outer: for (final SelectResults[] selectResults : r) {
-      CollectionType collType1 = selectResults[0].getCollectionType();
-      CollectionType collType2 = selectResults[1].getCollectionType();
+    outer: for (final var selectResults : r) {
+      var collType1 = selectResults[0].getCollectionType();
+      var collType2 = selectResults[1].getCollectionType();
       type1 = collType1.getElementType();
       type2 = collType2.getElementType();
 
@@ -1950,25 +1942,25 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       }
       set2 = (selectResults[1].asSet());
       set1 = (selectResults[0].asSet());
-      boolean pass = true;
+      var pass = true;
       itert1 = set1.iterator();
       while (itert1.hasNext()) {
-        Object p1 = itert1.next();
+        var p1 = itert1.next();
         itert2 = set2.iterator();
 
-        boolean exactMatch = false;
+        var exactMatch = false;
         while (itert2.hasNext()) {
-          Object p2 = itert2.next();
+          var p2 = itert2.next();
           if (p1 instanceof Struct) {
-            Object[] values1 = ((Struct) p1).getFieldValues();
-            Object[] values2 = ((Struct) p2).getFieldValues();
+            var values1 = ((Struct) p1).getFieldValues();
+            var values2 = ((Struct) p2).getFieldValues();
             // test.assertIndexDetailsEquals(values1.length, values2.length);
             if (values1.length != values2.length) {
               ok = false;
               break outer;
             }
-            boolean elementEqual = true;
-            for (int i = 0; i < values1.length; ++i) {
+            var elementEqual = true;
+            for (var i = 0; i < values1.length; ++i) {
               elementEqual =
                   elementEqual && ((values1[i] == values2[i]) || values1[i].equals(values2[i]));
             }
@@ -1997,22 +1989,23 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testPRQueryForDuplicates() throws CacheException {
-    final String regionName = "exampleRegion";
-    final Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final String name = SEPARATOR + regionName;
-    final String[] qs =
-        {"select distinct pkid from " + name, "select distinct pkid, status from " + name};
+    final var regionName = "exampleRegion";
+    final var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var name = SEPARATOR + regionName;
+    final var qs =
+        new String[] {"select distinct pkid from " + name,
+            "select distinct pkid, status from " + name};
 
     // Start server1
     final int port1 = (Integer) vm0.invoke(new SerializableCallable("Create Server1") {
       @Override
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.PARTITION).create(regionName);
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -2025,8 +2018,8 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.PARTITION).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -2037,21 +2030,21 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm0.getHost()), port1);
         cf.addPoolServer(NetworkUtils.getServerHostName(vm1.getHost()), port2);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
         // Put Portfolios with 2 different pkids
-        for (int set = 1; set <= 2; set++) {
-          for (int current = 1; current <= 5; current++) {
+        for (var set = 1; set <= 2; set++) {
+          for (var current = 1; current <= 5; current++) {
             region.put("key-" + set + "_" + current, new PortfolioPdx(set, current));
           }
         }
 
-        for (final String q : qs) {
-          SelectResults sr = (SelectResults) cache.getQueryService().newQuery(q).execute();
+        for (final var q : qs) {
+          var sr = (SelectResults) cache.getQueryService().newQuery(q).execute();
           assertEquals("Did not get expected result from query: " + q + " ", 2, sr.size());
         }
 
@@ -2063,11 +2056,11 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
     // to simulate remote query
     vm0.invoke("Create server", () -> {
 
-      Boolean previousPdxReadSerializedFlag = cache.getPdxReadSerializedOverride();
+      var previousPdxReadSerializedFlag = cache.getPdxReadSerializedOverride();
       cache.setPdxReadSerializedOverride(true);
       try {
-        for (final String q : qs) {
-          SelectResults sr = (SelectResults) getCache().getQueryService().newQuery(q).execute();
+        for (final var q : qs) {
+          var sr = (SelectResults) getCache().getQueryService().newQuery(q).execute();
           assertEquals("Did not get expected result from query: " + q + " ", 2, sr.size());
         }
       } finally {
@@ -2080,13 +2073,13 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void configAndStartBridgeServer(boolean isPr, boolean isAccessor, boolean asyncIndex) {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     if (isPr) {
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
       if (isAccessor) {
         paf.setLocalMaxMemory(0);
       }
-      PartitionAttributes prAttr = paf.setTotalNumBuckets(20).setRedundantCopies(0).create();
+      var prAttr = paf.setTotalNumBuckets(20).setRedundantCopies(0).create();
       factory.setPartitionAttributes(prAttr);
     } else {
       factory.setScope(Scope.DISTRIBUTED_ACK);
@@ -2110,7 +2103,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
   protected void startBridgeServer(int port, boolean notifyBySubscription) throws IOException {
 
     Cache cache = getCache();
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     server.setPort(port);
     server.start();
     bridgeServerPort = server.getPort();
@@ -2120,7 +2113,7 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
    * Stops the cache server that serves up the given cache.
    */
   protected void stopBridgeServer(Cache cache) {
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     server.stop();
     assertFalse(server.isRunning());
   }
@@ -2166,10 +2159,10 @@ public class PdxStringQueryDUnitTest extends JUnit4CacheTestCase {
         getLonerSystem();
         IgnoredException.addIgnoredException("Connection refused");
         getCache();
-        PoolFactory cpf = PoolManager.createFactory();
+        var cpf = PoolManager.createFactory();
         cpf.setSubscriptionEnabled(subscriptionEnabled);
         cpf.setSubscriptionRedundancy(redundancy);
-        for (int i = 0; i < servers.length; i++) {
+        for (var i = 0; i < servers.length; i++) {
           LogWriterUtils.getLogWriter()
               .info("### Adding to Pool. ### Server : " + servers[i] + " Port : " + ports[i]);
           cpf.addServer(servers[i], ports[i]);

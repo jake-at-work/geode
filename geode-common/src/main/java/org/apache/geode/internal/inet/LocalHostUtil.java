@@ -34,7 +34,6 @@ import java.util.concurrent.TimeoutException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
@@ -87,17 +86,17 @@ public class LocalHostUtil {
         InetAddress ipv4Fallback = null;
         InetAddress ipv6Fallback = null;
         // try to find a non-loopback address
-        Set<InetAddress> myInterfaces = getMyAddresses();
-        boolean preferIPv6 = useIPv6Addresses;
+        var myInterfaces = getMyAddresses();
+        var preferIPv6 = useIPv6Addresses;
         String lhName = null;
-        for (InetAddress addr : myInterfaces) {
+        for (var addr : myInterfaces) {
           if (addr.isLoopbackAddress() || addr.isAnyLocalAddress() || lhName != null) {
             break;
           }
-          boolean ipv6 = addr instanceof Inet6Address;
-          boolean ipv4 = addr instanceof Inet4Address;
+          var ipv6 = addr instanceof Inet6Address;
+          var ipv4 = addr instanceof Inet4Address;
           if ((preferIPv6 && ipv6) || (!preferIPv6 && ipv4)) {
-            String addrName = reverseDNS(addr);
+            var addrName = reverseDNS(addr);
             if (inetAddress.isLoopbackAddress()) {
               inetAddress = addr;
               lhName = addrName;
@@ -151,17 +150,17 @@ public class LocalHostUtil {
           e);
     }
     while (interfaces.hasMoreElements()) {
-      NetworkInterface face = interfaces.nextElement();
-      boolean faceIsUp = false;
+      var face = interfaces.nextElement();
+      var faceIsUp = false;
       try {
         faceIsUp = face.isUp();
       } catch (SocketException e) {
         // since it's not usable we'll skip this interface
       }
       if (faceIsUp) {
-        Enumeration<InetAddress> addrs = face.getInetAddresses();
+        var addrs = face.getInetAddresses();
         while (addrs.hasMoreElements()) {
-          InetAddress addr = addrs.nextElement();
+          var addr = addrs.nextElement();
           if (addr.isLoopbackAddress() || addr.isAnyLocalAddress()
               || (!useLinkLocalAddresses && addr.isLinkLocalAddress())) {
             locals.add(addr);
@@ -188,23 +187,23 @@ public class LocalHostUtil {
    *         no host name for this address
    */
   private static String reverseDNS(InetAddress addr) {
-    byte[] addrBytes = addr.getAddress();
+    var addrBytes = addr.getAddress();
     // reverse the address suitable for reverse lookup
-    StringBuilder lookup = new StringBuilder();
-    for (int index = addrBytes.length - 1; index >= 0; index--) {
+    var lookup = new StringBuilder();
+    for (var index = addrBytes.length - 1; index >= 0; index--) {
       lookup.append(addrBytes[index] & 0xff).append('.');
     }
     lookup.append("in-addr.arpa");
 
     try {
-      Hashtable<String, String> env = new Hashtable<>();
+      var env = new Hashtable<String, String>();
       env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
       DirContext ctx = new InitialDirContext(env);
-      Attributes attrs = ctx.getAttributes(lookup.toString(), new String[] {"PTR"});
+      var attrs = ctx.getAttributes(lookup.toString(), new String[] {"PTR"});
       for (NamingEnumeration ae = attrs.getAll(); ae.hasMoreElements();) {
-        Attribute attr = (Attribute) ae.next();
+        var attr = (Attribute) ae.next();
         for (Enumeration vals = attr.getAll(); vals.hasMoreElements();) {
-          Object elem = vals.nextElement();
+          var elem = vals.nextElement();
           if ("PTR".equals(attr.getID()) && elem != null) {
             return elem.toString();
           }
@@ -247,7 +246,7 @@ public class LocalHostUtil {
    */
   public static boolean isLocalHost(Object host) {
     if (host instanceof InetAddress) {
-      InetAddress inetAddress = (InetAddress) host;
+      var inetAddress = (InetAddress) host;
       if (isLocalHost(inetAddress)) {
         return true;
       } else if (inetAddress.isLoopbackAddress()) {
@@ -258,9 +257,9 @@ public class LocalHostUtil {
         try {
           Enumeration en = NetworkInterface.getNetworkInterfaces();
           while (en.hasMoreElements()) {
-            NetworkInterface i = (NetworkInterface) en.nextElement();
+            var i = (NetworkInterface) en.nextElement();
             for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements();) {
-              InetAddress addr = (InetAddress) en2.nextElement();
+              var addr = (InetAddress) en2.nextElement();
               if (inetAddress.equals(addr)) {
                 return true;
               }
@@ -301,7 +300,7 @@ public class LocalHostUtil {
       return null;
     }
     try {
-      final int index = host.indexOf("/");
+      final var index = host.indexOf("/");
       if (index > -1) {
         return InetAddress.getByName(host.substring(index + 1));
       } else {

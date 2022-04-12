@@ -36,7 +36,6 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -66,13 +65,13 @@ public class LonerDMJUnitTest {
     long end;
     DistributedSystem ds = null;
     Cache c = null;
-    Properties cfg = new Properties();
+    var cfg = new Properties();
     cfg.setProperty(MCAST_PORT, "0");
     cfg.setProperty(LOCATORS, "");
     cfg.setProperty(STATISTIC_SAMPLING_ENABLED, "false");
     cfg.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       start = System.currentTimeMillis();
       ds = DistributedSystem.connect(cfg);
       end = System.currentTimeMillis();
@@ -85,9 +84,9 @@ public class LonerDMJUnitTest {
         System.out.println("Cache create took " + (end - start) + " ms");
 
         try {
-          AttributesFactory af = new AttributesFactory();
+          var af = new AttributesFactory();
           af.setScope(Scope.GLOBAL);
-          Region r = c.createRegion("loner", af.create());
+          var r = c.createRegion("loner", af.create());
           r.put("key1", "value1");
           r.get("key1");
           r.get("key2");
@@ -120,14 +119,14 @@ public class LonerDMJUnitTest {
     long end;
     DistributedSystem ds = null;
     Cache c = null;
-    Properties cfg = new Properties();
+    var cfg = new Properties();
     cfg.setProperty(MCAST_PORT, "0");
     cfg.setProperty(LOCATORS, "");
     cfg.setProperty(STATISTIC_SAMPLING_ENABLED, "true");
     cfg.setProperty(STATISTIC_ARCHIVE_FILE, "lonerStats.gfs");
     cfg.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       start = System.currentTimeMillis();
       ds = DistributedSystem.connect(cfg);
       end = System.currentTimeMillis();
@@ -140,9 +139,9 @@ public class LonerDMJUnitTest {
         System.out.println("Cache create took " + (end - start) + " ms");
 
         try {
-          AttributesFactory af = new AttributesFactory();
+          var af = new AttributesFactory();
           af.setScope(Scope.GLOBAL);
-          Region r = c.createRegion("loner", af.create());
+          var r = c.createRegion("loner", af.create());
           r.put("key1", "value1");
           r.get("key1");
           r.get("key2");
@@ -171,16 +170,16 @@ public class LonerDMJUnitTest {
 
   @Test
   public void testMemberId() throws UnknownHostException {
-    String host = InetAddress.getLocalHost().getCanonicalHostName();
-    String name = "Foo";
+    var host = InetAddress.getLocalHost().getCanonicalHostName();
+    var name = "Foo";
 
-    Properties cfg = new Properties();
+    var cfg = new Properties();
     cfg.setProperty(MCAST_PORT, "0");
     cfg.setProperty(LOCATORS, "");
     cfg.setProperty(ROLES, "lonelyOne");
     cfg.setProperty(NAME, name);
     cfg.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
-    DistributedSystem ds = DistributedSystem.connect(cfg);
+    var ds = DistributedSystem.connect(cfg);
     System.out.println("MemberId = " + ds.getMemberId());
     assertEquals(OSProcess.getId(), ds.getDistributedMember().getProcessId());
     assertTrue(ds.getMemberId().indexOf(name) > -1);

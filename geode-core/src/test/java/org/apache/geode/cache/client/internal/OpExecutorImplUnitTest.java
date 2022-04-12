@@ -103,7 +103,7 @@ public class OpExecutorImplUnitTest {
   public void execute_calls_authenticateIfMultiUser() throws Exception {
     when(connection.execute(any())).thenReturn(123L);
     when(connectionManager.borrowConnection(5)).thenReturn(connection);
-    OpExecutorImpl spy = spy(executor);
+    var spy = spy(executor);
 
     spy.execute(op, 1);
     verify(spy).authenticateIfMultiUser(any(), any());
@@ -111,10 +111,10 @@ public class OpExecutorImplUnitTest {
 
   @Test
   public void authenticateIfMultiUser_calls_authenticateMultiUser() {
-    OpExecutorImpl spy = spy(executor);
+    var spy = spy(executor);
     when(connection.getServer()).thenReturn(server);
     when(pool.executeOn(any(ServerLocation.class), any())).thenReturn(123L);
-    UserAttributes userAttributes = new UserAttributes(null, null);
+    var userAttributes = new UserAttributes(null, null);
 
     when(server.getRequiresCredentials()).thenReturn(false);
     spy.authenticateIfMultiUser(connection, op);

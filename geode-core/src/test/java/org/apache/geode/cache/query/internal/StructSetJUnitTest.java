@@ -22,11 +22,8 @@ package org.apache.geode.cache.query.internal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Iterator;
-
 import org.junit.Test;
 
-import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.types.StructTypeImpl;
 import org.apache.geode.cache.query.internal.types.TypeUtils;
@@ -36,18 +33,18 @@ public class StructSetJUnitTest {
 
   @Test
   public void testIntersectionAndRetainAll() {
-    String[] names = {"p", "pos"};
-    ObjectType[] types = {TypeUtils.OBJECT_TYPE, TypeUtils.OBJECT_TYPE};
-    StructTypeImpl sType = new StructTypeImpl(names, types);
-    StructSet set1 = new StructSet(sType);
-    Portfolio ptf = new Portfolio(0);
-    Iterator pIter = ptf.positions.values().iterator();
+    var names = new String[] {"p", "pos"};
+    var types = new ObjectType[] {TypeUtils.OBJECT_TYPE, TypeUtils.OBJECT_TYPE};
+    var sType = new StructTypeImpl(names, types);
+    var set1 = new StructSet(sType);
+    var ptf = new Portfolio(0);
+    var pIter = ptf.positions.values().iterator();
     while (pIter.hasNext()) {
       Object[] arr = {ptf, pIter.next()};
       set1.addFieldValues(arr);
     }
 
-    StructSet set2 = new StructSet(sType);
+    var set2 = new StructSet(sType);
     pIter = ptf.positions.values().iterator();
     while (pIter.hasNext()) {
       Object[] arr = {ptf, pIter.next()};
@@ -60,7 +57,7 @@ public class StructSetJUnitTest {
     assertTrue(!set1.retainAll(set2));
     assertEquals(2, set1.size());
     assertEquals(2, set2.size());
-    SelectResults sr = QueryUtils.intersection(set1, set2, null);
+    var sr = QueryUtils.intersection(set1, set2, null);
     assertEquals(2, sr.size());
   }
 }

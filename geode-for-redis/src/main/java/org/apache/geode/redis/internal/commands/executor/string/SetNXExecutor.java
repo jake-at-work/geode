@@ -17,13 +17,10 @@ package org.apache.geode.redis.internal.commands.executor.string;
 import static org.apache.geode.redis.internal.commands.executor.BaseSetOptions.Exists.NX;
 import static org.apache.geode.redis.internal.commands.executor.string.SetExecutor.set;
 
-import java.util.List;
-
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class SetNXExecutor implements CommandExecutor {
@@ -34,9 +31,9 @@ public class SetNXExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    RedisKey key = command.getKey();
-    byte[] value = commandElems.get(VALUE_INDEX);
+    var commandElems = command.getProcessedCommand();
+    var key = command.getKey();
+    var value = commandElems.get(VALUE_INDEX);
 
     boolean result =
         context.lockedExecute(key,

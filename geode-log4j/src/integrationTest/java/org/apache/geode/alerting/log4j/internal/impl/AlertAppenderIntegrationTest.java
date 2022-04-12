@@ -28,9 +28,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.net.URL;
 import java.time.Instant;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Level;
@@ -87,7 +85,7 @@ public class AlertAppenderIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
@@ -96,11 +94,11 @@ public class AlertAppenderIntegrationTest {
   public void setUp() {
     alertAppender = loggerContextRule.getAppender(APPENDER_NAME, AlertAppender.class);
 
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(NAME, testName.getMethodName());
     configProperties.setProperty(LOCATORS, "");
 
-    DistributedSystem distributedSystem = DistributedSystem.connect(configProperties);
+    var distributedSystem = DistributedSystem.connect(configProperties);
     localMember = distributedSystem.getDistributedMember();
     internalDistributedSystem = (InternalDistributedSystem) distributedSystem;
     alertingService = internalDistributedSystem.getAlertingService();
@@ -127,8 +125,8 @@ public class AlertAppenderIntegrationTest {
     logger.warn(logMessage);
 
     LogEvent theLogEvent = null;
-    List<LogEvent> events = alertAppender.getLogEvents();
-    for (LogEvent logEvent : events) {
+    var events = alertAppender.getLogEvents();
+    for (var logEvent : events) {
       if (logEvent.getMessage().getFormattedMessage().contains(logMessage)) {
         theLogEvent = logEvent;
       }

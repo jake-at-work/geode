@@ -16,15 +16,10 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.JndiBindingsType;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.functions.ListJndiBindingFunction;
@@ -47,7 +42,7 @@ public class ListJndiBindingCommand extends GfshCommand {
   @ResourceOperation(resource = ResourcePermission.Resource.CLUSTER,
       operation = ResourcePermission.Operation.READ)
   public ResultModel listJndiBinding() {
-    ResultModel resultModel = new ResultModel();
+    var resultModel = new ResultModel();
     TabularResultModel configTable = null;
 
     InternalConfigurationPersistenceService ccService =
@@ -55,13 +50,13 @@ public class ListJndiBindingCommand extends GfshCommand {
     if (ccService != null) {
       configTable = resultModel.addTable("clusterConfiguration");
       // we don't support creating jndi binding with random group name yet
-      CacheConfig cacheConfig = ccService.getCacheConfig("cluster");
-      List<JndiBindingsType.JndiBinding> jndiBindings = cacheConfig.getJndiBindings();
+      var cacheConfig = ccService.getCacheConfig("cluster");
+      var jndiBindings = cacheConfig.getJndiBindings();
       if (jndiBindings.size() == 0) {
         configTable.setHeader("No JNDI-bindings found in cluster configuration");
       } else {
         configTable.setHeader("Configured JNDI bindings: ");
-        for (JndiBindingsType.JndiBinding jndiBinding : jndiBindings) {
+        for (var jndiBinding : jndiBindings) {
           configTable.accumulate("Group Name", "cluster");
           configTable.accumulate("JNDI Name", jndiBinding.getJndiName());
           configTable.accumulate("JDBC Driver Class", jndiBinding.getJdbcDriverClass());
@@ -69,7 +64,7 @@ public class ListJndiBindingCommand extends GfshCommand {
       }
     }
 
-    Set<DistributedMember> members = findMembers(null, null);
+    var members = findMembers(null, null);
 
     if (members.size() == 0) {
       if (configTable == null) {
@@ -79,13 +74,13 @@ public class ListJndiBindingCommand extends GfshCommand {
       return resultModel;
     }
 
-    TabularResultModel memberTable = resultModel.addTable("memberConfiguration");
-    List<CliFunctionResult> rc = executeAndGetFunctionResult(LIST_BINDING_FUNCTION, null, members);
+    var memberTable = resultModel.addTable("memberConfiguration");
+    var rc = executeAndGetFunctionResult(LIST_BINDING_FUNCTION, null, members);
 
     memberTable.setHeader("Active JNDI bindings found on each member: ");
-    for (CliFunctionResult oneResult : rc) {
-      Serializable[] serializables = getSerializables(oneResult);
-      for (int i = 0; i < serializables.length - 1; i += 2) {
+    for (var oneResult : rc) {
+      var serializables = getSerializables(oneResult);
+      for (var i = 0; i < serializables.length - 1; i += 2) {
         memberTable.accumulate("Member", oneResult.getMemberIdOrName());
         memberTable.accumulate("JNDI Name", (String) serializables[i]);
         memberTable.accumulate("JDBC Driver Class", (String) serializables[i + 1]);

@@ -49,7 +49,7 @@ public class Logger {
     this.name = name;
 
     // Uses a system property to set the level
-    String prop = System.getProperty(name + ".LEVEL");
+    var prop = System.getProperty(name + ".LEVEL");
     if (prop != null) {
       level = Level.parse(prop);
     } else {
@@ -66,7 +66,7 @@ public class Logger {
    * Returns the logger with the given name
    */
   public static synchronized Logger getLogger(String name) {
-    Logger logger = (Logger) loggers.get(name);
+    var logger = (Logger) loggers.get(name);
     if (logger == null) {
       logger = new Logger(name);
       loggers.put(name, logger);
@@ -137,8 +137,8 @@ public class Logger {
     }
 
     // Publish the record to each handler
-    for (final Object o : handlers) {
-      Handler handler = (Handler) o;
+    for (final var o : handlers) {
+      var handler = (Handler) o;
       handler.publish(record);
       handler.flush();
     }
@@ -148,7 +148,7 @@ public class Logger {
    * Logs a CONFIG message
    */
   public synchronized void config(String msg) {
-    LogRecord record = new LogRecord(Level.CONFIG, msg);
+    var record = new LogRecord(Level.CONFIG, msg);
     log(record);
   }
 
@@ -156,7 +156,7 @@ public class Logger {
    * Log a CONFIG message, with an array of object arguments.
    */
   public synchronized void config(String msg, Object[] params) {
-    LogRecord record = new LogRecord(Level.CONFIG, msg);
+    var record = new LogRecord(Level.CONFIG, msg);
     record.setParameters(params);
     log(record);
   }
@@ -165,7 +165,7 @@ public class Logger {
    * Log a CONFIG message, specifying source class and method.
    */
   public synchronized void config(String sourceClass, String sourceMethod, String msg) {
-    LogRecord record = new LogRecord(Level.CONFIG, msg);
+    var record = new LogRecord(Level.CONFIG, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -176,7 +176,7 @@ public class Logger {
    */
   public synchronized void config(String sourceClass, String sourceMethod, String msg,
       Object[] params) {
-    LogRecord record = new LogRecord(Level.CONFIG, msg);
+    var record = new LogRecord(Level.CONFIG, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);
@@ -187,7 +187,7 @@ public class Logger {
    * Log a procedure entry.
    */
   public synchronized void entering(String sourceClass, String sourceMethod) {
-    LogRecord record = new LogRecord(Level.CONFIG, "Entering method");
+    var record = new LogRecord(Level.CONFIG, "Entering method");
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -197,7 +197,7 @@ public class Logger {
    * Log a procedure entry, with parameters.
    */
   public synchronized void entering(String sourceClass, String sourceMethod, Object[] params) {
-    LogRecord record = new LogRecord(Level.CONFIG, "Entering method");
+    var record = new LogRecord(Level.CONFIG, "Entering method");
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);
@@ -208,7 +208,7 @@ public class Logger {
    * Log a procedure return.
    */
   public synchronized void exiting(String sourceClass, String sourceMethod) {
-    LogRecord record = new LogRecord(Level.CONFIG, "Exiting method");
+    var record = new LogRecord(Level.CONFIG, "Exiting method");
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -218,7 +218,7 @@ public class Logger {
    * Log a procedure return, with parameters.
    */
   public synchronized void exiting(String sourceClass, String sourceMethod, Object[] params) {
-    LogRecord record = new LogRecord(Level.CONFIG, "Exiting method");
+    var record = new LogRecord(Level.CONFIG, "Exiting method");
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);
@@ -229,7 +229,7 @@ public class Logger {
    * Logs a FINE message
    */
   public synchronized void fine(String msg) {
-    LogRecord record = new LogRecord(Level.FINE, msg);
+    var record = new LogRecord(Level.FINE, msg);
     log(record);
   }
 
@@ -237,7 +237,7 @@ public class Logger {
    * Log a FINE message, with an array of object arguments.
    */
   public synchronized void fine(String msg, Object[] params) {
-    LogRecord record = new LogRecord(Level.FINE, msg);
+    var record = new LogRecord(Level.FINE, msg);
     record.setParameters(params);
     log(record);
   }
@@ -246,7 +246,7 @@ public class Logger {
    * Log a FINE message, specifying source class and method.
    */
   public synchronized void fine(String sourceClass, String sourceMethod, String msg) {
-    LogRecord record = new LogRecord(Level.FINE, msg);
+    var record = new LogRecord(Level.FINE, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -257,7 +257,7 @@ public class Logger {
    */
   public synchronized void fine(String sourceClass, String sourceMethod, String msg,
       Object[] params) {
-    LogRecord record = new LogRecord(Level.FINE, msg);
+    var record = new LogRecord(Level.FINE, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);
@@ -268,7 +268,7 @@ public class Logger {
    * Logs a FINER message
    */
   public synchronized void finer(String msg) {
-    LogRecord record = new LogRecord(Level.FINER, msg);
+    var record = new LogRecord(Level.FINER, msg);
     log(record);
   }
 
@@ -276,7 +276,7 @@ public class Logger {
    * Log a FINER message, with an array of object arguments.
    */
   public synchronized void finer(String msg, Object[] params) {
-    LogRecord record = new LogRecord(Level.FINER, msg);
+    var record = new LogRecord(Level.FINER, msg);
     record.setParameters(params);
     log(record);
   }
@@ -285,7 +285,7 @@ public class Logger {
    * Log a FINER message, specifying source class and method.
    */
   public synchronized void finer(String sourceClass, String sourceMethod, String msg) {
-    LogRecord record = new LogRecord(Level.FINER, msg);
+    var record = new LogRecord(Level.FINER, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -296,7 +296,7 @@ public class Logger {
    */
   public synchronized void finer(String sourceClass, String sourceMethod, String msg,
       Object[] params) {
-    LogRecord record = new LogRecord(Level.FINER, msg);
+    var record = new LogRecord(Level.FINER, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);
@@ -307,7 +307,7 @@ public class Logger {
    * Logs a FINEST message
    */
   public synchronized void finest(String msg) {
-    LogRecord record = new LogRecord(Level.FINEST, msg);
+    var record = new LogRecord(Level.FINEST, msg);
     log(record);
   }
 
@@ -315,7 +315,7 @@ public class Logger {
    * Log a FINEST message, with an array of object arguments.
    */
   public synchronized void finest(String msg, Object[] params) {
-    LogRecord record = new LogRecord(Level.FINEST, msg);
+    var record = new LogRecord(Level.FINEST, msg);
     record.setParameters(params);
     log(record);
   }
@@ -324,7 +324,7 @@ public class Logger {
    * Log a FINEST message, specifying source class and method.
    */
   public synchronized void finest(String sourceClass, String sourceMethod, String msg) {
-    LogRecord record = new LogRecord(Level.FINEST, msg);
+    var record = new LogRecord(Level.FINEST, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -335,7 +335,7 @@ public class Logger {
    */
   public synchronized void finest(String sourceClass, String sourceMethod, String msg,
       Object[] params) {
-    LogRecord record = new LogRecord(Level.FINEST, msg);
+    var record = new LogRecord(Level.FINEST, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);
@@ -346,7 +346,7 @@ public class Logger {
    * Logs a INFO message
    */
   public synchronized void info(String msg) {
-    LogRecord record = new LogRecord(Level.INFO, msg);
+    var record = new LogRecord(Level.INFO, msg);
     log(record);
   }
 
@@ -354,7 +354,7 @@ public class Logger {
    * Log a INFO message, with an array of object arguments.
    */
   public synchronized void info(String msg, Object[] params) {
-    LogRecord record = new LogRecord(Level.INFO, msg);
+    var record = new LogRecord(Level.INFO, msg);
     record.setParameters(params);
     log(record);
   }
@@ -363,7 +363,7 @@ public class Logger {
    * Log a INFO message, specifying source class and method.
    */
   public synchronized void info(String sourceClass, String sourceMethod, String msg) {
-    LogRecord record = new LogRecord(Level.INFO, msg);
+    var record = new LogRecord(Level.INFO, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -374,7 +374,7 @@ public class Logger {
    */
   public synchronized void info(String sourceClass, String sourceMethod, String msg,
       Object[] params) {
-    LogRecord record = new LogRecord(Level.INFO, msg);
+    var record = new LogRecord(Level.INFO, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);
@@ -385,7 +385,7 @@ public class Logger {
    * Logs a message
    */
   public synchronized void log(Level msgLevel, String msg) {
-    LogRecord record = new LogRecord(msgLevel, msg);
+    var record = new LogRecord(msgLevel, msg);
     log(record);
   }
 
@@ -393,7 +393,7 @@ public class Logger {
    * Log a message, with an array of object arguments.
    */
   public synchronized void log(Level msgLevel, String msg, Object[] params) {
-    LogRecord record = new LogRecord(msgLevel, msg);
+    var record = new LogRecord(msgLevel, msg);
     record.setParameters(params);
     log(record);
   }
@@ -403,7 +403,7 @@ public class Logger {
    */
   public synchronized void log(Level msgLevel, String sourceClass, String sourceMethod,
       String msg) {
-    LogRecord record = new LogRecord(msgLevel, msg);
+    var record = new LogRecord(msgLevel, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -414,7 +414,7 @@ public class Logger {
    */
   public synchronized void log(Level msgLevel, String sourceClass, String sourceMethod, String msg,
       Object[] params) {
-    LogRecord record = new LogRecord(msgLevel, msg);
+    var record = new LogRecord(msgLevel, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);
@@ -426,7 +426,7 @@ public class Logger {
    */
   public synchronized void log(Level msgLevel, String sourceClass, String sourceMethod, String msg,
       Throwable thrown) {
-    LogRecord record = new LogRecord(msgLevel, msg);
+    var record = new LogRecord(msgLevel, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setThrown(thrown);
@@ -437,7 +437,7 @@ public class Logger {
    * Log a message, with associated Throwable information.
    */
   public synchronized void log(Level msgLevel, String msg, Throwable thrown) {
-    LogRecord record = new LogRecord(msgLevel, msg);
+    var record = new LogRecord(msgLevel, msg);
     record.setThrown(thrown);
     log(record);
   }
@@ -446,7 +446,7 @@ public class Logger {
    * Logs a SEVERE message
    */
   public synchronized void severe(String msg) {
-    LogRecord record = new LogRecord(Level.SEVERE, msg);
+    var record = new LogRecord(Level.SEVERE, msg);
     log(record);
   }
 
@@ -454,7 +454,7 @@ public class Logger {
    * Log a SEVERE message, with an array of object arguments.
    */
   public synchronized void severe(String msg, Object[] params) {
-    LogRecord record = new LogRecord(Level.SEVERE, msg);
+    var record = new LogRecord(Level.SEVERE, msg);
     record.setParameters(params);
     log(record);
   }
@@ -463,7 +463,7 @@ public class Logger {
    * Log a SEVERE message, specifying source class and method.
    */
   public synchronized void severe(String sourceClass, String sourceMethod, String msg) {
-    LogRecord record = new LogRecord(Level.SEVERE, msg);
+    var record = new LogRecord(Level.SEVERE, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -474,7 +474,7 @@ public class Logger {
    */
   public synchronized void severe(String sourceClass, String sourceMethod, String msg,
       Object[] params) {
-    LogRecord record = new LogRecord(Level.SEVERE, msg);
+    var record = new LogRecord(Level.SEVERE, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);
@@ -485,7 +485,7 @@ public class Logger {
    * Log throwing an exception. The logging is done using the FINER level.
    */
   public synchronized void throwing(String sourceClass, String sourceMethod, Throwable thrown) {
-    LogRecord record = new LogRecord(Level.FINER, "THROWN");
+    var record = new LogRecord(Level.FINER, "THROWN");
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setThrown(thrown);
@@ -496,7 +496,7 @@ public class Logger {
    * Logs a WARNING message
    */
   public synchronized void warning(String msg) {
-    LogRecord record = new LogRecord(Level.WARNING, msg);
+    var record = new LogRecord(Level.WARNING, msg);
     log(record);
   }
 
@@ -504,7 +504,7 @@ public class Logger {
    * Log a WARNING message, with an array of object arguments.
    */
   public synchronized void warning(String msg, Object[] params) {
-    LogRecord record = new LogRecord(Level.WARNING, msg);
+    var record = new LogRecord(Level.WARNING, msg);
     record.setParameters(params);
     log(record);
   }
@@ -513,7 +513,7 @@ public class Logger {
    * Log a WARNING message, specifying source class and method.
    */
   public synchronized void warning(String sourceClass, String sourceMethod, String msg) {
-    LogRecord record = new LogRecord(Level.WARNING, msg);
+    var record = new LogRecord(Level.WARNING, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     log(record);
@@ -524,7 +524,7 @@ public class Logger {
    */
   public synchronized void warning(String sourceClass, String sourceMethod, String msg,
       Object[] params) {
-    LogRecord record = new LogRecord(Level.WARNING, msg);
+    var record = new LogRecord(Level.WARNING, msg);
     record.setSourceClassName(sourceClass);
     record.setSourceMethodName(sourceMethod);
     record.setParameters(params);

@@ -28,7 +28,7 @@ public enum AlertLevel {
   NONE(LogWriterLevel.NONE.intLevel());
 
   public static AlertLevel find(int intLevel) {
-    for (AlertLevel alertLevel : values()) {
+    for (var alertLevel : values()) {
       if (alertLevel.intLevel == intLevel) {
         return alertLevel;
       }

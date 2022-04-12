@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.Properties;
 
-import org.apache.http.HttpResponse;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -56,7 +55,7 @@ public class PulseSecurityConfigOAuthProfileTest {
     // put the pulse.properties to the locator's working dir. Pulse will use the locator's working
     // dir as classpath to search for this property file
     pulsePropertyFile = new File(locator.getWorkingDir(), "pulse.properties");
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty("pulse.oauth.providerId", "uaa");
     properties.setProperty("pulse.oauth.providerName", "UAA");
     properties.setProperty("pulse.oauth.clientId", "pulse");
@@ -76,7 +75,7 @@ public class PulseSecurityConfigOAuthProfileTest {
 
   @Test
   public void redirectToAuthorizationUriInPulseProperty() throws Exception {
-    HttpResponse response = client.get("/pulse/login.html");
+    var response = client.get("/pulse/login.html");
     // the request is redirect to the authorization uri configured before
     assertResponse(response).hasStatusCode(200).hasResponseBody()
         .contains("latest")

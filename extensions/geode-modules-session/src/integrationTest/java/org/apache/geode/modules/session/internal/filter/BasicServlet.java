@@ -18,7 +18,6 @@ package org.apache.geode.modules.session.internal.filter;
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,9 +40,9 @@ public class BasicServlet extends DefaultServlet {
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    ServletContext context = config.getServletContext();
+    var context = config.getServletContext();
 
-    String cbInitParam = config.getInitParameter("test.callback");
+    var cbInitParam = config.getInitParameter("test.callback");
     callback = (Callback) context.getAttribute(cbInitParam);
   }
 }

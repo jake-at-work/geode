@@ -30,7 +30,6 @@ import org.apache.geode.cache.query.TypeMismatchException;
 import org.apache.geode.cache.query.internal.index.AbstractIndex;
 import org.apache.geode.cache.query.internal.index.IndexProtocol;
 import org.apache.geode.cache.query.internal.index.PartitionedIndex;
-import org.apache.geode.cache.query.types.ObjectType;
 
 public class DerivedInfo {
   public Map<String, SelectResults> derivedResults;
@@ -64,11 +63,11 @@ public class DerivedInfo {
   }
 
   public void addDerivedResults(IndexInfo indexInfo, SelectResults selectResults) {
-    IndexProtocol index = indexInfo._index;
-    String key = QueryUtils.getCompiledIdFromPath(indexInfo._path).getId() + ":"
+    var index = indexInfo._index;
+    var key = QueryUtils.getCompiledIdFromPath(indexInfo._path).getId() + ":"
         + index.getCanonicalizedIteratorDefinitions()[0];
     if (derivedResults.containsKey(key)) {
-      for (Object result : selectResults) {
+      for (var result : selectResults) {
         if (!derivedResults.get(key).contains(result)) {
           derivedResults.get(key).add(result);
         }
@@ -131,8 +130,8 @@ public class DerivedInfo {
   private void createDerivedJoinResultsFromOpsList(String theCallingIndexId,
       ExecutionContext context, List opsList) throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
-    for (final Object o : opsList) {
-      CompiledValue cv = (CompiledValue) o;
+    for (final var o : opsList) {
+      var cv = (CompiledValue) o;
       currentOp = cv;
 
       if (cv.getType() == CompiledValue.COMPARISON) {
@@ -144,7 +143,7 @@ public class DerivedInfo {
     List<Object[]> newDerivatives = new ArrayList<>(this.newDerivatives);
     this.newDerivatives.clear();
     if (newDerivatives.size() > 0) {
-      for (final Object[] idDerivedAndResults : newDerivatives) {
+      for (final var idDerivedAndResults : newDerivatives) {
         derivedDerivative(idDerivedAndResults, context, getExpansionList());
       }
     }
@@ -154,11 +153,11 @@ public class DerivedInfo {
       List expansionList) throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
 
-    String idDerived = (String) idDerivedAndResults[0];
-    SelectResults results = (SelectResults) idDerivedAndResults[1];
-    RuntimeIterator ritr = getMatchingRuntimeIterator(idDerived, expansionList);
-    List remainingOps = getRemainingOps();
-    for (final Object val : results) {
+    var idDerived = (String) idDerivedAndResults[0];
+    var results = (SelectResults) idDerivedAndResults[1];
+    var ritr = getMatchingRuntimeIterator(idDerived, expansionList);
+    var remainingOps = getRemainingOps();
+    for (final var val : results) {
       ritr.setCurrent(val);
       createDerivedJoinResultsFromOpsList(idDerived, context, remainingOps);
     }
@@ -167,8 +166,8 @@ public class DerivedInfo {
 
   private RuntimeIterator getMatchingRuntimeIterator(String receiverId, List expansionList)
       throws QueryInvocationTargetException {
-    for (final Object o : expansionList) {
-      RuntimeIterator ritr = (RuntimeIterator) o;
+    for (final var o : expansionList) {
+      var ritr = (RuntimeIterator) o;
       if (ritr.getCmpIteratorDefn().getName().equals(receiverId)) {
         return ritr;
       }
@@ -203,8 +202,8 @@ public class DerivedInfo {
   private void evaluateDerivedJoin(ExecutionContext context, CompiledValue newLeftSide,
       CompiledValue newRightSide, int operator) throws TypeMismatchException,
       FunctionDomainException, NameResolutionException, QueryInvocationTargetException {
-    CompiledComparison dcc = createDerivedJoin(context, newLeftSide, newRightSide, operator);
-    IndexInfo[] indexInfos = dcc.getIndexInfo(context);
+    var dcc = createDerivedJoin(context, newLeftSide, newRightSide, operator);
+    var indexInfos = dcc.getIndexInfo(context);
     try {
       if (indexInfos != null && isValidIndexTypeToDerive(indexInfos[0]._getIndex())) {
         populateDerivedResultsFromDerivedJoin(context, dcc, indexInfos[0]);
@@ -212,7 +211,7 @@ public class DerivedInfo {
     } finally {
       if (indexInfos != null) {
         Index index = indexInfos[0]._index;
-        Index prIndex = ((AbstractIndex) index).getPRIndex();
+        var prIndex = ((AbstractIndex) index).getPRIndex();
         if (prIndex != null) {
           ((PartitionedIndex) prIndex).releaseIndexReadLockForRemove();
         } else {
@@ -236,18 +235,18 @@ public class DerivedInfo {
     // If we apply limit at this point, we cannot guarantee that after we iterate, the we do not
     // continue to
     // reduce the count below the limited amount
-    Boolean originalCanApplyLimit =
+    var originalCanApplyLimit =
         (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
     context.cachePut(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX, Boolean.FALSE);
-    Boolean originalCanApplyOrderBy =
+    var originalCanApplyOrderBy =
         (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
     context.cachePut(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX, Boolean.FALSE);
 
-    SelectResults sr = dcc.filterEvaluate(context, null, false, null, null, false, false, false);
+    var sr = dcc.filterEvaluate(context, null, false, null, null, false, false, false);
 
     context.cachePut(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX, originalCanApplyLimit);
     context.cachePut(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX, originalCanApplyOrderBy);
-    ObjectType ot = indexInfo._index.getResultSetType();
+    var ot = indexInfo._index.getResultSetType();
     // The following if block is not currently used other than the else
     // This would be needed once we figure out how to handle nested object indexes (range, map, etc)
     // The issue we have right now with these indexes is the results will come back as a tuple, if
@@ -280,13 +279,13 @@ public class DerivedInfo {
    */
 
   private boolean isValidIndexTypeToDerive(IndexProtocol index) {
-    ObjectType type = index.getResultSetType();
+    var type = index.getResultSetType();
     return !(type.isCollectionType() || type.isMapType() || type.isStructType());
   }
 
   private CompiledComparison createDerivedJoin(ExecutionContext context, CompiledValue newLeft,
       CompiledValue newRight, int op) throws TypeMismatchException, NameResolutionException {
-    CompiledComparison cc = new CompiledComparison(newLeft, newRight, op);
+    var cc = new CompiledComparison(newLeft, newRight, op);
     cc.computeDependencies(context);
     return cc;
   }
@@ -295,7 +294,7 @@ public class DerivedInfo {
   // receiverId passed in
   private boolean matchingPathIds(String receiverId, CompiledValue cv) {
     if (isCompiledPath(cv)) {
-      CompiledPath path = (CompiledPath) cv;
+      var path = (CompiledPath) cv;
       return receiverId.equals(QueryUtils.getCompiledIdFromPath(path).getId());
     }
     return false;

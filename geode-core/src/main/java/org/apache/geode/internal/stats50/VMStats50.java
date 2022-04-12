@@ -27,7 +27,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +36,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.internal.MakeNotStatic;
@@ -213,7 +211,7 @@ public class VMStats50 implements VMStatsContract {
         }
       }
     }
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     List<StatisticDescriptor> sds = new ArrayList<>();
     sds.add(f.createIntGauge("pendingFinalization",
         "Number of objects that are pending finalization in the java VM.", "objects"));
@@ -404,7 +402,7 @@ public class VMStats50 implements VMStatsContract {
   }
 
   private boolean newThreadsStarted() {
-    long curStarts = threadBean.getTotalStartedThreadCount();
+    var curStarts = threadBean.getTotalStartedThreadCount();
     return curStarts > threadStartCount;
   }
 
@@ -416,12 +414,12 @@ public class VMStats50 implements VMStatsContract {
       allThreadIds = threadBean.getAllThreadIds();
       threadStartCount = threadBean.getTotalStartedThreadCount();
     }
-    ThreadInfo[] threadInfos = threadBean.getThreadInfo(allThreadIds, 0);
-    for (int i = 0; i < threadInfos.length; i++) {
-      long id = allThreadIds[i];
-      ThreadInfo item = threadInfos[i];
+    var threadInfos = threadBean.getThreadInfo(allThreadIds, 0);
+    for (var i = 0; i < threadInfos.length; i++) {
+      var id = allThreadIds[i];
+      var item = threadInfos[i];
       if (item != null) {
-        ThreadStatInfo tsi = threadMap.get(id);
+        var tsi = threadMap.get(id);
         if (tsi == null) {
           threadMap.put(id, new ThreadStatInfo(item, f.createStatistics(threadType,
               item.getThreadName() + '-' + item.getThreadId(), this.id)));
@@ -429,17 +427,17 @@ public class VMStats50 implements VMStatsContract {
           tsi.ti = item;
         }
       } else {
-        ThreadStatInfo tsi = threadMap.remove(id);
+        var tsi = threadMap.remove(id);
         if (tsi != null) {
           tsi.s.close();
         }
       }
     }
-    for (final Map.Entry<Long, ThreadStatInfo> me : threadMap.entrySet()) {
+    for (final var me : threadMap.entrySet()) {
       long id = me.getKey();
-      ThreadStatInfo tsi = me.getValue();
-      ThreadInfo ti = tsi.ti;
-      Statistics s = tsi.s;
+      var tsi = me.getValue();
+      var ti = tsi.ti;
+      var s = tsi.s;
       s.setLong(thread_blockedId, ti.getBlockedCount());
       s.setLong(thread_lockOwnerId, ti.getLockOwnerId());
       s.setLong(thread_waitedId, ti.getWaitedCount());
@@ -478,8 +476,8 @@ public class VMStats50 implements VMStatsContract {
   }
 
   private void initMemoryPools() {
-    List<MemoryPoolMXBean> l = ManagementFactory.getMemoryPoolMXBeans();
-    for (MemoryPoolMXBean item : l) {
+    var l = ManagementFactory.getMemoryPoolMXBeans();
+    for (var item : l) {
       if (item.isValid() && !mpMap.containsKey(item)) {
         mpMap.put(item,
             f.createStatistics(mpType, item.getName() + '-' + item.getType(), id));
@@ -488,12 +486,12 @@ public class VMStats50 implements VMStatsContract {
   }
 
   private void refreshMemoryPools() {
-    boolean reInitPools = false;
-    Iterator<Map.Entry<MemoryPoolMXBean, Statistics>> it = mpMap.entrySet().iterator();
+    var reInitPools = false;
+    var it = mpMap.entrySet().iterator();
     while (it.hasNext()) {
-      Map.Entry<MemoryPoolMXBean, Statistics> me = it.next();
-      MemoryPoolMXBean mp = me.getKey();
-      Statistics s = me.getValue();
+      var me = it.next();
+      var mp = me.getKey();
+      var s = me.getValue();
       if (!mp.isValid()) {
         s.close();
         it.remove();
@@ -557,8 +555,8 @@ public class VMStats50 implements VMStatsContract {
   }
 
   private void initGC() {
-    List<GarbageCollectorMXBean> l = ManagementFactory.getGarbageCollectorMXBeans();
-    for (GarbageCollectorMXBean item : l) {
+    var l = ManagementFactory.getGarbageCollectorMXBeans();
+    for (var item : l) {
       if (item.isValid() && !gcMap.containsKey(item)) {
         gcMap.put(item, f.createStatistics(gcType, item.getName(), id));
       }
@@ -566,11 +564,11 @@ public class VMStats50 implements VMStatsContract {
   }
 
   private void refreshGC() {
-    Iterator<Map.Entry<GarbageCollectorMXBean, Statistics>> it = gcMap.entrySet().iterator();
+    var it = gcMap.entrySet().iterator();
     while (it.hasNext()) {
-      Map.Entry<GarbageCollectorMXBean, Statistics> me = it.next();
-      GarbageCollectorMXBean gc = me.getKey();
-      Statistics s = me.getValue();
+      var me = it.next();
+      var gc = me.getKey();
+      var s = me.getValue();
       if (!gc.isValid()) {
         s.close();
         it.remove();
@@ -583,7 +581,7 @@ public class VMStats50 implements VMStatsContract {
 
   @Override
   public void refresh() {
-    Runtime rt = Runtime.getRuntime();
+    var rt = Runtime.getRuntime();
     vmStats.setInt(pendingFinalizationCountId, memBean.getObjectPendingFinalizationCount());
     vmStats.setInt(cpusId, osBean.getAvailableProcessors());
     vmStats.setInt(threadsId, threadBean.getThreadCount());
@@ -599,7 +597,7 @@ public class VMStats50 implements VMStatsContract {
     // Compute processCpuTime separately, if not accessible ignore
     try {
       if (getProcessCpuTime != null) {
-        Object v = getProcessCpuTime.invoke(osBean);
+        var v = getProcessCpuTime.invoke(osBean);
         vmStats.setLong(processCpuTimeId, (Long) v);
       }
     } catch (VirtualMachineError err) {
@@ -618,7 +616,7 @@ public class VMStats50 implements VMStatsContract {
 
     if (unixBean != null) {
       try {
-        Object v = getMaxFileDescriptorCount.invoke(unixBean);
+        var v = getMaxFileDescriptorCount.invoke(unixBean);
         vmStats.setLong(unix_fdLimitId, (Long) v);
         v = getOpenFileDescriptorCount.invoke(unixBean);
         vmStats.setLong(unix_fdsOpenId, (Long) v);
@@ -696,7 +694,7 @@ public class VMStats50 implements VMStatsContract {
   }
 
   private void closeStatsMap(Map<?, Statistics> map) {
-    for (Statistics s : map.values()) {
+    for (var s : map.values()) {
       s.close();
     }
   }

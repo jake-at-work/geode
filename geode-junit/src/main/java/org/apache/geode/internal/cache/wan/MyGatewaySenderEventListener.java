@@ -40,7 +40,7 @@ public class MyGatewaySenderEventListener implements AsyncEventListener, Seriali
   @Override
   public boolean processEvents(List<AsyncEvent> events) {
     synchronized (eventsMap) {
-      for (AsyncEvent event : events) {
+      for (var event : events) {
         eventsMap.put(event.getKey(), event.getDeserializedValue());
       }
     }
@@ -66,7 +66,7 @@ public class MyGatewaySenderEventListener implements AsyncEventListener, Seriali
     if (!(obj instanceof MyGatewaySenderEventListener)) {
       return false;
     }
-    MyGatewaySenderEventListener listener = (MyGatewaySenderEventListener) obj;
+    var listener = (MyGatewaySenderEventListener) obj;
     return id.equals(listener.id);
   }
 

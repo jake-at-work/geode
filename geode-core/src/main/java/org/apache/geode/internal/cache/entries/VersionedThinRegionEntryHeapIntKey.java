@@ -147,7 +147,7 @@ public class VersionedThinRegionEntryHeapIntKey extends VersionedThinRegionEntry
   @Override
   public void setVersions(final VersionTag versionTag) {
     memberId = versionTag.getMemberID();
-    int eVersion = versionTag.getEntryVersion();
+    var eVersion = versionTag.getEntryVersion();
     entryVersionLowBytes = (short) (eVersion & 0xffff);
     entryVersionHighByte = (byte) ((eVersion & 0xff0000) >> 16);
     regionVersionHighBytes = versionTag.getRegionVersionHighBytes();
@@ -178,7 +178,7 @@ public class VersionedThinRegionEntryHeapIntKey extends VersionedThinRegionEntry
   // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
   @Override
   public VersionTag asVersionTag() {
-    VersionTag tag = VersionTag.create(memberId);
+    var tag = VersionTag.create(memberId);
     tag.setEntryVersion(getEntryVersion());
     tag.setRegionVersion(regionVersionHighBytes, regionVersionLowBytes);
     tag.setVersionTimeStamp(getVersionTimeStamp());

@@ -87,8 +87,8 @@ public class ReplicateCacheListenerDistributedTest implements Serializable {
   @Test
   public void afterCreateIsInvokedInEveryMember() {
     CacheListener<String, Integer> listener = new CreateCountingCacheListener();
-    Region<String, Integer> region = createRegion(regionName, listener);
-    for (int i = 0; i < getVMCount(); i++) {
+    var region = createRegion(regionName, listener);
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         createRegion(regionName, listener);
       });
@@ -102,8 +102,8 @@ public class ReplicateCacheListenerDistributedTest implements Serializable {
   @Test
   public void afterUpdateIsInvokedInEveryMember() {
     CacheListener<String, Integer> listener = new UpdateCountingCacheListener();
-    Region<String, Integer> region = createRegion(regionName, listener);
-    for (int i = 0; i < getVMCount(); i++) {
+    var region = createRegion(regionName, listener);
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         createRegion(regionName, listener);
       });
@@ -118,8 +118,8 @@ public class ReplicateCacheListenerDistributedTest implements Serializable {
   @Test
   public void afterInvalidateIsInvokedInEveryMember() {
     CacheListener<String, Integer> listener = new InvalidateCountingCacheListener();
-    Region<String, Integer> region = createRegion(regionName, listener);
-    for (int i = 0; i < getVMCount(); i++) {
+    var region = createRegion(regionName, listener);
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         createRegion(regionName, listener);
       });
@@ -135,8 +135,8 @@ public class ReplicateCacheListenerDistributedTest implements Serializable {
   @Test
   public void afterDestroyIsInvokedInEveryMember() {
     CacheListener<String, Integer> listener = new DestroyCountingCacheListener();
-    Region<String, Integer> region = createRegion(regionName, listener);
-    for (int i = 0; i < getVMCount(); i++) {
+    var region = createRegion(regionName, listener);
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         createRegion(regionName, listener);
       });

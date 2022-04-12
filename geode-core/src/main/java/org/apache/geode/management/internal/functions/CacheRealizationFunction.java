@@ -20,8 +20,6 @@ package org.apache.geode.management.internal.functions;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,13 +80,13 @@ public class CacheRealizationFunction implements InternalFunction<List> {
 
   @Override
   public void execute(FunctionContext<List> context) {
-    AbstractConfiguration cacheElement = (AbstractConfiguration) context.getArguments().get(0);
-    CacheElementOperation operation = (CacheElementOperation) context.getArguments().get(1);
+    var cacheElement = (AbstractConfiguration) context.getArguments().get(0);
+    var operation = (CacheElementOperation) context.getArguments().get(1);
 
     // for get operation, caller is expecting RuntimeInfo
     if (operation == CacheElementOperation.GET) {
       try {
-        InternalCache cache = (InternalCache) context.getCache();
+        var cache = (InternalCache) context.getCache();
         context.getResultSender().lastResult(executeGet(context, cache, cacheElement));
       } catch (CacheClosedException e) {
         // cache not ready or closed already, no need to log and do not return any runtime info
@@ -101,8 +99,8 @@ public class CacheRealizationFunction implements InternalFunction<List> {
     // for other operations, caller is expecting RealizationResult
     else {
       try {
-        RemoteInputStream jarStream = (RemoteInputStream) context.getArguments().get(2);
-        InternalCache cache = (InternalCache) context.getCache();
+        var jarStream = (RemoteInputStream) context.getArguments().get(2);
+        var cache = (InternalCache) context.getCache();
         context.getResultSender()
             .lastResult(
                 executeUpdate(context.getMemberName(), cache, cacheElement, operation, jarStream));
@@ -128,12 +126,12 @@ public class CacheRealizationFunction implements InternalFunction<List> {
 
   public RuntimeInfo executeGet(FunctionContext<List> context,
       InternalCache cache, AbstractConfiguration cacheElement) {
-    ConfigurationRealizer realizer = realizers.get(cacheElement.getClass());
+    var realizer = realizers.get(cacheElement.getClass());
 
     if (realizer == null) {
       return null;
     }
-    RuntimeInfo runtimeInfo = realizer.get(cacheElement, cache);
+    var runtimeInfo = realizer.get(cacheElement, cache);
 
     // set the member name if this is not a global runtime
     if (!cacheElement.isGlobalRuntime()) {
@@ -147,9 +145,9 @@ public class CacheRealizationFunction implements InternalFunction<List> {
       InternalCache cache, AbstractConfiguration cacheElement,
       CacheElementOperation operation, RemoteInputStream jarStream) throws Exception {
 
-    ConfigurationRealizer realizer = realizers.get(cacheElement.getClass());
+    var realizer = realizers.get(cacheElement.getClass());
 
-    RealizationResult result = new RealizationResult();
+    var result = new RealizationResult();
     result.setMemberName(memberName);
 
     if (realizer == null || realizer.isReadyOnly()) {
@@ -159,8 +157,8 @@ public class CacheRealizationFunction implements InternalFunction<List> {
 
     // the the function parameter contains streamed file, staging the file first
     if ((cacheElement instanceof HasFile) && jarStream != null) {
-      HasFile configuration = (HasFile) cacheElement;
-      Set<File> files = stageFileContent(Collections.singletonList(configuration.getFileName()),
+      var configuration = (HasFile) cacheElement;
+      var files = stageFileContent(Collections.singletonList(configuration.getFileName()),
           Collections.singletonList(jarStream));
       configuration.setFile(files.iterator().next());
     }
@@ -199,13 +197,13 @@ public class CacheRealizationFunction implements InternalFunction<List> {
     Set<File> stagedJars = new HashSet<>();
 
     try {
-      Path tempDir = FileUploader.createSecuredTempDirectory("deploy-");
+      var tempDir = FileUploader.createSecuredTempDirectory("deploy-");
 
-      for (int i = 0; i < jarNames.size(); i++) {
-        Path tempJar = Paths.get(tempDir.toString(), jarNames.get(i));
-        FileOutputStream fos = new FileOutputStream(tempJar.toString());
+      for (var i = 0; i < jarNames.size(); i++) {
+        var tempJar = Paths.get(tempDir.toString(), jarNames.get(i));
+        var fos = new FileOutputStream(tempJar.toString());
 
-        InputStream input = RemoteInputStreamClient.wrap(jarStreams.get(i));
+        var input = RemoteInputStreamClient.wrap(jarStreams.get(i));
 
         IOUtils.copyLarge(input, fos);
 
@@ -215,7 +213,7 @@ public class CacheRealizationFunction implements InternalFunction<List> {
         stagedJars.add(tempJar.toFile());
       }
     } catch (IOException iox) {
-      for (RemoteInputStream jarStream : jarStreams) {
+      for (var jarStream : jarStreams) {
         try {
           jarStream.close(true);
         } catch (IOException ex) {

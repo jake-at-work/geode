@@ -18,7 +18,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,8 +28,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.PortfolioData;
 import org.apache.geode.internal.Assert;
@@ -63,16 +60,16 @@ public class PRQueryJUnitTest {
    */
   @Test
   public void testQueryOnSingleDataStore() throws Exception {
-    Region region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
-    PortfolioData[] portfolios = new PortfolioData[100];
-    for (int j = 0; j < 100; j++) {
+    var region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
+    var portfolios = new PortfolioData[100];
+    for (var j = 0; j < 100; j++) {
       portfolios[j] = new PortfolioData(j);
     }
     try {
       populateData(region, portfolios);
 
-      String queryString = "ID < 5";
-      SelectResults resSet = region.query(queryString);
+      var queryString = "ID < 5";
+      var resSet = region.query(queryString);
       Assert.assertTrue(resSet.size() == 5);
 
       queryString = "ID > 5 and ID <=15";
@@ -85,18 +82,18 @@ public class PRQueryJUnitTest {
 
   @Test
   public void testQueryWithNullProjectionValue() throws Exception {
-    Region region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
-    int size = 10;
+    var region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
+    var size = 10;
     HashMap value = null;
-    for (int j = 0; j < size; j++) {
+    for (var j = 0; j < size; j++) {
       value = new HashMap();
       value.put("account" + j, "account" + j);
       region.put("" + j, value);
     }
 
-    String queryString = "Select p.get('account') from " + SEPARATOR + region.getName() + " p ";
-    Query query = region.getCache().getQueryService().newQuery(queryString);
-    SelectResults sr = (SelectResults) query.execute();
+    var queryString = "Select p.get('account') from " + SEPARATOR + region.getName() + " p ";
+    var query = region.getCache().getQueryService().newQuery(queryString);
+    var sr = (SelectResults) query.execute();
     Assert.assertTrue(sr.size() == size);
 
     try {
@@ -104,7 +101,7 @@ public class PRQueryJUnitTest {
       query = region.getCache().getQueryService().newQuery(queryString);
       sr = (SelectResults) query.execute();
       Assert.assertTrue(sr.size() == 10);
-      for (Object r : sr.asList()) {
+      for (var r : sr.asList()) {
         if (r != null) {
           fail("Expected null value, but found " + r);
         }
@@ -116,19 +113,19 @@ public class PRQueryJUnitTest {
 
   @Test
   public void testOrderByQuery() throws Exception {
-    Region region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
-    String[] values = new String[100];
-    for (int j = 0; j < 100; j++) {
+    var region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
+    var values = new String[100];
+    for (var j = 0; j < 100; j++) {
       values[j] = "" + j;
     }
 
     try {
       populateData(region, values);
 
-      String queryString =
+      var queryString =
           "Select distinct p from " + SEPARATOR + region.getName() + " p order by p";
-      Query query = region.getCache().getQueryService().newQuery(queryString);
-      SelectResults sr = (SelectResults) query.execute();
+      var query = region.getCache().getQueryService().newQuery(queryString);
+      var sr = (SelectResults) query.execute();
 
       Assert.assertTrue(sr.size() == 100);
     } finally {
@@ -139,9 +136,9 @@ public class PRQueryJUnitTest {
   @Test
   public void testNestedPRQuery() throws Exception {
     Cache cache = CacheUtils.getCache();
-    QueryService queryService = CacheUtils.getCache().getQueryService();
+    var queryService = CacheUtils.getCache().getQueryService();
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create("TEST_REGION");
-    Query query = queryService.newQuery(
+    var query = queryService.newQuery(
         "SELECT distinct COUNT(*) FROM (SELECT DISTINCT tr.id, tr.domain FROM " + SEPARATOR
             + "TEST_REGION tr)");
     region.put("1", cache.createPdxInstanceFactory("obj1").writeString("id", "1")
@@ -167,9 +164,9 @@ public class PRQueryJUnitTest {
     region.put("11", cache.createPdxInstanceFactory("obj11").writeString("id", "1")
         .writeString("domain", "domain2").create());
 
-    SelectResults queryResults = (SelectResults) query.execute();
+    var queryResults = (SelectResults) query.execute();
     Assert.assertTrue(queryResults.size() == 1);
-    Iterator iterator = queryResults.iterator();
+    var iterator = queryResults.iterator();
     Assert.assertTrue(iterator.hasNext());
     Assert.assertTrue(("" + iterator.next()).equals("2"));
   }
@@ -179,7 +176,7 @@ public class PRQueryJUnitTest {
    *
    */
   private void populateData(Region region, Object[] data) {
-    for (int j = 0; j < data.length; j++) {
+    for (var j = 0; j < data.length; j++) {
       region.put(j, data[j]);
     }
   }

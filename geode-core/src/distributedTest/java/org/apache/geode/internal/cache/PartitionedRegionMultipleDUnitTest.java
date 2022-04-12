@@ -84,14 +84,14 @@ public class PartitionedRegionMultipleDUnitTest extends CacheTestCase {
 
   private void putInPartitionRegion(int startIndexForKey, int endIndexForKey) {
     Region<String, String> region = getCache().getRegion(TEST_REGION);
-    for (int k = startIndexForKey; k < endIndexForKey; k++) {
+    for (var k = startIndexForKey; k < endIndexForKey; k++) {
       region.put(TEST_REGION + k, TEST_REGION + k);
     }
   }
 
   private void destroyInPartitionedRegion() {
     Region region = getCache().getRegion(TEST_REGION);
-    for (int i = startIndexForDestroy; i < endIndexForDestroy; i++) {
+    for (var i = startIndexForDestroy; i < endIndexForDestroy; i++) {
       region.destroy(TEST_REGION + i);
     }
   }
@@ -100,7 +100,7 @@ public class PartitionedRegionMultipleDUnitTest extends CacheTestCase {
     Cache cache = getCache();
     Region<String, String> region = cache.getRegion(TEST_REGION);
 
-    for (int i = startIndexForKey; i < endIndexForKey; i++) {
+    for (var i = startIndexForKey; i < endIndexForKey; i++) {
       Object value = region.get(TEST_REGION + i);
       if (i >= startIndexForDestroy && i < endIndexForDestroy) {
         assertThat(value).isNull();
@@ -112,8 +112,8 @@ public class PartitionedRegionMultipleDUnitTest extends CacheTestCase {
     }
 
     // containsKey
-    for (int i = startIndexForKey; i < endIndexForKey; i++) {
-      boolean containsKey = region.containsKey(TEST_REGION + i);
+    for (var i = startIndexForKey; i < endIndexForKey; i++) {
+      var containsKey = region.containsKey(TEST_REGION + i);
       if (i >= startIndexForDestroy && i < endIndexForDestroy) {
         assertThat(containsKey).isFalse();
       } else {
@@ -122,8 +122,8 @@ public class PartitionedRegionMultipleDUnitTest extends CacheTestCase {
     }
 
     // containsValueForKey
-    for (int i = startIndexForKey; i < endIndexForKey; i++) {
-      boolean containsValueForKey = region.containsValueForKey(TEST_REGION + i);
+    for (var i = startIndexForKey; i < endIndexForKey; i++) {
+      var containsValueForKey = region.containsValueForKey(TEST_REGION + i);
       if (i >= startIndexForDestroy && i < endIndexForDestroy) {
         assertThat(containsValueForKey).isFalse();
       } else {
@@ -132,8 +132,8 @@ public class PartitionedRegionMultipleDUnitTest extends CacheTestCase {
     }
 
     // containsValue
-    for (int i = startIndexForKey; i < endIndexForKey; i++) {
-      boolean containsValue = region.containsValue(TEST_REGION + i);
+    for (var i = startIndexForKey; i < endIndexForKey; i++) {
+      var containsValue = region.containsValue(TEST_REGION + i);
       if (i >= startIndexForDestroy && i < endIndexForDestroy) {
         assertThat(containsValue).isFalse();
       } else {

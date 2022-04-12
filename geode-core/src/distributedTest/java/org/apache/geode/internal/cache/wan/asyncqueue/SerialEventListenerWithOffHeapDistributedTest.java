@@ -35,7 +35,7 @@ public class SerialEventListenerWithOffHeapDistributedTest
 
   @Override
   protected Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(OFF_HEAP_MEMORY_SIZE, "300m");
     return config;
   }

@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.cache.partitioned.rebalance;
 
-import org.apache.geode.internal.cache.partitioned.rebalance.model.Move;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.PartitionedRegionLoadModel;
 
 /**
@@ -48,7 +47,7 @@ public class MovePrimaries extends RebalanceDirectorAdapter {
    * @return if we are able to move a primary.
    */
   private boolean movePrimaries() {
-    Move bestMove = model.findBestPrimaryMove();
+    var bestMove = model.findBestPrimaryMove();
 
     if (bestMove == null) {
       return false;

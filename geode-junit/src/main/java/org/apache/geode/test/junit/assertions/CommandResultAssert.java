@@ -29,10 +29,7 @@ import org.assertj.core.api.Assertions;
 
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 
 public class CommandResultAssert
     extends AbstractAssert<CommandResultAssert, CommandResult> {
@@ -151,16 +148,16 @@ public class CommandResultAssert
     assertThat(headersThenValues.length % 2)
         .describedAs("You need to pass even number of parameters.").isEqualTo(0);
 
-    int numberOfColumn = headersThenValues.length / 2;
+    var numberOfColumn = headersThenValues.length / 2;
 
-    String[] headers = Arrays.copyOfRange(headersThenValues, 0, numberOfColumn);
-    String[] expectedValues =
+    var headers = Arrays.copyOfRange(headersThenValues, 0, numberOfColumn);
+    var expectedValues =
         Arrays.copyOfRange(headersThenValues, numberOfColumn, headersThenValues.length);
 
     Map<String, List<String>> allValues = new HashMap<>();
-    int numberOfRows = -1;
-    for (String header : headers) {
-      List<String> columnValues =
+    var numberOfRows = -1;
+    for (var header : headers) {
+      var columnValues =
           actual.getResultData().getTableSections().get(0).getValuesInColumn(header);
       if (numberOfRows > 0) {
         assertThat(columnValues.size()).isEqualTo(numberOfRows);
@@ -169,9 +166,9 @@ public class CommandResultAssert
       allValues.put(header, columnValues);
     }
 
-    for (int rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
-      Object[] rowValues = new Object[headers.length];
-      for (int columnIndex = 0; columnIndex < headers.length; columnIndex++) {
+    for (var rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
+      var rowValues = new Object[headers.length];
+      for (var columnIndex = 0; columnIndex < headers.length; columnIndex++) {
         rowValues[columnIndex] = allValues.get(headers[columnIndex]).get(rowIndex);
       }
 
@@ -202,12 +199,12 @@ public class CommandResultAssert
    */
   public CommandResultAssert tableHasColumnWithValuesContaining(String header,
       String... expectedValues) {
-    TabularResultModel actual = hasTableSection().getActual();
-    List<String> actualValues = actual.getValuesInColumn(header);
+    var actual = hasTableSection().getActual();
+    var actualValues = actual.getValuesInColumn(header);
 
     for (Object actualValue : actualValues) {
-      String actualValueString = (String) actualValue;
-      boolean actualValueContainsAnExpectedValue =
+      var actualValueString = (String) actualValue;
+      var actualValueContainsAnExpectedValue =
           Arrays.stream(expectedValues).anyMatch(actualValueString::contains);
 
       if (!actualValueContainsAnExpectedValue) {
@@ -253,7 +250,7 @@ public class CommandResultAssert
   }
 
   public CommandResultAssert hasSection(String... sectionName) {
-    ResultModel resultModel = getResultModel();
+    var resultModel = getResultModel();
     assertThat(resultModel.getSectionNames()).contains(sectionName);
     return this;
   }
@@ -270,8 +267,8 @@ public class CommandResultAssert
   }
 
   public InfoResultModelAssert hasInfoSection(String sectionName) {
-    ResultModel resultModel = getResultModel();
-    InfoResultModel section = resultModel.getInfoSection(sectionName);
+    var resultModel = getResultModel();
+    var section = resultModel.getInfoSection(sectionName);
     if (section == null) {
       fail(sectionName + " section not found");
     }
@@ -281,14 +278,14 @@ public class CommandResultAssert
   // convenience method to get the first table section. if more than one table section
   // use the sectionName to get it
   public TabularResultModelAssert hasTableSection() {
-    List<TabularResultModel> table = getResultModel().getTableSections();
+    var table = getResultModel().getTableSections();
     assertThat(table.size()).isGreaterThan(0);
     return new TabularResultModelAssert(table.get(0));
   }
 
   public TabularResultModelAssert hasTableSection(String sectionName) {
-    ResultModel resultModel = getResultModel();
-    TabularResultModel section = resultModel.getTableSection(sectionName);
+    var resultModel = getResultModel();
+    var section = resultModel.getTableSection(sectionName);
     if (section == null) {
       fail(sectionName + " section not found");
     }
@@ -307,8 +304,8 @@ public class CommandResultAssert
   }
 
   public DataResultModelAssert hasDataSection(String sectionName) {
-    ResultModel resultModel = getResultModel();
-    DataResultModel section = resultModel.getDataSection(sectionName);
+    var resultModel = getResultModel();
+    var section = resultModel.getDataSection(sectionName);
     if (section == null) {
       fail(sectionName + " section not found");
     }

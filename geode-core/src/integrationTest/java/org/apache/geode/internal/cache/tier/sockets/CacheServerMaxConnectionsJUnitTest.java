@@ -27,15 +27,11 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.NoAvailableServersException;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
@@ -88,17 +84,17 @@ public class CacheServerMaxConnectionsJUnitTest {
    */
   private void createProxyAndRegionForClient() {
     // props.setProperty("retryAttempts", "0");
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     pf.addServer("localhost", PORT);
     pf.setMinConnections(0);
     pf.setPingInterval(10000);
     pf.setReadTimeout(2000);
     pf.setSocketBufferSize(32768);
     proxy = (PoolImpl) pf.create("junitPool");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName("junitPool");
-    RegionAttributes attrs = factory.createRegionAttributes();
+    var attrs = factory.createRegionAttributes();
     cache.createVMRegion(regionName, attrs);
   }
 
@@ -107,14 +103,14 @@ public class CacheServerMaxConnectionsJUnitTest {
    */
   private int createServer() throws IOException {
     CacheServer server = null;
-    Properties p = new Properties();
+    var p = new Properties();
     // make it a loner
     p.put(MCAST_PORT, "0");
     p.put(LOCATORS, "");
     system = DistributedSystem.connect(p);
     cache = CacheFactory.create(system);
     server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setMaxConnections(MAX_CNXS);
     server.setMaxThreads(getMaxThreads());
     server.setPort(port);
@@ -136,16 +132,16 @@ public class CacheServerMaxConnectionsJUnitTest {
   public void testMaxCnxLimit() throws Exception {
     PORT = createServer();
     createProxyAndRegionForClient();
-    StatisticsType st = system.findType("CacheServerStats");
-    final Statistics s = system.findStatisticsByType(st)[0];
+    var st = system.findType("CacheServerStats");
+    final var s = system.findStatisticsByType(st)[0];
     assertEquals(0, s.getInt("currentClients"));
     assertEquals(0, s.getInt("currentClientConnections"));
-    Connection[] cnxs = new Connection[MAX_CNXS];
-    for (int i = 0; i < MAX_CNXS; i++) {
+    var cnxs = new Connection[MAX_CNXS];
+    for (var i = 0; i < MAX_CNXS; i++) {
       cnxs[i] = proxy.acquireConnection();
       system.getLogWriter().info("acquired connection[" + i + "]=" + cnxs[i]);
     }
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return s.getInt("currentClientConnections") == MAX_CNXS;
@@ -162,7 +158,7 @@ public class CacheServerMaxConnectionsJUnitTest {
     system.getLogWriter().info(
         "<ExpectedException action=add>" + "exceeded max-connections" + "</ExpectedException>");
     try {
-      Connection cnx = proxy.acquireConnection();
+      var cnx = proxy.acquireConnection();
       if (cnx != null) {
         fail("should not have been able to connect more than " + MAX_CNXS
             + " times but was able to connect " + s.getInt("currentClientConnections")
@@ -182,7 +178,7 @@ public class CacheServerMaxConnectionsJUnitTest {
     }
 
     // now lets see what happens we we close our connections
-    for (int i = 0; i < MAX_CNXS; i++) {
+    for (var i = 0; i < MAX_CNXS; i++) {
       cnxs[i].close(false);
     }
     ev = new WaitCriterion() {

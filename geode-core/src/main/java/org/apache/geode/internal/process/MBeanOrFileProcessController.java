@@ -39,7 +39,7 @@ public class MBeanOrFileProcessController implements ProcessController {
         | UnableToControlProcessException e) {
       // if mbeanController already determines no such process exists, we can skip trying with
       // fileController
-      String message = e.getMessage();
+      var message = e.getMessage();
       if (message != null && message.toLowerCase().contains("no such process")) {
         throw e;
       }

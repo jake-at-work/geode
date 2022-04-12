@@ -26,30 +26,30 @@ public class ProcessingMessageTimerTest {
 
   @Test
   public void newInstancesNotProcessingMessage() {
-    ProcessingMessageTimer timer = new ProcessingMessageTimer();
+    var timer = new ProcessingMessageTimer();
     assertThat(timer.getCurrentMessageProcessingTime()).isEqualTo(NOT_PROCESSING);
   }
 
   @Test
   public void updateWhenNotSetDoesNotSet() {
-    ProcessingMessageTimer timer = new ProcessingMessageTimer();
+    var timer = new ProcessingMessageTimer();
     timer.updateProcessingMessage();
     assertThat(timer.getCurrentMessageProcessingTime()).isEqualTo(NOT_PROCESSING);
   }
 
   @Test
   public void setWhenNotSetWillSet() {
-    ProcessingMessageTimer timer = new ProcessingMessageTimer();
+    var timer = new ProcessingMessageTimer();
     timer.setProcessingMessage();
     assertThat(timer.getCurrentMessageProcessingTime()).isNotEqualTo(NOT_PROCESSING);
   }
 
   @Test
   public void getCurrentProgressesWhenSet() throws InterruptedException {
-    ProcessingMessageTimer timer = new ProcessingMessageTimer();
+    var timer = new ProcessingMessageTimer();
     timer.setProcessingMessage();
     Thread.sleep(2);
-    long firstSample = timer.getCurrentMessageProcessingTime();
+    var firstSample = timer.getCurrentMessageProcessingTime();
     assertThat(firstSample).isGreaterThan(0);
     Thread.sleep(2);
     assertThat(timer.getCurrentMessageProcessingTime()).isGreaterThan(firstSample);
@@ -57,9 +57,9 @@ public class ProcessingMessageTimerTest {
 
   @Test
   public void updateWhenSetWillReset() throws InterruptedException {
-    ProcessingMessageTimer timer = new ProcessingMessageTimer();
+    var timer = new ProcessingMessageTimer();
     timer.setProcessingMessage();
-    final long previous = timer.processingMessageStartTime.get();
+    final var previous = timer.processingMessageStartTime.get();
     Thread.sleep(2);
     timer.updateProcessingMessage();
     assertThat(timer.processingMessageStartTime.get()).isNotEqualTo(previous);
@@ -67,9 +67,9 @@ public class ProcessingMessageTimerTest {
 
   @Test
   public void setWhenSetWillReset() throws InterruptedException {
-    ProcessingMessageTimer timer = new ProcessingMessageTimer();
+    var timer = new ProcessingMessageTimer();
     timer.setProcessingMessage();
-    final long previous = timer.processingMessageStartTime.get();
+    final var previous = timer.processingMessageStartTime.get();
     Thread.sleep(2);
     timer.setProcessingMessage();
     assertThat(timer.processingMessageStartTime.get()).isNotEqualTo(previous);
@@ -77,7 +77,7 @@ public class ProcessingMessageTimerTest {
 
   @Test
   public void setNotProcessingWhenSetWillNotProcessing() {
-    ProcessingMessageTimer timer = new ProcessingMessageTimer();
+    var timer = new ProcessingMessageTimer();
     timer.setProcessingMessage();
     timer.setNotProcessingMessage();
     assertThat(timer.getCurrentMessageProcessingTime()).isEqualTo(NOT_PROCESSING);

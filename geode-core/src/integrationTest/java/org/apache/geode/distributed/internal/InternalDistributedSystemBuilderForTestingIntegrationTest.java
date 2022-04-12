@@ -33,17 +33,17 @@ public class InternalDistributedSystemBuilderForTestingIntegrationTest {
 
   @Test
   public void builderForTesting() {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
 
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var distributionManager = mock(DistributionManager.class);
     when(distributionManager.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
 
-    StatisticsManager statisticsManager = mock(StatisticsManager.class);
-    StatisticsManagerFactory statisticsManagerFactory = mock(StatisticsManagerFactory.class);
+    var statisticsManager = mock(StatisticsManager.class);
+    var statisticsManagerFactory = mock(StatisticsManagerFactory.class);
     when(statisticsManagerFactory.create(any(), anyLong(), anyBoolean()))
         .thenReturn(statisticsManager);
 
-    InternalDistributedSystem system =
+    var system =
         new InternalDistributedSystem.BuilderForTesting(configProperties)
             .setDistributionManager(distributionManager)
             .setStatisticsManagerFactory(statisticsManagerFactory)

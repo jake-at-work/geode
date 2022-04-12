@@ -30,9 +30,9 @@ public class SystemPropertyTest {
 
   @Test
   public void getIntegerPropertyPrefersGeodePrefix() {
-    String testProperty = "testIntegerProperty";
-    String gemfirePrefixProperty = "gemfire." + testProperty;
-    String geodePrefixProperty = "geode." + testProperty;
+    var testProperty = "testIntegerProperty";
+    var gemfirePrefixProperty = "gemfire." + testProperty;
+    var geodePrefixProperty = "geode." + testProperty;
     System.setProperty(geodePrefixProperty, "1");
     System.setProperty(gemfirePrefixProperty, "0");
 
@@ -41,8 +41,8 @@ public class SystemPropertyTest {
 
   @Test
   public void getIntegerPropertyReturnsGemfirePrefixIfGeodeMissing() {
-    String testProperty = "testIntegerProperty";
-    String gemfirePrefixProperty = "gemfire." + testProperty;
+    var testProperty = "testIntegerProperty";
+    var gemfirePrefixProperty = "gemfire." + testProperty;
     System.setProperty(gemfirePrefixProperty, "1");
 
     assertThat(getProductIntegerProperty(testProperty).get()).isEqualTo(1);
@@ -50,15 +50,15 @@ public class SystemPropertyTest {
 
   @Test
   public void getIntegerPropertyWithDefaultValue() {
-    String testProperty = "testIntegerProperty";
+    var testProperty = "testIntegerProperty";
 
     assertThat(getProductIntegerProperty(testProperty, 1000)).isEqualTo(1000);
   }
 
   @Test
   public void getLongPropertyWithoutDefaultReturnsGemfirePrefixIfGeodeMissing() {
-    String testProperty = "testLongProperty";
-    String gemfirePrefixProperty = "gemfire." + testProperty;
+    var testProperty = "testLongProperty";
+    var gemfirePrefixProperty = "gemfire." + testProperty;
     System.setProperty(gemfirePrefixProperty, "1");
 
     assertThat(getProductLongProperty(testProperty).get()).isEqualTo(1);
@@ -66,30 +66,30 @@ public class SystemPropertyTest {
 
   @Test
   public void getLongPropertyWithDefaultValue() {
-    String testProperty = "testIntegerProperty";
+    var testProperty = "testIntegerProperty";
 
     assertThat(getProductLongProperty(testProperty, 1000)).isEqualTo(1000);
   }
 
   @Test
   public void getIntegerPropertyReturnsEmptyOptionalIfPropertiesMissing() {
-    String testProperty = "notSetProperty";
+    var testProperty = "notSetProperty";
 
     assertThat(getProductIntegerProperty(testProperty).isPresent()).isFalse();
   }
 
   @Test
   public void getBooleanPropertyReturnsEmptyOptionalIfProperiesMissing() {
-    String testProperty = "notSetProperty";
+    var testProperty = "notSetProperty";
 
     assertThat(getProductBooleanProperty(testProperty).isPresent()).isFalse();
   }
 
   @Test
   public void getBooleanPropertyPrefersGeodePrefix() {
-    String testProperty = "testBooleanProperty";
-    String gemfirePrefixProperty = "gemfire." + testProperty;
-    String geodePrefixProperty = "geode." + testProperty;
+    var testProperty = "testBooleanProperty";
+    var gemfirePrefixProperty = "gemfire." + testProperty;
+    var geodePrefixProperty = "geode." + testProperty;
     System.setProperty(geodePrefixProperty, "true");
     System.setProperty(gemfirePrefixProperty, "false");
 
@@ -98,8 +98,8 @@ public class SystemPropertyTest {
 
   @Test
   public void getBooleanPropertyReturnsGemfirePrefixIfGeodeMissing() {
-    String testProperty = "testBooleanProperty";
-    String gemfirePrefixProperty = "gemfire." + testProperty;
+    var testProperty = "testBooleanProperty";
+    var gemfirePrefixProperty = "gemfire." + testProperty;
     System.setProperty(gemfirePrefixProperty, "true");
 
     assertThat(getProductBooleanProperty(testProperty).get()).isTrue();

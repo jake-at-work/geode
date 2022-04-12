@@ -81,18 +81,18 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.put(ConfigurationProperties.ENABLE_NETWORK_PARTITION_DETECTION, "false");
     return props;
   }
 
   protected VM getOtherVm() {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     return host.getVM(0);
   }
 
   private void initOtherId() {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("Connect") {
       @Override
       public void run2() throws CacheException {
@@ -103,18 +103,18 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void createRootOtherVm(final String rName) {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("create root") {
       @Override
       public void run2() throws CacheException {
-        Region r = createRootRegion(rName, createRootRegionAttributes(null));
+        var r = createRootRegion(rName, createRootRegionAttributes(null));
         r.createSubregion("mysub", createSubRegionAttributes(null));
       }
     });
   }
 
   protected RegionAttributes createRootRegionAttributes(CacheListener[] cacheListeners) {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     if (cacheListeners != null) {
       af.initCacheListeners(cacheListeners);
     }
@@ -126,7 +126,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void destroyRootOtherVm(final String rName) {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("local destroy root") {
       @Override
       public void run2() throws CacheException {
@@ -136,7 +136,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void closeRootOtherVm(final String rName) {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("close root") {
       @Override
       public void run2() throws CacheException {
@@ -146,7 +146,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void closeCacheOtherVm() {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("close cache") {
       @Override
       public void run2() throws CacheException {
@@ -156,7 +156,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void crashCacheOtherVm() {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("crash cache") {
       @Override
       public void run2() throws CacheException {
@@ -168,7 +168,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void createRootRegionWithListener(String rName) throws CacheException {
-    int to = getOpTimeout();
+    var to = getOpTimeout();
     myListener = new MyRML(to);
     r =
         createRootRegion(rName, createRootRegionAttributes(new CacheListener[] {myListener}));
@@ -188,7 +188,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testInitialMembers() throws CacheException {
-    final String rName = getUniqueName();
+    final var rName = getUniqueName();
     initOtherId();
     createRootRegionWithListener(rName);
     assertInitialMembers(null);
@@ -219,7 +219,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
     assertEquals(l, mySRListener.getInitialMembers());
     // test new methods added for #43098
     if (expectedId != null) {
-      Cache cache = (Cache) r.getRegionService();
+      var cache = (Cache) r.getRegionService();
       // assertIndexDetailsEquals(l, new ArrayList(cache.getMembers()));
       assertEquals(l, new ArrayList(cache.getMembers(r)));
       assertEquals(l, new ArrayList(cache.getMembers(sr)));
@@ -232,13 +232,13 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCreate() throws CacheException {
-    final String rName = getUniqueName();
+    final var rName = getUniqueName();
     initOtherId();
     createRootRegionWithListener(rName);
     createRootOtherVm(rName);
     assertTrue(myListener.lastOpWasCreate());
     {
-      RegionEvent e = myListener.getLastEvent();
+      var e = myListener.getLastEvent();
       assertEquals(otherId, e.getDistributedMember());
       assertEquals(Operation.REGION_CREATE, e.getOperation());
       assertEquals(true, e.isOriginRemote());
@@ -251,7 +251,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
     }
     assertTrue(mySRListener.lastOpWasCreate());
     {
-      RegionEvent e = mySRListener.getLastEvent();
+      var e = mySRListener.getLastEvent();
       assertEquals(otherId, e.getDistributedMember());
       assertEquals(Operation.REGION_CREATE, e.getOperation());
       assertEquals(true, e.isOriginRemote());
@@ -269,7 +269,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testDeparture() throws CacheException {
-    final String rName = getUniqueName();
+    final var rName = getUniqueName();
     initOtherId();
     createRootRegionWithListener(rName);
     createRootOtherVm(rName);
@@ -317,7 +317,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCrash() throws CacheException {
-    final String rName = getUniqueName();
+    final var rName = getUniqueName();
     initOtherId();
     createRootRegionWithListener(rName);
     createRootOtherVm(rName);
@@ -327,11 +327,11 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
       MembershipManagerHelper.inhibitForcedDisconnectLogging(true);
 
       crashCacheOtherVm();
-      int to = getOpTimeout();
+      var to = getOpTimeout();
       MembershipManagerHelper.waitForMemberDeparture(basicGetSystem(), otherId, to);
       myListener.waitForCrashOp();
       {
-        RegionEvent e = myListener.getLastEvent();
+        var e = myListener.getLastEvent();
         assertEquals(otherId, e.getDistributedMember());
         assertEquals(Operation.REGION_CLOSE, e.getOperation());
         assertEquals(true, e.isOriginRemote());
@@ -341,7 +341,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
       }
       mySRListener.waitForCrashOp();
       {
-        RegionEvent e = mySRListener.getLastEvent();
+        var e = mySRListener.getLastEvent();
         assertEquals(otherId, e.getDistributedMember());
         assertEquals(Operation.REGION_CLOSE, e.getOperation());
         assertEquals(true, e.isOriginRemote());
@@ -376,7 +376,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
     }
 
     public boolean lastOpWasCreate() {
-      boolean result = waitForOp(Op.Create);
+      var result = waitForOp(Op.Create);
       if (result) {
         // bug #44684 - afterRemoteRegionCreate should not be invoked before the remote region is
         // initialized
@@ -410,7 +410,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
     }
 
     private boolean waitForOp(final Op op) {
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           return lastOp == op;
@@ -455,7 +455,7 @@ public class RegionMembershipListenerDUnitTest extends JUnit4CacheTestCase {
     public void afterRemoteRegionCreate(RegionEvent event) {
       lastOp = Op.Create;
       lastEvent = event;
-      CacheProfile cacheProfile = (CacheProfile) event.getCallbackArgument();
+      var cacheProfile = (CacheProfile) event.getCallbackArgument();
       if (cacheProfile != null) {
         memberInitialized = cacheProfile.regionInitialized;
         if (!memberInitialized) {

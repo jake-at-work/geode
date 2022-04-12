@@ -36,7 +36,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -72,8 +71,8 @@ public class CacheCreationTest {
 
   @Test
   public void verifyRunInitializerWithInitializerAndNullPropsCallsInitAndInitialize() {
-    CacheCreation cacheCreation = new CacheCreation();
-    Declarable initializer = mock(Declarable.class);
+    var cacheCreation = new CacheCreation();
+    var initializer = mock(Declarable.class);
     Properties props = null;
     cacheCreation.setInitializer(initializer, props);
 
@@ -85,9 +84,9 @@ public class CacheCreationTest {
 
   @Test
   public void verifyRunInitializerWithInitializerAndPropsCallsInitAndInitialize() {
-    CacheCreation cacheCreation = new CacheCreation();
-    Declarable initializer = mock(Declarable.class);
-    Properties props = new Properties();
+    var cacheCreation = new CacheCreation();
+    var initializer = mock(Declarable.class);
+    var props = new Properties();
     props.setProperty("key", "value");
     cacheCreation.setInitializer(initializer, props);
 
@@ -99,7 +98,7 @@ public class CacheCreationTest {
 
   @Test
   public void verifyInitializeDeclarablesMapWithNoDeclarablesPassesEmptyMap() {
-    CacheCreation cacheCreation = new CacheCreation();
+    var cacheCreation = new CacheCreation();
 
     cacheCreation.initializeDeclarablesMap(cache);
 
@@ -108,13 +107,13 @@ public class CacheCreationTest {
 
   @Test
   public void verifyInitializeDeclarablesMapWithDeclarablesPassesExpectedMap() {
-    CacheCreation cacheCreation = new CacheCreation();
+    var cacheCreation = new CacheCreation();
     Map<Declarable, Properties> expected = new HashMap<>();
-    Declarable declarable1 = mock(Declarable.class);
+    var declarable1 = mock(Declarable.class);
     cacheCreation.addDeclarableProperties(declarable1, null);
     expected.put(declarable1, null);
-    Declarable declarable2 = mock(Declarable.class);
-    Properties properties = new Properties();
+    var declarable2 = mock(Declarable.class);
+    var properties = new Properties();
     properties.setProperty("k2", "v2");
     cacheCreation.addDeclarableProperties(declarable2, properties);
     expected.put(declarable2, properties);
@@ -126,9 +125,9 @@ public class CacheCreationTest {
 
   @Test
   public void verifyInitializeDeclarablesMapWithDeclarableCallInitAndInitialize() {
-    CacheCreation cacheCreation = new CacheCreation();
-    Declarable declarable = mock(Declarable.class);
-    Properties properties = new Properties();
+    var cacheCreation = new CacheCreation();
+    var declarable = mock(Declarable.class);
+    var properties = new Properties();
     properties.setProperty("k2", "v2");
     cacheCreation.addDeclarableProperties(declarable, properties);
 
@@ -140,14 +139,14 @@ public class CacheCreationTest {
 
   @Test
   public void verifyInitializeDeclarablesMapWithDeclarableThatThrowsWillThrowCacheXmlException() {
-    CacheCreation cacheCreation = new CacheCreation();
-    Declarable declarable = mock(Declarable.class);
+    var cacheCreation = new CacheCreation();
+    var declarable = mock(Declarable.class);
     Properties properties = null;
     cacheCreation.addDeclarableProperties(declarable, properties);
     Throwable cause = new RuntimeException("expected");
     doThrow(cause).when(declarable).initialize(cache, null);
 
-    Throwable thrown = catchThrowable(() -> cacheCreation.initializeDeclarablesMap(cache));
+    var thrown = catchThrowable(() -> cacheCreation.initializeDeclarablesMap(cache));
 
     assertThat(thrown).isExactlyInstanceOf(CacheXmlException.class)
         .hasMessageStartingWith("Exception while initializing an instance of").hasCause(cause);
@@ -155,8 +154,8 @@ public class CacheCreationTest {
 
   @Test
   public void declarativeRegionIsCreated() {
-    CacheCreation cacheCreation = new CacheCreation();
-    RegionCreation declarativeRegion = mock(RegionCreation.class);
+    var cacheCreation = new CacheCreation();
+    var declarativeRegion = mock(RegionCreation.class);
     Map<String, Region<?, ?>> declarativeRegions = new HashMap<>();
     declarativeRegions.put("testRegion", declarativeRegion);
 
@@ -167,7 +166,7 @@ public class CacheCreationTest {
 
   @Test
   public void defaultCacheServerIsNotCreatedWithDefaultPortWhenNoDeclarativeServerIsConfigured() {
-    CacheCreation cacheCreation = new CacheCreation();
+    var cacheCreation = new CacheCreation();
 
     cacheCreation.startCacheServers(cacheCreation.getCacheServers(), cache,
         ServerLauncherParameters.INSTANCE.withDisableDefaultServer(false));
@@ -177,7 +176,7 @@ public class CacheCreationTest {
 
   @Test
   public void defaultCacheServerIsNotCreatedWhenDisableDefaultCacheServerIsTrue() {
-    CacheCreation cacheCreation = new CacheCreation();
+    var cacheCreation = new CacheCreation();
 
     cacheCreation.startCacheServers(cacheCreation.getCacheServers(), cache,
         ServerLauncherParameters.INSTANCE.withDisableDefaultServer(false));
@@ -187,13 +186,13 @@ public class CacheCreationTest {
 
   @Test
   public void defaultCacheServerIsCreatedWithConfiguredPortWhenNoDeclarativeServerIsConfigured() {
-    CacheCreation cacheCreation = new CacheCreation();
-    CacheServerImpl mockServer = mock(CacheServerImpl.class);
+    var cacheCreation = new CacheCreation();
+    var mockServer = mock(CacheServerImpl.class);
     when(cache.addCacheServer()).thenReturn(mockServer);
     List<CacheServer> cacheServers = new ArrayList<>();
     when(cache.getCacheServers()).thenReturn(cacheServers);
-    boolean disableDefaultCacheServer = false;
-    int configuredServerPort = 9999;
+    var disableDefaultCacheServer = false;
+    var configuredServerPort = 9999;
 
     cacheCreation.startCacheServers(cacheCreation.getCacheServers(), cache,
         ServerLauncherParameters.INSTANCE.withPort(configuredServerPort)
@@ -205,14 +204,14 @@ public class CacheCreationTest {
 
   @Test
   public void declarativeCacheServerIsCreatedWithConfiguredServerPort() {
-    CacheCreation cacheCreation = new CacheCreation();
+    var cacheCreation = new CacheCreation();
     CacheServer cacheServer = new CacheServerCreation(cacheCreation, false);
     cacheServer.setPort(8888);
     cacheCreation.getCacheServers().add(cacheServer);
-    CacheServerImpl mockServer = mock(CacheServerImpl.class);
+    var mockServer = mock(CacheServerImpl.class);
     when(cache.addCacheServer()).thenReturn(mockServer);
-    int configuredServerPort = 9999;
-    boolean disableDefaultCacheServer = false;
+    var configuredServerPort = 9999;
+    var disableDefaultCacheServer = false;
 
     cacheCreation.startCacheServers(cacheCreation.getCacheServers(), cache,
         ServerLauncherParameters.INSTANCE.withPort(configuredServerPort)
@@ -224,11 +223,11 @@ public class CacheCreationTest {
 
   @Test
   public void cacheServerCreationIsSkippedWhenAServerExistsForAGivenPort() {
-    CacheCreation cacheCreation = new CacheCreation();
+    var cacheCreation = new CacheCreation();
     CacheServer cacheServer = new CacheServerCreation(cacheCreation, false);
     cacheServer.setPort(40406);
     cacheCreation.getCacheServers().add(cacheServer);
-    CacheServerImpl mockServer = mock(CacheServerImpl.class);
+    var mockServer = mock(CacheServerImpl.class);
     when(mockServer.getPort()).thenReturn(40406);
     List<CacheServer> cacheServers = new ArrayList<>();
     cacheServers.add(mockServer);
@@ -242,14 +241,14 @@ public class CacheCreationTest {
 
   @Test
   public void userCanCreateMultipleCacheServersDeclaratively() {
-    CacheCreation cacheCreation = new CacheCreation();
+    var cacheCreation = new CacheCreation();
     CacheServer cacheServer1 = new CacheServerCreation(cacheCreation, false);
     cacheServer1.setPort(40406);
     CacheServer cacheServer2 = new CacheServerCreation(cacheCreation, false);
     cacheServer1.setPort(40407);
     cacheCreation.getCacheServers().add(cacheServer1);
     cacheCreation.getCacheServers().add(cacheServer2);
-    CacheServerImpl mockServer = mock(CacheServerImpl.class);
+    var mockServer = mock(CacheServerImpl.class);
     when(cache.addCacheServer()).thenReturn(mockServer);
 
     cacheCreation.startCacheServers(cacheCreation.getCacheServers(), cache,
@@ -262,14 +261,14 @@ public class CacheCreationTest {
 
   @Test
   public void shouldThrowExceptionWhenUserTriesToDeclareMultipleCacheServersWithPort() {
-    CacheCreation cacheCreation = new CacheCreation();
+    var cacheCreation = new CacheCreation();
     cacheCreation.getCacheServers().add(new CacheServerCreation(cacheCreation, false));
     cacheCreation.getCacheServers().add(new CacheServerCreation(cacheCreation, false));
-    int configuredServerPort = 50505;
-    String configuredServerBindAddress = "localhost[50505]";
-    boolean disableDefaultCacheServer = false;
+    var configuredServerPort = 50505;
+    var configuredServerBindAddress = "localhost[50505]";
+    var disableDefaultCacheServer = false;
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       cacheCreation.startCacheServers(cacheCreation.getCacheServers(), cache,
           ServerLauncherParameters.INSTANCE.withPort(configuredServerPort)
               .withBindAddress(configuredServerBindAddress)
@@ -281,38 +280,38 @@ public class CacheCreationTest {
 
   @Test
   public void shouldCreateGatewaySenderAfterRegions() {
-    CacheCreation cacheCreation = new CacheCreation();
-    GatewayReceiver receiver = mock(GatewayReceiver.class);
+    var cacheCreation = new CacheCreation();
+    var receiver = mock(GatewayReceiver.class);
     cacheCreation.addGatewayReceiver(receiver);
     cacheCreation.addRootRegion(new RegionCreation(cacheCreation, "region"));
-    InternalCache internalCache = mock(InternalCache.class);
-    GatewayReceiverFactory receiverFactory = mock(GatewayReceiverFactory.class);
+    var internalCache = mock(InternalCache.class);
+    var receiverFactory = mock(GatewayReceiverFactory.class);
     when(internalCache.createGatewayReceiverFactory()).thenReturn(receiverFactory);
     when(receiverFactory.create()).thenReturn(receiver);
 
     cacheCreation.create(internalCache);
 
-    InOrder inOrder = inOrder(internalCache, receiverFactory);
+    var inOrder = inOrder(internalCache, receiverFactory);
     inOrder.verify(internalCache).createGatewayReceiverFactory();
     inOrder.verify(receiverFactory).create();
   }
 
   @Test
   public void serverLauncherParametersShouldOverrideDefaultSettings() {
-    CacheCreation cacheCreation = new CacheCreation();
+    var cacheCreation = new CacheCreation();
     CacheServer cacheServerCreation = new CacheServerCreation(cacheCreation, false);
     cacheCreation.getCacheServers().add(cacheServerCreation);
-    CacheServerImpl mockServer = mock(CacheServerImpl.class);
+    var mockServer = mock(CacheServerImpl.class);
     when(cache.addCacheServer()).thenReturn(mockServer);
-    int serverPort = 4444;
-    int maxThreads = 5000;
-    int maxConnections = 300;
-    int maxMessageCount = 100;
-    int socketBufferSize = 1024;
+    var serverPort = 4444;
+    var maxThreads = 5000;
+    var maxConnections = 300;
+    var maxMessageCount = 100;
+    var socketBufferSize = 1024;
     String serverBindAddress = null;
-    int messageTimeToLive = 500;
-    String hostnameForClients = "hostnameForClients";
-    boolean disableDefaultServer = false;
+    var messageTimeToLive = 500;
+    var hostnameForClients = "hostnameForClients";
+    var disableDefaultServer = false;
     ServerLauncherParameters.INSTANCE
         .withPort(serverPort)
         .withMaxThreads(maxThreads)

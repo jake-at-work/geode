@@ -69,7 +69,7 @@ public class PdxInfo extends RuntimeInfo {
     if (!super.equals(o)) {
       return false;
     }
-    PdxInfo pdxInfo = (PdxInfo) o;
+    var pdxInfo = (PdxInfo) o;
     return isReadSerialized() == pdxInfo.isReadSerialized() &&
         isIgnoreUnreadFields() == pdxInfo.isIgnoreUnreadFields() &&
         Objects.equals(getDiskStoreName(), pdxInfo.getDiskStoreName()) &&

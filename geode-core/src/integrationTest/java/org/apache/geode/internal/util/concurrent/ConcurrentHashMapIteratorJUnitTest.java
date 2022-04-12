@@ -36,12 +36,12 @@ public class ConcurrentHashMapIteratorJUnitTest {
   public void test() throws InterruptedException {
     // Apparently, we need a distributed system to create
     // this CHM, because it's locks use DS properties.
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     DistributedSystem.connect(props);
-    java.util.concurrent.ConcurrentHashMap baselineMap =
+    var baselineMap =
         new java.util.concurrent.ConcurrentHashMap();
-    CustomEntryConcurrentHashMap testMap = new CustomEntryConcurrentHashMap();
+    var testMap = new CustomEntryConcurrentHashMap();
     Map initialSet;
 
 
@@ -49,10 +49,10 @@ public class ConcurrentHashMapIteratorJUnitTest {
     assertEquals(baselineMap, testMap);
     initialSet = new HashMap(baselineMap);
 
-    RandomMutations randomer = new RandomMutations(baselineMap, testMap, 1001, 50000);
+    var randomer = new RandomMutations(baselineMap, testMap, 1001, 50000);
     randomer.start();
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       checkForInitialSet(i, testMap, initialSet);
     }
 
@@ -62,9 +62,9 @@ public class ConcurrentHashMapIteratorJUnitTest {
   }
 
   private void checkForInitialSet(int i, ConcurrentMap testMap, Map initialSet) {
-    HashSet found = new HashSet(testMap.values());
+    var found = new HashSet(testMap.values());
     if (!found.containsAll(initialSet.values())) {
-      HashSet missed = new HashSet(initialSet.values());
+      var missed = new HashSet(initialSet.values());
       missed.removeAll(found);
       fail("On run " + i + " did not find these elements of the initial set using the iterator "
           + missed);
@@ -73,7 +73,7 @@ public class ConcurrentHashMapIteratorJUnitTest {
 
   private void createBaseline(ConcurrentMap baselineMap, ConcurrentMap testMap, int start,
       int end) {
-    for (int i = start; i < end; i++) {
+    for (var i = start; i < end; i++) {
       baselineMap.put(i, i);
       testMap.put(i, i);
     }
@@ -95,10 +95,10 @@ public class ConcurrentHashMapIteratorJUnitTest {
 
     @Override
     public void run() {
-      Random random = new Random();
+      var random = new Random();
       while (!done) {
-        int key = random.nextInt(end - start) + start;
-        boolean put = random.nextBoolean();
+        var key = random.nextInt(end - start) + start;
+        var put = random.nextBoolean();
         if (put) {
           baselineMap.put(key, key);
           testMap.put(key, key);

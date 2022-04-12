@@ -21,7 +21,6 @@ import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.configuration.ClassNameType;
 import org.apache.geode.cache.configuration.DeclarableType;
 import org.apache.geode.cache.configuration.ObjectType;
-import org.apache.geode.cache.configuration.ParameterType;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.management.configuration.ClassName;
 
@@ -29,11 +28,11 @@ public abstract class DeclarableTypeInstantiator {
 
   public static <T extends Declarable> T newInstance(DeclarableType declarableType, Cache cache) {
     try {
-      Class<T> loadedClass =
+      var loadedClass =
           (Class<T>) ClassPathLoader.getLatest().forName(declarableType.getClassName());
-      T declarable = loadedClass.newInstance();
-      Properties initProperties = new Properties();
-      for (ParameterType parameter : declarableType.getParameters()) {
+      var declarable = loadedClass.newInstance();
+      var initProperties = new Properties();
+      for (var parameter : declarableType.getParameters()) {
         initProperties.put(parameter.getName(), newInstance(parameter, cache));
       }
       declarable.initialize(cache, initProperties);
@@ -59,10 +58,10 @@ public abstract class DeclarableTypeInstantiator {
 
   public static <V> V newInstance(ClassName type, Cache cache) {
     try {
-      Class<V> loadedClass = (Class<V>) ClassPathLoader.getLatest().forName(type.getClassName());
-      V object = loadedClass.newInstance();
+      var loadedClass = (Class<V>) ClassPathLoader.getLatest().forName(type.getClassName());
+      var object = loadedClass.newInstance();
       if (object instanceof Declarable) {
-        Declarable declarable = (Declarable) object;
+        var declarable = (Declarable) object;
         declarable.initialize(cache, type.getInitProperties());
         declarable.init(type.getInitProperties()); // for backwards compatibility
       }
@@ -74,7 +73,7 @@ public abstract class DeclarableTypeInstantiator {
 
   public static <V> V newInstance(ClassNameType className) {
     try {
-      Class<V> loadedClass =
+      var loadedClass =
           (Class<V>) ClassPathLoader.getLatest().forName(className.getClassName());
       return loadedClass.newInstance();
     } catch (Exception e) {

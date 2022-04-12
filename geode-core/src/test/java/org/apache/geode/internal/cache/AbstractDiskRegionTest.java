@@ -26,10 +26,10 @@ public class AbstractDiskRegionTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    AbstractDiskRegion mockAbstractDiskRegion = mock(AbstractDiskRegion.class);
-    DiskStoreImpl mockDiskStoreImpl = mock(DiskStoreImpl.class);
-    DiskId mockDiskId = mock(DiskId.class);
-    Object object = new Object();
+    var mockAbstractDiskRegion = mock(AbstractDiskRegion.class);
+    var mockDiskStoreImpl = mock(DiskStoreImpl.class);
+    var mockDiskId = mock(DiskId.class);
+    var object = new Object();
 
     when(mockAbstractDiskRegion.getDiskStore()).thenReturn(mockDiskStoreImpl);
     when(mockAbstractDiskRegion.getRaw(eq(mockDiskId))).thenReturn(object);

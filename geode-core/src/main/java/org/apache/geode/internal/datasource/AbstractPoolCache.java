@@ -20,11 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -92,8 +90,8 @@ public abstract class AbstractPoolCache implements ConnectionPoolCache, Serializ
 
   protected void initializePool() {
     if (INIT_LIMIT > 0) {
-      long currTime = System.currentTimeMillis();
-      for (int count = 0; count < INIT_LIMIT; count++) {
+      var currTime = System.currentTimeMillis();
+      for (var count = 0; count < INIT_LIMIT; count++) {
         try {
           availableCache.put(getNewPoolConnection(), currTime);
           ++totalConnections;
@@ -119,7 +117,7 @@ public abstract class AbstractPoolCache implements ConnectionPoolCache, Serializ
    */
   @Override
   public void returnPooledConnectionToPool(Object connectionObject) {
-    boolean returnedHappened = false;
+    var returnedHappened = false;
     if (connectionObject != null) {
       // Asif: Take a lock on activeCache while removing the Connection
       // from the map. It is possible that while the connection is
@@ -226,13 +224,13 @@ public abstract class AbstractPoolCache implements ConnectionPoolCache, Serializ
      * if (availableCache == null) { synchronized (this) { if (availableCache == null) {
      * initializePool(); } } }
      */
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     synchronized (availableCache) {
       while ((totalConnections - activeConnections) == 0 && totalConnections == MAX_LIMIT) {
         try {
           availableCache.wait(loginTimeOut);
-          long newtime = System.currentTimeMillis();
-          long duration = newtime - now;
+          var newtime = System.currentTimeMillis();
+          var duration = newtime - now;
           if (duration > loginTimeOut) {
             throw new PoolException(
                 "AbstractPooledCache::getPooledConnectionFromPool:Login time-out exceeded");
@@ -288,8 +286,8 @@ public abstract class AbstractPoolCache implements ConnectionPoolCache, Serializ
   private Object checkOutConnection(long now) throws PoolException {
     // boolean expiryCheck = false;
     Object retConn = null;
-    Set entryset = availableCache.entrySet();
-    Iterator itr = entryset.iterator();
+    var entryset = availableCache.entrySet();
+    var itr = entryset.iterator();
     Map.Entry entry = null;
     while (itr.hasNext()) {
       entry = (Map.Entry) itr.next();
@@ -334,10 +332,10 @@ public abstract class AbstractPoolCache implements ConnectionPoolCache, Serializ
     // of oldest conn as the first element
     // PooledConnection[] activeConnArr = (PooledConnection[])
     // this.activeCache.keySet().toArray(new PooledConnection[0]);
-    int numConnTimedOut = 0;
-    long now = System.currentTimeMillis();
+    var numConnTimedOut = 0;
+    var now = System.currentTimeMillis();
     sleepTime = -1;
-    boolean toContinue = true;
+    var toContinue = true;
     // int len = activeConnArr.length;
     // for (int i = 0; i < len; ++i) {
     while (toContinue) {
@@ -345,10 +343,10 @@ public abstract class AbstractPoolCache implements ConnectionPoolCache, Serializ
       Long associatedValue = null;
       // Get the connection which is the oldest
       synchronized (activeCache) {
-        Set set = activeCache.entrySet();
-        Iterator itr = set.iterator();
+        var set = activeCache.entrySet();
+        var itr = set.iterator();
         if (itr.hasNext()) {
-          Map.Entry entry = (Map.Entry) itr.next();
+          var entry = (Map.Entry) itr.next();
           conn = entry.getKey();
           associatedValue = (Long) entry.getValue();
         } else {
@@ -365,7 +363,7 @@ public abstract class AbstractPoolCache implements ConnectionPoolCache, Serializ
           // at the extreme end !!! . So we cannot use it.
           // If that is the case we need to skip the entry
           // Check the timeout
-          Long associatedValueInWindow = (Long) activeCache.get(conn);
+          var associatedValueInWindow = (Long) activeCache.get(conn);
           long then = associatedValueInWindow;
           if (associatedValueInWindow.longValue() == associatedValue.longValue()) {
             if ((now - then) > timeOut) {
@@ -413,8 +411,8 @@ public abstract class AbstractPoolCache implements ConnectionPoolCache, Serializ
     }
     // Asif: destroy the connections contained in the temp list
     // & clear it
-    int size = temp.size();
-    for (Object conn : temp) {
+    var size = temp.size();
+    for (var conn : temp) {
       destroyPooledConnection(conn);
     }
     temp.clear();
@@ -435,8 +433,8 @@ public abstract class AbstractPoolCache implements ConnectionPoolCache, Serializ
     }
     // closing all the connection
     try {
-      Iterator availableCacheItr = availableCache.keySet().iterator();
-      for (final Object o : activeCache.keySet()) {
+      var availableCacheItr = availableCache.keySet().iterator();
+      for (final var o : activeCache.keySet()) {
         ((Connection) o).close();
       }
       while (availableCacheItr.hasNext()) {

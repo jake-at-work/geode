@@ -58,8 +58,8 @@ public class ChunkKey implements DataSerializableFixedID {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + fileId.hashCode();
     result = prime * result + chunkId;
     return result;
@@ -76,7 +76,7 @@ public class ChunkKey implements DataSerializableFixedID {
     if (!(obj instanceof ChunkKey)) {
       return false;
     }
-    ChunkKey other = (ChunkKey) obj;
+    var other = (ChunkKey) obj;
     if (chunkId != other.chunkId) {
       return false;
     }
@@ -108,8 +108,8 @@ public class ChunkKey implements DataSerializableFixedID {
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     chunkId = in.readInt();
-    long high = in.readLong();
-    long low = in.readLong();
+    var high = in.readLong();
+    var low = in.readLong();
     fileId = new UUID(high, low);
   }
 

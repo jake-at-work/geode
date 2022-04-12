@@ -38,10 +38,10 @@ public abstract class ReliabilityTestCase extends JUnit4CacheTestCase {
     Set missingRoles = RequiredRoles.checkForRequiredRoles(region);
     assertNotNull(missingRoles);
     assertEquals(roles.length, missingRoles.size());
-    for (final Object missingRole : missingRoles) {
-      Role role = (Role) missingRole;
-      boolean found = false;
-      for (final String s : roles) {
+    for (final var missingRole : missingRoles) {
+      var role = (Role) missingRole;
+      var found = false;
+      for (final var s : roles) {
         if (role.getName().equals(s)) {
           found = true;
           break;

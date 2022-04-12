@@ -30,10 +30,8 @@ import org.apache.geode.SystemFailure;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedSystem;
@@ -58,15 +56,15 @@ public class DiskRegionClearJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     distributedSystem = DistributedSystem.connect(properties);
     cache = CacheFactory.create(distributedSystem);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    RegionAttributes regionAttributes = factory.create();
+    var regionAttributes = factory.create();
     testRegion = cache.createRegion("TestRegion1", regionAttributes);
     CacheObserverHolder.setInstance(new CacheObserverListener());
   }
@@ -75,8 +73,8 @@ public class DiskRegionClearJUnitTest {
   public void tearDown() throws Exception {
     try {
       if (cache != null && !cache.isClosed()) {
-        for (final Region<?, ?> region : cache.rootRegions()) {
-          Region root = (Region) region;
+        for (final var region : cache.rootRegions()) {
+          var root = (Region) region;
           // String name = root.getName();
           if (root.isDestroyed() || root instanceof HARegion) {
             continue;
@@ -109,7 +107,7 @@ public class DiskRegionClearJUnitTest {
    */
   @Test
   public void testClearAndStats() throws Exception {
-    DiskRegion dr = ((LocalRegion) testRegion).getDiskRegion();
+    var dr = ((LocalRegion) testRegion).getDiskRegion();
     assertEquals(0, dr.getStats().getNumEntriesInVM());
     // put a value in the region
     testRegion.put(1L, 1L);
@@ -123,7 +121,7 @@ public class DiskRegionClearJUnitTest {
     if (cache != null) {
       try {
         if (!cache.isClosed()) {
-          CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+          var txMgr = cache.getCacheTransactionManager();
           if (txMgr != null) {
             if (txMgr.exists()) {
               // make sure we cleanup this threads txid stored in a thread local
@@ -145,9 +143,9 @@ public class DiskRegionClearJUnitTest {
     for (long i = 0; i < 100; i++) {
       testRegion.put(i, i);
     }
-    Thread thread = new Thread(new Thread2());
+    var thread = new Thread(new Thread2());
     thread.start();
-    final long tilt = System.currentTimeMillis() + 60 * 1000;
+    final var tilt = System.currentTimeMillis() + 60 * 1000;
     // TODO why is this loop necessary?
     while (counter != 3) {
       try {
@@ -176,15 +174,15 @@ public class DiskRegionClearJUnitTest {
     assertEquals(0, testRegion.size());
     cache.close();
     distributedSystem.disconnect();
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     distributedSystem = DistributedSystem.connect(properties);
     cache = CacheFactory.create(distributedSystem);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    RegionAttributes regionAttributes = factory.create();
+    var regionAttributes = factory.create();
     testRegion = cache.createRegion("TestRegion1", regionAttributes);
 
     System.out.println("keySet after recovery = " + testRegion.keySet());
@@ -204,15 +202,15 @@ public class DiskRegionClearJUnitTest {
     assertEquals(1000, testRegion.size());
     cache.close();
     distributedSystem.disconnect();
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     distributedSystem = DistributedSystem.connect(properties);
     cache = CacheFactory.create(distributedSystem);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    RegionAttributes regionAttributes = factory.create();
+    var regionAttributes = factory.create();
     testRegion = cache.createRegion("TestRegion1", regionAttributes);
     assertEquals(1000, testRegion.size());
   }
@@ -243,8 +241,8 @@ public class DiskRegionClearJUnitTest {
 
     @Override
     public void beforeDiskClear() {
-      for (int i = 0; i < 3; i++) {
-        Thread thread = new Thread(new Thread1());
+      for (var i = 0; i < 3; i++) {
+        var thread = new Thread(new Thread1());
         thread.start();
       }
     }

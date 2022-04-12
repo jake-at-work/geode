@@ -25,7 +25,6 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 
 /**
@@ -69,11 +68,11 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
    */
   @Override
   public synchronized void begin() throws NotSupportedException, SystemException {
-    LogWriter log = InternalDistributedSystem.getLogger();
+    var log = InternalDistributedSystem.getLogger();
     if (log.fineEnabled()) {
       log.fine("UserTransactionImpl starting JTA transaction");
     }
-    int temp = storedTimeOut;
+    var temp = storedTimeOut;
     storedTimeOut = TransactionManagerImpl.DEFAULT_TRANSACTION_TIMEOUT;
     tm.begin();
     tm.setTransactionTimeout(temp);
@@ -128,9 +127,9 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
   @Override
   public void setTransactionTimeout(int timeOut) throws SystemException {
     if (timeOut < 0) {
-      String exception =
+      var exception =
           "Cannot set a negative Time Out for transactions";
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (writer.fineEnabled()) {
         writer.fine(exception);
       }

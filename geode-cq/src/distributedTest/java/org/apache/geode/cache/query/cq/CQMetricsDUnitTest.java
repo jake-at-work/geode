@@ -34,10 +34,8 @@ import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqServiceStatistics;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
-import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -63,12 +61,12 @@ public class CQMetricsDUnitTest {
     server1 = cluster.startServerVM(1, locator.getPort());
     server2 = cluster.startServerVM(2, locator.getPort());
 
-    ClientCache clientCache = createClientCache(locator.getPort());
+    var clientCache = createClientCache(locator.getPort());
     Region region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("region");
 
     queryService = clientCache.getQueryService();
-    CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+    var cqAttributesFactory = new CqAttributesFactory();
     testListener = new TestCqListener();
     cqAttributesFactory.addCqListener(testListener);
 
@@ -86,8 +84,8 @@ public class CQMetricsDUnitTest {
 
     locator.invoke(() -> {
       Cache cache = getCache();
-      ManagementService service = ManagementService.getManagementService(cache);
-      DistributedSystemMXBean dsmbean = service.getDistributedSystemMXBean();
+      var service = ManagementService.getManagementService(cache);
+      var dsmbean = service.getDistributedSystemMXBean();
       await().atMost(30, TimeUnit.SECONDS)
           .untilAsserted(() -> assertThat(dsmbean.getActiveCQCount()).isEqualTo(2));
     });
@@ -97,8 +95,8 @@ public class CQMetricsDUnitTest {
 
     locator.invoke(() -> {
       Cache cache = getCache();
-      ManagementService service = ManagementService.getManagementService(cache);
-      DistributedSystemMXBean dsmbean = service.getDistributedSystemMXBean();
+      var service = ManagementService.getManagementService(cache);
+      var dsmbean = service.getDistributedSystemMXBean();
       await().atMost(30, TimeUnit.SECONDS)
           .untilAsserted(() -> assertThat(dsmbean.getActiveCQCount()).isEqualTo(0));
     });
@@ -117,8 +115,8 @@ public class CQMetricsDUnitTest {
 
     locator.invoke(() -> {
       Cache cache = getCache();
-      ManagementService service = ManagementService.getManagementService(cache);
-      DistributedSystemMXBean dsmbean = service.getDistributedSystemMXBean();
+      var service = ManagementService.getManagementService(cache);
+      var dsmbean = service.getDistributedSystemMXBean();
       await().atMost(30, TimeUnit.SECONDS)
           .untilAsserted(() -> assertThat(dsmbean.getActiveCQCount()).isEqualTo(2));
     });
@@ -128,8 +126,8 @@ public class CQMetricsDUnitTest {
 
     locator.invoke(() -> {
       Cache cache = getCache();
-      ManagementService service = ManagementService.getManagementService(cache);
-      DistributedSystemMXBean dsmbean = service.getDistributedSystemMXBean();
+      var service = ManagementService.getManagementService(cache);
+      var dsmbean = service.getDistributedSystemMXBean();
       await().atMost(30, TimeUnit.SECONDS)
           .untilAsserted(() -> assertThat(dsmbean.getActiveCQCount()).isEqualTo(0));
     });
@@ -152,13 +150,13 @@ public class CQMetricsDUnitTest {
 
   private static void populateRegion(int startingId, int endingId) {
     Region exampleRegion = getCache().getRegion("region");
-    for (int i = startingId; i < endingId; i++) {
+    for (var i = startingId; i < endingId; i++) {
       exampleRegion.put("" + i, new Portfolio(i));
     }
   }
 
   private ClientCache createClientCache(Integer locator1Port) {
-    ClientCacheFactory ccf = new ClientCacheFactory();
+    var ccf = new ClientCacheFactory();
     ccf.addPoolLocator("localhost", locator1Port);
     ccf.setPoolSubscriptionEnabled(true);
     return ccf.create();
@@ -166,8 +164,8 @@ public class CQMetricsDUnitTest {
 
   private void checkActiveCqCount(MemberVM vm, int expectedResult) {
     vm.invoke(() -> {
-      QueryService queryService = getCache().getQueryService();
-      CqServiceStatistics cqServiceStats = queryService.getCqStatistics();
+      var queryService = getCache().getQueryService();
+      var cqServiceStats = queryService.getCqStatistics();
       await()
           .atMost(30, TimeUnit.SECONDS)
           .untilAsserted(() -> assertThat(cqServiceStats.numCqsActive()).isEqualTo(expectedResult));

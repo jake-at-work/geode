@@ -32,7 +32,7 @@ public class ManagerLogWriterTest {
 
   @Test
   public void logWriterLevelIsPassedIntoConstructor() {
-    ManagerLogWriter logWriter = new ManagerLogWriter(CONFIG.intLevel(),
+    var logWriter = new ManagerLogWriter(CONFIG.intLevel(),
         new PrintStream(mock(OutputStream.class)), true);
 
     assertThat(logWriter.getLogWriterLevel()).isEqualTo(CONFIG.intLevel());

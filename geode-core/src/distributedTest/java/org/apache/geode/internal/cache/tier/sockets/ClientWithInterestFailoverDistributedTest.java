@@ -46,7 +46,6 @@ import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.InternalClientCache;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalCacheServer;
 import org.apache.geode.test.dunit.VM;
@@ -122,8 +121,8 @@ public class ClientWithInterestFailoverDistributedTest implements Serializable {
 
   private void performFailoverTesting() {
     // arrange
-    VM primaryServerVM = getPrimaryServerVM();
-    VM secondaryServerVM = getSecondaryServerVM();
+    var primaryServerVM = getPrimaryServerVM();
+    var secondaryServerVM = getSecondaryServerVM();
     primaryServerVM.invoke(this::awaitServerMetaDataToContainClient);
     primaryServerVM.invoke(this::validateServerMetaDataKnowsThatClientRegisteredInterest);
     primaryServerVM.invoke(this::validateServerMetaDataKnowsWhichClientRegionIsEmpty);
@@ -147,7 +146,7 @@ public class ClientWithInterestFailoverDistributedTest implements Serializable {
     regionFactory.create(PROXY_REGION_NAME);
     regionFactory.create(CACHING_PROXY_REGION_NAME);
 
-    CacheServer cacheServer = cache.addCacheServer();
+    var cacheServer = cache.addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
@@ -161,11 +160,11 @@ public class ClientWithInterestFailoverDistributedTest implements Serializable {
     clientCache = (InternalClientCache) new ClientCacheFactory().create();
     assertThat(clientCache.isClient()).isTrue();
 
-    PoolFactory poolFactory = createPoolFactory();
+    var poolFactory = createPoolFactory();
     poolFactory.addServer(host1, port1);
     poolFactory.addServer(host2, port2);
 
-    Pool pool = poolFactory.create(getClass().getSimpleName() + "-Pool");
+    var pool = poolFactory.create(getClass().getSimpleName() + "-Pool");
 
     createRegionOnClient(PROXY_REGION_NAME, ClientRegionShortcut.PROXY, pool);
     createRegionOnClient(CACHING_PROXY_REGION_NAME, ClientRegionShortcut.CACHING_PROXY, pool);
@@ -184,7 +183,7 @@ public class ClientWithInterestFailoverDistributedTest implements Serializable {
     ClientRegionFactory<Integer, Object> regionFactory =
         clientCache.createClientRegionFactory(shortcut);
     regionFactory.setPoolName(pool.getName());
-    Region<Integer, Object> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     assertThat(region.getAttributes().getCloningEnabled()).isFalse();
   }
 
@@ -223,7 +222,7 @@ public class ClientWithInterestFailoverDistributedTest implements Serializable {
     Region<Object, ?> region = clientCache.getRegion(regionName);
 
     List<Integer> list = new ArrayList<>();
-    for (int key : keys) {
+    for (var key : keys) {
       list.add(key);
     }
 
@@ -245,7 +244,7 @@ public class ClientWithInterestFailoverDistributedTest implements Serializable {
             getCacheServer().getAcceptor().getCacheClientNotifier().getClientProxies().size())
                 .isEqualTo(1));
 
-    CacheClientProxy proxy = getClientProxy();
+    var proxy = getClientProxy();
     assertThat(proxy).isNotNull();
 
     await().until(() -> getClientProxy().isAlive() && getClientProxy()
@@ -253,12 +252,12 @@ public class ClientWithInterestFailoverDistributedTest implements Serializable {
   }
 
   private void validateServerMetaDataKnowsThatClientRegisteredInterest() {
-    CacheClientProxy proxy = getClientProxy();
+    var proxy = getClientProxy();
     assertThat(proxy.hasRegisteredInterested()).isTrue();
   }
 
   private void validateServerMetaDataKnowsWhichClientRegionIsEmpty() {
-    CacheClientProxy proxy = getClientProxy();
+    var proxy = getClientProxy();
     assertThat(proxy.getRegionsWithEmptyDataPolicy())
         .containsKey(SEPARATOR + PROXY_REGION_NAME);
     assertThat(proxy.getRegionsWithEmptyDataPolicy())
@@ -273,7 +272,7 @@ public class ClientWithInterestFailoverDistributedTest implements Serializable {
   }
 
   private CacheClientProxy getClientProxy() {
-    CacheClientNotifier notifier = getCacheServer().getAcceptor().getCacheClientNotifier();
+    var notifier = getCacheServer().getAcceptor().getCacheClientNotifier();
     return notifier.getClientProxies().stream().findFirst().orElse(null);
   }
 }

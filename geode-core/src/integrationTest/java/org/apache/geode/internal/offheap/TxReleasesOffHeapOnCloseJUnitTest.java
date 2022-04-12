@@ -25,8 +25,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.test.junit.categories.OffHeapTest;
@@ -37,7 +35,7 @@ public class TxReleasesOffHeapOnCloseJUnitTest {
   protected Cache cache;
 
   protected void createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, "1m");
@@ -50,12 +48,12 @@ public class TxReleasesOffHeapOnCloseJUnitTest {
   @Test
   public void testTxReleasesOffHeapOnClose() {
     createCache();
-    MemoryAllocatorImpl sma = MemoryAllocatorImpl.getAllocator();
+    var sma = MemoryAllocatorImpl.getAllocator();
     RegionFactory rf = cache.createRegionFactory();
     rf.setOffHeap(true);
-    Region r = rf.create("testTxReleasesOffHeapOnClose");
+    var r = rf.create("testTxReleasesOffHeapOnClose");
     r.put("key", "value");
-    CacheTransactionManager txmgr = cache.getCacheTransactionManager();
+    var txmgr = cache.getCacheTransactionManager();
     txmgr.begin();
     r.put("key", "value2");
     cache.close();

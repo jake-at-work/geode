@@ -17,7 +17,6 @@ package org.apache.geode.cache.query.internal.index;
 import static org.apache.geode.cache.query.internal.CompiledValue.indexThresholdSize;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +35,6 @@ import org.apache.geode.cache.query.internal.CompiledValue;
 import org.apache.geode.cache.query.internal.CqEntry;
 import org.apache.geode.cache.query.internal.ExecutionContext;
 import org.apache.geode.cache.query.internal.QueryMonitor;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.cache.query.internal.QueryUtils;
 import org.apache.geode.cache.query.internal.RuntimeIterator;
@@ -60,7 +58,7 @@ public class PrimaryKeyIndex extends AbstractIndex {
     super(cache, indexName, region, fromClause, indexedExpression, projectionAttributes,
         origFromClause, origIndxExpr, defintions, indexStatistics);
     // TODO: Check if the below is correct
-    Class constr = region.getAttributes().getValueConstraint();
+    var constr = region.getAttributes().getValueConstraint();
     if (constr == null) {
       constr = Object.class;
     }
@@ -97,21 +95,21 @@ public class PrimaryKeyIndex extends AbstractIndex {
       ExecutionContext context) throws TypeMismatchException {
     assert keysToRemove == null;
 
-    int limit = -1;
+    var limit = -1;
 
     // Key cannot be PdxString in a region
     if (key instanceof PdxString) {
       key = key.toString();
     }
 
-    Boolean applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
+    var applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
     if (applyLimit != null && applyLimit) {
       limit = (Integer) context.cacheGet(CompiledValue.RESULT_LIMIT);
       if (limit != -1 && limit < indexThresholdSize) {
         limit = indexThresholdSize;
       }
     }
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var observer = QueryObserverHolder.getInstance();
     if (limit != -1 && results.size() == limit) {
       observer.limitAppliedAtIndexLevel(this, limit, results);
       return;
@@ -120,9 +118,9 @@ public class PrimaryKeyIndex extends AbstractIndex {
     switch (operator) {
       case OQLLexerTokenTypes.TOK_EQ: {
         if (key != null && key != QueryService.UNDEFINED) {
-          Region.Entry entry = ((LocalRegion) getRegion()).accessEntry(key, false);
+          var entry = ((LocalRegion) getRegion()).accessEntry(key, false);
           if (entry != null) {
-            Object value = entry.getValue();
+            var value = entry.getValue();
             if (value != null) {
               addResultToResults(context, results, key, value);
             }
@@ -132,13 +130,13 @@ public class PrimaryKeyIndex extends AbstractIndex {
       }
       case OQLLexerTokenTypes.TOK_NE_ALT:
       case OQLLexerTokenTypes.TOK_NE: { // add all btree values
-        Set values = (Set) getRegion().values();
+        var values = (Set) getRegion().values();
         // Add data one more than the limit
         if (limit != -1) {
           ++limit;
         }
         // results.addAll(values);
-        for (final Object value : values) {
+        for (final var value : values) {
           // Check if query execution on this thread is canceled.
           QueryMonitor.throwExceptionIfQueryOnCurrentThreadIsCanceled();
           addResultToResults(context, results, key, value);
@@ -148,9 +146,9 @@ public class PrimaryKeyIndex extends AbstractIndex {
           }
         }
 
-        boolean removeOneRow = limit != -1;
+        var removeOneRow = limit != -1;
         if (key != null && key != QueryService.UNDEFINED) {
-          Region.Entry entry = ((LocalRegion) getRegion()).accessEntry(key, false);
+          var entry = ((LocalRegion) getRegion()).accessEntry(key, false);
           if (entry != null) {
             if (entry.getValue() != null) {
               results.remove(entry.getValue());
@@ -159,7 +157,7 @@ public class PrimaryKeyIndex extends AbstractIndex {
           }
         }
         if (removeOneRow) {
-          Iterator itr = results.iterator();
+          var itr = results.iterator();
           if (itr.hasNext()) {
             itr.next();
             itr.remove();
@@ -181,10 +179,10 @@ public class PrimaryKeyIndex extends AbstractIndex {
       SelectResults intermediateResults, boolean isIntersection) throws TypeMismatchException,
       FunctionDomainException, NameResolutionException, QueryInvocationTargetException {
 
-    QueryObserver observer = QueryObserverHolder.getInstance();
-    int limit = -1;
+    var observer = QueryObserverHolder.getInstance();
+    var limit = -1;
 
-    Boolean applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
+    var applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
 
     if (applyLimit != null && applyLimit) {
       limit = (Integer) context.cacheGet(CompiledValue.RESULT_LIMIT);
@@ -203,11 +201,11 @@ public class PrimaryKeyIndex extends AbstractIndex {
     switch (operator) {
       case OQLLexerTokenTypes.TOK_EQ: {
         if (key != null && key != QueryService.UNDEFINED) {
-          Region.Entry entry = ((LocalRegion) getRegion()).accessEntry(key, false);
+          var entry = ((LocalRegion) getRegion()).accessEntry(key, false);
           if (entry != null) {
-            Object value = entry.getValue();
+            var value = entry.getValue();
             if (value != null) {
-              boolean ok = true;
+              var ok = true;
               if (runtimeItr != null) {
                 runtimeItr.setCurrent(value);
                 ok = QueryUtils.applyCondition(iterOps, context);
@@ -224,17 +222,17 @@ public class PrimaryKeyIndex extends AbstractIndex {
 
       case OQLLexerTokenTypes.TOK_NE_ALT:
       case OQLLexerTokenTypes.TOK_NE: { // add all btree values
-        Set entries = getRegion().entrySet();
-        for (final Object o : entries) {
-          Map.Entry entry = (Map.Entry) o;
+        var entries = getRegion().entrySet();
+        for (final var o : entries) {
+          var entry = (Map.Entry) o;
 
           if (key != null && key != QueryService.UNDEFINED && key.equals(entry.getKey())) {
             continue;
           }
-          Object val = entry.getValue();
+          var val = entry.getValue();
           // TODO: is this correct. What should be the behaviour of null values?
           if (val != null) {
-            boolean ok = true;
+            var ok = true;
             if (runtimeItr != null) {
               runtimeItr.setCurrent(val);
               ok = QueryUtils.applyCondition(iterOps, context);

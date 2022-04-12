@@ -62,7 +62,7 @@ public class SenderIdMonitorTest {
   public void checkLogsWarningWithRegionAndProfileWithDifferentGatewayIds() {
     when(region.getName()).thenReturn("regionName");
     when(region.getGatewaySenderIds()).thenReturn(Collections.singleton("gatewayId"));
-    CacheProfile profile = new CacheProfile();
+    var profile = new CacheProfile();
     profile.gatewaySenderIds = Collections.singleton("profileGatewayId");
     advisor.putProfile(profile, true);
 
@@ -85,7 +85,7 @@ public class SenderIdMonitorTest {
   @Test
   public void checkPassesWithRegionAndProfileWithDifferentGatewayIdsThatBecomeEqual() {
     when(region.getGatewaySenderIds()).thenReturn(Collections.singleton("gatewayId"));
-    CacheProfile profile = new CacheProfile();
+    var profile = new CacheProfile();
     profile.gatewaySenderIds = Collections.singleton("profileGatewayId");
     advisor.putProfile(profile, true);
     when(region.getGatewaySenderIds()).thenReturn(Collections.singleton("profileGatewayId"));
@@ -98,7 +98,7 @@ public class SenderIdMonitorTest {
     when(region.getName()).thenReturn("regionName");
     when(region.getVisibleAsyncEventQueueIds())
         .thenReturn(Collections.singleton("AsyncEventQueueId"));
-    CacheProfile profile = new CacheProfile();
+    var profile = new CacheProfile();
     profile.asyncEventQueueIds = Collections.singleton("profileAsyncEventQueueId");
     advisor.putProfile(profile, true);
 
@@ -123,7 +123,7 @@ public class SenderIdMonitorTest {
   public void checkPassesWithRegionAndProfileWithDifferentAsyncEventQueueIdsThatBecomeEqual() {
     when(region.getVisibleAsyncEventQueueIds())
         .thenReturn(Collections.singleton("AsyncEventQueueId"));
-    CacheProfile profile = new CacheProfile();
+    var profile = new CacheProfile();
     profile.asyncEventQueueIds = Collections.singleton("profileAsyncEventQueueId");
     advisor.putProfile(profile, true);
     when(region.getVisibleAsyncEventQueueIds())
@@ -133,12 +133,12 @@ public class SenderIdMonitorTest {
   }
 
   private CacheDistributionAdvisor createCacheDistributionAdvisor(InternalRegion region) {
-    DistributionAdvisor advisor = mock(DistributionAdvisor.class);
-    CacheDistributionAdvisee advisee = mock(CacheDistributionAdvisee.class);
+    var advisor = mock(DistributionAdvisor.class);
+    var advisee = mock(CacheDistributionAdvisee.class);
     when(advisee.getDistributionAdvisor()).thenReturn(advisor);
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var distributionManager = mock(DistributionManager.class);
     when(advisee.getDistributionManager()).thenReturn(distributionManager);
-    CacheDistributionAdvisor result =
+    var result =
         CacheDistributionAdvisor.createCacheDistributionAdvisor(advisee);
     result.initializationGate();
     return result;

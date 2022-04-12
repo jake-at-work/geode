@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.URI;
 import java.net.UnknownHostException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
@@ -35,7 +33,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -179,10 +176,10 @@ public class ManagementAgent {
   private final AgentUtil agentUtil = new AgentUtil(GEMFIRE_VERSION);
 
   private void loadWebApplications() {
-    final SystemManagementService managementService = (SystemManagementService) ManagementService
+    final var managementService = (SystemManagementService) ManagementService
         .getManagementService(cache);
 
-    final ManagerMXBean managerBean = managementService.getManagerMXBean();
+    final var managerBean = managementService.getManagerMXBean();
 
     if (config.getHttpServicePort() == 0) {
       setStatusMessage(managerBean,
@@ -191,7 +188,7 @@ public class ManagementAgent {
     }
 
     // Find the Management rest WAR file
-    final URI adminRestWar = agentUtil.findWarLocation("geode-web");
+    final var adminRestWar = agentUtil.findWarLocation("geode-web");
     if (adminRestWar == null) {
       if (logger.isDebugEnabled()) {
         logger.debug(
@@ -200,20 +197,20 @@ public class ManagementAgent {
     }
 
     // Find the Pulse WAR file
-    final URI pulseWar = agentUtil.findWarLocation("geode-pulse");
+    final var pulseWar = agentUtil.findWarLocation("geode-pulse");
 
     if (pulseWar == null) {
-      final String message =
+      final var message =
           "Unable to find Pulse web application WAR file; Pulse for Geode will not be accessible";
       setStatusMessage(managerBean, message);
       if (logger.isDebugEnabled()) {
         logger.debug(message);
       }
     } else {
-      String pwFile = config.getJmxManagerPasswordFile();
+      var pwFile = config.getJmxManagerPasswordFile();
       if (securityService.isIntegratedSecurity()) {
-        String[] authTokenEnabledComponents = config.getSecurityAuthTokenEnabledComponents();
-        boolean pulseOauth = Arrays.stream(authTokenEnabledComponents)
+        var authTokenEnabledComponents = config.getSecurityAuthTokenEnabledComponents();
+        var pulseOauth = Arrays.stream(authTokenEnabledComponents)
             .anyMatch(AuthTokenEnabledComponents::hasPulse);
         if (pulseOauth) {
           System.setProperty(SPRING_PROFILES_ACTIVE, "pulse.authentication.oauth");
@@ -226,11 +223,11 @@ public class ManagementAgent {
     }
 
     try {
-      HttpService httpService = cache.getService(HttpService.class);
+      var httpService = cache.getService(HttpService.class);
       if (httpService != null && agentUtil.isAnyWarFileAvailable(adminRestWar, pulseWar)) {
 
-        final String bindAddress = config.getHttpServiceBindAddress();
-        final int port = config.getHttpServicePort();
+        final var bindAddress = config.getHttpServiceBindAddress();
+        final var port = config.getHttpServicePort();
 
         Map<String, Object> serviceAttributes = new HashMap<>();
         serviceAttributes.put(HttpService.SECURITY_SERVICE_SERVLET_CONTEXT_PARAM,
@@ -238,7 +235,7 @@ public class ManagementAgent {
 
         // if jmx manager is running, admin rest should be available, either on locator or server
         if (agentUtil.isAnyWarFileAvailable(adminRestWar)) {
-          Path adminRestWarPath = Paths.get(adminRestWar);
+          var adminRestWarPath = Paths.get(adminRestWar);
           httpService.addWebApplication("/gemfire", adminRestWarPath, serviceAttributes);
           httpService.addWebApplication("/geode-mgmt", adminRestWarPath, serviceAttributes);
         }
@@ -250,9 +247,9 @@ public class ManagementAgent {
           System.setProperty(PULSE_HOST_PROP, "" + config.getJmxManagerBindAddress());
           System.setProperty(PULSE_PORT_PROP, "" + config.getJmxManagerPort());
 
-          final SocketCreator jmxSocketCreator =
+          final var jmxSocketCreator =
               SocketCreatorFactory.getSocketCreatorForComponent(SecurableCommunicationChannel.JMX);
-          final SocketCreator locatorSocketCreator = SocketCreatorFactory
+          final var locatorSocketCreator = SocketCreatorFactory
               .getSocketCreatorForComponent(SecurableCommunicationChannel.LOCATOR);
           System.setProperty(PULSE_USESSL_MANAGER, jmxSocketCreator.forClient().useSSL() + "");
           System.setProperty(PULSE_USESSL_LOCATOR, locatorSocketCreator.forClient().useSSL() + "");
@@ -274,8 +271,8 @@ public class ManagementAgent {
   }
 
   private Properties createSslProps() {
-    Properties sslProps = new Properties();
-    SSLConfig sslConfig =
+    var sslProps = new Properties();
+    var sslConfig =
         SSLConfigurationFactory.getSSLConfigForComponent(config, SecurableCommunicationChannel.WEB);
 
     if (StringUtils.isNotEmpty(sslConfig.getKeystore())) {
@@ -343,10 +340,10 @@ public class ManagementAgent {
       bindAddress = InetAddress.getByName(hostname);
     }
 
-    final SocketCreator socketCreator =
+    final var socketCreator =
         SocketCreatorFactory.getSocketCreatorForComponent(SecurableCommunicationChannel.JMX);
 
-    final boolean ssl = socketCreator.forClient().useSSL();
+    final var ssl = socketCreator.forClient().useSSL();
 
     setRmiServerHostname(
         getRmiServerHostname(config.getJmxManagerHostnameForClients(), hostname, ssl));
@@ -371,10 +368,10 @@ public class ManagementAgent {
     registry = LocateRegistry.createRegistry(port, rmiClientSocketFactory, rmiServerSocketFactory);
 
     // Retrieve the PlatformMBeanServer.
-    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+    var mbs = ManagementFactory.getPlatformMBeanServer();
 
     // Environment map
-    final HashMap<String, Object> env = new HashMap<>();
+    final var env = new HashMap<String, Object>();
 
     // this makes sure the credentials passed to make the connection has to be in the form of String
     // or String[]. Other form of credentials will not get de-serialized
@@ -409,7 +406,7 @@ public class ManagementAgent {
     //
     // We construct a JMXServiceURL corresponding to what we have done
     // for our stub...
-    final JMXServiceURL url = new JMXServiceURL("service:jmx:rmi://" + hostname + ":" + port
+    final var url = new JMXServiceURL("service:jmx:rmi://" + hostname + ":" + port
         + "/jndi/rmi://" + hostname + ":" + port + "/jmxrmi");
 
     // Create an RMI connector server with the JMXServiceURL
@@ -482,25 +479,25 @@ public class ManagementAgent {
   void setMBeanServerForwarder(MBeanServer mbs, HashMap<String, Object> env)
       throws IOException {
     if (securityService.isIntegratedSecurity()) {
-      JMXShiroAuthenticator shiroAuthenticator = new JMXShiroAuthenticator(securityService);
+      var shiroAuthenticator = new JMXShiroAuthenticator(securityService);
       env.put(JMXConnectorServer.AUTHENTICATOR, shiroAuthenticator);
       jmxConnectorServer.addNotificationListener(shiroAuthenticator, null,
           jmxConnectorServer.getAttributes());
       // always going to assume authorization is needed as well, if no custom AccessControl, then
       // the CustomAuthRealm should take care of that
-      MBeanServerWrapper mBeanServerWrapper = new MBeanServerWrapper(securityService);
+      var mBeanServerWrapper = new MBeanServerWrapper(securityService);
       jmxConnectorServer.setMBeanServerForwarder(mBeanServerWrapper);
     } else {
       /* Disable the old authenticator mechanism */
-      String pwFile = config.getJmxManagerPasswordFile();
+      var pwFile = config.getJmxManagerPasswordFile();
       if (pwFile != null && pwFile.length() > 0) {
         env.put("jmx.remote.x.password.file", pwFile);
       }
 
-      String accessFile = config.getJmxManagerAccessFile();
+      var accessFile = config.getJmxManagerAccessFile();
       if (accessFile != null && accessFile.length() > 0) {
         // Rewire the mbs hierarchy to set accessController
-        ReadOpFileAccessController controller = new ReadOpFileAccessController(accessFile);
+        var controller = new ReadOpFileAccessController(accessFile);
         jmxConnectorServer.setMBeanServerForwarder(controller);
       } else {
         // if no access control, do not allow mbean creation to prevent Mlet attack
@@ -511,11 +508,11 @@ public class ManagementAgent {
 
   private void registerAccessControlMBean() {
     try {
-      AccessControlMBean acc = new AccessControlMBean(securityService);
-      ObjectName accessControlMBeanON = new ObjectName(ResourceConstants.OBJECT_NAME_ACCESSCONTROL);
-      MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+      var acc = new AccessControlMBean(securityService);
+      var accessControlMBeanON = new ObjectName(ResourceConstants.OBJECT_NAME_ACCESSCONTROL);
+      var platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
-      Set<ObjectName> names = platformMBeanServer.queryNames(accessControlMBeanON, null);
+      var names = platformMBeanServer.queryNames(accessControlMBeanON, null);
       if (names.isEmpty()) {
         try {
           platformMBeanServer.registerMBean(acc, accessControlMBeanON);
@@ -534,10 +531,10 @@ public class ManagementAgent {
 
   private void registerFileUploaderMBean() {
     try {
-      ObjectName mbeanON = new ObjectName(ManagementConstants.OBJECTNAME__FILEUPLOADER_MBEAN);
-      MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+      var mbeanON = new ObjectName(ManagementConstants.OBJECTNAME__FILEUPLOADER_MBEAN);
+      var platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
-      Set<ObjectName> names = platformMBeanServer.queryNames(mbeanON, null);
+      var names = platformMBeanServer.queryNames(mbeanON, null);
       if (names.isEmpty()) {
         platformMBeanServer.registerMBean(new FileUploader(getRemoteStreamExporter()), mbeanON);
         logger.info("Registered FileUploaderMBean on " + mbeanON);

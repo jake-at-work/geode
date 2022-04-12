@@ -22,13 +22,11 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.Distribution;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -45,7 +43,7 @@ public class ListMembersCommand extends GfshCommand {
       optionContext = ConverterHint.MEMBERGROUP,
       help = CliStrings.LIST_MEMBER__GROUP__HELP) String[] groups) {
 
-    ResultModel crm = new ResultModel();
+    var crm = new ResultModel();
     Set<DistributedMember> memberSet = new TreeSet<>(
         findMembersIncludingLocators(groups, null));
 
@@ -54,9 +52,9 @@ public class ListMembersCommand extends GfshCommand {
       return crm;
     }
     crm.addInfo().addLine("Member Count : " + memberSet.size());
-    TabularResultModel resultData = crm.addTable(MEMBERS_SECTION);
-    final String coordinatorMemberId = getCoordinatorId();
-    for (DistributedMember member : memberSet) {
+    var resultData = crm.addTable(MEMBERS_SECTION);
+    final var coordinatorMemberId = getCoordinatorId();
+    for (var member : memberSet) {
       resultData.accumulate("Name", member.getName());
 
       if (member.getUniqueId().equals(coordinatorMemberId)) {
@@ -70,12 +68,12 @@ public class ListMembersCommand extends GfshCommand {
   }
 
   String getCoordinatorId() {
-    InternalDistributedSystem ids = InternalDistributedSystem.getConnectedInstance();
+    var ids = InternalDistributedSystem.getConnectedInstance();
     if (ids == null || !ids.isConnected()) {
       return null;
     }
 
-    Distribution mmgr = ids.getDistributionManager().getDistribution();
+    var mmgr = ids.getDistributionManager().getDistribution();
     if (mmgr == null) {
       return null;
     }

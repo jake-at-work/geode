@@ -23,7 +23,6 @@ import java.util.Properties;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.cache.TXManagerImpl;
@@ -39,13 +38,13 @@ public class DistTXManagerImplJUnitTest extends TXManagerImplJUnitTest {
 
   @Override
   protected void createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(MCAST_PORT, "0");
     props.put(LOCATORS, "");
     props.put(ConfigurationProperties.DISTRIBUTED_TRANSACTIONS, "true");
     cache = new CacheFactory(props).create();
     region = cache.createRegionFactory(RegionShortcut.REPLICATE).create("testRegion");
-    CacheTransactionManager txmgr = cache.getCacheTransactionManager();
+    var txmgr = cache.getCacheTransactionManager();
     assert (txmgr.isDistributed());
   }
 

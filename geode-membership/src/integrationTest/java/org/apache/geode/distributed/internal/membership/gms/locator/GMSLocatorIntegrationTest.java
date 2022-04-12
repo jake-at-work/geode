@@ -25,9 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import org.apache.geode.distributed.internal.membership.api.MemberData;
 import org.apache.geode.distributed.internal.membership.api.MemberDataBuilder;
-import org.apache.geode.distributed.internal.membership.api.MemberIdentifier;
 import org.apache.geode.distributed.internal.membership.api.MemberIdentifierFactoryImpl;
 import org.apache.geode.distributed.internal.membership.api.MembershipConfigurationException;
 import org.apache.geode.distributed.internal.membership.api.MembershipLocator;
@@ -64,7 +62,7 @@ public class GMSLocatorIntegrationTest {
     services = mock(Services.class);
     DSFIDSerializer serializer = new DSFIDSerializerImpl();
     when(services.getSerializer()).thenReturn(serializer);
-    KnownVersion current = KnownVersion.CURRENT; // force Version static initialization to set
+    var current = KnownVersion.CURRENT; // force Version static initialization to set
     // Version
 
     joinLeave = mock(JoinLeave.class);
@@ -72,10 +70,10 @@ public class GMSLocatorIntegrationTest {
     messenger = mock(Messenger.class);
     when(services.getMessenger()).thenReturn(messenger);
 
-    final MemberIdentifierFactoryImpl factory = new MemberIdentifierFactoryImpl();
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("localhost")
+    final var factory = new MemberIdentifierFactoryImpl();
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("localhost")
         .setMembershipPort(1234).build();
-    MemberIdentifier memberId = factory.create(memberData);
+    var memberId = factory.create(memberData);
     when(messenger.getMemberID()).thenReturn(memberId);
 
     gmsLocator =
@@ -86,7 +84,7 @@ public class GMSLocatorIntegrationTest {
             services.getSerializer().getObjectSerializer(),
             services.getSerializer().getObjectDeserializer());
 
-    final MembershipLocator membershipLocator = mock(MembershipLocator.class);
+    final var membershipLocator = mock(MembershipLocator.class);
     gmsLocator.setServices(services);
   }
 

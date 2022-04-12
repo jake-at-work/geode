@@ -38,7 +38,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache30.CacheSerializableRunnable;
@@ -89,7 +88,7 @@ public class HADuplicateDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
 
     server1 = host.getVM(0);
 
@@ -171,13 +170,13 @@ public class HADuplicateDUnitTest extends JUnit4DistributedTestCase {
   // function to perform put operations for the known set of keys.
   private CacheSerializableRunnable putForKnownKeys() {
 
-    CacheSerializableRunnable putforknownkeys = new CacheSerializableRunnable("putforknownkeys") {
+    var putforknownkeys = new CacheSerializableRunnable("putforknownkeys") {
 
       @Override
       public void run2() throws CacheException {
         Region region = cache.getRegion(SEPARATOR + REGION_NAME);
         assertNotNull(region);
-        for (int i = 0; i < NO_OF_PUTS; i++) {
+        for (var i = 0; i < NO_OF_PUTS; i++) {
           region.put("key" + i, "value" + i);
         }
       }
@@ -190,7 +189,7 @@ public class HADuplicateDUnitTest extends JUnit4DistributedTestCase {
   // function to stop server so that the fail over happens
   private CacheSerializableRunnable stopServer() {
 
-    CacheSerializableRunnable stopserver = new CacheSerializableRunnable("stopServer") {
+    var stopserver = new CacheSerializableRunnable("stopServer") {
       @Override
       public void run2() throws CacheException {
         server.stop();
@@ -208,7 +207,7 @@ public class HADuplicateDUnitTest extends JUnit4DistributedTestCase {
     server1.invoke(HADuplicateDUnitTest::setQRMslow);
     int PORT2 =
         server2.invoke(HADuplicateDUnitTest::createServerCache);
-    String hostname = NetworkUtils.getServerHostName(Host.getHost(0));
+    var hostname = NetworkUtils.getServerHostName(Host.getHost(0));
     client1.invoke(() -> HADuplicateDUnitTest.createClientCache(hostname, PORT1,
         PORT2));
 
@@ -225,14 +224,14 @@ public class HADuplicateDUnitTest extends JUnit4DistributedTestCase {
 
   public static Integer createServerCache() throws Exception {
     new HADuplicateDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
     server = (CacheServerImpl) cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();
@@ -252,11 +251,11 @@ public class HADuplicateDUnitTest extends JUnit4DistributedTestCase {
       throws Exception {
     int PORT1 = port1;
     int PORT2 = port2;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HADuplicateDUnitTest().createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     ClientServerTestCase.configureConnectionPool(factory, hostName, new int[] {PORT1, PORT2}, true,
         -1, 2, null);
 
@@ -264,7 +263,7 @@ public class HADuplicateDUnitTest extends JUnit4DistributedTestCase {
     CacheListener clientListener = new HAValidateDuplicateListener();
     factory.setCacheListener(clientListener);
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
     Region region = cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(region);
@@ -289,7 +288,7 @@ public class HADuplicateDUnitTest extends JUnit4DistributedTestCase {
 
     @Override
     public void afterUpdate(EntryEvent event) {
-      Object value = storeEvents.get(event.getKey());
+      var value = storeEvents.get(event.getKey());
       if (value == null) {
         isEventDuplicate = false;
       }

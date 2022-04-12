@@ -18,7 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -62,12 +61,12 @@ public class DLockReentrantLockJUnitTest {
 
     Assert.assertEquals(Scope.GLOBAL, region.getAttributes().getScope());
 
-    final Lock lock1 = region.getDistributedLock(id);
-    final Lock lock2 = region.getDistributedLock(id);
+    final var lock1 = region.getDistributedLock(id);
+    final var lock2 = region.getDistributedLock(id);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       lock1.lock();
-      boolean reenteredLock = false;
+      var reenteredLock = false;
       try {
         reenteredLock = lock2.tryLock(1, TimeUnit.NANOSECONDS);
         if (!reenteredLock) {

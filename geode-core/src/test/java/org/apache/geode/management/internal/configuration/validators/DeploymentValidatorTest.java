@@ -85,8 +85,8 @@ public class DeploymentValidatorTest {
   }
 
   private static File buildValidJar() throws IOException {
-    File jarFile = new File(tempDir, "valid.jar");
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarFile = new File(tempDir, "valid.jar");
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJarFromClassNames(jarFile, "Class1");
     return jarFile;
   }

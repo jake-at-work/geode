@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import it.unimi.dsi.fastutil.bytes.ByteArrays;
@@ -68,12 +67,12 @@ public class RedisSetTest {
 
   @Test
   public void confirmSerializationIsStable() throws IOException, ClassNotFoundException {
-    RedisSet set1 = createRedisSet(1, 2);
-    int expirationTimestamp = 1000;
+    var set1 = createRedisSet(1, 2);
+    var expirationTimestamp = 1000;
     set1.setExpirationTimestampNoDelta(expirationTimestamp);
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     DataSerializer.writeObject(set1, out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
+    var in = new ByteArrayDataInput(out.toByteArray());
     RedisSet set2 = DataSerializer.readObject(in);
     assertThat(set2).isEqualTo(set1);
     assertThat(set2.getExpirationTimestamp())
@@ -94,28 +93,28 @@ public class RedisSetTest {
 
   @Test
   public void equals_returnsFalse_givenDifferentExpirationTimes() {
-    RedisSet set1 = createRedisSet(1, 2);
+    var set1 = createRedisSet(1, 2);
     set1.setExpirationTimestampNoDelta(1000);
-    RedisSet set2 = createRedisSet(1, 2);
+    var set2 = createRedisSet(1, 2);
     set2.setExpirationTimestampNoDelta(999);
     assertThat(set1).isNotEqualTo(set2);
   }
 
   @Test
   public void equals_returnsFalse_givenDifferentValueBytes() {
-    RedisSet set1 = createRedisSet(1, 2);
+    var set1 = createRedisSet(1, 2);
     set1.setExpirationTimestampNoDelta(1000);
-    RedisSet set2 = createRedisSet(1, 3);
+    var set2 = createRedisSet(1, 3);
     set2.setExpirationTimestampNoDelta(1000);
     assertThat(set1).isNotEqualTo(set2);
   }
 
   @Test
   public void equals_returnsTrue_givenEqualValueBytesAndExpiration() {
-    RedisSet set1 = createRedisSet(1, 2);
-    int expirationTimestamp = 1000;
+    var set1 = createRedisSet(1, 2);
+    var expirationTimestamp = 1000;
     set1.setExpirationTimestampNoDelta(expirationTimestamp);
-    RedisSet set2 = createRedisSet(1, 2);
+    var set2 = createRedisSet(1, 2);
     set2.setExpirationTimestampNoDelta(expirationTimestamp);
     assertThat(set1).isEqualTo(set2);
     assertThat(set2.getExpirationTimestamp())
@@ -125,7 +124,7 @@ public class RedisSetTest {
 
   @Test
   public void equals_returnsTrue_givenDifferentEmptySets() {
-    RedisSet set1 = new RedisSet(Collections.emptyList());
+    var set1 = new RedisSet(Collections.emptyList());
     RedisSet set2 = NULL_REDIS_SET;
     assertThat(set1).isEqualTo(set2);
     assertThat(set2).isEqualTo(set1);
@@ -139,12 +138,12 @@ public class RedisSetTest {
       return null;
     });
 
-    TXId txId = mock(TXId.class);
+    var txId = mock(TXId.class);
     when(txId.getUniqId()).thenReturn(5);
     when(((PartitionedRegion) region).getTXId()).thenReturn(txId);
 
-    RedisSet set = createRedisSet(1, 2);
-    List<byte[]> membersToAdd = Collections.singletonList(new byte[] {3});
+    var set = createRedisSet(1, 2);
+    var membersToAdd = Collections.singletonList(new byte[] {3});
 
     set.sadd(membersToAdd, region, null);
 
@@ -160,12 +159,12 @@ public class RedisSetTest {
       return null;
     });
 
-    TXId txId = mock(TXId.class);
+    var txId = mock(TXId.class);
     when(txId.getUniqId()).thenReturn(NOTX);
     when(((PartitionedRegion) region).getTXId()).thenReturn(txId);
 
-    RedisSet set = createRedisSet(1, 2);
-    List<byte[]> membersToAdd = Collections.singletonList(new byte[] {3});
+    var set = createRedisSet(1, 2);
+    var membersToAdd = Collections.singletonList(new byte[] {3});
 
     set.sadd(membersToAdd, region, null);
 
@@ -183,8 +182,8 @@ public class RedisSetTest {
 
     when(((PartitionedRegion) region).getTXId()).thenReturn(null);
 
-    RedisSet set = createRedisSet(1, 2);
-    List<byte[]> membersToAdd = Collections.singletonList(new byte[] {3});
+    var set = createRedisSet(1, 2);
+    var membersToAdd = Collections.singletonList(new byte[] {3});
 
     set.sadd(membersToAdd, region, null);
 
@@ -197,9 +196,9 @@ public class RedisSetTest {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
     when(region.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
-    RedisSet set1 = createRedisSet(1, 2);
-    byte[] member3 = new byte[] {3};
-    ArrayList<byte[]> adds = new ArrayList<>();
+    var set1 = createRedisSet(1, 2);
+    var member3 = new byte[] {3};
+    var adds = new ArrayList<byte[]>();
     adds.add(member3);
 
     set1.sadd(adds, region, null);
@@ -213,9 +212,9 @@ public class RedisSetTest {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
     when(region.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
-    RedisSet set1 = createRedisSet(1, 2);
-    byte[] member1 = new byte[] {1};
-    ArrayList<byte[]> removes = new ArrayList<>();
+    var set1 = createRedisSet(1, 2);
+    var member1 = new byte[] {1};
+    var removes = new ArrayList<byte[]>();
     removes.add(member1);
 
     set1.srem(removes, region, null);
@@ -229,13 +228,13 @@ public class RedisSetTest {
     RegionProvider regionProvider = uncheckedCast(mock(RegionProvider.class));
     Region<RedisKey, RedisData> dataRegion = uncheckedCast(mock(PartitionedRegion.class));
 
-    RedisSet setDest = createRedisSet(1, 2);
+    var setDest = createRedisSet(1, 2);
 
     when(regionProvider.getTypedRedisDataElseRemove(REDIS_SET, null, false)).thenReturn(setDest);
     when(regionProvider.getDataRegion()).thenReturn(dataRegion);
     when(dataRegion.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
-    RedisSet.MemberSet set = new RedisSet.MemberSet();
+    var set = new RedisSet.MemberSet();
     set.add(new byte[] {3});
     setOpStoreResult(regionProvider, null, set);
 
@@ -248,14 +247,14 @@ public class RedisSetTest {
     RegionProvider regionProvider = uncheckedCast(mock(RegionProvider.class));
     Region<RedisKey, RedisData> dataRegion = uncheckedCast(mock(PartitionedRegion.class));
 
-    RedisSet setDest = createRedisSet(1, 2);
+    var setDest = createRedisSet(1, 2);
     setDest.setExpirationTimestamp(dataRegion, null, 100);
 
     when(regionProvider.getTypedRedisDataElseRemove(REDIS_SET, null, false)).thenReturn(setDest);
     when(regionProvider.getDataRegion()).thenReturn(dataRegion);
     when(dataRegion.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
-    RedisSet.MemberSet set = new RedisSet.MemberSet();
+    var set = new RedisSet.MemberSet();
     set.add(new byte[] {3});
     setOpStoreResult(regionProvider, null, set);
 
@@ -268,7 +267,7 @@ public class RedisSetTest {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
     when(region.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
-    RedisSet set1 = createRedisSet(1, 2);
+    var set1 = createRedisSet(1, 2);
     set1.setExpirationTimestamp(region, null, 999);
 
     verify(region).put(any(), any());
@@ -278,9 +277,9 @@ public class RedisSetTest {
   @Test
   public void versionDoesNotUpdateForDuplicateAddedMember() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisSet set = createRedisSet(1, 2);
+    var set = createRedisSet(1, 2);
 
-    byte originalVersion = set.getVersion();
+    var originalVersion = set.getVersion();
     set.sadd(Collections.singletonList(new byte[] {(byte) 1}), region, null);
 
     assertThat(set.getVersion()).isEqualTo(originalVersion);
@@ -292,10 +291,10 @@ public class RedisSetTest {
   @Test
   public void should_calculateSize_equalToROS_withNoMembers() {
     Set<byte[]> members = new ObjectOpenCustomHashSet<>(ByteArrays.HASH_STRATEGY);
-    RedisSet set = new RedisSet(members);
+    var set = new RedisSet(members);
 
-    int expected = expectedSize(set);
-    int actual = set.getSizeInBytes();
+    var expected = expectedSize(set);
+    var actual = set.getSizeInBytes();
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -304,21 +303,21 @@ public class RedisSetTest {
   public void should_calculateSize_equalToROS_withSingleMember() {
     Set<byte[]> members = new ObjectOpenCustomHashSet<>(ByteArrays.HASH_STRATEGY);
     members.add(stringToBytes("value"));
-    RedisSet set = new RedisSet(members);
+    var set = new RedisSet(members);
 
-    int actual = set.getSizeInBytes();
-    int expected = expectedSize(set);
+    var actual = set.getSizeInBytes();
+    var expected = expectedSize(set);
 
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   public void should_calculateSize_equalToROS_withVaryingMemberCounts() {
-    for (int i = 0; i < 1024; i += 16) {
-      RedisSet set = createRedisSetOfSpecifiedSize(i);
+    for (var i = 0; i < 1024; i += 16) {
+      var set = createRedisSetOfSpecifiedSize(i);
 
-      int expected = expectedSize(set);
-      int actual = set.getSizeInBytes();
+      var expected = expectedSize(set);
+      var actual = set.getSizeInBytes();
 
       assertThat(actual).isEqualTo(expected);
     }
@@ -330,10 +329,10 @@ public class RedisSetTest {
 
   @Test
   public void should_calculateSize_equalToROS_withVaryingMemberSize() {
-    for (int i = 0; i < 1024; i += 16) {
-      RedisSet set = createRedisSetWithMemberOfSpecifiedSize(i * 64);
-      int expected = expectedSize(set);
-      int actual = set.getSizeInBytes();
+    for (var i = 0; i < 1024; i += 16) {
+      var set = createRedisSetWithMemberOfSpecifiedSize(i * 64);
+      var expected = expectedSize(set);
+      var actual = set.getSizeInBytes();
 
       assertThat(actual).isEqualTo(expected);
     }
@@ -342,14 +341,14 @@ public class RedisSetTest {
   /******* sadd *******/
   @Test
   public void bytesInUse_sadd_withOneMember() {
-    RedisSet set = new RedisSet(new ArrayList<>());
+    var set = new RedisSet(new ArrayList<>());
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    final RedisData returnData = mock(RedisData.class);
+    final var returnData = mock(RedisData.class);
     when(region.put(any(RedisKey.class), any(RedisData.class))).thenReturn(returnData);
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    String valueString = "value";
+    final var key = new RedisKey(stringToBytes("key"));
+    var valueString = "value";
 
-    final byte[] value = stringToBytes(valueString);
+    final var value = stringToBytes(valueString);
     List<byte[]> members = new ArrayList<>();
     members.add(value);
 
@@ -360,17 +359,17 @@ public class RedisSetTest {
 
   @Test
   public void bytesInUse_sadd_withMultipleMembers() {
-    RedisSet set = new RedisSet(new ArrayList<>());
+    var set = new RedisSet(new ArrayList<>());
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    final RedisData returnData = mock(RedisData.class);
+    final var returnData = mock(RedisData.class);
     when(region.put(any(RedisKey.class), any(RedisData.class))).thenReturn(returnData);
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    String baseString = "value";
+    final var key = new RedisKey(stringToBytes("key"));
+    var baseString = "value";
 
-    for (int i = 0; i < 1_000; i++) {
+    for (var i = 0; i < 1_000; i++) {
       List<byte[]> members = new ArrayList<>();
-      String valueString = baseString + i;
-      final byte[] value = stringToBytes(valueString);
+      var valueString = baseString + i;
+      final var value = stringToBytes(valueString);
       members.add(value);
       set.sadd(members, region, key);
 
@@ -385,16 +384,16 @@ public class RedisSetTest {
   @Test
   public void size_shouldDecrease_WhenValueIsRemoved() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    final RedisData returnData = mock(RedisData.class);
+    final var returnData = mock(RedisData.class);
     when(region.put(any(RedisKey.class), any(RedisData.class))).thenReturn(returnData);
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    final byte[] value1 = stringToBytes("value1");
-    final byte[] value2 = stringToBytes("value2");
+    final var key = new RedisKey(stringToBytes("key"));
+    final var value1 = stringToBytes("value1");
+    final var value2 = stringToBytes("value2");
 
     List<byte[]> members = new ArrayList<>();
     members.add(value1);
     members.add(value2);
-    RedisSet set = new RedisSet(members);
+    var set = new RedisSet(members);
 
     List<byte[]> membersToRemove = new ArrayList<>();
     membersToRemove.add(value1);
@@ -413,17 +412,17 @@ public class RedisSetTest {
     // all but one member, then add members back and assert that the calculated size is correct
     // after every operation
     List<byte[]> initialMembers = new ArrayList<>();
-    int numOfInitialMembers = 128;
-    for (int i = 0; i < numOfInitialMembers; ++i) {
-      byte[] data = Coder.intToBytes(i);
+    var numOfInitialMembers = 128;
+    for (var i = 0; i < numOfInitialMembers; ++i) {
+      var data = Coder.intToBytes(i);
       initialMembers.add(data);
     }
 
-    RedisSet set = new RedisSet(initialMembers);
+    var set = new RedisSet(initialMembers);
 
     assertThat(set.getSizeInBytes()).isEqualTo(expectedSize(set));
 
-    int membersToAdd = numOfInitialMembers * 3;
+    var membersToAdd = numOfInitialMembers * 3;
     doAddsAndAssertSize(set, membersToAdd);
 
     doRemovesAndAssertSize(set, set.scard() - 1);
@@ -433,13 +432,13 @@ public class RedisSetTest {
 
   @Test
   public void testConcurrencyWhenAddingMembers() throws Exception {
-    int expectedSize = 1000;
+    var expectedSize = 1000;
     // Make sure the initial size is smaller than the expected size.
-    RedisSet set = new RedisSet(1);
+    var set = new RedisSet(1);
 
-    AtomicBoolean running = new AtomicBoolean(true);
-    Future<Void> future1 = executor.submit(() -> iterateOverSet(set, running));
-    Future<Void> future2 = executor.submit(() -> addToSet(set, expectedSize));
+    var running = new AtomicBoolean(true);
+    var future1 = executor.submit(() -> iterateOverSet(set, running));
+    var future2 = executor.submit(() -> addToSet(set, expectedSize));
 
     future2.get();
     running.set(false);
@@ -450,15 +449,15 @@ public class RedisSetTest {
 
   @Test
   public void testConcurrencyWhenRemovingMembers() throws Exception {
-    int numOfInitialMembers = 1000;
-    RedisSet set = new RedisSet(numOfInitialMembers);
-    for (int i = 0; i < numOfInitialMembers; ++i) {
+    var numOfInitialMembers = 1000;
+    var set = new RedisSet(numOfInitialMembers);
+    for (var i = 0; i < numOfInitialMembers; ++i) {
       set.membersAdd(Coder.intToBytes(i));
     }
 
-    AtomicBoolean running = new AtomicBoolean(true);
-    Future<Void> future1 = executor.submit(() -> iterateOverSet(set, running));
-    Future<Void> future2 = executor.submit(() -> deleteFromSet(set));
+    var running = new AtomicBoolean(true);
+    var future1 = executor.submit(() -> iterateOverSet(set, running));
+    var future2 = executor.submit(() -> deleteFromSet(set));
 
     future2.get();
     running.set(false);
@@ -471,16 +470,16 @@ public class RedisSetTest {
   /******* helper methods *******/
 
   private void addToSet(RedisSet set, int count) {
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       assertThat(set.membersAdd(Coder.intToBytes(i))).isTrue();
     }
   }
 
   private void deleteFromSet(RedisSet set) {
-    int size = set.scard();
-    for (int i = 0; i < size; i++) {
+    var size = set.scard();
+    for (var i = 0; i < size; i++) {
       Collection<byte[]> removals = set.srandmember(1);
-      byte[] candidate = removals.iterator().next();
+      var candidate = removals.iterator().next();
       assertThat(set.membersRemove(candidate))
           .as("Did not find " + Coder.bytesToLong(candidate)).isTrue();
     }
@@ -488,14 +487,14 @@ public class RedisSetTest {
 
   private void iterateOverSet(RedisSet set, AtomicBoolean running) throws Exception {
     while (running.get()) {
-      HeapDataOutputStream out = new HeapDataOutputStream(100);
+      var out = new HeapDataOutputStream(100);
       set.toData(out);
     }
   }
 
   private RedisSet createRedisSetOfSpecifiedSize(int setSize) {
     List<byte[]> arrayList = new ArrayList<>();
-    for (int i = 0; i < setSize; i++) {
+    for (var i = 0; i < setSize; i++) {
       arrayList.add(stringToBytes(("abcdefgh" + i)));
     }
     return new RedisSet(arrayList);
@@ -503,7 +502,7 @@ public class RedisSetTest {
 
   private RedisSet createRedisSetWithMemberOfSpecifiedSize(int memberSize) {
     List<byte[]> arrayList = new ArrayList<>();
-    byte[] member = stringToBytes(createMemberOfSpecifiedSize("a", memberSize));
+    var member = stringToBytes(createMemberOfSpecifiedSize("a", memberSize));
     if (member.length > 0) {
       arrayList.add(member);
     }
@@ -511,29 +510,29 @@ public class RedisSetTest {
   }
 
   private String createMemberOfSpecifiedSize(final String base, final int stringSize) {
-    Random random = new Random();
+    var random = new Random();
     if (base.length() > stringSize) {
       return "";
     }
-    StringBuilder sb = new StringBuilder(stringSize);
+    var sb = new StringBuilder(stringSize);
     sb.append(base);
-    for (int i = base.length(); i < stringSize; i++) {
-      int randy = random.nextInt(10);
+    for (var i = base.length(); i < stringSize; i++) {
+      var randy = random.nextInt(10);
       sb.append(randy);
     }
     return sb.toString();
   }
 
   void doAddsAndAssertSize(RedisSet set, int membersToAdd) {
-    for (int i = 0; i < membersToAdd; ++i) {
-      int initialSize = sizer.sizeof(set);
-      int initialCalculatedSize = set.getSizeInBytes();
+    for (var i = 0; i < membersToAdd; ++i) {
+      var initialSize = sizer.sizeof(set);
+      var initialCalculatedSize = set.getSizeInBytes();
 
-      byte[] data = Coder.intToBytes(set.scard());
+      var data = Coder.intToBytes(set.scard());
       assertThat(set.membersAdd(data)).isTrue();
 
-      int actualOverhead = sizer.sizeof(set) - initialSize;
-      int calculatedOH = set.getSizeInBytes() - initialCalculatedSize;
+      var actualOverhead = sizer.sizeof(set) - initialSize;
+      var calculatedOH = set.getSizeInBytes() - initialCalculatedSize;
 
       assertThat(calculatedOH).isEqualTo(actualOverhead);
     }
@@ -541,16 +540,16 @@ public class RedisSetTest {
   }
 
   void doRemovesAndAssertSize(RedisSet set, int membersToRemove) {
-    int initialCapacity = set.scard();
-    for (int i = 1; i < membersToRemove; ++i) {
-      int initialSize = sizer.sizeof(set);
-      int initialCalculatedSize = set.getSizeInBytes();
+    var initialCapacity = set.scard();
+    for (var i = 1; i < membersToRemove; ++i) {
+      var initialSize = sizer.sizeof(set);
+      var initialCalculatedSize = set.getSizeInBytes();
 
-      byte[] data = Coder.intToBytes(initialCapacity - i);
+      var data = Coder.intToBytes(initialCapacity - i);
       assertThat(set.membersRemove(data)).isTrue();
 
-      int actualOverhead = sizer.sizeof(set) - initialSize;
-      int calculatedOH = set.getSizeInBytes() - initialCalculatedSize;
+      var actualOverhead = sizer.sizeof(set) - initialSize;
+      var calculatedOH = set.getSizeInBytes() - initialCalculatedSize;
 
       assertThat(calculatedOH).isEqualTo(actualOverhead);
     }
@@ -558,12 +557,12 @@ public class RedisSetTest {
   }
 
   private Object validateDeltaSerialization(InvocationOnMock invocation) throws IOException {
-    RedisSet value = invocation.getArgument(1, RedisSet.class);
+    var value = invocation.getArgument(1, RedisSet.class);
     assertThat(value.hasDelta()).isTrue();
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     value.toDelta(out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
-    RedisSet set2 = createRedisSet(1, 2);
+    var in = new ByteArrayDataInput(out.toByteArray());
+    var set2 = createRedisSet(1, 2);
     assertThat(set2).isNotEqualTo(value);
     set2.fromDelta(in);
     assertThat(set2).isEqualTo(value);

@@ -171,7 +171,7 @@ public class MsgDestreamer {
       } else if (failure instanceof IOException) {
         throw (IOException) failure;
       } else {
-        IOException io =
+        var io =
             new IOException("failure during message deserialization", failure);
         throw io;
       }
@@ -225,7 +225,7 @@ public class MsgDestreamer {
     // }
 
     public void addChunk(ByteBuffer chunk, int bbLength) throws IOException {
-      ByteBuffer bb = chunk.slice();
+      var bb = chunk.slice();
       bb.limit(bbLength);
       is.addChunk(bb);
     }
@@ -238,11 +238,11 @@ public class MsgDestreamer {
         }
         try {
           ReplyProcessor21.initMessageRPId();
-          final KnownVersion v = version;
-          DataInputStream dis =
+          final var v = version;
+          var dis =
               v == null ? new DataInputStream(is)
                   : new VersionedDataInputStream(is, v);
-          long startSer = stats.startMsgDeserialization();
+          var startSer = stats.startMsgDeserialization();
           setResult((DistributionMessage) InternalDataSerializer.readDSFID(dis));
           stats.endMsgDeserialization(startSer);
         } catch (VirtualMachineError err) {
@@ -300,7 +300,7 @@ public class MsgDestreamer {
        */
       @Override
       public String cancelInProgress() {
-        String reason = stopper.cancelInProgress();
+        var reason = stopper.cancelInProgress();
         if (reason != null) {
           return reason;
         }
@@ -317,11 +317,11 @@ public class MsgDestreamer {
        */
       @Override
       public RuntimeException generateCancelledException(Throwable e) {
-        String reason = cancelInProgress();
+        var reason = cancelInProgress();
         if (reason == null) {
           return null;
         }
-        RuntimeException result = stopper.generateCancelledException(e);
+        var result = stopper.generateCancelledException(e);
         if (result != null) {
           return result;
         }
@@ -363,7 +363,7 @@ public class MsgDestreamer {
         throw new InterruptedException();
       }
       synchronized (dataMon) {
-        ByteBuffer result = data;
+        var result = data;
         while (result == null) {
           if (isClosed() || Thread.interrupted()) {
             throw new InterruptedException();
@@ -423,7 +423,7 @@ public class MsgDestreamer {
       provideData(bb);
       for (;;) {
         stopper.checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           waitUntilDone();
           break;
@@ -438,7 +438,7 @@ public class MsgDestreamer {
     }
 
     private ByteBuffer waitForAvailableData() throws IOException {
-      boolean available = false;
+      var available = false;
       ByteBuffer myData;
       do {
         // only the thread that sets data to null ever does this check
@@ -450,7 +450,7 @@ public class MsgDestreamer {
               throw new IOException("owner closed"); // TODO
             }
             stopper.checkCancelInProgress(null);
-            boolean interrupted = Thread.interrupted();
+            var interrupted = Thread.interrupted();
             try {
               myData = waitForData();
               break;
@@ -472,7 +472,7 @@ public class MsgDestreamer {
           // logit("received new bb with " +
           // myData.remaining() + " bytes");
         }
-        int remaining = myData.remaining();
+        var remaining = myData.remaining();
         if (remaining <= 0) {
           signalDone();
         } else {
@@ -493,7 +493,7 @@ public class MsgDestreamer {
      */
     @Override
     public int read() throws IOException {
-      ByteBuffer bb = waitForAvailableData();
+      var bb = waitForAvailableData();
       // logit("read result=" + result);
       return (bb.get() & 0xff);
     }
@@ -506,9 +506,9 @@ public class MsgDestreamer {
      */
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-      ByteBuffer bb = waitForAvailableData();
-      int remaining = bb.remaining();
-      int bytesToRead = len;
+      var bb = waitForAvailableData();
+      var remaining = bb.remaining();
+      var bytesToRead = len;
       if (remaining < len) {
         bytesToRead = remaining;
       }
@@ -519,7 +519,7 @@ public class MsgDestreamer {
 
     @Override
     public int available() throws IOException {
-      ByteBuffer bb = data;
+      var bb = data;
       if (bb == null) {
         return 0;
       } else {
@@ -531,7 +531,7 @@ public class MsgDestreamer {
 
   private static LogWriter getLogger() {
     LogWriter result = null;
-    InternalDistributedSystem ids = InternalDistributedSystem.unsafeGetConnectedInstance();
+    var ids = InternalDistributedSystem.unsafeGetConnectedInstance();
     if (ids != null) {
       result = ids.getLogWriter();
     }

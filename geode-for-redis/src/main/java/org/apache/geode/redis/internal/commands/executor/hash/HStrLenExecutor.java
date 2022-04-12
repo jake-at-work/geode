@@ -15,21 +15,19 @@
 package org.apache.geode.redis.internal.commands.executor.hash;
 
 
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class HStrLenExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    RedisKey key = command.getKey();
-    List<byte[]> commandElems = command.getProcessedCommand();
-    byte[] field = commandElems.get(2);
+    var key = command.getKey();
+    var commandElems = command.getProcessedCommand();
+    var field = commandElems.get(2);
 
     int len = context.hashLockedExecute(key, true, hash -> hash.hstrlen(field));
 

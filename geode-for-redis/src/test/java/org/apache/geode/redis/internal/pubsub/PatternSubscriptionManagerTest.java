@@ -24,8 +24,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
 import org.junit.Test;
 
 import org.apache.geode.redis.internal.netty.Client;
@@ -40,12 +38,12 @@ public class PatternSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void twoPatternsThatMatchSameChannel() {
-    Client client1 = createClient();
-    Client client2 = createClient();
+    var client1 = createClient();
+    var client2 = createClient();
     AbstractSubscriptionManager manager = createManager();
-    byte[] channel = stringToBytes("channel");
-    byte[] pattern1 = stringToBytes("ch*");
-    byte[] pattern2 = stringToBytes("chan*");
+    var channel = stringToBytes("channel");
+    var pattern1 = stringToBytes("ch*");
+    var pattern2 = stringToBytes("chan*");
 
     Object result1 = manager.add(pattern1, client1);
     Object result2 = manager.add(pattern2, client2);
@@ -62,11 +60,11 @@ public class PatternSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void emptyManagerReturnsEmptyPatternSubscriptions() {
-    PatternSubscriptionManager manager = createManager();
-    byte[] channel = stringToBytes("channel");
+    var manager = createManager();
+    var channel = stringToBytes("channel");
 
-    List<PatternSubscriptions> subscriptions = manager.getPatternSubscriptions(channel);
-    List<PatternSubscriptions> cachedSubscriptions = manager.getPatternSubscriptions(channel);
+    var subscriptions = manager.getPatternSubscriptions(channel);
+    var cachedSubscriptions = manager.getPatternSubscriptions(channel);
 
     assertThat(subscriptions).isEmpty();
     assertThat(cachedSubscriptions).isSameAs(subscriptions);
@@ -74,10 +72,10 @@ public class PatternSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void emptyManagerDoesNotCachePatternSubscriptions() {
-    PatternSubscriptionManager manager = createManager();
-    byte[] channel = stringToBytes("channel");
+    var manager = createManager();
+    var channel = stringToBytes("channel");
 
-    List<PatternSubscriptions> subscriptions = manager.getPatternSubscriptions(channel);
+    var subscriptions = manager.getPatternSubscriptions(channel);
 
     assertThat(subscriptions).isEmpty();
     assertThat(manager.cacheSize()).isZero();
@@ -85,18 +83,18 @@ public class PatternSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void managerWithOneSubscriptionReturnsIt() {
-    PatternSubscriptionManager manager = createManager();
-    byte[] pattern = stringToBytes("ch*");
-    byte[] channel = stringToBytes("channel");
-    byte[] otherChannel = stringToBytes("otherChannel");
-    Client client = mock(Client.class);
+    var manager = createManager();
+    var pattern = stringToBytes("ch*");
+    var channel = stringToBytes("channel");
+    var otherChannel = stringToBytes("otherChannel");
+    var client = mock(Client.class);
     when(client.addPatternSubscription(eq(pattern))).thenReturn(true);
-    Subscription addedSubscription = manager.add(pattern, client);
-    PatternSubscriptions expected = new PatternSubscriptions(pattern,
+    var addedSubscription = manager.add(pattern, client);
+    var expected = new PatternSubscriptions(pattern,
         singletonList(addedSubscription));
 
-    List<PatternSubscriptions> subscriptions = manager.getPatternSubscriptions(channel);
-    List<PatternSubscriptions> cachedSubscriptions = manager.getPatternSubscriptions(channel);
+    var subscriptions = manager.getPatternSubscriptions(channel);
+    var cachedSubscriptions = manager.getPatternSubscriptions(channel);
 
     assertThat(cachedSubscriptions).isSameAs(subscriptions);
     assertThat(subscriptions).containsExactly(expected);
@@ -108,10 +106,10 @@ public class PatternSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void managerWithOneSubscriptionThatDoesNotMatchChannelDoesNotCache() {
-    PatternSubscriptionManager manager = createManager();
-    byte[] pattern = stringToBytes("ch*");
-    byte[] otherChannel = stringToBytes("otherChannel");
-    Client client = mock(Client.class);
+    var manager = createManager();
+    var pattern = stringToBytes("ch*");
+    var otherChannel = stringToBytes("otherChannel");
+    var client = mock(Client.class);
     when(client.addPatternSubscription(eq(pattern))).thenReturn(true);
     manager.add(pattern, client);
 
@@ -121,20 +119,20 @@ public class PatternSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void clientsSubscribedToSamePattern() {
-    PatternSubscriptionManager manager = createManager();
-    byte[] pattern = stringToBytes("ch*");
-    byte[] channel = stringToBytes("channel");
-    Client client = mock(Client.class);
+    var manager = createManager();
+    var pattern = stringToBytes("ch*");
+    var channel = stringToBytes("channel");
+    var client = mock(Client.class);
     when(client.addPatternSubscription(eq(pattern))).thenReturn(true);
-    Client client2 = mock(Client.class);
+    var client2 = mock(Client.class);
     when(client2.addPatternSubscription(eq(pattern))).thenReturn(true);
-    Subscription addedSubscription = manager.add(pattern, client);
-    Subscription addedSubscription2 = manager.add(pattern, client2);
-    PatternSubscriptions expected = new PatternSubscriptions(pattern,
+    var addedSubscription = manager.add(pattern, client);
+    var addedSubscription2 = manager.add(pattern, client2);
+    var expected = new PatternSubscriptions(pattern,
         asList(addedSubscription, addedSubscription2));
 
-    List<PatternSubscriptions> subscriptions = manager.getPatternSubscriptions(channel);
-    List<PatternSubscriptions> cachedSubscriptions = manager.getPatternSubscriptions(channel);
+    var subscriptions = manager.getPatternSubscriptions(channel);
+    var cachedSubscriptions = manager.getPatternSubscriptions(channel);
 
     assertThat(cachedSubscriptions).isSameAs(subscriptions);
     assertThat(subscriptions).containsExactly(expected);
@@ -144,22 +142,22 @@ public class PatternSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void clientSubscribedToTwoPatterns() {
-    PatternSubscriptionManager manager = createManager();
-    byte[] pattern = stringToBytes("ch*");
-    byte[] pattern2 = stringToBytes("*l");
-    byte[] channel = stringToBytes("channel");
-    Client client = mock(Client.class);
+    var manager = createManager();
+    var pattern = stringToBytes("ch*");
+    var pattern2 = stringToBytes("*l");
+    var channel = stringToBytes("channel");
+    var client = mock(Client.class);
     when(client.addPatternSubscription(eq(pattern))).thenReturn(true);
     when(client.addPatternSubscription(eq(pattern2))).thenReturn(true);
-    Subscription addedSubscription = manager.add(pattern, client);
-    Subscription addedSubscription2 = manager.add(pattern2, client);
-    PatternSubscriptions expected = new PatternSubscriptions(pattern,
+    var addedSubscription = manager.add(pattern, client);
+    var addedSubscription2 = manager.add(pattern2, client);
+    var expected = new PatternSubscriptions(pattern,
         singletonList(addedSubscription));
-    PatternSubscriptions expected2 = new PatternSubscriptions(pattern2,
+    var expected2 = new PatternSubscriptions(pattern2,
         singletonList(addedSubscription2));
 
-    List<PatternSubscriptions> subscriptions = manager.getPatternSubscriptions(channel);
-    List<PatternSubscriptions> cachedSubscriptions = manager.getPatternSubscriptions(channel);
+    var subscriptions = manager.getPatternSubscriptions(channel);
+    var cachedSubscriptions = manager.getPatternSubscriptions(channel);
 
     assertThat(cachedSubscriptions).isSameAs(subscriptions);
     assertThat(subscriptions).containsExactlyInAnyOrder(expected, expected2);

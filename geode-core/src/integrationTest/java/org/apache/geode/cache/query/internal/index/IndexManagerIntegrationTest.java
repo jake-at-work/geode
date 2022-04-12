@@ -38,10 +38,8 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexNameConflictException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
@@ -92,7 +90,7 @@ public class IndexManagerIntegrationTest {
 
   private void waitForIndexUpdaterTask(boolean synchronousMaintenance, Region region) {
     if (!synchronousMaintenance) {
-      InternalRegion internalRegion = (InternalRegion) region;
+      var internalRegion = (InternalRegion) region;
       await().untilAsserted(
           () -> assertThat(internalRegion.getIndexManager().getUpdaterThread().isDone()).isTrue());
     }
@@ -102,17 +100,17 @@ public class IndexManagerIntegrationTest {
       RegionShortcut regionShortcut, String regionName, String indexName,
       boolean synchronousMaintenance)
       throws IndexNameConflictException, IndexExistsException, RegionNotFoundException {
-    Region<Integer, TestQueryObject> region = internalCache
+    var region = internalCache
         .<Integer, TestQueryObject>createRegionFactory(regionShortcut)
         .setIndexMaintenanceSynchronous(synchronousMaintenance)
         .create(regionName);
 
-    QueryService queryService = internalCache.getQueryService();
+    var queryService = internalCache.getQueryService();
     queryService.createIndex(indexName, "id", SEPARATOR + regionName);
     IntStream.range(1, entries + 1).forEach(i -> region.put(i, new TestQueryObject(i)));
     waitForIndexUpdaterTask(synchronousMaintenance, region);
 
-    Index index = queryService.getIndex(region, indexName);
+    var index = queryService.getIndex(region, indexName);
     assertThat(index.isValid()).isTrue();
 
     return region;
@@ -123,23 +121,23 @@ public class IndexManagerIntegrationTest {
   @TestCaseName("[{index}] {method}(RegionType:{0};IndexSynchronousMaintenance:{1})")
   public void indexShouldBeMarkedAsInvalidWhenAddMappingOperationFailsAfterEntryAddition(
       RegionShortcut regionShortcut, boolean synchronousMaintenance) throws Exception {
-    int newKey = entries + 2;
-    String regionName = testName.getMethodName();
-    String indexName = testName.getMethodName() + "_index";
-    Region<Integer, TestQueryObject> region = createAndPopulateRegionWithIndex(regionShortcut,
+    var newKey = entries + 2;
+    var regionName = testName.getMethodName();
+    var indexName = testName.getMethodName() + "_index";
+    var region = createAndPopulateRegionWithIndex(regionShortcut,
         regionName, indexName, synchronousMaintenance);
 
     // Create entry, add mapping will throw an exception when invoking 'getId()'.
     TestQueryObject.throwException = true;
     assertThat(region.containsKey(newKey)).isFalse();
-    TestQueryObject testQueryObject = new TestQueryObject(0);
+    var testQueryObject = new TestQueryObject(0);
     assertThatCode(() -> region.create(newKey, testQueryObject)).doesNotThrowAnyException();
     waitForIndexUpdaterTask(synchronousMaintenance, region);
 
     // Entry created, index marked as invalid, and error logged.
     assertThat(region.containsKey(newKey)).isTrue();
     assertThat(region.get(newKey)).isEqualTo(testQueryObject);
-    Index indexInvalid = internalCache.getQueryService().getIndex(region, indexName);
+    var indexInvalid = internalCache.getQueryService().getIndex(region, indexName);
     assertThat(indexInvalid.isValid()).isFalse();
     LogFileAssert.assertThat(logFile)
         .contains(String.format(
@@ -153,21 +151,21 @@ public class IndexManagerIntegrationTest {
   @TestCaseName("[{index}] {method}(RegionType:{0};IndexSynchronousMaintenance:{1})")
   public void indexShouldBeMarkedAsInvalidWhenAddMappingOperationFailsAfterEntryModification(
       RegionShortcut regionShortcut, boolean synchronousMaintenance) throws Exception {
-    int existingKey = entries / 2;
-    String regionName = testName.getMethodName();
-    String indexName = testName.getMethodName() + "_index";
-    Region<Integer, TestQueryObject> region = createAndPopulateRegionWithIndex(regionShortcut,
+    var existingKey = entries / 2;
+    var regionName = testName.getMethodName();
+    var indexName = testName.getMethodName() + "_index";
+    var region = createAndPopulateRegionWithIndex(regionShortcut,
         regionName, indexName, synchronousMaintenance);
 
     // Update entry, add mapping will throw an exception when invoking 'getId()'.
     TestQueryObject.throwException = true;
-    TestQueryObject testQueryObject = new TestQueryObject(0);
+    var testQueryObject = new TestQueryObject(0);
     assertThatCode(() -> region.put(existingKey, testQueryObject)).doesNotThrowAnyException();
     waitForIndexUpdaterTask(synchronousMaintenance, region);
 
     // Entry updated, index marked as invalid, and error logged.
     assertThat(region.get(existingKey)).isEqualTo(testQueryObject);
-    Index indexInvalid = internalCache.getQueryService().getIndex(region, indexName);
+    var indexInvalid = internalCache.getQueryService().getIndex(region, indexName);
     assertThat(indexInvalid.isValid()).isFalse();
     LogFileAssert.assertThat(logFile)
         .contains(String.format(
@@ -181,10 +179,10 @@ public class IndexManagerIntegrationTest {
   @TestCaseName("[{index}] {method}(RegionType:{0};IndexSynchronousMaintenance:{1})")
   public void indexShouldBeMarkedAsInvalidWhenAddMappingOperationFailsAfterEntryDeletion(
       RegionShortcut regionShortcut, boolean synchronousMaintenance) throws Exception {
-    int existingKey = entries / 3;
-    String regionName = testName.getMethodName();
-    String indexName = testName.getMethodName() + "_index";
-    Region<Integer, TestQueryObject> region = createAndPopulateRegionWithIndex(regionShortcut,
+    var existingKey = entries / 3;
+    var regionName = testName.getMethodName();
+    var indexName = testName.getMethodName() + "_index";
+    var region = createAndPopulateRegionWithIndex(regionShortcut,
         regionName, indexName, synchronousMaintenance);
 
     // Remove entry, remove mapping will throw an exception when invoking 'getId()'.
@@ -194,7 +192,7 @@ public class IndexManagerIntegrationTest {
     // Make sure we get the exception for asynchronous indexes.
     if (!synchronousMaintenance) {
       // RangeIndex for asynchronous maintenance, hack internal structures to throw exception.
-      Index index = internalCache.getQueryService().getIndex(region, indexName);
+      var index = internalCache.getQueryService().getIndex(region, indexName);
 
       if (!PARTITION.equals(regionShortcut)) {
         ((RangeIndex) index).valueToEntriesMap.clear();
@@ -210,7 +208,7 @@ public class IndexManagerIntegrationTest {
 
     // Entry deleted, index marked as invalid, and error logged.
     assertThat(region.get(existingKey)).isNull();
-    Index indexInvalid = internalCache.getQueryService().getIndex(region, indexName);
+    var indexInvalid = internalCache.getQueryService().getIndex(region, indexName);
     assertThat(indexInvalid.isValid()).isFalse();
     LogFileAssert.assertThat(logFile)
         .contains(String.format(
@@ -243,7 +241,7 @@ public class IndexManagerIntegrationTest {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      TestQueryObject that = (TestQueryObject) o;
+      var that = (TestQueryObject) o;
       return id == that.id;
     }
 

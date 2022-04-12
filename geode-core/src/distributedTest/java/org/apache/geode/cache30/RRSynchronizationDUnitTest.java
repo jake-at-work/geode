@@ -33,7 +33,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.VMCachedDeserializable;
 import org.apache.geode.internal.cache.versions.VMVersionTag;
@@ -61,7 +60,7 @@ public class RRSynchronizationDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = super.getDistributedSystemProperties();
+    var config = super.getDistributedSystemProperties();
     config.put(ConfigurationProperties.ENABLE_NETWORK_PARTITION_DETECTION, "false");
     return config;
   }
@@ -86,12 +85,12 @@ public class RRSynchronizationDUnitTest extends CacheTestCase {
    */
   private void doRegionsSyncOnPeerLoss(TestType typeOfTest) {
     IgnoredException.addIgnoredException("killing member's ds");
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    final String name = getUniqueName() + "Region";
+    final var name = getUniqueName() + "Region";
 
     createRegion(vm0, name, typeOfTest);
     createRegion(vm1, name, typeOfTest);
@@ -101,8 +100,8 @@ public class RRSynchronizationDUnitTest extends CacheTestCase {
 
 
     // cause one of the VMs to throw away the next operation
-    InternalDistributedMember crashedID = getId(vm0);
-    VersionSource crashedVersionID = getVersionId(vm0);
+    var crashedID = getId(vm0);
+    var crashedVersionID = getVersionId(vm0);
     createEntry2(vm1, crashedID, crashedVersionID);
 
     // Now we crash the member who "modified" vm1's cache.
@@ -135,13 +134,13 @@ public class RRSynchronizationDUnitTest extends CacheTestCase {
       final VersionSource memberVersionID) {
     vm.invoke("create entry2", () -> {
       // create a fake event that looks like it came from the lost member and apply it to this cache
-      DistributedRegion dr = (DistributedRegion) testRegion;
+      var dr = (DistributedRegion) testRegion;
       VersionTag tag = new VMVersionTag();
       tag.setMemberID(memberVersionID);
       tag.setRegionVersion(2);
       tag.setEntryVersion(1);
       tag.setIsRemoteForTesting();
-      EntryEventImpl event =
+      var event =
           EntryEventImpl.create(dr, Operation.CREATE, "Object3", true, forMember, true, false);
       event.setNewValue(new VMCachedDeserializable("value3", 12));
       event.setVersionTag(tag);
@@ -169,7 +168,7 @@ public class RRSynchronizationDUnitTest extends CacheTestCase {
 
   private void verifySynchronized(VM vm, final InternalDistributedMember crashedMember) {
     vm.invoke("check that synchronization happened", () -> {
-      final DistributedRegion dr = (DistributedRegion) testRegion;
+      final var dr = (DistributedRegion) testRegion;
       await().until(() -> {
 
         if (testRegion.getCache().getDistributionManager().isCurrentMember(crashedMember)) {
@@ -178,7 +177,7 @@ public class RRSynchronizationDUnitTest extends CacheTestCase {
         if (!testRegion.containsKey("Object3")) {
           return false;
         }
-        RegionEntry re = dr.getRegionMap().getEntry("Object5");
+        var re = dr.getRegionMap().getEntry("Object5");
         if (re == null) {
           return false;
         }
@@ -189,7 +188,7 @@ public class RRSynchronizationDUnitTest extends CacheTestCase {
 
   private void createRegion(VM vm, final String regionName, final TestType typeOfTest) {
     vm.invoke(() -> {
-      AttributesFactory af = new AttributesFactory();
+      var af = new AttributesFactory();
       af.setScope(Scope.DISTRIBUTED_NO_ACK);
       switch (typeOfTest) {
         case IN_MEMORY:

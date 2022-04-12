@@ -37,10 +37,10 @@ public class BufferPoolTest {
 
   @Test
   public void expandBuffer() throws Exception {
-    ByteBuffer buffer = ByteBuffer.allocate(256);
+    var buffer = ByteBuffer.allocate(256);
     buffer.clear();
-    for (int i = 0; i < 256; i++) {
-      byte b = (byte) (i & 0xff);
+    for (var i = 0; i < 256; i++) {
+      var b = (byte) (i & 0xff);
       buffer.put(b);
     }
     createAndVerifyNewWriteBuffer(buffer, false);
@@ -57,14 +57,14 @@ public class BufferPoolTest {
 
   private void createAndVerifyNewWriteBuffer(ByteBuffer buffer, boolean useDirectBuffer) {
     buffer.position(buffer.capacity());
-    ByteBuffer newBuffer =
+    var newBuffer =
         bufferPool.expandWriteBufferIfNeeded(BufferPool.BufferType.UNTRACKED, buffer, 500);
     assertEquals(buffer.position(), newBuffer.position());
     assertEquals(500, newBuffer.capacity());
     newBuffer.flip();
-    for (int i = 0; i < 256; i++) {
-      byte expected = (byte) (i & 0xff);
-      byte actual = (byte) (newBuffer.get() & 0xff);
+    for (var i = 0; i < 256; i++) {
+      var expected = (byte) (i & 0xff);
+      var actual = (byte) (newBuffer.get() & 0xff);
       assertEquals(expected, actual);
     }
   }
@@ -72,13 +72,13 @@ public class BufferPoolTest {
   private void createAndVerifyNewReadBuffer(ByteBuffer buffer, boolean useDirectBuffer) {
     buffer.position(0);
     buffer.limit(256);
-    ByteBuffer newBuffer =
+    var newBuffer =
         bufferPool.expandReadBufferIfNeeded(BufferPool.BufferType.UNTRACKED, buffer, 500);
     assertEquals(0, newBuffer.position());
     assertEquals(500, newBuffer.capacity());
-    for (int i = 0; i < 256; i++) {
-      byte expected = (byte) (i & 0xff);
-      byte actual = (byte) (newBuffer.get() & 0xff);
+    for (var i = 0; i < 256; i++) {
+      var expected = (byte) (i & 0xff);
+      var actual = (byte) (newBuffer.get() & 0xff);
       assertEquals(expected, actual);
     }
   }
@@ -87,10 +87,10 @@ public class BufferPoolTest {
   // the fixed numbers in this test came from a distributed unit test failure
   @Test
   public void bufferPositionAndLimitForReadAreCorrectAfterExpansion() throws Exception {
-    ByteBuffer buffer = ByteBuffer.allocate(33842);
+    var buffer = ByteBuffer.allocate(33842);
     buffer.position(7);
     buffer.limit(16384);
-    ByteBuffer newBuffer =
+    var newBuffer =
         bufferPool.expandReadBufferIfNeeded(BufferPool.BufferType.UNTRACKED, buffer,
             40899);
     assertThat(newBuffer.capacity()).isGreaterThanOrEqualTo(40899);
@@ -102,10 +102,10 @@ public class BufferPoolTest {
 
   @Test
   public void bufferPositionAndLimitForWriteAreCorrectAfterExpansion() throws Exception {
-    ByteBuffer buffer = ByteBuffer.allocate(33842);
+    var buffer = ByteBuffer.allocate(33842);
     buffer.position(16384);
     buffer.limit(buffer.capacity());
-    ByteBuffer newBuffer =
+    var newBuffer =
         bufferPool.expandWriteBufferIfNeeded(BufferPool.BufferType.UNTRACKED, buffer,
             40899);
     assertThat(newBuffer.capacity()).isGreaterThanOrEqualTo(40899);
@@ -117,9 +117,9 @@ public class BufferPoolTest {
 
   @Test
   public void checkBufferSizeAfterAllocation() throws Exception {
-    ByteBuffer buffer = bufferPool.acquireDirectReceiveBuffer(100);
+    var buffer = bufferPool.acquireDirectReceiveBuffer(100);
 
-    ByteBuffer newBuffer =
+    var newBuffer =
         bufferPool.acquireDirectReceiveBuffer(10000);
     assertThat(buffer.isDirect()).isTrue();
     assertThat(newBuffer.isDirect()).isTrue();
@@ -135,9 +135,9 @@ public class BufferPoolTest {
 
   @Test
   public void checkBufferSizeAfterAcquire() throws Exception {
-    ByteBuffer buffer = bufferPool.acquireDirectReceiveBuffer(100);
+    var buffer = bufferPool.acquireDirectReceiveBuffer(100);
 
-    ByteBuffer newBuffer =
+    var newBuffer =
         bufferPool.acquireDirectReceiveBuffer(10000);
     assertThat(buffer.capacity()).isEqualTo(100);
     assertThat(newBuffer.capacity()).isEqualTo(10000);

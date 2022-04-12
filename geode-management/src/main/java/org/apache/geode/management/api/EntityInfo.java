@@ -95,7 +95,7 @@ public class EntityInfo<T extends AbstractConfiguration<R>, R extends RuntimeInf
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    EntityInfo<?, ?> that = (EntityInfo<?, ?>) o;
+    var that = (EntityInfo<?, ?>) o;
     return Objects.equals(id, that.id) &&
         Objects.equals(groups, that.groups);
   }

@@ -75,7 +75,7 @@ public class TableMetaDataManagerTest {
     when(primaryKeysResultSet.next()).thenReturn(true).thenReturn(false);
     when(regionMapping.getIds()).thenReturn("");
 
-    TableMetaDataView data = tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
+    var data = tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getKeyColumnNames()).isEqualTo(Arrays.asList(KEY_COLUMN));
     verify(connection).getMetaData();
@@ -86,7 +86,7 @@ public class TableMetaDataManagerTest {
     setupCompositePrimaryKeysMetaData();
     when(regionMapping.getIds()).thenReturn("");
 
-    TableMetaDataView data = tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
+    var data = tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getKeyColumnNames()).isEqualTo(Arrays.asList(KEY_COLUMN, KEY_COLUMN2));
     verify(connection).getMetaData();
@@ -97,13 +97,13 @@ public class TableMetaDataManagerTest {
   public void verifyPostgreUsesPublicSchemaByDefault() throws Exception {
     setupCompositePrimaryKeysMetaData();
     when(regionMapping.getIds()).thenReturn("");
-    ResultSet schemas = mock(ResultSet.class);
+    var schemas = mock(ResultSet.class);
     when(schemas.next()).thenReturn(true).thenReturn(false);
     when(schemas.getString("TABLE_SCHEM")).thenReturn("PUBLIC");
     when(databaseMetaData.getSchemas(any(), any())).thenReturn(schemas);
     when(databaseMetaData.getDatabaseProductName()).thenReturn("PostgreSQL");
 
-    TableMetaDataView data = tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
+    var data = tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getKeyColumnNames()).isEqualTo(Arrays.asList(KEY_COLUMN, KEY_COLUMN2));
     verify(connection).getMetaData();
@@ -160,7 +160,7 @@ public class TableMetaDataManagerTest {
         .thenReturn("ExistentId");
     when(regionMapping.getIds()).thenReturn("ExistentId");
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getKeyColumnNames()).isEqualTo(Arrays.asList("ExistentId"));
@@ -177,7 +177,7 @@ public class TableMetaDataManagerTest {
         .thenReturn("NonKeyColumn");
     when(regionMapping.getIds()).thenReturn(KEY_COLUMN + "," + KEY_COLUMN2);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getKeyColumnNames()).isEqualTo(Arrays.asList(KEY_COLUMN, KEY_COLUMN2));
@@ -191,7 +191,7 @@ public class TableMetaDataManagerTest {
     when(columnResultSet.getString("COLUMN_NAME")).thenReturn("existentid");
     when(regionMapping.getIds()).thenReturn("ExistentId");
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getKeyColumnNames()).isEqualTo(Arrays.asList("ExistentId"));
@@ -202,7 +202,7 @@ public class TableMetaDataManagerTest {
     setupPrimaryKeysMetaData();
     when(primaryKeysResultSet.next()).thenReturn(true).thenReturn(false);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getIdentifierQuoteString()).isEqualTo("");
@@ -213,10 +213,10 @@ public class TableMetaDataManagerTest {
   public void returnsQuoteStringFromMetaData() throws Exception {
     setupPrimaryKeysMetaData();
     when(primaryKeysResultSet.next()).thenReturn(true).thenReturn(false);
-    String expectedQuoteString = "123";
+    var expectedQuoteString = "123";
     when(databaseMetaData.getIdentifierQuoteString()).thenReturn(expectedQuoteString);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getIdentifierQuoteString()).isEqualTo(expectedQuoteString);
@@ -235,7 +235,7 @@ public class TableMetaDataManagerTest {
 
   @Test
   public void throwsExceptionWhenFailsToGetTableMetadata() throws Exception {
-    SQLException cause = new SQLException("sql message");
+    var cause = new SQLException("sql message");
     when(connection.getMetaData()).thenThrow(cause);
 
     assertThatThrownBy(
@@ -262,7 +262,7 @@ public class TableMetaDataManagerTest {
     when(tablesResultSet.getString("TABLE_NAME")).thenReturn(TABLE_NAME.toUpperCase())
         .thenReturn(TABLE_NAME);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getQuotedTablePath()).isEqualTo(TABLE_NAME);
@@ -275,10 +275,10 @@ public class TableMetaDataManagerTest {
     when(tablesResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
     when(tablesResultSet.getString("TABLE_NAME")).thenReturn(TABLE_NAME.toUpperCase())
         .thenReturn(TABLE_NAME);
-    String QUOTE = "@@";
+    var QUOTE = "@@";
     when(databaseMetaData.getIdentifierQuoteString()).thenReturn(QUOTE);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getQuotedTablePath()).isEqualTo(QUOTE + TABLE_NAME + QUOTE);
@@ -293,7 +293,7 @@ public class TableMetaDataManagerTest {
     when(tablesResultSet.next()).thenReturn(true).thenReturn(false);
     when(tablesResultSet.getString("TABLE_NAME")).thenReturn(TABLE_NAME.toUpperCase());
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getQuotedTablePath()).isEqualTo(TABLE_NAME.toUpperCase());
@@ -344,9 +344,9 @@ public class TableMetaDataManagerTest {
     setupPrimaryKeysMetaData();
     when(primaryKeysResultSet.next()).thenReturn(true).thenReturn(false);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
-    JDBCType dataType = data.getColumnDataType("unknownColumn");
+    var dataType = data.getColumnDataType("unknownColumn");
 
     assertThat(dataType).isEqualTo(JDBCType.NULL);
   }
@@ -356,18 +356,18 @@ public class TableMetaDataManagerTest {
     setupPrimaryKeysMetaData();
     when(primaryKeysResultSet.next()).thenReturn(true).thenReturn(false);
     when(columnResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
-    String columnName1 = "columnName1";
-    int columnDataType1 = 1;
-    String columnName2 = "columnName2";
-    int columnDataType2 = 2;
+    var columnName1 = "columnName1";
+    var columnDataType1 = 1;
+    var columnName2 = "columnName2";
+    var columnDataType2 = 2;
     when(columnResultSet.getString("COLUMN_NAME")).thenReturn(columnName1).thenReturn(columnName2);
     when(columnResultSet.getInt("DATA_TYPE")).thenReturn(columnDataType1)
         .thenReturn(columnDataType2);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
-    JDBCType dataType1 = data.getColumnDataType(columnName1);
-    JDBCType dataType2 = data.getColumnDataType(columnName2);
+    var dataType1 = data.getColumnDataType(columnName1);
+    var dataType2 = data.getColumnDataType(columnName2);
 
     assertThat(dataType1.getVendorTypeNumber()).isEqualTo(columnDataType1);
     assertThat(dataType2.getVendorTypeNumber()).isEqualTo(columnDataType2);
@@ -380,18 +380,18 @@ public class TableMetaDataManagerTest {
     setupPrimaryKeysMetaData();
     when(primaryKeysResultSet.next()).thenReturn(true).thenReturn(false);
     when(columnResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
-    String columnName1 = "columnName1";
-    int columnDataType1 = 1;
-    String columnName2 = "columnName2";
-    int columnDataType2 = 2;
+    var columnName1 = "columnName1";
+    var columnDataType1 = 1;
+    var columnName2 = "columnName2";
+    var columnDataType2 = 2;
     when(columnResultSet.getString("COLUMN_NAME")).thenReturn(columnName1).thenReturn(columnName2);
     when(columnResultSet.getInt("DATA_TYPE")).thenReturn(columnDataType1)
         .thenReturn(columnDataType2);
     Set<String> expectedColumnNames = new HashSet<>(Arrays.asList(columnName1, columnName2));
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
-    Set<String> columnNames = data.getColumnNames();
+    var columnNames = data.getColumnNames();
 
     assertThat(columnNames).isEqualTo(expectedColumnNames);
   }
@@ -402,7 +402,7 @@ public class TableMetaDataManagerTest {
     setupPrimaryKeysMetaData();
     when(primaryKeysResultSet.next()).thenReturn(true).thenReturn(false);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     verify(primaryKeysResultSet).close();
@@ -414,7 +414,7 @@ public class TableMetaDataManagerTest {
     setupPrimaryKeysMetaData();
     when(primaryKeysResultSet.next()).thenReturn(true).thenReturn(false);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     verify(columnResultSet).close();
@@ -425,7 +425,7 @@ public class TableMetaDataManagerTest {
     setupPrimaryKeysMetaData();
     when(primaryKeysResultSet.next()).thenReturn(true).thenReturn(false);
 
-    TableMetaDataView data =
+    var data =
         tableMetaDataManager.getTableMetaDataView(connection, regionMapping);
 
     assertThat(data.getQuotedTablePath()).isEqualTo(TABLE_NAME);
@@ -452,7 +452,7 @@ public class TableMetaDataManagerTest {
   public void computeTableNameGivenRegionMappingTableNameReturnsIt() {
     when(regionMapping.getTableName()).thenReturn("myTableName");
 
-    String result = tableMetaDataManager.computeTableName(regionMapping);
+    var result = tableMetaDataManager.computeTableName(regionMapping);
 
     assertThat(result).isEqualTo("myTableName");
   }
@@ -462,7 +462,7 @@ public class TableMetaDataManagerTest {
     when(regionMapping.getTableName()).thenReturn(null);
     when(regionMapping.getRegionName()).thenReturn("myRegionName");
 
-    String result = tableMetaDataManager.computeTableName(regionMapping);
+    var result = tableMetaDataManager.computeTableName(regionMapping);
 
     assertThat(result).isEqualTo("myRegionName");
   }
@@ -471,7 +471,7 @@ public class TableMetaDataManagerTest {
   public void getCatalogNameFromMetaDataGivenNullCatalogReturnsEmptyString() throws SQLException {
     when(regionMapping.getCatalog()).thenReturn(null);
 
-    String result = tableMetaDataManager.getCatalogNameFromMetaData(null, regionMapping);
+    var result = tableMetaDataManager.getCatalogNameFromMetaData(null, regionMapping);
 
     assertThat(result).isEqualTo("");
   }
@@ -480,21 +480,21 @@ public class TableMetaDataManagerTest {
   public void getCatalogNameFromMetaDataGivenEmptyCatalogReturnsEmptyString() throws SQLException {
     when(regionMapping.getCatalog()).thenReturn("");
 
-    String result = tableMetaDataManager.getCatalogNameFromMetaData(null, regionMapping);
+    var result = tableMetaDataManager.getCatalogNameFromMetaData(null, regionMapping);
 
     assertThat(result).isEqualTo("");
   }
 
   @Test
   public void getCatalogNameFromMetaDataGivenCatalogReturnIt() throws SQLException {
-    String myCatalog = "myCatalog";
+    var myCatalog = "myCatalog";
     when(regionMapping.getCatalog()).thenReturn(myCatalog);
-    ResultSet catalogsResultSet = mock(ResultSet.class);
+    var catalogsResultSet = mock(ResultSet.class);
     when(catalogsResultSet.next()).thenReturn(true).thenReturn(false);
     when(catalogsResultSet.getString("TABLE_CAT")).thenReturn(myCatalog);
     when(databaseMetaData.getCatalogs()).thenReturn(catalogsResultSet);
 
-    String result =
+    var result =
         tableMetaDataManager.getCatalogNameFromMetaData(databaseMetaData, regionMapping);
 
     assertThat(result).isEqualTo(myCatalog);
@@ -504,7 +504,7 @@ public class TableMetaDataManagerTest {
   public void getSchemaNameFromMetaDataGivenNullSchemaReturnsEmptyString() throws SQLException {
     when(regionMapping.getSchema()).thenReturn(null);
 
-    String result =
+    var result =
         tableMetaDataManager.getSchemaNameFromMetaData(databaseMetaData, regionMapping, null);
 
     assertThat(result).isEqualTo("");
@@ -514,7 +514,7 @@ public class TableMetaDataManagerTest {
   public void getSchemaNameFromMetaDataGivenEmptySchemaReturnsEmptyString() throws SQLException {
     when(regionMapping.getSchema()).thenReturn("");
 
-    String result =
+    var result =
         tableMetaDataManager.getSchemaNameFromMetaData(databaseMetaData, regionMapping, null);
 
     assertThat(result).isEqualTo("");
@@ -522,15 +522,15 @@ public class TableMetaDataManagerTest {
 
   @Test
   public void getSchemaNameFromMetaDataGivenSchemaReturnsIt() throws SQLException {
-    String mySchema = "mySchema";
+    var mySchema = "mySchema";
     when(regionMapping.getSchema()).thenReturn(mySchema);
-    ResultSet schemasResultSet = mock(ResultSet.class);
+    var schemasResultSet = mock(ResultSet.class);
     when(schemasResultSet.next()).thenReturn(true).thenReturn(false);
     when(schemasResultSet.getString("TABLE_SCHEM")).thenReturn(mySchema);
-    String catalogFilter = "myCatalogFilter";
+    var catalogFilter = "myCatalogFilter";
     when(databaseMetaData.getSchemas(catalogFilter, "%")).thenReturn(schemasResultSet);
 
-    String result = tableMetaDataManager.getSchemaNameFromMetaData(databaseMetaData, regionMapping,
+    var result = tableMetaDataManager.getSchemaNameFromMetaData(databaseMetaData, regionMapping,
         catalogFilter);
 
     assertThat(result).isEqualTo(mySchema);
@@ -539,16 +539,16 @@ public class TableMetaDataManagerTest {
   @Test
   public void getSchemaNameFromMetaDataGivenNullSchemaOnPostgresReturnsPublic()
       throws SQLException {
-    String defaultPostgresSchema = "public";
+    var defaultPostgresSchema = "public";
     when(regionMapping.getSchema()).thenReturn(null);
-    ResultSet schemasResultSet = mock(ResultSet.class);
+    var schemasResultSet = mock(ResultSet.class);
     when(schemasResultSet.next()).thenReturn(true).thenReturn(false);
     when(schemasResultSet.getString("TABLE_SCHEM")).thenReturn(defaultPostgresSchema);
-    String catalogFilter = "myCatalogFilter";
+    var catalogFilter = "myCatalogFilter";
     when(databaseMetaData.getSchemas(catalogFilter, "%")).thenReturn(schemasResultSet);
     when(databaseMetaData.getDatabaseProductName()).thenReturn("PostgreSQL");
 
-    String result = tableMetaDataManager.getSchemaNameFromMetaData(databaseMetaData, regionMapping,
+    var result = tableMetaDataManager.getSchemaNameFromMetaData(databaseMetaData, regionMapping,
         catalogFilter);
 
     assertThat(result).isEqualTo(defaultPostgresSchema);
@@ -556,10 +556,10 @@ public class TableMetaDataManagerTest {
 
   @Test
   public void findMatchInResultSetGivenEmptyResultSetThrows() throws SQLException {
-    String stringToFind = "stringToFind";
-    ResultSet resultSet = mock(ResultSet.class);
-    String column = "column";
-    String description = "description";
+    var stringToFind = "stringToFind";
+    var resultSet = mock(ResultSet.class);
+    var column = "column";
+    var description = "description";
 
     assertThatThrownBy(
         () -> tableMetaDataManager.findMatchInResultSet(stringToFind, resultSet, column,
@@ -571,10 +571,10 @@ public class TableMetaDataManagerTest {
 
   @Test
   public void findMatchInResultSetGivenNullResultSetThrows() throws SQLException {
-    String stringToFind = "stringToFind";
+    var stringToFind = "stringToFind";
     ResultSet resultSet = null;
-    String column = "column";
-    String description = "description";
+    var column = "column";
+    var description = "description";
 
     assertThatThrownBy(
         () -> tableMetaDataManager.findMatchInResultSet(stringToFind, resultSet, column,
@@ -586,10 +586,10 @@ public class TableMetaDataManagerTest {
 
   @Test
   public void findMatchInResultSetGivenResultSetWithNoMatchThrows() throws SQLException {
-    String stringToFind = "stringToFind";
-    String column = "column";
-    String description = "description";
-    ResultSet resultSet = mock(ResultSet.class);
+    var stringToFind = "stringToFind";
+    var column = "column";
+    var description = "description";
+    var resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(true).thenReturn(false);
     when(resultSet.getString(column)).thenReturn("doesNotMatch");
 
@@ -604,10 +604,10 @@ public class TableMetaDataManagerTest {
   @Test
   public void findMatchInResultSetGivenResultSetWithMultipleExactMatchesThrows()
       throws SQLException {
-    String stringToFind = "stringToFind";
-    String column = "column";
-    String description = "description";
-    ResultSet resultSet = mock(ResultSet.class);
+    var stringToFind = "stringToFind";
+    var column = "column";
+    var description = "description";
+    var resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
     when(resultSet.getString(column)).thenReturn("stringToFind");
 
@@ -622,10 +622,10 @@ public class TableMetaDataManagerTest {
   @Test
   public void findMatchInResultSetGivenResultSetWithMultipleInexactMatchesThrows()
       throws SQLException {
-    String stringToFind = "stringToFind";
-    String column = "column";
-    String description = "description";
-    ResultSet resultSet = mock(ResultSet.class);
+    var stringToFind = "stringToFind";
+    var column = "column";
+    var description = "description";
+    var resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
     when(resultSet.getString(column)).thenReturn("STRINGToFind");
 
@@ -639,15 +639,15 @@ public class TableMetaDataManagerTest {
 
   @Test
   public void findMatchInResultSetGivenResultSetWithOneInexactMatchReturnsIt() throws SQLException {
-    String stringToFind = "stringToFind";
-    String column = "column";
-    String description = "description";
-    ResultSet resultSet = mock(ResultSet.class);
+    var stringToFind = "stringToFind";
+    var column = "column";
+    var description = "description";
+    var resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(true).thenReturn(false);
-    String inexactMatch = "STRINGToFind";
+    var inexactMatch = "STRINGToFind";
     when(resultSet.getString(column)).thenReturn(inexactMatch);
 
-    String result =
+    var result =
         tableMetaDataManager.findMatchInResultSet(stringToFind, resultSet, column, description);
 
     assertThat(result).isEqualTo(inexactMatch);
@@ -656,16 +656,16 @@ public class TableMetaDataManagerTest {
   @Test
   public void findMatchInResultSetGivenResultSetWithOneExactMatchAndMultipleInexactReturnsTheExactMatch()
       throws SQLException {
-    String stringToFind = "stringToFind";
-    String column = "column";
-    String description = "description";
-    ResultSet resultSet = mock(ResultSet.class);
+    var stringToFind = "stringToFind";
+    var column = "column";
+    var description = "description";
+    var resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
-    String inexactMatch = "STRINGToFind";
+    var inexactMatch = "STRINGToFind";
     when(resultSet.getString(column)).thenReturn(inexactMatch).thenReturn(stringToFind)
         .thenReturn(inexactMatch);
 
-    String result =
+    var result =
         tableMetaDataManager.findMatchInResultSet(stringToFind, resultSet, column, description);
 
     assertThat(result).isEqualTo(stringToFind);

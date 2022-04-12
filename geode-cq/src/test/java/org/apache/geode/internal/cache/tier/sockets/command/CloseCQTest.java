@@ -39,7 +39,7 @@ public class CloseCQTest {
 
   @Test
   public void needDataReadRegionToClose() throws Exception {
-    CloseCQ closeCQ = (CloseCQ) CloseCQ.getCommand();
+    var closeCQ = (CloseCQ) CloseCQ.getCommand();
 
     closeCQ.cmdExecute(cqRule.message, cqRule.connection, cqRule.securityService, 0);
 
@@ -48,10 +48,10 @@ public class CloseCQTest {
 
   @Test
   public void callsWriteChunkedExceptionOnAuthorizationExpiredException() throws Exception {
-    AuthenticationExpiredException authenticationExpiredException =
+    var authenticationExpiredException =
         new AuthenticationExpiredException("ouch");
-    CloseCQ closeCQ = (CloseCQ) CloseCQ.getCommand();
-    ChunkedMessage chunkedMessage = mock(ChunkedMessage.class);
+    var closeCQ = (CloseCQ) CloseCQ.getCommand();
+    var chunkedMessage = mock(ChunkedMessage.class);
     when(cqRule.connection.getChunkedResponseMessage()).thenReturn(chunkedMessage);
     doThrow(authenticationExpiredException).when(cqRule.securityService).authorize(Resource.DATA,
         Operation.READ, "regionName");

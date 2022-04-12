@@ -17,7 +17,6 @@ package org.apache.geode.internal.statistics.platform;
 
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
@@ -151,7 +150,7 @@ public class LinuxSystemStats {
   public static final String LOAD_AVERAGE_5 = "loadAverage5";
 
   static {
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     myType = f.createType("LinuxSystemStats", "Statistics on a Linux machine.",
         new StatisticDescriptor[] {
             f.createLongGauge(ALLOCATED_SWAP,

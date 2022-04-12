@@ -21,7 +21,6 @@ import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,12 +73,12 @@ public class QueryResultFormatter extends AbstractJSONFormatter {
   void postCreateMapper() {
     // Backward compatibility, always serialize type information. See GEODE-6808.
     if (generateTypeInformation) {
-      TypeSerializationEnforcerModule typeModule =
+      var typeModule =
           new TypeSerializationEnforcerModule(nonOverridableSerializers);
 
       // Consistency: use the same date format java.sql.Date as well as java.util.Date.
       mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-      SimpleDateFormat sdf = DateFormatter.createLocalizedDateFormat();
+      var sdf = DateFormatter.createLocalizedDateFormat();
       mapper.setDateFormat(sdf);
       typeModule.addSerializer(java.sql.Date.class, new SqlDateSerializer(mapper.getDateFormat()));
 
@@ -96,7 +95,7 @@ public class QueryResultFormatter extends AbstractJSONFormatter {
    * Typically this will be add("result", queryResult)
    */
   public synchronized QueryResultFormatter add(String key, Object value) {
-    List<Object> list = map.get(key);
+    var list = map.get(key);
     if (list != null) {
       list.add(value);
     } else {
@@ -114,9 +113,9 @@ public class QueryResultFormatter extends AbstractJSONFormatter {
   public synchronized String toString() {
     Writer writer = new StringWriter();
     try {
-      boolean addComma = false;
+      var addComma = false;
       writer.write('{');
-      for (Map.Entry<String, List<Object>> entry : map.entrySet()) {
+      for (var entry : map.entrySet()) {
         if (addComma) {
           writer.write(',');
         }
@@ -147,13 +146,13 @@ public class QueryResultFormatter extends AbstractJSONFormatter {
 
     try {
       writer.write('[');
-      boolean addComma = false;
-      int length = values.size();
+      var addComma = false;
+      var length = values.size();
 
       if (length == 0) {
         mapper.writeValue(writer, null);
       } else {
-        for (Object value : values) {
+        for (var value : values) {
           if (addComma) {
             writer.write(',');
           }

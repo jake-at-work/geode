@@ -40,15 +40,15 @@ public class CacheXmlNotFoundRegressionTest {
   @Test
   public void testCacheXmlNotFoundInRealLog() throws Exception {
 
-    String CACHE_SERVER_LOG = "cacheXmlNotFoundUnitTest.log";
-    Properties props = new Properties();
+    var CACHE_SERVER_LOG = "cacheXmlNotFoundUnitTest.log";
+    var props = new Properties();
     props.put(ConfigurationProperties.MCAST_PORT, "0");
     props.put(ConfigurationProperties.LOG_FILE, CACHE_SERVER_LOG);
     props.put(ConfigurationProperties.CACHE_XML_FILE, "non-existing-cache-xml");
 
-    CacheFactory factory = new CacheFactory(props);
+    var factory = new CacheFactory(props);
 
-    String errorMessage = "";
+    var errorMessage = "";
 
     try {
       factory.create();
@@ -58,9 +58,9 @@ public class CacheXmlNotFoundRegressionTest {
     }
 
     // looking for an error in the text log file
-    Scanner scanner = new Scanner(new File(CACHE_SERVER_LOG));
+    var scanner = new Scanner(new File(CACHE_SERVER_LOG));
 
-    boolean found = false;
+    var found = false;
     while (scanner.hasNextLine() && !found) {
       found = scanner.nextLine().contains(errorMessage);
     }
@@ -68,7 +68,7 @@ public class CacheXmlNotFoundRegressionTest {
     assertTrue("there should be a line about cache-xml-not-found in a log file", found);
 
     // deleting a log file
-    File logFile = new File(CACHE_SERVER_LOG);
+    var logFile = new File(CACHE_SERVER_LOG);
     logFile.delete();
   }
 }

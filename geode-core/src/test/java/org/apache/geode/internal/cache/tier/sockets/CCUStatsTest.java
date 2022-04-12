@@ -29,7 +29,7 @@ public class CCUStatsTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    CCUStats mockCCUStats = mock(CCUStats.class);
+    var mockCCUStats = mock(CCUStats.class);
 
     mockCCUStats.incReceivedBytes(1L);
     mockCCUStats.incSentBytes(1L);

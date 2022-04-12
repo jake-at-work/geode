@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -47,9 +46,9 @@ public class StatusLocatorCommandSSLTest {
   public static void beforeClass() throws Exception {
     DUnitLauncher.launchIfNeeded(false);
     locatorVM = VM.getVM(0);
-    Properties sslProperties = MemberStarterRule.getSSLProperties("all", false, false);
-    Map<String, Object> results = locatorVM.invoke(() -> {
-      LocatorLauncherStartupRule launcherStartupRule = new LocatorLauncherStartupRule()
+    var sslProperties = MemberStarterRule.getSSLProperties("all", false, false);
+    var results = locatorVM.invoke(() -> {
+      var launcherStartupRule = new LocatorLauncherStartupRule()
           .withProperties(sslProperties);
       launcherStartupRule.start();
       Map<String, Object> result = new HashMap<>();
@@ -63,7 +62,7 @@ public class StatusLocatorCommandSSLTest {
     memberId = (String) results.get("id");
 
     gfPropertiesFile = new File(locatorVM.getWorkingDirectory(), "security.properties");
-    FileOutputStream out = new FileOutputStream(gfPropertiesFile);
+    var out = new FileOutputStream(gfPropertiesFile);
     sslProperties.store(out, null);
     gfsh.connectAndVerify(locatorPort, PortType.locator, "security-properties-file",
         gfPropertiesFile.getAbsolutePath());

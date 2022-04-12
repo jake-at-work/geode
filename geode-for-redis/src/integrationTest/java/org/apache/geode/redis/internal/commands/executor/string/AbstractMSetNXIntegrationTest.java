@@ -23,8 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static redis.clients.jedis.Protocol.Command.MSETNX;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,45 +85,45 @@ public abstract class AbstractMSetNXIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testDoesntSetAny_whenAnyTargetKeyExists() {
-    String[] keys = new String[5];
+    var keys = new String[5];
 
-    for (int i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       keys[i] = HASHTAG + "key" + i;
     }
-    String[] keysAndValues = makeKeysAndValues(keys, "valueOne");
+    var keysAndValues = makeKeysAndValues(keys, "valueOne");
 
-    long response = jedis.msetnx(keysAndValues);
+    var response = jedis.msetnx(keysAndValues);
     assertThat(response).isOne();
 
-    long response2 = jedis.msetnx(keysAndValues[0], randString());
+    var response2 = jedis.msetnx(keysAndValues[0], randString());
     assertThat(response2).isZero();
     assertThat(keysAndValues[1]).isEqualTo(jedis.get(keysAndValues[0]));
 
     flushAll();
     jedis.set(keysAndValues[0], "foo");
 
-    long response3 = jedis.msetnx(keysAndValues);
+    var response3 = jedis.msetnx(keysAndValues);
     assertThat(response3).isZero();
-    List<String> values = jedis.mget(keys);
+    var values = jedis.mget(keys);
     assertThat(values).containsExactly("foo", null, null, null, null);
   }
 
   @Test
   public void testMSet_setsKeysAndReturnsCorrectValues() {
-    int keyCount = 5;
-    String[] keyvals = new String[(keyCount * 2)];
-    String[] keys = new String[keyCount];
-    String[] vals = new String[keyCount];
-    for (int i = 0; i < keyCount; i++) {
-      String key = randString() + HASHTAG;
-      String val = randString();
+    var keyCount = 5;
+    var keyvals = new String[(keyCount * 2)];
+    var keys = new String[keyCount];
+    var vals = new String[keyCount];
+    for (var i = 0; i < keyCount; i++) {
+      var key = randString() + HASHTAG;
+      var val = randString();
       keyvals[2 * i] = key;
       keyvals[2 * i + 1] = val;
       keys[i] = key;
       vals[i] = val;
     }
 
-    long result = jedis.msetnx(keyvals);
+    var result = jedis.msetnx(keyvals);
     assertThat(result).isEqualTo(1);
 
     assertThat(jedis.mget(keys)).containsExactly(vals);
@@ -133,14 +131,14 @@ public abstract class AbstractMSetNXIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testMSet_concurrentInstances_mustBeAtomic() {
-    int KEY_COUNT = 5000;
-    String[] keys = new String[KEY_COUNT];
+    var KEY_COUNT = 5000;
+    var keys = new String[KEY_COUNT];
 
-    for (int i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       keys[i] = HASHTAG + "key" + i;
     }
-    String[] keysAndValues1 = makeKeysAndValues(keys, "valueOne");
-    String[] keysAndValues2 = makeKeysAndValues(keys, "valueTwo");
+    var keysAndValues1 = makeKeysAndValues(keys, "valueOne");
+    var keysAndValues2 = makeKeysAndValues(keys, "valueTwo");
 
     new ConcurrentLoopingThreads(1000,
         i -> jedis.msetnx(keysAndValues1),
@@ -156,8 +154,8 @@ public abstract class AbstractMSetNXIntegrationTest implements RedisIntegrationT
   }
 
   private String[] makeKeysAndValues(String[] keys, String valueBase) {
-    String[] keysValues = new String[keys.length * 2];
-    for (int i = 0; i < keys.length * 2; i += 2) {
+    var keysValues = new String[keys.length * 2];
+    for (var i = 0; i < keys.length * 2; i += 2) {
       keysValues[i] = keys[i / 2];
       keysValues[i + 1] = valueBase + i;
     }

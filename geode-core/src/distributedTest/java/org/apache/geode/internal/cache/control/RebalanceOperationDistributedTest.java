@@ -68,7 +68,6 @@ import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.CacheWriterException;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.LoaderHelper;
@@ -77,34 +76,25 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.control.RebalanceResults;
 import org.apache.geode.cache.control.ResourceManager;
-import org.apache.geode.cache.partition.PartitionMemberInfo;
-import org.apache.geode.cache.partition.PartitionRebalanceInfo;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.cache.partition.PartitionRegionInfo;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.CacheClosingDistributionMessageObserver;
 import org.apache.geode.internal.cache.ColocationHelper;
 import org.apache.geode.internal.cache.DiskStoreImpl;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PRHARedundancyProvider;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.SignalBounceOnRequestImageMessageObserver;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserverAdapter;
 import org.apache.geode.internal.cache.partitioned.BucketCountLoadProbe;
-import org.apache.geode.internal.cache.partitioned.LoadProbe;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
@@ -143,8 +133,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testRecoverRedundancy(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     // Create the region in only 1 VM
     vm0.invoke(() -> createPartitionedRegion("region1", 1));
@@ -171,27 +161,27 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(6);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(3);
       assertThat(results.getTotalBucketTransferBytes()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(6);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(3);
       assertThat(details.getBucketTransferBytes()).isEqualTo(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(2);
 
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(6);
         assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
       }
@@ -214,12 +204,12 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testEnforceIP(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty(ENFORCE_UNIQUE_HOST, "true");
         getCache(props);
       });
@@ -250,8 +240,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(0);
@@ -259,10 +249,10 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       // We actually *will* transfer buckets, because that improves the balance
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(3);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(3);
@@ -285,14 +275,14 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testEnforceZone(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
     vm0.invoke(() -> setRedundancyZone("A"));
     vm1.invoke(() -> setRedundancyZone("A"));
 
-    DistributedMember zoneBMember = vm2.invoke(() -> {
+    var zoneBMember = vm2.invoke(() -> {
       setRedundancyZone("B");
       return getCache().getDistributedSystem().getDistributedMember();
     });
@@ -323,8 +313,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       // We expect to satisfy redundancy with the zone B member
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(6);
@@ -337,16 +327,16 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       // the balance
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(3);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(6);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(2);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(3);
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
-      for (PartitionMemberInfo info : afterDetails) {
+      var afterDetails = details.getPartitionMemberDetailsAfter();
+      for (var info : afterDetails) {
         if (info.getDistributedMember().equals(zoneBMember)) {
           assertThat(info.getBucketCount()).isEqualTo(6);
         } else {
@@ -370,14 +360,14 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
   @Test
   public void testEnforceZoneWithMultipleRegions() {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
     vm0.invoke(() -> setRedundancyZone("A"));
     vm1.invoke(() -> setRedundancyZone("A"));
 
-    DistributedMember zoneBMember = vm2.invoke(() -> {
+    var zoneBMember = vm2.invoke(() -> {
       setRedundancyZone("B");
       return getCache().getDistributedSystem().getDistributedMember();
     });
@@ -397,7 +387,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     vm0.invoke(() -> validateRedundancyOfTwoRegions("region1", "region2", 6, 0, 6));
 
     // Create the region in the other VMs (should have no effect)
-    for (VM vm : toArray(vm1, vm2)) {
+    for (var vm : toArray(vm1, vm2)) {
       vm.invoke(() -> {
         InternalResourceManager.setResourceObserver(new ParallelRecoveryObserver(2));
         createTwoRegionsWithParallelRecoveryObserver();
@@ -409,8 +399,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now do a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(false, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(false, manager);
 
       // We expect to satisfy redundancy with the zone B member
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(12);
@@ -422,16 +412,16 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       // improves the balance
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(6);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(2);
 
-      for (PartitionRebalanceInfo details : detailSet) {
+      for (var details : detailSet) {
         assertThat(details.getBucketCreatesCompleted()).isEqualTo(6);
         assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(2);
         assertThat(details.getBucketTransfersCompleted()).isEqualTo(3);
 
-        Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
-        for (PartitionMemberInfo info : afterDetails) {
+        var afterDetails = details.getPartitionMemberDetailsAfter();
+        for (var info : afterDetails) {
           if (info.getDistributedMember().equals(zoneBMember)) {
             assertThat(info.getBucketCount()).isEqualTo(6);
           } else {
@@ -462,18 +452,18 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testRecoverRedundancyBalancing(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
-    DistributedMember member1 = vm0.invoke(() -> {
+    var member1 = vm0.invoke(() -> {
       createPartitionedRegion("region1", 1, 200);
       return getCache().getDistributedSystem().getDistributedMember();
     });
 
     vm0.invoke(() -> {
       Region<Number, String> region = getCache().getRegion("region1");
-      for (int i = 0; i < 12; i++) {
+      for (var i = 0; i < 12; i++) {
         region.put(i, "A");
       }
     });
@@ -488,27 +478,27 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(12);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(6);
       assertThat(results.getTotalBucketTransferBytes()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(12);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(6);
       assertThat(details.getBucketTransferBytes()).isEqualTo(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(3);
 
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         // We have 1 member with a size of 200 and two members with size 100
         if (memberDetails.getDistributedMember().equals(member1)) {
           assertThat(memberDetails.getBucketCount()).isEqualTo(12);
@@ -525,7 +515,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     if (!simulate) {
-      for (VM vm : toArray(vm0, vm1, vm2)) {
+      for (var vm : toArray(vm0, vm1, vm2)) {
         vm.invoke(() -> validateRedundancy("region1", 12, 1, 0));
       }
     }
@@ -533,18 +523,18 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
   @Test
   public void testRecoverRedundancyBalancingIfCreateBucketFails() {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
-    DistributedMember member1 = vm0.invoke(() -> {
+    var member1 = vm0.invoke(() -> {
       createPartitionedRegion("region1", 1, 100);
       return getCache().getDistributedSystem().getDistributedMember();
     });
 
     vm0.invoke(() -> {
       Region<Number, String> region = getCache().getRegion("region1");
-      for (int i = 0; i < 1; i++) {
+      for (var i = 0; i < 1; i++) {
         region.put(i, "A");
       }
     });
@@ -554,11 +544,11 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     // Now create the region in 2 more VMs
     // Let localMaxMemory(VM1) > localMaxMemory(VM2)
     // so that redundant bucket will always be attempted on VM1
-    DistributedMember member2 = vm1.invoke(() -> {
+    var member2 = vm1.invoke(() -> {
       createPartitionedRegion("region1", 1, 100);
       return getCache().getDistributedSystem().getDistributedMember();
     });
-    DistributedMember member3 = vm2.invoke(() -> {
+    var member3 = vm2.invoke(() -> {
       createPartitionedRegion("region1", 1, 90);
       return getCache().getDistributedSystem().getDistributedMember();
     });
@@ -567,15 +557,15 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Inject mock PRHARedundancyProvider to simulate createBucketFailures
     vm0.invoke(() -> {
-      InternalCache cache = spy(getCache());
+      var cache = spy(getCache());
 
-      PartitionedRegion origRegion = (PartitionedRegion) cache.getRegion("region1");
-      PartitionedRegion spyRegion = spy(origRegion);
-      PRHARedundancyProvider redundancyProvider =
+      var origRegion = (PartitionedRegion) cache.getRegion("region1");
+      var spyRegion = spy(origRegion);
+      var redundancyProvider =
           spy(new PRHARedundancyProvider(spyRegion, mock(InternalResourceManager.class)));
 
       // return the spied region when ever getPartitionedRegions() is invoked
-      Set<PartitionedRegion> parRegions = cache.getPartitionedRegions();
+      var parRegions = cache.getPartitionedRegions();
       parRegions.remove(origRegion);
       parRegions.add(spyRegion);
 
@@ -590,28 +580,28 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       // Now simulate a rebalance
       // Create operationImpl and not factory as we need spied cache to be passed to operationImpl
       RegionFilter filter = new FilterByPath(null, null);
-      RebalanceOperationImpl operation = new RebalanceOperationImpl(cache, false, filter);
+      var operation = new RebalanceOperationImpl(cache, false, filter);
       operation.start();
 
-      RebalanceResults results = operation.getResults(TIMEOUT_SECONDS, SECONDS);
+      var results = operation.getResults(TIMEOUT_SECONDS, SECONDS);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(1);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(results.getTotalBucketTransferBytes()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(1);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(details.getBucketTransferBytes()).isEqualTo(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(3);
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         if (memberDetails.getDistributedMember().equals(member1)) {
           assertThat(memberDetails.getBucketCount()).isEqualTo(1);
           assertThat(memberDetails.getPrimaryCount()).isEqualTo(1);
@@ -624,7 +614,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
         }
       }
 
-      ResourceManagerStats stats = cache.getInternalResourceManager().getStats();
+      var stats = cache.getInternalResourceManager().getStats();
 
       assertThat(stats.getRebalancesInProgress()).isEqualTo(0);
       assertThat(stats.getRebalancesCompleted()).isEqualTo(1);
@@ -634,7 +624,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       assertThat(stats.getRebalanceBucketCreatesFailed()).isEqualTo(1);
     });
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> validateRedundancy("region1", 1, 1, 0));
     }
   }
@@ -643,11 +633,11 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testRecoverRedundancyColocatedRegions(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
-    DistributedMember member1 = vm0.invoke(() -> {
+    var member1 = vm0.invoke(() -> {
       createPartitionedRegion("region1", 1, 200);
       return getCache().getDistributedSystem().getDistributedMember();
     });
@@ -658,7 +648,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     vm0.invoke(() -> {
       Region<Number, String> region = getCache().getRegion("region1");
       Region<Number, String> region2 = getCache().getRegion("region2");
-      for (int i = 0; i < 12; i++) {
+      for (var i = 0; i < 12; i++) {
         region.put(i, "A");
         region2.put(i, "A");
       }
@@ -678,27 +668,27 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(24);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(12);
       assertThat(results.getTotalBucketTransferBytes()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(2);
 
-      for (PartitionRebalanceInfo details : detailSet) {
+      for (var details : detailSet) {
         assertThat(details.getBucketCreatesCompleted()).isEqualTo(12);
         assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(6);
         assertThat(details.getBucketTransferBytes()).isEqualTo(0);
         assertThat(details.getBucketTransfersCompleted()).isEqualTo(0);
 
-        Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+        var afterDetails = details.getPartitionMemberDetailsAfter();
         assertThat(afterDetails).hasSize(3);
 
-        for (PartitionMemberInfo memberDetails : afterDetails) {
+        for (var memberDetails : afterDetails) {
           if (memberDetails.getDistributedMember().equals(member1)) {
             assertThat(memberDetails.getBucketCount()).isEqualTo(12);
             assertThat(memberDetails.getPrimaryCount()).isEqualTo(6);
@@ -714,12 +704,12 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     if (!simulate) {
-      for (VM vm : toArray(vm0, vm1, vm2)) {
+      for (var vm : toArray(vm0, vm1, vm2)) {
         vm.invoke(() -> {
-          PartitionedRegion region1 = (PartitionedRegion) getCache().getRegion("region1");
-          PartitionedRegion region2 = (PartitionedRegion) getCache().getRegion("region2");
+          var region1 = (PartitionedRegion) getCache().getRegion("region1");
+          var region2 = (PartitionedRegion) getCache().getRegion("region2");
 
-          PartitionRegionInfo details =
+          var details =
               PartitionRegionHelper.getPartitionRegionInfo(getCache().getRegion("region1"));
           assertThat(details.getCreatedBucketCount()).isEqualTo(12);
           assertThat(details.getActualRedundantCopies()).isEqualTo(1);
@@ -750,11 +740,11 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
           () -> System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "LOG_REBALANCE", "true"));
     }
 
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
-    DistributedMember member1 = vm0.invoke(() -> {
+    var member1 = vm0.invoke(() -> {
       createPRRegionWithAsyncQueue(200);
       return getCache().getDistributedSystem().getDistributedMember();
     });
@@ -762,7 +752,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     // Create some buckets. Put enough data to cause the queue to overflow (more than 1 MB)
     vm0.invoke(() -> {
       Region<Number, String> region = getCache().getRegion("region1");
-      for (int i = 0; i < 12; i++) {
+      for (var i = 0; i < 12; i++) {
         region.put(i, "A", new byte[1024 * 512]);
       }
 
@@ -775,7 +765,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     vm0.invoke(() -> {
       Region region1 = getCache().getRegion("region1");
-      PartitionedRegion region2 =
+      var region2 =
           ColocationHelper.getColocatedChildRegions((PartitionedRegion) region1).get(0);
 
       validateRedundancyOfTwoRegions(region1, region2, 12, 0, 12);
@@ -789,7 +779,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     vm0.invoke(() -> {
       Region region1 = getCache().getRegion("region1");
-      PartitionedRegion region2 =
+      var region2 =
           ColocationHelper.getColocatedChildRegions((PartitionedRegion) region1).get(0);
 
       validateRedundancyOfTwoRegions(region1, region2, 12, 0, 12);
@@ -799,27 +789,27 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(24);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(12);
       assertThat(results.getTotalBucketTransferBytes()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(2);
 
-      for (PartitionRebalanceInfo details : detailSet) {
+      for (var details : detailSet) {
         assertThat(details.getBucketCreatesCompleted()).isEqualTo(12);
         assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(6);
         assertThat(details.getBucketTransferBytes()).isEqualTo(0);
         assertThat(details.getBucketTransfersCompleted()).isEqualTo(0);
 
-        Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+        var afterDetails = details.getPartitionMemberDetailsAfter();
         assertThat(afterDetails).hasSize(3);
 
-        for (PartitionMemberInfo memberDetails : afterDetails) {
+        for (var memberDetails : afterDetails) {
           if (memberDetails.getDistributedMember().equals(member1)) {
             assertThat(memberDetails.getBucketCount()).isEqualTo(12);
             assertThat(memberDetails.getPrimaryCount()).isEqualTo(6);
@@ -836,11 +826,11 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     if (!simulate) {
-      for (VM vm : toArray(vm0, vm1, vm2)) {
+      for (var vm : toArray(vm0, vm1, vm2)) {
         vm.invoke(() -> {
-          PartitionedRegion region1 = (PartitionedRegion) getCache().getRegion("region1");
+          var region1 = (PartitionedRegion) getCache().getRegion("region1");
           // Get the async event queue region (It's a colocated region)
-          PartitionedRegion region2 = ColocationHelper.getColocatedChildRegions(region1).get(0);
+          var region2 = ColocationHelper.getColocatedChildRegions(region1).get(0);
 
           validateRedundancyOfTwoRegions(region1, region2, 12, 1, 0);
 
@@ -856,8 +846,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
   @Test
   public void testCancelOperation() {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     // Create the region in only 1 VM
     vm0.invoke(() -> createPartitionedRegion("region1", 1));
@@ -879,10 +869,10 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now do a rebalance, but cancel it in the middle
     vm0.invoke(() -> {
-      CountDownLatch rebalancingCancelled = new CountDownLatch(1);
-      CountDownLatch rebalancingFinished = new CountDownLatch(1);
+      var rebalancingCancelled = new CountDownLatch(1);
+      var rebalancingFinished = new CountDownLatch(1);
 
-      InternalResourceManager manager = getCache().getInternalResourceManager();
+      var manager = getCache().getInternalResourceManager();
 
       InternalResourceManager.setResourceObserver(new ResourceObserverAdapter() {
 
@@ -901,15 +891,15 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
         }
       });
 
-      RebalanceOperation op = manager.createRebalanceFactory().start();
+      var op = manager.createRebalanceFactory().start();
       assertThat(op.isCancelled()).isFalse();
       assertThat(op.isDone()).isFalse();
       assertThat(manager.getRebalanceOperations()).isEqualTo(Collections.singleton(op));
 
-      Throwable thrown = catchThrowable(() -> op.getResults(5, SECONDS));
+      var thrown = catchThrowable(() -> op.getResults(5, SECONDS));
       assertThat(thrown).isInstanceOf(TimeoutException.class);
 
-      boolean result = op.cancel();
+      var result = op.cancel();
       assertThat(result).isTrue();
 
       rebalancingCancelled.countDown();
@@ -934,9 +924,9 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
    */
   @Test
   public void testMembershipChange() {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
     // Create the region in only 1 VM
     vm0.invoke(() -> createPartitionedRegion("region1", 0));
@@ -957,7 +947,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now do a rebalance, but start another member in the middle
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
+      var manager = getCache().getInternalResourceManager();
 
       InternalResourceManager.setResourceObserver(new ResourceObserverAdapter() {
         private volatile boolean firstBucket = true;
@@ -974,38 +964,38 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
         }
       });
 
-      RebalanceResults results = doRebalance(false, manager);
+      var results = doRebalance(false, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(4);
       assertThat(results.getTotalBucketTransferBytes()).isGreaterThan(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(details.getBucketTransferBytes()).isGreaterThan(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(4);
 
-      Set<PartitionMemberInfo> beforeDetails = details.getPartitionMemberDetailsBefore();
+      var beforeDetails = details.getPartitionMemberDetailsBefore();
       // there should have only been 2 members when the rebalancing started.
       assertThat(beforeDetails).hasSize(2);
 
       // if it was done, there should now be 3 members.
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(3);
 
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(2);
         assertThat(memberDetails.getPrimaryCount()).isEqualTo(2);
       }
 
       validateStatistics(manager, results);
 
-      ResourceManagerStats stats = manager.getStats();
+      var stats = manager.getStats();
       assertThat(stats.getRebalanceMembershipChanges()).isEqualTo(1);
     });
   }
@@ -1017,8 +1007,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testMoveBucketsNoRedundancy(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     // Create the region in only 1 VM
     vm0.invoke(() -> createPartitionedRegion("region1", new NullReturningLoader()));
@@ -1039,28 +1029,28 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(3);
       assertThat(results.getTotalBucketTransferBytes()).isGreaterThan(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(details.getBucketTransferBytes()).isGreaterThan(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(3);
       assertThat(details.getNumberOfMembersExecutedOn()).isEqualTo(2);
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(2);
 
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(3);
         assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
       }
@@ -1071,32 +1061,32 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     if (!simulate) {
-      for (VM vm : toArray(vm0, vm1)) {
+      for (var vm : toArray(vm0, vm1)) {
         vm.invoke(() -> {
           Region region = getCache().getRegion("region1");
 
-          PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+          var details = PartitionRegionHelper.getPartitionRegionInfo(region);
           assertThat(details.getCreatedBucketCount()).isEqualTo(6);
           assertThat(details.getActualRedundantCopies()).isEqualTo(0);
           assertThat(details.getLowRedundancyBucketCount()).isEqualTo(0);
           assertThat(details.getPartitionMemberInfo()).hasSize(2);
 
-          for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
+          for (var memberDetails : details.getPartitionMemberInfo()) {
             assertThat(memberDetails.getBucketCount()).isEqualTo(3);
             assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
           }
 
           // check to make sure that moving buckets didn't close the cache loader
-          NullReturningLoader loader =
+          var loader =
               (NullReturningLoader) getCache().getRegion("region1").getAttributes()
                   .getCacheLoader();
           assertThat(loader.isClosed()).isFalse();
         });
       }
 
-      for (VM vm : toArray(vm0, vm1)) {
+      for (var vm : toArray(vm0, vm1)) {
         vm.invoke(() -> {
-          NullReturningLoader loader =
+          var loader =
               (NullReturningLoader) getCache().getRegion("region1").getAttributes()
                   .getCacheLoader();
           assertThat(loader.isClosed()).isFalse();
@@ -1115,8 +1105,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testFilterRegions(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     Set<String> included = new HashSet<>();
     included.add("region0");
@@ -1130,20 +1120,20 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     expectedRebalanced.add(SEPARATOR + "region0");
     expectedRebalanced.add(SEPARATOR + "region1");
 
-    int numRegions = 4;
+    var numRegions = 4;
 
     // Create the region in only 1 VM
     vm0.invoke(() -> {
-      for (int whichRegion = 0; whichRegion < numRegions; whichRegion++) {
+      for (var whichRegion = 0; whichRegion < numRegions; whichRegion++) {
         createPartitionedRegion("region" + whichRegion, 0);
       }
     });
 
     // Create some buckets
     vm0.invoke(() -> {
-      for (int whichRegion = 0; whichRegion < numRegions; whichRegion++) {
+      for (var whichRegion = 0; whichRegion < numRegions; whichRegion++) {
         Region<Number, String> region = getCache().getRegion("region" + whichRegion);
-        for (int key = 0; key < 6; key++) {
+        for (var key = 0; key < 6; key++) {
           region.put(key, "A");
         }
       }
@@ -1151,20 +1141,20 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Create the region in the other VM (should have no effect)
     vm1.invoke(() -> {
-      for (int whichRegion = 0; whichRegion < numRegions; whichRegion++) {
+      for (var whichRegion = 0; whichRegion < numRegions; whichRegion++) {
         createPartitionedRegion("region" + whichRegion, 0);
       }
     });
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
+      var manager = getCache().getInternalResourceManager();
 
-      RebalanceResults results = doRebalance(simulate, manager, included, excluded);
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var results = doRebalance(simulate, manager, included, excluded);
+      var detailSet = results.getPartitionRebalanceDetails();
       Set<String> names = new HashSet<>();
 
-      for (PartitionRebalanceInfo details : detailSet) {
+      for (var details : detailSet) {
         assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
         assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(0);
         assertThat(details.getBucketTransferBytes()).isGreaterThan(0);
@@ -1172,10 +1162,10 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
         names.add(details.getRegionPath());
 
-        Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+        var afterDetails = details.getPartitionMemberDetailsAfter();
         assertThat(afterDetails).hasSize(2);
 
-        for (PartitionMemberInfo memberDetails : afterDetails) {
+        for (var memberDetails : afterDetails) {
           assertThat(memberDetails.getBucketCount()).isEqualTo(3);
           assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
         }
@@ -1194,18 +1184,18 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     if (!simulate) {
-      for (VM vm : toArray(vm0, vm1)) {
+      for (var vm : toArray(vm0, vm1)) {
         vm.invoke(() -> {
-          for (String name : expectedRebalanced) {
+          for (var name : expectedRebalanced) {
             Region region = getCache().getRegion(name);
 
-            PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+            var details = PartitionRegionHelper.getPartitionRegionInfo(region);
             assertThat(details.getCreatedBucketCount()).isEqualTo(6);
             assertThat(details.getActualRedundantCopies()).isEqualTo(0);
             assertThat(details.getLowRedundancyBucketCount()).isEqualTo(0);
             assertThat(details.getPartitionMemberInfo()).hasSize(2);
 
-            for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
+            for (var memberDetails : details.getPartitionMemberInfo()) {
               assertThat(memberDetails.getBucketCount()).isEqualTo(3);
               assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
             }
@@ -1213,15 +1203,15 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
           Region region = getCache().getRegion("region2");
 
-          PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+          var details = PartitionRegionHelper.getPartitionRegionInfo(region);
           assertThat(details.getCreatedBucketCount()).isEqualTo(6);
           assertThat(details.getActualRedundantCopies()).isEqualTo(0);
           assertThat(details.getLowRedundancyBucketCount()).isEqualTo(0);
           assertThat(details.getPartitionMemberInfo()).hasSize(2);
 
-          for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
-            int bucketCount = memberDetails.getBucketCount();
-            int primaryCount = memberDetails.getPrimaryCount();
+          for (var memberDetails : details.getPartitionMemberInfo()) {
+            var bucketCount = memberDetails.getBucketCount();
+            var primaryCount = memberDetails.getPrimaryCount();
             assertThat(
                 bucketCount == 6 && primaryCount == 6 || bucketCount == 0 && primaryCount == 0)
                     .as("Wrong number of buckets on non rebalanced region buckets=" + bucketCount
@@ -1237,9 +1227,9 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testMoveBucketsWithRedundancy(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
     // Create the region in two VMs
     vm0.invoke(() -> createPartitionedRegion("region1", 1));
@@ -1248,7 +1238,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     // Create some buckets
     vm0.invoke(() -> {
       Region<Number, String> region = getCache().getRegion("region1");
-      for (int i = 0; i < 12; i++) {
+      for (var i = 0; i < 12; i++) {
         region.put(i, "A");
       }
     });
@@ -1258,8 +1248,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     long totalSize = vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
 
@@ -1269,25 +1259,25 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(8);
       assertThat(results.getTotalBucketTransferBytes()).isGreaterThan(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
       assertThat(details.getBucketTransferBytes()).isGreaterThan(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(8);
 
       long value = 0;
-      Set<PartitionMemberInfo> beforeDetails = details.getPartitionMemberDetailsAfter();
-      for (PartitionMemberInfo memberDetails : beforeDetails) {
+      var beforeDetails = details.getPartitionMemberDetailsAfter();
+      for (var memberDetails : beforeDetails) {
         value += memberDetails.getSize();
       }
 
       long afterSize = 0;
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(3);
 
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(8);
         assertThat(memberDetails.getPrimaryCount()).isEqualTo(4);
         afterSize += memberDetails.getSize();
@@ -1303,17 +1293,17 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     if (!simulate) {
-      for (VM vm : toArray(vm0, vm1, vm2)) {
+      for (var vm : toArray(vm0, vm1, vm2)) {
         vm.invoke(() -> {
           Region region = getCache().getRegion("region1");
 
-          PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+          var details = PartitionRegionHelper.getPartitionRegionInfo(region);
           assertThat(details.getCreatedBucketCount()).isEqualTo(12);
           assertThat(details.getActualRedundantCopies()).isEqualTo(1);
           assertThat(details.getLowRedundancyBucketCount()).isEqualTo(0);
 
           long afterSize = 0;
-          for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
+          for (var memberDetails : details.getPartitionMemberInfo()) {
             assertThat(memberDetails.getBucketCount()).isEqualTo(8);
             assertThat(memberDetails.getPrimaryCount()).isEqualTo(4);
             afterSize += memberDetails.getSize();
@@ -1331,10 +1321,10 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
    */
   @Test
   public void testMoveBucketsOverflowToDisk() {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
-    VM vm3 = getVM(3);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
+    var vm3 = getVM(3);
 
     // Create the region in two VMs
     vm0.invoke(
@@ -1345,9 +1335,9 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     // Create some buckets
     vm0.invoke(() -> {
       Region<Number, String> region = getCache().getRegion("region1");
-      for (int bucket = 0; bucket < 12; bucket++) {
+      for (var bucket = 0; bucket < 12; bucket++) {
         Map<Number, String> map = new HashMap<>();
-        for (int key = 0; key < 200; key++) {
+        for (var key = 0; key < 200; key++) {
           map.put(bucket + 113 * key, "A");
         }
         region.putAll(map);
@@ -1360,17 +1350,17 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     vm0.invoke(() -> {
       Region<Number, String> region = getCache().getRegion("region1");
 
-      Random random = new Random();
+      var random = new Random();
 
-      for (int count = 0; count < 5000; count++) {
-        int bucket = count % 12;
-        int key = random.nextInt(20);
+      for (var count = 0; count < 5000; count++) {
+        var bucket = count % 12;
+        var key = random.nextInt(20);
         region.put(bucket + 113 * key, "B");
       }
 
-      for (int count = 0; count < 500; count++) {
-        int bucket = count % 12;
-        int key = random.nextInt(20);
+      for (var count = 0; count < 500; count++) {
+        var bucket = count % 12;
+        var key = random.nextInt(20);
         region.get(bucket + 113 * key);
       }
     });
@@ -1381,8 +1371,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now do a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(false, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(false, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
 
@@ -1392,25 +1382,25 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(8);
       assertThat(results.getTotalBucketTransferBytes()).isGreaterThan(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
       assertThat(details.getBucketTransferBytes()).isGreaterThan(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(8);
 
       long value = 0;
-      Set<PartitionMemberInfo> beforeDetails = details.getPartitionMemberDetailsAfter();
-      for (PartitionMemberInfo memberDetails : beforeDetails) {
+      var beforeDetails = details.getPartitionMemberDetailsAfter();
+      for (var memberDetails : beforeDetails) {
         value += memberDetails.getSize();
       }
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(3);
 
       long afterSize = 0;
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(8);
         assertThat(memberDetails.getPrimaryCount()).isEqualTo(4);
         afterSize += memberDetails.getSize();
@@ -1420,16 +1410,16 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       validateStatistics(manager, results);
     });
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         Region region = getCache().getRegion("region1");
 
-        PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+        var details = PartitionRegionHelper.getPartitionRegionInfo(region);
         assertThat(details.getCreatedBucketCount()).isEqualTo(12);
         assertThat(details.getActualRedundantCopies()).isEqualTo(1);
         assertThat(details.getLowRedundancyBucketCount()).isEqualTo(0);
 
-        for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
+        for (var memberDetails : details.getPartitionMemberInfo()) {
           assertThat(memberDetails.getBucketCount()).isEqualTo(8);
           assertThat(memberDetails.getPrimaryCount()).isEqualTo(4);
         }
@@ -1442,8 +1432,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Do another rebalance
     vm0.invoke(() -> {
-      ResourceManager manager = getCache().getResourceManager();
-      RebalanceResults results = doRebalance(false, manager);
+      var manager = getCache().getResourceManager();
+      var results = doRebalance(false, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
 
@@ -1453,25 +1443,25 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(6);
       assertThat(results.getTotalBucketTransferBytes()).isGreaterThan(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
       assertThat(details.getBucketTransferBytes()).isGreaterThan(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(6);
 
       long totalSize = 0;
-      Set<PartitionMemberInfo> beforeDetails = details.getPartitionMemberDetailsAfter();
-      for (PartitionMemberInfo memberDetails : beforeDetails) {
+      var beforeDetails = details.getPartitionMemberDetailsAfter();
+      for (var memberDetails : beforeDetails) {
         totalSize += memberDetails.getSize();
       }
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(4);
 
       long afterSize = 0;
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(6);
 
         afterSize += memberDetails.getSize();
@@ -1479,16 +1469,16 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       assertThat(afterSize).isEqualTo(totalSize);
     });
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         Region region = getCache().getRegion("region1");
 
-        PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+        var details = PartitionRegionHelper.getPartitionRegionInfo(region);
         assertThat(details.getCreatedBucketCount()).isEqualTo(12);
         assertThat(details.getActualRedundantCopies()).isEqualTo(1);
         assertThat(details.getLowRedundancyBucketCount()).isEqualTo(0);
 
-        for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
+        for (var memberDetails : details.getPartitionMemberInfo()) {
           assertThat(memberDetails.getBucketCount()).isEqualTo(6);
         }
       });
@@ -1500,12 +1490,12 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
    */
   @Test
   public void testMoveBucketsNestedPR() {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
     // Create the region in two VMs
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         Region parent = getCache().createRegionFactory(REPLICATE).create("parent");
         createPartitionedRegionAsSubregion(parent, "region1");
@@ -1515,7 +1505,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     // Create some buckets
     vm0.invoke(() -> {
       Region<Number, String> region = getCache().getRegion("parent" + SEPARATOR + "region1");
-      for (int i = 0; i < 12; i++) {
+      for (var i = 0; i < 12; i++) {
         region.put(i, "A");
       }
     });
@@ -1528,8 +1518,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     long totalSize = vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(false, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(false, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
 
@@ -1539,25 +1529,25 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(8);
       assertThat(results.getTotalBucketTransferBytes()).isGreaterThan(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
       assertThat(0 < details.getBucketTransferBytes()).isTrue();
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(8);
 
       long value = 0;
-      Set<PartitionMemberInfo> beforeDetails = details.getPartitionMemberDetailsAfter();
-      for (PartitionMemberInfo memberDetails : beforeDetails) {
+      var beforeDetails = details.getPartitionMemberDetailsAfter();
+      for (var memberDetails : beforeDetails) {
         value += memberDetails.getSize();
       }
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(3);
 
       long afterSize = 0;
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(8);
         assertThat(memberDetails.getPrimaryCount()).isEqualTo(4);
         afterSize += memberDetails.getSize();
@@ -1568,17 +1558,17 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       return value;
     });
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         Region region = getCache().getRegion("parent" + SEPARATOR + "region1");
 
-        PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+        var details = PartitionRegionHelper.getPartitionRegionInfo(region);
         assertThat(details.getCreatedBucketCount()).isEqualTo(12);
         assertThat(details.getActualRedundantCopies()).isEqualTo(1);
         assertThat(details.getLowRedundancyBucketCount()).isEqualTo(0);
 
         long afterSize = 0;
-        for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
+        for (var memberDetails : details.getPartitionMemberInfo()) {
           assertThat(memberDetails.getBucketCount()).isEqualTo(8);
           assertThat(memberDetails.getPrimaryCount()).isEqualTo(4);
           afterSize += memberDetails.getSize();
@@ -1596,9 +1586,9 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testMoveBucketsColocatedRegions(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
 
     vm0.invoke(() -> createPartitionedRegion("region1", 1, 200));
     vm0.invoke(() -> createPartitionedRegion("region2", 200, "region1"));
@@ -1609,7 +1599,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     vm0.invoke(() -> {
       Region<Number, String> region1 = getCache().getRegion("region1");
       Region<Number, String> region2 = getCache().getRegion("region2");
-      for (int key = 0; key < 12; key++) {
+      for (var key = 0; key < 12; key++) {
         region1.put(key, "A");
         region2.put(key, "A");
       }
@@ -1622,18 +1612,18 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     // move any buckets yet, because we don't have
     // the colocated region in the new VMs.
     vm0.invoke(() -> {
-      ResourceManager manager = getCache().getResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(results.getTotalBucketTransferBytes()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(2);
 
-      for (PartitionRebalanceInfo details : detailSet) {
+      for (var details : detailSet) {
         assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
         assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(0);
         assertThat(details.getBucketTransferBytes()).isEqualTo(0);
@@ -1645,25 +1635,25 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     vm2.invoke(() -> createPartitionedRegion("region2", 200, "region1"));
 
     vm0.invoke(() -> {
-      ResourceManager manager = getCache().getResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(16);
       assertThat(results.getTotalBucketTransferBytes()).isGreaterThan(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(2);
 
-      for (PartitionRebalanceInfo details : detailSet) {
+      for (var details : detailSet) {
         assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
         assertThat(details.getBucketTransferBytes()).isGreaterThan(0);
         assertThat(details.getBucketTransfersCompleted()).isEqualTo(8);
 
-        Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+        var afterDetails = details.getPartitionMemberDetailsAfter();
         assertThat(afterDetails).hasSize(3);
 
-        for (PartitionMemberInfo memberDetails : afterDetails) {
+        for (var memberDetails : afterDetails) {
           assertThat(memberDetails.getBucketCount()).isEqualTo(8);
           assertThat(memberDetails.getPrimaryCount()).isEqualTo(4);
         }
@@ -1671,12 +1661,12 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     if (!simulate) {
-      for (VM vm : toArray(vm0, vm1, vm2)) {
+      for (var vm : toArray(vm0, vm1, vm2)) {
         vm.invoke(() -> {
-          PartitionedRegion region1 = (PartitionedRegion) getCache().getRegion("region1");
-          PartitionedRegion region2 = (PartitionedRegion) getCache().getRegion("region2");
+          var region1 = (PartitionedRegion) getCache().getRegion("region1");
+          var region2 = (PartitionedRegion) getCache().getRegion("region2");
 
-          PartitionRegionInfo details =
+          var details =
               PartitionRegionHelper.getPartitionRegionInfo(getCache().getRegion("region1"));
           assertThat(details).isNotNull();
           assertThat(details.getCreatedBucketCount()).isEqualTo(12);
@@ -1706,7 +1696,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"PUT", "INVALIDATE", "DESTROY", "CACHE_LOADER"})
   @TestCaseName("{method}(operation={0})")
   public void runTestWaitForOperation(OperationEnum operation) throws Exception {
-    VM vm1 = getVM(1);
+    var vm1 = getVM(1);
 
     // Create a region in this VM with a cache writer
     // and cache loader
@@ -1717,7 +1707,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     region.put(1, "A");
     region.put(2, "A");
 
-    BlockingCacheListener<Number, String> cacheWriter = new BlockingCacheListener<>(2);
+    var cacheWriter = new BlockingCacheListener<Number, String>(2);
     region.getAttributesMutator().addCacheListener(cacheWriter);
 
     // start two threads doing operations, one on each bucket
@@ -1739,33 +1729,33 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     // Make sure we still have low redundancy
     validateRedundancy("region1", 2, 0, 2);
 
-    ResourceManager manager = getCache().getResourceManager();
-    RebalanceOperation rebalance = manager.createRebalanceFactory().start();
+    var manager = getCache().getResourceManager();
+    var rebalance = manager.createRebalanceFactory().start();
 
-    Throwable thrown = catchThrowable(() -> rebalance.getResults(5, SECONDS));
+    var thrown = catchThrowable(() -> rebalance.getResults(5, SECONDS));
     assertThat(thrown).isInstanceOf(TimeoutException.class);
 
     cacheWriter.release();
 
-    RebalanceResults results = rebalance.getResults(TIMEOUT_SECONDS, SECONDS);
+    var results = rebalance.getResults(TIMEOUT_SECONDS, SECONDS);
     assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(2);
     assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(1);
     assertThat(results.getTotalBucketTransferBytes()).isEqualTo(0);
     assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(0);
 
-    Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+    var detailSet = results.getPartitionRebalanceDetails();
     assertThat(detailSet).hasSize(1);
 
-    PartitionRebalanceInfo details = detailSet.iterator().next();
+    var details = detailSet.iterator().next();
     assertThat(details.getBucketCreatesCompleted()).isEqualTo(2);
     assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(1);
     assertThat(details.getBucketTransferBytes()).isEqualTo(0);
     assertThat(details.getBucketTransfersCompleted()).isEqualTo(0);
 
-    Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+    var afterDetails = details.getPartitionMemberDetailsAfter();
     assertThat(afterDetails).hasSize(2);
 
-    for (PartitionMemberInfo memberDetails : afterDetails) {
+    for (var memberDetails : afterDetails) {
       assertThat(memberDetails.getBucketCount()).isEqualTo(2);
       assertThat(memberDetails.getPrimaryCount()).isEqualTo(1);
 
@@ -1779,21 +1769,21 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @TestCaseName("{method}(simulate={0}, userAccessor={1})")
   public void testRecoverRedundancyWithOfflinePersistence(boolean simulate, boolean useAccessor)
       throws Exception {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
-    VM vm2 = getVM(2);
-    VM vm3 = getVM(3);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
+    var vm2 = getVM(2);
+    var vm3 = getVM(3);
 
-    int redundantCopies = 1;
+    var redundantCopies = 1;
 
     // Create the region in only 2 VMs
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(
           () -> createPersistentPartitionedRegion("region1", getUniqueName(), getDiskDirs(),
               redundantCopies));
     }
 
-    VM rebalanceVM = useAccessor ? vm3 : vm0;
+    var rebalanceVM = useAccessor ? vm3 : vm0;
     if (useAccessor) {
       // Create an accessor
       rebalanceVM.invoke(() -> createAccessor("region1", "ds1"));
@@ -1811,7 +1801,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     // Close the cache in vm1
-    Set<Integer> bucketsOnVM1 = vm1.invoke(() -> getBucketList("region1"));
+    var bucketsOnVM1 = vm1.invoke(() -> getBucketList("region1"));
     vm1.invoke(() -> getCache().getRegion("region1").close());
 
     // make sure we can tell that the buckets have low redundancy
@@ -1831,25 +1821,25 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
      * A rebalance will replace offline buckets, so this should restore redundancy
      */
     rebalanceVM.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(6);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(3);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(6);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(3);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(0);
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(2);
 
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(6);
         assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
       }
@@ -1859,8 +1849,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       }
     });
 
-    Set<Integer> bucketsOnVM0 = vm0.invoke(() -> getBucketList("region1"));
-    Set<Integer> bucketsOnVM2 = vm2.invoke(() -> getBucketList("region1"));
+    var bucketsOnVM0 = vm0.invoke(() -> getBucketList("region1"));
+    var bucketsOnVM2 = vm2.invoke(() -> getBucketList("region1"));
 
     if (simulate) {
       // Otherwise, we should still have broken redundancy at this point
@@ -1906,24 +1896,24 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     // or it might not.
     if (!simulate) {
       rebalanceVM.invoke(() -> {
-        ResourceManager manager = getCache().getResourceManager();
+        var manager = getCache().getResourceManager();
 
-        RebalanceResults results = doRebalance(simulate, manager);
+        var results = doRebalance(simulate, manager);
 
         assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
         assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(0);
 
-        Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+        var detailSet = results.getPartitionRebalanceDetails();
         assertThat(detailSet).hasSize(1);
 
-        PartitionRebalanceInfo details = detailSet.iterator().next();
+        var details = detailSet.iterator().next();
         assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
         assertThat(details.getBucketTransfersCompleted()).isEqualTo(0);
 
-        Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+        var afterDetails = details.getPartitionMemberDetailsAfter();
         assertThat(afterDetails).hasSize(2);
 
-        for (PartitionMemberInfo memberDetails : afterDetails) {
+        for (var memberDetails : afterDetails) {
           assertThat(memberDetails.getBucketCount()).isEqualTo(6);
           assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
         }
@@ -1966,8 +1956,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testMoveBucketsWithUnrecoveredValues(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     // Create the region in only 1 VM
     vm0.invoke(() -> createPersistentPartitionedRegion("region1", "store", getDiskDirs(),
@@ -1985,11 +1975,11 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     vm0.invoke(() -> {
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion("region1");
-      PartitionedRegionDataStore dataStore = region.getDataStore();
+      var region = (PartitionedRegion) getCache().getRegion("region1");
+      var dataStore = region.getDataStore();
 
-      for (int i = 1; i <= 6; i++) {
-        BucketRegion bucket = dataStore.getLocalBucketById(i);
+      for (var i = 1; i <= 6; i++) {
+        var bucket = dataStore.getLocalBucketById(i);
 
         assertThat(bucket.getNumOverflowBytesOnDisk()).isEqualTo(0);
         assertThat(bucket.getNumOverflowOnDisk()).isEqualTo(0);
@@ -2003,11 +1993,11 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
         new NullReturningLoader<>()));
 
     vm0.invoke(() -> {
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion("region1");
-      PartitionedRegionDataStore dataStore = region.getDataStore();
+      var region = (PartitionedRegion) getCache().getRegion("region1");
+      var dataStore = region.getDataStore();
 
-      for (int i = 1; i <= 6; i++) {
-        BucketRegion bucket = dataStore.getLocalBucketById(i);
+      for (var i = 1; i <= 6; i++) {
+        var bucket = dataStore.getLocalBucketById(i);
 
         assertThat(bucket.getNumOverflowOnDisk()).isEqualTo(1);
         assertThat(bucket.getNumEntriesInVM()).isEqualTo(0);
@@ -2026,8 +2016,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(0);
@@ -2036,19 +2026,19 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
           .as("Transferred Bytes = " + results.getTotalBucketTransferBytes())
           .isGreaterThan(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(details.getBucketTransferBytes()).isGreaterThan(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(3);
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(2);
 
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(3);
         assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
       }
@@ -2059,32 +2049,32 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     if (!simulate) {
-      for (VM vm : toArray(vm0, vm1)) {
+      for (var vm : toArray(vm0, vm1)) {
         vm.invoke(() -> {
           Region region = getCache().getRegion("region1");
 
-          PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+          var details = PartitionRegionHelper.getPartitionRegionInfo(region);
           assertThat(details.getCreatedBucketCount()).isEqualTo(6);
           assertThat(details.getActualRedundantCopies()).isEqualTo(0);
           assertThat(details.getLowRedundancyBucketCount()).isEqualTo(0);
           assertThat(details.getPartitionMemberInfo()).hasSize(2);
 
-          for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
+          for (var memberDetails : details.getPartitionMemberInfo()) {
             assertThat(memberDetails.getBucketCount()).isEqualTo(3);
             assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
           }
 
           // check to make sure that moving buckets didn't close the cache loader
-          NullReturningLoader loader =
+          var loader =
               (NullReturningLoader) getCache().getRegion("region1").getAttributes()
                   .getCacheLoader();
           assertThat(loader.isClosed()).isFalse();
         });
       }
 
-      for (VM vm : toArray(vm0, vm1)) {
+      for (var vm : toArray(vm0, vm1)) {
         vm.invoke(() -> {
-          NullReturningLoader loader =
+          var loader =
               (NullReturningLoader) getCache().getRegion("region1").getAttributes()
                   .getCacheLoader();
           assertThat(loader.isClosed()).isFalse();
@@ -2101,13 +2091,13 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}(simulate={0})")
   public void testBalanceBucketsByCount(boolean simulate) {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     // Cache is closed so loadProbeToRestore does not need to be restored
     vm0.invoke(
         () -> {
-          LoadProbe ignored =
+          var ignored =
               getCache().getInternalResourceManager().setLoadProbe(new BucketCountLoadProbe());
         });
 
@@ -2130,27 +2120,27 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
     // Now simulate a rebalance
     vm0.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(simulate, manager);
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(simulate, manager);
 
       assertThat(results.getTotalBucketCreatesCompleted()).isEqualTo(0);
       assertThat(results.getTotalPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(results.getTotalBucketTransfersCompleted()).isEqualTo(3);
       assertThat(results.getTotalBucketTransferBytes()).isGreaterThan(0);
 
-      Set<PartitionRebalanceInfo> detailSet = results.getPartitionRebalanceDetails();
+      var detailSet = results.getPartitionRebalanceDetails();
       assertThat(detailSet).hasSize(1);
 
-      PartitionRebalanceInfo details = detailSet.iterator().next();
+      var details = detailSet.iterator().next();
       assertThat(details.getBucketCreatesCompleted()).isEqualTo(0);
       assertThat(details.getPrimaryTransfersCompleted()).isEqualTo(0);
       assertThat(details.getBucketTransferBytes()).isGreaterThan(0);
       assertThat(details.getBucketTransfersCompleted()).isEqualTo(3);
 
-      Set<PartitionMemberInfo> afterDetails = details.getPartitionMemberDetailsAfter();
+      var afterDetails = details.getPartitionMemberDetailsAfter();
       assertThat(afterDetails).hasSize(2);
 
-      for (PartitionMemberInfo memberDetails : afterDetails) {
+      for (var memberDetails : afterDetails) {
         assertThat(memberDetails.getBucketCount()).isEqualTo(3);
         assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
       }
@@ -2161,23 +2151,23 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     if (!simulate) {
-      for (VM vm : toArray(vm0, vm1)) {
+      for (var vm : toArray(vm0, vm1)) {
         vm.invoke(() -> {
           Region region = getCache().getRegion("region1");
 
-          PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+          var details = PartitionRegionHelper.getPartitionRegionInfo(region);
           assertThat(details.getCreatedBucketCount()).isEqualTo(6);
           assertThat(details.getActualRedundantCopies()).isEqualTo(0);
           assertThat(details.getLowRedundancyBucketCount()).isEqualTo(0);
           assertThat(details.getPartitionMemberInfo()).hasSize(2);
 
-          for (PartitionMemberInfo memberDetails : details.getPartitionMemberInfo()) {
+          for (var memberDetails : details.getPartitionMemberInfo()) {
             assertThat(memberDetails.getBucketCount()).isEqualTo(3);
             assertThat(memberDetails.getPrimaryCount()).isEqualTo(3);
           }
 
           // check to make sure that moving buckets didn't close the cache loader
-          NullReturningLoader loader =
+          var loader =
               (NullReturningLoader) getCache().getRegion("region1").getAttributes()
                   .getCacheLoader();
           assertThat(loader.isClosed()).isFalse();
@@ -2192,11 +2182,11 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
    */
   @Test
   public void testBucketImageProviderCacheClosesDuringBucketMove() {
-    VM server1 = getVM(0);
-    VM server2 = getVM(1);
+    var server1 = getVM(0);
+    var server2 = getVM(1);
 
-    int redundantCopies = 0;
-    String regionName = "region1";
+    var redundantCopies = 0;
+    var regionName = "region1";
 
     server1.invoke(() -> createPersistentPartitionedRegion(regionName, getUniqueName(),
         getDiskDirs(), redundantCopies));
@@ -2219,7 +2209,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     server1.invoke(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
+      var manager = getCache().getInternalResourceManager();
 
       // This will cause a CacheClosedException to occur during rebalance, specifically
       // when a RequestImageMessage during any bucket GII is received.
@@ -2240,7 +2230,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       createPersistentPartitionedRegion(regionName, getUniqueName(), getDiskDirs(),
           redundantCopies);
       manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(false, manager);
+      var results = doRebalance(false, manager);
 
       // The rebalance should have done some work since the buckets were imbalanced
       assertThat(results.getTotalBucketTransfersCompleted() > 0).isTrue();
@@ -2259,12 +2249,12 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     // Setting up 3 servers to create the partitioned region on to avoid issues with
     // losing membership quorum. Alternatively we could disable network partition detection
     // when constructing the cache, but this solves the same problem.
-    VM server1 = getVM(0);
-    VM server2 = getVM(1);
-    VM server3 = getVM(2);
+    var server1 = getVM(0);
+    var server2 = getVM(1);
+    var server3 = getVM(2);
 
-    int redundantCopies = 0;
-    String regionName = "region1";
+    var redundantCopies = 0;
+    var regionName = "region1";
 
     server1.invoke(() -> createPersistentPartitionedRegion(regionName, getUniqueName(),
         getDiskDirs(), redundantCopies));
@@ -2297,7 +2287,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     });
 
     server1.invokeAsync(() -> {
-      InternalResourceManager manager = getCache().getInternalResourceManager();
+      var manager = getCache().getInternalResourceManager();
 
       // This will signal a bounce of the VM upon receving the request for any bucket GII for the
       // test partitioned region
@@ -2315,8 +2305,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       // SignalBounceOnRequestImageMessageObserver has been uninstalled.
       createPersistentPartitionedRegion(regionName, getUniqueName(), getDiskDirs(),
           redundantCopies);
-      InternalResourceManager manager = getCache().getInternalResourceManager();
-      RebalanceResults results = doRebalance(false, getCache().getInternalResourceManager());
+      var manager = getCache().getInternalResourceManager();
+      var results = doRebalance(false, getCache().getInternalResourceManager());
 
       // The rebalance should have done some work since the buckets were imbalanced
       assertThat(results.getTotalBucketTransfersCompleted() > 0).isTrue();
@@ -2324,7 +2314,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   }
 
   private void createPartitionedRegion(String regionName, EvictionAttributes evictionAttributes) {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(1);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -2337,8 +2327,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   }
 
   private <K, V> void createPartitionedRegion(String regionName, CacheLoader<K, V> cacheLoader) {
-    PartitionAttributesFactory<K, V> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<K, V>();
     partitionAttributesFactory.setRedundantCopies(0);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -2351,7 +2341,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   }
 
   private void createPartitionedRegion(String regionName, int redundantCopies) {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(redundantCopies);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -2377,7 +2367,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   }
 
   private void createPartitionedRegion(String region, int redundantCopies, int localMaxMemory) {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setLocalMaxMemory(localMaxMemory);
     partitionAttributesFactory.setRedundantCopies(redundantCopies);
     partitionAttributesFactory.setRecoveryDelay(-1);
@@ -2391,8 +2381,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
   private <K, V> void createPartitionedRegion(String regionName, int redundantCopies,
       CacheLoader<K, V> cacheLoader) {
-    PartitionAttributesFactory<K, V> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<K, V>();
     partitionAttributesFactory.setRedundantCopies(redundantCopies);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -2406,8 +2396,8 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
   private <K, V> void createPartitionedRegion(String regionName, int redundantCopies,
       int localMaxMemory, CacheLoader<K, V> cacheLoader) {
-    PartitionAttributesFactory<K, V> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<K, V>();
     partitionAttributesFactory.setRedundantCopies(redundantCopies);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -2421,7 +2411,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   }
 
   private void createPartitionedRegion(String region, int localMaxMemory, String colocatedWith) {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setLocalMaxMemory(localMaxMemory);
     partitionAttributesFactory.setRedundantCopies(1);
     partitionAttributesFactory.setRecoveryDelay(-1);
@@ -2436,10 +2426,10 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
 
   private void createPersistentPartitionedRegion(String regionName, String diskStoreName,
       File[] diskDirs, int redundantCopies) {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(diskDirs).create(diskStoreName);
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(redundantCopies);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -2456,11 +2446,11 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
       File[] diskDirs, CacheLoader<K, V> cacheLoader) {
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
     try {
-      DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+      var diskStoreFactory = getCache().createDiskStoreFactory();
       diskStoreFactory.setDiskDirs(diskDirs).setMaxOplogSize(1).create(diskStoreName);
 
-      PartitionAttributesFactory<K, V> partitionAttributesFactory =
-          new PartitionAttributesFactory<>();
+      var partitionAttributesFactory =
+          new PartitionAttributesFactory<K, V>();
       partitionAttributesFactory.setRedundantCopies(0);
       partitionAttributesFactory.setRecoveryDelay(-1);
       partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -2477,23 +2467,23 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   }
 
   private void createAccessor(String regionName, String diskStoreName) {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(getDiskDirs()).create(diskStoreName);
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(1);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
     partitionAttributesFactory.setLocalMaxMemory(0);
 
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setPartitionAttributes(partitionAttributesFactory.create());
 
     getCache().createRegion(regionName, attr.create());
   }
 
   private void createPartitionedRegionAsSubregion(Region parent, String regionName) {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(1);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -2504,7 +2494,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   }
 
   private void createTwoRegionsWithParallelRecoveryObserver() {
-    ParallelRecoveryObserver ob =
+    var ob =
         (ParallelRecoveryObserver) InternalResourceManager.getResourceObserver();
 
     ob.observeRegion("region1");
@@ -2534,7 +2524,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
           }
         });
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(1);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -2560,7 +2550,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   private void setRedundancyZone(String zone) {
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "resource.manager.threads", "2");
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(REDUNDANCY_ZONE, zone);
 
     getCache(props);
@@ -2586,12 +2576,12 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   }
 
   private Set<Integer> getBucketList(String regionName) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
     return new TreeSet<>(region.getDataStore().getAllLocalBucketIds());
   }
 
   private void waitForBucketList(String regionName, Collection<Integer> expected) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
 
     await().untilAsserted(new WaitCriterion() {
 
@@ -2615,7 +2605,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   private void validateRedundancy(String regionName, int expectedCreatedBucketCount,
       int expectedRedundantCopies, int expectedLowRedundancyBucketCount) {
     Region region = getCache().getRegion(regionName);
-    PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region);
+    var details = PartitionRegionHelper.getPartitionRegionInfo(region);
 
     assertThat(details).isNotNull();
     assertThat(details.getCreatedBucketCount()).isEqualTo(expectedCreatedBucketCount);
@@ -2636,7 +2626,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   private void validateRedundancyOfTwoRegions(Region region1, Region region2,
       int expectedCreatedBucketCount, int expectedRedundantCopies,
       int expectedLowRedundancyBucketCount) {
-    PartitionRegionInfo details = PartitionRegionHelper.getPartitionRegionInfo(region1);
+    var details = PartitionRegionHelper.getPartitionRegionInfo(region1);
     assertThat(details).isNotNull();
     assertThat(details.getCreatedBucketCount()).isEqualTo(expectedCreatedBucketCount);
     assertThat(details.getActualRedundantCopies()).isEqualTo(expectedRedundantCopies);
@@ -2650,13 +2640,13 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
   }
 
   private void validateBucketCount(String regionName, int numLocalBuckets) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
 
     assertThat(region.getLocalBucketsListTestOnly()).hasSize(numLocalBuckets);
   }
 
   private void validateStatistics(InternalResourceManager manager, RebalanceResults results) {
-    ResourceManagerStats stats = manager.getStats();
+    var stats = manager.getStats();
 
     assertThat(stats.getRebalancesInProgress())
         .isEqualTo(0);
@@ -2706,7 +2696,7 @@ public class RebalanceOperationDistributedTest extends CacheTestCase {
     INVALIDATE((region, key) -> region.invalidate(key)),
     DESTROY((region, key) -> region.destroy(key)),
     CACHE_LOADER((region, key) -> {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+      var partitionedRegion = (PartitionedRegion) region;
       // get a key that doesn't exist, but is in the same bucket as the given key
       region.get(key + partitionedRegion.getPartitionAttributes().getTotalNumBuckets());
     });

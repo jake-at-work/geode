@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -86,9 +85,9 @@ public class BackupInspectorIntegrationTest {
    */
   @Test
   public void canParseRestoreScriptForIncrementalBackup() throws Exception {
-    BackupInspector inspector = BackupInspector.createInspector(incrementalBackupDir);
+    var inspector = BackupInspector.createInspector(incrementalBackupDir);
     assertThat(inspector.isIncremental()).isTrue();
-    Set<String> oplogFiles = inspector.getIncrementalOplogFileNames();
+    var oplogFiles = inspector.getIncrementalOplogFileNames();
     assertThat(oplogFiles.isEmpty()).isFalse();
     assertThat(oplogFiles).hasSize(2);
     assertThat(oplogFiles.contains(CRF_FILE_NAME)).isTrue();
@@ -101,7 +100,7 @@ public class BackupInspectorIntegrationTest {
    */
   @Test
   public void canParseRestoreScriptForFullBackup() throws Exception {
-    BackupInspector inspector = BackupInspector.createInspector(fullBackupDir);
+    var inspector = BackupInspector.createInspector(fullBackupDir);
     assertThat(inspector.isIncremental()).isFalse();
     assertThat(inspector.getIncrementalOplogFileNames().isEmpty()).isTrue();
     assertThat(inspector.getScriptLineForOplogFile(DRF_FILE_NAME)).isNull();
@@ -115,7 +114,7 @@ public class BackupInspectorIntegrationTest {
    */
   private File createFakeDirectory(final String dirName, final String diskFileBaseName)
       throws IOException {
-    File aDir = temporaryFolder.newFolder(dirName);
+    var aDir = temporaryFolder.newFolder(dirName);
     new File(aDir, diskFileBaseName + IF_FILE_SUFFIX).createNewFile();
     new File(aDir, diskFileBaseName + CRF_FILE_SUFFIX).createNewFile();
     new File(aDir, diskFileBaseName + DRF_FILE_SUFFIX).createNewFile();
@@ -132,7 +131,7 @@ public class BackupInspectorIntegrationTest {
    */
   private void createRestoreScript(final File backupDirToRestoreFrom, final File incrementalBaseDir)
       throws IOException {
-    RestoreScript restoreScript = new RestoreScript();
+    var restoreScript = new RestoreScript();
     restoreScript.addExistenceTest(new File(diskDir, IF_FILE_NAME));
     restoreScript.addFile(diskDir, backupDirToRestoreFrom);
     if (incrementalBaseDir != null) {

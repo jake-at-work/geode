@@ -15,7 +15,6 @@
 package org.apache.geode.management.internal.cli.functions;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -25,16 +24,12 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.ClassNameType;
-import org.apache.geode.cache.configuration.DeclarableType;
-import org.apache.geode.cache.configuration.ParameterType;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.classloader.ClassPathLoader;
@@ -63,14 +58,14 @@ public class CreateAsyncEventQueueFunction extends CliFunction<CacheConfig.Async
   @Override
   public CliFunctionResult executeFunction(FunctionContext<CacheConfig.AsyncEventQueue> context) {
     // Declared here so that it's available when returning a Throwable
-    String memberId = "";
+    var memberId = "";
 
     try {
-      CacheConfig.AsyncEventQueue config = context.getArguments();
+      var config = context.getArguments();
 
-      InternalCache cache = (InternalCache) context.getCache();
+      var cache = (InternalCache) context.getCache();
 
-      DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+      var member = cache.getDistributedSystem().getDistributedMember();
 
       memberId = member.getId();
       // If they set a name use it instead
@@ -78,7 +73,7 @@ public class CreateAsyncEventQueueFunction extends CliFunction<CacheConfig.Async
         memberId = member.getName();
       }
 
-      AsyncEventQueueFactory asyncEventQueueFactory =
+      var asyncEventQueueFactory =
           cache.createAsyncEventQueueFactory().setParallel(config.isParallel())
               .setBatchConflationEnabled(config.isEnableBatchConflation())
               .setBatchSize(Integer.parseInt(config.getBatchSize()))
@@ -94,30 +89,30 @@ public class CreateAsyncEventQueueFunction extends CliFunction<CacheConfig.Async
         asyncEventQueueFactory.pauseEventDispatching();
       }
 
-      String[] gatewayEventFilters = config.getGatewayEventFilters().stream()
+      var gatewayEventFilters = config.getGatewayEventFilters().stream()
           .map(ClassNameType::getClassName).toArray(String[]::new);
 
-      for (String gatewayEventFilter : gatewayEventFilters) {
+      for (var gatewayEventFilter : gatewayEventFilters) {
         asyncEventQueueFactory
             .addGatewayEventFilter((GatewayEventFilter) newInstance(gatewayEventFilter));
       }
 
-      DeclarableType gatewayEventSubstitutionFilter = config.getGatewayEventSubstitutionFilter();
+      var gatewayEventSubstitutionFilter = config.getGatewayEventSubstitutionFilter();
 
       if (gatewayEventSubstitutionFilter != null) {
-        String gatewaySubstitutionFilter = gatewayEventSubstitutionFilter.getClassName();
+        var gatewaySubstitutionFilter = gatewayEventSubstitutionFilter.getClassName();
         asyncEventQueueFactory.setGatewayEventSubstitutionListener(
             (GatewayEventSubstitutionFilter<?, ?>) newInstance(gatewaySubstitutionFilter));
       }
 
-      String listenerClassName = config.getAsyncEventListener().getClassName();
+      var listenerClassName = config.getAsyncEventListener().getClassName();
       Object listenerInstance;
       Class<?> listenerClass = InternalDataSerializer.getCachedClass(listenerClassName);
       listenerInstance = listenerClass.newInstance();
 
-      List<ParameterType> parameters = config.getAsyncEventListener().getParameters();
-      Properties listenerProperties = new Properties();
-      for (ParameterType p : parameters) {
+      var parameters = config.getAsyncEventListener().getParameters();
+      var listenerProperties = new Properties();
+      for (var p : parameters) {
         listenerProperties.put(p.getName(), p.getString());
       }
 

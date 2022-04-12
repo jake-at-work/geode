@@ -61,7 +61,7 @@ public class AlertListenerMessage extends PooledDistributionMessage implements A
       Instant timestamp,
       String connectionName, String threadName, long threadId, String message,
       String exceptionText) {
-    AlertListenerMessage alertListenerMessage = new AlertListenerMessage();
+    var alertListenerMessage = new AlertListenerMessage();
     alertListenerMessage.setRecipient((InternalDistributedMember) recipient);
     alertListenerMessage.alertLevel = alertLevel;
     alertListenerMessage.date = new Date(timestamp.toEpochMilli());
@@ -87,14 +87,14 @@ public class AlertListenerMessage extends PooledDistributionMessage implements A
 
   @Override
   public void process(ClusterDistributionManager dm) {
-    Listener listener = getListener();
+    var listener = getListener();
     if (listener != null) {
       listener.received(this);
     }
 
-    RemoteGfManagerAgent agent = dm.getAgent();
+    var agent = dm.getAgent();
     if (agent != null) {
-      RemoteGemFireVM manager = agent.getMemberById(getSender());
+      var manager = agent.getMemberById(getSender());
       if (manager == null) {
         return;
       }
@@ -111,7 +111,7 @@ public class AlertListenerMessage extends PooledDistributionMessage implements A
        * The other recipient type is a JMX Manager which needs AlertDetails so that it can send out
        * JMX notifications for the alert.
        */
-      AlertDetails alertDetail = new AlertDetails(alertLevel, date, connectionName, threadName,
+      var alertDetail = new AlertDetails(alertLevel, date, connectionName, threadName,
           threadId, message, exceptionText, getSender());
 
       if (listener != null) {

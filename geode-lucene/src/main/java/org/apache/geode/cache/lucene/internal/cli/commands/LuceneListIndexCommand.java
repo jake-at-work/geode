@@ -25,8 +25,6 @@ import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.Execution;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.lucene.internal.cli.LuceneCliStrings;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexDetails;
 import org.apache.geode.cache.lucene.internal.cli.functions.LuceneListIndexFunction;
@@ -53,20 +51,20 @@ public class LuceneListIndexCommand extends LuceneCommandBase {
 
   @SuppressWarnings("unchecked")
   protected List<LuceneIndexDetails> getIndexListing() {
-    final Execution functionExecutor = getMembersFunctionExecutor(getAllMembers());
+    final var functionExecutor = getMembersFunctionExecutor(getAllMembers());
 
     if (functionExecutor instanceof AbstractExecution) {
       ((AbstractExecution) functionExecutor).setIgnoreDepartedMembers(true);
     }
 
-    final ResultCollector resultsCollector =
+    final var resultsCollector =
         functionExecutor.execute(new LuceneListIndexFunction());
-    final List<Set<LuceneIndexDetails>> results =
+    final var results =
         (List<Set<LuceneIndexDetails>>) resultsCollector.getResult();
 
-    List<LuceneIndexDetails> sortedResults =
+    var sortedResults =
         results.stream().flatMap(Collection::stream).sorted().collect(Collectors.toList());
-    LinkedHashSet<LuceneIndexDetails> uniqResults = new LinkedHashSet<>(sortedResults);
+    var uniqResults = new LinkedHashSet<LuceneIndexDetails>(sortedResults);
     sortedResults.clear();
     sortedResults.addAll(uniqResults);
     return sortedResults;

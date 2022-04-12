@@ -19,9 +19,7 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -29,9 +27,7 @@ import org.apache.geode.SystemFailure;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.ServerRegionProxy;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.DistributedRegion;
@@ -245,7 +241,7 @@ public abstract class DynamicRegionFactory {
     try {
       cache = theCache;
       dynamicRegionList = theCache.getRegion(DYNAMIC_REGION_LIST_NAME);
-      final boolean isClient = config.getPoolName() != null;
+      final var isClient = config.getPoolName() != null;
       if (dynamicRegionList == null) {
         InternalRegionFactory factory = cache.createInternalRegionFactory();
         factory.setDestroyLockFlag(true).setInternalRegion(true).setSnapshotInputStream(null)
@@ -262,9 +258,9 @@ public abstract class DynamicRegionFactory {
           factory.setScope(Scope.LOCAL);
           factory.setDataPolicy(DataPolicy.NORMAL);
           factory.setStatisticsEnabled(true);
-          String cpName = config.getPoolName();
+          var cpName = config.getPoolName();
           if (cpName != null) {
-            Pool cp = PoolManager.find(cpName);
+            var cp = PoolManager.find(cpName);
             if (cp == null) {
               throw new IllegalStateException(
                   "Invalid pool name specified. This pool is not registered with the cache: "
@@ -288,7 +284,7 @@ public abstract class DynamicRegionFactory {
             factory.setDataPolicy(DataPolicy.REPLICATE);
           }
 
-          for (GatewaySender gs : cache.getGatewaySenders()) {
+          for (var gs : cache.getGatewaySenders()) {
             if (!gs.isParallel()) {
               factory.addGatewaySenderId(gs.getId());
             }
@@ -322,24 +318,24 @@ public abstract class DynamicRegionFactory {
    */
   private void createDefinedDynamicRegions() throws CacheException {
     // TODO: perhaps add some logic here to avoid the possibility of synchronization issues
-    Set set = dynamicRegionList.entrySet(false);
+    var set = dynamicRegionList.entrySet(false);
 
-    Iterator iterator = set.iterator();
+    var iterator = set.iterator();
     SortedMap sorted = new TreeMap();
 
     // sort by region name before creating (bug 35528)
     while (iterator.hasNext()) {
-      Region.Entry e = (Region.Entry) iterator.next();
-      DynamicRegionAttributes dda = (DynamicRegionAttributes) e.getValue();
+      var e = (Region.Entry) iterator.next();
+      var dda = (DynamicRegionAttributes) e.getValue();
       sorted.put(dda.rootRegionName + SEPARATOR + dda.name, dda);
     }
     iterator = sorted.values().iterator();
 
     while (iterator.hasNext()) {
-      DynamicRegionAttributes dda = (DynamicRegionAttributes) iterator.next();
+      var dda = (DynamicRegionAttributes) iterator.next();
 
       doBeforeRegionCreated(dda.rootRegionName, dda.name);
-      Region region = createDynamicRegionImpl(dda.rootRegionName, dda.name, false);
+      var region = createDynamicRegionImpl(dda.rootRegionName, dda.name, false);
       doAfterRegionCreated(region, false, false, null);
     }
   }
@@ -360,7 +356,7 @@ public abstract class DynamicRegionFactory {
    */
   public void registerDynamicRegionListener(DynamicRegionListener listener) {
     synchronized (regionListenerLock) {
-      List oldListeners = regionListeners;
+      var oldListeners = regionListeners;
       if (!oldListeners.contains(listener)) {
         List newListeners = new ArrayList(oldListeners);
         newListeners.add(listener);
@@ -376,7 +372,7 @@ public abstract class DynamicRegionFactory {
    */
   public void unregisterDynamicRegionListener(DynamicRegionListener listener) {
     synchronized (regionListenerLock) {
-      List oldListeners = regionListeners;
+      var oldListeners = regionListeners;
       if (oldListeners.contains(listener)) {
         List newListeners = new ArrayList(oldListeners);
         if (newListeners.remove(listener)) {
@@ -387,8 +383,8 @@ public abstract class DynamicRegionFactory {
   }
 
   private void doBeforeRegionCreated(String parentRegion, String regionName) {
-    for (Object regionListener : regionListeners) {
-      DynamicRegionListener listener = (DynamicRegionListener) regionListener;
+    for (var regionListener : regionListeners) {
+      var listener = (DynamicRegionListener) regionListener;
       try {
         listener.beforeRegionCreate(parentRegion, regionName);
       } catch (VirtualMachineError err) {
@@ -415,8 +411,8 @@ public abstract class DynamicRegionFactory {
       DistributedMember mbr) {
     RegionEvent event =
         new RegionEventImpl(region, Operation.REGION_CREATE, null, isOriginRemote, getMember(mbr));
-    for (Object regionListener : regionListeners) {
-      DynamicRegionListener listener = (DynamicRegionListener) regionListener;
+    for (var regionListener : regionListeners) {
+      var listener = (DynamicRegionListener) regionListener;
       try {
         listener.afterRegionCreate(event /* region */);
       } catch (VirtualMachineError err) {
@@ -448,8 +444,8 @@ public abstract class DynamicRegionFactory {
       op = expiration ? Operation.REGION_EXPIRE_DESTROY : Operation.REGION_DESTROY;
     }
     RegionEvent event = new RegionEventImpl(region, op, null, isOriginRemote, getMember(mbr));
-    for (Object regionListener : regionListeners) {
-      DynamicRegionListener listener = (DynamicRegionListener) regionListener;
+    for (var regionListener : regionListeners) {
+      var listener = (DynamicRegionListener) regionListener;
       try {
         listener.beforeRegionDestroy(event /* fullRegionName */);
       } catch (VirtualMachineError err) {
@@ -481,8 +477,8 @@ public abstract class DynamicRegionFactory {
       op = expiration ? Operation.REGION_EXPIRE_DESTROY : Operation.REGION_DESTROY;
     }
     RegionEvent event = new RegionEventImpl(region, op, null, isOriginRemote, getMember(mbr));
-    for (Object regionListener : regionListeners) {
-      DynamicRegionListener listener = (DynamicRegionListener) regionListener;
+    for (var regionListener : regionListeners) {
+      var listener = (DynamicRegionListener) regionListener;
       try {
         listener.afterRegionDestroy(event /* fullRegionName */);
       } catch (VirtualMachineError err) {
@@ -527,7 +523,7 @@ public abstract class DynamicRegionFactory {
       throw new IllegalStateException("Dynamic region factory is closed");
     }
     doBeforeRegionCreated(parentRegionName, regionName);
-    Region region = createDynamicRegionImpl(parentRegionName, regionName, true);
+    var region = createDynamicRegionImpl(parentRegionName, regionName, true);
     doAfterRegionCreated(region, false, false, null);
     return region;
   }
@@ -553,7 +549,7 @@ public abstract class DynamicRegionFactory {
     // Retrieve the region to destroy
     Region region = cache.getRegion(fullRegionName);
     if (region != null) {
-      DistributedMember mbr = getMember(null);
+      var mbr = getMember(null);
       doBeforeRegionDestroyed(region, false, false, false, mbr);
       // Locally destroy the region. Let the dynamicRegionList handle distributing
       // the destroy.
@@ -572,10 +568,10 @@ public abstract class DynamicRegionFactory {
     Region parentRegion = cache.getRegion(parentRegionName);
 
     if (parentRegion == null) {
-      String errMsg =
+      var errMsg =
           String.format("Error -- Could not find a region named: '%s'",
               parentRegionName);
-      RegionDestroyedException e = new RegionDestroyedException(errMsg, parentRegionName);
+      var e = new RegionDestroyedException(errMsg, parentRegionName);
       cache.getLogger().warning(
           String.format("Error -- Could not find a region named: '%s'",
               parentRegionName),
@@ -584,10 +580,10 @@ public abstract class DynamicRegionFactory {
     }
 
     // Create RegionAttributes by inheriting from the parent
-    RegionAttributes rra = parentRegion.getAttributes();
+    var rra = parentRegion.getAttributes();
 
-    AttributesFactory af = new AttributesFactory(rra);
-    EvictionAttributes ev = rra.getEvictionAttributes();
+    var af = new AttributesFactory(rra);
+    var ev = rra.getEvictionAttributes();
     if (ev != null && ev.getAlgorithm().isLRU()) {
       EvictionAttributes rev = new EvictionAttributesImpl(ev);
       af.setEvictionAttributes(rev);
@@ -600,7 +596,7 @@ public abstract class DynamicRegionFactory {
       af.setPartitionAttributes(new PartitionAttributesFactory().create());
     }
 
-    RegionAttributes newRegionAttributes = af.create();
+    var newRegionAttributes = af.create();
 
     Region newRegion;
     try {
@@ -614,7 +610,7 @@ public abstract class DynamicRegionFactory {
     }
 
     if (addEntry) {
-      DynamicRegionAttributes dra = new DynamicRegionAttributes();
+      var dra = new DynamicRegionAttributes();
       dra.name = newRegionName;
       dra.rootRegionName = parentRegion.getFullPath();
       if (cache.getLogger().fineEnabled()) {
@@ -625,7 +621,7 @@ public abstract class DynamicRegionFactory {
     }
 
     if (config.getRegisterInterest()) {
-      ServerRegionProxy proxy = ((InternalRegion) newRegion).getServerProxy();
+      var proxy = ((InternalRegion) newRegion).getServerProxy();
       if (proxy != null) {
         if (proxy.getPool().getSubscriptionEnabled()) {
           try {
@@ -733,8 +729,8 @@ public abstract class DynamicRegionFactory {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((diskDir == null) ? 0 : diskDir.hashCode());
       result = prime * result + (persistBackup ? 1231 : 1237);
       result = prime * result + ((poolName == null) ? 0 : poolName.hashCode());
@@ -753,7 +749,7 @@ public abstract class DynamicRegionFactory {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      Config other = (Config) obj;
+      var other = (Config) obj;
       if (diskDir == null) {
         if (other.diskDir != null) {
           return false;
@@ -827,13 +823,13 @@ public abstract class DynamicRegionFactory {
       return;
     }
     //
-    DynamicRegionAttributes dra = (DynamicRegionAttributes) event.getNewValue();
-    String parentRegionName = dra.rootRegionName;
-    String newRegionName = dra.name;
+    var dra = (DynamicRegionAttributes) event.getNewValue();
+    var parentRegionName = dra.rootRegionName;
+    var newRegionName = dra.name;
 
     try {
       doBeforeRegionCreated(parentRegionName, newRegionName);
-      Region region = createDynamicRegionImpl(parentRegionName, newRegionName, false);
+      var region = createDynamicRegionImpl(parentRegionName, newRegionName, false);
       doAfterRegionCreated(region, true, true, event.getDistributedMember());
     } catch (Exception e) {
       cache.getLogger().warning(
@@ -856,7 +852,7 @@ public abstract class DynamicRegionFactory {
     // Ignore the callback if it originated in this process (because the region
     // will already have been destroyed)
 
-    String fullRegionName = (String) event.getKey();
+    var fullRegionName = (String) event.getKey();
     Region drRegion = cache.getRegion(fullRegionName);
     if (drRegion != null) {
       try {
@@ -926,8 +922,8 @@ public abstract class DynamicRegionFactory {
     public long basicPutPart2(EntryEventImpl event, RegionEntry entry, boolean isInitialized,
         long lastModified, boolean clearConflict) {
 
-      boolean isCreate = event.getOperation().isCreate();
-      boolean set = false;
+      var isCreate = event.getOperation().isCreate();
+      var set = false;
 
       if (isCreate && !event.callbacksInvoked()) {
         // don't notify clients until all peers have created the region so that
@@ -936,7 +932,7 @@ public abstract class DynamicRegionFactory {
         set = true;
       }
 
-      long result = super.basicPutPart2(event, entry, isInitialized, lastModified, clearConflict);
+      var result = super.basicPutPart2(event, entry, isInitialized, lastModified, clearConflict);
 
       if (set) {
         event.callbacksInvoked(false);
@@ -962,7 +958,7 @@ public abstract class DynamicRegionFactory {
       // this code is copied from LocalRegion.basicPutPart2
       invokeCallbacks &= !entry.isTombstone(); // put() is creating a tombstone
       if (invokeCallbacks) {
-        boolean doCallback = false;
+        var doCallback = false;
         if (isInitialized) {
           if (event.isGenerateCallbacks()) {
             doCallback = true;
@@ -1034,8 +1030,8 @@ public abstract class DynamicRegionFactory {
     @Override
     public long basicPutPart2(EntryEventImpl event, RegionEntry entry, boolean isInitialized,
         long lastModified, boolean clearConflict) {
-      boolean isCreate = event.getOperation().isCreate();
-      boolean set = false;
+      var isCreate = event.getOperation().isCreate();
+      var set = false;
       if (isCreate && !event.callbacksInvoked()) {
         // don't notify clients until all peers have created the region so that
         // their register-interest operations will be sure to find data
@@ -1043,7 +1039,7 @@ public abstract class DynamicRegionFactory {
         set = true;
       }
 
-      long result = super.basicPutPart2(event, entry, isInitialized, lastModified, clearConflict);
+      var result = super.basicPutPart2(event, entry, isInitialized, lastModified, clearConflict);
 
       if (set) {
         event.callbacksInvoked(false);
@@ -1074,7 +1070,7 @@ public abstract class DynamicRegionFactory {
       // this code is copied from LocalRegion.basicPutPart2
       invokeCallbacks &= !entry.isTombstone(); // put() is creating a tombstone
       if (invokeCallbacks) {
-        boolean doCallback = false;
+        var doCallback = false;
         if (isInitialized) {
           if (event.isGenerateCallbacks()) {
             doCallback = true;

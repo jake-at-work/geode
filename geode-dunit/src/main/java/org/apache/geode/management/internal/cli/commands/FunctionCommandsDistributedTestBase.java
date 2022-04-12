@@ -31,13 +31,11 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.internal.cache.functions.TestFunction;
-import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -63,7 +61,7 @@ public class FunctionCommandsDistributedTestBase {
   public static void before() {
     locator = lsRule.startLocatorVM(0, MemberStarterRule::withHttpService);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", "group-1");
     server1 = lsRule.startServerVM(1, props, locator.getPort());
 
@@ -74,12 +72,12 @@ public class FunctionCommandsDistributedTestBase {
 
       RegionFactory<String, String> dataRegionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
-      Region<String, String> region = dataRegionFactory.create(REGION_ONE);
-      for (int i = 0; i < 10; i++) {
+      var region = dataRegionFactory.create(REGION_ONE);
+      for (var i = 0; i < 10; i++) {
         region.put("key" + (i + 200), "value" + (i + 200));
       }
       region = dataRegionFactory.create(REGION_TWO);
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         region.put("key" + (i + 200), "value" + (i + 200));
       }
     });
@@ -88,20 +86,20 @@ public class FunctionCommandsDistributedTestBase {
       Cache cache = ClusterStartupRule.getCache();
       RegionFactory<String, String> dataRegionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
-      Region<String, String> region = dataRegionFactory.create(REGION_ONE);
-      for (int i = 0; i < 10000; i++) {
+      var region = dataRegionFactory.create(REGION_ONE);
+      for (var i = 0; i < 10000; i++) {
         region.put("key" + (i + 400), "value" + (i + 400));
       }
       region = dataRegionFactory.create(REGION_TWO);
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region.put("key" + (i + 200), "value" + (i + 200));
       }
     });
 
     locator.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
-      ManagementService managementService = ManagementService.getManagementService(cache);
-      DistributedSystemMXBean dsMXBean = managementService.getDistributedSystemMXBean();
+      var managementService = ManagementService.getManagementService(cache);
+      var dsMXBean = managementService.getDistributedSystemMXBean();
 
       await().until(() -> dsMXBean.getMemberCount() == 3);
     });
@@ -129,7 +127,7 @@ public class FunctionCommandsDistributedTestBase {
   }
 
   private static void registerFunction(Function<?> function, MemberVM... vms) {
-    for (MemberVM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> FunctionService.registerFunction(function));
     }
   }
@@ -299,7 +297,7 @@ public class FunctionCommandsDistributedTestBase {
 
   @Test
   public void testFunctionException() {
-    String errorMessage =
+    var errorMessage =
         "Exception: org.apache.geode.internal.cache.execute.MyFunctionExecutionException: I have been thrown from TestFunction";
     gfsh.executeAndAssertThat("execute function --id=" + TEST_FUNCTION_ALWAYS_THROWS_EXCEPTION)
         .statusIsError()

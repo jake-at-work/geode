@@ -33,8 +33,6 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 import org.apache.geode.test.junit.categories.FunctionServiceTest;
@@ -64,10 +62,10 @@ public class FunctionExceptionsIncludeLocalMemberRegressionTest implements Seria
 
   @Before
   public void setUp() {
-    VM datastore1 = getVM(0);
-    VM datastore2 = getVM(1);
+    var datastore1 = getVM(0);
+    var datastore2 = getVM(1);
 
-    String regionName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var regionName = getClass().getSimpleName() + "_" + testName.getMethodName();
 
     // create stores on all VMs including controller
     datastore1.invoke(() -> createPartitionedRegion(regionName));
@@ -86,19 +84,19 @@ public class FunctionExceptionsIncludeLocalMemberRegressionTest implements Seria
 
   @Test
   public void functionExceptionsIncludeLocalMember() {
-    ResultCollector resultCollector = execution.execute(ThrowsExceptionFunction.class.getName());
+    var resultCollector = execution.execute(ThrowsExceptionFunction.class.getName());
 
-    Throwable thrown = catchThrowable(resultCollector::getResult);
+    var thrown = catchThrowable(resultCollector::getResult);
     assertThat(thrown).isInstanceOf(FunctionException.class);
 
-    FunctionException functionException = (FunctionException) thrown;
+    var functionException = (FunctionException) thrown;
     assertThat(functionException.getExceptions()).hasSize(3);
   }
 
   private void createPartitionedRegion(final String regionName) {
     cacheRule.createCache();
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(10);
     paf.setRedundantCopies(0);
 
@@ -121,7 +119,7 @@ public class FunctionExceptionsIncludeLocalMemberRegressionTest implements Seria
     @Override
     public void execute(FunctionContext context) {
       // first send some results
-      for (int index = 0; index < 5; ++index) {
+      for (var index = 0; index < 5; ++index) {
         context.getResultSender().sendResult(index);
       }
       // then throw an exception

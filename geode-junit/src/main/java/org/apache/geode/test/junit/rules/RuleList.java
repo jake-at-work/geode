@@ -80,7 +80,7 @@ public class RuleList implements TestRule {
 
   @Override
   public Statement apply(Statement base, final Description description) {
-    for (TestRule each : rules) {
+    for (var each : rules) {
       base = each.apply(base, description);
     }
     return base;

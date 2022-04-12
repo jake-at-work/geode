@@ -55,9 +55,9 @@ public class EventTrackerExpiryTaskTest {
 
   @Test
   public void removesExpiredSequenceIdHolder() {
-    DistributedEventTracker tracker = constructTestTracker();
+    var tracker = constructTestTracker();
     task.addTracker(tracker);
-    EventSequenceNumberHolder sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
+    var sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
     tracker.recordSequenceNumber(new ThreadIdentifier(new byte[0], 0L), sequenceIdHolder);
     sequenceIdHolder.setEndOfLifeTimestamp(System.currentTimeMillis() - TIME_TO_LIVE);
     task.run2();
@@ -66,9 +66,9 @@ public class EventTrackerExpiryTaskTest {
 
   @Test
   public void doesNotRemoveNonExpiredSequenceIdHolder() {
-    DistributedEventTracker tracker = constructTestTracker();
+    var tracker = constructTestTracker();
     task.addTracker(tracker);
-    EventSequenceNumberHolder sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
+    var sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
     tracker.recordSequenceNumber(new ThreadIdentifier(new byte[0], 0L), sequenceIdHolder);
     sequenceIdHolder.setEndOfLifeTimestamp(System.currentTimeMillis() + 10000);
     task.run2();
@@ -77,16 +77,16 @@ public class EventTrackerExpiryTaskTest {
 
   @Test
   public void doesNotRemoveNewSequenceIdHolder() {
-    DistributedEventTracker tracker = constructTestTracker();
+    var tracker = constructTestTracker();
     task.addTracker(tracker);
-    EventSequenceNumberHolder sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
+    var sequenceIdHolder = new EventSequenceNumberHolder(0L, null);
     tracker.recordSequenceNumber(new ThreadIdentifier(new byte[0], 0L), sequenceIdHolder);
     task.run2();
     assertEquals(1, tracker.getRecordedEvents().size());
   }
 
   private DistributedEventTracker constructTestTracker() {
-    DistributedRegion region = mock(DistributedRegion.class);
+    var region = mock(DistributedRegion.class);
     when(region.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
     return new DistributedEventTracker(region);
   }

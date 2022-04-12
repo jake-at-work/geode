@@ -73,8 +73,8 @@ public class DumpB2NRegion extends PartitionMessage {
 
   public static DumpB2NResponse send(Set recipients, PartitionedRegion r, int bId,
       boolean justPrimaryInfo) {
-    DumpB2NResponse p = new DumpB2NResponse(r.getSystem(), recipients);
-    DumpB2NRegion m = new DumpB2NRegion(recipients, r.getPRId(), p, bId, justPrimaryInfo);
+    var p = new DumpB2NResponse(r.getSystem(), recipients);
+    var m = new DumpB2NRegion(recipients, r.getPRId(), p, bId, justPrimaryInfo);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     r.getDistributionManager().putOutgoing(m);
     return p;
@@ -85,7 +85,7 @@ public class DumpB2NRegion extends PartitionMessage {
     PartitionedRegion pr = null;
 
     // Get the region, or die trying...
-    final long finish = System.currentTimeMillis() + 10 * 1000;
+    final var finish = System.currentTimeMillis() + 10 * 1000;
     try {
       for (;;) {
         dm.getCancelCriterion().checkCancelInProgress(null);
@@ -98,14 +98,14 @@ public class DumpB2NRegion extends PartitionMessage {
         }
 
         if (System.currentTimeMillis() > finish) {
-          ReplyException rex =
+          var rex =
               new ReplyException(new TimeoutException("Waited too long for region to initialize"));
           sendReply(getSender(), processorId, dm, rex, null, 0);
           return;
         }
 
         // wait a little
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           Thread.sleep(2000);
         } catch (InterruptedException e) {
@@ -185,7 +185,7 @@ public class DumpB2NRegion extends PartitionMessage {
 
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, PrimaryInfo pinfo) {
-      DumpB2NReplyMessage m = new DumpB2NReplyMessage(processorId, pinfo);
+      var m = new DumpB2NReplyMessage(processorId, pinfo);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -193,7 +193,7 @@ public class DumpB2NRegion extends PartitionMessage {
 
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "DumpB2NReplyMessage process invoking reply processor with processorId: {}",
@@ -240,12 +240,12 @@ public class DumpB2NRegion extends PartitionMessage {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("DumpB2NReplyMessage ");
       sb.append(processorId);
       sb.append(" from ");
       sb.append(getSender());
-      ReplyException ex = getException();
+      var ex = getException();
       if (ex != null) {
         sb.append(" with exception ");
         sb.append(ex);
@@ -264,9 +264,9 @@ public class DumpB2NRegion extends PartitionMessage {
     @Override
     public void process(DistributionMessage msg) {
       if (msg instanceof DumpB2NReplyMessage) {
-        DumpB2NReplyMessage reply = (DumpB2NReplyMessage) msg;
+        var reply = (DumpB2NReplyMessage) msg;
         if (reply.getPrimaryInfo() != null && reply.getPrimaryInfo().isHosting) {
-          Object[] newBucketHost = new Object[] {reply.getSender(),
+          var newBucketHost = new Object[] {reply.getSender(),
               reply.getPrimaryInfo().isPrimary, reply.getPrimaryInfo().hostToken};
           synchronized (primaryInfos) {
             primaryInfos.add(newBucketHost);

@@ -16,9 +16,6 @@ package org.apache.geode.cache.snapshot;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.util.Map.Entry;
-
 import com.examples.snapshot.MyObject;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -33,8 +30,8 @@ import org.apache.geode.test.junit.categories.SnapshotTest;
 public class CacheSnapshotJUnitTest extends SnapshotTestCase {
   @Test
   public void testExportAndImport() throws Exception {
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
         Region<Integer, MyObject> region = regionGenerator.createRegion(cache, diskStore.getName(),
             rt, "test-" + rt.name() + "-" + st.name());
         region.putAll(createExpected(st));
@@ -44,9 +41,9 @@ public class CacheSnapshotJUnitTest extends SnapshotTestCase {
     // save all regions
     cache.getSnapshotService().save(getSnapshotDirectory(), SnapshotFormat.GEODE);
 
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        String name = "test-" + rt.name() + "-" + st.name();
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var name = "test-" + rt.name() + "-" + st.name();
 
         Region<Integer, MyObject> region = cache.getRegion(name);
         region.destroyRegion();
@@ -58,10 +55,10 @@ public class CacheSnapshotJUnitTest extends SnapshotTestCase {
     // load all regions
     cache.getSnapshotService().load(getSnapshotDirectory(), SnapshotFormat.GEODE);
 
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
         Region<Integer, MyObject> region = cache.getRegion("test-" + rt.name() + "-" + st.name());
-        for (Entry<Integer, MyObject> entry : createExpected(st).entrySet()) {
+        for (var entry : createExpected(st).entrySet()) {
           assertEquals("Comparison failure for " + rt.name() + "/" + st.name(), entry.getValue(),
               region.get(entry.getKey()));
         }
@@ -71,27 +68,27 @@ public class CacheSnapshotJUnitTest extends SnapshotTestCase {
 
   @Test
   public void testFilter() throws Exception {
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
         Region<Integer, MyObject> region = regionGenerator.createRegion(cache, diskStore.getName(),
             rt, "test-" + rt.name() + "-" + st.name());
         region.putAll(createExpected(st));
       }
     }
 
-    SnapshotFilter<Object, Object> even =
-        entry -> ((Integer) entry.getKey()) % 2 == 0;
+    var even =
+        (SnapshotFilter<Object, Object>) entry -> ((Integer) entry.getKey()) % 2 == 0;
 
-    SnapshotFilter<Object, Object> odd =
-        entry -> ((Integer) entry.getKey()) % 2 == 1;
+    var odd =
+        (SnapshotFilter<Object, Object>) entry -> ((Integer) entry.getKey()) % 2 == 1;
 
     // save even entries
-    CacheSnapshotService css = cache.getSnapshotService();
-    SnapshotOptions<Object, Object> options = css.createOptions().setFilter(even);
+    var css = cache.getSnapshotService();
+    var options = css.createOptions().setFilter(even);
     cache.getSnapshotService().save(getSnapshotDirectory(), SnapshotFormat.GEODE, options);
 
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
         Region region = cache.getRegion("test-" + rt.name() + "-" + st.name());
         region.destroyRegion();
         regionGenerator.createRegion(cache, diskStore.getName(), rt,
@@ -100,14 +97,14 @@ public class CacheSnapshotJUnitTest extends SnapshotTestCase {
     }
 
     // load odd entries
-    File[] snapshots =
+    var snapshots =
         getSnapshotDirectory().listFiles(pathname -> pathname.getName().startsWith("snapshot-"));
 
     options = css.createOptions().setFilter(odd);
     css.load(snapshots, SnapshotFormat.GEODE, options);
 
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
         Region region = cache.getRegion("test-" + rt.name() + "-" + st.name());
         assertEquals("Comparison failure for " + rt.name() + "/" + st.name(), 0, region.size());
       }

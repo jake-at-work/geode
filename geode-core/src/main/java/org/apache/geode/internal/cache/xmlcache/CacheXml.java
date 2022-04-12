@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache.xmlcache;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ServiceLoader;
 
 import org.xml.sax.Attributes;
@@ -841,7 +840,7 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
       return resolveEntityByEntityResolvers(name, publicId, baseURI, systemId);
     }
     InputSource result;
-    InputStream stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), location);
+    var stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), location);
     if (stream != null) {
       result = new InputSource(stream);
     } else {
@@ -881,10 +880,10 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
    */
   private InputSource resolveEntityByEntityResolvers(String name, String publicId, String baseURI,
       String systemId) throws SAXException, IOException {
-    final ServiceLoader<EntityResolver2> entityResolvers =
+    final var entityResolvers =
         ServiceLoader.load(EntityResolver2.class, ClassPathLoader.getLatest().asClassLoader());
-    for (final EntityResolver2 entityResolver : entityResolvers) {
-      final InputSource inputSource =
+    for (final var entityResolver : entityResolvers) {
+      final var inputSource =
           entityResolver.resolveEntity(name, publicId, baseURI, systemId);
       if (null != inputSource) {
         return inputSource;
@@ -933,7 +932,7 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
    */
   public static String getString(final Attributes attributes, final String name,
       final String defaultValue) {
-    final String value = attributes.getValue(name);
+    final var value = attributes.getValue(name);
     if (null == value) {
       return defaultValue;
     }
@@ -957,7 +956,7 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
    */
   public static Integer getInteger(final Attributes attributes, final String name,
       final Integer defaultValue) {
-    final String value = attributes.getValue(name);
+    final var value = attributes.getValue(name);
     if (null == value) {
       return defaultValue;
     }
@@ -981,7 +980,7 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
    */
   public static Boolean getBoolean(final Attributes attributes, final String name,
       final Boolean defaultValue) {
-    final String value = attributes.getValue(name);
+    final var value = attributes.getValue(name);
     if (null == value) {
       return defaultValue;
     }
@@ -1005,7 +1004,7 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
    */
   public static <E extends Enum<E>> E getEnum(final Attributes attributes, final String name,
       final Class<E> clazz, E defaultValue) {
-    String value = attributes.getValue(name);
+    var value = attributes.getValue(name);
     if (null == value) {
       return defaultValue;
     }

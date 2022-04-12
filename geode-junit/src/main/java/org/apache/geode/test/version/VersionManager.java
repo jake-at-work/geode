@@ -17,9 +17,7 @@ package org.apache.geode.test.version;
 import static java.util.Collections.unmodifiableList;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +56,7 @@ public class VersionManager {
   private static final VersionManager INSTANCE = newInstance();
 
   private static VersionManager newInstance() {
-    VersionManager versionManager = new VersionManager();
+    var versionManager = new VersionManager();
     versionManager.findVersions(DEFAULT_VERSIONS_FILE);
     versionManager.findInstalls(DEFAULT_INSTALLS_FILE);
     versionManager.establishGeodeVersionOrdinal();
@@ -77,7 +75,7 @@ public class VersionManager {
    */
   @VisibleForTesting
   static VersionManager getInstance(String classpathsFileName) {
-    VersionManager result = new VersionManager();
+    var result = new VersionManager();
     result.findVersions(classpathsFileName);
     return result;
   }
@@ -175,7 +173,7 @@ public class VersionManager {
   private void findVersions(String fileName) {
     // this file is created by the gradle task :geode-old-versions:createGeodeClasspathsFile
     readVersionsFile(fileName, (version, path) -> {
-      Optional<String> parsedVersion = parseVersion(version);
+      var parsedVersion = parseVersion(version);
       if (parsedVersion.isPresent()) {
         if (parsedVersion.get().equals("1.4.0")
             && SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_9)) {
@@ -195,7 +193,7 @@ public class VersionManager {
 
   private void findInstalls(String fileName) {
     readVersionsFile(fileName, (version, install) -> {
-      Optional<String> parsedVersion = parseVersion(version);
+      var parsedVersion = parseVersion(version);
       parsedVersion.ifPresent(s -> installs.put(s, install));
     });
   }
@@ -211,20 +209,20 @@ public class VersionManager {
   }
 
   private void readVersionsFile(String fileName, BiConsumer<String, String> consumer) {
-    Properties props = readPropertiesFile(fileName);
+    var props = readPropertiesFile(fileName);
     props.forEach((k, v) -> consumer.accept(k.toString(), v.toString()));
   }
 
   private Properties readPropertiesFile(String fileName) {
     // this file is created by the gradle task :geode-old-versions:createGeodeClasspathsFile
-    Properties props = new Properties();
-    URL url = VersionManager.class.getResource("/" + fileName);
+    var props = new Properties();
+    var url = VersionManager.class.getResource("/" + fileName);
     if (url == null) {
       loadFailure = "VersionManager: unable to locate " + fileName + " in class-path";
       return props;
     }
 
-    try (InputStream in = url.openStream()) {
+    try (var in = url.openStream()) {
       props.load(in);
     } catch (IOException e) {
       loadFailure = "VersionManager: unable to read resource " + fileName;
@@ -274,7 +272,7 @@ public class VersionManager {
 
   private Field findOrdinalField(Class<?> versionClass) {
     try {
-      Field currentOrdinalField = versionClass.getDeclaredField("CURRENT_ORDINAL");
+      var currentOrdinalField = versionClass.getDeclaredField("CURRENT_ORDINAL");
       currentOrdinalField.setAccessible(true);
       return currentOrdinalField;
     } catch (NoSuchFieldException e) {

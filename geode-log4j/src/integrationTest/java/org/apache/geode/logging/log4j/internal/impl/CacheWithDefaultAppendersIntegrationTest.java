@@ -23,9 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.junit.After;
 import org.junit.Before;
@@ -50,13 +48,13 @@ public class CacheWithDefaultAppendersIntegrationTest {
 
   @Before
   public void setUp() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
 
     cache = (InternalCache) new CacheFactory(config).create();
 
-    Logger coreLogger = (Logger) LogManager.getRootLogger();
-    LoggerContext context = coreLogger.getContext();
+    var coreLogger = (Logger) LogManager.getRootLogger();
+    var context = coreLogger.getContext();
 
     configuration = context.getConfiguration();
   }
@@ -68,28 +66,28 @@ public class CacheWithDefaultAppendersIntegrationTest {
 
   @Test
   public void hasGeodeConsoleAppenderNamed_GEODE_CONSOLE_APPENDER_NAME() {
-    Appender appender = configuration.getAppender(GEODE_CONSOLE_APPENDER_NAME);
+    var appender = configuration.getAppender(GEODE_CONSOLE_APPENDER_NAME);
 
     assertThat(appender).isNotNull().isInstanceOf(GeodeConsoleAppender.class);
   }
 
   @Test
   public void hasAlertAppenderNamed_ALERT_APPENDER_NAME() {
-    Appender appender = configuration.getAppender(GEODE_ALERT_APPENDER_NAME);
+    var appender = configuration.getAppender(GEODE_ALERT_APPENDER_NAME);
 
     assertThat(appender).isNotNull().isInstanceOf(AlertAppender.class);
   }
 
   @Test
   public void hasLogWriterAppenderNamed_LOGWRITER_APPENDER_NAME() {
-    Appender appender = configuration.getAppender(LOGWRITER_APPENDER_NAME);
+    var appender = configuration.getAppender(LOGWRITER_APPENDER_NAME);
 
     assertThat(appender).isNotNull().isInstanceOf(LogWriterAppender.class);
   }
 
   @Test
   public void hasLogWriterAppenderNamed_SECURITY_LOGWRITER_APPENDER_NAME() {
-    Appender appender = configuration.getAppender(SECURITY_LOGWRITER_APPENDER_NAME);
+    var appender = configuration.getAppender(SECURITY_LOGWRITER_APPENDER_NAME);
 
     assertThat(appender).isNotNull().isInstanceOf(LogWriterAppender.class);
   }

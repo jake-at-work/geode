@@ -25,7 +25,6 @@ import java.io.IOException;
 import org.junit.Test;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InitialImageOperation;
@@ -42,7 +41,7 @@ public class FetchEntriesMessageJUnitTest {
 
   private VersionTag createVersionTag(boolean validVersionTag)
       throws ClassNotFoundException, IOException {
-    VersionTag tag = VersionTag.create(cache.getMyId());
+    var tag = VersionTag.create(cache.getMyId());
     if (validVersionTag) {
       tag.setRegionVersion(1);
       tag.setEntryVersion(1);
@@ -51,7 +50,7 @@ public class FetchEntriesMessageJUnitTest {
   }
 
   private HeapDataOutputStream createDummyChunk() throws IOException, ClassNotFoundException {
-    HeapDataOutputStream mos =
+    var mos =
         new HeapDataOutputStream(InitialImageOperation.CHUNK_SIZE_IN_BYTES + 2048,
             KnownVersion.CURRENT);
     mos.reset();
@@ -62,7 +61,7 @@ public class FetchEntriesMessageJUnitTest {
     DataSerializer.writeObject("keyWithVersionTag", mos);
     DataSerializer.writeObject("valueWithVersionTag", mos);
 
-    VersionTag tag = createVersionTag(true);
+    var tag = createVersionTag(true);
     DataSerializer.writeObject(tag, mos);
 
     DataSerializer.writeObject(null, mos);
@@ -72,12 +71,12 @@ public class FetchEntriesMessageJUnitTest {
   @Test
   public void testProcessChunk() throws Exception {
     cache = Fakes.cache();
-    PartitionedRegion pr = mock(PartitionedRegion.class);
-    InternalDistributedSystem system = cache.getInternalDistributedSystem();
+    var pr = mock(PartitionedRegion.class);
+    var system = cache.getInternalDistributedSystem();
 
-    FetchEntriesResponse response = new FetchEntriesResponse(system, pr, null, 0);
-    HeapDataOutputStream chunkStream = createDummyChunk();
-    FetchEntriesReplyMessage reply =
+    var response = new FetchEntriesResponse(system, pr, null, 0);
+    var chunkStream = createDummyChunk();
+    var reply =
         new FetchEntriesReplyMessage(null, 0, 0, chunkStream, 0, 0, 0, false, false);
     reply.chunk = chunkStream.toByteArray();
     response.processChunk(reply);

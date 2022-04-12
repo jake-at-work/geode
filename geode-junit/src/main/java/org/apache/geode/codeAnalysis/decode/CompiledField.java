@@ -120,7 +120,7 @@ public class CompiledField implements Comparable {
     if (this == other) {
       return 0;
     }
-    CompiledField otherField = (CompiledField) (other);
+    var otherField = (CompiledField) (other);
     return name().compareTo(otherField.name);
   }
 }

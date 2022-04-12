@@ -51,7 +51,7 @@ public class ReflectiveFacadeObjectInputFilterTest {
   @Test
   public void createsObjectInputFilterProxy()
       throws InvocationTargetException, IllegalAccessException, UnableToSetSerialFilterException {
-    String pattern = "the-pattern";
+    var pattern = "the-pattern";
     Collection<String> sanctionedClasses = asList("class-name-one", "class-name-two");
     StreamSerialFilter objectInputFilter =
         new ReflectiveFacadeStreamSerialFilter(api, pattern, sanctionedClasses);
@@ -77,12 +77,12 @@ public class ReflectiveFacadeObjectInputFilterTest {
   @Test
   public void propagatesIllegalAccessExceptionInUnsupportedOperationException()
       throws InvocationTargetException, IllegalAccessException {
-    IllegalAccessException illegalAccessException = new IllegalAccessException("testing");
+    var illegalAccessException = new IllegalAccessException("testing");
     doThrow(illegalAccessException).when(api).setObjectInputFilter(same(objectInputStream), any());
     StreamSerialFilter objectInputFilter =
         new ReflectiveFacadeStreamSerialFilter(api, "the-pattern", singleton("class-name"));
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       objectInputFilter.setFilterOn(objectInputStream);
     });
 
@@ -95,14 +95,14 @@ public class ReflectiveFacadeObjectInputFilterTest {
   @Test
   public void propagatesInvocationTargetExceptionInUnsupportedOperationException()
       throws InvocationTargetException, IllegalAccessException {
-    InvocationTargetException invocationTargetException =
+    var invocationTargetException =
         new InvocationTargetException(new Exception("testing"), "testing");
     doThrow(invocationTargetException).when(api).setObjectInputFilter(same(objectInputStream),
         any());
     StreamSerialFilter objectInputFilter =
         new ReflectiveFacadeStreamSerialFilter(api, "the-pattern", singleton("class-name"));
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       objectInputFilter.setFilterOn(objectInputStream);
     });
 
@@ -123,12 +123,12 @@ public class ReflectiveFacadeObjectInputFilterTest {
       throws InvocationTargetException, IllegalAccessException {
     StreamSerialFilter objectInputFilter =
         new ReflectiveFacadeStreamSerialFilter(api, "the-pattern", singleton("class-name"));
-    InvocationTargetException invocationTargetException =
+    var invocationTargetException =
         new InvocationTargetException(new IllegalStateException("testing"), "testing");
     doThrow(invocationTargetException)
         .when(api).setObjectInputFilter(same(objectInputStream), any());
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       objectInputFilter.setFilterOn(objectInputStream);
     });
 
@@ -144,10 +144,10 @@ public class ReflectiveFacadeObjectInputFilterTest {
   @Test
   public void delegatesToObjectInputFilterApiToCreateObjectInputFilter()
       throws InvocationTargetException, IllegalAccessException, UnableToSetSerialFilterException {
-    ObjectInputFilterApi api = mock(ObjectInputFilterApi.class);
+    var api = mock(ObjectInputFilterApi.class);
     StreamSerialFilter filter = new ReflectiveFacadeStreamSerialFilter(api, "pattern", emptySet());
-    Object objectInputFilter = mock(Object.class);
-    ObjectInputStream objectInputStream = mock(ObjectInputStream.class);
+    var objectInputFilter = mock(Object.class);
+    var objectInputStream = mock(ObjectInputStream.class);
 
     when(api.createObjectInputFilterProxy(any(), any()))
         .thenReturn(objectInputFilter);
@@ -160,10 +160,10 @@ public class ReflectiveFacadeObjectInputFilterTest {
   @Test
   public void delegatesToObjectInputFilterApiToSetFilterOnObjectInputStream()
       throws InvocationTargetException, IllegalAccessException, UnableToSetSerialFilterException {
-    ObjectInputFilterApi api = mock(ObjectInputFilterApi.class);
+    var api = mock(ObjectInputFilterApi.class);
     StreamSerialFilter filter = new ReflectiveFacadeStreamSerialFilter(api, "pattern", emptySet());
-    Object objectInputFilter = mock(Object.class);
-    ObjectInputStream objectInputStream = mock(ObjectInputStream.class);
+    var objectInputFilter = mock(Object.class);
+    var objectInputStream = mock(ObjectInputStream.class);
 
     when(api.createObjectInputFilterProxy(any(), any()))
         .thenReturn(objectInputFilter);

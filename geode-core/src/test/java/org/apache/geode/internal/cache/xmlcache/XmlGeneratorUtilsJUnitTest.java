@@ -42,7 +42,7 @@ public class XmlGeneratorUtilsJUnitTest {
    */
   @Test
   public void testAddAttributeAttributesImplStringObject() {
-    final AttributesImpl attributes = new AttributesImpl();
+    final var attributes = new AttributesImpl();
     assertEquals(0, attributes.getLength());
 
     XmlGeneratorUtils.addAttribute(attributes, "localname", null);
@@ -61,7 +61,7 @@ public class XmlGeneratorUtilsJUnitTest {
    */
   @Test
   public void testAddAttributeAttributesImplStringStringObject() {
-    final AttributesImpl attributes = new AttributesImpl();
+    final var attributes = new AttributesImpl();
     assertEquals(0, attributes.getLength());
 
     XmlGeneratorUtils.addAttribute(attributes, "prefix", "localname", null);
@@ -81,10 +81,10 @@ public class XmlGeneratorUtilsJUnitTest {
    */
   @Test
   public void testStartElementContentHandlerStringStringAttributesImpl() throws SAXException {
-    final AtomicReference<String> uriRef = new AtomicReference<>();
-    final AtomicReference<String> localnameRef = new AtomicReference<>();
-    final AtomicReference<String> qNameRef = new AtomicReference<>();
-    final AtomicReference<Attributes> attributesRef = new AtomicReference<>();
+    final var uriRef = new AtomicReference<String>();
+    final var localnameRef = new AtomicReference<String>();
+    final var qNameRef = new AtomicReference<String>();
+    final var attributesRef = new AtomicReference<Attributes>();
 
     final ContentHandler contentHandler = new MockContentHandler() {
       @Override
@@ -109,9 +109,9 @@ public class XmlGeneratorUtilsJUnitTest {
    */
   @Test
   public void testEndElementContentHandlerStringString() throws SAXException {
-    final AtomicReference<String> uriRef = new AtomicReference<>();
-    final AtomicReference<String> localnameRef = new AtomicReference<>();
-    final AtomicReference<String> qNameRef = new AtomicReference<>();
+    final var uriRef = new AtomicReference<String>();
+    final var localnameRef = new AtomicReference<String>();
+    final var qNameRef = new AtomicReference<String>();
 
     final ContentHandler contentHandler = new MockContentHandler() {
       @Override
@@ -134,14 +134,14 @@ public class XmlGeneratorUtilsJUnitTest {
    */
   @Test
   public void testEmptyElement() throws SAXException {
-    final AtomicReference<String> uriRef = new AtomicReference<>();
-    final AtomicReference<String> localnameRef = new AtomicReference<>();
-    final AtomicReference<String> qNameRef = new AtomicReference<>();
-    final AtomicReference<Attributes> attributesRef = new AtomicReference<>();
+    final var uriRef = new AtomicReference<String>();
+    final var localnameRef = new AtomicReference<String>();
+    final var qNameRef = new AtomicReference<String>();
+    final var attributesRef = new AtomicReference<Attributes>();
 
-    final AtomicReference<String> endUriRef = new AtomicReference<>();
-    final AtomicReference<String> endLocalnameRef = new AtomicReference<>();
-    final AtomicReference<String> endQNameRef = new AtomicReference<>();
+    final var endUriRef = new AtomicReference<String>();
+    final var endLocalnameRef = new AtomicReference<String>();
+    final var endQNameRef = new AtomicReference<String>();
 
     final ContentHandler contentHandler = new MockContentHandler() {
       @Override

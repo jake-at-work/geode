@@ -43,7 +43,7 @@ public class PartitionedRegionObserverHolder {
    */
   public static PartitionedRegionObserver setInstance(PartitionedRegionObserver observer) {
     Support.assertArg(observer != null, "setInstance expects a non-null argument!");
-    PartitionedRegionObserver oldObserver = _instance;
+    var oldObserver = _instance;
     _instance = observer;
     return oldObserver;
   }

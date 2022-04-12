@@ -91,9 +91,9 @@ public class StatisticsRegistryTest {
 
   @Test
   public void remembersItsName() {
-    String theName = "the-name";
+    var theName = "the-name";
 
-    StatisticsRegistry registry = new StatisticsRegistry(theName, REGISTRY_START_TIME);
+    var registry = new StatisticsRegistry(theName, REGISTRY_START_TIME);
 
     assertThat(registry.getName())
         .isEqualTo(theName);
@@ -101,9 +101,9 @@ public class StatisticsRegistryTest {
 
   @Test
   public void remembersItsStartTime() {
-    int theStartTime = 374647;
+    var theStartTime = 374647;
 
-    StatisticsRegistry registry = new StatisticsRegistry(REGISTRY_NAME, theStartTime);
+    var registry = new StatisticsRegistry(REGISTRY_NAME, theStartTime);
 
     assertThat(registry.getStartTime())
         .isEqualTo(theStartTime);
@@ -111,12 +111,12 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesTypeCreationToTypeFactory() {
-    StatisticsType typeCreatedByFactory = mock(StatisticsType.class);
+    var typeCreatedByFactory = mock(StatisticsType.class);
 
     when(typeFactory.createType(any(), any(), any()))
         .thenReturn(typeCreatedByFactory);
 
-    StatisticsType result = registry.createType(TYPE_NAME, TYPE_DESCRIPTION, TYPE_DESCRIPTORS);
+    var result = registry.createType(TYPE_NAME, TYPE_DESCRIPTION, TYPE_DESCRIPTORS);
 
     assertThat(result)
         .isSameAs(typeCreatedByFactory);
@@ -130,7 +130,7 @@ public class StatisticsRegistryTest {
     when(typeFactory.createTypesFromXml(any()))
         .thenReturn(typesCreatedByFactory);
 
-    StatisticsType[] result = registry.createTypesFromXml(reader);
+    var result = registry.createTypesFromXml(reader);
 
     assertThat(result)
         .isSameAs(typesCreatedByFactory);
@@ -138,12 +138,12 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesTypeLookupToTypeFactory() {
-    StatisticsType typeFoundByFactory = mock(StatisticsType.class);
+    var typeFoundByFactory = mock(StatisticsType.class);
 
     when(typeFactory.findType(any()))
         .thenReturn(typeFoundByFactory);
 
-    StatisticsType result = registry.findType(TYPE_NAME);
+    var result = registry.findType(TYPE_NAME);
 
     assertThat(result)
         .isSameAs(typeFoundByFactory);
@@ -151,11 +151,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateIntCounterToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createIntCounter(any(), any(), any()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry.createIntCounter(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS);
 
     assertThat(result)
@@ -164,11 +164,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateLongCounterToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createLongCounter(any(), any(), any()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry.createLongCounter(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS);
 
     assertThat(result)
@@ -177,11 +177,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateDoubleCounterToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createDoubleCounter(any(), any(), any()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry.createDoubleCounter(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS);
 
     assertThat(result)
@@ -190,11 +190,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateIntGaugeToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createIntGauge(any(), any(), any()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry.createIntGauge(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS);
 
     assertThat(result)
@@ -203,11 +203,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateLongGaugeToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createLongGauge(any(), any(), any()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry.createLongGauge(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS);
 
     assertThat(result)
@@ -216,11 +216,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateDoubleGaugeToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createDoubleGauge(any(), any(), any()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry.createDoubleGauge(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS);
 
     assertThat(result)
@@ -229,11 +229,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateLargerBetterIntCounterToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createIntCounter(any(), any(), any(), anyBoolean()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry.createIntCounter(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS, true);
 
     assertThat(result)
@@ -242,11 +242,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateLargerBetterLongCounterToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createLongCounter(any(), any(), any(), anyBoolean()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry
             .createLongCounter(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS, false);
 
@@ -256,11 +256,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateLargerBetterDoubleCounterToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createDoubleCounter(any(), any(), any(), anyBoolean()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry
             .createDoubleCounter(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS, true);
 
@@ -270,11 +270,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateLargerBetterIntGaugeToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createIntGauge(any(), any(), any(), anyBoolean()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry.createIntGauge(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS, false);
 
     assertThat(result)
@@ -283,11 +283,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateLargerBetterLongGaugeToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createLongGauge(any(), any(), any(), anyBoolean()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry.createLongGauge(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS, true);
 
     assertThat(result)
@@ -296,11 +296,11 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesCreateLargerBetterDoubleGaugeToTypeFactory() {
-    StatisticDescriptor descriptorCreatedByFactory = mock(StatisticDescriptor.class);
+    var descriptorCreatedByFactory = mock(StatisticDescriptor.class);
     when(typeFactory.createDoubleGauge(any(), any(), any(), anyBoolean()))
         .thenReturn(descriptorCreatedByFactory);
 
-    StatisticDescriptor result =
+    var result =
         registry
             .createDoubleGauge(DESCRIPTOR_NAME, DESCRIPTOR_DESCRIPTION, DESCRIPTOR_UNITS, false);
 
@@ -310,12 +310,12 @@ public class StatisticsRegistryTest {
 
   @Test
   public void createsOsStatisticsViaFactory() {
-    Statistics statisticsCreatedByFactory = mock(Statistics.class);
+    var statisticsCreatedByFactory = mock(Statistics.class);
 
     when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), anyInt(), any()))
         .thenReturn(statisticsCreatedByFactory);
 
-    Statistics result = registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
+    var result = registry.createOsStatistics(type, STATISTICS_TEXT_ID, STATISTICS_NUMERIC_ID,
         STATISTICS_OS_FLAGS);
 
     assertThat(result)
@@ -324,12 +324,12 @@ public class StatisticsRegistryTest {
 
   @Test
   public void createsAtomicStatisticsViaFactory() {
-    Statistics statisticsCreatedByFactory = mock(Statistics.class);
+    var statisticsCreatedByFactory = mock(Statistics.class);
 
     when(atomicStatisticsFactory.create(any(), any(), anyLong(), anyLong(), any()))
         .thenReturn(statisticsCreatedByFactory);
 
-    Statistics result = registry.createAtomicStatistics(type, STATISTICS_TEXT_ID,
+    var result = registry.createAtomicStatistics(type, STATISTICS_TEXT_ID,
         STATISTICS_NUMERIC_ID);
 
     assertThat(result)
@@ -362,12 +362,12 @@ public class StatisticsRegistryTest {
 
   @Test
   public void remembersTheStatisticsItCreates() {
-    Statistics atomicStatistics1 = mock(Statistics.class, "atomic 1");
-    Statistics atomicStatistics2 = mock(Statistics.class, "atomic 1");
-    Statistics atomicStatistics3 = mock(Statistics.class, "atomic 1");
-    Statistics osStatistics1 = mock(Statistics.class, "os 1");
-    Statistics osStatistics2 = mock(Statistics.class, "os 1");
-    Statistics osStatistics3 = mock(Statistics.class, "os 1");
+    var atomicStatistics1 = mock(Statistics.class, "atomic 1");
+    var atomicStatistics2 = mock(Statistics.class, "atomic 1");
+    var atomicStatistics3 = mock(Statistics.class, "atomic 1");
+    var osStatistics1 = mock(Statistics.class, "os 1");
+    var osStatistics2 = mock(Statistics.class, "os 1");
+    var osStatistics3 = mock(Statistics.class, "os 1");
 
     when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), anyInt(), any()))
         .thenReturn(osStatistics1)
@@ -401,17 +401,17 @@ public class StatisticsRegistryTest {
 
   @Test
   public void forgetsTheStatisticsItDestroys() {
-    Statistics osStatistics1 = mock(Statistics.class, "os 1");
-    Statistics osStatistics2 = mock(Statistics.class, "os 2");
-    Statistics osStatistics3 = mock(Statistics.class, "os 3");
+    var osStatistics1 = mock(Statistics.class, "os 1");
+    var osStatistics2 = mock(Statistics.class, "os 2");
+    var osStatistics3 = mock(Statistics.class, "os 3");
     when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), anyInt(), any()))
         .thenReturn(osStatistics1)
         .thenReturn(osStatistics2)
         .thenReturn(osStatistics3);
 
-    Statistics atomicStatistics1 = mock(Statistics.class, "atomic 1");
-    Statistics atomicStatistics2 = mock(Statistics.class, "atomic 2");
-    Statistics atomicStatistics3 = mock(Statistics.class, "atomic 3");
+    var atomicStatistics1 = mock(Statistics.class, "atomic 1");
+    var atomicStatistics2 = mock(Statistics.class, "atomic 2");
+    var atomicStatistics3 = mock(Statistics.class, "atomic 3");
     when(atomicStatisticsFactory.create(any(), any(), anyLong(), anyLong(), any()))
         .thenReturn(atomicStatistics1)
         .thenReturn(atomicStatistics2)
@@ -446,8 +446,8 @@ public class StatisticsRegistryTest {
 
   @Test
   public void incrementsModificationCountOnEachCreationAndDestruction() {
-    Statistics osStatistics = mock(Statistics.class, "os");
-    Statistics atomicStatistics = mock(Statistics.class, "atomic");
+    var osStatistics = mock(Statistics.class, "os");
+    var atomicStatistics = mock(Statistics.class, "atomic");
 
     when(osStatisticsFactory.create(any(), any(), anyLong(), anyLong(), anyInt(), any()))
         .thenReturn(osStatistics);
@@ -480,7 +480,7 @@ public class StatisticsRegistryTest {
   @Test
   public void doesNotIncrementModificationCountWhenDestroyingUnknownStats() {
     // The stats were not created by the registry, and so are not known to the registry
-    Statistics unknownStatistics = mock(Statistics.class);
+    var unknownStatistics = mock(Statistics.class);
 
     registry.destroyStatistics(unknownStatistics);
 
@@ -490,8 +490,8 @@ public class StatisticsRegistryTest {
 
   @Test
   public void findStatisticsByUniqueId_returnsStatisticsThatMatchesUniqueId() {
-    long soughtId = 44L;
-    Statistics matchingStatistics = statistics(withUniqueId(soughtId));
+    var soughtId = 44L;
+    var matchingStatistics = statistics(withUniqueId(soughtId));
 
     givenExistingStatistics(matchingStatistics);
 
@@ -507,7 +507,7 @@ public class StatisticsRegistryTest {
 
   @Test
   public void statisticsExists_returnsTrue_ifStatisticsMatchesUniqueId() {
-    long soughtId = 44L;
+    var soughtId = 44L;
     givenExistingStatistics(statistics(withUniqueId(soughtId)));
 
     assertThat(registry.statisticsExists(soughtId))
@@ -522,19 +522,19 @@ public class StatisticsRegistryTest {
 
   @Test
   public void findsStatisticsByNumericId_returnsAllStatisticsThatMatchNumericId() {
-    long soughtId = 44L;
-    long differentId = 45L;
+    var soughtId = 44L;
+    var differentId = 45L;
 
-    Statistics matchingStatistics1 = statistics(withNumericId(soughtId));
-    Statistics matchingStatistics2 = statistics(withNumericId(soughtId));
-    Statistics mismatchingStatistics = statistics(withNumericId(differentId));
+    var matchingStatistics1 = statistics(withNumericId(soughtId));
+    var matchingStatistics2 = statistics(withNumericId(soughtId));
+    var mismatchingStatistics = statistics(withNumericId(differentId));
 
     givenExistingStatistics(
         matchingStatistics1,
         mismatchingStatistics,
         matchingStatistics2);
 
-    Statistics[] foundStatistics = registry.findStatisticsByNumericId(soughtId);
+    var foundStatistics = registry.findStatisticsByNumericId(soughtId);
 
     assertThat(foundStatistics)
         .containsExactlyInAnyOrder(
@@ -544,8 +544,8 @@ public class StatisticsRegistryTest {
 
   @Test
   public void findStatisticsByNumericId_returnsEmptyArray_ifNoStatisticsMatchNumericId() {
-    long soughtId = 44L;
-    long differentId = 45L;
+    var soughtId = 44L;
+    var differentId = 45L;
 
     givenExistingStatistics(
         statistics(withNumericId(differentId)),
@@ -557,19 +557,19 @@ public class StatisticsRegistryTest {
 
   @Test
   public void findStatisticsByTextId_returnsAllStatisticsThatMatchTextId() {
-    String soughtId = "matching-id";
-    String differentId = "mismatching-id";
+    var soughtId = "matching-id";
+    var differentId = "mismatching-id";
 
-    Statistics matchingStatistics1 = statistics(withTextId(soughtId));
-    Statistics matchingStatistics2 = statistics(withTextId(soughtId));
-    Statistics mismatchingStatistics = statistics(withTextId(differentId));
+    var matchingStatistics1 = statistics(withTextId(soughtId));
+    var matchingStatistics2 = statistics(withTextId(soughtId));
+    var mismatchingStatistics = statistics(withTextId(differentId));
 
     givenExistingStatistics(
         mismatchingStatistics,
         matchingStatistics1,
         matchingStatistics2);
 
-    Statistics[] foundStatistics = registry.findStatisticsByTextId(soughtId);
+    var foundStatistics = registry.findStatisticsByTextId(soughtId);
     assertThat(foundStatistics)
         .containsExactlyInAnyOrder(
             matchingStatistics1,
@@ -578,8 +578,8 @@ public class StatisticsRegistryTest {
 
   @Test
   public void findStatisticsByTextId_returnsEmptyArray_ifNoStatisticsMatchTextId() {
-    String soughtId = "matching-id";
-    String differentId = "mismatching-id";
+    var soughtId = "matching-id";
+    var differentId = "mismatching-id";
 
     givenExistingStatistics(
         statistics(withTextId(differentId)),
@@ -591,19 +591,19 @@ public class StatisticsRegistryTest {
 
   @Test
   public void findStatisticsByType_returnsAllStatisticsThatMatchType() {
-    StatisticsType soughtType = mock(StatisticsType.class, "matching type");
-    StatisticsType differentType = mock(StatisticsType.class, "mismatching type");
+    var soughtType = mock(StatisticsType.class, "matching type");
+    var differentType = mock(StatisticsType.class, "mismatching type");
 
-    Statistics matchingStatistics1 = statistics(withType(soughtType));
-    Statistics matchingStatistics2 = statistics(withType(soughtType));
-    Statistics mismatchingStatistics = statistics(withType(differentType));
+    var matchingStatistics1 = statistics(withType(soughtType));
+    var matchingStatistics2 = statistics(withType(soughtType));
+    var mismatchingStatistics = statistics(withType(differentType));
 
     givenExistingStatistics(
         matchingStatistics2,
         matchingStatistics1,
         mismatchingStatistics);
 
-    Statistics[] foundStatistics = registry.findStatisticsByType(soughtType);
+    var foundStatistics = registry.findStatisticsByType(soughtType);
     assertThat(foundStatistics)
         .containsExactlyInAnyOrder(
             matchingStatistics1,
@@ -612,8 +612,8 @@ public class StatisticsRegistryTest {
 
   @Test
   public void findStatisticsByType_returnsEmptyArray_ifNoStatisticsMatchType() {
-    StatisticsType soughtType = mock(StatisticsType.class, "matching type");
-    StatisticsType differentType = mock(StatisticsType.class, "mismatching type");
+    var soughtType = mock(StatisticsType.class, "matching type");
+    var differentType = mock(StatisticsType.class, "mismatching type");
 
     givenExistingStatistics(
         statistics(withType(differentType)),
@@ -625,12 +625,12 @@ public class StatisticsRegistryTest {
 
   @Test
   public void delegatesGetPidToPidSupplier() {
-    int pidReturnedFromPidSupplier = 42;
+    var pidReturnedFromPidSupplier = 42;
 
     when(pidSupplier.getAsInt())
         .thenReturn(pidReturnedFromPidSupplier);
 
-    int result = registry.getPid();
+    var result = registry.getPid();
 
     assertThat(result)
         .isSameAs(pidReturnedFromPidSupplier);
@@ -643,7 +643,7 @@ public class StatisticsRegistryTest {
     when(pidSupplier.getAsInt())
         .thenThrow(thrownFromPidSupplier);
 
-    Throwable thrown = catchThrowable(() -> registry.getPid());
+    var thrown = catchThrowable(() -> registry.getPid());
 
     assertThat(thrown)
         .isSameAs(thrownFromPidSupplier);
@@ -662,7 +662,7 @@ public class StatisticsRegistryTest {
    * Creates a mock Statistics with the given preparation applied.
    */
   private static Statistics statistics(Consumer<Statistics> preparation) {
-    Statistics statistics = mock(Statistics.class);
+    var statistics = mock(Statistics.class);
     preparation.accept(statistics);
     return statistics;
   }

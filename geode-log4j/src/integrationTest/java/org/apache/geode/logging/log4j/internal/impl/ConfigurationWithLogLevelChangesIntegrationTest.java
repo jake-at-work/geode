@@ -24,11 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.net.URL;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.junit.LoggerContextRule;
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +77,7 @@ public class ConfigurationWithLogLevelChangesIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
@@ -91,7 +88,7 @@ public class ConfigurationWithLogLevelChangesIntegrationTest {
     when(config.getLogLevel()).thenReturn(CONFIG.intLevel());
     when(config.getSecurityLogLevel()).thenReturn(CONFIG.intLevel());
 
-    LogConfigSupplier logConfigSupplier = mock(LogConfigSupplier.class);
+    var logConfigSupplier = mock(LogConfigSupplier.class);
     when(logConfigSupplier.getLogConfig()).thenReturn(config);
 
     configuration = create(LogLevelUpdateOccurs.ALWAYS, LogLevelUpdateScope.GEODE_LOGGERS);
@@ -132,7 +129,7 @@ public class ConfigurationWithLogLevelChangesIntegrationTest {
 
     // assert
     assertThat(geodeConsoleAppender.getLogEvents()).hasSize(1);
-    LogEvent event = geodeConsoleAppender.getLogEvents().get(0);
+    var event = geodeConsoleAppender.getLogEvents().get(0);
     assertThat(event.getLoggerName()).isEqualTo(getClass().getName());
     assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
     assertThat(event.getMessage().getFormattedMessage()).isEqualTo(logMessage);
@@ -176,7 +173,7 @@ public class ConfigurationWithLogLevelChangesIntegrationTest {
 
     // assert
     assertThat(geodeConsoleAppender.getLogEvents()).hasSize(1);
-    LogEvent event = geodeConsoleAppender.getLogEvents().get(0);
+    var event = geodeConsoleAppender.getLogEvents().get(0);
     assertThat(event.getLoggerName()).isEqualTo(APPLICATION_LOGGER_NAME);
     assertThat(event.getLevel()).isEqualTo(Level.INFO);
     assertThat(event.getMessage().getFormattedMessage()).isEqualTo(logMessage);

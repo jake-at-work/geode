@@ -41,7 +41,7 @@ public class CounterAssert extends AbstractMeterAssert<CounterAssert, Counter> {
    */
   public CounterAssert hasCount(Condition<? super Double> condition) {
     isNotNull();
-    double count = actual.count();
+    var count = actual.count();
     if (!condition.matches(count)) {
       failWithMessage("Expected counter to have count <%s> but count was <%s>", condition, count);
     }

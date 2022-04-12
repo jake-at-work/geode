@@ -52,10 +52,10 @@ public class RedisMemberInfoRetrievalFunctionTest {
 
   @Test
   public void initialize_setsMemberInfo() {
-    DistributedMember mockMember = mock(DistributedMember.class);
-    String address = "1.1.1.1";
-    int redisPort = 12345;
-    RedisMemberInfo expectedMemberInfo = new RedisMemberInfo(mockMember, address, redisPort);
+    var mockMember = mock(DistributedMember.class);
+    var address = "1.1.1.1";
+    var redisPort = 12345;
+    var expectedMemberInfo = new RedisMemberInfo(mockMember, address, redisPort);
 
     function.initialize(mockMember, address, redisPort);
 
@@ -65,12 +65,12 @@ public class RedisMemberInfoRetrievalFunctionTest {
   @Test
   public void initialize_setsMemberInfo_givenNullAddress()
       throws UnknownHostException {
-    DistributedMember mockMember = mock(DistributedMember.class);
-    String address = "1.1.1.1";
-    int redisPort = 12345;
-    RedisMemberInfo expectedMemberInfo = new RedisMemberInfo(mockMember, address, redisPort);
+    var mockMember = mock(DistributedMember.class);
+    var address = "1.1.1.1";
+    var redisPort = 12345;
+    var expectedMemberInfo = new RedisMemberInfo(mockMember, address, redisPort);
 
-    InetAddress mockInetAddress = mock(InetAddress.class);
+    var mockInetAddress = mock(InetAddress.class);
     when(mockInetAddress.getHostAddress()).thenReturn(address);
 
     doReturn(mockInetAddress).when(function).getLocalHost();
@@ -84,12 +84,12 @@ public class RedisMemberInfoRetrievalFunctionTest {
   @Test
   public void initialize_setsMemberInfo_givenEmptyAddress()
       throws UnknownHostException {
-    DistributedMember mockMember = mock(DistributedMember.class);
-    String address = "1.1.1.1";
-    int redisPort = 12345;
-    RedisMemberInfo expectedMemberInfo = new RedisMemberInfo(mockMember, address, redisPort);
+    var mockMember = mock(DistributedMember.class);
+    var address = "1.1.1.1";
+    var redisPort = 12345;
+    var expectedMemberInfo = new RedisMemberInfo(mockMember, address, redisPort);
 
-    InetAddress mockInetAddress = mock(InetAddress.class);
+    var mockInetAddress = mock(InetAddress.class);
     when(mockInetAddress.getHostAddress()).thenReturn(address);
 
     doReturn(mockInetAddress).when(function).getLocalHost();
@@ -103,12 +103,12 @@ public class RedisMemberInfoRetrievalFunctionTest {
   @Test
   public void initialize_setsMemberInfo_givenInvalidAddress()
       throws UnknownHostException {
-    DistributedMember mockMember = mock(DistributedMember.class);
-    String address = "1.1.1.1";
-    int redisPort = 12345;
-    RedisMemberInfo expectedMemberInfo = new RedisMemberInfo(mockMember, address, redisPort);
+    var mockMember = mock(DistributedMember.class);
+    var address = "1.1.1.1";
+    var redisPort = 12345;
+    var expectedMemberInfo = new RedisMemberInfo(mockMember, address, redisPort);
 
-    InetAddress mockInetAddress = mock(InetAddress.class);
+    var mockInetAddress = mock(InetAddress.class);
     when(mockInetAddress.getHostAddress()).thenReturn(address);
 
     doReturn(mockInetAddress).when(function).getLocalHost();
@@ -122,9 +122,9 @@ public class RedisMemberInfoRetrievalFunctionTest {
   @Test
   public void initialize_setsMemberInfo_givenGetLocalHostThrowsException()
       throws UnknownHostException {
-    DistributedMember mockMember = mock(DistributedMember.class);
-    int redisPort = 12345;
-    RedisMemberInfo expectedMemberInfo = new RedisMemberInfo(mockMember, "127.0.0.1", redisPort);
+    var mockMember = mock(DistributedMember.class);
+    var redisPort = 12345;
+    var expectedMemberInfo = new RedisMemberInfo(mockMember, "127.0.0.1", redisPort);
 
     doThrow(new UnknownHostException()).when(function).getLocalHost();
 
@@ -141,9 +141,9 @@ public class RedisMemberInfoRetrievalFunctionTest {
 
     when(mockContext.getResultSender()).thenReturn(mockResultSender);
 
-    DistributedMember mockMember = mock(DistributedMember.class);
-    String address = "1.1.1.1";
-    int redisPort = 12345;
+    var mockMember = mock(DistributedMember.class);
+    var address = "1.1.1.1";
+    var redisPort = 12345;
 
     function.initialize(mockMember, address, redisPort);
     function.execute(mockContext);

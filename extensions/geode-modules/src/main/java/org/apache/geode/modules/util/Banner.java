@@ -22,8 +22,8 @@ import org.apache.geode.internal.GemFireVersion;
 public class Banner {
 
   public static String getString() {
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var pw = new PrintWriter(sw);
     print(pw);
     pw.close();
     return sw.toString();

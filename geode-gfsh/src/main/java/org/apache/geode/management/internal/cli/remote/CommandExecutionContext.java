@@ -33,7 +33,7 @@ public class CommandExecutionContext {
 
   public static String getShellEnvProperty(String propertyName, String defaultValue) {
     String propertyValue = null;
-    Map<String, String> gfshEnv = ENV.get();
+    var gfshEnv = ENV.get();
     if (gfshEnv != null) {
       propertyValue = gfshEnv.get(propertyName);
     }
@@ -41,8 +41,8 @@ public class CommandExecutionContext {
   }
 
   public static int getShellFetchSize() {
-    int fetchSize = Gfsh.DEFAULT_APP_FETCH_SIZE;
-    String fetchSizeStr = getShellEnvProperty(Gfsh.ENV_APP_FETCH_SIZE, null);
+    var fetchSize = Gfsh.DEFAULT_APP_FETCH_SIZE;
+    var fetchSizeStr = getShellEnvProperty(Gfsh.ENV_APP_FETCH_SIZE, null);
     if (fetchSizeStr != null) {
       fetchSize = Integer.parseInt(fetchSizeStr);
     }
@@ -54,7 +54,7 @@ public class CommandExecutionContext {
   }
 
   public static Map<String, String> getShellEnv() {
-    Map<String, String> envMap = ENV.get();
+    var envMap = ENV.get();
     if (envMap != null) {
       return Collections.unmodifiableMap(envMap);
     } else {
@@ -83,7 +83,7 @@ public class CommandExecutionContext {
   }
 
   public static void clear() {
-    Map<String, String> map = ENV.get();
+    var map = ENV.get();
     if (map != null) {
       map.clear();
     }

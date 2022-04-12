@@ -35,7 +35,7 @@ public class StatisticsClockFactoryTest {
   public void clock_createsEnabledClockIfPropertyIsTrue() {
     System.setProperty(ENABLE_CLOCK_STATS_PROPERTY, "true");
 
-    StatisticsClock clock = StatisticsClockFactory.clock();
+    var clock = StatisticsClockFactory.clock();
 
     assertThat(clock.isEnabled()).isTrue();
   }
@@ -44,71 +44,71 @@ public class StatisticsClockFactoryTest {
   public void clock_createsDisabledClockIfPropertyIsFalse() {
     System.setProperty(ENABLE_CLOCK_STATS_PROPERTY, "false");
 
-    StatisticsClock clock = StatisticsClockFactory.clock();
+    var clock = StatisticsClockFactory.clock();
 
     assertThat(clock.isEnabled()).isFalse();
   }
 
   @Test
   public void clock_boolean_createsEnabledClockIfParameterIsTrue() {
-    StatisticsClock clock = StatisticsClockFactory.clock(true);
+    var clock = StatisticsClockFactory.clock(true);
 
     assertThat(clock.isEnabled()).isTrue();
   }
 
   @Test
   public void clock_boolean_createsEnabledClockIfParameterIsFalse() {
-    StatisticsClock clock = StatisticsClockFactory.clock(false);
+    var clock = StatisticsClockFactory.clock(false);
 
     assertThat(clock.isEnabled()).isFalse();
   }
 
   @Test
   public void enabledClock_usesProvidedLongSupplierForGetTime() {
-    StatisticsClock clock = StatisticsClockFactory.enabledClock(() -> 42);
+    var clock = StatisticsClockFactory.enabledClock(() -> 42);
 
     assertThat(clock.getTime()).isEqualTo(42);
   }
 
   @Test
   public void enabledClock_createsEnabledClock() {
-    StatisticsClock clock = StatisticsClockFactory.enabledClock(() -> 24);
+    var clock = StatisticsClockFactory.enabledClock(() -> 24);
 
     assertThat(clock.isEnabled()).isTrue();
   }
 
   @Test
   public void disabledClock_usesZeroForGetTime() {
-    StatisticsClock clock = StatisticsClockFactory.disabledClock();
+    var clock = StatisticsClockFactory.disabledClock();
 
     assertThat(clock.getTime()).isZero();
   }
 
   @Test
   public void disabledClock_createsDisabledClock() {
-    StatisticsClock clock = StatisticsClockFactory.disabledClock();
+    var clock = StatisticsClockFactory.disabledClock();
 
     assertThat(clock.isEnabled()).isFalse();
   }
 
   @Test
   public void clock_usesProvidedLongSupplierForGetTime() {
-    StatisticsClock clock = StatisticsClockFactory.clock(() -> 100, () -> true);
+    var clock = StatisticsClockFactory.clock(() -> 100, () -> true);
 
     assertThat(clock.getTime()).isEqualTo(100);
   }
 
   @Test
   public void clock_usesProvidedBooleanSupplierForIsEnabled() {
-    StatisticsClock clock = StatisticsClockFactory.clock(() -> 100, () -> true);
+    var clock = StatisticsClockFactory.clock(() -> 100, () -> true);
 
     assertThat(clock.isEnabled()).isTrue();
   }
 
   @Test
   public void clock_getTime_delegatesToLongSupplier() {
-    LongSupplier time = mock(LongSupplier.class);
-    StatisticsClock clock = StatisticsClockFactory.clock(time, mock(BooleanSupplier.class));
+    var time = mock(LongSupplier.class);
+    var clock = StatisticsClockFactory.clock(time, mock(BooleanSupplier.class));
 
     clock.getTime();
 
@@ -117,8 +117,8 @@ public class StatisticsClockFactoryTest {
 
   @Test
   public void clock_isEnabled_delegatesToBooleanSupplier() {
-    BooleanSupplier isEnabled = mock(BooleanSupplier.class);
-    StatisticsClock clock = StatisticsClockFactory.clock(mock(LongSupplier.class), isEnabled);
+    var isEnabled = mock(BooleanSupplier.class);
+    var clock = StatisticsClockFactory.clock(mock(LongSupplier.class), isEnabled);
 
     clock.isEnabled();
 

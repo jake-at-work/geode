@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Arrays;
-import java.util.List;
 
 import junitparams.Parameters;
 import org.junit.Before;
@@ -52,7 +51,7 @@ public class CompiledGroupBySelectIntegrationTest {
 
   @Test
   public void parsingShouldSucceedForSupportedQueries() {
-    List<String> queries = Arrays.asList(
+    var queries = Arrays.asList(
         "SELECT MIN(pf.ID) FROM " + SEPARATOR + "portfolio pf WHERE pf.ID > 0",
         "SELECT pf.status, MIN(pf.ID) FROM " + SEPARATOR
             + "portfolio pf WHERE pf.ID > 0 GROUP BY pf.status",
@@ -88,9 +87,9 @@ public class CompiledGroupBySelectIntegrationTest {
 
     );
 
-    for (String queryStr : queries) {
-      DefaultQuery query = (DefaultQuery) queryService.newQuery(queryStr);
-      CompiledSelect cs = query.getSimpleSelect();
+    for (var queryStr : queries) {
+      var query = (DefaultQuery) queryService.newQuery(queryStr);
+      var cs = query.getSimpleSelect();
       assertThat(cs)
           .as(String.format("Query parsing failed for %s", queryStr))
           .isInstanceOf(CompiledGroupBySelect.class);
@@ -99,9 +98,9 @@ public class CompiledGroupBySelectIntegrationTest {
 
   @Test
   public void parsingShouldSucceedForSupportedQueriesWithNestedQueries() {
-    String innerQuery =
+    var innerQuery =
         "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + "portfolio iter WHERE iter.ID = pf.ID)";
-    List<String> queries = Arrays.asList(
+    var queries = Arrays.asList(
         "SELECT MIN(" + innerQuery + ") FROM " + SEPARATOR + "portfolio pf WHERE pf.ID > 0",
         "SELECT pf.status, MIN(" + innerQuery
             + ") FROM " + SEPARATOR + "portfolio pf WHERE pf.ID > 0 GROUP BY pf.status",
@@ -141,9 +140,9 @@ public class CompiledGroupBySelectIntegrationTest {
 
     );
 
-    for (String queryStr : queries) {
-      DefaultQuery query = (DefaultQuery) queryService.newQuery(queryStr);
-      CompiledSelect cs = query.getSimpleSelect();
+    for (var queryStr : queries) {
+      var query = (DefaultQuery) queryService.newQuery(queryStr);
+      var cs = query.getSimpleSelect();
       assertThat(cs)
           .as(String.format("Query parsing failed for %s", queryStr))
           .isInstanceOf(CompiledGroupBySelect.class);
@@ -152,7 +151,7 @@ public class CompiledGroupBySelectIntegrationTest {
 
   @Test
   public void parsingShouldSucceedForSupportedQueriesWithAliases() {
-    List<String> queries = Arrays.asList(
+    var queries = Arrays.asList(
         "SELECT MIN(pf.ID) AS mn FROM " + SEPARATOR + "portfolio pf WHERE pf.ID > 0",
         "SELECT pf.status AS st, MIN(pf.ID) AS mn FROM " + SEPARATOR
             + "portfolio pf WHERE pf.ID > 0 GROUP BY st",
@@ -186,9 +185,9 @@ public class CompiledGroupBySelectIntegrationTest {
         "SELECT pf.status as st, MIN(pf.ID) AS mn, MAX(pf.ID) AS mx, AVG(DISTINCT pf.ID) AS ag, SUM(DISTINCT pf.ID) AS sm, COUNT(DISTINCT pf.ID) AS ct FROM "
             + SEPARATOR + "portfolio pf WHERE pf.ID > 0 GROUP BY st");
 
-    for (String queryStr : queries) {
-      DefaultQuery query = (DefaultQuery) queryService.newQuery(queryStr);
-      CompiledSelect cs = query.getSimpleSelect();
+    for (var queryStr : queries) {
+      var query = (DefaultQuery) queryService.newQuery(queryStr);
+      var cs = query.getSimpleSelect();
       assertThat(cs)
           .as(String.format("Query parsing failed for %s", queryStr))
           .isInstanceOf(CompiledGroupBySelect.class);
@@ -197,9 +196,9 @@ public class CompiledGroupBySelectIntegrationTest {
 
   @Test
   public void parsingShouldSucceedForSupportedQueriesWithAliasesAndNestedQueries() {
-    String innerQuery =
+    var innerQuery =
         "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + "portfolio iter WHERE iter.ID = pf.ID)";
-    List<String> queries = Arrays.asList(
+    var queries = Arrays.asList(
         "SELECT MIN(" + innerQuery + ") AS mn FROM " + SEPARATOR + "portfolio pf WHERE pf.ID > 0",
         "SELECT pf.status AS st, MIN(" + innerQuery
             + ") AS mn FROM " + SEPARATOR + "portfolio pf WHERE pf.ID > 0 GROUP BY st",
@@ -237,9 +236,9 @@ public class CompiledGroupBySelectIntegrationTest {
             + ") AS sm, COUNT(DISTINCT " + innerQuery
             + ") AS ct FROM " + SEPARATOR + "portfolio pf WHERE pf.ID > 0 GROUP BY st");
 
-    for (String queryStr : queries) {
-      DefaultQuery query = (DefaultQuery) queryService.newQuery(queryStr);
-      CompiledSelect cs = query.getSimpleSelect();
+    for (var queryStr : queries) {
+      var query = (DefaultQuery) queryService.newQuery(queryStr);
+      var cs = query.getSimpleSelect();
       assertThat(cs)
           .as(String.format("Query parsing failed for %s", queryStr))
           .isInstanceOf(CompiledGroupBySelect.class);

@@ -51,7 +51,7 @@ public class Ping extends BaseCommand {
   public void cmdExecute(final @NotNull Message clientMessage,
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start) throws IOException {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug("{}: rcv tx: {} from {} rcvTime: {}", serverConnection.getName(),
           clientMessage.getTransactionId(), serverConnection.getSocketString(),
@@ -59,12 +59,12 @@ public class Ping extends BaseCommand {
     }
     if (clientMessage.getNumberOfParts() > 0) {
       try {
-        InternalDistributedMember targetServer =
+        var targetServer =
             (InternalDistributedMember) clientMessage.getPart(0).getObject();
-        InternalDistributedMember myID = serverConnection.getCache().getMyId();
+        var myID = serverConnection.getCache().getMyId();
         if (!myID.equals(targetServer)) {
           if (myID.compareTo(targetServer, true, false) == 0) {
-            String errorMessage =
+            var errorMessage =
                 "Target server " + targetServer + " has different viewId: " + myID;
             logger.warn(errorMessage);
             writeException(clientMessage, new ServerOperationException(errorMessage), false,
@@ -84,7 +84,7 @@ public class Ping extends BaseCommand {
         return;
       }
     }
-    ClientHealthMonitor chm = getClientHealthMonitor();
+    var chm = getClientHealthMonitor();
     if (chm != null) {
       chm.receivedPing(serverConnection.getProxyID());
     }
@@ -108,7 +108,7 @@ public class Ping extends BaseCommand {
           serverConnection.getProxyID(), targetServer);
     }
     if (!serverConnection.getCache().getDistributionManager().isCurrentMember(targetServer)) {
-      String errorMessage = "Unable to ping non-member " + targetServer + " for client "
+      var errorMessage = "Unable to ping non-member " + targetServer + " for client "
           + serverConnection.getProxyID();
       logger.warn(errorMessage);
       writeException(clientMessage, new ServerOperationException(errorMessage), false,
@@ -116,7 +116,7 @@ public class Ping extends BaseCommand {
       serverConnection.setAsTrue(RESPONDED);
     } else {
       // send a ping message to the server. This is a one-way message that doesn't send a reply
-      final DistributedPingMessage distributedPingMessage =
+      final var distributedPingMessage =
           new DistributedPingMessage(targetServer, serverConnection.getProxyID());
       serverConnection.getCache().getDistributionManager().putOutgoing(distributedPingMessage);
       writeReply(clientMessage, serverConnection);
@@ -126,7 +126,7 @@ public class Ping extends BaseCommand {
   @Override
   protected void writeReply(final @NotNull Message origMsg,
       final @NotNull ServerConnection serverConnection) throws IOException {
-    Message replyMsg = serverConnection.getReplyMessage();
+    var replyMsg = serverConnection.getReplyMessage();
     serverConnection.getCache().getCancelCriterion().checkCancelInProgress(null);
     replyMsg.setMessageType(MessageType.REPLY);
     replyMsg.setNumberOfParts(1);

@@ -90,14 +90,14 @@ public final class PartitionRegionHelper {
   public static Map<String, Region<?, ?>> getColocatedRegions(final Region<?, ?> r) {
     Map ret;
     if (isPartitionedRegion(r)) {
-      final PartitionedRegion pr = (PartitionedRegion) r;
+      final var pr = (PartitionedRegion) r;
       ret = ColocationHelper.getAllColocationRegions(pr);
       if (ret.isEmpty()) {
         ret = Collections.emptyMap();
       }
     } else if (r instanceof LocalDataSet) {
-      LocalDataSet lds = (LocalDataSet) r;
-      InternalRegionFunctionContext fc = lds.getFunctionContext();
+      var lds = (LocalDataSet) r;
+      var fc = lds.getFunctionContext();
       if (fc != null) {
         ret = ColocationHelper.getAllColocatedLocalDataSets(lds.getProxy(), fc);
         if (ret.isEmpty()) {
@@ -168,8 +168,8 @@ public final class PartitionRegionHelper {
    */
   public static PartitionRegionInfo getPartitionRegionInfo(final Region<?, ?> region) {
     try {
-      PartitionedRegion partitionedRegion = isPartitionedCheck(region);
-      InternalCache cache = (InternalCache) region.getCache();
+      var partitionedRegion = isPartitionedCheck(region);
+      var cache = (InternalCache) region.getCache();
       return partitionedRegion.getRedundancyProvider().buildPartitionedRegionInfo(false,
           cache.getInternalResourceManager().getLoadProbe());
     } catch (ClassCastException ignore) {
@@ -181,11 +181,11 @@ public final class PartitionRegionHelper {
   private static void fillInPartitionedRegionInfo(final InternalCache cache, final Set prDetailsSet,
       final boolean internal) {
     // TODO: optimize by fetching all PR details from each member at once
-    Set<PartitionedRegion> partitionedRegions = cache.getPartitionedRegions();
+    var partitionedRegions = cache.getPartitionedRegions();
     if (partitionedRegions.isEmpty()) {
       return;
     }
-    for (PartitionedRegion partitionedRegion : partitionedRegions) {
+    for (var partitionedRegion : partitionedRegions) {
       PartitionRegionInfo prDetails = partitionedRegion.getRedundancyProvider()
           .buildPartitionedRegionInfo(internal, cache.getInternalResourceManager().getLoadProbe());
       if (prDetails != null) {
@@ -209,12 +209,12 @@ public final class PartitionRegionHelper {
    * @since GemFire 6.0
    */
   public static void assignBucketsToPartitions(Region<?, ?> region) {
-    PartitionedRegion pr = isPartitionedCheck(region);
+    var pr = isPartitionedCheck(region);
     RecoveryLock lock = null;
     try {
       lock = pr.getRecoveryLock();
       lock.lock();
-      for (int i = 0; i < getNumberOfBuckets(pr); i++) {
+      for (var i = 0; i < getNumberOfBuckets(pr); i++) {
         // This method will return quickly if the bucket already exists
         pr.createBucket(i, 0, null);
       }
@@ -227,13 +227,13 @@ public final class PartitionRegionHelper {
 
   private static int getNumberOfBuckets(PartitionedRegion pr) {
     if (pr.isFixedPartitionedRegion()) {
-      int numBuckets = 0;
+      var numBuckets = 0;
       Set<FixedPartitionAttributesImpl> fpaSet = new HashSet<>(
           pr.getRegionAdvisor().adviseAllFixedPartitionAttributes());
       if (pr.getFixedPartitionAttributesImpl() != null) {
         fpaSet.addAll(pr.getFixedPartitionAttributesImpl());
       }
-      for (FixedPartitionAttributesImpl fpa : fpaSet) {
+      for (var fpa : fpaSet) {
         numBuckets = numBuckets + fpa.getNumBuckets();
       }
       return numBuckets;
@@ -256,8 +256,8 @@ public final class PartitionRegionHelper {
    * @since GemFire 6.0
    */
   public static <K, V> DistributedMember getPrimaryMemberForKey(final Region<K, V> r, final K key) {
-    PartitionedRegion pr = isPartitionedCheck(r);
-    int bucketId = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
+    var pr = isPartitionedCheck(r);
+    var bucketId = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
     return pr.getBucketPrimary(bucketId);
   }
 
@@ -285,8 +285,8 @@ public final class PartitionRegionHelper {
    */
   public static <K, V> Set<DistributedMember> getRedundantMembersForKey(final Region<K, V> r,
       final K key) {
-    DistributedMember primary = getPrimaryMemberForKey(r, key);
-    Set<? extends DistributedMember> owners = getAllForKey(r, key);
+    var primary = getPrimaryMemberForKey(r, key);
+    var owners = getAllForKey(r, key);
     if (primary != null) {
       owners.remove(primary);
     }
@@ -313,8 +313,8 @@ public final class PartitionRegionHelper {
 
   private static <K, V> Set<? extends DistributedMember> getAllForKey(final Region<K, V> r,
       final K key) {
-    PartitionedRegion pr = isPartitionedCheck(r);
-    int bucketId = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
+    var pr = isPartitionedCheck(r);
+    var bucketId = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
     return pr.getRegionAdvisor().getBucketOwners(bucketId);
   }
 
@@ -336,7 +336,7 @@ public final class PartitionRegionHelper {
   public static Map<String, Region<?, ?>> getLocalColocatedRegions(final RegionFunctionContext c) {
     final Region r = c.getDataSet();
     isPartitionedCheck(r);
-    final InternalRegionFunctionContext rfci = (InternalRegionFunctionContext) c;
+    final var rfci = (InternalRegionFunctionContext) c;
     Map ret = rfci.getColocatedLocalDataSets();
     return ret;
   }
@@ -360,7 +360,7 @@ public final class PartitionRegionHelper {
   public static <K, V> Region<K, V> getLocalDataForContext(final RegionFunctionContext c) {
     final Region r = c.getDataSet();
     isPartitionedCheck(r);
-    InternalRegionFunctionContext rfci = (InternalRegionFunctionContext) c;
+    var rfci = (InternalRegionFunctionContext) c;
     return rfci.getLocalDataSet(r);
   }
 
@@ -376,7 +376,7 @@ public final class PartitionRegionHelper {
    */
   public static <K, V> Region<K, V> getLocalData(final Region<K, V> r) {
     if (isPartitionedRegion(r)) {
-      PartitionedRegion pr = (PartitionedRegion) r;
+      var pr = (PartitionedRegion) r;
       final Set<Integer> buckets;
       if (pr.getDataStore() != null) {
         buckets = pr.getDataStore().getAllLocalBucketIds();
@@ -406,7 +406,7 @@ public final class PartitionRegionHelper {
    */
   public static <K, V> Region<K, V> getLocalPrimaryData(final Region<K, V> r) {
     if (isPartitionedRegion(r)) {
-      PartitionedRegion pr = (PartitionedRegion) r;
+      var pr = (PartitionedRegion) r;
       final Set<Integer> buckets;
       if (pr.getDataStore() != null) {
         buckets = pr.getDataStore().getAllLocalPrimaryBucketIds();
@@ -453,14 +453,14 @@ public final class PartitionRegionHelper {
    */
   public static <K> void moveBucketByKey(Region<K, ?> region, DistributedMember source,
       DistributedMember destination, K key) {
-    PartitionedRegion pr = isPartitionedCheck(region);
+    var pr = isPartitionedCheck(region);
     if (pr.isFixedPartitionedRegion()) {
       throw new IllegalStateException("Cannot move data in a fixed partitioned region");
     }
-    int bucketId = pr.getKeyInfo(key).getBucketId();
-    ExplicitMoveDirector director = new ExplicitMoveDirector(key, bucketId, source, destination,
+    var bucketId = pr.getKeyInfo(key).getBucketId();
+    var director = new ExplicitMoveDirector(key, bucketId, source, destination,
         region.getCache().getDistributedSystem());
-    PartitionedRegionRebalanceOp rebalance =
+    var rebalance =
         new PartitionedRegionRebalanceOp(pr, false, director, true, true);
     rebalance.execute();
   }
@@ -501,7 +501,7 @@ public final class PartitionRegionHelper {
    */
   public static RebalanceResults moveData(Region<?, ?> region, DistributedMember source,
       DistributedMember destination, float percentage) {
-    PartitionedRegion pr = isPartitionedCheck(region);
+    var pr = isPartitionedCheck(region);
     if (pr.isFixedPartitionedRegion()) {
       throw new IllegalStateException("Cannot move data in a fixed partitioned region");
     }
@@ -509,13 +509,13 @@ public final class PartitionRegionHelper {
       throw new IllegalArgumentException("Percentage must be between 0 and 100");
     }
 
-    PercentageMoveDirector director = new PercentageMoveDirector(source, destination, percentage);
-    PartitionedRegionRebalanceOp rebalance =
+    var director = new PercentageMoveDirector(source, destination, percentage);
+    var rebalance =
         new PartitionedRegionRebalanceOp(pr, false, director, true, true);
-    Set<PartitionRebalanceInfo> results = rebalance.execute();
+    var results = rebalance.execute();
 
-    RebalanceResultsImpl rebalanceResults = new RebalanceResultsImpl();
-    for (PartitionRebalanceInfo details : results) {
+    var rebalanceResults = new RebalanceResultsImpl();
+    for (var details : results) {
       rebalanceResults.addDetails(details);
     }
 

@@ -63,7 +63,7 @@ public class HighPriorityAckedMessage extends HighPriorityDistributionMessage
 
   public HighPriorityAckedMessage() {
     super();
-    InternalDistributedSystem ds = InternalDistributedSystem.getAnyInstance();
+    var ds = InternalDistributedSystem.getAnyInstance();
     if (ds != null) {
       originDm = (ClusterDistributionManager) ds.getDistributionManager();
     }
@@ -157,11 +157,11 @@ public class HighPriorityAckedMessage extends HighPriorityDistributionMessage
       case DRAIN_POOL:
         Assert.assertTrue(id != null);
         // wait 10 seconds for the high priority queue to drain
-        long endTime = System.currentTimeMillis() + 10000;
-        ThreadPoolExecutor pool =
+        var endTime = System.currentTimeMillis() + 10000;
+        var pool =
             (ThreadPoolExecutor) dm.getExecutors().getHighPriorityThreadPool();
         while (pool.getActiveCount() > 1 && System.currentTimeMillis() < endTime) {
-          boolean interrupted = Thread.interrupted();
+          var interrupted = Thread.interrupted();
           try {
             Thread.sleep(500);
           } catch (InterruptedException ie) {
@@ -186,7 +186,7 @@ public class HighPriorityAckedMessage extends HighPriorityDistributionMessage
       case DUMP_STACK:
         if (processorId > 0) {
           try {
-            byte[] zippedStacks = OSProcess.zipStacks();
+            var zippedStacks = OSProcess.zipStacks();
             ReplyMessage.send(getSender(), processorId, zippedStacks, dm);
           } catch (IOException e) {
             ReplyMessage.send(getSender(), processorId, new ReplyException(e), dm);

@@ -55,12 +55,12 @@ public class CQUnitTestRule extends ExternalResource {
     cache = mock(InternalCache.class);
     cqService = mock(CqService.class);
     internalCqQuery = mock(InternalCqQuery.class);
-    String regionName = "regionName";
-    Part part = mock(Part.class);
-    CachedRegionHelper crHelper = mock(CachedRegionHelper.class);
+    var regionName = "regionName";
+    var part = mock(Part.class);
+    var crHelper = mock(CachedRegionHelper.class);
 
-    DefaultQueryService queryService = mock(DefaultQueryService.class);
-    DefaultQuery query = mock(DefaultQuery.class);
+    var queryService = mock(DefaultQueryService.class);
+    var query = mock(DefaultQuery.class);
 
     Set<String> regionsInQuery = new HashSet<>();
     regionsInQuery.add(regionName);

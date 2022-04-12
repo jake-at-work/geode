@@ -63,7 +63,7 @@ public class ClientClusterManagementService implements ClusterManagementService 
 
   @Override
   public <T extends AbstractConfiguration<?>> ClusterManagementRealizationResult create(T config) {
-    ClusterManagementRealizationResult result =
+    var result =
         transport.submitMessage(config, config.getCreationCommandType());
     assertSuccessful(result);
     return result;
@@ -72,7 +72,7 @@ public class ClientClusterManagementService implements ClusterManagementService 
   @Override
   public <T extends AbstractConfiguration<?>> ClusterManagementRealizationResult delete(
       T config) {
-    ClusterManagementRealizationResult result = transport.submitMessage(config, CommandType.DELETE);
+    var result = transport.submitMessage(config, CommandType.DELETE);
     assertSuccessful(result);
     return result;
   }
@@ -86,7 +86,7 @@ public class ClientClusterManagementService implements ClusterManagementService 
   @Override
   public <T extends AbstractConfiguration<R>, R extends RuntimeInfo> ClusterManagementListResult<T, R> list(
       T config) {
-    ClusterManagementListResult<T, R> result = transport.submitMessageForList(config);
+    var result = transport.submitMessageForList(config);
     assertSuccessful(result);
     return result;
   }
@@ -94,7 +94,7 @@ public class ClientClusterManagementService implements ClusterManagementService 
   @Override
   public <T extends AbstractConfiguration<R>, R extends RuntimeInfo> ClusterManagementGetResult<T, R> get(
       T config) {
-    ClusterManagementGetResult<T, R> result = transport.submitMessageForGet(config);
+    var result = transport.submitMessageForGet(config);
     assertSuccessful(result);
     return result;
   }
@@ -102,7 +102,7 @@ public class ClientClusterManagementService implements ClusterManagementService 
   @Override
   public <A extends ClusterManagementOperation<V>, V extends OperationResult> ClusterManagementOperationResult<A, V> start(
       A op) {
-    ClusterManagementOperationResult<A, V> result = transport.submitMessageForStart(op);
+    var result = transport.submitMessageForStart(op);
     assertSuccessful(result);
     return result;
   }
@@ -110,7 +110,7 @@ public class ClientClusterManagementService implements ClusterManagementService 
   @Override
   public <A extends ClusterManagementOperation<V>, V extends OperationResult> ClusterManagementOperationResult<A, V> get(
       A opType, String opId) {
-    ClusterManagementOperationResult<A, V> result =
+    var result =
         transport.submitMessageForGetOperation(opType, opId);
     assertSuccessful(result);
     return result;
@@ -119,11 +119,11 @@ public class ClientClusterManagementService implements ClusterManagementService 
   @Override
   public <A extends ClusterManagementOperation<V>, V extends OperationResult> CompletableFuture<ClusterManagementOperationResult<A, V>> getFuture(
       A opType, String opId) {
-    AtomicReference<CompletableFuture<ClusterManagementOperationResult<A, V>>> futureAtomicReference =
-        new AtomicReference<>();
+    var futureAtomicReference =
+        new AtomicReference<CompletableFuture<ClusterManagementOperationResult<A, V>>>();
     futureAtomicReference.set(CompletableFuture.supplyAsync(() -> {
       while (futureAtomicReference.get() == null || !futureAtomicReference.get().isCancelled()) {
-        ClusterManagementOperationResult<A, V> result = get(opType, opId);
+        var result = get(opType, opId);
         if (result.getOperationEnd() != null) {
           return result;
         }
@@ -141,7 +141,7 @@ public class ClientClusterManagementService implements ClusterManagementService 
   @Override
   public <A extends ClusterManagementOperation<V>, V extends OperationResult> ClusterManagementListOperationsResult<A, V> list(
       A opType) {
-    ClusterManagementListOperationsResult<A, V> result =
+    var result =
         transport.submitMessageForListOperation(opType);
     assertSuccessful(result);
     return result;
@@ -159,7 +159,7 @@ public class ClientClusterManagementService implements ClusterManagementService 
 
   private void assertSuccessful(ClusterManagementResult result) {
     if (result == null) {
-      ClusterManagementResult somethingVeryBadHappened = new ClusterManagementResult(
+      var somethingVeryBadHappened = new ClusterManagementResult(
           ClusterManagementResult.StatusCode.ERROR, "Unable to parse server response.");
       throw new ClusterManagementException(somethingVeryBadHappened);
     } else if (!result.isSuccessful()) {

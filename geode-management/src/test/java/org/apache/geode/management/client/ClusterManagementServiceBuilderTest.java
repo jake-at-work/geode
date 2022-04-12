@@ -17,7 +17,6 @@ package org.apache.geode.management.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Field;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
@@ -32,7 +31,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 
 public class ClusterManagementServiceBuilderTest {
@@ -46,7 +44,7 @@ public class ClusterManagementServiceBuilderTest {
   @SuppressWarnings("unchecked")
   private <T> T getFieldValue(Object target, String fieldName) throws NoSuchFieldException {
 
-    Field field = ReflectionUtils.findField(target.getClass(), fieldName);
+    var field = ReflectionUtils.findField(target.getClass(), fieldName);
 
     return Optional.ofNullable(field)
         .map(it -> {
@@ -61,7 +59,7 @@ public class ClusterManagementServiceBuilderTest {
 
   @Test
   public void hostAndPortAreSetCorrectly() throws NoSuchFieldException {
-    ClusterManagementService cms =
+    var cms =
         new ClusterManagementServiceBuilder().setHost(HOST).setPort(PORT).build();
 
     RestTemplate restTemplate = getFieldValue(getFieldValue(cms, "transport"), "restTemplate");
@@ -71,7 +69,7 @@ public class ClusterManagementServiceBuilderTest {
 
   @Test
   public void settingSSLUsesHTTPS() throws NoSuchAlgorithmException, NoSuchFieldException {
-    ClusterManagementService cms =
+    var cms =
         new ClusterManagementServiceBuilder()
             .setHost(HOST)
             .setPort(PORT)
@@ -85,7 +83,7 @@ public class ClusterManagementServiceBuilderTest {
 
   @Test
   public void notSettingSSLUsesHTTP() throws NoSuchFieldException {
-    ClusterManagementService cms =
+    var cms =
         new ClusterManagementServiceBuilder().setHost(HOST).setPort(PORT).build();
 
     RestTemplate restTemplate = getFieldValue(getFieldValue(cms, "transport"), "restTemplate");
@@ -95,7 +93,7 @@ public class ClusterManagementServiceBuilderTest {
 
   @Test
   public void followRedirectsIsSetWhenEnabled() throws NoSuchFieldException {
-    ClusterManagementService cms =
+    var cms =
         new ClusterManagementServiceBuilder()
             .setFollowRedirects(true)
             .setHost(HOST)
@@ -103,17 +101,17 @@ public class ClusterManagementServiceBuilderTest {
             .build();
 
     RestTemplate restTemplate = getFieldValue(getFieldValue(cms, "transport"), "restTemplate");
-    HttpComponentsClientHttpRequestFactory requestFactory =
+    var requestFactory =
         (HttpComponentsClientHttpRequestFactory) restTemplate.getRequestFactory();
     Object client = requestFactory.getHttpClient();
-    Object config = getFieldValue(client, "execChain");
+    var config = getFieldValue(client, "execChain");
     RedirectStrategy redirectStrategy = getFieldValue(config, "redirectStrategy");
     assertThat(redirectStrategy).isInstanceOf(LaxRedirectStrategy.class);
   }
 
   @Test
   public void followRedirectsIsNotSetWhenNotEnabled() throws NoSuchFieldException {
-    ClusterManagementService cms =
+    var cms =
         new ClusterManagementServiceBuilder()
             .setFollowRedirects(false)
             .setHost(HOST)
@@ -121,10 +119,10 @@ public class ClusterManagementServiceBuilderTest {
             .build();
 
     RestTemplate restTemplate = getFieldValue(getFieldValue(cms, "transport"), "restTemplate");
-    HttpComponentsClientHttpRequestFactory requestFactory =
+    var requestFactory =
         (HttpComponentsClientHttpRequestFactory) restTemplate.getRequestFactory();
     Object client = requestFactory.getHttpClient();
-    Object execChain = getFieldValue(client, "execChain");
+    var execChain = getFieldValue(client, "execChain");
     RedirectStrategy redirectStrategy = getFieldValue(execChain, "redirectStrategy");
     assertThat(redirectStrategy).isNotInstanceOf(LaxRedirectStrategy.class);
   }

@@ -25,8 +25,6 @@ import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.client.internal.DestroyOp;
-import org.apache.geode.cache.operations.DestroyOperationContext;
-import org.apache.geode.cache.operations.RegionDestroyOperationContext;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.EventIDHolder;
@@ -37,12 +35,9 @@ import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.util.Breadcrumbs;
 import org.apache.geode.security.GemFireSecurityException;
@@ -61,11 +56,11 @@ public class Destroy70 extends BaseCommand {
   protected void writeReplyWithRefreshMetadata(Message origMsg, ServerConnection servConn,
       PartitionedRegion pr, boolean entryNotFoundForRemove, byte nwHop, VersionTag versionTag)
       throws IOException {
-    Message replyMsg = servConn.getReplyMessage();
+    var replyMsg = servConn.getReplyMessage();
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
     replyMsg.setMessageType(MessageType.REPLY);
-    int flags = 0;
-    int numParts = 3;
+    var flags = 0;
+    var numParts = 3;
     if (versionTag != null) {
       flags |= DestroyOp.HAS_VERSION_TAG;
       numParts++;
@@ -95,11 +90,11 @@ public class Destroy70 extends BaseCommand {
     if (logger.isDebugEnabled()) {
       logger.debug("Destroy70.writeReply(entryNotFound={}, tag={})", entryNotFound, versionTag);
     }
-    Message replyMsg = servConn.getReplyMessage();
+    var replyMsg = servConn.getReplyMessage();
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
     replyMsg.setMessageType(MessageType.REPLY);
-    int flags = 0;
-    int numParts = 3;
+    var flags = 0;
+    var numParts = 3;
     if (versionTag != null) {
       flags |= DestroyOp.HAS_VERSION_TAG;
       numParts++;
@@ -135,24 +130,24 @@ public class Destroy70 extends BaseCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start)
       throws IOException, InterruptedException {
-    StringBuilder errMessage = new StringBuilder();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var errMessage = new StringBuilder();
+    var stats = serverConnection.getCacheServerStats();
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
 
-    long now = DistributionStats.getStatTime();
+    var now = DistributionStats.getStatTime();
     stats.incReadDestroyRequestTime(now - start);
 
     // Retrieve the data from the message parts
-    final Part regionNamePart = clientMessage.getPart(0);
-    final Part keyPart = clientMessage.getPart(1);
-    final Part expectedOldValuePart = clientMessage.getPart(2);
+    final var regionNamePart = clientMessage.getPart(0);
+    final var keyPart = clientMessage.getPart(1);
+    final var expectedOldValuePart = clientMessage.getPart(2);
 
     final Operation operation;
     try {
-      final Part operationPart = clientMessage.getPart(3);
+      final var operationPart = clientMessage.getPart(3);
 
       if (operationPart.isBytes()) {
-        final byte[] bytes = operationPart.getSerializedForm();
+        final var bytes = operationPart.getSerializedForm();
         if (null == bytes || 0 == bytes.length) {
           // older clients can send empty bytes for default operation.
           operation = Operation.DESTROY;
@@ -161,7 +156,7 @@ public class Destroy70 extends BaseCommand {
         }
       } else {
         // Fallback for older clients.
-        final Object operationObject = operationPart.getObject();
+        final var operationObject = operationPart.getObject();
         if (operationObject == null) {
           // native clients may send a null since the op is java-serialized.
           operation = Operation.DESTROY;
@@ -191,11 +186,11 @@ public class Destroy70 extends BaseCommand {
       }
     }
 
-    final Part eventPart = clientMessage.getPart(4);
+    final var eventPart = clientMessage.getPart(4);
 
     Object callbackArg = null;
     if (clientMessage.getNumberOfParts() > 5) {
-      final Part callbackArgPart = clientMessage.getPart(5);
+      final var callbackArgPart = clientMessage.getPart(5);
       try {
         callbackArg = callbackArgPart.getObject();
       } catch (Exception e) {
@@ -214,7 +209,7 @@ public class Destroy70 extends BaseCommand {
       return;
     }
 
-    final String regionName = regionNamePart.getCachedString();
+    final var regionName = regionNamePart.getCachedString();
 
     if (logger.isDebugEnabled()) {
       logger.debug(
@@ -224,7 +219,7 @@ public class Destroy70 extends BaseCommand {
           (operation == Operation.REMOVE ? " value=" + expectedOldValue : ""),
           clientMessage.getTransactionId());
     }
-    boolean entryNotFoundForRemove = false;
+    var entryNotFoundForRemove = false;
 
     // Process the destroy request
     if (key == null || regionName == null) {
@@ -245,21 +240,21 @@ public class Destroy70 extends BaseCommand {
       return;
     }
 
-    final LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+    final var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
     if (region == null) {
-      String reason = " was not found during destroy request";
+      var reason = " was not found during destroy request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
     }
 
     // Destroy the entry
-    final ByteBuffer eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
-    final long threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    final long sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    final EventID eventId =
+    final var eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
+    final var threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    final var sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    final var eventId =
         new EventID(serverConnection.getEventMemberIDByteArray(), threadId, sequenceId);
-    final EventIDHolder clientEvent = new EventIDHolder(eventId);
+    final var clientEvent = new EventIDHolder(eventId);
 
     Breadcrumbs.setEventId(eventId);
 
@@ -284,14 +279,14 @@ public class Destroy70 extends BaseCommand {
           ResourcePermission.Operation.WRITE, regionName,
           key);
 
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       if (authzRequest != null) {
         if (DynamicRegionFactory.regionIsDynamicRegionList(regionName)) {
-          RegionDestroyOperationContext destroyContext =
+          var destroyContext =
               authzRequest.destroyRegionAuthorize((String) key, callbackArg);
           callbackArg = destroyContext.getCallbackArg();
         } else {
-          DestroyOperationContext destroyContext =
+          var destroyContext =
               authzRequest.destroyAuthorize(regionName, key, callbackArg);
           callbackArg = destroyContext.getCallbackArg();
         }
@@ -375,7 +370,7 @@ public class Destroy70 extends BaseCommand {
     stats.incProcessDestroyTime(now - start);
 
     if (region instanceof PartitionedRegion) {
-      PartitionedRegion pr = (PartitionedRegion) region;
+      var pr = (PartitionedRegion) region;
       if (pr.getNetworkHopType() != PartitionedRegion.NETWORK_HOP_NONE) {
         writeReplyWithRefreshMetadata(clientMessage, serverConnection, pr, entryNotFoundForRemove,
             pr.getNetworkHopType(), clientEvent.getVersionTag());

@@ -111,13 +111,13 @@ public class FunctionExecutionPooledExecutor extends ThreadPoolExecutor {
     if (!(workQueue instanceof SynchronousQueue)) {
       bufferQueue = workQueue;
       // create a thread that takes from bufferQueue and puts into result
-      final BlockingQueue<Runnable> takeQueue = workQueue;
-      final BlockingQueue<Runnable> putQueue = getQueue();
-      Runnable r = () -> {
+      final var takeQueue = workQueue;
+      final var putQueue = getQueue();
+      var r = (Runnable) () -> {
         try {
           for (;;) {
             SystemFailure.checkFailure();
-            Runnable task = takeQueue.take();
+            var task = takeQueue.take();
             if (true) {
               // In the function case, offer the request to the work queue.
               // If it fails, execute it anyway. This will cause the RejectedExecutionHandler to
@@ -196,7 +196,7 @@ public class FunctionExecutionPooledExecutor extends ThreadPoolExecutor {
   @Override
   public List<Runnable> shutdownNow() {
     terminated();
-    List<Runnable> l = super.shutdownNow();
+    var l = super.shutdownNow();
     if (bufferQueue != null) {
       bufferQueue.drainTo(l);
     }
@@ -304,7 +304,7 @@ public class FunctionExecutionPooledExecutor extends ThreadPoolExecutor {
     }
 
     private void launchAdditionalThread(Runnable r, ThreadPoolExecutor executor) {
-      Thread th = executor.getThreadFactory().newThread(r);
+      var th = executor.getThreadFactory().newThread(r);
       th.start();
     }
   }
@@ -321,7 +321,7 @@ public class FunctionExecutionPooledExecutor extends ThreadPoolExecutor {
         throw new RejectedExecutionException("executor has been shutdown");
       }
       try {
-        FunctionExecutionPooledExecutor pool = (FunctionExecutionPooledExecutor) executor;
+        var pool = (FunctionExecutionPooledExecutor) executor;
         pool.bufferQueue.put(r);
       } catch (InterruptedException ie) {
         Thread.currentThread().interrupt();

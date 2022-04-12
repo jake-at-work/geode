@@ -64,7 +64,7 @@ public enum RegionAttributesScope {
   }
 
   public static RegionAttributesScope fromValue(String v) {
-    for (RegionAttributesScope c : RegionAttributesScope.values()) {
+    for (var c : RegionAttributesScope.values()) {
       if (c.value.equals(v)) {
         return c;
       }

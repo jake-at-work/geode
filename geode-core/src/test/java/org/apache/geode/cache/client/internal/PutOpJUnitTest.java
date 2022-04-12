@@ -47,7 +47,7 @@ public class PutOpJUnitTest {
 
   @Test
   public void regularDeltaPutShouldNotRetryFlagInMessage() {
-    PutOp.PutOpImpl putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
+    var putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
         event, Operation.UPDATE, false, false, null, false, false);
     assertFalse(putOp.getMessage().isRetry());
   }
@@ -55,21 +55,21 @@ public class PutOpJUnitTest {
   @Test
   public void regularPutShouldNotRetryFlagInMessage() {
 
-    PutOp.PutOpImpl putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", null,
+    var putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", null,
         event, Operation.UPDATE, false, false, null, false, false);
     assertFalse(putOp.getMessage().isRetry());
   }
 
   @Test
   public void failedDeltaPutShouldSetRetryFlagInMessage() {
-    PutOp.PutOpImpl putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
+    var putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
         event, Operation.UPDATE, false, false, null, true, false);
     assertTrue(putOp.getMessage().isRetry());
   }
 
   @Test
   public void putOpSetVersionTagIfRegionEntryInEntryEventIsNull() throws Exception {
-    PutOp.PutOpImpl putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
+    var putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
         event, Operation.UPDATE,
         false, false, null, false, false);
     when(event.getRegionEntry()).thenReturn(null);
@@ -81,7 +81,7 @@ public class PutOpJUnitTest {
 
   @Test
   public void putOpSetVersionTagIfNotADeltaUpdate() throws Exception {
-    PutOp.PutOpImpl putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
+    var putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
         event, Operation.UPDATE,
         false, false, null, true, false);
     when(event.getRegionEntry()).thenReturn(entry);
@@ -93,7 +93,7 @@ public class PutOpJUnitTest {
 
   @Test
   public void putOpSetVersionTagIfDeltaUpdateVersionInOrder() throws Exception {
-    PutOp.PutOpImpl putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
+    var putOp = new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
         event, Operation.UPDATE,
         false, false, null, false, false);
     when(event.getRegionEntry()).thenReturn(entry);
@@ -107,8 +107,8 @@ public class PutOpJUnitTest {
 
   @Test
   public void putOpGetFullValueIfDeltaUpdateVersionOutOfOrder() throws Exception {
-    Object object = new Object();
-    PutOp.PutOpImpl putOp =
+    var object = new Object();
+    var putOp =
         spy(new PutOp.PutOpImpl("testRegion", "testKey", "testValue", new byte[10],
             event, Operation.UPDATE,
             false, false, null, false, false));

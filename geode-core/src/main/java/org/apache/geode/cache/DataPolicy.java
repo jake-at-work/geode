@@ -181,7 +181,7 @@ public class DataPolicy implements java.io.Serializable {
       throw new NullPointerException();
     }
 
-    for (int i = 0; i < NAMES.length; i++) {
+    for (var i = 0; i < NAMES.length; i++) {
       if (NAMES[i].equals(name)) {
         return VALUES[i];
       }

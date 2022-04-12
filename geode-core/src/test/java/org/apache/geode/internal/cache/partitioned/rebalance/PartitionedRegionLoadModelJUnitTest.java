@@ -86,22 +86,22 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testRedundancySatisfaction() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 0}, new long[] {1, 1, 1, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 1, 0, 1}, new long[] {0, 0, 0, 1});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
-    Set<PartitionMemberInfo> details = model.getPartitionedMemberDetails("a");
+    var details = model.getPartitionedMemberDetails("a");
     assertThat(details).hasSize(2);
 
-    PartitionMemberInfo[] memberInfo = details.toArray(new PartitionMemberInfo[0]);
+    var memberInfo = details.toArray(new PartitionMemberInfo[0]);
 
     assertThat(memberInfo[0].getBucketCount()).isEqualTo(3);
     assertThat(memberInfo[0].getConfiguredMaxMemory()).isEqualTo(500);
@@ -110,7 +110,7 @@ public class PartitionedRegionLoadModelJUnitTest {
     // we expect three moves
     assertThat(doMoves(new CompositeDirector(true, true, false, false), model)).isEqualTo(3);
 
-    PartitionMemberInfo[] memberInfo2 =
+    var memberInfo2 =
         model.getPartitionedMemberDetails("a").toArray(new PartitionMemberInfo[0]);
 
     assertThat(memberInfo2[0].getBucketCount()).isEqualTo(4);
@@ -130,18 +130,18 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testRedundancySatisfactionWithSizeLimit() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 3,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
     // A member with 1 bucket with low redundancy, but it is too big to copy anywhere
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, 50, 50, new long[] {30, 0, 0}, new long[] {1, 0, 0});
     // A member with 2 buckets with low redundancy that can be copied
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, 40, 40, new long[] {0, 10, 10}, new long[] {0, 1, 1});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -156,17 +156,17 @@ public class PartitionedRegionLoadModelJUnitTest {
 
   @Test
   public void testRedundancySatisfactionWithCriticalMember() throws UnknownHostException {
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 3,
         getAddressComparor(false), Collections.singleton(member1), partitionedRegion);
 
     // this member has critical heap
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, 50, 50, new long[] {10, 0, 0}, new long[] {1, 0, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, 40, 40, new long[] {0, 10, 10}, new long[] {0, 1, 1});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -183,18 +183,18 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testRedundancySatisfactionDoNotEnforceLocalMaxMemory() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 3,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
     // A member with 1 bucket with low redundancy, but it is too big to copy anywhere
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, 50, 50, new long[] {30, 0, 0}, new long[] {1, 0, 0});
     // A member with 2 buckets with low redundancy that can be copied
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, 40, 40, new long[] {0, 10, 10}, new long[] {0, 1, 1});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), false);
 
@@ -206,9 +206,9 @@ public class PartitionedRegionLoadModelJUnitTest {
     expectedCreates.add(new Create(member1, 1));
     expectedCreates.add(new Create(member1, 2));
     assertThat(bucketOperator.creates).isEqualTo(expectedCreates);
-    Set<PartitionMemberInfo> afterDetails = model.getPartitionedMemberDetails("a");
+    var afterDetails = model.getPartitionedMemberDetails("a");
     assertThat(afterDetails.size()).isEqualTo(2);
-    for (PartitionMemberInfo member : afterDetails) {
+    for (var member : afterDetails) {
       if (member.getDistributedMember().equals(member1)) {
         assertThat(member.getConfiguredMaxMemory()).isEqualTo(details1.getConfiguredMaxMemory());
       } else {
@@ -223,21 +223,21 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testRedundancySatisfactionPreferRemoteIp() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(LocalHostUtil.getLocalHost(), 3);
 
     // Create some buckets with low redundancy on members 1 and 2
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {30, 0, 0}, new long[] {1, 0, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 30, 30}, new long[] {0, 1, 1});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {0, 0, 0}, new long[] {0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -256,17 +256,17 @@ public class PartitionedRegionLoadModelJUnitTest {
 
   @Test
   public void testRedundancySatisfactionEnforceRemoteIp() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
         getAddressComparor(true), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
     // Create some buckets with low redundancy on members 1
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {30, 30, 30}, new long[] {1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 0, 0}, new long[] {0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -279,17 +279,17 @@ public class PartitionedRegionLoadModelJUnitTest {
 
   @Test
   public void testMoveBucketsEnforceRemoteIp() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
         getAddressComparor(true), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
     // Create some buckets with low redundancy on members 1
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {30, 30, 30}, new long[] {1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 0, 0}, new long[] {0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -307,20 +307,20 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testRedundancySatisfactionBalanced() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
     // Create some buckets with low redundancy on member 1
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -343,22 +343,22 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testColocatedRegions() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 12,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 12,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
     // Create some buckets with low redundancy on member 1
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             new long[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, 250, 250, new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, 250, 250, new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
@@ -398,20 +398,20 @@ public class PartitionedRegionLoadModelJUnitTest {
 
   @Test
   public void testIncompleteColocation() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
     // Create some buckets with low redundancy on member 1
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {1, 1, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -444,26 +444,26 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testColocationEnforceLocalMaxMemory() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
 
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
     // Create some buckets with low redundancy on member 1
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
 
     // Member 2 has a lmm of 2, so it should only accept 2 buckets
-    PartitionMemberInfoImpl bDetails1 =
+    var bDetails1 =
         buildDetails(member1, 2, 2, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl bDetails2 =
+    var bDetails2 =
         buildDetails(member2, 2, 2, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("b", Arrays.asList(bDetails1, bDetails2), new FakeOfflineDetails(), true);
 
@@ -487,25 +487,25 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testColocationIgnoreEnforceLocalMaxMemory() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
     // Create some buckets with low redundancy on member 1
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
 
     // Member 2 has a lmm of 2, so it should only accept 2 buckets
-    PartitionMemberInfoImpl bDetails1 =
+    var bDetails1 =
         buildDetails(member1, 2, 2, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl bDetails2 =
+    var bDetails2 =
         buildDetails(member2, 2, 2, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("b", Arrays.asList(bDetails1, bDetails2), new FakeOfflineDetails(), false);
 
@@ -535,25 +535,25 @@ public class PartitionedRegionLoadModelJUnitTest {
   @Ignore
   @Test
   public void testFoolGreedyAlgorithm() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 50,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 50,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    PartitionMemberInfoImpl details1 = buildDetails(member1,
+    var details1 = buildDetails(member1,
         new long[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0},
         new long[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0});
-    PartitionMemberInfoImpl details2 = buildDetails(member2,
+    var details2 = buildDetails(member2,
         new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1},
         new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1});
-    PartitionMemberInfoImpl details3 = buildDetails(member3,
+    var details3 = buildDetails(member3,
         new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0},
         new long[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -565,7 +565,7 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     // we'd like to have 20 buckets per member, but what we'll find is that member 1
     // will have 15 and 2 and 3 will have 17 and 18.
-    for (PartitionMemberInfo details : model.getPartitionedMemberDetails("a")) {
+    for (var details : model.getPartitionedMemberDetails("a")) {
       assertThat(details.getBucketCount()).isEqualTo(20);
     }
   }
@@ -575,14 +575,14 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testRedundancySatisfactionWithFailures() throws UnknownHostException {
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    final InternalDistributedMember member2 =
+    final var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
-    MyBucketOperator op = new MyBucketOperator() {
+    var op = new MyBucketOperator() {
       @Override
       public void createRedundantBucket(InternalDistributedMember targetMember, int i,
           Map<String, Long> colocatedRegionBytes, Completion completion) {
@@ -594,15 +594,15 @@ public class PartitionedRegionLoadModelJUnitTest {
       }
     };
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(op, 1, 4,
+    var model = new PartitionedRegionLoadModel(op, 1, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
 
     // Create some buckets with low redundancy on member 1
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -626,31 +626,31 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testRedundancySatisfactionWithAsyncFailures() throws UnknownHostException {
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
-    BucketOperatorWithFailures operator = new BucketOperatorWithFailures();
+    var operator = new BucketOperatorWithFailures();
     operator.addBadMember(member2);
     bucketOperator = operator;
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 6,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 6,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    PartitionMemberInfoImpl details1 = buildDetails(member1,
+    var details1 = buildDetails(member1,
         new long[] {1, 1, 1, 1, 1, 1}, new long[] {1, 1, 1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 = buildDetails(member2,
+    var details2 = buildDetails(member2,
         new long[] {0, 0, 0, 0, 0, 0}, new long[] {0, 0, 0, 0, 0, 0});
-    PartitionMemberInfoImpl details3 = buildDetails(member3,
+    var details3 = buildDetails(member3,
         new long[] {0, 0, 0, 0, 0, 0}, new long[] {0, 0, 0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
 
-    Set<PartitionMemberInfo> details = model.getPartitionedMemberDetails("a");
+    var details = model.getPartitionedMemberDetails("a");
     assertThat(details.size()).isEqualTo(3);
 
-    PartitionMemberInfo[] memberInfo = details.toArray(new PartitionMemberInfo[0]);
+    var memberInfo = details.toArray(new PartitionMemberInfo[0]);
 
     assertThat(memberInfo[0].getBucketCount()).isEqualTo(6);
     assertThat(memberInfo[0].getConfiguredMaxMemory()).isEqualTo(500);
@@ -659,7 +659,7 @@ public class PartitionedRegionLoadModelJUnitTest {
     // we expect 6 moves (3 of these will fail)
     assertThat(doMoves(new CompositeDirector(true, true, false, false), model)).isEqualTo(6);
 
-    PartitionMemberInfo[] memberInfo2 =
+    var memberInfo2 =
         model.getPartitionedMemberDetails("a").toArray(new PartitionMemberInfo[0]);
 
     assertThat(memberInfo2[0].getBucketCount()).isEqualTo(6);
@@ -667,10 +667,10 @@ public class PartitionedRegionLoadModelJUnitTest {
     assertThat(memberInfo2[0].getPrimaryCount()).isEqualTo(6);
 
     assertThat(bucketOperator.creates.size()).isEqualTo(3);
-    for (Completion completion : operator.pendingSuccesses) {
+    for (var completion : operator.pendingSuccesses) {
       completion.onSuccess();
     }
-    for (Completion completion : operator.pendingFailures) {
+    for (var completion : operator.pendingFailures) {
       completion.onFailure();
     }
 
@@ -695,16 +695,16 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMovePrimaries() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
     // Create some imbalanced primaries
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 1, 1}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -726,13 +726,13 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMovePrimariesWithFailures() throws UnknownHostException {
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    final InternalDistributedMember member2 =
+    final var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    MyBucketOperator op = new MyBucketOperator() {
+    var op = new MyBucketOperator() {
 
       @Override
       public boolean movePrimary(InternalDistributedMember source, InternalDistributedMember target,
@@ -744,14 +744,14 @@ public class PartitionedRegionLoadModelJUnitTest {
       }
     };
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(op, 2, 4,
+    var model = new PartitionedRegionLoadModel(op, 2, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
     // Create some imbalanced primaries
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 1, 1}, new long[] {0, 0, 0, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {1, 1, 1, 1}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -773,18 +773,18 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMovePrimariesWithWeights() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
     // member 1 has a lower weight, and all of the primaries
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, 1, 500, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
     // member 2 has a higher weight
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, 3, 500, new long[] {1, 1, 1, 1}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -812,27 +812,26 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testPrimaryShuffle() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 9,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 9,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
-    PartitionMemberInfoImpl details1 = buildDetails(member1, 1, 500,
+    var details1 = buildDetails(member1, 1, 500,
         new long[] {1, 1, 1, 1, 1, 1, 0, 0, 0}, new long[] {1, 1, 1, 1, 1, 1, 0, 0, 0});
-    PartitionMemberInfoImpl details2 = buildDetails(member2, 1, 500,
+    var details2 = buildDetails(member2, 1, 500,
         new long[] {1, 1, 1, 1, 1, 1, 1, 1, 1}, new long[] {0, 0, 0, 0, 0, 0, 1, 1, 0});
-    PartitionMemberInfoImpl details3 = buildDetails(member3, 1, 500,
+    var details3 = buildDetails(member3, 1, 500,
         new long[] {0, 0, 0, 0, 0, 0, 1, 1, 1}, new long[] {0, 0, 0, 0, 0, 0, 0, 0, 1});
 
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
 
-
-    int moves = doMoves(new CompositeDirector(false, false, false, true), model);
+    var moves = doMoves(new CompositeDirector(false, false, false, true), model);
     assertEquals("Actual Moves" + bucketOperator.primaryMoves, 3, moves);
 
 
@@ -851,18 +850,18 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testBug39953() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 113,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 113,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    InternalDistributedMember member4 =
+    var member4 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 4);
     // Create some imbalanced primaries
-    PartitionMemberInfoImpl details1 = buildDetails(member1, 216, 216,
+    var details1 = buildDetails(member1, 216, 216,
         new long[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -871,7 +870,7 @@ public class PartitionedRegionLoadModelJUnitTest {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0,
             0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
             0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0});
-    PartitionMemberInfoImpl details2 = buildDetails(member2, 216, 216,
+    var details2 = buildDetails(member2, 216, 216,
         new long[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -880,7 +879,7 @@ public class PartitionedRegionLoadModelJUnitTest {
             1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
-    PartitionMemberInfoImpl details3 = buildDetails(member3, 216, 216,
+    var details3 = buildDetails(member3, 216, 216,
         new long[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -889,7 +888,7 @@ public class PartitionedRegionLoadModelJUnitTest {
             0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0,
             0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0,
             0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1});
-    PartitionMemberInfoImpl details4 = buildDetails(member4, 216, 216,
+    var details4 = buildDetails(member4, 216, 216,
         new long[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -914,17 +913,17 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMoveBuckets() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -950,17 +949,17 @@ public class PartitionedRegionLoadModelJUnitTest {
   @Test
   public void appropriateOverredundantBucketsRemovedDuringRebalance() throws UnknownHostException {
 
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {0, 1, 1, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 1, 1}, new long[] {1, 0, 0, 1});
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -987,22 +986,22 @@ public class PartitionedRegionLoadModelJUnitTest {
 
   @Test
   public void resolvingOverredundancyAmongThreeServers() throws UnknownHostException {
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1}, new long[] {1, 0, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 1}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {1, 1, 1}, new long[] {0, 0, 1});
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -1035,21 +1034,21 @@ public class PartitionedRegionLoadModelJUnitTest {
   @Test
   public void resolvingOverredundancyAmongThreeServersAndMovingAPrimary()
       throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 0, 1}, new long[] {1, 0, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 0}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {1, 0, 1}, new long[] {0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -1078,22 +1077,22 @@ public class PartitionedRegionLoadModelJUnitTest {
   @Test
   public void resolvingOverredundancyAmongThreeServersWithAMoveAndRemove()
       throws UnknownHostException {
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 0, 1}, new long[] {1, 0, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 0}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {0, 0, 0}, new long[] {0, 0, 0});
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
 
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
@@ -1118,8 +1117,8 @@ public class PartitionedRegionLoadModelJUnitTest {
     @Override
     public boolean areSameZone(InternalDistributedMember member1,
         InternalDistributedMember member2) {
-      String zone1 = clusterDistributionManager.getRedundancyZone(member1);
-      String zone2 = clusterDistributionManager.getRedundancyZone(member2);
+      var zone1 = clusterDistributionManager.getRedundancyZone(member1);
+      var zone2 = clusterDistributionManager.getRedundancyZone(member2);
       return zone1 != null && zone1.equals(zone2);
     }
 
@@ -1140,19 +1139,19 @@ public class PartitionedRegionLoadModelJUnitTest {
   public void threeRedundancyZonesWithNoRedundancyAndEnforceUniqueZones()
       throws UnknownHostException {
 
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 0, 1}, new long[] {1, 0, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 0}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {0, 0, 0}, new long[] {0, 0, 0});
 
     when(clusterDistributionManager.getRedundancyZone(member1)).thenReturn("zoneA");
@@ -1162,7 +1161,7 @@ public class PartitionedRegionLoadModelJUnitTest {
     when(clusterDistributionManager.areInSameZone(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(false);
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 3,
         new ZoneComparer(), Collections.emptySet(), partitionedRegion);
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -1191,19 +1190,19 @@ public class PartitionedRegionLoadModelJUnitTest {
   @Test
   public void threeZonesWithUnderredundancyAndEnforceUniqueZones() throws UnknownHostException {
 
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 0, 1}, new long[] {1, 0, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 0}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {0, 0, 0}, new long[] {0, 0, 0});
 
     when(clusterDistributionManager.getRedundancyZone(member1)).thenReturn("zoneA");
@@ -1213,8 +1212,7 @@ public class PartitionedRegionLoadModelJUnitTest {
     when(clusterDistributionManager.areInSameZone(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(false);
 
-
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
         new ZoneComparer(), Collections.emptySet(), partitionedRegion);
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -1246,19 +1244,19 @@ public class PartitionedRegionLoadModelJUnitTest {
   public void threeZonesWithRedundancyAndThreeCopiesOfBucketAndEnforceUniqueZones()
       throws UnknownHostException {
 
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 0, 1}, new long[] {0, 0, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 0}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {1, 0, 0}, new long[] {1, 0, 0});
 
     when(clusterDistributionManager.getRedundancyZone(member1)).thenReturn("zoneA");
@@ -1268,8 +1266,7 @@ public class PartitionedRegionLoadModelJUnitTest {
     when(clusterDistributionManager.areInSameZone(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(false);
 
-
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
         new ZoneComparer(), Collections.emptySet(), partitionedRegion);
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -1303,23 +1300,23 @@ public class PartitionedRegionLoadModelJUnitTest {
   public void twoZonesWithRedundancyAndTwoCopiesOfBucketInSameZoneAndEnforceUniqueZones()
       throws UnknownHostException {
 
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    InternalDistributedMember member4 =
+    var member4 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 4);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 0, 1}, new long[] {1, 0, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 0}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {0, 0, 1}, new long[] {0, 0, 1});
-    PartitionMemberInfoImpl details4 =
+    var details4 =
         buildDetails(member4, new long[] {0, 1, 0}, new long[] {0, 0, 0});
 
     when(clusterDistributionManager.getRedundancyZone(member1)).thenReturn("zoneA");
@@ -1329,7 +1326,7 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     when(clusterDistributionManager.enforceUniqueZone()).thenReturn(true);
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
         new ZoneComparer(), Collections.emptySet(), partitionedRegion);
     model.addRegion("a", Arrays.asList(details1, details2, details3, details4),
         new FakeOfflineDetails(),
@@ -1362,23 +1359,23 @@ public class PartitionedRegionLoadModelJUnitTest {
   public void twoZonesWithRedundancyAndFourCopiesOfBucketAndEnforceUniqueZones()
       throws UnknownHostException {
 
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    InternalDistributedMember member4 =
+    var member4 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 4);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 0, 1}, new long[] {0, 0, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 0}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {1, 0, 1}, new long[] {1, 0, 1});
-    PartitionMemberInfoImpl details4 =
+    var details4 =
         buildDetails(member4, new long[] {1, 1, 0}, new long[] {0, 0, 0});
 
     when(clusterDistributionManager.getRedundancyZone(member1)).thenReturn("zoneA");
@@ -1388,7 +1385,7 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     when(clusterDistributionManager.enforceUniqueZone()).thenReturn(true);
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
         new ZoneComparer(), Collections.emptySet(), partitionedRegion);
     model.addRegion("a", Arrays.asList(details1, details2, details3, details4),
         new FakeOfflineDetails(),
@@ -1418,23 +1415,23 @@ public class PartitionedRegionLoadModelJUnitTest {
   public void twoZonesWithRedundancyAndFourFullCopiesAndEnforceUniqueZones()
       throws UnknownHostException {
 
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    InternalDistributedMember member4 =
+    var member4 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 4);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1}, new long[] {1, 0, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 1}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {1, 1, 1}, new long[] {0, 0, 1});
-    PartitionMemberInfoImpl details4 =
+    var details4 =
         buildDetails(member4, new long[] {1, 1, 1}, new long[] {0, 0, 0});
 
     when(clusterDistributionManager.getRedundancyZone(member1)).thenReturn("zoneA");
@@ -1444,7 +1441,7 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     when(clusterDistributionManager.enforceUniqueZone()).thenReturn(true);
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
         new ZoneComparer(), Collections.emptySet(), partitionedRegion);
     model.addRegion("a", Arrays.asList(details1, details2, details3, details4),
         new FakeOfflineDetails(),
@@ -1478,27 +1475,27 @@ public class PartitionedRegionLoadModelJUnitTest {
   public void fiveZonesWithRedundancyAndThreeFullCopiesAndEnforceUniqueZones()
       throws UnknownHostException {
 
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    InternalDistributedMember member4 =
+    var member4 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 4);
-    InternalDistributedMember member5 =
+    var member5 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 5);
 
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1}, new long[] {1, 0, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 1}, new long[] {0, 0, 1});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {0, 0, 0}, new long[] {0, 0, 0});
-    PartitionMemberInfoImpl details4 =
+    var details4 =
         buildDetails(member4, new long[] {1, 1, 1}, new long[] {0, 1, 0});
-    PartitionMemberInfoImpl details5 =
+    var details5 =
         buildDetails(member5, new long[] {0, 0, 0}, new long[] {0, 0, 0});
 
     when(clusterDistributionManager.getRedundancyZone(member1)).thenReturn("zoneA");
@@ -1509,7 +1506,7 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     when(clusterDistributionManager.enforceUniqueZone()).thenReturn(true);
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 3,
         new ZoneComparer(), Collections.emptySet(), partitionedRegion);
     model.addRegion("a", Arrays.asList(details1, details2, details3, details4, details5),
         new FakeOfflineDetails(),
@@ -1537,14 +1534,14 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMoveBucketsWithFailures() throws UnknownHostException {
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    final InternalDistributedMember member2 =
+    final var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
 
-    MyBucketOperator op = new MyBucketOperator() {
+    var op = new MyBucketOperator() {
       @Override
       public boolean moveBucket(InternalDistributedMember source, InternalDistributedMember target,
           int id, Map<String, Long> colocatedRegionBytes) {
@@ -1555,14 +1552,14 @@ public class PartitionedRegionLoadModelJUnitTest {
       }
     };
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(op, 0, 4,
+    var model = new PartitionedRegionLoadModel(op, 0, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -1585,16 +1582,16 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMoveBucketsWithWeights() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 6,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 6,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 = buildDetails(member1, 250, 250,
+    var details1 = buildDetails(member1, 250, 250,
         new long[] {1, 1, 1, 1, 1, 1}, new long[] {1, 1, 1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 = buildDetails(member2,
+    var details2 = buildDetails(member2,
         new long[] {0, 0, 0, 0, 0, 0}, new long[] {0, 0, 0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -1619,16 +1616,16 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMoveBucketsWithSizes() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 6,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 6,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 = buildDetails(member1,
+    var details1 = buildDetails(member1,
         new long[] {3, 1, 1, 1, 1, 1}, new long[] {1, 1, 1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 = buildDetails(member2,
+    var details2 = buildDetails(member2,
         new long[] {0, 0, 0, 0, 0, 0}, new long[] {0, 0, 0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2), new FakeOfflineDetails(), true);
 
@@ -1653,24 +1650,24 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMoveBucketsWithRedundancy() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    InternalDistributedMember member4 =
+    var member4 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 4);
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, new long[] {1, 1, 1, 1}, new long[] {1, 1, 0, 0});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, new long[] {1, 1, 1, 1}, new long[] {0, 0, 1, 0});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, new long[] {1, 1, 1, 1}, new long[] {0, 0, 0, 1});
-    PartitionMemberInfoImpl details4 =
+    var details4 =
         buildDetails(member4, new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3, details4),
         new FakeOfflineDetails(), true);
@@ -1691,8 +1688,8 @@ public class PartitionedRegionLoadModelJUnitTest {
     // the move buckets algorithm could move the primary or
     // it could move a redundant copy. But after we're done, we should
     // only have one primary per member.
-    Set<PartitionMemberInfo> detailSet = model.getPartitionedMemberDetails("a");
-    for (PartitionMemberInfo member : detailSet) {
+    var detailSet = model.getPartitionedMemberDetails("a");
+    for (var member : detailSet) {
       assertThat(member.getPrimaryCount()).isEqualTo(1);
       assertThat(member.getBucketCount()).isEqualTo(3);
     }
@@ -1704,26 +1701,26 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMoveLargeBucketsWithRedundancy() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 4,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    InternalDistributedMember member4 =
+    var member4 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 4);
     // Create some imbalanced nodes
 
-    long bigBucket = Integer.MAX_VALUE * 5L + 10L;
-    PartitionMemberInfoImpl details1 = buildDetails(member1, 500, Long.MAX_VALUE,
+    var bigBucket = Integer.MAX_VALUE * 5L + 10L;
+    var details1 = buildDetails(member1, 500, Long.MAX_VALUE,
         new long[] {bigBucket, bigBucket, bigBucket, bigBucket}, new long[] {1, 1, 0, 0});
-    PartitionMemberInfoImpl details2 = buildDetails(member2, 500, Long.MAX_VALUE,
+    var details2 = buildDetails(member2, 500, Long.MAX_VALUE,
         new long[] {bigBucket, bigBucket, bigBucket, bigBucket}, new long[] {0, 0, 1, 0});
-    PartitionMemberInfoImpl details3 = buildDetails(member3, 500, Long.MAX_VALUE,
+    var details3 = buildDetails(member3, 500, Long.MAX_VALUE,
         new long[] {bigBucket, bigBucket, bigBucket, bigBucket}, new long[] {0, 0, 0, 1});
-    PartitionMemberInfoImpl details4 = buildDetails(member4, 500, Long.MAX_VALUE,
+    var details4 = buildDetails(member4, 500, Long.MAX_VALUE,
         new long[] {0, 0, 0, 0}, new long[] {0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3, details4),
         new FakeOfflineDetails(), true);
@@ -1744,8 +1741,8 @@ public class PartitionedRegionLoadModelJUnitTest {
     // the move buckets algorithm could move the primary or
     // it could move a redundant copy. But after we're done, we should
     // only have one primary per member.
-    Set<PartitionMemberInfo> detailSet = model.getPartitionedMemberDetails("a");
-    for (PartitionMemberInfo member : detailSet) {
+    var detailSet = model.getPartitionedMemberDetails("a");
+    for (var member : detailSet) {
       assertThat(member.getPrimaryCount()).isEqualTo(1);
       assertThat(member.getBucketCount()).isEqualTo(3);
     }
@@ -1756,21 +1753,21 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMoveBucketsWithSizeLimits() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 6,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 6,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 = buildDetails(member1, 50, 50,
+    var details1 = buildDetails(member1, 50, 50,
         new long[] {30, 30, 30, 0, 0, 0}, new long[] {1, 1, 1, 0, 0, 0});
-    PartitionMemberInfoImpl details2 = buildDetails(member2, 50, 50,
+    var details2 = buildDetails(member2, 50, 50,
         new long[] {0, 0, 0, 10, 10, 10}, new long[] {0, 0, 0, 1, 1, 1});
     // this member has a lower size that can't fit buckets of size 30
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, 50, 20, new long[] {0, 0, 0, 0, 0, 0}, new long[] {0, 0, 0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -1787,8 +1784,8 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     assertThat(new HashSet<>(bucketOperator.bucketMoves)).isEqualTo(expectedMoves);
 
-    Set<PartitionMemberInfo> detailSet = model.getPartitionedMemberDetails("a");
-    for (PartitionMemberInfo member : detailSet) {
+    var detailSet = model.getPartitionedMemberDetails("a");
+    for (var member : detailSet) {
       assertThat(member.getPrimaryCount()).isEqualTo(2);
       assertThat(member.getBucketCount()).isEqualTo(2);
     }
@@ -1799,21 +1796,21 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testMoveBucketsWithCriticalMember() throws UnknownHostException {
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 6,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 6,
         getAddressComparor(false), Collections.singleton(member3), partitionedRegion);
     // Create some imbalanced nodes
-    PartitionMemberInfoImpl details1 = buildDetails(member1, 50, 50,
+    var details1 = buildDetails(member1, 50, 50,
         new long[] {10, 10, 10, 10, 10, 10}, new long[] {1, 1, 1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, 50, 50, new long[] {0, 0, 0, 0, 0, 0}, new long[] {0, 0, 0, 0, 0, 0});
     // this member has a critical heap
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, 50, 50, new long[] {0, 0, 0, 0, 0, 0}, new long[] {0, 0, 0, 0, 0, 0});
     model.addRegion("a", Arrays.asList(details1, details2, details3), new FakeOfflineDetails(),
         true);
@@ -1836,23 +1833,23 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testRepeatableRuns() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, 113,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, 113,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 22893);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 25655);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 22959);
-    InternalDistributedMember member4 =
+    var member4 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 22984);
-    InternalDistributedMember member5 =
+    var member5 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 28609);
-    InternalDistributedMember member6 =
+    var member6 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 22911);
-    InternalDistributedMember member7 =
+    var member7 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 29562);
-    PartitionMemberInfoImpl details1 = buildDetails(member1, 50 * 1024 * 1024, 50 * 1024 * 1024,
+    var details1 = buildDetails(member1, 50 * 1024 * 1024, 50 * 1024 * 1024,
         new long[] {23706, 0, 23347, 23344, 0, 0, 0, 11386, 0, 0, 0, 0, 0, 10338, 0, 9078, 6413,
             10411, 5297, 1226, 0, 2594, 2523, 0, 1297, 0, 3891, 2523, 0, 0, 2594, 0, 1297, 0, 1297,
             2594, 1, 0, 10375, 5188, 9078, 0, 1297, 0, 0, 1226, 1, 1, 0, 0, 1297, 11672, 0, 0, 0, 0,
@@ -1864,7 +1861,7 @@ public class PartitionedRegionLoadModelJUnitTest {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0});
-    PartitionMemberInfoImpl details2 = buildDetails(member2, 50 * 1024 * 1024, 50 * 1024 * 1024,
+    var details2 = buildDetails(member2, 50 * 1024 * 1024, 50 * 1024 * 1024,
         new long[] {0, 24674, 0, 23344, 0, 19312, 19421, 11386, 7889, 0, 0, 6413, 12933, 10338,
             18088, 9078, 0, 0, 0, 1226, 0, 2594, 0, 0, 0, 2594, 0, 2523, 0, 1, 0, 0, 1297, 0, 0, 0,
             0, 2594, 0, 5188, 9078, 0, 0, 0, 1, 1226, 1, 0, 1297, 5187, 0, 0, 0, 0, 0, 1, 0, 11602,
@@ -1875,7 +1872,7 @@ public class PartitionedRegionLoadModelJUnitTest {
             0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0});
-    PartitionMemberInfoImpl details3 = buildDetails(member3, 50 * 1024 * 1024, 50 * 1024 * 1024,
+    var details3 = buildDetails(member3, 50 * 1024 * 1024, 50 * 1024 * 1024,
         new long[] {23706, 24674, 0, 0, 20901, 0, 19421, 0, 7889, 11708, 0, 0, 12933, 10338, 18088,
             0, 6413, 10411, 5297, 0, 7782, 2594, 0, 1297, 0, 2594, 3891, 0, 2523, 1, 0, 2523, 1297,
             1297, 1297, 0, 1, 2594, 0, 0, 0, 1297, 0, 1297, 1, 0, 0, 1, 1297, 5187, 0, 0, 13007, 0,
@@ -1887,7 +1884,7 @@ public class PartitionedRegionLoadModelJUnitTest {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0,
             0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0});
-    PartitionMemberInfoImpl details4 = buildDetails(member4, 50 * 1024 * 1024, 50 * 1024 * 1024,
+    var details4 = buildDetails(member4, 50 * 1024 * 1024, 50 * 1024 * 1024,
         new long[] {23706, 24674, 23347, 0, 20901, 19312, 0, 0, 7889, 11708, 12933, 6413, 0, 0, 0,
             9078, 6413, 10411, 5297, 1226, 7782, 0, 2523, 1297, 0, 0, 0, 2523, 0, 0, 2594, 2523, 0,
             1297, 0, 2594, 1, 0, 10375, 0, 0, 1297, 1297, 1297, 1, 1226, 1, 0, 1297, 0, 1297, 0,
@@ -1899,7 +1896,7 @@ public class PartitionedRegionLoadModelJUnitTest {
             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0,
             0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0});
-    PartitionMemberInfoImpl details5 = buildDetails(member5, 50 * 1024 * 1024, 50 * 1024 * 1024,
+    var details5 = buildDetails(member5, 50 * 1024 * 1024, 50 * 1024 * 1024,
         new long[] {23706, 24674, 0, 23344, 0, 0, 19421, 0, 0, 11708, 12933, 6413, 12933, 10338,
             18088, 0, 0, 10411, 0, 1226, 7782, 2594, 2523, 1297, 1297, 2594, 3891, 0, 2523, 1, 2594,
             2523, 0, 1297, 1297, 2594, 0, 2594, 10375, 0, 0, 1297, 0, 1297, 0, 1226, 1, 1, 0, 5187,
@@ -1911,7 +1908,7 @@ public class PartitionedRegionLoadModelJUnitTest {
             0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
             0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0,
             0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0});
-    PartitionMemberInfoImpl details6 = buildDetails(member6, 50 * 1024 * 1024, 50 * 1024 * 1024,
+    var details6 = buildDetails(member6, 50 * 1024 * 1024, 50 * 1024 * 1024,
         new long[] {0, 0, 23347, 0, 20901, 19312, 0, 11386, 7889, 0, 12933, 6413, 0, 0, 18088, 0,
             6413, 0, 5297, 0, 7782, 0, 2523, 0, 1297, 2594, 0, 0, 2523, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 5188, 9078, 0, 1297, 0, 1, 0, 0, 1, 0, 0, 1297, 11672, 13007, 7781, 0, 0, 0, 0, 0,
@@ -1922,7 +1919,7 @@ public class PartitionedRegionLoadModelJUnitTest {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0,
             0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0});
-    PartitionMemberInfoImpl details7 = buildDetails(member7, 50 * 1024 * 1024, 50 * 1024 * 1024,
+    var details7 = buildDetails(member7, 50 * 1024 * 1024, 50 * 1024 * 1024,
         new long[] {0, 0, 23347, 23344, 20901, 19312, 19421, 11386, 0, 11708, 12933, 0, 12933, 0, 0,
             9078, 0, 0, 0, 0, 0, 0, 0, 1297, 1297, 0, 3891, 2523, 2523, 1, 2594, 2523, 1297, 1297,
             1297, 2594, 1, 2594, 10375, 5188, 9078, 1297, 1297, 1297, 0, 0, 0, 0, 1297, 5187, 0,
@@ -1966,38 +1963,38 @@ public class PartitionedRegionLoadModelJUnitTest {
   @Ignore("not a real test")
   @Test
   public void testRandom() throws UnknownHostException {
-    long seed = System.nanoTime();
+    var seed = System.nanoTime();
     System.out.println("random seed=" + seed);
 
-    Random rand = new Random(seed);
-    int MAX_MEMBERS = 20;
-    int MAX_BUCKETS = 200;
-    int MAX_REDUNDANCY = 3;
-    float IMAIRED_PERCENTAGE = 0.1f; // probability that a bucket will have impaired redundancy
-    int AVERAGE_BUCKET_SIZE = 10;
-    int AVERAGE_MAX_MEMORY = 200;
-    int members = rand.nextInt(MAX_MEMBERS) + 2;
-    int buckets = rand.nextInt(MAX_BUCKETS) + members;
-    int redundancy = rand.nextInt(MAX_REDUNDANCY);
-    long[][] bucketLocations = new long[members][buckets];
-    long[][] bucketPrimaries = new long[members][buckets];
-    for (int i = 0; i < buckets; i++) {
-      int bucketSize = rand.nextInt(AVERAGE_BUCKET_SIZE * 2);
+    var rand = new Random(seed);
+    var MAX_MEMBERS = 20;
+    var MAX_BUCKETS = 200;
+    var MAX_REDUNDANCY = 3;
+    var IMAIRED_PERCENTAGE = 0.1f; // probability that a bucket will have impaired redundancy
+    var AVERAGE_BUCKET_SIZE = 10;
+    var AVERAGE_MAX_MEMORY = 200;
+    var members = rand.nextInt(MAX_MEMBERS) + 2;
+    var buckets = rand.nextInt(MAX_BUCKETS) + members;
+    var redundancy = rand.nextInt(MAX_REDUNDANCY);
+    var bucketLocations = new long[members][buckets];
+    var bucketPrimaries = new long[members][buckets];
+    for (var i = 0; i < buckets; i++) {
+      var bucketSize = rand.nextInt(AVERAGE_BUCKET_SIZE * 2);
 
-      int remainingCopies = redundancy + 1;
+      var remainingCopies = redundancy + 1;
       if (rand.nextFloat() <= IMAIRED_PERCENTAGE) {
         remainingCopies = redundancy == 0 ? 0 : rand.nextInt(redundancy);
       }
 
       if (remainingCopies > 0) {
-        int primary = rand.nextInt(members);
+        var primary = rand.nextInt(members);
         bucketLocations[primary][i] = bucketSize;
         bucketPrimaries[primary][i] = 1;
         remainingCopies--;
       }
 
       while (remainingCopies > 0) {
-        int member = rand.nextInt(members);
+        var member = rand.nextInt(members);
         if (bucketLocations[member][i] == 0) {
           bucketLocations[member][i] = bucketSize;
           remainingCopies--;
@@ -2005,14 +2002,14 @@ public class PartitionedRegionLoadModelJUnitTest {
       }
     }
 
-    PartitionedRegionLoadModel model =
+    var model =
         new PartitionedRegionLoadModel(bucketOperator, redundancy, buckets,
             getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    PartitionMemberInfoImpl[] details = new PartitionMemberInfoImpl[members];
-    for (int i = 0; i < members; i++) {
-      InternalDistributedMember member =
+    var details = new PartitionMemberInfoImpl[members];
+    for (var i = 0; i < members; i++) {
+      var member =
           new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), i);
-      int maxMemory = rand.nextInt(AVERAGE_MAX_MEMORY * 2);
+      var maxMemory = rand.nextInt(AVERAGE_MAX_MEMORY * 2);
       details[i] =
           buildDetails(member, maxMemory, maxMemory, bucketLocations[i], bucketPrimaries[i]);
     }
@@ -2030,24 +2027,24 @@ public class PartitionedRegionLoadModelJUnitTest {
   @Parameters({"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"})
   @TestCaseName("{method}({params})")
   public void testManyColocatedRegions(int colocatedRegions) throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 5,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 5,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
-    InternalDistributedMember member3 =
+    var member3 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 3);
     // Create some buckets with low redundancy on member 1
-    PartitionMemberInfoImpl details1 = buildDetails(member1, 200, 200,
+    var details1 = buildDetails(member1, 200, 200,
         new long[] {30, 23, 28, 30, 23}, new long[] {1, 1, 1, 0, 0});
-    PartitionMemberInfoImpl details2 = buildDetails(member2, 200, 200,
+    var details2 = buildDetails(member2, 200, 200,
         new long[] {30, 23, 28, 30, 23}, new long[] {0, 0, 0, 1, 1});
-    PartitionMemberInfoImpl details3 =
+    var details3 =
         buildDetails(member3, 200, 200, new long[] {0, 0, 0, 0, 0}, new long[] {0, 0, 0, 0, 0});
     model.addRegion("primary", Arrays.asList(details1, details2, details3),
         new FakeOfflineDetails(), true);
-    for (int i = 0; i < colocatedRegions; i++) {
+    for (var i = 0; i < colocatedRegions; i++) {
       model.addRegion("colocated" + i, Arrays.asList(details1, details2, details3),
           new FakeOfflineDetails(), true);
     }
@@ -2061,22 +2058,22 @@ public class PartitionedRegionLoadModelJUnitTest {
    */
   @Test
   public void testRedundancySatisfactionWithOfflineMembers() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 5,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 5,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
-    PartitionMemberInfoImpl details1 =
+    var details1 =
         buildDetails(member1, 200, 200, new long[] {30, 0, 28, 30, 23}, new long[] {1, 0, 1, 1, 1});
-    PartitionMemberInfoImpl details2 =
+    var details2 =
         buildDetails(member2, 200, 200, new long[] {0, 23, 0, 0, 0}, new long[] {0, 1, 0, 0, 0});
 
     // Two buckets have an offline members
-    Set<PersistentMemberID> o = Collections.singleton(new PersistentMemberID());
+    var o = Collections.singleton(new PersistentMemberID());
     Set<PersistentMemberID> x = Collections.emptySet();
-    final OfflineMemberDetailsImpl offlineDetails =
+    final var offlineDetails =
         new OfflineMemberDetailsImpl(new Set[] {x, x, o, o, x});
 
     model.addRegion("primary", Arrays.asList(details1, details2), offlineDetails, true);
@@ -2092,21 +2089,21 @@ public class PartitionedRegionLoadModelJUnitTest {
 
   @Test
   public void testRebalancingWithOfflineMembers() throws UnknownHostException {
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 1, 6,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 1, 6,
         getAddressComparor(false), Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember member1 =
+    var member1 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
-    InternalDistributedMember member2 =
+    var member2 =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 2);
 
-    PartitionMemberInfoImpl details1 = buildDetails(member1, 480, 480,
+    var details1 = buildDetails(member1, 480, 480,
         new long[] {1, 1, 1, 1, 1, 1}, new long[] {1, 1, 1, 1, 1, 1});
-    PartitionMemberInfoImpl details2 = buildDetails(member2, 480, 480,
+    var details2 = buildDetails(member2, 480, 480,
         new long[] {0, 0, 0, 0, 0, 0}, new long[] {0, 0, 0, 0, 0, 0});
 
     // Each bucket has an offline member
-    Set<PersistentMemberID> o = Collections.singleton(new PersistentMemberID());
-    final OfflineMemberDetailsImpl offlineDetails =
+    var o = Collections.singleton(new PersistentMemberID());
+    final var offlineDetails =
         new OfflineMemberDetailsImpl(new Set[] {o, o, o, o, o, o});
 
     model.addRegion("primary", Arrays.asList(details1, details2), offlineDetails, true);
@@ -2123,21 +2120,21 @@ public class PartitionedRegionLoadModelJUnitTest {
   // findBestRemove should do the bucket remove from fullyloadedmember
   @Test
   public void testFindBestRemoveRemovesFromMoreLoadedMember() {
-    Bucket bucket = mock(Bucket.class);
-    Bucket bucket2 = mock(Bucket.class);
-    AddressComparor addressComparor = mock(AddressComparor.class);
+    var bucket = mock(Bucket.class);
+    var bucket2 = mock(Bucket.class);
+    var addressComparor = mock(AddressComparor.class);
 
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 2, 6,
+    var model = new PartitionedRegionLoadModel(bucketOperator, 2, 6,
         addressComparor, Collections.emptySet(), partitionedRegion);
-    InternalDistributedMember memberId = mock(InternalDistributedMember.class);
-    InternalDistributedMember otherMemberId = mock(InternalDistributedMember.class);
+    var memberId = mock(InternalDistributedMember.class);
+    var otherMemberId = mock(InternalDistributedMember.class);
     doReturn(true).when(addressComparor).enforceUniqueZones();
     doReturn(true).when(addressComparor).areSameZone(
         ArgumentMatchers.any(InternalDistributedMember.class),
         ArgumentMatchers.any(InternalDistributedMember.class));
     Set<Member> membersHostingBucket = new HashSet<>();
-    Member halfLoadedMember = new Member(addressComparor, memberId, 100, 100, false, false);
-    Member fullyLoadedMember = new Member(addressComparor, otherMemberId, 100, 100, false, false);
+    var halfLoadedMember = new Member(addressComparor, memberId, 100, 100, false, false);
+    var fullyLoadedMember = new Member(addressComparor, otherMemberId, 100, 100, false, false);
 
     when(bucket.getPrimary()).thenReturn(halfLoadedMember);
     when(bucket.getBytes()).thenReturn(10000000L);
@@ -2159,7 +2156,7 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     when(bucket.getMembersHosting()).thenReturn(membersHostingBucket);
 
-    org.apache.geode.internal.cache.partitioned.rebalance.model.Move bestRemove =
+    var bestRemove =
         model.findBestRemove(bucket);
 
     assertThat(bestRemove).isNotNull();
@@ -2167,20 +2164,20 @@ public class PartitionedRegionLoadModelJUnitTest {
   }
 
   private int doMoves(RebalanceDirector director, PartitionedRegionLoadModel model) {
-    double initialVariance = model.getVarianceForTest();
-    double initialPrimaryVariance = model.getPrimaryVarianceForTest();
+    var initialVariance = model.getVarianceForTest();
+    var initialPrimaryVariance = model.getPrimaryVarianceForTest();
     if (DEBUG) {
       System.out.println("Initial Model\n" + model + "\nVariance= " + initialVariance
           + ", Primary variance=" + initialPrimaryVariance + "\n---------------");
     }
     model.initialize();
     director.initialize(model);
-    int moveCount = 0;
+    var moveCount = 0;
     while (director.nextStep() && moveCount < MAX_MOVES) {
 
       moveCount++;
-      double variance = model.getVarianceForTest();
-      double primaryVariance = model.getPrimaryVarianceForTest();
+      var variance = model.getVarianceForTest();
+      var primaryVariance = model.getPrimaryVarianceForTest();
       if (DEBUG) {
         System.out.println("---------------\nMove " + moveCount + "\n" + model + "\nVariance= "
             + variance + ", Primary variance=" + primaryVariance + "\n---------------");
@@ -2212,12 +2209,12 @@ public class PartitionedRegionLoadModelJUnitTest {
 
   private PartitionMemberInfoImpl buildDetails(InternalDistributedMember id, float weight,
       long localMaxMemory, long[] bucketLoad, long[] primaryBucketLoad) {
-    PRLoad load1 = new PRLoad(bucketLoad.length, weight);
-    int size = 0;
-    int primaryCount = 0;
-    int bucketCount = 0;
+    var load1 = new PRLoad(bucketLoad.length, weight);
+    var size = 0;
+    var primaryCount = 0;
+    var bucketCount = 0;
 
-    for (int i = 0; i < bucketLoad.length; i++) {
+    for (var i = 0; i < bucketLoad.length; i++) {
       load1.addBucket(i, bucketLoad[i], primaryBucketLoad[i]);
       size += bucketLoad[i];
       if (bucketLoad[i] != 0) {
@@ -2259,8 +2256,8 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + bucketId;
       result = prime * result + (targetMember == null ? 0 : targetMember.hashCode());
       return result;
@@ -2277,7 +2274,7 @@ public class PartitionedRegionLoadModelJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      Create other = (Create) obj;
+      var other = (Create) obj;
       if (bucketId != other.bucketId) {
         return false;
       }
@@ -2305,8 +2302,8 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + bucketId;
       result = prime * result + (targetMember == null ? 0 : targetMember.hashCode());
       return result;
@@ -2323,7 +2320,7 @@ public class PartitionedRegionLoadModelJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      Remove other = (Remove) obj;
+      var other = (Remove) obj;
       if (bucketId != other.bucketId) {
         return false;
       }
@@ -2351,8 +2348,8 @@ public class PartitionedRegionLoadModelJUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + (sourceMember == null ? 0 : sourceMember.hashCode());
       result = prime * result + (targetMember == null ? 0 : targetMember.hashCode());
       return result;
@@ -2369,7 +2366,7 @@ public class PartitionedRegionLoadModelJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      Move other = (Move) obj;
+      var other = (Move) obj;
       if (sourceMember == null) {
         if (other.sourceMember != null) {
           return false;

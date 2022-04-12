@@ -43,9 +43,9 @@ public abstract class BaseStringConverter implements Converter<String> {
   @Override
   public final boolean getAllPossibleValues(List<Completion> completions, Class<?> targetType,
       String existingData, String optionContext, MethodTarget target) {
-    Set<String> values = getCompletionValues();
+    var values = getCompletionValues();
 
-    for (String v : values) {
+    for (var v : values) {
       completions.add(new Completion(v));
     }
 

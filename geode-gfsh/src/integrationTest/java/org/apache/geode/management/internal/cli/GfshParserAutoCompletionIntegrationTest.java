@@ -17,8 +17,6 @@ package org.apache.geode.management.internal.cli;
 import static java.lang.System.lineSeparator;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
@@ -33,7 +31,6 @@ import org.apache.geode.management.internal.cli.commands.StartServerCommand;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.rules.GfshParserRule;
-import org.apache.geode.test.junit.rules.GfshParserRule.CommandCandidate;
 
 @Category(GfshTest.class)
 public class GfshParserAutoCompletionIntegrationTest {
@@ -43,10 +40,10 @@ public class GfshParserAutoCompletionIntegrationTest {
   @BeforeClass
   public static void calculateStartServerCommandParameters() {
     Object o = new StartServerCommand();
-    for (Method method : o.getClass().getDeclaredMethods()) {
+    for (var method : o.getClass().getDeclaredMethods()) {
       if (method.getName().equals("startServer")) {
-        for (Parameter param : method.getParameters()) {
-          CliOption annotation = param.getAnnotation(CliOption.class);
+        for (var param : method.getParameters()) {
+          var annotation = param.getAnnotation(CliOption.class);
           startServerCommandCliOptions += annotation.key().length;
         }
         break;
@@ -65,24 +62,24 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionDescribe() {
-    String buffer = "describe";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "describe";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(9);
     assertThat(candidate.getFirstCandidate()).isEqualTo("describe client");
   }
 
   @Test
   public void testCompletionDescribeWithSpace() {
-    String buffer = "describe ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "describe ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(9);
     assertThat(candidate.getFirstCandidate()).isEqualTo("describe client");
   }
 
   @Test
   public void testCompletionDeploy() {
-    String buffer = "deploy";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "deploy";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()
         .stream().map(completion -> completion.getValue().trim()).collect(Collectors.toList()))
             .containsExactlyInAnyOrder("--dir", "--jar", "--jars", "--group", "--groups");
@@ -90,8 +87,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionDeployWithSpace() {
-    String buffer = "deploy ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "deploy ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()
         .stream().map(completion -> completion.getValue().trim()).collect(Collectors.toList()))
             .containsExactlyInAnyOrder("--dir", "--jar", "--jars", "--group", "--groups");
@@ -99,24 +96,24 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompleteWithRequiredOption() {
-    String buffer = "describe config";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "describe config";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + " --member");
   }
 
   @Test
   public void testCompleteWithRequiredOptionWithSpace() {
-    String buffer = "describe config ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "describe config ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--member");
   }
 
   @Test
   public void testCompletionStart() {
-    String buffer = "start";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates().size()).isEqualTo(8);
     assertThat(candidate.getCandidates().stream()
         .anyMatch(completion -> completion.getFormattedValue().contains("gateway-receiver")))
@@ -128,8 +125,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionStartWithSpace() {
-    String buffer = "start ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates().size()).isEqualTo(8);
     assertThat(candidate.getCandidates().stream()
         .anyMatch(completion -> completion.getFormattedValue().contains("gateway-receiver")))
@@ -141,24 +138,24 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompleteCommand() {
-    String buffer = "start ser";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start ser";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat("start server").isEqualTo(candidate.getFirstCandidate());
   }
 
   @Test
   public void testCompleteOptionWithOnlyOneCandidate() {
-    String buffer = "start server --nam";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --nam";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "e");
   }
 
   @Test
   public void testCompleteOptionWithMultipleCandidates() {
-    String buffer = "start server --name=jinmei --loc";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=jinmei --loc";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(3);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "ator-wait-time");
     assertThat(candidate.getCandidate(1)).isEqualTo(buffer + "ators");
@@ -167,8 +164,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompleteWithExtraSpace() {
-    String buffer = "start server --name=name1  --se";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1  --se";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo("start server --name=name1  ".length());
     assertThat(candidate.getCandidates()).hasSize(3);
     assertThat(candidate.getCandidates()).contains(new Completion("--server-port"));
@@ -177,8 +174,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompleteWithDashInTheEnd() {
-    String buffer = "start server --name=name1 --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1 --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo(buffer.length() - 2);
     assertThat(candidate.getCandidates()).hasSize(startServerCommandCliOptions - 1);
     assertThat(candidate.getCandidates()).contains(new Completion("--properties-file"));
@@ -187,8 +184,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompleteWithSpace() {
-    String buffer = "start server --name=name1 ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1 ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo(buffer.length() - 1);
     assertThat(candidate.getCandidates()).hasSize(startServerCommandCliOptions - 1);
     assertThat(candidate.getCandidates()).contains(new Completion(" --properties-file"));
@@ -197,8 +194,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompleteWithOutSpace() {
-    String buffer = "start server --name=name1";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo(buffer.length());
     assertThat(candidate.getCandidates()).hasSize(startServerCommandCliOptions - 1);
     assertThat(candidate.getCandidates()).contains(new Completion(" --properties-file"));
@@ -207,31 +204,31 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompleteJ() {
-    String buffer = "start server --name=name1 --J=";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1 --J=";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo(buffer.length() - 3);
     assertThat(candidate.getCandidates()).hasSize(1);
   }
 
   @Test
   public void testCompleteWithValue() {
-    String buffer = "start server --name=name1 --J";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1 --J";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo(buffer.length() - 3);
     assertThat(candidate.getCandidates()).hasSize(1);
   }
 
   @Test
   public void testCompleteWithDash() {
-    String buffer = "start server --name=name1 --J=-Dfoo.bar --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1 --J=-Dfoo.bar --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(startServerCommandCliOptions - 2);
   }
 
   @Test
   public void testCompleteWithMultipleJ() {
-    String buffer = "start server --name=name1 --J=-Dme=her --J=-Dfoo=bar --l";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1 --J=-Dme=her --J=-Dfoo=bar --l";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor())
         .isEqualTo("start server --name=name1 --J=-Dme=her --J=-Dfoo=bar ".length());
     assertThat(candidate.getCandidates()).hasSize(4);
@@ -240,8 +237,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testMultiJComplete() {
-    String buffer = "start server --name=name1 --J=-Dtest=test1 --J=-Dfoo=bar";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1 --J=-Dtest=test1 --J=-Dfoo=bar";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo(buffer.length());
     assertThat(candidate.getCandidates()).hasSize(startServerCommandCliOptions - 2);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + " --assign-buckets");
@@ -249,8 +246,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testMultiJCompleteWithDifferentOrder() {
-    String buffer = "start server --J=-Dtest=test1 --J=-Dfoo=bar --name=name1";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --J=-Dtest=test1 --J=-Dfoo=bar --name=name1";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo(buffer.length());
     assertThat(candidate.getCandidates()).hasSize(startServerCommandCliOptions - 2);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + " --assign-buckets");
@@ -258,8 +255,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testJComplete3() {
-    String buffer = "start server --name=name1 --locators=localhost --J=-Dfoo=bar";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1 --locators=localhost --J=-Dfoo=bar";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo(buffer.length());
     assertThat(candidate.getCandidates()).hasSize(startServerCommandCliOptions - 3);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + " --assign-buckets");
@@ -267,8 +264,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testJComplete4() {
-    String buffer = "start server --name=name1 --locators=localhost  --J=-Dfoo=bar --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "start server --name=name1 --locators=localhost  --J=-Dfoo=bar --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCursor()).isEqualTo(buffer.length() - 2);
     assertThat(candidate.getCandidates()).hasSize(startServerCommandCliOptions - 3);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "assign-buckets");
@@ -276,111 +273,111 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompleteRegionType() {
-    String buffer = "create region --name=test --type";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create region --name=test --type";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(23);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "=LOCAL");
   }
 
   @Test
   public void testCompletePartialRegionType() {
-    String buffer = "create region --name=test --type=LO";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create region --name=test --type=LO";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(5);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "CAL");
   }
 
   @Test
   public void testCompleteWithRegionTypeWithNoSpace() {
-    String buffer = "create region --name=test --type=REPLICATE";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create region --name=test --type=REPLICATE";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(5);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "_HEAP_LRU");
   }
 
   @Test
   public void testCompleteWithRegionTypeWithSpace() {
-    String buffer = "create region --name=test --type=REPLICATE ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create region --name=test --type=REPLICATE ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(46);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--async-event-queue-id");
   }
 
   @Test
   public void testCompleteLogLevel() {
-    String buffer = "change loglevel --loglevel";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "change loglevel --loglevel";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(8);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "=ALL");
   }
 
   @Test
   public void testCompleteLogLevelWithEqualSign() {
-    String buffer = "change loglevel --loglevel=";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "change loglevel --loglevel=";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(8);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "ALL");
   }
 
   @Test
   public void testCompleteHintNonexistemt() {
-    String buffer = "hint notfound";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "hint notfound";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(0);
   }
 
   @Test
   public void testCompleteHintNada() {
-    String buffer = "hint";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "hint";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates().size()).isGreaterThan(10);
     assertThat(candidate.getFirstCandidate()).isEqualToIgnoringCase("hint client");
   }
 
   @Test
   public void testCompleteHintSpace() {
-    String buffer = "hint ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "hint ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates().size()).isGreaterThan(10);
     assertThat(candidate.getFirstCandidate()).isEqualToIgnoringCase("hint client");
   }
 
   @Test
   public void testCompleteHintPartial() {
-    String buffer = "hint d";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "hint d";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(3);
     assertThat(candidate.getFirstCandidate()).isEqualToIgnoringCase("hint data");
   }
 
   @Test
   public void testCompleteHintAlreadyComplete() {
-    String buffer = "hint data";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "hint data";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualToIgnoringCase(buffer);
   }
 
   @Test
   public void testCompleteHelpFirstWord() {
-    String buffer = "help start";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "help start";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(8);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + " gateway-receiver");
   }
 
   @Test
   public void testCompleteHelpPartialFirstWord() {
-    String buffer = "help st";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "help st";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(18);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "art gateway-receiver");
   }
 
   @Test
   public void testObtainHelp() {
-    String command = CliStrings.START_PULSE;
-    String helpString = "NAME" + lineSeparator() + "start pulse" + lineSeparator() + "IS AVAILABLE"
+    var command = CliStrings.START_PULSE;
+    var helpString = "NAME" + lineSeparator() + "start pulse" + lineSeparator() + "IS AVAILABLE"
         + lineSeparator() + "true" + lineSeparator() + "SYNOPSIS" + lineSeparator()
         + "Open a new window in the default Web browser with the URL for the Pulse application."
         + lineSeparator()
@@ -395,11 +392,11 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testObtainHelpForStart() {
-    String command = "start";
-    String helpProvided = gfshParserRule.getCommandManager().getHelper().getHelp(command, 1000);
-    String[] helpProvidedArray = helpProvided.split(lineSeparator());
+    var command = "start";
+    var helpProvided = gfshParserRule.getCommandManager().getHelper().getHelp(command, 1000);
+    var helpProvidedArray = helpProvided.split(lineSeparator());
     assertThat(helpProvidedArray.length).isEqualTo(8 * 2 + 3);
-    for (int i = 0; i < helpProvidedArray.length - 3; i++) {
+    for (var i = 0; i < helpProvidedArray.length - 3; i++) {
       if (i % 2 != 0) {
         assertThat(helpProvidedArray[i]).startsWith("    ");
       } else {
@@ -410,9 +407,9 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testObtainHintForData() {
-    String hintArgument = "data";
-    String hintsProvided = gfshParserRule.getCommandManager().obtainHint(hintArgument);
-    String[] hintsProvidedArray = hintsProvided.split(lineSeparator());
+    var hintArgument = "data";
+    var hintsProvided = gfshParserRule.getCommandManager().obtainHint(hintArgument);
+    var hintsProvidedArray = hintsProvided.split(lineSeparator());
     assertThat(hintsProvidedArray).hasSize(17);
     assertThat(hintsProvidedArray[0])
         .isEqualTo("User data as stored in regions of the Geode distributed system.");
@@ -420,9 +417,9 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testObtainHintWithoutArgument() {
-    String hintArgument = "";
-    String hintsProvided = gfshParserRule.getCommandManager().obtainHint(hintArgument);
-    String[] hintsProvidedArray = hintsProvided.split(lineSeparator());
+    var hintArgument = "";
+    var hintsProvided = gfshParserRule.getCommandManager().obtainHint(hintArgument);
+    var hintsProvidedArray = hintsProvided.split(lineSeparator());
     assertThat(hintsProvidedArray).hasSize(21);
     assertThat(hintsProvidedArray[0]).isEqualTo(
         "Hints are available for the following topics. Use \"hint <topic-name>\" for a specific hint.");
@@ -430,9 +427,9 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testObtainHintWithNonExistingCommand() {
-    String hintArgument = "fortytwo";
-    String hintsProvided = gfshParserRule.getCommandManager().obtainHint(hintArgument);
-    String[] hintsProvidedArray = hintsProvided.split(lineSeparator());
+    var hintArgument = "fortytwo";
+    var hintsProvided = gfshParserRule.getCommandManager().obtainHint(hintArgument);
+    var hintsProvidedArray = hintsProvided.split(lineSeparator());
     assertThat(hintsProvidedArray).hasSize(1);
     assertThat(hintsProvidedArray[0]).isEqualTo(
         "Unknown topic: " + hintArgument + ". Use hint to view the list of available topics.");
@@ -440,10 +437,10 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testObtainHintWithPartialCommand() {
-    String hintArgument = "d";
-    String hintsProvided = gfshParserRule.getCommandManager().obtainHint(hintArgument);
+    var hintArgument = "d";
+    var hintsProvided = gfshParserRule.getCommandManager().obtainHint(hintArgument);
     System.out.println(hintsProvided);
-    String[] hintsProvidedArray = hintsProvided.split(lineSeparator());
+    var hintsProvidedArray = hintsProvided.split(lineSeparator());
     assertThat(hintsProvidedArray.length).isEqualTo(5);
     assertThat(hintsProvidedArray[0]).isEqualTo(
         "Hints are available for the following topics. Use \"hint <topic-name>\" for a specific hint.");
@@ -455,8 +452,8 @@ public class GfshParserAutoCompletionIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testIndexType() {
-    String buffer = "create index --type=";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create index --type=";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates())
         .hasSize(org.apache.geode.cache.query.IndexType.values().length);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "hash");
@@ -464,8 +461,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionOffersMandatoryOptionsInAlphabeticalOrderForCreateGatewaySenderWithSpace() {
-    String buffer = "create gateway-sender ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create gateway-sender ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(2);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--id");
     assertThat(candidate.getCandidates().get(1).getValue())
@@ -474,32 +471,32 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionOffersTheFirstMandatoryOptionInAlphabeticalOrderForCreateGatewaySenderWithDash() {
-    String buffer = "create gateway-sender --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create gateway-sender --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "id");
   }
 
   @Test
   public void testCompletionOffersMandatoryOptionsInAlphabeticalOrderForChangeLogLevelWithSpace() {
-    String buffer = "change loglevel ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "change loglevel ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--loglevel");
   }
 
   @Test
   public void testCompletionOffersTheFirstMandatoryOptionInAlphabeticalOrderForChangeLogLevelWithDash() {
-    String buffer = "change loglevel --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "change loglevel --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "loglevel");
   }
 
   @Test
   public void testCompletionOffersMandatoryOptionsInAlphabeticalOrderForCreateDiskStoreWithSpace() {
-    String buffer = "create disk-store ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create disk-store ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(2);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--dir");
     assertThat(candidate.getCandidate(1)).isEqualTo(buffer + "--name");
@@ -507,16 +504,16 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionOffersTheFirstMandatoryOptionInAlphabeticalOrderForCreateDiskStoreWithDash() {
-    String buffer = "create disk-store --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create disk-store --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "dir");
   }
 
   @Test
   public void testCompletionOffersMandatoryOptionsInAlphabeticalOrderForCreateJndiBindingWithSpace() {
-    String buffer = "create jndi-binding ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create jndi-binding ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(3);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--connection-url");
     assertThat(candidate.getCandidate(1)).isEqualTo(buffer + "--name");
@@ -525,8 +522,8 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionOffersTheFirstMandatoryOptionInAlphabeticalOrderForCreateJndiBindingWithDash() {
-    String buffer = "create jndi-binding --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "create jndi-binding --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(2);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "connection-url");
     assertThat(candidate.getCandidate(1)).isEqualTo(buffer + "url");
@@ -534,25 +531,25 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionOffersMandatoryOptionsInAlphabeticalOrderForDestroyGwSenderWithSpace() {
-    String buffer = "destroy gateway-sender ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "destroy gateway-sender ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--id");
   }
 
   @Test
   public void testCompletionOffersTheFirstMandatoryOptionInAlphabeticalOrderForDestroyGwSenderWithDash() {
-    String buffer = "destroy gateway-sender --";
+    var buffer = "destroy gateway-sender --";
 
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "id");
   }
 
   @Test
   public void testCompletionOffersMandatoryOptionsInAlphabeticalOrderForExportDataWithSpace() {
-    String buffer = "export data ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "export data ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(2);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--member");
     assertThat(candidate.getCandidate(1)).isEqualTo(buffer + "--region");
@@ -560,16 +557,16 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionOffersTheFirstMandatoryOptionInAlphabeticalOrderForExportDataWithDash() {
-    String buffer = "export data --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "export data --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "member");
   }
 
   @Test
   public void testCompletionOffersMandatoryOptionsInAlphabeticalOrderForImportDataWithSpace() {
-    String buffer = "import data ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "import data ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(2);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--member");
     assertThat(candidate.getCandidate(1)).isEqualTo(buffer + "--region");
@@ -577,24 +574,24 @@ public class GfshParserAutoCompletionIntegrationTest {
 
   @Test
   public void testCompletionOffersTheFirstMandatoryOptionInAlphabeticalOrderForImportDataWithDash() {
-    String buffer = "import data --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "import data --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "member");
   }
 
   @Test
   public void testCompletionOffersMandatoryOptionsInAlphabeticalOrderForRemoveWithSpace() {
-    String buffer = "remove ";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "remove ";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "--region");
   }
 
   @Test
   public void testCompletionOffersTheFirstMandatoryOptionInAlphabeticalOrderForRemoveWithDash() {
-    String buffer = "remove --";
-    CommandCandidate candidate = gfshParserRule.complete(buffer);
+    var buffer = "remove --";
+    var candidate = gfshParserRule.complete(buffer);
     assertThat(candidate.getCandidates()).hasSize(1);
     assertThat(candidate.getFirstCandidate()).isEqualTo(buffer + "region");
   }

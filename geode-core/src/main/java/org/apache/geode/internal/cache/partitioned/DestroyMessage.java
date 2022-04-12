@@ -47,7 +47,6 @@ import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.FilterRoutingInfo;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
 import org.apache.geode.internal.cache.PrimaryBucketException;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
@@ -176,7 +175,7 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
   public static Set notifyListeners(Set cacheOpReceivers, Set adjunctRecipients,
       FilterRoutingInfo filterRoutingInfo, PartitionedRegion r, EntryEventImpl event,
       DirectReplyProcessor processor) {
-    DestroyMessage msg =
+    var msg =
         new DestroyMessage(Collections.EMPTY_SET, true, r.getPRId(), processor, event, null);
     msg.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     msg.versionTag = event.getVersionTag();
@@ -200,9 +199,9 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
     // Assert.assertTrue(recipient != null, "DestroyMessage NULL recipient"); recipient may be null
     // for event notification
     Set recipients = Collections.singleton(recipient);
-    DestroyResponse p = new DestroyResponse(r.getSystem(), recipients, false);
+    var p = new DestroyResponse(r.getSystem(), recipients, false);
     p.requireResponse();
-    DestroyMessage m =
+    var m =
         new DestroyMessage(recipients, false, r.getPRId(), p, event, expectedOldValue);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     Set failures = r.getDistributionManager().putOutgoing(m);
@@ -215,7 +214,7 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
 
   @Override
   public PartitionMessage getMessageForRelayToListeners(EntryEventImpl event, Set members) {
-    DestroyMessage msg = new DestroyMessage(this, event, members);
+    var msg = new DestroyMessage(this, event, members);
     // Fix for 43000 - don't send the expected old value to listeners.
     msg.expectedOldValue = null;
     return msg;
@@ -230,7 +229,7 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
   @Override
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm, PartitionedRegion r,
       long startTime) throws EntryExistsException, DataLocationException {
-    InternalDistributedMember eventSender = originalSender;
+    var eventSender = originalSender;
     if (eventSender == null) {
       eventSender = getSender();
     }
@@ -256,8 +255,8 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
       event.setEventId(eventId);
       event.setPossibleDuplicate(posDup);
 
-      PartitionedRegionDataStore ds = r.getDataStore();
-      boolean sendReply = true;
+      var ds = r.getDataStore();
+      var sendReply = true;
 
       if (!notificationOnly) {
         Assert.assertTrue(ds != null,
@@ -288,7 +287,7 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
         }
       } else {
         @Released
-        EntryEventImpl e2 = createListenerEvent(event, r, dm.getDistributionManagerId());
+        var e2 = createListenerEvent(event, r, dm.getDistributionManagerId());
         try {
           r.invokeDestroyCallbacks(EnumListenerEvent.AFTER_DESTROY, e2, r.isInitialized(), true);
         } finally {
@@ -340,7 +339,7 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
     eventId = DataSerializer.readObject(in);
     expectedOldValue = DataSerializer.readObject(in);
 
-    final boolean hasFilterInfo = ((flags & HAS_FILTER_INFO) != 0);
+    final var hasFilterInfo = ((flags & HAS_FILTER_INFO) != 0);
     if (hasFilterInfo) {
       filterInfo = new FilterRoutingInfo();
       InternalDataSerializer.invokeFromData(filterInfo, in);
@@ -474,7 +473,7 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
     static void send(InternalDistributedMember recipient, ReplySender dm, int procId,
         VersionTag versionTag, boolean internal) {
       Assert.assertTrue(recipient != null, "DestroyReplyMessage NULL recipient");
-      DestroyReplyMessage m = new DestroyReplyMessage(recipient, procId, versionTag);
+      var m = new DestroyReplyMessage(recipient, procId, versionTag);
       m.internal = internal;
       dm.putOutgoing(m);
     }
@@ -492,7 +491,7 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
 
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 rp) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "DestroyReplyMessage process invoking reply processor with processorId: {}",
@@ -510,7 +509,7 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
         versionTag.replaceNullIDs(getSender());
       }
       if (rp instanceof DestroyResponse) {
-        DestroyResponse processor = (DestroyResponse) rp;
+        var processor = (DestroyResponse) rp;
         if (versionTag != null) {
           versionTag.replaceNullIDs(getSender());
         }
@@ -528,7 +527,7 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
     public void toData(DataOutput out,
         SerializationContext context) throws IOException {
       super.toData(out, context);
-      byte b = versionTag != null ? HAS_VERSION_TAG : 0;
+      var b = versionTag != null ? HAS_VERSION_TAG : 0;
       b |= versionTag instanceof DiskVersionTag ? PERSISTENT_TAG : 0;
       out.writeByte(b);
       if (versionTag != null) {
@@ -540,9 +539,9 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      byte b = in.readByte();
-      boolean hasTag = (b & HAS_VERSION_TAG) != 0;
-      boolean persistentTag = (b & PERSISTENT_TAG) != 0;
+      var b = in.readByte();
+      var hasTag = (b & HAS_VERSION_TAG) != 0;
+      var persistentTag = (b & PERSISTENT_TAG) != 0;
       if (hasTag) {
         versionTag = VersionTag.create(persistentTag, in);
       }
@@ -550,13 +549,13 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
 
     @Override
     public String toString() {
-      StringBuilder sb = super.getStringBuilder();
+      var sb = super.getStringBuilder();
       if (versionTag != null) {
         sb.append(" version=").append(versionTag);
       }
       sb.append(" from ");
       sb.append(getSender());
-      ReplyException ex = getException();
+      var ex = getException();
       if (ex != null) {
         sb.append(" with exception ");
         sb.append(ex);

@@ -55,13 +55,13 @@ public class DescribeConfigCommandTest {
 
   @Test
   public void passwordShouldBeRedacted() {
-    MemberConfigurationInfo info = new MemberConfigurationInfo();
+    var info = new MemberConfigurationInfo();
     Map<String, String> properties = new HashMap<>();
     properties.put(ConfigurationProperties.SSL_KEYSTORE, "somewhere/something");
     properties.put(ConfigurationProperties.SSL_KEYSTORE_PASSWORD, "mySecretPassword");
 
     info.setGfePropsSetFromFile(properties);
-    CliFunctionResult functionResult = mock(CliFunctionResult.class);
+    var functionResult = mock(CliFunctionResult.class);
     when(functionResult.getResultObject()).thenReturn(info);
     doReturn(mock(DistributedMember.class)).when(command).getMember(any());
     doReturn(functionResult).when(command).executeFunctionAndGetFunctionResult(any(), any(), any());

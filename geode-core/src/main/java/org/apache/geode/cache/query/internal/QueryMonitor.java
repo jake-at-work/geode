@@ -15,12 +15,10 @@
 package org.apache.geode.cache.query.internal;
 
 import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.Logger;
 
@@ -266,7 +264,7 @@ public class QueryMonitor {
       @Override
       public CacheRuntimeException createCancellationException(final long timeLimitMillis,
           final ExecutionContext executionContext) {
-        final String message = String.format(
+        final var message = String.format(
             "Query execution canceled after exceeding max execution time %sms.",
             timeLimitMillis);
         if (logger.isInfoEnabled()) {
@@ -279,8 +277,8 @@ public class QueryMonitor {
        * Run all cancelation tasks. Leave the executor's task queue empty.
        */
       private void cancelAllQueries(final ScheduledThreadPoolExecutor executor) {
-        final BlockingQueue<Runnable> expirationTaskQueue = executor.getQueue();
-        for (final Runnable cancelationTask : expirationTaskQueue) {
+        final var expirationTaskQueue = executor.getQueue();
+        for (final var cancelationTask : expirationTaskQueue) {
           if (expirationTaskQueue.remove(cancelationTask)) {
             cancelationTask.run();
           }
@@ -310,7 +308,7 @@ public class QueryMonitor {
           final TimeUnit unit,
           final ScheduledExecutorService scheduledExecutorService,
           final ExecutionContext executionContext) {
-        final CacheRuntimeException lowMemoryException =
+        final var lowMemoryException =
             createCancellationException(timeLimitMillis, executionContext);
         executionContext.setQueryCanceledException(lowMemoryException);
         throw lowMemoryException;
@@ -354,7 +352,7 @@ public class QueryMonitor {
       final long timeLimitMillis) {
 
     // Make ThreadLocal isCanceled available to closure, which will run in a separate thread
-    final AtomicBoolean queryCanceledThreadLocal =
+    final var queryCanceledThreadLocal =
         ExecutionContext.isCanceled.get();
 
     /*
@@ -370,7 +368,7 @@ public class QueryMonitor {
      * memoryState, to createCancelationException().
      */
     return memoryState.schedule(() -> {
-      final CacheRuntimeException exception = memoryState
+      final var exception = memoryState
           .createCancellationException(timeLimitMillis, executionContext);
 
       executionContext.setQueryCanceledException(exception);
@@ -380,7 +378,7 @@ public class QueryMonitor {
   }
 
   private void logDebug(final ExecutionContext executionContext, final String message) {
-    final Thread queryThread = Thread.currentThread();
+    final var queryThread = Thread.currentThread();
     logger.debug(
         message + " QueryMonitor size is: {}, Thread (id): {}, Query: {}, Thread is : {}",
         executor.getQueue().size(), queryThread.getId(),

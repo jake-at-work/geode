@@ -28,7 +28,6 @@ import org.apache.geode.cache.query.cq.internal.ops.CreateCQOp.CreateCQOpImpl;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.serialization.KnownVersion;
 
 /**
@@ -88,20 +87,20 @@ public class GetDurableCQsOp {
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
 
-      ChunkedMessage getDurableCQsResponseMsg = (ChunkedMessage) msg;
+      var getDurableCQsResponseMsg = (ChunkedMessage) msg;
       final List<String> result = new LinkedList<>();
-      final Exception[] exceptionRef = new Exception[1];
+      final var exceptionRef = new Exception[1];
 
       getDurableCQsResponseMsg.readHeader();
-      final int msgType = getDurableCQsResponseMsg.getMessageType();
+      final var msgType = getDurableCQsResponseMsg.getMessageType();
       if (msgType == MessageType.RESPONSE) {
         do {
           getDurableCQsResponseMsg.receiveChunk();
           // callback.handle(msg);
-          Part part = getDurableCQsResponseMsg.getPart(0);
-          Object o = part.getObject();
+          var part = getDurableCQsResponseMsg.getPart(0);
+          var o = part.getObject();
           if (o instanceof Throwable) {
-            String s = "While performing a remote GetDurableCQs";
+            var s = "While performing a remote GetDurableCQs";
             exceptionRef[0] = new ServerOperationException(s, (Throwable) o);
           } else {
             result.addAll((List) o);
@@ -110,15 +109,15 @@ public class GetDurableCQsOp {
       } else {
         if (msgType == MessageType.EXCEPTION) {
           getDurableCQsResponseMsg.receiveChunk();
-          Part part = msg.getPart(0);
-          String s = "While performing a remote GetDurableCQs";
+          var part = msg.getPart(0);
+          var s = "While performing a remote GetDurableCQs";
           throw new ServerOperationException(s, (Throwable) part.getObject());
           // Get the exception toString part.
           // This was added for c++ thin client and not used in java
           // Part exceptionToStringPart = msg.getPart(1);
         } else if (isErrorResponse(msgType)) {
           getDurableCQsResponseMsg.receiveChunk();
-          Part part = msg.getPart(0);
+          var part = msg.getPart(0);
           throw new ServerOperationException(part.getString());
         } else {
           throw new InternalGemFireError(

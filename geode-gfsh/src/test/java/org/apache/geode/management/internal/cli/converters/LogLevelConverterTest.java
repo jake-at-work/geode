@@ -32,15 +32,15 @@ public class LogLevelConverterTest {
 
   @Test
   public void testCompletionContainsOnlyLog4jLevels() {
-    LogLevelConverter converter = new LogLevelConverter();
+    var converter = new LogLevelConverter();
     List<Completion> completions = new ArrayList<>();
 
     converter.getAllPossibleValues(completions, null, null, null, null);
 
     assertThat(completions.size()).isEqualTo(8);
 
-    for (Completion completion : completions) {
-      String level = completion.getValue();
+    for (var completion : completions) {
+      var level = completion.getValue();
       assertThat(Level.getLevel(level)).isNotNull();
     }
   }

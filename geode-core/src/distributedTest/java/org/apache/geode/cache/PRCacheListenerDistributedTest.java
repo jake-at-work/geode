@@ -49,7 +49,7 @@ public class PRCacheListenerDistributedTest extends ReplicateCacheListenerDistri
   @Override
   protected Region<String, Integer> createRegion(final String name,
       final CacheListener<String, Integer> listener) {
-    PartitionAttributesFactory<String, Integer> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<String, Integer>();
     paf.setRedundantCopies(redundancy);
 
     RegionFactory<String, Integer> regionFactory = cacheRule.getCache().createRegionFactory();

@@ -43,17 +43,17 @@ public class BucketTargetingFixedResolverTest {
   public void shouldReturnCorrectPartitionForGetHashKey(
       @Size(min = 1, max = 5) List<@InRange(minInt = 1, maxInt = 20) Integer> partitionSizes,
       @InRange(minInt = 0, maxInt = 50) int bucketId) {
-    BucketTargetingFixedResolver resolver = new BucketTargetingFixedResolver();
+    var resolver = new BucketTargetingFixedResolver();
 
     ConcurrentMap<String, Integer[]> fakePartitions = new ConcurrentHashMap<>();
-    int startingBucket = 0;
-    for (int i = 0; i < partitionSizes.size(); i++) {
+    var startingBucket = 0;
+    for (var i = 0; i < partitionSizes.size(); i++) {
       fakePartitions.put("p" + i, new Integer[] {startingBucket, partitionSizes.get(i)});
       startingBucket += partitionSizes.get(i);
     }
     assumeTrue(bucketId < startingBucket);
 
-    final PartitionedRegion region = mock(PartitionedRegion.class);
+    final var region = mock(PartitionedRegion.class);
     when(region.getPartitionsMap()).thenReturn(fakePartitions);
     when(region.isFixedPartitionedRegion()).thenReturn(true);
     when(region.getPartitionResolver()).thenReturn(resolver);

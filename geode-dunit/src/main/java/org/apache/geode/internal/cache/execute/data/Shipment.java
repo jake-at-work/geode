@@ -54,7 +54,7 @@ public class Shipment implements DataSerializable {
     }
 
     if (obj instanceof Shipment) {
-      Shipment other = (Shipment) obj;
+      var other = (Shipment) obj;
       return other.shipmentName != null && other.shipmentName.equals(shipmentName);
     }
     return false;

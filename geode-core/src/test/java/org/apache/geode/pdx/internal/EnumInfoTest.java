@@ -54,83 +54,83 @@ public class EnumInfoTest {
 
   @Test
   public void testNoArgConstructor() {
-    final EnumInfo enumInfo = new EnumInfo();
+    final var enumInfo = new EnumInfo();
     assertNull(enumInfo.getClassName());
     assertEquals(0, enumInfo.getOrdinal());
   }
 
   @Test
   public void testThreeArgConstructor() {
-    final EnumInfo enumInfo = new EnumInfo("clazz", "name", 37);
+    final var enumInfo = new EnumInfo("clazz", "name", 37);
     assertEquals("clazz", enumInfo.getClassName());
     assertEquals(37, enumInfo.getOrdinal());
   }
 
   @Test
   public void testOneArgConstructor() {
-    final EnumInfo enumInfo = new EnumInfo(TestEnum.ONE);
+    final var enumInfo = new EnumInfo(TestEnum.ONE);
     assertEquals("org.apache.geode.pdx.internal.EnumInfoTest$TestEnum", enumInfo.getClassName());
     assertEquals(1, enumInfo.getOrdinal());
   }
 
   @Test
   public void testGetDSFID() {
-    final EnumInfo enumInfo = new EnumInfo(TestEnum.ONE);
+    final var enumInfo = new EnumInfo(TestEnum.ONE);
     assertEquals(ENUM_INFO, enumInfo.getDSFID());
   }
 
   @Test
   public void testGetSerializationVersions() {
-    final EnumInfo enumInfo = new EnumInfo(TestEnum.ONE);
+    final var enumInfo = new EnumInfo(TestEnum.ONE);
     assertNull(enumInfo.getSerializationVersions());
   }
 
   @Test
   public void testHashCode() {
-    final EnumInfo enumInfo = new EnumInfo(TestEnum.ONE);
+    final var enumInfo = new EnumInfo(TestEnum.ONE);
     assertEquals(enumInfo.hashCode(), enumInfo.hashCode());
 
-    final EnumInfo sameClazzAndSameName =
+    final var sameClazzAndSameName =
         new EnumInfo("org.apache.geode.pdx.internal.EnumInfoTest$TestEnum", "ONE", 1);
     assertEquals(enumInfo.hashCode(), sameClazzAndSameName.hashCode());
 
-    final EnumInfo differentClazzAndSameName =
+    final var differentClazzAndSameName =
         new EnumInfo("Not " + "org.apache.geode.pdx.internal.EnumInfoTest$TestEnum", "ONE", 1);
     assertNotEquals(enumInfo.hashCode(), differentClazzAndSameName.hashCode());
 
-    final EnumInfo sameClazzAndDifferentName =
+    final var sameClazzAndDifferentName =
         new EnumInfo("org.apache.geode.pdx.internal.EnumInfoTest$TestEnum", "Not " + "ONE", 1);
     assertNotEquals(enumInfo.hashCode(), sameClazzAndDifferentName.hashCode());
   }
 
   @Test
   public void testEquals() {
-    final EnumInfo enumInfo = new EnumInfo(TestEnum.ONE);
+    final var enumInfo = new EnumInfo(TestEnum.ONE);
     assertTrue(enumInfo.equals(enumInfo));
     assertFalse(enumInfo.equals(null));
     assertFalse(enumInfo.equals(new Object()));
 
-    final EnumInfo sameClazzSameNameAndSameOrdinal =
+    final var sameClazzSameNameAndSameOrdinal =
         new EnumInfo("org.apache.geode.pdx.internal.EnumInfoTest$TestEnum", "ONE", 1);
     assertTrue(enumInfo.equals(sameClazzSameNameAndSameOrdinal));
 
-    final EnumInfo differentClazzSameNameAndSameOrdinal =
+    final var differentClazzSameNameAndSameOrdinal =
         new EnumInfo("Not " + "org.apache.geode.pdx.internal.EnumInfoTest$TestEnum", "ONE", 1);
     assertFalse(enumInfo.equals(differentClazzSameNameAndSameOrdinal));
 
-    final EnumInfo sameClazzDifferentNameAndSameOrdinal =
+    final var sameClazzDifferentNameAndSameOrdinal =
         new EnumInfo("org.apache.geode.pdx.internal.EnumInfoTest$TestEnum", "Not " + "ONE", 1);
     assertFalse(enumInfo.equals(sameClazzDifferentNameAndSameOrdinal));
 
-    final EnumInfo sameClazzDifferentNameAndDifferentOrdinal =
+    final var sameClazzDifferentNameAndDifferentOrdinal =
         new EnumInfo("org.apache.geode.pdx.internal.EnumInfoTest$TestEnum", "Not " + "ONE", 1 + 1);
     assertFalse(enumInfo.equals(sameClazzDifferentNameAndDifferentOrdinal));
   }
 
   @Test
   public void testToFormattedString() {
-    final EnumInfo enumInfo = new EnumInfo(TestEnum.ONE);
-    final String str = enumInfo.toFormattedString();
+    final var enumInfo = new EnumInfo(TestEnum.ONE);
+    final var str = enumInfo.toFormattedString();
     assertEquals(0, str.indexOf("EnumInfo"));
     assertNotEquals(-1, str.indexOf("org.apache.geode.pdx.internal.EnumInfoTest$TestEnum"));
     assertNotEquals(-1, str.indexOf("ONE"));
@@ -138,35 +138,35 @@ public class EnumInfoTest {
 
   @Test
   public void testToString() {
-    final EnumInfo enumInfo = new EnumInfo(TestEnum.ONE);
-    final String str = enumInfo.toString();
+    final var enumInfo = new EnumInfo(TestEnum.ONE);
+    final var str = enumInfo.toString();
     assertNotEquals(-1, str.indexOf("org.apache.geode.pdx.internal.EnumInfoTest$TestEnum"));
     assertNotEquals(-1, str.indexOf("ONE"));
   }
 
   @Test
   public void testToStream() {
-    final EnumInfo enumInfo = new EnumInfo(TestEnum.ONE);
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    final var enumInfo = new EnumInfo(TestEnum.ONE);
+    var byteArrayOutputStream = new ByteArrayOutputStream();
     enumInfo.toStream(new PrintStream(byteArrayOutputStream));
-    final String str = byteArrayOutputStream.toString();
+    final var str = byteArrayOutputStream.toString();
     assertNotEquals(-1, str.indexOf("org.apache.geode.pdx.internal.EnumInfoTest$TestEnum"));
     assertNotEquals(-1, str.indexOf("ONE"));
   }
 
   @Test
   public void testToDataAndFromData() throws IOException, ClassNotFoundException {
-    final EnumInfo before = new EnumInfo(TestEnum.ONE);
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
-    DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+    final var before = new EnumInfo(TestEnum.ONE);
+    var byteArrayOutputStream = new ByteArrayOutputStream(1024);
+    var dataOutputStream = new DataOutputStream(byteArrayOutputStream);
     before.toData(dataOutputStream,
         InternalDataSerializer.createSerializationContext(dataOutputStream));
     dataOutputStream.close();
 
-    final EnumInfo after = new EnumInfo();
-    ByteArrayInputStream byteArrayInputStream =
+    final var after = new EnumInfo();
+    var byteArrayInputStream =
         new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-    DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
+    var dataInputStream = new DataInputStream(byteArrayInputStream);
     after.fromData(dataInputStream,
         InternalDataSerializer.createDeserializationContext(dataInputStream));
 

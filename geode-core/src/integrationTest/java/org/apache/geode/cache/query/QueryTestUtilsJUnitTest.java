@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.data.Numbers;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -59,22 +58,22 @@ public class QueryTestUtilsJUnitTest {
   }
 
   private void populatePortfolioValuesInRegion(String regionName, int size) {
-    Region region = utils.getRegion(regionName);
-    for (int i = 1; i <= size; i++) {
+    var region = utils.getRegion(regionName);
+    for (var i = 1; i <= size; i++) {
       region.put("KEY-" + i, new Portfolio(i));
     }
   }
 
   private void populateOffsetPortfolioValuesInRegion(String regionName, int size) {
-    Region region = utils.getRegion(regionName);
-    for (int i = 1; i <= size; i++) {
+    var region = utils.getRegion(regionName);
+    for (var i = 1; i <= size; i++) {
       region.put("KEY-" + i, new Portfolio(i + 1));
     }
   }
 
   private void populateNumericValuesInRegion(String regionName, int size) {
-    Region region = utils.getRegion(regionName);
-    for (int i = 1; i <= size; i++) {
+    var region = utils.getRegion(regionName);
+    for (var i = 1; i <= size; i++) {
       region.put("KEY-" + i, new Numbers(i));
     }
   }
@@ -82,10 +81,10 @@ public class QueryTestUtilsJUnitTest {
   @Test
   public void testQueries() {
     utils.initializeQueryMap();
-    String[] queries = {"1"}; // SELECT * FROM /exampleRegion WHERE status = 'active'
-    int results = 0;
+    var queries = new String[] {"1"}; // SELECT * FROM /exampleRegion WHERE status = 'active'
+    var results = 0;
     try {
-      for (Object result : utils.executeQueries(queries)) {
+      for (var result : utils.executeQueries(queries)) {
         if (result instanceof SelectResults) {
           Collection<?> collection = ((SelectResults<?>) result).asList();
           results = collection.size();
@@ -107,9 +106,9 @@ public class QueryTestUtilsJUnitTest {
   @Test
   public void testQueriesWithoutDistinct() throws Exception {
     populateOffsetPortfolioValuesInRegion("exampleRegion", 2);
-    String[] queries = {"181"};
-    int results = 0;
-    for (Object result : utils.executeQueriesWithoutDistinct(queries)) {
+    var queries = new String[] {"181"};
+    var results = 0;
+    for (var result : utils.executeQueriesWithoutDistinct(queries)) {
       if (result instanceof SelectResults) {
         Collection<?> collection = ((SelectResults<?>) result).asList();
         results = collection.size();
@@ -127,10 +126,10 @@ public class QueryTestUtilsJUnitTest {
 
   @Test
   public void testQueriesWithDistinct() throws Exception {
-    String[] queries = {"181"};
-    int results = 0;
-    int i = 7;
-    for (Object result : utils.executeQueriesWithDistinct(queries)) {
+    var queries = new String[] {"181"};
+    var results = 0;
+    var i = 7;
+    for (var result : utils.executeQueriesWithDistinct(queries)) {
       if (result instanceof SelectResults) {
         Collection<?> collection = ((SelectResults<?>) result).asList();
         results = collection.size();

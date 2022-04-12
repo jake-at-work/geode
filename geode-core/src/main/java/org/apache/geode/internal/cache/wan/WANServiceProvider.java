@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.cache.wan;
 
-import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.apache.geode.annotations.Immutable;
@@ -30,8 +29,8 @@ public class WANServiceProvider {
   private static final WANFactory factory;
 
   static {
-    ServiceLoader<WANFactory> loader = ServiceLoader.load(WANFactory.class);
-    Iterator<WANFactory> itr = loader.iterator();
+    var loader = ServiceLoader.load(WANFactory.class);
+    var itr = loader.iterator();
     if (!itr.hasNext()) {
       factory = null;
     } else {

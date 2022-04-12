@@ -25,14 +25,12 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache30.CacheSerializableRunnable;
@@ -82,7 +80,7 @@ public class HAExpiryDUnitTest extends JUnit4DistributedTestCase {
    */
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
 
     vm0 = host.getVM(0);
 
@@ -174,12 +172,12 @@ public class HAExpiryDUnitTest extends JUnit4DistributedTestCase {
    *
    */
   private static void checkSizeBeforeExpiration() throws Exception {
-    HARegion regionForQueue = (HARegion) cache
+    var regionForQueue = (HARegion) cache
         .getRegion(SEPARATOR + createRegionName(regionQueueName));
-    final HARegionQueue regionqueue = regionForQueue.getOwner();
+    final var regionqueue = regionForQueue.getOwner();
     regionQueueSize = regionqueue.size();
     cache.getLogger().info("Size of the regionqueue before expiration is " + regionQueueSize);
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return regionqueue.size() >= 1;
@@ -202,11 +200,11 @@ public class HAExpiryDUnitTest extends JUnit4DistributedTestCase {
    */
   private static void checkSizeAfterExpiration() throws Exception {
 
-    HARegion regionForQueue = (HARegion) cache
+    var regionForQueue = (HARegion) cache
         .getRegion(SEPARATOR + createRegionName(regionQueueName));
-    final HARegionQueue regionqueue = regionForQueue.getOwner();
+    final var regionqueue = regionForQueue.getOwner();
     cache.getLogger().info("Size of the regionqueue After expiration is " + regionqueue.size());
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return regionqueue.size() <= regionQueueSize;
@@ -236,18 +234,18 @@ public class HAExpiryDUnitTest extends JUnit4DistributedTestCase {
 
   private static void createRegionQueue(Boolean isDurable) throws Exception {
     new HAExpiryDUnitTest().createCache(new Properties());
-    HARegionQueueAttributes hattr = new HARegionQueueAttributes();
+    var hattr = new HARegionQueueAttributes();
     // setting expiry time for the regionqueue.
     hattr.setExpiryTime(4);
     RegionQueue regionqueue = HARegionQueue.getHARegionQueueInstance(regionQueueName, cache, hattr,
         HARegionQueue.NON_BLOCKING_HA_QUEUE, isDurable, disabledClock());
     assertNotNull(regionqueue);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     CacheListener serverListener = new VMListener();
     factory.setCacheListener(serverListener);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
   }
@@ -265,10 +263,10 @@ public class HAExpiryDUnitTest extends JUnit4DistributedTestCase {
   static class VMListener extends CacheListenerAdapter {
     @Override
     public void afterCreate(EntryEvent event) {
-      Cache cache = event.getRegion().getCache();
-      HARegion regionForQueue = (HARegion) cache.getRegion(
+      var cache = event.getRegion().getCache();
+      var regionForQueue = (HARegion) cache.getRegion(
           SEPARATOR + HARegionQueue.createRegionName(HAExpiryDUnitTest.regionQueueName));
-      HARegionQueue regionqueue = regionForQueue.getOwner();
+      var regionqueue = regionForQueue.getOwner();
       try {
         regionqueue.put(new ConflatableObject(event.getKey(), event.getNewValue(),
             new EventID(new byte[] {1}, 1, 1), false, "region1"));

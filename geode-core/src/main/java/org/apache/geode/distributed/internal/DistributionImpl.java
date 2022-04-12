@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -128,7 +127,7 @@ public class DistributionImpl implements Distribution {
 
     memberTimeout = system.getConfig().getMemberTimeout();
     try {
-      final TcpClient locatorClient = new TcpClient(SocketCreatorFactory
+      final var locatorClient = new TcpClient(SocketCreatorFactory
           .getSocketCreatorForComponent(SecurableCommunicationChannel.LOCATOR),
           InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
           InternalDataSerializer.getDSFIDSerializer().getObjectDeserializer(),
@@ -174,7 +173,7 @@ public class DistributionImpl implements Distribution {
           "Unable to create membership manager",
           e);
     } catch (SecurityException e) {
-      String failReason = e.getMessage();
+      var failReason = e.getMessage();
       if (failReason.contains("Failed to find credentials")) {
         throw new AuthenticationRequiredException(failReason);
       }
@@ -216,7 +215,7 @@ public class DistributionImpl implements Distribution {
       MessageListener<InternalDistributedMember> messageListener,
       final MembershipLocator<InternalDistributedMember> locator) {
 
-    DistributionImpl distribution =
+    var distribution =
         new DistributionImpl(clusterDistributionManager, transport, system, listener,
             messageListener, locator);
     distribution.start();
@@ -238,7 +237,7 @@ public class DistributionImpl implements Distribution {
   public Set<InternalDistributedMember> send(List<InternalDistributedMember> destinations,
       DistributionMessage msg) throws NotSerializableException {
     Set<InternalDistributedMember> result;
-    boolean allDestinations = msg.forAll();
+    var allDestinations = msg.forAll();
 
     checkCancelled();
 
@@ -280,12 +279,12 @@ public class DistributionImpl implements Distribution {
     msg.setBreadcrumbsInSender();
     Breadcrumbs.setProblem(null);
 
-    boolean useMcast = false;
+    var useMcast = false;
     if (mcastEnabled) {
       useMcast = (msg.getMulticast() || allDestinations);
     }
 
-    boolean sendViaMessenger = isForceUDPCommunications() || (msg instanceof ShutdownMessage);
+    var sendViaMessenger = isForceUDPCommunications() || (msg instanceof ShutdownMessage);
 
     if (useMcast || tcpDisabled || sendViaMessenger) {
       result = membership.send(destinations.toArray(EMPTY_MEMBER_ARRAY), msg);
@@ -311,7 +310,7 @@ public class DistributionImpl implements Distribution {
       membership.checkCancelled();
     } catch (MembershipClosedException e) {
       if (e.getCause() instanceof MemberDisconnectedException) {
-        ForcedDisconnectException fde = new ForcedDisconnectException(e.getCause().getMessage());
+        var fde = new ForcedDisconnectException(e.getCause().getMessage());
         throw new DistributedSystemDisconnectedException(e.getMessage(), fde);
       }
       throw new DistributedSystemDisconnectedException(e.getMessage());
@@ -373,18 +372,18 @@ public class DistributionImpl implements Distribution {
       }
 
       // We need to return this list of failures
-      List<InternalDistributedMember> members = ex.getMembers();
+      var members = ex.getMembers();
 
       // SANITY CHECK: If we fail to send a message to an existing member
       // of the view, we have a serious error (bug36202).
 
 
       // Iterate through members and causes in tandem :-(
-      Iterator<InternalDistributedMember> it_mem = members.iterator();
-      Iterator<Throwable> it_causes = ex.getCauses().iterator();
+      var it_mem = members.iterator();
+      var it_causes = ex.getCauses().iterator();
       while (it_mem.hasNext()) {
-        InternalDistributedMember member = it_mem.next();
-        Throwable th = it_causes.next();
+        var member = it_mem.next();
+        var th = it_causes.next();
 
         if (!membership.hasMember(member) || (th instanceof ShunnedMemberException)) {
           if (logger.isDebugEnabled()) {
@@ -421,8 +420,8 @@ public class DistributionImpl implements Distribution {
   @Override
   public Map<String, Long> getMessageState(
       DistributedMember member, boolean includeMulticast) {
-    final HashMap<String, Long> result = new HashMap<>();
-    DirectChannel dc = directChannel;
+    final var result = new HashMap<String, Long>();
+    var dc = directChannel;
     if (dc != null) {
       dc.getChannelStates(member, result);
     }
@@ -435,7 +434,7 @@ public class DistributionImpl implements Distribution {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    DirectChannel dc = directChannel;
+    var dc = directChannel;
     if (dc != null) {
       dc.waitForChannelState(member, state);
     }
@@ -573,7 +572,7 @@ public class DistributionImpl implements Distribution {
 
   @Override
   public Throwable getShutdownCause() {
-    Throwable cause = membership.getShutdownCause();
+    var cause = membership.getShutdownCause();
     if (cause instanceof MemberDisconnectedException) {
       cause = new ForcedDisconnectException(cause.getMessage());
     }
@@ -625,7 +624,7 @@ public class DistributionImpl implements Distribution {
   }
 
   private void startDirectChannel(final MemberIdentifier memberID) {
-    int dcPort = 0;
+    var dcPort = 0;
 
     if (!tcpDisabled) {
       directChannel = new DirectChannel(membership, dcReceiver, clusterDistributionManager);
@@ -649,7 +648,7 @@ public class DistributionImpl implements Distribution {
   }
 
   private void destroyMember(final InternalDistributedMember member, final String reason) {
-    final DirectChannel dc = directChannel;
+    final var dc = directChannel;
     if (dc != null) {
       // Bug 37944: make sure this is always done in a separate thread,
       // so that shutdown conditions don't wedge the view lock
@@ -730,13 +729,13 @@ public class DistributionImpl implements Distribution {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    boolean result = false;
+    var result = false;
     // TODO - Move the bulk of this method to the adapter.
-    DirectChannel dc = directChannel;
-    InternalDistributedMember idm = mbr;
-    long pauseTime = (timeoutMs < 4000) ? 100 : timeoutMs / 40;
+    var dc = directChannel;
+    var idm = mbr;
+    var pauseTime = (timeoutMs < 4000) ? 100 : timeoutMs / 40;
     boolean wait;
-    int numWaits = 0;
+    var numWaits = 0;
     do {
       wait = false;
       if (dc != null) {
@@ -780,12 +779,12 @@ public class DistributionImpl implements Distribution {
       throws InterruptedException {
     // run a message through the member's serial execution queue to ensure that all of its
     // current messages have been processed
-    boolean result = false;
-    OverflowQueueWithDMStats<Runnable> serialQueue =
+    var result = false;
+    var serialQueue =
         clusterDistributionManager.getExecutors().getSerialQueue(idm);
     if (serialQueue != null) {
-      final boolean[] done = new boolean[1];
-      final FlushingMessage msg = new FlushingMessage(done);
+      final var done = new boolean[1];
+      final var msg = new FlushingMessage(done);
       serialQueue.add(new SizeableRunnable(100) {
         @Override
         public void run() {
@@ -903,7 +902,7 @@ public class DistributionImpl implements Distribution {
 
     @Override
     public boolean disconnect(Exception cause) {
-      Exception exception = cause;
+      var exception = cause;
       // translate into a ForcedDisconnectException if necessary
       if (cause instanceof MemberDisconnectedException) {
         exception = new ForcedDisconnectException(cause.getMessage());
@@ -930,7 +929,7 @@ public class DistributionImpl implements Distribution {
         // stop server locators immediately since they may not have correct
         // information. This has caused client failures in bridge/wan
         // network-down testing
-        InternalLocator loc = (InternalLocator) Locator.getLocator();
+        var loc = (InternalLocator) Locator.getLocator();
         if (loc != null) {
           loc.stop(true, !distribution.disableAutoReconnect, true);
         }

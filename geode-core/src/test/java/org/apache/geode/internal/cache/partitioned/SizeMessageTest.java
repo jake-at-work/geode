@@ -25,7 +25,7 @@ public class SizeMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    SizeMessage mockSizeMessage = mock(SizeMessage.class);
+    var mockSizeMessage = mock(SizeMessage.class);
     when(mockSizeMessage.failIfRegionMissing()).thenReturn(true);
     assertThat(mockSizeMessage.failIfRegionMissing()).isTrue();
   }

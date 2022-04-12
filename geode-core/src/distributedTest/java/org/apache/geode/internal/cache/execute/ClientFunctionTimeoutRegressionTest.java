@@ -50,12 +50,9 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalCacheServer;
-import org.apache.geode.internal.cache.tier.ServerSideHandshake;
 import org.apache.geode.internal.cache.tier.sockets.AcceptorImpl;
-import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -139,11 +136,11 @@ public class ClientFunctionTimeoutRegressionTest implements Serializable {
       System.setProperty(GEMFIRE_PREFIX + "CLIENT_FUNCTION_TIMEOUT", String.valueOf(timeout));
     }
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(MCAST_PORT, "0");
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory(config);
+    var clientCacheFactory = new ClientCacheFactory(config);
     clientCacheFactory.addPoolServer(hostName, port);
 
     clientCache = (InternalClientCache) clientCacheFactory.create();
@@ -157,7 +154,7 @@ public class ClientFunctionTimeoutRegressionTest implements Serializable {
   private int createServerCache(final RegionType regionType) throws IOException {
     assertThat(regionType).isNotNull();
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "localhost[" + getLocatorPort() + "]");
     config.setProperty(SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.execute.ClientFunctionTimeoutRegressionTest*");
@@ -167,7 +164,7 @@ public class ClientFunctionTimeoutRegressionTest implements Serializable {
     RegionFactory<String, String> regionFactory;
 
     if (regionType == RegionType.PARTITION) {
-      PartitionAttributesFactory<String, String> paf = new PartitionAttributesFactory<>();
+      var paf = new PartitionAttributesFactory<String, String>();
       paf.setRedundantCopies(REDUNDANT_COPIES);
       paf.setTotalNumBuckets(TOTAL_NUM_BUCKETS);
 
@@ -180,7 +177,7 @@ public class ClientFunctionTimeoutRegressionTest implements Serializable {
 
     regionFactory.create(regionName);
 
-    CacheServer server = serverCache.addCacheServer();
+    var server = serverCache.addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -216,7 +213,7 @@ public class ClientFunctionTimeoutRegressionTest implements Serializable {
       resultCollector = execution.execute(function);
     }
 
-    String description = "Server did not read client_function_timeout from client.";
+    var description = "Server did not read client_function_timeout from client.";
     assertThat(resultCollector.getResult().get(0)).as(description).isTrue();
   }
 
@@ -240,16 +237,16 @@ public class ClientFunctionTimeoutRegressionTest implements Serializable {
 
     @Override
     public void execute(FunctionContext<Integer> context) {
-      boolean timeoutMatches = false;
+      var timeoutMatches = false;
       int expected = context.getArguments();
 
-      InternalCacheServer cacheServer =
+      var cacheServer =
           (InternalCacheServer) context.getCache().getCacheServers().get(0);
-      AcceptorImpl acceptor = (AcceptorImpl) cacheServer.getAcceptor();
-      ServerConnection[] scs = acceptor.getAllServerConnectionList();
+      var acceptor = (AcceptorImpl) cacheServer.getAcceptor();
+      var scs = acceptor.getAllServerConnectionList();
 
-      for (ServerConnection sc : scs) {
-        ServerSideHandshake hs = sc.getHandshake();
+      for (var sc : scs) {
+        var hs = sc.getHandshake();
         if (hs != null && expected == hs.getClientReadTimeout()) {
           timeoutMatches = true;
         }

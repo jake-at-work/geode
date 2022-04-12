@@ -19,7 +19,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import org.apache.geode.cache.DiskWriteAttributes;
 import org.apache.geode.cache.DiskWriteAttributesFactory;
 
 /**
@@ -32,8 +31,8 @@ public class DiskWriteAttributesJUnitTest {
    */
   @Test
   public void testGetDefaultInstance() {
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
-    DiskWriteAttributes dwa = dwaf.create();
+    var dwaf = new DiskWriteAttributesFactory();
+    var dwa = dwaf.create();
     assertTrue(!dwa.isSynchronous());
     assertTrue(dwa.isRollOplogs());
   }
@@ -43,9 +42,9 @@ public class DiskWriteAttributesJUnitTest {
    */
   @Test
   public void testGetDefaultSync() {
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+    var dwaf = new DiskWriteAttributesFactory();
     dwaf.setSynchronous(true);
-    DiskWriteAttributes dwa = dwaf.create();
+    var dwa = dwaf.create();
     assertTrue(dwa.isSynchronous());
     assertTrue(dwa.isRollOplogs());
   }
@@ -55,8 +54,8 @@ public class DiskWriteAttributesJUnitTest {
    */
   @Test
   public void testGetDefaultAsync() {
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
-    DiskWriteAttributes dwa = dwaf.create();
+    var dwaf = new DiskWriteAttributesFactory();
+    var dwa = dwaf.create();
     assertTrue(!dwa.isSynchronous());
     assertTrue(dwa.isRollOplogs());
   }
@@ -66,9 +65,9 @@ public class DiskWriteAttributesJUnitTest {
    */
   @Test
   public void testGetDefaultRollingSync() {
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+    var dwaf = new DiskWriteAttributesFactory();
     dwaf.setSynchronous(true);
-    DiskWriteAttributes dwa = dwaf.create();
+    var dwa = dwaf.create();
 
     assertTrue(dwa.isSynchronous());
     assertTrue(dwa.isRollOplogs());
@@ -79,8 +78,8 @@ public class DiskWriteAttributesJUnitTest {
    */
   @Test
   public void testGetDefaultRollingAsync() {
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
-    DiskWriteAttributes dwa = dwaf.create();
+    var dwaf = new DiskWriteAttributesFactory();
+    var dwa = dwaf.create();
     assertTrue(!dwa.isSynchronous());
     assertTrue(dwa.isRollOplogs());
   }
@@ -90,10 +89,10 @@ public class DiskWriteAttributesJUnitTest {
    */
   @Test
   public void testGetDefaultNonRollingSync() {
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+    var dwaf = new DiskWriteAttributesFactory();
     dwaf.setRollOplogs(false);
     dwaf.setSynchronous(true);
-    DiskWriteAttributes dwa = dwaf.create();
+    var dwa = dwaf.create();
     assertTrue(dwa.isSynchronous());
     assertTrue(!dwa.isRollOplogs());
   }
@@ -103,9 +102,9 @@ public class DiskWriteAttributesJUnitTest {
    */
   @Test
   public void testGetDefaultNonRollingAsync() {
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+    var dwaf = new DiskWriteAttributesFactory();
     dwaf.setRollOplogs(false);
-    DiskWriteAttributes dwa = dwaf.create();
+    var dwa = dwaf.create();
     assertTrue(!dwa.isSynchronous());
     assertTrue(!dwa.isRollOplogs());
   }
@@ -116,9 +115,9 @@ public class DiskWriteAttributesJUnitTest {
    */
   @Test
   public void testDiskWriteAttributesCreation() {
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+    var dwaf = new DiskWriteAttributesFactory();
     dwaf.setSynchronous(true);
-    DiskWriteAttributes dwa = dwaf.create();
+    var dwa = dwaf.create();
     assertEquals(dwa.getBytesThreshold(), 0);
     assertEquals(dwa.getTimeInterval(), 0);
 
@@ -143,13 +142,13 @@ public class DiskWriteAttributesJUnitTest {
     assertEquals(dwa.getBytesThreshold(), 0);
     assertEquals(dwa.getTimeInterval(), 0);
 
-    DiskWriteAttributesFactory dwaf1 = new DiskWriteAttributesFactory();
-    DiskWriteAttributes dwa1 = dwaf1.create();
+    var dwaf1 = new DiskWriteAttributesFactory();
+    var dwa1 = dwaf1.create();
     assertEquals(dwa1.getBytesThreshold(), 0);
     assertEquals(dwa1.getTimeInterval(), DiskWriteAttributesImpl.DEFAULT_TIME_INTERVAL);
 
-    DiskWriteAttributesFactory dwaf2 = new DiskWriteAttributesFactory(dwa1);
-    DiskWriteAttributes dwa2 = dwaf2.create();
+    var dwaf2 = new DiskWriteAttributesFactory(dwa1);
+    var dwa2 = dwaf2.create();
     assertEquals(dwa2.getBytesThreshold(), 0);
     assertEquals(dwa2.getTimeInterval(), DiskWriteAttributesImpl.DEFAULT_TIME_INTERVAL);
 

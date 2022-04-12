@@ -17,7 +17,6 @@ package parReg.query.unittest;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -106,15 +105,15 @@ public class NewPortfolio implements Serializable {
   }
 
   private void setPositions() {
-    int numOfPositions = rng.nextInt(MAX_NUM_OF_POSITIONS);
+    var numOfPositions = rng.nextInt(MAX_NUM_OF_POSITIONS);
     if (numOfPositions == 0) {
       numOfPositions++;
     }
 
-    int secId = rng.nextInt(NUM_OF_SECURITIES);
+    var secId = rng.nextInt(NUM_OF_SECURITIES);
 
-    for (int i = 0; i < numOfPositions; i++) {
-      Properties props = getProps();
+    for (var i = 0; i < numOfPositions; i++) {
+      var props = getProps();
 
       // secId needs to be UNIQUE in one portfolio, keep track MAX_NUM_OF_POSITIONS and
       // NUM_OF_SECURITIES
@@ -124,7 +123,7 @@ public class NewPortfolio implements Serializable {
       }
       props.setProperty("secId", Integer.toString(secId));
 
-      Position pos = new Position();
+      var pos = new Position();
       pos.initialize(null, props);
       positions.put(pos.getSecId(), pos);
     }
@@ -147,9 +146,9 @@ public class NewPortfolio implements Serializable {
    *
    */
   protected Properties getProps() {
-    Properties props = new Properties();
-    double qty = rng.nextInt(MAX_QTY) * 100.00;
-    double mktValue = rng.nextDouble() * MAX_PRICE;
+    var props = new Properties();
+    var qty = rng.nextInt(MAX_QTY) * 100.00;
+    var mktValue = rng.nextDouble() * MAX_PRICE;
 
     props.setProperty("qty", String.valueOf(qty));
     props.setProperty("mktValue", String.valueOf(mktValue));
@@ -168,7 +167,7 @@ public class NewPortfolio implements Serializable {
 
     if (anObj.getClass().getName().equals(getClass().getName())) { // cannot do class identity
                                                                    // check for pdx tets
-      NewPortfolio np = (NewPortfolio) anObj;
+      var np = (NewPortfolio) anObj;
       if (!np.name.equals(name) || (np.id != id) || !np.type.equals(type)
           || !np.status.equals(status)) {
         return false;
@@ -180,7 +179,7 @@ public class NewPortfolio implements Serializable {
         if (np.positions.size() != positions.size()) {
           return false;
         } else { // loops thru the map of positions
-          Iterator itr = np.positions.values().iterator();
+          var itr = np.positions.values().iterator();
           Position pos;
           while (itr.hasNext()) {
             pos = (Position) itr.next();
@@ -198,7 +197,7 @@ public class NewPortfolio implements Serializable {
   }
 
   public int hashCode() {
-    int result = 17;
+    var result = 17;
     result = 37 * result + name.hashCode();
     result = 37 * result + status.hashCode();
     result = 37 * result + type.hashCode();
@@ -228,14 +227,14 @@ public class NewPortfolio implements Serializable {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("NewPortfolio [ID=" + id + " status=" + status);
     sb.append(" name=" + name);
 
-    Iterator iter = positions.entrySet().iterator();
+    var iter = positions.entrySet().iterator();
     sb.append(" Positions:[ ");
     while (iter.hasNext()) {
-      Map.Entry entry = (Map.Entry) iter.next();
+      var entry = (Map.Entry) iter.next();
       sb.append(entry.getKey() + ":" + entry.getValue() + ", ");
     }
     sb.append("] ]");

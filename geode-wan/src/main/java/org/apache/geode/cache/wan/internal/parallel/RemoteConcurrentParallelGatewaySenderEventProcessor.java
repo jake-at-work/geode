@@ -19,11 +19,8 @@ import java.util.Set;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.wan.internal.GatewaySenderEventRemoteDispatcher;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.GatewaySenderStats;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderEventProcessor;
-import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderEventProcessor;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
 
 /**
@@ -45,7 +42,7 @@ public class RemoteConcurrentParallelGatewaySenderEventProcessor
     if (logger.isDebugEnabled()) {
       logger.debug("Creating GatewaySenderEventProcessor");
     }
-    for (int i = 0; i < sender.getDispatcherThreads(); i++) {
+    for (var i = 0; i < sender.getDispatcherThreads(); i++) {
       processors[i] = new RemoteParallelGatewaySenderEventProcessor(sender, targetRs, i,
           sender.getDispatcherThreads(), getThreadMonitorObj(), cleanQueues);
     }
@@ -53,11 +50,11 @@ public class RemoteConcurrentParallelGatewaySenderEventProcessor
 
   @Override
   protected void rebalance() {
-    GatewaySenderStats statistics = sender.getStatistics();
-    long startTime = statistics.startLoadBalance();
+    var statistics = sender.getStatistics();
+    var startTime = statistics.startLoadBalance();
     try {
-      for (ParallelGatewaySenderEventProcessor parallelProcessor : processors) {
-        GatewaySenderEventRemoteDispatcher remoteDispatcher =
+      for (var parallelProcessor : processors) {
+        var remoteDispatcher =
             (GatewaySenderEventRemoteDispatcher) parallelProcessor.getDispatcher();
         if (remoteDispatcher.isConnectedToRemote()) {
           remoteDispatcher.stopAckReaderThread();
@@ -70,7 +67,7 @@ public class RemoteConcurrentParallelGatewaySenderEventProcessor
   }
 
   private ThreadsMonitoring getThreadMonitorObj() {
-    DistributionManager distributionManager = sender.getDistributionManager();
+    var distributionManager = sender.getDistributionManager();
     if (distributionManager != null) {
       return distributionManager.getThreadMonitoring();
     } else {

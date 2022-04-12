@@ -42,7 +42,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
@@ -52,9 +51,7 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
@@ -90,7 +87,7 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(SERIALIZABLE_OBJECT_FILTER, "parReg.query.unittest.**");
     return config;
   }
@@ -106,8 +103,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRLocalQuerying() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -127,8 +124,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -151,8 +148,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
   public void testNonColocatedPRLocalQuerying() throws Exception {
     addIgnoredException("UnsupportedOperationException");
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -164,14 +161,14 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
     vm0.invoke(() -> {
       Cache cache = getCache();
 
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
-      PartitionAttributes prAttr = paf.setRedundantCopies(redundancy).create();
+      var paf = new PartitionAttributesFactory();
+      var prAttr = paf.setRedundantCopies(redundancy).create();
 
-      AttributesFactory attr = new AttributesFactory();
+      var attr = new AttributesFactory();
       attr.setValueConstraint(NewPortfolio.class);
       attr.setPartitionAttributes(prAttr);
 
-      Region partitionedRegion = cache.createRegion(coloName, attr.create());
+      var partitionedRegion = cache.createRegion(coloName, attr.create());
 
       assertNotNull(
           "PRQueryDUnitHelper#getCacheSerializableRunnableForPRCreateWithRedundancy: Partitioned Region "
@@ -193,8 +190,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -215,9 +212,9 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
 
         // Querying the PR region
 
-        String[] queries = new String[] {"r1.ID = r2.id",};
+        var queries = new String[] {"r1.ID = r2.id",};
 
-        Object[][] r = new Object[queries.length][2];
+        var r = new Object[queries.length][2];
         Region region = null;
         region = cache.getRegion(name);
         assertNotNull(region);
@@ -225,11 +222,11 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         assertNotNull(region);
 
         try {
-          for (int j = 0; j < queries.length; j++) {
+          for (var j = 0; j < queries.length; j++) {
             getCache().getLogger().info("About to execute local query: " + queries[j]);
             Function func = new TestQueryFunction("testfunction");
 
-            Object funcResult = FunctionService
+            var funcResult = FunctionService
                 .onRegion((getCache().getRegion(name) instanceof PartitionedRegion)
                     ? getCache().getRegion(name) : getCache().getRegion(coloName))
                 .setArguments("Select " + (queries[j].contains("ORDER BY") ? "DISTINCT" : "")
@@ -261,8 +258,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRLocalQueryingWithIndexes() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -286,8 +283,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -317,8 +314,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRLocalQueryingWithIndexOnOneRegion() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -342,8 +339,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -373,8 +370,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRRRLocalQuerying() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -394,8 +391,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -427,8 +424,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRRRLocalQueryingWithIndexes() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -453,8 +450,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -486,8 +483,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRRRLocalQueryingWithIndexOnOnePRRegion() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -511,8 +508,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -542,8 +539,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testRRPRLocalQuerying() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -563,8 +560,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -594,8 +591,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testRRPRLocalQueryingWithIndexes() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -620,8 +617,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -651,8 +648,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testRRPRLocalQueryingWithIndexOnOnePRRegion() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -674,8 +671,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -705,9 +702,9 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRNonLocalQueryException() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     setCacheInVMs(vm0, vm1);
 
     // Creating PR's on the participating VM's
@@ -731,8 +728,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -749,9 +746,9 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
     vm0.invoke(() -> {
       Cache cache = getCache();
 
-      String[] queries = new String[] {"r1.ID = r2.id",};
+      var queries = new String[] {"r1.ID = r2.id",};
 
-      Object[][] r = new Object[queries.length][2];
+      var r = new Object[queries.length][2];
       assertNotNull(cache.getRegion(name));
       assertNotNull(cache.getRegion(coloName));
       assertNotNull(cache.getRegion(localName));
@@ -763,9 +760,9 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
       addIgnoredException(RegionDestroyedException.class.getName());
       addIgnoredException(ReplyException.class.getName());
 
-      QueryService qs = getCache().getQueryService();
+      var qs = getCache().getQueryService();
       assertThatThrownBy(() -> {
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           getCache().getLogger().info("About to execute local query: " + queries[i]);
           r[i][1] = qs.newQuery("Select " + " * from " + SEPARATOR + name + " r1, " + SEPARATOR
               + coloName + " r2 where " + queries[i]).execute();
@@ -778,8 +775,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
 
   @Test
   public void testPRRRLocalQueryingWithHetroIndexes() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -804,8 +801,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         NewPortfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -825,8 +822,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
 
   @Test
   public void testPRRRCompactRangeAndNestedRangeIndexQuerying() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -851,8 +848,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         Portfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    Portfolio[] newPortfolio = createPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -873,8 +870,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
 
   @Test
   public void testPRRRIndexQueryWithSameTypeIndexQueryResults() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
 
     // Creating PR's on the participating VM's
@@ -905,8 +902,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
         "r2.id", SEPARATOR + coloLocalName + " r2", null));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(localName, portfolio, cnt,
         cntDest));
@@ -938,9 +935,9 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRRRNonLocalQueryingWithNoRROnOneNode() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     setCacheInVMs(vm0, vm1);
 
     // Creating PR's on the participating VM's
@@ -954,8 +951,8 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForLocalRegionCreation(coloName,
         NewPortfolio.class));
 
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(cntDest);
+    var portfolio = createPortfoliosAndPositions(cntDest);
+    var newPortfolio = createNewPortfoliosAndPositions(cntDest);
 
     // Putting the data into the PR's created
     vm0.invoke(
@@ -967,23 +964,23 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
     vm0.invoke(() -> {
       Cache cache = getCache();
 
-      String[] queries = new String[] {"r1.ID = r2.id",};
+      var queries = new String[] {"r1.ID = r2.id",};
 
-      Object[][] r = new Object[queries.length][2];
+      var r = new Object[queries.length][2];
       Region region = null;
       region = cache.getRegion(name);
       assertNotNull(region);
       region = cache.getRegion(coloName);
       assertNotNull(region);
 
-      QueryService qs = getCache().getQueryService();
+      var qs = getCache().getQueryService();
       Object[] params;
       try {
-        for (int j = 0; j < queries.length; j++) {
+        for (var j = 0; j < queries.length; j++) {
           getCache().getLogger().info("About to execute local query: " + queries[j]);
           Function func = new TestQueryFunction("testfunction");
 
-          Object funcResult = FunctionService
+          var funcResult = FunctionService
               .onRegion((getCache().getRegion(name) instanceof PartitionedRegion)
                   ? getCache().getRegion(name) : getCache().getRegion(coloName))
               .setArguments("Select " + (queries[j].contains("ORDER BY") ? "DISTINCT" : "")
@@ -1004,7 +1001,7 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
   }
 
   private void setCacheInVMs(VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> PRQueryDUnitHelper.setCache(getCache()));
     }
   }
@@ -1034,12 +1031,12 @@ public class PRColocatedEquiJoinDUnitTest extends CacheTestCase {
 
     @Override
     public void execute(FunctionContext context) {
-      Cache cache = CacheFactory.getAnyInstance();
-      QueryService queryService = cache.getQueryService();
-      ArrayList allQueryResults = new ArrayList();
-      String qstr = (String) context.getArguments();
+      var cache = CacheFactory.getAnyInstance();
+      var queryService = cache.getQueryService();
+      var allQueryResults = new ArrayList();
+      var qstr = (String) context.getArguments();
       try {
-        Query query = queryService.newQuery(qstr);
+        var query = queryService.newQuery(qstr);
         context.getResultSender().sendResult(
             ((SelectResults) query.execute((RegionFunctionContext) context)).asList());
         context.getResultSender().lastResult(null);

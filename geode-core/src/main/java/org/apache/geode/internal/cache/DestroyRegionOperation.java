@@ -42,7 +42,6 @@ import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.admin.remote.DestroyRegionMessage;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -113,13 +112,13 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
     }
 
     mssg.notifyOfRegionDeparture = notifyOfRegionDeparture;
-    DistributedRegion rgn = getRegion();
+    var rgn = getRegion();
     mssg.serialNum = rgn.getSerialNumber();
     Assert.assertTrue(mssg.serialNum != DistributionAdvisor.ILLEGAL_SERIAL);
 
     mssg.subregionSerialNumbers = rgn.getDestroyedSubregionSerialNumbers();
 
-    RegionEventImpl rei = (RegionEventImpl) event;
+    var rei = (RegionEventImpl) event;
     mssg.eventID = rei.getEventId();
     return mssg;
   }
@@ -142,7 +141,7 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
 
     @Override
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
-      RegionEventImpl event = createRegionEvent(rgn);
+      var event = createRegionEvent(rgn);
       if (filterRouting != null) {
         event.setLocalFilterInfo(
             filterRouting.getFilterInfo(rgn.getMyId()));
@@ -161,18 +160,18 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
       return new Runnable() {
         @Override
         public void run() {
-          final InitializationLevel oldLevel =
+          final var oldLevel =
               LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
 
           Throwable thr = null;
           try {
             if (lclRgn == null) {
               try {
-                PartitionedRegion partitionedRegion = PartitionedRegionHelper
+                var partitionedRegion = PartitionedRegionHelper
                     .getPartitionedRegionUsingBucketRegionName(dm.getCache(), regionPath);
                 if (partitionedRegion != null) {
-                  String bucketName = PartitionedRegionHelper.getBucketName(regionPath);
-                  int bucketId = PartitionedRegionHelper.getBucketId(bucketName);
+                  var bucketName = PartitionedRegionHelper.getBucketName(regionPath);
+                  var bucketId = PartitionedRegionHelper.getBucketId(bucketName);
                   partitionedRegion.getRegionAdvisor().removeIdAndBucket(bucketId, getSender(),
                       serialNum, op.isRegionDestroy() && !op.isClose());
                 }
@@ -188,7 +187,7 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
             } // lclRegion == null
 
             // refetch to use special destroy region logic
-            final LocalRegion lr = getRegionFromPath(dm, lclRgn.getFullPath());
+            final var lr = getRegionFromPath(dm, lclRgn.getFullPath());
             if (lr == null) {
               if (logger.isDebugEnabled()) {
                 logger.debug("{} region not found, nothing to do", this);
@@ -204,9 +203,9 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
               }
               return;
             }
-            DistributedRegion rgn = (DistributedRegion) lr;
+            var rgn = (DistributedRegion) lr;
 
-            InternalCacheEvent event = createEvent(rgn);
+            var event = createEvent(rgn);
             if (needsRouting
                 && lclRgn.cache.getCacheServers().size() > 0) {
               lclRgn.generateLocalFilterRouting(event);
@@ -265,7 +264,7 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
         lockRoot = null;
         // may set lockRoot to the root region where destroyLock is acquired
 
-        final boolean sendReply = true;
+        final var sendReply = true;
 
         // Part of fix for bug 34450 which was caused by a PR destroy region op
         // dead-locked with
@@ -286,12 +285,12 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
       // shared region, since another cache may
       // have already destroyed it in shared memory, in which our listeners
       // still need to be called and java region object cleaned up.
-      InternalCache cache = dm.getExistingCache();
+      var cache = dm.getExistingCache();
 
       // only get the region while holding the appropriate destroy lock.
       // this prevents us from getting a "stale" region
       if (getOperation().isDistributed()) {
-        String rootName = GemFireCacheImpl.parsePath(path)[0];
+        var rootName = GemFireCacheImpl.parsePath(path)[0];
         lockRoot = (LocalRegion) cache.getRegion(rootName);
         if (lockRoot == null) {
           return null;
@@ -316,8 +315,8 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
 
     protected boolean doRegionDestroy(CacheEvent event) throws EntryNotFoundException {
       appliedOperation = true;
-      RegionEventImpl ev = (RegionEventImpl) event;
-      final DistributedRegion rgn = (DistributedRegion) ev.region;
+      var ev = (RegionEventImpl) event;
+      final var rgn = (DistributedRegion) ev.region;
 
       if (getOperation().isLocal()) {
         Assert.assertTrue(serialNum != DistributionAdvisor.ILLEGAL_SERIAL);
@@ -335,8 +334,8 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
         String fullPath = null;
         if (logger.isDebugEnabled()) {
           fullPath = rgn.getFullPath();
-          StringBuilder subregionNames = new StringBuilder();
-          for (final Object o : rgn.debugGetSubregionNames()) {
+          var subregionNames = new StringBuilder();
+          for (final var o : rgn.debugGetSubregionNames()) {
             subregionNames.append(o);
             subregionNames.append(", ");
           }
@@ -356,7 +355,7 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
           // Don't release the destroy lock until after we re-create
           rgn.reinitialize_destroy(ev);
 
-          final LocalRegion loc_lockRoot = lockRoot;
+          final var loc_lockRoot = lockRoot;
           lockRoot = null; // spawned thread will release lock, not
                            // basicProcess
 
@@ -372,12 +371,12 @@ public class DestroyRegionOperation extends DistributedCacheOperation {
                       e);
                 } catch (IOException e) {
                   // only if loading snapshot, not here
-                  InternalGemFireError assErr = new InternalGemFireError(
+                  var assErr = new InternalGemFireError(
                       "unexpected exception", e);
                   throw assErr;
                 } catch (ClassNotFoundException e) {
                   // only if loading snapshot, not here
-                  InternalGemFireError assErr = new InternalGemFireError(
+                  var assErr = new InternalGemFireError(
                       "unexpected exception", e);
                   throw assErr;
                 } finally {

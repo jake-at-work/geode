@@ -64,8 +64,8 @@ public class InitialImageFlowControl implements MembershipListener {
 
   public static InitialImageFlowControl register(DistributionManager dm,
       InternalDistributedMember target) {
-    InitialImageFlowControl control = new InitialImageFlowControl(dm, target);
-    int id = keeper.put(control);
+    var control = new InitialImageFlowControl(dm, target);
+    var id = keeper.put(control);
     control.id = id;
 
     Set availableIds = dm.addMembershipListenerAndGetDistributionManagerIds(control);
@@ -94,11 +94,11 @@ public class InitialImageFlowControl implements MembershipListener {
    * Acquire a permit to send another message
    */
   public void acquirePermit() {
-    long startWaitTime = System.currentTimeMillis();
+    var startWaitTime = System.currentTimeMillis();
     while (!aborted.get()) {
       checkCancellation();
 
-      boolean interrupted = false;
+      var interrupted = false;
       try {
         basicWait(startWaitTime);
         break;
@@ -117,8 +117,8 @@ public class InitialImageFlowControl implements MembershipListener {
   }
 
   private void basicWait(long startWaitTime) throws InterruptedException {
-    long timeout = getAckWaitThreshold() * 1000L;
-    long timeSoFar = System.currentTimeMillis() - startWaitTime;
+    var timeout = getAckWaitThreshold() * 1000L;
+    var timeSoFar = System.currentTimeMillis() - startWaitTime;
     if (timeout <= 0) {
       timeout = Long.MAX_VALUE;
     }
@@ -211,7 +211,7 @@ public class InitialImageFlowControl implements MembershipListener {
 
     public static void send(DistributionManager dm, InternalDistributedMember recipient,
         int keeperId) {
-      FlowControlPermitMessage message = new FlowControlPermitMessage(keeperId);
+      var message = new FlowControlPermitMessage(keeperId);
       message.setRecipient(recipient);
       dm.putOutgoing(message);
     }
@@ -228,7 +228,7 @@ public class InitialImageFlowControl implements MembershipListener {
 
     @Override
     protected void process(ClusterDistributionManager dm) {
-      InitialImageFlowControl control = (InitialImageFlowControl) keeper.retrieve(keeperId);
+      var control = (InitialImageFlowControl) keeper.retrieve(keeperId);
       if (control != null) {
         control.releasePermit();
       }

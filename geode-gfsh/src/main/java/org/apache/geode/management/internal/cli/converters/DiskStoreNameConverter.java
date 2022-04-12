@@ -15,8 +15,6 @@
 package org.apache.geode.management.internal.cli.converters;
 
 import java.util.Arrays;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -39,14 +37,14 @@ public class DiskStoreNameConverter extends BaseStringConverter {
   @Override
   public Set<String> getCompletionValues() {
     SortedSet<String> diskStoreNames = new TreeSet<>();
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
     if (gfsh != null && gfsh.isConnectedAndReady()) { // gfsh exists & is not null
-      Map<String, String[]> diskStoreInfo =
+      var diskStoreInfo =
           gfsh.getOperationInvoker().getDistributedSystemMXBean().listMemberDiskstore();
       if (diskStoreInfo != null) {
-        Set<Entry<String, String[]>> entries = diskStoreInfo.entrySet();
-        for (Entry<String, String[]> entry : entries) {
-          String[] value = entry.getValue();
+        var entries = diskStoreInfo.entrySet();
+        for (var entry : entries) {
+          var value = entry.getValue();
           if (value != null) {
             diskStoreNames.addAll(Arrays.asList(value));
           }

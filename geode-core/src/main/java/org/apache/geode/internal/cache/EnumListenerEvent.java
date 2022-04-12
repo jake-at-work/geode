@@ -119,7 +119,7 @@ public abstract class EnumListenerEvent {
           AFTER_UPDATE_WITH_GENERATE_CALLBACKS};
 
   static {
-    for (int i = 0; i < instances.length; i++) {
+    for (var i = 0; i < instances.length; i++) {
       assert instances[i].getEventCode() == i + 1 : "event is in the wrong place: " + (i + 1);
     }
   }

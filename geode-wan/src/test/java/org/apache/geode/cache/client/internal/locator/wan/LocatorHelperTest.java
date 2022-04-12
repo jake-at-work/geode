@@ -50,10 +50,10 @@ public class LocatorHelperTest {
   @Before
   public void setUp() {
     locatorMembershipListener = mock(LocatorMembershipListener.class);
-    DistributionLocatorId loc1 = new DistributionLocatorId(40401, "127.0.0.1", null, "loc1");
-    DistributionLocatorId loc2 = new DistributionLocatorId(40402, "127.0.0.2", null, "loc2");
-    DistributionLocatorId loc3 = new DistributionLocatorId(40403, "127.0.0.3", null, "loc3");
-    DistributionLocatorId loc4 = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
+    var loc1 = new DistributionLocatorId(40401, "127.0.0.1", null, "loc1");
+    var loc2 = new DistributionLocatorId(40402, "127.0.0.2", null, "loc2");
+    var loc3 = new DistributionLocatorId(40403, "127.0.0.3", null, "loc3");
+    var loc4 = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
     Set<DistributionLocatorId> locatorSet = new HashSet<>();
     locatorSet.add(loc1);
     locatorSet.add(loc2);
@@ -73,7 +73,7 @@ public class LocatorHelperTest {
     when(locatorMembershipListener.getAllLocatorsInfo()).thenReturn(allLocatorsInfo);
     when(locatorMembershipListener.getAllServerLocatorsInfo()).thenReturn(allServerLocatorsInfo);
 
-    DistributionLocatorId locator = new DistributionLocatorId(40405, "127.0.0.5", null, "loc5");
+    var locator = new DistributionLocatorId(40405, "127.0.0.5", null, "loc5");
 
     assertThat(LocatorHelper.addLocator(1, locator, locatorMembershipListener, null)).isTrue();
     assertThat(allLocatorsInfo.get(1)).hasSize(5);
@@ -86,7 +86,7 @@ public class LocatorHelperTest {
     when(locatorMembershipListener.getAllLocatorsInfo()).thenReturn(allLocatorsInfo);
     when(locatorMembershipListener.getAllServerLocatorsInfo()).thenReturn(allServerLocatorsInfo);
 
-    DistributionLocatorId locator = new DistributionLocatorId(40405, "127.0.0.5", null, "loc4");
+    var locator = new DistributionLocatorId(40405, "127.0.0.5", null, "loc4");
 
     assertThat(LocatorHelper.addLocator(1, locator, locatorMembershipListener, null)).isTrue();
     assertThat(allLocatorsInfo.get(1)).hasSize(4);
@@ -98,7 +98,7 @@ public class LocatorHelperTest {
   public void testAddLocator_noUpdate() {
     when(locatorMembershipListener.getAllLocatorsInfo()).thenReturn(allLocatorsInfo);
 
-    DistributionLocatorId locator = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
+    var locator = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
 
     assertThat(LocatorHelper.addLocator(1, locator, locatorMembershipListener, null)).isFalse();
     assertThat(allLocatorsInfo.get(1)).hasSize(4);
@@ -110,7 +110,7 @@ public class LocatorHelperTest {
   public void testAddLocator_modifyMemberName() {
     when(locatorMembershipListener.getAllLocatorsInfo()).thenReturn(allLocatorsInfo);
 
-    DistributionLocatorId locator = new DistributionLocatorId(40404, "127.0.0.4", null, "loc5");
+    var locator = new DistributionLocatorId(40404, "127.0.0.4", null, "loc5");
 
     assertThat(LocatorHelper.addLocator(1, locator, locatorMembershipListener, null)).isTrue();
     assertThat(allLocatorsInfo.get(1)).hasSize(4);
@@ -123,10 +123,10 @@ public class LocatorHelperTest {
     Map<Integer, Set<DistributionLocatorId>> responseLocatorsInfo =
         new HashMap<>();
 
-    DistributionLocatorId loc1 = new DistributionLocatorId(40401, "127.0.0.1", null, "loc1");
-    DistributionLocatorId loc2 = new DistributionLocatorId(40402, "127.0.0.2", null, "loc2");
-    DistributionLocatorId loc3 = new DistributionLocatorId(40403, "127.0.0.3", null, "loc3");
-    DistributionLocatorId loc4 = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
+    var loc1 = new DistributionLocatorId(40401, "127.0.0.1", null, "loc1");
+    var loc2 = new DistributionLocatorId(40402, "127.0.0.2", null, "loc2");
+    var loc3 = new DistributionLocatorId(40403, "127.0.0.3", null, "loc3");
+    var loc4 = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
     Set<DistributionLocatorId> responseSet = new HashSet<>();
     responseSet.add(loc1);
     responseSet.add(loc2);
@@ -152,10 +152,10 @@ public class LocatorHelperTest {
     Map<Integer, Set<DistributionLocatorId>> responseLocatorsInfo =
         new HashMap<>();
 
-    DistributionLocatorId loc1 = new DistributionLocatorId(40401, "127.0.0.1", null, "loc1");
-    DistributionLocatorId loc2 = new DistributionLocatorId(40402, "127.0.0.2", null, "loc2");
-    DistributionLocatorId loc3 = new DistributionLocatorId(40403, "127.0.0.3", null, "loc3");
-    DistributionLocatorId loc4 = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
+    var loc1 = new DistributionLocatorId(40401, "127.0.0.1", null, "loc1");
+    var loc2 = new DistributionLocatorId(40402, "127.0.0.2", null, "loc2");
+    var loc3 = new DistributionLocatorId(40403, "127.0.0.3", null, "loc3");
+    var loc4 = new DistributionLocatorId(40404, "127.0.0.4", null, "loc4");
     Set<DistributionLocatorId> responseSet = new HashSet<>();
     responseSet.add(loc1);
     responseSet.add(loc2);

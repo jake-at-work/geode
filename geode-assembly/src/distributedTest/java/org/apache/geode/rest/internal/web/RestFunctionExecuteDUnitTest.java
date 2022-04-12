@@ -57,15 +57,15 @@ public class RestFunctionExecuteDUnitTest {
   public static void beforeClass() throws Exception {
     jarBuilder = new JarBuilder();
     // prepare the jar to deploy
-    File jarsToDeploy = new File(gfsh.getWorkingDir(), "function.jar");
+    var jarsToDeploy = new File(gfsh.getWorkingDir(), "function.jar");
     jarBuilder.buildJar(jarsToDeploy, loadClassToFile());
 
-    Properties locatorProps = new Properties();
+    var locatorProps = new Properties();
     locatorProps.setProperty(ConfigurationProperties.SECURITY_MANAGER,
         SimpleSecurityManager.class.getName());
     locator = cluster.startLocatorVM(0, locatorProps);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.START_DEV_REST_API, "true");
     props.setProperty("security-username", "cluster");
     props.setProperty("security-password", "cluster");
@@ -111,7 +111,7 @@ public class RestFunctionExecuteDUnitTest {
 
   // find ImplementsFunction.java in the geode-core resource
   private static File loadClassToFile() {
-    String resourcePath =
+    var resourcePath =
         createTempFileFromResource(Function.class.getClassLoader(),
             "org/apache/geode/management/internal/deployment/ImplementsFunction.java")
                 .getAbsolutePath();

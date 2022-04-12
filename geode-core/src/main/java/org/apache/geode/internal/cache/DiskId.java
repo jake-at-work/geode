@@ -73,7 +73,7 @@ public abstract class DiskId {
    */
   public synchronized long getOplogId() {
     // mask the first byte to get the oplogId
-    long oplogId = id & MAX_OPLOG_ID;
+    var oplogId = id & MAX_OPLOG_ID;
 
     // Check to see if the oplog id should be negative
     if ((id & OPLOG_ID_SIGN_BIT) != 0) {
@@ -102,10 +102,10 @@ public abstract class DiskId {
    * Returns previous oplog id
    */
   public synchronized long setOplogId(long oplogId) {
-    long result = getOplogId();
-    long oldUserBits = id & USER_BITS_MASK;// only get the most significant byte containing
+    var result = getOplogId();
+    var oldUserBits = id & USER_BITS_MASK;// only get the most significant byte containing
     // sign bit + toggle flag + user bits
-    long opId = oplogId;
+    var opId = oplogId;
     if (oplogId < 0) {
       opId = -1 * oplogId;// make oplogId positive
       opId |= OPLOG_ID_SIGN_BIT; // Set the highest bit of the oplog id to be
@@ -128,7 +128,7 @@ public abstract class DiskId {
    * @param userBits The userBit to set.
    */
   public synchronized void setUserBits(byte userBits) {
-    long userLong = ((long) userBits) << USER_BITS_SHIFT;// set it as most signifcant byte.
+    var userLong = ((long) userBits) << USER_BITS_SHIFT;// set it as most signifcant byte.
 
     id &= OPLOG_ID_MASK; // mask the most significant byte in id.
     id |= userLong; // set the most significant byte in id.
@@ -150,16 +150,16 @@ public abstract class DiskId {
    * @since GemFire prPersistSprint1
    */
   public synchronized void setPendingAsync(boolean v) {
-    byte origBits = getUserBits();
-    byte newBits = EntryBits.setPendingAsync(origBits, v);
+    var origBits = getUserBits();
+    var newBits = EntryBits.setPendingAsync(origBits, v);
     if (origBits != newBits) {
       setUserBits(newBits);
     }
   }
 
   public synchronized void setRecoveredFromDisk(boolean v) {
-    byte origBits = getUserBits();
-    byte newBits = EntryBits.setRecoveredFromDisk(origBits, v);
+    var origBits = getUserBits();
+    var newBits = EntryBits.setRecoveredFromDisk(origBits, v);
     if (origBits != newBits) {
       setUserBits(newBits);
     }
@@ -222,7 +222,7 @@ public abstract class DiskId {
    */
   public static DiskId createDiskId(long maxOplogSize, boolean isPersistenceType,
       boolean needsLinkedList) {
-    long bytes = maxOplogSize * 1024 * 1024;
+    var bytes = maxOplogSize * 1024 * 1024;
     if (bytes > Integer.MAX_VALUE) {
       if (isPersistenceType) {
         if (needsLinkedList) {

@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.DistributedMember;
@@ -52,10 +51,10 @@ public class PartitionedRegionRedundancyZoneDUnitTest extends JUnit4CacheTestCas
    */
   @Test
   public void testNotEnoughZones() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     setRedundancyZone(vm0, "A");
     setRedundancyZone(vm1, "A");
@@ -66,11 +65,11 @@ public class PartitionedRegionRedundancyZoneDUnitTest extends JUnit4CacheTestCas
     createPR(vm2, 2);
     createData(vm0, 0, 6, "A");
 
-    int vm0Count = getBucketCount(vm0);
-    int vm1Count = getBucketCount(vm1);
-    int vm2Count = getBucketCount(vm2);
+    var vm0Count = getBucketCount(vm0);
+    var vm1Count = getBucketCount(vm1);
+    var vm2Count = getBucketCount(vm2);
 
-    String counts = "vm0=" + vm0Count + ",vm1=" + vm1Count + ",vm2=" + vm2Count;
+    var counts = "vm0=" + vm0Count + ",vm1=" + vm1Count + ",vm2=" + vm2Count;
     // assert zone A has only 1 copy of each bucket and zone B has
     // only one copy of each bucket.
     assertEquals(counts, 6, vm0Count + vm1Count);
@@ -91,7 +90,7 @@ public class PartitionedRegionRedundancyZoneDUnitTest extends JUnit4CacheTestCas
       @Override
       public void run() {
         Cache cache = getCache();
-        PartitionedRegion region = (PartitionedRegion) cache.getRegion("region1");
+        var region = (PartitionedRegion) cache.getRegion("region1");
         assertEquals(numLocalBuckets, region.getLocalBucketsListTestOnly().size());
       }
     });
@@ -103,21 +102,21 @@ public class PartitionedRegionRedundancyZoneDUnitTest extends JUnit4CacheTestCas
       @Override
       public Object call() {
         Cache cache = getCache();
-        PartitionedRegion region = (PartitionedRegion) cache.getRegion("region1");
+        var region = (PartitionedRegion) cache.getRegion("region1");
         return region.getLocalBucketsListTestOnly().size();
       }
     });
   }
 
   protected DistributedMember createPR(VM vm, int redundancy) throws Exception {
-    SerializableCallable createPrRegion = new SerializableCallable("createRegion") {
+    var createPrRegion = new SerializableCallable("createRegion") {
       @Override
       public Object call() {
         Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(1);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion("region1", attr.create());
         return cache.getDistributedSystem().getDistributedMember();
@@ -130,7 +129,7 @@ public class PartitionedRegionRedundancyZoneDUnitTest extends JUnit4CacheTestCas
     return (DistributedMember) vm.invoke(new SerializableCallable("set redundancy zone") {
       @Override
       public Object call() {
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty(REDUNDANCY_ZONE, zone);
         DistributedSystem system = getSystem(props);
         return system.getDistributedMember();
@@ -145,14 +144,14 @@ public class PartitionedRegionRedundancyZoneDUnitTest extends JUnit4CacheTestCas
 
   protected void createData(VM vm, final int startKey, final int endKey, final String value,
       final String regionName) {
-    SerializableRunnable createData = new SerializableRunnable("createData") {
+    var createData = new SerializableRunnable("createData") {
 
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(regionName);
 
-        for (int i = startKey; i < endKey; i++) {
+        for (var i = startKey; i < endKey; i++) {
           region.put(i, value);
         }
       }

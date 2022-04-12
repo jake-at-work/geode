@@ -21,7 +21,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.apache.geode.internal.cache.DiskId;
-import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.RegionEntryContext;
 import org.apache.geode.internal.cache.Token;
@@ -193,9 +192,9 @@ public class VMThinDiskRegionEntryOffHeapUUIDKey extends VMThinDiskRegionEntryOf
   }
 
   private void diskInitialize(final RegionEntryContext context, final Object value) {
-    DiskRecoveryStore diskRecoveryStore = (DiskRecoveryStore) context;
-    DiskStoreImpl diskStore = diskRecoveryStore.getDiskStore();
-    long maxOplogSize = diskStore.getMaxOplogSize();
+    var diskRecoveryStore = (DiskRecoveryStore) context;
+    var diskStore = diskRecoveryStore.getDiskStore();
+    var maxOplogSize = diskStore.getMaxOplogSize();
     // get appropriate instance of DiskId implementation based on maxOplogSize
     id = DiskId.createDiskId(maxOplogSize, true, diskStore.needsLinkedList());
     Helper.initialize(this, diskRecoveryStore, value);
@@ -211,7 +210,7 @@ public class VMThinDiskRegionEntryOffHeapUUIDKey extends VMThinDiskRegionEntryOf
   @Override
   public boolean isKeyEqual(final Object key) {
     if (key instanceof UUID) {
-      UUID uuid = (UUID) key;
+      var uuid = (UUID) key;
       return uuid.getLeastSignificantBits() == keyLeastSigBits
           && uuid.getMostSignificantBits() == keyMostSigBits;
     }

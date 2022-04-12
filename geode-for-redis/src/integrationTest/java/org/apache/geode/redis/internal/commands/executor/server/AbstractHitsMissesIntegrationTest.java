@@ -97,8 +97,8 @@ public abstract class AbstractHitsMissesIntegrationTest implements RedisIntegrat
 
   @Test
   public void testRename() {
-    String key1 = HASHTAG + "key1";
-    String key2 = HASHTAG + "key2";
+    var key1 = HASHTAG + "key1";
+    var key2 = HASHTAG + "key2";
     jedis.set(key1, "yarn");
     runCommandAndAssertNoStatUpdates(key1, k -> jedis.rename(k, key2));
   }
@@ -140,7 +140,7 @@ public abstract class AbstractHitsMissesIntegrationTest implements RedisIntegrat
 
   @Test
   public void testRestore() {
-    byte[] data = jedis.dump(HASH_KEY);
+    var data = jedis.dump(HASH_KEY);
     runCommandAndAssertNoStatUpdates("hash-2", k -> jedis.restore(k, 0L, data));
   }
 
@@ -648,9 +648,9 @@ public abstract class AbstractHitsMissesIntegrationTest implements RedisIntegrat
 
   /************* Helper Methods *************/
   private void runCommandAndAssertHitsAndMisses(String key, Consumer<String> command) {
-    Map<String, String> info = RedisTestHelper.getInfo(jedis);
-    long currentHits = Long.parseLong(info.get(HITS));
-    long currentMisses = Long.parseLong(info.get(MISSES));
+    var info = RedisTestHelper.getInfo(jedis);
+    var currentHits = Long.parseLong(info.get(HITS));
+    var currentMisses = Long.parseLong(info.get(MISSES));
 
     command.accept(key);
     info = RedisTestHelper.getInfo(jedis);
@@ -666,9 +666,9 @@ public abstract class AbstractHitsMissesIntegrationTest implements RedisIntegrat
   }
 
   private void runCommandAndAssertNoStatUpdates(String key, Consumer<String> command) {
-    Map<String, String> info = RedisTestHelper.getInfo(jedis);
-    String currentHits = info.get(HITS);
-    String currentMisses = info.get(MISSES);
+    var info = RedisTestHelper.getInfo(jedis);
+    var currentHits = info.get(HITS);
+    var currentMisses = info.get(MISSES);
 
     command.accept(key);
     info = RedisTestHelper.getInfo(jedis);
@@ -679,9 +679,9 @@ public abstract class AbstractHitsMissesIntegrationTest implements RedisIntegrat
 
   private void runMultiKeyCommandAndAssertHitsAndMisses(String key,
       BiConsumer<String, String> command) {
-    Map<String, String> info = RedisTestHelper.getInfo(jedis);
-    long currentHits = Long.parseLong(info.get(HITS));
-    long currentMisses = Long.parseLong(info.get(MISSES));
+    var info = RedisTestHelper.getInfo(jedis);
+    var currentHits = Long.parseLong(info.get(HITS));
+    var currentMisses = Long.parseLong(info.get(MISSES));
 
     command.accept(key, key);
     info = RedisTestHelper.getInfo(jedis);
@@ -698,9 +698,9 @@ public abstract class AbstractHitsMissesIntegrationTest implements RedisIntegrat
 
   private void runMultiKeyCommandAndAssertNoStatUpdates(String key,
       BiConsumer<String, String> command) {
-    Map<String, String> info = RedisTestHelper.getInfo(jedis);
-    String currentHits = info.get(HITS);
-    String currentMisses = info.get(MISSES);
+    var info = RedisTestHelper.getInfo(jedis);
+    var currentHits = info.get(HITS);
+    var currentMisses = info.get(MISSES);
 
     command.accept(key, key);
     info = RedisTestHelper.getInfo(jedis);

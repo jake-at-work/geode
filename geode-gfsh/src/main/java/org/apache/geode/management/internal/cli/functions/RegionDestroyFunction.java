@@ -54,11 +54,11 @@ public class RegionDestroyFunction implements InternalFunction<String> {
   @Override
   @SuppressWarnings("deprecation")
   public void execute(FunctionContext<String> context) {
-    String regionPath = context.getArguments();
-    String memberName = context.getMemberName();
+    var regionPath = context.getArguments();
+    var memberName = context.getMemberName();
 
     try {
-      String functionId = context.getFunctionId();
+      var functionId = context.getFunctionId();
 
       if (!getId().equals(functionId) || regionPath == null) {
         context.getResultSender().lastResult(new CliFunctionResult("", false,
@@ -77,9 +77,9 @@ public class RegionDestroyFunction implements InternalFunction<String> {
 
       region.destroyRegion();
 
-      String regionName =
+      var regionName =
           regionPath.startsWith(SEPARATOR) ? regionPath.substring(1) : regionPath;
-      XmlEntity xmlEntity = new XmlEntity(CacheXml.REGION, "name", regionName);
+      var xmlEntity = new XmlEntity(CacheXml.REGION, "name", regionName);
       context.getResultSender().lastResult(new CliFunctionResult(memberName, xmlEntity,
           String.format("Region '%s' destroyed successfully", regionPath)));
 

@@ -39,10 +39,10 @@ public class CollectionHolder implements Serializable, DataSerializable {
   /** Creates a new instance of CollectionHolder */
   public CollectionHolder() {
     arr = new String[10];
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       arr[i] = "" + i;
     }
-    for (int i = 5; i < 10; i++) {
+    for (var i = 5; i < 10; i++) {
       arr[i] = secIds[i - 5];
     }
 
@@ -64,8 +64,8 @@ public class CollectionHolder implements Serializable, DataSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + Arrays.hashCode(arr);
     return result;
   }
@@ -81,7 +81,7 @@ public class CollectionHolder implements Serializable, DataSerializable {
     if (!(obj instanceof CollectionHolder)) {
       return false;
     }
-    CollectionHolder other = (CollectionHolder) obj;
+    var other = (CollectionHolder) obj;
     return Arrays.equals(arr, other.arr);
   }
 

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -31,7 +30,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
 import org.apache.geode.cache.util.GatewayConflictHelper;
 import org.apache.geode.cache.util.GatewayConflictResolver;
@@ -53,8 +51,8 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
   /** make sure we can create regions with concurrencyChecksEnabled=true */
   @Test
   public void testConcurrencyChecksEnabled() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     attrs.setDataPolicy(DataPolicy.REPLICATE);
     attrs.setConcurrencyChecksEnabled(true);
@@ -108,12 +106,12 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
 
   @Test
   public void testGatewayConflictResolver() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setGatewayConflictResolver(new MyGatewayConflictResolver());
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    GatewayConflictResolver gatewayConflictResolver = c.getGatewayConflictResolver();
+    var gatewayConflictResolver = c.getGatewayConflictResolver();
     assertNotNull(gatewayConflictResolver);
     assertTrue(gatewayConflictResolver instanceof MyGatewayConflictResolver);
   }
@@ -121,10 +119,10 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
   @Test
   public void testAsyncEventQueue() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    String id = "WBCLChannel";
-    AsyncEventQueueFactory factory = cache.createAsyncEventQueueFactory();
+    var id = "WBCLChannel";
+    var factory = cache.createAsyncEventQueueFactory();
     factory.setBatchSize(100);
     factory.setBatchTimeInterval(500);
     factory.setBatchConflationEnabled(true);
@@ -134,9 +132,9 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
     factory.setDispatcherThreads(19);
 
     AsyncEventListener eventListener = new CacheXml70DUnitTestHelper.MyAsyncEventListener();
-    AsyncEventQueue asyncEventQueue = factory.create(id, eventListener);
+    var asyncEventQueue = factory.create(id, eventListener);
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation();
+    var attrs = new RegionAttributesCreation();
     attrs.addAsyncEventQueueId(asyncEventQueue.getId());
     cache.createRegion("UserRegion", attrs);
 
@@ -144,11 +142,11 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
     Cache c = getCache();
     assertNotNull(c);
 
-    Set<AsyncEventQueue> asyncEventQueuesOnCache = c.getAsyncEventQueues();
+    var asyncEventQueuesOnCache = c.getAsyncEventQueues();
     assertTrue("Size of asyncEventQueues should be greater than 0",
         asyncEventQueuesOnCache.size() > 0);
 
-    for (AsyncEventQueue asyncEventQueueOnCache : asyncEventQueuesOnCache) {
+    for (var asyncEventQueueOnCache : asyncEventQueuesOnCache) {
       CacheXml70DUnitTestHelper.validateAsyncEventQueue(asyncEventQueue, asyncEventQueueOnCache);
     }
   }
@@ -156,10 +154,10 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
   @Test
   public void testConcurrentAsyncEventQueue() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    String id = "WBCLChannel";
-    AsyncEventQueueFactory factory = cache.createAsyncEventQueueFactory();
+    var id = "WBCLChannel";
+    var factory = cache.createAsyncEventQueueFactory();
     factory.setBatchSize(100);
     factory.setBatchTimeInterval(500);
     factory.setBatchConflationEnabled(true);
@@ -169,9 +167,9 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
     factory.setOrderPolicy(OrderPolicy.THREAD);
 
     AsyncEventListener eventListener = new CacheXml70DUnitTestHelper.MyAsyncEventListener();
-    AsyncEventQueue asyncEventQueue = factory.create(id, eventListener);
+    var asyncEventQueue = factory.create(id, eventListener);
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation();
+    var attrs = new RegionAttributesCreation();
     attrs.addAsyncEventQueueId(asyncEventQueue.getId());
     cache.createRegion("UserRegion", attrs);
 
@@ -179,11 +177,11 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
     Cache c = getCache();
     assertNotNull(c);
 
-    Set<AsyncEventQueue> asyncEventQueuesOnCache = c.getAsyncEventQueues();
+    var asyncEventQueuesOnCache = c.getAsyncEventQueues();
     assertTrue("Size of asyncEventQueues should be greater than 0",
         asyncEventQueuesOnCache.size() > 0);
 
-    for (AsyncEventQueue asyncEventQueueOnCache : asyncEventQueuesOnCache) {
+    for (var asyncEventQueueOnCache : asyncEventQueuesOnCache) {
       validateConcurrentAsyncEventQueue(asyncEventQueue, asyncEventQueueOnCache);
     }
   }
@@ -194,10 +192,10 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
   @Test
   public void testAsyncEventQueueWithGatewayEventFilter() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    String id = "WBCLChannel";
-    AsyncEventQueueFactory factory = cache.createAsyncEventQueueFactory();
+    var id = "WBCLChannel";
+    var factory = cache.createAsyncEventQueueFactory();
     factory.setBatchSize(100);
     factory.setBatchTimeInterval(500);
     factory.setBatchConflationEnabled(true);
@@ -207,9 +205,9 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
     factory.setDispatcherThreads(33);
 
     AsyncEventListener eventListener = new CacheXml70DUnitTestHelper.MyAsyncEventListener();
-    AsyncEventQueue asyncEventQueue = factory.create(id, eventListener);
+    var asyncEventQueue = factory.create(id, eventListener);
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation();
+    var attrs = new RegionAttributesCreation();
     attrs.addAsyncEventQueueId(asyncEventQueue.getId());
     cache.createRegion("UserRegion", attrs);
 
@@ -217,11 +215,11 @@ public class CacheXml70DUnitTest extends CacheXml66DUnitTest {
     Cache c = getCache();
     assertNotNull(c);
 
-    Set<AsyncEventQueue> asyncEventQueuesOnCache = c.getAsyncEventQueues();
+    var asyncEventQueuesOnCache = c.getAsyncEventQueues();
     assertTrue("Size of asyncEventQueues should be greater than 0",
         asyncEventQueuesOnCache.size() > 0);
 
-    for (AsyncEventQueue asyncEventQueueOnCache : asyncEventQueuesOnCache) {
+    for (var asyncEventQueueOnCache : asyncEventQueuesOnCache) {
       CacheXml70DUnitTestHelper.validateAsyncEventQueue(asyncEventQueue, asyncEventQueueOnCache);
     }
   }

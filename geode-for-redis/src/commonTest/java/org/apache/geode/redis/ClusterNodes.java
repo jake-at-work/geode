@@ -18,7 +18,6 @@ package org.apache.geode.redis;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -33,17 +32,17 @@ public class ClusterNodes {
 
   @SuppressWarnings("unchecked")
   public static ClusterNodes parseClusterSlots(List<Object> rawSlots) {
-    ClusterNodes result = new ClusterNodes();
+    var result = new ClusterNodes();
 
-    for (Object obj : rawSlots) {
-      List<Object> firstLevel = (List<Object>) obj;
-      long slotStart = (long) firstLevel.get(0);
-      long slotEnd = (long) firstLevel.get(1);
+    for (var obj : rawSlots) {
+      var firstLevel = (List<Object>) obj;
+      var slotStart = (long) firstLevel.get(0);
+      var slotEnd = (long) firstLevel.get(1);
 
-      List<Object> primary = (List<Object>) firstLevel.get(2);
-      String primaryIp = new String((byte[]) primary.get(0));
-      long primaryPort = (long) primary.get(1);
-      String primaryGUID = primary.size() > 2 ? new String((byte[]) primary.get(2)) : "";
+      var primary = (List<Object>) firstLevel.get(2);
+      var primaryIp = new String((byte[]) primary.get(0));
+      var primaryPort = (long) primary.get(1);
+      var primaryGUID = primary.size() > 2 ? new String((byte[]) primary.get(2)) : "";
 
       result.addSlot(primaryGUID, primaryIp, primaryPort, slotStart, slotEnd);
     }
@@ -52,9 +51,9 @@ public class ClusterNodes {
   }
 
   public static ClusterNodes parseClusterNodes(String rawInput) {
-    ClusterNodes result = new ClusterNodes();
+    var result = new ClusterNodes();
 
-    for (String line : rawInput.split("\\n")) {
+    for (var line : rawInput.split("\\n")) {
       result.nodes.add(parseOneClusterNodeLine(line));
     }
 
@@ -62,14 +61,14 @@ public class ClusterNodes {
   }
 
   private static ClusterNode parseOneClusterNodeLine(String line) {
-    String[] parts = line.split(" ");
+    var parts = line.split(" ");
 
-    Matcher addressMatcher = ipPortCportRE.matcher(parts[1]);
+    var addressMatcher = ipPortCportRE.matcher(parts[1]);
     if (!addressMatcher.matches()) {
       throw new IllegalArgumentException("Unable to extract ip:port@cport from " + line);
     }
 
-    boolean primary = parts[2].contains("master");
+    var primary = parts[2].contains("master");
 
     List<Pair<Long, Long>> slots = new ArrayList<>();
     if (primary) {
@@ -77,9 +76,9 @@ public class ClusterNodes {
       // to being a 'replica'. Nevertheless, still keep the state as primary. Eventually the
       // higher layers will call into here again until everything is stabilized.
       if (parts.length > 8) {
-        for (int i = 8; i < parts.length; i++) {
-          String[] startEnd = parts[i].split("-");
-          long slotStart = Long.parseLong(startEnd[0]);
+        for (var i = 8; i < parts.length; i++) {
+          var startEnd = parts[i].split("-");
+          var slotStart = Long.parseLong(startEnd[0]);
           long slotEnd;
           if (startEnd.length > 1) {
             slotEnd = Long.parseLong(startEnd[1]);
@@ -100,7 +99,7 @@ public class ClusterNodes {
   }
 
   public ClusterNode getNode(String ip, long port) {
-    for (ClusterNode node : nodes) {
+    for (var node : nodes) {
       if (node.ipAddress.equals(ip) && node.port == port) {
         return node;
       }
@@ -113,7 +112,7 @@ public class ClusterNodes {
   }
 
   private void addSlot(String guid, String ip, long port, long slotStart, long slotEnd) {
-    ClusterNode node = getNode(ip, port);
+    var node = getNode(ip, port);
     if (node == null) {
       List<Pair<Long, Long>> slots = new ArrayList<>();
       node = new ClusterNode(guid, ip, port, true, slots);

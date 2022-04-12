@@ -35,7 +35,6 @@ import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.OperationExecutors;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyMessage;
@@ -99,7 +98,7 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
     this.isReExecute = isReExecute;
     this.isFnSerializationReqd = isFnSerializationReqd;
     txUniqId = TXManagerImpl.getCurrentTXUniqueId();
-    TXStateProxy txState = TXManagerImpl.getCurrentTXState();
+    var txState = TXManagerImpl.getCurrentTXState();
     if (txState != null && txState.isMemberIdForwardingRequired()) {
       txMemberId = txState.getOriginatingMember();
     }
@@ -110,12 +109,12 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
     if (txUniqId == TXManagerImpl.NOTX) {
       return null;
     } else {
-      InternalCache cache = dm.getCache();
+      var cache = dm.getCache();
       if (cache == null) {
         // ignore and return, we are shutting down!
         return null;
       }
-      TXManagerImpl mgr = cache.getTXMgr();
+      var mgr = cache.getTXMgr();
       return mgr.masqueradeAs(this);
     }
   }
@@ -127,7 +126,7 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
         // ignore and return, we are shutting down!
         return;
       }
-      TXManagerImpl mgr = cache.getTXMgr();
+      var mgr = cache.getTXMgr();
       mgr.unmasquerade(tx);
     }
   }
@@ -135,13 +134,13 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
   @Override
   protected void process(final ClusterDistributionManager dm) {
     Throwable thr = null;
-    boolean sendReply = true;
+    var sendReply = true;
     DistributedRegion dr = null;
     TXStateProxy tx = null;
 
     try {
       if (checkCacheClosing(dm) || checkDSClosing(dm)) {
-        InternalCache cache = dm.getCache();
+        var cache = dm.getCache();
         if (cache != null) {
           thr = cache
               .getCacheClosedException(String.format("Remote cache is closed: %s",
@@ -218,7 +217,7 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
         if (thr != null) {
           // don't transmit the exception if this message was to a listener
           // and this listener is shutting down
-          boolean excludeException = false;
+          var excludeException = false;
           if (!functionObject.isHA()) {
             excludeException =
                 (thr instanceof CacheClosedException || (thr instanceof ForceReattemptException));
@@ -286,7 +285,7 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
    * check to see if the cache is closing
    */
   private boolean checkCacheClosing(ClusterDistributionManager dm) {
-    InternalCache cache = dm.getCache();
+    var cache = dm.getCache();
     return cache == null || cache.getCancelCriterion().isCancelInProgress();
   }
 
@@ -296,7 +295,7 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
    * @return true if the distributed system is closing
    */
   private boolean checkDSClosing(ClusterDistributionManager dm) {
-    InternalDistributedSystem ds = dm.getSystem();
+    var ds = dm.getSystem();
     return (ds == null || ds.isDisconnecting());
   }
 
@@ -315,7 +314,7 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
       DeserializationContext context) throws IOException, ClassNotFoundException {
     super.fromData(in, context);
 
-    short flags = in.readShort();
+    var flags = in.readShort();
     if ((flags & HAS_PROCESSOR_ID) != 0) {
       processorId = in.readInt();
       ReplyProcessor21.setMessageRPId(processorId);
@@ -327,7 +326,7 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
       txMemberId = DataSerializer.readObject(in);
     }
 
-    Object object = DataSerializer.readObject(in);
+    var object = DataSerializer.readObject(in);
     if (object instanceof String) {
       isFnSerializationReqd = false;
       functionObject = FunctionService.getFunction((String) object);
@@ -392,7 +391,7 @@ public class DistributedRegionFunctionStreamingMessage extends DistributionMessa
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    int msgNum = replyMsgNum;
+    var msgNum = replyMsgNum;
     replyLastMsg = lastResult;
 
     sendReply(getSender(), processorId, dm, null, oneResult, msgNum, lastResult,

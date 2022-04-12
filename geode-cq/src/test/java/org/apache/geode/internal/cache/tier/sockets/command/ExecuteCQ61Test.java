@@ -33,7 +33,7 @@ public class ExecuteCQ61Test {
 
   @Test
   public void needRegionRegionToExecute() throws Exception {
-    ExecuteCQ61 executeCQ61 = mock(ExecuteCQ61.class);
+    var executeCQ61 = mock(ExecuteCQ61.class);
     doCallRealMethod().when(executeCQ61).cmdExecute(cqRule.message, cqRule.connection,
         cqRule.securityService, 0);
 

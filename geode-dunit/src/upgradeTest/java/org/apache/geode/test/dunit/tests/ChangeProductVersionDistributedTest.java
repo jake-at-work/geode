@@ -17,15 +17,12 @@ package org.apache.geode.test.dunit.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.DUnitLauncher;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 import org.apache.geode.test.version.TestVersion;
@@ -42,12 +39,12 @@ public class ChangeProductVersionDistributedTest implements Serializable {
 
   private static TestVersion getOldProductVersion() {
 
-    final Map<Boolean, List<TestVersion>> groups =
+    final var groups =
         VersionManager.getInstance().getVersionsWithoutCurrent().stream()
             .map(TestVersion::valueOf)
             .collect(Collectors.partitioningBy(v -> v.lessThan(NEW_PRODUCT_VERSION)));
 
-    final List<TestVersion> olderVersions = groups.get(true);
+    final var olderVersions = groups.get(true);
 
     if (olderVersions.size() < 1) {
       throw new AssertionError(
@@ -59,9 +56,9 @@ public class ChangeProductVersionDistributedTest implements Serializable {
 
   @Test
   public void testChangeProductVersions() {
-    final TestVersion oldProductVersion = getOldProductVersion();
+    final var oldProductVersion = getOldProductVersion();
 
-    VM jvm = Host.getHost(0).getVM(oldProductVersion.toString(), 0);
+    var jvm = Host.getHost(0).getVM(oldProductVersion.toString(), 0);
 
     jvm.invoke(() -> {
       assertProductVersionEquals(oldProductVersion.toString());
@@ -77,7 +74,7 @@ public class ChangeProductVersionDistributedTest implements Serializable {
 
   public static void assertProductVersionEquals(final String expectedVersion) {
 
-    final String actualVersion = System.getProperty(DUnitLauncher.VM_VERSION_PARAM);
+    final var actualVersion = System.getProperty(DUnitLauncher.VM_VERSION_PARAM);
 
     System.out.println(String.format("expected: %s, actual: %s", expectedVersion, actualVersion));
     assertThat(actualVersion).isEqualTo(expectedVersion);

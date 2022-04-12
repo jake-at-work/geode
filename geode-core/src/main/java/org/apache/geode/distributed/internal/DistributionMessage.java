@@ -197,7 +197,7 @@ public abstract class DistributionMessage
    * @since GemFire 5.5
    */
   public boolean orderedDelivery() {
-    final int processorType = getProcessorType();
+    final var processorType = getProcessorType();
     switch (processorType) {
       case OperationExecutors.SERIAL_EXECUTOR:
         // no need to use orderedDelivery for PR ops particularly when thread
@@ -209,7 +209,7 @@ public abstract class DistributionMessage
         // execution of a function
         return false;
       default:
-        InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+        var ids = InternalDistributedSystem.getAnyInstance();
         return (ids != null && ids.threadOwnsResources());
     }
   }
@@ -301,9 +301,9 @@ public abstract class DistributionMessage
     if (forAll()) {
       return "recipients: ALL";
     } else {
-      StringBuilder sb = new StringBuilder(100);
+      var sb = new StringBuilder(100);
       sb.append("recipients: <");
-      for (int i = 0; i < recipients.size(); i++) {
+      for (var i = 0; i < recipients.size(); i++) {
         if (i != 0) {
           sb.append(", ");
         }
@@ -355,7 +355,7 @@ public abstract class DistributionMessage
     if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
       logger.trace(LogMarker.DM_VERBOSE, "Processing '{}'", this);
     }
-    String reason = dm.getCancelCriterion().cancelInProgress();
+    var reason = dm.getCancelCriterion().cancelInProgress();
     if (reason != null) {
       // throw new ShutdownException(reason);
       if (logger.isDebugEnabled()) {
@@ -375,7 +375,7 @@ public abstract class DistributionMessage
     setBreadcrumbsInReceiver();
     try {
 
-      DistributionMessageObserver observer = DistributionMessageObserver.getInstance();
+      var observer = DistributionMessageObserver.getInstance();
       if (observer != null) {
         observer.beforeProcessMessage(dm, this);
       }
@@ -417,11 +417,11 @@ public abstract class DistributionMessage
    * Schedule this message's process() method in a thread determined by getExecutor()
    */
   protected void schedule(final ClusterDistributionManager dm) {
-    boolean inlineProcess = INLINE_PROCESS
+    var inlineProcess = INLINE_PROCESS
         && getProcessorType() == OperationExecutors.SERIAL_EXECUTOR
         && !isMembershipMessengerThread();
 
-    boolean forceInline = acker != null || getInlineProcess() || Connection.isDominoThread();
+    var forceInline = acker != null || getInlineProcess() || Connection.isDominoThread();
 
     if (inlineProcess && !forceInline && isSharedReceiver()) {
       // If processing this message notify a serial gateway sender then don't do it inline.
@@ -488,7 +488,7 @@ public abstract class DistributionMessage
    * a server to be kicked out
    */
   public static boolean isMembershipMessengerThread() {
-    String thrname = Thread.currentThread().getName();
+    var thrname = Thread.currentThread().getName();
 
     return isMembershipMessengerThreadName(thrname);
   }
@@ -509,8 +509,8 @@ public abstract class DistributionMessage
    */
   public void setBreadcrumbsInReceiver() {
     if (Breadcrumbs.ENABLED) {
-      final String procId = getProcId();
-      final String sender = getSender(procId);
+      final var procId = getProcId();
+      final var sender = getSender(procId);
       if (sender.length() > 0) {
         Breadcrumbs.setReceiveSide(sender);
       }
@@ -542,7 +542,7 @@ public abstract class DistributionMessage
    */
   public void setBreadcrumbsInSender() {
     if (Breadcrumbs.ENABLED) {
-      String procId = "";
+      var procId = "";
       long pid = getProcessorId();
       if (pid != 0) {
         procId = "processorId=" + pid;
@@ -619,8 +619,8 @@ public abstract class DistributionMessage
    */
   public long resetTimestamp() {
     if (DistributionStats.enableClockStats) {
-      long now = DistributionStats.getStatTime();
-      long result = now - timeStamp;
+      var now = DistributionStats.getStatTime();
+      var result = now - timeStamp;
       timeStamp = now;
       return result;
     } else {
@@ -698,13 +698,13 @@ public abstract class DistributionMessage
 
   /** returns the class name w/o package information. useful in logging */
   public String getShortClassName() {
-    String cname = getClass().getName();
+    var cname = getClass().getName();
     return cname.substring(getClass().getPackage().getName().length() + 1);
   }
 
   @Override
   public String toString() {
-    String cname = getShortClassName();
+    var cname = getShortClassName();
     return cname + '@' + Integer.toHexString(System.identityHashCode(this))
         + " processorId=" + getProcessorId()
         + " sender=" + getSender();

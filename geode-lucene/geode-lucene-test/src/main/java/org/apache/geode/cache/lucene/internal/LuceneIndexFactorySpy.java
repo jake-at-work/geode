@@ -23,7 +23,7 @@ import org.apache.geode.internal.cache.InternalCache;
 public class LuceneIndexFactorySpy extends LuceneIndexImplFactory {
 
   public static LuceneIndexFactorySpy injectSpy() {
-    LuceneIndexFactorySpy factory = new LuceneIndexFactorySpy();
+    var factory = new LuceneIndexFactorySpy();
     LuceneServiceImpl.luceneIndexFactory = factory;
     return factory;
   }

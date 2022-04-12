@@ -21,7 +21,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.LuceneTest;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -34,13 +33,13 @@ public class LuceneCommandsSecurityWithRegionCreatedBeforeIndexDUnitTest
 
   @Before
   public void setLuceneReindexFlag() {
-    MemberVM server = locatorServer.getMember(1);
+    var server = locatorServer.getMember(1);
     server.invoke(() -> LuceneServiceImpl.LUCENE_REINDEX = true);
   }
 
   @After
   public void clearLuceneReindexFlag() {
-    MemberVM server = locatorServer.getMember(1);
+    var server = locatorServer.getMember(1);
     server.invoke(() -> LuceneServiceImpl.LUCENE_REINDEX = false);
   }
 

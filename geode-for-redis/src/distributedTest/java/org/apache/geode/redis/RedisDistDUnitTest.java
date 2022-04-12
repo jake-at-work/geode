@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.After;
@@ -34,7 +32,6 @@ import org.junit.experimental.categories.Category;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.categories.RedisTest;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
@@ -53,12 +50,12 @@ public class RedisDistDUnitTest {
 
   @BeforeClass
   public static void setup() {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     cluster.startRedisVM(1, locator.getPort());
     cluster.startRedisVM(2, locator.getPort());
 
-    int server1Port = cluster.getRedisPort(1);
+    var server1Port = cluster.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, server1Port), REDIS_CLIENT_TIMEOUT);
   }
 
@@ -72,15 +69,15 @@ public class RedisDistDUnitTest {
       throws Exception {
     List<String> set1 = new ArrayList<>();
     List<String> set2 = new ArrayList<>();
-    int setSize = populateSetValueArrays(set1, set2);
+    var setSize = populateSetValueArrays(set1, set2);
 
-    final String setName = "keyset";
+    final var setName = "keyset";
 
-    Future<Void> future = executorService.submit(() -> concurrentSaddOperations(setName, set1));
+    var future = executorService.submit(() -> concurrentSaddOperations(setName, set1));
     concurrentSaddOperations(setName, set2);
     future.get();
 
-    Set<String> smembers = jedis.smembers(setName);
+    var smembers = jedis.smembers(setName);
 
     assertThat(smembers).hasSize(setSize * 2);
     assertThat(smembers).contains(set1.toArray(new String[] {}));
@@ -88,8 +85,8 @@ public class RedisDistDUnitTest {
   }
 
   private int populateSetValueArrays(List<String> set1, List<String> set2) {
-    int setSize = 5000;
-    for (int i = 0; i < setSize; i++) {
+    var setSize = 5000;
+    for (var i = 0; i < setSize; i++) {
       set1.add("SETA-" + i);
       set2.add("SETB-" + i);
     }
@@ -97,21 +94,21 @@ public class RedisDistDUnitTest {
   }
 
   private void concurrentSaddOperations(String key, Collection<String> strings) {
-    for (String member : strings) {
+    for (var member : strings) {
       jedis.sadd(key, member);
     }
   }
 
   @Test
   public void testConcCreateDestroy() throws Exception {
-    final int ops = 1000;
-    final String hKey = KEY + "hash";
-    final String sKey = KEY + "set";
-    final String key = KEY + "string";
+    final var ops = 1000;
+    final var hKey = KEY + "hash";
+    final var sKey = KEY + "set";
+    final var key = KEY + "string";
 
 
     // Expect to run with no exception
-    Future<Void> future =
+    var future =
         executorService.submit(() -> concurrentCreateDestroy(ops, hKey, sKey, key));
     concurrentCreateDestroy(ops, hKey, sKey, key);
 
@@ -121,9 +118,9 @@ public class RedisDistDUnitTest {
   }
 
   private void concurrentCreateDestroy(int ops, String hKey, String sKey, String key) {
-    Random r = new Random();
-    for (int i = 0; i < ops; i++) {
-      int n = r.nextInt(3);
+    var r = new Random();
+    for (var i = 0; i < ops; i++) {
+      var n = r.nextInt(3);
       switch (n) {
         // hashes
         case 0:
@@ -144,14 +141,14 @@ public class RedisDistDUnitTest {
 
   @Test
   public void testConcurrentDel_iteratingOverEachKey() {
-    int iterations = 1000;
-    String keyBaseName = "DELBASE";
+    var iterations = 1000;
+    var keyBaseName = "DELBASE";
 
-    for (int i = 0; i < iterations; i++) {
+    for (var i = 0; i < iterations; i++) {
       jedis.set(keyBaseName + i, "value" + i);
     }
 
-    AtomicLong deletedCount = new AtomicLong(0);
+    var deletedCount = new AtomicLong(0);
     new ConcurrentLoopingThreads(iterations,
         (i) -> deletedCount.addAndGet(jedis.del(keyBaseName + i)),
         (i) -> deletedCount.addAndGet(jedis.del(keyBaseName + i)))
@@ -159,23 +156,23 @@ public class RedisDistDUnitTest {
 
     assertThat(deletedCount.get()).isEqualTo(iterations);
 
-    for (int i = 0; i < iterations; i++) {
+    for (var i = 0; i < iterations; i++) {
       assertThat(jedis.get(keyBaseName + i)).isNull();
     }
   }
 
   @Test
   public void testConcurrentDel_bulk() {
-    int iterations = 1000;
-    String keyBaseName = "{DEL}BASE";
+    var iterations = 1000;
+    var keyBaseName = "{DEL}BASE";
 
-    String[] keys = new String[iterations];
-    for (int i = 0; i < iterations; i++) {
+    var keys = new String[iterations];
+    for (var i = 0; i < iterations; i++) {
       keys[i] = keyBaseName + i;
       jedis.set(keys[i], "value" + i);
     }
 
-    AtomicLong deletedCount = new AtomicLong();
+    var deletedCount = new AtomicLong();
     new ConcurrentLoopingThreads(2,
         (i) -> deletedCount.addAndGet(jedis.del(keys)),
         (i) -> deletedCount.addAndGet(jedis.del(keys)))
@@ -183,7 +180,7 @@ public class RedisDistDUnitTest {
 
     assertThat(deletedCount.get()).isEqualTo(iterations);
 
-    for (int i = 0; i < iterations; i++) {
+    for (var i = 0; i < iterations; i++) {
       assertThat(jedis.get(keys[i])).isNull();
     }
   }
@@ -193,21 +190,21 @@ public class RedisDistDUnitTest {
    */
   @Test
   public void testConcOps() throws Exception {
-    final int ops = 100;
-    final String hKey = KEY + "hash";
-    final String sKey = KEY + "{set}";
+    final var ops = 100;
+    final var hKey = KEY + "hash";
+    final var sKey = KEY + "{set}";
 
     // Expect to run with no exception
-    Future<Void> future = executorService.submit(() -> concurrentOps(ops, hKey, sKey));
+    var future = executorService.submit(() -> concurrentOps(ops, hKey, sKey));
     concurrentOps(ops, hKey, sKey);
 
     future.get();
   }
 
   private void concurrentOps(int ops, String hKey, String sKey) {
-    Random r = new Random();
-    for (int i = 0; i < ops; i++) {
-      int n = r.nextInt(4);
+    var r = new Random();
+    for (var i = 0; i < ops; i++) {
+      var n = r.nextInt(4);
       if (n == 0) {
         jedis.hset(hKey, randString(), randString());
         jedis.hgetAll(hKey);

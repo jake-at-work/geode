@@ -52,7 +52,7 @@ public class PRBasicRemoveIndexDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(SERIALIZABLE_OBJECT_FILTER, "org.apache.geode.cache.query.data.*");
     return config;
   }
@@ -62,11 +62,11 @@ public class PRBasicRemoveIndexDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRBasicIndexRemove() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(name, redundancy,
@@ -78,7 +78,7 @@ public class PRBasicRemoveIndexDUnitTest extends CacheTestCase {
     vm3.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(name, redundancy,
         PortfolioData.class));
 
-    PortfolioData[] portfolio = createPortfolioData(start, end);
+    var portfolio = createPortfolioData(start, end);
 
     // Putting the data into the PR's created
     vm1.invoke(
@@ -102,11 +102,11 @@ public class PRBasicRemoveIndexDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRBasicRemoveParticularIndex() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(name, redundancy,
@@ -118,7 +118,7 @@ public class PRBasicRemoveIndexDUnitTest extends CacheTestCase {
     vm3.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(name, redundancy,
         PortfolioData.class));
 
-    PortfolioData[] portfolio = createPortfolioData(start, end);
+    var portfolio = createPortfolioData(start, end);
 
     // Putting the data into the PR's created
     vm1.invoke(
@@ -135,7 +135,7 @@ public class PRBasicRemoveIndexDUnitTest extends CacheTestCase {
   }
 
   private void setCacheInVMs(VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> PRQueryDUnitHelper.setCache(getCache()));
     }
   }

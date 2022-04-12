@@ -50,8 +50,8 @@ public class RemoteGfManagerAgentTest {
 
   @Before
   public void setUp() {
-    GfManagerAgentConfig config = mock(GfManagerAgentConfig.class);
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
+    var config = mock(GfManagerAgentConfig.class);
+    var system = mock(InternalDistributedSystem.class);
 
     when(config.getLogWriter()).thenReturn(mock(InternalLogWriter.class));
     when(config.getTransport()).thenReturn(mock(RemoteTransportConfig.class));
@@ -66,18 +66,18 @@ public class RemoteGfManagerAgentTest {
 
   @Test
   public void removeAgentAndDisconnectDoesNotThrowNPE() throws Exception {
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var member = mock(InternalDistributedMember.class);
     Map<InternalDistributedMember, Future<RemoteApplicationVM>> membersMap = new HashMap<>();
     membersMap.put(member, mock(Future.class));
     agent.setMembersMap(membersMap);
 
     // removeMember accesses the InternalDistributedSystem
-    Future<Void> removeMember = executorServiceRule.submit(() -> {
+    var removeMember = executorServiceRule.submit(() -> {
       agent.removeMember(member);
     });
 
     // disconnect sets the InternalDistributedSystem to null
-    Future<Void> disconnect = executorServiceRule.submit(() -> {
+    var disconnect = executorServiceRule.submit(() -> {
       agent.disconnect();
     });
 

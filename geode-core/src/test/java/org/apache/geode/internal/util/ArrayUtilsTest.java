@@ -22,8 +22,6 @@ import static org.apache.geode.internal.util.ArrayUtils.toBytes;
 import static org.apache.geode.internal.util.ArrayUtils.toIntegerArray;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -42,7 +40,7 @@ public class ArrayUtilsTest {
 
   @Test
   public void testGetElementAtIndex() {
-    Object[] arrayOfThree = new Object[] {"test", "testing", "tested"};
+    var arrayOfThree = new Object[] {"test", "testing", "tested"};
 
     assertThat(getElementAtIndex(arrayOfThree, 0, null)).isEqualTo("test");
     assertThat(getElementAtIndex(arrayOfThree, 1, null)).isEqualTo("testing");
@@ -51,31 +49,31 @@ public class ArrayUtilsTest {
 
   @Test
   public void getElementAtIndex_emptyArray_returnsDefaultValue() {
-    Object[] emptyArray = new Object[] {};
-    String defaultValue = testName.getMethodName();
+    var emptyArray = new Object[] {};
+    var defaultValue = testName.getMethodName();
 
     assertThat(getElementAtIndex(emptyArray, 0, defaultValue)).isEqualTo(defaultValue);
   }
 
   @Test
   public void getElementAtIndex_emptyArray_returnsNullDefaultValue() {
-    Object[] emptyArray = new Object[] {};
+    var emptyArray = new Object[] {};
 
     assertThat(getElementAtIndex(emptyArray, 0, null)).isNull();
   }
 
   @Test
   public void getElementAtIndex_indexOutOfBounds_returnsDefaultValue() {
-    Object[] arrayOfOne = new Object[] {"test"};
-    String defaultValue = testName.getMethodName();
+    var arrayOfOne = new Object[] {"test"};
+    var defaultValue = testName.getMethodName();
 
     assertThat(getElementAtIndex(arrayOfOne, 2, defaultValue)).isEqualTo(defaultValue);
   }
 
   @Test
   public void getElementAtIndex_empty_indexOutOfBounds_returnsDefaultValue() {
-    Object[] emptyArray = new Object[] {};
-    String defaultValue = testName.getMethodName();
+    var emptyArray = new Object[] {};
+    var defaultValue = testName.getMethodName();
 
     assertThat(getElementAtIndex(emptyArray, 2, defaultValue)).isEqualTo(defaultValue);
   }
@@ -103,7 +101,7 @@ public class ArrayUtilsTest {
 
   @Test
   public void getFirst_empty_returnsNull() {
-    Object[] emptyArray = new Object[0];
+    var emptyArray = new Object[0];
     assertThat((Object[]) getFirst(emptyArray)).isNull();
   }
 
@@ -114,7 +112,7 @@ public class ArrayUtilsTest {
 
   @Test
   public void toString_returnsOrderedStringInBrackets() {
-    Object[] arrayOfThree = new Object[] {"test", "testing", "tested"};
+    var arrayOfThree = new Object[] {"test", "testing", "tested"};
 
     assertThat(ArrayUtils.toString(arrayOfThree)).isEqualTo("[test, testing, tested]");
   }
@@ -131,7 +129,7 @@ public class ArrayUtilsTest {
 
   @Test
   public void toIntegerArray_returnsOrderedArray() {
-    int[] sequence = new int[] {0, 1, 2, 4, 8};
+    var sequence = new int[] {0, 1, 2, 4, 8};
 
     assertThat(toIntegerArray(sequence)).isNotNull().hasSize(sequence.length).containsExactly(0, 1,
         2, 4, 8);
@@ -149,19 +147,19 @@ public class ArrayUtilsTest {
 
   @Test
   public void toByteArray_returnsBytes() {
-    int count = 0;
-    byte[][] array = new byte[10][5];
-    for (int i = 0; i < array.length; i++) {
-      for (int j = 0; j < array[i].length; j++) {
+    var count = 0;
+    var array = new byte[10][5];
+    for (var i = 0; i < array.length; i++) {
+      for (var j = 0; j < array[i].length; j++) {
         array[i][j] = (byte) ++count;
       }
     }
     assertThat(count).isEqualTo(50);
 
     count = 0;
-    Byte[][] byteArray = toByteArray(array);
-    for (final Byte[] bytes : byteArray) {
-      for (int j = 0; j < bytes.length; j++) {
+    var byteArray = toByteArray(array);
+    for (final var bytes : byteArray) {
+      for (var j = 0; j < bytes.length; j++) {
         assertThat(bytes[j].byteValue()).isEqualTo((byte) ++count);
       }
     }
@@ -170,19 +168,19 @@ public class ArrayUtilsTest {
 
   @Test
   public void toBytes_returnsPrimitiveBytes() {
-    int count = 100;
-    Byte[][] byteArray = new Byte[5][10];
-    for (int i = 0; i < byteArray.length; i++) {
-      for (int j = 0; j < byteArray[i].length; j++) {
+    var count = 100;
+    var byteArray = new Byte[5][10];
+    for (var i = 0; i < byteArray.length; i++) {
+      for (var j = 0; j < byteArray[i].length; j++) {
         byteArray[i][j] = (byte) --count;
       }
     }
     assertThat(count).isEqualTo(50);
 
     count = 100;
-    byte[][] array = toBytes(byteArray);
-    for (final byte[] bytes : array) {
-      for (int j = 0; j < bytes.length; j++) {
+    var array = toBytes(byteArray);
+    for (final var bytes : array) {
+      for (var j = 0; j < bytes.length; j++) {
         assertThat(bytes[j]).isEqualTo((byte) --count);
       }
     }
@@ -191,7 +189,7 @@ public class ArrayUtilsTest {
 
   @Test
   public void toByteArray_empty_returnsEmptyBytes() {
-    byte[][] array = new byte[0][0];
+    var array = new byte[0][0];
     assertThat(toByteArray(array)).isEqualTo(new Byte[0][0]);
   }
 
@@ -203,7 +201,7 @@ public class ArrayUtilsTest {
 
   @Test
   public void toBytes_empty_returnsEmpty() {
-    Byte[][] byteArray = new Byte[0][0];
+    var byteArray = new Byte[0][0];
     assertThat(toBytes(byteArray)).isEqualTo(new byte[0][0]);
   }
 
@@ -215,7 +213,7 @@ public class ArrayUtilsTest {
 
   @Test
   public void asList_returnsModifiableList() throws Exception {
-    List<String> modifiable = asList("Larry", "Moe", "Curly");
+    var modifiable = asList("Larry", "Moe", "Curly");
     assertThat(modifiable.remove("Curly")).isTrue();
     assertThat(modifiable).contains("Larry", "Moe").doesNotContain("Curly");
   }

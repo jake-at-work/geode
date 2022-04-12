@@ -25,7 +25,7 @@ public class CacheProviderImpl implements CacheProvider {
 
   @Override
   public InternalCacheForClientAccess getCache() {
-    final InternalCache result = getInternalCache();
+    final var result = getInternalCache();
     if (result == null) {
       return null;
     }

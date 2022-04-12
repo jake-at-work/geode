@@ -58,7 +58,7 @@ public class RegionSubRegionsSizeResponse extends AdminResponse implements Cance
    */
   public static RegionSubRegionsSizeResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    RegionSubRegionsSizeResponse m = new RegionSubRegionsSizeResponse();
+    var m = new RegionSubRegionsSizeResponse();
     m.setRecipient(recipient);
     m.snapshot = null;
     m.cancelled = false;
@@ -72,13 +72,13 @@ public class RegionSubRegionsSizeResponse extends AdminResponse implements Cance
     }
 
     DistributedSystem sys = dm.getSystem();
-    InternalCache cache = (InternalCache) CacheFactory.getInstance(sys);
+    var cache = (InternalCache) CacheFactory.getInstance(sys);
 
     if (cancelled) {
       return;
     }
 
-    RegionSubRegionSnapshot root = new RegionSubRegionSnapshot();
+    var root = new RegionSubRegionSnapshot();
     /*
      * This root exists only on admin side as a root of all root-region just to create a tree-like
      * structure
@@ -107,14 +107,14 @@ public class RegionSubRegionsSizeResponse extends AdminResponse implements Cance
       return;
     }
 
-    for (Object region : regions) {
-      Region subRegion = (Region) region;
+    for (var region : regions) {
+      var subRegion = (Region) region;
 
       try {
-        RegionSubRegionSnapshot subRegionSnapShot = new RegionSubRegionSnapshot(subRegion);
+        var subRegionSnapShot = new RegionSubRegionSnapshot(subRegion);
         parentSnapShot.addSubRegion(subRegionSnapShot);
 
-        Set subRegions = subRegion.subregions(false);
+        var subRegions = subRegion.subregions(false);
         populateRegionSubRegions(subRegionSnapShot, subRegions, cache);
       } catch (Exception e) {
         logger.debug("Failed to create snapshot for region: {}. Continuing with next region.",

@@ -48,8 +48,8 @@ public class TxCallbackEventFactoryImplTest {
 
   @Test
   public void setLocalFilterInfoInvokedIfFoundMatchingFilterInfo() {
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
-    FilterRoutingInfo.FilterInfo localRouting = mock(FilterRoutingInfo.FilterInfo.class);
+    var member = mock(InternalDistributedMember.class);
+    var localRouting = mock(FilterRoutingInfo.FilterInfo.class);
     when(region.getMyId()).thenReturn(member);
     when(routingInfo.getFilterInfo(member)).thenReturn(localRouting);
 

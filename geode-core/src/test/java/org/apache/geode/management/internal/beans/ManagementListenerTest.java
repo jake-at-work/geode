@@ -58,7 +58,7 @@ public class ManagementListenerTest {
   @Before
   public void setUp() {
     system = mock(InternalDistributedSystem.class);
-    ManagementAdapter managementAdapter = mock(ManagementAdapter.class);
+    var managementAdapter = mock(ManagementAdapter.class);
     readWriteLock = spy(ReadWriteLock.class);
     readLock = spy(Lock.class);
     writeLock = spy(Lock.class);
@@ -87,7 +87,7 @@ public class ManagementListenerTest {
   public void shouldProceedReturnsFalseIfSystemNotConnectedForOtherEvents() {
     when(system.isConnected()).thenReturn(false);
 
-    for (ResourceEvent resourceEvent : ResourceEvent.values()) {
+    for (var resourceEvent : ResourceEvent.values()) {
       if (resourceEvent != CACHE_REMOVE) {
         assertThat(managementListener.shouldProceed(CACHE_REMOVE)).isTrue();
       }
@@ -96,7 +96,7 @@ public class ManagementListenerTest {
 
   @Test
   public void shouldProceedReturnsTrueIfSystemIsConnected() {
-    for (ResourceEvent resourceEvent : ResourceEvent.values()) {
+    for (var resourceEvent : ResourceEvent.values()) {
       assertThat(managementListener.shouldProceed(resourceEvent)).isTrue();
     }
   }
@@ -105,7 +105,7 @@ public class ManagementListenerTest {
   public void shouldProceedReturnsFalseIfNoCache() {
     when(system.getCache()).thenReturn(null);
 
-    for (ResourceEvent resourceEvent : ResourceEvent.values()) {
+    for (var resourceEvent : ResourceEvent.values()) {
       assertThat(managementListener.shouldProceed(resourceEvent)).isFalse();
     }
   }
@@ -137,7 +137,7 @@ public class ManagementListenerTest {
 
   @Test
   public void handleEventUsesReadLockForOtherEvents() throws InterruptedException {
-    for (ResourceEvent resourceEvent : ResourceEvent.values()) {
+    for (var resourceEvent : ResourceEvent.values()) {
       if (resourceEvent != CACHE_CREATE && resourceEvent != CACHE_REMOVE
           && resourceEvent != SYSTEM_ALERT) {
         managementListener.handleEvent(resourceEvent, null);

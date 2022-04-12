@@ -41,7 +41,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.Locator;
-import org.apache.geode.distributed.internal.Distribution;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.api.MembershipManagerHelper;
 import org.apache.geode.security.generator.CredentialGenerator;
@@ -75,7 +74,7 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
     locatorVM = Host.getHost(0).getVM(0);
-    for (String exceptionString : ignoredExceptions) {
+    for (var exceptionString : ignoredExceptions) {
       addIgnoredException(exceptionString);
     }
   }
@@ -85,9 +84,9 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testIllegalPropertyCombos() throws Exception {
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "26753");
     props.setProperty(ConfigurationProperties.LOCATORS, getIPLiteral() + "[" + port + "]");
     props.setProperty(ConfigurationProperties.SECURITY_PEER_AUTH_INIT,
@@ -150,13 +149,13 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testP2PAuthenticationWithInvalidAuthInitialize() throws Exception {
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
 
     CredentialGenerator gen = new DummyCredentialGenerator();
     assertNotNull(gen.getAuthenticator());
     assertNull(gen.getJavaProperties());
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, getIPLiteral() + "[" + locatorPort + "]");
     props.setProperty(SECURITY_PEER_AUTH_INIT, "Incorrect_AuthInitialize");
@@ -182,13 +181,13 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testP2PAuthenticationWithInvalidAuthenticator() throws Exception {
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
 
     CredentialGenerator gen = new DummyCredentialGenerator();
     assertNotNull(gen.getAuthInit());
     assertNull(gen.getJavaProperties());
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, getIPLiteral() + "[" + locatorPort + "]");
     props.setProperty(SECURITY_PEER_AUTH_INIT, gen.getAuthInit());
@@ -211,7 +210,7 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testP2PAuthenticationWithNoCredentials() throws Exception {
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
 
     CredentialGenerator gen = new DummyCredentialGenerator();
     assertNotNull(gen.getAuthenticator());
@@ -219,7 +218,7 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
     assertNull(gen.getJavaProperties());
     assertNull(gen.getSystemProperties());
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, getIPLiteral() + "[" + locatorPort + "]");
     props.setProperty(SECURITY_PEER_AUTH_INIT, gen.getAuthInit());
@@ -241,7 +240,7 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testP2PAuthenticationWithValidCredentials() throws Exception {
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
 
     CredentialGenerator gen = new DummyCredentialGenerator();
     assertNotNull(gen.getAuthenticator());
@@ -250,7 +249,7 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
     assertNull(gen.getSystemProperties());
     assertNotNull(gen.getValidCredentials(1));
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, getIPLiteral() + "[" + locatorPort + "]");
     props.setProperty(SECURITY_PEER_AUTH_INIT, gen.getAuthInit());
@@ -273,7 +272,7 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
   public void testP2PAuthenticationWithBothValidAndInValidCredentials() throws Exception {
     addIgnoredException("Authentication failed");
 
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
 
     CredentialGenerator gen = new DummyCredentialGenerator();
     assertNotNull(gen.getAuthenticator());
@@ -284,7 +283,7 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
     assertNotNull(gen.getValidCredentials(1));
     assertNotNull(gen.getValidCredentials(3));
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, getIPLiteral() + "[" + locatorPort + "]");
     props.setProperty(SECURITY_PEER_AUTH_INIT, gen.getAuthInit());
@@ -327,15 +326,15 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
   @Ignore("disabled for some reason?")
   @Test
   public void testP2PViewChangeReject() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM peer2 = host.getVM(1);
-    final VM peer3 = host.getVM(2);
+    final var host = Host.getHost(0);
+    final var peer2 = host.getVM(1);
+    final var peer3 = host.getVM(2);
 
     CredentialGenerator gen = new LdapUserCredentialGenerator();
     gen.init();
-    Properties extraProps = gen.getSystemProperties();
-    String authenticator = gen.getAuthenticator();
-    String authInit = gen.getAuthInit();
+    var extraProps = gen.getSystemProperties();
+    var authenticator = gen.getAuthenticator();
+    var authInit = gen.getAuthInit();
 
     if (extraProps == null) {
       extraProps = new Properties();
@@ -343,22 +342,22 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
 
     CredentialGenerator gen2 = new DummyCredentialGenerator();
     gen2.init();
-    Properties extraProps2 = gen2.getSystemProperties();
-    String authenticator2 = gen2.getAuthenticator();
+    var extraProps2 = gen2.getSystemProperties();
+    var authenticator2 = gen2.getAuthenticator();
 
     if (extraProps2 == null) {
       extraProps2 = new Properties();
     }
 
     // Start the locator with the LDAP authenticator
-    Properties props = new Properties();
-    int port = getRandomAvailableTCPPort();
-    final String locators = getIPLiteral() + "[" + port + "]";
+    var props = new Properties();
+    var port = getRandomAvailableTCPPort();
+    final var locators = getIPLiteral() + "[" + port + "]";
 
     props.setProperty(SECURITY_PEER_AUTH_INIT, authInit);
     props.setProperty(SECURITY_PEER_AUTHENTICATOR, authenticator);
-    Properties credentials = gen.getValidCredentials(1);
-    Properties javaProps = gen.getJavaProperties();
+    var credentials = gen.getValidCredentials(1);
+    var javaProps = gen.getJavaProperties();
     props.putAll(credentials);
     props.putAll(extraProps);
 
@@ -374,7 +373,7 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
       props.setProperty(SECURITY_PEER_AUTHENTICATOR, authenticator2);
 
       credentials = gen.getValidCredentials(3);
-      Properties javaProps2 = gen2.getJavaProperties();
+      var javaProps2 = gen2.getJavaProperties();
       props.putAll(credentials);
       props.putAll(extraProps2);
 
@@ -439,11 +438,11 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testP2PLargeCredentialSucceeds() throws Exception {
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
 
-    final Host host = Host.getHost(0);
-    final VM peer2 = host.getVM(1);
-    final VM peer3 = host.getVM(2);
+    final var host = Host.getHost(0);
+    final var peer2 = host.getVM(1);
+    final var peer3 = host.getVM(2);
 
     CredentialGenerator gen = new DummyCredentialGenerator();
     gen.init();
@@ -453,10 +452,10 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
     assertNull(gen.getSystemProperties());
     assertNotNull(gen.getValidCredentials(1));
 
-    String authInit = UserPasswordWithExtraPropsAuthInit.class.getName() + ".create";
-    Properties credentials = gen.getValidCredentials(1);
+    var authInit = UserPasswordWithExtraPropsAuthInit.class.getName() + ".create";
+    var credentials = gen.getValidCredentials(1);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_PEER_AUTH_INIT, authInit);
     props.setProperty(SECURITY_PEER_AUTHENTICATOR, gen.getAuthenticator());
     props.putAll(credentials);
@@ -471,8 +470,8 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
       props.setProperty(SECURITY_PEER_AUTH_INIT, authInit);
       props.setProperty(SECURITY_PEER_AUTHENTICATOR, gen.getAuthenticator());
 
-      String hugeStr = "20KString";
-      for (int i = 0; i <= 20000; i++) {
+      var hugeStr = "20KString";
+      for (var i = 0; i <= 20000; i++) {
         hugeStr += "A";
       }
 
@@ -529,13 +528,13 @@ public class P2PAuthenticationDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static void createDS(final Properties props, final Properties javaProps) {
-    SecurityTestUtils tmpUtil = new SecurityTestUtils();
+    var tmpUtil = new SecurityTestUtils();
     tmpUtil.createSystem(props, javaProps);
   }
 
   private static void verifyMembers(final int numExpectedMembers) {
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    Distribution mgr = MembershipManagerHelper.getDistribution(ds);
+    var mgr = MembershipManagerHelper.getDistribution(ds);
     assertEquals(numExpectedMembers, mgr.getView().size());
   }
 }

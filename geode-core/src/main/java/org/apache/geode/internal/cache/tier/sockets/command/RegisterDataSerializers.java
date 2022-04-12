@@ -26,7 +26,6 @@ import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.CacheServerHelper;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 
@@ -57,33 +56,33 @@ public class RegisterDataSerializers extends BaseCommand {
       serverConnection.getAuthzRequest();
     }
 
-    int noOfParts = clientMessage.getNumberOfParts();
+    var noOfParts = clientMessage.getNumberOfParts();
 
     // 2 parts per instantiator and one eventId part
-    int noOfDataSerializers = (noOfParts - 1) / 2;
+    var noOfDataSerializers = (noOfParts - 1) / 2;
 
     // retrieve eventID from the last Part
-    ByteBuffer eventIdPartsBuffer =
+    var eventIdPartsBuffer =
         ByteBuffer.wrap(clientMessage.getPart(noOfParts - 1).getSerializedForm());
-    long threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    long sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    EventID eventId =
+    var threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var eventId =
         new EventID(serverConnection.getEventMemberIDByteArray(), threadId, sequenceId);
 
-    byte[][] serializedDataSerializers = new byte[noOfDataSerializers * 2][];
-    boolean caughtCNFE = false;
+    var serializedDataSerializers = new byte[noOfDataSerializers * 2][];
+    var caughtCNFE = false;
     Exception cnfe = null;
     try {
-      for (int i = 0; i < noOfParts - 1; i = i + 2) {
+      for (var i = 0; i < noOfParts - 1; i = i + 2) {
 
-        Part dataSerializerClassNamePart = clientMessage.getPart(i);
+        var dataSerializerClassNamePart = clientMessage.getPart(i);
         serializedDataSerializers[i] = dataSerializerClassNamePart.getSerializedForm();
-        String dataSerializerClassName =
+        var dataSerializerClassName =
             (String) CacheServerHelper.deserialize(serializedDataSerializers[i]);
 
-        Part idPart = clientMessage.getPart(i + 1);
+        var idPart = clientMessage.getPart(i + 1);
         serializedDataSerializers[i + 1] = idPart.getSerializedForm();
-        int id = idPart.getInt();
+        var id = idPart.getInt();
 
         Class dataSerializerClass = null;
         try {

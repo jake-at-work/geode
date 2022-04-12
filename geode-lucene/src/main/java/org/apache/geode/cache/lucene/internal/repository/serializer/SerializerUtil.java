@@ -31,7 +31,6 @@ import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.util.BytesRef;
 
@@ -48,7 +47,7 @@ public class SerializerUtil {
   private static final Set<Class> SUPPORTED_PRIMITIVE_TYPES;
 
   static {
-    HashSet<Class> primitiveTypes = new HashSet<>();
+    var primitiveTypes = new HashSet<Class>();
     primitiveTypes.add(String.class);
     primitiveTypes.add(long.class);
     primitiveTypes.add(int.class);
@@ -92,7 +91,7 @@ public class SerializerUtil {
    * @return true if the field was successfully added
    */
   public static boolean addField(Document doc, String field, Object fieldValue) {
-    Class<?> clazz = fieldValue.getClass();
+    var clazz = fieldValue.getClass();
     if (clazz == String.class) {
       doc.add(new TextField(field, (String) fieldValue, Store.NO));
     } else if (clazz == Long.class) {
@@ -125,7 +124,7 @@ public class SerializerUtil {
    * Extract the Apache Geode key from a lucene document
    */
   public static Object getKey(Document doc) {
-    IndexableField field = doc.getField(KEY_FIELD);
+    var field = doc.getField(KEY_FIELD);
     if (field.stringValue() != null) {
       return field.stringValue();
     } else {
@@ -137,7 +136,7 @@ public class SerializerUtil {
    * Extract the Apache Geode key term from a lucene document
    */
   public static Term getKeyTerm(Document doc) {
-    IndexableField field = doc.getField(KEY_FIELD);
+    var field = doc.getField(KEY_FIELD);
     if (field.stringValue() != null) {
       return new Term(KEY_FIELD, field.stringValue());
     } else {
@@ -169,13 +168,13 @@ public class SerializerUtil {
    * Convert a key to a byte array.
    */
   private static BytesRef keyToBytes(Object key) {
-    ByteArrayOutputStream buffer = LOCAL_BUFFER.get();
+    var buffer = LOCAL_BUFFER.get();
 
     try {
-      DataOutputStream out = new DataOutputStream(buffer);
+      var out = new DataOutputStream(buffer);
       DataSerializer.writeObject(key, out);
       out.flush();
-      BytesRef result = new BytesRef(buffer.toByteArray());
+      var result = new BytesRef(buffer.toByteArray());
       buffer.reset();
       return result;
     } catch (IOException e) {

@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.internal.ClientMetadataService;
-import org.apache.geode.cache.client.internal.ClientPartitionAdvisor;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.BucketServerLocation66;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -54,7 +51,7 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
 
   @Before
   public void createScenario() {
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 2, null);
     createClientServerScenarioSingleHop(commonAttributes, 20, 20, 20);
   }
@@ -70,13 +67,13 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
       assertThat(region).isNotNull();
       final List<Object> testValueList = new ArrayList<>();
       final List<Integer> testKeyList = new ArrayList<>();
-      for (int i = (totalNumBuckets * 3); i > 0; i--) {
+      for (var i = (totalNumBuckets * 3); i > 0; i--) {
         testValueList.add("execKey-" + i);
       }
       DistributedSystem.setThreadsSocketPolicy(false);
-      int j = 0;
+      var j = 0;
       Map<Integer, Object> origVals = new HashMap<>();
-      for (Object o : testValueList) {
+      for (var o : testValueList) {
         testKeyList.add(j);
         Integer key = j++;
         origVals.put(key, o);
@@ -86,11 +83,11 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
       // check if the client meta-data is in synch
       verifyMetadata();
 
-      long metadataRefreshes =
+      var metadataRefreshes =
           ((GemFireCacheImpl) cache).getClientMetadataService()
               .getTotalRefreshTaskCount_TEST_ONLY();
 
-      Map<Integer, Object> resultMap = region.getAll(testKeyList);
+      var resultMap = region.getAll(testKeyList);
       assertThat(resultMap).isEqualTo(origVals);
 
       // a new refresh should not have been triggered
@@ -113,7 +110,7 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
 
       Map<String, String> keysValuesMap = new HashMap<>();
       List<String> testKeysList = new ArrayList<>();
-      for (int i = (totalNumBuckets * 3); i > 0; i--) {
+      for (var i = (totalNumBuckets * 3); i > 0; i--) {
         testKeysList.add("putAllKey-" + i);
         keysValuesMap.put("putAllKey-" + i, "values-" + i);
       }
@@ -123,7 +120,7 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
 
       verifyMetadata();
 
-      long metadataRefreshes =
+      var metadataRefreshes =
           ((GemFireCacheImpl) cache).getClientMetadataService()
               .getTotalRefreshTaskCount_TEST_ONLY();
 
@@ -149,7 +146,7 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
 
       Map<String, String> keysValuesMap = new HashMap<>();
       List<String> testKeysList = new ArrayList<>();
-      for (int i = (totalNumBuckets * 3); i > 0; i--) {
+      for (var i = (totalNumBuckets * 3); i > 0; i--) {
         testKeysList.add("putAllKey-" + i);
         keysValuesMap.put("putAllKey-" + i, "values-" + i);
       }
@@ -160,7 +157,7 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
 
       verifyMetadata();
 
-      long metadataRefreshes =
+      var metadataRefreshes =
           ((GemFireCacheImpl) cache).getClientMetadataService()
               .getTotalRefreshTaskCount_TEST_ONLY();
 
@@ -171,8 +168,8 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
           .getTotalRefreshTaskCount_TEST_ONLY())
               .isEqualTo(metadataRefreshes);
 
-      HashMap<String, Object> noValueMap = new HashMap<>();
-      for (String key : testKeysList) {
+      var noValueMap = new HashMap<String, Object>();
+      for (var key : testKeysList) {
         noValueMap.put(key, null);
       }
 
@@ -197,13 +194,13 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
       assertThat(region).isNotNull();
       final List<Object> testValueList = new ArrayList<>();
       final List<Integer> testKeyList = new ArrayList<>();
-      for (int i = (totalNumBuckets * 3); i > 0; i--) {
+      for (var i = (totalNumBuckets * 3); i > 0; i--) {
         testValueList.add("execKey-" + i);
       }
       DistributedSystem.setThreadsSocketPolicy(false);
-      int j = 0;
+      var j = 0;
       Map<Integer, Object> origVals = new HashMap<>();
-      for (Object o : testValueList) {
+      for (var o : testValueList) {
         testKeyList.add(j);
         Integer key = j++;
         origVals.put(key, o);
@@ -213,13 +210,13 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
       // check if the client meta-data is in synch
       verifyMetadata();
 
-      long metadataRefreshes =
+      var metadataRefreshes =
           ((GemFireCacheImpl) cache).getClientMetadataService()
               .getTotalRefreshTaskCount_TEST_ONLY();
 
       removePrimaryMetadata();
 
-      Map<Integer, Object> resultMap = region.getAll(testKeyList);
+      var resultMap = region.getAll(testKeyList);
       assertThat(resultMap).isEqualTo(origVals);
 
       // a new refresh should have been triggered
@@ -232,18 +229,18 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
 
   private void verifyMetadata() {
     Region region = cache.getRegion(PartitionedRegionName);
-    ClientMetadataService cms = ((GemFireCacheImpl) cache).getClientMetadataService();
+    var cms = ((GemFireCacheImpl) cache).getClientMetadataService();
     cms.getClientPRMetadata((LocalRegion) region);
 
     await().until(cms::isMetadataStable);
 
     await().until(() -> cms.getClientPRMetadata_TEST_ONLY().size() > 0);
 
-    final Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+    final var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
     assertThat(regionMetaData).containsKey(region.getFullPath());
 
     await().until(() -> {
-      ClientPartitionAdvisor prMetaData = regionMetaData.get(region.getFullPath());
+      var prMetaData = regionMetaData.get(region.getFullPath());
       assertThat(prMetaData).isNotNull();
       assertThat(prMetaData.adviseRandomServerLocation()).isNotNull();
       return true;
@@ -252,20 +249,20 @@ public class SingleHopGetAllPutAllDUnitTest extends PRClientServerTestBase {
 
   private void removePrimaryMetadata() {
     Region region = cache.getRegion(PartitionedRegionName);
-    ClientMetadataService cms = ((GemFireCacheImpl) cache).getClientMetadataService();
+    var cms = ((GemFireCacheImpl) cache).getClientMetadataService();
     cms.getClientPRMetadata((LocalRegion) region);
 
-    final Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+    final var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
 
-    final ClientPartitionAdvisor prMetaData = regionMetaData.get(region.getFullPath());
-    Map<Integer, List<BucketServerLocation66>> bucketLocations =
+    final var prMetaData = regionMetaData.get(region.getFullPath());
+    var bucketLocations =
         prMetaData.getBucketServerLocationsMap_TEST_ONLY();
-    for (Map.Entry<Integer, List<BucketServerLocation66>> locationEntry : bucketLocations
+    for (var locationEntry : bucketLocations
         .entrySet()) {
       List<BucketServerLocation66> newList = new ArrayList<>(locationEntry.getValue());
-      for (Iterator<BucketServerLocation66> bucketIterator = newList.iterator(); bucketIterator
+      for (var bucketIterator = newList.iterator(); bucketIterator
           .hasNext();) {
-        BucketServerLocation66 location = bucketIterator.next();
+        var location = bucketIterator.next();
         if (location.isPrimary()) {
           bucketIterator.remove();
         }

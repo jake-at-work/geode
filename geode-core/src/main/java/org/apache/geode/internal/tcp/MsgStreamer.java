@@ -20,12 +20,9 @@ import java.io.OutputStream;
 import java.io.UTFDataFormatException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -133,7 +130,7 @@ public class MsgStreamer extends OutputStream
     this.stats = stats;
     this.msg = msg;
     this.connections = connections;
-    int bufferSize = Math.min(sendBufferSize, Connection.MAX_MSG_SIZE);
+    var bufferSize = Math.min(sendBufferSize, Connection.MAX_MSG_SIZE);
     buffer = bufferPool.acquireDirectSenderBuffer(bufferSize);
     buffer.clear();
     buffer.position(Connection.MSG_HEADER_BYTES);
@@ -150,15 +147,15 @@ public class MsgStreamer extends OutputStream
    */
   public static BaseMsgStreamer create(List<Connection> cons, final DistributionMessage msg,
       final boolean directReply, final DMStats stats, BufferPool bufferPool) {
-    final Connection firstCon = cons.get(0);
+    final var firstCon = cons.get(0);
 
     // split into different versions if required
-    final int numCons = cons.size();
+    final var numCons = cons.size();
     if (numCons > 1) {
       Object2ObjectOpenHashMap<KnownVersion, List<Connection>> versionToConnMap = null;
-      int numVersioned = 0;
-      for (final Connection connection : cons) {
-        final KnownVersion version = connection.getRemoteVersion();
+      var numVersioned = 0;
+      for (final var connection : cons) {
+        final var version = connection.getRemoteVersion();
         if (version != null
             && KnownVersion.CURRENT_ORDINAL > version.ordinal()) {
           if (versionToConnMap == null) {
@@ -176,13 +173,13 @@ public class MsgStreamer extends OutputStream
         // if there is a versioned stream created, then split remaining
         // connections to unversioned stream
         final List<MsgStreamer> streamers = new ArrayList<>(versionToConnMap.size() + 1);
-        final int sendBufferSize = firstCon.getSendBufferSize();
+        final var sendBufferSize = firstCon.getSendBufferSize();
         if (numCons > numVersioned) {
           // allocating list of numCons size so that as the result of
           // getSentConnections it may not need to be reallocated later
           final List<Connection> currentVersionConnections = new ArrayList<>(numCons);
-          for (Connection connection : cons) {
-            final KnownVersion version = connection.getRemoteVersion();
+          for (var connection : cons) {
+            final var version = connection.getRemoteVersion();
             if (version == null || version.ordinal() >= KnownVersion.CURRENT_ORDINAL) {
               currentVersionConnections.add(connection);
             }
@@ -191,16 +188,16 @@ public class MsgStreamer extends OutputStream
               new MsgStreamer(currentVersionConnections, msg, directReply, stats, sendBufferSize,
                   bufferPool));
         }
-        for (ObjectIterator<Object2ObjectMap.Entry<KnownVersion, List<Connection>>> itr =
+        for (var itr =
             versionToConnMap.object2ObjectEntrySet().fastIterator(); itr.hasNext();) {
-          Object2ObjectMap.Entry<KnownVersion, List<Connection>> entry = itr.next();
+          var entry = itr.next();
           streamers.add(new VersionedMsgStreamer(entry.getValue(), msg, directReply, stats,
               bufferPool, sendBufferSize, entry.getKey()));
         }
         return new MsgStreamerList(streamers);
       }
     } else {
-      final KnownVersion version = firstCon.getRemoteVersion();
+      final var version = firstCon.getRemoteVersion();
       if (null == version) {
         return new MsgStreamer(cons, msg, directReply, stats, firstCon.getSendBufferSize(),
             bufferPool);
@@ -213,7 +210,7 @@ public class MsgStreamer extends OutputStream
 
   @Override
   public void reserveConnections(long startTime, long ackTimeout, long ackSDTimeout) {
-    for (final Connection connection : connections) {
+    for (final var connection : connections) {
       connection.setInUse(true, startTime, ackTimeout, ackSDTimeout, connections);
       if (ackTimeout > 0) {
         connection.scheduleAckTimeouts();
@@ -256,7 +253,7 @@ public class MsgStreamer extends OutputStream
     if (overflowBuf != null) {
       return;
     }
-    int remainingSpace = buffer.capacity() - buffer.position();
+    var remainingSpace = buffer.capacity() - buffer.position();
     if (amount > remainingSpace) {
       realFlush(false);
     }
@@ -296,7 +293,7 @@ public class MsgStreamer extends OutputStream
     }
     buffer.flip();
     setMessageHeader();
-    final int serializedBytes = buffer.limit();
+    final var serializedBytes = buffer.limit();
     flushedBytes += serializedBytes;
     DistributionMessage conflationMsg = null;
     if (normalMsg) {
@@ -304,8 +301,8 @@ public class MsgStreamer extends OutputStream
       conflationMsg = msg;
     }
     stats.endMsgSerialization(serStartTime);
-    for (final Iterator<Connection> it = connections.iterator(); it.hasNext();) {
-      final Connection connection = it.next();
+    for (final var it = connections.iterator(); it.hasNext();) {
+      final var connection = it.next();
       try {
         connection.sendPreserialized(buffer,
             lastFlushForMessage && msg.containsRegionContentChange(), conflationMsg);
@@ -345,7 +342,7 @@ public class MsgStreamer extends OutputStream
         // if we wrote any bytes on the connections then we need to close them
         // since they have been corrupted by a partial serialization.
         if (flushedBytes > 0) {
-          for (final Connection connection : connections) {
+          for (final var connection : connections) {
             connection.closeForReconnect("Message serialization could not complete");
           }
         }
@@ -363,7 +360,7 @@ public class MsgStreamer extends OutputStream
       return;
     }
     while (len > 0) {
-      int remainingSpace = buffer.capacity() - buffer.position();
+      var remainingSpace = buffer.capacity() - buffer.position();
       if (remainingSpace == 0) {
         realFlush(false);
         if (overflowBuf != null) {
@@ -371,7 +368,7 @@ public class MsgStreamer extends OutputStream
           return;
         }
       } else {
-        int chunkSize = remainingSpace;
+        var chunkSize = remainingSpace;
         if (len < chunkSize) {
           chunkSize = len;
         }
@@ -388,9 +385,9 @@ public class MsgStreamer extends OutputStream
       overflowBuf.write(bb);
       return;
     }
-    int len = bb.remaining();
+    var len = bb.remaining();
     while (len > 0) {
-      int remainingSpace = buffer.capacity() - buffer.position();
+      var remainingSpace = buffer.capacity() - buffer.position();
       if (remainingSpace == 0) {
         realFlush(false);
         if (overflowBuf != null) {
@@ -398,11 +395,11 @@ public class MsgStreamer extends OutputStream
           return;
         }
       } else {
-        int chunkSize = remainingSpace;
+        var chunkSize = remainingSpace;
         if (len < chunkSize) {
           chunkSize = len;
         }
-        int oldLimit = bb.limit();
+        var oldLimit = bb.limit();
         bb.limit(bb.position() + chunkSize);
         buffer.put(bb);
         bb.limit(oldLimit);
@@ -664,9 +661,9 @@ public class MsgStreamer extends OutputStream
       overflowBuf.writeBytes(str);
       return;
     }
-    int strlen = str.length();
+    var strlen = str.length();
     if (strlen > 0) {
-      for (int i = 0; i < strlen; i++) {
+      for (var i = 0; i < strlen; i++) {
         writeByte((byte) str.charAt(i));
       }
     }
@@ -690,10 +687,10 @@ public class MsgStreamer extends OutputStream
       overflowBuf.writeChars(s);
       return;
     }
-    int len = s.length();
-    int offset = 0;
+    var len = s.length();
+    var offset = 0;
     while (len > 0) {
-      int remainingCharSpace = (buffer.capacity() - buffer.position()) / 2;
+      var remainingCharSpace = (buffer.capacity() - buffer.position()) / 2;
       if (remainingCharSpace == 0) {
         realFlush(false);
         if (overflowBuf != null) {
@@ -701,11 +698,11 @@ public class MsgStreamer extends OutputStream
           return;
         }
       } else {
-        int chunkSize = remainingCharSpace;
+        var chunkSize = remainingCharSpace;
         if (len < chunkSize) {
           chunkSize = len;
         }
-        for (int i = 0; i < chunkSize; i++) {
+        for (var i = 0; i < chunkSize; i++) {
           buffer.putChar(s.charAt(offset + i));
         }
         offset += chunkSize;
@@ -788,14 +785,14 @@ public class MsgStreamer extends OutputStream
   }
 
   private void writeAsciiUTF(String str) throws IOException {
-    int len = str.length();
+    var len = str.length();
     if (len > 65535) {
       throw new UTFDataFormatException();
     }
     writeShort(len);
-    int offset = 0;
+    var offset = 0;
     while (len > 0) {
-      int remainingSpace = buffer.capacity() - buffer.position();
+      var remainingSpace = buffer.capacity() - buffer.position();
       if (remainingSpace == 0) {
         realFlush(false);
         if (overflowBuf != null) {
@@ -803,11 +800,11 @@ public class MsgStreamer extends OutputStream
           return;
         }
       } else {
-        int chunkSize = remainingSpace;
+        var chunkSize = remainingSpace;
         if (len < chunkSize) {
           chunkSize = len;
         }
-        for (int i = 0; i < chunkSize; i++) {
+        for (var i = 0; i < chunkSize; i++) {
           buffer.put((byte) str.charAt(offset + i));
         }
         offset += chunkSize;
@@ -817,20 +814,20 @@ public class MsgStreamer extends OutputStream
   }
 
   private void writeFullUTF(String str) throws IOException {
-    int strlen = str.length();
+    var strlen = str.length();
     if (strlen > 65535) {
       throw new UTFDataFormatException();
     }
     {
-      int remainingSpace = buffer.capacity() - buffer.position();
+      var remainingSpace = buffer.capacity() - buffer.position();
       if (remainingSpace >= ((strlen * 3) + 2)) {
         // we have plenty of room to do this with one pass directly into the buffer
         writeQuickFullUTF(str, strlen);
         return;
       }
     }
-    int utfSize = 0;
-    for (int i = 0; i < strlen; i++) {
+    var utfSize = 0;
+    for (var i = 0; i < strlen; i++) {
       int c = str.charAt(i);
       if ((c >= 0x0001) && (c <= 0x007F)) {
         utfSize += 1;
@@ -844,7 +841,7 @@ public class MsgStreamer extends OutputStream
       throw new UTFDataFormatException();
     }
     writeShort(utfSize);
-    for (int i = 0; i < strlen; i++) {
+    for (var i = 0; i < strlen; i++) {
       int c = str.charAt(i);
       if ((c >= 0x0001) && (c <= 0x007F)) {
         writeByte((byte) c);
@@ -863,10 +860,10 @@ public class MsgStreamer extends OutputStream
    * Used when we know the max size will fit in the current buffer.
    */
   private void writeQuickFullUTF(String str, int strlen) throws IOException {
-    int utfSizeIdx = buffer.position();
+    var utfSizeIdx = buffer.position();
     // skip bytes reserved for length
     buffer.position(utfSizeIdx + 2);
-    for (int i = 0; i < strlen; i++) {
+    for (var i = 0; i < strlen; i++) {
       int c = str.charAt(i);
       if ((c >= 0x0001) && (c <= 0x007F)) {
         buffer.put((byte) c);
@@ -879,7 +876,7 @@ public class MsgStreamer extends OutputStream
         buffer.put((byte) (0x80 | ((c) & 0x3F)));
       }
     }
-    int utflen = buffer.position() - (utfSizeIdx + 2);
+    var utflen = buffer.position() - (utfSizeIdx + 2);
     if (utflen > 65535) {
       // act as if we wrote nothing to this buffer
       buffer.position(utfSizeIdx);
@@ -899,7 +896,7 @@ public class MsgStreamer extends OutputStream
   @Override
   public void writeAsSerializedByteArray(Object v) throws IOException {
     if (v instanceof HeapDataOutputStream) {
-      HeapDataOutputStream other = (HeapDataOutputStream) v;
+      var other = (HeapDataOutputStream) v;
       InternalDataSerializer.writeArrayLength(other.size(), this);
       other.sendTo((ByteBufferWriter) this);
       other.rewind();
@@ -911,7 +908,7 @@ public class MsgStreamer extends OutputStream
     }
     if (isOverflowMode()) {
       // we must have recursed
-      int remainingSpace = buffer.capacity() - buffer.position();
+      var remainingSpace = buffer.capacity() - buffer.position();
       if (remainingSpace < 5) {
         // we don't even have room to write the length field so just create the overflowBuf
         overflowBuf = new HeapDataOutputStream(
@@ -924,18 +921,18 @@ public class MsgStreamer extends OutputStream
       // the average out of thin air.
       ensureCapacity(5 + 1024);
     }
-    int lengthPos = buffer.position();
+    var lengthPos = buffer.position();
     buffer.position(lengthPos + 5);
     enableOverflowMode();
-    boolean finished = false;
+    var finished = false;
     try {
       try {
         DataSerializer.writeObject(v, this);
       } catch (IOException e) {
         throw new IllegalArgumentException("An Exception was thrown while serializing.", e);
       }
-      int baLength = buffer.position() - (lengthPos + 5);
-      HeapDataOutputStream overBuf = overflowBuf;
+      var baLength = buffer.position() - (lengthPos + 5);
+      var overBuf = overflowBuf;
       if (overBuf != null) {
         baLength += overBuf.size();
       }

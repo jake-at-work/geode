@@ -17,9 +17,7 @@ package org.apache.geode.management.internal.cli.shell;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,35 +52,35 @@ public class GfshHistoryJUnitTest {
   @After
   public void teardown() throws Exception {
     // Null out static instance so Gfsh can be reinitialised
-    Field gfshInstance = Gfsh.class.getDeclaredField("instance");
+    var gfshInstance = Gfsh.class.getDeclaredField("instance");
     gfshInstance.setAccessible(true);
     gfshInstance.set(null, null);
   }
 
   @Test
   public void testHistoryFileIsCreated() throws Exception {
-    Gfsh gfsh = Gfsh.getInstance(false, new String[] {}, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, new String[] {}, gfshConfig);
     gfsh.executeScriptLine("connect");
 
-    List<String> lines = Files.readAllLines(gfshHistoryFile.toPath());
+    var lines = Files.readAllLines(gfshHistoryFile.toPath());
     assertEquals(2, lines.size());
     assertEquals(lines.get(1), "connect");
   }
 
   @Test
   public void testHistoryFileDoesNotContainPasswords() throws Exception {
-    Gfsh gfsh = Gfsh.getInstance(false, new String[] {}, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, new String[] {}, gfshConfig);
     gfsh.executeScriptLine("connect --password=foo");
 
-    List<String> lines = Files.readAllLines(gfshHistoryFile.toPath());
+    var lines = Files.readAllLines(gfshHistoryFile.toPath());
     assertEquals("connect --password=********", lines.get(1));
   }
 
   @Test
   public void testClearHistory() throws Exception {
-    Gfsh gfsh = Gfsh.getInstance(false, new String[] {}, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, new String[] {}, gfshConfig);
     gfsh.executeScriptLine("connect");
-    List<String> lines = Files.readAllLines(gfshHistoryFile.toPath());
+    var lines = Files.readAllLines(gfshHistoryFile.toPath());
     assertEquals(2, lines.size());
 
     // clear the history

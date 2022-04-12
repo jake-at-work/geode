@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -120,7 +119,7 @@ public abstract class AbstractBaseController implements InitializingBean {
   }
 
   protected InternalCacheForClientAccess getCache() {
-    InternalCacheForClientAccess cache = cacheProvider.getCache();
+    var cache = cacheProvider.getCache();
     Assert.state(cache != null, "The Gemfire Cache reference was not properly initialized");
     return cache;
   }
@@ -163,16 +162,16 @@ public abstract class AbstractBaseController implements InitializingBean {
   }
 
   String[] decode(String[] values) {
-    String[] result = new String[values.length];
-    for (int i = 0; i < values.length; i++) {
+    var result = new String[values.length];
+    for (var i = 0; i < values.length; i++) {
       result[i] = decode(values[i]);
     }
     return result;
   }
 
   String[] encode(String[] values) {
-    String[] result = new String[values.length];
-    for (int i = 0; i < values.length; i++) {
+    var result = new String[values.length];
+    for (var i = 0; i < values.length; i++) {
       result[i] = encode(values[i]);
     }
     return result;
@@ -197,11 +196,11 @@ public abstract class AbstractBaseController implements InitializingBean {
   }
 
   protected String convert(final Iterable<PdxInstance> pdxObjs) {
-    final StringBuilder buffer = new StringBuilder("[");
-    int count = 0;
+    final var buffer = new StringBuilder("[");
+    var count = 0;
 
-    for (final PdxInstance pdxObj : pdxObjs) {
-      final String json = convert(pdxObj);
+    for (final var pdxObj : pdxObjs) {
+      final var json = convert(pdxObj);
 
       if (StringUtils.hasText(json)) {
         buffer.append(count++ > 0 ? ", " : "").append(json);
@@ -216,9 +215,9 @@ public abstract class AbstractBaseController implements InitializingBean {
   @SuppressWarnings("unchecked")
   private <T> T casValue(String regionNamePath, String key, String jsonData) {
     try {
-      JsonNode jsonObject = objectMapper.readTree(jsonData);
-      JsonNode oldValue = jsonObject.get("@old");
-      JsonNode newValue = jsonObject.get("@new");
+      var jsonObject = objectMapper.readTree(jsonData);
+      var oldValue = jsonObject.get("@old");
+      var newValue = jsonObject.get("@new");
 
       if (oldValue == null || newValue == null) {
         throw new MalformedJsonException("Json doc specified in request body is invalid!");
@@ -235,14 +234,14 @@ public abstract class AbstractBaseController implements InitializingBean {
   ResponseEntity<String> processQueryResponse(Query query, Object[] args, Object queryResult) {
     if (queryResult instanceof Collection) {
       @SuppressWarnings("unchecked")
-      final Collection<Object> queryResultCollection = (Collection<Object>) queryResult;
+      final var queryResultCollection = (Collection<Object>) queryResult;
       Collection<Object> processedResults = new ArrayList<>(queryResultCollection.size());
-      for (Object result : queryResultCollection) {
+      for (var result : queryResultCollection) {
         processedResults.add(securityService.postProcess(null, null, result, false));
       }
-      String queryResultAsJson = JSONUtils.convertCollectionToJson(processedResults);
+      var queryResultAsJson = JSONUtils.convertCollectionToJson(processedResults);
 
-      final HttpHeaders headers = new HttpHeaders();
+      final var headers = new HttpHeaders();
       headers.setLocation(toUri("queries", query.getQueryString()));
       return new ResponseEntity<>(queryResultAsJson, headers, HttpStatus.OK);
     } else {
@@ -253,7 +252,7 @@ public abstract class AbstractBaseController implements InitializingBean {
 
   Collection<PdxInstance> convertJsonArrayIntoPdxCollection(final String jsonArray) {
     try {
-      JsonNode array = objectMapper.readTree(jsonArray);
+      var array = objectMapper.readTree(jsonArray);
       if (!array.isArray()) {
         throw new MalformedJsonException(
             "Json document specified in request body is not an array!");
@@ -261,11 +260,11 @@ public abstract class AbstractBaseController implements InitializingBean {
 
       Collection<PdxInstance> pdxInstances = new ArrayList<>();
 
-      for (int index = 0; index < array.size(); index++) {
-        JsonNode object = array.get(index);
-        String element = objectMapper.writeValueAsString(object);
+      for (var index = 0; index < array.size(); index++) {
+        var object = array.get(index);
+        var element = objectMapper.writeValueAsString(object);
 
-        PdxInstance pi = convert(element);
+        var pi = convert(element);
         pdxInstances.add(pi);
       }
       return pdxInstances;
@@ -277,7 +276,7 @@ public abstract class AbstractBaseController implements InitializingBean {
 
   private Object casValue(final String regionNamePath, final Object key, final Object oldValue,
       final Object newValue) {
-    final Region<Object, Object> region = getRegion(regionNamePath);
+    final var region = getRegion(regionNamePath);
     try {
       return (region.replace(key, oldValue, newValue) ? null : region.get(key));
     } catch (UnsupportedOperationException use) {
@@ -532,8 +531,8 @@ public abstract class AbstractBaseController implements InitializingBean {
     if (keys.length != values.size()) {
       throw new GemfireRestException("Bad request, Keys and Value size does not match");
     }
-    for (int i = 0; i < keys.length; i++) {
-      Object domainObj = introspectAndConvert(values.get(i));
+    for (var i = 0; i < keys.length; i++) {
+      var domainObj = introspectAndConvert(values.get(i));
       map.put(keys[i], domainObj);
     }
 
@@ -599,21 +598,21 @@ public abstract class AbstractBaseController implements InitializingBean {
   }
 
   private String generateKey(final String existingKey, final Object domainObject) {
-    Object domainObjectId = IdentifiableUtils.getId(domainObject);
+    var domainObjectId = IdentifiableUtils.getId(domainObject);
     String newKey;
 
     if (StringUtils.hasText(existingKey)) {
       newKey = existingKey;
       if (domainObject != null && NumberUtils.isNumeric(newKey) && domainObjectId == null) {
-        final Long newId = IdentifiableUtils.createId(NumberUtils.parseLong(newKey));
+        final var newId = IdentifiableUtils.createId(NumberUtils.parseLong(newKey));
         if (newKey.equals(newId.toString())) {
           IdentifiableUtils.setId(domainObject, newId);
         }
       }
     } else if (domainObjectId != null) {
-      final Long domainObjectIdAsLong = NumberUtils.longValue(domainObjectId);
+      final var domainObjectIdAsLong = NumberUtils.longValue(domainObjectId);
       if (domainObjectIdAsLong != null) {
-        final Long newId = IdentifiableUtils.createId(domainObjectIdAsLong);
+        final var newId = IdentifiableUtils.createId(domainObjectIdAsLong);
         if (!domainObjectIdAsLong.equals(newId)) {
           IdentifiableUtils.setId(domainObject, newId);
         }
@@ -667,10 +666,10 @@ public abstract class AbstractBaseController implements InitializingBean {
   protected <T> Map<Object, T> getValues(final String regionNamePath, Object... keys) {
     try {
       final Region<Object, T> region = getRegion(regionNamePath);
-      final Map<Object, T> entries = region.getAll(Arrays.asList(getKeys(regionNamePath, keys)));
-      for (Object key : entries.keySet()) {
+      final var entries = region.getAll(Arrays.asList(getKeys(regionNamePath, keys)));
+      for (var key : entries.keySet()) {
         @SuppressWarnings("unchecked")
-        final T value =
+        final var value =
             (T) securityService.postProcess(regionNamePath, key, entries.get(key), false);
         entries.put(key, value);
       }
@@ -689,7 +688,7 @@ public abstract class AbstractBaseController implements InitializingBean {
   protected <T extends PdxInstance> Collection<T> getPdxValues(final String regionNamePath,
       final Object... keys) {
     final Region<Object, T> region = getRegion(regionNamePath);
-    final Map<Object, T> entries = region.getAll(Arrays.asList(getKeys(regionNamePath, keys)));
+    final var entries = region.getAll(Arrays.asList(getKeys(regionNamePath, keys)));
 
     return entries.values();
   }
@@ -701,11 +700,11 @@ public abstract class AbstractBaseController implements InitializingBean {
   @SafeVarargs
   final <T> void deleteValues(final String regionNamePath, final T... keys) {
     // Check whether all keys exist in cache or not
-    for (final T key : keys) {
+    for (final var key : keys) {
       checkForKeyExist(regionNamePath, key.toString());
     }
 
-    for (final T key : keys) {
+    for (final var key : keys) {
       deleteValue(regionNamePath, key);
     }
   }
@@ -727,7 +726,7 @@ public abstract class AbstractBaseController implements InitializingBean {
   @SuppressWarnings("unchecked")
   private <T> T introspectAndConvert(final T value) {
     if (value instanceof Map) {
-      final Map<Object, Object> rawDataBinding = (Map<Object, Object>) value;
+      final var rawDataBinding = (Map<Object, Object>) value;
 
       if (isForm(rawDataBinding)) {
         rawDataBinding.put(OLD_META_DATA_PROPERTY,
@@ -737,13 +736,13 @@ public abstract class AbstractBaseController implements InitializingBean {
 
         return (T) rawDataBinding;
       } else {
-        final String typeValue = (String) rawDataBinding.get(TYPE_META_DATA_PROPERTY);
+        final var typeValue = (String) rawDataBinding.get(TYPE_META_DATA_PROPERTY);
         if (typeValue == null) {
           return (T) new Object();
         }
         // Added for the primitive types put. Not supporting primitive types
         if (NumberUtils.isPrimitiveOrObject(typeValue)) {
-          final Object primitiveValue = rawDataBinding.get("@value");
+          final var primitiveValue = rawDataBinding.get("@value");
           try {
             return (T) GeodeConverter.convertToActualType(primitiveValue.toString(), typeValue);
           } catch (IllegalArgumentException e) {
@@ -805,8 +804,8 @@ public abstract class AbstractBaseController implements InitializingBean {
 
     if (node.isArray()) {
       try {
-        Object[] args = new Object[node.size()];
-        for (int index = 0; index < node.size(); index++) {
+        var args = new Object[node.size()];
+        for (var index = 0; index < node.size(); index++) {
           args[index] = jsonToObject(objectMapper.writeValueAsString(node.get(index)));
         }
         return args;
@@ -827,9 +826,9 @@ public abstract class AbstractBaseController implements InitializingBean {
   String updateSingleKey(final String region, final String key, final String json,
       final String opValue) {
 
-    final JSONTypes jsonType = validateJsonAndFindType(json);
+    final var jsonType = validateJsonAndFindType(json);
 
-    final UpdateOp op = UpdateOp.valueOf(opValue.toUpperCase());
+    final var op = UpdateOp.valueOf(opValue.toUpperCase());
     String existingValue = null;
 
     switch (op) {
@@ -870,14 +869,14 @@ public abstract class AbstractBaseController implements InitializingBean {
     }
 
     Map<Object, PdxInstance> map = new HashMap<>();
-    for (int i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       if (logger.isDebugEnabled()) {
         logger.debug("Updating (put) Json document ({}) having key ({}) in Region ({})", json,
             keys[i], region);
       }
 
       try {
-        PdxInstance pdxObj = convert(objectMapper.writeValueAsString(jsonArr.get(i)));
+        var pdxObj = convert(objectMapper.writeValueAsString(jsonArr.get(i)));
         map.put(keys[i], pdxObj);
       } catch (JsonProcessingException e) {
         throw new MalformedJsonException(
@@ -892,8 +891,8 @@ public abstract class AbstractBaseController implements InitializingBean {
 
   JSONTypes validateJsonAndFindType(String json) {
     try {
-      JsonParser jp = new JsonFactory().createParser(json);
-      JsonToken token = jp.nextToken();
+      var jp = new JsonFactory().createParser(json);
+      var token = jp.nextToken();
 
       if (token == JsonToken.START_OBJECT) {
         return JSONTypes.JSON_OBJECT;
@@ -920,14 +919,14 @@ public abstract class AbstractBaseController implements InitializingBean {
 
     Region<?, ?> r = getRegion(regionNamePath);
     try {
-      Object value = r.get(key);
+      var value = r.get(key);
       if (postProcess) {
         @SuppressWarnings("unchecked")
-        final T v = (T) securityService.postProcess(regionNamePath, key, value, false);
+        final var v = (T) securityService.postProcess(regionNamePath, key, value, false);
         return v;
       } else {
         @SuppressWarnings("unchecked")
-        final T v = (T) value;
+        final var v = (T) value;
         return v;
       }
     } catch (SerializationException se) {
@@ -962,14 +961,14 @@ public abstract class AbstractBaseController implements InitializingBean {
     ValidationUtils.returnValueThrowOnNull(memberIdNames,
         new GemfireRestException("No member found to run function"));
     final Set<DistributedMember> targetedMembers = new HashSet<>(ArrayUtils.length(memberIdNames));
-    final List<String> memberIdNameList = Arrays.asList(memberIdNames);
+    final var memberIdNameList = Arrays.asList(memberIdNames);
 
     InternalCache cache = getCache();
-    Set<DistributedMember> distMembers = cache.getDistributedSystem().getAllOtherMembers();
+    var distMembers = cache.getDistributedSystem().getAllOtherMembers();
 
     // Add the local node to list
     distMembers.add(cache.getDistributedSystem().getDistributedMember());
-    for (DistributedMember member : distMembers) {
+    for (var member : distMembers) {
       if (memberIdNameList.contains(member.getId())
           || memberIdNameList.contains(member.getName())) {
         targetedMembers.add(member);
@@ -980,12 +979,12 @@ public abstract class AbstractBaseController implements InitializingBean {
 
   Set<DistributedMember> getAllMembersInDS() {
     InternalCache cache = getCache();
-    Set<DistributedMember> distMembers = cache.getDistributedSystem().getAllOtherMembers();
+    var distMembers = cache.getDistributedSystem().getAllOtherMembers();
     final Set<DistributedMember> targetedMembers = new HashSet<>();
 
     // find valid data nodes, i.e non locator, non-admin, non-loner nodes
-    for (DistributedMember member : distMembers) {
-      InternalDistributedMember idm = (InternalDistributedMember) member;
+    for (var member : distMembers) {
+      var idm = (InternalDistributedMember) member;
       if (idm.getVmKind() == ClusterDistributionManager.NORMAL_DM_TYPE) {
         targetedMembers.add(member);
       }

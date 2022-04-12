@@ -44,7 +44,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.DiskAccessException;
 import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 
 /**
  * Extracted {@code testCompactorClose} from {@link DiskRegionJUnitTest}.
@@ -112,23 +111,23 @@ public class DiskRegionCompactorCloseIntegrationTest {
 
   @Test
   public void testCompactorClose() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(true);
     diskStoreFactory.setCompactionThreshold(100);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 100);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(true);
 
-    Region<Object, Object> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
     CacheObserverHolder.setInstance(new CompactorCacheObserver(region));
 
-    for (int i = 0; i < 10; ++i) {
+    for (var i = 0; i < 10; ++i) {
       region.put(i, new byte[10]);
     }
 
@@ -140,7 +139,7 @@ public class DiskRegionCompactorCloseIntegrationTest {
   }
 
   private File createDirectory(File parentDirectory, String name) {
-    File file = new File(parentDirectory, name);
+    var file = new File(parentDirectory, name);
     assertThat(file.mkdir()).isTrue();
     return file;
   }

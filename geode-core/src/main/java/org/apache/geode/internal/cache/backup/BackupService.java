@@ -55,7 +55,7 @@ public class BackupService {
   public HashSet<PersistentID> prepareBackup(InternalDistributedMember sender, BackupWriter writer)
       throws IOException, InterruptedException {
     validateRequestingSender(sender);
-    BackupTask backupTask = new BackupTask(cache, writer);
+    var backupTask = new BackupTask(cache, writer);
     if (!currentTask.compareAndSet(null, backupTask)) {
       throw new IOException("Another backup is already in progress");
     }
@@ -64,7 +64,7 @@ public class BackupService {
   }
 
   public HashSet<PersistentID> doBackup() throws IOException {
-    BackupTask task = currentTask.get();
+    var task = currentTask.get();
     if (task == null) {
       throw new IOException("No backup currently in progress");
     }
@@ -83,19 +83,19 @@ public class BackupService {
   }
 
   public void waitForBackup() {
-    BackupTask task = currentTask.get();
+    var task = currentTask.get();
     if (task != null) {
       task.waitTillBackupFilesAreCopiedToTemporaryLocation();
     }
   }
 
   public DiskStoreBackup getBackupForDiskStore(DiskStoreImpl diskStore) {
-    BackupTask task = currentTask.get();
+    var task = currentTask.get();
     return task == null ? null : task.getBackupForDiskStore(diskStore);
   }
 
   public boolean deferDrfDelete(DiskStoreImpl diskStore, Oplog oplog) {
-    DiskStoreBackup diskStoreBackup = getBackupForDiskStore(diskStore);
+    var diskStoreBackup = getBackupForDiskStore(diskStore);
     if (diskStoreBackup != null) {
       return diskStoreBackup.deferDrfDelete(oplog);
     }
@@ -103,7 +103,7 @@ public class BackupService {
   }
 
   public boolean deferCrfDelete(DiskStoreImpl diskStore, Oplog oplog) {
-    DiskStoreBackup diskStoreBackup = getBackupForDiskStore(diskStore);
+    var diskStoreBackup = getBackupForDiskStore(diskStore);
     if (diskStoreBackup != null) {
       return diskStoreBackup.deferCrfDelete(oplog);
     }
@@ -111,7 +111,7 @@ public class BackupService {
   }
 
   public void abortBackup() {
-    BackupTask task = currentTask.get();
+    var task = currentTask.get();
     cleanup();
     if (task != null) {
       task.abort();

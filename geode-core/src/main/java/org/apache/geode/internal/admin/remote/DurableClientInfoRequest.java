@@ -46,7 +46,7 @@ public class DurableClientInfoRequest extends AdminRequest {
    * Returns a <code>DurableClientInfoRequest</code>.
    */
   public static DurableClientInfoRequest create(String id, int operation) {
-    DurableClientInfoRequest m = new DurableClientInfoRequest();
+    var m = new DurableClientInfoRequest();
     m.durableId = id;
     m.action = operation;
     setFriendlyName(m);

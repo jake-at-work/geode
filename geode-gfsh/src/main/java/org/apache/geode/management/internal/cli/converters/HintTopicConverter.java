@@ -15,7 +15,6 @@
 package org.apache.geode.management.internal.cli.converters;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.Completion;
 import org.springframework.shell.core.Converter;
@@ -24,7 +23,6 @@ import org.springframework.shell.core.MethodTarget;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.cli.CommandManager;
 import org.apache.geode.management.internal.cli.CommandManagerAware;
-import org.apache.geode.management.internal.cli.help.Helper;
 
 /**
  *
@@ -47,17 +45,17 @@ public class HintTopicConverter implements Converter<String>, CommandManagerAwar
   @Override
   public boolean getAllPossibleValues(List<Completion> completions, Class<?> targetType,
       String existingData, String optionContext, MethodTarget target) {
-    Helper helper = commandManager.getHelper();
-    Set<String> topicNames = helper.getTopicNames();
+    var helper = commandManager.getHelper();
+    var topicNames = helper.getTopicNames();
 
-    for (String topicName : topicNames) {
+    for (var topicName : topicNames) {
       if (existingData != null && !existingData.isEmpty()) {
         if (topicName.startsWith(existingData)) { // match exact case
           completions.add(new Completion(topicName));
         } else if (topicName.toLowerCase().startsWith(existingData.toLowerCase())) { // match
           // case
           // insensitive
-          String completionStr = existingData + topicName.substring(existingData.length());
+          var completionStr = existingData + topicName.substring(existingData.length());
 
           completions.add(new Completion(completionStr));
         }

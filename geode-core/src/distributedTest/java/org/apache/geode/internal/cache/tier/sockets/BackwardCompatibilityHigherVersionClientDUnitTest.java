@@ -33,14 +33,12 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerRefusedConnectionException;
 import org.apache.geode.cache.client.internal.ClientSideHandshakeImpl;
 import org.apache.geode.cache.client.internal.ConnectionFactoryImpl;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.tier.ConnectionProxy;
 import org.apache.geode.test.dunit.Assert;
@@ -86,7 +84,7 @@ public class BackwardCompatibilityHigherVersionClientDUnitTest extends JUnit4Dis
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     server1 = host.getVM(0);
     client1 = host.getVM(1);
   }
@@ -103,34 +101,34 @@ public class BackwardCompatibilityHigherVersionClientDUnitTest extends JUnit4Dis
 
   public static void createClientCache(String host, Integer port1) throws Exception {
     new BackwardCompatibilityHigherVersionClientDUnitTest();
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new BackwardCompatibilityHigherVersionClientDUnitTest().createCache(props);
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(host, port1)
+    var p = (PoolImpl) PoolManager.createFactory().addServer(host, port1)
         .setSubscriptionEnabled(true).setSubscriptionRedundancy(1).setMinConnections(1)
         .setFreeConnectionTimeout(200000).setReadTimeout(200000).setPingInterval(10000)
         .setRetryAttempts(1).setSubscriptionAckInterval(CLIENT_ACK_INTERVAL)
         .create("BackwardCompatibilityHigherVersionClientDUnitTest");
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
   }
 
   public static Integer createServerCache() throws Exception {
     new BackwardCompatibilityHigherVersionClientDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    int port = getRandomAvailableTCPPort();
-    CacheServer server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
     server1.start();
@@ -164,7 +162,7 @@ public class BackwardCompatibilityHigherVersionClientDUnitTest extends JUnit4Dis
    */
   @Test
   public void testHigherVersionedClient() {
-    Integer port1 = (server1
+    var port1 = (server1
         .invoke(BackwardCompatibilityHigherVersionClientDUnitTest::createServerCache));
 
     client1.invoke(

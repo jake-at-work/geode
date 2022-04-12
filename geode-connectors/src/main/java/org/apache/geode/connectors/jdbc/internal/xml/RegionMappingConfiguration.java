@@ -14,9 +14,7 @@
  */
 package org.apache.geode.connectors.jdbc.internal.xml;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -30,13 +28,11 @@ import org.apache.geode.connectors.jdbc.JdbcConnectorException;
 import org.apache.geode.connectors.jdbc.internal.JdbcConnectorService;
 import org.apache.geode.connectors.jdbc.internal.RegionMappingExistsException;
 import org.apache.geode.connectors.jdbc.internal.TableMetaDataManager;
-import org.apache.geode.connectors.jdbc.internal.TableMetaDataView;
 import org.apache.geode.connectors.jdbc.internal.configuration.FieldMapping;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.extension.Extensible;
 import org.apache.geode.internal.cache.extension.Extension;
-import org.apache.geode.internal.cache.extension.ExtensionPoint;
 import org.apache.geode.internal.cache.xmlcache.XmlGenerator;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.internal.jndi.JNDIInvoker;
@@ -67,15 +63,15 @@ public class RegionMappingConfiguration implements Extension<Region<?, ?>> {
 
   @Override
   public void onCreate(Extensible<Region<?, ?>> source, Extensible<Region<?, ?>> target) {
-    final ExtensionPoint<Region<?, ?>> extensionPoint = target.getExtensionPoint();
-    final Region<?, ?> region = extensionPoint.getTarget();
-    InternalCache internalCache = (InternalCache) region.getRegionService();
-    JdbcConnectorService service = internalCache.getService(JdbcConnectorService.class);
+    final var extensionPoint = target.getExtensionPoint();
+    final var region = extensionPoint.getTarget();
+    var internalCache = (InternalCache) region.getRegionService();
+    var service = internalCache.getService(JdbcConnectorService.class);
     if (mapping.getFieldMappings().isEmpty()) {
-      Class<?> pdxClazz = loadPdxClass(mapping.getPdxName());
-      PdxType pdxType = getPdxTypeForClass(internalCache, pdxClazz);
+      var pdxClazz = loadPdxClass(mapping.getPdxName());
+      var pdxType = getPdxTypeForClass(internalCache, pdxClazz);
 
-      List<FieldMapping> fieldMappings = createDefaultFieldMapping(service, pdxType);
+      var fieldMappings = createDefaultFieldMapping(service, pdxType);
       fieldMappings.forEach(mapping::addFieldMapping);
     }
     service.validateMapping(mapping);
@@ -93,14 +89,14 @@ public class RegionMappingConfiguration implements Extension<Region<?, ?>> {
 
   List<FieldMapping> createDefaultFieldMapping(JdbcConnectorService service,
       PdxType pdxType) {
-    DataSource dataSource = getDataSource(mapping.getDataSourceName());
+    var dataSource = getDataSource(mapping.getDataSourceName());
     if (dataSource == null) {
       throw new JdbcConnectorException("No datasource \"" + mapping.getDataSourceName()
           + "\" found when creating default field mapping");
     }
-    TableMetaDataManager manager = getTableMetaDataManager();
-    try (Connection connection = dataSource.getConnection()) {
-      TableMetaDataView tableMetaData = manager.getTableMetaDataView(connection, mapping);
+    var manager = getTableMetaDataManager();
+    try (var connection = dataSource.getConnection()) {
+      var tableMetaData = manager.getTableMetaDataView(connection, mapping);
       return service.createFieldMappingUsingPdx(pdxType, tableMetaData);
     } catch (SQLException e) {
       throw JdbcConnectorException.createException(e);
@@ -108,10 +104,10 @@ public class RegionMappingConfiguration implements Extension<Region<?, ?>> {
   }
 
   protected PdxType getPdxTypeForClass(Cache cache, Class<?> clazz) {
-    InternalCache internalCache = (InternalCache) cache;
-    TypeRegistry typeRegistry = internalCache.getPdxRegistry();
+    var internalCache = (InternalCache) cache;
+    var typeRegistry = internalCache.getPdxRegistry();
 
-    PdxType result = typeRegistry.getExistingTypeForClass(clazz);
+    var result = typeRegistry.getExistingTypeForClass(clazz);
     if (result != null) {
       return result;
     }
@@ -129,15 +125,15 @@ public class RegionMappingConfiguration implements Extension<Region<?, ?>> {
    */
   PdxType generatePdxTypeForClass(InternalCache cache, TypeRegistry typeRegistry,
       Class<?> clazz) {
-    Object object = createInstance(clazz);
+    var object = createInstance(clazz);
     try {
       cache.registerPdxMetaData(object);
     } catch (SerializationException ex) {
-      String className = clazz.getName();
-      ReflectionBasedAutoSerializer serializer =
+      var className = clazz.getName();
+      var serializer =
           getReflectionBasedAutoSerializer("\\Q" + className + "\\E");
-      PdxWriter writer = createPdxWriter(typeRegistry, object);
-      boolean result = serializer.toData(object, writer);
+      var writer = createPdxWriter(typeRegistry, object);
+      var result = serializer.toData(object, writer);
       if (!result) {
         throw new JdbcConnectorException(
             "Could not generate a PdxType using the ReflectionBasedAutoSerializer for the class  "
@@ -151,7 +147,7 @@ public class RegionMappingConfiguration implements Extension<Region<?, ?>> {
 
   private Object createInstance(Class<?> clazz) {
     try {
-      Constructor<?> ctor = clazz.getConstructor();
+      var ctor = clazz.getConstructor();
       return ctor.newInstance();
     } catch (NoSuchMethodException | SecurityException | InstantiationException
         | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {

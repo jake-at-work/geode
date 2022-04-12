@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -39,10 +38,8 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.internal.cache.functions.TestFunction;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -87,7 +84,7 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
     stringKeys.add(stringKey);
 
     intKeys = new HashSet<>();
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       intKeys.add(i);
     }
   }
@@ -119,21 +116,21 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
 
     Function function = new TestFunction(true, TEST_FUNCTION_SEND_EXCEPTION);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
-    ResultCollector resultCollector =
+    var resultCollector =
         dataSet.withFilter(stringKeys).setArguments(TRUE).execute(function);
-    List results = (List) resultCollector.getResult();
+    var results = (List) resultCollector.getResult();
     assertThat(results.get(0) instanceof Exception).isTrue();
 
     resultCollector = dataSet.withFilter(stringKeys).setArguments(stringKeys).execute(function);
     results = (List) resultCollector.getResult();
     assertThat(results).hasSize(stringKeys.size() + 1);
 
-    Iterator resultIterator = results.iterator();
-    int exceptionCount = 0;
+    var resultIterator = results.iterator();
+    var exceptionCount = 0;
     while (resultIterator.hasNext()) {
-      Object result = resultIterator.next();
+      var result = resultIterator.next();
       if (result instanceof MyFunctionExecutionException) {
         exceptionCount++;
       }
@@ -150,11 +147,11 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
 
     Function function = new TestFunction(true, TEST_FUNCTION_SEND_EXCEPTION);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
-    ResultCollector resultCollector =
+    var resultCollector =
         dataSet.withFilter(stringKeys).setArguments("Multiple").execute(function);
-    List results = (List) resultCollector.getResult();
+    var results = (List) resultCollector.getResult();
     assertThat(results.get(0) instanceof Exception).isTrue();
   }
 
@@ -165,11 +162,11 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
 
     Function function = new TestFunction(true, TEST_FUNCTION_THROW_EXCEPTION);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
     region.put(stringKey, 1);
 
-    ResultCollector resultCollector =
+    var resultCollector =
         dataSet.withFilter(stringKeys).setArguments(TRUE).execute(function);
     assertThatThrownBy(resultCollector::getResult).isInstanceOf(Exception.class);
   }
@@ -190,19 +187,19 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
     Function function = new TestFunction(true, TEST_FUNCTION_SEND_EXCEPTION);
     FunctionService.registerFunction(function);
 
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
     region.put(stringKey, 1);
 
-    ResultCollector resultCollector =
+    var resultCollector =
         dataSet.withFilter(stringKeys).setArguments(stringKeys).execute(function);
-    List results = (List) resultCollector.getResult();
+    var results = (List) resultCollector.getResult();
     assertThat(results).hasSize(stringKeys.size() + 1);
 
-    Iterator resultIterator = results.iterator();
-    int exceptionCount = 0;
+    var resultIterator = results.iterator();
+    var exceptionCount = 0;
     while (resultIterator.hasNext()) {
-      Object result = resultIterator.next();
+      var result = resultIterator.next();
       if (result instanceof MyFunctionExecutionException) {
         exceptionCount++;
       }
@@ -227,11 +224,11 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
     Function function = new TestFunction(true, TEST_FUNCTION_THROW_EXCEPTION);
     FunctionService.registerFunction(function);
 
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
     region.put(stringKey, 1);
 
-    ResultCollector resultCollector =
+    var resultCollector =
         dataSet.withFilter(stringKeys).setArguments(TRUE).execute(function);
     assertThatThrownBy(resultCollector::getResult).isInstanceOf(Exception.class);
   }
@@ -249,21 +246,21 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
     Function function = new TestFunction(true, TEST_FUNCTION_SEND_EXCEPTION);
     FunctionService.registerFunction(function);
 
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
-    for (Integer key : intKeys) {
+    for (var key : intKeys) {
       region.put(key, "MyValue_" + key);
     }
 
-    ResultCollector resultCollector =
+    var resultCollector =
         dataSet.withFilter(intKeys).setArguments(intKeys).execute(function);
-    List results = (List) resultCollector.getResult();
+    var results = (List) resultCollector.getResult();
     assertThat(results).hasSize((intKeys.size() * 3) + 3);
 
-    Iterator resultIterator = results.iterator();
-    int exceptionCount = 0;
+    var resultIterator = results.iterator();
+    var exceptionCount = 0;
     while (resultIterator.hasNext()) {
-      Object result = resultIterator.next();
+      var result = resultIterator.next();
       if (result instanceof MyFunctionExecutionException) {
         exceptionCount++;
       }
@@ -285,21 +282,21 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
     Function function = new TestFunction(true, TEST_FUNCTION_SEND_EXCEPTION);
     FunctionService.registerFunction(function);
 
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
-    for (Integer key : intKeys) {
+    for (var key : intKeys) {
       region.put(key, "MyValue_" + key);
     }
 
-    ResultCollector resultCollector =
+    var resultCollector =
         dataSet.withFilter(intKeys).setArguments(intKeys).execute(function);
-    List results = (List) resultCollector.getResult();
+    var results = (List) resultCollector.getResult();
     assertThat(results).hasSize((intKeys.size() * 4) + 4);
 
-    Iterator resultIterator = results.iterator();
-    int exceptionCount = 0;
+    var resultIterator = results.iterator();
+    var exceptionCount = 0;
     while (resultIterator.hasNext()) {
-      Object result = resultIterator.next();
+      var result = resultIterator.next();
       if (result instanceof MyFunctionExecutionException) {
         exceptionCount++;
       }
@@ -321,13 +318,13 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
     Function function = new TestFunction(true, TEST_FUNCTION_THROW_EXCEPTION);
     FunctionService.registerFunction(function);
 
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
-    for (Integer key : intKeys) {
+    for (var key : intKeys) {
       region.put(key, "MyValue_" + key);
     }
 
-    ResultCollector resultCollector =
+    var resultCollector =
         dataSet.withFilter(intKeys).setArguments(intKeys).execute(function.getId());
     assertThatThrownBy(resultCollector::getResult).isInstanceOf(Exception.class);
   }
@@ -345,13 +342,13 @@ public class FunctionExecutionWithExceptionDistributedTest implements Serializab
     Function function = new TestFunction(true, TEST_FUNCTION_THROW_EXCEPTION);
     FunctionService.registerFunction(function);
 
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
-    for (Integer key : intKeys) {
+    for (var key : intKeys) {
       region.put(key, "MyValue_" + key);
     }
 
-    ResultCollector resultCollector =
+    var resultCollector =
         dataSet.withFilter(intKeys).setArguments(intKeys).execute(function.getId());
     assertThatThrownBy(resultCollector::getResult).isInstanceOf(Exception.class);
   }

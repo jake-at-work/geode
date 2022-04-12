@@ -60,7 +60,7 @@ public class ValidatingDiskRegion extends DiskRegion implements DiskRecoveryStor
 
   static ValidatingDiskRegion create(DiskStoreImpl dsi, DiskRegionView drv) {
     assert dsi != null;
-    ValidatingDiskRegion result = new ValidatingDiskRegion(dsi, drv);
+    var result = new ValidatingDiskRegion(dsi, drv);
     result.register();
     return result;
   }
@@ -80,7 +80,7 @@ public class ValidatingDiskRegion extends DiskRegion implements DiskRecoveryStor
 
   @Override
   public DiskEntry initializeRecoveredEntry(Object key, DiskEntry.RecoveredEntry re) {
-    ValidatingDiskEntry de = new ValidatingDiskEntry(key, re);
+    var de = new ValidatingDiskEntry(key, re);
     if (map.putIfAbsent(key, de) != null) {
       throw new InternalGemFireError(
           String.format("Entry already existed: %s", key));
@@ -90,7 +90,7 @@ public class ValidatingDiskRegion extends DiskRegion implements DiskRecoveryStor
 
   @Override
   public DiskEntry updateRecoveredEntry(Object key, DiskEntry.RecoveredEntry re) {
-    ValidatingDiskEntry de = new ValidatingDiskEntry(key, re);
+    var de = new ValidatingDiskEntry(key, re);
     map.put(key, de);
     return de;
   }

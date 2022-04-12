@@ -97,13 +97,13 @@ public class MemoryLRUController extends SizeLRUController {
       return 0;
     }
 
-    int size = 0;
-    int keySize = 0;
+    var size = 0;
+    var keySize = 0;
     if (!isOffHeap) {
       size += getPerEntryOverhead();
       keySize = sizeof(key);
     }
-    int valueSize = sizeof(value);
+    var valueSize = sizeof(value);
     size += keySize;
     size += valueSize;
     return size;

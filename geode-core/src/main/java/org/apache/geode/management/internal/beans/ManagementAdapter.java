@@ -77,18 +77,15 @@ import static org.apache.geode.management.internal.ManagementConstants.REGION_CL
 import static org.apache.geode.management.internal.ManagementConstants.REGION_CREATED_PREFIX;
 
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import org.apache.logging.log4j.Logger;
@@ -106,7 +103,6 @@ import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.distributed.internal.locks.DLockService;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.ClassLoadUtils;
 import org.apache.geode.internal.cache.CacheService;
 import org.apache.geode.internal.cache.InternalCache;
@@ -125,7 +121,6 @@ import org.apache.geode.management.ManagerMXBean;
 import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.RegionMXBean;
 import org.apache.geode.management.internal.AlertDetails;
-import org.apache.geode.management.internal.FederationComponent;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.membership.ClientMembership;
@@ -180,8 +175,8 @@ public class ManagementAdapter {
       memberSource = MBeanJMXAdapter.getMemberNameOrUniqueId(cache.getMyId());
 
       // Type casting to MemberMXBean to expose only those methods described in interface
-      ObjectName objectName = MBeanJMXAdapter.getMemberMBeanName(cache.getMyId());
-      ObjectName federatedName = service.registerInternalMBean(memberBean, objectName);
+      var objectName = MBeanJMXAdapter.getMemberMBeanName(cache.getMyId());
+      var federatedName = service.registerInternalMBean(memberBean, objectName);
       service.federate(federatedName, MemberMXBean.class, true);
 
       serviceInitialised = true;
@@ -224,7 +219,7 @@ public class ManagementAdapter {
       return;
     }
 
-    DistributedSystemBridge distributedSystemBridge =
+    var distributedSystemBridge =
         new DistributedSystemBridge(service, internalCache);
     aggregator = new MBeanAggregator(distributedSystemBridge);
 
@@ -232,36 +227,36 @@ public class ManagementAdapter {
     service.addProxyListener(aggregator);
 
     // get the local member mbean as it need to be provided to aggregator first
-    MemberMXBean localMemberMXBean = service.getMemberMXBean();
+    var localMemberMXBean = service.getMemberMXBean();
 
-    ObjectName memberObjectName = MBeanJMXAdapter.getMemberMBeanName(
+    var memberObjectName = MBeanJMXAdapter.getMemberMBeanName(
         InternalDistributedSystem.getConnectedInstance().getDistributedMember());
 
-    FederationComponent memberFederation =
+    var memberFederation =
         service.getLocalManager().getFedComponents().get(memberObjectName);
 
     service.afterCreateProxy(memberObjectName, MemberMXBean.class, localMemberMXBean,
         memberFederation);
 
-    MBeanJMXAdapter jmxAdapter = service.getJMXAdapter();
-    Map<ObjectName, Object> registeredMBeans = jmxAdapter.getLocalGemFireMBean();
+    var jmxAdapter = service.getJMXAdapter();
+    var registeredMBeans = jmxAdapter.getLocalGemFireMBean();
 
-    for (ObjectName objectName : registeredMBeans.keySet()) {
+    for (var objectName : registeredMBeans.keySet()) {
       if (objectName.equals(memberObjectName)) {
         continue;
       }
-      Object object = registeredMBeans.get(objectName);
+      var object = registeredMBeans.get(objectName);
       try {
-        ObjectInstance instance = mbeanServer.getObjectInstance(objectName);
-        String className = instance.getClassName();
-        Class clazz = ClassLoadUtils.classFromName(className);
-        Type[] interfaceTypes = clazz.getGenericInterfaces();
+        var instance = mbeanServer.getObjectInstance(objectName);
+        var className = instance.getClassName();
+        var clazz = ClassLoadUtils.classFromName(className);
+        var interfaceTypes = clazz.getGenericInterfaces();
 
-        FederationComponent federation =
+        var federation =
             service.getLocalManager().getFedComponents().get(objectName);
 
-        for (Type interfaceType : interfaceTypes) {
-          Class interfaceTypeAsClass = (Class) interfaceType;
+        for (var interfaceType : interfaceTypes) {
+          var interfaceTypeAsClass = (Class) interfaceType;
           service.afterCreateProxy(objectName, interfaceTypeAsClass, object, federation);
 
         }
@@ -288,39 +283,39 @@ public class ManagementAdapter {
       return;
     }
 
-    MemberMXBean localMemberMXBean = service.getMemberMXBean();
+    var localMemberMXBean = service.getMemberMXBean();
 
-    ObjectName memberObjectName = MBeanJMXAdapter.getMemberMBeanName(
+    var memberObjectName = MBeanJMXAdapter.getMemberMBeanName(
         InternalDistributedSystem.getConnectedInstance().getDistributedMember());
 
-    FederationComponent memberFederation =
+    var memberFederation =
         service.getLocalManager().getFedComponents().get(memberObjectName);
 
     service.afterRemoveProxy(memberObjectName, MemberMXBean.class, localMemberMXBean,
         memberFederation);
 
-    ObjectName aggregateMBeanPattern = aggregateMBeanPattern();
-    MBeanJMXAdapter jmxAdapter = service.getJMXAdapter();
-    Map<ObjectName, Object> registeredMBeans = jmxAdapter.getLocalGemFireMBean();
-    for (ObjectName objectName : registeredMBeans.keySet()) {
+    var aggregateMBeanPattern = aggregateMBeanPattern();
+    var jmxAdapter = service.getJMXAdapter();
+    var registeredMBeans = jmxAdapter.getLocalGemFireMBean();
+    for (var objectName : registeredMBeans.keySet()) {
       if (objectName.equals(memberObjectName)) {
         continue;
       }
       if (aggregateMBeanPattern.apply(objectName)) {
         continue;
       }
-      Object object = registeredMBeans.get(objectName);
+      var object = registeredMBeans.get(objectName);
       try {
-        ObjectInstance instance = mbeanServer.getObjectInstance(objectName);
-        String className = instance.getClassName();
-        Class clazz = ClassLoadUtils.classFromName(className);
-        Type[] interfaceTypes = clazz.getGenericInterfaces();
+        var instance = mbeanServer.getObjectInstance(objectName);
+        var className = instance.getClassName();
+        var clazz = ClassLoadUtils.classFromName(className);
+        var interfaceTypes = clazz.getGenericInterfaces();
 
-        FederationComponent federation =
+        var federation =
             service.getLocalManager().getFedComponents().get(objectName);
 
-        for (Type interfaceType : interfaceTypes) {
-          Class interfaceTypeClass = (Class) interfaceType;
+        for (var interfaceType : interfaceTypes) {
+          var interfaceTypeClass = (Class) interfaceType;
           service.afterRemoveProxy(objectName, interfaceTypeClass, object, federation);
         }
       } catch (InstanceNotFoundException | ClassNotFoundException e) {
@@ -341,14 +336,14 @@ public class ManagementAdapter {
       return;
     }
 
-    ObjectName objectName = MBeanJMXAdapter.getManagerName();
-    ManagerMBeanBridge managerMBeanBridge = new ManagerMBeanBridge(service);
+    var objectName = MBeanJMXAdapter.getManagerName();
+    var managerMBeanBridge = new ManagerMBeanBridge(service);
     ManagerMXBean managerMXBean = new ManagerMBean(managerMBeanBridge);
 
-    ObjectName federatedName = service.registerInternalMBean(managerMXBean, objectName);
+    var federatedName = service.registerInternalMBean(managerMXBean, objectName);
     service.federate(federatedName, ManagerMXBean.class, true);
 
-    Notification notification = new Notification(MANAGER_STARTED, memberSource,
+    var notification = new Notification(MANAGER_STARTED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), MANAGER_STARTED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
   }
@@ -374,14 +369,14 @@ public class ManagementAdapter {
       }
 
       // Bridge is responsible for extracting data from GemFire Layer
-      RegionMBeanBridge<K, V> regionMBeanBridge = RegionMBeanBridge.getInstance(region);
+      var regionMBeanBridge = RegionMBeanBridge.getInstance(region);
       RegionMXBean regionMXBean = new RegionMBean<>(regionMBeanBridge);
-      ObjectName objectName = MBeanJMXAdapter.getRegionMBeanName(
+      var objectName = MBeanJMXAdapter.getRegionMBeanName(
           internalCache.getDistributedSystem().getDistributedMember(), region.getFullPath());
-      ObjectName federatedName = service.registerInternalMBean(regionMXBean, objectName);
+      var federatedName = service.registerInternalMBean(regionMXBean, objectName);
       service.federate(federatedName, RegionMXBean.class, true);
 
-      Notification notification = new Notification(REGION_CREATED, memberSource,
+      var notification = new Notification(REGION_CREATED, memberSource,
           SequenceNumber.next(), System.currentTimeMillis(),
           REGION_CREATED_PREFIX + region.getFullPath());
       memberLevelNotificationEmitter.sendNotification(notification);
@@ -398,14 +393,14 @@ public class ManagementAdapter {
       return;
     }
 
-    DiskStoreMBeanBridge diskStoreMBeanBridge = new DiskStoreMBeanBridge(diskStore);
+    var diskStoreMBeanBridge = new DiskStoreMBeanBridge(diskStore);
     DiskStoreMXBean diskStoreMXBean = new DiskStoreMBean(diskStoreMBeanBridge);
-    ObjectName objectName = MBeanJMXAdapter.getDiskStoreMBeanName(
+    var objectName = MBeanJMXAdapter.getDiskStoreMBeanName(
         internalCache.getDistributedSystem().getDistributedMember(), diskStore.getName());
-    ObjectName federatedName = service.registerInternalMBean(diskStoreMXBean, objectName);
+    var federatedName = service.registerInternalMBean(diskStoreMXBean, objectName);
     service.federate(federatedName, DiskStoreMXBean.class, true);
 
-    Notification notification = new Notification(DISK_STORE_CREATED, memberSource,
+    var notification = new Notification(DISK_STORE_CREATED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         DISK_STORE_CREATED_PREFIX + diskStore.getName());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -426,15 +421,15 @@ public class ManagementAdapter {
       return;
     }
 
-    LockServiceMBeanBridge lockServiceMBeanBridge = new LockServiceMBeanBridge(lockService);
+    var lockServiceMBeanBridge = new LockServiceMBeanBridge(lockService);
     LockServiceMXBean lockServiceMXBean = new LockServiceMBean(lockServiceMBeanBridge);
-    ObjectName objectName = MBeanJMXAdapter.getLockServiceMBeanName(
+    var objectName = MBeanJMXAdapter.getLockServiceMBeanName(
         internalCache.getDistributedSystem().getDistributedMember(), lockService.getName());
-    ObjectName federatedName =
+    var federatedName =
         service.registerInternalMBean(lockServiceMXBean, objectName);
     service.federate(federatedName, LockServiceMXBean.class, true);
 
-    Notification notification = new Notification(LOCK_SERVICE_CREATED, memberSource,
+    var notification = new Notification(LOCK_SERVICE_CREATED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         LOCK_SERVICE_CREATED_PREFIX + lockService.getName());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -452,14 +447,14 @@ public class ManagementAdapter {
       return;
     }
 
-    GatewaySenderMBeanBridge gatewaySenderMBeanBridge = new GatewaySenderMBeanBridge(sender);
+    var gatewaySenderMBeanBridge = new GatewaySenderMBeanBridge(sender);
     GatewaySenderMXBean gatewaySenderMXBean = new GatewaySenderMBean(gatewaySenderMBeanBridge);
-    ObjectName objectName = MBeanJMXAdapter.getGatewaySenderMBeanName(
+    var objectName = MBeanJMXAdapter.getGatewaySenderMBeanName(
         internalCache.getDistributedSystem().getDistributedMember(), sender.getId());
-    ObjectName federatedName = service.registerInternalMBean(gatewaySenderMXBean, objectName);
+    var federatedName = service.registerInternalMBean(gatewaySenderMXBean, objectName);
     service.federate(federatedName, GatewaySenderMXBean.class, true);
 
-    Notification notification = new Notification(GATEWAY_SENDER_CREATED, memberSource,
+    var notification = new Notification(GATEWAY_SENDER_CREATED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), GATEWAY_SENDER_CREATED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
   }
@@ -481,16 +476,16 @@ public class ManagementAdapter {
   }
 
   private void createGatewayReceiverMBean(GatewayReceiver gatewayReceiver) {
-    GatewayReceiverMBeanBridge gatewayReceiverMBeanBridge =
+    var gatewayReceiverMBeanBridge =
         new GatewayReceiverMBeanBridge(gatewayReceiver);
     GatewayReceiverMXBean gatewayReceiverMXBean =
         new GatewayReceiverMBean(gatewayReceiverMBeanBridge);
-    ObjectName objectName = MBeanJMXAdapter
+    var objectName = MBeanJMXAdapter
         .getGatewayReceiverMBeanName(internalCache.getDistributedSystem().getDistributedMember());
-    ObjectName federatedName = service.registerInternalMBean(gatewayReceiverMXBean, objectName);
+    var federatedName = service.registerInternalMBean(gatewayReceiverMXBean, objectName);
     service.federate(federatedName, GatewayReceiverMXBean.class, true);
 
-    Notification notification = new Notification(GATEWAY_RECEIVER_CREATED, memberSource,
+    var notification = new Notification(GATEWAY_RECEIVER_CREATED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), GATEWAY_RECEIVER_CREATED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
   }
@@ -500,17 +495,17 @@ public class ManagementAdapter {
       return;
     }
 
-    GatewayReceiverMBean gatewayReceiverMBean =
+    var gatewayReceiverMBean =
         (GatewayReceiverMBean) service.getLocalGatewayReceiverMXBean();
-    GatewayReceiverMBeanBridge gatewayReceiverMBeanBridge = gatewayReceiverMBean.getBridge();
+    var gatewayReceiverMBeanBridge = gatewayReceiverMBean.getBridge();
 
     gatewayReceiverMBeanBridge.destroyServer();
 
-    ObjectName objectName = MBeanJMXAdapter
+    var objectName = MBeanJMXAdapter
         .getGatewayReceiverMBeanName(internalCache.getDistributedSystem().getDistributedMember());
     service.unregisterMBean(objectName);
 
-    Notification notification = new Notification(GATEWAY_RECEIVER_DESTROYED, memberSource,
+    var notification = new Notification(GATEWAY_RECEIVER_DESTROYED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), GATEWAY_RECEIVER_DESTROYED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
   }
@@ -529,13 +524,13 @@ public class ManagementAdapter {
       createGatewayReceiverMBean(gatewayReceiver);
     }
 
-    GatewayReceiverMBean gatewayReceiverMBean =
+    var gatewayReceiverMBean =
         (GatewayReceiverMBean) service.getLocalGatewayReceiverMXBean();
-    GatewayReceiverMBeanBridge gatewayReceiverMBeanBridge = gatewayReceiverMBean.getBridge();
+    var gatewayReceiverMBeanBridge = gatewayReceiverMBean.getBridge();
 
     gatewayReceiverMBeanBridge.startServer();
 
-    Notification notification = new Notification(GATEWAY_RECEIVER_STARTED, memberSource,
+    var notification = new Notification(GATEWAY_RECEIVER_STARTED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), GATEWAY_RECEIVER_STARTED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
   }
@@ -545,13 +540,13 @@ public class ManagementAdapter {
       return;
     }
 
-    GatewayReceiverMBean gatewayReceiverMBean =
+    var gatewayReceiverMBean =
         (GatewayReceiverMBean) service.getLocalGatewayReceiverMXBean();
-    GatewayReceiverMBeanBridge gatewayReceiverMBeanBridge = gatewayReceiverMBean.getBridge();
+    var gatewayReceiverMBeanBridge = gatewayReceiverMBean.getBridge();
 
     gatewayReceiverMBeanBridge.stopServer();
 
-    Notification notification = new Notification(GATEWAY_RECEIVER_STOPPED, memberSource,
+    var notification = new Notification(GATEWAY_RECEIVER_STOPPED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), GATEWAY_RECEIVER_STOPPED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
   }
@@ -561,16 +556,16 @@ public class ManagementAdapter {
       return;
     }
 
-    AsyncEventQueueMBeanBridge asyncEventQueueMBeanBridge =
+    var asyncEventQueueMBeanBridge =
         new AsyncEventQueueMBeanBridge(asyncEventQueue);
     AsyncEventQueueMXBean asyncEventQueueMXBean =
         new AsyncEventQueueMBean(asyncEventQueueMBeanBridge);
-    ObjectName objectName = MBeanJMXAdapter.getAsyncEventQueueMBeanName(
+    var objectName = MBeanJMXAdapter.getAsyncEventQueueMBeanName(
         internalCache.getDistributedSystem().getDistributedMember(), asyncEventQueue.getId());
-    ObjectName federatedName = service.registerInternalMBean(asyncEventQueueMXBean, objectName);
+    var federatedName = service.registerInternalMBean(asyncEventQueueMXBean, objectName);
     service.federate(federatedName, AsyncEventQueueMXBean.class, true);
 
-    Notification notification = new Notification(ASYNC_EVENT_QUEUE_CREATED, memberSource,
+    var notification = new Notification(ASYNC_EVENT_QUEUE_CREATED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), ASYNC_EVENT_QUEUE_CREATED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
   }
@@ -580,11 +575,11 @@ public class ManagementAdapter {
       return;
     }
 
-    ObjectName objectName = MBeanJMXAdapter.getAsyncEventQueueMBeanName(
+    var objectName = MBeanJMXAdapter.getAsyncEventQueueMBeanName(
         internalCache.getDistributedSystem().getDistributedMember(), asyncEventQueue.getId());
 
     try {
-      AsyncEventQueueMBean asyncEventQueueMBean =
+      var asyncEventQueueMBean =
           (AsyncEventQueueMBean) service.getLocalAsyncEventQueueMXBean(asyncEventQueue.getId());
       if (asyncEventQueueMBean == null) {
         return;
@@ -602,7 +597,7 @@ public class ManagementAdapter {
 
     service.unregisterMBean(objectName);
 
-    Notification notification = new Notification(ASYNC_EVENT_QUEUE_CLOSED, memberSource,
+    var notification = new Notification(ASYNC_EVENT_QUEUE_CLOSED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         ASYNC_EVENT_QUEUE_CLOSED_PREFIX + asyncEventQueue.getId());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -618,9 +613,9 @@ public class ManagementAdapter {
     }
 
     if (service.isManager()) {
-      String systemSource = "DistributedSystem("
+      var systemSource = "DistributedSystem("
           + service.getDistributedSystemMXBean().getDistributedSystemId() + ")";
-      Notification notification = new Notification(SYSTEM_ALERT, systemSource,
+      var notification = new Notification(SYSTEM_ALERT, systemSource,
           SequenceNumber.next(), alertDetails.getMsgTime().getTime(), alertDetails.getMsg());
       notification.setUserData(prepareUserData(alertDetails));
       service.handleNotification(notification);
@@ -647,12 +642,12 @@ public class ManagementAdapter {
       return;
     }
 
-    CacheServerBridge cacheServerBridge = new CacheServerBridge(internalCache, cacheServer);
+    var cacheServerBridge = new CacheServerBridge(internalCache, cacheServer);
     cacheServerBridge.setMemberMBeanBridge(memberMBeanBridge);
-    CacheServerMBean cacheServerMBean = new CacheServerMBean(cacheServerBridge);
-    ObjectName objectName = MBeanJMXAdapter.getClientServiceMBeanName(
+    var cacheServerMBean = new CacheServerMBean(cacheServerBridge);
+    var objectName = MBeanJMXAdapter.getClientServiceMBeanName(
         cacheServer.getPort(), internalCache.getDistributedSystem().getDistributedMember());
-    ObjectName federatedName = service.registerInternalMBean(cacheServerMBean, objectName);
+    var federatedName = service.registerInternalMBean(cacheServerMBean, objectName);
 
     ClientMembershipListener managementClientListener = new CacheServerMembershipListenerAdapter(
         cacheServerMBean, memberLevelNotificationEmitter, federatedName);
@@ -661,7 +656,7 @@ public class ManagementAdapter {
 
     service.federate(federatedName, CacheServerMXBean.class, true);
 
-    Notification notification = new Notification(CACHE_SERVER_STARTED, memberSource,
+    var notification = new Notification(CACHE_SERVER_STARTED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), CACHE_SERVER_STARTED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
 
@@ -676,10 +671,10 @@ public class ManagementAdapter {
       return;
     }
 
-    CacheServerMBean cacheServerMBean =
+    var cacheServerMBean =
         (CacheServerMBean) service.getLocalCacheServerMXBean(server.getPort());
 
-    ClientMembershipListener clientMembershipListener =
+    var clientMembershipListener =
         cacheServerMBean.getBridge().getClientMembershipListener();
     if (clientMembershipListener != null) {
       ClientMembership.unregisterClientMembershipListener(clientMembershipListener);
@@ -687,11 +682,11 @@ public class ManagementAdapter {
 
     cacheServerMBean.stopMonitor();
 
-    ObjectName objectName = MBeanJMXAdapter.getClientServiceMBeanName(server.getPort(),
+    var objectName = MBeanJMXAdapter.getClientServiceMBeanName(server.getPort(),
         internalCache.getDistributedSystem().getDistributedMember());
     service.unregisterMBean(objectName);
 
-    Notification notification = new Notification(CACHE_SERVER_STOPPED, memberSource,
+    var notification = new Notification(CACHE_SERVER_STOPPED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), CACHE_SERVER_STOPPED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
 
@@ -734,16 +729,16 @@ public class ManagementAdapter {
   }
 
   private void cleanUpMonitors() {
-    MemberMBean memberMBean = (MemberMBean) service.getMemberMXBean();
+    var memberMBean = (MemberMBean) service.getMemberMXBean();
     if (memberMBean != null) {
       memberMBean.stopMonitor();
     }
 
-    Set<GatewaySender> gatewaySenders = internalCache.getGatewaySenders();
+    var gatewaySenders = internalCache.getGatewaySenders();
 
     if (gatewaySenders != null && !gatewaySenders.isEmpty()) {
-      for (GatewaySender gatewaySender : gatewaySenders) {
-        GatewaySenderMBean gatewaySenderMBean =
+      for (var gatewaySender : gatewaySenders) {
+        var gatewaySenderMBean =
             (GatewaySenderMBean) service.getLocalGatewaySenderMXBean(gatewaySender.getId());
         if (gatewaySenderMBean != null) {
           gatewaySenderMBean.stopMonitor();
@@ -751,7 +746,7 @@ public class ManagementAdapter {
       }
     }
 
-    GatewayReceiverMBean gatewayReceiverMBean =
+    var gatewayReceiverMBean =
         (GatewayReceiverMBean) service.getLocalGatewayReceiverMXBean();
     if (gatewayReceiverMBean != null) {
       gatewayReceiverMBean.stopMonitor();
@@ -759,15 +754,15 @@ public class ManagementAdapter {
   }
 
   private void cleanBridgeResources() {
-    List<CacheServer> cacheServers = internalCache.getCacheServers();
+    var cacheServers = internalCache.getCacheServers();
 
     if (cacheServers != null && !cacheServers.isEmpty()) {
-      for (CacheServer cacheServer : cacheServers) {
-        CacheServerMBean cacheServerMBean =
+      for (var cacheServer : cacheServers) {
+        var cacheServerMBean =
             (CacheServerMBean) service.getLocalCacheServerMXBean(cacheServer.getPort());
 
         if (cacheServerMBean != null) {
-          ClientMembershipListener listener =
+          var listener =
               cacheServerMBean.getBridge().getClientMembershipListener();
 
           if (listener != null) {
@@ -790,11 +785,11 @@ public class ManagementAdapter {
     // allow it to destroy any region.
 
     synchronized (regionOpLock) {
-      ObjectName objectName = MBeanJMXAdapter.getRegionMBeanName(
+      var objectName = MBeanJMXAdapter.getRegionMBeanName(
           internalCache.getDistributedSystem().getDistributedMember(), region.getFullPath());
 
       try {
-        RegionMBean regionMBean = (RegionMBean) service.getLocalRegionMBean(region.getFullPath());
+        var regionMBean = (RegionMBean) service.getLocalRegionMBean(region.getFullPath());
         if (regionMBean != null) {
           regionMBean.stopMonitor();
         }
@@ -810,7 +805,7 @@ public class ManagementAdapter {
 
       service.unregisterMBean(objectName);
 
-      Notification notification = new Notification(REGION_CLOSED, memberSource,
+      var notification = new Notification(REGION_CLOSED, memberSource,
           SequenceNumber.next(), System.currentTimeMillis(),
           REGION_CLOSED_PREFIX + region.getFullPath());
       memberLevelNotificationEmitter.sendNotification(notification);
@@ -824,11 +819,11 @@ public class ManagementAdapter {
       return;
     }
 
-    ObjectName objectName = MBeanJMXAdapter.getDiskStoreMBeanName(
+    var objectName = MBeanJMXAdapter.getDiskStoreMBeanName(
         internalCache.getDistributedSystem().getDistributedMember(), diskStore.getName());
 
     try {
-      DiskStoreMBean diskStoreMBean =
+      var diskStoreMBean =
           (DiskStoreMBean) service.getLocalDiskStoreMBean(diskStore.getName());
       if (diskStoreMBean == null) {
         return;
@@ -844,7 +839,7 @@ public class ManagementAdapter {
 
     service.unregisterMBean(objectName);
 
-    Notification notification = new Notification(DISK_STORE_CLOSED, memberSource,
+    var notification = new Notification(DISK_STORE_CLOSED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         DISK_STORE_CLOSED_PREFIX + diskStore.getName());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -857,12 +852,12 @@ public class ManagementAdapter {
       return;
     }
 
-    ObjectName objectName = MBeanJMXAdapter.getLockServiceMBeanName(
+    var objectName = MBeanJMXAdapter.getLockServiceMBeanName(
         internalCache.getDistributedSystem().getDistributedMember(), lockService.getName());
 
     service.unregisterMBean(objectName);
 
-    Notification notification = new Notification(LOCK_SERVICE_CLOSED, memberSource,
+    var notification = new Notification(LOCK_SERVICE_CLOSED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         LOCK_SERVICE_CLOSED_PREFIX + lockService.getName());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -883,14 +878,14 @@ public class ManagementAdapter {
       return;
     }
 
-    ObjectName objectName = MBeanJMXAdapter
+    var objectName = MBeanJMXAdapter
         .getLocatorMBeanName(internalCache.getDistributedSystem().getDistributedMember());
-    LocatorMBeanBridge locatorMBeanBridge = new LocatorMBeanBridge(locator);
-    LocatorMBean locatorMBean = new LocatorMBean(locatorMBeanBridge);
-    ObjectName federatedName = service.registerInternalMBean(locatorMBean, objectName);
+    var locatorMBeanBridge = new LocatorMBeanBridge(locator);
+    var locatorMBean = new LocatorMBean(locatorMBeanBridge);
+    var federatedName = service.registerInternalMBean(locatorMBean, objectName);
     service.federate(federatedName, LocatorMXBean.class, true);
 
-    Notification notification = new Notification(LOCATOR_STARTED, memberSource,
+    var notification = new Notification(LOCATOR_STARTED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(), LOCATOR_STARTED_PREFIX);
     memberLevelNotificationEmitter.sendNotification(notification);
   }
@@ -903,12 +898,12 @@ public class ManagementAdapter {
       return;
     }
 
-    GatewaySenderMBean gatewaySenderMBean =
+    var gatewaySenderMBean =
         (GatewaySenderMBean) service.getLocalGatewaySenderMXBean(gatewaySender.getId());
 
     gatewaySenderMBean.getBridge().setDispatcher();
 
-    Notification notification = new Notification(GATEWAY_SENDER_STARTED, memberSource,
+    var notification = new Notification(GATEWAY_SENDER_STARTED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         GATEWAY_SENDER_STARTED_PREFIX + gatewaySender.getId());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -919,7 +914,7 @@ public class ManagementAdapter {
       return;
     }
 
-    Notification notification = new Notification(GATEWAY_SENDER_STOPPED, memberSource,
+    var notification = new Notification(GATEWAY_SENDER_STOPPED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         GATEWAY_SENDER_STOPPED_PREFIX + gatewaySender.getId());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -930,7 +925,7 @@ public class ManagementAdapter {
       return;
     }
 
-    Notification notification = new Notification(GATEWAY_SENDER_PAUSED, memberSource,
+    var notification = new Notification(GATEWAY_SENDER_PAUSED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         GATEWAY_SENDER_PAUSED_PREFIX + gatewaySender.getId());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -941,7 +936,7 @@ public class ManagementAdapter {
       return;
     }
 
-    Notification notification = new Notification(GATEWAY_SENDER_RESUMED, memberSource,
+    var notification = new Notification(GATEWAY_SENDER_RESUMED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         GATEWAY_SENDER_RESUMED_PREFIX + gatewaySender.getId());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -955,15 +950,15 @@ public class ManagementAdapter {
       return;
     }
 
-    GatewaySenderMBean gatewaySenderMBean =
+    var gatewaySenderMBean =
         (GatewaySenderMBean) service.getLocalGatewaySenderMXBean(gatewaySender.getId());
     gatewaySenderMBean.stopMonitor();
 
-    ObjectName objectName = MBeanJMXAdapter.getGatewaySenderMBeanName(
+    var objectName = MBeanJMXAdapter.getGatewaySenderMBeanName(
         internalCache.getDistributedSystem().getDistributedMember(), gatewaySender.getId());
     service.unregisterMBean(objectName);
 
-    Notification notification = new Notification(GATEWAY_SENDER_REMOVED, memberSource,
+    var notification = new Notification(GATEWAY_SENDER_REMOVED, memberSource,
         SequenceNumber.next(), System.currentTimeMillis(),
         GATEWAY_SENDER_REMOVED_PREFIX + gatewaySender.getId());
     memberLevelNotificationEmitter.sendNotification(notification);
@@ -975,20 +970,20 @@ public class ManagementAdapter {
     }
 
     // Don't register the CacheServices in the Locator
-    InternalDistributedMember member =
+    var member =
         internalCache.getInternalDistributedSystem().getDistributedMember();
     if (member.getVmKind() == ClusterDistributionManager.LOCATOR_DM_TYPE) {
       return;
     }
 
-    CacheServiceMBeanBase cacheServiceMBean = cacheService.getMBean();
+    var cacheServiceMBean = cacheService.getMBean();
     if (cacheServiceMBean != null) {
-      String id = cacheServiceMBean.getId();
-      ObjectName objectName = MBeanJMXAdapter.getCacheServiceMBeanName(member, id);
-      ObjectName federatedName = service.registerInternalMBean(cacheServiceMBean, objectName);
+      var id = cacheServiceMBean.getId();
+      var objectName = MBeanJMXAdapter.getCacheServiceMBeanName(member, id);
+      var federatedName = service.registerInternalMBean(cacheServiceMBean, objectName);
       service.federate(federatedName, cacheServiceMBean.getInterfaceClass(), true);
 
-      Notification notification = new Notification(CACHE_SERVICE_CREATED, memberSource,
+      var notification = new Notification(CACHE_SERVICE_CREATED, memberSource,
           SequenceNumber.next(), System.currentTimeMillis(),
           CACHE_SERVICE_CREATED_PREFIX + id);
       memberLevelNotificationEmitter.sendNotification(notification);
@@ -1038,7 +1033,7 @@ public class ManagementAdapter {
      */
     @Override
     public void memberJoined(ClientMembershipEvent event) {
-      Notification notification = new Notification(CLIENT_JOINED, serverSource,
+      var notification = new Notification(CLIENT_JOINED, serverSource,
           SequenceNumber.next(), System.currentTimeMillis(),
           CLIENT_JOINED_PREFIX + event.getMemberId());
 
@@ -1052,7 +1047,7 @@ public class ManagementAdapter {
      */
     @Override
     public void memberLeft(ClientMembershipEvent event) {
-      Notification notification = new Notification(CLIENT_LEFT, serverSource,
+      var notification = new Notification(CLIENT_LEFT, serverSource,
           SequenceNumber.next(), System.currentTimeMillis(),
           CLIENT_LEFT_PREFIX + event.getMemberId());
 
@@ -1066,7 +1061,7 @@ public class ManagementAdapter {
      */
     @Override
     public void memberCrashed(ClientMembershipEvent event) {
-      Notification notification = new Notification(CLIENT_CRASHED, serverSource,
+      var notification = new Notification(CLIENT_CRASHED, serverSource,
           SequenceNumber.next(), System.currentTimeMillis(),
           CLIENT_CRASHED_PREFIX + event.getMemberId());
 

@@ -55,23 +55,23 @@ public class VMStatsMonitorTest {
 
   @Test
   public void calculateCpuUsageShouldCorrectlyCalculateTheCpuUsed() {
-    Instant now = Instant.now();
-    long halfSecondAsNanoseconds = 500000000L;
-    long quarterSecondAsNanoseconds = 250000000L;
-    long threeQuarterSecondAsNanoseconds = 750000000L;
+    var now = Instant.now();
+    var halfSecondAsNanoseconds = 500000000L;
+    var quarterSecondAsNanoseconds = 250000000L;
+    var threeQuarterSecondAsNanoseconds = 750000000L;
     vmStatsMonitor = spy(new VMStatsMonitor(testName.getMethodName()));
     when(vmStatsMonitor.getLastSystemTime()).thenReturn(now.toEpochMilli());
 
     // 50% used
     when(vmStatsMonitor.getLastProcessCpuTime()).thenReturn(0L);
-    float initialCpuUsage = vmStatsMonitor
+    var initialCpuUsage = vmStatsMonitor
         .calculateCpuUsage(now.plus(1, ChronoUnit.SECONDS).toEpochMilli(), halfSecondAsNanoseconds);
     assertThat(initialCpuUsage).isNotEqualTo(Float.NaN);
     assertThat(initialCpuUsage).isCloseTo(50F, within(1F));
 
     // 25% decrease
     when(vmStatsMonitor.getLastProcessCpuTime()).thenReturn(50L);
-    float decreasedCpuUsage = vmStatsMonitor.calculateCpuUsage(
+    var decreasedCpuUsage = vmStatsMonitor.calculateCpuUsage(
         now.plus(1, ChronoUnit.SECONDS).toEpochMilli(), quarterSecondAsNanoseconds);
     assertThat(decreasedCpuUsage).isNotEqualTo(Float.NaN);
     assertThat(decreasedCpuUsage).isLessThan(initialCpuUsage);
@@ -79,7 +79,7 @@ public class VMStatsMonitorTest {
 
     // 50% increase
     when(vmStatsMonitor.getLastProcessCpuTime()).thenReturn(25L);
-    float increasedCpuUsage = vmStatsMonitor.calculateCpuUsage(
+    var increasedCpuUsage = vmStatsMonitor.calculateCpuUsage(
         now.plus(1, ChronoUnit.SECONDS).toEpochMilli(), threeQuarterSecondAsNanoseconds);
     assertThat(increasedCpuUsage).isNotEqualTo(Float.NaN);
     assertThat(increasedCpuUsage).isGreaterThan(decreasedCpuUsage);
@@ -88,11 +88,11 @@ public class VMStatsMonitorTest {
 
   @Test
   public void refreshStatsShouldUpdateCpuUsage() {
-    ZonedDateTime now = ZonedDateTime.now();
+    var now = ZonedDateTime.now();
     vmStatsMonitor = spy(new VMStatsMonitor(testName.getMethodName(), true));
     assertThat(vmStatsMonitor).isNotNull();
     assertThat(vmStatsMonitor.getCpuUsage()).isEqualTo(0);
-    Number processCpuTime = spy(Number.class);
+    var processCpuTime = spy(Number.class);
     vmStatsMonitor.statsMap.put(StatsKey.VM_PROCESS_CPU_TIME, processCpuTime);
 
     // First Run: updates lastSystemTime
@@ -108,9 +108,9 @@ public class VMStatsMonitorTest {
     verify(processCpuTime, times(1)).longValue();
 
     // Next runs will update the actual cpuUsage
-    for (int i = 2; i < 6; i++) {
+    for (var i = 2; i < 6; i++) {
       long mockProcessCpuTime = i * 500;
-      long mockSystemTime = now.plus(i, ChronoUnit.SECONDS).toInstant().toEpochMilli();
+      var mockSystemTime = now.plus(i, ChronoUnit.SECONDS).toInstant().toEpochMilli();
       when(processCpuTime.longValue()).thenReturn(mockProcessCpuTime);
       when(vmStatsMonitor.currentTimeMillis()).thenReturn(mockSystemTime);
 

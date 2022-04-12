@@ -41,7 +41,7 @@ public class FetchSysCfgResponse extends AdminResponse {
    */
   public static FetchSysCfgResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    FetchSysCfgResponse m = new FetchSysCfgResponse();
+    var m = new FetchSysCfgResponse();
     m.setRecipient(recipient);
     Config conf = dm.getSystem().getConfig();
     if (conf instanceof RuntimeDistributionConfigImpl) {

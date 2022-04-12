@@ -29,8 +29,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.test.dunit.RMIException;
@@ -70,11 +68,11 @@ public class CleanupFailedInitWithDiskFilesRegressionTest extends CacheTestCase 
 
     uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
 
-    File server1Disk1 = temporaryFolder.newFolder(uniqueName + "_server1_disk1");
-    File server1Disk2 = temporaryFolder.newFolder(uniqueName + "_server1_disk2");
+    var server1Disk1 = temporaryFolder.newFolder(uniqueName + "_server1_disk1");
+    var server1Disk2 = temporaryFolder.newFolder(uniqueName + "_server1_disk2");
     foldersForServer1 = new File[] {server1Disk1, server1Disk2};
 
-    File server2Disk1 = temporaryFolder.newFolder(uniqueName + "_server2_disk1");
+    var server2Disk1 = temporaryFolder.newFolder(uniqueName + "_server2_disk1");
     server2Disk2 = temporaryFolder.newFolder(uniqueName + "_server2_disk2");
     foldersForServer2 = new File[] {server2Disk1, server2Disk2};
   }
@@ -119,12 +117,12 @@ public class CleanupFailedInitWithDiskFilesRegressionTest extends CacheTestCase 
   }
 
   private void createRegionOnServer1() {
-    DiskStoreFactory dsf = getCache().createDiskStoreFactory();
+    var dsf = getCache().createDiskStoreFactory();
     dsf.setDiskDirs(foldersForServer1);
 
-    DiskStore diskStore = dsf.create(uniqueName);
+    var diskStore = dsf.create(uniqueName);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.GLOBAL);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setDiskSynchronous(false);
@@ -134,12 +132,12 @@ public class CleanupFailedInitWithDiskFilesRegressionTest extends CacheTestCase 
   }
 
   private void createRegionOnServer2(Scope scope) {
-    DiskStoreFactory dsf = getCache().createDiskStoreFactory();
+    var dsf = getCache().createDiskStoreFactory();
     dsf.setDiskDirs(foldersForServer2);
 
-    DiskStore diskStore = dsf.create(uniqueName);
+    var diskStore = dsf.create(uniqueName);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(scope);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setDiskSynchronous(false);

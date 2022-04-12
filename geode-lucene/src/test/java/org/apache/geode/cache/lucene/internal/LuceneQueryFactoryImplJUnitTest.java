@@ -28,7 +28,6 @@ import org.mockito.Mockito;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.lucene.LuceneQuery;
 import org.apache.geode.test.junit.categories.LuceneTest;
 
 @Category({LuceneTest.class})
@@ -39,13 +38,13 @@ public class LuceneQueryFactoryImplJUnitTest {
 
   @Test
   public void shouldCreateQueryWithCorrectAttributes() {
-    Cache cache = mock(Cache.class);
-    Region region = mock(Region.class);
+    var cache = mock(Cache.class);
+    var region = mock(Region.class);
     when(cache.getRegion(any())).thenReturn(region);
-    LuceneQueryFactoryImpl f = new LuceneQueryFactoryImpl(cache);
+    var f = new LuceneQueryFactoryImpl(cache);
     f.setPageSize(5);
     f.setLimit(25);
-    LuceneQuery<Object, Object> query =
+    var query =
         f.create("index", "region", new StringQueryProvider("test", DEFAULT_FIELD));
     assertEquals(25, query.getLimit());
     assertEquals(5, query.getPageSize());
@@ -55,10 +54,10 @@ public class LuceneQueryFactoryImplJUnitTest {
 
   @Test
   public void shouldThrowIllegalArgumentWhenRegionIsMissing() {
-    Cache cache = mock(Cache.class);
-    LuceneQueryFactoryImpl f = new LuceneQueryFactoryImpl(cache);
+    var cache = mock(Cache.class);
+    var f = new LuceneQueryFactoryImpl(cache);
     thrown.expect(IllegalArgumentException.class);
-    LuceneQuery<Object, Object> query =
+    var query =
         f.create("index", "region", new StringQueryProvider("test", DEFAULT_FIELD));
   }
 

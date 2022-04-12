@@ -41,7 +41,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -75,15 +74,15 @@ public class LocatorMembershipListenerTest {
   }
 
   private List<LocatorJoinMessage> buildPermutationsForClusterId(int dsId, int locatorsAmount) {
-    int basePort = dsId * 10000;
+    var basePort = dsId * 10000;
     List<LocatorJoinMessage> joinMessages = new ArrayList<>();
 
-    for (int i = 1; i <= locatorsAmount; i++) {
-      DistributionLocatorId sourceLocatorId = buildDistributionLocatorId(basePort + i);
+    for (var i = 1; i <= locatorsAmount; i++) {
+      var sourceLocatorId = buildDistributionLocatorId(basePort + i);
 
-      for (int j = 1; j <= locatorsAmount; j++) {
-        DistributionLocatorId distributionLocatorId = buildDistributionLocatorId(basePort + j);
-        LocatorJoinMessage locatorJoinMessage =
+      for (var j = 1; j <= locatorsAmount; j++) {
+        var distributionLocatorId = buildDistributionLocatorId(basePort + j);
+        var locatorJoinMessage =
             new LocatorJoinMessage(dsId, distributionLocatorId, sourceLocatorId, "");
         joinMessages.add(locatorJoinMessage);
       }
@@ -113,7 +112,7 @@ public class LocatorMembershipListenerTest {
 
   @Before
   public void setUp() {
-    DistributionConfig distributionConfig = mock(DistributionConfig.class);
+    var distributionConfig = mock(DistributionConfig.class);
     when(distributionConfig.getStartLocator()).thenReturn(DistributionConfig.DEFAULT_START_LOCATOR);
     when(distributionConfig.getMemberTimeout())
         .thenReturn(TIMEOUT);
@@ -131,8 +130,8 @@ public class LocatorMembershipListenerTest {
 
   @Test
   public void handleRemoteLocatorPingRequestShouldReturnCorrectResponseWithoutUpdatingInternalStructures() {
-    RemoteLocatorPingRequest remoteLocatorPingRequest = new RemoteLocatorPingRequest();
-    Object response = locatorMembershipListener.handleRequest(remoteLocatorPingRequest);
+    var remoteLocatorPingRequest = new RemoteLocatorPingRequest();
+    var response = locatorMembershipListener.handleRequest(remoteLocatorPingRequest);
 
     assertThat(response).isNotNull().isInstanceOf(RemoteLocatorPingResponse.class);
     assertThat(locatorMembershipListener.getAllLocatorsInfo()).isEmpty();
@@ -141,12 +140,12 @@ public class LocatorMembershipListenerTest {
 
   @Test
   public void handleRemoteLocatorRequestShouldReturnListOfKnownRemoteLocatorsForTheRequestedDsIdWithoutUpdatingInternalStructures() {
-    RemoteLocatorRequest remoteLocatorRequest = new RemoteLocatorRequest(1, "");
+    var remoteLocatorRequest = new RemoteLocatorRequest(1, "");
     Set<String> cluster1Locators =
         new HashSet<>(Arrays.asList("localhost[10101]", "localhost[10102]"));
     when(locatorMembershipListener.getRemoteLocatorInfo(1)).thenReturn(cluster1Locators);
 
-    Object response = locatorMembershipListener.handleRequest(remoteLocatorRequest);
+    var response = locatorMembershipListener.handleRequest(remoteLocatorRequest);
     assertThat(response).isNotNull().isInstanceOf(RemoteLocatorResponse.class);
     assertThat(locatorMembershipListener.getAllLocatorsInfo()).isEmpty();
     assertThat(locatorMembershipListener.getAllServerLocatorsInfo()).isEmpty();
@@ -155,18 +154,18 @@ public class LocatorMembershipListenerTest {
 
   @Test
   public void handleRemoteLocatorJoinRequestShouldReturnAllKnownLocatorsAndUpdateInternalStructures() {
-    DistributionLocatorId locator1Site1 = buildDistributionLocatorId(10101);
-    RemoteLocatorJoinRequest locator1Site1JoinRequest =
+    var locator1Site1 = buildDistributionLocatorId(10101);
+    var locator1Site1JoinRequest =
         new RemoteLocatorJoinRequest(1, locator1Site1, "");
-    DistributionLocatorId locator1Site2 = buildDistributionLocatorId(20201);
-    RemoteLocatorJoinRequest locator1Site2JoinRequest =
+    var locator1Site2 = buildDistributionLocatorId(20201);
+    var locator1Site2JoinRequest =
         new RemoteLocatorJoinRequest(2, locator1Site2, "");
-    DistributionLocatorId locator2Site2 = buildDistributionLocatorId(20202);
-    RemoteLocatorJoinRequest locator2Site2JoinRequest =
+    var locator2Site2 = buildDistributionLocatorId(20202);
+    var locator2Site2JoinRequest =
         new RemoteLocatorJoinRequest(2, locator2Site2, "");
 
     // First locator from site 1.
-    Object response = locatorMembershipListener.handleRequest(locator1Site1JoinRequest);
+    var response = locatorMembershipListener.handleRequest(locator1Site1JoinRequest);
     assertThat(response).isNotNull().isInstanceOf(RemoteLocatorJoinResponse.class);
     assertThat(((RemoteLocatorJoinResponse) response).getLocators()).isNotNull().hasSize(1);
     assertThat(((RemoteLocatorJoinResponse) response).getLocators().get(1).contains(locator1Site1))
@@ -190,11 +189,11 @@ public class LocatorMembershipListenerTest {
   @Test
   public void handleLocatorJoinMessageShouldUpdateInternalStructures()
       throws InterruptedException, ExecutionException {
-    int clusters = 4;
-    int locatorsPerCluster = 6;
+    var clusters = 4;
+    var locatorsPerCluster = 6;
     List<LocatorJoinMessage> allJoinMessages = new ArrayList<>();
 
-    for (int i = 1; i <= clusters; i++) {
+    for (var i = 1; i <= clusters; i++) {
       allJoinMessages.addAll(buildPermutationsForClusterId(i, locatorsPerCluster));
     }
 
@@ -202,16 +201,16 @@ public class LocatorMembershipListenerTest {
     allJoinMessages.forEach(
         (request) -> requests.add(new HandlerCallable(locatorMembershipListener, request)));
 
-    ExecutorService executorService = Executors.newFixedThreadPool(allJoinMessages.size());
-    List<Future<Object>> futures = executorService.invokeAll(requests);
+    var executorService = Executors.newFixedThreadPool(allJoinMessages.size());
+    var futures = executorService.invokeAll(requests);
     for (Future future : futures) {
-      Object response = future.get();
+      var response = future.get();
       assertThat(response).isNull();
     }
     executorService.shutdownNow();
 
     assertThat(locatorMembershipListener.getAllLocatorsInfo().size()).isEqualTo(clusters);
-    ConcurrentMap<Integer, Set<DistributionLocatorId>> locatorsPerClusterMap =
+    var locatorsPerClusterMap =
         locatorMembershipListener.getAllLocatorsInfo();
     locatorsPerClusterMap
         .forEach((key, value) -> assertThat(value.size()).isEqualTo(locatorsPerCluster));
@@ -220,11 +219,11 @@ public class LocatorMembershipListenerTest {
   @Test
   public void handleLocatorJoinMessageOverflowThreads()
       throws InterruptedException, ExecutionException {
-    int clusters = 10;
-    int locatorsPerCluster = 6;
+    var clusters = 10;
+    var locatorsPerCluster = 6;
     List<LocatorJoinMessage> allJoinMessages = new ArrayList<>();
 
-    for (int i = 1; i <= clusters; i++) {
+    for (var i = 1; i <= clusters; i++) {
       allJoinMessages.addAll(buildPermutationsForClusterId(i, locatorsPerCluster));
     }
 
@@ -232,10 +231,10 @@ public class LocatorMembershipListenerTest {
     allJoinMessages.forEach(
         (request) -> requests.add(new HandlerCallable(locatorMembershipListener, request)));
 
-    ExecutorService executorService = Executors.newFixedThreadPool(allJoinMessages.size());
-    List<Future<Object>> futures = executorService.invokeAll(requests);
+    var executorService = Executors.newFixedThreadPool(allJoinMessages.size());
+    var futures = executorService.invokeAll(requests);
     for (Future future : futures) {
-      Object response = future.get();
+      var response = future.get();
       assertThat(response).isNull();
     }
     executorService.shutdownNow();
@@ -246,8 +245,8 @@ public class LocatorMembershipListenerTest {
   public void locatorJoinedShouldNotifyNobodyIfThereAreNoKnownLocators()
       throws IOException, ClassNotFoundException {
     ConcurrentMap<Integer, Set<DistributionLocatorId>> allLocatorsInfo = new ConcurrentHashMap<>();
-    DistributionLocatorId joiningLocator = buildDistributionLocatorId(20202);
-    DistributionLocatorId locator1Site1 = buildDistributionLocatorId(10101);
+    var joiningLocator = buildDistributionLocatorId(20202);
+    var locator1Site1 = buildDistributionLocatorId(10101);
     when(locatorMembershipListener.getAllLocatorsInfo()).thenReturn(allLocatorsInfo);
 
     locatorMembershipListener.locatorJoined(2, joiningLocator, locator1Site1);
@@ -260,9 +259,9 @@ public class LocatorMembershipListenerTest {
   public void locatorJoinedShouldNotifyKnownLocatorAboutTheJoiningLocatorAndJoiningLocatorAboutTheKnownOne()
       throws IOException, ClassNotFoundException {
     ConcurrentMap<Integer, Set<DistributionLocatorId>> allLocatorsInfo = new ConcurrentHashMap<>();
-    DistributionLocatorId joiningLocator = buildDistributionLocatorId(20202);
-    DistributionLocatorId locator1Site1 = buildDistributionLocatorId(10101);
-    DistributionLocatorId locator3Site3 = buildDistributionLocatorId(30303);
+    var joiningLocator = buildDistributionLocatorId(20202);
+    var locator1Site1 = buildDistributionLocatorId(10101);
+    var locator3Site3 = buildDistributionLocatorId(30303);
     allLocatorsInfo.put(3, new HashSet<>(Collections.singletonList(locator3Site3)));
     when(locatorMembershipListener.getAllLocatorsInfo()).thenReturn(allLocatorsInfo);
 
@@ -276,14 +275,14 @@ public class LocatorMembershipListenerTest {
   public void locatorJoinedShouldNotifyEveryKnownLocatorAboutTheJoiningLocatorAndJoiningLocatorAboutAllTheKnownLocators()
       throws IOException, ClassNotFoundException {
     ConcurrentMap<Integer, Set<DistributionLocatorId>> allLocatorsInfo = new ConcurrentHashMap<>();
-    DistributionLocatorId joiningLocator = buildDistributionLocatorId(10102);
-    DistributionLocatorId locator1Site1 = buildDistributionLocatorId(10101);
-    DistributionLocatorId locator3Site1 = buildDistributionLocatorId(10103);
-    DistributionLocatorId locator1Site2 = buildDistributionLocatorId(20201);
-    DistributionLocatorId locator2Site2 = buildDistributionLocatorId(20202);
-    DistributionLocatorId locator1Site3 = buildDistributionLocatorId(30301);
-    DistributionLocatorId locator2Site3 = buildDistributionLocatorId(30302);
-    DistributionLocatorId locator3Site3 = buildDistributionLocatorId(30303);
+    var joiningLocator = buildDistributionLocatorId(10102);
+    var locator1Site1 = buildDistributionLocatorId(10101);
+    var locator3Site1 = buildDistributionLocatorId(10103);
+    var locator1Site2 = buildDistributionLocatorId(20201);
+    var locator2Site2 = buildDistributionLocatorId(20202);
+    var locator1Site3 = buildDistributionLocatorId(30301);
+    var locator2Site3 = buildDistributionLocatorId(30302);
+    var locator3Site3 = buildDistributionLocatorId(30303);
     allLocatorsInfo.put(1, new HashSet<>(Arrays.asList(locator1Site1, locator3Site1)));
     allLocatorsInfo.put(2, new HashSet<>(Arrays.asList(locator1Site2, locator2Site2)));
     allLocatorsInfo.put(3,
@@ -305,9 +304,9 @@ public class LocatorMembershipListenerTest {
   public void locatorJoinedShouldRetryUpToTheConfiguredUpperBoundOnConnectionFailures()
       throws IOException, ClassNotFoundException {
     ConcurrentMap<Integer, Set<DistributionLocatorId>> allLocatorsInfo = new ConcurrentHashMap<>();
-    DistributionLocatorId joiningLocator = buildDistributionLocatorId(10102);
-    DistributionLocatorId locator1Site1 = buildDistributionLocatorId(10101);
-    DistributionLocatorId locator3Site1 = buildDistributionLocatorId(10103);
+    var joiningLocator = buildDistributionLocatorId(10102);
+    var locator1Site1 = buildDistributionLocatorId(10101);
+    var locator3Site1 = buildDistributionLocatorId(10103);
     allLocatorsInfo.put(1, new HashSet<>(Collections.singletonList(locator3Site1)));
     when(locatorMembershipListener.getAllLocatorsInfo()).thenReturn(allLocatorsInfo);
     when(tcpClient.requestToServer(locator3Site1.getHost(),
@@ -332,12 +331,12 @@ public class LocatorMembershipListenerTest {
       throws IOException, ClassNotFoundException {
     systemOutRule.enableLog();
     ConcurrentMap<Integer, Set<DistributionLocatorId>> allLocatorsInfo = new ConcurrentHashMap<>();
-    DistributionLocatorId localLocatorID = buildDistributionLocatorId(10101);
-    DistributionLocatorId joiningLocator = buildDistributionLocatorId(10102);
-    DistributionLocatorId remoteLocator1 = buildDistributionLocatorId(10103);
-    DistributionLocatorId remoteLocator2 = buildDistributionLocatorId(10104);
-    final HashSet<DistributionLocatorId> remoteLocators =
-        new HashSet<>(Arrays.asList(remoteLocator1, remoteLocator2));
+    var localLocatorID = buildDistributionLocatorId(10101);
+    var joiningLocator = buildDistributionLocatorId(10102);
+    var remoteLocator1 = buildDistributionLocatorId(10103);
+    var remoteLocator2 = buildDistributionLocatorId(10104);
+    final var remoteLocators =
+        new HashSet<DistributionLocatorId>(Arrays.asList(remoteLocator1, remoteLocator2));
     allLocatorsInfo.put(1, remoteLocators);
     when(locatorMembershipListener.getAllLocatorsInfo()).thenReturn(allLocatorsInfo);
     // have messaging fail twice so that LocatorMembershipListenerImpl's retryMessage logic is
@@ -388,11 +387,11 @@ public class LocatorMembershipListenerTest {
   public void locatorJoinedShouldRetryOnlyFailedMessagesOnConnectionFailures()
       throws IOException, ClassNotFoundException {
     ConcurrentMap<Integer, Set<DistributionLocatorId>> allLocatorsInfo = new ConcurrentHashMap<>();
-    DistributionLocatorId joiningLocator = buildDistributionLocatorId(10102);
-    DistributionLocatorId locator1Site1 = buildDistributionLocatorId(10101);
-    DistributionLocatorId locator3Site1 = buildDistributionLocatorId(10103);
-    DistributionLocatorId locator1Site2 = buildDistributionLocatorId(20201);
-    DistributionLocatorId locator1Site3 = buildDistributionLocatorId(30301);
+    var joiningLocator = buildDistributionLocatorId(10102);
+    var locator1Site1 = buildDistributionLocatorId(10101);
+    var locator3Site1 = buildDistributionLocatorId(10103);
+    var locator1Site2 = buildDistributionLocatorId(20201);
+    var locator1Site3 = buildDistributionLocatorId(30301);
     allLocatorsInfo.put(1, new HashSet<>(Arrays.asList(locator1Site1, locator3Site1)));
     allLocatorsInfo.put(2, new HashSet<>(Collections.singletonList(locator1Site2)));
     allLocatorsInfo.put(3, new HashSet<>(Collections.singletonList(locator1Site3)));

@@ -36,10 +36,10 @@ class SelectResultsComparator implements Comparator {
     if (!(obj1 instanceof SelectResults) || !(obj2 instanceof SelectResults)) {
       Support.assertionFailed("The objects need to be of type SelectResults");
     }
-    int answer = -1;
-    SelectResults sr1 = (SelectResults) obj1;
-    SelectResults sr2 = (SelectResults) obj2;
-    int sizeDifference = sr1.size() - sr2.size();
+    var answer = -1;
+    var sr1 = (SelectResults) obj1;
+    var sr2 = (SelectResults) obj2;
+    var sizeDifference = sr1.size() - sr2.size();
     if (obj1 == obj2) {
       answer = 0;
     } else if (sizeDifference > 0) {

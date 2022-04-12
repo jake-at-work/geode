@@ -17,17 +17,13 @@ package org.apache.geode.redis.internal.commands.executor.string;
 import static org.apache.geode.redis.internal.netty.Coder.isInfinity;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.RedisConstants;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -37,17 +33,17 @@ public class IncrByFloatExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
+    var commandElems = command.getProcessedCommand();
+    var region = context.getRegion();
+    var key = command.getKey();
 
-    Pair<BigDecimal, RedisResponse> validated =
+    var validated =
         validateIncrByFloatArgument(commandElems.get(INCREMENT_INDEX));
     if (validated.getRight() != null) {
       return validated.getRight();
     }
 
-    BigDecimal result = context.stringLockedExecute(key, false,
+    var result = context.stringLockedExecute(key, false,
         string -> string.incrbyfloat(region, key, validated.getLeft()));
 
     return RedisResponse.bigDecimal(result);

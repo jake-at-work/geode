@@ -57,7 +57,6 @@ import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionException;
 import org.apache.geode.internal.cache.PrimaryBucketException;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.TransactionMessage;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.sequencelog.EntryLogger;
@@ -157,7 +156,7 @@ public abstract class PartitionMessage extends DistributionMessage
 
   public void initTxMemberId() {
     txUniqId = TXManagerImpl.getCurrentTXUniqueId();
-    TXStateProxy txState = TXManagerImpl.getCurrentTXState();
+    var txState = TXManagerImpl.getCurrentTXState();
     if (txState != null) {
       // [DISTTX] Lets not throw this exception for Dist Tx
       if (canStartRemoteTransaction() && txState.isRealDealLocal() && !txState.isDistTx()) {
@@ -257,7 +256,7 @@ public abstract class PartitionMessage extends DistributionMessage
     if (dm == null) {
       return true;
     }
-    InternalCache cache = dm.getCache();
+    var cache = dm.getCache();
     return cache == null || cache.isClosed();
   }
 
@@ -267,7 +266,7 @@ public abstract class PartitionMessage extends DistributionMessage
    * @return true if the distributed system is closing
    */
   public boolean checkDSClosing(ClusterDistributionManager dm) {
-    InternalDistributedSystem ds = dm.getSystem();
+    var ds = dm.getSystem();
     return (ds == null || ds.isDisconnecting());
   }
 
@@ -295,12 +294,12 @@ public abstract class PartitionMessage extends DistributionMessage
   @Override
   public void process(final ClusterDistributionManager dm) {
     Throwable thr = null;
-    boolean sendReply = true;
+    var sendReply = true;
     PartitionedRegion pr = null;
     long startTime = 0;
     EntryLogger.setSource(getSender(), "PR");
     try {
-      InternalCache cache = dm.getCache();
+      var cache = dm.getCache();
       if (checkCacheClosing(dm) || checkDSClosing(dm)) {
         if (cache != null) {
           thr = cache
@@ -313,7 +312,7 @@ public abstract class PartitionMessage extends DistributionMessage
         return;
       }
       pr = getPartitionedRegion();
-      Throwable forcedReattempt = processCheckForPR(pr, dm);
+      var forcedReattempt = processCheckForPR(pr, dm);
       if (forcedReattempt != null) {
         thr = forcedReattempt;
         return;
@@ -327,8 +326,8 @@ public abstract class PartitionMessage extends DistributionMessage
       if (cache == null) {
         throw new ForceReattemptException("Remote cache is closed");
       }
-      TXManagerImpl txMgr = getTXManagerImpl(cache);
-      TXStateProxy tx = txMgr.masqueradeAs(this);
+      var txMgr = getTXManagerImpl(cache);
+      var tx = txMgr.masqueradeAs(this);
       if (tx == null) {
         sendReply = operateOnPartitionedRegion(dm, pr, startTime);
       } else {
@@ -409,7 +408,7 @@ public abstract class PartitionMessage extends DistributionMessage
         if (thr != null) {
           // don't transmit the exception if this message was to a listener
           // and this listener is shutting down
-          boolean excludeException = notificationOnly
+          var excludeException = notificationOnly
               && ((thr instanceof CancelException) || (thr instanceof ForceReattemptException));
 
           if (!excludeException) {
@@ -621,8 +620,8 @@ public abstract class PartitionMessage extends DistributionMessage
 
   @Override
   public String toString() {
-    StringBuilder buff = new StringBuilder();
-    String className = getClass().getName();
+    var buff = new StringBuilder();
+    var className = getClass().getName();
     // className.substring(className.lastIndexOf('.', className.lastIndexOf('.') - 1) + 1); //
     // partition.<foo> more generic version
     buff.append(className.substring(className.indexOf(PN_TOKEN) + PN_TOKEN.length())); // partition.<foo>
@@ -632,7 +631,7 @@ public abstract class PartitionMessage extends DistributionMessage
     // Append name, if we have it
     String name = null;
     try {
-      PartitionedRegion pr = PartitionedRegion.getPRFromId(regionId);
+      var pr = PartitionedRegion.getPRFromId(regionId);
       if (pr != null) {
         name = pr.getFullPath();
       }
@@ -719,7 +718,7 @@ public abstract class PartitionMessage extends DistributionMessage
 
   protected boolean notifiesSerialGatewaySender(ClusterDistributionManager dm) {
     try {
-      PartitionedRegion pr = PartitionedRegion.getPRFromId(regionId);
+      var pr = PartitionedRegion.getPRFromId(regionId);
       if (pr == null) {
         return false;
       }
@@ -795,7 +794,7 @@ public abstract class PartitionMessage extends DistributionMessage
         }
         checkIfDone();
       } else {
-        Exception e = new Exception(
+        var e = new Exception(
             "memberDeparted got null memberId");
         logger.info(String.format("memberDeparted got null memberId crashed=%s", crashed),
             e);
@@ -818,14 +817,14 @@ public abstract class PartitionMessage extends DistributionMessage
               "Attempt failed", prce);
         }
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof CacheException) {
           throw (CacheException) t;
         } else if (t instanceof ForceReattemptException) {
-          ForceReattemptException ft = (ForceReattemptException) t;
+          var ft = (ForceReattemptException) t;
           // See FetchEntriesMessage, which can marshal a ForceReattempt
           // across to the sender
-          ForceReattemptException fre = new ForceReattemptException(
+          var fre = new ForceReattemptException(
               "Peer requests reattempt", t);
           if (ft.hasHash()) {
             fre.setHash(ft.getHash());

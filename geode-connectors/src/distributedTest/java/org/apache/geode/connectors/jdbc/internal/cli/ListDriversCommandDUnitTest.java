@@ -43,7 +43,7 @@ public class ListDriversCommandDUnitTest {
 
   @BeforeClass
   public static void before() throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     server1 = cluster.startServerVM(1, "group1", locator.getPort());
     server2 = cluster.startServerVM(2, "group1", locator.getPort());
 
@@ -54,11 +54,11 @@ public class ListDriversCommandDUnitTest {
   public void testListDriversWithoutMemberNameDoesNotThrowException() {
 
     // acquire the jar to be used
-    final String jdbcJarName = "mysql-connector-java-8.0.28.jar";
-    final String jdbcDriverClassName = "com.mysql.cj.jdbc.Driver";
-    File mySqlDriverFile = loadTestResource("/" + jdbcJarName);
+    final var jdbcJarName = "mysql-connector-java-8.0.28.jar";
+    final var jdbcDriverClassName = "com.mysql.cj.jdbc.Driver";
+    var mySqlDriverFile = loadTestResource("/" + jdbcJarName);
     assertThat(mySqlDriverFile).exists();
-    String jarFile = mySqlDriverFile.getAbsolutePath();
+    var jarFile = mySqlDriverFile.getAbsolutePath();
 
     gfsh.executeAndAssertThat("deploy --jar=" + jarFile).statusIsSuccess();
 
@@ -73,11 +73,11 @@ public class ListDriversCommandDUnitTest {
   @Test
   public void testLIstDriversWithMemberNameDoesNotThrowException() {
     // acquire the jar to be used
-    final String jdbcJarName = "mysql-connector-java-8.0.28.jar";
-    final String jdbcDriverClassName = "com.mysql.cj.jdbc.Driver";
-    File mySqlDriverFile = loadTestResource("/" + jdbcJarName);
+    final var jdbcJarName = "mysql-connector-java-8.0.28.jar";
+    final var jdbcDriverClassName = "com.mysql.cj.jdbc.Driver";
+    var mySqlDriverFile = loadTestResource("/" + jdbcJarName);
     assertThat(mySqlDriverFile).exists();
-    String jarFile = mySqlDriverFile.getAbsolutePath();
+    var jarFile = mySqlDriverFile.getAbsolutePath();
 
     gfsh.executeAndAssertThat("deploy --jar=" + jarFile).statusIsSuccess();
 
@@ -89,7 +89,7 @@ public class ListDriversCommandDUnitTest {
   }
 
   private File loadTestResource(String fileName) {
-    String filePath = ResourceUtils.getResource(getClass(), fileName).getPath();
+    var filePath = ResourceUtils.getResource(getClass(), fileName).getPath();
     Assertions.assertThat(filePath).isNotNull();
 
     return new File(filePath);

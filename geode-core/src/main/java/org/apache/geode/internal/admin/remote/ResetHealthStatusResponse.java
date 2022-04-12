@@ -21,7 +21,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.HealthMonitor;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -40,10 +39,10 @@ public class ResetHealthStatusResponse extends AdminResponse {
    */
   public static ResetHealthStatusResponse create(DistributionManager dm,
       InternalDistributedMember recipient, int id) {
-    ResetHealthStatusResponse m = new ResetHealthStatusResponse();
+    var m = new ResetHealthStatusResponse();
     m.setRecipient(recipient);
     {
-      HealthMonitor hm = dm.getHealthMonitor(recipient);
+      var hm = dm.getHealthMonitor(recipient);
       if (hm.getId() == id) {
         hm.resetStatus();
       }

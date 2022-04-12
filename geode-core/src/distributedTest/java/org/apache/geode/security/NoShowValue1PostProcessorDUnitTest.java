@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,8 +34,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.test.dunit.Host;
@@ -65,7 +62,7 @@ public class NoShowValue1PostProcessorDUnitTest extends JUnit4DistributedTestCas
   public void before() throws Exception {
     Region region =
         server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("key" + i, "value" + i);
     }
   }
@@ -77,8 +74,8 @@ public class NoShowValue1PostProcessorDUnitTest extends JUnit4DistributedTestCas
     keys.add("key2");
 
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
 
       // post process for get
       assertEquals("value3", region.get("key3"));
@@ -86,14 +83,14 @@ public class NoShowValue1PostProcessorDUnitTest extends JUnit4DistributedTestCas
       assertNull(region.get("key1"));
 
       // post processs for getAll
-      Map values = region.getAll(keys);
+      var values = region.getAll(keys);
       assertEquals(2, values.size());
       assertEquals("value2", values.get("key2"));
       assertNull(values.get("key1"));
 
       // post process for query
-      String query = "select * from " + SEPARATOR + "AuthRegion";
-      SelectResults result = region.query(query);
+      var query = "select * from " + SEPARATOR + "AuthRegion";
+      var result = region.query(query);
       System.out.println("query result: " + result);
       assertEquals(5, result.size());
       assertTrue(result.contains("value0"));
@@ -102,7 +99,7 @@ public class NoShowValue1PostProcessorDUnitTest extends JUnit4DistributedTestCas
       assertTrue(result.contains("value3"));
       assertTrue(result.contains("value4"));
 
-      Pool pool = PoolManager.find(region);
+      var pool = PoolManager.find(region);
       result = (SelectResults) pool.getQueryService().newQuery(query).execute();
       System.out.println("query result: " + result);
       assertTrue(result.contains("value0"));

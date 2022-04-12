@@ -18,7 +18,6 @@ import static org.apache.geode.logging.internal.spi.LogWriterLevel.ALL;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.logging.log4j.Logger;
 
@@ -74,9 +73,9 @@ public class LoggingThreadGroup extends ThreadGroup {
     // gazillion of them.
     LoggingThreadGroup group = null;
     synchronized (loggingThreadGroups) {
-      for (Iterator<LoggingThreadGroup> iter = loggingThreadGroups.iterator(); iter.hasNext();) {
+      for (var iter = loggingThreadGroups.iterator(); iter.hasNext();) {
 
-        LoggingThreadGroup group2 = iter.next();
+        var group2 = iter.next();
         if (group2.isDestroyed()) {
           // Clean is this iterator out
           iter.remove();
@@ -123,9 +122,9 @@ public class LoggingThreadGroup extends ThreadGroup {
     // gazillion of them.
     LoggingThreadGroup group = null;
     synchronized (loggingThreadGroups) {
-      for (Iterator<LoggingThreadGroup> iter = loggingThreadGroups.iterator(); iter.hasNext();) {
+      for (var iter = loggingThreadGroups.iterator(); iter.hasNext();) {
 
-        LoggingThreadGroup group2 = iter.next();
+        var group2 = iter.next();
         if (group2.isDestroyed()) {
           // Clean is this iterator out
           iter.remove();
@@ -159,7 +158,7 @@ public class LoggingThreadGroup extends ThreadGroup {
 
   public static void cleanUpThreadGroups() {
     synchronized (loggingThreadGroups) {
-      for (LoggingThreadGroup loggingThreadGroup : loggingThreadGroups) {
+      for (var loggingThreadGroup : loggingThreadGroups) {
         if (!loggingThreadGroup.getName().equals(InternalDistributedSystem.SHUTDOWN_HOOK_NAME)
             && !loggingThreadGroup.getName().equals("GemFireConnectionFactory Shutdown Hook")) {
           loggingThreadGroup.cleanup();
@@ -176,7 +175,7 @@ public class LoggingThreadGroup extends ThreadGroup {
   public static ThreadGroup getThreadGroup(final String threadGroupName) {
     synchronized (loggingThreadGroups) {
       for (Object object : loggingThreadGroups) {
-        LoggingThreadGroup threadGroup = (LoggingThreadGroup) object;
+        var threadGroup = (LoggingThreadGroup) object;
         if (threadGroup.getName().equals(threadGroupName)) {
           return threadGroup;
         }
@@ -237,12 +236,12 @@ public class LoggingThreadGroup extends ThreadGroup {
       }
       // Solution to treat the shutdown hook error as a special case.
       // Do not change the hook's thread name without also changing it here.
-      String threadName = t.getName();
+      var threadName = t.getName();
       if ((ex instanceof NoClassDefFoundError)
           && (threadName.equals(InternalDistributedSystem.SHUTDOWN_HOOK_NAME))) {
-        final String msg =
+        final var msg =
             "Uncaught exception in thread %s this message can be disregarded if it occurred during an Application Server shutdown. The Exception message was: %s";
-        final Object[] msgArgs = new Object[] {t, ex.getLocalizedMessage()};
+        final var msgArgs = new Object[] {t, ex.getLocalizedMessage()};
         stderr.info(String.format(msg, msgArgs));
         if (logger != null) {
           logger.info(String.format(msg, msgArgs));

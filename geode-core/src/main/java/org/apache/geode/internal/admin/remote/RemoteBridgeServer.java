@@ -94,10 +94,10 @@ public class RemoteBridgeServer extends AbstractCacheServer
     loadPollInterval = impl.getLoadPollInterval();
     tcpNoDelay = impl.getTcpNoDelay();
     // added for configuration of ha overflow
-    ClientSubscriptionConfig cscimpl = impl.getClientSubscriptionConfig();
+    var cscimpl = impl.getClientSubscriptionConfig();
     clientSubscriptionConfig.setEvictionPolicy(cscimpl.getEvictionPolicy());
     clientSubscriptionConfig.setCapacity(cscimpl.getCapacity());
-    String diskStoreName = cscimpl.getDiskStoreName();
+    var diskStoreName = cscimpl.getDiskStoreName();
     if (diskStoreName != null) {
       clientSubscriptionConfig.setDiskStoreName(diskStoreName);
     } else {
@@ -194,19 +194,19 @@ public class RemoteBridgeServer extends AbstractCacheServer
 
   @Override
   public ClientSession getClientSession(String durableClientId) {
-    String s = "Cannot get a client session for a remote BridgeServer";
+    var s = "Cannot get a client session for a remote BridgeServer";
     throw new UnsupportedOperationException(s);
   }
 
   @Override
   public ClientSession getClientSession(DistributedMember member) {
-    String s = "Cannot get a client session for a remote BridgeServer";
+    var s = "Cannot get a client session for a remote BridgeServer";
     throw new UnsupportedOperationException(s);
   }
 
   @Override
   public Set getAllClientSessions() {
-    String s =
+    var s =
         "Cannot get all client sessions for a remote BridgeServer";
     throw new UnsupportedOperationException(s);
   }
@@ -268,7 +268,7 @@ public class RemoteBridgeServer extends AbstractCacheServer
     tcpNoDelay = in.readBoolean();
     getClientSubscriptionConfig().setCapacity(in.readInt());
     getClientSubscriptionConfig().setEvictionPolicy(DataSerializer.readString(in));
-    String diskStoreName = DataSerializer.readString(in);
+    var diskStoreName = DataSerializer.readString(in);
     if (diskStoreName != null) {
       getClientSubscriptionConfig().setDiskStoreName(diskStoreName);
     } else {
@@ -320,7 +320,7 @@ public class RemoteBridgeServer extends AbstractCacheServer
    */
   @Override
   public void registerInterestRegistrationListener(InterestRegistrationListener listener) {
-    final String s =
+    final var s =
         "InterestRegistrationListeners cannot be registered on a remote BridgeServer";
     throw new UnsupportedOperationException(s);
   }
@@ -335,7 +335,7 @@ public class RemoteBridgeServer extends AbstractCacheServer
    */
   @Override
   public void unregisterInterestRegistrationListener(InterestRegistrationListener listener) {
-    final String s =
+    final var s =
         "InterestRegistrationListeners cannot be unregistered from a remote BridgeServer";
     throw new UnsupportedOperationException(s);
   }
@@ -351,7 +351,7 @@ public class RemoteBridgeServer extends AbstractCacheServer
    */
   @Override
   public Set getInterestRegistrationListeners() {
-    final String s =
+    final var s =
         "InterestRegistrationListeners cannot be retrieved from a remote BridgeServer";
     throw new UnsupportedOperationException(s);
   }

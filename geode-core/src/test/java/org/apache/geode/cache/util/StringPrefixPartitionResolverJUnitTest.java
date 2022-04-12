@@ -33,25 +33,25 @@ public class StringPrefixPartitionResolverJUnitTest {
 
   @Test
   public void testEquals() {
-    StringPrefixPartitionResolver pr1 = new StringPrefixPartitionResolver();
+    var pr1 = new StringPrefixPartitionResolver();
     assertEquals(true, pr1.equals(pr1));
-    StringPrefixPartitionResolver pr2 = new StringPrefixPartitionResolver();
+    var pr2 = new StringPrefixPartitionResolver();
     assertEquals(true, pr1.equals(pr2));
     assertEquals(false, pr1.equals(new Object()));
   }
 
   @Test
   public void testNonStringKey() {
-    Object key = new Object();
-    StringPrefixPartitionResolver pr = new StringPrefixPartitionResolver();
+    var key = new Object();
+    var pr = new StringPrefixPartitionResolver();
     assertThatThrownBy(() -> pr.getRoutingObject(createEntryOperation(key)))
         .isInstanceOf(ClassCastException.class);
   }
 
   @Test
   public void testNoDelimiterKey() {
-    String key = "foobar";
-    StringPrefixPartitionResolver pr = new StringPrefixPartitionResolver();
+    var key = "foobar";
+    var pr = new StringPrefixPartitionResolver();
     assertThatThrownBy(() -> pr.getRoutingObject(createEntryOperation(key)))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("The key \"foobar\" does not contains the \"" + DELIMITER + "\" delimiter.");
@@ -59,29 +59,29 @@ public class StringPrefixPartitionResolverJUnitTest {
 
   @Test
   public void testEmptyPrefix() {
-    String key = DELIMITER + "foobar";
-    StringPrefixPartitionResolver pr = new StringPrefixPartitionResolver();
+    var key = DELIMITER + "foobar";
+    var pr = new StringPrefixPartitionResolver();
     assertEquals("", pr.getRoutingObject(createEntryOperation(key)));
   }
 
   @Test
   public void testAllPrefix() {
-    String key = "foobar" + DELIMITER;
-    StringPrefixPartitionResolver pr = new StringPrefixPartitionResolver();
+    var key = "foobar" + DELIMITER;
+    var pr = new StringPrefixPartitionResolver();
     assertEquals("foobar", pr.getRoutingObject(createEntryOperation(key)));
   }
 
   @Test
   public void testSimpleKey() {
-    String key = "1" + DELIMITER + "2";
-    StringPrefixPartitionResolver pr = new StringPrefixPartitionResolver();
+    var key = "1" + DELIMITER + "2";
+    var pr = new StringPrefixPartitionResolver();
     assertEquals("1", pr.getRoutingObject(createEntryOperation(key)));
   }
 
   @Test
   public void testMulitPrefix() {
-    String key = "one" + DELIMITER + "two" + DELIMITER + "three";
-    StringPrefixPartitionResolver pr = new StringPrefixPartitionResolver();
+    var key = "one" + DELIMITER + "two" + DELIMITER + "three";
+    var pr = new StringPrefixPartitionResolver();
     assertEquals("one", pr.getRoutingObject(createEntryOperation(key)));
   }
 

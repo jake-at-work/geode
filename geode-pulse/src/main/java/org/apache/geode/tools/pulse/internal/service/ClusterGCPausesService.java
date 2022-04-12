@@ -20,7 +20,6 @@ package org.apache.geode.tools.pulse.internal.service;
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -56,14 +55,14 @@ public class ClusterGCPausesService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
     // cluster's GC Pauses trend added to json response object
 
-    ArrayNode pauses = mapper.createArrayNode();
-    for (Object obj : cluster.getStatisticTrend(Cluster.CLUSTER_STAT_GARBAGE_COLLECTION)) {
+    var pauses = mapper.createArrayNode();
+    for (var obj : cluster.getStatisticTrend(Cluster.CLUSTER_STAT_GARBAGE_COLLECTION)) {
       if (obj instanceof Number) {
         pauses.add(((Number) obj).longValue());
       }

@@ -35,7 +35,7 @@ public class DistributedAckRegionCCEOffHeapDUnitTest extends DistributedAckRegio
 
   @Override
   public final void preTearDownAssertions() throws Exception {
-    SerializableRunnable checkOrphans = new SerializableRunnable() {
+    var checkOrphans = new SerializableRunnable() {
 
       @Override
       public void run() {
@@ -50,7 +50,7 @@ public class DistributedAckRegionCCEOffHeapDUnitTest extends DistributedAckRegio
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.setProperty(OFF_HEAP_MEMORY_SIZE, "10m");
     return props;
   }
@@ -58,7 +58,7 @@ public class DistributedAckRegionCCEOffHeapDUnitTest extends DistributedAckRegio
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
     RegionAttributes<K, V> attrs = super.getRegionAttributes();
-    AttributesFactory<K, V> factory = new AttributesFactory<>(attrs);
+    var factory = new AttributesFactory<K, V>(attrs);
     factory.setOffHeap(true);
     return factory.create();
   }
@@ -66,7 +66,7 @@ public class DistributedAckRegionCCEOffHeapDUnitTest extends DistributedAckRegio
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes(String type) {
     RegionAttributes<K, V> ra = super.getRegionAttributes(type);
-    AttributesFactory<K, V> factory = new AttributesFactory<>(ra);
+    var factory = new AttributesFactory<K, V>(ra);
     if (!ra.getDataPolicy().isEmpty()) {
       factory.setOffHeap(true);
     }

@@ -15,10 +15,7 @@
 package org.apache.geode.management.internal.cli.functions;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.execute.ResultSender;
-import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.cache.xmlcache.CacheXml;
 import org.apache.geode.management.internal.cli.CliUtils;
@@ -42,20 +39,20 @@ public class GatewaySenderDestroyFunction
   @Override
   @SuppressWarnings("deprecation")
   public void execute(FunctionContext<GatewaySenderDestroyFunctionArgs> context) {
-    ResultSender<Object> resultSender = context.getResultSender();
+    var resultSender = context.getResultSender();
 
-    Cache cache = context.getCache();
-    String memberNameOrId =
+    var cache = context.getCache();
+    var memberNameOrId =
         CliUtils.getMemberNameOrId(cache.getDistributedSystem().getDistributedMember());
 
-    GatewaySenderDestroyFunctionArgs gatewaySenderDestroyFunctionArgs =
+    var gatewaySenderDestroyFunctionArgs =
         context.getArguments();
 
-    String senderId = gatewaySenderDestroyFunctionArgs.getId();
-    boolean ifExists = gatewaySenderDestroyFunctionArgs.isIfExists();
-    GatewaySender gatewaySender = cache.getGatewaySender(senderId);
+    var senderId = gatewaySenderDestroyFunctionArgs.getId();
+    var ifExists = gatewaySenderDestroyFunctionArgs.isIfExists();
+    var gatewaySender = cache.getGatewaySender(senderId);
     if (gatewaySender == null) {
-      String message = "Gateway sender " + senderId + " not found.";
+      var message = "Gateway sender " + senderId + " not found.";
       if (ifExists) {
         resultSender
             .lastResult(new CliFunctionResult(memberNameOrId, true, "Skipping: " + message));
@@ -68,7 +65,7 @@ public class GatewaySenderDestroyFunction
     try {
       gatewaySender.stop();
       gatewaySender.destroy();
-      XmlEntity xmlEntity = new XmlEntity(CacheXml.GATEWAY_SENDER, "id", senderId);
+      var xmlEntity = new XmlEntity(CacheXml.GATEWAY_SENDER, "id", senderId);
       resultSender.lastResult(new CliFunctionResult(memberNameOrId, xmlEntity,
           String.format("GatewaySender \"%s\" destroyed on \"%s\"", senderId, memberNameOrId)));
     } catch (Exception e) {

@@ -39,8 +39,8 @@ public class Avg extends Sum {
 
   @Override
   public Object terminate() {
-    double sum = ((Number) super.terminate()).doubleValue();
-    double result = sum / num;
+    var sum = ((Number) super.terminate()).doubleValue();
+    var result = sum / num;
     return downCast(result);
   }
 }

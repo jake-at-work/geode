@@ -47,13 +47,13 @@ public class AlterDiskStoreCommandIntegrationTest {
 
   @Test
   public void removeOptionMustBeUsedAlone() {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
+    var csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKSTORENAME, "diskStoreName");
     csb.addOption(CliStrings.ALTER_DISK_STORE__REGIONNAME, "regionName");
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKDIRS, tempDir.getRoot().toString());
     csb.addOption(CliStrings.ALTER_DISK_STORE__CONCURRENCY__LEVEL, "5");
     csb.addOption(CliStrings.ALTER_DISK_STORE__REMOVE, "true");
-    String commandString = csb.toString();
+    var commandString = csb.toString();
 
     gfsh.executeAndAssertThat(command, commandString).statusIsError()
         .containsOutput("Cannot use the --remove=true parameter with any other parameters");
@@ -61,12 +61,12 @@ public class AlterDiskStoreCommandIntegrationTest {
 
   @Test
   public void testDirValidation() {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
+    var csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKSTORENAME, "diskStoreName");
     csb.addOption(CliStrings.ALTER_DISK_STORE__REGIONNAME, "regionName");
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKDIRS, "wrongDiskDir");
     csb.addOption(CliStrings.ALTER_DISK_STORE__CONCURRENCY__LEVEL, "5");
-    String commandString = csb.toString();
+    var commandString = csb.toString();
 
     gfsh.executeAndAssertThat(command, commandString).statusIsError()
         .containsOutput("Could not find disk-dirs: \"wrongDiskDir");
@@ -74,13 +74,13 @@ public class AlterDiskStoreCommandIntegrationTest {
 
   @Test
   public void testNameValidation() {
-    String diskStoreName = "diskStoreName";
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
+    var diskStoreName = "diskStoreName";
+    var csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKSTORENAME, diskStoreName);
     csb.addOption(CliStrings.ALTER_DISK_STORE__REGIONNAME, "regionName");
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKDIRS, tempDir.getRoot().toString());
     csb.addOption(CliStrings.ALTER_DISK_STORE__CONCURRENCY__LEVEL, "5");
-    String commandString = csb.toString();
+    var commandString = csb.toString();
 
     gfsh.executeAndAssertThat(command, commandString).statusIsError()
         .containsOutput(

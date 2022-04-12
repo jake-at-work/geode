@@ -23,7 +23,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.membership.api.MembershipLocatorStatistics;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
@@ -69,11 +68,11 @@ public class LocatorStats implements MembershipLocatorStatistics {
   private Statistics _stats = null;
 
   static {
-    String statName = "LocatorStats";
-    String statDescription = "Statistics on the gemfire locator.";
-    String serverThreadsDesc =
+    var statName = "LocatorStats";
+    var statDescription = "Statistics on the gemfire locator.";
+    var serverThreadsDesc =
         "The number of location requests currently being processed by the thread pool.";
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     type = f.createType(statName, statDescription, new StatisticDescriptor[] {
         f.createIntGauge(KNOWN_LOCATORS, "Number of locators known to this locator", LOCATORS),
         f.createLongCounter(REQUESTS_TO_LOCATOR,
@@ -142,7 +141,7 @@ public class LocatorStats implements MembershipLocatorStatistics {
 
   @Override
   public void endLocatorRequest(long startTime) {
-    long took = DistributionStats.getStatTime() - startTime;
+    var took = DistributionStats.getStatTime() - startTime;
     if (_stats == null) {
       requests_to_locator.incrementAndGet();
       if (took > 0) {
@@ -158,7 +157,7 @@ public class LocatorStats implements MembershipLocatorStatistics {
 
   @Override
   public void endLocatorResponse(long startTime) {
-    long took = DistributionStats.getStatTime() - startTime;
+    var took = DistributionStats.getStatTime() - startTime;
     if (_stats == null) {
       responses_from_locator.incrementAndGet();
       if (took > 0) {

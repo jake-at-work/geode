@@ -43,59 +43,59 @@ public class CommentSkipHelperTest {
 
   @Test
   public void stringWithDoubleSlashCommentShouldReturnString() {
-    String command = "start locator --name=loc1 //";
+    var command = "start locator --name=loc1 //";
     assertThat(commentSkipHelper.skipComments(command)).isEqualTo(command);
   }
 
   @Test
   public void stringWithSlashAsterCommentShouldRemoveComment() {
-    String command = "start locator /* starting locator */ --name=loc1";
+    var command = "start locator /* starting locator */ --name=loc1";
     assertThat(commentSkipHelper.skipComments(command))
         .isEqualTo("start locator  --name=loc1");
   }
 
   @Test
   public void stringWithCommentWithoutSpacesShouldRemoveComment() { // TODO: possible bug
-    String command = "start locator/* starting locator */--name=loc1";
+    var command = "start locator/* starting locator */--name=loc1";
     assertThat(commentSkipHelper.skipComments(command)).isEqualTo("start locator--name=loc1");
   }
 
   @Test
   public void stringWithOpenCommentShouldReturnNull() { // TODO: possible bug
-    String command = "start locator /* --name=loc1";
+    var command = "start locator /* --name=loc1";
     assertThat(commentSkipHelper.skipComments(command)).isNull();
   }
 
   @Test
   public void stringWithCloseCommentShouldReturnString() { // TODO: possible bug
-    String command = "start locator */ --name=loc1";
+    var command = "start locator */ --name=loc1";
     assertThat(commentSkipHelper.skipComments(command)).isEqualTo(command);
   }
 
   @Test
   public void stringWithMultiLineCommentShouldRemoveComment() {
-    String command = "start locator /*\n some \n comment \n */ --name=loc1";
+    var command = "start locator /*\n some \n comment \n */ --name=loc1";
     assertThat(commentSkipHelper.skipComments(command))
         .isEqualTo("start locator  --name=loc1");
   }
 
   @Test
   public void stringWithCommentAtEndShouldRemoveComment() {
-    String command = "start locator --name=loc1 /* comment at end */";
+    var command = "start locator --name=loc1 /* comment at end */";
     assertThat(commentSkipHelper.skipComments(command))
         .isEqualTo("start locator --name=loc1 ");
   }
 
   @Test
   public void stringWithCommentAtBeginningShouldRemoveComment() {
-    String command = "/* comment at begin */ start locator --name=loc1";
+    var command = "/* comment at begin */ start locator --name=loc1";
     assertThat(commentSkipHelper.skipComments(command))
         .isEqualTo(" start locator --name=loc1");
   }
 
   @Test
   public void stringWithInsideOutCommentShouldMisbehave() { // TODO: possible bug
-    String command = "*/ this is a comment /* start locator --name=loc1";
+    var command = "*/ this is a comment /* start locator --name=loc1";
     assertThat(commentSkipHelper.skipComments(command))
         .isEqualTo("*/ this is a comment  this is a comment /* start locator --name=loc1");
   }

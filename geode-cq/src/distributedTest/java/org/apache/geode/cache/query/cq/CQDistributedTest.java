@@ -27,8 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.CacheTransactionManager;
-import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCache;
@@ -73,12 +71,12 @@ public class CQDistributedTest implements Serializable {
     server2 = clusterStartupRule.startServerVM(4, locator1Port);
     createServerRegion(server2, RegionShortcut.PARTITION);
 
-    ClientCache clientCache = createClientCache(locator1Port);
+    var clientCache = createClientCache(locator1Port);
     region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("region");
 
     qs = clientCache.getQueryService();
-    CqAttributesFactory cqaf = new CqAttributesFactory();
+    var cqaf = new CqAttributesFactory();
     testListener = new TestCqListener();
     testListener2 = new TestCqListener2();
     cqaf.addCqListener(testListener);
@@ -194,7 +192,7 @@ public class CQDistributedTest implements Serializable {
 
     server.invoke(() -> {
       Region regionOnServer = ClusterStartupRule.getCache().getRegion("region");
-      final CacheTransactionManager txMgr =
+      final var txMgr =
           ClusterStartupRule.getCache().getCacheTransactionManager();
 
       // CREATE new entry
@@ -242,24 +240,24 @@ public class CQDistributedTest implements Serializable {
 
     qs.newCq("Select * from /region r where r.ID = 1", cqa).execute();
 
-    final CacheTransactionManager txMgr = region.getCache().getCacheTransactionManager();
+    final var txMgr = region.getCache().getCacheTransactionManager();
 
     // CREATE new entry
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       txMgr.begin();
       region.put(i, new Portfolio(1));
       txMgr.commit();
     }
 
     // UPDATE
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       txMgr.begin();
       region.put(i, new Portfolio(0));
       txMgr.commit();
     }
 
     // CREATE
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       txMgr.begin();
       region.put(i, new Portfolio(1));
       txMgr.commit();
@@ -291,7 +289,7 @@ public class CQDistributedTest implements Serializable {
 
     @Override
     public void onEvent(CqEvent aCqEvent) {
-      Operation queryOperation = aCqEvent.getQueryOperation();
+      var queryOperation = aCqEvent.getQueryOperation();
       if (queryOperation.isCreate()) {
         onEventCreateCalls++;
       } else if (queryOperation.isUpdate()) {
@@ -314,7 +312,7 @@ public class CQDistributedTest implements Serializable {
   }
 
   private ClientCache createClientCache(Integer locator1Port) {
-    ClientCacheFactory ccf = new ClientCacheFactory();
+    var ccf = new ClientCacheFactory();
     ccf.addPoolLocator("localhost", locator1Port);
     ccf.setPoolSubscriptionEnabled(true);
     return ccf.create();

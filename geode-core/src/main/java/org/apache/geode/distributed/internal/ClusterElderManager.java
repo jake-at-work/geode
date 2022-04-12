@@ -58,7 +58,7 @@ public class ClusterElderManager {
   }
 
   List<InternalDistributedMember> getElderCandidates() {
-    List<InternalDistributedMember> theMembers = clusterDistributionManager.getViewMembers();
+    var theMembers = clusterDistributionManager.getViewMembers();
 
     return theMembers.stream()
         .filter(member -> member.getVmKind() != ClusterDistributionManager.ADMIN_ONLY_DM_TYPE)
@@ -122,7 +122,7 @@ public class ClusterElderManager {
    */
   public boolean waitForElder(final InternalDistributedMember desiredElder)
       throws InterruptedException {
-    MembershipChangeListener changeListener =
+    var changeListener =
         new MembershipChangeListener();
 
     clusterDistributionManager.addMembershipListener(changeListener);

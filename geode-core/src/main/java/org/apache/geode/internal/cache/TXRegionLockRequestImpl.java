@@ -83,17 +83,17 @@ public class TXRegionLockRequestImpl implements TXRegionLockRequest {
     }
     if (entryKeys == null) {
       // Create new temporary HashMap. Fix for defect # 44472.
-      final HashMap<Object, Boolean> tmp = new HashMap<>(map.size());
+      final var tmp = new HashMap<Object, Boolean>(map.size());
       tmp.putAll(map);
       entryKeys = tmp;
 
     } else {
       // Need to make a copy so we can do a union
-      final HashMap<Object, Boolean> tmp =
-          new HashMap<>(entryKeys.size() + map.size());
+      final var tmp =
+          new HashMap<Object, Boolean>(entryKeys.size() + map.size());
       tmp.putAll(entryKeys);
       entryKeys = tmp;
-      for (Map.Entry<Object, Boolean> entry : map.entrySet()) {
+      for (var entry : map.entrySet()) {
         addEntryKey(entry.getKey(), entry.getValue());
       }
     }
@@ -115,7 +115,7 @@ public class TXRegionLockRequestImpl implements TXRegionLockRequest {
 
     cache = GemFireCacheImpl.getInstance();
     try {
-      final int size = InternalDataSerializer.readArrayLength(in);
+      final var size = InternalDataSerializer.readArrayLength(in);
       if (cache != null && size > 0) {
         r = (LocalRegion) cache.getRegion(regionPath);
       }
@@ -142,10 +142,10 @@ public class TXRegionLockRequestImpl implements TXRegionLockRequest {
       return null;
     }
 
-    final HashMap<Object, Boolean> map = new HashMap<>(size);
+    final var map = new HashMap<Object, Boolean>(size);
     Object key;
     Boolean value;
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       key = DataSerializer.readObject(in);
       value = DataSerializer.readObject(in);
       map.put(key, value);
@@ -165,10 +165,10 @@ public class TXRegionLockRequestImpl implements TXRegionLockRequest {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Reading HashSet with size {}", size);
     }
 
-    final HashMap<Object, Boolean> map = new HashMap<>(size);
+    final var map = new HashMap<Object, Boolean>(size);
     Object key;
     Boolean value;
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       key = DataSerializer.readObject(in);
       value = true;
       map.put(key, value);
@@ -188,14 +188,14 @@ public class TXRegionLockRequestImpl implements TXRegionLockRequest {
         .isNotOlderThan(KnownVersion.GEODE_1_10_0)) {
       InternalDataSerializer.writeHashMap(entryKeys, out);
     } else {
-      HashSet hashset = new HashSet(entryKeys.keySet());
+      var hashset = new HashSet(entryKeys.keySet());
       InternalDataSerializer.writeHashSet(hashset, out);
     }
   }
 
   public static TXRegionLockRequestImpl createFromData(DataInput in)
       throws IOException, ClassNotFoundException {
-    TXRegionLockRequestImpl result = new TXRegionLockRequestImpl();
+    var result = new TXRegionLockRequestImpl();
     InternalDataSerializer.invokeFromData(result, in);
     return result;
   }

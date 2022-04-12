@@ -33,7 +33,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.DeltaSerializationException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.tier.sockets.DeltaEOFException;
 import org.apache.geode.internal.cache.tier.sockets.FaultyDelta;
 import org.apache.geode.test.dunit.VM;
@@ -90,7 +89,7 @@ public class DeltaPropagationFailureRegressionTest implements Serializable {
   public void fromDeltaThrowsDeltaSerializationExceptionWithCauseEofException() {
     addIgnoredException(EOFException.class);
 
-    Throwable thrown = server1.invoke(() -> catchThrowable(() -> putDelta(FROM_DELTA)));
+    var thrown = server1.invoke(() -> catchThrowable(() -> putDelta(FROM_DELTA)));
 
     assertThat(thrown).isInstanceOf(DeltaSerializationException.class)
         .hasMessageContaining("deserializing delta bytes").hasCauseInstanceOf(EOFException.class);
@@ -104,7 +103,7 @@ public class DeltaPropagationFailureRegressionTest implements Serializable {
   public void toDeltaThrowsArrayIndexOutOfBoundsException() {
     addIgnoredException(ArrayIndexOutOfBoundsException.class);
 
-    Throwable thrown = server1.invoke(() -> catchThrowable(() -> putDelta(TO_DELTA)));
+    var thrown = server1.invoke(() -> catchThrowable(() -> putDelta(TO_DELTA)));
 
     assertThat(thrown).isInstanceOf(ArrayIndexOutOfBoundsException.class);
   }
@@ -117,7 +116,7 @@ public class DeltaPropagationFailureRegressionTest implements Serializable {
 
     regionFactory.create(regionName);
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
@@ -138,7 +137,7 @@ public class DeltaPropagationFailureRegressionTest implements Serializable {
     }
 
     void putInRegion(Region<String, FaultyDelta> region) {
-      for (int i = 0; i < PUT_COUNT; i++) {
+      for (var i = 0; i < PUT_COUNT; i++) {
         value.setIntVal(i);
         value.setBigObj(new byte[] {(byte) (i + 3), (byte) (i + 3)});
         region.put("key", value);

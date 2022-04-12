@@ -60,13 +60,13 @@ public class CreateRegionCommandDUnitTest {
   }
 
   public Object[] replicatedRegionAndScopePairs() {
-    String[] replicatedRegions = {"REPLICATE", "REPLICATE_PERSISTENT", "REPLICATE_PROXY",
+    var replicatedRegions = new String[] {"REPLICATE", "REPLICATE_PERSISTENT", "REPLICATE_PROXY",
         "REPLICATE_OVERFLOW", "REPLICATE_PERSISTENT_OVERFLOW", "REPLICATE_HEAP_LRU"};
-    String[] scopes = {"DISTRIBUTED_NO_ACK", "DISTRIBUTED_ACK", "LOCAL", "GLOBAL"};
-    Object[] pairs = new Object[replicatedRegions.length * scopes.length];
-    int count = 0;
-    for (String replicatedRegion : replicatedRegions) {
-      for (String scope : scopes) {
+    var scopes = new String[] {"DISTRIBUTED_NO_ACK", "DISTRIBUTED_ACK", "LOCAL", "GLOBAL"};
+    var pairs = new Object[replicatedRegions.length * scopes.length];
+    var count = 0;
+    for (var replicatedRegion : replicatedRegions) {
+      for (var scope : scopes) {
         pairs[count] = new Object[] {replicatedRegion, scope};
         count++;
       }
@@ -75,17 +75,18 @@ public class CreateRegionCommandDUnitTest {
   }
 
   public Object[] nonReplicatedRegionAndScopePairs() {
-    String[] scopes = {"DISTRIBUTED_NO_ACK", "DISTRIBUTED_ACK", "LOCAL", "GLOBAL"};
-    String[] nonReplicatedRegions =
-        {"PARTITION", "PARTITION_PERSISTENT", "PARTITION_PROXY", "PARTITION_REDUNDANT",
+    var scopes = new String[] {"DISTRIBUTED_NO_ACK", "DISTRIBUTED_ACK", "LOCAL", "GLOBAL"};
+    var nonReplicatedRegions =
+        new String[] {"PARTITION", "PARTITION_PERSISTENT", "PARTITION_PROXY",
+            "PARTITION_REDUNDANT",
             "PARTITION_REDUNDANT_PERSISTENT", "PARTITION_OVERFLOW", "PARTITION_REDUNDANT_OVERFLOW",
             "PARTITION_PERSISTENT_OVERFLOW", "PARTITION_REDUNDANT_PERSISTENT_OVERFLOW",
             "PARTITION_HEAP_LRU", "PARTITION_REDUNDANT_HEAP_LRU", "LOCAL", "LOCAL_PERSISTENT",
             "LOCAL_HEAP_LRU", "LOCAL_OVERFLOW", "LOCAL_PERSISTENT_OVERFLOW"};
-    int count = 0;
-    Object[] pairs = new Object[scopes.length * nonReplicatedRegions.length];
-    for (String nonReplicatedRegion : nonReplicatedRegions) {
-      for (String scope : scopes) {
+    var count = 0;
+    var pairs = new Object[scopes.length * nonReplicatedRegions.length];
+    for (var nonReplicatedRegion : nonReplicatedRegions) {
+      for (var scope : scopes) {
         pairs[count] = new Object[] {nonReplicatedRegion, scope};
         count++;
       }
@@ -97,11 +98,11 @@ public class CreateRegionCommandDUnitTest {
   @TestCaseName("[{index}] {method}(RegionType:{0},Scope:{1})")
   @Parameters(method = "replicatedRegionAndScopePairs")
   public void createReplicateRegionCommandWithScopeSetsTheScope(String regionType, String scope) {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --type=" + regionType + " --scope=" + scope + " --name=" + regionName)
         .statusIsSuccess();
-    String describeOutputScope = scope.replace("_", "-").toLowerCase();
+    var describeOutputScope = scope.replace("_", "-").toLowerCase();
     gfsh.executeAndAssertThat("describe region --name=" + regionName).statusIsSuccess()
         .containsOutput(describeOutputScope);
   }
@@ -110,7 +111,7 @@ public class CreateRegionCommandDUnitTest {
   @TestCaseName("[{index}] {method}(RegionType:{0},Scope:{1})")
   @Parameters(method = "nonReplicatedRegionAndScopePairs")
   public void createNonReplicatedRegionCommandWithScopeShouldFail(String regionType, String scope) {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --type=" + regionType + " --scope=" + scope + " --name=" + regionName)
         .statusIsError();
@@ -118,8 +119,8 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void createReplicatedRegionWithParallelAsynchronousEventQueueShouldThrowExceptionAndPreventTheRegionFromBeingCreated() {
-    String regionName = testName.getMethodName();
-    String asyncQueueName = "asyncEventQueue";
+    var regionName = testName.getMethodName();
+    var asyncQueueName = "asyncEventQueue";
 
     gfsh.executeAndAssertThat(
         "create async-event-queue --parallel=true --listener=org.apache.geode.internal.cache.wan.MyAsyncEventListener --id="
@@ -143,8 +144,8 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void createReplicatedRegionWithParallelGatewaySenderShouldThrowExceptionAndPreventTheRegionFromBeingCreated() {
-    String regionName = testName.getMethodName();
-    String gatewaySenderName = "gatewaySender";
+    var regionName = testName.getMethodName();
+    var gatewaySenderName = "gatewaySender";
     IgnoredException.addIgnoredException("could not get remote locator information");
 
     gfsh.executeAndAssertThat(
@@ -169,8 +170,8 @@ public class CreateRegionCommandDUnitTest {
 
   @Test
   public void cannotCreateRegionIfGatewaySenderDoesNotExist() {
-    String regionName = testName.getMethodName();
-    String gatewaySenderName = "gatewaySender";
+    var regionName = testName.getMethodName();
+    var gatewaySenderName = "gatewaySender";
     IgnoredException.addIgnoredException("could not get remote locator information");
 
     gfsh.executeAndAssertThat(
@@ -197,9 +198,9 @@ public class CreateRegionCommandDUnitTest {
   @Ignore
   @Test
   public void createRegionFromTemplateWithGatewaySender() throws Exception {
-    String regionName = testName.getMethodName();
-    String sender = "sender1";
-    String remoteDS = "2";
+    var regionName = testName.getMethodName();
+    var sender = "sender1";
+    var remoteDS = "2";
     IgnoredException.addIgnoredException("could not get remote locator information");
 
     gfsh.executeAndAssertThat("create gateway-sender"
@@ -213,7 +214,7 @@ public class CreateRegionCommandDUnitTest {
         + " --type=REPLICATE_PERSISTENT"
         + " --gateway-sender-id=" + sender).statusIsSuccess();
 
-    String regionNameFromTemplate = regionName + "-from-template";
+    var regionNameFromTemplate = regionName + "-from-template";
     gfsh.executeAndAssertThat("create region --name=" + regionNameFromTemplate
         + " --template-region=" + regionName)
         .statusIsSuccess();

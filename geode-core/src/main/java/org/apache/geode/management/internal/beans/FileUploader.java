@@ -64,12 +64,12 @@ public class FileUploader implements FileUploaderMBean {
 
   @Override
   public RemoteFile uploadFile(String filename) throws IOException {
-    Path tempDir = createSecuredTempDirectory(STAGED_DIR_PREFIX);
+    var tempDir = createSecuredTempDirectory(STAGED_DIR_PREFIX);
 
-    File stagedFile = new File(tempDir.toString(), filename);
-    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(stagedFile));
+    var stagedFile = new File(tempDir.toString(), filename);
+    var bos = new BufferedOutputStream(new FileOutputStream(stagedFile));
 
-    RemoteOutputStreamMonitor monitor = new RemoteOutputStreamMonitor() {
+    var monitor = new RemoteOutputStreamMonitor() {
       @Override
       public void closed(RemoteOutputStreamServer stream, boolean clean) {
         try {
@@ -81,9 +81,9 @@ public class FileUploader implements FileUploaderMBean {
     };
 
     RemoteOutputStreamServer server = new SimpleRemoteOutputStream(bos, monitor);
-    RemoteOutputStream remoteStream = exporter.export(server);
+    var remoteStream = exporter.export(server);
 
-    RemoteFile remoteFile = new RemoteFile(stagedFile.getAbsolutePath(), remoteStream);
+    var remoteFile = new RemoteFile(stagedFile.getAbsolutePath(), remoteStream);
 
     return remoteFile;
   }
@@ -94,9 +94,9 @@ public class FileUploader implements FileUploaderMBean {
       return;
     }
 
-    for (String filename : files) {
-      File file = new File(filename);
-      File parent = file.getParentFile();
+    for (var filename : files) {
+      var file = new File(filename);
+      var parent = file.getParentFile();
 
       if (!parent.getName().startsWith(STAGED_DIR_PREFIX)) {
         throw new GemFireSecurityException(
@@ -109,7 +109,7 @@ public class FileUploader implements FileUploaderMBean {
   }
 
   public static Path createSecuredTempDirectory(String prefix) throws IOException {
-    Path tempDir = Files.createTempDirectory(prefix);
+    var tempDir = Files.createTempDirectory(prefix);
     tempDir.toFile().setExecutable(true, true);
     tempDir.toFile().setWritable(true, true);
     tempDir.toFile().setReadable(true, true);

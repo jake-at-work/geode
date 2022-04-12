@@ -47,7 +47,7 @@ public class PdxManager extends CacheConfigurationManager<Pdx> {
 
   @Override
   public List<Pdx> list(Pdx filterConfig, CacheConfig existing) {
-    Pdx configuration = pdxConverter.fromXmlObject(existing.getPdx());
+    var configuration = pdxConverter.fromXmlObject(existing.getPdx());
     if (configuration == null) {
       return Collections.emptyList();
     }

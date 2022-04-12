@@ -20,13 +20,11 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import org.apache.geode.cache.execute.Function;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.version.VersionManager;
 
 public class RollingUpgradeVerifyXmlEntity extends RollingUpgrade2DUnitTestBase {
@@ -35,15 +33,15 @@ public class RollingUpgradeVerifyXmlEntity extends RollingUpgrade2DUnitTestBase 
   // This test verifies that an XmlEntity created in the current version serializes properly to
   // previous versions and vice versa.
   public void testVerifyXmlEntity() {
-    final Host host = Host.getHost(0);
-    VM oldLocator = host.getVM(oldVersion, 0);
-    VM oldServer = host.getVM(oldVersion, 1);
-    VM currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 2);
-    VM currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 3);
+    final var host = Host.getHost(0);
+    var oldLocator = host.getVM(oldVersion, 0);
+    var oldServer = host.getVM(oldVersion, 1);
+    var currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    var currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 3);
 
-    int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
-    String hostName = NetworkUtils.getServerHostName();
-    String locatorsString = getLocatorString(locatorPorts);
+    var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    var hostName = NetworkUtils.getServerHostName();
+    var locatorsString = getLocatorString(locatorPorts);
     oldLocator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
     try {
@@ -68,11 +66,11 @@ public class RollingUpgradeVerifyXmlEntity extends RollingUpgrade2DUnitTestBase 
           .invoke(invokeAssertVersion(VersionManager.getInstance().getCurrentVersionOrdinal()));
 
       // Get DistributedMembers of the servers
-      DistributedMember oldServerMember = oldServer.invoke(
+      var oldServerMember = oldServer.invoke(
           RollingUpgrade2DUnitTestBase::getDistributedMember);
-      DistributedMember currentServer1Member = currentServer1.invoke(
+      var currentServer1Member = currentServer1.invoke(
           RollingUpgrade2DUnitTestBase::getDistributedMember);
-      DistributedMember currentServer2Member = currentServer2.invoke(
+      var currentServer2Member = currentServer2.invoke(
           RollingUpgrade2DUnitTestBase::getDistributedMember);
 
       // Register function in all servers

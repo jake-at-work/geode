@@ -100,12 +100,12 @@ public class NestedFunctionExecutionDistributedTest implements Serializable {
   }
 
   private int createServerCache() throws IOException {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.execute.NestedFunctionExecutionDistributedTest*");
     System.setProperty(MAX_FE_THREADS_PROPERTY, TEST_MAX_FE_THREADS);
     cacheRule.createCache(properties);
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     // Make sure there are enough connections
     cacheServer
@@ -140,11 +140,11 @@ public class NestedFunctionExecutionDistributedTest implements Serializable {
   }
 
   private void executeFunction(Function function, int numThreads) {
-    ConcurrencyRule concurrencyRule = new ConcurrencyRule();
+    var concurrencyRule = new ConcurrencyRule();
     try {
-      for (int i = 0; i < numThreads; i++) {
-        Callable<String> executeFunction = () -> {
-          List<String> result =
+      for (var i = 0; i < numThreads; i++) {
+        var executeFunction = (Callable<String>) () -> {
+          var result =
               (List<String>) FunctionService
                   .onRegion(clientCacheRule.getClientCache().getRegion(regionName))
                   .execute(function)
@@ -173,7 +173,7 @@ public class NestedFunctionExecutionDistributedTest implements Serializable {
       } catch (Exception e) {
         throw new FunctionException("Caught exception waiting for barrier: ", e);
       }
-      List childFunctionResult =
+      var childFunctionResult =
           (List) FunctionService.onRegion(((RegionFunctionContext) context).getDataSet())
               .execute(new ChildFunction()).getResult();
       context.getResultSender().lastResult(childFunctionResult.get(0));

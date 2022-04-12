@@ -73,7 +73,7 @@ public class CanonicalIdHolder {
    */
   public int createId(Object object) {
     assert !objectToID.containsKey(object);
-    int id = ++highestID;
+    var id = ++highestID;
     objectToID.put(object, id);
     idToObject.put(id, object);
     return id;

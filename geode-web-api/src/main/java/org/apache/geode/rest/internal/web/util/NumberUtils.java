@@ -32,7 +32,7 @@ public abstract class NumberUtils {
   public static boolean isNumeric(String value) {
     value = String.valueOf(value).trim(); // guard against null
 
-    for (char chr : value.toCharArray()) {
+    for (var chr : value.toCharArray()) {
       if (!Character.isDigit(chr)) {
         return false;
       }

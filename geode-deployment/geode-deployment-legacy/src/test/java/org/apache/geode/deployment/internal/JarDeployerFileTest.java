@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -53,7 +51,7 @@ public class JarDeployerFileTest {
   @Before
   public void setup() throws IOException {
     classBuilder = new ClassBuilder();
-    Path testFolder = temporaryFolder.getRoot().toPath().toAbsolutePath();
+    var testFolder = temporaryFolder.getRoot().toPath().toAbsolutePath();
     deploymentFolder = Files.createDirectory(testFolder.resolve("deployment-folder")).toFile();
     stagingFolder = Files.createDirectory(testFolder.resolve("staging-folder")).toFile();
     jarDeployer = new JarDeployer(deploymentFolder);
@@ -62,17 +60,17 @@ public class JarDeployerFileTest {
   @Test
   public void deployFileWithNoVersion_insertsDeploymentSequenceIdentifierIntoDeployedFileName()
       throws Exception {
-    String artifactId = "jar-with-no-version";
-    String extension = ".jar";
-    String originalJarFileName = artifactId + extension;
+    var artifactId = "jar-with-no-version";
+    var extension = ".jar";
+    var originalJarFileName = artifactId + extension;
 
-    File version1JarFile = stagedJarFileWithClass(originalJarFileName, "ClassA");
+    var version1JarFile = stagedJarFileWithClass(originalJarFileName, "ClassA");
 
-    DeployedJar version1DeployedJar =
+    var version1DeployedJar =
         jarDeployer.deployWithoutRegistering(artifactId, version1JarFile);
 
-    String version1DeploymentSequenceIdentifier = ".v1";
-    String expectedVersion1DeployedJarFileName =
+    var version1DeploymentSequenceIdentifier = ".v1";
+    var expectedVersion1DeployedJarFileName =
         artifactId + version1DeploymentSequenceIdentifier + extension;
 
     assertThat(version1DeployedJar.getFile())
@@ -81,13 +79,13 @@ public class JarDeployerFileTest {
         .hasName(expectedVersion1DeployedJarFileName)
         .hasBinaryContent(readAllBytes(version1JarFile.toPath()));
 
-    File version2JarFile = stagedJarFileWithClass(originalJarFileName, "ClassB");
+    var version2JarFile = stagedJarFileWithClass(originalJarFileName, "ClassB");
 
-    DeployedJar version2DeployedJar =
+    var version2DeployedJar =
         jarDeployer.deployWithoutRegistering(artifactId, version2JarFile);
 
-    String version2DeploymentSequenceIdentifier = ".v2";
-    String expectedVersion2DeployedJarFileName =
+    var version2DeploymentSequenceIdentifier = ".v2";
+    var expectedVersion2DeployedJarFileName =
         artifactId + version2DeploymentSequenceIdentifier + extension;
 
     assertThat(version2DeployedJar.getFile())
@@ -96,7 +94,7 @@ public class JarDeployerFileTest {
         .exists()
         .hasBinaryContent(readAllBytes(version2JarFile.toPath()));
 
-    List<String> deployedFileNames = Files.list(deploymentFolder.toPath())
+    var deployedFileNames = Files.list(deploymentFolder.toPath())
         .map(Path::getFileName)
         .map(Path::toString)
         .collect(toList());
@@ -108,12 +106,12 @@ public class JarDeployerFileTest {
 
   @Test
   public void deployWithSemanticVersion_deploysFileUsingOriginalName() throws Exception {
-    String artifactId = "jar-with-semantic-version";
+    var artifactId = "jar-with-semantic-version";
 
-    String version1JarName = artifactId + "-1.0.0.jar";
-    File version1JarFile = stagedJarFileWithClass(version1JarName, "ClassA");
+    var version1JarName = artifactId + "-1.0.0.jar";
+    var version1JarFile = stagedJarFileWithClass(version1JarName, "ClassA");
 
-    DeployedJar version1DeployedJar =
+    var version1DeployedJar =
         jarDeployer.deployWithoutRegistering(artifactId, version1JarFile);
 
     assertThat(version1DeployedJar.getFile())
@@ -122,10 +120,10 @@ public class JarDeployerFileTest {
         .hasName("jar-with-semantic-version-1.0.0.v1.jar")
         .hasBinaryContent(readAllBytes(version1JarFile.toPath()));
 
-    String version2JarName = artifactId + "-2.0.0.jar";
-    File version2JarFile = stagedJarFileWithClass(version2JarName, "ClassA");
+    var version2JarName = artifactId + "-2.0.0.jar";
+    var version2JarFile = stagedJarFileWithClass(version2JarName, "ClassA");
 
-    DeployedJar version2DeployedJar =
+    var version2DeployedJar =
         jarDeployer.deployWithoutRegistering(artifactId, version2JarFile);
 
     assertThat(version2DeployedJar.getFile())
@@ -134,7 +132,7 @@ public class JarDeployerFileTest {
         .hasName("jar-with-semantic-version-2.0.0.v2.jar")
         .hasBinaryContent(readAllBytes(version2JarFile.toPath()));
 
-    List<String> deployedFileNames = Files.list(deploymentFolder.toPath())
+    var deployedFileNames = Files.list(deploymentFolder.toPath())
         .map(Path::getFileName)
         .map(Path::toString)
         .collect(toList());
@@ -147,7 +145,7 @@ public class JarDeployerFileTest {
   @Test
   public void toArtifactId() {
     // Semantic versions
-    String fileName = "abc.1.v1.jar";
+    var fileName = "abc.1.v1.jar";
     assertThat(JarFileUtils.toArtifactId(fileName))
         .as("For filename %s", fileName)
         .isEqualTo("abc");
@@ -269,11 +267,11 @@ public class JarDeployerFileTest {
   @Test
   public void findArtifactIdsOnDisk_recognizesArtifactsByDeploymentSequenceIdentifier()
       throws IOException {
-    String artifactId = "jar-with-sequence-identifier";
-    String deploymentSequenceIdentifier = ".v3";
-    String extension = ".jar";
+    var artifactId = "jar-with-sequence-identifier";
+    var deploymentSequenceIdentifier = ".v3";
+    var extension = ".jar";
 
-    String fileNameWithSequenceIdentifier = artifactId + deploymentSequenceIdentifier + extension;
+    var fileNameWithSequenceIdentifier = artifactId + deploymentSequenceIdentifier + extension;
 
     givenDeployedFileNamed(fileNameWithSequenceIdentifier);
 
@@ -283,11 +281,11 @@ public class JarDeployerFileTest {
 
   @Test
   public void findArtifactsOnDisk_recognizesArtifactsBySemanticVersion() throws IOException {
-    String artifactId = "jar-with-semantic-version";
-    String semanticVersion = "-2.3.4.v1";
-    String extension = ".jar";
+    var artifactId = "jar-with-semantic-version";
+    var semanticVersion = "-2.3.4.v1";
+    var extension = ".jar";
 
-    String fileNameWithSequenceIdentifier = artifactId + semanticVersion + extension;
+    var fileNameWithSequenceIdentifier = artifactId + semanticVersion + extension;
 
     givenDeployedFileNamed(fileNameWithSequenceIdentifier);
 
@@ -304,14 +302,14 @@ public class JarDeployerFileTest {
 
   @Test
   public void testDeployToInvalidDirectory() throws Exception {
-    final File alternateDir = new File(temporaryFolder.getRoot(), "JarDeployerDUnit");
+    final var alternateDir = new File(temporaryFolder.getRoot(), "JarDeployerDUnit");
     alternateDir.delete();
 
-    final JarDeployer jarDeployer = new JarDeployer(alternateDir);
-    final byte[] jarBytes = classBuilder.createJarFromName("JarDeployerDUnitDTID");
-    File jarFile = stagedFileWithContent("JarDeployerIntegrationTest.jar", jarBytes);
+    final var jarDeployer = new JarDeployer(alternateDir);
+    final var jarBytes = classBuilder.createJarFromName("JarDeployerDUnitDTID");
+    var jarFile = stagedFileWithContent("JarDeployerIntegrationTest.jar", jarBytes);
 
-    String artifactId = JarFileUtils.getArtifactId(jarFile.getName());
+    var artifactId = JarFileUtils.getArtifactId(jarFile.getName());
 
     // Test to verify that deployment fails if the directory doesn't exist.
     assertThatThrownBy(
@@ -323,14 +321,14 @@ public class JarDeployerFileTest {
 
   @Test
   public void testVersionNumberCreation() throws Exception {
-    byte[] jarBytes = classBuilder.createJarFromName("ClassA");
-    File jarFile = stagedFileWithContent("myJar.jar", jarBytes);
-    File deployedJarFile = jarDeployer
+    var jarBytes = classBuilder.createJarFromName("ClassA");
+    var jarFile = stagedFileWithContent("myJar.jar", jarBytes);
+    var deployedJarFile = jarDeployer
         .deployWithoutRegistering(JarFileUtils.getArtifactId(jarFile.getName()), jarFile).getFile();
 
     assertThat(deployedJarFile.getName()).isEqualTo("myJar.v1.jar");
 
-    File secondDeployedJarFile =
+    var secondDeployedJarFile =
         jarDeployer.deployWithoutRegistering(JarFileUtils.getArtifactId(jarFile.getName()), jarFile)
             .getFile();
 
@@ -339,7 +337,7 @@ public class JarDeployerFileTest {
 
   @Test
   public void getNextVersionJarFileWithEmptyDir() throws Exception {
-    File versionedName = jarDeployer.getNextVersionedJarFile("myJar.jar");
+    var versionedName = jarDeployer.getNextVersionedJarFile("myJar.jar");
     assertThat(versionedName.getName()).isEqualTo("myJar.v1.jar");
 
     versionedName = jarDeployer.getNextVersionedJarFile("myJar.v1.jar");
@@ -370,8 +368,8 @@ public class JarDeployerFileTest {
 
   @Test
   public void testVersionNumberMatcher() {
-    String fileName = stagingFolder.toPath().resolve("MyJar.v1.jar").toAbsolutePath().toString();
-    int version = JarFileUtils.extractVersionFromFilename(fileName);
+    var fileName = stagingFolder.toPath().resolve("MyJar.v1.jar").toAbsolutePath().toString();
+    var version = JarFileUtils.extractVersionFromFilename(fileName);
     assertThat(version).isEqualTo(1);
   }
 
@@ -395,34 +393,34 @@ public class JarDeployerFileTest {
 
   @Test
   public void testRenamingOfOldJarFiles() throws Exception {
-    File jarAVersion1 = new File(deploymentFolder, "vf.gf#myJarA.jar#1");
+    var jarAVersion1 = new File(deploymentFolder, "vf.gf#myJarA.jar#1");
     classBuilder.writeJarFromName("ClassA", jarAVersion1);
 
-    File jarAVersion2 = new File(deploymentFolder, "vf.gf#myJarA.jar#2");
+    var jarAVersion2 = new File(deploymentFolder, "vf.gf#myJarA.jar#2");
     classBuilder.writeJarFromName("ClassA", jarAVersion2);
 
-    File jarBVersion2 = new File(deploymentFolder, "vf.gf#myJarB.jar#2");
+    var jarBVersion2 = new File(deploymentFolder, "vf.gf#myJarB.jar#2");
     classBuilder.writeJarFromName("ClassB", jarBVersion2);
 
-    File jarBVersion3 = new File(deploymentFolder, "vf.gf#myJarB.jar#3");
+    var jarBVersion3 = new File(deploymentFolder, "vf.gf#myJarB.jar#3");
     classBuilder.writeJarFromName("ClassB", jarBVersion3);
 
-    Set<File> deployedJarsBeforeRename = Stream
+    var deployedJarsBeforeRename = Stream
         .of(jarAVersion1, jarAVersion2, jarBVersion2, jarBVersion3).collect(toSet());
 
     jarDeployer.renameJarsWithOldNamingConvention();
 
     deployedJarsBeforeRename.forEach(oldJar -> assertThat(oldJar).doesNotExist());
 
-    File renamedJarAVersion1 = new File(deploymentFolder, "myJarA.v1.jar");
-    File renamedJarAVersion2 = new File(deploymentFolder, "myJarA.v2.jar");
-    File renamedJarBVersion2 = new File(deploymentFolder, "myJarB.v2.jar");
-    File renamedJarBVersion3 = new File(deploymentFolder, "myJarB.v3.jar");
-    Set<File> expectedJarsAfterRename = Stream
+    var renamedJarAVersion1 = new File(deploymentFolder, "myJarA.v1.jar");
+    var renamedJarAVersion2 = new File(deploymentFolder, "myJarA.v2.jar");
+    var renamedJarBVersion2 = new File(deploymentFolder, "myJarB.v2.jar");
+    var renamedJarBVersion3 = new File(deploymentFolder, "myJarB.v3.jar");
+    var expectedJarsAfterRename = Stream
         .of(renamedJarAVersion1, renamedJarAVersion2, renamedJarBVersion2, renamedJarBVersion3)
         .collect(toSet());
 
-    Set<File> actualJarsInDeployDir = Files.list(deploymentFolder.toPath())
+    var actualJarsInDeployDir = Files.list(deploymentFolder.toPath())
         .map(Path::toFile)
         .collect(toSet());
 
@@ -431,7 +429,7 @@ public class JarDeployerFileTest {
 
   @Test
   public void testOldJarNameMatcher() {
-    Set<File> filesWithOldNamingConvention = Stream.of(
+    var filesWithOldNamingConvention = Stream.of(
         "vf.gf#myJarA.jar#1", "vf.gf#myJarA.jar#2", "vf.gf#myJarB.jar#2", "vf.gf#myJarB.jar#3")
         .map(this::deployedFileNamed)
         .collect(toSet());
@@ -439,7 +437,7 @@ public class JarDeployerFileTest {
     filesWithOldNamingConvention.forEach(
         jarFile -> assertThat(jarDeployer.isOldNamingConvention(jarFile.getName())).isTrue());
 
-    Set<File> foundJarsWithOldNamingConvention = jarDeployer.findJarsWithOldNamingConvention();
+    var foundJarsWithOldNamingConvention = jarDeployer.findJarsWithOldNamingConvention();
 
     assertThat(foundJarsWithOldNamingConvention)
         .isEqualTo(filesWithOldNamingConvention);
@@ -447,10 +445,10 @@ public class JarDeployerFileTest {
 
   @Test
   public void testDeleteAllVersionsOfJar() {
-    File jarAVersion1 = deployedFileNamed("myJarA.v1.jar");
-    File jarAVersion2 = deployedFileNamed("myJarA.v2.jar");
-    File jarBVersion2 = deployedFileNamed("myJarB.v2.jar");
-    File jarBVersion3 = deployedFileNamed("myJarB.v3.jar");
+    var jarAVersion1 = deployedFileNamed("myJarA.v1.jar");
+    var jarAVersion2 = deployedFileNamed("myJarA.v2.jar");
+    var jarBVersion2 = deployedFileNamed("myJarB.v2.jar");
+    var jarBVersion3 = deployedFileNamed("myJarB.v3.jar");
 
     jarDeployer.deleteAllVersionsOfJar("myJarA.jar");
 
@@ -462,11 +460,11 @@ public class JarDeployerFileTest {
 
   @Test
   public void testDeleteAllVersionsOfVersionedJar() {
-    File jarAVersion0 = deployedFileNamed("myJarABC-1.0.v1.jar");
-    File jarAVersion1 = deployedFileNamed("myJarA-1.0.v1.jar");
-    File jarAVersion2 = deployedFileNamed("myJarA.2.0.v2.jar");
-    File jarAVersion3 = deployedFileNamed("myJarA.1.0-snapshot.v3.jar");
-    File jarB = deployedFileNamed("myJarB.1.0.jar");
+    var jarAVersion0 = deployedFileNamed("myJarABC-1.0.v1.jar");
+    var jarAVersion1 = deployedFileNamed("myJarA-1.0.v1.jar");
+    var jarAVersion2 = deployedFileNamed("myJarA.2.0.v2.jar");
+    var jarAVersion3 = deployedFileNamed("myJarA.1.0-snapshot.v3.jar");
+    var jarB = deployedFileNamed("myJarB.1.0.jar");
 
     jarDeployer.deleteAllVersionsOfJar("myJarA-2.0.jar");
 
@@ -479,7 +477,7 @@ public class JarDeployerFileTest {
 
   private File deployedFileNamed(String fileName) {
     try {
-      Path deployedFile = deploymentFolder.toPath().resolve(fileName);
+      var deployedFile = deploymentFolder.toPath().resolve(fileName);
       return Files.createFile(deployedFile).toFile();
     } catch (IOException e) {
       throw new RuntimeException("Test could not create deployed file " + fileName, e);
@@ -491,8 +489,8 @@ public class JarDeployerFileTest {
   }
 
   private File stagedFileWithContent(String fileName, byte[] content) throws IOException {
-    Path stagedFileDirectory = Files.createTempDirectory(stagingFolder.toPath(), "");
-    Path stagedFilePath = stagedFileDirectory.resolve(fileName);
+    var stagedFileDirectory = Files.createTempDirectory(stagingFolder.toPath(), "");
+    var stagedFilePath = stagedFileDirectory.resolve(fileName);
     Files.write(stagedFilePath, content);
     return stagedFilePath.toFile();
   }
@@ -502,7 +500,7 @@ public class JarDeployerFileTest {
   }
 
   private byte[] jarContentWithClass(String className) throws IOException {
-    String stringBuilder = "package integration.parent;" + "public class " + className + " {}";
+    var stringBuilder = "package integration.parent;" + "public class " + className + " {}";
 
     return classBuilder.createJarFromClassContent("integration/parent/" + className,
         stringBuilder);

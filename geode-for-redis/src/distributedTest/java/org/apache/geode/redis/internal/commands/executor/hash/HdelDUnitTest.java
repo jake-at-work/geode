@@ -57,10 +57,10 @@ public class HdelDUnitTest {
     cluster.startRedisVM(1, locator.getPort());
     cluster.startRedisVM(2, locator.getPort());
 
-    int redisServerPort1 = cluster.getRedisPort(1);
+    var redisServerPort1 = cluster.getRedisPort(1);
     clusterClient = RedisClusterClient.create("redis://localhost:" + redisServerPort1);
 
-    ClusterTopologyRefreshOptions refreshOptions =
+    var refreshOptions =
         ClusterTopologyRefreshOptions.builder()
             .enableAllAdaptiveRefreshTriggers()
             .refreshTriggersReconnectAttempts(1)
@@ -90,12 +90,12 @@ public class HdelDUnitTest {
 
   @Test
   public void testConcurrentHDel_returnsExpectedNumberOfDeletions() {
-    AtomicLong client1Deletes = new AtomicLong();
-    AtomicLong client2Deletes = new AtomicLong();
+    var client1Deletes = new AtomicLong();
+    var client2Deletes = new AtomicLong();
 
-    String key = "HSET";
+    var key = "HSET";
 
-    Map<String, String> setUpData =
+    var setUpData =
         makeHashMap(HASH_SIZE, "field", "value");
 
     lettuce.hset(key, setUpData);
@@ -119,14 +119,14 @@ public class HdelDUnitTest {
 
   @Test
   public void testConcurrentHdel_whenServerCrashesAndRestarts() {
-    String key = "HSET";
+    var key = "HSET";
 
-    Map<String, String> setUpData =
+    var setUpData =
         makeHashMap(HASH_SIZE, "field", "value");
 
     lettuce.hset(key, setUpData);
 
-    ConcurrentLoopingThreads loopingThreads = new ConcurrentLoopingThreads(HASH_SIZE,
+    var loopingThreads = new ConcurrentLoopingThreads(HASH_SIZE,
         i -> retryableCommand(() -> lettuce.hdel(key, "field" + i, "value" + i)),
         i -> retryableCommand(() -> lettuce.hdel(key, "field" + i, "value" + i)))
             .start();
@@ -156,7 +156,7 @@ public class HdelDUnitTest {
   private Map<String, String> makeHashMap(int hashSize, String baseFieldName,
       String baseValueName) {
     Map<String, String> map = new HashMap<>();
-    for (int i = 0; i < hashSize; i++) {
+    for (var i = 0; i < hashSize; i++) {
       map.put(baseFieldName + i, baseValueName + i);
     }
     return map;

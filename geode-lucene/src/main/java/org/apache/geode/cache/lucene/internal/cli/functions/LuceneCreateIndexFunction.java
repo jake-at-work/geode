@@ -27,7 +27,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.lucene.LuceneSerializer;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.internal.LuceneIndexFactoryImpl;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
@@ -69,32 +68,32 @@ public class LuceneCreateIndexFunction implements InternalFunction {
   public void execute(final FunctionContext context) {
     String memberId = null;
     try {
-      final LuceneIndexInfo indexInfo = (LuceneIndexInfo) context.getArguments();
-      final Cache cache = context.getCache();
-      final String indexName = indexInfo.getIndexName();
-      final String regionPath = indexInfo.getRegionPath();
+      final var indexInfo = (LuceneIndexInfo) context.getArguments();
+      final var cache = context.getCache();
+      final var indexName = indexInfo.getIndexName();
+      final var regionPath = indexInfo.getRegionPath();
 
       memberId = cache.getDistributedSystem().getDistributedMember().getId();
-      LuceneService service = LuceneServiceProvider.get(cache);
+      var service = LuceneServiceProvider.get(cache);
 
       validateLuceneIndexName(indexName);
 
-      String[] fields = indexInfo.getSearchableFieldNames();
-      String[] analyzerName = indexInfo.getFieldAnalyzers();
-      String serializerName = indexInfo.getSerializer();
+      var fields = indexInfo.getSearchableFieldNames();
+      var analyzerName = indexInfo.getFieldAnalyzers();
+      var serializerName = indexInfo.getSerializer();
 
-      final LuceneIndexFactoryImpl indexFactory =
+      final var indexFactory =
           (LuceneIndexFactoryImpl) service.createIndexFactory();
       if (analyzerName == null || analyzerName.length == 0) {
-        for (String field : fields) {
+        for (var field : fields) {
           indexFactory.addField(field);
         }
       } else {
         if (analyzerName.length != fields.length) {
           throw new Exception("Mismatch in lengths of fields and analyzers");
         }
-        for (int i = 0; i < fields.length; i++) {
-          Analyzer analyzer = toAnalyzer(analyzerName[i]);
+        for (var i = 0; i < fields.length; i++) {
+          var analyzer = toAnalyzer(analyzerName[i]);
           indexFactory.addField(fields[i], analyzer);
         }
       }
@@ -116,20 +115,20 @@ public class LuceneCreateIndexFunction implements InternalFunction {
 
       context.getResultSender().lastResult(new CliFunctionResult(memberId, xmlEntity));
     } catch (Exception e) {
-      String exceptionMessage = CliStrings.format(CliStrings.EXCEPTION_CLASS_AND_MESSAGE,
+      var exceptionMessage = CliStrings.format(CliStrings.EXCEPTION_CLASS_AND_MESSAGE,
           e.getClass().getName(), e.getMessage());
       context.getResultSender().lastResult(new CliFunctionResult(memberId, e, e.getMessage()));
     }
   }
 
   protected XmlEntity getXmlEntity(String regionPath) {
-    String regionName = StringUtils.stripStart(regionPath, SEPARATOR);
+    var regionName = StringUtils.stripStart(regionPath, SEPARATOR);
     return new XmlEntity(CacheXml.REGION, "name", regionName);
   }
 
   private LuceneSerializer toSerializer(String serializerName)
       throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-    String trimmedName = StringUtils.trim(serializerName);
+    var trimmedName = StringUtils.trim(serializerName);
     if (trimmedName == "") {
       return null;
     }
@@ -142,7 +141,7 @@ public class LuceneCreateIndexFunction implements InternalFunction {
     if (className == null) {
       className = StandardAnalyzer.class.getCanonicalName();
     } else {
-      String trimmedClassName = StringUtils.trim(className);
+      var trimmedClassName = StringUtils.trim(className);
       if (trimmedClassName.equals("") || trimmedClassName.equals("DEFAULT")) {
         className = StandardAnalyzer.class.getCanonicalName();
       } else {

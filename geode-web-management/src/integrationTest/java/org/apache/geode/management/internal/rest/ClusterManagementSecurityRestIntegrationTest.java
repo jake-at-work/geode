@@ -67,7 +67,7 @@ public class ClusterManagementSecurityRestIntegrationTest {
   @BeforeClass
   public static void beforeClass() throws JsonProcessingException {
     mapper = GeodeJsonMapper.getMapper();
-    RegionConfig regionConfig = new RegionConfig();
+    var regionConfig = new RegionConfig();
     regionConfig.setName(REGION);
     regionConfig.setType(RegionType.REPLICATE);
 
@@ -124,8 +124,8 @@ public class ClusterManagementSecurityRestIntegrationTest {
 
   @Test
   public void notAuthorized() throws Exception {
-    for (TestContext testContext : testContexts) {
-      MockHttpServletRequestBuilder requestBuilder = testContext.request
+    for (var testContext : testContexts) {
+      var requestBuilder = testContext.request
           .with(httpBasic(testContext.username, testContext.password));
       if (testContext.content != null) {
         requestBuilder.content(testContext.content);
@@ -164,7 +164,7 @@ public class ClusterManagementSecurityRestIntegrationTest {
 
   @Test
   public void successful() throws Exception {
-    RegionConfig regionConfig = new RegionConfig();
+    var regionConfig = new RegionConfig();
     regionConfig.setName(REGION);
     regionConfig.setType(RegionType.REPLICATE);
     context.perform(post("/v1/regions")

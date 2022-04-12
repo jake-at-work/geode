@@ -16,7 +16,6 @@ package org.apache.geode.management.internal.security;
 
 
 
-import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
 import org.assertj.core.api.Assertions;
@@ -43,8 +42,8 @@ public class NoSecurityManagerTest {
   @Test
   public void cannotCreateMBeansInServer() throws Exception {
     connectionRule.connect(server.getJmxPort());
-    MBeanServerConnection mBeanServerConnection = connectionRule.getMBeanServerConnection();
-    ObjectName mletName = new ObjectName("foo:name=mlet");
+    var mBeanServerConnection = connectionRule.getMBeanServerConnection();
+    var mletName = new ObjectName("foo:name=mlet");
     Assertions.assertThatThrownBy(
         () -> mBeanServerConnection.createMBean("javax.management.loading.MLet", mletName))
         .isInstanceOf(SecurityException.class);

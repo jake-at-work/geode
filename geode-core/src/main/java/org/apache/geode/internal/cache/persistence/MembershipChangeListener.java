@@ -59,9 +59,9 @@ public class MembershipChangeListener implements MembershipListener, PersistentS
    * Wait for membership change and log warning after waiting at least the warning delay.
    */
   public synchronized void waitForChange() throws InterruptedException {
-    Instant now = now();
-    Instant timeoutTime = now.plus(pollDuration);
-    Instant warningTime = now.plus(warningDelay);
+    var now = now();
+    var timeoutTime = now.plus(pollDuration);
+    var warningTime = now.plus(warningDelay);
 
     while (!membershipChanged && !cancelCondition.getAsBoolean() && now().isBefore(timeoutTime)) {
       warnOnceAfter(warningTime);

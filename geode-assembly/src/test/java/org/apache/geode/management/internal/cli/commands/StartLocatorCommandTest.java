@@ -54,27 +54,27 @@ public class StartLocatorCommandTest {
 
   @Test
   public void testLocatorClasspathOrder() {
-    String userClasspath = "/path/to/user/lib/app.jar:/path/to/user/classes";
-    String expectedClasspath =
+    var userClasspath = "/path/to/user/lib/app.jar:/path/to/user/classes";
+    var expectedClasspath =
         StartMemberUtils.getGemFireJarPath().concat(File.pathSeparator).concat(userClasspath)
             .concat(File.pathSeparator).concat(System.getProperty("java.class.path"))
             .concat(File.pathSeparator).concat(StartMemberUtils.CORE_DEPENDENCIES_JAR_PATHNAME);
-    String actualClasspath = startLocatorCommand.getLocatorClasspath(true, userClasspath);
+    var actualClasspath = startLocatorCommand.getLocatorClasspath(true, userClasspath);
     assertEquals(expectedClasspath, actualClasspath);
   }
 
   @Test
   public void testLocatorCommandLineWithRestAPI() throws Exception {
-    LocatorLauncher locatorLauncher =
+    var locatorLauncher =
         new LocatorLauncher.Builder().setCommand(LocatorLauncher.Command.START)
             .setMemberName("testLocatorCommandLineWithRestAPI").setBindAddress("localhost")
             .setPort(11111).build();
 
-    Properties gemfireProperties = new Properties();
+    var gemfireProperties = new Properties();
     gemfireProperties.setProperty(HTTP_SERVICE_PORT, "8089");
     gemfireProperties.setProperty(HTTP_SERVICE_BIND_ADDRESS, "localhost");
 
-    String[] commandLineElements =
+    var commandLineElements =
         startLocatorCommand.createStartLocatorCommandLine(locatorLauncher,
             null, null, gemfireProperties, null, false, new String[0], null, null);
 
@@ -91,7 +91,7 @@ public class StartLocatorCommandTest {
     expectedCommandLineElements.add("-d" + GeodeGlossary.GEMFIRE_PREFIX + ""
         + HTTP_SERVICE_BIND_ADDRESS + "=" + "localhost");
 
-    for (String commandLineElement : commandLineElements) {
+    for (var commandLineElement : commandLineElements) {
       expectedCommandLineElements.remove(commandLineElement.toLowerCase());
     }
 
@@ -101,10 +101,10 @@ public class StartLocatorCommandTest {
 
   @Test
   public void testCreateStartLocatorCommandLine() throws Exception {
-    LocatorLauncher locatorLauncher = new LocatorLauncher.Builder().setMemberName("defaultLocator")
+    var locatorLauncher = new LocatorLauncher.Builder().setMemberName("defaultLocator")
         .setCommand(LocatorLauncher.Command.START).build();
 
-    String[] commandLineElements =
+    var commandLineElements =
         startLocatorCommand.createStartLocatorCommandLine(locatorLauncher,
             null, null, new Properties(), null, false, null, null, null);
 
@@ -126,7 +126,7 @@ public class StartLocatorCommandTest {
     assertTrue(commandLineElements.length > 0);
     assertEquals(commandLineElements.length, expectedCommandLineElements.size());
 
-    for (String commandLineElement : commandLineElements) {
+    for (var commandLineElement : commandLineElements) {
       expectedCommandLineElements.remove(commandLineElement);
     }
 
@@ -136,29 +136,29 @@ public class StartLocatorCommandTest {
 
   @Test
   public void testCreateStartLocatorCommandLineWithAllOptions() throws Exception {
-    LocatorLauncher locatorLauncher =
+    var locatorLauncher =
         new LocatorLauncher.Builder().setCommand(LocatorLauncher.Command.START)
             .setDebug(Boolean.TRUE).setDeletePidFileOnStop(Boolean.TRUE).setForce(Boolean.TRUE)
             .setHostnameForClients("localhost").setMemberName("customLocator").setPort(10101)
             .setRedirectOutput(Boolean.TRUE).build();
 
-    File gemfirePropertiesFile = spy(mock(File.class));
+    var gemfirePropertiesFile = spy(mock(File.class));
     when(gemfirePropertiesFile.getAbsolutePath()).thenReturn("/config/customGemfire.properties");
 
-    File gemfireSecurityPropertiesFile = spy(mock(File.class));
+    var gemfireSecurityPropertiesFile = spy(mock(File.class));
     when(gemfireSecurityPropertiesFile.getAbsolutePath())
         .thenReturn("/config/customGemfireSecurity.properties");
 
-    Properties gemfireProperties = new Properties();
+    var gemfireProperties = new Properties();
     gemfireProperties.setProperty(ConfigurationProperties.STATISTIC_SAMPLE_RATE, "1500");
     gemfireProperties.setProperty(ConfigurationProperties.DISABLE_AUTO_RECONNECT, "true");
 
-    String heapSize = "1024m";
-    String customClasspath = "/temp/domain-1.0.0.jar";
-    String[] jvmArguments = new String[] {"-verbose:gc", "-Xloggc:member-gc.log",
+    var heapSize = "1024m";
+    var customClasspath = "/temp/domain-1.0.0.jar";
+    var jvmArguments = new String[] {"-verbose:gc", "-Xloggc:member-gc.log",
         "-XX:+PrintGCDateStamps", "-XX:+PrintGCDetails"};
 
-    String[] commandLineElements =
+    var commandLineElements =
         startLocatorCommand.createStartLocatorCommandLine(locatorLauncher,
             gemfirePropertiesFile, gemfireSecurityPropertiesFile, gemfireProperties,
             customClasspath,

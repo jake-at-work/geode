@@ -27,11 +27,11 @@ public class FileJUnitTest {
 
   @Test
   public void testSerialization() {
-    File file = new File(null, "fileName");
+    var file = new File(null, "fileName");
     file.modified = -10;
     file.length = 5;
     file.chunks = 7;
-    File copy = CopyHelper.deepCopy(file);
+    var copy = CopyHelper.deepCopy(file);
 
     assertEquals(file.chunks, copy.chunks);
     assertEquals(file.created, copy.created);

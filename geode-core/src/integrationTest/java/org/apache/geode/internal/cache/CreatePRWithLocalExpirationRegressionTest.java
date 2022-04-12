@@ -44,7 +44,7 @@ public class CreatePRWithLocalExpirationRegressionTest {
   public void setUp() {
     cache = new CacheFactory().set(LOCATORS, "").set(MCAST_PORT, "0").create();
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRecoveryDelay(-1);
     paf.setRedundantCopies(1);
     paf.setStartupRecoveryDelay(-1);

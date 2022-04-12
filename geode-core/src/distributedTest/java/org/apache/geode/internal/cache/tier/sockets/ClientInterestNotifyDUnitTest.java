@@ -38,12 +38,8 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.CacheServerImpl;
@@ -154,7 +150,7 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
   }
@@ -162,8 +158,8 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
   private Cache createCache(Properties props) throws Exception {
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    DistributedSystem ds = DistributedSystem.connect(props);
-    Cache cache = CacheFactory.create(ds);
+    var ds = DistributedSystem.connect(props);
+    var cache = CacheFactory.create(ds);
     if (cache == null) {
       throw new Exception("CacheFactory.create() returned null ");
     }
@@ -180,7 +176,7 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
     // Server is created with notify-by-subscription (NBS) set to false.
     PORT = createServerCache();
 
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     // Create a feeder.
     vm0.invoke(() -> ClientInterestNotifyDUnitTest
         .createClientCacheFeeder(NetworkUtils.getServerHostName(host), PORT));
@@ -273,7 +269,7 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
    * create properties for a loner VM
    */
   private static Properties createProperties1(/* String nbs */) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     return props;
@@ -281,11 +277,11 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
 
 
   private static void createPool2(String host, AttributesFactory factory, Integer port) {
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     pf.addServer(host, port).setSubscriptionEnabled(true)
         .setReadTimeout(10000).setSocketBufferSize(32768).setPingInterval(1000).setMinConnections(3)
         .setSubscriptionRedundancy(-1);
-    Pool pool = pf.create("superpoolish" + (poolNameCounter++));
+    var pool = pf.create("superpoolish" + (poolNameCounter++));
     factory.setPoolName(pool.getName());
   }
 
@@ -306,14 +302,14 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void createClientCache(String host, Integer port, /* String nbs, */
       String name) throws Exception {
-    ClientInterestNotifyDUnitTest test = new ClientInterestNotifyDUnitTest();
-    Cache cacheClient = test.createCache(createProperties1(/* nbs */));
-    AttributesFactory factory = new AttributesFactory();
+    var test = new ClientInterestNotifyDUnitTest();
+    var cacheClient = test.createCache(createProperties1(/* nbs */));
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setConcurrencyChecksEnabled(false);
     createPool2(host, factory, port);
     factory.setCacheListener(test.new EventListener(name + REGION_NAME1));
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cacheClient.createRegion(REGION_NAME1, attrs);
 
     factory = new AttributesFactory();
@@ -334,14 +330,14 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void createClientCacheFeeder(String host, Integer port) throws Exception {
-    ClientInterestNotifyDUnitTest test = new ClientInterestNotifyDUnitTest();
-    Cache cacheFeeder = test.createCache(createProperties1(
+    var test = new ClientInterestNotifyDUnitTest();
+    var cacheFeeder = test.createCache(createProperties1(
     /* DistributionConfig.NOTIFY_BY_SUBSCRIPTION_OVERRIDE_PROP_VALUE_DEFAULT */));
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setConcurrencyChecksEnabled(false);
     createPool2(host, factory, port);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cacheFeeder.createRegion(REGION_NAME1, attrs);
     cacheFeeder.createRegion(REGION_NAME2, attrs);
     cacheFeeder.createRegion(REGION_NAME3, attrs);
@@ -362,20 +358,20 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
           .getClientProxies().iterator();
       assertTrue("No proxies found!", proxies.hasNext());
       while (proxies.hasNext()) {
-        int qsize = ((CacheClientProxy) proxies.next()).getQueueSize();
+        var qsize = ((CacheClientProxy) proxies.next()).getQueueSize();
         assertTrue("Queue size expected to be zero but is " + qsize, qsize == 0);
       }
     }
   }
 
   public static void waitForQueuesToDrain() {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       String excuse;
 
       @Override
       public boolean done() {
         // assume a single cache server as configured in this test
-        CacheServerImpl bridgeServer =
+        var bridgeServer =
             (CacheServerImpl) cacheServer.getCacheServers().iterator().next();
         if (bridgeServer == null) {
           excuse = "No Cache Server";
@@ -388,13 +384,13 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
           return false;
         }
         while (proxies.hasNext()) {
-          CacheClientProxy proxy = (CacheClientProxy) proxies.next();
+          var proxy = (CacheClientProxy) proxies.next();
           if (proxy == null) {
             excuse = "No CacheClientProxy";
             return false;
           }
           // Verify the queue size
-          int sz = proxy.getQueueSize();
+          var sz = proxy.getQueueSize();
           if (0 != sz) {
             excuse = "Queue did not drain. Expected size = 0, actual = " + sz + "for " + proxy;
             return false;
@@ -416,20 +412,20 @@ public class ClientInterestNotifyDUnitTest extends JUnit4DistributedTestCase {
    *
    */
   public static Integer createServerCache() throws Exception {
-    ClientInterestNotifyDUnitTest test = new ClientInterestNotifyDUnitTest();
-    Properties props = new Properties();
+    var test = new ClientInterestNotifyDUnitTest();
+    var props = new Properties();
     props.setProperty(DELTA_PROPAGATION, "false");
     cacheServer = test.createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setConcurrencyChecksEnabled(false);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cacheServer.createRegion(REGION_NAME1, attrs);
     cacheServer.createRegion(REGION_NAME2, attrs);
     cacheServer.createRegion(REGION_NAME3, attrs);
-    CacheServer server = cacheServer.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cacheServer.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.setSocketBufferSize(32768);

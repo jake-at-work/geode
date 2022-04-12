@@ -29,8 +29,8 @@ public class ChunkKeyJUnitTest {
 
   @Test
   public void testSerialization() {
-    ChunkKey key = new ChunkKey(UUID.randomUUID(), 5);
-    ChunkKey copy = CopyHelper.deepCopy(key);
+    var key = new ChunkKey(UUID.randomUUID(), 5);
+    var copy = CopyHelper.deepCopy(key);
 
     assertEquals(key, copy);
     assertEquals(key.hashCode(), copy.hashCode());

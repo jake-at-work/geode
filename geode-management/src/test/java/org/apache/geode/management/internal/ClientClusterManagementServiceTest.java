@@ -28,7 +28,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
-import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
@@ -79,7 +78,7 @@ public class ClientClusterManagementServiceTest {
     when(serviceTransport.submitMessage(any(), any())).thenReturn(successRealizationResult);
     when(configuration.getCreationCommandType()).thenReturn(CommandType.CREATE);
 
-    ClusterManagementRealizationResult realizationResult = service.create(configuration);
+    var realizationResult = service.create(configuration);
 
     assertThat(realizationResult).isSameAs(successRealizationResult);
     verify(serviceTransport).submitMessage(same(configuration), same(CommandType.CREATE));
@@ -89,7 +88,7 @@ public class ClientClusterManagementServiceTest {
   public void deleteCallsSubmitMessageAndReturnsResult() {
     when(serviceTransport.submitMessage(any(), any())).thenReturn(successRealizationResult);
 
-    ClusterManagementRealizationResult realizationResult = service.delete(configuration);
+    var realizationResult = service.delete(configuration);
 
     assertThat(realizationResult).isSameAs(successRealizationResult);
     verify(serviceTransport).submitMessage(same(configuration), same(CommandType.DELETE));
@@ -110,7 +109,7 @@ public class ClientClusterManagementServiceTest {
     when(successListResult.isSuccessful()).thenReturn(true);
     when(serviceTransport.submitMessageForList(any())).thenReturn(successListResult);
 
-    ClusterManagementListResult<AbstractConfiguration<RuntimeInfo>, RuntimeInfo> listResult =
+    var listResult =
         service.list(configuration);
 
     assertThat(listResult).isSameAs(successListResult);
@@ -125,7 +124,7 @@ public class ClientClusterManagementServiceTest {
     when(successGetResult.isSuccessful()).thenReturn(true);
     when(serviceTransport.submitMessageForGet(any())).thenReturn(successGetResult);
 
-    ClusterManagementGetResult<AbstractConfiguration<RuntimeInfo>, RuntimeInfo> getResult =
+    var getResult =
         service.get(configuration);
 
     assertThat(getResult).isSameAs(successGetResult);
@@ -134,11 +133,11 @@ public class ClientClusterManagementServiceTest {
 
   @Test
   public void startCallsSubmitMessageAndReturnsResult() {
-    RebalanceOperation rebalanceOperation = new RebalanceOperation();
+    var rebalanceOperation = new RebalanceOperation();
     doReturn(successOperationResult).when(serviceTransport)
         .submitMessageForStart(any(RebalanceOperation.class));
 
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> operationResult =
+    var operationResult =
         service.start(rebalanceOperation);
 
     assertThat(operationResult).isSameAs(successOperationResult);
@@ -146,12 +145,12 @@ public class ClientClusterManagementServiceTest {
 
   @Test
   public void getOperationCallsSubmitMessageAndReturnsResult() {
-    String opId = "opId";
-    RebalanceOperation opType = new RebalanceOperation();
+    var opId = "opId";
+    var opType = new RebalanceOperation();
     doReturn(successOperationResult).when(serviceTransport)
         .submitMessageForGetOperation(same(opType), same(opId));
 
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> operationResult =
+    var operationResult =
         service.get(opType, opId);
 
     assertThat(operationResult).isSameAs(successOperationResult);
@@ -160,12 +159,12 @@ public class ClientClusterManagementServiceTest {
 
   @Test
   public void getOperationCallsSubmitMessageAndReturnsFuture() {
-    String opId = "opId";
-    RebalanceOperation opType = new RebalanceOperation();
+    var opId = "opId";
+    var opType = new RebalanceOperation();
     doReturn(successOperationResult).when(serviceTransport)
         .submitMessageForGetOperation(same(opType), same(opId));
 
-    CompletableFuture<ClusterManagementOperationResult<RebalanceOperation, RebalanceResult>> future =
+    var future =
         service.getFuture(opType, opId);
 
     await().untilAsserted(
@@ -178,12 +177,12 @@ public class ClientClusterManagementServiceTest {
 
   @Test
   public void getOperationCallsSubmitMessageAndReturnsFutureThatCompletes() throws Exception {
-    String opId = "opId";
-    RebalanceOperation opType = new RebalanceOperation();
+    var opId = "opId";
+    var opType = new RebalanceOperation();
     doReturn(successOperationResult).when(serviceTransport)
         .submitMessageForGetOperation(same(opType), same(opId));
 
-    CompletableFuture<ClusterManagementOperationResult<RebalanceOperation, RebalanceResult>> future =
+    var future =
         service.getFuture(opType, opId);
 
     await().untilAsserted(
@@ -206,7 +205,7 @@ public class ClientClusterManagementServiceTest {
     doReturn(successListOperationsResult).when(serviceTransport)
         .submitMessageForListOperation(any());
 
-    ClusterManagementListOperationsResult<ClusterManagementOperation<OperationResult>, OperationResult> operationResult =
+    var operationResult =
         service.list(operation);
 
     assertThat(operationResult).isSameAs(successListOperationsResult);
@@ -223,12 +222,12 @@ public class ClientClusterManagementServiceTest {
 
   @Test
   public void createWithFailedResult() {
-    ClusterManagementRealizationResult realizationResult =
+    var realizationResult =
         mock(ClusterManagementRealizationResult.class);
     when(realizationResult.isSuccessful()).thenReturn(false);
     when(serviceTransport.submitMessage(any(), any())).thenReturn(realizationResult);
 
-    Throwable throwable = catchThrowable(() -> service.create(configuration));
+    var throwable = catchThrowable(() -> service.create(configuration));
 
     assertThat(throwable).isInstanceOf(ClusterManagementException.class);
     assertThat(((ClusterManagementException) throwable).getResult()).isSameAs(realizationResult);

@@ -81,7 +81,7 @@ public class ServerWithCustomLogConfigAcceptanceTest {
 
   @Test
   public void serverLauncherUsesDefaultLoggingConfig() {
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + workingDir,
@@ -104,7 +104,7 @@ public class ServerWithCustomLogConfigAcceptanceTest {
 
   @Test
   public void serverLauncherUsesSpecifiedConfigFileWithoutGeodePlugins() {
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + workingDir,
@@ -130,9 +130,9 @@ public class ServerWithCustomLogConfigAcceptanceTest {
   public void serverLauncherUsesConfigFileInClasspathWithoutGeodePlugins() throws Exception {
     copy(configWithoutGeodePluginsFile, workingDir.resolve("log4j2.xml"));
 
-    String classpath = workingDir.toFile().getAbsolutePath();
+    var classpath = workingDir.toFile().getAbsolutePath();
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + workingDir,
@@ -156,7 +156,7 @@ public class ServerWithCustomLogConfigAcceptanceTest {
 
   @Test
   public void serverLauncherUsesSpecifiedConfigFileWithGeodePlugins() {
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + workingDir,
@@ -184,9 +184,9 @@ public class ServerWithCustomLogConfigAcceptanceTest {
   public void serverLauncherUsesConfigFileInClasspathWithGeodePlugins() throws Exception {
     copy(configWithGeodePluginsFile, workingDir.resolve("log4j2.xml"));
 
-    String classpath = workingDir.toFile().getAbsolutePath();
+    var classpath = workingDir.toFile().getAbsolutePath();
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + workingDir,

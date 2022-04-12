@@ -212,7 +212,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenNonexistentKey_returnsEmptyArray() {
-    ScanResult<Map.Entry<String, String>> result = jedis.hscan("nonexistent", ZERO_CURSOR);
+    var result = jedis.hscan("nonexistent", ZERO_CURSOR);
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(result.getResult()).isEmpty();
@@ -220,9 +220,9 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenNegativeCursor_returnsEntriesUsingAbsoluteValueOfCursor() {
-    Map<String, String> entryMap = initializeThreeFieldHash();
+    var entryMap = initializeThreeFieldHash();
 
-    String cursor = "-100";
+    var cursor = "-100";
     ScanResult<Map.Entry<String, String>> result;
     List<Map.Entry<String, String>> allEntries = new ArrayList<>();
 
@@ -253,9 +253,9 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
   @Test
   public void givenInvalidRegexSyntax_returnsEmptyArray() {
     jedis.hset(HASH_KEY, FIELD_ONE, VALUE_ONE);
-    ScanParams scanParams = new ScanParams().count(1).match("\\p");
+    var scanParams = new ScanParams().count(1).match("\\p");
 
-    ScanResult<Map.Entry<byte[], byte[]>> result =
+    var result =
         jedis.hscan(HASH_KEY.getBytes(), ZERO_CURSOR.getBytes(), scanParams);
 
     assertThat(result.getResult()).isEmpty();
@@ -269,7 +269,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
     expected.put(FIELD_ONE, VALUE_ONE);
     jedis.hset(HASH_KEY, FIELD_ONE, VALUE_ONE);
 
-    ScanResult<Map.Entry<String, String>> result = jedis.hscan(HASH_KEY, ZERO_CURSOR);
+    var result = jedis.hscan(HASH_KEY, ZERO_CURSOR);
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(result.getResult()).containsExactly(expected.entrySet().iterator().next());
@@ -277,9 +277,9 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenHashWithMultipleEntries_returnsAllEntries() {
-    Map<String, String> entryMap = initializeThreeFieldHash();
+    var entryMap = initializeThreeFieldHash();
 
-    ScanResult<Map.Entry<String, String>> result = jedis.hscan(HASH_KEY, ZERO_CURSOR);
+    var result = jedis.hscan(HASH_KEY, ZERO_CURSOR);
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(new HashSet<>(result.getResult())).isEqualTo(entryMap.entrySet());
@@ -290,7 +290,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
     initializeThreeFieldHash();
 
     List<Object> result;
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result = uncheckedCast(jedis.sendCommand(HASH_KEY, Protocol.Command.HSCAN,
@@ -309,9 +309,9 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
   public void givenCompleteIteration_shouldReturnCursorWithValueOfZero() {
     initializeThreeFieldHash();
 
-    ScanParams scanParams = new ScanParams().count(1);
+    var scanParams = new ScanParams().count(1);
     ScanResult<Map.Entry<byte[], byte[]>> result;
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result = jedis.hscan(HASH_KEY.getBytes(), cursor.getBytes(), scanParams);
@@ -323,11 +323,11 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenMatch_returnsAllMatchingEntries() {
-    Map<byte[], byte[]> entryMap = initializeThreeFieldHashBytes();
+    var entryMap = initializeThreeFieldHashBytes();
 
-    ScanParams scanParams = new ScanParams().match("1*");
+    var scanParams = new ScanParams().match("1*");
 
-    ScanResult<Map.Entry<byte[], byte[]>> result =
+    var result =
         jedis.hscan(HASH_KEY.getBytes(), ZERO_CURSOR.getBytes(), scanParams);
 
     entryMap.remove(FIELD_THREE_BYTES);
@@ -356,12 +356,12 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void givenMatchAndCount_returnsAllMatchingKeys() {
-    Map<byte[], byte[]> entryMap = initializeThreeFieldHashBytes();
+    var entryMap = initializeThreeFieldHashBytes();
 
-    ScanParams scanParams = new ScanParams().count(1).match("1*");
+    var scanParams = new ScanParams().count(1).match("1*");
     ScanResult<Map.Entry<byte[], byte[]>> result;
     List<Map.Entry<byte[], byte[]>> allEntries = new ArrayList<>();
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result = jedis.hscan(HASH_KEY.getBytes(), cursor.getBytes(), scanParams);
@@ -382,7 +382,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
     List<Object> result;
 
     List<byte[]> allEntries = new ArrayList<>();
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result =
@@ -406,7 +406,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void should_notReturnValue_givenValueWasRemovedBeforeHSCANISCalled() {
-    Map<String, String> entryMap = initializeThreeFieldHash();
+    var entryMap = initializeThreeFieldHash();
 
     jedis.hdel(HASH_KEY, FIELD_THREE);
     entryMap.remove(FIELD_THREE);
@@ -414,7 +414,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
     GeodeAwaitility.await().untilAsserted(
         () -> assertThat(jedis.hget(HASH_KEY, FIELD_THREE)).isNull());
 
-    ScanResult<Map.Entry<String, String>> result = jedis.hscan(HASH_KEY, ZERO_CURSOR);
+    var result = jedis.hscan(HASH_KEY, ZERO_CURSOR);
 
     assertThat(new HashSet<>(result.getResult()))
         .containsExactlyInAnyOrderElementsOf(entryMap.entrySet());
@@ -422,9 +422,9 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void should_notErrorGivenNonzeroCursorOnFirstCall() {
-    Map<String, String> entryMap = initializeThreeFieldHash();
+    var entryMap = initializeThreeFieldHash();
 
-    ScanResult<Map.Entry<String, String>> result = jedis.hscan(HASH_KEY, "5");
+    var result = jedis.hscan(HASH_KEY, "5");
 
     assertThat(new HashSet<>(result.getResult()))
         .isSubsetOf(entryMap.entrySet());
@@ -432,11 +432,11 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void should_notErrorGivenCountEqualToIntegerMaxValue() {
-    Map<byte[], byte[]> entryMap = initializeThreeFieldHashBytes();
+    var entryMap = initializeThreeFieldHashBytes();
 
-    ScanParams scanParams = new ScanParams().count(Integer.MAX_VALUE);
+    var scanParams = new ScanParams().count(Integer.MAX_VALUE);
 
-    ScanResult<Map.Entry<byte[], byte[]>> result =
+    var result =
         jedis.hscan(HASH_KEY.getBytes(), ZERO_CURSOR.getBytes(), scanParams);
     assertThat(result.getResult())
         .usingElementComparator(new MapEntryWithByteArraysComparator())
@@ -447,7 +447,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
   public void should_notErrorGivenCountGreaterThanIntegerMaxValue() {
     initializeThreeFieldHash();
 
-    String greaterThanInt = String.valueOf(2L * Integer.MAX_VALUE);
+    var greaterThanInt = String.valueOf(2L * Integer.MAX_VALUE);
     List<Object> result =
         uncheckedCast(jedis.sendCommand(HASH_KEY.getBytes(), Protocol.Command.HSCAN,
             HASH_KEY.getBytes(), ZERO_CURSOR.getBytes(),
@@ -466,18 +466,18 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void should_notLoseFields_givenConcurrentThreadsDoingHScansAndChangingValues() {
-    final Map<String, String> initialHashData = makeEntryMap();
+    final var initialHashData = makeEntryMap();
     jedis.hset(HASH_KEY, initialHashData);
-    final int iterationCount = 500;
+    final var iterationCount = 500;
 
-    final Jedis jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
-    final Jedis jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
 
     new ConcurrentLoopingThreads(iterationCount,
         (i) -> multipleHScanAndAssertOnSizeOfResultSet(jedis1, initialHashData),
         (i) -> multipleHScanAndAssertOnSizeOfResultSet(jedis2, initialHashData),
         (i) -> {
-          int fieldSuffix = i % SIZE_OF_ENTRY_MAP;
+          var fieldSuffix = i % SIZE_OF_ENTRY_MAP;
           jedis.hset(HASH_KEY, BASE_FIELD + fieldSuffix, "new_value_" + i);
         }).run();
 
@@ -487,18 +487,18 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void should_notLoseKeysForConsistentlyPresentFields_givenConcurrentThreadsAddingAndRemovingFields() {
-    final Map<String, String> initialHashData = makeEntryMap();
+    final var initialHashData = makeEntryMap();
     jedis.hset(HASH_KEY, initialHashData);
-    final int iterationCount = 500;
+    final var iterationCount = 500;
 
-    final Jedis jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
-    final Jedis jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
 
     new ConcurrentLoopingThreads(iterationCount,
         (i) -> multipleHScanAndAssertOnContentOfResultSet(i, jedis1, initialHashData),
         (i) -> multipleHScanAndAssertOnContentOfResultSet(i, jedis2, initialHashData),
         (i) -> {
-          String field = "new_" + BASE_FIELD + i;
+          var field = "new_" + BASE_FIELD + i;
           jedis.hset(HASH_KEY, field, "whatever");
           jedis.hdel(HASH_KEY, field);
         }).run();
@@ -509,12 +509,12 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void should_notAlterUnderlyingData_givenMultipleConcurrentHscans() {
-    final Map<String, String> initialHashData = makeEntryMap();
+    final var initialHashData = makeEntryMap();
     jedis.hset(HASH_KEY, initialHashData);
-    final int iterationCount = 500;
+    final var iterationCount = 500;
 
-    final Jedis jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
-    final Jedis jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis1 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
+    final var jedis2 = new Jedis(jedis.getConnectionFromSlot(SLOT_FOR_KEY));
 
     new ConcurrentLoopingThreads(iterationCount,
         (i) -> multipleHScanAndAssertOnContentOfResultSet(i, jedis1, initialHashData),
@@ -533,12 +533,12 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
     List<String> allEntries = new ArrayList<>();
     ScanResult<Map.Entry<String, String>> result;
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result = jedis.hscan(HASH_KEY, cursor);
       cursor = result.getCursor();
-      List<Map.Entry<String, String>> resultEntries = result.getResult();
+      var resultEntries = result.getResult();
       resultEntries
           .forEach((entry) -> allEntries.add(entry.getKey()));
     } while (!result.isCompleteIteration());
@@ -551,7 +551,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
       final Map<String, String> initialHashData) {
     List<Map.Entry<String, String>> allEntries = new ArrayList<>();
     ScanResult<Map.Entry<String, String>> result;
-    String cursor = ZERO_CURSOR;
+    var cursor = ZERO_CURSOR;
 
     do {
       result = jedis.hscan(HASH_KEY, cursor);
@@ -559,7 +559,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
       allEntries.addAll(result.getResult());
     } while (!result.isCompleteIteration());
 
-    List<Map.Entry<String, String>> allDistinctEntries =
+    var allDistinctEntries =
         allEntries
             .stream()
             .distinct()
@@ -589,7 +589,7 @@ public abstract class AbstractHScanIntegrationTest implements RedisIntegrationTe
 
   private Map<String, String> makeEntryMap() {
     Map<String, String> dataSet = new HashMap<>();
-    for (int i = 0; i < SIZE_OF_ENTRY_MAP; i++) {
+    for (var i = 0; i < SIZE_OF_ENTRY_MAP; i++) {
       dataSet.put(BASE_FIELD + i, "value_" + i);
     }
     return dataSet;

@@ -77,11 +77,11 @@ public class DescribeDiskStoreFunctionJUnitTest {
   private void assertAsyncEventQueueDetails(
       final Set<DiskStoreDetails.AsyncEventQueueDetails> expectedAsyncEventQueueDetailsSet,
       final DiskStoreDetails diskStoreDetails) {
-    int actualCount = 0;
+    var actualCount = 0;
 
-    for (final DiskStoreDetails.AsyncEventQueueDetails actualAsyncEventQueueDetails : diskStoreDetails
+    for (final var actualAsyncEventQueueDetails : diskStoreDetails
         .iterateAsyncEventQueues()) {
-      final DiskStoreDetails.AsyncEventQueueDetails expectedAsyncEventQueueDetails = CollectionUtils
+      final var expectedAsyncEventQueueDetails = CollectionUtils
           .findBy(expectedAsyncEventQueueDetailsSet, asyncEventQueueDetails -> ObjectUtils
               .equals(asyncEventQueueDetails.getId(), actualAsyncEventQueueDetails.getId()));
 
@@ -95,11 +95,11 @@ public class DescribeDiskStoreFunctionJUnitTest {
   private void assertCacheServerDetails(
       final Set<DiskStoreDetails.CacheServerDetails> expectedCacheServerDetailsSet,
       final DiskStoreDetails diskStoreDetails) {
-    int actualCount = 0;
+    var actualCount = 0;
 
-    for (final DiskStoreDetails.CacheServerDetails actualCacheServerDetails : diskStoreDetails
+    for (final var actualCacheServerDetails : diskStoreDetails
         .iterateCacheServers()) {
-      final DiskStoreDetails.CacheServerDetails expectedCacheServerDetails =
+      final var expectedCacheServerDetails =
           CollectionUtils.findBy(expectedCacheServerDetailsSet,
               cacheServerDetails -> ObjectUtils.equals(cacheServerDetails.getBindAddress(),
                   actualCacheServerDetails.getBindAddress())
@@ -118,11 +118,11 @@ public class DescribeDiskStoreFunctionJUnitTest {
   private void assertGatewayDetails(
       final Set<DiskStoreDetails.GatewayDetails> expectedGatewayDetailsSet,
       final DiskStoreDetails diskStoreDetails) {
-    int actualCount = 0;
+    var actualCount = 0;
 
-    for (final DiskStoreDetails.GatewayDetails actualGatewayDetails : diskStoreDetails
+    for (final var actualGatewayDetails : diskStoreDetails
         .iterateGateways()) {
-      DiskStoreDetails.GatewayDetails expectedGatewayDetails =
+      var expectedGatewayDetails =
           CollectionUtils.findBy(expectedGatewayDetailsSet, gatewayDetails -> ObjectUtils
               .equals(gatewayDetails.getId(), actualGatewayDetails.getId()));
 
@@ -138,11 +138,11 @@ public class DescribeDiskStoreFunctionJUnitTest {
   private void assertRegionDetails(
       final Set<DiskStoreDetails.RegionDetails> expectedRegionDetailsSet,
       final DiskStoreDetails diskStoreDetails) {
-    int actualCount = 0;
+    var actualCount = 0;
 
-    for (final DiskStoreDetails.RegionDetails actualRegionDetails : diskStoreDetails
+    for (final var actualRegionDetails : diskStoreDetails
         .iterateRegions()) {
-      final DiskStoreDetails.RegionDetails expectedRegionDetails =
+      final var expectedRegionDetails =
           CollectionUtils.findBy(expectedRegionDetailsSet, regionDetails -> ObjectUtils
               .equals(regionDetails.getFullPath(), actualRegionDetails.getFullPath()));
 
@@ -164,7 +164,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   private DiskStoreDetails.CacheServerDetails createCacheServerDetails(final String bindAddress,
       final int port, final String hostname) {
-    final DiskStoreDetails.CacheServerDetails cacheServerDetails =
+    final var cacheServerDetails =
         new DiskStoreDetails.CacheServerDetails(bindAddress, port);
     cacheServerDetails.setHostName(hostname);
 
@@ -174,10 +174,10 @@ public class DescribeDiskStoreFunctionJUnitTest {
   private File[] createFileArray(final String... locations) {
     assert locations != null : "The locations argument cannot be null!";
 
-    final File[] directories = new File[locations.length];
-    int index = 0;
+    final var directories = new File[locations.length];
+    var index = 0;
 
-    for (final String location : locations) {
+    for (final var location : locations) {
       directories[index++] = new File(location);
     }
 
@@ -186,7 +186,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   private DiskStoreDetails.GatewayDetails createGatewayDetails(final String id,
       final boolean persistent) {
-    DiskStoreDetails.GatewayDetails gatewayDetails = new DiskStoreDetails.GatewayDetails(id);
+    var gatewayDetails = new DiskStoreDetails.GatewayDetails(id);
     gatewayDetails.setPersistent(persistent);
     return gatewayDetails;
   }
@@ -201,7 +201,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
       final long maxOplogSize, final int queueSize, final long timeInterval,
       final int writeBufferSize, final File[] diskDirs, final int[] diskDirSizes,
       final float warningPercentage, final float criticalPercentage) {
-    final DiskStore mockDiskStore = mock(DiskStore.class, name);
+    final var mockDiskStore = mock(DiskStore.class, name);
     when(mockDiskStore.getAllowForceCompaction()).thenReturn(allowForceCompaction);
     when(mockDiskStore.getAutoCompact()).thenReturn(autoCompact);
     when(mockDiskStore.getCompactionThreshold()).thenReturn(compactionThreshold);
@@ -221,7 +221,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   private DiskStoreDetails.RegionDetails createRegionDetails(final String fullPath,
       final String name, final boolean persistent, final boolean overflow) {
-    final DiskStoreDetails.RegionDetails regionDetails =
+    final var regionDetails =
         new DiskStoreDetails.RegionDetails(fullPath, name);
     regionDetails.setPersistent(persistent);
     regionDetails.setOverflowToDisk(overflow);
@@ -242,11 +242,11 @@ public class DescribeDiskStoreFunctionJUnitTest {
         mock(RegionAttributes.class, "SessionRegionAttributes");
     final RegionAttributes<Object, Object> mockGuestRegionAttributes =
         mock(RegionAttributes.class, "GuestRegionAttributes");
-    final EvictionAttributes mockUserEvictionAttributes =
+    final var mockUserEvictionAttributes =
         mock(EvictionAttributes.class, "UserEvictionAttributes");
-    final EvictionAttributes mockSessionEvictionAttributes =
+    final var mockSessionEvictionAttributes =
         mock(EvictionAttributes.class, "SessionEvictionAttributes");
-    final EvictionAttributes mockGuestEvictionAttributes =
+    final var mockGuestEvictionAttributes =
         mock(EvictionAttributes.class, "GuestEvictionAttributes");
 
     when(mockCache.rootRegions())
@@ -285,7 +285,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   private Set<DiskStoreDetails.GatewayDetails> setupGatewaysForTestExecute(
       final InternalCache mockCache, final String diskStoreName) {
-    final GatewaySender mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
+    final var mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
     when(mockCache.getGatewaySenders()).thenReturn(CollectionUtils.asSet(mockGatewaySender));
     when(mockGatewaySender.getDiskStoreName()).thenReturn(diskStoreName);
     when(mockGatewaySender.getId()).thenReturn("0123456789");
@@ -296,12 +296,12 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   private Set<DiskStoreDetails.CacheServerDetails> setupCacheServersForTestExecute(
       final InternalCache mockCache, final String diskStoreName) {
-    final CacheServer mockCacheServer1 = mock(CacheServer.class, "CacheServer1");
-    final CacheServer mockCacheServer2 = mock(CacheServer.class, "CacheServer2");
-    final CacheServer mockCacheServer3 = mock(CacheServer.class, "CacheServer3");
-    final ClientSubscriptionConfig cacheServer1ClientSubscriptionConfig =
+    final var mockCacheServer1 = mock(CacheServer.class, "CacheServer1");
+    final var mockCacheServer2 = mock(CacheServer.class, "CacheServer2");
+    final var mockCacheServer3 = mock(CacheServer.class, "CacheServer3");
+    final var cacheServer1ClientSubscriptionConfig =
         mock(ClientSubscriptionConfig.class, "cacheServer1ClientSubscriptionConfig");
-    final ClientSubscriptionConfig cacheServer3ClientSubscriptionConfig =
+    final var cacheServer3ClientSubscriptionConfig =
         mock(ClientSubscriptionConfig.class, "cacheServer3ClientSubscriptionConfig");
 
     when(mockCache.getCacheServers())
@@ -322,9 +322,9 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   private Set<DiskStoreDetails.AsyncEventQueueDetails> setupAsyncEventQueuesForTestExecute(
       final InternalCache mockCache, final String diskStoreName) {
-    final AsyncEventQueue mockAsyncEventQueue1 = mock(AsyncEventQueue.class, "AsyncEventQueue1");
-    final AsyncEventQueue mockAsyncEventQueue2 = mock(AsyncEventQueue.class, "AsyncEventQueue2");
-    final AsyncEventQueue mockAsyncEventQueue3 = mock(AsyncEventQueue.class, "AsyncEventQueue3");
+    final var mockAsyncEventQueue1 = mock(AsyncEventQueue.class, "AsyncEventQueue1");
+    final var mockAsyncEventQueue2 = mock(AsyncEventQueue.class, "AsyncEventQueue2");
+    final var mockAsyncEventQueue3 = mock(AsyncEventQueue.class, "AsyncEventQueue3");
 
     when(mockCache.getAsyncEventQueues()).thenReturn(
         CollectionUtils.asSet(mockAsyncEventQueue1, mockAsyncEventQueue2, mockAsyncEventQueue3));
@@ -353,21 +353,21 @@ public class DescribeDiskStoreFunctionJUnitTest {
   @Test
   public void testExecute() throws Throwable {
     // Prepare Mocks
-    final UUID diskStoreId = UUID.randomUUID();
-    final String diskStoreName = "mockDiskStore";
-    final String memberId = "mockMemberId";
-    final String memberName = "mockMemberName";
-    final InternalDistributedMember mockMember =
+    final var diskStoreId = UUID.randomUUID();
+    final var diskStoreName = "mockDiskStore";
+    final var memberId = "mockMemberId";
+    final var memberName = "mockMemberName";
+    final var mockMember =
         mock(InternalDistributedMember.class, "DistributedMember");
     @SuppressWarnings("unchecked")
     final FunctionContext<String> mockFunctionContext =
         mock(FunctionContext.class, "testExecute$FunctionContext");
-    final DiskStore mockDiskStore =
+    final var mockDiskStore =
         createMockDiskStore(diskStoreId, diskStoreName, true, false,
             75, 8192L, 500, 120L, 10240, createFileArray("/export/disk/backup",
                 "/export/disk/overflow", "/export/disk/persistence"),
             createIntArray(10240, 204800, 4096000), 50, 75);
-    final TestResultSender testResultSender = new TestResultSender();
+    final var testResultSender = new TestResultSender();
     when(mockCache.getMyId()).thenReturn(mockMember);
     when(mockCache.findDiskStore(diskStoreName)).thenReturn(mockDiskStore);
     when(mockCache.getPdxPersistent()).thenReturn(true);
@@ -379,24 +379,24 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockFunctionContext.getResultSender()).thenReturn(testResultSender);
 
     // Expected Results
-    final Set<DiskStoreDetails.RegionDetails> expectedRegionDetails =
+    final var expectedRegionDetails =
         setupRegionsForTestExecute(mockCache, diskStoreName);
-    final Set<DiskStoreDetails.GatewayDetails> expectedGatewayDetails =
+    final var expectedGatewayDetails =
         setupGatewaysForTestExecute(mockCache, diskStoreName);
-    final Set<DiskStoreDetails.CacheServerDetails> expectedCacheServerDetails =
+    final var expectedCacheServerDetails =
         setupCacheServersForTestExecute(mockCache, diskStoreName);
-    final Set<DiskStoreDetails.AsyncEventQueueDetails> expectedAsyncEventQueueDetails =
+    final var expectedAsyncEventQueueDetails =
         setupAsyncEventQueuesForTestExecute(mockCache, diskStoreName);
 
     // Execute Function and assert results
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     function.execute(mockFunctionContext);
 
     final List<?> results = testResultSender.getResults();
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(1);
 
-    final DiskStoreDetails diskStoreDetails = (DiskStoreDetails) results.get(0);
+    final var diskStoreDetails = (DiskStoreDetails) results.get(0);
     AssertionsForClassTypes.assertThat(diskStoreDetails).isNotNull();
     assertThat(diskStoreDetails.getId()).isEqualTo(diskStoreId);
     assertThat(diskStoreDetails.getName()).isEqualTo(diskStoreName);
@@ -413,14 +413,14 @@ public class DescribeDiskStoreFunctionJUnitTest {
     assertThat(diskStoreDetails.getDiskUsageWarningPercentage()).isEqualTo(50.0f);
     assertThat(diskStoreDetails.getDiskUsageCriticalPercentage()).isEqualTo(75.0f);
 
-    final List<Integer> expectedDiskDirSizes = Arrays.asList(10240, 204800, 4096000);
-    final List<String> expectedDiskDirs =
+    final var expectedDiskDirSizes = Arrays.asList(10240, 204800, 4096000);
+    final var expectedDiskDirs =
         Arrays.asList(new File("/export/disk/backup").getAbsolutePath(),
             new File("/export/disk/overflow").getAbsolutePath(),
             new File("/export/disk/persistence").getAbsolutePath());
-    int count = 0;
+    var count = 0;
 
-    for (final DiskStoreDetails.DiskDirDetails diskDirDetails : diskStoreDetails) {
+    for (final var diskDirDetails : diskStoreDetails) {
       assertThat(expectedDiskDirSizes.contains(diskDirDetails.getSize())).isTrue();
       assertThat(expectedDiskDirs.contains(diskDirDetails.getAbsolutePath())).isTrue();
       count++;
@@ -437,15 +437,15 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   @Test
   public void testExecuteOnMemberHavingANonGemFireCache() throws Throwable {
-    final Cache mockNonGemCache = mock(Cache.class, "NonGemCache");
+    final var mockNonGemCache = mock(Cache.class, "NonGemCache");
     @SuppressWarnings("unchecked")
     final FunctionContext<String> mockFunctionContext =
         mock(FunctionContext.class, "FunctionContext");
-    final TestResultSender testResultSender = new TestResultSender();
+    final var testResultSender = new TestResultSender();
     when(mockFunctionContext.getCache()).thenReturn(mockNonGemCache);
     when(mockFunctionContext.getResultSender()).thenReturn(testResultSender);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     function.execute(mockFunctionContext);
 
     final List<?> results = testResultSender.getResults();
@@ -455,15 +455,15 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   @Test
   public void testExecuteThrowingEntityNotFoundException() {
-    final String memberId = "mockMemberId";
-    final String memberName = "mockMemberName";
-    final String diskStoreName = "testDiskStore";
-    final InternalDistributedMember mockMember =
+    final var memberId = "mockMemberId";
+    final var memberName = "mockMemberName";
+    final var diskStoreName = "testDiskStore";
+    final var mockMember =
         mock(InternalDistributedMember.class, "DistributedMember");
     @SuppressWarnings("unchecked")
     final FunctionContext<String> mockFunctionContext =
         mock(FunctionContext.class, "FunctionContext");
-    final TestResultSender testResultSender = new TestResultSender();
+    final var testResultSender = new TestResultSender();
     when(mockCache.getMyId()).thenReturn(mockMember);
     when(mockCache.findDiskStore(diskStoreName)).thenReturn(null);
     when(mockMember.getId()).thenReturn(memberId);
@@ -472,9 +472,9 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockFunctionContext.getArguments()).thenReturn(diskStoreName);
     when(mockFunctionContext.getResultSender()).thenReturn(testResultSender);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     function.execute(mockFunctionContext);
-    String expected = String.format("A disk store with name '%1$s' was not found on member '%2$s'.",
+    var expected = String.format("A disk store with name '%1$s' was not found on member '%2$s'.",
         diskStoreName, memberName);
     assertThatThrownBy(testResultSender::getResults).isInstanceOf(EntityNotFoundException.class)
         .hasMessage(expected);
@@ -482,15 +482,15 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   @Test
   public void testExecuteThrowingRuntimeException() {
-    final String diskStoreName = "testDiskStore";
-    final String memberId = "mockMemberId";
-    final String memberName = "mockMemberName";
+    final var diskStoreName = "testDiskStore";
+    final var memberId = "mockMemberId";
+    final var memberName = "mockMemberName";
     @SuppressWarnings("unchecked")
     final FunctionContext<String> mockFunctionContext =
         mock(FunctionContext.class, "FunctionContext");
-    final InternalDistributedMember mockMember =
+    final var mockMember =
         mock(InternalDistributedMember.class, "DistributedMember");
-    final TestResultSender testResultSender = new TestResultSender();
+    final var testResultSender = new TestResultSender();
     when(mockCache.getMyId()).thenReturn(mockMember);
     when(mockCache.findDiskStore(diskStoreName)).thenThrow(new RuntimeException("ExpectedStrings"));
     when(mockMember.getId()).thenReturn(memberId);
@@ -499,7 +499,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockFunctionContext.getArguments()).thenReturn(diskStoreName);
     when(mockFunctionContext.getResultSender()).thenReturn(testResultSender);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     function.execute(mockFunctionContext);
     assertThatThrownBy(testResultSender::getResults).isInstanceOf(RuntimeException.class)
         .hasMessage("ExpectedStrings");
@@ -507,19 +507,19 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   @Test
   public void testExecuteWithDiskDirsAndDiskSizesMismatch() {
-    final String diskStoreName = "mockDiskStore";
-    final String memberId = "mockMemberId";
-    final String memberName = "mockMemberName";
-    final UUID diskStoreId = UUID.randomUUID();
+    final var diskStoreName = "mockDiskStore";
+    final var memberId = "mockMemberId";
+    final var memberName = "mockMemberName";
+    final var diskStoreId = UUID.randomUUID();
     @SuppressWarnings("unchecked")
     final FunctionContext<String> mockFunctionContext =
         mock(FunctionContext.class, "FunctionContext");
-    final InternalDistributedMember mockMember =
+    final var mockMember =
         mock(InternalDistributedMember.class, "DistributedMember");
-    final DiskStore mockDiskStore =
+    final var mockDiskStore =
         createMockDiskStore(diskStoreId, diskStoreName, false, true, 70, 8192000L, 1000, 300L, 8192,
             createFileArray("/export/disk0/gemfire/backup"), new int[0], 50, 75);
-    final TestResultSender testResultSender = new TestResultSender();
+    final var testResultSender = new TestResultSender();
     when(mockCache.getMyId()).thenReturn(mockMember);
     when(mockCache.findDiskStore(diskStoreName)).thenReturn(mockDiskStore);
     when(mockMember.getId()).thenReturn(memberId);
@@ -528,9 +528,9 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockFunctionContext.getArguments()).thenReturn(diskStoreName);
     when(mockFunctionContext.getResultSender()).thenReturn(testResultSender);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     function.execute(mockFunctionContext);
-    String expected =
+    var expected =
         "The number of disk directories with a specified size (0) does not match the number of disk directories (1)!";
     assertThatThrownBy(testResultSender::getResults).hasMessage(expected);
     verify(mockDiskStore, atLeastOnce()).getName();
@@ -539,7 +539,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   @Test
   public void testGetRegionDiskStoreName() {
-    final String expectedDiskStoreName = "testDiskStore";
+    final var expectedDiskStoreName = "testDiskStore";
     @SuppressWarnings("unchecked")
     final Region<Object, Object> mockRegion = mock(Region.class, "Region");
     @SuppressWarnings("unchecked")
@@ -548,7 +548,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getDiskStoreName()).thenReturn(expectedDiskStoreName);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.getDiskStoreName(mockRegion)).isEqualTo(expectedDiskStoreName);
   }
 
@@ -562,7 +562,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getDiskStoreName()).thenReturn(null);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.getDiskStoreName(mockRegion))
         .isEqualTo(DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
   }
@@ -574,13 +574,13 @@ public class DescribeDiskStoreFunctionJUnitTest {
     @SuppressWarnings("unchecked")
     final RegionAttributes<Object, Object> mockRegionAttributes =
         mock(RegionAttributes.class, "RegionAttributes");
-    final EvictionAttributes mockEvictionAttributes =
+    final var mockEvictionAttributes =
         mock(EvictionAttributes.class, "EvictionAttributes");
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getEvictionAttributes()).thenReturn(mockEvictionAttributes);
     when(mockEvictionAttributes.getAction()).thenReturn(EvictionAction.LOCAL_DESTROY);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isOverflowToDisk(mockRegion)).isFalse();
     verify(mockRegion, times(2)).getAttributes();
     verify(mockRegionAttributes, times(2)).getEvictionAttributes();
@@ -593,13 +593,13 @@ public class DescribeDiskStoreFunctionJUnitTest {
     @SuppressWarnings("unchecked")
     final RegionAttributes<Object, Object> mockRegionAttributes =
         mock(RegionAttributes.class, "RegionAttributes");
-    final EvictionAttributes mockEvictionAttributes =
+    final var mockEvictionAttributes =
         mock(EvictionAttributes.class, "EvictionAttributes");
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getEvictionAttributes()).thenReturn(mockEvictionAttributes);
     when(mockEvictionAttributes.getAction()).thenReturn(EvictionAction.OVERFLOW_TO_DISK);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isOverflowToDisk(mockRegion)).isTrue();
     verify(mockRegion, times(2)).getAttributes();
     verify(mockRegionAttributes, times(2)).getEvictionAttributes();
@@ -615,7 +615,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getEvictionAttributes()).thenReturn(null);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isOverflowToDisk(mockRegion)).isFalse();
   }
 
@@ -629,7 +629,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getDataPolicy()).thenReturn(DataPolicy.PERSISTENT_PARTITION);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isPersistent(mockRegion)).isTrue();
   }
 
@@ -643,7 +643,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getDataPolicy()).thenReturn(DataPolicy.PERSISTENT_REPLICATE);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isPersistent(mockRegion)).isTrue();
   }
 
@@ -657,7 +657,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getDataPolicy()).thenReturn(DataPolicy.NORMAL);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isPersistent(mockRegion)).isFalse();
   }
 
@@ -671,7 +671,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getDataPolicy()).thenReturn(DataPolicy.PARTITION);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isPersistent(mockRegion)).isFalse();
   }
 
@@ -685,7 +685,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getDataPolicy()).thenReturn(DataPolicy.PRELOADED);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isPersistent(mockRegion)).isFalse();
   }
 
@@ -699,7 +699,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getDataPolicy()).thenReturn(DataPolicy.REPLICATE);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isPersistent(mockRegion)).isFalse();
   }
 
@@ -707,7 +707,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
   public void testIsRegionUsingDiskStoreWhenUsingDefaultDiskStore() {
     @SuppressWarnings("unchecked")
     final Region<Object, Object> mockRegion = mock(Region.class, "Region");
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
     @SuppressWarnings("unchecked")
     final RegionAttributes<Object, Object> mockRegionAttributes =
         mock(RegionAttributes.class, "RegionAttributes");
@@ -716,17 +716,17 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegionAttributes.getDiskStoreName()).thenReturn(null);
     when(mockDiskStore.getName()).thenReturn(DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockRegion, mockDiskStore)).isTrue();
     verify(mockRegion, atLeastOnce()).getAttributes();
   }
 
   @Test
   public void testIsRegionUsingDiskStoreWhenPersistent() {
-    final String diskStoreName = "testDiskStore";
+    final var diskStoreName = "testDiskStore";
     @SuppressWarnings("unchecked")
     final Region<Object, Object> mockRegion = mock(Region.class, "Region");
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
     @SuppressWarnings("unchecked")
     final RegionAttributes<Object, Object> mockRegionAttributes =
         mock(RegionAttributes.class, "RegionAttributes");
@@ -735,21 +735,21 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegionAttributes.getDiskStoreName()).thenReturn(diskStoreName);
     when(mockDiskStore.getName()).thenReturn(diskStoreName);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockRegion, mockDiskStore)).isTrue();
     verify(mockRegion, atLeastOnce()).getAttributes();
   }
 
   @Test
   public void testIsRegionUsingDiskStoreWhenOverflowing() {
-    final String diskStoreName = "testDiskStore";
+    final var diskStoreName = "testDiskStore";
     @SuppressWarnings("unchecked")
     final Region<Object, Object> mockRegion = mock(Region.class, "Region");
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
     @SuppressWarnings("unchecked")
     final RegionAttributes<Object, Object> mockRegionAttributes =
         mock(RegionAttributes.class, "RegionAttributes");
-    final EvictionAttributes mockEvictionAttributes =
+    final var mockEvictionAttributes =
         mock(EvictionAttributes.class, "EvictionAttributes");
     when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
     when(mockRegionAttributes.getDataPolicy()).thenReturn(DataPolicy.PARTITION);
@@ -758,7 +758,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockEvictionAttributes.getAction()).thenReturn(EvictionAction.OVERFLOW_TO_DISK);
     when(mockDiskStore.getName()).thenReturn(diskStoreName);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockRegion, mockDiskStore)).isTrue();
     verify(mockRegion, times(4)).getAttributes();
     verify(mockRegionAttributes, times(2)).getEvictionAttributes();
@@ -768,7 +768,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
   public void testIsRegionUsingDiskStoreWhenDiskStoresMismatch() {
     @SuppressWarnings("unchecked")
     final Region<Object, Object> mockRegion = mock(Region.class, "Region");
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
     @SuppressWarnings("unchecked")
     final RegionAttributes<Object, Object> mockRegionAttributes =
         mock(RegionAttributes.class, "RegionAttributes");
@@ -777,14 +777,14 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockRegionAttributes.getDiskStoreName()).thenReturn("mockDiskStore");
     when(mockDiskStore.getName()).thenReturn("testDiskStore");
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockRegion, mockDiskStore)).isFalse();
   }
 
   @Test
   public void testSetRegionDetails() {
     // Prepare Mocks
-    final String diskStoreName = "companyDiskStore";
+    final var diskStoreName = "companyDiskStore";
 
     @SuppressWarnings("unchecked")
     final Region<Object, Object> mockCompanyRegion =
@@ -792,7 +792,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     @SuppressWarnings("unchecked")
     final RegionAttributes<Object, Object> mockCompanyRegionAttributes =
         mock(RegionAttributes.class, "CompanyRegionAttributes");
-    final EvictionAttributes mockCompanyEvictionAttributes =
+    final var mockCompanyEvictionAttributes =
         mock(EvictionAttributes.class, "CompanyEvictionAttributes");
     when(mockCompanyRegion.getAttributes()).thenReturn(mockCompanyRegionAttributes);
     when(mockCompanyRegion.getFullPath()).thenReturn(SEPARATOR + "CompanyRegion");
@@ -836,7 +836,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     @SuppressWarnings("unchecked")
     final RegionAttributes<Object, Object> mockContractorsRegionAttributes =
         mock(RegionAttributes.class, "ContractorsRegionAttributes");
-    final EvictionAttributes mockContractorsEvictionAttributes =
+    final var mockContractorsEvictionAttributes =
         mock(EvictionAttributes.class, "ContractorsEvictionAttributes");
     when(mockContractorsRegion.getAttributes()).thenReturn(mockContractorsRegionAttributes);
     when(mockContractorsRegion.getFullPath())
@@ -875,7 +875,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     @SuppressWarnings("unchecked")
     final RegionAttributes<Object, Object> mockCustomersRegionAttributes =
         mock(RegionAttributes.class, "CustomersRegionAttributes");
-    final EvictionAttributes mockCustomersEvictionAttributes =
+    final var mockCustomersEvictionAttributes =
         mock(EvictionAttributes.class, "CustomersEvictionAttributes");
     when(mockCustomersRegion.getAttributes()).thenReturn(mockCustomersRegionAttributes);
     when(mockCustomersRegion.subregions(false)).thenReturn(Collections.emptySet());
@@ -885,7 +885,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
         .thenReturn(mockCustomersEvictionAttributes);
     when(mockCustomersEvictionAttributes.getAction()).thenReturn(EvictionAction.OVERFLOW_TO_DISK);
 
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
     when(mockDiskStore.getName()).thenReturn(diskStoreName);
 
     Set<Region<?, ?>> mockRootRegions = new HashSet<>();
@@ -899,7 +899,7 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockContractorsRegion.subregions(false)).thenReturn(Collections.emptySet());
 
     // Execute Region and assert results
-    final Set<DiskStoreDetails.RegionDetails> expectedRegionDetails = CollectionUtils.asSet(
+    final var expectedRegionDetails = CollectionUtils.asSet(
         createRegionDetails(SEPARATOR + "CompanyRegion", "CompanyRegion", true, false),
         createRegionDetails(SEPARATOR + "CompanyRegion" + SEPARATOR + "EmployeeRegion",
             "EmployeeRegion", true, false),
@@ -909,8 +909,8 @@ public class DescribeDiskStoreFunctionJUnitTest {
             false),
         createRegionDetails(SEPARATOR + "CompanyRegion" + SEPARATOR + "ContractorsRegion",
             "ContractorsRegion", false, true));
-    final DiskStoreDetails diskStoreDetails = new DiskStoreDetails(diskStoreName, "memberOne");
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var diskStoreDetails = new DiskStoreDetails(diskStoreName, "memberOne");
+    final var function = new DescribeDiskStoreFunction();
     function.setRegionDetails(mockCache, mockDiskStore, diskStoreDetails);
     assertRegionDetails(expectedRegionDetails, diskStoreDetails);
     verify(mockCompanyRegion, times(5)).getAttributes();
@@ -936,27 +936,27 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   @Test
   public void testGetCacheServerDiskStoreName() {
-    final String expectedDiskStoreName = "testDiskStore";
-    final CacheServer mockCacheServer = mock(CacheServer.class, "CacheServer");
-    final ClientSubscriptionConfig mockClientSubscriptionConfig =
+    final var expectedDiskStoreName = "testDiskStore";
+    final var mockCacheServer = mock(CacheServer.class, "CacheServer");
+    final var mockClientSubscriptionConfig =
         mock(ClientSubscriptionConfig.class, "ClientSubscriptionConfig");
     when(mockCacheServer.getClientSubscriptionConfig()).thenReturn(mockClientSubscriptionConfig);
     when(mockClientSubscriptionConfig.getDiskStoreName()).thenReturn(expectedDiskStoreName);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.getDiskStoreName(mockCacheServer)).isEqualTo(expectedDiskStoreName);
     verify(mockCacheServer, times(2)).getClientSubscriptionConfig();
   }
 
   @Test
   public void testGetCacheServerDiskStoreNameWhenUnspecified() {
-    final CacheServer mockCacheServer = mock(CacheServer.class, "CacheServer");
-    final ClientSubscriptionConfig mockClientSubscriptionConfig =
+    final var mockCacheServer = mock(CacheServer.class, "CacheServer");
+    final var mockClientSubscriptionConfig =
         mock(ClientSubscriptionConfig.class, "ClientSubscriptionConfig");
     when(mockCacheServer.getClientSubscriptionConfig()).thenReturn(mockClientSubscriptionConfig);
     when(mockClientSubscriptionConfig.getDiskStoreName()).thenReturn(null);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.getDiskStoreName(mockCacheServer))
         .isEqualTo(DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
     verify(mockCacheServer, times(2)).getClientSubscriptionConfig();
@@ -964,25 +964,25 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   @Test
   public void testGetCacheServerDiskStoreNameWithNullClientSubscriptionConfig() {
-    final CacheServer mockCacheServer = mock(CacheServer.class, "CacheServer");
+    final var mockCacheServer = mock(CacheServer.class, "CacheServer");
     when(mockCacheServer.getClientSubscriptionConfig()).thenReturn(null);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.getDiskStoreName(mockCacheServer)).isNull();
   }
 
   @Test
   public void testIsCacheServerUsingDiskStore() {
-    final String diskStoreName = "testDiskStore";
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final CacheServer mockCacheServer = mock(CacheServer.class, "CacheServer");
-    final ClientSubscriptionConfig mockClientSubscriptionConfig =
+    final var diskStoreName = "testDiskStore";
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockCacheServer = mock(CacheServer.class, "CacheServer");
+    final var mockClientSubscriptionConfig =
         mock(ClientSubscriptionConfig.class, "ClientSubscriptionConfig");
     when(mockCacheServer.getClientSubscriptionConfig()).thenReturn(mockClientSubscriptionConfig);
     when(mockClientSubscriptionConfig.getDiskStoreName()).thenReturn(diskStoreName);
     when(mockDiskStore.getName()).thenReturn(diskStoreName);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockCacheServer, mockDiskStore)).isTrue();
     verify(mockCacheServer, times(2)).getClientSubscriptionConfig();
 
@@ -990,44 +990,44 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   @Test
   public void testIsCacheServerUsingDiskStoreWhenDiskStoresMismatch() {
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final CacheServer mockCacheServer = mock(CacheServer.class, "CacheServer");
-    final ClientSubscriptionConfig mockClientSubscriptionConfig =
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockCacheServer = mock(CacheServer.class, "CacheServer");
+    final var mockClientSubscriptionConfig =
         mock(ClientSubscriptionConfig.class, "ClientSubscriptionConfig");
     when(mockCacheServer.getClientSubscriptionConfig()).thenReturn(mockClientSubscriptionConfig);
     when(mockClientSubscriptionConfig.getDiskStoreName()).thenReturn(" ");
     when(mockDiskStore.getName()).thenReturn("otherDiskStore");
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockCacheServer, mockDiskStore)).isFalse();
     verify(mockCacheServer, times(2)).getClientSubscriptionConfig();
   }
 
   @Test
   public void testIsCacheServerUsingDiskStoreWhenUsingDefaultDiskStore() {
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final CacheServer mockCacheServer = mock(CacheServer.class, "CacheServer");
-    final ClientSubscriptionConfig mockClientSubscriptionConfig =
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockCacheServer = mock(CacheServer.class, "CacheServer");
+    final var mockClientSubscriptionConfig =
         mock(ClientSubscriptionConfig.class, "ClientSubscriptionConfig");
     when(mockCacheServer.getClientSubscriptionConfig()).thenReturn(mockClientSubscriptionConfig);
     when(mockClientSubscriptionConfig.getDiskStoreName()).thenReturn("");
     when(mockDiskStore.getName()).thenReturn(DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockCacheServer, mockDiskStore)).isTrue();
     verify(mockCacheServer, times(2)).getClientSubscriptionConfig();
   }
 
   @Test
   public void testSetCacheServerDetails() {
-    final String diskStoreName = "testDiskStore";
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final CacheServer mockCacheServer1 = mock(CacheServer.class, "CacheServer1");
-    final CacheServer mockCacheServer2 = mock(CacheServer.class, "CacheServer2");
-    final CacheServer mockCacheServer3 = mock(CacheServer.class, "CacheServer3");
-    final ClientSubscriptionConfig mockCacheServer1ClientSubscriptionConfig =
+    final var diskStoreName = "testDiskStore";
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockCacheServer1 = mock(CacheServer.class, "CacheServer1");
+    final var mockCacheServer2 = mock(CacheServer.class, "CacheServer2");
+    final var mockCacheServer3 = mock(CacheServer.class, "CacheServer3");
+    final var mockCacheServer1ClientSubscriptionConfig =
         mock(ClientSubscriptionConfig.class, "cacheServer1ClientSubscriptionConfig");
-    final ClientSubscriptionConfig mockCacheServer2ClientSubscriptionConfig =
+    final var mockCacheServer2ClientSubscriptionConfig =
         mock(ClientSubscriptionConfig.class, "cacheServer2ClientSubscriptionConfig");
     when(mockCache.getCacheServers())
         .thenReturn(Arrays.asList(mockCacheServer1, mockCacheServer2, mockCacheServer3));
@@ -1043,10 +1043,10 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockCacheServer3.getClientSubscriptionConfig()).thenReturn(null);
     when(mockDiskStore.getName()).thenReturn(diskStoreName);
 
-    final Set<DiskStoreDetails.CacheServerDetails> expectedCacheServerDetails =
+    final var expectedCacheServerDetails =
         CollectionUtils.asSet(createCacheServerDetails("10.127.255.1", 65536, "gemini"));
-    final DiskStoreDetails diskStoreDetails = new DiskStoreDetails(diskStoreName, "memberOne");
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var diskStoreDetails = new DiskStoreDetails(diskStoreName, "memberOne");
+    final var function = new DescribeDiskStoreFunction();
     function.setCacheServerDetails(mockCache, mockDiskStore, diskStoreDetails);
     assertCacheServerDetails(expectedCacheServerDetails, diskStoreDetails);
     verify(mockCacheServer1, times(2)).getClientSubscriptionConfig();
@@ -1056,188 +1056,188 @@ public class DescribeDiskStoreFunctionJUnitTest {
 
   @Test
   public void testGetGatewaySenderDiskStoreName() {
-    final String expectedDiskStoreName = "testDiskStore";
-    final GatewaySender mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
+    final var expectedDiskStoreName = "testDiskStore";
+    final var mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
     when(mockGatewaySender.getDiskStoreName()).thenReturn(expectedDiskStoreName);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.getDiskStoreName(mockGatewaySender)).isEqualTo(expectedDiskStoreName);
   }
 
   @Test
   public void testGetGatewaySenderDiskStoreNameWhenUnspecified() {
-    final GatewaySender mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
+    final var mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
     when(mockGatewaySender.getDiskStoreName()).thenReturn(" ");
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.getDiskStoreName(mockGatewaySender))
         .isEqualTo(DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
   }
 
   @Test
   public void testIsGatewaySenderPersistent() {
-    final GatewaySender mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
+    final var mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
     when(mockGatewaySender.isPersistenceEnabled()).thenReturn(true);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isPersistent(mockGatewaySender)).isTrue();
   }
 
   @Test
   public void testIsGatewaySenderPersistentWhenPersistenceIsNotEnabled() {
-    final GatewaySender mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
+    final var mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
     when(mockGatewaySender.isPersistenceEnabled()).thenReturn(true);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isPersistent(mockGatewaySender)).isTrue();
   }
 
   @Test
   public void testIsGatewaySenderUsingDiskStore() {
-    final String diskStoreName = "testDiskStore";
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final GatewaySender mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
+    final var diskStoreName = "testDiskStore";
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
     when(mockGatewaySender.getDiskStoreName()).thenReturn(diskStoreName);
     when(mockDiskStore.getName()).thenReturn(diskStoreName);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockGatewaySender, mockDiskStore)).isTrue();
   }
 
   @Test
   public void testIsGatewaySenderUsingDiskStoreWhenDiskStoresMismatch() {
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final GatewaySender mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
     when(mockGatewaySender.getDiskStoreName()).thenReturn("mockDiskStore");
     when(mockDiskStore.getName()).thenReturn("testDiskStore");
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockGatewaySender, mockDiskStore)).isFalse();
   }
 
   @Test
   public void testIsGatewaySenderUsingDiskStoreWhenUsingDefaultDiskStores() {
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final GatewaySender mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockGatewaySender = mock(GatewaySender.class, "GatewaySender");
     when(mockGatewaySender.getDiskStoreName()).thenReturn(" ");
     when(mockDiskStore.getName()).thenReturn(DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockGatewaySender, mockDiskStore)).isTrue();
   }
 
   @Test
   public void testSetPdxSerializationDetails() {
-    final String diskStoreName = "testDiskStore";
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var diskStoreName = "testDiskStore";
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
     when(mockCache.getPdxPersistent()).thenReturn(true);
     when(mockCache.getPdxDiskStore()).thenReturn(diskStoreName);
     when(mockDiskStore.getName()).thenReturn(diskStoreName);
 
-    final DiskStoreDetails diskStoreDetails = new DiskStoreDetails(diskStoreName, "memberOne");
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var diskStoreDetails = new DiskStoreDetails(diskStoreName, "memberOne");
+    final var function = new DescribeDiskStoreFunction();
     function.setPdxSerializationDetails(mockCache, mockDiskStore, diskStoreDetails);
     assertThat(diskStoreDetails.isPdxSerializationMetaDataStored()).isTrue();
   }
 
   @Test
   public void testSetPdxSerializationDetailsWhenDiskStoreMismatch() {
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
     when(mockCache.getPdxPersistent()).thenReturn(true);
     when(mockCache.getPdxDiskStore()).thenReturn("mockDiskStore");
     when(mockDiskStore.getName()).thenReturn("testDiskStore");
 
-    final DiskStoreDetails diskStoreDetails = new DiskStoreDetails("testDiskStore", "memberOne");
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var diskStoreDetails = new DiskStoreDetails("testDiskStore", "memberOne");
+    final var function = new DescribeDiskStoreFunction();
     function.setPdxSerializationDetails(mockCache, mockDiskStore, diskStoreDetails);
     assertThat(diskStoreDetails.isPdxSerializationMetaDataStored()).isFalse();
   }
 
   @Test
   public void testSetPdxSerializationDetailsWhenPdxIsNotPersistent() {
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
     when(mockCache.getPdxPersistent()).thenReturn(false);
 
-    final DiskStoreDetails diskStoreDetails = new DiskStoreDetails("testDiskStore", "memberOne");
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var diskStoreDetails = new DiskStoreDetails("testDiskStore", "memberOne");
+    final var function = new DescribeDiskStoreFunction();
     function.setPdxSerializationDetails(mockCache, mockDiskStore, diskStoreDetails);
     assertThat(diskStoreDetails.isPdxSerializationMetaDataStored()).isFalse();
   }
 
   @Test
   public void testGetAsyncEventQueueDiskStoreName() {
-    final String expectedDiskStoreName = "testDiskStore";
-    final AsyncEventQueue mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
+    final var expectedDiskStoreName = "testDiskStore";
+    final var mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
     when(mockQueue.getDiskStoreName()).thenReturn(expectedDiskStoreName);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.getDiskStoreName(mockQueue)).isEqualTo(expectedDiskStoreName);
   }
 
   @Test
   public void testGetAsyncEventQueueDiskStoreNameUsingDefaultDiskStore() {
-    final AsyncEventQueue mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
+    final var mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
     when(mockQueue.getDiskStoreName()).thenReturn(null);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.getDiskStoreName(mockQueue))
         .isEqualTo(DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
   }
 
   @Test
   public void testIsAsyncEventQueueUsingDiskStore() {
-    final String diskStoreName = "testDiskStore";
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final AsyncEventQueue mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
+    final var diskStoreName = "testDiskStore";
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
     when(mockQueue.getDiskStoreName()).thenReturn(diskStoreName);
     when(mockQueue.isPersistent()).thenReturn(true);
     when(mockDiskStore.getName()).thenReturn(diskStoreName);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockQueue, mockDiskStore)).isTrue();
   }
 
   @Test
   public void testIsAsyncEventQueueUsingDiskStoreWhenDiskStoresMismatch() {
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final AsyncEventQueue mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
     when(mockQueue.getDiskStoreName()).thenReturn("mockDiskStore");
     when(mockQueue.isPersistent()).thenReturn(true);
     when(mockDiskStore.getName()).thenReturn(DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockQueue, mockDiskStore)).isFalse();
   }
 
   @Test
   public void testIsAsyncEventQueueUsingDiskStoreWhenQueueIsNotPersistent() {
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final AsyncEventQueue mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
     when(mockQueue.isPersistent()).thenReturn(false);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockQueue, mockDiskStore)).isFalse();
   }
 
   @Test
   public void testIsAsyncEventQueueUsingDiskStoreWhenUsingDefaultDiskStore() {
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final AsyncEventQueue mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockQueue = mock(AsyncEventQueue.class, "AsyncEventQueue");
     when(mockQueue.getDiskStoreName()).thenReturn(" ");
     when(mockQueue.isPersistent()).thenReturn(true);
     when(mockDiskStore.getName()).thenReturn(DiskStoreDetails.DEFAULT_DISK_STORE_NAME);
 
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var function = new DescribeDiskStoreFunction();
     assertThat(function.isUsingDiskStore(mockQueue, mockDiskStore)).isTrue();
   }
 
   @Test
   public void testSetAsyncEventQueueDetails() {
-    final String diskStoreName = "testDiskStore";
-    final DiskStore mockDiskStore = mock(DiskStore.class, "DiskStore");
-    final AsyncEventQueue mockQueue1 = mock(AsyncEventQueue.class, "AsyncEvenQueue1");
-    final AsyncEventQueue mockQueue2 = mock(AsyncEventQueue.class, "AsyncEvenQueue2");
-    final AsyncEventQueue mockQueue3 = mock(AsyncEventQueue.class, "AsyncEvenQueue3");
+    final var diskStoreName = "testDiskStore";
+    final var mockDiskStore = mock(DiskStore.class, "DiskStore");
+    final var mockQueue1 = mock(AsyncEventQueue.class, "AsyncEvenQueue1");
+    final var mockQueue2 = mock(AsyncEventQueue.class, "AsyncEvenQueue2");
+    final var mockQueue3 = mock(AsyncEventQueue.class, "AsyncEvenQueue3");
     when(mockCache.getAsyncEventQueues())
         .thenReturn(CollectionUtils.asSet(mockQueue1, mockQueue2, mockQueue3));
     when(mockQueue1.isPersistent()).thenReturn(true);
@@ -1248,10 +1248,10 @@ public class DescribeDiskStoreFunctionJUnitTest {
     when(mockQueue3.isPersistent()).thenReturn(false);
     when(mockDiskStore.getName()).thenReturn(diskStoreName);
 
-    final Set<DiskStoreDetails.AsyncEventQueueDetails> expectedAsyncEventQueueDetails =
+    final var expectedAsyncEventQueueDetails =
         CollectionUtils.asSet(createAsyncEventQueueDetails("q1"));
-    final DiskStoreDetails diskStoreDetails = new DiskStoreDetails(diskStoreName, "memberOne");
-    final DescribeDiskStoreFunction function = new DescribeDiskStoreFunction();
+    final var diskStoreDetails = new DiskStoreDetails(diskStoreName, "memberOne");
+    final var function = new DescribeDiskStoreFunction();
     function.setAsyncEventQueueDetails(mockCache, mockDiskStore, diskStoreDetails);
     assertAsyncEventQueueDetails(expectedAsyncEventQueueDetails, diskStoreDetails);
     verify(mockDiskStore, atLeastOnce()).getName();

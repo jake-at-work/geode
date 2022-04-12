@@ -34,7 +34,7 @@ class FunctionTest {
   @EnabledForJreRange(max = JAVA_14)
   @Test
   void forFunctionWithNonHiddenLambdaClass_defaultIdIsClassCanonicalName() {
-    Function<Object> function = context -> {
+    var function = (Function<Object>) context -> {
     };
 
     assertThat(function.getId())
@@ -44,7 +44,7 @@ class FunctionTest {
   // An anonymous class does not have a canonical name.
   @Test
   void forFunctionWithAnonymousClass_defaultIdIsClassName() {
-    Function<Object> function = new Function<Object>() {
+    var function = new Function<Object>() {
       @Override
       public void execute(FunctionContext<Object> context) {}
     };
@@ -71,7 +71,7 @@ class FunctionTest {
   @EnabledForJreRange(min = JAVA_15)
   @Test
   void forFunctionWithHiddenClass_defaultIdIsClassName() {
-    Function<Object> function = context -> {
+    var function = (Function<Object>) context -> {
     };
 
     assertThat(function.getId())

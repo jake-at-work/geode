@@ -16,9 +16,7 @@ package org.apache.geode.internal.jta.dunit;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
@@ -80,20 +78,20 @@ public class RollbackThread implements Runnable {
     int tblIDFld;
     String tblNameFld;
     // boolean to_continue = true;
-    final int XA_INSERTS = 2;
+    final var XA_INSERTS = 2;
 
     // get the cache
     // this is used to get the context for transaction later in the same method
     cache = TxnManagerMultiThreadDUnitTest.getCache();
 
     // get the table name from CacheUtils
-    String tblName = CacheUtils.getTableName();
+    var tblName = CacheUtils.getTableName();
 
     tblIDFld = 1;
     tblNameFld = "thdOneCommit";
 
     // initialize cache and get user transaction
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
     UserTransaction ta = null;
     Connection xa_conn = null;
     try {
@@ -106,27 +104,27 @@ public class RollbackThread implements Runnable {
     }
 
     try {
-      DataSource d1 = (DataSource) ctx.lookup("java:/SimpleDataSource");
-      Connection con = d1.getConnection();
+      var d1 = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var con = d1.getConnection();
       con.close();
       // Begin the user transaction
       ta.begin();
 
       // Obtain XAPooledDataSource
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       // obtain connection from XAPooledDataSource
       xa_conn = da.getConnection();
 
-      Statement xa_stmt = xa_conn.createStatement();
+      var xa_stmt = xa_conn.createStatement();
 
       String sqlSTR;
 
       // get the unique value for key to be inserted
-      int uniqueKey = getUniqueKey();
+      var uniqueKey = getUniqueKey();
 
       // insert XA_INSERTS rows into timestamped table
-      for (int i = 0; i < XA_INSERTS; i++) {
+      for (var i = 0; i < XA_INSERTS; i++) {
         tblIDFld = tblIDFld + uniqueKey + i;
         sqlSTR =
             "insert into " + tblName + " values (" + tblIDFld + "," + "'" + tblNameFld + "'" + ")";

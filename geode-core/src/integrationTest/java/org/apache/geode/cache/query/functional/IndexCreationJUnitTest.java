@@ -59,7 +59,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexInvalidException;
-import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvalidException;
@@ -104,8 +103,8 @@ public class IndexCreationJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
   }
@@ -120,28 +119,28 @@ public class IndexCreationJUnitTest {
     QueryService qs;
     qs = CacheUtils.getQueryService();
 
-    Index i1 =
+    var i1 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status",
             SEPARATOR + "portfolios, positions");
     // TASK ICM1
-    Index i2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "b.secId",
+    var i2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "b.secId",
         SEPARATOR + "portfolios pf, pf.positions.values b");
     // TASK ICM2
-    Index i5 = qs.createIndex("intFunctionIndex", IndexType.FUNCTIONAL, "intFunction(pf.getID)",
+    var i5 = qs.createIndex("intFunctionIndex", IndexType.FUNCTIONAL, "intFunction(pf.getID)",
         SEPARATOR + "portfolios pf, pf.positions b");
-    Index i6 = qs.createIndex("statusIndex6", IndexType.FUNCTIONAL, "a.status",
+    var i6 = qs.createIndex("statusIndex6", IndexType.FUNCTIONAL, "a.status",
         SEPARATOR + "portfolios.values.toArray a, positions");
-    Index i7 = qs.createIndex("statusIndex7", IndexType.FUNCTIONAL, "a.status",
+    var i7 = qs.createIndex("statusIndex7", IndexType.FUNCTIONAL, "a.status",
         SEPARATOR + "portfolios.getValues().asList() a, positions");
-    Index i8 = qs.createIndex("statusIndex8", IndexType.FUNCTIONAL, "a.status",
+    var i8 = qs.createIndex("statusIndex8", IndexType.FUNCTIONAL, "a.status",
         SEPARATOR + "portfolios.values.asSet a, positions");
     // TASK ICM6
     Object[] indices = {i1, i2, i5, i6, i7, i8}; // remove any commented Index
     // from Array
 
-    for (final Object index : indices) {
+    for (final var index : indices) {
       CacheUtils.log(((IndexProtocol) index).isValid());
-      boolean r = ((IndexProtocol) index).isValid();
+      var r = ((IndexProtocol) index).isValid();
       assertTrue("Test: testIndexCreation FAILED", r);
       CacheUtils.log(((IndexProtocol) index).getName());
       CacheUtils.log("Test: testIndexCreation PASS");
@@ -260,7 +259,7 @@ public class IndexCreationJUnitTest {
     query = CacheUtils.getQueryService().newQuery(
         "select distinct * from " + SEPARATOR
             + "portfolios pf where nvl(pf.position2, pf.position1).secId = 'SUN'");
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     query.execute();
 
@@ -286,7 +285,7 @@ public class IndexCreationJUnitTest {
     // Task ID: ICM16
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index i3 = qs.createIndex("typeIndex", IndexType.FUNCTIONAL, "\"type\"",
+    var i3 = qs.createIndex("typeIndex", IndexType.FUNCTIONAL, "\"type\"",
         SEPARATOR + "portfolios type Portfolio, positions b",
         "IMPORT org.apache.geode.cache.\"query\".data.Portfolio");
     // TASK ICM3 Region 'IMPORT' not found:....[BUG : Verified Fixed ]
@@ -297,9 +296,9 @@ public class IndexCreationJUnitTest {
 
     Object[] indices = {i3}; // remove any commented Index from Array
 
-    for (final Object index : indices) {
+    for (final var index : indices) {
       CacheUtils.log(((IndexProtocol) index).isValid());
-      boolean r = ((IndexProtocol) index).isValid();
+      var r = ((IndexProtocol) index).isValid();
       if (r == true) {
         CacheUtils.log(((IndexProtocol) index).getName());
         CacheUtils.log("Test: testIndexCreation PASS");
@@ -312,22 +311,23 @@ public class IndexCreationJUnitTest {
   @Test
   public void testComparisonBetnWithAndWithoutIndexCreationComparableObject() throws Exception {
     // Task ID IUM10
-    SelectResults[][] r = new SelectResults[4][2];
+    var r = new SelectResults[4][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries =
-        {"select distinct * from " + SEPARATOR + "portfolios pf where pf.getCW(pf.ID) = $1",
+    var queries =
+        new String[] {
+            "select distinct * from " + SEPARATOR + "portfolios pf where pf.getCW(pf.ID) = $1",
             "select distinct * from " + SEPARATOR + "portfolios pf where pf.getCW(pf.ID) > $1",
             "select distinct * from " + SEPARATOR + "portfolios pf where pf.getCW(pf.ID) < $1",
             "select distinct * from " + SEPARATOR + "portfolios pf where pf.getCW(pf.ID) != $1"
         // TASK IUM 10
         };
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       q = CacheUtils.getQueryService().newQuery(queries[i]);
-      Object[] params = new Object[1];
+      var params = new Object[1];
       params[0] = new ComparableWrapper(1);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][0] = (SelectResults) q.execute(params);
 
@@ -342,12 +342,12 @@ public class IndexCreationJUnitTest {
     qs = CacheUtils.getQueryService();
     qs.createIndex("cIndex", IndexType.FUNCTIONAL, "pf.getCW(pf.ID)", SEPARATOR + "portfolios pf");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       q = CacheUtils.getQueryService().newQuery(queries[i]);
-      Object[] params = new Object[1];
+      var params = new Object[1];
       params[0] = new ComparableWrapper(1);
-      QueryObserverImpl observer2 = new QueryObserverImpl();
+      var observer2 = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer2);
       r[i][1] = (SelectResults) q.execute(params);
       if (!observer2.isIndexesUsed) {
@@ -366,49 +366,49 @@ public class IndexCreationJUnitTest {
     QueryService qs;
     qs = CacheUtils.getQueryService();
 
-    String[] queries = {
+    var queries = new String[] {
         "select distinct * from " + SEPARATOR
             + "portfolios pf where pf.collectionHolderMap[(pf.ID).toString()].arr[pf.ID] != -1"};
 
-    Object[][] r = new Object[queries.length][2];
-    for (int i = 0; i < queries.length; i++) {
+    var r = new Object[queries.length][2];
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       q = qs.newQuery(queries[i]);
       CacheUtils.getLogger().info("Executing query: " + queries[i]);
       r[i][0] = q.execute();
       CacheUtils.log("Executed query:" + queries[i]);
     }
-    Index i1 = qs.createIndex("fIndex", IndexType.FUNCTIONAL, "sIter",
+    var i1 = qs.createIndex("fIndex", IndexType.FUNCTIONAL, "sIter",
         SEPARATOR + "portfolios pf, pf.collectionHolderMap[(pf.ID).toString()].arr sIter");
-    Index i2 = qs.createIndex("cIndex", IndexType.FUNCTIONAL,
+    var i2 = qs.createIndex("cIndex", IndexType.FUNCTIONAL,
         "pf.collectionHolderMap[(pf.ID).toString()].arr[pf.ID]", SEPARATOR + "portfolios pf");
     // BUG # 32498
     // Index i3 = qs.createIndex("nIndex", IndexType.FUNCTIONAL,
     // "pf.collectionHolderMap[((pf.ID%2)).toString()].arr[pf.ID]","/portfolios
     // pf");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       q = qs.newQuery(queries[i]);
       CacheUtils.getLogger().info("Executing query: " + queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][1] = q.execute();
-      SelectResults results = (SelectResults) r[i][1];
+      var results = (SelectResults) r[i][1];
       assertTrue(results.size() > 0);
       CacheUtils.log("Executing query: " + queries[i] + " with index created");
       if (!observer.isIndexesUsed) {
         fail("Index is NOT uesd");
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertTrue(itr.hasNext());
-      String temp = itr.next().toString();
+      var temp = itr.next().toString();
       assertEquals(temp, "cIndex");
     }
 
     CacheUtils.log(((RangeIndex) i1).dump());
     CacheUtils.log(((CompactRangeIndex) i2).dump());
 
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
     // CacheUtils.log(((RangeIndex)i3).dump());
     // Index i3 =
@@ -421,20 +421,20 @@ public class IndexCreationJUnitTest {
     // Task ID : ICM 9
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index i1 =
+    var i1 =
         qs.createIndex("kIndex", IndexType.FUNCTIONAL, "pf", SEPARATOR + "portfolios.keys pf");
-    Index i2 =
+    var i2 =
         qs.createIndex("k1Index", IndexType.FUNCTIONAL, "key", SEPARATOR + "portfolios.entries");
-    Index i3 = qs.createIndex("k2Index", IndexType.FUNCTIONAL, "pf",
+    var i3 = qs.createIndex("k2Index", IndexType.FUNCTIONAL, "pf",
         SEPARATOR + "portfolios.keys.toArray pf");
     // Index i4 = qs.createIndex("k3Index", IndexType.FUNCTIONAL,
     // "pf","/portfolios.keys().toArray() pf");
-    Index i5 =
+    var i5 =
         qs.createIndex("k4Index", IndexType.FUNCTIONAL, "pf",
             SEPARATOR + "portfolios.getKeys.asList pf");
     // Index i5 = qs.createIndex("k5Index", IndexType.FUNCTIONAL,
     // "pf","/portfolios.getKeys.asList() pf");
-    Index i6 =
+    var i6 =
         qs.createIndex("k5Index", IndexType.FUNCTIONAL, "pf",
             SEPARATOR + "portfolios.getKeys.asSet() pf");
     // Index i5 = qs.createIndex("k5Index", IndexType.FUNCTIONAL,
@@ -451,7 +451,7 @@ public class IndexCreationJUnitTest {
     // Task ID : ICM11
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index i1 = qs.createIndex("r1Index", IndexType.FUNCTIONAL, "secId",
+    var i1 = qs.createIndex("r1Index", IndexType.FUNCTIONAL, "secId",
         SEPARATOR + "portfolios.values['1'].positions.values");
     qs.createIndex("r12Index", IndexType.FUNCTIONAL, "secId",
         SEPARATOR + "portfolios['1'].positions.values");
@@ -470,13 +470,13 @@ public class IndexCreationJUnitTest {
     qs = CacheUtils.getQueryService();
     qs.createIndex("entryIndex", IndexType.FUNCTIONAL, "value.getID()",
         SEPARATOR + "portfolios.entrySet pf");
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
+    var rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
     rgn.put("4", new Portfolio(4));
     rgn.put("5", new Portfolio(5));
-    Query qr =
+    var qr =
         qs.newQuery("Select distinct * from " + SEPARATOR
             + "portfolios.entrySet pf where pf.value.getID() = 4");
-    SelectResults sr = (SelectResults) qr.execute();
+    var sr = (SelectResults) qr.execute();
     assertEquals(sr.size(), 1);
   }
 
@@ -490,12 +490,12 @@ public class IndexCreationJUnitTest {
     qs = CacheUtils.getQueryService();
 
     qs.createIndex("keyIndex", IndexType.FUNCTIONAL, "keys", SEPARATOR + "portfolios.keySet keys");
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
+    var rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
     rgn.put("4", new Portfolio(4));
     rgn.put("5", new Portfolio(5));
-    Query qr = qs.newQuery(
+    var qr = qs.newQuery(
         "Select distinct  * from " + SEPARATOR + "portfolios.keySet keys where keys = '4'");
-    SelectResults sr = (SelectResults) qr.execute();
+    var sr = (SelectResults) qr.execute();
     assertEquals(sr.size(), 1);
   }
 
@@ -507,18 +507,18 @@ public class IndexCreationJUnitTest {
   public void testBug36591() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index i1 =
+    var i1 =
         qs.createIndex("keyIndex", IndexType.FUNCTIONAL, "ks.hashCode",
             SEPARATOR + "portfolios.keys ks");
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
+    var rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
     rgn.put("4", new Portfolio(4));
     rgn.put("5", new Portfolio(5));
     CacheUtils.log(((CompactRangeIndex) i1).dump());
 
-    Query qr =
+    var qr =
         qs.newQuery("Select distinct * from " + SEPARATOR
             + "portfolios.keys keys where keys.hashCode >= $1");
-    SelectResults sr = (SelectResults) qr.execute(new Object[] {-1});
+    var sr = (SelectResults) qr.execute(new Object[] {-1});
     assertEquals(6, sr.size());
   }
 
@@ -530,12 +530,12 @@ public class IndexCreationJUnitTest {
   public void testBug43519() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index index =
+    var index =
         qs.createIndex("shortIndex", IndexType.FUNCTIONAL, "p.shortID", SEPARATOR + "portfolios p");
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
-    for (int i = 1; i <= 10; i++) {
-      String key = "" + i;
-      Portfolio p = new Portfolio(i);
+    var rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
+    for (var i = 1; i <= 10; i++) {
+      var key = "" + i;
+      var p = new Portfolio(i);
       p.shortID = new Short(key);
       // addToIndex
       rgn.put(key, p);
@@ -546,9 +546,9 @@ public class IndexCreationJUnitTest {
         rgn.destroy(key);
       }
     }
-    Query qr =
+    var qr =
         qs.newQuery("Select p.shortID from " + SEPARATOR + "portfolios p where p.shortID < 5");
-    SelectResults sr = (SelectResults) qr.execute();
+    var sr = (SelectResults) qr.execute();
     assertEquals(sr.size(), 2);
   }
 
@@ -560,18 +560,18 @@ public class IndexCreationJUnitTest {
   public void testIMQFailureAsMethodKeysNAInDummyQRegion() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index i1 =
+    var i1 =
         qs.createIndex("keyIndex", IndexType.FUNCTIONAL, "ks.hashCode",
             SEPARATOR + "portfolios.keys() ks");
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
+    var rgn = CacheUtils.getRegion(SEPARATOR + "portfolios");
     rgn.put("4", new Portfolio(4));
     rgn.put("5", new Portfolio(5));
     CacheUtils.log(((CompactRangeIndex) i1).dump());
 
-    Query qr = qs.newQuery(
+    var qr = qs.newQuery(
         "Select distinct keys.hashCode  from " + SEPARATOR
             + "portfolios.keys() keys where keys.hashCode >= $1");
-    SelectResults sr = (SelectResults) qr.execute(new Object[] {-1});
+    var sr = (SelectResults) qr.execute(new Object[] {-1});
     assertEquals(6, sr.size());
   }
 
@@ -580,11 +580,11 @@ public class IndexCreationJUnitTest {
     // Task ID : ICM14
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index i1 = qs.createIndex("SetSecIDIndex1", IndexType.FUNCTIONAL, "b.secId",
+    var i1 = qs.createIndex("SetSecIDIndex1", IndexType.FUNCTIONAL, "b.secId",
         SEPARATOR + "portfolios.asSet pf, pf.positions.values b");
-    Index i2 = qs.createIndex("ListSecIDIndex2", IndexType.FUNCTIONAL, "b.secId",
+    var i2 = qs.createIndex("ListSecIDIndex2", IndexType.FUNCTIONAL, "b.secId",
         SEPARATOR + "portfolios.asList pf, pf.positions.values b");
-    Index i3 = qs.createIndex("ArraySecIDIndex3", IndexType.FUNCTIONAL, "b.secId",
+    var i3 = qs.createIndex("ArraySecIDIndex3", IndexType.FUNCTIONAL, "b.secId",
         SEPARATOR + "portfolios.toArray pf, pf.positions.values b");
     CacheUtils.log(((RangeIndex) i1).dump());
     CacheUtils.log(((RangeIndex) i2).dump());
@@ -597,14 +597,14 @@ public class IndexCreationJUnitTest {
     QueryService qs;
     qs = CacheUtils.getQueryService();
     try {
-      Index i1 = qs.createIndex("r1Index", IndexType.FUNCTIONAL, "secId",
+      var i1 = qs.createIndex("r1Index", IndexType.FUNCTIONAL, "secId",
           SEPARATOR + "portfolios.toArray[1].positions.values");
       CacheUtils.log(((RangeIndex) i1).dump());
       fail("Index creation should have failed");
     } catch (Exception ignored) {
     }
     try {
-      Index i2 = qs.createIndex("r12Index", IndexType.FUNCTIONAL, "secId",
+      var i2 = qs.createIndex("r12Index", IndexType.FUNCTIONAL, "secId",
           SEPARATOR + "portfolios.asList[1].positions.values");
       CacheUtils.log(((RangeIndex) i2).dump());
       fail("Index creation should have failed");
@@ -618,12 +618,12 @@ public class IndexCreationJUnitTest {
     QueryService qs;
     qs = CacheUtils.getQueryService();
     // BUG #32586 : FIXED
-    Index i1 =
+    var i1 =
         qs.createIndex("Index11", IndexType.FUNCTIONAL, "status",
             SEPARATOR + "portfolios.values.toArray()");
-    Index i2 = qs.createIndex("Index12", IndexType.FUNCTIONAL, "ID",
+    var i2 = qs.createIndex("Index12", IndexType.FUNCTIONAL, "ID",
         SEPARATOR + "portfolios.values.asSet");
-    Index i3 = qs.createIndex("Index13", IndexType.FUNCTIONAL, "ID",
+    var i3 = qs.createIndex("Index13", IndexType.FUNCTIONAL, "ID",
         SEPARATOR + "portfolios.values.asList");
 
     qs.createIndex("Index14", IndexType.FUNCTIONAL, "value.ID",
@@ -650,10 +650,10 @@ public class IndexCreationJUnitTest {
   public void testIndexObjectTypeWithRegionConstraint() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index i1 = qs.createIndex("Index1", IndexType.FUNCTIONAL, "b.secId",
+    var i1 = qs.createIndex("Index1", IndexType.FUNCTIONAL, "b.secId",
         SEPARATOR + "portfolios pf, pf.positions.values b");
-    ObjectType type = ((IndexProtocol) i1).getResultSetType();
-    String[] fieldNames = {"index_iter1", "index_iter2"};
+    var type = ((IndexProtocol) i1).getResultSetType();
+    var fieldNames = new String[] {"index_iter1", "index_iter2"};
     ObjectType[] fieldTypes =
         {new ObjectTypeImpl(Portfolio.class), new ObjectTypeImpl(Object.class)};
     // ObjectType expectedType = new StructTypeImpl( fieldNames,fieldTypes);
@@ -664,7 +664,7 @@ public class IndexCreationJUnitTest {
               + type);
     }
 
-    Index i2 =
+    var i2 =
         qs.createIndex("Index2", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "portfolios.values pf");
     type = ((IndexProtocol) i2).getResultSetType();
 
@@ -675,7 +675,7 @@ public class IndexCreationJUnitTest {
               + type);
     }
 
-    Index i3 = qs.createIndex("Index3", IndexType.FUNCTIONAL, "pos.secId",
+    var i3 = qs.createIndex("Index3", IndexType.FUNCTIONAL, "pos.secId",
         SEPARATOR + "portfolios['0'].positions.values pos");
     type = ((IndexProtocol) i3).getResultSetType();
 
@@ -686,7 +686,7 @@ public class IndexCreationJUnitTest {
               + type);
     }
 
-    Index i4 = qs.createIndex("Index4", IndexType.PRIMARY_KEY, "ID", SEPARATOR + "portfolios");
+    var i4 = qs.createIndex("Index4", IndexType.PRIMARY_KEY, "ID", SEPARATOR + "portfolios");
     type = ((IndexProtocol) i4).getResultSetType();
 
     expectedType = new ObjectTypeImpl(Portfolio.class);
@@ -699,30 +699,30 @@ public class IndexCreationJUnitTest {
 
   @Test
   public void testIndexOnOverflowRegion() throws Exception {
-    String regionName = "portfolios_overflow";
+    var regionName = "portfolios_overflow";
 
     // overflow region.
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setValueConstraint(Portfolio.class);
     attributesFactory.setEvictionAttributes(
         EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.OVERFLOW_TO_DISK));
 
-    Region region = CacheUtils.createRegion(regionName, attributesFactory.create(), true);
+    var region = CacheUtils.createRegion(regionName, attributesFactory.create(), true);
 
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       region.put(new Portfolio(i), new Portfolio(i));
     }
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     // Currently supported with compact range-index.
-    Index i1 = qs.createIndex("idIndex", IndexType.FUNCTIONAL, "pf.ID",
+    var i1 = qs.createIndex("idIndex", IndexType.FUNCTIONAL, "pf.ID",
         SEPARATOR + "portfolios_overflow pf");
-    Index i2 = qs.createIndex("keyIdIndex", IndexType.FUNCTIONAL, "key.ID",
+    var i2 = qs.createIndex("keyIdIndex", IndexType.FUNCTIONAL, "key.ID",
         SEPARATOR + "portfolios_overflow.keys key");
 
     // Not yet supported with range-index.
     try {
-      Index i3 = qs.createIndex("idIndex2", IndexType.FUNCTIONAL, "pf.ID",
+      var i3 = qs.createIndex("idIndex2", IndexType.FUNCTIONAL, "pf.ID",
           SEPARATOR + "portfolios_overflow pf, pf.positions pos");
       fail("Range index not supported on overflow region.");
     } catch (UnsupportedOperationException ex) {
@@ -730,26 +730,26 @@ public class IndexCreationJUnitTest {
     }
 
     // Execute query.
-    String[] queryStr =
+    var queryStr =
         new String[] {"Select * from " + SEPARATOR + "portfolios_overflow pf where pf.ID = 2",
             "Select * from " + SEPARATOR + "portfolios_overflow.keys key where key.ID = 2",
             "Select * from " + SEPARATOR + "portfolios_overflow pf where pf.ID > 1",
             "Select * from " + SEPARATOR + "portfolios_overflow pf where pf.ID < 2",};
 
-    int[] resultSize = new int[] {1, 1, 2, 2};
+    var resultSize = new int[] {1, 1, 2, 2};
 
-    for (int i = 0; i < queryStr.length; i++) {
-      Query q = qs.newQuery(queryStr[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+    for (var i = 0; i < queryStr.length; i++) {
+      var q = qs.newQuery(queryStr[i]);
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
-      SelectResults results = (SelectResults) q.execute();
+      var results = (SelectResults) q.execute();
       if (!observer.isIndexesUsed) {
         fail("Index not used for query. " + queryStr[i]);
       }
       assertEquals(results.size(), resultSize[i]);
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       region.put(new Portfolio(i), new Portfolio(i));
     }
 
@@ -761,7 +761,7 @@ public class IndexCreationJUnitTest {
   public void testMapKeyIndexCreation_1_NonCompactType() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index i1 = qs.createIndex("Index1", IndexType.FUNCTIONAL, "pf.positions[*]",
+    var i1 = qs.createIndex("Index1", IndexType.FUNCTIONAL, "pf.positions[*]",
         SEPARATOR + "portfolios pf");
     assertEquals(i1.getCanonicalizedIndexedExpression(), "index_iter1.positions[*]");
     assertTrue(i1 instanceof CompactMapRangeIndex);
@@ -771,29 +771,29 @@ public class IndexCreationJUnitTest {
   public void testMapKeyIndexCreation_2_NonCompactType() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Index i1 = qs.createIndex("Index1", IndexType.FUNCTIONAL, "pf.positions['key1','key2','key3']",
+    var i1 = qs.createIndex("Index1", IndexType.FUNCTIONAL, "pf.positions['key1','key2','key3']",
         SEPARATOR + "portfolios pf");
     assertEquals(i1.getCanonicalizedIndexedExpression(),
         "index_iter1.positions['key1','key2','key3']");
     assertTrue(i1 instanceof CompactMapRangeIndex);
-    CompactMapRangeIndex mri = (CompactMapRangeIndex) i1;
-    Object[] mapKeys = mri.getMapKeysForTesting();
+    var mri = (CompactMapRangeIndex) i1;
+    var mapKeys = mri.getMapKeysForTesting();
     assertEquals(mapKeys.length, 3);
     Set<String> keys = new HashSet<>();
     keys.add("key1");
     keys.add("key2");
     keys.add("key3");
-    for (Object key : mapKeys) {
+    for (var key : mapKeys) {
       keys.remove(key);
     }
     assertTrue(keys.isEmpty());
-    String[] patterns = mri.getPatternsForTesting();
+    var patterns = mri.getPatternsForTesting();
     assertEquals(patterns.length, 3);
     Set<String> patternsSet = new HashSet<>();
     patternsSet.add("index_iter1.positions['key1']");
     patternsSet.add("index_iter1.positions['key2']");
     patternsSet.add("index_iter1.positions['key3']");
-    for (String ptrn : patterns) {
+    for (var ptrn : patterns) {
       patternsSet.remove(ptrn);
     }
     assertTrue(patternsSet.isEmpty());
@@ -807,29 +807,29 @@ public class IndexCreationJUnitTest {
   @Test
   public void testIndexCreationFromXML() throws Exception {
     InternalDistributedSystem.getAnyInstance().disconnect();
-    File file = new File("persistData0");
+    var file = new File("persistData0");
     file.mkdir();
 
     {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(NAME, "test");
       props.setProperty(MCAST_PORT, "0");
       props.setProperty(CACHE_XML_FILE,
           getClass().getResource("index-creation-with-eviction.xml").toURI().getPath());
-      DistributedSystem ds = DistributedSystem.connect(props);
+      var ds = DistributedSystem.connect(props);
 
       // Create the cache which causes the cache-xml-file to be parsed
-      Cache cache = CacheFactory.create(ds);
-      QueryService qs = cache.getQueryService();
+      var cache = CacheFactory.create(ds);
+      var qs = cache.getQueryService();
       Region region = cache.getRegion("mainReportRegion");
-      for (int i = 0; i < 100; i++) {
-        Portfolio pf = new Portfolio(i);
+      for (var i = 0; i < 100; i++) {
+        var pf = new Portfolio(i);
         pf.setCreateTime(i);
         region.put("" + i, pf);
       }
 
       // verify that a query on the creation time works as expected
-      SelectResults results = (SelectResults) qs
+      var results = (SelectResults) qs
           .newQuery(
               "<trace>SELECT * FROM " + SEPARATOR
                   + "mainReportRegion.entrySet mr Where mr.value.createTime > 1L and mr.value.createTime < 3L")
@@ -840,20 +840,20 @@ public class IndexCreationJUnitTest {
     }
 
     {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(NAME, "test");
       props.setProperty(MCAST_PORT, "0");
       // Using a different cache.xml that changes some region properties
       // That will force the disk code to copy the region entries.
       props.setProperty(CACHE_XML_FILE,
           getClass().getResource("index-creation-without-eviction.xml").toURI().getPath());
-      DistributedSystem ds = DistributedSystem.connect(props);
-      Cache cache = CacheFactory.create(ds);
-      QueryService qs = cache.getQueryService();
+      var ds = DistributedSystem.connect(props);
+      var cache = CacheFactory.create(ds);
+      var qs = cache.getQueryService();
       Region region = cache.getRegion("mainReportRegion");
 
       // verify that a query on the creation time works as expected
-      SelectResults results = (SelectResults) qs
+      var results = (SelectResults) qs
           .newQuery(
               "<trace>SELECT * FROM " + SEPARATOR
                   + "mainReportRegion.entrySet mr Where mr.value.createTime > 1L and mr.value.createTime < 3L")
@@ -867,26 +867,26 @@ public class IndexCreationJUnitTest {
   @Test
   public void testIndexCreationFromXMLForLocalScope() throws Exception {
     InternalDistributedSystem.getAnyInstance().disconnect();
-    File file = new File("persistData0");
+    var file = new File("persistData0");
     file.mkdir();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(NAME, "test");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(CACHE_XML_FILE,
         getClass().getResource("index-creation-without-eviction.xml").toURI().getPath());
-    DistributedSystem ds = DistributedSystem.connect(props);
-    Cache cache = CacheFactory.create(ds);
+    var ds = DistributedSystem.connect(props);
+    var cache = CacheFactory.create(ds);
     Region localRegion = cache.getRegion("localRegion");
-    for (int i = 0; i < 100; i++) {
-      Portfolio pf = new Portfolio(i);
+    for (var i = 0; i < 100; i++) {
+      var pf = new Portfolio(i);
       localRegion.put("" + i, pf);
     }
-    QueryService qs = cache.getQueryService();
-    Index ind = qs.getIndex(localRegion, "localIndex");
+    var qs = cache.getQueryService();
+    var ind = qs.getIndex(localRegion, "localIndex");
     assertNotNull("Index localIndex should have been created ", ind);
     // verify that a query on the creation time works as expected
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("<trace>SELECT * FROM " + localRegion.getFullPath() + " Where ID > 0").execute();
     assertEquals("OQL index results did not match", 99, results.size());
     ds.disconnect();
@@ -896,26 +896,26 @@ public class IndexCreationJUnitTest {
   @Test
   public void testIndexCreationFromXMLForDiskLocalScope() throws Exception {
     InternalDistributedSystem.getAnyInstance().disconnect();
-    File file = new File("persistData0"); // TODO: use TemporaryFolder
+    var file = new File("persistData0"); // TODO: use TemporaryFolder
     file.mkdir();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(NAME, "test");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(CACHE_XML_FILE,
         getClass().getResource("index-creation-without-eviction.xml").toURI().getPath());
-    DistributedSystem ds = DistributedSystem.connect(props);
-    Cache cache = CacheFactory.create(ds);
+    var ds = DistributedSystem.connect(props);
+    var cache = CacheFactory.create(ds);
     Region localDiskRegion = cache.getRegion("localDiskRegion");
-    for (int i = 0; i < 100; i++) {
-      Portfolio pf = new Portfolio(i);
+    for (var i = 0; i < 100; i++) {
+      var pf = new Portfolio(i);
       localDiskRegion.put("" + i, pf);
     }
-    QueryService qs = cache.getQueryService();
-    Index ind = qs.getIndex(localDiskRegion, "localDiskIndex");
+    var qs = cache.getQueryService();
+    var ind = qs.getIndex(localDiskRegion, "localDiskIndex");
     assertNotNull("Index localIndex should have been created ", ind);
     // verify that a query on the creation time works as expected
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery(
             "<trace>SELECT * FROM " + localDiskRegion.getFullPath() + " Where status = 'active'")
         .execute();
@@ -927,39 +927,39 @@ public class IndexCreationJUnitTest {
   @Test
   public void testIndexInitializationForOverFlowRegions() throws Exception {
     InternalDistributedSystem.getAnyInstance().disconnect();
-    File file = new File("persistData0");
+    var file = new File("persistData0");
     file.mkdir();
 
     {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(NAME, "test");
       props.setProperty(MCAST_PORT, "0");
       props.setProperty(STATISTIC_SAMPLING_ENABLED, "true");
       props.setProperty(ENABLE_TIME_STATISTICS, "true");
       props.setProperty(CACHE_XML_FILE,
           getClass().getResource("index-recovery-overflow.xml").toURI().getPath());
-      DistributedSystem ds = DistributedSystem.connect(props);
+      var ds = DistributedSystem.connect(props);
 
       // Create the cache which causes the cache-xml-file to be parsed
-      Cache cache = CacheFactory.create(ds);
-      QueryService qs = cache.getQueryService();
+      var cache = CacheFactory.create(ds);
+      var qs = cache.getQueryService();
       Region region = cache.getRegion("mainReportRegion");
-      for (int i = 0; i < 100; i++) {
-        Portfolio pf = new Portfolio(i);
+      for (var i = 0; i < 100; i++) {
+        var pf = new Portfolio(i);
         pf.setCreateTime(i);
         region.put("" + i, pf);
       }
 
-      IndexStatistics is1 = qs.getIndex(region, "status").getStatistics();
+      var is1 = qs.getIndex(region, "status").getStatistics();
       assertEquals(2, is1.getNumberOfKeys());
       assertEquals(100, is1.getNumberOfValues());
 
-      IndexStatistics is2 = qs.getIndex(region, "ID").getStatistics();
+      var is2 = qs.getIndex(region, "ID").getStatistics();
       assertEquals(100, is2.getNumberOfKeys());
       assertEquals(100, is2.getNumberOfValues());
 
       // verify that a query on the creation time works as expected
-      SelectResults results = (SelectResults) qs
+      var results = (SelectResults) qs
           .newQuery(
               "<trace>SELECT * FROM " + SEPARATOR
                   + "mainReportRegion.entrySet mr Where mr.value.createTime > 1L and mr.value.createTime < 3L")
@@ -970,31 +970,31 @@ public class IndexCreationJUnitTest {
     }
 
     {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(NAME, "test");
       props.setProperty(MCAST_PORT, "0");
       props.setProperty(STATISTIC_SAMPLING_ENABLED, "true");
       props.setProperty(ENABLE_TIME_STATISTICS, "true");
       props.setProperty(CACHE_XML_FILE,
           getClass().getResource("index-recovery-overflow.xml").toURI().getPath());
-      DistributedSystem ds = DistributedSystem.connect(props);
-      Cache cache = CacheFactory.create(ds);
-      QueryService qs = cache.getQueryService();
+      var ds = DistributedSystem.connect(props);
+      var cache = CacheFactory.create(ds);
+      var qs = cache.getQueryService();
       Region region = cache.getRegion("mainReportRegion");
 
       assertTrue("Index initialization time should not be 0.",
           ((LocalRegion) region).getCachePerfStats().getIndexInitializationTime() > 0);
 
-      IndexStatistics is1 = qs.getIndex(region, "status").getStatistics();
+      var is1 = qs.getIndex(region, "status").getStatistics();
       assertEquals(2, is1.getNumberOfKeys());
       assertEquals(100, is1.getNumberOfValues());
 
-      IndexStatistics is2 = qs.getIndex(region, "ID").getStatistics();
+      var is2 = qs.getIndex(region, "ID").getStatistics();
       assertEquals(100, is2.getNumberOfKeys());
       assertEquals(100, is2.getNumberOfValues());
 
       // verify that a query on the creation time works as expected
-      SelectResults results = (SelectResults) qs
+      var results = (SelectResults) qs
           .newQuery(
               "<trace>SELECT * FROM " + SEPARATOR
                   + "mainReportRegion.entrySet mr Where mr.value.createTime > 1L and mr.value.createTime < 3L")
@@ -1010,11 +1010,11 @@ public class IndexCreationJUnitTest {
     QueryService qs;
     qs = CacheUtils.getQueryService();
 
-    Index i1 = ((DefaultQueryService) qs).createIndex("statusIndex", IndexType.FUNCTIONAL, "status",
+    var i1 = ((DefaultQueryService) qs).createIndex("statusIndex", IndexType.FUNCTIONAL, "status",
         SEPARATOR + "portfolios", null, false);
-    Index i2 = ((DefaultQueryService) qs).createIndex("secIndex", IndexType.FUNCTIONAL, "pos.secId",
+    var i2 = ((DefaultQueryService) qs).createIndex("secIndex", IndexType.FUNCTIONAL, "pos.secId",
         SEPARATOR + "portfolios p, p.positions.values pos", null, false);
-    Index i3 = ((DefaultQueryService) qs).createIndex("statusHashIndex", IndexType.HASH, "status",
+    var i3 = ((DefaultQueryService) qs).createIndex("statusHashIndex", IndexType.HASH, "status",
         SEPARATOR + "portfolios", null, false);
 
     assertEquals("Index should have been empty ", 0, i1.getStatistics().getNumberOfKeys());
@@ -1058,10 +1058,10 @@ public class IndexCreationJUnitTest {
       region.put(i, new Portfolio(i));
     });
 
-    Index i1 = qs.createIndex("statusIndex", "secId",
+    var i1 = qs.createIndex("statusIndex", "secId",
         SEPARATOR + "portfoliosInPartitionedRegion p, p.positions pos, pos.secId secId");
     try {
-      Index i2 =
+      var i2 =
           qs.createIndex("anotherIndex", "secId",
               SEPARATOR + "portfoliosInPartitionedRegion p, p.positions");
       // index should fail to create
@@ -1070,7 +1070,7 @@ public class IndexCreationJUnitTest {
     }
     qs.removeIndex(i1);
     // This test should not throw an exception if i2 was properly cleaned up.
-    Index i3 = qs.createIndex("anotherIndex", "secType",
+    var i3 = qs.createIndex("anotherIndex", "secType",
         SEPARATOR + "portfoliosInPartitionedRegion p, p.positions pos, pos.secType secType");
     assertNotNull(i3);
   }

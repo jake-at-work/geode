@@ -32,28 +32,28 @@ public class LocalDataSetTest {
 
   @Test
   public void verifyThatIsEmptyIsTrueWhenEntryCountReturnsZero() {
-    PartitionedRegion pr = mock(PartitionedRegion.class);
+    var pr = mock(PartitionedRegion.class);
     when(pr.isEmpty()).thenReturn(false);
     when(pr.entryCount(any())).thenReturn(0);
-    LocalDataSet lds = new LocalDataSet(pr, Collections.emptySet());
+    var lds = new LocalDataSet(pr, Collections.emptySet());
     assertTrue(lds.isEmpty());
   }
 
   @Test
   public void verifyThatIsEmptyIsFalseWhenEntryCountReturnsNonZero() {
-    PartitionedRegion pr = mock(PartitionedRegion.class);
+    var pr = mock(PartitionedRegion.class);
     when(pr.isEmpty()).thenReturn(true);
     when(pr.entryCount(any())).thenReturn(1);
-    LocalDataSet lds = new LocalDataSet(pr, Collections.emptySet());
+    var lds = new LocalDataSet(pr, Collections.emptySet());
     assertFalse(lds.isEmpty());
   }
 
   @Test
   public void verifyThatGetCallbackArgIsCorrectlyPassedToGetHashKey() {
-    PartitionedRegion pr = mock(PartitionedRegion.class);
+    var pr = mock(PartitionedRegion.class);
     when(pr.getTotalNumberOfBuckets()).thenReturn(33);
-    LocalDataSet lds = new LocalDataSet(pr, Collections.emptySet());
-    LocalDataSet spy = spy(lds);
+    var lds = new LocalDataSet(pr, Collections.emptySet());
+    var spy = spy(lds);
     Object key = "key";
     Object callbackArg = "callbackArg";
 

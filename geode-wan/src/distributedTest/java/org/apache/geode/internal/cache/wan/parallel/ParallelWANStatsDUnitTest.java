@@ -30,8 +30,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.internal.PoolImpl;
@@ -66,8 +64,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
   @Test
   public void testConnectionStatsAreCreated() {
     // 1. Create locators
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     // 2. Create cache & receiver in vm2
     createCacheInVMs(nyPort, vm2);
@@ -90,8 +88,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testQueueSizeInSecondaryBucketRegionQueuesWithMemberRestart() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
@@ -105,13 +103,13 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     createReceiverPR(vm2, 1);
     putKeyValues();
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
 
     assertEquals(NUM_PUTS,
@@ -179,8 +177,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
   // TODO: add a test without redundancy for primary switch
   @Test
   public void testQueueSizeInSecondaryWithPrimarySwitch() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
@@ -195,13 +193,13 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     putKeyValues();
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
 
     // queue size:
@@ -237,8 +235,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testPartitionedRegionParallelPropagation_BeforeDispatch() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -254,13 +252,13 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     putKeyValues();
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", NUM_PUTS));
 
     // queue size:
@@ -279,8 +277,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testPartitionedRegionParallelPropagation_AfterDispatch_NoRedundancy() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
@@ -297,13 +295,13 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     vm2.invoke(() -> WANTestBase.validateRegionSize(testName, NUM_PUTS));
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // queue size:
@@ -324,8 +322,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testPRParallelPropagationWithoutGroupTransactionEventsSendsBatchesWithIncompleteTransactions() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
@@ -342,40 +340,40 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
     final Map<Object, Object> custKeyValue = new HashMap<>();
-    int intCustId = 1;
-    CustId custId = new CustId(intCustId);
+    var intCustId = 1;
+    var custId = new CustId(intCustId);
     custKeyValue.put(custId, new Customer());
     vm4.invoke(() -> WANTestBase.putGivenKeyValue(customerRegionName, custKeyValue));
 
-    int transactions = 3;
+    var transactions = 3;
     final Map<Object, Object> keyValues = new HashMap<>();
-    for (int i = 0; i < transactions; i++) {
-      OrderId orderId = new OrderId(i, custId);
-      ShipmentId shipmentId1 = new ShipmentId(i, orderId);
-      ShipmentId shipmentId2 = new ShipmentId(i + 1, orderId);
-      ShipmentId shipmentId3 = new ShipmentId(i + 2, orderId);
+    for (var i = 0; i < transactions; i++) {
+      var orderId = new OrderId(i, custId);
+      var shipmentId1 = new ShipmentId(i, orderId);
+      var shipmentId2 = new ShipmentId(i + 1, orderId);
+      var shipmentId3 = new ShipmentId(i + 2, orderId);
       keyValues.put(orderId, new Order());
       keyValues.put(shipmentId1, new Shipment());
       keyValues.put(shipmentId2, new Shipment());
       keyValues.put(shipmentId3, new Shipment());
     }
-    int eventsPerTransaction = 4;
+    var eventsPerTransaction = 4;
     vm4.invoke(() -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(keyValues,
         eventsPerTransaction));
 
-    int entries = (transactions * eventsPerTransaction) + 1;
+    var entries = (transactions * eventsPerTransaction) + 1;
 
     vm4.invoke(() -> WANTestBase.validateRegionSize(customerRegionName, 1));
     vm4.invoke(() -> WANTestBase.validateRegionSize(orderRegionName, transactions));
     vm4.invoke(() -> WANTestBase.validateRegionSize(shipmentRegionName, transactions * 3));
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // queue size:
@@ -406,8 +404,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   public void testPRParallelPropagationWithGroupTransactionEventsSendsBatchesWithCompleteTransactions_SeveralClients(
       boolean isBatchesRedistributed) {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
 
@@ -426,25 +424,25 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    int clients = 4;
-    int transactions = 300;
+    var clients = 4;
+    var transactions = 300;
     // batchSize is 10. Each transaction will contain 1 order + 3 shipments = 4 events.
     // As a result, all batches will contain extra events to complete the
     // transactions it will deliver.
-    int shipmentsPerTransaction = 3;
+    var shipmentsPerTransaction = 3;
 
     final List<Map<Object, Object>> customerData = new ArrayList<>(clients);
-    for (int intCustId = 0; intCustId < clients; intCustId++) {
+    for (var intCustId = 0; intCustId < clients; intCustId++) {
       final Map<Object, Object> custKeyValue = new HashMap<>();
-      CustId custId = new CustId(intCustId);
+      var custId = new CustId(intCustId);
       custKeyValue.put(custId, new Customer());
       customerData.add(new HashMap());
       vm4.invoke(() -> WANTestBase.putGivenKeyValue(customerRegionName, custKeyValue));
 
-      for (int i = 0; i < transactions; i++) {
-        OrderId orderId = new OrderId(i, custId);
+      for (var i = 0; i < transactions; i++) {
+        var orderId = new OrderId(i, custId);
         customerData.get(intCustId).put(orderId, new Order());
-        for (int j = 0; j < shipmentsPerTransaction; j++) {
+        for (var j = 0; j < shipmentsPerTransaction; j++) {
           customerData.get(intCustId).put(new ShipmentId(i + j, orderId), new Shipment());
         }
       }
@@ -452,9 +450,9 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     List<AsyncInvocation<?>> asyncInvocations = new ArrayList<>(clients);
 
-    int eventsPerTransaction = shipmentsPerTransaction + 1;
-    for (int i = 0; i < clients; i++) {
-      final int intCustId = i;
+    var eventsPerTransaction = shipmentsPerTransaction + 1;
+    for (var i = 0; i < clients; i++) {
+      final var intCustId = i;
       AsyncInvocation<?> asyncInvocation =
           vm4.invokeAsync(() -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(
               customerData.get(intCustId),
@@ -463,7 +461,7 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     }
 
     try {
-      for (AsyncInvocation<?> asyncInvocation : asyncInvocations) {
+      for (var asyncInvocation : asyncInvocations) {
         asyncInvocation.await();
       }
     } catch (InterruptedException e) {
@@ -496,19 +494,19 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   private void checkQueuesAreEmptyAndOnlyCompleteTransactionsAreReplicated(
       boolean isBatchesRedistributed) {
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // queue size:
     assertEquals(0, v4List.get(0) + v5List.get(0) + v6List.get(0) + v7List.get(0));
     // batches redistributed:
-    int batchesRedistributed = v4List.get(5) + v5List.get(5) + v6List.get(5) + v7List.get(5);
+    var batchesRedistributed = v4List.get(5) + v5List.get(5) + v6List.get(5) + v7List.get(5);
     if (isBatchesRedistributed) {
       assertThat(batchesRedistributed).isGreaterThan(0);
     } else {
@@ -525,8 +523,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testPRParallelPropagationWithGroupTransactionEventsSendsBatchesWithCompleteTransactions() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
@@ -543,18 +541,18 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
     final Map<Object, Object> custKeyValue = new HashMap<>();
-    int intCustId = 1;
-    CustId custId = new CustId(intCustId);
+    var intCustId = 1;
+    var custId = new CustId(intCustId);
     custKeyValue.put(custId, new Customer());
     vm4.invoke(() -> WANTestBase.putGivenKeyValue(customerRegionName, custKeyValue));
 
-    int transactions = 3;
+    var transactions = 3;
     final Map<Object, Object> keyValues = new HashMap<>();
-    for (int i = 0; i < transactions; i++) {
-      OrderId orderId = new OrderId(i, custId);
-      ShipmentId shipmentId1 = new ShipmentId(i, orderId);
-      ShipmentId shipmentId2 = new ShipmentId(i + 1, orderId);
-      ShipmentId shipmentId3 = new ShipmentId(i + 2, orderId);
+    for (var i = 0; i < transactions; i++) {
+      var orderId = new OrderId(i, custId);
+      var shipmentId1 = new ShipmentId(i, orderId);
+      var shipmentId2 = new ShipmentId(i + 1, orderId);
+      var shipmentId3 = new ShipmentId(i + 2, orderId);
       keyValues.put(orderId, new Order());
       keyValues.put(shipmentId1, new Shipment());
       keyValues.put(shipmentId2, new Shipment());
@@ -567,23 +565,23 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     // As --group-transaction-events is configured in the senders, the remaining
     // 2 events of the last transaction are added to the batch which makes
     // that only one batch of 12 events is sent.
-    int eventsPerTransaction = 4;
+    var eventsPerTransaction = 4;
     vm4.invoke(() -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(keyValues,
         eventsPerTransaction));
 
-    int entries = (transactions * eventsPerTransaction) + 1;
+    var entries = (transactions * eventsPerTransaction) + 1;
 
     vm4.invoke(() -> WANTestBase.validateRegionSize(customerRegionName, 1));
     vm4.invoke(() -> WANTestBase.validateRegionSize(orderRegionName, transactions));
     vm4.invoke(() -> WANTestBase.validateRegionSize(shipmentRegionName, transactions * 3));
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // queue size:
@@ -607,13 +605,13 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testPRParallelPropagationWithGroupTransactionEventsWithIncompleteTransactions() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
 
-    int dispThreads = 2;
+    var dispThreads = 2;
     createSenderInVm(lnPort, vm4, dispThreads);
 
     createReceiverPR(vm2, 0);
@@ -630,24 +628,24 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     // events for a transaction will be handled by one dispatcher thread and some other events by
     // another thread.
     final Map<Object, Object> keyValue = new HashMap<>();
-    int entries = 30;
-    for (int i = 0; i < entries; i++) {
+    var entries = 30;
+    for (var i = 0; i < entries; i++) {
       keyValue.put(i, i);
     }
 
-    int entriesPerTransaction = 3;
+    var entriesPerTransaction = 3;
     vm4.invoke(
         () -> WANTestBase.doPutsInsideTransactions(testName, keyValue, entriesPerTransaction));
 
     vm4.invoke(() -> WANTestBase.validateRegionSize(testName, entries));
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // The number of batches will be 4 because each
     // dispatcher thread (there are 2) will send half the number of entries,
     // each on 2 batches.
-    int batches = 4;
+    var batches = 4;
     // queue size:
     assertEquals(0, (int) v4List.get(0));
     // eventsReceived:
@@ -671,8 +669,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testPRParallelPropagationWithBatchRedistWithoutGroupTransactionEventsSendsBatchesWithIncompleteTransactions() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
 
@@ -683,28 +681,28 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     startSenderInVMs("ln", vm4);
 
     final Map<Object, Object> custKeyValue = new HashMap<>();
-    int intCustId = 1;
-    CustId custId = new CustId(intCustId);
+    var intCustId = 1;
+    var custId = new CustId(intCustId);
     custKeyValue.put(custId, new Customer());
     vm4.invoke(() -> WANTestBase.putGivenKeyValue(customerRegionName, custKeyValue));
 
-    int transactions = 6;
+    var transactions = 6;
     final Map<Object, Object> keyValues = new HashMap<>();
-    for (int i = 0; i < transactions; i++) {
-      OrderId orderId = new OrderId(i, custId);
-      ShipmentId shipmentId1 = new ShipmentId(i, orderId);
-      ShipmentId shipmentId2 = new ShipmentId(i + 1, orderId);
-      ShipmentId shipmentId3 = new ShipmentId(i + 2, orderId);
+    for (var i = 0; i < transactions; i++) {
+      var orderId = new OrderId(i, custId);
+      var shipmentId1 = new ShipmentId(i, orderId);
+      var shipmentId2 = new ShipmentId(i + 1, orderId);
+      var shipmentId3 = new ShipmentId(i + 2, orderId);
       keyValues.put(orderId, new Order());
       keyValues.put(shipmentId1, new Shipment());
       keyValues.put(shipmentId2, new Shipment());
       keyValues.put(shipmentId3, new Shipment());
     }
-    int eventsPerTransaction = 4;
+    var eventsPerTransaction = 4;
     vm4.invoke(() -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(keyValues,
         eventsPerTransaction));
 
-    int entries = (transactions * eventsPerTransaction) + 1;
+    var entries = (transactions * eventsPerTransaction) + 1;
 
     createReceiverCustomerOrderShipmentPR(vm2);
 
@@ -718,7 +716,7 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     createReceiverInVMs(vm2);
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // queue size:
@@ -737,8 +735,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testPRParallelPropagationWithBatchRedistWithGroupTransactionEventsSendsBatchesWithCompleteTransactions() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
 
@@ -752,18 +750,18 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
 
     final Map<Object, Object> custKeyValue = new HashMap<>();
-    int intCustId = 1;
-    CustId custId = new CustId(intCustId);
+    var intCustId = 1;
+    var custId = new CustId(intCustId);
     custKeyValue.put(custId, new Customer());
     vm4.invoke(() -> WANTestBase.putGivenKeyValue(customerRegionName, custKeyValue));
 
-    int transactions = 6;
+    var transactions = 6;
     final Map<Object, Object> keyValues = new HashMap<>();
-    for (int i = 0; i < transactions; i++) {
-      OrderId orderId = new OrderId(i, custId);
-      ShipmentId shipmentId1 = new ShipmentId(i, orderId);
-      ShipmentId shipmentId2 = new ShipmentId(i + 1, orderId);
-      ShipmentId shipmentId3 = new ShipmentId(i + 2, orderId);
+    for (var i = 0; i < transactions; i++) {
+      var orderId = new OrderId(i, custId);
+      var shipmentId1 = new ShipmentId(i, orderId);
+      var shipmentId2 = new ShipmentId(i + 1, orderId);
+      var shipmentId3 = new ShipmentId(i + 2, orderId);
       keyValues.put(orderId, new Order());
       keyValues.put(shipmentId1, new Shipment());
       keyValues.put(shipmentId2, new Shipment());
@@ -777,11 +775,11 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     // 2 events of the second transaction are added to the batch which makes
     // that the first batch is sent with 12 events. The same happens with the
     // second batch which will contain 12 events too.
-    int eventsPerTransaction = 4;
+    var eventsPerTransaction = 4;
     vm4.invoke(() -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(keyValues,
         eventsPerTransaction));
 
-    int entries = (transactions * eventsPerTransaction) + 1;
+    var entries = (transactions * eventsPerTransaction) + 1;
 
     vm4.invoke(() -> WANTestBase.validateRegionSize(customerRegionName, 1));
     vm4.invoke(() -> WANTestBase.validateRegionSize(orderRegionName, transactions));
@@ -793,7 +791,7 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     createReceiverInVMs(vm2);
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // queue size:
@@ -814,8 +812,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testPartitionedRegionParallelPropagation_AfterDispatch_Redundancy_3() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
@@ -832,13 +830,13 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     vm2.invoke(() -> WANTestBase.validateRegionSize(testName, NUM_PUTS));
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // queue size:
@@ -859,9 +857,9 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testWANStatsTwoWanSites_Bug44331() {
-    Integer lnPort = createFirstLocatorWithDSId(1);
-    Integer nyPort = vm0.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-    Integer tkPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
+    var lnPort = createFirstLocatorWithDSId(1);
+    var nyPort = vm0.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var tkPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createCacheInVMs(tkPort, vm3);
@@ -888,9 +886,9 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     vm2.invoke(() -> WANTestBase.validateRegionSize(testName, NUM_PUTS));
     vm3.invoke(() -> WANTestBase.validateRegionSize(testName, NUM_PUTS));
 
-    ArrayList<Integer> v4Sender1List =
+    var v4Sender1List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln1", 0));
-    ArrayList<Integer> v4Sender2List =
+    var v4Sender2List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln2", 0));
 
     assertEquals(0, v4Sender1List.get(0).intValue()); // queue size
@@ -914,8 +912,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
   @Category({WanTest.class})
   @Test
   public void testParallelPropagationHA() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
 
@@ -944,19 +942,19 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     vm2.invoke(() -> WANTestBase.validateRegionSize(testName, 1000));
 
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     assertEquals(0, v5List.get(0) + v6List.get(0) + v7List.get(0)); // queue size
-    int receivedEvents = v5List.get(1) + v6List.get(1) + v7List.get(1);
+    var receivedEvents = v5List.get(1) + v6List.get(1) + v7List.get(1);
     // We may see a single retried event on all members due to the kill
     assertTrue("Received " + receivedEvents,
         3000 <= receivedEvents && 3003 >= receivedEvents); // eventsReceived
-    int queuedEvents = v5List.get(2) + v6List.get(2) + v7List.get(2);
+    var queuedEvents = v5List.get(2) + v6List.get(2) + v7List.get(2);
     assertTrue("Queued " + queuedEvents,
         3000 <= queuedEvents && 3003 >= queuedEvents); // eventsQueued
     // assertTrue(10000 <= v5List.get(3) + v6List.get(3) + v7List.get(3)); //events distributed :
@@ -971,8 +969,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
   @Category({WanTest.class})
   @Test
   public void testParallelPropagationHAWithGroupTransactionEvents() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
 
@@ -984,8 +982,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     createSenderPRs(3);
 
-    int batchSize = 9;
-    boolean groupTransactionEvents = true;
+    var batchSize = 9;
+    var groupTransactionEvents = true;
     vm4.invoke(
         () -> WANTestBase.createSender("ln", 2, true, 100, batchSize, false, false, null, true,
             groupTransactionEvents));
@@ -1013,20 +1011,20 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     vm2.invoke(() -> WANTestBase.validateRegionSize(testName, 2000));
 
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     assertEquals(0, v5List.get(0) + v6List.get(0) + v7List.get(0)); // queue size
-    int receivedEvents = v5List.get(1) + v6List.get(1) + v7List.get(1);
+    var receivedEvents = v5List.get(1) + v6List.get(1) + v7List.get(1);
     // We may see two retried events (as transactions are made of 2 events) on all members due to
     // the kill
     assertTrue("Received " + receivedEvents,
         6000 <= receivedEvents && 6006 >= receivedEvents); // eventsReceived
-    int queuedEvents = v5List.get(2) + v6List.get(2) + v7List.get(2);
+    var queuedEvents = v5List.get(2) + v6List.get(2) + v7List.get(2);
     assertTrue("Queued " + queuedEvents,
         6000 <= queuedEvents && 6006 >= queuedEvents); // eventsQueued
     assertEquals(0, v5List.get(5) + v6List.get(5) + v7List.get(5)); // batches redistributed
@@ -1034,7 +1032,7 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     // batchesReceived is equal to numberOfEntries/(batchSize+1)
     // As transactions are 2 events long, for each batch it will always be necessary to
     // add one more entry to the 9 events batch in order to have complete transactions in the batch.
-    int batchesReceived = (1000 + 1000) / (batchSize + 1);
+    var batchesReceived = (1000 + 1000) / (batchSize + 1);
     vm2.invoke(() -> WANTestBase.checkGatewayReceiverStatsHA(batchesReceived, 2000, 2000));
   }
 
@@ -1046,8 +1044,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
   @Test
   public void testParallelPropagationWithRemoteRegionDestroy() {
     addIgnoredException("RegionDestroyedException");
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverPR(vm2, 0);
@@ -1067,13 +1065,13 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
     // verify that all is well in local site. All the events should be present in local region
     vm4.invoke(() -> WANTestBase.validateRegionSize(testName, 2000));
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", -1));
 
     // batches distributed: it's quite possible that vm4 has distributed some of the batches.
@@ -1085,8 +1083,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
   @Test
   public void testParallelPropagationWithFilter() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
 
@@ -1113,13 +1111,13 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     vm2.invoke(() -> WANTestBase.validateRegionSize(testName, 800));
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // queue size:
@@ -1141,8 +1139,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelPropagationConflation() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
@@ -1155,13 +1153,13 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     createReceiverPR(vm2, 1);
 
-    Map<Object, Object> keyValues = putKeyValues();
+    var keyValues = putKeyValues();
 
     // Verify the conflation indexes map is empty
     verifyConflationIndexesSize("ln", 0, vm4, vm5, vm6, vm7);
 
     final Map<Object, Object> updateKeyValues = new HashMap<>();
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       updateKeyValues.put(i, i + "_updated");
     }
 
@@ -1200,10 +1198,10 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
     vm4.invoke(() -> WANTestBase.checkQueueSize("ln", 0));
 
-    List<Integer> v4List = vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    List<Integer> v5List = vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    List<Integer> v6List = vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
-    List<Integer> v7List = vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    var v4List = vm4.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    var v5List = vm5.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    var v6List = vm6.invoke(() -> WANTestBase.getSenderStats("ln", 0));
+    var v7List = vm7.invoke(() -> WANTestBase.getSenderStats("ln", 0));
 
     // Verify final stats
     // 0 -> eventQueueSize
@@ -1227,18 +1225,18 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
   @Test
   public void testConflationWithSameEntryPuts() {
     // Start locators
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     // Configure sending site member
-    String senderId = "ny";
-    String regionName = testName + "_PR";
+    var senderId = "ny";
+    var regionName = testName + "_PR";
     vm1.invoke(() -> createCache(lnPort));
     vm1.invoke(() -> createSender(senderId, 2, true, 100, 10, true, true, null, false));
     vm1.invoke(() -> createPartitionedRegion(regionName, senderId, 0, 10, isOffHeap()));
 
     // Do puts of the same key
-    int numIterations = 100;
+    var numIterations = 100;
     vm1.invoke(() -> putSameEntry(regionName, numIterations));
 
     // Wait for appropriate queue size
@@ -1261,8 +1259,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testPartitionedRegionParallelPropagation_RestartSenders_NoRedundancy() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     createReceiverInVMs(vm2);
@@ -1301,35 +1299,35 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   @Test
   public void testMaximumTimeBetweenPingsInGatewayReceiverIsHonored() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> createServer(nyPort));
 
     // Set a maximum time between pings lower than the time between pings sent at the sender (5000)
     // so that the receiver will not receive the ping on time and will close the connection.
-    int maximumTimeBetweenPingsInGatewayReceiver = 4000;
+    var maximumTimeBetweenPingsInGatewayReceiver = 4000;
     createReceiverInVMs(maximumTimeBetweenPingsInGatewayReceiver, vm2);
     createReceiverPR(vm2, 0);
 
-    int maximumTimeBetweenPingsInServer = 60000;
+    var maximumTimeBetweenPingsInServer = 60000;
     vm4.invoke(() -> createServer(lnPort, maximumTimeBetweenPingsInServer));
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
     createSenderPRInVM(0, vm4);
-    String senderId = "ln";
+    var senderId = "ln";
     startSenderInVMs(senderId, vm4);
 
     // Send some puts to start the connections from the sender to the receiver
     vm4.invoke(() -> WANTestBase.doPuts(testName, 2));
 
     // Create client to check if connections are later closed.
-    ClientCache clientCache = new ClientCacheFactory()
+    var clientCache = new ClientCacheFactory()
         .addPoolLocator("localhost", lnPort)
         .setPoolLoadConditioningInterval(-1)
         .setPoolIdleTimeout(-1)
         .setPoolPingInterval(5000)
         .create();
-    Region<Long, String> clientRegion =
+    var clientRegion =
         clientCache.<Long, String>createClientRegionFactory(ClientRegionShortcut.PROXY)
             .create(testName);
     for (long i = 0; i < 2; i++) {
@@ -1350,7 +1348,7 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   protected Map<Object, Object> putKeyValues() {
     final Map<Object, Object> keyValues = new HashMap<>();
-    for (int i = 0; i < NUM_PUTS; i++) {
+    for (var i = 0; i < NUM_PUTS; i++) {
       keyValues.put(i, i);
     }
 
@@ -1443,9 +1441,9 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
   }
 
   private void verifyConflationIndexesSize(String senderId, int expectedSize, VM... vms) {
-    int actualSize = 0;
-    for (VM vm : vms) {
-      List<Integer> stats = vm.invoke(() -> WANTestBase.getSenderStats(senderId, -1));
+    var actualSize = 0;
+    for (var vm : vms) {
+      var stats = vm.invoke(() -> WANTestBase.getSenderStats(senderId, -1));
       actualSize += stats.get(9);
     }
     assertEquals(expectedSize, actualSize);
@@ -1453,8 +1451,8 @@ public class ParallelWANStatsDUnitTest extends WANTestBase {
 
   private void putSameEntry(String regionName, int numIterations) {
     // This does one create and numInterations-1 updates
-    Region<Object, Object> region = cache.getRegion(regionName);
-    for (int i = 0; i < numIterations; i++) {
+    var region = cache.getRegion(regionName);
+    for (var i = 0; i < numIterations; i++) {
       region.put(0, i);
     }
   }

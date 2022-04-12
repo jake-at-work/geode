@@ -40,12 +40,12 @@ public class RequiresGeodeHome extends SerializableExternalResource {
   }
 
   public File getGeodeHome() {
-    String geodeHomePath = System.getenv("GEODE_HOME");
+    var geodeHomePath = System.getenv("GEODE_HOME");
     assertThat(geodeHomePath)
         .withFailMessage(GEODE_HOME_NOT_SET_MESSAGE)
         .isNotNull();
 
-    File geodeHome = new File(geodeHomePath);
+    var geodeHome = new File(geodeHomePath);
     assertThat(geodeHome)
         .exists()
         .isDirectoryContaining(file -> file.getName().startsWith("bin"));

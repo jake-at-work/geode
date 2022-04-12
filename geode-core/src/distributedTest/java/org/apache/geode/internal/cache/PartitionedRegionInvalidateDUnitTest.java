@@ -33,7 +33,6 @@ import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableCallable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
 /**
@@ -48,7 +47,7 @@ public class PartitionedRegionInvalidateDUnitTest extends JUnit4CacheTestCase {
   }
 
   void createRegion(String name, boolean accessor, int redundantCopies, CacheWriter w) {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setCacheWriter(w);
     af.setPartitionAttributes(new PartitionAttributesFactory().setLocalMaxMemory(accessor ? 0 : 12)
         .setRedundantCopies(redundantCopies).create());
@@ -57,28 +56,28 @@ public class PartitionedRegionInvalidateDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSingleVMInvalidate() {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
-    final String rName = getUniqueName();
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
+    final var rName = getUniqueName();
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         createRegion(rName, false, 0, null);
         Region r = getCache().getRegion(rName);
-        InvalidatePRListener l = new InvalidatePRListener();
+        var l = new InvalidatePRListener();
         r.getAttributesMutator().addCacheListener(l);
-        for (int i = 0; i <= 113; i++) {
+        for (var i = 0; i <= 113; i++) {
           r.put(i, "value" + i);
         }
-        PartitionedRegion pr = (PartitionedRegion) r;
+        var pr = (PartitionedRegion) r;
         assertTrue(pr.getDataStore().getAllLocalBuckets().size() == 113);
-        for (Object v : pr.values()) {
+        for (var v : pr.values()) {
           assertNotNull(v);
         }
         r.invalidateRegion();
         assertTrue(l.afterRegionInvalidateCalled);
         l.afterRegionInvalidateCalled = false;
-        for (int i = 0; i <= 113; i++) {
+        for (var i = 0; i <= 113; i++) {
           r.put(i, "value" + i);
         }
         Object callbackArg = "CallBACK";
@@ -93,12 +92,12 @@ public class PartitionedRegionInvalidateDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testMultiVMInvalidate() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final String rName = getUniqueName();
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var rName = getUniqueName();
 
     class CreateRegion extends SerializableCallable {
       final boolean originRemote;
@@ -109,10 +108,10 @@ public class PartitionedRegionInvalidateDUnitTest extends JUnit4CacheTestCase {
 
       @Override
       public Object call() throws Exception {
-        InvalidatePRWriter w = new InvalidatePRWriter();
+        var w = new InvalidatePRWriter();
         createRegion(rName, false, 1, w);
         Region r = getCache().getRegion(rName);
-        InvalidatePRListener l = new InvalidatePRListener();
+        var l = new InvalidatePRListener();
         l.originRemote = originRemote;
         r.getAttributesMutator().addCacheListener(l);
         return null;
@@ -127,10 +126,10 @@ public class PartitionedRegionInvalidateDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(rName);
-        for (int i = 0; i <= 113; i++) {
+        for (var i = 0; i <= 113; i++) {
           r.put(i, "value" + i);
         }
-        for (int i = 0; i <= 113; i++) {
+        for (var i = 0; i <= 113; i++) {
           assertNotNull(r.get(i));
         }
         r.invalidateRegion();
@@ -138,11 +137,11 @@ public class PartitionedRegionInvalidateDUnitTest extends JUnit4CacheTestCase {
         return null;
       }
     });
-    SerializableCallable validateCallbacks = new SerializableCallable() {
+    var validateCallbacks = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(rName);
-        InvalidatePRListener l = (InvalidatePRListener) r.getAttributes().getCacheListeners()[0];
+        var l = (InvalidatePRListener) r.getAttributes().getCacheListeners()[0];
         assertTrue(l.afterRegionInvalidateCalled);
         l.afterRegionInvalidateCalled = false;
 
@@ -159,8 +158,8 @@ public class PartitionedRegionInvalidateDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(rName);
-        InvalidatePRListener l = (InvalidatePRListener) r.getAttributes().getCacheListeners()[0];
-        for (int i = 0; i <= 113; i++) {
+        var l = (InvalidatePRListener) r.getAttributes().getCacheListeners()[0];
+        for (var i = 0; i <= 113; i++) {
           r.put(i, "value" + i);
         }
         Object callbackArg = "CallBACK";
@@ -180,7 +179,7 @@ public class PartitionedRegionInvalidateDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(rName);
-        for (int i = 0; i <= 113; i++) {
+        for (var i = 0; i <= 113; i++) {
           assertNull("Expected null but was " + r.get(i), r.get(i));
         }
         return null;

@@ -30,8 +30,8 @@ public abstract class SetOpExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    RegionProvider regionProvider = context.getRegionProvider();
-    List<RedisKey> setKeys = command.getProcessedCommandKeys();
+    var regionProvider = context.getRegionProvider();
+    var setKeys = command.getProcessedCommandKeys();
 
     return context.lockedExecute(setKeys.get(0), new ArrayList<>(setKeys),
         () -> performCommand(regionProvider, setKeys));
@@ -55,7 +55,7 @@ abstract class SetOpArrayResult extends SetOpExecutor {
 // Used for set operations with store that return an integer
 abstract class SetOpIntegerResult extends SetOpExecutor {
   protected RedisResponse performCommand(RegionProvider regionProvider, List<RedisKey> setKeys) {
-    RedisKey destKey = setKeys.remove(0);
+    var destKey = setKeys.remove(0);
     return RedisResponse.integer(getResult(regionProvider, setKeys, destKey));
   }
 

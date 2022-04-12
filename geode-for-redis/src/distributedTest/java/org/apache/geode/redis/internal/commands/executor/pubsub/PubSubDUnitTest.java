@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +45,6 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.redis.mocks.MockSubscriber;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.dunit.rules.SerializableFunction;
@@ -93,8 +91,8 @@ public class PubSubDUnitTest {
 
   @Before
   public void before() throws Exception {
-    int locatorPort = locator.getPort();
-    SerializableFunction<ServerStarterRule> operator = x -> x
+    var locatorPort = locator.getPort();
+    var operator = (SerializableFunction<ServerStarterRule>) x -> x
         .withSystemProperty("io.netty.eventLoopThreads", "10")
         .withConnectionToLocator(locatorPort);
 
@@ -104,9 +102,9 @@ public class PubSubDUnitTest {
     server4 = cluster.startRedisVM(4, operator);
     server5 = cluster.startServerVM(5, locator.getPort());
 
-    for (VM v : Host.getHost(0).getAllVMs()) {
+    for (var v : Host.getHost(0).getAllVMs()) {
       v.invoke(() -> {
-        Logger logger = LogService.getLogger("org.apache.geode.redis");
+        var logger = LogService.getLogger("org.apache.geode.redis");
         Configurator.setAllLevels(logger.getName(), Level.getLevel("DEBUG"));
         FastLogger.setDelegating(true);
       });
@@ -115,7 +113,7 @@ public class PubSubDUnitTest {
     redisServerPort1 = cluster.getRedisPort(1);
     redisServerPort2 = cluster.getRedisPort(2);
     redisServerPort3 = cluster.getRedisPort(3);
-    int redisServerPort4 = cluster.getRedisPort(4);
+    var redisServerPort4 = cluster.getRedisPort(4);
 
     subscriber1 = new Jedis(LOCAL_HOST, redisServerPort1, 120000);
     subscriber2 = new Jedis(LOCAL_HOST, redisServerPort2, 120000);
@@ -135,32 +133,32 @@ public class PubSubDUnitTest {
 
   @Test
   public void shouldNotHang_givenPublishingAndSubscribingSimultaneously() {
-    ArrayList<Thread> threads = new ArrayList<>();
-    AtomicLong publishCount = new AtomicLong();
-    Random random = new Random();
-    int SUBSCRIBER_COUNT = 5;
-    int CHANNEL_COUNT = 200;
+    var threads = new ArrayList<Thread>();
+    var publishCount = new AtomicLong();
+    var random = new Random();
+    var SUBSCRIBER_COUNT = 5;
+    var CHANNEL_COUNT = 200;
 
-    for (int i = 0; i < CHANNEL_COUNT; i++) {
-      String channelName = "theBestChannel" + i;
+    for (var i = 0; i < CHANNEL_COUNT; i++) {
+      var channelName = "theBestChannel" + i;
       Thread thread = new LoggingThread(channelName, () -> {
-        ArrayList<MockSubscriber> mockSubscribers = new ArrayList<>();
-        ArrayList<Jedis> clients = new ArrayList<>();
-        ArrayList<Future<Void>> subscribeFutures = new ArrayList<>();
+        var mockSubscribers = new ArrayList<MockSubscriber>();
+        var clients = new ArrayList<Jedis>();
+        var subscribeFutures = new ArrayList<Future<Void>>();
 
-        for (int j = 0; j < SUBSCRIBER_COUNT; j++) {
-          MockSubscriber mockSubscriber = new MockSubscriber();
+        for (var j = 0; j < SUBSCRIBER_COUNT; j++) {
+          var mockSubscriber = new MockSubscriber();
           mockSubscribers.add(mockSubscriber);
-          Jedis client = getConnection(random);
+          var client = getConnection(random);
           clients.add(client);
 
-          Future<Void> f = executor.submit(() -> client.subscribe(mockSubscriber, channelName));
+          var f = executor.submit(() -> client.subscribe(mockSubscriber, channelName));
           subscribeFutures.add(f);
         }
 
         mockSubscribers.forEach(x -> x.awaitSubscribe(channelName));
 
-        Jedis localPublisher = getConnection(random);
+        var localPublisher = getConnection(random);
         mockSubscribers.forEach(x -> x.prepareMessagesReceivedLatch(1));
         localPublisher.publish(channelName, "hi");
         mockSubscribers.forEach(MockSubscriber::awaitMessagesReceived);
@@ -200,13 +198,13 @@ public class PubSubDUnitTest {
   @Test
   public void shouldContinueToFunction_whenOneServerShutsDownGracefully_givenTwoSubscribersOnePublisher()
       throws InterruptedException {
-    CountDownLatch latch = new CountDownLatch(2);
+    var latch = new CountDownLatch(2);
 
-    MockSubscriber mockSubscriber1 = new MockSubscriber(latch);
-    MockSubscriber mockSubscriber2 = new MockSubscriber(latch);
+    var mockSubscriber1 = new MockSubscriber(latch);
+    var mockSubscriber2 = new MockSubscriber(latch);
 
     executor.submit(() -> subscriber1.subscribe(mockSubscriber1, CHANNEL_NAME));
-    Future<Void> subscriber2Future =
+    var subscriber2Future =
         executor.submit(() -> subscriber2.subscribe(mockSubscriber2, CHANNEL_NAME));
 
     assertThat(latch.await(30, TimeUnit.SECONDS)).as("channel subscription was not received")
@@ -226,14 +224,14 @@ public class PubSubDUnitTest {
   @Test
   public void shouldContinueToFunction_whenOneServerShutsDownAbruptly_givenTwoSubscribersOnePublisher()
       throws InterruptedException {
-    CountDownLatch latch = new CountDownLatch(2);
+    var latch = new CountDownLatch(2);
 
-    MockSubscriber mockSubscriber1 = new MockSubscriber(latch);
-    MockSubscriber mockSubscriber2 = new MockSubscriber(latch);
+    var mockSubscriber1 = new MockSubscriber(latch);
+    var mockSubscriber2 = new MockSubscriber(latch);
 
-    Future<Void> subscriber1Future =
+    var subscriber1Future =
         executor.submit(() -> subscriber1.subscribe(mockSubscriber1, CHANNEL_NAME));
-    Future<Void> subscriber2Future =
+    var subscriber2Future =
         executor.submit(() -> subscriber2.subscribe(mockSubscriber2, CHANNEL_NAME));
 
     assertThat(latch.await(GeodeAwaitility.getTimeout().getSeconds(), TimeUnit.SECONDS))
@@ -243,7 +241,7 @@ public class PubSubDUnitTest {
 
     cluster.crashVM(2);
 
-    boolean published = false;
+    var published = false;
     do {
       try {
         publisher1.publish(CHANNEL_NAME, "hello again");
@@ -271,12 +269,12 @@ public class PubSubDUnitTest {
   @Test
   public void shouldContinueToFunction_whenOneServerShutsDownGracefully_givenTwoSubscribersTwoPublishers()
       throws InterruptedException {
-    CountDownLatch latch = new CountDownLatch(2);
+    var latch = new CountDownLatch(2);
 
-    MockSubscriber mockSubscriber1 = new MockSubscriber(latch);
-    MockSubscriber mockSubscriber2 = new MockSubscriber(latch);
+    var mockSubscriber1 = new MockSubscriber(latch);
+    var mockSubscriber2 = new MockSubscriber(latch);
 
-    Future<Void> subscriber1Future =
+    var subscriber1Future =
         executor.submit(() -> subscriber1.subscribe(mockSubscriber1, CHANNEL_NAME));
     executor.submit(() -> subscriber2.subscribe(mockSubscriber2, CHANNEL_NAME));
 
@@ -301,13 +299,13 @@ public class PubSubDUnitTest {
 
   @Test
   public void testSubscribePublishUsingDifferentServers() throws Exception {
-    CountDownLatch latch = new CountDownLatch(2);
-    MockSubscriber mockSubscriber1 = new MockSubscriber(latch);
-    MockSubscriber mockSubscriber2 = new MockSubscriber(latch);
+    var latch = new CountDownLatch(2);
+    var mockSubscriber1 = new MockSubscriber(latch);
+    var mockSubscriber2 = new MockSubscriber(latch);
 
-    Future<Void> subscriber1Future =
+    var subscriber1Future =
         executor.submit(() -> subscriber1.subscribe(mockSubscriber1, CHANNEL_NAME));
-    Future<Void> subscriber2Future =
+    var subscriber2Future =
         executor.submit(() -> subscriber2.subscribe(mockSubscriber2, CHANNEL_NAME));
 
     assertThat(latch.await(30, TimeUnit.SECONDS)).as("channel subscription was not received")
@@ -329,29 +327,29 @@ public class PubSubDUnitTest {
 
   @Test
   public void testConcurrentPubSub() throws Exception {
-    int CLIENT_COUNT = 10;
-    int ITERATIONS = 1000;
+    var CLIENT_COUNT = 10;
+    var ITERATIONS = 1000;
 
-    CountDownLatch latch = new CountDownLatch(2);
-    MockSubscriber mockSubscriber1 = new MockSubscriber(latch);
-    MockSubscriber mockSubscriber2 = new MockSubscriber(latch);
+    var latch = new CountDownLatch(2);
+    var mockSubscriber1 = new MockSubscriber(latch);
+    var mockSubscriber2 = new MockSubscriber(latch);
 
-    Future<Void> subscriber1Future =
+    var subscriber1Future =
         executor.submit(() -> subscriber1.subscribe(mockSubscriber1, CHANNEL_NAME));
-    Future<Void> subscriber2Future =
+    var subscriber2Future =
         executor.submit(() -> subscriber2.subscribe(mockSubscriber2, CHANNEL_NAME));
 
     assertThat(latch.await(30, TimeUnit.SECONDS)).as("channel subscription was not received")
         .isTrue();
 
     List<Future<Void>> futures = new LinkedList<>();
-    int[] ports = new int[] {redisServerPort1, redisServerPort2};
-    for (int i = 0; i < CLIENT_COUNT; i++) {
-      Jedis publisher = new Jedis("localhost", ports[i % 2]);
+    var ports = new int[] {redisServerPort1, redisServerPort2};
+    for (var i = 0; i < CLIENT_COUNT; i++) {
+      var publisher = new Jedis("localhost", ports[i % 2]);
 
-      int localI = i;
-      Callable<Void> callable = () -> {
-        for (int j = 0; j < ITERATIONS; j++) {
+      var localI = i;
+      var callable = (Callable<Void>) () -> {
+        for (var j = 0; j < ITERATIONS; j++) {
           publisher.publish(CHANNEL_NAME, String.format("hello-%d-%d", localI, j));
         }
         publisher.close();
@@ -361,7 +359,7 @@ public class PubSubDUnitTest {
       futures.add(executor.submit(callable));
     }
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       GeodeAwaitility.await().untilAsserted(future::get);
     }
 
@@ -381,19 +379,19 @@ public class PubSubDUnitTest {
 
   @Test
   public void testPubSubWithMoreSubscribersThanNettyWorkerThreads() throws Exception {
-    int CLIENT_COUNT = 100;
-    String CHANNEL_NAME = "best_channel_ever";
+    var CLIENT_COUNT = 100;
+    var CHANNEL_NAME = "best_channel_ever";
 
     List<Jedis> clients = new ArrayList<>();
     List<MockSubscriber> subscribers = new ArrayList<>();
 
     // Build up an initial set of subscribers
-    for (int i = 0; i < CLIENT_COUNT; i++) {
-      Jedis client = new Jedis("localhost", redisServerPort1);
+    for (var i = 0; i < CLIENT_COUNT; i++) {
+      var client = new Jedis("localhost", redisServerPort1);
       clients.add(client);
 
-      CountDownLatch latch = new CountDownLatch(1);
-      MockSubscriber mockSubscriber = new MockSubscriber(latch);
+      var latch = new CountDownLatch(1);
+      var mockSubscriber = new MockSubscriber(latch);
       executor.submit(() -> client.subscribe(mockSubscriber, CHANNEL_NAME));
       latch.await();
 
@@ -401,10 +399,10 @@ public class PubSubDUnitTest {
       clients.add(client);
     }
 
-    Jedis publishingClient = new Jedis("localhost", redisServerPort1);
+    var publishingClient = new Jedis("localhost", redisServerPort1);
     long result = 0;
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       result += publishingClient.publish(CHANNEL_NAME, "this is amazing");
     }
 
@@ -419,43 +417,43 @@ public class PubSubDUnitTest {
 
   @Test
   public void testPubSubWithManyClientsDisconnecting() throws Exception {
-    int CLIENT_COUNT = 1;
-    int ITERATIONS = 1000;
-    String LOCAL_CHANNEL_NAME = "disconnecting_channel";
+    var CLIENT_COUNT = 1;
+    var ITERATIONS = 1000;
+    var LOCAL_CHANNEL_NAME = "disconnecting_channel";
 
-    Random random = new Random();
+    var random = new Random();
     List<Jedis> clients = new ArrayList<>();
 
     // Build up an initial set of subscribers
-    for (int i = 0; i < CLIENT_COUNT; i++) {
-      Jedis client = new Jedis("localhost", redisServerPort1);
+    for (var i = 0; i < CLIENT_COUNT; i++) {
+      var client = new Jedis("localhost", redisServerPort1);
       clients.add(client);
 
-      CountDownLatch latch = new CountDownLatch(1);
-      MockSubscriber mockSubscriber = new MockSubscriber(latch);
+      var latch = new CountDownLatch(1);
+      var mockSubscriber = new MockSubscriber(latch);
       executor.submit(() -> client.subscribe(mockSubscriber, LOCAL_CHANNEL_NAME));
       latch.await();
     }
 
     // Start actively publishing in the background
-    Jedis publishingClient = new Jedis("localhost", redisServerPort1, 60_000);
-    Callable<Void> callable = () -> {
-      for (int j = 0; j < ITERATIONS; j++) {
+    var publishingClient = new Jedis("localhost", redisServerPort1, 60_000);
+    var callable = (Callable<Void>) () -> {
+      for (var j = 0; j < ITERATIONS; j++) {
         publishingClient.publish(LOCAL_CHANNEL_NAME, "hello - " + j);
       }
       return null;
     };
 
-    Future<Void> future = executor.submit(callable);
+    var future = executor.submit(callable);
 
     // Abnormally close and recreate new subscribers without unsubscribing
-    for (int i = 0; i < ITERATIONS; i++) {
-      int candy = random.nextInt(CLIENT_COUNT);
+    for (var i = 0; i < ITERATIONS; i++) {
+      var candy = random.nextInt(CLIENT_COUNT);
       clients.get(candy).close();
 
-      Jedis client = new Jedis("localhost", redisServerPort1);
-      CountDownLatch latch = new CountDownLatch(1);
-      MockSubscriber mockSubscriber = new MockSubscriber(latch);
+      var client = new Jedis("localhost", redisServerPort1);
+      var latch = new CountDownLatch(1);
+      var mockSubscriber = new MockSubscriber(latch);
       executor.submit(() -> client.subscribe(mockSubscriber, LOCAL_CHANNEL_NAME));
       latch.await();
 
@@ -470,8 +468,8 @@ public class PubSubDUnitTest {
   private Jedis getConnection(Random random) {
     Jedis client = null;
 
-    for (int i = 0; i < 10; i++) {
-      int randPort = random.nextInt(4) + 1;
+    for (var i = 0; i < 10; i++) {
+      var randPort = random.nextInt(4) + 1;
       try {
         client = new Jedis("localhost", cluster.getRedisPort(randPort), JEDIS_TIMEOUT);
         client.ping();

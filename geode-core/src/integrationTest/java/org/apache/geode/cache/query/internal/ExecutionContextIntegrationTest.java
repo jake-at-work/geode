@@ -38,11 +38,9 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.TypeMismatchException;
-import org.apache.geode.cache.query.security.MethodInvocationAuthorizer;
 import org.apache.geode.cache.query.security.RegExMethodAuthorizer;
 import org.apache.geode.cache.query.security.RestrictedMethodAuthorizer;
 import org.apache.geode.examples.SimpleSecurityManager;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.ThreadUtils;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
@@ -57,7 +55,7 @@ public class ExecutionContextIntegrationTest {
 
   private void assertIteratorScope(Iterator itr) {
     while (itr.hasNext()) {
-      RuntimeIterator rItr = (RuntimeIterator) itr.next();
+      var rItr = (RuntimeIterator) itr.next();
       switch (rItr.getName()) {
         case "p":
           assertThat(rItr.getScopeID())
@@ -92,7 +90,7 @@ public class ExecutionContextIntegrationTest {
   }
 
   private void assertIteratorScopeMultiThreaded(Iterator itr) {
-    RuntimeIterator rItr = (RuntimeIterator) itr.next();
+    var rItr = (RuntimeIterator) itr.next();
     switch (rItr.getName()) {
       case "p":
         assertThat(rItr.getScopeID())
@@ -123,7 +121,7 @@ public class ExecutionContextIntegrationTest {
     @SuppressWarnings("unchecked")
     Set<RuntimeIterator> dependencies = iterDef.computeDependencies(context);
     context.addDependencies(new CompiledID("dummy"), dependencies);
-    RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+    var rIter = iterDef.getRuntimeIterator(context);
     context.addToIndependentRuntimeItrMap(iterDef);
     context.bindIterator(rIter);
 
@@ -145,7 +143,7 @@ public class ExecutionContextIntegrationTest {
   @Test
   public void constructorShouldUseConfiguredMethodAuthorizer() {
     ExecutionContext unsecuredContext = new QueryExecutionContext(null, server.getCache());
-    MethodInvocationAuthorizer noOpAuthorizer = unsecuredContext.getMethodInvocationAuthorizer();
+    var noOpAuthorizer = unsecuredContext.getMethodInvocationAuthorizer();
 
     // No security, no-op authorizer.
     assertThat(noOpAuthorizer).isNotNull();
@@ -154,7 +152,7 @@ public class ExecutionContextIntegrationTest {
     // Security Enabled -> RestrictedMethodAuthorizer
     restartServerWithSecurityEnabled();
     ExecutionContext securedContext = new QueryExecutionContext(null, server.getCache());
-    MethodInvocationAuthorizer authorizer = securedContext.getMethodInvocationAuthorizer();
+    var authorizer = securedContext.getMethodInvocationAuthorizer();
     assertThat(authorizer).isNotNull();
     assertThat(authorizer).isInstanceOf(RestrictedMethodAuthorizer.class);
   }
@@ -166,18 +164,18 @@ public class ExecutionContextIntegrationTest {
     // Security Enabled -> RestrictedMethodAuthorizer
     restartServerWithSecurityEnabled();
     ExecutionContext securedContext = new QueryExecutionContext(null, server.getCache());
-    MethodInvocationAuthorizer authorizer = securedContext.getMethodInvocationAuthorizer();
+    var authorizer = securedContext.getMethodInvocationAuthorizer();
     assertThat(authorizer).isNotNull();
     assertThat(authorizer).isInstanceOf(RestrictedMethodAuthorizer.class);
 
     // Change the authorizer
-    InternalCache internalCache = server.getCache();
+    var internalCache = server.getCache();
     internalCache.getService(QueryConfigurationService.class).updateMethodAuthorizer(internalCache,
         false, RegExMethodAuthorizer.class.getName(), Collections.emptySet());
 
     // Reset the context - used by CQs when processing events
     securedContext.reset();
-    MethodInvocationAuthorizer newAuthorizer = securedContext.getMethodInvocationAuthorizer();
+    var newAuthorizer = securedContext.getMethodInvocationAuthorizer();
     assertThat(newAuthorizer).isNotNull();
     assertThat(newAuthorizer).isInstanceOf(RegExMethodAuthorizer.class);
   }
@@ -185,17 +183,17 @@ public class ExecutionContextIntegrationTest {
   @Test
   public void addToIndependentRuntimeItrMapShouldCorrectlySetTheIndexInternalIdUsedToIdentifyAvailableIndexes()
       throws Exception {
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "portfolio p, p.positions");
     ExecutionContext context = new QueryExecutionContext(null, server.getCache());
     context.newScope(context.associateScopeID());
 
-    for (Object o : list) {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+    for (var o : list) {
+      var iterDef = (CompiledIteratorDef) o;
       @SuppressWarnings("unchecked")
       Set<RuntimeIterator> dependencies = iterDef.computeDependencies(context);
       context.addDependencies(new CompiledID("dummy"), dependencies);
-      RuntimeIterator runtimeIterator = iterDef.getRuntimeIterator(context);
+      var runtimeIterator = iterDef.getRuntimeIterator(context);
       context.bindIterator(runtimeIterator);
       context.addToIndependentRuntimeItrMap(iterDef);
 
@@ -207,17 +205,17 @@ public class ExecutionContextIntegrationTest {
 
   @Test
   public void testFunctionalAddToIndependentRuntimeItrMapWithIndex() throws Exception {
-    QCompiler compiler = new QCompiler();
-    DefaultQueryService qs = new DefaultQueryService(server.getCache());
+    var compiler = new QCompiler();
+    var qs = new DefaultQueryService(server.getCache());
     qs.createIndex("myindex", "pf.id", SEPARATOR + "portfolio pf, pf.positions pos");
     List list = compiler.compileFromClause(SEPARATOR + "portfolio p, p.positions");
     ExecutionContext context = new QueryExecutionContext(null, server.getCache());
     context.newScope(context.associateScopeID());
-    Iterator iter = list.iterator();
+    var iter = list.iterator();
 
-    int i = 0;
+    var i = 0;
     while (iter.hasNext()) {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) iter.next();
+      var iterDef = (CompiledIteratorDef) iter.next();
       i = computeEvaluateAndAssertIterator(context, i, iterDef);
     }
   }
@@ -225,19 +223,19 @@ public class ExecutionContextIntegrationTest {
   @Test
   public void addToIndependentRuntimeItrMapShouldCorrectlySetTheRuntimeIteratorRegionPath()
       throws Exception {
-    QCompiler compiler = new QCompiler();
-    DefaultQueryService qs = new DefaultQueryService(server.getCache());
+    var compiler = new QCompiler();
+    var qs = new DefaultQueryService(server.getCache());
     qs.createIndex("myindex", "pf.id", SEPARATOR + "portfolio pf, pf.positions pos");
 
     @SuppressWarnings("unchecked")
-    List<CompiledIteratorDef> list =
+    var list =
         (List<CompiledIteratorDef>) compiler
             .compileFromClause(SEPARATOR + "portfolio p, p.positions");
     ExecutionContext context = new QueryExecutionContext(null, server.getCache());
     context.newScope(context.associateScopeID());
-    Iterator<CompiledIteratorDef> iter = list.iterator();
+    var iter = list.iterator();
 
-    int i = 0;
+    var i = 0;
     CompiledIteratorDef iterDef = null;
 
     while (iter.hasNext()) {
@@ -247,7 +245,7 @@ public class ExecutionContextIntegrationTest {
 
     Set<RuntimeIterator> temp = new HashSet<>();
     context.computeUltimateDependencies(iterDef, temp);
-    String regionPath = context.getRegionPathForIndependentRuntimeIterator(temp.iterator().next());
+    var regionPath = context.getRegionPathForIndependentRuntimeIterator(temp.iterator().next());
 
     assertThat(regionPath.equals(SEPARATOR + "portfolio"))
         .as("Region path " + regionPath + " should be equal to " + SEPARATOR + "portfolio.")
@@ -258,22 +256,22 @@ public class ExecutionContextIntegrationTest {
   public void testCurrScopeDpndntItrsBasedOnSingleIndpndntItr() throws Exception {
     server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("dummy");
     // compileFromClause returns a List<CompiledIteratorDef>
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(
         SEPARATOR + "portfolio p, p.positions, p.addreses addrs, addrs.collection1 coll1, "
             + SEPARATOR + "dummy d1, d1.collection2 d2");
     RuntimeIterator indItr = null;
     ExecutionContext context = new QueryExecutionContext(null, server.getCache());
     context.newScope(context.associateScopeID());
-    int i = 0;
+    var i = 0;
     List<RuntimeIterator> checkList = new ArrayList<>();
 
-    for (Object o : list) {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+    for (var o : list) {
+      var iterDef = (CompiledIteratorDef) o;
       @SuppressWarnings("unchecked")
       Set<RuntimeIterator> dependencies = iterDef.computeDependencies(context);
       context.addDependencies(new CompiledID("test"), dependencies);
-      RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+      var rIter = iterDef.getRuntimeIterator(context);
       if (i == 0) {
         indItr = rIter;
         checkList.add(rIter);
@@ -291,7 +289,7 @@ public class ExecutionContextIntegrationTest {
           .isEqualTo(rIter.getInternalId());
     }
 
-    List list1 = context.getCurrScopeDpndntItrsBasedOnSingleIndpndntItr(indItr);
+    var list1 = context.getCurrScopeDpndntItrsBasedOnSingleIndpndntItr(indItr);
     assertThat(list1.size())
         .as("The dependency set returned incorrect result with size =" + list1.size())
         .isEqualTo(4);
@@ -304,20 +302,20 @@ public class ExecutionContextIntegrationTest {
       throws Exception {
     server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("positions");
     // compileFromClause returns a List<CompiledIteratorDef>
-    String qry =
+    var qry =
         "select distinct p.pf, ELEMENT(select distinct pf1 from " + SEPARATOR
             + "portfolio pf1 where pf1.getID = p.pf.getID )  from (select distinct pf, pos from "
             + SEPARATOR + "portfolio pf, pf.positions.values pos) p, (select distinct * from "
             + SEPARATOR + "positions rtPos where rtPos.secId = p.pos.secId) as y "
             + "where ( select distinct pf2 from " + SEPARATOR + "portfolio pf2 ).size() <> 0 ";
 
-    QCompiler compiler = new QCompiler();
-    CompiledValue query = compiler.compileQuery(qry);
+    var compiler = new QCompiler();
+    var query = compiler.compileQuery(qry);
     ExecutionContext context = new QueryExecutionContext(null, server.getCache());
 
     query.computeDependencies(context);
     Set runtimeIterators = context.getDependencySet(query, true);
-    Iterator runtimeIterator = runtimeIterators.iterator();
+    var runtimeIterator = runtimeIterators.iterator();
     assertIteratorScope(runtimeIterator);
 
     query.evaluate(context);
@@ -330,23 +328,23 @@ public class ExecutionContextIntegrationTest {
   public void runtimeIteratorScopeShouldBeCorrectlySetAfterCompilingQueryAndEvaluatingDependenciesConcurrently() {
     server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("positions");
     // compileFromClause returns a List<CompiledIteratorDef>
-    String qry =
+    var qry =
         "select distinct p.pf from (select distinct pf, pos from " + SEPARATOR
             + "portfolio pf, pf.positions.values pos) p, (select distinct * from " + SEPARATOR
             + "positions rtPos where rtPos.secId = p.pos.secId) as y";
-    final int TOTAL_THREADS = 80;
-    QCompiler compiler = new QCompiler();
-    final CompiledValue query = compiler.compileQuery(qry);
-    final CountDownLatch latch = new CountDownLatch(TOTAL_THREADS);
+    final var TOTAL_THREADS = 80;
+    var compiler = new QCompiler();
+    final var query = compiler.compileQuery(qry);
+    final var latch = new CountDownLatch(TOTAL_THREADS);
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       try {
         latch.countDown();
         latch.await();
         ExecutionContext context = new QueryExecutionContext(null, server.getCache());
         query.computeDependencies(context);
         Set runtimeIterators = context.getDependencySet(query, true);
-        Iterator runtimeIterator = runtimeIterators.iterator();
+        var runtimeIterator = runtimeIterators.iterator();
 
         while (runtimeIterator.hasNext()) {
           assertIteratorScopeMultiThreaded(runtimeIterator);
@@ -364,16 +362,16 @@ public class ExecutionContextIntegrationTest {
       }
     };
 
-    Thread[] th = new Thread[TOTAL_THREADS];
-    for (int i = 0; i < th.length; ++i) {
+    var th = new Thread[TOTAL_THREADS];
+    for (var i = 0; i < th.length; ++i) {
       th[i] = new Thread(runnable);
     }
 
-    for (Thread thread : th) {
+    for (var thread : th) {
       thread.start();
     }
 
-    for (Thread thread : th) {
+    for (var thread : th) {
       ThreadUtils.join(thread, 30 * 1000);
     }
   }

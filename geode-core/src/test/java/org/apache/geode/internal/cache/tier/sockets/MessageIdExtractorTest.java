@@ -67,15 +67,15 @@ public class MessageIdExtractorTest {
 
   @Test
   public void throwsWhenConnectionIdsDoNotMatch() throws Exception {
-    long otherConnectionId = 789L;
+    var otherConnectionId = 789L;
 
     assertThatThrownBy(() -> messageIdExtractor.getUniqueIdFromMessage(requestMessage, encryptor,
         otherConnectionId)).isInstanceOf(AuthenticationRequiredException.class);
   }
 
   private byte[] byteArrayFromIds(Long connectionId, Long uniqueId) throws IOException {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    DataOutputStream dis = new DataOutputStream(byteArrayOutputStream);
+    var byteArrayOutputStream = new ByteArrayOutputStream();
+    var dis = new DataOutputStream(byteArrayOutputStream);
     dis.writeLong(connectionId);
     dis.writeLong(uniqueId);
     dis.flush();

@@ -42,7 +42,7 @@ public class ExportConfigCommandTest {
 
   @Test
   public void incorrectDirectoryShowsError() throws Exception {
-    String wrongDir = temp.newFile().getAbsolutePath();
+    var wrongDir = temp.newFile().getAbsolutePath();
     gfsh.executeAndAssertThat(command, "export config --dir=" + wrongDir).statusIsError()
         .containsOutput(wrongDir + " is not a directory");
   }

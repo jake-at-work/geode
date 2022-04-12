@@ -99,7 +99,7 @@ public class ClientCacheRule extends AbstractDistributedRule {
     if (createClientCache) {
       createClientCache(config, systemProperties);
     }
-    for (VM vm : createClientCacheInVMs) {
+    for (var vm : createClientCacheInVMs) {
       vm.invoke(() -> createClientCache(config, systemProperties));
     }
   }

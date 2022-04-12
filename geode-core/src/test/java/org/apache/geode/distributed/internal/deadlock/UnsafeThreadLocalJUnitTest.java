@@ -44,10 +44,10 @@ public class UnsafeThreadLocalJUnitTest {
    */
   @Test
   public void test() throws InterruptedException {
-    final UnsafeThreadLocal<String> unsafeThreadLocal = new UnsafeThreadLocal<>();
-    final CountDownLatch localSet = new CountDownLatch(1);
+    final var unsafeThreadLocal = new UnsafeThreadLocal<String>();
+    final var localSet = new CountDownLatch(1);
 
-    Thread test = new Thread() {
+    var test = new Thread() {
       @Override
       public void run() {
         unsafeThreadLocal.set("hello");

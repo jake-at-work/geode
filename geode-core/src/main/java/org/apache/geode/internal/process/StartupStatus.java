@@ -43,9 +43,9 @@ public class StartupStatus {
     notNull(message, "Invalid message '" + message + "' specified");
     notNull(params, "Invalid params specified");
 
-    String formattedMessage = String.format(message, params);
+    var formattedMessage = String.format(message, params);
 
-    StartupStatusListener listener = StartupStatusListenerRegistry.getStartupListener();
+    var listener = StartupStatusListenerRegistry.getStartupListener();
     if (listener != null) {
       listener.setStatus(formattedMessage);
     }

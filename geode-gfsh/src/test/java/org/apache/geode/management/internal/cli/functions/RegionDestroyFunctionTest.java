@@ -49,7 +49,7 @@ public class RegionDestroyFunctionTest {
   public void before() {
     function = spy(RegionDestroyFunction.class);
     context = mock(FunctionContext.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     filterCache = mock(InternalCacheForClientAccess.class);
     resultSender = mock(ResultSender.class);
     when(context.getCache()).thenReturn(cache);
@@ -64,7 +64,7 @@ public class RegionDestroyFunctionTest {
   public void functionContextIsWrong() {
     function.execute(context);
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getMessage()).contains("Function Id mismatch or arguments is not available");
@@ -78,7 +78,7 @@ public class RegionDestroyFunctionTest {
     function.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getThrowable()).isNull();
@@ -96,7 +96,7 @@ public class RegionDestroyFunctionTest {
     function.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getThrowable()).isNull();
@@ -114,7 +114,7 @@ public class RegionDestroyFunctionTest {
 
     function.execute(context);
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isFalse();
     // will not populate the exception in the result, but only preserve the message
     assertThat(result.getThrowable()).isNull();

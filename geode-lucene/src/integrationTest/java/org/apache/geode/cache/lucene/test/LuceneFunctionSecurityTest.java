@@ -83,10 +83,10 @@ public class LuceneFunctionSecurityTest {
     functions.forEach(FunctionService::registerFunction);
     FunctionService.registerFunction(new DumpDirectoryFiles());
 
-    for (Function function : functions) {
+    for (var function : functions) {
       Collection<ResourcePermission> permissions = function
           .getRequiredPermissions(REGION_NAME);
-      for (ResourcePermission permission : permissions) {
+      for (var permission : permissions) {
         if (permission.getResource().equals(ResourcePermission.Resource.DATA)
             && permission.getOperation().equals(ResourcePermission.Operation.READ)) {
           functionsWithDataRead.add(function);
@@ -102,9 +102,9 @@ public class LuceneFunctionSecurityTest {
     functions.stream().forEach(function -> {
       Collection<ResourcePermission> permissions = function
           .getRequiredPermissions(REGION_NAME);
-      ResourcePermission resourcePermission = (ResourcePermission) permissions
+      var resourcePermission = (ResourcePermission) permissions
           .toArray()[0];
-      String permission = resourcePermission.toString();
+      var permission = resourcePermission.toString();
 
       gfsh.executeAndAssertThat(
           "execute function --region=" + REGION_NAME + " --id=" + function.getId())
@@ -121,10 +121,10 @@ public class LuceneFunctionSecurityTest {
     assertThat(functionsWithDataRead).isNotEmpty();
 
     functionsWithDataRead.stream().forEach(function -> {
-      String permission = "*";
+      var permission = "*";
       Collection<ResourcePermission> permissions = function
           .getRequiredPermissions(REGION_NAME);
-      for (ResourcePermission resourcePermission : permissions) {
+      for (var resourcePermission : permissions) {
         if (permission.equals(ResourcePermissions.DATA_READ)) {
           permission = resourcePermission.toString();
         }
@@ -145,9 +145,9 @@ public class LuceneFunctionSecurityTest {
     functionsWithDataRead.stream().forEach(function -> {
       Collection<ResourcePermission> permissions = function
           .getRequiredPermissions(REGION_NAME);
-      ResourcePermission resourcePermission = (ResourcePermission) permissions
+      var resourcePermission = (ResourcePermission) permissions
           .toArray()[0];
-      String permission = resourcePermission.toString();
+      var permission = resourcePermission.toString();
       gfsh.executeAndAssertThat(
           "execute function --region=" + REGION_NAME + " --id=" + function.getId())
           .statusIsError().hasTableSection().hasRowSize(1).hasRow(0).asList().last()

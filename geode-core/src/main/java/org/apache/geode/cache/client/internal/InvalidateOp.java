@@ -28,7 +28,6 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -58,14 +57,14 @@ public class InvalidateOp {
     AbstractOp op = new InvalidateOpImpl(regionName, event, prSingleHopEnabled, region);
 
     if (prSingleHopEnabled) {
-      ClientMetadataService cms = region.getCache().getClientMetadataService();
-      ServerLocation server =
+      var cms = region.getCache().getClientMetadataService();
+      var server =
           cms.getBucketServerLocation(region, Operation.INVALIDATE, event.getKey(), null,
               event.getCallbackArgument());
       if (server != null) {
         try {
-          PoolImpl poolImpl = (PoolImpl) pool;
-          boolean onlyUseExistingCnx = (poolImpl.getMaxConnections() != -1
+          var poolImpl = (PoolImpl) pool;
+          var onlyUseExistingCnx = (poolImpl.getMaxConnections() != -1
               && poolImpl.getConnectionCount() >= poolImpl.getMaxConnections());
           op.setAllowDuplicateMetadataRefresh(!onlyUseExistingCnx);
           return pool.executeOn(new ServerLocation(server.getHostName(), server.getPort()), op,
@@ -99,7 +98,7 @@ public class InvalidateOp {
     public InvalidateOpImpl(String regionName, EntryEventImpl event, boolean prSingleHopEnabled,
         LocalRegion region) {
       super(MessageType.INVALIDATE, event.getCallbackArgument() != null ? 4 : 3);
-      Object callbackArg = event.getCallbackArgument();
+      var callbackArg = event.getCallbackArgument();
       this.event = event;
       this.prSingleHopEnabled = prSingleHopEnabled;
       this.region = region;
@@ -123,13 +122,13 @@ public class InvalidateOp {
     protected Object processResponse(final @NotNull Message msg, final @NotNull Connection con)
         throws Exception {
       processAck(msg, "invalidate");
-      boolean isReply = (msg.getMessageType() == MessageType.REPLY);
-      int partIdx = 0;
-      int flags = 0;
+      var isReply = (msg.getMessageType() == MessageType.REPLY);
+      var partIdx = 0;
+      var flags = 0;
       if (isReply) {
         flags = msg.getPart(partIdx++).getInt();
         if ((flags & HAS_VERSION_TAG) != 0) {
-          VersionTag tag = (VersionTag) msg.getPart(partIdx++).getObject();
+          var tag = (VersionTag) msg.getPart(partIdx++).getObject();
           // we use the client's ID since we apparently don't track the server's ID in connections
           tag.replaceNullIDs((InternalDistributedMember) con.getEndpoint().getMemberId());
           event.setVersionTag(tag);
@@ -143,13 +142,13 @@ public class InvalidateOp {
         }
       }
       if (prSingleHopEnabled) {
-        Part part = msg.getPart(partIdx++);
-        byte[] bytesReceived = part.getSerializedForm();
+        var part = msg.getPart(partIdx++);
+        var bytesReceived = part.getSerializedForm();
         if (bytesReceived[0] != ClientMetadataService.INITIAL_VERSION
             && bytesReceived.length == ClientMetadataService.SIZE_BYTES_ARRAY_RECEIVED) {
           if (region != null) {
             try {
-              ClientMetadataService cms = region.getCache().getClientMetadataService();
+              var cms = region.getCache().getClientMetadataService();
               int myVersion =
                   cms.getMetaDataVersion(region, Operation.UPDATE, event.getKey(), null,
                       event.getCallbackArgument());

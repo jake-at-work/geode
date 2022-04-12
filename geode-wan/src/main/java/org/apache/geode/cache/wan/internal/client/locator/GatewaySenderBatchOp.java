@@ -28,11 +28,9 @@ import org.apache.geode.cache.client.internal.ConnectionImpl;
 import org.apache.geode.cache.client.internal.ConnectionStats;
 import org.apache.geode.cache.client.internal.ExecutablePool;
 import org.apache.geode.cache.wan.internal.GatewaySenderEventRemoteDispatcher.GatewayAck;
-import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.wan.BatchException70;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -86,13 +84,13 @@ public class GatewaySenderBatchOp {
       getMessage().addIntPart(dsId);
       getMessage().addBytesPart(new byte[] {removeFromQueueOnException ? (byte) 1 : (byte) 0});
       // Add each event
-      for (final Object o : events) {
-        GatewaySenderEventImpl event = (GatewaySenderEventImpl) o;
+      for (final var o : events) {
+        var event = (GatewaySenderEventImpl) o;
         // Add action
-        int action = event.getAction();
+        var action = event.getAction();
         getMessage().addIntPart(action);
         { // Add posDup flag
-          byte posDupByte = (byte) (event.getPossibleDuplicate() ? 0x01 : 0x00);
+          var posDupByte = (byte) (event.getPossibleDuplicate() ? 0x01 : 0x00);
           getMessage().addBytesPart(new byte[] {posDupByte});
         }
         if (action >= 0 && action <= GatewaySenderEventImpl.UPDATE_ACTION_NO_GENERATE_CALLBACKS) {
@@ -101,9 +99,9 @@ public class GatewaySenderBatchOp {
           // 2 = destroy
           // 3 = update timestamp
           // 4 = update passing generatecallbacks
-          String regionName = event.getRegionPath();
-          EventID eventId = event.getEventId();
-          Object key = event.getKey();
+          var regionName = event.getRegionPath();
+          var eventId = event.getEventId();
+          var key = event.getKey();
           Object callbackArg = event.getSenderCallbackArgument();
 
           // Add region name
@@ -113,8 +111,8 @@ public class GatewaySenderBatchOp {
           // Add key
           getMessage().addStringOrObjPart(key);
           if (action < 2 || action == GatewaySenderEventImpl.UPDATE_ACTION_NO_GENERATE_CALLBACKS) {
-            byte[] value = event.getSerializedValue();
-            byte valueIsObject = event.getValueIsObject();
+            var value = event.getSerializedValue();
+            var valueIsObject = event.getValueIsObject();
             // Add value (which is already a serialized byte[])
             getMessage().addRawPart(value, (valueIsObject == 0x01));
           }
@@ -141,7 +139,7 @@ public class GatewaySenderBatchOp {
       }
       failed = true;
       timedOut = false;
-      long start = startAttempt(cnx.getStats());
+      var start = startAttempt(cnx.getStats());
       try {
         try {
           attemptSend(cnx);
@@ -158,7 +156,7 @@ public class GatewaySenderBatchOp {
     private Object attemptRead(Connection cnx) throws Exception {
       failed = true;
       try {
-        Object result = attemptReadResponse(cnx);
+        var result = attemptReadResponse(cnx);
         failed = false;
         return result;
       } catch (SocketTimeoutException ste) {
@@ -179,7 +177,7 @@ public class GatewaySenderBatchOp {
      */
     @Override
     protected Object attemptReadResponse(@NotNull Connection cnx) throws Exception {
-      final Message msg = createResponseMessage();
+      final var msg = createResponseMessage();
       msg.setComms(cnx.getSocket(), cnx.getInputStream(), cnx.getOutputStream(),
           ((ConnectionImpl) cnx).getCommBufferForAsyncRead(), cnx.getStats());
       if (msg instanceof ChunkedMessage) {
@@ -205,9 +203,9 @@ public class GatewaySenderBatchOp {
 
 
     private static int calcPartCount(List events) {
-      int numberOfParts = 4; // for the number of events and the batchId
-      for (final Object o : events) {
-        GatewaySenderEventImpl event = (GatewaySenderEventImpl) o;
+      var numberOfParts = 4; // for the number of events and the batchId
+      for (final var o : events) {
+        var event = (GatewaySenderEventImpl) o;
         numberOfParts += event.getNumberOfParts();
       }
       return numberOfParts;
@@ -232,21 +230,21 @@ public class GatewaySenderBatchOp {
         switch (msg.getMessageType()) {
           case MessageType.REPLY:
             // Read the chunk
-            Part part0 = msg.getPart(0);
+            var part0 = msg.getPart(0);
             if (part0.isBytes() && part0.getLength() == 1 && part0.getSerializedForm()[0] == 0) {
               // REPLY_OKAY from a CloseConnection
               break;
             }
-            int batchId = part0.getInt();
-            int numEvents = msg.getPart(1).getInt();
+            var batchId = part0.getInt();
+            var numEvents = msg.getPart(1).getInt();
             ack = new GatewayAck(batchId, numEvents);
             break;
           case MessageType.EXCEPTION:
             part0 = msg.getPart(0);
 
-            Object obj = part0.getObject();
+            var obj = part0.getObject();
             if (obj instanceof List) {
-              List<BatchException70> l = (List<BatchException70>) part0.getObject();
+              var l = (List<BatchException70>) part0.getObject();
 
               if (logger.isDebugEnabled()) {
                 logger.debug(
@@ -254,11 +252,11 @@ public class GatewaySenderBatchOp {
                     msg.getMessageType(), obj);
               }
               // don't throw Exception but set it in the Ack
-              BatchException70 be = new BatchException70(l);
+              var be = new BatchException70(l);
               ack = new GatewayAck(be, l.get(0).getBatchId());
 
             } else if (obj instanceof Throwable) {
-              String s = ": While reading Ack from receiver " + ((Throwable) obj).getMessage();
+              var s = ": While reading Ack from receiver " + ((Throwable) obj).getMessage();
               throw new ServerOperationException(s, (Throwable) obj);
             }
             break;

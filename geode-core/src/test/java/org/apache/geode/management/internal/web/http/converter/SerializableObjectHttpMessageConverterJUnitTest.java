@@ -73,21 +73,21 @@ public class SerializableObjectHttpMessageConverterJUnitTest {
 
   @Test
   public void testReadInternal() throws IOException {
-    final String expectedInputMessageBody = "Expected content of the HTTP input message body!";
-    final HttpInputMessage mockInputMessage = mock(HttpInputMessage.class, "HttpInputMessage");
+    final var expectedInputMessageBody = "Expected content of the HTTP input message body!";
+    final var mockInputMessage = mock(HttpInputMessage.class, "HttpInputMessage");
     when(mockInputMessage.getBody())
         .thenReturn(new ByteArrayInputStream(IOUtils.serializeObject(expectedInputMessageBody)));
 
-    final Serializable obj = converter.readInternal(String.class, mockInputMessage);
+    final var obj = converter.readInternal(String.class, mockInputMessage);
     assertThat(obj).isInstanceOf(String.class);
     assertThat(obj).isEqualTo(expectedInputMessageBody);
   }
 
   @Test
   public void testSetContentLength() {
-    final HttpHeaders headers = new HttpHeaders();
-    final byte[] bytes = {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE};
-    final HttpOutputMessage mockOutputMessage = mock(HttpOutputMessage.class, "HttpOutputMessage");
+    final var headers = new HttpHeaders();
+    final var bytes = new byte[] {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE};
+    final var mockOutputMessage = mock(HttpOutputMessage.class, "HttpOutputMessage");
     when(mockOutputMessage.getHeaders()).thenReturn(headers);
 
     converter.setContentLength(mockOutputMessage, bytes);
@@ -96,18 +96,18 @@ public class SerializableObjectHttpMessageConverterJUnitTest {
 
   @Test
   public void testWriteInternal() throws IOException {
-    final HttpHeaders headers = new HttpHeaders();
-    final String expectedOutputMessageBody = "Expected media of the HTTP output message body!";
-    final byte[] expectedOutputMessageBodyBytes =
+    final var headers = new HttpHeaders();
+    final var expectedOutputMessageBody = "Expected media of the HTTP output message body!";
+    final var expectedOutputMessageBodyBytes =
         IOUtils.serializeObject(expectedOutputMessageBody);
-    final ByteArrayOutputStream out =
+    final var out =
         new ByteArrayOutputStream(expectedOutputMessageBodyBytes.length);
-    final HttpOutputMessage mockOutputMessage = mock(HttpOutputMessage.class, "HttpOutputMessage");
+    final var mockOutputMessage = mock(HttpOutputMessage.class, "HttpOutputMessage");
     when(mockOutputMessage.getBody()).thenReturn(out);
     when(mockOutputMessage.getHeaders()).thenReturn(headers);
 
     converter.writeInternal(expectedOutputMessageBody, mockOutputMessage);
-    final byte[] actualOutputMessageBodyBytes = out.toByteArray();
+    final var actualOutputMessageBodyBytes = out.toByteArray();
     assertThat(headers.getContentLength()).isEqualTo(expectedOutputMessageBodyBytes.length);
     assertThat(actualOutputMessageBodyBytes.length)
         .isEqualTo(expectedOutputMessageBodyBytes.length);

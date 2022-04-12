@@ -63,7 +63,7 @@ public class GfshExecutionStrategyTest {
   public void testOfflineCommand() throws Exception {
     when(parsedCommand.getMethod()).thenReturn(Commands.class.getDeclaredMethod("offlineCommand"));
     when(parsedCommand.getInstance()).thenReturn(new Commands());
-    Result result = (Result) gfshExecutionStrategy.execute(parsedCommand);
+    var result = (Result) gfshExecutionStrategy.execute(parsedCommand);
     assertThat(result.nextLine().trim()).isEqualTo(COMMAND1_SUCCESS);
   }
 
@@ -71,7 +71,7 @@ public class GfshExecutionStrategyTest {
   public void testOfflineCommandThatReturnsResultModel() throws NoSuchMethodException {
     when(parsedCommand.getMethod()).thenReturn(Commands.class.getDeclaredMethod("offlineCommand2"));
     when(parsedCommand.getInstance()).thenReturn(new Commands());
-    Result result = (Result) gfshExecutionStrategy.execute(parsedCommand);
+    var result = (Result) gfshExecutionStrategy.execute(parsedCommand);
     assertThat(result.nextLine().trim()).isEqualTo(COMMAND3_SUCCESS);
   }
 
@@ -83,7 +83,7 @@ public class GfshExecutionStrategyTest {
     when(parsedCommand.getMethod()).thenReturn(Commands.class.getDeclaredMethod("onlineCommand"));
     when(parsedCommand.getInstance()).thenReturn(new Commands());
     when(gfsh.isConnectedAndReady()).thenReturn(false);
-    Result result = (Result) gfshExecutionStrategy.execute(parsedCommand);
+    var result = (Result) gfshExecutionStrategy.execute(parsedCommand);
     assertThat(result).isNull();
   }
 
@@ -92,13 +92,13 @@ public class GfshExecutionStrategyTest {
     when(parsedCommand.getMethod()).thenReturn(Commands.class.getDeclaredMethod("onlineCommand"));
     when(parsedCommand.getInstance()).thenReturn(new Commands());
     when(gfsh.isConnectedAndReady()).thenReturn(true);
-    OperationInvoker invoker = mock(OperationInvoker.class);
+    var invoker = mock(OperationInvoker.class);
 
-    ResultModel offLineResult = new Commands().onlineCommand();
-    String jsonResult = offLineResult.toJson();
+    var offLineResult = new Commands().onlineCommand();
+    var jsonResult = offLineResult.toJson();
     when(invoker.processCommand(any(CommandRequest.class))).thenReturn(jsonResult);
     when(gfsh.getOperationInvoker()).thenReturn(invoker);
-    Result result = (Result) gfshExecutionStrategy.execute(parsedCommand);
+    var result = (Result) gfshExecutionStrategy.execute(parsedCommand);
     assertThat(result.nextLine().trim()).isEqualTo(COMMAND2_SUCCESS);
   }
 
@@ -107,11 +107,11 @@ public class GfshExecutionStrategyTest {
     when(parsedCommand.getMethod()).thenReturn(Commands.class.getDeclaredMethod("onlineCommand"));
     when(parsedCommand.getInstance()).thenReturn(new Commands());
     when(gfsh.isConnectedAndReady()).thenReturn(true);
-    OperationInvoker invoker = mock(OperationInvoker.class);
+    var invoker = mock(OperationInvoker.class);
 
     when(invoker.processCommand(any(CommandRequest.class))).thenReturn("invalid-json");
     when(gfsh.getOperationInvoker()).thenReturn(invoker);
-    Result result = (Result) gfshExecutionStrategy.execute(parsedCommand);
+    var result = (Result) gfshExecutionStrategy.execute(parsedCommand);
     assertThat(result.getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(result.nextLine().trim()).contains("Unable to parse the remote response.");
   }
@@ -122,13 +122,13 @@ public class GfshExecutionStrategyTest {
         .thenReturn(Commands.class.getDeclaredMethod("interceptedCommand"));
     when(parsedCommand.getInstance()).thenReturn(new Commands());
     when(gfsh.isConnectedAndReady()).thenReturn(true);
-    OperationInvoker invoker = mock(OperationInvoker.class);
+    var invoker = mock(OperationInvoker.class);
 
-    ResultModel interceptedResult = new Commands().interceptedCommand();
-    String jsonResult = interceptedResult.toJson();
+    var interceptedResult = new Commands().interceptedCommand();
+    var jsonResult = interceptedResult.toJson();
     when(invoker.processCommand(any(CommandRequest.class))).thenReturn(jsonResult);
     when(gfsh.getOperationInvoker()).thenReturn(invoker);
-    Result result = (Result) gfshExecutionStrategy.execute(parsedCommand);
+    var result = (Result) gfshExecutionStrategy.execute(parsedCommand);
     assertThat(result.nextLine().trim()).isEqualTo(COMMAND4_SUCCESS);
     Mockito.verify(parsedCommand, times(1)).setUserInput(AFTER_INTERCEPTION_MESSAGE);
   }

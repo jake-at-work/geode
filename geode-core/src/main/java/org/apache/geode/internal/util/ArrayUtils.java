@@ -75,11 +75,11 @@ public abstract class ArrayUtils {
    * @see java.lang.StringBuilder
    */
   public static String toString(final Object... array) {
-    final StringBuilder buffer = new StringBuilder("[");
-    int count = 0;
+    final var buffer = new StringBuilder("[");
+    var count = 0;
 
     if (array != null) {
-      for (final Object element : array) {
+      for (final var element : array) {
         buffer.append(count++ > 0 ? ", " : StringUtils.EMPTY).append(element);
       }
     }
@@ -103,7 +103,7 @@ public abstract class ArrayUtils {
    * @return the new array
    */
   public static Object[] insert(Object[] originalArray, int pos, Object element) {
-    Object[] newArray = (Object[]) java.lang.reflect.Array
+    var newArray = (Object[]) java.lang.reflect.Array
         .newInstance(originalArray.getClass().getComponentType(), originalArray.length + 1);
 
     // Test Cases (proof of correctness by examining corner cases)
@@ -150,7 +150,7 @@ public abstract class ArrayUtils {
    * @return the new array
    */
   public static Object[] remove(Object[] originalArray, int pos) {
-    Object[] newArray = (Object[]) java.lang.reflect.Array
+    var newArray = (Object[]) java.lang.reflect.Array
         .newInstance(originalArray.getClass().getComponentType(), originalArray.length - 1);
 
     // Test cases: (proof of correctness)
@@ -198,7 +198,7 @@ public abstract class ArrayUtils {
 
   /** Get proper string for an object including arrays. */
   public static String objectString(Object obj) {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     objectString(obj, sb);
     return sb.toString();
   }
@@ -207,8 +207,8 @@ public abstract class ArrayUtils {
   public static void objectString(Object obj, StringBuilder sb) {
     if (obj instanceof Object[]) {
       sb.append('(');
-      boolean first = true;
-      for (Object o : (Object[]) obj) {
+      var first = true;
+      for (var o : (Object[]) obj) {
         if (!first) {
           sb.append(',');
         } else {
@@ -226,16 +226,16 @@ public abstract class ArrayUtils {
    * Get proper string for an an object including arrays with upto one dimension of arrays.
    */
   public static String objectStringNonRecursive(@Unretained Object obj) {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     objectStringNonRecursive(obj, sb);
     return sb.toString();
   }
 
   public static boolean areByteArrayArrayEquals(byte[][] v1, byte[][] v2) {
-    boolean areEqual = false;
+    var areEqual = false;
     if (v1.length == v2.length) {
       areEqual = true;
-      for (int index = 0; index < v1.length; ++index) {
+      for (var index = 0; index < v1.length; ++index) {
         if (!Arrays.equals(v1[index], v2[index])) {
           areEqual = false;
           break;
@@ -251,8 +251,8 @@ public abstract class ArrayUtils {
   public static void objectStringNonRecursive(@Unretained Object obj, StringBuilder sb) {
     if (obj instanceof Object[]) {
       sb.append('(');
-      boolean first = true;
-      for (Object o : (Object[]) obj) {
+      var first = true;
+      for (var o : (Object[]) obj) {
         if (!first) {
           sb.append(',');
           sb.append(o);
@@ -271,10 +271,10 @@ public abstract class ArrayUtils {
   private static void objectStringWithBytes(@Unretained Object obj, StringBuilder sb) {
     if (obj instanceof byte[]) {
       sb.append('(');
-      boolean first = true;
-      final byte[] bytes = (byte[]) obj;
-      int numBytes = 0;
-      for (byte b : bytes) {
+      var first = true;
+      final var bytes = (byte[]) obj;
+      var numBytes = 0;
+      for (var b : bytes) {
         if (!first) {
           sb.append(',');
         } else {
@@ -314,10 +314,10 @@ public abstract class ArrayUtils {
    * @return an Integer array containing the values from the elements in the primitive int array.
    */
   public static Integer[] toIntegerArray(final int[] array) {
-    final Integer[] integerArray = new Integer[array == null ? 0 : array.length];
+    final var integerArray = new Integer[array == null ? 0 : array.length];
 
     if (array != null) {
-      for (int index = 0; index < array.length; index++) {
+      for (var index = 0; index < array.length; index++) {
         integerArray[index] = array[index];
       }
     }
@@ -335,10 +335,10 @@ public abstract class ArrayUtils {
     if (array == null) {
       return null;
     }
-    final Byte[][] byteArray = new Byte[array.length][];
-    for (int i = 0; i < array.length; i++) {
+    final var byteArray = new Byte[array.length][];
+    for (var i = 0; i < array.length; i++) {
       byteArray[i] = new Byte[array[i].length];
-      for (int j = 0; j < array[i].length; j++) {
+      for (var j = 0; j < array[i].length; j++) {
         byteArray[i][j] = array[i][j];
       }
     }
@@ -355,10 +355,10 @@ public abstract class ArrayUtils {
     if (byteArray == null) {
       return null;
     }
-    final byte[][] array = new byte[byteArray.length][];
-    for (int i = 0; i < byteArray.length; i++) {
+    final var array = new byte[byteArray.length][];
+    for (var i = 0; i < byteArray.length; i++) {
       array[i] = new byte[byteArray[i].length];
-      for (int j = 0; j < byteArray[i].length; j++) {
+      for (var j = 0; j < byteArray[i].length; j++) {
         array[i][j] = byteArray[i][j];
       }
     }

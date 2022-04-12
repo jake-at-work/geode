@@ -15,10 +15,8 @@
 
 package org.apache.geode.rules;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.jar.JarEntry;
@@ -57,25 +55,25 @@ public class ServiceJarRule extends ExternalResource {
   }
 
   private Path newJar(String jarName, String serviceName, Class providerClass) throws IOException {
-    File jar = temporaryFolder.newFile(jarName);
+    var jar = temporaryFolder.newFile(jarName);
 
-    String className = providerClass.getName();
-    String classAsPath = className.replace('.', '/') + ".class";
-    InputStream stream = providerClass.getClassLoader().getResourceAsStream(classAsPath);
-    byte[] bytes = IOUtils.toByteArray(stream);
-    try (FileOutputStream out = new FileOutputStream(jar)) {
-      JarOutputStream jarOutputStream = new JarOutputStream(out);
+    var className = providerClass.getName();
+    var classAsPath = className.replace('.', '/') + ".class";
+    var stream = providerClass.getClassLoader().getResourceAsStream(classAsPath);
+    var bytes = IOUtils.toByteArray(stream);
+    try (var out = new FileOutputStream(jar)) {
+      var jarOutputStream = new JarOutputStream(out);
 
       // Add the class file to the JAR file
-      JarEntry classEntry = new JarEntry(classAsPath);
+      var classEntry = new JarEntry(classAsPath);
       classEntry.setTime(System.currentTimeMillis());
       jarOutputStream.putNextEntry(classEntry);
       jarOutputStream.write(bytes);
       jarOutputStream.closeEntry();
 
-      String metaInfPath = "META-INF/services/" + serviceName;
+      var metaInfPath = "META-INF/services/" + serviceName;
 
-      JarEntry metaInfEntry = new JarEntry(metaInfPath);
+      var metaInfEntry = new JarEntry(metaInfPath);
       metaInfEntry.setTime(System.currentTimeMillis());
       jarOutputStream.putNextEntry(metaInfEntry);
       jarOutputStream.write(className.getBytes());

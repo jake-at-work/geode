@@ -24,7 +24,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
@@ -36,14 +35,11 @@ import org.junit.Before;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.partition.PartitionRegionInfo;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.backup.BackupOperation;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserver;
@@ -93,7 +89,7 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
       final String regionName) {
     vm.invoke("checkData", () -> {
       Region region = getCache().getRegion(regionName);
-      for (int i = startKey; i < endKey; i++) {
+      for (var i = startKey; i < endKey; i++) {
         assertThat(region.get(i)).isEqualTo(value);
       }
     });
@@ -107,7 +103,7 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
       final String regionName) {
     vm.invoke("createData", () -> {
       Region region = getCache().getRegion(regionName);
-      for (int i = startKey; i < endKey; i++) {
+      for (var i = startKey; i < endKey; i++) {
         region.put(i, value);
       }
     });
@@ -149,7 +145,7 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
     return new SerializableRunnable("getCreatePRRunnable") {
       @Override
       public void run() {
-        final CountDownLatch recoveryDone = new CountDownLatch(1);
+        final var recoveryDone = new CountDownLatch(1);
         if (redundancy > 0) {
           ResourceObserver observer = new ResourceObserverAdapter() {
             @Override
@@ -164,7 +160,7 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
 
         Cache cache = getCache();
 
-        RegionAttributes regionAttributes =
+        var regionAttributes =
             getPersistentPRAttributes(redundancy, recoveryDelay, cache, numBuckets, synchronous);
         cache.createRegion(getPartitionedRegionName(), regionAttributes);
 
@@ -179,19 +175,19 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
 
   protected RegionAttributes getPersistentPRAttributes(final int redundancy,
       final int recoveryDelay, final Cache cache, final int numBuckets, final boolean synchronous) {
-    DiskStore diskStore = cache.findDiskStore("disk");
+    var diskStore = cache.findDiskStore("disk");
     if (diskStore == null) {
       diskStore = cache.createDiskStoreFactory().setDiskDirs(getDiskDirs()).create("disk");
     }
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(redundancy);
     partitionAttributesFactory.setRecoveryDelay(recoveryDelay);
     partitionAttributesFactory.setTotalNumBuckets(numBuckets);
     // Make sure all vms end up with the same local max memory
     partitionAttributesFactory.setLocalMaxMemory(500);
 
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
     attributesFactory.setDiskStoreName("disk");
     attributesFactory.setDiskSynchronous(synchronous);
@@ -210,7 +206,7 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
 
   protected Set<Integer> getBucketList(final VM vm, final String regionName) {
     return vm.invoke("getBucketList", () -> {
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+      var region = (PartitionedRegion) getCache().getRegion(regionName);
       return new TreeSet<>(region.getDataStore().getAllLocalBucketIds());
     });
   }
@@ -218,7 +214,7 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
   void waitForBuckets(final VM vm, final Set<Integer> expectedBuckets, final String regionName) {
     vm.invoke("waitForBuckets", () -> {
       Cache cache = getCache();
-      final PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
+      final var region = (PartitionedRegion) cache.getRegion(regionName);
 
       GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
         @Override
@@ -242,16 +238,16 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
   Set<Integer> getPrimaryBucketList(final VM vm, final String regionName) {
     return vm.invoke("getPrimaryBucketList", () -> {
       Cache cache = getCache();
-      PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
+      var region = (PartitionedRegion) cache.getRegion(regionName);
       return new TreeSet<>(region.getDataStore().getAllLocalPrimaryBucketIds());
     });
   }
 
   protected boolean moveBucket(final int bucketId, final VM source, final VM target) {
-    InternalDistributedMember sourceId = getInternalDistributedMember(source);
+    var sourceId = getInternalDistributedMember(source);
 
     return target.invoke("moveBucket", () -> {
-      PartitionedRegion region =
+      var region =
           (PartitionedRegion) getCache().getRegion(getPartitionedRegionName());
       return region.getDataStore().moveBucket(bucketId, sourceId, false);
     });
@@ -269,13 +265,13 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
   private void waitForBucketRecovery(final VM vm, final Set<Integer> lostBuckets,
       final String regionName) {
     vm.invoke("waitForBucketRecovery", () -> {
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
-      PartitionedRegionDataStore dataStore = region.getDataStore();
+      var region = (PartitionedRegion) getCache().getRegion(regionName);
+      var dataStore = region.getDataStore();
 
       GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
         @Override
         public boolean done() {
-          Set<Integer> vm2Buckets = dataStore.getAllLocalBucketIds();
+          var vm2Buckets = dataStore.getAllLocalBucketIds();
           return lostBuckets.equals(vm2Buckets);
         }
 
@@ -296,13 +292,13 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
       GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
         @Override
         public boolean done() {
-          PartitionRegionInfo info = getPartitionRegionInfo(region);
+          var info = getPartitionRegionInfo(region);
           return info.getActualRedundantCopies() == expectedRedundancy;
         }
 
         @Override
         public String description() {
-          PartitionRegionInfo info = getPartitionRegionInfo(region);
+          var info = getPartitionRegionInfo(region);
           return "Did not reach expected redundancy " + expectedRedundancy + " redundancy info = "
               + info.getActualRedundantCopies();
         }
@@ -324,20 +320,20 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
 
   protected void restoreBackup(final int expectedNumScripts)
       throws IOException, InterruptedException {
-    Collection<File> restoreScripts =
+    var restoreScripts =
         listFiles(getBackupDir(), new RegexFileFilter(".*restore.*"), DIRECTORY);
     assertThat(restoreScripts).hasSize(expectedNumScripts);
-    for (File script : restoreScripts) {
+    for (var script : restoreScripts) {
       execute(script);
     }
   }
 
   private void execute(final File script) throws IOException, InterruptedException {
-    ProcessBuilder processBuilder = new ProcessBuilder(script.getAbsolutePath());
+    var processBuilder = new ProcessBuilder(script.getAbsolutePath());
     processBuilder.redirectErrorStream(true);
-    Process process = processBuilder.start();
+    var process = processBuilder.start();
 
-    try (BufferedReader reader =
+    try (var reader =
         new BufferedReader(new InputStreamReader(process.getInputStream()))) {
       String line;
       while ((line = reader.readLine()) != null) {
@@ -354,8 +350,8 @@ public abstract class PersistentPartitionedRegionTestBase extends JUnit4CacheTes
   }
 
   static File getBackupDir() {
-    File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-    File dir = new File(tmpDir, "backupDir");
+    var tmpDir = new File(System.getProperty("java.io.tmpdir"));
+    var dir = new File(tmpDir, "backupDir");
     dir.mkdirs();
     return dir;
   }

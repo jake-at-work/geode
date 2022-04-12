@@ -46,16 +46,13 @@ import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.cache.query.internal.ResultsBag;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.cache30.ClientServerTestCase;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -87,21 +84,21 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRemotePredicateQueries() throws CacheException {
 
-    final String name = getName();
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final int numberOfEntries = 100;
+    final var name = getName();
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var numberOfEntries = 100;
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(LOCATORS,
             "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
-        InternalDistributedSystem system = getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
+        var system = getSystem(config);
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         createRegion(name, factory.create());
         Wait.pause(1000);
@@ -118,7 +115,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "ibm"));
         }
       }
@@ -126,15 +123,15 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
 
     // Create client region
     final int port = vm0.invoke(RemoteQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
     vm1.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         getSystem(config);
         getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port, -1, true, -1, -1, null);
         createRegion(name, factory.create());
@@ -234,21 +231,21 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRemoteImportQueries() throws CacheException {
 
-    final String name = getName();
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final int numberOfEntries = 100;
+    final var name = getName();
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var numberOfEntries = 100;
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(LOCATORS,
             "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
         getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         createRegion(name, factory.create());
         Wait.pause(1000);
@@ -265,7 +262,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "ibm"));
         }
       }
@@ -273,15 +270,15 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
 
     // Create client region
     final int port = vm0.invoke(RemoteQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
     vm1.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         getSystem(config);
         getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
 
         ClientServerTestCase.configureConnectionPool(factory, host0, port, -1, true, -1, -1, null);
@@ -381,21 +378,21 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRemoteStructQueries() throws CacheException {
 
-    final String name = getName();
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final int numberOfEntries = 100;
+    final var name = getName();
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var numberOfEntries = 100;
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(LOCATORS,
             "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
         getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         createRegion(name, factory.create());
         Wait.pause(1000);
@@ -412,7 +409,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "ibm"));
         }
       }
@@ -420,15 +417,15 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
 
     // Create client region
     final int port = vm0.invoke(RemoteQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
     vm1.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         getSystem(config);
         getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port, -1, true, -1, -1, null);
         createRegion(name, factory.create());
@@ -648,21 +645,21 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRemoteFullRegionQueries() throws CacheException {
 
-    final String name = getName();
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final int numberOfEntries = 100;
+    final var name = getName();
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var numberOfEntries = 100;
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(LOCATORS,
             "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
         getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         createRegion(name, factory.create());
         Wait.pause(1000);
@@ -679,7 +676,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "ibm"));
         }
       }
@@ -687,15 +684,15 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
 
     // Create client region
     final int port = vm0.invoke(RemoteQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
     vm1.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         getSystem(config);
         getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port, -1, true, -1, -1, null);
         createRegion(name, factory.create());
@@ -752,7 +749,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
         assertTrue(results.getCollectionType().isOrdered());
         comparator = new IdComparator();
         resultsArray = results.toArray();
-        for (int i = 0; i < resultsArray.length; i++) {
+        for (var i = 0; i < resultsArray.length; i++) {
           if (i + 1 != resultsArray.length) {
             // The id of the current element in the result set must be less
             // than the id of the next one to pass.
@@ -779,7 +776,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
         assertTrue(results.getCollectionType().isOrdered());
         comparator = new StructIdComparator();
         resultsArray = results.toArray();
-        for (int i = 0; i < resultsArray.length; i++) {
+        for (var i = 0; i < resultsArray.length; i++) {
           if (i + 1 != resultsArray.length) {
             // The id of the current element in the result set must be less
             // than the id of the next one to pass.
@@ -798,7 +795,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed executing " + queryString, e);
         }
         assertEquals(1, results.size());
-        Object result = results.iterator().next();
+        var result = results.iterator().next();
         assertTrue(result instanceof Integer);
         int resultInt = (Integer) result;
         assertEquals(resultInt, 100);
@@ -831,21 +828,21 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRemoteJoinRegionQueries() throws CacheException {
 
-    final String name = getName();
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final int numberOfEntries = 100;
+    final var name = getName();
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var numberOfEntries = 100;
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(LOCATORS,
             "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
         getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         createRegion(name + "1", factory.create());
         createRegion(name + "2", factory.create());
@@ -863,11 +860,11 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(name + "1");
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region1.put("key-" + i, new TestObject(i, "ibm"));
         }
         Region region2 = getRootRegion().getSubregion(name + "2");
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region2.put("key-" + i, new TestObject(i, "ibm"));
         }
       }
@@ -875,15 +872,15 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
 
     // Create client region
     final int port = vm0.invoke(RemoteQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
     vm1.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         getSystem(config);
         getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port, -1, true, -1, -1, null);
         createRegion(name + "1", factory.create());
@@ -939,22 +936,22 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRemoteBridgeClientQueries() throws CacheException {
 
-    final String name = getName();
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    final int numberOfEntries = 100;
+    final var name = getName();
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    final var numberOfEntries = 100;
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(LOCATORS,
             "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
         getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         createRegion(name, factory.create());
         try {
@@ -970,26 +967,26 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "ibm"));
         }
       }
     });
 
     final int port = vm0.invoke(RemoteQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client region in VM1
     vm1.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         getSystem(config);
         PoolManager.createFactory().addServer(host0, port).setSubscriptionEnabled(true)
             .create("clientPool");
         getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         factory.setPoolName("clientPool");
         createRegion(name, factory.create());
@@ -1000,13 +997,13 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         getSystem(config);
         PoolManager.createFactory().addServer(host0, port).setSubscriptionEnabled(true)
             .create("clientPool");
         getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         factory.setPoolName("clientPool");
         createRegion(name, factory.create());
@@ -1115,22 +1112,22 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testBug36434() throws Exception {
-    final String name = getName();
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    final var name = getName();
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    final int numberOfEntries = 100;
+    final var numberOfEntries = 100;
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(LOCATORS,
             "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
         getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         createRegion(name, factory.createRegionAttributes());
         try {
@@ -1146,26 +1143,26 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "ibm"));
         }
       }
     });
 
     final int port = vm0.invoke(RemoteQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client region in VM1
     vm1.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         getSystem(config);
         PoolManager.createFactory().addServer(host0, port).setSubscriptionEnabled(true)
             .create("clientPool");
         getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         factory.setPoolName("clientPool");
         createRegion(name, factory.createRegionAttributes());
@@ -1178,8 +1175,8 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        String[] queryStrings = {"id<9", "selection<9", "important<9", "\"select\"<9"};
-        for (final String queryString : queryStrings) {
+        var queryStrings = new String[] {"id<9", "selection<9", "important<9", "\"select\"<9"};
+        for (final var queryString : queryStrings) {
           SelectResults results = null;
 
           try {
@@ -1188,7 +1185,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
             Assert.fail("Failed executing " + queryString, e);
           }
           assertEquals(9, results.size());
-          String msg = "results expected to be instance of ResultsBag,"
+          var msg = "results expected to be instance of ResultsBag,"
               + " but was found to be is instance of '";
           assertTrue(msg + results.getClass().getName() + "'", results instanceof ResultsBag);
           assertTrue(results.asList().get(0) instanceof TestObject);
@@ -1221,24 +1218,24 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testBug36969() throws Exception {
-    final String name = getName();
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    final var name = getName();
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    final int numberOfEntries = 100;
+    final var numberOfEntries = 100;
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(LOCATORS,
             "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
         getSystem(config);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
-        final Region region = createRegion(name, factory.createRegionAttributes());
+        final var region = createRegion(name, factory.createRegionAttributes());
         QueryObserverHolder.setInstance(new QueryObserverAdapter() {
           @Override
           public void afterQueryEvaluation(Object result) {
@@ -1260,26 +1257,26 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "ibm"));
         }
       }
     });
 
     final int port = vm0.invoke(RemoteQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client region in VM1
     vm1.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(MCAST_PORT, "0");
         getSystem(config);
         PoolManager.createFactory().addServer(host0, port).setSubscriptionEnabled(true)
             .create("clientPool");
         getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         factory.setPoolName("clientPool");
         createRegion(name, factory.createRegionAttributes());
@@ -1292,7 +1289,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        String queryStrings = "id<9";
+        var queryStrings = "id<9";
         // SelectResults results = null;
         try {
           region.query(queryStrings);
@@ -1310,10 +1307,10 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
     vm0.invoke(new CacheSerializableRunnable("Create two regions") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
-        final Region region1 = createRegion(name, factory.createRegionAttributes());
-        final Region region2 = createRegion(name + "_2", factory.createRegionAttributes());
+        final var region1 = createRegion(name, factory.createRegionAttributes());
+        final var region2 = createRegion(name + "_2", factory.createRegionAttributes());
         QueryObserverHolder.setInstance(new QueryObserverAdapter() {
           @Override
           public void afterQueryEvaluation(Object result) {
@@ -1322,7 +1319,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
           }
 
         });
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region1.put("key-" + i, new TestObject(i, "ibm"));
           region2.put("key-" + i, new TestObject(i, "ibm"));
         }
@@ -1335,7 +1332,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(name);
-        String queryString = "select distinct * from " + SEPARATOR + name;
+        var queryString = "select distinct * from " + SEPARATOR + name;
         // SelectResults results = null;
         try {
           region.query(queryString);
@@ -1382,7 +1379,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
   protected void startBridgeServer(int port, boolean notifyBySubscription) throws IOException {
 
     Cache cache = getCache();
-    CacheServer bridge = cache.addCacheServer();
+    var bridge = cache.addCacheServer();
     bridge.setPort(port);
     bridge.setNotifyBySubscription(notifyBySubscription);
     bridge.start();
@@ -1393,7 +1390,7 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
    * Stops the cache server that serves up the given cache.
    */
   protected void stopBridgeServer(Cache cache) {
-    CacheServer bridge = cache.getCacheServers().iterator().next();
+    var bridge = cache.getCacheServers().iterator().next();
     bridge.stop();
     assertFalse(bridge.isRunning());
   }
@@ -1459,8 +1456,8 @@ public class RemoteQueryDUnitTest extends JUnit4CacheTestCase {
 
     @Override
     public int compare(Object obj1, Object obj2) {
-      int obj1Id = ((TestObject) obj1).getId();
-      int obj2Id = ((TestObject) obj2).getId();
+      var obj1Id = ((TestObject) obj1).getId();
+      var obj2Id = ((TestObject) obj2).getId();
       if (obj1Id > obj2Id) {
         return 1;
       } else if (obj1Id < obj2Id) {

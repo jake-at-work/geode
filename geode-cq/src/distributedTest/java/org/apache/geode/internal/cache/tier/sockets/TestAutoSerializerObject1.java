@@ -58,7 +58,7 @@ public class TestAutoSerializerObject1 implements PdxSerializerObject {
   }
 
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     if (data1 != null && !data1.isEmpty()) {
       builder.append(data1);
       builder.append(" (");
@@ -94,7 +94,7 @@ public class TestAutoSerializerObject1 implements PdxSerializerObject {
       return false;
     }
 
-    TestAutoSerializerObject1 test = (TestAutoSerializerObject1) o;
+    var test = (TestAutoSerializerObject1) o;
     // field comparison
     return Objects.equals(data1, test.data1)
         && Objects.equals(data2, test.data2) && Objects.equals(numData, test.numData);
@@ -102,7 +102,7 @@ public class TestAutoSerializerObject1 implements PdxSerializerObject {
 
   @Override
   public int hashCode() {
-    int result = 17;
+    var result = 17;
     result = 31 * result + data1.hashCode();
     result = 31 * result + data2.hashCode();
     result = 31 * result + numData;

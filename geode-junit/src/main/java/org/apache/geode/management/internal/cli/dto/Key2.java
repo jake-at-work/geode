@@ -44,7 +44,7 @@ public class Key2 implements Serializable {
 
   public boolean equals(Object other) {
     if (other instanceof Key2) {
-      Key2 k1 = (Key2) other;
+      var k1 = (Key2) other;
       return k1.getId().equals(id) && k1.getName().equals(name);
     } else {
       return false;

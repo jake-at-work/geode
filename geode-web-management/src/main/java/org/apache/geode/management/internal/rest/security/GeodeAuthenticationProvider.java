@@ -47,9 +47,9 @@ public class GeodeAuthenticationProvider implements AuthenticationProvider, Serv
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-    Properties credentials = new Properties();
-    String username = authentication.getName();
-    String password = authentication.getCredentials().toString();
+    var credentials = new Properties();
+    var username = authentication.getName();
+    var password = authentication.getCredentials().toString();
 
     if (authTokenEnabled) {
       if (password != null) {

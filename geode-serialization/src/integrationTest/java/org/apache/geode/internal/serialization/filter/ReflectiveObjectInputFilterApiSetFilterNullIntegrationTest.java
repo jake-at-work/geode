@@ -50,7 +50,7 @@ public class ReflectiveObjectInputFilterApiSetFilterNullIntegrationTest {
       throws ClassNotFoundException, NoSuchMethodException {
     ObjectInputFilterApi api = new ReflectiveObjectInputFilterApi(apiPackage);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       api.setSerialFilter(null);
     });
 

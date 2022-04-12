@@ -89,7 +89,7 @@ public class LonerTypeRegistration implements TypeRegistration {
     if (delegate != null) {
       return;
     }
-    final TypeRegistration delegateTmp = createTypeRegistration(client);
+    final var delegateTmp = createTypeRegistration(client);
     delegateTmp.initialize();
     delegate = delegateTmp;
   }
@@ -111,8 +111,8 @@ public class LonerTypeRegistration implements TypeRegistration {
    * @return true if this member is a loner and we can't determine what type of registry they want.
    */
   static boolean isIndeterminateLoner(InternalCache cache) {
-    boolean isLoner = cache.getInternalDistributedSystem().isLoner();
-    boolean pdxConfigured = cache.getPdxPersistent();
+    var isLoner = cache.getInternalDistributedSystem().isLoner();
+    var pdxConfigured = cache.getPdxPersistent();
     return isLoner && !pdxConfigured/* && !hasGateways */;
   }
 

@@ -69,7 +69,7 @@ final class ExtendedAliasKeyManager extends X509ExtendedKeyManager {
   @Override
   public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
     if (!StringUtils.isEmpty(keyAlias)) {
-      PrivateKey key = delegate.getPrivateKey(keyAlias);
+      var key = delegate.getPrivateKey(keyAlias);
       return getKeyAlias(keyType, key);
     }
     return delegate.chooseServerAlias(keyType, issuers, socket);
@@ -99,7 +99,7 @@ final class ExtendedAliasKeyManager extends X509ExtendedKeyManager {
   public String chooseEngineServerAlias(final String keyType, final Principal[] principals,
       final SSLEngine sslEngine) {
     if (!StringUtils.isEmpty(keyAlias)) {
-      PrivateKey key = delegate.getPrivateKey(keyAlias);
+      var key = delegate.getPrivateKey(keyAlias);
       return getKeyAlias(keyType, key);
     }
     return delegate.chooseEngineServerAlias(keyType, principals, sslEngine);

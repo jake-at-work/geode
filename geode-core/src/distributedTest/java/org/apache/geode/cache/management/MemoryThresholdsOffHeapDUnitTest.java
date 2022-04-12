@@ -48,33 +48,25 @@ import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.management.MemoryThresholdsDUnitTest.Range;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
-import org.apache.geode.internal.cache.ProxyBucketRegion;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceType;
 import org.apache.geode.internal.cache.control.MemoryEvent;
 import org.apache.geode.internal.cache.control.MemoryThresholds.MemoryState;
-import org.apache.geode.internal.cache.control.OffHeapMemoryMonitor;
 import org.apache.geode.internal.cache.control.OffHeapMemoryMonitor.OffHeapMemoryMonitorObserver;
-import org.apache.geode.internal.cache.control.ResourceAdvisor;
-import org.apache.geode.internal.cache.control.ResourceListener;
 import org.apache.geode.internal.cache.control.TestMemoryThresholdListener;
-import org.apache.geode.internal.cache.partitioned.RegionAdvisor;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.DistributedTestUtils;
@@ -124,9 +116,9 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
   private final SerializableCallable resetResourceManager = new SerializableCallable() {
     @Override
     public Object call() throws Exception {
-      InternalResourceManager irm = getCache().getInternalResourceManager();
-      Set<ResourceListener<?>> listeners = irm.getResourceListeners(ResourceType.OFFHEAP_MEMORY);
-      for (final ResourceListener<?> l : listeners) {
+      var irm = getCache().getInternalResourceManager();
+      var listeners = irm.getResourceListeners(ResourceType.OFFHEAP_MEMORY);
+      for (final var l : listeners) {
         if (l instanceof TestMemoryThresholdListener) {
           ((TestMemoryThresholdListener) l).resetThresholdCalls();
         }
@@ -140,11 +132,11 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testEventDelivery() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
 
-    final String regionName = "offHeapEventDelivery";
+    final var regionName = "offHeapEventDelivery";
 
     startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
@@ -237,11 +229,11 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testDisabledThresholds() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
 
-    final String regionName = "offHeapDisabledThresholds";
+    final var regionName = "offHeapDisabledThresholds";
 
     startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
@@ -275,7 +267,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     server2.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        InternalResourceManager irm = getCache().getInternalResourceManager();
+        var irm = getCache().getInternalResourceManager();
         assertEquals(0, irm.getStats().getOffHeapEvictionStartEvents());
         assertEquals(0, irm.getStats().getOffHeapCriticalEvents());
         assertEquals(0, irm.getStats().getOffHeapCriticalThreshold());
@@ -341,7 +333,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     server.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ResourceManager irm = getCache().getResourceManager();
+        var irm = getCache().getResourceManager();
         irm.setCriticalOffHeapPercentage(criticalThreshold);
         irm.setEvictionOffHeapPercentage(evictionThreshold);
         return null;
@@ -354,14 +346,14 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testDistributedRegionRemoteClientPutRejection() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM client = host.getVM(2);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var client = host.getVM(2);
 
-    final String regionName = "offHeapDRRemoteClientPutReject";
+    final var regionName = "offHeapDRRemoteClientPutReject";
 
-    final int port1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
+    final var port1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
     startCacheServer(server2, 0f, 90f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
@@ -409,7 +401,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
   @Test
   public void testGettersAndSetters() {
     getSystem(getOffHeapProperties());
-    ResourceManager rm = getCache().getResourceManager();
+    var rm = getCache().getResourceManager();
     assertEquals(0.0f, rm.getCriticalOffHeapPercentage(), 0);
     assertEquals(0.0f, rm.getEvictionOffHeapPercentage(), 0);
 
@@ -432,11 +424,11 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
    */
   private void doDistributedRegionRemotePutRejection(boolean localDestroy, boolean cacheClose)
       throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
 
-    final String regionName = "offHeapDRRemotePutRejection";
+    final var regionName = "offHeapDRRemotePutRejection";
 
     // set port to 0 in-order for system to pickup a random port.
     startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
@@ -461,7 +453,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     // make sure that local server1 puts are rejected
     doPuts(server1, regionName, false/* catchRejectedException */,
         true/* catchLowMemoryException */);
-    Range r1 = new Range(Range.DEFAULT, Range.DEFAULT.width() + 1);
+    var r1 = new Range(Range.DEFAULT, Range.DEFAULT.width() + 1);
     doPutAlls(server1, regionName, false/* catchRejectedException */,
         true/* catchLowMemoryException */, r1);
 
@@ -491,7 +483,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     server1.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "remote localRegionDestroyed message not received";
@@ -499,7 +491,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
           @Override
           public boolean done() {
-            DistributedRegion dr = (DistributedRegion) getRootRegion().getSubregion(regionName);
+            var dr = (DistributedRegion) getRootRegion().getSubregion(regionName);
             return dr.getAtomicThresholdInfo().getMembersThatReachedThreshold().size() == 0;
           }
         };
@@ -511,7 +503,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     // make sure puts succeed
     doPuts(server1, regionName, false/* catchRejectedException */,
         false/* catchLowMemoryException */);
-    Range r2 = new Range(r1, r1.width() + 1);
+    var r2 = new Range(r1, r1.width() + 1);
     doPutAlls(server1, regionName, false/* catchRejectedException */,
         false/* catchLowMemoryException */, r2);
   }
@@ -523,10 +515,10 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testDRLoadRejection() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM replicate1 = host.getVM(1);
-    final VM replicate2 = host.getVM(2);
-    final String rName = getUniqueName();
+    final var host = Host.getHost(0);
+    final var replicate1 = host.getVM(1);
+    final var replicate2 = host.getVM(2);
+    final var rName = getUniqueName();
 
     // Make sure the desired VMs will have a fresh DS.
     AsyncInvocation d1 = replicate1.invokeAsync(JUnit4DistributedTestCase::disconnectFromDS);
@@ -535,7 +527,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     assertFalse(d1.exceptionOccurred());
     d2.join();
     assertFalse(d2.exceptionOccurred());
-    CacheSerializableRunnable establishConnectivity =
+    var establishConnectivity =
         new CacheSerializableRunnable("establishcConnectivity") {
           @SuppressWarnings("synthetic-access")
           @Override
@@ -546,21 +538,21 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     replicate1.invoke(establishConnectivity);
     replicate2.invoke(establishConnectivity);
 
-    CacheSerializableRunnable createRegion =
+    var createRegion =
         new CacheSerializableRunnable("create DistributedRegion") {
           @Override
           public void run2() throws CacheException {
             // Assert some level of connectivity
-            InternalDistributedSystem ds = getSystem(getOffHeapProperties());
+            var ds = getSystem(getOffHeapProperties());
             assertTrue(ds.getDistributionManager().getNormalDistributionManagerIds().size() >= 1);
 
-            InternalResourceManager irm = (InternalResourceManager) getCache().getResourceManager();
+            var irm = (InternalResourceManager) getCache().getResourceManager();
             irm.setCriticalOffHeapPercentage(90f);
-            AttributesFactory af = new AttributesFactory();
+            var af = new AttributesFactory();
             af.setScope(Scope.DISTRIBUTED_ACK);
             af.setDataPolicy(DataPolicy.REPLICATE);
             af.setOffHeap(true);
-            Region region = getCache().createRegion(rName, af.create());
+            var region = getCache().createRegion(rName, af.create());
           }
         };
     replicate1.invoke(createRegion);
@@ -569,19 +561,19 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     replicate1.invoke(addExpectedException);
     replicate2.invoke(addExpectedException);
 
-    final Integer expected =
+    final var expected =
         (Integer) replicate1.invoke(new SerializableCallable("test Local DistributedRegion Load") {
           @Override
           public Object call() throws Exception {
-            final DistributedRegion r = (DistributedRegion) getCache().getRegion(rName);
+            final var r = (DistributedRegion) getCache().getRegion(rName);
             AttributesMutator<Integer, String> am = r.getAttributesMutator();
             am.setCacheLoader(new CacheLoader<Integer, String>() {
               final AtomicInteger numLoaderInvocations = new AtomicInteger(0);
 
               @Override
               public String load(LoaderHelper<Integer, String> helper) throws CacheLoaderException {
-                Integer expectedInvocations = (Integer) helper.getArgument();
-                final int actualInvocations = numLoaderInvocations.getAndIncrement();
+                var expectedInvocations = (Integer) helper.getArgument();
+                final var actualInvocations = numLoaderInvocations.getAndIncrement();
                 if (expectedInvocations != actualInvocations) {
                   throw new CacheLoaderException("Expected " + expectedInvocations
                       + " invocations, actual is " + actualInvocations);
@@ -593,8 +585,8 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
               public void close() {}
             });
 
-            int expectedInvocations = 0;
-            final OffHeapMemoryMonitor ohmm =
+            var expectedInvocations = 0;
+            final var ohmm =
                 ((InternalResourceManager) getCache().getResourceManager()).getOffHeapMonitor();
             assertFalse(ohmm.getState().isCritical());
             {
@@ -605,7 +597,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
             r.put("oh1", new byte[838860]);
             r.put("oh3", new byte[157287]);
 
-            WaitCriterion wc = new WaitCriterion() {
+            var wc = new WaitCriterion() {
               @Override
               public String description() {
                 return "expected region " + r + " to set memoryThreshold";
@@ -643,7 +635,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
           }
         });
 
-    final CacheSerializableRunnable validateData1 =
+    final var validateData1 =
         new CacheSerializableRunnable("Validate data 1") {
           @Override
           public void run2() throws CacheException {
@@ -665,8 +657,8 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     replicate2.invoke(new SerializableCallable("test DistributedRegion netLoad") {
       @Override
       public Object call() throws Exception {
-        final DistributedRegion r = (DistributedRegion) getCache().getRegion(rName);
-        final OffHeapMemoryMonitor ohmm =
+        final var r = (DistributedRegion) getCache().getRegion(rName);
+        final var ohmm =
             ((InternalResourceManager) getCache().getResourceManager()).getOffHeapMonitor();
         assertFalse(ohmm.getState().isCritical());
 
@@ -678,7 +670,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
         // Place in a critical state for the next test
         r.put("oh3", new byte[157287]);
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "expected region " + r + " to set memoryThreshold";
@@ -719,7 +711,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     replicate1.invoke(removeExpectedException);
     replicate2.invoke(removeExpectedException);
 
-    final CacheSerializableRunnable validateData2 =
+    final var validateData2 =
         new CacheSerializableRunnable("Validate data 2") {
           @Override
           public void run2() throws CacheException {
@@ -790,15 +782,15 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
   private void prRemotePutRejection(boolean cacheClose, boolean localDestroy, final boolean useTx)
       throws Exception {
-    final Host host = Host.getHost(0);
-    final VM accessor = host.getVM(0);
-    final VM[] servers = new VM[3];
+    final var host = Host.getHost(0);
+    final var accessor = host.getVM(0);
+    final var servers = new VM[3];
     servers[0] = host.getVM(1);
     servers[1] = host.getVM(2);
     servers[2] = host.getVM(3);
 
-    final String regionName = "offHeapPRRemotePutRejection";
-    final int redundancy = 1;
+    final var regionName = "offHeapPRRemotePutRejection";
+    final var redundancy = 1;
 
     startCacheServer(servers[0], 0f, 90f, regionName, true/* createPR */,
         false/* notifyBySubscription */, redundancy);
@@ -811,8 +803,8 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
       public Object call() throws Exception {
         getSystem(getOffHeapProperties());
         getCache();
-        AttributesFactory factory = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var factory = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(redundancy);
         paf.setLocalMaxMemory(0);
         paf.setTotalNumBuckets(11);
@@ -824,7 +816,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     });
 
     doPuts(accessor, regionName, false, false);
-    final Range r1 = Range.DEFAULT;
+    final var r1 = Range.DEFAULT;
     doPutAlls(accessor, regionName, false, false, r1);
 
     servers[0].invoke(addExpectedException);
@@ -836,9 +828,9 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
         (Set) servers[0].invoke(new SerializableCallable() {
           @Override
           public Object call() throws Exception {
-            final PartitionedRegion pr =
+            final var pr =
                 (PartitionedRegion) getRootRegion().getSubregion(regionName);
-            final int hashKey = PartitionedRegionHelper.getHashKey(pr, null, "oh5", null, null);
+            final var hashKey = PartitionedRegionHelper.getHashKey(pr, null, "oh5", null, null);
             return pr.getRegionAdvisor().getBucketOwners(hashKey);
           }
         });
@@ -846,8 +838,8 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     accessor.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
-        WaitCriterion wc = new WaitCriterion() {
+        final var pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "remote bucket not marked sick";
@@ -855,13 +847,13 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
           @Override
           public boolean done() {
-            boolean keyFoundOnSickMember = false;
-            boolean caughtException = false;
-            for (int i = 0; i < 20; i++) {
+            var keyFoundOnSickMember = false;
+            var caughtException = false;
+            for (var i = 0; i < 20; i++) {
               Integer key = i;
-              int hKey = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
-              Set<InternalDistributedMember> owners = pr.getRegionAdvisor().getBucketOwners(hKey);
-              final boolean hasCriticalOwners = owners.removeAll(criticalMembers);
+              var hKey = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
+              var owners = pr.getRegionAdvisor().getBucketOwners(hKey);
+              final var hasCriticalOwners = owners.removeAll(criticalMembers);
               if (hasCriticalOwners) {
                 keyFoundOnSickMember = true;
                 try {
@@ -893,20 +885,20 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     });
 
     {
-      Range r2 = new Range(r1, r1.width() + 1);
+      var r2 = new Range(r1, r1.width() + 1);
       doPutAlls(accessor, regionName, false, true, r2);
     }
 
     // Find all VMs that have a critical region
-    SerializableCallable getMyId = new SerializableCallable() {
+    var getMyId = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         return getCache().getMyId();
       }
     };
     final Set<VM> criticalServers = new HashSet<>();
-    for (final VM server : servers) {
-      DistributedMember member = (DistributedMember) server.invoke(getMyId);
+    for (final var server : servers) {
+      var member = (DistributedMember) server.invoke(getMyId);
       if (criticalMembers.contains(member)) {
         criticalServers.add(server);
       }
@@ -914,7 +906,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
     if (localDestroy) {
       // local destroy the region on sick members
-      for (final VM vm : criticalServers) {
+      for (final var vm : criticalServers) {
         vm.invoke(new SerializableCallable("local destroy sick member") {
           @Override
           public Object call() throws Exception {
@@ -927,7 +919,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
       }
     } else if (cacheClose) {
       // close cache on sick members
-      for (final VM vm : criticalServers) {
+      for (final var vm : criticalServers) {
         vm.invoke(new SerializableCallable("close cache sick member") {
           @Override
           public Object call() throws Exception {
@@ -948,7 +940,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
       @Override
       public Object call() throws Exception {
         final Region r = getRootRegion().getSubregion(regionName);
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "pr should have gone un-critical";
@@ -956,8 +948,8 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
           @Override
           public boolean done() {
-            boolean done = true;
-            for (int i = 0; i < 20; i++) {
+            var done = true;
+            for (var i = 0; i < 20; i++) {
               try {
                 r.put(i, "value");
               } catch (LowMemoryException e) {
@@ -981,10 +973,10 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testPRLoadRejection() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM accessor = host.getVM(1);
-    final VM ds1 = host.getVM(2);
-    final String rName = getUniqueName();
+    final var host = Host.getHost(0);
+    final var accessor = host.getVM(1);
+    final var ds1 = host.getVM(2);
+    final var rName = getUniqueName();
 
     // Make sure the desired VMs will have a fresh DS. TODO: convert these from AsyncInvocation to
     // invoke
@@ -1001,9 +993,9 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
       createPR(rName, true);
     });
 
-    final AtomicInteger expectedInvocations = new AtomicInteger(0);
+    final var expectedInvocations = new AtomicInteger(0);
 
-    Integer ex = (Integer) accessor
+    var ex = (Integer) accessor
         .invoke(new SerializableCallable("Invoke loader from accessor, non-critical") {
           @Override
           public Object call() throws Exception {
@@ -1032,7 +1024,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
             Integer expectedInvocations2 = expectedInvocations.get();
             assertEquals(k.toString(), r.get(k, expectedInvocations2)); // no load
             assertEquals(k.toString(), r.get(k, expectedInvocations2)); // no load
-            String oldVal = r.remove(k);
+            var oldVal = r.remove(k);
             assertFalse(r.containsKey(k));
             assertEquals(k.toString(), oldVal);
             return expectedInvocations2;
@@ -1047,15 +1039,15 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
         .invoke(new SerializableCallable("Set critical state, assert local load behavior") {
           @Override
           public Object call() throws Exception {
-            final OffHeapMemoryMonitor ohmm =
+            final var ohmm =
                 ((InternalResourceManager) getCache().getResourceManager()).getOffHeapMonitor();
-            final PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(rName);
-            final RegionAdvisor advisor = pr.getRegionAdvisor();
+            final var pr = (PartitionedRegion) getCache().getRegion(rName);
+            final var advisor = pr.getRegionAdvisor();
 
             pr.put("oh1", new byte[838860]);
             pr.put("oh3", new byte[157287]);
 
-            WaitCriterion wc = new WaitCriterion() {
+            var wc = new WaitCriterion() {
               @Override
               public String description() {
                 return "verify critical state";
@@ -1063,7 +1055,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
               @Override
               public boolean done() {
-                for (final ProxyBucketRegion bucket : advisor.getProxyBucketArray()) {
+                for (final var bucket : advisor.getProxyBucketArray()) {
                   if (bucket.isBucketSick()) {
                     return true;
                   }
@@ -1109,12 +1101,12 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
         new SerializableCallable("Set safe state on datastore, assert local load behavior") {
           @Override
           public Object call() throws Exception {
-            final PartitionedRegion r = (PartitionedRegion) getCache().getRegion(rName);
-            final OffHeapMemoryMonitor ohmm =
+            final var r = (PartitionedRegion) getCache().getRegion(rName);
+            final var ohmm =
                 ((InternalResourceManager) getCache().getResourceManager()).getOffHeapMonitor();
 
             r.destroy("oh3");
-            WaitCriterion wc = new WaitCriterion() {
+            var wc = new WaitCriterion() {
               @Override
               public String description() {
                 return "verify critical state";
@@ -1140,25 +1132,25 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
         "Data store in safe state, assert load behavior, accessor sets critical state, assert load behavior") {
       @Override
       public Object call() throws Exception {
-        final OffHeapMemoryMonitor ohmm =
+        final var ohmm =
             ((InternalResourceManager) getCache().getResourceManager()).getOffHeapMonitor();
         assertFalse(ohmm.getState().isCritical());
         Integer k = 4;
         Integer expectedInvocations9 = expectedInvocations.incrementAndGet();
-        final PartitionedRegion r = (PartitionedRegion) getCache().getRegion(rName);
+        final var r = (PartitionedRegion) getCache().getRegion(rName);
         assertEquals(k.toString(), r.get(k, expectedInvocations9)); // load for 4
         assertTrue(r.containsKey(k));
         assertEquals(k.toString(), r.get(k, expectedInvocations9)); // no load
 
         // Go critical in accessor by creating entries in local node
-        String localRegionName = "localRegionName";
-        AttributesFactory<Integer, String> af = getLocalRegionAttributesFactory();
-        final LocalRegion localRegion =
+        var localRegionName = "localRegionName";
+        var af = getLocalRegionAttributesFactory();
+        final var localRegion =
             (LocalRegion) getCache().createRegion(localRegionName, af.create());
         localRegion.put("oh1", new byte[838860]);
         localRegion.put("oh3", new byte[157287]);
 
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "verify critical state";
@@ -1202,17 +1194,17 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
   private void createPR(final String rName, final boolean accessor) {
     getSystem(getOffHeapProperties());
-    InternalResourceManager irm = (InternalResourceManager) getCache().getResourceManager();
+    var irm = (InternalResourceManager) getCache().getResourceManager();
     irm.setCriticalOffHeapPercentage(90f);
-    AttributesFactory<Integer, String> af = new AttributesFactory<>();
+    var af = new AttributesFactory<Integer, String>();
     if (!accessor) {
       af.setCacheLoader(new CacheLoader<Integer, String>() {
         final AtomicInteger numLoaderInvocations = new AtomicInteger(0);
 
         @Override
         public String load(LoaderHelper<Integer, String> helper) throws CacheLoaderException {
-          Integer expectedInvocations = (Integer) helper.getArgument();
-          final int actualInvocations = numLoaderInvocations.getAndIncrement();
+          var expectedInvocations = (Integer) helper.getArgument();
+          final var actualInvocations = numLoaderInvocations.getAndIncrement();
           if (expectedInvocations != actualInvocations) {
             throw new CacheLoaderException("Expected " + expectedInvocations
                 + " invocations, actual is " + actualInvocations + " for key " + helper.getKey());
@@ -1238,9 +1230,9 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testLRLoadRejection() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM vm = host.getVM(2);
-    final String rName = getUniqueName();
+    final var host = Host.getHost(0);
+    final var vm = host.getVM(2);
+    final var rName = getUniqueName();
 
     vm.invoke(JUnit4DistributedTestCase::disconnectFromDS);
 
@@ -1248,11 +1240,11 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         getSystem(getOffHeapProperties());
-        InternalResourceManager irm = (InternalResourceManager) getCache().getResourceManager();
-        final OffHeapMemoryMonitor ohmm = irm.getOffHeapMonitor();
+        var irm = (InternalResourceManager) getCache().getResourceManager();
+        final var ohmm = irm.getOffHeapMonitor();
         irm.setCriticalOffHeapPercentage(90f);
-        AttributesFactory<Integer, String> af = getLocalRegionAttributesFactory();
-        final AtomicInteger numLoaderInvocations = new AtomicInteger(0);
+        var af = getLocalRegionAttributesFactory();
+        final var numLoaderInvocations = new AtomicInteger(0);
         af.setCacheLoader(new CacheLoader<Integer, String>() {
           @Override
           public String load(LoaderHelper<Integer, String> helper) throws CacheLoaderException {
@@ -1263,10 +1255,10 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
           @Override
           public void close() {}
         });
-        final LocalRegion r = (LocalRegion) getCache().createRegion(rName, af.create());
+        final var r = (LocalRegion) getCache().createRegion(rName, af.create());
 
         assertFalse(ohmm.getState().isCritical());
-        int expectedInvocations = 0;
+        var expectedInvocations = 0;
         assertEquals(expectedInvocations++, numLoaderInvocations.get());
         {
           Integer k = 1;
@@ -1282,7 +1274,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
         r.put("oh1", new byte[838860]);
         r.put("oh3", new byte[157287]);
         getCache().getLogger().fine(removeExpectedExString);
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "expected region " + r + " to set memoryThresholdReached";
@@ -1331,7 +1323,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
         assertEquals(expectedInvocations, numLoaderInvocations.get());
 
         // Do extra validation that the entry doesn't exist in the local region
-        for (Integer i : createRanges(2, 2, 13, 15)) {
+        for (var i : createRanges(2, 2, 13, 15)) {
           if (r.containsKey(i)) {
             fail("Expected containsKey return false for key" + i);
           }
@@ -1344,7 +1336,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
   }
 
   private AttributesFactory<Integer, String> getLocalRegionAttributesFactory() {
-    AttributesFactory<Integer, String> af = new AttributesFactory<>();
+    var af = new AttributesFactory<Integer, String>();
     af.setScope(Scope.LOCAL);
     af.setOffHeap(true);
     return af;
@@ -1357,13 +1349,13 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
    */
   public static List<Integer> createRanges(int... startEnds) {
     assert startEnds.length % 2 == 0;
-    ArrayList<Integer> ret = new ArrayList<>();
-    for (int si = 0; si < startEnds.length; si++) {
-      final int start = startEnds[si++];
-      final int end = startEnds[si];
+    var ret = new ArrayList<Integer>();
+    for (var si = 0; si < startEnds.length; si++) {
+      final var start = startEnds[si++];
+      final var end = startEnds[si];
       assert end >= start;
       ret.ensureCapacity(ret.size() + ((end - start) + 1));
-      for (int i = start; i <= end; i++) {
+      for (var i = start; i <= end; i++) {
         ret.add(i);
       }
     }
@@ -1372,12 +1364,12 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testCleanAdvisorClose() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM server3 = host.getVM(2);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var server3 = host.getVM(2);
 
-    final String regionName = "testEventOrder";
+    final var regionName = "testEventOrder";
 
     startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
@@ -1451,7 +1443,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
       public Object call() throws Exception {
         Region r = getRootRegion().getSubregion(regionName);
         Map<Integer, String> temp = new HashMap<>();
-        for (int i = rng.start; i < rng.end; i++) {
+        for (var i = rng.start; i < rng.end; i++) {
           Integer k = i;
           temp.put(k, "value-" + i);
         }
@@ -1460,7 +1452,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
           if (catchServerException || catchLowMemoryException) {
             fail("An expected ResourceException was not thrown");
           }
-          for (Map.Entry<Integer, String> me : temp.entrySet()) {
+          for (var me : temp.entrySet()) {
             assertEquals(me.getValue(), r.get(me.getKey()));
           }
         } catch (ServerOperationException ex) {
@@ -1470,7 +1462,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
           if (!(ex.getCause() instanceof LowMemoryException)) {
             Assert.fail("Unexpected exception: ", ex);
           }
-          for (Integer me : temp.keySet()) {
+          for (var me : temp.keySet()) {
             assertFalse("Key " + me + " should not exist", r.containsKey(me));
           }
         } catch (LowMemoryException low) {
@@ -1478,7 +1470,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
           if (!catchLowMemoryException) {
             Assert.fail("Unexpected exception: ", low);
           }
-          for (Integer me : temp.keySet()) {
+          for (var me : temp.keySet()) {
             assertFalse("Key " + me + " should not exist", r.containsKey(me));
           }
         }
@@ -1489,13 +1481,13 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
   private void doClientServerTest(final String regionName, boolean createPR) throws Exception {
     // create region on the server
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
     final Object bigKey = -1;
     final Object smallKey = -2;
 
-    final int port = startCacheServer(server, 0f, 90f, regionName, createPR, false, 0);
+    final var port = startCacheServer(server, 0f, 90f, regionName, createPR, false, 0);
     startClient(client, server, port, regionName);
     doPuts(client, regionName, false/* catchServerException */, false/* catchLowMemoryException */);
     doPutAlls(client, regionName, false/* catchServerException */,
@@ -1503,17 +1495,17 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
 
 
     // make the region sick in the server
-    final long bytesUsedAfterSmallKey = (long) server.invoke(new SerializableCallable() {
+    final var bytesUsedAfterSmallKey = (long) server.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        InternalResourceManager irm = getCache().getInternalResourceManager();
-        final OffHeapMemoryMonitor ohm = irm.getOffHeapMonitor();
+        var irm = getCache().getInternalResourceManager();
+        final var ohm = irm.getOffHeapMonitor();
         assertTrue(ohm.getState().isNormal());
         getCache().getLogger().fine(addExpectedExString);
-        final LocalRegion r = (LocalRegion) getRootRegion().getSubregion(regionName);
+        final var r = (LocalRegion) getRootRegion().getSubregion(regionName);
         final long bytesUsedAfterSmallKey;
         {
-          OffHeapMemoryMonitorObserverImpl _testHook = new OffHeapMemoryMonitorObserverImpl();
+          var _testHook = new OffHeapMemoryMonitorObserverImpl();
           ohm.testHook = _testHook;
           try {
             r.put(smallKey, "1234567890");
@@ -1523,12 +1515,12 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
           }
         }
         {
-          final OffHeapMemoryMonitorObserverImpl th = new OffHeapMemoryMonitorObserverImpl();
+          final var th = new OffHeapMemoryMonitorObserverImpl();
           ohm.testHook = th;
           try {
             r.put(bigKey, new byte[943720]);
             th.verifyBeginUpdateMemoryUsed(bytesUsedAfterSmallKey + 943720 + 8, true);
-            WaitCriterion waitForCritical = new WaitCriterion() {
+            var waitForCritical = new WaitCriterion() {
               @Override
               public boolean done() {
                 return th.checkUpdateStateAndSendEventBeforeProcess(
@@ -1549,8 +1541,8 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
         }
         WaitCriterion wc;
         if (r instanceof PartitionedRegion) {
-          final PartitionedRegion pr = (PartitionedRegion) r;
-          final int bucketId = PartitionedRegionHelper.getHashKey(pr, null, bigKey, null, null);
+          final var pr = (PartitionedRegion) r;
+          final var bucketId = PartitionedRegionHelper.getHashKey(pr, null, bigKey, null, null);
           wc = new WaitCriterion() {
             @Override
             public String description() {
@@ -1600,11 +1592,11 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     server.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        InternalResourceManager irm = getCache().getInternalResourceManager();
-        final OffHeapMemoryMonitor ohm = irm.getOffHeapMonitor();
+        var irm = getCache().getInternalResourceManager();
+        final var ohm = irm.getOffHeapMonitor();
         assertTrue(ohm.getState().isCritical());
         getCache().getLogger().fine(addExpectedBelow);
-        OffHeapMemoryMonitorObserverImpl _testHook = new OffHeapMemoryMonitorObserverImpl();
+        var _testHook = new OffHeapMemoryMonitorObserverImpl();
         ohm.testHook = _testHook;
         try {
           getRootRegion().getSubregion(regionName).destroy(bigKey);
@@ -1612,7 +1604,7 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
         } finally {
           ohm.testHook = null;
         }
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "Expected to go normal";
@@ -1714,8 +1706,8 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        TestMemoryThresholdListener listener = new TestMemoryThresholdListener();
-        InternalResourceManager irm = getCache().getInternalResourceManager();
+        var listener = new TestMemoryThresholdListener();
+        var irm = getCache().getInternalResourceManager();
         irm.addResourceListener(ResourceType.OFFHEAP_MEMORY, listener);
         assertTrue(irm.getResourceListeners(ResourceType.OFFHEAP_MEMORY).contains(listener));
         return null;
@@ -1731,15 +1723,15 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
       @Override
       public Object call() throws Exception {
         getSystem(getOffHeapProperties());
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
 
-        InternalResourceManager irm = cache.getInternalResourceManager();
+        var irm = cache.getInternalResourceManager();
         irm.setEvictionOffHeapPercentage(evictionThreshold);
         irm.setCriticalOffHeapPercentage(criticalThreshold);
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         if (createPR) {
-          PartitionAttributesFactory paf = new PartitionAttributesFactory();
+          var paf = new PartitionAttributesFactory();
           paf.setRedundantCopies(prRedundancy);
           paf.setTotalNumBuckets(11);
           factory.setPartitionAttributes(paf.create());
@@ -1749,13 +1741,13 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
           factory.setDataPolicy(DataPolicy.REPLICATE);
           factory.setOffHeap(true);
         }
-        Region region = createRegion(regionName, factory.create());
+        var region = createRegion(regionName, factory.create());
         if (createPR) {
           assertTrue(region instanceof PartitionedRegion);
         } else {
           assertTrue(region instanceof DistributedRegion);
         }
-        CacheServer cacheServer = getCache().addCacheServer();
+        var cacheServer = getCache().addCacheServer();
         cacheServer.setPort(0);
         cacheServer.setNotifyBySubscription(notifyBySubscription);
         cacheServer.start();
@@ -1773,11 +1765,11 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
         getSystem(getClientProps());
         getCache();
 
-        PoolFactory pf = PoolManager.createFactory();
+        var pf = PoolManager.createFactory();
         pf.addServer(NetworkUtils.getServerHostName(server.getHost()), serverPort);
         pf.create("pool1");
 
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.LOCAL);
         af.setPoolName("pool1");
         createRegion(regionName, af.create());
@@ -1803,16 +1795,16 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
       @Override
       public Object call() throws Exception {
         WaitCriterion wc = null;
-        Set<ResourceListener<?>> listeners = getGemfireCache().getInternalResourceManager()
+        var listeners = getGemfireCache().getInternalResourceManager()
             .getResourceListeners(ResourceType.OFFHEAP_MEMORY);
         TestMemoryThresholdListener tmp_listener = null;
-        for (final ResourceListener<?> l : listeners) {
+        for (final var l : listeners) {
           if (l instanceof TestMemoryThresholdListener) {
             tmp_listener = (TestMemoryThresholdListener) l;
             break;
           }
         }
-        final TestMemoryThresholdListener listener = tmp_listener;
+        final var listener = tmp_listener;
         switch (state) {
           case CRITICAL:
             if (useWaitCriterion) {
@@ -1914,9 +1906,9 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        InternalResourceManager irm = getCache().getInternalResourceManager();
-        final ResourceAdvisor ra = irm.getResourceAdvisor();
-        WaitCriterion wc = new WaitCriterion() {
+        var irm = getCache().getInternalResourceManager();
+        final var ra = irm.getResourceAdvisor();
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "verify profiles failed. Current profiles: " + ra.adviseGeneric();
@@ -1934,14 +1926,14 @@ public class MemoryThresholdsOffHeapDUnitTest extends ClientServerTestCase {
   }
 
   private Properties getOffHeapProperties() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(LOCATORS, "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
     p.setProperty(OFF_HEAP_MEMORY_SIZE, "1m");
     return p;
   }
 
   protected Properties getClientProps() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(LOCATORS, "");
     return p;

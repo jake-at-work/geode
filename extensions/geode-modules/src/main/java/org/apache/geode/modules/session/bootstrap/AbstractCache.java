@@ -123,7 +123,7 @@ public abstract class AbstractCache {
   }
 
   private String getLogFileName() {
-    String logFileName = getGemFireProperties().get(LOG_FILE);
+    var logFileName = getGemFireProperties().get(LOG_FILE);
     if (logFileName == null) {
       logFileName = DEFAULT_LOG_FILE_NAME;
     }
@@ -131,7 +131,7 @@ public abstract class AbstractCache {
   }
 
   private String getStatisticArchiveFileName() {
-    String statisticsArchiveFileName = getGemFireProperties().get(STATISTIC_ARCHIVE_FILE);
+    var statisticsArchiveFileName = getGemFireProperties().get(STATISTIC_ARCHIVE_FILE);
     if (statisticsArchiveFileName == null) {
       statisticsArchiveFileName = DEFAULT_STATISTIC_ARCHIVE_FILE_NAME;
     }
@@ -139,7 +139,7 @@ public abstract class AbstractCache {
   }
 
   private String getCacheXmlFileName() {
-    String cacheXmlFileName = getGemFireProperties().get(CACHE_XML_FILE);
+    var cacheXmlFileName = getGemFireProperties().get(CACHE_XML_FILE);
     if (cacheXmlFileName == null) {
       cacheXmlFileName = getDefaultCacheXmlFileName();
     }
@@ -147,8 +147,8 @@ public abstract class AbstractCache {
   }
 
   private File getCacheXmlFile() {
-    String cacheXmlFileName = getCacheXmlFileName();
-    File cacheXmlFile = new File(cacheXmlFileName);
+    var cacheXmlFileName = getCacheXmlFileName();
+    var cacheXmlFile = new File(cacheXmlFileName);
     // If the cache xml file is not absolute, point it at the conf directory.
     if (!cacheXmlFile.isAbsolute()) {
       if (System.getProperty("catalina.base") != null) {
@@ -193,10 +193,10 @@ public abstract class AbstractCache {
     }
 
     // Determine the validity of the input property (all those that start with security-* are valid)
-    boolean validProperty = name.startsWith(SECURITY_PREFIX);
+    var validProperty = name.startsWith(SECURITY_PREFIX);
     if (!validProperty) {
       // TODO: AbstractDistributionConfig is internal and _getAttNames is designed for testing.
-      for (String gemfireProperty : AbstractDistributionConfig._getAttNames()) {
+      for (var gemfireProperty : AbstractDistributionConfig._getAttNames()) {
         if (name.equals(gemfireProperty)) {
           validProperty = true;
           break;
@@ -218,14 +218,14 @@ public abstract class AbstractCache {
   }
 
   Properties createDistributedSystemProperties() {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     // Add any additional gemfire properties
     properties.putAll(gemfireProperties);
 
     // Replace the cache xml file in the properties
-    File cacheXmlFile = getCacheXmlFile();
-    String absoluteCacheXmlFileName = cacheXmlFile.getAbsolutePath();
+    var cacheXmlFile = getCacheXmlFile();
+    var absoluteCacheXmlFileName = cacheXmlFile.getAbsolutePath();
     // If the file doesn't exist and the name is the default, set cache-xml-file
     // to the GemFire default. This is for the case where only the jars have been
     // installed and no default cache.xml exists in the conf directory.
@@ -238,7 +238,7 @@ public abstract class AbstractCache {
     properties.put(LOG_FILE, getLogFile().getAbsolutePath());
 
     // Replace the statistics archive file in the properties
-    File statisticArchiveFile = getStatisticArchiveFile();
+    var statisticArchiveFile = getStatisticArchiveFile();
     if (statisticArchiveFile == null) {
       // Remove the statistics archive file name since statistic sampling is disabled
       properties.remove(STATISTIC_ARCHIVE_FILE);
@@ -252,15 +252,15 @@ public abstract class AbstractCache {
   }
 
   private File getLogFile() {
-    String logFileName = getLogFileName();
-    File logFile = new File(logFileName);
+    var logFileName = getLogFileName();
+    var logFile = new File(logFileName);
     // If the log file is not absolute, point it at the logs directory.
     if (!logFile.isAbsolute()) {
       if (System.getProperty("catalina.base") != null) {
         logFile = new File(System.getProperty("catalina.base") + "/logs/", logFileName);
       } else if (System.getProperty("weblogic.Name") != null) {
-        String weblogicName = System.getProperty("weblogic.Name");
-        String separator = System.getProperty("file.separator");
+        var weblogicName = System.getProperty("weblogic.Name");
+        var separator = System.getProperty("file.separator");
         logFile = new File(
             "servers" + separator + weblogicName + separator + "logs" + separator + logFileName);
       } else {
@@ -273,9 +273,9 @@ public abstract class AbstractCache {
 
   private File getStatisticArchiveFile() {
     File statisticsArchiveFile = null;
-    String statisticSamplingEnabled = getGemFireProperties().get(STATISTIC_SAMPLING_ENABLED);
+    var statisticSamplingEnabled = getGemFireProperties().get(STATISTIC_SAMPLING_ENABLED);
     if (statisticSamplingEnabled != null && statisticSamplingEnabled.equals("true")) {
-      String statisticsArchiveFileName = getStatisticArchiveFileName();
+      var statisticsArchiveFileName = getStatisticArchiveFileName();
       statisticsArchiveFile = new File(statisticsArchiveFileName);
       // If the statistics archive file is not absolute, point it at the logs directory.
       if (!statisticsArchiveFile.isAbsolute()) {
@@ -283,8 +283,8 @@ public abstract class AbstractCache {
           statisticsArchiveFile =
               new File(System.getProperty("catalina.base") + "/logs/", statisticsArchiveFileName);
         } else if (System.getProperty("weblogic.Name") != null) {
-          String weblogicName = System.getProperty("weblogic.Name");
-          String separator = System.getProperty("file.separator");
+          var weblogicName = System.getProperty("weblogic.Name");
+          var separator = System.getProperty("file.separator");
           statisticsArchiveFile = new File("servers" + separator + weblogicName + separator + "logs"
               + separator + statisticsArchiveFileName);
         } else {
@@ -299,15 +299,15 @@ public abstract class AbstractCache {
 
   private void initializeResourceManager() {
     // Get current eviction and critical heap percentages
-    ResourceManager rm = getCache().getResourceManager();
-    float currentEvictionHeapPercentage = rm.getEvictionHeapPercentage();
-    float currentCriticalHeapPercentage = rm.getCriticalHeapPercentage();
+    var rm = getCache().getResourceManager();
+    var currentEvictionHeapPercentage = rm.getEvictionHeapPercentage();
+    var currentCriticalHeapPercentage = rm.getCriticalHeapPercentage();
 
     // Set new eviction and critical heap percentages if necessary
     if (getEvictionHeapPercentage() != currentEvictionHeapPercentage
         || getCriticalHeapPercentage() != currentCriticalHeapPercentage) {
       if (getLogger().isDebugEnabled()) {
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
         builder.append("Previous eviction heap percentage=").append(currentEvictionHeapPercentage)
             .append("; critical heap percentage=").append(currentCriticalHeapPercentage);
         getLogger().debug(builder.toString());
@@ -357,7 +357,7 @@ public abstract class AbstractCache {
         }
       }
       if (getLogger().isDebugEnabled()) {
-        String builder = "Actual eviction heap percentage=" + rm.getEvictionHeapPercentage()
+        var builder = "Actual eviction heap percentage=" + rm.getEvictionHeapPercentage()
             + "; critical heap percentage=" + rm.getCriticalHeapPercentage();
         getLogger().debug(builder);
       }
@@ -371,7 +371,7 @@ public abstract class AbstractCache {
 
   private void handleResourceManagerException(IllegalArgumentException e,
       float currentEvictionHeapPercentage, float currentCriticalHeapPercentage) {
-    String builder = "Caught exception attempting to set eviction heap percentage="
+    var builder = "Caught exception attempting to set eviction heap percentage="
         + getEvictionHeapPercentage() + " and critical heap percentage="
         + getCriticalHeapPercentage()
         + ". The percentages will be set back to their previous values (eviction heap percentage="

@@ -15,14 +15,10 @@
 package org.apache.geode.redis.internal.commands.executor.string;
 
 
-import java.util.List;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class AppendExecutor implements CommandExecutor {
@@ -31,10 +27,10 @@ public class AppendExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    Region<RedisKey, RedisData> region = context.getRegion();
-    List<byte[]> commandElems = command.getProcessedCommand();
-    RedisKey key = command.getKey();
-    byte[] bytesToAppend = commandElems.get(VALUE_INDEX);
+    var region = context.getRegion();
+    var commandElems = command.getProcessedCommand();
+    var key = command.getKey();
+    var bytesToAppend = commandElems.get(VALUE_INDEX);
 
     int returnValue = context.stringLockedExecute(key, false,
         string -> string.append(region, key, bytesToAppend));

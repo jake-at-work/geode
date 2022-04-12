@@ -100,7 +100,7 @@ public class RegionExpirationDistributedTest implements Serializable {
       regionFactory.setRegionTimeToLive(
           new ExpirationAttributes(TTL_SECONDS, verification.expirationAction()));
       regionFactory.addCacheListener(spyCacheListener);
-      Region<String, String> region = regionFactory.create(regionName);
+      var region = regionFactory.create(regionName);
 
       region.put(KEY, VALUE);
       assertThat(region.get(KEY)).isEqualTo(VALUE);

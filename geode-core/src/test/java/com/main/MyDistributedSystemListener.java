@@ -20,8 +20,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.internal.cache.wan.DistributedSystemListener;
 
 /**
@@ -51,7 +49,7 @@ public class MyDistributedSystemListener implements DistributedSystemListener {
     // remoteDsId = 2
     if (remoteDsId == 2) {
       if (cache != null) {
-        GatewaySender serialSender =
+        var serialSender =
             cache.createGatewaySenderFactory().setManualStart(true).setPersistenceEnabled(false)
                 .setDiskStoreName("LN_" + remoteDsId).create("LN_" + remoteDsId, remoteDsId);
         System.out.println("Sender Created : " + serialSender.getId());
@@ -76,7 +74,7 @@ public class MyDistributedSystemListener implements DistributedSystemListener {
         Region region = cache.createRegionFactory().create("MyRegion");
         System.out.println("Created Region :" + region.getName());
 
-        GatewayReceiver receiver =
+        var receiver =
             cache.createGatewayReceiverFactory().setStartPort(12345).setManualStart(true).create();
         System.out.println("Created GatewayReceiver : " + receiver);
         try {
@@ -95,11 +93,11 @@ public class MyDistributedSystemListener implements DistributedSystemListener {
     if (remoteDsId == 2) { // When a site with distributed-system-id = -2 joins, stop gatewaysender
                            // with remoteDsId = 2
       if (cache != null) {
-        GatewaySender sender = cache.getGatewaySender("LN_" + 2);
+        var sender = cache.getGatewaySender("LN_" + 2);
         sender.stop();
       }
     } else { // When a site with distributed-system-id = -1 joins, stop gatewayReceiver
-      GatewayReceiver receiver = cache.getGatewayReceivers().iterator().next();
+      var receiver = cache.getGatewayReceivers().iterator().next();
       receiver.stop();
     }
   }

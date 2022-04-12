@@ -38,7 +38,7 @@ public class LocatorLauncherJmxSerialFilterPropertyExistsIntegrationTest
   public void startDoesNotConfigureJmxSerialFilter_whenPropertyExists_onJava9orGreater() {
     assumeThat(isJavaVersionAtLeast(JAVA_9)).isTrue();
 
-    String existingJmxSerialFilter = "!*";
+    var existingJmxSerialFilter = "!*";
     System.setProperty(JMX_PROPERTY, existingJmxSerialFilter);
 
     locator.set(new LocatorLauncher.Builder()
@@ -65,7 +65,7 @@ public class LocatorLauncherJmxSerialFilterPropertyExistsIntegrationTest
   public void startDoesNotConfigureJmxSerialFilter_whenPropertyExists_onJava8() {
     assumeThat(isJavaVersionAtMost(JAVA_1_8)).isTrue();
 
-    String existingJmxSerialFilter = "!*";
+    var existingJmxSerialFilter = "!*";
     System.setProperty(JMX_PROPERTY, existingJmxSerialFilter);
 
     locator.set(new LocatorLauncher.Builder()

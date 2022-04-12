@@ -27,7 +27,6 @@ import org.apache.geode.internal.logging.Banner;
 import org.apache.geode.test.assertj.LogFileAssert;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.categories.LoggingTest;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 
@@ -41,9 +40,9 @@ public class GfshStartLocatorLogAcceptanceTest {
 
   @Before
   public void setUp() {
-    GfshExecution gfshExecution = GfshScript.of("start locator").execute(gfshRule);
-    File[] files = gfshExecution.getWorkingDir().listFiles();
-    String logName = files[0].getAbsolutePath() + "/" + files[0].getName() + ".log";
+    var gfshExecution = GfshScript.of("start locator").execute(gfshRule);
+    var files = gfshExecution.getWorkingDir().listFiles();
+    var logName = files[0].getAbsolutePath() + "/" + files[0].getName() + ".log";
     logFile = new File(logName);
   }
 

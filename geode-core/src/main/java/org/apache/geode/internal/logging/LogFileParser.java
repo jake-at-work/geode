@@ -112,11 +112,11 @@ public class LogFileParser {
     this.suppressBlanks = suppressBlanks;
     whiteFileName = new StringBuilder();
     if (tabOut) {
-      int numTabs = (logFileName.length() + 2) / 8;
-      for (int i = 0; i < numTabs; i++) {
+      var numTabs = (logFileName.length() + 2) / 8;
+      for (var i = 0; i < numTabs; i++) {
         whiteFileName.append('\t');
       }
-      for (int i = (logFileName.length() + 2) % 8; i > 0; i--) {
+      for (var i = (logFileName.length() + 2) % 8; i > 0; i--) {
         whiteFileName.append(' ');
       }
     }
@@ -139,7 +139,7 @@ public class LogFileParser {
    * timestamp, return null
    */
   private String getTimestamp(final String line) {
-    int llen = line.length();
+    var llen = line.length();
     String result = null;
     if (llen > 10) {
       // first see if the start of the line is a timestamp, as in a thread-dump's stamp
@@ -182,11 +182,11 @@ public class LogFileParser {
 
             line.charAt(1) == 's' && line.charAt(2) == 'e' && line.charAt(3) == 'c'
                 && line.charAt(4) == 'u' && line.charAt(5) == 'r') {
-          int sidx = 4;
+          var sidx = 4;
           while (sidx < llen && line.charAt(sidx) != ' ') {
             sidx++;
           }
-          int endIdx = sidx + 24;
+          var endIdx = sidx + 24;
           if (endIdx < llen) {
             result = line.substring(sidx + 1, endIdx + 1);
           }
@@ -204,12 +204,12 @@ public class LogFileParser {
     LogEntry entry = null;
 
     while (br.ready()) {
-      String lineStr = br.readLine();
+      var lineStr = br.readLine();
       if (lineStr == null) {
         break;
       }
-      int llen = lineStr.length();
-      int lend = llen;
+      var llen = lineStr.length();
+      var lend = llen;
       if (suppressBlanks || firstEntry) {
         // trim the end of the line
         while (lend > 1 && Character.isWhitespace(lineStr.charAt(lend - 1))) {
@@ -220,14 +220,14 @@ public class LogFileParser {
         }
       }
 
-      StringBuilder line = new StringBuilder(lineStr);
+      var line = new StringBuilder(lineStr);
       if (lend != llen) {
         line.setLength(lend);
         llen = lend;
       }
 
       // Matcher matcher = pattern.matcher(line);
-      String nextTimestamp = getTimestamp(lineStr);
+      var nextTimestamp = getTimestamp(lineStr);
 
       // See if we've found the beginning of a new log entry. If so, bundle
       // up the current string buffer and return it in a LogEntry representing
@@ -235,10 +235,10 @@ public class LogFileParser {
       if (nextTimestamp != null) {
 
         if (timestamp != null && TRIM_TIMESTAMPS) {
-          int tsl = timestamp.length();
+          var tsl = timestamp.length();
           if (tsl > 0) {
             // find where the year/mo/dy starts and delete it and the time zone
-            int start = 5;
+            var start = 5;
             if (line.charAt(start) != ' ') // info & fine
             {
               if (line.charAt(++start) != ' ') // finer & error
@@ -256,7 +256,7 @@ public class LogFileParser {
               line.delete(start + 25, start + 29); // time zone
               line.delete(start, start + 11); // date
               if (TRIM_NAMES) {
-                int idx2 = line.indexOf("<", +12);
+                var idx2 = line.indexOf("<", +12);
                 if (idx2 > start + 13) {
                   line.delete(start + 13, idx2 - 1);
                 }
@@ -264,7 +264,7 @@ public class LogFileParser {
             }
           }
           if (NEWLINE_AFTER_HEADER) {
-            int idx = line.indexOf("tid=");
+            var idx = line.indexOf("tid=");
             if (idx > 0) {
               idx = line.indexOf("]", idx + 4);
               if (idx + 1 < line.length()) {
@@ -291,15 +291,15 @@ public class LogFileParser {
 
       } else if (line.indexOf(FULL_THREAD_DUMP) != -1) {
         // JRockit-style thread dumps have time stamps!
-        String dump = lineStr;
+        var dump = lineStr;
         lineStr = br.readLine();
         if (lineStr == null) {
           break;
         }
-        DateFormat df = DateFormatter.createDateFormat("E MMM d HH:mm:ss yyyy");
+        var df = DateFormatter.createDateFormat("E MMM d HH:mm:ss yyyy");
         df.setLenient(true);
         try {
-          Date date = df.parse(lineStr);
+          var date = df.parse(lineStr);
 
           if (timestamp != null) {
             // We've found the end of a log entry
@@ -337,14 +337,14 @@ public class LogFileParser {
     if (timestamp == null) {
       // The file didn't contain any log entries. Just use the
       // current time
-      DateFormat df = DateFormatter.createDateFormat();
+      var df = DateFormatter.createDateFormat();
       // Date now = new Date();
       timestamp = df.format(new Date());
 
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw, true);
+      var sw = new StringWriter();
+      var pw = new PrintWriter(sw, true);
 
-      LocalLogWriter tempLogger = new LocalLogWriter(ALL.intLevel(), pw);
+      var tempLogger = new LocalLogWriter(ALL.intLevel(), pw);
       tempLogger.info("MISSING TIME STAMP");
       pw.flush();
       sb.insert(0, lineSeparator() + lineSeparator());
@@ -369,13 +369,13 @@ public class LogFileParser {
       ExitCode.FATAL.doSystemExit();
     }
 
-    String logFileName = args[0];
-    try (FileReader fileReader = new FileReader(logFileName);
-        BufferedReader br = new BufferedReader(fileReader)) {
-      LogFileParser parser = new LogFileParser(logFileName, br, false, false);
-      PrintWriter pw = new PrintWriter(System.out);
+    var logFileName = args[0];
+    try (var fileReader = new FileReader(logFileName);
+        var br = new BufferedReader(fileReader)) {
+      var parser = new LogFileParser(logFileName, br, false, false);
+      var pw = new PrintWriter(System.out);
       while (parser.hasMoreEntries()) {
-        LogEntry entry = parser.getNextEntry();
+        var entry = parser.getNextEntry();
         entry.writeTo(pw);
       }
     }

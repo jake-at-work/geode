@@ -67,9 +67,9 @@ public class DiskVersionTag extends VersionTag<DiskStoreID> {
 
   @Override
   public DiskStoreID readMember(DataInput in) throws IOException {
-    long mostSignificantBits = in.readLong();
-    long leastSignificantBits = in.readLong();
-    DiskStoreID member = new DiskStoreID(mostSignificantBits, leastSignificantBits);
+    var mostSignificantBits = in.readLong();
+    var leastSignificantBits = in.readLong();
+    var member = new DiskStoreID(mostSignificantBits, leastSignificantBits);
     return member;
   }
 

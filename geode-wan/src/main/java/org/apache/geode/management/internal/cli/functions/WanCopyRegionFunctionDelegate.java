@@ -38,7 +38,6 @@ import org.apache.geode.cache.client.internal.pooling.ConnectionDestroyedExcepti
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.DefaultEntryEventFactory;
 import org.apache.geode.internal.cache.DestroyedEntry;
 import org.apache.geode.internal.cache.EntryEventImpl;
@@ -50,7 +49,6 @@ import org.apache.geode.internal.cache.NonTXEntry;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.BatchException70;
-import org.apache.geode.internal.cache.wan.GatewaySenderEventDispatcher;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl.TransactionMetadataDisposition;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -103,24 +101,24 @@ public class WanCopyRegionFunctionDelegate implements Serializable {
     // updated that at the same time are read and copied by this command (those with
     // newer timestamp than the functionStartTimestamp will not be copied).
     Thread.sleep(waitBeforeCopyMs);
-    ConnectionState connectionState = new ConnectionState();
-    int copiedEntries = 0;
-    Iterator<?> entriesIter = getEntries(region, sender).iterator();
-    final long startTime = clock.millis();
+    var connectionState = new ConnectionState();
+    var copiedEntries = 0;
+    var entriesIter = getEntries(region, sender).iterator();
+    final var startTime = clock.millis();
 
     try {
       while (entriesIter.hasNext()) {
-        List<GatewayQueueEvent<?, ?>> batch =
+        var batch =
             createBatch((InternalRegion) region, sender, batchSize, cache, entriesIter);
         if (batch.size() == 0) {
           continue;
         }
-        Optional<CliFunctionResult> connectionError =
+        var connectionError =
             connectionState.connectIfNeeded(memberName, sender);
         if (connectionError.isPresent()) {
           return connectionError.get();
         }
-        Optional<CliFunctionResult> error =
+        var error =
             sendBatch(memberName, sender, batch, connectionState, copiedEntries);
         if (error.isPresent()) {
           return error.get();
@@ -148,9 +146,9 @@ public class WanCopyRegionFunctionDelegate implements Serializable {
   private Optional<CliFunctionResult> sendBatch(String memberName,
       GatewaySender sender, List<GatewayQueueEvent<?, ?>> batch,
       ConnectionState connectionState, int copiedEntries) {
-    GatewaySenderEventDispatcher dispatcher =
+    var dispatcher =
         ((AbstractGatewaySender) sender).getEventProcessor().getDispatcher();
-    int retries = 0;
+    var retries = 0;
 
     while (true) {
       try {
@@ -164,7 +162,7 @@ public class WanCopyRegionFunctionDelegate implements Serializable {
                 WAN_COPY_REGION__MSG__ERROR__AFTER__HAVING__COPIED,
                 e.getExceptions().get(0).getCause(), copiedEntries)));
       } catch (ConnectionDestroyedException | ServerConnectivityException e) {
-        Optional<CliFunctionResult> error =
+        var error =
             connectionState.reconnect(memberName, retries++, copiedEntries, e);
         if (error.isPresent()) {
           return error;
@@ -175,11 +173,11 @@ public class WanCopyRegionFunctionDelegate implements Serializable {
 
   private List<GatewayQueueEvent<?, ?>> createBatch(InternalRegion region, GatewaySender sender,
       int batchSize, InternalCache cache, Iterator<?> iter) {
-    int batchIndex = 0;
+    var batchIndex = 0;
     List<GatewayQueueEvent<?, ?>> batch = new ArrayList<>();
 
     while (iter.hasNext() && batchIndex < batchSize) {
-      GatewayQueueEvent<?, ?> event =
+      var event =
           eventCreator.createGatewaySenderEvent(cache, region, sender,
               (Region.Entry<?, ?>) iter.next(), functionStartTimestamp);
       if (event != null) {
@@ -209,7 +207,7 @@ public class WanCopyRegionFunctionDelegate implements Serializable {
   @VisibleForTesting
   void doPostSendBatchActions(long startTime, int copiedEntries, long maxRate)
       throws InterruptedException {
-    long sleepMs = getTimeToSleep(startTime, copiedEntries, maxRate);
+    var sleepMs = getTimeToSleep(startTime, copiedEntries, maxRate);
     if (sleepMs > 0) {
       logger.info("{}: Sleeping for {} ms to accommodate to requested maxRate",
           getClass().getSimpleName(), sleepMs);
@@ -233,11 +231,11 @@ public class WanCopyRegionFunctionDelegate implements Serializable {
     if (maxRate == 0) {
       return 0;
     }
-    final long elapsedMs = clock.millis() - startTime;
+    final var elapsedMs = clock.millis() - startTime;
     if (elapsedMs != 0 && (copiedEntries * 1000.0) / (double) elapsedMs <= maxRate) {
       return 0;
     }
-    final long targetElapsedMs = (copiedEntries * 1000L) / maxRate;
+    final var targetElapsedMs = (copiedEntries * 1000L) / maxRate;
     return targetElapsedMs - elapsedMs;
   }
 
@@ -366,11 +364,11 @@ public class WanCopyRegionFunctionDelegate implements Serializable {
         InternalRegion region,
         Region.Entry<?, ?> entry,
         long newestTimestampAllowed) {
-      EntryEventImpl event = createEvent(cache, region, entry, newestTimestampAllowed);
+      var event = createEvent(cache, region, entry, newestTimestampAllowed);
       if (event == null) {
         return null;
       }
-      BucketRegion bucketRegion = ((PartitionedRegion) event.getRegion()).getDataStore()
+      var bucketRegion = ((PartitionedRegion) event.getRegion()).getDataStore()
           .getLocalBucketById(event.getKeyInfo().getBucketId());
       if (bucketRegion != null) {
         bucketRegion.handleWANEvent(event);

@@ -58,7 +58,7 @@ public class Region extends GroupableConfiguration<RuntimeRegionInfo> {
 
   @Override
   public Links getLinks() {
-    Links links = new Links(getId(), REGION_CONFIG_ENDPOINT);
+    var links = new Links(getId(), REGION_CONFIG_ENDPOINT);
     links.addLink("indexes", links.getSelf() + "/indexes");
     return links;
   }
@@ -82,10 +82,10 @@ public class Region extends GroupableConfiguration<RuntimeRegionInfo> {
       return;
     }
 
-    boolean regionPrefixedWithSlash = value.startsWith(SEPARATOR);
-    String[] regionSplit = value.split(SEPARATOR);
+    var regionPrefixedWithSlash = value.startsWith(SEPARATOR);
+    var regionSplit = value.split(SEPARATOR);
 
-    boolean hasSubRegions =
+    var hasSubRegions =
         regionPrefixedWithSlash ? regionSplit.length > 2 : regionSplit.length > 1;
     if (hasSubRegions) {
       throw new IllegalArgumentException("Sub-regions are unsupported");
@@ -340,7 +340,7 @@ public class Region extends GroupableConfiguration<RuntimeRegionInfo> {
     if (!super.equals(o)) {
       return false;
     }
-    Region region = (Region) o;
+    var region = (Region) o;
     return Objects.equals(name, region.name) &&
         type == region.type &&
         Objects.equals(keyConstraint, region.keyConstraint) &&

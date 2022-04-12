@@ -30,7 +30,6 @@ import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.test.dunit.VM;
 
 /**
  * @since GemFire 6.0
@@ -48,7 +47,7 @@ public class PartitionedRegionMembershipListenerDUnitTest
 
   @Override
   protected RegionAttributes createSubRegionAttributes(CacheListener[] cacheListeners) {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     if (cacheListeners != null) {
       af.initCacheListeners(cacheListeners);
     }
@@ -59,7 +58,7 @@ public class PartitionedRegionMembershipListenerDUnitTest
 
   @Override
   protected List<DistributedMember> assertInitialMembers(DistributedMember otherId) {
-    List<DistributedMember> l = super.assertInitialMembers(otherId);
+    var l = super.assertInitialMembers(otherId);
     assertTrue(myPRListener.lastOpWasInitialMembers());
     assertEquals(l, myPRListener.getInitialMembers());
     return l;
@@ -74,9 +73,9 @@ public class PartitionedRegionMembershipListenerDUnitTest
   @Override
   protected void createRootRegionWithListener(final String rName) throws CacheException {
     super.createRootRegionWithListener(rName);
-    int to = getOpTimeout();
+    var to = getOpTimeout();
     myPRListener = new MyRML(to);
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.initCacheListeners(new CacheListener[] {myPRListener});
     af.setPartitionAttributes(
         new PartitionAttributesFactory().setTotalNumBuckets(5).setRedundantCopies(0).create());
@@ -87,11 +86,11 @@ public class PartitionedRegionMembershipListenerDUnitTest
   protected void createRootOtherVm(final String rName) {
     // TODO Auto-generated method stub
     super.createRootOtherVm(rName);
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("create PR root") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setPartitionAttributes(
             new PartitionAttributesFactory().setTotalNumBuckets(5).setRedundantCopies(0).create());
         createRootRegion(rName + "-pr", af.create());
@@ -103,7 +102,7 @@ public class PartitionedRegionMembershipListenerDUnitTest
   protected void destroyRootOtherVm(final String rName) {
     // TODO Auto-generated method stub
     super.destroyRootOtherVm(rName);
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("local destroy PR root") {
       @Override
       public void run2() throws CacheException {
@@ -115,7 +114,7 @@ public class PartitionedRegionMembershipListenerDUnitTest
   @Override
   protected void closeRootOtherVm(final String rName) {
     super.closeRootOtherVm(rName);
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("close PR root") {
       @Override
       public void run2() throws CacheException {

@@ -112,19 +112,19 @@ public class AvailablePort {
       MulticastSocket socket = null;
       try {
         socket = new MulticastSocket();
-        InetAddress localHost = LocalHostUtil.getLocalHost();
+        var localHost = LocalHostUtil.getLocalHost();
         socket.setInterface(localHost);
         socket.setSoTimeout(Integer.getInteger("AvailablePort.timeout", 2000));
         socket.setReuseAddress(true);
-        byte[] buffer = new byte[4];
+        var buffer = new byte[4];
         buffer[0] = (byte) 'p';
         buffer[1] = (byte) 'i';
         buffer[2] = (byte) 'n';
         buffer[3] = (byte) 'g';
-        InetAddress mcid = addr == null ? InetAddress.getByName(DEFAULT_MCAST_ADDRESS) : addr;
+        var mcid = addr == null ? InetAddress.getByName(DEFAULT_MCAST_ADDRESS) : addr;
         SocketAddress mcaddr = new InetSocketAddress(mcid, port);
         socket.joinGroup(mcid);
-        DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length, mcaddr);
+        var packet = new DatagramPacket(buffer, 0, buffer.length, mcaddr);
         socket.send(packet);
         try {
           socket.receive(packet);
@@ -176,7 +176,7 @@ public class AvailablePort {
   }
 
   private static boolean testOneInterface(InetAddress addr, int port) {
-    Keeper k = keepOneInterface(addr, port);
+    var k = keepOneInterface(addr, port);
     if (k != null) {
       k.release();
       return true;
@@ -196,7 +196,7 @@ public class AvailablePort {
       } else {
         server.bind(new InetSocketAddress(port));
       }
-      Keeper result = new Keeper(server, port);
+      var result = new Keeper(server, port);
       server = null;
       return result;
     } catch (java.io.IOException ioe) {
@@ -205,14 +205,14 @@ public class AvailablePort {
       }
       // ioe.printStackTrace();
       if (addr instanceof Inet6Address) {
-        byte[] addrBytes = addr.getAddress();
+        var addrBytes = addr.getAddress();
         if ((addrBytes[0] == (byte) 0xfe) && (addrBytes[1] == (byte) 0x80)) {
           // Hack, early Sun 1.5 versions (like Hitachi's JVM) cannot handle IPv6
           // link local addresses. Cannot trust InetAddress.isLinkLocalAddress()
           // see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6558853
           // By returning true we ignore these interfaces and potentially say a
           // port is not in use when it really is.
-          Keeper result = new Keeper(server, port);
+          var result = new Keeper(server, port);
           server = null;
           return result;
         }
@@ -236,7 +236,7 @@ public class AvailablePort {
    * @return true of if the port is free on all interfaces
    */
   private static boolean testAllInterfaces(int port) {
-    Keeper k = keepAllInterfaces(port);
+    var k = keepAllInterfaces(port);
     if (k != null) {
       k.release();
       return true;
@@ -267,11 +267,11 @@ public class AvailablePort {
       throw new RuntimeException(e);
     }
     while (interfaces.hasMoreElements()) {
-      NetworkInterface next = interfaces.nextElement();
-      Enumeration<InetAddress> addresses = next.getInetAddresses();
+      var next = interfaces.nextElement();
+      var addresses = next.getInetAddresses();
       while (addresses.hasMoreElements()) {
-        InetAddress addr = addresses.nextElement();
-        boolean available = testOneInterface(addr, port);
+        var addr = addresses.nextElement();
+        var available = testOneInterface(addr, port);
         if (!available) {
           return null;
         }
@@ -300,7 +300,7 @@ public class AvailablePort {
    */
   public static int getRandomAvailablePort(int protocol, InetAddress addr) {
     while (true) {
-      int port =
+      var port =
           rand.nextInt(AVAILABLE_PORTS_UPPER_BOUND - AVAILABLE_PORTS_LOWER_BOUND)
               + AVAILABLE_PORTS_LOWER_BOUND;
       if (isPortAvailable(port, protocol, addr)) {
@@ -313,7 +313,7 @@ public class AvailablePort {
   public static final Random rand;
 
   static {
-    boolean fast = Boolean.getBoolean("AvailablePort.fastRandom");
+    var fast = Boolean.getBoolean("AvailablePort.fastRandom");
     if (fast) {
       rand = new Random();
     } else {
@@ -322,13 +322,13 @@ public class AvailablePort {
   }
 
   public static int getRandomAvailablePortInRange(int rangeBase, int rangeTop, int protocol) {
-    int numberOfPorts = rangeTop - rangeBase;
+    var numberOfPorts = rangeTop - rangeBase;
     // do "5 times the numberOfPorts" iterations to select a port number. This will ensure that
     // each of the ports from given port range get a chance at least once
-    int numberOfRetrys = numberOfPorts * 5;
-    for (int i = 0; i < numberOfRetrys; i++) {
+    var numberOfRetrys = numberOfPorts * 5;
+    for (var i = 0; i < numberOfRetrys; i++) {
       // add 1 to numberOfPorts so that rangeTop also gets included
-      int port = rand.nextInt(numberOfPorts + 1) + rangeBase;
+      var port = rand.nextInt(numberOfPorts + 1) + rangeBase;
       if (isPortAvailable(port, protocol, getAddress(protocol))) {
         return port;
       }
@@ -394,7 +394,7 @@ public class AvailablePort {
     String addrString = null;
     String portString = null;
 
-    for (int i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; i++) {
       if (protocolString == null) {
         protocolString = args[i];
 

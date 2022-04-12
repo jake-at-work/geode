@@ -72,10 +72,10 @@ public class DLockRecoverGrantorProcessor extends ReplyProcessor21 {
   static boolean recoverLockGrantor(Set members, DLockService service, DLockGrantor newGrantor,
       DistributionManager dm, InternalDistributedMember elder) {
     // proc will wait for replies from everyone including THIS member...
-    DLockRecoverGrantorProcessor processor =
+    var processor =
         new DLockRecoverGrantorProcessor(dm, members, newGrantor);
 
-    DLockRecoverGrantorMessage msg = new DLockRecoverGrantorMessage();
+    var msg = new DLockRecoverGrantorMessage();
     msg.serviceName = service.getName();
     msg.processorId = processor.getProcessorId();
     msg.grantorVersion = newGrantor.getVersionId();
@@ -136,7 +136,7 @@ public class DLockRecoverGrantorProcessor extends ReplyProcessor21 {
       Assert.assertTrue(msg instanceof DLockRecoverGrantorReplyMessage,
           "DLockRecoverGrantorProcessor is unable to process message of type " + msg.getClass());
 
-      DLockRecoverGrantorReplyMessage reply = (DLockRecoverGrantorReplyMessage) msg;
+      var reply = (DLockRecoverGrantorReplyMessage) msg;
       // build grantTokens from each reply...
       switch (reply.replyCode) {
         case DLockRecoverGrantorReplyMessage.GRANTOR_DISPUTE:
@@ -154,9 +154,9 @@ public class DLockRecoverGrantorProcessor extends ReplyProcessor21 {
           }
 
           Set lockSet = new HashSet();
-          DLockRemoteToken[] heldLocks = reply.heldLocks;
+          var heldLocks = reply.heldLocks;
           if (heldLocks.length > 0) {
-            for (final DLockRemoteToken heldLock : heldLocks) {
+            for (final var heldLock : heldLocks) {
               lockSet.add(heldLock);
             }
             try {
@@ -259,7 +259,7 @@ public class DLockRecoverGrantorProcessor extends ReplyProcessor21 {
     protected void processMessage(DistributionManager dm) {
       MessageProcessor processor = nullServiceProcessor;
 
-      DLockService svc = DLockService.getInternalServiceNamed(serviceName);
+      var svc = DLockService.getInternalServiceNamed(serviceName);
       if (svc != null) {
         if (svc.getDLockRecoverGrantorMessageProcessor() == null) {
           svc.setDLockRecoverGrantorMessageProcessor(new DefaultMessageProcessor());
@@ -396,17 +396,17 @@ public class DLockRecoverGrantorProcessor extends ReplyProcessor21 {
     @Override
     public void process(DistributionManager dm, DLockRecoverGrantorMessage msg) {
       ReplyException replyException = null;
-      int replyCode = DLockRecoverGrantorReplyMessage.OK;
-      DLockRemoteToken[] heldLocks = new DLockRemoteToken[0];
+      var replyCode = DLockRecoverGrantorReplyMessage.OK;
+      var heldLocks = new DLockRemoteToken[0];
 
       try {
         // get the service from the name
-        DLockService svc = DLockService.getInternalServiceNamed(msg.getServiceName());
+        var svc = DLockService.getInternalServiceNamed(msg.getServiceName());
 
         if (svc != null) {
           replyCode = DLockRecoverGrantorReplyMessage.OK;
 
-          LockGrantorId lockGrantorId = new LockGrantorId(dm, msg.getSender(),
+          var lockGrantorId = new LockGrantorId(dm, msg.getSender(),
               msg.getGrantorVersion(), msg.getGrantorSerialNumber());
 
           Set heldLockSet = svc.getLockTokensForRecovery(lockGrantorId);
@@ -423,7 +423,7 @@ public class DLockRecoverGrantorProcessor extends ReplyProcessor21 {
             e);
         replyException = new ReplyException(e);
       } finally {
-        DLockRecoverGrantorReplyMessage replyMsg = new DLockRecoverGrantorReplyMessage();
+        var replyMsg = new DLockRecoverGrantorReplyMessage();
         replyMsg.replyCode = replyCode;
         replyMsg.heldLocks = heldLocks;
         replyMsg.setProcessorId(msg.getProcessorId());

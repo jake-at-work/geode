@@ -62,21 +62,21 @@ public class GroupJunctionTest {
     MockitoAnnotations.initMocks(this);
     nameIsClark = spy(new CompiledComparison(new CompiledID("name"), new CompiledLiteral("Clark"),
         OQLLexerTokenTypes.TOK_EQ));
-    PlanInfo nameIsClarkPlanInfo = new PlanInfo();
+    var nameIsClarkPlanInfo = new PlanInfo();
     nameIsClarkPlanInfo.indexes = Collections.emptyList();
     doReturn(nameIsClarkPlanInfo).when(nameIsClark).getPlanInfo(any());
     doReturn(true).when(nameIsClark).isDependentOnCurrentScope(any());
 
     aliasNotBatman = spy(new CompiledComparison(new CompiledID("alias"),
         new CompiledLiteral("Batman"), OQLLexerTokenTypes.TOK_NE));
-    PlanInfo aliasNotBatmanPlanInfo = new PlanInfo();
+    var aliasNotBatmanPlanInfo = new PlanInfo();
     aliasNotBatmanPlanInfo.indexes = Collections.emptyList();
     doReturn(aliasNotBatmanPlanInfo).when(aliasNotBatman).getPlanInfo(any());
     doReturn(true).when(aliasNotBatman).isDependentOnCurrentScope(any());
 
     aliasNotEqualsNameFilter = spy(new CompiledComparison(new CompiledID("alias"),
         new CompiledID("name"), OQLLexerTokenTypes.TOK_NE));
-    PlanInfo aliasNotEqualsNamePlanInfo = new PlanInfo();
+    var aliasNotEqualsNamePlanInfo = new PlanInfo();
     aliasNotEqualsNamePlanInfo.evalAsFilter = true;
     aliasNotEqualsNamePlanInfo.indexes = Collections.singletonList("singleIndex");
     doReturn(aliasNotEqualsNamePlanInfo).when(aliasNotEqualsNameFilter).getPlanInfo(any());
@@ -84,7 +84,7 @@ public class GroupJunctionTest {
 
     aliasNotEqualsNameFilterWithPreferredFlag = spy(new CompiledComparison(new CompiledID("alias"),
         new CompiledID("name"), OQLLexerTokenTypes.TOK_NE));
-    PlanInfo aliasNotEqualsNameWithPreferredPlanInfo = new PlanInfo();
+    var aliasNotEqualsNameWithPreferredPlanInfo = new PlanInfo();
     aliasNotEqualsNameWithPreferredPlanInfo.evalAsFilter = true;
     aliasNotEqualsNameWithPreferredPlanInfo.indexes = Collections.singletonList("singleIndex");
     aliasNotEqualsNameWithPreferredPlanInfo.isPreferred = true;
@@ -95,7 +95,7 @@ public class GroupJunctionTest {
     aliasNotEqualsNameFilterWithMultipleIndexes =
         spy(new CompiledComparison(new CompiledID("alias"), new CompiledID("name"),
             OQLLexerTokenTypes.TOK_NE));
-    PlanInfo aliasNotEqualsNameFilterWithMultipleIndexesPlanInfo = new PlanInfo();
+    var aliasNotEqualsNameFilterWithMultipleIndexesPlanInfo = new PlanInfo();
     aliasNotEqualsNameFilterWithMultipleIndexesPlanInfo.evalAsFilter = true;
     aliasNotEqualsNameFilterWithMultipleIndexesPlanInfo.indexes =
         Arrays.asList("multipleIndex1", "multipleIndex2");
@@ -110,7 +110,7 @@ public class GroupJunctionTest {
       TypeMismatchException, QueryInvocationTargetException, FunctionDomainException {
     groupJunction = spy(new GroupJunction(OQLLexerTokenTypes.LITERAL_or, new RuntimeIterator[] {},
         true, new CompiledValue[] {nameIsClark, aliasNotBatman}));
-    OrganizedOperands organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
+    var organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
 
     assertThat(organizedOperands).isNotNull();
     verify(groupJunction, times(1)).createOrganizedOperandsObject(indexCaptor.capture(),
@@ -127,7 +127,7 @@ public class GroupJunctionTest {
         true, new CompiledValue[] {nameIsClark, aliasNotBatman, aliasNotEqualsNameFilter}));
     when(queryExecutionContext.hasHints()).thenReturn(true);
     when(queryExecutionContext.hasMultiHints()).thenReturn(true);
-    OrganizedOperands organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
+    var organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
 
     assertThat(organizedOperands).isNotNull();
     verify(groupJunction, times(1)).createOrganizedOperandsObject(indexCaptor.capture(),
@@ -143,7 +143,7 @@ public class GroupJunctionTest {
       FunctionDomainException {
     groupJunction = spy(new GroupJunction(OQLLexerTokenTypes.LITERAL_and, new RuntimeIterator[] {},
         true, new CompiledValue[] {aliasNotBatman, aliasNotEqualsNameFilter}));
-    OrganizedOperands organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
+    var organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
 
     assertThat(organizedOperands).isNotNull();
     verify(groupJunction, times(1)).createOrganizedOperandsObject(indexCaptor.capture(),
@@ -160,7 +160,7 @@ public class GroupJunctionTest {
     groupJunction = spy(new GroupJunction(OQLLexerTokenTypes.LITERAL_and, new RuntimeIterator[] {},
         true, new CompiledValue[] {aliasNotBatman, aliasNotEqualsNameFilter,
             aliasNotEqualsNameFilterWithPreferredFlag}));
-    OrganizedOperands organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
+    var organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
 
     assertThat(organizedOperands).isNotNull();
     verify(groupJunction, times(1)).createOrganizedOperandsObject(indexCaptor.capture(),
@@ -176,7 +176,7 @@ public class GroupJunctionTest {
       FunctionDomainException {
     groupJunction = spy(new GroupJunction(OQLLexerTokenTypes.LITERAL_and, new RuntimeIterator[] {},
         true, new CompiledValue[] {nameIsClark, aliasNotEqualsNameFilterWithMultipleIndexes}));
-    OrganizedOperands organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
+    var organizedOperands = groupJunction.organizeOperands(queryExecutionContext);
 
     assertThat(organizedOperands).isNotNull();
     verify(groupJunction, times(1)).createOrganizedOperandsObject(indexCaptor.capture(),

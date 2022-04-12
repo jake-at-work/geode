@@ -22,7 +22,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.query.internal.QueryConfigurationServiceImpl;
 import org.apache.geode.cache.query.management.configuration.QueryConfigService;
-import org.apache.geode.cache.query.security.MethodInvocationAuthorizer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.CliFunction;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
@@ -43,7 +42,7 @@ public class DescribeQueryServiceFunction extends CliFunction {
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext context) {
-    QueryConfigurationServiceImpl queryConfigurationService = getQueryConfigurationService();
+    var queryConfigurationService = getQueryConfigurationService();
 
     if (queryConfigurationService != null) {
       return new CliFunctionResult(context.getMemberName(),
@@ -61,11 +60,11 @@ public class DescribeQueryServiceFunction extends CliFunction {
 
   QueryConfigService translateQueryServiceObjectIntoQueryConfigService(
       QueryConfigurationServiceImpl queryServiceObject) {
-    QueryConfigService queryConfigService = new QueryConfigService();
+    var queryConfigService = new QueryConfigService();
 
-    MethodInvocationAuthorizer methodAuthorizer = queryServiceObject.getMethodAuthorizer();
+    var methodAuthorizer = queryServiceObject.getMethodAuthorizer();
     if (methodAuthorizer != null) {
-      QueryConfigService.MethodAuthorizer methodAuthorizerConfig =
+      var methodAuthorizerConfig =
           new QueryConfigService.MethodAuthorizer();
       methodAuthorizerConfig.setClassName(methodAuthorizer.getClass().getName());
 

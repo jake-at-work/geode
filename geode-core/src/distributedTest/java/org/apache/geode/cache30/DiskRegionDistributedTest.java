@@ -95,7 +95,7 @@ public class DiskRegionDistributedTest implements Serializable {
 
     vm0.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(uniqueName);
-      EvictionCounters evictionCounters = getEvictionCounters(region);
+      var evictionCounters = getEvictionCounters(region);
       int i;
       for (i = 0; evictionCounters.getEvictions() <= 0; i++) {
         region.put(i, new short[250]);
@@ -106,14 +106,14 @@ public class DiskRegionDistributedTest implements Serializable {
 
     vm1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(uniqueName);
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region.put(i, new int[250]);
       }
     });
 
     vm0.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(uniqueName);
-      EvictionCounters evictionCounters = getEvictionCounters(region);
+      var evictionCounters = getEvictionCounters(region);
 
       await("waiting for evictions to exceed 6")
           .until(() -> evictionCounters.getEvictions() > 6);
@@ -121,15 +121,15 @@ public class DiskRegionDistributedTest implements Serializable {
 
     vm0.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(uniqueName);
-      for (int i = 0; i < 10000; i++) {
+      for (var i = 0; i < 10000; i++) {
         region.put(String.valueOf(i), String.valueOf(i).getBytes());
       }
     });
 
     vm1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(uniqueName);
-      for (int i = 0; i < 10000; i++) {
-        byte[] bytes = (byte[]) region.get(String.valueOf(i));
+      for (var i = 0; i < 10000; i++) {
+        var bytes = (byte[]) region.get(String.valueOf(i));
 
         assertThat(new String(bytes)).isEqualTo(String.valueOf(i));
       }
@@ -149,8 +149,8 @@ public class DiskRegionDistributedTest implements Serializable {
 
     vm0.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(uniqueName);
-      EvictionCounters evictionCounters = getEvictionCounters(region);
-      for (int i = 0; evictionCounters.getEvictions() < 10; i++) {
+      var evictionCounters = getEvictionCounters(region);
+      for (var i = 0; evictionCounters.getEvictions() < 10; i++) {
         region.put(i, new byte[1]);
       }
 
@@ -159,13 +159,13 @@ public class DiskRegionDistributedTest implements Serializable {
 
     vm1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(uniqueName);
-      EvictionCounters evictionCounters = getEvictionCounters(region);
+      var evictionCounters = getEvictionCounters(region);
 
       assertThat(evictionCounters.getEvictions()).isEqualTo(10);
 
       // Because we are DISTRIBUTED_ACK, we can rely on the order in which messages arrive and
       // hence the order of the LRU entries.
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region.get(i);
 
         assertThat(evictionCounters.getEvictions()).as("No eviction for " + i)
@@ -185,8 +185,8 @@ public class DiskRegionDistributedTest implements Serializable {
 
     vm0.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(uniqueName);
-      EvictionCounters evictionCounters = getEvictionCounters(region);
-      for (int i = 0; evictionCounters.getEvictions() < 10; i++) {
+      var evictionCounters = getEvictionCounters(region);
+      for (var i = 0; evictionCounters.getEvictions() < 10; i++) {
         region.put(i, new byte[1]);
       }
 
@@ -210,7 +210,7 @@ public class DiskRegionDistributedTest implements Serializable {
           .until(() -> region.get(key) == null);
     });
 
-    String newValue = "NEW VALUE";
+    var newValue = "NEW VALUE";
 
     vm1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(uniqueName);
@@ -228,7 +228,7 @@ public class DiskRegionDistributedTest implements Serializable {
   public void testPersistentReplicateB4NonPersistent() {
     vm1.invoke(() -> {
       RegionFactory regionFactory = cacheRule.getCache().createRegionFactory(REPLICATE_PERSISTENT);
-      Region region = regionFactory.create(regionName);
+      var region = regionFactory.create(regionName);
 
       assertThat(region.getAttributes().getConcurrencyChecksEnabled()).isTrue();
     });
@@ -236,7 +236,7 @@ public class DiskRegionDistributedTest implements Serializable {
     vm2.invoke(() -> {
       RegionFactory regionFactory =
           cacheRule.getCache().createRegionFactory(RegionShortcut.REPLICATE);
-      Region region = regionFactory.create(regionName);
+      var region = regionFactory.create(regionName);
 
       assertThat(region.getAttributes().getConcurrencyChecksEnabled()).isTrue();
     });
@@ -245,7 +245,7 @@ public class DiskRegionDistributedTest implements Serializable {
       RegionFactory regionFactory = cacheRule.getCache().createRegionFactory();
       regionFactory.setScope(Scope.DISTRIBUTED_ACK);
 
-      Region region = regionFactory.create(regionName);
+      var region = regionFactory.create(regionName);
       assertThat(region.getAttributes().getConcurrencyChecksEnabled()).isTrue();
     });
   }

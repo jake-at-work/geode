@@ -72,8 +72,8 @@ public class SimpleClass implements PdxSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + myByte;
     result = prime * result + ((myEnum == null) ? 0 : myEnum.hashCode());
     result = prime * result + myInt;
@@ -91,7 +91,7 @@ public class SimpleClass implements PdxSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SimpleClass other = (SimpleClass) obj;
+    var other = (SimpleClass) obj;
     if (myByte != other.myByte) {
       return false;
     }

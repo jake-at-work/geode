@@ -17,7 +17,6 @@ package org.apache.geode.management.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.geode.management.ManagementException;
@@ -50,8 +49,8 @@ public class StringBasedFilter {
       return false;
     }
     tokenToMatch = formatStringTokens(tokenToMatch);
-    for (Pattern pattern : exclusionPatternList) {
-      Matcher matcher = pattern.matcher(tokenToMatch);
+    for (var pattern : exclusionPatternList) {
+      var matcher = pattern.matcher(tokenToMatch);
       if (matcher.find()) {
         return true;
       }
@@ -65,8 +64,8 @@ public class StringBasedFilter {
       return true;
     }
     tokenToMatch = formatStringTokens(tokenToMatch);
-    for (Pattern pattern : inclusionPatternList) {
-      Matcher matcher = pattern.matcher(tokenToMatch);
+    for (var pattern : inclusionPatternList) {
+      var matcher = pattern.matcher(tokenToMatch);
       if (matcher.find()) {
         return true;
       }
@@ -77,7 +76,7 @@ public class StringBasedFilter {
   private void compileFilterList(String[] list, List<Pattern> patternList) {
 
 
-    for (String s : list) {
+    for (var s : list) {
       try {
         s = formatStringTokens(s);
         Pattern pattern;

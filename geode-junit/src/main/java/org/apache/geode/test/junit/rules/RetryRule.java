@@ -88,7 +88,7 @@ public class RetryRule implements TestRule, Serializable {
       }
       Throwable caughtThrowable = null;
 
-      for (int count = 0; count < retryCount; count++) {
+      for (var count = 0; count < retryCount; count++) {
         try {
           base.evaluate();
           return;
@@ -159,14 +159,14 @@ public class RetryRule implements TestRule, Serializable {
     protected void evaluatePerTest(final Statement base, final Description description)
         throws Throwable {
       if (isTest(description)) {
-        Retry retry = description.getAnnotation(Retry.class);
-        int retryCount = getRetryCount(retry);
+        var retry = description.getAnnotation(Retry.class);
+        var retryCount = getRetryCount(retry);
         evaluate(base, description, retryCount);
       }
     }
 
     private int getRetryCount(final Retry retry) {
-      int retryCount = Retry.DEFAULT;
+      var retryCount = Retry.DEFAULT;
 
       if (retry != null) {
         retryCount = retry.value();

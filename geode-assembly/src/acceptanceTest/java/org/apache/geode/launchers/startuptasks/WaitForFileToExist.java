@@ -16,7 +16,6 @@
 package org.apache.geode.launchers.startuptasks;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -36,17 +35,17 @@ public class WaitForFileToExist implements ServerLauncherCacheProvider {
 
   @Override
   public Cache createCache(Properties gemfireProperties, ServerLauncher serverLauncher) {
-    final CacheFactory cacheFactory = new CacheFactory(gemfireProperties);
-    InternalCache cache = (InternalCache) cacheFactory.create();
+    final var cacheFactory = new CacheFactory(gemfireProperties);
+    var cache = (InternalCache) cacheFactory.create();
 
-    CompletableFuture<Void> waitForFileTask = CompletableFuture.runAsync(this::waitForFileToExist);
+    var waitForFileTask = CompletableFuture.runAsync(this::waitForFileToExist);
     cache.getInternalResourceManager().addStartupTask(waitForFileTask);
 
     return cache;
   }
 
   private void waitForFileToExist() {
-    Path file = Paths.get(System.getProperty("user.dir")).resolve(WAITING_FILE_NAME)
+    var file = Paths.get(System.getProperty("user.dir")).resolve(WAITING_FILE_NAME)
         .toAbsolutePath();
 
     while (!Files.exists(file)) {

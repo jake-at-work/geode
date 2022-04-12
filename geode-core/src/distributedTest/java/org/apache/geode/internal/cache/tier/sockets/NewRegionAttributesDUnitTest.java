@@ -32,7 +32,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Host;
@@ -68,10 +67,10 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
     Wait.pause(5000);
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
-    Object[] objArr = new Object[4];
+    var objArr = new Object[4];
     // enable WAN
     objArr[0] = Boolean.TRUE;
     // enable Publisher
@@ -112,15 +111,15 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void createServerCache(Boolean enableWan, Boolean setPublisher,
       Boolean enableConflation, Boolean enableAsyncConflation) throws Exception {
-    NewRegionAttributesDUnitTest test = new NewRegionAttributesDUnitTest();
+    var test = new NewRegionAttributesDUnitTest();
     cache = test.createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     // factory.setPublisher(setPublisher.booleanValue());
     factory.setEnableConflation(enableConflation);
     factory.setEnableAsyncConflation(enableAsyncConflation);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
   }
 
@@ -168,13 +167,13 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
     vm0.invoke(NewRegionAttributesDUnitTest::checkAttributes);
     vm1.invoke(NewRegionAttributesDUnitTest::checkAttributes);
     vm0.invoke(NewRegionAttributesDUnitTest::doPuts);
-    Integer cnt1 = (Integer) vm1.invoke(NewRegionAttributesDUnitTest::getEntryCount);
+    var cnt1 = (Integer) vm1.invoke(NewRegionAttributesDUnitTest::getEntryCount);
     assertEquals(TOTAL_PUTS, cnt1.intValue());
     vm0.invoke(NewRegionAttributesDUnitTest::doPuts);
     vm0.invoke(NewRegionAttributesDUnitTest::doInvalidates);
     vm0.invoke(NewRegionAttributesDUnitTest::doDestroy);
 
-    Integer cnt2 = (Integer) vm1.invoke(NewRegionAttributesDUnitTest::getEntryCount);
+    var cnt2 = (Integer) vm1.invoke(NewRegionAttributesDUnitTest::getEntryCount);
     assertEquals(0, cnt2.intValue());
   }
 
@@ -206,7 +205,7 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void doPuts() {
     Region region1 = cache.getRegion(SEPARATOR + REGION_NAME);
-    for (int i = 0; i < TOTAL_PUTS; i++) {
+    for (var i = 0; i < TOTAL_PUTS; i++) {
       try {
         region1.put("key-" + i, "val-" + i);
       } catch (Exception e) {
@@ -221,7 +220,7 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void doInvalidates() {
     Region region1 = cache.getRegion(SEPARATOR + REGION_NAME);
-    for (int i = 0; i < TOTAL_PUTS; i++) {
+    for (var i = 0; i < TOTAL_PUTS; i++) {
       try {
         region1.invalidate("key-" + i);
       } catch (Exception e) {
@@ -236,7 +235,7 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void doDestroy() {
     Region region1 = cache.getRegion(SEPARATOR + REGION_NAME);
-    for (int i = 0; i < TOTAL_PUTS; i++) {
+    for (var i = 0; i < TOTAL_PUTS; i++) {
       try {
         region1.destroy("key-" + i);
       } catch (Exception e) {
@@ -252,7 +251,7 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    */
   public static Object getEntryCount() {
     Region region1 = cache.getRegion(SEPARATOR + REGION_NAME);
-    int keysSize = region1.entrySet(false).size();
+    var keysSize = region1.entrySet(false).size();
     return keysSize;
   }
 
@@ -267,14 +266,14 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    * @see Region#registerInterestRegex(String, InterestResultPolicy)
    */
   public static void registerInterest() {
-    InterestResultPolicy policy = InterestResultPolicy.KEYS_VALUES;
-    int totalKeys = 5;
+    var policy = InterestResultPolicy.KEYS_VALUES;
+    var totalKeys = 5;
     Region region1 = cache.getRegion(SEPARATOR + REGION_NAME);
     List keylist = new ArrayList();
-    for (int i = 0; i < totalKeys; i++) {
+    for (var i = 0; i < totalKeys; i++) {
       keylist.add("key-" + i);
     }
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
 
     // test registerInterest(key)
     try {
@@ -362,15 +361,15 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    * @see Region#unregisterInterestRegex(String)
    */
   public static void unregisterInterest() {
-    int totalKeys = 5;
+    var totalKeys = 5;
     Region region1 = cache.getRegion(SEPARATOR + REGION_NAME);
     List keylist = new ArrayList();
-    for (int i = 0; i < totalKeys; i++) {
+    for (var i = 0; i < totalKeys; i++) {
       keylist.add("key-" + i);
     }
 
     // test unregisterInterest(key)
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
     try {
       region1.unregisterInterest("DummyKey1");
     } catch (UnsupportedOperationException expected) {
@@ -419,7 +418,7 @@ public class NewRegionAttributesDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void getInterestForRegion() {
     Region region1 = cache.getRegion(SEPARATOR + REGION_NAME);
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
 
     // test getInterestList()
     try {

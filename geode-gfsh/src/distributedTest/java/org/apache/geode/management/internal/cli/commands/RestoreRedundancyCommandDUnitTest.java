@@ -53,16 +53,13 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionAttributesImpl;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.assertions.CommandResultAssert;
-import org.apache.geode.test.junit.assertions.InfoResultModelAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 public class RestoreRedundancyCommandDUnitTest {
@@ -96,23 +93,23 @@ public class RestoreRedundancyCommandDUnitTest {
 
   @Test
   public void restoreRedundancyWithNoArgumentsRestoresRedundancyForAllRegions() {
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(), regionNames);
 
     // Confirm all regions have their configured redundancy and that primaries were balanced
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
-      for (String regionName : regionNames) {
+      for (var regionName : regionNames) {
         assertRedundancyStatusForRegion(regionName, true);
         assertPrimariesBalanced(regionName, numberOfActiveServers, true);
       }
@@ -121,31 +118,31 @@ public class RestoreRedundancyCommandDUnitTest {
 
   @Test
   public void restoreRedundancyWithIncludeRegionArgumentRestoresOnlyThoseRegions() {
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    String regionToInclude = HIGH_REDUNDANCY_REGION_NAME;
+    var regionToInclude = HIGH_REDUNDANCY_REGION_NAME;
     List<String> nonIncludedRegions = new ArrayList<>(regionNames);
     nonIncludedRegions.remove(regionToInclude);
 
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY)
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY)
         .addOption(REDUNDANCY_INCLUDE_REGION, regionToInclude).getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
         .doesNotContainOutput(nonIncludedRegions.toArray(new String[0]));
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(),
         Collections.singletonList(regionToInclude));
 
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
       // Confirm that redundancy is restored for only the specified region
-      for (String regionName : regionNames) {
-        boolean shouldBeSatisfied = regionName.equals(regionToInclude);
+      for (var regionName : regionNames) {
+        var shouldBeSatisfied = regionName.equals(regionToInclude);
         assertRedundancyStatusForRegion(regionName, shouldBeSatisfied);
         assertPrimariesBalanced(regionName, numberOfActiveServers, shouldBeSatisfied);
       }
@@ -154,30 +151,30 @@ public class RestoreRedundancyCommandDUnitTest {
 
   @Test
   public void restoreRedundancyWithExcludeRegionArgumentRestoresAllExceptThoseRegions() {
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    String regionToExclude = HIGH_REDUNDANCY_REGION_NAME;
+    var regionToExclude = HIGH_REDUNDANCY_REGION_NAME;
     List<String> regionsToInclude = new ArrayList<>(regionNames);
     regionsToInclude.remove(regionToExclude);
 
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY)
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY)
         .addOption(REDUNDANCY_EXCLUDE_REGION, regionToExclude).getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
         .doesNotContainOutput(regionToExclude);
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(), regionsToInclude);
 
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
       // Confirm that redundancy is restored for all but the specified region
-      for (String regionName : regionNames) {
-        boolean shouldBeSatisfied = !regionName.equals(regionToExclude);
+      for (var regionName : regionNames) {
+        var shouldBeSatisfied = !regionName.equals(regionToExclude);
         assertRedundancyStatusForRegion(regionName, shouldBeSatisfied);
         assertPrimariesBalanced(regionName, numberOfActiveServers, shouldBeSatisfied);
       }
@@ -186,33 +183,33 @@ public class RestoreRedundancyCommandDUnitTest {
 
   @Test
   public void restoreRedundancyWithMatchingIncludeAndExcludeRegionArgumentsRestoresIncludedRegions() {
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    String regionToIncludeAndExclude = HIGH_REDUNDANCY_REGION_NAME;
+    var regionToIncludeAndExclude = HIGH_REDUNDANCY_REGION_NAME;
     List<String> nonIncludedRegions = new ArrayList<>(regionNames);
     nonIncludedRegions.remove(regionToIncludeAndExclude);
 
-    String command =
+    var command =
         new CommandStringBuilder(RESTORE_REDUNDANCY)
             .addOption(REDUNDANCY_INCLUDE_REGION, regionToIncludeAndExclude)
             .addOption(REDUNDANCY_EXCLUDE_REGION, regionToIncludeAndExclude).getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
         .doesNotContainOutput(nonIncludedRegions.toArray(new String[0]));
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(),
         Collections.singletonList(regionToIncludeAndExclude));
 
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
       // Confirm that redundancy is restored for only the specified region
-      for (String regionName : regionNames) {
-        boolean shouldBeSatisfied = regionName.equals(regionToIncludeAndExclude);
+      for (var regionName : regionNames) {
+        var shouldBeSatisfied = regionName.equals(regionToIncludeAndExclude);
         assertRedundancyStatusForRegion(regionName, shouldBeSatisfied);
         assertPrimariesBalanced(regionName, numberOfActiveServers, shouldBeSatisfied);
       }
@@ -221,10 +218,10 @@ public class RestoreRedundancyCommandDUnitTest {
 
   @Test
   public void restoreRedundancyWithIncludeRegionArgumentThatIsAParentColocatedRegionRegionRestoresRegionsColocatedWithIt() {
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
@@ -236,19 +233,19 @@ public class RestoreRedundancyCommandDUnitTest {
     colocatedRegions.add(PARENT_REGION_NAME);
     colocatedRegions.add(CHILD_REGION_NAME);
 
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY)
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY)
         .addOption(REDUNDANCY_INCLUDE_REGION, PARENT_REGION_NAME).getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
         .doesNotContainOutput(nonIncludedRegions.toArray(new String[0]));
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(), colocatedRegions);
 
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
       // Confirm that redundancy is restored for both colocated regions
-      for (String regionName : regionNames) {
-        boolean shouldBeSatisfied =
+      for (var regionName : regionNames) {
+        var shouldBeSatisfied =
             regionName.equals(PARENT_REGION_NAME) || regionName.equals(CHILD_REGION_NAME);
         assertRedundancyStatusForRegion(regionName, shouldBeSatisfied);
         assertPrimariesBalanced(regionName, numberOfActiveServers, shouldBeSatisfied);
@@ -258,7 +255,7 @@ public class RestoreRedundancyCommandDUnitTest {
 
   @Test
   public void restoreRedundancyReturnsErrorWhenNotAllRegionsHaveFullySatisfiedRedundancy() {
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
     List<String> satisfiedRegions = new ArrayList<>(regionNames);
@@ -267,22 +264,22 @@ public class RestoreRedundancyCommandDUnitTest {
     // Stop the last server. The high redundancy region now cannot satisfy redundancy
     servers.remove(servers.size() - 1).stop();
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsError();
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsError();
 
     verifyGfshOutput(commandResult, new ArrayList<>(),
         Collections.singletonList(HIGH_REDUNDANCY_REGION_NAME), satisfiedRegions);
 
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
       // Confirm that redundancy is restored for regions with lower redundancy
-      for (String regionName : regionNames) {
-        boolean shouldBeSatisfied = !regionName.equals(HIGH_REDUNDANCY_REGION_NAME);
+      for (var regionName : regionNames) {
+        var shouldBeSatisfied = !regionName.equals(HIGH_REDUNDANCY_REGION_NAME);
         assertRedundancyStatusForRegion(regionName, shouldBeSatisfied);
         assertPrimariesBalanced(regionName, numberOfActiveServers, true);
       }
@@ -291,7 +288,7 @@ public class RestoreRedundancyCommandDUnitTest {
 
   @Test
   public void restoreRedundancyWithNoArgumentsReturnsSuccessWhenNoRegionsArePresent() {
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
     gfsh.executeAndAssertThat(command).statusIsSuccess().hasInfoSection(NO_MEMBERS_SECTION)
         .hasHeader()
         .isEqualTo(NO_MEMBERS_HEADER);
@@ -303,20 +300,20 @@ public class RestoreRedundancyCommandDUnitTest {
     regionNames.add(LOW_REDUNDANCY_REGION_NAME);
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    String nonexistentRegion = "fakeRegion";
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY)
+    var nonexistentRegion = "fakeRegion";
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY)
         .addOption(REDUNDANCY_INCLUDE_REGION, nonexistentRegion + "," + LOW_REDUNDANCY_REGION_NAME)
         .getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsError();
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsError();
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(), regionNames);
 
-    InfoResultModelAssert noMembersForRegion =
+    var noMembersForRegion =
         commandResult.hasInfoSection(NO_MEMBERS_FOR_REGION_SECTION);
     noMembersForRegion.hasHeader().isEqualTo(NO_MEMBERS_FOR_REGION_HEADER);
     noMembersForRegion.hasLines().containsExactly(nonexistentRegion);
@@ -324,25 +321,25 @@ public class RestoreRedundancyCommandDUnitTest {
 
   @Test
   public void restoreRedundancyReturnsErrorWhenNoRedundantCopiesExistForAtLeastOneRegionWithConfiguredRedundancy() {
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
     // Stop all but the first server
-    for (int i = 0; i < SERVERS_TO_START - 1; ++i) {
-      int last = servers.size() - 1;
+    for (var i = 0; i < SERVERS_TO_START - 1; ++i) {
+      var last = servers.size() - 1;
       servers.remove(last).stop();
     }
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
     List<String> zeroRedundancyRegions = new ArrayList<>(regionNames);
     zeroRedundancyRegions.remove(NO_CONFIGURED_REDUNDANCY_REGION_NAME);
 
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsError();
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsError();
 
     // A region configured to have zero redundant copies should always report satisfied redundancy
     verifyGfshOutput(commandResult, zeroRedundancyRegions, new ArrayList<>(),
@@ -352,29 +349,29 @@ public class RestoreRedundancyCommandDUnitTest {
 
   @Test
   public void restoreRedundancyDoesNotBalancePrimariesWhenOptionIsUsed() {
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY)
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY)
         .addOption(REDUNDANCY_REASSIGN_PRIMARIES, "false").getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(), regionNames);
 
     // Verify that the command reports no primaries transferred
-    InfoResultModelAssert primariesSection = commandResult.hasInfoSection(PRIMARIES_INFO_SECTION);
+    var primariesSection = commandResult.hasInfoSection(PRIMARIES_INFO_SECTION);
     primariesSection.hasOutput().contains(PRIMARY_TRANSFERS_COMPLETED + 0,
         PRIMARY_TRANSFER_TIME + 0);
 
     // Confirm all regions have their configured redundancy and that primaries were not balanced
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
-      for (String regionName : regionNames) {
+      for (var regionName : regionNames) {
         assertRedundancyStatusForRegion(regionName, true);
         assertPrimariesBalanced(regionName, numberOfActiveServers, false);
       }
@@ -391,13 +388,13 @@ public class RestoreRedundancyCommandDUnitTest {
           .put("key", "value");
     }));
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + LOW_REDUNDANCY_REGION_NAME,
         numberOfServers);
 
-    String command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
+    var command = new CommandStringBuilder(RESTORE_REDUNDANCY).getCommandString();
 
-    CommandResultAssert commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     verifyGfshOutput(commandResult, new ArrayList<>(), new ArrayList<>(),
         Collections.singletonList(LOW_REDUNDANCY_REGION_NAME));
@@ -428,10 +425,10 @@ public class RestoreRedundancyCommandDUnitTest {
       createRegions(regionNames);
     }));
 
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
       // Confirm that redundancy is impaired for all regions
-      for (String regionName : regionNames) {
+      for (var regionName : regionNames) {
         assertRedundancyStatusForRegion(regionName, false);
         assertPrimariesBalanced(regionName, numberOfActiveServers, false);
       }
@@ -456,22 +453,22 @@ public class RestoreRedundancyCommandDUnitTest {
   }
 
   private static void createHighRedundancyRegion() {
-    PartitionAttributesImpl attributes = getAttributes(HIGH_REDUNDANCY_COPIES);
-    InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+    var attributes = getAttributes(HIGH_REDUNDANCY_COPIES);
+    var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes)
         .create(HIGH_REDUNDANCY_REGION_NAME);
   }
 
   private static void createLowRedundancyRegion() {
-    PartitionAttributesImpl attributes = getAttributes(SINGLE_REDUNDANT_COPY);
-    InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+    var attributes = getAttributes(SINGLE_REDUNDANT_COPY);
+    var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes)
         .create(LOW_REDUNDANCY_REGION_NAME);
   }
 
   private static void createColocatedRegions() {
-    PartitionAttributesImpl attributes = getAttributes(SINGLE_REDUNDANT_COPY);
-    InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+    var attributes = getAttributes(SINGLE_REDUNDANT_COPY);
+    var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
     // Create parent region
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes)
         .create(PARENT_REGION_NAME);
@@ -483,14 +480,14 @@ public class RestoreRedundancyCommandDUnitTest {
   }
 
   private static void createNoConfiguredRedundancyRegion() {
-    PartitionAttributesImpl attributes = getAttributes(0);
-    InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+    var attributes = getAttributes(0);
+    var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes)
         .create(NO_CONFIGURED_REDUNDANCY_REGION_NAME);
   }
 
   private static PartitionAttributesImpl getAttributes(int redundantCopies) {
-    PartitionAttributesImpl attributes = new PartitionAttributesImpl();
+    var attributes = new PartitionAttributesImpl();
     attributes.setStartupRecoveryDelay(-1);
     attributes.setRecoveryDelay(-1);
     attributes.setRedundantCopies(redundantCopies);
@@ -505,7 +502,7 @@ public class RestoreRedundancyCommandDUnitTest {
 
     // Populate all the regions
     regionNames.forEach(regionName -> {
-      Region<Object, Object> region = cache.getRegion(regionName);
+      var region = cache.getRegion(regionName);
       IntStream.range(0, 5 * GLOBAL_MAX_BUCKETS_DEFAULT)
           .forEach(i -> region.put("key" + i, "value" + i));
     });
@@ -514,7 +511,7 @@ public class RestoreRedundancyCommandDUnitTest {
   private void verifyGfshOutput(CommandResultAssert result, List<String> expectedZeroCopiesRegions,
       List<String> expectedPartiallySatisfiedRegions, List<String> expectedFullySatisfiedRegions) {
     // Verify summary section
-    InfoResultModelAssert summary = result.hasInfoSection(SUMMARY_SECTION);
+    var summary = result.hasInfoSection(SUMMARY_SECTION);
     summary.hasOutput().contains(ZERO_REDUNDANT_COPIES + expectedZeroCopiesRegions.size());
     summary.hasOutput()
         .contains(PARTIALLY_SATISFIED_REDUNDANCY + expectedPartiallySatisfiedRegions.size());
@@ -522,7 +519,7 @@ public class RestoreRedundancyCommandDUnitTest {
 
     // Verify zero redundancy section
     if (!expectedZeroCopiesRegions.isEmpty()) {
-      InfoResultModelAssert zeroRedundancy = result.hasInfoSection(ZERO_REDUNDANCY_SECTION);
+      var zeroRedundancy = result.hasInfoSection(ZERO_REDUNDANCY_SECTION);
       zeroRedundancy.hasHeader().isEqualTo(NO_REDUNDANT_COPIES_FOR_REGIONS);
       zeroRedundancy.hasOutput().contains(expectedZeroCopiesRegions);
     } else {
@@ -531,7 +528,7 @@ public class RestoreRedundancyCommandDUnitTest {
 
     // Verify under redundancy section
     if (!expectedPartiallySatisfiedRegions.isEmpty()) {
-      InfoResultModelAssert zeroRedundancy = result.hasInfoSection(UNDER_REDUNDANCY_SECTION);
+      var zeroRedundancy = result.hasInfoSection(UNDER_REDUNDANCY_SECTION);
       zeroRedundancy.hasHeader().isEqualTo(REDUNDANCY_NOT_SATISFIED_FOR_REGIONS);
       zeroRedundancy.hasOutput().contains(expectedPartiallySatisfiedRegions);
     } else {
@@ -540,7 +537,7 @@ public class RestoreRedundancyCommandDUnitTest {
 
     // Verify fully satisfied section
     if (!expectedFullySatisfiedRegions.isEmpty()) {
-      InfoResultModelAssert zeroRedundancy = result.hasInfoSection(SATISFIED_REDUNDANCY_SECTION);
+      var zeroRedundancy = result.hasInfoSection(SATISFIED_REDUNDANCY_SECTION);
       zeroRedundancy.hasHeader().isEqualTo(REDUNDANCY_SATISFIED_FOR_REGIONS);
       zeroRedundancy.hasOutput().contains(expectedFullySatisfiedRegions);
     } else {
@@ -548,7 +545,7 @@ public class RestoreRedundancyCommandDUnitTest {
     }
 
     // Verify primaries section exists
-    InfoResultModelAssert primariesSection = result.hasInfoSection(PRIMARIES_INFO_SECTION);
+    var primariesSection = result.hasInfoSection(PRIMARIES_INFO_SECTION);
     primariesSection.hasOutput().contains(PRIMARY_TRANSFERS_COMPLETED, PRIMARY_TRANSFER_TIME);
   }
 
@@ -560,7 +557,7 @@ public class RestoreRedundancyCommandDUnitTest {
     }
     Cache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
 
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
+    var region = (PartitionedRegion) cache.getRegion(regionName);
 
     assertThat(region.getRedundancyProvider().isRedundancyImpaired(), is(!shouldBeSatisfied));
   }
@@ -573,14 +570,14 @@ public class RestoreRedundancyCommandDUnitTest {
     }
     Cache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
 
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
-    int primariesOnServer = region.getLocalPrimaryBucketsListTestOnly().size();
+    var region = (PartitionedRegion) cache.getRegion(regionName);
+    var primariesOnServer = region.getLocalPrimaryBucketsListTestOnly().size();
     // Add one to the expected number of primaries to deal with integer rounding errors
-    int expectedPrimaries = (GLOBAL_MAX_BUCKETS_DEFAULT / numberOfServers) + 1;
+    var expectedPrimaries = (GLOBAL_MAX_BUCKETS_DEFAULT / numberOfServers) + 1;
     // Because of the way reassigning primaries works, it is sometimes only possible to get the
     // difference between the most loaded member and the least loaded member to be 2, not 1 as would
     // be the case for perfect balance
-    String message = "Primaries should be balanced for region " + regionName
+    var message = "Primaries should be balanced for region " + regionName
         + ", but expectedPrimaries:actualPrimaries = "
         + expectedPrimaries + ":" + primariesOnServer;
     if (shouldBeBalanced) {

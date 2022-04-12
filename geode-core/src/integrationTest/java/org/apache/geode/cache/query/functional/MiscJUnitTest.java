@@ -21,8 +21,6 @@ import static org.junit.Assert.fail;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -33,12 +31,9 @@ import parReg.query.unittest.NewPortfolio;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
@@ -65,16 +60,16 @@ public class MiscJUnitTest {
   @Ignore("TODO: test is disabled")
   @Test
   public void testNestQueryInFromClause() throws Exception {
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
-    Query query = CacheUtils.getQueryService().newQuery(
+    var query = CacheUtils.getQueryService().newQuery(
         "SELECT DISTINCT * FROM (SELECT DISTINCT * FROM " + SEPARATOR
             + "Portfolios where status = 'active') p  where p.ID = 0");
-    Collection result = (Collection) query.execute();
-    Portfolio p = (Portfolio) (result.iterator().next());
+    var result = (Collection) query.execute();
+    var p = (Portfolio) (result.iterator().next());
     if (!p.status.equals("active") || p.getID() != 0) {
       fail(query.getQueryString());
     }
@@ -83,16 +78,16 @@ public class MiscJUnitTest {
   @Ignore("TODO: test is disabled")
   @Test
   public void testNestQueryInWhereClause() throws Exception {
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
-    Query query = CacheUtils.getQueryService().newQuery(
+    var query = CacheUtils.getQueryService().newQuery(
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "Portfolios WHERE NOT (SELECT DISTINCT * FROM positions.values p WHERE p.secId = 'IBM').isEmpty");
-    Collection result = (Collection) query.execute();
-    Portfolio p = (Portfolio) (result.iterator().next());
+    var result = (Collection) query.execute();
+    var p = (Portfolio) (result.iterator().next());
     if (!p.positions.containsKey("IBM")) {
       fail(query.getQueryString());
     }
@@ -101,12 +96,12 @@ public class MiscJUnitTest {
   @Ignore("TODO: test is disabled")
   @Test
   public void testVoidMethods() throws Exception {
-    Region region = CacheUtils.createRegion("Data", Data.class);
+    var region = CacheUtils.createRegion("Data", Data.class);
     region.put("0", new Data());
-    Query query =
+    var query =
         CacheUtils.getQueryService()
             .newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "Data where voidMethod");
-    Collection result = (Collection) query.execute();
+    var result = (Collection) query.execute();
     if (result.size() != 0) {
       fail(query.getQueryString());
     }
@@ -121,10 +116,10 @@ public class MiscJUnitTest {
   @Ignore("TODO: test is disabled")
   @Test
   public void testMiscQueries() throws Exception {
-    String[] testData = {"NULL", "UNDEFINED"};
-    for (final String testDatum : testData) {
-      Query query = CacheUtils.getQueryService().newQuery("SELECT DISTINCT * FROM " + testDatum);
-      Object result = query.execute();
+    var testData = new String[] {"NULL", "UNDEFINED"};
+    for (final var testDatum : testData) {
+      var query = CacheUtils.getQueryService().newQuery("SELECT DISTINCT * FROM " + testDatum);
+      var result = query.execute();
       if (!result.equals(QueryService.UNDEFINED)) {
         fail(query.getQueryString());
       }
@@ -134,25 +129,25 @@ public class MiscJUnitTest {
   @Ignore("TODO: test is disabled")
   @Test
   public void testBug32763() throws Exception {
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
-    QueryService qs = CacheUtils.getQueryService();
-    String qStr =
+    var qs = CacheUtils.getQueryService();
+    var qStr =
         "SELECT DISTINCT key: key, iD: entry.value.iD, secId: posnVal.secId  FROM " + SEPARATOR
             + "pos.entries entry, entry.value.positions.values posnVal  WHERE entry.value.\"type\" = 'type0' AND posnVal.secId = 'YHOO'";
-    Query q = qs.newQuery(qStr);
-    SelectResults result = (SelectResults) q.execute();
-    StructType type = (StructType) result.getCollectionType().getElementType();
-    String[] names = type.getFieldNames();
-    List list = result.asList();
+    var q = qs.newQuery(qStr);
+    var result = (SelectResults) q.execute();
+    var type = (StructType) result.getCollectionType().getElementType();
+    var names = type.getFieldNames();
+    var list = result.asList();
     if (list.size() < 1) {
       fail("Test failed as the resultset's size is zero");
     }
-    for (Object o : list) {
-      Struct stc = (Struct) o;
+    for (var o : list) {
+      var stc = (Struct) o;
       if (!stc.get(names[2]).equals("YHOO")) {
         fail("Test failed as the SecID value is not YHOO");
       }
@@ -161,14 +156,14 @@ public class MiscJUnitTest {
 
   @Test
   public void testBug() throws Exception {
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
 
-    String qStr =
+    var qStr =
         "Select distinct * from " + SEPARATOR
             + "portfolios pf, pf.positions.values where status = 'active' and secId = 'IBM'";
     qs.createIndex("index1", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolios pf");
@@ -187,8 +182,8 @@ public class MiscJUnitTest {
     qs.createIndex("index7", IndexType.FUNCTIONAL, "itr",
         SEPARATOR
             + "portfolios pf, positions.values, pf.collectionHolderMap chm, chm.value.arr itr");
-    Query q = qs.newQuery(qStr);
-    SelectResults result = (SelectResults) q.execute();
+    var q = qs.newQuery(qStr);
+    var result = (SelectResults) q.execute();
     if (result.size() == 0) {
       fail("Test failed as size is zero");
     }
@@ -196,21 +191,21 @@ public class MiscJUnitTest {
 
   @Test
   public void testBug37723() throws Exception {
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
-    QueryService qs = CacheUtils.getQueryService();
-    String qry =
+    var qs = CacheUtils.getQueryService();
+    var qry =
         "select distinct getID, status from " + SEPARATOR
             + "portfolios pf where getID < 10 order by getID desc";
-    Query q = qs.newQuery(qry);
-    SelectResults result = (SelectResults) q.execute();
-    Iterator itr = result.iterator();
-    int j = 3;
+    var q = qs.newQuery(qry);
+    var result = (SelectResults) q.execute();
+    var itr = result.iterator();
+    var j = 3;
     while (itr.hasNext()) {
-      Struct struct = (Struct) itr.next();
+      var struct = (Struct) itr.next();
       assertEquals(j--, ((Integer) struct.get("getID")).intValue());
     }
     qry = "select distinct getID, status from " + SEPARATOR
@@ -220,19 +215,19 @@ public class MiscJUnitTest {
     itr = result.iterator();
     j = 0;
     while (itr.hasNext()) {
-      Struct struct = (Struct) itr.next();
+      var struct = (Struct) itr.next();
       assertEquals(j++, ((Integer) struct.get("getID")).intValue());
     }
   }
 
   @Test
   public void testBug40428_1() throws Exception {
-    HasShort shortData1 = new HasShort((short) 4);
-    HasShort shortData2 = new HasShort((short) 5);
-    Region region = CacheUtils.createRegion("shortFieldTest", Object.class);
+    var shortData1 = new HasShort((short) 4);
+    var shortData2 = new HasShort((short) 5);
+    var region = CacheUtils.createRegion("shortFieldTest", Object.class);
     region.put("0", shortData1);
-    QueryService qs = CacheUtils.getQueryService();
-    String qry = "select * from " + SEPARATOR + "shortFieldTest sf where sf.shortField < 10 ";
+    var qs = CacheUtils.getQueryService();
+    var qry = "select * from " + SEPARATOR + "shortFieldTest sf where sf.shortField < 10 ";
     qs.createIndex("shortIndex", IndexType.FUNCTIONAL, "shortField", SEPARATOR + "shortFieldTest");
     region.put("1", shortData2);
     Query query = null;
@@ -240,19 +235,19 @@ public class MiscJUnitTest {
 
     query = qs.newQuery(qry);
 
-    SelectResults rs = (SelectResults) query.execute();
+    var rs = (SelectResults) query.execute();
     assertEquals(rs.size(), 2);
   }
 
   @Test
   public void testBug40428_2() throws Exception {
-    HasShort shortData1 = new HasShort((short) 4);
-    HasShort shortData2 = new HasShort((short) 5);
+    var shortData1 = new HasShort((short) 4);
+    var shortData2 = new HasShort((short) 5);
 
-    Region region = CacheUtils.createRegion("shortFieldTest", Object.class);
+    var region = CacheUtils.createRegion("shortFieldTest", Object.class);
     region.put("0", shortData1);
-    QueryService qs = CacheUtils.getQueryService();
-    String qry =
+    var qs = CacheUtils.getQueryService();
+    var qry =
         "select * from " + SEPARATOR + "shortFieldTest.entries sf where sf.value.shortField < 10 ";
     qs.createIndex("shortIndex", IndexType.FUNCTIONAL, "value.shortField",
         SEPARATOR + "shortFieldTest.entries");
@@ -262,29 +257,29 @@ public class MiscJUnitTest {
 
     query = qs.newQuery(qry);
 
-    SelectResults rs = (SelectResults) query.execute();
+    var rs = (SelectResults) query.execute();
     assertEquals(rs.size(), 2);
   }
 
   @Test
   public void testMultipleOrderByClauses() throws Exception {
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
     region.put("6", new Portfolio(6));
     region.put("7", new Portfolio(7));
-    QueryService qs = CacheUtils.getQueryService();
-    String qry =
+    var qs = CacheUtils.getQueryService();
+    var qry =
         "select distinct status, getID from " + SEPARATOR
             + "portfolios pf where getID < 10 order by status asc, getID desc";
-    Query q = qs.newQuery(qry);
-    SelectResults result = (SelectResults) q.execute();
-    Iterator itr = result.iterator();
-    int j = 6;
+    var q = qs.newQuery(qry);
+    var result = (SelectResults) q.execute();
+    var itr = result.iterator();
+    var j = 6;
     while (itr.hasNext() && j > 0) {
-      Struct struct = (Struct) itr.next();
+      var struct = (Struct) itr.next();
       assertEquals("active", struct.get("status"));
       assertEquals(j, ((Integer) struct.get("getID")).intValue());
 
@@ -292,7 +287,7 @@ public class MiscJUnitTest {
     }
     j = 7;
     while (itr.hasNext()) {
-      Struct struct = (Struct) itr.next();
+      var struct = (Struct) itr.next();
       assertEquals(j, ((Integer) struct.get("getID")).intValue());
       assertEquals("inactive", struct.get("status"));
       j -= 2;
@@ -306,10 +301,10 @@ public class MiscJUnitTest {
   public void testBug40333_InLocalRegion_1() throws Exception {
     CacheUtils.startCache();
     final Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    RegionAttributes ra = attributesFactory.create();
-    final Region region = cache.createRegion("new_pos", ra);
-    String queryStr = " select distinct r.name, pVal, r.\"type\"  "
+    var attributesFactory = new AttributesFactory();
+    var ra = attributesFactory.create();
+    final var region = cache.createRegion("new_pos", ra);
+    var queryStr = " select distinct r.name, pVal, r.\"type\"  "
         + " from " + SEPARATOR + "new_pos r , r.positions.values pVal where "
         + "  (r.name='name_11' OR r.name='name_12') AND pVal.mktValue >=1.00";
     bug40333Simulation(region, queryStr);
@@ -324,14 +319,14 @@ public class MiscJUnitTest {
   public void testBug40333_InPartitionedRegion_1() throws Exception {
     CacheUtils.startCache();
     final Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var attributesFactory = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(10);
-    PartitionAttributes pa = paf.create();
+    var pa = paf.create();
     attributesFactory.setPartitionAttributes(pa);
-    RegionAttributes ra = attributesFactory.create();
-    final Region region = cache.createRegion("new_pos", ra);
-    String queryStr = " select distinct r.name, pVal, r.\"type\"  "
+    var ra = attributesFactory.create();
+    final var region = cache.createRegion("new_pos", ra);
+    var queryStr = " select distinct r.name, pVal, r.\"type\"  "
         + " from " + SEPARATOR + "new_pos r , r.positions.values pVal where "
         + "  (r.name='name_11' OR r.name='name_12') AND pVal.mktValue < 1.00";
     bug40333Simulation(region, queryStr);
@@ -344,10 +339,10 @@ public class MiscJUnitTest {
   public void testBug40333_InLocalRegion_2() throws Exception {
     CacheUtils.startCache();
     final Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    RegionAttributes ra = attributesFactory.create();
-    final Region region = cache.createRegion("new_pos", ra);
-    String queryStr = " select distinct r.name, pVal, r.\"type\"  "
+    var attributesFactory = new AttributesFactory();
+    var ra = attributesFactory.create();
+    final var region = cache.createRegion("new_pos", ra);
+    var queryStr = " select distinct r.name, pVal, r.\"type\"  "
         + " from " + SEPARATOR + "new_pos r , r.positions.values pVal where "
         + " ( r.name IN Set('name_11' , 'name_12') OR false ) AND pVal.mktValue = 1.00";
     bug40333Simulation(region, queryStr);
@@ -362,49 +357,49 @@ public class MiscJUnitTest {
   public void testBug40333_InPartitionedRegion_2() throws Exception {
     CacheUtils.startCache();
     final Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var attributesFactory = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(10);
-    PartitionAttributes pa = paf.create();
+    var pa = paf.create();
     attributesFactory.setPartitionAttributes(pa);
-    RegionAttributes ra = attributesFactory.create();
-    final Region region = cache.createRegion("new_pos", ra);
-    String queryStr = " select distinct r.name, pVal, r.\"type\"  "
+    var ra = attributesFactory.create();
+    final var region = cache.createRegion("new_pos", ra);
+    var queryStr = " select distinct r.name, pVal, r.\"type\"  "
         + " from " + SEPARATOR + "new_pos r , r.positions.values pVal where "
         + " ( r.name IN Set('name_11' , 'name_12') OR false ) AND pVal.mktValue < 1.00";
     bug40333Simulation(region, queryStr);
   }
 
   private void bug40333Simulation(final Region region, final String queryStr) throws Exception {
-    final QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "new_pos");
-    for (int i = 1; i < 100; ++i) {
-      NewPortfolio pf = new NewPortfolio("name" + i, i);
+    final var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "new_pos");
+    for (var i = 1; i < 100; ++i) {
+      var pf = new NewPortfolio("name" + i, i);
       rgn.put("name" + i, pf);
     }
-    final Object lock = new Object();
-    final boolean[] expectionOccurred = new boolean[] {false};
-    final boolean[] keepGoing = new boolean[] {true};
+    final var lock = new Object();
+    final var expectionOccurred = new boolean[] {false};
+    final var keepGoing = new boolean[] {true};
 
-    Thread indexCreatorDestroyer = new Thread(() -> {
-      boolean continueRunning = true;
+    var indexCreatorDestroyer = new Thread(() -> {
+      var continueRunning = true;
       do {
         synchronized (lock) {
           continueRunning = keepGoing[0];
         }
         try {
-          Index indx1 = qs.createIndex("MarketValues", IndexType.FUNCTIONAL, "itr2.mktValue",
+          var indx1 = qs.createIndex("MarketValues", IndexType.FUNCTIONAL, "itr2.mktValue",
               SEPARATOR + "new_pos itr1, itr1.positions.values itr2");
-          Index indx2 =
+          var indx2 =
               qs.createIndex("Name", IndexType.FUNCTIONAL, "itr1.name",
                   SEPARATOR + "new_pos itr1");
-          Index indx3 =
+          var indx3 =
               qs.createIndex("nameIndex", IndexType.PRIMARY_KEY, "name", SEPARATOR + "new_pos");
-          Index indx4 =
+          var indx4 =
               qs.createIndex("idIndex", IndexType.FUNCTIONAL, "id", SEPARATOR + "new_pos");
-          Index indx5 = qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status",
+          var indx5 = qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status",
               SEPARATOR + "new_pos");
-          Index indx6 = qs.createIndex("undefinedFieldIndex", IndexType.FUNCTIONAL,
+          var indx6 = qs.createIndex("undefinedFieldIndex", IndexType.FUNCTIONAL,
               "undefinedTestField.toString", SEPARATOR + "new_pos");
           Thread.sleep(800);
           qs.removeIndex(indx1);
@@ -427,19 +422,19 @@ public class MiscJUnitTest {
     });
 
     indexCreatorDestroyer.start();
-    final Query q = qs.newQuery(queryStr);
-    final int THREAD_COUNT = 10;
-    Thread[] queryThreads = new Thread[THREAD_COUNT];
-    final int numTimesToRun = 75;
-    for (int i = 0; i < THREAD_COUNT; ++i) {
+    final var q = qs.newQuery(queryStr);
+    final var THREAD_COUNT = 10;
+    var queryThreads = new Thread[THREAD_COUNT];
+    final var numTimesToRun = 75;
+    for (var i = 0; i < THREAD_COUNT; ++i) {
       queryThreads[i] = new Thread(() -> {
-        boolean continueRunning = true;
-        for (int i1 = 0; i1 < numTimesToRun && continueRunning; ++i1) {
+        var continueRunning = true;
+        for (var i1 = 0; i1 < numTimesToRun && continueRunning; ++i1) {
           synchronized (lock) {
             continueRunning = keepGoing[0];
           }
           try {
-            SelectResults sr = (SelectResults) q.execute();
+            var sr = (SelectResults) q.execute();
           } catch (Throwable e) {
             e.printStackTrace();
             region.getCache().getLogger().error(e);
@@ -457,11 +452,11 @@ public class MiscJUnitTest {
       assertFalse(expectionOccurred[0]);
     }
 
-    for (int i = 0; i < THREAD_COUNT; ++i) {
+    for (var i = 0; i < THREAD_COUNT; ++i) {
       queryThreads[i].start();
     }
 
-    for (int i = 0; i < THREAD_COUNT; ++i) {
+    for (var i = 0; i < THREAD_COUNT; ++i) {
       queryThreads[i].join();
     }
     synchronized (lock) {
@@ -478,54 +473,54 @@ public class MiscJUnitTest {
   public void testBug40441() throws Exception {
     CacheUtils.startCache();
     final Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    RegionAttributes ra = attributesFactory.create();
-    final Region region = cache.createRegion("new_pos", ra);
-    String queryStr1 = " select distinct r.name, pVal, r.\"type\"  "
+    var attributesFactory = new AttributesFactory();
+    var ra = attributesFactory.create();
+    final var region = cache.createRegion("new_pos", ra);
+    var queryStr1 = " select distinct r.name, pVal, r.\"type\"  "
         + " from " + SEPARATOR + "new_pos r , r.positions.values pVal where "
         + " ( r.undefinedTestField.toString = UNDEFINED  OR false ) ";// AND pVal.mktValue = 1.00";
-    String queryStr2 = " select distinct r.name, pVal, r.\"type\"  "
+    var queryStr2 = " select distinct r.name, pVal, r.\"type\"  "
         + " from " + SEPARATOR + "new_pos r , r.positions.values pVal where "
         + " ( r.undefinedTestField.toString = UNDEFINED  AND true ) AND pVal.mktValue = 1.00";
-    final QueryService qs = CacheUtils.getQueryService();
-    for (int i = 1; i < 100; ++i) {
-      NewPortfolio pf = new NewPortfolio("name" + i, i);
+    final var qs = CacheUtils.getQueryService();
+    for (var i = 1; i < 100; ++i) {
+      var pf = new NewPortfolio("name" + i, i);
       region.put("name" + i, pf);
     }
 
-    Index indx1 = qs.createIndex("MarketValues", IndexType.FUNCTIONAL, "itr2.mktValue",
+    var indx1 = qs.createIndex("MarketValues", IndexType.FUNCTIONAL, "itr2.mktValue",
         SEPARATOR + "new_pos itr1, itr1.positions.values itr2");
-    Index indx2 =
+    var indx2 =
         qs.createIndex("Name", IndexType.FUNCTIONAL, "itr1.name", SEPARATOR + "new_pos itr1");
-    Index indx3 = qs.createIndex("nameIndex", IndexType.PRIMARY_KEY, "name", SEPARATOR + "new_pos");
-    Index indx4 = qs.createIndex("idIndex", IndexType.FUNCTIONAL, "id", SEPARATOR + "new_pos");
-    Index indx5 =
+    var indx3 = qs.createIndex("nameIndex", IndexType.PRIMARY_KEY, "name", SEPARATOR + "new_pos");
+    var indx4 = qs.createIndex("idIndex", IndexType.FUNCTIONAL, "id", SEPARATOR + "new_pos");
+    var indx5 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "new_pos");
-    Index indx6 = qs.createIndex("undefinedFieldIndex", IndexType.FUNCTIONAL,
+    var indx6 = qs.createIndex("undefinedFieldIndex", IndexType.FUNCTIONAL,
         "undefinedTestField.toString", SEPARATOR + "new_pos");
-    final Query q1 = qs.newQuery(queryStr1);
-    final Query q2 = qs.newQuery(queryStr2);
-    SelectResults sr1 = (SelectResults) q1.execute();
-    SelectResults sr2 = (SelectResults) q2.execute();
+    final var q1 = qs.newQuery(queryStr1);
+    final var q2 = qs.newQuery(queryStr2);
+    var sr1 = (SelectResults) q1.execute();
+    var sr2 = (SelectResults) q2.execute();
   }
 
   @Test
   public void testBug37119() throws Exception {
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
     region.put(Integer.MIN_VALUE + "", new Portfolio(Integer.MIN_VALUE));
     region.put("-1", new Portfolio(-1));
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
 
-    String qStr = "Select distinct * from " + SEPARATOR + "portfolios pf where pf.getID() = "
+    var qStr = "Select distinct * from " + SEPARATOR + "portfolios pf where pf.getID() = "
         + Integer.MIN_VALUE;
-    Query q = qs.newQuery(qStr);
-    SelectResults result = (SelectResults) q.execute();
+    var q = qs.newQuery(qStr);
+    var result = (SelectResults) q.execute();
     assertEquals(result.size(), 1);
-    Portfolio pf = (Portfolio) result.iterator().next();
+    var pf = (Portfolio) result.iterator().next();
     assertEquals(pf.getID(), Integer.MIN_VALUE);
     qStr = "Select distinct * from " + SEPARATOR + "portfolios pf where pf.getID() = -1";
     q = qs.newQuery(qStr);

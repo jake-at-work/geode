@@ -191,7 +191,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
     }
 
     // Find a power of 2 >= initialCapacity
-    int capacity = 1;
+    var capacity = 1;
     while (capacity < initialCapacity) {
       capacity <<= 1;
     }
@@ -308,8 +308,8 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
     if (key == null) {
       return getForNullKey();
     }
-    int hash = hash(hashingStrategy.hashCode(key));
-    for (Entry e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
+    var hash = hash(hashingStrategy.hashCode(key));
+    for (var e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
       Object k;
       if (e.hash == hash && ((k = e.key) == key || hashingStrategy.equals(k, key))) {
         return e.value;
@@ -324,7 +324,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * operations (get and put), but incorporated with conditionals in others.
    */
   private int getForNullKey() {
-    for (Entry e = table[0]; e != null; e = e.next) {
+    for (var e = table[0]; e != null; e = e.next) {
       if (e.key == null) {
         return e.value;
       }
@@ -347,8 +347,8 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * IntHashMap contains no mapping for the key.
    */
   Entry getEntry(Object key) {
-    int hash = (key == null) ? 0 : hash(hashingStrategy.hashCode(key));
-    for (Entry e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
+    var hash = (key == null) ? 0 : hash(hashingStrategy.hashCode(key));
+    for (var e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
       Object k;
       if (e.hash == hash
           && ((k = e.key) == key || (key != null && hashingStrategy.equals(k, key)))) {
@@ -373,12 +373,12 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
     if (key == null) {
       return putForNullKey(value);
     }
-    int hash = hash(hashingStrategy.hashCode(key));
-    int i = indexFor(hash, table.length);
-    for (Entry e = table[i]; e != null; e = e.next) {
+    var hash = hash(hashingStrategy.hashCode(key));
+    var i = indexFor(hash, table.length);
+    for (var e = table[i]; e != null; e = e.next) {
       Object k;
       if (e.hash == hash && ((k = e.key) == key || hashingStrategy.equals(k, key))) {
-        int oldValue = e.value;
+        var oldValue = e.value;
         e.value = value;
         e.recordAccess(this);
         return oldValue;
@@ -394,9 +394,9 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * Offloaded version of put for null keys
    */
   private int putForNullKey(int value) {
-    for (Entry e = table[0]; e != null; e = e.next) {
+    for (var e = table[0]; e != null; e = e.next) {
       if (e.key == null) {
-        int oldValue = e.value;
+        var oldValue = e.value;
         e.value = value;
         e.recordAccess(this);
         return oldValue;
@@ -413,15 +413,15 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * addEntry.
    */
   private void putForCreate(Object key, int value) {
-    int hash = (key == null) ? 0 : hash(hashingStrategy.hashCode(key));
-    int i = indexFor(hash, table.length);
+    var hash = (key == null) ? 0 : hash(hashingStrategy.hashCode(key));
+    var i = indexFor(hash, table.length);
 
     /*
      * Look for preexisting entry for key. This will never happen for clone or deserialize. It will
      * only happen for construction if the input Map is a sorted map whose ordering is inconsistent
      * w/ equals.
      */
-    for (Entry e = table[i]; e != null; e = e.next) {
+    for (var e = table[i]; e != null; e = e.next) {
       Object k;
       if (e.hash == hash
           && ((k = e.key) == key || (key != null && hashingStrategy.equals(k, key)))) {
@@ -434,7 +434,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
   }
 
   private void putAllForCreate(ObjectIntHashMap m) {
-    for (Entry e : m.entrySet()) {
+    for (var e : m.entrySet()) {
       putForCreate(e.getKey(), e.getValue());
     }
   }
@@ -451,14 +451,14 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    *        irrelevant).
    */
   void resize(int newCapacity) {
-    Entry[] oldTable = table;
-    int oldCapacity = oldTable.length;
+    var oldTable = table;
+    var oldCapacity = oldTable.length;
     if (oldCapacity == MAXIMUM_CAPACITY) {
       threshold = Integer.MAX_VALUE;
       return;
     }
 
-    Entry[] newTable = new Entry[newCapacity];
+    var newTable = new Entry[newCapacity];
     transfer(newTable);
     table = newTable;
     threshold = (int) (newCapacity * loadFactor);
@@ -468,15 +468,15 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * Transfers all entries from current table to newTable.
    */
   void transfer(Entry[] newTable) {
-    Entry[] src = table;
-    int newCapacity = newTable.length;
-    for (int j = 0; j < src.length; j++) {
-      Entry e = src[j];
+    var src = table;
+    var newCapacity = newTable.length;
+    for (var j = 0; j < src.length; j++) {
+      var e = src[j];
       if (e != null) {
         src[j] = null;
         do {
-          Entry next = e.next;
-          int i = indexFor(e.hash, newCapacity);
+          var next = e.next;
+          var i = indexFor(e.hash, newCapacity);
           e.next = newTable[i];
           newTable[i] = e;
           e = next;
@@ -493,7 +493,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * @throws NullPointerException if the specified map is null
    */
   public void putAll(ObjectIntHashMap m) {
-    int numKeysToBeAdded = m.size();
+    var numKeysToBeAdded = m.size();
     if (numKeysToBeAdded == 0) {
       return;
     }
@@ -506,11 +506,11 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
      * subject ourself to at most one extra resize.
      */
     if (numKeysToBeAdded > threshold) {
-      int targetCapacity = (int) (numKeysToBeAdded / loadFactor + 1);
+      var targetCapacity = (int) (numKeysToBeAdded / loadFactor + 1);
       if (targetCapacity > MAXIMUM_CAPACITY) {
         targetCapacity = MAXIMUM_CAPACITY;
       }
-      int newCapacity = table.length;
+      var newCapacity = table.length;
       while (newCapacity < targetCapacity) {
         newCapacity <<= 1;
       }
@@ -519,7 +519,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
       }
     }
 
-    for (Entry e : m.entrySet()) {
+    for (var e : m.entrySet()) {
       put(e.getKey(), e.getValue());
     }
   }
@@ -533,7 +533,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    *         previously associated <tt>null</tt> with <tt>key</tt>.)
    */
   public int remove(Object key) {
-    Entry e = removeEntryForKey(key);
+    var e = removeEntryForKey(key);
     return (e == null ? 0 : e.value);
   }
 
@@ -542,13 +542,13 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * if the IntHashMap contains no mapping for this key.
    */
   Entry removeEntryForKey(Object key) {
-    int hash = (key == null) ? 0 : hash(hashingStrategy.hashCode(key));
-    int i = indexFor(hash, table.length);
-    Entry prev = table[i];
-    Entry e = prev;
+    var hash = (key == null) ? 0 : hash(hashingStrategy.hashCode(key));
+    var i = indexFor(hash, table.length);
+    var prev = table[i];
+    var e = prev;
 
     while (e != null) {
-      Entry next = e.next;
+      var next = e.next;
       Object k;
       if (e.hash == hash
           && ((k = e.key) == key || (key != null && hashingStrategy.equals(k, key)))) {
@@ -577,15 +577,15 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
       return null;
     }
 
-    Entry entry = (Entry) o;
-    Object key = entry.getKey();
-    int hash = (key == null) ? 0 : hash(hashingStrategy.hashCode(key));
-    int i = indexFor(hash, table.length);
-    Entry prev = table[i];
-    Entry e = prev;
+    var entry = (Entry) o;
+    var key = entry.getKey();
+    var hash = (key == null) ? 0 : hash(hashingStrategy.hashCode(key));
+    var i = indexFor(hash, table.length);
+    var prev = table[i];
+    var e = prev;
 
     while (e != null) {
-      Entry next = e.next;
+      var next = e.next;
       if (e.hash == hash && e.equals(entry)) {
         modCount++;
         size--;
@@ -609,8 +609,8 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    */
   public void clear() {
     modCount++;
-    Entry[] tab = table;
-    for (int i = 0; i < tab.length; i++) {
+    var tab = table;
+    for (var i = 0; i < tab.length; i++) {
       tab[i] = null;
     }
     size = 0;
@@ -624,9 +624,9 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    */
   public boolean containsValue(int value) {
 
-    Entry[] tab = table;
-    for (final Entry entry : tab) {
-      for (Entry e = entry; e != null; e = e.next) {
+    var tab = table;
+    for (final var entry : tab) {
+      for (var e = entry; e != null; e = e.next) {
         if (value == e.value) {
           return true;
         }
@@ -687,15 +687,15 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
     if (!(o instanceof ObjectIntHashMap)) {
       return false;
     }
-    ObjectIntHashMap m = (ObjectIntHashMap) o;
+    var m = (ObjectIntHashMap) o;
     if (m.size() != size()) {
       return false;
     }
 
     try {
-      for (final Entry e : entrySet()) {
-        Object key = e.getKey();
-        int value = e.getValue();
+      for (final var e : entrySet()) {
+        var key = e.getKey();
+        var value = e.getValue();
         if (!(m.containsKey(key))) {
           return false;
         } else if (!(value == m.get(key))) {
@@ -728,8 +728,8 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * @see Set#equals(Object)
    */
   public int hashCode() {
-    int h = 0;
-    for (final Entry entry : entrySet()) {
+    var h = 0;
+    for (final var entry : entrySet()) {
       h += entry.hashCode();
     }
     return h;
@@ -746,17 +746,17 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * @return a string representation of this map
    */
   public String toString() {
-    Iterator<Entry> i = entrySet().iterator();
+    var i = entrySet().iterator();
     if (!i.hasNext()) {
       return "{}";
     }
 
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append('{');
     for (;;) {
-      Entry e = i.next();
-      Object key = e.getKey();
-      int value = e.getValue();
+      var e = i.next();
+      var key = e.getKey();
+      var value = e.getValue();
       sb.append(key == this ? "(this Map)" : key);
       sb.append('=');
       sb.append(value);
@@ -792,7 +792,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
     }
 
     public int setValue(int newValue) {
-      int oldValue = value;
+      var oldValue = value;
       value = newValue;
       return oldValue;
     }
@@ -801,12 +801,12 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
       if (!(o instanceof Entry)) {
         return false;
       }
-      Entry e = (Entry) o;
-      Object k1 = getKey();
-      Object k2 = e.getKey();
+      var e = (Entry) o;
+      var k1 = getKey();
+      var k2 = e.getKey();
       if (k1 == k2 || (k1 != null && hashingStrategy.equals(k1, k2))) {
-        int v1 = getValue();
-        int v2 = e.getValue();
+        var v1 = getValue();
+        var v2 = e.getValue();
         return v1 == v2;
       }
       return false;
@@ -839,7 +839,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * Subclass overrides this to alter the behavior of put method.
    */
   void addEntry(int hash, Object key, int value, int bucketIndex) {
-    Entry e = table[bucketIndex];
+    var e = table[bucketIndex];
     table[bucketIndex] = new Entry(hash, key, value, e);
     if (size++ >= threshold) {
       resize(2 * table.length);
@@ -854,7 +854,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * Subclass overrides this to alter the behavior of IntHashMap(Map), clone, and readObject.
    */
   void createEntry(int hash, Object key, int value, int bucketIndex) {
-    Entry e = table[bucketIndex];
+    var e = table[bucketIndex];
     table[bucketIndex] = new Entry(hash, key, value, e);
     size++;
   }
@@ -868,7 +868,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
     HashIterator() {
       expectedModCount = modCount;
       if (size > 0) { // advance to first entry
-        Entry[] t = table;
+        var t = table;
         while (index < t.length && (next = t[index++]) == null) {
         }
       }
@@ -883,13 +883,13 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
       if (modCount != expectedModCount) {
         throw new ConcurrentModificationException();
       }
-      Entry e = next;
+      var e = next;
       if (e == null) {
         throw new NoSuchElementException();
       }
 
       if ((next = e.next) == null) {
-        Entry[] t = table;
+        var t = table;
         while (index < t.length && (next = t[index++]) == null) {
         }
       }
@@ -905,7 +905,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
       if (modCount != expectedModCount) {
         throw new ConcurrentModificationException();
       }
-      Object k = current.key;
+      var k = current.key;
       current = null;
       removeEntryForKey(k);
       expectedModCount = modCount;
@@ -952,7 +952,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    * does not support the <tt>add</tt> or <tt>addAll</tt> operations.
    */
   public Set<Object> keySet() {
-    Set<Object> ks = keySet;
+    var ks = keySet;
     return (ks != null ? ks : (keySet = new KeySet()));
   }
 
@@ -1000,7 +1000,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
   }
 
   private Set<Entry> entrySet0() {
-    Set<Entry> es = entrySet;
+    var es = entrySet;
     return es != null ? es : (entrySet = new EntrySet());
   }
 
@@ -1015,8 +1015,8 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
       if (!(o instanceof Entry)) {
         return false;
       }
-      Entry e = (Entry) o;
-      Entry candidate = getEntry(e.getKey());
+      var e = (Entry) o;
+      var candidate = getEntry(e.getKey());
       return candidate != null && candidate.equals(e);
     }
 
@@ -1045,7 +1045,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
    *             key-value mappings are emitted in no particular order.
    */
   private void writeObject(java.io.ObjectOutputStream s) throws IOException {
-    Iterator<Entry> i = (size > 0) ? entrySet0().iterator() : null;
+    var i = (size > 0) ? entrySet0().iterator() : null;
 
     // Write out the threshold, loadfactor, and any hidden stuff
     s.defaultWriteObject();
@@ -1059,7 +1059,7 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
     // Write out keys and values (alternating)
     if (i != null) {
       while (i.hasNext()) {
-        Entry e = i.next();
+        var e = i.next();
         s.writeObject(e.getKey());
         s.writeInt(e.getValue());
       }
@@ -1074,18 +1074,18 @@ public class ObjectIntHashMap implements Cloneable, Serializable {
     s.defaultReadObject();
 
     // Read in number of buckets and allocate the bucket array;
-    int numBuckets = s.readInt();
+    var numBuckets = s.readInt();
     table = new Entry[numBuckets];
 
     init(); // Give subclass a chance to do its thing.
 
     // Read in size (number of Mappings)
-    int size = s.readInt();
+    var size = s.readInt();
 
     // Read the keys and values, and put the mappings in the IntHashMap
-    for (int i = 0; i < size; i++) {
-      Object key = s.readObject();
-      int value = s.readInt();
+    for (var i = 0; i < size; i++) {
+      var key = s.readObject();
+      var value = s.readInt();
       putForCreate(key, value);
     }
   }

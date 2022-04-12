@@ -30,7 +30,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -82,18 +81,18 @@ public class PeerTypeRegistrationTest {
 
   @Test
   public void getLocalSizeThrowsWhenNotInitialized() {
-    PeerTypeRegistration peerTypeRegistration = new PeerTypeRegistration(internalCache);
+    var peerTypeRegistration = new PeerTypeRegistration(internalCache);
     assertThatThrownBy(peerTypeRegistration::getLocalSize)
         .isInstanceOf(PdxInitializationException.class);
   }
 
   @Test
   public void shouldReloadFromRegionWillNotInvokeInTX() {
-    TXStateProxy txStateProxy = mock(TXStateProxy.class);
+    var txStateProxy = mock(TXStateProxy.class);
     when(txStateProxy.getTxMgr()).thenReturn(txManager);
     when(txManager.internalSuspend()).thenReturn(txStateProxy);
 
-    PeerTypeRegistration peerTypeRegistration = new PeerTypeRegistration(internalCache);
+    var peerTypeRegistration = new PeerTypeRegistration(internalCache);
     peerTypeRegistration.initialize();
     peerTypeRegistration.shouldReload();
 
@@ -104,7 +103,7 @@ public class PeerTypeRegistrationTest {
   @Test
   public void getLocalSizeReturnsValueAfterInitialized() {
     when(region.size()).thenReturn(1);
-    PeerTypeRegistration peerTypeRegistration = new PeerTypeRegistration(internalCache);
+    var peerTypeRegistration = new PeerTypeRegistration(internalCache);
     peerTypeRegistration.initialize();
 
     assertThat(peerTypeRegistration.getLocalSize()).isEqualTo(1);
@@ -112,10 +111,10 @@ public class PeerTypeRegistrationTest {
 
   @Test
   public void typeRegistryCacheIsFlushedWhenNotNull() {
-    TypeRegistry typeRegistry = mock(TypeRegistry.class);
+    var typeRegistry = mock(TypeRegistry.class);
     when(internalCache.getPdxRegistry()).thenReturn(typeRegistry);
 
-    PeerTypeRegistration peerTypeRegistration = new PeerTypeRegistration(internalCache);
+    var peerTypeRegistration = new PeerTypeRegistration(internalCache);
     peerTypeRegistration.initialize();
 
     verify(typeRegistry).flushCache();
@@ -124,15 +123,15 @@ public class PeerTypeRegistrationTest {
   @Test
   public void pdxPersistenceIsSetWithUserDefinedDiskStore()
       throws NoSuchFieldException, IllegalAccessException {
-    PeerTypeRegistration peerTypeRegistration = spy(new PeerTypeRegistration(internalCache));
+    var peerTypeRegistration = spy(new PeerTypeRegistration(internalCache));
     doReturn(factory).when(internalCache).createRegionFactory();
     when(internalCache.getPdxPersistent()).thenReturn(true);
-    CacheConfig config = mock(CacheConfig.class);
+    var config = mock(CacheConfig.class);
     when(internalCache.getCacheConfig()).thenReturn(config);
 
-    Field field = config.getClass().getField("pdxDiskStoreUserSet");
+    var field = config.getClass().getField("pdxDiskStoreUserSet");
     field.setBoolean(config, Boolean.TRUE);
-    final String diskStoreName = "userDiskStore";
+    final var diskStoreName = "userDiskStore";
     when(internalCache.getPdxDiskStore()).thenReturn(diskStoreName);
 
     peerTypeRegistration.initialize();
@@ -143,15 +142,15 @@ public class PeerTypeRegistrationTest {
 
   @Test
   public void pdxPersistenceIsSetWithDefaultDiskStore() {
-    PeerTypeRegistration peerTypeRegistration = spy(new PeerTypeRegistration(internalCache));
+    var peerTypeRegistration = spy(new PeerTypeRegistration(internalCache));
     doReturn(factory).when(internalCache).createRegionFactory();
     when(internalCache.getPdxPersistent()).thenReturn(true);
-    CacheConfig config = mock(CacheConfig.class);
+    var config = mock(CacheConfig.class);
     when(internalCache.getCacheConfig()).thenReturn(config);
 
-    DiskStoreImpl defaultDiskStore = mock(DiskStoreImpl.class);
+    var defaultDiskStore = mock(DiskStoreImpl.class);
     when(internalCache.getOrCreateDefaultDiskStore()).thenReturn(defaultDiskStore);
-    final String diskStoreName = "defaultDiskStoreName";
+    final var diskStoreName = "defaultDiskStoreName";
     when(defaultDiskStore.getName()).thenReturn(diskStoreName);
 
     peerTypeRegistration.initialize();
@@ -162,7 +161,7 @@ public class PeerTypeRegistrationTest {
 
   @Test
   public void pdxPersistenceIsNotSetWhenPdxPersistenceIsFalse() {
-    PeerTypeRegistration peerTypeRegistration = spy(new PeerTypeRegistration(internalCache));
+    var peerTypeRegistration = spy(new PeerTypeRegistration(internalCache));
     doReturn(factory).when(internalCache).createRegionFactory();
 
     peerTypeRegistration.initialize();
@@ -175,28 +174,28 @@ public class PeerTypeRegistrationTest {
   public void pdxInitializationExceptionIsThrownInInitializeWhenRegionCreationFails()
       throws IOException, ClassNotFoundException {
     doThrow(new RegionExistsException(region)).when(factory).create(any());
-    PeerTypeRegistration peerTypeRegistration = new PeerTypeRegistration(internalCache);
+    var peerTypeRegistration = new PeerTypeRegistration(internalCache);
     peerTypeRegistration.initialize();
   }
 
   @Test
   public void buildLocalMapsFromRegionIsNotCalledIfLocalMapsAreUpToDate() {
-    PeerTypeRegistration peerTypeRegistration = spy(new PeerTypeRegistration(internalCache));
+    var peerTypeRegistration = spy(new PeerTypeRegistration(internalCache));
 
-    DistributedLockService dlockService = mock(DistributedLockService.class);
+    var dlockService = mock(DistributedLockService.class);
     doReturn(dlockService).when(peerTypeRegistration).getLockService();
 
     when(dlockService.lock(anyString(), anyLong(), anyLong())).thenReturn(true);
 
     when(internalCache.getDistributionManager()).thenReturn(distributionManager);
-    InternalDistributedSystem internalDistributedSystem = mock(InternalDistributedSystem.class);
+    var internalDistributedSystem = mock(InternalDistributedSystem.class);
     when(distributionManager.getSystem()).thenReturn(internalDistributedSystem);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(distributionManager.getCancelCriterion()).thenReturn(cancelCriterion);
 
     peerTypeRegistration.initialize();
 
-    PdxType newType = mock(PdxType.class);
+    var newType = mock(PdxType.class);
     peerTypeRegistration.defineType(newType);
 
     verify(peerTypeRegistration, times(0)).buildReverseMapsFromRegion();

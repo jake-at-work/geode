@@ -67,12 +67,12 @@ public class ResultsCollectionPdxDeserializerWrapper implements SelectResults {
 
     @Override
     public Object next() {
-      Object object = iterator.next();
+      var object = iterator.next();
       if (object instanceof Struct) {
-        Struct struct = (Struct) object;
-        Object[] values = struct.getFieldValues();
-        Object[] newValues = new Object[values.length];
-        for (int i = 0; i < values.length; i++) {
+        var struct = (Struct) object;
+        var values = struct.getFieldValues();
+        var newValues = new Object[values.length];
+        for (var i = 0; i < values.length; i++) {
           if (values[i] instanceof PdxInstance) {
             newValues[i] = ((PdxInstance) values[i]).getObject();
           } else if (values[i] instanceof PdxString) {
@@ -170,8 +170,8 @@ public class ResultsCollectionPdxDeserializerWrapper implements SelectResults {
 
   @Override
   public Object[] toArray() {
-    ArrayList arrayList = new ArrayList();
-    for (final Object o : this) {
+    var arrayList = new ArrayList();
+    for (final var o : this) {
       arrayList.add(o);
     }
     return arrayList.toArray();
@@ -179,8 +179,8 @@ public class ResultsCollectionPdxDeserializerWrapper implements SelectResults {
 
   @Override
   public Object[] toArray(Object[] a) {
-    Iterator iter = iterator();
-    int i = 0;
+    var iter = iterator();
+    var i = 0;
     while (iter.hasNext()) {
       a[i++] = iter.next();
     }

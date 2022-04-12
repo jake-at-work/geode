@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Properties;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -87,9 +86,9 @@ public class GemFireCacheImplCloseTest {
     replyProcessor21Factory = mock(ReplyProcessor21Factory.class);
     typeRegistry = mock(TypeRegistry.class);
 
-    DistributionConfig distributionConfig = mock(DistributionConfig.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
-    ReplyProcessor21 replyProcessor21 = mock(ReplyProcessor21.class);
+    var distributionConfig = mock(DistributionConfig.class);
+    var distributionManager = mock(DistributionManager.class);
+    var replyProcessor21 = mock(ReplyProcessor21.class);
 
     when(distributionConfig.getSecurityProps())
         .thenReturn(new Properties());
@@ -136,7 +135,7 @@ public class GemFireCacheImplCloseTest {
   @Test
   public void close_closesHeapEvictor() {
     gemFireCacheImpl = gemFireCacheImpl(false);
-    HeapEvictor heapEvictor = mock(HeapEvictor.class);
+    var heapEvictor = mock(HeapEvictor.class);
     gemFireCacheImpl.setHeapEvictor(heapEvictor);
 
     gemFireCacheImpl.close();
@@ -148,7 +147,7 @@ public class GemFireCacheImplCloseTest {
   @Test
   public void close_closesOffHeapEvictor() {
     gemFireCacheImpl = gemFireCacheImpl(false);
-    OffHeapEvictor offHeapEvictor = mock(OffHeapEvictor.class);
+    var offHeapEvictor = mock(OffHeapEvictor.class);
     gemFireCacheImpl.setOffHeapEvictor(offHeapEvictor);
 
     gemFireCacheImpl.close();
@@ -190,9 +189,9 @@ public class GemFireCacheImplCloseTest {
   @Test
   public void close_blocksUntilFirstCallToCloseCompletes() throws Exception {
     gemFireCacheImpl = gemFireCacheImpl(false);
-    CyclicBarrier cyclicBarrier = new CyclicBarrier(3);
+    var cyclicBarrier = new CyclicBarrier(3);
 
-    Future<Boolean> close1 = executorServiceRule.submit(() -> {
+    var close1 = executorServiceRule.submit(() -> {
       synchronized (GemFireCacheImpl.class) {
         cyclicBarrier.await(getTimeout().toMillis(), MILLISECONDS);
         return gemFireCacheImpl.doClose("test", null, false, false, false);
@@ -201,7 +200,7 @@ public class GemFireCacheImplCloseTest {
 
     await().until(() -> cyclicBarrier.getNumberWaiting() == 1);
 
-    Future<Boolean> close2 = executorServiceRule.submit(() -> {
+    var close2 = executorServiceRule.submit(() -> {
       cyclicBarrier.await(getTimeout().toMillis(), MILLISECONDS);
       return gemFireCacheImpl.doClose("test", null, false, false, false);
     });

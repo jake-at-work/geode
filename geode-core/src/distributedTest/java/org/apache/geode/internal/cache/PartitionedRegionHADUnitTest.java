@@ -21,7 +21,6 @@ import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Before;
@@ -35,12 +34,9 @@ import org.apache.geode.cache.PartitionedRegionStorageException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserver;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserverAdapter;
-import org.apache.geode.internal.cache.partitioned.RegionAdvisor;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
@@ -95,21 +91,21 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
    */
   @Test
   public void testBucketFailOverDuringCacheClose() throws Exception {
-    Boolean value = Boolean.TRUE;
+    var value = Boolean.TRUE;
 
     vm2.invoke(() -> createPartitionedRegion());
     vm3.invoke(() -> createPartitionedRegion());
 
     vm3.invoke(() -> {
       Cache cache = getCache();
-      PartitionedRegion partitionedRegion = (PartitionedRegion) cache.getRegion(regionName);
+      var partitionedRegion = (PartitionedRegion) cache.getRegion(regionName);
       assertThat(partitionedRegion).isEmpty();
 
       // Create keys such that all buckets are created, Integer works well
       // assuming buckets are allocated on the mod of the key hashCode, x 2 just to be safe
-      int numEntries = partitionedRegion.getTotalNumberOfBuckets() * 2;
+      var numEntries = partitionedRegion.getTotalNumberOfBuckets() * 2;
 
-      for (int i = numEntries; i >= 0; --i) {
+      for (var i = numEntries; i >= 0; --i) {
         partitionedRegion.put(i, value);
       }
 
@@ -151,7 +147,7 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
 
     // Do put operations on these 2 PRs asynchronously (this test does not currently do this)
 
-    try (IgnoredException ie = addIgnoredException(PartitionedRegionStorageException.class)) {
+    try (var ie = addIgnoredException(PartitionedRegionStorageException.class)) {
       datastoreVM0.invoke(this::putsInDatastoreVM0);
     }
 
@@ -165,14 +161,14 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
 
     accessorVM3.invoke(() -> {
       Cache cache = getCache();
-      for (int i = 0; i < numberOfRegions; i++) {
-        String regionName = prNamePrefix + i;
+      for (var i = 0; i < numberOfRegions; i++) {
+        var regionName = prNamePrefix + i;
         createPartitionedRegion(cache, regionName, 0, redundantCopies, totalNumBuckets);
       }
     });
 
-    for (int i = 0; i < numberOfRegions; i++) {
-      final int whichRegion = i;
+    for (var i = 0; i < numberOfRegions; i++) {
+      final var whichRegion = i;
 
       int vm2LBRsize =
           (Integer) datastoreVM2.invoke(() -> validateLocalBucket2RegionMapSize(whichRegion));
@@ -204,12 +200,12 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
     vm0.invoke(() -> {
       Cache cache = getCache();
       Region<Integer, Integer> regionZeroRedundancy = cache.getRegion(PR_ZERO_REDUNDANCY);
-      for (int k = 0; k < 10; k++) {
+      for (var k = 0; k < 10; k++) {
         regionZeroRedundancy.put(k, k);
       }
 
       Region<Integer, Integer> regionOneRedundancy = cache.getRegion(PR_ONE_REDUNDANCY);
-      for (int k = 0; k < 10; k++) {
+      for (var k = 0; k < 10; k++) {
         regionOneRedundancy.put(k, k);
       }
     });
@@ -221,14 +217,14 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
   private void validateBucketScope(String prZeroRedundancy, String prSingleRedundancy) {
     Cache cache = getCache();
 
-    PartitionedRegion regionZeroRedundancy = (PartitionedRegion) cache.getRegion(prZeroRedundancy);
+    var regionZeroRedundancy = (PartitionedRegion) cache.getRegion(prZeroRedundancy);
 
-    for (BucketRegion bucket : regionZeroRedundancy.getDataStore().getLocalBucket2RegionMap()
+    for (var bucket : regionZeroRedundancy.getDataStore().getLocalBucket2RegionMap()
         .values()) {
       assertThat(bucket.getAttributes().getScope().isDistributedAck()).isTrue();
     }
 
-    PartitionedRegion regionOneRedundancy = (PartitionedRegion) cache.getRegion(prSingleRedundancy);
+    var regionOneRedundancy = (PartitionedRegion) cache.getRegion(prSingleRedundancy);
 
     for (Region bucket : regionOneRedundancy.getDataStore().getLocalBucket2RegionMap().values()) {
       assertThat(bucket.getAttributes().getDataPolicy()).isSameAs(DataPolicy.REPLICATE);
@@ -245,15 +241,15 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
   }
 
   private Object validateBucketsOnNode(int whichRegion) {
-    int containsNode = 0;
+    var containsNode = 0;
     Cache cache = getCache();
-    PartitionedRegion partitionedRegion =
+    var partitionedRegion =
         (PartitionedRegion) cache.getRegion(prNamePrefix + whichRegion);
-    RegionAdvisor regionAdvisor = partitionedRegion.getRegionAdvisor();
+    var regionAdvisor = partitionedRegion.getRegionAdvisor();
 
     try {
       for (int bucketId : regionAdvisor.getBucketSet()) {
-        Set<InternalDistributedMember> nodeList = regionAdvisor.getBucketOwners(bucketId);
+        var nodeList = regionAdvisor.getBucketOwners(bucketId);
         if (nodeList != null && nodeList.contains(partitionedRegion.getMyId())) {
           containsNode++;
         }
@@ -265,11 +261,11 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
   }
 
   private Object validateLocalBucket2RegionMapSize(int whichRegion) {
-    int size = 0;
+    var size = 0;
     Cache cache = getCache();
-    PartitionedRegion partitionedRegion =
+    var partitionedRegion =
         (PartitionedRegion) cache.getRegion(prNamePrefix + whichRegion);
-    PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
+    var dataStore = partitionedRegion.getDataStore();
     if (dataStore != null) {
       size = dataStore.getBucketsManaged();
     }
@@ -278,9 +274,9 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
 
   private void putsInDatastoreVM0() {
     Cache cache = getCache();
-    for (int i = 0; i < numberOfRegions; i++) {
+    for (var i = 0; i < numberOfRegions; i++) {
       Region<String, String> region = cache.getRegion(prNamePrefix + i);
-      for (int k = 0; k < 10; k++) {
+      for (var k = 0; k < 10; k++) {
         region.put(i + prNamePrefix + k, prNamePrefix + k);
       }
     }
@@ -288,7 +284,7 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
 
   private void createPRsAndAwaitRecovery(int localMaxMemory, int redundancy, int totalNumBuckets)
       throws InterruptedException {
-    CountDownLatch recoveryDone = new CountDownLatch(numberOfRegions);
+    var recoveryDone = new CountDownLatch(numberOfRegions);
 
     ResourceObserver waitForRecovery = new ResourceObserverAdapter() {
       @Override
@@ -298,11 +294,11 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
     };
 
     InternalResourceManager.setResourceObserver(waitForRecovery);
-    String originalValue = setSystemProperty(RETRY_TIMEOUT_PROPERTY, RETRY_TIMEOUT_VALUE);
+    var originalValue = setSystemProperty(RETRY_TIMEOUT_PROPERTY, RETRY_TIMEOUT_VALUE);
     try {
       Cache cache = getCache();
-      for (int i = 0; i < numberOfRegions; i++) {
-        String regionName = prNamePrefix + i;
+      for (var i = 0; i < numberOfRegions; i++) {
+        var regionName = prNamePrefix + i;
         createPartitionedRegion(cache, regionName, localMaxMemory, redundancy, totalNumBuckets);
       }
       assertThat(recoveryDone.await(1, MINUTES)).isTrue();
@@ -322,15 +318,15 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
 
   private void validateEntries(boolean value) {
     Cache cache = getCache();
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
-    for (int i = region.getTotalNumberOfBuckets() * 2; i >= 0; --i) {
+    var region = (PartitionedRegion) cache.getRegion(regionName);
+    for (var i = region.getTotalNumberOfBuckets() * 2; i >= 0; --i) {
       assertThat(region).containsKey(i);
       assertThat(region.get(i)).isEqualTo(value);
     }
   }
 
   private void createPartitionedRegion() throws InterruptedException {
-    CountDownLatch rebalancingFinished = new CountDownLatch(1);
+    var rebalancingFinished = new CountDownLatch(1);
 
     ResourceObserver waitForRebalancing = new ResourceObserverAdapter() {
       @Override
@@ -352,7 +348,7 @@ public class PartitionedRegionHADUnitTest extends CacheTestCase {
 
   private PartitionedRegion createPartitionedRegion(Cache cache, String regionName,
       int localMaxMemory, int redundancy, int totalNumBuckets) {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setLocalMaxMemory(localMaxMemory);
     partitionAttributesFactory.setRedundantCopies(redundancy);
     partitionAttributesFactory.setTotalNumBuckets(totalNumBuckets);

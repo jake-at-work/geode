@@ -33,7 +33,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.QueryService;
@@ -104,14 +103,14 @@ public class IndexOnEntrySetJUnitTest {
   @Test
   public void testQueriesOnReplicatedRegion() throws Exception {
     testRegion = createReplicatedRegion(testRegionName);
-    String regionPath = SEPARATOR + testRegionName + ".entrySet entry";
+    var regionPath = SEPARATOR + testRegionName + ".entrySet entry";
     executeQueryTest(getQueriesOnRegion(testRegionName), "entry.key.Index", regionPath, 200);
   }
 
   @Test
   public void testEntryDestroyedRaceWithSizeEstimateReplicatedRegion() throws Exception {
     testRegion = createReplicatedRegion(testRegionName);
-    String regionPath = SEPARATOR + testRegionName + ".entrySet entry";
+    var regionPath = SEPARATOR + testRegionName + ".entrySet entry";
     executeQueryTestDestroyDuringSizeEstimation(getQueriesOnRegion(testRegionName),
         "entry.key.Index", regionPath, 201);
   }
@@ -123,29 +122,29 @@ public class IndexOnEntrySetJUnitTest {
   @Test
   public void testQueriesOnPartitionedRegion() throws Exception {
     testRegion = createPartitionedRegion(testRegionName);
-    String regionPath = SEPARATOR + testRegionName + ".entrySet entry";
+    var regionPath = SEPARATOR + testRegionName + ".entrySet entry";
     executeQueryTest(getQueriesOnRegion(testRegionName), "entry.key.Index", regionPath, 200);
   }
 
   private Region createReplicatedRegion(String regionName) throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     return cache.createRegion(regionName, regionAttributes);
   }
 
   private Region createPartitionedRegion(String regionName) throws ParseException {
     Cache cache = CacheUtils.getCache();
-    PartitionAttributesFactory prAttFactory = new PartitionAttributesFactory();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var prAttFactory = new PartitionAttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setPartitionAttributes(prAttFactory.create());
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     return cache.createRegion(regionName, regionAttributes);
   }
 
   private void populateRegion(Region region) throws Exception {
-    for (int i = 1; i <= numElem; i++) {
+    for (var i = 1; i <= numElem; i++) {
       putData(i, region);
     }
   }
@@ -155,8 +154,8 @@ public class IndexOnEntrySetJUnitTest {
   }
 
   private void clearData(Region region) {
-    for (final Object o : region.entrySet()) {
-      Region.Entry entry = (Region.Entry) o;
+    for (final var o : region.entrySet()) {
+      var entry = (Region.Entry) o;
       region.destroy(entry.getKey());
     }
   }
@@ -168,9 +167,9 @@ public class IndexOnEntrySetJUnitTest {
   private void executeQueryTest(String[] queries, String indexedExpression, String regionPath,
       int testHookSpot) throws Exception {
     Cache cache = CacheUtils.getCache();
-    boolean[] booleanVals = {true, false};
-    for (String query : queries) {
-      for (boolean isDestroy : booleanVals) {
+    var booleanVals = new boolean[] {true, false};
+    for (var query : queries) {
+      for (var isDestroy : booleanVals) {
         clearData(testRegion);
         populateRegion(testRegion);
         assertNotNull(cache.getRegion(testRegionName));
@@ -186,7 +185,7 @@ public class IndexOnEntrySetJUnitTest {
     }
 
     queries = getQueriesOnRegionForPut(testRegionName);
-    for (String query : queries) {
+    for (var query : queries) {
       clearData(testRegion);
       populateRegion(testRegion);
       assertNotNull(cache.getRegion(testRegionName));
@@ -201,16 +200,16 @@ public class IndexOnEntrySetJUnitTest {
    */
   private SelectResults helpTestFunctionalIndexForQuery(String query, String indexedExpression,
       String regionPath, AbstractTestHook testHook, int expectedSize) throws Exception {
-    MyQueryObserverAdapter observer = new MyQueryObserverAdapter();
+    var observer = new MyQueryObserverAdapter();
     QueryObserverHolder.setInstance(observer);
     IndexManager.testHook = testHook;
-    QueryService qs = CacheUtils.getQueryService();
-    Index index = qs.createIndex("testIndex", indexedExpression, regionPath);
-    SelectResults indexedResults = (SelectResults) qs.newQuery(query).execute();
-    for (final Object row : indexedResults) {
+    var qs = CacheUtils.getQueryService();
+    var index = qs.createIndex("testIndex", indexedExpression, regionPath);
+    var indexedResults = (SelectResults) qs.newQuery(query).execute();
+    for (final var row : indexedResults) {
       if (row instanceof Struct) {
-        Object[] fields = ((Struct) row).getFieldValues();
-        for (Object field : fields) {
+        var fields = ((Struct) row).getFieldValues();
+        for (var field : fields) {
           assertTrue(field != QueryService.UNDEFINED);
           if (field instanceof String) {
             assertTrue(((String) field).compareTo(newValue) != 0);
@@ -235,7 +234,7 @@ public class IndexOnEntrySetJUnitTest {
   private void executeQueryTestDestroyDuringSizeEstimation(String[] queries,
       String indexedExpression, String regionPath, int testHookSpot) throws Exception {
     Cache cache = CacheUtils.getCache();
-    for (String query : queries) {
+    for (var query : queries) {
       clearData(testRegion);
       populateRegion(testRegion);
       assertNotNull(cache.getRegion(testRegionName));
@@ -266,7 +265,7 @@ public class IndexOnEntrySetJUnitTest {
 
     public boolean equals(Object other) {
       if (other instanceof SomeKey) {
-        SomeKey otherKey = (SomeKey) other;
+        var otherKey = (SomeKey) other;
         return Index == otherKey.Index && PartitionID == otherKey.PartitionID;
       }
       return false;
@@ -326,8 +325,8 @@ public class IndexOnEntrySetJUnitTest {
 
     @Override
     public void doOp() {
-      for (final Object o : r.entrySet()) {
-        Region.Entry entry = (Region.Entry) o;
+      for (final var o : r.entrySet()) {
+        var entry = (Region.Entry) o;
         r.destroy(entry.getKey());
       }
     }
@@ -342,8 +341,8 @@ public class IndexOnEntrySetJUnitTest {
 
     @Override
     public void doOp() {
-      for (final Object o : r.entrySet()) {
-        Region.Entry entry = (Region.Entry) o;
+      for (final var o : r.entrySet()) {
+        var entry = (Region.Entry) o;
         r.invalidate(entry.getKey());
       }
     }
@@ -358,8 +357,8 @@ public class IndexOnEntrySetJUnitTest {
 
     @Override
     public void doOp() {
-      for (final Object o : r.entrySet()) {
-        Region.Entry entry = (Region.Entry) o;
+      for (final var o : r.entrySet()) {
+        var entry = (Region.Entry) o;
         r.put(entry.getKey(), newValue);
       }
     }

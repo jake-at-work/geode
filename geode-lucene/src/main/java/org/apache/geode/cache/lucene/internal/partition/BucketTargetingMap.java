@@ -55,7 +55,7 @@ public class BucketTargetingMap<K, V> extends AbstractMap<K, V> {
   @Override
   public V remove(final Object key) {
     try {
-      V oldValue = region.get(key, callbackArg);
+      var oldValue = region.get(key, callbackArg);
       region.destroy(key, callbackArg);
       return oldValue;
     } catch (EntryNotFoundException e) {
@@ -90,7 +90,7 @@ public class BucketTargetingMap<K, V> extends AbstractMap<K, V> {
       return false;
     }
 
-    final BucketTargetingMap<?, ?> that = (BucketTargetingMap<?, ?>) o;
+    final var that = (BucketTargetingMap<?, ?>) o;
 
     if (!region.getFullPath().equals(that.region.getFullPath())) {
       return false;
@@ -101,7 +101,7 @@ public class BucketTargetingMap<K, V> extends AbstractMap<K, V> {
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    var result = super.hashCode();
     result = 31 * result + region.hashCode();
     result = 31 * result + callbackArg.hashCode();
     return result;

@@ -17,11 +17,7 @@ package org.apache.geode.admin.internal;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
 
@@ -30,8 +26,6 @@ import org.apache.geode.admin.DistributionLocator;
 import org.apache.geode.admin.DistributionLocatorConfig;
 import org.apache.geode.admin.ManagedEntityConfig;
 import org.apache.geode.annotations.internal.MakeNotStatic;
-import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.admin.remote.DistributionLocatorId;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -148,7 +142,7 @@ public class DistributionLocatorImpl implements DistributionLocator, InternalMan
       throw new InterruptedException();
     }
 
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     while (System.currentTimeMillis() - start < timeout) {
       if (isRunning()) {
         return true;
@@ -172,7 +166,7 @@ public class DistributionLocatorImpl implements DistributionLocator, InternalMan
       throw new InterruptedException();
     }
 
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     while (System.currentTimeMillis() - start < timeout) {
       if (!isRunning()) {
         return true;
@@ -187,7 +181,7 @@ public class DistributionLocatorImpl implements DistributionLocator, InternalMan
 
   @Override
   public boolean isRunning() {
-    DistributionManager dm =
+    var dm =
         ((AdminDistributedSystemImpl) getDistributedSystem()).getDistributionManager();
     if (dm == null) {
       try {
@@ -197,20 +191,20 @@ public class DistributionLocatorImpl implements DistributionLocator, InternalMan
       }
     }
 
-    String host = getConfig().getHost();
-    int port = getConfig().getPort();
-    String bindAddress = getConfig().getBindAddress();
+    var host = getConfig().getHost();
+    var port = getConfig().getPort();
+    var bindAddress = getConfig().getBindAddress();
 
-    boolean found = false;
-    Map<InternalDistributedMember, Collection<String>> hostedLocators = dm.getAllHostedLocators();
-    for (Iterator<InternalDistributedMember> memberIter =
+    var found = false;
+    var hostedLocators = dm.getAllHostedLocators();
+    for (var memberIter =
         hostedLocators.keySet().iterator(); memberIter.hasNext();) {
-      for (final String s : hostedLocators.get(memberIter.next())) {
-        DistributionLocatorId locator = new DistributionLocatorId(s);
+      for (final var s : hostedLocators.get(memberIter.next())) {
+        var locator = new DistributionLocatorId(s);
         found = found || locator.getHostName().equals(host);
         if (!found && !host.contains(".")) {
           try {
-            InetAddress inetAddr = InetAddress.getByName(host);
+            var inetAddr = InetAddress.getByName(host);
             found = locator.getHost().getHostName().equals(inetAddr.getHostName());
             if (!found) {
               found =
@@ -277,27 +271,27 @@ public class DistributionLocatorImpl implements DistributionLocator, InternalMan
 
   @Override
   public String getStartCommand() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append(controller.getProductExecutable(this, "gemfire"));
     sb.append(" start-locator -q -dir=");
     sb.append(getConfig().getWorkingDirectory());
     sb.append(" -port=");
     sb.append(getConfig().getPort());
-    Properties props = config.getDistributedSystemProperties();
+    var props = config.getDistributedSystemProperties();
     Enumeration en = props.propertyNames();
     while (en.hasMoreElements()) {
-      String pn = (String) en.nextElement();
+      var pn = (String) en.nextElement();
       sb.append(" -D" + GeodeGlossary.GEMFIRE_PREFIX + "" + pn + "=" + props.getProperty(pn));
     }
 
-    String bindAddress = getConfig().getBindAddress();
+    var bindAddress = getConfig().getBindAddress();
     if (bindAddress != null && bindAddress.length() > 0) {
       sb.append(" -address=");
       sb.append(getConfig().getBindAddress());
     }
     sb.append(" ");
 
-    String sslArgs = controller.buildSSLArguments(system.getConfig());
+    var sslArgs = controller.buildSSLArguments(system.getConfig());
     if (sslArgs != null) {
       sb.append(sslArgs);
     }
@@ -307,21 +301,21 @@ public class DistributionLocatorImpl implements DistributionLocator, InternalMan
 
   @Override
   public String getStopCommand() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append(controller.getProductExecutable(this, "gemfire"));
     sb.append(" stop-locator -q -dir=");
     sb.append(getConfig().getWorkingDirectory());
     sb.append(" -port=");
     sb.append(getConfig().getPort());
 
-    String bindAddress = getConfig().getBindAddress();
+    var bindAddress = getConfig().getBindAddress();
     if (bindAddress != null && bindAddress.length() > 0) {
       sb.append(" -address=");
       sb.append(getConfig().getBindAddress());
     }
     sb.append(" ");
 
-    String sslArgs = controller.buildSSLArguments(system.getConfig());
+    var sslArgs = controller.buildSSLArguments(system.getConfig());
     if (sslArgs != null) {
       sb.append(sslArgs);
     }
@@ -331,7 +325,7 @@ public class DistributionLocatorImpl implements DistributionLocator, InternalMan
 
   @Override
   public String getIsRunningCommand() {
-    final String sb = controller.getProductExecutable(this, "gemfire")
+    final var sb = controller.getProductExecutable(this, "gemfire")
         + " status-locator -dir="
         + getConfig().getWorkingDirectory();
 
@@ -339,7 +333,7 @@ public class DistributionLocatorImpl implements DistributionLocator, InternalMan
   }
 
   public String getLogCommand() {
-    final String sb = controller.getProductExecutable(this, "gemfire")
+    final var sb = controller.getProductExecutable(this, "gemfire")
         + " tail-locator-log -dir="
         + getConfig().getWorkingDirectory();
 

@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.partitioned;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -34,7 +33,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.NanoTimer;
-import org.apache.geode.internal.cache.BucketAdvisor;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.logging.log4j.LogMarker;
@@ -85,13 +83,13 @@ public class BecomePrimaryBucketMessage extends PartitionMessage {
 
     Assert.assertTrue(recipient != null, "BecomePrimaryBucketMessage NULL recipient");
 
-    BecomePrimaryBucketResponse response =
+    var response =
         new BecomePrimaryBucketResponse(pr.getSystem(), recipient, pr);
-    BecomePrimaryBucketMessage msg =
+    var msg =
         new BecomePrimaryBucketMessage(recipient, pr.getPRId(), response, bid, isRebalance);
     msg.setTransactionDistributed(pr.getCache().getTxManager().isDistributed());
 
-    Set<InternalDistributedMember> failures = pr.getDistributionManager().putOutgoing(msg);
+    var failures = pr.getDistributionManager().putOutgoing(msg);
     if (failures != null && failures.size() > 0) {
       // throw new ForceReattemptException("Failed sending <" + msg + ">");
       return null;
@@ -122,8 +120,8 @@ public class BecomePrimaryBucketMessage extends PartitionMessage {
       PartitionedRegion region, long startTime) throws ForceReattemptException {
 
     // this is executing in the WAITING_POOL_EXECUTOR
-    byte responseCode = BecomePrimaryBucketReplyMessage.NOT_SECONDARY;
-    BucketAdvisor bucketAdvisor = region.getRegionAdvisor().getBucketAdvisor(bucketId);
+    var responseCode = BecomePrimaryBucketReplyMessage.NOT_SECONDARY;
+    var bucketAdvisor = region.getRegionAdvisor().getBucketAdvisor(bucketId);
 
     if (bucketAdvisor.isHosting()) {
       if (bucketAdvisor.becomePrimary(isRebalance)) { // sends a request/reply message
@@ -193,7 +191,7 @@ public class BecomePrimaryBucketMessage extends PartitionMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, ReplyException re, byte responseCode) {
       Assert.assertTrue(recipient != null, "BecomePrimaryBucketReplyMessage NULL recipient");
-      BecomePrimaryBucketReplyMessage m =
+      var m =
           new BecomePrimaryBucketReplyMessage(processorId, re, responseCode);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
@@ -205,7 +203,7 @@ public class BecomePrimaryBucketMessage extends PartitionMessage {
 
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "BecomePrimaryBucketReplyMessage process invoking reply processor with processorId:{}",
@@ -269,7 +267,7 @@ public class BecomePrimaryBucketMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof BecomePrimaryBucketReplyMessage) {
-          BecomePrimaryBucketReplyMessage reply = (BecomePrimaryBucketReplyMessage) msg;
+          var reply = (BecomePrimaryBucketReplyMessage) msg;
           success = reply.isSuccess();
           if (reply.isSuccess()) {
             if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {

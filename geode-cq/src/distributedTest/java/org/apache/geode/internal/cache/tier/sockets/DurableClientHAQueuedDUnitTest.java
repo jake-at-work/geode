@@ -36,15 +36,15 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testHAQueueSizeStat() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
         () -> CacheServerTestUtil.createCacheServer(regionName, Boolean.TRUE));
 
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
     startDurableClient(durableClientVM, durableClientId, server1Port, regionName);
     // register durable cqs
@@ -118,16 +118,16 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testHAQueueSizeStatExpired() {
-    int timeoutInSeconds = 20;
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var timeoutInSeconds = 20;
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
         () -> CacheServerTestUtil.createCacheServer(regionName, Boolean.TRUE));
 
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
     startDurableClient(durableClientVM, durableClientId, server1Port, regionName, timeoutInSeconds);
     // register durable cqs
@@ -208,9 +208,9 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testHAQueueSizeStatForGII() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
@@ -223,7 +223,7 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
     // shut down server 2
     closeCache(server2VM);
 
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     durableClientVM.invoke(CacheServerTestUtil::disableShufflingOfEndpoints);
 
     startDurableClient(durableClientVM, durableClientId, server1Port, server2Port, regionName);
@@ -309,9 +309,9 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testHAQueuedCqStat() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
@@ -390,9 +390,9 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
 
   @Test
   public void testHAQueuedCqStatOnSecondary() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
@@ -402,7 +402,7 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
     final int server2Port = server2VM
         .invoke(() -> CacheServerTestUtil.createCacheServer(regionName, Boolean.TRUE));
 
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     durableClientVM.invoke(CacheServerTestUtil::disableShufflingOfEndpoints);
 
     startDurableClient(durableClientVM, durableClientId, server1Port, server2Port, regionName);
@@ -492,9 +492,9 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testHAQueuedCqStatForGII() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
@@ -506,7 +506,7 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is kept alive on the server when it stops
     // normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     durableClientVM.invoke(CacheServerTestUtil::disableShufflingOfEndpoints);
 
     startDurableClient(durableClientVM, durableClientId, server1Port, server2Port, regionName);
@@ -598,9 +598,9 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testHAQueuedCqStatForGII2() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
@@ -701,9 +701,9 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testHAQueuedCqStatForGIINoFailover() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
@@ -805,9 +805,9 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testHAQueuedCqStatForFailover() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start server 1
     server1Port = server1VM.invoke(
@@ -819,7 +819,7 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is kept alive on the server when it stops
     // normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     durableClientVM.invoke(CacheServerTestUtil::disableShufflingOfEndpoints);
 
     startDurableClient(durableClientVM, durableClientId, server1Port, server2Port, regionName);
@@ -903,16 +903,16 @@ public class DurableClientHAQueuedDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testHAQueuedCqStatWithTimeOut() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
-    int timeoutInSeconds = 20;
+    var timeoutInSeconds = 20;
     // Start server 1
     server1Port = server1VM.invoke(
         () -> CacheServerTestUtil.createCacheServer(regionName, Boolean.TRUE));
 
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
     startDurableClient(durableClientVM, durableClientId, server1Port, regionName, timeoutInSeconds);
     // register durable cqs

@@ -19,9 +19,6 @@ import static org.apache.geode.test.dunit.rules.RedisClusterStartupRule.BIND_ADD
 import static org.apache.geode.test.dunit.rules.RedisClusterStartupRule.REDIS_CLIENT_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-import java.util.concurrent.Future;
-
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -55,7 +52,7 @@ public class BLPopDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     locatorPort = locator.getPort();
 
     server1 = cluster.startRedisVM(1, locatorPort);
@@ -76,12 +73,12 @@ public class BLPopDUnitTest {
   @Test
   public void testClientRepeatsBLpopAfterServerCrash() throws Exception {
     cluster.moveBucketForKey(LIST_KEY, "server-3");
-    Future<List<String>> blpopFuture = executor.submit(() -> jedis.blpop(0, LIST_KEY));
+    var blpopFuture = executor.submit(() -> jedis.blpop(0, LIST_KEY));
 
     try {
       cluster.crashVM(3);
       jedis.lpush(LIST_KEY, "value");
-      List<String> result = blpopFuture.get();
+      var result = blpopFuture.get();
       assertThat(result).containsExactly(LIST_KEY, "value");
     } finally {
       cluster.startRedisVM(3, Integer.toString(redisServerPort), locatorPort);
@@ -91,9 +88,9 @@ public class BLPopDUnitTest {
 
   @Test
   public void testBLPopFollowsBucketMovement() throws Exception {
-    Future<List<String>> blpopFuture = executor.submit(() -> jedis.blpop(0, LIST_KEY));
+    var blpopFuture = executor.submit(() -> jedis.blpop(0, LIST_KEY));
 
-    for (int i = 0; i < 11; i++) {
+    for (var i = 0; i < 11; i++) {
       cluster.moveBucketForKey(LIST_KEY);
       Thread.sleep(500);
     }
@@ -102,7 +99,7 @@ public class BLPopDUnitTest {
 
     assertThat(blpopFuture.get()).containsExactly(LIST_KEY, "value");
 
-    int registeredListeners = getRegisteredListeners(server1);
+    var registeredListeners = getRegisteredListeners(server1);
     registeredListeners += getRegisteredListeners(server2);
     registeredListeners += getRegisteredListeners(server3);
 
@@ -111,7 +108,7 @@ public class BLPopDUnitTest {
 
   private int getRegisteredListeners(MemberVM vm) {
     return vm.invoke(() -> {
-      GeodeRedisService service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
+      var service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
       return service.getRedisServer().getEventDistributor().getRegisteredKeys();
     });
   }

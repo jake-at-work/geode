@@ -42,7 +42,7 @@ abstract class AbstractSubscriptionManager implements SubscriptionManager {
     if (isEmpty()) {
       return emptyClientManager();
     }
-    SubscriptionId subscriptionId = new SubscriptionId(channelOrPattern);
+    var subscriptionId = new SubscriptionId(channelOrPattern);
     return clientManagers.getOrDefault(subscriptionId, emptyClientManager());
   }
 
@@ -51,8 +51,8 @@ abstract class AbstractSubscriptionManager implements SubscriptionManager {
     if (isEmpty()) {
       return emptyList();
     }
-    final ArrayList<byte[]> result = new ArrayList<>(clientManagers.size());
-    for (SubscriptionId key : clientManagers.keySet()) {
+    final var result = new ArrayList<byte[]>(clientManagers.size());
+    for (var key : clientManagers.keySet()) {
       result.add(key.getSubscriptionIdBytes());
     }
     return result;
@@ -63,10 +63,10 @@ abstract class AbstractSubscriptionManager implements SubscriptionManager {
     if (isEmpty()) {
       return emptyList();
     }
-    final GlobPattern globPattern = new GlobPattern(pattern);
-    final ArrayList<byte[]> result = new ArrayList<>();
-    for (SubscriptionId key : clientManagers.keySet()) {
-      byte[] idBytes = key.getSubscriptionIdBytes();
+    final var globPattern = new GlobPattern(pattern);
+    final var result = new ArrayList<byte[]>();
+    for (var key : clientManagers.keySet()) {
+      var idBytes = key.getSubscriptionIdBytes();
       if (globPattern.matches(idBytes)) {
         result.add(idBytes);
       }
@@ -80,8 +80,8 @@ abstract class AbstractSubscriptionManager implements SubscriptionManager {
 
   @Override
   public int getSubscriptionCount() {
-    int sum = 0;
-    for (ClientSubscriptionManager manager : clientManagers.values()) {
+    var sum = 0;
+    for (var manager : clientManagers.values()) {
       sum += manager.getSubscriptionCount();
     }
     return sum;
@@ -93,9 +93,9 @@ abstract class AbstractSubscriptionManager implements SubscriptionManager {
       return null;
     }
     final Subscription subscription = new SubscriptionImpl(client);
-    final SubscriptionId subscriptionId = new SubscriptionId(channelOrPattern);
+    final var subscriptionId = new SubscriptionId(channelOrPattern);
     ClientSubscriptionManager newManager = null;
-    ClientSubscriptionManager existingManager = clientManagers.get(subscriptionId);
+    var existingManager = clientManagers.get(subscriptionId);
     while (true) {
       if (existingManager == null) {
         if (newManager == null) {
@@ -130,8 +130,8 @@ abstract class AbstractSubscriptionManager implements SubscriptionManager {
     if (isEmpty()) {
       return;
     }
-    SubscriptionId subscriptionId = new SubscriptionId(channelOrPattern);
-    ClientSubscriptionManager manager = clientManagers.get(subscriptionId);
+    var subscriptionId = new SubscriptionId(channelOrPattern);
+    var manager = clientManagers.get(subscriptionId);
     if (manager == null) {
       return;
     }
@@ -215,7 +215,7 @@ abstract class AbstractSubscriptionManager implements SubscriptionManager {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      SubscriptionId that = (SubscriptionId) o;
+      var that = (SubscriptionId) o;
       return Arrays.equals(bytes, that.bytes);
     }
 

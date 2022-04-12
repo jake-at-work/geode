@@ -56,7 +56,7 @@ public class TableMetaDataManager {
    * Otherwise return the region mapping's region name as the table name.
    */
   String computeTableName(RegionMapping regionMapping) {
-    String result = regionMapping.getTableName();
+    var result = regionMapping.getTableName();
     if (result == null) {
       result = regionMapping.getRegionName();
     }
@@ -66,15 +66,15 @@ public class TableMetaDataManager {
   private TableMetaDataView computeTableMetaDataView(Connection connection,
       String tableName, RegionMapping regionMapping) {
     try {
-      DatabaseMetaData metaData = connection.getMetaData();
-      String realCatalogName = getCatalogNameFromMetaData(metaData, regionMapping);
-      String realSchemaName = getSchemaNameFromMetaData(metaData, regionMapping, realCatalogName);
-      String realTableName =
+      var metaData = connection.getMetaData();
+      var realCatalogName = getCatalogNameFromMetaData(metaData, regionMapping);
+      var realSchemaName = getSchemaNameFromMetaData(metaData, regionMapping, realCatalogName);
+      var realTableName =
           getTableNameFromMetaData(metaData, realCatalogName, realSchemaName, tableName);
-      List<String> keys = getPrimaryKeyColumnNamesFromMetaData(metaData, realCatalogName,
+      var keys = getPrimaryKeyColumnNamesFromMetaData(metaData, realCatalogName,
           realSchemaName, realTableName, regionMapping.getIds());
-      String quoteString = metaData.getIdentifierQuoteString();
-      Map<String, ColumnMetaData> columnMetaDataMap =
+      var quoteString = metaData.getIdentifierQuoteString();
+      var columnMetaDataMap =
           createColumnMetaDataMap(metaData, realCatalogName, realSchemaName, realTableName);
       return new TableMetaData(realCatalogName, realSchemaName, realTableName, keys, quoteString,
           columnMetaDataMap);
@@ -85,18 +85,18 @@ public class TableMetaDataManager {
 
   String getCatalogNameFromMetaData(DatabaseMetaData metaData, RegionMapping regionMapping)
       throws SQLException {
-    String catalogFilter = regionMapping.getCatalog();
+    var catalogFilter = regionMapping.getCatalog();
     if (catalogFilter == null || catalogFilter.isEmpty()) {
       return DEFAULT_CATALOG;
     }
-    try (ResultSet catalogs = metaData.getCatalogs()) {
+    try (var catalogs = metaData.getCatalogs()) {
       return findMatchInResultSet(catalogFilter, catalogs, "TABLE_CAT", "catalog");
     }
   }
 
   String getSchemaNameFromMetaData(DatabaseMetaData metaData, RegionMapping regionMapping,
       String catalogFilter) throws SQLException {
-    String schemaFilter = regionMapping.getSchema();
+    var schemaFilter = regionMapping.getSchema();
     if (schemaFilter == null || schemaFilter.isEmpty()) {
       if ("PostgreSQL".equals(metaData.getDatabaseProductName())) {
         schemaFilter = "public";
@@ -104,14 +104,14 @@ public class TableMetaDataManager {
         return DEFAULT_SCHEMA;
       }
     }
-    try (ResultSet schemas = metaData.getSchemas(catalogFilter, "%")) {
+    try (var schemas = metaData.getSchemas(catalogFilter, "%")) {
       return findMatchInResultSet(schemaFilter, schemas, "TABLE_SCHEM", "schema");
     }
   }
 
   private String getTableNameFromMetaData(DatabaseMetaData metaData, String catalogFilter,
       String schemaFilter, String tableName) throws SQLException {
-    try (ResultSet tables = metaData.getTables(catalogFilter, schemaFilter, "%", null)) {
+    try (var tables = metaData.getTables(catalogFilter, schemaFilter, "%", null)) {
       return findMatchInResultSet(tableName, tables, "TABLE_NAME", "table");
     }
   }
@@ -119,13 +119,13 @@ public class TableMetaDataManager {
   String findMatchInResultSet(String stringToFind, ResultSet resultSet, String column,
       String description)
       throws SQLException {
-    int exactMatches = 0;
+    var exactMatches = 0;
     String exactMatch = null;
-    int inexactMatches = 0;
+    var inexactMatches = 0;
     String inexactMatch = null;
     if (resultSet != null) {
       while (resultSet.next()) {
-        String name = resultSet.getString(column);
+        var name = resultSet.getString(column);
         if (name.equals(stringToFind)) {
           exactMatches++;
           exactMatch = name;
@@ -157,15 +157,15 @@ public class TableMetaDataManager {
 
     if (ids != null && !ids.isEmpty()) {
       keys.addAll(Arrays.asList(ids.split(",")));
-      for (String key : keys) {
+      for (var key : keys) {
         checkColumnExistsInTable(tableName, metaData, catalogFilter, schemaFilter, key);
       }
     } else {
       try (
-          ResultSet primaryKeys =
+          var primaryKeys =
               metaData.getPrimaryKeys(catalogFilter, schemaFilter, tableName)) {
         while (primaryKeys.next()) {
-          String key = primaryKeys.getString("COLUMN_NAME");
+          var key = primaryKeys.getString("COLUMN_NAME");
           keys.add(key);
         }
         if (keys.isEmpty()) {
@@ -181,13 +181,13 @@ public class TableMetaDataManager {
       String catalogFilter,
       String schemaFilter, String tableName) throws SQLException {
     Map<String, ColumnMetaData> result = new HashMap<>();
-    try (ResultSet columnData =
+    try (var columnData =
         metaData.getColumns(catalogFilter, schemaFilter, tableName, "%")) {
       while (columnData.next()) {
-        String columnName = columnData.getString("COLUMN_NAME");
-        int dataType = columnData.getInt("DATA_TYPE");
-        int nullableCode = columnData.getInt("NULLABLE");
-        boolean nullable = nullableCode != DatabaseMetaData.columnNoNulls;
+        var columnName = columnData.getString("COLUMN_NAME");
+        var dataType = columnData.getInt("DATA_TYPE");
+        var nullableCode = columnData.getInt("NULLABLE");
+        var nullable = nullableCode != DatabaseMetaData.columnNoNulls;
         result.put(columnName, new ColumnMetaData(JDBCType.valueOf(dataType), nullable));
       }
     }
@@ -196,11 +196,11 @@ public class TableMetaDataManager {
 
   private void checkColumnExistsInTable(String tableName, DatabaseMetaData metaData,
       String catalogFilter, String schemaFilter, String columnName) throws SQLException {
-    int caseInsensitiveMatches = 0;
-    try (ResultSet columnData =
+    var caseInsensitiveMatches = 0;
+    try (var columnData =
         metaData.getColumns(catalogFilter, schemaFilter, tableName, "%")) {
       while (columnData.next()) {
-        String realColumnName = columnData.getString("COLUMN_NAME");
+        var realColumnName = columnData.getString("COLUMN_NAME");
         if (columnName.equals(realColumnName)) {
           return;
         } else if (columnName.equalsIgnoreCase(realColumnName)) {

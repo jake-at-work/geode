@@ -189,7 +189,7 @@ public class RegisterInterest61Test {
     verify(authzRequest).registerInterestAuthorize(eq(REGION_NAME), eq(KEY),
         any(InterestType.class), any());
 
-    ArgumentCaptor<NotAuthorizedException> argument =
+    var argument =
         ArgumentCaptor.forClass(NotAuthorizedException.class);
     verify(chunkedResponseMessage).addObjPart(argument.capture());
 

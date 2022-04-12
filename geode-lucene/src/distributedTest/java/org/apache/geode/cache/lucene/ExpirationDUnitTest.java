@@ -50,8 +50,8 @@ public class ExpirationDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getPartitionRegionsWithExpirationSet")
   public void regionWithExpirationSetMustAlsoRemoveLuceneIndexEntries(
       RegionTestableType regionTestType) {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
 
@@ -69,7 +69,7 @@ public class ExpirationDUnitTest extends LuceneQueriesAccessorBase {
 
     accessor.invoke(() -> await()
         .untilAsserted(() -> {
-          LuceneService luceneService = LuceneServiceProvider.get(getCache());
+          var luceneService = LuceneServiceProvider.get(getCache());
           LuceneQuery<Integer, TestObject> luceneQuery = luceneService.createLuceneQueryFactory()
               .setLimit(100).create(INDEX_NAME, REGION_NAME, "world", "text");
 

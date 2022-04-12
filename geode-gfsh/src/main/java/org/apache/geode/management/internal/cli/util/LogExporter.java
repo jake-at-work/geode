@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
@@ -66,17 +65,17 @@ public class LogExporter {
    *         export.
    */
   public Path export() throws IOException {
-    Path tempDirectory = Files.createTempDirectory("exportLogs");
+    var tempDirectory = Files.createTempDirectory("exportLogs");
 
     if (baseLogFile != null) {
-      for (Path logFile : findLogFiles(baseLogFile.toPath().getParent())) {
-        Path filteredLogFile = tempDirectory.resolve(logFile.getFileName());
+      for (var logFile : findLogFiles(baseLogFile.toPath().getParent())) {
+        var filteredLogFile = tempDirectory.resolve(logFile.getFileName());
         writeFilteredLogFile(logFile, filteredLogFile);
       }
     }
 
     if (baseStatsFile != null) {
-      for (Path statFile : findStatFiles(baseStatsFile.toPath().getParent())) {
+      for (var statFile : findStatFiles(baseStatsFile.toPath().getParent())) {
         Files.copy(statFile, tempDirectory.resolve(statFile.getFileName()));
       }
     }
@@ -97,12 +96,12 @@ public class LogExporter {
       throws IOException {
     logFilter.startNewFile();
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(originalLogFile.toFile()))) {
-      try (BufferedWriter writer = new BufferedWriter(new FileWriter(filteredLogFile.toFile()))) {
+    try (var reader = new BufferedReader(new FileReader(originalLogFile.toFile()))) {
+      try (var writer = new BufferedWriter(new FileWriter(filteredLogFile.toFile()))) {
 
         String line;
         while ((line = reader.readLine()) != null) {
-          LogFilter.LineFilterResult result = logFilter.acceptsLine(line);
+          var result = logFilter.acceptsLine(line);
 
           if (result == LogFilter.LineFilterResult.REMAINDER_OF_FILE_REJECTED) {
             break;
@@ -131,13 +130,13 @@ public class LogExporter {
   public long estimateFilteredSize() throws IOException {
     long filteredSize = 0;
     if (baseLogFile != null) {
-      for (Path logFile : findLogFiles(baseLogFile.toPath().getParent())) {
+      for (var logFile : findLogFiles(baseLogFile.toPath().getParent())) {
         filteredSize += filterAndSize(logFile);
       }
     }
 
     if (baseStatsFile != null) {
-      for (Path statFile : findStatFiles(baseStatsFile.toPath().getParent())) {
+      for (var statFile : findStatFiles(baseStatsFile.toPath().getParent())) {
         filteredSize += statFile.toFile().length();
       }
     }
@@ -152,10 +151,10 @@ public class LogExporter {
     long size = 0;
     logFilter.startNewFile();
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(originalLogFile.toFile()))) {
+    try (var reader = new BufferedReader(new FileReader(originalLogFile.toFile()))) {
       String line;
       while ((line = reader.readLine()) != null) {
-        LogFilter.LineFilterResult result = logFilter.acceptsLine(line);
+        var result = logFilter.acceptsLine(line);
 
         if (result == LogFilter.LineFilterResult.REMAINDER_OF_FILE_REJECTED) {
           break;
@@ -169,14 +168,15 @@ public class LogExporter {
   }
 
   List<Path> findLogFiles(Path workingDir) throws IOException {
-    Predicate<Path> logFileSelector = (Path file) -> file.toString().toLowerCase().contains(".log");
+    var logFileSelector =
+        (Predicate<Path>) (Path file) -> file.toString().toLowerCase().contains(".log");
     return findFiles(workingDir, logFileSelector);
   }
 
 
   List<Path> findStatFiles(Path workingDir) throws IOException {
-    Predicate<Path> statFileSelector =
-        (Path file) -> file.toString().toLowerCase().endsWith(".gfs");
+    var statFileSelector =
+        (Predicate<Path>) (Path file) -> file.toString().toLowerCase().endsWith(".gfs");
     return findFiles(workingDir, statFileSelector);
   }
 
@@ -184,7 +184,7 @@ public class LogExporter {
     if (!workingDir.toFile().isDirectory()) {
       return Collections.emptyList();
     }
-    try (Stream<Path> stream = Files.list(workingDir)) {
+    try (var stream = Files.list(workingDir)) {
       return stream
           .filter(Files::isRegularFile)
           .filter(fileSelector)

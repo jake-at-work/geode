@@ -55,7 +55,7 @@ public class RegionEntryData<T> extends RegionData<T> {
      * if(this!=null && this.size() > 1) { jsonGenerator.writeStartObject();
      * jsonGenerator.writeArrayFieldStart(getRegionNamePath()); }
      */
-    for (T element : this) {
+    for (var element : this) {
       JsonWriter.writeValueAsJson(jsonGenerator, element, null);
     }
 

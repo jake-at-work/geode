@@ -39,7 +39,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ErrorCollector;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
@@ -77,8 +76,8 @@ public class NestedQueryJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region r = CacheUtils.createRegion("Portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r.put(i + "", new Portfolio(i));
     }
   }
@@ -132,7 +131,7 @@ public class NestedQueryJUnitTest {
 
   @Test
   public void testQueries() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "Portfolios WHERE NOT(SELECT DISTINCT * FROM positions.values p WHERE p.secId = 'IBM').isEmpty",
         "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where NOT(SELECT DISTINCT * FROM "
@@ -152,9 +151,9 @@ public class NestedQueryJUnitTest {
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "Portfolios x where status = ELEMENT(SELECT DISTINCT * FROM " + SEPARATOR
             + "Portfolios p where p.ID = 0).status"};
-    for (final String s : queries) {
+    for (final var s : queries) {
       try {
-        Query query = CacheUtils.getQueryService().newQuery(s);
+        var query = CacheUtils.getQueryService().newQuery(s);
         query.execute();
       } catch (Exception e) {
         errorCollector.addError(e);
@@ -166,7 +165,7 @@ public class NestedQueryJUnitTest {
   public void testNestedQueriesEvaluation() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where NOT(SELECT DISTINCT * FROM "
             + SEPARATOR + "Portfolios p where p.ID = 0).isEmpty",
         // NQIU 1: PASS
@@ -189,15 +188,15 @@ public class NestedQueryJUnitTest {
             + "Portfolios p where x.ID = p.ID).status",
         // NQIU 6: PASS
     };
-    SelectResults[][] r = new SelectResults[queries.length][2];
+    var r = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
 
         r[i][0] = (SelectResults) q.execute();
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         if (!observer.isIndexesUsed) {
           CacheUtils.log("NO INDEX USED");
@@ -221,11 +220,11 @@ public class NestedQueryJUnitTest {
     qs.createIndex("r1Index", IndexType.FUNCTIONAL, "secId",
         SEPARATOR + "Portfolios.values['0'].positions.values");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         r[i][1] = (SelectResults) q.execute();
 
@@ -241,7 +240,7 @@ public class NestedQueryJUnitTest {
         throw new AssertionError(q.getQueryString(), e);
       }
     }
-    for (int j = 0; j <= 1; j++) {
+    for (var j = 0; j <= 1; j++) {
       // Increase the value of j as you go on adding the Queries in queries[]
       if (((r[j][0]).getCollectionType().getElementType())
           .equals((r[j][1]).getCollectionType().getElementType())) {
@@ -259,8 +258,8 @@ public class NestedQueryJUnitTest {
     itert2 = set2.iterator();
     itert1 = set1.iterator();
     while (itert1.hasNext()) {
-      Portfolio p1 = (Portfolio) itert1.next();
-      Portfolio p2 = (Portfolio) itert2.next();
+      var p1 = (Portfolio) itert1.next();
+      var p2 = (Portfolio) itert2.next();
       if (!set1.contains(p2) || !set2.contains(p1)) {
         fail("FAILED: In both the Cases the members of ResultsSet are different.");
       }
@@ -272,7 +271,7 @@ public class NestedQueryJUnitTest {
   public void testNestedQueriesResultsAsStructSet() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
 
         "SELECT DISTINCT * FROM" + " (SELECT DISTINCT * FROM " + SEPARATOR
             + "Portfolios ptf, positions pos)"
@@ -303,16 +302,16 @@ public class NestedQueryJUnitTest {
             + " WHERE p.get('pos').value.secId = 'IBM'",
         // NQIU 7: PASS
     };
-    SelectResults[][] r = new SelectResults[queries.length][2];
+    var r = new SelectResults[queries.length][2];
 
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
         r[i][0] = (SelectResults) q.execute();
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
 
         resType1 = (r[i][0]).getCollectionType().getElementType();
@@ -329,13 +328,13 @@ public class NestedQueryJUnitTest {
     qs = CacheUtils.getQueryService();
     qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "b.secId",
         SEPARATOR + "Portfolios pf, pf.positions.values b");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i][1] = (SelectResults) q.execute();
 
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         resType2 = (r[i][1]).getCollectionType().getElementType();
         resSize2 = ((r[i][1]).size());
@@ -345,7 +344,7 @@ public class NestedQueryJUnitTest {
         throw new AssertionError(q.getQueryString(), e);
       }
     }
-    for (int j = 0; j < queries.length; j++) {
+    for (var j = 0; j < queries.length; j++) {
 
       if (((r[j][0]).getCollectionType().getElementType())
           .equals((r[j][1]).getCollectionType().getElementType())) {
@@ -360,14 +359,14 @@ public class NestedQueryJUnitTest {
         fail("FAILED:Search result Type is different in both the cases");
       }
     }
-    boolean pass = true;
+    var pass = true;
     itert1 = set1.iterator();
     while (itert1.hasNext()) {
-      StructImpl p1 = (StructImpl) itert1.next();
+      var p1 = (StructImpl) itert1.next();
       itert2 = set2.iterator();
-      boolean found = false;
+      var found = false;
       while (itert2.hasNext()) {
-        StructImpl p2 = (StructImpl) itert2.next();
+        var p2 = (StructImpl) itert2.next();
         if ((p1).equals(p2)) {
           found = true;
         }
@@ -385,70 +384,70 @@ public class NestedQueryJUnitTest {
 
   @Test
   public void testNestedQueryWithProjectionDoesNotReturnUndefinedForBug45131() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
-    Region region2 = CacheUtils.createRegion("portfolios2", Portfolio.class);
-    for (int i = 0; i <= 1000; i++) {
-      Portfolio p = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
+    var region2 = CacheUtils.createRegion("portfolios2", Portfolio.class);
+    for (var i = 0; i <= 1000; i++) {
+      var p = new Portfolio(i);
       p.createTime = i;
       region1.put(i, p);
       region2.put(i, p);
     }
 
-    Index p1IdIndex =
+    var p1IdIndex =
         qs.createIndex("P1IDIndex", IndexType.FUNCTIONAL, "P.ID", SEPARATOR + "portfolios1 P");
-    Index p2IdIndex =
+    var p2IdIndex =
         qs.createIndex("P2IDIndex", IndexType.FUNCTIONAL, "P2.ID", SEPARATOR + "portfolios2 P2");
-    Index createTimeIndex =
+    var createTimeIndex =
         qs.createIndex("createTimeIndex", IndexType.FUNCTIONAL, "P.createTime",
             SEPARATOR + "portfolios1 P");
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery(
             "SELECT P2.ID FROM " + SEPARATOR + "portfolios2 P2 where P2.ID in (SELECT P.ID from "
                 + SEPARATOR + "portfolios1 P where P.createTime >= 500L and P.createTime < 1000L)")
         .execute();
-    for (Object o : results) {
+    for (var o : results) {
       assertNotSame(o, QueryService.UNDEFINED);
     }
   }
 
   @Test
   public void testExecCacheForNestedQueries() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
-    Region region2 = CacheUtils.createRegion("portfolios2", Portfolio.class);
-    for (int i = 0; i <= 1000; i++) {
-      Portfolio p = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
+    var region2 = CacheUtils.createRegion("portfolios2", Portfolio.class);
+    for (var i = 0; i <= 1000; i++) {
+      var p = new Portfolio(i);
       p.createTime = i;
       region1.put(i, p);
       region2.put(i, p);
     }
 
-    Index p1IdIndex =
+    var p1IdIndex =
         qs.createIndex("P1IDIndex", IndexType.FUNCTIONAL, "P.ID", SEPARATOR + "portfolios1 P");
-    Index p2IdIndex =
+    var p2IdIndex =
         qs.createIndex("P2IDIndex", IndexType.FUNCTIONAL, "P2.ID", SEPARATOR + "portfolios2 P2");
-    Index createTimeIndex =
+    var createTimeIndex =
         qs.createIndex("createTimeIndex", IndexType.FUNCTIONAL, "P.createTime",
             SEPARATOR + "portfolios1 P");
 
-    String rangeQueryString =
+    var rangeQueryString =
         "SELECT P.ID FROM " + SEPARATOR
             + "portfolios1 P WHERE P.createTime >= 500L AND P.createTime < 1000L";
     // Retrieve location ids that are within range
-    String multiInnerQueryString =
+    var multiInnerQueryString =
         "SELECT P FROM " + SEPARATOR + "portfolios1 P WHERE P.ID IN(SELECT P2.ID FROM " + SEPARATOR
             + "portfolios2 P2 where P2.ID in ($1)) and P.createTime >=500L and P.createTime < 1000L";
 
-    Query rangeQuery = qs.newQuery(rangeQueryString);
-    SelectResults rangeResults = (SelectResults) rangeQuery.execute();
+    var rangeQuery = qs.newQuery(rangeQueryString);
+    var rangeResults = (SelectResults) rangeQuery.execute();
 
-    Query multiInnerQuery = qs.newQuery(multiInnerQueryString);
-    Object[] params = new Object[1];
+    var multiInnerQuery = qs.newQuery(multiInnerQueryString);
+    var params = new Object[1];
     params[0] = rangeResults;
 
-    SelectResults results = (SelectResults) multiInnerQuery.execute(params);
+    var results = (SelectResults) multiInnerQuery.execute(params);
     // By now we would have hit the ClassCastException, instead we just check
     // size and make sure we got results.
     assertEquals(500, results.size());
@@ -461,12 +460,12 @@ public class NestedQueryJUnitTest {
    */
   @Test
   public void testNestedQueryWithShortTypesFromInnerQuery() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
-    int numEntries = 1000;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var qs = CacheUtils.getQueryService();
+    var region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
+    var numEntries = 1000;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) p.ID;
       region1.put("" + i, p);
     }
@@ -484,12 +483,12 @@ public class NestedQueryJUnitTest {
    */
   @Test
   public void testNestedQueryWithMultipleMatchingResultsWithIn() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
-    int numEntries = 1000;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var qs = CacheUtils.getQueryService();
+    var region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
+    var numEntries = 1000;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) p.ID;
       region1.put("" + i, p);
     }
@@ -505,14 +504,14 @@ public class NestedQueryJUnitTest {
    */
   private void helpTestIndexForQuery(String query, String indexedExpression, String regionPath)
       throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var qs = CacheUtils.getQueryService();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
-    SelectResults nonIndexedResults = (SelectResults) qs.newQuery(query).execute();
+    var nonIndexedResults = (SelectResults) qs.newQuery(query).execute();
     assertFalse(observer.isIndexesUsed);
 
     qs.createIndex("newIndex", indexedExpression, regionPath);
-    SelectResults indexedResults = (SelectResults) qs.newQuery(query).execute();
+    var indexedResults = (SelectResults) qs.newQuery(query).execute();
     assertEquals(nonIndexedResults.size(), indexedResults.size());
     assertTrue(observer.isIndexesUsed);
   }

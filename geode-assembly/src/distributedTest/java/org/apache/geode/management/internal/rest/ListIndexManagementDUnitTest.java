@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 import org.junit.Before;
@@ -29,12 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.cache.query.QueryService;
-import org.apache.geode.management.api.ClusterManagementGetResult;
-import org.apache.geode.management.api.ClusterManagementListResult;
-import org.apache.geode.management.api.ClusterManagementRealizationResult;
 import org.apache.geode.management.api.ClusterManagementService;
-import org.apache.geode.management.api.EntityGroupInfo;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Index;
 import org.apache.geode.management.configuration.IndexType;
@@ -59,27 +52,27 @@ public class ListIndexManagementDUnitTest {
   @BeforeClass
   public static void beforeClass() {
     locator = lsRule.startLocatorVM(0, MemberStarterRule::withHttpService);
-    MemberVM server1 = lsRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = lsRule.startServerVM(2, locator.getPort());
-    MemberVM server3 = lsRule.startServerVM(3, "group1", locator.getPort());
+    var server1 = lsRule.startServerVM(1, locator.getPort());
+    var server2 = lsRule.startServerVM(2, locator.getPort());
+    var server3 = lsRule.startServerVM(3, "group1", locator.getPort());
 
     cms = new ClusterManagementServiceBuilder().setPort(locator.getHttpPort())
         .build();
 
-    Region config = new Region();
+    var config = new Region();
     config.setName("region1");
     config.setType(RegionType.REPLICATE);
     cms.create(config);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + "region1", 3);
 
-    Index index1 = new Index();
+    var index1 = new Index();
     index1.setName("index1");
     index1.setExpression("id");
     index1.setRegionPath(SEPARATOR + "region1");
     index1.setIndexType(IndexType.KEY);
     cms.create(index1);
 
-    Index index2 = new Index();
+    var index2 = new Index();
     index2.setName("index2");
     index2.setExpression("key");
     index2.setRegionPath(SEPARATOR + "region1");
@@ -88,9 +81,9 @@ public class ListIndexManagementDUnitTest {
 
     // make sure indexes are created on each server
     MemberVM.invokeInEveryMember(() -> {
-      QueryService queryService =
+      var queryService =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getQueryService();
-      Collection<org.apache.geode.cache.query.Index> indexes = queryService.getIndexes();
+      var indexes = queryService.getIndexes();
       assertThat(indexes).extracting(org.apache.geode.cache.query.Index::getName)
           .containsExactlyInAnyOrder("index1", "index2");
       assertThat(indexes.stream().findFirst()
@@ -106,7 +99,7 @@ public class ListIndexManagementDUnitTest {
 
   @Test
   public void listRegion_succeeds_with_empty_filter() {
-    List<Region> result =
+    var result =
         cms.list(new Region()).getConfigResult();
     assertThat(result).hasSize(1);
   }
@@ -114,7 +107,7 @@ public class ListIndexManagementDUnitTest {
   @Test
   public void getRegion_succeeds_with_region_name_filter() {
     regionConfig.setName("region1");
-    Region region = cms.get(regionConfig).getResult().getConfigurations().get(0);
+    var region = cms.get(regionConfig).getResult().getConfigurations().get(0);
     assertThat(region).isNotNull();
   }
 
@@ -127,15 +120,15 @@ public class ListIndexManagementDUnitTest {
   @Test
   public void listIndex_succeeds_for_region_name_filter() {
     indexConfig.setRegionPath("region1");
-    ClusterManagementListResult<Index, IndexInfo> list = cms.list(indexConfig);
-    List<Index> result = list.getConfigResult();
+    var list = cms.list(indexConfig);
+    var result = list.getConfigResult();
     assertThat(result).hasSize(2);
   }
 
   @Test
   public void listIndex_succeeds_for_all_indexes() {
-    ClusterManagementListResult<Index, IndexInfo> list = cms.list(indexConfig);
-    List<Index> result = list.getConfigResult();
+    var list = cms.list(indexConfig);
+    var result = list.getConfigResult();
     assertThat(result).hasSize(2);
   }
 
@@ -143,9 +136,9 @@ public class ListIndexManagementDUnitTest {
   public void getIndex_succeeds_with_index_name_and_region_name_filter() {
     indexConfig.setRegionPath(SEPARATOR + "region1");
     indexConfig.setName("index1");
-    ClusterManagementGetResult<Index, IndexInfo> clusterManagementGetResult = cms.get(indexConfig);
-    Index indexConfig = clusterManagementGetResult.getResult().getConfigurations().get(0);
-    List<IndexInfo> runtimeResult = clusterManagementGetResult.getResult().getRuntimeInfos();
+    var clusterManagementGetResult = cms.get(indexConfig);
+    var indexConfig = clusterManagementGetResult.getResult().getConfigurations().get(0);
+    var runtimeResult = clusterManagementGetResult.getResult().getRuntimeInfos();
 
     assertSoftly(softly -> {
       softly.assertThat(indexConfig.getRegionName()).as("get index: region name")
@@ -154,9 +147,9 @@ public class ListIndexManagementDUnitTest {
       softly.assertThat(indexConfig.getRegionPath()).as("get index: region path")
           .isEqualTo(SEPARATOR + "region1");
       softly.assertThat(indexConfig.getExpression()).as("get index: expression").isEqualTo("id");
-      EntityGroupInfo<Index, IndexInfo> entityGroupInfo =
+      var entityGroupInfo =
           cms.get(this.indexConfig).getResult().getGroups().get(0);
-      Index indexConfigTwo = entityGroupInfo.getConfiguration();
+      var indexConfigTwo = entityGroupInfo.getConfiguration();
       softly.assertThat(indexConfigTwo.getLinks().getLinks()).as("get index: links key")
           .containsKey("region");
       softly.assertThat(indexConfigTwo.getLinks().getLinks().get("region"))
@@ -203,12 +196,12 @@ public class ListIndexManagementDUnitTest {
   }
 
   private void assertListIndexResult(Index index) {
-    ClusterManagementListResult<Index, IndexInfo> list = cms.list(index);
-    List<Index> result = list.getConfigResult();
-    List<IndexInfo> runtimeResult = list.getRuntimeResult();
+    var list = cms.list(index);
+    var result = list.getConfigResult();
+    var runtimeResult = list.getRuntimeResult();
     assertSoftly(softly -> {
       softly.assertThat(result).hasSize(1);
-      Index indexConfig = result.get(0);
+      var indexConfig = result.get(0);
       softly.assertThat(indexConfig.getRegionName()).as("list index: region name")
           .isEqualTo("region1");
       softly.assertThat(indexConfig.getName()).as("list index: index name").isEqualTo("index1");
@@ -232,8 +225,8 @@ public class ListIndexManagementDUnitTest {
   public void listIndex_fails_with_wrong_index_name_in_filter() {
     indexConfig.setRegionPath("region1");
     indexConfig.setName("index333");
-    ClusterManagementListResult<Index, IndexInfo> list = cms.list(indexConfig);
-    List<Index> result = list.getConfigResult();
+    var list = cms.list(indexConfig);
+    var result = list.getConfigResult();
     assertSoftly(softly -> {
       softly.assertThat(result).as("list non existing: result size").hasSize(0);
       softly.assertThat(list.isSuccessful()).as("list non existing: success").isTrue();
@@ -242,23 +235,23 @@ public class ListIndexManagementDUnitTest {
 
   @Test
   public void createAndDeleteIndex_success_for_specific_group() {
-    Region region = new Region();
+    var region = new Region();
     region.setName("region2");
     region.setType(RegionType.REPLICATE);
     region.setGroup("group1");
     cms.create(region);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + "region2", 1);
 
-    Index index = new Index();
+    var index = new Index();
     index.setName("index");
     index.setExpression("key");
     index.setRegionPath(SEPARATOR + "region2");
     index.setIndexType(IndexType.KEY);
     cms.create(index);
 
-    ClusterManagementGetResult<Index, IndexInfo> indexResult = cms.get(index);
-    Index fetchedIndexConfig = indexResult.getResult().getConfigurations().get(0);
-    List<IndexInfo> runtimeResult = indexResult.getResult().getRuntimeInfos();
+    var indexResult = cms.get(index);
+    var fetchedIndexConfig = indexResult.getResult().getConfigurations().get(0);
+    var runtimeResult = indexResult.getResult().getRuntimeInfos();
     assertSoftly(softly -> {
       softly.assertThat(fetchedIndexConfig.getRegionName()).as("index create: region name")
           .isEqualTo("region2");
@@ -273,9 +266,9 @@ public class ListIndexManagementDUnitTest {
           .containsExactlyInAnyOrder("server-3");
     });
 
-    ClusterManagementRealizationResult deleteIndexResult = cms.delete(index);
+    var deleteIndexResult = cms.delete(index);
     region.setGroup(null);
-    ClusterManagementRealizationResult deleteRegionResult = cms.delete(region);
+    var deleteRegionResult = cms.delete(region);
     assertSoftly(softly -> {
       softly.assertThat(deleteIndexResult.isSuccessful()).isTrue();
       softly.assertThatThrownBy(() -> cms.get(index)).as("delete index confirmation")
@@ -288,22 +281,22 @@ public class ListIndexManagementDUnitTest {
 
   @Test
   public void createAndDeleteIndex_success_for_cluster() {
-    Region region = new Region();
+    var region = new Region();
     region.setName("region2");
     region.setType(RegionType.REPLICATE);
     cms.create(region);
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + "region2", 3);
 
-    Index index = new Index();
+    var index = new Index();
     index.setName("index.1");
     index.setExpression("key");
     index.setRegionPath(SEPARATOR + "region2");
     index.setIndexType(IndexType.KEY);
     cms.create(index);
 
-    ClusterManagementGetResult<Index, IndexInfo> indexResult = cms.get(index);
-    Index fetchedIndexConfig = indexResult.getResult().getConfigurations().get(0);
-    List<IndexInfo> runtimeResult = indexResult.getResult().getRuntimeInfos();
+    var indexResult = cms.get(index);
+    var fetchedIndexConfig = indexResult.getResult().getConfigurations().get(0);
+    var runtimeResult = indexResult.getResult().getRuntimeInfos();
     assertSoftly(softly -> {
       softly.assertThat(fetchedIndexConfig.getRegionName()).as("index create: region name")
           .isEqualTo("region2");
@@ -318,8 +311,8 @@ public class ListIndexManagementDUnitTest {
           .containsExactlyInAnyOrder("server-1", "server-2", "server-3");
     });
 
-    ClusterManagementRealizationResult deleteIndexResult = cms.delete(index);
-    ClusterManagementRealizationResult deleteRegionResult = cms.delete(region);
+    var deleteIndexResult = cms.delete(index);
+    var deleteRegionResult = cms.delete(region);
     assertSoftly(softly -> {
       softly.assertThat(deleteIndexResult.isSuccessful()).isTrue();
       softly.assertThatThrownBy(() -> cms.get(index)).as("index delete confirmation")

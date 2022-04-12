@@ -31,7 +31,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
@@ -91,7 +90,7 @@ public class CacheJUnitTest {
       CacheUtils.closeCache();
       CacheUtils.destroyTable(tblName);
     } finally {
-      InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+      var ids = InternalDistributedSystem.getAnyInstance();
       if (ids != null) {
         ids.disconnect();
       }
@@ -106,24 +105,24 @@ public class CacheJUnitTest {
   public void testScenario1() throws Exception {
     tblIDFld = 1;
     tblNameFld = "test1";
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
     Connection conn = null;
 
     try {
       ta.begin();
 
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       conn = da.getConnection();
 
-      Statement stmt = conn.createStatement();
+      var stmt = conn.createStatement();
 
-      String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
+      var sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
           + tblNameFld + "'" + ")";
       stmt.executeUpdate(sqlSTR);
 
@@ -159,27 +158,27 @@ public class CacheJUnitTest {
   public void testScenario2() throws Exception {
     tblIDFld = 2;
     tblNameFld = "test2";
-    boolean rollback_chances = true;
+    var rollback_chances = true;
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
     System.out.print(" looking up UserTransaction... ");
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
     Connection conn = null;
 
     try {
       ta.begin();
 
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       conn = da.getConnection();
 
-      Statement stmt = conn.createStatement();
+      var stmt = conn.createStatement();
 
-      String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
+      var sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
           + tblNameFld + "'" + ")";
       stmt.executeUpdate(sqlSTR);
 
@@ -189,7 +188,7 @@ public class CacheJUnitTest {
 
       rollback_chances = false;
 
-      int ifAnyRows = jtaObj.getRows(tblName);
+      var ifAnyRows = jtaObj.getRows(tblName);
       if (ifAnyRows == 0) {
         // no rows are there !!! failure :)
         fail(" no rows retrieved even after txn commit after conn close.");
@@ -229,35 +228,35 @@ public class CacheJUnitTest {
   public void testScenario3() throws Exception {
     tblIDFld = 3;
     tblNameFld = "test3";
-    boolean rollback_chances = true;
-    final String DEFAULT_RGN = "root";
+    var rollback_chances = true;
+    final var DEFAULT_RGN = "root";
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
     Connection conn = null;
 
     try {
       /** begin the transaction **/
       ta.begin();
 
-      String current_region = jtaObj.currRegion.getName();
+      var current_region = jtaObj.currRegion.getName();
       assertEquals("the default region is not root", DEFAULT_RGN, current_region);
 
       jtaObj.getRegionFromCache("region1");
 
-      String current_fullpath = jtaObj.currRegion.getFullPath();
+      var current_fullpath = jtaObj.currRegion.getFullPath();
       assertEquals("failed retrieving current region fullpath",
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1",
           current_fullpath);
 
       jtaObj.put("key1", "value1");
 
-      String str = jtaObj.get("key1");
-      String tok = jtaObj.parseGetValue(str);
+      var str = jtaObj.get("key1");
+      var tok = jtaObj.parseGetValue(str);
       assertEquals("get failed for corresponding put", "\"value1\"", tok);
 
       current_fullpath = jtaObj.currRegion.getFullPath();
@@ -265,13 +264,13 @@ public class CacheJUnitTest {
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1",
           current_fullpath);
 
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       conn = da.getConnection();
 
-      Statement stmt = conn.createStatement();
+      var stmt = conn.createStatement();
 
-      String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
+      var sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
           + tblNameFld + "'" + ")";
       stmt.executeUpdate(sqlSTR);
 
@@ -285,7 +284,7 @@ public class CacheJUnitTest {
       assertEquals("failed retrieving current region fullpath after txn commit",
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1", current_fullpath);
 
-      int ifAnyRows = jtaObj.getRows(tblName);
+      var ifAnyRows = jtaObj.getRows(tblName);
       assertEquals("rows retrieved is:" + ifAnyRows, 1, ifAnyRows);
       /*
        * if (ifAnyRows == 0) { fail (" DB FAILURE: no rows retrieved even after txn commit."); }
@@ -333,23 +332,23 @@ public class CacheJUnitTest {
   public void testScenario4() throws Exception {
     tblIDFld = 4;
     tblNameFld = "test4";
-    boolean rollback_chances = true;
-    final String DEFAULT_RGN = "root";
+    var rollback_chances = true;
+    final var DEFAULT_RGN = "root";
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
     Connection conn = null;
 
     try {
-      String current_region = jtaObj.currRegion.getName();
+      var current_region = jtaObj.currRegion.getName();
       assertEquals("default region is not root", DEFAULT_RGN, current_region);
 
       jtaObj.getRegionFromCache("region1");
-      String current_fullpath = jtaObj.currRegion.getFullPath();
+      var current_fullpath = jtaObj.currRegion.getFullPath();
       assertEquals(
           "failed retrieving current region fullpath after doing getRegionFromCache(region1)",
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1", current_fullpath);
@@ -358,8 +357,8 @@ public class CacheJUnitTest {
       ta.begin();
 
       jtaObj.put("key1", "value1");
-      String str = jtaObj.get("key1");
-      String tok = jtaObj.parseGetValue(str);
+      var str = jtaObj.get("key1");
+      var tok = jtaObj.parseGetValue(str);
       assertEquals("get value do not match with the put", "\"value1\"", tok);
 
       current_fullpath = jtaObj.currRegion.getFullPath();
@@ -367,12 +366,12 @@ public class CacheJUnitTest {
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1",
           current_fullpath);
 
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       conn = da.getConnection();
-      Statement stmt = conn.createStatement();
+      var stmt = conn.createStatement();
 
-      String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
+      var sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
           + tblNameFld + "'" + ")";
       stmt.executeUpdate(sqlSTR);
 
@@ -386,7 +385,7 @@ public class CacheJUnitTest {
       assertEquals("failed retirieving current region fullpath after txn rollback",
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1", current_fullpath);
 
-      int ifAnyRows = jtaObj.getRows(tblName);
+      var ifAnyRows = jtaObj.getRows(tblName);
       assertEquals("rows retrieved is: " + ifAnyRows, 0, ifAnyRows);
       /*
        * if (ifAnyRows != 0) { fail (" DB FAILURE"); }
@@ -434,19 +433,19 @@ public class CacheJUnitTest {
   public void testScenario5() throws Exception {
     tblIDFld = 5;
     tblNameFld = "test5";
-    boolean rollback_chances = false;
-    final String DEFAULT_RGN = "root";
+    var rollback_chances = false;
+    final var DEFAULT_RGN = "root";
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
     Connection conn = null;
 
     try {
-      String current_region = jtaObj.currRegion.getName();
+      var current_region = jtaObj.currRegion.getName();
       assertEquals("default region is not root", DEFAULT_RGN, current_region);
 
       // trying to create a region 'region1' under /root, if it doesn't exist.
@@ -455,7 +454,7 @@ public class CacheJUnitTest {
 
       // now current region should point to region1, as done from within
       // getRegionFromCache method...
-      String current_fullpath = jtaObj.currRegion.getFullPath();
+      var current_fullpath = jtaObj.currRegion.getFullPath();
       assertEquals("failed retirieving current fullpath",
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1",
           current_fullpath);
@@ -465,20 +464,20 @@ public class CacheJUnitTest {
 
       jtaObj.put("key1", "value1");
 
-      String str = jtaObj.get("key1");
-      String tok = jtaObj.parseGetValue(str);
+      var str = jtaObj.get("key1");
+      var tok = jtaObj.parseGetValue(str);
       assertEquals("get value mismatch with put", "\"value1\"", tok);
 
       current_fullpath = jtaObj.currRegion.getFullPath();
       assertEquals("failed retrieving current fullpath, current fullpath: " + current_fullpath,
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1", current_fullpath);
 
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       conn = da.getConnection();
-      Statement stmt = conn.createStatement();
+      var stmt = conn.createStatement();
 
-      String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
+      var sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
           + tblNameFld + "'" + ")";
       stmt.executeUpdate(sqlSTR);
 
@@ -508,7 +507,7 @@ public class CacheJUnitTest {
         }
 
         // intended error is checked w.r.t database first
-        int ifAnyRows = 0;
+        var ifAnyRows = 0;
         try {
           ifAnyRows = jtaObj.getRows(tblName);
         } catch (Exception ex) {
@@ -519,7 +518,7 @@ public class CacheJUnitTest {
          * if (ifAnyRows != 0) { fail (" DB FAILURE"); }
          */
         // intended error is checked w.r.t. cache second
-        String current_fullpath = jtaObj.currRegion.getFullPath();
+        var current_fullpath = jtaObj.currRegion.getFullPath();
         assertEquals(
             "failed retrieving current fullpath after rollback, fullpath is: " + current_fullpath,
             SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1", current_fullpath);
@@ -532,7 +531,7 @@ public class CacheJUnitTest {
           fail("failed getting value for 'key1': " + ex.getMessage());
         }
 
-        String tok1 = jtaObj.parseGetValue(str1);
+        var tok1 = jtaObj.parseGetValue(str1);
         assertEquals("value found in cache: " + tok1 + ", after rollback", "\"test\"", tok1);
       } else {
         fail(" failed: " + e.getMessage());
@@ -562,28 +561,28 @@ public class CacheJUnitTest {
   public void testScenario7() throws Exception {
     tblIDFld = 7;
     tblNameFld = "test7";
-    boolean rollback_chances = true;
-    final String DEFAULT_RGN = "root";
+    var rollback_chances = true;
+    final var DEFAULT_RGN = "root";
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
     Connection conn = null;
 
     try {
       ta.begin();
 
-      String current_region = jtaObj.currRegion.getName();
+      var current_region = jtaObj.currRegion.getName();
       assertEquals("default region is not root", DEFAULT_RGN, current_region);
 
       jtaObj.getRegionFromCache("region1");
 
       // now current region should point to region1, as done from within
       // getRegionFromCache method...
-      String current_fullpath = jtaObj.currRegion.getFullPath();
+      var current_fullpath = jtaObj.currRegion.getFullPath();
       assertEquals("failed retrieving the current region fullpath",
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1",
           current_fullpath);
@@ -591,8 +590,8 @@ public class CacheJUnitTest {
       jtaObj.put("key1", "value1");
 
       // try to get value1 from key1 in the same region
-      String str = jtaObj.get("key1");
-      String tok = jtaObj.parseGetValue(str);
+      var str = jtaObj.get("key1");
+      var tok = jtaObj.parseGetValue(str);
       assertEquals("get value mismatch with put", "\"value1\"", tok);
 
       current_fullpath = jtaObj.currRegion.getFullPath();
@@ -600,7 +599,7 @@ public class CacheJUnitTest {
           SEPARATOR + DEFAULT_RGN + SEPARATOR + "region1",
           current_fullpath);
 
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       conn = da.getConnection();
       ta.commit();
@@ -654,27 +653,27 @@ public class CacheJUnitTest {
   public void testScenario9() throws Exception {
     tblIDFld = 9;
     tblNameFld = "test9";
-    boolean rollback_chances = true;
-    int first_field = tblIDFld;
+    var rollback_chances = true;
+    var first_field = tblIDFld;
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     // delete the rows inserted from CacheUtils createTable, otherwise conflict
     // in PK's
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
     Connection conn = null;
 
     try {
       ta.begin();
 
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
       conn = da.getConnection();
-      Statement stmt = conn.createStatement();
+      var stmt = conn.createStatement();
 
-      String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
+      var sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
           + tblNameFld + "'" + ")";
       stmt.executeUpdate(sqlSTR);
       ta.commit();
@@ -696,13 +695,13 @@ public class CacheJUnitTest {
       ta.rollback();
     } catch (SQLException e) {
       if (!rollback_chances) {
-        int ifAnyRows = jtaObj.getRows(tblName);
+        var ifAnyRows = jtaObj.getRows(tblName);
         assertEquals("rows found is: " + ifAnyRows, 1, ifAnyRows);
-        boolean matched = jtaObj.checkTableAgainstData(tblName, first_field + ""); // first
-                                                                                   // field
-                                                                                   // must
-                                                                                   // be
-                                                                                   // there.
+        var matched = jtaObj.checkTableAgainstData(tblName, first_field + ""); // first
+                                                                               // field
+                                                                               // must
+                                                                               // be
+                                                                               // there.
         assertEquals("first entry to db is not found", true, matched);
       } else {
         ta.rollback();
@@ -734,27 +733,27 @@ public class CacheJUnitTest {
   public void testScenario10() throws Exception {
     tblIDFld = 10;
     tblNameFld = "test10";
-    int rows_inserted = 0;
-    int ifAnyRows = 0;
+    var rows_inserted = 0;
+    var ifAnyRows = 0;
     int field1 = tblIDFld, field2 = 0;
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
     Connection conn1 = null;
     Connection conn2 = null;
 
     try {
       ta.begin();
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
       conn1 = da.getConnection(); // the first Connection
 
-      Statement stmt = conn1.createStatement();
+      var stmt = conn1.createStatement();
 
-      String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
+      var sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
           + tblNameFld + "'" + ")";
       stmt.executeUpdate(sqlSTR);
       rows_inserted += 1;
@@ -779,8 +778,8 @@ public class CacheJUnitTest {
       // if we reach here check for proper entries in db
       ifAnyRows = jtaObj.getRows(tblName);
       if (ifAnyRows == rows_inserted) {
-        boolean matched1 = jtaObj.checkTableAgainstData(tblName, (field1 + ""));
-        boolean matched2 = jtaObj.checkTableAgainstData(tblName, (field2 + ""));
+        var matched1 = jtaObj.checkTableAgainstData(tblName, (field1 + ""));
+        var matched2 = jtaObj.checkTableAgainstData(tblName, (field2 + ""));
 
         if (matched1) {
           System.out.print("(PK " + field1 + "found ");
@@ -834,24 +833,24 @@ public class CacheJUnitTest {
   public void testScenario11() throws Exception {
     tblIDFld = 11;
     tblNameFld = "test11";
-    boolean rollback_chances = false;
+    var rollback_chances = false;
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
     Connection conn = null;
 
     try {
       ta.begin();
-      DataSource da = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var da = (DataSource) ctx.lookup("java:/SimpleDataSource");
 
       conn = da.getConnection();
-      Statement stmt = conn.createStatement();
+      var stmt = conn.createStatement();
 
-      String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
+      var sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
           + tblNameFld + "'" + ")";
       stmt.executeUpdate(sqlSTR);
 
@@ -879,7 +878,7 @@ public class CacheJUnitTest {
 
         // try to check in the db whether any rows (the first one) are there
         // now...
-        int ifAnyRows = jtaObj.getRows(tblName);
+        var ifAnyRows = jtaObj.getRows(tblName);
         assertEquals("first row not found in case of Simple Datasource", 1, ifAnyRows); // one
                                                                                         // row--
                                                                                         // the
@@ -888,12 +887,12 @@ public class CacheJUnitTest {
                                                                                         // shud
                                                                                         // be
                                                                                         // there.
-        boolean matched = jtaObj.checkTableAgainstData(tblName, tblIDFld + ""); // checking
-                                                                                // the
-                                                                                // existence
-                                                                                // of
-                                                                                // first
-                                                                                // row
+        var matched = jtaObj.checkTableAgainstData(tblName, tblIDFld + ""); // checking
+                                                                            // the
+                                                                            // existence
+                                                                            // of
+                                                                            // first
+                                                                            // row
         assertEquals("first row PK didn't matched", true, matched);
       } else {
         ta.rollback();
@@ -921,30 +920,30 @@ public class CacheJUnitTest {
    */
   @Test
   public void testScenario14() throws Exception {
-    final String TABLEID = "2";
+    final var TABLEID = "2";
     // final String TABLEFLD = "name2";
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
-    Context ctx = cache.getJNDIContext();
-    UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
     utx.begin();
-    AttributesFactory fac = new AttributesFactory(currRegion.getAttributes());
+    var fac = new AttributesFactory(currRegion.getAttributes());
     fac.setCacheLoader(new XACacheLoaderTxn(tblName));
-    Region re = currRegion.createSubregion("employee", fac.create());
-    String retVal = (String) re.get(TABLEID); // TABLEID correspondes to
-                                              // "name1".
+    var re = currRegion.createSubregion("employee", fac.create());
+    var retVal = (String) re.get(TABLEID); // TABLEID correspondes to
+                                           // "name1".
     if (!retVal.equals("newname")) {
       fail("Uncommitted value 'newname' not read by cacheloader name = " + retVal);
     }
     utx.rollback();
 
-    DataSource ds = (DataSource) ctx.lookup("java:/XAPooledDataSource");
-    Connection conn = ds.getConnection();
-    Statement stm = conn.createStatement();
-    String str = "select name from " + tblName + "  where id= (2)";
-    ResultSet rs = stm.executeQuery(str);
+    var ds = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+    var conn = ds.getConnection();
+    var stm = conn.createStatement();
+    var str = "select name from " + tblName + "  where id= (2)";
+    var rs = stm.executeQuery(str);
     rs.next();
-    String str1 = rs.getString(1);
+    var str1 = rs.getString(1);
     if (!str1.equals("name2")) {
       fail("Rollback not occurred on XAConnection got in a cache loader");
     }
@@ -958,16 +957,16 @@ public class CacheJUnitTest {
   public void testScenario15() throws Exception {
     tblIDFld = 15;
     tblNameFld = "test15";
-    String tbl = "";
-    boolean row_num = true;
-    int ddl_return = 1;
+    var tbl = "";
+    var row_num = true;
+    var ddl_return = 1;
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
     // delete the rows inserted from CacheUtils createTable, otherwise conflict
     // in PK's. Basically not needed for this test
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
     // UserTransaction ta = null;
     Connection conn = null;
     Statement stmt = null;
@@ -978,16 +977,16 @@ public class CacheJUnitTest {
      */
 
     try {
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
       conn = da.getConnection();
       stmt = conn.createStatement();
 
       // Do some DDL stuff
-      String time = new Long(System.currentTimeMillis()).toString();
+      var time = new Long(System.currentTimeMillis()).toString();
       tbl = "my_table" + time;
       // String sql = "create table " + tbl +
       // " (my_id number primary key, my_name varchar2(50))";
-      String sql = "create table " + tbl
+      var sql = "create table " + tbl
           + " (my_id integer NOT NULL, my_name varchar(50), CONSTRAINT my_keyx PRIMARY KEY(my_id))";
       ddl_return = stmt.executeUpdate(sql);
 
@@ -1041,29 +1040,29 @@ public class CacheJUnitTest {
   public void testScenario16() throws Exception {
     tblIDFld = 16;
     tblNameFld = "test16";
-    String tbl = "";
-    int ddl_return = 1;
-    boolean row_num = true;
+    var tbl = "";
+    var ddl_return = 1;
+    var row_num = true;
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
     Connection conn = null;
     Statement stmt = null;
 
     try {
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
       conn = da.getConnection();
       conn.setAutoCommit(false);
       stmt = conn.createStatement();
 
-      String time = new Long(System.currentTimeMillis()).toString();
+      var time = new Long(System.currentTimeMillis()).toString();
       tbl = "my_table" + time;
       // String sql = "create table " + tbl +
       // " (my_id number primary key, my_name varchar2(50))";
-      String sql = "create table " + tbl
+      var sql = "create table " + tbl
           + " (my_id integer NOT NULL, my_name varchar(50), CONSTRAINT my_key PRIMARY KEY(my_id))";
       ddl_return = stmt.executeUpdate(sql);
 
@@ -1120,25 +1119,25 @@ public class CacheJUnitTest {
   public void testScenario18() throws Exception {
     tblIDFld = 18;
     tblNameFld = "test18";
-    boolean rollback_chances = true;
-    int ifAnyRows = 0;
+    var rollback_chances = true;
+    var ifAnyRows = 0;
 
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     jtaObj.deleteRows(tblName);
 
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
 
     Connection conn2 = null; // connection within txn
 
-    DataSource da = (DataSource) ctx.lookup("java:/PooledDataSource");
-    Connection conn1 = da.getConnection(); // connection outside txn
-    UserTransaction ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var da = (DataSource) ctx.lookup("java:/PooledDataSource");
+    var conn1 = da.getConnection(); // connection outside txn
+    var ta = (UserTransaction) ctx.lookup("java:/UserTransaction");
 
     try {
       ta.begin();
-      Statement stmt = conn1.createStatement();
-      String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
+      var stmt = conn1.createStatement();
+      var sqlSTR = "insert into " + tblName + " values (" + tblIDFld + "," + "'"
           + tblNameFld + "'" + ")";
       stmt.executeUpdate(sqlSTR);
       stmt.close();
@@ -1168,9 +1167,9 @@ public class CacheJUnitTest {
       ifAnyRows = jtaObj.getRows(tblName);
       assertEquals("at least one row not retained after rollback", 1, ifAnyRows);
 
-      boolean matched = jtaObj.checkTableAgainstData(tblName, tblIDFld + ""); // checking
-                                                                              // conn2's
-                                                                              // field
+      var matched = jtaObj.checkTableAgainstData(tblName, tblIDFld + ""); // checking
+                                                                          // conn2's
+                                                                          // field
       if (matched) { // data is still in db
         fail(", PK " + tblIDFld + " found in db)" + "   " + "rollback for conn #2 failed");
       }
@@ -1213,14 +1212,14 @@ public class CacheJUnitTest {
     private Object loadFromDatabase(Object ob) {
       Object obj = null;
       try {
-        Context ctx = CacheFactory.getAnyInstance().getJNDIContext();
-        DataSource ds = (DataSource) ctx.lookup("java:/XAPooledDataSource");
-        Connection conn = ds.getConnection();
-        Statement stm = conn.createStatement();
-        String str = "update " + tableName + " set name ='newname' where id = ("
+        var ctx = CacheFactory.getAnyInstance().getJNDIContext();
+        var ds = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+        var conn = ds.getConnection();
+        var stm = conn.createStatement();
+        var str = "update " + tableName + " set name ='newname' where id = ("
             + new Integer(ob.toString()) + ")";
         stm.executeUpdate(str);
-        ResultSet rs = stm.executeQuery("select name from " + tableName + " where id = ("
+        var rs = stm.executeQuery("select name from " + tableName + " where id = ("
             + new Integer(ob.toString()) + ")");
         rs.next();
         obj = rs.getString(1);

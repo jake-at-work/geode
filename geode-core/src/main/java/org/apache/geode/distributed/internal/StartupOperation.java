@@ -52,12 +52,12 @@ public class StartupOperation {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    StartupMessageReplyProcessor proc = new StartupMessageReplyProcessor(dm, recipients);
-    boolean isSharedConfigurationEnabled = false;
+    var proc = new StartupMessageReplyProcessor(dm, recipients);
+    var isSharedConfigurationEnabled = false;
     if (InternalLocator.hasLocator()) {
       isSharedConfigurationEnabled = InternalLocator.getLocator().isSharedConfigurationEnabled();
     }
-    StartupMessage msg =
+    var msg =
         new StartupMessage(InternalLocator.getLocatorStrings(), isSharedConfigurationEnabled);
 
     msg.setInterfaces(interfaces);
@@ -75,8 +75,8 @@ public class StartupOperation {
     if (newlyDeparted != null && !newlyDeparted.isEmpty()) {
       // tell the reply processor not to wait for the recipients that didn't
       // get the message
-      for (final Object o : newlyDeparted) {
-        InternalDistributedMember id = (InternalDistributedMember) o;
+      for (final var o : newlyDeparted) {
+        var id = (InternalDistributedMember) o;
         dm.handleManagerDeparture(id, false,
             "left the membership view");
         proc.memberDeparted(dm, id, true);

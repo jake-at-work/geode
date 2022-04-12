@@ -19,7 +19,6 @@ import static org.apache.geode.management.configuration.Links.URI_VERSION;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -43,7 +42,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.api.ClusterManagementGetResult;
 import org.apache.geode.management.api.ClusterManagementListResult;
-import org.apache.geode.management.api.ClusterManagementRealizationResult;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.configuration.Deployment;
 import org.apache.geode.management.configuration.HasFile;
@@ -65,7 +63,7 @@ public class DeploymentManagementController extends AbstractManagementController
   public ClusterManagementListResult<Deployment, DeploymentInfo> list(
       @RequestParam(required = false) String id,
       @RequestParam(required = false) String group) {
-    Deployment deployment = new Deployment();
+    var deployment = new Deployment();
     if (StringUtils.isNotBlank(id)) {
       deployment.setFileName(id);
     }
@@ -80,7 +78,7 @@ public class DeploymentManagementController extends AbstractManagementController
   @GetMapping(Deployment.DEPLOYMENT_ENDPOINT + "/{id:.+}")
   public ClusterManagementGetResult<Deployment, DeploymentInfo> getDeployed(
       @PathVariable(name = "id") String id) {
-    Deployment deployment = new Deployment();
+    var deployment = new Deployment();
     if (StringUtils.isNotBlank(id)) {
       deployment.setFileName(id);
     }
@@ -104,15 +102,15 @@ public class DeploymentManagementController extends AbstractManagementController
     if (file == null) {
       throw new IllegalArgumentException("No file uploaded");
     }
-    Path tempDir = FileUploader.createSecuredTempDirectory("uploaded-");
-    File targetFile = new File(tempDir.toFile(), file.getOriginalFilename());
+    var tempDir = FileUploader.createSecuredTempDirectory("uploaded-");
+    var targetFile = new File(tempDir.toFile(), file.getOriginalFilename());
     file.transferTo(targetFile);
-    Deployment deployment = new Deployment();
+    var deployment = new Deployment();
     if (StringUtils.isNotBlank(json)) {
       deployment = objectMapper.getObject().readValue(json, Deployment.class);
     }
     deployment.setFile(targetFile);
-    ClusterManagementRealizationResult realizationResult =
+    var realizationResult =
         clusterManagementService.create(deployment);
     return new ResponseEntity<>(realizationResult, HttpStatus.CREATED);
   }

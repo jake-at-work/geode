@@ -67,7 +67,7 @@ public class SortedSetScoreRangeOptions extends AbstractSortedSetRangeOptions<Do
   @Override
   public int getRangeIndex(RedisSortedSet.ScoreSet scoreSet, boolean isStartIndex) {
     int index;
-    RangeLimit<Double> rangeLimit = isStartIndex ? start : end;
+    var rangeLimit = isStartIndex ? start : end;
     RedisSortedSet.AbstractOrderedSetEntry entry = new RedisSortedSet.ScoreDummyOrderedSetEntry(
         rangeLimit.value, rangeLimit.isExclusive, isStartIndex ^ isRev);
     index = scoreSet.indexOf(entry);

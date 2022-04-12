@@ -16,20 +16,16 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.functions.ListFunctionFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -50,26 +46,26 @@ public class ListFunctionCommand extends GfshCommand {
       @CliOption(key = {CliStrings.MEMBER, CliStrings.MEMBERS},
           optionContext = ConverterHint.MEMBERIDNAME,
           help = CliStrings.LIST_FUNCTION__MEMBER__HELP) String[] members) {
-    Set<DistributedMember> targetMembers = findMembers(groups, members);
+    var targetMembers = findMembers(groups, members);
 
     if (targetMembers.isEmpty()) {
       return ResultModel.createInfo(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    List<CliFunctionResult> results = executeAndGetFunctionResult(listFunctionFunction,
+    var results = executeAndGetFunctionResult(listFunctionFunction,
         new Object[] {matches}, targetMembers);
 
-    ResultModel result = new ResultModel();
-    TabularResultModel tabularData = result.addTable("functions");
-    for (CliFunctionResult cliResult : results) {
+    var result = new ResultModel();
+    var tabularData = result.addTable("functions");
+    for (var cliResult : results) {
       @SuppressWarnings("unchecked")
-      Set<String> resultObject = (Set<String>) cliResult.getResultObject();
+      var resultObject = (Set<String>) cliResult.getResultObject();
       if (resultObject == null) {
         continue;
       }
-      String[] strings = resultObject.toArray(new String[0]);
+      var strings = resultObject.toArray(new String[0]);
       Arrays.sort(strings);
-      for (String string : strings) {
+      for (var string : strings) {
         tabularData.accumulate("Member", cliResult.getMemberIdOrName());
         tabularData.accumulate("Function", string);
       }

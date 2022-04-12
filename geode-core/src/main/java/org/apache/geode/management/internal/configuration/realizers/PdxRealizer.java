@@ -18,18 +18,17 @@ package org.apache.geode.management.internal.configuration.realizers;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.configuration.Pdx;
 import org.apache.geode.management.runtime.PdxInfo;
-import org.apache.geode.pdx.PdxSerializer;
 
 public class PdxRealizer extends ReadOnlyConfigurationRealizer<Pdx, PdxInfo> {
   @Override
   public PdxInfo get(Pdx config, InternalCache cache) {
-    PdxInfo info = new PdxInfo();
+    var info = new PdxInfo();
     info.setReadSerialized(cache.getPdxReadSerialized());
     if (cache.getPdxPersistent()) {
       info.setDiskStoreName(cache.getPdxDiskStore());
     }
     info.setIgnoreUnreadFields(cache.getPdxIgnoreUnreadFields());
-    PdxSerializer pdxSerializer = cache.getPdxSerializer();
+    var pdxSerializer = cache.getPdxSerializer();
     if (pdxSerializer != null) {
       info.setPdxSerializer(pdxSerializer.getClass().getName());
     }

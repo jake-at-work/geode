@@ -117,7 +117,7 @@ public class ExpirationAttributes implements DataSerializable {
     if (!(obj instanceof ExpirationAttributes)) {
       return false;
     }
-    ExpirationAttributes ea = (ExpirationAttributes) obj;
+    var ea = (ExpirationAttributes) obj;
     return timeout == ea.timeout && action == ea.action;
   }
 
@@ -142,7 +142,7 @@ public class ExpirationAttributes implements DataSerializable {
 
   public static ExpirationAttributes createFromData(DataInput in)
       throws IOException, ClassNotFoundException {
-    ExpirationAttributes result = new ExpirationAttributes();
+    var result = new ExpirationAttributes();
     InternalDataSerializer.invokeFromData(result, in);
     return result;
   }

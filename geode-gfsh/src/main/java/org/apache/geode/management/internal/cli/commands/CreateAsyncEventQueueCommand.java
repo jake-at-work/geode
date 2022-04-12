@@ -16,9 +16,7 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.shell.core.annotation.CliCommand;
@@ -27,12 +25,10 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueFactoryImpl;
 import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.DeclarableType;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.functions.CreateAsyncEventQueueFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -97,11 +93,11 @@ public class CreateAsyncEventQueueCommand extends SingleGfshCommand {
       authorize(ResourcePermission.Resource.CLUSTER, ResourcePermission.Operation.WRITE,
           ResourcePermission.Target.DISK);
     }
-    Properties listenerProperties = new Properties();
+    var listenerProperties = new Properties();
 
     if (listenerParamsAndValues != null) {
-      for (String listenerParamsAndValue : listenerParamsAndValues) {
-        final int hashPosition = listenerParamsAndValue.indexOf('#');
+      for (var listenerParamsAndValue : listenerParamsAndValues) {
+        final var hashPosition = listenerParamsAndValue.indexOf('#');
         if (hashPosition == -1) {
           listenerProperties.put(listenerParamsAndValue, "");
         } else {
@@ -111,8 +107,8 @@ public class CreateAsyncEventQueueCommand extends SingleGfshCommand {
       }
     }
 
-    Set<DistributedMember> targetMembers = getMembers(groups, null);
-    CacheConfig.AsyncEventQueue config = new CacheConfig.AsyncEventQueue();
+    var targetMembers = getMembers(groups, null);
+    var config = new CacheConfig.AsyncEventQueue();
     config.setAsyncEventListener(new DeclarableType(listener, listenerProperties));
     config.setBatchSize(String.valueOf(batchSize));
     config.setBatchTimeInterval(String.valueOf(batchTimeInterval));
@@ -135,10 +131,10 @@ public class CreateAsyncEventQueueCommand extends SingleGfshCommand {
     config.setPersistent(persistent);
     config.setPauseEventProcessing(pauseEventProcessing);
 
-    CreateAsyncEventQueueFunction function = new CreateAsyncEventQueueFunction();
-    List<CliFunctionResult> results = executeAndGetFunctionResult(function, config, targetMembers);
+    var function = new CreateAsyncEventQueueFunction();
+    var results = executeAndGetFunctionResult(function, config, targetMembers);
 
-    ResultModel commandResult = ResultModel.createMemberStatusResult(results);
+    var commandResult = ResultModel.createMemberStatusResult(results);
     commandResult.setConfigObject(config);
     return commandResult;
   }

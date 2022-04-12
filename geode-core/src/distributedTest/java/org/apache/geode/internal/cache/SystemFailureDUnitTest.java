@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.CancelException;
-import org.apache.geode.LogWriter;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
@@ -42,7 +41,6 @@ import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.RMIException;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.MembershipTest;
 
 /**
@@ -76,10 +74,10 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   @Ignore("TODO")
   @Test
   public void testStackOverflow() throws CacheException, InterruptedException {
-    String exceptions = StackOverflowError.class.getName() + "||" + AssertionError.class.getName();
+    var exceptions = StackOverflowError.class.getName() + "||" + AssertionError.class.getName();
 
     try {
-      String name = "testStackOverflow";
+      var name = "testStackOverflow";
 
       doMessage("<ExpectedException action=add>" + exceptions + "</ExpectedException>");
       doCreateEntry(name);
@@ -97,9 +95,9 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   @Test
   public void testOutOfMemory() throws CacheException, InterruptedException {
 
-    String exceptions = OutOfMemoryError.class.getName() + "||" + AssertionError.class.getName();
+    var exceptions = OutOfMemoryError.class.getName() + "||" + AssertionError.class.getName();
     try {
-      String name = "testOutOfMemory";
+      var name = "testOutOfMemory";
       doMessage("<ExpectedException action=add>" + exceptions + "</ExpectedException>");
       doCreateEntry(name);
       doVerifyDisconnected();
@@ -117,9 +115,9 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   @Test
   public void testPersistentOutOfMemory() throws CacheException, InterruptedException {
 
-    String exceptions = OutOfMemoryError.class.getName() + "||" + AssertionError.class.getName();
+    var exceptions = OutOfMemoryError.class.getName() + "||" + AssertionError.class.getName();
     try {
-      String name = "testPersistentOutOfMemory";
+      var name = "testPersistentOutOfMemory";
       doExec("setListener2");
       doMessage("<ExpectedException action=add>" + exceptions + "</ExpectedException>");
       doCreateEntry(name);
@@ -138,9 +136,9 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   @Test
   public void testMemoryMonitor() throws CacheException, InterruptedException {
 
-    String exceptions = OutOfMemoryError.class.getName() + "||" + AssertionError.class.getName();
+    var exceptions = OutOfMemoryError.class.getName() + "||" + AssertionError.class.getName();
     try {
-      String name = "testMemoryMonitor";
+      var name = "testMemoryMonitor";
       doExec("setListener2");
       doMessage("<ExpectedException action=add>" + exceptions + "</ExpectedException>");
       doCreateEntry(name);
@@ -158,9 +156,9 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   @Ignore("TODO")
   @Test
   public void testInternalError() throws CacheException, InterruptedException {
-    String exceptions = InternalError.class.getName() + "||" + AssertionError.class.getName();
+    var exceptions = InternalError.class.getName() + "||" + AssertionError.class.getName();
     try {
-      String name = "testInternalError";
+      var name = "testInternalError";
 
       doMessage("<ExpectedException action=add>" + exceptions + "</ExpectedException>");
       doCreateEntry(name);
@@ -177,9 +175,9 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   @Ignore("TODO")
   @Test
   public void testUnknownError() throws CacheException, InterruptedException {
-    String exceptions = UnknownError.class.getName() + "||" + AssertionError.class.getName();
+    var exceptions = UnknownError.class.getName() + "||" + AssertionError.class.getName();
     try {
-      String name = "testUnknownError";
+      var name = "testUnknownError";
       doMessage("<ExpectedException action=add>" + exceptions + "</ExpectedException>");
       doCreateEntry(name);
       doVerifyDisconnected();
@@ -215,10 +213,10 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   @Test
   public void testError() throws CacheException, InterruptedException {
     // In this case we do NOT expect a failure
-    String exceptions = Error.class.getName();
+    var exceptions = Error.class.getName();
 
     try {
-      String name = "testError";
+      var name = "testError";
       doCreateEntry(name);
       assertTrue(doVerifyConnected());
 
@@ -260,15 +258,15 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   @Test
   public void testListener() throws CacheException, InterruptedException {
 
-    String exceptions = Error.class.getName();
+    var exceptions = Error.class.getName();
     try {
-      String name = "testListener";
+      var name = "testListener";
       doExec("setListener1");
 
       doMessage("<ExpectedException action=add>" + exceptions + "</ExpectedException>");
       doCreateEntry(name);
 
-      Integer count = (Integer) doExec("getListenerCount");
+      var count = (Integer) doExec("getListenerCount");
       assertEquals(1, count.intValue());
       doVerifyDisconnected();
     } finally {
@@ -279,16 +277,16 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   }
 
   private void resetVM() {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     vm.bounce();
   }
 
   private static final long MAX_WAIT = 60 * 1000;
 
   private boolean doVerifyConnected() {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     Object o = vm.invoke(this::verifyConnected);
     return (Boolean) o;
   }
@@ -299,7 +297,7 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
           SystemFailure.getFailure());
       return Boolean.FALSE;
     }
-    GemFireCacheImpl gfc = (GemFireCacheImpl) cache;
+    var gfc = (GemFireCacheImpl) cache;
     if (gfc.isClosed()) {
       fail("Cache is closing/closed!");
       return Boolean.FALSE;
@@ -320,8 +318,8 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   }
 
   private boolean doVerifyDisconnected() {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     return vm.invoke(SystemFailureDUnitTest::verifyDisconnected);
   }
 
@@ -330,12 +328,12 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
       fail("No system failure present!");
       return Boolean.FALSE;
     }
-    GemFireCacheImpl gfc = (GemFireCacheImpl) cache;
+    var gfc = (GemFireCacheImpl) cache;
 
     // Allow cache time to finish disconnecting
-    long done = System.currentTimeMillis() + MAX_WAIT;
+    var done = System.currentTimeMillis() + MAX_WAIT;
     for (;;) {
-      long now = System.currentTimeMillis();
+      var now = System.currentTimeMillis();
       if (now >= done) {
         fail("Time out waiting for cache to close: " + cache.toString());
         return Boolean.FALSE;
@@ -355,12 +353,12 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
     assertTrue(GemFireCacheImpl.getInstance() == null);
 
     // Ditto for the distributed system
-    InternalDistributedSystem ids = (InternalDistributedSystem) gfc.getDistributedSystem();
+    var ids = (InternalDistributedSystem) gfc.getDistributedSystem();
     if (ids == null) {
       return Boolean.TRUE; // uhhh, pretty dead!
     }
     try {
-      ClusterDistributionManager dm = (ClusterDistributionManager) ids.getDistributionManager();
+      var dm = (ClusterDistributionManager) ids.getDistributionManager();
       if (dm == null) {
         return Boolean.TRUE;
       }
@@ -374,15 +372,15 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   protected static volatile ArrayList peskyMemory;
 
   private Object doExec(String method) {
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     return vm.invoke(getClass(), method);
   }
 
   private void doMessage(String text) {
-    Object[] args = new Object[] {text};
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var args = new Object[] {text};
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     vm.invoke(getClass(), "message", args);
   }
 
@@ -399,14 +397,14 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   private static void createEntry(String name, int ttl, ExpirationAction action, GenericListener l)
       throws CacheException {
 
-    Region region = getRegion();
-    AttributesFactory factory = new AttributesFactory(region.getAttributes());
+    var region = getRegion();
+    var factory = new AttributesFactory(region.getAttributes());
     factory.setStatisticsEnabled(true);
     factory.setEntryTimeToLive(new ExpirationAttributes(ttl, action));
     factory.setScope(SCOPE);
     factory.setCacheListener(l);
 
-    Region sub = region.createSubregion(name, factory.create());
+    var sub = region.createSubregion(name, factory.create());
     sub.create(name, 0, sub.getCache().getDistributedSystem().getDistributedMember());
   }
 
@@ -429,7 +427,7 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
      * Allocate objects until death
      */
     private void forceOutOfMemory() {
-      ArrayList junk = new ArrayList();
+      var junk = new ArrayList();
       for (;;) {
         junk.add(new long[100000]);
       }
@@ -450,7 +448,7 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
     private void forceOutOfMemory() {
       peskyMemory = new ArrayList();
       // Allocate this _before_ exhausting memory :-)
-      final AssertionError whoops = new AssertionError("Timeout!");
+      final var whoops = new AssertionError("Timeout!");
       try {
         for (;;) {
           peskyMemory.add(new long[100000]);
@@ -461,7 +459,7 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
         SystemFailure.setFailure(e);
 
         // Next, wait for the listener to finish running
-        long fin = System.currentTimeMillis() + 60 * 1000;
+        var fin = System.currentTimeMillis() + 60 * 1000;
         for (;;) {
           if (peskyMemory == null) {
             break;
@@ -494,10 +492,10 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
      * Allocate objects until we are chronically low, but don't generate OutOfMemoryError
      */
     private void forceLowMemory() {
-      long maxMem = Runtime.getRuntime().maxMemory();
-      long avail = Runtime.getRuntime().freeMemory();
-      long thresh = (long) (avail * 0.40);
-      long ferSure = (long) (avail * 0.30);
+      var maxMem = Runtime.getRuntime().maxMemory();
+      var avail = Runtime.getRuntime().freeMemory();
+      var thresh = (long) (avail * 0.40);
+      var ferSure = (long) (avail * 0.30);
       SystemFailure.setFailureMemoryThreshold(thresh);
       SystemFailure.setFailureAction(() -> {
         peskyMemory = null;
@@ -509,7 +507,7 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
 
       peskyMemory = new ArrayList();
       // Allocate this _before_ exhausting memory :-)
-      final AssertionError whoops = new AssertionError("Timeout!");
+      final var whoops = new AssertionError("Timeout!");
 
       // Fill up a lot of memory
       for (;;) {
@@ -524,9 +522,9 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
 
 
       // Wait for the failure monitor to kick in
-      long fin = System.currentTimeMillis() + (long) (SystemFailure.MEMORY_MAX_WAIT * 1.5 * 1000);
+      var fin = System.currentTimeMillis() + (long) (SystemFailure.MEMORY_MAX_WAIT * 1.5 * 1000);
       for (;;) {
-        long now = System.currentTimeMillis();
+        var now = System.currentTimeMillis();
         if (now > fin) {
           throw whoops;
         }
@@ -631,12 +629,12 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
   }
 
   protected void doCreateEntry(String name) {
-    LogWriter log = org.apache.geode.test.dunit.LogWriterUtils.getLogWriter();
+    var log = org.apache.geode.test.dunit.LogWriterUtils.getLogWriter();
     log.info("<ExpectedException action=add>" + "dunit.RMIException" + "</ExpectedException>");
 
-    Object[] args = new Object[] {name,};
-    Host host = Host.getHost(0);
-    VM vm = host.getVM(0);
+    var args = new Object[] {name,};
+    var host = Host.getHost(0);
+    var vm = host.getVM(0);
     try {
       vm.invoke(getClass(), "createEntry", args);
     } catch (RMIException e) {
@@ -653,7 +651,7 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
    * @param name the test we are running
    */
   protected static void createEntry(String name) throws CacheException {
-    GenericListener l = getListener(name);
+    var l = getListener(name);
     createEntry(name, 0, ExpirationAction.INVALIDATE, l);
   }
 
@@ -662,10 +660,10 @@ public class SystemFailureDUnitTest extends DistributedCacheTestCase {
    */
   private static Region getRegion() throws CacheException {
 
-    Region root = getRootRegion();
-    Region region = root.getSubregion(REGION_NAME);
+    var root = getRootRegion();
+    var region = root.getSubregion(REGION_NAME);
     if (region == null) {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(SCOPE);
       region = root.createSubregion(REGION_NAME, factory.create());
     }

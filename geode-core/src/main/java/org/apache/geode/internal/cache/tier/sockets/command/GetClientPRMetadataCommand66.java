@@ -15,16 +15,11 @@
 package org.apache.geode.internal.cache.tier.sockets.command;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.Region;
-import org.apache.geode.internal.cache.BucketServerLocation66;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
@@ -55,9 +50,9 @@ public class GetClientPRMetadataCommand66 extends BaseCommand {
       final @NotNull SecurityService securityService, long start)
       throws IOException, ClassNotFoundException, InterruptedException {
     String regionFullPath = null;
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
+    var crHelper = serverConnection.getCachedRegionHelper();
     regionFullPath = clientMessage.getPart(0).getCachedString();
-    String errMessage = "";
+    var errMessage = "";
     if (regionFullPath == null) {
       logger.warn("The input region path for the GetClientPRMetadata request is null");
       errMessage =
@@ -66,7 +61,7 @@ public class GetClientPRMetadataCommand66 extends BaseCommand {
           errMessage, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
     } else {
-      Region region = crHelper.getRegion(regionFullPath);
+      var region = crHelper.getRegion(regionFullPath);
       if (region == null) {
         logger.warn("Region was not found during GetClientPRMetadata request for region path : {}",
             regionFullPath);
@@ -77,15 +72,15 @@ public class GetClientPRMetadataCommand66 extends BaseCommand {
         serverConnection.setAsTrue(RESPONDED);
       } else {
         try {
-          Message responseMsg = serverConnection.getResponseMessage();
+          var responseMsg = serverConnection.getResponseMessage();
           responseMsg.setTransactionId(clientMessage.getTransactionId());
           responseMsg.setMessageType(MessageType.RESPONSE_CLIENT_PR_METADATA);
 
-          PartitionedRegion prRgion = (PartitionedRegion) region;
-          Map<Integer, List<BucketServerLocation66>> bucketToServerLocations =
+          var prRgion = (PartitionedRegion) region;
+          var bucketToServerLocations =
               prRgion.getRegionAdvisor().getAllClientBucketProfiles();
           responseMsg.setNumberOfParts(bucketToServerLocations.size());
-          for (List<BucketServerLocation66> serverLocations : bucketToServerLocations.values()) {
+          for (var serverLocations : bucketToServerLocations.values()) {
             responseMsg.addObjPart(serverLocations);
           }
           responseMsg.send();

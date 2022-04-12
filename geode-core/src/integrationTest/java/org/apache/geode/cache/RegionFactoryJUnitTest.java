@@ -107,8 +107,8 @@ public class RegionFactoryJUnitTest {
       if (r1sr1 != null) {
         cleanUpRegion(r1sr1);
       }
-      Cache c = cache;
-      DistributedSystem d = distSys;
+      var c = cache;
+      var d = distSys;
       if (c != null && !c.isClosed()) {
         d = c.getDistributedSystem();
         c.close();
@@ -132,7 +132,7 @@ public class RegionFactoryJUnitTest {
   @Test
   public void testCreateDestroyCreateRegions() throws Exception {
     // Assert basic region creation when no DistributedSystem or Cache exists
-    RegionFactory factory = new RegionFactory(createGemFireProperties());
+    var factory = new RegionFactory(createGemFireProperties());
     r1 = factory.create(r1Name);
     assertBasicRegionFunctionality(r1, r1Name);
 
@@ -181,7 +181,7 @@ public class RegionFactoryJUnitTest {
   @Test
   public void testRegionFactoryAndCacheClose() throws Exception {
     // Assert basic region creation when no DistributedSystem or Cache exists
-    RegionFactory factory = new RegionFactory(createGemFireProperties());
+    var factory = new RegionFactory(createGemFireProperties());
     r1 = factory.create(r1Name);
     assertBasicRegionFunctionality(r1, r1Name);
 
@@ -198,7 +198,7 @@ public class RegionFactoryJUnitTest {
 
     // as of 6.5 if the cache that was used to create a regionFactory is closed
     // then the factory is out of business
-    Cache c = r1.getCache();
+    var c = r1.getCache();
     r1.destroyRegion();
     c.close();
     try {
@@ -215,7 +215,7 @@ public class RegionFactoryJUnitTest {
     // as of 6.5 if the ds that was used to create a regionFactory is disconnected
     // then the factory is out of business
     // Assert we can handle a disconnected disributed system
-    DistributedSystem d = r1.getCache().getDistributedSystem();
+    var d = r1.getCache().getDistributedSystem();
     r1.destroyRegion();
     d.disconnect();
     try {
@@ -245,7 +245,7 @@ public class RegionFactoryJUnitTest {
     // Assert basic region creation when a Distributed system exists
     distSys = DistributedSystem.connect(createGemFireProperties()); // for teardown
 
-    RegionFactory factory = new RegionFactory();
+    var factory = new RegionFactory();
     r1 = factory.create(r1Name);
     cache = r1.getCache(); // for teardown
     assertBasicRegionFunctionality(r1, r1Name);
@@ -255,7 +255,7 @@ public class RegionFactoryJUnitTest {
   public void testAfterConnectWithDifferentProperties() throws Exception {
     // Assert failure when a Distributed system exists but with different properties
     distSys = DistributedSystem.connect(createGemFireProperties()); // for teardown
-    final Properties failed = new Properties();
+    final var failed = new Properties();
     failed.put(MCAST_TTL, "64");
 
     try {
@@ -269,10 +269,10 @@ public class RegionFactoryJUnitTest {
   @Test
   public void testAfterCacheCreate() throws Exception {
     // Assert basic region creation when a Distributed and Cache exist
-    DistributedSystem ds = DistributedSystem.connect(createGemFireProperties());
+    var ds = DistributedSystem.connect(createGemFireProperties());
     CacheFactory.create(ds);
 
-    RegionFactory factory = new RegionFactory();
+    var factory = new RegionFactory();
     r1 = factory.create(r1Name);
     assertBasicRegionFunctionality(r1, r1Name);
   }
@@ -280,12 +280,12 @@ public class RegionFactoryJUnitTest {
   @Test
   public void testAfterCacheClosed() throws Exception {
     // Assert basic region creation when a Distributed and Cache exist but the cache is closed
-    Properties gemfireProps = createGemFireProperties();
-    DistributedSystem ds = DistributedSystem.connect(gemfireProps);
+    var gemfireProps = createGemFireProperties();
+    var ds = DistributedSystem.connect(gemfireProps);
     cache = CacheFactory.create(ds);
     cache.close();
 
-    RegionFactory factory = new RegionFactory(gemfireProps);
+    var factory = new RegionFactory(gemfireProps);
     r1 = factory.create(r1Name);
     assertBasicRegionFunctionality(r1, r1Name);
   }
@@ -295,13 +295,13 @@ public class RegionFactoryJUnitTest {
    */
   @Test
   public void testRegionFactoryRegionAttributes() throws Exception {
-    Properties gemfireProps = createGemFireProperties();
+    var gemfireProps = createGemFireProperties();
     r1 = new RegionFactory(gemfireProps).setScope(Scope.LOCAL).setConcurrencyLevel(1)
         .setLoadFactor(0.8F).setKeyConstraint(String.class).setStatisticsEnabled(true)
         .create(r1Name);
     assertBasicRegionFunctionality(r1, r1Name);
 
-    final RegionFactory factory = new RegionFactory(gemfireProps, r1.getAttributes());
+    final var factory = new RegionFactory(gemfireProps, r1.getAttributes());
     r2 = factory.create(r2Name);
     assertBasicRegionFunctionality(r2, r2Name);
     assertRegionAttributes(r1.getAttributes(), r2.getAttributes());
@@ -320,7 +320,7 @@ public class RegionFactoryJUnitTest {
     DistributionConfig.DEFAULT_CACHE_XML_FILE.delete();
     try {
       DistributionConfig.DEFAULT_CACHE_XML_FILE.createNewFile();
-      FileWriter f = new FileWriter(DistributionConfig.DEFAULT_CACHE_XML_FILE);
+      var f = new FileWriter(DistributionConfig.DEFAULT_CACHE_XML_FILE);
       f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n"
           + "<!DOCTYPE cache PUBLIC\n  \"-//GemStone Systems, Inc.//GemFire Declarative Caching 7.0//EN\"\n"
           + "  \"http://www.gemstone.com/dtd/cache7_0.dtd\">\n" + "<cache>\n"
@@ -332,10 +332,10 @@ public class RegionFactoryJUnitTest {
           + " </region-attributes>\n" + "</cache>");
       f.close();
 
-      RegionFactory factory = new RegionFactory(createGemFireProperties(), getName());
+      var factory = new RegionFactory(createGemFireProperties(), getName());
       r1 = factory.create(r1Name);
       assertBasicRegionFunctionality(r1, r1Name);
-      RegionAttributes ra = r1.getAttributes();
+      var ra = r1.getAttributes();
       assertEquals(ra.getStatisticsEnabled(), true);
       assertEquals(ra.getScope().isDistributedAck(), true);
       assertEquals(ra.getValueConstraint(), Integer.class);
@@ -351,9 +351,9 @@ public class RegionFactoryJUnitTest {
    */
   @Test
   public void testRegionFactoryProperties() throws Exception {
-    final Properties gemfireProperties = createGemFireProperties();
+    final var gemfireProperties = createGemFireProperties();
     gemfireProperties.put(MCAST_TTL, "64");
-    RegionFactory factory = new RegionFactory(gemfireProperties);
+    var factory = new RegionFactory(gemfireProperties);
     r1 = factory.create(r1Name);
     assertBasicRegionFunctionality(r1, r1Name);
     assertEquals(gemfireProperties.get(MCAST_TTL),
@@ -377,15 +377,15 @@ public class RegionFactoryJUnitTest {
   public void testRegionFactoryPropertiesString() throws Exception {
     File xmlFile = null;
     try {
-      final Properties gemfireProperties = createGemFireProperties();
+      final var gemfireProperties = createGemFireProperties();
       gemfireProperties.put(MCAST_TTL, "64");
-      final String xmlFileName = getName() + "-cache.xml";
+      final var xmlFileName = getName() + "-cache.xml";
       gemfireProperties.put(CACHE_XML_FILE, xmlFileName);
       xmlFile = new File(xmlFileName);
       xmlFile.delete();
       xmlFile.createNewFile();
-      FileWriter f = new FileWriter(xmlFile);
-      final String attrsId = getName() + "-attrsId";
+      var f = new FileWriter(xmlFile);
+      final var attrsId = getName() + "-attrsId";
       f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n"
           + "<!DOCTYPE cache PUBLIC\n  \"-//GemStone Systems, Inc.//GemFire Declarative Caching 7.0//EN\"\n"
           + "  \"http://www.gemstone.com/dtd/cache7_0.dtd\">\n" + "<cache>\n"
@@ -397,14 +397,14 @@ public class RegionFactoryJUnitTest {
           + " </region-attributes>\n" + "</cache>");
       f.close();
 
-      RegionFactory factory = new RegionFactory(gemfireProperties, attrsId);
+      var factory = new RegionFactory(gemfireProperties, attrsId);
       r1 = factory.create(r1Name);
       assertBasicRegionFunctionality(r1, r1Name);
       assertEquals(gemfireProperties.get(MCAST_TTL),
           r1.getCache().getDistributedSystem().getProperties().get(MCAST_TTL));
       assertEquals(gemfireProperties.get(CACHE_XML_FILE),
           r1.getCache().getDistributedSystem().getProperties().get(CACHE_XML_FILE));
-      RegionAttributes ra = r1.getAttributes();
+      var ra = r1.getAttributes();
       assertEquals(ra.getStatisticsEnabled(), true);
       assertEquals(ra.getScope().isDistributedAck(), true);
       assertEquals(ra.getValueConstraint(), Integer.class);
@@ -424,11 +424,11 @@ public class RegionFactoryJUnitTest {
    */
   @Test
   public void testAttributesFactoryConformance() throws Exception {
-    Method[] af = AttributesFactory.class.getDeclaredMethods();
-    Method[] rf = RegionFactory.class.getDeclaredMethods();
+    var af = AttributesFactory.class.getDeclaredMethods();
+    var rf = RegionFactory.class.getDeclaredMethods();
     Method am, rm;
 
-    ArrayList afDeprected = new ArrayList(); // hack to ignore deprecated methods
+    var afDeprected = new ArrayList(); // hack to ignore deprecated methods
     afDeprected.add("setCacheListener");
     afDeprected.add("setMirrorType");
     afDeprected.add("setPersistBackup");
@@ -436,7 +436,7 @@ public class RegionFactoryJUnitTest {
     afDeprected.add("setEnableWAN");
     afDeprected.add("setEnableBridgeConflation");
     afDeprected.add("setEnableConflation");
-    ArrayList methodsToImplement = new ArrayList();
+    var methodsToImplement = new ArrayList();
 
     // Since the RegionFactory has an AttributesFactory member,
     // we only need to make sure the RegionFactory class adds proxies for the
@@ -444,20 +444,20 @@ public class RegionFactoryJUnitTest {
     // will notify the
     // developer if a method is removed from AttributesFactory.
     String amName;
-    boolean hasMethod = false;
+    var hasMethod = false;
     assertTrue(af.length != 0);
-    for (final Method value : af) {
+    for (final var value : af) {
       am = value;
       amName = am.getName();
       if (!afDeprected.contains(amName) && (amName.startsWith("set") || amName.startsWith("add"))) {
-        for (final Method method : rf) {
+        for (final var method : rf) {
           rm = method;
           if (rm.getName().equals(am.getName())) {
             Class[] rparams = rm.getParameterTypes();
             Class[] aparams = am.getParameterTypes();
             if (rparams.length == aparams.length) {
-              boolean hasAllParams = true;
-              for (int k = 0; k < rparams.length; k++) {
+              var hasAllParams = true;
+              for (var k = 0; k < rparams.length; k++) {
                 if (aparams[k] != rparams[k]) {
                   hasAllParams = false;
                   break;
@@ -485,10 +485,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -496,10 +496,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_REDUNDANT() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_REDUNDANT);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -507,10 +507,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_PERSISTENT() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_PERSISTENT);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -518,10 +518,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_REDUNDANT_PERSISTENT() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_REDUNDANT_PERSISTENT);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -529,10 +529,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_OVERFLOW() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_OVERFLOW);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -544,10 +544,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_REDUNDANT_OVERFLOW() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_REDUNDANT_OVERFLOW);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -559,10 +559,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_PERSISTENT_OVERFLOW() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_PERSISTENT_OVERFLOW);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -574,10 +574,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_REDUNDANT_PERSISTENT_OVERFLOW() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_REDUNDANT_PERSISTENT_OVERFLOW);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -589,10 +589,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_HEAP_LRU() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_HEAP_LRU);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -603,10 +603,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_REDUNDANT_HEAP_LRU() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_REDUNDANT_HEAP_LRU);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -617,30 +617,30 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testREPLICATE() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
   }
 
   @Test
   public void testREPLICATE_PERSISTENT() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE_PERSISTENT);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
   }
 
   @Test
   public void testREPLICATE_OVERFLOW() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE_OVERFLOW);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK),
@@ -651,10 +651,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testREPLICATE_PERSISTENT_OVERFLOW() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE_PERSISTENT_OVERFLOW);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK),
@@ -665,10 +665,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testREPLICATE_HEAP_LRU() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE_HEAP_LRU);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PRELOADED, ra.getDataPolicy());
     assertEquals(new SubscriptionAttributes(InterestPolicy.ALL), ra.getSubscriptionAttributes());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
@@ -679,30 +679,30 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testLOCAL() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
   }
 
   @Test
   public void testLOCAL_PERSISTENT() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL_PERSISTENT);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
   }
 
   @Test
   public void testLOCAL_HEAP_LRU() throws Exception {
-    Cache c = new CacheFactory(createGemFireProperties()).create();
+    var c = new CacheFactory(createGemFireProperties()).create();
     RegionFactory factory = c.createRegionFactory(LOCAL_HEAP_LRU);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(), ra.getEvictionAttributes());
@@ -712,10 +712,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testLOCAL_OVERFLOW() throws Exception {
-    Cache c = new CacheFactory(createGemFireProperties()).create();
+    var c = new CacheFactory(createGemFireProperties()).create();
     RegionFactory factory = c.createRegionFactory(LOCAL_OVERFLOW);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK),
@@ -726,10 +726,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testLOCAL_PERSISTENT_OVERFLOW() throws Exception {
-    Cache c = new CacheFactory(createGemFireProperties()).create();
+    var c = new CacheFactory(createGemFireProperties()).create();
     RegionFactory factory = c.createRegionFactory(LOCAL_PERSISTENT_OVERFLOW);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK),
@@ -740,10 +740,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_PROXY() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_PROXY);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -752,10 +752,10 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testPARTITION_PROXY_REDUNDANT() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_PROXY_REDUNDANT);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -764,326 +764,326 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testREPLICATE_PROXY() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE_PROXY);
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.EMPTY, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
   }
 
   @Test
   public void testSetCacheLoader() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE_PROXY);
     CacheLoader cl = new MyCacheLoader();
     r1 = factory.setCacheLoader(cl).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(cl, ra.getCacheLoader());
   }
 
   @Test
   public void testSetCacheWriter() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE_PROXY);
     CacheWriter cw = new MyCacheWriter();
     r1 = factory.setCacheWriter(cw).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(cw, ra.getCacheWriter());
   }
 
   @Test
   public void testAddCacheListener() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE_PROXY);
     CacheListener cl = new MyCacheListener();
     r1 = factory.addCacheListener(cl).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(cl, ra.getCacheListener());
   }
 
   @Test
   public void testInitCacheListener() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE_PROXY);
     CacheListener cl1 = new MyCacheListener();
     CacheListener cl2 = new MyCacheListener();
     r1 = factory.initCacheListeners(new CacheListener[] {cl1, cl2}).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, Arrays.equals(new CacheListener[] {cl1, cl2}, ra.getCacheListeners()));
   }
 
   @Test
   public void testSetEvictionAttributes() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(77))
         .create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(EvictionAttributes.createLRUEntryAttributes(77), ra.getEvictionAttributes());
   }
 
   @Test
   public void testSetEntryIdleTimeout() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
-    ExpirationAttributes ea = new ExpirationAttributes(7);
+    var ea = new ExpirationAttributes(7);
     r1 = factory.setEntryIdleTimeout(ea).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(ea, ra.getEntryIdleTimeout());
   }
 
   @Test
   public void testSetCustomEntryIdleTimeout() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
-    MyCustomExpiry ce = new MyCustomExpiry();
+    var ce = new MyCustomExpiry();
     r1 = factory.setCustomEntryIdleTimeout(ce).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(ce, ra.getCustomEntryIdleTimeout());
   }
 
   @Test
   public void testSetEntryTimeToLive() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
-    ExpirationAttributes ea = new ExpirationAttributes(7);
+    var ea = new ExpirationAttributes(7);
     r1 = factory.setEntryTimeToLive(ea).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(ea, ra.getEntryTimeToLive());
   }
 
   @Test
   public void testSetCustomEntryTimeToLive() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
-    MyCustomExpiry ce = new MyCustomExpiry();
+    var ce = new MyCustomExpiry();
     r1 = factory.setCustomEntryTimeToLive(ce).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(ce, ra.getCustomEntryTimeToLive());
   }
 
   @Test
   public void testSetRegionIdleTimeout() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
-    ExpirationAttributes ea = new ExpirationAttributes(7);
+    var ea = new ExpirationAttributes(7);
     r1 = factory.setRegionIdleTimeout(ea).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(ea, ra.getRegionIdleTimeout());
   }
 
   @Test
   public void testSetRegionTimeToLive() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
-    ExpirationAttributes ea = new ExpirationAttributes(7);
+    var ea = new ExpirationAttributes(7);
     r1 = factory.setRegionTimeToLive(ea).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(ea, ra.getRegionTimeToLive());
   }
 
   @Test
   public void testSetScope() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setScope(Scope.GLOBAL).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(Scope.GLOBAL, ra.getScope());
   }
 
   @Test
   public void testSetDataPolicy() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setDataPolicy(DataPolicy.REPLICATE).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.REPLICATE, ra.getDataPolicy());
   }
 
   @Test
   public void testSetEarlyAck() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setEarlyAck(true).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, ra.getEarlyAck());
   }
 
   @Test
   public void testSetMulticastEnabled() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setMulticastEnabled(true).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, ra.getMulticastEnabled());
   }
 
   @Test
   public void testSetEnableSubscriptionConflation() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setEnableSubscriptionConflation(true).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, ra.getEnableSubscriptionConflation());
   }
 
   @Test
   public void testSetKeyConstraint() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setKeyConstraint(String.class).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(String.class, ra.getKeyConstraint());
   }
 
   @Test
   public void testSetValueConstraint() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setValueConstraint(String.class).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(String.class, ra.getValueConstraint());
   }
 
   @Test
   public void testSetInitialCapacity() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setInitialCapacity(777).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(777, ra.getInitialCapacity());
   }
 
   @Test
   public void testSetLoadFactor() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setLoadFactor(77.7f).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(77.7f, ra.getLoadFactor(), 0);
   }
 
   @Test
   public void testSetConcurrencyLevel() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setConcurrencyLevel(7).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(7, ra.getConcurrencyLevel());
   }
 
   @Test
   public void testSetDiskStoreName() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     c.createDiskStoreFactory().create("ds");
     RegionFactory factory = c.createRegionFactory(LOCAL_PERSISTENT);
     r1 = factory.setDiskStoreName("ds").create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals("ds", ra.getDiskStoreName());
   }
 
   @Test
   public void testSetDiskSynchronous() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL_PERSISTENT);
     r1 = factory.setDiskSynchronous(true).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, ra.isDiskSynchronous());
   }
 
   @Test
   public void testSetPartitionAttributes() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory();
-    PartitionAttributes pa = new PartitionAttributesFactory().setTotalNumBuckets(77).create();
+    var pa = new PartitionAttributesFactory().setTotalNumBuckets(77).create();
     r1 = factory.setPartitionAttributes(pa).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(pa, ra.getPartitionAttributes());
   }
 
   @Test
   public void testSetMembershipAttributes() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory();
-    MembershipAttributes ma = new MembershipAttributes(new String[] {"role1", "role2"});
+    var ma = new MembershipAttributes(new String[] {"role1", "role2"});
     r1 = factory.setMembershipAttributes(ma).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(ma, ra.getMembershipAttributes());
   }
 
   @Test
   public void testSetIndexMaintenanceSynchronous() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE);
     r1 = factory.setIndexMaintenanceSynchronous(true).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, ra.getIndexMaintenanceSynchronous());
   }
 
   @Test
   public void testSetStatisticsEnabled() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setStatisticsEnabled(true).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, ra.getStatisticsEnabled());
   }
 
   @Test
   public void testSetIgnoreJTA() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE);
     r1 = factory.setIgnoreJTA(true).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, ra.getIgnoreJTA());
   }
 
   @Test
   public void testSetLockGrantor() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE);
     r1 = factory.setScope(Scope.GLOBAL).setLockGrantor(true).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, ra.isLockGrantor());
   }
 
   @Test
   public void testSetSubscriptionAttributes() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(REPLICATE);
-    SubscriptionAttributes sa = new SubscriptionAttributes(InterestPolicy.ALL);
+    var sa = new SubscriptionAttributes(InterestPolicy.ALL);
     r1 = factory.setSubscriptionAttributes(sa).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(sa, ra.getSubscriptionAttributes());
   }
 
   @Test
   public void testSetCloningEnabled() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setCloningEnabled(true).create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(true, ra.getCloningEnabled());
   }
 
   @Test
   public void testSetPoolName() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     PoolManager.createFactory().addServer("127.0.0.1", 7777).create("myPool");
     RegionFactory factory = c.createRegionFactory(LOCAL);
     r1 = factory.setPoolName("myPool").create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals("myPool", ra.getPoolName());
   }
 
   @Test
   public void testBug45749() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_REDUNDANT);
     factory.setPartitionAttributes(new PartitionAttributesFactory().setTotalNumBuckets(5).create());
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(5, ra.getPartitionAttributes().getTotalNumBuckets());
@@ -1092,12 +1092,12 @@ public class RegionFactoryJUnitTest {
 
   @Test
   public void testBug45749part2() throws Exception {
-    Cache c = createCache();
+    var c = createCache();
     RegionFactory factory = c.createRegionFactory(PARTITION_REDUNDANT);
     factory.setPartitionAttributes(
         new PartitionAttributesFactory().setTotalNumBuckets(5).setRedundantCopies(2).create());
     r1 = factory.create(r1Name);
-    RegionAttributes ra = r1.getAttributes();
+    var ra = r1.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(5, ra.getPartitionAttributes().getTotalNumBuckets());
@@ -1109,7 +1109,7 @@ public class RegionFactoryJUnitTest {
     Cache extCache;
 
     // try block creates and close cache
-    try (Cache cache = new CacheFactory(createGemFireProperties()).create()) {
+    try (var cache = new CacheFactory(createGemFireProperties()).create()) {
       extCache = cache;
       assertEquals(false, cache.isClosed());
     }
@@ -1125,17 +1125,17 @@ public class RegionFactoryJUnitTest {
   public void testRegionOffHeapAttributeInherent() throws Exception {
     File xmlFile = null;
     try {
-      final Properties gemfireProperties = createGemFireProperties();
+      final var gemfireProperties = createGemFireProperties();
       gemfireProperties.put(MCAST_TTL, "64");
       gemfireProperties.put("off-heap-memory-size", "4096m");
-      final String xmlFileName = getName() + "-cache.xml";
+      final var xmlFileName = getName() + "-cache.xml";
       gemfireProperties.put(CACHE_XML_FILE, xmlFileName);
       xmlFile = new File(xmlFileName);
       xmlFile.delete();
       xmlFile.createNewFile();
-      FileWriter f = new FileWriter(xmlFile);
-      final String attrsId1 = getName() + "-attrsId1";
-      final String attrsId2 = getName() + "-attrsId2";
+      var f = new FileWriter(xmlFile);
+      final var attrsId1 = getName() + "-attrsId1";
+      final var attrsId2 = getName() + "-attrsId2";
 
       f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n"
           + "<cache "
@@ -1151,14 +1151,14 @@ public class RegionFactoryJUnitTest {
           + "</cache>");
       f.close();
 
-      RegionFactory factory = new RegionFactory(gemfireProperties, attrsId2);
+      var factory = new RegionFactory(gemfireProperties, attrsId2);
       r1 = factory.create(r1Name);
       assertBasicRegionFunctionality(r1, r1Name);
       assertEquals(gemfireProperties.get(MCAST_TTL),
           r1.getCache().getDistributedSystem().getProperties().get(MCAST_TTL));
       assertEquals(gemfireProperties.get(CACHE_XML_FILE),
           r1.getCache().getDistributedSystem().getProperties().get(CACHE_XML_FILE));
-      RegionAttributes ra = r1.getAttributes();
+      var ra = r1.getAttributes();
       assertEquals(ra.getStatisticsEnabled(), true);
       assertEquals(ra.getScope().isDistributedAck(), true);
       assertEquals(ra.getOffHeap(), true);
@@ -1175,7 +1175,7 @@ public class RegionFactoryJUnitTest {
   }
 
   private Properties createGemFireProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(MCAST_PORT, "0");
     props.put(LOCATORS, "");
     return props;

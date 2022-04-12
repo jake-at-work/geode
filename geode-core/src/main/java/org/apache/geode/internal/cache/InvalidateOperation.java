@@ -50,7 +50,7 @@ public class InvalidateOperation extends DistributedCacheOperation {
   @Override
   protected CacheOperationMessage createMessage() {
     if (event.hasClientOrigin()) {
-      InvalidateWithContextMessage msgwithContxt = new InvalidateWithContextMessage();
+      var msgwithContxt = new InvalidateWithContextMessage();
       msgwithContxt.context = event.getContext();
       return msgwithContxt;
     } else {
@@ -61,8 +61,8 @@ public class InvalidateOperation extends DistributedCacheOperation {
   @Override
   protected void initMessage(CacheOperationMessage msg, DirectReplyProcessor processor) {
     super.initMessage(msg, processor);
-    InvalidateMessage imsg = (InvalidateMessage) msg;
-    EntryEventImpl eei = (EntryEventImpl) event;
+    var imsg = (InvalidateMessage) msg;
+    var eei = (EntryEventImpl) event;
     imsg.key = eei.getKey();
     imsg.eventId = eei.getEventId();
   }
@@ -74,8 +74,8 @@ public class InvalidateOperation extends DistributedCacheOperation {
     @Override
     protected boolean operateOnRegion(CacheEvent event, ClusterDistributionManager dm)
         throws EntryNotFoundException {
-      EntryEventImpl ev = (EntryEventImpl) event;
-      DistributedRegion rgn = (DistributedRegion) ev.getRegion();
+      var ev = (EntryEventImpl) event;
+      var rgn = (DistributedRegion) ev.getRegion();
 
       try {
         if (!rgn.isCacheContentProxy()) {
@@ -86,9 +86,9 @@ public class InvalidateOperation extends DistributedCacheOperation {
           // if this is a mirrored region and we're still initializing, or
           // concurrency conflict detection is enabled (requiring version #
           // retention) then force new entry creation
-          boolean forceNewEntry = rgn.getDataPolicy().withReplication()
+          var forceNewEntry = rgn.getDataPolicy().withReplication()
               && (!rgn.isInitialized() || rgn.getConcurrencyChecksEnabled());
-          boolean invokeCallbacks = rgn.isInitialized();
+          var invokeCallbacks = rgn.isInitialized();
           rgn.basicInvalidate(ev, invokeCallbacks, forceNewEntry);
         }
         appliedOperation = true;
@@ -103,7 +103,7 @@ public class InvalidateOperation extends DistributedCacheOperation {
     @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
       @Retained
-      EntryEventImpl ev = EntryEventImpl.create(rgn, getOperation(), key, null,
+      var ev = EntryEventImpl.create(rgn, getOperation(), key, null,
           callbackArg, true, getSender());
       ev.setEventId(eventId);
       setOldValueInEvent(ev);
@@ -168,7 +168,7 @@ public class InvalidateOperation extends DistributedCacheOperation {
     @Override
     @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
-      EntryEventImpl event = (EntryEventImpl) super.createEvent(rgn);
+      var event = (EntryEventImpl) super.createEvent(rgn);
       event.setContext(context);
       return event;
     }

@@ -40,12 +40,12 @@ public class RequiresRedisHome extends SerializableExternalResource {
   }
 
   public File getGeodeForRedisHome() {
-    String geodeForRedisHome = System.getenv("GEODE_FOR_REDIS_HOME");
+    var geodeForRedisHome = System.getenv("GEODE_FOR_REDIS_HOME");
     assertThat(geodeForRedisHome)
         .withFailMessage(GEODE_FOR_REDIS_HOME_NOT_SET_MESSAGE)
         .isNotNull();
 
-    File home = new File(geodeForRedisHome);
+    var home = new File(geodeForRedisHome);
     assertThat(home)
         .exists()
         .isDirectoryContaining(file -> file.getName().startsWith("lib"));

@@ -46,7 +46,7 @@ public abstract class AbstractScanExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
     int cursor;
     try {
@@ -55,7 +55,7 @@ public abstract class AbstractScanExecutor implements CommandExecutor {
       return RedisResponse.error(ERROR_CURSOR);
     }
 
-    RedisKey key = command.getKey();
+    var key = command.getKey();
 
     // Because we're trying to preserve the same semantics of error conditions, with native redis,
     // the ordering of input validation is reflected here. To that end the first check ends up
@@ -73,11 +73,11 @@ public abstract class AbstractScanExecutor implements CommandExecutor {
       }
 
       command.getCommandType().checkDeferredParameters(command, context);
-      int count = DEFAULT_COUNT;
+      var count = DEFAULT_COUNT;
       byte[] globPattern = null;
 
-      for (int i = 3; i < commandElems.size(); i = i + 2) {
-        byte[] commandElemBytes = commandElems.get(i);
+      for (var i = 3; i < commandElems.size(); i = i + 2) {
+        var commandElemBytes = commandElems.get(i);
         if (equalsIgnoreCaseBytes(commandElemBytes, MATCH)) {
           commandElemBytes = commandElems.get(i + 1);
           globPattern = commandElemBytes;

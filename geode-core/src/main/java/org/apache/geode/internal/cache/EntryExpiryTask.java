@@ -19,7 +19,6 @@ package org.apache.geode.internal.cache;
  * EntryExpiryTask represents a timeout event for a region entry.
  */
 
-import java.util.concurrent.locks.Lock;
 
 import org.apache.logging.log4j.Logger;
 
@@ -83,7 +82,7 @@ public class EntryExpiryTask extends ExpiryTask {
    *         it has is removed.
    */
   protected RegionEntry getCheckedRegionEntry() throws EntryNotFoundException {
-    RegionEntry result = re;
+    var result = re;
     if (re == null || re.isDestroyedOrRemoved()) {
       throw new EntryNotFoundException("expiration task no longer has access to region entry");
     }
@@ -92,7 +91,7 @@ public class EntryExpiryTask extends ExpiryTask {
 
   @Override
   protected long getLastAccessedTime() throws EntryNotFoundException {
-    RegionEntry re = getCheckedRegionEntry();
+    var re = getCheckedRegionEntry();
     try {
       return re.getLastAccessed();
     } catch (InternalStatisticsDisabledException e) {
@@ -116,11 +115,11 @@ public class EntryExpiryTask extends ExpiryTask {
 
   @Override
   protected boolean destroy(boolean isPending) throws CacheException {
-    RegionEntry re = getCheckedRegionEntry();
-    Object key = re.getKey();
-    LocalRegion lr = getLocalRegion();
+    var re = getCheckedRegionEntry();
+    var key = re.getKey();
+    var lr = getLocalRegion();
     @Released
-    EntryEventImpl event = EntryEventImpl.create(lr, Operation.EXPIRE_DESTROY, key, null,
+    var event = EntryEventImpl.create(lr, Operation.EXPIRE_DESTROY, key, null,
         createExpireEntryCallback(lr, key), false, lr.getMyId());
     try {
       event.setPendingSecondaryExpireDestroy(isPending);
@@ -136,11 +135,11 @@ public class EntryExpiryTask extends ExpiryTask {
 
   @Override
   protected boolean invalidate() throws TimeoutException, EntryNotFoundException {
-    RegionEntry re = getCheckedRegionEntry();
-    Object key = re.getKey();
-    LocalRegion lr = getLocalRegion();
+    var re = getCheckedRegionEntry();
+    var key = re.getKey();
+    var lr = getLocalRegion();
     @Released
-    EntryEventImpl event = EntryEventImpl.create(lr, Operation.EXPIRE_INVALIDATE, key, null,
+    var event = EntryEventImpl.create(lr, Operation.EXPIRE_INVALIDATE, key, null,
         createExpireEntryCallback(lr, key), false, lr.getMyId());
     try {
       if (lr.generateEventID()) {
@@ -155,11 +154,11 @@ public class EntryExpiryTask extends ExpiryTask {
 
   @Override
   protected boolean localDestroy() throws CacheException {
-    RegionEntry re = getCheckedRegionEntry();
-    Object key = re.getKey();
-    LocalRegion lr = getLocalRegion();
+    var re = getCheckedRegionEntry();
+    var key = re.getKey();
+    var lr = getLocalRegion();
     @Released
-    EntryEventImpl event = EntryEventImpl.create(lr, Operation.EXPIRE_LOCAL_DESTROY, key, null,
+    var event = EntryEventImpl.create(lr, Operation.EXPIRE_LOCAL_DESTROY, key, null,
         createExpireEntryCallback(lr, key), false, lr.getMyId());
     try {
       if (lr.generateEventID()) {
@@ -174,11 +173,11 @@ public class EntryExpiryTask extends ExpiryTask {
 
   @Override
   protected boolean localInvalidate() throws EntryNotFoundException {
-    RegionEntry re = getCheckedRegionEntry();
-    Object key = re.getKey();
-    LocalRegion lr = getLocalRegion();
+    var re = getCheckedRegionEntry();
+    var key = re.getKey();
+    var lr = getLocalRegion();
     @Released
-    EntryEventImpl event = EntryEventImpl.create(lr, Operation.EXPIRE_LOCAL_INVALIDATE, key, null,
+    var event = EntryEventImpl.create(lr, Operation.EXPIRE_LOCAL_INVALIDATE, key, null,
         createExpireEntryCallback(lr, key), false, lr.getMyId());
     try {
       if (lr.generateEventID()) {
@@ -212,8 +211,8 @@ public class EntryExpiryTask extends ExpiryTask {
 
   @Override
   public String toString() {
-    String result = super.toString();
-    RegionEntry re = this.re;
+    var result = super.toString();
+    var re = this.re;
     if (re != null) {
       result += ", " + re.getKey();
     }
@@ -232,14 +231,14 @@ public class EntryExpiryTask extends ExpiryTask {
 
   @Override
   public boolean isPending() {
-    RegionEntry re = this.re;
+    var re = this.re;
     if (re == null) {
       return false;
     }
     if (re.isDestroyedOrRemoved()) {
       return false;
     }
-    ExpirationAction action = getAction();
+    var action = getAction();
     if (action == null) {
       return false;
     }
@@ -275,7 +274,7 @@ public class EntryExpiryTask extends ExpiryTask {
       return true;
     }
 
-    long latestLastAccessTime = getLatestLastAccessTimeOnOtherMembers();
+    var latestLastAccessTime = getLatestLastAccessTimeOnOtherMembers();
     if (latestLastAccessTime > getLastAccessedTime()) {
       setLastAccessedTime(latestLastAccessTime);
       return false;
@@ -288,7 +287,7 @@ public class EntryExpiryTask extends ExpiryTask {
   }
 
   private void setLastAccessedTime(long lastAccessedTime) throws EntryNotFoundException {
-    RegionEntry re = getCheckedRegionEntry();
+    var re = getCheckedRegionEntry();
     re.setLastAccessed(lastAccessedTime);
   }
 
@@ -317,10 +316,10 @@ public class EntryExpiryTask extends ExpiryTask {
     }
     // if global scope get distributed lock for destroy and invalidate actions
     if (getLocalRegion().getScope().isGlobal() && (action.isDestroy() || action.isInvalidate())) {
-      Lock lock = getLocalRegion().getDistributedLock(getCheckedRegionEntry().getKey());
+      var lock = getLocalRegion().getDistributedLock(getCheckedRegionEntry().getKey());
       lock.lock();
       try {
-        long expTime = getExpirationTime();
+        var expTime = getExpirationTime();
         if (expTime == 0L) {
           return;
         }
@@ -349,7 +348,7 @@ public class EntryExpiryTask extends ExpiryTask {
 
   @Override
   public Object getKey() {
-    RegionEntry entry = re;
+    var entry = re;
     if (entry == null) {
       throw new EntryDestroyedException();
     }
@@ -358,7 +357,7 @@ public class EntryExpiryTask extends ExpiryTask {
 
   @Override
   public boolean cancel() {
-    boolean superCancel = super.cancel();
+    var superCancel = super.cancel();
     if (superCancel) {
       re = null;
       if (expiryTaskListener != null) {

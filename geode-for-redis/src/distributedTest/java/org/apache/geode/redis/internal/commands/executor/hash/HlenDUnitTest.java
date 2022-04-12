@@ -30,7 +30,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.apache.geode.redis.ConcurrentLoopingThreads;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
@@ -50,12 +49,12 @@ public class HlenDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     cluster.startRedisVM(1, locator.getPort());
     cluster.startRedisVM(2, locator.getPort());
 
-    int redisServerPort1 = cluster.getRedisPort(1);
+    var redisServerPort1 = cluster.getRedisPort(1);
     clusterClient = RedisClusterClient.create("redis://localhost:" + redisServerPort1);
 
     lettuce = clusterClient.connect().sync();
@@ -73,12 +72,12 @@ public class HlenDUnitTest {
 
   @Test
   public void testConcurrentHLens_returnExpectedLength() {
-    AtomicLong client1Len = new AtomicLong();
-    AtomicLong client2Len = new AtomicLong();
+    var client1Len = new AtomicLong();
+    var client2Len = new AtomicLong();
 
-    String key = "HLEN";
+    var key = "HLEN";
 
-    Map<String, String> setUpData = makeInitialHashMap(HASH_SIZE, "field", "value");
+    var setUpData = makeInitialHashMap(HASH_SIZE, "field", "value");
 
     lettuce.hset(key, setUpData);
 
@@ -98,53 +97,53 @@ public class HlenDUnitTest {
 
   @Test
   public void testConcurrentHLen_whileAddingFields() {
-    String key = "HLEN";
-    String storeKey = "storedLength";
+    var key = "HLEN";
+    var storeKey = "storedLength";
 
-    Map<String, String> setUpData =
+    var setUpData =
         makeInitialHashMap(HASH_SIZE, "filler-", String.valueOf(HASH_SIZE));
     lettuce.hset(key, setUpData);
     lettuce.set(storeKey, String.valueOf(HASH_SIZE));
 
     new ConcurrentLoopingThreads(NUM_ITERATIONS,
         (i) -> {
-          int newElementCount = i + 1; // convert index to a length
-          int currentLength = HASH_SIZE + newElementCount;
+          var newElementCount = i + 1; // convert index to a length
+          var currentLength = HASH_SIZE + newElementCount;
 
           lettuce.hset(key, "field-" + currentLength, String.valueOf(currentLength));
           lettuce.set(storeKey, String.valueOf(currentLength));
         },
         (i) -> {
-          long expectedLength = Long.parseLong(lettuce.get(storeKey));
+          var expectedLength = Long.parseLong(lettuce.get(storeKey));
           long actualLength = lettuce.hlen(key);
 
           assertThat(actualLength).isGreaterThanOrEqualTo(expectedLength);
         }).run();
 
     long finalActualLength = lettuce.hlen(key);
-    long finalExpectedLength = Long.parseLong(lettuce.get(storeKey));
+    var finalExpectedLength = Long.parseLong(lettuce.get(storeKey));
     assertThat(finalActualLength).isEqualTo(finalExpectedLength);
   }
 
   @Test
   public void testConcurrentHLen_whileDeletingFields() {
-    String key = "HLEN";
-    String storeKey = "storedLength";
+    var key = "HLEN";
+    var storeKey = "storedLength";
 
-    Map<String, String> setUpData =
+    var setUpData =
         makeInitialHashMap(BIG_HASH_SIZE, "field-", String.valueOf(BIG_HASH_SIZE));
     lettuce.hset(key, setUpData);
     lettuce.set(storeKey, String.valueOf(BIG_HASH_SIZE));
 
     new ConcurrentLoopingThreads(NUM_ITERATIONS,
         (i) -> {
-          int newLength = BIG_HASH_SIZE - i - 1;
+          var newLength = BIG_HASH_SIZE - i - 1;
 
           lettuce.hdel(key, "field-" + newLength);
           lettuce.set(storeKey, String.valueOf(newLength));
         },
         (i) -> {
-          long expectedLength = Long.parseLong(lettuce.get(storeKey));
+          var expectedLength = Long.parseLong(lettuce.get(storeKey));
           long actualLength = lettuce.hlen(key);
 
           assertThat(actualLength).isLessThanOrEqualTo(expectedLength);
@@ -156,7 +155,7 @@ public class HlenDUnitTest {
   private Map<String, String> makeInitialHashMap(int hashSize, String baseFieldName,
       String baseValueName) {
     Map<String, String> map = new HashMap<>();
-    for (int i = 0; i < hashSize; i++) {
+    for (var i = 0; i < hashSize; i++) {
       map.put(baseFieldName + i, baseValueName + i);
     }
     return map;

@@ -82,7 +82,7 @@ public class RequiredRoles {
       throw new IllegalStateException(
           "Region has not been configured with required roles.");
     }
-    DistributedRegion dr = (DistributedRegion) region;
+    var dr = (DistributedRegion) region;
     return dr.waitForRequiredRoles(timeout);
   }
 
@@ -97,7 +97,7 @@ public class RequiredRoles {
    */
   public static boolean isRoleInRegionMembership(Region<?, ?> region, Role role) {
     if (region instanceof DistributedRegion) {
-      DistributedRegion dr = (DistributedRegion) region;
+      var dr = (DistributedRegion) region;
       return dr.isRoleInRegionMembership(role);
     } else {
       return role.isPresent();

@@ -180,8 +180,8 @@ public class PortfolioPdx implements Serializable, PdxSerializable {
     this(i);
     position1.portfolioId = j;
     position3 = new Object[3];
-    for (int k = 0; k < position3.length; k++) {
-      PositionPdx p = new PositionPdx(secIds[k], (k + 1) * 1000L);
+    for (var k = 0; k < position3.length; k++) {
+      var p = new PositionPdx(secIds[k], (k + 1) * 1000L);
       p.portfolioId = (k + 1);
       position3[k] = p;
     }
@@ -196,7 +196,7 @@ public class PortfolioPdx implements Serializable, PdxSerializable {
     if (!(o instanceof PortfolioPdx)) {
       return false;
     }
-    PortfolioPdx p2 = (PortfolioPdx) o;
+    var p2 = (PortfolioPdx) o;
     return ID == p2.ID;
   }
 
@@ -207,10 +207,10 @@ public class PortfolioPdx implements Serializable, PdxSerializable {
 
 
   public String toString() {
-    String out =
+    var out =
         "PortfolioPdx [ID=" + ID + " status=" + status + " type=" + type + " pkid=" + pkid + "\n ";
-    for (final Object o : positions.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
+    for (final var o : positions.entrySet()) {
+      var entry = (Map.Entry) o;
       out += entry.getKey() + ":" + entry.getValue() + ", ";
     }
     out += "\n P1:" + position1 + ", P2:" + position2;

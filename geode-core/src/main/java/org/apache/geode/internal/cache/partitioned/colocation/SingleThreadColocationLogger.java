@@ -33,7 +33,6 @@ import org.apache.geode.CancelCriterion;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.internal.cache.PRHARedundancyProvider;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.logging.internal.executors.LoggingThread;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -112,8 +111,8 @@ public class SingleThreadColocationLogger implements ColocationLogger {
   @Override
   public void addMissingChildRegions(PartitionedRegion childRegion) {
     synchronized (lock) {
-      List<String> missingDescendants = childRegion.getMissingColocatedChildren();
-      for (String name : missingDescendants) {
+      var missingDescendants = childRegion.getMissingColocatedChildren();
+      for (var name : missingDescendants) {
         addMissingChildRegion(name);
       }
     }
@@ -131,7 +130,7 @@ public class SingleThreadColocationLogger implements ColocationLogger {
   @Override
   public List<String> updateAndGetMissingChildRegions() {
     synchronized (lock) {
-      Set<String> childRegions = allColocationRegionsProvider.apply(region);
+      var childRegions = allColocationRegionsProvider.apply(region);
       missingChildren.removeAll(childRegions);
     }
     return new ArrayList<>(missingChildren);
@@ -164,7 +163,7 @@ public class SingleThreadColocationLogger implements ColocationLogger {
   private void checkForMissingColocatedRegion() {
     DistributedSystem.setThreadsSocketPolicy(true /* conserve sockets */);
     SystemFailure.checkFailure();
-    CancelCriterion cancelCriterion = region.getSystem().getCancelCriterion();
+    var cancelCriterion = region.getSystem().getCancelCriterion();
     if (cancelCriterion.isCancelInProgress()) {
       return;
     }
@@ -195,9 +194,9 @@ public class SingleThreadColocationLogger implements ColocationLogger {
   private void checkForMissingColocatedRegion(CancelCriterion cancelCriterion)
       throws InterruptedException {
     synchronized (lock) {
-      boolean firstLogIteration = true;
+      var firstLogIteration = true;
       while (true) {
-        long waitMillis = firstLogIteration ? delayMillis : intervalMillis;
+        var waitMillis = firstLogIteration ? delayMillis : intervalMillis;
         // delay for first log message is half of the interval between subsequent log messages
         if (firstLogIteration) {
           firstLogIteration = false;
@@ -205,7 +204,7 @@ public class SingleThreadColocationLogger implements ColocationLogger {
 
         lock.wait(waitMillis);
 
-        PRHARedundancyProvider redundancyProvider = region.getRedundancyProvider();
+        var redundancyProvider = region.getRedundancyProvider();
         if (redundancyProvider != null && redundancyProvider.isPersistentRecoveryComplete()) {
           // Terminate the logging thread
           // isPersistentRecoveryComplete is true only when there are no missing colocated regions
@@ -229,7 +228,7 @@ public class SingleThreadColocationLogger implements ColocationLogger {
    * @param regionPath the parent region that has missing child regions
    */
   private void logMissingRegions(String regionPath) {
-    String namesOfMissingChildren =
+    var namesOfMissingChildren =
         missingChildren.isEmpty() ? "" : String.join(lineSeparator() + '\t', missingChildren);
 
     logger.accept(String.format(

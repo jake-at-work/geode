@@ -133,8 +133,8 @@ public class PureLogWriter extends LogWriterImpl {
   public void put(final int messageLevel, final String message, final Throwable throwable) {
     String exceptionText = null;
     if (throwable != null) {
-      StringWriter stringWriter = new StringWriter();
-      PrintWriter printWriter = new PrintWriter(stringWriter);
+      var stringWriter = new StringWriter();
+      var printWriter = new PrintWriter(stringWriter);
       throwable.printStackTrace(printWriter);
       printWriter.close();
       try {
@@ -157,15 +157,15 @@ public class PureLogWriter extends LogWriterImpl {
   @Override
   public void put(final int messageLevel, final StringId messageId, final Object[] parameters,
       final Throwable throwable) {
-    String message = messageId.toLocalizedString(parameters);
+    var message = messageId.toLocalizedString(parameters);
     put(messageLevel, message, throwable);
   }
 
   private String formatLogLine(final int messageLevel, final Date messageDate,
       final String connectionName, final String threadName, final long threadId,
       final String message, final String exceptionText) {
-    StringWriter stringWriter = new StringWriter();
-    PrintWriter printWriter = new PrintWriter(stringWriter);
+    var stringWriter = new StringWriter();
+    var printWriter = new PrintWriter(stringWriter);
 
     printHeader(printWriter, messageLevel, messageDate, connectionName, threadName, threadId);
 
@@ -218,7 +218,7 @@ public class PureLogWriter extends LogWriterImpl {
   public String put(final int messageLevel, final Date messageDate, final String connectionName,
       final String threadName, final long threadId, final String message,
       final String exceptionText) {
-    String formattedLine = formatLogLine(messageLevel, messageDate, connectionName, threadName,
+    var formattedLine = formatLogLine(messageLevel, messageDate, connectionName, threadName,
         threadId, message, exceptionText);
     writeFormattedMessage(formattedLine);
     return formattedLine;
@@ -256,14 +256,14 @@ public class PureLogWriter extends LogWriterImpl {
     try {
       return new PrintWriter(new FileOutputStream(logFile, true), true);
     } catch (FileNotFoundException ex) {
-      String s = String.format("Could not open log file \"%s\".", logFile);
+      var s = String.format("Could not open log file \"%s\".", logFile);
       throw new GemFireIOException(s, ex);
     }
   }
 
   public PrintWriter setTarget(final PrintWriter printWriter, final long targetLength) {
     synchronized (this) {
-      PrintWriter oldPrintWriter = this.printWriter;
+      var oldPrintWriter = this.printWriter;
       bytesLogged = targetLength;
       this.printWriter = printWriter;
       return oldPrintWriter;

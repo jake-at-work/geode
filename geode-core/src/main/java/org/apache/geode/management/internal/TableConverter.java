@@ -17,13 +17,11 @@ package org.apache.geode.management.internal;
 import java.io.InvalidObjectException;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedMap;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
-import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
@@ -45,23 +43,23 @@ public class TableConverter extends OpenTypeConverter {
 
   @Override
   Object toNonNullOpenValue(Object value) throws OpenDataException {
-    final Map<Object, Object> valueMap = (Map<Object, Object>) value;
+    final var valueMap = (Map<Object, Object>) value;
     if (valueMap instanceof SortedMap) {
-      Comparator comparator = ((SortedMap) valueMap).comparator();
+      var comparator = ((SortedMap) valueMap).comparator();
       if (comparator != null) {
-        final String msg = "Cannot convert SortedMap with non-null comparator: " + comparator;
-        IllegalArgumentException iae = new IllegalArgumentException(msg);
-        OpenDataException ode = new OpenDataException(msg);
+        final var msg = "Cannot convert SortedMap with non-null comparator: " + comparator;
+        var iae = new IllegalArgumentException(msg);
+        var ode = new OpenDataException(msg);
         ode.initCause(iae);
         throw ode;
       }
     }
-    final TabularType tabularType = (TabularType) getOpenType();
+    final var tabularType = (TabularType) getOpenType();
     final TabularData table = new TabularDataSupport(tabularType);
-    final CompositeType rowType = tabularType.getRowType();
+    final var rowType = tabularType.getRowType();
     for (Map.Entry entry : valueMap.entrySet()) {
-      final Object openKey = keyConverter.toOpenValue(entry.getKey());
-      final Object openValue = valueConverter.toOpenValue(entry.getValue());
+      final var openKey = keyConverter.toOpenValue(entry.getKey());
+      final var openValue = valueConverter.toOpenValue(entry.getValue());
       final CompositeData row;
       row = new CompositeDataSupport(rowType, keyValueArray, new Object[] {openKey, openValue});
       table.put(row);
@@ -71,15 +69,15 @@ public class TableConverter extends OpenTypeConverter {
 
   @Override
   public Object fromNonNullOpenValue(Object openValue) throws InvalidObjectException {
-    final TabularData table = (TabularData) openValue;
-    final Collection<CompositeData> rows = (Collection<CompositeData>) table.values();
-    final Map<Object, Object> valueMap =
+    final var table = (TabularData) openValue;
+    final var rows = (Collection<CompositeData>) table.values();
+    final var valueMap =
         sortedMap ? OpenTypeUtil.newSortedMap() : OpenTypeUtil.newMap();
-    for (CompositeData row : rows) {
-      final Object key = keyConverter.fromOpenValue(row.get("key"));
-      final Object value = valueConverter.fromOpenValue(row.get("value"));
+    for (var row : rows) {
+      final var key = keyConverter.fromOpenValue(row.get("key"));
+      final var value = valueConverter.fromOpenValue(row.get("value"));
       if (valueMap.put(key, value) != null) {
-        final String msg = "Duplicate entry in TabularData: key=" + key;
+        final var msg = "Duplicate entry in TabularData: key=" + key;
         throw new InvalidObjectException(msg);
       }
     }

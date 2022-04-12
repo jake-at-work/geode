@@ -32,8 +32,8 @@ public class DocLinksController {
   @ApiOperation("get documentation-links")
   @GetMapping("/")
   public ResponseEntity<DocLinks> getDocumentationLinks(HttpServletRequest request) {
-    DocLinks docLinks = new DocLinks();
-    String baseURL = request.getRequestURL().toString();
+    var docLinks = new DocLinks();
+    var baseURL = request.getRequestURL().toString();
     List<String> uriList = new ArrayList<>();
     uriList.add(baseURL + "v1/api-docs");
     docLinks.setLatest(uriList.get(0));

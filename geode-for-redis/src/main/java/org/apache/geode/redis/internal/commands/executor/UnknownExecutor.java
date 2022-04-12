@@ -18,7 +18,6 @@ package org.apache.geode.redis.internal.commands.executor;
 import static org.apache.geode.redis.internal.RedisConstants.ERROR_UNKNOWN_COMMAND;
 import static org.apache.geode.redis.internal.netty.Coder.bytesToString;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.geode.redis.internal.commands.Command;
@@ -28,10 +27,10 @@ public class UnknownExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    String commandName = bytesToString(commandElems.get(0));
+    var commandElems = command.getProcessedCommand();
+    var commandName = bytesToString(commandElems.get(0));
 
-    String commandArguments = command.getCommandArguments()
+    var commandArguments = command.getCommandArguments()
         .stream()
         .map(bytes -> "`" + bytesToString(bytes) + "`, ")
         .collect(Collectors.joining());

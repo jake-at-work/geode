@@ -27,8 +27,6 @@ import static org.mockito.Mockito.verify;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Map;
@@ -73,17 +71,17 @@ public class FileSystemJUnitTest {
    */
   @Test
   public void testReadWriteBytes() throws Exception {
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
 
-    File file1 = system.createFile("testFile1");
+    var file1 = system.createFile("testFile1");
 
     assertEquals(0, file1.getLength());
 
-    OutputStream outputStream1 = file1.getOutputStream();
+    var outputStream1 = file1.getOutputStream();
 
     // Write some random data. Make sure it fills several chunks
     outputStream1.write(2);
-    byte[] data = new byte[LARGE_CHUNK];
+    var data = new byte[LARGE_CHUNK];
     rand.nextBytes(data);
     outputStream1.write(data);
     outputStream1.write(44);
@@ -93,9 +91,9 @@ public class FileSystemJUnitTest {
     assertTrue(file1.getModified() >= start);
 
     // Append to the file with a new outputstream
-    OutputStream outputStream2 = file1.getOutputStream();
+    var outputStream2 = file1.getOutputStream();
     outputStream2.write(123);
-    byte[] data2 = new byte[SMALL_CHUNK];
+    var data2 = new byte[SMALL_CHUNK];
     rand.nextBytes(data2);
     outputStream2.write(data2);
     outputStream2.close();
@@ -106,7 +104,7 @@ public class FileSystemJUnitTest {
     InputStream is = file1.getInputStream();
 
     assertEquals(2, is.read());
-    byte[] resultData = new byte[LARGE_CHUNK];
+    var resultData = new byte[LARGE_CHUNK];
     assertEquals(LARGE_CHUNK, is.read(resultData));
     assertArrayEquals(data, resultData);
     assertEquals(44, is.read());
@@ -118,7 +116,7 @@ public class FileSystemJUnitTest {
     assertEquals(SMALL_CHUNK, is.read(resultData, 50, SMALL_CHUNK));
 
     // Make sure the data read matches
-    byte[] expectedData = new byte[LARGE_CHUNK];
+    var expectedData = new byte[LARGE_CHUNK];
     Arrays.fill(expectedData, (byte) 0);
     System.arraycopy(data2, 0, expectedData, 50, data2.length);
     assertArrayEquals(expectedData, resultData);
@@ -148,22 +146,22 @@ public class FileSystemJUnitTest {
    */
   @Test
   public void testCloneReader() throws Exception {
-    File file1 = system.createFile("testFile1");
+    var file1 = system.createFile("testFile1");
 
-    byte[] data = writeRandomBytes(file1);
+    var data = writeRandomBytes(file1);
 
-    SeekableInputStream in = file1.getInputStream();
+    var in = file1.getInputStream();
 
     // Read to partway through the file
-    byte[] results1 = new byte[data.length];
+    var results1 = new byte[data.length];
     in.read(results1, 0, SMALL_CHUNK);
 
 
     // Clone the input stream. Both copies should
     // now be positioned partway through the file.
-    SeekableInputStream in2 = in.clone();
+    var in2 = in.clone();
 
-    byte[] results2 = new byte[data.length];
+    var results2 = new byte[data.length];
 
     // Fill in the beginning of results2 with the data that it missed
     // to make testing easier.
@@ -185,10 +183,10 @@ public class FileSystemJUnitTest {
    */
   @Test
   public void testSeek() throws Exception {
-    File file = system.createFile("testFile1");
+    var file = system.createFile("testFile1");
 
-    ByteArrayOutputStream expected = new ByteArrayOutputStream();
-    byte[] data = new byte[SMALL_CHUNK];
+    var expected = new ByteArrayOutputStream();
+    var data = new byte[SMALL_CHUNK];
 
     // Write multiple times to the file with a lot of small chunks
     while (expected.size() < FileSystem.CHUNK_SIZE + 1) {
@@ -198,14 +196,14 @@ public class FileSystemJUnitTest {
       writeBytes(file, data);
     }
 
-    byte[] expectedBytes = expected.toByteArray();
+    var expectedBytes = expected.toByteArray();
     assertContents(expectedBytes, file);
 
     // Assert that there are only 2 chunks in the system, since we wrote just
     // past the end of the first chunk.
     assertEquals(2, numberOfChunks(fileAndChunkRegion));
 
-    SeekableInputStream in = file.getInputStream();
+    var in = file.getInputStream();
 
     // Seek to several positions in the first chunk
     checkByte(5, in, expectedBytes);
@@ -222,7 +220,7 @@ public class FileSystemJUnitTest {
     // Read the remaining data after a seek
 
     in.seek(10);
-    byte[] results = new byte[expectedBytes.length];
+    var results = new byte[expectedBytes.length];
 
     // Fill in the initial 10 bytes with the expected value
     System.arraycopy(expectedBytes, 0, results, 0, 10);
@@ -235,7 +233,7 @@ public class FileSystemJUnitTest {
 
   private void checkByte(int i, SeekableInputStream in, byte[] expectedBytes) throws IOException {
     in.seek(i);
-    byte result = (byte) in.read();
+    var result = (byte) in.read();
 
     assertEquals(expectedBytes[i], result);
   }
@@ -245,13 +243,13 @@ public class FileSystemJUnitTest {
    */
   @Test
   public void testFileOperations() throws Exception {
-    String name1 = "testFile1";
-    File file1 = system.createFile(name1);
-    byte[] file1Data = writeRandomBytes(file1);
+    var name1 = "testFile1";
+    var file1 = system.createFile(name1);
+    var file1Data = writeRandomBytes(file1);
 
-    String name2 = "testFile2";
-    File file2 = system.createFile(name2);
-    byte[] file2Data = writeRandomBytes(file2);
+    var name2 = "testFile2";
+    var file2 = system.createFile(name2);
+    var file2Data = writeRandomBytes(file2);
 
     file1 = system.getFile(name1);
     file2 = system.getFile(name2);
@@ -271,11 +269,11 @@ public class FileSystemJUnitTest {
     assertContents(file1Data, file1);
     assertContents(file2Data, file2);
 
-    String name3 = "testFile3";
+    var name3 = "testFile3";
 
     system.renameFile(name1, name3);
 
-    File file3 = system.getFile(name3);
+    var file3 = system.getFile(name3);
 
     assertEquals(Arrays.asList(name3, name2), system.listFileNames());
     assertContents(file1Data, file3);
@@ -310,20 +308,19 @@ public class FileSystemJUnitTest {
   }
 
   private void doUnclosedStream(int size) throws IOException {
-    String name1 = "testFile1";
-    File file1 = system.createFile(name1);
-    byte[] bytes = getRandomBytes(size);
+    var name1 = "testFile1";
+    var file1 = system.createFile(name1);
+    var bytes = getRandomBytes(size);
     file1.getOutputStream().write(bytes);
 
-    FileSystem system2 = new FileSystem(fileAndChunkRegion, fileSystemStats);
-    File file = system2.getFile(name1);
+    var system2 = new FileSystem(fileAndChunkRegion, fileSystemStats);
+    var file = system2.getFile(name1);
 
     assertTrue(file.getLength() <= bytes.length);
 
-    long length = file.getLength();
+    var length = file.getLength();
 
-
-    byte[] results = new byte[bytes.length];
+    var results = new byte[bytes.length];
 
     if (length == 0) {
       assertEquals(-1, file.getInputStream().read(results));
@@ -347,27 +344,27 @@ public class FileSystemJUnitTest {
   @Test
   public void testPartialRename() throws Exception {
 
-    final CountOperations countOperations = new CountOperations();
+    final var countOperations = new CountOperations();
     // Create a couple of mock regions where we count the operations
     // that happen to them. We will then use this to abort the rename
     // in the middle.
-    ConcurrentHashMap spyFileAndChunkRegion =
+    var spyFileAndChunkRegion =
         mock(ConcurrentHashMap.class, new SpyWrapper(countOperations, fileAndChunkRegion));
 
 
     system = new FileSystem(spyFileAndChunkRegion, fileSystemStats);
 
-    String name = "file";
-    File file = system.createFile(name);
+    var name = "file";
+    var file = system.createFile(name);
 
-    ByteArrayOutputStream expected = new ByteArrayOutputStream();
+    var expected = new ByteArrayOutputStream();
 
     // Make sure the file has a lot of chunks
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       expected.write(writeRandomBytes(file));
     }
 
-    String name2 = "file2";
+    var name2 = "file2";
     countOperations.reset();
 
     system.renameFile(name, name2);
@@ -381,7 +378,7 @@ public class FileSystemJUnitTest {
     countOperations.after((int) Math.ceil(countOperations.count / 2.0 + 1), () -> {
       throw new CacheClosedException();
     });
-    String name3 = "file3";
+    var name3 = "file3";
     countOperations.reset();
 
     try {
@@ -397,10 +394,10 @@ public class FileSystemJUnitTest {
     // with two duplicate files. However, we will still
     // verify that neither file is corrupted.
     assertEquals(2, system.listFileNames().size());
-    File sourceFile = system.getFile(name2);
-    File destFile = system.getFile(name3);
+    var sourceFile = system.getFile(name2);
+    var destFile = system.getFile(name3);
 
-    byte[] expectedBytes = expected.toByteArray();
+    var expectedBytes = expected.toByteArray();
 
     assertContents(expectedBytes, sourceFile);
     assertContents(expectedBytes, destFile);
@@ -408,17 +405,17 @@ public class FileSystemJUnitTest {
 
   @Test
   public void testExport() throws IOException {
-    String name1 = "testFile1";
-    File file1 = system.createFile(name1);
-    byte[] file1Data = writeRandomBytes(file1);
+    var name1 = "testFile1";
+    var file1 = system.createFile(name1);
+    var file1Data = writeRandomBytes(file1);
 
-    String name2 = "testFile2";
-    File file2 = system.createFile(name2);
-    byte[] file2Data = writeRandomBytes(file2);
+    var name2 = "testFile2";
+    var file2 = system.createFile(name2);
+    var file2Data = writeRandomBytes(file2);
 
-    java.io.File parentDir = tempFolderRule.getRoot();
+    var parentDir = tempFolderRule.getRoot();
     system.export(parentDir);
-    String[] foundFiles = parentDir.list();
+    var foundFiles = parentDir.list();
     Arrays.sort(foundFiles);
     assertArrayEquals(new String[] {"testFile1", "testFile2"}, foundFiles);
 
@@ -428,65 +425,65 @@ public class FileSystemJUnitTest {
 
   @Test
   public void testIncrementFileCreates() throws IOException {
-    File file = system.createFile("file");
+    var file = system.createFile("file");
     verify(fileSystemStats).incFileCreates(1);
   }
 
   @Test
   public void testIncrementFileDeletes() throws IOException {
-    File file = system.createFile("file");
+    var file = system.createFile("file");
     system.deleteFile("file");
     verify(fileSystemStats).incFileDeletes(1);
   }
 
   @Test
   public void testIncrementFileRenames() throws IOException {
-    File file = system.createFile("file");
+    var file = system.createFile("file");
     system.renameFile("file", "dest");
     verify(fileSystemStats).incFileRenames(1);
   }
 
   @Test
   public void testIncrementTemporaryFileCreates() throws IOException {
-    File file = system.createTemporaryFile("file");
+    var file = system.createTemporaryFile("file");
     verify(fileSystemStats).incTemporaryFileCreates(1);
   }
 
   @Test
   public void testIncrementWrittenBytes() throws IOException {
-    File file = system.createTemporaryFile("file");
-    final byte[] bytes = writeRandomBytes(file);
-    ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+    var file = system.createTemporaryFile("file");
+    final var bytes = writeRandomBytes(file);
+    var captor = ArgumentCaptor.forClass(Integer.class);
     verify(fileSystemStats, atLeast(1)).incWrittenBytes(captor.capture());
-    final int actualByteCount = captor.getAllValues().stream().mapToInt(Integer::intValue).sum();
+    final var actualByteCount = captor.getAllValues().stream().mapToInt(Integer::intValue).sum();
     assertEquals(bytes.length, actualByteCount);
   }
 
   @Test
   public void testIncrementReadBytes() throws IOException {
-    File file = system.createTemporaryFile("file");
-    final byte[] bytes = writeRandomBytes(file);
+    var file = system.createTemporaryFile("file");
+    final var bytes = writeRandomBytes(file);
     file.getInputStream().read(bytes);
-    ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+    var captor = ArgumentCaptor.forClass(Integer.class);
     verify(fileSystemStats, atLeast(1)).incReadBytes(captor.capture());
-    final int actualByteCount = captor.getAllValues().stream().mapToInt(Integer::intValue).sum();
+    final var actualByteCount = captor.getAllValues().stream().mapToInt(Integer::intValue).sum();
     assertEquals(bytes.length, actualByteCount);
   }
 
   @Test
   public void testDeletePossiblyRenamedFileDoesNotDestroyChunks() throws Exception {
-    ConcurrentHashMap spyFileRegion = Mockito.spy(fileAndChunkRegion);
+    var spyFileRegion = Mockito.spy(fileAndChunkRegion);
     system = new FileSystem(spyFileRegion, fileSystemStats);
 
-    String sourceFileName = "sourceFile";
-    File file1 = system.createFile(sourceFileName);
-    byte[] data = writeRandomBytes(file1);
+    var sourceFileName = "sourceFile";
+    var file1 = system.createFile(sourceFileName);
+    var data = writeRandomBytes(file1);
 
     Mockito.doReturn(file1).when(spyFileRegion).remove(any());
 
-    String destFileName = "destFile";
+    var destFileName = "destFile";
     system.renameFile(sourceFileName, destFileName);
-    File destFile = system.getFile(destFileName);
+    var destFile = system.getFile(destFileName);
 
     assertNotNull(system.getFile(sourceFileName));
     system.deleteFile(sourceFileName);
@@ -496,7 +493,7 @@ public class FileSystemJUnitTest {
 
   private void assertExportedFileContents(final byte[] expected, final java.io.File exportedFile)
       throws IOException {
-    byte[] actual = Files.readAllBytes(exportedFile.toPath());
+    var actual = Files.readAllBytes(exportedFile.toPath());
     assertArrayEquals(expected, actual);
   }
 
@@ -510,7 +507,7 @@ public class FileSystemJUnitTest {
       return;
     }
 
-    byte[] results = new byte[data.length];
+    var results = new byte[data.length];
     assertEquals(file.getLength(), is.read(results));
     assertEquals(-1, is.read());
     is.close();
@@ -519,13 +516,13 @@ public class FileSystemJUnitTest {
   }
 
   private byte[] writeRandomBytes(File file) throws IOException {
-    byte[] file1Data = getRandomBytes();
+    var file1Data = getRandomBytes();
     writeBytes(file, file1Data);
     return file1Data;
   }
 
   private void writeBytes(File file, byte[] data) throws IOException {
-    OutputStream outputStream = file.getOutputStream();
+    var outputStream = file.getOutputStream();
     outputStream.write(data);
     outputStream.close();
   }
@@ -535,7 +532,7 @@ public class FileSystemJUnitTest {
   }
 
   private byte[] getRandomBytes(int length) {
-    byte[] data = new byte[length];
+    var data = new byte[length];
     rand.nextBytes(data);
 
     return data;
@@ -565,7 +562,7 @@ public class FileSystemJUnitTest {
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
       countOperations.answer(invocation);
-      Method m = invocation.getMethod();
+      var m = invocation.getMethod();
       return m.invoke(region, invocation.getArguments());
     }
   }

@@ -18,18 +18,15 @@ package org.apache.geode.cache.lucene;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
 import org.apache.geode.test.version.TestVersion;
 import org.apache.geode.test.version.VersionManager;
@@ -42,7 +39,7 @@ public abstract class LuceneSearchWithRollingUpgradeDUnit
 
   @Parameterized.Parameters(name = "from_v{0}, with reindex={1}, singleHopEnabled={2}")
   public static Collection<Object[]> data() {
-    Collection<String> luceneVersions = getLuceneVersions();
+    var luceneVersions = getLuceneVersions();
     Collection<Object[]> rval = new ArrayList<>();
     luceneVersions.forEach(v -> {
       rval.add(new Object[] {v, true, true});
@@ -52,7 +49,7 @@ public abstract class LuceneSearchWithRollingUpgradeDUnit
   }
 
   private static Collection<String> getLuceneVersions() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     // Lucene Compatibility checks start with Apache Geode v1.2.0
     // Removing the versions older than v1.2.0
     result.removeIf(s -> TestVersion.compare(s, "1.2.0") < 0);
@@ -83,20 +80,19 @@ public abstract class LuceneSearchWithRollingUpgradeDUnit
   // Now we roll all the servers from old to new
   void executeLuceneQueryWithServerRollOvers(String regionType, String startingVersion)
       throws Exception {
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(startingVersion, 0);
-    VM server2 = host.getVM(startingVersion, 1);
-    VM server3 = host.getVM(startingVersion, 2);
-    VM locator = host.getVM(startingVersion, 3);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(startingVersion, 0);
+    var server2 = host.getVM(startingVersion, 1);
+    var server3 = host.getVM(startingVersion, 2);
+    var locator = host.getVM(startingVersion, 3);
 
-
-    String regionName = "aRegion";
+    var regionName = "aRegion";
     String shortcutName = null;
     if ((regionType.equals("partitionedRedundant"))) {
       shortcutName = RegionShortcut.PARTITION_REDUNDANT.name();
     } else if ((regionType.equals("persistentPartitioned"))) {
       shortcutName = RegionShortcut.PARTITION_PERSISTENT.name();
-      for (int i = 0; i < testingDirs.length; i++) {
+      for (var i = 0; i < testingDirs.length; i++) {
         testingDirs[i] = new File(diskDir, "diskStoreVM_" + host.getVM(i).getId())
             .getAbsoluteFile();
         if (!testingDirs[i].exists()) {
@@ -106,10 +102,10 @@ public abstract class LuceneSearchWithRollingUpgradeDUnit
       }
     }
 
-    int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
-    String hostName = NetworkUtils.getServerHostName(host);
-    String locatorString = getLocatorString(locatorPorts);
-    final Properties locatorProps = new Properties();
+    var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    var hostName = NetworkUtils.getServerHostName(host);
+    var locatorString = getLocatorString(locatorPorts);
+    final var locatorProps = new Properties();
     // configure all class loaders for each vm
 
     try {
@@ -125,8 +121,8 @@ public abstract class LuceneSearchWithRollingUpgradeDUnit
 
       // create region
       if ((regionType.equals("persistentPartitioned"))) {
-        for (int i = 0; i < testingDirs.length; i++) {
-          CacheSerializableRunnable runnable =
+        for (var i = 0; i < testingDirs.length; i++) {
+          var runnable =
               invokeCreatePersistentPartitionedRegion(regionName, testingDirs[i]);
           invokeRunnableInVMs(runnable, host.getVM(i));
         }
@@ -134,7 +130,7 @@ public abstract class LuceneSearchWithRollingUpgradeDUnit
         invokeRunnableInVMs(invokeCreateRegion(regionName, shortcutName), server1, server2,
             server3);
       }
-      int expectedRegionSize = 10;
+      var expectedRegionSize = 10;
       putSerializableObjectAndVerifyLuceneQueryResult(server1, regionName, expectedRegionSize, 0,
           10, server2, server3);
       locator = rollLocatorToCurrent(locator, hostName, locatorPorts[0], getTestMethodName(),

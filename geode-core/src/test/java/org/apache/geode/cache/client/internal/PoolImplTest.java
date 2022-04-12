@@ -49,16 +49,16 @@ public class PoolImplTest {
 
   @Test
   public void calculateRetryAttemptsDoesNotDecrementRetryCountForFailureWithUnexpectedSocketClose() {
-    List servers = mock(List.class);
+    var servers = mock(List.class);
     when(servers.size()).thenReturn(1);
-    ConnectionSource connectionSource = mock(ConnectionSource.class);
+    var connectionSource = mock(ConnectionSource.class);
     when(connectionSource.getAllServers()).thenReturn(servers);
-    ServerConnectivityException serverConnectivityException =
+    var serverConnectivityException =
         mock(ServerConnectivityException.class);
     when(serverConnectivityException.getMessage())
         .thenReturn(ConnectionManagerImpl.UNEXPECTED_SOCKET_CLOSED_MSG);
 
-    PoolImpl poolImpl = spy(getPool(PoolFactory.DEFAULT_RETRY_ATTEMPTS));
+    var poolImpl = spy(getPool(PoolFactory.DEFAULT_RETRY_ATTEMPTS));
     when(poolImpl.getConnectionSource()).thenReturn(connectionSource);
 
     assertThat(poolImpl.calculateRetryAttempts(serverConnectivityException)).isEqualTo(1);
@@ -66,16 +66,16 @@ public class PoolImplTest {
 
   @Test
   public void calculateRetryAttemptsDoesNotDecrementRetryCountForFailureDuringBorrowConnection() {
-    List servers = mock(List.class);
+    var servers = mock(List.class);
     when(servers.size()).thenReturn(1);
-    ConnectionSource connectionSource = mock(ConnectionSource.class);
+    var connectionSource = mock(ConnectionSource.class);
     when(connectionSource.getAllServers()).thenReturn(servers);
-    ServerConnectivityException serverConnectivityException =
+    var serverConnectivityException =
         mock(ServerConnectivityException.class);
     when(serverConnectivityException.getMessage())
         .thenReturn(ConnectionManagerImpl.BORROW_CONN_ERROR_MSG);
 
-    PoolImpl poolImpl = spy(getPool(PoolFactory.DEFAULT_RETRY_ATTEMPTS));
+    var poolImpl = spy(getPool(PoolFactory.DEFAULT_RETRY_ATTEMPTS));
     when(poolImpl.getConnectionSource()).thenReturn(connectionSource);
 
     assertThat(poolImpl.calculateRetryAttempts(serverConnectivityException)).isEqualTo(1);
@@ -83,16 +83,16 @@ public class PoolImplTest {
 
   @Test
   public void calculateRetryAttemptsDecrementsRetryCountForFailureAfterSendingTheRequest() {
-    List servers = mock(List.class);
+    var servers = mock(List.class);
     when(servers.size()).thenReturn(1);
-    ConnectionSource connectionSource = mock(ConnectionSource.class);
+    var connectionSource = mock(ConnectionSource.class);
     when(connectionSource.getAllServers()).thenReturn(servers);
-    ServerConnectivityException serverConnectivityException =
+    var serverConnectivityException =
         mock(ServerConnectivityException.class);
     when(serverConnectivityException.getMessage())
         .thenReturn(ConnectionManagerImpl.SOCKET_TIME_OUT_MSG);
 
-    PoolImpl poolImpl = spy(getPool(PoolFactory.DEFAULT_RETRY_ATTEMPTS));
+    var poolImpl = spy(getPool(PoolFactory.DEFAULT_RETRY_ATTEMPTS));
     when(poolImpl.getConnectionSource()).thenReturn(connectionSource);
 
     assertThat(poolImpl.calculateRetryAttempts(serverConnectivityException)).isEqualTo(0);
@@ -100,32 +100,32 @@ public class PoolImplTest {
 
   @Test
   public void calculateRetryAttemptsReturnsTheRetyCountConfiguredWithPool() {
-    int retryCount = 1;
-    List servers = mock(List.class);
+    var retryCount = 1;
+    var servers = mock(List.class);
     when(servers.size()).thenReturn(1);
-    ConnectionSource connectionSource = mock(ConnectionSource.class);
+    var connectionSource = mock(ConnectionSource.class);
     when(connectionSource.getAllServers()).thenReturn(servers);
-    ServerConnectivityException serverConnectivityException =
+    var serverConnectivityException =
         mock(ServerConnectivityException.class);
     when(serverConnectivityException.getMessage()).thenReturn("Timeout Exception");
 
-    PoolImpl poolImpl = spy(getPool(retryCount));
+    var poolImpl = spy(getPool(retryCount));
     when(poolImpl.getConnectionSource()).thenReturn(connectionSource);
 
     assertThat(poolImpl.calculateRetryAttempts(serverConnectivityException)).isEqualTo(retryCount);
   }
 
   private PoolImpl getPool(int retryAttemptsAttribute) {
-    final DistributionConfig distributionConfig = mock(DistributionConfig.class);
+    final var distributionConfig = mock(DistributionConfig.class);
     doReturn(new SecurableCommunicationChannel[] {}).when(distributionConfig)
         .getSecurableCommunicationChannels();
 
-    final Properties properties = new Properties();
+    final var properties = new Properties();
     properties.put(DURABLE_CLIENT_ID, "1");
 
-    final Statistics statistics = mock(Statistics.class);
+    final var statistics = mock(Statistics.class);
 
-    final PoolFactoryImpl.PoolAttributes poolAttributes =
+    final var poolAttributes =
         mock(PoolFactoryImpl.PoolAttributes.class);
 
     /*
@@ -137,21 +137,21 @@ public class PoolImplTest {
     doReturn((long) 10e8).when(poolAttributes).getPingInterval();
     doReturn(retryAttemptsAttribute).when(poolAttributes).getRetryAttempts();
 
-    final CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    final var cancelCriterion = mock(CancelCriterion.class);
 
-    final InternalCache internalCache = mock(InternalCache.class);
+    final var internalCache = mock(InternalCache.class);
     doReturn(cancelCriterion).when(internalCache).getCancelCriterion();
 
-    final InternalDistributedSystem internalDistributedSystem =
+    final var internalDistributedSystem =
         mock(InternalDistributedSystem.class);
     doReturn(distributionConfig).when(internalDistributedSystem).getConfig();
     doReturn(properties).when(internalDistributedSystem).getProperties();
     doReturn(statistics).when(internalDistributedSystem).createAtomicStatistics(any(), anyString());
 
-    final PoolManagerImpl poolManager = mock(PoolManagerImpl.class);
+    final var poolManager = mock(PoolManagerImpl.class);
     doReturn(true).when(poolManager).isNormal();
 
-    final ThreadsMonitoring tMonitoring = mock(ThreadsMonitoring.class);
+    final var tMonitoring = mock(ThreadsMonitoring.class);
 
     return PoolImpl.create(poolManager, "pool", poolAttributes, new LinkedList<>(),
         internalDistributedSystem, internalCache, tMonitoring);

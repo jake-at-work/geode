@@ -41,8 +41,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.distributed.LocatorLauncher;
@@ -103,7 +101,7 @@ public class CompactOfflineDiskStoreDUnitTest implements Serializable {
 
   @Before
   public void setUp() throws Exception {
-    VM locator = getVM(0);
+    var locator = getVM(0);
     server = getVM(1);
 
     locatorName = "locator";
@@ -113,7 +111,7 @@ public class CompactOfflineDiskStoreDUnitTest implements Serializable {
 
     serverDir = temporaryFolder.newFolder(serverName);
 
-    int[] port = getRandomAvailableTCPPorts(3);
+    var port = getRandomAvailableTCPPorts(3);
     locatorPort = port[0];
     locatorJmxPort = port[1];
     serverPort = port[2];
@@ -180,7 +178,7 @@ public class CompactOfflineDiskStoreDUnitTest implements Serializable {
     LOCATOR.get().start();
 
     await().untilAsserted(() -> {
-      InternalLocator locator = (InternalLocator) LOCATOR.get().getLocator();
+      var locator = (InternalLocator) LOCATOR.get().getLocator();
       assertThat(locator.isSharedConfigurationRunning())
           .as("Locator shared configuration is running on locator" + getVMId())
           .isTrue();
@@ -215,7 +213,7 @@ public class CompactOfflineDiskStoreDUnitTest implements Serializable {
 
   private static void verifyDiskStoreOplogs() {
     ((InternalCache) SERVER.get().getCache()).listDiskStores().forEach(diskStore -> {
-      Oplog[] oplogs = ((DiskStoreImpl) diskStore).getPersistentOplogs().getAllOplogs();
+      var oplogs = ((DiskStoreImpl) diskStore).getPersistentOplogs().getAllOplogs();
       // There should be two Oplogs in the array.
       // One is the offline compacted Oplog.
       // The other is the new Oplog created during server restart.
@@ -249,11 +247,11 @@ public class CompactOfflineDiskStoreDUnitTest implements Serializable {
   }
 
   private void populateRegions() {
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
-    ClientCache clientCache =
+    var clientCacheFactory = new ClientCacheFactory();
+    var clientCache =
         clientCacheFactory.addPoolLocator("localhost", locatorPort).create();
 
-    Region<Object, Object> clientRegion1 = clientCache
+    var clientRegion1 = clientCache
         .createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(REGION_NAME);
 
     IntStream.range(0, NUM_ENTRIES).forEach(i -> {

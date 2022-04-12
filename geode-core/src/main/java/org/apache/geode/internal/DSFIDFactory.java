@@ -1040,20 +1040,20 @@ public class DSFIDFactory implements DataSerializableFixedID {
   public static InternalDistributedMember readInternalDistributedMember(DataInput in)
       throws IOException, ClassNotFoundException {
 
-    InternalDistributedMember o = new InternalDistributedMember();
+    var o = new InternalDistributedMember();
     InternalDataSerializer.invokeFromData(o, in);
     return o;
   }
 
   private static ResultsBag readResultsBag(DataInput in)
       throws IOException, ClassNotFoundException {
-    ResultsBag o = new ResultsBag(true);
+    var o = new ResultsBag(true);
     InternalDataSerializer.invokeFromData(o, in);
     return o;
   }
 
   private static Undefined readUndefined(DataInput in) throws IOException, ClassNotFoundException {
-    Undefined o = (Undefined) QueryService.UNDEFINED;
+    var o = (Undefined) QueryService.UNDEFINED;
     InternalDataSerializer.invokeFromData(o, in);
     return o;
   }
@@ -1065,7 +1065,7 @@ public class DSFIDFactory implements DataSerializableFixedID {
    */
   private static InterestResultPolicyImpl readInterestResultPolicy(DataInput in)
       throws IOException, ClassNotFoundException {
-    byte ordinal = in.readByte();
+    var ordinal = in.readByte();
     return (InterestResultPolicyImpl) InterestResultPolicy.fromOrdinal(ordinal);
   }
 

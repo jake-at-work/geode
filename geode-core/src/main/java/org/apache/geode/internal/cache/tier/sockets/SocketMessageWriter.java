@@ -25,7 +25,6 @@ import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.Instantiator;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.InternalInstantiator;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -38,7 +37,7 @@ public class SocketMessageWriter {
   public void writeHandshakeMessage(DataOutputStream dos, byte type, String p_msg,
       @Nullable KnownVersion clientVersion, byte endpointType, int queueSize)
       throws IOException {
-    String msg = p_msg;
+    var msg = p_msg;
 
     // write the message type
     dos.writeByte(type);
@@ -53,10 +52,10 @@ public class SocketMessageWriter {
 
     if (clientVersion != null) {
       // get all the instantiators.
-      Instantiator[] instantiators = InternalInstantiator.getInstantiators();
+      var instantiators = InternalInstantiator.getInstantiators();
       Map<Integer, List<String>> instantiatorMap = new HashMap<>();
       if (instantiators != null && instantiators.length > 0) {
-        for (Instantiator instantiator : instantiators) {
+        for (var instantiator : instantiators) {
           List<String> instantiatorAttributes = new ArrayList<>();
           instantiatorAttributes.add(instantiator.getClass().toString().substring(6));
           instantiatorAttributes.add(instantiator.getInstantiatedClass().toString().substring(6));
@@ -66,15 +65,15 @@ public class SocketMessageWriter {
       DataSerializer.writeHashMap(instantiatorMap, dos);
 
       // get all the dataserializers.
-      DataSerializer[] dataSerializers = InternalDataSerializer.getSerializers();
-      HashMap<Integer, ArrayList<String>> dsToSupportedClasses = new HashMap<>();
-      HashMap<Integer, String> dataSerializersMap = new HashMap<>();
+      var dataSerializers = InternalDataSerializer.getSerializers();
+      var dsToSupportedClasses = new HashMap<Integer, ArrayList<String>>();
+      var dataSerializersMap = new HashMap<Integer, String>();
       if (dataSerializers != null && dataSerializers.length > 0) {
-        for (DataSerializer dataSerializer : dataSerializers) {
+        for (var dataSerializer : dataSerializers) {
           dataSerializersMap.put(dataSerializer.getId(),
               dataSerializer.getClass().toString().substring(6));
-          ArrayList<String> supportedClassNames = new ArrayList<>();
-          for (Class<?> clazz : dataSerializer.getSupportedClasses()) {
+          var supportedClassNames = new ArrayList<String>();
+          for (var clazz : dataSerializer.getSupportedClasses()) {
             supportedClassNames.add(clazz.getName());
           }
           dsToSupportedClasses.put(dataSerializer.getId(), supportedClassNames);

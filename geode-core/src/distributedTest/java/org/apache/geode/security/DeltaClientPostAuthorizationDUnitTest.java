@@ -37,8 +37,6 @@ import org.apache.geode.DeltaTestImpl;
 import org.apache.geode.cache.operations.OperationContext.OperationCode;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.TestObjectWithIdentifier;
-import org.apache.geode.security.generator.AuthzCredentialGenerator;
-import org.apache.geode.security.generator.CredentialGenerator;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.SecurityTest;
 
@@ -66,38 +64,38 @@ public class DeltaClientPostAuthorizationDUnitTest extends ClientAuthorizationTe
 
   @Test
   public void testPutPostOpNotifications() throws Exception {
-    OperationWithAction[] allOps = allOps();
+    var allOps = allOps();
 
-    AuthzCredentialGenerator gen = getXmlAuthzGenerator();
-    CredentialGenerator cGen = gen.getCredentialGenerator();
-    Properties extraAuthProps = cGen.getSystemProperties();
-    Properties javaProps = cGen.getJavaProperties();
-    Properties extraAuthzProps = gen.getSystemProperties();
-    String authenticator = cGen.getAuthenticator();
-    String authInit = cGen.getAuthInit();
-    String accessor = gen.getAuthorizationCallback();
-    TestAuthzCredentialGenerator tgen = new TestAuthzCredentialGenerator(gen);
+    var gen = getXmlAuthzGenerator();
+    var cGen = gen.getCredentialGenerator();
+    var extraAuthProps = cGen.getSystemProperties();
+    var javaProps = cGen.getJavaProperties();
+    var extraAuthzProps = gen.getSystemProperties();
+    var authenticator = cGen.getAuthenticator();
+    var authInit = cGen.getAuthInit();
+    var accessor = gen.getAuthorizationCallback();
+    var tgen = new TestAuthzCredentialGenerator(gen);
 
     getLogWriter().info("testAllOpsNotifications: Using authinit: " + authInit);
     getLogWriter().info("testAllOpsNotifications: Using authenticator: " + authenticator);
     getLogWriter().info("testAllOpsNotifications: Using accessor: " + accessor);
 
     // Start servers with all required properties
-    Properties serverProps =
+    var serverProps =
         buildProperties(authenticator, accessor, true, extraAuthProps, extraAuthzProps);
 
     // Get ports for the servers
-    int[] randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int port1 = randomAvailableTCPPorts[0];
-    int port2 = randomAvailableTCPPorts[1];
+    var randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var port1 = randomAvailableTCPPorts[0];
+    var port2 = randomAvailableTCPPorts[1];
 
     // Perform all the ops on the clients
     List opBlock = new ArrayList();
-    Random rnd = new Random();
+    var rnd = new Random();
 
-    for (int opNum = 0; opNum < allOps.length; ++opNum) {
+    for (var opNum = 0; opNum < allOps.length; ++opNum) {
       // Start client with valid credentials as specified in OperationWithAction
-      OperationWithAction currentOp = allOps[opNum];
+      var currentOp = allOps[opNum];
       if (currentOp.equals(OperationWithAction.OPBLOCK_END)
           || currentOp.equals(OperationWithAction.OPBLOCK_NO_FAILOVER)) {
 
@@ -136,13 +134,13 @@ public class DeltaClientPostAuthorizationDUnitTest extends ClientAuthorizationTe
       final int port2, final String authInit, final Properties extraAuthProps,
       final Properties extraAuthzProps, final TestCredentialGenerator credentialGenerator,
       final Random random) throws InterruptedException {
-    for (OperationWithAction currentOp : opBlock) {
+    for (var currentOp : opBlock) {
       // Start client with valid credentials as specified in OperationWithAction
-      OperationCode opCode = currentOp.getOperationCode();
-      int opFlags = currentOp.getFlags();
-      int clientNum = currentOp.getClientNum();
+      var opCode = currentOp.getOperationCode();
+      var opFlags = currentOp.getFlags();
+      var clientNum = currentOp.getClientNum();
       VM clientVM = null;
-      boolean useThisVM = false;
+      var useThisVM = false;
 
       switch (clientNum) {
         case 1:
@@ -164,17 +162,17 @@ public class DeltaClientPostAuthorizationDUnitTest extends ClientAuthorizationTe
 
       if ((opFlags & OpFlags.USE_OLDCONN) == 0) {
         Properties opCredentials;
-        int newRnd = random.nextInt(100) + 1;
-        String currentRegionName = SEPARATOR + regionName;
+        var newRnd = random.nextInt(100) + 1;
+        var currentRegionName = SEPARATOR + regionName;
         if ((opFlags & OpFlags.USE_SUBREGION) > 0) {
           currentRegionName += (SEPARATOR + SUBREGION_NAME);
         }
 
         String credentialsTypeStr;
-        OperationCode authOpCode = currentOp.getAuthzOperationCode();
-        int[] indices = currentOp.getIndices();
-        CredentialGenerator cGen = credentialGenerator.getCredentialGenerator();
-        final Properties javaProps = cGen == null ? null : cGen.getJavaProperties();
+        var authOpCode = currentOp.getAuthzOperationCode();
+        var indices = currentOp.getIndices();
+        var cGen = credentialGenerator.getCredentialGenerator();
+        final var javaProps = cGen == null ? null : cGen.getJavaProperties();
 
         if ((opFlags & OpFlags.CHECK_NOTAUTHZ) > 0 || (opFlags & OpFlags.USE_NOTAUTHZ) > 0) {
           opCredentials = credentialGenerator.getDisallowedCredentials(
@@ -188,13 +186,13 @@ public class DeltaClientPostAuthorizationDUnitTest extends ClientAuthorizationTe
           credentialsTypeStr = " authorized " + authOpCode;
         }
 
-        Properties clientProps =
+        var clientProps =
             concatProperties(new Properties[] {opCredentials, extraAuthProps, extraAuthzProps});
 
         // Start the client with valid credentials but allowed or disallowed to perform an operation
         getLogWriter().info("executeOpBlock: For client" + clientNum + credentialsTypeStr
             + " credentials: " + opCredentials);
-        boolean setupDynamicRegionFactory = (opFlags & OpFlags.ENABLE_DRF) > 0;
+        var setupDynamicRegionFactory = (opFlags & OpFlags.ENABLE_DRF) > 0;
         if (useThisVM) {
           createCacheClient(authInit, clientProps, javaProps, new int[] {port1, port2}, 0,
               setupDynamicRegionFactory, NO_EXCEPTION);
@@ -218,7 +216,7 @@ public class DeltaClientPostAuthorizationDUnitTest extends ClientAuthorizationTe
       if (useThisVM) {
         doOp(opCode, currentOp.getIndices(), opFlags, expectedResult);
       } else {
-        int[] indices = currentOp.getIndices();
+        var indices = currentOp.getIndices();
         clientVM.invoke(() -> DeltaClientPostAuthorizationDUnitTest.doOp(opCode, indices,
             opFlags, expectedResult));
       }
@@ -226,7 +224,7 @@ public class DeltaClientPostAuthorizationDUnitTest extends ClientAuthorizationTe
   }
 
   private void setUpDeltas() {
-    for (int i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       deltas[i] = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
           new TestObjectWithIdentifier("0", 0));
     }

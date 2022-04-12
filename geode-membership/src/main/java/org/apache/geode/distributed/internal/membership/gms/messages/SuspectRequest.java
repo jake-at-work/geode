@@ -35,8 +35,8 @@ public class SuspectRequest<ID extends MemberIdentifier> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((suspectMember == null) ? 0 : suspectMember.hashCode());
     return result;
   }
@@ -52,7 +52,7 @@ public class SuspectRequest<ID extends MemberIdentifier> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SuspectRequest<ID> other = (SuspectRequest<ID>) obj;
+    var other = (SuspectRequest<ID>) obj;
     if (suspectMember == null) {
       return other.suspectMember == null;
     } else

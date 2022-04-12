@@ -30,7 +30,7 @@ public class VersioningIO {
    * given {@link DataInput}.
    */
   public static short readOrdinal(DataInput in) throws IOException {
-    final byte ordinal = in.readByte();
+    final var ordinal = in.readByte();
     if (ordinal != KnownVersion.TOKEN_ORDINAL) {
       return ordinal;
     } else {
@@ -72,14 +72,14 @@ public class VersioningIO {
    * end of stream.
    */
   public static short readOrdinalFromInputStream(InputStream is) throws IOException {
-    final int ordinal = is.read();
+    final var ordinal = is.read();
     if (ordinal != -1) {
       if (ordinal != KnownVersion.TOKEN_ORDINAL_INT) {
         return (short) ordinal;
       } else {
         // two byte ordinal
-        final int ordinalPart1 = is.read();
-        final int ordinalPart2 = is.read();
+        final var ordinalPart1 = is.read();
+        final var ordinalPart2 = is.read();
         if ((ordinalPart1 | ordinalPart2) >= 0) {
           return (short) ((ordinalPart1 << 8) | ordinalPart2);
         } else {

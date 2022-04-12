@@ -24,14 +24,12 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.shiro.subject.Subject;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.CancelException;
@@ -41,7 +39,6 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionExistsException;
 import org.apache.geode.cache.query.internal.cq.InternalCqQuery;
-import org.apache.geode.internal.cache.ClientServerObserver;
 import org.apache.geode.internal.cache.ClientServerObserverHolder;
 import org.apache.geode.internal.cache.Conflatable;
 import org.apache.geode.internal.cache.EventID;
@@ -49,10 +46,8 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.ha.HAContainerWrapper;
 import org.apache.geode.internal.cache.ha.HARegionQueue;
 import org.apache.geode.internal.cache.ha.HARegionQueueAttributes;
-import org.apache.geode.internal.cache.ha.HARegionQueueStats;
 import org.apache.geode.internal.lang.SystemProperty;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.executors.LoggingThread;
@@ -148,13 +143,13 @@ public class MessageDispatcher extends LoggingThread {
   private static HARegionQueue getMessageQueue(CacheClientProxy proxy,
       StatisticsClock statisticsClock) {
     try {
-      HARegionQueueAttributes harq = new HARegionQueueAttributes();
+      var harq = new HARegionQueueAttributes();
       harq.setBlockingQueueCapacity(proxy._maximumMessageCount);
       harq.setExpiryTime(proxy._messageTimeToLive);
       ((HAContainerWrapper) proxy._cacheClientNotifier.getHaContainer())
           .putProxy(HARegionQueue.createRegionName(proxy.getHARegionName()), proxy);
-      boolean createDurableQueue = proxy.proxyID.isDurable();
-      boolean canHandleDelta =
+      var createDurableQueue = proxy.proxyID.isDurable();
+      var canHandleDelta =
           proxy.getCache().getInternalDistributedSystem().getConfig().getDeltaPropagation()
               && !(proxy.clientConflation == Handshake.CONFLATION_ON);
       if ((createDurableQueue || canHandleDelta) && logger.isDebugEnabled()) {
@@ -249,9 +244,9 @@ public class MessageDispatcher extends LoggingThread {
 
     // Stay alive until the queue is empty or a number of peeks is reached.
     try {
-      for (int numberOfPeeks =
+      for (var numberOfPeeks =
           0; numberOfPeeks < CacheClientProxy.MAXIMUM_SHUTDOWN_PEEKS; ++numberOfPeeks) {
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           List<?> events = _messageQueue.peek(1, -1);
           if (events == null || events.size() == 0) {
@@ -307,7 +302,7 @@ public class MessageDispatcher extends LoggingThread {
    */
   protected int getQueueSizeStat() {
     if (_messageQueue != null) {
-      HARegionQueueStats stats = _messageQueue.getStatistics();
+      var stats = _messageQueue.getStatistics();
       return ((int) (stats.getEventsEnqued() - stats.getEventsRemoved()
           - stats.getEventsConflated() - stats.getMarkerEventsConflated()
           - stats.getEventsExpired() - stats.getEventsRemovedByQrm() - stats.getEventsTaken()
@@ -328,7 +323,7 @@ public class MessageDispatcher extends LoggingThread {
       long slowStartTimeForTesting =
           Long.getLong(KEY_SLOW_START_TIME_FOR_TESTING, DEFAULT_SLOW_STARTING_TIME);
       long elapsedTime = 0;
-      long startTime = System.currentTimeMillis();
+      var startTime = System.currentTimeMillis();
       while ((slowStartTimeForTesting > elapsedTime) && CacheClientProxy.isSlowStartForTesting) {
         try {
           Thread.sleep(500);
@@ -354,7 +349,7 @@ public class MessageDispatcher extends LoggingThread {
    */
   @VisibleForTesting
   protected void runDispatcher() {
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
     _isStopped = false;
 
     if (logger.isDebugEnabled()) {
@@ -415,7 +410,7 @@ public class MessageDispatcher extends LoggingThread {
         }
 
         // Process the message
-        long start = getStatistics().startTime();
+        var start = getStatistics().startTime();
         try {
           if (dispatchMessage(clientMessage)) {
             getStatistics().endMessage(start);
@@ -436,7 +431,7 @@ public class MessageDispatcher extends LoggingThread {
             waitForReAuthenticationStartTime = System.currentTimeMillis();
             // only send the message to clients who can handle the message
             if (getProxy().getVersion().isNewerThanOrEqualTo(RE_AUTHENTICATION_START_VERSION)) {
-              EventID eventId = createEventId();
+              var eventId = createEventId();
               sendMessageDirectly(new ClientReAuthenticateMessage(eventId));
             }
             // We wait for all versions of clients to re-authenticate. For older clients we still
@@ -444,7 +439,7 @@ public class MessageDispatcher extends LoggingThread {
             // trigger credential refresh on its own.
             Thread.sleep(200);
           } else {
-            long elapsedTime = System.currentTimeMillis() - waitForReAuthenticationStartTime;
+            var elapsedTime = System.currentTimeMillis() - waitForReAuthenticationStartTime;
             if (elapsedTime > reAuthenticateWaitTime) {
               // reset the timer here since we are no longer waiting for re-auth to happen anymore
               waitForReAuthenticationStartTime = -1;
@@ -554,7 +549,7 @@ public class MessageDispatcher extends LoggingThread {
     try {
       // Clear the interrupt status if any,
       Thread.interrupted();
-      int size = _messageQueue.size();
+      var size = _messageQueue.size();
       list.addAll(uncheckedCast(_messageQueue.peek(size)));
       if (logger.isDebugEnabled()) {
         logger.debug(
@@ -562,8 +557,8 @@ public class MessageDispatcher extends LoggingThread {
             this, list, list.size());
       }
       if (list.size() > 0) {
-        long start = getStatistics().startTime();
-        Iterator<ClientMessage> itr = list.iterator();
+        var start = getStatistics().startTime();
+        var itr = list.iterator();
         while (itr.hasNext()) {
           dispatchMessage(itr.next());
           getStatistics().endMessage(start);
@@ -628,7 +623,7 @@ public class MessageDispatcher extends LoggingThread {
 
     // Stop the ServerConnections. This will force the client to
     // server communication to close.
-    ClientHealthMonitor chm = ClientHealthMonitor.getInstance();
+    var chm = ClientHealthMonitor.getInstance();
 
     // Note now that _proxy is final the following comment is no
     // longer true. the _isStopped check should be sufficient.
@@ -636,7 +631,7 @@ public class MessageDispatcher extends LoggingThread {
     // The proxy could have been stopped after this IOException has
     // been caught and here, so the _proxy will be null.
     if (chm != null) {
-      ClientProxyMembershipID proxyID = getProxy().proxyID;
+      var proxyID = getProxy().proxyID;
       chm.removeAllConnectionsAndUnregisterClient(proxyID, t);
       if (!getProxy().isDurable()) {
         getProxy().getCacheClientNotifier().unregisterClient(proxyID, false);
@@ -651,17 +646,17 @@ public class MessageDispatcher extends LoggingThread {
    *
    */
   protected boolean dispatchMessage(ClientMessage clientMessage) throws IOException {
-    boolean isDispatched = false;
+    var isDispatched = false;
     if (logger.isTraceEnabled(LogMarker.BRIDGE_SERVER_VERBOSE)) {
       logger.trace(LogMarker.BRIDGE_SERVER_VERBOSE, "Dispatching {}", clientMessage);
     }
 
     final Message message;
     if (clientMessage instanceof ClientUpdateMessage) {
-      ClientUpdateMessage clientUpdateMessage = (ClientUpdateMessage) clientMessage;
-      byte[] latestValue = (byte[]) clientUpdateMessage.getValue();
+      var clientUpdateMessage = (ClientUpdateMessage) clientMessage;
+      var latestValue = (byte[]) clientUpdateMessage.getValue();
       if (logger.isTraceEnabled()) {
-        StringBuilder msg = new StringBuilder(100);
+        var msg = new StringBuilder(100);
         msg.append(this).append(": Using latest value: ").append(Arrays.toString(latestValue));
         if (clientUpdateMessage.valueIsObject()) {
           if (latestValue != null) {
@@ -673,7 +668,7 @@ public class MessageDispatcher extends LoggingThread {
       }
 
       // authorize the message before dispatching
-      SecurityService securityService = getCache().getSecurityService();
+      var securityService = getCache().getSecurityService();
       // for legacy security, we don't support auth expiration
       if (securityService.isIntegratedSecurity()) {
         if (getProxy().getSubject() != null) {
@@ -681,12 +676,12 @@ public class MessageDispatcher extends LoggingThread {
               getProxy().getSubject());
         } else {
           // if it's multi-user mode
-          ClientUpdateMessageImpl.CqNameToOp clientCq =
+          var clientCq =
               clientUpdateMessage.getClientCq(getProxy().getProxyID());
           if (clientCq != null) {
-            String[] names = clientCq.getNames();
-            for (String cqName : names) {
-              Subject subject = getProxy().getSubject(cqName);
+            var names = clientCq.getNames();
+            for (var cqName : names) {
+              var subject = getProxy().getSubject(cqName);
               if (subject != null) {
                 securityService.authorize(getResourcePermission(clientUpdateMessage), subject);
               }
@@ -697,7 +692,7 @@ public class MessageDispatcher extends LoggingThread {
       message = ((ClientUpdateMessageImpl) clientMessage).getMessage(getProxy(), latestValue);
 
       if (CacheClientProxy.AFTER_MESSAGE_CREATION_FLAG) {
-        ClientServerObserver bo = ClientServerObserverHolder.getInstance();
+        var bo = ClientServerObserverHolder.getInstance();
         bo.afterMessageCreation(message);
       }
     } else {
@@ -724,8 +719,8 @@ public class MessageDispatcher extends LoggingThread {
 
   @NotNull
   private ResourcePermission getResourcePermission(ClientUpdateMessage message) {
-    String regionName = message.getRegionName();
-    Object key = message.getKeyOfInterest();
+    var regionName = message.getRegionName();
+    var key = message.getKeyOfInterest();
     return new ResourcePermission(ResourcePermission.Resource.DATA,
         ResourcePermission.Operation.READ,
         regionName, key == null ? null : key.toString());
@@ -756,7 +751,7 @@ public class MessageDispatcher extends LoggingThread {
    */
   protected void enqueueMessage(Conflatable clientMessage) {
     try {
-      long startTime = _proxy._statistics.startMessageQueueStats();
+      var startTime = _proxy._statistics.startMessageQueueStats();
       _messageQueue.put(clientMessage);
       _proxy._statistics.endMessageQueueStats(startTime);
       _proxy._statistics.setQueueSize(_messageQueue.size());
@@ -787,7 +782,7 @@ public class MessageDispatcher extends LoggingThread {
         logger.debug("{}: Queueing marker message. <{}>. The queue contains {} entries.", this,
             message, getQueueSize());
       }
-      long startTime = _proxy._statistics.startMessageQueueStats();
+      var startTime = _proxy._statistics.startMessageQueueStats();
       _messageQueue.put(message);
       _proxy._statistics.endMessageQueueStats(startTime);
       _proxy._statistics.setQueueSize(_messageQueue.size());
@@ -864,7 +859,7 @@ public class MessageDispatcher extends LoggingThread {
     Object deserializedObject = serializedBytes;
     // This is a debugging method so ignore all exceptions like
     // ClassNotFoundException
-    try (ByteArrayDataInput dis = new ByteArrayDataInput(serializedBytes)) {
+    try (var dis = new ByteArrayDataInput(serializedBytes)) {
       deserializedObject = DataSerializer.readObject(dis);
     } catch (Exception ignore) {
     }

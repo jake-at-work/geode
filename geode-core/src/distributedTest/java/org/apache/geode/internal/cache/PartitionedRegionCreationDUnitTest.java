@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Before;
@@ -36,11 +35,9 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
@@ -87,8 +84,8 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testSequentialCreation() throws Exception {
-    for (int i = 0; i < numberOfRegions; i++) {
-      final int whichRegion = i;
+    for (var i = 0; i < numberOfRegions; i++) {
+      final var whichRegion = i;
       vm0.invoke(() -> createPartitionedRegion(prNamePrefix + whichRegion));
       vm1.invoke(() -> createPartitionedRegion(prNamePrefix + whichRegion));
       vm2.invoke(() -> createPartitionedRegion(prNamePrefix + whichRegion));
@@ -137,7 +134,7 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
     vm2.invoke(() -> createReplicateRegion(signalRegionName));
     vm3.invoke(() -> createReplicateRegion(signalRegionName));
 
-    CompletableFuture<Void> createdAccessor = executorServiceRule.runAsync(
+    var createdAccessor = executorServiceRule.runAsync(
         () -> createPRAccessorConcurrently(signalRegionName, prNamePrefix, numberOfRegions));
 
     invokeAsync(vm0, () -> createPRConcurrently(signalRegionName, prNamePrefix, numberOfRegions));
@@ -169,32 +166,32 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
     vm0.invoke(() -> {
       Cache cache = getCache();
 
-      PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+      var partitionAttributesFactory = new PartitionAttributesFactory();
       partitionAttributesFactory.setRedundantCopies(0);
 
       RegionFactory regionFactory = cache.createRegionFactory(PARTITION);
       regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
 
-      Region region = regionFactory.create(partitionedRegionName);
+      var region = regionFactory.create(partitionedRegionName);
 
       assertThat(region).isNotNull();
       assertThat(region.isDestroyed()).isFalse();
       assertThat(cache.getRegion(partitionedRegionName)).isNotNull();
     });
 
-    for (int i = 1; i < 4; i++) {
-      final int redundancy = i;
+    for (var i = 1; i < 4; i++) {
+      final var redundancy = i;
 
       vm1.invoke(() -> {
         Cache cache = getCache();
 
-        PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+        var partitionAttributesFactory = new PartitionAttributesFactory();
         partitionAttributesFactory.setRedundantCopies(redundancy);
 
         RegionFactory regionFactory = cache.createRegionFactory(PARTITION);
         regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
 
-        try (IgnoredException ie = addIgnoredException(IllegalStateException.class)) {
+        try (var ie = addIgnoredException(IllegalStateException.class)) {
           assertThatThrownBy(() -> regionFactory.create(partitionedRegionName))
               .isInstanceOf(IllegalStateException.class);
         }
@@ -247,10 +244,10 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPartitionRegionPersistenceConflicts() throws Exception {
-    VM dataStore0 = vm0;
-    VM dataStore1 = vm1;
-    VM accessor0 = vm2;
-    VM accessor1 = vm3;
+    var dataStore0 = vm0;
+    var dataStore1 = vm1;
+    var accessor0 = vm2;
+    var accessor1 = vm3;
 
     addIgnoredException("IllegalStateException");
 
@@ -267,21 +264,21 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
     Region root = cache.getRegion(PR_ROOT_REGION_NAME);
     assertThat(root).isNotNull();
 
-    RegionAttributes regionAttributes = root.getAttributes();
+    var regionAttributes = root.getAttributes();
     assertThat(regionAttributes.getScope().isDistributedAck()).isTrue();
     assertThat(regionAttributes.getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
   }
 
   private void validatePRRegistration(final String prPrefixName, final int count) {
-    InternalCache cache = getCache();
+    var cache = getCache();
     Region root = PartitionedRegionHelper.getPRRoot(cache);
     assertThat(root).isNotNull();
 
-    for (int i = 0; i < count; i++) {
-      PartitionedRegion region = (PartitionedRegion) cache.getRegion(prPrefixName + i);
+    for (var i = 0; i < count; i++) {
+      var region = (PartitionedRegion) cache.getRegion(prPrefixName + i);
       assertThat(region).isNotNull();
-      String name = region.getRegionIdentifier();
-      PartitionRegionConfig partitionRegionConfig = (PartitionRegionConfig) root.get(name);
+      var name = region.getRegionIdentifier();
+      var partitionRegionConfig = (PartitionRegionConfig) root.get(name);
       assertThat(partitionRegionConfig).isNotNull();
     }
   }
@@ -289,7 +286,7 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
   public void createPartitionedRegion(final String regionName) {
     Cache cache = getCache();
     RegionFactory regionFactory = cache.createRegionFactory(PARTITION);
-    Region region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
     assertThat(region).isNotNull();
     assertThat(region.isDestroyed()).isFalse();
@@ -300,8 +297,8 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
     Cache cache = getCache();
     RegionFactory regionFactory = cache.createRegionFactory(PARTITION);
 
-    for (int i = 0; i < count; i++) {
-      Region region = regionFactory.create(prPrefixName + i);
+    for (var i = 0; i < count; i++) {
+      var region = regionFactory.create(prPrefixName + i);
       assertThat(region).isNotNull();
       assertThat(region.isDestroyed()).isFalse();
       assertThat(cache.getRegion(prPrefixName + i)).isNotNull();
@@ -320,11 +317,11 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
       regionFactory.setDataPolicy(DataPolicy.PARTITION);
     }
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setLocalMaxMemory(localMaxMemory);
     regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
 
-    Region region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
     assertThat(region).isNotNull();
     assertThat(region.isDestroyed()).isFalse();
@@ -333,14 +330,14 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
 
   private void createPersistentPRThrowsIfLocalMaxMemoryIsZero(final String regionName,
       final boolean isPersistent) {
-    String message = "Persistence is not allowed when local-max-memory is zero.";
+    var message = "Persistence is not allowed when local-max-memory is zero.";
     createPersistentPRThrows(regionName, 0, isPersistent, message);
   }
 
   private void createPersistentPRThrowsIfDataPolicyConflict(final String regionName,
       final int localMaxMemory, final boolean isPersistent) {
     assertThat(localMaxMemory).isGreaterThan(0);
-    String message = "DataPolicy for Datastore members should all be persistent or not.";
+    var message = "DataPolicy for Datastore members should all be persistent or not.";
     createPersistentPRThrows(regionName, localMaxMemory, isPersistent, message);
   }
 
@@ -356,7 +353,7 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
       regionFactory.setDataPolicy(DataPolicy.PARTITION);
     }
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setLocalMaxMemory(localMaxMemory);
     regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
 
@@ -366,7 +363,7 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
 
   private void validatePR(final String regionName, final int count) {
     Cache cache = getCache();
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       assertThat(cache.getRegion(regionName + i)).isNotNull();
     }
   }
@@ -391,7 +388,7 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
       final int count, final boolean accessor) {
     Cache cache = getCache();
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(2);
     if (accessor) {
       partitionAttributesFactory.setLocalMaxMemory(0);
@@ -405,8 +402,8 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
 
     await().until(() -> region.getEntry("start") != null);
 
-    for (int i = 0; i < count; ++i) {
-      Region partitionedRegion = regionFactory.create(prPrefixName + i);
+    for (var i = 0; i < count; ++i) {
+      var partitionedRegion = regionFactory.create(prPrefixName + i);
 
       assertThat(partitionedRegion).isNotNull();
       assertThat(partitionedRegion.isDestroyed()).isFalse();
@@ -419,7 +416,7 @@ public class PartitionedRegionCreationDUnitTest extends CacheTestCase {
   }
 
   private void awaitAllAsyncInvocations() throws ExecutionException, InterruptedException {
-    for (AsyncInvocation async : asyncInvocations) {
+    for (var async : asyncInvocations) {
       async.await();
     }
     asyncInvocations.clear();

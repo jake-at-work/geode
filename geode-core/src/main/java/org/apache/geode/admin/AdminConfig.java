@@ -46,14 +46,14 @@ public class AdminConfig {
   public static Entry[] loadConfig(File file) throws IOException {
 
     // Place all lines into stack
-    ArrayList entryList = new ArrayList();
+    var entryList = new ArrayList();
     FileReader reader = null;
     BufferedReader fileReader = null;
     try {
       reader = new FileReader(file);
       fileReader = new BufferedReader(reader);
       // Read the first line.
-      String line = fileReader.readLine();
+      var line = fileReader.readLine();
 
       while (line != null) {
         line = line.trim();
@@ -99,8 +99,8 @@ public class AdminConfig {
       ps.println("#");
       ps.println("# Name, Type, Host, Port");
       ps.println("#");
-      int len = entries.length;
-      for (final Entry entry : entries) {
+      var len = entries.length;
+      for (final var entry : entries) {
         ps.println(entry.toString());
       }
       ps.flush();
@@ -123,7 +123,7 @@ public class AdminConfig {
 
     public Entry(String line) {
       // Split
-      String[] split = line.split(",");
+      var split = line.split(",");
 
       // Convert line to parameters
       name = split[0].trim();

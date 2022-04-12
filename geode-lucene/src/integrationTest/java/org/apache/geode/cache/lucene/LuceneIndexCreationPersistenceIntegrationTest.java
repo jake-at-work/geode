@@ -50,7 +50,6 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.lucene.test.LuceneTestUtilities;
 import org.apache.geode.cache.lucene.test.TestObject;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -88,7 +87,7 @@ public class LuceneIndexCreationPersistenceIntegrationTest extends LuceneIntegra
   public void shouldInheritRecoveryDelayFromUserRegion() {
     createIndex(cache, "text");
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRecoveryDelay(0);
 
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(paf.create())
@@ -102,7 +101,7 @@ public class LuceneIndexCreationPersistenceIntegrationTest extends LuceneIntegra
   public void shouldInheritStartupRecoveryDelayFromUserRegion() {
     createIndex(cache, "text");
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setStartupRecoveryDelay(1);
 
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(paf.create())
@@ -115,7 +114,7 @@ public class LuceneIndexCreationPersistenceIntegrationTest extends LuceneIntegra
   @Test
   public void shouldNotUseDiskStoreWhenUserRegionIsNotPersistent() {
     createIndex(cache, "text");
-    String diskStoreName = "diskStore";
+    var diskStoreName = "diskStore";
     cache.createDiskStoreFactory().setDiskDirs(new File[] {tempFolderRule.getRoot()})
         .create(diskStoreName);
     cache.createRegionFactory(RegionShortcut.PARTITION_OVERFLOW).setDiskStoreName(diskStoreName)
@@ -137,7 +136,7 @@ public class LuceneIndexCreationPersistenceIntegrationTest extends LuceneIntegra
       // Underlying region should always be synchronous
       assertTrue(region.isDiskSynchronous());
     });
-    AsyncEventQueue queue = getIndexQueue(cache);
+    var queue = getIndexQueue(cache);
     assertTrue(queue.isDiskSynchronous());
     assertEquals(true, queue.isPersistent());
   }
@@ -156,7 +155,7 @@ public class LuceneIndexCreationPersistenceIntegrationTest extends LuceneIntegra
     createIndex(cache, "field1", "field2");
     dataRegion = cache.createRegionFactory(RegionShortcut.PARTITION_PERSISTENT).create(REGION_NAME);
     verifyIndexFinishFlushing(cache, INDEX_NAME, REGION_NAME);
-    LuceneQuery<Object, Object> query = luceneService.createLuceneQueryFactory().create(INDEX_NAME,
+    var query = luceneService.createLuceneQueryFactory().create(INDEX_NAME,
         REGION_NAME, "field1:world", DEFAULT_FIELD);
     assertEquals(1, query.findPages().size());
   }
@@ -172,7 +171,7 @@ public class LuceneIndexCreationPersistenceIntegrationTest extends LuceneIntegra
     createCache();
     createIndex(cache, "field1", "field2");
     dataRegion = cache.createRegionFactory(RegionShortcut.PARTITION_PERSISTENT).create(REGION_NAME);
-    LuceneQuery<Object, Object> query = luceneService.createLuceneQueryFactory().create(INDEX_NAME,
+    var query = luceneService.createLuceneQueryFactory().create(INDEX_NAME,
         REGION_NAME, "field1:world", DEFAULT_FIELD);
     assertEquals(1, query.findPages().size());
   }
@@ -216,11 +215,11 @@ public class LuceneIndexCreationPersistenceIntegrationTest extends LuceneIntegra
         .create("DiskStore");
     cache.createRegionFactory(RegionShortcut.PARTITION_PERSISTENT).setDiskStoreName("DiskStore")
         .create(REGION_NAME);
-    final String diskStoreName = cache.getRegion(REGION_NAME).getAttributes().getDiskStoreName();
+    final var diskStoreName = cache.getRegion(REGION_NAME).getAttributes().getDiskStoreName();
     verifyInternalRegions(region -> {
       assertEquals(diskStoreName, region.getAttributes().getDiskStoreName());
     });
-    AsyncEventQueue queue = getIndexQueue(cache);
+    var queue = getIndexQueue(cache);
     assertEquals(diskStoreName, queue.getDiskStoreName());
   }
 

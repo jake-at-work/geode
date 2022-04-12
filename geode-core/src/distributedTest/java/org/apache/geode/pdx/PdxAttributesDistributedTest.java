@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -71,7 +70,7 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
 
   @After
   public void tearDown() throws Exception {
-    GemFireCacheImpl instance = (GemFireCacheImpl) basicGetCache();
+    var instance = (GemFireCacheImpl) basicGetCache();
     if (instance != null) {
       instance.close();
     }
@@ -79,10 +78,10 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
       cache.close();
     }
     FileUtils.deleteDirectory(diskDir);
-    File[] defaultStoreFiles = new File(".").listFiles(
+    var defaultStoreFiles = new File(".").listFiles(
         (dir, name) -> name.startsWith("BACKUPPDXAttributes"));
 
-    for (File file : defaultStoreFiles) {
+    for (var file : defaultStoreFiles) {
       FileUtils.forceDelete(file);
     }
   }
@@ -111,36 +110,36 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPdxTypeId() throws Exception {
-    int dsId = 5;
+    var dsId = 5;
     initCache(false, false, String.valueOf(dsId));
     // define a type.
     defineAType();
 
     Region pdxRegion = cache.getRegion(PeerTypeRegistration.REGION_NAME);
-    Iterator itr = pdxRegion.entrySet().iterator();
+    var itr = pdxRegion.entrySet().iterator();
 
-    boolean found = false;
-    boolean foundEnum = false;
+    var found = false;
+    var foundEnum = false;
     while (itr.hasNext()) {
-      Map.Entry ent = (Map.Entry) itr.next();
+      var ent = (Map.Entry) itr.next();
       if (ent.getKey() instanceof Integer) {
-        int pdxTypeId = (int) ent.getKey();
-        PdxType pdxType = (PdxType) ent.getValue();
+        var pdxTypeId = (int) ent.getKey();
+        var pdxType = (PdxType) ent.getValue();
 
-        int pdxTypeHashcode = pdxType.hashCode();
+        var pdxTypeHashcode = pdxType.hashCode();
         System.out.println("pdx hashcode " + pdxTypeHashcode);
-        int expectedPdxTypeId =
+        var expectedPdxTypeId =
             (dsId << 24) | (PeerTypeRegistration.PLACE_HOLDER_FOR_TYPE_ID & pdxTypeHashcode);
 
         assertEquals(expectedPdxTypeId, pdxTypeId);
 
         found = true;
       } else {
-        EnumId enumId = (EnumId) ent.getKey();
-        EnumInfo enumInfo = (EnumInfo) ent.getValue();
+        var enumId = (EnumId) ent.getKey();
+        var enumInfo = (EnumInfo) ent.getValue();
 
-        EnumInfo expectedEnumInfo = new EnumInfo(SimpleEnum.TWO);
-        int expectKey = (dsId << 24)
+        var expectedEnumInfo = new EnumInfo(SimpleEnum.TWO);
+        var expectKey = (dsId << 24)
             | (PeerTypeRegistration.PLACE_HOLDER_FOR_TYPE_ID & expectedEnumInfo.hashCode());
 
         assertEquals(expectKey, enumId.intValue());
@@ -156,20 +155,20 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
 
   @Test
   public void testDuplicatePdxTypeId() throws Exception {
-    int dsId = 5;
+    var dsId = 5;
     initCache(false, false, String.valueOf(dsId));
     // define a type.
     defineAType();
 
     Region pdxRegion = cache.getRegion(PeerTypeRegistration.REGION_NAME);
-    Iterator itr = pdxRegion.entrySet().iterator();
+    var itr = pdxRegion.entrySet().iterator();
 
-    boolean foundException = false;
-    boolean foundEnumException = false;
+    var foundException = false;
+    var foundEnumException = false;
     while (itr.hasNext()) {
-      Map.Entry ent = (Map.Entry) itr.next();
+      var ent = (Map.Entry) itr.next();
       if (ent.getKey() instanceof Integer) {
-        int pdxTypeId = (int) ent.getKey();
+        var pdxTypeId = (int) ent.getKey();
 
         try {
           pdxRegion.put(pdxTypeId, new PdxType());
@@ -177,9 +176,9 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
           foundException = true;
         }
       } else {
-        EnumId enumId = (EnumId) ent.getKey();
+        var enumId = (EnumId) ent.getKey();
 
-        EnumInfo enumInfo = new EnumInfo(SimpleEnum.ONE);
+        var enumInfo = new EnumInfo(SimpleEnum.ONE);
         try {
           pdxRegion.put(enumId, enumInfo);
         } catch (CacheWriterException cwe) {
@@ -197,35 +196,35 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
   @Test
   public void testPdxTypeIdWithNegativeDsId() throws Exception {
     // in this case geode will use 0 as dsId
-    int dsId = -1;
+    var dsId = -1;
     initCache(false, false, String.valueOf(dsId));
     // define a type.
     defineAType();
 
     Region pdxRegion = cache.getRegion(PeerTypeRegistration.REGION_NAME);
-    Iterator itr = pdxRegion.entrySet().iterator();
+    var itr = pdxRegion.entrySet().iterator();
 
-    boolean found = false;
-    boolean foundEnum = false;
+    var found = false;
+    var foundEnum = false;
     while (itr.hasNext()) {
-      Map.Entry ent = (Map.Entry) itr.next();
+      var ent = (Map.Entry) itr.next();
       if (ent.getKey() instanceof Integer) {
-        int pdxTypeId = (int) ent.getKey();
-        PdxType pdxType = (PdxType) ent.getValue();
+        var pdxTypeId = (int) ent.getKey();
+        var pdxType = (PdxType) ent.getValue();
 
-        int pdxTypeHashcode = pdxType.hashCode();
+        var pdxTypeHashcode = pdxType.hashCode();
         System.out.println("pdx hashcode " + pdxTypeHashcode);
-        int expectedPdxTypeId = PeerTypeRegistration.PLACE_HOLDER_FOR_TYPE_ID & pdxTypeHashcode;
+        var expectedPdxTypeId = PeerTypeRegistration.PLACE_HOLDER_FOR_TYPE_ID & pdxTypeHashcode;
 
         assertEquals(expectedPdxTypeId, pdxTypeId);
 
         found = true;
       } else {
-        EnumId enumId = (EnumId) ent.getKey();
-        EnumInfo enumInfo = (EnumInfo) ent.getValue();
+        var enumId = (EnumId) ent.getKey();
+        var enumInfo = (EnumInfo) ent.getValue();
 
-        EnumInfo expectedEnumInfo = new EnumInfo(SimpleEnum.TWO);
-        int expectKey =
+        var expectedEnumInfo = new EnumInfo(SimpleEnum.TWO);
+        var expectKey =
             PeerTypeRegistration.PLACE_HOLDER_FOR_TYPE_ID & expectedEnumInfo.hashCode();
 
         assertEquals(expectKey, enumId.intValue());
@@ -288,9 +287,9 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
   public void testNonPersistentRegistryWithPersistentRegion() throws Exception {
     {
       initCache(true, false, null);
-      Region region = createRegion(true, false);
+      var region = createRegion(true, false);
 
-      Throwable thrown = catchThrowable(this::defineATypeNoEnum);
+      var thrown = catchThrowable(this::defineATypeNoEnum);
       assertThat(thrown).isExactlyInstanceOf(PdxInitializationException.class);
 
       // Drop partitioned region.
@@ -303,7 +302,7 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
     {
       initCache(true, false, null);
       defineATypeNoEnum();
-      Throwable thrown = catchThrowable(() -> createRegion(true, false));
+      var thrown = catchThrowable(() -> createRegion(true, false));
       assertThat(thrown).isExactlyInstanceOf(PdxInitializationException.class);
     }
   }
@@ -312,8 +311,8 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
   public void testNonPersistentRegistryWithPersistentPR() throws Exception {
     {
       initCache(true, false, null);
-      Region region = createRegion(true, true);
-      Throwable thrown = catchThrowable(this::defineATypeNoEnum);
+      var region = createRegion(true, true);
+      var thrown = catchThrowable(this::defineATypeNoEnum);
       assertThat(thrown).isExactlyInstanceOf(PdxInitializationException.class);
 
       // Drop partitioned region.
@@ -327,7 +326,7 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
     {
       initCache(true, false, null);
       defineATypeNoEnum();
-      Throwable thrown = catchThrowable(() -> createRegion(true, true));
+      var thrown = catchThrowable(() -> createRegion(true, true));
       assertThat(thrown).isExactlyInstanceOf(PdxInitializationException.class);
     }
   }
@@ -354,7 +353,7 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
     {
       initCache(true, false, null);
       definePersistentAEQ(cache, "aeq", true);
-      Throwable thrown = catchThrowable(this::defineATypeNoEnum);
+      var thrown = catchThrowable(this::defineATypeNoEnum);
       assertThat(thrown).isExactlyInstanceOf(PdxInitializationException.class);
     }
     tearDown();
@@ -363,7 +362,7 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
     {
       initCache(true, false, null);
       defineATypeNoEnum();
-      Throwable thrown = catchThrowable(() -> definePersistentAEQ(cache, "aeq", true));
+      var thrown = catchThrowable(() -> definePersistentAEQ(cache, "aeq", true));
       assertThat(thrown).isExactlyInstanceOf(PdxInitializationException.class);
     }
   }
@@ -386,23 +385,23 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
     // Test that we can become a client registry.
     {
       initCache(false, false, null);
-      int port = AvailablePortHelper.getRandomAvailableTCPPort();
+      var port = AvailablePortHelper.getRandomAvailableTCPPort();
       PoolManager.createFactory().addServer("localhost", port).create("pool");
 
-      Throwable thrown = catchThrowable(this::defineAType);
+      var thrown = catchThrowable(this::defineAType);
       assertThat(thrown).isExactlyInstanceOf(ToDataException.class);
     }
   }
 
   private void defineAType() throws IOException {
-    SimpleClass sc = new SimpleClass(1, (byte) 2);
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var sc = new SimpleClass(1, (byte) 2);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(sc, out);
   }
 
   private void defineATypeNoEnum() throws /* IO */ Exception {
-    SimpleClass sc = new SimpleClass(1, (byte) 2, null);
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var sc = new SimpleClass(1, (byte) 2, null);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(sc, out);
   }
 
@@ -412,7 +411,7 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
 
   private void initCache(boolean createDiskStore, boolean pdxPersist, String dsId,
       String pdxDiskstore) {
-    CacheFactory cf = new CacheFactory();
+    var cf = new CacheFactory();
     cf.set(MCAST_PORT, "0");
     cf.setPdxPersistent(pdxPersist);
     if (dsId != null) {
@@ -447,7 +446,7 @@ public class PdxAttributesDistributedTest extends JUnit4CacheTestCase {
   }
 
   private void definePersistentAEQ(Cache cache, String id, boolean persistent) {
-    AsyncEventListener al = events -> true;
+    var al = (AsyncEventListener) events -> true;
 
     cache.createAsyncEventQueueFactory().setPersistent(persistent).create(id, al);
   }

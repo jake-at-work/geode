@@ -24,10 +24,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Properties;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,16 +33,12 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.lucene.LuceneIndex;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.internal.cli.LuceneCliStrings;
 import org.apache.geode.cache.lucene.internal.repository.serializer.PrimitiveSerializer;
 import org.apache.geode.cache.lucene.internal.xml.LuceneXmlConstants;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
-import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -81,10 +75,10 @@ public class LuceneClusterConfigurationDUnitTest {
 
     // Start vm2. This should have lucene index created using cluster
     // configuration.
-    MemberVM vm2 = ls.startServerVM(2, locator.getPort());
+    var vm2 = ls.startServerVM(2, locator.getPort());
     vm2.invoke(() -> {
-      LuceneService luceneService = LuceneServiceProvider.get(ClusterStartupRule.getCache());
-      final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+      var luceneService = LuceneServiceProvider.get(ClusterStartupRule.getCache());
+      final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
       assertNotNull(index);
       validateIndexFields(new String[] {"field1", "field2", "field3"}, index);
     });
@@ -110,12 +104,12 @@ public class LuceneClusterConfigurationDUnitTest {
 
     // Start vm2. This should have lucene index created using cluster
     // configuration.
-    MemberVM vm2 = createServer(2);
+    var vm2 = createServer(2);
     vm2.invoke(() -> {
-      LuceneService luceneService = LuceneServiceProvider.get(ClusterStartupRule.getCache());
-      final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+      var luceneService = LuceneServiceProvider.get(ClusterStartupRule.getCache());
+      final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
       assertNotNull(index);
-      String[] fields = new String[] {"field1", "field2", "field3"};
+      var fields = new String[] {"field1", "field2", "field3"};
       validateIndexFields(fields, index);
       // Add this check back when we complete xml generation for analyzer.
       validateIndexFieldAnalyzer(fields,
@@ -144,12 +138,12 @@ public class LuceneClusterConfigurationDUnitTest {
 
     // Start vm2. This should have lucene index created using cluster
     // configuration.
-    MemberVM vm2 = ls.startServerVM(2, locator.getPort());
+    var vm2 = ls.startServerVM(2, locator.getPort());
     vm2.invoke(() -> {
-      LuceneService luceneService = LuceneServiceProvider.get(ClusterStartupRule.getCache());
-      final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+      var luceneService = LuceneServiceProvider.get(ClusterStartupRule.getCache());
+      final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
       assertNotNull(index);
-      String[] fields = new String[] {"field1", "field2", "field3"};
+      var fields = new String[] {"field1", "field2", "field3"};
       validateIndexFields(fields, index);
       // Add this check back when we complete xml generation for analyzer.
       assertThat(index.getLuceneSerializer()).isInstanceOf(PrimitiveSerializer.class);
@@ -211,8 +205,8 @@ public class LuceneClusterConfigurationDUnitTest {
     createServer(1);
 
     // Start a member with group
-    String group = "group1";
-    Properties properties = new Properties();
+    var group = "group1";
+    var properties = new Properties();
     properties.setProperty(GROUPS, group);
     createServer(properties, 2);
 
@@ -226,7 +220,7 @@ public class LuceneClusterConfigurationDUnitTest {
     createServer(properties, 3);
 
     // Verify all members have indexes
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
     gfshConnector.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .hasTableSection()
         .hasColumn("Status")
@@ -251,15 +245,15 @@ public class LuceneClusterConfigurationDUnitTest {
 
   SerializableRunnableIF verifyClusterConfiguration(boolean verifyIndexesExist) {
     return () -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
-      InternalConfigurationPersistenceService sc =
+      var internalLocator = ClusterStartupRule.getLocator();
+      var sc =
           internalLocator.getConfigurationPersistenceService();
-      Configuration config = sc.getConfiguration(ConfigurationPersistenceService.CLUSTER_CONFIG);
-      String xmlContent = config.getCacheXmlContent();
-      String luceneIndex0Config = "<" + LuceneXmlConstants.PREFIX + ":" + LuceneXmlConstants.INDEX
+      var config = sc.getConfiguration(ConfigurationPersistenceService.CLUSTER_CONFIG);
+      var xmlContent = config.getCacheXmlContent();
+      var luceneIndex0Config = "<" + LuceneXmlConstants.PREFIX + ":" + LuceneXmlConstants.INDEX
           + " " + LuceneXmlConstants.NAME
           + "=\"" + INDEX_NAME + "0" + "\">";
-      String luceneIndex1Config = "<" + LuceneXmlConstants.PREFIX + ":" + LuceneXmlConstants.INDEX
+      var luceneIndex1Config = "<" + LuceneXmlConstants.PREFIX + ":" + LuceneXmlConstants.INDEX
           + " " + LuceneXmlConstants.NAME
           + "=\"" + INDEX_NAME + "1" + "\">";
       if (verifyIndexesExist) {
@@ -279,7 +273,7 @@ public class LuceneClusterConfigurationDUnitTest {
 
   void createLuceneIndexUsingGfsh(String indexName) throws Exception {
     // Execute Gfsh command to create lucene index.
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, indexName);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "'field1, field2, field3'");
@@ -288,7 +282,7 @@ public class LuceneClusterConfigurationDUnitTest {
 
   void createLuceneIndexWithAnalyzerUsingGfsh() throws Exception {
     // Gfsh command to create lucene index.
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -303,7 +297,7 @@ public class LuceneClusterConfigurationDUnitTest {
 
   void createLuceneIndexWithSerializerUsingGfsh() throws Exception {
     // Gfsh command to create lucene index.
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -316,7 +310,7 @@ public class LuceneClusterConfigurationDUnitTest {
 
   private void destroyLuceneIndexUsingGfsh(String indexName) throws Exception {
     // Execute Gfsh command to destroy lucene index.
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESTROY_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESTROY_INDEX);
     if (indexName != null) {
       csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, indexName);
     }
@@ -326,7 +320,7 @@ public class LuceneClusterConfigurationDUnitTest {
 
   void createRegionUsingGfsh(String regionName, RegionShortcut regionShortCut, String group)
       throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
     csb.addOption(CliStrings.CREATE_REGION__REGION, regionName);
     csb.addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT, regionShortCut.name());
     csb.addOptionWithValueCheck(CliStrings.GROUP, group);
@@ -334,16 +328,16 @@ public class LuceneClusterConfigurationDUnitTest {
   }
 
   private static void validateIndexFields(String[] indexFields, LuceneIndex index) {
-    String[] indexFieldNames = index.getFieldNames();
+    var indexFieldNames = index.getFieldNames();
     Arrays.sort(indexFieldNames);
     assertArrayEquals(indexFields, indexFieldNames);
   }
 
   private static void validateIndexFieldAnalyzer(String[] fields, String[] analyzers,
       LuceneIndex index) {
-    Map<String, Analyzer> indexfieldAnalyzers = index.getFieldAnalyzers();
-    for (int i = 0; i < fields.length; i++) {
-      Analyzer a = indexfieldAnalyzers.get(fields[i]);
+    var indexfieldAnalyzers = index.getFieldAnalyzers();
+    for (var i = 0; i < fields.length; i++) {
+      var a = indexfieldAnalyzers.get(fields[i]);
       System.out.println("#### Analyzer name :" + a.getClass().getName());
       assertEquals(analyzers[i], a.getClass().getName());
     }

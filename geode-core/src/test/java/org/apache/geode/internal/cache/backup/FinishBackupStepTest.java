@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
 
 import org.apache.geode.cache.CacheClosedException;
@@ -97,7 +96,7 @@ public class FinishBackupStepTest {
 
   @Test
   public void sendReturnsResultsForRemoteRecipient() throws Exception {
-    HashSet<PersistentID> persistentIdsForMember1 = new HashSet<>();
+    var persistentIdsForMember1 = new HashSet<PersistentID>();
     persistentIdsForMember1.add(mock(PersistentID.class));
     doAnswer(invokeAddToResults(new MemberWithPersistentIds(member1, persistentIdsForMember1)))
         .when(finishBackupReplyProcessor).waitForReplies();
@@ -108,7 +107,7 @@ public class FinishBackupStepTest {
 
   @Test
   public void sendReturnsResultsForLocalMember() throws Exception {
-    HashSet<PersistentID> persistentIdsForSender = new HashSet<>();
+    var persistentIdsForSender = new HashSet<PersistentID>();
     persistentIdsForSender.add(mock(PersistentID.class));
     when(finishBackup.run()).thenReturn(persistentIdsForSender);
 
@@ -118,19 +117,19 @@ public class FinishBackupStepTest {
 
   @Test
   public void sendReturnsResultsForAllMembers() throws Exception {
-    HashSet<PersistentID> persistentIdsForMember1 = new HashSet<>();
+    var persistentIdsForMember1 = new HashSet<PersistentID>();
     persistentIdsForMember1.add(mock(PersistentID.class));
 
-    HashSet<PersistentID> persistentIdsForMember2 = new HashSet<>();
+    var persistentIdsForMember2 = new HashSet<PersistentID>();
     persistentIdsForMember2.add(mock(PersistentID.class));
 
-    MemberWithPersistentIds[] ids = new MemberWithPersistentIds[] {
+    var ids = new MemberWithPersistentIds[] {
         new MemberWithPersistentIds(member1, persistentIdsForMember1),
         new MemberWithPersistentIds(member2, persistentIdsForMember2)};
 
     doAnswer(invokeAddToResults(ids)).when(finishBackupReplyProcessor).waitForReplies();
 
-    HashSet<PersistentID> persistentIdsForSender = new HashSet<>();
+    var persistentIdsForSender = new HashSet<PersistentID>();
     persistentIdsForSender.add(mock(PersistentID.class));
     when(finishBackup.run()).thenReturn(persistentIdsForSender);
 
@@ -157,7 +156,7 @@ public class FinishBackupStepTest {
 
   @Test
   public void addToResultsShouldShowUpInGetResults() throws Exception {
-    HashSet<PersistentID> persistentIdsForMember1 = new HashSet<>();
+    var persistentIdsForMember1 = new HashSet<PersistentID>();
     persistentIdsForMember1.add(mock(PersistentID.class));
     finishBackupStep.addToResults(member1, persistentIdsForMember1);
     assertThat(finishBackupStep.getResults()).containsOnlyKeys(member1)
@@ -178,7 +177,7 @@ public class FinishBackupStepTest {
 
   @Test
   public void sendShouldHandleCancelExceptionFromWaitForReplies() throws Exception {
-    ReplyException replyException =
+    var replyException =
         new ReplyException("expected exception", new CacheClosedException("expected exception"));
     doThrow(replyException).when(finishBackupReplyProcessor).waitForReplies();
     finishBackupStep.send();
@@ -208,7 +207,7 @@ public class FinishBackupStepTest {
 
   @Test
   public void sendShouldfinishForBackupInLocalMemberBeforeWaitingForReplies() throws Exception {
-    InOrder inOrder = inOrder(finishBackup, finishBackupReplyProcessor);
+    var inOrder = inOrder(finishBackup, finishBackupReplyProcessor);
     finishBackupStep.send();
 
     inOrder.verify(finishBackup, times(1)).run();
@@ -217,7 +216,7 @@ public class FinishBackupStepTest {
 
   private Answer<Object> invokeAddToResults(MemberWithPersistentIds... memberWithPersistentIds) {
     return invocation -> {
-      for (MemberWithPersistentIds ids : memberWithPersistentIds) {
+      for (var ids : memberWithPersistentIds) {
         finishBackupStep.addToResults(ids.member, ids.persistentIds);
       }
       return null;

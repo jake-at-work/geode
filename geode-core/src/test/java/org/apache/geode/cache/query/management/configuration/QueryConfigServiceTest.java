@@ -39,27 +39,27 @@ public class QueryConfigServiceTest {
 
   @Test
   public void marshallAndUnmarshallDoNotThrowExceptions() {
-    QueryConfigService.MethodAuthorizer authorizer =
+    var authorizer =
         new QueryConfigService.MethodAuthorizer();
-    String className = "className";
+    var className = "className";
     authorizer.setClassName(className);
 
     List<QueryConfigService.MethodAuthorizer.Parameter> paramList = new ArrayList<>();
-    QueryConfigService.MethodAuthorizer.Parameter parameter1 =
+    var parameter1 =
         new QueryConfigService.MethodAuthorizer.Parameter();
-    String param1 = "param1";
+    var param1 = "param1";
     parameter1.setParameterValue(param1);
-    QueryConfigService.MethodAuthorizer.Parameter parameter2 =
+    var parameter2 =
         new QueryConfigService.MethodAuthorizer.Parameter();
-    String param2 = "param2";
+    var param2 = "param2";
     parameter2.setParameterValue(param2);
     paramList.add(parameter1);
     paramList.add(parameter2);
     authorizer.setParameters(paramList);
 
     config.setMethodAuthorizer(authorizer);
-    String marshalledXml = service.marshall(config);
-    QueryConfigService service1 =
+    var marshalledXml = service.marshall(config);
+    var service1 =
         service.unMarshall(marshalledXml, QueryConfigService.class);
 
     assertThat(service1.getMethodAuthorizer().getClassName()).isEqualTo(className);

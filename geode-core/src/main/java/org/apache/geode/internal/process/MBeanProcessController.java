@@ -18,8 +18,6 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.IOException;
-import java.util.Properties;
-import java.util.Set;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -155,11 +153,11 @@ class MBeanProcessController implements ProcessController {
       final String pidAttribute, final String methodName, final String[] attributes,
       final Object[] values)
       throws ConnectionFailedException, IOException, MBeanInvocationFailedException {
-    ObjectName objectName = namePattern;
+    var objectName = namePattern;
     connect();
     try {
-      QueryExp constraint = buildQueryExp(pidAttribute, attributes, values);
-      Set<ObjectName> mbeanNames = server.queryNames(namePattern, constraint);
+      var constraint = buildQueryExp(pidAttribute, attributes, values);
+      var mbeanNames = server.queryNames(namePattern, constraint);
 
       if (mbeanNames.isEmpty()) {
         throw new MBeanInvocationFailedException("Failed to find mbean matching '" + namePattern
@@ -189,7 +187,7 @@ class MBeanProcessController implements ProcessController {
    */
   private void connect() throws ConnectionFailedException, IOException {
     try {
-      JMXServiceURL jmxUrl = getJMXServiceURL();
+      var jmxUrl = getJMXServiceURL();
       jmxc = JMXConnectorFactory.connect(jmxUrl);
       server = jmxc.getMBeanServerConnection();
     } catch (AttachNotSupportedException e) {
@@ -224,9 +222,9 @@ class MBeanProcessController implements ProcessController {
    */
   private JMXServiceURL getJMXServiceURL() throws AttachNotSupportedException, IOException {
     String connectorAddress;
-    VirtualMachine vm = VirtualMachine.attach(String.valueOf(pid));
+    var vm = VirtualMachine.attach(String.valueOf(pid));
     try {
-      Properties agentProps = vm.getAgentProperties();
+      var agentProps = vm.getAgentProperties();
       connectorAddress = agentProps.getProperty(PROPERTY_LOCAL_CONNECTOR_ADDRESS);
 
       if (connectorAddress == null) {
@@ -260,7 +258,7 @@ class MBeanProcessController implements ProcessController {
    */
   private QueryExp buildQueryExp(final String pidAttribute, final String[] attributes,
       final Object[] values) {
-    QueryExp optionalAttributes = buildOptionalQueryExp(attributes, values);
+    var optionalAttributes = buildOptionalQueryExp(attributes, values);
     QueryExp constraint;
     if (optionalAttributes != null) {
       constraint =
@@ -283,7 +281,7 @@ class MBeanProcessController implements ProcessController {
    */
   private QueryExp buildOptionalQueryExp(final String[] attributes, final Object[] values) {
     QueryExp queryExp = null;
-    for (int i = 0; i < attributes.length; i++) {
+    for (var i = 0; i < attributes.length; i++) {
       if (values[i] instanceof Boolean) {
         if (queryExp == null) {
           queryExp = Query.eq(Query.attr(attributes[i]), Query.value((Boolean) values[i]));

@@ -50,9 +50,9 @@ public class RemoveClientFromDenylistMessage extends PooledDistributionMessage {
     if (c != null) {
       List l = c.getCacheServers();
       if (l != null) {
-        for (final Object o : l) {
-          CacheServerImpl bs = (CacheServerImpl) o;
-          CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+        for (final var o : l) {
+          var bs = (CacheServerImpl) o;
+          var ccn = bs.getAcceptor().getCacheClientNotifier();
           Set s = ccn.getDenylistedClient();
           if (s != null) {
             if (s.remove(proxyID)) {

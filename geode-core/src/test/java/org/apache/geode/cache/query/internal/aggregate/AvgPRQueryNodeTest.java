@@ -41,7 +41,7 @@ public class AvgPRQueryNodeTest {
     avgPRQueryNode.accumulate(new Object[] {7L, 43d});
     avgPRQueryNode.accumulate(new Object[] {5L, 273.86d});
 
-    Object result = avgPRQueryNode.terminate();
+    var result = avgPRQueryNode.terminate();
     assertThat(avgPRQueryNode.getCount()).isEqualTo(12);
     assertThat(result).isInstanceOf(Number.class);
     assertThat(((Number) result).floatValue()).isEqualTo((43 + 273.86f) / 12.0f);

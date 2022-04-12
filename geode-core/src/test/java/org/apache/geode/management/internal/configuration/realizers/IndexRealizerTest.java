@@ -31,7 +31,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.internal.InternalQueryService;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.api.RealizationResult;
 import org.apache.geode.management.configuration.Index;
 import org.apache.geode.management.configuration.IndexType;
 
@@ -57,14 +56,14 @@ public class IndexRealizerTest {
   public void createIndexThrowIndexExistsException() throws Exception {
     when(queryService.createKeyIndex(any(), any(), any())).thenThrow(IndexExistsException.class);
     index.setIndexType(IndexType.KEY);
-    RealizationResult realizationResult = indexRealizer.create(index, cache);
+    var realizationResult = indexRealizer.create(index, cache);
     assertThat(realizationResult.isSuccess()).isTrue();
   }
 
   @Test
   public void create_succeeds_with_key() throws Exception {
     index.setIndexType(IndexType.KEY);
-    RealizationResult realizationResult = indexRealizer.create(index, cache);
+    var realizationResult = indexRealizer.create(index, cache);
     assertSoftly(softly -> {
       softly.assertThat(realizationResult.isSuccess()).isTrue();
       softly.assertThat(realizationResult.getMessage()).contains("testIndex successfully created");
@@ -75,7 +74,7 @@ public class IndexRealizerTest {
   @Test
   public void create_succeeds_with_functional() throws Exception {
     index.setIndexType(IndexType.RANGE);
-    RealizationResult realizationResult = indexRealizer.create(index, cache);
+    var realizationResult = indexRealizer.create(index, cache);
     assertSoftly(softly -> {
       softly.assertThat(realizationResult.isSuccess()).isTrue();
       softly.assertThat(realizationResult.getMessage()).contains("testIndex successfully created");
@@ -88,7 +87,7 @@ public class IndexRealizerTest {
     index.setIndexType(IndexType.RANGE);
     doThrow(new UnsupportedOperationException("I do not support this operation"))
         .when(queryService).createIndex("testIndex", "test Expression", "testRegion");
-    RealizationResult realizationResult = indexRealizer.create(index, cache);
+    var realizationResult = indexRealizer.create(index, cache);
     assertSoftly(softly -> {
       softly.assertThat(realizationResult.isSuccess()).isFalse();
       softly.assertThat(realizationResult.getMessage()).contains("I do not support this operation");
@@ -98,10 +97,10 @@ public class IndexRealizerTest {
   @Test
   public void delete_succeeds() {
     Region<Object, Object> region = mock(Region.class);
-    org.apache.geode.cache.query.Index removeIndex = mock(org.apache.geode.cache.query.Index.class);
+    var removeIndex = mock(org.apache.geode.cache.query.Index.class);
     when(queryService.getIndex(region, "testIndex")).thenReturn(removeIndex);
     when(cache.getRegion(SEPARATOR + "testRegion")).thenReturn(region);
-    RealizationResult realizationResult = indexRealizer.delete(index, cache);
+    var realizationResult = indexRealizer.delete(index, cache);
     assertSoftly(softly -> {
       softly.assertThat(realizationResult.isSuccess()).isTrue();
       softly.assertThat(realizationResult.getMessage())
@@ -112,11 +111,11 @@ public class IndexRealizerTest {
   @Test
   public void delete_fails_removal() {
     Region<Object, Object> region = mock(Region.class);
-    org.apache.geode.cache.query.Index removeIndex = mock(org.apache.geode.cache.query.Index.class);
+    var removeIndex = mock(org.apache.geode.cache.query.Index.class);
     when(queryService.getIndex(region, "testIndex")).thenReturn(removeIndex);
     when(cache.getRegion(SEPARATOR + "testRegion")).thenReturn(region);
     doThrow(new RuntimeException("removal failed")).when(queryService).removeIndex(removeIndex);
-    RealizationResult realizationResult = indexRealizer.delete(index, cache);
+    var realizationResult = indexRealizer.delete(index, cache);
     assertSoftly(softly -> {
       softly.assertThat(realizationResult.isSuccess()).isFalse();
       softly.assertThat(realizationResult.getMessage()).isEqualTo("removal failed");
@@ -126,10 +125,10 @@ public class IndexRealizerTest {
   @Test
   public void delete_fails_to_find_region() {
     Region<Object, Object> region = mock(Region.class);
-    org.apache.geode.cache.query.Index removeIndex = mock(org.apache.geode.cache.query.Index.class);
+    var removeIndex = mock(org.apache.geode.cache.query.Index.class);
     when(queryService.getIndex(region, "testIndex")).thenReturn(removeIndex);
     when(cache.getRegion(SEPARATOR + "testRegion")).thenReturn(null);
-    RealizationResult realizationResult = indexRealizer.delete(index, cache);
+    var realizationResult = indexRealizer.delete(index, cache);
     assertSoftly(softly -> {
       softly.assertThat(realizationResult.isSuccess()).isFalse();
       softly.assertThat(realizationResult.getMessage())
@@ -140,10 +139,10 @@ public class IndexRealizerTest {
   @Test
   public void delete_fails_to_find_index() {
     Region<Object, Object> region = mock(Region.class);
-    org.apache.geode.cache.query.Index removeIndex = mock(org.apache.geode.cache.query.Index.class);
+    var removeIndex = mock(org.apache.geode.cache.query.Index.class);
     when(queryService.getIndex(region, "testIndex")).thenReturn(null);
     when(cache.getRegion(SEPARATOR + "testRegion")).thenReturn(region);
-    RealizationResult realizationResult = indexRealizer.delete(index, cache);
+    var realizationResult = indexRealizer.delete(index, cache);
     assertSoftly(softly -> {
       softly.assertThat(realizationResult.isSuccess()).isFalse();
       softly.assertThat(realizationResult.getMessage())

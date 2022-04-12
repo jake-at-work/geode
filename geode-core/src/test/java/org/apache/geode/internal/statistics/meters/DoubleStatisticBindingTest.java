@@ -29,7 +29,7 @@ public class DoubleStatisticBindingTest {
 
   @Test
   public void add_addsAmountToStat() {
-    int statId = 27;
+    var statId = 27;
     StatisticBinding binding = new DoubleStatisticBinding(statistics, statId);
 
     binding.add(1234.8);
@@ -39,7 +39,7 @@ public class DoubleStatisticBindingTest {
 
   @Test
   public void doubleValue_returnsDoubleStatValue() {
-    int statId = 27;
+    var statId = 27;
     StatisticBinding binding = new DoubleStatisticBinding(statistics, statId);
 
     when(statistics.getDouble(statId)).thenReturn(2341.9);
@@ -50,7 +50,7 @@ public class DoubleStatisticBindingTest {
 
   @Test
   public void longValue_returnsDoubleStatValueAsLong() {
-    int statId = 27;
+    var statId = 27;
     StatisticBinding binding = new DoubleStatisticBinding(statistics, statId);
 
     when(statistics.getDouble(statId)).thenReturn(2341.0);

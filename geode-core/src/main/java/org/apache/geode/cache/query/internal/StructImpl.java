@@ -57,7 +57,7 @@ public class StructImpl implements Struct, DataSerializableFixedID, Serializable
     this.type = type;
     this.values = values;
     if (this.values != null) {
-      for (Object o : values) {
+      for (var o : values) {
         if (o instanceof PdxInstance || o instanceof PdxString) {
           hasPdx = true;
           break;
@@ -99,8 +99,8 @@ public class StructImpl implements Struct, DataSerializableFixedID, Serializable
       return new Object[0];
     }
 
-    Object[] fValues = new Object[values.length];
-    for (int i = 0; i < values.length; i++) {
+    var fValues = new Object[values.length];
+    for (var i = 0; i < values.length; i++) {
       if (values[i] instanceof PdxInstance) {
         fValues[i] = ((PdxInstance) values[i]).getObject();
       } else if (values[i] instanceof PdxString) {
@@ -126,7 +126,7 @@ public class StructImpl implements Struct, DataSerializableFixedID, Serializable
     if (!(obj instanceof Struct)) {
       return false;
     }
-    Struct s = (Struct) obj;
+    var s = (Struct) obj;
     if (!Arrays.equals(getFieldTypes(), s.getStructType().getFieldTypes())) {
       return false;
     }
@@ -138,8 +138,8 @@ public class StructImpl implements Struct, DataSerializableFixedID, Serializable
 
   @Override
   public int hashCode() {
-    int hashCode = type.hashCode();
-    for (Object o : values) {
+    var hashCode = type.hashCode();
+    for (var o : values) {
       if (o != null) {
         hashCode ^= o.hashCode();
       }
@@ -149,11 +149,11 @@ public class StructImpl implements Struct, DataSerializableFixedID, Serializable
 
   @Override
   public String toString() {
-    Object[] locValues = getFieldValues();
-    String[] names = getFieldNames();
-    StringBuilder buf = new StringBuilder();
+    var locValues = getFieldValues();
+    var names = getFieldNames();
+    var buf = new StringBuilder();
     buf.append("struct(");
-    for (int i = 0; i < locValues.length; i++) {
+    for (var i = 0; i < locValues.length; i++) {
       if (i > 0) {
         buf.append(",");
       }
@@ -176,7 +176,7 @@ public class StructImpl implements Struct, DataSerializableFixedID, Serializable
     type = context.getDeserializer().readObject(in);
     values = DataSerializer.readObjectArray(in);
     if (values != null) {
-      for (Object o : values) {
+      for (var o : values) {
         if (o instanceof PdxInstance) {
           hasPdx = true;
           break;

@@ -65,9 +65,9 @@ public class AvgTest {
     avg.accumulate(7);
     avg.accumulate(null);
     avg.accumulate(QueryService.UNDEFINED);
-    float expected = (1 + 2 + 3 + 4 + 5 + 6 + 7) / 7.0f;
+    var expected = (1 + 2 + 3 + 4 + 5 + 6 + 7) / 7.0f;
 
-    Object result = avg.terminate();
+    var result = avg.terminate();
     assertThat(avg.getNum()).isEqualTo(7);
     assertThat(result).isInstanceOf(Number.class);
     assertThat(((Number) result).floatValue()).isEqualTo(expected);

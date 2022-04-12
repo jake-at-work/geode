@@ -33,7 +33,7 @@ public class RefreshMemberSnapshotRequest extends AdminRequest {
    * Returns a <code>RefreshMemberSnapshotRequest</code> to be sent to the specified recipient.
    */
   public static RefreshMemberSnapshotRequest create() {
-    RefreshMemberSnapshotRequest m = new RefreshMemberSnapshotRequest();
+    var m = new RefreshMemberSnapshotRequest();
     return m;
   }
 

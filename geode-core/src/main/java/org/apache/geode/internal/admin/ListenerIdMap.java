@@ -86,9 +86,9 @@ public class ListenerIdMap {
    */
   public boolean containsKey(int key) {
 
-    Entry[] table = this.table;
-    int bucket = Math.abs(key) % table.length;
-    for (Entry e = table[bucket]; e != null; e = e.next) {
+    var table = this.table;
+    var bucket = Math.abs(key) % table.length;
+    for (var e = table[bucket]; e != null; e = e.next) {
       if (e.key == key) {
         return true;
       }
@@ -105,9 +105,9 @@ public class ListenerIdMap {
    */
   public Object get(int key) {
 
-    Entry[] table = this.table;
-    int bucket = Math.abs(key) % table.length;
-    for (Entry e = table[bucket]; e != null; e = e.next) {
+    var table = this.table;
+    var bucket = Math.abs(key) % table.length;
+    for (var e = table[bucket]; e != null; e = e.next) {
       if (e.key == key) {
         return e.value;
       }
@@ -121,21 +121,21 @@ public class ListenerIdMap {
    * of entries in the map exceeds the capacity and load factor.
    */
   private void rehash() {
-    int oldCapacity = table.length;
-    Entry[] oldMap = table;
+    var oldCapacity = table.length;
+    var oldMap = table;
 
-    int newCapacity = oldCapacity * 2 + 1;
-    Entry[] newMap = new Entry[newCapacity];
+    var newCapacity = oldCapacity * 2 + 1;
+    var newMap = new Entry[newCapacity];
 
     threshold = (int) (newCapacity * loadFactor);
     table = newMap;
 
-    for (int i = oldCapacity; i-- > 0;) {
-      for (Entry old = oldMap[i]; old != null;) {
-        Entry e = old;
+    for (var i = oldCapacity; i-- > 0;) {
+      for (var old = oldMap[i]; old != null;) {
+        var e = old;
         old = old.next;
 
-        int index = Math.abs(e.key) % newCapacity;
+        var index = Math.abs(e.key) % newCapacity;
         e.next = newMap[index];
         newMap[index] = e;
       }
@@ -150,13 +150,13 @@ public class ListenerIdMap {
    */
   public Object put(int key, Object value) {
 
-    Entry[] table = this.table;
+    var table = this.table;
 
     // Is the key already in the table?
-    int bucket = Math.abs(key) % table.length;
-    for (Entry e = table[bucket]; e != null; e = e.next) {
+    var bucket = Math.abs(key) % table.length;
+    for (var e = table[bucket]; e != null; e = e.next) {
       if (e.key == key) {
-        Object old = e.value;
+        var old = e.value;
         e.value = value;
         return old;
       }
@@ -169,7 +169,7 @@ public class ListenerIdMap {
       bucket = Math.abs(key) % table.length;
     }
 
-    Entry e = new Entry();
+    var e = new Entry();
     e.key = key;
     e.value = value;
     e.next = table[bucket];
@@ -183,8 +183,8 @@ public class ListenerIdMap {
    * <code>null</code> otherwise.
    */
   public Object remove(int key) {
-    Entry[] table = this.table;
-    int bucket = Math.abs(key) % table.length;
+    var table = this.table;
+    var bucket = Math.abs(key) % table.length;
 
     for (Entry e = table[bucket], prev = null; e != null; prev = e, e = e.next) {
       if (key == e.key) {
@@ -195,7 +195,7 @@ public class ListenerIdMap {
         }
 
         count--;
-        Object oldValue = e.value;
+        var oldValue = e.value;
         e.value = null;
         return oldValue;
       }
@@ -208,12 +208,12 @@ public class ListenerIdMap {
    * Returns all of the objects in the map
    */
   public Object[] values() {
-    Object[] values = new Object[size()];
+    var values = new Object[size()];
 
-    Entry[] table = this.table;
-    int i = 0;
-    for (final Entry entry : table) {
-      for (Entry e = entry; e != null; e = e.next) {
+    var table = this.table;
+    var i = 0;
+    for (final var entry : table) {
+      for (var e = entry; e != null; e = e.next) {
         values[i++] = e.value;
       }
     }
@@ -225,12 +225,12 @@ public class ListenerIdMap {
    * Returns all of the entries in the map
    */
   public ListenerIdMap.Entry[] entries() {
-    Entry[] entries = new Entry[size()];
+    var entries = new Entry[size()];
 
-    Entry[] table = this.table;
-    int i = 0;
-    for (final Entry entry : table) {
-      for (Entry e = entry; e != null; e = e.next) {
+    var table = this.table;
+    var i = 0;
+    for (final var entry : table) {
+      for (var e = entry; e != null; e = e.next) {
         entries[i++] = e;
       }
     }
@@ -294,7 +294,7 @@ public class ListenerIdMap {
         index++;
       }
 
-      Entry oldNext = next;
+      var oldNext = next;
       if (oldNext != null) {
         next = oldNext.next;
       }

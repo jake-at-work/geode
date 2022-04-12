@@ -23,7 +23,6 @@ import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
 
@@ -31,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.distributed.ServerLauncher.Builder;
-import org.apache.geode.distributed.ServerLauncher.ServerState;
 import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.process.ProcessControllerFactory;
 
@@ -70,9 +68,9 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
 
   @Test
   public void startDeletesStaleControlFiles() {
-    File stopRequestFile = givenControlFile(getStopRequestFileName());
-    File statusRequestFile = givenControlFile(getStatusRequestFileName());
-    File statusFile = givenControlFile(getStatusFileName());
+    var stopRequestFile = givenControlFile(getStopRequestFileName());
+    var statusRequestFile = givenControlFile(getStatusRequestFileName());
+    var statusFile = givenControlFile(getStatusFileName());
 
     startServer();
 
@@ -138,7 +136,7 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void startWithServerPortOverridesPortInCacheXml() {
     givenCacheXmlFileWithServerPort(unusedServerPort);
 
-    ServerLauncher launcher = startServer(
+    var launcher = startServer(
         addJvmArgument("-D" + GEMFIRE_PREFIX + CACHE_XML_FILE + "=" + getCacheXmlFilePath())
             .withServerPort(nonDefaultServerPort));
 
@@ -152,7 +150,7 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void startWithServerPortOverridesDefaultWithCacheXml() {
     givenCacheXmlFile();
 
-    ServerLauncher launcher = startServer(
+    var launcher = startServer(
         addJvmArgument("-D" + GEMFIRE_PREFIX + CACHE_XML_FILE + "=" + getCacheXmlFilePath())
             .withServerPort(nonDefaultServerPort));
 
@@ -176,7 +174,7 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void statusForDisableDefaultServerHasEmptyPort() {
     givenRunningServer(withDisableDefaultServer());
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -188,7 +186,7 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void statusWithPidReturnsOnlineWithDetails() throws IOException {
     givenRunningServer();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setPid(getServerPid())
         .build()
         .status();
@@ -210,7 +208,7 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void statusWithWorkingDirectoryReturnsOnlineWithDetails() throws IOException {
     givenRunningServer();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -232,11 +230,11 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void statusWithEmptyPidFileThrowsIllegalArgumentException() {
     givenEmptyPidFile();
 
-    ServerLauncher launcher = new Builder()
+    var launcher = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build();
 
-    Throwable thrown = catchThrowable(launcher::status);
+    var thrown = catchThrowable(launcher::status);
 
     assertThat(thrown)
         .isInstanceOf(IllegalArgumentException.class)
@@ -247,7 +245,7 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void statusWithEmptyWorkingDirectoryReturnsNotRespondingWithDetails() throws IOException {
     givenEmptyWorkingDirectory();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -268,7 +266,7 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void statusWithStalePidFileReturnsNotResponding() {
     givenPidFile(fakePid);
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -280,7 +278,7 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void stopWithPidReturnsStopped() {
     givenRunningServer();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setPid(getServerPid())
         .build()
         .stop();
@@ -316,7 +314,7 @@ public class ServerLauncherRemoteIntegrationTest extends ServerLauncherRemoteInt
   public void stopWithWorkingDirectoryReturnsStopped() {
     givenRunningServer();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .stop();

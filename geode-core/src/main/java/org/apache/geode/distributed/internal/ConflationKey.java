@@ -46,10 +46,10 @@ public class ConflationKey {
   @Override
   public boolean equals(Object obj) {
     // Note: we intentionally leave out buffer and allowsConflation
-    boolean result = false;
+    var result = false;
     if (obj != null) {
       if (obj instanceof ConflationKey) {
-        ConflationKey other = (ConflationKey) obj;
+        var other = (ConflationKey) obj;
         result = regionPath.equals(other.regionPath) && entryKey.equals(other.entryKey);
       }
     }

@@ -124,7 +124,7 @@ public class ConnectionAccounting {
    *         {@code false}.
    */
   public boolean destroyAndIsUnderMinimum(int destroyCount) {
-    int newCount = count.addAndGet(-destroyCount);
+    var newCount = count.addAndGet(-destroyCount);
     return newCount < minimum;
   }
 

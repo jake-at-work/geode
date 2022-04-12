@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -44,12 +43,10 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.EndpointManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache30.CacheSerializableRunnable;
-import org.apache.geode.distributed.internal.ServerLocationAndMemberId;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.NetworkUtils;
@@ -84,7 +81,7 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     // Server1 VM
     server1 = host.getVM(0);
 
@@ -124,14 +121,14 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
     server1.invoke(() -> killServer(PORT1));
     // Wait for 10 seconds to allow fail over. This would mean that Interstist has failed
     // over to Server2.
-    final CacheSerializableRunnable waitToDetectDeadServer =
+    final var waitToDetectDeadServer =
         new CacheSerializableRunnable("Wait for server on port1 to be dead") {
           @Override
           public void run2() throws CacheException {
             Region r = getCache().getRegion(REGION_NAME);
 
-            String poolName = r.getAttributes().getPoolName();
-            final PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+            var poolName = r.getAttributes().getPoolName();
+            final var pool = (PoolImpl) PoolManager.find(poolName);
             await()
                 .until(() -> !hasEndPointWithPort(pool, PORT1));
           }
@@ -143,13 +140,13 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
     // too.
     server1.invoke(() -> startServer(PORT1));
 
-    final CacheSerializableRunnable waitToDetectLiveServer =
+    final var waitToDetectLiveServer =
         new CacheSerializableRunnable("Wait for servers to be alive") {
           @Override
           public void run2() throws CacheException {
             Region r = getCache().getRegion(REGION_NAME);
-            String poolName = r.getAttributes().getPoolName();
-            final PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+            var poolName = r.getAttributes().getPoolName();
+            final var pool = (PoolImpl) PoolManager.find(poolName);
             await()
                 .until(() -> hasEndPointWithPort(pool, PORT1));
           }
@@ -175,8 +172,8 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
    * Check to see if a client is connected to an endpoint with a specific port
    */
   private boolean hasEndPointWithPort(final PoolImpl pool, final int port) {
-    EndpointManager endpointManager = pool.getEndpointManager();
-    final Set<ServerLocationAndMemberId> slAndMemberIds = endpointManager.getEndpointMap().keySet();
+    var endpointManager = pool.getEndpointManager();
+    final var slAndMemberIds = endpointManager.getEndpointMap().keySet();
     return slAndMemberIds.stream()
         .anyMatch(slAndMemberId -> slAndMemberId.getServerLocation().getPort() == port);
   }
@@ -190,7 +187,7 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
   private void killServer(Integer port) {
     Iterator iter = getCache().getCacheServers().iterator();
     if (iter.hasNext()) {
-      CacheServer server = (CacheServer) iter.next();
+      var server = (CacheServer) iter.next();
       if (server.getPort() == port) {
         server.stop();
       }
@@ -198,7 +195,7 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void startServer(Integer port) throws IOException {
-    CacheServer server1 = getCache().addCacheServer();
+    var server1 = getCache().addCacheServer();
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
     server1.start();
@@ -232,10 +229,10 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
       System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "PoolImpl.DISABLE_RANDOM", "true");
       int PORT1 = port1;
       int PORT2 = port2;
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(MCAST_PORT, "0");
       props.setProperty(LOCATORS, "");
-      ClientCacheFactory cf = new ClientCacheFactory();
+      var cf = new ClientCacheFactory();
       cf.addPoolServer(host, PORT1).addPoolServer(host, PORT2).setPoolSubscriptionEnabled(true)
           .setPoolSubscriptionRedundancy(-1).setPoolMinConnections(4).setPoolSocketBufferSize(1000)
           .setPoolReadTimeout(2000).setPoolPingInterval(300);
@@ -250,11 +247,11 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
 
   private Integer createServerCache() throws Exception {
     Cache cache = getCache();
-    RegionAttributes attrs = createCacheServerAttributes();
+    var attrs = createCacheServerAttributes();
     cache.createRegion(REGION_NAME, attrs);
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();
@@ -262,7 +259,7 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected RegionAttributes createCacheServerAttributes() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     return factory.create();
@@ -279,10 +276,10 @@ public class UpdatePropagationDUnitTest extends JUnit4CacheTestCase {
 
   private void verifySenderUpdateCount() {
     Region r = getCache().getRegion(SEPARATOR + REGION_NAME);
-    EventTrackingCacheListener listener =
+    var listener =
         (EventTrackingCacheListener) r.getAttributes().getCacheListeners()[0];
 
-    final List<EntryEvent> events = listener.receivedEvents;
+    final var events = listener.receivedEvents;
 
     // We only expect to see 1 create and 1 update from the original put
     assertEquals("Expected only 2 events for key1", 2,

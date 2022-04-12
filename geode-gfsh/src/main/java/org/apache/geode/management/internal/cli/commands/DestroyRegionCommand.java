@@ -25,9 +25,6 @@ import java.util.Set;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.RegionConfig;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.lang.Identifiable;
 import org.apache.geode.management.cli.CliMetaData;
@@ -56,10 +53,10 @@ public class DestroyRegionCommand extends GfshCommand {
 
     // this finds all the members that host this region. destroy will be called on each of these
     // members since the region might be a scope.LOCAL region
-    Set<DistributedMember> regionMembersList = findMembersForRegion(regionPath);
+    var regionMembersList = findMembersForRegion(regionPath);
 
     if (regionMembersList.size() == 0) {
-      String message =
+      var message =
           CliStrings.format(CliStrings.DESTROY_REGION__MSG__COULD_NOT_FIND_REGIONPATH_0_IN_GEODE,
               regionPath, "jmx-manager-update-rate milliseconds");
       throw new EntityNotFoundException(message, ifExists);
@@ -74,12 +71,11 @@ public class DestroyRegionCommand extends GfshCommand {
     // destroy is called on each member. If the region destroy is successful on one member, we
     // deem the destroy action successful, since if one member destroy successfully, the subsequent
     // destroy on a another member would probably throw RegionDestroyedException
-    List<CliFunctionResult> resultsList =
+    var resultsList =
         executeAndGetFunctionResult(RegionDestroyFunction.INSTANCE, regionPath, regionMembersList);
 
-
-    ResultModel result = ResultModel.createMemberStatusResult(resultsList);
-    XmlEntity xmlEntity = findXmlEntity(resultsList);
+    var result = ResultModel.createMemberStatusResult(resultsList);
+    var xmlEntity = findXmlEntity(resultsList);
 
     // if at least one member returns with successful deletion, we will need to update cc
     InternalConfigurationPersistenceService configurationPersistenceService =
@@ -101,7 +97,7 @@ public class DestroyRegionCommand extends GfshCommand {
   }
 
   void checkForJDBCMapping(String regionPath) {
-    String regionName = regionPath;
+    var regionName = regionPath;
     if (regionPath.startsWith(SEPARATOR)) {
       regionName = regionPath.substring(1);
     }
@@ -112,10 +108,10 @@ public class DestroyRegionCommand extends GfshCommand {
 
     Set<String> groupNames = new HashSet<>(ccService.getGroups());
     groupNames.add("cluster");
-    for (String groupName : groupNames) {
-      CacheConfig cacheConfig = ccService.getCacheConfig(groupName);
+    for (var groupName : groupNames) {
+      var cacheConfig = ccService.getCacheConfig(groupName);
       if (cacheConfig != null) {
-        RegionConfig regionConfig = find(cacheConfig.getRegions(), regionName);
+        var regionConfig = find(cacheConfig.getRegions(), regionName);
         if (regionConfig != null) {
           Identifiable<?> element =
               find(regionConfig.getCustomRegionElements(), "jdbc-mapping");

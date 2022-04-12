@@ -31,7 +31,7 @@ public class FixedPartitionAttributesInfo implements Serializable {
 
   public boolean equals(Object obj) {
     if (obj instanceof FixedPartitionAttributesInfo) {
-      FixedPartitionAttributesInfo fpaInfo = (FixedPartitionAttributesInfo) obj;
+      var fpaInfo = (FixedPartitionAttributesInfo) obj;
       return numBuckets == fpaInfo.getNumBuckets()
           && partitionName.equals(fpaInfo.getPartitionName())
           && isPrimary == fpaInfo.isPrimary();

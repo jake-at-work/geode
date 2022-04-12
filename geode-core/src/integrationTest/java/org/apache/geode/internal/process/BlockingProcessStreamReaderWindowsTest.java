@@ -20,7 +20,6 @@ import static org.apache.geode.internal.process.ProcessStreamReader.ReadingMode.
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
 
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
@@ -61,7 +60,7 @@ public class BlockingProcessStreamReaderWindowsTest
     givenRunningProcessWithStreamReaders(ProcessSleeps.class);
 
     // act
-    Future<Boolean> future = executorServiceRule.submit(() -> {
+    var future = executorServiceRule.submit(() -> {
       process.getOutputStream().close();
       process.getErrorStream().close();
       process.getInputStream().close();

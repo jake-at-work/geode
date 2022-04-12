@@ -52,29 +52,29 @@ public abstract class SubscriptionManagerTestBase {
 
   @Test
   public void defaultManager_removeWithClient_doesNothing() {
-    AbstractSubscriptionManager manager = createManager();
+    var manager = createManager();
     manager.remove(createClient());
     assertThat(manager.getSubscriptionCount()).isZero();
   }
 
   @Test
   public void defaultManager_removeWithClientAndChannel_doesNothing() {
-    byte[] channel = stringToBytes("channel");
-    AbstractSubscriptionManager manager = createManager();
+    var channel = stringToBytes("channel");
+    var manager = createManager();
     manager.remove(channel, createClient());
     assertThat(manager.getSubscriptionCount()).isZero();
   }
 
   @Test
   public void managerWithOneSub_hasCorrectCounts() {
-    AbstractSubscriptionManager manager = createManager(1);
+    var manager = createManager(1);
     assertThat(manager.getSubscriptionCount()).isOne();
     assertThat(manager.getSubscriptionCount(stringToBytes("channel1"))).isOne();
   }
 
   @Test
   public void managerWithOneSub_hasCorrectIds() {
-    AbstractSubscriptionManager manager = createManager(1);
+    var manager = createManager(1);
     assertThat(manager.getIds()).containsExactlyInAnyOrder(stringToBytes("channel1"));
     assertThat(manager.getIds(stringToBytes("*")))
         .containsExactlyInAnyOrder(stringToBytes("channel1"));
@@ -82,7 +82,7 @@ public abstract class SubscriptionManagerTestBase {
 
   @Test
   public void managerWithMultipleSubs_hasCorrectIds() {
-    AbstractSubscriptionManager manager = createManager(2);
+    var manager = createManager(2);
     assertThat(manager.getIds()).containsExactlyInAnyOrder(stringToBytes("channel1"),
         stringToBytes("channel2"));
     assertThat(manager.getIds(stringToBytes("*")))
@@ -91,8 +91,8 @@ public abstract class SubscriptionManagerTestBase {
 
   @Test
   public void managerWithSubs_isEmpty_afterClientRemove() {
-    Client client = createClient();
-    AbstractSubscriptionManager manager = createManager(3, client);
+    var client = createClient();
+    var manager = createManager(3, client);
 
     manager.remove(client);
 
@@ -101,9 +101,9 @@ public abstract class SubscriptionManagerTestBase {
 
   @Test
   public void managerWithOneSub_isEmpty_afterRemove() {
-    Client client = createClient();
-    AbstractSubscriptionManager manager = createManager(1, client);
-    byte[] channel = stringToBytes("channel1");
+    var client = createClient();
+    var manager = createManager(1, client);
+    var channel = stringToBytes("channel1");
 
     manager.remove(channel, client);
 
@@ -112,9 +112,9 @@ public abstract class SubscriptionManagerTestBase {
 
   @Test
   public void addingDuplicateDoesNothing() {
-    Client client = createClient();
-    AbstractSubscriptionManager manager = createManager(1, client);
-    byte[] channel = stringToBytes("channel1");
+    var client = createClient();
+    var manager = createManager(1, client);
+    var channel = stringToBytes("channel1");
 
     Object result = manager.add(channel, client);
 
@@ -124,10 +124,10 @@ public abstract class SubscriptionManagerTestBase {
 
   @Test
   public void addingTwoSubscriptionsWithDifferentClients() {
-    Client client1 = createClient();
-    Client client2 = createClient();
-    AbstractSubscriptionManager manager = createManager();
-    byte[] channel = stringToBytes("channel");
+    var client1 = createClient();
+    var client2 = createClient();
+    var manager = createManager();
+    var channel = stringToBytes("channel");
 
     Object result1 = manager.add(channel, client1);
     Object result2 = manager.add(channel, client2);
@@ -141,15 +141,15 @@ public abstract class SubscriptionManagerTestBase {
   }
 
   protected Client createClient() {
-    Channel channel = mock(Channel.class);
+    var channel = mock(Channel.class);
     when(channel.closeFuture()).thenReturn(mock(ChannelFuture.class));
     return new Client(channel, mock(PubSub.class));
   }
 
   protected AbstractSubscriptionManager createManager(int subCount, Client client) {
-    AbstractSubscriptionManager manager = createManager();
-    for (int i = 1; i <= subCount; i++) {
-      byte[] channel = stringToBytes("channel" + i);
+    var manager = createManager();
+    for (var i = 1; i <= subCount; i++) {
+      var channel = stringToBytes("channel" + i);
       manager.add(channel, client);
     }
     return manager;

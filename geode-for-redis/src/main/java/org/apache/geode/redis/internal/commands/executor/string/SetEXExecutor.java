@@ -20,12 +20,9 @@ import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_INTEGER;
 import static org.apache.geode.redis.internal.commands.executor.BaseSetOptions.Exists.NONE;
 import static org.apache.geode.redis.internal.commands.executor.string.SetExecutor.set;
 
-import java.util.List;
-
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -36,12 +33,12 @@ public class SetEXExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
 
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
-    RedisKey key = command.getKey();
-    byte[] value = commandElems.get(VALUE_INDEX);
+    var key = command.getKey();
+    var value = commandElems.get(VALUE_INDEX);
 
-    byte[] expirationArray = commandElems.get(2);
+    var expirationArray = commandElems.get(2);
     long expiration;
     try {
       expiration = Coder.bytesToLong(expirationArray);
@@ -57,7 +54,7 @@ public class SetEXExecutor implements CommandExecutor {
     if (!timeUnitMillis()) {
       expiration = SECONDS.toMillis(expiration);
     }
-    SetOptions setOptions = new SetOptions(NONE, expiration, false);
+    var setOptions = new SetOptions(NONE, expiration, false);
 
     context.lockedExecute(key, () -> set(context.getRegionProvider(), key, value, setOptions));
 

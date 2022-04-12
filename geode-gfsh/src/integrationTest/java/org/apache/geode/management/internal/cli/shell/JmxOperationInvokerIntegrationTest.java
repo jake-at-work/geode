@@ -47,7 +47,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
-import org.apache.geode.cache.ssl.CertificateMaterial;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.internal.AvailablePortHelper;
 
@@ -87,7 +86,7 @@ public class JmxOperationInvokerIntegrationTest {
 
   @Test
   public void canConnectToLocatorWithoutSsl() throws Exception {
-    final Locator locator = Locator.startLocatorAndDS(locatorPort, null, properties);
+    final var locator = Locator.startLocatorAndDS(locatorPort, null, properties);
     try {
       new JmxOperationInvoker(hostName, jmxPort, properties).stop();
     } finally {
@@ -99,7 +98,7 @@ public class JmxOperationInvokerIntegrationTest {
   public void canConnectToLocatorWithSsl() throws Exception {
     properties.putAll(generateSecurityProperties(false, keyStoreFile, trustStoreFile));
 
-    final Locator locator = Locator.startLocatorAndDS(locatorPort, null, properties);
+    final var locator = Locator.startLocatorAndDS(locatorPort, null, properties);
     try {
       new JmxOperationInvoker(hostName, jmxPort, properties).stop();
     } finally {
@@ -111,7 +110,7 @@ public class JmxOperationInvokerIntegrationTest {
   public void canConnectToLocatorWithSslAndEndpointValidationEnabled() throws Exception {
     properties.putAll(generateSecurityProperties(true, keyStoreFile, trustStoreFile));
 
-    final Locator locator = Locator.startLocatorAndDS(locatorPort, null, properties);
+    final var locator = Locator.startLocatorAndDS(locatorPort, null, properties);
     try {
       new JmxOperationInvoker(hostName, jmxPort, properties).stop();
     } finally {
@@ -124,7 +123,7 @@ public class JmxOperationInvokerIntegrationTest {
     properties.setProperty(JMX_MANAGER_BIND_ADDRESS, hostName);
     properties.putAll(generateSecurityProperties(true, keyStoreFile, trustStoreFile));
 
-    final Locator locator = Locator.startLocatorAndDS(locatorPort, null, properties);
+    final var locator = Locator.startLocatorAndDS(locatorPort, null, properties);
     try {
       new JmxOperationInvoker(hostName, jmxPort, properties).stop();
     } finally {
@@ -134,20 +133,20 @@ public class JmxOperationInvokerIntegrationTest {
 
   public static void generateKeyAndTrustStore(final String hostName, final Path keyStoreFile,
       final Path trustStoreFile) throws IOException, GeneralSecurityException {
-    final CertificateMaterial ca =
+    final var ca =
         new CertificateBuilder(CERTIFICATE_EXPIRATION_IN_DAYS, CERTIFICATE_ALGORITHM)
             .commonName("Test CA")
             .isCA()
             .generate();
 
-    final CertificateMaterial certificate = new CertificateBuilder(CERTIFICATE_EXPIRATION_IN_DAYS,
+    final var certificate = new CertificateBuilder(CERTIFICATE_EXPIRATION_IN_DAYS,
         CERTIFICATE_ALGORITHM)
             .commonName(hostName)
             .issuedBy(ca)
             .sanDnsName(hostName)
             .generate();
 
-    final CertStores store = new CertStores(hostName);
+    final var store = new CertStores(hostName);
     store.withCertificate("geode", certificate);
     store.trust("ca", ca);
 
@@ -157,7 +156,7 @@ public class JmxOperationInvokerIntegrationTest {
 
   private static Properties generateSecurityProperties(final boolean endpointIdentificationEnabled,
       final Path keyStoreFile, final Path trustStoreFile) {
-    final Properties properties = new Properties();
+    final var properties = new Properties();
 
     properties.setProperty(SSL_REQUIRE_AUTHENTICATION, valueOf(true));
     properties.setProperty(SSL_ENABLED_COMPONENTS, "all");

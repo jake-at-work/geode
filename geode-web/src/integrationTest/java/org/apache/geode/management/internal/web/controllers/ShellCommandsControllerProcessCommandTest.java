@@ -20,7 +20,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -54,11 +53,11 @@ public class ShellCommandsControllerProcessCommandTest {
   public void infoOkResult() throws IOException {
     fakeResult = ResultModel.createInfo("Some info message");
     doReturn(fakeResult.toJson()).when(controller).processCommand(anyString(), any(), any());
-    ResponseEntity<InputStreamResource> responseJsonStream = controller.command("xyz", null);
+    var responseJsonStream = controller.command("xyz", null);
     assertThatContentTypeEquals(responseJsonStream, MediaType.APPLICATION_JSON);
 
-    String responseJson = toString(responseJsonStream);
-    ResultModel result = ResultModel.fromJson(responseJson);
+    var responseJson = toString(responseJsonStream);
+    var result = ResultModel.fromJson(responseJson);
 
     assertThat(result.getInfoSection("info").getContent().get(0))
         .isEqualTo(fakeResult.getInfoSection("info").getContent().get(0));
@@ -68,11 +67,11 @@ public class ShellCommandsControllerProcessCommandTest {
   public void errorResult() throws IOException {
     fakeResult = ResultModel.createError("Some error message");
     doReturn(fakeResult.toJson()).when(controller).processCommand(anyString(), any(), any());
-    ResponseEntity<InputStreamResource> responseJsonStream = controller.command("xyz", null);
+    var responseJsonStream = controller.command("xyz", null);
     assertThatContentTypeEquals(responseJsonStream, MediaType.APPLICATION_JSON);
 
-    String responseJson = toString(responseJsonStream);
-    ResultModel result = ResultModel.fromJson(responseJson);
+    var responseJson = toString(responseJsonStream);
+    var result = ResultModel.fromJson(responseJson);
 
     assertThat(result.getInfoSection("info").getContent().get(0))
         .isEqualTo(fakeResult.getInfoSection("info").getContent().get(0));
@@ -80,18 +79,18 @@ public class ShellCommandsControllerProcessCommandTest {
 
   @Test
   public void resultWithFile() throws IOException {
-    File tempFile = temporaryFolder.newFile();
+    var tempFile = temporaryFolder.newFile();
     FileUtils.writeStringToFile(tempFile, "some file contents", "UTF-8");
 
     fakeResult = new ResultModel();
     fakeResult.addFile(tempFile, FileResultModel.FILE_TYPE_FILE);
 
     doReturn(fakeResult.toJson()).when(controller).processCommand(anyString(), any(), any());
-    ResponseEntity<InputStreamResource> responseFileStream = controller.command("xyz", null);
+    var responseFileStream = controller.command("xyz", null);
 
     assertThatContentTypeEquals(responseFileStream, MediaType.APPLICATION_OCTET_STREAM);
 
-    String fileContents = toFileContents(responseFileStream);
+    var fileContents = toFileContents(responseFileStream);
     assertThat(fileContents).isEqualTo("some file contents");
   }
 

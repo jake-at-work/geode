@@ -42,9 +42,7 @@ import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
-import org.apache.geode.internal.cache.partitioned.Bucket;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -83,7 +81,7 @@ public class PersistentStateQueryMessage extends HighPriorityDistributionMessage
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+    final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
 
     PersistentMemberState state = null;
     PersistentMemberID myId = null;
@@ -91,7 +89,7 @@ public class PersistentStateQueryMessage extends HighPriorityDistributionMessage
     DiskStoreID diskStoreId = null;
     HashSet<PersistentMemberID> onlineMembers = null;
     ReplyException exception = null;
-    boolean successfulReply = false;
+    var successfulReply = false;
     try {
       // get the region from the path, but do NOT wait on initialization,
       // otherwise we could have a distributed deadlock
@@ -102,7 +100,7 @@ public class PersistentStateQueryMessage extends HighPriorityDistributionMessage
       if (region instanceof DistributedRegion) {
         persistenceAdvisor = ((DistributedRegion) region).getPersistenceAdvisor();
       } else if (region == null) {
-        Bucket proxy =
+        var proxy =
             PartitionedRegionHelper.getProxyBucketRegion(dm.getCache(), regionPath);
         if (proxy != null) {
           persistenceAdvisor = proxy.getPersistenceAdvisor();
@@ -135,7 +133,7 @@ public class PersistentStateQueryMessage extends HighPriorityDistributionMessage
       LocalRegion.setThreadInitLevelRequirement(oldLevel);
       ReplyMessage replyMsg;
       if (successfulReply) {
-        PersistentStateQueryReplyMessage persistentReplyMessage =
+        var persistentReplyMessage =
             new PersistentStateQueryReplyMessage();
         persistentReplyMessage.myId = myId;
         persistentReplyMessage.persistedStateOfPeer = state;
@@ -169,12 +167,12 @@ public class PersistentStateQueryMessage extends HighPriorityDistributionMessage
     super.fromData(in, context);
     regionPath = DataSerializer.readString(in);
     processorId = in.readInt();
-    boolean hasId = in.readBoolean();
+    var hasId = in.readBoolean();
     if (hasId) {
       id = new PersistentMemberID();
       id.fromData(in);
     }
-    boolean hasInitializingId = in.readBoolean();
+    var hasInitializingId = in.readBoolean();
     if (hasInitializingId) {
       initializingId = new PersistentMemberID();
       initializingId.fromData(in);
@@ -213,7 +211,7 @@ public class PersistentStateQueryMessage extends HighPriorityDistributionMessage
     @Override
     public void process(DistributionMessage msg) {
       if (msg instanceof PersistentStateQueryReplyMessage) {
-        PersistentStateQueryReplyMessage reply = (PersistentStateQueryReplyMessage) msg;
+        var reply = (PersistentStateQueryReplyMessage) msg;
         results.addResult(reply.persistedStateOfPeer, reply.getSender(), reply.myId,
             reply.myInitializingId, reply.diskStoreId, reply.onlineMembers);
       }
@@ -237,25 +235,25 @@ public class PersistentStateQueryMessage extends HighPriorityDistributionMessage
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      boolean hasId = in.readBoolean();
+      var hasId = in.readBoolean();
       if (hasId) {
         myId = new PersistentMemberID();
         myId.fromData(in);
       }
-      boolean hasState = in.readBoolean();
+      var hasState = in.readBoolean();
       if (hasState) {
         persistedStateOfPeer = PersistentMemberState.fromData(in);
       }
-      boolean hasInitializingId = in.readBoolean();
+      var hasInitializingId = in.readBoolean();
       if (hasInitializingId) {
         myInitializingId = new PersistentMemberID();
         myInitializingId.fromData(in);
       }
-      boolean hasDiskStoreID = in.readBoolean();
+      var hasDiskStoreID = in.readBoolean();
       if (hasDiskStoreID) {
         diskStoreId = new DiskStoreID(in.readLong(), in.readLong());
       }
-      boolean hasOnlineMembers = in.readBoolean();
+      var hasOnlineMembers = in.readBoolean();
       if (hasOnlineMembers) {
         onlineMembers = DataSerializer.readHashSet(in);
       }

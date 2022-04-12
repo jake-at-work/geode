@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.TreeSet;
@@ -47,7 +46,7 @@ public class AssemblyContentsIntegrationTest {
 
   @Before
   public void loadExpectedAssemblyContent() throws IOException {
-    String assemblyContent =
+    var assemblyContent =
         createTempFileFromResource(AssemblyContentsIntegrationTest.class,
             "/assembly_content.txt").getAbsolutePath();
 
@@ -57,7 +56,7 @@ public class AssemblyContentsIntegrationTest {
 
   @Test
   public void verifyAssemblyContents() throws IOException {
-    Collection<String> currentAssemblyContent = getAssemblyContent();
+    var currentAssemblyContent = getAssemblyContent();
     Files.write(Paths.get("..", "assembly_content.txt"), currentAssemblyContent);
 
     assertThat(currentAssemblyContent)
@@ -72,15 +71,15 @@ public class AssemblyContentsIntegrationTest {
    * Find all of the jars bundled with the project. Key is the name of the jar, value is the path.
    */
   private Collection<String> getAssemblyContent() {
-    File geodeHomeDirectory = new File(GEODE_HOME);
-    Path geodeHomePath = Paths.get(GEODE_HOME);
+    var geodeHomeDirectory = new File(GEODE_HOME);
+    var geodeHomePath = Paths.get(GEODE_HOME);
 
     assertThat(geodeHomeDirectory)
         .as(
             "Please set the GEODE_HOME environment variable to the product installation directory.")
         .isDirectory();
 
-    String versionRegex = "\\d+\\.\\d+\\.\\d+(-build\\.\\d+)?";
+    var versionRegex = "\\d+\\.\\d+\\.\\d+(-build\\.\\d+)?";
     return FileUtils.listFiles(geodeHomeDirectory, null, true).stream()
         .map(file -> geodeHomePath.relativize(Paths.get(file.getPath())).toString().replace('\\',
             '/'))

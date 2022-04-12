@@ -24,7 +24,6 @@ import org.apache.geode.distributed.internal.tcpserver.HostAndPort;
 import org.apache.geode.distributed.internal.tcpserver.TcpClient;
 import org.apache.geode.distributed.internal.tcpserver.TcpSocketFactory;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.net.SocketCreator;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
@@ -79,14 +78,14 @@ public class JmxManagerLocatorRequest implements DataSerializableFixedID {
       Properties sslConfigProps) throws IOException, ClassNotFoundException {
 
     // simply need to turn sslConfigProps into sslConfig for locator
-    SSLConfig sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(sslConfigProps,
+    var sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(sslConfigProps,
         SecurableCommunicationChannel.LOCATOR);
-    SocketCreator socketCreator = new SocketCreator(sslConfig);
-    TcpClient client = new TcpClient(socketCreator,
+    var socketCreator = new SocketCreator(sslConfig);
+    var client = new TcpClient(socketCreator,
         InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
         InternalDataSerializer.getDSFIDSerializer().getObjectDeserializer(),
         TcpSocketFactory.DEFAULT);
-    Object responseFromServer = client.requestToServer(new HostAndPort(locatorHost, locatorPort),
+    var responseFromServer = client.requestToServer(new HostAndPort(locatorHost, locatorPort),
         SINGLETON, msTimeout, true);
 
     if (responseFromServer instanceof JmxManagerLocatorResponse) {

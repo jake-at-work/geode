@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.test.junit.categories.PersistenceTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -46,7 +45,7 @@ public class ListDiskStoreCommandIntegrationTest {
   @SuppressWarnings("deprecation")
   public void commandSucceedsWhenConnected() throws Exception {
     Cache cache = server.getCache();
-    DiskStore ds = cache.createDiskStoreFactory().create(DISK_STORE_NAME);
+    var ds = cache.createDiskStoreFactory().create(DISK_STORE_NAME);
 
     gfsh.connectAndVerify(server.getJmxPort(), PortType.jmxManager);
     gfsh.executeAndAssertThat("list disk-stores").statusIsSuccess()

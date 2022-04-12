@@ -32,7 +32,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
@@ -46,17 +45,17 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
   @Test
   public void putMustSucceedAndIndexInvalidatedWhenAPutCorruptsAnIndex() throws Exception {
 
-    String queryString = "SELECT * FROM " + SEPARATOR + "REGION_NAME WHERE ID = 3";
-    String regionName = "REGION_NAME";
+    var queryString = "SELECT * FROM " + SEPARATOR + "REGION_NAME WHERE ID = 3";
+    var regionName = "REGION_NAME";
 
     Cache cache = getCache();
 
     Region region =
         cache.createRegionFactory().setDataPolicy(DataPolicy.PARTITION).create(regionName);
 
-    QueryService queryService = cache.getQueryService();
-    Index idIndex = queryService.createIndex("idIndex", "ID", SEPARATOR + regionName);
-    Index exceptionIndex =
+    var queryService = cache.getQueryService();
+    var idIndex = queryService.createIndex("idIndex", "ID", SEPARATOR + regionName);
+    var exceptionIndex =
         queryService.createIndex("exceptionIndex", "throwExceptionMethod", SEPARATOR + regionName);
 
     IntStream.rangeClosed(1, 3).forEach(i -> region.put(i, new Portfolio(i)));
@@ -65,7 +64,7 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
         idIndex.getStatistics().getNumberOfValues());
     assertEquals("Corrupted index should not have indexed any entries", 0,
         exceptionIndex.getStatistics().getNumberOfValues());
-    SelectResults results = (SelectResults) queryService.newQuery(queryString).execute();
+    var results = (SelectResults) queryService.newQuery(queryString).execute();
     assertEquals("Query execution must be successful ", 1, results.size());
   }
 
@@ -73,19 +72,19 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
   @Test
   public void indexCreationMustFailIfRegionEntriesAreNotCompatible() throws Exception {
 
-    String queryString = "SELECT * FROM " + SEPARATOR + "REGION_NAME WHERE ID = 3";
-    String regionName = "REGION_NAME";
+    var queryString = "SELECT * FROM " + SEPARATOR + "REGION_NAME WHERE ID = 3";
+    var regionName = "REGION_NAME";
 
     Cache cache = getCache();
 
     Region region =
         cache.createRegionFactory().setDataPolicy(DataPolicy.PARTITION).create(regionName);
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
 
     IntStream.rangeClosed(1, 3).forEach(i -> region.put(i, new Portfolio(i)));
 
-    Index idIndex = queryService.createIndex("idIndex", "ID", SEPARATOR + regionName);
+    var idIndex = queryService.createIndex("idIndex", "ID", SEPARATOR + regionName);
     try {
       queryService.createIndex("exceptionIndex", "throwExceptionMethod", SEPARATOR + regionName);
       fail();
@@ -95,7 +94,7 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
 
     assertEquals("Uncorrupted index must have all the entries ", 3,
         idIndex.getStatistics().getNumberOfValues());
-    SelectResults results = (SelectResults) queryService.newQuery(queryString).execute();
+    var results = (SelectResults) queryService.newQuery(queryString).execute();
     assertEquals("Query execution must be successful ", 1, results.size());
   }
 
@@ -124,29 +123,29 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
 
   @Test
   public void putMustSucceedWhenTheRangeIndexIsCorrupted() throws Exception {
-    String regionName = "portfolio";
-    String INDEX_NAME = "key_index1";
+    var regionName = "portfolio";
+    var INDEX_NAME = "key_index1";
 
-    PartitionAttributesFactory partitionAttributes = new PartitionAttributesFactory();
+    var partitionAttributes = new PartitionAttributesFactory();
     partitionAttributes.setTotalNumBuckets(1);
 
     Cache cache = getCache();
     Region region = cache.createRegionFactory().setDataPolicy(DataPolicy.PARTITION)
         .setPartitionAttributes(partitionAttributes.create()).create(regionName);
 
-    Portfolio p = new Portfolio(1, 2);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 2);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     map1.put("AOL", 4);
     p.positions = map1;
     region.put(1, p);
 
-    QueryService queryService = cache.getQueryService();
-    Index keyIndex1 = queryService.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var queryService = cache.getQueryService();
+    var keyIndex1 = queryService.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p2 = new Portfolio(3, 4);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(3, 4);
+    var map2 = new HashMap();
     map2.put("APPL", 3);
     map2.put("AOL", "hello");
     p2.positions = map2;
@@ -155,10 +154,10 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
     assertEquals("Put must be successful", 2, region.size());
     assertEquals("Index must be invalid at this point ", false, keyIndex1.isValid());
 
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
 
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery(
             "select * from " + SEPARATOR
                 + "portfolio p where p.positions['AOL'] = 'hello' OR p.positions['IBM'] = 2")
@@ -171,36 +170,36 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
   @Test
   public void putMustSucceedButShouldNotbeAddedtoIndexWhenTheRangeIndexIsCorrupted()
       throws Exception {
-    String regionName = "portfolio";
-    String INDEX_NAME = "key_index1";
+    var regionName = "portfolio";
+    var INDEX_NAME = "key_index1";
 
-    PartitionAttributesFactory partitionAttributes = new PartitionAttributesFactory();
+    var partitionAttributes = new PartitionAttributesFactory();
     partitionAttributes.setTotalNumBuckets(1);
 
     Cache cache = getCache();
     Region region = cache.createRegionFactory().setDataPolicy(DataPolicy.PARTITION)
         .setPartitionAttributes(partitionAttributes.create()).create(regionName);
 
-    Portfolio p = new Portfolio(1, 2);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 2);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     map1.put("AOL", 4);
     p.positions = map1;
     region.put(1, p);
 
-    QueryService queryService = cache.getQueryService();
-    Index keyIndex1 = queryService.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var queryService = cache.getQueryService();
+    var keyIndex1 = queryService.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p2 = new Portfolio(3, 4);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(3, 4);
+    var map2 = new HashMap();
     map2.put("APPL", 3);
     map2.put("AOL", "hello");
     p2.positions = map2;
     region.put(2, p2);
 
-    Portfolio p3 = new Portfolio(5, 6);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(5, 6);
+    var map3 = new HashMap();
     map3.put("APPL", 4);
     map3.put("AOL", "world");
     p3.positions = map3;
@@ -211,10 +210,10 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
     assertEquals("No new entries must be added to the corrupted index", 4,
         keyIndex1.getStatistics().getNumberOfValues());
 
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
 
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery(
             "select * from " + SEPARATOR
                 + "portfolio p where p.positions['AOL'] = 'hello' OR p.positions['IBM'] = 2")
@@ -226,26 +225,26 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
 
   @Test
   public void rangeIndexCreationMustFailIfRegionEntriesAreNotCompatible() throws Exception {
-    String regionName = "portfolio";
-    String INDEX_NAME = "key_index1";
+    var regionName = "portfolio";
+    var INDEX_NAME = "key_index1";
 
-    PartitionAttributesFactory partitionAttributes = new PartitionAttributesFactory();
+    var partitionAttributes = new PartitionAttributesFactory();
     partitionAttributes.setTotalNumBuckets(1);
 
     Cache cache = getCache();
     Region region = cache.createRegionFactory().setDataPolicy(DataPolicy.PARTITION)
         .setPartitionAttributes(partitionAttributes.create()).create(regionName);
 
-    Portfolio p = new Portfolio(1, 2);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 2);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     map1.put("AOL", 4);
     p.positions = map1;
     region.put(1, p);
 
-    Portfolio p2 = new Portfolio(3, 4);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(3, 4);
+    var map2 = new HashMap();
     map2.put("APPL", 3);
     map2.put("AOL", "hello");
     p2.positions = map2;
@@ -253,7 +252,7 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
 
     assertEquals("Put must be successful", 2, region.size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     try {
       queryService.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
       fail();
@@ -264,10 +263,10 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
     assertEquals("There should be no index present", null,
         queryService.getIndex(region, INDEX_NAME));
 
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
 
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery(
             "select * from " + SEPARATOR
                 + "portfolio p where p.positions['AOL'] = 'hello' OR p.positions['IBM'] = 2")
@@ -280,23 +279,23 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
   @Test
   public void rangeIndexCreationMustPassIfEntriesArePresentInDifferentBucketsAndQueriesMustUseThem()
       throws Exception {
-    String regionName = "portfolio";
-    String INDEX_NAME = "key_index1";
+    var regionName = "portfolio";
+    var INDEX_NAME = "key_index1";
 
     Cache cache = getCache();
     Region region =
         cache.createRegionFactory().setDataPolicy(DataPolicy.PARTITION).create(regionName);
 
-    Portfolio p = new Portfolio(1, 2);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 2);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     map1.put("AOL", 4);
     p.positions = map1;
     region.put(1, p);
 
-    Portfolio p2 = new Portfolio(3, 4);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(3, 4);
+    var map2 = new HashMap();
     map2.put("APPL", 3);
     map2.put("AOL", "hello");
     p2.positions = map2;
@@ -304,14 +303,14 @@ public class CorruptedIndexIntegrationTest extends JUnit4CacheTestCase {
 
     assertEquals("Put must be successful", 2, region.size());
 
-    QueryService queryService = cache.getQueryService();
-    Index keyIndex1 = queryService.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var queryService = cache.getQueryService();
+    var keyIndex1 = queryService.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
     assertEquals("Index must be valid", true, keyIndex1.isValid());
 
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
 
-    SelectResults results = (SelectResults) queryService
+    var results = (SelectResults) queryService
         .newQuery(
             "select * from " + SEPARATOR
                 + "portfolio p where p.positions['AOL'] = 'hello' OR p.positions['IBM'] = 2")

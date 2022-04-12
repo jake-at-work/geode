@@ -21,7 +21,6 @@ import static org.apache.commons.lang3.Validate.notNull;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ServiceConfigurationError;
 import java.util.concurrent.TimeoutException;
 
@@ -73,11 +72,11 @@ public class ProcessControllerFactory {
     if (disableAttachApi) {
       return false;
     }
-    boolean found = false;
+    var found = false;
     try {
-      final Class<?> virtualMachineClass = Class.forName("com.sun.tools.attach.spi.AttachProvider");
+      final var virtualMachineClass = Class.forName("com.sun.tools.attach.spi.AttachProvider");
       if (virtualMachineClass != null) {
-        Method providersMethod = virtualMachineClass.getMethod("providers");
+        var providersMethod = virtualMachineClass.getMethod("providers");
         providersMethod.invoke(virtualMachineClass);
         found = true;
       }

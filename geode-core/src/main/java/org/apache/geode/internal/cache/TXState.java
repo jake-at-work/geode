@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceConfigurationError;
@@ -42,14 +41,12 @@ import org.apache.geode.cache.DiskAccessException;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.FailedSynchronizationException;
 import org.apache.geode.cache.Operation;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.SynchronizationCommitConflictException;
 import org.apache.geode.cache.TransactionDataRebalancedException;
 import org.apache.geode.cache.TransactionException;
 import org.apache.geode.cache.TransactionId;
-import org.apache.geode.cache.TransactionWriter;
 import org.apache.geode.cache.TransactionWriterException;
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
 import org.apache.geode.cache.client.internal.ServerRegionDataAccess;
@@ -216,7 +213,7 @@ public class TXState implements TXStateInterface {
   }
 
   boolean getRecordedResultOrException(EntryEventImpl event) {
-    boolean result = getRecordedResult(event);
+    var result = getRecordedResult(event);
     if (!result && eventExceptions.containsKey(event.getEventId())) {
       throw eventExceptions.get(event.getEventId());
     }
@@ -240,7 +237,7 @@ public class TXState implements TXStateInterface {
   }
 
   public void firePendingCallbacks() {
-    boolean isConfigError = false;
+    var isConfigError = false;
     EntryEventImpl lastTransactionEvent = null;
     try {
       lastTransactionEvent = TXLastEventInTransactionUtils
@@ -250,8 +247,8 @@ public class TXState implements TXStateInterface {
       isConfigError = true;
     }
 
-    for (EntryEventImpl ee : getPendingCallbacks()) {
-      boolean isLastTransactionEvent = TXLastEventInTransactionUtils
+    for (var ee : getPendingCallbacks()) {
+      var isLastTransactionEvent = TXLastEventInTransactionUtils
           .isLastTransactionEvent(isConfigError, lastTransactionEvent, ee);
       if (ee.getOperation().isDestroy()) {
         ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_DESTROY, ee, true,
@@ -270,7 +267,7 @@ public class TXState implements TXStateInterface {
   }
 
   public void freePendingCallbacks() {
-    for (EntryEventImpl ee : getPendingCallbacks()) {
+    for (var ee : getPendingCallbacks()) {
       ee.release();
     }
   }
@@ -294,7 +291,7 @@ public class TXState implements TXStateInterface {
 
   @Override
   public void rmRegion(LocalRegion r) {
-    TXRegionState txr = regions.remove(r);
+    var txr = regions.remove(r);
     if (txr != null) {
       txr.cleanup(r);
     }
@@ -309,7 +306,7 @@ public class TXState implements TXStateInterface {
    */
   @Override
   public TXRegionState writeRegion(InternalRegion r) {
-    TXRegionState result = readRegion(r);
+    var result = readRegion(r);
     if (result == null) {
       if (r instanceof BucketRegion) {
         result = new TXBucketRegionState((BucketRegion) r, this);
@@ -342,8 +339,8 @@ public class TXState implements TXStateInterface {
    */
   @Override
   public int getChanges() {
-    int changes = 0;
-    for (final TXRegionState txrs : regions.values()) {
+    var changes = 0;
+    for (final var txrs : regions.values()) {
       changes += txrs.getChanges();
     }
     return changes;
@@ -385,7 +382,7 @@ public class TXState implements TXStateInterface {
       return;
     }
 
-    final long conflictStart = statisticsClock.getTime();
+    final var conflictStart = statisticsClock.getTime();
     locks = createLockRequest();
     locks.obtain(getCache().getInternalDistributedSystem());
     // for now check account the dlock service time
@@ -468,11 +465,11 @@ public class TXState implements TXStateInterface {
        * If there is a TransactionWriter plugged in, we need to to give it an opportunity to cleanup
        * the transaction.
        */
-      TransactionWriter writer = proxy.getTxMgr().getWriter();
+      var writer = proxy.getTxMgr().getWriter();
       if (!firedWriter && writer != null) {
         try {
           firedWriter = true;
-          TXEvent event = getEvent();
+          var event = getEvent();
           if (!event.hasOnlyInternalEvents()) {
             writer.beforeCommit(event);
           }
@@ -499,7 +496,7 @@ public class TXState implements TXStateInterface {
         }
       }
 
-      List/* <TXEntryStateWithRegionAndKey> */ entries = generateEventOffsets();
+      var /* <TXEntryStateWithRegionAndKey> */ entries = generateEventOffsets();
       TXCommitMessage msg = null;
       try {
         /*
@@ -560,15 +557,15 @@ public class TXState implements TXStateInterface {
   }
 
   private void lockTXRegions(IdentityHashMap<InternalRegion, TXRegionState> regions) {
-    for (final Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
       r.getRegionMap().lockRegionForAtomicTX(r);
     }
   }
 
   private void unlockTXRegions(IdentityHashMap<InternalRegion, TXRegionState> regions) {
-    for (final Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
       r.getRegionMap().unlockRegionForAtomicTX(r);
     }
   }
@@ -576,16 +573,16 @@ public class TXState implements TXStateInterface {
   protected void attachFilterProfileInformation(List entries) {
     {
       /* <TXEntryStateWithRegionAndKey> */
-      for (final Object entry : entries) {
-        TXEntryStateWithRegionAndKey o = (TXEntryStateWithRegionAndKey) entry;
+      for (final var entry : entries) {
+        var o = (TXEntryStateWithRegionAndKey) entry;
         try {
           if (o.r.isUsedForPartitionedRegionBucket()) {
-            BucketRegion bucket = (BucketRegion) o.r;
+            var bucket = (BucketRegion) o.r;
             /*
              * The event must contain the bucket region
              */
             @Released
-            EntryEventImpl ev =
+            var ev =
                 (EntryEventImpl) o.es.getEvent(o.r, o.key, o.es.getTXRegionState().getTXState());
             if (ev.getOperation() == null) {
               // A read op with detect read conflicts does not need filter routing.
@@ -595,10 +592,10 @@ public class TXState implements TXStateInterface {
               /*
                * The routing information is derived from the PR advisor, not the bucket advisor.
                */
-              FilterRoutingInfo fri = bucket.getPartitionedRegion().getRegionAdvisor()
+              var fri = bucket.getPartitionedRegion().getRegionAdvisor()
                   .adviseFilterRouting(ev, Collections.EMPTY_SET);
               o.es.setFilterRoutingInfo(fri);
-              Set set = bucket.getAdjunctReceivers(ev, Collections.EMPTY_SET, new HashSet(), fri);
+              var set = bucket.getAdjunctReceivers(ev, Collections.EMPTY_SET, new HashSet(), fri);
               o.es.setAdjunctRecipients(set);
 
               if (o.es.getPendingCallback() != null) {
@@ -606,7 +603,7 @@ public class TXState implements TXStateInterface {
                   // For tx host, local filter info was also calculated.
                   // Set this local filter info in corresponding pending callback so that
                   // notifyBridgeClient has correct routing info.
-                  FilterRoutingInfo.FilterInfo localRouting = fri.getLocalFilterInfo();
+                  var localRouting = fri.getLocalFilterInfo();
                   o.es.getPendingCallback().setLocalFilterInfo(localRouting);
                 }
                 // Do not hold pending callback reference in TXEntryState as it is no longer used.
@@ -685,32 +682,32 @@ public class TXState implements TXStateInterface {
     baseThreadId = EventID.getThreadId();
     baseSequenceId = EventID.getSequenceId();
 
-    List/* <TXEntryStateWithRegionAndKey> */ entries = getSortedEntries();
+    var /* <TXEntryStateWithRegionAndKey> */ entries = getSortedEntries();
     if (logger.isDebugEnabled()) {
       logger
           .debug("generateEventOffsets() entries " + entries + " RegionState Map=" + regions);
     }
-    for (final Object entry : entries) {
-      TXEntryStateWithRegionAndKey o = (TXEntryStateWithRegionAndKey) entry;
+    for (final var entry : entries) {
+      var o = (TXEntryStateWithRegionAndKey) entry;
       o.es.generateEventOffsets(this);
     }
     return entries;
   }
 
   private TXLockRequest createLockRequest() {
-    TXLockRequest result = new TXLockRequest();
-    for (final Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    var result = new TXLockRequest();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
       txrs.createLockRequest(r, result);
     }
     return result;
   }
 
   private void checkForConflicts() throws CommitConflictException, PrimaryBucketException {
-    for (final Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
       try {
         txrs.checkForConflicts(r);
       } catch (DiskAccessException dae) {
@@ -726,24 +723,24 @@ public class TXState implements TXStateInterface {
     boolean lockingSucceeded;
     do {
       lockingSucceeded = true;
-      Iterator<Map.Entry<InternalRegion, TXRegionState>> it = regions.entrySet().iterator();
+      var it = regions.entrySet().iterator();
       Set<BucketRegion> obtained = new HashSet<>();
       while (it.hasNext()) {
-        Map.Entry<InternalRegion, TXRegionState> me = it.next();
-        InternalRegion r = me.getKey();
+        var me = it.next();
+        var r = me.getKey();
         if (r instanceof BucketRegion) {
           if (isDistTx() && !((BucketRegion) r).getBucketAdvisor().isPrimary()) {
             // For distTx we skip for taking locks on secondary.
             continue;
           }
-          BucketRegion b = (BucketRegion) r;
+          var b = (BucketRegion) r;
           /*
            * Lock the primary bucket so it doesnt get rebalanced until we cleanup!
            */
-          boolean lockObtained = false;
+          var lockObtained = false;
           try {
             // use tryLocks to avoid hanging (bug #41708)
-            boolean locked = b.doLockForPrimary(true);
+            var locked = b.doLockForPrimary(true);
             if (locked) {
               obtained.add(b);
               lockObtained = true;
@@ -771,7 +768,7 @@ public class TXState implements TXStateInterface {
               if (logger.isDebugEnabled()) {
                 logger.debug("Unexpected exception while locking bucket {}", r.getFullPath());
               }
-              for (BucketRegion br : obtained) {
+              for (var br : obtained) {
                 br.doUnlockForPrimary();
               }
               try {
@@ -791,9 +788,9 @@ public class TXState implements TXStateInterface {
 
 
   protected void cleanupNonDirtyRegions() {
-    for (final Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
       txrs.cleanupNonDirtyEntries(r);
     }
   }
@@ -804,11 +801,11 @@ public class TXState implements TXStateInterface {
    * @return the new message
    */
   protected TXCommitMessage buildMessage() {
-    TXCommitMessage msg =
+    var msg =
         new TXCommitMessage(proxy.getTxId(), proxy.getTxMgr().getDM(), this);
-    for (final Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
       txrs.buildMessage(r, msg);
     }
     return msg;
@@ -821,11 +818,11 @@ public class TXState implements TXStateInterface {
    * @return the new message
    */
   protected TXCommitMessage buildCompleteMessage() {
-    TXCommitMessage msg =
+    var msg =
         new TXCommitMessage(proxy.getTxId(), proxy.getTxMgr().getDM(), this);
-    for (final Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
       txrs.buildCompleteMessage(r, msg);
       // rcl.add(r);
     }
@@ -837,22 +834,22 @@ public class TXState implements TXStateInterface {
    */
   protected void applyChanges(List/* <TXEntryStateWithRegionAndKey> */ entries) {
     // applyChangesStart for each region
-    for (Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    for (var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
       txrs.applyChangesStart(r, this);
     }
 
     // serializePendingValue for each entry
-    for (Object entry : entries) {
-      TXEntryStateWithRegionAndKey o = (TXEntryStateWithRegionAndKey) entry;
+    for (var entry : entries) {
+      var o = (TXEntryStateWithRegionAndKey) entry;
       o.es.serializePendingValue();
     }
 
     // applyChanges for each entry
-    int size = pendingCallbacks.size();
-    for (Object entry : entries) {
-      TXEntryStateWithRegionAndKey o = (TXEntryStateWithRegionAndKey) entry;
+    var size = pendingCallbacks.size();
+    for (var entry : entries) {
+      var o = (TXEntryStateWithRegionAndKey) entry;
       if (internalDuringApplyChanges != null) {
         internalDuringApplyChanges.run();
       }
@@ -874,9 +871,9 @@ public class TXState implements TXStateInterface {
     }
 
     // applyChangesEnd for each region
-    for (Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    for (var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
       txrs.applyChangesEnd(r, this);
     }
   }
@@ -900,7 +897,7 @@ public class TXState implements TXStateInterface {
         return;
       }
       closed = true;
-      for (TXRegionState r : regions.values()) {
+      for (var r : regions.values()) {
         r.close();
       }
     }
@@ -922,7 +919,7 @@ public class TXState implements TXStateInterface {
       seenResults.clear();
       freePendingCallbacks();
       if (locks != null) {
-        final long conflictStart = statisticsClock.getTime();
+        final var conflictStart = statisticsClock.getTime();
         try {
           locks.cleanup(getCache().getInternalDistributedSystem());
         } catch (IllegalArgumentException | IllegalMonitorStateException e) {
@@ -933,9 +930,9 @@ public class TXState implements TXStateInterface {
               .incTxConflictCheckTime(statisticsClock.getTime() - conflictStart);
         }
       }
-      for (final Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-        InternalRegion r = me.getKey();
-        TXRegionState txrs = me.getValue();
+      for (final var me : regions.entrySet()) {
+        var r = me.getKey();
+        var txrs = me.getValue();
         /*
          * Need to unlock the primary lock for rebalancing so that rebalancing can resume.
          */
@@ -979,10 +976,10 @@ public class TXState implements TXStateInterface {
    */
   @Override
   public List getEvents() {
-    ArrayList events = new ArrayList();
+    var events = new ArrayList();
     for (final Map.Entry me : regions.entrySet()) {
-      InternalRegion r = (InternalRegion) me.getKey();
-      TXRegionState txrs = (TXRegionState) me.getValue();
+      var r = (InternalRegion) me.getKey();
+      var txrs = (TXRegionState) me.getValue();
       txrs.getEvents(r, events, this);
     }
     if (events.isEmpty()) {
@@ -994,11 +991,11 @@ public class TXState implements TXStateInterface {
   }
 
   private List/* <TXEntryStateWithRegionAndKey> */ getSortedEntries() {
-    ArrayList/* <TXEntryStateWithRegionAndKey> */ entries = new ArrayList();
-    for (final Map.Entry<InternalRegion, TXRegionState> internalRegionTXRegionStateEntry : regions
+    var /* <TXEntryStateWithRegionAndKey> */ entries = new ArrayList();
+    for (final var internalRegionTXRegionStateEntry : regions
         .entrySet()) {
-      InternalRegion r = (InternalRegion) ((Map.Entry) internalRegionTXRegionStateEntry).getKey();
-      TXRegionState txrs =
+      var r = (InternalRegion) ((Map.Entry) internalRegionTXRegionStateEntry).getKey();
+      var txrs =
           (TXRegionState) ((Map.Entry) internalRegionTXRegionStateEntry).getValue();
       txrs.getEntries(entries, r);
     }
@@ -1033,7 +1030,7 @@ public class TXState implements TXStateInterface {
 
     @Override
     public int compareTo(Object o) {
-      TXEntryStateWithRegionAndKey other = (TXEntryStateWithRegionAndKey) o;
+      var other = (TXEntryStateWithRegionAndKey) o;
       return getSortValue() - other.getSortValue();
     }
 
@@ -1084,7 +1081,7 @@ public class TXState implements TXStateInterface {
   }
 
   void doBeforeCompletion() {
-    final long opStart = statisticsClock.getTime();
+    final var opStart = statisticsClock.getTime();
     jtaLifeTime = opStart - getBeginTime();
 
     try {
@@ -1093,12 +1090,12 @@ public class TXState implements TXStateInterface {
        * If there is a TransactionWriter plugged in, we need to to give it an opportunity to cleanup
        * the transaction.
        */
-      TransactionWriter writer = proxy.getTxMgr().getWriter();
+      var writer = proxy.getTxMgr().getWriter();
       if (writer != null) {
         try {
           // need to mark this so we don't fire again in commit
           firedWriter = true;
-          TXEvent event = getEvent();
+          var event = getEvent();
           if (!event.hasOnlyInternalEvents()) {
             writer.beforeCommit(event);
           }
@@ -1165,7 +1162,7 @@ public class TXState implements TXStateInterface {
   }
 
   void doAfterCompletionCommit() {
-    final long opStart = statisticsClock.getTime();
+    final var opStart = statisticsClock.getTime();
     try {
       Assert.assertTrue(locks != null,
           "Gemfire Transaction afterCompletion called with illegal state.");
@@ -1185,7 +1182,7 @@ public class TXState implements TXStateInterface {
   }
 
   void doAfterCompletionRollback() {
-    final long opStart = statisticsClock.getTime();
+    final var opStart = statisticsClock.getTime();
     jtaLifeTime = opStart - getBeginTime();
     try {
       rollback();
@@ -1323,7 +1320,7 @@ public class TXState implements TXStateInterface {
 
   @Override
   public TXRegionState txWriteRegion(final InternalRegion internalRegion, final KeyInfo entryKey) {
-    InternalRegion ir = internalRegion.getDataRegionForWrite(entryKey);
+    var ir = internalRegion.getDataRegionForWrite(entryKey);
     return writeRegion(ir);
   }
 
@@ -1340,15 +1337,15 @@ public class TXState implements TXStateInterface {
    */
   TXEntryState txWriteEntry(InternalRegion region, EntryEventImpl event, boolean ifNew,
       boolean requireOldValue, Object expectedOldValue) throws EntryNotFoundException {
-    boolean createIfAbsent = event.getOperation() != Operation.REPLACE;
+    var createIfAbsent = event.getOperation() != Operation.REPLACE;
     // replace(K,V) and replace(K,V,V) cannot create an entry
-    TXEntryState tx =
+    var tx =
         txReadEntry(event.getKeyInfo(), region, true, expectedOldValue, createIfAbsent);
     if (tx != null) {
       if (requireOldValue && tx.existsLocally()) {
         event.setOldValue(tx.getNearSidePendingValue(), true);
       }
-      boolean existsLocally = tx.existsLocally();
+      var existsLocally = tx.existsLocally();
       if (!existsLocally && event.getOperation() == Operation.REPLACE) {
         throw new EntryNotFoundException("No previously created Entry to be updated");
       }
@@ -1375,7 +1372,7 @@ public class TXState implements TXStateInterface {
   public boolean txPutEntry(final EntryEventImpl event, boolean ifNew, boolean requireOldValue,
       boolean checkResources, Object expectedOldValue) {
 
-    InternalRegion region = event.getRegion();
+    var region = event.getRegion();
     if (checkResources) {
       if (!MemoryThresholds.isLowMemoryExceptionDisabled()) {
         region.checkIfAboveThreshold(event);
@@ -1395,7 +1392,7 @@ public class TXState implements TXStateInterface {
     // !!!:ezoerner:20080813 need to handle ifOld for transactional on
     // PRs when PRs become transactional
     TXEntryState tx;
-    boolean result = false;
+    var result = false;
     try {
       tx = txWriteEntry(region, event, ifNew, requireOldValue, expectedOldValue);
       if (tx == TXState.ENTRY_EXISTS) {
@@ -1424,13 +1421,13 @@ public class TXState implements TXStateInterface {
    */
   @Override
   public boolean containsValueForKey(KeyInfo keyInfo, LocalRegion region) {
-    TXEntryState tx = txReadEntry(keyInfo, region, true, true/* create txEntry is absent */);
+    var tx = txReadEntry(keyInfo, region, true, true/* create txEntry is absent */);
     if (tx != null) {
       /*
        * Note that we don't consult this.getDataPolicy().isProxy() when setting this because in this
        * context we don't want proxies to pretend they have a value.
        */
-      boolean isProxy = false;
+      var isProxy = false;
       return tx.isLocallyValid(isProxy);
     } else {
       return region.nonTXContainsValueForKey(keyInfo);
@@ -1453,11 +1450,11 @@ public class TXState implements TXStateInterface {
     if (hasSeenEvent(event)) {
       return;
     }
-    TXEntryState tx = txWriteExistingEntry(event, expectedOldValue);
-    final InternalRegion region = event.getRegion();
+    var tx = txWriteExistingEntry(event, expectedOldValue);
+    final var region = event.getRegion();
     if (tx.destroy(event, cacheWrite, isOriginRemoteForEvents())) {
-      Object key = event.getKey();
-      LocalRegion rr = region.getDataRegionForRead(event.getKeyInfo());
+      var key = event.getKey();
+      var rr = region.getDataRegionForRead(event.getKeyInfo());
       txReadRegion(rr).rmEntryUserAttr(key);
       recordEvent(event);
     }
@@ -1478,7 +1475,7 @@ public class TXState implements TXStateInterface {
     if (hasSeenEvent(event)) {
       return;
     }
-    TXEntryState tx = txWriteExistingEntry(event, null);
+    var tx = txWriteExistingEntry(event, null);
     assert invokeCallbacks && !forceNewEntry;
     tx.invalidate(event);
     recordEvent(event);
@@ -1493,14 +1490,14 @@ public class TXState implements TXStateInterface {
   private TXEntryState txWriteExistingEntry(final EntryEventImpl event, Object expectedOldValue)
       throws EntryNotFoundException {
     assert !event.isExpiration();
-    final Object entryKey = event.getKey();
-    final InternalRegion region = event.getRegion();
-    final Operation op = event.getOperation();
-    TXEntryState tx = txReadEntry(event.getKeyInfo(), region, true, expectedOldValue,
+    final var entryKey = event.getKey();
+    final var region = event.getRegion();
+    final var op = event.getOperation();
+    var tx = txReadEntry(event.getKeyInfo(), region, true, expectedOldValue,
         true/* create txEntry is absent */);
     assert tx != null;
     if (tx.existsLocally()) {
-      final boolean invalidatingInvalidEntry =
+      final var invalidatingInvalidEntry =
           op.isInvalidate() && Token.isInvalid(tx.getValueInVM(entryKey));
       // Ignore invalidating an invalid entry
       if (!invalidatingInvalidEntry) {
@@ -1527,7 +1524,7 @@ public class TXState implements TXStateInterface {
    */
   @Override
   public Entry getEntry(final KeyInfo keyInfo, final LocalRegion region, boolean allowTombstones) {
-    TXEntryState tx = txReadEntry(keyInfo, region, true, true/* create txEntry is absent */);
+    var tx = txReadEntry(keyInfo, region, true, true/* create txEntry is absent */);
     if (tx != null && tx.existsLocally()) {
       return new TXEntry(region, keyInfo, getProxy());
     } else {
@@ -1566,8 +1563,8 @@ public class TXState implements TXStateInterface {
   protected TXEntryState txReadEntry(KeyInfo keyInfo, InternalRegion internalRegion,
       boolean rememberRead, Object expectedOldValue, boolean createIfAbsent)
       throws EntryNotFoundException {
-    InternalRegion dataReg = internalRegion.getDataRegionForWrite(keyInfo);
-    TXRegionState txr = txReadRegion(dataReg);
+    var dataReg = internalRegion.getDataRegionForWrite(keyInfo);
+    var txr = txReadRegion(dataReg);
     TXEntryState result = null;
     if (txr != null) {
       result = txr.readEntry(keyInfo.getKey());
@@ -1589,7 +1586,7 @@ public class TXState implements TXStateInterface {
 
     if (result != null) {
       if (expectedOldValue != null) {
-        Object val = result.getNearSidePendingValue();
+        var val = result.getNearSidePendingValue();
         if (!AbstractRegionEntry.checkExpectedOldValue(expectedOldValue, val, internalRegion)) {
           throw new EntryNotFoundException(
               "The current value was not equal to expected value.");
@@ -1632,9 +1629,9 @@ public class TXState implements TXStateInterface {
   public Object getDeserializedValue(KeyInfo keyInfo, LocalRegion localRegion, boolean updateStats,
       boolean disableCopyOnRead, boolean preferCD, EntryEventImpl clientEvent,
       boolean returnTombstones, boolean retainResult, boolean createIfAbsent) {
-    TXEntryState tx = txReadEntry(keyInfo, localRegion, true, createIfAbsent);
+    var tx = txReadEntry(keyInfo, localRegion, true, createIfAbsent);
     if (tx != null) {
-      Object v = tx.getValue(keyInfo, localRegion, preferCD);
+      var v = tx.getValue(keyInfo, localRegion, preferCD);
       if (!disableCopyOnRead) {
         v = localRegion.conditionalCopy(v);
       }
@@ -1657,10 +1654,10 @@ public class TXState implements TXStateInterface {
   public Object getSerializedValue(LocalRegion localRegion, KeyInfo keyInfo, boolean doNotLockEntry,
       ClientProxyMembershipID requestingClient, EntryEventImpl clientEvent,
       boolean returnTombstones) throws DataLocationException {
-    final Object key = keyInfo.getKey();
-    TXEntryState tx = txReadEntry(keyInfo, localRegion, true, true/* create txEntry is absent */);
+    final var key = keyInfo.getKey();
+    var tx = txReadEntry(keyInfo, localRegion, true, true/* create txEntry is absent */);
     if (tx != null) {
-      Object val = tx.getPendingValue();
+      var val = tx.getPendingValue();
       if (val == null || Token.isInvalidOrRemoved(val)) {
         val = findObject(keyInfo, localRegion, val != Token.INVALID, true, val, false, false,
             requestingClient, clientEvent, false);
@@ -1670,7 +1667,7 @@ public class TXState implements TXStateInterface {
       // rememberRead is always true for now,
       // so we should never come here
       assert localRegion instanceof PartitionedRegion;
-      PartitionedRegion pr = (PartitionedRegion) localRegion;
+      var pr = (PartitionedRegion) localRegion;
       return pr.getDataStore().getSerializedLocally(keyInfo, doNotLockEntry, null, null,
           returnTombstones);
     }
@@ -1685,8 +1682,8 @@ public class TXState implements TXStateInterface {
    */
   @Override
   public int entryCount(LocalRegion localRegion) {
-    int result = localRegion.getRegionSize();
-    TXRegionState txr = txReadRegion(localRegion);
+    var result = localRegion.getRegionSize();
+    var txr = txReadRegion(localRegion);
     if (txr != null) {
       result += txr.entryCountMod();
     }
@@ -1708,7 +1705,7 @@ public class TXState implements TXStateInterface {
    */
   @Override
   public boolean containsKey(KeyInfo keyInfo, LocalRegion localRegion) {
-    TXEntryState tx = txReadEntry(keyInfo, localRegion, true, true/* create txEntry is absent */);
+    var tx = txReadEntry(keyInfo, localRegion, true, true/* create txEntry is absent */);
     if (tx != null) {
       return tx.existsLocally();
     } else {
@@ -1725,7 +1722,7 @@ public class TXState implements TXStateInterface {
   @Override
   @Retained
   public Object getValueInVM(KeyInfo keyInfo, LocalRegion localRegion, boolean rememberRead) {
-    TXEntryState tx =
+    var tx =
         txReadEntry(keyInfo, localRegion, rememberRead, true/* create txEntry is absent */);
     if (tx != null) {
       return tx.getValueInVM(keyInfo);
@@ -1794,7 +1791,7 @@ public class TXState implements TXStateInterface {
 
   private TXEntryState readEntryAndCheckIfDestroyed(KeyInfo keyInfo, LocalRegion localRegion,
       boolean rememberReads, boolean createIfAbsent) {
-    TXEntryState txEntryState =
+    var txEntryState =
         txReadEntry(keyInfo, localRegion, rememberReads, createIfAbsent);
     if (txEntryState != null) {
       if (!txEntryState.existsLocally()) {
@@ -1817,11 +1814,11 @@ public class TXState implements TXStateInterface {
   public Object getEntryForIterator(KeyInfo curr, LocalRegion currRgn, boolean rememberReads,
       boolean allowTombstones) {
     if (currRgn instanceof PartitionedRegion) {
-      PartitionedRegion pr = (PartitionedRegion) currRgn;
+      var pr = (PartitionedRegion) currRgn;
       if (!pr.getBucketPrimary(curr.getBucketId()).equals(pr.cache.getMyId())) {
         // to fix bug 47893 suspend the tx before calling nonTXGetEntry
-        final TXManagerImpl txmgr = pr.getGemFireCache().getTXMgr();
-        final TXStateProxy tx = txmgr.pauseTransaction();
+        final var txmgr = pr.getGemFireCache().getTXMgr();
+        final var tx = txmgr.pauseTransaction();
         try {
           return pr.nonTXGetEntry(curr, false, allowTombstones);
         } finally {
@@ -1829,7 +1826,7 @@ public class TXState implements TXStateInterface {
         }
       }
     }
-    TXEntryState txEntryState =
+    var txEntryState =
         readEntryAndCheckIfDestroyed(curr, currRgn, rememberReads, allowTombstones);
     if (txEntryState != null) {
       // need to create KeyInfo since higher level iterator may reuse KeyInfo
@@ -1850,7 +1847,7 @@ public class TXState implements TXStateInterface {
   public Object getKeyForIterator(KeyInfo curr, LocalRegion currRgn, boolean rememberReads,
       boolean allowTombstones) {
     assert !(curr.getKey() instanceof RegionEntry);
-    TXEntryState txEntryState =
+    var txEntryState =
         readEntryAndCheckIfDestroyed(curr, currRgn, rememberReads, allowTombstones);
     if (txEntryState != null) {
       // txEntry is created/read into txState.
@@ -1869,10 +1866,10 @@ public class TXState implements TXStateInterface {
   @Override
   public Set getAdditionalKeysForIterator(LocalRegion currRgn) {
     if (currRgn instanceof PartitionedRegion) {
-      final HashSet ret = new HashSet();
-      for (TXRegionState rs : regions.values()) {
+      final var ret = new HashSet();
+      for (var rs : regions.values()) {
         if (rs instanceof TXBucketRegionState) {
-          TXBucketRegionState brs = (TXBucketRegionState) rs;
+          var brs = (TXBucketRegionState) rs;
           if (brs.getPartitionedRegion() == currRgn) {
             brs.fillInCreatedEntryKeys(ret);
           }
@@ -1880,9 +1877,9 @@ public class TXState implements TXStateInterface {
       }
       return ret;
     } else {
-      TXRegionState txr = txReadRegion(currRgn);
+      var txr = txReadRegion(currRgn);
       if (txr != null) {
-        final HashSet ret = new HashSet();
+        final var ret = new HashSet();
         txr.fillInCreatedEntryKeys(ret);
         return ret;
       } else {
@@ -1974,7 +1971,7 @@ public class TXState implements TXStateInterface {
    */
   @Override
   public Set getBucketKeys(LocalRegion localRegion, int bucketId, boolean allowTombstones) {
-    PartitionedRegion pr = (PartitionedRegion) localRegion;
+    var pr = (PartitionedRegion) localRegion;
     return pr.getBucketKeys(bucketId, allowTombstones);
   }
 
@@ -1987,14 +1984,14 @@ public class TXState implements TXStateInterface {
   @Override
   public Entry getEntryOnRemote(KeyInfo key, LocalRegion localRegion, boolean allowTombstones)
       throws DataLocationException {
-    PartitionedRegion pr = (PartitionedRegion) localRegion;
-    Region.Entry txval = getEntry(key, pr, allowTombstones);
+    var pr = (PartitionedRegion) localRegion;
+    var txval = getEntry(key, pr, allowTombstones);
     if (txval == null) {
       throw new EntryNotFoundException(
           "entry not found");
     } else {
-      NonLocalRegionEntry nlre = new NonLocalRegionEntry(txval, localRegion);
-      LocalRegion dataReg = localRegion.getDataRegionForRead(key);
+      var nlre = new NonLocalRegionEntry(txval, localRegion);
+      var dataReg = localRegion.getDataRegionForRead(key);
       return new EntrySnapshot(nlre, dataReg, (LocalRegion) txval.getRegion(), allowTombstones);
     }
   }
@@ -2077,11 +2074,11 @@ public class TXState implements TXStateInterface {
      */
     theRegion.syncBulkOp(() -> {
       // final boolean requiresRegionContext = theRegion.keyRequiresRegionContext();
-      InternalDistributedMember myId =
+      var myId =
           theRegion.getDistributionManager().getDistributionManagerId();
-      for (int i = 0; i < putallOp.putAllDataSize; ++i) {
+      for (var i = 0; i < putallOp.putAllDataSize; ++i) {
         @Released
-        EntryEventImpl ev = PutAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
+        var ev = PutAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
             putallOp.putAllData, false, putallOp.getBaseEvent().getContext(), false,
             !putallOp.getBaseEvent().isGenerateCallbacks());
         try {
@@ -2111,11 +2108,11 @@ public class TXState implements TXStateInterface {
      * will push them out. We need to put this into the tx state.
      */
     theRegion.syncBulkOp(() -> {
-      InternalDistributedMember myId =
+      var myId =
           theRegion.getDistributionManager().getDistributionManagerId();
-      for (int i = 0; i < op.removeAllDataSize; ++i) {
+      for (var i = 0; i < op.removeAllDataSize; ++i) {
         @Released
-        EntryEventImpl ev = RemoveAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
+        var ev = RemoveAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
             op.removeAllData, false, op.getBaseEvent().getContext(), false,
             !op.getBaseEvent().isGenerateCallbacks());
         ev.setRemoveAllOperation(op);

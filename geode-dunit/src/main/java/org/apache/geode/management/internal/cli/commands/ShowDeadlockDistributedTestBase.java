@@ -31,7 +31,6 @@ import org.junit.rules.TemporaryFolder;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -73,7 +72,7 @@ public class ShowDeadlockDistributedTestBase {
 
     locator = lsRule.startLocatorVM(0, MemberStarterRule::withHttpService);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.management.internal.cli.commands.ShowDeadlock*");
     server1 = lsRule.startServerVM(1, props, locator.getPort());
@@ -113,7 +112,7 @@ public class ShowDeadlockDistributedTestBase {
   @Test
   public void testNoDeadlock() throws Exception {
     gfsh.executeAndAssertThat(showDeadlockCommand).statusIsSuccess();
-    String commandOutput = gfsh.getGfshOutput();
+    var commandOutput = gfsh.getGfshOutput();
 
     assertThat(commandOutput).startsWith(CliStrings.SHOW_DEADLOCK__NO__DEADLOCK);
     assertThat(outputFile).exists();
@@ -121,7 +120,7 @@ public class ShowDeadlockDistributedTestBase {
 
   @Test
   public void testDistributedDeadlockWithFunction() throws Exception {
-    FileBasedCountDownLatch countDownLatch = new FileBasedCountDownLatch(2);
+    var countDownLatch = new FileBasedCountDownLatch(2);
 
     // This thread locks the lock in server1 first, then server2.
     lockTheLocks(server1, server2, countDownLatch);
@@ -131,7 +130,7 @@ public class ShowDeadlockDistributedTestBase {
     await()
         .untilAsserted(() -> {
           gfsh.executeAndAssertThat(showDeadlockCommand).statusIsSuccess();
-          String commandOutput = gfsh.getGfshOutput();
+          var commandOutput = gfsh.getGfshOutput();
           assertThat(commandOutput).startsWith(CliStrings.SHOW_DEADLOCK__DEADLOCK__DETECTED);
           assertThat(outputFile).exists();
         });
@@ -150,9 +149,9 @@ public class ShowDeadlockDistributedTestBase {
   }
 
   private static void lockRemoteVM(MemberVM vmToLock) {
-    InternalDistributedMember thatInternalMember = getInternalDistributedMember(vmToLock);
+    var thatInternalMember = getInternalDistributedMember(vmToLock);
 
-    ResultCollector collector =
+    var collector =
         FunctionService.onMember(thatInternalMember).execute(new LockFunction());
     collector.getResult();
   }

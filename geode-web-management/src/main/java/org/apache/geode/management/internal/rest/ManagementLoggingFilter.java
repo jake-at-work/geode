@@ -47,8 +47,8 @@ public class ManagementLoggingFilter extends OncePerRequestFilter {
 
     // We can not log request payload before making the actual request because then the InputStream
     // would be consumed and cannot be read again by the actual processing/server.
-    ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
-    ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
+    var wrappedRequest = new ContentCachingRequestWrapper(request);
+    var wrappedResponse = new ContentCachingResponseWrapper(response);
 
     // performs the actual request before logging
     filterChain.doFilter(wrappedRequest, wrappedResponse);
@@ -66,14 +66,14 @@ public class ManagementLoggingFilter extends OncePerRequestFilter {
   }
 
   private void logRequest(HttpServletRequest request, ContentCachingRequestWrapper wrappedRequest) {
-    String requestPattern = "Management Request: %s[url=%s]; user=%s; payload=%s";
-    String requestUrl = request.getRequestURI();
+    var requestPattern = "Management Request: %s[url=%s]; user=%s; payload=%s";
+    var requestUrl = request.getRequestURI();
     if (request.getQueryString() != null) {
       requestUrl = requestUrl + "?" + request.getQueryString();
     }
-    String payload = getContentAsString(wrappedRequest.getContentAsByteArray(),
+    var payload = getContentAsString(wrappedRequest.getContentAsByteArray(),
         wrappedRequest.getCharacterEncoding());
-    String message = String.format(requestPattern, request.getMethod(), requestUrl,
+    var message = String.format(requestPattern, request.getMethod(), requestUrl,
         request.getRemoteUser(), payload);
     logMessage(message);
   }
@@ -89,10 +89,10 @@ public class ManagementLoggingFilter extends OncePerRequestFilter {
   private void logResponse(HttpServletResponse response,
       ContentCachingResponseWrapper wrappedResponse) {
     // construct the response message
-    String responsePattern = "Management Response: Status=%s; response=%s";
-    String payload = getContentAsString(wrappedResponse.getContentAsByteArray(),
+    var responsePattern = "Management Response: Status=%s; response=%s";
+    var payload = getContentAsString(wrappedResponse.getContentAsByteArray(),
         wrappedResponse.getCharacterEncoding());
-    String message = String.format(responsePattern, response.getStatus(),
+    var message = String.format(responsePattern, response.getStatus(),
         ManagementControllerAdvice.removeClassFromJsonText(payload));
     logMessage(message);
   }
@@ -101,9 +101,9 @@ public class ManagementLoggingFilter extends OncePerRequestFilter {
     if (buf == null || buf.length == 0) {
       return "";
     }
-    int length = Math.min(buf.length, MAX_PAYLOAD_LENGTH);
+    var length = Math.min(buf.length, MAX_PAYLOAD_LENGTH);
 
-    for (int i = 0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       if (buf[i] != '\n' && buf[i] != '\r' &&
           (buf[i] < ' ' || buf[i] > '~')) {
         buf[i] = '?';

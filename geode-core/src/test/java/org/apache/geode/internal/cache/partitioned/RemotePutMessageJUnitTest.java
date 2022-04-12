@@ -44,24 +44,24 @@ public class RemotePutMessageJUnitTest {
     thrown.expect(IOException.class);
 
     // Mocks with minimal implementation to ensure code path through PutMessage.toData
-    EntryEventImpl mockEvent = mock(EntryEventImpl.class);
+    var mockEvent = mock(EntryEventImpl.class);
     when(mockEvent.isPossibleDuplicate()).thenReturn(false);
     when(mockEvent.getEventId()).thenReturn(mock(EventID.class));
     when(mockEvent.getOperation()).thenReturn(Operation.UPDATE);
     when(mockEvent.getDeltaBytes()).thenReturn(new byte[] {});
 
-    DistributionConfig mockDistributionConfig = mock(DistributionConfig.class);
+    var mockDistributionConfig = mock(DistributionConfig.class);
     when(mockDistributionConfig.getDeltaPropagation()).thenReturn(true);
-    InternalDistributedSystem mockInternalDistributedSystem = mock(InternalDistributedSystem.class);
+    var mockInternalDistributedSystem = mock(InternalDistributedSystem.class);
     when(mockInternalDistributedSystem.getConfig()).thenReturn(mockDistributionConfig);
 
     // Construct a put with minimum configuration needed to reach region check.
-    PutMessage put = new PutMessage(new HashSet(), false, UNKNOWN_REGION, null, mockEvent, 0, false,
+    var put = new PutMessage(new HashSet(), false, UNKNOWN_REGION, null, mockEvent, 0, false,
         false, null, false);
     put.setSendDelta(true);
     put.setInternalDs(mockInternalDistributedSystem);
 
-    DataOutputStream out = new DataOutputStream(new ByteArrayOutputStream());
+    var out = new DataOutputStream(new ByteArrayOutputStream());
     put.toData(out, InternalDataSerializer.createSerializationContext(out));
   }
 }

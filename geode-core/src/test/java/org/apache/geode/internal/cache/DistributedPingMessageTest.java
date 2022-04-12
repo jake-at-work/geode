@@ -36,12 +36,12 @@ public class DistributedPingMessageTest {
 
   @Test
   public void testToString() {
-    final InternalDistributedMember dummyDistributedMember =
+    final var dummyDistributedMember =
         new InternalDistributedMember("localhost", 1);
-    final InternalDistributedMember clientDistributedMember =
+    final var clientDistributedMember =
         new InternalDistributedMember("localhost", 2);
-    final ClientProxyMembershipID proxyID = new ClientProxyMembershipID(clientDistributedMember);
-    final DistributedPingMessage message =
+    final var proxyID = new ClientProxyMembershipID(clientDistributedMember);
+    final var message =
         new DistributedPingMessage(dummyDistributedMember, proxyID);
     assertThat(message.toString(),
         matchesPattern("DistributedPingMessage@.*; proxyId=identity\\(localhost<.*>:2.*"));
@@ -59,23 +59,23 @@ public class DistributedPingMessageTest {
 
   @Test
   public void testToDataAndFromData() throws IOException, ClassNotFoundException {
-    final InternalDistributedMember dummyDistributedMember =
+    final var dummyDistributedMember =
         new InternalDistributedMember("localhost", 1);
-    final InternalDistributedMember clientDistributedMember =
+    final var clientDistributedMember =
         new InternalDistributedMember("localhost", 2);
-    final ClientProxyMembershipID proxyID = new ClientProxyMembershipID(clientDistributedMember);
-    final DistributedPingMessage before =
+    final var proxyID = new ClientProxyMembershipID(clientDistributedMember);
+    final var before =
         new DistributedPingMessage(dummyDistributedMember, proxyID);
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
-    DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+    var byteArrayOutputStream = new ByteArrayOutputStream(1024);
+    var dataOutputStream = new DataOutputStream(byteArrayOutputStream);
     before.toData(dataOutputStream,
         InternalDataSerializer.createSerializationContext(dataOutputStream));
     dataOutputStream.close();
 
-    final DistributedPingMessage after = new DistributedPingMessage();
-    ByteArrayInputStream byteArrayInputStream =
+    final var after = new DistributedPingMessage();
+    var byteArrayInputStream =
         new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-    DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
+    var dataInputStream = new DataInputStream(byteArrayInputStream);
     after.fromData(dataInputStream,
         InternalDataSerializer.createDeserializationContext(dataInputStream));
 

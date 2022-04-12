@@ -142,7 +142,7 @@ public class PdxField implements DataSerializable, Comparable<PdxField> {
     relativeOffset = in.readInt();
     vlfOffsetIndex = in.readInt();
     {
-      byte bits = in.readByte();
+      var bits = in.readByte();
       identityField = (bits & IDENTITY_BIT) != 0;
       deleted = (bits & DELETED_BIT) != 0;
     }
@@ -172,7 +172,7 @@ public class PdxField implements DataSerializable, Comparable<PdxField> {
       // to set identityField to true.
       // For this reason the pdx delete-field command should only be used after
       // all member have been upgraded to 8.1 or later.
-      KnownVersion sourceVersion = StaticSerialization.getVersionForDataStream(out);
+      var sourceVersion = StaticSerialization.getVersionForDataStream(out);
       if (sourceVersion.isNotOlderThan(KnownVersion.GFE_81)) {
         if (deleted) {
           bits |= DELETED_BIT;
@@ -184,7 +184,7 @@ public class PdxField implements DataSerializable, Comparable<PdxField> {
 
   @Override
   public int hashCode() {
-    int hash = 1;
+    var hash = 1;
     if (fieldName != null) {
       hash = hash * 31 + fieldName.hashCode();
     }
@@ -206,7 +206,7 @@ public class PdxField implements DataSerializable, Comparable<PdxField> {
     if (!(other instanceof PdxField)) {
       return false;
     }
-    PdxField otherVFT = (PdxField) other;
+    var otherVFT = (PdxField) other;
 
     if (otherVFT.fieldName == null) {
       return false;

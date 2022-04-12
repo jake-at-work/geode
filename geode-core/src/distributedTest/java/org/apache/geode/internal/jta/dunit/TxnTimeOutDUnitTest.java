@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.Status;
@@ -49,7 +48,6 @@ import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 /**
@@ -62,15 +60,15 @@ public class TxnTimeOutDUnitTest extends JUnit4DistributedTestCase {
   static Cache cache = null;
 
   public static void init() throws Exception {
-    Properties props = new Properties();
-    int pid = OSProcess.getId();
-    String path = File.createTempFile("dunit-cachejta_", ".xml").getAbsolutePath();
-    String file_as_str = readFile(
+    var props = new Properties();
+    var pid = OSProcess.getId();
+    var path = File.createTempFile("dunit-cachejta_", ".xml").getAbsolutePath();
+    var file_as_str = readFile(
         createTempFileFromResource(CacheUtils.class, "cachejta.xml")
             .getAbsolutePath());
-    String modified_file_str = file_as_str.replaceAll("newDB", "newDB_" + pid);
-    FileOutputStream fos = new FileOutputStream(path);
-    BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(fos));
+    var modified_file_str = file_as_str.replaceAll("newDB", "newDB_" + pid);
+    var fos = new FileOutputStream(path);
+    var wr = new BufferedWriter(new OutputStreamWriter(fos));
     wr.write(modified_file_str);
     wr.flush();
     wr.close();
@@ -113,41 +111,41 @@ public class TxnTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(TxnTimeOutDUnitTest::init);
   }
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(TxnTimeOutDUnitTest::closeCache);
   }
 
   @Test
   public void testMultiThreaded() throws Exception {
     try {
-      Host host = Host.getHost(0);
-      VM vm0 = host.getVM(0);
+      var host = Host.getHost(0);
+      var vm0 = host.getVM(0);
 
-      Object[] o = new Object[1];
+      var o = new Object[1];
       o[0] = 2;
       AsyncInvocation asyncObj1 = vm0.invokeAsync(TxnTimeOutDUnitTest.class, "runTest3", o);
 
-      Object[] o1 = new Object[1];
+      var o1 = new Object[1];
       o1[0] = 2;
       AsyncInvocation asyncObj2 = vm0.invokeAsync(TxnTimeOutDUnitTest.class, "runTest3", o1);
 
-      Object[] o2 = new Object[1];
+      var o2 = new Object[1];
       o2[0] = 3;
       AsyncInvocation asyncObj3 = vm0.invokeAsync(TxnTimeOutDUnitTest.class, "runTest3", o2);
 
-      Object[] o3 = new Object[1];
+      var o3 = new Object[1];
       o3[0] = 3;
       AsyncInvocation asyncObj4 = vm0.invokeAsync(TxnTimeOutDUnitTest.class, "runTest3", o3);
 
-      Object[] o4 = new Object[1];
+      var o4 = new Object[1];
       o4[0] = 1;
       AsyncInvocation asyncObj5 = vm0.invokeAsync(TxnTimeOutDUnitTest.class, "runTest3", o4);
 
@@ -185,8 +183,8 @@ public class TxnTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testLoginTimeOut() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     AsyncInvocation asyncObj1 = vm0.invokeAsync(TxnTimeOutDUnitTest::runTest2);
     AsyncInvocation asyncObj2 = vm0.invokeAsync(TxnTimeOutDUnitTest::runTest1);
 
@@ -203,12 +201,12 @@ public class TxnTimeOutDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void runTest1() throws Exception {
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
     try {
       getSystemStatic().getLogWriter().fine("<ExpectedException action=add> +"
           + "DistributedSystemDisconnectedException" + "</ExpectedException>");
-      Context ctx = cache.getJNDIContext();
-      UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+      var ctx = cache.getJNDIContext();
+      var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
       utx.begin();
       assertThat(utx.getStatus() == Status.STATUS_ACTIVE);
       utx.setTransactionTimeout(2);
@@ -236,10 +234,10 @@ public class TxnTimeOutDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void runTest2() throws Exception {
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
     try {
-      Context ctx = cache.getJNDIContext();
-      UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+      var ctx = cache.getJNDIContext();
+      var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
       utx.begin();
       assertThat(utx.getStatus() == Status.STATUS_ACTIVE);
       utx.setTransactionTimeout(2);
@@ -260,10 +258,10 @@ public class TxnTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   public static void runTest3(Object o)
       throws SystemException, NotSupportedException, NamingException, InterruptedException {
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
     int sleeptime = (Integer) o;
-    Context ctx = cache.getJNDIContext();
-    UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+    var ctx = cache.getJNDIContext();
+    var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
     utx.begin();
     assertThat(utx.getStatus() == Status.STATUS_ACTIVE);
     utx.setTransactionTimeout(sleeptime);
@@ -279,9 +277,9 @@ public class TxnTimeOutDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static String readFile(String filename) throws IOException {
-    BufferedReader br = new BufferedReader(new FileReader(filename));
-    String nextLine = "";
-    StringBuilder sb = new StringBuilder();
+    var br = new BufferedReader(new FileReader(filename));
+    var nextLine = "";
+    var sb = new StringBuilder();
     while ((nextLine = br.readLine()) != null) {
       sb.append(nextLine);
       //

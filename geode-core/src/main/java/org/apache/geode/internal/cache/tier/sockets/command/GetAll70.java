@@ -16,7 +16,6 @@ package org.apache.geode.internal.cache.tier.sockets.command;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -28,17 +27,13 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.ObjectPartList;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.offheap.OffHeapHelper;
 import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.security.AuthorizeRequest;
-import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -60,14 +55,14 @@ public class GetAll70 extends BaseCommand {
       throws IOException, InterruptedException {
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE);
-    int partIdx = 0;
+    var partIdx = 0;
 
     // Retrieve the region name from the message parts
-    final Part regionNamePart = clientMessage.getPart(partIdx++);
-    final String regionName = regionNamePart.getCachedString();
+    final var regionNamePart = clientMessage.getPart(partIdx++);
+    final var regionName = regionNamePart.getCachedString();
 
     // Retrieve the keys array from the message parts
-    final Part keysPart = clientMessage.getPart(partIdx++);
+    final var keysPart = clientMessage.getPart(partIdx++);
     final Object[] keys;
     try {
       keys = (Object[]) keysPart.getObject();
@@ -80,13 +75,13 @@ public class GetAll70 extends BaseCommand {
     requestSerializedValues = clientMessage.getPart(partIdx++).getInt() == 1;
 
     if (logger.isDebugEnabled()) {
-      StringBuilder buffer = new StringBuilder();
+      var buffer = new StringBuilder();
       buffer.append(serverConnection.getName()).append(": Received getAll request (")
           .append(clientMessage.getPayloadLength()).append(" bytes) from ")
           .append(serverConnection.getSocketString()).append(" for region ").append(regionName)
           .append(" keys ");
       if (keys != null) {
-        for (final Object key : keys) {
+        for (final var key : keys) {
           buffer.append(key).append(" ");
         }
       } else {
@@ -97,7 +92,7 @@ public class GetAll70 extends BaseCommand {
 
     // Process the getAll request
     if (regionName == null) {
-      String message = "The input region name for the getAll request is null";
+      var message = "The input region name for the getAll request is null";
       logger.warn("{}: {}", serverConnection.getName(), message);
       writeChunkedErrorResponse(clientMessage, MessageType.GET_ALL_DATA_ERROR, message,
           serverConnection);
@@ -105,16 +100,16 @@ public class GetAll70 extends BaseCommand {
       return;
     }
 
-    LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+    var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
     if (region == null) {
-      String reason = " was not found during getAll request";
+      var reason = " was not found during getAll request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
     }
 
     // Send header
-    ChunkedMessage chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
+    var chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
     chunkedResponseMsg.setMessageType(MessageType.RESPONSE);
     chunkedResponseMsg.setTransactionId(clientMessage.getTransactionId());
     chunkedResponseMsg.sendHeader();
@@ -147,7 +142,7 @@ public class GetAll70 extends BaseCommand {
       allKeysIter = null;
       numKeys = keys.length;
     } else {
-      Set<?> allKeys = region.keySet();
+      var allKeys = region.keySet();
       allKeysIter = allKeys.iterator();
       numKeys = allKeys.size();
     }
@@ -164,14 +159,14 @@ public class GetAll70 extends BaseCommand {
     // in the old mode (which may be impossible since we only used that mode pre 7.0) in which the
     // client told us
     // to get and return all the keys and values. I think this was used for register interest.
-    VersionedObjectList values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, keys == null,
+    var values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, keys == null,
         region.getAttributes().getConcurrencyChecksEnabled(), requestSerializedValues);
     try {
-      AuthorizeRequest authzRequest = servConn.getAuthzRequest();
-      AuthorizeRequestPP postAuthzRequest = servConn.getPostAuthzRequest();
-      Get70 request = (Get70) Get70.getCommand();
-      final boolean isDebugEnabled = logger.isDebugEnabled();
-      for (int i = 0; i < numKeys; i++) {
+      var authzRequest = servConn.getAuthzRequest();
+      var postAuthzRequest = servConn.getPostAuthzRequest();
+      var request = (Get70) Get70.getCommand();
+      final var isDebugEnabled = logger.isDebugEnabled();
+      for (var i = 0; i < numKeys; i++) {
         // Send the intermediate chunk if necessary
         if (values.size() == MAXIMUM_CHUNK_SIZE) {
           // Send the chunk and clear the list
@@ -218,25 +213,25 @@ public class GetAll70 extends BaseCommand {
         // the value if it is a byte[].
         // Getting a value in serialized form is pretty nasty. I split this out
         // so the logic can be re-used by the CacheClientProxy.
-        Get70.Entry entry = request.getEntry(region, key, null, servConn);
+        var entry = request.getEntry(region, key, null, servConn);
         @Retained
-        final Object originalData = entry.value;
-        Object data = originalData;
+        final var originalData = entry.value;
+        var data = originalData;
         if (logger.isDebugEnabled()) {
           logger.debug("retrieved key={} {}", key, entry);
         }
-        boolean addedToValues = false;
+        var addedToValues = false;
         try {
-          boolean isObject = entry.isObject;
+          var isObject = entry.isObject;
           VersionTag versionTag = entry.versionTag;
-          boolean keyNotPresent = entry.keyNotPresent;
+          var keyNotPresent = entry.keyNotPresent;
 
           if (postAuthzRequest != null) {
             try {
               getContext =
                   postAuthzRequest.getAuthorize(regionName, key, data, isObject, getContext);
-              GetOperationContextImpl gci = (GetOperationContextImpl) getContext;
-              Object newData = gci.getRawValue();
+              var gci = (GetOperationContextImpl) getContext;
+              var newData = gci.getRawValue();
               if (newData != data) {
                 // user changed the value
                 isObject = getContext.isObject();
@@ -282,7 +277,7 @@ public class GetAll70 extends BaseCommand {
   private static void sendGetAllResponseChunk(Region<?, ?> region, ObjectPartList list,
       boolean lastChunk,
       ServerConnection servConn) throws IOException {
-    ChunkedMessage chunkedResponseMsg = servConn.getChunkedResponseMessage();
+    var chunkedResponseMsg = servConn.getChunkedResponseMessage();
     chunkedResponseMsg.setNumberOfParts(1);
     chunkedResponseMsg.setLastChunk(lastChunk);
     chunkedResponseMsg.addObjPartNoCopying(list);

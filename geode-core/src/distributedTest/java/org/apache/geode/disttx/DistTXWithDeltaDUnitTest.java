@@ -29,7 +29,7 @@ public class DistTXWithDeltaDUnitTest extends TransactionsWithDeltaDUnitTest {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.setProperty(DISTRIBUTED_TRANSACTIONS, "true");
     return props;
   }

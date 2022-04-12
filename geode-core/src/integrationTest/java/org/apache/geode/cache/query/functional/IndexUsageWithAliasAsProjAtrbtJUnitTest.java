@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
@@ -58,13 +57,13 @@ public class IndexUsageWithAliasAsProjAtrbtJUnitTest {
   @Test
   public void testComparisonBetnWithAndWithoutIndexCreation() throws Exception {
     // TASK IUM 7
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         // IUM 7
         "Select distinct security from " + SEPARATOR
             + "portfolios, secIds security where length > 1",
@@ -76,12 +75,12 @@ public class IndexUsageWithAliasAsProjAtrbtJUnitTest {
             + "portfolios  pos , secIds security where length > 2 and pos.ID > 0"
 
     };
-    SelectResults[][] r = new SelectResults[queries.length][2];
+    var r = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       r[i][0] = (SelectResults) q.execute();
       if (!observer.isIndexesUsed) {
@@ -96,10 +95,10 @@ public class IndexUsageWithAliasAsProjAtrbtJUnitTest {
     qs = CacheUtils.getQueryService();
     qs.createIndex("lengthIndex", IndexType.FUNCTIONAL, "length",
         SEPARATOR + "portfolios,secIds, positions.values");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer2 = new QueryObserverImpl();
+      var observer2 = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer2);
       r[i][1] = (SelectResults) q.execute();
 
@@ -114,18 +113,18 @@ public class IndexUsageWithAliasAsProjAtrbtJUnitTest {
 
   @Test
   public void testQueryResultComposition() throws Exception {
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
     CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         // "select distinct * from /pos, positions where value != null",
         // "select distinct intern from /pos,names where length >= 3",
         "select distinct nm from " + SEPARATOR + "pos prt,names nm where ID>0",
         "select distinct prt from " + SEPARATOR + "pos prt, names where names[3]='ddd'"};
-    for (final String query : queries) {
-      Query q = CacheUtils.getQueryService().newQuery(query);
+    for (final var query : queries) {
+      var q = CacheUtils.getQueryService().newQuery(query);
       q.execute();
     }
   }

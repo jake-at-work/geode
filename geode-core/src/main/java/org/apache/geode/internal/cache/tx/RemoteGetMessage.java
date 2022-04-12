@@ -40,7 +40,6 @@ import org.apache.geode.internal.cache.BucketRegion.RawValue;
 import org.apache.geode.internal.cache.CachedDeserializableFactory;
 import org.apache.geode.internal.cache.DataLocationException;
 import org.apache.geode.internal.cache.EntryEventImpl;
-import org.apache.geode.internal.cache.KeyInfo;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.RemoteOperationException;
 import org.apache.geode.internal.cache.TXManagerImpl;
@@ -100,7 +99,7 @@ public class RemoteGetMessage extends RemoteOperationMessageWithDirectReply {
     RawValue valueBytes;
     Object val = null;
     try {
-      KeyInfo keyInfo = r.getKeyInfo(key, cbArg);
+      var keyInfo = r.getKeyInfo(key, cbArg);
       val = r.getDataView().getSerializedValue(r, keyInfo, false, context, null,
           false /* for replicate regions */);
       valueBytes = val instanceof RawValue ? (RawValue) val : new RawValue(val);
@@ -177,8 +176,8 @@ public class RemoteGetMessage extends RemoteOperationMessageWithDirectReply {
       final Object key, final Object aCallbackArgument, ClientProxyMembershipID requestingClient)
       throws RemoteOperationException {
     Assert.assertTrue(recipient != null, "RemoteGetMessage NULL recipient");
-    RemoteGetResponse p = new RemoteGetResponse(r.getSystem(), recipient);
-    RemoteGetMessage m = new RemoteGetMessage(recipient, r.getFullPath(), p, key, aCallbackArgument,
+    var p = new RemoteGetResponse(r.getSystem(), recipient);
+    var m = new RemoteGetMessage(recipient, r.getFullPath(), p, key, aCallbackArgument,
         requestingClient);
     Set<?> failures = r.getDistributionManager().putOutgoing(m);
     if (failures != null && failures.size() > 0) {
@@ -249,7 +248,7 @@ public class RemoteGetMessage extends RemoteOperationMessageWithDirectReply {
     public static void send(InternalDistributedMember recipient, int processorId, RawValue val,
         ReplySender replySender) throws RemoteOperationException {
       Assert.assertTrue(recipient != null, "PRDistribuedGetReplyMessage NULL reply message");
-      GetReplyMessage m = new GetReplyMessage(processorId, val);
+      var m = new GetReplyMessage(processorId, val);
       m.setRecipient(recipient);
       replySender.putOutgoing(m);
     }
@@ -261,9 +260,9 @@ public class RemoteGetMessage extends RemoteOperationMessageWithDirectReply {
      */
     @Override
     public void process(final DistributionManager dm, ReplyProcessor21 processor) {
-      final boolean isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
+      final var isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
 
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (isDebugEnabled) {
         logger.trace(LogMarker.DM_VERBOSE,
             "GetReplyMessage process invoking reply processor with processorId:{}",
@@ -338,7 +337,7 @@ public class RemoteGetMessage extends RemoteOperationMessageWithDirectReply {
         start = DistributionStats.getStatTime();
       }
       if (msg instanceof GetReplyMessage) {
-        GetReplyMessage reply = (GetReplyMessage) msg;
+        var reply = (GetReplyMessage) msg;
         // De-serialization needs to occur in the requesting thread, not a P2P thread
         // (or some other limited resource)
         if (reply.valueInBytes != null) {
@@ -357,7 +356,7 @@ public class RemoteGetMessage extends RemoteOperationMessageWithDirectReply {
      * @return the value object
      */
     public Object getValue(boolean preferCD) throws RemoteOperationException {
-      final GetReplyMessage reply = getReply;
+      final var reply = getReply;
       try {
         if (reply != null) {
           if (reply.valueIsByteArray) {

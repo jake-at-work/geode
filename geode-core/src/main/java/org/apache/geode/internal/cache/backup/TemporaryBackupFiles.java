@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache.backup;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,9 +51,9 @@ class TemporaryBackupFiles {
    * @throws IOException If unable to create a temporary directory
    */
   static TemporaryBackupFiles create() throws IOException {
-    long currentTime = System.currentTimeMillis();
-    String diskStoreDirectoryName = BackupService.TEMPORARY_DIRECTORY_FOR_BACKUPS + currentTime;
-    Path temporaryDirectory = Files.createTempDirectory("backup_" + currentTime);
+    var currentTime = System.currentTimeMillis();
+    var diskStoreDirectoryName = BackupService.TEMPORARY_DIRECTORY_FOR_BACKUPS + currentTime;
+    var temporaryDirectory = Files.createTempDirectory("backup_" + currentTime);
     return new TemporaryBackupFiles(temporaryDirectory, diskStoreDirectoryName);
   }
 
@@ -97,14 +96,14 @@ class TemporaryBackupFiles {
    * @throws IOException If the temporary directory did not exist and could not be created
    */
   Path getDiskStoreDirectory(DiskStore diskStore, DirectoryHolder dirHolder) throws IOException {
-    Map<DirectoryHolder, Path> tempDirByDirectoryHolder =
+    var tempDirByDirectoryHolder =
         diskStoreDirDirsByDiskStore.computeIfAbsent(diskStore, k -> new HashMap<>());
-    Path directory = tempDirByDirectoryHolder.get(dirHolder);
+    var directory = tempDirByDirectoryHolder.get(dirHolder);
     if (directory != null) {
       return directory;
     }
 
-    File diskStoreDir = dirHolder.getDir();
+    var diskStoreDir = dirHolder.getDir();
     directory = diskStoreDir.toPath().resolve(diskStoreDirectoryName);
     Files.createDirectories(directory);
     tempDirByDirectoryHolder.put(dirHolder, directory);
@@ -120,9 +119,9 @@ class TemporaryBackupFiles {
       deleteDirectory(directory);
     }
 
-    for (Map<DirectoryHolder, Path> diskStoreDirToTempDirMap : diskStoreDirDirsByDiskStore
+    for (var diskStoreDirToTempDirMap : diskStoreDirDirsByDiskStore
         .values()) {
-      for (Path tempDir : diskStoreDirToTempDirMap.values()) {
+      for (var tempDir : diskStoreDirToTempDirMap.values()) {
         deleteDirectory(tempDir);
       }
     }

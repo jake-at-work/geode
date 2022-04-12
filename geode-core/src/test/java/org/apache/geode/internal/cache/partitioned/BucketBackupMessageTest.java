@@ -25,7 +25,7 @@ public class BucketBackupMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    BucketBackupMessage mockBucketBackupMessage = mock(BucketBackupMessage.class);
+    var mockBucketBackupMessage = mock(BucketBackupMessage.class);
     when(mockBucketBackupMessage.failIfRegionMissing()).thenReturn(true);
     assertThat(mockBucketBackupMessage.failIfRegionMissing()).isTrue();
   }

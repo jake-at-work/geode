@@ -35,7 +35,7 @@ public class JdbcConnectorExceptionTest {
 
   @Test
   public void returnsExceptionWithCauseForNonSqlExceptionAndNonSqlNestedCause() {
-    IllegalStateException cause = new IllegalStateException(new IllegalStateException());
+    var cause = new IllegalStateException(new IllegalStateException());
     Exception e = JdbcConnectorException.createException(cause);
     assertThat(e.getCause()).isNotNull().isSameAs(cause);
   }

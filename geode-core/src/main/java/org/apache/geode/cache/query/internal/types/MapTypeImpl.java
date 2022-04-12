@@ -82,7 +82,7 @@ public class MapTypeImpl extends CollectionTypeImpl implements MapType {
 
   @Override
   public StructType getEntryType() {
-    ObjectType[] fieldTypes = new ObjectType[] {keyType, getElementType()};
+    var fieldTypes = new ObjectType[] {keyType, getElementType()};
     return new StructTypeImpl(new String[] {"key", "value"}, fieldTypes);
   }
 

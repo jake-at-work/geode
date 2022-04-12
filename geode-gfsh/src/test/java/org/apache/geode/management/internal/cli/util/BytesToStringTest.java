@@ -35,79 +35,79 @@ public class BytesToStringTest {
 
   @Test
   public void testFiveHundredBytes() {
-    String value = bytesToString.of(500);
+    var value = bytesToString.of(500);
     assertThat(value).isEqualTo("500 Byte(s)");
   }
 
   @Test
   public void testOneKb() {
-    String value = bytesToString.of(KB);
+    var value = bytesToString.of(KB);
     assertThat(value).isEqualTo("1 KB");
   }
 
   @Test
   public void testThreeKb() {
-    String value = bytesToString.of(3 * KB);
+    var value = bytesToString.of(3 * KB);
     assertThat(value).isEqualTo("3 KB");
   }
 
   @Test
   public void testFractionalKB() {
-    String value = bytesToString.of(KB + 500);
+    var value = bytesToString.of(KB + 500);
     assertThat(value).isEqualTo("1.49 KB");
   }
 
   @Test
   public void testOneMB() {
-    String value = bytesToString.of(MB);
+    var value = bytesToString.of(MB);
     assertThat(value).isEqualTo("1 MB");
   }
 
   @Test
   public void testThreeMB() {
-    String value = bytesToString.of(3 * MB);
+    var value = bytesToString.of(3 * MB);
     assertThat(value).isEqualTo("3 MB");
   }
 
   @Test
   public void testFractionalMB() {
-    String value = bytesToString.of(MB + 500 * KB);
+    var value = bytesToString.of(MB + 500 * KB);
     assertThat(value).isEqualTo("1.49 MB");
   }
 
   @Test
   public void testOneGB() {
-    String value = bytesToString.of(GB);
+    var value = bytesToString.of(GB);
     assertThat(value).isEqualTo("1 GB");
   }
 
   @Test
   public void testThreeGB() {
-    String value = bytesToString.of(3 * GB);
+    var value = bytesToString.of(3 * GB);
     assertThat(value).isEqualTo("3 GB");
   }
 
   @Test
   public void testFractionalGB() {
-    String value = bytesToString.of(GB + 500 * MB);
+    var value = bytesToString.of(GB + 500 * MB);
     assertThat(value).isEqualTo("1.49 GB");
   }
 
   @Test
   public void testOneTB() {
-    String value = bytesToString.of(TB);
+    var value = bytesToString.of(TB);
     assertThat(value).isEqualTo("1 TB");
   }
 
   @Test
   public void testThreeTB() {
-    String value = bytesToString.of(3 * GB);
+    var value = bytesToString.of(3 * GB);
     assertThat(value).isEqualTo("3 GB");
   }
 
   @Test
   public void testFractionalTB() {
-    String value = bytesToString.of(TB + 500 * GB);
+    var value = bytesToString.of(TB + 500 * GB);
     assertThat(value).isEqualTo("1.49 TB");
   }
 }

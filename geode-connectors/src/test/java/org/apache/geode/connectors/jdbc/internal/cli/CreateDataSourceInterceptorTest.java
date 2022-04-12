@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import org.apache.geode.management.cli.Result.Status;
 import org.apache.geode.management.internal.cli.GfshParseResult;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 
 public class CreateDataSourceInterceptorTest {
@@ -41,7 +40,7 @@ public class CreateDataSourceInterceptorTest {
   @Test
   public void defaultsAreOk() {
 
-    ResultModel result = interceptor.preExecution(parseResult);
+    var result = interceptor.preExecution(parseResult);
 
     assertThat(result.getStatus()).isEqualTo(Status.OK);
   }
@@ -50,7 +49,7 @@ public class CreateDataSourceInterceptorTest {
   public void nonPooledIsOk() {
     when(parseResult.getParamValueAsString(CreateDataSourceCommand.POOLED)).thenReturn("false");
 
-    ResultModel result = interceptor.preExecution(parseResult);
+    var result = interceptor.preExecution(parseResult);
 
     assertThat(result.getStatus()).isEqualTo(Status.OK);
   }
@@ -60,7 +59,7 @@ public class CreateDataSourceInterceptorTest {
     when(parseResult.getParamValueAsString(CreateDataSourceCommand.POOLED)).thenReturn("false");
     when(parseResult.getParamValueAsString(CreateDataSourceCommand.POOL_PROPERTIES)).thenReturn("");
 
-    ResultModel result = interceptor.preExecution(parseResult);
+    var result = interceptor.preExecution(parseResult);
 
     assertThat(result.getStatus()).isEqualTo(Status.OK);
   }
@@ -72,7 +71,7 @@ public class CreateDataSourceInterceptorTest {
         parseResult.getParamValueAsString(CreateDataSourceCommand.POOLED_DATA_SOURCE_FACTORY_CLASS))
             .thenReturn("");
 
-    ResultModel result = interceptor.preExecution(parseResult);
+    var result = interceptor.preExecution(parseResult);
 
     assertThat(result.getStatus()).isEqualTo(Status.OK);
   }
@@ -81,7 +80,7 @@ public class CreateDataSourceInterceptorTest {
   public void pooledIsOk() {
     when(parseResult.getParamValueAsString(CreateDataSourceCommand.POOLED)).thenReturn("true");
 
-    ResultModel result = interceptor.preExecution(parseResult);
+    var result = interceptor.preExecution(parseResult);
 
     assertThat(result.getStatus()).isEqualTo(Status.OK);
   }
@@ -92,7 +91,7 @@ public class CreateDataSourceInterceptorTest {
     when(parseResult.getParamValueAsString(CreateDataSourceCommand.POOL_PROPERTIES))
         .thenReturn("pool properties value");
 
-    ResultModel result = interceptor.preExecution(parseResult);
+    var result = interceptor.preExecution(parseResult);
 
     assertThat(result.getStatus()).isEqualTo(Status.OK);
   }
@@ -104,7 +103,7 @@ public class CreateDataSourceInterceptorTest {
         parseResult.getParamValueAsString(CreateDataSourceCommand.POOLED_DATA_SOURCE_FACTORY_CLASS))
             .thenReturn("pool factory value");
 
-    ResultModel result = interceptor.preExecution(parseResult);
+    var result = interceptor.preExecution(parseResult);
 
     assertThat(result.getStatus()).isEqualTo(Status.OK);
   }
@@ -115,7 +114,7 @@ public class CreateDataSourceInterceptorTest {
     when(parseResult.getParamValueAsString(CreateDataSourceCommand.POOL_PROPERTIES))
         .thenReturn("pool properties value");
 
-    ResultModel result = interceptor.preExecution(parseResult);
+    var result = interceptor.preExecution(parseResult);
 
     assertThat(result.getStatus()).isEqualTo(Status.ERROR);
     assertThat(result.getInfoSection("info").getContent().get(0))
@@ -129,7 +128,7 @@ public class CreateDataSourceInterceptorTest {
         parseResult.getParamValueAsString(CreateDataSourceCommand.POOLED_DATA_SOURCE_FACTORY_CLASS))
             .thenReturn("pool factory value");
 
-    ResultModel result = interceptor.preExecution(parseResult);
+    var result = interceptor.preExecution(parseResult);
 
     assertThat(result.getStatus()).isEqualTo(Status.ERROR);
     assertThat(result.getInfoSection("info").getContent().get(0))

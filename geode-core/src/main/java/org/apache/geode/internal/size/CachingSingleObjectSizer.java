@@ -32,7 +32,7 @@ public class CachingSingleObjectSizer implements SingleObjectSizer {
     if (clazz.isArray()) {
       return wrappedSizer.sizeof(object);
     } else {
-      Long size = sizeCache.get(clazz);
+      var size = sizeCache.get(clazz);
       if (size != null) {
         return size;
       }

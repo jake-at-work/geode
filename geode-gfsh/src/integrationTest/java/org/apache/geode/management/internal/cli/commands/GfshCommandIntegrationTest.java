@@ -14,7 +14,6 @@
  */
 package org.apache.geode.management.internal.cli.commands;
 
-import java.nio.file.Path;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,7 +43,7 @@ public class GfshCommandIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    Path locatorFolder = temporaryFolder.newFolder(LOCATOR_NAME).toPath().toAbsolutePath();
+    var locatorFolder = temporaryFolder.newFolder(LOCATOR_NAME).toPath().toAbsolutePath();
     locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
 
     locatorLauncher = new LocatorLauncher.Builder()

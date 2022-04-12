@@ -25,31 +25,22 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EvictionAction;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.cache.server.ClientSubscriptionConfig;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.InternalCacheServer;
 import org.apache.geode.internal.cache.ha.HAContainerRegion;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.CacheServerTestUtil;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
@@ -63,21 +54,21 @@ public class CacheClientNotifierDUnitTest extends WANTestBase {
 
   private int createCacheServerWithCSC(VM vm, final boolean withCSC, final int capacity,
       final String policy, final String diskStoreName) {
-    final int serverPort = getRandomAvailableTCPPort();
+    final var serverPort = getRandomAvailableTCPPort();
 
-    SerializableRunnable createCacheServer = new SerializableRunnable() {
+    var createCacheServer = new SerializableRunnable() {
       @Override
       public void run() throws Exception {
-        CacheServerImpl server = (CacheServerImpl) cache.addCacheServer();
+        var server = (CacheServerImpl) cache.addCacheServer();
         server.setPort(serverPort);
         if (withCSC) {
           if (diskStoreName != null) {
-            DiskStore ds = cache.findDiskStore(diskStoreName);
+            var ds = cache.findDiskStore(diskStoreName);
             if (ds == null) {
               ds = cache.createDiskStoreFactory().create(diskStoreName);
             }
           }
-          ClientSubscriptionConfig csc = server.getClientSubscriptionConfig();
+          var csc = server.getClientSubscriptionConfig();
           csc.setCapacity(capacity);
           csc.setEvictionPolicy(policy);
           csc.setDiskStoreName(diskStoreName);
@@ -97,11 +88,11 @@ public class CacheClientNotifierDUnitTest extends WANTestBase {
 
   private void checkCacheServer(VM vm, final int serverPort, final boolean withCSC,
       final int capacity) {
-    SerializableRunnable checkCacheServer = new SerializableRunnable() {
+    var checkCacheServer = new SerializableRunnable() {
 
       @Override
       public void run() throws Exception {
-        List<InternalCacheServer> cacheServers =
+        var cacheServers =
             ((InternalCache) cache).getCacheServersAndGatewayReceiver();
         CacheServerImpl server = null;
         for (CacheServer cs : cacheServers) {
@@ -111,15 +102,15 @@ public class CacheClientNotifierDUnitTest extends WANTestBase {
           }
         }
         assertNotNull(server);
-        CacheClientNotifier ccn = server.getAcceptor().getCacheClientNotifier();
-        HAContainerRegion haContainer = (HAContainerRegion) ccn.getHaContainer();
+        var ccn = server.getAcceptor().getCacheClientNotifier();
+        var haContainer = (HAContainerRegion) ccn.getHaContainer();
         if (server.getAcceptor().isGatewayReceiver()) {
           assertNull(haContainer);
           return;
         }
-        Region internalRegion = haContainer.getMapForTest();
-        RegionAttributes ra = internalRegion.getAttributes();
-        EvictionAttributes ea = ra.getEvictionAttributes();
+        var internalRegion = haContainer.getMapForTest();
+        var ra = internalRegion.getAttributes();
+        var ea = ra.getEvictionAttributes();
         if (withCSC) {
           assertNotNull(ea);
           assertEquals(capacity, ea.getMaximum());
@@ -133,9 +124,9 @@ public class CacheClientNotifierDUnitTest extends WANTestBase {
   }
 
   public static void closeACacheServer(final int serverPort) {
-    List<CacheServer> cacheServers = cache.getCacheServers();
+    var cacheServers = cache.getCacheServers();
     CacheServerImpl server = null;
-    for (CacheServer cs : cacheServers) {
+    for (var cs : cacheServers) {
       if (cs.getPort() == serverPort) {
         server = (CacheServerImpl) cs;
         break;
@@ -146,7 +137,7 @@ public class CacheClientNotifierDUnitTest extends WANTestBase {
   }
 
   private void verifyRegionSize(VM vm, final int expect) {
-    SerializableRunnable verifyRegionSize = new SerializableRunnable() {
+    var verifyRegionSize = new SerializableRunnable() {
       @Override
       public void run() throws Exception {
         final Region region = cache.getRegion(getTestMethodName() + "_PR");
@@ -177,8 +168,8 @@ public class CacheClientNotifierDUnitTest extends WANTestBase {
     /* do some puts to GatewaySender on vm5 */
 
     // start locators
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     // create receiver and cache servers will be at ny
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
@@ -190,7 +181,7 @@ public class CacheClientNotifierDUnitTest extends WANTestBase {
         null, 1, 100, isOffHeap()));
 
     // create cache server1 with overflow
-    int serverPort = createCacheServerWithCSC(vm2, true, 3, "entry", "DEFAULT");
+    var serverPort = createCacheServerWithCSC(vm2, true, 3, "entry", "DEFAULT");
     checkCacheServer(vm2, serverPort, true, 3);
 
     /*
@@ -243,8 +234,8 @@ public class CacheClientNotifierDUnitTest extends WANTestBase {
 
   public static void createClientWithLocator(int port0, String host, String regionName,
       String clientId, boolean isDurable) {
-    WANTestBase test = new WANTestBase();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new WANTestBase();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     if (isDurable) {
@@ -252,7 +243,7 @@ public class CacheClientNotifierDUnitTest extends WANTestBase {
       props.setProperty(DURABLE_CLIENT_TIMEOUT, "" + 200);
     }
 
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
 
     assertNotNull(cache);

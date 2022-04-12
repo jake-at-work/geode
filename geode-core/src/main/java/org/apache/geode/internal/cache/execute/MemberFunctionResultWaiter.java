@@ -37,7 +37,7 @@ public class MemberFunctionResultWaiter extends StreamingFunctionOperation {
   protected DistributionMessage createRequestMessage(Set recipients,
       FunctionStreamingResultCollector processor, boolean isReExecute,
       boolean isFnSerializationReqd) {
-    MemberFunctionStreamingMessage msg =
+    var msg =
         new MemberFunctionStreamingMessage(functionObject, processor.getProcessorId(),
             memberArgs.get(recipients.toArray()[0]), isFnSerializationReqd, isReExecute);
     msg.setRecipients(recipients);

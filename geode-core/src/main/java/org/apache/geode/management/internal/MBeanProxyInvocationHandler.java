@@ -41,7 +41,6 @@ import org.apache.geode.SystemFailure;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -64,8 +63,8 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
 
   static Object newProxyInstance(DistributedMember member, Region<String, Object> monitoringRegion,
       ObjectName objectName, FederationComponent federationComponent, Class interfaceClass) {
-    boolean isMXBean = JMX.isMXBeanInterface(interfaceClass);
-    boolean notificationBroadcaster = federationComponent.isNotificationEmitter();
+    var isMXBean = JMX.isMXBeanInterface(interfaceClass);
+    var notificationBroadcaster = federationComponent.isNotificationEmitter();
 
     InvocationHandler invocationHandler =
         new MBeanProxyInvocationHandler(member, objectName, monitoringRegion, isMXBean);
@@ -78,7 +77,7 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
       interfaces = new Class[] {interfaceClass, ProxyInterface.class};
     }
 
-    Object proxy = Proxy.newProxyInstance(MBeanProxyInvocationHandler.class.getClassLoader(),
+    var proxy = Proxy.newProxyInstance(MBeanProxyInvocationHandler.class.getClassLoader(),
         interfaces, invocationHandler);
 
     return interfaceClass.cast(proxy);
@@ -125,11 +124,11 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
       return invokeBroadcasterMethod(method, arguments);
     }
 
-    String methodName = method.getName();
+    var methodName = method.getName();
     Class[] parameterTypes = method.getParameterTypes();
     Class returnType = method.getReturnType();
 
-    int argumentCount = arguments == null ? 0 : arguments.length;
+    var argumentCount = arguments == null ? 0 : arguments.length;
 
     if (methodName.equals("setLastRefreshedTime")) {
       proxyImpl.setLastRefreshedTime((Long) arguments[0]);
@@ -150,7 +149,7 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
 
     // Support For MXBean open types
     if (isMXBean) {
-      MXBeanProxyInvocationHandler p = findMXBeanProxy(objectName, methodClass, this);
+      var p = findMXBeanProxy(objectName, methodClass, this);
       return p.invoke(proxy, method, arguments);
     }
 
@@ -164,8 +163,8 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
       return delegateToObjectState(methodName.substring(2));
     }
 
-    String[] signature = new String[parameterTypes.length];
-    for (int i = 0; i < parameterTypes.length; i++) {
+    var signature = new String[parameterTypes.length];
+    for (var i = 0; i < parameterTypes.length; i++) {
       signature[i] = parameterTypes[i].getName();
     }
 
@@ -178,7 +177,7 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
    */
   Object delegateToObjectState(String attributeName) throws MBeanException {
     try {
-      FederationComponent federation =
+      var federation =
           (FederationComponent) monitoringRegion.get(objectName.toString());
       return federation.getValue(attributeName);
     } catch (Exception e) {
@@ -197,7 +196,7 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
    */
   Object delegateToFunctionService(ObjectName objectName, String methodName, Object[] arguments,
       String[] signature) throws MBeanException {
-    Object[] functionArguments = new Object[5];
+    var functionArguments = new Object[5];
     functionArguments[0] = objectName;
     functionArguments[1] = methodName;
     functionArguments[2] = signature;
@@ -206,7 +205,7 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
 
     List<Object> result;
     try {
-      ResultCollector resultCollector = FunctionService.onMember(member)
+      var resultCollector = FunctionService.onMember(member)
           .setArguments(functionArguments)
           .execute(ManagementConstants.MGMT_FUNCTION_ID);
       result = (List<Object>) resultCollector.getResult();
@@ -261,11 +260,11 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
    */
   private Object invokeBroadcasterMethod(Method method, Object[] arguments)
       throws MBeanException, ListenerNotFoundException {
-    String methodName = method.getName();
-    int argumentCount = arguments == null ? 0 : arguments.length;
+    var methodName = method.getName();
+    var argumentCount = arguments == null ? 0 : arguments.length;
 
     Class[] parameterTypes = method.getParameterTypes();
-    String[] signature = new String[parameterTypes.length];
+    var signature = new String[parameterTypes.length];
 
     switch (methodName) {
       case "addNotificationListener": {
@@ -279,9 +278,9 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
 
         // Other inconsistencies will produce ClassCastException below.
 
-        NotificationListener listener = (NotificationListener) arguments[0];
-        NotificationFilter filter = (NotificationFilter) arguments[1];
-        Object handback = arguments[2];
+        var listener = (NotificationListener) arguments[0];
+        var filter = (NotificationFilter) arguments[1];
+        var handback = arguments[2];
         emitter.addNotificationListener(listener, filter, handback);
         delegateToFunctionService(objectName, methodName, null, signature);
         return null;
@@ -290,7 +289,7 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
       case "removeNotificationListener": {
         // NullPointerException if method with no args, but that shouldn't happen because
         // removeNotificationListener does have args.
-        NotificationListener listener = (NotificationListener) arguments[0];
+        var listener = (NotificationListener) arguments[0];
 
         switch (argumentCount) {
           case 1:
@@ -303,8 +302,8 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
             return null;
 
           case 3:
-            NotificationFilter filter = (NotificationFilter) arguments[1];
-            Object handback = arguments[2];
+            var filter = (NotificationFilter) arguments[1];
+            var handback = arguments[2];
             emitter.removeNotificationListener(listener, filter, handback);
 
             delegateToFunctionService(objectName, methodName, null, signature);
@@ -328,11 +327,11 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
         // MBean info is delegated to function service as intention is to get the info of the actual
         // mbean rather than the proxy
 
-        Object obj = delegateToFunctionService(objectName, methodName, arguments, signature);
+        var obj = delegateToFunctionService(objectName, methodName, arguments, signature);
         if (obj instanceof String) {
           return new MBeanNotificationInfo[0];
         }
-        MBeanInfo info = (MBeanInfo) obj;
+        var info = (MBeanInfo) obj;
         return info.getNotifications();
 
       default:
@@ -341,7 +340,7 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
   }
 
   private boolean shouldDoLocally(Method method) {
-    String methodName = method.getName();
+    var methodName = method.getName();
     if ((methodName.equals("hashCode") || methodName.equals("toString"))
         && method.getParameterTypes().length == 0) {
       return true;
@@ -351,8 +350,8 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
   }
 
   private Object doLocally(Method method, Object[] arguments) {
-    String methodName = method.getName();
-    FederationComponent federation =
+    var methodName = method.getName();
+    var federation =
         (FederationComponent) monitoringRegion.get(objectName.toString());
 
     switch (methodName) {
@@ -375,7 +374,7 @@ public class MBeanProxyInvocationHandler implements InvocationHandler {
           mxBeanProxyInvocationHandler =
               new MXBeanProxyInvocationHandler(objectName, mbeanInterface, handler);
         } catch (IllegalArgumentException e) {
-          String message =
+          var message =
               "Cannot make MXBean proxy for " + mbeanInterface.getName() + ": " + e.getMessage();
           throw new IllegalArgumentException(message, e.getCause());
         }

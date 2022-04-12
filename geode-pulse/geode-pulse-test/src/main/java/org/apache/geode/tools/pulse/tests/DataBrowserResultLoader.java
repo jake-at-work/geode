@@ -50,7 +50,7 @@ public class DataBrowserResultLoader {
     StringBuilder sampleQueryResultResponseStrBuilder = null;
 
     try {
-      ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+      var classLoader = Thread.currentThread().getContextClassLoader();
 
       if (queryString.equals(QUERY_TYPE_ONE)) {
         url = classLoader.getResource("testQueryResultClusterSmall.txt");
@@ -70,7 +70,7 @@ public class DataBrowserResultLoader {
         url = classLoader.getResource("testQueryResult.txt");
       }
 
-      File sampleQueryResultFile = new File(url.getPath());
+      var sampleQueryResultFile = new File(url.getPath());
       inputStream = new FileInputStream(sampleQueryResultFile);
       streamReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
       sampleQueryResultResponseStrBuilder = new StringBuilder();

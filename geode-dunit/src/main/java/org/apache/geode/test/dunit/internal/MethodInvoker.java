@@ -50,7 +50,7 @@ class MethodInvoker {
 
         } else {
           paramTypes = new Class[parameters.length];
-          for (int i = 0; i < parameters.length; i++) {
+          for (var i = 0; i < parameters.length; i++) {
             if (parameters[i] == null) {
               paramTypes[i] = null;
 
@@ -60,13 +60,13 @@ class MethodInvoker {
           }
         }
 
-        Method method = getMethod(targetClass, methodName, paramTypes);
+        var method = getMethod(targetClass, methodName, paramTypes);
         method.setAccessible(true);
-        Object result = method.invoke(targetClass, parameters);
+        var result = method.invoke(targetClass, parameters);
         return new MethodInvokerResult(result);
 
       } catch (InvocationTargetException e) {
-        Throwable targetException = e.getTargetException();
+        var targetException = e.getTargetException();
         if (targetException == null) {
           return new MethodInvokerResult(null);
 
@@ -108,7 +108,7 @@ class MethodInvoker {
 
         } else {
           paramTypes = new Class[arguments.length];
-          for (int i = 0; i < arguments.length; i++) {
+          for (var i = 0; i < arguments.length; i++) {
             if (arguments[i] == null) {
               paramTypes[i] = Object.class;
 
@@ -118,13 +118,13 @@ class MethodInvoker {
           }
         }
 
-        Method method = getMethod(receiverClass, methodName, paramTypes);
+        var method = getMethod(receiverClass, methodName, paramTypes);
         method.setAccessible(true);
-        Object result = method.invoke(target, arguments);
+        var result = method.invoke(target, arguments);
         return new MethodInvokerResult(result);
 
       } catch (InvocationTargetException e) {
-        Throwable targetException = e.getTargetException();
+        var targetException = e.getTargetException();
         if (targetException == null) {
           return new MethodInvokerResult(null);
 
@@ -151,12 +151,12 @@ class MethodInvoker {
   private static Method getMethod(Class targetClass, String methodName, Class[] parameterTypes)
       throws NoSuchMethodException {
     List<Method> matchingMethods = new ArrayList<>();
-    for (Class theClass = targetClass; theClass != null; theClass = theClass.getSuperclass()) {
-      Method[] methods = theClass.getDeclaredMethods();
+    for (var theClass = targetClass; theClass != null; theClass = theClass.getSuperclass()) {
+      var methods = theClass.getDeclaredMethods();
 
       NEXT_METHOD:
 
-      for (Method method : methods) {
+      for (var method : methods) {
         if (!method.getName().equals(methodName)) {
           continue;
         }
@@ -166,7 +166,7 @@ class MethodInvoker {
           continue;
         }
 
-        for (int j = 0; j < methodParameterTypes.length; j++) {
+        for (var j = 0; j < methodParameterTypes.length; j++) {
           if (parameterTypes[j] == null) {
             if (methodParameterTypes[j].isPrimitive()) {
               // this parameter is not ok, the parameter is a primitive and the value is null
@@ -177,8 +177,8 @@ class MethodInvoker {
             }
           }
           if (!methodParameterTypes[j].isAssignableFrom(parameterTypes[j])) {
-            Class methodParameterType = methodParameterTypes[j];
-            Class parameterType = parameterTypes[j];
+            var methodParameterType = methodParameterTypes[j];
+            var parameterType = parameterTypes[j];
 
             if (methodParameterType.isPrimitive()) {
               if (methodParameterType.equals(boolean.class) && parameterType.equals(Boolean.class)
@@ -211,14 +211,14 @@ class MethodInvoker {
     }
 
     if (matchingMethods.isEmpty()) {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("Could not find method ");
       sb.append(methodName);
       sb.append(" with ");
       sb.append(parameterTypes.length);
       sb.append(" parameters [");
-      for (int i = 0; i < parameterTypes.length; i++) {
-        String name = parameterTypes[i] == null ? null : parameterTypes[i].getName();
+      for (var i = 0; i < parameterTypes.length; i++) {
+        var name = parameterTypes[i] == null ? null : parameterTypes[i].getName();
         sb.append(name);
         if (i < parameterTypes.length - 1) {
           sb.append(", ");
@@ -230,14 +230,14 @@ class MethodInvoker {
     }
 
     if (matchingMethods.size() > 1) {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("Method is ambiguous ");
       sb.append(methodName);
       sb.append(" with ");
       sb.append(parameterTypes.length);
       sb.append(" parameters [");
-      for (int i = 0; i < parameterTypes.length; i++) {
-        String name = parameterTypes[i] == null ? null : parameterTypes[i].getName();
+      for (var i = 0; i < parameterTypes.length; i++) {
+        var name = parameterTypes[i] == null ? null : parameterTypes[i].getName();
         sb.append(name);
         if (i < parameterTypes.length - 1) {
           sb.append(", ");

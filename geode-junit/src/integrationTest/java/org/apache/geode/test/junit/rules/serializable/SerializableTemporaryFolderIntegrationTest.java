@@ -49,7 +49,7 @@ public class SerializableTemporaryFolderIntegrationTest {
   public void delete_false_doesNotDeleteTemporaryFolder() {
     runTestWithValidation(DeleteFalse.class);
 
-    File root = ROOT.get();
+    var root = ROOT.get();
 
     assertThat(root).exists();
   }
@@ -58,7 +58,7 @@ public class SerializableTemporaryFolderIntegrationTest {
   public void delete_false_deletesTemporaryFolder() {
     runTestWithValidation(DeleteTrue.class);
 
-    File root = ROOT.get();
+    var root = ROOT.get();
 
     assertThat(root).doesNotExist();
   }
@@ -69,19 +69,19 @@ public class SerializableTemporaryFolderIntegrationTest {
 
     runTestWithValidation(CopyTo_WhenAlways_Passes.class);
 
-    File destinationFolder = DESTINATION.get();
+    var destinationFolder = DESTINATION.get();
     assertThat(destinationFolder).exists();
 
-    File timestampFolder = Arrays.stream(destinationFolder.listFiles()).findFirst().get();
+    var timestampFolder = Arrays.stream(destinationFolder.listFiles()).findFirst().get();
     assertThat(timestampFolder.getName()).matches(DIGITS_REGEX);
 
-    File testFolder = new File(timestampFolder, TEST_NAME.get());
+    var testFolder = new File(timestampFolder, TEST_NAME.get());
     assertThat(testFolder).exists();
 
-    File subFolder = new File(testFolder, CopyTo_Passes.FOLDER_NAME);
+    var subFolder = new File(testFolder, CopyTo_Passes.FOLDER_NAME);
     assertThat(subFolder).exists();
 
-    File file = new File(subFolder, CopyTo_Passes.FILE_NAME);
+    var file = new File(subFolder, CopyTo_Passes.FILE_NAME);
     assertThat(file).exists().hasContent(CopyTo_Passes.DATA);
   }
 
@@ -91,19 +91,19 @@ public class SerializableTemporaryFolderIntegrationTest {
 
     runTestWithExpectedFailureTypes(CopyTo_WhenAlways_Fails.class, ExpectedError.class);
 
-    File destinationFolder = DESTINATION.get();
+    var destinationFolder = DESTINATION.get();
     assertThat(destinationFolder).exists();
 
-    File timestampFolder = Arrays.stream(destinationFolder.listFiles()).findFirst().get();
+    var timestampFolder = Arrays.stream(destinationFolder.listFiles()).findFirst().get();
     assertThat(timestampFolder.getName()).matches(DIGITS_REGEX);
 
-    File testFolder = new File(timestampFolder, TEST_NAME.get());
+    var testFolder = new File(timestampFolder, TEST_NAME.get());
     assertThat(testFolder).exists();
 
-    File subFolder = new File(testFolder, CopyTo_Passes.FOLDER_NAME);
+    var subFolder = new File(testFolder, CopyTo_Passes.FOLDER_NAME);
     assertThat(subFolder).exists();
 
-    File file = new File(subFolder, CopyTo_Passes.FILE_NAME);
+    var file = new File(subFolder, CopyTo_Passes.FILE_NAME);
     assertThat(file).exists().hasContent(CopyTo_Passes.DATA);
   }
 
@@ -113,7 +113,7 @@ public class SerializableTemporaryFolderIntegrationTest {
 
     runTestWithValidation(CopyTo_WhenFails_Passes.class);
 
-    File destinationFolder = DESTINATION.get();
+    var destinationFolder = DESTINATION.get();
     assertThat(destinationFolder).exists();
 
     assertThat(destinationFolder.listFiles()).isEmpty();
@@ -125,19 +125,19 @@ public class SerializableTemporaryFolderIntegrationTest {
 
     runTestWithExpectedFailureTypes(CopyTo_WhenFails_Fails.class, ExpectedError.class);
 
-    File destinationFolder = DESTINATION.get();
+    var destinationFolder = DESTINATION.get();
     assertThat(destinationFolder).exists();
 
-    File timestampFolder = Arrays.stream(destinationFolder.listFiles()).findFirst().get();
+    var timestampFolder = Arrays.stream(destinationFolder.listFiles()).findFirst().get();
     assertThat(timestampFolder.getName()).matches(DIGITS_REGEX);
 
-    File testFolder = new File(timestampFolder, TEST_NAME.get());
+    var testFolder = new File(timestampFolder, TEST_NAME.get());
     assertThat(testFolder).exists();
 
-    File subFolder = new File(testFolder, CopyTo_Passes.FOLDER_NAME);
+    var subFolder = new File(testFolder, CopyTo_Passes.FOLDER_NAME);
     assertThat(subFolder).exists();
 
-    File file = new File(subFolder, CopyTo_Passes.FILE_NAME);
+    var file = new File(subFolder, CopyTo_Passes.FILE_NAME);
     assertThat(file).exists().hasContent(CopyTo_Passes.DATA);
   }
 
@@ -147,19 +147,19 @@ public class SerializableTemporaryFolderIntegrationTest {
 
     runTestWithValidation(CopyTo_WhenPasses_Passes.class);
 
-    File destinationFolder = DESTINATION.get();
+    var destinationFolder = DESTINATION.get();
     assertThat(destinationFolder).exists();
 
-    File timestampFolder = Arrays.stream(destinationFolder.listFiles()).findFirst().get();
+    var timestampFolder = Arrays.stream(destinationFolder.listFiles()).findFirst().get();
     assertThat(timestampFolder.getName()).matches(DIGITS_REGEX);
 
-    File testFolder = new File(timestampFolder, TEST_NAME.get());
+    var testFolder = new File(timestampFolder, TEST_NAME.get());
     assertThat(testFolder).exists();
 
-    File subFolder = new File(testFolder, CopyTo_Passes.FOLDER_NAME);
+    var subFolder = new File(testFolder, CopyTo_Passes.FOLDER_NAME);
     assertThat(subFolder).exists();
 
-    File file = new File(subFolder, CopyTo_Passes.FILE_NAME);
+    var file = new File(subFolder, CopyTo_Passes.FILE_NAME);
     assertThat(file).exists().hasContent(CopyTo_Passes.DATA);
   }
 
@@ -169,7 +169,7 @@ public class SerializableTemporaryFolderIntegrationTest {
 
     runTestWithExpectedFailureTypes(CopyTo_WhenPasses_Fails.class, ExpectedError.class);
 
-    File destinationFolder = DESTINATION.get();
+    var destinationFolder = DESTINATION.get();
     assertThat(destinationFolder).exists();
 
     assertThat(destinationFolder.listFiles()).isEmpty();
@@ -218,8 +218,8 @@ public class SerializableTemporaryFolderIntegrationTest {
     @Test
     public void writeToTemporaryFolder() throws Exception {
       TEST_NAME.set(testName.getMethodName());
-      File folder = temporaryFolder().newFolder(FOLDER_NAME);
-      File file = new File(folder, FILE_NAME);
+      var folder = temporaryFolder().newFolder(FOLDER_NAME);
+      var file = new File(folder, FILE_NAME);
       assertThat(file.createNewFile()).isTrue();
       FileUtils.writeStringToFile(file, DATA, Charset.defaultCharset());
     }
@@ -244,8 +244,8 @@ public class SerializableTemporaryFolderIntegrationTest {
     @Test
     public void writeToTemporaryFolder() throws Exception {
       TEST_NAME.set(testName.getMethodName());
-      File folder = temporaryFolder().newFolder(FOLDER_NAME);
-      File file = new File(folder, FILE_NAME);
+      var folder = temporaryFolder().newFolder(FOLDER_NAME);
+      var file = new File(folder, FILE_NAME);
       assertThat(file.createNewFile()).isTrue();
       FileUtils.writeStringToFile(file, DATA, Charset.defaultCharset());
       throw new ExpectedError(TEST_NAME.get() + " failed");

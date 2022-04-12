@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.jndi;
 
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -24,11 +23,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoInitialContextException;
 import javax.sql.DataSource;
@@ -37,13 +34,11 @@ import javax.transaction.TransactionManager;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.classloader.ClassPathLoader;
-import org.apache.geode.internal.datasource.ClientConnectionFactoryWrapper;
 import org.apache.geode.internal.datasource.ConfigProperty;
 import org.apache.geode.internal.datasource.DataSourceCreateException;
 import org.apache.geode.internal.datasource.DataSourceFactory;
@@ -151,9 +146,9 @@ public class JNDIInvoker {
       ctx = new InitialContext();
       doTransactionLookup();
     } catch (NamingException ne) {
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (ne instanceof NoInitialContextException) {
-        String exception =
+        var exception =
             "JNDIInvoker::mapTransactions:: No application server context found, Starting GemFire JNDI Context Context ";
         if (writer.finerEnabled()) {
           writer.finer(exception);
@@ -166,7 +161,7 @@ public class JNDIInvoker {
             writer.fine(
                 "JNDIInvoker::mapTransactions::Bound TransactionManager to Context GemFire JNDI Tree");
           }
-          UserTransactionImpl utx = new UserTransactionImpl();
+          var utx = new UserTransactionImpl();
           ctx.rebind("java:/UserTransaction", utx);
           if (writer.fineEnabled()) {
             writer.fine(
@@ -184,7 +179,7 @@ public class JNDIInvoker {
           }
         }
       } else if (ne instanceof NameNotFoundException) {
-        String exception =
+        var exception =
             "JNDIInvoker::mapTransactions:: No TransactionManager associated to Application server context, trying to bind GemFire TransactionManager";
         if (writer.finerEnabled()) {
           writer.finer(exception);
@@ -196,7 +191,7 @@ public class JNDIInvoker {
             writer.fine(
                 "JNDIInvoker::mapTransactions::Bound TransactionManager to Application Server Context");
           }
-          UserTransactionImpl utx = new UserTransactionImpl();
+          var utx = new UserTransactionImpl();
           ctx.rebind("java:/UserTransaction", utx);
           if (writer.fineEnabled()) {
             writer.fine(
@@ -259,12 +254,12 @@ public class JNDIInvoker {
    */
   private static void doTransactionLookup() throws NamingException {
     Object jndiObject = null;
-    LogWriter writer = TransactionUtils.getLogWriter();
-    for (final String[] knownJNDIManager : knownJNDIManagers) {
+    var writer = TransactionUtils.getLogWriter();
+    for (final var knownJNDIManager : knownJNDIManagers) {
       try {
         jndiObject = ctx.lookup(knownJNDIManager[0]);
       } catch (NamingException e) {
-        String exception = "JNDIInvoker::doTransactionLookup::Couldn't lookup ["
+        var exception = "JNDIInvoker::doTransactionLookup::Couldn't lookup ["
             + knownJNDIManager[0] + " (" + knownJNDIManager[1] + ")]";
         if (writer.finerEnabled()) {
           writer.finer(exception);
@@ -272,14 +267,14 @@ public class JNDIInvoker {
       }
       if (jndiObject instanceof TransactionManager) {
         transactionManager = (TransactionManager) jndiObject;
-        String exception = "JNDIInvoker::doTransactionLookup::Found TransactionManager for "
+        var exception = "JNDIInvoker::doTransactionLookup::Found TransactionManager for "
             + knownJNDIManager[1];
         if (writer.fineEnabled()) {
           writer.fine(exception);
         }
         return;
       } else {
-        String exception = "JNDIInvoker::doTransactionLookup::Found TransactionManager of class "
+        var exception = "JNDIInvoker::doTransactionLookup::Found TransactionManager of class "
             + (jndiObject == null ? "null" : jndiObject.getClass())
             + " but is not of type javax.transaction.TransactionManager";
         if (writer.fineEnabled()) {
@@ -312,7 +307,7 @@ public class JNDIInvoker {
       } catch (ClassNotFoundException ex2) {
         try {
           clazz = ClassPathLoader.getLatest().forName(WS_FACTORY_CLASS_4);
-          String exception =
+          var exception =
               "JNDIInvoker::doTransactionLookup::Found WebSphere 4: " + WS_FACTORY_CLASS_4;
           if (writer.fineEnabled()) {
             writer.fine(exception, ex);
@@ -327,7 +322,7 @@ public class JNDIInvoker {
       }
     }
     try {
-      Method method = clazz.getMethod("getTransactionManager", (Class[]) null);
+      var method = clazz.getMethod("getTransactionManager", (Class[]) null);
       transactionManager = (TransactionManager) method.invoke(null, (Object[]) null);
     } catch (Exception ex) {
       writer.warning(
@@ -347,7 +342,7 @@ public class JNDIInvoker {
    *
    */
   private static void initializeGemFireContext() throws NamingException {
-    Hashtable table = new Hashtable();
+    var table = new Hashtable();
     table.put(Context.INITIAL_CONTEXT_FACTORY,
         "org.apache.geode.internal.jndi.InitialContextFactoryImpl");
     ctx = new InitialContext(table);
@@ -373,14 +368,14 @@ public class JNDIInvoker {
     String driverClassName = null;
     if (map != null) {
       driverClassName = (String) map.get("jdbc-driver-class");
-      DriverJarUtils util = new DriverJarUtils();
+      var util = new DriverJarUtils();
       if (driverClassName != null) {
         util.registerDriver(driverClassName);
       }
     }
 
-    String value = (String) map.get("type");
-    String jndiName = "";
+    var value = (String) map.get("type");
+    var jndiName = "";
     jndiName = (String) map.get("jndi-name");
     if (value.equals("PooledDataSource")) {
       validateAndBindDataSource(context, jndiName,
@@ -392,14 +387,14 @@ public class JNDIInvoker {
       validateAndBindDataSource(context, jndiName, dataSourceFactory.getSimpleDataSource(map),
           props);
     } else if (value.equals("ManagedDataSource")) {
-      ClientConnectionFactoryWrapper wrapper = dataSourceFactory.getManagedDataSource(map, props);
+      var wrapper = dataSourceFactory.getManagedDataSource(map, props);
       ctx.rebind("java:/" + jndiName, wrapper.getClientConnFactory());
       dataSourceMap.put(jndiName, wrapper);
       if (logger.isDebugEnabled()) {
         logger.debug("Bound java:/" + jndiName + " to Context");
       }
     } else {
-      String exception = "JNDIInvoker::mapDataSource::No correct type of DataSource";
+      var exception = "JNDIInvoker::mapDataSource::No correct type of DataSource";
       if (logger.isDebugEnabled()) {
         logger.debug(exception);
       }
@@ -410,7 +405,7 @@ public class JNDIInvoker {
   private static void validateAndBindDataSource(Context context, String jndiName,
       DataSource dataSource, List<ConfigProperty> props)
       throws NamingException, DataSourceCreateException {
-    try (Connection connection = getConnection(dataSource, props)) {
+    try (var connection = getConnection(dataSource, props)) {
     } catch (SQLException sqlEx) {
       closeDataSource(dataSource);
       logger.warn("Failed DataSource validation for JNDI name {}", jndiName, sqlEx);
@@ -431,12 +426,12 @@ public class JNDIInvoker {
 
   public static void unMapDatasource(String jndiName) throws NamingException {
     ctx.unbind("java:/" + jndiName);
-    Object removedDataSource = dataSourceMap.remove(jndiName);
+    var removedDataSource = dataSourceMap.remove(jndiName);
     closeDataSource(removedDataSource);
   }
 
   public static DataSource getDataSource(String name) {
-    Object result = dataSourceMap.get(name);
+    var result = dataSourceMap.get(name);
     if (result instanceof DataSource) {
       return (DataSource) result;
     } else {
@@ -445,7 +440,7 @@ public class JNDIInvoker {
   }
 
   public static boolean isValidDataSource(String name) {
-    Object dataSource = dataSourceMap.get(name);
+    var dataSource = dataSourceMap.get(name);
 
     return dataSource == null || (dataSource instanceof DataSource
         && !(dataSource instanceof GemFireTransactionDataSource));
@@ -473,15 +468,15 @@ public class JNDIInvoker {
 
   public static Map<String, String> getBindingNamesRecursively(Context ctx) throws Exception {
     Map<String, String> result = new HashMap<>();
-    NamingEnumeration<Binding> enumeration = ctx.listBindings("");
+    var enumeration = ctx.listBindings("");
 
     while (enumeration.hasMore()) {
-      Binding binding = enumeration.next();
-      String name = binding.getName();
-      String separator = name.endsWith(":") ? "" : "/";
-      Object o = binding.getObject();
+      var binding = enumeration.next();
+      var name = binding.getName();
+      var separator = name.endsWith(":") ? "" : "/";
+      var o = binding.getObject();
       if (o instanceof Context) {
-        Map<String, String> innerBindings = getBindingNamesRecursively((Context) o);
+        var innerBindings = getBindingNamesRecursively((Context) o);
         innerBindings.forEach((k, v) -> result.put(name + separator + k, v));
       } else {
         result.put(name, binding.getClassName());

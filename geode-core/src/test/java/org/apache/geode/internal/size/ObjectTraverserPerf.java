@@ -32,22 +32,22 @@ public class ObjectTraverserPerf {
 
   public static void main(String[] args)
       throws IllegalArgumentException, IllegalAccessException, IOException {
-    TestObject testObject = new TestObject(null);
+    var testObject = new TestObject(null);
 
-    for (int i = 0; i < OBJECT_DEPTH; i++) {
+    for (var i = 0; i < OBJECT_DEPTH; i++) {
       testObject = new TestObject(testObject);
     }
 
     // warm up
-    for (int i = 0; i < ITERATIONS; i++) {
+    for (var i = 0; i < ITERATIONS; i++) {
       calcSize(testObject);
     }
 
-    long start = System.nanoTime();
-    for (int i = 0; i < ITERATIONS; i++) {
+    var start = System.nanoTime();
+    for (var i = 0; i < ITERATIONS; i++) {
       calcSize(testObject);
     }
-    long end = System.nanoTime();
+    var end = System.nanoTime();
 
     System.out.println("Sized object of depth " + OBJECT_DEPTH + " for " + ITERATIONS
         + " iterations elapsed(ns) :" + (end - start));
@@ -57,7 +57,7 @@ public class ObjectTraverserPerf {
   private static void calcSize(TestObject testObject) throws IllegalAccessException, IOException {
     if (USE_SERIALIZATION) {
       // NullDataOutputStream out = new NullDataOutputStream();
-      HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+      var out = new HeapDataOutputStream(KnownVersion.CURRENT);
       testObject.toData(out);
     } else {
       ObjectGraphSizer.size(testObject);

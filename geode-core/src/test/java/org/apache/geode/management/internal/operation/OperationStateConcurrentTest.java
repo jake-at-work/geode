@@ -47,7 +47,7 @@ public class OperationStateConcurrentTest {
   private static final AtomicLong dateLong = new AtomicLong();
 
   private static void setOperationEnd(OperationState<?, ?> operationState) {
-    Date date = new Date(dateLong.incrementAndGet());
+    var date = new Date(dateLong.incrementAndGet());
     operationState.setOperationEnd(date, null, new DateThrowable(date));
   }
 
@@ -58,13 +58,13 @@ public class OperationStateConcurrentTest {
     setOperationEnd(operationState);
 
     executor.inParallel(() -> {
-      for (int i = 0; i < CALLS_PER_TASK; i++) {
+      for (var i = 0; i < CALLS_PER_TASK; i++) {
         setOperationEnd(operationState);
       }
     }, PARALLEL_COUNT);
     executor.inParallel(() -> {
-      for (int i = 0; i < CALLS_PER_TASK; i++) {
-        OperationState<?, ?> copy = operationState.createCopy();
+      for (var i = 0; i < CALLS_PER_TASK; i++) {
+        var copy = operationState.createCopy();
         assertThat(copy.getOperationEnd())
             .isSameAs(((DateThrowable) copy.getThrowable()).getDate());
       }

@@ -37,7 +37,6 @@ import org.apache.geode.cache.client.internal.ContainsKeyOp.MODE;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.internal.ServerLocation;
-import org.apache.geode.internal.cache.ClientServerObserver;
 import org.apache.geode.internal.cache.ClientServerObserverHolder;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
@@ -45,11 +44,9 @@ import org.apache.geode.internal.cache.EventIDHolder;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.TXCommitMessage;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.execute.ServerRegionFunctionExecutor;
 import org.apache.geode.internal.cache.tier.InterestType;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
-import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList.Iterator;
 import org.apache.geode.internal.cache.tx.ClientTXStateStub;
 import org.apache.geode.internal.cache.tx.TransactionalOperation.ServerRegionOperation;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -90,12 +87,12 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
   }
 
   private static InternalPool calcPool(Region<?, ?> r) {
-    String poolName = r.getAttributes().getPoolName();
+    var poolName = r.getAttributes().getPoolName();
     if (poolName == null || "".equals(poolName)) {
       throw new IllegalStateException(
           "The region " + r.getFullPath() + " did not have a client pool configured.");
     } else {
-      InternalPool pool = (InternalPool) PoolManager.find(poolName);
+      var pool = (InternalPool) PoolManager.find(poolName);
       if (pool == null) {
         throw new IllegalStateException("The pool " + poolName + " does not exist.");
       }
@@ -145,7 +142,7 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
       boolean requireOldValue, Object expectedOldValue, Object callbackArg, boolean isCreate) {
     recordTXOperation(ServerRegionOperation.PUT, key, value, deltaBytes, event.getEventId(), op,
         requireOldValue, expectedOldValue, callbackArg, isCreate);
-    Operation operation = op;
+    var operation = op;
     if (!isCreate && region.getDataPolicy() == DataPolicy.EMPTY && op.isCreate()
         && op != Operation.PUT_IF_ABSENT) {
       operation = Operation.UPDATE;
@@ -172,7 +169,7 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
    */
   public void putOnForTestsOnly(Connection con, Object key, Object value, EventID eventId,
       Object callbackArg) {
-    EventIDHolder event = new EventIDHolder(eventId);
+    var event = new EventIDHolder(eventId);
     PutOp.execute(con, pool, regionName, key, value, event, callbackArg,
         pool.getPRSingleHopEnabled());
   }
@@ -358,18 +355,18 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
           receiveUpdatesAsInvalidates,
           regionDataPolicy);
     } else {
-      final RegisterInterestTracker rit = pool.getRITracker();
-      boolean finished = false;
+      final var rit = pool.getRITracker();
+      var finished = false;
       try {
         // register with the tracker early
         rit.addSingleInterest(region, key, interestType, policy, isDurable,
             receiveUpdatesAsInvalidates);
-        final List<List<K>> result =
+        final var result =
             RegisterInterestOp.execute(pool, regionName, key, interestType, policy,
                 isDurable, receiveUpdatesAsInvalidates, regionDataPolicy);
         //////// TEST PURPOSE ONLY ///////////
         if (PoolImpl.AFTER_REGISTER_CALLBACK_FLAG) {
-          ClientServerObserver bo = ClientServerObserverHolder.getInstance();
+          var bo = ClientServerObserverHolder.getInstance();
           bo.afterInterestRegistration();
         }
         /////////////////////////////////////////
@@ -390,8 +387,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
   public void addSingleInterest(Object key, final @NotNull InterestType interestType,
       InterestResultPolicy pol,
       boolean isDurable, boolean receiveUpdatesAsInvalidates) {
-    RegisterInterestTracker rit = pool.getRITracker();
-    boolean finished = false;
+    var rit = pool.getRITracker();
+    var finished = false;
     try {
       rit.addSingleInterest(region, key, interestType, pol, isDurable,
           receiveUpdatesAsInvalidates);
@@ -407,8 +404,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
   public <K> void addListInterest(final @NotNull List<K> keys,
       final @NotNull InterestResultPolicy pol, final boolean isDurable,
       final boolean receiveUpdatesAsInvalidates) {
-    RegisterInterestTracker rit = pool.getRITracker();
-    boolean finished = false;
+    var rit = pool.getRITracker();
+    var finished = false;
     try {
       rit.addInterestList(region, keys, pol, isDurable, receiveUpdatesAsInvalidates);
       finished = true;
@@ -523,9 +520,9 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
       final @NotNull InterestResultPolicy policy,
       final boolean isDurable, final boolean receiveUpdatesAsInvalidates,
       final @NotNull DataPolicy regionDataPolicy) {
-    final RegisterInterestTracker rit = pool.getRITracker();
+    final var rit = pool.getRITracker();
     List<K> result;
-    boolean finished = false;
+    var finished = false;
     try {
       // register with the tracker early
       rit.addInterestList(region, keys, policy, isDurable, receiveUpdatesAsInvalidates);
@@ -534,7 +531,7 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
       finished = true;
       //////// TEST PURPOSE ONLY ///////////
       if (PoolImpl.AFTER_REGISTER_CALLBACK_FLAG) {
-        ClientServerObserver bo = ClientServerObserverHolder.getInstance();
+        var bo = ClientServerObserverHolder.getInstance();
         bo.afterInterestRegistration();
       }
       /////////////////////////////////////////
@@ -560,8 +557,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
     if (interestType == InterestType.KEY && key instanceof List) {
       unregisterInterestList(uncheckedCast(key), isClosing, keepAlive);
     } else {
-      RegisterInterestTracker rit = pool.getRITracker();
-      boolean removed = rit.removeSingleInterest(region, key, interestType, false, false)
+      var rit = pool.getRITracker();
+      var removed = rit.removeSingleInterest(region, key, interestType, false, false)
           || rit.removeSingleInterest(region, key, interestType, true, false)
           || rit.removeSingleInterest(region, key, interestType, false, true)
           || rit.removeSingleInterest(region, key, interestType, true, true);
@@ -580,8 +577,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
    * @param keepAlive true if this unregister should not undo a durable registration
    */
   public <K> void unregisterInterestList(List<K> keys, boolean isClosing, boolean keepAlive) {
-    RegisterInterestTracker rit = pool.getRITracker();
-    boolean removed = rit.removeInterestList(region, keys, false, true)
+    var rit = pool.getRITracker();
+    var removed = rit.removeInterestList(region, keys, false, true)
         || rit.removeInterestList(region, keys, false, false)
         || rit.removeInterestList(region, keys, true, true)
         || rit.removeInterestList(region, keys, true, false);
@@ -598,7 +595,7 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
   public VersionedObjectList putAll(Map<Object, Object> map, EventID eventId, boolean skipCallbacks,
       Object callbackArg) {
     recordTXOperation(ServerRegionOperation.PUT_ALL, null, map, eventId);
-    int txID = TXManagerImpl.getCurrentTXUniqueId();
+    var txID = TXManagerImpl.getCurrentTXUniqueId();
     if (pool.getPRSingleHopEnabled() && (txID == TXManagerImpl.NOTX)) {
       return PutAllOp.execute(pool, uncheckedCast(region), map, eventId, skipCallbacks,
           pool.getRetryAttempts(), callbackArg);
@@ -612,7 +609,7 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
   public VersionedObjectList removeAll(Collection<Object> keys, EventID eventId,
       Object callbackArg) {
     recordTXOperation(ServerRegionOperation.REMOVE_ALL, null, keys, eventId);
-    int txID = TXManagerImpl.getCurrentTXUniqueId();
+    var txID = TXManagerImpl.getCurrentTXUniqueId();
     if (pool.getPRSingleHopEnabled() && (txID == TXManagerImpl.NOTX)) {
       return RemoveAllOp.execute(pool, region, keys, eventId,
           pool.getRetryAttempts(), callbackArg);
@@ -625,7 +622,7 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
   @Override
   public VersionedObjectList getAll(List<Object> keys, Object callback) {
     recordTXOperation(ServerRegionOperation.GET_ALL, null, keys);
-    int txID = TXManagerImpl.getCurrentTXUniqueId();
+    var txID = TXManagerImpl.getCurrentTXUniqueId();
     VersionedObjectList result;
     if (pool.getPRSingleHopEnabled() && (txID == TXManagerImpl.NOTX)) {
       result =
@@ -634,11 +631,11 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
       result = GetAllOp.execute(pool, regionName, keys, callback);
     }
     if (result != null) {
-      for (Iterator it = result.iterator(); it.hasNext();) {
-        VersionedObjectList.Entry entry = it.next();
-        Object key = entry.getKey();
-        Object value = entry.getValue();
-        boolean isOnServer = entry.isKeyNotOnServer();
+      for (var it = result.iterator(); it.hasNext();) {
+        var entry = it.next();
+        var key = entry.getKey();
+        var value = entry.getValue();
+        var isOnServer = entry.isKeyNotOnServer();
         if (!isOnServer) {
           if (value instanceof Throwable) {
             logger.warn(String.format(
@@ -678,19 +675,20 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
     recordTXOperation(ServerRegionOperation.EXECUTE_FUNCTION, null, 1, function,
         serverRegionExecutor, resultCollector, hasResult);
 
-    int retryAttempts = pool.getRetryAttempts();
-    boolean inTransaction = TXManagerImpl.getCurrentTXState() != null;
+    var retryAttempts = pool.getRetryAttempts();
+    var inTransaction = TXManagerImpl.getCurrentTXState() != null;
 
-    final Supplier<AbstractOp> executeRegionFunctionOpSupplier =
-        () -> new ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl(region.getFullPath(),
+    final var executeRegionFunctionOpSupplier =
+        (Supplier<AbstractOp>) () -> new ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl(
+            region.getFullPath(),
             function, serverRegionExecutor, resultCollector, timeoutMs);
 
     if (pool.getPRSingleHopEnabled() && !inTransaction) {
-      ClientMetadataService cms = region.getCache().getClientMetadataService();
+      var cms = region.getCache().getClientMetadataService();
       if (cms.isMetadataStable()) {
 
         if (serverRegionExecutor.getFilter().isEmpty()) {
-          Map<ServerLocation, Set<Integer>> serverToBuckets =
+          var serverToBuckets =
               cms.groupByServerToAllBuckets(region, function.optimizeForWrite());
 
           if (serverToBuckets == null || serverToBuckets.isEmpty()) {
@@ -704,8 +702,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
 
           } else {
 
-            final java.util.function.Function<ServerRegionFunctionExecutor, AbstractOp> regionFunctionSingleHopOpFunction =
-                executor -> new ExecuteRegionFunctionSingleHopOp.ExecuteRegionFunctionSingleHopOpImpl(
+            final var regionFunctionSingleHopOpFunction =
+                (java.util.function.Function<ServerRegionFunctionExecutor, AbstractOp>) executor -> new ExecuteRegionFunctionSingleHopOp.ExecuteRegionFunctionSingleHopOpImpl(
                     region.getFullPath(), function, executor, resultCollector,
                     hasResult, emptySet(), true, timeoutMs);
 
@@ -714,8 +712,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
                 regionFunctionSingleHopOpFunction, executeRegionFunctionOpSupplier);
           }
         } else {
-          boolean isBucketFilter = serverRegionExecutor.getExecuteOnBucketSetFlag();
-          Map<ServerLocation, Set> serverToFilterMap =
+          var isBucketFilter = serverRegionExecutor.getExecuteOnBucketSetFlag();
+          var serverToFilterMap =
               cms.getServerToFilterMap(serverRegionExecutor.getFilter(), region,
                   function.optimizeForWrite(), isBucketFilter);
 
@@ -730,8 +728,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
 
           } else {
 
-            final java.util.function.Function<ServerRegionFunctionExecutor, AbstractOp> regionFunctionSingleHopOpFunction =
-                executor -> new ExecuteRegionFunctionSingleHopOp.ExecuteRegionFunctionSingleHopOpImpl(
+            final var regionFunctionSingleHopOpFunction =
+                (java.util.function.Function<ServerRegionFunctionExecutor, AbstractOp>) executor -> new ExecuteRegionFunctionSingleHopOp.ExecuteRegionFunctionSingleHopOpImpl(
                     region.getFullPath(), function, executor, resultCollector,
                     hasResult, emptySet(), isBucketFilter, timeoutMs);
 
@@ -767,20 +765,21 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
     recordTXOperation(ServerRegionOperation.EXECUTE_FUNCTION, null, 2, functionId,
         serverRegionExecutor, resultCollector, hasResult, isHA, optimizeForWrite);
 
-    int retryAttempts = pool.getRetryAttempts();
-    boolean inTransaction = TXManagerImpl.getCurrentTXState() != null;
+    var retryAttempts = pool.getRetryAttempts();
+    var inTransaction = TXManagerImpl.getCurrentTXState() != null;
 
-    final Supplier<AbstractOp> executeRegionFunctionOpSupplier =
-        () -> new ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl(region.getFullPath(),
+    final var executeRegionFunctionOpSupplier =
+        (Supplier<AbstractOp>) () -> new ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl(
+            region.getFullPath(),
             functionId, serverRegionExecutor, resultCollector, hasResult, isHA,
             optimizeForWrite, true, timeoutMs);
 
     if (pool.getPRSingleHopEnabled() && !inTransaction) {
-      ClientMetadataService cms = region.getCache().getClientMetadataService();
+      var cms = region.getCache().getClientMetadataService();
       if (cms.isMetadataStable()) {
 
         if (serverRegionExecutor.getFilter().isEmpty()) {
-          Map<ServerLocation, Set<Integer>> serverToBuckets =
+          var serverToBuckets =
               cms.groupByServerToAllBuckets(region, optimizeForWrite);
 
           if (serverToBuckets == null || serverToBuckets.isEmpty()) {
@@ -791,8 +790,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
 
             cms.scheduleGetPRMetaData(region, false);
           } else {
-            final java.util.function.Function<ServerRegionFunctionExecutor, AbstractOp> regionFunctionSingleHopOpFunction =
-                executor1 -> new ExecuteRegionFunctionSingleHopOp.ExecuteRegionFunctionSingleHopOpImpl(
+            final var regionFunctionSingleHopOpFunction =
+                (java.util.function.Function<ServerRegionFunctionExecutor, AbstractOp>) executor1 -> new ExecuteRegionFunctionSingleHopOp.ExecuteRegionFunctionSingleHopOpImpl(
                     region.getFullPath(), functionId, executor1, resultCollector, hasResult,
                     emptySet(), true, isHA, optimizeForWrite, timeoutMs);
 
@@ -802,8 +801,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
           }
 
         } else {
-          boolean isBucketsAsFilter = serverRegionExecutor.getExecuteOnBucketSetFlag();
-          Map<ServerLocation, Set> serverToFilterMap = cms.getServerToFilterMap(
+          var isBucketsAsFilter = serverRegionExecutor.getExecuteOnBucketSetFlag();
+          var serverToFilterMap = cms.getServerToFilterMap(
               serverRegionExecutor.getFilter(), region, optimizeForWrite, isBucketsAsFilter);
 
           if (serverToFilterMap == null || serverToFilterMap.isEmpty()) {
@@ -815,8 +814,8 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
             cms.scheduleGetPRMetaData(region, false);
           } else {
 
-            final java.util.function.Function<ServerRegionFunctionExecutor, AbstractOp> regionFunctionSingleHopOpFunction =
-                executor -> new ExecuteRegionFunctionSingleHopOp.ExecuteRegionFunctionSingleHopOpImpl(
+            final var regionFunctionSingleHopOpFunction =
+                (java.util.function.Function<ServerRegionFunctionExecutor, AbstractOp>) executor -> new ExecuteRegionFunctionSingleHopOp.ExecuteRegionFunctionSingleHopOpImpl(
                     region.getFullPath(), functionId, executor, resultCollector, hasResult,
                     emptySet(), isBucketsAsFilter, isHA, optimizeForWrite, timeoutMs);
 
@@ -897,7 +896,7 @@ public class ServerRegionProxy extends ServerProxy implements ServerRegionDataAc
   /** test hook */
   private void recordTXOperation(ServerRegionOperation op, Object key, Object... arguments) {
     if (ClientTXStateStub.transactionRecordingEnabled()) {
-      TXStateProxy tx = TXManagerImpl.getCurrentTXState();
+      var tx = TXManagerImpl.getCurrentTXState();
       if (tx == null) {
         return;
       }

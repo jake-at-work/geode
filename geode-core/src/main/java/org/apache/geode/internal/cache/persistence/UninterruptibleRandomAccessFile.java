@@ -107,13 +107,13 @@ public class UninterruptibleRandomAccessFile {
      * if we are interrupted in the middle of the operation
      */
     private long doUninterruptibly(FileOperation op) throws IOException {
-      boolean interrupted = false;
+      var interrupted = false;
       try {
         synchronized (UninterruptibleRandomAccessFile.this) {
           while (true) {
             interrupted |= Thread.interrupted();
-            FileChannel d = delegate();
-            long lastPosition = getFilePointer();
+            var d = delegate();
+            var lastPosition = getFilePointer();
             try {
               return op.doOp(d);
             } catch (ClosedByInterruptException e) {

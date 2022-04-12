@@ -28,8 +28,8 @@ public class ParallelWANPropagationClientServerDUnitTest extends WANTestBase {
    */
   @Test
   public void testParallelPropagationWithClientServer() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createReceiverAndServer(nyPort));
     vm3.invoke(() -> WANTestBase.createReceiverAndServer(nyPort));

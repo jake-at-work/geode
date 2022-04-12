@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache.tier.sockets;
 
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.tier.MessageType;
 
@@ -43,13 +42,13 @@ public class ServerResponseMatrix {
 
   public static boolean checkForValidStateAfterRegisterInterest(LocalRegion region, Object key,
       Object serverValue) {
-    int cacheEntryState = -1;
-    RegionEntry re = region.entries.getEntry(key);
+    var cacheEntryState = -1;
+    var re = region.entries.getEntry(key);
     if (re == null) {
       // nonexistent
       cacheEntryState = 0;
     } else {
-      Token token = re.getValueAsToken();
+      var token = re.getValueAsToken();
       if (token == Token.DESTROYED) {
         // destroyed
         cacheEntryState = 3;
@@ -65,9 +64,9 @@ public class ServerResponseMatrix {
     // A matrix During register interest response processing
     // 4 nonexistent, valid , invalid,destroyed
     // 2 invalid, valid
-    boolean[][] matrix = {{true, true}, {false, false}, {true, true}, {true, true}};
+    var matrix = new boolean[][] {{true, true}, {false, false}, {true, true}, {true, true}};
 
-    int registerInterstResState = 0; // invalid
+    var registerInterstResState = 0; // invalid
     if (serverValue != null) {
       registerInterstResState = 1; // valid
     }
@@ -79,16 +78,16 @@ public class ServerResponseMatrix {
 
     // 4 nonexistent/destroyed , valid , invalid,local-invalid ,
     // 4 create , update , invalidate, destroy
-    boolean[][] matrix = {{true, true, true, true}, {true, true, true, true},
+    var matrix = new boolean[][] {{true, true, true, true}, {true, true, true, true},
         {true, true, true, true}, {true, true, true, true}};
 
-    int cacheEntryState = -1;
-    RegionEntry re = region.entries.getEntry(key);
+    var cacheEntryState = -1;
+    var re = region.entries.getEntry(key);
     if (re == null) {
       // nonexistent or destroyed
       cacheEntryState = 0;
     } else {
-      Token token = re.getValueAsToken();
+      var token = re.getValueAsToken();
       if (token == Token.DESTROYED || token == Token.REMOVED_PHASE1 || token == Token.REMOVED_PHASE2
           || token == Token.TOMBSTONE) {
         // destroyed
@@ -105,7 +104,7 @@ public class ServerResponseMatrix {
       }
     }
 
-    int notificationState = -1;
+    var notificationState = -1;
     switch (operation) {
       case MessageType.LOCAL_CREATE:
         notificationState = 0;

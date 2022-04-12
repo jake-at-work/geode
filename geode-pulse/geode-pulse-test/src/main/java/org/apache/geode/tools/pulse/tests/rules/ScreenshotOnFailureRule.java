@@ -41,11 +41,11 @@ public class ScreenshotOnFailureRule extends TestWatcher {
   }
 
   private void takeScreenshot(String screenshotName) {
-    WebDriver driver = webDriverSupplier.get();
+    var driver = webDriverSupplier.get();
     if (driver instanceof TakesScreenshot) {
-      File tempFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+      var tempFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
       try {
-        File screenshot = new File("build/screenshots/" + screenshotName + ".png");
+        var screenshot = new File("build/screenshots/" + screenshotName + ".png");
         FileUtils.copyFile(tempFile, screenshot);
         System.err.println("Screenshot saved to: " + screenshot.getCanonicalPath());
       } catch (IOException e) {

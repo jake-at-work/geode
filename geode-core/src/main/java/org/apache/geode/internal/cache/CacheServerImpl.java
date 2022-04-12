@@ -36,7 +36,6 @@ import org.apache.geode.InvalidValueException;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.cache.ClientSession;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.DynamicRegionFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
@@ -74,7 +73,6 @@ import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.OSProcess;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.membership.ClientMembership;
-import org.apache.geode.management.membership.ClientMembershipListener;
 import org.apache.geode.util.internal.GeodeGlossary;
 
 /**
@@ -309,12 +307,12 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
     setGroups(other.getGroups());
     setLoadProbe(other.getLoadProbe());
     setLoadPollInterval(other.getLoadPollInterval());
-    ClientSubscriptionConfig cscOther = other.getClientSubscriptionConfig();
-    ClientSubscriptionConfig cscThis = getClientSubscriptionConfig();
+    var cscOther = other.getClientSubscriptionConfig();
+    var cscThis = getClientSubscriptionConfig();
     // added for configuration of ha overflow
     cscThis.setEvictionPolicy(cscOther.getEvictionPolicy());
     cscThis.setCapacity(cscOther.getCapacity());
-    String diskStoreName = cscOther.getDiskStoreName();
+    var diskStoreName = cscOther.getDiskStoreName();
     if (diskStoreName != null) {
       cscThis.setDiskStoreName(diskStoreName);
     } else {
@@ -339,9 +337,9 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
     loadMonitor = new LoadMonitor(loadProbe, maxConnections, loadPollInterval,
         FORCE_LOAD_UPDATE_FREQUENCY, advisor);
 
-    ClientSubscriptionConfig clientSubscriptionConfig = getClientSubscriptionConfig();
-    String diskStoreName = clientSubscriptionConfig.getDiskStoreName();
-    OverflowAttributes overflowAttributes = new OverflowAttributes() {
+    var clientSubscriptionConfig = getClientSubscriptionConfig();
+    var diskStoreName = clientSubscriptionConfig.getDiskStoreName();
+    var overflowAttributes = new OverflowAttributes() {
 
       @Override
       public String getEvictionPolicy() {
@@ -392,11 +390,11 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
      * listener. If the listener is already registered it won't be registered as would the case when
      * start() is invoked for the first time.
      */
-    ClientMembershipListener[] membershipListeners =
+    var membershipListeners =
         ClientMembership.getClientMembershipListeners();
 
-    boolean membershipListenerRegistered = false;
-    for (ClientMembershipListener membershipListener : membershipListeners) {
+    var membershipListenerRegistered = false;
+    for (var membershipListener : membershipListeners) {
       // just checking by reference as the listener instance is final
       if (listener == membershipListener) {
         membershipListenerRegistered = true;
@@ -409,7 +407,7 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
     }
 
     if (sendResourceEvents) {
-      InternalDistributedSystem system = cache.getInternalDistributedSystem();
+      var system = cache.getInternalDistributedSystem();
       system.handleResourceEvent(ResourceEvent.CACHE_SERVER_START, this);
     }
   }
@@ -504,18 +502,18 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
     /* Assuming start won't be called after stop */
     ClientMembership.unregisterClientMembershipListener(listener);
 
-    TXManagerImpl txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
     txMgr.removeHostedTXStatesForClients();
 
     if (sendResourceEvents) {
-      InternalDistributedSystem system = cache.getInternalDistributedSystem();
+      var system = cache.getInternalDistributedSystem();
       system.handleResourceEvent(ResourceEvent.CACHE_SERVER_STOP, this);
     }
   }
 
   private String getConfig() {
-    ClientSubscriptionConfig csc = getClientSubscriptionConfig();
-    String str = "port=" + getPort() + " max-connections=" + getMaxConnections() + " max-threads="
+    var csc = getClientSubscriptionConfig();
+    var str = "port=" + getPort() + " max-connections=" + getMaxConnections() + " max-threads="
         + getMaxThreads() + " notify-by-subscription=" + getNotifyBySubscription()
         + " socket-buffer-size=" + getSocketBufferSize() + " maximum-time-between-pings="
         + getMaximumTimeBetweenPings() + " maximum-message-count=" + getMaximumMessageCount()
@@ -533,8 +531,8 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
 
   @Override
   public String toString() {
-    ClientSubscriptionConfig csc = getClientSubscriptionConfig();
-    String str = "CacheServer on port=" + getPort() + " client subscription config policy="
+    var csc = getClientSubscriptionConfig();
+    var str = "CacheServer on port=" + getPort() + " client subscription config policy="
         + csc.getEvictionPolicy() + " client subscription config capacity=" + csc.getCapacity();
     if (csc.getDiskStoreName() != null) {
       str += " client subscription config overflow disk store=" + csc.getDiskStoreName();
@@ -584,7 +582,7 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
    */
   public static String clientMessagesRegion(InternalCache cache, String ePolicy, int capacity,
       int port, String overFlowDir, boolean isDiskStore) {
-    InternalRegionFactory factory =
+    var factory =
         getRegionFactoryForClientMessagesRegion(cache, ePolicy, capacity, overFlowDir, isDiskStore);
     return createClientMessagesRegion(factory, port);
   }
@@ -608,7 +606,7 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
       // see feature request #41479
       factory.setDiskSynchronous(true);
     } else {
-      File dir = new File(
+      var dir = new File(
           overflowDir + File.separatorChar + generateNameForClientMsgsRegion(OSProcess.getId()));
       // This will delete the overflow directory when virtual machine terminates.
       dir.deleteOnExit();
@@ -616,9 +614,9 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
         throw new GemFireIOException(
             "Could not create client subscription overflow directory: " + dir.getAbsolutePath());
       }
-      File[] dirs = {dir};
+      var dirs = new File[] {dir};
 
-      DiskStoreFactory dsf = cache.createDiskStoreFactory();
+      var dsf = cache.createDiskStoreFactory();
       dsf.setAutoCompact(true).setDiskDirsAndSizes(dirs, new int[] {MAX_VALUE}).create("bsi");
 
       factory.setDiskStoreName("bsi");
@@ -646,13 +644,13 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
 
   private static String createClientMessagesRegion(InternalRegionFactory factory, int port) {
     // generating unique name in VM for ClientMessagesRegion
-    String regionName = generateNameForClientMsgsRegion(port);
+    var regionName = generateNameForClientMsgsRegion(port);
     try {
       factory.setDestroyLockFlag(true).setRecreateFlag(false)
           .setSnapshotInputStream(null).setImageTarget(null).setIsUsedForMetaRegion(true);
       factory.create(regionName);
     } catch (RegionExistsException ree) {
-      InternalGemFireError assErr = new InternalGemFireError("unexpected exception", ree);
+      var assErr = new InternalGemFireError("unexpected exception", ree);
       throw assErr;
     }
     return regionName;
@@ -726,27 +724,27 @@ public class CacheServerImpl extends AbstractCacheServer implements Distribution
    */
   @Override
   public String[] getCombinedGroups() {
-    ArrayList<String> groupList = new ArrayList<>();
+    var groupList = new ArrayList<String>();
     if (includeMembershipGroups) {
-      for (String g : MemberDataBuilder.parseGroups(null, getSystem().getConfig().getGroups())) {
+      for (var g : MemberDataBuilder.parseGroups(null, getSystem().getConfig().getGroups())) {
         if (!groupList.contains(g)) {
           groupList.add(g);
         }
       }
     }
-    for (String g : getGroups()) {
+    for (var g : getGroups()) {
       if (!groupList.contains(g)) {
         groupList.add(g);
       }
     }
-    String[] groups = new String[groupList.size()];
+    var groups = new String[groupList.size()];
     return groupList.toArray(groups);
   }
 
   @Override
   public /* synchronized causes deadlock */ void fillInProfile(Profile profile) {
     assert profile instanceof CacheServerProfile;
-    CacheServerProfile bp = (CacheServerProfile) profile;
+    var bp = (CacheServerProfile) profile;
     bp.setHost(getExternalAddress(false));
     bp.setPort(getPort());
     bp.setGroups(getCombinedGroups());

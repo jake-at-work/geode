@@ -17,7 +17,6 @@ package org.apache.geode.redis.internal.commands.executor.list;
 import org.junit.ClassRule;
 
 import org.apache.geode.redis.GeodeRedisServerRule;
-import org.apache.geode.redis.internal.eventing.EventDistributor;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 
 public class BLPopIntegrationTest extends AbstractBLPopIntegrationTest {
@@ -31,7 +30,7 @@ public class BLPopIntegrationTest extends AbstractBLPopIntegrationTest {
   }
 
   public void awaitEventDistributorSize(int size) {
-    EventDistributor distributor = server.getServer().getEventDistributor();
+    var distributor = server.getServer().getEventDistributor();
     GeodeAwaitility.await().until(() -> distributor.getRegisteredKeys() == size);
   }
 }

@@ -96,7 +96,7 @@ public class AlertLevel implements java.io.Serializable {
    * @throws IllegalArgumentException If there is no alert level named <code>name</code>
    */
   public static AlertLevel forName(String name) {
-    for (AlertLevel level : VALUES) {
+    for (var level : VALUES) {
       if (level.getName().equalsIgnoreCase(name)) {
         return level;
       }
@@ -145,7 +145,7 @@ public class AlertLevel implements java.io.Serializable {
     if (!(other instanceof AlertLevel)) {
       return false;
     }
-    final AlertLevel that = (AlertLevel) other;
+    final var that = (AlertLevel) other;
 
     if (severity != that.severity) {
       return false;
@@ -161,8 +161,8 @@ public class AlertLevel implements java.io.Serializable {
    */
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + severity;
     result = mult * result + (name == null ? 0 : name.hashCode());

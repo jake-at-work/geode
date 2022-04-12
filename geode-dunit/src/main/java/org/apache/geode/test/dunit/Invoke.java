@@ -49,10 +49,10 @@ public class Invoke {
   }
 
   public static void invokeInEveryVM(String name, final SerializableRunnableIF runnable) {
-    for (int hostIndex = 0; hostIndex < Host.getHostCount(); hostIndex++) {
-      Host host = Host.getHost(hostIndex);
+    for (var hostIndex = 0; hostIndex < Host.getHostCount(); hostIndex++) {
+      var host = Host.getHost(hostIndex);
 
-      for (VM vm : host.getAllVMs()) {
+      for (var vm : host.getAllVMs()) {
         if (name != null) {
           vm.invoke(name, runnable);
         } else {
@@ -71,10 +71,10 @@ public class Invoke {
    */
   @Deprecated
   public static void invokeInEveryVM(final Class<?> targetClass, final String targetMethod) {
-    for (int hostIndex = 0; hostIndex < Host.getHostCount(); hostIndex++) {
-      Host host = Host.getHost(hostIndex);
+    for (var hostIndex = 0; hostIndex < Host.getHostCount(); hostIndex++) {
+      var host = Host.getHost(hostIndex);
 
-      for (VM vm : host.getAllVMs()) {
+      for (var vm : host.getAllVMs()) {
         vm.invoke(targetClass, targetMethod);
       }
     }
@@ -89,10 +89,10 @@ public class Invoke {
    */
   public static void invokeInEveryVM(final Class<?> targetClass, final String targetMethod,
       final Object[] methodArgs) {
-    for (int hostIndex = 0; hostIndex < Host.getHostCount(); hostIndex++) {
-      Host host = Host.getHost(hostIndex);
+    for (var hostIndex = 0; hostIndex < Host.getHostCount(); hostIndex++) {
+      var host = Host.getHost(hostIndex);
 
-      for (VM vm : host.getAllVMs()) {
+      for (var vm : host.getAllVMs()) {
         vm.invoke(targetClass, targetMethod, methodArgs);
       }
     }
@@ -112,9 +112,9 @@ public class Invoke {
   public static <T> Map<VM, T> invokeInEveryVM(String name,
       final SerializableCallableIF<T> callable) {
     Map<VM, T> ret = new HashMap<>();
-    for (int h = 0; h < Host.getHostCount(); h++) {
-      Host host = Host.getHost(h);
-      for (VM vm : host.getAllVMs()) {
+    for (var h = 0; h < Host.getHostCount(); h++) {
+      var host = Host.getHost(h);
+      for (var vm : host.getAllVMs()) {
         if (name != null) {
           ret.put(vm, vm.invoke(name, callable));
         } else {
@@ -126,7 +126,7 @@ public class Invoke {
   }
 
   public static void invokeInLocator(final SerializableRunnableIF runnable) {
-    VM locator = Host.getLocator();
+    var locator = Host.getLocator();
     if (locator != null) {
       locator.invoke(runnable);
     }

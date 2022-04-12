@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
@@ -36,8 +35,6 @@ import org.apache.geode.internal.ExitCode;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.snapshot.SnapshotPacket.SnapshotRecord;
-import org.apache.geode.pdx.internal.EnumInfo;
-import org.apache.geode.pdx.internal.PdxType;
 import org.apache.geode.pdx.internal.TypeRegistry;
 
 /**
@@ -79,21 +76,21 @@ public class GFSnapshot {
       ExitCode.FATAL.doSystemExit();
     }
 
-    GFSnapshotImporter imp = new GFSnapshotImporter(new File(args[0]), null);
+    var imp = new GFSnapshotImporter(new File(args[0]), null);
     try {
       System.out.println("Snapshot format is version " + imp.getVersion());
       System.out.println("Snapshot region is " + imp.getRegionName());
 
-      ExportedRegistry reg = imp.getPdxTypes();
-      Map<Integer, PdxType> types = reg.types();
+      var reg = imp.getPdxTypes();
+      var types = reg.types();
       System.out.println("Found " + types.size() + " PDX types:");
-      for (Entry<Integer, PdxType> entry : types.entrySet()) {
+      for (var entry : types.entrySet()) {
         System.out.println("\t" + entry.getKey() + " = " + entry.getValue());
       }
 
-      Map<Integer, EnumInfo> enums = reg.enums();
+      var enums = reg.enums();
       System.out.println("Found " + enums.size() + " PDX enums: ");
-      for (Entry<Integer, EnumInfo> entry : enums.entrySet()) {
+      for (var entry : enums.entrySet()) {
         System.out.println("\t" + entry.getKey() + " = " + entry.getValue());
       }
 
@@ -117,7 +114,7 @@ public class GFSnapshot {
    */
   public static SnapshotWriter create(File snapshot, String region, InternalCache cache)
       throws IOException {
-    final GFSnapshotExporter out = new GFSnapshotExporter(snapshot, region, cache);
+    final var out = new GFSnapshotExporter(snapshot, region, cache);
     return new SnapshotWriter() {
       @Override
       public void snapshotEntry(SnapshotRecord entry) throws IOException {
@@ -163,7 +160,7 @@ public class GFSnapshot {
         if (!foundNext && !moveNext()) {
           throw new NoSuchElementException();
         }
-        Entry<K, V> result = next;
+        var result = next;
 
         foundNext = false;
         next = null;
@@ -222,7 +219,7 @@ public class GFSnapshot {
 
     public GFSnapshotExporter(File out, String region, InternalCache cache) throws IOException {
       this.cache = cache;
-      FileOutputStream fos = new FileOutputStream(out);
+      var fos = new FileOutputStream(out);
       fc = fos.getChannel();
 
       dos = new DataOutputStream(new BufferedOutputStream(fos));
@@ -256,7 +253,7 @@ public class GFSnapshot {
 
       // grab the pdx start location
       dos.flush();
-      long registryPosition = fc.position();
+      var registryPosition = fc.position();
 
       // write pdx types
       try {
@@ -298,9 +295,9 @@ public class GFSnapshot {
       // read header and pdx registry
       long entryPosition;
 
-      FileInputStream fis = new FileInputStream(in);
-      FileChannel fc = fis.getChannel();
-      DataInputStream tmp = new DataInputStream(fis);
+      var fis = new FileInputStream(in);
+      var fc = fis.getChannel();
+      var tmp = new DataInputStream(fis);
       try {
         // read the snapshot file header
         version = tmp.readByte();
@@ -311,7 +308,7 @@ public class GFSnapshot {
 
         } else if (version == SNAP_VER_2) {
           // read format
-          byte[] format = new byte[3];
+          var format = new byte[3];
           tmp.readFully(format);
           if (!Arrays.equals(format, SNAP_FMT)) {
             throw new IOException(String.format("Unrecognized snapshot file type: %s",
@@ -319,7 +316,7 @@ public class GFSnapshot {
           }
 
           // read pdx location
-          long registryPosition = tmp.readLong();
+          var registryPosition = tmp.readLong();
 
           // read region
           region = tmp.readUTF();
@@ -385,12 +382,12 @@ public class GFSnapshot {
      * @throws ClassNotFoundException unable to create entry
      */
     public SnapshotRecord readSnapshotRecord() throws IOException, ClassNotFoundException {
-      byte[] key = DataSerializer.readByteArray(dis);
+      var key = DataSerializer.readByteArray(dis);
       if (key == null) {
         return null;
       }
 
-      byte[] value = DataSerializer.readByteArray(dis);
+      var value = DataSerializer.readByteArray(dis);
       return new SnapshotRecord(key, value);
     }
 
@@ -403,7 +400,7 @@ public class GFSnapshot {
         return;
       }
 
-      for (Map.Entry<Integer, PdxType> entry : pdx.types().entrySet()) {
+      for (var entry : pdx.types().entrySet()) {
         tr.addImportedType(entry.getKey(), entry.getValue());
       }
     }
@@ -413,7 +410,7 @@ public class GFSnapshot {
         return;
       }
 
-      for (Map.Entry<Integer, EnumInfo> entry : pdx.enums().entrySet()) {
+      for (var entry : pdx.enums().entrySet()) {
         tr.addImportedEnum(entry.getKey(), entry.getValue());
       }
     }

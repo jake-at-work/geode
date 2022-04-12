@@ -71,16 +71,16 @@ public class MessageDependencyMonitor implements DependencyMonitor {
   @Override
   public Set<Dependency<Thread, Serializable>> getBlockedThreads(Thread[] allThreads) {
 
-    InternalDistributedSystem system = InternalDistributedSystem.getAnyInstance();
+    var system = InternalDistributedSystem.getAnyInstance();
     if (system == null) {
       return Collections.emptySet();
     }
-    InternalDistributedMember myId = system.getDistributedMember();
+    var myId = system.getDistributedMember();
 
     Set<Dependency<Thread, Serializable>> blockedThreads =
         new HashSet<>();
-    for (Thread thread : allThreads) {
-      ReplyProcessor21 processor = waitingProcessors.get(thread);
+    for (var thread : allThreads) {
+      var processor = waitingProcessors.get(thread);
       if (processor != null && processor.getProcessorId() > 0) {
         blockedThreads.add(new Dependency<>(thread,
             new MessageKey(myId, processor.getProcessorId())));
@@ -94,8 +94,8 @@ public class MessageDependencyMonitor implements DependencyMonitor {
     Set<Dependency<Serializable, Thread>> heldResources =
         new HashSet<>();
 
-    for (Thread thread : allThreads) {
-      MessageWithReply message = processingMessages.get(thread);
+    for (var thread : allThreads) {
+      var message = processingMessages.get(thread);
       if (message != null && message.getProcessorId() > 0) {
         heldResources.add(new Dependency<>(
             new MessageKey(message.getSender(), message.getProcessorId()), thread));
@@ -127,8 +127,8 @@ public class MessageDependencyMonitor implements DependencyMonitor {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((myId == null) ? 0 : myId.hashCode());
       result = prime * result + processorId;
       return result;
@@ -145,7 +145,7 @@ public class MessageDependencyMonitor implements DependencyMonitor {
       if (!(obj instanceof MessageKey)) {
         return false;
       }
-      MessageKey other = (MessageKey) obj;
+      var other = (MessageKey) obj;
       if (myId == null) {
         if (other.myId != null) {
           return false;

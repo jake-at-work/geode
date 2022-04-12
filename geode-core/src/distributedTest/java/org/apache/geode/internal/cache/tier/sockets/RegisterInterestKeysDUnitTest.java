@@ -39,7 +39,6 @@ import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
@@ -85,7 +84,7 @@ public class RegisterInterestKeysDUnitTest extends JUnit4DistributedTestCase {
     disconnectAllFromDS();
     Wait.pause(5000);
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     // Server1 VM
     server1 = host.getVM(0);
 
@@ -99,7 +98,7 @@ public class RegisterInterestKeysDUnitTest extends JUnit4DistributedTestCase {
     client2 = host.getVM(3);
 
     createImpl();
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       host.getVM(i).invoke(getClass(), "createImpl", null);
     }
 
@@ -157,7 +156,7 @@ public class RegisterInterestKeysDUnitTest extends JUnit4DistributedTestCase {
   public static void createClientCache(String host, Integer port1, Integer port2) throws Exception {
     int PORT1 = port1;
     int PORT2 = port2;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new RegisterInterestKeysDUnitTest().createCache(props);
@@ -173,10 +172,10 @@ public class RegisterInterestKeysDUnitTest extends JUnit4DistributedTestCase {
     } finally {
       CacheServerTestUtil.enableShufflingOfEndpoints();
     }
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
   }
@@ -184,11 +183,11 @@ public class RegisterInterestKeysDUnitTest extends JUnit4DistributedTestCase {
   public static Integer createServerCache() throws Exception {
     new RegisterInterestKeysDUnitTest().createCache(new Properties());
 
-    RegionAttributes attrs = impl.createServerCacheAttributes();
+    var attrs = impl.createServerCacheAttributes();
     cache.createRegion(REGION_NAME, attrs);
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();
@@ -196,7 +195,7 @@ public class RegisterInterestKeysDUnitTest extends JUnit4DistributedTestCase {
   }
 
   protected RegionAttributes createServerCacheAttributes() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     return factory.create();
@@ -214,7 +213,7 @@ public class RegisterInterestKeysDUnitTest extends JUnit4DistributedTestCase {
       assertEquals(true, r.containsKey("key1"));
       assertEquals(false, r.containsValueForKey("key1"));
       {
-        Region.Entry re = r.getEntry("key1");
+        var re = r.getEntry("key1");
         assertNotNull(re);
         assertNull(re.getValue());
       }

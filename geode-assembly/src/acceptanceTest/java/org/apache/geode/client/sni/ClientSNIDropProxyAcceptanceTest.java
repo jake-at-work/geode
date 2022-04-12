@@ -74,7 +74,7 @@ public class ClientSNIDropProxyAcceptanceTest {
 
   @Test
   public void performSimpleOperationsDropSNIProxy() {
-    final Region<String, Integer> region = getRegion();
+    final var region = getRegion();
 
     region.put("Roy Hobbs", 9);
     assertThat(region.get("Roy Hobbs")).isEqualTo(9);
@@ -110,7 +110,7 @@ public class ClientSNIDropProxyAcceptanceTest {
   }
 
   public Region<String, Integer> getRegion() {
-    Properties gemFireProps = new Properties();
+    var gemFireProps = new Properties();
     gemFireProps.setProperty(SSL_ENABLED_COMPONENTS, "all");
     gemFireProps.setProperty(SSL_KEYSTORE_TYPE, "jks");
     gemFireProps.setProperty(SSL_REQUIRE_AUTHENTICATION, "false");

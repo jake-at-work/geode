@@ -136,7 +136,7 @@ public class UnregisterInterestTest {
 
     when(unregisterInterestOperationContext.getKey()).thenReturn(KEY);
 
-    CacheClientNotifier ccn = mock(CacheClientNotifier.class);
+    var ccn = mock(CacheClientNotifier.class);
 
     when(acceptor.getCacheClientNotifier()).thenReturn(ccn);
   }

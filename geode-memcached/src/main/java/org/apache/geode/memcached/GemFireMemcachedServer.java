@@ -17,7 +17,6 @@ package org.apache.geode.memcached;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.channels.ClosedByInterruptException;
@@ -96,7 +95,7 @@ public class GemFireMemcachedServer {
 
     @Override
     public Thread newThread(Runnable r) {
-      Thread t = new Thread(r);
+      var t = new Thread(r);
       t.setName("Gemcached-" + counter.incrementAndGet());
       t.setDaemon(true);
       return t;
@@ -169,22 +168,22 @@ public class GemFireMemcachedServer {
   private void startGemFire() {
     cache = GemFireCacheImpl.getInstance();
     if (cache == null) {
-      CacheFactory cacheFactory = new CacheFactory();
+      var cacheFactory = new CacheFactory();
       cache = cacheFactory.create();
     }
     logger = cache.getLogger();
   }
 
   private void startMemcachedServer() throws IOException, InterruptedException {
-    ServerSocketChannel channel = ServerSocketChannel.open();
-    final ServerSocket serverSocket = channel.socket();
+    var channel = ServerSocketChannel.open();
+    final var serverSocket = channel.socket();
     serverSocket.setReceiveBufferSize(getSocketBufferSize());
     serverSocket.setReuseAddress(true);
     serverSocket.bind(new InetSocketAddress(getBindAddress(), serverPort));
     if (logger.fineEnabled()) {
       logger.fine("GemFireMemcachedServer configured socket buffer size:" + getSocketBufferSize());
     }
-    final CountDownLatch latch = new CountDownLatch(1);
+    final var latch = new CountDownLatch(1);
     acceptor = new Thread(() -> {
       for (;;) {
         Socket s = null;
@@ -219,12 +218,12 @@ public class GemFireMemcachedServer {
   }
 
   private int getSocketBufferSize() {
-    InternalDistributedSystem system = (InternalDistributedSystem) cache.getDistributedSystem();
+    var system = (InternalDistributedSystem) cache.getDistributedSystem();
     return system.getConfig().getSocketBufferSize();
   }
 
   private void handleNewClient(Socket s) {
-    ConnectionHandler connHandler = new ConnectionHandler(s, cache, protocol);
+    var connHandler = new ConnectionHandler(s, cache, protocol);
     executor.execute(connHandler);
   }
 
@@ -240,8 +239,8 @@ public class GemFireMemcachedServer {
   }
 
   public static void main(String[] args) {
-    int port = getPort(args);
-    GemFireMemcachedServer server = new GemFireMemcachedServer(port);
+    var port = getPort(args);
+    var server = new GemFireMemcachedServer(port);
     server.start();
     while (true) {
       try {
@@ -253,11 +252,11 @@ public class GemFireMemcachedServer {
   }
 
   private static int getPort(String[] args) {
-    int port = 0;
+    var port = 0;
     if (args != null && args.length > 0) {
-      for (final String arg : args) {
+      for (final var arg : args) {
         if (arg.startsWith("-port")) {
-          String p = arg.substring(arg.indexOf('='));
+          var p = arg.substring(arg.indexOf('='));
           p = p.trim();
           port = Integer.parseInt(p);
         }

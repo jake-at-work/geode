@@ -43,7 +43,7 @@ public abstract class HealthEvaluatorTestCase {
    */
   @Before
   public void setUp() {
-    Properties props = getProperties();
+    var props = getProperties();
     system = (InternalDistributedSystem) DistributedSystem.connect(props);
   }
 
@@ -63,7 +63,7 @@ public abstract class HealthEvaluatorTestCase {
    * Creates the <code>Properties</code> objects used to connect to the distributed system.
    */
   protected Properties getProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(STATISTIC_SAMPLING_ENABLED, "true");

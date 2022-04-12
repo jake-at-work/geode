@@ -116,7 +116,7 @@ public class DiskStoreAttributes implements Serializable, DiskStore {
    */
   @Override
   public int[] getDiskDirSizes() {
-    int[] result = new int[diskDirSizes.length];
+    var result = new int[diskDirSizes.length];
     System.arraycopy(diskDirSizes, 0, result, 0, diskDirSizes.length);
     return result;
   }
@@ -132,7 +132,7 @@ public class DiskStoreAttributes implements Serializable, DiskStore {
    */
   @Override
   public File[] getDiskDirs() {
-    File[] result = new File[diskDirs.length];
+    var result = new File[diskDirs.length];
     System.arraycopy(diskDirs, 0, result, 0, diskDirs.length);
     return result;
   }
@@ -249,7 +249,7 @@ public class DiskStoreAttributes implements Serializable, DiskStore {
   }
 
   public static void checkMinAndMaxOplogSize(long maxOplogSize) {
-    long MAX = Long.MAX_VALUE / (1024 * 1024);
+    var MAX = Long.MAX_VALUE / (1024 * 1024);
     if (maxOplogSize > MAX) {
       throw new IllegalArgumentException(
           String.format(
@@ -290,7 +290,7 @@ public class DiskStoreAttributes implements Serializable, DiskStore {
    * Verify all directory sizes are positive
    */
   public static void verifyNonNegativeDirSize(int[] sizes) {
-    for (int size : sizes) {
+    for (var size : sizes) {
       if (size < 0) {
         throw new IllegalArgumentException(
             String.format("Dir size cannot be negative : %s",

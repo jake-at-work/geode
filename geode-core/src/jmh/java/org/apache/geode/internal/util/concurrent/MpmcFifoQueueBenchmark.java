@@ -168,7 +168,7 @@ public class MpmcFifoQueueBenchmark {
 
   @Benchmark
   public void workload() {
-    Object o = queue.poll();
+    var o = queue.poll();
     if (null == o) {
       o = new Object();
     }

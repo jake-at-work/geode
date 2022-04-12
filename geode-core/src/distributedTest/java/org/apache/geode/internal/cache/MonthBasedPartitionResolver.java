@@ -40,8 +40,8 @@ class MonthBasedPartitionResolver implements PartitionResolver, Declarable2 {
 
   @Override
   public Serializable getRoutingObject(EntryOperation opDetails) {
-    Serializable routingObj = (Serializable) opDetails.getKey();
-    Calendar calendar = Calendar.getInstance();
+    var routingObj = (Serializable) opDetails.getKey();
+    var calendar = Calendar.getInstance();
     calendar.setTime((Date) routingObj);
     return new SerializableMonth(calendar.get(Calendar.MONTH));
   }

@@ -85,7 +85,7 @@ public class HARegionQueueStatsJUnitTest {
    */
   protected HARegionQueue createHARegionQueue(String name)
       throws IOException, ClassNotFoundException, CacheException, InterruptedException {
-    HARegionQueue regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache,
+    var regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache,
         HARegionQueue.NON_BLOCKING_HA_QUEUE, false, disabledClock());
     return regionqueue;
   }
@@ -99,10 +99,10 @@ public class HARegionQueueStatsJUnitTest {
    */
   protected HARegionQueue createHARegionQueue(String name, HARegionQueueAttributes attrs)
       throws IOException, ClassNotFoundException, CacheException, InterruptedException {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setScope(Scope.DISTRIBUTED_ACK);
-    HARegionQueue regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache, attrs,
+    var regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache, attrs,
         HARegionQueue.NON_BLOCKING_HA_QUEUE, false, disabledClock());
     return regionqueue;
   }
@@ -120,17 +120,17 @@ public class HARegionQueueStatsJUnitTest {
   @Test
   public void testPutStatsNoConflation() throws Exception {
 
-    HARegionQueue rq = createHARegionQueue("testPutStatsNoConflation");
+    var rq = createHARegionQueue("testPutStatsNoConflation");
     Conflatable cf = null;
 
-    int totalEvents = 100;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 100;
+    for (var i = 0; i < totalEvents; i++) {
       cf = new ConflatableObject("key" + i, "value" + i, new EventID(new byte[] {1}, 1, i), false,
           "testing");
       rq.put(cf);
     }
 
-    HARegionQueueStats stats = rq.getStatistics();
+    var stats = rq.getStatistics();
     assertNotNull("stats for HARegionQueue found null", stats);
 
     assertEquals(
@@ -153,17 +153,17 @@ public class HARegionQueueStatsJUnitTest {
   @Test
   public void testPutStatsConflationEnabled() throws Exception {
 
-    HARegionQueue rq = createHARegionQueue("testPutStatsConflationEnabled");
+    var rq = createHARegionQueue("testPutStatsConflationEnabled");
     Conflatable cf = null;
 
-    int totalEvents = 100;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 100;
+    for (var i = 0; i < totalEvents; i++) {
       cf = new ConflatableObject("key", "value" + i, new EventID(new byte[] {1}, 1, i), true,
           "testing");
       rq.put(cf);
     }
 
-    HARegionQueueStats stats = rq.getStatistics();
+    var stats = rq.getStatistics();
     assertNotNull("stats for HARegionQueue found null", stats);
 
     assertEquals(
@@ -188,13 +188,13 @@ public class HARegionQueueStatsJUnitTest {
   @Test
   public void testExpiryStats() throws Exception {
 
-    HARegionQueueAttributes haa = new HARegionQueueAttributes();
+    var haa = new HARegionQueueAttributes();
     haa.setExpiryTime(1);
-    HARegionQueue rq = createHARegionQueue("testExpiryStats", haa);
+    var rq = createHARegionQueue("testExpiryStats", haa);
 
     Conflatable cf = null;
-    int totalEvents = 100;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 100;
+    for (var i = 0; i < totalEvents; i++) {
       cf = new ConflatableObject("key" + i, "value" + i, new EventID(new byte[] {1}, 1, i), false,
           "testing");
       rq.put(cf);
@@ -202,7 +202,7 @@ public class HARegionQueueStatsJUnitTest {
 
     Thread.sleep(3000);
 
-    HARegionQueueStats stats = rq.stats;
+    var stats = rq.stats;
     assertNotNull("stats for HARegionQueue found null", stats);
     assertEquals(
         "eventsEnqued by stats not equal to the actual number of events added to the queue",
@@ -224,18 +224,18 @@ public class HARegionQueueStatsJUnitTest {
    */
   @Test
   public void testRemoveStats() throws Exception {
-    HARegionQueue rq = createHARegionQueue("testRemoveStats");
+    var rq = createHARegionQueue("testRemoveStats");
     Conflatable cf = null;
 
-    int totalEvents = 100;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 100;
+    for (var i = 0; i < totalEvents; i++) {
       cf = new ConflatableObject("key" + i, "value" + i, new EventID(new byte[] {1}, 1, i), false,
           "testing");
       rq.put(cf);
     }
 
     // do some random peek operations.
-    int maxPeekBatchSize = 50;
+    var maxPeekBatchSize = 50;
     rq.peek();
     rq.peek(8);
     rq.peek(maxPeekBatchSize);
@@ -244,7 +244,7 @@ public class HARegionQueueStatsJUnitTest {
 
     rq.remove();
 
-    HARegionQueueStats stats = rq.getStatistics();
+    var stats = rq.getStatistics();
     assertNotNull("stats for HARegionQueue found null", stats);
 
     assertEquals(
@@ -269,24 +269,24 @@ public class HARegionQueueStatsJUnitTest {
    */
   @Test
   public void testTakeStats() throws Exception {
-    HARegionQueue rq = createHARegionQueue("testTakeStats");
+    var rq = createHARegionQueue("testTakeStats");
     Conflatable cf = null;
 
-    int totalEvents = 100;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 100;
+    for (var i = 0; i < totalEvents; i++) {
       cf = new ConflatableObject("key" + i, "value" + i, new EventID(new byte[] {1}, 1, i), false,
           "testing");
       rq.put(cf);
     }
 
-    int takeInBatch = 50;
-    int takeOneByOne = 25;
+    var takeInBatch = 50;
+    var takeOneByOne = 25;
     rq.take(takeInBatch);
-    for (int i = 0; i < takeOneByOne; i++) {
+    for (var i = 0; i < takeOneByOne; i++) {
       rq.take();
     }
 
-    HARegionQueueStats stats = rq.getStatistics();
+    var stats = rq.getStatistics();
     assertNotNull("stats for HARegionQueue found null", stats);
 
     assertEquals(
@@ -312,22 +312,22 @@ public class HARegionQueueStatsJUnitTest {
    */
   @Test
   public void testRemoveByQrmStats() throws Exception {
-    HARegionQueue rq = createHARegionQueue("testRemoveByQrmStats");
+    var rq = createHARegionQueue("testRemoveByQrmStats");
     Conflatable cf = null;
 
-    int totalEvents = 100;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 100;
+    for (var i = 0; i < totalEvents; i++) {
       cf = new ConflatableObject("key" + i, "value" + i, new EventID(new byte[] {1}, 1, i), false,
           "testing");
       rq.put(cf);
     }
 
     // call for removal thru QRM api
-    int lastDispatchedSqId = 20;
-    EventID id = new EventID(new byte[] {1}, 1, lastDispatchedSqId);
+    var lastDispatchedSqId = 20;
+    var id = new EventID(new byte[] {1}, 1, lastDispatchedSqId);
     rq.removeDispatchedEvents(id);
 
-    HARegionQueueStats stats = rq.getStatistics();
+    var stats = rq.getStatistics();
     assertNotNull("stats for HARegionQueue found null", stats);
 
     assertEquals(
@@ -351,17 +351,17 @@ public class HARegionQueueStatsJUnitTest {
    */
   @Test
   public void testThreadIdentifierStats() throws Exception {
-    HARegionQueue rq = createHARegionQueue("testRemoveByQrmStats");
+    var rq = createHARegionQueue("testRemoveByQrmStats");
     Conflatable cf = null;
 
-    int totalEvents = 100;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 100;
+    for (var i = 0; i < totalEvents; i++) {
       cf = new ConflatableObject("key" + i, "value" + i, new EventID(new byte[] {1}, i, i), false,
           "testing");
       rq.put(cf);
     }
 
-    HARegionQueueStats stats = rq.getStatistics();
+    var stats = rq.getStatistics();
     assertNotNull("stats for HARegionQueue found null", stats);
 
     assertEquals(
@@ -387,11 +387,11 @@ public class HARegionQueueStatsJUnitTest {
    */
   @Test
   public void testVoidRemovalStats() throws Exception {
-    HARegionQueue rq = createHARegionQueue("testVoidRemovalStats");
+    var rq = createHARegionQueue("testVoidRemovalStats");
     Conflatable cf = null;
 
-    int totalEvents = 100;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 100;
+    for (var i = 0; i < totalEvents; i++) {
       cf = new ConflatableObject("key" + i, "value" + i, new EventID(new byte[] {1}, 1, i), false,
           "testing");
       rq.put(cf);
@@ -401,7 +401,7 @@ public class HARegionQueueStatsJUnitTest {
     rq.take(totalEvents);
     rq.remove();
 
-    HARegionQueueStats stats = rq.getStatistics();
+    var stats = rq.getStatistics();
     assertNotNull("stats for HARegionQueue found null", stats);
 
     assertEquals(
@@ -425,24 +425,24 @@ public class HARegionQueueStatsJUnitTest {
    */
   @Test
   public void testSequenceViolationStats() throws Exception {
-    HARegionQueue rq = createHARegionQueue("testSequenceViolationStats");
+    var rq = createHARegionQueue("testSequenceViolationStats");
     Conflatable cf = null;
 
-    int totalEvents = 10;
-    for (int i = 0; i < totalEvents; i++) {
+    var totalEvents = 10;
+    for (var i = 0; i < totalEvents; i++) {
       cf = new ConflatableObject("key" + i, "value" + i, new EventID(new byte[] {1}, 1, i), false,
           "testing");
       rq.put(cf);
     }
 
-    int seqViolated = 3;
-    for (int i = 0; i < seqViolated; i++) {
+    var seqViolated = 3;
+    for (var i = 0; i < seqViolated; i++) {
       cf = new ConflatableObject("key" + i, "value" + i, new EventID(new byte[] {1}, 1, i), false,
           "testing");
       rq.put(cf);
     }
 
-    HARegionQueueStats stats = rq.getStatistics();
+    var stats = rq.getStatistics();
     assertNotNull("stats for HARegionQueue found null", stats);
 
     assertEquals("Number of sequence violated by stats not equal to the actual number", seqViolated,

@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -27,10 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.examples.SimpleSecurityManager;
-import org.apache.geode.management.configuration.Deployment;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.test.compiler.JarBuilder;
 import org.apache.geode.test.junit.rules.LocatorStarterRule;
 
@@ -43,10 +39,10 @@ public class LoadClusterConfigFromDirIntegrationTest {
   @Before
   public void before() throws IOException {
     clusterConfigDir = new File(locator.getWorkingDir(), "cluster_config");
-    File groupDir = new File(clusterConfigDir, "cluster");
+    var groupDir = new File(clusterConfigDir, "cluster");
     groupDir.mkdirs();
-    File jarFile = new File(groupDir, "test.jar");
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarFile = new File(groupDir, "test.jar");
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJarFromClassNames(jarFile, "TestFunction");
   }
 
@@ -56,12 +52,12 @@ public class LoadClusterConfigFromDirIntegrationTest {
         .withProperty("load-cluster-configuration-from-dir", "true")
         .startLocator();
 
-    InternalConfigurationPersistenceService ccService =
+    var ccService =
         locator.getLocator().getConfigurationPersistenceService();
-    Configuration config = ccService.getConfiguration("cluster");
-    Collection<Deployment> deployments = config.getDeployments();
+    var config = ccService.getConfiguration("cluster");
+    var deployments = config.getDeployments();
     assertThat(deployments).hasSize(1);
-    Deployment deployment = deployments.iterator().next();
+    var deployment = deployments.iterator().next();
     assertThat(deployment.getFileName()).isEqualTo("test.jar");
     assertThat(deployment.getDeployedBy()).isNull();
   }

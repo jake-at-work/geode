@@ -27,23 +27,23 @@ public class CqServiceUnitTest {
 
   @Test
   public void constructCqServerNameShouldReturnSameResultRegardlessOfOptimizedCacheNames() {
-    CqServiceImpl cqService = new CqServiceImpl(Fakes.cache());
-    ClientProxyMembershipID proxyMembershipID =
+    var cqService = new CqServiceImpl(Fakes.cache());
+    var proxyMembershipID =
         new ClientProxyMembershipID(Fakes.cache().getDistributedSystem().getDistributedMember());
-    String name1 = cqService.constructServerCqName("myCq", proxyMembershipID);
-    String name2 = cqService.constructServerCqName("myCq", proxyMembershipID);
+    var name1 = cqService.constructServerCqName("myCq", proxyMembershipID);
+    var name2 = cqService.constructServerCqName("myCq", proxyMembershipID);
     assertEquals(name1, name2);
   }
 
   @Test
   public void constructCqServerNameShouldReturnCorrectResultsEvenAfterCqClosingRemovesValuesFromOptimizedCache()
       throws Exception {
-    CqServiceImpl cqService = new CqServiceImpl(Fakes.cache());
-    ClientProxyMembershipID proxyMembershipID =
+    var cqService = new CqServiceImpl(Fakes.cache());
+    var proxyMembershipID =
         new ClientProxyMembershipID(Fakes.cache().getDistributedSystem().getDistributedMember());
-    String name1 = cqService.constructServerCqName("myCq", proxyMembershipID);
+    var name1 = cqService.constructServerCqName("myCq", proxyMembershipID);
     cqService.closeCq("myCq", proxyMembershipID);
-    String name2 = cqService.constructServerCqName("myCq", proxyMembershipID);
+    var name2 = cqService.constructServerCqName("myCq", proxyMembershipID);
     assertEquals(name1, name2);
   }
 

@@ -28,10 +28,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryOperation;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
@@ -40,10 +38,7 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -74,7 +69,7 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
 
   @Parameterized.Parameters
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
     } else {
@@ -102,7 +97,7 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
   @Override
   public final void postSetUp() throws Exception {
     disconnectFromDS();
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     server1 = host.getVM(0); // server
     server2 = host.getVM(1); // server
     server3 = host.getVM(2); // server with pool
@@ -140,8 +135,8 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
 
   @SuppressWarnings("deprecation")
   public static int createServerCache() throws Exception {
-    Properties props = new Properties();
-    TxCommitMessageBCTestBase test =
+    var props = new Properties();
+    var test =
         new TxCommitMessageBCTestBase() {};
     DistributedSystem ds = test.getSystem(props);
     ds.disconnect();
@@ -150,8 +145,8 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
     RegionFactory<String, String> rf1 = cache.createRegionFactory(RegionShortcut.REPLICATE);
     rf1.create(REPLICATE_REGION_NAME);
 
-    PartitionAttributesFactory<String, Integer> paf2 = new PartitionAttributesFactory<>();
-    PartitionAttributes<String, Integer> pa2 =
+    var paf2 = new PartitionAttributesFactory<String, Integer>();
+    var pa2 =
         paf2.setRedundantCopies(1).setPartitionResolver(new PartitionResolver<String, Integer>() {
           @Override
           public Object getRoutingObject(EntryOperation<String, Integer> opDetails) {
@@ -171,7 +166,7 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
     rf2.setPartitionAttributes(pa2);
     rf2.create(PARTITION_REGION_NAME);
 
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     server.setPort(getRandomAvailableTCPPort());
     server.start();
     return server.getPort();
@@ -179,39 +174,39 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
 
   @SuppressWarnings("deprecation")
   public static void createServerCacheWithPool(String hostName, Integer[] ports) throws Exception {
-    Properties props = new Properties();
-    TxCommitMessageBCTestBase test =
+    var props = new Properties();
+    var test =
         new TxCommitMessageBCTestBase() {};
     DistributedSystem ds = test.getSystem(props);
     ds.disconnect();
     cache = (GemFireCacheImpl) CacheFactory.create(test.getSystem());
 
-    String poolName = "ClientPool";
-    PoolFactory pf = PoolManager.createFactory().setSubscriptionEnabled(true);
+    var poolName = "ClientPool";
+    var pf = PoolManager.createFactory().setSubscriptionEnabled(true);
     for (int port : ports) {
       pf.addServer(hostName, port);
     }
-    Pool pool = pf.create(poolName);
+    var pool = pf.create(poolName);
 
     RegionFactory<String, Integer> rf1 = cache.createRegionFactory(RegionShortcut.LOCAL);
     rf1.setDataPolicy(DataPolicy.EMPTY);
     rf1.setPoolName(pool.getName());
-    Region<String, Integer> region1 = rf1.create(REPLICATE_REGION_NAME);
+    var region1 = rf1.create(REPLICATE_REGION_NAME);
     region1.registerInterest("ALL_KEYS");
 
     RegionFactory<String, Integer> rf2 = cache.createRegionFactory(RegionShortcut.LOCAL);
     rf2.setDataPolicy(DataPolicy.EMPTY);
     rf2.setPoolName(pool.getName());
-    Region<String, Integer> region2 = rf2.create(PARTITION_REGION_NAME);
+    var region2 = rf2.create(PARTITION_REGION_NAME);
     region2.registerInterest("ALL_KEYS");
   }
 
   @SuppressWarnings("deprecation")
   public static void createClientCache(String hostName, Integer[] ports) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     DistributedSystem ds = new TxCommitMessageBCTestBase() {}.getSystem(props);
     ds.disconnect();
-    ClientCacheFactory ccf = new ClientCacheFactory(props);
+    var ccf = new ClientCacheFactory(props);
     ccf.setPoolSubscriptionEnabled(true);
     for (int port : ports) {
       ccf.addPoolServer(hostName, port);
@@ -220,21 +215,21 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
 
     ClientRegionFactory<String, Integer> crf1 =
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY);
-    Region<String, Integer> region1 = crf1.create(REPLICATE_REGION_NAME);
+    var region1 = crf1.create(REPLICATE_REGION_NAME);
     region1.registerInterest("ALL_KEYS");
 
     ClientRegionFactory<String, Integer> crf2 =
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY);
-    Region<String, Integer> region2 = crf2.create(PARTITION_REGION_NAME);
+    var region2 = crf2.create(PARTITION_REGION_NAME);
     region2.registerInterest("ALL_KEYS");
   }
 
   public static void doTxPuts(String regionName) throws Exception {
     Region<String, Integer> region = cache.getRegion(regionName);
 
-    CacheTransactionManager txMngr = cache.getCacheTransactionManager();
+    var txMngr = cache.getCacheTransactionManager();
     txMngr.begin();
-    Integer value1 = region.get(KEY1);
+    var value1 = region.get(KEY1);
     if (value1 == null) {
       value1 = 1;
     } else {
@@ -242,7 +237,7 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
     }
     region.put(KEY1, value1);
 
-    Integer value2 = region.get(KEY2);
+    var value2 = region.get(KEY2);
     if (value2 == null) {
       value2 = 1000;
     } else {
@@ -257,9 +252,9 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
     Region<String, Integer> regionReplicate = cache.getRegion(regionNameReplicate);
     Region<String, Integer> regionPartition = cache.getRegion(regionNamePartition);
 
-    CacheTransactionManager txMngr = cache.getCacheTransactionManager();
+    var txMngr = cache.getCacheTransactionManager();
     txMngr.begin();
-    Integer valPart1 = regionPartition.get(KEY1);
+    var valPart1 = regionPartition.get(KEY1);
     if (valPart1 == null) {
       valPart1 = 1500;
     } else {
@@ -267,7 +262,7 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
     }
     regionPartition.put(KEY1, valPart1);
 
-    Integer valPart2 = regionPartition.get(KEY2);
+    var valPart2 = regionPartition.get(KEY2);
     if (valPart2 == null) {
       valPart2 = 2000;
     } else {
@@ -275,7 +270,7 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
     }
     regionPartition.put(KEY2, valPart2);
 
-    Integer valRepl1 = regionReplicate.get(KEY1);
+    var valRepl1 = regionReplicate.get(KEY1);
     if (valRepl1 == null) {
       valRepl1 = 500;
     } else {
@@ -283,7 +278,7 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
     }
     regionReplicate.put(KEY1, valRepl1);
 
-    Integer valRepl2 = regionReplicate.get(KEY2);
+    var valRepl2 = regionReplicate.get(KEY2);
     if (valRepl2 == null) {
       valRepl2 = 1000;
     } else {
@@ -296,15 +291,15 @@ public abstract class TxCommitMessageBCTestBase extends JUnit4DistributedTestCas
   public static List<Integer> doGets(String regionName) throws Exception {
     Region<String, Integer> region = cache.getRegion(regionName);
 
-    Integer value1 = region.get(KEY1);
-    Integer value2 = region.get(KEY2);
+    var value1 = region.get(KEY1);
+    var value2 = region.get(KEY2);
 
     return Arrays.asList(value1, value2);
   }
 
   protected static void setVersion(String field, Object value) throws Exception {
-    Field targetField = value.getClass().getDeclaredField(field);
-    Field modifiersField = Field.class.getDeclaredField("modifiers");
+    var targetField = value.getClass().getDeclaredField(field);
+    var modifiersField = Field.class.getDeclaredField("modifiers");
     modifiersField.setAccessible(true);
     modifiersField.set(targetField,
         targetField.getModifiers() & ~Modifier.PRIVATE & ~Modifier.FINAL);

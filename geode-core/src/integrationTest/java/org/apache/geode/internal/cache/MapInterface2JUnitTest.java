@@ -27,10 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.apache.geode.cache.AttributesMutator;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CommitConflictException;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
@@ -48,8 +45,8 @@ public class MapInterface2JUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
   }
@@ -61,8 +58,8 @@ public class MapInterface2JUnitTest {
 
   @Test
   public void testBasicMapClearNonTrnxn() {
-    Region rgn = CacheUtils.getRegion("Portfolios");
-    int size = rgn.size();
+    var rgn = CacheUtils.getRegion("Portfolios");
+    var size = rgn.size();
     assertTrue("MapInterface2JUnitTest::basicMapClearNonTranxn: The init size of region is zero",
         size > 0);
     rgn.clear();
@@ -73,11 +70,11 @@ public class MapInterface2JUnitTest {
 
   @Test
   public void testBasicMapClearTrnxn() {
-    Region rgn = CacheUtils.getRegion("Portfolios");
-    int size = rgn.size();
+    var rgn = CacheUtils.getRegion("Portfolios");
+    var size = rgn.size();
     assertTrue("MapInterface2JUnitTest::basicMapClearNonTranxn: The init size of region is zero",
         size > 0);
-    CacheTransactionManager tm = CacheUtils.getCacheTranxnMgr();
+    var tm = CacheUtils.getCacheTranxnMgr();
     tm.begin();
     rgn.put("6", new Portfolio(6));
     assertTrue(rgn.size() == 5);
@@ -101,8 +98,8 @@ public class MapInterface2JUnitTest {
 
   @Test
   public void testBasicMapAfterClearCalback() {
-    Region rgn = CacheUtils.getRegion("Portfolios");
-    AttributesMutator atm = rgn.getAttributesMutator();
+    var rgn = CacheUtils.getRegion("Portfolios");
+    var atm = rgn.getAttributesMutator();
     atm.addCacheListener(new CacheListenerAdapter() {
 
       @Override
@@ -114,7 +111,7 @@ public class MapInterface2JUnitTest {
         }
       }
     });
-    int size = rgn.size();
+    var size = rgn.size();
     assertTrue("MapInterface2JUnitTest::basicMapClearNonTranxn: The init size of region is zero",
         size > 0);
     rgn.clear();
@@ -142,13 +139,13 @@ public class MapInterface2JUnitTest {
   public void testBlockGlobalScopeInSingleVM() {
     CacheUtils.getCache().setLockLease(40);
     CacheUtils.getCache().setLockTimeout(5);
-    final Region region = CacheUtils.createRegion("Global", String.class, Scope.GLOBAL);
-    for (int i = 0; i < 10; i++) {
+    final var region = CacheUtils.createRegion("Global", String.class, Scope.GLOBAL);
+    for (var i = 0; i < 10; i++) {
       region.put("" + i, "" + i);
     }
 
-    final Object callbackSync = new Object();
-    final boolean[] canCallbackProceed = new boolean[] {false};
+    final var callbackSync = new Object();
+    final var canCallbackProceed = new boolean[] {false};
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
     CacheObserverHolder.setInstance(new CacheObserverAdapter() {
       @Override
@@ -163,9 +160,9 @@ public class MapInterface2JUnitTest {
           event.getRegion().getCache().getLogger().info("*******Main THread Notified *********");
           synchronized (callbackSync) {
             long maxWait = 20000;
-            StopWatch timer = new StopWatch(true);
+            var timer = new StopWatch(true);
             while (!canCallbackProceed[0]) {
-              long timeLeft = maxWait - timer.elapsedTimeMillis();
+              var timeLeft = maxWait - timer.elapsedTimeMillis();
               if (timeLeft > 0) {
                 callbackSync.wait(timeLeft);
               } else {
@@ -179,7 +176,7 @@ public class MapInterface2JUnitTest {
         }
       }
     });
-    Thread th = new Thread(region::clear);
+    var th = new Thread(region::clear);
 
     th.start();
     try {
@@ -210,8 +207,8 @@ public class MapInterface2JUnitTest {
   public void testSuccessGlobalScopeInSingleVM() {
     CacheUtils.getCache().setLockLease(10);
     CacheUtils.getCache().setLockTimeout(15);
-    final Region region = CacheUtils.createRegion("Global", String.class, Scope.GLOBAL);
-    for (int i = 0; i < 10; i++) {
+    final var region = CacheUtils.createRegion("Global", String.class, Scope.GLOBAL);
+    for (var i = 0; i < 10; i++) {
       region.put("" + i, "" + i);
     }
 
@@ -234,7 +231,7 @@ public class MapInterface2JUnitTest {
         }
       }
     });
-    Thread th = new Thread(region::clear);
+    var th = new Thread(region::clear);
 
     th.start();
     try {
@@ -246,7 +243,7 @@ public class MapInterface2JUnitTest {
       }
       region.getCache().getLogger().info("*******Main THread coming out of wait*********");
       region.put("test", "test");
-      String str = (String) region.get("test");
+      var str = (String) region.get("test");
       assertNotNull("The put operation has succeeded", str);
     } catch (Exception cwe) {
       fail("The test experienced exception " + cwe);

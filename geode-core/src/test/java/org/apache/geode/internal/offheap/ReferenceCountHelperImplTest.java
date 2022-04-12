@@ -22,7 +22,6 @@ import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 import org.junit.Before;
@@ -41,59 +40,59 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doTrackReferenceCountsWithTrackRefsTrueAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
     assertThat(referenceCountHelperImpl.trackReferenceCounts()).isTrue();
   }
 
   @Test
   public void doTrackReferenceCountsWithTrackRefsTrueAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
     assertThat(referenceCountHelperImpl.trackReferenceCounts()).isTrue();
   }
 
   @Test
   public void doTrackReferenceCountsWithTrackRefsFalseAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
     assertThat(referenceCountHelperImpl.trackReferenceCounts()).isFalse();
   }
 
   @Test
   public void doTrackReferenceCountsWithTrackRefsFalseAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
     assertThat(referenceCountHelperImpl.trackReferenceCounts()).isFalse();
   }
 
   @Test
   public void doTrackFreedReferenceCountsWithTrackRefsTrueAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
     assertThat(referenceCountHelperImpl.trackFreedReferenceCounts()).isTrue();
   }
 
   @Test
   public void doTrackFreedReferenceCountsWithTrackRefsTrueAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
     assertThat(referenceCountHelperImpl.trackFreedReferenceCounts()).isFalse();
   }
 
   @Test
   public void doTrackFreedReferenceCountsWithTrackRefsFalseAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
     assertThat(referenceCountHelperImpl.trackFreedReferenceCounts()).isTrue();
   }
 
   @Test
   public void doTrackFreedReferenceCountsWithTrackRefsFalseAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
     assertThat(referenceCountHelperImpl.trackFreedReferenceCounts()).isFalse();
   }
 
   @Test
   public void doSkipRefCountTrackingWithTrackRefsTrueAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
 
-    Object preOwner = referenceCountHelperImpl.getReferenceCountOwner();
+    var preOwner = referenceCountHelperImpl.getReferenceCountOwner();
     referenceCountHelperImpl.skipRefCountTracking();
-    Object postOwner = referenceCountHelperImpl.getReferenceCountOwner();
+    var postOwner = referenceCountHelperImpl.getReferenceCountOwner();
 
     // skip sets owner to SKIP_REF_COUNT_TRACKING
     assertThat(postOwner).isNotEqualTo(preOwner);
@@ -101,7 +100,7 @@ public class ReferenceCountHelperImplTest {
 
     Long address = (long) 0x1000;
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
     referenceCountHelperImpl.unskipRefCountTracking();
@@ -113,8 +112,8 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doSkipRefCountTrackingWithTrackRefsFalseAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
-    Object preOwner = referenceCountHelperImpl.getReferenceCountOwner();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
+    var preOwner = referenceCountHelperImpl.getReferenceCountOwner();
     // getReferenceCountOwner returns null if not tracking
     assertThat(preOwner).isNull();
 
@@ -127,8 +126,8 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doSkipRefCountTrackingWithTrackRefsFalseAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
-    Object preOwner = referenceCountHelperImpl.getReferenceCountOwner();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
+    var preOwner = referenceCountHelperImpl.getReferenceCountOwner();
     // getReferenceCountOwner returns null if not tracking
     assertThat(preOwner).isNull();
 
@@ -142,11 +141,11 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doSkipRefCountTrackingWithTrackRefsTrueAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
 
-    Object preOwner = referenceCountHelperImpl.getReferenceCountOwner();
+    var preOwner = referenceCountHelperImpl.getReferenceCountOwner();
     referenceCountHelperImpl.skipRefCountTracking();
-    Object postOwner = referenceCountHelperImpl.getReferenceCountOwner();
+    var postOwner = referenceCountHelperImpl.getReferenceCountOwner();
     // skip sets owner to SKIP_REF_COUNT_TRACKING
     assertThat(postOwner).isNotEqualTo(preOwner);
     assertThat(referenceCountHelperImpl.isRefCountTracking()).isFalse();
@@ -159,10 +158,10 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doSetReferenceCountOwnerWithTrackRefsTrueAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
     String owner = null;
     referenceCountHelperImpl.setReferenceCountOwner(owner);
-    AtomicInteger reenterCount = referenceCountHelperImpl.getReenterCount();
+    var reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount.get()).isZero();
 
     owner = "SomeOwner";
@@ -171,7 +170,7 @@ public class ReferenceCountHelperImplTest {
     assertThat(reenterCount.get()).isOne();
     assertThat(referenceCountHelperImpl.getReferenceCountOwner()).isEqualTo(owner);
 
-    String owner2 = "SomeOwner2";
+    var owner2 = "SomeOwner2";
     referenceCountHelperImpl.setReferenceCountOwner(owner2);
     reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount.get()).isEqualTo(2);
@@ -190,20 +189,20 @@ public class ReferenceCountHelperImplTest {
     assertThat(reenterCount.get()).isZero();
     assertThat(referenceCountHelperImpl.getReferenceCountOwner()).isNull();
 
-    RegionEntry regionEntry = mock(RegionEntry.class);
+    var regionEntry = mock(RegionEntry.class);
     referenceCountHelperImpl.setReferenceCountOwner(regionEntry);
     reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount.get()).isOne();
     assertThat(regionEntry).isEqualTo(referenceCountHelperImpl.getReferenceCountOwner());
 
     Long address = (long) 0x1000;
-    boolean decRefCount = false;
-    int rc = 1;
+    var decRefCount = false;
+    var rc = 1;
 
     referenceCountHelperImpl.refCountChanged(address, decRefCount, rc);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // line 258 of ref cnt helper does not set useCount = 1 when adding new entry?
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
@@ -229,33 +228,33 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doSetReferenceCountOwnerWithTrackRefsFalseAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
 
     referenceCountHelperImpl.setReferenceCountOwner(null);
     assertThat(referenceCountHelperImpl.getReferenceCountOwner()).isNull();
 
-    AtomicInteger reenterCount = referenceCountHelperImpl.getReenterCount();
+    var reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount).isNull();
   }
 
   @Test
   public void doSetReferenceCountOwnerWithTrackRefsFalseAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
 
     referenceCountHelperImpl.setReferenceCountOwner(null);
     assertThat(referenceCountHelperImpl.getReferenceCountOwner()).isNull();
 
-    AtomicInteger reenterCount = referenceCountHelperImpl.getReenterCount();
+    var reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount).isNull();
   }
 
   @Test
   public void doSetReferenceCountOwnerWithTrackRefsTrueAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
 
     String owner = null;
     referenceCountHelperImpl.setReferenceCountOwner(owner);
-    AtomicInteger reenterCount = referenceCountHelperImpl.getReenterCount();
+    var reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount.get()).isZero();
 
     owner = "SomeOwner";
@@ -264,7 +263,7 @@ public class ReferenceCountHelperImplTest {
     assertThat(reenterCount.get()).isOne();
     assertThat(referenceCountHelperImpl.getReferenceCountOwner()).isEqualTo(owner);
 
-    String owner2 = "SomeOwner2";
+    var owner2 = "SomeOwner2";
     referenceCountHelperImpl.setReferenceCountOwner(owner2);
     reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount.get()).isEqualTo(2);
@@ -286,11 +285,11 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doCreateReferenceCountOwnerWithTrackRefsTrueAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
 
-    Object owner = referenceCountHelperImpl.createReferenceCountOwner();
+    var owner = referenceCountHelperImpl.createReferenceCountOwner();
     assertThat(owner).isNotNull();
-    AtomicInteger reenterCount = referenceCountHelperImpl.getReenterCount();
+    var reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount.get()).isOne();
 
     owner = null;
@@ -302,24 +301,24 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doCreateReferenceCountOwnerWithTrackRefsFalseAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
-    Object owner = referenceCountHelperImpl.createReferenceCountOwner();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
+    var owner = referenceCountHelperImpl.createReferenceCountOwner();
     assertThat(owner).isNull();
   }
 
   @Test
   public void doCreateReferenceCountOwnerWithTrackRefsFalseAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
-    Object owner = referenceCountHelperImpl.createReferenceCountOwner();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
+    var owner = referenceCountHelperImpl.createReferenceCountOwner();
     assertThat(owner).isNull();
   }
 
   @Test
   public void doCreateReferenceCountOwnerWithTrackRefsTrueAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
-    Object owner = referenceCountHelperImpl.createReferenceCountOwner();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
+    var owner = referenceCountHelperImpl.createReferenceCountOwner();
     assertThat(owner).isNotNull();
-    AtomicInteger reenterCount = referenceCountHelperImpl.getReenterCount();
+    var reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount.get()).isOne();
 
     owner = null;
@@ -331,19 +330,19 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doRefCountChangedNoOwnerWithTrackRefsTrueAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
     Long address = (long) 0x1000;
 
     // quick check of free of nonexistent info
     referenceCountHelperImpl.freeRefCountInfo(address);
-    Object owner = referenceCountHelperImpl.getReferenceCountOwner();
+    var owner = referenceCountHelperImpl.getReferenceCountOwner();
     assertThat(owner).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
 
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // line 258 of ref cnt helper does not set useCount = 1 when adding new entry?
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
@@ -376,13 +375,13 @@ public class ReferenceCountHelperImplTest {
     // list contains 2 entries from inc/dec done above
     assertThat(list).hasSize(2);
 
-    List<RefCountChangeInfo> freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
+    var freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
     // no freeRefCountInfo calls yet
     assertThat(freeInfo).isNull();
 
     // when freed, moved to FreeRefCountInfo list
     referenceCountHelperImpl.freeRefCountInfo(address);
-    List<RefCountChangeInfo> freeInfo2 = referenceCountHelperImpl.getFreeRefCountInfo(address);
+    var freeInfo2 = referenceCountHelperImpl.getFreeRefCountInfo(address);
     // the inc/dec info moved to freeRefCountInfo list
     assertThat(freeInfo2).hasSize(2);
 
@@ -393,21 +392,21 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doRefCountChangedNoOwnerWithTrackRefsFalseAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
     Long address = (long) 0x1000;
 
-    Object owner = referenceCountHelperImpl.getReferenceCountOwner();
+    var owner = referenceCountHelperImpl.getReferenceCountOwner();
     assertThat(owner).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, true, 1);
     list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
-    List<RefCountChangeInfo> freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
+    var freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
     // no freeRefCountInfo calls yet
     assertThat(freeInfo).isNull();
 
@@ -420,21 +419,21 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doRefCountChangedNoOwnerWithTrackRefsFalseAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
     Long address = (long) 0x1000;
 
-    Object owner = referenceCountHelperImpl.getReferenceCountOwner();
+    var owner = referenceCountHelperImpl.getReferenceCountOwner();
     assertThat(owner).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, true, 1);
     list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
-    List<RefCountChangeInfo> freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
+    var freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
     // no freeRefCountInfo calls yet
     assertThat(freeInfo).isNull();
 
@@ -447,16 +446,16 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doRefCountChangedNoOwnerWithTrackRefsTrueAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
     Long address = (long) 0x1000;
 
-    Object owner = referenceCountHelperImpl.getReferenceCountOwner();
+    var owner = referenceCountHelperImpl.getReferenceCountOwner();
     assertThat(owner).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // line 258 of ref cnt helper does not set useCount = 1 when adding new entry?
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
@@ -486,14 +485,14 @@ public class ReferenceCountHelperImplTest {
     // list contains 2 entries from inc/dec done above
     assertThat(list).hasSize(2);
 
-    List<RefCountChangeInfo> freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
+    var freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
     // no freeRefCountInfo calls yet
     assertThat(freeInfo).isNull();
 
     // when freed, moved to FreeRefCountInfo list
     referenceCountHelperImpl.freeRefCountInfo(address);
 
-    List<RefCountChangeInfo> freeInfo2 = referenceCountHelperImpl.getFreeRefCountInfo(address);
+    var freeInfo2 = referenceCountHelperImpl.getFreeRefCountInfo(address);
     // not tracking freed info
     assertThat(freeInfo2).isNull();
 
@@ -504,13 +503,13 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doRefCountChangedWithOwnerWithTrackRefsTrueAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
     Long address = (long) 0x1000;
 
-    Object owner = referenceCountHelperImpl.createReferenceCountOwner();
+    var owner = referenceCountHelperImpl.createReferenceCountOwner();
     assertThat(owner).isNotNull();
 
-    AtomicInteger reenterCount = referenceCountHelperImpl.getReenterCount();
+    var reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount.get()).isOne();
 
     owner = null;
@@ -526,9 +525,9 @@ public class ReferenceCountHelperImplTest {
     assertThat(reenterCount.get()).isOne();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // line 258 of ref cnt helper does not set useCount = 1 when adding new entry?
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
@@ -554,14 +553,14 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doRefCountChangedWithOwnerWithTrackRefsFalseAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
     Long address = (long) 0x1000;
 
-    Object owner = referenceCountHelperImpl.createReferenceCountOwner();
+    var owner = referenceCountHelperImpl.createReferenceCountOwner();
     assertThat(owner).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
@@ -577,7 +576,7 @@ public class ReferenceCountHelperImplTest {
     list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
-    List<RefCountChangeInfo> freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
+    var freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
     // no freeRefCountInfo calls yet
     assertThat(freeInfo).isNull();
 
@@ -591,14 +590,14 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doRefCountChangedWithOwnerWithTrackRefsFalseAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
     Long address = (long) 0x1000;
 
-    Object owner = referenceCountHelperImpl.createReferenceCountOwner();
+    var owner = referenceCountHelperImpl.createReferenceCountOwner();
     assertThat(owner).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
@@ -614,7 +613,7 @@ public class ReferenceCountHelperImplTest {
     list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
-    List<RefCountChangeInfo> freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
+    var freeInfo = referenceCountHelperImpl.getFreeRefCountInfo(address);
     // no freeRefCountInfo calls yet
     assertThat(freeInfo).isNull();
 
@@ -628,13 +627,13 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doRefCountChangedWithOwnerWithTrackRefsTrueAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
     Long address = (long) 0x1000;
 
-    Object owner = referenceCountHelperImpl.createReferenceCountOwner();
+    var owner = referenceCountHelperImpl.createReferenceCountOwner();
     assertThat(owner).isNotNull();
 
-    AtomicInteger reenterCount = referenceCountHelperImpl.getReenterCount();
+    var reenterCount = referenceCountHelperImpl.getReenterCount();
     assertThat(reenterCount.get()).isOne();
 
     owner = null;
@@ -649,9 +648,9 @@ public class ReferenceCountHelperImplTest {
     assertThat(reenterCount.get()).isOne();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // line 258 of ref cnt helper does not set useCount = 1 when adding new entry?
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
@@ -677,13 +676,13 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doGetRefCountInfoWithTrackRefsTrueAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
     Long address = (long) 0x1000;
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // line 258 of ref cnt helper does not set useCount = 1 when adding new entry?
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
@@ -695,7 +694,7 @@ public class ReferenceCountHelperImplTest {
     assertThat(refCountChangeInfo.getUseCount()).isOne();
 
     // now getRefCountInfo
-    List<RefCountChangeInfo> info = referenceCountHelperImpl.getRefCountInfo(address);
+    var info = referenceCountHelperImpl.getRefCountInfo(address);
     assertThat(info).hasSize(1);
     refCountChangeInfo = info.get(0);
     assertThat(refCountChangeInfo.getUseCount()).isOne();
@@ -707,13 +706,13 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doRefCountChangedAfterGetRefCountInfoWithTrackRefsTrueAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueTrue();
     Long address = (long) 0x1000;
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // line 258 of ref cnt helper does not set useCount = 1 when adding new entry?
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
@@ -725,7 +724,7 @@ public class ReferenceCountHelperImplTest {
     assertThat(refCountChangeInfo.getUseCount()).isOne();
 
     // now getRefCountInfo
-    List<RefCountChangeInfo> info = referenceCountHelperImpl.getRefCountInfo(address);
+    var info = referenceCountHelperImpl.getRefCountInfo(address);
     assertThat(info).hasSize(1);
     refCountChangeInfo = info.get(0);
     assertThat(refCountChangeInfo.getUseCount()).isOne();
@@ -749,17 +748,17 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doGetRefCountInfoWithTrackRefsFalseAndTrackFreesTrue() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseTrue();
     Long address = (long) 0x1000;
 
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.getRefCountInfo(address);
+    var list = referenceCountHelperImpl.getRefCountInfo(address);
     assertThat(list).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
     list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
-    List<RefCountChangeInfo> info = referenceCountHelperImpl.getRefCountInfo(address);
+    var info = referenceCountHelperImpl.getRefCountInfo(address);
     assertThat(info).isNull();
 
     list = referenceCountHelperImpl.peekRefCountInfo(address);
@@ -777,17 +776,17 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doGetRefCountInfoWithTrackRefsFalseAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_FalseFalse();
     Long address = (long) 0x1000;
 
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.getRefCountInfo(address);
+    var list = referenceCountHelperImpl.getRefCountInfo(address);
     assertThat(list).isNull();
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
     list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).isNull();
 
-    List<RefCountChangeInfo> info = referenceCountHelperImpl.getRefCountInfo(address);
+    var info = referenceCountHelperImpl.getRefCountInfo(address);
     assertThat(info).isNull();
 
     list = referenceCountHelperImpl.peekRefCountInfo(address);
@@ -796,13 +795,13 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doGetRefCountInfoWithTrackRefsTrueAndTrackFreesFalse() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
+    var referenceCountHelperImpl = newReferenceCountHelperImpl_TrueFalse();
     long address = 0x1000;
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // line 258 of ref cnt helper does not set useCount = 1 when adding new entry?
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
@@ -814,7 +813,7 @@ public class ReferenceCountHelperImplTest {
     assertThat(refCountChangeInfo.getUseCount()).isOne();
 
     // now getRefCountInfo
-    List<RefCountChangeInfo> info = referenceCountHelperImpl.getRefCountInfo(address);
+    var info = referenceCountHelperImpl.getRefCountInfo(address);
     assertThat(info).hasSize(1);
     refCountChangeInfo = info.get(0);
     assertThat(refCountChangeInfo.getUseCount()).isOne();
@@ -826,16 +825,16 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doGetRefCountInfoNonRegionEntryConcurrencyTest() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newHookedReferenceCountHelperImpl();
+    var referenceCountHelperImpl = newHookedReferenceCountHelperImpl();
     Long address = (long) 0x1000;
 
     // assume test identity
     referenceCountHelperImpl.setReferenceCountOwner("TestOwner");
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // hooked impl simulates a concurrent update, so cnt is > expected
     assertThat(refCountChangeInfo.getUseCount()).isOne();
 
@@ -863,7 +862,7 @@ public class ReferenceCountHelperImplTest {
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
     // now getRefCountInfo
-    List<RefCountChangeInfo> info = referenceCountHelperImpl.getRefCountInfo(address);
+    var info = referenceCountHelperImpl.getRefCountInfo(address);
     // hooked impl added one to list
     assertThat(info).hasSize(3);
     refCountChangeInfo = info.get(2);
@@ -877,17 +876,17 @@ public class ReferenceCountHelperImplTest {
 
   @Test
   public void doGetRefCountInfoRegionEntryConcurrencyTest() {
-    ReferenceCountHelperImpl referenceCountHelperImpl = newHookedReferenceCountHelperImpl();
+    var referenceCountHelperImpl = newHookedReferenceCountHelperImpl();
     Long address = (long) 0x1000;
 
-    RegionEntry regionEntry1 = mock(RegionEntry.class);
+    var regionEntry1 = mock(RegionEntry.class);
     // set owner to region entry type
     referenceCountHelperImpl.setReferenceCountOwner(regionEntry1);
 
     referenceCountHelperImpl.refCountChanged(address, false, 1);
-    List<RefCountChangeInfo> list = referenceCountHelperImpl.peekRefCountInfo(address);
+    var list = referenceCountHelperImpl.peekRefCountInfo(address);
     assertThat(list).hasSize(1);
-    RefCountChangeInfo refCountChangeInfo = list.get(0);
+    var refCountChangeInfo = list.get(0);
     // hooked impl simulates a concurrent update, so cnt is > expected
     assertThat(refCountChangeInfo.getUseCount()).isOne();
 
@@ -896,7 +895,7 @@ public class ReferenceCountHelperImplTest {
     // sets owner to null and resets count
     referenceCountHelperImpl.setReferenceCountOwner(null);
 
-    RegionEntry regionEntry2 = mock(RegionEntry.class);
+    var regionEntry2 = mock(RegionEntry.class);
     // set owner to region entry type
     referenceCountHelperImpl.setReferenceCountOwner(regionEntry2);
 
@@ -917,7 +916,7 @@ public class ReferenceCountHelperImplTest {
     assertThat(refCountChangeInfo.getUseCount()).isZero();
 
     // now getRefCountInfo
-    List<RefCountChangeInfo> info = referenceCountHelperImpl.getRefCountInfo(address);
+    var info = referenceCountHelperImpl.getRefCountInfo(address);
     // hooked impl added one to list
     assertThat(info).hasSize(3);
     refCountChangeInfo = info.get(2);
@@ -966,7 +965,7 @@ public class ReferenceCountHelperImplTest {
         ConcurrentMap<Long, List<RefCountChangeInfo>> stackTraces, long address) {
       List<RefCountChangeInfo> updatedList =
           new ArrayList<>(stackTraces.get(address));
-      RefCountChangeInfo refCountChangeInfo = new RefCountChangeInfo(false, 0, "TestOwner");
+      var refCountChangeInfo = new RefCountChangeInfo(false, 0, "TestOwner");
       updatedList.add(refCountChangeInfo);
       stackTraces.put(address, updatedList);
     }

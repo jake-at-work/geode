@@ -21,7 +21,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class HARegionTest {
     when(attributes.getConcurrencyLevel()).thenReturn(16);
     when(evictionAttributes.getAlgorithm()).thenReturn(EvictionAlgorithm.NONE);
     when(evictionAttributes.getAction()).thenReturn(EvictionAction.NONE);
-    Set<String> asyncEventQueueIds = Collections.singleton("id");
+    var asyncEventQueueIds = Collections.singleton("id");
     when(attributes.getAsyncEventQueueIds()).thenReturn(asyncEventQueueIds);
     region = new HARegion("HARegionTest_region", attributes, null, cache, disabledClock());
   }
@@ -55,7 +54,7 @@ public class HARegionTest {
   @Test
   public void getOwnerWithWaitReturnsHARegionQueueIfInitializedWithWait() {
     long timeout = 1;
-    HARegionQueue queue = mock(HARegionQueue.class);
+    var queue = mock(HARegionQueue.class);
     when(queue.isQueueInitializedWithWait(timeout)).thenReturn(true);
 
     region.setOwner(queue);
@@ -66,7 +65,7 @@ public class HARegionTest {
   @Test
   public void getOwnerWithWaitReturnsNullIfNotInitializedWithWait() {
     long timeout = 1;
-    HARegionQueue queue = mock(HARegionQueue.class);
+    var queue = mock(HARegionQueue.class);
     when(queue.isQueueInitializedWithWait(timeout)).thenReturn(false);
 
     region.setOwner(queue);

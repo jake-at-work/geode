@@ -53,7 +53,7 @@ public class TouchPartitionedRegionEntriesFunctionIntegrationTest {
         .create(REGION_NAME);
 
     IntStream.range(0, 10).forEach(i -> {
-      String key = "key_" + i;
+      var key = "key_" + i;
       region.put(key, "value_" + i);
 
       Long laTime = ((InternalRegion) region).getEntry(key).getStatistics().getLastAccessedTime();
@@ -86,7 +86,7 @@ public class TouchPartitionedRegionEntriesFunctionIntegrationTest {
     Set<String> keysToTouch = new HashSet<>(Arrays.asList("key_1", "key_5", "key_3"));
 
     // Wait until time passes.
-    long currentTime = System.nanoTime();
+    var currentTime = System.nanoTime();
     await().untilAsserted(() -> assertThat(System.nanoTime()).isGreaterThan(currentTime));
 
     // Execute function on specific keys.

@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.TemporaryFolder;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.distributed.ServerLauncher;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.internal.SystemManagementService;
@@ -67,7 +66,7 @@ abstract class ServerLauncherWithJmxManager {
   }
 
   SystemManagementService getSystemManagementService() {
-    Cache cache = server.get().getCache();
+    var cache = server.get().getCache();
     return (SystemManagementService) ManagementService.getManagementService(cache);
   }
 

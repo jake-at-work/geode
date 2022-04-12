@@ -33,15 +33,15 @@ public class DiskBackupStatusTest {
 
   @Test
   public void valuesNotSetTest() {
-    DiskBackupStatusImpl status = new DiskBackupStatusImpl();
+    var status = new DiskBackupStatusImpl();
     assertThat(status.getBackedUpDiskStores()).isNull();
     assertThat(status.getOfflineDiskStores()).isNull();
   }
 
   @Test
   public void returnsSetValues() {
-    DiskBackupStatusImpl status = new DiskBackupStatusImpl();
-    String[] testOfflineDiskStores = new String[] {"test", "array"};
+    var status = new DiskBackupStatusImpl();
+    var testOfflineDiskStores = new String[] {"test", "array"};
     status.setOfflineDiskStores(testOfflineDiskStores);
     assertThat(status.getOfflineDiskStores()).isEqualTo(testOfflineDiskStores);
 
@@ -55,18 +55,18 @@ public class DiskBackupStatusTest {
   public void generatesCorrectBackupUpDiskStores() {
     Map<DistributedMember, Set<PersistentID>> backedUpDiskStores = new HashMap<>();
 
-    DistributedMember member1 = generateTestMember("member1");
-    Set<PersistentID> idSet1 = generateTestIDs(1);
+    var member1 = generateTestMember("member1");
+    var idSet1 = generateTestIDs(1);
     backedUpDiskStores.put(member1, idSet1);
 
-    DistributedMember member2 = generateTestMember("member2");
-    Set<PersistentID> idSet2 = generateTestIDs(2);
+    var member2 = generateTestMember("member2");
+    var idSet2 = generateTestIDs(2);
     backedUpDiskStores.put(member2, idSet2);
 
-    DiskBackupStatusImpl status = new DiskBackupStatusImpl();
+    var status = new DiskBackupStatusImpl();
     status.generateBackedUpDiskStores(backedUpDiskStores);
 
-    Map<String, String[]> storedDiskStores = status.getBackedUpDiskStores();
+    var storedDiskStores = status.getBackedUpDiskStores();
     assertThat(storedDiskStores).containsOnlyKeys("member1", "member2");
     assertThat(storedDiskStores.get("member1").length).isEqualTo(1);
     assertThat(storedDiskStores.get("member2").length).isEqualTo(2);
@@ -75,25 +75,25 @@ public class DiskBackupStatusTest {
 
   @Test
   public void generatesCorrectOfflineDiskStores() {
-    Set<PersistentID> ids = generateTestIDs(2);
-    DiskBackupStatusImpl status = new DiskBackupStatusImpl();
+    var ids = generateTestIDs(2);
+    var status = new DiskBackupStatusImpl();
     status.generateOfflineDiskStores(ids);
 
-    String[] storedIds = status.getOfflineDiskStores();
+    var storedIds = status.getOfflineDiskStores();
     assertThat(storedIds.length).isEqualTo(2);
     assertThat(storedIds).contains("DirectoryForId0", "DirectoryForId1");
   }
 
   private DistributedMember generateTestMember(String name) {
-    DistributedMember member = mock(DistributedMember.class);
+    var member = mock(DistributedMember.class);
     when(member.getId()).thenReturn(name);
     return member;
   }
 
   private Set<PersistentID> generateTestIDs(int idsToGenerate) {
     Set<PersistentID> ids = new HashSet<>();
-    for (int i = 0; i < idsToGenerate; i++) {
-      PersistentID id = mock(PersistentID.class);
+    for (var i = 0; i < idsToGenerate; i++) {
+      var id = mock(PersistentID.class);
       when(id.getDirectory()).thenReturn("DirectoryForId" + i);
       ids.add(id);
     }

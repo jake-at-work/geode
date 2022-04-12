@@ -33,7 +33,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
 import org.apache.geode.test.version.VersionManager;
 
@@ -63,25 +62,25 @@ public class RollingUpgradeQueryReturnsCorrectResultsAfterClientAndServersAreRes
       throws Exception {
     // Since the changes relating to GEODE-7258 is not applied on 1.10.0,
     // use this test to roll from develop to develop to verify.
-    final Host host = Host.getHost(0);
-    VM locator = host.getVM(VersionManager.CURRENT_VERSION, 0);
-    VM server1 = host.getVM(VersionManager.CURRENT_VERSION, 1);
-    VM server2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
-    VM client = host.getVM(VersionManager.CURRENT_VERSION, 3);
+    final var host = Host.getHost(0);
+    var locator = host.getVM(VersionManager.CURRENT_VERSION, 0);
+    var server1 = host.getVM(VersionManager.CURRENT_VERSION, 1);
+    var server2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    var client = host.getVM(VersionManager.CURRENT_VERSION, 3);
 
-    final String regionName = "aRegion";
-    String regionType = "partitionedRedundant";
-    RegionShortcut shortcut = RegionShortcut.PARTITION_REDUNDANT;
+    final var regionName = "aRegion";
+    var regionType = "partitionedRedundant";
+    var shortcut = RegionShortcut.PARTITION_REDUNDANT;
 
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
-    int[] locatorPorts = new int[] {ports[0]};
-    int[] csPorts = new int[] {ports[1], ports[2]};
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var locatorPorts = new int[] {ports[0]};
+    var csPorts = new int[] {ports[1], ports[2]};
 
     locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
-    String hostName = NetworkUtils.getServerHostName(host);
-    String[] hostNames = new String[] {hostName};
-    String locatorString = getLocatorString(locatorPorts);
+    var hostName = NetworkUtils.getServerHostName(host);
+    var hostNames = new String[] {hostName};
+    var locatorString = getLocatorString(locatorPorts);
 
     try {
       // Start locator, servers and client in old version
@@ -113,7 +112,7 @@ public class RollingUpgradeQueryReturnsCorrectResultsAfterClientAndServersAreRes
       invokeRunnableInVMs(invokeCreateClientRegion(regionName, ClientRegionShortcut.PROXY), client);
 
       // Put objects on the client so that each bucket is created
-      int numObjects = 113;
+      var numObjects = 113;
       putSerializableObject(client, regionName, 0, numObjects);
 
       // Execute a query on the client and verify the results. This also waits until flushed.
@@ -153,26 +152,26 @@ public class RollingUpgradeQueryReturnsCorrectResultsAfterClientAndServersAreRes
       throws Throwable {
     // Since the changes relating to GEODE-7258 is not applied on 1.10.0,
     // use this test to roll from develop to develop to verify.
-    final Host host = Host.getHost(0);
-    VM locator = host.getVM(VersionManager.CURRENT_VERSION, 0);
-    VM server1 = host.getVM(VersionManager.CURRENT_VERSION, 1);
-    VM server2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
-    VM client = host.getVM(VersionManager.CURRENT_VERSION, 3);
+    final var host = Host.getHost(0);
+    var locator = host.getVM(VersionManager.CURRENT_VERSION, 0);
+    var server1 = host.getVM(VersionManager.CURRENT_VERSION, 1);
+    var server2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    var client = host.getVM(VersionManager.CURRENT_VERSION, 3);
 
-    final String regionName = "aRegion";
-    String regionType = "partitionedRedundant";
-    RegionShortcut shortcut = RegionShortcut.PARTITION_REDUNDANT;
+    final var regionName = "aRegion";
+    var regionType = "partitionedRedundant";
+    var shortcut = RegionShortcut.PARTITION_REDUNDANT;
 
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
-    int[] locatorPorts = new int[] {ports[0]};
-    int[] csPorts = new int[] {ports[1], ports[2]};
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var locatorPorts = new int[] {ports[0]};
+    var csPorts = new int[] {ports[1], ports[2]};
 
     locator
         .invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
-    String hostName = NetworkUtils.getServerHostName(host);
-    String[] hostNames = new String[] {hostName};
-    String locatorString = getLocatorString(locatorPorts);
+    var hostName = NetworkUtils.getServerHostName(host);
+    var hostNames = new String[] {hostName};
+    var locatorString = getLocatorString(locatorPorts);
 
     try {
       // Start locator, servers and client in old version
@@ -211,12 +210,12 @@ public class RollingUpgradeQueryReturnsCorrectResultsAfterClientAndServersAreRes
           .invoke(() -> FunctionService.registerFunction(new TestFunction()));
 
       // Put objects on the client so that each bucket is created
-      int numObjects = 113;
+      var numObjects = 113;
       putSerializableObject(client, regionName, 0, numObjects);
 
       client.invoke(
           () -> await().untilAsserted(() -> {
-            ArrayList<Boolean> result = (ArrayList<Boolean>) executeDummyFunction(
+            var result = (ArrayList<Boolean>) executeDummyFunction(
                 regionName);
             assertTrue(result.size() == 2);
           }));
@@ -224,7 +223,7 @@ public class RollingUpgradeQueryReturnsCorrectResultsAfterClientAndServersAreRes
       server1.invoke(invokeCloseCache());
 
       client.invoke(() -> {
-        Object result = executeDummyFunction(regionName);
+        var result = executeDummyFunction(regionName);
         ArrayList<Boolean> list = (ArrayList) result;
         assertThat(list.get(0)).isTrue();
       });

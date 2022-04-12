@@ -59,8 +59,8 @@ class SerialFilterAssertions {
   }
 
   static String failMessageWithStackTraces(String message, Iterable<Throwable> stackTraces) {
-    StringBuilder formattedStackTraces = new StringBuilder(message);
-    for (Throwable stackTrace : stackTraces) {
+    var formattedStackTraces = new StringBuilder(message);
+    for (var stackTrace : stackTraces) {
       formattedStackTraces.append(lineSeparator());
       formattedStackTraces.append(getStackTrace(stackTrace));
     }

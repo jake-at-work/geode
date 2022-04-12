@@ -59,7 +59,7 @@ public class KeyHashUtilTest {
   public void geodeAndJedisGenerateSameSlot(String key,
       @Size(min = 0, max = 2) Set<@InRange(minInt = 0, maxInt = 10) Integer> leftParenLocations,
       @Size(min = 0, max = 2) Set<@InRange(minInt = 0, maxInt = 10) Integer> rightParenLocations) {
-    byte[] keyBytes = Coder.stringToBytes(key);
+    var keyBytes = Coder.stringToBytes(key);
     leftParenLocations.stream()
         .filter(location -> location < keyBytes.length)
         .forEach(location -> keyBytes[location] = '{');
@@ -71,8 +71,8 @@ public class KeyHashUtilTest {
   }
 
   private static void compareHashes(String key) {
-    int jedisSlot = JedisClusterCRC16.getSlot(key);
-    short geodeSlot = KeyHashUtil.slotForKey(Coder.stringToBytes(key));
+    var jedisSlot = JedisClusterCRC16.getSlot(key);
+    var geodeSlot = KeyHashUtil.slotForKey(Coder.stringToBytes(key));
     assertThat(geodeSlot)
         .withFailMessage("Slot did not match for key %s", key)
         .isEqualTo((short) jedisSlot);

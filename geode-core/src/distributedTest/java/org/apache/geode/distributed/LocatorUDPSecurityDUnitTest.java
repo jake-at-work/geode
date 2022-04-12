@@ -39,12 +39,12 @@ public class LocatorUDPSecurityDUnitTest extends LocatorDUnitTest {
 
   @Test
   public void testLocatorWithUDPSecurityButServer() {
-    String locators = hostName + "[" + port1 + "]";
+    var locators = hostName + "[" + port1 + "]";
 
     startLocatorWithSomeBasicProperties(vm0, port1);
 
     try {
-      Properties props = getBasicProperties(locators);
+      var props = getBasicProperties(locators);
       props.setProperty(MEMBER_TIMEOUT, "1000");
       system = getConnectedDistributedSystem(props);
       fail("Should not have reached this line, it should have caught the exception.");

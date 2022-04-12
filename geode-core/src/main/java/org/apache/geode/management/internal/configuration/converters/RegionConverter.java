@@ -35,9 +35,9 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
 
   @Override
   protected Region fromNonNullXmlObject(RegionConfig xmlObject) {
-    Region region = new Region();
+    var region = new Region();
     region.setName(xmlObject.getName());
-    RegionAttributesType regionAttributes = xmlObject.getRegionAttributes();
+    var regionAttributes = xmlObject.getRegionAttributes();
     region.setType(getRegionType(xmlObject.getType(), regionAttributes));
 
     if (regionAttributes != null) {
@@ -49,25 +49,25 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
               partitionAttributes -> Optional.ofNullable(partitionAttributes.getRedundantCopies()))
           .ifPresent(copies -> region.setRedundantCopies(Integer.parseInt(copies)));
 
-      RegionAttributesType.ExpirationAttributesType entryIdleTime =
+      var entryIdleTime =
           regionAttributes.getEntryIdleTime();
       List<Region.Expiration> expirations = new ArrayList<>();
       if (entryIdleTime != null) {
         expirations.add(convertFrom(Region.ExpirationType.ENTRY_IDLE_TIME, entryIdleTime));
       }
-      RegionAttributesType.ExpirationAttributesType entryTimeToLive =
+      var entryTimeToLive =
           regionAttributes.getEntryTimeToLive();
       if (entryTimeToLive != null) {
         expirations.add(convertFrom(Region.ExpirationType.ENTRY_TIME_TO_LIVE, entryTimeToLive));
       }
 
-      RegionAttributesType.ExpirationAttributesType regionIdleTime =
+      var regionIdleTime =
           regionAttributes.getRegionIdleTime();
       if (regionIdleTime != null) {
         expirations.add(convertFrom(Region.ExpirationType.LEGACY, regionIdleTime));
       }
 
-      RegionAttributesType.ExpirationAttributesType regionTimeToLive =
+      var regionTimeToLive =
           regionAttributes.getRegionTimeToLive();
       if (regionTimeToLive != null) {
         expirations.add(convertFrom(Region.ExpirationType.LEGACY, regionTimeToLive));
@@ -78,7 +78,7 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
       }
 
       if (regionAttributes.getEvictionAttributes() != null) {
-        RegionAttributesType.EvictionAttributes evictionAttributes =
+        var evictionAttributes =
             regionAttributes.getEvictionAttributes();
         if (evictionAttributes.getLruMemorySize() != null) {
           region.setEviction(convertFrom(evictionAttributes.getLruMemorySize()));
@@ -97,12 +97,11 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
 
   @Override
   protected RegionConfig fromNonNullConfigObject(Region configObject) {
-    RegionConfig region = new RegionConfig();
+    var region = new RegionConfig();
     region.setName(configObject.getName());
     region.setType(configObject.getType().name());
 
-
-    RegionAttributesType attributesType =
+    var attributesType =
         createRegionAttributesByType(configObject.getType().name());
 
     attributesType.setStatisticsEnabled(true);
@@ -111,15 +110,15 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
     attributesType.setValueConstraint(configObject.getValueConstraint());
 
     if (configObject.getRedundantCopies() != null) {
-      RegionAttributesType.PartitionAttributes partitionAttributes =
+      var partitionAttributes =
           new RegionAttributesType.PartitionAttributes();
       partitionAttributes.setRedundantCopies(configObject.getRedundantCopies().toString());
       attributesType.setPartitionAttributes(partitionAttributes);
     }
 
-    List<Region.Expiration> expirations = configObject.getExpirations();
+    var expirations = configObject.getExpirations();
     if (expirations != null) {
-      for (Region.Expiration expiration : expirations) {
+      for (var expiration : expirations) {
         switch (expiration.getType()) {
           case ENTRY_IDLE_TIME:
             attributesType.setEntryIdleTime(convertFrom(expiration));
@@ -172,7 +171,7 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
 
   Region.Eviction convertFrom(
       RegionAttributesType.EvictionAttributes.LruMemorySize evictionAttributes) {
-    Region.Eviction eviction = new Region.Eviction();
+    var eviction = new Region.Eviction();
     eviction.setAction(getEvictionAction(evictionAttributes.getAction()));
     eviction.setMemorySizeMb(Integer.parseInt(evictionAttributes.getMaximum()));
     eviction.setObjectSizer(classNameConverter.fromXmlObject(evictionAttributes));
@@ -181,7 +180,7 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
 
   Region.Eviction convertFrom(
       RegionAttributesType.EvictionAttributes.LruEntryCount evictionAttributes) {
-    Region.Eviction eviction = new Region.Eviction();
+    var eviction = new Region.Eviction();
     eviction.setAction(getEvictionAction(evictionAttributes.getAction()));
     eviction.setEntryCount(Integer.parseInt(evictionAttributes.getMaximum()));
     return eviction;
@@ -189,7 +188,7 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
 
   Region.Eviction convertFrom(
       RegionAttributesType.EvictionAttributes.LruHeapPercentage evictionAttributes) {
-    Region.Eviction eviction = new Region.Eviction();
+    var eviction = new Region.Eviction();
     eviction.setAction(getEvictionAction(evictionAttributes.getAction()));
     eviction.setObjectSizer(classNameConverter.fromXmlObject(evictionAttributes));
     eviction.setType(Region.EvictionType.HEAP_PERCENTAGE);
@@ -197,7 +196,7 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
   }
 
   RegionAttributesType.ExpirationAttributesType convertFrom(Region.Expiration expiration) {
-    RegionAttributesType.ExpirationAttributesType xmlExpiration =
+    var xmlExpiration =
         new RegionAttributesType.ExpirationAttributesType();
     xmlExpiration.setTimeout(expiration.getTimeInSeconds().toString());
     // when action is null from the management api, the default action is DESTROY
@@ -211,7 +210,7 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
 
   Region.Expiration convertFrom(Region.ExpirationType type,
       RegionAttributesType.ExpirationAttributesType xmlExpiration) {
-    Region.Expiration expiration = new Region.Expiration();
+    var expiration = new Region.Expiration();
     expiration.setType(type);
     if (StringUtils.isBlank(xmlExpiration.getTimeout())) {
       expiration.setTimeInSeconds(0);
@@ -255,7 +254,7 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
     if (regionAttributes == null) {
       return RegionType.LEGACY;
     }
-    RegionAttributesDataPolicy dataPolicy = regionAttributes.getDataPolicy();
+    var dataPolicy = regionAttributes.getDataPolicy();
 
     if (dataPolicy == null) {
       return RegionType.LEGACY;
@@ -263,7 +262,7 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
 
     switch (dataPolicy) {
       case PARTITION: {
-        RegionAttributesType.PartitionAttributes partitionAttributes =
+        var partitionAttributes =
             regionAttributes.getPartitionAttributes();
         if (partitionAttributes != null && "0".equals(partitionAttributes.getLocalMaxMemory())) {
           return RegionType.PARTITION_PROXY;
@@ -288,7 +287,7 @@ public class RegionConverter extends ConfigurationConverter<Region, RegionConfig
 
 
   public RegionAttributesType createRegionAttributesByType(String type) {
-    RegionAttributesType regionAttributes = new RegionAttributesType();
+    var regionAttributes = new RegionAttributesType();
     switch (type) {
       // these are supported by the management rest api
       case "PARTITION": {

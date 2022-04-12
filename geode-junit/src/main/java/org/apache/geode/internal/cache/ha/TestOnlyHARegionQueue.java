@@ -44,7 +44,7 @@ class TestOnlyHARegionQueue extends HARegionQueue {
       Map haContainer, byte clientConflation, boolean isPrimary, StatisticsClock statisticsClock)
       throws IOException, ClassNotFoundException, CacheException, InterruptedException {
     super(regionName, cache, haContainer, null, clientConflation, isPrimary, statisticsClock);
-    ExpirationAttributes expirationAttributes =
+    var expirationAttributes =
         new ExpirationAttributes(hrqa.getExpiryTime(), ExpirationAction.LOCAL_INVALIDATE);
     region.setOwner(this);
     region.getAttributesMutator().setEntryTimeToLive(expirationAttributes);

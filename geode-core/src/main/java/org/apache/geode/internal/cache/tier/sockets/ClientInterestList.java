@@ -19,9 +19,7 @@ import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +76,7 @@ class ClientInterestList {
     }
     final Set<?> keysRegistered;
     synchronized (interestListLock) {
-      LocalRegion r = (LocalRegion) cacheClientProxy._cache.getRegion(regionName, true);
+      var r = (LocalRegion) cacheClientProxy._cache.getRegion(regionName, true);
       if (r == null) {
         throw new RegionDestroyedException("Region could not be found for interest registration",
             regionName);
@@ -87,7 +85,7 @@ class ClientInterestList {
         throw new IllegalArgumentException("region " + regionName
             + " is not distributed and does not support interest registration");
       }
-      FilterProfile p = r.getFilterProfile();
+      var p = r.getFilterProfile();
       keysRegistered =
           p.registerClientInterest(id, keyOfInterest, interestType, sendUpdatesAsInvalidates);
       regions.add(regionName);
@@ -120,7 +118,7 @@ class ClientInterestList {
       logger.debug("{}: unregisterClientInterest region={} key={}", cacheClientProxy, regionName,
           keyOfInterest);
     }
-    FilterProfile p = getProfile(regionName);
+    var p = getProfile(regionName);
     Set<?> keysUnregistered = null;
     synchronized (interestListLock) {
       if (p != null) {
@@ -146,7 +144,7 @@ class ClientInterestList {
   protected void registerClientInterestList(final @NotNull String regionName,
       final @NotNull List<?> keysOfInterest,
       final boolean sendUpdatesAsInvalidates) {
-    final FilterProfile p = getProfile(regionName);
+    final var p = getProfile(regionName);
     if (p == null) {
       throw new RegionDestroyedException("Region not found during client interest registration",
           regionName);
@@ -170,7 +168,7 @@ class ClientInterestList {
    */
   protected void unregisterClientInterestList(final @NotNull String regionName,
       final @NotNull List<?> keysOfInterest) {
-    final FilterProfile p = getProfile(regionName);
+    final var p = getProfile(regionName);
     Set<?> keysUnregistered = null;
     synchronized (interestListLock) {
       if (p != null) {
@@ -198,24 +196,24 @@ class ClientInterestList {
   }
 
   protected void clearClientInterestList() {
-    boolean isClosed = cacheClientProxy.getCache().isClosed();
+    var isClosed = cacheClientProxy.getCache().isClosed();
 
     synchronized (interestListLock) {
-      for (String regionName : regions) {
-        FilterProfile p = getProfile(regionName);
+      for (var regionName : regions) {
+        var p = getProfile(regionName);
         if (p == null) {
           continue;
         }
         if (!isClosed) {
           if (p.hasAllKeysInterestFor(id)) {
-            final Set<String> allKeys = Collections.singleton(".*");
+            final var allKeys = Collections.singleton(".*");
             handleInterestEvent(regionName, allKeys, InterestType.REGULAR_EXPRESSION, false);
           }
           Set<?> keysOfInterest = p.getKeysOfInterestFor(id);
           if (keysOfInterest != null && keysOfInterest.size() > 0) {
             handleInterestEvent(regionName, keysOfInterest, InterestType.KEY, false);
           }
-          Map<String, Pattern> patternsOfInterest = p.getPatternsOfInterestFor(id);
+          var patternsOfInterest = p.getPatternsOfInterestFor(id);
           if (patternsOfInterest != null && patternsOfInterest.size() > 0) {
             handleInterestEvent(regionName, patternsOfInterest.keySet(),
                 InterestType.REGULAR_EXPRESSION, false);

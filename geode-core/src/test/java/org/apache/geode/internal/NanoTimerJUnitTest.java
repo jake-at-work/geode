@@ -47,7 +47,7 @@ public class NanoTimerJUnitTest {
     // inject TestTimeService into the NanoTimer.
     // This method verifies that the default constructor
     // works.
-    final NanoTimer timer = new NanoTimer();
+    final var timer = new NanoTimer();
     timer.getConstructionTime();
     timer.getLastResetTime();
     timer.getTimeSinceConstruction();
@@ -57,9 +57,9 @@ public class NanoTimerJUnitTest {
 
   @Test
   public void testInitialTimes() {
-    TestTimeService ts = new TestTimeService();
-    final long nanoTime = ts.getTime();
-    final NanoTimer timer = new NanoTimer(ts);
+    var ts = new TestTimeService();
+    final var nanoTime = ts.getTime();
+    final var timer = new NanoTimer(ts);
 
     assertEquals(timer.getConstructionTime(), timer.getLastResetTime());
     assertTrue(timer.getTimeSinceConstruction() <= timer.getTimeSinceReset());
@@ -67,7 +67,7 @@ public class NanoTimerJUnitTest {
     assertTrue(timer.getConstructionTime() >= nanoTime);
     assertTrue(ts.getTime() >= nanoTime);
 
-    final long nanosOne = ts.getTime();
+    final var nanosOne = ts.getTime();
 
     ts.incTime();
 
@@ -76,22 +76,22 @@ public class NanoTimerJUnitTest {
 
   @Test
   public void testReset() {
-    TestTimeService ts = new TestTimeService();
-    final NanoTimer timer = new NanoTimer(ts);
-    final long nanosOne = ts.getTime();
+    var ts = new TestTimeService();
+    final var timer = new NanoTimer(ts);
+    final var nanosOne = ts.getTime();
 
     ts.incTime();
 
     assertEquals(timer.getConstructionTime(), timer.getLastResetTime());
     assertTrue(timer.getTimeSinceConstruction() <= timer.getTimeSinceReset());
 
-    final long nanosTwo = ts.getTime();
-    final long resetOne = timer.reset();
+    final var nanosTwo = ts.getTime();
+    final var resetOne = timer.reset();
 
     assertTrue(resetOne >= nanosTwo - nanosOne);
     assertFalse(timer.getConstructionTime() == timer.getLastResetTime());
 
-    final long nanosThree = ts.getTime();
+    final var nanosThree = ts.getTime();
 
     ts.incTime();
 
@@ -100,8 +100,8 @@ public class NanoTimerJUnitTest {
     assertTrue(timer.getLastResetTime() <= nanosThree);
     assertTrue(timer.getTimeSinceReset() <= ts.getTime() - timer.getLastResetTime());
 
-    final long nanosFour = ts.getTime();
-    final long resetTwo = timer.reset();
+    final var nanosFour = ts.getTime();
+    final var resetTwo = timer.reset();
 
     assertTrue(resetTwo >= nanosFour - nanosThree);
 

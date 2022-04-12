@@ -68,7 +68,7 @@ public class FileSystem {
 
   public File createFile(final String name) throws IOException {
     // TODO lock region ?
-    final File file = new File(this, name);
+    final var file = new File(this, name);
     if (null != fileAndChunkRegion.putIfAbsent(name, file)) {
       throw new IOException("File exists.");
     }
@@ -89,13 +89,13 @@ public class FileSystem {
   }
 
   public File createTemporaryFile(final String name) throws IOException {
-    final File file = new File(this, name);
+    final var file = new File(this, name);
     stats.incTemporaryFileCreates(1);
     return file;
   }
 
   public File getFile(final String name) throws FileNotFoundException {
-    final File file = (File) fileAndChunkRegion.get(name);
+    final var file = (File) fileAndChunkRegion.get(name);
 
     if (null == file) {
       throw new FileNotFoundException(name);
@@ -112,14 +112,14 @@ public class FileSystem {
     // things crash in the middle of removing this file?
     // Seems like a file will be left with some
     // dangling chunks at the end of the file
-    File file = (File) fileAndChunkRegion.remove(name);
+    var file = (File) fileAndChunkRegion.remove(name);
     if (file == null) {
       throw new FileNotFoundException(name);
     }
 
     if (file.possiblyRenamed == false) {
       // TODO consider removeAll with all ChunkKeys listed.
-      final ChunkKey key = new ChunkKey(file.id, 0);
+      final var key = new ChunkKey(file.id, 0);
       while (true) {
         // TODO consider mutable ChunkKey
         if (null == fileAndChunkRegion.remove(key)) {
@@ -134,12 +134,12 @@ public class FileSystem {
 
   public void renameFile(String source, String dest) throws IOException {
 
-    final File sourceFile = (File) fileAndChunkRegion.get(source);
+    final var sourceFile = (File) fileAndChunkRegion.get(source);
     if (null == sourceFile) {
       throw new FileNotFoundException(source);
     }
 
-    final File destFile = new File(this, dest);
+    final var destFile = new File(this, dest);
     destFile.chunks = sourceFile.chunks;
     destFile.created = sourceFile.created;
     destFile.length = sourceFile.length;
@@ -158,7 +158,7 @@ public class FileSystem {
   }
 
   byte[] getChunk(final File file, final int id) {
-    final ChunkKey key = new ChunkKey(file.id, id);
+    final var key = new ChunkKey(file.id, id);
 
     // The file's metadata indicates that this chunk shouldn't
     // exist. Purge all of the chunks that are larger than the file metadata
@@ -170,7 +170,7 @@ public class FileSystem {
       return null;
     }
 
-    final byte[] chunk = (byte[]) fileAndChunkRegion.get(key);
+    final var chunk = (byte[]) fileAndChunkRegion.get(key);
     if (chunk != null) {
       stats.incReadBytes(chunk.length);
     } else {
@@ -181,7 +181,7 @@ public class FileSystem {
   }
 
   public void putChunk(final File file, final int id, final byte[] chunk) {
-    final ChunkKey key = new ChunkKey(file.id, id);
+    final var key = new ChunkKey(file.id, id);
     fileAndChunkRegion.put(key, chunk);
     stats.incWrittenBytes(chunk.length);
   }

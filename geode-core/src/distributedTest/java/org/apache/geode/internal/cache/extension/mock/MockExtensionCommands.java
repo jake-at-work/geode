@@ -16,7 +16,6 @@
 package org.apache.geode.internal.cache.extension.mock;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -25,8 +24,6 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
@@ -173,21 +170,21 @@ public class MockExtensionCommands implements CommandMarker {
   protected Result executeFunctionOnAllMembersTabulateResultPersist(final Function function,
       final boolean addXmlElement, final Object... args) {
     InternalCache cache = GemFireCacheImpl.getInstance();
-    final Set<DistributedMember> members = ManagementUtils.getAllNormalMembers(cache);
+    final var members = ManagementUtils.getAllNormalMembers(cache);
 
     @SuppressWarnings("unchecked")
-    final ResultCollector<CliFunctionResult, List<CliFunctionResult>> resultCollector =
+    final var resultCollector =
         (ResultCollector<CliFunctionResult, List<CliFunctionResult>>) ManagementUtils
             .executeFunction(function, args, members);
-    final List<CliFunctionResult> functionResults = resultCollector.getResult();
+    final var functionResults = resultCollector.getResult();
 
-    ResultModel resultModel = ResultModel.createMemberStatusResult(functionResults);
+    var resultModel = ResultModel.createMemberStatusResult(functionResults);
 
-    XmlEntity xmlEntity = functionResults.stream().filter(CliFunctionResult::isSuccessful)
+    var xmlEntity = functionResults.stream().filter(CliFunctionResult::isSuccessful)
         .map(CliFunctionResult::getXmlEntity)
         .findFirst().orElse(null);
 
-    InternalConfigurationPersistenceService ccService =
+    var ccService =
         InternalLocator.getLocator().getConfigurationPersistenceService();
     System.out.println("MockExtensionCommands: persisting xmlEntity=" + xmlEntity);
     if (xmlEntity != null) {

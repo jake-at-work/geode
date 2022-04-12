@@ -30,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.LowMemoryException;
 import org.apache.geode.cache.client.internal.ExecuteFunctionOp;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
@@ -47,7 +46,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.execute.AbstractExecution;
 import org.apache.geode.internal.cache.execute.FunctionContextImpl;
 import org.apache.geode.internal.cache.execute.InternalFunctionExecutionService;
@@ -62,13 +60,11 @@ import org.apache.geode.internal.cache.execute.metrics.FunctionStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
-import org.apache.geode.internal.cache.tier.ServerSideHandshake;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.logging.internal.executors.LoggingExecutors;
 
@@ -111,13 +107,13 @@ public class ExecuteFunction70 extends BaseCommand {
     String[] groups;
     byte hasResult = 0;
     byte functionState;
-    boolean isReexecute = false;
+    var isReexecute = false;
     boolean allMembers;
     boolean ignoreFailedMembers;
-    int functionTimeout = DEFAULT_CLIENT_FUNCTION_TIMEOUT;
+    var functionTimeout = DEFAULT_CLIENT_FUNCTION_TIMEOUT;
 
     try {
-      byte[] bytes = clientMessage.getPart(0).getSerializedForm();
+      var bytes = clientMessage.getPart(0).getSerializedForm();
       functionState = bytes[0];
       if (bytes.length >= 5) {
         functionTimeout = Part.decodeInt(bytes, 1);
@@ -143,7 +139,7 @@ public class ExecuteFunction70 extends BaseCommand {
       function = clientMessage.getPart(1).getStringOrObject();
       args = clientMessage.getPart(2).getObject();
 
-      Part part = clientMessage.getPart(3);
+      var part = clientMessage.getPart(3);
       if (part != null) {
         memberMappedArg = (MemberMappedArgument) part.getObject();
       }
@@ -163,7 +159,7 @@ public class ExecuteFunction70 extends BaseCommand {
     }
 
     if (function == null) {
-      String message = "The input function for the execute function request is null";
+      var message = "The input function for the execute function request is null";
       logger.warn("{} : {}", serverConnection.getName(), message);
       sendError(hasResult, clientMessage, message, serverConnection);
       return;
@@ -175,20 +171,20 @@ public class ExecuteFunction70 extends BaseCommand {
       if (function instanceof String) {
         functionObject = internalFunctionExecutionService.getFunction((String) function);
         if (functionObject == null) {
-          String message = String
+          var message = String
               .format("Function named %s is not registered to FunctionService", function);
           logger.warn("{}: {}", serverConnection.getName(), message);
           sendError(hasResult, clientMessage, message, serverConnection);
           return;
         } else {
-          byte functionStateOnServerSide = AbstractExecution.getFunctionState(functionObject.isHA(),
+          var functionStateOnServerSide = AbstractExecution.getFunctionState(functionObject.isHA(),
               functionObject.hasResult(), functionObject.optimizeForWrite());
           if (logger.isDebugEnabled()) {
             logger.debug("Function State on server side: {} on client: {}",
                 functionStateOnServerSide, functionState);
           }
           if (functionStateOnServerSide != functionState) {
-            String message = String
+            var message = String
                 .format("Function attributes at client and server don't match for %s", function);
             logger.warn("{}: {}", serverConnection.getName(), message);
             sendError(hasResult, clientMessage, message, serverConnection);
@@ -199,19 +195,19 @@ public class ExecuteFunction70 extends BaseCommand {
         functionObject = (Function) function;
       }
 
-      FunctionStats stats = FunctionStatsManager.getFunctionStats(functionObject.getId());
+      var stats = FunctionStatsManager.getFunctionStats(functionObject.getId());
 
       // check if the caller is authorized to do this operation on server
       functionObject.getRequiredPermissions(null, args).forEach(securityService::authorize);
 
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       ExecuteFunctionOperationContext executeContext = null;
       if (authzRequest != null) {
         executeContext = authzRequest.executeFunctionAuthorize(functionObject.getId(), null, null,
             args, functionObject.optimizeForWrite());
       }
 
-      ChunkedMessage chunkedMessage = serverConnection.getFunctionResponseMessage();
+      var chunkedMessage = serverConnection.getFunctionResponseMessage();
       chunkedMessage.setTransactionId(clientMessage.getTransactionId());
       ServerToClientFunctionResultSender resultSender =
           serverToClientFunctionResultSender65Factory.create(chunkedMessage,
@@ -219,8 +215,8 @@ public class ExecuteFunction70 extends BaseCommand {
               serverConnection, functionObject, executeContext);
 
       FunctionContext context;
-      InternalCache cache = serverConnection.getCache();
-      InternalDistributedMember localVM =
+      var cache = serverConnection.getCache();
+      var localVM =
           (InternalDistributedMember) cache.getDistributedSystem().getDistributedMember();
 
       if (memberMappedArg != null) {
@@ -231,8 +227,8 @@ public class ExecuteFunction70 extends BaseCommand {
             resultSender, isReexecute);
       }
 
-      ServerSideHandshake handshake = serverConnection.getHandshake();
-      int earlierClientReadTimeout = handshake.getClientReadTimeout();
+      var handshake = serverConnection.getHandshake();
+      var earlierClientReadTimeout = handshake.getClientReadTimeout();
       handshake.setClientReadTimeout(functionTimeout);
 
       try {
@@ -241,7 +237,7 @@ public class ExecuteFunction70 extends BaseCommand {
               context);
         }
 
-        LowMemoryException lowMemoryException = cache.getInternalResourceManager().getHeapMonitor()
+        var lowMemoryException = cache.getInternalResourceManager().getHeapMonitor()
             .createLowMemoryIfNeeded(functionObject, cache.getMyId());
         if (lowMemoryException != null) {
           sendException(hasResult, clientMessage, lowMemoryException.getMessage(), serverConnection,
@@ -250,7 +246,7 @@ public class ExecuteFunction70 extends BaseCommand {
         }
 
         // cache is never null or the above invocations would have thrown NPE
-        DistributionManager dm = cache.getDistributionManager();
+        var dm = cache.getDistributionManager();
         if (groups != null && groups.length > 0) {
           executeFunctionOnGroups(function, args, groups, allMembers, functionObject, resultSender,
               ignoreFailedMembers);
@@ -272,7 +268,7 @@ public class ExecuteFunction70 extends BaseCommand {
 
     } catch (IOException e) {
       logger.warn("Exception on server while executing function: {}}", function, e);
-      String message = "Server could not send the reply";
+      var message = "Server could not send the reply";
       sendException(hasResult, clientMessage, message, serverConnection, e);
 
     } catch (InternalFunctionInvocationTargetException e) {
@@ -307,10 +303,10 @@ public class ExecuteFunction70 extends BaseCommand {
   }
 
   private boolean isFlagSet(Message msg, int index) {
-    boolean isSet = false;
-    Part messagePart = msg.getPart(5);
+    var isSet = false;
+    var messagePart = msg.getPart(5);
     if (messagePart != null) {
-      byte[] flags = messagePart.getSerializedForm();
+      var flags = messagePart.getSerializedForm();
       if (flags != null && flags.length > index) {
         if (flags[index] == 1) {
           isSet = true;
@@ -329,7 +325,7 @@ public class ExecuteFunction70 extends BaseCommand {
     }
 
     Set<DistributedMember> members = new HashSet<>();
-    for (String group : groups) {
+    for (var group : groups) {
       if (allMembers) {
         members.addAll(ds.getGroupMembers(group));
       } else {
@@ -380,7 +376,7 @@ public class ExecuteFunction70 extends BaseCommand {
 
   protected String[] getGroups(Message msg) throws IOException, ClassNotFoundException {
     String[] groups = null;
-    Part messagePart = msg.getPart(4);
+    var messagePart = msg.getPart(4);
     if (messagePart != null) {
       groups = (String[]) messagePart.getObject();
     }
@@ -392,7 +388,7 @@ public class ExecuteFunction70 extends BaseCommand {
       final FunctionStats stats) throws IOException {
 
     if (fn.hasResult()) {
-      long startExecution = stats.startFunctionExecution(fn.hasResult());
+      var startExecution = stats.startFunctionExecution(fn.hasResult());
       try {
         fn.execute(cx);
         if (sender.isOkayToSendResult() && !sender.isLastResultReceived() && fn.hasResult()) {
@@ -409,10 +405,10 @@ public class ExecuteFunction70 extends BaseCommand {
        * if dm is null it mean cache is also null. Transactional function without cache cannot be
        * executed.
        */
-      TXStateProxy txState = TXManagerImpl.getCurrentTXState();
-      Runnable functionExecution = () -> {
+      var txState = TXManagerImpl.getCurrentTXState();
+      var functionExecution = (Runnable) () -> {
         InternalCache cache = null;
-        long startExecution = stats.startFunctionExecution(fn.hasResult());
+        var startExecution = stats.startFunctionExecution(fn.hasResult());
         try {
           if (txState != null) {
             cache = GemFireCacheImpl.getExisting("executing function");
@@ -448,7 +444,7 @@ public class ExecuteFunction70 extends BaseCommand {
          */
         execService.execute(functionExecution);
       } else {
-        ClusterDistributionManager newDM = (ClusterDistributionManager) dm;
+        var newDM = (ClusterDistributionManager) dm;
         newDM.getExecutors().getFunctionExecutor().execute(functionExecution);
       }
     }

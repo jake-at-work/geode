@@ -33,22 +33,22 @@ public class LockingStripedCoordinatorIntegrationTest {
 
   @Test
   public void concurrentLockRequestsDoNotDeadlock() {
-    int keysToLock = 1000;
-    int iterations = 10000;
+    var keysToLock = 1000;
+    var iterations = 10000;
     StripedCoordinator coordinator = new LockingStripedCoordinator();
     List<RedisKey> keyList = new ArrayList<>(keysToLock);
     List<RedisKey> reversedKeyList = new ArrayList<>(keysToLock);
 
-    for (int i = 0; i < keysToLock; i++) {
-      RedisKey k = new RedisKey(("" + i).getBytes());
+    for (var i = 0; i < keysToLock; i++) {
+      var k = new RedisKey(("" + i).getBytes());
       keyList.add(k);
     }
-    for (int i = keysToLock - 1; i >= 0; i--) {
+    for (var i = keysToLock - 1; i >= 0; i--) {
       reversedKeyList.add(keyList.get(i));
     }
 
-    AtomicInteger execCounter = new AtomicInteger(0);
-    ConcurrentLoopingThreads loops = new ConcurrentLoopingThreads(iterations,
+    var execCounter = new AtomicInteger(0);
+    var loops = new ConcurrentLoopingThreads(iterations,
         i -> {
           List<RedisKey> keys = new ArrayList<>(keyList);
           coordinator.execute(keys, execCounter::incrementAndGet);

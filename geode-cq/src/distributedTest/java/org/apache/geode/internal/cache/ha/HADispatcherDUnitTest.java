@@ -42,15 +42,12 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqExistsException;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.cq.dunit.CqQueryTestListener;
@@ -104,7 +101,7 @@ public class HADispatcherDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    String serverHostName = getServerHostName(getHost(0));
+    var serverHostName = getServerHostName(getHost(0));
 
     // Server1 VM
     server1 = getHost(0).getVM(0);
@@ -201,7 +198,7 @@ public class HADispatcherDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void setQRMslow() throws InterruptedException {
-    int oldMessageSyncInterval = cache.getMessageSyncInterval();
+    var oldMessageSyncInterval = cache.getMessageSyncInterval();
     cache.setMessageSyncInterval(6);
     Thread.sleep((oldMessageSyncInterval + 1) * 1000);
   }
@@ -256,21 +253,21 @@ public class HADispatcherDUnitTest extends JUnit4DistributedTestCase {
       @Override
       public void run2() throws CacheException {
         Iterator iter = cache.getCacheServers().iterator();
-        CacheServerImpl server = (CacheServerImpl) iter.next();
+        var server = (CacheServerImpl) iter.next();
         Iterator iter_prox =
             server.getAcceptor().getCacheClientNotifier().getClientProxies().iterator();
         isObjectPresent = false;
 
         while (iter_prox.hasNext()) {
-          final CacheClientProxy proxy = (CacheClientProxy) iter_prox.next();
-          HARegion region = (HARegion) proxy.getHARegion();
+          final var proxy = (CacheClientProxy) iter_prox.next();
+          var region = (HARegion) proxy.getHARegion();
           assertNotNull(region);
-          final HARegionQueue regionQueue = region.getOwner();
+          final var regionQueue = region.getOwner();
 
-          WaitCriterion wc = new WaitCriterion() {
+          var wc = new WaitCriterion() {
             @Override
             public boolean done() {
-              int sz = regionQueue.size();
+              var sz = regionQueue.size();
               cache.getLogger().fine("regionQueue.size()::" + sz);
               return sz == 0 || !proxy.isConnected();
             }
@@ -300,18 +297,18 @@ public class HADispatcherDUnitTest extends JUnit4DistributedTestCase {
 
   private Integer createServerCache(Boolean isListenerPresent) throws IOException {
     createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     if (isListenerPresent == true) {
       CacheListener serverListener = new HAServerListener();
       factory.setCacheListener(serverListener);
     }
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    CacheServerImpl server = (CacheServerImpl) cache.addCacheServer();
+    var server = (CacheServerImpl) cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();
@@ -322,11 +319,11 @@ public class HADispatcherDUnitTest extends JUnit4DistributedTestCase {
       Boolean isListenerPresent) throws CqException, CqExistsException, RegionNotFoundException {
     int PORT1 = port1;
     int PORT2 = port2;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     ClientServerTestCase.configureConnectionPool(factory, hostName, new int[] {PORT1, PORT2}, true,
         -1, 2, null);
@@ -334,15 +331,15 @@ public class HADispatcherDUnitTest extends JUnit4DistributedTestCase {
       CacheListener clientListener = new HAClientListener();
       factory.setCacheListener(clientListener);
     }
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
     Region region = cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(region);
 
     {
-      LocalRegion lr = (LocalRegion) region;
-      final PoolImpl pool = (PoolImpl) (lr.getServerProxy().getPool());
-      WaitCriterion ev = new WaitCriterion() {
+      var lr = (LocalRegion) region;
+      final var pool = (PoolImpl) (lr.getServerProxy().getPool());
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           return pool.getPrimary() != null;
@@ -389,16 +386,16 @@ public class HADispatcherDUnitTest extends JUnit4DistributedTestCase {
     }
 
     // Create CQ Attributes.
-    CqAttributesFactory cqf = new CqAttributesFactory();
+    var cqf = new CqAttributesFactory();
     CqListener[] cqListeners = {new CqQueryTestListener(getLogWriter())};
     cqf.initCqListeners(cqListeners);
-    CqAttributes cqa = cqf.create();
+    var cqa = cqf.create();
 
-    String cqName = "CQForHARegionQueueTest";
-    String queryStr = "Select * from " + SEPARATOR + REGION_NAME;
+    var cqName = "CQForHARegionQueueTest";
+    var queryStr = "Select * from " + SEPARATOR + REGION_NAME;
 
     // Create CQ.
-    CqQuery cq1 = cqService.newCq(cqName, queryStr, cqa);
+    var cq1 = cqService.newCq(cqName, queryStr, cqa);
     cq1.execute();
   }
 
@@ -411,7 +408,7 @@ public class HADispatcherDUnitTest extends JUnit4DistributedTestCase {
     public void afterCreate(EntryEvent event) {
       synchronized (dummyObj) {
         try {
-          Object value = event.getNewValue();
+          var value = event.getNewValue();
           if (value.equals(VALUE1)) {
             waitFlag = false;
             dummyObj.notifyAll();
@@ -432,22 +429,22 @@ public class HADispatcherDUnitTest extends JUnit4DistributedTestCase {
   private static class HAServerListener extends CacheListenerAdapter {
     @Override
     public void afterCreate(EntryEvent event) {
-      Cache cache = event.getRegion().getCache();
+      var cache = event.getRegion().getCache();
       Iterator iter = cache.getCacheServers().iterator();
-      CacheServerImpl server = (CacheServerImpl) iter.next();
+      var server = (CacheServerImpl) iter.next();
       isObjectPresent = false;
 
       // The event not be there in the region first time; try couple of time.
       // This should have been replaced by listener on the HARegion and doing wait for event arrival
       // in that.
       while (true) {
-        for (CacheClientProxy proxy : server.getAcceptor().getCacheClientNotifier()
+        for (var proxy : server.getAcceptor().getCacheClientNotifier()
             .getClientProxies()) {
-          HARegion regionForQueue = (HARegion) proxy.getHARegion();
+          var regionForQueue = (HARegion) proxy.getHARegion();
 
-          for (Object obj : regionForQueue.values()) {
+          for (var obj : regionForQueue.values()) {
             if (obj instanceof HAEventWrapper) {
-              Conflatable confObj = (Conflatable) obj;
+              var confObj = (Conflatable) obj;
               if (KEY1.equals(confObj.getKeyToConflate())
                   || KEY2.equals(confObj.getKeyToConflate())) {
                 isObjectPresent = true;

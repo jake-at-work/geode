@@ -37,7 +37,6 @@ import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CacheWriterAdapter;
@@ -45,7 +44,6 @@ import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -67,9 +65,9 @@ public class PutAllCallBkSingleVMDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(PutAllCallBkSingleVMDUnitTest::createCache);
     vm1.invoke(PutAllCallBkSingleVMDUnitTest::createCache);
     LogWriterUtils.getLogWriter().fine("Cache created in successfully");
@@ -77,9 +75,9 @@ public class PutAllCallBkSingleVMDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(PutAllCallBkSingleVMDUnitTest::closeCache);
     vm1.invoke(PutAllCallBkSingleVMDUnitTest::closeCache);
   }
@@ -90,11 +88,11 @@ public class PutAllCallBkSingleVMDUnitTest extends JUnit4DistributedTestCase {
       CacheWriter aWriter = new BeforeCreateCallback();
       ds = (new PutAllCallBkSingleVMDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setCacheWriter(aWriter);
       factory.setCacheListener(aListener);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
 
       region = cache.createRegion("map", attr);
 
@@ -120,12 +118,12 @@ public class PutAllCallBkSingleVMDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testputAllSingleVM() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
     // Object obj2;
-    Object[] objArr = new Object[1];
-    for (int i = 0; i < 5; i++) {
+    var objArr = new Object[1];
+    for (var i = 0; i < 5; i++) {
       objArr[0] = "" + i;
       vm0.invoke(PutAllCallBkSingleVMDUnitTest.class, "putMethod", objArr);
 
@@ -149,20 +147,20 @@ public class PutAllCallBkSingleVMDUnitTest extends JUnit4DistributedTestCase {
       public void run2() throws CacheException {
         CacheListener bListener = new AfterUpdateCallback();
         CacheWriter bWriter = new BeforeUpdateCallback();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setCacheWriter(bWriter);
         factory.setCacheListener(bListener);
-        RegionAttributes attr = factory.create();
-        Region tempRegion = cache.createRegion("temp", attr);
+        var attr = factory.create();
+        var tempRegion = cache.createRegion("temp", attr);
 
         // to invoke afterUpdate we should make sure that entries are already present
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
           tempRegion.put(i, "region" + i);
         }
 
         Map m = new HashMap();
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
           m.put(i, "map" + i);
         }
 
@@ -184,7 +182,7 @@ public class PutAllCallBkSingleVMDUnitTest extends JUnit4DistributedTestCase {
     Object obj = null;
     try {
       if (ob != null) {
-        String str = "first";
+        var str = "first";
         obj = region.put(ob, str);
       }
     } catch (Exception ex) {
@@ -213,9 +211,9 @@ public class PutAllCallBkSingleVMDUnitTest extends JUnit4DistributedTestCase {
 
   public static void putAllAfterUpdate() {
     Map m = new HashMap();
-    int cntr = 0;
+    var cntr = 0;
     try {
-      for (int i = 0; i < 5; i++) {
+      for (var i = 0; i < 5; i++) {
         m.put("" + i, "map_AfterUpdate" + i);
         cntr++;
       }
@@ -237,7 +235,7 @@ public class PutAllCallBkSingleVMDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static boolean containsValueMethod(Object ob) {
-    boolean flag = false;
+    var flag = false;
     try {
       flag = region.containsValue(ob);
     } catch (Exception ex) {
@@ -247,7 +245,7 @@ public class PutAllCallBkSingleVMDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static int sizeMethod() {
-    int i = 0;
+    var i = 0;
     try {
       i = region.size();
     } catch (Exception ex) {

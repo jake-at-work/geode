@@ -28,9 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.net.URL;
-import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
@@ -81,24 +78,24 @@ public class LogWriterAppenderWithMemberNameInXmlIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
 
   @Before
   public void setUp() throws Exception {
-    String logFileName = MEMBER_NAME + ".log";
+    var logFileName = MEMBER_NAME + ".log";
     logFile = new File(temporaryFolder.newFolder(testName.getMethodName()), logFileName);
 
-    LogConfig config = mock(LogConfig.class);
+    var config = mock(LogConfig.class);
     when(config.getName()).thenReturn("");
     when(config.getLogFile()).thenReturn(logFile);
 
-    LogConfigSupplier logConfigSupplier = mock(LogConfigSupplier.class);
+    var logConfigSupplier = mock(LogConfigSupplier.class);
     when(logConfigSupplier.getLogConfig()).thenReturn(config);
 
-    SessionContext sessionContext = mock(SessionContext.class);
+    var sessionContext = mock(SessionContext.class);
     when(sessionContext.getLogConfigSupplier()).thenReturn(logConfigSupplier);
 
     logWriterAppender =
@@ -120,7 +117,7 @@ public class LogWriterAppenderWithMemberNameInXmlIntegrationTest {
     logger.info(logMessage);
 
     assertThat(logFile).exists();
-    String content = readFileToString(logFile, defaultCharset()).trim();
+    var content = readFileToString(logFile, defaultCharset()).trim();
     assertThat(content).contains(logMessage);
   }
 
@@ -130,11 +127,11 @@ public class LogWriterAppenderWithMemberNameInXmlIntegrationTest {
 
     assertThat(logFile).exists();
 
-    List<String> lines = nonBlankStrings(readLines(logFile, defaultCharset()));
+    var lines = nonBlankStrings(readLines(logFile, defaultCharset()));
     assertThat(lines).hasSize(1);
 
-    for (String line : lines) {
-      Matcher matcher = getPattern().matcher(line);
+    for (var line : lines) {
+      var matcher = getPattern().matcher(line);
       assertThat(matcher.matches()).as(failedToMatchRegex(line, getPattern())).isTrue();
       assertThat(matcher.group(Group.MEMBER_NAME.getName())).isEqualTo(MEMBER_NAME);
     }
@@ -142,7 +139,7 @@ public class LogWriterAppenderWithMemberNameInXmlIntegrationTest {
   }
 
   private String failedToMatchRegex(String line, Pattern pattern) {
-    String $ = lineSeparator();
+    var $ = lineSeparator();
     return $ + "Line:" + $ + " " + line + $ + "failed to match regex:" + $ + " " + pattern + $;
   }
 }

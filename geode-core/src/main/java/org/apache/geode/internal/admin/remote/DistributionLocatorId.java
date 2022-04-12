@@ -162,8 +162,8 @@ public class DistributionLocatorId implements java.io.Serializable {
     }
     timestamp = System.currentTimeMillis();
 
-    final int portStartIdx = marshalled.indexOf('[');
-    final int portEndIdx = marshalled.indexOf(']');
+    final var portStartIdx = marshalled.indexOf('[');
+    final var portEndIdx = marshalled.indexOf(']');
 
     if (portStartIdx < 0 || portEndIdx < portStartIdx) {
       throw new IllegalArgumentException(
@@ -171,7 +171,7 @@ public class DistributionLocatorId implements java.io.Serializable {
               marshalled));
     }
 
-    int bindIdx = marshalled.lastIndexOf('@');
+    var bindIdx = marshalled.lastIndexOf('@');
     if (bindIdx < 0) {
       bindIdx = marshalled.lastIndexOf(':');
     }
@@ -206,11 +206,11 @@ public class DistributionLocatorId implements java.io.Serializable {
     }
     sslConfig = validateSSLConfig(null);
 
-    int optionsIndex = marshalled.indexOf(',');
+    var optionsIndex = marshalled.indexOf(',');
     if (optionsIndex > 0) {
-      String[] options = marshalled.substring(optionsIndex).split(",");
-      for (final String option : options) {
-        String[] optionFields = option.split("=");
+      var options = marshalled.substring(optionsIndex).split(",");
+      for (final var option : options) {
+        var optionFields = option.split("=");
         if (optionFields.length == 2) {
           if (optionFields[0].equalsIgnoreCase("peer")) {
             // this setting is deprecated
@@ -244,7 +244,7 @@ public class DistributionLocatorId implements java.io.Serializable {
    * {@link #DistributionLocatorId(String)}.
    */
   public String marshal() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append(host.getHostAddress());
     if (!bindAddress.isEmpty()) {
       if (bindAddress.contains(":")) {
@@ -287,7 +287,7 @@ public class DistributionLocatorId implements java.io.Serializable {
     if (host == null && hostname == null) {
       throw new UnknownHostException("locator ID has no hostname or resolved inet address");
     }
-    String addr = hostname;
+    var addr = hostname;
     if (host != null) {
       addr = host.getHostName();
     }
@@ -355,7 +355,7 @@ public class DistributionLocatorId implements java.io.Serializable {
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
 
     // If hostnameForClients is set, use that
     if (hostnameForClients != null && hostnameForClients.length() > 0) {
@@ -393,7 +393,7 @@ public class DistributionLocatorId implements java.io.Serializable {
     if (!(other instanceof DistributionLocatorId)) {
       return false;
     }
-    final DistributionLocatorId that = (DistributionLocatorId) other;
+    final var that = (DistributionLocatorId) other;
 
     if (!Objects.equals(host, that.host)) {
       return false;
@@ -421,7 +421,7 @@ public class DistributionLocatorId implements java.io.Serializable {
     if (!(other instanceof DistributionLocatorId)) {
       return false;
     }
-    final DistributionLocatorId that = (DistributionLocatorId) other;
+    final var that = (DistributionLocatorId) other;
 
     if (!StringUtils.equals(hostnameForClients, that.hostnameForClients)) {
       return false;
@@ -443,8 +443,8 @@ public class DistributionLocatorId implements java.io.Serializable {
    */
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + (host == null ? 0 : host.hashCode());
     result = mult * result + port;
@@ -468,8 +468,8 @@ public class DistributionLocatorId implements java.io.Serializable {
       return Collections.emptyList();
     }
     Collection<DistributionLocatorId> locatorIds = new ArrayList<>();
-    for (Locator locator : locators) {
-      DistributionLocatorId locatorId =
+    for (var locator : locators) {
+      var locatorId =
           new DistributionLocatorId(LocalHostUtil.getLocalHost(), locator);
       locatorIds.add(locatorId);
     }
@@ -490,7 +490,7 @@ public class DistributionLocatorId implements java.io.Serializable {
       return Collections.emptyList();
     }
     Collection<String> strings = new ArrayList<>();
-    for (DistributionLocatorId locatorId : locatorIds) {
+    for (var locatorId : locatorIds) {
       strings.add(locatorId.marshal());
     }
     return strings;

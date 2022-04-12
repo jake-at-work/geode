@@ -32,8 +32,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.persistence.PartitionOfflineException;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.PortfolioData;
@@ -68,7 +66,7 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(SERIALIZABLE_OBJECT_FILTER, "org.apache.geode.cache.query.data.*");
     return config;
   }
@@ -84,9 +82,9 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRBasicQuerying() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     setCacheInVMs(vm0, vm1);
 
     // Creating PR's on the participating VM's
@@ -103,7 +101,7 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
         PortfolioData.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm0.invoke(
@@ -138,9 +136,9 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
    */
   @Test
   public void testColocatedPRQueryDuringRecovery() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     setCacheInVMs(vm0, vm1);
 
     // Creating PR's on the participating VM's
@@ -157,7 +155,7 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
         PortfolioData.class, true));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm0.invoke(
@@ -236,9 +234,9 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
    */
   @Test
   public void testColocatedPRQueryDuringRecoveryWithMissingColocatedChild() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     setCacheInVMs(vm0, vm1);
 
     // Creating PR's on the participating VM's
@@ -255,7 +253,7 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
         PortfolioData.class, true));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm0.invoke(
@@ -304,10 +302,10 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
 
   @Test
   public void testPRCountStarQuery() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
     setCacheInVMs(vm0, vm1, vm2);
 
     // Creating PR's on the participating VM's
@@ -329,7 +327,7 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
         Portfolio.class));
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
-    Portfolio[] portfolio = createPortfoliosAndPositions(cntDest + 100);
+    var portfolio = createPortfoliosAndPositions(cntDest + 100);
 
     // Putting the data into the PR's created
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(name, portfolio, cnt,
@@ -355,9 +353,9 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
 
   @Test
   public void testPROrderBy() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     setCacheInVMs(vm0, vm1);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRAccessorCreate(name, redundancy,
@@ -373,23 +371,23 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
       public void run2() {
         Cache cache = getCache();
         Region region = cache.getRegion(name);
-        for (int i = 0; i < 100; i++) {
+        for (var i = 0; i < 100; i++) {
           region.put(i, new Portfolio(i));
         }
       }
     });
 
     vm1.invoke(() -> {
-      QueryService qs = getCache().getQueryService();
+      var qs = getCache().getQueryService();
       qs.createIndex("index", IndexType.FUNCTIONAL, "ID", SEPARATOR + name);
-      for (int i = 0; i < 100; i++) {
-        Query query = qs.newQuery(
+      for (var i = 0; i < 100; i++) {
+        var query = qs.newQuery(
             "SELECT DISTINCT * FROM " + SEPARATOR + name + " WHERE ID >= " + i
                 + " ORDER BY ID asc LIMIT 1");
-        SelectResults results = (SelectResults) query.execute();
-        int expectedValue = i;
-        for (Object o : results) {
-          Portfolio p = (Portfolio) o;
+        var results = (SelectResults) query.execute();
+        var expectedValue = i;
+        for (var o : results) {
+          var p = (Portfolio) o;
           assertEquals(expectedValue++, p.getID());
         }
       }
@@ -397,7 +395,7 @@ public class PRBasicQueryDUnitTest extends CacheTestCase {
   }
 
   private void setCacheInVMs(VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> PRQueryDUnitHelper.setCache(getCache()));
     }
   }

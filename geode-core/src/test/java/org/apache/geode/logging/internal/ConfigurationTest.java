@@ -83,9 +83,9 @@ public class ConfigurationTest {
 
   @Test
   public void initializeReplacesLogConfigSupplier() {
-    LogConfigSupplier logConfigSupplier1 = mockLogConfigSupplier();
-    LogConfigSupplier logConfigSupplier2 = mockLogConfigSupplier();
-    LogConfigSupplier logConfigSupplier3 = mockLogConfigSupplier();
+    var logConfigSupplier1 = mockLogConfigSupplier();
+    var logConfigSupplier2 = mockLogConfigSupplier();
+    var logConfigSupplier3 = mockLogConfigSupplier();
 
     configuration.initialize(logConfigSupplier1);
     configuration.initialize(logConfigSupplier2);
@@ -96,9 +96,9 @@ public class ConfigurationTest {
 
   @Test
   public void initializeAddsSelfAsListenerOnlyOnceToEachLogConfigSupplier() {
-    LogConfigSupplier logConfigSupplier1 = mockLogConfigSupplier();
-    LogConfigSupplier logConfigSupplier2 = mockLogConfigSupplier();
-    LogConfigSupplier logConfigSupplier3 = mockLogConfigSupplier();
+    var logConfigSupplier1 = mockLogConfigSupplier();
+    var logConfigSupplier2 = mockLogConfigSupplier();
+    var logConfigSupplier3 = mockLogConfigSupplier();
 
     configuration.initialize(logConfigSupplier1);
     configuration.initialize(logConfigSupplier2);
@@ -303,7 +303,7 @@ public class ConfigurationTest {
   }
 
   private LogConfigSupplier mockLogConfigSupplier() {
-    LogConfigSupplier logConfigSupplier = mock(LogConfigSupplier.class);
+    var logConfigSupplier = mock(LogConfigSupplier.class);
 
     when(logConfigSupplier.getLogConfig()).thenReturn(logConfig);
     when(logConfig.getLogLevel()).thenReturn(INFO.intLevel());

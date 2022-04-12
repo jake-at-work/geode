@@ -45,7 +45,7 @@ public class JmxSerialFilterConfigurationFactoryTest {
     JmxSerialFilterConfigurationFactory factory =
         new SystemPropertyJmxSerialFilterConfigurationFactory();
 
-    FilterConfiguration filterConfiguration = factory.create();
+    var filterConfiguration = factory.create();
 
     assertThat(filterConfiguration).isInstanceOf(JmxSerialFilterConfiguration.class);
   }
@@ -56,7 +56,7 @@ public class JmxSerialFilterConfigurationFactoryTest {
     JmxSerialFilterConfigurationFactory factory =
         new SystemPropertyJmxSerialFilterConfigurationFactory();
 
-    FilterConfiguration filterConfiguration = factory.create();
+    var filterConfiguration = factory.create();
 
     assertThat(filterConfiguration).isNotInstanceOf(JmxSerialFilterConfiguration.class);
   }
@@ -67,7 +67,7 @@ public class JmxSerialFilterConfigurationFactoryTest {
     JmxSerialFilterConfigurationFactory factory =
         new SystemPropertyJmxSerialFilterConfigurationFactory();
 
-    FilterConfiguration filterConfiguration = factory.create();
+    var filterConfiguration = factory.create();
 
     assertThat(filterConfiguration).isNotInstanceOf(JmxSerialFilterConfiguration.class);
   }

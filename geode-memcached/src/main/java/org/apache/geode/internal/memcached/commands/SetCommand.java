@@ -17,7 +17,6 @@ package org.apache.geode.internal.memcached.commands;
 import java.nio.ByteBuffer;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.internal.memcached.Reply;
 import org.apache.geode.internal.memcached.RequestReader;
 import org.apache.geode.internal.memcached.ResponseStatus;
@@ -36,7 +35,7 @@ public class SetCommand extends StorageCommand {
 
   @Override
   public ByteBuffer processStorageCommand(String key, byte[] value, int flags, Cache cache) {
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
+    var r = getMemcachedRegion(cache);
     r.put(key, ValueWrapper.getWrappedValue(value, flags));
     return asciiCharset.encode(Reply.STORED.toString());
   }
@@ -44,14 +43,14 @@ public class SetCommand extends StorageCommand {
   @Override
   public ByteBuffer processBinaryStorageCommand(Object key, byte[] value, long cas, int flags,
       Cache cache, RequestReader request) {
-    ByteBuffer response = request.getResponse();
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
-    ValueWrapper val = ValueWrapper.getWrappedValue(value, flags);
-    boolean success = true;
+    var response = request.getResponse();
+    var r = getMemcachedRegion(cache);
+    var val = ValueWrapper.getWrappedValue(value, flags);
+    var success = true;
 
     try {
       if (cas != 0L) {
-        ValueWrapper expected = ValueWrapper.getDummyValue(cas);
+        var expected = ValueWrapper.getDummyValue(cas);
         success = r.replace(key, expected, val);
       } else {
         r.put(key, val);

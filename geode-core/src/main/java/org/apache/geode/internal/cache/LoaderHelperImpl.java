@@ -90,7 +90,7 @@ public class LoaderHelperImpl implements LoaderHelper {
       throw new CacheLoaderException(NET_SEARCH_LOCAL);
     }
 
-    boolean removeSearcher = false;
+    var removeSearcher = false;
     if (searcher == null) {
       searcher = SearchLoadAndWriteProcessor.getProcessor();
       removeSearcher = true;

@@ -29,9 +29,7 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.CacheClosedException;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.control.ResourceManagerStats;
 import org.apache.geode.internal.monitoring.executor.AbstractExecutor;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -59,21 +57,21 @@ public class ThreadsMonitoringProcess extends TimerTask {
    */
   @VisibleForTesting
   public boolean mapValidation() {
-    final long currentTime = System.currentTimeMillis();
+    final var currentTime = System.currentTimeMillis();
     final Set<AbstractExecutor> stuckThreads = new HashSet<>();
     final Set<Long> stuckThreadIds = new HashSet<>();
     checkForStuckThreads(threadsMonitoring.getMonitorMap().values(), currentTime,
         (executor, stuckTime) -> {
-          final long threadId = executor.getThreadID();
+          final var threadId = executor.getThreadID();
           stuckThreads.add(executor);
           stuckThreadIds.add(threadId);
           addLockOwnerThreadId(stuckThreadIds, threadId);
         });
 
-    final Map<Long, ThreadInfo> threadInfoMap = createThreadInfoMap(stuckThreadIds);
-    final int numOfStuck =
+    final var threadInfoMap = createThreadInfoMap(stuckThreadIds);
+    final var numOfStuck =
         checkForStuckThreads(stuckThreads, currentTime, (executor, stuckTime) -> {
-          final long threadId = executor.getThreadID();
+          final var threadId = executor.getThreadID();
           logger.warn("Thread {} (0x{}) is stuck", threadId, Long.toHexString(threadId));
           executor.handleExpiry(stuckTime, threadInfoMap);
         });
@@ -100,17 +98,17 @@ public class ThreadsMonitoringProcess extends TimerTask {
    */
   private int checkForStuckThreads(Collection<AbstractExecutor> executors, long currentTime,
       StuckAction action) {
-    int result = 0;
-    for (AbstractExecutor executor : executors) {
+    var result = 0;
+    for (var executor : executors) {
       if (executor.isMonitoringSuspended()) {
         continue;
       }
-      final long startTime = executor.getStartTime();
+      final var startTime = executor.getStartTime();
       if (startTime == 0) {
         executor.setStartTime(currentTime);
         continue;
       }
-      long delta = currentTime - startTime;
+      var delta = currentTime - startTime;
       if (delta >= timeLimitMillis) {
         action.run(executor, delta);
         result++;
@@ -129,15 +127,15 @@ public class ThreadsMonitoringProcess extends TimerTask {
     if (stuckThreadIds.isEmpty()) {
       return Collections.emptyMap();
     }
-    long[] ids = new long[stuckThreadIds.size()];
-    int idx = 0;
+    var ids = new long[stuckThreadIds.size()];
+    var idx = 0;
     for (long id : stuckThreadIds) {
       ids[idx] = id;
       idx++;
     }
-    ThreadInfo[] threadInfos = ManagementFactory.getThreadMXBean().getThreadInfo(ids, true, true);
+    var threadInfos = ManagementFactory.getThreadMXBean().getThreadInfo(ids, true, true);
     Map<Long, ThreadInfo> result = new HashMap<>();
-    for (ThreadInfo threadInfo : threadInfos) {
+    for (var threadInfo : threadInfos) {
       if (threadInfo != null) {
         result.put(threadInfo.getThreadId(), threadInfo);
       }
@@ -146,7 +144,7 @@ public class ThreadsMonitoringProcess extends TimerTask {
   }
 
   private void addLockOwnerThreadId(Set<Long> stuckThreadIds, long threadId) {
-    final long lockOwnerId = getLockOwnerId(threadId);
+    final var lockOwnerId = getLockOwnerId(threadId);
     if (lockOwnerId != -1) {
       stuckThreadIds.add(lockOwnerId);
     }
@@ -163,7 +161,7 @@ public class ThreadsMonitoringProcess extends TimerTask {
      * held by the thread and also does not get the call stack.
      * All we need from it is the lockOwnerId.
      */
-    final ThreadInfo threadInfo = ManagementFactory.getThreadMXBean().getThreadInfo(threadId, 0);
+    final var threadInfo = ManagementFactory.getThreadMXBean().getThreadInfo(threadId, 0);
     if (threadInfo != null) {
       return threadInfo.getLockOwnerId();
     }
@@ -171,7 +169,7 @@ public class ThreadsMonitoringProcess extends TimerTask {
   }
 
   private void updateNumThreadStuckStatistic(int numOfStuck) {
-    ResourceManagerStats stats = getResourceManagerStats();
+    var stats = getResourceManagerStats();
     if (stats != null) {
       stats.setNumThreadStuck(numOfStuck);
     }
@@ -184,15 +182,15 @@ public class ThreadsMonitoringProcess extends TimerTask {
 
   @VisibleForTesting
   public ResourceManagerStats getResourceManagerStats() {
-    ResourceManagerStats result = resourceManagerStats;
+    var result = resourceManagerStats;
     if (result == null) {
       try {
         if (internalDistributedSystem == null || !internalDistributedSystem.isConnected()) {
           return null;
         }
-        DistributionManager distributionManager =
+        var distributionManager =
             internalDistributedSystem.getDistributionManager();
-        InternalCache cache = distributionManager.getExistingCache();
+        var cache = distributionManager.getExistingCache();
         result = cache.getInternalResourceManager().getStats();
         resourceManagerStats = result;
       } catch (CacheClosedException e1) {

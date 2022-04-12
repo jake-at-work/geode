@@ -27,7 +27,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,13 +89,13 @@ public class LuceneIndexCreationIntegrationTest extends LuceneIntegrationTest {
       throws BucketNotFoundException, InterruptedException {
     Map<String, Analyzer> analyzers = new HashMap<>();
 
-    final RecordingAnalyzer field1Analyzer = new RecordingAnalyzer();
-    final RecordingAnalyzer field2Analyzer = new RecordingAnalyzer();
+    final var field1Analyzer = new RecordingAnalyzer();
+    final var field2Analyzer = new RecordingAnalyzer();
     analyzers.put("field1", field1Analyzer);
     analyzers.put("field2", field2Analyzer);
     luceneService.createIndexFactory().setFields(analyzers).create(INDEX_NAME, REGION_NAME);
-    Region region = createRegion();
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    var region = createRegion();
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
     region.put("key1", new TestObject());
     verifyIndexFinishFlushing(cache, INDEX_NAME, REGION_NAME);
     assertEquals(analyzers, index.getFieldAnalyzers());
@@ -108,7 +107,7 @@ public class LuceneIndexCreationIntegrationTest extends LuceneIntegrationTest {
   @Parameters({"0", "1", "2"})
   public void shouldUseRedundancyForInternalRegionsWhenUserRegionHasRedundancy(int redundancy) {
     createIndex("text");
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(redundancy);
 
     cache.createRegionFactory(RegionShortcut.PARTITION_REDUNDANT)
@@ -146,7 +145,7 @@ public class LuceneIndexCreationIntegrationTest extends LuceneIntegrationTest {
     createIndex("text");
 
     PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory<>();
-    final FixedPartitionAttributes fixedAttributes =
+    final var fixedAttributes =
         FixedPartitionAttributes.createFixedPartition("A", true, 1);
     partitionAttributesFactory.addFixedPartitionAttributes(fixedAttributes);
     cache.createRegionFactory(RegionShortcut.PARTITION)
@@ -164,15 +163,15 @@ public class LuceneIndexCreationIntegrationTest extends LuceneIntegrationTest {
       throws BucketNotFoundException, InterruptedException {
     Map<String, Analyzer> analyzers = new HashMap<>();
 
-    final RecordingAnalyzer field1Analyzer = new RecordingAnalyzer();
-    final RecordingAnalyzer field2Analyzer = new RecordingAnalyzer();
+    final var field1Analyzer = new RecordingAnalyzer();
+    final var field2Analyzer = new RecordingAnalyzer();
     analyzers.put("field1", field1Analyzer);
     analyzers.put("field2", field2Analyzer);
     LuceneServiceImpl.luceneIndexFactory = new LuceneRawIndexFactory();
     try {
       luceneService.createIndexFactory().setFields(analyzers).create(INDEX_NAME, REGION_NAME);
-      Region region = createRegion();
-      final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+      var region = createRegion();
+      final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
       assertThat(index).isInstanceOf(LuceneRawIndex.class);
       region.put("key1", new TestObject());
       verifyIndexFinishFlushing(cache, INDEX_NAME, REGION_NAME);
@@ -194,18 +193,18 @@ public class LuceneIndexCreationIntegrationTest extends LuceneIntegrationTest {
   @Test()
   public void canCreateLuceneIndexAfterRegionCreatedIfAllowFlagIsSet()
       throws IOException, ParseException, InterruptedException, LuceneQueryException {
-    Region region = createRegion();
-    LuceneService luceneService = LuceneServiceProvider.get(cache);
-    final LuceneIndexFactoryImpl indexFactory =
+    var region = createRegion();
+    var luceneService = LuceneServiceProvider.get(cache);
+    final var indexFactory =
         (LuceneIndexFactoryImpl) luceneService.createIndexFactory();
     indexFactory.setFields("field1", "field2").create(INDEX_NAME, REGION_NAME, true);
 
-    LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
     assertNotNull(index);
 
     region.put("key1", new TestObject("hello", "world"));
     luceneService.waitUntilFlushed(INDEX_NAME, REGION_NAME, 1, TimeUnit.MINUTES);
-    LuceneQuery<Object, Object> query = luceneService.createLuceneQueryFactory().create(INDEX_NAME,
+    var query = luceneService.createLuceneQueryFactory().create(INDEX_NAME,
         REGION_NAME, "field1:hello", "field1");
 
     assertEquals(Collections.singletonList("key1"), query.findKeys());
@@ -215,13 +214,13 @@ public class LuceneIndexCreationIntegrationTest extends LuceneIntegrationTest {
   @Test()
   public void creatingDuplicateLuceneIndexFails()
       throws IOException, ParseException, InterruptedException, LuceneQueryException {
-    Region region = createRegion();
-    LuceneService luceneService = LuceneServiceProvider.get(cache);
-    final LuceneIndexFactoryImpl indexFactory =
+    var region = createRegion();
+    var luceneService = LuceneServiceProvider.get(cache);
+    final var indexFactory =
         (LuceneIndexFactoryImpl) luceneService.createIndexFactory();
     indexFactory.setFields("field1", "field2").create(INDEX_NAME, REGION_NAME, true);
 
-    LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
     assertNotNull(index);
 
     expectedException.expect(LuceneIndexExistsException.class);
@@ -281,12 +280,12 @@ public class LuceneIndexCreationIntegrationTest extends LuceneIntegrationTest {
 
   @Test
   public void shouldReturnAllDefinedIndexes() {
-    LuceneServiceImpl luceneServiceImpl = (LuceneServiceImpl) luceneService;
+    var luceneServiceImpl = (LuceneServiceImpl) luceneService;
     luceneServiceImpl.createIndexFactory().setFields("field1", "field2", "field3")
         .create(INDEX_NAME, REGION_NAME);
     luceneServiceImpl.createIndexFactory().setFields("field4", "field5", "field6").create("index2",
         "region2");
-    final Collection<LuceneIndexCreationProfile> indexList =
+    final var indexList =
         luceneServiceImpl.getAllDefinedIndexes();
 
     assertEquals(Arrays.asList(INDEX_NAME, "index2"), indexList.stream()

@@ -72,13 +72,13 @@ public class QCompiler implements OQLLexerTokenTypes {
    */
   public CompiledValue compileQuery(String oqlSource) {
     try {
-      OQLLexer lexer = new OQLLexer(new StringReader(oqlSource));
-      OQLParser parser = new OQLParser(lexer);
+      var lexer = new OQLLexer(new StringReader(oqlSource));
+      var parser = new OQLParser(lexer);
       // by default use Unsupported AST class, overridden for supported
       // operators in the grammar proper
       parser.setASTNodeClass("org.apache.geode.cache.query.internal.parse.ASTUnsupported");
       parser.queryProgram();
-      GemFireAST n = (GemFireAST) parser.getAST();
+      var n = (GemFireAST) parser.getAST();
       n.compile(this);
     } catch (Exception ex) {
       // This is to make sure that we are wrapping any antlr exception with Geode Exception.
@@ -93,13 +93,13 @@ public class QCompiler implements OQLLexerTokenTypes {
    */
   public List<CompiledIteratorDef> compileFromClause(String fromClause) {
     try {
-      OQLLexer lexer = new OQLLexer(new StringReader(fromClause));
-      OQLParser parser = new OQLParser(lexer);
+      var lexer = new OQLLexer(new StringReader(fromClause));
+      var parser = new OQLParser(lexer);
       // by default use Unsupported AST class, overridden for supported
       // operators in the grammar proper
       parser.setASTNodeClass("org.apache.geode.cache.query.internal.parse.ASTUnsupported");
       parser.loneFromClause();
-      GemFireAST n = (GemFireAST) parser.getAST();
+      var n = (GemFireAST) parser.getAST();
       n.compile(this);
     } catch (Exception ex) {
       // This is to make sure that we are wrapping any antlr exception with Geode Exception.
@@ -115,13 +115,13 @@ public class QCompiler implements OQLLexerTokenTypes {
    */
   public List<CompiledIteratorDef> compileProjectionAttributes(String projectionAttributes) {
     try {
-      OQLLexer lexer = new OQLLexer(new StringReader(projectionAttributes));
-      OQLParser parser = new OQLParser(lexer);
+      var lexer = new OQLLexer(new StringReader(projectionAttributes));
+      var parser = new OQLParser(lexer);
       // by default use Unsupported AST class, overridden for supported
       // operators in the grammar proper
       parser.setASTNodeClass("org.apache.geode.cache.query.internal.parse.ASTUnsupported");
       parser.loneProjectionAttributes();
-      GemFireAST n = (GemFireAST) parser.getAST();
+      var n = (GemFireAST) parser.getAST();
       // don't compile TOK_STAR
       if (n.getType() == TOK_STAR) {
         return null;
@@ -141,7 +141,7 @@ public class QCompiler implements OQLLexerTokenTypes {
    */
   public void compileOrderByClause(final int numOfChildren) {
     final List<CompiledSortCriterion> list = new ArrayList<>();
-    for (int i = 0; i < numOfChildren; i++) {
+    for (var i = 0; i < numOfChildren; i++) {
       list.add(0, pop());
     }
     push(list);
@@ -149,7 +149,7 @@ public class QCompiler implements OQLLexerTokenTypes {
 
   public void compileGroupByClause(final int numOfChildren) {
     final List<CompiledPath> list = new ArrayList<>();
-    for (int i = 0; i < numOfChildren; i++) {
+    for (var i = 0; i < numOfChildren; i++) {
       list.add(0, pop());
     }
     push(list);
@@ -161,8 +161,8 @@ public class QCompiler implements OQLLexerTokenTypes {
   public void compileSortCriteria(String sortCriterion) {
 
     CompiledValue obj = pop();
-    boolean criterion = sortCriterion.equals("desc");
-    CompiledSortCriterion csc = new CompiledSortCriterion(criterion, obj);
+    var criterion = sortCriterion.equals("desc");
+    var csc = new CompiledSortCriterion(criterion, obj);
     push(csc);
 
   }
@@ -177,13 +177,13 @@ public class QCompiler implements OQLLexerTokenTypes {
    */
   public void compileImports(String imports) {
     try {
-      OQLLexer lexer = new OQLLexer(new StringReader(imports));
-      OQLParser parser = new OQLParser(lexer);
+      var lexer = new OQLLexer(new StringReader(imports));
+      var parser = new OQLParser(lexer);
       // by default use Unsupported AST class, overridden for supported
       // operators in the grammar proper
       parser.setASTNodeClass("org.apache.geode.cache.query.internal.parse.ASTUnsupported");
       parser.loneImports();
-      GemFireAST n = (GemFireAST) parser.getAST();
+      var n = (GemFireAST) parser.getAST();
       n.compile(this);
     } catch (Exception ex) {
       // This is to make sure that we are wrapping any antlr exception with Geode Exception.
@@ -203,26 +203,26 @@ public class QCompiler implements OQLLexerTokenTypes {
       return;
     }
 
-    for (Object compiledChildren : compiledValue.getChildren()) {
+    for (var compiledChildren : compiledValue.getChildren()) {
       checkWhereClauseForAggregates((CompiledValue) compiledChildren);
     }
   }
 
   public void select(Map<Integer, Object> queryComponents) {
     final CompiledValue limit;
-    final Object limitObject = queryComponents.remove(OQLLexerTokenTypes.LIMIT);
+    final var limitObject = queryComponents.remove(OQLLexerTokenTypes.LIMIT);
     if (limitObject instanceof Integer) {
       limit = new CompiledLiteral(limitObject);
     } else {
       limit = (CompiledBindArgument) limitObject;
     }
     @SuppressWarnings("unchecked")
-    final List<CompiledSortCriterion> orderByAttrs =
+    final var orderByAttrs =
         (List<CompiledSortCriterion>) queryComponents.remove(OQLLexerTokenTypes.LITERAL_order);
 
-    final List<?> iterators = (List<?>) queryComponents.remove(OQLLexerTokenTypes.LITERAL_from);
+    final var iterators = (List<?>) queryComponents.remove(OQLLexerTokenTypes.LITERAL_from);
     @SuppressWarnings("unchecked")
-    List<Object[]> projAttrs =
+    var projAttrs =
         (List<Object[]>) queryComponents.remove(OQLLexerTokenTypes.PROJECTION_ATTRS);
     if (projAttrs == null) {
       // remove any * or all attribute
@@ -231,13 +231,13 @@ public class QCompiler implements OQLLexerTokenTypes {
     }
 
     // "DISTINCT" or null
-    final String distinct = (String) queryComponents.remove(OQLLexerTokenTypes.LITERAL_distinct);
+    final var distinct = (String) queryComponents.remove(OQLLexerTokenTypes.LITERAL_distinct);
     @SuppressWarnings("unchecked")
-    final List<String> hints =
+    final var hints =
         (List<String>) queryComponents.remove(OQLLexerTokenTypes.LITERAL_hint);
 
     @SuppressWarnings("unchecked")
-    final List<CompiledValue> groupByClause =
+    final var groupByClause =
         (List<CompiledValue>) queryComponents.remove(OQLLexerTokenTypes.LITERAL_group);
 
     // whatever remains , treat it as where whereClause
@@ -250,13 +250,13 @@ public class QCompiler implements OQLLexerTokenTypes {
     } else if (queryComponents.size() > 1) {
       throw new QueryInvalidException("Unexpected/unsupported query clauses found");
     }
-    LinkedHashMap<Integer, CompiledAggregateFunction> aggMap =
+    var aggMap =
         identifyAggregateExpressions(projAttrs);
-    boolean isCountOnly = checkForCountOnly(aggMap, projAttrs, groupByClause);
+    var isCountOnly = checkForCountOnly(aggMap, projAttrs, groupByClause);
     if (isCountOnly) {
       projAttrs = null;
     }
-    CompiledSelect select = createSelect(distinct != null, isCountOnly, where, iterators, projAttrs,
+    var select = createSelect(distinct != null, isCountOnly, where, iterators, projAttrs,
         orderByAttrs, limit, hints, groupByClause, aggMap);
     push(select);
   }
@@ -265,8 +265,8 @@ public class QCompiler implements OQLLexerTokenTypes {
       List<?> projAttribs, List<CompiledValue> groupBy) {
     if (aggregateMap != null && aggregateMap.size() == 1 && projAttribs.size() == 1
         && groupBy == null) {
-      for (Map.Entry<Integer, CompiledAggregateFunction> entry : aggregateMap.entrySet()) {
-        CompiledAggregateFunction caf = entry.getValue();
+      for (var entry : aggregateMap.entrySet()) {
+        var caf = entry.getValue();
         if (caf.getFunctionType() == OQLLexerTokenTypes.COUNT && caf.getParameter() == null) {
           return true;
         }
@@ -293,10 +293,10 @@ public class QCompiler implements OQLLexerTokenTypes {
   private LinkedHashMap<Integer, CompiledAggregateFunction> identifyAggregateExpressions(
       final List<Object[]> projAttribs) {
     if (projAttribs != null) {
-      final LinkedHashMap<Integer, CompiledAggregateFunction> mapping = new LinkedHashMap<>();
-      int index = 0;
-      for (Object[] o : projAttribs) {
-        CompiledValue proj = (CompiledValue) o[1];
+      final var mapping = new LinkedHashMap<Integer, CompiledAggregateFunction>();
+      var index = 0;
+      for (var o : projAttribs) {
+        var proj = (CompiledValue) o[1];
         if (proj.getType() == OQLLexerTokenTypes.AGG_FUNC) {
           mapping.put(index, (CompiledAggregateFunction) proj);
         }
@@ -323,9 +323,9 @@ public class QCompiler implements OQLLexerTokenTypes {
   public void iteratorDef() {
     // find type id and colln on the stack
 
-    ObjectType type = assembleType(); // can be null
-    CompiledID id = TypeUtils.checkCast(pop(), CompiledID.class); // can be null
-    CompiledValue colln = TypeUtils.checkCast(pop(), CompiledValue.class);
+    var type = assembleType(); // can be null
+    var id = TypeUtils.checkCast(pop(), CompiledID.class); // can be null
+    var colln = TypeUtils.checkCast(pop(), CompiledValue.class);
 
     if (type == null) {
       type = TypeUtils.OBJECT_TYPE;
@@ -341,16 +341,16 @@ public class QCompiler implements OQLLexerTokenTypes {
   }
 
   public void function(int function, int numOfChildren) {
-    CompiledValue[] cvArr = new CompiledValue[numOfChildren];
-    for (int i = numOfChildren - 1; i >= 0; i--) {
+    var cvArr = new CompiledValue[numOfChildren];
+    for (var i = numOfChildren - 1; i >= 0; i--) {
       cvArr[i] = pop();
     }
     push(new CompiledFunction(cvArr, function));
   }
 
   public void inExpr() {
-    CompiledValue collnExpr = TypeUtils.checkCast(pop(), CompiledValue.class);
-    CompiledValue elm = TypeUtils.checkCast(pop(), CompiledValue.class);
+    var collnExpr = TypeUtils.checkCast(pop(), CompiledValue.class);
+    var elm = TypeUtils.checkCast(pop(), CompiledValue.class);
     push(new CompiledIn(elm, collnExpr));
   }
 
@@ -391,7 +391,7 @@ public class QCompiler implements OQLLexerTokenTypes {
 
   public void combine(final int num) {
     final List<?> list = new ArrayList<>();
-    for (int i = 0; i < num; i++) {
+    for (var i = 0; i < num; i++) {
       list.add(0, pop());
     }
     push(list);
@@ -401,16 +401,16 @@ public class QCompiler implements OQLLexerTokenTypes {
     // find on stack:
     // argList, methodName, receiver (which may be null if receiver is implicit)
     List<?> argList = TypeUtils.checkCast(pop(), List.class);
-    CompiledID methodName = TypeUtils.checkCast(pop(), CompiledID.class);
-    CompiledValue rcvr = TypeUtils.checkCast(pop(), CompiledValue.class);
+    var methodName = TypeUtils.checkCast(pop(), CompiledID.class);
+    var rcvr = TypeUtils.checkCast(pop(), CompiledValue.class);
     push(new CompiledOperation(rcvr, methodName.getId(), argList));
   }
 
   public void indexOp() {
     // find the List of index expressions and the receiver on the stack
-    Object indexParams = pop();
-    final CompiledValue rcvr = TypeUtils.checkCast(pop(), CompiledValue.class);
-    CompiledValue indexExpr = CompiledValue.MAP_INDEX_ALL_KEYS;
+    var indexParams = pop();
+    final var rcvr = TypeUtils.checkCast(pop(), CompiledValue.class);
+    var indexExpr = CompiledValue.MAP_INDEX_ALL_KEYS;
 
     if (indexParams != null) {
       @SuppressWarnings("unchecked")
@@ -455,7 +455,7 @@ public class QCompiler implements OQLLexerTokenTypes {
   CompiledValue createCompiledValueForLikePredicate(CompiledValue var,
       CompiledValue patternOrBindParam) {
     if (!(patternOrBindParam.getType() == CompiledBindArgument.QUERY_PARAM)) {
-      CompiledLiteral pattern = (CompiledLiteral) patternOrBindParam;
+      var pattern = (CompiledLiteral) patternOrBindParam;
       if (pattern._obj == null) {
         throw new UnsupportedOperationException(
             "Null values are not supported with LIKE predicate.");
@@ -470,7 +470,7 @@ public class QCompiler implements OQLLexerTokenTypes {
   public void like() {
     CompiledValue v2 = pop();
     CompiledValue v1 = pop();
-    CompiledValue cv = createCompiledValueForLikePredicate(v1, v2);
+    var cv = createCompiledValueForLikePredicate(v1, v2);
     push(cv);
   }
 
@@ -542,13 +542,13 @@ public class QCompiler implements OQLLexerTokenTypes {
   private void junction(int numTerms, int operator) {
     // if any of the operands are junctions with same operator as this one then flatten
     final List<CompiledValue> operands = new ArrayList<>(numTerms);
-    for (int i = 0; i < numTerms; i++) {
+    for (var i = 0; i < numTerms; i++) {
       final CompiledValue operand = pop();
       // flatten if we can
       if (operand instanceof CompiledJunction
           && ((CompiledJunction) operand).getOperator() == operator) {
-        final CompiledJunction junction = (CompiledJunction) operand;
-        final List<CompiledValue> jOperands = junction.getOperands();
+        final var junction = (CompiledJunction) operand;
+        final var jOperands = junction.getOperands();
         operands.addAll(jOperands);
       } else {
         operands.add(operand);
@@ -559,7 +559,7 @@ public class QCompiler implements OQLLexerTokenTypes {
   }
 
   public void not() {
-    Object obj = stack.peek();
+    var obj = stack.peek();
     Assert.assertTrue(obj instanceof CompiledValue);
 
     if (obj instanceof Negatable) {
@@ -570,7 +570,7 @@ public class QCompiler implements OQLLexerTokenTypes {
   }
 
   public void unaryMinus() {
-    Object obj = stack.peek();
+    var obj = stack.peek();
     Assert.assertTrue(obj instanceof CompiledValue);
     push(new CompiledUnaryMinus(pop()));
 
@@ -578,9 +578,9 @@ public class QCompiler implements OQLLexerTokenTypes {
 
   public void typecast() {
     // pop expr and type, apply type, then push result
-    AbstractCompiledValue cmpVal =
+    var cmpVal =
         TypeUtils.checkCast(pop(), AbstractCompiledValue.class);
-    ObjectType objType = assembleType();
+    var objType = assembleType();
     cmpVal.setTypecast(objType);
     push(cmpVal);
   }
@@ -589,14 +589,14 @@ public class QCompiler implements OQLLexerTokenTypes {
    * @return null if null is on the stack
    */
   public ObjectType assembleType() {
-    ObjectType objType = TypeUtils.checkCast(pop(), ObjectType.class);
+    var objType = TypeUtils.checkCast(pop(), ObjectType.class);
     if (objType instanceof CollectionType) {
       // pop the elementType
-      ObjectType elementType = assembleType();
+      var elementType = assembleType();
 
       if (objType instanceof MapType) {
         // pop the key type
-        ObjectType keyType = assembleType();
+        var keyType = assembleType();
         return new MapTypeImpl(objType.resolveClass(), keyType, elementType);
       }
       return new CollectionTypeImpl(objType.resolveClass(), elementType);
@@ -614,7 +614,7 @@ public class QCompiler implements OQLLexerTokenTypes {
 
   public void setHint(final int numOfChildren) {
     final List<String> list = new ArrayList<>();
-    for (int i = 0; i < numOfChildren; i++) {
+    for (var i = 0; i < numOfChildren; i++) {
       list.add(0, pop());
     }
     push(list);
@@ -627,7 +627,7 @@ public class QCompiler implements OQLLexerTokenTypes {
   public void importName(String qualifiedName, String asName) {
     if (asName == null) {
       // if no AS, then use the short name from qualifiedName as the AS
-      int idx = qualifiedName.lastIndexOf('.');
+      var idx = qualifiedName.lastIndexOf('.');
       if (idx >= 0) {
         asName = qualifiedName.substring(idx + 1);
       } else {
@@ -642,7 +642,7 @@ public class QCompiler implements OQLLexerTokenTypes {
 
   public <T> T pop() {
     @SuppressWarnings("unchecked")
-    final T obj = (T) stack.pop();
+    final var obj = (T) stack.pop();
     if (logger.isTraceEnabled()) {
       logger.trace("QCompiler.pop: {}", obj);
     }
@@ -668,7 +668,7 @@ public class QCompiler implements OQLLexerTokenTypes {
       return TypeUtils.OBJECT_TYPE;
     }
     // resolve with imports
-    final String as = imports.get(typeName);
+    final var as = imports.get(typeName);
     if (as != null) {
       typeName = as;
     }

@@ -44,8 +44,8 @@ public class CreateJndiBindingFunction extends CliFunction<Object[]> {
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext<Object[]> context) {
-    Object[] arguments = context.getArguments();
-    JndiBinding configuration = (JndiBinding) arguments[0];
+    var arguments = context.getArguments();
+    var configuration = (JndiBinding) arguments[0];
     boolean creatingDataSource = (Boolean) arguments[1];
 
     final String TYPE_NAME;
@@ -97,7 +97,7 @@ public class CreateJndiBindingFunction extends CliFunction<Object[]> {
   static List<ConfigProperty> convert(
       List<JndiBindingsType.JndiBinding.ConfigProperty> properties) {
     return properties.stream().map(p -> {
-      ConfigProperty prop = new ConfigProperty();
+      var prop = new ConfigProperty();
       prop.setName(p.getName());
       prop.setType(p.getType());
       prop.setValue(p.getValue());

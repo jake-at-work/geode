@@ -29,9 +29,9 @@ public class InternalRoleJUnitTest {
 
   @Test
   public void testEquals() {
-    InternalRole role1 = new InternalRole("role1");
-    InternalRole role2 = role1;
-    InternalRole role3 = new InternalRole("role1");
+    var role1 = new InternalRole("role1");
+    var role2 = role1;
+    var role3 = new InternalRole("role1");
 
     assertEquals(role1, role2);
     assertEquals(role1, role3);

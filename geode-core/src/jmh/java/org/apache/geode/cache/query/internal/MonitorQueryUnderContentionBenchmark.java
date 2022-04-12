@@ -94,7 +94,7 @@ public class MonitorQueryUnderContentionBenchmark {
         new QueryMonitor((ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1),
             mock(InternalCache.class), QUERY_MAX_EXECUTION_TIME);
 
-    final int numberOfThreads =
+    final var numberOfThreads =
         THREAD_POOL_PROCESSOR_MULTIPLE * Runtime.getRuntime().availableProcessors();
 
     loadGenerationExecutorService =
@@ -159,7 +159,7 @@ public class MonitorQueryUnderContentionBenchmark {
   private void startOneSimulatedQuery(ScheduledExecutorService executorService,
       int startDelayRangeMillis, int completeDelayRangeMillis) {
     executorService.schedule(() -> {
-      final ExecutionContext queryExecutionContext = mock(ExecutionContext.class);
+      final var queryExecutionContext = mock(ExecutionContext.class);
       queryMonitor.monitorQueryExecution(queryExecutionContext);
       executorService.schedule(() -> {
         queryMonitor.stopMonitoringQueryExecution(queryExecutionContext);

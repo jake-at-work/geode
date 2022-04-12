@@ -77,7 +77,7 @@ public abstract class AggregateFunctionQueryBaseIntegrationTest {
   void createAndPopulateRegion(String regionName, RegionShortcut regionShortcut,
       Map<Integer, Object> regionData) {
     Cache cache = server.getCache();
-    Region<Integer, Object> region =
+    var region =
         cache.<Integer, Object>createRegionFactory(regionShortcut).create(regionName);
     regionData.forEach(region::put);
 

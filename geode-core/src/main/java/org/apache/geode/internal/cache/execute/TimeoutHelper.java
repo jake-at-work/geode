@@ -22,7 +22,7 @@ public class TimeoutHelper {
     if (timeout == 0) {
       return 0;
     }
-    int millisecs = (int) unit.toMillis(timeout);
+    var millisecs = (int) unit.toMillis(timeout);
     if ((millisecs == 0)) {
       return 1;
     }

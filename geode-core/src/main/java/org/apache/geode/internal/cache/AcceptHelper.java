@@ -60,7 +60,7 @@ class AcceptHelper {
         ackServerChannel.configureBlocking(false);
         ackServerChannel.socket().bind(null, 1);
         // ackPort = ackServerChannel.socket().getLocalPort();
-        InetSocketAddress addr =
+        var addr =
             (InetSocketAddress) ackServerChannel.socket().getLocalSocketAddress();
         ackPort = addr.getPort();
 
@@ -71,7 +71,7 @@ class AcceptHelper {
       nackServerChannel = ServerSocketChannel.open();
       nackServerChannel.configureBlocking(false);
       nackServerChannel.socket().bind(null, 1);
-      InetSocketAddress addr =
+      var addr =
           (InetSocketAddress) nackServerChannel.socket().getLocalSocketAddress();
       // nackPort = nackServerChannel.socket().getLocalPort();
       nackPort = addr.getPort();

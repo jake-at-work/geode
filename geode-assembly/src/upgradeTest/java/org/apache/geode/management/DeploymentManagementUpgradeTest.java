@@ -21,7 +21,6 @@ import static org.apache.geode.test.junit.rules.gfsh.GfshRule.startLocatorComman
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -33,12 +32,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Deployment;
 import org.apache.geode.test.compiler.JarBuilder;
 import org.apache.geode.test.junit.categories.BackwardCompatibilityTest;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
@@ -53,7 +50,7 @@ public class DeploymentManagementUpgradeTest {
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(s -> TestVersion.compare(s, "1.10.0") < 0);
     return result;
   }
@@ -78,17 +75,17 @@ public class DeploymentManagementUpgradeTest {
     // prepare the jars to be deployed
     stagingDir = tempFolder.newFolder("staging");
     clusterJar = new File(stagingDir, "cluster.jar");
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJarFromClassNames(clusterJar, "Class1");
   }
 
   @Test
   public void newLocatorCanReadOldConfigurationData() throws IOException {
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
-    int httpPort = ports[0];
-    int locatorPort = ports[1];
-    int jmxPort = ports[2];
-    GfshExecution execute =
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var httpPort = ports[0];
+    var locatorPort = ports[1];
+    var jmxPort = ports[2];
+    var execute =
         GfshScript.of(startLocatorCommand("test", "localhost", locatorPort, jmxPort, httpPort, 0))
             .and("deploy --jar=" + clusterJar.getAbsolutePath())
             .and("shutdown --include-locators")
@@ -98,7 +95,7 @@ public class DeploymentManagementUpgradeTest {
     GfshScript.of(startLocatorCommand("test", "localhost", locatorPort, jmxPort, httpPort, 0))
         .execute(gfsh, execute.getWorkingDir());
 
-    ClusterManagementService cms = new ClusterManagementServiceBuilder()
+    var cms = new ClusterManagementServiceBuilder()
         .setPort(httpPort)
         .build();
     assertManagementListResult(cms.list(new Deployment())).isSuccessful()

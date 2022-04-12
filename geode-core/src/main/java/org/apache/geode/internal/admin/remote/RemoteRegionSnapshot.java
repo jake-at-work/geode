@@ -18,7 +18,6 @@ package org.apache.geode.internal.admin.remote;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
@@ -39,7 +38,7 @@ public class RemoteRegionSnapshot implements RegionSnapshot, DataSerializable {
   public RemoteRegionSnapshot(Region r) throws CacheException {
 
     name = r.getName();
-    RegionAttributes rAttr = r.getAttributes();
+    var rAttr = r.getAttributes();
     attributes = new RemoteRegionAttributes(rAttr);
     if (rAttr.getStatisticsEnabled()) {
       stats = new RemoteCacheStatistics(r.getStatistics());
@@ -47,11 +46,11 @@ public class RemoteRegionSnapshot implements RegionSnapshot, DataSerializable {
       stats = new RemoteCacheStatistics();
     }
     attributes = new RemoteRegionAttributes(r.getAttributes());
-    Set nameSet = r.keySet();
+    var nameSet = r.keySet();
     entryCount = nameSet.size();
-    Set subRegions = r.subregions(false);
+    var subRegions = r.subregions(false);
     subregionCount = subRegions.size();
-    Object attr = r.getUserAttribute();
+    var attr = r.getUserAttribute();
     if (attr != null) {
       userAttribute = attr.getClass().getName() + "\"" + attr + "\"";
     } else {
@@ -133,7 +132,7 @@ public class RemoteRegionSnapshot implements RegionSnapshot, DataSerializable {
       return true;
     }
     if (other instanceof RemoteRegionSnapshot) {
-      RemoteRegionSnapshot snap = (RemoteRegionSnapshot) other;
+      var snap = (RemoteRegionSnapshot) other;
       return name.equals(snap.name);
     }
     return false;

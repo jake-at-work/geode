@@ -21,7 +21,6 @@ import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.TimeoutException;
-import org.apache.geode.cache.query.internal.index.IndexManager;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.HARegion;
@@ -108,7 +107,7 @@ public class RegionMapDestroy {
     }
 
     cacheModificationLock.lockForCacheModification(internalRegion, event);
-    final boolean locked = internalRegion.lockWhenRegionIsInitializing();
+    final var locked = internalRegion.lockWhenRegionIsInitializing();
     try {
       while (retry) {
         retry = false;
@@ -205,7 +204,7 @@ public class RegionMapDestroy {
   }
 
   private void handleExistingRegionEntry() {
-    IndexManager oqlIndexManager = internalRegion.getIndexManager();
+    var oqlIndexManager = internalRegion.getIndexManager();
     if (oqlIndexManager != null) {
       oqlIndexManager.waitForIndexInit();
     }
@@ -218,7 +217,7 @@ public class RegionMapDestroy {
         // an operation that is older than the destroy() to be applied to the cache
         // Bug 45170: If removeRecoveredEntry, we treat tombstone as regular entry to be
         // deleted
-        boolean createTombstoneForConflictChecks = (internalRegion.getConcurrencyChecksEnabled()
+        var createTombstoneForConflictChecks = (internalRegion.getConcurrencyChecksEnabled()
             && (event.isOriginRemote() || event.getContext() != null || removeRecoveredEntry));
 
         if (!regionEntry.isRemoved() || createTombstoneForConflictChecks) {
@@ -256,7 +255,7 @@ public class RegionMapDestroy {
         }
       } // synchronized re
     } catch (ConcurrentCacheModificationException e) {
-      VersionTag tag = event.getVersionTag();
+      var tag = event.getVersionTag();
       if (tag != null && tag.isTimeStampUpdated()) {
         // Notify gateways of new time-stamp.
         internalRegion.notifyTimestampsToGateways(event);
@@ -393,7 +392,7 @@ public class RegionMapDestroy {
   }
 
   private void destroyExistingEntry() {
-    boolean removed = false;
+    var removed = false;
     try {
       opCompleted = destroyEntry(regionEntry, event, inTokenMode, cacheWrite, expectedOldValue,
           false, removeRecoveredEntry);
@@ -521,7 +520,7 @@ public class RegionMapDestroy {
         event.setVersionTag(getVersionTagFromStamp(tombstone.getVersionStamp()));
       }
     } catch (ConcurrentCacheModificationException e) {
-      VersionTag tag = event.getVersionTag();
+      var tag = event.getVersionTag();
       if (tag != null && tag.isTimeStampUpdated()) {
         // Notify gateways of new time-stamp.
         internalRegion.notifyTimestampsToGateways(event);
@@ -531,7 +530,7 @@ public class RegionMapDestroy {
   }
 
   private void handleEntryNotFound() {
-    boolean throwException = false;
+    var throwException = false;
     EntryNotFoundException entryNotFoundException = null;
 
     if (!cacheWrite) {
@@ -587,7 +586,7 @@ public class RegionMapDestroy {
     newRegionEntry = focusedRegionMap.getEntryFactory().createEntry(internalRegion, event.getKey(),
         Token.REMOVED_PHASE1);
 
-    IndexManager oqlIndexManager = internalRegion.getIndexManager();
+    var oqlIndexManager = internalRegion.getIndexManager();
     if (oqlIndexManager != null) {
       oqlIndexManager.waitForIndexInit();
     }
@@ -620,7 +619,7 @@ public class RegionMapDestroy {
               handleRegionClearedExceptionDuringDestroyEntryInternal(newRegionEntry);
 
             } catch (ConcurrentCacheModificationException ccme) {
-              VersionTag tag = event.getVersionTag();
+              var tag = event.getVersionTag();
               if (tag != null && tag.isTimeStampUpdated()) {
                 // Notify gateways of new time-stamp.
                 internalRegion.notifyTimestampsToGateways(event);
@@ -669,7 +668,7 @@ public class RegionMapDestroy {
           }
           try {
             // if concurrency checks are enabled, destroy will set the version tag
-            boolean destroyed = destroyEntry(oldRegionEntry, event, inTokenMode, cacheWrite,
+            var destroyed = destroyEntry(oldRegionEntry, event, inTokenMode, cacheWrite,
                 expectedOldValue, false, removeRecoveredEntry);
             if (destroyed) {
               if (retainForConcurrency) {
@@ -688,7 +687,7 @@ public class RegionMapDestroy {
             doPart3 = true;
           } catch (ConcurrentCacheModificationException ccme) {
             // TODO: GEODE-3967: change will go here
-            VersionTag tag = event.getVersionTag();
+            var tag = event.getVersionTag();
             if (tag != null && tag.isTimeStampUpdated()) {
               // Notify gateways of new time-stamp.
               internalRegion.notifyTimestampsToGateways(event);
@@ -735,9 +734,9 @@ public class RegionMapDestroy {
       boolean removeRecoveredEntry) throws CacheWriterException, TimeoutException,
       EntryNotFoundException, RegionClearedException {
     focusedRegionMap.processVersionTag(re, event);
-    final int oldSize = internalRegion.calculateRegionEntryValueSize(re);
-    final boolean wasRemoved = re.isDestroyedOrRemoved();
-    boolean retVal = re.destroy(event.getRegion(), event, inTokenMode, cacheWrite, expectedOldValue,
+    final var oldSize = internalRegion.calculateRegionEntryValueSize(re);
+    final var wasRemoved = re.isDestroyedOrRemoved();
+    var retVal = re.destroy(event.getRegion(), event, inTokenMode, cacheWrite, expectedOldValue,
         forceDestroy, removeRecoveredEntry);
     if (retVal) {
       EntryLogger.logDestroy(event);
@@ -749,7 +748,7 @@ public class RegionMapDestroy {
   }
 
   private VersionTag getVersionTagFromStamp(VersionStamp stamp) {
-    VersionTag tag = VersionTag.create(stamp.getMemberID());
+    var tag = VersionTag.create(stamp.getMemberID());
     tag.setEntryVersion(stamp.getEntryVersion());
     tag.setRegionVersion(stamp.getRegionVersion());
     tag.setVersionTimeStamp(stamp.getVersionTimeStamp());

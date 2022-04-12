@@ -100,23 +100,23 @@ public class LuceneEventListenerJUnitTest {
   @Test
   public void testProcessBatch() throws Exception {
 
-    IndexRepository repo1 = Mockito.mock(IndexRepository.class);
-    IndexRepository repo2 = Mockito.mock(IndexRepository.class);
-    Region region1 = Mockito.mock(Region.class);
-    Region region2 = Mockito.mock(Region.class);
+    var repo1 = Mockito.mock(IndexRepository.class);
+    var repo2 = Mockito.mock(IndexRepository.class);
+    var region1 = Mockito.mock(Region.class);
+    var region2 = Mockito.mock(Region.class);
 
-    Object callback1 = new Object();
+    var callback1 = new Object();
 
     Mockito.when(manager.getRepository(eq(region1), any(), eq(callback1))).thenReturn(repo1);
     Mockito.when(manager.getRepository(eq(region2), any(), eq(null))).thenReturn(repo2);
     List<AsyncEvent> events = new ArrayList<>();
 
-    int numEntries = 100;
-    for (int i = 0; i < numEntries; i++) {
-      AsyncEvent event = Mockito.mock(AsyncEvent.class);
+    var numEntries = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var event = Mockito.mock(AsyncEvent.class);
 
-      Region region = i % 2 == 0 ? region1 : region2;
-      Object callback = i % 2 == 0 ? callback1 : null;
+      var region = i % 2 == 0 ? region1 : region2;
+      var callback = i % 2 == 0 ? callback1 : null;
       Mockito.when(event.getRegion()).thenReturn(region);
       Mockito.when(event.getKey()).thenReturn(i);
       Mockito.when(event.getCallbackArgument()).thenReturn(callback);
@@ -124,7 +124,7 @@ public class LuceneEventListenerJUnitTest {
       switch (i % 4) {
         case 0:
         case 1:
-          final EntrySnapshot entry = mock(EntrySnapshot.class);
+          final var entry = mock(EntrySnapshot.class);
           when(entry.getRawValue(true)).thenReturn(i);
           when(region.getEntry(eq(i))).thenReturn(entry);
           break;
@@ -153,8 +153,8 @@ public class LuceneEventListenerJUnitTest {
     Mockito.when(manager.getRepository(any(), any(), any()))
         .thenThrow(BucketNotFoundException.class);
 
-    AsyncEvent event = Mockito.mock(AsyncEvent.class);
-    boolean result = listener.processEvents(Arrays.asList(event));
+    var event = Mockito.mock(AsyncEvent.class);
+    var result = listener.processEvents(Arrays.asList(event));
     assertFalse(result);
     verify(listener, times(1))
         .logDebugMessage(startsWith("Bucket not found"), any(BucketNotFoundException.class));
@@ -166,8 +166,8 @@ public class LuceneEventListenerJUnitTest {
     Mockito.when(manager.getRepository(any(), any(), any()))
         .thenThrow(CacheClosedException.class);
 
-    AsyncEvent event = Mockito.mock(AsyncEvent.class);
-    boolean result = listener.processEvents(Arrays.asList(event));
+    var event = Mockito.mock(AsyncEvent.class);
+    var result = listener.processEvents(Arrays.asList(event));
     assertFalse(result);
     verify(listener, times(1))
         .logDebugMessage(contains("cache has been closed"), any(CacheClosedException.class));
@@ -179,8 +179,8 @@ public class LuceneEventListenerJUnitTest {
     Mockito.when(manager.getRepository(any(), any(), any()))
         .thenThrow(AlreadyClosedException.class);
 
-    AsyncEvent event = Mockito.mock(AsyncEvent.class);
-    boolean result = listener.processEvents(Arrays.asList(event));
+    var event = Mockito.mock(AsyncEvent.class);
+    var result = listener.processEvents(Arrays.asList(event));
     assertFalse(result);
     verify(listener, times(1))
         .logDebugMessage(contains("the lucene index is already closed"),
@@ -192,9 +192,9 @@ public class LuceneEventListenerJUnitTest {
     doAnswer((m) -> {
       throw new IOException();
     }).when(manager).getRepository(any(), any(), any());
-    AtomicReference<Throwable> lastException = new AtomicReference<>();
+    var lastException = new AtomicReference<Throwable>();
     LuceneEventListener.setExceptionObserver(lastException::set);
-    AsyncEvent event = Mockito.mock(AsyncEvent.class);
+    var event = Mockito.mock(AsyncEvent.class);
     try {
       listener.processEvents(Arrays.asList(event));
       fail("should have thrown an exception");

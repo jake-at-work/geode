@@ -36,23 +36,18 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.DeltaTestImpl;
 import org.apache.geode.LogWriter;
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CqListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
@@ -135,7 +130,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   @Override
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     server = host.getVM(0);
     server2 = host.getVM(1);
     client = host.getVM(2);
@@ -165,10 +160,10 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
 
   public void initialise(Boolean clone, String[] queries, Boolean cq, Boolean RI,
       Boolean enableDelta) {
-    Integer PORT1 = server.invoke(() -> ClientToServerDeltaDUnitTest
+    var PORT1 = server.invoke(() -> ClientToServerDeltaDUnitTest
         .createServerCache(Boolean.TRUE, Boolean.FALSE, clone, enableDelta));
 
-    Integer PORT2 = server2.invoke(() -> ClientToServerDeltaDUnitTest
+    var PORT2 = server2.invoke(() -> ClientToServerDeltaDUnitTest
         .createServerCache(Boolean.TRUE, Boolean.FALSE, clone, enableDelta));
 
     client.invoke(() -> ClientToServerDeltaDUnitTest.createClientCache(
@@ -183,10 +178,10 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   // Same as initialise() except listener flag is false.
   public void initialise2(Boolean clone, String[] queries, Boolean cq, Boolean RI,
       Boolean enableDelta) {
-    Integer PORT1 = server.invoke(() -> ClientToServerDeltaDUnitTest
+    var PORT1 = server.invoke(() -> ClientToServerDeltaDUnitTest
         .createServerCache(Boolean.FALSE, Boolean.FALSE, clone, enableDelta));
 
-    Integer PORT2 = server2.invoke(() -> ClientToServerDeltaDUnitTest
+    var PORT2 = server2.invoke(() -> ClientToServerDeltaDUnitTest
         .createServerCache(Boolean.FALSE, Boolean.FALSE, clone, enableDelta));
 
     client.invoke(() -> ClientToServerDeltaDUnitTest.createClientCache(
@@ -297,26 +292,26 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   public void testClientDeltaPropogationPutFetchesTheLatestValueWhenClientVersionIsOlder()
       throws Exception {
     // client did not register interest
-    Integer PORT1 = server.invoke(() -> ClientToServerDeltaDUnitTest
+    var PORT1 = server.invoke(() -> ClientToServerDeltaDUnitTest
         .createServerCache(Boolean.TRUE, Boolean.FALSE, Boolean.TRUE, Boolean.TRUE));
 
     ClientToServerDeltaDUnitTest.createClientCache(
         NetworkUtils.getServerHostName(server.getHost()), new Integer(PORT1), Boolean.FALSE,
         Boolean.FALSE, Boolean.FALSE, null, Boolean.FALSE);
     Region r = cache.getRegion(REGION_NAME);
-    DeltaTestImpl val = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
+    var val = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
         new TestObjectWithIdentifier("0", 0));
     r.put(KEY1, val);
 
     server.invoke(() -> {
       Region region = cache.getRegion(REGION_NAME);
-      DeltaTestImpl val1 = (DeltaTestImpl) region.get(KEY1);
+      var val1 = (DeltaTestImpl) region.get(KEY1);
       DeltaTestImpl.NEED_TO_RESET_T0_DELTA = false;
       val1.setIntVar(1);
       region.put(KEY1, val1);
     });
 
-    DeltaTestImpl val2 = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
+    var val2 = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
         new TestObjectWithIdentifier("0", 0));
     val2.setStr("1");
     DeltaTestImpl.NEED_TO_RESET_T0_DELTA = false;
@@ -327,7 +322,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
       assertThat((DeltaTestImpl) region.get(KEY1)).isNotNull();
     });
 
-    DeltaTestImpl expected = new DeltaTestImpl(1, "1", (double) 0, new byte[0],
+    var expected = new DeltaTestImpl(1, "1", (double) 0, new byte[0],
         new TestObjectWithIdentifier("0", 0));
 
     server.invoke(() -> {
@@ -346,7 +341,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
     server2.invoke(this::setSlowStartForTesting);
     initialise(false);
 
-    DeltaTestImpl original = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
+    var original = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
         new TestObjectWithIdentifier("0", 0));
     client.invoke(() -> {
       Region r = cache.getRegion(REGION_NAME);
@@ -361,7 +356,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
 
     client.invoke(() -> {
       Region r = cache.getRegion(REGION_NAME);
-      DeltaTestImpl val = (DeltaTestImpl) r.get(KEY1);
+      var val = (DeltaTestImpl) r.get(KEY1);
       assertThat(val).isEqualTo(original);
       DeltaTestImpl.NEED_TO_RESET_T0_DELTA = false;
       val.setIntVar(1);
@@ -370,13 +365,13 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
 
     client2.invoke(() -> {
       Region r = cache.getRegion(REGION_NAME);
-      DeltaTestImpl val = (DeltaTestImpl) r.get(KEY1);
+      var val = (DeltaTestImpl) r.get(KEY1);
       // delta update should not arrive yet due to slow dispatcher
       assertThat(val).isEqualTo(original);
       DeltaTestImpl.NEED_TO_RESET_T0_DELTA = false;
       val.setStr("1");
       r.put(KEY1, val);
-      Object o = r.get(KEY1);
+      var o = r.get(KEY1);
       logger.info("object is " + o);
     });
 
@@ -390,7 +385,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
       r.get(KEY1);
     });
 
-    DeltaTestImpl expected = new DeltaTestImpl(1, "1", (double) 0, new byte[0],
+    var expected = new DeltaTestImpl(1, "1", (double) 0, new byte[0],
         new TestObjectWithIdentifier("0", 0));
 
     client.invoke(() -> {
@@ -415,10 +410,10 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
       Boolean[] satisfyQuery) {
     Region region = cache.getRegion(REGION_NAME);
     DeltaTestImpl val = null;
-    for (int j = 0; j < numOfPuts; j++) {
+    for (var j = 0; j < numOfPuts; j++) {
       val = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
           new TestObjectWithIdentifier("0", 0));
-      for (int i = 0; i < cqIndices.length; i++) {
+      for (var i = 0; i < cqIndices.length; i++) {
         switch (i) {
           case 0:
             val.setStr("CASE_0");
@@ -465,7 +460,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   private static void putDelta(String key) {
     Region r = cache.getRegion(REGION_NAME);
     DeltaTestImpl val = null;
-    for (int i = 0; i < NO_PUT_OPERATION; i++) {
+    for (var i = 0; i < NO_PUT_OPERATION; i++) {
       val = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
           new TestObjectWithIdentifier("0", 0));
       switch (i) {
@@ -505,7 +500,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   private static void put(String key) {
     Region r = cache.getRegion(REGION_NAME);
     DeltaTestImpl val = null;
-    for (int i = 0; i < NO_PUT_OPERATION; i++) {
+    for (var i = 0; i < NO_PUT_OPERATION; i++) {
       switch (i) {
         case 0:
           val = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
@@ -532,7 +527,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   private static void putWithFromDeltaERR(String key) {
     Region r = cache.getRegion(REGION_NAME);
     DeltaTestImpl val = null;
-    for (int i = 0; i < NO_PUT_OPERATION; i++) {
+    for (var i = 0; i < NO_PUT_OPERATION; i++) {
       switch (i) {
         case 0:
           val = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
@@ -559,7 +554,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   private static void putWithTODeltaERR(String key) {
     Region r = cache.getRegion(REGION_NAME);
     DeltaTestImpl val = null;
-    for (int i = 0; i < NO_PUT_OPERATION; i++) {
+    for (var i = 0; i < NO_PUT_OPERATION; i++) {
       switch (i) {
         case 0:
           val = new DeltaTestImpl(0, "0", (double) 0, new byte[0],
@@ -597,10 +592,10 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
     firstUpdate = null;
     secondUpdate = null;
     error = false;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DELTA_PROPAGATION, enableDelta.toString());
     new ClientToServerDeltaDUnitTest().createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setConcurrencyChecksEnabled(true);
     if (isEmpty) {
@@ -611,10 +606,10 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
       factory.setDataPolicy(DataPolicy.REPLICATE);
     }
     factory.setCloningEnabled(clone);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     region = cache.createRegion(REGION_NAME, attrs);
 
-    AttributesMutator am = region.getAttributesMutator();
+    var am = region.getAttributesMutator();
     if (attachListener) {
       am.addCacheListener(new CacheListenerAdapter() {
         @Override
@@ -666,8 +661,8 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
 
     }
 
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     // ensures updates to be sent instead of invalidations
     server.setNotifyBySubscription(true);
@@ -704,7 +699,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
     secondUpdate = null;
     error = false;
     lastKeyReceived = false;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new ClientToServerDeltaDUnitTest().createCache(props);
@@ -713,7 +708,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
         .setSubscriptionEnabled(enableSubscription).setSubscriptionRedundancy(0)
         .setReadTimeout(10000).setPingInterval(1000).setSocketBufferSize(32768)
         .create("ClientToServerDeltaDunitTestPool");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setConcurrencyChecksEnabled(true);
     if (isEmpty) {
@@ -726,7 +721,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
     factory.setCloningEnabled(false);
 
     // region with empty data policy
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     region = cache.createRegion(REGION_NAME, attrs);
     if (attachListener) {
       region.getAttributesMutator().addCacheListener(new CacheListenerAdapter() {
@@ -762,11 +757,11 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
       region.registerInterest("ALL_KEYS");
     }
     if (isCq) {
-      CqAttributesFactory cqf = new CqAttributesFactory();
-      CqListenerAdapter cqlist = new CqListenerAdapter() {
+      var cqf = new CqAttributesFactory();
+      var cqlist = new CqListenerAdapter() {
         @Override
         public void onEvent(CqEvent cqEvent) {
-          Object key = cqEvent.getKey();
+          var key = cqEvent.getKey();
           if (LAST_KEY.equals(key)) {
             lastKeyReceived = true;
           }
@@ -780,9 +775,9 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
         }
       };
       cqf.addCqListener(cqlist);
-      CqAttributes cqa = cqf.create();
-      for (int i = 0; i < cqQueryString.length; i++) {
-        CqQuery cq = cache.getQueryService().newCq("Delta_Query_" + i, cqQueryString[i], cqa);
+      var cqa = cqf.create();
+      for (var i = 0; i < cqQueryString.length; i++) {
+        var cq = cache.getQueryService().newCq("Delta_Query_" + i, cqQueryString[i], cqa);
         cq.execute();
       }
     }
@@ -828,7 +823,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testEmptyClientAsFeederToServer() {
-    Integer PORT1 = server
+    var PORT1 = server
         .invoke(() -> ClientToServerDeltaDUnitTest.createServerCache(Boolean.FALSE, Boolean.FALSE));
 
     server2
@@ -859,7 +854,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testEmptyServerAsFeederToPeer() {
-    Integer PORT1 = server
+    var PORT1 = server
         .invoke(() -> ClientToServerDeltaDUnitTest.createServerCache(Boolean.FALSE, Boolean.TRUE));
 
     server2
@@ -885,7 +880,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testClientsConnectedToEmptyServer() {
-    Integer PORT1 = server
+    var PORT1 = server
         .invoke(() -> ClientToServerDeltaDUnitTest.createServerCache(Boolean.FALSE, Boolean.TRUE));
 
     server2
@@ -915,7 +910,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testClientNonEmptyEmptyServerAsFeederToPeer() {
-    Integer PORT1 = server
+    var PORT1 = server
         .invoke(() -> ClientToServerDeltaDUnitTest.createServerCache(Boolean.FALSE, Boolean.TRUE));
 
     server2
@@ -1002,16 +997,16 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testC2SDeltaPropagationWithOldValueInvalidatedAtServer() throws Exception {
-    String key = "DELTA_KEY";
-    Integer port1 = server
+    var key = "DELTA_KEY";
+    var port1 = server
         .invoke(() -> ClientToServerDeltaDUnitTest.createServerCache(false, false, false, true));
     createClientCache("localhost", port1, false, false, false, null, false, false);
 
-    LocalRegion region = (LocalRegion) cache.getRegion(REGION_NAME);
+    var region = (LocalRegion) cache.getRegion(REGION_NAME);
     region.put(key, new DeltaTestImpl());
 
     server.invoke(() -> ClientToServerDeltaDUnitTest.doInvalidate(key));
-    DeltaTestImpl value = new DeltaTestImpl();
+    var value = new DeltaTestImpl();
     value.setStr("UPDATED_VALUE");
     region.put(key, value);
 
@@ -1031,10 +1026,10 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void verifyDeltaSent(Integer deltas) {
-    CacheClientNotifier ccn = ((CacheServerImpl) cache.getCacheServers().toArray()[0]).getAcceptor()
+    var ccn = ((CacheServerImpl) cache.getCacheServers().toArray()[0]).getAcceptor()
         .getCacheClientNotifier();
 
-    int numOfDeltasSent = ((CacheClientProxy) ccn.getClientProxies().toArray()[0]).getStatistics()
+    var numOfDeltasSent = ((CacheClientProxy) ccn.getClientProxies().toArray()[0]).getStatistics()
         .getDeltaMessagesSent();
     assertTrue("Expected " + deltas + " deltas to be sent but " + numOfDeltasSent + " were sent.",
         numOfDeltasSent == deltas);
@@ -1060,7 +1055,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
 
   public static void createKeys(String[] keys) {
     Region region = cache.getRegion(REGION_NAME);
-    for (final String key : keys) {
+    for (final var key : keys) {
       region.create(key, new DeltaTestImpl());
     }
   }
@@ -1068,7 +1063,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   public static int putsWhichReturnsDeltaSent() throws Exception {
     csDelta = new CSDeltaTestImpl();
     region.put(DELTA_KEY, csDelta);
-    for (int i = 0; i < NO_PUT_OPERATION; i++) {
+    for (var i = 0; i < NO_PUT_OPERATION; i++) {
       csDelta.setIntVar(i);
       region.put(DELTA_KEY, csDelta);
     }
@@ -1090,7 +1085,7 @@ public class ClientToServerDeltaDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void waitForLastKey() {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return ClientToServerDeltaDUnitTest.lastKeyReceived;

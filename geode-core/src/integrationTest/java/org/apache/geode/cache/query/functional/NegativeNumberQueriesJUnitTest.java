@@ -38,7 +38,6 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Numbers;
@@ -59,13 +58,13 @@ public class NegativeNumberQueriesJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     ds = DistributedSystem.connect(props);
     cache = CacheFactory.create(ds);
     /* create region with to contain Portfolio objects */
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setValueConstraint(Numbers.class);
     factory.setIndexMaintenanceSynchronous(true);
@@ -87,9 +86,9 @@ public class NegativeNumberQueriesJUnitTest {
 
     QueryService qs;
     qs = cache.getQueryService();
-    String queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "numbers num WHERE num.id1 >= -200";
-    Query q = qs.newQuery(queryStr);
-    SelectResults rs = (SelectResults) q.execute();
+    var queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "numbers num WHERE num.id1 >= -200";
+    var q = qs.newQuery(queryStr);
+    var rs = (SelectResults) q.execute();
     CacheUtils
         .log("--------------------- Size of Result Set is: -------------------------" + rs.size());
 
@@ -97,10 +96,10 @@ public class NegativeNumberQueriesJUnitTest {
 
   private void populateRegionsWithNumbers() throws Exception {
     CacheUtils.log("--------------------- Populating Data -------------------------");
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(String.valueOf(i), new Numbers(i));
     }
-    for (int i = -100; i > -200; i--) {
+    for (var i = -100; i > -200; i--) {
       region.put(String.valueOf(i), new Numbers(i));
     }
     CacheUtils.log("--------------------- Data Populatio done -------------------------");

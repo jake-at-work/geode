@@ -80,7 +80,7 @@ class BackupDefinition {
   }
 
   void addOplogFileToBackup(DiskStore diskStore, Path fileLocation) {
-    Set<Path> files =
+    var files =
         JavaWorkarounds.computeIfAbsent(oplogFilesByDiskStore, diskStore, k -> new HashSet<>());
     files.add(fileLocation);
   }

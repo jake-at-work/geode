@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.model.ContainerNetwork;
 import org.apache.logging.log4j.Logger;
 import org.junit.rules.ExternalResource;
@@ -31,7 +29,6 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.Container;
-import org.testcontainers.containers.ContainerState;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.BaseConsumer;
 import org.testcontainers.containers.output.FrameConsumerResultCallback;
@@ -90,7 +87,7 @@ public class DockerComposeRule extends ExternalResource {
 
   @Override
   public Statement apply(Statement base, Description description) {
-    Statement containStatement = new Statement() {
+    var containStatement = new Statement() {
       @Override
       public void evaluate() throws Throwable {
 
@@ -126,12 +123,12 @@ public class DockerComposeRule extends ExternalResource {
    * @throws IllegalArgumentException if the service cannot be found
    */
   public void setContainerName(String serviceName, String newName) {
-    ContainerState container = composeContainer.getContainerByServiceName(serviceName + "_1")
+    var container = composeContainer.getContainerByServiceName(serviceName + "_1")
         .orElseThrow(() -> new IllegalArgumentException("Unknown service name: " + serviceName));
 
-    String containerId = container.getContainerId();
+    var containerId = container.getContainerId();
 
-    DockerClient dockerClient = DockerClientFactory.instance().client();
+    var dockerClient = DockerClientFactory.instance().client();
     dockerClient.renameContainerCmd(containerId).withName(newName).exec();
   }
 
@@ -141,7 +138,7 @@ public class DockerComposeRule extends ExternalResource {
    * @return the stdout of the container if the command was successful, else the stderr
    */
   public String execForService(String serviceName, String... command) {
-    ContainerState container = composeContainer.getContainerByServiceName(serviceName + "_1")
+    var container = composeContainer.getContainerByServiceName(serviceName + "_1")
         .orElseThrow(() -> new IllegalArgumentException("Unknown service name: " + serviceName));
     Container.ExecResult result;
     try {
@@ -159,23 +156,23 @@ public class DockerComposeRule extends ExternalResource {
    * @return the exit code of the command
    */
   public Long loggingExecForService(String serviceName, String... command) {
-    ContainerState container = composeContainer.getContainerByServiceName(serviceName + "_1")
+    var container = composeContainer.getContainerByServiceName(serviceName + "_1")
         .orElseThrow(() -> new IllegalArgumentException("Unknown service name: " + serviceName));
 
-    String containerId = container.getContainerId();
-    String containerName = container.getContainerInfo().getName();
+    var containerId = container.getContainerId();
+    var containerName = container.getContainerInfo().getName();
 
     logger.info("{}: Running 'exec' command: {}", containerName, command);
 
-    DockerClient dockerClient = DockerClientFactory.instance().client();
+    var dockerClient = DockerClientFactory.instance().client();
 
-    final ExecCreateCmdResponse execCreateCmdResponse = dockerClient.execCreateCmd(containerId)
+    final var execCreateCmdResponse = dockerClient.execCreateCmd(containerId)
         .withAttachStdout(true).withAttachStderr(true).withCmd(command).exec();
 
-    final ToLogConsumer stdoutConsumer = new ToLogConsumer(serviceName, logger);
-    final ToLogConsumer stderrConsumer = new ToLogConsumer(serviceName, logger);
+    final var stdoutConsumer = new ToLogConsumer(serviceName, logger);
+    final var stderrConsumer = new ToLogConsumer(serviceName, logger);
 
-    FrameConsumerResultCallback callback = new FrameConsumerResultCallback();
+    var callback = new FrameConsumerResultCallback();
     callback.addConsumer(OutputFrame.OutputType.STDOUT, stdoutConsumer);
     callback.addConsumer(OutputFrame.OutputType.STDERR, stderrConsumer);
 
@@ -210,10 +207,10 @@ public class DockerComposeRule extends ExternalResource {
   public String getIpAddressForService(String serviceName, String network) {
     Map networks = composeContainer.getContainerByServiceName(serviceName + "_1").get()
         .getCurrentContainerInfo().getNetworkSettings().getNetworks();
-    for (Object object : networks.entrySet()) {
-      String key = (String) ((Map.Entry<?, ?>) object).getKey();
+    for (var object : networks.entrySet()) {
+      var key = (String) ((Map.Entry<?, ?>) object).getKey();
       if (key.contains(network)) {
-        ContainerNetwork containerNetwork =
+        var containerNetwork =
             (ContainerNetwork) ((Map.Entry<?, ?>) object).getValue();
         return containerNetwork.getIpAddress();
       }
@@ -229,7 +226,7 @@ public class DockerComposeRule extends ExternalResource {
    * @param serviceName the service to pause
    */
   public void pauseService(String serviceName) {
-    ContainerState container = composeContainer.getContainerByServiceName(serviceName + "_1")
+    var container = composeContainer.getContainerByServiceName(serviceName + "_1")
         .orElseThrow(() -> new IllegalArgumentException("Unknown service name: " + serviceName));
     DockerClientFactory.instance().client().pauseContainerCmd(container.getContainerId()).exec();
   }
@@ -240,7 +237,7 @@ public class DockerComposeRule extends ExternalResource {
    * @param serviceName the service to unpause
    */
   public void unpauseService(String serviceName) {
-    ContainerState container = composeContainer.getContainerByServiceName(serviceName + "_1")
+    var container = composeContainer.getContainerByServiceName(serviceName + "_1")
         .orElseThrow(() -> new IllegalArgumentException("Unknown service name: " + serviceName));
     DockerClientFactory.instance().client().unpauseContainerCmd(container.getContainerId()).exec();
   }

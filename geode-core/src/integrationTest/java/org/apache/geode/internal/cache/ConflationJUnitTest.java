@@ -193,9 +193,9 @@ public class ConflationJUnitTest extends DiskRegionTestingBase {
     if (entries.size() != 1) {
       fail("expected size to be 1 but is not so");
     }
-    RegionEntry entry = (RegionEntry) entries.iterator().next();
-    DiskId id = ((DiskEntry) entry).getDiskId();
-    Object obj = ((LocalRegion) region).getDiskRegion().get(id);
+    var entry = (RegionEntry) entries.iterator().next();
+    var id = ((DiskEntry) entry).getDiskId();
+    var obj = ((LocalRegion) region).getDiskRegion().get(id);
     if (!(obj.equals(2))) {
       fail("incorrect modification");
     }
@@ -222,9 +222,9 @@ public class ConflationJUnitTest extends DiskRegionTestingBase {
     if (entries.size() != 1) {
       fail("expected size to be 1 but is " + entries.size());
     }
-    RegionEntry entry = (RegionEntry) entries.iterator().next();
-    DiskId id = ((DiskEntry) entry).getDiskId();
-    Object obj = ((LocalRegion) region).getDiskRegion().get(id);
+    var entry = (RegionEntry) entries.iterator().next();
+    var id = ((DiskEntry) entry).getDiskId();
+    var obj = ((LocalRegion) region).getDiskRegion().get(id);
     assertEquals(Token.TOMBSTONE, obj);
   }
 
@@ -236,9 +236,9 @@ public class ConflationJUnitTest extends DiskRegionTestingBase {
     if (entries.size() != 1) {
       fail("expected size to be 1 but is " + entries.size());
     }
-    RegionEntry entry = (RegionEntry) entries.iterator().next();
-    DiskId id = ((DiskEntry) entry).getDiskId();
-    Object obj = ((LocalRegion) region).getDiskRegion().get(id);
+    var entry = (RegionEntry) entries.iterator().next();
+    var id = ((DiskEntry) entry).getDiskId();
+    var obj = ((LocalRegion) region).getDiskRegion().get(id);
     if (!(obj.equals(Token.INVALID))) {
       fail(" incorrect invalidation");
     }

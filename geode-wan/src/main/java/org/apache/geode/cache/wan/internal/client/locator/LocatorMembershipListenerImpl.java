@@ -20,8 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -155,8 +153,8 @@ public class LocatorMembershipListenerImpl implements LocatorMembershipListener 
     // DistributionLocatorId for local locator.
     DistributionLocatorId localLocatorId;
 
-    String memberName = config.getName();
-    String localLocator = config.getStartLocator();
+    var memberName = config.getName();
+    var localLocator = config.getStartLocator();
     if (localLocator.equals(DistributionConfig.DEFAULT_START_LOCATOR)) {
       localLocatorId =
           new DistributionLocatorId(port, config.getBindAddress(), null, memberName);
@@ -165,18 +163,18 @@ public class LocatorMembershipListenerImpl implements LocatorMembershipListener 
     }
 
     // Make a local copy of the current list of known locators.
-    ConcurrentMap<Integer, Set<DistributionLocatorId>> remoteLocators = getAllLocatorsInfo();
+    var remoteLocators = getAllLocatorsInfo();
     Map<Integer, Set<DistributionLocatorId>> localCopy = new HashMap<>();
-    for (Map.Entry<Integer, Set<DistributionLocatorId>> entry : remoteLocators.entrySet()) {
+    for (var entry : remoteLocators.entrySet()) {
       Set<DistributionLocatorId> value = new CopyOnWriteHashSet<>(entry.getValue());
       localCopy.put(entry.getKey(), value);
     }
 
     // Remove locators that don't need to be notified (myself, the joining one and the one that
     // notified myself).
-    List<DistributionLocatorId> ignoreList = Arrays.asList(locator, localLocatorId, sourceLocator);
-    for (Map.Entry<Integer, Set<DistributionLocatorId>> entry : localCopy.entrySet()) {
-      for (DistributionLocatorId removeLocId : ignoreList) {
+    var ignoreList = Arrays.asList(locator, localLocatorId, sourceLocator);
+    for (var entry : localCopy.entrySet()) {
+      for (var removeLocId : ignoreList) {
         entry.getValue().remove(removeLocId);
       }
     }
@@ -209,27 +207,27 @@ public class LocatorMembershipListenerImpl implements LocatorMembershipListener 
    *
    */
   private synchronized Object updateAllLocatorInfo(RemoteLocatorJoinRequest request) {
-    int distributedSystemId = request.getDistributedSystemId();
-    DistributionLocatorId locator = request.getLocator();
+    var distributedSystemId = request.getDistributedSystemId();
+    var locator = request.getLocator();
 
     LocatorHelper.addLocator(distributedSystemId, locator, this, null);
     return new RemoteLocatorJoinResponse(getAllLocatorsInfo());
   }
 
   private ExecutorService createThreadPool() {
-    int numLocalLocs = 1;
-    String localLocators = config.getLocators();
+    var numLocalLocs = 1;
+    var localLocators = config.getLocators();
     if (localLocators != null) {
       numLocalLocs += StringUtils.countMatches(localLocators, ",");
     }
-    String remoteLocators = config.getRemoteLocators();
-    int numRemoteLocs = 0;
+    var remoteLocators = config.getRemoteLocators();
+    var numRemoteLocs = 0;
     if (remoteLocators != null) {
       numRemoteLocs = 1;
       numRemoteLocs += StringUtils.countMatches(remoteLocators, ",");
     }
 
-    int maxPoolsize = numLocalLocs + numRemoteLocs;
+    var maxPoolsize = numLocalLocs + numRemoteLocs;
     if (maxPoolsize < MINIMUM_MAX_POOL_SIZE) {
       maxPoolsize = MINIMUM_MAX_POOL_SIZE;
     }
@@ -243,9 +241,9 @@ public class LocatorMembershipListenerImpl implements LocatorMembershipListener 
   }
 
   private Object informAboutRemoteLocators(LocatorJoinMessage request) {
-    int distributedSystemId = request.getDistributedSystemId();
-    DistributionLocatorId locator = request.getLocator();
-    DistributionLocatorId sourceLocatorId = request.getSourceLocator();
+    var distributedSystemId = request.getDistributedSystemId();
+    var locator = request.getLocator();
+    var sourceLocatorId = request.getSourceLocator();
 
     LocatorHelper.addLocator(distributedSystemId, locator, this, sourceLocatorId);
     return null;
@@ -301,7 +299,7 @@ public class LocatorMembershipListenerImpl implements LocatorMembershipListener 
 
     void sendMessage(DistributionLocatorId targetLocator, LocatorJoinMessage locatorJoinMessage,
         Map<DistributionLocatorId, Set<LocatorJoinMessage>> failedMessages) {
-      DistributionLocatorId advertisedLocator = locatorJoinMessage.getLocator();
+      var advertisedLocator = locatorJoinMessage.getLocator();
 
       try {
         tcpClient.requestToServer(targetLocator.getHost(),
@@ -324,7 +322,7 @@ public class LocatorMembershipListenerImpl implements LocatorMembershipListener 
 
     boolean retryMessage(DistributionLocatorId targetLocator, LocatorJoinMessage locatorJoinMessage,
         int retryAttempt) {
-      DistributionLocatorId advertisedLocator = locatorJoinMessage.getLocator();
+      var advertisedLocator = locatorJoinMessage.getLocator();
 
       try {
         tcpClient.requestToServer(targetLocator.getHost(),
@@ -352,15 +350,15 @@ public class LocatorMembershipListenerImpl implements LocatorMembershipListener 
     @Override
     public void run() {
       Map<DistributionLocatorId, Set<LocatorJoinMessage>> failedMessages = new HashMap<>();
-      for (Map.Entry<Integer, Set<DistributionLocatorId>> entry : remoteLocators.entrySet()) {
-        for (DistributionLocatorId remoteLocator : entry.getValue()) {
+      for (var entry : remoteLocators.entrySet()) {
+        for (var remoteLocator : entry.getValue()) {
           // Notify known remote locator about the advertised locator.
-          LocatorJoinMessage advertiseNewLocatorMessage = new LocatorJoinMessage(
+          var advertiseNewLocatorMessage = new LocatorJoinMessage(
               joiningLocatorDistributedSystemId, joiningLocator, localLocatorId, "");
           sendMessage(remoteLocator, advertiseNewLocatorMessage, failedMessages);
 
           // Notify the advertised locator about remote known locator.
-          LocatorJoinMessage advertiseKnownLocatorMessage =
+          var advertiseKnownLocatorMessage =
               new LocatorJoinMessage(entry.getKey(), remoteLocator, localLocatorId, "");
           sendMessage(joiningLocator, advertiseKnownLocatorMessage, failedMessages);
         }
@@ -368,16 +366,16 @@ public class LocatorMembershipListenerImpl implements LocatorMembershipListener 
 
       // Retry failed messages and remove those that succeed.
       if (!failedMessages.isEmpty()) {
-        for (int attempt = 1; attempt <= LOCATOR_DISTRIBUTION_RETRY_ATTEMPTS; attempt++) {
+        for (var attempt = 1; attempt <= LOCATOR_DISTRIBUTION_RETRY_ATTEMPTS; attempt++) {
 
-          for (Map.Entry<DistributionLocatorId, Set<LocatorJoinMessage>> entry : failedMessages
+          for (var entry : failedMessages
               .entrySet()) {
-            DistributionLocatorId targetLocator = entry.getKey();
-            Set<LocatorJoinMessage> joinMessages = entry.getValue();
+            var targetLocator = entry.getKey();
+            var joinMessages = entry.getValue();
 
-            for (Iterator<LocatorJoinMessage> iterator = joinMessages.iterator(); iterator
+            for (var iterator = joinMessages.iterator(); iterator
                 .hasNext();) {
-              LocatorJoinMessage locatorJoinMessage = iterator.next();
+              var locatorJoinMessage = iterator.next();
               if (retryMessage(targetLocator, locatorJoinMessage, attempt)) {
                 iterator.remove();
               } else {

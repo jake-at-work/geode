@@ -32,7 +32,7 @@ public class CommitOp {
    * @param pool the pool to use to communicate with the server.
    */
   public static TXCommitMessage execute(ExecutablePool pool, int txId) {
-    CommitOpImpl op = new CommitOpImpl(txId);
+    var op = new CommitOpImpl(txId);
     pool.execute(op);
     return op.getTXCommitMessageResponse();
   }
@@ -67,7 +67,7 @@ public class CommitOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      TXCommitMessage rcs = (TXCommitMessage) processObjResponse(msg, "commit");
+      var rcs = (TXCommitMessage) processObjResponse(msg, "commit");
       assert rcs != null : "TxCommit response was null";
       tXCommitMessageResponse = rcs;
       return rcs;

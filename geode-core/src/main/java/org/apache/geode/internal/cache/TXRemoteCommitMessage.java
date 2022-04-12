@@ -63,10 +63,10 @@ public class TXRemoteCommitMessage extends TXMessage {
 
   public static RemoteCommitResponse send(Cache cache, int txUniqId,
       InternalDistributedMember onBehalfOfClientMember, DistributedMember recipient) {
-    final InternalDistributedSystem system =
+    final var system =
         (InternalDistributedSystem) cache.getDistributedSystem();
-    final Set<DistributedMember> recipients = Collections.singleton(recipient);
-    RemoteCommitResponse p = new RemoteCommitResponse(system, recipients);
+    final var recipients = Collections.singleton(recipient);
+    var p = new RemoteCommitResponse(system, recipients);
     TXMessage msg = new TXRemoteCommitMessage(txUniqId, onBehalfOfClientMember, p);
 
     msg.setRecipients(recipients);
@@ -77,14 +77,14 @@ public class TXRemoteCommitMessage extends TXMessage {
   @Override
   protected boolean operateOnTx(TXId txId, ClusterDistributionManager dm)
       throws RemoteOperationException {
-    InternalCache cache = dm.getCache();
-    TXManagerImpl txMgr = cache.getTXMgr();
+    var cache = dm.getCache();
+    var txMgr = cache.getTXMgr();
 
     if (logger.isDebugEnabled()) {
       logger.debug("TX: Committing: {}", txId);
     }
-    final TXStateProxy txState = txMgr.getTXState();
-    TXCommitMessage commitMessage = txMgr.getRecentlyCompletedMessage(txId);
+    final var txState = txMgr.getTXState();
+    var commitMessage = txMgr.getRecentlyCompletedMessage(txId);
     try {
       // do the actual commit, only if it was not done before
       if (commitMessage != null) {
@@ -179,7 +179,7 @@ public class TXRemoteCommitMessage extends TXMessage {
       if (val != null) {
         val.setClientVersion(null);
       }
-      TXRemoteCommitReplyMessage m = new TXRemoteCommitReplyMessage(processorId, val);
+      var m = new TXRemoteCommitReplyMessage(processorId, val);
       m.setRecipient(recipient);
       replySender.putOutgoing(m);
     }
@@ -191,7 +191,7 @@ public class TXRemoteCommitMessage extends TXMessage {
      */
     @Override
     public void process(final DistributionManager dm, ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "TXRemoteCommitReply process invoking reply processor with processorId:{}",
@@ -263,7 +263,7 @@ public class TXRemoteCommitMessage extends TXMessage {
         start = DistributionStats.getStatTime();
       }
       if (msg instanceof TXRemoteCommitReplyMessage) {
-        TXRemoteCommitReplyMessage reply = (TXRemoteCommitReplyMessage) msg;
+        var reply = (TXRemoteCommitReplyMessage) msg;
         // De-serialization needs to occur in the requesting thread, not a P2P thread
         // (or some other limited resource)
         commitMessage = reply.getCommitMessage();

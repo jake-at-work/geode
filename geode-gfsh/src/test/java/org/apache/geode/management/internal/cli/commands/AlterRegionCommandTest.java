@@ -24,8 +24,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,7 +43,6 @@ import org.apache.geode.distributed.internal.InternalConfigurationPersistenceSer
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.management.configuration.ClassName;
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.test.junit.rules.GfshParserRule;
 
@@ -62,16 +59,16 @@ public class AlterRegionCommandTest {
   @Before
   public void before() {
     command = spy(AlterRegionCommand.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     command.setCache(cache);
     when(cache.getSecurityService()).thenReturn(mock(SecurityService.class));
-    InternalConfigurationPersistenceService ccService =
+    var ccService =
         mock(InternalConfigurationPersistenceService.class);
     doReturn(ccService).when(command).getConfigurationPersistenceService();
-    Set<DistributedMember> members =
+    var members =
         Stream.of(mock(DistributedMember.class)).collect(Collectors.toSet());
     doReturn(members).when(command).findMembers(any(), any());
-    CliFunctionResult result =
+    var result =
         new CliFunctionResult("member", CliFunctionResult.StatusState.OK, "regionA altered");
     doReturn(Collections.singletonList(result)).when(command).executeAndGetFunctionResult(any(),
         any(), any());
@@ -86,14 +83,14 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithCacheWriter() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --cache-writer=CommandWriter");
-    RegionAttributesType deltaAttributes = deltaConfig.getRegionAttributes();
+    var deltaAttributes = deltaConfig.getRegionAttributes();
     assertThat(deltaAttributes.getCacheLoader()).isNull();
     assertThat(deltaAttributes.getCacheListeners()).isNotNull().isEmpty();
     assertThat(deltaAttributes.getCacheWriter().getClassName()).isEqualTo("CommandWriter");
 
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingAttributes.setCacheLoader(new DeclarableType("CacheLoader"));
     existingAttributes.setCacheWriter(new DeclarableType("CacheWriter"));
     existingAttributes.getCacheListeners().add(new DeclarableType("CacheListener"));
@@ -113,12 +110,12 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithNoCacheWriter() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --cache-writer=' '");
-    RegionAttributesType deltaAttributes = deltaConfig.getRegionAttributes();
+    var deltaAttributes = deltaConfig.getRegionAttributes();
     assertThat(deltaAttributes.getCacheWriter()).isEqualTo(DeclarableType.EMPTY);
 
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingAttributes.setCacheWriter(new DeclarableType("CacheWriter"));
 
     existingRegionConfig.setRegionAttributes(existingAttributes);
@@ -130,29 +127,29 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithInvalidCacheWriter() {
-    String command = "alter region --name=" + SEPARATOR + "Person --cache-writer='1abc'";
-    GfshParseResult result = parser.parse(command);
+    var command = "alter region --name=" + SEPARATOR + "Person --cache-writer='1abc'";
+    var result = parser.parse(command);
     assertThat(result).isNull();
   }
 
   @Test
   public void emptyCustomExpiryAndNoCloning() {
-    String command =
+    var command =
         "alter region --name=" + SEPARATOR + "Person --entry-idle-time-custom-expiry=''";
-    GfshParseResult result = parser.parse(command);
-    ClassName paramValue = (ClassName) result.getParamValue("entry-idle-time-custom-expiry");
+    var result = parser.parse(command);
+    var paramValue = (ClassName) result.getParamValue("entry-idle-time-custom-expiry");
     assertThat(paramValue).isEqualTo(ClassName.EMPTY);
     assertThat(paramValue.getClassName()).isEqualTo("");
 
     // when enable-cloning is not specified, the value should be null
-    Object enableCloning = result.getParamValue("enable-cloning");
+    var enableCloning = result.getParamValue("enable-cloning");
     assertThat(enableCloning).isNull();
   }
 
   @Test
   public void regionNameIsConverted() {
-    String command = "alter region --name=Person";
-    GfshParseResult result = parser.parse(command);
+    var command = "alter region --name=Person";
+    var result = parser.parse(command);
     assertThat(result.getParamValue("name")).isEqualTo(SEPARATOR + "Person");
   }
 
@@ -191,7 +188,7 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithCloningEnabled() {
-    RegionAttributesType regionAttributes =
+    var regionAttributes =
         getDeltaRegionConfig("alter region --name=regionA --enable-cloning=false")
             .getRegionAttributes();
     assertThat(regionAttributes.isCloningEnabled()).isFalse();
@@ -211,9 +208,9 @@ public class AlterRegionCommandTest {
   @Test
   public void alterWithEntryIdleTimeOut() {
     // check that the deltaConfig is created as expected
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --entry-idle-time-expiration=7");
-    RegionAttributesType.ExpirationAttributesType entryIdleTime =
+    var entryIdleTime =
         deltaConfig.getRegionAttributes().getEntryIdleTime();
     assertThat(entryIdleTime).isNotNull();
     assertThat(entryIdleTime.getTimeout()).isEqualTo("7");
@@ -221,15 +218,15 @@ public class AlterRegionCommandTest {
     assertThat(entryIdleTime.getAction()).isNull();
 
     // check that the combined the configuration is created as expected
-    RegionAttributesType existingAttributes = new RegionAttributesType();
-    RegionAttributesType.ExpirationAttributesType expirationAttributesType =
+    var existingAttributes = new RegionAttributesType();
+    var expirationAttributesType =
         new RegionAttributesType.ExpirationAttributesType(10,
             ExpirationAction.DESTROY.toXmlString(), null, null);
     existingAttributes.setEntryIdleTime(expirationAttributesType);
     existingRegionConfig.setRegionAttributes(existingAttributes);
 
     command.updateConfigForGroup("cluster", cacheConfig, deltaConfig);
-    RegionAttributesType.ExpirationAttributesType combinedExpirationAttributes =
+    var combinedExpirationAttributes =
         existingRegionConfig.getRegionAttributes().getEntryIdleTime();
     assertThat(combinedExpirationAttributes.getTimeout()).isEqualTo("7");
     assertThat(combinedExpirationAttributes.getAction()).isEqualTo("destroy");
@@ -238,10 +235,10 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithEntryIdleTimeOutAction() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig(
             "alter region --name=regionA --entry-idle-time-expiration-action=destroy");
-    RegionAttributesType.ExpirationAttributesType entryIdleTime =
+    var entryIdleTime =
         deltaConfig.getRegionAttributes().getEntryIdleTime();
     assertThat(entryIdleTime).isNotNull();
     assertThat(entryIdleTime.getTimeout()).isNull();
@@ -249,8 +246,8 @@ public class AlterRegionCommandTest {
     assertThat(entryIdleTime.getAction()).isEqualTo("destroy");
 
     // check that the combined the configuration is created as expected
-    RegionAttributesType existingAttributes = new RegionAttributesType();
-    RegionAttributesType.ExpirationAttributesType expirationAttributesType =
+    var existingAttributes = new RegionAttributesType();
+    var expirationAttributesType =
         new RegionAttributesType.ExpirationAttributesType(10,
             ExpirationAction.INVALIDATE.toXmlString(), null,
             null);
@@ -258,7 +255,7 @@ public class AlterRegionCommandTest {
     existingRegionConfig.setRegionAttributes(existingAttributes);
 
     command.updateConfigForGroup("cluster", cacheConfig, deltaConfig);
-    RegionAttributesType.ExpirationAttributesType combinedExpirationAttributes =
+    var combinedExpirationAttributes =
         existingRegionConfig.getRegionAttributes().getEntryIdleTime();
     assertThat(combinedExpirationAttributes.getTimeout()).isEqualTo("10");
     assertThat(combinedExpirationAttributes.getAction()).isEqualTo("destroy");
@@ -267,9 +264,9 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithEntryIdleTimeOutCustomExpiry() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --entry-idle-time-custom-expiry=abc");
-    RegionAttributesType.ExpirationAttributesType entryIdleTime =
+    var entryIdleTime =
         deltaConfig.getRegionAttributes().getEntryIdleTime();
     assertThat(entryIdleTime).isNotNull();
     assertThat(entryIdleTime.getTimeout()).isNull();
@@ -277,8 +274,8 @@ public class AlterRegionCommandTest {
     assertThat(entryIdleTime.getAction()).isNull();
 
     // check that the combined the configuration is created as expected
-    RegionAttributesType existingAttributes = new RegionAttributesType();
-    RegionAttributesType.ExpirationAttributesType expirationAttributesType =
+    var existingAttributes = new RegionAttributesType();
+    var expirationAttributesType =
         new RegionAttributesType.ExpirationAttributesType(10,
             ExpirationAction.INVALIDATE.toXmlString(), null,
             null);
@@ -286,7 +283,7 @@ public class AlterRegionCommandTest {
     existingRegionConfig.setRegionAttributes(existingAttributes);
 
     command.updateConfigForGroup("cluster", cacheConfig, deltaConfig);
-    RegionAttributesType.ExpirationAttributesType combinedExpirationAttributes =
+    var combinedExpirationAttributes =
         existingRegionConfig.getRegionAttributes().getEntryIdleTime();
     assertThat(combinedExpirationAttributes.getTimeout()).isEqualTo("10");
     assertThat(combinedExpirationAttributes.getAction()).isEqualTo("invalidate");
@@ -295,9 +292,9 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithEmptyEntryIdleTimeOutCustomExpiry() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --entry-idle-time-custom-expiry=''");
-    RegionAttributesType.ExpirationAttributesType entryIdleTime =
+    var entryIdleTime =
         deltaConfig.getRegionAttributes().getEntryIdleTime();
     assertThat(entryIdleTime).isNotNull();
     assertThat(entryIdleTime.getTimeout()).isNull();
@@ -305,8 +302,8 @@ public class AlterRegionCommandTest {
     assertThat(entryIdleTime.getAction()).isNull();
 
     // check that the combined the configuration is created as expected
-    RegionAttributesType existingAttributes = new RegionAttributesType();
-    RegionAttributesType.ExpirationAttributesType expirationAttributesType =
+    var existingAttributes = new RegionAttributesType();
+    var expirationAttributesType =
         new RegionAttributesType.ExpirationAttributesType(10,
             ExpirationAction.INVALIDATE.toXmlString(), null,
             null);
@@ -314,7 +311,7 @@ public class AlterRegionCommandTest {
     existingRegionConfig.setRegionAttributes(existingAttributes);
 
     command.updateConfigForGroup("cluster", cacheConfig, deltaConfig);
-    RegionAttributesType.ExpirationAttributesType combinedExpirationAttributes =
+    var combinedExpirationAttributes =
         existingRegionConfig.getRegionAttributes().getEntryIdleTime();
     assertThat(combinedExpirationAttributes.getTimeout()).isEqualTo("10");
     assertThat(combinedExpirationAttributes.getAction()).isEqualTo("invalidate");
@@ -323,20 +320,20 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithCacheListener() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --cache-listener=abc,def");
-    List<DeclarableType> cacheListeners = deltaConfig.getRegionAttributes().getCacheListeners();
+    var cacheListeners = deltaConfig.getRegionAttributes().getCacheListeners();
     assertThat(cacheListeners).hasSize(2);
     assertThat(cacheListeners.get(0).getClassName()).isEqualTo("abc");
     assertThat(cacheListeners.get(1).getClassName()).isEqualTo("def");
 
     // check that the combined the configuration is created as expected
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingAttributes.getCacheListeners().add(new DeclarableType("ghi"));
     existingRegionConfig.setRegionAttributes(existingAttributes);
     command.updateConfigForGroup("cluster", cacheConfig, deltaConfig);
 
-    List<DeclarableType> updatedCacheListeners =
+    var updatedCacheListeners =
         existingRegionConfig.getRegionAttributes().getCacheListeners();
     assertThat(updatedCacheListeners).hasSize(2);
     assertThat(updatedCacheListeners.get(0).getClassName()).isEqualTo("abc");
@@ -347,32 +344,32 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithNoCacheListener() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --cache-listener=''");
-    List<DeclarableType> cacheListeners = deltaConfig.getRegionAttributes().getCacheListeners();
+    var cacheListeners = deltaConfig.getRegionAttributes().getCacheListeners();
     assertThat(cacheListeners).hasSize(1);
     assertThat(cacheListeners.get(0)).isEqualTo(DeclarableType.EMPTY);
 
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingAttributes.getCacheListeners().add(new DeclarableType("ghi"));
     existingRegionConfig.setRegionAttributes(existingAttributes);
     command.updateConfigForGroup("cluster", cacheConfig, deltaConfig);
 
-    List<DeclarableType> updatedCacheListeners =
+    var updatedCacheListeners =
         existingRegionConfig.getRegionAttributes().getCacheListeners();
     assertThat(updatedCacheListeners).hasSize(0);
   }
 
   @Test
   public void alterWithCacheLoader() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --cache-loader=abc");
-    RegionAttributesType deltaAttributes = deltaConfig.getRegionAttributes();
+    var deltaAttributes = deltaConfig.getRegionAttributes();
     assertThat(deltaAttributes.getCacheWriter()).isNull();
     assertThat(deltaAttributes.getCacheLoader().getClassName()).isEqualTo("abc");
     assertThat(deltaAttributes.getCacheListeners()).isNotNull().isEmpty();
 
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingAttributes.getCacheListeners().add(new DeclarableType("def"));
     existingAttributes.setCacheLoader(new DeclarableType("def"));
     existingAttributes.setCacheWriter(new DeclarableType("def"));
@@ -393,12 +390,12 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithNoCacheLoader() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --cache-loader=''");
-    RegionAttributesType deltaAttributes = deltaConfig.getRegionAttributes();
+    var deltaAttributes = deltaConfig.getRegionAttributes();
     assertThat(deltaAttributes.getCacheLoader()).isEqualTo(DeclarableType.EMPTY);
 
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingAttributes.setCacheLoader(new DeclarableType("def"));
 
     existingRegionConfig.setRegionAttributes(existingAttributes);
@@ -410,12 +407,12 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithAsyncEventQueueIds() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --async-event-queue-id=abc,def");
     assertThat(deltaConfig.getRegionAttributes().getAsyncEventQueueIds()).isEqualTo("abc,def");
     assertThat(deltaConfig.getRegionAttributes().getGatewaySenderIds()).isNull();
 
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingRegionConfig.setRegionAttributes(existingAttributes);
     existingAttributes.setAsyncEventQueueIds("xyz");
     existingAttributes.setGatewaySenderIds("xyz");
@@ -427,12 +424,12 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithNoAsyncEventQueueIds() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --async-event-queue-id=''");
     assertThat(deltaConfig.getRegionAttributes().getAsyncEventQueueIds()).isEqualTo("");
     assertThat(deltaConfig.getRegionAttributes().getGatewaySenderIds()).isNull();
 
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingRegionConfig.setRegionAttributes(existingAttributes);
     existingAttributes.setAsyncEventQueueIds("xyz");
     existingAttributes.setGatewaySenderIds("xyz");
@@ -445,22 +442,22 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithEvictionMaxWithExistingLruHeapPercentage() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --eviction-max=20");
 
     // we are saving the eviction-max as a lruEntryCount's maximum value
-    RegionAttributesType.EvictionAttributes.LruEntryCount lruEntryCount =
+    var lruEntryCount =
         deltaConfig.getRegionAttributes().getEvictionAttributes().getLruEntryCount();
     assertThat(lruEntryCount.getMaximum()).isEqualTo("20");
 
     // when there is no eviction attributes at all
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingRegionConfig.setRegionAttributes(existingAttributes);
     command.updateConfigForGroup("cluster", cacheConfig, deltaConfig);
     assertThat(existingAttributes.getEvictionAttributes()).isNull();
 
     // when there is lruHeapPercentage eviction
-    RegionAttributesType.EvictionAttributes evictionAttributes =
+    var evictionAttributes =
         new RegionAttributesType.EvictionAttributes();
     evictionAttributes
         .setLruHeapPercentage(new RegionAttributesType.EvictionAttributes.LruHeapPercentage());
@@ -471,25 +468,25 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithEvictionMaxWithExistingLruEntryCount() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --eviction-max=20");
 
     // we are saving the eviction-max as a lruEntryCount's maximum value
-    RegionAttributesType.EvictionAttributes.LruEntryCount lruEntryCount =
+    var lruEntryCount =
         deltaConfig.getRegionAttributes().getEvictionAttributes().getLruEntryCount();
     assertThat(lruEntryCount.getMaximum()).isEqualTo("20");
 
     // when there is no eviction attributes at all
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingRegionConfig.setRegionAttributes(existingAttributes);
     command.updateConfigForGroup("cluster", cacheConfig, deltaConfig);
     assertThat(existingAttributes.getEvictionAttributes()).isNull();
 
     // when there is lruHeapPercentage eviction
-    RegionAttributesType.EvictionAttributes evictionAttributes =
+    var evictionAttributes =
         new RegionAttributesType.EvictionAttributes();
     existingAttributes.setEvictionAttributes(evictionAttributes);
-    RegionAttributesType.EvictionAttributes.LruEntryCount existingEntryCount =
+    var existingEntryCount =
         new RegionAttributesType.EvictionAttributes.LruEntryCount();
     existingEntryCount.setMaximum("100");
     existingEntryCount.setAction(EnumActionDestroyOverflow.LOCAL_DESTROY);
@@ -503,25 +500,25 @@ public class AlterRegionCommandTest {
 
   @Test
   public void alterWithEvictionMaxWithExistingLruMemory() {
-    RegionConfig deltaConfig =
+    var deltaConfig =
         getDeltaRegionConfig("alter region --name=regionA --eviction-max=20");
 
     // we are saving the eviction-max as a lruEntryCount's maximum value
-    RegionAttributesType.EvictionAttributes.LruEntryCount lruEntryCount =
+    var lruEntryCount =
         deltaConfig.getRegionAttributes().getEvictionAttributes().getLruEntryCount();
     assertThat(lruEntryCount.getMaximum()).isEqualTo("20");
 
     // when there is no eviction attributes at all
-    RegionAttributesType existingAttributes = new RegionAttributesType();
+    var existingAttributes = new RegionAttributesType();
     existingRegionConfig.setRegionAttributes(existingAttributes);
     command.updateConfigForGroup("cluster", cacheConfig, deltaConfig);
     assertThat(existingAttributes.getEvictionAttributes()).isNull();
 
     // when there is lruHeapPercentage eviction
-    RegionAttributesType.EvictionAttributes evictionAttributes =
+    var evictionAttributes =
         new RegionAttributesType.EvictionAttributes();
     existingAttributes.setEvictionAttributes(evictionAttributes);
-    RegionAttributesType.EvictionAttributes.LruMemorySize existingMemorySize =
+    var existingMemorySize =
         new RegionAttributesType.EvictionAttributes.LruMemorySize();
     existingMemorySize.setMaximum("100");
     existingMemorySize.setAction(EnumActionDestroyOverflow.LOCAL_DESTROY);

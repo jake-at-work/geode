@@ -40,9 +40,9 @@ class DUnitHost extends Host {
 
   public void init(int numVMs, boolean launchLocator)
       throws RemoteException, NotBoundException, InterruptedException {
-    for (int i = 0; i < numVMs; i++) {
-      RemoteDUnitVMIF remote = processManager.getStub(i);
-      ProcessHolder processHolder = processManager.getProcessHolder(i);
+    for (var i = 0; i < numVMs; i++) {
+      var remote = processManager.getStub(i);
+      var processHolder = processManager.getProcessHolder(i);
       addVM(i, VersionManager.CURRENT_VERSION, remote, processHolder, processManager);
     }
 
@@ -66,7 +66,7 @@ class DUnitHost extends Host {
   @Override
   public VM getVM(int n) {
     if (n < getVMCount() && n != DUnitLauncher.DEBUGGING_VM_NUM) {
-      VM current = super.getVM(n);
+      var current = super.getVM(n);
       return getVM(current.getVersion(), n);
     } else {
       return getVM(VersionManager.CURRENT_VERSION, n);
@@ -81,24 +81,24 @@ class DUnitHost extends Host {
     }
 
     if (n < getVMCount()) {
-      VM current = super.getVM(n);
+      var current = super.getVM(n);
       if (!current.getVersion().equals(version)) {
         current.bounce(version);
       }
       return current;
     }
 
-    int oldVMCount = getVMCount();
+    var oldVMCount = getVMCount();
     if (n >= oldVMCount) {
       // If we don't have a VM with that number, dynamically create it.
       try {
         // first fill in any gaps, to keep the superclass, Host, happy
-        for (int i = oldVMCount; i < n; i++) {
+        for (var i = oldVMCount; i < n; i++) {
           processManager.launchVM(i);
         }
         processManager.waitForVMs(DUnitLauncher.STARTUP_TIMEOUT);
 
-        for (int i = oldVMCount; i < n; i++) {
+        for (var i = oldVMCount; i < n; i++) {
           addVM(i, VersionManager.CURRENT_VERSION, processManager.getStub(i),
               processManager.getProcessHolder(i), processManager);
         }

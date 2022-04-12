@@ -25,7 +25,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.QueryService;
@@ -34,12 +33,10 @@ import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.data.PortfolioPdx;
 import org.apache.geode.cache.query.data.PositionPdx;
 import org.apache.geode.cache.query.functional.StructSetOrResultsSet;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.pdx.PdxInstanceFactory;
 import org.apache.geode.pdx.internal.PdxInstanceEnum;
 import org.apache.geode.pdx.internal.PdxInstanceFactoryImpl;
 import org.apache.geode.pdx.internal.PdxString;
@@ -57,14 +54,14 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
 
   @Test
   public void testLocalPdxQueriesVerifyNoDeserialization() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
 
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
 
-    final String[] queries = {"select * from " + name + " where status = 'inactive'",
+    final var queries = new String[] {"select * from " + name + " where status = 'inactive'",
         "select p from " + name + " p where p.status = 'inactive'",
         "select * from " + name + " p, p.positions.values v where v.secId = 'IBM'",
         "select p.status from " + name + " p where p.status = 'inactive' or p.ID > 0",
@@ -78,8 +75,8 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        for (int i = 0; i < numberOfEntries; i++) {
-          PortfolioPdx p = new PortfolioPdx(i);
+        for (var i = 0; i < numberOfEntries; i++) {
+          var p = new PortfolioPdx(i);
           r1.put("key-" + i, p);
         }
         return null;
@@ -101,7 +98,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (final String query : queries) {
+        for (final var query : queries) {
           try {
             sr = (SelectResults) qs.newQuery(query).execute();
             assertTrue("Size of resultset should be greater than 0 for query: " + query,
@@ -121,14 +118,14 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
 
   @Test
   public void testLocalPdxQueriesReadSerialized() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
 
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
 
-    final String[] queries = {"select * from " + name + " where position1 = $1",
+    final var queries = new String[] {"select * from " + name + " where position1 = $1",
         "select * from " + name + " where aDay = $1",
         "select * from " + name + " where status = 'inactive'",
         "select distinct * from " + name + " where status = 'inactive'",
@@ -145,8 +142,8 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        for (int i = 0; i < numberOfEntries; i++) {
-          PortfolioPdx p = new PortfolioPdx(i);
+        for (var i = 0; i < numberOfEntries; i++) {
+          var p = new PortfolioPdx(i);
           r1.put("key-" + i, p);
         }
         return null;
@@ -169,8 +166,8 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        PositionPdx pos = new PositionPdx("IBM", 100);
-        PdxInstanceFactory out = PdxInstanceFactoryImpl
+        var pos = new PositionPdx("IBM", 100);
+        var out = PdxInstanceFactoryImpl
             .newCreator("org.apache.geode.cache.query.data.PositionPdx", false, getCache());
         out.writeLong("avg20DaysVol", 0);
         out.writeString("bondRating", "");
@@ -190,12 +187,12 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
         out.writeInt("pid", pos.getPid());
         out.writeInt("portfolioId", 0);
         out.markIdentityField("secId");
-        PdxInstance pi = out.create();
+        var pi = out.create();
 
-        PortfolioPdx.Day pDay = new PortfolioPdx(1).aDay;
-        PdxInstanceEnum pdxEnum = new PdxInstanceEnum(pDay);
+        var pDay = new PortfolioPdx(1).aDay;
+        var pdxEnum = new PdxInstanceEnum(pDay);
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pi});
@@ -206,10 +203,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
             }
             assertTrue("Size of resultset should be greater than 0 for query: " + queries[i],
                 sr.size() > 0);
-            for (Object result : sr) {
+            for (var result : sr) {
               if (result instanceof Struct) {
-                Object[] r = ((Struct) result).getFieldValues();
-                for (final Object o : r) {
+                var r = ((Struct) result).getFieldValues();
+                for (final var o : r) {
                   if (!(o instanceof PdxInstance)) {
                     fail("Result object should be a PdxInstance  and not an instance of "
                         + o.getClass() + " for query: " + queries[i]);
@@ -234,14 +231,14 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
 
   @Test
   public void testLocalPdxQueries() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(1);
-    final VM client = host.getVM(2);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(1);
+    final var client = host.getVM(2);
 
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
-    final String name2 = SEPARATOR + regionName2;
-    final String[] queries = {"select * from " + name + " where position1 = $1",
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
+    final var name2 = SEPARATOR + regionName2;
+    final var queries = new String[] {"select * from " + name + " where position1 = $1",
         "select * from " + name + " where aDay = $1",
         "select distinct * from " + name + " p where p.status = 'inactive'", // numberOfEntries
         "select distinct p.status from " + name + " p where p.status = 'inactive'", // 1
@@ -249,18 +246,23 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
         "select * from " + name + " p, p.positions.values v where v.secId = 'IBM'", // 4
         "select v from " + name + " p, p.positions.values v where v.secId = 'IBM'", // 4
         "select p.status from " + name + " p where p.status = 'inactive'", // numberOfEntries
-        "select distinct * from " + name + " p where p.status = 'inactive' order by p.ID", // numberOfEntries
+        "select distinct * from " + name + " p where p.status = 'inactive' order by p.ID",
+        // numberOfEntries
         "select * from " + name + " p where p.status = 'inactive' or p.ID > 0", // 19
         "select * from " + name + " p where p.status = 'inactive' and p.ID >= 0", // numberOfEntries
-        "select * from " + name + " p where p.status in set ('inactive', 'active')", // numberOfEntries*2
+        "select * from " + name + " p where p.status in set ('inactive', 'active')",
+        // numberOfEntries*2
         "select * from " + name + " p where p.ID > 0 and p.ID < 10", // 9
-        "select v from " + name + " p, p.positions.values v where p.status = 'inactive'", // numberOfEntries*2
-        "select v.secId from " + name + " p, p.positions.values v where p.status = 'inactive'", // numberOfEntries*2
+        "select v from " + name + " p, p.positions.values v where p.status = 'inactive'",
+        // numberOfEntries*2
+        "select v.secId from " + name + " p, p.positions.values v where p.status = 'inactive'",
+        // numberOfEntries*2
         "select distinct p from " + name
             + " p, p.positions.values v where p.status = 'inactive' and v.pid >= 0", // numberOfEntries
         "select distinct p from " + name
             + " p, p.positions.values v where p.status = 'inactive' or v.pid > 0", // numberOfEntries*2
-        "select distinct * from " + name + " p, p.positions.values v where p.status = 'inactive'", // numberOfEntries*2
+        "select distinct * from " + name + " p, p.positions.values v where p.status = 'inactive'",
+        // numberOfEntries*2
         "select * from " + name + ".values v where v.status = 'inactive'", // numberOfEntries
         "select v from " + name + " v where v in (select p from " + name + " p where p.ID > 0)", // 19
         "select v from " + name + " v where v.status in (select distinct p.status from " + name
@@ -276,7 +278,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
             + name + " p where p.status = 'inactive')", // numberOfEntries
     };
 
-    final int[] results = {2, 3, numberOfEntries, 1, numberOfEntries, 4, 4, numberOfEntries,
+    final var results = new int[] {2, 3, numberOfEntries, 1, numberOfEntries, 4, 4, numberOfEntries,
         numberOfEntries, 19, numberOfEntries, numberOfEntries * 2, 9, numberOfEntries * 2,
         numberOfEntries * 2, numberOfEntries, numberOfEntries * 2, numberOfEntries * 2,
         numberOfEntries, 19, numberOfEntries, 200, 100, 100, 1, numberOfEntries};
@@ -288,14 +290,14 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
         Region r2 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName2);
 
-        for (int i = 0; i < numberOfEntries; i++) {
-          PortfolioPdx p = new PortfolioPdx(i);
+        for (var i = 0; i < numberOfEntries; i++) {
+          var p = new PortfolioPdx(i);
           r1.put("key-" + i, p);
           r2.put("key-" + i, p);
         }
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -306,17 +308,17 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(server1.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
 
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName);
         Region region2 =
             cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName2);
 
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
-          PortfolioPdx p = new PortfolioPdx(i);
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
+          var p = new PortfolioPdx(i);
           region.put("key-" + i, p);
           region2.put("key-" + i, p);
         }
@@ -328,7 +330,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
     server1.invoke(new SerializableCallable("query locally on server1") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
 
         QueryService qs = null;
         SelectResults sr = null;
@@ -339,10 +341,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        PositionPdx pos = new PositionPdx("IBM", 100);
-        PortfolioPdx.Day pDay = new PortfolioPdx(1).aDay;
+        var pos = new PositionPdx("IBM", 100);
+        var pDay = new PortfolioPdx(1).aDay;
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pos});
@@ -361,7 +363,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
           }
         }
 
-        int extra = 0;
+        var extra = 0;
         if (cache.getLogger().fineEnabled()) {
           extra = 20;
         }
@@ -370,7 +372,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
         // set readserealized and query
         getCache().setReadSerializedForTest(true);
 
-        PdxInstanceFactory out = PdxInstanceFactoryImpl
+        var out = PdxInstanceFactoryImpl
             .newCreator("org.apache.geode.cache.query.data.PositionPdx", false, getCache());
         out.writeLong("avg20DaysVol", 0);
         out.writeString("bondRating", "");
@@ -391,11 +393,11 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
         out.writeInt("portfolioId", 0);
         // Identity Field.
         out.markIdentityField("secId");
-        PdxInstance pi = out.create();
+        var pi = out.create();
 
-        PdxInstanceEnum pdxEnum = new PdxInstanceEnum(pDay);
+        var pdxEnum = new PdxInstanceEnum(pDay);
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pi});
@@ -433,9 +435,9 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(server1.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
 
         QueryService qs = null;
         SelectResults sr = null;
@@ -446,10 +448,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        PositionPdx pos = new PositionPdx("IBM", 100);
-        PortfolioPdx.Day pDay = new PortfolioPdx(1).aDay;
+        var pos = new PositionPdx("IBM", 100);
+        var pDay = new PortfolioPdx(1).aDay;
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pos});
@@ -462,10 +464,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
                 sr.size() > 0);
             assertEquals("Expected and actual results do not match for query: " + queries[i],
                 results[i], sr.size());
-            for (Object result : sr) {
+            for (var result : sr) {
               if (result instanceof Struct) {
-                Object[] r = ((Struct) result).getFieldValues();
-                for (final Object o : r) {
+                var r = ((Struct) result).getFieldValues();
+                for (final var o : r) {
                   if (o instanceof PdxInstance || o instanceof PdxString) {
                     fail("Result object should be a domain object and not an instance of "
                         + o.getClass() + " for query: " + queries[i]);
@@ -489,21 +491,21 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
     server1.invoke(new SerializableCallable("query locally on server1") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
 
         QueryService qs = null;
-        SelectResults[][] sr = new SelectResults[queries.length][2];
+        var sr = new SelectResults[queries.length][2];
         // Execute query locally
         try {
           qs = getCache().getQueryService();
         } catch (Exception e) {
           Assert.fail("Failed to get QueryService.", e);
         }
-        int cnt = PositionPdx.cnt;
-        PositionPdx pos = new PositionPdx("IBM", 100);
-        PortfolioPdx.Day pDay = new PortfolioPdx(1).aDay;
+        var cnt = PositionPdx.cnt;
+        var pos = new PositionPdx("IBM", 100);
+        var pDay = new PortfolioPdx(1).aDay;
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr[i][0] = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pos});
@@ -517,10 +519,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
                 sr[i][0].size() > 0);
             assertEquals("Expected and actual results do not match for query: " + queries[i],
                 results[i], sr[i][0].size());
-            for (Object result : sr[i][0]) {
+            for (var result : sr[i][0]) {
               if (result instanceof Struct) {
-                Object[] r = ((Struct) result).getFieldValues();
-                for (final Object o : r) {
+                var r = ((Struct) result).getFieldValues();
+                for (final var o : r) {
                   if (o instanceof PdxInstance || o instanceof PdxString) {
                     fail("Result object should be a domain object and not an instance of "
                         + o.getClass() + " for query: " + queries[i]);
@@ -542,7 +544,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
         qs.createIndex("pIdIndex", "pos.getPid()", name + " p, p.positions.values pos");
         qs.createIndex("secIdIndex", "pos.secId", name + " p, p.positions.values pos");
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr[i][1] = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pos});
@@ -556,10 +558,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
                 sr[i][1].size() > 0);
             assertEquals("Expected and actual results do not match for query: " + queries[i],
                 results[i], sr[i][1].size());
-            for (Object result : sr[i][1]) {
+            for (var result : sr[i][1]) {
               if (result instanceof Struct) {
-                Object[] r = ((Struct) result).getFieldValues();
-                for (final Object o : r) {
+                var r = ((Struct) result).getFieldValues();
+                for (final var o : r) {
                   if (o instanceof PdxInstance || o instanceof PdxString) {
                     fail("Result object should be a domain object and not an instance of "
                         + o.getClass() + " for query: " + queries[i]);
@@ -575,7 +577,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
           }
         }
 
-        StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+        var ssOrrs = new StructSetOrResultsSet();
         ssOrrs.CompareQueryResultsWithoutAndWithIndexes(sr, queries.length, queries);
         return null;
       }
@@ -588,14 +590,14 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
 
   @Test
   public void testLocalPdxQueriesOnPR() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM client = host.getVM(2);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var client = host.getVM(2);
 
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
-    final String[] queries = {"select * from " + name + " where position1 = $1",
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
+    final var queries = new String[] {"select * from " + name + " where position1 = $1",
         "select * from " + name + " where aDay = $1",
         "select distinct * from " + name + " p where p.status = 'inactive'", // numberOfEntries
         "select distinct p.status from " + name + " p where p.status = 'inactive'", // 1
@@ -603,18 +605,23 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
         "select * from " + name + " p, p.positions.values v where v.secId = 'IBM'", // 4
         "select v from " + name + " p, p.positions.values v where v.secId = 'IBM'", // 4
         "select p.status from " + name + " p where p.status = 'inactive'", // numberOfEntries
-        "select distinct * from " + name + " p where p.status = 'inactive' order by p.ID", // numberOfEntries
+        "select distinct * from " + name + " p where p.status = 'inactive' order by p.ID",
+        // numberOfEntries
         "select * from " + name + " p where p.status = 'inactive' or p.ID > 0", // 19
         "select * from " + name + " p where p.status = 'inactive' and p.ID >= 0", // numberOfEntries
-        "select * from " + name + " p where p.status in set ('inactive', 'active')", // numberOfEntries*2
+        "select * from " + name + " p where p.status in set ('inactive', 'active')",
+        // numberOfEntries*2
         "select * from " + name + " p where p.ID > 0 and p.ID < 10", // 9
-        "select v from " + name + " p, p.positions.values v where p.status = 'inactive'", // numberOfEntries*2
-        "select v.secId from " + name + " p, p.positions.values v where p.status = 'inactive'", // numberOfEntries*2
+        "select v from " + name + " p, p.positions.values v where p.status = 'inactive'",
+        // numberOfEntries*2
+        "select v.secId from " + name + " p, p.positions.values v where p.status = 'inactive'",
+        // numberOfEntries*2
         "select distinct p from " + name
             + " p, p.positions.values v where p.status = 'inactive' and v.pid >= 0", // numberOfEntries
         "select distinct p from " + name
             + " p, p.positions.values v where p.status = 'inactive' or v.pid > 0", // numberOfEntries*2
-        "select distinct * from " + name + " p, p.positions.values v where p.status = 'inactive'", // numberOfEntries*2
+        "select distinct * from " + name + " p, p.positions.values v where p.status = 'inactive'",
+        // numberOfEntries*2
         "select * from " + name + ".values v where v.status = 'inactive'", // numberOfEntries
         "select v from " + name + " v where v in (select p from " + name + " p where p.ID > 0)", // 19
         "select v from " + name + " v where v.status in (select distinct p.status from " + name
@@ -623,7 +630,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
             + name + " p where p.status = 'inactive')", // numberOfEntries
     };
 
-    final int[] results = {2, 3, numberOfEntries, 1, numberOfEntries, 4, 4, numberOfEntries,
+    final var results = new int[] {2, 3, numberOfEntries, 1, numberOfEntries, 4, 4, numberOfEntries,
         numberOfEntries, 19, numberOfEntries, numberOfEntries * 2, 9, numberOfEntries * 2,
         numberOfEntries * 2, numberOfEntries, numberOfEntries * 2, numberOfEntries * 2,
         numberOfEntries, 19, numberOfEntries, numberOfEntries};
@@ -633,11 +640,11 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.PARTITION).create(regionName);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           r1.put("key-" + i, new PortfolioPdx(i));
         }
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -649,8 +656,8 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.PARTITION).create(regionName);
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -661,13 +668,13 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(server1.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName);
 
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new PortfolioPdx(i));
         }
 
@@ -679,10 +686,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
         } catch (Exception e) {
           Assert.fail("Failed to get QueryService.", e);
         }
-        PositionPdx pos = new PositionPdx("IBM", 100);
-        PortfolioPdx.Day pDay = new PortfolioPdx(1).aDay;
+        var pos = new PositionPdx("IBM", 100);
+        var pDay = new PortfolioPdx(1).aDay;
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pos});
@@ -696,10 +703,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
             assertEquals("Expected and actual results do not match for query: " + queries[i],
                 results[i], sr.size());
 
-            for (Object result : sr) {
+            for (var result : sr) {
               if (result instanceof Struct) {
-                Object[] r = ((Struct) result).getFieldValues();
-                for (final Object o : r) {
+                var r = ((Struct) result).getFieldValues();
+                for (final var o : r) {
                   if (o instanceof PdxInstance || o instanceof PdxString) {
                     fail("Result object should be a domain object and not an instance of "
                         + o.getClass() + " for query: " + queries[i]);
@@ -723,7 +730,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
     server1.invoke(new SerializableCallable("query locally on server1") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
 
         QueryService qs = null;
         SelectResults sr = null;
@@ -734,10 +741,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        PositionPdx pos = new PositionPdx("IBM", 100);
-        PortfolioPdx.Day pDay = new PortfolioPdx(1).aDay;
+        var pos = new PositionPdx("IBM", 100);
+        var pDay = new PortfolioPdx(1).aDay;
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pos});
@@ -751,10 +758,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
             assertEquals("Expected and actual results do not match for query: " + queries[i],
                 results[i], sr.size());
 
-            for (Object result : sr) {
+            for (var result : sr) {
               if (result instanceof Struct) {
-                Object[] r = ((Struct) result).getFieldValues();
-                for (final Object o : r) {
+                var r = ((Struct) result).getFieldValues();
+                for (final var o : r) {
                   if (o instanceof PdxInstance || o instanceof PdxString) {
                     fail("Result object should be a domain object and not an instance of "
                         + o.getClass() + " for query: " + queries[i]);
@@ -778,10 +785,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
     server2.invoke(new SerializableCallable("query locally on server2") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
 
         QueryService qs = null;
-        SelectResults[][] sr = new SelectResults[queries.length][2];
+        var sr = new SelectResults[queries.length][2];
         // Execute query locally
         try {
           qs = getCache().getQueryService();
@@ -789,10 +796,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        PositionPdx pos = new PositionPdx("IBM", 100);
-        PortfolioPdx.Day pDay = new PortfolioPdx(1).aDay;
+        var pos = new PositionPdx("IBM", 100);
+        var pDay = new PortfolioPdx(1).aDay;
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr[i][0] = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pos});
@@ -806,10 +813,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
             assertEquals("Expected and actual results do not match for query: " + queries[i],
                 results[i], sr[i][0].size());
 
-            for (Object result : sr[i][0]) {
+            for (var result : sr[i][0]) {
               if (result instanceof Struct) {
-                Object[] r = ((Struct) result).getFieldValues();
-                for (final Object o : r) {
+                var r = ((Struct) result).getFieldValues();
+                for (final var o : r) {
                   if (o instanceof PdxInstance || o instanceof PdxString) {
                     fail("Result object should be a domain object and not an instance of "
                         + o.getClass() + " for query: " + queries[i]);
@@ -831,7 +838,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
         qs.createIndex("pIdIndex", "pos.getPid()", name + " p, p.positions.values pos");
         qs.createIndex("secIdIndex", "pos.secId", name + " p, p.positions.values pos");
 
-        for (int i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i++) {
           try {
             if (i == 0) {
               sr[i][1] = (SelectResults) qs.newQuery(queries[i]).execute(new Object[] {pos});
@@ -845,10 +852,10 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
             assertEquals("Expected and actual results do not match for query: " + queries[i],
                 results[i], sr[i][1].size());
 
-            for (Object result : sr[i][1]) {
+            for (var result : sr[i][1]) {
               if (result instanceof Struct) {
-                Object[] r = ((Struct) result).getFieldValues();
-                for (final Object o : r) {
+                var r = ((Struct) result).getFieldValues();
+                for (final var o : r) {
                   if (o instanceof PdxInstance || o instanceof PdxString) {
                     fail("Result object should be a domain object and not an instance of "
                         + o.getClass() + " for query: " + queries[i]);
@@ -864,7 +871,7 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
           }
         }
 
-        StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+        var ssOrrs = new StructSetOrResultsSet();
         ssOrrs.CompareQueryResultsWithoutAndWithIndexes(sr, queries.length, queries);
 
         return null;
@@ -911,9 +918,9 @@ public class PdxLocalQueryDUnitTest extends PDXQueryTestBase {
   }
 
   private void resetTestObjectInstanceCount() {
-    final Host host = Host.getHost(0);
-    for (int i = 0; i < 4; i++) {
-      VM vm = host.getVM(i);
+    final var host = Host.getHost(0);
+    for (var i = 0; i < 4; i++) {
+      var vm = host.getVM(i);
       vm.invoke(new CacheSerializableRunnable("Create cache server") {
         @Override
         public void run2() throws CacheException {

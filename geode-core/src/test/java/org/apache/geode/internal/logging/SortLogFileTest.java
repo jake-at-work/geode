@@ -48,33 +48,33 @@ public class SortLogFileTest {
    */
   @Test
   public void testRandomLog() throws Exception {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(baos), true);
+    var baos = new ByteArrayOutputStream();
+    var printWriter = new PrintWriter(new OutputStreamWriter(baos), true);
     LogWriter logWriter = new RandomLogWriter(printWriter);
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       logWriter.info(String.valueOf(i));
     }
 
     printWriter.flush();
     printWriter.close();
 
-    byte[] bytes = baos.toByteArray();
+    var bytes = baos.toByteArray();
 
-    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+    var bais = new ByteArrayInputStream(bytes);
 
-    StringWriter stringWriter = new StringWriter();
+    var stringWriter = new StringWriter();
     printWriter = new PrintWriter(stringWriter, true);
     SortLogFile.sortLogFile(bais, printWriter);
 
-    String sorted = stringWriter.toString();
+    var sorted = stringWriter.toString();
 
-    BufferedReader reader = new BufferedReader(new StringReader(sorted));
-    LogFileParser parser = new LogFileParser(null, reader);
+    var reader = new BufferedReader(new StringReader(sorted));
+    var parser = new LogFileParser(null, reader);
     String prevTimestamp = null;
     while (parser.hasMoreEntries()) {
-      LogFileParser.LogEntry entry = parser.getNextEntry();
-      String timestamp = entry.getTimestamp();
+      var entry = parser.getNextEntry();
+      var timestamp = entry.getTimestamp();
       if (prevTimestamp != null) {
         assertThat(prevTimestamp.compareTo(timestamp))
             .as("Prev: " + prevTimestamp + ", current: " + timestamp)
@@ -104,7 +104,7 @@ public class SortLogFileTest {
      */
     @Override
     protected String formatDate(Date date) {
-      long time = date.getTime() + random.nextInt(100_000) * 1_000;
+      var time = date.getTime() + random.nextInt(100_000) * 1_000;
       date = new Date(time);
       return super.formatDate(date);
     }

@@ -22,11 +22,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.security.Principal;
-import java.util.Properties;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.HeapDataOutputStream;
@@ -68,12 +66,12 @@ public class ServerSideHandshakeImpl extends Handshake implements ServerSideHand
     this.securityService = securityService;
     encryptor = new EncryptorImpl(sys.getSecurityLogWriter());
 
-    int soTimeout = -1;
+    var soTimeout = -1;
     try {
       soTimeout = sock.getSoTimeout();
       sock.setSoTimeout(timeout);
-      InputStream inputStream = sock.getInputStream();
-      int valRead = inputStream.read();
+      var inputStream = sock.getInputStream();
+      var valRead = inputStream.read();
       if (valRead == -1) {
         throw new EOFException(
             "HandShake: EOF reached before client code could be read");
@@ -84,8 +82,8 @@ public class ServerSideHandshakeImpl extends Handshake implements ServerSideHand
             "HandShake reply code is not ok");
       }
       try {
-        DataInputStream dataInputStream = new DataInputStream(inputStream);
-        DataOutputStream dataOutputStream = new DataOutputStream(sock.getOutputStream());
+        var dataInputStream = new DataInputStream(inputStream);
+        var dataOutputStream = new DataOutputStream(sock.getOutputStream());
         clientReadTimeout = dataInputStream.readInt();
         if (clientVersion.isOlderThan(KnownVersion.CURRENT)) {
           // versioned streams allow object serialization code to deal with older clients
@@ -129,7 +127,7 @@ public class ServerSideHandshakeImpl extends Handshake implements ServerSideHand
   @Override
   public void handshakeWithClient(OutputStream out, InputStream in, byte endpointType,
       int queueSize, CommunicationMode communicationMode, Principal principal) throws IOException {
-    DataOutputStream dos = new DataOutputStream(out);
+    var dos = new DataOutputStream(out);
     DataInputStream dis;
     if (clientVersion.isOlderThan(KnownVersion.CURRENT)) {
       dis = new VersionedDataInputStream(in, clientVersion);
@@ -154,13 +152,13 @@ public class ServerSideHandshakeImpl extends Handshake implements ServerSideHand
     dos.writeInt(queueSize);
 
     // Write the server's member
-    DistributedMember member = system.getDistributedMember();
+    var member = system.getDistributedMember();
 
-    KnownVersion v = KnownVersion.CURRENT;
+    var v = KnownVersion.CURRENT;
     if (dos instanceof VersionedDataStream) {
       v = ((VersionedDataStream) dos).getVersion();
     }
-    HeapDataOutputStream hdos = new HeapDataOutputStream(v);
+    var hdos = new HeapDataOutputStream(v);
     DataSerializer.writeObject(member, hdos);
     DataSerializer.writeByteArray(hdos.toByteArray(), dos);
     hdos.close();
@@ -181,7 +179,7 @@ public class ServerSideHandshakeImpl extends Handshake implements ServerSideHand
       dos.writeByte(
           ((InternalDistributedSystem) system).getDistributionManager().getDistributedSystemId());
 
-      int pdxSize = PeerTypeRegistration.getPdxRegistrySize();
+      var pdxSize = PeerTypeRegistration.getPdxRegistrySize();
       dos.writeInt(pdxSize);
     }
 
@@ -197,9 +195,9 @@ public class ServerSideHandshakeImpl extends Handshake implements ServerSideHand
 
   private void sendCredentialsForWan(OutputStream out, InputStream in) {
     try {
-      Properties wanCredentials = getCredentials(id.getDistributedMember());
-      DataOutputStream dos = new DataOutputStream(out);
-      DataInputStream dis = new DataInputStream(in);
+      var wanCredentials = getCredentials(id.getDistributedMember());
+      var dos = new DataOutputStream(out);
+      var dis = new DataInputStream(in);
       writeCredentials(dos, dis, wanCredentials, false, system.getDistributedMember());
     }
     // The exception while getting the credentials is just logged as severe

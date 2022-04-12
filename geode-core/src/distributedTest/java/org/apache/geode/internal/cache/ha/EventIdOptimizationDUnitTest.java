@@ -31,23 +31,19 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.MirrorType;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.QueueStateImpl.SequenceIdAndExpirationObject;
 import org.apache.geode.cache.client.internal.ServerRegionProxy;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.distributed.DistributedSystem;
@@ -155,7 +151,7 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     server1 = host.getVM(0);
     server2 = host.getVM(1);
     client1 = host.getVM(2);
@@ -185,20 +181,20 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
   /** Creates cache and starts the bridge-server */
   public static Integer createServerCache() throws Exception {
     new EventIdOptimizationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setMirrorType(MirrorType.KEYS_VALUES);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
     // create multiple dummy regions to use them in destroyRegion case for
     // testing eventIDs
-    for (int i = 0; i < eventIds.length; i++) {
+    for (var i = 0; i < eventIds.length; i++) {
       cache.createRegion(REGION_NAME + i, attrs);
     }
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();
@@ -212,15 +208,15 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
    * @throws Exception - thrown if any problem occurs in setting up the client
    */
   public static void createClientCache1(String hostName, Integer port) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new EventIdOptimizationDUnitTest().createCache(props);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     ClientServerTestCase.configureConnectionPool(factory, hostName, port, -1, true, -1,
         2, null);
-    final CacheServer bs1 = cache.addCacheServer();
+    final var bs1 = cache.addCacheServer();
     bs1.setPort(port);
 
     pool = (PoolImpl) PoolManager.find("testPool");
@@ -233,11 +229,11 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
    * @throws Exception - thrown if any problem occurs in setting up the client
    */
   public static void createClientCache2(String hostName, Integer port) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new EventIdOptimizationDUnitTest().createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     ClientServerTestCase.configureConnectionPool(factory, hostName, port, -1, true, -1,
         2, null);
 
@@ -246,13 +242,13 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
     factory.addCacheListener(new CacheListenerAdapter() {
       @Override
       public void afterCreate(EntryEvent event) {
-        String key = (String) event.getKey();
+        var key = (String) event.getKey();
         validateEventsAtReceivingClientListener(key);
       }
 
       @Override
       public void afterDestroy(EntryEvent event) {
-        String key = (String) event.getKey();
+        var key = (String) event.getKey();
         validateEventsAtReceivingClientListener(key);
       }
 
@@ -269,10 +265,10 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
       }
 
     });
-    RegionAttributes attrs = factory.create();
-    Region region = cache.createRegion(REGION_NAME, attrs);
+    var attrs = factory.create();
+    var region = cache.createRegion(REGION_NAME, attrs);
     region.registerInterest("ALL_KEYS");
-    for (int i = 0; i < eventIds.length; i++) {
+    for (var i = 0; i < eventIds.length; i++) {
       region = cache.createRegion(REGION_NAME + i, attrs);
       region.registerInterest("ALL_KEYS");
     }
@@ -287,11 +283,11 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
    * @throws Exception - thrown if any problem occurs in put operation
    */
   public static void generateEventsByPutOperation() throws Exception {
-    Connection connection = pool.acquireConnection();
-    String regionName = SEPARATOR + REGION_NAME;
-    ServerRegionProxy srp = new ServerRegionProxy(regionName, pool);
+    var connection = pool.acquireConnection();
+    var regionName = SEPARATOR + REGION_NAME;
+    var srp = new ServerRegionProxy(regionName, pool);
 
-    for (int i = 0; i < eventIds.length; i++) {
+    for (var i = 0; i < eventIds.length; i++) {
       srp.putOnForTestsOnly(connection, "KEY-" + i, "VAL-" + i, eventIds[i], null);
     }
     srp.putOnForTestsOnly(connection, LAST_KEY, "LAST_VAL", eventIdForLastKey, null);
@@ -304,12 +300,12 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
    * @throws Exception - thrown if any problem occurs in destroyEntry operation
    */
   public static void generateEventsByDestroyEntryOperation() throws Exception {
-    Connection connection = pool.acquireConnection();
-    String regionName = SEPARATOR + REGION_NAME;
-    ServerRegionProxy srp = new ServerRegionProxy(regionName, pool);
+    var connection = pool.acquireConnection();
+    var regionName = SEPARATOR + REGION_NAME;
+    var srp = new ServerRegionProxy(regionName, pool);
 
-    for (int i = 0; i < eventIds.length; i++) {
-      String key = "KEY-" + i;
+    for (var i = 0; i < eventIds.length; i++) {
+      var key = "KEY-" + i;
       srp.putOnForTestsOnly(connection, key, "value-" + i, eventIds[i], null);
       srp.destroyOnForTestsOnly(connection, key, null, Operation.DESTROY,
           new EventIDHolder(eventIds[i]), null);
@@ -326,15 +322,15 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
    * @throws Exception - thrown if any problem occurs in destroyRegionOperation
    */
   public static void generateEventsByDestroyRegionOperation() throws Exception {
-    Connection connection = pool.acquireConnection();
-    String regionName = SEPARATOR + REGION_NAME;
+    var connection = pool.acquireConnection();
+    var regionName = SEPARATOR + REGION_NAME;
 
-    for (int i = 0; i < 1; i++) {
-      ServerRegionProxy srp = new ServerRegionProxy(regionName + i, pool);
+    for (var i = 0; i < 1; i++) {
+      var srp = new ServerRegionProxy(regionName + i, pool);
       srp.destroyRegionOnForTestsOnly(connection, eventIds[i], null);
     }
     {
-      ServerRegionProxy srp = new ServerRegionProxy(regionName, pool);
+      var srp = new ServerRegionProxy(regionName, pool);
       srp.destroyRegionOnForTestsOnly(connection, eventIdForLastKey, null);
     }
   }
@@ -346,11 +342,11 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
    * @throws Exception - thrown if any problem occurs in clearRegionOperation
    */
   public static void generateEventsByClearRegionOperation() throws Exception {
-    Connection connection = pool.acquireConnection();
-    String regionName = SEPARATOR + REGION_NAME;
-    ServerRegionProxy srp = new ServerRegionProxy(regionName, pool);
+    var connection = pool.acquireConnection();
+    var regionName = SEPARATOR + REGION_NAME;
+    var srp = new ServerRegionProxy(regionName, pool);
 
-    for (final EventID eventId : eventIds) {
+    for (final var eventId : eventIds) {
       srp.clearOnForTestsOnly(connection, eventId, null);
     }
     srp.clearOnForTestsOnly(connection, eventIdForLastKey, null);
@@ -426,17 +422,17 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
     Region region = cache.getRegion(SEPARATOR + REGION_NAME);
     if (region != null && !region.isDestroyed()) {
       try {
-        AttributesMutator mutator = region.getAttributesMutator();
+        var mutator = region.getAttributesMutator();
         mutator.initCacheListeners(null);
       } catch (RegionDestroyedException ignore) {
       }
     }
 
-    for (int i = 0; i < eventIds.length; i++) {
+    for (var i = 0; i < eventIds.length; i++) {
       region = cache.getRegion(SEPARATOR + REGION_NAME + i);
       if (region != null && !region.isDestroyed()) {
         try {
-          AttributesMutator mutator = region.getAttributesMutator();
+          var mutator = region.getAttributesMutator();
           mutator.initCacheListeners(null);
         } catch (RegionDestroyedException ignore) {
         }
@@ -476,7 +472,7 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
    * @return - eventID object from the ThreadIdToSequenceIdMap
    */
   public static Object assertThreadIdToSequenceIdMapHasEntryId() {
-    Map map = pool.getThreadIdToSequenceIdMap();
+    var map = pool.getThreadIdToSequenceIdMap();
     assertNotNull(map);
     // The map size can now be 1 or 2 because of the server thread putting
     // the marker in the queue. If it is 2, the first entry is the server
@@ -487,14 +483,14 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
 
     // Set the entry to the last entry
     Map.Entry entry = null;
-    for (final Object o : map.entrySet()) {
+    for (final var o : map.entrySet()) {
       entry = (Map.Entry) o;
     }
 
-    ThreadIdentifier tid = (ThreadIdentifier) entry.getKey();
-    SequenceIdAndExpirationObject seo = (SequenceIdAndExpirationObject) entry.getValue();
-    long sequenceId = seo.getSequenceId();
-    EventID evId = new EventID(tid.getMembershipID(), tid.getThreadID(), sequenceId);
+    var tid = (ThreadIdentifier) entry.getKey();
+    var seo = (SequenceIdAndExpirationObject) entry.getValue();
+    var sequenceId = seo.getSequenceId();
+    var evId = new EventID(tid.getMembershipID(), tid.getThreadID(), sequenceId);
     synchronized (map) {
       map.clear();
     }
@@ -510,14 +506,14 @@ public class EventIdOptimizationDUnitTest extends JUnit4DistributedTestCase {
    *        for RegionEvent
    */
   public static void validateEventsAtReceivingClientListener(String key) {
-    EventID eventIdAtClient2 = (EventID) assertThreadIdToSequenceIdMapHasEntryId();
+    var eventIdAtClient2 = (EventID) assertThreadIdToSequenceIdMapHasEntryId();
     if ((eventIdAtClient2.getThreadID() == eventIdForLastKey.getThreadID())
         && (eventIdAtClient2.getSequenceID() == eventIdForLastKey.getSequenceID())) {
       LogWriterUtils.getLogWriter().info("Notifying client2 to proceed for validation");
       proceedForValidation = true;
     } else {
-      boolean containsEventId = false;
-      for (final EventID eventId : eventIds) {
+      var containsEventId = false;
+      for (final var eventId : eventIds) {
         if ((eventIdAtClient2.getThreadID() == eventId.getThreadID())
             && (eventIdAtClient2.getSequenceID() == eventId.getSequenceID())) {
           containsEventId = true;

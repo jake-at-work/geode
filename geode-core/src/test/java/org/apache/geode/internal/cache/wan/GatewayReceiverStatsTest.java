@@ -23,7 +23,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -76,14 +75,14 @@ public class GatewayReceiverStatsTest {
 
   @Test
   public void incEventsReceived_incrementsTheEventsReceivedStat() {
-    int eventsReceivedStatId = 33;
+    var eventsReceivedStatId = 33;
 
     when(statisticsType.nameToId(EVENTS_RECEIVED_STAT_NAME))
         .thenReturn(eventsReceivedStatId);
 
     gatewayReceiverStats = createGatewayReceiverStats(factory, ownerName, registry);
 
-    int delta = 99;
+    var delta = 99;
 
     gatewayReceiverStats.incEventsReceived(delta);
 
@@ -92,18 +91,18 @@ public class GatewayReceiverStatsTest {
 
   @Test
   public void incEventsReceived_incrementsTheRegisteredEventsReceivedCounter() {
-    int eventsReceivedStatId = 33;
+    var eventsReceivedStatId = 33;
 
     when(statisticsType.nameToId(EVENTS_RECEIVED_STAT_NAME))
         .thenReturn(eventsReceivedStatId);
 
     gatewayReceiverStats = createGatewayReceiverStats(factory, ownerName, registry);
 
-    int delta = 99;
+    var delta = 99;
 
     gatewayReceiverStats.incEventsReceived(delta);
 
-    Counter registeredEventsReceivedMeter = registry.find(EVENTS_RECEIVED_COUNTER_NAME).counter();
+    var registeredEventsReceivedMeter = registry.find(EVENTS_RECEIVED_COUNTER_NAME).counter();
 
     assertThat(registeredEventsReceivedMeter.count())
         .isEqualTo(delta);
@@ -111,7 +110,7 @@ public class GatewayReceiverStatsTest {
 
   @Test
   public void eventsReceivedMeter_getsValueFromEventsReceivedStat() {
-    int eventsReceivedId = 543;
+    var eventsReceivedId = 543;
     when(statisticsType.nameToId(EVENTS_RECEIVED_STAT_NAME))
         .thenReturn(eventsReceivedId);
 
@@ -130,7 +129,7 @@ public class GatewayReceiverStatsTest {
   public void eventsReceivedMeter_descriptionMatchesEventsReceivedStat() {
     gatewayReceiverStats = createGatewayReceiverStats(factory, ownerName, registry);
 
-    ArgumentCaptor<String> descriptionCaptor = ArgumentCaptor.forClass(String.class);
+    var descriptionCaptor = ArgumentCaptor.forClass(String.class);
     verify(factory)
         .createLongCounter(eq(EVENTS_RECEIVED_STAT_NAME), descriptionCaptor.capture(), any());
 
@@ -147,7 +146,7 @@ public class GatewayReceiverStatsTest {
   public void eventsReceivedMeter_unitsMatchesEventsReceivedStat() {
     gatewayReceiverStats = createGatewayReceiverStats(factory, ownerName, registry);
 
-    ArgumentCaptor<String> unitsCaptor = ArgumentCaptor.forClass(String.class);
+    var unitsCaptor = ArgumentCaptor.forClass(String.class);
     verify(factory).createLongCounter(eq(EVENTS_RECEIVED_STAT_NAME), any(), unitsCaptor.capture());
 
     assertThat(meterNamed(EVENTS_RECEIVED_COUNTER_NAME))
@@ -161,7 +160,7 @@ public class GatewayReceiverStatsTest {
 
   @Test
   public void close_removesItsOwnMetersFromTheRegistry() {
-    int eventsReceivedId = 543;
+    var eventsReceivedId = 543;
     when(statisticsType.nameToId(EVENTS_RECEIVED_STAT_NAME))
         .thenReturn(eventsReceivedId);
 
@@ -182,13 +181,13 @@ public class GatewayReceiverStatsTest {
 
   @Test
   public void close_doesNotRemoveMetersItDoesNotOwn() {
-    int eventsReceivedId = 543;
+    var eventsReceivedId = 543;
     when(statisticsType.nameToId(EVENTS_RECEIVED_STAT_NAME))
         .thenReturn(eventsReceivedId);
 
     gatewayReceiverStats = createGatewayReceiverStats(factory, ownerName, registry);
 
-    String foreignMeterName = "some.meter.not.created.by.the.gateway.receiver.stats";
+    var foreignMeterName = "some.meter.not.created.by.the.gateway.receiver.stats";
 
     Timer.builder(foreignMeterName)
         .register(registry);

@@ -24,10 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -55,7 +53,7 @@ public class ClientGetEntryAuthDUnitTest extends JUnit4DistributedTestCase {
   public void before() throws Exception {
     Region region =
         server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("key" + i, "value" + i);
     }
   }
@@ -64,12 +62,12 @@ public class ClientGetEntryAuthDUnitTest extends JUnit4DistributedTestCase {
   public void testGetEntry() throws Exception {
     // client1 connects to server as a user not authorized to do any operations
     AsyncInvocation ai1 = client1.invokeAsync(() -> {
-      ClientCache cache = createClientCache("stranger", "1234567", server.getPort());
+      var cache = createClientCache("stranger", "1234567", server.getPort());
 
-      CacheTransactionManager transactionManager = cache.getCacheTransactionManager();
+      var transactionManager = cache.getCacheTransactionManager();
       transactionManager.begin();
       try {
-        Region region = createProxyRegion(cache, REGION_NAME);
+        var region = createProxyRegion(cache, REGION_NAME);
         assertNotAuthorized(() -> region.getEntry("key3"), "DATA:READ:AuthRegion:key3");
       } finally {
         transactionManager.commit();
@@ -78,12 +76,12 @@ public class ClientGetEntryAuthDUnitTest extends JUnit4DistributedTestCase {
     });
 
     AsyncInvocation ai2 = client2.invokeAsync(() -> {
-      ClientCache cache = createClientCache("authRegionReader", "1234567", server.getPort());
+      var cache = createClientCache("authRegionReader", "1234567", server.getPort());
 
-      CacheTransactionManager transactionManager = cache.getCacheTransactionManager();
+      var transactionManager = cache.getCacheTransactionManager();
       transactionManager.begin();
       try {
-        Region region = createProxyRegion(cache, REGION_NAME);
+        var region = createProxyRegion(cache, REGION_NAME);
         region.getEntry("key3");
       } finally {
         transactionManager.commit();

@@ -44,7 +44,7 @@ public class SSLUtil {
 
   public static @NotNull SSLContext getSSLContextInstance(final @NotNull SSLConfig sslConfig)
       throws NoSuchAlgorithmException {
-    final String[] protocols = combineProtocols(sslConfig);
+    final var protocols = combineProtocols(sslConfig);
     return findSSLContextForProtocols(protocols, DEFAULT_ALGORITHMS);
   }
 
@@ -69,7 +69,7 @@ public class SSLUtil {
   static @NotNull SSLContext findSSLContextForProtocols(final @NotNull String[] protocols,
       final @NotNull String[] protocolsForAny)
       throws NoSuchAlgorithmException {
-    for (String protocol : protocols) {
+    for (var protocol : protocols) {
       if (protocol.equalsIgnoreCase("any")) {
         try {
           return findSSLContextForProtocols(protocolsForAny, new String[0]);
@@ -103,7 +103,7 @@ public class SSLUtil {
         return SSLContext.getDefault();
       }
 
-      final SSLContext ssl = getSSLContextInstance(sslConfig);
+      final var ssl = getSSLContextInstance(sslConfig);
 
       final KeyManager[] keyManagers;
       if (sslConfig.getKeystore() != null) {

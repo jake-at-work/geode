@@ -46,7 +46,7 @@ public class ClassLoadUtils {
    * Resolve the class from the given name. Supports primitive types, too.
    */
   public static Class classFromName(String className) throws ClassNotFoundException {
-    Class result = checkForPrimType(className);
+    var result = checkForPrimType(className);
     if (result == null) {
       result = ClassPathLoader.getLatest().forName(className);
     }
@@ -58,17 +58,17 @@ public class ClassLoadUtils {
    */
   public static Method methodFromName(String fullyQualifiedMethodName)
       throws ClassNotFoundException, NoSuchMethodException, SecurityException {
-    int classIndex = fullyQualifiedMethodName.lastIndexOf('.');
+    var classIndex = fullyQualifiedMethodName.lastIndexOf('.');
     if (classIndex <= 0) {
       throw new ClassNotFoundException(
           "Static creation function [" + fullyQualifiedMethodName + "] should be fully qualified");
     }
-    String className = fullyQualifiedMethodName.substring(0, classIndex);
+    var className = fullyQualifiedMethodName.substring(0, classIndex);
     if (checkForPrimType(className) != null) {
       throw new NoSuchMethodException(className + " cannot be one of the primitive types");
     }
-    String methodName = fullyQualifiedMethodName.substring(classIndex + 1);
-    Class<?> result = ClassPathLoader.getLatest().forName(className);
+    var methodName = fullyQualifiedMethodName.substring(classIndex + 1);
+    var result = ClassPathLoader.getLatest().forName(className);
     return result.getMethod(methodName);
   }
 

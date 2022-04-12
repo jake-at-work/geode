@@ -93,7 +93,7 @@ public class ReplyMessage extends HighPriorityDistributionMessage {
   public static void send(InternalDistributedMember recipient, int processorId,
       ReplyException exception, ReplySender dm, boolean internal) {
     Assert.assertTrue(recipient != null, "Sending a ReplyMessage to ALL");
-    ReplyMessage m = new ReplyMessage();
+    var m = new ReplyMessage();
 
     m.processorId = processorId;
     if (exception != null) {
@@ -101,7 +101,7 @@ public class ReplyMessage extends HighPriorityDistributionMessage {
       m.returnValueIsException = true;
     }
     if (exception != null && logger.isDebugEnabled()) {
-      Throwable cause = exception.getCause();
+      var cause = exception.getCause();
       if (cause instanceof EntryNotFoundException) {
         logger.debug("Replying with entry-not-found: {}", exception.getCause().getMessage());
       } else if (cause instanceof ConcurrentCacheModificationException) {
@@ -120,7 +120,7 @@ public class ReplyMessage extends HighPriorityDistributionMessage {
   public static void send(InternalDistributedMember recipient, int processorId, Object returnValue,
       ReplySender dm) {
     Assert.assertTrue(recipient != null, "Sending a ReplyMessage to ALL");
-    ReplyMessage m = new ReplyMessage();
+    var m = new ReplyMessage();
 
     m.processorId = processorId;
     if (returnValue != null) {
@@ -141,7 +141,7 @@ public class ReplyMessage extends HighPriorityDistributionMessage {
       ReplyException exception, ReplySender dm, boolean ignored, boolean closed,
       boolean sendViaJGroups, boolean internal) {
     Assert.assertTrue(recipient != null, "Sending a ReplyMessage to ALL");
-    ReplyMessage m = new ReplyMessage();
+    var m = new ReplyMessage();
 
     m.processorId = processorId;
     m.ignored = ignored;
@@ -192,8 +192,8 @@ public class ReplyMessage extends HighPriorityDistributionMessage {
   }
 
   public void dmProcess(final DistributionManager dm) {
-    final long startTime = getTimestamp();
-    ReplyProcessor21 processor = ReplyProcessor21.getProcessor(processorId);
+    final var startTime = getTimestamp();
+    var processor = ReplyProcessor21.getProcessor(processorId);
     try {
       process(dm, processor);
 
@@ -225,9 +225,9 @@ public class ReplyMessage extends HighPriorityDistributionMessage {
 
   public ReplyException getException() {
     if (returnValueIsException) {
-      ReplyException exception = (ReplyException) returnValue;
+      var exception = (ReplyException) returnValue;
       if (exception != null) {
-        InternalDistributedMember sender = getSender();
+        var sender = getSender();
         if (sender != null) {
           exception.setSenderIfNull(sender);
         }
@@ -275,8 +275,8 @@ public class ReplyMessage extends HighPriorityDistributionMessage {
     super.toData(out, context);
 
     HeapDataOutputStream hdos = null;
-    boolean failedSerialization = false;
-    final boolean hasReturnValue = returnValueIsException || returnValue != null;
+    var failedSerialization = false;
+    final var hasReturnValue = returnValueIsException || returnValue != null;
     if (hasReturnValue) {
       hdos = new HeapDataOutputStream(context.getSerializationVersion());
       try {
@@ -323,7 +323,7 @@ public class ReplyMessage extends HighPriorityDistributionMessage {
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     super.fromData(in, context);
-    byte status = in.readByte();
+    var status = in.readByte();
     ignored = testFlag(status, IGNORED_FLAG);
     closed = testFlag(status, CLOSED_FLAG);
     if (testFlag(status, PROCESSOR_ID_FLAG)) {
@@ -340,13 +340,13 @@ public class ReplyMessage extends HighPriorityDistributionMessage {
   }
 
   protected StringBuilder getStringBuilder() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append(getShortClassName());
     sb.append(" processorId=");
     sb.append(processorId);
     sb.append(" from ");
     sb.append(getSender());
-    ReplyException ex = getException();
+    var ex = getException();
     if (ex != null) {
       if (ex.getCause() != null && ex.getCause() instanceof InvalidDeltaException) {
         sb.append(" with request for full value");

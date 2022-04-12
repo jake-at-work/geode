@@ -26,12 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
-import org.apache.geode.cache.query.internal.index.IndexData;
 import org.apache.geode.cache.query.internal.index.IndexManager;
 import org.apache.geode.cache.query.internal.index.IndexUtils;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
@@ -42,8 +40,8 @@ public class IndexManagerJUnitTest {
   @Before
   public void setUp() throws Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
   }
@@ -133,36 +131,37 @@ public class IndexManagerJUnitTest {
     qs = CacheUtils.getQueryService();
     qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status",
         SEPARATOR + "portfolios, positions");
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "portfolios pf");
     ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
     context.newScope(context.associateScopeID());
 
-    for (final Object o : list) {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+    for (final var o : list) {
+      var iterDef = (CompiledIteratorDef) o;
       context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-      RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+      var rIter = iterDef.getRuntimeIterator(context);
       context.bindIterator(rIter);
       context.addToIndependentRuntimeItrMap(iterDef);
     }
-    CompiledPath cp = new CompiledPath(new CompiledID("pf"), "status");
+    var cp = new CompiledPath(new CompiledID("pf"), "status");
 
     // TASK ICM1
-    String[] defintions = {SEPARATOR + "portfolios", "index_iter1.positions"};
-    IndexData id =
+    var defintions = new String[] {SEPARATOR + "portfolios", "index_iter1.positions"};
+    var id =
         IndexUtils.findIndex(SEPARATOR + "portfolios", defintions, cp, "*", CacheUtils.getCache(),
             true, context);
     Assert.assertEquals(id.getMatchLevel(), 0);
     Assert.assertEquals(id.getMapping()[0], 1);
     Assert.assertEquals(id.getMapping()[1], 2);
-    String[] defintions1 = {SEPARATOR + "portfolios"};
-    IndexData id1 =
+    var defintions1 = new String[] {SEPARATOR + "portfolios"};
+    var id1 =
         IndexUtils.findIndex(SEPARATOR + "portfolios", defintions1, cp, "*", CacheUtils.getCache(),
             true, context);
     Assert.assertEquals(id1.getMatchLevel(), -1);
     Assert.assertEquals(id1.getMapping()[0], 1);
-    String[] defintions2 = {SEPARATOR + "portfolios", "index_iter1.positions", "index_iter1.coll1"};
-    IndexData id2 =
+    var defintions2 =
+        new String[] {SEPARATOR + "portfolios", "index_iter1.positions", "index_iter1.coll1"};
+    var id2 =
         IndexUtils.findIndex(SEPARATOR + "portfolios", defintions2, cp, "*", CacheUtils.getCache(),
             true, context);
     Assert.assertEquals(id2.getMatchLevel(), 1);

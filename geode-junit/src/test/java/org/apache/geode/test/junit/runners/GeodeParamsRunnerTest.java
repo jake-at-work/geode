@@ -51,7 +51,7 @@ class GeodeParamsRunnerTest {
     @ValueSource(classes = {ATestClass.class, ATestSubclass.class})
     public void describesTheSameNonParameterizedTestsAsJUnitParamsRunner(Class<?> testClass)
         throws InitializationError {
-      Description geodeParamsRunnerClassDescription = new GeodeParamsRunner(testClass)
+      var geodeParamsRunnerClassDescription = new GeodeParamsRunner(testClass)
           .getDescription();
 
       Collection<ComparableDescription> geodeParamsRunnerNonParameterizedTestDescriptions =
@@ -61,7 +61,7 @@ class GeodeParamsRunnerTest {
               .map(ComparableDescription::comparingAllDetails)
               .collect(toList());
 
-      Description jUnitParamsRunnerClassDescription = new JUnitParamsRunner(testClass)
+      var jUnitParamsRunnerClassDescription = new JUnitParamsRunner(testClass)
           .getDescription();
       Collection<ComparableDescription> jUnitParamsRunnerNonParameterizedTestDescriptions =
           jUnitParamsRunnerClassDescription.getChildren().stream()
@@ -83,7 +83,7 @@ class GeodeParamsRunnerTest {
     public void describesTheSameParameterizedSuitesAsJUnitParamsRunnerIgnoringTestAnnotations(
         Class<?> testClass)
         throws InitializationError {
-      Description geodeParamsRunnerClassDescription = new GeodeParamsRunner(testClass)
+      var geodeParamsRunnerClassDescription = new GeodeParamsRunner(testClass)
           .getDescription();
 
       Collection<ComparableDescription> geodeParamsRunnerSuiteDescriptions =
@@ -95,7 +95,7 @@ class GeodeParamsRunnerTest {
               .map(ComparableDescription::ignoringTestAnnotations)
               .collect(toList());
 
-      Description jUnitParamsRunnerClassDescription = new JUnitParamsRunner(testClass)
+      var jUnitParamsRunnerClassDescription = new JUnitParamsRunner(testClass)
           .getDescription();
       Collection<ComparableDescription> jUnitParamsRunnerSuiteDescriptions =
           jUnitParamsRunnerClassDescription.getChildren().stream()
@@ -115,11 +115,11 @@ class GeodeParamsRunnerTest {
           .getDescription()
           .getChildren();
 
-      List<Method> parameterizedTestMethods = parameterizedTestMethodsOf(testClass);
-      SoftAssertions softly = new SoftAssertions();
+      var parameterizedTestMethods = parameterizedTestMethodsOf(testClass);
+      var softly = new SoftAssertions();
       parameterizedTestMethods.forEach(method -> {
-        String methodName = method.getName();
-        Description suiteDescription = findByDisplayName(childDescriptions, methodName);
+        var methodName = method.getName();
+        var suiteDescription = findByDisplayName(childDescriptions, methodName);
         softly.assertThat(suiteDescription)
             .as("suite description for parameterized method " + methodName)
             .isNotNull();
@@ -146,7 +146,7 @@ class GeodeParamsRunnerTest {
 
     @BeforeEach
     void recordTestExecutions() {
-      RunListener listener = new RunListener() {
+      var listener = new RunListener() {
         @Override
         public void testStarted(Description description) {
           executions.add(description.getDisplayName());
@@ -158,8 +158,8 @@ class GeodeParamsRunnerTest {
     @ParameterizedTest(name = "{displayName}({arguments})")
     @ValueSource(classes = {ATestClass.class, ATestSubclass.class})
     void executesEveryTest_ifNoFilterApplied(Class<?> testClass) throws InitializationError {
-      GeodeParamsRunner runner = new GeodeParamsRunner(testClass);
-      Description classDescription = runner.getDescription();
+      var runner = new GeodeParamsRunner(testClass);
+      var classDescription = runner.getDescription();
 
       // The runner must execute every test.
       Collection<String> requiredExecutions =
@@ -180,11 +180,11 @@ class GeodeParamsRunnerTest {
     @ValueSource(classes = {ATestClass.class, ATestSubclass.class})
     void skipsNonParameterizedTest_ifExcludedByFilter(Class<?> testClass)
         throws InitializationError, NoTestsRemainException {
-      GeodeParamsRunner runner = new GeodeParamsRunner(testClass);
-      Description classDescription = runner.getDescription();
+      var runner = new GeodeParamsRunner(testClass);
+      var classDescription = runner.getDescription();
 
       // Each test description child describes a non-parameterized test. Pick one to exclude.
-      Description testToExclude = testDescriptionChildrenOf(classDescription)
+      var testToExclude = testDescriptionChildrenOf(classDescription)
           .get(0);
 
       // The runner must execute every test except the excluded one.
@@ -207,15 +207,15 @@ class GeodeParamsRunnerTest {
     @ValueSource(classes = {ATestClass.class, ATestSubclass.class})
     void skipsEveryTestInParameterizedTestSuite_ifFilterExcludesAnyTestInSuite(Class<?> testClass)
         throws InitializationError, NoTestsRemainException {
-      GeodeParamsRunner runner = new GeodeParamsRunner(testClass);
-      Description classDescription = runner.getDescription();
+      var runner = new GeodeParamsRunner(testClass);
+      var classDescription = runner.getDescription();
 
       // Each suite child of classDescription describes a parameterized method. Pick a suite.
-      Description suite = suiteDescriptionChildrenOf(classDescription).get(0);
+      var suite = suiteDescriptionChildrenOf(classDescription).get(0);
 
       // Each child of the suite describes a test with parameters. Pick a test to exclude.
       List<Description> testsInSuite = suite.getChildren();
-      Description testToExclude = testsInSuite.get(0);
+      var testToExclude = testsInSuite.get(0);
 
       // The runner must execute every test except the ones in the same suite as the excluded test.
       Collection<String> requiredExecutions =

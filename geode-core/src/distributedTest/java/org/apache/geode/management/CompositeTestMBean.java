@@ -47,8 +47,8 @@ public class CompositeTestMBean implements CompositeTestMXBean {
 
   @Override
   public CompositeStats[] getCompositeArray() {
-    CompositeStats[] arr = new CompositeStats[2];
-    for (int i = 0; i < arr.length; i++) {
+    var arr = new CompositeStats[2];
+    for (var i = 0; i < arr.length; i++) {
       arr[i] = new CompositeStats("AX" + i, connectionsOpened, connectionsClosed,
           connectionsAttempted, connectionsFailed, connectionLifeTime);
     }
@@ -57,8 +57,8 @@ public class CompositeTestMBean implements CompositeTestMXBean {
 
   @Override
   public Integer[] getIntegerArray() {
-    Integer[] arr = new Integer[2];
-    for (int i = 0; i < arr.length; i++) {
+    var arr = new Integer[2];
+    for (var i = 0; i < arr.length; i++) {
       arr[i] = 0;
     }
     return arr;

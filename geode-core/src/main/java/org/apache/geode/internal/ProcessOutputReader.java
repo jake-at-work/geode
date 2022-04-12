@@ -21,7 +21,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 
 /**
@@ -41,7 +40,7 @@ public class ProcessOutputReader {
    * @param p the process whose output should be read.
    */
   public ProcessOutputReader(final Process p) {
-    final List lines = Collections.synchronizedList(new ArrayList());
+    final var lines = Collections.synchronizedList(new ArrayList());
 
     class ProcessStreamReader extends Thread {
       private final BufferedReader reader;
@@ -65,8 +64,8 @@ public class ProcessOutputReader {
       }
     }
 
-    ProcessStreamReader stdout = new ProcessStreamReader(p.getInputStream());
-    ProcessStreamReader stderr = new ProcessStreamReader(p.getErrorStream());
+    var stdout = new ProcessStreamReader(p.getInputStream());
+    var stderr = new ProcessStreamReader(p.getErrorStream());
     stdout.start();
     stderr.start();
     try {
@@ -80,7 +79,7 @@ public class ProcessOutputReader {
       Thread.currentThread().interrupt();
     }
     exitCode = 0;
-    int retryCount = 9;
+    var retryCount = 9;
     while (retryCount > 0) {
       retryCount--;
       try {
@@ -111,9 +110,9 @@ public class ProcessOutputReader {
       }
     }
 
-    java.io.StringWriter sw = new java.io.StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
-    for (final Object line : lines) {
+    var sw = new java.io.StringWriter();
+    var pw = new PrintWriter(sw);
+    for (final var line : lines) {
       pw.println((String) line);
     }
     pw.close();
@@ -121,7 +120,7 @@ public class ProcessOutputReader {
       sw.close();
     } catch (java.io.IOException ignore) {
     }
-    StringBuffer buf = sw.getBuffer();
+    var buf = sw.getBuffer();
     if (buf != null && buf.length() > 0) {
       output = sw.toString();
     } else {

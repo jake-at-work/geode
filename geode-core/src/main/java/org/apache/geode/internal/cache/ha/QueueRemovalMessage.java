@@ -73,7 +73,7 @@ public class QueueRemovalMessage extends PooledDistributionMessage {
    */
   @Override
   protected void process(ClusterDistributionManager dm) {
-    final InternalCache cache = dm.getCache();
+    final var cache = dm.getCache();
     if (cache != null) {
       Iterator iterator = messagesList.iterator();
       processRegionQueues(cache, iterator);
@@ -82,9 +82,9 @@ public class QueueRemovalMessage extends PooledDistributionMessage {
 
   void processRegionQueues(InternalCache cache, Iterator iterator) {
     while (iterator.hasNext()) {
-      final String regionName = (String) iterator.next();
+      final var regionName = (String) iterator.next();
       final int size = (Integer) iterator.next();
-      final LocalRegion region = (LocalRegion) cache.getRegion(regionName);
+      final var region = (LocalRegion) cache.getRegion(regionName);
       final HARegionQueue hrq;
       if (region == null) {
         if (logger.isDebugEnabled()) {
@@ -95,7 +95,7 @@ public class QueueRemovalMessage extends PooledDistributionMessage {
         long maxWaitTimeForInitialization = 30000;
         hrq = ((HARegion) region).getOwnerWithWait(maxWaitTimeForInitialization);
       }
-      boolean succeed = processRegionQueue(iterator, regionName, size, hrq);
+      var succeed = processRegionQueue(iterator, regionName, size, hrq);
       if (!succeed) {
         return;
       } else {
@@ -110,8 +110,8 @@ public class QueueRemovalMessage extends PooledDistributionMessage {
       HARegionQueue hrq) {
     // we have to iterate even if the hrq isn't available since there are
     // a bunch of event IDs to go through
-    for (int i = 0; i < size; i++) {
-      final EventID id = (EventID) iterator.next();
+    for (var i = 0; i < size; i++) {
+      final var id = (EventID) iterator.next();
       if (hrq == null || !hrq.isQueueInitialized()) {
         if (logger.isDebugEnabled()) {
           logger.debug("QueueRemovalMessage: hrq is not ready when trying to remove "
@@ -132,7 +132,7 @@ public class QueueRemovalMessage extends PooledDistributionMessage {
     // dm.getWaitingThreadPool().execute(new Runnable() {
     // public void run()
     // {
-    boolean interrupted = Thread.interrupted();
+    var interrupted = Thread.interrupted();
     try {
       if (logger.isTraceEnabled()) {
         logger.trace("QueueRemovalMessage: removing dispatched events on queue {} for {}",
@@ -187,7 +187,7 @@ public class QueueRemovalMessage extends PooledDistributionMessage {
       DataSerializer.writeInteger(numberOfIds, out);
       maxVal = numberOfIds;
       // write the event ids
-      for (int i = 0; i < maxVal; i++) {
+      for (var i = 0; i < maxVal; i++) {
         eventId = iterator.next();
         DataSerializer.writeObject(eventId, out);
       }
@@ -211,15 +211,15 @@ public class QueueRemovalMessage extends PooledDistributionMessage {
     int size = DataSerializer.readInteger(in);
     messagesList = new LinkedList<>();
     int eventIdSizeInt;
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       // read the region name
       messagesList.add(DataSerializer.readString(in));
       // read the data size
-      Integer eventIdSize = DataSerializer.readInteger(in);
+      var eventIdSize = DataSerializer.readInteger(in);
       messagesList.add(eventIdSize);
       eventIdSizeInt = eventIdSize;
       // read the total number of events
-      for (int j = 0; j < eventIdSizeInt; j++) {
+      for (var j = 0; j < eventIdSizeInt; j++) {
         messagesList.add(DataSerializer.readObject(in));
       }
       // increment i by adding the total number of ids read and 1 for

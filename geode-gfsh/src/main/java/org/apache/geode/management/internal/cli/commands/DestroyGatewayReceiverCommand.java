@@ -14,21 +14,17 @@
  */
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.GatewayReceiverConfig;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.functions.DestroyGatewayReceiverFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -56,13 +52,13 @@ public class DestroyGatewayReceiverCommand extends SingleGfshCommand {
       @CliOption(key = CliStrings.IFEXISTS, help = CliStrings.IFEXISTS_HELP,
           specifiedDefaultValue = "true", unspecifiedDefaultValue = "false") boolean ifExists) {
 
-    boolean persisted = true;
-    Set<DistributedMember> members = getMembers(onGroups, onMember);
+    var persisted = true;
+    var members = getMembers(onGroups, onMember);
 
-    List<CliFunctionResult> functionResults =
+    var functionResults =
         executeAndGetFunctionResult(DestroyGatewayReceiverFunction.INSTANCE, null, members);
 
-    ResultModel result = ResultModel.createMemberStatusResult(functionResults, ifExists);
+    var result = ResultModel.createMemberStatusResult(functionResults, ifExists);
     result.setConfigObject(new GatewayReceiverConfig());
 
 

@@ -25,27 +25,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
-import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache30.MyGatewayEventFilter1;
 import org.apache.geode.cache30.MyGatewayTransportFilter1;
 import org.apache.geode.cache30.MyGatewayTransportFilter2;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
@@ -62,9 +55,9 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
 
   @Test
   public void unprocessedTokensMapShouldDrainCompletely() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
@@ -113,16 +106,16 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
   }
 
   private int unprocessedTokensSize(String senderId) {
-    AbstractGatewaySender sender = (AbstractGatewaySender) findGatewaySender(senderId);
-    SerialGatewaySenderEventProcessor processor =
+    var sender = (AbstractGatewaySender) findGatewaySender(senderId);
+    var processor =
         (SerialGatewaySenderEventProcessor) sender.getEventProcessor();
     return processor.numUnprocessedEventTokens();
   }
 
   private GatewaySender findGatewaySender(String senderId) {
-    Set<GatewaySender> senders = cache.getGatewaySenders();
+    var senders = cache.getGatewaySenders();
     GatewaySender sender = null;
-    for (GatewaySender s : senders) {
+    for (var s : senders) {
       if (s.getId().equals(senderId)) {
         sender = s;
         break;
@@ -135,9 +128,9 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
 
   @Test
   public void testPrimarySecondaryQueueDrainInOrder_RR() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
@@ -180,15 +173,15 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.pauseSender("ln"));
 
     vm6.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", 1000));
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", 1000));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", 1000));
     // secondary queue size stats in serial queue should be 0
     assertEquals(0, v4List.get(10) + v5List.get(10));
 
-    HashMap primarySenderUpdates = vm4.invoke(WANTestBase::checkQueue);
-    HashMap secondarySenderUpdates = vm5.invoke(WANTestBase::checkQueue);
+    var primarySenderUpdates = vm4.invoke(WANTestBase::checkQueue);
+    var secondarySenderUpdates = vm5.invoke(WANTestBase::checkQueue);
     assertEquals(primarySenderUpdates, secondarySenderUpdates);
 
     vm4.invoke(() -> WANTestBase.resumeSender("ln"));
@@ -207,11 +200,11 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
     Wait.pause(5000);
     vm2.invoke(() -> WANTestBase.validateRegionSize(getTestMethodName() + "_RR", 1000));
     primarySenderUpdates = vm4.invoke(WANTestBase::checkQueue);
-    HashMap receiverUpdates = vm2.invoke(WANTestBase::checkQueue);
+    var receiverUpdates = vm2.invoke(WANTestBase::checkQueue);
 
-    List destroyList = (List) primarySenderUpdates.get("Destroy");
-    List createList = (List) receiverUpdates.get("Create");
-    for (int i = 0; i < 1000; i++) {
+    var destroyList = (List) primarySenderUpdates.get("Destroy");
+    var createList = (List) receiverUpdates.get("Create");
+    for (var i = 0; i < 1000; i++) {
       assertEquals(destroyList.get(i), createList.get(i));
     }
     assertEquals(primarySenderUpdates.get("Destroy"), receiverUpdates.get("Create"));
@@ -233,8 +226,8 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
 
   @Test
   public void testPrimarySecondaryQueueDrainInOrder_PR() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -273,8 +266,8 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
 
     vm6.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_PR", 1000));
     Wait.pause(5000);
-    HashMap primarySenderUpdates = vm4.invoke(WANTestBase::checkQueue);
-    HashMap secondarySenderUpdates = vm5.invoke(WANTestBase::checkQueue);
+    var primarySenderUpdates = vm4.invoke(WANTestBase::checkQueue);
+    var secondarySenderUpdates = vm5.invoke(WANTestBase::checkQueue);
     checkPrimarySenderUpdatesOnVM5(primarySenderUpdates);
 
     vm4.invoke(() -> WANTestBase.resumeSender("ln"));
@@ -296,27 +289,27 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
    */
   @Test
   public void test_ValidateSerialGatewaySenderQueueAttributes_1() {
-    Integer localLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var localLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-    Integer remoteLocPort =
+    var remoteLocPort =
         vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, localLocPort));
 
-    WANTestBase test = new WANTestBase();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new WANTestBase();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "localhost[" + localLocPort + "]");
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
 
-    File directory =
+    var directory =
         new File("TKSender" + "_disk_" + System.currentTimeMillis() + "_" + VM.getCurrentVMNum());
     directory.mkdir();
-    File[] dirs1 = new File[] {directory};
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dirs1 = new File[] {directory};
+    var dsf = cache.createDiskStoreFactory();
     dsf.setDiskDirs(dirs1);
-    DiskStore diskStore = dsf.create("FORNY");
+    var diskStore = dsf.create("FORNY");
 
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setBatchConflationEnabled(true);
     fact.setBatchSize(200);
     fact.setBatchTimeInterval(300);
@@ -331,19 +324,19 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
     fact.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     fact.addGatewayTransportFilter(myStreamFilter2);
-    final IgnoredException exTKSender = IgnoredException.addIgnoredException("Could not connect");
+    final var exTKSender = IgnoredException.addIgnoredException("Could not connect");
     try {
-      GatewaySender sender1 = fact.create("TKSender", 2);
+      var sender1 = fact.create("TKSender", 2);
 
       RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
       regionFactory.addGatewaySenderId(sender1.getId());
-      Region region = regionFactory.create("test_ValidateGatewaySenderAttributes");
-      Set<GatewaySender> senders = cache.getGatewaySenders();
+      var region = regionFactory.create("test_ValidateGatewaySenderAttributes");
+      var senders = cache.getGatewaySenders();
       assertEquals(senders.size(), 1);
-      GatewaySender gatewaySender = senders.iterator().next();
-      Set<RegionQueue> regionQueues = ((AbstractGatewaySender) gatewaySender).getQueues();
+      var gatewaySender = senders.iterator().next();
+      var regionQueues = ((AbstractGatewaySender) gatewaySender).getQueues();
       assertEquals(regionQueues.size(), GatewaySender.DEFAULT_DISPATCHER_THREADS);
-      RegionQueue regionQueue = regionQueues.iterator().next();
+      var regionQueue = regionQueues.iterator().next();
       assertEquals(true, regionQueue.getRegion().getAttributes().isDiskSynchronous());
     } finally {
       exTKSender.remove();
@@ -356,19 +349,19 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
    */
   @Test
   public void test_ValidateSerialGatewaySenderQueueAttributes_2() {
-    Integer localLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var localLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-    Integer remoteLocPort =
+    var remoteLocPort =
         vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, localLocPort));
 
-    WANTestBase test = new WANTestBase();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new WANTestBase();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "localhost[" + localLocPort + "]");
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
 
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setBatchConflationEnabled(true);
     fact.setBatchSize(200);
     fact.setBatchTimeInterval(300);
@@ -382,18 +375,18 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
     fact.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     fact.addGatewayTransportFilter(myStreamFilter2);
-    final IgnoredException exp = IgnoredException.addIgnoredException("Could not connect");
+    final var exp = IgnoredException.addIgnoredException("Could not connect");
     try {
-      GatewaySender sender1 = fact.create("TKSender", 2);
+      var sender1 = fact.create("TKSender", 2);
       RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
       regionFactory.addGatewaySenderId(sender1.getId());
-      Region region = regionFactory.create("test_ValidateGatewaySenderAttributes");
-      Set<GatewaySender> senders = cache.getGatewaySenders();
+      var region = regionFactory.create("test_ValidateGatewaySenderAttributes");
+      var senders = cache.getGatewaySenders();
       assertEquals(senders.size(), 1);
-      GatewaySender gatewaySender = senders.iterator().next();
-      Set<RegionQueue> regionQueues = ((AbstractGatewaySender) gatewaySender).getQueues();
+      var gatewaySender = senders.iterator().next();
+      var regionQueues = ((AbstractGatewaySender) gatewaySender).getQueues();
       assertEquals(regionQueues.size(), GatewaySender.DEFAULT_DISPATCHER_THREADS);
-      RegionQueue regionQueue = regionQueues.iterator().next();
+      var regionQueue = regionQueues.iterator().next();
 
       assertEquals(false, regionQueue.getRegion().getAttributes().isDiskSynchronous());
     } finally {
@@ -407,8 +400,8 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
   @Test
   public void testCreateMaximumSenders() {
     // Create locators
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     // Create receiver and region
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
@@ -419,10 +412,10 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
 
     // Create maximum number of senders
     vm4.invoke(() -> WANTestBase.createCache(lnPort));
-    StringBuilder builder = new StringBuilder();
-    long maxSenders = ThreadIdentifier.Bits.GATEWAY_ID.mask() + 1;
-    for (int i = 0; i < maxSenders; i++) {
-      String senderId = "ln-" + i;
+    var builder = new StringBuilder();
+    var maxSenders = ThreadIdentifier.Bits.GATEWAY_ID.mask() + 1;
+    for (var i = 0; i < maxSenders; i++) {
+      var senderId = "ln-" + i;
       builder.append(senderId);
       if (i + 1 != maxSenders) {
         builder.append(',');
@@ -436,7 +429,7 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
         builder.toString(), isOffHeap()));
 
     // Do puts
-    int numPuts = 100;
+    var numPuts = 100;
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", numPuts));
 
     // Verify receiver listener events
@@ -446,9 +439,9 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
 
   @Test
   public void whenBatchBasedOnTimeOnlyThenQueueShouldNotDispatchUntilIntervalIsHit() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-    int batchIntervalTime = 5000;
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var batchIntervalTime = 5000;
 
     // Create receiver and region
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
@@ -459,10 +452,10 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
 
     // Create sender with batchSize disabled
     vm4.invoke(() -> WANTestBase.createCache(lnPort));
-    String senderId = "ln";
-    final String builder = String.valueOf(senderId);
+    var senderId = "ln";
+    final var builder = String.valueOf(senderId);
     vm4.invoke(() -> {
-      InternalGatewaySenderFactory gateway =
+      var gateway =
           (InternalGatewaySenderFactory) cache.createGatewaySenderFactory();
       gateway.setParallel(false);
       gateway.setMaximumQueueMemory(100);
@@ -479,7 +472,7 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
         builder, isOffHeap()));
 
     // Do puts
-    int numPuts = 100;
+    var numPuts = 100;
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", numPuts));
 
     // attempt to prove the absence of a dispatch/ prove a dispatch has not occurred
@@ -487,7 +480,7 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
     // more than enough
     // for a regular dispatch to have occurred
     vm2.invoke(() -> {
-      long startTime = System.currentTimeMillis();
+      var startTime = System.currentTimeMillis();
       while (System.currentTimeMillis() - startTime < batchIntervalTime - 1000) {
         assertEquals(0, listener1.getNumEvents());
       }
@@ -504,8 +497,8 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
   @Test
   public void testCreateMaximumPlusOneSenders() {
     // Create locators
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     // Create receiver
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
@@ -515,8 +508,8 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
 
     // Create maximum number of senders
     vm4.invoke(() -> WANTestBase.createCache(lnPort));
-    for (int i = 0; i < ThreadIdentifier.Bits.GATEWAY_ID.mask() + 1; i++) {
-      String senderId = "ln-" + i;
+    for (var i = 0; i < ThreadIdentifier.Bits.GATEWAY_ID.mask() + 1; i++) {
+      var senderId = "ln-" + i;
       vm4.invoke(() -> WANTestBase.createSenderWithMultipleDispatchers(senderId, 2, false, 100, 10,
           false, false, null, false, 1, OrderPolicy.KEY, 32768));
     }
@@ -526,7 +519,7 @@ public class SerialGatewaySenderQueueDUnitTest extends WANTestBase {
   }
 
   private static void attemptToCreateGatewaySenderOverLimit() {
-    IgnoredException exp =
+    var exp =
         IgnoredException.addIgnoredException(IllegalStateException.class.getName());
     try {
       createSenderWithMultipleDispatchers("ln-one-too-many", 2, false, 100, 10, false, false, null,

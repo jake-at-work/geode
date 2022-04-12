@@ -21,7 +21,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Categories;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -57,7 +56,7 @@ public class CategoryTest {
 
   @Test
   public void allTestsWithCategoryOneShouldBeExecuted() {
-    Result result = TestRunner.runTest(CategoryTestSuite.class);
+    var result = TestRunner.runTest(CategoryTestSuite.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(executedClassOneMethodNone).isTrue();

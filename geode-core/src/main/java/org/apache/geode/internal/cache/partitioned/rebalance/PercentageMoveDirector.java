@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache.partitioned.rebalance;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
@@ -68,7 +67,7 @@ public class PercentageMoveDirector extends RebalanceDirectorAdapter {
     }
 
     // Figure out how much load we are moving, based on the percentage.
-    float sourceLoad = sourceMember.getTotalLoad();
+    var sourceLoad = sourceMember.getTotalLoad();
     loadToMove = sourceLoad * percentage / 100;
 
     membershipChanged(model);
@@ -90,8 +89,8 @@ public class PercentageMoveDirector extends RebalanceDirectorAdapter {
 
     // Build the set of of buckets
     orderedBuckets = new TreeSet<>(new LoadComparator());
-    for (Bucket bucket : sourceMember.getBuckets()) {
-      float bucketLoad = bucket.getLoad();
+    for (var bucket : sourceMember.getBuckets()) {
+      var bucketLoad = bucket.getLoad();
       if (bucketLoad <= loadToMove) {
         orderedBuckets.add(bucket);
       }
@@ -120,9 +119,9 @@ public class PercentageMoveDirector extends RebalanceDirectorAdapter {
       return false;
     }
     // Take the largest bucket, and try to move that.
-    Bucket bucket = orderedBuckets.last();
+    var bucket = orderedBuckets.last();
 
-    float load = bucket.getLoad();
+    var load = bucket.getLoad();
 
     // See if we can move this bucket to the taret node.
     if (targetMember.willAcceptBucket(bucket, sourceMember, model.enforceUniqueZones())
@@ -134,9 +133,9 @@ public class PercentageMoveDirector extends RebalanceDirectorAdapter {
 
         // Remove all of the remaining buckets that are to big to move.
         // TODO - this could be O(log(n)), rather an O(n)
-        Iterator<Bucket> itr = orderedBuckets.descendingIterator();
+        var itr = orderedBuckets.descendingIterator();
         while (itr.hasNext()) {
-          Bucket next = itr.next();
+          var next = itr.next();
           if (next.getLoad() > loadToMove) {
             itr.remove();
           } else {
@@ -159,7 +158,7 @@ public class PercentageMoveDirector extends RebalanceDirectorAdapter {
 
     @Override
     public int compare(Bucket o1, Bucket o2) {
-      int result = Float.compare(o1.getLoad(), o2.getLoad());
+      var result = Float.compare(o1.getLoad(), o2.getLoad());
       if (result == 0) {
         result = o2.getId() - o1.getId();
       }

@@ -22,7 +22,6 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,6 @@ import javax.net.ssl.SSLSocket;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.geode.CancelCriterion;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.GemFireConfigException;
 import org.apache.geode.InternalGemFireException;
@@ -42,7 +40,6 @@ import org.apache.geode.cache.GatewayConfigurationException;
 import org.apache.geode.cache.client.ServerRefusedConnectionException;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.LonerDistributionManager;
 import org.apache.geode.distributed.internal.ServerLocation;
@@ -129,9 +126,9 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
 
   // used by the client side
   private byte determineClientConflation() {
-    byte result = CONFLATION_DEFAULT;
+    var result = CONFLATION_DEFAULT;
 
-    String clientConflationValue = system.getProperties().getProperty(CONFLATE_EVENTS);
+    var clientConflationValue = system.getProperties().getProperty(CONFLATE_EVENTS);
     if (DistributionConfig.CLIENT_CONFLATION_PROP_VALUE_ON
         .equalsIgnoreCase(clientConflationValue)) {
       result = CONFLATION_ON;
@@ -161,18 +158,18 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
       CommunicationMode communicationMode) throws IOException, AuthenticationRequiredException,
       AuthenticationFailedException, ServerRefusedConnectionException {
     try {
-      Socket sock = conn.getSocket();
-      DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
-      final InputStream in = sock.getInputStream();
-      DataInputStream dis = new DataInputStream(in);
-      InternalDistributedMember member = getIDForSocket(sock);
+      var sock = conn.getSocket();
+      var dos = new DataOutputStream(sock.getOutputStream());
+      final var in = sock.getInputStream();
+      var dis = new DataInputStream(in);
+      var member = getIDForSocket(sock);
       // if running in a loner system, use the new port number in the ID to
       // help differentiate from other clients
-      DistributionManager dm = ((InternalDistributedSystem) system).getDistributionManager();
-      final InternalDistributedMember idm = dm.getDistributionManagerId();
+      var dm = ((InternalDistributedSystem) system).getDistributionManager();
+      final var idm = dm.getDistributionManagerId();
       synchronized (idm) {
         if (idm.getMembershipPort() == 0 && dm instanceof LonerDistributionManager) {
-          int port = sock.getLocalPort();
+          var port = sock.getLocalPort();
           ((LonerDistributionManager) dm).updateLonerPort(port);
           id.updateID(dm.getDistributionManagerId());
         }
@@ -180,17 +177,17 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
       if (communicationMode.isWAN()) {
         credentials = getCredentials(member);
       }
-      byte intermediateAcceptanceCode = write(dos, dis, communicationMode, REPLY_OK,
+      var intermediateAcceptanceCode = write(dos, dis, communicationMode, REPLY_OK,
           clientReadTimeout, null, credentials, member, false);
 
-      String authInit = system.getProperties().getProperty(SECURITY_CLIENT_AUTH_INIT);
+      var authInit = system.getProperties().getProperty(SECURITY_CLIENT_AUTH_INIT);
       if (!communicationMode.isWAN()
           && intermediateAcceptanceCode != REPLY_AUTH_NOT_REQUIRED
           && (StringUtils.isNotBlank(authInit) || multiuserSecureMode)) {
         location.compareAndSetRequiresCredentials(true);
       }
       // Read the acceptance code
-      byte acceptanceCode = dis.readByte();
+      var acceptanceCode = dis.readByte();
       if (acceptanceCode == (byte) 21 && !(sock instanceof SSLSocket)) {
         // This is likely the case of server setup with SSL and client not using
         // SSL
@@ -206,7 +203,7 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
       if (communicationMode.isWAN() && !(acceptanceCode == REPLY_EXCEPTION_AUTHENTICATION_REQUIRED
           || acceptanceCode == REPLY_EXCEPTION_AUTHENTICATION_FAILED
           || acceptanceCode == REPLY_REFUSED || acceptanceCode == REPLY_INVALID)) {
-        short wanSiteVersion = VersioningIO.readOrdinal(dis);
+        var wanSiteVersion = VersioningIO.readOrdinal(dis);
         conn.setWanSiteVersion(wanSiteVersion);
         // establish a versioned stream for the other site, if necessary
         if (wanSiteVersion < KnownVersion.CURRENT_ORDINAL) {
@@ -218,12 +215,12 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
 
       // No need to check for return value since DataInputStream already throws
       // EOFException in case of EOF
-      final byte endpointType = dis.readByte();
-      final int queueSize = dis.readInt();
+      final var endpointType = dis.readByte();
+      final var queueSize = dis.readInt();
 
       member = readServerMember(dis);
 
-      final ServerQueueStatus serverQStatus =
+      final var serverQStatus =
           new ServerQueueStatus(endpointType, queueSize, member);
 
       // Read the message (if any)
@@ -236,8 +233,8 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
 
       // validate that the remote side has a different distributed system id.
       if (communicationMode.isWAN()) {
-        int remoteDistributedSystemId = in.read();
-        int localDistributedSystemId =
+        var remoteDistributedSystemId = in.read();
+        var localDistributedSystemId =
             ((InternalDistributedSystem) system).getDistributionManager().getDistributedSystemId();
         if (localDistributedSystemId >= 0
             && localDistributedSystemId == remoteDistributedSystemId) {
@@ -249,13 +246,13 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
 
       // Read the PDX registry size from the remote size
       if (communicationMode.isWAN()) {
-        int remotePdxSize = dis.readInt();
+        var remotePdxSize = dis.readInt();
         serverQStatus.setPdxSize(remotePdxSize);
       }
 
       return serverQStatus;
     } catch (IOException ex) {
-      CancelCriterion stopper = system.getCancelCriterion();
+      var stopper = system.getCancelCriterion();
       stopper.checkCancelInProgress(null);
       throw ex;
     }
@@ -263,9 +260,9 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
 
   private InternalDistributedMember readServerMember(DataInputStream p_dis) throws IOException {
 
-    byte[] memberBytes = DataSerializer.readByteArray(p_dis);
-    KnownVersion v = StaticSerialization.getVersionForDataStreamOrNull(p_dis);
-    ByteArrayDataInput dis = new ByteArrayDataInput(memberBytes, v);
+    var memberBytes = DataSerializer.readByteArray(p_dis);
+    var v = StaticSerialization.getVersionForDataStreamOrNull(p_dis);
+    var dis = new ByteArrayDataInput(memberBytes, v);
     try {
       return DataSerializer.readObject(dis);
     } catch (EOFException e) {
@@ -286,20 +283,20 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
       throws IOException, AuthenticationRequiredException, AuthenticationFailedException,
       ServerRefusedConnectionException, ClassNotFoundException {
     try {
-      final DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
-      final InputStream in = sock.getInputStream();
-      final DataInputStream dis = new DataInputStream(in);
+      final var dos = new DataOutputStream(sock.getOutputStream());
+      final var in = sock.getInputStream();
+      final var dis = new DataInputStream(in);
       final DistributedMember member = getIDForSocket(sock);
       if (!multiuserSecureMode) {
         credentials = getCredentials(member);
       }
-      final CommunicationMode mode = isPrimary ? CommunicationMode.PrimaryServerToClient
+      final var mode = isPrimary ? CommunicationMode.PrimaryServerToClient
           : CommunicationMode.SecondaryServerToClient;
       write(dos, dis, mode, REPLY_OK, 0, new ArrayList<>(), credentials, member, true);
 
       // Wait here for a reply before continuing. This ensures that the client
       // updater is registered with the server before continuing.
-      final byte acceptanceCode = dis.readByte();
+      final var acceptanceCode = dis.readByte();
       if (acceptanceCode == (byte) 21 && !(sock instanceof SSLSocket)) {
         // This is likely the case of server setup with SSL and client not using
         // SSL
@@ -307,22 +304,22 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
             "Server expecting SSL connection");
       }
 
-      final byte endpointType = dis.readByte();
-      final int queueSize = dis.readInt();
+      final var endpointType = dis.readByte();
+      final var queueSize = dis.readInt();
 
       // Read the message (if any)
       readMessage(dis, dos, acceptanceCode, member);
 
       final Map<Integer, List<String>> instantiatorMap = DataSerializer.readHashMap(dis);
-      for (final Map.Entry<Integer, List<String>> entry : instantiatorMap.entrySet()) {
-        final Integer id = entry.getKey();
-        final List<String> instantiatorArguments = entry.getValue();
+      for (final var entry : instantiatorMap.entrySet()) {
+        final var id = entry.getKey();
+        final var instantiatorArguments = entry.getValue();
         InternalInstantiator.register(instantiatorArguments.get(0), instantiatorArguments.get(1),
             id, false);
       }
 
       final Map<Integer, String> dataSerializersMap = DataSerializer.readHashMap(dis);
-      for (final Map.Entry<Integer, String> entry : dataSerializersMap.entrySet()) {
+      for (final var entry : dataSerializersMap.entrySet()) {
         InternalDataSerializer.register(entry.getValue(), false, null, null, entry.getKey());
       }
       final Map<Integer, List<String>> dsToSupportedClassNames = DataSerializer.readHashMap(dis);
@@ -330,11 +327,11 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
 
       // the server's ping interval is only sent to subscription feeds so we can't read it as
       // part of a "standard" server response along with the other status data.
-      final int pingInterval = dis.readInt();
+      final var pingInterval = dis.readInt();
       return new ServerQueueStatus(endpointType, queueSize, member, pingInterval);
 
     } catch (IOException | ClassNotFoundException ex) {
-      CancelCriterion stopper = system.getCancelCriterion();
+      var stopper = system.getCancelCriterion();
       stopper.checkCancelInProgress(null);
       throw ex;
     }
@@ -346,7 +343,7 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
   private byte write(DataOutputStream dos, DataInputStream dis, CommunicationMode communicationMode,
       int replyCode, int readTimeout, List<String> ports, Properties p_credentials,
       DistributedMember member, boolean isCallbackConnection) throws IOException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT);
     byte acceptanceCode = -1;
     try {
       hdos.writeByte(communicationMode.getModeNumber());
@@ -363,7 +360,7 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
       hdos.writeByte(replyCode);
       if (ports != null) {
         hdos.writeInt(ports.size());
-        for (String port : ports) {
+        for (var port : ports) {
           hdos.writeInt(Integer.parseInt(port));
         }
       } else {
@@ -375,8 +372,8 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
       DataOutput idOut = new VersionedDataOutputStream(hdos, KnownVersion.GFE_81);
       DataSerializer.writeObject(id, idOut);
 
-      byte[] overrides = getOverrides();
-      for (final byte override : overrides) {
+      var overrides = getOverrides();
+      for (final var override : overrides) {
         hdos.writeByte(override);
       }
 
@@ -390,7 +387,7 @@ public class ClientSideHandshakeImpl extends Handshake implements ClientSideHand
           writeCredentials(dos, dis, p_credentials, ports != null, member, hdos);
         }
       } else {
-        String authInitMethod = system.getProperties().getProperty(SECURITY_CLIENT_AUTH_INIT);
+        var authInitMethod = system.getProperties().getProperty(SECURITY_CLIENT_AUTH_INIT);
         acceptanceCode = writeCredential(dos, dis, authInitMethod, ports != null, member, hdos);
       }
     } finally {

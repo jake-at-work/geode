@@ -56,13 +56,13 @@ public class TombstoneCreationJUnitTest {
 
   @Test
   public void testDestroyCreatesTombstone() throws Exception {
-    String name = nameRule.getMethodName();
+    var name = nameRule.getMethodName();
     RegionFactory f = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    DistributedRegion region = (DistributedRegion) f.create(name);
+    var region = (DistributedRegion) f.create(name);
 
-    EntryEventImpl ev = EntryEventImpl.create(region, Operation.DESTROY, "myDestroyedKey", null,
+    var ev = EntryEventImpl.create(region, Operation.DESTROY, "myDestroyedKey", null,
         null, true, new InternalDistributedMember(InetAddress.getLocalHost(), 1234));
-    VersionTag tag = VersionTag.create((InternalDistributedMember) ev.getDistributedMember());
+    var tag = VersionTag.create((InternalDistributedMember) ev.getDistributedMember());
     tag.setIsRemoteForTesting();
     tag.setEntryVersion(2);
     tag.setRegionVersion(12345);
@@ -72,7 +72,7 @@ public class TombstoneCreationJUnitTest {
     cache.getLogger().info(
         "destroyThread is trying to destroy the entry: " + region.getRegionEntry("myDestroyedKey"));
     region.basicDestroy(ev, false, null); // expectedOldValue not supported on
-    RegionEntry entry = region.getRegionEntry("myDestroyedKey");
+    var entry = region.getRegionEntry("myDestroyedKey");
     Assert.assertTrue(entry != null, "expected to find a region entry for myDestroyedKey");
     Assert.assertTrue(entry.isTombstone(),
         "expected entry to be found and be a tombstone but it is " + entry);
@@ -87,22 +87,22 @@ public class TombstoneCreationJUnitTest {
    */
   @Test
   public void testConcurrentCreateAndDestroy() throws Exception {
-    String name = nameRule.getMethodName();
+    var name = nameRule.getMethodName();
     RegionFactory f = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    final DistributedRegion region = (DistributedRegion) f.create(name);
+    final var region = (DistributedRegion) f.create(name);
 
     // simulate a put() getting into AbstractRegionMap.basicPut() and creating an entry
     // that has not yet been initialized with values. Then do a destroy that will encounter
     // the entry
-    String key = "destroyedKey1";
+    var key = "destroyedKey1";
     VersionedThinRegionEntryHeap entry =
         new VersionedThinRegionEntryHeapObjectKey(region, key, Token.REMOVED_PHASE1);
     ((AbstractRegionMap) region.getRegionMap()).putEntryIfAbsentForTest(entry);
     cache.getLogger().info("entry inserted into cache: " + entry);
 
-    EntryEventImpl ev = EntryEventImpl.create(region, Operation.DESTROY, key, null, null, true,
+    var ev = EntryEventImpl.create(region, Operation.DESTROY, key, null, null, true,
         new InternalDistributedMember(InetAddress.getLocalHost(), 1234));
-    VersionTag tag = VersionTag.create((InternalDistributedMember) ev.getDistributedMember());
+    var tag = VersionTag.create((InternalDistributedMember) ev.getDistributedMember());
     tag.setIsRemoteForTesting();
     tag.setEntryVersion(2);
     tag.setRegionVersion(12345);
@@ -121,8 +121,7 @@ public class TombstoneCreationJUnitTest {
         "expected " + tag.getEntryVersion() + " but found "
             + entry.getVersionStamp().getEntryVersion());
 
-
-    RegionMap map = region.getRegionMap();
+    var map = region.getRegionMap();
     tag = entry.asVersionTag();
     map.removeTombstone(entry, tag);
 
@@ -140,7 +139,7 @@ public class TombstoneCreationJUnitTest {
     ev.setVersionTag(tag);
     cache.getLogger()
         .info("destroyThread is trying to destroy the entry: " + region.getRegionEntry(key));
-    boolean caught = false;
+    var caught = false;
     try {
       region.basicDestroy(ev, false, null); // expectedOldValue not supported on
     } catch (EntryNotFoundException e) {
@@ -157,14 +156,14 @@ public class TombstoneCreationJUnitTest {
   // the event
   @Test
   public void testOlderEventIgnoredEvenIfTombstoneHasExpired() throws Exception {
-    String name = nameRule.getMethodName();
+    var name = nameRule.getMethodName();
     RegionFactory f = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    final DistributedRegion region = (DistributedRegion) f.create(name);
+    final var region = (DistributedRegion) f.create(name);
 
     // simulate a put() getting into AbstractRegionMap.basicPut() and creating an entry
     // that has not yet been initialized with values. Then do a destroy that will encounter
     // the entry
-    String key = "destroyedKey1";
+    var key = "destroyedKey1";
     VersionedThinRegionEntryHeap entry =
         new VersionedThinRegionEntryHeapObjectKey(region, key, Token.REMOVED_PHASE1);
     entry.setLastModified(
@@ -172,9 +171,9 @@ public class TombstoneCreationJUnitTest {
     ((AbstractRegionMap) region.getRegionMap()).putEntryIfAbsentForTest(entry);
     cache.getLogger().info("entry inserted into cache: " + entry);
 
-    EntryEventImpl ev = EntryEventImpl.create(region, Operation.DESTROY, key, null, null, true,
+    var ev = EntryEventImpl.create(region, Operation.DESTROY, key, null, null, true,
         new InternalDistributedMember(InetAddress.getLocalHost(), 1234));
-    VersionTag tag = VersionTag.create((InternalDistributedMember) ev.getDistributedMember());
+    var tag = VersionTag.create((InternalDistributedMember) ev.getDistributedMember());
     tag.setIsRemoteForTesting();
     tag.setEntryVersion(3);
     tag.setRegionVersion(12345);

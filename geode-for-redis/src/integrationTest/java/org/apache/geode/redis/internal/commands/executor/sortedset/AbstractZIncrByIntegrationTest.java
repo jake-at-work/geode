@@ -74,7 +74,7 @@ public abstract class AbstractZIncrByIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldError_givenNonFloatIncrement() {
-    String nonFloatIncrement = "q";
+    var nonFloatIncrement = "q";
     jedis.zadd(KEY, 1.0, MEMBER);
 
     assertThatThrownBy(() -> jedis.sendCommand(STRING_KEY, Protocol.Command.ZINCRBY, STRING_KEY,
@@ -83,7 +83,7 @@ public abstract class AbstractZIncrByIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldError_givenNaNIncrement() {
-    String nanIncrement = "NaN";
+    var nanIncrement = "NaN";
     jedis.zadd(STRING_KEY, 1.0, STRING_MEMBER);
 
     assertThatThrownBy(() -> jedis.sendCommand(STRING_KEY, Protocol.Command.ZINCRBY, STRING_KEY,
@@ -92,7 +92,7 @@ public abstract class AbstractZIncrByIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldError_ifResultWouldBeNaN() {
-    String increment = "-inf";
+    var increment = "-inf";
     jedis.zadd(STRING_KEY, 10.0, STRING_MEMBER);
     jedis.zincrby(STRING_KEY, POSITIVE_INFINITY, STRING_MEMBER);
 
@@ -109,7 +109,7 @@ public abstract class AbstractZIncrByIntegrationTest implements RedisIntegration
   /************* infinity *************/
   @Test
   public void shouldSetScoreToInfinity_ifIncrementWouldExceedMaxValue() {
-    double increment = Double.MAX_VALUE / 2;
+    var increment = Double.MAX_VALUE / 2;
 
     jedis.zadd(STRING_KEY, Double.MAX_VALUE, STRING_MEMBER);
     jedis.zincrby(STRING_KEY, increment, STRING_MEMBER);
@@ -239,7 +239,7 @@ public abstract class AbstractZIncrByIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldCreateNewMember_whenIncrementedMemberDoesNotExist() {
-    final double increment = 1.5;
+    final var increment = 1.5;
     jedis.zadd(KEY, increment, "something".getBytes());
 
     assertThat(jedis.zincrby(KEY, increment, MEMBER)).isEqualTo(increment);
@@ -276,23 +276,23 @@ public abstract class AbstractZIncrByIntegrationTest implements RedisIntegration
   /************* concurrency *************/
   @Test
   public void testConcurrentZIncrBy_performsAllZIncrBys() {
-    AtomicDouble expectedValue = new AtomicDouble(0.0);
+    var expectedValue = new AtomicDouble(0.0);
 
     jedis.zadd(STRING_KEY, expectedValue.get(), STRING_MEMBER);
 
     new ConcurrentLoopingThreads(1000,
         (i) -> {
-          double increment = ThreadLocalRandom.current().nextDouble(-50, 50);
+          var increment = ThreadLocalRandom.current().nextDouble(-50, 50);
           expectedValue.addAndGet(increment);
           jedis.zincrby(STRING_KEY, increment, STRING_MEMBER);
         },
         (i) -> {
-          double increment = ThreadLocalRandom.current().nextDouble(-50, 50);
+          var increment = ThreadLocalRandom.current().nextDouble(-50, 50);
           expectedValue.addAndGet(increment);
           jedis.zincrby(STRING_KEY, increment, STRING_MEMBER);
         }).run();
 
-    Offset<Double> offset = Offset.offset(0.00000001);
+    var offset = Offset.offset(0.00000001);
     assertThat(jedis.zscore(STRING_KEY, STRING_MEMBER)).isCloseTo(expectedValue.get(), offset);
   }
 

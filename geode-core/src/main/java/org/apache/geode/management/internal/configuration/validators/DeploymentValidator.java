@@ -15,7 +15,6 @@
 
 package org.apache.geode.management.internal.configuration.validators;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class DeploymentValidator implements ConfigurationValidator<Deployment> {
   private void validateCreate(Deployment config) {
     // verify jar content
     List<String> invalidFileNames = new ArrayList<>();
-    File file = config.getFile();
+    var file = config.getFile();
     if (!JarFileUtils.hasValidJarContent(file)) {
       invalidFileNames.add(file.getName());
     }

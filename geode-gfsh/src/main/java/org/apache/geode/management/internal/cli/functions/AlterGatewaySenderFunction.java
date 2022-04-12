@@ -21,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.internal.cache.execute.InternalFunction;
@@ -41,16 +40,16 @@ public class AlterGatewaySenderFunction implements InternalFunction<GatewaySende
 
   @Override
   public void execute(FunctionContext<GatewaySenderFunctionArgs> context) {
-    ResultSender<Object> resultSender = context.getResultSender();
+    var resultSender = context.getResultSender();
 
-    Cache cache = context.getCache();
-    String memberNameOrId = context.getMemberName();
+    var cache = context.getCache();
+    var memberNameOrId = context.getMemberName();
 
-    GatewaySenderFunctionArgs gatewaySenderAlterArgs =
+    var gatewaySenderAlterArgs =
         context.getArguments();
 
     try {
-      GatewaySender alterGatewaySender = alterGatewaySender(cache, gatewaySenderAlterArgs);
+      var alterGatewaySender = alterGatewaySender(cache, gatewaySenderAlterArgs);
       resultSender.lastResult(new CliFunctionResult(memberNameOrId,
           CliFunctionResult.StatusState.OK, CliStrings.format(
               CliStrings.GATEWAY_SENDER_0_IS_UPDATED_ON_MEMBER_1,
@@ -63,10 +62,10 @@ public class AlterGatewaySenderFunction implements InternalFunction<GatewaySende
 
   private GatewaySender alterGatewaySender(Cache cache,
       GatewaySenderFunctionArgs gatewaySenderCreateArgs) {
-    String gwId = gatewaySenderCreateArgs.getId();
-    GatewaySender gateway = cache.getGatewaySender(gwId);
+    var gwId = gatewaySenderCreateArgs.getId();
+    var gateway = cache.getGatewaySender(gwId);
     if (gateway == null) {
-      String message = String.format("Cannot find existing gateway sender with id '%s'.", gwId);
+      var message = String.format("Cannot find existing gateway sender with id '%s'.", gwId);
       throw new EntityNotFoundException(message);
     }
 
@@ -74,38 +73,38 @@ public class AlterGatewaySenderFunction implements InternalFunction<GatewaySende
       throw new UnsupportedOperationException("alter gateway sender");
     }
 
-    boolean pause = false;
+    var pause = false;
     if (gateway.isRunning() && !gateway.isPaused()) {
       gateway.pause();
       pause = true;
     }
 
-    Integer alertThreshold = gatewaySenderCreateArgs.getAlertThreshold();
+    var alertThreshold = gatewaySenderCreateArgs.getAlertThreshold();
     if (alertThreshold != null) {
       ((AbstractGatewaySender) gateway).setAlertThreshold(alertThreshold);
     }
 
-    Integer batchSize = gatewaySenderCreateArgs.getBatchSize();
+    var batchSize = gatewaySenderCreateArgs.getBatchSize();
     if (batchSize != null) {
       ((AbstractGatewaySender) gateway).setBatchSize(batchSize);
     }
 
-    Integer batchTimeInterval = gatewaySenderCreateArgs.getBatchTimeInterval();
+    var batchTimeInterval = gatewaySenderCreateArgs.getBatchTimeInterval();
     if (batchTimeInterval != null) {
       ((AbstractGatewaySender) gateway).setBatchTimeInterval(batchTimeInterval);
     }
 
-    Boolean groupTransactionEvents = gatewaySenderCreateArgs.mustGroupTransactionEvents();
+    var groupTransactionEvents = gatewaySenderCreateArgs.mustGroupTransactionEvents();
     if (groupTransactionEvents != null) {
       ((AbstractGatewaySender) gateway)
           .setGroupTransactionEvents(groupTransactionEvents);
     }
 
-    List<String> gatewayEventFilters = gatewaySenderCreateArgs.getGatewayEventFilter();
+    var gatewayEventFilters = gatewaySenderCreateArgs.getGatewayEventFilter();
     if (gatewayEventFilters != null) {
       List<GatewayEventFilter> filters = new ArrayList<>();
       if (!gatewayEventFilters.isEmpty()) {
-        for (String filter : gatewayEventFilters) {
+        for (var filter : gatewayEventFilters) {
           filters.add(CallbackInstantiator.getObjectOfTypeFromClassName(filter,
               GatewayEventFilter.class));
         }

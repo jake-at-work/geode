@@ -23,7 +23,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
-import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +36,7 @@ public class LoggingExecutors {
 
   public static ExecutorService newCachedThreadPool(String threadName, boolean isDaemon) {
     ThreadFactory threadFactory = new LoggingThreadFactory(threadName, isDaemon);
-    SynchronousQueue<Runnable> workQueue = new SynchronousQueue<>();
+    var workQueue = new SynchronousQueue<Runnable>();
     return new ThreadPoolExecutor(0, MAX_VALUE, 60, SECONDS, workQueue, threadFactory);
   }
 
@@ -61,10 +60,10 @@ public class LoggingExecutors {
 
   public static ExecutorService newFixedThreadPoolWithFeedSize(int poolSize, int workQueueSize,
       String threadName) {
-    LinkedBlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>(workQueueSize);
+    var workQueue = new LinkedBlockingQueue<Runnable>(workQueueSize);
     ThreadFactory threadFactory = new LoggingThreadFactory(threadName);
     RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(poolSize, poolSize, 10, SECONDS, workQueue,
+    var executor = new ThreadPoolExecutor(poolSize, poolSize, 10, SECONDS, workQueue,
         threadFactory, rejectedExecutionHandler);
     executor.allowCoreThreadTimeOut(true);
     return executor;
@@ -81,14 +80,14 @@ public class LoggingExecutors {
 
   public static ScheduledExecutorService newScheduledThreadPool(int poolSize, String threadName,
       boolean executeDelayedTasks) {
-    LoggingThreadFactory threadFactory = new LoggingThreadFactory(threadName);
-    ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(poolSize, threadFactory);
+    var threadFactory = new LoggingThreadFactory(threadName);
+    var executor = new ScheduledThreadPoolExecutor(poolSize, threadFactory);
     executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(executeDelayedTasks);
     return executor;
   }
 
   public static ExecutorService newSingleThreadExecutor(String threadName, boolean isDaemon) {
-    LinkedBlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
+    var workQueue = new LinkedBlockingQueue<Runnable>();
     ThreadFactory threadFactory = new LoggingThreadFactory(threadName, isDaemon);
     return new ThreadPoolExecutor(1, 1, 0, SECONDS, workQueue, threadFactory);
   }
@@ -105,8 +104,8 @@ public class LoggingExecutors {
   }
 
   public static ExecutorService newWorkStealingPool(String threadName, int maximumParallelThreads) {
-    ForkJoinWorkerThreadFactory factory = pool -> {
-      ForkJoinWorkerThread worker = defaultForkJoinWorkerThreadFactory.newThread(pool);
+    var factory = (ForkJoinWorkerThreadFactory) pool -> {
+      var worker = defaultForkJoinWorkerThreadFactory.newThread(pool);
       LoggingUncaughtExceptionHandler.setOnThread(worker);
       worker.setName(threadName + worker.getPoolIndex());
       return worker;

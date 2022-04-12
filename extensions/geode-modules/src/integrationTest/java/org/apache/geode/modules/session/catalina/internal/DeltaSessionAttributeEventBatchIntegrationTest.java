@@ -38,9 +38,9 @@ public class DeltaSessionAttributeEventBatchIntegrationTest
     List<DeltaSessionAttributeEvent> queue = new ArrayList<>();
     queue.add(new DeltaSessionDestroyAttributeEvent(SECOND_ATTRIBUTE_KEY));
     queue.add(new DeltaSessionUpdateAttributeEvent(FIRST_ATTRIBUTE_KEY, FIRST_ATTRIBUTE_VALUE));
-    DeltaSessionAttributeEventBatch originalBatch =
+    var originalBatch =
         new DeltaSessionAttributeEventBatch(REGION_NAME, TEST_SESSION_ID, queue);
-    DeltaSessionAttributeEventBatch deserializeBatch =
+    var deserializeBatch =
         (DeltaSessionAttributeEventBatch) serializeDeserializeObject(originalBatch);
 
     assertThat(deserializeBatch.getKey()).isEqualTo(originalBatch.getKey());
@@ -52,7 +52,7 @@ public class DeltaSessionAttributeEventBatchIntegrationTest
   @Parameters({"REPLICATE", "PARTITION"})
   public void applyBatchShouldNotDoAnythingIfSessionIdDoesNotExist(RegionShortcut regionShortcut) {
     parameterizedSetUp(regionShortcut);
-    DeltaSessionAttributeEventBatch deltaSessionAttributeEventBatch =
+    var deltaSessionAttributeEventBatch =
         new DeltaSessionAttributeEventBatch(REGION_NAME, "fakeSessionId",
             Collections.singletonList(new DeltaSessionDestroyAttributeEvent(FIRST_ATTRIBUTE_KEY)));
 
@@ -71,7 +71,7 @@ public class DeltaSessionAttributeEventBatchIntegrationTest
     List<DeltaSessionAttributeEvent> queue = new ArrayList<>();
     queue.add(new DeltaSessionDestroyAttributeEvent(SECOND_ATTRIBUTE_KEY));
     queue.add(new DeltaSessionUpdateAttributeEvent(FIRST_ATTRIBUTE_KEY, SECOND_ATTRIBUTE_VALUE));
-    DeltaSessionAttributeEventBatch deltaSessionAttributeEventBatch =
+    var deltaSessionAttributeEventBatch =
         new DeltaSessionAttributeEventBatch(REGION_NAME, TEST_SESSION_ID, queue);
 
     // Apply batch and verify local session entry is modified.

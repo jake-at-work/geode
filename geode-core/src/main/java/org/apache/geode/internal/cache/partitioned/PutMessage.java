@@ -56,7 +56,6 @@ import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.FilterRoutingInfo;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.PrimaryBucketException;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tx.RemotePutMessage;
@@ -206,11 +205,11 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
       valBytes = original.valBytes;
     } else {
       if (original.valObj instanceof CachedDeserializable) {
-        CachedDeserializable cd = (CachedDeserializable) original.valObj;
+        var cd = (CachedDeserializable) original.valObj;
         if (!cd.isSerialized()) {
           valObj = cd.getDeserializedForReading();
         } else {
-          Object val = cd.getValue();
+          var val = cd.getValue();
           if (val instanceof byte[]) {
             valBytes = (byte[]) val;
           } else {
@@ -278,7 +277,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
 
   @Override
   public PartitionMessage getMessageForRelayToListeners(EntryEventImpl ev, Set members) {
-    PutMessage msg = new PutMessage(this, ev, members);
+    var msg = new PutMessage(this, ev, members);
     msg.requireOldValue = false;
     msg.expectedOldValue = null;
     return msg;
@@ -299,7 +298,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
   public static Set notifyListeners(Set cacheOpReceivers, Set adjunctRecipients,
       FilterRoutingInfo filterInfo, PartitionedRegion r, EntryEventImpl event, boolean ifNew,
       boolean ifOld, DirectReplyProcessor processor, boolean sendDeltaWithFullValue) {
-    PutMessage msg = new PutMessage(Collections.EMPTY_SET, true, r.getPRId(), processor, event, 0,
+    var msg = new PutMessage(Collections.EMPTY_SET, true, r.getPRId(), processor, event, 0,
         ifNew, ifOld, null, false);
     msg.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     msg.setInternalDs(r.getSystem());
@@ -371,9 +370,9 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
     // event notifications
     Set recipients = Collections.singleton(recipient);
 
-    PutResponse processor = new PutResponse(r.getSystem(), recipients, event.getKey());
+    var processor = new PutResponse(r.getSystem(), recipients, event.getKey());
 
-    PutMessage m = new PutMessage(recipients, false, r.getPRId(), processor, event, lastModified,
+    var m = new PutMessage(recipients, false, r.getPRId(), processor, event, lastModified,
         ifNew, ifOld, expectedOldValue, requireOldValue);
     m.setInternalDs(r.getSystem());
     m.setSendDelta(true);
@@ -488,7 +487,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
       DeserializationContext context) throws IOException, ClassNotFoundException {
     super.fromData(in, context);
 
-    final int extraFlags = in.readUnsignedByte();
+    final var extraFlags = in.readUnsignedByte();
     setKey(DataSerializer.readObject(in));
     cbArg = DataSerializer.readObject(in);
     lastModified = in.readLong();
@@ -535,7 +534,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
       SerializationContext context) throws IOException {
     PartitionedRegion region = null;
     try {
-      boolean flag = internalDs.getConfig().getDeltaPropagation();
+      var flag = internalDs.getConfig().getDeltaPropagation();
       // Reset the flag when sending full object.
       hasDelta = event.getDeltaBytes() != null && flag && sendDelta;
     } catch (RuntimeException re) {
@@ -653,15 +652,15 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
     setInternalDs(r.getSystem());// set the internal DS. Required to
                                  // checked DS level delta-enabled property
                                  // while sending delta
-    PartitionedRegionDataStore ds = r.getDataStore();
-    boolean sendReply = true;
+    var ds = r.getDataStore();
+    var sendReply = true;
 
-    InternalDistributedMember eventSender = originalSender;
+    var eventSender = originalSender;
     if (eventSender == null) {
       eventSender = getSender();
     }
     @Released
-    final EntryEventImpl ev =
+    final var ev =
         EntryEventImpl.create(r, getOperation(), getKey(), null, /* newValue */
             getCallbackArg(), false/* originRemote - false to force distribution in buckets */,
             eventSender, true/* generateCallbacks */, false/* initializeId */);
@@ -732,7 +731,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
         }
       } else { // notificationOnly
         @Released
-        EntryEventImpl e2 = createListenerEvent(ev, r, dm.getDistributionManagerId());
+        var e2 = createListenerEvent(ev, r, dm.getDistributionManagerId());
         final EnumListenerEvent le;
         try {
           if (e2.getOperation().isCreate()) {
@@ -882,7 +881,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
         boolean result, Operation op, ReplyException ex, PutMessage sourceMessage,
         EntryEventImpl ev) {
       Assert.assertTrue(recipient != null, "PutReplyMessage NULL reply message");
-      PutReplyMessage m =
+      var m =
           new PutReplyMessage(processorId, result, op, ex, null, ev.getVersionTag());
       if (!sourceMessage.notificationOnly && sourceMessage.requireOldValue) {
         ev.exportOldValue(m);
@@ -899,7 +898,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 rp) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "PutReplyMessage process invoking reply processor with processorId: {}",
@@ -912,7 +911,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
         return;
       }
       if (rp instanceof PutResponse) {
-        PutResponse processor = (PutResponse) rp;
+        var processor = (PutResponse) rp;
         processor.setResponse(this);
       }
       rp.process(this);
@@ -949,7 +948,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
       super.toData(out, context);
       out.writeBoolean(result);
       out.writeByte(op.ordinal);
-      Object ov = getOldValue();
+      var ov = getOldValue();
       RemotePutMessage.PutReplyMessage.oldValueToData(out, getOldValue(),
           oldValueIsSerialized);
       DataSerializer.writeObject(versionTag, out);
@@ -1062,13 +1061,13 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
     public void process(final DistributionMessage msg) {
 
       if (msg instanceof ReplyMessage) {
-        ReplyException ex = ((ReplyMessage) msg).getException();
+        var ex = ((ReplyMessage) msg).getException();
         if (putMessage.bridgeContext == null
             // Why is this code not happening for bug 41916?
             && (ex != null && ex.getCause() instanceof InvalidDeltaException)) {
-          final PutMessage putMsg = new PutMessage(putMessage);
-          final DistributionManager dm = getDistributionManager();
-          Runnable sendFullObject = new Runnable() {
+          final var putMsg = new PutMessage(putMessage);
+          final var dm = getDistributionManager();
+          var sendFullObject = new Runnable() {
             @Override
             public void run() {
               putMsg.resetRecipients();

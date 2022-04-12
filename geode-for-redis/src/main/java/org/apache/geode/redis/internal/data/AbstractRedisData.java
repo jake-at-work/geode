@@ -115,7 +115,7 @@ public abstract class AbstractRedisData implements RedisData {
 
   @Override
   public int pexpireat(RegionProvider regionProvider, RedisKey key, long timestamp) {
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     if (now >= timestamp) {
       // already expired
       doExpiration(regionProvider, key);
@@ -127,7 +127,7 @@ public abstract class AbstractRedisData implements RedisData {
 
   @Override
   public void doExpiration(RegionProvider regionProvider, RedisKey key) {
-    long start = regionProvider.getRedisStats().startExpiration();
+    var start = regionProvider.getRedisStats().startExpiration();
     regionProvider.getLocalDataRegion().remove(key);
     regionProvider.getRedisStats().endExpiration(start);
   }
@@ -135,7 +135,7 @@ public abstract class AbstractRedisData implements RedisData {
   @Override
   public boolean rename(ExecutionHandlerContext context, RedisKey oldKey, RedisKey newKey,
       boolean ifTargetNotExists) {
-    Region<RedisKey, RedisData> region = context.getRegion();
+    var region = context.getRegion();
     if (ifTargetNotExists) {
       try {
         region.create(newKey, this, primaryMoveReadLockAcquired);
@@ -164,11 +164,11 @@ public abstract class AbstractRedisData implements RedisData {
 
   @Override
   public long pttl(Region<RedisKey, RedisData> region, RedisKey key) {
-    long expireTimestamp = getExpirationTimestamp();
+    var expireTimestamp = getExpirationTimestamp();
     if (expireTimestamp == NO_EXPIRATION) {
       return -1;
     }
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     if (now >= expireTimestamp) {
       region.remove(key);
       return -2;
@@ -196,17 +196,17 @@ public abstract class AbstractRedisData implements RedisData {
 
   @Override
   public boolean hasExpired() {
-    long expireTimestamp = getExpirationTimestamp();
+    var expireTimestamp = getExpirationTimestamp();
     if (expireTimestamp == NO_EXPIRATION) {
       return false;
     }
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     return now >= expireTimestamp;
   }
 
   @Override
   public boolean hasExpired(long now) {
-    long expireTimestamp = getExpirationTimestamp();
+    var expireTimestamp = getExpirationTimestamp();
     if (expireTimestamp == NO_EXPIRATION) {
       return false;
     }
@@ -241,10 +241,10 @@ public abstract class AbstractRedisData implements RedisData {
 
   @Override
   public void fromDelta(DataInput in) throws IOException, InvalidDeltaException {
-    DeltaType deltaType = readEnum(DeltaType.class, in);
+    var deltaType = readEnum(DeltaType.class, in);
 
     if (deltaType.isVersioned()) {
-      byte deltaVersion = DataSerializer.readPrimitiveByte(in);
+      var deltaVersion = DataSerializer.readPrimitiveByte(in);
       if (deltaVersion == version) {
         return;
       }
@@ -375,9 +375,9 @@ public abstract class AbstractRedisData implements RedisData {
 
   @Override
   public byte[] dump() throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    var baos = new ByteArrayOutputStream();
     baos.write(RADISH_DUMP_HEADER);
-    DataOutputStream outputStream = new DataOutputStream(baos);
+    var outputStream = new DataOutputStream(baos);
     outputStream.writeShort(KnownVersion.CURRENT.ordinal());
 
     DataSerializer.writeObject(this, outputStream);
@@ -431,7 +431,7 @@ public abstract class AbstractRedisData implements RedisData {
     if (!(o instanceof AbstractRedisData)) {
       return false;
     }
-    AbstractRedisData that = (AbstractRedisData) o;
+    var that = (AbstractRedisData) o;
     return getExpirationTimestamp() == that.getExpirationTimestamp();
   }
 

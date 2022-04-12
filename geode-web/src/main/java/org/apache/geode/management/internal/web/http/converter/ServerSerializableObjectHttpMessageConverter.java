@@ -74,7 +74,7 @@ public class ServerSerializableObjectHttpMessageConverter
   protected Serializable readInternal(final Class<? extends Serializable> type,
       final HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
     try {
-      ClassLoader classLoader = type.getClassLoader();
+      var classLoader = type.getClassLoader();
       return type.cast(IOUtils.deserializeObject(IOUtils.toByteArray(inputMessage.getBody()),
           classLoader != null ? classLoader : getClass().getClassLoader()));
     } catch (ClassNotFoundException e) {
@@ -92,7 +92,7 @@ public class ServerSerializableObjectHttpMessageConverter
   @Override
   protected void writeInternal(final Serializable serializableObject,
       final HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-    final byte[] messageBody = IOUtils.serializeObject(serializableObject);
+    final var messageBody = IOUtils.serializeObject(serializableObject);
     setContentLength(outputMessage, messageBody);
     StreamUtils.copy(messageBody, outputMessage.getBody());
   }

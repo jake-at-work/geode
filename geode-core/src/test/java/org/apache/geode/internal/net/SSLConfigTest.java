@@ -73,81 +73,81 @@ class SSLConfigTest {
 
   @Test
   void getClientProtocolsDefaultsToAny() {
-    final SSLConfig config = builder().build();
+    final var config = builder().build();
     assertThat(config.getClientProtocols()).isEqualTo("any");
   }
 
   @Test
   void getClientProtocolsEqualsSetProtocols() {
-    final String protocols = "SuperProtocol1";
-    final SSLConfig config = builder().setProtocols(protocols).build();
+    final var protocols = "SuperProtocol1";
+    final var config = builder().setProtocols(protocols).build();
     assertThat(config.getClientProtocols()).isEqualTo(protocols);
   }
 
   @Test
   void getClientProtocolsEqualsSetClientProtocols() {
-    final String protocols = "SuperProtocol1";
-    final SSLConfig config = builder().setClientProtocols(protocols).build();
+    final var protocols = "SuperProtocol1";
+    final var config = builder().setClientProtocols(protocols).build();
     assertThat(config.getClientProtocols()).isEqualTo(protocols);
   }
 
   @Test
   void getClientProtocolsUsesSetClientProtocolsOverSetProtocols() {
-    final String protocols = "SuperProtocol1";
-    final SSLConfig config = builder().setProtocols("nope").setClientProtocols(protocols).build();
+    final var protocols = "SuperProtocol1";
+    final var config = builder().setProtocols("nope").setClientProtocols(protocols).build();
     assertThat(config.getClientProtocols()).isEqualTo(protocols);
   }
 
   @Test
   void getServerProtocolsDefaultsToAny() {
-    final SSLConfig config = builder().build();
+    final var config = builder().build();
     assertThat(config.getServerProtocols()).isEqualTo("any");
   }
 
   @Test
   void getServerProtocolsEqualsSetProtocols() {
-    final String protocols = "SuperProtocol1";
-    final SSLConfig config = builder().setProtocols(protocols).build();
+    final var protocols = "SuperProtocol1";
+    final var config = builder().setProtocols(protocols).build();
     assertThat(config.getServerProtocols()).isEqualTo(protocols);
   }
 
   @Test
   void getServerProtocolsEqualsSetServerProtocols() {
-    final String protocols = "SuperProtocol1";
-    final SSLConfig config = builder().setServerProtocols(protocols).build();
+    final var protocols = "SuperProtocol1";
+    final var config = builder().setServerProtocols(protocols).build();
     assertThat(config.getServerProtocols()).isEqualTo(protocols);
   }
 
   @Test
   void getServerProtocolsUsesSetServerProtocolsOverSetProtocols() {
-    final String protocols = "SuperProtocol1";
-    final SSLConfig config = builder().setProtocols("nope").setServerProtocols(protocols).build();
+    final var protocols = "SuperProtocol1";
+    final var config = builder().setProtocols("nope").setServerProtocols(protocols).build();
     assertThat(config.getServerProtocols()).isEqualTo(protocols);
   }
 
   @Test
   void getClientProtocolsAsStringArrayDefaultsToAny() {
-    final SSLConfig config = builder().build();
+    final var config = builder().build();
     assertThat(config.getClientProtocolsAsStringArray()).containsExactly("any");
   }
 
   @Test
   void getClientProtocolsAsStringArrayEqualsSetProtocols() {
-    final SSLConfig config = builder().setProtocols("SuperProtocol1,SuperProtocol2").build();
+    final var config = builder().setProtocols("SuperProtocol1,SuperProtocol2").build();
     assertThat(config.getClientProtocolsAsStringArray()).containsExactly("SuperProtocol1",
         "SuperProtocol2");
   }
 
   @Test
   void getClientProtocolsAsStringArrayEqualsSetClientProtocols() {
-    final SSLConfig config = builder().setClientProtocols("SuperProtocol1,SuperProtocol2").build();
+    final var config = builder().setClientProtocols("SuperProtocol1,SuperProtocol2").build();
     assertThat(config.getClientProtocolsAsStringArray()).containsExactly(
         "SuperProtocol1", "SuperProtocol2");
   }
 
   @Test
   void getClientProtocolsAsStringArrayUsesSetClientProtocolsOverSetProtocols() {
-    final SSLConfig config = builder().setProtocols("nope").setClientProtocols(
+    final var config = builder().setProtocols("nope").setClientProtocols(
         "SuperProtocol1,SuperProtocol2").build();
     assertThat(config.getClientProtocolsAsStringArray()).containsExactly("SuperProtocol1",
         "SuperProtocol2");
@@ -155,27 +155,27 @@ class SSLConfigTest {
 
   @Test
   void getServerProtocolsAsStringArrayDefaultsToAny() {
-    final SSLConfig config = builder().build();
+    final var config = builder().build();
     assertThat(config.getServerProtocolsAsStringArray()).containsExactly("any");
   }
 
   @Test
   void getServerProtocolsAsStringArrayAsStringArrayEqualsSetProtocols() {
-    final SSLConfig config = builder().setProtocols("SuperProtocol1,SuperProtocol2").build();
+    final var config = builder().setProtocols("SuperProtocol1,SuperProtocol2").build();
     assertThat(config.getServerProtocolsAsStringArray()).containsExactly(
         "SuperProtocol1", "SuperProtocol2");
   }
 
   @Test
   void getServerProtocolsAsStringArrayEqualsSetServerProtocols() {
-    final SSLConfig config = builder().setServerProtocols("SuperProtocol1,SuperProtocol2").build();
+    final var config = builder().setServerProtocols("SuperProtocol1,SuperProtocol2").build();
     assertThat(config.getServerProtocolsAsStringArray()).containsExactly(
         "SuperProtocol1", "SuperProtocol2");
   }
 
   @Test
   void getServerProtocolsAsStringArrayUsesSetServerProtocolsOverSetProtocols() {
-    final SSLConfig config = builder().setProtocols("nope").setServerProtocols(
+    final var config = builder().setProtocols("nope").setServerProtocols(
         "SuperProtocol1,SuperProtocol2").build();
     assertThat(config.getServerProtocolsAsStringArray()).containsExactly(
         "SuperProtocol1", "SuperProtocol2");

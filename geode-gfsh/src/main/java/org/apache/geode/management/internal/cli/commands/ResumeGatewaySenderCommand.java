@@ -15,22 +15,17 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.Set;
 
-import javax.management.ObjectName;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.GatewaySenderMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -56,22 +51,22 @@ public class ResumeGatewaySenderCommand extends GfshCommand {
       senderId = senderId.trim();
     }
 
-    final Cache cache = getCache();
+    final var cache = getCache();
     final SystemManagementService service = getManagementService();
 
-    Set<DistributedMember> dsMembers = findMembers(onGroup, onMember);
+    var dsMembers = findMembers(onGroup, onMember);
     if (dsMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
     GatewaySenderMXBean bean;
-    ResultModel resultModel = new ResultModel();
-    TabularResultModel resultData = resultModel.addTable(CliStrings.RESUME_GATEWAYSENDER);
-    for (DistributedMember member : dsMembers) {
+    var resultModel = new ResultModel();
+    var resultData = resultModel.addTable(CliStrings.RESUME_GATEWAYSENDER);
+    for (var member : dsMembers) {
       if (cache.getDistributedSystem().getDistributedMember().getId().equals(member.getId())) {
         bean = service.getLocalGatewaySenderMXBean(senderId);
       } else {
-        ObjectName objectName = service.getGatewaySenderMBeanName(member, senderId);
+        var objectName = service.getGatewaySenderMBeanName(member, senderId);
         bean = service.getMBeanProxy(objectName, GatewaySenderMXBean.class);
       }
       if (bean != null) {

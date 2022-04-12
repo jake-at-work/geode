@@ -65,18 +65,18 @@ public abstract class AbstractKeysIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void givenSplat_withBinaryData_returnsExpectedMatches() {
-    byte[] stringKey =
+    var stringKey =
         new byte[] {'{', 1, '}', (byte) 0xac, (byte) 0xed, 0, 4, 0, 5, 's', 't', 'r', 'i', 'n', 'g',
             '1'};
-    byte[] value = new byte[] {'v', '1'};
+    var value = new byte[] {'v', '1'};
     jedis.set(stringKey, value);
-    byte[] setKey =
+    var setKey =
         new byte[] {'{', 1, '}', (byte) 0xac, (byte) 0xed, 0, 4, 0, 5, 's', 'e', 't', '1'};
-    byte[] member = new byte[] {'m', '1'};
+    var member = new byte[] {'m', '1'};
     jedis.sadd(setKey, member);
-    byte[] hashKey =
+    var hashKey =
         new byte[] {'{', 1, '}', (byte) 0xac, (byte) 0xed, 0, 4, 0, 5, 'h', 'a', 's', 'h', '1'};
-    byte[] key = new byte[] {'{', 1, '}', 'k', 'e', 'y', '1'};
+    var key = new byte[] {'{', 1, '}', 'k', 'e', 'y', '1'};
     jedis.hset(hashKey, key, value);
     assertThat(jedis.exists(stringKey)).isTrue();
     assertThat(jedis.exists(setKey)).isTrue();
@@ -92,16 +92,16 @@ public abstract class AbstractKeysIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void givenBinaryValue_withExactMatch_preservesBinaryData() {
-    String chineseHashTag = "{子}";
-    byte[] utf8encodedBytes = chineseHashTag.getBytes();
-    byte[] stringKey =
+    var chineseHashTag = "{子}";
+    var utf8encodedBytes = chineseHashTag.getBytes();
+    var stringKey =
         new byte[] {(byte) 0xac, (byte) 0xed, 0, 4, 0, 5, 's', 't', 'r', 'i', 'n', 'g', '1'};
-    byte[] allByteArray = new byte[utf8encodedBytes.length + stringKey.length];
+    var allByteArray = new byte[utf8encodedBytes.length + stringKey.length];
 
-    ByteBuffer buff = ByteBuffer.wrap(allByteArray);
+    var buff = ByteBuffer.wrap(allByteArray);
     buff.put(utf8encodedBytes);
     buff.put(stringKey);
-    byte[] combined = buff.array();
+    var combined = buff.array();
 
     jedis.set(combined, combined);
     assertThat(jedis.keys("{子}*".getBytes()))

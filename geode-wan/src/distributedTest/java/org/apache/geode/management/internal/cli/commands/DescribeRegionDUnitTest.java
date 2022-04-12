@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.WanTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
@@ -39,9 +38,9 @@ public class DescribeRegionDUnitTest {
 
   @Test
   public void describeRegionWithGatewayAndAsyncEventQueue() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
-    MemberVM sending_locator = lsRule.startLocatorVM(1, props);
+    var sending_locator = lsRule.startLocatorVM(1, props);
 
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 2);
     props.setProperty(REMOTE_LOCATORS, "localhost[" + sending_locator.getPort() + "]");

@@ -26,12 +26,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
@@ -52,7 +49,6 @@ import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 /**
@@ -68,9 +64,9 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
   public static Cache cache;
 
   private static String readFile(String filename) throws IOException {
-    BufferedReader br = new BufferedReader(new FileReader(filename));
-    String nextLine = "";
-    StringBuilder sb = new StringBuilder();
+    var br = new BufferedReader(new FileReader(filename));
+    var nextLine = "";
+    var sb = new StringBuilder();
     while ((nextLine = br.readLine()) != null) {
       sb.append(nextLine);
     }
@@ -78,13 +74,13 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static String modifyFile(String str) throws IOException {
-    String search = "<jndi-binding type=\"XAPooledDataSource\"";
-    String last_search = "</jndi-binding>";
-    String newDB = "newDB1_" + OSProcess.getId();
-    String jndi_str =
+    var search = "<jndi-binding type=\"XAPooledDataSource\"";
+    var last_search = "</jndi-binding>";
+    var newDB = "newDB1_" + OSProcess.getId();
+    var jndi_str =
         "<jndi-binding type=\"XAPooledDataSource\" jndi-name=\"XAPooledDataSource\" jdbc-driver-class=\"org.apache.derby.jdbc.EmbeddedDriver\" init-pool-size=\"5\" max-pool-size=\"30\" idle-timeout-seconds=\"300\" blocking-timeout-seconds=\"15\" login-timeout-seconds=\"30\" conn-pooled-datasource-class=\"org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource\" xa-datasource-class=\"org.apache.derby.jdbc.EmbeddedXADataSource\" user-name=\"mitul\" password=\"83f0069202c571faf1ae6c42b4ad46030e4e31c17409e19a\" connection-url=\"jdbc:derby:"
             + newDB + ";create=true\" >";
-    String config_prop = "<config-property>"
+    var config_prop = "<config-property>"
         + "<config-property-name>description</config-property-name>"
         + "<config-property-type>java.lang.String</config-property-type>"
         + "<config-property-value>hi</config-property-value>" + "</config-property>"
@@ -98,7 +94,7 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
         + "<config-property-name>databaseName</config-property-name>"
         + "<config-property-type>java.lang.String</config-property-type>"
         + "<config-property-value>" + newDB + "</config-property-value>" + "</config-property>\n";
-    String new_str = jndi_str + config_prop;
+    var new_str = jndi_str + config_prop;
     /*
      * String new_str = " <jndi-binding type=\"XAPooledDataSource\" jndi-name=\"XAPooledDataSource\"
      * jdbc-driver-class=\"org.apache.derby.jdbc.EmbeddedDriver\"
@@ -112,21 +108,21 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
      * value=\""+newDB+"\"/> <property key=\"user\" value=\"mitul\"/> <property key=\"password\"
      * value=\"83f0069202c571faf1ae6c42b4ad46030e4e31c17409e19a\"/>";
      */
-    int n1 = str.indexOf(search);
-    int n2 = str.indexOf(last_search, n1);
-    StringBuilder sbuff = new StringBuilder(str);
-    String modified_str = sbuff.replace(n1, n2, new_str).toString();
+    var n1 = str.indexOf(search);
+    var n2 = str.indexOf(last_search, n1);
+    var sbuff = new StringBuilder(str);
+    var modified_str = sbuff.replace(n1, n2, new_str).toString();
     return modified_str;
   }
 
   private static String modifyFile1(String str) throws IOException {
-    String search = "<jndi-binding type=\"SimpleDataSource\"";
-    String last_search = "</jndi-binding>";
-    String newDB = "newDB1_" + OSProcess.getId();
-    String jndi_str =
+    var search = "<jndi-binding type=\"SimpleDataSource\"";
+    var last_search = "</jndi-binding>";
+    var newDB = "newDB1_" + OSProcess.getId();
+    var jndi_str =
         "<jndi-binding type=\"SimpleDataSource\" jndi-name=\"SimpleDataSource\" jdbc-driver-class=\"org.apache.derby.jdbc.EmbeddedDriver\" init-pool-size=\"5\" max-pool-size=\"30\" idle-timeout-seconds=\"300\" blocking-timeout-seconds=\"15\" login-timeout-seconds=\"30\" conn-pooled-datasource-class=\"org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource\" xa-datasource-class=\"org.apache.derby.jdbc.EmbeddedXADataSource\" user-name=\"mitul\" password=\"83f0069202c571faf1ae6c42b4ad46030e4e31c17409e19a\" connection-url=\"jdbc:derby:"
             + newDB + ";create=true\" >";
-    String config_prop = "<config-property>"
+    var config_prop = "<config-property>"
         + "<config-property-name>description</config-property-name>"
         + "<config-property-type>java.lang.String</config-property-type>"
         + "<config-property-value>hi</config-property-value>" + "</config-property>"
@@ -140,7 +136,7 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
         + "<config-property-name>databaseName</config-property-name>"
         + "<config-property-type>java.lang.String</config-property-type>"
         + "<config-property-value>" + newDB + "</config-property-value>" + "</config-property>\n";
-    String new_str = jndi_str + config_prop;
+    var new_str = jndi_str + config_prop;
     /*
      * String new_str = " <jndi-binding type=\"SimpleDataSource\" jndi-name=\"SimpleDataSource\"
      * jdbc-driver-class=\"org.apache.derby.jdbc.EmbeddedDriver\"
@@ -154,40 +150,40 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
      * value=\""+newDB1+"\"/> <property key=\"user\" value=\"mitul\"/> <property key=\"password\"
      * value=\"83f0069202c571faf1ae6c42b4ad46030e4e31c17409e19a\"/>";
      */
-    int n1 = str.indexOf(search);
-    int n2 = str.indexOf(last_search, n1);
-    StringBuilder sbuff = new StringBuilder(str);
-    String modified_str = sbuff.replace(n1, n2, new_str).toString();
+    var n1 = str.indexOf(search);
+    var n2 = str.indexOf(last_search, n1);
+    var sbuff = new StringBuilder(str);
+    var modified_str = sbuff.replace(n1, n2, new_str).toString();
     return modified_str;
   }
 
   public static String init(String className) throws Exception {
     DistributedSystem ds;
-    Properties props = new Properties();
-    String jtest = System.getProperty("JTESTS");
-    int pid = OSProcess.getId();
-    String path = File.createTempFile("dunit-cachejta_", ".xml").getAbsolutePath();
+    var props = new Properties();
+    var jtest = System.getProperty("JTESTS");
+    var pid = OSProcess.getId();
+    var path = File.createTempFile("dunit-cachejta_", ".xml").getAbsolutePath();
     LogWriterUtils.getLogWriter().fine("PATH " + path);
     /** * Return file as string and then modify the string accordingly ** */
-    String file_as_str = readFile(
+    var file_as_str = readFile(
         createTempFileFromResource(CacheUtils.class, "cachejta.xml")
             .getAbsolutePath());
     file_as_str = file_as_str.replaceAll("newDB", "newDB_" + pid);
-    String modified_file_str = modifyFile(file_as_str);
-    String modified_file_str1 = modifyFile1(modified_file_str);
-    FileOutputStream fos = new FileOutputStream(path);
-    BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(fos));
+    var modified_file_str = modifyFile(file_as_str);
+    var modified_file_str1 = modifyFile1(modified_file_str);
+    var fos = new FileOutputStream(path);
+    var wr = new BufferedWriter(new OutputStreamWriter(fos));
     wr.write(modified_file_str1);
     wr.flush();
     wr.close();
     props.setProperty(CACHE_XML_FILE, path);
-    String tableName = "";
+    var tableName = "";
 
     ds = (new TxnManagerMultiThreadDUnitTest()).getSystem(props);
     CacheUtils.ds = ds;
     cache = CacheFactory.create(ds);
     if (className != null && !className.equals("")) {
-      String time = new Long(System.currentTimeMillis()).toString();
+      var time = new Long(System.currentTimeMillis()).toString();
       tableName = className + time;
       createTable(tableName);
     }
@@ -196,20 +192,20 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void createTable(String tblName) throws NamingException, SQLException {
-    String tableName = tblName;
+    var tableName = tblName;
     cache = TxnManagerMultiThreadDUnitTest.getCache();
-    Context ctx = cache.getJNDIContext();
-    DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
-    String sql =
+    var ctx = cache.getJNDIContext();
+    var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var sql =
         "create table " + tableName + " (id integer NOT NULL, name varchar(50), CONSTRAINT "
             + tableName + "_key PRIMARY KEY(id))";
     LogWriterUtils.getLogWriter().fine(sql);
-    Connection conn = ds.getConnection();
-    Statement sm = conn.createStatement();
+    var conn = ds.getConnection();
+    var sm = conn.createStatement();
     sm.execute(sql);
     sm.close();
     sm = conn.createStatement();
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       sql = "insert into " + tableName + " values (" + i + ",'name" + i + "')";
       sm.addBatch(sql);
       LogWriterUtils.getLogWriter().fine(sql);
@@ -227,15 +223,15 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
       fail("interrupted", ie);
     }
     try {
-      String tableName = tblName;
+      var tableName = tblName;
       LogWriterUtils.getLogWriter().fine("Destroying table: " + tableName);
       cache = TxnManagerMultiThreadDUnitTest.getCache();
-      Context ctx = cache.getJNDIContext();
-      DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
-      Connection conn = ds.getConnection();
+      var ctx = cache.getJNDIContext();
+      var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var conn = ds.getConnection();
       LogWriterUtils.getLogWriter().fine(" trying to drop table: " + tableName);
-      String sql = "drop table " + tableName;
-      Statement sm = conn.createStatement();
+      var sql = "drop table " + tableName;
+      var sm = conn.createStatement();
       sm.execute(sql);
       conn.close();
       LogWriterUtils.getLogWriter().fine("destroyTable is Successful!");
@@ -284,10 +280,10 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws java.lang.Exception {
-    VM vm0 = Host.getHost(0).getVM(0);
-    Object[] o = new Object[1];
+    var vm0 = Host.getHost(0).getVM(0);
+    var o = new Object[1];
     o[0] = "TxnManagerMultiThreadDUnitTest";
-    Object tableName = vm0.invoke(TxnManagerMultiThreadDUnitTest.class, "init", o);
+    var tableName = vm0.invoke(TxnManagerMultiThreadDUnitTest.class, "init", o);
     // setting the table name using the CacheUtils method setTableName
     // This is to access the table name in test methods
     CacheUtils.setTableName(tableName.toString());
@@ -307,12 +303,12 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
     // JTAUtils
     cache = TxnManagerMultiThreadDUnitTest.getCache();
     currRegion = cache.getRegion(SEPARATOR + "root");
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
     // to delete all rows inserted in creatTable () of this class
     // deleteRows method of JTAUtils class is used.
     try {
       // get the table name from CacheUtils
-      String tblName_delRows = CacheUtils.getTableName();
+      var tblName_delRows = CacheUtils.getTableName();
       /* int rowsDeleted = */jtaObj.deleteRows(tblName_delRows);
     } catch (Exception e) {
       fail("Error: while deleting rows from database using JTAUtils", e);
@@ -321,10 +317,10 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void preTearDown() throws Exception {
-    VM vm0 = Host.getHost(0).getVM(0);
+    var vm0 = Host.getHost(0).getVM(0);
     // get tableName to pass to destroyTable
-    String tableName = CacheUtils.getTableName();
-    Object[] o = new Object[1];
+    var tableName = CacheUtils.getTableName();
+    var o = new Object[1];
     o[0] = tableName;
     // call the destroyTable method of the same class
     // that takes care of destroying table, closing cache, disconnecting from
@@ -363,12 +359,12 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
     // JTAUtils
     cache = TxnManagerMultiThreadDUnitTest.getCache();
     // get the table name from CacheUtils
-    String tblName = CacheUtils.getTableName();
+    var tblName = CacheUtils.getTableName();
     currRegion = cache.getRegion(SEPARATOR + "root");
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
     // get how many rows actually got committed
     try {
-      int rows = jtaObj.getRows(tblName);
+      var rows = jtaObj.getRows(tblName);
       LogWriterUtils.getLogWriter()
           .fine("Number of rows committed current test method  are: " + rows);
     } catch (Exception e) {
@@ -385,7 +381,7 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
   @Ignore("TODO: test is disabled")
   @Test
   public void test1AllCommit() throws Exception {
-    VM vm0 = Host.getHost(0).getVM(0);
+    var vm0 = Host.getHost(0).getVM(0);
     AsyncInvocation asyncObj1 =
         vm0.invokeAsync(TxnManagerMultiThreadDUnitTest::callCommitThreads);
     ThreadUtils.join(asyncObj1, 30 * 1000);
@@ -418,7 +414,7 @@ public class TxnManagerMultiThreadDUnitTest extends JUnit4DistributedTestCase {
   @Ignore("TODO: test is disabled")
   @Test
   public void test3Commit2Rollback() throws Exception {
-    VM vm0 = Host.getHost(0).getVM(0);
+    var vm0 = Host.getHost(0).getVM(0);
     AsyncInvocation asyncObj1 =
         vm0.invokeAsync(TxnManagerMultiThreadDUnitTest::callCommitandRollbackThreads);
     ThreadUtils.join(asyncObj1, 30 * 1000);

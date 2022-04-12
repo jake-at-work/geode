@@ -22,7 +22,6 @@ import static org.apache.geode.test.dunit.Invoke.invokeInEveryVM;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Collection;
 import java.util.Properties;
 
 import org.junit.After;
@@ -31,7 +30,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexNameConflictException;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.PortfolioData;
@@ -72,7 +70,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(SERIALIZABLE_OBJECT_FILTER, "org.apache.geode.cache.query.data.*");
     return config;
   }
@@ -82,11 +80,11 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRBasicIndexCreate() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRAccessorCreate(
@@ -100,7 +98,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
     vm3.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
         redundancy, PortfolioData.class));
 
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
@@ -123,11 +121,11 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRMultiIndexCreation() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRAccessorCreate(
@@ -139,7 +137,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
     vm3.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
         redundancy, PortfolioData.class));
 
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
@@ -160,11 +158,11 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPRMultiIndexCreationAndGetIndex() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRAccessorCreate(
@@ -177,7 +175,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
     vm3.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
         redundancy, PortfolioData.class));
 
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
@@ -198,7 +196,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
       public void run2() throws CacheException {
         Cache cache = getCache();
         // Check for ID index
-        Index idIndex = cache.getQueryService().getIndex(cache.getRegion(PARTITIONED_REGION_NAME),
+        var idIndex = cache.getQueryService().getIndex(cache.getRegion(PARTITIONED_REGION_NAME),
             "PrIndexOnID");
         assertNotNull(idIndex);
         assertEquals("PrIndexOnID", idIndex.getName());
@@ -207,7 +205,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
         assertNotNull(idIndex.getStatistics());
 
         // Check for status index
-        Index statusIndex = cache.getQueryService()
+        var statusIndex = cache.getQueryService()
             .getIndex(cache.getRegion(PARTITIONED_REGION_NAME), "PrIndexOnStatus");
         assertNotNull(statusIndex);
         assertEquals("PrIndexOnStatus", statusIndex.getName());
@@ -216,9 +214,9 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
         assertNotNull(statusIndex.getStatistics());
 
         // Check for all Indexes on the region.
-        Collection<Index> indexes =
+        var indexes =
             cache.getQueryService().getIndexes(cache.getRegion(PARTITIONED_REGION_NAME));
-        for (Index ind : indexes) {
+        for (var ind : indexes) {
           assertNotNull(ind);
           assertNotNull(ind.getName());
           assertNotNull(ind.getIndexedExpression());
@@ -239,16 +237,16 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testCreatePartitionedIndexThroughXML() throws Exception {
-    IgnoredException ignoredException =
+    var ignoredException =
         IgnoredException.addIgnoredException(IndexNameConflictException.class.getName());
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     closeCache();
 
-    String fileName = "PRIndexCreation.xml";
+    var fileName = "PRIndexCreation.xml";
     setCacheInVMsUsingXML(fileName, vm0, vm1);
 
     AsyncInvocation async0 = vm0.invokeAsync(
@@ -274,11 +272,11 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testCreatePartitionedRegionThroughXMLAndAPI() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     // creating all the prs
@@ -301,7 +299,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
         redundancy, PortfolioData.class));
 
     // putting some data in.
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm1.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
@@ -322,10 +320,10 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testCreatePartitionedIndexWithNoAliasBeforePuts() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm3);
 
     // creating all the prs
@@ -339,7 +337,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
         PARTITIONED_REGION_NAME, "PrIndexOnStatus", "status", null, ""));
 
     // putting some data in.
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm1.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
@@ -358,10 +356,10 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testCreatePartitionedIndexWithNoAliasAfterPuts() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm3);
 
     // creating all the prs
@@ -373,7 +371,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
         redundancy, PortfolioData.class));
 
     // putting some data in.
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm1.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
@@ -394,11 +392,11 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPartitionedIndexUsageWithPRQuery() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
@@ -413,7 +411,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRIndexCreate(
         PARTITIONED_REGION_NAME, "PrIndexOnId", "p.ID", null, "p"));
 
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
         portfolio, cnt, cntDest));
@@ -436,20 +434,19 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPartitionedIndexCreationDuringPersistentRecovery() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     setCacheInVMs(vm0, vm1);
 
-    int redundancy = 1;
+    var redundancy = 1;
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPersistentPRCreate(
         PARTITIONED_REGION_NAME, redundancy, PortfolioData.class));
     vm1.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPersistentPRCreate(
         PARTITIONED_REGION_NAME, redundancy, PortfolioData.class));
 
-
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
         portfolio, cnt, cntDest));
@@ -482,11 +479,11 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testPartitionedQueryWithIndexOnIdBug37089() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
@@ -501,7 +498,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRIndexCreate(
         PARTITIONED_REGION_NAME, "PrIndexOnId", "p.ID", null, "p"));
 
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
         portfolio, cnt, cntDest));
@@ -519,15 +516,15 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testCreatePartitionedIndexWithKeysValuesAndFunction() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     setCacheInVMs(vm0, vm1);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
         redundancy, PortfolioData.class));
 
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     vm1.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
         redundancy, PortfolioData.class));
@@ -551,11 +548,11 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testCreateIndexFromAccessor() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRAccessorCreate(
@@ -569,7 +566,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
     vm3.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
         redundancy, PortfolioData.class));
 
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm2.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
@@ -587,11 +584,11 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testCreateIndexAndAddAnAccessor() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     vm1.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
@@ -601,7 +598,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
     vm3.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRCreate(PARTITIONED_REGION_NAME,
         redundancy, PortfolioData.class));
 
-    PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+    var portfolio = createPortfolioData(cnt, cntDest);
 
     // Putting the data into the PR's created
     vm2.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPuts(PARTITIONED_REGION_NAME,
@@ -626,17 +623,17 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testIndexQueryingWithOrderBy() throws Exception {
-    int dataSize = 10;
-    int step = 2;
-    int totalDataSize = 90;
+    var dataSize = 10;
+    var step = 2;
+    var totalDataSize = 90;
 
     Class valueConstraint = Portfolio.class;
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     // Creating PR's on the participating VM's
@@ -655,7 +652,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
 
-    Portfolio[] portfoliosAndPositions = createPortfoliosAndPositions(totalDataSize);
+    var portfoliosAndPositions = createPortfoliosAndPositions(totalDataSize);
 
     // Putting the data into the PR's created
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPutsKeyValue(
@@ -697,17 +694,17 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
    */
   @Test
   public void testIndexQueryingWithOrderAndVerify() throws Exception {
-    int dataSize = 10;
-    int step = 2;
-    int totalDataSize = 90;
+    var dataSize = 10;
+    var step = 2;
+    var totalDataSize = 90;
 
     Class valueConstraint = Portfolio.class;
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     // Creating PR's on the participating VM's
@@ -726,7 +723,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
 
-    Portfolio[] portfoliosAndPositions = createPortfoliosAndPositions(totalDataSize);
+    var portfoliosAndPositions = createPortfoliosAndPositions(totalDataSize);
 
     // Putting the data into the PR's created
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPutsKeyValue(
@@ -760,17 +757,17 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
 
   @Test
   public void testIndexQueryingWithOrderByLimit() throws Exception {
-    int dataSize = 10;
-    int step = 2;
-    int totalDataSize = 90;
+    var dataSize = 10;
+    var step = 2;
+    var totalDataSize = 90;
 
     Class valueConstraint = Portfolio.class;
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
     setCacheInVMs(vm0, vm1, vm2, vm3);
 
     // Creating PR's on the participating VM's
@@ -789,7 +786,7 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
 
     // Generating portfolio object array to be populated across the PR's & Local Regions
 
-    Portfolio[] portfoliosAndPositions = createPortfoliosAndPositions(totalDataSize);
+    var portfoliosAndPositions = createPortfoliosAndPositions(totalDataSize);
 
     // Putting the data into the PR's created
     vm0.invoke(prQueryDUnitHelper.getCacheSerializableRunnableForPRPutsKeyValue(
@@ -847,14 +844,14 @@ public class PRBasicIndexCreationDUnitTest extends CacheTestCase {
   }
 
   private void setCacheInVMsUsingXML(String xmlFile, VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> GemFireCacheImpl.testCacheXml = prQueryDUnitHelper.findFile(xmlFile));
       vm.invoke(() -> PRQueryDUnitHelper.setCache(getCache()));
     }
   }
 
   private void setCacheInVMs(VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> PRQueryDUnitHelper.setCache(getCache()));
     }
   }

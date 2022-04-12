@@ -42,7 +42,7 @@ public class CacheServiceJUnitTest {
 
   @Test
   public void test() {
-    HttpService service = cache.getService(HttpService.class);
+    var service = cache.getService(HttpService.class);
     assertThat(service).isNotNull();
   }
 

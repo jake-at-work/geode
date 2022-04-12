@@ -69,8 +69,8 @@ public class Failure<SuccessType> implements ServiceResult<SuccessType> {
     if (throwable == null) {
       throw new IllegalArgumentException("Error message cannot be null or empty");
     }
-    StringWriter stringWriter = new StringWriter();
-    try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
+    var stringWriter = new StringWriter();
+    try (var printWriter = new PrintWriter(stringWriter)) {
       throwable.printStackTrace(printWriter);
       return new Failure<>(stringWriter.toString());
     }
@@ -86,8 +86,8 @@ public class Failure<SuccessType> implements ServiceResult<SuccessType> {
     if (throwable == null || StringUtils.isBlank(errorMessage)) {
       throw new IllegalArgumentException("Error message cannot be null or empty");
     }
-    StringWriter stringWriter = new StringWriter();
-    try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
+    var stringWriter = new StringWriter();
+    try (var printWriter = new PrintWriter(stringWriter)) {
       throwable.printStackTrace(printWriter);
       return new Failure<>(errorMessage + "\n" + stringWriter);
     }

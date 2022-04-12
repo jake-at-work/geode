@@ -40,7 +40,7 @@ public class OffHeapEvictionStatsDUnitTest extends EvictionStatsDUnitTest {
 
   @Override
   public final void preTearDownAssertions() throws Exception {
-    SerializableRunnable checkOrphans = new SerializableRunnable() {
+    var checkOrphans = new SerializableRunnable() {
 
       @Override
       public void run() {
@@ -55,7 +55,7 @@ public class OffHeapEvictionStatsDUnitTest extends EvictionStatsDUnitTest {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.setProperty(OFF_HEAP_MEMORY_SIZE, "100m");
 
     return properties;
@@ -64,7 +64,7 @@ public class OffHeapEvictionStatsDUnitTest extends EvictionStatsDUnitTest {
   @Override
   public void createCache() {
     try {
-      Properties props = new Properties();
+      var props = new Properties();
       DistributedSystem ds = getSystem(props);
       assertNotNull(ds);
       ds.disconnect();

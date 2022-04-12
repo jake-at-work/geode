@@ -25,10 +25,7 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -55,7 +52,7 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
   public void testParallelAsyncEventQueueSynchronization(RegionShortcut regionShortcut,
       boolean isPersistentAeq, boolean isParallelAeq) throws Exception {
     // Start locator
-    Integer locatorPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var locatorPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
     // Start three members
     vm1.invoke(() -> createCache(locatorPort));
@@ -63,7 +60,7 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
     vm3.invoke(() -> createCache(locatorPort));
 
     // Create parallel AsyncEventQueue
-    String aeqId = "db";
+    var aeqId = "db";
     vm1.invoke(() -> createAsyncEventQueue(aeqId, isParallelAeq, 100, 1, false, isPersistentAeq,
         null, true, new WaitingAsyncEventListener()));
     vm2.invoke(() -> createAsyncEventQueue(aeqId, isParallelAeq, 100, 1, false, isPersistentAeq,
@@ -72,7 +69,7 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
         null, true, new WaitingAsyncEventListener()));
 
     // Create PartitionedRegion with redundant-copies=2
-    String regionName = getTestMethodName() + "_PR";
+    var regionName = getTestMethodName() + "_PR";
     vm1.invoke(() -> createPartitionedRegion(regionName, regionShortcut, aeqId, 2));
     vm2.invoke(() -> createPartitionedRegion(regionName, regionShortcut, aeqId, 2));
     vm3.invoke(() -> createPartitionedRegion(regionName, regionShortcut, aeqId, 2));
@@ -85,8 +82,8 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
     vm1.invoke(() -> assertPrimaryBucket(regionName, key));
 
     // Fake a replication event in member 2
-    InternalDistributedMember idmMember1 = vm1.invoke(this::getMember);
-    VersionSource vsMember1 = vm1.invoke(() -> getVersionMember(regionName));
+    var idmMember1 = vm1.invoke(this::getMember);
+    var vsMember1 = vm1.invoke(() -> getVersionMember(regionName));
     vm2.invoke(() -> doFakeUpdate(idmMember1, vsMember1, regionName, key));
 
     // Verify only member 2's queue contains an event
@@ -107,7 +104,7 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
 
   private void createPartitionedRegion(String regionName, RegionShortcut regionShortcut,
       String aeqId, int redundantCopies) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(redundantCopies);
 
     cache.createRegionFactory(regionShortcut).addAsyncEventQueueId(aeqId)
@@ -115,15 +112,15 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
   }
 
   private void createBucket(String regionName, Object key) throws Exception {
-    PartitionedRegion pr = (PartitionedRegion) cache.getRegion(regionName);
-    int bucketId = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
+    var pr = (PartitionedRegion) cache.getRegion(regionName);
+    var bucketId = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
     pr.getRedundancyProvider().createBackupBucketOnMember(bucketId, getMember(), false, false, null,
         true);
   }
 
   private void assertPrimaryBucket(String regionName, Object key) throws Exception {
-    PartitionedRegion pr = (PartitionedRegion) cache.getRegion(regionName);
-    int bucketId = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
+    var pr = (PartitionedRegion) cache.getRegion(regionName);
+    var bucketId = PartitionedRegionHelper.getHashKey(pr, null, key, null, null);
     assertThat(pr.getRegionAdvisor().isPrimaryForBucket(bucketId)).isTrue();
   }
 
@@ -132,18 +129,18 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
   }
 
   private VersionSource getVersionMember(String regionName) {
-    PartitionedRegion pr = (PartitionedRegion) cache.getRegion(regionName);
+    var pr = (PartitionedRegion) cache.getRegion(regionName);
     return pr.getVersionMember();
   }
 
   private void doFakeUpdate(InternalDistributedMember fromMember, VersionSource versionSource,
       String regionName, Object key) {
     // Get the BucketRegion for the regionName and key
-    PartitionedRegion pr = (PartitionedRegion) cache.getRegion(regionName);
-    BucketRegion br = pr.getBucketRegion(key);
+    var pr = (PartitionedRegion) cache.getRegion(regionName);
+    var br = pr.getBucketRegion(key);
 
     // Create VersionTag
-    long timestamp = System.currentTimeMillis();
+    var timestamp = System.currentTimeMillis();
     VersionTag tag = new VMVersionTag();
     tag.setMemberID(versionSource);
     tag.setRegionVersion(1);
@@ -151,7 +148,7 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
     tag.setVersionTimeStamp(timestamp);
     tag.setIsRemoteForTesting();
 
-    EntryEventImpl event =
+    var event =
         EntryEventImpl.create(br, Operation.CREATE, key, true, fromMember, true, false);
     event.setNewValue(new VMCachedDeserializable("0", 0));
     event.setTailKey(161l);
@@ -164,7 +161,7 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
 
   private void startProcessingAsyncEvents(String aeqId) {
     // Get the async event listener
-    WaitingAsyncEventListener listener = getWaitingAsyncEventListener(aeqId);
+    var listener = getWaitingAsyncEventListener(aeqId);
 
     // Start processing waiting events
     listener.startProcessingEvents();
@@ -172,11 +169,11 @@ public class AsyncEventQueueEntrySynchronizationDUnitTest extends AsyncEventQueu
 
   private WaitingAsyncEventListener getWaitingAsyncEventListener(String aeqId) {
     // Get the async event queue
-    AsyncEventQueue aeq = cache.getAsyncEventQueue(aeqId);
+    var aeq = cache.getAsyncEventQueue(aeqId);
     assertThat(aeq).isNotNull();
 
     // Get and return the async event listener
-    AsyncEventListener aeqListener = aeq.getAsyncEventListener();
+    var aeqListener = aeq.getAsyncEventListener();
     assertThat(aeqListener).isInstanceOf(WaitingAsyncEventListener.class);
     return (WaitingAsyncEventListener) aeqListener;
   }

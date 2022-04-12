@@ -87,19 +87,19 @@ public class GfshScript {
   }
 
   public static GfshScript of(String... commands) {
-    GfshScript script = new GfshScript();
+    var script = new GfshScript();
     script.and(commands);
     return script;
   }
 
   public static GfshScript of(String command, int debugPort) {
-    GfshScript script = new GfshScript();
+    var script = new GfshScript();
     script.and(command, debugPort);
     return script;
   }
 
   public GfshScript and(String... commands) {
-    for (String command : commands) {
+    for (var command : commands) {
       this.commands.add(new DebuggableCommand(command));
     }
     return this;

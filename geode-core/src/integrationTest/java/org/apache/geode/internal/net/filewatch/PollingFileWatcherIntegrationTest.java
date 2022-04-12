@@ -23,7 +23,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.nio.file.Path;
-import java.time.Instant;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Assume;
@@ -49,15 +48,15 @@ public class PollingFileWatcherIntegrationTest {
     // Symbolic links require elevated permissions on Windows
     Assume.assumeFalse("Test ignored on Windows.", SystemUtils.IS_OS_WINDOWS);
 
-    Path symlink = temporaryFolder.getRoot().toPath().resolve("symlink");
+    var symlink = temporaryFolder.getRoot().toPath().resolve("symlink");
     createSymbolicLink(symlink, watchedFile);
 
-    Runnable onUpdate = mock(Runnable.class);
-    PollingFileWatcher watcher = new PollingFileWatcher(symlink, onUpdate, mock(Runnable.class));
+    var onUpdate = mock(Runnable.class);
+    var watcher = new PollingFileWatcher(symlink, onUpdate, mock(Runnable.class));
 
     try {
       // Wait to ensure the timestamp after the update will be greater than before the update
-      Instant lastModifiedTime = getLastModifiedTime(watchedFile).toInstant();
+      var lastModifiedTime = getLastModifiedTime(watchedFile).toInstant();
       await().until(() -> now().isAfter(lastModifiedTime.plusSeconds(5)));
 
       write(watchedFile, "update".getBytes());

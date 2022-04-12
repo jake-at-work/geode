@@ -25,11 +25,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.lang.management.BufferPoolMXBean;
-import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openjdk.jmh.results.Result;
 
 public class BufferPoolProfilerTest {
   private final BufferPoolMXBean mockBufferPool1 = mock(BufferPoolMXBean.class);
@@ -71,7 +69,7 @@ public class BufferPoolProfilerTest {
   @Test
   public void afterIteration() {
     bufferPoolProfiler.beforeIteration(null, null);
-    final Collection<? extends Result> results =
+    final var results =
         bufferPoolProfiler.afterIteration(null, null, null);
 
     assertThat(results).hasSize(3)

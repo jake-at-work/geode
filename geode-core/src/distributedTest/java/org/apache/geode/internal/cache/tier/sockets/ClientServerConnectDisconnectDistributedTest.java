@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.shiro.subject.Subject;
 import org.junit.Rule;
@@ -30,14 +29,10 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.examples.SimpleSecurityManager;
-import org.apache.geode.internal.cache.FilterProfile;
 import org.apache.geode.internal.cache.InternalCacheServer;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
 
@@ -59,24 +54,24 @@ public class ClientServerConnectDisconnectDistributedTest implements Serializabl
   @Test
   public void testSubjectsLoggedOutOnClientConnectDisconnect() throws Exception {
     // Start Locator
-    MemberVM locator =
+    var locator =
         cluster.startLocatorVM(0, l -> l.withSecurityManager(SimpleSecurityManager.class));
 
     // Start server
-    int locatorPort = locator.getPort();
-    String regionName = testName.getMethodName() + "_region";
-    MemberVM server = cluster.startServerVM(1, s -> s.withCredential("cluster", "cluster")
+    var locatorPort = locator.getPort();
+    var regionName = testName.getMethodName() + "_region";
+    var server = cluster.startServerVM(1, s -> s.withCredential("cluster", "cluster")
         .withConnectionToLocator(locatorPort).withRegion(RegionShortcut.PARTITION, regionName));
 
     // Connect client
-    ClientVM client = cluster.startClientVM(3, c -> c.withCredential("data", "data")
+    var client = cluster.startClientVM(3, c -> c.withCredential("data", "data")
         .withPoolSubscription(true)
         .withLocatorConnection(locatorPort));
 
     // Do some puts
     client.invoke(() -> {
       Region region = ClusterStartupRule.clientCacheRule.createProxyRegion(regionName);
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = String.valueOf(i);
         region.put(key, key);
       }
@@ -97,16 +92,16 @@ public class ClientServerConnectDisconnectDistributedTest implements Serializabl
   @Test
   public void testFilterProfileCleanupOnClientConnectDisconnect() throws Exception {
     // Start Locator
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     // Start server
-    int locatorPort = locator.getPort();
-    String regionName = testName.getMethodName() + "_region";
-    MemberVM server = cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
+    var locatorPort = locator.getPort();
+    var regionName = testName.getMethodName() + "_region";
+    var server = cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
         .withRegion(RegionShortcut.PARTITION, regionName));
 
     // Connect client
-    ClientVM client = cluster.startClientVM(3,
+    var client = cluster.startClientVM(3,
         c -> c.withPoolSubscription(true).withLocatorConnection(locatorPort));
 
     // Create client region and register interest
@@ -130,7 +125,7 @@ public class ClientServerConnectDisconnectDistributedTest implements Serializabl
   }
 
   private void verifySubjectsAreLoggedIn() {
-    AcceptorImpl acceptor = getAcceptor();
+    var acceptor = getAcceptor();
 
     // Verify ServerConnection subjects are logged in
     verifyServerConnectionSubjectsAreLoggedIn(acceptor);
@@ -141,19 +136,19 @@ public class ClientServerConnectDisconnectDistributedTest implements Serializabl
 
   private AcceptorImpl getAcceptor() {
     Cache cache = ClusterStartupRule.getCache();
-    List<CacheServer> cacheServers = cache.getCacheServers();
-    CacheServer cacheServer = cacheServers.get(0);
+    var cacheServers = cache.getCacheServers();
+    var cacheServer = cacheServers.get(0);
     return (AcceptorImpl) ((InternalCacheServer) cacheServer).getAcceptor();
   }
 
   private void verifyServerConnectionSubjectsAreLoggedIn(AcceptorImpl acceptor) {
     serverConnectionSubjects = new ArrayList<>();
     authorizations = new ArrayList<>();
-    for (ServerConnection sc : acceptor.getAllServerConnections()) {
-      ClientUserAuths auth = sc.getClientUserAuths();
+    for (var sc : acceptor.getAllServerConnections()) {
+      var auth = sc.getClientUserAuths();
       assertThat(auth.getAllSubjects()).isNotEmpty();
       authorizations.add(auth);
-      for (Subject subject : auth.getAllSubjects()) {
+      for (var subject : auth.getAllSubjects()) {
         assertThat(subject.getPrincipal()).isNotNull();
         assertThat(subject.getPrincipals()).isNotNull();
         assertThat(subject.isAuthenticated()).isTrue();
@@ -165,7 +160,7 @@ public class ClientServerConnectDisconnectDistributedTest implements Serializabl
   private void verifyCacheClientProxySubjectIsLoggedIn(AcceptorImpl acceptor) {
     // Wait for the CacheClientProxy to be created since its asynchronous
     await().until(() -> acceptor.getCacheClientNotifier().getClientProxies().size() == 1);
-    CacheClientProxy proxy = acceptor.getCacheClientNotifier().getClientProxies().iterator().next();
+    var proxy = acceptor.getCacheClientNotifier().getClientProxies().iterator().next();
 
     // Check CacheClientProxy subject
     proxySubject = proxy.getSubject();
@@ -176,7 +171,7 @@ public class ClientServerConnectDisconnectDistributedTest implements Serializabl
   }
 
   private void verifySubjectsAreLoggedOut() {
-    AcceptorImpl acceptor = getAcceptor();
+    var acceptor = getAcceptor();
 
     // Wait for ServerConnections to be closed
     waitForServerConnectionsToBeClosed(acceptor);
@@ -197,13 +192,13 @@ public class ClientServerConnectDisconnectDistributedTest implements Serializabl
   }
 
   private void verifyServerConnectionSubjectsAreLoggedOut() {
-    for (Subject subject : serverConnectionSubjects) {
+    for (var subject : serverConnectionSubjects) {
       assertThat(subject.getPrincipal()).isNull();
       assertThat(subject.getPrincipals()).isNull();
       assertThat(subject.isAuthenticated()).isFalse();
     }
 
-    for (ClientUserAuths auth : authorizations) {
+    for (var auth : authorizations) {
       assertThat(auth.getAllSubjects()).isEmpty();
     }
   }
@@ -226,15 +221,15 @@ public class ClientServerConnectDisconnectDistributedTest implements Serializabl
   private void verifyRealAndWireProxyIdsInFilterProfile(String regionName, int expectedNumIds) {
     // Get filter profile
     Cache cache = ClusterStartupRule.getCache();
-    LocalRegion region = (LocalRegion) cache.getRegion(regionName);
-    FilterProfile fp = region.getFilterProfile();
+    var region = (LocalRegion) cache.getRegion(regionName);
+    var fp = region.getFilterProfile();
 
     // Assert expectedNumIds real proxy id
-    Set realProxyIds = fp.getRealClientIds();
+    var realProxyIds = fp.getRealClientIds();
     assertThat(realProxyIds.size()).isEqualTo(expectedNumIds);
 
     // Assert expectedNumIds wire proxy id
-    Set wireProxyIds = fp.getWireClientIds();
+    var wireProxyIds = fp.getWireClientIds();
     assertThat(wireProxyIds.size()).isEqualTo(expectedNumIds);
   }
 }

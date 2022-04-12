@@ -34,13 +34,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.management.GatewayReceiverMXBean;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.WanTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
@@ -64,7 +62,7 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
 
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
@@ -89,14 +87,14 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
     locatorSite1.invoke(() -> validateMemberMXBeanProxy(getMember(server2.getVM())));
     locatorSite1.invoke(() -> validateMemberMXBeanProxy(getMember(server3.getVM())));
 
-    String command = CliStrings.LIST_GATEWAY;
+    var command = CliStrings.LIST_GATEWAY;
     gfsh.executeAndAssertThat(command).statusIsSuccess();
   }
 
   @Test
   public void testListGatewaySender() {
-    int lnPort = locatorSite1.getPort();
-    int nyPort = locatorSite2.getPort();
+    var lnPort = locatorSite1.getPort();
+    var nyPort = locatorSite2.getPort();
 
     // setup servers in Site #1 (London)
     server1 = clusterStartupRule.startServerVM(3, lnPort);
@@ -136,7 +134,7 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
     locatorSite2.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server4.getVM()), true));
     locatorSite2.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server5.getVM()), true));
 
-    String command = CliStrings.LIST_GATEWAY;
+    var command = CliStrings.LIST_GATEWAY;
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .hasNoSection("gatewayReceivers")
         .hasTableSection("gatewaySenders")
@@ -147,8 +145,8 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
 
   @Test
   public void testListGatewayReceiver() {
-    int lnPort = locatorSite1.getPort();
-    int nyPort = locatorSite2.getPort();
+    var lnPort = locatorSite1.getPort();
+    var nyPort = locatorSite2.getPort();
 
     // setup servers in Site #1 (London)
     server1 = clusterStartupRule.startServerVM(3, lnPort);
@@ -175,7 +173,7 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
     locatorSite2.invoke(() -> validateGatewaySenderMXBeanProxy(getMember(server4.getVM()),
         "ln_Parallel", true, false));
 
-    String command = CliStrings.LIST_GATEWAY;
+    var command = CliStrings.LIST_GATEWAY;
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .hasNoSection("gatewaySenders")
         .hasTableSection("gatewayReceivers")
@@ -230,8 +228,8 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
     locatorSite2.invoke(() -> validateGatewaySenderMXBeanProxy(getMember(server5.getVM()),
         "ln_Parallel", true, false));
 
-    String command = CliStrings.LIST_GATEWAY;
-    CommandResultAssert commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var command = CliStrings.LIST_GATEWAY;
+    var commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
     commandAssert
         .hasTableSection("gatewaySenders").hasRowSize(4)
         .hasColumns().contains("GatewaySender Id", "Member");
@@ -241,8 +239,8 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
 
   @Test
   public void testListGatewaySenderGatewayReceiver_group() {
-    int lnPort = locatorSite1.getPort();
-    int nyPort = locatorSite2.getPort();
+    var lnPort = locatorSite1.getPort();
+    var nyPort = locatorSite2.getPort();
 
     // setup servers in Site #1 (London)
     server1 = startServerWithGroups(3, "Serial_Sender, Parallel_Sender", lnPort);
@@ -286,12 +284,12 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
     locatorSite2.invoke(() -> validateGatewaySenderMXBeanProxy(getMember(server5.getVM()),
         "ln_Parallel", true, false));
 
-    String command = CliStrings.LIST_GATEWAY + " --" + CliStrings.GROUP + "=Serial_Sender";
+    var command = CliStrings.LIST_GATEWAY + " --" + CliStrings.GROUP + "=Serial_Sender";
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .hasTableSection("gatewaySenders").hasRowSize(4);
 
     command = CliStrings.LIST_GATEWAY + " --" + CliStrings.GROUP + "=Parallel_Sender";
-    CommandResultAssert commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
     commandAssert.hasTableSection("gatewaySenders")
         .hasRowSize(5);
     commandAssert.hasTableSection("gatewayReceivers").hasRowSize(1);
@@ -317,7 +315,7 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
   }
 
   private MemberVM startServerWithGroups(int index, String groups, int locPort) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, groups);
     return clusterStartupRule.startServerVM(index, props, locPort);
   }
@@ -325,8 +323,8 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
   @Test
   public void listGatewaysShouldCorrectlyUpdateSendersConnectedCountWhenReceiverStops()
       throws Exception {
-    int site1Port = locatorSite1.getPort();
-    int site2Port = locatorSite2.getPort();
+    var site1Port = locatorSite1.getPort();
+    var site2Port = locatorSite2.getPort();
 
     // Setup servers in Site #1
     server1 = clusterStartupRule.startServerVM(3, site1Port);
@@ -340,7 +338,7 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
     locatorSite2.invoke(() -> validateGatewaySenderMXBeanProxy(getMember(server2.getVM()),
         "ln_Serial", true, false));
     locatorSite1.invoke(() -> {
-      GatewayReceiverMXBean gatewayReceiverMXBean =
+      var gatewayReceiverMXBean =
           awaitGatewayReceiverMXBeanProxy(getMember(server1.getVM()));
       assertThat(gatewayReceiverMXBean).isNotNull();
       GeodeAwaitility.await("Awaiting GatewayReceiverMXBean.isRunning(true)")
@@ -374,9 +372,9 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
   @Test
   public void testListGatewaySenderOnlyReturnsOnlySenders() {
     setupClusters();
-    final int expectedGwSenderSectionSize = 4;
-    String command = CliStrings.LIST_GATEWAY + " --" + CliStrings.LIST_GATEWAY__SHOW_SENDERS_ONLY;
-    CommandResultAssert commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    final var expectedGwSenderSectionSize = 4;
+    var command = CliStrings.LIST_GATEWAY + " --" + CliStrings.LIST_GATEWAY__SHOW_SENDERS_ONLY;
+    var commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
     commandAssert
         .hasTableSection("gatewaySenders").hasRowSize(expectedGwSenderSectionSize)
         .hasColumns().contains("GatewaySender Id", "Member");
@@ -386,9 +384,9 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
   @Test
   public void testListGatewayReceiversOnlyReturnsOnlyReceivers() {
     setupClusters();
-    final int expectedGwReceiverSectionSize = 1;
-    String command = CliStrings.LIST_GATEWAY + " --" + CliStrings.LIST_GATEWAY__SHOW_RECEIVERS_ONLY;
-    CommandResultAssert commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    final var expectedGwReceiverSectionSize = 1;
+    var command = CliStrings.LIST_GATEWAY + " --" + CliStrings.LIST_GATEWAY__SHOW_RECEIVERS_ONLY;
+    var commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
     commandAssert.hasNoSection("gatewaySenders");
     commandAssert.hasTableSection("gatewayReceivers")
         .hasRowSize(expectedGwReceiverSectionSize).hasColumns().contains("Port", "Member");
@@ -397,11 +395,11 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
   @Test
   public void testListGatewaysSendersOnlyFalseReturnsSendersAndReceivers() {
     setupClusters();
-    final int expectedGwSenderSectionSize = 4;
-    final int expectedGwReceiverSectionSize = 1;
-    String command =
+    final var expectedGwSenderSectionSize = 4;
+    final var expectedGwReceiverSectionSize = 1;
+    var command =
         CliStrings.LIST_GATEWAY + " --" + CliStrings.LIST_GATEWAY__SHOW_SENDERS_ONLY + "=false";
-    CommandResultAssert commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
     commandAssert
         .hasTableSection("gatewaySenders").hasRowSize(expectedGwSenderSectionSize)
         .hasColumns().contains("GatewaySender Id", "Member");
@@ -412,11 +410,11 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
   @Test
   public void testListGatewaysReceiversOnlyFalseReturnsSendersAndReceivers() {
     setupClusters();
-    final int expectedGwSenderSectionSize = 4;
-    final int expectedGwReceiverSectionSize = 1;
-    String command =
+    final var expectedGwSenderSectionSize = 4;
+    final var expectedGwReceiverSectionSize = 1;
+    var command =
         CliStrings.LIST_GATEWAY + " --" + CliStrings.LIST_GATEWAY__SHOW_RECEIVERS_ONLY + "=false";
-    CommandResultAssert commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
     commandAssert
         .hasTableSection("gatewaySenders").hasRowSize(expectedGwSenderSectionSize)
         .hasColumns().contains("GatewaySender Id", "Member");
@@ -428,7 +426,7 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
   public void testListGatewaySenderOnlyAndGatewayReceiverOnlyReturnsError() {
     setupClusters();
 
-    String command =
+    var command =
         CliStrings.LIST_GATEWAY + " --" + CliStrings.LIST_GATEWAY__SHOW_SENDERS_ONLY + " --"
             + CliStrings.LIST_GATEWAY__SHOW_RECEIVERS_ONLY;
     gfsh.executeAndAssertThat(command).statusIsError()
@@ -438,12 +436,12 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
   @Test
   public void testListGatewaysReceiversOnlyFalseAndSendersOnlyFalseReturnsSendersAndReceivers() {
     setupClusters();
-    final int expectedGwSenderSectionSize = 4;
-    final int expectedGwReceiverSectionSize = 1;
-    String command =
+    final var expectedGwSenderSectionSize = 4;
+    final var expectedGwReceiverSectionSize = 1;
+    var command =
         CliStrings.LIST_GATEWAY + " --" + CliStrings.LIST_GATEWAY__SHOW_RECEIVERS_ONLY + "=false --"
             + CliStrings.LIST_GATEWAY__SHOW_SENDERS_ONLY + "=false";
-    CommandResultAssert commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var commandAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
     commandAssert
         .hasTableSection("gatewaySenders").hasRowSize(expectedGwSenderSectionSize)
         .hasColumns().contains("GatewaySender Id", "Member");
@@ -453,13 +451,13 @@ public class ListGatewaysCommandDUnitTest implements Serializable {
 
   @Test
   public void testListGatewaysWithOneDispatcherThread() {
-    String command = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER)
+    var command = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER)
         .addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ln_Serial")
         .addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "2")
         .addOption(CliStrings.CREATE_GATEWAYSENDER__DISPATCHERTHREADS, "1")
         .getCommandString();
 
-    int lnPort = locatorSite1.getPort();
+    var lnPort = locatorSite1.getPort();
 
     // setup servers in Site #1 (London)
     server1 = clusterStartupRule.startServerVM(3, lnPort);

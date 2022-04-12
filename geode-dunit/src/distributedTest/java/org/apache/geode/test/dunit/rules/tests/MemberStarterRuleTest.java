@@ -35,7 +35,7 @@ public class MemberStarterRuleTest {
 
   @Test
   public void testSetJMXPortWithProperty() {
-    int port = 2000;
+    var port = 2000;
     locator = new LocatorStarterRule().withProperty(JMX_MANAGER_PORT, port + "");
     locator.before();
     assertThat(locator.getJmxPort()).isEqualTo(port);
@@ -43,7 +43,7 @@ public class MemberStarterRuleTest {
 
   @Test
   public void testSetJMXPortWithPropertyThenAPI() {
-    int port = 2000;
+    var port = 2000;
     locator = new LocatorStarterRule().withProperty(JMX_MANAGER_PORT, port + "");
 
     // user call withJMXManager again
@@ -57,7 +57,7 @@ public class MemberStarterRuleTest {
   public void testSetJMXPortWithAPIThenProperty() {
     // this first one wins
     locator = new LocatorStarterRule().withJMXManager();
-    int port = locator.getJmxPort();
+    var port = locator.getJmxPort();
 
     locator.withProperty(JMX_MANAGER_PORT, "9999");
     locator.before();
@@ -67,7 +67,7 @@ public class MemberStarterRuleTest {
 
   @Test
   public void testWithPort() {
-    int targetPort = 12345;
+    var targetPort = 12345;
     locator = new LocatorStarterRule().withPort(targetPort);
     locator.before();
 
@@ -90,7 +90,7 @@ public class MemberStarterRuleTest {
 
   @Test
   public void workingDirIsUserDir() throws Exception {
-    String userDir = System.getProperty("user.dir");
+    var userDir = System.getProperty("user.dir");
     locator = new LocatorStarterRule();
     locator.before();
     assertThat(locator.getWorkingDir().getAbsolutePath()).isEqualTo(userDir);

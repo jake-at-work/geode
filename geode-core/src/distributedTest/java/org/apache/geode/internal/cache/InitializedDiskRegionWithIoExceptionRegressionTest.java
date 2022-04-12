@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -35,11 +34,8 @@ import org.apache.geode.cache.DiskAccessException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.ClientRegionFactory;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.persistence.DiskRecoveryStore;
-import org.apache.geode.internal.cache.persistence.UninterruptibleFileChannel;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.ClientCacheRule;
@@ -123,7 +119,7 @@ public class InitializedDiskRegionWithIoExceptionRegressionTest implements Seria
   private int createServerCache() throws IOException {
     cacheRule.createCache();
 
-    DiskRegionProperties diskRegionProps = new DiskRegionProperties();
+    var diskRegionProps = new DiskRegionProperties();
     diskRegionProps.setRegionName(uniqueName);
     diskRegionProps.setOverflow(true);
     diskRegionProps.setRolling(true);
@@ -132,7 +128,7 @@ public class InitializedDiskRegionWithIoExceptionRegressionTest implements Seria
     DiskRegionHelperFactory.getSyncPersistOnlyRegion(cacheRule.getCache(), diskRegionProps,
         Scope.DISTRIBUTED_ACK);
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
@@ -145,7 +141,7 @@ public class InitializedDiskRegionWithIoExceptionRegressionTest implements Seria
     region.create("key2", new byte[16]);
 
     // Get the oplog handle & hence the underlying file & close it
-    UninterruptibleFileChannel oplogFileChannel =
+    var oplogFileChannel =
         ((LocalRegion) region).getDiskRegion().testHook_getChild().getFileChannel();
     oplogFileChannel.close();
 
@@ -155,14 +151,14 @@ public class InitializedDiskRegionWithIoExceptionRegressionTest implements Seria
     ((DiskRecoveryStore) region).getDiskStore().waitForClose();
     assertThat(region.getRegionService().isClosed()).isTrue();
 
-    List<CacheServer> cacheServers = cacheRule.getCache().getCacheServers();
+    var cacheServers = cacheRule.getCache().getCacheServers();
     assertThat(cacheServers).isEmpty();
   }
 
   private void createClientCache(String host, int port) {
     clientCacheRule.createClientCache();
 
-    Pool pool = PoolManager.createFactory().addServer(host, port).setSubscriptionEnabled(false)
+    var pool = PoolManager.createFactory().addServer(host, port).setSubscriptionEnabled(false)
         .setSubscriptionRedundancy(0).setMinConnections(0).setReadTimeout(20000).setRetryAttempts(1)
         .create(uniqueName);
 

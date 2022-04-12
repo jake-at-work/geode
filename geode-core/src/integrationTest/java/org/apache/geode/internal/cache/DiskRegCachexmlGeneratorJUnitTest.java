@@ -50,7 +50,7 @@ public class DiskRegCachexmlGeneratorJUnitTest extends DiskRegionTestingBase {
     diskDirSize[2] = 1073741824;
     diskDirSize[3] = 2073741824;
 
-    for (int i = 0; i < diskRegionProperties.length; i++) {
+    for (var i = 0; i < diskRegionProperties.length; i++) {
       diskRegionProperties[i] = new DiskRegionProperties();
       if (i == 0) {
         diskRegionProperties[i].setDiskDirsAndSizes(dirs, diskDirSize);
@@ -148,8 +148,8 @@ public class DiskRegCachexmlGeneratorJUnitTest extends DiskRegionTestingBase {
         DiskRegionHelperFactory.getAsyncOverFlowAndPersistRegion(cache, diskRegionProperties[11]);
 
     // cacheXmlGenerator: generates cacheXml file
-    FileWriter fw = new FileWriter(new File(getClass().getSimpleName() + ".xml"));
-    PrintWriter pw = new PrintWriter(fw);
+    var fw = new FileWriter(new File(getClass().getSimpleName() + ".xml"));
+    var pw = new PrintWriter(fw);
     CacheXmlGenerator.generate(cache, pw);
   }
 
@@ -158,10 +158,10 @@ public class DiskRegCachexmlGeneratorJUnitTest extends DiskRegionTestingBase {
     createCacheXML();
     ds.disconnect();
     // Connect to the GemFire distributed system
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(NAME, getClass().getSimpleName());
     props.setProperty(MCAST_PORT, "0");
-    String path = getClass().getSimpleName() + ".xml";
+    var path = getClass().getSimpleName() + ".xml";
     props.setProperty(CACHE_XML_FILE, path);
     ds = DistributedSystem.connect(props);
     // Create the cache which causes the cache-xml-file to be parsed

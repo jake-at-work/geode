@@ -30,7 +30,6 @@ import org.apache.geode.internal.logging.InternalLogWriter;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.logging.internal.log4j.LogWriterLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogFile;
 
 /**
  * Extracted from {@link HostStatSampler} and {@link GemFireStatSampler}.
@@ -106,7 +105,7 @@ public class StatArchiveHandler implements SampleHandler {
 
   private void handleArchiverException(GemFireException ex) {
     if (archiver.getSampleCount() > 0) {
-      StringWriter sw = new StringWriter();
+      var sw = new StringWriter();
       ex.printStackTrace(new PrintWriter(sw, true));
       logger.warn(LogMarker.STATISTICS_MARKER, "Statistic archiver shutting down because: {}", sw);
     }
@@ -147,9 +146,9 @@ public class StatArchiveHandler implements SampleHandler {
           handleArchiverException(ex); // this will null out archiver
         }
         if (archiver != null) { // fix npe seen in bug 46917
-          long byteLimit = config.getArchiveFileSizeLimit();
+          var byteLimit = config.getArchiveFileSizeLimit();
           if (byteLimit != 0) {
-            long bytesWritten = archiver.bytesWritten();
+            var bytesWritten = archiver.bytesWritten();
             if (bytesWritten > byteLimit) {
               // roll the archive
               try {
@@ -297,14 +296,14 @@ public class StatArchiveHandler implements SampleHandler {
    *
    */
   private void changeArchiveFile(File newFile, boolean resetHandler, long nanosTimeStamp) {
-    final boolean isDebugEnabled_STATISTICS = logger.isTraceEnabled(LogMarker.STATISTICS_VERBOSE);
+    final var isDebugEnabled_STATISTICS = logger.isTraceEnabled(LogMarker.STATISTICS_VERBOSE);
     if (isDebugEnabled_STATISTICS) {
       logger.trace(LogMarker.STATISTICS_VERBOSE,
           "StatArchiveHandler#changeArchiveFile newFile={}, nanosTimeStamp={}", newFile,
           nanosTimeStamp);
     }
     StatArchiveWriter newArchiver = null;
-    boolean archiveClosed = false;
+    var archiveClosed = false;
     if (newFile.getPath().equals("")) {
       // disable archiving
       if (!disabledArchiving) {
@@ -363,7 +362,7 @@ public class StatArchiveHandler implements SampleHandler {
         }
       }
       try {
-        StatArchiveDescriptor archiveDescriptor = new StatArchiveDescriptor.Builder()
+        var archiveDescriptor = new StatArchiveDescriptor.Builder()
             .setArchiveName(newFile.getAbsolutePath()).setSystemId(config.getSystemId())
             .setSystemStartTime(config.getSystemStartTime())
             .setSystemDirectoryPath(config.getSystemDirectoryPath())
@@ -431,10 +430,10 @@ public class StatArchiveHandler implements SampleHandler {
       // leave mainArchiveId as is. Bump archiveId.
     } else {
       archiveDir = archive.getAbsoluteFile().getParentFile();
-      boolean mainArchiveIdCalculated = false;
+      var mainArchiveIdCalculated = false;
       if (config.getLogFile().isPresent()) {
-        LogFile logFile = config.getLogFile().get();
-        File logDir = logFile.getLogDir();
+        var logFile = config.getLogFile().get();
+        var logDir = logFile.getLogDir();
         if (archiveDir.equals(logDir)) {
           mainArchiveId = logFile.getMainLogId();
           if (mainArchiveId > 1 && logFile.useChildLogging()) {
@@ -461,8 +460,8 @@ public class StatArchiveHandler implements SampleHandler {
     File result = null;
     do {
       archiveId++;
-      StringBuilder buf = new StringBuilder(archive.getPath());
-      int insertIdx = buf.lastIndexOf(".");
+      var buf = new StringBuilder(archive.getPath());
+      var insertIdx = buf.lastIndexOf(".");
       if (insertIdx == -1) {
         buf.append(rollingFileHandler.formatId(mainArchiveId))
             .append(rollingFileHandler.formatId(archiveId));
@@ -474,15 +473,15 @@ public class StatArchiveHandler implements SampleHandler {
     } while (result.exists());
     if (archiveId == 1) {
       // see if a marker file exists. If so delete it.
-      String markerName = archive.getPath();
-      int dotIdx = markerName.lastIndexOf(".");
+      var markerName = archive.getPath();
+      var dotIdx = markerName.lastIndexOf(".");
       if (dotIdx != -1) {
         // strip the extension off
         markerName = markerName.substring(0, dotIdx);
       }
-      final String buf = markerName + rollingFileHandler.formatId(mainArchiveId)
+      final var buf = markerName + rollingFileHandler.formatId(mainArchiveId)
           + rollingFileHandler.formatId(0) + ".marker";
-      File marker = new File(buf);
+      var marker = new File(buf);
       if (marker.exists()) {
         if (!marker.delete()) {
           // could not delete it; nothing to be done
@@ -494,15 +493,15 @@ public class StatArchiveHandler implements SampleHandler {
       archiveId = 0;
       // create an empty file which we can use on startup when we don't roll
       // to correctly rename the old archive that did not roll.
-      String markerName = archive.getPath();
-      int dotIdx = markerName.lastIndexOf(".");
+      var markerName = archive.getPath();
+      var dotIdx = markerName.lastIndexOf(".");
       if (dotIdx != -1) {
         // strip the extension off
         markerName = markerName.substring(0, dotIdx);
       }
-      final String buf = markerName + rollingFileHandler.formatId(mainArchiveId)
+      final var buf = markerName + rollingFileHandler.formatId(mainArchiveId)
           + rollingFileHandler.formatId(0) + ".marker";
-      File marker = new File(buf);
+      var marker = new File(buf);
       if (!marker.exists()) {
         try {
           if (!marker.createNewFile()) {
@@ -522,10 +521,10 @@ public class StatArchiveHandler implements SampleHandler {
       return;
     }
     archiveDir = archive.getAbsoluteFile().getParentFile();
-    boolean mainArchiveIdCalculated = false;
+    var mainArchiveIdCalculated = false;
     if (config.getLogFile().isPresent()) {
-      LogFile logFile = config.getLogFile().get();
-      File logDir = logFile.getLogDir();
+      var logFile = config.getLogFile().get();
+      var logDir = logFile.getLogDir();
       if (archiveDir.equals(logDir)) {
         mainArchiveId = logFile.getMainLogId();
         mainArchiveIdCalculated = true;
@@ -545,15 +544,15 @@ public class StatArchiveHandler implements SampleHandler {
     archiveId = 0;
     // create an empty file which we can use on startup when we don't roll
     // to correctly rename the old archive that did not roll.
-    String markerName = archive.getPath();
-    int dotIdx = markerName.lastIndexOf(".");
+    var markerName = archive.getPath();
+    var dotIdx = markerName.lastIndexOf(".");
     if (dotIdx != -1) {
       // strip the extension off
       markerName = markerName.substring(0, dotIdx);
     }
-    final String buf = markerName + rollingFileHandler.formatId(mainArchiveId)
+    final var buf = markerName + rollingFileHandler.formatId(mainArchiveId)
         + rollingFileHandler.formatId(0) + ".marker";
-    File marker = new File(buf);
+    var marker = new File(buf);
     if (!marker.exists()) {
       try {
         if (!marker.createNewFile()) {
@@ -576,8 +575,8 @@ public class StatArchiveHandler implements SampleHandler {
    *         any files in the dir already have a main id in the file name
    */
   File getRenameArchiveName(File archive) {
-    File dir = archive.getAbsoluteFile().getParentFile();
-    int previousMainId = rollingFileHandler.calcNextMainId(dir, false);
+    var dir = archive.getAbsoluteFile().getParentFile();
+    var previousMainId = rollingFileHandler.calcNextMainId(dir, false);
     if (previousMainId == 0) {
       previousMainId = 1;
     }
@@ -585,8 +584,8 @@ public class StatArchiveHandler implements SampleHandler {
     File result = null;
     do {
       previousMainId++;
-      StringBuilder buf = new StringBuilder(archive.getPath());
-      int insertIdx = buf.lastIndexOf(".");
+      var buf = new StringBuilder(archive.getPath());
+      var insertIdx = buf.lastIndexOf(".");
       if (insertIdx == -1) {
         buf.append(rollingFileHandler.formatId(previousMainId))
             .append(rollingFileHandler.formatId(1));
@@ -611,13 +610,13 @@ public class StatArchiveHandler implements SampleHandler {
     if (spaceLimit == 0 || archiveFile == null || archiveFile.getPath().equals("")) {
       return;
     }
-    File archiveDir = archiveFile.getAbsoluteFile().getParentFile();
+    var archiveDir = archiveFile.getAbsoluteFile().getParentFile();
     rollingFileHandler.checkDiskSpace("archive", archiveFile, spaceLimit, archiveDir,
         getOrCreateLogWriter());
   }
 
   private InternalLogWriter getOrCreateLogWriter() {
-    InternalLogWriter lw = InternalDistributedSystem.getStaticInternalLogWriter();
+    var lw = InternalDistributedSystem.getStaticInternalLogWriter();
     if (lw == null) {
       lw = LogWriterLogger.create(logger);
     }

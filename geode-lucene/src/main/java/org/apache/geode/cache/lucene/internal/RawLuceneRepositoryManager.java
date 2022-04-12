@@ -32,7 +32,7 @@ public class RawLuceneRepositoryManager extends PartitionedRepositoryManager {
 
   @Override
   protected IndexRepository getRepository(Integer bucketId) throws BucketNotFoundException {
-    IndexRepository repo = indexRepositories.get(bucketId);
+    var repo = indexRepositories.get(bucketId);
     if (repo != null && !repo.isClosed()) {
       return repo;
     }

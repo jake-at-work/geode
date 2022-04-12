@@ -53,7 +53,7 @@ public class GMSEncryptionCipherPool<ID extends MemberIdentifier> {
   }
 
   byte[] encryptBytes(byte[] data) throws Exception {
-    Cipher encrypt =
+    var encrypt =
         getOrCreateCipher(encryptCipherQueue, encryptCipherCount, gmsEncrypt::getEncryptCipher);
     try {
       return encrypt.doFinal(data);
@@ -63,7 +63,7 @@ public class GMSEncryptionCipherPool<ID extends MemberIdentifier> {
   }
 
   byte[] decryptBytes(byte[] data) throws Exception {
-    Cipher decrypt =
+    var decrypt =
         getOrCreateCipher(decryptCipherQueue, decryptCipherCount, gmsEncrypt::getDecryptCipher);
     try {
       return decrypt.doFinal(data);
@@ -74,7 +74,7 @@ public class GMSEncryptionCipherPool<ID extends MemberIdentifier> {
 
   private Cipher getOrCreateCipher(BlockingQueue<Cipher> cipherQueue, AtomicInteger cipherCount,
       ThrowingFunction<byte[], Cipher> maker) throws Exception {
-    Cipher cipher = cipherQueue.poll();
+    var cipher = cipherQueue.poll();
     if (cipher == null) {
       if (cipherCount.getAndIncrement() < MAX_CIPHERS_PER_POOL) {
         cipher = maker.apply(secretBytes);

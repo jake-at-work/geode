@@ -33,7 +33,6 @@ import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,9 +47,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.ClientCacheRule;
@@ -145,20 +142,20 @@ public class HARegionQueueSizeRegressionTest implements Serializable {
     rf.setConcurrencyChecksEnabled(false);
     rf.create(regionName);
 
-    CacheServer server1 = cacheRule.getCache().addCacheServer();
+    var server1 = cacheRule.getCache().addCacheServer();
     server1.setPort(0);
     server1.start();
     return server1.getPort();
   }
 
   private void createClientCache(String hostName, Integer port) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     config.setProperty(DURABLE_CLIENT_ID, "durable-48571");
     config.setProperty(DURABLE_CLIENT_TIMEOUT, "300000");
 
-    ClientCacheFactory ccf = new ClientCacheFactory(config);
+    var ccf = new ClientCacheFactory(config);
     ccf.setPoolSubscriptionEnabled(true);
     ccf.setPoolSubscriptionAckInterval(50);
     ccf.setPoolSubscriptionRedundancy(0);
@@ -173,7 +170,7 @@ public class HARegionQueueSizeRegressionTest implements Serializable {
     spyCacheListener = spy(CacheListener.class);
     crf.addCacheListener(spyCacheListener);
 
-    Region<String, String> region = crf.create(regionName);
+    var region = crf.create(regionName);
     region.registerInterest("ALL_KEYS", true);
 
     clientCacheRule.getClientCache().readyForEvents();
@@ -186,18 +183,18 @@ public class HARegionQueueSizeRegressionTest implements Serializable {
   private void doPuts(int creates) {
     Region<String, String> region = cacheRule.getCache().getRegion(regionName);
 
-    for (int i = 1; i <= creates; i++) {
+    for (var i = 1; i <= creates; i++) {
       put(region, "KEY-" + i, "VALUE-" + i);
     }
   }
 
   private void awaitProxyIsPaused() {
     await().untilAsserted(() -> {
-      CacheClientNotifier ccn = CacheClientNotifier.getInstance();
-      Collection<CacheClientProxy> ccProxies = ccn.getClientProxies();
+      var ccn = CacheClientNotifier.getInstance();
+      var ccProxies = ccn.getClientProxies();
 
-      boolean pausedFlag = false;
-      for (CacheClientProxy ccp : ccProxies) {
+      var pausedFlag = false;
+      for (var ccp : ccProxies) {
         if (ccp.isPaused()) {
           pausedFlag = true;
           break;
@@ -209,7 +206,7 @@ public class HARegionQueueSizeRegressionTest implements Serializable {
 
   private void resumePuts(int creates) {
     Region<String, String> region = cacheRule.getCache().getRegion(regionName);
-    for (int i = 1; i <= creates; i++) {
+    for (var i = 1; i <= creates; i++) {
       put(region, "NEWKEY-" + i, "VALUE_" + i);
     }
   }
@@ -227,8 +224,8 @@ public class HARegionQueueSizeRegressionTest implements Serializable {
 
   private void verifyStats() {
     await().untilAsserted(() -> {
-      CacheClientNotifier ccn = CacheClientNotifier.getInstance();
-      CacheClientProxy ccp = ccn.getClientProxies().iterator().next();
+      var ccn = CacheClientNotifier.getInstance();
+      var ccp = ccn.getClientProxies().iterator().next();
       // TODO: consider verifying ccp.getQueueSize()
       // TODO: consider verifying ccp.getQueueSizeStat()
       // TODO: consider verifying ccp.getHARegionQueue().getStatistics().getEventsEnqued()

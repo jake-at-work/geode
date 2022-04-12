@@ -190,7 +190,7 @@ public class Order implements PdxSerializable {
     email = reader.readString("email");
     phone = reader.readString("phone");
     @SuppressWarnings("unchecked")
-    final List<Item> items = (List<Item>) reader.readObject("items");
+    final var items = (List<Item>) reader.readObject("items");
     this.items = items;
     totalPrice = reader.readDouble("totalPrice");
 

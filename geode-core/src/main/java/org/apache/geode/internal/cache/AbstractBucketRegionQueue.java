@@ -17,9 +17,7 @@ package org.apache.geode.internal.cache;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -33,8 +31,6 @@ import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.internal.cache.versions.VersionSource;
-import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderStats;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderQueue;
@@ -216,10 +212,10 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
     }
     Set queues = getPartitionedRegion().getParallelGatewaySender().getQueues();
     if (queues != null) {
-      ConcurrentParallelGatewaySenderQueue prq =
+      var prq =
           (ConcurrentParallelGatewaySenderQueue) queues.toArray()[0];
       // synchronized (prq.getBucketToTempQueueMap()) {
-      BlockingQueue<GatewaySenderEventImpl> tempQueue = prq.getBucketTmpQueue(getId());
+      var tempQueue = prq.getBucketTmpQueue(getId());
       // .getBucketToTempQueueMap().get(getId());
       if (tempQueue != null && !tempQueue.isEmpty()) {
         synchronized (tempQueue) {
@@ -250,7 +246,7 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
             }
           } finally {
             if (!tempQueue.isEmpty()) {
-              for (GatewaySenderEventImpl e : tempQueue) {
+              for (var e : tempQueue) {
                 e.release();
               }
               tempQueue.clear();
@@ -275,7 +271,7 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
       boolean overwriteDestroyed, boolean invokeCallbacks, boolean throwConcurrentModification)
       throws TimeoutException, CacheWriterException {
     try {
-      boolean success = super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
+      var success = super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
           lastModified, overwriteDestroyed, invokeCallbacks, throwConcurrentModification);
       if (success) {
         if (logger.isDebugEnabled()) {
@@ -296,11 +292,11 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
    */
   public Collection<BucketRegion> getCorrespondingUserPRBuckets() {
     List<BucketRegion> userPRBuckets = new ArrayList<>(4);
-    Map<String, PartitionedRegion> colocatedPRs =
+    var colocatedPRs =
         ColocationHelper.getAllColocationRegions(getPartitionedRegion());
-    for (PartitionedRegion colocatedPR : colocatedPRs.values()) {
+    for (var colocatedPR : colocatedPRs.values()) {
       if (!colocatedPR.isShadowPR() && isThisSenderAttached(colocatedPR)) {
-        BucketRegion parentBucket = colocatedPR.getDataStore().getLocalBucketById(getId());
+        var parentBucket = colocatedPR.getDataStore().getLocalBucketById(getId());
         if (parentBucket != null) {
           userPRBuckets.add(parentBucket);
         }
@@ -329,13 +325,13 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
       return false;
     }
 
-    boolean didPut = false;
-    long startPut = getStatisticsClock().getTime();
+    var didPut = false;
+    var startPut = getStatisticsClock().getTime();
     // Value will always be an instanceof GatewaySenderEventImpl which
     // is never stored offheap so this EntryEventImpl values will never be off-heap.
     // So the value that ends up being stored in this region is a GatewaySenderEventImpl
     // which may have a reference to a value stored off-heap.
-    EntryEventImpl event =
+    var event =
         EntryEventImpl.create(this, Operation.UPDATE, key, value, null, false, getMyId());
     // here avoiding unnecessary validations of key, value. Readniness check
     // will be handled in virtualPut. avoiding extractDelta as this will be new
@@ -387,7 +383,7 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
 
   @Override
   public Set<VersionSource> clearEntries(final RegionVersionVector rvv) {
-    final AtomicReference<Set<VersionSource>> result = new AtomicReference<>();
+    final var result = new AtomicReference<Set<VersionSource>>();
     OffHeapClearRequired.doWithOffHeapClear(
         () -> result.set(AbstractBucketRegionQueue.super.clearEntries(rvv)));
     clearQueues();
@@ -405,11 +401,11 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
   }
 
   protected void notifyEventProcessor() {
-    AbstractGatewaySender sender = getPartitionedRegion().getParallelGatewaySender();
+    var sender = getPartitionedRegion().getParallelGatewaySender();
     if (sender != null) {
-      AbstractGatewaySenderEventProcessor ep = sender.getEventProcessor();
+      var ep = sender.getEventProcessor();
       if (ep != null) {
-        ConcurrentParallelGatewaySenderQueue queue =
+        var queue =
             (ConcurrentParallelGatewaySenderQueue) ep.getQueue();
         if (logger.isDebugEnabled()) {
           logger.debug("notifyEventProcessor : {} event processor {} queue {}", sender, ep, queue);

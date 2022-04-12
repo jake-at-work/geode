@@ -45,12 +45,12 @@ public class MessageJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Socket mockSocket = mock(Socket.class);
+    var mockSocket = mock(Socket.class);
     message = new Message(2, KnownVersion.CURRENT);
     assertEquals(2, message.getNumberOfParts());
-    MessageStats mockStats = mock(MessageStats.class);
-    ByteBuffer msgBuffer = ByteBuffer.allocate(1000);
-    ServerConnection mockServerConnection = mock(ServerConnection.class);
+    var mockStats = mock(MessageStats.class);
+    var msgBuffer = ByteBuffer.allocate(1000);
+    var mockServerConnection = mock(ServerConnection.class);
     message.setComms(mockServerConnection, mockSocket, msgBuffer, mockStats);
   }
 
@@ -64,7 +64,7 @@ public class MessageJUnitTest {
 
   @Test
   public void numberOfPartsIsAdjusted() {
-    int numParts = message.getNumberOfParts();
+    var numParts = message.getNumberOfParts();
     message.setNumberOfParts(2 * numParts + 1);
     assertEquals(2 * numParts + 1, message.getNumberOfParts());
     message.addBytesPart(new byte[1]);
@@ -77,9 +77,9 @@ public class MessageJUnitTest {
 
   @Test
   public void messageLongerThanMaxIntIsRejected() throws Exception {
-    Part mockPart1 = mock(Part.class);
+    var mockPart1 = mock(Part.class);
     when(mockPart1.getLength()).thenReturn(Integer.MAX_VALUE / 2);
-    Part[] parts = new Part[2];
+    var parts = new Part[2];
     parts[0] = mockPart1;
     parts[1] = mockPart1;
     message.setParts(parts);
@@ -93,9 +93,9 @@ public class MessageJUnitTest {
 
   @Test
   public void maxMessageSizeIsRespected() throws Exception {
-    Part mockPart1 = mock(Part.class);
+    var mockPart1 = mock(Part.class);
     when(mockPart1.getLength()).thenReturn(Message.DEFAULT_MAX_MESSAGE_SIZE / 2);
-    Part[] parts = new Part[2];
+    var parts = new Part[2];
     parts[0] = mockPart1;
     parts[1] = mockPart1;
     message.setParts(parts);
@@ -112,9 +112,9 @@ public class MessageJUnitTest {
    */
   @Test
   public void streamBuffersAreClearedDuringCleanup() throws Exception {
-    Part mockPart1 = mock(Part.class);
+    var mockPart1 = mock(Part.class);
     when(mockPart1.getLength()).thenReturn(100);
-    Part[] parts = new Part[2];
+    var parts = new Part[2];
     parts[0] = mockPart1;
     parts[1] = mockPart1;
     message.setParts(parts);
@@ -132,9 +132,9 @@ public class MessageJUnitTest {
    */
   @Test(expected = SocketTimeoutException.class)
   public void messageWillTimeoutDuringRecvOnInactiveSocket() throws Exception {
-    final ServerSocket serverSocket = new ServerSocket();
+    final var serverSocket = new ServerSocket();
     serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(), 0));
-    Thread serverThread = new Thread("acceptor thread") {
+    var serverThread = new Thread("acceptor thread") {
       @Override
       public void run() {
         Socket client = null;
@@ -159,8 +159,8 @@ public class MessageJUnitTest {
     serverThread.start();
 
     try {
-      Socket socket = new Socket(serverSocket.getInetAddress(), serverSocket.getLocalPort());
-      MessageStats messageStats = mock(MessageStats.class);
+      var socket = new Socket(serverSocket.getInetAddress(), serverSocket.getLocalPort());
+      var messageStats = mock(MessageStats.class);
 
       message.setComms(socket, ByteBuffer.allocate(100), messageStats);
       message.receiveWithHeaderReadTimeout(500);
@@ -176,9 +176,9 @@ public class MessageJUnitTest {
   @Test(expected = SocketTimeoutException.class)
   public void messageWillTimeoutDuringRecvOnInactiveSocketWithoutExplicitTimeoutSetting()
       throws Exception {
-    final ServerSocket serverSocket = new ServerSocket();
+    final var serverSocket = new ServerSocket();
     serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(), 0));
-    Thread serverThread = new Thread("acceptor thread") {
+    var serverThread = new Thread("acceptor thread") {
       @Override
       public void run() {
         Socket client = null;
@@ -203,9 +203,9 @@ public class MessageJUnitTest {
     serverThread.start();
 
     try {
-      Socket socket = new Socket(serverSocket.getInetAddress(), serverSocket.getLocalPort());
+      var socket = new Socket(serverSocket.getInetAddress(), serverSocket.getLocalPort());
       socket.setSoTimeout(500);
-      MessageStats messageStats = mock(MessageStats.class);
+      var messageStats = mock(MessageStats.class);
 
       message.setComms(socket, ByteBuffer.allocate(100), messageStats);
       message.receive();

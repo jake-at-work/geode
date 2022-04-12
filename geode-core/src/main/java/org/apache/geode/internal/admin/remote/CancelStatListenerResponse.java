@@ -39,7 +39,7 @@ public class CancelStatListenerResponse extends AdminResponse {
    */
   public static CancelStatListenerResponse create(DistributionManager dm,
       InternalDistributedMember recipient, int listenerId) {
-    CancelStatListenerResponse m = new CancelStatListenerResponse();
+    var m = new CancelStatListenerResponse();
     m.setRecipient(recipient);
     GemFireStatSampler sampler = null;
     sampler = dm.getSystem().getStatSampler();

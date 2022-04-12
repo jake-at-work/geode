@@ -53,16 +53,16 @@ public class TopEntriesCollectorJUnitTest {
 
   @Test
   public void testReduce() throws Exception {
-    TopEntriesCollector c1 = manager.newCollector("c1");
+    var c1 = manager.newCollector("c1");
     c1.collect(r1_1.getKey(), r1_1.getScore());
     c1.collect(r1_2.getKey(), r1_2.getScore());
     c1.collect(r1_3.getKey(), r1_3.getScore());
 
-    TopEntriesCollector c2 = manager.newCollector("c2");
+    var c2 = manager.newCollector("c2");
     c2.collect(r2_1.getKey(), r2_1.getScore());
     c2.collect(r2_2.getKey(), r2_2.getScore());
 
-    TopEntriesCollector c3 = manager.newCollector("c3");
+    var c3 = manager.newCollector("c3");
     c3.collect(r3_1.getKey(), r3_1.getScore());
     c3.collect(r3_2.getKey(), r3_2.getScore());
     c3.collect(r3_3.getKey(), r3_3.getScore());
@@ -72,7 +72,7 @@ public class TopEntriesCollectorJUnitTest {
     collectors.add(c2);
     collectors.add(c3);
 
-    TopEntriesCollector hits = manager.reduce(collectors);
+    var hits = manager.reduce(collectors);
     assertEquals(8, hits.getEntries().getHits().size());
     LuceneTestUtilities.verifyResultOrder(hits.getEntries().getHits(), r1_1, r2_1, r3_1, r1_2, r2_2,
         r3_2, r1_3, r3_3);
@@ -87,30 +87,30 @@ public class TopEntriesCollectorJUnitTest {
 
   @Test
   public void testInitialization() {
-    TopEntriesCollector collector = new TopEntriesCollector("name");
+    var collector = new TopEntriesCollector("name");
     assertEquals("name", collector.getName());
     assertEquals(0, collector.size());
   }
 
   @Test
   public void testSerialization() {
-    TopEntriesCollectorManager manager = new TopEntriesCollectorManager("id", 213);
-    TopEntriesCollectorManager copy = CopyHelper.deepCopy(manager);
+    var manager = new TopEntriesCollectorManager("id", 213);
+    var copy = CopyHelper.deepCopy(manager);
     assertEquals("id", copy.getId());
     assertEquals(213, copy.getLimit());
   }
 
   @Test
   public void testCollectorSerialization() {
-    TopEntriesCollector collector = new TopEntriesCollector("collector", 345);
-    TopEntriesCollector copy = CopyHelper.deepCopy(collector);
+    var collector = new TopEntriesCollector("collector", 345);
+    var copy = CopyHelper.deepCopy(collector);
     assertEquals("collector", copy.getName());
     assertEquals(345, copy.getEntries().getLimit());
   }
 
   @Test
   public void testScannerDoesNotMutateHits() {
-    TopEntriesCollector c1 = manager.newCollector("c1");
+    var c1 = manager.newCollector("c1");
     c1.collect(r1_1.getKey(), r1_1.getScore());
     c1.collect(r1_2.getKey(), r1_2.getScore());
     c1.collect(r1_3.getKey(), r1_3.getScore());
@@ -118,7 +118,7 @@ public class TopEntriesCollectorJUnitTest {
     assertEquals(3, c1.getEntries().getHits().size());
     LuceneTestUtilities.verifyResultOrder(c1.getEntries().getHits(), r1_1, r1_2, r1_3);
 
-    ListScanner scanner = new ListScanner(c1.getEntries().getHits());
+    var scanner = new ListScanner(c1.getEntries().getHits());
     assertTrue(scanner.hasNext());
     assertEquals(r1_1.getKey(), scanner.peek().getKey());
     assertEquals(r1_1.getKey(), scanner.next().getKey());

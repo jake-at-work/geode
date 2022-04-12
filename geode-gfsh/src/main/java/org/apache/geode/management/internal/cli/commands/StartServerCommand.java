@@ -195,7 +195,7 @@ public class StartServerCommand extends OfflineGfshCommand {
       }
     }
 
-    String resolvedWorkingDirectory = resolveWorkingDirectory(workingDirectory, memberName);
+    var resolvedWorkingDirectory = resolveWorkingDirectory(workingDirectory, memberName);
 
     return doStartServer(memberName, assignBuckets, bindAddress, cacheXmlPathname, classpath,
         criticalHeapPercentage, criticalOffHeapPercentage, resolvedWorkingDirectory,
@@ -253,7 +253,7 @@ public class StartServerCommand extends OfflineGfshCommand {
               gemfireSecurityPropertiesFile.getAbsolutePath()));
     }
 
-    Properties gemfireProperties = new Properties();
+    var gemfireProperties = new Properties();
 
     StartMemberUtils.setPropertyIfNotNull(gemfireProperties, ConfigurationProperties.BIND_ADDRESS,
         bindAddress);
@@ -302,7 +302,7 @@ public class StartServerCommand extends OfflineGfshCommand {
       gemfireProperties.setProperty(ResourceConstants.PASSWORD, passwordToUse);
     }
 
-    ServerLauncher.Builder serverLauncherBuilder = new ServerLauncher.Builder()
+    var serverLauncherBuilder = new ServerLauncher.Builder()
         .setAssignBuckets(assignBuckets).setDisableDefaultServer(disableDefaultServer)
         .setForce(force).setRebalance(rebalance).setRedirectOutput(redirectOutput)
         .setServerBindAddress(serverBindAddress).setServerPort(serverPort)
@@ -319,9 +319,9 @@ public class StartServerCommand extends OfflineGfshCommand {
     if (memberName != null) {
       serverLauncherBuilder.setMemberName(memberName);
     }
-    ServerLauncher serverLauncher = serverLauncherBuilder.build();
+    var serverLauncher = serverLauncherBuilder.build();
 
-    String[] serverCommandLine = createStartServerCommandLine(serverLauncher, gemfirePropertiesFile,
+    var serverCommandLine = createStartServerCommandLine(serverLauncher, gemfirePropertiesFile,
         gemfireSecurityPropertiesFile, gemfireProperties, classpath, includeSystemClasspath,
         jvmArgsOpts, disableExitWhenOutOfMemory, initialHeap, maxHeap);
 
@@ -329,25 +329,25 @@ public class StartServerCommand extends OfflineGfshCommand {
       getGfsh().logInfo(StringUtils.join(serverCommandLine, StringUtils.SPACE), null);
     }
 
-    Process serverProcess =
+    var serverProcess =
         getProcess(serverLauncher.getWorkingDirectory(), serverCommandLine);
 
     serverProcess.getInputStream().close();
     serverProcess.getOutputStream().close();
 
     // fix TRAC bug #51967 by using NON_BLOCKING on Windows
-    final ProcessStreamReader.ReadingMode readingMode = SystemUtils.isWindows()
+    final var readingMode = SystemUtils.isWindows()
         ? ProcessStreamReader.ReadingMode.NON_BLOCKING : ProcessStreamReader.ReadingMode.BLOCKING;
 
-    final StringBuilder message = new StringBuilder(); // need thread-safe StringBuilder
-    ProcessStreamReader.InputListener inputListener = line -> {
+    final var message = new StringBuilder(); // need thread-safe StringBuilder
+    var inputListener = (ProcessStreamReader.InputListener) line -> {
       message.append(line);
       if (readingMode == ProcessStreamReader.ReadingMode.BLOCKING) {
         message.append(lineSeparator());
       }
     };
 
-    ProcessStreamReader stderrReader = new ProcessStreamReader.Builder(serverProcess)
+    var stderrReader = new ProcessStreamReader.Builder(serverProcess)
         .inputStream(serverProcess.getErrorStream()).inputListener(inputListener)
         .readingMode(readingMode).continueReadingMillis(2 * 1000).build().start();
 
@@ -355,9 +355,9 @@ public class StartServerCommand extends OfflineGfshCommand {
 
     String previousServerStatusMessage = null;
 
-    LauncherSignalListener serverSignalListener = new LauncherSignalListener();
+    var serverSignalListener = new LauncherSignalListener();
 
-    final boolean registeredServerSignalListener =
+    final var registeredServerSignalListener =
         getGfsh().getSignalHandler().registerListener(serverSignalListener);
 
     try {
@@ -375,7 +375,7 @@ public class StartServerCommand extends OfflineGfshCommand {
 
           serverState = ServerLauncher.ServerState.fromDirectory(workingDirectory, memberName);
 
-          String currentServerStatusMessage = serverState.getStatusMessage();
+          var currentServerStatusMessage = serverState.getStatusMessage();
 
           if (serverState.isStartingOrNotResponding()
               && !(StringUtils.isBlank(currentServerStatusMessage)
@@ -386,7 +386,7 @@ public class StartServerCommand extends OfflineGfshCommand {
             previousServerStatusMessage = currentServerStatusMessage;
           }
         } else {
-          final int exitValue = serverProcess.exitValue();
+          final var exitValue = serverProcess.exitValue();
 
           return ResultModel.createError(
               String.format(CliStrings.START_SERVER__PROCESS_TERMINATED_ABNORMALLY_ERROR_MESSAGE,
@@ -403,7 +403,7 @@ public class StartServerCommand extends OfflineGfshCommand {
 
     Gfsh.println();
 
-    final boolean asyncStart =
+    final var asyncStart =
         ServerLauncher.ServerState.isStartingNotRespondingOrNull(serverState);
 
     if (asyncStart) { // async start
@@ -564,7 +564,7 @@ public class StartServerCommand extends OfflineGfshCommand {
 
     jarFilePathnames.add(StartMemberUtils.CORE_DEPENDENCIES_JAR_PATHNAME);
     // include all extension dependencies on the CLASSPATH...
-    for (String extensionsJarPathname : getExtensionsJars()) {
+    for (var extensionsJarPathname : getExtensionsJars()) {
       if (org.apache.commons.lang3.StringUtils.isNotBlank(extensionsJarPathname)) {
         jarFilePathnames.add(extensionsJarPathname);
       }
@@ -575,8 +575,8 @@ public class StartServerCommand extends OfflineGfshCommand {
   }
 
   private String[] getExtensionsJars() {
-    File extensionsDirectory = new File(StartMemberUtils.EXTENSIONS_PATHNAME);
-    File[] extensionsJars = extensionsDirectory.listFiles();
+    var extensionsDirectory = new File(StartMemberUtils.EXTENSIONS_PATHNAME);
+    var extensionsJars = extensionsDirectory.listFiles();
 
     if (extensionsJars != null) {
       // assume `extensions` directory does not contain any subdirectories. It only contains jars.

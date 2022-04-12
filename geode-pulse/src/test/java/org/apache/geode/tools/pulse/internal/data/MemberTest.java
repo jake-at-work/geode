@@ -38,7 +38,7 @@ public class MemberTest {
 
   @Test
   public void updateMemberClientsHMapShouldAddClientInformationIfItDoeNotExistAlready() {
-    Cluster.Client newClient = new Cluster.Client();
+    var newClient = new Cluster.Client();
     newClient.setId(testName.getMethodName());
     newClient.setConnected(true);
     newClient.setGets(1);
@@ -51,11 +51,11 @@ public class MemberTest {
     newClient.setSubscriptionEnabled(true);
     newClient.setUptime(7);
     newClient.setProcessCpuTime(8);
-    HashMap<String, Cluster.Client> updatedClientsMap = new HashMap<>();
+    var updatedClientsMap = new HashMap<String, Cluster.Client>();
     updatedClientsMap.put(newClient.getId(), newClient);
     member.updateMemberClientsHMap(updatedClientsMap);
 
-    Cluster.Client resultingClient = member.getMemberClientsHMap().get(testName.getMethodName());
+    var resultingClient = member.getMemberClientsHMap().get(testName.getMethodName());
     assertThat(resultingClient).isNotNull();
     assertThat(resultingClient.isConnected()).isTrue();
     assertThat(resultingClient.getGets()).isEqualTo(1);
@@ -72,15 +72,15 @@ public class MemberTest {
 
   @Test
   public void updateMemberClientsHMapShouldUpdateExistingClientInformation() {
-    Cluster.Client existingClient = new Cluster.Client();
+    var existingClient = new Cluster.Client();
     existingClient.setId(testName.getMethodName());
     existingClient.setUptime(1);
     existingClient.setProcessCpuTime(1000000000);
-    HashMap<String, Cluster.Client> existingClientsMap = new HashMap<>();
+    var existingClientsMap = new HashMap<String, Cluster.Client>();
     existingClientsMap.put(existingClient.getId(), existingClient);
     member.setMemberClientsHMap(existingClientsMap);
 
-    Cluster.Client updatedClient = new Cluster.Client();
+    var updatedClient = new Cluster.Client();
     updatedClient.setId(testName.getMethodName());
     updatedClient.setConnected(true);
     updatedClient.setGets(30);
@@ -93,11 +93,11 @@ public class MemberTest {
     updatedClient.setSubscriptionEnabled(true);
     updatedClient.setUptime(2);
     updatedClient.setProcessCpuTime(2000000000);
-    HashMap<String, Cluster.Client> updatedClientsMap = new HashMap<>();
+    var updatedClientsMap = new HashMap<String, Cluster.Client>();
     updatedClientsMap.put(updatedClient.getId(), updatedClient);
 
     member.updateMemberClientsHMap(updatedClientsMap);
-    Cluster.Client resultingClient = member.getMemberClientsHMap().get(testName.getMethodName());
+    var resultingClient = member.getMemberClientsHMap().get(testName.getMethodName());
     assertThat(resultingClient).isNotNull();
     assertThat(resultingClient.isConnected()).isTrue();
     assertThat(resultingClient.getGets()).isEqualTo(30);
@@ -115,9 +115,9 @@ public class MemberTest {
 
   @Test
   public void updateMemberClientsHMapShouldDeleteNonSeenClients() {
-    HashMap<String, Cluster.Client> existingClientsMap = new HashMap<>();
-    for (int i = 0; i < 100; i++) {
-      Cluster.Client existingClient = new Cluster.Client();
+    var existingClientsMap = new HashMap<String, Cluster.Client>();
+    for (var i = 0; i < 100; i++) {
+      var existingClient = new Cluster.Client();
       existingClient.setId(testName.getMethodName() + "_" + i);
       existingClient.setUptime(1);
       existingClient.setProcessCpuTime(1000000000);
@@ -125,8 +125,8 @@ public class MemberTest {
     }
     member.setMemberClientsHMap(existingClientsMap);
 
-    String remainingClientId = testName.getMethodName() + "_0";
-    Cluster.Client updatedClient = new Cluster.Client();
+    var remainingClientId = testName.getMethodName() + "_0";
+    var updatedClient = new Cluster.Client();
     updatedClient.setId(remainingClientId);
     updatedClient.setConnected(true);
     updatedClient.setGets(30);
@@ -139,13 +139,13 @@ public class MemberTest {
     updatedClient.setSubscriptionEnabled(true);
     updatedClient.setUptime(2);
     updatedClient.setProcessCpuTime(2000000000);
-    HashMap<String, Cluster.Client> updatedClientsMap = new HashMap<>();
+    var updatedClientsMap = new HashMap<String, Cluster.Client>();
     updatedClientsMap.put(updatedClient.getId(), updatedClient);
 
     member.updateMemberClientsHMap(updatedClientsMap);
     Map<String, Cluster.Client> clients = member.getMemberClientsHMap();
     assertThat(clients.size()).isEqualTo(1);
-    Cluster.Client resultingClient = clients.get(remainingClientId);
+    var resultingClient = clients.get(remainingClientId);
     assertThat(resultingClient).isNotNull();
     assertThat(resultingClient.isConnected()).isTrue();
     assertThat(resultingClient.getGets()).isEqualTo(30);
@@ -163,23 +163,23 @@ public class MemberTest {
 
   @Test
   public void updateMemberClientsHMapShouldNotDivideByZero() {
-    Cluster.Client oldClient = new Cluster.Client();
+    var oldClient = new Cluster.Client();
     oldClient.setId(testName.getMethodName());
     oldClient.setCpus(0);
     oldClient.setUptime(100);
-    HashMap<String, Cluster.Client> oldClientsMap = new HashMap<>();
+    var oldClientsMap = new HashMap<String, Cluster.Client>();
     oldClientsMap.put(oldClient.getId(), oldClient);
     member.setMemberClientsHMap(oldClientsMap);
 
-    Cluster.Client newClient = new Cluster.Client();
+    var newClient = new Cluster.Client();
     newClient.setId(testName.getMethodName());
     newClient.setCpus(0);
     newClient.setUptime(100);
-    HashMap<String, Cluster.Client> newClientsMap = new HashMap<>();
+    var newClientsMap = new HashMap<String, Cluster.Client>();
     newClientsMap.put(oldClient.getId(), oldClient);
 
     assertThatCode(() -> member.updateMemberClientsHMap(newClientsMap)).doesNotThrowAnyException();
-    Cluster.Client resultingClient = member.getMemberClientsHMap().get(testName.getMethodName());
+    var resultingClient = member.getMemberClientsHMap().get(testName.getMethodName());
     assertThat(resultingClient).isNotNull();
     assertThat(resultingClient.getCpuUsage()).isEqualTo(0);
     assertThat(resultingClient.getProcessCpuTime()).isEqualTo(0);

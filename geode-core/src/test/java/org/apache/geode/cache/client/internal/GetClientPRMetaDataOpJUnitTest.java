@@ -32,13 +32,13 @@ import org.apache.geode.internal.cache.tier.sockets.Message;
 public class GetClientPRMetaDataOpJUnitTest {
   @Test
   public void processResponseWhenCacheClosedShuouldReturnNull() throws Exception {
-    Cache cache = mock(Cache.class);
-    ClientMetadataService cms = new ClientMetadataService(cache);
+    var cache = mock(Cache.class);
+    var cms = new ClientMetadataService(cache);
     cms = spy(cms);
     doReturn(true).when(cache).isClosed();
 
-    Message msg = mock(Message.class);
-    GetClientPRMetaDataOp.GetClientPRMetaDataOpImpl op =
+    var msg = mock(Message.class);
+    var op =
         new GetClientPRMetaDataOp.GetClientPRMetaDataOpImpl("testRegion", cms);
     op = spy(op);
 

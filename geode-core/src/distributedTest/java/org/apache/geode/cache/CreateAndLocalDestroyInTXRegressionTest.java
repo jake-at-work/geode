@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
-import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -90,7 +89,7 @@ public class CreateAndLocalDestroyInTXRegressionTest implements Serializable {
   @TestCaseName("{method}({params})")
   public void createAndLocalOpShouldCreateEventWithNewValue(final LocalOperation operation) {
     otherVM.invoke(() -> {
-      CacheTransactionManager transactionManager =
+      var transactionManager =
           cacheRule.getCache().getCacheTransactionManager();
       Region<String, String> region = cacheRule.getCache().getRegion(REGION_NAME);
 
@@ -107,14 +106,14 @@ public class CreateAndLocalDestroyInTXRegressionTest implements Serializable {
     });
 
     Region<String, String> region = cacheRule.getCache().getRegion(REGION_NAME);
-    Entry<String, String> entry = region.getEntry(KEY);
+    var entry = region.getEntry(KEY);
 
     assertThat(entry.getValue()).isEqualTo(VALUE);
 
     ArgumentCaptor<EntryEvent<String, String>> argument = ArgumentCaptor.forClass(EntryEvent.class);
     verify(spyCacheListener, times(1)).afterCreate(argument.capture());
 
-    EntryEvent<String, String> event = argument.getValue();
+    var event = argument.getValue();
     assertThat(event.getKey()).isEqualTo(KEY);
     assertThat(event.getNewValue()).isEqualTo(VALUE);
   }

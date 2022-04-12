@@ -18,8 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -27,13 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.bcel.Constants;
-import org.apache.bcel.classfile.Field;
-import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.generic.ClassGen;
-import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.FieldGen;
 import org.apache.bcel.generic.InstructionFactory;
-import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.MethodGen;
 import org.apache.bcel.generic.Type;
@@ -77,7 +71,7 @@ public class BlobHelperWithThreadContextClassLoaderTest {
     assertThat(loadedClass).isNotNull();
     assertThat(loadedClass.getName()).isEqualTo(CLASS_NAME_SERIALIZABLE_IMPL);
 
-    Object instance = loadedClass.newInstance();
+    var instance = loadedClass.newInstance();
     assertThat(instance).isNotNull();
     assertThat(loadedClass instanceof Serializable);
     assertThat(loadedClass.getInterfaces()).contains(Serializable.class);
@@ -90,7 +84,7 @@ public class BlobHelperWithThreadContextClassLoaderTest {
     assertThat(loadedClass).isNotNull();
     assertThat(loadedClass.getName()).isEqualTo(CLASS_NAME_SERIALIZABLE_IMPL_WITH_VALUE);
 
-    Object instance = loadedClass.newInstance();
+    var instance = loadedClass.newInstance();
     assertThat(instance).isNotNull();
 
     assertThat(loadedClass.getSuperclass().getName()).isEqualTo(CLASS_NAME_SERIALIZABLE_IMPL);
@@ -99,7 +93,7 @@ public class BlobHelperWithThreadContextClassLoaderTest {
     assertThat(Valuable.class.isInstance(loadedClass));
     assertThat(loadedClass.getInterfaces()).contains(Valuable.class);
 
-    Method setter = loadedClass.getMethod("setValue", Object.class);
+    var setter = loadedClass.getMethod("setValue", Object.class);
     assertThat(setter).isNotNull();
   }
 
@@ -112,10 +106,10 @@ public class BlobHelperWithThreadContextClassLoaderTest {
     Class loadedClass = Class.forName(CLASS_NAME_SERIALIZABLE_IMPL, true,
         Thread.currentThread().getContextClassLoader());
 
-    Object instance = loadedClass.newInstance();
-    byte[] bytes = BlobHelper.serializeToBlob(instance);
+    var instance = loadedClass.newInstance();
+    var bytes = BlobHelper.serializeToBlob(instance);
 
-    Object object = BlobHelper.deserializeBlob(bytes);
+    var object = BlobHelper.deserializeBlob(bytes);
 
     assertThat(object).isNotNull();
     assertThat(object.getClass().getName()).isEqualTo(CLASS_NAME_SERIALIZABLE_IMPL);
@@ -133,13 +127,13 @@ public class BlobHelperWithThreadContextClassLoaderTest {
     Class loadedClass = Class.forName(CLASS_NAME_SERIALIZABLE_IMPL_WITH_VALUE, true,
         Thread.currentThread().getContextClassLoader());
 
-    Constructor ctor = loadedClass.getConstructor(Object.class);
-    Valuable instance = (Valuable) ctor.newInstance(new Object[] {123});
+    var ctor = loadedClass.getConstructor(Object.class);
+    var instance = (Valuable) ctor.newInstance(new Object[] {123});
     assertThat(instance.getValue()).isEqualTo(123);
 
-    byte[] bytes = BlobHelper.serializeToBlob(instance);
+    var bytes = BlobHelper.serializeToBlob(instance);
 
-    Valuable object = (Valuable) BlobHelper.deserializeBlob(bytes);
+    var object = (Valuable) BlobHelper.deserializeBlob(bytes);
     assertThat(object.getValue()).isEqualTo(instance.getValue());
   }
 
@@ -206,11 +200,11 @@ public class BlobHelperWithThreadContextClassLoaderTest {
      * </pre>
      */
     private Class<?> generateSerializableImpl() throws ClassNotFoundException {
-      ClassGen cg = new ClassGen(CLASS_NAME_SERIALIZABLE_IMPL, Object.class.getName(), GENERATED,
+      var cg = new ClassGen(CLASS_NAME_SERIALIZABLE_IMPL, Object.class.getName(), GENERATED,
           Constants.ACC_PUBLIC | Constants.ACC_SUPER, new String[] {Serializable.class.getName()});
       cg.addEmptyConstructor(Constants.ACC_PUBLIC);
-      JavaClass jClazz = cg.getJavaClass();
-      byte[] bytes = jClazz.getBytes();
+      var jClazz = cg.getJavaClass();
+      var bytes = jClazz.getBytes();
       return defineClass(jClazz.getClassName(), bytes, 0, bytes.length);
     }
 
@@ -239,72 +233,72 @@ public class BlobHelperWithThreadContextClassLoaderTest {
      * @see Valuable
      */
     private Class<?> generateSerializableImplWithValue() throws ClassNotFoundException {
-      ClassGen cg = new ClassGen(CLASS_NAME_SERIALIZABLE_IMPL_WITH_VALUE,
+      var cg = new ClassGen(CLASS_NAME_SERIALIZABLE_IMPL_WITH_VALUE,
           CLASS_NAME_SERIALIZABLE_IMPL, GENERATED, Constants.ACC_PUBLIC | Constants.ACC_SUPER,
           new String[] {Valuable.class.getName()});
-      ConstantPoolGen cp = cg.getConstantPool();
-      InstructionFactory fac = new InstructionFactory(cg, cp);
+      var cp = cg.getConstantPool();
+      var fac = new InstructionFactory(cg, cp);
 
       // field
-      FieldGen fg = new FieldGen(Constants.ACC_PRIVATE, Type.OBJECT, VALUE, cp);
-      Field field = fg.getField();
+      var fg = new FieldGen(Constants.ACC_PRIVATE, Type.OBJECT, VALUE, cp);
+      var field = fg.getField();
       cg.addField(field);
 
       // empty constructor
       cg.addEmptyConstructor(Constants.ACC_PUBLIC);
 
       // constructor with arg
-      InstructionList ctor = new InstructionList();
-      MethodGen ctorMethod = new MethodGen(Constants.ACC_PUBLIC, Type.VOID,
+      var ctor = new InstructionList();
+      var ctorMethod = new MethodGen(Constants.ACC_PUBLIC, Type.VOID,
           new Type[] {Type.OBJECT}, new String[] {"arg0"}, "<init>",
           "org.apache.geode.internal.util.bcel.SerializableImplWithValue", ctor, cp);
       ctorMethod.setMaxStack(2);
 
-      InstructionHandle ctor_ih_0 = ctor.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+      var ctor_ih_0 = ctor.append(InstructionFactory.createLoad(Type.OBJECT, 0));
       ctor.append(fac.createInvoke(CLASS_NAME_SERIALIZABLE_IMPL, "<init>", Type.VOID, Type.NO_ARGS,
           Constants.INVOKESPECIAL));
-      InstructionHandle ctor_ih_4 = ctor.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+      var ctor_ih_4 = ctor.append(InstructionFactory.createLoad(Type.OBJECT, 0));
       ctor.append(InstructionFactory.createLoad(Type.OBJECT, 1));
       ctor.append(fac.createFieldAccess(CLASS_NAME_SERIALIZABLE_IMPL_WITH_VALUE, "value",
           Type.OBJECT, Constants.PUTFIELD));
-      InstructionHandle ctor_ih_9 = ctor.append(InstructionFactory.createReturn(Type.VOID));
+      var ctor_ih_9 = ctor.append(InstructionFactory.createReturn(Type.VOID));
 
       cg.addMethod(ctorMethod.getMethod());
       ctor.dispose();
 
       // getter
-      InstructionList getter = new InstructionList();
-      MethodGen getterMethod = new MethodGen(Constants.ACC_PUBLIC, Type.OBJECT, null, null,
+      var getter = new InstructionList();
+      var getterMethod = new MethodGen(Constants.ACC_PUBLIC, Type.OBJECT, null, null,
           GET_VALUE, CLASS_NAME_SERIALIZABLE_IMPL_WITH_VALUE, getter, cp);
       getterMethod.setMaxStack(1);
 
-      InstructionHandle getter_ih_0 = getter.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-      InstructionHandle getter_ih_1 = getter.append(fac.createGetField(cg.getClassName(),
+      var getter_ih_0 = getter.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+      var getter_ih_1 = getter.append(fac.createGetField(cg.getClassName(),
           field.getName(), Type.getType(field.getSignature())));
-      InstructionHandle getter_ih_4 = getter.append(InstructionFactory.createReturn(Type.OBJECT));
+      var getter_ih_4 = getter.append(InstructionFactory.createReturn(Type.OBJECT));
 
       cg.addMethod(getterMethod.getMethod());
       getter.dispose();
 
       // setter
-      InstructionList setter = new InstructionList();
-      MethodGen setterMethod = new MethodGen(Constants.ACC_PUBLIC, Type.VOID,
+      var setter = new InstructionList();
+      var setterMethod = new MethodGen(Constants.ACC_PUBLIC, Type.VOID,
           new Type[] {Type.OBJECT}, new String[] {field.getName()}, SET_VALUE,
           CLASS_NAME_SERIALIZABLE_IMPL_WITH_VALUE, setter, cp);
       setterMethod.setMaxStack(2);
 
-      InstructionHandle setter_ih_0 = setter.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-      InstructionHandle setter_ih_1 = setter.append(InstructionFactory.createLoad(Type.OBJECT, 1));
-      InstructionHandle setter_ih_2 = setter.append(fac.createPutField(cg.getClassName(),
+      var setter_ih_0 = setter.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+      var setter_ih_1 = setter.append(InstructionFactory.createLoad(Type.OBJECT, 1));
+      var setter_ih_2 = setter.append(fac.createPutField(cg.getClassName(),
           field.getName(), Type.getType(field.getSignature())));
-      InstructionHandle setter_ih_0_ih_5 =
+      var setter_ih_0_ih_5 =
           setter.append(InstructionFactory.createReturn(Type.VOID));
 
       cg.addMethod(setterMethod.getMethod());
       setter.dispose();
 
-      JavaClass jClazz = cg.getJavaClass();
-      byte[] bytes = jClazz.getBytes();
+      var jClazz = cg.getJavaClass();
+      var bytes = jClazz.getBytes();
       return defineClass(jClazz.getClassName(), bytes, 0, bytes.length);
     }
 

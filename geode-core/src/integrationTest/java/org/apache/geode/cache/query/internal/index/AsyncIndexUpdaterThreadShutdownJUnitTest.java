@@ -26,9 +26,7 @@ import java.util.HashSet;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.data.Portfolio;
@@ -53,11 +51,11 @@ public class AsyncIndexUpdaterThreadShutdownJUnitTest {
 
   @Test
   public void testAsyncIndexUpdaterThreadShutdownForRR() {
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").create();
+    var cache = new CacheFactory().set(MCAST_PORT, "0").create();
 
     RegionFactory rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
     rf.setIndexMaintenanceSynchronous(false);
-    Region localRegion = rf.create(name);
+    var localRegion = rf.create(name);
 
     assertNotNull("Region ref null", localRegion);
 
@@ -69,11 +67,11 @@ public class AsyncIndexUpdaterThreadShutdownJUnitTest {
       fail("Index creation failed");
     }
 
-    for (int i = 0; i < 500; i++) {
+    for (var i = 0; i < 500; i++) {
       localRegion.put(i, new Portfolio(i));
     }
 
-    InternalRegion internalRegion = (InternalRegion) localRegion;
+    var internalRegion = (InternalRegion) localRegion;
     assertTrue(internalRegion.getIndexManager().getUpdaterThread().isAlive());
 
     localRegion.close();
@@ -85,11 +83,11 @@ public class AsyncIndexUpdaterThreadShutdownJUnitTest {
 
   @Test
   public void testAsyncIndexUpdaterThreadShutdownForPR() {
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").create();
+    var cache = new CacheFactory().set(MCAST_PORT, "0").create();
 
     RegionFactory rf = cache.createRegionFactory(RegionShortcut.PARTITION);
     rf.setIndexMaintenanceSynchronous(false);
-    Region localRegion = rf.create(name);
+    var localRegion = rf.create(name);
 
     assertNotNull("Region ref null", localRegion);
 
@@ -101,23 +99,23 @@ public class AsyncIndexUpdaterThreadShutdownJUnitTest {
       fail("Index creation failed");
     }
 
-    for (int i = 0; i < 500; i++) {
+    for (var i = 0; i < 500; i++) {
       localRegion.put(i, new Portfolio(i));
     }
 
-    InternalRegion internalRegion = (InternalRegion) localRegion;
+    var internalRegion = (InternalRegion) localRegion;
     assertTrue(internalRegion.getIndexManager().getUpdaterThread().isAlive());
 
-    PartitionedRegion pr = (PartitionedRegion) localRegion;
-    HashSet<BucketRegion> buckets = new HashSet<>(pr.getDataStore().getAllLocalBucketRegions());
-    for (BucketRegion br : buckets) {
+    var pr = (PartitionedRegion) localRegion;
+    var buckets = new HashSet<BucketRegion>(pr.getDataStore().getAllLocalBucketRegions());
+    for (var br : buckets) {
       assertTrue(br.getIndexManager().getUpdaterThread().isAlive());
     }
 
     localRegion.close();
 
     assertFalse(internalRegion.getIndexManager().getUpdaterThread().isAlive());
-    for (BucketRegion br : buckets) {
+    for (var br : buckets) {
       assertFalse(br.getIndexManager().getUpdaterThread().isAlive());
     }
 

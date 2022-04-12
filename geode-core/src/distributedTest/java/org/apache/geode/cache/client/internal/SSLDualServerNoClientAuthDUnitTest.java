@@ -86,16 +86,16 @@ public class SSLDualServerNoClientAuthDUnitTest extends JUnit4CacheTestCase {
   }
 
   private int setUpLocator() throws Exception {
-    final Properties gemFireProps = new Properties();
+    final var gemFireProps = new Properties();
 
-    final boolean cacheServerSslRequireAuth = false;
+    final var cacheServerSslRequireAuth = false;
 
     System.setProperty("javax.net.debug", "all");
 
-    final String keyStore =
+    final var keyStore =
         createTempFileFromResource(SSLDualServerNoClientAuthDUnitTest.class, SERVER_1_KEYSTORE)
             .getAbsolutePath();
-    final String trustStore =
+    final var trustStore =
         createTempFileFromResource(SSLDualServerNoClientAuthDUnitTest.class, SERVER_1_TRUSTSTORE)
             .getAbsolutePath();
     gemFireProps.setProperty(SSL_ENABLED_COMPONENTS, "cluster");
@@ -105,8 +105,8 @@ public class SSLDualServerNoClientAuthDUnitTest extends JUnit4CacheTestCase {
     gemFireProps.setProperty(SSL_TRUSTSTORE, trustStore);
     gemFireProps.setProperty(SSL_TRUSTSTORE_PASSWORD, "password");
 
-    final StringWriter sw = new StringWriter();
-    final PrintWriter writer = new PrintWriter(sw);
+    final var sw = new StringWriter();
+    final var writer = new PrintWriter(sw);
     gemFireProps.list(writer);
 
     Locator.startLocatorAndDS(0, new File(""), gemFireProps);
@@ -115,9 +115,9 @@ public class SSLDualServerNoClientAuthDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void setUpAndConnectToDistributedSystem(final int locatorPort) throws Exception {
-    final Properties gemFireProps = new Properties();
+    final var gemFireProps = new Properties();
 
-    final boolean cacheServerSslRequireAuth = false;
+    final var cacheServerSslRequireAuth = false;
 
     String keyStore;
     String trustStore;
@@ -148,13 +148,13 @@ public class SSLDualServerNoClientAuthDUnitTest extends JUnit4CacheTestCase {
     gemFireProps.setProperty(LOCATORS, "localhost[" + locatorPort + "]");
 
 
-    final StringWriter stringWriter = new StringWriter();
-    final PrintWriter printWriter = new PrintWriter(stringWriter);
+    final var stringWriter = new StringWriter();
+    final var printWriter = new PrintWriter(stringWriter);
     gemFireProps.list(printWriter);
 
     final Cache cache = getCache(gemFireProps);
     final RegionFactory factory = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    final Region r = factory.create("serverRegion");
+    final var r = factory.create("serverRegion");
     r.put("serverkey", "servervalue");
   }
 

@@ -44,11 +44,11 @@ public class MyObject implements Serializable {
   @Override
   public boolean equals(Object o) {
     if (o instanceof MyObject) {
-      MyObject obj = (MyObject) o;
+      var obj = (MyObject) o;
       return f1 == obj.f1 && f2.equals(obj.f2);
 
     } else if (o instanceof PdxInstance) {
-      PdxInstance pdx = (PdxInstance) o;
+      var pdx = (PdxInstance) o;
       return pdx.getField("f1").equals(f1) && pdx.getField("f2").equals(f2);
     }
     return false;

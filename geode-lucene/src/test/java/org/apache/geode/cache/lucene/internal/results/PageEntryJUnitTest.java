@@ -36,29 +36,29 @@ public class PageEntryJUnitTest {
 
   @Test
   public void getValueShouldReturnObjectValue() {
-    PageEntry entry = new PageEntry("key", "value");
+    var entry = new PageEntry("key", "value");
     assertEquals("value", entry.getValue());
   }
 
   @Test
   public void getValueShouldReturnObjectFromCachedDeserializableValue() {
     CachedDeserializable cachedDeserializable = new PreferBytesCachedDeserializable("value");
-    PageEntry entry = new PageEntry("key", cachedDeserializable);
+    var entry = new PageEntry("key", cachedDeserializable);
     assertEquals("value", entry.getValue());
   }
 
   @Test
   public void getValueShouldReturnBytesFromBytesValue() {
-    byte[] bytes = new byte[10];
+    var bytes = new byte[10];
     Arrays.fill(bytes, (byte) 5);
-    PageEntry entry = new PageEntry("key", bytes);
+    var entry = new PageEntry("key", bytes);
     assertArrayEquals(bytes, (byte[]) entry.getValue());
   }
 
   @Test
   public void serializationWithObjectValueShouldNotModifyValue()
       throws IOException, ClassNotFoundException {
-    PageEntry entry = new PageEntry("key", "value");
+    var entry = new PageEntry("key", "value");
     assertEquals("value", copy(entry).getValue());
   }
 
@@ -66,26 +66,26 @@ public class PageEntryJUnitTest {
   public void serializationReturnObjectFromCachedDeserializableValue()
       throws IOException, ClassNotFoundException {
     CachedDeserializable cachedDeserializable = new PreferBytesCachedDeserializable("value");
-    PageEntry entry = new PageEntry("key", cachedDeserializable);
+    var entry = new PageEntry("key", cachedDeserializable);
     assertEquals("value", copy(entry).getValue());
   }
 
   @Test
   public void serializationShouldReturnsBytesFromByteValue()
       throws IOException, ClassNotFoundException {
-    byte[] bytes = new byte[10];
+    var bytes = new byte[10];
     Arrays.fill(bytes, (byte) 5);
-    PageEntry entry = new PageEntry("key", bytes);
+    var entry = new PageEntry("key", bytes);
     assertArrayEquals(bytes, (byte[]) copy(entry).getValue());
   }
 
   public PageEntry copy(PageEntry entry) throws IOException, ClassNotFoundException {
-    HeapDataOutputStream out = new HeapDataOutputStream((KnownVersion) null);
+    var out = new HeapDataOutputStream((KnownVersion) null);
     entry.toData(out);
-    final byte[] bytes = out.toByteArray();
-    ByteArrayDataInput in = new ByteArrayDataInput();
+    final var bytes = out.toByteArray();
+    var in = new ByteArrayDataInput();
     in.initialize(bytes, null);
-    PageEntry newEntry = new PageEntry();
+    var newEntry = new PageEntry();
     newEntry.fromData(in);
     return newEntry;
   }

@@ -281,7 +281,7 @@ public class MemberInformation extends RuntimeInfo
     if (!super.equals(o)) {
       return false;
     }
-    MemberInformation that = (MemberInformation) o;
+    var that = (MemberInformation) o;
     return getHeapUsage() == that.getHeapUsage() &&
         getMaxHeapSize() == that.getMaxHeapSize() &&
         getInitHeapSize() == that.getInitHeapSize() &&

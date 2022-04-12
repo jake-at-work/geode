@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,7 +52,6 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.Declarable;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
@@ -61,14 +59,12 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.asyncqueue.internal.InternalAsyncEventQueue;
 import org.apache.geode.cache.persistence.PartitionOfflineException;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.wan.InternalGatewaySender;
 import org.apache.geode.internal.size.Sizeable;
 import org.apache.geode.test.dunit.VM;
@@ -119,7 +115,7 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
     vm1 = getVM(1);
     vm2 = getVM(2);
 
-    String className = getClass().getSimpleName();
+    var className = getClass().getSimpleName();
     partitionedRegionName = className + "_PR";
 
     asyncEventQueueId = className;
@@ -149,7 +145,7 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
 
     vm0.invoke(() -> createPartitionedRegion(partitionedRegionName, asyncEventQueueId, -1, 0, 16));
 
-    int numPuts = 10;
+    var numPuts = 10;
     vm0.invoke(() -> doPuts(partitionedRegionName, numPuts));
 
     vm0.invoke(this::waitForAsyncQueueToEmpty);
@@ -167,7 +163,7 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
 
     vm0.invoke(() -> createPartitionedRegion(partitionedRegionName, asyncEventQueueId, -1, 0, 16));
 
-    int numPuts = 10;
+    var numPuts = 10;
     vm0.invoke(() -> doPuts(partitionedRegionName, numPuts));
 
     vm0.invoke(this::waitForAsyncQueueToEmpty);
@@ -251,9 +247,9 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
     assertThat(diskStoreName).isNotNull();
     assertThat(asyncEventQueueId).isNotNull();
 
-    File directory = createDirectory(createDiskStoreName(asyncEventQueueId));
+    var directory = createDirectory(createDiskStoreName(asyncEventQueueId));
 
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(new File[] {directory});
 
     diskStoreFactory.create(diskStoreName);
@@ -262,7 +258,7 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
   private File createDirectory(String name) {
     assertThat(name).isNotNull();
 
-    File directory = new File(temporaryFolder.getRoot(), name);
+    var directory = new File(temporaryFolder.getRoot(), name);
     if (!directory.exists()) {
       try {
         return temporaryFolder.newFolder(name);
@@ -293,7 +289,7 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
 
     createDiskStore(diskStoreName, asyncEventQueueId);
 
-    AsyncEventQueueFactory asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
     asyncEventQueueFactory.setDiskStoreName(diskStoreName);
     asyncEventQueueFactory.setDiskSynchronous(isDiskSynchronous);
     asyncEventQueueFactory.setDispatcherThreads(dispatcherThreads);
@@ -314,7 +310,7 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
     assertThat(asyncEventQueueId).isNotNull();
     assertThat(asyncEventListener).isNotNull();
 
-    AsyncEventQueueFactory asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
     asyncEventQueueFactory.setBatchConflationEnabled(false);
     asyncEventQueueFactory.setBatchSize(batchSize);
     asyncEventQueueFactory.setDispatcherThreads(dispatcherThreads);
@@ -328,43 +324,43 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
 
   private void doPuts(String regionName, int numPuts) {
     Region<Integer, Integer> region = getCache().getRegion(regionName);
-    for (int i = 0; i < numPuts; i++) {
+    for (var i = 0; i < numPuts; i++) {
       region.put(i, i);
     }
   }
 
   private void assertRegionQueuesAreEmpty(InternalGatewaySender gatewaySender) {
-    Set<RegionQueue> regionQueues = gatewaySender.getQueues();
-    for (RegionQueue queue : regionQueues) {
+    var regionQueues = gatewaySender.getQueues();
+    for (var queue : regionQueues) {
       assertThat(queue.size()).isZero();
     }
   }
 
   private void validateSubstitutionFilterInvocations(int expectedNumInvocations) {
     // Verify the GatewayEventSubstitutionFilter has been invoked the appropriate number of times
-    StringGatewayEventSubstitutionFilter gatewayEventSubstitutionFilter =
+    var gatewayEventSubstitutionFilter =
         getMyGatewayEventSubstitutionFilter();
     assertThat(gatewayEventSubstitutionFilter.getNumInvocations())
         .isEqualTo(expectedNumInvocations);
 
     // Verify the AsyncEventListener has received the substituted values
-    SpyAsyncEventListener asyncEventListener = getSpyAsyncEventListener();
+    var asyncEventListener = getSpyAsyncEventListener();
     Map<Integer, String> eventsMap = asyncEventListener.getEventsMap();
     assertThat(eventsMap).isNotNull().hasSize(expectedNumInvocations);
 
-    for (Map.Entry<Integer, String> entry : eventsMap.entrySet()) {
+    for (var entry : eventsMap.entrySet()) {
       assertThat(entry.getValue()).isEqualTo(SUBSTITUTION_PREFIX + entry.getKey());
     }
   }
 
   private void validateSubstitutionFilterToDataInvocations(int expectedToDataInvocations) {
     // Verify the GatewayEventSubstitutionFilter has been invoked the appropriate number of times
-    SizeableGatewayEventSubstitutionFilter filter = getSizeableGatewayEventSubstitutionFilter();
+    var filter = getSizeableGatewayEventSubstitutionFilter();
     assertThat(filter.getNumToDataInvocations()).isEqualTo(expectedToDataInvocations);
   }
 
   private void waitForAsyncQueueToEmpty() {
-    InternalGatewaySender gatewaySender = getInternalGatewaySender();
+    var gatewaySender = getInternalGatewaySender();
     await().untilAsserted(() -> assertRegionQueuesAreEmpty(gatewaySender));
   }
 
@@ -377,14 +373,14 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
   }
 
   private GatewayEventSubstitutionFilter getGatewayEventSubstitutionFilter() {
-    GatewayEventSubstitutionFilter gatewayEventSubstitutionFilter =
+    var gatewayEventSubstitutionFilter =
         getAsyncEventQueue().getGatewayEventSubstitutionFilter();
     assertThat(gatewayEventSubstitutionFilter).isNotNull();
     return gatewayEventSubstitutionFilter;
   }
 
   private InternalGatewaySender getInternalGatewaySender() {
-    InternalGatewaySender gatewaySender = getInternalAsyncEventQueue().getSender();
+    var gatewaySender = getInternalAsyncEventQueue().getSender();
     assertThat(gatewaySender).isNotNull();
     return gatewaySender;
   }
@@ -394,7 +390,7 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
   }
 
   private AsyncEventListener getAsyncEventListener() {
-    AsyncEventListener asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
+    var asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
     assertThat(asyncEventListener).isNotNull();
     return asyncEventListener;
   }
@@ -406,8 +402,8 @@ public class AsyncEventListenerWithFilterDistributedTest implements Serializable
   private AsyncEventQueue getAsyncEventQueue() {
     AsyncEventQueue value = null;
 
-    Set<AsyncEventQueue> asyncEventQueues = getCache().getAsyncEventQueues();
-    for (AsyncEventQueue asyncEventQueue : asyncEventQueues) {
+    var asyncEventQueues = getCache().getAsyncEventQueues();
+    for (var asyncEventQueue : asyncEventQueues) {
       if (asyncEventQueueId.equals(asyncEventQueue.getId())) {
         value = asyncEventQueue;
       }

@@ -82,7 +82,7 @@ public class QueueManagerJUnitTest {
   public void setUp() {
     logger = new LocalLogWriter(FINEST.intLevel(), System.out);
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
 
@@ -220,7 +220,7 @@ public class QueueManagerJUnitTest {
       assertPortEquals(new int[] {2, 3}, manager.getAllConnections().getBackups());
     });
 
-    Connection backup = manager.getAllConnections().getBackups().get(0);
+    var backup = manager.getAllConnections().getBackups().get(0);
     backup.destroy();
 
     assertPortEquals(1, manager.getAllConnections().getPrimary());
@@ -238,7 +238,7 @@ public class QueueManagerJUnitTest {
     manager.start(background);
     manager.getAllConnections().getPrimary().destroy();
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       manager.getAllConnections().getPrimary();
     });
     assertThat(thrown).isInstanceOf(NoSubscriptionServersAvailableException.class);
@@ -255,17 +255,17 @@ public class QueueManagerJUnitTest {
 
   @Test
   public void testThrowsServerRefusedConnectionException() {
-    String serverRefusedConnectionExceptionMessage =
+    var serverRefusedConnectionExceptionMessage =
         "Peer or client version with ordinal x not supported. Highest known version is x.x.x.";
     // Spy the factory so that the createClientToServerConnection method can be mocked
-    DummyFactory factorySpy = spy(factory);
+    var factorySpy = spy(factory);
     manager = new QueueManagerImpl(pool, endpoints, source, factorySpy, 2, 20, logger,
         ClientProxyMembershipID.getNewProxyMembership(ds));
     // Cause a ServerRefusedConnectionException to be thrown from createClientToServerConnection
-    ServerRefusedConnectionException e =
+    var e =
         new ServerRefusedConnectionException(mock(DistributedMember.class),
             serverRefusedConnectionExceptionMessage);
-    ServerLocation sl = new ServerLocation("localhost", 1);
+    var sl = new ServerLocation("localhost", 1);
     when(factorySpy.createClientToServerConnection(sl, true)).thenThrow(e);
     // Add a server connection
     factory.addConnection(0, 0, 1);
@@ -278,11 +278,11 @@ public class QueueManagerJUnitTest {
   @Test
   public void testAddToConnectionListCallsCloseConnectionOpWithKeepAliveTrue2() {
     // Create a DummyConnection
-    DummyConnection connection = factory.addConnection(0, 0, 1);
+    var connection = factory.addConnection(0, 0, 1);
     assertThat(connection.keepAlive).isFalse();
 
     // Get and close its Endpoint
-    Endpoint endpoint = connection.getEndpoint();
+    var endpoint = connection.getEndpoint();
     endpoint.close();
 
     // Create and start a QueueManagerImpl
@@ -300,12 +300,12 @@ public class QueueManagerJUnitTest {
 
   private static void assertPortEquals(int[] expected, Iterable<Connection> actual) {
     Collection<Integer> expectedPorts = new ArrayList<>();
-    for (int value : expected) {
+    for (var value : expected) {
       expectedPorts.add(value);
     }
 
     List<Integer> actualPorts = new ArrayList<>();
-    for (Connection connection : actual) {
+    for (var connection : actual) {
       actualPorts.add(connection.getServer().getPort());
     }
 
@@ -616,7 +616,7 @@ public class QueueManagerJUnitTest {
     }
 
     private DummyConnection addConnection(int endpointType, int queueSize, int port) {
-      DummyConnection connection = new DummyConnection(endpointType, queueSize, port);
+      var connection = new DummyConnection(endpointType, queueSize, port);
       nextConnections.add(connection);
       return connection;
     }
@@ -704,7 +704,7 @@ public class QueueManagerJUnitTest {
           ? factory.nextConnections.size()
           : numServers;
       List<ServerLocation> locations = new ArrayList<>(numServers);
-      for (int i = 0; i < numServers; i++) {
+      for (var i = 0; i < numServers; i++) {
         locations.add(findServer(null));
       }
       return locations;
@@ -744,7 +744,7 @@ public class QueueManagerJUnitTest {
     private boolean keepAlive;
 
     private DummyConnection(int endpointType, int queueSize, int port) {
-      InternalDistributedMember member = new InternalDistributedMember("localhost", 555);
+      var member = new InternalDistributedMember("localhost", 555);
       status = new ServerQueueStatus((byte) endpointType, queueSize, member, 0);
       location = new ServerLocation("localhost", port);
       endpoint = endpoints.referenceEndpoint(location, member);

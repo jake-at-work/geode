@@ -22,11 +22,9 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.PooledDistributionMessage;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
-import org.apache.geode.internal.statistics.GemFireStatSampler;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -44,7 +42,7 @@ public class AdminConsoleDisconnectMessage extends PooledDistributionMessage {
   private String reason;
 
   public static AdminConsoleDisconnectMessage create() {
-    AdminConsoleDisconnectMessage m = new AdminConsoleDisconnectMessage();
+    var m = new AdminConsoleDisconnectMessage();
     return m;
   }
 
@@ -75,7 +73,7 @@ public class AdminConsoleDisconnectMessage extends PooledDistributionMessage {
 
   @Override
   public void process(ClusterDistributionManager dm) {
-    InternalDistributedSystem sys = dm.getSystem();
+    var sys = dm.getSystem();
     if (alertListenerExpected) {
       if (!dm.getAlertingService().removeAlertListener(getSender())
           && !ignoreAlertListenerRemovalFailure) {
@@ -83,7 +81,7 @@ public class AdminConsoleDisconnectMessage extends PooledDistributionMessage {
             getSender());
       }
     }
-    GemFireStatSampler sampler = sys.getStatSampler();
+    var sampler = sys.getStatSampler();
     if (sampler != null) {
       sampler.removeListenersByRecipient(getSender());
     }

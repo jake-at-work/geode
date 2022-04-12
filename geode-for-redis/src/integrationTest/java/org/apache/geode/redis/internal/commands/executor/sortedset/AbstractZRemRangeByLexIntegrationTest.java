@@ -90,7 +90,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnOne_givenOneMemberAndMemberNameInRangeInclusiveMtoN() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range m <= member name <= n
@@ -100,7 +100,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnOne_givenOneMemberAndMemberNameInRangeMinusToN() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range -infinity <= member name <= n
@@ -110,7 +110,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnOne_givenOneMemberAndMemberNameInRangeInclusiveMToPlus() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range m <= member name <= +infinity
@@ -120,7 +120,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnOne_givenOneMemberInRange_MinEqualToMemberNameAndMinInclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range member <= member name <= n
@@ -130,7 +130,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnOne_givenMaxEqualToMemberNameAndMaxInclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range a <= member name <= member
@@ -140,7 +140,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnOne_givenMinAndMaxEqualToMemberNameAndMinAndMaxInclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     assertThat(jedis.zremrangeByLex(KEY, "[" + memberName, "[" + memberName)).isOne();
@@ -158,7 +158,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnZero_givenMinEqualToMemberNameAndMinExclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range member < member name <= n
@@ -168,7 +168,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnZero_givenMaxEqualToMemberNameAndMaxExclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range a <= member name < member
@@ -178,7 +178,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnZero_givenMemberNotInRange() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range member name <= n <= o
@@ -188,12 +188,12 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnNumMembersRemoved_givenMultipleMembersInRange_withInclusiveMinAndMax() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 3;
-    int maxLength = 6;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 3;
+    var maxLength = 6;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     List<String> membersToRemove = new ArrayList<>(members.subList(minLength - 1, maxLength));
     members.removeAll(membersToRemove);
@@ -205,12 +205,12 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnNumMembersRemoved_givenMultipleMembersInRange_withExclusiveMinAndMax() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 1;
-    int maxLength = 7;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 1;
+    var maxLength = 7;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     List<String> membersToRemove = new ArrayList<>(members.subList(minLength, maxLength - 1));
     members.removeAll(membersToRemove);
@@ -222,12 +222,12 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnNumMembersRemoved_givenMultipleMembersInRange_withInclusiveMinAndExclusiveMax() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 5;
-    int maxLength = 8;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 5;
+    var maxLength = 8;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     List<String> membersToRemove = new ArrayList<>(members.subList(minLength - 1, maxLength - 1));
     members.removeAll(membersToRemove);
@@ -239,12 +239,12 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnNumMembersRemoved_givenMultipleMembersInRange_withExclusiveMinAndInclusiveMax() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 2;
-    int maxLength = 5;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 2;
+    var maxLength = 5;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     List<String> membersToRemove = new ArrayList<>(members.subList(minLength, maxLength));
     members.removeAll(membersToRemove);
@@ -256,10 +256,10 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnNumMembersRemoved_givenMinusAndInclusiveMaxRange() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int maxLength = 8;
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var maxLength = 8;
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     List<String> membersToRemove = new ArrayList<>(members.subList(0, maxLength));
     members.removeAll(membersToRemove);
@@ -271,10 +271,10 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnNumMembersRemoved_givenInclusiveMinAndPlusRange() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
-    int minLength = 4;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var minLength = 4;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
 
     List<String> membersToRemove = new ArrayList<>(members.subList(minLength - 1, members.size()));
     members.removeAll(membersToRemove);
@@ -286,7 +286,7 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
 
   @Test
   public void shouldReturnNumMembersRemoved_givenMinusAndPlusRange() {
-    List<String> members = populateSortedSet();
+    var members = populateSortedSet();
 
     // Range -infinity <= member name < +infinity
     assertThat(jedis.zremrangeByLex(KEY, "-", "+")).isEqualTo(members.size());
@@ -306,8 +306,8 @@ public abstract class AbstractZRemRangeByLexIntegrationTest implements RedisInte
   // number of times
   private List<String> populateSortedSet() {
     List<String> members = new ArrayList<>();
-    String memberName = BASE_MEMBER_NAME;
-    for (int i = 0; i < 10; ++i) {
+    var memberName = BASE_MEMBER_NAME;
+    for (var i = 0; i < 10; ++i) {
       jedis.zadd(KEY, SCORE, memberName);
       members.add(memberName);
       memberName += BASE_MEMBER_NAME;

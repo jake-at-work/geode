@@ -107,16 +107,16 @@ public class Helper {
     Arrays.stream(command.value()).forEach(cmd -> commands.put(cmd, commandMethod));
 
     // resolve the hint message for each method
-    CliMetaData cliMetaData = commandMethod.getDeclaredAnnotation(CliMetaData.class);
+    var cliMetaData = commandMethod.getDeclaredAnnotation(CliMetaData.class);
     if (cliMetaData == null) {
       return;
     }
-    String[] related = cliMetaData.relatedTopic();
+    var related = cliMetaData.relatedTopic();
 
     // for hint message, we only need to show the first synonym
-    String commandString = command.value()[0];
+    var commandString = command.value()[0];
     Arrays.stream(related).forEach(topic -> {
-      Topic foundTopic = topics.get(topic);
+      var foundTopic = topics.get(topic);
       if (foundTopic == null) {
         throw new IllegalArgumentException("No such topic found in the initial map: " + topic);
       }
@@ -139,7 +139,7 @@ public class Helper {
       return null;
     }
 
-    List<Method> methodList = commands.keySet()
+    var methodList = commands.keySet()
         .stream()
         .filter(key -> key.startsWith(getCommandPart(userInput)))
         .map(commands::get).collect(Collectors.toList());
@@ -149,9 +149,9 @@ public class Helper {
       return null;
     }
 
-    Method m = methodList.get(0);
-    CliCommand cliCommand = m.getDeclaredAnnotation(CliCommand.class);
-    Annotation[][] annotations = m.getParameterAnnotations();
+    var m = methodList.get(0);
+    var cliCommand = m.getDeclaredAnnotation(CliCommand.class);
+    var annotations = m.getParameterAnnotations();
 
     if (annotations == null || annotations.length == 0) {
       // can't validate arguments if command doesn't have any
@@ -159,18 +159,18 @@ public class Helper {
     }
 
     // loop through the required options and check that they appear in the buffer
-    StringBuilder builder = new StringBuilder();
-    for (Annotation[] annotation : annotations) {
-      CliOption cliOption = getAnnotation(annotation, CliOption.class);
-      String option = getPrimaryKey(cliOption);
-      boolean required = cliOption.mandatory();
-      boolean requiredWithEquals = !isNonEmptyAnnotation(cliOption.specifiedDefaultValue());
+    var builder = new StringBuilder();
+    for (var annotation : annotations) {
+      var cliOption = getAnnotation(annotation, CliOption.class);
+      var option = getPrimaryKey(cliOption);
+      var required = cliOption.mandatory();
+      var requiredWithEquals = !isNonEmptyAnnotation(cliOption.specifiedDefaultValue());
 
       if (isNonEmptyAnnotation(cliOption.unspecifiedDefaultValue())) {
         required = false;
       }
       if (required) {
-        String lookFor = "--" + option + (requiredWithEquals ? "=" : "");
+        var lookFor = "--" + option + (requiredWithEquals ? "=" : "");
         if (!userInput.contains(lookFor)) {
           builder.append("  --").append(option).append(requiredWithEquals ? "=" : "")
               .append("  is required").append(LINE_SEPARATOR);
@@ -178,7 +178,7 @@ public class Helper {
       }
     }
     if (builder.length() > 0) {
-      String commandName = cliCommand.value()[0];
+      var commandName = cliCommand.value()[0];
       builder.append("Use \"help ").append(commandName)
           .append("\" (without the quotes) for detailed usage information.")
           .append(LINE_SEPARATOR);
@@ -189,7 +189,7 @@ public class Helper {
   }
 
   private String getCommandPart(String userInput) {
-    int parms = userInput.indexOf(" --");
+    var parms = userInput.indexOf(" --");
     return (parms < 0 ? userInput : userInput.substring(0, parms)).trim();
   }
 
@@ -202,13 +202,13 @@ public class Helper {
       return getHelp().toString(terminalWidth);
     }
 
-    List<Method> methodList = commands.keySet()
+    var methodList = commands.keySet()
         .stream()
         .filter(key -> key.startsWith(buffer))
         .map(commands::get).collect(Collectors.toList());
 
-    boolean summarize = methodList.size() > 1;
-    String helpString = methodList.stream()
+    var summarize = methodList.size() > 1;
+    var helpString = methodList.stream()
         .map(m -> getHelp(m.getDeclaredAnnotation(CliCommand.class),
             summarize ? null : m.getParameterAnnotations(),
             summarize ? null : m.getParameterTypes()))
@@ -224,19 +224,19 @@ public class Helper {
   }
 
   public String getHint(String buffer) {
-    List<String> topicKeys = topics.keySet()
+    var topicKeys = topics.keySet()
         .stream()
         .filter(t -> buffer == null || t.toLowerCase().startsWith(buffer.toLowerCase()))
         .sorted()
         .collect(Collectors.toList());
 
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     // if no topic is provided, return a list of topics
     if (topicKeys.isEmpty()) {
       builder.append(CliStrings.format(CliStrings.HINT__MSG__UNKNOWN_TOPIC, buffer))
           .append(LINE_SEPARATOR).append(LINE_SEPARATOR);
     } else if (topicKeys.size() == 1) {
-      Topic oneTopic = topics.get(topicKeys.get(0));
+      var oneTopic = topics.get(topicKeys.get(0));
       builder.append(oneTopic.desc).append(LINE_SEPARATOR)
           .append(LINE_SEPARATOR);
       oneTopic.relatedCommands.stream().sorted().forEach(command -> builder.append(command.command)
@@ -256,7 +256,7 @@ public class Helper {
   }
 
   private boolean isAvailable(String command) {
-    MethodTarget target = availabilityIndicators.get(command);
+    var target = availabilityIndicators.get(command);
     if (target == null) {
       return true;
     }
@@ -272,7 +272,7 @@ public class Helper {
   }
 
   private HelpBlock getHelp() {
-    HelpBlock root = new HelpBlock();
+    var root = new HelpBlock();
     commands.keySet().stream().sorted().map(commands::get).forEach(method -> root
         .addChild(getHelp(method.getDeclaredAnnotation(CliCommand.class), null, null)));
 
@@ -284,32 +284,32 @@ public class Helper {
    * details description of the command with the syntax and parameter description
    */
   HelpBlock getHelp(CliCommand cliCommand, Annotation[][] annotations, Class<?>[] parameterTypes) {
-    String commandName = cliCommand.value()[0];
-    boolean isAvailable = isAvailable(commandName);
+    var commandName = cliCommand.value()[0];
+    var isAvailable = isAvailable(commandName);
 
     if (annotations == null && parameterTypes == null) {
-      String available = isAvailable ? AVAILABLE : NOT_AVAILABLE;
-      HelpBlock help = new HelpBlock(commandName + " (" + available + ")");
+      var available = isAvailable ? AVAILABLE : NOT_AVAILABLE;
+      var help = new HelpBlock(commandName + " (" + available + ")");
       help.addChild(new HelpBlock(cliCommand.help()));
       return help;
     }
 
-    HelpBlock root = new HelpBlock();
+    var root = new HelpBlock();
     // First we will have the block for NAME of the command
-    HelpBlock name = new HelpBlock(NAME_NAME);
+    var name = new HelpBlock(NAME_NAME);
     name.addChild(new HelpBlock(commandName));
     root.addChild(name);
 
     // add the availability flag
-    HelpBlock availability = new HelpBlock(IS_AVAILABLE_NAME);
+    var availability = new HelpBlock(IS_AVAILABLE_NAME);
     availability.addChild(new HelpBlock(isAvailable + ""));
     root.addChild(availability);
 
     // Now add synonyms if any
-    String[] allNames = cliCommand.value();
+    var allNames = cliCommand.value();
     if (allNames.length > 1) {
-      HelpBlock synonyms = new HelpBlock(SYNONYMS_NAME);
-      for (int i = 1; i < allNames.length; i++) {
+      var synonyms = new HelpBlock(SYNONYMS_NAME);
+      for (var i = 1; i < allNames.length; i++) {
         synonyms.addChild(new HelpBlock(allNames[i]));
       }
       root.addChild(synonyms);
@@ -317,23 +317,23 @@ public class Helper {
 
     // Now comes the turn to display synopsis if any
     if (StringUtils.isNotBlank(cliCommand.help())) {
-      HelpBlock synopsis = new HelpBlock(SYNOPSIS_NAME);
+      var synopsis = new HelpBlock(SYNOPSIS_NAME);
       synopsis.addChild(new HelpBlock(cliCommand.help()));
       root.addChild(synopsis);
     }
 
     // Now display the syntax for the command
-    HelpBlock syntaxBlock = new HelpBlock(SYNTAX_NAME);
-    String syntax = getSyntaxString(commandName, annotations, parameterTypes);
+    var syntaxBlock = new HelpBlock(SYNTAX_NAME);
+    var syntax = getSyntaxString(commandName, annotations, parameterTypes);
     syntaxBlock.addChild(new HelpBlock(syntax));
     root.addChild(syntaxBlock);
 
     // Detailed description of all the Options
     if (annotations.length > 0) {
-      HelpBlock options = new HelpBlock(OPTIONS_NAME);
-      for (Annotation[] annotation : annotations) {
-        CliOption cliOption = getAnnotation(annotation, CliOption.class);
-        HelpBlock optionNode = getOptionDetail(cliOption);
+      var options = new HelpBlock(OPTIONS_NAME);
+      for (var annotation : annotations) {
+        var cliOption = getAnnotation(annotation, CliOption.class);
+        var optionNode = getOptionDetail(cliOption);
         options.addChild(optionNode);
       }
 
@@ -343,12 +343,12 @@ public class Helper {
   }
 
   HelpBlock getOptionDetail(CliOption cliOption) {
-    HelpBlock optionNode = new HelpBlock(getPrimaryKey(cliOption));
-    String help = cliOption.help();
+    var optionNode = new HelpBlock(getPrimaryKey(cliOption));
+    var help = cliOption.help();
     optionNode.addChild(new HelpBlock((StringUtils.isNotBlank(help) ? help : "")));
     if (getSynonyms(cliOption).size() > 0) {
-      StringBuilder builder = new StringBuilder();
-      for (String string : getSynonyms(cliOption)) {
+      var builder = new StringBuilder();
+      for (var string : getSynonyms(cliOption)) {
         if (builder.length() > 0) {
           builder.append(",");
         }
@@ -371,7 +371,7 @@ public class Helper {
 
   @SuppressWarnings("unchecked")
   private <T> T getAnnotation(Annotation[] annotations, Class<T> klass) {
-    for (Annotation annotation : annotations) {
+    for (var annotation : annotations) {
       if (klass.isAssignableFrom(annotation.getClass())) {
         return (T) annotation;
       }
@@ -380,11 +380,11 @@ public class Helper {
   }
 
   String getSyntaxString(String commandName, Annotation[][] annotations, Class[] parameterTypes) {
-    StringBuilder buffer = new StringBuilder();
+    var buffer = new StringBuilder();
     buffer.append(commandName);
-    for (int i = 0; i < annotations.length; i++) {
-      CliOption cliOption = getAnnotation(annotations[i], CliOption.class);
-      String optionString = getOptionString(cliOption, parameterTypes[i]);
+    for (var i = 0; i < annotations.length; i++) {
+      var cliOption = getAnnotation(annotations[i], CliOption.class);
+      var optionString = getOptionString(cliOption, parameterTypes[i]);
       if (cliOption.mandatory()) {
         buffer.append(" ").append(optionString);
       } else {
@@ -401,15 +401,15 @@ public class Helper {
    * @return option string
    */
   private static String getOptionString(CliOption cliOption, Class<?> optionType) {
-    String key0 = cliOption.key()[0];
+    var key0 = cliOption.key()[0];
     if ("".equals(key0)) {
       return (cliOption.key()[1]);
     }
 
-    StringBuilder buffer = new StringBuilder();
+    var buffer = new StringBuilder();
     buffer.append(LONG_OPTION_SPECIFIER).append(key0);
 
-    boolean hasSpecifiedDefault = isNonEmptyAnnotation(cliOption.specifiedDefaultValue());
+    var hasSpecifiedDefault = isNonEmptyAnnotation(cliOption.specifiedDefaultValue());
 
     if (hasSpecifiedDefault) {
       buffer.append("(");
@@ -434,7 +434,7 @@ public class Helper {
   }
 
   private static String getPrimaryKey(CliOption option) {
-    String[] keys = option.key();
+    var keys = option.key();
     if (keys.length == 0) {
       throw new RuntimeException("Invalid option keys");
     } else if ("".equals(keys[0])) {
@@ -446,7 +446,7 @@ public class Helper {
 
   private static List<String> getSynonyms(CliOption option) {
     List<String> synonyms = new ArrayList<>();
-    String[] keys = option.key();
+    var keys = option.key();
     if (keys.length < 2) {
       return synonyms;
     }
@@ -474,16 +474,16 @@ public class Helper {
 
   // methods added for future option comparison
   public Set<String> getOptions(String command) {
-    Method method = getCommandMethod(command);
+    var method = getCommandMethod(command);
     Set<String> optionList = new HashSet<>();
-    Annotation[][] annotations = method.getParameterAnnotations();
+    var annotations = method.getParameterAnnotations();
     if (annotations == null || annotations.length == 0) {
       // can't validate arguments if command doesn't have any
       return optionList;
     }
 
-    for (Annotation[] annotation : annotations) {
-      CliOption cliOption = getAnnotation(annotation, CliOption.class);
+    for (var annotation : annotations) {
+      var cliOption = getAnnotation(annotation, CliOption.class);
       optionList.add(getPrimaryKey(cliOption));
     }
     return optionList;

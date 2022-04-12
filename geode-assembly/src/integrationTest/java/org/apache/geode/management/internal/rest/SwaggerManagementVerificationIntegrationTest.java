@@ -20,7 +20,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,19 +53,19 @@ public class SwaggerManagementVerificationIntegrationTest {
     assertResponse(client.get("/management/swagger-ui.html")).hasStatusCode(200);
 
     // Check the JSON
-    JsonNode json =
+    var json =
         assertResponse(client.get("/management/v1/api-docs")).hasStatusCode(200)
             .getJsonObject();
     assertThat(json.get("swagger").asText(), is("2.0"));
 
-    JsonNode info = json.get("info");
+    var info = json.get("info");
     assertThat(info.get("description").asText(),
         containsString("REST API to manage Geode. This is experimental."));
     assertThat(info.get("title").asText(),
         is("Apache Geode Management REST API"));
     assertThat(info.get("authTokenEnabled").asText(), is("true"));
 
-    JsonNode license = info.get("license");
+    var license = info.get("license");
     assertThat(license.get("name").asText(), is("Apache License, version 2.0"));
     assertThat(license.get("url").asText(), is("http://www.apache.org/licenses/"));
 

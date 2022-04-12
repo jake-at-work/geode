@@ -31,13 +31,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.query.CqAttributesFactory;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer;
 import org.apache.geode.pdx.internal.AutoSerializableManager;
@@ -93,7 +90,7 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
 
     locator =
         cluster.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server = cluster.startServerVM(1,
         s -> s.withConnectionToLocator(locatorPort));
 
@@ -122,8 +119,8 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
   public void testCorrectClassPathsAutoSerializer()
       throws Exception {
 
-    String query1 = "SELECT * FROM " + SEPARATOR + REPLICATE_REGION_NAME;
-    String query2 = "SELECT * FROM " + SEPARATOR + PARTITION_REGION_NAME;
+    var query1 = "SELECT * FROM " + SEPARATOR + REPLICATE_REGION_NAME;
+    var query2 = "SELECT * FROM " + SEPARATOR + PARTITION_REGION_NAME;
 
     startDurableClient(TEST_OBJECT1_CLASS_PATH, TEST_OBJECT2_CLASS_PATH);
     createDurableCQs(query1, query2);
@@ -141,8 +138,8 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
   @Test
   public void testFaultyClassPathAutoSerializer()
       throws Exception {
-    String query1 = "SELECT * FROM " + SEPARATOR + REPLICATE_REGION_NAME;
-    String query2 = "SELECT * FROM " + SEPARATOR + PARTITION_REGION_NAME;
+    var query1 = "SELECT * FROM " + SEPARATOR + REPLICATE_REGION_NAME;
+    var query2 = "SELECT * FROM " + SEPARATOR + PARTITION_REGION_NAME;
     startDurableClient(TEST_FAULTY_CLASS_PATH, TEST_OBJECT2_CLASS_PATH);
     createDurableCQs(query1, query2);
     verifyThatOnlyOneServerHostDurableSubscription();
@@ -158,7 +155,7 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
   }
 
   private void startDataProvisionClient(String... patterns) throws Exception {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     client2 = cluster.startClientVM(4, ccf -> ccf
         .withLocatorConnection(locatorPort).withCacheSetup(c -> c
             .setPdxSerializer(new ReflectionBasedAutoSerializer(patterns))));
@@ -166,7 +163,7 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
 
   private void startDurableClient(String... patterns)
       throws Exception {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     client = cluster.startClientVM(3, ccf -> ccf
         .withPoolSubscription(true).withLocatorConnection(locatorPort).withCacheSetup(c -> c
             .setPdxSerializer(new ReflectionBasedAutoSerializer(patterns))
@@ -175,15 +172,15 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
 
   private void createDurableCQs(String... queries) {
     client.invoke(() -> {
-      TestAutoSerializerCqListener cqListener = new TestAutoSerializerCqListener();
+      var cqListener = new TestAutoSerializerCqListener();
       DurableClientCQAutoSerializerDUnitTest.cqListener = cqListener;
       assertThat(ClusterStartupRule.getClientCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getClientCache().getQueryService();
-      CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+      var queryService = ClusterStartupRule.getClientCache().getQueryService();
+      var cqAttributesFactory = new CqAttributesFactory();
       cqAttributesFactory.addCqListener(cqListener);
 
-      for (String query : queries) {
-        CqQuery cq = queryService.newCq(query, cqAttributesFactory.create(), true);
+      for (var query : queries) {
+        var cq = queryService.newCq(query, cqAttributesFactory.create(), true);
         cq.execute();
       }
       ClusterStartupRule.getClientCache().readyForEvents();
@@ -195,7 +192,7 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
   }
 
   private void verifyThatOnlyOneServerHostDurableSubscription() {
-    int primPort = getPrimaryServerPort(client);
+    var primPort = getPrimaryServerPort(client);
     verifyDurableClientPresence(server, isPrimaryServer(primPort, server));
     verifyDurableClientPresence(server2, isPrimaryServer(primPort, server2));
   }
@@ -227,7 +224,7 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
 
       if (isExpected) {
         // Get the CacheClientProxy or not (if proxy set is empty)
-        CacheClientProxy proxy = getClientProxy();
+        var proxy = getClientProxy();
         assertThat(proxy).isNotNull();
         // Verify that it is durable and its properties are correct
         assertThat(proxy.isDurable()).isTrue();
@@ -239,7 +236,7 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
   private static CacheClientProxy getClientProxy() {
     // Get the CacheClientProxy or not (if proxy set is empty)
     CacheClientProxy proxy = null;
-    java.util.Iterator<CacheClientProxy> i = getCacheClientNotifier().getClientProxies().iterator();
+    var i = getCacheClientNotifier().getClientProxies().iterator();
     if (i.hasNext()) {
       proxy = i.next();
     }
@@ -248,7 +245,7 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
 
   private static CacheClientNotifier getCacheClientNotifier() {
     // Get the CacheClientNotifier
-    CacheServerImpl cacheServer = (CacheServerImpl) Objects
+    var cacheServer = (CacheServerImpl) Objects
         .requireNonNull(ClusterStartupRule.getCache()).getCacheServers().iterator().next();
     assertNotNull(cacheServer);
 
@@ -267,13 +264,13 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
       Region<String, TestAutoSerializerObject1> region = factory.create(REPLICATE_REGION_NAME);
 
       // provision TestAutoSerializerObject1 data
-      for (Map.Entry<String, TestAutoSerializerObject1> entry : LIST_TEST_OBJECT1.entrySet()) {
+      for (var entry : LIST_TEST_OBJECT1.entrySet()) {
         region.put(entry.getKey(), entry.getValue());
       }
 
       Region<String, TestAutoSerializerObject2> region2 = factory.create(PARTITION_REGION_NAME);
       // provision TestAutoSerializerObject2 data
-      for (Map.Entry<String, TestAutoSerializerObject2> entry : LIST_TEST_OBJECT2.entrySet()) {
+      for (var entry : LIST_TEST_OBJECT2.entrySet()) {
         region2.put(entry.getKey(), entry.getValue());
       }
     });
@@ -281,8 +278,8 @@ public class DurableClientCQAutoSerializerDUnitTest implements Serializable {
 
   private int getPrimaryServerPort(ClientVM client) {
     return client.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
-      PoolImpl pool = (PoolImpl) cache.getDefaultPool();
+      var cache = ClusterStartupRule.getClientCache();
+      var pool = (PoolImpl) cache.getDefaultPool();
       return pool.getPrimaryPort();
     });
   }

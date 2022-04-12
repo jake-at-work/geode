@@ -32,9 +32,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCacheFactory;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.management.membership.ClientMembership;
 import org.apache.geode.management.membership.ClientMembershipListener;
 import org.apache.geode.test.dunit.VM;
@@ -81,7 +79,7 @@ public class ClientCacheRuleDistributedTest implements Serializable {
       spyClientMembershipListener = spy(ClientMembershipListener.class);
       ClientMembership.registerClientMembershipListener(spyClientMembershipListener);
 
-      CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+      var cacheServer = cacheRule.getCache().addCacheServer();
       cacheServer.setPort(0);
       cacheServer.start();
       return cacheServer.getPort();
@@ -101,7 +99,7 @@ public class ClientCacheRuleDistributedTest implements Serializable {
       clientCacheRule
           .createClientCache(new ClientCacheFactory().addPoolServer(serverHost, serverPort));
 
-      Region<String, String> region =
+      var region =
           clientCacheRule.getClientCache().<String, String>createClientRegionFactory(
               CACHING_PROXY).create(regionName);
       region.put("KEY", "VALUE");

@@ -17,24 +17,22 @@ package org.apache.geode.internal.cache;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
-import java.util.List;
-
 import org.junit.Test;
 
 
 public class TxCommitMessageBCClientToServerTxPartitionTest extends TxCommitMessageBCTestBase {
   @Test
   public void test() throws Exception {
-    String regionName = PARTITION_REGION_NAME;
+    var regionName = PARTITION_REGION_NAME;
 
-    List<Integer> beforeValues =
+    var beforeValues =
         client.invoke(() -> TxCommitMessageBCTestBase.doGets(regionName));
     client.invoke(() -> TxCommitMessageBCTestBase.doTxPuts(regionName));
-    List<Integer> afterValues1 =
+    var afterValues1 =
         client.invoke(() -> TxCommitMessageBCTestBase.doGets(regionName));
-    List<Integer> afterValues2 =
+    var afterValues2 =
         server1.invoke(() -> TxCommitMessageBCTestBase.doGets(regionName));
-    List<Integer> afterValues3 =
+    var afterValues3 =
         server2.invoke(() -> TxCommitMessageBCTestBase.doGets(regionName));
 
     Integer expected1 = beforeValues.get(0) == null ? 1 : beforeValues.get(0) + 1;

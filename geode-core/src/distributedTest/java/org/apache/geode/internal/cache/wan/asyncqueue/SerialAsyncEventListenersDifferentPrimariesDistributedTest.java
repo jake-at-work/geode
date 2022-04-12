@@ -131,7 +131,7 @@ public class SerialAsyncEventListenersDifferentPrimariesDistributedTest implemen
     locator = clusterRule.startLocatorVM(0);
 
     // Start servers
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server1 = clusterRule.startServerVM(1, s -> s.withConnectionToLocator(locatorPort));
     server2 = clusterRule.startServerVM(2, s -> s.withConnectionToLocator(locatorPort));
     server3 = clusterRule.startServerVM(3, s -> s.withConnectionToLocator(locatorPort));
@@ -141,27 +141,27 @@ public class SerialAsyncEventListenersDifferentPrimariesDistributedTest implemen
         .invoke(() -> FunctionService.registerFunction(new RegionOperationsFunction())));
 
     // Create AEQ1 in all servers with server1 as primary
-    String aeq1Id = testName.getMethodName() + "_1";
+    var aeq1Id = testName.getMethodName() + "_1";
     Stream.of(server1, server2, server3).forEach(
         server -> server.invoke(() -> createAsyncEventQueue(aeq1Id, new TestAsyncEventListener())));
 
     // Create AEQ2 in all servers with server2 as primary
-    String aeq2Id = testName.getMethodName() + "_2";
+    var aeq2Id = testName.getMethodName() + "_2";
     Stream.of(server2, server1, server3).forEach(
         server -> server.invoke(() -> createAsyncEventQueue(aeq2Id, new TestAsyncEventListener())));
 
     // Create region the function is executed on in all servers
-    String functionExecutionRegionName = testName.getMethodName() + "_functionExecutor";
+    var functionExecutionRegionName = testName.getMethodName() + "_functionExecutor";
     Stream.of(server1, server2, server3).forEach(
         server -> server.invoke(() -> createRegion(functionExecutionRegionName, REPLICATE)));
 
     // Create region attached to AEQ1 in all servers
-    String aeg1RegionName = testName.getMethodName() + "_1";
+    var aeg1RegionName = testName.getMethodName() + "_1";
     Stream.of(server1, server2, server3)
         .forEach(server -> server.invoke(() -> createRegion(aeg1RegionName, shortcut, aeq1Id)));
 
     // Create region attached to AEQ2 in all servers
-    String aeg2RegionName = testName.getMethodName() + "_2";
+    var aeg2RegionName = testName.getMethodName() + "_2";
     Stream.of(server1, server2, server3)
         .forEach(server -> server.invoke(() -> createRegion(aeg2RegionName, shortcut, aeq2Id)));
 
@@ -170,7 +170,7 @@ public class SerialAsyncEventListenersDifferentPrimariesDistributedTest implemen
 
     // Launch threads to execute the Function from multiple threads in multiple members doing
     // multiple operations against multiple regions
-    List<CompletableFuture<Void>> futures = launchTimedFunctionExecutionThreads(
+    var futures = launchTimedFunctionExecutionThreads(
         functionExecutionRegionName, aeg1RegionName, aeg2RegionName, NUM_THREADS, TIME_TO_RUN);
 
     // Wait for futures to complete. If they complete, the test is successful. If they timeout, the
@@ -197,7 +197,7 @@ public class SerialAsyncEventListenersDifferentPrimariesDistributedTest implemen
   }
 
   private void createClientCacheAndRegion(int port, String regionName) {
-    ClientCacheFactory clientCacheFactory =
+    var clientCacheFactory =
         new ClientCacheFactory().addPoolLocator(getHostName(), port).setPoolRetryAttempts(0)
             .setPoolMinConnections(0);
     clientCacheRule.createClientCache(clientCacheFactory);
@@ -208,10 +208,10 @@ public class SerialAsyncEventListenersDifferentPrimariesDistributedTest implemen
   private List<CompletableFuture<Void>> launchTimedFunctionExecutionThreads(
       String functionExecutionRegionName, String aeg1RegionName, String aeg2RegionName,
       int numThreads, long timeToRun) {
-    String[] possibleOperationRegionNames = new String[] {aeg1RegionName, aeg2RegionName};
-    String[] possibleOperations = new String[] {"put", "putAll", "destroy", "removeAll"};
+    var possibleOperationRegionNames = new String[] {aeg1RegionName, aeg2RegionName};
+    var possibleOperations = new String[] {"put", "putAll", "destroy", "removeAll"};
     List<CompletableFuture<Void>> futures = new ArrayList<>();
-    for (int i = 0; i < numThreads; i++) {
+    for (var i = 0; i < numThreads; i++) {
       futures.add(executorServiceRule.runAsync(
           () -> executeFunctionTimed(RegionOperationsFunction.class.getSimpleName(),
               functionExecutionRegionName, possibleOperationRegionNames, possibleOperations,
@@ -222,11 +222,11 @@ public class SerialAsyncEventListenersDifferentPrimariesDistributedTest implemen
 
   private void executeFunctionTimed(String functionId, String regionName,
       String[] possibleOperationRegionNames, String[] possibleOperations, long timeToRun) {
-    long endRun = System.currentTimeMillis() + timeToRun;
+    var endRun = System.currentTimeMillis() + timeToRun;
     while (System.currentTimeMillis() < endRun) {
-      String operationRegionName =
+      var operationRegionName =
           possibleOperationRegionNames[RANDOM.nextInt(possibleOperationRegionNames.length)];
-      String operation = possibleOperations[RANDOM.nextInt(possibleOperations.length)];
+      var operation = possibleOperations[RANDOM.nextInt(possibleOperations.length)];
       FunctionService.onRegion(clientCacheRule.getClientCache().getRegion(regionName))
           .setArguments(new String[] {operationRegionName, operation}).execute(functionId)
           .getResult();
@@ -261,9 +261,9 @@ public class SerialAsyncEventListenersDifferentPrimariesDistributedTest implemen
 
     @Override
     public void execute(FunctionContext context) {
-      String[] args = (String[]) context.getArguments();
-      String regionName = args[0];
-      String operation = args[1];
+      var args = (String[]) context.getArguments();
+      var regionName = args[0];
+      var operation = args[1];
       Region region = cache.getRegion(regionName);
       switch (operation) {
         case "put":

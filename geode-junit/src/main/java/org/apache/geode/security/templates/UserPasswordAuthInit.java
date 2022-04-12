@@ -53,18 +53,18 @@ public class UserPasswordAuthInit implements AuthInitialize {
   @Override
   public Properties getCredentials(final Properties securityProperties,
       final DistributedMember server, final boolean isPeer) throws AuthenticationFailedException {
-    String userName = securityProperties.getProperty(USER_NAME);
+    var userName = securityProperties.getProperty(USER_NAME);
     if (userName == null) {
       throw new AuthenticationFailedException(
           "UserPasswordAuthInit: user name property [" + USER_NAME + "] not set.");
     }
 
-    String password = securityProperties.getProperty(PASSWORD);
+    var password = securityProperties.getProperty(PASSWORD);
     if (password == null) {
       password = "";
     }
 
-    Properties securityPropertiesCopy = new Properties();
+    var securityPropertiesCopy = new Properties();
     securityPropertiesCopy.setProperty(USER_NAME, userName);
     securityPropertiesCopy.setProperty(PASSWORD, password);
     return securityPropertiesCopy;

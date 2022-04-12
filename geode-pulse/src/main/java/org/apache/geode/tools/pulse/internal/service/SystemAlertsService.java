@@ -19,9 +19,7 @@ package org.apache.geode.tools.pulse.internal.service;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,14 +56,14 @@ public class SystemAlertsService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    JsonNode requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
-    int pageNumber = 1; // Default
-    String strPageNumber = requestDataJSON.get("SystemAlerts").get("pageNumber").textValue();
+    var requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
+    var pageNumber = 1; // Default
+    var strPageNumber = requestDataJSON.get("SystemAlerts").get("pageNumber").textValue();
     if (StringUtils.isNotBlank(strPageNumber)) {
       try {
         pageNumber = Integer.parseInt(strPageNumber);
@@ -91,20 +89,20 @@ public class SystemAlertsService implements PulseService {
    */
   public static ObjectNode getAlertsJson(Cluster cluster, int pageNumber) {
     // getting list of all types of alerts
-    Cluster.Alert[] alertsList = cluster.getAlertsList();
+    var alertsList = cluster.getAlertsList();
 
     // create alerts json
-    ObjectNode alertsJsonObject = mapper.createObjectNode();
+    var alertsJsonObject = mapper.createObjectNode();
 
     if ((alertsList != null) && (alertsList.length > 0)) {
-      ArrayNode errorJsonArray = mapper.createArrayNode();
-      ArrayNode severeJsonArray = mapper.createArrayNode();
-      ArrayNode warningJsonArray = mapper.createArrayNode();
-      ArrayNode infoJsonArray = mapper.createArrayNode();
+      var errorJsonArray = mapper.createArrayNode();
+      var severeJsonArray = mapper.createArrayNode();
+      var warningJsonArray = mapper.createArrayNode();
+      var infoJsonArray = mapper.createArrayNode();
 
       cluster.setNotificationPageNumber(pageNumber);
-      for (Cluster.Alert alert : alertsList) {
-        ObjectNode objAlertJson = mapper.createObjectNode();
+      for (var alert : alertsList) {
+        var objAlertJson = mapper.createObjectNode();
         objAlertJson.put("description", alert.getDescription());
         objAlertJson.put("memberName", alert.getMemberName());
         objAlertJson.put("severity", alert.getSeverity());

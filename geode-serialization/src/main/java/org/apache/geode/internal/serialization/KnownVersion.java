@@ -269,7 +269,7 @@ public class KnownVersion extends AbstractVersion {
   }
 
   public KnownVersion getClientServerProtocolVersion() {
-    for (short i = ordinal(); i >= 0; i--) {
+    for (var i = ordinal(); i >= 0; i--) {
       if (VALUES[i] != null && VALUES[i].modifiesClientServerProtocol) {
         return VALUES[i];
       }

@@ -18,20 +18,17 @@ import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_INTEGER;
 import static org.apache.geode.redis.internal.netty.Coder.bytesToLong;
 import static org.apache.geode.redis.internal.netty.Coder.narrowLongToInt;
 
-import java.util.List;
-
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.data.RedisList;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class LIndexExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    RedisKey key = command.getKey();
+    var commandElems = command.getProcessedCommand();
+    var key = command.getKey();
 
     return context.listLockedExecute(key, true,
         list -> performCommand(commandElems.get(2), list));

@@ -53,18 +53,18 @@ public class ClusterConfigWithCallbacksDUnitTest {
 
   @Before
   public void buildClusterConfigZip() throws Exception {
-    File clusterConfigDir = tempFolder.newFolder("cluster_config");
-    File clusterDir = new File(clusterConfigDir, "cluster");
+    var clusterConfigDir = tempFolder.newFolder("cluster_config");
+    var clusterDir = new File(clusterConfigDir, "cluster");
     clusterDir.mkdir();
 
-    String clusterXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+    var clusterXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
         + "<cache xmlns=\"http://geode.apache.org/schema/cache\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" copy-on-read=\"false\" is-server=\"false\" lock-lease=\"120\" lock-timeout=\"60\" search-timeout=\"300\" version=\"1.0\" xsi:schemaLocation=\"http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd\">\n"
         + "<region name=\"regionForCluster\">\n"
         + "  <region-attributes data-policy=\"replicate\" scope=\"distributed-ack\">\n"
         + "    <cache-writer><class-name>org.apache.geode.management.internal.cli.domain.MyCacheWriter</class-name><parameter name=\"key\"><string>value</string></parameter></cache-writer>\n"
         + "    <cache-listener><class-name>org.apache.geode.management.internal.cli.domain.MyCacheListener</class-name><parameter name=\"key\"><string>value</string></parameter></cache-listener>\n"
         + "  </region-attributes>\n" + "</region></cache>";
-    File xmlFile = new File(clusterDir, "cluster.xml");
+    var xmlFile = new File(clusterDir, "cluster.xml");
     FileUtils.writeStringToFile(xmlFile, clusterXml, Charset.defaultCharset());
 
     clusterConfigZip = new File(tempFolder.getRoot(), "cluster_config.zip");
@@ -86,8 +86,8 @@ public class ClusterConfigWithCallbacksDUnitTest {
     // assert that the callbacks are properly hooked up with the region
     server.invoke(() -> {
       Region region = ClusterStartupRule.getCache().getRegion(SEPARATOR + "regionForCluster");
-      MyCacheWriter writer = (MyCacheWriter) region.getAttributes().getCacheWriter();
-      MyCacheListener listener = (MyCacheListener) region.getAttributes().getCacheListeners()[0];
+      var writer = (MyCacheWriter) region.getAttributes().getCacheWriter();
+      var listener = (MyCacheListener) region.getAttributes().getCacheListeners()[0];
       assertThat(writer.getProperties().getProperty("key")).isEqualTo("value");
       assertThat(listener.getProperties().getProperty("key")).isEqualTo("value");
     });

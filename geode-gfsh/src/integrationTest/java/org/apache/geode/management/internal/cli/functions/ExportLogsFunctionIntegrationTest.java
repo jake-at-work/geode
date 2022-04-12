@@ -50,14 +50,14 @@ public class ExportLogsFunctionIntegrationTest {
 
   @Test
   public void exportLogsFunctionDoesNotBlowUp() throws Throwable {
-    File logFile1 = new File(serverWorkingDir, "server1.log");
+    var logFile1 = new File(serverWorkingDir, "server1.log");
     FileUtils.writeStringToFile(logFile1, "some log for server1 \n some other log line",
         Charset.defaultCharset());
-    File logFile2 = new File(serverWorkingDir, "server2.log");
+    var logFile2 = new File(serverWorkingDir, "server2.log");
     FileUtils.writeStringToFile(logFile2, "some log for server2 \n some other log line",
         Charset.defaultCharset());
 
-    File notALogFile = new File(serverWorkingDir, "foo.txt");
+    var notALogFile = new File(serverWorkingDir, "foo.txt");
     FileUtils.writeStringToFile(notALogFile, "some text", Charset.defaultCharset());
 
     verifyExportLogsFunctionDoesNotBlowUp(serverStarterRule.getCache());
@@ -69,7 +69,7 @@ public class ExportLogsFunctionIntegrationTest {
   @Test
   public void createOrGetExistingExportLogsRegionDoesNotBlowUp() {
     @SuppressWarnings("deprecation")
-    GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+    var cache = GemFireCacheImpl.getInstance();
     ExportLogsFunction.createOrGetExistingExportLogsRegion(false, cache);
     assertThat(cache.getRegion(ExportLogsFunction.EXPORT_LOGS_REGION)).isNotNull();
   }
@@ -77,7 +77,7 @@ public class ExportLogsFunctionIntegrationTest {
   @Test
   public void destroyExportLogsRegionWorksAsExpectedForInitiatingMember() {
     @SuppressWarnings("deprecation")
-    GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+    var cache = GemFireCacheImpl.getInstance();
     ExportLogsFunction.createOrGetExistingExportLogsRegion(true, cache);
     assertThat(cache.getRegion(ExportLogsFunction.EXPORT_LOGS_REGION)).isNotNull();
 
@@ -86,9 +86,9 @@ public class ExportLogsFunctionIntegrationTest {
   }
 
   private static void verifyExportLogsFunctionDoesNotBlowUp(Cache cache) throws Throwable {
-    ExportLogsFunction.Args args =
+    var args =
         new ExportLogsFunction.Args(null, null, "info", false, false, false);
-    CapturingResultSender resultSender = new CapturingResultSender();
+    var resultSender = new CapturingResultSender();
     @SuppressWarnings("unchecked")
     FunctionContext<ExportLogsFunction.Args> context =
         new FunctionContextImpl(cache, "functionId", args, resultSender);

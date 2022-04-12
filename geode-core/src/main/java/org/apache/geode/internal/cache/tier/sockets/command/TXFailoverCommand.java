@@ -31,7 +31,6 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PeerTXStateStub;
 import org.apache.geode.internal.cache.TXId;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.Message;
@@ -63,14 +62,14 @@ public class TXFailoverCommand extends BaseCommand {
 
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     // Build the TXId for the transaction
-    InternalDistributedMember client =
+    var client =
         (InternalDistributedMember) serverConnection.getProxyID().getDistributedMember();
-    int uniqId = clientMessage.getTransactionId();
+    var uniqId = clientMessage.getTransactionId();
     if (logger.isDebugEnabled()) {
       logger.debug("TX: Transaction {} from {} is failing over to this server", uniqId, client);
     }
-    TXId txId = createTXId(client, uniqId);
-    TXManagerImpl mgr = (TXManagerImpl) serverConnection.getCache().getCacheTransactionManager();
+    var txId = createTXId(client, uniqId);
+    var mgr = (TXManagerImpl) serverConnection.getCache().getCacheTransactionManager();
     mgr.waitForCompletingTransaction(txId); // in case it's already completing here in another
                                             // thread
     if (mgr.isHostedTxRecentlyCompleted(txId)) {
@@ -80,13 +79,13 @@ public class TXFailoverCommand extends BaseCommand {
       return;
     }
 
-    boolean wasInProgress = mgr.setInProgress(true); // fixes bug 43350
-    TXStateProxy tx = mgr.getTXState();
+    var wasInProgress = mgr.setInProgress(true); // fixes bug 43350
+    var tx = mgr.getTXState();
     Assert.assertTrue(tx != null);
 
     if (!tx.isRealDealLocal()) {
       // send message to all peers to find out who hosts the transaction
-      FindRemoteTXMessageReplyProcessor processor =
+      var processor =
           sendFindRemoteTXMessage(serverConnection.getCache(), txId);
       try {
         processor.waitForRepliesUninterruptibly();
@@ -95,7 +94,7 @@ public class TXFailoverCommand extends BaseCommand {
       }
       // if hosting member is not null, bootstrap PeerTXStateStub to that member
       // if hosting member is null, rebuild TXCommitMessage from partial TXCommitMessages
-      InternalDistributedMember hostingMember = processor.getHostingMember();
+      var hostingMember = processor.getHostingMember();
       if (hostingMember != null) {
         if (logger.isDebugEnabled()) {
           logger.debug(
@@ -112,7 +111,7 @@ public class TXFailoverCommand extends BaseCommand {
         // bug #42228 and bug #43504 - this cannot return until the current view
         // has been installed by all members, so that dlocks are released and
         // the same keys can be used in a new transaction by the same client thread
-        InternalCache cache = serverConnection.getCache();
+        var cache = serverConnection.getCache();
         try {
           WaitForViewInstallation.send((ClusterDistributionManager) cache.getDistributionManager());
         } catch (InterruptedException e) {

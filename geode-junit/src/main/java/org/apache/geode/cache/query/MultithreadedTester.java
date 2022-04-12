@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -30,10 +29,10 @@ public class MultithreadedTester {
 
   public static Collection<Object> runMultithreaded(Collection<Callable> callables)
       throws InterruptedException {
-    final CountDownLatch allRunnablesAreSubmitted = new CountDownLatch(callables.size());
-    final CountDownLatch callablesComplete = new CountDownLatch(callables.size());
-    final ExecutorService executor = Executors.newFixedThreadPool(callables.size());
-    final LinkedList<Future> futures = new LinkedList<>();
+    final var allRunnablesAreSubmitted = new CountDownLatch(callables.size());
+    final var callablesComplete = new CountDownLatch(callables.size());
+    final var executor = Executors.newFixedThreadPool(callables.size());
+    final var futures = new LinkedList<Future>();
     // Submit all tasks to the executor
     callables.forEach(callable -> {
       futures.add(executor.submit(() -> {

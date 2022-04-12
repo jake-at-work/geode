@@ -19,7 +19,6 @@ package org.apache.geode.internal.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
@@ -42,14 +41,14 @@ public class RegionSizeIntegrationTest {
   // LocalRegion.getRegionSize() method after we got the region map size.
   @Test
   public void regionSizeShouldAlwaysBePositive() throws ExecutionException, InterruptedException {
-    LocalRegion region = (LocalRegion) server.createRegion(RegionShortcut.REPLICATE, "testRegion");
-    CompletableFuture<Void> sizeOp = executor.runAsync(() -> {
+    var region = (LocalRegion) server.createRegion(RegionShortcut.REPLICATE, "testRegion");
+    var sizeOp = executor.runAsync(() -> {
       IntStream.range(0, 1000).forEach(i -> {
         assertThat(region.getRegionSize()).isGreaterThanOrEqualTo(0);
       });
     });
 
-    CompletableFuture<Void> putAndDestroyOp = executor.runAsync(() -> {
+    var putAndDestroyOp = executor.runAsync(() -> {
       IntStream.range(0, 1000).forEach(i -> {
         region.put("key" + i, "value" + i);
         region.destroy("key" + i);

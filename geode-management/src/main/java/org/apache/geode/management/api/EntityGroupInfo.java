@@ -103,7 +103,7 @@ public class EntityGroupInfo<T extends AbstractConfiguration<R>, R extends Runti
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    EntityGroupInfo<?, ?> that = (EntityGroupInfo<?, ?>) o;
+    var that = (EntityGroupInfo<?, ?>) o;
     return Objects.equals(configuration, that.configuration) &&
         Objects.equals(runtimeInfo, that.runtimeInfo);
   }

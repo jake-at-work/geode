@@ -19,10 +19,7 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.Rule;
@@ -30,11 +27,8 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.InternalCacheServer;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
 
 public class ClientServerRemoteHostAddressDistributedTest implements Serializable {
@@ -48,16 +42,16 @@ public class ClientServerRemoteHostAddressDistributedTest implements Serializabl
   @Test
   public void testRemoteHostAddress() throws Exception {
     // Start Locator
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     // Start server
-    int locatorPort = locator.getPort();
-    String regionName = testName.getMethodName() + "_region";
-    MemberVM server = cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
+    var locatorPort = locator.getPort();
+    var regionName = testName.getMethodName() + "_region";
+    var server = cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
         .withRegion(RegionShortcut.PARTITION, regionName));
 
     // Connect client 1
-    ClientVM client1 =
+    var client1 =
         cluster.startClientVM(2, getDurableClientProperties(testName.getMethodName() + "_1"),
             (ccf) -> {
               ccf.setPoolSubscriptionEnabled(true);
@@ -65,7 +59,7 @@ public class ClientServerRemoteHostAddressDistributedTest implements Serializabl
             });
 
     // Connect client 2
-    ClientVM client2 =
+    var client2 =
         cluster.startClientVM(3, getDurableClientProperties(testName.getMethodName() + "_2"),
             (ccf) -> {
               ccf.setPoolSubscriptionEnabled(true);
@@ -81,7 +75,7 @@ public class ClientServerRemoteHostAddressDistributedTest implements Serializabl
   }
 
   protected Properties getDurableClientProperties(String durableClientId) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(DURABLE_CLIENT_ID, durableClientId);
     return properties;
   }
@@ -96,8 +90,8 @@ public class ClientServerRemoteHostAddressDistributedTest implements Serializabl
 
   private AcceptorImpl getAcceptor() {
     Cache cache = ClusterStartupRule.getCache();
-    List<CacheServer> cacheServers = cache.getCacheServers();
-    CacheServer cacheServer = cacheServers.get(0);
+    var cacheServers = cache.getCacheServers();
+    var cacheServer = cacheServers.get(0);
     return (AcceptorImpl) ((InternalCacheServer) cacheServer).getAcceptor();
   }
 
@@ -107,8 +101,8 @@ public class ClientServerRemoteHostAddressDistributedTest implements Serializabl
         () -> acceptor.getCacheClientNotifier().getClientProxies().size() == expectedNumProxies);
 
     // Get their remoteHostAddresses
-    Collection<CacheClientProxy> proxies = acceptor.getCacheClientNotifier().getClientProxies();
-    Set<String> remoteHostAddresses =
+    var proxies = acceptor.getCacheClientNotifier().getClientProxies();
+    var remoteHostAddresses =
         proxies.stream().map(CacheClientProxy::getRemoteHostAddress).collect(Collectors.toSet());
 
     // Verify the expected number of remoteHostAddresses

@@ -45,11 +45,8 @@ import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.management.internal.LocalManager;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.management.internal.ManagementConstants;
-import org.apache.geode.management.internal.NotificationHub.NotificationHubListener;
-import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.rules.serializable.SerializableTemporaryFolder;
@@ -105,8 +102,8 @@ public class CacheManagementDUnitTest implements Serializable {
     managementTestRule.createManagers();
 
     Map<DistributedMember, DistributionConfig> configMap = new HashMap<>();
-    for (VM memberVM : memberVMs) {
-      Map<DistributedMember, DistributionConfig> configMapMember =
+    for (var memberVM : memberVMs) {
+      var configMapMember =
           memberVM.invoke(this::verifyConfigData);
       configMap.putAll(configMapMember);
     }
@@ -119,9 +116,9 @@ public class CacheManagementDUnitTest implements Serializable {
    */
   @Test
   public void testMemberMBeanOperations() throws Exception {
-    int i = 1;
-    for (VM memberVM : memberVMs) {
-      Properties props = new Properties();
+    var i = 1;
+    for (var memberVM : memberVMs) {
+      var props = new Properties();
       props.setProperty(LOG_FILE, temporaryFolder
           .newFile(testName.getMethodName() + "-VM" + i + ".log").getAbsolutePath());
       managementTestRule.createMember(memberVM, props);
@@ -130,17 +127,17 @@ public class CacheManagementDUnitTest implements Serializable {
 
     managementTestRule.createManagers();
 
-    for (VM memberVM : memberVMs) {
-      String logMessage = "This line should be in the log";
+    for (var memberVM : memberVMs) {
+      var logMessage = "This line should be in the log";
       memberVM.invoke(() -> managementTestRule.getCache().getLogger().info(logMessage));
 
-      String log = memberVM.invoke(this::fetchLog);
+      var log = memberVM.invoke(this::fetchLog);
       assertThat(log).isNotNull();
       assertThat(log).contains(logMessage);
 
-      JVMMetrics jvmMetrics = memberVM.invoke(this::fetchJVMMetrics);
+      var jvmMetrics = memberVM.invoke(this::fetchJVMMetrics);
 
-      OSMetrics osMetrics = memberVM.invoke(this::fetchOSMetrics);
+      var osMetrics = memberVM.invoke(this::fetchOSMetrics);
 
       // TODO: need assertions
 
@@ -176,7 +173,7 @@ public class CacheManagementDUnitTest implements Serializable {
 
     // Now start Managing node managerVM. System will have two Managers now which
     // should be OK
-    DistributedMember member = managementTestRule.getDistributedMember(memberVMs[2]);
+    var member = managementTestRule.getDistributedMember(memberVMs[2]);
     managementTestRule.startManager(managerVM);
 
     verifyManagerStarted(managerVM, member);
@@ -216,8 +213,8 @@ public class CacheManagementDUnitTest implements Serializable {
     memberVMs[2].invoke(this::startManager);
 
     memberVMs[2].invoke(() -> {
-      SystemManagementService service = managementTestRule.getSystemManagementService();
-      LocalManager localManager = service.getLocalManager();
+      var service = managementTestRule.getSystemManagementService();
+      var localManager = service.getLocalManager();
       managementTestRule.getCache().close();
       assertThat(localManager.isRunning()).isFalse();
       assertThat(service.isManager()).isFalse();
@@ -290,81 +287,81 @@ public class CacheManagementDUnitTest implements Serializable {
 
   @Test
   public void testRedundancyZone() {
-    String redundancyZone = "ARMY_ZONE";
+    var redundancyZone = "ARMY_ZONE";
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(REDUNDANCY_ZONE, redundancyZone);
 
     managementTestRule.createMember(memberVMs[0], props);
 
     memberVMs[0].invoke("verifyRedundancyZone", () -> {
-      ManagementService service = managementTestRule.getExistingManagementService();
-      MemberMXBean memberMXBean = service.getMemberMXBean();
+      var service = managementTestRule.getExistingManagementService();
+      var memberMXBean = service.getMemberMXBean();
       assertThat(memberMXBean.getRedundancyZone()).isEqualTo(redundancyZone);
     });
   }
 
   private void verifyQueryMBeans(final VM managerVM) {
     managerVM.invoke("validateQueryMBeans", () -> {
-      SystemManagementService service = managementTestRule.getSystemManagementService();
-      Set<DistributedMember> otherMembers = managementTestRule.getOtherNormalMembers();
+      var service = managementTestRule.getSystemManagementService();
+      var otherMembers = managementTestRule.getOtherNormalMembers();
       Set<ObjectName> superSet = new HashSet<>();
 
-      for (DistributedMember member : otherMembers) {
-        ObjectName memberMBeanName = service.getMemberMBeanName(member);
+      for (var member : otherMembers) {
+        var memberMBeanName = service.getMemberMBeanName(member);
 
         MXBeanAwaitility.awaitMemberMXBeanProxy(member, service);
 
-        Set<ObjectName> objectNames = service.queryMBeanNames(member);
+        var objectNames = service.queryMBeanNames(member);
         superSet.addAll(objectNames);
         assertThat(objectNames.contains(memberMBeanName)).isTrue();
       }
 
-      Set<ObjectName> names =
+      var names =
           service.queryMBeanNames(managementTestRule.getDistributedMember());
-      ObjectName[] arrayOfNames = names.toArray(new ObjectName[0]);
+      var arrayOfNames = names.toArray(new ObjectName[0]);
       assertThat(superSet).doesNotContain(arrayOfNames);
     });
   }
 
   private void verifyGetMBeanInstance(final VM managerVM) {
     managerVM.invoke("verifyGetMBeanInstance", () -> {
-      SystemManagementService service = managementTestRule.getSystemManagementService();
-      Set<DistributedMember> otherMembers = managementTestRule.getOtherNormalMembers();
+      var service = managementTestRule.getSystemManagementService();
+      var otherMembers = managementTestRule.getOtherNormalMembers();
 
-      for (DistributedMember member : otherMembers) {
-        ObjectName memberMBeanName = service.getMemberMBeanName(member);
+      for (var member : otherMembers) {
+        var memberMBeanName = service.getMemberMBeanName(member);
 
         MXBeanAwaitility.awaitMemberMXBeanProxy(member, service);
 
-        MemberMXBean memberMXBean = service.getMBeanInstance(memberMBeanName, MemberMXBean.class);
+        var memberMXBean = service.getMBeanInstance(memberMBeanName, MemberMXBean.class);
         assertThat(memberMXBean).isNotNull();
       }
 
-      DistributedMember distributedMember = managementTestRule.getDistributedMember();
-      ObjectName memberMBeanName = service.getMemberMBeanName(distributedMember);
-      MemberMXBean memberMXBean = service.getMBeanInstance(memberMBeanName, MemberMXBean.class);
+      var distributedMember = managementTestRule.getDistributedMember();
+      var memberMBeanName = service.getMemberMBeanName(distributedMember);
+      var memberMXBean = service.getMBeanInstance(memberMBeanName, MemberMXBean.class);
       assertThat(memberMXBean).isNotNull();
     });
   }
 
   private void verifyManagerStarted(final VM managerVM, final DistributedMember otherMember) {
     managerVM.invoke("verifyManagerStarted", () -> {
-      SystemManagementService service = managementTestRule.getSystemManagementService();
+      var service = managementTestRule.getSystemManagementService();
       assertThat(service.isManager()).isTrue();
 
       assertThat(service.getLocalManager().isRunning()).isTrue();
 
       assertThat(service.getLocalManager().getFederationScheduler().isShutdown()).isFalse();
 
-      ObjectName memberMBeanName = service.getMemberMBeanName(otherMember);
+      var memberMBeanName = service.getMemberMBeanName(otherMember);
 
       GeodeAwaitility.await().untilAsserted(
           () -> assertThat(service.getMBeanProxy(memberMBeanName, MemberMXBean.class)).isNotNull());
-      MemberMXBean memberMXBean = service.getMBeanProxy(memberMBeanName, MemberMXBean.class);
+      var memberMXBean = service.getMBeanProxy(memberMBeanName, MemberMXBean.class);
 
       // Ensure Data getting federated from Managing node
-      long start = memberMXBean.getMemberUpTime();
+      var start = memberMXBean.getMemberUpTime();
       GeodeAwaitility.await()
           .untilAsserted(() -> assertThat(memberMXBean.getMemberUpTime()).isGreaterThan(start));
     });
@@ -375,35 +372,35 @@ public class CacheManagementDUnitTest implements Serializable {
    */
   private void verifyManagerStopped(final VM managerVM, final int otherMembersCount) {
     managerVM.invoke("verifyManagerStopped", () -> {
-      SystemManagementService service = managementTestRule.getSystemManagementService();
+      var service = managementTestRule.getSystemManagementService();
 
       assertThat(service.isManager()).isFalse();
       assertThat(service.getLocalManager().isRunning()).isTrue();
       assertThat(service.getLocalManager().getFederationScheduler().isShutdown()).isFalse();
 
       // Check for Proxies
-      Set<DistributedMember> otherMembers = managementTestRule.getOtherNormalMembers();
+      var otherMembers = managementTestRule.getOtherNormalMembers();
       assertThat(otherMembers).hasSize(otherMembersCount);
 
-      for (DistributedMember member : otherMembers) {
-        Set<ObjectName> proxyNames =
+      for (var member : otherMembers) {
+        var proxyNames =
             service.getFederatingManager().proxyFactory().findAllProxies(member);
         assertThat(proxyNames).isEmpty();
 
-        ObjectName proxyMBeanName = service.getMemberMBeanName(member);
+        var proxyMBeanName = service.getMemberMBeanName(member);
         assertThat(MBeanJMXAdapter.mbeanServer.isRegistered(proxyMBeanName)).isFalse();
       }
     });
   }
 
   private Map<DistributedMember, DistributionConfig> verifyConfigData() {
-    ManagementService service = managementTestRule.getManagementService();
-    InternalDistributedSystem ids =
+    var service = managementTestRule.getManagementService();
+    var ids =
         (InternalDistributedSystem) managementTestRule.getCache().getDistributedSystem();
-    DistributionConfig config = ids.getConfig();
+    var config = ids.getConfig();
 
-    MemberMXBean bean = service.getMemberMXBean();
-    GemFireProperties data = bean.listGemFireProperties();
+    var bean = service.getMemberMXBean();
+    var data = bean.listGemFireProperties();
     verifyGemFirePropertiesData(config, data);
 
     Map<DistributedMember, DistributionConfig> configMap = new HashMap<>();
@@ -416,14 +413,14 @@ public class CacheManagementDUnitTest implements Serializable {
    * not.
    */
   private void verifyConfigDataRemote(final Map<DistributedMember, DistributionConfig> configMap) {
-    SystemManagementService service = managementTestRule.getSystemManagementService();
-    Set<DistributedMember> otherMembers = managementTestRule.getOtherNormalMembers();
+    var service = managementTestRule.getSystemManagementService();
+    var otherMembers = managementTestRule.getOtherNormalMembers();
 
-    for (DistributedMember member : otherMembers) {
-      MemberMXBean memberMXBean = MXBeanAwaitility.awaitMemberMXBeanProxy(member, service);
+    for (var member : otherMembers) {
+      var memberMXBean = MXBeanAwaitility.awaitMemberMXBeanProxy(member, service);
 
-      GemFireProperties data = memberMXBean.listGemFireProperties();
-      DistributionConfig config = configMap.get(member);
+      var data = memberMXBean.listGemFireProperties();
+      var config = configMap.get(member);
       verifyGemFirePropertiesData(config, data);
     }
   }
@@ -527,8 +524,8 @@ public class CacheManagementDUnitTest implements Serializable {
   }
 
   private void startManager() throws JMException {
-    ManagementService service = managementTestRule.getManagementService();
-    MemberMXBean memberMXBean = service.getMemberMXBean();
+    var service = managementTestRule.getManagementService();
+    var memberMXBean = service.getMemberMXBean();
     if (memberMXBean.isManagerCreated()) {
       return;
     }
@@ -540,7 +537,7 @@ public class CacheManagementDUnitTest implements Serializable {
     assertThat(memberMXBean.createManager()).isTrue();
     assertThat(memberMXBean.isManagerCreated()).isTrue();
 
-    ManagerMXBean managerMXBean = service.getManagerMXBean();
+    var managerMXBean = service.getManagerMXBean();
     managerMXBean.start();
 
     assertThat(managerMXBean.isRunning()).isTrue();
@@ -549,59 +546,60 @@ public class CacheManagementDUnitTest implements Serializable {
   }
 
   private String fetchLog() {
-    ManagementService service = managementTestRule.getManagementService();
-    MemberMXBean memberMXBean = service.getMemberMXBean();
+    var service = managementTestRule.getManagementService();
+    var memberMXBean = service.getMemberMXBean();
     return memberMXBean.showLog(30);
   }
 
   private JVMMetrics fetchJVMMetrics() {
-    ManagementService service = managementTestRule.getManagementService();
-    MemberMXBean memberMXBean = service.getMemberMXBean();
+    var service = managementTestRule.getManagementService();
+    var memberMXBean = service.getMemberMXBean();
     return memberMXBean.showJVMMetrics();
   }
 
   private OSMetrics fetchOSMetrics() {
-    ManagementService service = managementTestRule.getManagementService();
-    MemberMXBean memberMXBean = service.getMemberMXBean();
+    var service = managementTestRule.getManagementService();
+    var memberMXBean = service.getMemberMXBean();
     return memberMXBean.showOSMetrics();
   }
 
   private void shutDownMember() {
-    ManagementService service = managementTestRule.getManagementService();
-    MemberMXBean memberMXBean = service.getMemberMXBean();
+    var service = managementTestRule.getManagementService();
+    var memberMXBean = service.getMemberMXBean();
     memberMXBean.shutDownMember();
   }
 
   private void verifyNoMembers() {
-    String alias = "awaiting " + managementTestRule.getOtherNormalMembers() + " to be empty";
+    var alias = "awaiting " + managementTestRule.getOtherNormalMembers() + " to be empty";
     GeodeAwaitility.await(alias)
         .untilAsserted(() -> assertThat(managementTestRule.getOtherNormalMembers()).isEmpty());
   }
 
   private void invokeRemoteMemberMXBeanOps() {
-    SystemManagementService service = managementTestRule.getSystemManagementService();
-    Set<DistributedMember> otherMembers = managementTestRule.getOtherNormalMembers();
+    var service = managementTestRule.getSystemManagementService();
+    var otherMembers = managementTestRule.getOtherNormalMembers();
 
-    for (DistributedMember member : otherMembers) {
-      MemberMXBean memberMXBean = MXBeanAwaitility.awaitMemberMXBeanProxy(member, service);
+    for (var member : otherMembers) {
+      var memberMXBean = MXBeanAwaitility.awaitMemberMXBeanProxy(member, service);
 
-      JVMMetrics metrics = memberMXBean.showJVMMetrics();
+      var metrics = memberMXBean.showJVMMetrics();
 
-      String value = metrics.toString();
-      boolean isManager = memberMXBean.isManager();
+      var value = metrics.toString();
+      var isManager = memberMXBean.isManager();
     }
   }
 
   private void attachListenerToDistributedSystemMXBean(final VM managerVM) {
     managerVM.invoke("attachListenerToDistributedSystemMXBean", () -> {
-      ManagementService service = managementTestRule.getManagementService();
+      var service = managementTestRule.getManagementService();
       assertThat(service.isManager()).isTrue();
 
-      NotificationListener listener = (final Notification notification, final Object handback) -> {
-        if (notification.getType().equals(JMXNotificationType.REGION_CREATED)) {
-          notifications.add(notification);
-        }
-      };
+      var listener =
+          (NotificationListener) (final Notification notification, final Object handback) -> {
+            if (notification.getType().equals(JMXNotificationType.REGION_CREATED)) {
+              notifications.add(notification);
+            }
+          };
 
       ManagementFactory.getPlatformMBeanServer().addNotificationListener(
           MBeanJMXAdapter.getDistributedSystemName(), listener, null, null);
@@ -610,16 +608,16 @@ public class CacheManagementDUnitTest implements Serializable {
 
   private void verifyNotificationsAndRegionSize(final VM memberVM1, final VM memberVM2,
       final VM memberVM3, final VM managerVM) {
-    InternalDistributedMember member1 =
+    var member1 =
         (InternalDistributedMember) managementTestRule.getDistributedMember(memberVM1);
-    InternalDistributedMember member2 =
+    var member2 =
         (InternalDistributedMember) managementTestRule.getDistributedMember(memberVM2);
-    InternalDistributedMember member3 =
+    var member3 =
         (InternalDistributedMember) managementTestRule.getDistributedMember(memberVM3);
 
-    String memberId1 = MBeanJMXAdapter.getUniqueIDForMember(member1);
-    String memberId2 = MBeanJMXAdapter.getUniqueIDForMember(member2);
-    String memberId3 = MBeanJMXAdapter.getUniqueIDForMember(member3);
+    var memberId1 = MBeanJMXAdapter.getUniqueIDForMember(member1);
+    var memberId2 = MBeanJMXAdapter.getUniqueIDForMember(member2);
+    var memberId3 = MBeanJMXAdapter.getUniqueIDForMember(member3);
 
     memberVM1.invoke("createNotificationRegion", () -> createNotificationRegion(memberId1));
     memberVM2.invoke("createNotificationRegion", () -> createNotificationRegion(memberId2));
@@ -647,8 +645,8 @@ public class CacheManagementDUnitTest implements Serializable {
   }
 
   private void createNotificationRegion(final String memberId) {
-    SystemManagementService service = managementTestRule.getSystemManagementService();
-    Map<ObjectName, NotificationHubListener> notificationHubListenerMap =
+    var service = managementTestRule.getSystemManagementService();
+    var notificationHubListenerMap =
         service.getNotificationHub().getListenerObjectMap();
 
     GeodeAwaitility.await()
@@ -656,7 +654,7 @@ public class CacheManagementDUnitTest implements Serializable {
 
     RegionFactory<?, ?> regionFactory =
         managementTestRule.getCache().createRegionFactory(RegionShortcut.REPLICATE);
-    for (int i = 1; i <= 15; i++) {
+    for (var i = 1; i <= 15; i++) {
       regionFactory.create(NOTIFICATION_REGION_NAME + i);
     }
     Region<?, ?> region = managementTestRule.getCache()

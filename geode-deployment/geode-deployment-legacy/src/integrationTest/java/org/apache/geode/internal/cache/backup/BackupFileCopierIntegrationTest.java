@@ -35,7 +35,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -95,9 +94,9 @@ public class BackupFileCopierIntegrationTest {
     System.setProperty(DistributedSystem.PROPERTIES_FILE_PROPERTY,
         tempFolder.getRoot().getAbsolutePath() + SEPARATOR + "nonexistent");
     fileCopier.copyConfigFiles();
-    Path cacheXmlDestination = tempFilesLocation.resolve(CONFIG_DIRECTORY).resolve(CACHE_XML);
+    var cacheXmlDestination = tempFilesLocation.resolve(CONFIG_DIRECTORY).resolve(CACHE_XML);
     assertThat(cacheXmlDestination).doesNotExist();
-    Path propertiesFileDestination =
+    var propertiesFileDestination =
         tempFilesLocation.resolve(CONFIG_DIRECTORY).resolve(PROPERTIES_FILE);
     assertThat(propertiesFileDestination).doesNotExist();
     assertThat(fileCopier.getBackupDefinition().getConfigFiles()).isEmpty();
@@ -113,19 +112,19 @@ public class BackupFileCopierIntegrationTest {
 
   @Test
   public void copiesConfigFilesToCorrectLocation() throws IOException {
-    File propertiesFile = tempFolder.newFile(PROPERTIES_FILE);
+    var propertiesFile = tempFolder.newFile(PROPERTIES_FILE);
     System.setProperty(DistributedSystem.PROPERTIES_FILE_PROPERTY,
         propertiesFile.getAbsolutePath());
 
-    File cacheXml = tempFolder.newFile("cache.xml");
-    URL cacheXmlURL = cacheXml.toURI().toURL();
+    var cacheXml = tempFolder.newFile("cache.xml");
+    var cacheXmlURL = cacheXml.toURI().toURL();
     when(cache.getCacheXmlURL()).thenReturn(cacheXmlURL);
 
     fileCopier.copyConfigFiles();
 
-    Path cacheXmlDestination = tempFilesLocation.resolve(CONFIG_DIRECTORY).resolve(CACHE_XML);
+    var cacheXmlDestination = tempFilesLocation.resolve(CONFIG_DIRECTORY).resolve(CACHE_XML);
     assertThat(cacheXmlDestination).exists();
-    Path propertiesFileDestination =
+    var propertiesFileDestination =
         tempFilesLocation.resolve(CONFIG_DIRECTORY).resolve(PROPERTIES_FILE);
     assertThat(propertiesFileDestination).exists();
     assertThat(fileCopier.getBackupDefinition().getConfigFiles())
@@ -136,22 +135,22 @@ public class BackupFileCopierIntegrationTest {
   public void noJarsInBackupIfNoneExist() throws IOException {
     fileCopier.copyDeployedJars();
 
-    Path jarsDir = tempFilesLocation.resolve(USER_FILES);
+    var jarsDir = tempFilesLocation.resolve(USER_FILES);
     assertThat(Files.list(jarsDir)).isEmpty();
     assertThat(fileCopier.getBackupDefinition().getDeployedJars()).isEmpty();
   }
 
   @Test
   public void copiesDeployedJarsToCorrectLocation() throws IOException {
-    File myJarFile = new File(tempFolder.getRoot().getCanonicalPath() + "/myJar.jar");
-    JarBuilder jarBuilder = new JarBuilder();
+    var myJarFile = new File(tempFolder.getRoot().getCanonicalPath() + "/myJar.jar");
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJar(myJarFile, createClassContent("version1", "Abc"));
-    Deployment deployment = new Deployment(myJarFile.getName(), "", Instant.now().toString());
+    var deployment = new Deployment(myJarFile.getName(), "", Instant.now().toString());
     deployment.setFile(myJarFile);
     jarDeploymentService.deploy(deployment);
     fileCopier = new BackupFileCopier(cache, jarDeploymentService, tempFiles);
 
-    Set<File> files = fileCopier.copyDeployedJars();
+    var files = fileCopier.copyDeployedJars();
     files.forEach(file -> {
       try {
         System.err
@@ -162,7 +161,7 @@ public class BackupFileCopierIntegrationTest {
       }
     });
 
-    Path expectedJar = tempFilesLocation.resolve(USER_FILES).resolve("myJar.v1.jar");
+    var expectedJar = tempFilesLocation.resolve(USER_FILES).resolve("myJar.v1.jar");
     assertThat(expectedJar).exists();
     assertThat(fileCopier.getBackupDefinition().getDeployedJars().keySet())
         .containsExactly(expectedJar);
@@ -173,15 +172,15 @@ public class BackupFileCopierIntegrationTest {
   public void userDirectoryEmptyIfNoUserFiles() throws IOException {
     fileCopier.copyUserFiles();
 
-    Path userDir = tempFilesLocation.resolve(USER_FILES);
+    var userDir = tempFilesLocation.resolve(USER_FILES);
     assertThat(Files.list(userDir)).isEmpty();
     assertThat(fileCopier.getBackupDefinition().getUserFiles()).isEmpty();
   }
 
   @Test
   public void userDirectoryContainsCorrectFiles() throws IOException {
-    File userFile = tempFolder.newFile("userFile");
-    File userSubdir = tempFolder.newFolder("userSubfolder");
+    var userFile = tempFolder.newFile("userFile");
+    var userSubdir = tempFolder.newFolder("userSubfolder");
     List<File> userFiles = new ArrayList<>();
     userFiles.add(userFile);
     userFiles.add(userSubdir);
@@ -189,8 +188,8 @@ public class BackupFileCopierIntegrationTest {
 
     fileCopier.copyUserFiles();
 
-    Path expectedUserFile = tempFilesLocation.resolve(USER_FILES).resolve("userFile");
-    Path expectedUserSubdir = tempFilesLocation.resolve(USER_FILES).resolve("userSubfolder");
+    var expectedUserFile = tempFilesLocation.resolve(USER_FILES).resolve("userFile");
+    var expectedUserSubdir = tempFilesLocation.resolve(USER_FILES).resolve("userSubfolder");
     assertThat(expectedUserFile).exists();
     assertThat(expectedUserSubdir).exists();
     assertThat(fileCopier.getBackupDefinition().getUserFiles().keySet())
@@ -199,16 +198,16 @@ public class BackupFileCopierIntegrationTest {
 
   @Test
   public void containsCorrectDiskInitFile() throws IOException {
-    File initFileToCopy = tempFolder.newFile("initFile");
-    DiskStoreImpl diskStore = mock(DiskStoreImpl.class);
-    DiskInitFile initFile = mock(DiskInitFile.class);
+    var initFileToCopy = tempFolder.newFile("initFile");
+    var diskStore = mock(DiskStoreImpl.class);
+    var initFile = mock(DiskInitFile.class);
     when(diskStore.getDiskInitFile()).thenReturn(initFile);
     when(diskStore.getInforFileDirIndex()).thenReturn(13);
     when(initFile.getIFFile()).thenReturn(initFileToCopy);
 
     fileCopier.copyDiskInitFile(diskStore);
 
-    Path expectedInitFile = tempFilesLocation.resolve("13").resolve(initFileToCopy.getName());
+    var expectedInitFile = tempFilesLocation.resolve("13").resolve(initFileToCopy.getName());
     assertThat(expectedInitFile).exists();
     assertThat(fileCopier.getBackupDefinition().getDiskInitFiles())
         .containsExactly(entry(diskStore, expectedInitFile));
@@ -216,32 +215,32 @@ public class BackupFileCopierIntegrationTest {
 
   @Test
   public void copiesAllFilesForOplog() throws IOException {
-    File oplogDir = tempFolder.newFolder("oplogDir");
-    File crfFile = new File(oplogDir, "crf");
-    File drfFile = new File(oplogDir, "drf");
-    File krfFile = new File(oplogDir, "krf");
+    var oplogDir = tempFolder.newFolder("oplogDir");
+    var crfFile = new File(oplogDir, "crf");
+    var drfFile = new File(oplogDir, "drf");
+    var krfFile = new File(oplogDir, "krf");
     Files.createFile(crfFile.toPath());
     Files.createFile(drfFile.toPath());
     Files.createFile(krfFile.toPath());
 
-    Oplog oplog = mock(Oplog.class);
-    DirectoryHolder dirHolder = mock(DirectoryHolder.class);
+    var oplog = mock(Oplog.class);
+    var dirHolder = mock(DirectoryHolder.class);
     when(dirHolder.getDir()).thenReturn(oplogDir);
     when(oplog.getDirectoryHolder()).thenReturn(dirHolder);
     when(oplog.getCrfFile()).thenReturn(crfFile);
     when(oplog.getDrfFile()).thenReturn(drfFile);
     when(oplog.getKrfFile()).thenReturn(krfFile);
-    DiskStore diskStore = mock(DiskStore.class);
+    var diskStore = mock(DiskStore.class);
     when(tempFiles.getDiskStoreDirectory(any(), any()))
         .thenReturn(tempFolder.newFolder("diskstores").toPath());
 
     fileCopier.copyOplog(diskStore, oplog);
 
-    Path expectedCrfFile =
+    var expectedCrfFile =
         tempFiles.getDiskStoreDirectory(diskStore, dirHolder).resolve(crfFile.getName());
-    Path expectedDrfFile =
+    var expectedDrfFile =
         tempFiles.getDiskStoreDirectory(diskStore, dirHolder).resolve(drfFile.getName());
-    Path expectedKrfFile =
+    var expectedKrfFile =
         tempFiles.getDiskStoreDirectory(diskStore, dirHolder).resolve(krfFile.getName());
     assertThat(expectedCrfFile).exists();
     assertThat(expectedDrfFile).exists();
@@ -254,34 +253,34 @@ public class BackupFileCopierIntegrationTest {
 
   @Test
   public void copiesOplogFilesIfHardlinksFail() throws IOException {
-    File oplogDir = tempFolder.newFolder("oplogDir");
-    File crfFile = new File(oplogDir, "crf");
-    File drfFile = new File(oplogDir, "drf");
-    File krfFile = new File(oplogDir, "krf");
+    var oplogDir = tempFolder.newFolder("oplogDir");
+    var crfFile = new File(oplogDir, "crf");
+    var drfFile = new File(oplogDir, "drf");
+    var krfFile = new File(oplogDir, "krf");
     Files.createFile(crfFile.toPath());
     Files.createFile(drfFile.toPath());
     Files.createFile(krfFile.toPath());
 
-    Oplog oplog = mock(Oplog.class);
-    DirectoryHolder dirHolder = mock(DirectoryHolder.class);
+    var oplog = mock(Oplog.class);
+    var dirHolder = mock(DirectoryHolder.class);
     when(dirHolder.getDir()).thenReturn(oplogDir);
     when(oplog.getDirectoryHolder()).thenReturn(dirHolder);
     when(oplog.getCrfFile()).thenReturn(crfFile);
     when(oplog.getDrfFile()).thenReturn(drfFile);
     when(oplog.getKrfFile()).thenReturn(krfFile);
-    DiskStore diskStore = mock(DiskStore.class);
-    Path diskStoreDir = tempFolder.newFolder("diskstores").toPath();
+    var diskStore = mock(DiskStore.class);
+    var diskStoreDir = tempFolder.newFolder("diskstores").toPath();
     when(tempFiles.getDiskStoreDirectory(any(), any())).thenReturn(diskStoreDir);
 
     doThrow(new IOException()).when(fileCopier).createLink(any(), any());
 
     fileCopier.copyOplog(diskStore, oplog);
 
-    Path expectedCrfFile =
+    var expectedCrfFile =
         tempFiles.getDiskStoreDirectory(diskStore, dirHolder).resolve(crfFile.getName());
-    Path expectedDrfFile =
+    var expectedDrfFile =
         tempFiles.getDiskStoreDirectory(diskStore, dirHolder).resolve(drfFile.getName());
-    Path expectedKrfFile =
+    var expectedKrfFile =
         tempFiles.getDiskStoreDirectory(diskStore, dirHolder).resolve(krfFile.getName());
     assertThat(expectedCrfFile).exists();
     assertThat(expectedDrfFile).exists();

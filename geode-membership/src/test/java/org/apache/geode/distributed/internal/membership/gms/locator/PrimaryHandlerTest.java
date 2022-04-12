@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
@@ -34,32 +33,32 @@ public class PrimaryHandlerTest {
 
   @Test
   public void processRequest() throws IOException {
-    final AtomicInteger sleepCount = new AtomicInteger();
+    final var sleepCount = new AtomicInteger();
     final TcpHandler fallbackHandler = null;
-    final int locatorWaitTime = 5;
-    final List<Long> clockTimes = Arrays.asList(0L, 1000L, 2000L, 3000L, 4000L, 5000L);
-    PrimaryHandler primaryHandler = new PrimaryHandler(fallbackHandler, locatorWaitTime,
+    final var locatorWaitTime = 5;
+    final var clockTimes = Arrays.asList(0L, 1000L, 2000L, 3000L, 4000L, 5000L);
+    var primaryHandler = new PrimaryHandler(fallbackHandler, locatorWaitTime,
         () -> clockTimes.get(sleepCount.get()),
         x -> sleepCount.incrementAndGet());
-    final Object result = primaryHandler.processRequest(new Object());
+    final var result = primaryHandler.processRequest(new Object());
     assertThat(sleepCount.get()).isEqualTo(locatorWaitTime);
     assertThat(result).isNull();
   }
 
   @Test
   public void fallbackHandler() throws IOException {
-    final AtomicInteger handlerInvoked = new AtomicInteger();
-    final TcpHandler fallbackHandler = mock(TcpHandler.class);
+    final var handlerInvoked = new AtomicInteger();
+    final var fallbackHandler = mock(TcpHandler.class);
     when(fallbackHandler.processRequest(isA(Object.class))).thenAnswer(context -> {
       handlerInvoked.incrementAndGet();
       return context.getArgument(0);
     });
-    final int locatorWaitTime = 5;
-    PrimaryHandler primaryHandler = new PrimaryHandler(fallbackHandler, locatorWaitTime,
+    final var locatorWaitTime = 5;
+    var primaryHandler = new PrimaryHandler(fallbackHandler, locatorWaitTime,
         null, null);
     // process a request that has no handler - this should invoke fallbackHandler
-    final Object request = new Object();
-    final Object result = primaryHandler.processRequest(request);
+    final var request = new Object();
+    final var result = primaryHandler.processRequest(request);
     assertThat(result).isEqualTo(request);
     assertThat(handlerInvoked.get()).isEqualTo(1);
   }
@@ -67,19 +66,19 @@ public class PrimaryHandlerTest {
 
   @Test
   public void registeredHandler() throws IOException {
-    final AtomicInteger handlerInvoked = new AtomicInteger();
-    final TcpHandler registeredHandler = mock(TcpHandler.class);
+    final var handlerInvoked = new AtomicInteger();
+    final var registeredHandler = mock(TcpHandler.class);
     when(registeredHandler.processRequest(isA(Object.class))).thenAnswer(context -> {
       handlerInvoked.incrementAndGet();
       return context.getArgument(0);
     });
-    final int locatorWaitTime = 5;
-    PrimaryHandler primaryHandler = new PrimaryHandler(registeredHandler, locatorWaitTime,
+    final var locatorWaitTime = 5;
+    var primaryHandler = new PrimaryHandler(registeredHandler, locatorWaitTime,
         null, null);
     primaryHandler.addHandler(FindCoordinatorRequest.class, registeredHandler);
     // process a request that has a registered handler - this should invoke registeredHandler
     final Object request = new FindCoordinatorRequest<>();
-    final Object result = primaryHandler.processRequest(request);
+    final var result = primaryHandler.processRequest(request);
     assertThat(result).isEqualTo(request);
     assertThat(handlerInvoked.get()).isEqualTo(1);
     assertThat(primaryHandler.isHandled(FindCoordinatorRequest.class)).isTrue();

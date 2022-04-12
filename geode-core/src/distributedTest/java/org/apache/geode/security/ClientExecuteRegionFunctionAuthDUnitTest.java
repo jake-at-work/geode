@@ -30,11 +30,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.execute.Function;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -66,18 +63,18 @@ public class ClientExecuteRegionFunctionAuthDUnitTest extends JUnit4DistributedT
   public void testExecuteRegionFunction() {
 
     client1.invoke("logging in with dataReader", () -> {
-      ClientCache cache = createClientCache("dataRead", "dataRead", server.getPort());
+      var cache = createClientCache("dataRead", "dataRead", server.getPort());
 
-      Region region = createProxyRegion(cache, "RegionA");
+      var region = createProxyRegion(cache, "RegionA");
       registerFunction(readFunction);
-      ResultCollector rc = onRegion(region).execute(readFunction.getId());
+      var rc = onRegion(region).execute(readFunction.getId());
       assertThat(((ArrayList) rc.getResult()).get(0)).isEqualTo(ReadFunction.SUCCESS_OUTPUT);
     });
 
     client2.invoke("logging in with another region's reader", () -> {
-      ClientCache cache = createClientCache("dataReadRegionB", "dataReadRegionB", server.getPort());
+      var cache = createClientCache("dataReadRegionB", "dataReadRegionB", server.getPort());
 
-      Region region = createProxyRegion(cache, "RegionA");
+      var region = createProxyRegion(cache, "RegionA");
       registerFunction(readFunction);
       assertNotAuthorized(() -> onRegion(region).execute(readFunction.getId()),
           "DATA:READ:RegionA");

@@ -46,9 +46,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheListener;
@@ -59,7 +57,6 @@ import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.CommitConflictException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EntryExistsException;
 import org.apache.geode.cache.EntryNotFoundException;
@@ -67,7 +64,6 @@ import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.FailedSynchronizationException;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
@@ -82,9 +78,7 @@ import org.apache.geode.cache.TransactionListener;
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.internal.index.IndexManager;
 import org.apache.geode.cache.util.CacheListenerAdapter;
@@ -133,7 +127,7 @@ public class TXJUnitTest {
   }
 
   protected void createCache() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0"); // loner
 
     cache = (GemFireCacheImpl) CacheFactory.create(DistributedSystem.connect(properties));
@@ -152,7 +146,7 @@ public class TXJUnitTest {
 
   protected Region createRegion(String regionName, boolean isConcurrencyChecksEnabled)
       throws Exception {
-    AttributesFactory<String, String> attributesFactory = new AttributesFactory<>();
+    var attributesFactory = new AttributesFactory<String, String>();
     attributesFactory
         .setDataPolicy(isConcurrencyChecksEnabled ? DataPolicy.REPLICATE : DataPolicy.NORMAL);
     attributesFactory
@@ -193,7 +187,7 @@ public class TXJUnitTest {
 
   @AfterClass
   public static void afterClass() {
-    InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+    var ids = InternalDistributedSystem.getAnyInstance();
     if (ids != null) {
       ids.disconnect();
     }
@@ -218,7 +212,7 @@ public class TXJUnitTest {
 
   @Test
   public void testSimpleOps() throws CacheException {
-    final CachePerfStats stats = cache.getCachePerfStats();
+    final var stats = cache.getCachePerfStats();
     // See if things are ok when no transaction
     checkNoTxState();
 
@@ -249,9 +243,9 @@ public class TXJUnitTest {
       cmtre.setUserAttribute("uaValue1");
       assertEquals("uaValue1", cmtre.getUserAttribute());
 
-      long txRollbackChanges = stats.getTxRollbackChanges();
-      long txCommitChanges = stats.getTxCommitChanges();
-      long txFailureChanges = stats.getTxFailureChanges();
+      var txRollbackChanges = stats.getTxRollbackChanges();
+      var txCommitChanges = stats.getTxCommitChanges();
+      var txFailureChanges = stats.getTxFailureChanges();
       txMgr.begin();
       Region.Entry txre = region.getEntry("uaKey");
       assertEquals(region, txre.getRegion());
@@ -301,9 +295,9 @@ public class TXJUnitTest {
     }
 
     {
-      long txRollbackChanges = stats.getTxRollbackChanges();
-      long txCommitChanges = stats.getTxCommitChanges();
-      long txFailureChanges = stats.getTxFailureChanges();
+      var txRollbackChanges = stats.getTxRollbackChanges();
+      var txCommitChanges = stats.getTxCommitChanges();
+      var txFailureChanges = stats.getTxFailureChanges();
       region.create("key1", "value1");
       txMgr.begin();
       region.invalidate("key1");
@@ -433,15 +427,15 @@ public class TXJUnitTest {
 
   @Test
   public void testTwoRegionTxs() throws CacheException {
-    final CachePerfStats stats = cache.getCachePerfStats();
+    final var stats = cache.getCachePerfStats();
     long txCommitChanges;
     TransactionId myTxId;
 
-    AttributesFactory<String, String> attributesFactory = new AttributesFactory<>();
+    var attributesFactory = new AttributesFactory<String, String>();
     attributesFactory.setScope(Scope.DISTRIBUTED_NO_ACK);
 
-    Region<String, String> reg1 = region;
-    Region<String, String> reg2 =
+    var reg1 = region;
+    var reg2 =
         cache.createRegion(getUniqueName(), attributesFactory.create());
 
     txMgr.setListener(new TransactionListener() {
@@ -490,7 +484,7 @@ public class TXJUnitTest {
     assertEquals("value2", reg2.get("key2"));
     assertEquals(txCommitChanges + 2, stats.getTxCommitChanges());
     {
-      List<EntryEvent<?, ?>> creates =
+      var creates =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(2, creates.size());
@@ -523,7 +517,7 @@ public class TXJUnitTest {
   @Test
   public void testTxEvent() throws CacheException {
     TransactionId myTxId;
-    Region<String, String> reg1 = region;
+    var reg1 = region;
 
     txMgr.setListener(new TransactionListener() {
       @Override
@@ -561,9 +555,9 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     {
-      Cache teCache = te.getCache();
+      var teCache = te.getCache();
       assertEquals(teCache, cache);
-      List<EntryEvent<?, ?>> creates =
+      var creates =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, creates.size());
@@ -594,9 +588,9 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     {
-      Cache teCache = te.getCache();
+      var teCache = te.getCache();
       assertEquals(teCache, cache);
-      List<EntryEvent<?, ?>> creates = TxEventTestUtil.getPutEvents(te.getEvents());
+      var creates = TxEventTestUtil.getPutEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, creates.size());
 
@@ -626,9 +620,9 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     {
-      Cache teCache = te.getCache();
+      var teCache = te.getCache();
       assertEquals(teCache, cache);
-      List<EntryEvent<?, ?>> creates =
+      var creates =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, creates.size());
@@ -659,9 +653,9 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getPutEvents(te.getEvents()).size());
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     {
-      Cache teCache = te.getCache();
+      var teCache = te.getCache();
       assertEquals(teCache, cache);
-      List<EntryEvent<?, ?>> creates =
+      var creates =
           TxEventTestUtil.getInvalidateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, creates.size());
@@ -693,9 +687,9 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getPutEvents(te.getEvents()).size());
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     {
-      Cache teCache = te.getCache();
+      var teCache = te.getCache();
       assertEquals(teCache, cache);
-      List<EntryEvent<?, ?>> creates =
+      var creates =
           TxEventTestUtil.getInvalidateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, creates.size());
@@ -729,9 +723,9 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getPutEvents(te.getEvents()).size());
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     {
-      Cache teCache = te.getCache();
+      var teCache = te.getCache();
       assertEquals(teCache, cache);
-      List<EntryEvent<?, ?>> creates =
+      var creates =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, creates.size());
@@ -763,9 +757,9 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getPutEvents(te.getEvents()).size());
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     {
-      Cache teCache = te.getCache();
+      var teCache = te.getCache();
       assertEquals(teCache, cache);
-      List<EntryEvent<?, ?>> creates =
+      var creates =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, creates.size());
@@ -985,7 +979,7 @@ public class TXJUnitTest {
   @Test
   public void testTxAlgebra() throws CacheException {
     TransactionId myTxId;
-    Region<String, String> reg1 = region;
+    var reg1 = region;
 
     txMgr.setListener(new TransactionListener() {
       @Override
@@ -1011,8 +1005,8 @@ public class TXJUnitTest {
         listenerClose = 1;
       }
     });
-    AttributesMutator<String, String> mutator = region.getAttributesMutator();
-    CountingCacheListener cntListener = new CountingCacheListener() {
+    var mutator = region.getAttributesMutator();
+    var cntListener = new CountingCacheListener() {
       volatile int aCreateCalls, aUpdateCalls, aInvalidateCalls, aDestroyCalls, aLocalDestroyCalls;
 
       @Override
@@ -1090,7 +1084,7 @@ public class TXJUnitTest {
       }
     };
     mutator.addCacheListener(cntListener);
-    CountingCacheWriter cntWriter = new CountingCacheWriter() {
+    var cntWriter = new CountingCacheWriter() {
       int bCreateCalls, bUpdateCalls, bDestroyCalls, bLocalDestroyCalls;
 
       @Override
@@ -1143,7 +1137,7 @@ public class TXJUnitTest {
     };
     mutator.setCacheWriter(cntWriter);
 
-    CountingCallBackValidator callbackVal = new CountingCallBackValidator(cntListener, cntWriter);
+    var callbackVal = new CountingCallBackValidator(cntListener, cntWriter);
 
     // make sure each op sequence has the correct affect transaction event
     // check C + C -> EX
@@ -1174,7 +1168,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1216,7 +1210,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1283,7 +1277,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1335,7 +1329,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1464,7 +1458,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1506,7 +1500,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1556,7 +1550,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events = TxEventTestUtil.getPutEvents(te.getEvents());
+      var events = TxEventTestUtil.getPutEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
 
@@ -1598,7 +1592,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getInvalidateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1640,7 +1634,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1682,7 +1676,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getInvalidateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1734,7 +1728,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events = TxEventTestUtil.getPutEvents(te.getEvents());
+      var events = TxEventTestUtil.getPutEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
 
@@ -1777,7 +1771,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getCreateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1819,7 +1813,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getCreateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1860,7 +1854,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1929,7 +1923,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -1972,7 +1966,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2019,7 +2013,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events = TxEventTestUtil.getPutEvents(te.getEvents());
+      var events = TxEventTestUtil.getPutEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
 
@@ -2058,7 +2052,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2098,7 +2092,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2170,7 +2164,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2215,7 +2209,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2263,7 +2257,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events = TxEventTestUtil.getPutEvents(te.getEvents());
+      var events = TxEventTestUtil.getPutEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
 
@@ -2303,7 +2297,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2343,7 +2337,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getInvalidateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getDestroyEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2415,7 +2409,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2460,7 +2454,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2499,7 +2493,7 @@ public class TXJUnitTest {
     assertNull(reg1.getEntry("key1").getValue());
     {
       // Special check to assert Invaldate token
-      NonTXEntry nonTXe = (NonTXEntry) reg1.getEntry("key1");
+      var nonTXe = (NonTXEntry) reg1.getEntry("key1");
       assertTrue(nonTXe.getRegionEntry().isInvalid());
     }
     assertEquals(0, TxEventTestUtil.getPutEvents(te.getEvents()).size());
@@ -2507,7 +2501,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getCreateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getInvalidateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2544,7 +2538,7 @@ public class TXJUnitTest {
     assertNull(reg1.getEntry("key1").getValue());
     {
       // Special check to assert Local Invaldate token
-      NonTXEntry nonTXe = (NonTXEntry) reg1.getEntry("key1");
+      var nonTXe = (NonTXEntry) reg1.getEntry("key1");
       assertTrue(nonTXe.getRegionEntry().isInvalid());
     }
     assertEquals(0, TxEventTestUtil.getPutEvents(te.getEvents()).size());
@@ -2552,7 +2546,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getCreateEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getInvalidateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2594,7 +2588,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2636,7 +2630,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2678,7 +2672,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2720,7 +2714,7 @@ public class TXJUnitTest {
     assertEquals(0, TxEventTestUtil.getDestroyEvents(te.getEvents()).size());
     assertEquals(1, te.getEvents().size());
     {
-      List<EntryEvent<?, ?>> events =
+      var events =
           TxEventTestUtil.getCreateEvents(te.getEvents());
       assertEquals(myTxId, te.getTransactionId());
       assertEquals(1, events.size());
@@ -2743,7 +2737,7 @@ public class TXJUnitTest {
   }
 
   private void doNonTxInvalidateRegionOp(CachePerfStats stats) throws Exception {
-    long txRollbackChanges = stats.getTxRollbackChanges();
+    var txRollbackChanges = stats.getTxRollbackChanges();
     region.create("key1", "value1");
     region.create("key2", "value2");
     txMgr.begin();
@@ -2775,7 +2769,7 @@ public class TXJUnitTest {
   }
 
   private void doNonTxDestroyRegionOp(CachePerfStats stats) throws Exception {
-    long txRollbackChanges = stats.getTxRollbackChanges();
+    var txRollbackChanges = stats.getTxRollbackChanges();
     region.put("key1", "value1");
     region.put("key2", "value2");
     txMgr.begin();
@@ -2803,7 +2797,7 @@ public class TXJUnitTest {
 
   @Test
   public void testNonTxRegionOps() throws Exception {
-    final CachePerfStats stats = cache.getCachePerfStats();
+    final var stats = cache.getCachePerfStats();
     doNonTxInvalidateRegionOp(stats);
     doNonTxDestroyRegionOp(stats);
   }
@@ -2885,7 +2879,7 @@ public class TXJUnitTest {
   @Test
   public void testListener() {
     assertTrue(txMgr.getListener() == null);
-    TransactionListener oldListener = txMgr.setListener(new TransactionListener() {
+    var oldListener = txMgr.setListener(new TransactionListener() {
       @Override
       public void afterCommit(TransactionEvent event) {
         listenerAfterCommit = 1;
@@ -2911,7 +2905,7 @@ public class TXJUnitTest {
     });
     assertTrue(oldListener == null);
     txMgr.begin();
-    TransactionId myTxId = txMgr.getTransactionId();
+    var myTxId = txMgr.getTransactionId();
     assertEquals(0, listenerAfterRollback);
     txMgr.rollback();
     assertEquals(1, listenerAfterRollback);
@@ -2983,7 +2977,7 @@ public class TXJUnitTest {
   @Test
   public void testNoCallbacksOnRollback() throws CacheException {
     // install listeners
-    AttributesMutator<String, String> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     mutator.addCacheListener(new CacheListenerAdapter<String, String>() {
       @Override
       public void close() {
@@ -3165,7 +3159,7 @@ public class TXJUnitTest {
     }
 
     int setExpectedCount(int newVal) {
-      int oldVal = expectedCallCount;
+      var oldVal = expectedCallCount;
       expectedCallCount = newVal;
       return oldVal;
     }
@@ -3197,7 +3191,7 @@ public class TXJUnitTest {
     }
 
     TransactionId setTXId(TransactionId txId) {
-      TransactionId old = this.txId;
+      var old = this.txId;
       this.txId = txId;
       return old;
     }
@@ -3263,7 +3257,7 @@ public class TXJUnitTest {
     }
 
     boolean suspendValidation(boolean toggle) {
-      boolean oldVal = suspendValidation;
+      var oldVal = suspendValidation;
       suspendValidation = toggle;
       return oldVal;
     }
@@ -3315,17 +3309,17 @@ public class TXJUnitTest {
    */
   @Test
   public void testCacheCallbacks() throws CacheException {
-    final String key1 = "Key1";
-    final String value1 = "value1";
-    final String value2 = "value2";
-    final String callBackArg = "call back arg";
+    final var key1 = "Key1";
+    final var value1 = "value1";
+    final var value2 = "value2";
+    final var callBackArg = "call back arg";
     // install listeners
-    AttributesMutator<String, String> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
 
-    TXCallBackValidator cbv = new TXCallBackValidator();
+    var cbv = new TXCallBackValidator();
 
     // Cache Listener
-    ValidatableCacheListener vCl = new ValidatableCacheListener() {
+    var vCl = new ValidatableCacheListener() {
       TXCallBackValidator v;
       int callCount;
       int prevCallCount;
@@ -3456,7 +3450,7 @@ public class TXJUnitTest {
     mutator.addCacheListener(vCl);
 
     // CacheWriter
-    ValidatableCacheWriter vCw = new ValidatableCacheWriter() {
+    var vCw = new ValidatableCacheWriter() {
       TXCallBackValidator v;
       int callCount;
       int prevCallCount;
@@ -3571,7 +3565,7 @@ public class TXJUnitTest {
     });
 
     // Use this to track the number of callout method invocations
-    int appCallCount = 1;
+    var appCallCount = 1;
 
     // Create => beforeCreate/afterCreate tests
     cbv.setKey(key1);
@@ -3774,7 +3768,7 @@ public class TXJUnitTest {
     cbv.suspendValidation(false);
 
     // Create load Event tests
-    int loaderValCheck = 0;
+    var loaderValCheck = 0;
     cbv.setNewValue(loaderValCheck++, false);
     cbv.setCallBackArg(null);
     cbv.setOldValue(null, false);
@@ -3874,7 +3868,7 @@ public class TXJUnitTest {
 
   @Test
   public void testEntryCount() throws CacheException {
-    LocalRegion reg1 = (LocalRegion) region;
+    var reg1 = (LocalRegion) region;
 
     assertEquals(0, reg1.entryCount());
     reg1.create("key1", "value1");
@@ -3924,7 +3918,7 @@ public class TXJUnitTest {
   }
 
   private void checkCollectionSize(int expectedSize, int expectedRecSize, int expectedValuesSize) {
-    int size = 0;
+    var size = 0;
     for (Object key : region.entrySet(false)) {
       size++;
     }
@@ -3937,7 +3931,7 @@ public class TXJUnitTest {
 
   @Test
   public void testCollections() throws CacheException {
-    Region<String, String> reg1 = region;
+    var reg1 = region;
 
     checkSubRegionCollection(reg1);
 
@@ -3956,7 +3950,7 @@ public class TXJUnitTest {
         nonTxKeys.size();
         fail();
       } catch (IllegalStateException expected) {
-        TransactionId txid = txMgr.getTransactionId();
+        var txid = txMgr.getTransactionId();
         assertEquals(
             String.format(
                 "The Region collection is not transactional but is being used in a transaction %s.",
@@ -3968,7 +3962,7 @@ public class TXJUnitTest {
         nonTxValues.size();
         fail();
       } catch (IllegalStateException expected) {
-        TransactionId txid = txMgr.getTransactionId();
+        var txid = txMgr.getTransactionId();
         assertEquals(
             String.format(
                 "The Region collection is not transactional but is being used in a transaction %s.",
@@ -3978,7 +3972,7 @@ public class TXJUnitTest {
       assertEquals(1, txValues.size());
       assertTrue(txKeys.contains("key1"));
       {
-        Iterator txIt = txKeys.iterator();
+        var txIt = txKeys.iterator();
         assertTrue(txIt.hasNext());
         assertTrue(txIt.hasNext());
         assertEquals("key1", txIt.next());
@@ -3986,7 +3980,7 @@ public class TXJUnitTest {
       }
       assertTrue(txValues.contains("value1"));
       {
-        Iterator txIt = txValues.iterator();
+        var txIt = txValues.iterator();
         assertTrue(txIt.hasNext());
         assertTrue(txIt.hasNext());
         assertEquals("value1", txIt.next());
@@ -4015,7 +4009,7 @@ public class TXJUnitTest {
       reg1.destroy("key1");
       assertEquals(0, txKeys.size());
       assertTrue(!txKeys.contains("key1"));
-      Iterator txIt = txKeys.iterator();
+      var txIt = txKeys.iterator();
       assertTrue(!txIt.hasNext());
       txMgr.rollback();
       try {
@@ -4047,7 +4041,7 @@ public class TXJUnitTest {
       assertEquals(1, txValues.size());
       assertTrue(txValues.contains("value1"));
       {
-        Iterator txIt = txValues.iterator();
+        var txIt = txValues.iterator();
         assertTrue(txIt.hasNext());
         assertEquals("value1", txIt.next());
         assertTrue(!txIt.hasNext());
@@ -4069,7 +4063,7 @@ public class TXJUnitTest {
         nonTxEntries.size();
         fail();
       } catch (IllegalStateException expected) {
-        TransactionId txid = txMgr.getTransactionId();
+        var txid = txMgr.getTransactionId();
         assertEquals(
             String.format(
                 "The Region collection is not transactional but is being used in a transaction %s.",
@@ -4079,7 +4073,7 @@ public class TXJUnitTest {
       assertEquals(1, txEntries.size());
       assertTrue(txEntries.contains(reg1.getEntry("key1")));
       {
-        Iterator txIt = txEntries.iterator();
+        var txIt = txEntries.iterator();
         assertTrue(txIt.hasNext());
         assertTrue(txIt.hasNext());
         assertEquals(reg1.getEntry("key1"), txIt.next());
@@ -4118,7 +4112,7 @@ public class TXJUnitTest {
       try {
         nonTxValues.iterator().hasNext();
       } catch (IllegalStateException expected) {
-        TransactionId txid = txMgr.getTransactionId();
+        var txid = txMgr.getTransactionId();
         assertEquals(
             String.format(
                 "The Region collection is not transactional but is being used in a transaction %s.",
@@ -4134,21 +4128,21 @@ public class TXJUnitTest {
   }
 
   protected void checkSubRegionCollection(Region<String, String> reg1) {
-    AttributesFactory<String, String> attributesFactory = new AttributesFactory<>();
+    var attributesFactory = new AttributesFactory<String, String>();
     attributesFactory.setScope(Scope.DISTRIBUTED_NO_ACK);
 
-    Region<String, String> sub1 =
+    var sub1 =
         region.createSubregion("collectionSub1", attributesFactory.create());
 
     attributesFactory = new AttributesFactory<>();
 
-    Region<String, String> sub2 =
+    var sub2 =
         region.createSubregion("collectionSub2", attributesFactory.create());
 
     attributesFactory = new AttributesFactory<>();
     attributesFactory.setScope(Scope.LOCAL);
 
-    Region<String, String> sub2_1 =
+    var sub2_1 =
         sub2.createSubregion("collectionSub2_1", attributesFactory.create());
 
     checkCollectionSize(0);
@@ -4346,7 +4340,7 @@ public class TXJUnitTest {
 
   @Test
   public void testLoader() throws CacheException {
-    AttributesMutator<String, String> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     mutator.setCacheLoader(new CacheLoader<String, String>() {
       int count = 0;
 
@@ -4359,7 +4353,7 @@ public class TXJUnitTest {
       @Override
       public void close() {}
     });
-    LocalRegion reg1 = (LocalRegion) region;
+    var reg1 = (LocalRegion) region;
     if (isPR()) {
       ((PartitionedRegion) reg1).setHaveCacheLoader();
     }
@@ -4391,7 +4385,7 @@ public class TXJUnitTest {
     reg1.localDestroy("key1");
     // TX load YES conflict: no-initial state, tx create, committed load
     {
-      final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+      final var txMgrImpl = (TXManagerImpl) txMgr;
       TXStateProxy tx;
       txMgr.begin();
       reg1.create("key1", "txValue");
@@ -4436,7 +4430,7 @@ public class TXJUnitTest {
 
     // TX load no conflict: no initial state, tx load, committed create
     {
-      final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+      final var txMgrImpl = (TXManagerImpl) txMgr;
       TXStateProxy tx;
       txMgr.begin();
       assertEquals("LV 8", reg1.get("key1"));
@@ -4460,7 +4454,7 @@ public class TXJUnitTest {
     }
     // TX load conflict: no-inital state, tx load->update, committed update
     {
-      final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+      final var txMgrImpl = (TXManagerImpl) txMgr;
       TransactionId txId = null;
       txMgr.begin();
       reg1.create("key1", "txValue");
@@ -4626,10 +4620,10 @@ public class TXJUnitTest {
 
   @Test
   public void testStats() throws CacheException {
-    final int SLEEP_MS = 250;
+    final var SLEEP_MS = 250;
     // final int OP_TIME = 0; // ns // changed form 10 to 0 because on fater platforms
     // and low resolution clocks this test will fail.
-    final CachePerfStats stats = cache.getCachePerfStats();
+    final var stats = cache.getCachePerfStats();
 
     class statsValidator {
       private long txSuccessLifeTime;
@@ -4743,7 +4737,7 @@ public class TXJUnitTest {
       }
     }
 
-    statsValidator statsVal = new statsValidator(stats);
+    var statsVal = new statsValidator(stats);
     // Zero and non-zero rollback stats test
     int i;
     long testRollbackLifeTime = 0, testTotalTx = 0;
@@ -4751,9 +4745,9 @@ public class TXJUnitTest {
       statsVal.reset();
       statsVal.setTxRollbacks(stats.getTxRollbacks() + 1);
       statsVal.setTxRollbackLifeTime(stats.getTxRollbackLifeTime() + ((SLEEP_MS - 20) * 1000000));
-      final long beforeBegin = NanoTimer.getTime();
+      final var beforeBegin = NanoTimer.getTime();
       txMgr.begin();
-      final long afterBegin = NanoTimer.getTime();
+      final var afterBegin = NanoTimer.getTime();
       pause(SLEEP_MS);
       if (i > 0) {
         statsVal.setTxRollbackChanges(stats.getTxRollbackChanges() + 2);
@@ -4761,20 +4755,20 @@ public class TXJUnitTest {
         region.put("stats2", "stats rollback2");
       }
       statsVal.setTxRollbackTime(stats.getTxRollbackTime());
-      final long beforeRollback = NanoTimer.getTime();
+      final var beforeRollback = NanoTimer.getTime();
       txMgr.rollback();
-      final long afterRollback = NanoTimer.getTime();
-      final long statsRollbackLifeTime = stats.getTxRollbackLifeTime();
+      final var afterRollback = NanoTimer.getTime();
+      final var statsRollbackLifeTime = stats.getTxRollbackLifeTime();
       testRollbackLifeTime += beforeRollback - afterBegin;
       // bruce - time based stats are disabled by default
-      String p = (String) cache.getDistributedSystem().getProperties()
+      var p = (String) cache.getDistributedSystem().getProperties()
           .get(GeodeGlossary.GEMFIRE_PREFIX + "enable-time-statistics");
       if (p != null && Boolean.getBoolean(p)) {
         assertTrue("Local RollbackLifeTime assertion:  " + testRollbackLifeTime + " is not <= "
             + statsRollbackLifeTime, testRollbackLifeTime <= statsRollbackLifeTime);
       }
       testTotalTx += afterRollback - beforeBegin;
-      final long totalTXMinusRollback = testTotalTx - stats.getTxRollbackTime();
+      final var totalTXMinusRollback = testTotalTx - stats.getTxRollbackTime();
       if (Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "cache.enable-time-statistics")) {
         assertTrue("Total Tx Minus Rollback assertion:  " + totalTXMinusRollback + " is not >= "
             + statsRollbackLifeTime, totalTXMinusRollback >= statsRollbackLifeTime);
@@ -4804,7 +4798,7 @@ public class TXJUnitTest {
     }
 
     // Non-zero failed commit stats
-    TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+    var txMgrImpl = (TXManagerImpl) txMgr;
     statsVal.reset();
     statsVal.setTxFailures(stats.getTxFailures() + 1);
     statsVal.setTxFailureChanges(stats.getTxFailureChanges() + 2);
@@ -4819,7 +4813,7 @@ public class TXJUnitTest {
     } catch (EntryExistsException ignored) {
     }
     // begin other tx simulation
-    TXStateProxy tx = txMgrImpl.pauseTransaction();
+    var tx = txMgrImpl.pauseTransaction();
     region.put("stats1", "stats success1");
     region.put("stats2", "stats success2");
     txMgrImpl.unpauseTransaction(tx);
@@ -4837,7 +4831,7 @@ public class TXJUnitTest {
 
   @Test
   public void testCacheStats() throws CacheException {
-    CachePerfStats cacheStats = cache.getCachePerfStats();
+    var cacheStats = cache.getCachePerfStats();
     // quick sanity check to make sure perf stats work non-tx
     long creates;
     long destroys;
@@ -4970,7 +4964,7 @@ public class TXJUnitTest {
 
   @Test
   public void testPauseUnpause() {
-    TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+    var txMgrImpl = (TXManagerImpl) txMgr;
     assertTrue(!txMgr.exists());
     assertEquals(null, txMgrImpl.pauseTransaction());
     TXStateProxy txProxy = null;
@@ -4978,10 +4972,10 @@ public class TXJUnitTest {
     assertTrue(!txMgr.exists());
 
     txMgr.begin();
-    TransactionId origId = txMgr.getTransactionId();
+    var origId = txMgr.getTransactionId();
     assertTrue(txMgr.exists());
     {
-      TXStateProxy tx = txMgrImpl.pauseTransaction();
+      var tx = txMgrImpl.pauseTransaction();
       assertTrue(!txMgr.exists());
       assertThatThrownBy(() -> txMgr.begin()).isInstanceOf(IllegalStateException.class);
       assertTrue(!txMgr.exists());
@@ -4994,7 +4988,7 @@ public class TXJUnitTest {
 
   @Test
   public void testSuspendResume() {
-    TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+    var txMgrImpl = (TXManagerImpl) txMgr;
     assertTrue(!txMgr.exists());
     assertEquals(null, txMgrImpl.pauseTransaction());
     TXStateProxy txProxy = null;
@@ -5002,10 +4996,10 @@ public class TXJUnitTest {
     assertTrue(!txMgr.exists());
 
     txMgr.begin();
-    TransactionId origId = txMgr.getTransactionId();
+    var origId = txMgr.getTransactionId();
     assertTrue(txMgr.exists());
     {
-      TXStateProxy tx = txMgrImpl.internalSuspend();
+      var tx = txMgrImpl.internalSuspend();
       assertTrue(!txMgr.exists());
       txMgr.begin();
       try {
@@ -5025,7 +5019,7 @@ public class TXJUnitTest {
 
   @Test
   public void testPublicSuspendResume() {
-    CacheTransactionManager txMgr = this.txMgr;
+    var txMgr = this.txMgr;
     assertTrue(!this.txMgr.exists());
     assertEquals(null, txMgr.suspend());
     TransactionId txId = null;
@@ -5037,10 +5031,10 @@ public class TXJUnitTest {
     assertTrue(!this.txMgr.exists());
 
     this.txMgr.begin();
-    TransactionId origId = this.txMgr.getTransactionId();
+    var origId = this.txMgr.getTransactionId();
     assertTrue(this.txMgr.exists());
     {
-      TransactionId tx = txMgr.suspend();
+      var tx = txMgr.suspend();
       assertTrue(!this.txMgr.exists());
       this.txMgr.begin();
       try {
@@ -5061,7 +5055,7 @@ public class TXJUnitTest {
   @Test
   public void testCheckNoTX() {
     {
-      AttributesFactory<String, String> af = new AttributesFactory<>();
+      var af = new AttributesFactory<String, String>();
       af.setScope(Scope.GLOBAL);
       Region<String, String> gr = null;
       try {
@@ -5087,9 +5081,9 @@ public class TXJUnitTest {
 
 
     {
-      DiskStoreFactory dsf = cache.createDiskStoreFactory();
+      var dsf = cache.createDiskStoreFactory();
       dsf.create("testCheckNoTX");
-      AttributesFactory<String, String> af = new AttributesFactory<>();
+      var af = new AttributesFactory<String, String>();
       af.setScope(Scope.LOCAL);
       af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
       af.setDiskStoreName("testCheckNoTX");
@@ -5122,13 +5116,13 @@ public class TXJUnitTest {
 
   @Test
   public void valuesRepeatableReadDoesNotIncludeTombstones() throws Exception {
-    Region newRegion = createRegion("newRegion", true);
+    var newRegion = createRegion("newRegion", true);
     newRegion.put("key1", "value1");
     newRegion.destroy("key1"); // creates a tombstone
 
     txMgr.begin(); // tx1
     newRegion.values().toArray(); // this is a repeatable read, does not read tombstone
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     newRegion.put("key1", "newValue");
@@ -5142,13 +5136,13 @@ public class TXJUnitTest {
 
   @Test
   public void keySetRepeatableReadDoesNotIncludeTombstones() throws Exception {
-    Region newRegion = createRegion("newRegion", true);
+    var newRegion = createRegion("newRegion", true);
     newRegion.put("key1", "value1");
     newRegion.destroy("key1"); // creates a tombstone
 
     txMgr.begin(); // tx1
     newRegion.keySet().toArray(); // this is a repeatable read, does not read tombstone
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     newRegion.put("key1", "newValue");
@@ -5162,13 +5156,13 @@ public class TXJUnitTest {
 
   @Test
   public void valuesRepeatableReadIncludesInvalidates() throws Exception {
-    Region newRegion = createRegion("newRegion", true);
+    var newRegion = createRegion("newRegion", true);
     newRegion.put("key1", "value1");
     newRegion.invalidate("key1");
 
     txMgr.begin(); // tx1
     newRegion.values().toArray(); // this is a repeatable read, reads invalidate
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     newRegion.put("key1", "newValue");
@@ -5182,13 +5176,13 @@ public class TXJUnitTest {
 
   @Test
   public void keySetRepeatableReadIncludesInvalidates() throws Exception {
-    Region newRegion = createRegion("newRegion", true);
+    var newRegion = createRegion("newRegion", true);
     newRegion.put("key1", "value1");
     newRegion.invalidate("key1");
 
     txMgr.begin(); // tx1
     newRegion.keySet().toArray(); // this is a repeatable read, reads invalidate
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     newRegion.put("key1", "newValue");
@@ -5202,7 +5196,7 @@ public class TXJUnitTest {
 
   @Test
   public void testRepeatableRead() throws CacheException {
-    final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+    final var txMgrImpl = (TXManagerImpl) txMgr;
     TXStateProxy tx;
 
     // try repeating a get and make sure it doesn't cause a conflict
@@ -5494,7 +5488,7 @@ public class TXJUnitTest {
 
   @Test
   public void testConflicts() throws CacheException {
-    final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+    final var txMgrImpl = (TXManagerImpl) txMgr;
     TXStateProxy tx;
     // try a put with no conflict to show that commit works
     txMgrImpl.begin();
@@ -5701,7 +5695,7 @@ public class TXJUnitTest {
     // now try a put and a region destroy.
     txMgrImpl.begin();
     region.create("key1", "value1");
-    TXStateProxy tis = txMgrImpl.pauseTransaction();
+    var tis = txMgrImpl.pauseTransaction();
     region.localDestroyRegion(); // non-tx
     txMgrImpl.unpauseTransaction(tis);
 
@@ -5774,7 +5768,7 @@ public class TXJUnitTest {
 
   @Test
   public void testNoopInvalidates() throws CacheException {
-    final CachePerfStats stats = cache.getCachePerfStats();
+    final var stats = cache.getCachePerfStats();
     TransactionListener tl = new TransactionListenerAdapter() {
       @Override
       public void afterRollback(TransactionEvent event) {
@@ -5786,7 +5780,7 @@ public class TXJUnitTest {
 
     { // distributed invalidate
       // first make sure invalidate is counted as a change
-      long txRollbackChanges = stats.getTxRollbackChanges();
+      var txRollbackChanges = stats.getTxRollbackChanges();
       region.create("key1", "value1");
       txMgr.begin();
       region.invalidate("key1");
@@ -5845,7 +5839,7 @@ public class TXJUnitTest {
 
     { // local invalidate
       // first make sure invalidate is counted as a change
-      long txRollbackChanges = stats.getTxRollbackChanges();
+      var txRollbackChanges = stats.getTxRollbackChanges();
       region.create("key1", "value1");
       txMgr.begin();
       region.localInvalidate("key1");
@@ -5877,7 +5871,7 @@ public class TXJUnitTest {
   }
 
   private static void clearRegion(Region r) throws TimeoutException {
-    Iterator kI = r.keySet().iterator();
+    var kI = r.keySet().iterator();
     try {
       while (kI.hasNext()) {
         r.destroy(kI.next());
@@ -5895,8 +5889,8 @@ public class TXJUnitTest {
 
   private static void assertLRUEntries(Set entries, int size, String keyPrefix, int instanceId) {
     assertEquals(size, entries.size());
-    for (final Object entry : entries) {
-      Region.Entry re = (Region.Entry) entry;
+    for (final var entry : entries) {
+      var re = (Region.Entry) entry;
       switch (instanceId) {
         case LRUENTRY_NULL:
           assertNull(re.getValue());
@@ -5916,24 +5910,24 @@ public class TXJUnitTest {
         default:
           fail("Unknown instance type in assertLRUEntries: " + instanceId);
       }
-      String reKey = (String) re.getKey();
+      var reKey = (String) re.getKey();
       assertTrue("expected " + reKey + " to start with " + keyPrefix, reKey.startsWith(keyPrefix));
     }
   }
 
   @Test
   public void testEviction() throws CacheException {
-    final int lruSize = 8;
-    AttributesFactory<String, Object> af = new AttributesFactory<>();
+    final var lruSize = 8;
+    var af = new AttributesFactory<String, Object>();
     af.setEvictionAttributes(
         EvictionAttributes.createLRUEntryAttributes(lruSize, EvictionAction.LOCAL_DESTROY));
     af.setScope(Scope.LOCAL);
-    Region<String, Object> lruRegion = cache.createRegion(getUniqueName(), af.create());
+    var lruRegion = cache.createRegion(getUniqueName(), af.create());
 
     // Non-TX LRU verification
     assertEquals(0, lruRegion.entrySet(false).size());
-    int numToPut = lruSize + 2;
-    for (int i = 0; i < numToPut; ++i) {
+    var numToPut = lruSize + 2;
+    for (var i = 0; i < numToPut; ++i) {
       lruRegion.put("key" + i, new Integer(i));
     }
     assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
@@ -5943,7 +5937,7 @@ public class TXJUnitTest {
     assertEquals(0, lruRegion.entrySet(false).size());
     numToPut = lruSize + 2;
     txMgr.begin();
-    for (int i = 0; i < numToPut; ++i) {
+    for (var i = 0; i < numToPut; ++i) {
       lruRegion.put("key" + i, new Long(i));
     }
     assertLRUEntries(lruRegion.entrySet(false), numToPut, "key", LRUENTRY_LONG);
@@ -5954,24 +5948,24 @@ public class TXJUnitTest {
     // TX/non-TX no conflict verification w/ initial state
     // full+2, all committed entries have TX refs
     {
-      final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+      final var txMgrImpl = (TXManagerImpl) txMgr;
       TXStateProxy tx;
       numToPut = lruSize + 2;
       assertEquals(0, lruRegion.entrySet(false).size());
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.create("key" + i, new Integer(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
 
       txMgr.begin();
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("key" + i, new Long(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), numToPut, "key", LRUENTRY_LONG);
       tx = txMgrImpl.pauseTransaction();
 
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("non-tx key" + i, new Integer(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
@@ -5986,7 +5980,7 @@ public class TXJUnitTest {
     // TX/non-TX no conflict verification w/ invalid initial state
     // full+2, all committed entries have TX refs using a loader
     {
-      AttributesMutator<String, Object> mutator = lruRegion.getAttributesMutator();
+      var mutator = lruRegion.getAttributesMutator();
       mutator.setCacheLoader(new CacheLoader() {
         // int count = 0;
         @Override
@@ -5997,17 +5991,17 @@ public class TXJUnitTest {
         @Override
         public void close() {}
       });
-      final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+      final var txMgrImpl = (TXManagerImpl) txMgr;
       TXStateProxy tx;
       numToPut = lruSize + 2;
       assertEquals(0, lruRegion.entrySet(false).size());
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.create("key" + i, null);
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_NULL);
       // assertIndexDetailsEquals(lruSize, lruRegion.entrySet(false).size());
       txMgr.begin();
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.get("key" + i, new Integer(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), numToPut, "key", LRUENTRY_STRING);
@@ -6015,7 +6009,7 @@ public class TXJUnitTest {
 
       assertEquals(lruSize, lruRegion.entrySet(false).size());
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_NULL);
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.get("non-tx key" + i, new Integer(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_NULL);
@@ -6024,7 +6018,7 @@ public class TXJUnitTest {
       txMgrImpl.unpauseTransaction(tx);
       txMgr.commit();
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_STRING);
-      for (final String s : lruRegion.keySet()) {
+      for (final var s : lruRegion.keySet()) {
         lruRegion.localInvalidate(s, null);
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_NULL);
@@ -6036,12 +6030,12 @@ public class TXJUnitTest {
     // add lruLimit+4, existing committed have TX 2 refs, force non-TX
     // eviction, force TX eviction
     {
-      final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+      final var txMgrImpl = (TXManagerImpl) txMgr;
       TransactionId txId1, txId2;
       numToPut = lruSize + 4;
       assertEquals(0, lruRegion.entrySet(false).size());
       // Create entries
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.create("key" + i, new Integer(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
@@ -6049,7 +6043,7 @@ public class TXJUnitTest {
       txMgr.begin();
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
       // Add a TX reference to committed entries, add a few on top of that
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("key" + i, new Long(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), numToPut, "key", LRUENTRY_LONG);
@@ -6058,7 +6052,7 @@ public class TXJUnitTest {
       txMgr.begin();
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
       // Add another TX reference to committed entries, add a few on top of that
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("key" + i, new Double(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), numToPut, "key", LRUENTRY_DOUBLE);
@@ -6068,7 +6062,7 @@ public class TXJUnitTest {
 
       // Force the Non-Tx "put" to remove each attempt since region is full
       // and all the committed entries are currently part of a TX
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("non-tx key" + i, new Integer(i));
       }
       assertTrue(numToPut > lruSize);
@@ -6087,7 +6081,7 @@ public class TXJUnitTest {
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_LONG);
 
       // Test to make sure we can evict something that has been rolled back
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("key" + i, "value" + i);
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_STRING);
@@ -6098,12 +6092,12 @@ public class TXJUnitTest {
     // add lruLimit+4, force non-TX eviction, then rolls back, make
     // sure that non-TX eviction works properly
     {
-      final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+      final var txMgrImpl = (TXManagerImpl) txMgr;
       TXStateProxy tx;
       numToPut = lruSize + 4;
       assertEquals(0, lruRegion.entrySet(false).size());
       // Create entries
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.create("key" + i, new Integer(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
@@ -6111,7 +6105,7 @@ public class TXJUnitTest {
       txMgr.begin();
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
       // Add a TX reference to committed entries, add a few on top of that
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("key" + i, new Long(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), numToPut, "key", LRUENTRY_LONG);
@@ -6120,7 +6114,7 @@ public class TXJUnitTest {
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
       // Force the Non-Tx "put" to remove each attempt since region is full
       // and all the committed entries are currently part of a TX
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("non-tx key" + i, new Integer(i));
       }
       assertNull(lruRegion.get("non-tx key0"));
@@ -6133,7 +6127,7 @@ public class TXJUnitTest {
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
 
       // Test to make sure we can evict something that has been rolled back
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("key" + i, "value" + i);
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_STRING);
@@ -6144,12 +6138,12 @@ public class TXJUnitTest {
     // add lruLimit+4, after failed commit make
     // sure that non-TX eviction works properly
     {
-      final TXManagerImpl txMgrImpl = (TXManagerImpl) txMgr;
+      final var txMgrImpl = (TXManagerImpl) txMgr;
       TXStateProxy tx;
       numToPut = lruSize + 4;
       assertEquals(0, lruRegion.entrySet(false).size());
       // Create entries
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.create("key" + i, new Integer(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
@@ -6157,7 +6151,7 @@ public class TXJUnitTest {
       txMgr.begin();
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
       // Add a TX reference to committed entries, add a few on top of that
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("key" + i, new Long(i));
       }
       assertLRUEntries(lruRegion.entrySet(false), numToPut, "key", LRUENTRY_LONG);
@@ -6178,7 +6172,7 @@ public class TXJUnitTest {
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_INTEGER);
 
       // Test to make sure we can evict something that has been rolled back
-      for (int i = 0; i < numToPut; ++i) {
+      for (var i = 0; i < numToPut; ++i) {
         lruRegion.put("key" + i, "value" + i);
       }
       assertLRUEntries(lruRegion.entrySet(false), lruSize, "key", LRUENTRY_STRING);
@@ -6193,8 +6187,8 @@ public class TXJUnitTest {
       javax.transaction.RollbackException, javax.transaction.SystemException,
       javax.transaction.HeuristicMixedException, javax.transaction.HeuristicRollbackException {
 
-    javax.transaction.TransactionManager jtaTxMgr = cache.getJTATransactionManager();
-    TransactionListener tl = new TransactionListener() {
+    var jtaTxMgr = cache.getJTATransactionManager();
+    var tl = new TransactionListener() {
       @Override
       public void afterCommit(TransactionEvent event) {
         ++listenerAfterCommit;
@@ -6226,7 +6220,7 @@ public class TXJUnitTest {
     jtaTxMgr.begin();
     txMgr.begin();
     {
-      TXManagerImpl gfTxMgrImpl = (TXManagerImpl) txMgr;
+      var gfTxMgrImpl = (TXManagerImpl) txMgr;
       gfTXSync = gfTxMgrImpl.getTXState();
     }
     jtaTxMgr.getTransaction().registerSynchronization(gfTXSync);
@@ -6250,7 +6244,7 @@ public class TXJUnitTest {
     jtaTxMgr.begin();
     txMgr.begin();
     {
-      TXManagerImpl gfTxMgrImpl = (TXManagerImpl) txMgr;
+      var gfTxMgrImpl = (TXManagerImpl) txMgr;
       gfTXSync = gfTxMgrImpl.getTXState();
     }
     jtaTxMgr.getTransaction().registerSynchronization(gfTXSync);
@@ -6264,15 +6258,15 @@ public class TXJUnitTest {
     jtaTxMgr.begin();
     txMgr.begin();
     {
-      TXManagerImpl gfTxMgrImpl = (TXManagerImpl) txMgr;
+      var gfTxMgrImpl = (TXManagerImpl) txMgr;
       gfTXSync = gfTxMgrImpl.getTXState();
       jtaTxMgr.getTransaction().registerSynchronization(gfTXSync);
       assertEquals(0, listenerAfterFailedCommit);
       region.put("syncKey3", "syncVal3");
       assertEquals("syncVal3", region.getEntry("syncKey3").getValue());
 
-      TXStateProxy gfTx = gfTxMgrImpl.pauseTransaction();
-      javax.transaction.Transaction jtaTx = jtaTxMgr.suspend();
+      var gfTx = gfTxMgrImpl.pauseTransaction();
+      var jtaTx = jtaTxMgr.suspend();
       assertNull(jtaTxMgr.getTransaction());
       region.put("syncKey3", "syncVal4");
       assertEquals("syncVal4", region.getEntry("syncKey3").getValue());
@@ -6301,7 +6295,7 @@ public class TXJUnitTest {
     jtaTxMgr.begin();
     txMgr.begin();
     {
-      TXManagerImpl gfTxMgrImpl = (TXManagerImpl) txMgr;
+      var gfTxMgrImpl = (TXManagerImpl) txMgr;
       gfTXSync = gfTxMgrImpl.getTXState();
       jtaTxMgr.getTransaction().registerSynchronization(gfTXSync);
       assertEquals(1, listenerAfterFailedCommit);
@@ -6310,8 +6304,8 @@ public class TXJUnitTest {
 
       // Create a new thread and have it update the same key, causing
       // a conflict
-      final int[] signal = {0};
-      Thread t = new Thread("non-TX conflict generator") {
+      final var signal = new int[] {0};
+      var t = new Thread("non-TX conflict generator") {
         @Override
         public void run() {
           try {
@@ -6371,7 +6365,7 @@ public class TXJUnitTest {
       javax.transaction.RollbackException, javax.transaction.SystemException,
       javax.transaction.HeuristicMixedException, javax.transaction.HeuristicRollbackException {
 
-    TransactionListener tl = new TransactionListener() {
+    var tl = new TransactionListener() {
       @Override
       public void afterCommit(TransactionEvent event) {
         ++listenerAfterCommit;
@@ -6486,7 +6480,7 @@ public class TXJUnitTest {
     assertEquals(4, listenerAfterCommit);
 
     // Test enlistment for load
-    AttributesMutator<String, String> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     mutator.setCacheLoader(new CacheLoader<String, String>() {
       int count = 0;
 
@@ -6516,11 +6510,11 @@ public class TXJUnitTest {
     assertEquals("enlistVal", region.get("enlistKey"));
     assertNotNull(txMgr.getTransactionId());
     {
-      TXManagerImpl gfTxMgrImpl = (TXManagerImpl) txMgr;
-      TXStateProxy gfTx = gfTxMgrImpl.pauseTransaction();
+      var gfTxMgrImpl = (TXManagerImpl) txMgr;
+      var gfTx = gfTxMgrImpl.pauseTransaction();
 
-      javax.transaction.TransactionManager jtaTxMgr = cache.getJTATransactionManager();
-      javax.transaction.Transaction jtaTx = jtaTxMgr.suspend();
+      var jtaTxMgr = cache.getJTATransactionManager();
+      var jtaTx = jtaTxMgr.suspend();
 
       region.put("enlistKey", "conflictVal");
       assertEquals("conflictVal", region.get("enlistKey"));
@@ -6595,9 +6589,9 @@ public class TXJUnitTest {
     // };
     // DistributedTestCase.waitForCriterion(wc, 15 * 1000, 20, true);
 
-    boolean done = false;
+    var done = false;
     try {
-      for (StopWatch time = new StopWatch(true); !done
+      for (var time = new StopWatch(true); !done
           && time.elapsedTimeMillis() < 15 * 1000; done =
               (idx.getStatistics().getNumUpdates() == expectedUpdates)) {
         Thread.sleep(20);
@@ -6623,9 +6617,9 @@ public class TXJUnitTest {
     // };
     // DistributedTestCase.waitForCriterion(wc, 15 * 1000, 20, true);
 
-    boolean done = false;
+    var done = false;
     try {
-      for (StopWatch time = new StopWatch(true); !done
+      for (var time = new StopWatch(true); !done
           && time.elapsedTimeMillis() < 15 * 1000; done =
               (idx.getStatistics().getNumberOfKeys() == expectedKeys)) {
         Thread.sleep(20);
@@ -6642,26 +6636,26 @@ public class TXJUnitTest {
   public void testTXAndQueries() throws CacheException, QueryException {
     IndexManager.TEST_RANGEINDEX_ONLY = true;
     try {
-      final QueryService qs = cache.getQueryService();
+      final var qs = cache.getQueryService();
 
-      final String fromClause = region.getFullPath() + " value ";
-      final String qstr = "SELECT DISTINCT * FROM " + fromClause;
+      final var fromClause = region.getFullPath() + " value ";
+      final var qstr = "SELECT DISTINCT * FROM " + fromClause;
 
       // Create a region with async index updates
-      AttributesFactory af = new AttributesFactory(region.getAttributes());
+      var af = new AttributesFactory(region.getAttributes());
       af.setIndexMaintenanceSynchronous(false);
-      final Region aIregion = cache.createRegion(getUniqueName(), af.create());
-      final String aIfromClause = aIregion.getFullPath() + " value ";
-      final String aIqstr = "SELECT DISTINCT * FROM " + aIfromClause;
+      final var aIregion = cache.createRegion(getUniqueName(), af.create());
+      final var aIfromClause = aIregion.getFullPath() + " value ";
+      final var aIqstr = "SELECT DISTINCT * FROM " + aIfromClause;
 
       // Confirm base functionality for query results
       region.put("qkey0", "qval0");
       region.put("qkey1", "qval01");
-      Query q = qs.newQuery(qstr);
-      SelectResults res = (SelectResults) q.execute();
+      var q = qs.newQuery(qstr);
+      var res = (SelectResults) q.execute();
       assertEquals(2, res.size());
       String val;
-      for (final Object item : res) {
+      for (final var item : res) {
         val = (String) item;
         assertTrue("Value: " + val + " does not start with qval", val.startsWith("qval"));
       }
@@ -6674,7 +6668,7 @@ public class TXJUnitTest {
       q = qs.newQuery(aIqstr);
       res = (SelectResults) q.execute();
       assertEquals(2, res.size());
-      for (final Object value : res) {
+      for (final var value : res) {
         val = (String) value;
         assertTrue("Value: " + val + " does not start with qval", val.startsWith("qval"));
       }
@@ -6684,26 +6678,26 @@ public class TXJUnitTest {
 
       // Test query results in a transaction
       txMgr.begin();
-      Query q1 = qs.newQuery(qstr);
+      var q1 = qs.newQuery(qstr);
       region.put("noQkey2", "noQval2");
       res = (SelectResults) q1.execute();
       assertEquals(2, res.size());
-      for (final Object o : res) {
+      for (final var o : res) {
         val = (String) o;
         assertTrue("Value: " + val + " does not start with qval", val.startsWith("qval"));
       }
-      Query aIq1 = qs.newQuery(aIqstr);
+      var aIq1 = qs.newQuery(aIqstr);
       aIregion.put("noQkey2", "noQval2");
       res = (SelectResults) aIq1.execute();
       assertEquals(2, res.size());
-      for (final Object re : res) {
+      for (final var re : res) {
         val = (String) re;
         assertTrue("Value: " + val + " does not start with qval", val.startsWith("qval"));
       }
-      Query q2 = qs.newQuery(qstr + " where value.length > 6");
+      var q2 = qs.newQuery(qstr + " where value.length > 6");
       res = (SelectResults) q2.execute();
       assertEquals(0, res.size());
-      Query aIq2 = qs.newQuery(aIqstr + " where value.length > 6");
+      var aIq2 = qs.newQuery(aIqstr + " where value.length > 6");
       res = (SelectResults) aIq2.execute();
       assertEquals(0, res.size());
       txMgr.commit();
@@ -6720,11 +6714,11 @@ public class TXJUnitTest {
       aIregion.destroy("noQkey2");
 
       // Confirm base functionality for index creation
-      Index index0 = qs.createIndex("TXIndex0", IndexType.FUNCTIONAL, "value.length", fromClause);
+      var index0 = qs.createIndex("TXIndex0", IndexType.FUNCTIONAL, "value.length", fromClause);
       assertEquals(2, index0.getStatistics().getNumberOfKeys());
       assertEquals(2, index0.getStatistics().getNumberOfValues());
       assertEquals(2, index0.getStatistics().getNumUpdates()); // Shouldn't this be zero?
-      Index aIindex0 =
+      var aIindex0 =
           qs.createIndex("aITXIndex0", IndexType.FUNCTIONAL, "value.length", aIfromClause);
       assertEquals(2, aIindex0.getStatistics().getNumberOfKeys());
       assertEquals(2, aIindex0.getStatistics().getNumberOfValues());
@@ -6738,13 +6732,13 @@ public class TXJUnitTest {
       assertEquals(2, res.size());
       assertEquals(0, aIindex0.getStatistics().getTotalUses());
 
-      final String val2 = "qval000002";
+      final var val2 = "qval000002";
       region.put("qkey2", val2);
       assertEquals(3, index0.getStatistics().getNumUpdates()); // Shouldn't this be 1?
       assertEquals(3, index0.getStatistics().getNumberOfKeys());
       assertEquals(3, index0.getStatistics().getNumberOfValues());
       aIregion.put("qkey2", val2);
-      final IndexManager.IndexUpdaterThread upThread =
+      final var upThread =
           ((AbstractRegion) aIregion).getIndexManager().getUpdaterThread();
       while (!upThread.isDone()) {
         pause(20);
@@ -6786,7 +6780,7 @@ public class TXJUnitTest {
       txMgr.begin();
       region.destroy("qkey1");
       region.put("noQkey3", "noQval3");
-      Index index1 = qs.createIndex("TXIndex1", IndexType.FUNCTIONAL, "value", fromClause);
+      var index1 = qs.createIndex("TXIndex1", IndexType.FUNCTIONAL, "value", fromClause);
       assertEquals(2, index1.getStatistics().getNumberOfKeys());
       assertEquals(2, index1.getStatistics().getNumberOfValues());
       assertEquals(2, index1.getStatistics().getNumUpdates());
@@ -6796,7 +6790,7 @@ public class TXJUnitTest {
 
       aIregion.destroy("qkey1");
       aIregion.put("noQkey3", "noQval3");
-      Index aIindex1 = qs.createIndex("aITXIndex1", IndexType.FUNCTIONAL, "value", aIfromClause);
+      var aIindex1 = qs.createIndex("aITXIndex1", IndexType.FUNCTIONAL, "value", aIfromClause);
       while (!upThread.isDone()) {
         pause(20);
       }
@@ -6929,16 +6923,16 @@ public class TXJUnitTest {
    */
   @Test
   public void testInternalRegionNotExposed() throws Exception {
-    TransactionListenerForRegionTest tl = new TransactionListenerForRegionTest();
-    CacheTransactionManager ctm = cache.getCacheTransactionManager();
+    var tl = new TransactionListenerForRegionTest();
+    var ctm = cache.getCacheTransactionManager();
     ctm.addListener(tl);
-    CacheListenerForRegionTest cl = new CacheListenerForRegionTest();
-    AttributesFactory af = new AttributesFactory();
-    PartitionAttributes pa =
+    var cl = new CacheListenerForRegionTest();
+    var af = new AttributesFactory();
+    var pa =
         new PartitionAttributesFactory().setRedundantCopies(0).setTotalNumBuckets(1).create();
     af.setPartitionAttributes(pa);
     af.addCacheListener(cl);
-    Region pr = cache.createRegion("testTxEventForRegion", af.create());
+    var pr = cache.createRegion("testTxEventForRegion", af.create());
     pr.put(2, "tw");
     pr.put(3, "three");
     pr.put(4, "four");
@@ -6960,20 +6954,20 @@ public class TXJUnitTest {
    */
   @Test
   public void testPutAllSupported() throws Exception {
-    TXManagerImpl ctm = cache.getTxManager();
-    AttributesFactory af = new AttributesFactory();
-    Region r = cache.createRegion("dRegion", af.create());
-    PartitionAttributes pa =
+    var ctm = cache.getTxManager();
+    var af = new AttributesFactory();
+    var r = cache.createRegion("dRegion", af.create());
+    var pa =
         new PartitionAttributesFactory().setRedundantCopies(0).setTotalNumBuckets(1).create();
     af.setPartitionAttributes(pa);
-    Region pr = cache.createRegion("prRegion", af.create());
+    var pr = cache.createRegion("prRegion", af.create());
     Map map = new HashMap();
     map.put("stuff", "junk");
     map.put("stuff2", "junk2");
     ctm.begin();
     pr.putAll(map);
     r.putAll(map);
-    TXStateProxy tx = ctm.pauseTransaction();
+    var tx = ctm.pauseTransaction();
     assertTrue(!pr.containsKey("stuff"));
     assertTrue(!r.containsKey("stuff"));
     ctm.unpauseTransaction(tx);
@@ -6989,13 +6983,13 @@ public class TXJUnitTest {
    */
   @Test
   public void testGetAllSupported() throws Exception {
-    CacheTransactionManager ctm = cache.getCacheTransactionManager();
-    AttributesFactory af = new AttributesFactory();
-    Region r = cache.createRegion("dRegion", af.create());
-    PartitionAttributes pa =
+    var ctm = cache.getCacheTransactionManager();
+    var af = new AttributesFactory();
+    var r = cache.createRegion("dRegion", af.create());
+    var pa =
         new PartitionAttributesFactory().setRedundantCopies(0).setTotalNumBuckets(1).create();
     af.setPartitionAttributes(pa);
-    Region pr = cache.createRegion("prRegion", af.create());
+    var pr = cache.createRegion("prRegion", af.create());
     List list = new ArrayList();
     list.add("stuff");
     list.add("stuff2");
@@ -7016,13 +7010,13 @@ public class TXJUnitTest {
    */
   @Test
   public void testDestroyRegionNotSupported() throws Exception {
-    CacheTransactionManager ctm = cache.getCacheTransactionManager();
-    AttributesFactory af = new AttributesFactory();
-    Region r = cache.createRegion("dRegion", af.create());
-    PartitionAttributes pa =
+    var ctm = cache.getCacheTransactionManager();
+    var af = new AttributesFactory();
+    var r = cache.createRegion("dRegion", af.create());
+    var pa =
         new PartitionAttributesFactory().setRedundantCopies(0).setTotalNumBuckets(1).create();
     af.setPartitionAttributes(pa);
-    Region pr = cache.createRegion("prRegion", af.create());
+    var pr = cache.createRegion("prRegion", af.create());
     List list = new ArrayList();
     list.add("stuff");
     list.add("stuff2");
@@ -7070,13 +7064,13 @@ public class TXJUnitTest {
    */
   @Test
   public void testInvalidateRegionNotSupported() throws Exception {
-    CacheTransactionManager ctm = cache.getCacheTransactionManager();
-    AttributesFactory af = new AttributesFactory();
-    Region r = cache.createRegion("dRegion", af.create());
-    PartitionAttributes pa =
+    var ctm = cache.getCacheTransactionManager();
+    var af = new AttributesFactory();
+    var r = cache.createRegion("dRegion", af.create());
+    var pa =
         new PartitionAttributesFactory().setRedundantCopies(0).setTotalNumBuckets(1).create();
     af.setPartitionAttributes(pa);
-    Region pr = cache.createRegion("prRegion", af.create());
+    var pr = cache.createRegion("prRegion", af.create());
     ctm.begin();
     try {
       pr.invalidateRegion();
@@ -7118,13 +7112,13 @@ public class TXJUnitTest {
    */
   @Test
   public void testClearRegionNotSupported() throws Exception {
-    CacheTransactionManager ctm = cache.getCacheTransactionManager();
-    AttributesFactory af = new AttributesFactory();
-    Region r = cache.createRegion("dRegion", af.create());
-    PartitionAttributes pa =
+    var ctm = cache.getCacheTransactionManager();
+    var af = new AttributesFactory();
+    var r = cache.createRegion("dRegion", af.create());
+    var pa =
         new PartitionAttributesFactory().setRedundantCopies(0).setTotalNumBuckets(1).create();
     af.setPartitionAttributes(pa);
-    Region pr = cache.createRegion("prRegion", af.create());
+    var pr = cache.createRegion("prRegion", af.create());
     ctm.begin();
     try {
       pr.clear();
@@ -7161,10 +7155,10 @@ public class TXJUnitTest {
 
   @Test
   public void testBug51781() {
-    AttributesFactory<Integer, String> af = new AttributesFactory<>();
+    var af = new AttributesFactory<Integer, String>();
     af.setDataPolicy(DataPolicy.NORMAL);
-    Region<Integer, String> r = cache.createRegion(getUniqueName(), af.create());
-    CacheTransactionManager mgr = cache.getCacheTransactionManager();
+    var r = cache.createRegion(getUniqueName(), af.create());
+    var mgr = cache.getCacheTransactionManager();
     r.put(1, "value1");
     r.put(2, "value2");
     assertEquals(2, r.size());
@@ -7184,8 +7178,8 @@ public class TXJUnitTest {
 
     @Override
     public void afterCommit(TransactionEvent event) {
-      List<CacheEvent<?, ?>> events = event.getEvents();
-      for (CacheEvent<?, ?> e : events) {
+      var events = event.getEvents();
+      for (var e : events) {
         if (!(SEPARATOR + "testTxEventForRegion").equals(e.getRegion().getFullPath())) {
           exceptionOccurred = true;
         }
@@ -7241,7 +7235,7 @@ public class TXJUnitTest {
     region.put(2, "value2");
     txMgr.begin();
     region.put(1, "newValue1");
-    TransactionId transaction1 = txMgr.suspend();
+    var transaction1 = txMgr.suspend();
 
     txMgr.begin();
     region.get(1); // a repeatable read operation
@@ -7255,7 +7249,7 @@ public class TXJUnitTest {
       default:
         throw new RuntimeException("Unknown operation");
     }
-    TransactionId transaction2 = txMgr.suspend();
+    var transaction2 = txMgr.suspend();
 
     txMgr.resume(transaction1);
     txMgr.commit();

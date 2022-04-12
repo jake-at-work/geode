@@ -44,7 +44,7 @@ public abstract class AbstractClientIntegrationTest implements RedisIntegrationT
 
   @Test
   public void clientWithInvalidSubcommand_returnError() {
-    String invalidSubcommand = "subcommand";
+    var invalidSubcommand = "subcommand";
     assertThatThrownBy(() -> jedis.sendCommand(Protocol.Command.CLIENT, invalidSubcommand))
         .hasMessageContaining("ERR Unknown subcommand or wrong number of arguments for '"
             + invalidSubcommand);
@@ -58,7 +58,7 @@ public abstract class AbstractClientIntegrationTest implements RedisIntegrationT
 
   @Test
   public void clientSetName_withNoArguments_returnError() {
-    String subcommand = "SeTnAmE";
+    var subcommand = "SeTnAmE";
     assertThatThrownBy(() -> jedis.sendCommand(Protocol.Command.CLIENT, subcommand))
         .hasMessageContaining("ERR Unknown subcommand or wrong number of arguments for '"
             + subcommand);
@@ -66,7 +66,7 @@ public abstract class AbstractClientIntegrationTest implements RedisIntegrationT
 
   @Test
   public void clientSetName_withTooManyArguments_returnError() {
-    String subcommand = "SeTnAmE";
+    var subcommand = "SeTnAmE";
     assertThatThrownBy(
         () -> jedis.sendCommand(Protocol.Command.CLIENT, subcommand, "AAAA", "BBBBBB"))
             .hasMessageContaining("ERR Unknown subcommand or wrong number of arguments for '"
@@ -75,13 +75,13 @@ public abstract class AbstractClientIntegrationTest implements RedisIntegrationT
 
   @Test
   public void clientSetName_withSpace_returnError() {
-    String clientName = " ";
+    var clientName = " ";
     assertThatThrownBy(() -> jedis.clientSetname(clientName)).hasMessage(ERROR_INVALID_CLIENT_NAME);
   }
 
   @Test
   public void clientSetName_withNewLine_returnError() {
-    String clientName = "\n";
+    var clientName = "\n";
     assertThatThrownBy(() -> jedis.clientSetname(clientName)).hasMessage(ERROR_INVALID_CLIENT_NAME);
   }
 
@@ -93,7 +93,7 @@ public abstract class AbstractClientIntegrationTest implements RedisIntegrationT
 
   @Test
   public void clientGetName_withTooManyArguments_returnError() {
-    String subcommand = "GeTNaMe";
+    var subcommand = "GeTNaMe";
     assertThatThrownBy(() -> jedis.sendCommand(Protocol.Command.CLIENT, subcommand, "AAAA"))
         .hasMessageContaining("ERR Unknown subcommand or wrong number of arguments for '"
             + subcommand);
@@ -111,25 +111,25 @@ public abstract class AbstractClientIntegrationTest implements RedisIntegrationT
 
   @Test
   public void clientSetName_setsName() {
-    String clientName = "Name";
+    var clientName = "Name";
     jedis.clientSetname(clientName);
     assertThat(jedis.clientGetname()).isEqualTo(clientName);
   }
 
   @Test
   public void clientSetName_canOverwriteName() {
-    String clientName1 = "Name";
+    var clientName1 = "Name";
     jedis.clientSetname(clientName1);
     assertThat(jedis.clientGetname()).isEqualTo(clientName1);
 
-    String clientName2 = "SecondName";
+    var clientName2 = "SecondName";
     jedis.clientSetname(clientName2);
     assertThat(jedis.clientGetname()).isEqualTo(clientName2);
   }
 
   @Test
   public void clientSetName_withEmptyString_setNameToNull() {
-    String clientName = "";
+    var clientName = "";
     jedis.clientSetname(clientName);
     assertThat(jedis.clientGetname()).isNull();
   }

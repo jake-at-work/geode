@@ -125,8 +125,8 @@ abstract class BaseRegionMap implements RegionMap {
   }
 
   static boolean shouldInvokeCallbacks(final LocalRegion owner, final boolean isInitialized) {
-    LocalRegion lr = owner;
-    boolean isPartitioned = lr.isUsedForPartitionedRegionBucket();
+    var lr = owner;
+    var isPartitioned = lr.isUsedForPartitionedRegionBucket();
 
     if (isPartitioned) {
       /*
@@ -147,7 +147,7 @@ abstract class BaseRegionMap implements RegionMap {
       boolean originRemote) {
     assert event != null;
     if (event.getRegion().isUsedForPartitionedRegionBucket()) {
-      LocalRegion pr = event.getRegion().getPartitionedRegion();
+      var pr = event.getRegion().getPartitionedRegion();
       event.setRegion(pr);
     }
     event.setOriginRemote(originRemote);

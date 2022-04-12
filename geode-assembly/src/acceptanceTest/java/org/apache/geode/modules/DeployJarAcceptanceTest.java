@@ -47,11 +47,11 @@ public class DeployJarAcceptanceTest {
 
   @BeforeClass
   public static void setup() throws IOException {
-    File stagingDir = stagingTempDir.newFolder("staging");
+    var stagingDir = stagingTempDir.newFolder("staging");
     jarFile = new File(stagingDir, "myJar-1.0.jar");
     jarFileV2 = new File(stagingDir, "myJar-2.0.jar");
     anotherJarFile = new File(stagingDir, "anotherJar-1.0.jar");
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJarFromClassNames(jarFile, "SomeClass");
     jarBuilder.buildJarFromClassNames(jarFileV2, "SomeClass", "SomeClassVersionTwo");
     jarBuilder.buildJarFromClassNames(anotherJarFile, "SomeOtherClass");
@@ -168,10 +168,10 @@ public class DeployJarAcceptanceTest {
 
   @Test
   public void testDeployFunction() throws IOException {
-    JarBuilder jarBuilder = new JarBuilder();
-    File source = loadTestResource("/example/test/function/ExampleFunction.java");
+    var jarBuilder = new JarBuilder();
+    var source = loadTestResource("/example/test/function/ExampleFunction.java");
 
-    File outputJar = new File(stagingTempDir.newFolder(), "function.jar");
+    var outputJar = new File(stagingTempDir.newFolder(), "function.jar");
     jarBuilder.buildJar(outputJar, source);
 
     GfshScript.of(getLocatorGFSHConnectionString(), "deploy --jars=" + outputJar.getCanonicalPath())
@@ -188,10 +188,10 @@ public class DeployJarAcceptanceTest {
 
   @Test
   public void testDeployAndUndeployFunction() throws IOException {
-    JarBuilder jarBuilder = new JarBuilder();
-    File source = loadTestResource("/example/test/function/ExampleFunction.java");
+    var jarBuilder = new JarBuilder();
+    var source = loadTestResource("/example/test/function/ExampleFunction.java");
 
-    File outputJar = new File(stagingTempDir.newFolder(), "function.jar");
+    var outputJar = new File(stagingTempDir.newFolder(), "function.jar");
     jarBuilder.buildJar(outputJar, source);
 
     GfshScript.of(getLocatorGFSHConnectionString(), "deploy --jars=" + outputJar.getCanonicalPath())
@@ -217,11 +217,11 @@ public class DeployJarAcceptanceTest {
 
   @Test
   public void testDeployPojo() throws IOException {
-    JarBuilder jarBuilder = new JarBuilder();
-    File functionSource = loadTestResource("/example/test/function/PojoFunction.java");
-    File pojoSource = loadTestResource("/example/test/pojo/ExamplePojo.java");
+    var jarBuilder = new JarBuilder();
+    var functionSource = loadTestResource("/example/test/function/PojoFunction.java");
+    var pojoSource = loadTestResource("/example/test/pojo/ExamplePojo.java");
 
-    File outputJar = new File(stagingTempDir.newFolder(), "functionAndPojo.jar");
+    var outputJar = new File(stagingTempDir.newFolder(), "functionAndPojo.jar");
     jarBuilder.buildJar(outputJar, pojoSource, functionSource);
 
     System.out.println(GfshScript
@@ -259,7 +259,7 @@ public class DeployJarAcceptanceTest {
   }
 
   private File loadTestResource(String fileName) {
-    String filePath =
+    var filePath =
         createTempFileFromResource(getClass(), fileName).getAbsolutePath();
     assertThat(filePath).isNotNull();
 

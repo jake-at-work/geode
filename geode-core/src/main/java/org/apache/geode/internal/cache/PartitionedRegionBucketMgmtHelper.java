@@ -38,11 +38,11 @@ class PartitionedRegionBucketMgmtHelper {
    */
   static boolean bucketIsAllowedOnThisHost(Bucket b, InternalDistributedMember moveSource) {
     if (b.getDistributionManager().enforceUniqueZone()) {
-      Set<InternalDistributedMember> hostingMembers = b.getBucketOwners();
+      var hostingMembers = b.getBucketOwners();
       Set<InternalDistributedMember> buddyMembers =
           new HashSet(b.getDistributionManager().getMembersInThisZone());
-      boolean disjoint = Collections.disjoint(hostingMembers, buddyMembers);
-      boolean sourceIsOneThisHost = moveSource != null && buddyMembers.contains(moveSource);
+      var disjoint = Collections.disjoint(hostingMembers, buddyMembers);
+      var sourceIsOneThisHost = moveSource != null && buddyMembers.contains(moveSource);
       return disjoint || sourceIsOneThisHost;
     } else {
       return true;

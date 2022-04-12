@@ -45,14 +45,14 @@ public class DiskStoreCompacter {
 
     String diskStoreName = null;
     String[] diskDirs = null;
-    boolean errored = false;
+    var errored = false;
     try {
       if (args.length < 3) {
         throw new IllegalArgumentException(
             "Requires 3 arguments : <diskStoreName> <diskDirs> <maxOplogSize>");
       }
 
-      Properties prop = new Properties();
+      var prop = new Properties();
       try {
         prop.load(new StringReader(
             args[0] + GfshParser.LINE_SEPARATOR + args[1] + GfshParser.LINE_SEPARATOR + args[2]));
@@ -62,17 +62,17 @@ public class DiskStoreCompacter {
       }
 
       diskStoreName = prop.getProperty(CliStrings.COMPACT_OFFLINE_DISK_STORE__NAME);
-      String diskDirsStr = prop.getProperty(CliStrings.COMPACT_OFFLINE_DISK_STORE__DISKDIRS);
+      var diskDirsStr = prop.getProperty(CliStrings.COMPACT_OFFLINE_DISK_STORE__DISKDIRS);
       diskDirs = diskDirsStr.split(",");
-      String maxOpLogSize = prop.getProperty(CliStrings.COMPACT_OFFLINE_DISK_STORE__MAXOPLOGSIZE);
-      long maxOplogSize = Long.parseLong(maxOpLogSize);
+      var maxOpLogSize = prop.getProperty(CliStrings.COMPACT_OFFLINE_DISK_STORE__MAXOPLOGSIZE);
+      var maxOplogSize = Long.parseLong(maxOpLogSize);
 
       compact(diskStoreName, diskDirs, maxOplogSize);
     } catch (GemFireIOException e) {
       errored = true;
-      Throwable cause = e.getCause();
+      var cause = e.getCause();
       if (cause instanceof IllegalStateException) {
-        String message = cause.getMessage();
+        var message = cause.getMessage();
         if (stringMatches(
             String.format("The init file %s does not exist.", "(.*)"),
             message)) {
@@ -83,10 +83,10 @@ public class DiskStoreCompacter {
           errorString = message;
         }
       } else if (cause instanceof DiskAccessException) {
-        boolean isKnownCause = false;
-        Throwable nestedCause = cause.getCause();
+        var isKnownCause = false;
+        var nestedCause = cause.getCause();
         if (nestedCause instanceof IOException) {
-          String message = nestedCause.getMessage();
+          var message = nestedCause.getMessage();
           if (stringMatches(String.format("The file %s is being used by another process.",
               "(.*)"), message)) {
             errorString =
@@ -126,14 +126,14 @@ public class DiskStoreCompacter {
     File[] dirs = null;
     if (diskDirs != null) {
       dirs = new File[diskDirs.length];
-      for (int i = 0; i < dirs.length; i++) {
+      for (var i = 0; i < dirs.length; i++) {
         dirs[i] = new File(diskDirs[i]);
       }
     }
     try {
       DiskStoreImpl.offlineCompact(diskStoreName, dirs, false/* upgrade */, maxOplogSize);
     } catch (Exception ex) {
-      String fieldsMessage = (maxOplogSize != -1
+      var fieldsMessage = (maxOplogSize != -1
           ? CliStrings.COMPACT_OFFLINE_DISK_STORE__MAXOPLOGSIZE + "=" + maxOplogSize + "," : "");
       fieldsMessage += join(dirs, DIR_ARRAY_SEPARATOR);
       throw new GemFireIOException(CliStrings.format(

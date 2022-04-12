@@ -20,19 +20,16 @@ package org.apache.geode.tools.pulse.internal.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import org.apache.geode.tools.pulse.internal.data.Cluster;
 import org.apache.geode.tools.pulse.internal.data.PulseConstants;
 import org.apache.geode.tools.pulse.internal.data.Repository;
 import org.apache.geode.tools.pulse.internal.util.TimeUtils;
@@ -64,24 +61,24 @@ public class ClusterMemberService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    Cluster.Member[] clusterMembersList = cluster.getMembers();
+    var clusterMembersList = cluster.getMembers();
 
     // create members json
-    ArrayNode memberListJson = mapper.createArrayNode();
-    for (Cluster.Member clusterMember : clusterMembersList) {
-      ObjectNode memberJSON = mapper.createObjectNode();
+    var memberListJson = mapper.createArrayNode();
+    for (var clusterMember : clusterMembersList) {
+      var memberJSON = mapper.createObjectNode();
       // getting members detail
       memberJSON.put("gemfireVersion", clusterMember.getGemfireVersion());
       memberJSON.put("memberId", clusterMember.getId());
       memberJSON.put("name", clusterMember.getName());
       memberJSON.put("host", clusterMember.getHost());
 
-      List<String> serverGroups = clusterMember.getServerGroups();
+      var serverGroups = clusterMember.getServerGroups();
       if (serverGroups.size() == 0) {
         serverGroups = new ArrayList<>();
         serverGroups.add(PulseConstants.DEFAULT_SERVER_GROUP);
@@ -89,23 +86,23 @@ public class ClusterMemberService implements PulseService {
 
       memberJSON.set("serverGroups", mapper.valueToTree(serverGroups));
 
-      List<String> redundancyZones = clusterMember.getRedundancyZones();
+      var redundancyZones = clusterMember.getRedundancyZones();
       if (redundancyZones.size() == 0) {
         redundancyZones = new ArrayList<>();
         redundancyZones.add(PulseConstants.DEFAULT_REDUNDANCY_ZONE);
       }
       memberJSON.set("redundancyZones", mapper.valueToTree(redundancyZones));
 
-      long usedHeapSize = cluster.getUsedHeapSize();
-      long currentHeap = clusterMember.getCurrentHeapSize();
+      var usedHeapSize = cluster.getUsedHeapSize();
+      var currentHeap = clusterMember.getCurrentHeapSize();
       if (usedHeapSize > 0) {
-        double heapUsage = ((double) currentHeap / (double) usedHeapSize) * 100;
+        var heapUsage = ((double) currentHeap / (double) usedHeapSize) * 100;
         memberJSON.put(HEAP_USAGE, truncate(heapUsage, 2));
       } else {
         memberJSON.put(HEAP_USAGE, 0);
       }
-      double currentCPUUsage = clusterMember.getCpuUsage();
-      double loadAvg = clusterMember.getLoadAverage();
+      var currentCPUUsage = clusterMember.getCpuUsage();
+      var loadAvg = clusterMember.getLoadAverage();
 
       memberJSON.put("cpuUsage", truncate(currentCPUUsage, 2));
       memberJSON.put("currentHeapUsage", clusterMember.getCurrentHeapSize());

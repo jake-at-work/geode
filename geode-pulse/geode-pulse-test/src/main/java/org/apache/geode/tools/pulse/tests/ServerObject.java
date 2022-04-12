@@ -75,8 +75,8 @@ public class ServerObject extends NotificationBroadcasterSupport implements Serv
   @Override
   public TabularData viewRemoteClusterStatus() {
     wanInfo.clear();
-    String[] wan = JMXProperties.getInstance().getProperty(getKey("wanInfo"), "").split(" ");
-    int cnt = 0;
+    var wan = JMXProperties.getInstance().getProperty(getKey("wanInfo"), "").split(" ");
+    var cnt = 0;
     while (wan.length >= (cnt + 2)) {
       try {
         wanInfo.put(buildWanInfoType(wan[cnt], Boolean.parseBoolean(wan[cnt + 1])));
@@ -185,8 +185,8 @@ public class ServerObject extends NotificationBroadcasterSupport implements Serv
 
   @Override
   public double getAverageWrites() {
-    String val = JMXProperties.getInstance().getProperty(getKey("averageWrites"), "");
-    double ret = Double.parseDouble(val);
+    var val = JMXProperties.getInstance().getProperty(getKey("averageWrites"), "");
+    var ret = Double.parseDouble(val);
     return ret;
     // return Double.parseDouble(JMXProperties.getInstance().getProperty(
     // getKey("averageWrites"), ""));
@@ -226,7 +226,7 @@ public class ServerObject extends NotificationBroadcasterSupport implements Serv
     // p1 : comma separated members
     // p2 : limit
 
-    DataBrowserResultLoader dbrLoader = DataBrowserResultLoader.getInstance();
+    var dbrLoader = DataBrowserResultLoader.getInstance();
 
     try {
       return dbrLoader.load(p0);

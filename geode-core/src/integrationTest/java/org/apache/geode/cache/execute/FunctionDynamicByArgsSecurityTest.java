@@ -72,15 +72,15 @@ public class FunctionDynamicByArgsSecurityTest {
   static class DynamicSecurityFunction implements Function {
     @Override
     public void execute(FunctionContext context) {
-      Object args = context.getArguments();
-      String[] regions = (String[]) args;
+      var args = context.getArguments();
+      var regions = (String[]) args;
       context.getResultSender()
           .lastResult("successfully invoked with argument:" + String.join(",", regions));
     }
 
     @Override
     public Collection<ResourcePermission> getRequiredPermissions(String regionName, Object args) {
-      String[] regions = (String[]) args;
+      var regions = (String[]) args;
       return Stream.of(regions).map(s -> new ResourcePermission(ResourcePermission.Resource.DATA,
           ResourcePermission.Operation.READ, s)).collect(Collectors.toSet());
     }

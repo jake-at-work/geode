@@ -81,7 +81,7 @@ public class ControllableProcessIntegrationTest {
   public void creationDeletesStatusRequestFileInDirectory() throws Exception {
     // arrange
     localProcessLauncher = new LocalProcessLauncher(pidFile, false);
-    File file = new EmptyFileWriter(statusRequestFile).createNewFile();
+    var file = new EmptyFileWriter(statusRequestFile).createNewFile();
 
     // act
     new FileControllableProcess(directory, processType, localProcessLauncher,
@@ -96,7 +96,7 @@ public class ControllableProcessIntegrationTest {
   public void creationDeletesStatusResponseFileInDirectory() throws Exception {
     // arrange
     localProcessLauncher = new LocalProcessLauncher(pidFile, false);
-    File file = new EmptyFileWriter(statusFile).createNewFile();
+    var file = new EmptyFileWriter(statusFile).createNewFile();
 
     // act
     new FileControllableProcess(directory, processType, localProcessLauncher,
@@ -111,7 +111,7 @@ public class ControllableProcessIntegrationTest {
   public void creationDeletesStopRequestFileInDirectory() throws Exception {
     // arrange
     localProcessLauncher = new LocalProcessLauncher(pidFile, false);
-    File file = new EmptyFileWriter(stopRequestFile).createNewFile();
+    var file = new EmptyFileWriter(stopRequestFile).createNewFile();
 
     // act
     new FileControllableProcess(directory, processType, localProcessLauncher,
@@ -151,9 +151,9 @@ public class ControllableProcessIntegrationTest {
   @Test
   public void stopsBothControlFileWatchdogs() throws Exception {
     // arrange
-    ControlFileWatchdog stopRequestFileWatchdog = new ControlFileWatchdog(directory,
+    var stopRequestFileWatchdog = new ControlFileWatchdog(directory,
         "stopRequestFile", mock(ControlRequestHandler.class), false);
-    ControlFileWatchdog statusRequestFileWatchdog = new ControlFileWatchdog(directory,
+    var statusRequestFileWatchdog = new ControlFileWatchdog(directory,
         "statusRequestFile", mock(ControlRequestHandler.class), false);
 
     stopRequestFileWatchdog = spy(stopRequestFileWatchdog);
@@ -175,17 +175,17 @@ public class ControllableProcessIntegrationTest {
   @Test
   public void statusRequestFileIsDeletedAndStatusFileIsCreated() throws Exception {
     // arrange
-    File statusRequestFile = new File(directory, processType.getStatusRequestFileName());
-    File statusFile = new File(directory, processType.getStatusFileName());
+    var statusRequestFile = new File(directory, processType.getStatusRequestFileName());
+    var statusFile = new File(directory, processType.getStatusFileName());
 
-    ServiceState mockServiceState = mock(ServiceState.class);
+    var mockServiceState = mock(ServiceState.class);
     when(mockServiceState.toJson()).thenReturn("json");
-    ControlNotificationHandler mockHandler = mock(ControlNotificationHandler.class);
+    var mockHandler = mock(ControlNotificationHandler.class);
     when(mockHandler.handleStatus()).thenReturn(mockServiceState);
     new FileControllableProcess(mockHandler, directory, processType, false);
 
     // act
-    boolean created = statusRequestFile.createNewFile();
+    var created = statusRequestFile.createNewFile();
 
     // assert
     assertThat(created).isTrue();

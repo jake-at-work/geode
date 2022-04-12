@@ -21,7 +21,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 public class EchoCommandIntegrationTest {
@@ -50,22 +49,22 @@ public class EchoCommandIntegrationTest {
 
   @Test
   public void testEchoWithVariableAtStart() {
-    String command = "echo --string=\"${TESTSYS} Hello World! This is Pivotal\"";
+    var command = "echo --string=\"${TESTSYS} Hello World! This is Pivotal\"";
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .containsOutput("SYS_VALUE Hello World! This is Pivotal");
   }
 
   @Test
   public void testEchoWithMultipleVariables() {
-    String command = "echo --string=\"${TESTSYS} Hello World! This is Pivotal ${TESTSYS}\"";
+    var command = "echo --string=\"${TESTSYS} Hello World! This is Pivotal ${TESTSYS}\"";
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .containsOutput("SYS_VALUE Hello World! This is Pivotal SYS_VALUE");
   }
 
   @Test
   public void testEchoAllPropertyVariables() {
-    String command = "echo --string=\"$*\"";
-    CommandResult commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
+    var command = "echo --string=\"$*\"";
+    var commandResult = gfsh.executeAndAssertThat(command).statusIsSuccess()
         .getCommandResult();
     assertThat(
         commandResult.getResultData().getTableSections().get(0).getValuesInColumn("Property"))
@@ -92,14 +91,14 @@ public class EchoCommandIntegrationTest {
 
   @Test
   public void testEchoForSingleVariable() {
-    String command = "echo --string=${TESTSYS}";
+    var command = "echo --string=${TESTSYS}";
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .containsOutput("SYS_VALUE");
   }
 
   @Test
   public void testEchoForSingleVariable2() {
-    String command = "echo --string=\"${TESTSYS} ${TESTSYS}\"";
+    var command = "echo --string=\"${TESTSYS} ${TESTSYS}\"";
 
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .containsOutput("SYS_VALUE SYS_VALUE");

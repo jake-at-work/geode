@@ -39,7 +39,6 @@ import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegion.SizeEntry;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -98,8 +97,8 @@ public class SizeMessage extends PartitionMessage {
   public static SizeResponse send(Set recipients, PartitionedRegion r, ArrayList<Integer> bucketIds,
       boolean estimate) {
     Assert.assertTrue(recipients != null, "SizeMessage NULL recipients set");
-    SizeResponse p = new SizeResponse(r.getSystem(), recipients);
-    SizeMessage m = new SizeMessage(recipients, r.getPRId(), p, bucketIds, estimate);
+    var p = new SizeResponse(r.getSystem(), recipients);
+    var m = new SizeMessage(recipients, r.getPRId(), p, bucketIds, estimate);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     r.getDistributionManager().putOutgoing(m);
     return p;
@@ -142,7 +141,7 @@ public class SizeMessage extends PartitionMessage {
       long startTime) throws CacheException, ForceReattemptException {
     Map<Integer, SizeEntry> sizes;
     if (r != null) {
-      PartitionedRegionDataStore ds = r.getDataStore();
+      var ds = r.getDataStore();
       if (ds != null) { // datastore exists
         if (bucketIds != null) {
           if (estimate) {
@@ -227,7 +226,7 @@ public class SizeMessage extends PartitionMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, Map<Integer, SizeEntry> sizes) {
       Assert.assertTrue(recipient != null, "SizeReplyMessage NULL reply message");
-      SizeReplyMessage m = new SizeReplyMessage(processorId, sizes);
+      var m = new SizeReplyMessage(processorId, sizes);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -239,7 +238,7 @@ public class SizeMessage extends PartitionMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "{} process invoking reply processor with processorId: {}", getClass().getName(),
@@ -319,10 +318,10 @@ public class SizeMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof SizeReplyMessage) {
-          SizeReplyMessage reply = (SizeReplyMessage) msg;
+          var reply = (SizeReplyMessage) msg;
           synchronized (returnValue) {
-            for (Map.Entry<Integer, SizeEntry> me : reply.getBucketSizes().entrySet()) {
-              Integer k = me.getKey();
+            for (var me : reply.getBucketSizes().entrySet()) {
+              var k = me.getKey();
               if (!returnValue.containsKey(k) || !returnValue.get(k).isPrimary()) {
                 returnValue.put(k, me.getValue());
               }

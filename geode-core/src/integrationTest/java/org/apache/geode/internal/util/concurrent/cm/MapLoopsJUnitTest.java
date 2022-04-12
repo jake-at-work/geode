@@ -99,9 +99,9 @@ public class MapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
     System.out.print(" ops: " + nops);
     System.out.println();
 
-    int k = 1;
-    int warmups = 2;
-    for (int i = 1; i <= maxThreads;) {
+    var k = 1;
+    var warmups = 2;
+    for (var i = 1; i <= maxThreads;) {
       Thread.sleep(100);
       test(i, nkeys, mapClass);
       if (warmups > 0) {
@@ -120,19 +120,19 @@ public class MapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
   }
 
   static Integer[] makeKeys(int n) {
-    LoopHelpers.SimpleRandom rng = new LoopHelpers.SimpleRandom();
-    Integer[] key = new Integer[n];
-    for (int i = 0; i < key.length; ++i) {
+    var rng = new LoopHelpers.SimpleRandom();
+    var key = new Integer[n];
+    for (var i = 0; i < key.length; ++i) {
       key[i] = rng.next();
     }
     return key;
   }
 
   static void shuffleKeys(Integer[] key) {
-    Random rng = new Random();
-    for (int i = key.length; i > 1; --i) {
-      int j = rng.nextInt(i);
-      Integer tmp = key[j];
+    var rng = new Random();
+    for (var i = key.length; i > 1; --i) {
+      var j = rng.nextInt(i);
+      var tmp = key[j];
       key[j] = key[i - 1];
       key[i - 1] = tmp;
     }
@@ -140,23 +140,23 @@ public class MapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
 
   static void test(int i, int nkeys, Class mapClass) throws Exception {
     System.out.print("Threads: " + i + "\t:");
-    Map map = (Map) mapClass.newInstance();
-    Integer[] key = makeKeys(nkeys);
+    var map = (Map) mapClass.newInstance();
+    var key = makeKeys(nkeys);
     // Uncomment to start with a non-empty table
     // for (int j = 0; j < nkeys; j += 4) // start 1/4 occupied
     // map.put(key[j], key[j]);
     shuffleKeys(key);
-    LoopHelpers.BarrierTimer timer = new LoopHelpers.BarrierTimer();
-    CyclicBarrier barrier = new CyclicBarrier(i + 1, timer);
-    for (int t = 0; t < i; ++t) {
+    var timer = new LoopHelpers.BarrierTimer();
+    var barrier = new CyclicBarrier(i + 1, timer);
+    for (var t = 0; t < i; ++t) {
       pool.execute(new Runner(t, map, key, barrier));
     }
     barrier.await();
     barrier.await();
-    long time = timer.getTime();
-    long tpo = time / (i * (long) nops);
+    var time = timer.getTime();
+    var tpo = time / (i * (long) nops);
     System.out.print(LoopHelpers.rightJustify(tpo) + " ns per op");
-    double secs = (double) (time) / 1000000000.0;
+    var secs = (double) (time) / 1000000000.0;
     System.out.println("\t " + secs + "s run time");
     map.clear();
   }
@@ -180,7 +180,7 @@ public class MapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
 
     int step() {
       // random-walk around key positions, bunching accesses
-      int r = rng.next();
+      var r = rng.next();
       position += (r & 7) - 3;
       while (position >= key.length) {
         position -= key.length;
@@ -189,8 +189,8 @@ public class MapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
         position += key.length;
       }
 
-      Integer k = key[position];
-      Integer x = (Integer) map.get(k);
+      var k = key[position];
+      var x = (Integer) map.get(k);
 
       if (x != null) {
         if (x.intValue() != k.intValue()) {
@@ -219,7 +219,7 @@ public class MapLoopsJUnitTest extends JSR166TestCase { // TODO: reformat
     public void run() {
       try {
         barrier.await();
-        int ops = nops;
+        var ops = nops;
         while (ops > 0) {
           ops -= step();
         }

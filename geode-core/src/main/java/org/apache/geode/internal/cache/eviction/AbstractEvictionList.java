@@ -135,8 +135,8 @@ abstract class AbstractEvictionList implements EvictionList {
   }
 
   protected synchronized void unlinkEntry(EvictionNode evictionNode) {
-    EvictionNode next = evictionNode.next();
-    EvictionNode previous = evictionNode.previous();
+    var next = evictionNode.next();
+    var previous = evictionNode.previous();
     next.setPrevious(previous);
     previous.setNext(next);
     evictionNode.setNext(null);
@@ -145,7 +145,7 @@ abstract class AbstractEvictionList implements EvictionList {
   }
 
   protected synchronized EvictionNode unlinkTailEntry() {
-    EvictionNode evictionNode = tail.previous();
+    var evictionNode = tail.previous();
     if (evictionNode == head) {
       return null; // end of eviction list
     }
@@ -158,7 +158,7 @@ abstract class AbstractEvictionList implements EvictionList {
    * Remove and return the head entry in the list
    */
   protected synchronized EvictionNode unlinkHeadEntry() {
-    EvictionNode evictionNode = head.next();
+    var evictionNode = head.next();
     if (evictionNode == tail) {
       return null; // end of list
     }

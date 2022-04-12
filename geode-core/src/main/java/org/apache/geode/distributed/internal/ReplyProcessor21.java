@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +33,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationException;
 import org.apache.geode.internal.serialization.DSFIDNotFoundException;
-import org.apache.geode.internal.serialization.Version;
 import org.apache.geode.internal.serialization.Versioning;
 import org.apache.geode.internal.util.Breadcrumbs;
 import org.apache.geode.internal.util.concurrent.StoppableCountDownLatch;
@@ -173,7 +171,7 @@ public class ReplyProcessor21 implements MembershipListener {
   ////////////////////// Static Methods /////////////////////
 
   static {
-    String str = System
+    var str = System
         .getProperty(GeodeGlossary.GEMFIRE_PREFIX + "ack-severe-alert-reduction-ratio", ".80");
     double ratio;
     try {
@@ -331,11 +329,11 @@ public class ReplyProcessor21 implements MembershipListener {
       cancelCriterion = dm.getCancelCriterion();
     }
     latch = new StoppableCountDownLatch(cancelCriterion, 1);
-    int sz = initMembers.size();
+    var sz = initMembers.size();
     members = new InternalDistributedMember[sz];
     if (sz > 0) {
-      int i = 0;
-      for (Iterator it = initMembers.iterator(); it.hasNext(); i++) {
+      var i = 0;
+      for (var it = initMembers.iterator(); it.hasNext(); i++) {
         members[i] = (InternalDistributedMember) it.next();
       }
     }
@@ -363,7 +361,7 @@ public class ReplyProcessor21 implements MembershipListener {
    */
   public DistributionManager getDistributionManager() {
     try {
-      DistributionManager result = system.getDistributionManager();
+      var result = system.getDistributionManager();
       if (result == null) {
         result = dmgr;
         Assert.assertTrue(result != null, "null DistributionManager");
@@ -413,7 +411,7 @@ public class ReplyProcessor21 implements MembershipListener {
       logger.debug("{} got process({}) from {}", this, msg, msg.getSender());
     }
     if (msg instanceof ReplyMessage) {
-      ReplyException ex = ((ReplyMessage) msg).getException();
+      var ex = ((ReplyMessage) msg).getException();
       if (ex != null) {
         if (ex.getCause() instanceof DSFIDNotFoundException) {
           processException(msg, (DSFIDNotFoundException) ex.getCause());
@@ -423,11 +421,11 @@ public class ReplyProcessor21 implements MembershipListener {
       }
     }
 
-    final InternalDistributedMember sender = msg.getSender();
+    final var sender = msg.getSender();
     if (!removeMember(sender, false) && warn) {
       // if the member hasn't left the system, something is wrong
-      final DistributionManager dm = getDistributionManager(); // fix for bug 33253
-      Set ids = getDistributionManagerIds();
+      final var dm = getDistributionManager(); // fix for bug 33253
+      var ids = getDistributionManagerIds();
       if (ids == null || ids.contains(sender)) {
         List viewMembers = dm.getViewMembers();
         if (system.getConfig().getMcastPort() == 0 // could be using multicast & will get responses
@@ -471,8 +469,8 @@ public class ReplyProcessor21 implements MembershipListener {
    * method.
    */
   protected synchronized void processException(DistributionMessage msg, DSFIDNotFoundException ex) {
-    final short versionOrdinal = ex.getProductVersionOrdinal();
-    final Version anyVersion = Versioning.getVersion(versionOrdinal);
+    final var versionOrdinal = ex.getProductVersionOrdinal();
+    final var anyVersion = Versioning.getVersion(versionOrdinal);
     logger.fatal(String.format(
         "Exception received due to missing DSFID %s on remote node %s running version %s.",
         ex.getUnknownDSFID(), msg.getSender(), anyVersion), ex);
@@ -494,8 +492,8 @@ public class ReplyProcessor21 implements MembershipListener {
       // if we're waiting for the member that initiated suspicion, we don't
       // want to be hasty about kicking it out of the distributed system
       synchronized (members) {
-        int cells = members.length;
-        for (InternalDistributedMember e : members) {
+        var cells = members.length;
+        for (var e : members) {
           if (e != null && e.equals(whoSuspected)) {
             severeAlertTimerReset = true;
           }
@@ -522,7 +520,7 @@ public class ReplyProcessor21 implements MembershipListener {
    * @see #canStopWaiting()
    */
   public void waitForReplies() throws InterruptedException, ReplyException {
-    boolean result = waitForReplies(0);
+    var result = waitForReplies(0);
     Assert.assertTrue(result, "failed but no exception thrown");
   }
 
@@ -562,10 +560,10 @@ public class ReplyProcessor21 implements MembershipListener {
 
   protected void preWait() {
     waiting = true;
-    DistributionManager mgr = getDistributionManager();
+    var mgr = getDistributionManager();
     statStart = mgr.getStats().startReplyWait();
     synchronized (members) {
-      Set activeMembers = addListenerAndGetMembers();
+      var activeMembers = addListenerAndGetMembers();
       processActiveMembers(activeMembers);
     }
   }
@@ -576,7 +574,7 @@ public class ReplyProcessor21 implements MembershipListener {
    * @param activeMembers the DM's current membership set
    */
   protected void processActiveMembers(Set activeMembers) {
-    for (final InternalDistributedMember member : members) {
+    for (final var member : members) {
       if (member != null) {
         if (!activeMembers.contains(member)) {
           memberDeparted(getDistributionManager(), member, false);
@@ -588,7 +586,7 @@ public class ReplyProcessor21 implements MembershipListener {
   private void postWait() {
     waiting = false;
     removeListener();
-    final DistributionManager mgr = getDistributionManager();
+    final var mgr = getDistributionManager();
     mgr.getStats().endReplyWait(statStart, initTime);
     mgr.getCancelCriterion().checkCancelInProgress(null);
   }
@@ -617,8 +615,8 @@ public class ReplyProcessor21 implements MembershipListener {
       throw new IllegalStateException(
           "This reply processor has already been removed from the processor keeper");
     }
-    boolean result = true;
-    boolean interrupted = Thread.interrupted();
+    var result = true;
+    var interrupted = Thread.interrupted();
     MessageDependencyMonitor.waitingForReply(this);
     try {
       // do the interrupted check inside the try so that cleanup is called
@@ -668,17 +666,17 @@ public class ReplyProcessor21 implements MembershipListener {
     }
 
     if (stillWaiting()) {
-      long timeout = getAckWaitThreshold() * 1000L;
-      long timeSoFar = System.currentTimeMillis() - initTime;
-      final long severeAlertTimeout = getAckSevereAlertThresholdMS();
+      var timeout = getAckWaitThreshold() * 1000L;
+      var timeSoFar = System.currentTimeMillis() - initTime;
+      final var severeAlertTimeout = getAckSevereAlertThresholdMS();
       // only start SUSPECT processing if severe alerts are enabled
-      final boolean doSuspectProcessing =
+      final var doSuspectProcessing =
           isSevereAlertProcessingEnabled() && (severeAlertTimeout > 0);
       if (timeout <= 0) {
         timeout = Long.MAX_VALUE;
       }
       if (msecs == 0) {
-        boolean timedOut = false;
+        var timedOut = false;
         if (timeout <= timeSoFar + 1) {
           timedOut = !latch.await(10);
         }
@@ -701,10 +699,10 @@ public class ReplyProcessor21 implements MembershipListener {
               dmgr.getCancelCriterion().checkCancelInProgress(null);
               timeout(false, true);
 
-              long suspectProcessingErrorAlertTimeout = severeAlertTimeout * 3;
+              var suspectProcessingErrorAlertTimeout = severeAlertTimeout * 3;
               if (!latch.await(suspectProcessingErrorAlertTimeout)) {
-                long now = System.currentTimeMillis();
-                long totalTimeElapsed = now - initTime;
+                var now = System.currentTimeMillis();
+                var totalTimeElapsed = now - initTime;
 
                 String waitingOnMembers;
                 synchronized (members) {
@@ -778,8 +776,8 @@ public class ReplyProcessor21 implements MembershipListener {
       throw new IllegalStateException(
           "This reply processor has already been removed from the processor keeper");
     }
-    long msecs = p_msecs; // don't overwrite parameter
-    boolean result = true;
+    var msecs = p_msecs; // don't overwrite parameter
+    var result = true;
     MessageDependencyMonitor.waitingForReply(this);
     try {
       if (stillWaiting()) {
@@ -789,8 +787,8 @@ public class ReplyProcessor21 implements MembershipListener {
             // cancellation check
             dmgr.getCancelCriterion().checkCancelInProgress(null);
 
-            long startWaitTime = System.currentTimeMillis();
-            boolean interrupted = Thread.interrupted();
+            var startWaitTime = System.currentTimeMillis();
+            var interrupted = Thread.interrupted();
             try {
               result = basicWait(msecs, latch);
               break;
@@ -798,7 +796,7 @@ public class ReplyProcessor21 implements MembershipListener {
               interrupted = true; // keep looping
               dmgr.getCancelCriterion().checkCancelInProgress(e);
               if (msecs > 0) {
-                final long interruptTime = System.currentTimeMillis();
+                final var interruptTime = System.currentTimeMillis();
                 msecs -= interruptTime - startWaitTime;
                 if (msecs <= 0) {
                   msecs = 1;
@@ -889,7 +887,7 @@ public class ReplyProcessor21 implements MembershipListener {
       // Create the exception here, so that the call stack reflects the
       // failed computation. If you set the exception in onShutdown,
       // the resulting stack is not of interest.
-      ReplyException re = new ReplyException(new DistributedSystemDisconnectedException(
+      var re = new ReplyException(new DistributedSystemDisconnectedException(
           "aborted due to shutdown"));
       exception = re;
       return false;
@@ -924,7 +922,7 @@ public class ReplyProcessor21 implements MembershipListener {
    * notified.
    */
   protected void checkIfDone() {
-    boolean finished = !stillWaiting();
+    var finished = !stillWaiting();
     if (finished) {
       finished();
     }
@@ -932,7 +930,7 @@ public class ReplyProcessor21 implements MembershipListener {
 
   /** do processing required when finished */
   protected void finished() {
-    boolean isDone = false;
+    var isDone = false;
     synchronized (this) {
       if (!done) { // make sure only called once
         done = true;
@@ -955,8 +953,8 @@ public class ReplyProcessor21 implements MembershipListener {
   protected void postFinish() {}
 
   protected String shortName() {
-    String base = getClass().getName();
-    int dot = base.lastIndexOf('.');
+    var base = getClass().getName();
+    var dot = base.lastIndexOf('.');
     if (dot == -1) {
       return base;
     }
@@ -977,11 +975,11 @@ public class ReplyProcessor21 implements MembershipListener {
    * @return true if it was in our list of members
    */
   protected boolean removeMember(InternalDistributedMember m, boolean departed) {
-    boolean removed = false;
+    var removed = false;
     synchronized (members) {
-      int cells = members.length;
-      for (int i = 0; i < cells; i++) {
-        InternalDistributedMember e = members[i];
+      var cells = members.length;
+      for (var i = 0; i < cells; i++) {
+        var e = members[i];
         if (e != null && e.equals(m)) {
           members[i] = null;
           // we may be expecting more than one response from a member. so,
@@ -998,10 +996,10 @@ public class ReplyProcessor21 implements MembershipListener {
   }
 
   protected int numMembers() {
-    int sz = 0;
+    var sz = 0;
     synchronized (members) {
-      int cells = members.length;
-      for (final InternalDistributedMember member : members) {
+      var cells = members.length;
+      for (final var member : members) {
         if (member != null) {
           sz++;
         }
@@ -1012,8 +1010,8 @@ public class ReplyProcessor21 implements MembershipListener {
 
   protected boolean waitingOnMember(InternalDistributedMember id) {
     synchronized (members) {
-      int cells = members.length;
-      for (final InternalDistributedMember member : members) {
+      var cells = members.length;
+      for (final var member : members) {
         if (id.equals(member)) {
           return true;
         }
@@ -1057,14 +1055,14 @@ public class ReplyProcessor21 implements MembershipListener {
       return;
     }
 
-    Set activeMembers = getDistributionManagerIds();
+    var activeMembers = getDistributionManagerIds();
 
     // an alert that will show up in the console
     long timeout = getAckWaitThreshold();
-    final Object[] msgArgs =
+    final var msgArgs =
         new Object[] {timeout + (severeAlert ? getSevereAlertThreshold() : 0), this,
             getDistributionManager().getId(), activeMembers};
-    final String msg =
+    final var msg =
         "%s seconds have elapsed while waiting for replies: %s on %s whose current membership list is: [%s]";
     if (severeAlert) {
       logger.fatal(String.format(msg, msgArgs));
@@ -1085,7 +1083,7 @@ public class ReplyProcessor21 implements MembershipListener {
     }
 
     synchronized (members) {
-      for (final InternalDistributedMember member : members) {
+      for (final var member : members) {
         if (member != null) {
           if (!activeMembers.contains(member)) {
             logger.warn(
@@ -1103,7 +1101,7 @@ public class ReplyProcessor21 implements MembershipListener {
 
     if (THROW_EXCEPTION_ON_TIMEOUT) {
       // init the cause to be a TimeoutException so catchers can determine cause
-      TimeoutException cause =
+      var cause =
           new TimeoutException("Timed out waiting for ACKS.");
       throw new InternalGemFireException(
           String.format(
@@ -1121,10 +1119,10 @@ public class ReplyProcessor21 implements MembershipListener {
 
 
   protected String membersToString() {
-    StringBuilder sb = new StringBuilder("[");
-    boolean first = true;
+    var sb = new StringBuilder("[");
+    var first = true;
     synchronized (members) {
-      for (InternalDistributedMember member : members) {
+      for (var member : members) {
         if (member != null) {
           if (first) {
             first = false;
@@ -1201,7 +1199,7 @@ public class ReplyProcessor21 implements MembershipListener {
    * Get the ack-severe-alert-threshold, in milliseconds, with shortening applied
    */
   public long getAckSevereAlertThresholdMS() {
-    long disconnectTimeout = getSevereAlertThreshold() * 1000L;
+    var disconnectTimeout = getSevereAlertThreshold() * 1000L;
     if (disconnectTimeout > 0 && severeAlertShorten.get()) {
       disconnectTimeout = (long) (disconnectTimeout * PR_SEVERE_ALERT_RATIO);
     }
@@ -1238,7 +1236,7 @@ public class ReplyProcessor21 implements MembershipListener {
    * Returns the reply processor id for the message currently being read. Returns 0 if no id exists.
    */
   public static int getMessageRPId() {
-    int result = 0;
+    var result = 0;
     Object v = messageId.get();
     if (v != null) {
       result = (Integer) v;

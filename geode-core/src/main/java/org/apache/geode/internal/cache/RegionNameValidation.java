@@ -19,7 +19,6 @@ package org.apache.geode.internal.cache;
 
 import static org.apache.geode.cache.Region.SEPARATOR;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -70,7 +69,7 @@ public class RegionNameValidation {
     }
 
     // Ensure the region only contains valid characters
-    Matcher matcher = NAME_PATTERN.matcher(name);
+    var matcher = NAME_PATTERN.matcher(name);
     if (!matcher.matches()) {
       throw new IllegalArgumentException(
           "Region names may only be alphanumeric and may contain hyphens or underscores: " + name);

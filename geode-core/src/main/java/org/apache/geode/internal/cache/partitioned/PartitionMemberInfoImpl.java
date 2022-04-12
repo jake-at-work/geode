@@ -112,7 +112,7 @@ public class PartitionMemberInfoImpl implements InternalPartitionDetails, Serial
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder("[PartitionMemberInfoImpl: ");
+    final var sb = new StringBuilder("[PartitionMemberInfoImpl: ");
     sb.append("distributedMember=").append(distributedMember);
     sb.append(", configuredMaxMemory=").append(configuredMaxMemory);
     sb.append(", size=").append(size);
@@ -124,7 +124,7 @@ public class PartitionMemberInfoImpl implements InternalPartitionDetails, Serial
       if (bucketSizes == null) {
         sb.append("null");
       } else {
-        for (final long bucketSize : bucketSizes) {
+        for (final var bucketSize : bucketSizes) {
           sb.append(bucketSize).append(", ");
         }
         sb.append("]");
@@ -149,7 +149,7 @@ public class PartitionMemberInfoImpl implements InternalPartitionDetails, Serial
     if (!(other instanceof PartitionMemberInfoImpl)) {
       return false;
     }
-    PartitionMemberInfoImpl o = (PartitionMemberInfoImpl) other;
+    var o = (PartitionMemberInfoImpl) other;
     return distributedMember.equals(o.distributedMember);
   }
 

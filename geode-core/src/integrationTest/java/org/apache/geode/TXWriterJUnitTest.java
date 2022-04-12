@@ -194,7 +194,7 @@ public class TXWriterJUnitTest extends TXWriterTestCase {
 
     installTransactionListener();
 
-    UserTransaction userTx =
+    var userTx =
         (UserTransaction) cache.getJNDIContext().lookup("java:/UserTransaction");
 
     userTx.begin();

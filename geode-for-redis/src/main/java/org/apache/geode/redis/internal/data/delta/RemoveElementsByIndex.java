@@ -58,7 +58,7 @@ public class RemoveElementsByIndex extends DeltaInfo {
   }
 
   public static void deserializeFrom(DataInput in, AbstractRedisData redisData) throws IOException {
-    int size = DataSerializer.readPrimitiveInt(in);
+    var size = DataSerializer.readPrimitiveInt(in);
     List<Integer> indexes = new ArrayList<>();
     while (size > 0) {
       indexes.add(readPrimitiveInt(in));

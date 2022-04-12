@@ -61,7 +61,7 @@ public class NullRedisString extends RedisString {
       int bitValue, int byteIndex, byte bitIndex) {
     RedisString newValue;
     if (bitValue == 1) {
-      byte[] bytes = new byte[byteIndex + 1];
+      var bytes = new byte[byteIndex + 1];
       bytes[byteIndex] = (byte) (0x80 >> bitIndex);
       newValue = new RedisString(bytes);
     } else {
@@ -85,7 +85,7 @@ public class NullRedisString extends RedisString {
   @Override
   public byte[] incrby(Region<RedisKey, RedisData> region, RedisKey key,
       long increment) throws NumberFormatException, ArithmeticException {
-    byte[] newValue = Coder.longToBytes(increment);
+    var newValue = Coder.longToBytes(increment);
     region.put(key, new RedisString(newValue));
     return newValue;
   }
@@ -93,7 +93,7 @@ public class NullRedisString extends RedisString {
   @Override
   public BigDecimal incrbyfloat(Region<RedisKey, RedisData> region, RedisKey key,
       BigDecimal increment) throws NumberFormatException, ArithmeticException {
-    byte[] newValue = Coder.bigDecimalToBytes(increment);
+    var newValue = Coder.bigDecimalToBytes(increment);
     region.put(key, new RedisString(newValue));
     return increment;
   }
@@ -110,7 +110,7 @@ public class NullRedisString extends RedisString {
 
   @Override
   public byte[] decrby(Region<RedisKey, RedisData> region, RedisKey key, long decrement) {
-    byte[] newValue = Coder.longToBytes(-decrement);
+    var newValue = Coder.longToBytes(-decrement);
     region.put(key, new RedisString(newValue));
     return newValue;
   }
@@ -130,7 +130,7 @@ public class NullRedisString extends RedisString {
   @Override
   public int setrange(Region<RedisKey, RedisData> region, RedisKey key, int offset,
       byte[] valueToAdd) {
-    byte[] newBytes = valueToAdd;
+    var newBytes = valueToAdd;
     if (valueToAdd.length != 0) {
       if (offset != 0) {
         newBytes = new byte[offset + valueToAdd.length];

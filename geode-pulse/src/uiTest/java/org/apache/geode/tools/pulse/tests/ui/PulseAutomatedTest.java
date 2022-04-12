@@ -65,7 +65,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -75,7 +74,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 import org.apache.geode.tools.pulse.tests.DataBrowserResultLoader;
 import org.apache.geode.tools.pulse.tests.PulseTestData;
@@ -259,7 +257,7 @@ public class PulseAutomatedTest extends PulseBase {
   @Test
   @Ignore("Issue with highlighting")
   public void verifyHostTooltipsOfTopologyGraphTest() {
-    for (int i = 1; i <= 3; i++) {
+    for (var i = 1; i <= 3; i++) {
       clickElementUsingXpath(PulseTestLocators.TopNavigation.clusterViewLinkXpath);
       mouseClickAndHoldOverElementById("h" + i);
       verifyTextPresrntByXpath(PulseTestLocators.TopologyView.hostNameTTXpath,
@@ -799,21 +797,21 @@ public class PulseAutomatedTest extends PulseBase {
   public void testDataBrowserFilterFeature() {
     // navigate to Data browser page
     loadDataBrowserpage();
-    List<WebElement> regionLst = getRegionsFromDataBrowser();
-    String[] regionNames = new String[regionLst.size()];
-    for (int regionIndex = 0; regionIndex < regionLst.size(); regionIndex++) {
+    var regionLst = getRegionsFromDataBrowser();
+    var regionNames = new String[regionLst.size()];
+    for (var regionIndex = 0; regionIndex < regionLst.size(); regionIndex++) {
       regionNames[regionIndex] = findElementByXpath(PulseTestLocators.DataBrowser.rgnSpanFirstPart
           + (regionIndex + 1) + PulseTestLocators.DataBrowser.rgnSpanSecondPart).getText();
     }
     // type each region name in region filter and verify respective region(s) are displayed in
     // region list
-    for (String region : regionNames) {
+    for (var region : regionNames) {
       waitForElementWithId(PulseTestLocators.DataBrowser.rgnFilterTxtBoxId).clear();
       waitForElementWithId(PulseTestLocators.DataBrowser.rgnFilterTxtBoxId).sendKeys(region);
 
-      List<WebElement> regionLst1 = getRegionsFromDataBrowser();
+      var regionLst1 = getRegionsFromDataBrowser();
 
-      for (int regionIndex = 1; regionIndex <= regionLst1.size(); regionIndex++) {
+      for (var regionIndex = 1; regionIndex <= regionLst1.size(); regionIndex++) {
         assertEquals(region, findElementByXpath(PulseTestLocators.DataBrowser.rgnSpanFirstPart
             + regionIndex + PulseTestLocators.DataBrowser.rgnSpanSecondPart).getText());
       }
@@ -830,9 +828,9 @@ public class PulseAutomatedTest extends PulseBase {
     // text displays
     waitForElementWithId(PulseTestLocators.DataBrowser.rgnFilterTxtBoxId)
         .sendKeys(PulseTestData.DataBrowser.partialRgnName);
-    List<WebElement> regionLst = getRegionsFromDataBrowser();
+    var regionLst = getRegionsFromDataBrowser();
 
-    for (int regionIndex = 0; regionIndex < regionLst.size(); regionIndex++) {
+    for (var regionIndex = 0; regionIndex < regionLst.size(); regionIndex++) {
       assertTrue(findElementByXpath(PulseTestLocators.DataBrowser.rgnSpanFirstPart
           + (regionIndex + 1) + PulseTestLocators.DataBrowser.rgnSpanSecondPart).getText()
               .contains(PulseTestData.DataBrowser.partialRgnName));
@@ -846,10 +844,10 @@ public class PulseAutomatedTest extends PulseBase {
 
     sendKeysUsingId(PulseTestLocators.DataBrowser.queryEditorTxtBoxId,
         PulseTestData.DataBrowser.query1Text);
-    String editorTextBeforeClear =
+    var editorTextBeforeClear =
         getTextUsingId(PulseTestLocators.DataBrowser.queryEditorTxtBoxId);
     clickElementUsingXpath(PulseTestLocators.DataBrowser.btnClearXpath);
-    String editorTextAfterClear = getTextUsingId(PulseTestLocators.DataBrowser.queryEditorTxtBoxId);
+    var editorTextAfterClear = getTextUsingId(PulseTestLocators.DataBrowser.queryEditorTxtBoxId);
 
     assertFalse(PulseTestData.DataBrowser.query1Text.equals(editorTextAfterClear));
   }
@@ -861,10 +859,10 @@ public class PulseAutomatedTest extends PulseBase {
     // navigate to Data browser page
     loadDataBrowserpage();
 
-    List<WebElement> numOfReg = webDriverRule.getDriver()
+    var numOfReg = webDriverRule.getDriver()
         .findElements(By.xpath(PulseTestLocators.DataBrowser.divDataRegions));
 
-    for (int i = 1; i <= numOfReg.size(); i++) {
+    for (var i = 1; i <= numOfReg.size(); i++) {
       if (getTextUsingId("treeDemo_" + i + "_span").equals(PulseTestData.DataBrowser.regName)) {
         searchByIdAndClick("treeDemo_" + i + "_check"); // driver.findElement(By.id("treeDemo_" + i
                                                         // + "_check")).click();
@@ -877,17 +875,17 @@ public class PulseAutomatedTest extends PulseBase {
 
     // Get required datetime format and extract date and hours from date time.
     DateFormat dateFormat = new SimpleDateFormat(PulseTestData.DataBrowser.datePattern);
-    String queryDateTime = dateFormat.format(System.currentTimeMillis());
-    String[] queryTime = queryDateTime.split(":");
+    var queryDateTime = dateFormat.format(System.currentTimeMillis());
+    var queryTime = queryDateTime.split(":");
     System.out.println("Query Time from System: " + queryTime[0]);
 
 
     clickElementUsingId(PulseTestLocators.DataBrowser.historyIcon);
-    List<WebElement> historyLst =
+    var historyLst =
         webDriverRule.getDriver().findElements(By.xpath(PulseTestLocators.DataBrowser.historyLst));
-    String queryText = findElementByXpath(PulseTestLocators.DataBrowser.historyLst)
+    var queryText = findElementByXpath(PulseTestLocators.DataBrowser.historyLst)
         .findElement(By.cssSelector(PulseTestLocators.DataBrowser.queryText)).getText();
-    String historyDateTime = findElementByXpath(PulseTestLocators.DataBrowser.historyLst)
+    var historyDateTime = findElementByXpath(PulseTestLocators.DataBrowser.historyLst)
         .findElement(By.cssSelector(PulseTestLocators.DataBrowser.historyDateTime)).getText();
     System.out.println("Query Text from History Table: " + queryText);
     System.out.println("Query Time from History Table: " + historyDateTime);

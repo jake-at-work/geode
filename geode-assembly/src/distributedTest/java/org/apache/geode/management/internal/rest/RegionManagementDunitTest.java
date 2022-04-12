@@ -21,8 +21,6 @@ import static org.apache.geode.test.junit.assertions.ClusterManagementRealizatio
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.List;
-
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -30,15 +28,8 @@ import org.junit.Test;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAlgorithm;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.ExpirationAction;
-import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.EnumActionDestroyOverflow;
-import org.apache.geode.cache.configuration.RegionAttributesType;
-import org.apache.geode.cache.configuration.RegionConfig;
-import org.apache.geode.management.api.ClusterManagementRealizationResult;
-import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.api.RealizationResult;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
@@ -78,12 +69,12 @@ public class RegionManagementDunitTest {
 
   @Test
   public void createsRegion() {
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("customers");
     regionConfig.setGroup("group1");
     regionConfig.setType(RegionType.REPLICATE);
 
-    ClusterManagementRealizationResult result = cms.create(regionConfig);
+    var result = cms.create(regionConfig);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getMemberStatuses()).extracting(RealizationResult::getMemberName)
@@ -98,7 +89,7 @@ public class RegionManagementDunitTest {
 
   @Test
   public void createRegionWithKeyValueConstraint() {
-    Region config = new Region();
+    var config = new Region();
     config.setName("customers2");
     config.setGroup("group1");
     config.setType(RegionType.PARTITION);
@@ -106,7 +97,7 @@ public class RegionManagementDunitTest {
     config.setValueConstraint("java.lang.Integer");
     cms.create(config);
 
-    Region config1 = cms.get(config).getResult().getConfigurations().get(0);
+    var config1 = cms.get(config).getResult().getConfigurations().get(0);
 
     assertThat(config1.getType()).isEqualTo(RegionType.PARTITION);
     assertThat(config1.getValueConstraint()).isEqualTo("java.lang.Integer");
@@ -126,9 +117,9 @@ public class RegionManagementDunitTest {
 
   @Test
   public void createsAPartitionedRegion() throws Exception {
-    String json = "{\"name\": \"orders\", \"type\": \"PARTITION\", \"group\": \"group1\"}";
+    var json = "{\"name\": \"orders\", \"type\": \"PARTITION\", \"group\": \"group1\"}";
 
-    ClusterManagementRealizationResult result =
+    var result =
         restClient.doPostAndAssert("/regions", json)
             .hasStatusCode(201)
             .getClusterManagementRealizationResult();
@@ -153,9 +144,9 @@ public class RegionManagementDunitTest {
   @Test
   public void noNameInConfig() throws Exception {
     IgnoredException.addIgnoredException("Region name is required.");
-    String json = "{\"type\": \"REPLICATE\"}";
+    var json = "{\"type\": \"REPLICATE\"}";
 
-    ClusterManagementResult result =
+    var result =
         restClient.doPostAndAssert("/regions", json)
             .hasStatusCode(400)
             .getClusterManagementResult();
@@ -164,10 +155,10 @@ public class RegionManagementDunitTest {
   }
 
   static void verifyRegionPersisted(String regionName, String type, String group) {
-    CacheConfig cacheConfig =
+    var cacheConfig =
         ClusterStartupRule.getLocator().getConfigurationPersistenceService()
             .getCacheConfig(group);
-    RegionConfig regionConfig = find(cacheConfig.getRegions(), regionName);
+    var regionConfig = find(cacheConfig.getRegions(), regionName);
     assertThat(regionConfig.getType()).isEqualTo(type);
   }
 
@@ -180,7 +171,7 @@ public class RegionManagementDunitTest {
 
   @Test
   public void createSameRegionOnDisjointGroups() {
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("disJoint");
     regionConfig.setGroup("group1");
     regionConfig.setType(RegionType.REPLICATE);
@@ -194,7 +185,7 @@ public class RegionManagementDunitTest {
 
   @Test
   public void createSameRegionOnGroupsWithCommonMember() {
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("commonMember");
     regionConfig.setGroup("group2");
     regionConfig.setType(RegionType.REPLICATE);
@@ -210,7 +201,7 @@ public class RegionManagementDunitTest {
 
   @Test
   public void createIncompatibleRegionOnDisjointGroups() {
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("incompatible");
     regionConfig.setGroup("group4");
     regionConfig.setType(RegionType.REPLICATE);
@@ -230,8 +221,8 @@ public class RegionManagementDunitTest {
 
   @Test
   public void createRegionWithExpiration() {
-    Region region = new Region();
-    String regionName = "createRegionWithExpiration";
+    var region = new Region();
+    var regionName = "createRegionWithExpiration";
     region.setName(regionName);
     region.setType(RegionType.REPLICATE);
     region.addExpiry(Region.ExpirationType.ENTRY_IDLE_TIME, 10000, null);
@@ -241,11 +232,11 @@ public class RegionManagementDunitTest {
     assertManagementResult(cms.create(region)).isSuccessful();
 
     locator.invoke(() -> {
-      CacheConfig cacheConfig =
+      var cacheConfig =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService()
               .getCacheConfig("cluster");
-      RegionConfig regionConfig = find(cacheConfig.getRegions(), regionName);
-      RegionAttributesType regionAttributes = regionConfig.getRegionAttributes();
+      var regionConfig = find(cacheConfig.getRegions(), regionName);
+      var regionAttributes = regionConfig.getRegionAttributes();
       assertThat(regionAttributes.isStatisticsEnabled()).isTrue();
       assertThat(regionAttributes.getEntryTimeToLive().getTimeout()).isEqualTo("20000");
       assertThat(regionAttributes.getEntryTimeToLive().getAction()).isEqualTo("invalidate");
@@ -262,7 +253,7 @@ public class RegionManagementDunitTest {
     server1.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
       org.apache.geode.cache.Region<?, ?> actualRegion = cache.getRegion(regionName);
-      RegionAttributes<?, ?> attributes = actualRegion.getAttributes();
+      var attributes = actualRegion.getAttributes();
       assertThat(attributes.getStatisticsEnabled()).isTrue();
       assertThat(attributes.getEntryIdleTimeout().getTimeout()).isEqualTo(10000);
       assertThat(attributes.getEntryIdleTimeout().getAction()).isEqualTo(ExpirationAction.DESTROY);
@@ -275,8 +266,8 @@ public class RegionManagementDunitTest {
       assertThat(attributes.getCustomEntryTimeToLive()).isNull();
     });
 
-    Region regionResult = cms.get(region).getResult().getConfigurations().get(0);
-    List<Region.Expiration> expirations = regionResult.getExpirations();
+    var regionResult = cms.get(region).getResult().getConfigurations().get(0);
+    var expirations = regionResult.getExpirations();
     assertThat(expirations).hasSize(2);
     assertThat(expirations.get(0).getTimeInSeconds()).isEqualTo(10000);
     assertThat(expirations.get(0).getAction()).isEqualTo(Region.ExpirationAction.DESTROY);
@@ -288,11 +279,11 @@ public class RegionManagementDunitTest {
 
   @Test
   public void createRegionWithEviction() {
-    Region region = new Region();
-    String regionName = "createRegionWithEviction";
+    var region = new Region();
+    var regionName = "createRegionWithEviction";
     region.setName(regionName);
     region.setType(RegionType.REPLICATE);
-    Region.Eviction eviction = new Region.Eviction();
+    var eviction = new Region.Eviction();
     eviction.setAction(Region.EvictionAction.OVERFLOW_TO_DISK);
     eviction.setEntryCount(100);
     region.setEviction(eviction);
@@ -300,12 +291,12 @@ public class RegionManagementDunitTest {
     assertManagementResult(cms.create(region)).isSuccessful();
 
     locator.invoke(() -> {
-      CacheConfig cacheConfig =
+      var cacheConfig =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService()
               .getCacheConfig("cluster");
-      RegionConfig regionConfig = find(cacheConfig.getRegions(), regionName);
-      RegionAttributesType regionAttributes = regionConfig.getRegionAttributes();
-      RegionAttributesType.EvictionAttributes evictionAttributes =
+      var regionConfig = find(cacheConfig.getRegions(), regionName);
+      var regionAttributes = regionConfig.getRegionAttributes();
+      var evictionAttributes =
           regionAttributes.getEvictionAttributes();
       assertThat(evictionAttributes).isNotNull();
       assertThat(evictionAttributes.getLruEntryCount()).isNotNull();
@@ -317,8 +308,8 @@ public class RegionManagementDunitTest {
     server1.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
       org.apache.geode.cache.Region<?, ?> actualRegion = cache.getRegion(regionName);
-      RegionAttributes<?, ?> attributes = actualRegion.getAttributes();
-      EvictionAttributes evictionAttributes = attributes.getEvictionAttributes();
+      var attributes = actualRegion.getAttributes();
+      var evictionAttributes = attributes.getEvictionAttributes();
       assertThat(evictionAttributes).isNotNull();
       assertThat(evictionAttributes.getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_ENTRY);
       assertThat(evictionAttributes.getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
@@ -326,8 +317,8 @@ public class RegionManagementDunitTest {
 
     });
 
-    Region regionResult = cms.get(region).getResult().getConfigurations().get(0);
-    Region.Eviction eviction2 = regionResult.getEviction();
+    var regionResult = cms.get(region).getResult().getConfigurations().get(0);
+    var eviction2 = regionResult.getEviction();
     assertThat(eviction2).isNotNull();
     assertThat(eviction2.getType()).isEqualTo(Region.EvictionType.ENTRY_COUNT);
     assertThat(eviction2.getEntryCount()).isEqualTo(100);

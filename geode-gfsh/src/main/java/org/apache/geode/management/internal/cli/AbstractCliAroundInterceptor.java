@@ -48,7 +48,7 @@ public abstract class AbstractCliAroundInterceptor implements CliAroundIntercept
 
     public static Response fromString(final String text) {
       if (text != null) {
-        for (Response response : Response.values()) {
+        for (var response : Response.values()) {
           // If the whole string matches, or the input is only 1 character and it matches the
           // first character of the response text, then they are considered equal.
           if (text.equalsIgnoreCase(response.text)
@@ -62,7 +62,7 @@ public abstract class AbstractCliAroundInterceptor implements CliAroundIntercept
   }
 
   public boolean interactionSupported() {
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
     return gfsh != null && !gfsh.isQuietMode() && !gfsh.isHeadlessMode();
   }
 
@@ -83,7 +83,7 @@ public abstract class AbstractCliAroundInterceptor implements CliAroundIntercept
 
     Response response = null;
     do {
-      String userInput = interact(message);
+      var userInput = interact(message);
 
       if (StringUtils.isEmpty(userInput)) {
         return defaultResponse;

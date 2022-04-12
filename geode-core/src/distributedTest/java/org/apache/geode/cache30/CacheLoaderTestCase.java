@@ -29,8 +29,6 @@ import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Wait;
@@ -53,13 +51,13 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
 
   @Test
   public void testCacheLoader() throws CacheException {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = getUniqueName();
     final Object value = 42;
     final Object arg = "ARG";
-    final String exception = "EXCEPTION";
+    final var exception = "EXCEPTION";
 
-    TestCacheLoader loader = new TestCacheLoader() {
+    var loader = new TestCacheLoader() {
       @Override
       public Object load2(LoaderHelper helper) throws CacheLoaderException {
 
@@ -67,7 +65,7 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
         assertEquals(name, helper.getRegion().getName());
 
         try {
-          RegionAttributes attrs = helper.getRegion().getAttributes();
+          var attrs = helper.getRegion().getAttributes();
           if (attrs.getScope().isDistributed()) {
             assertNull(helper.netSearch(false));
             assertNull(helper.netSearch(true));
@@ -77,10 +75,10 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
           Assert.fail("Why did I time out?", ex);
         }
 
-        Object argument = helper.getArgument();
+        var argument = helper.getArgument();
         if (argument != null) {
           if (argument.equals(exception)) {
-            String s = "Test Exception";
+            var s = "Test Exception";
             throw new CacheLoaderException(s);
 
           } else {
@@ -92,12 +90,12 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheLoader(loader);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     loader.wasInvoked();
 
-    Region.Entry entry = region.getEntry(key);
+    var entry = region.getEntry(key);
     assertNull(entry);
     region.create(key, null);
 
@@ -188,7 +186,7 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
    */
   @Test
   public void testCacheLoaderNull() throws CacheException {
-    TestCacheLoader loader = new TestCacheLoader() {
+    var loader = new TestCacheLoader() {
       @Override
       public Object load2(LoaderHelper helper) throws CacheLoaderException {
 
@@ -196,10 +194,10 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheLoader(loader);
-    String name = getUniqueName();
-    Region region = createRegion(name, factory.create());
+    var name = getUniqueName();
+    var region = createRegion(name, factory.create());
     loader.wasInvoked();
 
     assertNull(region.get("KEY"));
@@ -211,19 +209,19 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
    */
   @Test
   public void testCacheWriterOnLoad() throws CacheException {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = getUniqueName();
     final Object oldValue = 42;
     final Object newValue = 43;
 
-    TestCacheLoader loader = new TestCacheLoader() {
+    var loader = new TestCacheLoader() {
       @Override
       public Object load2(LoaderHelper helper) throws CacheLoaderException {
         return oldValue;
       }
     };
 
-    TestCacheWriter writer = new TestCacheWriter() {
+    var writer = new TestCacheWriter() {
       @Override
       public void beforeCreate2(EntryEvent event) throws CacheWriterException {
 
@@ -235,10 +233,10 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheLoader(loader);
     factory.setCacheWriter(writer);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     loader.wasInvoked();
 
     assertEquals(oldValue, region.get(key));
@@ -271,19 +269,19 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
   @Test
   public void testCacheListenerOnLoad() throws CacheException, InterruptedException {
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = getUniqueName();
     final Object oldValue = 42;
     final Object newValue = 43;
 
-    TestCacheLoader loader = new TestCacheLoader() {
+    var loader = new TestCacheLoader() {
       @Override
       public Object load2(LoaderHelper helper) throws CacheLoaderException {
         return oldValue;
       }
     };
 
-    TestCacheListener listener = new TestCacheListener() {
+    var listener = new TestCacheListener() {
       @Override
       public void afterCreate2(EntryEvent event) {
         assertEquals(oldValue, event.getNewValue());
@@ -294,10 +292,10 @@ public abstract class CacheLoaderTestCase extends CacheWriterTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheLoader(loader);
     factory.setCacheListener(listener);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     loader.wasInvoked();
 
     assertEquals(oldValue, region.get(key));

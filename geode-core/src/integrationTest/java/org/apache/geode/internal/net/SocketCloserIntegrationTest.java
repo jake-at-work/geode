@@ -18,7 +18,6 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -63,19 +62,19 @@ public class SocketCloserIntegrationTest {
    */
   @Test
   public void testAsync() {
-    final CountDownLatch countDownLatch = new CountDownLatch(1);
-    final AtomicInteger waitingToClose = new AtomicInteger(0);
+    final var countDownLatch = new CountDownLatch(1);
+    final var waitingToClose = new AtomicInteger(0);
 
-    final int SOCKET_COUNT = 100;
-    final int REMOTE_CLIENT_COUNT = 200;
+    final var SOCKET_COUNT = 100;
+    final var REMOTE_CLIENT_COUNT = 200;
 
     List<Socket> trackedSockets = new ArrayList<>();
     // Schedule a 100 sockets for async close.
     // They should all be stuck on countDownLatch.
-    for (int i = 0; i < REMOTE_CLIENT_COUNT; i++) {
-      Socket[] aSockets = new Socket[SOCKET_COUNT];
-      String address = i + "";
-      for (int j = 0; j < SOCKET_COUNT; j++) {
+    for (var i = 0; i < REMOTE_CLIENT_COUNT; i++) {
+      var aSockets = new Socket[SOCKET_COUNT];
+      var address = i + "";
+      for (var j = 0; j < SOCKET_COUNT; j++) {
         aSockets[j] = createClosableSocket();
         trackedSockets.add(aSockets[j]);
         socketCloser.asyncClose(aSockets[j], address, () -> {
@@ -96,9 +95,9 @@ public class SocketCloserIntegrationTest {
     // now all the sockets should get closed; use a wait criteria
     // since a thread pool is doing to closes
     await().until(() -> {
-      boolean areAllClosed = true;
-      for (Iterator<Socket> iterator = trackedSockets.iterator(); iterator.hasNext();) {
-        Socket socket = iterator.next();
+      var areAllClosed = true;
+      for (var iterator = trackedSockets.iterator(); iterator.hasNext();) {
+        var socket = iterator.next();
         if (socket.isClosed()) {
           iterator.remove();
           continue;
@@ -114,10 +113,10 @@ public class SocketCloserIntegrationTest {
    */
   @Test
   public void testOpenSocketCloser() {
-    final AtomicBoolean beforeSocketCloseRunnableWasCalled = new AtomicBoolean();
-    final AtomicBoolean afterSocketCloseRunnableWasCalled = new AtomicBoolean();
+    final var beforeSocketCloseRunnableWasCalled = new AtomicBoolean();
+    final var afterSocketCloseRunnableWasCalled = new AtomicBoolean();
 
-    final Socket closableSocket = createClosableSocket();
+    final var closableSocket = createClosableSocket();
     socketCloser.asyncClose(closableSocket, "A",
         () -> beforeSocketCloseRunnableWasCalled.set(true),
         () -> afterSocketCloseRunnableWasCalled.set(true));
@@ -131,10 +130,10 @@ public class SocketCloserIntegrationTest {
    */
   @Test
   public void testClosedSocketCloser() {
-    final AtomicBoolean beforeSocketCloseRunnableWasCalled = new AtomicBoolean();
-    final AtomicBoolean afterSocketCloseRunnableWasCalled = new AtomicBoolean();
+    final var beforeSocketCloseRunnableWasCalled = new AtomicBoolean();
+    final var afterSocketCloseRunnableWasCalled = new AtomicBoolean();
 
-    final Socket closableSocket = createClosableSocket();
+    final var closableSocket = createClosableSocket();
     socketCloser.close();
     socketCloser.asyncClose(closableSocket, "A",
         () -> beforeSocketCloseRunnableWasCalled.set(true),

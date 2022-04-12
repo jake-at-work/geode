@@ -26,7 +26,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -53,7 +52,7 @@ public class ClientContainsKeyAuthDUnitTest extends JUnit4DistributedTestCase {
   public void before() throws Exception {
     Region region =
         server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("key" + i, "value" + i);
     }
   }
@@ -61,16 +60,16 @@ public class ClientContainsKeyAuthDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testContainsKey() throws Exception {
     AsyncInvocation ai1 = client1.invokeAsync(() -> {
-      ClientCache cache = createClientCache("key1User", "1234567", server.getPort());
-      final Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("key1User", "1234567", server.getPort());
+      final var region = createProxyRegion(cache, REGION_NAME);
       assertTrue(region.containsKeyOnServer("key1"));
       SecurityTestUtil.assertNotAuthorized(() -> region.containsKeyOnServer("key3"),
           "DATA:READ:AuthRegion:key3");
     });
 
     AsyncInvocation ai2 = client2.invokeAsync(() -> {
-      ClientCache cache = createClientCache("authRegionReader", "1234567", server.getPort());
-      final Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("authRegionReader", "1234567", server.getPort());
+      final var region = createProxyRegion(cache, REGION_NAME);
       region.containsKeyOnServer("key3");
       assertTrue(region.containsKeyOnServer("key1"));
     });

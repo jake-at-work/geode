@@ -21,7 +21,6 @@ import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
@@ -37,7 +36,6 @@ import org.apache.geode.test.assertj.LogFileAssert;
 import org.apache.geode.test.junit.categories.LoggingTest;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.RequiresGeodeHome;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 
 /**
@@ -63,25 +61,25 @@ public class LogsAndDescribeConfigAreFullyRedactedAcceptanceTest {
 
   @Before
   public void createDirectoriesAndFiles() throws Exception {
-    File geodePropertiesFile = temporaryFolder.newFile("geode.properties");
-    File securityPropertiesFile = temporaryFolder.newFile("security.properties");
+    var geodePropertiesFile = temporaryFolder.newFile("geode.properties");
+    var securityPropertiesFile = temporaryFolder.newFile("security.properties");
 
-    Properties geodeProperties = new Properties();
+    var geodeProperties = new Properties();
     geodeProperties.setProperty(LOG_LEVEL, "debug");
     geodeProperties.setProperty("security-username", "propertyFileUser");
     geodeProperties.setProperty("security-password", PASSWORD + "-propertyFile");
 
-    try (FileOutputStream fileOutputStream = new FileOutputStream(geodePropertiesFile)) {
+    try (var fileOutputStream = new FileOutputStream(geodePropertiesFile)) {
       geodeProperties.store(fileOutputStream, null);
     }
 
-    Properties securityProperties = new Properties();
+    var securityProperties = new Properties();
     securityProperties.setProperty(SECURITY_MANAGER, ExampleSecurityManager.class.getName());
     securityProperties.setProperty(SECURITY_JSON, "security.json");
     securityProperties.setProperty("security-file-username", "securityPropertyFileUser");
     securityProperties.setProperty("security-file-password", PASSWORD + "-securityPropertyFile");
 
-    try (FileOutputStream fileOutputStream = new FileOutputStream(securityPropertiesFile)) {
+    try (var fileOutputStream = new FileOutputStream(securityPropertiesFile)) {
       securityProperties.store(fileOutputStream, null);
     }
 
@@ -89,7 +87,7 @@ public class LogsAndDescribeConfigAreFullyRedactedAcceptanceTest {
     createFileFromResource(getResource("/security.json"), temporaryFolder.getRoot(),
         "security.json");
 
-    String startLocatorCmd = new CommandStringBuilder("start locator")
+    var startLocatorCmd = new CommandStringBuilder("start locator")
         .addOption("name", "test-locator")
         .addOption("properties-file", geodePropertiesFile.getAbsolutePath())
         .addOption("security-properties-file", securityPropertiesFile.getAbsolutePath())
@@ -98,7 +96,7 @@ public class LogsAndDescribeConfigAreFullyRedactedAcceptanceTest {
         .addOption("classpath", temporaryFolder.getRoot().getAbsolutePath())
         .getCommandString();
 
-    String startServerCmd = new CommandStringBuilder("start server")
+    var startServerCmd = new CommandStringBuilder("start server")
         .addOption("name", "test-server")
         .addOption("user", "viaStartMemberOptions")
         .addOption("password", PASSWORD + "-viaStartMemberOptions")
@@ -115,27 +113,27 @@ public class LogsAndDescribeConfigAreFullyRedactedAcceptanceTest {
 
   @Test
   public void logsDoNotContainStringThatShouldBeRedacted() {
-    File dir = gfsh.getTemporaryFolder().getRoot();
-    File[] logFiles = dir.listFiles((d, name) -> name.endsWith(".log"));
+    var dir = gfsh.getTemporaryFolder().getRoot();
+    var logFiles = dir.listFiles((d, name) -> name.endsWith(".log"));
 
-    for (File logFile : logFiles) {
+    for (var logFile : logFiles) {
       LogFileAssert.assertThat(logFile).doesNotContain(PASSWORD);
     }
   }
 
   @Test
   public void describeConfigRedactsJvmArguments() {
-    String connectCommand = new CommandStringBuilder("connect")
+    var connectCommand = new CommandStringBuilder("connect")
         .addOption("user", "viaStartMemberOptions")
         .addOption("password", PASSWORD + "-viaStartMemberOptions").getCommandString();
 
-    String describeLocatorConfigCommand = new CommandStringBuilder("describe config")
+    var describeLocatorConfigCommand = new CommandStringBuilder("describe config")
         .addOption("hide-defaults", "false").addOption("member", "test-locator").getCommandString();
 
-    String describeServerConfigCommand = new CommandStringBuilder("describe config")
+    var describeServerConfigCommand = new CommandStringBuilder("describe config")
         .addOption("hide-defaults", "false").addOption("member", "test-server").getCommandString();
 
-    GfshExecution execution =
+    var execution =
         gfsh.execute(connectCommand, describeLocatorConfigCommand, describeServerConfigCommand);
     assertThat(execution.getOutputText()).doesNotContain(PASSWORD);
   }

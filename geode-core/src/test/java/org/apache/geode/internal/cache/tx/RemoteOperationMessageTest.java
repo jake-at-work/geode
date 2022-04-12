@@ -78,8 +78,8 @@ public class RemoteOperationMessageTest {
     r = mock(LocalRegion.class);
     txMgr = mock(TXManagerImpl.class);
     tx = mock(TXStateProxyImpl.class);
-    OperationExecutors executors = mock(OperationExecutors.class);
-    ExecutorService executorService = mock(ExecutorService.class);
+    var executors = mock(OperationExecutors.class);
+    var executorService = mock(ExecutorService.class);
     when(cache.getRegionByPathForProcessing(regionPath)).thenReturn(r);
     when(cache.getTxManager()).thenReturn(txMgr);
     when(dm.getExecutors()).thenReturn(executors);
@@ -87,8 +87,8 @@ public class RemoteOperationMessageTest {
 
     sender = mock(InternalDistributedMember.class);
 
-    InternalDistributedMember recipient = mock(InternalDistributedMember.class);
-    ReplyProcessor21 processor = mock(ReplyProcessor21.class);
+    var recipient = mock(InternalDistributedMember.class);
+    var processor = mock(ReplyProcessor21.class);
     // make it a spy to aid verification
     msg = spy(new TestableRemoteOperationMessage(recipient, regionPath, processor));
   }
@@ -167,7 +167,7 @@ public class RemoteOperationMessageTest {
     msg.process(dm);
     verify(msg, times(0)).operateOnRegion(dm, r, startTime);
     verify(dm, times(1)).putOutgoing(any());
-    ArgumentCaptor<ReplyException> captor = ArgumentCaptor.forClass(ReplyException.class);
+    var captor = ArgumentCaptor.forClass(ReplyException.class);
     verify(msg, times(1)).sendReply(any(), anyInt(), eq(dm), captor.capture(), any(),
         eq(startTime));
     assertThat(captor.getValue().getCause()).isInstanceOf(CacheClosedException.class);
@@ -176,7 +176,7 @@ public class RemoteOperationMessageTest {
   @Test
   public void processWithDisconnectingDSAndClosedCacheSendsReplyContainingCachesClosedException()
       throws Exception {
-    CacheClosedException reasonCacheWasClosed = mock(CacheClosedException.class);
+    var reasonCacheWasClosed = mock(CacheClosedException.class);
     when(system.isDisconnecting()).thenReturn(true);
     when(cache.getCacheClosedException(any())).thenReturn(reasonCacheWasClosed);
     msg.setSender(sender);
@@ -184,7 +184,7 @@ public class RemoteOperationMessageTest {
     msg.doRemoteOperation(dm, cache);
     verify(msg, times(0)).operateOnRegion(dm, r, startTime);
     verify(dm, times(1)).putOutgoing(any());
-    ArgumentCaptor<ReplyException> captor = ArgumentCaptor.forClass(ReplyException.class);
+    var captor = ArgumentCaptor.forClass(ReplyException.class);
     verify(msg, times(1)).sendReply(any(), anyInt(), eq(dm), captor.capture(), any(),
         eq(startTime));
     assertThat(captor.getValue().getCause()).isSameAs(reasonCacheWasClosed);
@@ -199,7 +199,7 @@ public class RemoteOperationMessageTest {
 
     msg.doRemoteOperation(dm, cache);
     verify(dm, times(1)).putOutgoing(any());
-    ArgumentCaptor<ReplyException> captor = ArgumentCaptor.forClass(ReplyException.class);
+    var captor = ArgumentCaptor.forClass(ReplyException.class);
     verify(msg, times(1)).sendReply(any(), anyInt(), eq(dm), captor.capture(), eq(r),
         eq(startTime));
     assertThat(captor.getValue().getCause()).isInstanceOf(NullPointerException.class);
@@ -215,7 +215,7 @@ public class RemoteOperationMessageTest {
 
     msg.doRemoteOperation(dm, cache);
     verify(dm, times(1)).putOutgoing(any());
-    ArgumentCaptor<ReplyException> captor = ArgumentCaptor.forClass(ReplyException.class);
+    var captor = ArgumentCaptor.forClass(ReplyException.class);
     verify(msg, times(1)).sendReply(any(), anyInt(), eq(dm), captor.capture(), eq(r),
         eq(startTime));
     assertThat(captor.getValue().getCause()).isInstanceOf(RemoteOperationException.class);
@@ -224,13 +224,13 @@ public class RemoteOperationMessageTest {
   @Test
   public void processWithRegionDestroyedExceptionFromOperationOnRegionSendsReplyWithSameRegionDestroyedException()
       throws Exception {
-    RegionDestroyedException ex = mock(RegionDestroyedException.class);
+    var ex = mock(RegionDestroyedException.class);
     when(msg.operateOnRegion(dm, r, startTime)).thenThrow(ex);
     msg.setSender(sender);
 
     msg.doRemoteOperation(dm, cache);
     verify(dm, times(1)).putOutgoing(any());
-    ArgumentCaptor<ReplyException> captor = ArgumentCaptor.forClass(ReplyException.class);
+    var captor = ArgumentCaptor.forClass(ReplyException.class);
     verify(msg, times(1)).sendReply(any(), anyInt(), eq(dm), captor.capture(), eq(r),
         eq(startTime));
     assertThat(captor.getValue().getCause()).isSameAs(ex);
@@ -245,7 +245,7 @@ public class RemoteOperationMessageTest {
     msg.doRemoteOperation(dm, cache);
     verify(msg, never()).operateOnRegion(any(), any(), anyLong());
     verify(dm, times(1)).putOutgoing(any());
-    ArgumentCaptor<ReplyException> captor = ArgumentCaptor.forClass(ReplyException.class);
+    var captor = ArgumentCaptor.forClass(ReplyException.class);
     verify(msg, times(1)).sendReply(any(), anyInt(), eq(dm), captor.capture(), eq(null),
         eq(startTime));
     assertThat(captor.getValue().getCause()).isInstanceOf(RegionDestroyedException.class);
@@ -274,13 +274,13 @@ public class RemoteOperationMessageTest {
   @Test
   public void processWithRemoteOperationExceptionFromOperationOnRegionSendsReplyWithSameRemoteOperationException()
       throws Exception {
-    RemoteOperationException theException = mock(RemoteOperationException.class);
+    var theException = mock(RemoteOperationException.class);
     when(msg.operateOnRegion(dm, r, startTime)).thenThrow(theException);
     msg.setSender(sender);
 
     msg.doRemoteOperation(dm, cache);
     verify(dm, times(1)).putOutgoing(any());
-    ArgumentCaptor<ReplyException> captor = ArgumentCaptor.forClass(ReplyException.class);
+    var captor = ArgumentCaptor.forClass(ReplyException.class);
     verify(msg, times(1)).sendReply(any(), anyInt(), eq(dm), captor.capture(), eq(r),
         eq(startTime));
     assertThat(captor.getValue().getCause()).isSameAs(theException);
@@ -296,7 +296,7 @@ public class RemoteOperationMessageTest {
     assertThatThrownBy(() -> msg.doRemoteOperation(dm, cache)).isInstanceOf(RuntimeException.class)
         .hasMessage("SystemFailure");
     verify(dm, times(1)).putOutgoing(any());
-    ArgumentCaptor<ReplyException> captor = ArgumentCaptor.forClass(ReplyException.class);
+    var captor = ArgumentCaptor.forClass(ReplyException.class);
     verify(msg, times(1)).sendReply(any(), anyInt(), eq(dm), captor.capture(), eq(r),
         eq(startTime));
     assertThat(captor.getValue().getCause()).isInstanceOf(RemoteOperationException.class)

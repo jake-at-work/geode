@@ -27,11 +27,9 @@ import parReg.query.unittest.NewPortfolio;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.functional.StructSetOrResultsSet;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
 
@@ -44,8 +42,8 @@ public class PRColocatedEquiJoinTest {
 
   @Test
   public void prQueryWithHeteroIndex() throws Exception {
-    InternalCache cache = server.getCache();
-    QueryService qs = cache.getQueryService();
+    var cache = server.getCache();
+    var qs = cache.getQueryService();
 
     // create a local and Partition region for 1st select query
     Region<Integer, Portfolio> r1 = server.createRegion(RegionShortcut.LOCAL, "region1",
@@ -61,21 +59,21 @@ public class PRColocatedEquiJoinTest {
     Region<Integer, NewPortfolio> r4 = server.createRegion(RegionShortcut.LOCAL, "region4",
         rf -> rf.setValueConstraint(NewPortfolio.class));
 
-    Portfolio[] portfolio = createPortfoliosAndPositions(count);
-    NewPortfolio[] newPortfolio = createNewPortfoliosAndPositions(count);
+    var portfolio = createPortfoliosAndPositions(count);
+    var newPortfolio = createNewPortfoliosAndPositions(count);
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       r1.put(i, portfolio[i]);
       r2.put(i, newPortfolio[i]);
       r3.put(i, portfolio[i]);
       r4.put(i, newPortfolio[i]);
     }
 
-    ArrayList<?>[][] results = new ArrayList<?>[whereClauses.length][2];
-    for (int i = 0; i < whereClauses.length; i++) {
+    var results = new ArrayList<?>[whereClauses.length][2];
+    for (var i = 0; i < whereClauses.length; i++) {
       // issue the first select on region 1 and region 2
       @SuppressWarnings("unchecked")
-      SelectResults<ArrayList<ArrayList<?>>> selectResults =
+      var selectResults =
           (SelectResults<ArrayList<ArrayList<?>>>) qs.newQuery("<trace> Select "
               + (whereClauses[i].contains("ORDER BY") ? "DISTINCT" : "")
               + "* from " + SEPARATOR + "region1 r1, " + SEPARATOR + "region2 r2 where "
@@ -85,7 +83,7 @@ public class PRColocatedEquiJoinTest {
 
       // issue the second select on region 3 and region 4
       @SuppressWarnings("unchecked")
-      SelectResults<ArrayList<ArrayList<?>>> queryResult =
+      var queryResult =
           (SelectResults<ArrayList<ArrayList<?>>>) qs.newQuery("<trace> Select "
               + (whereClauses[i].contains("ORDER BY") ? "DISTINCT" : "")
               + "* from " + SEPARATOR + "region3 r1, " + SEPARATOR + "region4 r2 where "
@@ -95,7 +93,7 @@ public class PRColocatedEquiJoinTest {
     }
 
     // compare the resultsets and expect them to be equal
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsAsListWithoutAndWithIndexes(results, whereClauses.length, false,
         false,
         whereClauses);

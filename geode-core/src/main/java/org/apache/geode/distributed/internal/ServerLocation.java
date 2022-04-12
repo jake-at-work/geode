@@ -88,8 +88,8 @@ public class ServerLocation implements DataSerializable, Comparable<ServerLocati
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     // result = prime * result + ((hostName == null) ? 0 : hostName.hashCode());
     result = prime * result + port;
     return result;
@@ -106,7 +106,7 @@ public class ServerLocation implements DataSerializable, Comparable<ServerLocati
     if (!(obj instanceof ServerLocation)) {
       return false;
     }
-    final ServerLocation other = (ServerLocation) obj;
+    final var other = (ServerLocation) obj;
     if (hostName == null) {
       if (other.hostName != null) {
         return false;
@@ -142,7 +142,7 @@ public class ServerLocation implements DataSerializable, Comparable<ServerLocati
 
   @Override
   public int compareTo(ServerLocation other) {
-    int difference = hostName.compareTo(other.hostName);
+    var difference = hostName.compareTo(other.hostName);
     if (difference != 0) {
       return difference;
     }
@@ -158,12 +158,12 @@ public class ServerLocation implements DataSerializable, Comparable<ServerLocati
   }
 
   public void compareAndSetRequiresCredentials(boolean bool) {
-    int val = bool ? REQUIRES_CREDENTIALS : REQUIRES_NO_CREDENTIALS;
+    var val = bool ? REQUIRES_CREDENTIALS : REQUIRES_NO_CREDENTIALS;
     requiresCredentials.compareAndSet(INITIAL_REQUIRES_CREDENTIALS, val);
   }
 
   public void setRequiresCredentials(boolean bool) {
-    int val = bool ? REQUIRES_CREDENTIALS : REQUIRES_NO_CREDENTIALS;
+    var val = bool ? REQUIRES_CREDENTIALS : REQUIRES_NO_CREDENTIALS;
     requiresCredentials.set(val);
   }
 

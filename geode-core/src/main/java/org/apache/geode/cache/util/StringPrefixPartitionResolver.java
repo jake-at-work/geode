@@ -45,9 +45,9 @@ public class StringPrefixPartitionResolver implements PartitionResolver<String, 
    */
   @Override
   public Object getRoutingObject(EntryOperation<String, Object> opDetails) {
-    String key = opDetails.getKey();
-    String delimiter = getDelimiter();
-    int idx = key.indexOf(delimiter);
+    var key = opDetails.getKey();
+    var delimiter = getDelimiter();
+    var idx = key.indexOf(delimiter);
     if (idx == -1) {
       throw new IllegalArgumentException(
           "The key \"" + key + "\" does not contains the \"" + delimiter + "\" delimiter.");
@@ -77,7 +77,7 @@ public class StringPrefixPartitionResolver implements PartitionResolver<String, 
     if (!(o instanceof StringPrefixPartitionResolver)) {
       return false;
     }
-    StringPrefixPartitionResolver other = (StringPrefixPartitionResolver) o;
+    var other = (StringPrefixPartitionResolver) o;
     return other.getName().equals(getName()) && other.getDelimiter().equals(getDelimiter());
   }
 

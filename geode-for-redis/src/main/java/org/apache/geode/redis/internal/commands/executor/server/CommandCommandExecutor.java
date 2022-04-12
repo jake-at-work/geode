@@ -44,14 +44,14 @@ public class CommandCommandExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> args = command.getProcessedCommand();
+    var args = command.getProcessedCommand();
 
     if (args.size() == 1) {
       return executeNoSubcommand(context);
     }
 
     // No subcommands are set for command so defaults to error response
-    byte[] subcommand = args.get(1);
+    var subcommand = args.get(1);
     return RedisResponse.error(
         String.format(ERROR_UNKNOWN_COMMAND_COMMAND_SUBCOMMAND, bytesToString(subcommand)));
   }
@@ -59,7 +59,7 @@ public class CommandCommandExecutor implements CommandExecutor {
   private RedisResponse executeNoSubcommand(ExecutionHandlerContext context) {
     List<Object> response = new ArrayList<>();
 
-    for (RedisCommandType type : RedisCommandType.values()) {
+    for (var type : RedisCommandType.values()) {
       if (type.isUnknown()
           || (type.isUnsupported() && !context.allowUnsupportedCommands())
           || type == RedisCommandType.QUIT) {
@@ -75,7 +75,7 @@ public class CommandCommandExecutor implements CommandExecutor {
       oneCommand.add(type.lastKey());
       oneCommand.add(type.step());
 
-      List<String> categories =
+      var categories =
           Collections.singletonList("@" + type.category().name().toLowerCase());
       oneCommand.add(categories);
 

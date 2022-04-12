@@ -72,7 +72,7 @@ public class GenericAppServerContainer extends ServerContainer {
     Assume.assumeFalse(System.getProperty("os.name").toLowerCase().contains("win"));
 
     // Create temp war file to use
-    File warDir = new File(DEFAULT_GENERIC_APPSERVER_WAR_DIR);
+    var warDir = new File(DEFAULT_GENERIC_APPSERVER_WAR_DIR);
     warDir.mkdirs();
     setWarFile(File.createTempFile(description, ".war", warDir));
 
@@ -99,7 +99,7 @@ public class GenericAppServerContainer extends ServerContainer {
    * {@link #systemProperties} maps are also added to the command built.
    */
   private List<String> buildCommand() throws IOException {
-    ContainerInstall install = getInstall();
+    var install = getInstall();
 
     // Start command list
     List<String> command = new ArrayList<>();
@@ -115,12 +115,12 @@ public class GenericAppServerContainer extends ServerContainer {
     command.add("-o");
     command.add(getWarFile().getAbsolutePath());
     // Add all the cache properties setup to the WAR file
-    for (String property : cacheProperties.keySet()) {
+    for (var property : cacheProperties.keySet()) {
       command.add("-p");
       command.add("gemfire.cache." + property + "=" + getCacheProperty(property));
     }
     // Add all the system properties to the WAR file
-    for (String property : systemProperties.keySet()) {
+    for (var property : systemProperties.keySet()) {
       command.add("-p");
       command.add("gemfire.property." + property + "=" + getSystemProperty(property));
     }
@@ -139,7 +139,7 @@ public class GenericAppServerContainer extends ServerContainer {
    */
   private void modifyWarFile() throws IOException, InterruptedException {
     // Build the environment to run the command
-    ProcessBuilder builder = new ProcessBuilder();
+    var builder = new ProcessBuilder();
     builder.environment().put("GEODE", GEODE_BUILD_HOME);
     builder.inheritIO();
     // Setup the environment builder with the command
@@ -151,17 +151,17 @@ public class GenericAppServerContainer extends ServerContainer {
     logger.info("Running command: " + String.join(" ", builder.command()));
 
     // Run the command
-    Process process = builder.start();
+    var process = builder.start();
 
     // Wait for the command to finish
-    int exitCode = process.waitFor();
+    var exitCode = process.waitFor();
     // Throw error if bad exit
     if (exitCode != 0) {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("Unable to run modify_war script, command: ").append(builder.command());
       sb.append(lineSeparator());
       sb.append("check log file: ");
-      for (String line : readLines(modifyWarScriptLog, defaultCharset())) {
+      for (var line : readLines(modifyWarScriptLog, defaultCharset())) {
         sb.append(lineSeparator());
         sb.append(line);
       }

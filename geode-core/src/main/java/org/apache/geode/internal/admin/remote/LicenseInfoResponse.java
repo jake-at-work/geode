@@ -41,7 +41,7 @@ public class LicenseInfoResponse extends AdminResponse {
    */
   public static LicenseInfoResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    LicenseInfoResponse m = new LicenseInfoResponse();
+    var m = new LicenseInfoResponse();
     m.setRecipient(recipient);
     m.p = new Properties();
 

@@ -27,8 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
@@ -40,9 +38,7 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.internal.InternalBlackboard;
 import org.apache.geode.test.dunit.internal.InternalBlackboardImpl;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -105,23 +101,23 @@ public class JMXMBeanFederationDUnitTest {
 
   @Test
   public void MBeanFederationAddRemoveServer() throws IOException {
-    List<String> initialMBeans = getFederatedGemfireBeansFrom(locator1);
+    var initialMBeans = getFederatedGemfireBeansFrom(locator1);
 
     server3 = lsRule.startServerVM(SERVER_3_VM_INDEX, locator1.getPort());
     SERVER_COUNT++;
     locator1.waitUntilRegionIsReadyOnExactlyThisManyServers(REGION_PATH, SERVER_COUNT);
-    List keyset = server3.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      InternalDistributedMember member =
+    var keyset = server3.invoke(() -> {
+      var cache = ClusterStartupRule.getCache();
+      var member =
           InternalDistributedSystem.getConnectedInstance().getDistributedMember();
-      String appender = MBeanJMXAdapter.getUniqueIDForMember(member);
+      var appender = MBeanJMXAdapter.getUniqueIDForMember(member);
       Region monitoringRegion =
           cache.getRegion(ManagementConstants.MONITORING_REGION + "_" + appender);
       List l = (List<String>) monitoringRegion.keySet().stream().collect(Collectors.toList());
       return l;
     });
 
-    List<String> intermediateMBeans = getFederatedGemfireBeansFrom(locator1);
+    var intermediateMBeans = getFederatedGemfireBeansFrom(locator1);
     List<String> expectedMBeans = new ArrayList<>();
     expectedMBeans.addAll(initialMBeans);
     expectedMBeans.addAll(keyset);
@@ -133,23 +129,23 @@ public class JMXMBeanFederationDUnitTest {
     SERVER_COUNT--;
     locator1.waitUntilRegionIsReadyOnExactlyThisManyServers(REGION_PATH, SERVER_COUNT);
 
-    List<String> finalMBeans = getFederatedGemfireBeansFrom(locator1);
+    var finalMBeans = getFederatedGemfireBeansFrom(locator1);
 
     assertThat(finalMBeans).containsExactlyElementsOf(initialMBeans);
   }
 
   private static List<String> getFederatedGemfireBeansFrom(MemberVM member)
       throws IOException {
-    String url = jmxBeanLocalhostUrlString(member.getJmxPort());
-    MBeanServerConnection remoteMBS = connectToMBeanServer(url);
-    Set<ObjectName> allBeanNames = remoteMBS.queryNames(null, null);
+    var url = jmxBeanLocalhostUrlString(member.getJmxPort());
+    var remoteMBS = connectToMBeanServer(url);
+    var allBeanNames = remoteMBS.queryNames(null, null);
     // Each locator will have a "Manager" bean that is a part of the above query,
     // representing the ManagementAdapter.
     // This bean is registered (and so included in its own queries),
     // but *not* federated (and so is not included in another locator's bean queries).
     // For the scope of this test, we do not consider these "service=Manager" beans.
     Set<String> allBeans = new HashSet<>();
-    for (ObjectName bean : allBeanNames) {
+    for (var bean : allBeanNames) {
       allBeans.add(bean.toString());
     }
 
@@ -160,8 +156,8 @@ public class JMXMBeanFederationDUnitTest {
   }
 
   private static MBeanServerConnection connectToMBeanServer(String url) throws IOException {
-    final JMXServiceURL serviceURL = new JMXServiceURL(url);
-    JMXConnector conn = JMXConnectorFactory.connect(serviceURL);
+    final var serviceURL = new JMXServiceURL(url);
+    var conn = JMXConnectorFactory.connect(serviceURL);
     return conn.getMBeanServerConnection();
   }
 
@@ -171,7 +167,7 @@ public class JMXMBeanFederationDUnitTest {
   }
 
   private Properties locator1Properties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.JMX_MANAGER_HOSTNAME_FOR_CLIENTS, "localhost");
     props.setProperty(ConfigurationProperties.JMX_MANAGER_PORT, "" + locator1JmxPort);
     props.setProperty(ConfigurationProperties.NAME, LOCATOR_1_NAME);
@@ -180,7 +176,7 @@ public class JMXMBeanFederationDUnitTest {
 
   private Properties locator2Properties() {
     locator2JmxPort = AvailablePortHelper.getRandomAvailableTCPPorts(LOCATOR_COUNT)[0];
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.JMX_MANAGER_HOSTNAME_FOR_CLIENTS, "localhost");
     props.setProperty(ConfigurationProperties.JMX_MANAGER_PORT, "" + locator2JmxPort);
     props.setProperty(ConfigurationProperties.NAME, LOCATOR_2_NAME);

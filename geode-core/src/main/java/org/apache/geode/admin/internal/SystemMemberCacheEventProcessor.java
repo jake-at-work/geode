@@ -17,8 +17,6 @@ package org.apache.geode.admin.internal;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -59,13 +57,13 @@ public class SystemMemberCacheEventProcessor {
    * Sends region creation/destroy message to Admin VMs
    */
   public static void send(Cache c, Region region, Operation op) {
-    InternalDistributedSystem system = (InternalDistributedSystem) c.getDistributedSystem();
+    var system = (InternalDistributedSystem) c.getDistributedSystem();
     Set recps = system.getDistributionManager().getAdminMemberSet();
     // @todo darrel: find out if any of these admin members have region listeners
     if (recps.isEmpty()) {
       return;
     }
-    SystemMemberCacheMessage msg = new SystemMemberCacheMessage();
+    var msg = new SystemMemberCacheMessage();
     if (region == null) {
       msg.regionPath = null;
     } else {
@@ -83,7 +81,7 @@ public class SystemMemberCacheEventProcessor {
 
     @Override
     protected void process(ClusterDistributionManager dm) {
-      AdminDistributedSystemImpl admin = AdminDistributedSystemImpl.getConnectedInstance();
+      var admin = AdminDistributedSystemImpl.getConnectedInstance();
       if (admin == null) {
         if (logger.isDebugEnabled()) {
           logger.debug("Ignoring message because there is no admin distributed system present: {}",
@@ -91,8 +89,8 @@ public class SystemMemberCacheEventProcessor {
         }
         return; // probably shutting down or still connecting
       }
-      List listeners = admin.getCacheListeners();
-      Iterator itr = listeners.iterator();
+      var listeners = admin.getCacheListeners();
+      var itr = listeners.iterator();
       SystemMemberCacheListener listener = null;
       while (itr.hasNext()) {
         listener = (SystemMemberCacheListener) itr.next();

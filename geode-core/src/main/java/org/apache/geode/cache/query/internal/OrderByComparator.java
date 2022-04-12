@@ -53,9 +53,9 @@ public class OrderByComparator implements Comparator {
     Object[] array = null;
     if (orderByAttrs != null) {
       array = new Object[orderByAttrs.size()];
-      int i = 0;
-      for (CompiledSortCriterion csc : orderByAttrs) {
-        Object[] arr = {csc.evaluate(value, context), csc.getCriterion()};
+      var i = 0;
+      for (var csc : orderByAttrs) {
+        var arr = new Object[] {csc.evaluate(value, context), csc.getCriterion()};
         array[i++] = arr;
       }
     }
@@ -72,11 +72,11 @@ public class OrderByComparator implements Comparator {
    *         equal to, or greater than the second, based on the evaluated sort criteria.
    */
   protected int evaluateSortCriteria(Object value1, Object value2) {
-    int result = -1;
+    var result = -1;
     if (orderByAttrs != null) {
-      for (CompiledSortCriterion csc : orderByAttrs) {
-        Object sortCriteriaForValue1 = csc.evaluate(value1, context);
-        Object sortCriteriaForValue2 = csc.evaluate(value2, context);
+      for (var csc : orderByAttrs) {
+        var sortCriteriaForValue1 = csc.evaluate(value1, context);
+        var sortCriteriaForValue2 = csc.evaluate(value2, context);
         result = compareHelperMethod(sortCriteriaForValue1, sortCriteriaForValue2);
         if (result != 0) {
           if (csc.getCriterion()) {
@@ -117,9 +117,9 @@ public class OrderByComparator implements Comparator {
       }
       // Comparable fields are equal - check if overall keys are equal
       if (objType.isStructType()) {
-        int i = 0;
-        for (Object o1 : (Object[]) obj1) {
-          Object o2 = ((Object[]) obj2)[i++];
+        var i = 0;
+        for (var o1 : (Object[]) obj1) {
+          var o2 = ((Object[]) obj2)[i++];
           result = compareHelperMethod(o1, o2);
           if (result != 0) {
             return result;
@@ -174,8 +174,8 @@ public class OrderByComparator implements Comparator {
   }
 
   private int compareTwoNumbers(Object obj1, Object obj2) {
-    Number num1 = (Number) obj1;
-    Number num2 = (Number) obj2;
+    var num1 = (Number) obj1;
+    var num2 = (Number) obj2;
     return Double.compare(num1.doubleValue(), num2.doubleValue());
   }
 

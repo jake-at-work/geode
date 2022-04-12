@@ -60,10 +60,10 @@ public class PartitionRegionConfigTest {
 
   @Test
   public void dataSerializes() throws Exception {
-    PartitionRegionConfig config = new PartitionRegionConfig(prId, path, partitionAttributes, scope,
+    var config = new PartitionRegionConfig(prId, path, partitionAttributes, scope,
         evictionAttributes, regionIdleTimeout, regionTimeToLive, entryIdleTimeout, entryTimeToLive,
         gatewaySenderIds);
-    byte[] bytes = BlobHelper.serializeToBlob(config);
+    var bytes = BlobHelper.serializeToBlob(config);
     assertThat(bytes).isNotNull().isNotEmpty();
     assertThat(BlobHelper.deserializeBlob(bytes)).isNotSameAs(config)
         .isInstanceOf(PartitionRegionConfig.class);
@@ -72,8 +72,8 @@ public class PartitionRegionConfigTest {
   @Ignore("GEODE-4812")
   @Test
   public void serializes() throws Exception {
-    PartitionRegionConfig config = new PartitionRegionConfig();
-    byte[] bytes = SerializationUtils.serialize(config);
+    var config = new PartitionRegionConfig();
+    var bytes = SerializationUtils.serialize(config);
     assertThat(bytes).isNotNull().isNotEmpty();
     assertThat((PartitionRegionConfig) SerializationUtils.deserialize(bytes)).isNotSameAs(config)
         .isInstanceOf(PartitionRegionConfig.class);

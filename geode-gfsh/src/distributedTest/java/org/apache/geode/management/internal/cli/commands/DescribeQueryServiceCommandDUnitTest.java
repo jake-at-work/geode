@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.apache.geode.cache.query.security.JavaBeanAccessorMethodAuthorizer;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
 public class DescribeQueryServiceCommandDUnitTest {
@@ -41,7 +40,7 @@ public class DescribeQueryServiceCommandDUnitTest {
   @Test
   public void commandReturnsCorrectInformationAboutMethodAuthorizerWhenSecurityIsNotEnabled()
       throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     cluster.startServerVM(1, locator.getPort());
     gfsh.connectAndVerify(locator);
 
@@ -53,7 +52,7 @@ public class DescribeQueryServiceCommandDUnitTest {
   @Test
   public void commandReturnsCorrectInformationAboutMethodAuthorizerWhenSecurityIsEnabledAndNoServersAreAvailable()
       throws Exception {
-    MemberVM locator =
+    var locator =
         cluster.startLocatorVM(0, l -> l.withSecurityManager(SimpleSecurityManager.class));
     gfsh.connectAndVerify(locator);
 
@@ -63,9 +62,9 @@ public class DescribeQueryServiceCommandDUnitTest {
   @Test
   public void commandReturnsCorrectInformationAboutMethodAuthorizerWhenSecurityIsEnabled()
       throws Exception {
-    MemberVM locator =
+    var locator =
         cluster.startLocatorVM(0, l -> l.withSecurityManager(SimpleSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
         .withCredential("clusterManage", "clusterManage"));
     gfsh.connectAndVerify(locator);
@@ -76,10 +75,10 @@ public class DescribeQueryServiceCommandDUnitTest {
   @Test
   public void commandReturnsCorrectInformationAboutMethodAuthorizerWhenSecurityIsEnabledAndClusterConfigIsDisabled()
       throws Exception {
-    MemberVM locator =
+    var locator =
         cluster.startLocatorVM(0, l -> l.withoutClusterConfigurationService()
             .withSecurityManager(SimpleSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
         .withSecurityManager(SimpleSecurityManager.class)
         .withCredential("clusterManage", "clusterManage"));
@@ -89,9 +88,9 @@ public class DescribeQueryServiceCommandDUnitTest {
   }
 
   private void changeMethodAuthorizerAndValidateDescribe() {
-    String authorizerName = JavaBeanAccessorMethodAuthorizer.class.getName();
-    String parameters = "param1;param2;param3";
-    String alterQueryService = AlterQueryServiceCommand.COMMAND_NAME + " --"
+    var authorizerName = JavaBeanAccessorMethodAuthorizer.class.getName();
+    var parameters = "param1;param2;param3";
+    var alterQueryService = AlterQueryServiceCommand.COMMAND_NAME + " --"
         + AUTHORIZER_NAME + "=" + authorizerName
         + " --" + AUTHORIZER_PARAMETERS + "=" + parameters;
 

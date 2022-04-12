@@ -86,8 +86,8 @@ class EnabledManagedEntityController implements ManagedEntityController {
     if (output == null) {
       return false;
     }
-    boolean error = false;
-    for (final String errorOutput : ERROR_OUTPUTS) {
+    var error = false;
+    for (final var errorOutput : ERROR_OUTPUTS) {
       error = output.indexOf(errorOutput) > -1;
       if (error) {
         return error;
@@ -114,7 +114,7 @@ class EnabledManagedEntityController implements ManagedEntityController {
           "Execution command is empty");
     }
 
-    File workingDir = new File(entity.getEntityConfig().getWorkingDirectory());
+    var workingDir = new File(entity.getEntityConfig().getWorkingDirectory());
     logger.info("Executing remote command: {} in directory {}",
         command, workingDir);
     Process p = null;
@@ -126,9 +126,9 @@ class EnabledManagedEntityController implements ManagedEntityController {
       return null;
     }
 
-    final ProcessOutputReader pos = new ProcessOutputReader(p);
-    int retCode = pos.getExitCode();
-    final String output = pos.getOutput();
+    final var pos = new ProcessOutputReader(p);
+    var retCode = pos.getExitCode();
+    final var output = pos.getOutput();
     logger.info("Result of executing {} is {}", command, retCode);
     logger.info("Output of {} is {}", command, output);
 
@@ -171,13 +171,13 @@ class EnabledManagedEntityController implements ManagedEntityController {
    */
   private String arrangeRemoteCommand(InternalManagedEntity entity, String cmd) {
 
-    String host = entity.getEntityConfig().getHost();
+    var host = entity.getEntityConfig().getHost();
     if (LocalHostUtil.isLocalHost(host)) {
       // No arranging necessary
       return cmd;
     }
 
-    String prefix = entity.getEntityConfig().getRemoteCommand();
+    var prefix = entity.getEntityConfig().getRemoteCommand();
     if (prefix == null || prefix.length() <= 0) {
       prefix = entity.getDistributedSystem().getRemoteCommand();
     }
@@ -189,14 +189,14 @@ class EnabledManagedEntityController implements ManagedEntityController {
               host));
     }
 
-    int hostIdx = prefix.indexOf(HOST);
-    int cmdIdx = prefix.indexOf(CMD);
+    var hostIdx = prefix.indexOf(HOST);
+    var cmdIdx = prefix.indexOf(CMD);
     if (hostIdx == -1 && cmdIdx == -1) {
       return prefix + " " + host + " " + cmd;
     }
 
     if (hostIdx >= 0) {
-      String start = prefix.substring(0, hostIdx);
+      var start = prefix.substring(0, hostIdx);
       String end = null;
       if (hostIdx + HOST.length() >= prefix.length()) {
         end = "";
@@ -208,7 +208,7 @@ class EnabledManagedEntityController implements ManagedEntityController {
     }
 
     if (cmdIdx >= 0) {
-      String start = prefix.substring(0, cmdIdx);
+      var start = prefix.substring(0, cmdIdx);
       String end = null;
       if (cmdIdx + CMD.length() >= prefix.length()) {
         end = "";
@@ -234,9 +234,9 @@ class EnabledManagedEntityController implements ManagedEntityController {
    */
   @Override
   public String getProductExecutable(InternalManagedEntity entity, String executable) {
-    String productDirectory = entity.getEntityConfig().getProductDirectory();
+    var productDirectory = entity.getEntityConfig().getProductDirectory();
     String path = null;
-    File productDir = new File(productDirectory);
+    var productDir = new File(productDirectory);
     {
       path = productDir.getPath();
       if (!endsWithSeparator(path)) {
@@ -245,7 +245,7 @@ class EnabledManagedEntityController implements ManagedEntityController {
       path += "bin" + File.separator;
     }
 
-    String bat = "";
+    var bat = "";
     if (pathIsWindows(path)) {
       bat = ".bat";
     }
@@ -258,15 +258,15 @@ class EnabledManagedEntityController implements ManagedEntityController {
    */
   @Override
   public String buildSSLArguments(DistributedSystemConfig config) {
-    Properties sslProps = buildSSLProperties(config, true);
+    var sslProps = buildSSLProperties(config, true);
     if (sslProps == null) {
       return null;
     }
 
-    StringBuilder sb = new StringBuilder();
-    for (final Object o : sslProps.keySet()) {
-      String key = (String) o;
-      String value = sslProps.getProperty(key);
+    var sb = new StringBuilder();
+    for (final var o : sslProps.keySet()) {
+      var key = (String) o;
+      var value = sslProps.getProperty(key);
       sb.append(" -J-D" + key + "=" + value);
     }
 
@@ -285,12 +285,12 @@ class EnabledManagedEntityController implements ManagedEntityController {
       return null;
     }
 
-    String prefix = "";
+    var prefix = "";
     if (forCommandLine) {
       prefix = GeodeGlossary.GEMFIRE_PREFIX;
     }
 
-    Properties sslProps = (Properties) config.getSSLProperties().clone();
+    var sslProps = (Properties) config.getSSLProperties().clone();
     // add ssl-enabled, etc...
     sslProps.setProperty(prefix + MCAST_PORT, "0");
     sslProps.setProperty(prefix + CLUSTER_SSL_ENABLED, String.valueOf(config.isSSLEnabled()));
@@ -307,7 +307,7 @@ class EnabledManagedEntityController implements ManagedEntityController {
    */
   @Override
   public void start(final InternalManagedEntity entity) {
-    final String command = arrangeRemoteCommand(entity, entity.getStartCommand());
+    final var command = arrangeRemoteCommand(entity, entity.getStartCommand());
     Thread start = new LoggingThread("Start " + entity.getEntityType(),
         false, () -> execute(command, entity));
     start.start();
@@ -318,7 +318,7 @@ class EnabledManagedEntityController implements ManagedEntityController {
    */
   @Override
   public void stop(final InternalManagedEntity entity) {
-    final String command = arrangeRemoteCommand(entity, entity.getStopCommand());
+    final var command = arrangeRemoteCommand(entity, entity.getStopCommand());
     Thread stop = new LoggingThread("Stop " + entity.getEntityType(),
         false, () -> execute(command, entity));
     stop.start();
@@ -329,8 +329,8 @@ class EnabledManagedEntityController implements ManagedEntityController {
    */
   @Override
   public boolean isRunning(InternalManagedEntity entity) {
-    final String command = arrangeRemoteCommand(entity, entity.getIsRunningCommand());
-    String output = execute(command, entity);
+    final var command = arrangeRemoteCommand(entity, entity.getIsRunningCommand());
+    var output = execute(command, entity);
 
     if (output == null || (output.indexOf("stop" /* "ing" "ped" */) != -1)
         || (output.indexOf("killed") != -1) || (output.indexOf("starting") != -1)) {
@@ -352,7 +352,7 @@ class EnabledManagedEntityController implements ManagedEntityController {
    */
   @Override
   public String getLog(DistributionLocatorImpl locator) {
-    String command = arrangeRemoteCommand(locator, locator.getLogCommand());
+    var command = arrangeRemoteCommand(locator, locator.getLogCommand());
     return execute(command, locator);
   }
 
@@ -361,9 +361,9 @@ class EnabledManagedEntityController implements ManagedEntityController {
    * host and remote command.
    */
   private String listDirectory(InternalManagedEntity entity, String dir) {
-    ManagedEntityConfig config = entity.getEntityConfig();
-    String listFile = pathIsWindows(config.getProductDirectory()) ? "dir " : "ls ";
-    String command = arrangeRemoteCommand(entity, listFile + dir);
+    var config = entity.getEntityConfig();
+    var listFile = pathIsWindows(config.getProductDirectory()) ? "dir " : "ls ";
+    var command = arrangeRemoteCommand(entity, listFile + dir);
     return execute(command, entity);
   }
 }

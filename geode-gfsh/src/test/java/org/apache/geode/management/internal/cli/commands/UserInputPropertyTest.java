@@ -43,7 +43,7 @@ public class UserInputPropertyTest {
     userInputProperty = new UserInputProperty("key", "prompt", false);
 
     when(gfsh.readText(any())).thenReturn("").thenReturn("").thenReturn("value");
-    String input = userInputProperty.promptForAcceptableValue(gfsh);
+    var input = userInputProperty.promptForAcceptableValue(gfsh);
 
     assertThat(input).isEqualTo("value");
     verify(gfsh, times(0)).readPassword(any());
@@ -54,7 +54,7 @@ public class UserInputPropertyTest {
   public void propertyWithNoDefaultValue_quietMode() throws Exception {
     when(gfsh.isQuietMode()).thenReturn(true);
     userInputProperty = new UserInputProperty("key", "prompt", false);
-    String input = userInputProperty.promptForAcceptableValue(gfsh);
+    var input = userInputProperty.promptForAcceptableValue(gfsh);
     assertThat(input).isEqualTo("");
     verify(gfsh, times(0)).readPassword(any());
     verify(gfsh, times(0)).readText(any());
@@ -63,7 +63,7 @@ public class UserInputPropertyTest {
   @Test
   public void propertyWithDefaultValue_Interactive() throws Exception {
     userInputProperty = new UserInputProperty("key", "prompt", "value", false);
-    String input = userInputProperty.promptForAcceptableValue(gfsh);
+    var input = userInputProperty.promptForAcceptableValue(gfsh);
     assertThat(input).isEqualTo("value");
     verify(gfsh, times(0)).readPassword(any());
     verify(gfsh).readText(any());
@@ -72,7 +72,7 @@ public class UserInputPropertyTest {
   @Test
   public void propertyWithEmptyDefaultValue_Interactive() throws Exception {
     userInputProperty = new UserInputProperty("key", "prompt", "", false);
-    String input = userInputProperty.promptForAcceptableValue(gfsh);
+    var input = userInputProperty.promptForAcceptableValue(gfsh);
     assertThat(input).isEqualTo("");
     verify(gfsh, times(0)).readPassword(any());
     verify(gfsh).readText(any());
@@ -81,7 +81,7 @@ public class UserInputPropertyTest {
   @Test
   public void propertyWithDefaultValue_Interactive_masked() throws Exception {
     userInputProperty = new UserInputProperty("key", "prompt", "value", true);
-    String input = userInputProperty.promptForAcceptableValue(gfsh);
+    var input = userInputProperty.promptForAcceptableValue(gfsh);
     assertThat(input).isEqualTo("value");
     verify(gfsh).readPassword(any());
     verify(gfsh, times(0)).readText(any());
@@ -91,7 +91,7 @@ public class UserInputPropertyTest {
   public void propertyWithDefaultValue_Quiet() throws Exception {
     when(gfsh.isQuietMode()).thenReturn(true);
     userInputProperty = new UserInputProperty("key", "prompt", "value", false);
-    String input = userInputProperty.promptForAcceptableValue(gfsh);
+    var input = userInputProperty.promptForAcceptableValue(gfsh);
     assertThat(input).isEqualTo("value");
     verify(gfsh, times(0)).readPassword(any());
     verify(gfsh, times(0)).readText(any());

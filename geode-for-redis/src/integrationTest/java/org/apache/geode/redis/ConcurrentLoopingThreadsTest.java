@@ -27,8 +27,8 @@ public class ConcurrentLoopingThreadsTest {
 
   @Test
   public void withIterations_actionDoesNotRunWhenThreadsThrowExceptions() {
-    AtomicBoolean actionRan = new AtomicBoolean(false);
-    AtomicInteger count = new AtomicInteger(0);
+    var actionRan = new AtomicBoolean(false);
+    var count = new AtomicInteger(0);
 
     assertThatThrownBy(() -> new ConcurrentLoopingThreads(10,
         i -> count.incrementAndGet(),
@@ -44,9 +44,9 @@ public class ConcurrentLoopingThreadsTest {
 
   @Test
   public void withSignal_actionDoesNotRunWhenThreadsThrowExceptions() {
-    AtomicBoolean actionRan = new AtomicBoolean(false);
-    AtomicBoolean running = new AtomicBoolean(true);
-    AtomicInteger count = new AtomicInteger(0);
+    var actionRan = new AtomicBoolean(false);
+    var running = new AtomicBoolean(true);
+    var count = new AtomicInteger(0);
 
     assertThatThrownBy(() -> new ConcurrentLoopingThreads(running,
         i -> count.incrementAndGet(),
@@ -62,7 +62,7 @@ public class ConcurrentLoopingThreadsTest {
 
   @Test
   public void withIterations_threadFailure_shouldStopAllOtherThreads() {
-    AtomicInteger count = new AtomicInteger(0);
+    var count = new AtomicInteger(0);
 
     assertThatThrownBy(() -> new ConcurrentLoopingThreads(10,
         i -> count.incrementAndGet(),
@@ -75,7 +75,7 @@ public class ConcurrentLoopingThreadsTest {
 
   @Test
   public void withIterations_failingThreadExceptionIsPropagatedBeforeActionException() {
-    AtomicInteger count = new AtomicInteger(0);
+    var count = new AtomicInteger(0);
 
     assertThatThrownBy(() -> new ConcurrentLoopingThreads(10,
         i -> count.incrementAndGet(),
@@ -90,8 +90,8 @@ public class ConcurrentLoopingThreadsTest {
 
   @Test
   public void withSignal_threadFailure_shouldStopAllOtherThreads() {
-    AtomicInteger count = new AtomicInteger(0);
-    AtomicBoolean running = new AtomicBoolean(true);
+    var count = new AtomicInteger(0);
+    var running = new AtomicBoolean(true);
 
     assertThatThrownBy(() -> new ConcurrentLoopingThreads(running,
         i -> count.incrementAndGet(),
@@ -104,7 +104,7 @@ public class ConcurrentLoopingThreadsTest {
 
   @Test
   public void withIterations_actionFailure_shouldStopImmediately() {
-    AtomicInteger count = new AtomicInteger(0);
+    var count = new AtomicInteger(0);
 
     assertThatThrownBy(() -> new ConcurrentLoopingThreads(10,
         i -> count.incrementAndGet(),
@@ -119,8 +119,8 @@ public class ConcurrentLoopingThreadsTest {
 
   @Test
   public void withSignal_actionFailure_shouldStopImmediately() {
-    AtomicInteger count = new AtomicInteger(0);
-    AtomicBoolean running = new AtomicBoolean(true);
+    var count = new AtomicInteger(0);
+    var running = new AtomicBoolean(true);
 
     assertThatThrownBy(() -> new ConcurrentLoopingThreads(running,
         i -> count.incrementAndGet(),
@@ -135,8 +135,8 @@ public class ConcurrentLoopingThreadsTest {
 
   @Test
   public void withSignal_actionWillAlwaysRun() {
-    AtomicInteger count = new AtomicInteger(0);
-    AtomicBoolean running = new AtomicBoolean(true);
+    var count = new AtomicInteger(0);
+    var running = new AtomicBoolean(true);
 
     new ConcurrentLoopingThreads(running,
         i -> running.set(false))

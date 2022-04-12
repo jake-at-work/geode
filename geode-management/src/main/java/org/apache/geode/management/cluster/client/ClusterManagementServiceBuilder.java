@@ -56,7 +56,7 @@ public class ClusterManagementServiceBuilder
   }
 
   protected ConnectionConfig createConnectionConfig() {
-    ConnectionConfig newConnectionConfig = new ConnectionConfig(host, port);
+    var newConnectionConfig = new ConnectionConfig(host, port);
     return newConnectionConfig;
   }
 }

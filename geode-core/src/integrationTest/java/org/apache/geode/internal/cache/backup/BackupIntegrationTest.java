@@ -28,13 +28,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -53,7 +50,6 @@ import org.junit.rules.TemporaryFolder;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
@@ -88,7 +84,7 @@ public class BackupIntegrationTest {
     props.setProperty(LOCATORS, "");
     incrementalDir = temporaryFolder.newFolder("incremental");
     try {
-      URL url = BackupIntegrationTest.class.getResource("BackupIntegrationTest.cache.xml");
+      var url = BackupIntegrationTest.class.getResource("BackupIntegrationTest.cache.xml");
       cacheXmlFile = new File(url.toURI().getPath());
     } catch (URISyntaxException e) {
       throw new ExceptionInInitializerError(e);
@@ -126,16 +122,16 @@ public class BackupIntegrationTest {
 
   @Test
   public void testBackupAndRecover() throws Exception {
-    RegionCreator regionCreator = () -> {
+    var regionCreator = (RegionCreator) () -> {
       createDiskStore();
       return createRegion();
     };
 
-    Region<Object, Object> region = regionCreator.createRegion();
+    var region = regionCreator.createRegion();
 
     putDataAndRollOplogs(0, region);
 
-    for (DiskStore store : cache.listDiskStoresIncludingRegionOwned()) {
+    for (var store : cache.listDiskStoresIncludingRegionOwned()) {
       store.flush();
     }
 
@@ -145,8 +141,8 @@ public class BackupIntegrationTest {
     validateEntriesExist(region, 512, 2048);
     validateEntriesDoNotExist(region, 0, 512);
 
-    BackupService backup = cache.getBackupService();
-    BackupWriter writer = getBackupWriter();
+    var backup = cache.getBackupService();
+    var writer = getBackupWriter();
     backup.prepareBackup(cache.getMyId(), writer);
     backup.doBackup();
 
@@ -187,16 +183,16 @@ public class BackupIntegrationTest {
 
   @Test
   public void testIncrementalBackupAndRecover() throws Exception {
-    RegionCreator regionCreator = () -> {
+    var regionCreator = (RegionCreator) () -> {
       createDiskStore();
       return createRegion();
     };
 
-    Region<Object, Object> region = regionCreator.createRegion();
+    var region = regionCreator.createRegion();
 
     putDataAndRollOplogs(0, region);
 
-    for (DiskStore store : cache.listDiskStoresIncludingRegionOwned()) {
+    for (var store : cache.listDiskStoresIncludingRegionOwned()) {
       store.flush();
     }
 
@@ -204,23 +200,23 @@ public class BackupIntegrationTest {
     createCache();
     region = regionCreator.createRegion();
     validateEntriesExist(region, 512, 2048);
-    for (int i = 0; i < 512; i++) {
+    for (var i = 0; i < 512; i++) {
       assertNull(region.get(i));
     }
 
-    BackupService backup = cache.getBackupService();
-    BackupWriter baseWriter = getBackupWriter();
+    var backup = cache.getBackupService();
+    var baseWriter = getBackupWriter();
     backup.prepareBackup(cache.getMyId(), baseWriter);
     backup.doBackup();
 
     // Add more data for incremental to have something to backup
     putDataAndRollOplogs(1, region);
 
-    Properties backupProperties =
+    var backupProperties =
         new BackupConfigFactory()
             .withBaselineDirPath(baseWriter.getBackupDirectory().getParent().toString())
             .withTargetDirPath(incrementalDir.toString()).createBackupProperties();
-    BackupWriter incrementalWriter = BackupWriterFactory.FILE_SYSTEM.createWriter(backupProperties,
+    var incrementalWriter = BackupWriterFactory.FILE_SYSTEM.createWriter(backupProperties,
         cache.getMyId().toString());
     backup.prepareBackup(cache.getMyId(), incrementalWriter);
     backup.doBackup();
@@ -238,7 +234,7 @@ public class BackupIntegrationTest {
     createCache();
     region = regionCreator.createRegion();
     validateEntriesExist(region, 512, 2048);
-    for (int i = 0; i < 512; i++) {
+    for (var i = 0; i < 512; i++) {
       assertNull(region.get(i));
     }
     assertEquals("A", region.get("A"));
@@ -265,19 +261,19 @@ public class BackupIntegrationTest {
   }
 
   private void putDataAndRollOplogs(int step, Region<Object, Object> region) {
-    int startOne = step * 2048;
-    int startTwo = startOne + 1024;
+    var startOne = step * 2048;
+    var startTwo = startOne + 1024;
 
     // Put enough data to roll some oplogs
-    for (int i = startOne; i < startOne + 1024; i++) {
+    for (var i = startOne; i < startOne + 1024; i++) {
       region.put(i, getBytes(i));
     }
 
-    for (int i = startOne; i < startOne + 512; i++) {
+    for (var i = startOne; i < startOne + 512; i++) {
       region.destroy(i);
     }
 
-    for (int i = startTwo; i < startTwo + 1024; i++) {
+    for (var i = startTwo; i < startTwo + 1024; i++) {
       region.put(i, getBytes(i));
     }
 
@@ -301,8 +297,8 @@ public class BackupIntegrationTest {
   public void testBackupEmptyDiskStore() throws Exception {
     createDiskStore();
 
-    BackupService backup = cache.getBackupService();
-    BackupWriter writer = getBackupWriter();
+    var backup = cache.getBackupService();
+    var writer = getBackupWriter();
     backup.prepareBackup(cache.getMyId(), writer);
     backup.doBackup();
     assertEquals("No backup files should have been created", Collections.emptyList(),
@@ -310,7 +306,7 @@ public class BackupIntegrationTest {
   }
 
   private BackupWriter getBackupWriter() {
-    Properties backupProperties =
+    var backupProperties =
         new BackupConfigFactory().withTargetDirPath(backupDir.toString()).createBackupProperties();
     return BackupWriterFactory.FILE_SYSTEM.createWriter(backupProperties,
         cache.getMyId().toString());
@@ -319,12 +315,12 @@ public class BackupIntegrationTest {
   @Test
   public void testBackupOverflowOnlyDiskStore() throws Exception {
     createDiskStore();
-    Region region = createOverflowRegion();
+    var region = createOverflowRegion();
     // Put another key to make sure we restore
     // from a backup that doesn't contain this key
     region.put("A", "A");
 
-    BackupService backup = cache.getBackupService();
+    var backup = cache.getBackupService();
     backup.prepareBackup(cache.getMyId(), getBackupWriter());
     backup.doBackup();
 
@@ -335,22 +331,22 @@ public class BackupIntegrationTest {
 
   @Test
   public void testCompactionDuringBackup() throws Exception {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setDiskDirs(diskDirs);
     dsf.setMaxOplogSize(1);
     dsf.setAutoCompact(false);
     dsf.setAllowForceCompaction(true);
     dsf.setCompactionThreshold(20);
-    DiskStoreImpl ds = (DiskStoreImpl) dsf.create(DISK_STORE_NAME);
+    var ds = (DiskStoreImpl) dsf.create(DISK_STORE_NAME);
 
     Region<Object, Object> region = createRegion();
 
     // Put enough data to roll some oplogs
-    for (int i = 0; i < 1024; i++) {
+    for (var i = 0; i < 1024; i++) {
       region.put(i, getBytes(i));
     }
 
-    BackupService backupService = cache.getBackupService();
+    var backupService = cache.getBackupService();
     backupService.prepareBackup(cache.getMyId(), getBackupWriter());
     final Region theRegion = region;
     final DiskStore theDiskStore = ds;
@@ -369,7 +365,7 @@ public class BackupIntegrationTest {
   }
 
   private void destroyAndCompact(Region<Object, Object> region, DiskStore diskStore) {
-    for (int i = 2; i < 1024; i++) {
+    for (var i = 2; i < 1024; i++) {
       assertTrue(region.destroy(i) != null);
     }
     assertTrue(diskStore.forceCompaction());
@@ -383,27 +379,27 @@ public class BackupIntegrationTest {
     createDiskStore();
     createRegion();
 
-    BackupService backupService = cache.getBackupService();
+    var backupService = cache.getBackupService();
     backupService.prepareBackup(cache.getMyId(), getBackupWriter());
     backupService.doBackup();
-    Collection<File> fileCollection = FileUtils.listFiles(backupDir,
+    var fileCollection = FileUtils.listFiles(backupDir,
         new RegexFileFilter("BackupIntegrationTest.cache.xml"), DirectoryFileFilter.DIRECTORY);
     assertEquals(1, fileCollection.size());
-    File cacheXmlBackup = fileCollection.iterator().next();
+    var cacheXmlBackup = fileCollection.iterator().next();
     assertTrue(cacheXmlBackup.exists());
-    byte[] expectedBytes = getBytes(cacheXmlFile);
-    byte[] backupBytes = getBytes(cacheXmlBackup);
+    var expectedBytes = getBytes(cacheXmlFile);
+    var backupBytes = getBytes(cacheXmlBackup);
     assertEquals(expectedBytes.length, backupBytes.length);
-    for (int i = 0; i < expectedBytes.length; i++) {
+    for (var i = 0; i < expectedBytes.length; i++) {
       assertEquals("byte " + i, expectedBytes[i], backupBytes[i]);
     }
   }
 
   private byte[] getBytes(File file) throws IOException {
     // The cache xml file should be small enough to fit in one byte array
-    int size = (int) file.length();
-    byte[] contents = new byte[size];
-    try (FileInputStream fis = new FileInputStream(file)) {
+    var size = (int) file.length();
+    var contents = new byte[size];
+    try (var fis = new FileInputStream(file)) {
       assertEquals(size, fis.read(contents));
       assertEquals(-1, fis.read());
     }
@@ -411,25 +407,25 @@ public class BackupIntegrationTest {
   }
 
   private void validateEntriesExist(Region region, int start, int end) {
-    for (int i = start; i < end; i++) {
-      byte[] bytes = (byte[]) region.get(i);
-      byte[] expected = getBytes(i);
+    for (var i = start; i < end; i++) {
+      var bytes = (byte[]) region.get(i);
+      var expected = getBytes(i);
       assertTrue("Null entry " + i, bytes != null);
       assertEquals("Size mismatch on entry " + i, expected.length, bytes.length);
-      for (int j = 0; j < expected.length; j++) {
+      for (var j = 0; j < expected.length; j++) {
         assertEquals("Byte wrong on entry " + i + ", byte " + j, expected[j], bytes[j]);
       }
     }
   }
 
   private void validateEntriesDoNotExist(Region region, int start, int end) {
-    for (int i = start; i < end; i++) {
+    for (var i = start; i < end; i++) {
       assertFalse("Entry " + i + " exists", region.containsKey(i));
     }
   }
 
   private byte[] getBytes(int i) {
-    byte[] data = new byte[1024];
+    var data = new byte[1024];
     random.setSeed(i);
     random.nextBytes(data);
     return data;
@@ -437,11 +433,11 @@ public class BackupIntegrationTest {
 
   private void restoreBackup(File backupDir, boolean expectFailure)
       throws IOException, InterruptedException {
-    Collection<File> restoreScripts = FileUtils.listFiles(backupDir,
+    var restoreScripts = FileUtils.listFiles(backupDir,
         new RegexFileFilter(".*restore.*"), DirectoryFileFilter.DIRECTORY);
     assertNotNull(restoreScripts);
     assertEquals("Restore scripts " + restoreScripts, 1, restoreScripts.size());
-    for (File script : restoreScripts) {
+    for (var script : restoreScripts) {
       execute(script, expectFailure);
     }
 
@@ -452,26 +448,26 @@ public class BackupIntegrationTest {
     List<String> command = new ArrayList<>();
 
     System.out.println("EXECUTING:" + script.getCanonicalPath());
-    boolean isWindows = script.getName().endsWith("bat");
+    var isWindows = script.getName().endsWith("bat");
     if (isWindows) {
       command.add("cmd.exe");
       command.add("/c");
     }
 
     command.add(script.getCanonicalPath());
-    ProcessBuilder pb = new ProcessBuilder(command);
+    var pb = new ProcessBuilder(command);
     pb.redirectErrorStream(true);
-    Process process = pb.start();
+    var process = pb.start();
 
-    InputStream is = process.getInputStream();
-    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+    var is = process.getInputStream();
+    var br = new BufferedReader(new InputStreamReader(is));
     String line;
     while ((line = br.readLine()) != null) {
       System.out.println("OUTPUT:" + line);
       // TODO validate output
     }
 
-    int result = process.waitFor();
+    var result = process.waitFor();
     // On Windows XP, the process returns 0 even though we exit with a non-zero status.
     // So let's not bother asserting the return value on XP.
     if (!isWindows) {
@@ -505,7 +501,7 @@ public class BackupIntegrationTest {
   }
 
   private void createDiskStore() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(diskDirs);
     diskStoreFactory.setMaxOplogSize(1);
     diskStoreFactory.create(DISK_STORE_NAME);

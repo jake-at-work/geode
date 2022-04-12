@@ -42,8 +42,8 @@ public class DiskStoreFilter implements FilenameFilter {
   @Override
   public boolean accept(File f, String fileName) {
     if (selected(fileName)) {
-      int positionOfLastDot = fileName.lastIndexOf('_');
-      String filePathWithoutNumberAndExtension = fileName.substring(0, positionOfLastDot);
+      var positionOfLastDot = fileName.lastIndexOf('_');
+      var filePathWithoutNumberAndExtension = fileName.substring(0, positionOfLastDot);
       return filterCondn.equals(filePathWithoutNumberAndExtension);
     } else {
       return false;

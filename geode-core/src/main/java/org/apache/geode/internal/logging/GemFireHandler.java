@@ -50,7 +50,7 @@ public class GemFireHandler extends Handler {
   }
 
   private String getMessage(final LogRecord record) {
-    StringBuilder stringBuilder = new StringBuilder();
+    var stringBuilder = new StringBuilder();
     stringBuilder.append('(').append("tid=").append(record.getThreadID())
         .append(" msgId=").append(record.getSequenceNumber()).append(") ");
     if (record.getMessage() != null) {

@@ -21,8 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Properties;
-
 import org.junit.Test;
 
 import org.apache.geode.cache.GemFireCache;
@@ -47,20 +45,20 @@ public class RollingUpgradeNonHAFunction extends RollingUpgrade2DUnitTestBase {
   @Test
   public void functionExceptionsThrownFromDifferentVersionServerShouldCorrectlyWrapFunctionExceptionCauses()
       throws Exception {
-    final Host host = Host.getHost(0);
-    VM currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
-    VM oldServer = host.getVM(oldVersion, 1);
-    VM currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
-    VM oldServerAndLocator = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
+    var oldServer = host.getVM(oldVersion, 1);
+    var currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    var oldServerAndLocator = host.getVM(oldVersion, 3);
 
-    String regionName = "cqs";
+    var regionName = "cqs";
 
-    RegionShortcut shortcut = RegionShortcut.PARTITION;
+    var shortcut = RegionShortcut.PARTITION;
 
-    String serverHostName = NetworkUtils.getServerHostName();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var serverHostName = NetworkUtils.getServerHostName();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     try {
-      Properties props = getSystemProperties();
+      var props = getSystemProperties();
       props.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
           "org.apache.geode.internal.cache.rollingupgrade.**");
       props.remove(DistributionConfig.LOCATORS_NAME);
@@ -107,7 +105,7 @@ public class RollingUpgradeNonHAFunction extends RollingUpgrade2DUnitTestBase {
   }
 
   protected void runFunction(String queryString, VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(invokeAssertFunctionResults(queryString));
     }
   }

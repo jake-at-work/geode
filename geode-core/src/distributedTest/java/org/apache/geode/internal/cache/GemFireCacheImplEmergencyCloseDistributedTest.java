@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -48,7 +47,7 @@ public class GemFireCacheImplEmergencyCloseDistributedTest {
   @Test
   public void emergencyClose_closesCache() {
     vm.invoke(() -> {
-      Cache cache = new CacheFactory().create();
+      var cache = new CacheFactory().create();
 
       GemFireCacheImpl.emergencyClose();
 

@@ -34,7 +34,6 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvalidException;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
@@ -73,20 +72,20 @@ public class QueryTraceJUnitTest {
   @Test
   public void testTraceOnPartitionedRegionWithTracePrefix() throws Exception {
 
-    String slComment = "-- single line comment with TRACE \n";
-    String mlComment =
+    var slComment = "-- single line comment with TRACE \n";
+    var mlComment =
         " /* Multi-line comments here" + "* ends here " + "* with TRACE too" + "*/ <TRACE> ";
-    String prefix = slComment + mlComment;
+    var prefix = slComment + mlComment;
 
     // Create Partition Region
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(NUM_BKTS);
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -99,10 +98,10 @@ public class QueryTraceJUnitTest {
 
     assertTrue(keyIndex1 instanceof PartitionedIndex);
 
-    Query query = qs.newQuery(prefix + queryStr);
+    var query = qs.newQuery(prefix + queryStr);
     assertTrue(((DefaultQuery) query).isTraced());
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertTrue(QueryObserverHolder.getInstance() instanceof IndexTrackingQueryObserver);
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
@@ -112,18 +111,18 @@ public class QueryTraceJUnitTest {
   @Test
   public void testTraceOnLocalRegionWithTracePrefix() throws Exception {
 
-    String slComment = "-- single line comment with TRACE \n";
-    String mlComment =
+    var slComment = "-- single line comment with TRACE \n";
+    var mlComment =
         " /* Multi-line comments here" + "* ends here " + "* with TRACE too" + "*/ <TRACE> ";
-    String prefix = slComment + mlComment;
+    var prefix = slComment + mlComment;
 
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -136,10 +135,10 @@ public class QueryTraceJUnitTest {
 
     assertTrue(keyIndex1 instanceof CompactRangeIndex);
 
-    Query query = qs.newQuery(prefix + queryStr);
+    var query = qs.newQuery(prefix + queryStr);
     assertTrue(((DefaultQuery) query).isTraced());
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertTrue(QueryObserverHolder.getInstance() instanceof IndexTrackingQueryObserver);
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
@@ -153,19 +152,19 @@ public class QueryTraceJUnitTest {
   @Test
   public void testNegTraceOnPartitionedRegionWithTracePrefix() throws Exception {
 
-    String slComment = "-- single line comment with TRACE \n";
-    String mlComment = " /* Multi-line comments here" + "* ends here " + "* with TRACE too" + "*/";
-    String prefix = slComment + mlComment;
+    var slComment = "-- single line comment with TRACE \n";
+    var mlComment = " /* Multi-line comments here" + "* ends here " + "* with TRACE too" + "*/";
+    var prefix = slComment + mlComment;
 
     // Create Partition Region
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(NUM_BKTS);
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -178,10 +177,10 @@ public class QueryTraceJUnitTest {
 
     assertTrue(keyIndex1 instanceof PartitionedIndex);
 
-    Query query = qs.newQuery(prefix + queryStr);
+    var query = qs.newQuery(prefix + queryStr);
     assertFalse(((DefaultQuery) query).isTraced());
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertFalse(QueryObserverHolder.getInstance() instanceof IndexTrackingQueryObserver);
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
@@ -195,17 +194,17 @@ public class QueryTraceJUnitTest {
   @Test
   public void testNegTraceOnLocalRegionWithTracePrefix() throws Exception {
 
-    String slComment = "-- single line comment with TRACE \n";
-    String mlComment = " /* Multi-line comments here" + "* ends here " + "* with TRACE too" + "*/";
-    String prefix = slComment + mlComment;
+    var slComment = "-- single line comment with TRACE \n";
+    var mlComment = " /* Multi-line comments here" + "* ends here " + "* with TRACE too" + "*/";
+    var prefix = slComment + mlComment;
 
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -218,10 +217,10 @@ public class QueryTraceJUnitTest {
 
     assertTrue(keyIndex1 instanceof CompactRangeIndex);
 
-    Query query = qs.newQuery(prefix + queryStr);
+    var query = qs.newQuery(prefix + queryStr);
     assertFalse(((DefaultQuery) query).isTraced());
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertFalse(QueryObserverHolder.getInstance() instanceof IndexTrackingQueryObserver);
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
@@ -235,16 +234,16 @@ public class QueryTraceJUnitTest {
   @Test
   public void testTraceOnPartitionedRegionWithTracePrefixNoComments() throws Exception {
 
-    String prefix = "  <TRACE> ";
+    var prefix = "  <TRACE> ";
     // Create Partition Region
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(NUM_BKTS);
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -257,10 +256,10 @@ public class QueryTraceJUnitTest {
 
     assertTrue(keyIndex1 instanceof PartitionedIndex);
 
-    Query query = qs.newQuery(prefix + queryStr);
+    var query = qs.newQuery(prefix + queryStr);
     assertTrue(((DefaultQuery) query).isTraced());
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertTrue(QueryObserverHolder.getInstance() instanceof IndexTrackingQueryObserver);
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
@@ -270,15 +269,15 @@ public class QueryTraceJUnitTest {
   @Test
   public void testTraceOnLocalRegionWithTracePrefixNoComments() throws Exception {
 
-    String prefix = "  <TRACE> ";
+    var prefix = "  <TRACE> ";
 
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -291,10 +290,10 @@ public class QueryTraceJUnitTest {
 
     assertTrue(keyIndex1 instanceof CompactRangeIndex);
 
-    Query query = qs.newQuery(prefix + queryStr);
+    var query = qs.newQuery(prefix + queryStr);
     assertTrue(((DefaultQuery) query).isTraced());
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertTrue(QueryObserverHolder.getInstance() instanceof IndexTrackingQueryObserver);
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
@@ -304,16 +303,16 @@ public class QueryTraceJUnitTest {
   @Test
   public void testTraceOnPartitionedRegionWithSmallTracePrefixNoComments() throws Exception {
 
-    String prefix = "<trace> ";
+    var prefix = "<trace> ";
     // Create Partition Region
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(NUM_BKTS);
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -326,10 +325,10 @@ public class QueryTraceJUnitTest {
 
     assertTrue(keyIndex1 instanceof PartitionedIndex);
 
-    Query query = qs.newQuery(prefix + queryStr);
+    var query = qs.newQuery(prefix + queryStr);
     assertTrue(((DefaultQuery) query).isTraced());
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertTrue(QueryObserverHolder.getInstance() instanceof IndexTrackingQueryObserver);
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
@@ -340,15 +339,15 @@ public class QueryTraceJUnitTest {
   @Test
   public void testTraceOnLocalRegionWithSmallTracePrefixNoComments() throws Exception {
 
-    String prefix = "<trace> ";
+    var prefix = "<trace> ";
 
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -361,10 +360,10 @@ public class QueryTraceJUnitTest {
 
     assertTrue(keyIndex1 instanceof CompactRangeIndex);
 
-    Query query = qs.newQuery(prefix + queryStr);
+    var query = qs.newQuery(prefix + queryStr);
     assertTrue(((DefaultQuery) query).isTraced());
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertTrue(QueryObserverHolder.getInstance() instanceof IndexTrackingQueryObserver);
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
@@ -374,15 +373,15 @@ public class QueryTraceJUnitTest {
   @Test
   public void testQueryFailLocalRegionWithSmallTraceSuffixNoComments() throws Exception {
 
-    String suffix = "<trace> ";
+    var suffix = "<trace> ";
 
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -396,7 +395,7 @@ public class QueryTraceJUnitTest {
     assertTrue(keyIndex1 instanceof CompactRangeIndex);
 
     try {
-      Query query = qs.newQuery(queryStr + suffix);
+      var query = qs.newQuery(queryStr + suffix);
     } catch (Exception e) {
       if (!(e instanceof QueryInvalidException)) {
         fail("Test Failed: Query is invalid but exception was not thrown!");
@@ -407,15 +406,15 @@ public class QueryTraceJUnitTest {
   @Test
   public void testQueryFailLocalRegionWithSmallTracePrefixNoSpace() throws Exception {
 
-    String prefix = "<trace>";
+    var prefix = "<trace>";
 
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -429,7 +428,7 @@ public class QueryTraceJUnitTest {
     assertTrue(keyIndex1 instanceof CompactRangeIndex);
 
     try {
-      Query query = qs.newQuery(prefix + queryStr);
+      var query = qs.newQuery(prefix + queryStr);
     } catch (Exception e) {
       if (!(e instanceof QueryInvalidException)) {
         fail("Test Failed: Query is invalid but exception was not thrown!");

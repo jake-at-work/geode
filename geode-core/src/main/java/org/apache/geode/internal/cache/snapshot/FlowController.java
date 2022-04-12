@@ -113,8 +113,8 @@ public class FlowController {
    * @see #sendAck(DistributionManager, DistributedMember, int, String)
    */
   public <K, V> Window create(Region<K, V> region, DistributedMember sink, int windowSize) {
-    WindowImpl<K, V> w = new WindowImpl<>(region, sink, windowSize);
-    int id = processors.put(w);
+    var w = new WindowImpl<K, V>(region, sink, windowSize);
+    var id = processors.put(w);
 
     w.setWindowId(id);
     return w;
@@ -136,12 +136,12 @@ public class FlowController {
     }
 
     if (dmgr.getDistributionManagerId().equals(member)) {
-      WindowImpl<?, ?> win = (WindowImpl<?, ?>) processors.retrieve(windowId);
+      var win = (WindowImpl<?, ?>) processors.retrieve(windowId);
       if (win != null) {
         win.ack(packetId);
       }
     } else {
-      FlowControlAckMessage ack = new FlowControlAckMessage(windowId, packetId);
+      var ack = new FlowControlAckMessage(windowId, packetId);
       ack.setRecipient((InternalDistributedMember) member);
       dmgr.putOutgoing(ack);
     }
@@ -160,12 +160,12 @@ public class FlowController {
     }
 
     if (dmgr.getDistributionManagerId().equals(member)) {
-      WindowImpl<?, ?> win = (WindowImpl<?, ?>) processors.retrieve(windowId);
+      var win = (WindowImpl<?, ?>) processors.retrieve(windowId);
       if (win != null) {
         win.abort();
       }
     } else {
-      FlowControlAbortMessage abort = new FlowControlAbortMessage(windowId);
+      var abort = new FlowControlAbortMessage(windowId);
       abort.setRecipient((InternalDistributedMember) member);
       dmgr.putOutgoing(abort);
     }
@@ -282,7 +282,7 @@ public class FlowController {
             .fine("SNP: Received ABORT on window " + windowId + " from member " + getSender());
       }
 
-      WindowImpl<?, ?> win =
+      var win =
           (WindowImpl<?, ?>) FlowController.getInstance().processors.retrieve(windowId);
       if (win != null) {
         win.abort();
@@ -341,7 +341,7 @@ public class FlowController {
             + " from member " + getSender());
       }
 
-      WindowImpl<?, ?> win =
+      var win =
           (WindowImpl<?, ?>) FlowController.getInstance().processors.retrieve(windowId);
       if (win != null) {
         win.ack(packetId);

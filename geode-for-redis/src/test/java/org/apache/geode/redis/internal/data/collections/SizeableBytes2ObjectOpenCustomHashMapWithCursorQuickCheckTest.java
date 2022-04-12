@@ -49,11 +49,11 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorQuickCheckTest {
       @Size(min = 2, max = 500) Set<@InRange(minInt = 0, maxInt = 500) Integer> initialData,
       @Size(max = 500) Set<@InRange(minInt = 0, maxInt = 1000) Integer> dataToAdd,
       @Size(max = 500) Set<@InRange(minInt = 0, maxInt = 500) Integer> keysToRemove) {
-    Bytes2IntegerMap map = new Bytes2IntegerMap();
+    var map = new Bytes2IntegerMap();
     initialData.forEach(i -> map.put(i.toString().getBytes(), i));
 
     List<Integer> scanned = new ArrayList<>();
-    int cursor =
+    var cursor =
         map.scan(0, initialData.size() / 2, (data, key, value) -> data.add(value), scanned);
 
     dataToAdd.forEach(i -> map.put(i.toString().getBytes(), i));
@@ -71,11 +71,11 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorQuickCheckTest {
   @Property
   public void scanWithNoModificationsDoesNotReturnDuplicates(
       @Size(min = 2, max = 500) Set<@InRange(minInt = 0, maxInt = 500) Integer> initialData) {
-    Bytes2IntegerMap map = new Bytes2IntegerMap();
+    var map = new Bytes2IntegerMap();
     initialData.forEach(i -> map.put(i.toString().getBytes(), i));
 
     List<Integer> scanned = new ArrayList<>();
-    int cursor =
+    var cursor =
         map.scan(0, initialData.size() / 2, (data, key, value) -> data.add(value), scanned);
 
     // It's possible to scan the entire map in the first scan if the map is small and there are hash

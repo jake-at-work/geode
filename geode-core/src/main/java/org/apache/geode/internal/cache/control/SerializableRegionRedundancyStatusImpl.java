@@ -54,10 +54,10 @@ public class SerializableRegionRedundancyStatusImpl extends
    * @return The redundancy of the least redundant bucket in the region.
    */
   int calculateLowestRedundancy(PartitionedRegion region) {
-    int numBuckets = region.getPartitionAttributes().getTotalNumBuckets();
-    int minRedundancy = Integer.MAX_VALUE;
-    for (int i = 0; i < numBuckets; i++) {
-      int bucketRedundancy = region.getRegionAdvisor().getBucketRedundancy(i);
+    var numBuckets = region.getPartitionAttributes().getTotalNumBuckets();
+    var minRedundancy = Integer.MAX_VALUE;
+    for (var i = 0; i < numBuckets; i++) {
+      var bucketRedundancy = region.getRegionAdvisor().getBucketRedundancy(i);
       // Only consider redundancy for buckets that exist. Buckets that have not been created yet
       // have a redundancy value of -1
       if (bucketRedundancy != -1 && bucketRedundancy < minRedundancy) {
@@ -76,7 +76,7 @@ public class SerializableRegionRedundancyStatusImpl extends
    * @return The {@link RedundancyStatus} for the region.
    */
   private RedundancyStatus determineStatus(int desiredRedundancy, int actualRedundancy) {
-    boolean zeroRedundancy = desiredRedundancy == 0;
+    var zeroRedundancy = desiredRedundancy == 0;
     if (actualRedundancy == 0) {
       return zeroRedundancy ? RedundancyStatus.SATISFIED : RedundancyStatus.NO_REDUNDANT_COPIES;
     }

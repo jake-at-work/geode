@@ -18,9 +18,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.net.URI;
-import java.net.URL;
 import java.nio.file.Files;
 
 import net.openhft.compiler.CompilerUtils;
@@ -71,7 +68,7 @@ public class QueryPdxDataDUnitTest {
 
     gfsh.executeAndAssertThat("create region --name=BOZ --type=PARTITION");
 
-    int port = locator.getPort();
+    var port = locator.getPort();
     client = cluster.startClientVM(3, cf -> {
       cf.withLocatorConnection(port);
       cf.withCacheSetup(c -> c
@@ -85,25 +82,25 @@ public class QueryPdxDataDUnitTest {
 
       buildClass("org.apache.geode.management.Address",
           "/org/apache/geode/management/Address.java");
-      Class<?> customerClass =
+      var customerClass =
           buildClass("org.apache.geode.management.Customer",
               "/org/apache/geode/management/Customer.java");
 
-      Constructor<?> constructor =
+      var constructor =
           customerClass.getConstructor(String.class, String.class, String.class);
-      for (int i = 0; i < 100; i++) {
-        Object customer = constructor.newInstance("name_" + i, "Main " + i, "City " + i);
+      for (var i = 0; i < 100; i++) {
+        var customer = constructor.newInstance("name_" + i, "Main " + i, "City " + i);
         region.put(i + "", customer);
       }
     });
   }
 
   private static Class<?> buildClass(String className, String javaResourceName) throws Exception {
-    URL resourceFileURL = QueryPdxDataDUnitTest.class.getResource(javaResourceName);
+    var resourceFileURL = QueryPdxDataDUnitTest.class.getResource(javaResourceName);
     assertThat(resourceFileURL).isNotNull();
 
-    URI resourceUri = resourceFileURL.toURI();
-    String javaCode = new String(Files.readAllBytes(new File(resourceUri).toPath()));
+    var resourceUri = resourceFileURL.toURI();
+    var javaCode = new String(Files.readAllBytes(new File(resourceUri).toPath()));
 
     return CompilerUtils.CACHED_COMPILER.loadFromJava(className, javaCode);
   }

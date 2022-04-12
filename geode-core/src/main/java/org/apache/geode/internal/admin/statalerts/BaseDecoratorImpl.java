@@ -141,7 +141,7 @@ public abstract class BaseDecoratorImpl implements StatAlertDefinition {
 
   public static boolean isGreaterThan(Number param, Number threshold) {
     try {
-      int eval = compare(param, threshold);
+      var eval = compare(param, threshold);
       return eval > 0;
     } catch (VirtualMachineError err) {
       SystemFailure.initiateFailure(err);
@@ -161,7 +161,7 @@ public abstract class BaseDecoratorImpl implements StatAlertDefinition {
 
   public static boolean isLessThan(Number param, Number threshold) {
     try {
-      int eval = compare(param, threshold);
+      var eval = compare(param, threshold);
       return eval < 0;
     } catch (VirtualMachineError err) {
       SystemFailure.initiateFailure(err);
@@ -181,7 +181,7 @@ public abstract class BaseDecoratorImpl implements StatAlertDefinition {
 
   public static int compare(Number param, Number threshold) throws Throwable {
     try {
-      int eval = 0;
+      var eval = 0;
       if (threshold instanceof Double) {
         eval = Double.compare(param.doubleValue(), threshold.doubleValue());
       } else if (threshold instanceof Float) {

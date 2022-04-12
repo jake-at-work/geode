@@ -19,7 +19,6 @@ import static org.apache.geode.management.internal.i18n.CliStrings.LIST_MEMBER;
 import static org.apache.geode.test.junit.rules.GfshCommandRule.PortType.jmxManager;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -50,7 +49,7 @@ public class ListMembersCommandDUnitTest {
 
   @BeforeClass
   public static void setup() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(GROUPS, "locatorGroup");
     // First member, becomes the coordinator by default.
     locator1 = lsRule.startLocatorVM(0, properties);
@@ -81,7 +80,7 @@ public class ListMembersCommandDUnitTest {
   @Test
   public void listMembersInLocatorGroup() {
     gfsh.executeAndAssertThat(LIST_MEMBER + " --group=locatorGroup").statusIsSuccess();
-    String output = gfsh.getGfshOutput();
+    var output = gfsh.getGfshOutput();
 
     assertThat(output).contains("Member Count : 2");
     assertThat(output).contains("locator-0");
@@ -94,7 +93,7 @@ public class ListMembersCommandDUnitTest {
   @Test
   public void listMembersInServerGroupOne() {
     gfsh.executeAndAssertThat(LIST_MEMBER + " --group=serverGroup1").statusIsSuccess();
-    String output = gfsh.getGfshOutput();
+    var output = gfsh.getGfshOutput();
     assertThat(output).contains("Member Count : 2");
     assertThat(output).contains("server-2");
     assertThat(output).contains("server-3");
@@ -104,7 +103,7 @@ public class ListMembersCommandDUnitTest {
   @Test
   public void listMembersInServerGroupTwo() {
     gfsh.executeAndAssertThat(LIST_MEMBER + " --group=serverGroup2").statusIsSuccess();
-    String output = gfsh.getGfshOutput();
+    var output = gfsh.getGfshOutput();
     assertThat(output).contains("Member Count : 1");
     assertThat(output).doesNotContain("server-2");
     assertThat(output).doesNotContain("server-3");
@@ -125,7 +124,7 @@ public class ListMembersCommandDUnitTest {
   @TestCaseName("{method} - Connected to Coordinator: {params}")
   public void listMembersShouldAlwaysTagTheCoordinatorMember(boolean useCoordinator)
       throws Exception {
-    int jmxPort = useCoordinator ? locator1.getJmxPort() : locator2.getJmxPort();
+    var jmxPort = useCoordinator ? locator1.getJmxPort() : locator2.getJmxPort();
     gfsh.disconnect();
     gfsh.connectAndVerify(jmxPort, jmxManager);
 
@@ -142,7 +141,7 @@ public class ListMembersCommandDUnitTest {
    * @param commandResult GFSH command result to test.
    */
   private void assertCoordinatorTag(CommandResult commandResult) {
-    List<String> ids = commandResult.getResultData()
+    var ids = commandResult.getResultData()
         .getTableSection("members")
         .getValuesInColumn("Id");
     assertThat(ids.stream().filter(string -> pattern.matcher(string).matches())).hasSize(1);

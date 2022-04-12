@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
@@ -70,9 +69,9 @@ public class CacheClientNotifierStats {
   private static final int _compiledQueryUsedCount;
 
   static {
-    String statName = "CacheClientNotifierStatistics";
+    var statName = "CacheClientNotifierStatistics";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     _type = f.createType(statName, statName, new StatisticDescriptor[] {f.createIntCounter(EVENTS,
         "Number of events processed by the cache client notifier.", "operations"),
@@ -170,32 +169,32 @@ public class CacheClientNotifierStats {
   }
 
   public void endEvent(long start) {
-    long ts = DistributionStats.getStatTime();
+    var ts = DistributionStats.getStatTime();
     // Increment number of notifications
     _stats.incInt(_eventsId, 1);
 
     if (start != 0L && ts != 0L) {
       // Increment notification time
-      long elapsed = ts - start;
+      var elapsed = ts - start;
       _stats.incLong(_eventProcessingTimeId, elapsed);
     }
   }
 
   public void endClientRegistration(long start) {
-    long ts = DistributionStats.getStatTime();
+    var ts = DistributionStats.getStatTime();
 
     // Increment number of notifications
     _stats.incInt(_clientRegistrationsId, 1);
 
     if (start != 0L && ts != 0L) {
       // Increment notification time
-      long elapsed = ts - start;
+      var elapsed = ts - start;
       _stats.incLong(_clientRegistrationTimeId, elapsed);
     }
   }
 
   public void endCqProcessing(long start) {
-    long ts = DistributionStats.getStatTime();
+    var ts = DistributionStats.getStatTime();
     if (start != 0L && ts != 0L) {
       _stats.incLong(_cqProcessingTimeId, (ts - start));
     }

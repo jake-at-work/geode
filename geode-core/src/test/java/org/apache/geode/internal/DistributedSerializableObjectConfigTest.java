@@ -30,18 +30,18 @@ public class DistributedSerializableObjectConfigTest {
 
   @Test
   public void getValidateSerializableObjects_returnsTrue_whenPropertyIsTrue() {
-    Properties properties = spy(new Properties());
+    var properties = spy(new Properties());
     SerializableObjectConfig config = new DistributedSerializableObjectConfig(properties);
     when(properties.getProperty(VALIDATE_SERIALIZABLE_OBJECTS)).thenReturn("true");
 
-    boolean result = config.getValidateSerializableObjects();
+    var result = config.getValidateSerializableObjects();
 
     assertThat(result).isTrue();
   }
 
   @Test
   public void setValidateSerializableObjects_setsPropertyValue() {
-    Properties properties = spy(new Properties());
+    var properties = spy(new Properties());
     SerializableObjectConfig config = new DistributedSerializableObjectConfig(properties);
 
     config.setValidateSerializableObjects(true);
@@ -51,11 +51,11 @@ public class DistributedSerializableObjectConfigTest {
 
   @Test
   public void getSerializableObjectFilter_returnsPropertyValue() {
-    Properties properties = spy(new Properties());
+    var properties = spy(new Properties());
     SerializableObjectConfig config = new DistributedSerializableObjectConfig(properties);
     when(properties.getProperty(SERIALIZABLE_OBJECT_FILTER)).thenReturn("!*");
 
-    String result = config.getSerializableObjectFilter();
+    var result = config.getSerializableObjectFilter();
 
     assertThat(result).isEqualTo("!*");
   }

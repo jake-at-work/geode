@@ -1036,9 +1036,9 @@ public class CacheConfig {
     if (regionPath.startsWith(Region.SEPARATOR)) {
       regionPath = regionPath.substring(1);
     }
-    List<RegionConfig> regions = getRegions();
+    var regions = getRegions();
     RegionConfig found = null;
-    for (String regionToken : regionPath.split(Region.SEPARATOR)) {
+    for (var regionToken : regionPath.split(Region.SEPARATOR)) {
       found = Identifiable.find(regions, regionToken);
       // couldn't find one of the sub regions, break out of the loop
       if (found == null) {
@@ -1067,7 +1067,7 @@ public class CacheConfig {
   public <T extends CacheElement> List<T> findCustomRegionElements(String regionPath,
       Class<T> classT) {
     List<T> newList = new ArrayList<>();
-    RegionConfig regionConfig = findRegionConfiguration(regionPath);
+    var regionConfig = findRegionConfiguration(regionPath);
     if (regionConfig == null) {
       return newList;
     }

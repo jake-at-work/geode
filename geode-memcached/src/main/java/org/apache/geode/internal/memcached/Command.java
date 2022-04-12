@@ -440,8 +440,8 @@ public enum Command {
   public abstract CommandProcessor getCommandProcessor();
 
   public static String buffertoString(ByteBuffer header) {
-    StringBuilder str = new StringBuilder("\n0: ");
-    for (int i = 0; i < header.limit(); i++) {
+    var str = new StringBuilder("\n0: ");
+    for (var i = 0; i < header.limit(); i++) {
       str.append(byteToHex(header.get(i)) + " | ");
       if ((i + 1) % 4 == 0) {
         str.append("\n");
@@ -522,9 +522,9 @@ public enum Command {
 
   public static String byteToHex(byte b) {
     // Returns hex String representation of byte b
-    char[] hexDigit =
-        {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-    char[] array = {hexDigit[(b >> 4) & 0x0f], hexDigit[b & 0x0f]};
+    var hexDigit =
+        new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    var array = new char[] {hexDigit[(b >> 4) & 0x0f], hexDigit[b & 0x0f]};
     return "0x" + new String(array);
   }
 }

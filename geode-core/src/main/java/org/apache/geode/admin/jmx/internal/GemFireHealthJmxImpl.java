@@ -76,8 +76,8 @@ public class GemFireHealthJmxImpl extends GemFireHealthImpl implements ManagedRe
 
   public ObjectName manageGemFireHealthConfig(String hostName) throws MalformedObjectNameException {
     try {
-      GemFireHealthConfig config = getGemFireHealthConfig(hostName);
-      GemFireHealthConfigJmxImpl jmx = (GemFireHealthConfigJmxImpl) config;
+      var config = getGemFireHealthConfig(hostName);
+      var jmx = (GemFireHealthConfigJmxImpl) config;
       return new ObjectName(jmx.getMBeanName());
     } catch (RuntimeException e) {
       logger.warn(e.getMessage(), e);

@@ -67,7 +67,7 @@ public class EvictionMultiThreadedPerformanceBenchmark {
   @Threads(2)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public String evictingCreate1Thread() {
-    String key = Integer.toString(nextKey.incrementAndGet());
+    var key = Integer.toString(nextKey.incrementAndGet());
     return region.put(key, "value");
   }
 
@@ -78,7 +78,7 @@ public class EvictionMultiThreadedPerformanceBenchmark {
   @Threads(2)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public String evictingCreate2Threads() {
-    String key = Integer.toString(nextKey.incrementAndGet());
+    var key = Integer.toString(nextKey.incrementAndGet());
     return region.put(key, "value");
   }
 
@@ -89,7 +89,7 @@ public class EvictionMultiThreadedPerformanceBenchmark {
   @Threads(4)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public String evictingCreate4Threads() {
-    String key = Integer.toString(nextKey.incrementAndGet());
+    var key = Integer.toString(nextKey.incrementAndGet());
     return region.put(key, "value");
   }
 
@@ -100,7 +100,7 @@ public class EvictionMultiThreadedPerformanceBenchmark {
   @Threads(8)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public String evictingCreate8Threads() {
-    String key = Integer.toString(nextKey.incrementAndGet());
+    var key = Integer.toString(nextKey.incrementAndGet());
     return region.put(key, "value");
   }
 
@@ -111,16 +111,16 @@ public class EvictionMultiThreadedPerformanceBenchmark {
   @Threads(16)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public String evictingCreate16Threads() {
-    String key = Integer.toString(nextKey.incrementAndGet());
+    var key = Integer.toString(nextKey.incrementAndGet());
     return region.put(key, "value");
   }
 
   private Region<String, String> createRegion(Cache cache, int maxSize) {
-    Region<String, String> region = cache.<String, String>createRegionFactory(RegionShortcut.LOCAL)
+    var region = cache.<String, String>createRegionFactory(RegionShortcut.LOCAL)
         .setEvictionAttributes(
             EvictionAttributes.createLRUEntryAttributes(maxSize, EvictionAction.LOCAL_DESTROY))
         .create("testRegion");
-    for (int i = 0; i < MAX_ENTRIES; i++) {
+    for (var i = 0; i < MAX_ENTRIES; i++) {
       region.put(Integer.toString(i), "value");
     }
     region.put("over", "limit");

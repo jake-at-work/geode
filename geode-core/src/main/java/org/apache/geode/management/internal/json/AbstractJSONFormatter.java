@@ -21,13 +21,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -67,8 +65,8 @@ public abstract class AbstractJSONFormatter {
   public AbstractJSONFormatter(int maxCollectionElements, int serializationDepth,
       boolean generateTypeInformation) {
 
-    int serDepth = serializationDepth < 0 ? Integer.MAX_VALUE : serializationDepth;
-    int maxElements = maxCollectionElements < 0 ? Integer.MAX_VALUE : maxCollectionElements;
+    var serDepth = serializationDepth < 0 ? Integer.MAX_VALUE : serializationDepth;
+    var maxElements = maxCollectionElements < 0 ? Integer.MAX_VALUE : maxCollectionElements;
 
     mapper = new ObjectMapper();
     serializedObjects = new IdentityHashMap<>();
@@ -190,7 +188,7 @@ public abstract class AbstractJSONFormatter {
         SerializerProvider serializers, TypeSerializer typeSer)
         throws IOException {
       // We don't want to expose the internal classes, show interface instead.
-      WritableTypeId typeId = typeSer.typeId(value, Struct.class, JsonToken.START_OBJECT);
+      var typeId = typeSer.typeId(value, Struct.class, JsonToken.START_OBJECT);
       typeSer.writeTypePrefix(gen, typeId);
       serializeElements(value, gen);
       typeSer.writeTypeSuffix(gen, typeId);
@@ -205,9 +203,9 @@ public abstract class AbstractJSONFormatter {
     }
 
     void serializeElements(StructImpl value, JsonGenerator gen) throws IOException {
-      String[] fields = value.getFieldNames();
-      Object[] values = value.getFieldValues();
-      for (int i = 0; i < fields.length; i++) {
+      var fields = value.getFieldNames();
+      var values = value.getFieldValues();
+      for (var i = 0; i < fields.length; i++) {
         gen.writeObjectField(fields[i], values[i]);
       }
     }
@@ -227,7 +225,7 @@ public abstract class AbstractJSONFormatter {
         SerializerProvider serializers, TypeSerializer typeSer)
         throws IOException {
       // We don't want to expose the internal classes, show interface instead.
-      WritableTypeId typeId = typeSer.typeId(value, PdxInstance.class, JsonToken.START_OBJECT);
+      var typeId = typeSer.typeId(value, PdxInstance.class, JsonToken.START_OBJECT);
       typeSer.writeTypePrefix(gen, typeId);
       serializeFields(value, gen);
       typeSer.writeTypeSuffix(gen, typeId);
@@ -242,7 +240,7 @@ public abstract class AbstractJSONFormatter {
     }
 
     void serializeFields(PdxInstance value, JsonGenerator gen) throws IOException {
-      for (String field : value.getFieldNames()) {
+      for (var field : value.getFieldNames()) {
         gen.writeObjectField(field, value.getField(field));
       }
     }
@@ -296,7 +294,7 @@ public abstract class AbstractJSONFormatter {
         SerializerProvider serializers, TypeSerializer typeSer)
         throws IOException {
       gen.setCurrentValue(value);
-      WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+      var typeIdDef = typeSer.writeTypePrefix(gen,
           typeSer.typeId(value, JsonToken.START_OBJECT));
       serializeElements(value, gen);
       typeSer.writeTypeSuffix(gen, typeIdDef);
@@ -311,9 +309,9 @@ public abstract class AbstractJSONFormatter {
     }
 
     void serializeElements(Collection value, JsonGenerator gen) throws IOException {
-      Iterator objects = value.iterator();
-      for (int i = 0; i < maxCollectionElements && objects.hasNext(); i++) {
-        Object nextObject = objects.next();
+      var objects = value.iterator();
+      for (var i = 0; i < maxCollectionElements && objects.hasNext(); i++) {
+        var nextObject = objects.next();
         gen.writeObjectField("" + i, nextObject);
       }
     }

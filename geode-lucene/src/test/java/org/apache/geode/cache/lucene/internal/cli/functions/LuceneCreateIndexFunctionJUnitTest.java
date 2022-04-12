@@ -85,25 +85,25 @@ public class LuceneCreateIndexFunctionJUnitTest {
     analyzerNames.add(StandardAnalyzer.class.getCanonicalName());
     analyzerNames.add(KeywordAnalyzer.class.getCanonicalName());
     analyzerNames.add(StandardAnalyzer.class.getCanonicalName());
-    String[] analyzers = new String[3];
+    var analyzers = new String[3];
     analyzerNames.toArray(analyzers);
-    LuceneIndexInfo indexInfo = new LuceneIndexInfo("index1", SEPARATOR + "region1",
+    var indexInfo = new LuceneIndexInfo("index1", SEPARATOR + "region1",
         new String[] {"field1", "field2", "field3"}, analyzers, null);
     when(context.getArguments()).thenReturn(indexInfo);
 
-    LuceneCreateIndexFunction function = new LuceneCreateIndexFunction();
+    var function = new LuceneCreateIndexFunction();
     function.execute(context);
 
-    ArgumentCaptor<Map> analyzersCaptor = ArgumentCaptor.forClass(Map.class);
+    var analyzersCaptor = ArgumentCaptor.forClass(Map.class);
     verify(service).createIndexFactory();
     verify(factory).addField(eq("field1"), isA(StandardAnalyzer.class));
     verify(factory).addField(eq("field2"), isA(KeywordAnalyzer.class));
     verify(factory).addField(eq("field3"), isA(StandardAnalyzer.class));
     verify(factory).create(eq("index1"), eq(SEPARATOR + "region1"), eq(false));
 
-    ArgumentCaptor<Set> resultCaptor = ArgumentCaptor.forClass(Set.class);
+    var resultCaptor = ArgumentCaptor.forClass(Set.class);
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = (CliFunctionResult) resultCaptor.getValue();
+    var result = (CliFunctionResult) resultCaptor.getValue();
 
     assertEquals(expectedResult, result);
   }
@@ -111,12 +111,12 @@ public class LuceneCreateIndexFunctionJUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testExecuteWithoutAnalyzer() throws Throwable {
-    String[] fields = new String[] {"field1", "field2", "field3"};
-    LuceneIndexInfo indexInfo =
+    var fields = new String[] {"field1", "field2", "field3"};
+    var indexInfo =
         new LuceneIndexInfo("index1", SEPARATOR + "region1", fields, null, null);
     when(context.getArguments()).thenReturn(indexInfo);
 
-    LuceneCreateIndexFunction function = new LuceneCreateIndexFunction();
+    var function = new LuceneCreateIndexFunction();
     function.execute(context);
 
     verify(factory).addField(eq("field1"));
@@ -124,9 +124,9 @@ public class LuceneCreateIndexFunctionJUnitTest {
     verify(factory).addField(eq("field3"));
     verify(factory).create(eq("index1"), eq(SEPARATOR + "region1"), eq(false));
 
-    ArgumentCaptor<Set> resultCaptor = ArgumentCaptor.forClass(Set.class);
+    var resultCaptor = ArgumentCaptor.forClass(Set.class);
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = (CliFunctionResult) resultCaptor.getValue();
+    var result = (CliFunctionResult) resultCaptor.getValue();
 
     assertEquals(expectedResult, result);
   }
@@ -134,12 +134,12 @@ public class LuceneCreateIndexFunctionJUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testExecuteWithSerializer() throws Throwable {
-    String[] fields = new String[] {"field1", "field2", "field3"};
-    LuceneIndexInfo indexInfo = new LuceneIndexInfo("index1", SEPARATOR + "region1", fields, null,
+    var fields = new String[] {"field1", "field2", "field3"};
+    var indexInfo = new LuceneIndexInfo("index1", SEPARATOR + "region1", fields, null,
         PrimitiveSerializer.class.getCanonicalName());
     when(context.getArguments()).thenReturn(indexInfo);
 
-    LuceneCreateIndexFunction function = new LuceneCreateIndexFunction();
+    var function = new LuceneCreateIndexFunction();
     function.execute(context);
 
     verify(factory).addField(eq("field1"));
@@ -148,9 +148,9 @@ public class LuceneCreateIndexFunctionJUnitTest {
     verify(factory).setLuceneSerializer(isA(PrimitiveSerializer.class));
     verify(factory).create(eq("index1"), eq(SEPARATOR + "region1"), eq(false));
 
-    ArgumentCaptor<Set> resultCaptor = ArgumentCaptor.forClass(Set.class);
+    var resultCaptor = ArgumentCaptor.forClass(Set.class);
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = (CliFunctionResult) resultCaptor.getValue();
+    var result = (CliFunctionResult) resultCaptor.getValue();
 
     assertEquals(expectedResult, result);
   }

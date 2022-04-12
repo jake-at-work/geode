@@ -32,7 +32,7 @@ public class BaseCommandJUnitTest {
 
   @Test
   public void whenLastReceivedIsSetThenCheckAndSetLastResultSentIfValidMustReturnTrue() {
-    ServerToClientFunctionResultSender resultSender =
+    var resultSender =
         mock(ServerToClientFunctionResultSender.class);
     when(resultSender.isLastResultReceived()).thenReturn(true);
     assertFalse(baseCommand.setLastResultReceived(resultSender));
@@ -41,7 +41,7 @@ public class BaseCommandJUnitTest {
 
   @Test
   public void whenLastReceivedIsNotSetThenCheckAndSetLastResultSentIfValidMustReturnFalse() {
-    ServerToClientFunctionResultSender resultSender =
+    var resultSender =
         mock(ServerToClientFunctionResultSender.class);
     when(resultSender.isLastResultReceived()).thenReturn(false);
     assertTrue(baseCommand.setLastResultReceived(resultSender));
@@ -50,7 +50,7 @@ public class BaseCommandJUnitTest {
 
   @Test
   public void whenLastReceivedIsNotSetThenCheckAndSetLastResultSentIfValidMustSetIt() {
-    ServerToClientFunctionResultSender resultSender =
+    var resultSender =
         mock(ServerToClientFunctionResultSender.class);
     when(resultSender.isLastResultReceived()).thenReturn(false);
     baseCommand.setLastResultReceived(resultSender);
@@ -60,7 +60,7 @@ public class BaseCommandJUnitTest {
 
   @Test
   public void whenLastReceivedIsSetThenCheckAndSetLastResultSentIfValidMustNotSetIt() {
-    ServerToClientFunctionResultSender resultSender =
+    var resultSender =
         mock(ServerToClientFunctionResultSender.class);
     when(resultSender.isLastResultReceived()).thenReturn(true);
     baseCommand.setLastResultReceived(resultSender);

@@ -23,7 +23,7 @@ public class AdminTestHelper {
   private AdminTestHelper() {}
 
   public static void checkEnableAdministrationOnly(boolean v, boolean expectException) {
-    boolean origIsDedicatedAdminVM = ClusterDistributionManager.isDedicatedAdminVM();
+    var origIsDedicatedAdminVM = ClusterDistributionManager.isDedicatedAdminVM();
     if (expectException) {
       try {
         AdminDistributedSystemFactory.setEnableAdministrationOnly(v);

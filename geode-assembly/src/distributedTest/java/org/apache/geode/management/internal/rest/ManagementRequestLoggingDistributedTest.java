@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.Serializable;
-import java.nio.file.Path;
 
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +79,7 @@ public class ManagementRequestLoggingDistributedTest implements Serializable {
     serverName = "server1";
     locatorDir = temporaryFolder.newFolder(locatorName);
     serverDir = temporaryFolder.newFolder(serverName);
-    int[] ports = getRandomAvailableTCPPorts(2);
+    var ports = getRandomAvailableTCPPorts(2);
     httpPort = ports[0];
     jmxManagerPort = ports[1];
 
@@ -111,7 +110,7 @@ public class ManagementRequestLoggingDistributedTest implements Serializable {
 
   @Test
   public void checkRequestsAreLogged() {
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("customers");
     regionConfig.setType(RegionType.REPLICATE);
 
@@ -120,8 +119,8 @@ public class ManagementRequestLoggingDistributedTest implements Serializable {
     assertThat(result.isSuccessful()).isTrue();
 
     locatorVM.invoke(() -> {
-      Path logFile = locatorDir.toPath().resolve(locatorName + ".log");
-      String logContents = readFileToString(logFile.toFile(), defaultCharset());
+      var logFile = locatorDir.toPath().resolve(locatorName + ".log");
+      var logContents = readFileToString(logFile.toFile(), defaultCharset());
 
       // Note: the following is kind of fragile. Remove experimental when it goes away.
       // Also feel free to change the following to use regex or substrings
@@ -140,7 +139,7 @@ public class ManagementRequestLoggingDistributedTest implements Serializable {
   }
 
   private int startLocator() {
-    LocatorLauncher.Builder builder = new LocatorLauncher.Builder();
+    var builder = new LocatorLauncher.Builder();
     builder.setMemberName(locatorName);
     builder.setWorkingDirectory(locatorDir.getAbsolutePath());
     builder.setPort(0);
@@ -155,7 +154,7 @@ public class ManagementRequestLoggingDistributedTest implements Serializable {
   }
 
   private void startServer() {
-    ServerLauncher.Builder builder = new ServerLauncher.Builder();
+    var builder = new ServerLauncher.Builder();
     builder.setMemberName(serverName);
     builder.setWorkingDirectory(serverDir.getAbsolutePath());
     builder.setServerPort(0);

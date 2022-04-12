@@ -74,7 +74,7 @@ public class GemFireConnPooledDataSource extends AbstractDataSource
     try {
       provider = new GemFireConnectionPoolManager(connPoolDS, configs, this);
     } catch (Exception ex) {
-      String exception =
+      var exception =
           "An exception was caught while creating a GemFireConnectionPoolManager. %s";
       logger.error(String.format(exception, ex.getLocalizedMessage()), ex);
       throw new SQLException(String.format(exception, ex));
@@ -125,10 +125,10 @@ public class GemFireConnPooledDataSource extends AbstractDataSource
   public void connectionClosed(ConnectionEvent event) {
     if (isActive) {
       try {
-        PooledConnection conn = (PooledConnection) event.getSource();
+        var conn = (PooledConnection) event.getSource();
         provider.returnConnection(conn);
       } catch (Exception ex) {
-        String exception = "GemFireConnPooledDataSource::connectionclosed:Exception =" + ex;
+        var exception = "GemFireConnPooledDataSource::connectionclosed:Exception =" + ex;
         if (logger.isDebugEnabled()) {
           logger.debug(exception, ex);
         }
@@ -145,10 +145,10 @@ public class GemFireConnPooledDataSource extends AbstractDataSource
   public void connectionErrorOccurred(ConnectionEvent event) {
     if (isActive) {
       try {
-        PooledConnection conn = (PooledConnection) event.getSource();
+        var conn = (PooledConnection) event.getSource();
         provider.returnAndExpireConnection(conn);
       } catch (Exception ex) {
-        String exception =
+        var exception =
             "GemFireConnPooledDataSource::connectionErrorOccurred:error in returning and expiring connection due to "
                 + ex;
         if (logger.isDebugEnabled()) {
@@ -186,7 +186,7 @@ public class GemFireConnPooledDataSource extends AbstractDataSource
       provider.returnAndExpireConnection(poolC);
       throw e;
     }
-    boolean val = validateConnection(conn);
+    var val = validateConnection(conn);
     if (val) {
       return conn;
     } else {

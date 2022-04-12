@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 
@@ -50,7 +49,7 @@ public class ConfigurationTest {
 
   @Test
   public void setInvalidCacheXmlFile() throws IOException {
-    File file = folder.newFile("test.xml");
+    var file = folder.newFile("test.xml");
     FileUtils.writeStringToFile(file, "invalid xml content", "UTF-8");
     assertThatThrownBy(() -> configuration.setCacheXmlFile(file)).isInstanceOf(IOException.class)
         .hasMessageContaining("Unable to parse");
@@ -58,41 +57,41 @@ public class ConfigurationTest {
 
   @Test
   public void remembersDeployment() {
-    Deployment deployment = new Deployment("jar1", "", Instant.now().toString());
+    var deployment = new Deployment("jar1", "", Instant.now().toString());
     configuration.putDeployment(deployment);
     assertThat(configuration.getDeployments()).containsExactlyInAnyOrder(deployment);
   }
 
   @Test
   public void remembersNewestDeploymentWithSameArtifactId() {
-    Deployment deployment1 = new Deployment("abc-1.0.jar", "", Instant.now().toString());
+    var deployment1 = new Deployment("abc-1.0.jar", "", Instant.now().toString());
     configuration.putDeployment(deployment1);
-    Deployment deployment2 = new Deployment("abc-2.0.jar", "", Instant.now().toString());
+    var deployment2 = new Deployment("abc-2.0.jar", "", Instant.now().toString());
     configuration.putDeployment(deployment2);
     assertThat(configuration.getDeployments()).containsExactlyInAnyOrder(deployment2);
   }
 
   @Test
   public void remembersAllDeploymentsWithDifferentArtifactIds() {
-    Deployment deployment1 = new Deployment("abc-1.0.jar", "", Instant.now().toString());
+    var deployment1 = new Deployment("abc-1.0.jar", "", Instant.now().toString());
     configuration.putDeployment(deployment1);
-    Deployment deployment2 = new Deployment("def-2.0.jar", "", Instant.now().toString());
+    var deployment2 = new Deployment("def-2.0.jar", "", Instant.now().toString());
     configuration.putDeployment(deployment2);
     assertThat(configuration.getDeployments()).containsExactlyInAnyOrder(deployment1, deployment2);
   }
 
   @Test
   public void getJarNamesReturnsJarNamesFromAllCurrentDeployments() {
-    String originalAbcJarName = "abc-1.0.jar";
-    Deployment deployment1 = new Deployment(originalAbcJarName, null, null);
+    var originalAbcJarName = "abc-1.0.jar";
+    var deployment1 = new Deployment(originalAbcJarName, null, null);
     configuration.putDeployment(deployment1);
 
-    String updatedAbcJarName = "abc-2.0.jar";
+    var updatedAbcJarName = "abc-2.0.jar";
     // Replace original abc with new version
     configuration.putDeployment(new Deployment(updatedAbcJarName, null, null));
 
-    String defJarName = "def-1.0.jar";
-    Deployment deployment3 = new Deployment(defJarName, null, null);
+    var defJarName = "def-1.0.jar";
+    var deployment3 = new Deployment(defJarName, null, null);
     configuration.putDeployment(deployment3);
 
     assertThat(configuration.getJarNames())
@@ -101,10 +100,10 @@ public class ConfigurationTest {
 
   @Test
   public void dataSerializationRoundTrip() throws IOException, ClassNotFoundException {
-    ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
-    DataOutputStream dataOut = new DataOutputStream(outBytes);
+    var outBytes = new ByteArrayOutputStream();
+    var dataOut = new DataOutputStream(outBytes);
 
-    Configuration originalConfig = new Configuration();
+    var originalConfig = new Configuration();
     originalConfig.putDeployment(new Deployment("jarName1.jar", "deployedBy1", "deployedTime1"));
     originalConfig.putDeployment(new Deployment("jarName2.jar", "deployedBy2", "deployedTime2"));
     originalConfig.putDeployment(new Deployment("jarName3.jar", "deployedBy3", "deployedTime3"));
@@ -112,7 +111,7 @@ public class ConfigurationTest {
     DataSerializer.writeObject(originalConfig, dataOut);
     dataOut.flush();
 
-    ByteArrayInputStream inBytes = new ByteArrayInputStream(outBytes.toByteArray());
+    var inBytes = new ByteArrayInputStream(outBytes.toByteArray());
     DataInput dataIn = new DataInputStream(inBytes);
 
     Configuration deserializedConfig = DataSerializer.readObject(dataIn);

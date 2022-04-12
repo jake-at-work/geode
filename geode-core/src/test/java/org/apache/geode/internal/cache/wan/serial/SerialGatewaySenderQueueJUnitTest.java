@@ -62,11 +62,11 @@ public class SerialGatewaySenderQueueJUnitTest {
 
   @Before
   public void setup() {
-    InternalDistributedSystem mockInternalDistributedSystem = mock(InternalDistributedSystem.class);
+    var mockInternalDistributedSystem = mock(InternalDistributedSystem.class);
     when(mockInternalDistributedSystem.getStatisticsManager())
         .thenReturn(new DummyStatisticsRegistry("", 0));
 
-    GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
+    var cache = mock(GemFireCacheImpl.class);
     when(cache.getInternalDistributedSystem()).thenReturn(mockInternalDistributedSystem);
     when(cache.getMeterRegistry()).thenReturn(new NoopMeterRegistry());
 
@@ -84,7 +84,7 @@ public class SerialGatewaySenderQueueJUnitTest {
 
     when(cache.createInternalRegionFactory(any())).thenReturn(regionFactory);
 
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(cache.getCancelCriterion()).thenReturn(cancelCriterion);
 
     sender = mock(AbstractGatewaySender.class);
@@ -98,7 +98,7 @@ public class SerialGatewaySenderQueueJUnitTest {
 
     metaRegionFactory = mock(SerialGatewaySenderQueue.MetaRegionFactory.class);
 
-    SerialGatewaySenderQueue.SerialGatewaySenderQueueMetaRegion mockMetaRegion =
+    var mockMetaRegion =
         mock(SerialGatewaySenderQueue.SerialGatewaySenderQueueMetaRegion.class);
 
     when(metaRegionFactory.newMetaRegion(any(), any(), any(), any())).thenReturn(mockMetaRegion);
@@ -106,33 +106,33 @@ public class SerialGatewaySenderQueueJUnitTest {
 
   @Test
   public void peekGetsExtraEventsWhenMustGroupTransactionEventsAndNotAllEventsForTransactionsInMaxSizeBatch() {
-    TestableSerialGatewaySenderQueue queue = new TestableSerialGatewaySenderQueue(sender,
+    var queue = new TestableSerialGatewaySenderQueue(sender,
         QUEUE_REGION, metaRegionFactory);
     queue.setGroupTransactionEvents(true);
 
-    List<AsyncEvent<?, ?>> peeked = queue.peek(3, 100);
+    var peeked = queue.peek(3, 100);
     assertEquals(4, peeked.size());
-    List<AsyncEvent<?, ?>> peekedAfter = queue.peek(3, 100);
+    var peekedAfter = queue.peek(3, 100);
     assertEquals(3, peekedAfter.size());
   }
 
   @Test
   public void peekGetsExtraEventsWhenMustGroupTransactionEventsAndNotAllEventsForTransactionsInBatchByTime() {
-    GatewaySenderEventImpl event1 = createMockGatewaySenderEventImpl(1, false, region);
-    GatewaySenderEventImpl event2 = createMockGatewaySenderEventImpl(2, false, region);
-    GatewaySenderEventImpl event3 = createMockGatewaySenderEventImpl(1, true, region);
-    GatewaySenderEventImpl event4 = createMockGatewaySenderEventImpl(2, true, region);
-    SerialGatewaySenderQueue.KeyAndEventPair eventPair1 =
+    var event1 = createMockGatewaySenderEventImpl(1, false, region);
+    var event2 = createMockGatewaySenderEventImpl(2, false, region);
+    var event3 = createMockGatewaySenderEventImpl(1, true, region);
+    var event4 = createMockGatewaySenderEventImpl(2, true, region);
+    var eventPair1 =
         new SerialGatewaySenderQueue.KeyAndEventPair(0L, event1);
-    SerialGatewaySenderQueue.KeyAndEventPair eventPair2 =
+    var eventPair2 =
         new SerialGatewaySenderQueue.KeyAndEventPair(1L, event2);
-    SerialGatewaySenderQueue.KeyAndEventPair eventPair3 =
+    var eventPair3 =
         new SerialGatewaySenderQueue.KeyAndEventPair(2L, event3);
 
-    TestableSerialGatewaySenderQueue realQueue = new TestableSerialGatewaySenderQueue(sender,
+    var realQueue = new TestableSerialGatewaySenderQueue(sender,
         QUEUE_REGION, metaRegionFactory);
 
-    TestableSerialGatewaySenderQueue queue = spy(realQueue);
+    var queue = spy(realQueue);
     queue.setGroupTransactionEvents(true);
 
     doAnswer(invocation -> eventPair1)
@@ -145,18 +145,18 @@ public class SerialGatewaySenderQueueJUnitTest {
         .singletonList(new SerialGatewaySenderQueue.KeyAndEventPair(1L, event4)))
             .when(queue).getElementsMatching(any(), any(), anyLong());
 
-    List<AsyncEvent<?, ?>> peeked = queue.peek(-1, 1);
+    var peeked = queue.peek(-1, 1);
     assertEquals(4, peeked.size());
   }
 
   @Test
   public void peekDoesNotGetExtraEventsWhenNotMustGroupTransactionEventsAndNotAllEventsForTransactionsInBatchMaxSize() {
-    TestableSerialGatewaySenderQueue queue = new TestableSerialGatewaySenderQueue(sender,
+    var queue = new TestableSerialGatewaySenderQueue(sender,
         QUEUE_REGION, metaRegionFactory);
 
-    List<AsyncEvent<?, ?>> peeked = queue.peek(3, 100);
+    var peeked = queue.peek(3, 100);
     assertEquals(3, peeked.size());
-    List<AsyncEvent<?, ?>> peekedAfter = queue.peek(3, 100);
+    var peekedAfter = queue.peek(3, 100);
     assertEquals(3, peekedAfter.size());
     peekedAfter = queue.peek(1, 100);
     assertEquals(1, peekedAfter.size());
@@ -164,21 +164,21 @@ public class SerialGatewaySenderQueueJUnitTest {
 
   @Test
   public void peekDoesNotGetExtraEventsWhenNotMustGroupTransactionEventsAndNotAllEventsForTransactionsInBatchByTime() {
-    GatewaySenderEventImpl event1 = createMockGatewaySenderEventImpl(1, false, region);
-    GatewaySenderEventImpl event2 = createMockGatewaySenderEventImpl(2, false, region);
-    GatewaySenderEventImpl event3 = createMockGatewaySenderEventImpl(1, true, region);
-    GatewaySenderEventImpl event4 = createMockGatewaySenderEventImpl(2, true, region);
-    SerialGatewaySenderQueue.KeyAndEventPair eventPair1 =
+    var event1 = createMockGatewaySenderEventImpl(1, false, region);
+    var event2 = createMockGatewaySenderEventImpl(2, false, region);
+    var event3 = createMockGatewaySenderEventImpl(1, true, region);
+    var event4 = createMockGatewaySenderEventImpl(2, true, region);
+    var eventPair1 =
         new SerialGatewaySenderQueue.KeyAndEventPair(0L, event1);
-    SerialGatewaySenderQueue.KeyAndEventPair eventPair2 =
+    var eventPair2 =
         new SerialGatewaySenderQueue.KeyAndEventPair(1L, event2);
-    SerialGatewaySenderQueue.KeyAndEventPair eventPair3 =
+    var eventPair3 =
         new SerialGatewaySenderQueue.KeyAndEventPair(2L, event3);
 
-    TestableSerialGatewaySenderQueue realQueue = new TestableSerialGatewaySenderQueue(sender,
+    var realQueue = new TestableSerialGatewaySenderQueue(sender,
         QUEUE_REGION, metaRegionFactory);
 
-    TestableSerialGatewaySenderQueue queue = spy(realQueue);
+    var queue = spy(realQueue);
     queue.setGroupTransactionEvents(false);
 
     doAnswer(invocation -> eventPair1)
@@ -191,16 +191,16 @@ public class SerialGatewaySenderQueueJUnitTest {
         .singletonList(new SerialGatewaySenderQueue.KeyAndEventPair(2L, event4)))
             .when(queue).getElementsMatching(any(), any(), anyLong());
 
-    List<AsyncEvent<?, ?>> peeked = queue.peek(-1, 1);
+    var peeked = queue.peek(-1, 1);
     assertEquals(3, peeked.size());
   }
 
   @Test
   public void peekEventsFromIncompleteTransactionsDoesNotThrowConcurrentModificationExceptionWhenCompletingTwoTransactions() {
-    GatewaySenderEventImpl event1 = createMockGatewaySenderEventImpl(1, false, region);
-    GatewaySenderEventImpl event2 = createMockGatewaySenderEventImpl(2, false, region);
+    var event1 = createMockGatewaySenderEventImpl(1, false, region);
+    var event2 = createMockGatewaySenderEventImpl(2, false, region);
 
-    TestableSerialGatewaySenderQueue queue = new TestableSerialGatewaySenderQueue(sender,
+    var queue = new TestableSerialGatewaySenderQueue(sender,
         QUEUE_REGION, metaRegionFactory);
 
     queue.setGroupTransactionEvents(true);
@@ -212,10 +212,10 @@ public class SerialGatewaySenderQueueJUnitTest {
 
   @Test
   public void removeExtraPeekedEventDoesNotRemoveFromExtraPeekedIdsUntilPreviousEventIsRemoved() {
-    TestableSerialGatewaySenderQueue queue = new TestableSerialGatewaySenderQueue(sender,
+    var queue = new TestableSerialGatewaySenderQueue(sender,
         QUEUE_REGION, metaRegionFactory);
     queue.setGroupTransactionEvents(true);
-    List<AsyncEvent<?, ?>> peeked = queue.peek(3, -1);
+    var peeked = queue.peek(3, -1);
     assertEquals(4, peeked.size());
     assertThat(queue.getLastPeekedId()).isEqualTo(2);
     assertThat(queue.getExtraPeekedIds().contains(5L)).isTrue();
@@ -238,7 +238,7 @@ public class SerialGatewaySenderQueueJUnitTest {
 
   private GatewaySenderEventImpl createMockGatewaySenderEventImpl(int transactionId,
       boolean isLastEventInTransaction, Region region) {
-    GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
+    var event = mock(GatewaySenderEventImpl.class);
     when(event.getTransactionId()).thenReturn(new TXId(null, transactionId));
     when(event.makeHeapCopyIfOffHeap()).thenReturn(event);
     when(event.isLastEventInTransaction()).thenReturn(isLastEventInTransaction);
@@ -247,15 +247,15 @@ public class SerialGatewaySenderQueueJUnitTest {
   }
 
   private LocalRegion createLocalRegionMock() {
-    GatewaySenderEventImpl event1 = createMockGatewaySenderEventImpl(1, false, region);
-    GatewaySenderEventImpl event2 = createMockGatewaySenderEventImpl(2, false, region);
-    GatewaySenderEventImpl event3 = createMockGatewaySenderEventImpl(1, true, region);
-    GatewaySenderEventImpl event4 = createMockGatewaySenderEventImpl(3, true, region);
-    GatewaySenderEventImpl event5 = createMockGatewaySenderEventImpl(4, true, region);
-    GatewaySenderEventImpl event6 = createMockGatewaySenderEventImpl(2, true, region);
-    GatewaySenderEventImpl event7 = createMockGatewaySenderEventImpl(5, false, region);
+    var event1 = createMockGatewaySenderEventImpl(1, false, region);
+    var event2 = createMockGatewaySenderEventImpl(2, false, region);
+    var event3 = createMockGatewaySenderEventImpl(1, true, region);
+    var event4 = createMockGatewaySenderEventImpl(3, true, region);
+    var event5 = createMockGatewaySenderEventImpl(4, true, region);
+    var event6 = createMockGatewaySenderEventImpl(2, true, region);
+    var event7 = createMockGatewaySenderEventImpl(5, false, region);
 
-    LocalRegion region = mock(LocalRegion.class);
+    var region = mock(LocalRegion.class);
 
     when(region.getValueInVMOrDiskWithoutFaultIn(0L)).thenReturn(event1);
     when(region.getValueInVMOrDiskWithoutFaultIn(1L)).thenReturn(event2);

@@ -38,7 +38,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.distributed.AbstractLauncher.Status;
-import org.apache.geode.distributed.LocatorLauncher;
 import org.apache.geode.distributed.LocatorLauncher.Builder;
 import org.apache.geode.distributed.LocatorLauncher.LocatorState;
 import org.apache.geode.internal.process.io.EmptyFileWriter;
@@ -78,8 +77,8 @@ public class FileProcessControllerIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    ProcessType processType = ProcessType.LOCATOR;
-    File directory = temporaryFolder.getRoot();
+    var processType = ProcessType.LOCATOR;
+    var directory = temporaryFolder.getRoot();
     pidFile = new File(directory, processType.getPidFileName());
     statusFile = new File(directory, processType.getStatusFileName());
     statusRequestFile = new File(directory, processType.getStatusRequestFileName());
@@ -96,10 +95,10 @@ public class FileProcessControllerIntegrationTest {
   @Test
   public void statusShouldAwaitTimeoutWhileFileIsEmpty() throws Exception {
     // given: FileProcessController with empty pidFile
-    FileProcessController controller = new FileProcessController(params, pid, 10, MILLISECONDS);
+    var controller = new FileProcessController(params, pid, 10, MILLISECONDS);
 
     // when:
-    Throwable thrown = catchThrowable(controller::status);
+    var thrown = catchThrowable(controller::status);
 
     // then: we expect TimeoutException to be thrown
     assertThat(thrown).isInstanceOf(TimeoutException.class)
@@ -110,7 +109,7 @@ public class FileProcessControllerIntegrationTest {
   public void statusShouldReturnJsonFromStatusFile() throws Exception {
     // given: FileProcessController with pidFile containing real pid
     FileUtils.writeStringToFile(pidFile, String.valueOf(pid), Charset.defaultCharset());
-    FileProcessController controller = new FileProcessController(params, pid, 2, MINUTES);
+    var controller = new FileProcessController(params, pid, 2, MINUTES);
 
     // create an empty dummy stale status file that needs to be deleted before we write our own
     // "real" status file
@@ -142,7 +141,7 @@ public class FileProcessControllerIntegrationTest {
   public void emptyStatusFileCausesStatusToHang() throws Exception {
     // given: FileProcessController with pidFile containing real pid
     FileUtils.writeStringToFile(pidFile, String.valueOf(pid), Charset.defaultCharset());
-    FileProcessController controller = new FileProcessController(params, pid, 2, MINUTES);
+    var controller = new FileProcessController(params, pid, 2, MINUTES);
 
     // when: status is called in one thread
     executorServiceRule.execute(() -> {
@@ -163,7 +162,7 @@ public class FileProcessControllerIntegrationTest {
   @Test
   public void stopCreatesStopRequestFile() throws Exception {
     // arrange
-    FileProcessController controller = new FileProcessController(params, pid);
+    var controller = new FileProcessController(params, pid);
     assertThat(stopRequestFile).doesNotExist();
 
     // act
@@ -176,7 +175,7 @@ public class FileProcessControllerIntegrationTest {
   @Test
   public void stop_withStopRequestFileExists_doesNotFail() throws Exception {
     // arrange
-    FileProcessController controller = new FileProcessController(params, pid);
+    var controller = new FileProcessController(params, pid);
     assertThat(stopRequestFile.createNewFile()).isTrue();
 
     // act
@@ -189,7 +188,7 @@ public class FileProcessControllerIntegrationTest {
   @Test
   public void status_withStatusRequestFileExists_doesNotFail() throws Exception {
     // arrange
-    FileProcessController controller = new FileProcessController(params, pid);
+    var controller = new FileProcessController(params, pid);
     assertThat(statusRequestFile.createNewFile()).isTrue();
 
     // act
@@ -211,7 +210,7 @@ public class FileProcessControllerIntegrationTest {
   public void statusCreatesStatusRequestFile() throws Exception {
     // arrange
     FileUtils.writeStringToFile(pidFile, String.valueOf(pid), Charset.defaultCharset());
-    FileProcessController controller = new FileProcessController(params, pid, 2, MINUTES);
+    var controller = new FileProcessController(params, pid, 2, MINUTES);
 
     // act
     executorServiceRule.execute(() -> {
@@ -228,10 +227,10 @@ public class FileProcessControllerIntegrationTest {
   }
 
   private static String generateStatusJson() {
-    Builder builder = new Builder();
-    LocatorLauncher defaultLauncher = builder.build();
-    Status status = Status.ONLINE;
-    LocatorState locatorState = new LocatorState(defaultLauncher, status);
+    var builder = new Builder();
+    var defaultLauncher = builder.build();
+    var status = Status.ONLINE;
+    var locatorState = new LocatorState(defaultLauncher, status);
     return locatorState.toJson();
   }
 }

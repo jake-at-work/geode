@@ -33,7 +33,6 @@ import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.PartitionAttributes;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.internal.cache.BucketAdvisor;
 import org.apache.geode.internal.cache.BucketRegionQueue;
@@ -52,7 +51,6 @@ import org.apache.geode.internal.cache.PartitionedRegionStats;
 import org.apache.geode.internal.cache.ProxyBucketRegion;
 import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.eviction.AbstractEvictionController;
-import org.apache.geode.internal.cache.eviction.EvictionController;
 import org.apache.geode.internal.cache.partitioned.RegionAdvisor;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
@@ -61,9 +59,9 @@ public class ParallelGatewaySenderHelper {
 
   public static ParallelGatewaySenderEventProcessor createParallelGatewaySenderEventProcessor(
       AbstractGatewaySender sender) {
-    ParallelGatewaySenderEventProcessor processor =
+    var processor =
         new ParallelGatewaySenderEventProcessor(sender, null, false);
-    ConcurrentParallelGatewaySenderQueue queue = new ConcurrentParallelGatewaySenderQueue(sender,
+    var queue = new ConcurrentParallelGatewaySenderQueue(sender,
         new ParallelGatewaySenderEventProcessor[] {processor});
     Set<RegionQueue> queues = new HashSet<>();
     queues.add(queue);
@@ -73,9 +71,9 @@ public class ParallelGatewaySenderHelper {
 
   public static AbstractGatewaySender createGatewaySender(GemFireCacheImpl cache) {
     // Mock gateway sender
-    AbstractGatewaySender sender = mock(AbstractGatewaySender.class);
+    var sender = mock(AbstractGatewaySender.class);
     when(sender.getCache()).thenReturn(cache);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(sender.getCancelCriterion()).thenReturn(cancelCriterion);
     when(sender.getId()).thenReturn("");
     return sender;
@@ -90,9 +88,9 @@ public class ParallelGatewaySenderHelper {
       Object key, Object value, long threadId, long sequenceId, int bucketId, long shadowKey)
       throws Exception {
     when(lr.getKeyInfo(key, value, null)).thenReturn(new KeyInfo(key, null, null));
-    EntryEventImpl eei = EntryEventImpl.create(lr, operation, key, value, null, false, null);
+    var eei = EntryEventImpl.create(lr, operation, key, value, null, false, null);
     eei.setEventId(new EventID(new byte[16], threadId, sequenceId, bucketId));
-    GatewaySenderEventImpl gsei =
+    var gsei =
         new GatewaySenderEventImpl(getEnumListenerEvent(operation), eei, null, true, bucketId,
             EXCLUDE);
     gsei.setShadowKey(shadowKey);
@@ -101,14 +99,14 @@ public class ParallelGatewaySenderHelper {
 
   public static PartitionedRegion createMockQueueRegion(GemFireCacheImpl cache, String regionName) {
     // Mock queue region
-    PartitionedRegion queueRegion = mock(PartitionedRegion.class);
+    var queueRegion = mock(PartitionedRegion.class);
     when(queueRegion.getFullPath()).thenReturn(regionName);
     when(queueRegion.getPrStats()).thenReturn(mock(PartitionedRegionStats.class));
     when(queueRegion.getDataStore()).thenReturn(mock(PartitionedRegionDataStore.class));
     when(queueRegion.getCache()).thenReturn(cache);
-    EvictionAttributesImpl ea = (EvictionAttributesImpl) EvictionAttributes
+    var ea = (EvictionAttributesImpl) EvictionAttributes
         .createLRUMemoryAttributes(100, null, EvictionAction.OVERFLOW_TO_DISK);
-    EvictionController eviction = AbstractEvictionController.create(ea, false,
+    var eviction = AbstractEvictionController.create(ea, false,
         cache.getDistributedSystem(), "queueRegion");
     when(queueRegion.getEvictionController()).thenReturn(eviction);
     return queueRegion;
@@ -117,16 +115,16 @@ public class ParallelGatewaySenderHelper {
   public static BucketRegionQueue createBucketRegionQueue(GemFireCacheImpl cache,
       PartitionedRegion parentRegion, PartitionedRegion queueRegion, int bucketId) {
     // Create InternalRegionArguments
-    InternalRegionArguments ira = new InternalRegionArguments();
+    var ira = new InternalRegionArguments();
     ira.setPartitionedRegion(queueRegion);
     ira.setPartitionedRegionBucketRedundancy(1);
-    BucketAdvisor ba = mock(BucketAdvisor.class);
+    var ba = mock(BucketAdvisor.class);
     ira.setBucketAdvisor(ba);
-    InternalRegionArguments pbrIra = new InternalRegionArguments();
-    RegionAdvisor ra = mock(RegionAdvisor.class);
+    var pbrIra = new InternalRegionArguments();
+    var ra = mock(RegionAdvisor.class);
     when(ra.getPartitionedRegion()).thenReturn(queueRegion);
     pbrIra.setPartitionedRegionAdvisor(ra);
-    PartitionAttributes pa = mock(PartitionAttributes.class);
+    var pa = mock(PartitionAttributes.class);
     when(queueRegion.getPartitionAttributes()).thenReturn(pa);
 
     when(queueRegion.getBucketName(eq(bucketId))).thenAnswer(
@@ -140,12 +138,12 @@ public class ParallelGatewaySenderHelper {
     when(ba.getProxyBucketRegion()).thenReturn(mock(ProxyBucketRegion.class));
 
     // Create RegionAttributes
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setEvictionAttributes(
         EvictionAttributes.createLRUMemoryAttributes(100, null, EvictionAction.OVERFLOW_TO_DISK));
-    RegionAttributes attributes = factory.create();
+    var attributes = factory.create();
 
     // Create BucketRegionQueue
     return new BucketRegionQueue(

@@ -56,7 +56,7 @@ public class HExistsDUnitTest {
     server1 = clusterStartUp.startRedisVM(1, locator.getPort());
     server2 = clusterStartUp.startRedisVM(2, locator.getPort());
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(LOCAL_HOST, redisServerPort), JEDIS_TIMEOUT);
   }
 
@@ -72,9 +72,9 @@ public class HExistsDUnitTest {
 
   @Test
   public void testConcurrentHExists_whileUpdatingValues() {
-    String key = "key";
+    var key = "key";
 
-    Map<String, String> testMap = makeHashMap(HASH_SIZE, "field-", "value-");
+    var testMap = makeHashMap(HASH_SIZE, "field-", "value-");
 
     jedis.hset(key, testMap);
 
@@ -83,13 +83,13 @@ public class HExistsDUnitTest {
         (i) -> assertThat(jedis.hexists(key, "field-" + i)).isTrue(),
         (i) -> assertThat(jedis.hexists(key, "field-" + i)).isTrue()).run();
 
-    Map<String, String> expectedResult = makeHashMap(HASH_SIZE, "field-", "changedValue-");
+    var expectedResult = makeHashMap(HASH_SIZE, "field-", "changedValue-");
     assertThat(jedis.hgetAll(key)).containsExactlyInAnyOrderEntriesOf(expectedResult);
   }
 
   @Test
   public void testConcurrentHExists_whileAddingValues() {
-    String key = "key";
+    var key = "key";
 
     Map<String, String> expectedValues = new HashMap<>();
 
@@ -108,9 +108,9 @@ public class HExistsDUnitTest {
 
   @Test
   public void testConcurrentHExists_whileDeletingValues() {
-    String key = "key";
+    var key = "key";
 
-    Map<String, String> testMap = makeHashMap(HASH_SIZE, "field-", "value-");
+    var testMap = makeHashMap(HASH_SIZE, "field-", "value-");
 
     jedis.hset(key, testMap);
 
@@ -126,7 +126,7 @@ public class HExistsDUnitTest {
   private Map<String, String> makeHashMap(int hashSize, String baseFieldName,
       String baseValueName) {
     Map<String, String> map = new HashMap<>();
-    for (int i = 0; i < hashSize; i++) {
+    for (var i = 0; i < hashSize; i++) {
       map.put(baseFieldName + i, baseValueName + i);
     }
     return map;

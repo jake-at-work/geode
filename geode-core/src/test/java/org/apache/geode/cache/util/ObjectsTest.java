@@ -53,7 +53,7 @@ public class ObjectsTest {
 
   @Test
   public void hashOfOneArgumentRelativeToHashCodeOfArgumentPlus31() {
-    final String value = "some string";
+    final var value = "some string";
     assertThat(Objects.hash(value)).isEqualTo(Objects.hashCode(value) + 31);
   }
 
@@ -251,7 +251,7 @@ public class ObjectsTest {
 
   @Test
   public void hashCodeOfDate() {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    var calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
     calendar.setTimeInMillis(0);
     calendar.set(1970, 0, 1, 0, 0, 0);
     assertThat(Objects.hashCode(calendar.getTime())).isEqualTo(0);
@@ -267,7 +267,7 @@ public class ObjectsTest {
 
   @Test
   public void hashOf1Date() {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    var calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
     calendar.setTimeInMillis(0);
     calendar.set(1970, 0, 1, 0, 0, 0);
     assertThat(Objects.hash(calendar.getTime())).isEqualTo(31);
@@ -288,13 +288,13 @@ public class ObjectsTest {
 
   @Test
   public void hashCodeOfList() {
-    final ArrayList<Integer> arrayList = new ArrayList<>(asList(1, 2, 3, 4));
+    final var arrayList = new ArrayList<Integer>(asList(1, 2, 3, 4));
     assertThat(Objects.hashCode(arrayList)).isEqualTo(955331);
-    final LinkedList<Integer> linkedList = new LinkedList<>(asList(1, 2, 3, 4));
+    final var linkedList = new LinkedList<Integer>(asList(1, 2, 3, 4));
     assertThat(Objects.hashCode(linkedList)).isEqualTo(955331);
-    final Vector<Integer> vector = new Vector<>(asList(1, 2, 3, 4));
+    final var vector = new Vector<Integer>(asList(1, 2, 3, 4));
     assertThat(Objects.hashCode(vector)).isEqualTo(955331);
-    final Stack<Integer> stack = new Stack<>();
+    final var stack = new Stack<Integer>();
     stack.push(1);
     stack.push(2);
     stack.push(3);
@@ -315,7 +315,7 @@ public class ObjectsTest {
 
   @Test
   public void HashOfMultipleTypes() {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    var calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
     calendar.setTimeInMillis(0);
     calendar.set(1970, 0, 1, 0, 0, 0);
     assertThat(Objects

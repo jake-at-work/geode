@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +29,7 @@ public class SessionController {
   @SuppressWarnings("unchecked")
   @GetMapping("/getSessionNotes")
   public Set<String> getSessionNotes(HttpServletRequest request) {
-    HttpSession session = request.getSession(false);
+    var session = request.getSession(false);
 
     if (session == null) {
       return null;
@@ -42,7 +41,7 @@ public class SessionController {
   @SuppressWarnings("unchecked")
   @PostMapping("/addSessionNote")
   public void addSessionNote(@RequestBody String note, HttpServletRequest request) {
-    Set<String> notes =
+    var notes =
         (Set<String>) request.getSession().getAttribute("NOTES");
 
     if (notes == null) {

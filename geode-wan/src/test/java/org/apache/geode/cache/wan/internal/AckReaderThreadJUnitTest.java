@@ -60,14 +60,14 @@ public class AckReaderThreadJUnitTest {
   public void testLogBatchExceptions() {
 
     // Create AckReaderThread
-    GatewaySenderEventRemoteDispatcher.AckReaderThread thread =
+    var thread =
         dispatcher.new AckReaderThread(sender, "AckReaderThread");
 
     // Create parent BatchException containing a NullPointerException with no index
     List<BatchException70> batchExceptions = new ArrayList<>();
     batchExceptions
         .add(new BatchException70("null pointer exception", new NullPointerException(), -1, 0));
-    BatchException70 batchException = new BatchException70(batchExceptions);
+    var batchException = new BatchException70(batchExceptions);
 
     // Attempt to handle the parent BatchException. If this method fails, an Exception will be
     // thrown, and this test will fail. If it succeeds, there won't be an exception, and the test

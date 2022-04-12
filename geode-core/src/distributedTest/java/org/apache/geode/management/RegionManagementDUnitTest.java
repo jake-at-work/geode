@@ -62,14 +62,11 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.EntryOperation;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.FixedPartitionAttributes;
 import org.apache.geode.cache.FixedPartitionResolver;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionFactory;
@@ -78,7 +75,6 @@ import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.TestObjectSizerImpl;
-import org.apache.geode.internal.cache.eviction.EvictionCounters;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.test.dunit.VM;
@@ -124,15 +120,15 @@ public class RegionManagementDUnitTest implements Serializable {
 
   @Before
   public void setUp() {
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
     regionName = uniqueName + "_region";
     partitionedRegionName = uniqueName + "_partitionedRegion";
     subregionName = uniqueName + "_subregion";
 
     managerVM = getVM(0);
-    VM memberVM1 = getVM(1);
-    VM memberVM2 = getVM(2);
-    VM memberVM3 = getVM(3);
+    var memberVM1 = getVM(1);
+    var memberVM2 = getVM(2);
+    var memberVM3 = getVM(3);
 
     memberVM1.invoke(() -> createMember(cacheRule));
     memberVM2.invoke(() -> createMember(cacheRule));
@@ -164,7 +160,7 @@ public class RegionManagementDUnitTest implements Serializable {
     // Adding notification listener for remote cache memberVMs
     managerVM.invoke(() -> addMemberNotificationListener(3));
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> {
         getCache().createRegionFactory(REPLICATE).create(regionName);
         verifyReplicateRegionAfterCreate(regionName);
@@ -173,7 +169,7 @@ public class RegionManagementDUnitTest implements Serializable {
 
     managerVM.invoke(() -> verifyRemoteDistributedRegion(3, regionName));
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> {
         getCache().getRegion(regionName).close();
         verifyReplicatedRegionAfterClose(regionName);
@@ -196,7 +192,7 @@ public class RegionManagementDUnitTest implements Serializable {
     // Adding notification listener for remote cache memberVMs
     managerVM.invoke(() -> addMemberNotificationListener(3));
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> {
         getCache().createRegionFactory(PARTITION_REDUNDANT).create(partitionedRegionName);
         verifyPartitionRegionAfterCreate(partitionedRegionName, false);
@@ -205,7 +201,7 @@ public class RegionManagementDUnitTest implements Serializable {
 
     managerVM.invoke(() -> verifyRemotePartitionRegion(partitionedRegionName));
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> {
         getCache().getRegion(partitionedRegionName).close();
         verifyPartitionRegionAfterClose(partitionedRegionName);
@@ -226,9 +222,9 @@ public class RegionManagementDUnitTest implements Serializable {
     // Adding notification listener for remote cache memberVMs
     managerVM.invoke(() -> addMemberNotificationListener(3));
 
-    int primaryIndex = 0;
-    for (VM memberVM : memberVMs) {
-      List<FixedPartitionAttributes> fixedPartitionAttributesList =
+    var primaryIndex = 0;
+    for (var memberVM : memberVMs) {
+      var fixedPartitionAttributesList =
           createFixedPartitionList(primaryIndex + 1);
       memberVM.invoke(
           () -> createFixedPartitionRegion(partitionedRegionName, fixedPartitionAttributesList));
@@ -237,7 +233,7 @@ public class RegionManagementDUnitTest implements Serializable {
 
     managerVM.invoke(() -> verifyRemoteFixedPartitionRegion(partitionedRegionName));
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> getCache().getRegion(partitionedRegionName).close());
     }
 
@@ -253,7 +249,7 @@ public class RegionManagementDUnitTest implements Serializable {
     // Adding notification listener for remote cache memberVMs
     managerVM.invoke(this::addSystemNotificationListener);
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> {
         getCache().createRegionFactory(REPLICATE).create(regionName);
       });
@@ -265,7 +261,7 @@ public class RegionManagementDUnitTest implements Serializable {
       verifyDistributedMBean(regionName, 4);
     });
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> getCache().getRegion(regionName).close());
     }
 
@@ -283,7 +279,7 @@ public class RegionManagementDUnitTest implements Serializable {
 
   @Test
   public void testNavigationAPIS() {
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> {
         getCache().createRegionFactory(REPLICATE).create(regionName);
         getCache().createRegionFactory(PARTITION_REDUNDANT).create(partitionedRegionName);
@@ -296,7 +292,7 @@ public class RegionManagementDUnitTest implements Serializable {
     });
 
     List<String> memberIds = new ArrayList<>();
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberIds.add(
           memberVM.invoke(() -> getCache().getDistributedSystem().getDistributedMember().getId()));
     }
@@ -306,18 +302,18 @@ public class RegionManagementDUnitTest implements Serializable {
 
   @Test
   public void testSubRegions() {
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> {
         Region region = getCache().createRegionFactory(LOCAL).create(regionName);
         getCache().createRegionFactory(LOCAL).createSubregion(region, subregionName);
       });
     }
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> verifyRegionMXBeanIsNotNull(regionName, subregionName));
     }
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> {
         getCache().getRegion(regionName).close();
         verifyRegionMXBeanIsNull(regionName, subregionName);
@@ -343,7 +339,7 @@ public class RegionManagementDUnitTest implements Serializable {
 
   @Test
   public void testLruStats() {
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       memberVM.invoke(() -> createDiskRegion(regionName));
     }
 
@@ -378,22 +374,22 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private void createDiskRegion(final String regionName) {
-    EvictionAttributes evictionAttributes = EvictionAttributes.createLRUMemoryAttributes(20,
+    var evictionAttributes = EvictionAttributes.createLRUMemoryAttributes(20,
         new TestObjectSizerImpl(), LOCAL_DESTROY);
 
     RegionFactory<Integer, Object> regionFactory = getCache().createRegionFactory(LOCAL);
     regionFactory.setEvictionAttributes(evictionAttributes);
 
-    Region<Integer, Object> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
-    EvictionCounters lruStats = ((InternalRegion) region).getEvictionController().getCounters();
+    var lruStats = ((InternalRegion) region).getEvictionController().getCounters();
     assertThat(lruStats).isNotNull();
 
-    RegionMXBean regionMXBean = getManagementService().getLocalRegionMBean(toPath(regionName));
+    var regionMXBean = getManagementService().getLocalRegionMBean(toPath(regionName));
     assertThat(regionMXBean).isNotNull();
 
-    for (int total = 0; total < 10; total++) {
-      int[] array = new int[250];
+    for (var total = 0; total < 10; total++) {
+      var array = new int[250];
       array[0] = total;
       region.put(total, array);
     }
@@ -406,7 +402,7 @@ public class RegionManagementDUnitTest implements Serializable {
     partitionAttributesFactory.setRedundantCopies(2);
     partitionAttributesFactory.setTotalNumBuckets(12);
 
-    for (FixedPartitionAttributes fixedPartitionAttributes : fixedPartitionAttributesList) {
+    for (var fixedPartitionAttributes : fixedPartitionAttributesList) {
       partitionAttributesFactory.addFixedPartitionAttributes(fixedPartitionAttributes);
     }
 
@@ -415,21 +411,21 @@ public class RegionManagementDUnitTest implements Serializable {
     RegionFactory<?, ?> regionFactory = getCache().createRegionFactory(PARTITION);
     regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
 
-    Region<?, ?> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
-    SystemManagementService service = getSystemManagementService();
-    RegionMXBean regionMXBean = service.getLocalRegionMBean(toPath(regionName));
+    var service = getSystemManagementService();
+    var regionMXBean = service.getLocalRegionMBean(toPath(regionName));
     RegionAttributes regionAttributes = region.getAttributes();
 
-    PartitionAttributesData partitionAttributesData = regionMXBean.listPartitionAttributes();
+    var partitionAttributesData = regionMXBean.listPartitionAttributes();
     verifyPartitionData(regionAttributes, partitionAttributesData, true);
 
-    FixedPartitionAttributesData[] fixedPartitionAttributesData =
+    var fixedPartitionAttributesData =
         regionMXBean.listFixedPartitionAttributes();
     assertThat(fixedPartitionAttributesData).isNotNull();
     assertThat(fixedPartitionAttributesData).hasSize(3);
 
-    for (FixedPartitionAttributesData aFixedPartitionAttributesData : fixedPartitionAttributesData) {
+    for (var aFixedPartitionAttributesData : fixedPartitionAttributesData) {
       // TODO: add real assertions for FixedPartitionAttributesData
       // LogWriterUtils.getLogWriter().info("<ExpectedString> Fixed PR Data is " +
       // fixedPartitionAttributesData[i] + "</ExpectedString> ");
@@ -461,17 +457,17 @@ public class RegionManagementDUnitTest implements Serializable {
 
   private void addMemberNotificationListener(final int expectedMembers)
       throws InstanceNotFoundException {
-    Set<DistributedMember> otherMemberSet = getOtherMembers();
+    var otherMemberSet = getOtherMembers();
     assertThat(otherMemberSet).hasSize(expectedMembers);
 
-    SystemManagementService service = getSystemManagementService();
+    var service = getSystemManagementService();
 
     List<Notification> notifications = new ArrayList<>();
     MEMBER_NOTIFICATIONS.set(notifications);
 
-    for (DistributedMember member : otherMemberSet) {
-      MemberNotificationListener listener = new MemberNotificationListener(notifications);
-      ObjectName objectName = service.getMemberMBeanName(member);
+    for (var member : otherMemberSet) {
+      var listener = new MemberNotificationListener(notifications);
+      var objectName = service.getMemberMBeanName(member);
       awaitMemberMXBeanProxy(objectName);
 
       getPlatformMBeanServer().addNotificationListener(objectName, listener, null, null);
@@ -489,14 +485,14 @@ public class RegionManagementDUnitTest implements Serializable {
     List<Notification> notifications = new ArrayList<>();
     SYSTEM_NOTIFICATIONS.set(notifications);
 
-    DistributedSystemNotificationListener listener =
+    var listener =
         new DistributedSystemNotificationListener(notifications);
-    ObjectName objectName = MBeanJMXAdapter.getDistributedSystemName();
+    var objectName = MBeanJMXAdapter.getDistributedSystemName();
     getPlatformMBeanServer().addNotificationListener(objectName, listener, null, null);
   }
 
   private void awaitMemberCount(final int expectedCount) {
-    DistributedSystemMXBean distributedSystemMXBean = awaitDistributedSystemMXBean();
+    var distributedSystemMXBean = awaitDistributedSystemMXBean();
     await()
         .untilAsserted(
             () -> assertThat(distributedSystemMXBean.getMemberCount()).isEqualTo(expectedCount));
@@ -504,7 +500,7 @@ public class RegionManagementDUnitTest implements Serializable {
 
   private DistributedRegionMXBean awaitDistributedRegionMXBean(final String regionName,
       final int memberCount) {
-    SystemManagementService service = getSystemManagementService();
+    var service = getSystemManagementService();
 
     await().untilAsserted(
         () -> assertThat(service.getDistributedRegionMXBean(toPath(regionName))).isNotNull());
@@ -518,9 +514,9 @@ public class RegionManagementDUnitTest implements Serializable {
 
   private RegionMXBean awaitRegionMXBeanProxy(final DistributedMember member,
       final String regionName) {
-    SystemManagementService service = getSystemManagementService();
-    ObjectName objectName = service.getRegionMBeanName(member, toPath(regionName));
-    String alias = "awaiting RegionMXBean proxy for " + member;
+    var service = getSystemManagementService();
+    var objectName = service.getRegionMBeanName(member, toPath(regionName));
+    var alias = "awaiting RegionMXBean proxy for " + member;
 
     await(alias)
         .untilAsserted(
@@ -530,7 +526,7 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private RegionMXBean awaitRegionMXBeanProxy(final ObjectName objectName) {
-    SystemManagementService service = getSystemManagementService();
+    var service = getSystemManagementService();
 
     await()
         .untilAsserted(
@@ -540,9 +536,9 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private MemberMXBean awaitMemberMXBeanProxy(final DistributedMember member) {
-    SystemManagementService service = getSystemManagementService();
-    ObjectName objectName = service.getMemberMBeanName(member);
-    String alias = "awaiting MemberMXBean proxy for " + member;
+    var service = getSystemManagementService();
+    var objectName = service.getMemberMBeanName(member);
+    var alias = "awaiting MemberMXBean proxy for " + member;
 
     await(alias)
         .untilAsserted(
@@ -552,7 +548,7 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private MemberMXBean awaitMemberMXBeanProxy(final ObjectName objectName) {
-    SystemManagementService service = getSystemManagementService();
+    var service = getSystemManagementService();
     await()
         .untilAsserted(
             () -> assertThat(service.getMBeanProxy(objectName, MemberMXBean.class)).isNotNull());
@@ -568,32 +564,32 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private void verifyEntrySize(String regionName, final int expectedMembers) {
-    DistributedRegionMXBean distributedRegionMXBean =
+    var distributedRegionMXBean =
         awaitDistributedRegionMXBean(regionName, expectedMembers);
     assertThat(distributedRegionMXBean).isNotNull();
     assertThat(distributedRegionMXBean.getEntrySize()).isGreaterThan(0);
   }
 
   private void verifyRegionMXBeanIsNotNull(final String regionName, final String subregionName) {
-    RegionMXBean regionMXBean =
+    var regionMXBean =
         getManagementService().getLocalRegionMBean(toPath(regionName, subregionName));
     assertThat(regionMXBean).isNotNull();
   }
 
   private void verifyRegionMXBeanIsNull(final String regionName, final String subregionName) {
-    RegionMXBean regionMXBean =
+    var regionMXBean =
         getManagementService().getLocalRegionMBean(toPath(regionName, subregionName));
     assertThat(regionMXBean).isNull();
   }
 
   private void verifyNavigationApis(final List<String> memberIds) throws Exception {
-    ManagementService service = getManagementService();
+    var service = getManagementService();
     assertThat(service.getDistributedSystemMXBean()).isNotNull();
 
     // With the DUnit framework there is a locator, a manager and 3 members
     awaitMemberCount(5);
 
-    DistributedSystemMXBean distributedSystemMXBean = service.getDistributedSystemMXBean();
+    var distributedSystemMXBean = service.getDistributedSystemMXBean();
     assertThat(distributedSystemMXBean.listDistributedRegionObjectNames()).hasSize(2);
 
     assertThat(
@@ -602,24 +598,24 @@ public class RegionManagementDUnitTest implements Serializable {
     assertThat(distributedSystemMXBean.fetchDistributedRegionObjectName(toPath(regionName)))
         .isNotNull();
 
-    ObjectName actualName =
+    var actualName =
         distributedSystemMXBean.fetchDistributedRegionObjectName(toPath(partitionedRegionName));
-    ObjectName expectedName = getDistributedRegionMbeanName(toPath(partitionedRegionName));
+    var expectedName = getDistributedRegionMbeanName(toPath(partitionedRegionName));
     assertThat(actualName).isEqualTo(expectedName);
 
     actualName = distributedSystemMXBean.fetchDistributedRegionObjectName(toPath(regionName));
     expectedName = getDistributedRegionMbeanName(toPath(regionName));
     assertThat(actualName).isEqualTo(expectedName);
 
-    for (String memberId : memberIds) {
-      ObjectName objectName = getMemberMBeanName(memberId);
+    for (var memberId : memberIds) {
+      var objectName = getMemberMBeanName(memberId);
       awaitMemberMXBeanProxy(objectName);
 
-      ObjectName[] objectNames = distributedSystemMXBean.fetchRegionObjectNames(objectName);
+      var objectNames = distributedSystemMXBean.fetchRegionObjectNames(objectName);
       assertThat(objectNames).isNotNull();
       assertThat(objectNames).hasSize(2);
 
-      List<ObjectName> listOfNames = Arrays.asList(objectNames);
+      var listOfNames = Arrays.asList(objectNames);
 
       expectedName = getRegionMBeanName(memberId, toPath(partitionedRegionName));
       assertThat(listOfNames).contains(expectedName);
@@ -628,8 +624,8 @@ public class RegionManagementDUnitTest implements Serializable {
       assertThat(listOfNames).contains(expectedName);
     }
 
-    for (String memberId : memberIds) {
-      ObjectName objectName = getMemberMBeanName(memberId);
+    for (var memberId : memberIds) {
+      var objectName = getMemberMBeanName(memberId);
       awaitMemberMXBeanProxy(objectName);
 
       expectedName = getRegionMBeanName(memberId, toPath(partitionedRegionName));
@@ -651,9 +647,9 @@ public class RegionManagementDUnitTest implements Serializable {
     await()
         .untilAsserted(() -> assertThat(MEMBER_NOTIFICATIONS.get()).hasSize(expectedMembers * 2));
 
-    int regionCreatedCount = 0;
-    int regionDestroyedCount = 0;
-    for (Notification notification : MEMBER_NOTIFICATIONS.get()) {
+    var regionCreatedCount = 0;
+    var regionDestroyedCount = 0;
+    for (var notification : MEMBER_NOTIFICATIONS.get()) {
       if (JMXNotificationType.REGION_CREATED.equals(notification.getType())) {
         regionCreatedCount++;
         assertThat(notification.getMessage()).contains(regionName);
@@ -691,10 +687,9 @@ public class RegionManagementDUnitTest implements Serializable {
     assertThat(SYSTEM_NOTIFICATIONS.get()).isNotNull();
     assertThat(SYSTEM_NOTIFICATIONS.get()).hasSize(expectedMembers + 2); // 2 for the manager
 
-
-    int regionCreatedCount = 0;
-    int regionDestroyedCount = 0;
-    for (Notification notification : SYSTEM_NOTIFICATIONS.get()) {
+    var regionCreatedCount = 0;
+    var regionDestroyedCount = 0;
+    for (var notification : SYSTEM_NOTIFICATIONS.get()) {
       if (JMXNotificationType.REGION_CREATED.equals(notification.getType())) {
         regionCreatedCount++;
         assertThat(notification.getMessage()).contains(regionName);
@@ -722,11 +717,11 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private void verifyProxyCleanup(final String regionName) {
-    SystemManagementService service = getSystemManagementService();
+    var service = getSystemManagementService();
 
-    Set<DistributedMember> otherMemberSet = getOtherMembers();
-    for (DistributedMember member : otherMemberSet) {
-      String alias = "Waiting for the proxy to get deleted at managing node";
+    var otherMemberSet = getOtherMembers();
+    for (var member : otherMemberSet) {
+      var alias = "Waiting for the proxy to get deleted at managing node";
       await(alias).untilAsserted(
           () -> assertThat(
               service.getMBeanProxy(service.getRegionMBeanName(member, toPath(regionName)),
@@ -735,23 +730,23 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private void verifyRemoteDistributedRegion(final int expectedMembers, final String regionName) {
-    Set<DistributedMember> otherMemberSet = getOtherMembers();
+    var otherMemberSet = getOtherMembers();
     assertThat(otherMemberSet).hasSize(expectedMembers);
 
-    for (DistributedMember member : otherMemberSet) {
-      RegionMXBean regionMXBean = awaitRegionMXBeanProxy(member, regionName);
+    for (var member : otherMemberSet) {
+      var regionMXBean = awaitRegionMXBeanProxy(member, regionName);
 
-      RegionAttributesData regionAttributesData = regionMXBean.listRegionAttributes();
+      var regionAttributesData = regionMXBean.listRegionAttributes();
       assertThat(regionAttributesData).isNotNull();
 
-      MembershipAttributesData membershipAttributesData = regionMXBean.listMembershipAttributes();
+      var membershipAttributesData = regionMXBean.listMembershipAttributes();
       assertThat(membershipAttributesData).isNotNull();
 
-      EvictionAttributesData evictionAttributesData = regionMXBean.listEvictionAttributes();
+      var evictionAttributesData = regionMXBean.listEvictionAttributes();
       assertThat(evictionAttributesData).isNotNull();
     }
 
-    DistributedRegionMXBean distributedRegionMXBean =
+    var distributedRegionMXBean =
         awaitDistributedRegionMXBean(regionName, expectedMembers);
 
     assertThat(distributedRegionMXBean).isNotNull();
@@ -760,15 +755,15 @@ public class RegionManagementDUnitTest implements Serializable {
 
   private void verifyDistributedMBean(final String regionName, final int expectedMembers) {
     if (expectedMembers == 0) {
-      ManagementService service = getManagementService();
-      String alias = "Waiting for the proxy to get deleted at managing node";
+      var service = getManagementService();
+      var alias = "Waiting for the proxy to get deleted at managing node";
       await(alias)
           .untilAsserted(
               () -> assertThat(service.getDistributedRegionMXBean(toPath(regionName))).isNull());
       return;
     }
 
-    DistributedRegionMXBean distributedRegionMXBean =
+    var distributedRegionMXBean =
         awaitDistributedRegionMXBean(regionName, expectedMembers);
 
     assertThat(distributedRegionMXBean.getFullPath()).isEqualTo(toPath(regionName));
@@ -785,16 +780,16 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private void verifyRemotePartitionRegion(final String regionName) {
-    Set<DistributedMember> otherMemberSet = getOtherMembers();
+    var otherMemberSet = getOtherMembers();
 
-    for (DistributedMember member : otherMemberSet) {
-      RegionMXBean regionMXBean = awaitRegionMXBeanProxy(member, regionName);
-      PartitionAttributesData partitionAttributesData = regionMXBean.listPartitionAttributes();
+    for (var member : otherMemberSet) {
+      var regionMXBean = awaitRegionMXBeanProxy(member, regionName);
+      var partitionAttributesData = regionMXBean.listPartitionAttributes();
       assertThat(partitionAttributesData).isNotNull();
     }
 
-    ManagementService service = getManagementService();
-    DistributedRegionMXBean distributedRegionMXBean =
+    var service = getManagementService();
+    var distributedRegionMXBean =
         service.getDistributedRegionMXBean(toPath(regionName));
     assertThat(distributedRegionMXBean.getMembers()).hasSize(3);
   }
@@ -803,10 +798,10 @@ public class RegionManagementDUnitTest implements Serializable {
       throws MalformedObjectNameException {
     Cache cache = getCache();
 
-    String memberId =
+    var memberId =
         MBeanJMXAdapter
             .getMemberNameOrUniqueId(cache.getDistributedSystem().getDistributedMember());
-    ObjectName objectName = ObjectName.getInstance("GemFire:type=Member,member=" + memberId);
+    var objectName = ObjectName.getInstance("GemFire:type=Member,member=" + memberId);
 
     // List<Notification> notifications = new ArrayList<>();
     // MEMBER_NOTIFICATIONS_REF.set(notifications);
@@ -815,20 +810,20 @@ public class RegionManagementDUnitTest implements Serializable {
     // ManagementFactory.getPlatformMBeanServer().addNotificationListener(objectName, listener,
     // null, null);
 
-    SystemManagementService service = getSystemManagementService();
-    RegionMXBean regionMXBean = service.getLocalRegionMBean(toPath(regionName));
+    var service = getSystemManagementService();
+    var regionMXBean = service.getLocalRegionMBean(toPath(regionName));
     assertThat(regionMXBean).isNotNull();
 
     Region region = cache.getRegion(regionName);
-    RegionAttributes regionAttributes = region.getAttributes();
+    var regionAttributes = region.getAttributes();
 
-    RegionAttributesData regionAttributesData = regionMXBean.listRegionAttributes();
+    var regionAttributesData = regionMXBean.listRegionAttributes();
     verifyRegionAttributes(regionAttributes, regionAttributesData);
 
-    MembershipAttributesData membershipData = regionMXBean.listMembershipAttributes();
+    var membershipData = regionMXBean.listMembershipAttributes();
     assertThat(membershipData).isNotNull();
 
-    EvictionAttributesData evictionData = regionMXBean.listEvictionAttributes();
+    var evictionData = regionMXBean.listEvictionAttributes();
     assertThat(evictionData).isNotNull();
   }
 
@@ -836,34 +831,34 @@ public class RegionManagementDUnitTest implements Serializable {
       final boolean hasPartitionResolver) {
     Region region = getCache().getRegion(regionName);
 
-    SystemManagementService service = getSystemManagementService();
-    RegionMXBean regionMXBean = service.getLocalRegionMBean(toPath(regionName));
+    var service = getSystemManagementService();
+    var regionMXBean = service.getLocalRegionMBean(toPath(regionName));
 
     verifyPartitionData(region.getAttributes(), regionMXBean.listPartitionAttributes(),
         hasPartitionResolver);
   }
 
   private void verifyReplicatedRegionAfterClose(final String regionName) {
-    SystemManagementService service = getSystemManagementService();
-    RegionMXBean regionMXBean = service.getLocalRegionMBean(toPath(regionName));
+    var service = getSystemManagementService();
+    var regionMXBean = service.getLocalRegionMBean(toPath(regionName));
     assertThat(regionMXBean).isNull();
 
-    ObjectName objectName = service.getRegionMBeanName(
+    var objectName = service.getRegionMBeanName(
         getCache().getDistributedSystem().getDistributedMember(), toPath(regionName));
     assertThat(service.getLocalManager().getManagementResourceRepo()
         .getEntryFromLocalMonitoringRegion(objectName)).isNull();
   }
 
   private void verifyPartitionRegionAfterClose(String regionName) {
-    ManagementService service = getManagementService();
-    RegionMXBean regionMXBean = service.getLocalRegionMBean(toPath(regionName));
+    var service = getManagementService();
+    var regionMXBean = service.getLocalRegionMBean(toPath(regionName));
     assertThat(regionMXBean).isNull();
   }
 
   private void verifyPartitionData(final RegionAttributes expectedRegionAttributes,
       final PartitionAttributesData partitionAttributesData,
       final boolean hasPartitionResolver) {
-    PartitionAttributes expectedPartitionAttributes =
+    var expectedPartitionAttributes =
         expectedRegionAttributes.getPartitionAttributes();
 
     assertThat(partitionAttributesData.getRedundantCopies())
@@ -883,7 +878,7 @@ public class RegionManagementDUnitTest implements Serializable {
         .isEqualTo(expectedPartitionAttributes.getColocatedWith());
 
     if (hasPartitionResolver) {
-      PartitionResolver partitionResolver = expectedPartitionAttributes.getPartitionResolver();
+      var partitionResolver = expectedPartitionAttributes.getPartitionResolver();
       assertThat(partitionAttributesData.getPartitionResolver())
           .isEqualTo(partitionResolver.getName());
 
@@ -899,7 +894,7 @@ public class RegionManagementDUnitTest implements Serializable {
         .isEqualTo(expectedPartitionAttributes.getStartupRecoveryDelay());
 
     if (expectedPartitionAttributes.getPartitionListeners() != null) {
-      for (int i = 0; i < expectedPartitionAttributes.getPartitionListeners().length; i++) {
+      for (var i = 0; i < expectedPartitionAttributes.getPartitionListeners().length; i++) {
         // assertEquals((expectedPartitionAttributes.getPartitionListeners())[i].getClass().getCanonicalName(),
         // partitionAttributesData.getPartitionListeners()[i]);
         assertThat(partitionAttributesData.getPartitionListeners()[i]).isEqualTo(
@@ -937,10 +932,10 @@ public class RegionManagementDUnitTest implements Serializable {
     assertThat(regionAttributesData.getValueConstraintClassName())
         .isEqualTo(valueContstaintClassName);
 
-    CacheListener[] listeners = regionAttributes.getCacheListeners();
+    var listeners = regionAttributes.getCacheListeners();
     if (listeners != null) {
-      String[] value = regionAttributesData.getCacheListeners();
-      for (int i = 0; i < listeners.length; i++) {
+      var value = regionAttributesData.getCacheListeners();
+      for (var i = 0; i < listeners.length; i++) {
         assertThat(listeners[i].getClass().getName()).isEqualTo(value[i]);
       }
     }
@@ -1022,19 +1017,19 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private void verifyRemoteFixedPartitionRegion(final String regionName) {
-    Set<DistributedMember> otherMemberSet = getOtherMembers();
+    var otherMemberSet = getOtherMembers();
 
-    for (DistributedMember member : otherMemberSet) {
-      RegionMXBean bean = awaitRegionMXBeanProxy(member, regionName);
+    for (var member : otherMemberSet) {
+      var bean = awaitRegionMXBeanProxy(member, regionName);
 
-      PartitionAttributesData data = bean.listPartitionAttributes();
+      var data = bean.listPartitionAttributes();
       assertThat(data).isNotNull();
 
-      FixedPartitionAttributesData[] fixedPrData = bean.listFixedPartitionAttributes();
+      var fixedPrData = bean.listFixedPartitionAttributes();
       assertThat(fixedPrData).isNotNull();
       assertThat(fixedPrData).hasSize(3);
 
-      for (FixedPartitionAttributesData aFixedPrData : fixedPrData) {
+      for (var aFixedPrData : fixedPrData) {
         // TODO: add real assertions for FixedPartitionAttributesData
         // LogWriterUtils.getLogWriter().info("<ExpectedString> Remote PR Data is " +
         // fixedPrData[i] + "</ExpectedString> ");
@@ -1043,7 +1038,7 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private static void createManager(CacheRule cacheRule) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(JMX_MANAGER, "true");
     config.put(JMX_MANAGER_START, "true");
     config.put(JMX_MANAGER_PORT, "0");
@@ -1055,7 +1050,7 @@ public class RegionManagementDUnitTest implements Serializable {
   }
 
   private static void createMember(CacheRule cacheRule) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(JMX_MANAGER, "false");
     config.put(ENABLE_TIME_STATISTICS, "true");
     config.put(STATISTIC_SAMPLING_ENABLED, "true");
@@ -1121,7 +1116,7 @@ public class RegionManagementDUnitTest implements Serializable {
     @Override
     public String getPartitionName(EntryOperation<K, V> opDetails,
         @Deprecated Set<String> targetPartitions) {
-      int month = getMonth(opDetails);
+      var month = getMonth(opDetails);
 
       if (month == 0 || month == 1 || month == 2) {
         return "Q1";
@@ -1138,7 +1133,7 @@ public class RegionManagementDUnitTest implements Serializable {
 
     @Override
     public Serializable getRoutingObject(EntryOperation<K, V> opDetails) {
-      int month = getMonth(opDetails);
+      var month = getMonth(opDetails);
 
       switch (month) {
         case 0:
@@ -1176,8 +1171,8 @@ public class RegionManagementDUnitTest implements Serializable {
     }
 
     private int getMonth(EntryOperation<K, V> opDetails) {
-      Date date = (Date) opDetails.getKey();
-      Calendar calendar = Calendar.getInstance();
+      var date = (Date) opDetails.getKey();
+      var calendar = Calendar.getInstance();
       calendar.setTime(date);
       return calendar.get(MONTH);
     }

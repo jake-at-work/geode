@@ -56,7 +56,7 @@ public class Order implements DataSerializable {
     }
 
     if (obj instanceof Order) {
-      Order other = (Order) obj;
+      var other = (Order) obj;
       return other.orderName != null && other.orderName.equals(orderName);
     }
     return false;

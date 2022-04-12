@@ -66,7 +66,7 @@ public class NativeRedisTestRule extends ExternalResource implements Serializabl
 
   @Override
   public Statement apply(Statement base, Description description) {
-    Statement containerStatement = new Statement() {
+    var containerStatement = new Statement() {
       @Override
       public void evaluate() throws Throwable {
 
@@ -76,7 +76,7 @@ public class NativeRedisTestRule extends ExternalResource implements Serializabl
                 .withCommand("redis-server --maxclients " + max_clients);
 
         redisContainer.start();
-        int mappedPort = getPort();
+        var mappedPort = getPort();
         logger.info("Started redis container with exposed port {} -> {}", PORT_TO_EXPOSE,
             mappedPort);
         try {

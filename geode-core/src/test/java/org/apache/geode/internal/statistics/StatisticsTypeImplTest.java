@@ -37,10 +37,10 @@ public class StatisticsTypeImplTest {
 
   @Test
   public void testIdsAreAssignedInGroupsByType() {
-    int idForIntCounter = statisticsType.nameToId("intCount");
-    int idForLongCounter = statisticsType.nameToId("longCount");
-    int idForLongCounter2 = statisticsType.nameToId("longCount2");
-    int idForDoubleCounter = statisticsType.nameToId("doubleCount");
+    var idForIntCounter = statisticsType.nameToId("intCount");
+    var idForLongCounter = statisticsType.nameToId("longCount");
+    var idForLongCounter2 = statisticsType.nameToId("longCount2");
+    var idForDoubleCounter = statisticsType.nameToId("doubleCount");
 
     assertThat(idForIntCounter).isLessThan(idForDoubleCounter);
     assertThat(idForLongCounter).isLessThan(idForDoubleCounter);
@@ -55,7 +55,7 @@ public class StatisticsTypeImplTest {
 
   @Test
   public void testIsValidIntId() {
-    int idForIntCounter = statisticsType.nameToId("intCount");
+    var idForIntCounter = statisticsType.nameToId("intCount");
 
     assertThat(statisticsType.isValidLongId(idForIntCounter)).isEqualTo(true);
     assertThat(statisticsType.isValidDoubleId(idForIntCounter)).isEqualTo(false);
@@ -63,8 +63,8 @@ public class StatisticsTypeImplTest {
 
   @Test
   public void testIsValidLongId() {
-    int idForLongCounter = statisticsType.nameToId("longCount");
-    int idForLongCounter2 = statisticsType.nameToId("longCount2");
+    var idForLongCounter = statisticsType.nameToId("longCount");
+    var idForLongCounter2 = statisticsType.nameToId("longCount2");
 
     assertThat(statisticsType.isValidLongId(idForLongCounter)).isEqualTo(true);
     assertThat(statisticsType.isValidDoubleId(idForLongCounter)).isEqualTo(false);
@@ -75,7 +75,7 @@ public class StatisticsTypeImplTest {
 
   @Test
   public void testIsValidDoubleId() {
-    int idForDoubleCounter = statisticsType.nameToId("doubleCount");
+    var idForDoubleCounter = statisticsType.nameToId("doubleCount");
 
     assertThat(statisticsType.isValidLongId(idForDoubleCounter)).isEqualTo(false);
     assertThat(statisticsType.isValidDoubleId(idForDoubleCounter)).isEqualTo(true);

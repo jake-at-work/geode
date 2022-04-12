@@ -74,11 +74,11 @@ public class PRTXJUnitTest extends TXJUnitTest {
 
   @Test
   public void testTxId() {
-    AttributesFactory<String, Integer> attributesFactory = new AttributesFactory<>();
+    var attributesFactory = new AttributesFactory<String, Integer>();
     attributesFactory.setPartitionAttributes(
         new PartitionAttributesFactory<>().setTotalNumBuckets(2).create());
 
-    Region<String, Integer> region =
+    var region =
         cache.createRegion("testTxId", attributesFactory.create());
     region.put("one", 1);
 

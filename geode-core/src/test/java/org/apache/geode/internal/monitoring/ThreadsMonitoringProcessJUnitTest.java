@@ -60,7 +60,7 @@ public class ThreadsMonitoringProcessJUnitTest {
 
   @Test
   public void monitorHandlesDefunctThread() {
-    final long threadID = Long.MAX_VALUE;
+    final var threadID = Long.MAX_VALUE;
 
     AbstractExecutor absExtgroup = new PooledExecutorGroup(threadID);
     absExtgroup.setStartTime(absExtgroup.getStartTime() - TIME_LIMIT_MILLIS - 1);

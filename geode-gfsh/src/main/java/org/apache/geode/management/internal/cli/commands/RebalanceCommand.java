@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -38,13 +37,11 @@ import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.operation.RebalanceOperationPerformer;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.management.operation.RebalanceOperation;
 import org.apache.geode.management.runtime.RebalanceRegionResult;
-import org.apache.geode.management.runtime.RebalanceResult;
 import org.apache.geode.security.ResourcePermission;
 
 public class RebalanceCommand extends GfshCommand {
@@ -66,7 +63,7 @@ public class RebalanceCommand extends GfshCommand {
           unspecifiedDefaultValue = "false",
           help = CliStrings.REBALANCE__SIMULATE__HELP) boolean simulate) {
 
-    ExecutorService commandExecutors =
+    var commandExecutors =
         LoggingExecutors.newSingleThreadExecutor(THREAD_NAME, true);
     List<Future<ResultModel>> commandResult = new ArrayList<>();
     ResultModel result;
@@ -74,7 +71,7 @@ public class RebalanceCommand extends GfshCommand {
       commandResult.add(
           commandExecutors.submit(rebalanceCallable(includeRegions, excludeRegions, simulate)));
 
-      Future<ResultModel> fs = commandResult.get(0);
+      var fs = commandResult.get(0);
       if (timeout > 0) {
         result = fs.get(timeout, TimeUnit.SECONDS);
       } else {
@@ -110,7 +107,7 @@ public class RebalanceCommand extends GfshCommand {
     rsltList.add(8, String.valueOf(results.getTimeInMilliseconds()));
     rsltList.add(9, results.getNumOfMembers() == -1 ? "Not Available"
         : String.valueOf(results.getNumOfMembers()));
-    String regionName = results.getRegionName();
+    var regionName = results.getRegionName();
     if (!regionName.startsWith(SEPARATOR)) {
       regionName = SEPARATOR + regionName;
     }
@@ -123,15 +120,15 @@ public class RebalanceCommand extends GfshCommand {
   private void toCompositeResultData(ResultModel result,
       List<String> rstlist, int index, boolean simulate,
       InternalCache cache) {
-    final int resultItemCount = 10;
+    final var resultItemCount = 10;
 
     if (rstlist.size() <= resultItemCount || StringUtils.isEmpty(rstlist.get(resultItemCount))) {
       return;
     }
 
-    TabularResultModel table1 = result.addTable("Table" + index);
-    String newLine = lineSeparator();
-    StringBuilder resultStr = new StringBuilder();
+    var table1 = result.addTable("Table" + index);
+    var newLine = lineSeparator();
+    var resultStr = new StringBuilder();
     resultStr.append(newLine);
     table1.accumulate("Rebalanced Stats", CliStrings.REBALANCE__MSG__TOTALBUCKETCREATEBYTES);
     table1.accumulate("Value", rstlist.get(0));
@@ -191,7 +188,7 @@ public class RebalanceCommand extends GfshCommand {
     } else {
       headerText = "Rebalanced partition regions";
     }
-    for (int i = resultItemCount; i < rstlist.size(); i++) {
+    for (var i = resultItemCount; i < rstlist.size(); i++) {
       headerText = headerText + " " + rstlist.get(i);
     }
     table1.setHeader(headerText);
@@ -208,7 +205,7 @@ public class RebalanceCommand extends GfshCommand {
 
     @Override
     public ResultModel call() throws Exception {
-      ResultModel result = executeRebalanceWithTimeout(includeRegions, excludeRegions, simulate);
+      var result = executeRebalanceWithTimeout(includeRegions, excludeRegions, simulate);
 
       // if the result contains only error section, i.e. no rebalance operation is done, mark this
       // command result to be error. This would happy if user hasn't specified any valid region. If
@@ -232,8 +229,8 @@ public class RebalanceCommand extends GfshCommand {
     private ResultModel executeRebalanceWithTimeout(String[] includeRegions,
         String[] excludeRegions, boolean simulate) {
 
-      ResultModel result = new ResultModel();
-      RebalanceOperation operation = new RebalanceOperation();
+      var result = new ResultModel();
+      var operation = new RebalanceOperation();
 
       if (includeRegions != null) {
         operation.setIncludeRegions(Arrays.asList(includeRegions));
@@ -244,7 +241,7 @@ public class RebalanceCommand extends GfshCommand {
       operation.setSimulate(simulate);
 
       // do rebalance
-      RebalanceResult rebalanceResult = new RebalanceOperationPerformer().perform(cache, operation);
+      var rebalanceResult = new RebalanceOperationPerformer().perform(cache, operation);
 
       // check for error
       if (!rebalanceResult.getSuccess()) {
@@ -252,8 +249,8 @@ public class RebalanceCommand extends GfshCommand {
       }
 
       // convert results to ResultModel
-      int index = 0;
-      for (RebalanceRegionResult rebalanceRegionResult : rebalanceResult
+      var index = 0;
+      for (var rebalanceRegionResult : rebalanceResult
           .getRebalanceRegionResults()) {
         toCompositeResultData(result, rebalanceRegionResult, index, simulate, cache);
         index++;

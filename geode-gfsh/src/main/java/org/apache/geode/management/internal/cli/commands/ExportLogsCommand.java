@@ -20,8 +20,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -30,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
@@ -100,18 +97,18 @@ public class ExportLogsCommand extends GfshCommand {
       throws Exception {
 
     long totalEstimatedExportSize = 0;
-    InternalCache cache = (InternalCache) getCache();
+    var cache = (InternalCache) getCache();
     try {
-      Set<DistributedMember> targetMembers = getMembersIncludingLocators(groups, memberIds);
+      var targetMembers = getMembersIncludingLocators(groups, memberIds);
 
-      long userSpecifiedLimit = parseFileSizeLimit(fileSizeLimit);
+      var userSpecifiedLimit = parseFileSizeLimit(fileSizeLimit);
       if (userSpecifiedLimit > 0) {
         // Get estimated size of exported logs from all servers before exporting anything
-        for (DistributedMember server : targetMembers) {
-          SizeExportLogsFunction.Args args = new SizeExportLogsFunction.Args(start, end, logLevel,
+        for (var server : targetMembers) {
+          var args = new SizeExportLogsFunction.Args(start, end, logLevel,
               onlyLogLevel, logsOnly, statsOnly);
 
-          List<Object> results = estimateLogSize(args, server).getResult();
+          var results = estimateLogSize(args, server).getResult();
           if (!results.isEmpty()) {
             if (results.get(0) instanceof Long) {
               long estimatedSize = (Long) results.get(0);
@@ -119,7 +116,7 @@ public class ExportLogsCommand extends GfshCommand {
                   estimatedSize);
               totalEstimatedExportSize += estimatedSize;
             } else if (results.get(0) instanceof ManagementException) {
-              ManagementException exception = (ManagementException) results.get(0);
+              var exception = (ManagementException) results.get(0);
               return ResultModel.createError(exception.getMessage());
             }
           }
@@ -132,7 +129,7 @@ public class ExportLogsCommand extends GfshCommand {
         }
         // then check if total estimated file size exceeds user specified value
         if (totalEstimatedExportSize > userSpecifiedLimit) {
-          String sb = "Estimated exported logs expanded file size = " +
+          var sb = "Estimated exported logs expanded file size = " +
               totalEstimatedExportSize + ", " +
               CliStrings.EXPORT_LOGS__FILESIZELIMIT + " = " +
               userSpecifiedLimit +
@@ -143,11 +140,11 @@ public class ExportLogsCommand extends GfshCommand {
 
       // get zipped files from all servers next
       Map<String, Path> zipFilesFromMembers = new HashMap<>();
-      for (DistributedMember server : targetMembers) {
-        Region<String, byte[]> region =
+      for (var server : targetMembers) {
+        var region =
             ExportLogsFunction.createOrGetExistingExportLogsRegion(true, cache);
 
-        ExportLogsCacheWriter cacheWriter =
+        var cacheWriter =
             (ExportLogsCacheWriter) region.getAttributes().getCacheWriter();
 
         cacheWriter.startFile(server.getName());
@@ -155,7 +152,7 @@ public class ExportLogsCommand extends GfshCommand {
         executeFunction(new ExportLogsFunction(),
             new ExportLogsFunction.Args(start, end, logLevel, onlyLogLevel, logsOnly, statsOnly),
             server).getResult();
-        Path zipFile = cacheWriter.endFile();
+        var zipFile = cacheWriter.endFile();
         ExportLogsFunction.destroyExportLogsRegion(cache);
 
         // only put the zipfile in the map if it is not null
@@ -169,14 +166,14 @@ public class ExportLogsCommand extends GfshCommand {
         return ResultModel.createError("No files to be exported.");
       }
 
-      Path tempDir = Files.createTempDirectory("exportedLogs");
+      var tempDir = Files.createTempDirectory("exportedLogs");
       // make sure the directory is created, so that even if there is no files unzipped to this
       // dir, we can still zip it and send an empty zip file back to the client
-      Path exportedLogsDir = tempDir.resolve("exportedLogs");
+      var exportedLogsDir = tempDir.resolve("exportedLogs");
       FileUtils.forceMkdir(exportedLogsDir.toFile());
 
-      for (Path zipFile : zipFilesFromMembers.values()) {
-        Path unzippedMemberDir =
+      for (var zipFile : zipFilesFromMembers.values()) {
+        var unzippedMemberDir =
             exportedLogsDir.resolve(zipFile.getFileName().toString().replace(".zip", ""));
         ZipUtils.unzip(zipFile.toAbsolutePath().toString(), unzippedMemberDir.toString());
         FileUtils.deleteQuietly(zipFile.toFile());
@@ -188,14 +185,14 @@ public class ExportLogsCommand extends GfshCommand {
       } else {
         dirPath = Paths.get(dirName);
       }
-      Path exportedLogsZipFile =
+      var exportedLogsZipFile =
           dirPath.resolve("exportedLogs_" + System.currentTimeMillis() + ".zip").toAbsolutePath();
 
       logger.info("Zipping into: " + exportedLogsZipFile);
       ZipUtils.zipDirectory(exportedLogsDir, exportedLogsZipFile);
       FileUtils.deleteDirectory(tempDir.toFile());
 
-      ResultModel result = new ResultModel();
+      var result = new ResultModel();
       result.addFile(exportedLogsZipFile.toFile(), FileResultModel.FILE_TYPE_FILE);
       return result;
     } finally {
@@ -229,13 +226,13 @@ public class ExportLogsCommand extends GfshCommand {
     }
 
     long sizeLimit = parseSize(fileSizeLimit);
-    long byteMultiplier = parseByteMultiplier(fileSizeLimit);
+    var byteMultiplier = parseByteMultiplier(fileSizeLimit);
 
     return sizeLimit * byteMultiplier;
   }
 
   static int parseSize(String diskSpaceLimit) {
-    Matcher matcher = DISK_SPACE_LIMIT_PATTERN.matcher(diskSpaceLimit);
+    var matcher = DISK_SPACE_LIMIT_PATTERN.matcher(diskSpaceLimit);
     if (matcher.matches()) {
       return Integer.parseInt(matcher.group(1));
     } else {
@@ -244,7 +241,7 @@ public class ExportLogsCommand extends GfshCommand {
   }
 
   static long parseByteMultiplier(String diskSpaceLimit) {
-    Matcher matcher = DISK_SPACE_LIMIT_PATTERN.matcher(diskSpaceLimit);
+    var matcher = DISK_SPACE_LIMIT_PATTERN.matcher(diskSpaceLimit);
     if (!matcher.matches()) {
       throw new IllegalArgumentException();
     }

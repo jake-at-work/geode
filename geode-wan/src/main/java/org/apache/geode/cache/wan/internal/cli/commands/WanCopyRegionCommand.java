@@ -23,7 +23,6 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.execute.FunctionInvocationTargetException;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
@@ -85,9 +84,9 @@ public class WanCopyRegionCommand extends GfshCommand {
 
     authorize(Resource.DATA, Operation.WRITE, regionName);
     final Object[] args = {regionName, senderId, isCancel, maxRate, batchSize};
-    ResultCollector<?, ?> resultCollector =
+    var resultCollector =
         executeFunction(wanCopyRegionFunction, args, getAllNormalMembers());
-    final List<CliFunctionResult> cliFunctionResults =
+    final var cliFunctionResults =
         getCliFunctionResults((List<CliFunctionResult>) resultCollector.getResult());
     return ResultModel.createMemberStatusResult(cliFunctionResults, false, false);
   }
@@ -96,7 +95,7 @@ public class WanCopyRegionCommand extends GfshCommand {
     final List<CliFunctionResult> cliFunctionResults = new ArrayList<>();
     for (Object result : resultsObjects) {
       if (result instanceof FunctionInvocationTargetException) {
-        CliFunctionResult errorResult =
+        var errorResult =
             new CliFunctionResult(
                 ((FunctionInvocationTargetException) result).getMemberId().getName(),
                 CliFunctionResult.StatusState.ERROR,

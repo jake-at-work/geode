@@ -80,9 +80,9 @@ public class ClusterAlertMessaging implements AlertMessaging {
       final String stackTrace) {
     executor.submit(() -> AlertingAction.execute(() -> {
       try {
-        String connectionName = system.getConfig().getName();
+        var connectionName = system.getConfig().getName();
 
-        AlertListenerMessage message =
+        var message =
             alertListenerMessageFactory.createAlertListenerMessage(member, alertLevel, timestamp,
                 connectionName, threadName, threadId, formattedMessage, stackTrace);
 

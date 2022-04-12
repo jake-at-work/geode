@@ -43,8 +43,8 @@ class BackupConfigFactory {
   }
 
   Properties createBackupProperties() {
-    Properties properties = new Properties();
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+    var properties = new Properties();
+    var format = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
     properties.setProperty(TIMESTAMP, format.format(new Date()));
     properties.setProperty(TYPE, "FileSystem");
     properties.setProperty(TARGET_DIR, targetDirPath);

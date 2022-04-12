@@ -41,9 +41,9 @@ public class WanCopyRegionFunctionService implements CacheService {
 
   @Override
   public boolean init(Cache cache) {
-    String WAN_COPY_REGION_FUNCTION_EXECUTION_PROCESSOR_THREAD_PREFIX =
+    var WAN_COPY_REGION_FUNCTION_EXECUTION_PROCESSOR_THREAD_PREFIX =
         "WAN Copy Region Function Execution Processor";
-    int WAN_COPY_REGION_FUNCTION_MAX_CONCURRENT_THREADS = 10;
+    var WAN_COPY_REGION_FUNCTION_MAX_CONCURRENT_THREADS = 10;
     wanCopyRegionFunctionExecutionPool = LoggingExecutors
         .newFixedThreadPool(WAN_COPY_REGION_FUNCTION_MAX_CONCURRENT_THREADS,
             WAN_COPY_REGION_FUNCTION_EXECUTION_PROCESSOR_THREAD_PREFIX, true);
@@ -76,7 +76,7 @@ public class WanCopyRegionFunctionService implements CacheService {
   public CliFunctionResult execute(Callable<CliFunctionResult> callable,
       String regionName, String senderId) throws InterruptedException, ExecutionException,
       WanCopyRegionFunctionServiceAlreadyRunningException {
-    String executionName = getExecutionName(regionName, senderId);
+    var executionName = getExecutionName(regionName, senderId);
     Future<CliFunctionResult> future = null;
     try {
       synchronized (executions) {
@@ -96,7 +96,7 @@ public class WanCopyRegionFunctionService implements CacheService {
   }
 
   public boolean cancel(String regionName, String senderId) {
-    Future<CliFunctionResult> execution = executions.remove(getExecutionName(regionName, senderId));
+    var execution = executions.remove(getExecutionName(regionName, senderId));
     if (execution == null) {
       return false;
     }
@@ -105,8 +105,8 @@ public class WanCopyRegionFunctionService implements CacheService {
   }
 
   public String cancelAll() {
-    String executionsString = executions.keySet().toString();
-    for (Future<CliFunctionResult> execution : executions.values()) {
+    var executionsString = executions.keySet().toString();
+    for (var execution : executions.values()) {
       execution.cancel(true);
     }
     executions.clear();

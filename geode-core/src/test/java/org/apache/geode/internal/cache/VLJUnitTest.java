@@ -47,7 +47,7 @@ public class VLJUnitTest {
 
   private DataInput createDIS() throws IOException {
     dos.close();
-    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    var bais = new ByteArrayInputStream(baos.toByteArray());
     return new DataInputStream(bais);
   }
 

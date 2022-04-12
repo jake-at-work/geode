@@ -20,7 +20,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,7 +46,7 @@ public class WindowsScriptGeneratorTest {
   public void writePreambleTest() throws Exception {
     scriptGenerator.writePreamble(writer);
     writer.flush();
-    List<String> output = Files.readAllLines(outputFile.toPath());
+    var output = Files.readAllLines(outputFile.toPath());
     assertThat(output).hasSize(2);
     assertThat(output).containsExactly("echo off", "cd %~dp0");
   }
@@ -57,18 +56,18 @@ public class WindowsScriptGeneratorTest {
     scriptGenerator.writeComment(writer, "comment1");
     scriptGenerator.writeComment(writer, "comment2");
     writer.flush();
-    List<String> output = Files.readAllLines(outputFile.toPath());
+    var output = Files.readAllLines(outputFile.toPath());
     assertThat(output).hasSize(2);
     assertThat(output).containsExactly("rem comment1", "rem comment2");
   }
 
   @Test
   public void writeCopyDirectoryContentsTest() throws Exception {
-    File original = tempDir.newFolder("hasContents");
-    File backup = tempDir.newFolder("backup");
+    var original = tempDir.newFolder("hasContents");
+    var backup = tempDir.newFolder("backup");
     scriptGenerator.writeCopyDirectoryContents(writer, backup, original, true);
     writer.flush();
-    List<String> output = Files.readAllLines(outputFile.toPath());
+    var output = Files.readAllLines(outputFile.toPath());
     assertThat(output).hasSize(3);
     assertThat(output).containsExactly("mkdir" + " \"" + original + "\"",
         "Robocopy.exe" + " \"" + backup + "\" \"" + original + "\" " + "/e /njh /njs",
@@ -77,11 +76,11 @@ public class WindowsScriptGeneratorTest {
 
   @Test
   public void writeCopyFileTest() throws Exception {
-    File source = tempDir.newFile("backup");
-    File destination = tempDir.newFile("original");
+    var source = tempDir.newFile("backup");
+    var destination = tempDir.newFile("original");
     scriptGenerator.writeCopyFile(writer, source, destination);
     writer.flush();
-    List<String> output = Files.readAllLines(outputFile.toPath());
+    var output = Files.readAllLines(outputFile.toPath());
     assertThat(output).hasSize(2);
     assertThat(output).containsExactly("Robocopy.exe" + " \"" + source.getParent() + "\" \""
         + destination.getParent() + "\" " + source.getName() + " /njh /njs",
@@ -90,10 +89,10 @@ public class WindowsScriptGeneratorTest {
 
   @Test
   public void writeExistenceTest() throws Exception {
-    File file = tempDir.newFile("testFile");
+    var file = tempDir.newFile("testFile");
     scriptGenerator.writeExistenceTest(writer, file);
     writer.flush();
-    List<String> output = Files.readAllLines(outputFile.toPath());
+    var output = Files.readAllLines(outputFile.toPath());
     assertThat(output).hasSize(1);
     assertThat(output).containsExactly("IF EXIST \"" + file + "\" echo \""
         + RestoreScript.REFUSE_TO_OVERWRITE_MESSAGE + file + "\" && exit /B 1 ");
@@ -103,7 +102,7 @@ public class WindowsScriptGeneratorTest {
   public void writeExitTest() throws Exception {
     scriptGenerator.writeExit(writer);
     writer.flush();
-    List<String> output = Files.readAllLines(outputFile.toPath());
+    var output = Files.readAllLines(outputFile.toPath());
     assertThat(output).hasSize(6);
     assertThat(output).containsExactly("rem Exit Functions", ":Exit_Good", "exit /B 0", "",
         ":Exit_Bad", "exit /B 1");

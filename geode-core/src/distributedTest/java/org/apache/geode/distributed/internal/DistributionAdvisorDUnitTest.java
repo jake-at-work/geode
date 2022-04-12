@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
@@ -66,7 +65,7 @@ public class DistributionAdvisorDUnitTest extends DistributedTestCase {
       getSystem();
     });
 
-    DistributionAdvisee advisee = mock(DistributionAdvisee.class);
+    var advisee = mock(DistributionAdvisee.class);
     when(advisee.getName()).thenReturn("DistributionAdvisorDUnitTest");
     when(advisee.getSystem()).thenReturn(getSystem());
     when(advisee.getFullPath()).thenReturn(getName());
@@ -78,13 +77,13 @@ public class DistributionAdvisorDUnitTest extends DistributedTestCase {
 
     when(advisee.getDistributionAdvisor()).thenReturn(advisor);
 
-    Set<InternalDistributedMember> ids =
+    var ids =
         getSystem().getDistributionManager().getOtherNormalDistributionManagerIds();
     assertEquals(VM.getVMCount(), ids.size());
     List<Profile> profileList = new ArrayList<>();
 
-    for (InternalDistributedMember id : ids) {
-      Profile profile = new Profile(id, 0);
+    for (var id : ids) {
+      var profile = new Profile(id, 0);
 
       // add profile to advisor
       advisor.putProfile(profile);
@@ -102,7 +101,7 @@ public class DistributionAdvisorDUnitTest extends DistributedTestCase {
   @Test
   public void testGenericAdvice() {
     Set<InternalDistributedMember> expected = new HashSet<>();
-    for (Profile profile : profiles) {
+    for (var profile : profiles) {
       expected.add(profile.getDistributedMember());
     }
     assertEquals(expected, advisor.adviseGeneric());
@@ -110,12 +109,12 @@ public class DistributionAdvisorDUnitTest extends DistributedTestCase {
 
   @Test
   public void advisorIssuesSevereAlertForStateFlush() throws Exception {
-    long membershipVersion = advisor.startOperation();
+    var membershipVersion = advisor.startOperation();
     advisor.forceNewMembershipVersion();
 
-    Logger logger = mock(Logger.class);
+    var logger = mock(Logger.class);
 
-    Future<Void> waitForCurrentOperations = executorServiceRule.submit(() -> {
+    var waitForCurrentOperations = executorServiceRule.submit(() -> {
       try {
         advisor.waitForCurrentOperations(logger, 2000, 4000);
       } catch (Exception e) {

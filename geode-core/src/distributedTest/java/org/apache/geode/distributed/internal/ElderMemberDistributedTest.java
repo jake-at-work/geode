@@ -43,7 +43,7 @@ public class ElderMemberDistributedTest {
 
   @Before
   public void before() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(ConfigurationProperties.ENABLE_NETWORK_PARTITION_DETECTION, "false");
     properties.setProperty(ConfigurationProperties.ENABLE_CLUSTER_CONFIGURATION, "false");
     locators.add(clusterStartupRule.startLocatorVM(0, properties));
@@ -58,7 +58,7 @@ public class ElderMemberDistributedTest {
 
   @Test
   public void oldestMemberIsElder() {
-    final InternalDistributedMember elderId = locators.get(0).invoke(
+    final var elderId = locators.get(0).invoke(
         ElderMemberDistributedTest::assertIsElderAndGetId);
 
     locators.get(1).invoke(() -> elderConsistencyCheck(elderId));
@@ -67,7 +67,7 @@ public class ElderMemberDistributedTest {
 
     clusterStartupRule.crashVM(0);
 
-    final InternalDistributedMember newElderId = locators.get(1).invoke(
+    final var newElderId = locators.get(1).invoke(
         ElderMemberDistributedTest::assertIsElderAndGetId);
     locators.get(2).invoke(() -> elderConsistencyCheck(newElderId));
   }
@@ -77,9 +77,9 @@ public class ElderMemberDistributedTest {
     locators.add(clusterStartupRule.startLocatorVM(3, locators.get(0).getPort()));
 
     // check that all members agree on elder
-    final InternalDistributedMember elderId =
+    final var elderId =
         locators.get(0).invoke(ElderMemberDistributedTest::assertIsElderAndGetId);
-    for (int i = 1; i < locators.size(); i++) {
+    for (var i = 1; i < locators.size(); i++) {
       locators.get(i).invoke(() -> elderConsistencyCheck(elderId));
     }
 
@@ -97,14 +97,14 @@ public class ElderMemberDistributedTest {
 
     concurrencyRule.executeInParallel();
 
-    InternalDistributedMember newElderId =
+    var newElderId =
         locators.get(2).invoke(ElderMemberDistributedTest::assertIsElderAndGetId);
     assertThat(newElderId).isNotEqualByComparingTo(elderId);
     locators.get(3).invoke(() -> elderConsistencyCheck(newElderId));
   }
 
   private static InternalDistributedMember assertIsElderAndGetId() {
-    DistributionManager distributionManager =
+    var distributionManager =
         ClusterStartupRule.getCache().getInternalDistributedSystem().getDistributionManager();
     await()
         .untilAsserted(() -> assertThat(distributionManager.isElder()).isTrue());
@@ -112,7 +112,7 @@ public class ElderMemberDistributedTest {
   }
 
   private static void elderConsistencyCheck(InternalDistributedMember elderId) {
-    ClusterDistributionManager distributionManager =
+    var distributionManager =
         (ClusterDistributionManager) ClusterStartupRule.getCache().getInternalDistributedSystem()
             .getDistributionManager();
     assertThat(distributionManager.isElder()).isFalse();

@@ -87,7 +87,7 @@ public class GemFireHealthConfigJmxImpl
    * @see GemFireHealth#setDistributedSystemHealthConfig
    */
   public void applyChanges() {
-    String hostName = getHostName();
+    var hostName = getHostName();
     if (hostName == null) {
       health.setDefaultGemFireHealthConfig(this);
 

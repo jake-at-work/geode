@@ -18,22 +18,16 @@ package org.apache.geode.management.internal.cli.commands;
 import static org.apache.geode.lang.Identifiable.find;
 import static org.apache.geode.lang.Identifiable.remove;
 
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.JndiBindingsType;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.functions.DestroyJndiBindingFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.exceptions.EntityNotFoundException;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -61,9 +55,9 @@ public class DestroyJndiBindingCommand extends SingleGfshCommand {
     InternalConfigurationPersistenceService service =
         getConfigurationPersistenceService();
     if (service != null) {
-      List<JndiBindingsType.JndiBinding> bindings =
+      var bindings =
           service.getCacheConfig("cluster").getJndiBindings();
-      JndiBindingsType.JndiBinding binding = find(bindings, jndiName);
+      var binding = find(bindings, jndiName);
       // fail fast when CC is running and if required binding not found assuming that
       // when CC is running then every configuration goes through CC
       if (binding == null) {
@@ -73,12 +67,12 @@ public class DestroyJndiBindingCommand extends SingleGfshCommand {
       }
     }
 
-    Set<DistributedMember> targetMembers = findMembers(null, null);
+    var targetMembers = findMembers(null, null);
     if (targetMembers.size() > 0) {
-      List<CliFunctionResult> jndiCreationResult =
+      var jndiCreationResult =
           executeAndGetFunctionResult(new DestroyJndiBindingFunction(),
               new Object[] {jndiName, false}, targetMembers);
-      ResultModel result = ResultModel.createMemberStatusResult(jndiCreationResult);
+      var result = ResultModel.createMemberStatusResult(jndiCreationResult);
       result.setConfigObject(jndiName);
       return result;
     } else {

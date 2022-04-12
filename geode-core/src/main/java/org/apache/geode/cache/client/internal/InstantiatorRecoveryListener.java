@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.CancelException;
 import org.apache.geode.cache.client.internal.PoolImpl.PoolTask;
 import org.apache.geode.internal.InternalInstantiator;
-import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -59,7 +58,7 @@ public class InstantiatorRecoveryListener extends EndpointManager.EndpointListen
 
   @Override
   public void endpointCrashed(Endpoint endpoint) {
-    int count = endpointCount.decrementAndGet();
+    var count = endpointCount.decrementAndGet();
     if (logger.isDebugEnabled()) {
       logger.debug("InstantiatorRecoveryTask - EndpointCrashed. Now have {} endpoints", count);
     }
@@ -67,7 +66,7 @@ public class InstantiatorRecoveryListener extends EndpointManager.EndpointListen
 
   @Override
   public void endpointNoLongerInUse(Endpoint endpoint) {
-    int count = endpointCount.decrementAndGet();
+    var count = endpointCount.decrementAndGet();
     if (logger.isDebugEnabled()) {
       logger.debug("InstantiatorRecoveryTask - EndpointNoLongerInUse. Now have {} endpoints",
           count);
@@ -76,8 +75,8 @@ public class InstantiatorRecoveryListener extends EndpointManager.EndpointListen
 
   @Override
   public void endpointNowInUse(Endpoint endpoint) {
-    int count = endpointCount.incrementAndGet();
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    var count = endpointCount.incrementAndGet();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug("InstantiatorRecoveryTask - EndpointNowInUse. Now have {} endpoints", count);
     }
@@ -108,11 +107,11 @@ public class InstantiatorRecoveryListener extends EndpointManager.EndpointListen
       synchronized (recoveryScheduledLock) {
         recoveryScheduled = false;
       }
-      Object[] objects = InternalInstantiator.getInstantiatorsForSerialization();
+      var objects = InternalInstantiator.getInstantiatorsForSerialization();
       if (objects.length == 0) {
         return;
       }
-      EventID eventId = InternalInstantiator.generateEventId();
+      var eventId = InternalInstantiator.generateEventId();
       // Fix for bug:40930
       if (eventId == null) {
         background.schedule(new RecoveryTask(), pingInterval, TimeUnit.MILLISECONDS);
@@ -130,7 +129,7 @@ public class InstantiatorRecoveryListener extends EndpointManager.EndpointListen
           pool.getCancelCriterion().checkCancelInProgress(e);
 
           // If an exception occurred on the server, don't retry
-          Throwable cause = e.getCause();
+          var cause = e.getCause();
           if (cause instanceof ClassNotFoundException) {
             logger.warn("InstantiatorRecoveryTask - Error ClassNotFoundException: {}",
                 cause.getMessage());

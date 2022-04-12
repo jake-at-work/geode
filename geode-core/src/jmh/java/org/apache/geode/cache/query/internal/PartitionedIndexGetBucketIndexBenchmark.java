@@ -58,9 +58,9 @@ public class PartitionedIndexGetBucketIndexBenchmark {
 
   @Setup(Level.Trial)
   public void trialSetup() throws InterruptedException {
-    DistributedSystem mockDS = mock(DistributedSystem.class);
-    Cache mockCache = mock(Cache.class);
-    Region mockRegion = mock(Region.class);
+    var mockDS = mock(DistributedSystem.class);
+    var mockCache = mock(Cache.class);
+    var mockRegion = mock(Region.class);
     when(mockRegion.getCache()).thenReturn(mockCache);
     when(mockCache.getDistributedSystem()).thenReturn(mockDS);
     index = new PartitionedIndex(null, null, "", mockRegion, "", "", "");

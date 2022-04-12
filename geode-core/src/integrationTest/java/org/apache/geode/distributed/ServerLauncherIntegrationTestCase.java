@@ -36,10 +36,8 @@ import org.junit.rules.ErrorCollector;
 
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.AbstractLauncher.Status;
 import org.apache.geode.distributed.ServerLauncher.Builder;
-import org.apache.geode.distributed.ServerLauncher.ServerState;
 import org.apache.geode.internal.cache.xmlcache.CacheCreation;
 import org.apache.geode.internal.cache.xmlcache.CacheXmlGenerator;
 import org.apache.geode.internal.cache.xmlcache.RegionAttributesCreation;
@@ -71,7 +69,7 @@ public abstract class ServerLauncherIntegrationTestCase extends LauncherIntegrat
 
     workingDirectory = temporaryFolder.getRoot().getCanonicalPath();
 
-    int[] ports = getRandomAvailableTCPPorts(3);
+    var ports = getRandomAvailableTCPPorts(3);
     defaultServerPort = ports[0];
     nonDefaultServerPort = ports[1];
     unusedServerPort = ports[2];
@@ -184,15 +182,15 @@ public abstract class ServerLauncherIntegrationTestCase extends LauncherIntegrat
   }
 
   private File writeCacheXml(final int serverPort) throws IOException {
-    CacheCreation creation = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(creation);
+    var creation = new CacheCreation();
+    var attrs = new RegionAttributesCreation(creation);
     attrs.setDataPolicy(DataPolicy.REPLICATE);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     creation.createRegion(getUniqueName(), attrs);
     creation.addCacheServer().setPort(serverPort);
 
-    File cacheXmlFile = new File(getWorkingDirectory(), getUniqueName() + ".xml");
-    PrintWriter pw = new PrintWriter(new FileWriter(cacheXmlFile), true);
+    var cacheXmlFile = new File(getWorkingDirectory(), getUniqueName() + ".xml");
+    var pw = new PrintWriter(new FileWriter(cacheXmlFile), true);
     CacheXmlGenerator.generate(creation, pw);
     pw.close();
 
@@ -203,12 +201,12 @@ public abstract class ServerLauncherIntegrationTestCase extends LauncherIntegrat
       final String hostnameForClients, final int maxConnections, final int maxThreads,
       final int maximumMessageCount, final int messageTimeToLive, final int socketBufferSize)
       throws IOException {
-    CacheCreation creation = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(creation);
+    var creation = new CacheCreation();
+    var attrs = new RegionAttributesCreation(creation);
     attrs.setDataPolicy(DataPolicy.REPLICATE);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     creation.createRegion(getUniqueName(), attrs);
-    CacheServer server = creation.addCacheServer();
+    var server = creation.addCacheServer();
     server.setBindAddress(bindAddress);
     server.setHostnameForClients(hostnameForClients);
     server.setMaxConnections(maxConnections);
@@ -218,8 +216,8 @@ public abstract class ServerLauncherIntegrationTestCase extends LauncherIntegrat
     server.setPort(serverPort);
     server.setSocketBufferSize(socketBufferSize);
 
-    File cacheXmlFile = new File(getWorkingDirectory(), getUniqueName() + ".xml");
-    PrintWriter pw = new PrintWriter(new FileWriter(cacheXmlFile), true);
+    var cacheXmlFile = new File(getWorkingDirectory(), getUniqueName() + ".xml");
+    var pw = new PrintWriter(new FileWriter(cacheXmlFile), true);
     CacheXmlGenerator.generate(creation, pw);
     pw.close();
 
@@ -227,15 +225,15 @@ public abstract class ServerLauncherIntegrationTestCase extends LauncherIntegrat
   }
 
   private File writeCacheXml() throws IOException {
-    CacheCreation creation = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(creation);
+    var creation = new CacheCreation();
+    var attrs = new RegionAttributesCreation(creation);
     attrs.setDataPolicy(DataPolicy.REPLICATE);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     creation.createRegion(getUniqueName(), attrs);
     creation.addCacheServer();
 
-    File cacheXmlFile = new File(getWorkingDirectory(), getUniqueName() + ".xml");
-    PrintWriter pw = new PrintWriter(new FileWriter(cacheXmlFile), true);
+    var cacheXmlFile = new File(getWorkingDirectory(), getUniqueName() + ".xml");
+    var pw = new PrintWriter(new FileWriter(cacheXmlFile), true);
     CacheXmlGenerator.generate(creation, pw);
     pw.close();
 
@@ -243,7 +241,7 @@ public abstract class ServerLauncherIntegrationTestCase extends LauncherIntegrat
   }
 
   private boolean isLauncherOnline() {
-    ServerState serverState = launcher.status();
+    var serverState = launcher.status();
     assertThat(serverState).isNotNull();
     return Status.ONLINE.equals(serverState.getStatus());
   }

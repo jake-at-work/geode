@@ -69,7 +69,6 @@ import static org.apache.geode.internal.security.SecurableCommunicationChannel.C
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -847,7 +846,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
     // following added for 9.0
     offHeapMemorySize = other.getOffHeapMemorySize();
 
-    Map<String, ConfigSource> otherSources = ((DistributionConfigImpl) other).sourceMap;
+    var otherSources = ((DistributionConfigImpl) other).sourceMap;
     if (otherSources != null) {
       sourceMap = new HashMap<>(otherSources);
     }
@@ -969,41 +968,41 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
     }
     // Now remove all user defined properties from props.
     for (Object entry : props.entrySet()) {
-      Map.Entry<String, String> ent = (Map.Entry<String, String>) entry;
+      var ent = (Map.Entry<String, String>) entry;
       if (ent.getKey().startsWith(USERDEFINED_PREFIX_NAME)) {
         userDefinedProps.put(ent.getKey(), ent.getValue());
       }
     }
     // Now override values picked up from the file or code with values
     // from the system properties.
-    String[] attNames = getAttributeNames();
+    var attNames = getAttributeNames();
 
     // For gemfire.security-* properties, we will need to look at
     // all the system properties instead of looping through attNames
     Set attNameSet = new HashSet();
-    for (final String s : attNames) {
+    for (final var s : attNames) {
       attNameSet.add(GeodeGlossary.GEMFIRE_PREFIX + s);
     }
 
     // Ensure that we're also iterating over the default properties - see GEODE-4690.
-    for (String key : System.getProperties().stringPropertyNames()) {
+    for (var key : System.getProperties().stringPropertyNames()) {
       if (attNameSet.contains(key)
           || key.startsWith(GeodeGlossary.GEMFIRE_PREFIX + SECURITY_PREFIX_NAME)
           || key.startsWith(GeodeGlossary.GEMFIRE_PREFIX + SSL_SYSTEM_PROPS_NAME)) {
-        String sysValue = System.getProperty(key);
+        var sysValue = System.getProperty(key);
         if (sysValue != null) {
-          String attName = key.substring(GeodeGlossary.GEMFIRE_PREFIX.length());
+          var attName = key.substring(GeodeGlossary.GEMFIRE_PREFIX.length());
           props.put(attName, sysValue);
           sourceMap.put(attName, ConfigSource.sysprop());
         }
       }
     }
 
-    final Properties overriddenDefaults = ProcessLauncherContext.getOverriddenDefaults();
+    final var overriddenDefaults = ProcessLauncherContext.getOverriddenDefaults();
     if (!overriddenDefaults.isEmpty()) {
-      for (String key : overriddenDefaults.stringPropertyNames()) {
+      for (var key : overriddenDefaults.stringPropertyNames()) {
         // only apply the overridden default if it's not already specified in props
-        final String property =
+        final var property =
             key.substring(ProcessLauncherContext.OVERRIDDEN_DEFAULTS_PREFIX.length());
         if (!props.containsKey(property)) {
           props.put(property, overriddenDefaults.getProperty(key));
@@ -1054,7 +1053,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   private void validateSSLEnabledComponentsConfiguration() {
     Object value = null;
     try {
-      Method method = getters.get(SSL_ENABLED_COMPONENTS);
+      var method = getters.get(SSL_ENABLED_COMPONENTS);
       if (method != null) {
         value = method.invoke(this);
       }
@@ -1069,11 +1068,11 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
             "error invoking getter for property" + SSL_ENABLED_COMPONENTS);
       }
     }
-    SecurableCommunicationChannel[] sslEnabledComponents = (SecurableCommunicationChannel[]) value;
+    var sslEnabledComponents = (SecurableCommunicationChannel[]) value;
 
     validateSlowReceiversIncompatibleWithSSL(sslEnabledComponents);
 
-    for (SecurableCommunicationChannel securableCommunicationChannel : sslEnabledComponents) {
+    for (var securableCommunicationChannel : sslEnabledComponents) {
       if (!isAliasCorrectlyConfiguredForComponents(securableCommunicationChannel)) {
         throw new IllegalArgumentException(
             "The alias options for the SSL options provided seem to be invalid. Please check that all required aliases are set");
@@ -1094,7 +1093,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
       case ALL: {
         // If the default alias is not set, then check that all the other component aliases are set
         if (StringUtils.isEmpty(getSSLDefaultAlias())) {
-          boolean correctAlias = true;
+          var correctAlias = true;
           correctAlias &=
               isAliasCorrectlyConfiguredForComponents(CLUSTER);
           correctAlias &=
@@ -1150,14 +1149,14 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
    * annotations defined in #AbstractDistributionConfig
    */
   private void validateConfigurationProperties(final Map<Object, Object> props) {
-    for (Object o : props.keySet()) {
-      String propertyName = (String) o;
+    for (var o : props.keySet()) {
+      var propertyName = (String) o;
       if (isInternalAttribute(propertyName)) {
         continue;
       }
       Object value = null;
       try {
-        Method method = getters.get(propertyName);
+        var method = getters.get(propertyName);
         if (method != null) {
           value = method.invoke(this);
         }
@@ -1182,9 +1181,9 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
    * them, and copy the unspecified jmx-manager properties from cluster-properties
    */
   private void copySSLPropsToJMXSSLProps() {
-    boolean jmxSSLEnabledOverriden = sourceMap.get(JMX_MANAGER_SSL_ENABLED) != null;
-    boolean clusterSSLOverRidden = sourceMap.get(CLUSTER_SSL_ENABLED) != null;
-    boolean hasSSLComponents = sourceMap.get(SSL_ENABLED_COMPONENTS) != null;
+    var jmxSSLEnabledOverriden = sourceMap.get(JMX_MANAGER_SSL_ENABLED) != null;
+    var clusterSSLOverRidden = sourceMap.get(CLUSTER_SSL_ENABLED) != null;
+    var hasSSLComponents = sourceMap.get(SSL_ENABLED_COMPONENTS) != null;
 
     if (clusterSSLOverRidden && !jmxSSLEnabledOverriden && !hasSSLComponents) {
       jmxManagerSSLEnabled = clusterSSLEnabled;
@@ -1269,9 +1268,9 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
    * properties from cluster-properties
    */
   private void copySSLPropsToHTTPSSLProps() {
-    boolean httpServiceSSLEnabledOverriden = sourceMap.get(HTTP_SERVICE_SSL_ENABLED) != null;
-    boolean clusterSSLOverRidden = sourceMap.get(CLUSTER_SSL_ENABLED) != null;
-    boolean hasSSLComponents = sourceMap.get(SSL_ENABLED_COMPONENTS) != null;
+    var httpServiceSSLEnabledOverriden = sourceMap.get(HTTP_SERVICE_SSL_ENABLED) != null;
+    var clusterSSLOverRidden = sourceMap.get(CLUSTER_SSL_ENABLED) != null;
+    var hasSSLComponents = sourceMap.get(SSL_ENABLED_COMPONENTS) != null;
 
     if (clusterSSLOverRidden && !httpServiceSSLEnabledOverriden && !hasSSLComponents) {
       httpServiceSSLEnabled = clusterSSLEnabled;
@@ -1358,9 +1357,9 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
    * cluster-properties
    */
   private void copySSLPropsToServerSSLProps() {
-    boolean cacheServerSSLOverriden = sourceMap.get(SERVER_SSL_ENABLED) != null;
-    boolean clusterSSLOverRidden = sourceMap.get(CLUSTER_SSL_ENABLED) != null;
-    boolean hasSSLComponents = sourceMap.get(SSL_ENABLED_COMPONENTS) != null;
+    var cacheServerSSLOverriden = sourceMap.get(SERVER_SSL_ENABLED) != null;
+    var clusterSSLOverRidden = sourceMap.get(CLUSTER_SSL_ENABLED) != null;
+    var hasSSLComponents = sourceMap.get(SSL_ENABLED_COMPONENTS) != null;
 
     if (clusterSSLOverRidden && !cacheServerSSLOverriden && !hasSSLComponents) {
       serverSSLEnabled = clusterSSLEnabled;
@@ -1443,9 +1442,9 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
    * from cluster-properties
    */
   private void copyClusterSSLPropsToGatewaySSLProps() {
-    boolean gatewaySSLOverriden = sourceMap.get(GATEWAY_SSL_ENABLED) != null;
-    boolean clusterSSLOverRidden = sourceMap.get(CLUSTER_SSL_ENABLED) != null;
-    boolean hasSSLComponents = sourceMap.get(SSL_ENABLED_COMPONENTS) != null;
+    var gatewaySSLOverriden = sourceMap.get(GATEWAY_SSL_ENABLED) != null;
+    var clusterSSLOverRidden = sourceMap.get(CLUSTER_SSL_ENABLED) != null;
+    var hasSSLComponents = sourceMap.get(SSL_ENABLED_COMPONENTS) != null;
 
     if (clusterSSLOverRidden && !gatewaySSLOverriden && !hasSSLComponents) {
       gatewaySSLEnabled = clusterSSLEnabled;
@@ -1529,7 +1528,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
    */
   public static DistributionConfigImpl produce(Properties props) {
     if (props != null) {
-      Object o = props.get(DS_CONFIG_NAME);
+      var o = props.get(DS_CONFIG_NAME);
       if (o instanceof DistributionConfigImpl) {
         return (DistributionConfigImpl) o;
       }
@@ -1542,7 +1541,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
    */
   public static DistributionConfigImpl produce(Properties props, boolean isConnected) {
     if (props != null) {
-      Object o = props.get(DS_CONFIG_NAME);
+      var o = props.get(DS_CONFIG_NAME);
       if (o instanceof DistributionConfigImpl) {
         return (DistributionConfigImpl) o;
       }
@@ -1554,14 +1553,14 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
     if (apiProps != null) {
       setSource(apiProps, ConfigSource.api());
       modifiable = true;
-      for (final Map.Entry<Object, Object> objectObjectEntry : apiProps.entrySet()) {
-        Map.Entry me = (Map.Entry) objectObjectEntry;
-        String propName = (String) me.getKey();
+      for (final var objectObjectEntry : apiProps.entrySet()) {
+        var me = (Map.Entry) objectObjectEntry;
+        var propName = (String) me.getKey();
         props.put(propName, me.getValue());
         if (isSpecialPropertyName(propName)) {
           continue;
         }
-        String propVal = (String) me.getValue();
+        var propVal = (String) me.getValue();
         if (propVal != null) {
           setAttribute(propName, propVal.trim(), sourceMap.get(propName));
         }
@@ -1648,13 +1647,13 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
     if (source == null) {
       throw new IllegalArgumentException("Valid ConfigSource must be specified instead of null.");
     }
-    for (Object k : p.keySet()) {
+    for (var k : p.keySet()) {
       sourceMap.put((String) k, source);
     }
   }
 
   private Properties loadPropertiesFromURL(URL url, boolean secure) {
-    Properties result = new Properties();
+    var result = new Properties();
     loadPropertiesFromURL(result, url);
     if (!result.isEmpty()) {
       setSource(result, ConfigSource.file(url.toString(), secure));
@@ -1677,15 +1676,15 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
     // Allow attributes to be modified
     modifiable = true;
     this.props = props;
-    for (final Object o : props.entrySet()) {
-      Map.Entry me = (Map.Entry) o;
-      String propName = (String) me.getKey();
+    for (final var o : props.entrySet()) {
+      var me = (Map.Entry) o;
+      var propName = (String) me.getKey();
       // if ssl-enabled is set to true before the mcast port is set to 0, then it will error.
       // security should not be enabled before the mcast port is set to 0.
       if (isSpecialPropertyName(propName)) {
         continue;
       }
-      Object propVal = me.getValue();
+      var propVal = me.getValue();
       // weed out extraneous non-string properties
       if (propVal instanceof String) {
         setAttribute(propName, ((String) propVal).trim(), sourceMap.get(propName));
@@ -1718,11 +1717,11 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   @Override
   public void close() {
     // Clear the extra stuff from System properties
-    Properties properties = System.getProperties();
+    var properties = System.getProperties();
     properties.remove(SECURITY_SYSTEM_PREFIX + SECURITY_PEER_AUTH_INIT);
     properties.remove(SECURITY_SYSTEM_PREFIX + SECURITY_PEER_AUTHENTICATOR);
 
-    for (final Object o : security.keySet()) {
+    for (final var o : security.keySet()) {
       properties.remove(SECURITY_SYSTEM_PREFIX + o);
     }
     System.setProperties(properties);
@@ -1801,9 +1800,9 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   @Override
   public String getLocators() {
     if (startLocator != null && startLocator.length() > 0) {
-      String locs = locators;
-      String startL = getStartLocator();
-      int comma = startL.indexOf(',');
+      var locs = locators;
+      var startL = getStartLocator();
+      var comma = startL.indexOf(',');
       if (comma >= 0) {
         startL = startL.substring(0, comma);
       }
@@ -2108,9 +2107,9 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
       value = DEFAULT_START_LOCATOR;
     } else {
       // bug 37938 - allow just a port
-      boolean alldigits = true;
-      for (int i = 0; i < value.length(); i++) {
-        char c = value.charAt(i);
+      var alldigits = true;
+      for (var i = 0; i < value.length(); i++) {
+        var c = value.charAt(i);
         if (!Character.isDigit(c)) {
           alldigits = false;
           break;
@@ -2118,7 +2117,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
       }
       if (value.length() > 0 && alldigits) {
         try {
-          int port = Integer.parseInt(value);
+          var port = Integer.parseInt(value);
           if (port < 0 || port > 65535) {
             throw new GemFireConfigException("Illegal port specified for start-locator");
           }
@@ -2140,7 +2139,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   public void setStatisticSampleRate(int value) {
     if (value < DEFAULT_STATISTIC_SAMPLE_RATE) {
       // fix 48228
-      InternalDistributedSystem ids = InternalDistributedSystem.getConnectedInstance();
+      var ids = InternalDistributedSystem.getConnectedInstance();
       if (ids != null) {
         ids.getLogWriter()
             .info("Setting statistic-sample-rate to " + DEFAULT_STATISTIC_SAMPLE_RATE
@@ -2571,15 +2570,15 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
 
   @Override
   public Properties getSecurityProps() {
-    Properties result = new Properties();
+    var result = new Properties();
     result.putAll(security);
     return result;
   }
 
   @Override
   public Properties toSecurityProperties() {
-    Properties result = new Properties();
-    for (Object attName : security.keySet()) {
+    var result = new Properties();
+    for (var attName : security.keySet()) {
       if (attName instanceof String) {
         result.put(attName, getAttribute((String) attName));
       } else {
@@ -2592,7 +2591,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   @Override
   public String getSecurity(String attName) {
 
-    String attValue = security.getProperty(attName);
+    var attValue = security.getProperty(attName);
     return attValue == null ? "" : attValue;
   }
 
@@ -2604,8 +2603,8 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   @Override
   public void setSecurityAuthTokenEnabledComponents(String[] newValue) {
     // validate the value first
-    for (int i = 0; i < newValue.length; i++) {
-      String value = newValue[i];
+    for (var i = 0; i < newValue.length; i++) {
+      var value = newValue[i];
       try {
         AuthTokenEnabledComponents.valueOf(value.toUpperCase());
         // normalize the values to all uppercase
@@ -3231,7 +3230,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
       return false;
     }
 
-    final DistributionConfigImpl that = (DistributionConfigImpl) obj;
+    final var that = (DistributionConfigImpl) obj;
 
     return new EqualsBuilder().append(tcpPort, that.tcpPort).append(mcastPort, that.mcastPort)
         .append(mcastTtl, that.mcastTtl).append(socketLeaseTime, that.socketLeaseTime)

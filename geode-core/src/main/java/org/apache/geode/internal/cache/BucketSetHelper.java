@@ -29,17 +29,17 @@ public class BucketSetHelper {
   }
 
   public static void add(int[] bucketSet, int value) {
-    int index = bucketSet[0] + 1;
+    var index = bucketSet[0] + 1;
     bucketSet[index] = value;
     bucketSet[0] = index;
   }
 
   public static Set<Integer> toSet(int[] bucketSet) {
     Set<Integer> resultSet;
-    int arrayLength = length(bucketSet);
+    var arrayLength = length(bucketSet);
     if (arrayLength > 0) {
       resultSet = new HashSet(arrayLength);
-      for (int i = 1; i <= arrayLength; i++) {
+      for (var i = 1; i <= arrayLength; i++) {
         resultSet.add(bucketSet[i]);
       }
     } else {
@@ -49,13 +49,13 @@ public class BucketSetHelper {
   }
 
   public static int[] fromSet(Set<Integer> bucketSet) {
-    int setSize = bucketSet.size();
-    int[] resultArray = new int[setSize + 1];
+    var setSize = bucketSet.size();
+    var resultArray = new int[setSize + 1];
     resultArray[0] = setSize;
 
     if (setSize > 0) {
-      int i = 1;
-      for (Integer element : bucketSet) {
+      var i = 1;
+      for (var element : bucketSet) {
         resultArray[i] = element;
         i++;
       }

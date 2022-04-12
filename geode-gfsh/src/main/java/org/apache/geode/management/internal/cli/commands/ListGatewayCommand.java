@@ -19,16 +19,11 @@ import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-
-import javax.management.ObjectName;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.GatewayReceiverMXBean;
 import org.apache.geode.management.GatewaySenderMXBean;
 import org.apache.geode.management.cli.CliMetaData;
@@ -37,7 +32,6 @@ import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -67,10 +61,10 @@ public class ListGatewayCommand extends GfshCommand {
       return ResultModel.createError(CliStrings.LIST_GATEWAY__ERROR_ON_SHOW_PARAMETERS);
     }
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     SystemManagementService service = getManagementService();
 
-    Set<DistributedMember> dsMembers = findMembers(onGroup, onMember);
+    var dsMembers = findMembers(onGroup, onMember);
 
     if (dsMembers.isEmpty()) {
       return ResultModel.createInfo(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
@@ -79,23 +73,23 @@ public class ListGatewayCommand extends GfshCommand {
     Map<String, Map<String, GatewaySenderMXBean>> gatewaySenderBeans = new TreeMap<>();
     Map<String, GatewayReceiverMXBean> gatewayReceiverBeans = new TreeMap<>();
 
-    DistributedSystemMXBean dsMXBean = service.getDistributedSystemMXBean();
-    for (DistributedMember member : dsMembers) {
-      String memberName = member.getName();
-      String memberNameOrId =
+    var dsMXBean = service.getDistributedSystemMXBean();
+    for (var member : dsMembers) {
+      var memberName = member.getName();
+      var memberNameOrId =
           (memberName != null && !memberName.isEmpty()) ? memberName : member.getId();
 
       if (!showReceiversOnly) {
-        ObjectName[] gatewaySenderObjectNames =
+        var gatewaySenderObjectNames =
             dsMXBean.listGatewaySenderObjectNames(memberNameOrId);
         // gateway senders : a member can have multiple gateway senders defined
         // on it
         if (gatewaySenderObjectNames != null) {
-          for (ObjectName name : gatewaySenderObjectNames) {
-            GatewaySenderMXBean senderBean = service.getMBeanProxy(name, GatewaySenderMXBean.class);
+          for (var name : gatewaySenderObjectNames) {
+            var senderBean = service.getMBeanProxy(name, GatewaySenderMXBean.class);
             if (senderBean != null) {
               if (gatewaySenderBeans.containsKey(senderBean.getSenderId())) {
-                Map<String, GatewaySenderMXBean> memberToBeanMap =
+                var memberToBeanMap =
                     gatewaySenderBeans.get(senderBean.getSenderId());
                 memberToBeanMap.put(member.getId(), senderBean);
               } else {
@@ -109,7 +103,7 @@ public class ListGatewayCommand extends GfshCommand {
       }
       // gateway receivers : a member can have only one gateway receiver
       if (!showSendersOnly) {
-        ObjectName gatewayReceiverObjectName = MBeanJMXAdapter.getGatewayReceiverMBeanName(member);
+        var gatewayReceiverObjectName = MBeanJMXAdapter.getGatewayReceiverMBeanName(member);
         if (gatewayReceiverObjectName != null) {
           GatewayReceiverMXBean receiverBean;
           receiverBean =
@@ -147,11 +141,11 @@ public class ListGatewayCommand extends GfshCommand {
       Map<String, Map<String, GatewaySenderMXBean>> gatewaySenderBeans,
       Map<String, GatewayReceiverMXBean> gatewayReceiverBeans) {
     if (!gatewaySenderBeans.isEmpty()) {
-      TabularResultModel gatewaySenders = result.addTable("gatewaySenders");
+      var gatewaySenders = result.addTable("gatewaySenders");
       gatewaySenders.setHeader(CliStrings.SECTION_GATEWAY_SENDER);
-      for (Map.Entry<String, Map<String, GatewaySenderMXBean>> entry : gatewaySenderBeans
+      for (var entry : gatewaySenderBeans
           .entrySet()) {
-        for (Map.Entry<String, GatewaySenderMXBean> memberToBean : entry.getValue().entrySet()) {
+        for (var memberToBean : entry.getValue().entrySet()) {
           gatewaySenders.accumulate(CliStrings.RESULT_GATEWAY_SENDER_ID, entry.getKey());
           gatewaySenders.accumulate(CliStrings.RESULT_HOST_MEMBER, memberToBean.getKey());
           gatewaySenders.accumulate(CliStrings.RESULT_REMOTE_CLUSTER,
@@ -168,9 +162,9 @@ public class ListGatewayCommand extends GfshCommand {
     }
 
     if (!gatewayReceiverBeans.isEmpty()) {
-      TabularResultModel gatewaySenders = result.addTable("gatewayReceivers");
+      var gatewaySenders = result.addTable("gatewayReceivers");
       gatewaySenders.setHeader(CliStrings.SECTION_GATEWAY_RECEIVER);
-      for (Map.Entry<String, GatewayReceiverMXBean> entry : gatewayReceiverBeans.entrySet()) {
+      for (var entry : gatewayReceiverBeans.entrySet()) {
         gatewaySenders.accumulate(CliStrings.RESULT_HOST_MEMBER, entry.getKey());
         gatewaySenders.accumulate(CliStrings.RESULT_PORT, entry.getValue().getPort() + "");
         gatewaySenders.accumulate(CliStrings.RESULT_SENDERS_COUNT,

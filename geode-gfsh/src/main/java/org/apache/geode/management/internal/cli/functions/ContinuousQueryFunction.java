@@ -15,17 +15,11 @@
 package org.apache.geode.management.internal.cli.functions;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
-import org.apache.geode.internal.cache.tier.Acceptor;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
-import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
-import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 
 /**
  * @since GemFire 8.0
@@ -43,28 +37,28 @@ public class ContinuousQueryFunction implements InternalFunction<String> {
   @Override
   public void execute(FunctionContext<String> context) {
     try {
-      String clientID = context.getArguments();
-      InternalCache cache = (InternalCache) context.getCache();
+      var clientID = context.getArguments();
+      var cache = (InternalCache) context.getCache();
       if (cache.getCacheServers().size() > 0) {
-        CacheServerImpl server = (CacheServerImpl) cache.getCacheServers().iterator().next();
+        var server = (CacheServerImpl) cache.getCacheServers().iterator().next();
         if (server != null) {
-          Acceptor acceptor = server.getAcceptor();
+          var acceptor = server.getAcceptor();
           if (acceptor != null) {
-            CacheClientNotifier cacheClientNotifier = acceptor.getCacheClientNotifier();
+            var cacheClientNotifier = acceptor.getCacheClientNotifier();
             if (cacheClientNotifier != null) {
-              Collection<CacheClientProxy> cacheClientProxySet =
+              var cacheClientProxySet =
                   cacheClientNotifier.getClientProxies();
               ClientInfo clientInfo = null;
-              boolean foundClientinCCP = false;
-              for (CacheClientProxy ccp : cacheClientProxySet) {
+              var foundClientinCCP = false;
+              for (var ccp : cacheClientProxySet) {
 
                 if (ccp != null) {
-                  String clientIdFromProxy = ccp.getProxyID().getDSMembership();
+                  var clientIdFromProxy = ccp.getProxyID().getDSMembership();
                   if (clientIdFromProxy != null && clientIdFromProxy.equals(clientID)) {
                     foundClientinCCP = true;
-                    String durableId = ccp.getProxyID().getDurableId();
-                    boolean isPrimary = ccp.isPrimary();
-                    final String id = cache.getDistributedSystem().getDistributedMember().getId();
+                    var durableId = ccp.getProxyID().getDurableId();
+                    var isPrimary = ccp.isPrimary();
+                    final var id = cache.getDistributedSystem().getDistributedMember().getId();
                     clientInfo = new ClientInfo(
                         (durableId != null && durableId.length() > 0 ? "Yes" : "No"),
                         (isPrimary ? id : ""),
@@ -77,13 +71,13 @@ public class ContinuousQueryFunction implements InternalFunction<String> {
 
               // try getting from server connections
               if (!foundClientinCCP) {
-                ServerConnection[] serverConnections = acceptor.getAllServerConnectionList();
+                var serverConnections = acceptor.getAllServerConnectionList();
 
-                for (ServerConnection conn : serverConnections) {
-                  ClientProxyMembershipID cliIdFrmProxy = conn.getProxyID();
+                for (var conn : serverConnections) {
+                  var cliIdFrmProxy = conn.getProxyID();
 
                   if (clientID.equals(cliIdFrmProxy.getDSMembership())) {
-                    String durableId = cliIdFrmProxy.getDurableId();
+                    var durableId = cliIdFrmProxy.getDurableId();
                     clientInfo =
                         new ClientInfo((durableId != null && durableId.length() > 0 ? "Yes" : "No"),
                             "N.A.", "N.A.");

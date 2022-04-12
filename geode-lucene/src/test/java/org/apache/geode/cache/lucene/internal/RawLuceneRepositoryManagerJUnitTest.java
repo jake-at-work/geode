@@ -23,8 +23,6 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.Executors;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.junit.After;
 import org.junit.Before;
@@ -85,14 +83,14 @@ public class RawLuceneRepositoryManagerJUnitTest extends PartitionedRepositoryMa
 
   @Override
   protected void checkRepository(IndexRepositoryImpl repo0, int... bucketId) {
-    IndexWriter writer0 = repo0.getWriter();
-    Directory dir0 = writer0.getDirectory();
+    var writer0 = repo0.getWriter();
+    var dir0 = writer0.getDirectory();
     assertTrue(dir0 instanceof NIOFSDirectory);
   }
 
   @Override
   protected BucketRegion setUpMockBucket(int id) throws BucketNotFoundException {
-    BucketRegion mockBucket = Mockito.mock(BucketRegion.class);
+    var mockBucket = Mockito.mock(BucketRegion.class);
     when(mockBucket.getId()).thenReturn(id);
     when(userRegion.getBucketRegion(eq(id), eq(null))).thenReturn(mockBucket);
     when(userDataStore.getLocalBucketById(eq(id))).thenReturn(mockBucket);

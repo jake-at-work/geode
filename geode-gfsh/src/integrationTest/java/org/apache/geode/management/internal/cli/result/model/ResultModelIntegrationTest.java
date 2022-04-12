@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.io.File;
 import java.nio.file.Files;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class ResultModelIntegrationTest {
 
   @Test
   public void emptyFileSizeDoesNothing() throws Exception {
-    ResultModel emptyFileResult = new ResultModel();
+    var emptyFileResult = new ResultModel();
     result.saveFileTo(temporaryFolder.newFolder());
 
     assertThat(emptyFileResult.getInfoSections()).hasSize(0);
@@ -71,15 +70,15 @@ public class ResultModelIntegrationTest {
 
   @Test
   public void dirNotExistBefore() throws Exception {
-    File dir = temporaryFolder.newFolder("test");
+    var dir = temporaryFolder.newFolder("test");
     Files.delete(dir.toPath());
 
     result.saveFileTo(dir);
     assertThat(dir)
         .exists();
 
-    File file1 = new File(dir, "test1.txt");
-    File file2 = new File(dir, "test2.txt");
+    var file1 = new File(dir, "test1.txt");
+    var file2 = new File(dir, "test2.txt");
 
     assertThat(dir.listFiles())
         .contains(file1, file2);
@@ -105,14 +104,14 @@ public class ResultModelIntegrationTest {
 
   @Test
   public void serializeFileToDownload() throws Exception {
-    File file = temporaryFolder.newFile("test.log");
-    ResultModel result = new ResultModel();
+    var file = temporaryFolder.newFile("test.log");
+    var result = new ResultModel();
     result.addFile(file, FileResultModel.FILE_TYPE_FILE);
-    ObjectMapper mapper = GeodeJsonMapper.getMapper();
-    String json = mapper.writeValueAsString(result);
-    ResultModel resultModel = mapper.readValue(json, ResultModel.class);
+    var mapper = GeodeJsonMapper.getMapper();
+    var json = mapper.writeValueAsString(result);
+    var resultModel = mapper.readValue(json, ResultModel.class);
 
-    File value = resultModel.getFileToDownload().toFile();
+    var value = resultModel.getFileToDownload().toFile();
 
     assertThat(value)
         .isEqualTo(file);

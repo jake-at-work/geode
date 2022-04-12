@@ -14,14 +14,10 @@
  */
 package org.apache.geode.redis.internal.commands.executor.hash;
 
-import java.util.List;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -55,12 +51,12 @@ public class HIncrByExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
-    byte[] field = commandElems.get(2);
+    var commandElems = command.getProcessedCommand();
+    var region = context.getRegion();
+    var key = command.getKey();
+    var field = commandElems.get(2);
 
-    byte[] incrArray = commandElems.get(INCREMENT_INDEX);
+    var incrArray = commandElems.get(INCREMENT_INDEX);
     long increment;
     try {
       increment = Coder.bytesToLong(incrArray);
@@ -68,7 +64,7 @@ public class HIncrByExecutor implements CommandExecutor {
       return RedisResponse.error(ERROR_INCREMENT_NOT_USABLE);
     }
 
-    byte[] value = context.hashLockedExecute(key, false,
+    var value = context.hashLockedExecute(key, false,
         hash -> hash.hincrby(region, key, field, increment));
 
     return RedisResponse.integer(value);

@@ -28,12 +28,12 @@ public class ServerToClientFunctionResultSender65JUnitTest
 
   @Override
   protected ServerToClientFunctionResultSender getResultSender() {
-    ChunkedMessage msg = mock(ChunkedMessage.class);
+    var msg = mock(ChunkedMessage.class);
     serverConnection = mock(ServerConnection.class);
-    Function function = mock(Function.class);
-    ExecuteFunctionOperationContext executeFunctionOperationContext =
+    var function = mock(Function.class);
+    var executeFunctionOperationContext =
         mock(ExecuteFunctionOperationContext.class);
-    AcceptorImpl acceptor = mock(AcceptorImpl.class);
+    var acceptor = mock(AcceptorImpl.class);
     when(serverConnection.getAcceptor()).thenReturn(acceptor);
     when(acceptor.isSelector()).thenReturn(true);
     when(acceptor.isRunning()).thenReturn(true);

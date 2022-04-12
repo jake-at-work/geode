@@ -48,7 +48,7 @@ public class SimpleSecurityManager implements SecurityManager {
    * 2. username and password that are the same
    */
   public Object authenticate(final Properties credentials) throws AuthenticationFailedException {
-    String token = credentials.getProperty(TOKEN);
+    var token = credentials.getProperty(TOKEN);
     if (token != null) {
       if (VALID_TOKEN.equalsIgnoreCase(token) || token.length() > 20) {
         return "Bearer " + token;
@@ -56,8 +56,8 @@ public class SimpleSecurityManager implements SecurityManager {
         throw new AuthenticationFailedException("Invalid token");
       }
     }
-    String username = credentials.getProperty(USER_NAME);
-    String password = credentials.getProperty(PASSWORD);
+    var username = credentials.getProperty(USER_NAME);
+    var password = credentials.getProperty(PASSWORD);
     if (username != null && username.equals(password)) {
       return username;
     }
@@ -76,9 +76,9 @@ public class SimpleSecurityManager implements SecurityManager {
     if (principal.toString().startsWith("Bearer ")) {
       return true;
     }
-    String[] principals = principal.toString().toLowerCase().split(",");
-    for (String role : principals) {
-      String permissionString = permission.toString().replace(":", "").toLowerCase();
+    var principals = principal.toString().toLowerCase().split(",");
+    for (var role : principals) {
+      var permissionString = permission.toString().replace(":", "").toLowerCase();
       if (permissionString.startsWith(role)) {
         return true;
       }

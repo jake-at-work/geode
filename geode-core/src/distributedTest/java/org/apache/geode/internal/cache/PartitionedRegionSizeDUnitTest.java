@@ -26,8 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
@@ -86,7 +84,7 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
     vm3.invoke(() -> {
       Region<Integer, Integer> region =
           getCache().getRegion(PartitionedRegionSizeDUnitTest.REGION_NAME);
-      for (int k = 0; k < CNT; k++) {
+      for (var k = 0; k < CNT; k++) {
         region.put(k, k);
       }
     });
@@ -110,7 +108,7 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
 
     vm0.invoke(() -> {
       Region<Integer, byte[]> region = getRegion(REGION_NAME);
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         region.put(i * TOTAL_NUMBER_OF_BUCKETS, new byte[100]);
       }
     });
@@ -119,14 +117,14 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
 
     vm0.invoke(() -> {
       Region<Integer, byte[]> region = getRegion(REGION_NAME);
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         region.destroy(i * TOTAL_NUMBER_OF_BUCKETS);
       }
     });
 
     vm1.invoke(() -> {
-      PartitionedRegion partitionedRegion = getPartitionedRegion(REGION_NAME);
-      long bytes = partitionedRegion.getDataStore().currentAllocatedMemory();
+      var partitionedRegion = getPartitionedRegion(REGION_NAME);
+      var bytes = partitionedRegion.getDataStore().currentAllocatedMemory();
       assertThat(bytes).isEqualTo(0);
     });
   }
@@ -140,11 +138,11 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
       Region<Integer, byte[]> region = getRegion(REGION_NAME);
       region.put(0, new byte[100]);
 
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-      PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
-      long size = dataStore.getBucketSize(0);
+      var partitionedRegion = (PartitionedRegion) region;
+      var dataStore = partitionedRegion.getDataStore();
+      var size = dataStore.getBucketSize(0);
 
-      for (int i = 1; i < 100; i++) {
+      for (var i = 1; i < 100; i++) {
         region.put(i * TOTAL_NUMBER_OF_BUCKETS, new byte[100]);
       }
       await().until(() -> dataStore.getBucketsManaged() == (short) 1);
@@ -153,23 +151,23 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
       await().until(() -> dataStore.getBucketSize(0) == 100 * size);
 
       // destroy and invalidate entries and make sure the size goes down
-      for (int i = 0; i < 25; i++) {
+      for (var i = 0; i < 25; i++) {
         region.destroy(i * TOTAL_NUMBER_OF_BUCKETS);
       }
 
-      for (int i = 25; i < 50; i++) {
+      for (var i = 25; i < 50; i++) {
         region.invalidate(i * TOTAL_NUMBER_OF_BUCKETS);
       }
 
       await().until(() -> dataStore.getBucketSize(0) == 50 * size);
 
       // put some larger values in and make sure the size goes up
-      for (int i = 50; i < 75; i++) {
+      for (var i = 50; i < 75; i++) {
         region.put(i * TOTAL_NUMBER_OF_BUCKETS, new byte[150]);
       }
 
       // Now put in some smaller values and see if the size balances out
-      for (int i = 75; i < 100; i++) {
+      for (var i = 75; i < 100; i++) {
         region.put(i * TOTAL_NUMBER_OF_BUCKETS, new byte[50]);
       }
 
@@ -179,14 +177,14 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
     });
 
     vm1.invoke(() -> {
-      PartitionedRegion partitionedRegion = getPartitionedRegion(REGION_NAME);
+      var partitionedRegion = getPartitionedRegion(REGION_NAME);
       await().until(
           () -> partitionedRegion.getDataStore().getBucketSize(0) == 50 * bucketSizeWithOneEntry);
     });
 
     vm1.invoke(() -> {
-      PartitionedRegion partitionedRegion = getPartitionedRegion(REGION_NAME);
-      PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
+      var partitionedRegion = getPartitionedRegion(REGION_NAME);
+      var dataStore = partitionedRegion.getDataStore();
       await().until(() -> dataStore.currentAllocatedMemory() == 50 * bucketSizeWithOneEntry);
     });
   }
@@ -199,11 +197,11 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
       Region<Integer, byte[]> region = getRegion(REGION_NAME);
       region.put(0, new byte[100]);
 
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-      PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
-      long size = dataStore.getBucketSize(0);
+      var partitionedRegion = (PartitionedRegion) region;
+      var dataStore = partitionedRegion.getDataStore();
+      var size = dataStore.getBucketSize(0);
 
-      for (int i = 1; i < 100; i++) {
+      for (var i = 1; i < 100; i++) {
         region.put(i * TOTAL_NUMBER_OF_BUCKETS, new byte[100]);
       }
       await().until(() -> dataStore.getBucketsManaged() == (short) 1);
@@ -212,8 +210,8 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
 
     vm0.invoke(() -> {
       Region<Integer, byte[]> region = getRegion(REGION_NAME);
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-      PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
+      var partitionedRegion = (PartitionedRegion) region;
+      var dataStore = partitionedRegion.getDataStore();
 
       // there should only be 2 items in memory
       await().until(() -> dataStore.currentAllocatedMemory() == 2 * bucketSizeWithOneEntry);
@@ -227,13 +225,13 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
   private void createPartitionedRegionWithOverflow() {
     Cache cache = getCache();
 
-    File[] diskDirs = new File[] {overflowDirectory};
+    var diskDirs = new File[] {overflowDirectory};
 
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(diskDirs);
-    DiskStore diskStore = diskStoreFactory.create(DISK_STORE_NAME);
+    var diskStore = diskStoreFactory.create(DISK_STORE_NAME);
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(1);
     paf.setLocalMaxMemory(200);
     paf.setTotalNumBuckets(TOTAL_NUMBER_OF_BUCKETS);
@@ -248,7 +246,7 @@ public class PartitionedRegionSizeDUnitTest extends CacheTestCase {
   }
 
   private void createPartitionedRegion(final int localMaxMemory) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(1);
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setTotalNumBuckets(TOTAL_NUMBER_OF_BUCKETS);

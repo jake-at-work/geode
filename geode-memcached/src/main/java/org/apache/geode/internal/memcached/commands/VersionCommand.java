@@ -30,11 +30,11 @@ public class VersionCommand extends AbstractCommand {
 
   @Override
   public ByteBuffer processCommand(RequestReader request, Protocol protocol, Cache cache) {
-    String version = GemFireMemcachedServer.version;
+    var version = GemFireMemcachedServer.version;
     if (protocol == Protocol.ASCII) {
       return asciiCharset.encode("VERSION " + version + "\r\n");
     }
-    ByteBuffer response = request.getResponse(HEADER_LENGTH + version.length());
+    var response = request.getResponse(HEADER_LENGTH + version.length());
     response.putInt(TOTAL_BODY_LENGTH_INDEX, version.length());
     response.position(HEADER_LENGTH);
     response.put(asciiCharset.encode(version));

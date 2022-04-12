@@ -65,7 +65,7 @@ public class FunctionRemoteContext implements DataSerializable {
 
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-    Object object = DataSerializer.readObject(in);
+    var object = DataSerializer.readObject(in);
     if (object instanceof String) {
       isFnSerializationReqd = false;
       function = FunctionService.getFunction((String) object);
@@ -86,7 +86,7 @@ public class FunctionRemoteContext implements DataSerializable {
     }
     isReExecute = DataSerializer.readBoolean(in);
 
-    KnownVersion dataStreamVersion = StaticSerialization.getVersionForDataStream(in);
+    var dataStreamVersion = StaticSerialization.getVersionForDataStream(in);
     if (dataStreamVersion.isNewerThanOrEqualTo(KnownVersion.GEODE_1_14_0)
         || (dataStreamVersion.isNewerThanOrEqualTo(KnownVersion.GEODE_1_12_1)
             && dataStreamVersion.isOlderThan(KnownVersion.GEODE_1_13_0))
@@ -109,12 +109,12 @@ public class FunctionRemoteContext implements DataSerializable {
         .isNotOlderThan(KnownVersion.GEODE_1_11_0)) {
       DataSerializer.writeIntArray(bucketArray, out);
     } else {
-      Set<Integer> bucketSet = BucketSetHelper.toSet(bucketArray);
+      var bucketSet = BucketSetHelper.toSet(bucketArray);
       DataSerializer.writeHashSet((HashSet) bucketSet, out);
     }
     DataSerializer.writeBoolean(isReExecute, out);
 
-    KnownVersion dataStreamVersion = StaticSerialization.getVersionForDataStream(out);
+    var dataStreamVersion = StaticSerialization.getVersionForDataStream(out);
     if (dataStreamVersion.isNewerThanOrEqualTo(KnownVersion.GEODE_1_14_0)
         || (dataStreamVersion.isNewerThanOrEqualTo(KnownVersion.GEODE_1_12_1)
             && dataStreamVersion.isOlderThan(KnownVersion.GEODE_1_13_0))

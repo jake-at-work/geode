@@ -55,7 +55,7 @@ public class LocalRegionDataView implements InternalDataView {
   @Override
   public void destroyExistingEntry(EntryEventImpl event, boolean cacheWrite,
       Object expectedOldValue) {
-    InternalRegion ir = event.getRegion();
+    var ir = event.getRegion();
     ir.mapDestroy(event, cacheWrite, false, // isEviction
         expectedOldValue);
   }
@@ -208,7 +208,7 @@ public class LocalRegionDataView implements InternalDataView {
   @Override
   public Region.Entry<?, ?> getEntryForIterator(final KeyInfo keyInfo, final LocalRegion currRgn,
       boolean rememberReads, boolean allowTombstones) {
-    final AbstractRegionEntry re = (AbstractRegionEntry) keyInfo.getKey();
+    final var re = (AbstractRegionEntry) keyInfo.getKey();
     if (re != null && (!re.isDestroyedOrRemoved()) || (allowTombstones && re.isTombstone())) {
       return new NonTXEntry(currRgn, re);
     }
@@ -224,14 +224,14 @@ public class LocalRegionDataView implements InternalDataView {
   @Override
   public Object getKeyForIterator(final KeyInfo keyInfo, final LocalRegion currRgn,
       boolean rememberReads, boolean allowTombstones) {
-    final Object key = keyInfo.getKey();
+    final var key = keyInfo.getKey();
     if (key == null) {
       return null;
     }
     // fix for 42182, before returning a key verify that its value
     // is not a removed token
     if (key instanceof RegionEntry) {
-      RegionEntry re = (RegionEntry) key;
+      var re = (RegionEntry) key;
       if (!re.isDestroyedOrRemoved() || (allowTombstones && re.isTombstone())) {
         return re.getKey();
       }

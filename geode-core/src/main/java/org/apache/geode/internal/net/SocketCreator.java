@@ -18,7 +18,6 @@ package org.apache.geode.internal.net;
 import static org.apache.geode.internal.net.filewatch.FileWatchingX509ExtendedKeyManager.newFileWatchingKeyManager;
 import static org.apache.geode.internal.net.filewatch.FileWatchingX509ExtendedTrustManager.newFileWatchingTrustManager;
 
-import java.io.Console;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
@@ -73,7 +72,6 @@ import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.util.ArgumentRedactor;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.net.SSLParameterExtension;
 import org.apache.geode.util.internal.GeodeGlossary;
 
 
@@ -158,7 +156,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
    * hits and duplicate strings
    */
   public static String getHostName(InetAddress addr) {
-    String result = hostNames.get(addr);
+    var result = hostNames.get(addr);
     if (result == null) {
       result = addr.getHostName();
       hostNames.put(addr, result);
@@ -194,7 +192,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
 
   /** returns the hostname or address for this client */
   public static String getClientHostName() throws UnknownHostException {
-    InetAddress hostAddr = LocalHostUtil.getLocalHost();
+    var hostAddr = LocalHostUtil.getLocalHost();
     return SocketCreator.use_client_host_name ? hostAddr.getCanonicalHostName()
         : hostAddr.getHostAddress();
   }
@@ -262,7 +260,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
       return SSLContext.getDefault();
     }
 
-    SSLContext newSSLContext = SSLUtil.getSSLContextInstance(sslConfig);
+    var newSSLContext = SSLUtil.getSSLContextInstance(sslConfig);
 
     KeyManager[] keyManagers = null;
     if (sslConfig.getKeystore() != null) {
@@ -297,24 +295,24 @@ public class SocketCreator extends TcpSocketCreatorImpl {
    *        if <code>true</code>, properties from gemfire.properties file are ignored.
    */
   public static void readSSLProperties(Map<String, String> env, boolean ignoreGemFirePropsFile) {
-    Properties props = new Properties();
+    var props = new Properties();
     DistributionConfigImpl.loadGemFireProperties(props, ignoreGemFirePropsFile);
-    for (Map.Entry<Object, Object> ent : props.entrySet()) {
-      String key = (String) ent.getKey();
+    for (var ent : props.entrySet()) {
+      var key = (String) ent.getKey();
       // if the value of ssl props is empty, read them from console
       if (key.startsWith(DistributionConfig.SSL_SYSTEM_PROPS_NAME)
           || key.startsWith(DistributionConfig.SYS_PROP_NAME)) {
         if (key.startsWith(DistributionConfig.SYS_PROP_NAME)) {
           key = key.substring(DistributionConfig.SYS_PROP_NAME.length());
         }
-        final String value = (String) ent.getValue();
+        final var value = (String) ent.getValue();
         if (value == null || value.trim().equals("")) {
-          Console console = System.console();
+          var console = System.console();
           if (console == null) {
             throw new GemFireConfigException(
                 "SSL properties are empty, but a console is not available");
           }
-          String val = console.readLine("Please enter " + key + ": ");
+          var val = console.readLine("Please enter " + key + ": ");
           env.put(key, val);
         }
       }
@@ -356,7 +354,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
    * Returns an SSLEngine that can be used to perform TLS handshakes and communication
    */
   public SSLEngine createSSLEngine(String hostName, int port, boolean clientSocket) {
-    SSLEngine engine = getSslContext().createSSLEngine(hostName, port);
+    var engine = getSslContext().createSSLEngine(hostName, port);
     configureSSLEngine(engine, hostName, port, clientSocket);
     return engine;
   }
@@ -365,7 +363,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
   void configureSSLEngine(final SSLEngine engine, final String hostName, final int port,
       final boolean clientSocket) {
     engine.setUseClientMode(clientSocket);
-    final SSLParameters parameters = engine.getSSLParameters();
+    final var parameters = engine.getSSLParameters();
     configureSSLParameters(parameters, hostName, port, clientSocket);
     engine.setSSLParameters(parameters);
   }
@@ -384,13 +382,13 @@ public class SocketCreator extends TcpSocketCreatorImpl {
       parameters.setNeedClientAuth(sslConfig.isRequireAuth());
     }
 
-    final String[] protocols = clientSocket ? sslConfig.getClientProtocolsAsStringArray()
+    final var protocols = clientSocket ? sslConfig.getClientProtocolsAsStringArray()
         : sslConfig.getServerProtocolsAsStringArray();
     if (!SSLConfig.isAnyProtocols(protocols)) {
       parameters.setProtocols(protocols);
     }
 
-    final String[] ciphers = sslConfig.getCiphersAsStringArray();
+    final var ciphers = sslConfig.getCiphersAsStringArray();
     if (ciphers != null && !"any".equalsIgnoreCase(ciphers[0])) {
       parameters.setCipherSuites(ciphers);
     }
@@ -425,9 +423,9 @@ public class SocketCreator extends TcpSocketCreatorImpl {
       }
     }
 
-    NioSslEngine nioSslEngine = new NioSslEngine(engine, bufferPool);
+    var nioSslEngine = new NioSslEngine(engine, bufferPool);
 
-    boolean blocking = socketChannel.isBlocking();
+    var blocking = socketChannel.isBlocking();
     if (blocking) {
       socketChannel.configureBlocking(false);
     }
@@ -479,9 +477,9 @@ public class SocketCreator extends TcpSocketCreatorImpl {
     if (!(socket instanceof SSLSocket)) {
       return;
     }
-    int oldTimeout = socket.getSoTimeout();
+    var oldTimeout = socket.getSoTimeout();
     socket.setSoTimeout(timeout);
-    SSLSocket sslSocket = (SSLSocket) socket;
+    var sslSocket = (SSLSocket) socket;
     try {
       sslSocket.startHandshake();
     } catch (SSLPeerUnverifiedException ex) {
@@ -530,7 +528,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
       try {
         result.bind(new InetSocketAddress(bindAddr, nport), backlog);
       } catch (BindException e) {
-        BindException throwMe = new BindException(
+        var throwMe = new BindException(
             String.format("Failed to create server socket on %s[%s]", bindAddr, nport));
         throwMe.initCause(e);
         throw throwMe;
@@ -551,20 +549,20 @@ public class SocketCreator extends TcpSocketCreatorImpl {
    */
   void configureClientSSLSocket(Socket socket, HostAndPort addr, int timeout) throws IOException {
     if (socket instanceof SSLSocket) {
-      SSLSocket sslSocket = (SSLSocket) socket;
+      var sslSocket = (SSLSocket) socket;
 
       sslSocket.setUseClientMode(true);
       sslSocket.setEnableSessionCreation(true);
 
-      SSLParameters parameters = sslSocket.getSSLParameters();
-      boolean updateSSLParameters =
+      var parameters = sslSocket.getSSLParameters();
+      var updateSSLParameters =
           checkAndEnableHostnameValidation(parameters);
 
       if (setServerNames(parameters, addr)) {
         updateSSLParameters = true;
       }
 
-      SSLParameterExtension sslParameterExtension = sslConfig.getSSLParameterExtension();
+      var sslParameterExtension = sslConfig.getSSLParameterExtension();
       if (sslParameterExtension != null) {
         parameters =
             sslParameterExtension.modifySSLClientSocketParameters(parameters);
@@ -575,11 +573,11 @@ public class SocketCreator extends TcpSocketCreatorImpl {
         sslSocket.setSSLParameters(parameters);
       }
 
-      String[] protocols = sslConfig.getClientProtocolsAsStringArray();
+      var protocols = sslConfig.getClientProtocolsAsStringArray();
       if (!SSLConfig.isAnyProtocols(protocols)) {
         sslSocket.setEnabledProtocols(protocols);
       }
-      String[] ciphers = sslConfig.getCiphersAsStringArray();
+      var ciphers = sslConfig.getCiphersAsStringArray();
       if (ciphers != null && !"any".equalsIgnoreCase(ciphers[0])) {
         sslSocket.setEnabledCipherSuites(ciphers);
       }
@@ -600,7 +598,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
           throw ex;
         }
       } catch (SSLHandshakeException ex) {
-        String message = ex.getMessage();
+        var message = ex.getMessage();
         if (message != null && !message.contains("Remote host terminated the handshake")) {
           logger.fatal(String.format("Problem forming SSL connection to %s[%s].",
               socket.getInetAddress(), socket.getPort()), ex);
@@ -619,7 +617,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
    * returns true if the SSLParameters are altered, false if not
    */
   private boolean setServerNames(SSLParameters modifiedParams, HostAndPort addr) {
-    List<SNIServerName> oldNames = modifiedParams.getServerNames();
+    var oldNames = modifiedParams.getServerNames();
     oldNames = oldNames == null ? Collections.emptyList() : oldNames;
     final List<SNIServerName> serverNames = new ArrayList<>(oldNames);
 
@@ -630,7 +628,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
       return false;
     }
 
-    String hostName = addr.getHostName();
+    var hostName = addr.getHostName();
     serverNames.add(new SNIHostName(hostName));
     modifiedParams.setServerNames(serverNames);
     return true;
@@ -642,13 +640,13 @@ public class SocketCreator extends TcpSocketCreatorImpl {
   void printConfig() {
     if (!configShown && logger.isDebugEnabled()) {
       configShown = true;
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("SSL Configuration: \n");
       sb.append("  ssl-enabled = ").append(sslConfig.isEnabled()).append("\n");
       // add other options here....
-      for (String key : System.getProperties().stringPropertyNames()) { // fix for 46822
+      for (var key : System.getProperties().stringPropertyNames()) { // fix for 46822
         if (key.startsWith("javax.net.ssl")) {
-          String possiblyRedactedValue =
+          var possiblyRedactedValue =
               ArgumentRedactor.redactArgumentIfNecessary(key, System.getProperty(key));
           sb.append("  ").append(key).append(" = ").append(possiblyRedactedValue).append("\n");
         }
@@ -659,7 +657,7 @@ public class SocketCreator extends TcpSocketCreatorImpl {
 
   protected void initializeClientSocketFactory() {
     clientSocketFactory = null;
-    String className =
+    var className =
         System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "clientSocketFactory");
     if (className != null) {
       Object o;
@@ -668,13 +666,13 @@ public class SocketCreator extends TcpSocketCreatorImpl {
         o = c.newInstance();
       } catch (Exception e) {
         // No cache exists yet, so this can't be logged.
-        String s = "An unexpected exception occurred while instantiating a " + className + ": " + e;
+        var s = "An unexpected exception occurred while instantiating a " + className + ": " + e;
         throw new IllegalArgumentException(s);
       }
       if (o instanceof ClientSocketFactory) {
         clientSocketFactory = (ClientSocketFactory) o;
       } else {
-        String s = "Class \"" + className + "\" is not a ClientSocketFactory";
+        var s = "Class \"" + className + "\" is not a ClientSocketFactory";
         throw new IllegalArgumentException(s);
       }
     }

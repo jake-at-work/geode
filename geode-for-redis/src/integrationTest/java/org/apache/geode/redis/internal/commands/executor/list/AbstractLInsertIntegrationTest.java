@@ -185,8 +185,8 @@ public abstract class AbstractLInsertIntegrationTest implements RedisIntegration
   @Test
   public void testConcurrentLInserts() {
     // we should never see "snake", "inserted value", "snake", etc.
-    String[] initialElements = {"lizard", "lizard", "lizard", "snake", "lizard", "lizard"};
-    String[] elementsToPush = {"snake", "snake", "snake", "snake", "snake", "snake"};
+    var initialElements = new String[] {"lizard", "lizard", "lizard", "snake", "lizard", "lizard"};
+    var elementsToPush = new String[] {"snake", "snake", "snake", "snake", "snake", "snake"};
 
     jedis.lpush(KEY, initialElements);
 

@@ -88,7 +88,7 @@ public class LRUListWithAsyncSorting extends AbstractEvictionList {
   }
 
   private double calculateScanThreshold() {
-    Optional<Integer> configuredThresholdPercent = SystemProperty
+    var configuredThresholdPercent = SystemProperty
         .getProductIntegerProperty(SystemPropertyHelper.EVICTION_SCAN_THRESHOLD_PERCENT);
 
     int thresholdPercent =
@@ -111,9 +111,9 @@ public class LRUListWithAsyncSorting extends AbstractEvictionList {
    */
   @Override
   public EvictableEntry getEvictableEntry() {
-    int evictionAttempts = 0;
+    var evictionAttempts = 0;
     for (;;) {
-      final EvictionNode evictionNode = unlinkHeadEntry();
+      final var evictionNode = unlinkHeadEntry();
 
       if (evictionNode == null) {
         // hit the end of the list
@@ -166,7 +166,7 @@ public class LRUListWithAsyncSorting extends AbstractEvictionList {
       synchronized (this) {
         evictionNode = head.next();
       }
-      int nodesToIterate = size();
+      var nodesToIterate = size();
       while (evictionNode != null && evictionNode != tail && nodesToIterate > 0) {
         nodesToIterate--;
         // No need to sync on evictionNode here. If the bit is set the only one to clear it is
@@ -188,7 +188,7 @@ public class LRUListWithAsyncSorting extends AbstractEvictionList {
 
   @Override
   public void incrementRecentlyUsed() {
-    int recentlyUsedCount = recentlyUsedCounter.incrementAndGet();
+    var recentlyUsedCount = recentlyUsedCounter.incrementAndGet();
     if (hasThresholdBeenMet(recentlyUsedCount)) {
       scanIfNeeded();
     }
@@ -208,9 +208,9 @@ public class LRUListWithAsyncSorting extends AbstractEvictionList {
   }
 
   private synchronized EvictionNode moveToTailAndGetNext(EvictionNode evictionNode) {
-    EvictionNode next = evictionNode.next();
+    var next = evictionNode.next();
     if (next != null && next != tail) {
-      EvictionNode previous = evictionNode.previous();
+      var previous = evictionNode.previous();
       next.setPrevious(previous);
       previous.setNext(next);
       evictionNode.setNext(tail);

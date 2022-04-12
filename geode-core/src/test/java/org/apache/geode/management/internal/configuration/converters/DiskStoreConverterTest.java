@@ -31,7 +31,7 @@ public class DiskStoreConverterTest {
 
   @Test
   public void fromNonNullConfigObjectCopiesPropertiesCorrectly() {
-    DiskStore config = new DiskStore();
+    var config = new DiskStore();
     config.setName("name");
     config.setAllowForceCompaction(false);
     config.setAutoCompact(false);
@@ -43,11 +43,11 @@ public class DiskStoreConverterTest {
     config.setTimeInterval(1L);
     config.setWriteBufferSize(1);
 
-    ArrayList<DiskDir> directories = new ArrayList<>();
+    var directories = new ArrayList<DiskDir>();
     directories.add(new DiskDir("directoryName", 1));
     config.setDirectories(directories);
 
-    DiskStoreType diskStoreType = diskStoreConverter.fromNonNullConfigObject(config);
+    var diskStoreType = diskStoreConverter.fromNonNullConfigObject(config);
 
     assertSoftly(softly -> {
       softly.assertThat(diskStoreType.isAllowForceCompaction())
@@ -76,7 +76,7 @@ public class DiskStoreConverterTest {
 
   @Test
   public void fromNonNullXmlObjectCopiesPropertiesCorrectly() {
-    DiskStoreType diskStoreType = new DiskStoreType();
+    var diskStoreType = new DiskStoreType();
     diskStoreType.setName("name");
     diskStoreType.setAllowForceCompaction(false);
     diskStoreType.setAutoCompact(false);
@@ -88,11 +88,11 @@ public class DiskStoreConverterTest {
     diskStoreType.setTimeInterval("1");
     diskStoreType.setWriteBufferSize("1");
 
-    ArrayList<DiskDirType> diskDirs = new ArrayList<>();
+    var diskDirs = new ArrayList<DiskDirType>();
     diskDirs.add(new DiskDirType());
     diskStoreType.setDiskDirs(diskDirs);
 
-    DiskStore config = diskStoreConverter.fromNonNullXmlObject(diskStoreType);
+    var config = diskStoreConverter.fromNonNullXmlObject(diskStoreType);
 
     assertSoftly(softly -> {
       softly.assertThat(config.isAllowForceCompaction())

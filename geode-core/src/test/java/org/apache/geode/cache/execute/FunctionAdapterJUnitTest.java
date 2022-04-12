@@ -72,14 +72,14 @@ public class FunctionAdapterJUnitTest {
   @Test
   public void deserializePreGeodeFunctionAdapterShouldNotThrowIncompatibleException()
       throws Exception {
-    FileInputStream fis =
+    var fis =
         new FileInputStream(
             createTempFileFromResource(getClass(), getClass().getSimpleName() + "."
                 + "serializedFunctionAdapterWithDifferentSerialVersionUID.ser").getAbsolutePath());
 
     DataInputStream dis =
         new VersionedDataInputStream(new DataInputStream(fis), KnownVersion.GFE_81);
-    Object o = InternalDataSerializer.basicReadObject(dis);
+    var o = InternalDataSerializer.basicReadObject(dis);
     assertTrue(o instanceof FunctionAdapter);
   }
 

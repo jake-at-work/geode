@@ -63,7 +63,7 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
     this.txEntryState = txEntryState;
     remoteOrigin = !txId.getMemberId().equals(owner.getMyId());
     invokeCallbacks = shouldInvokeCallbacks();
-    final boolean isTXHost = txEntryState != null;
+    final var isTXHost = txEntryState != null;
     // If the transaction originated on another member and we do not host the transaction entry
     // and are not a replicate or partitioned (i.e. !isAllEvents)
     // then only apply the update to existing entries.
@@ -93,8 +93,8 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
   }
 
   private boolean shouldInvokeCallbacks() {
-    InternalRegion owner = getOwner();
-    boolean isPartitioned = owner.isUsedForPartitionedRegionBucket();
+    var owner = getOwner();
+    var isPartitioned = owner.isUsedForPartitionedRegionBucket();
     if (isPartitioned) {
       owner = owner.getPartitionedRegion();
     }
@@ -154,7 +154,7 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
       getEvent().setOldValue(null);
     } else {
       getEvent().makeUpdate();
-      Object oldValue = getRegionEntry().getValueInVM(getOwner());
+      var oldValue = getRegionEntry().getValueInVM(getOwner());
       getEvent().setOldValue(oldValue);
     }
   }
@@ -176,14 +176,14 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
 
   @Override
   protected void createOrUpdateEntry() {
-    final RegionEntry regionEntry = getRegionEntry();
-    final EntryEventImpl callbackEvent = getEvent();
-    final InternalRegion owner = getOwner();
-    final FocusedRegionMap regionMap = getRegionMap();
-    final Object key = callbackEvent.getKey();
-    final Object newValue = computeNewValue(callbackEvent);
+    final var regionEntry = getRegionEntry();
+    final var callbackEvent = getEvent();
+    final var owner = getOwner();
+    final var regionMap = getRegionMap();
+    final var key = callbackEvent.getKey();
+    final var newValue = computeNewValue(callbackEvent);
 
-    final int oldSize = isPutOpCreate() ? 0 : owner.calculateRegionEntryValueSize(regionEntry);
+    final var oldSize = isPutOpCreate() ? 0 : owner.calculateRegionEntryValueSize(regionEntry);
     callbackEvent.setRegionEntry(regionEntry);
     regionMap.txRemoveOldIndexEntry(getPutOp(), regionEntry);
     setLastModifiedTime(owner.cacheTimeMillis());
@@ -198,7 +198,7 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
     try {
       regionMap.processAndGenerateTXVersionTag(callbackEvent, regionEntry, txEntryState);
       setNewValueOnRegionEntry(newValue);
-      int newSize = owner.calculateRegionEntryValueSize(regionEntry);
+      var newSize = owner.calculateRegionEntryValueSize(regionEntry);
       if (isPutOpCreate()) {
         owner.updateSizeOnCreate(key, newSize);
       } else {
@@ -211,10 +211,10 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
   }
 
   private void setNewValueOnRegionEntry(final Object newValue) throws RegionClearedException {
-    final RegionEntry regionEntry = getRegionEntry();
-    final InternalRegion owner = getOwner();
-    final boolean wasTombstone = regionEntry.isTombstone();
-    final Object preparedValue =
+    final var regionEntry = getRegionEntry();
+    final var owner = getOwner();
+    final var wasTombstone = regionEntry.isTombstone();
+    final var preparedValue =
         regionEntry.prepareValueForCache(owner, newValue, getEvent(), !isPutOpCreate());
     regionEntry.setValue(owner, preparedValue);
     if (wasTombstone) {
@@ -223,7 +223,7 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
   }
 
   private static Object computeNewValue(EntryEventImpl callbackEvent) {
-    Object newValue = callbackEvent.getRawNewValueAsHeapObject();
+    var newValue = callbackEvent.getRawNewValueAsHeapObject();
     if (newValue == null) {
       if (callbackEvent.isLocalInvalid()) {
         newValue = Token.LOCAL_INVALID;
@@ -241,11 +241,11 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
 
   @Override
   protected void doBeforeCompletionActions() {
-    final RegionEntry regionEntry = getRegionEntry();
-    final EntryEventImpl callbackEvent = getEvent();
-    final InternalRegion owner = getOwner();
-    final FocusedRegionMap regionMap = getRegionMap();
-    final Object key = callbackEvent.getKey();
+    final var regionEntry = getRegionEntry();
+    final var callbackEvent = getEvent();
+    final var owner = getOwner();
+    final var regionMap = getRegionMap();
+    final var key = callbackEvent.getKey();
 
     regionEntry.updateStatsForPut(getLastModifiedTime(), getLastModifiedTime());
     owner.txApplyPutPart2(regionEntry, key, getLastModifiedTime(), isPutOpCreate(), didDestroy,

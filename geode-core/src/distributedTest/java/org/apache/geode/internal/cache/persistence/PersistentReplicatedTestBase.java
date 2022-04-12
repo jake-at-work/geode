@@ -22,8 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.io.FileUtils;
@@ -31,8 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.test.dunit.AsyncInvocation;
@@ -64,8 +60,8 @@ public abstract class PersistentReplicatedTestBase extends JUnit4CacheTestCase {
   void waitForBlockedInitialization(VM vm) {
     vm.invoke(() -> {
       await().until(() -> {
-        PersistentMemberManager persistentMemberManager = getCache().getPersistentMemberManager();
-        Map<String, Set<PersistentMemberID>> regions = persistentMemberManager.getWaitingRegions();
+        var persistentMemberManager = getCache().getPersistentMemberManager();
+        var regions = persistentMemberManager.getWaitingRegions();
         return !regions.isEmpty();
       });
     });
@@ -75,19 +71,19 @@ public abstract class PersistentReplicatedTestBase extends JUnit4CacheTestCase {
     vm.invoke(() -> {
       getCache();
 
-      File dir = getDiskDirForVM(vm);
+      var dir = getDiskDirForVM(vm);
       dir.mkdirs();
 
-      DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+      var diskStoreFactory = getCache().createDiskStoreFactory();
       diskStoreFactory.setDiskDirs(new File[] {dir});
       diskStoreFactory.setMaxOplogSize(1);
       diskStoreFactory.setAutoCompact(false);
       diskStoreFactory.setAllowForceCompaction(true);
       diskStoreFactory.setCompactionThreshold(20);
 
-      DiskStore diskStore = diskStoreFactory.create(regionName);
+      var diskStore = diskStoreFactory.create(regionName);
 
-      RegionFactory regionFactory = new RegionFactory();
+      var regionFactory = new RegionFactory();
       regionFactory.setDiskStoreName(diskStore.getName());
       regionFactory.setDiskSynchronous(true);
       regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
@@ -113,7 +109,7 @@ public abstract class PersistentReplicatedTestBase extends JUnit4CacheTestCase {
     vm.invoke(() -> {
       getCache();
 
-      RegionFactory regionFactory = new RegionFactory();
+      var regionFactory = new RegionFactory();
       regionFactory.setDataPolicy(DataPolicy.REPLICATE);
       regionFactory.setScope(Scope.DISTRIBUTED_ACK);
 
@@ -132,7 +128,7 @@ public abstract class PersistentReplicatedTestBase extends JUnit4CacheTestCase {
 
   private AsyncInvocation createPersistentRegion(VM vm, boolean createPersistentRegionWillWait)
       throws ExecutionException, InterruptedException {
-    AsyncInvocation createPersistentRegionInVM = createPersistentRegionAsync(vm);
+    var createPersistentRegionInVM = createPersistentRegionAsync(vm);
 
     if (createPersistentRegionWillWait) {
       createPersistentRegionInVM.join(500);
@@ -148,16 +144,16 @@ public abstract class PersistentReplicatedTestBase extends JUnit4CacheTestCase {
     return vm.invokeAsync(() -> {
       getCache();
 
-      File dir = getDiskDirForVM(vm);
+      var dir = getDiskDirForVM(vm);
       dir.mkdirs();
 
-      DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+      var diskStoreFactory = getCache().createDiskStoreFactory();
       diskStoreFactory.setDiskDirs(new File[] {dir});
       diskStoreFactory.setMaxOplogSize(1);
 
-      DiskStore diskStore = diskStoreFactory.create(regionName);
+      var diskStore = diskStoreFactory.create(regionName);
 
-      RegionFactory regionFactory = new RegionFactory();
+      var regionFactory = new RegionFactory();
       regionFactory.setDiskStoreName(diskStore.getName());
       regionFactory.setDiskSynchronous(true);
       regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
@@ -172,14 +168,14 @@ public abstract class PersistentReplicatedTestBase extends JUnit4CacheTestCase {
   }
 
   void backupDir(VM vm) throws IOException {
-    File dirForVM = getDiskDirForVM(vm);
-    File backupFile = new File(dirForVM.getParent(), dirForVM.getName() + ".bk");
+    var dirForVM = getDiskDirForVM(vm);
+    var backupFile = new File(dirForVM.getParent(), dirForVM.getName() + ".bk");
     FileUtils.copyDirectory(dirForVM, backupFile);
   }
 
   void restoreBackup(VM vm) throws IOException {
-    File dirForVM = getDiskDirForVM(vm);
-    File backupFile = new File(dirForVM.getParent(), dirForVM.getName() + ".bk");
+    var dirForVM = getDiskDirForVM(vm);
+    var backupFile = new File(dirForVM.getParent(), dirForVM.getName() + ".bk");
     if (!backupFile.renameTo(dirForVM)) {
       deleteDirectory(dirForVM);
       FileUtils.copyDirectory(backupFile, dirForVM);

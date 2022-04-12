@@ -28,10 +28,8 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.cache.configuration.DiskDirType;
 import org.apache.geode.cache.configuration.DiskStoreType;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.test.junit.rules.GfshParserRule;
 
@@ -57,51 +55,51 @@ public class CreateDiskStoreCommandTest {
 
   @Test
   public void dirWithRelativePath() throws Exception {
-    ResultModel resultModel =
+    var resultModel =
         gfsh.executeAndAssertThat(command, "create disk-store --name=ds1 --dir=./data/persist")
             .getResultModel();
-    DiskStoreType diskStoreType = (DiskStoreType) resultModel.getConfigObject();
+    var diskStoreType = (DiskStoreType) resultModel.getConfigObject();
 
-    DiskDirType diskDirType = diskStoreType.getDiskDirs().get(0);
+    var diskDirType = diskStoreType.getDiskDirs().get(0);
     assertThat(diskDirType.getContent().replace('\\', '/')).isEqualTo("./data/persist");
   }
 
   @Test
   public void dirWithAbsolutePath() throws Exception {
-    ResultModel resultModel =
+    var resultModel =
         gfsh.executeAndAssertThat(command, "create disk-store --name=ds1 --dir=/data/persist")
             .getResultModel();
-    DiskStoreType diskStoreType = (DiskStoreType) resultModel.getConfigObject();
+    var diskStoreType = (DiskStoreType) resultModel.getConfigObject();
 
-    DiskDirType diskDirType = diskStoreType.getDiskDirs().get(0);
+    var diskDirType = diskStoreType.getDiskDirs().get(0);
     assertThat(diskDirType.getContent().replace('\\', '/')).isEqualTo("/data/persist");
   }
 
   @Test
   public void dirIsCreatedWithExpectedSpecifiedSize() throws Exception {
-    ResultModel resultModel =
+    var resultModel =
         gfsh.executeAndAssertThat(command, "create disk-store --name=ds1 --dir=/data/persist#32768")
             .getResultModel();
-    DiskStoreType diskStoreType = (DiskStoreType) resultModel.getConfigObject();
+    var diskStoreType = (DiskStoreType) resultModel.getConfigObject();
 
-    DiskDirType diskDirType = diskStoreType.getDiskDirs().get(0);
+    var diskDirType = diskStoreType.getDiskDirs().get(0);
     assertThat(diskDirType.getDirSize()).isEqualTo("32768");
   }
 
   @Test
   public void dirIsCreatedWithExpectedDefaultSize() {
-    ResultModel resultModel =
+    var resultModel =
         gfsh.executeAndAssertThat(command, "create disk-store --name=ds1 --dir=/data/persist")
             .getResultModel();
-    DiskStoreType diskStoreType = (DiskStoreType) resultModel.getConfigObject();
+    var diskStoreType = (DiskStoreType) resultModel.getConfigObject();
 
-    DiskDirType diskDirType = diskStoreType.getDiskDirs().get(0);
+    var diskDirType = diskStoreType.getDiskDirs().get(0);
     assertThat(diskDirType.getDirSize()).isEqualTo(String.valueOf(Integer.MAX_VALUE));
   }
 
   @Test
   public void commandFailsIfDirSizeIsOverTheMaximum() {
-    long invalidValue = (long) Integer.MAX_VALUE + 1;
+    var invalidValue = (long) Integer.MAX_VALUE + 1;
     gfsh.executeAndAssertThat(command,
         "create disk-store --name=ds1 --dir=/data/persist#" + invalidValue)
         .statusIsError()

@@ -63,9 +63,9 @@ public class LocalRegionBulkOperationTest {
 
   @Test(expected = CacheClosedException.class)
   public void basicRemoveAllThrowsCacheClosedExceptionIfCacheIsClosing() {
-    String[] strings = {"key"};
+    var strings = new String[] {"key"};
     Set keys = new HashSet<>(Arrays.asList(strings));
-    DistributedRemoveAllOperation removeAll = mock(DistributedRemoveAllOperation.class);
+    var removeAll = mock(DistributedRemoveAllOperation.class);
     when(removeAll.getBaseEvent()).thenReturn(event);
     when(region.basicRemoveAll(keys, removeAll, null)).thenCallRealMethod();
     when(serverRegionProxy.removeAll(keys, eventID, callbacks)).thenThrow(exception);
@@ -77,7 +77,7 @@ public class LocalRegionBulkOperationTest {
   public void basicPutAllThrowsCacheClosedExceptionIfCacheIsClosing() {
     Map map = new HashMap();
     map.put("key", "value");
-    DistributedPutAllOperation putAll = mock(DistributedPutAllOperation.class);
+    var putAll = mock(DistributedPutAllOperation.class);
     when(putAll.getBaseEvent()).thenReturn(event);
     when(region.basicPutAll(map, putAll, null)).thenCallRealMethod();
     when(region.getAtomicThresholdInfo()).thenReturn(mock(MemoryThresholdInfo.class));

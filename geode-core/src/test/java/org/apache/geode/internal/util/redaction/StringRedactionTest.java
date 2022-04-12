@@ -52,12 +52,12 @@ public class StringRedactionTest {
 
   @Test
   public void redactDelegatesString() {
-    String input = "line";
-    String expected = "expected";
+    var input = "line";
+    var expected = "expected";
 
     when(redactionStrategy.redact(input)).thenReturn(expected);
 
-    String result = stringRedaction.redact(input);
+    var result = stringRedaction.redact(input);
 
     verify(redactionStrategy).redact(input);
     assertThat(result).isEqualTo(expected);
@@ -74,7 +74,7 @@ public class StringRedactionTest {
 
   @Test
   public void redactDelegatesEmptyString() {
-    String input = "";
+    var input = "";
 
     stringRedaction.redact(input);
 
@@ -83,19 +83,19 @@ public class StringRedactionTest {
 
   @Test
   public void redactDelegatesIterable() {
-    String line1 = "line1";
-    String line2 = "line2";
-    String line3 = "line3";
+    var line1 = "line1";
+    var line2 = "line2";
+    var line3 = "line3";
     Collection<String> input = new ArrayList<>();
     input.add(line1);
     input.add(line2);
     input.add(line3);
-    String joinedLine = String.join(" ", input);
-    String expected = "expected";
+    var joinedLine = String.join(" ", input);
+    var expected = "expected";
 
     when(redactionStrategy.redact(joinedLine)).thenReturn(expected);
 
-    String result = stringRedaction.redact(input);
+    var result = stringRedaction.redact(input);
 
     verify(redactionStrategy).redact(joinedLine);
     assertThat(result).isEqualTo(expected);
@@ -105,7 +105,7 @@ public class StringRedactionTest {
   public void redactNullIterableThrowsNullPointerException() {
     Collection<String> input = null;
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       stringRedaction.redact(input);
     });
 
@@ -114,12 +114,12 @@ public class StringRedactionTest {
 
   @Test
   public void redactArgumentIfNecessaryDelegatesSensitiveKey() {
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
 
     when(sensitiveDataDictionary.isSensitive(key)).thenReturn(true);
 
-    String result = stringRedaction.redactArgumentIfNecessary(key, value);
+    var result = stringRedaction.redactArgumentIfNecessary(key, value);
 
     verify(sensitiveDataDictionary).isSensitive(key);
     assertThat(result).isEqualTo(REDACTED);
@@ -127,12 +127,12 @@ public class StringRedactionTest {
 
   @Test
   public void redactArgumentIfNecessaryDelegatesNonSensitiveKey() {
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
 
     when(sensitiveDataDictionary.isSensitive(key)).thenReturn(false);
 
-    String result = stringRedaction.redactArgumentIfNecessary(key, value);
+    var result = stringRedaction.redactArgumentIfNecessary(key, value);
 
     verify(sensitiveDataDictionary).isSensitive(key);
     assertThat(result).isEqualTo(value);
@@ -149,7 +149,7 @@ public class StringRedactionTest {
 
   @Test
   public void redactArgumentIfNecessaryDelegatesEmptyKey() {
-    String key = "";
+    var key = "";
 
     stringRedaction.redactArgumentIfNecessary(key, "value");
 
@@ -160,25 +160,25 @@ public class StringRedactionTest {
   public void redactArgumentIfNecessaryReturnsNullValue() {
     String value = null;
 
-    String result = stringRedaction.redactArgumentIfNecessary("key", value);
+    var result = stringRedaction.redactArgumentIfNecessary("key", value);
 
     assertThat(result).isEqualTo(value);
   }
 
   @Test
   public void redactArgumentIfNecessaryReturnsEmptyValue() {
-    String value = "";
+    var value = "";
 
-    String result = stringRedaction.redactArgumentIfNecessary("key", value);
+    var result = stringRedaction.redactArgumentIfNecessary("key", value);
 
     assertThat(result).isEqualTo(value);
   }
 
   @Test
   public void redactEachInListDelegatesEachStringInIterable() {
-    String string1 = "string1";
-    String string2 = "string2";
-    String string3 = "string3";
+    var string1 = "string1";
+    var string2 = "string2";
+    var string3 = "string3";
     List<String> input = new ArrayList<>();
     input.add(string1);
     input.add(string2);
@@ -186,7 +186,7 @@ public class StringRedactionTest {
 
     when(redactionStrategy.redact(anyString())).then(returnsFirstArg());
 
-    List<String> result = stringRedaction.redactEachInList(input);
+    var result = stringRedaction.redactEachInList(input);
 
     verify(redactionStrategy).redact(string1);
     verify(redactionStrategy).redact(string2);
@@ -200,7 +200,7 @@ public class StringRedactionTest {
 
     when(redactionStrategy.redact(anyString())).then(returnsFirstArg());
 
-    List<String> result = stringRedaction.redactEachInList(input);
+    var result = stringRedaction.redactEachInList(input);
 
     verifyNoInteractions(redactionStrategy);
     assertThat(result).isEqualTo(input);
@@ -212,7 +212,7 @@ public class StringRedactionTest {
 
     when(redactionStrategy.redact(anyString())).then(returnsFirstArg());
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       stringRedaction.redactEachInList(input);
     });
 
@@ -221,11 +221,11 @@ public class StringRedactionTest {
 
   @Test
   public void isSensitiveDelegatesString() {
-    String input = "input";
+    var input = "input";
 
     when(sensitiveDataDictionary.isSensitive(anyString())).thenReturn(true);
 
-    boolean result = stringRedaction.isSensitive(input);
+    var result = stringRedaction.isSensitive(input);
 
     assertThat(result).isTrue();
   }
@@ -236,18 +236,18 @@ public class StringRedactionTest {
 
     when(sensitiveDataDictionary.isSensitive(isNull())).thenReturn(true);
 
-    boolean result = stringRedaction.isSensitive(input);
+    var result = stringRedaction.isSensitive(input);
 
     assertThat(result).isTrue();
   }
 
   @Test
   public void isSensitiveDelegatesEmptyString() {
-    String input = "";
+    var input = "";
 
     when(sensitiveDataDictionary.isSensitive(anyString())).thenReturn(true);
 
-    boolean result = stringRedaction.isSensitive(input);
+    var result = stringRedaction.isSensitive(input);
 
     assertThat(result).isTrue();
   }

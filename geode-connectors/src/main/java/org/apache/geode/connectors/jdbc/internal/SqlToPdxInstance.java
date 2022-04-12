@@ -16,7 +16,6 @@
  */
 package org.apache.geode.connectors.jdbc.internal;
 
-import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -27,7 +26,6 @@ import java.util.Map;
 import org.apache.geode.connectors.jdbc.JdbcConnectorException;
 import org.apache.geode.pdx.FieldType;
 import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.pdx.WritablePdxInstance;
 
 public class SqlToPdxInstance {
   private PdxInstance pdxTemplate;
@@ -73,18 +71,18 @@ public class SqlToPdxInstance {
     if (!resultSet.next()) {
       return null;
     }
-    WritablePdxInstance result = pdxTemplate.createWriter();
-    ResultSetMetaData metaData = resultSet.getMetaData();
-    final int columnCount = metaData.getColumnCount();
-    for (int i = 1; i <= columnCount; i++) {
-      String columnName = metaData.getColumnName(i);
-      PdxFieldInfo fieldInfo = columnToPdxFieldMap.get(columnName);
+    var result = pdxTemplate.createWriter();
+    var metaData = resultSet.getMetaData();
+    final var columnCount = metaData.getColumnCount();
+    for (var i = 1; i <= columnCount; i++) {
+      var columnName = metaData.getColumnName(i);
+      var fieldInfo = columnToPdxFieldMap.get(columnName);
       if (fieldInfo == null) {
         throw new JdbcConnectorException(
             "The jdbc-mapping does not contain the column name \"" + columnName + "\"."
                 + " This is probably caused by a column being added to the table after the jdbc-mapping was created.");
       }
-      Object fieldValue = getFieldValue(resultSet, i, fieldInfo.getType(), metaData);
+      var fieldValue = getFieldValue(resultSet, i, fieldInfo.getType(), metaData);
       result.setField(fieldInfo.getName(), fieldValue);
     }
     if (resultSet.next()) {
@@ -159,13 +157,13 @@ public class SqlToPdxInstance {
       v = resultSet.getObject(columnIndex);
       if (v instanceof java.util.Date) {
         if (v instanceof java.sql.Date) {
-          java.sql.Date sqlDate = (java.sql.Date) v;
+          var sqlDate = (java.sql.Date) v;
           v = new java.util.Date(sqlDate.getTime());
         } else if (v instanceof java.sql.Time) {
-          java.sql.Time sqlTime = (java.sql.Time) v;
+          var sqlTime = (java.sql.Time) v;
           v = new java.util.Date(sqlTime.getTime());
         } else if (v instanceof java.sql.Timestamp) {
-          java.sql.Timestamp sqlTimestamp = (java.sql.Timestamp) v;
+          var sqlTimestamp = (java.sql.Timestamp) v;
           v = new java.util.Date(sqlTimestamp.getTime());
         }
       }
@@ -186,7 +184,7 @@ public class SqlToPdxInstance {
 
   private Object getCharValue(ResultSet resultSet, int columnIndex) throws SQLException {
     char charValue = 0;
-    String columnValue = resultSet.getString(columnIndex);
+    var columnValue = resultSet.getString(columnIndex);
     if (columnValue != null && columnValue.length() > 0) {
       charValue = columnValue.charAt(0);
     }
@@ -197,7 +195,7 @@ public class SqlToPdxInstance {
       ResultSetMetaData metaData)
       throws SQLException {
     java.util.Date sqlDate;
-    int columnType = metaData.getColumnType(columnIndex);
+    var columnType = metaData.getColumnType(columnIndex);
     switch (columnType) {
       case Types.DATE:
         sqlDate = resultSet.getDate(columnIndex);
@@ -218,7 +216,7 @@ public class SqlToPdxInstance {
   }
 
   private boolean isBlobColumn(int columnIndex, ResultSetMetaData metaData) throws SQLException {
-    int columnType = metaData.getColumnType(columnIndex);
+    var columnType = metaData.getColumnType(columnIndex);
     return Types.BLOB == columnType;
   }
 
@@ -229,12 +227,12 @@ public class SqlToPdxInstance {
    * @throws JdbcConnectorException if blob is too big to fit in a byte array
    */
   private byte[] getBlobData(ResultSet resultSet, int columnIndex) throws SQLException {
-    Blob blob = resultSet.getBlob(columnIndex);
+    var blob = resultSet.getBlob(columnIndex);
     if (blob == null) {
       return null;
     }
     try {
-      long blobLength = blob.length();
+      var blobLength = blob.length();
       if (blobLength > Integer.MAX_VALUE) {
         throw new JdbcConnectorException(
             "Blob of length " + blobLength + " is too big to be converted to a byte array.");

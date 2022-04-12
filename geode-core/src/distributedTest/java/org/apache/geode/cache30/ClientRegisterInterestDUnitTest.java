@@ -33,25 +33,21 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.cache.client.SubscriptionNotEnabledException;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
 
@@ -76,20 +72,20 @@ public class ClientRegisterInterestDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testBug35381() throws Exception {
-    final Host host = Host.getHost(0);
-    final String name = getUniqueName();
-    final int[] ports = new int[1]; // 1 server in this test
+    final var host = Host.getHost(0);
+    final var name = getUniqueName();
+    final var ports = new int[1]; // 1 server in this test
 
-    final int whichVM = 0;
-    final VM vm = Host.getHost(0).getVM(whichVM);
+    final var whichVM = 0;
+    final var vm = Host.getHost(0).getVM(whichVM);
     vm.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
         LogWriterUtils.getLogWriter().info("[testBug35381] Create BridgeServer");
         getSystem();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
-        Region region = createRegion(name, factory.create());
+        var region = createRegion(name, factory.create());
         assertNotNull(region);
         assertNotNull(getRootRegion().getSubregion(name));
         region.put("KEY-1", "VAL-1");
@@ -111,20 +107,20 @@ public class ClientRegisterInterestDUnitTest extends ClientServerTestCase {
     assertTrue(ports[whichVM] != 0);
 
     LogWriterUtils.getLogWriter().info("[testBug35381] create bridge client");
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     getSystem(config);
     getCache();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
 
     LogWriterUtils.getLogWriter().info("[testBug35381] creating connection pool");
-    boolean establishCallbackConnection = false; // SOURCE OF BUG 35381
+    var establishCallbackConnection = false; // SOURCE OF BUG 35381
     ClientServerTestCase.configureConnectionPool(factory, NetworkUtils.getServerHostName(host),
         ports, establishCallbackConnection, -1, -1, null);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     assertNotNull(getRootRegion().getSubregion(name));
     try {
       region.registerInterest("KEY-1");
@@ -156,30 +152,30 @@ public class ClientRegisterInterestDUnitTest extends ClientServerTestCase {
   public void testRegisterInterestFailover() throws Exception {
     // controller is bridge client
 
-    final Host host = getHost(0);
-    final String name = getUniqueName();
-    final String regionName1 = name + "-1";
-    final String regionName2 = name + "-2";
-    final String regionName3 = name + "-3";
-    final String key1 = "KEY-" + regionName1 + "-1";
-    final String key2 = "KEY-" + regionName1 + "-2";
-    final String key3 = "KEY-" + regionName1 + "-3";
-    final int[] ports = new int[3]; // 3 servers in this test
+    final var host = getHost(0);
+    final var name = getUniqueName();
+    final var regionName1 = name + "-1";
+    final var regionName2 = name + "-2";
+    final var regionName3 = name + "-3";
+    final var key1 = "KEY-" + regionName1 + "-1";
+    final var key2 = "KEY-" + regionName1 + "-2";
+    final var key3 = "KEY-" + regionName1 + "-3";
+    final var ports = new int[3]; // 3 servers in this test
 
     // create first cache server with region for client...
-    final int firstServerIdx = 0;
-    final VM firstServerVM = getHost(0).getVM(firstServerIdx);
+    final var firstServerIdx = 0;
+    final var firstServerVM = getHost(0).getVM(firstServerIdx);
     firstServerVM.invoke(new CacheSerializableRunnable("Create first cache server") {
       @Override
       public void run2() throws CacheException {
         getLogWriter()
             .info("[testRegisterInterestFailover] Create first cache server");
         getSystem();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(LOCAL);
-        Region region1 = createRootRegion(regionName1, factory.create());
-        Region region2 = createRootRegion(regionName2, factory.create());
-        Region region3 = createRootRegion(regionName3, factory.create());
+        var region1 = createRootRegion(regionName1, factory.create());
+        var region2 = createRootRegion(regionName2, factory.create());
+        var region3 = createRootRegion(regionName3, factory.create());
         region1.put(key1, "VAL-1");
         region2.put(key2, "VAL-1");
         region3.put(key3, "VAL-1");
@@ -201,18 +197,18 @@ public class ClientRegisterInterestDUnitTest extends ClientServerTestCase {
     });
 
     // create second cache server missing region for client...
-    final int secondServerIdx = 1;
-    final VM secondServerVM = getHost(0).getVM(secondServerIdx);
+    final var secondServerIdx = 1;
+    final var secondServerVM = getHost(0).getVM(secondServerIdx);
     secondServerVM.invoke(new CacheSerializableRunnable("Create second cache server") {
       @Override
       public void run2() throws CacheException {
         getLogWriter()
             .info("[testRegisterInterestFailover] Create second cache server");
         getSystem();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(LOCAL);
-        Region region1 = createRootRegion(regionName1, factory.create());
-        Region region3 = createRootRegion(regionName3, factory.create());
+        var region1 = createRootRegion(regionName1, factory.create());
+        var region3 = createRootRegion(regionName3, factory.create());
         region1.put(key1, "VAL-2");
         region3.put(key3, "VAL-2");
 
@@ -251,23 +247,23 @@ public class ClientRegisterInterestDUnitTest extends ClientServerTestCase {
 
     // create the bridge client
     getLogWriter().info("[testBug35654] create bridge client");
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     getSystem(config);
     getCache();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(LOCAL);
 
     getLogWriter().info("[testRegisterInterestFailover] creating connection pool");
-    boolean establishCallbackConnection = true;
-    final PoolImpl p = (PoolImpl) configureConnectionPool(factory,
+    var establishCallbackConnection = true;
+    final var p = (PoolImpl) configureConnectionPool(factory,
         getServerHostName(host), ports, establishCallbackConnection, -1, -1, null);
 
-    final Region region1 = createRootRegion(regionName1, factory.create());
-    final Region region2 = createRootRegion(regionName2, factory.create());
-    final Region region3 = createRootRegion(regionName3, factory.create());
+    final var region1 = createRootRegion(regionName1, factory.create());
+    final var region2 = createRootRegion(regionName2, factory.create());
+    final var region3 = createRootRegion(regionName3, factory.create());
 
     assertTrue(region1.getInterestList().isEmpty());
     assertTrue(region2.getInterestList().isEmpty());
@@ -286,7 +282,7 @@ public class ClientRegisterInterestDUnitTest extends ClientServerTestCase {
     assertTrue(region3.getInterestListRegex().isEmpty());
 
     // get ConnectionProxy and wait until connected to first server
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return p.getPrimaryPort() != -1;
@@ -380,7 +376,7 @@ public class ClientRegisterInterestDUnitTest extends ClientServerTestCase {
     secondServerVM.invoke(new CacheSerializableRunnable("Puts from second cache server") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(LOCAL);
         createRootRegion(regionName2, factory.create());
       }
@@ -466,20 +462,20 @@ public class ClientRegisterInterestDUnitTest extends ClientServerTestCase {
 
   @Test
   public void rejectAttemptToRegisterInterestInLonerSystem() throws Exception {
-    final String name = getUniqueName();
-    final String regionName1 = name + "-1";
+    final var name = getUniqueName();
+    final var regionName1 = name + "-1";
 
     // create first cache server with region for client...
-    final int firstServerIdx = 1;
+    final var firstServerIdx = 1;
 
-    final VM firstServerVM = Host.getHost(0).getVM(firstServerIdx);
+    final var firstServerVM = Host.getHost(0).getVM(firstServerIdx);
     firstServerVM.invoke(new CacheSerializableRunnable("Create first cache server") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = new CacheFactory().set("mcast-port", "0").create();
+        var cache = new CacheFactory().set("mcast-port", "0").create();
 
         try {
-          CacheServer bridge = cache.addCacheServer();
+          var bridge = cache.addCacheServer();
           bridge.setPort(0);
           bridge.setMaxThreads(getMaxThreads());
           bridge.start();
@@ -498,7 +494,7 @@ public class ClientRegisterInterestDUnitTest extends ClientServerTestCase {
     int port = firstServerVM.invoke(ClientRegisterInterestDUnitTest::getBridgeServerPort);
 
     try {
-      ClientCache clientCache =
+      var clientCache =
           new ClientCacheFactory().addPoolServer(firstServerVM.getHost().getHostName(), port)
               .setPoolSubscriptionEnabled(true).create();
       Region region = clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)

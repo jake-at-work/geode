@@ -58,7 +58,7 @@ public abstract class DistributedSystemTestCase {
    * Defines the <code>Properties</code> used to connect to the distributed system.
    */
   protected Properties defineProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(CONSERVE_SOCKETS, "true");

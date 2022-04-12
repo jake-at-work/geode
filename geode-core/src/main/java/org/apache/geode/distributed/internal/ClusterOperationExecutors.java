@@ -174,7 +174,7 @@ public class ClusterOperationExecutors implements OperationExecutors {
     this.stats = stats;
     this.system = system;
 
-    DistributionConfig config = system.getConfig();
+    var config = system.getConfig();
 
     threadMonitor = config.getThreadMonitorEnabled() ? new ThreadsMonitoringImpl(system,
         config.getThreadMonitorInterval(), config.getThreadMonitorTimeLimit())
@@ -194,7 +194,7 @@ public class ClusterOperationExecutors implements OperationExecutors {
       }
       // when TCP/IP is disabled we can't throttle the serial queue or we run the risk of
       // distributed deadlock when we block the UDP reader thread
-      boolean throttlingDisabled = system.getConfig().getDisableTcp();
+      var throttlingDisabled = system.getConfig().getDisableTcp();
       serialQueuedExecutorPool =
           new SerialQueuedExecutorPool(stats, throttlingDisabled, threadMonitor);
     }
@@ -507,14 +507,14 @@ public class ClusterOperationExecutors implements OperationExecutors {
   }
 
   void waitForThreadsToStop(long timeInMillis) throws InterruptedException {
-    long start = System.currentTimeMillis();
-    long remaining = timeInMillis;
+    var start = System.currentTimeMillis();
+    var remaining = timeInMillis;
 
-    ExecutorService[] allExecutors = new ExecutorService[] {serialThread,
+    var allExecutors = new ExecutorService[] {serialThread,
         functionExecutionThread, functionExecutionPool, partitionedRegionThread,
         partitionedRegionPool, highPriorityPool, waitingPool,
         prMetaDataCleanupThreadPool, threadPool};
-    for (ExecutorService es : allExecutors) {
+    for (var es : allExecutors) {
       if (es != null) {
         es.awaitTermination(remaining, TimeUnit.MILLISECONDS);
       }
@@ -531,7 +531,7 @@ public class ClusterOperationExecutors implements OperationExecutors {
     if (tpe == null) {
       return false;
     } else {
-      int ac = ((ThreadPoolExecutor) tpe).getActiveCount();
+      var ac = ((ThreadPoolExecutor) tpe).getActiveCount();
       // boolean result = tpe.getActiveCount() > 0;
       if (ac > 0) {
         if (logger.isDebugEnabled()) {
@@ -550,10 +550,10 @@ public class ClusterOperationExecutors implements OperationExecutors {
    *
    */
   void forceThreadsToStop() {
-    long endTime = System.currentTimeMillis() + MAX_STOP_TIME;
+    var endTime = System.currentTimeMillis() + MAX_STOP_TIME;
     StringBuilder culprits;
     for (;;) {
-      boolean stillAlive = false;
+      var stillAlive = false;
       culprits = new StringBuilder();
       if (executorAlive(serialThread, "serial thread")) {
         stillAlive = true;
@@ -588,7 +588,7 @@ public class ClusterOperationExecutors implements OperationExecutors {
         return;
       }
 
-      long now = System.currentTimeMillis();
+      var now = System.currentTimeMillis();
       if (now >= endTime) {
         break;
       }
@@ -716,7 +716,7 @@ public class ClusterOperationExecutors implements OperationExecutors {
      * queue size).
      */
     OverflowQueueWithDMStats<Runnable> getSerialQueue(InternalDistributedMember sender) {
-      Integer queueId = getQueueId(sender, false);
+      var queueId = getQueueId(sender, false);
       if (queueId == null) {
         return null;
       }
@@ -731,10 +731,10 @@ public class ClusterOperationExecutors implements OperationExecutors {
      */
     ExecutorService getThrottledSerialExecutor(
         InternalDistributedMember sender) {
-      ExecutorService executor = getSerialExecutor(sender);
+      var executor = getSerialExecutor(sender);
 
       // Get the total serial queue size.
-      long totalSerialQueueMemSize = stats.getInternalSerialQueueBytes();
+      var totalSerialQueueMemSize = stats.getInternalSerialQueueBytes();
 
       // for tcp socket reader threads, this code throttles the thread
       // to keep the sender-side from overwhelming the receiver.
@@ -743,11 +743,11 @@ public class ClusterOperationExecutors implements OperationExecutors {
       if (stats.getInternalSerialQueueBytes() > TOTAL_SERIAL_QUEUE_THROTTLE
           && !DistributionMessage.isMembershipMessengerThread()) {
         do {
-          boolean interrupted = Thread.interrupted();
+          var interrupted = Thread.interrupted();
           try {
-            float throttlePercent = (float) (totalSerialQueueMemSize - TOTAL_SERIAL_QUEUE_THROTTLE)
+            var throttlePercent = (float) (totalSerialQueueMemSize - TOTAL_SERIAL_QUEUE_THROTTLE)
                 / (float) (TOTAL_SERIAL_QUEUE_BYTE_LIMIT - TOTAL_SERIAL_QUEUE_THROTTLE);
-            int sleep = (int) (100.0 * throttlePercent);
+            var sleep = (int) (100.0 * throttlePercent);
             sleep = Math.max(sleep, 1);
             Thread.sleep(sleep);
           } catch (InterruptedException ex) {
@@ -770,7 +770,7 @@ public class ClusterOperationExecutors implements OperationExecutors {
      */
     ExecutorService getSerialExecutor(InternalDistributedMember sender) {
       ExecutorService executor;
-      Integer queueId = getQueueId(sender, true);
+      var queueId = getQueueId(sender, true);
       if ((executor =
           serialQueuedExecutorMap.get(queueId)) != null) {
         return executor;
@@ -826,18 +826,18 @@ public class ClusterOperationExecutors implements OperationExecutors {
      * member for re-use.
      */
     private void handleMemberDeparture(InternalDistributedMember member) {
-      Integer queueId = getQueueId(member, false);
+      var queueId = getQueueId(member, false);
       if (queueId == null) {
         return;
       }
 
-      boolean isUsed = false;
+      var isUsed = false;
 
       synchronized (senderToSerialQueueIdMap) {
         senderToSerialQueueIdMap.remove(member);
 
         // Check if any other members are using the same executor.
-        for (Integer value : senderToSerialQueueIdMap.values()) {
+        for (var value : senderToSerialQueueIdMap.values()) {
           if (value.equals(queueId)) {
             isUsed = true;
             break;
@@ -858,9 +858,9 @@ public class ClusterOperationExecutors implements OperationExecutors {
     }
 
     private void awaitTermination(long time, TimeUnit unit) throws InterruptedException {
-      long remainingNanos = unit.toNanos(time);
-      long start = System.nanoTime();
-      for (ExecutorService executor : serialQueuedExecutorMap.values()) {
+      var remainingNanos = unit.toNanos(time);
+      var start = System.nanoTime();
+      for (var executor : serialQueuedExecutorMap.values()) {
         executor.awaitTermination(remainingNanos, TimeUnit.NANOSECONDS);
         remainingNanos = (System.nanoTime() - start);
         if (remainingNanos <= 0) {
@@ -870,7 +870,7 @@ public class ClusterOperationExecutors implements OperationExecutors {
     }
 
     private void shutdown() {
-      for (ExecutorService executor : serialQueuedExecutorMap
+      for (var executor : serialQueuedExecutorMap
           .values()) {
         executor.shutdown();
       }

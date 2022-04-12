@@ -171,7 +171,7 @@ public class GatewaySenderStats {
    */
   static {
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     type = createType(f, typeName, "Stats for activity in the GatewaySender");
 
@@ -868,7 +868,7 @@ public class GatewaySenderStats {
    * @param numberOfEvents The number of events to add to the events distributed stat
    */
   public void endBatch(long start, int numberOfEvents) {
-    long ts = DistributionStats.getStatTime();
+    var ts = DistributionStats.getStatTime();
 
     // Increment number of batches distributed
     stats.incInt(batchesDistributedId, 1);
@@ -877,7 +877,7 @@ public class GatewaySenderStats {
     stats.incInt(eventsDistributedId, numberOfEvents);
 
     // Increment batch distribution time
-    long elapsed = ts - start;
+    var elapsed = ts - start;
     stats.incLong(batchDistributionTimeId, elapsed);
   }
 
@@ -888,13 +888,13 @@ public class GatewaySenderStats {
    *        queue processing time).
    */
   public void endPut(long start) {
-    long ts = DistributionStats.getStatTime();
+    var ts = DistributionStats.getStatTime();
 
     // Increment number of event queued
     stats.incInt(eventsQueuedId, 1);
 
     // Increment event queue time
-    long elapsed = ts - start;
+    var elapsed = ts - start;
     stats.incLong(eventQueueTimeId, elapsed);
   }
 
@@ -904,7 +904,7 @@ public class GatewaySenderStats {
   }
 
   public void endLoadBalance(long start) {
-    long delta = statisticsClock.getTime() - start;
+    var delta = statisticsClock.getTime() - start;
     stats.incInt(loadBalancesInProgressId, -1);
     stats.incInt(loadBalancesCompletedId, 1);
     stats.incLong(loadBalanceTimeId, delta);

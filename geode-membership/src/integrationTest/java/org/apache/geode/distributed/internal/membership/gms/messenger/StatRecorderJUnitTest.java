@@ -74,11 +74,11 @@ public class StatRecorderJUnitTest {
    */
   @Test
   public void testUnicastStats() throws Exception {
-    Message msg = mock(Message.class);
+    var msg = mock(Message.class);
     when(msg.getHeader(any(Short.class))).thenReturn(Header.createDataHeader(1L, (short) 1, true));
     when(msg.size()).thenReturn(150L);
 
-    Event evt = new Event(Event.MSG, msg);
+    var evt = new Event(Event.MSG, msg);
     recorder.up(evt);
     verify(stats).incUcastReadBytes(150);
 
@@ -96,7 +96,7 @@ public class StatRecorderJUnitTest {
 
   @Test
   public void recorderHandlesRejectedExecution() throws Exception {
-    Message msg = mock(Message.class);
+    var msg = mock(Message.class);
     when(msg.getHeader(any(Short.class))).thenReturn(Header.createDataHeader(1L, (short) 1, true));
     when(msg.size()).thenReturn(150L);
 
@@ -108,13 +108,13 @@ public class StatRecorderJUnitTest {
     // we set the Manager to say no shutdown is in progress the first time and then say
     // one IS in progress so we can break out of the StatRecorder exception handling loop
     when(services.getCancelCriterion()).thenReturn(new Services().getCancelCriterion());
-    Manager manager = mock(Manager.class);
+    var manager = mock(Manager.class);
     when(services.getManager()).thenReturn(manager);
     when(manager.shutdownInProgress()).thenReturn(Boolean.FALSE, Boolean.TRUE);
 
     verify(mockDownProtocol, never()).down(isA(Event.class));
 
-    Event evt = new Event(Event.MSG, msg);
+    var evt = new Event(Event.MSG, msg);
     recorder.down(evt);
 
     verify(mockDownProtocol, times(2)).down(isA(Event.class));
@@ -125,11 +125,11 @@ public class StatRecorderJUnitTest {
    */
   @Test
   public void testMulticastStats() throws Exception {
-    Message msg = mock(Message.class);
+    var msg = mock(Message.class);
     when(msg.getHeader(any(Short.class))).thenReturn(NakAckHeader2.createMessageHeader(1L));
     when(msg.size()).thenReturn(150L);
 
-    Event evt = new Event(Event.MSG, msg);
+    var evt = new Event(Event.MSG, msg);
     recorder.up(evt);
     verify(stats).incMcastReadBytes(150);
 
@@ -157,18 +157,17 @@ public class StatRecorderJUnitTest {
    */
   @Test
   public void messengerStackHoldsStatRecorder() throws Exception {
-    Services mockServices = mock(Services.class);
+    var mockServices = mock(Services.class);
 
     // first test to see if the non-multicast stack has the recorder installed
-    MembershipConfig mockConfig = mock(MembershipConfig.class);
+    var mockConfig = mock(MembershipConfig.class);
     when(mockConfig.getMembershipPortRange()).thenReturn(new int[] {0, 10});
     when(mockConfig.getSecurityUDPDHAlgo()).thenReturn("");
     when(mockServices.getConfig()).thenReturn(mockConfig);
 
-
-    JGroupsMessenger messenger = new JGroupsMessenger();
+    var messenger = new JGroupsMessenger();
     messenger.init(mockServices);
-    String jgroupsConfig = messenger.jgStackConfig;
+    var jgroupsConfig = messenger.jgStackConfig;
     System.out.println(jgroupsConfig);
     assertTrue(jgroupsConfig.contains("gms.messenger.StatRecorder"));
 

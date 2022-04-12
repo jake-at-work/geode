@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -68,7 +67,7 @@ public class CreateDestroyGatewaySenderCommandDUnitTest implements Serializable 
 
   @BeforeClass
   public static void beforeClass() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
 
@@ -107,9 +106,9 @@ public class CreateDestroyGatewaySenderCommandDUnitTest implements Serializable 
         server3);
 
     locatorSite1.invoke(() -> {
-      InternalLocator locator = ClusterStartupRule.getLocator();
+      var locator = ClusterStartupRule.getLocator();
       assertThat(locator).isNotNull();
-      String xml = locator.getConfigurationPersistenceService().getConfiguration("cluster")
+      var xml = locator.getConfigurationPersistenceService().getConfiguration("cluster")
           .getCacheXmlContent();
       assertThat(xml).contains(
           "<gateway-sender id=\"ln\" remote-distributed-system-id=\"2\" parallel=\"false\" manual-start=\"false\" enable-batch-conflation=\"false\" enable-persistence=\"false\" disk-synchronous=\"true\" group-transaction-events=\"false\" enforce-threads-connect-same-receiver=\"false\"/>");
@@ -127,9 +126,9 @@ public class CreateDestroyGatewaySenderCommandDUnitTest implements Serializable 
         server3);
 
     locatorSite1.invoke(() -> {
-      InternalLocator locator = ClusterStartupRule.getLocator();
+      var locator = ClusterStartupRule.getLocator();
       assertThat(locator).isNotNull();
-      String xml = locator.getConfigurationPersistenceService().getConfiguration("cluster")
+      var xml = locator.getConfigurationPersistenceService().getConfiguration("cluster")
           .getCacheXmlContent();
       assertThat(xml).doesNotContain("gateway-sender id=\"ln\"");
     });
@@ -140,8 +139,8 @@ public class CreateDestroyGatewaySenderCommandDUnitTest implements Serializable 
    */
   @Test
   public void testCreateDestroyGatewaySender() {
-    int socketReadTimeout = GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 1000;
-    String command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
+    var socketReadTimeout = GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 1000;
+    var command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
         + "=ln" + " --" + CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID + "=2" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__PARALLEL + "=false" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__MANUALSTART + "=true" + " --"
@@ -187,7 +186,7 @@ public class CreateDestroyGatewaySenderCommandDUnitTest implements Serializable 
    */
   @Test
   public void testCreateDestroyGatewaySenderWithSingleDispatcherThread() {
-    String command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
+    var command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
         + "=ln" + " --" + CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID + "=2" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__MANUALSTART + "=true" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__SOCKETBUFFERSIZE + "=1000" + " --"
@@ -224,8 +223,8 @@ public class CreateDestroyGatewaySenderCommandDUnitTest implements Serializable 
    */
   @Test
   public void testCreateDestroyGatewaySenderWithGatewayEventFilters() {
-    int socketReadTimeout = GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 1000;
-    String command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
+    var socketReadTimeout = GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 1000;
+    var command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
         + "=ln" + " --" + CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID + "=2" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__PARALLEL + "=false" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__MANUALSTART + "=true" + " --"
@@ -277,8 +276,8 @@ public class CreateDestroyGatewaySenderCommandDUnitTest implements Serializable 
    */
   @Test
   public void testCreateDestroyGatewaySenderWithGatewayTransportFilters() {
-    int socketReadTimeout = GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 1000;
-    String command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
+    var socketReadTimeout = GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 1000;
+    var command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
         + "=ln" + " --" + CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID + "=2" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__PARALLEL + "=false" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__MANUALSTART + "=true" + " --"
@@ -396,8 +395,8 @@ public class CreateDestroyGatewaySenderCommandDUnitTest implements Serializable 
    */
   @Test
   public void testCreateDestroyParallelGatewaySenderWithDispatcherThreads() {
-    int socketReadTimeout = GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 1000;
-    String command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
+    var socketReadTimeout = GatewaySender.MINIMUM_SOCKET_READ_TIMEOUT + 1000;
+    var command = CliStrings.CREATE_GATEWAYSENDER + " --" + CliStrings.CREATE_GATEWAYSENDER__ID
         + "=ln" + " --" + CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID + "=2" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__PARALLEL + "=true" + " --"
         + CliStrings.CREATE_GATEWAYSENDER__SOCKETBUFFERSIZE + "=1000" + " --"

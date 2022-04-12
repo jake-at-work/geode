@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -67,8 +66,8 @@ public class RestAPIsOnGroupsFunctionExecutionDUnitTest extends RestAPITestBase 
   public void testonGroupsExecutionOnAllMembers() {
     setupCacheWithGroupsAndFunction();
 
-    for (int i = 0; i < 10; i++) {
-      CloseableHttpResponse response =
+    for (var i = 0; i < 10; i++) {
+      var response =
           executeFunctionThroughRestCall("OnGroupsFunction", null, null, null, "g0,g1", null);
       assertHttpResponse(response, 200, 3);
     }
@@ -84,8 +83,8 @@ public class RestAPIsOnGroupsFunctionExecutionDUnitTest extends RestAPITestBase 
 
     // Execute function randomly (in iteration) on all available (per VM) REST end-points and verify
     // its result
-    for (int i = 0; i < 10; i++) {
-      CloseableHttpResponse response =
+    for (var i = 0; i < 10; i++) {
+      var response =
           executeFunctionThroughRestCall("OnGroupsFunction", null, "someKey", null, "g1", null);
       assertHttpResponse(response, 500, 0);
     }
@@ -100,16 +99,16 @@ public class RestAPIsOnGroupsFunctionExecutionDUnitTest extends RestAPITestBase 
 
     // Step-3 : Execute function randomly (in iteration) on all available (per VM) REST end-points
     // and verify its result
-    for (int i = 0; i < 5; i++) {
-      CloseableHttpResponse response = executeFunctionThroughRestCall("OnGroupsFunction", null,
+    for (var i = 0; i < 5; i++) {
+      var response = executeFunctionThroughRestCall("OnGroupsFunction", null,
           null, null, "no%20such%20group", null);
       assertHttpResponse(response, 500, 0);
     }
     assertCorrectInvocationCount("OnGroupsFunction", 0, vm0, vm1, vm2);
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
 
-      CloseableHttpResponse response =
+      var response =
           executeFunctionThroughRestCall("OnGroupsFunction", null, null, null, "gm", null);
       assertHttpResponse(response, 200, 1);
     }
@@ -129,9 +128,9 @@ public class RestAPIsOnGroupsFunctionExecutionDUnitTest extends RestAPITestBase 
 
     @Override
     public void execute(FunctionContext context) {
-      InternalDistributedSystem ds = InternalDistributedSystem.getConnectedInstance();
+      var ds = InternalDistributedSystem.getConnectedInstance();
       invocationCount++;
-      ArrayList<String> l = (ArrayList<String>) context.getArguments();
+      var l = (ArrayList<String>) context.getArguments();
       if (l != null) {
         assertThat(Collections.disjoint(l, ds.getDistributedMember().getGroups())).isFalse();
       }

@@ -15,14 +15,10 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.List;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.JndiBindingsType;
-import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
@@ -43,23 +39,23 @@ public class DescribeJndiBindingCommand extends GfshCommand {
   public ResultModel describeJndiBinding(@CliOption(key = "name", mandatory = true,
       help = "Name of the binding to describe") String bindingName) {
 
-    ResultModel crm = new ResultModel();
-    TabularResultModel tabularData = crm.addTable(JNDI_PROPERTIES_SECTION);
+    var crm = new ResultModel();
+    var tabularData = crm.addTable(JNDI_PROPERTIES_SECTION);
 
-    ConfigurationPersistenceService ccService = getConfigurationPersistenceService();
+    var ccService = getConfigurationPersistenceService();
     if (ccService != null) {
-      CacheConfig cacheConfig = ccService.getCacheConfig("cluster");
+      var cacheConfig = ccService.getCacheConfig("cluster");
       if (cacheConfig == null) {
         return ResultModel.createError(String.format("JNDI binding : %s not found", bindingName));
       }
-      List<JndiBindingsType.JndiBinding> jndiBindings = cacheConfig.getJndiBindings();
+      var jndiBindings = cacheConfig.getJndiBindings();
 
       if (jndiBindings.stream().noneMatch(b -> b.getJndiName().equals(bindingName)
           || b.getJndiName().equals("java:" + bindingName))) {
         return ResultModel.createError(String.format("JNDI binding : %s not found", bindingName));
       }
 
-      for (JndiBindingsType.JndiBinding binding : jndiBindings) {
+      for (var binding : jndiBindings) {
         if (binding.getJndiName().equals(bindingName)
             || binding.getJndiName().equals("java:" + bindingName)) {
           addTableRow(tabularData, "type", binding.getType());
@@ -87,7 +83,7 @@ public class DescribeJndiBindingCommand extends GfshCommand {
             addTableRow(tabularData, "login-timeout-seconds", binding.getLoginTimeoutSeconds());
           }
 
-          for (JndiBindingsType.JndiBinding.ConfigProperty confProp : binding
+          for (var confProp : binding
               .getConfigProperties()) {
             addTableRow(tabularData, confProp.getName(), confProp.getValue());
           }

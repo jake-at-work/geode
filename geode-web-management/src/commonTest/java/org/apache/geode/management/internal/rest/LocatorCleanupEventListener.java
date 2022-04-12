@@ -30,7 +30,7 @@ public class LocatorCleanupEventListener {
 
   @EventListener
   public void handleContextCloseEvent(ContextClosedEvent closedEvent) {
-    GeodeComponent locator =
+    var locator =
         (GeodeComponent) webApplicationContext.getServletContext().getAttribute("locator");
     if (locator != null) {
       locator.stop();

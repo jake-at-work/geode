@@ -61,7 +61,7 @@ public class LocalProcessLauncherDistributedTest extends DistributedTestCase {
   public void existingPidFileThrowsFileAlreadyExistsException() throws Exception {
     // arrange
     otherVM.invoke(this::createPidFile);
-    int firstPid = new IntegerFileReader(pidFile).readFromFile();
+    var firstPid = new IntegerFileReader(pidFile).readFromFile();
 
     // act/assert
     assertThatThrownBy(() -> new LocalProcessLauncher(pidFile, false))
@@ -73,13 +73,13 @@ public class LocalProcessLauncherDistributedTest extends DistributedTestCase {
   public void forceReplacesExistingPidFile() throws Exception {
     // arrange
     otherVM.invoke(this::createPidFile);
-    int firstPid = new IntegerFileReader(pidFile).readFromFile();
+    var firstPid = new IntegerFileReader(pidFile).readFromFile();
 
     // act
     new LocalProcessLauncher(pidFile, true);
 
     // assert
-    int secondPid = new IntegerFileReader(pidFile).readFromFile();
+    var secondPid = new IntegerFileReader(pidFile).readFromFile();
     assertThat(secondPid).isNotEqualTo(firstPid).isEqualTo(pid);
   }
 

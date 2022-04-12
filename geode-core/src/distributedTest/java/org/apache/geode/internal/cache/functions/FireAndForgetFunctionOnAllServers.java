@@ -19,8 +19,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.LogWriter;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
@@ -48,9 +46,9 @@ public class FireAndForgetFunctionOnAllServers implements Function, DataSerializ
   @Override
   public void execute(FunctionContext context) {
     DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-    LogWriter logger = ds.getLogWriter();
-    Cache cache = CacheFactory.getAnyInstance();
-    String regionName = (String) context.getArguments();
+    var logger = ds.getLogWriter();
+    var cache = CacheFactory.getAnyInstance();
+    var regionName = (String) context.getArguments();
     Region<String, Integer> region1 = cache.getRegion(regionName);
     if (region1 == null) {
       RegionFactory<String, Integer> rf;

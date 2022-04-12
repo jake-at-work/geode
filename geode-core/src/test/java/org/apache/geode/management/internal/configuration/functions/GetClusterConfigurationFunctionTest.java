@@ -66,12 +66,12 @@ public class GetClusterConfigurationFunctionTest {
   @Test
   public void executeShouldReturnIllegalStateExceptionWhenClusterConfigurationServiceIsDisabled() {
     when(mockedLocator.isSharedConfigurationEnabled()).thenReturn(false);
-    ArgumentCaptor<Exception> argumentCaptor = ArgumentCaptor.forClass(Exception.class);
+    var argumentCaptor = ArgumentCaptor.forClass(Exception.class);
 
     assertThatCode(() -> getClusterConfigurationFunction.execute(mockedFunctionContext))
         .doesNotThrowAnyException();
     verify(mockedResultSender).lastResult(argumentCaptor.capture());
-    Exception exceptionThrown = argumentCaptor.getValue();
+    var exceptionThrown = argumentCaptor.getValue();
     assertThat(exceptionThrown).isInstanceOf(IllegalStateException.class)
         .hasMessage("The cluster configuration service is not enabled on this member.");
   }
@@ -81,12 +81,12 @@ public class GetClusterConfigurationFunctionTest {
     when(mockedConfigurationService.createConfigurationResponse(any()))
         .thenThrow(new RuntimeException("Mocked Exception."));
     when(mockedLocator.getConfigurationPersistenceService()).thenReturn(mockedConfigurationService);
-    ArgumentCaptor<Exception> argumentCaptor = ArgumentCaptor.forClass(Exception.class);
+    var argumentCaptor = ArgumentCaptor.forClass(Exception.class);
 
     assertThatCode(() -> getClusterConfigurationFunction.execute(mockedFunctionContext))
         .doesNotThrowAnyException();
     verify(mockedResultSender).lastResult(argumentCaptor.capture());
-    Exception exceptionThrown = argumentCaptor.getValue();
+    var exceptionThrown = argumentCaptor.getValue();
     assertThat(exceptionThrown).isInstanceOf(RuntimeException.class)
         .hasMessage("Mocked Exception.");
   }
@@ -105,9 +105,9 @@ public class GetClusterConfigurationFunctionTest {
     Set<String> requestedGroups = new HashSet<>(Arrays.asList("group1", "group2"));
     when(mockedFunctionContext.getArguments()).thenReturn(requestedGroups);
     when(mockedLocator.getConfigurationPersistenceService()).thenReturn(mockedConfigurationService);
-    ConfigurationResponse mockedResponse = new ConfigurationResponse();
+    var mockedResponse = new ConfigurationResponse();
     when(mockedConfigurationService.createConfigurationResponse(any())).thenReturn(mockedResponse);
-    ArgumentCaptor<ConfigurationResponse> argumentCaptor =
+    var argumentCaptor =
         ArgumentCaptor.forClass(ConfigurationResponse.class);
 
     assertThatCode(() -> getClusterConfigurationFunction.execute(mockedFunctionContext))

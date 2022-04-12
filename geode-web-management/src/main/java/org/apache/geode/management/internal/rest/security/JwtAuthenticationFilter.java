@@ -49,13 +49,13 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
   public Authentication attemptAuthentication(HttpServletRequest request,
       HttpServletResponse response) throws AuthenticationException {
 
-    String header = request.getHeader("Authorization");
+    var header = request.getHeader("Authorization");
 
     if (header == null || !header.startsWith("Bearer ")) {
       throw new BadCredentialsException("No JWT token found in request headers, header: " + header);
     }
 
-    String[] tokens = header.split(" ");
+    var tokens = header.split(" ");
 
     if (tokens.length != 2) {
       throw new BadCredentialsException("Wrong authentication header format: " + header);

@@ -93,7 +93,7 @@ public class RegionManagementIntegrationTest {
     region.setKeyConstraint("keyConstraint");
     region.setValueConstraint("valueConstraint");
     region.setRedundantCopies(1);
-    Expiration expiration = new Expiration();
+    var expiration = new Expiration();
     expiration.setType(ExpirationType.ENTRY_IDLE_TIME);
     expiration.setAction(ExpirationAction.DESTROY);
     expiration.setTimeInSeconds(1);
@@ -126,7 +126,7 @@ public class RegionManagementIntegrationTest {
     index.setName("index1");
     index.setRegionPath("regionA");
     index.setExpression("id");
-    String postUrl = index.getLinks().getList();
+    var postUrl = index.getLinks().getList();
     context.perform(post("/v1" + postUrl).content(mapper.writeValueAsString(index)))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.statusCode", Matchers.is("ENTITY_NOT_FOUND")))
@@ -141,7 +141,7 @@ public class RegionManagementIntegrationTest {
     createClusterIndex();
 
     // trying to create a duplicate index, reusing existing
-    String postUrl = index.getLinks().getList();
+    var postUrl = index.getLinks().getList();
     context.perform(post("/v1" + postUrl).content(mapper.writeValueAsString(index)))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.statusCode", Matchers.is("ENTITY_EXISTS")))

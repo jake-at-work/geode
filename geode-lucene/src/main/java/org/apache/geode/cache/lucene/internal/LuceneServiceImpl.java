@@ -38,14 +38,11 @@ import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.EvictionAlgorithm;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.lucene.LuceneIndexDestroyedException;
 import org.apache.geode.cache.lucene.LuceneIndexExistsException;
@@ -70,7 +67,6 @@ import org.apache.geode.cache.lucene.internal.results.PageResults;
 import org.apache.geode.cache.lucene.internal.xml.LuceneServiceXmlGenerator;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.BucketNotFoundException;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.CacheService;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -82,7 +78,6 @@ import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DataSerializableFixedIdRegistrant;
 import org.apache.geode.internal.serialization.DataSerializableFixedIdRegistrar;
 import org.apache.geode.internal.serialization.KnownVersion;
-import org.apache.geode.internal.serialization.Version;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.internal.beans.CacheServiceMBeanBase;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -139,7 +134,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
 
   @Override
   public CacheServiceMBeanBase getMBean() {
-    LuceneServiceMBean mbean = new LuceneServiceMBean(this);
+    var mbean = new LuceneServiceMBean(this);
     managementListener = new ManagementIndexListener(mbean);
     return mbean;
   }
@@ -150,9 +145,9 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
   }
 
   public void beforeRegionDestroyed(Region region) {
-    List<LuceneIndex> indexes = getIndexes(region.getFullPath());
+    var indexes = getIndexes(region.getFullPath());
     if (!indexes.isEmpty()) {
-      String indexNames =
+      var indexNames =
           indexes.stream().map(LuceneIndex::getName).collect(Collectors.joining(","));
       throw new IllegalStateException(
           String.format(
@@ -162,12 +157,12 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
   }
 
   public void cleanupFailedInitialization(Region region) {
-    List<LuceneIndexCreationProfile> definedIndexes = getDefinedIndexes(region.getFullPath());
-    for (LuceneIndexCreationProfile definedIndex : definedIndexes) {
+    var definedIndexes = getDefinedIndexes(region.getFullPath());
+    for (var definedIndex : definedIndexes) {
       // Get the AsyncEventQueue
-      String aeqId = LuceneServiceImpl.getUniqueIndexName(definedIndex.getIndexName(),
+      var aeqId = LuceneServiceImpl.getUniqueIndexName(definedIndex.getIndexName(),
           definedIndex.getRegionPath());
-      AsyncEventQueueImpl aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
+      var aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
       // Stop and remove the AsyncEventQueue if it exists
       if (aeq != null) {
         aeq.stop();
@@ -194,8 +189,8 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
       throw new IllegalArgumentException("At least one field must be indexed");
     }
     Analyzer analyzer = new PerFieldAnalyzerWrapper(new StandardAnalyzer(), fieldAnalyzers);
-    Set<String> fieldsSet = fieldAnalyzers.keySet();
-    String[] fields = fieldsSet.toArray(new String[fieldsSet.size()]);
+    var fieldsSet = fieldAnalyzers.keySet();
+    var fields = fieldsSet.toArray(new String[fieldsSet.size()]);
 
     createIndex(indexName, regionPath, analyzer, fieldAnalyzers, serializer, allowOnExistingRegion,
         fields);
@@ -214,9 +209,9 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
         regionPath, fields, analyzer, fieldAnalyzers, serializer));
     try {
       // If the region does not yet exist, install LuceneRegionListener and return
-      PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionPath);
+      var region = (PartitionedRegion) cache.getRegion(regionPath);
       if (region == null) {
-        LuceneRegionListener regionListener = new LuceneRegionListener(this, indexName,
+        var regionListener = new LuceneRegionListener(this, indexName,
             regionPath, fields, analyzer, fieldAnalyzers, serializer);
         cache.addRegionListener(regionListener);
         return;
@@ -239,11 +234,11 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
   }
 
   protected void validateAllMembersAreTheSameVersion(PartitionedRegion region) {
-    Set<InternalDistributedMember> remoteMembers = region.getRegionAdvisor().adviseAllPRNodes();
-    final Version localVersion =
+    var remoteMembers = region.getRegionAdvisor().adviseAllPRNodes();
+    final var localVersion =
         cache.getDistributionManager().getDistributionManagerId().getVersion();
     if (!remoteMembers.isEmpty()) {
-      for (InternalDistributedMember remoteMember : remoteMembers) {
+      for (var remoteMember : remoteMembers) {
         if (!remoteMember.getVersion().equals(localVersion)) {
           throw new IllegalStateException(
               "The lucene index cannot be created on a existing region if all members hosting the region : "
@@ -258,16 +253,16 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
       LuceneSerializer serializer) {
     validateRegionAttributes(region.getAttributes());
 
-    LuceneIndexCreationProfile luceneIndexCreationProfile = new LuceneIndexCreationProfile(
+    var luceneIndexCreationProfile = new LuceneIndexCreationProfile(
         indexName, regionPath, fields, analyzer, fieldAnalyzers, serializer);
 
-    Runnable validateIndexProfile =
+    var validateIndexProfile =
         getIndexValidationRunnable(region, indexName, luceneIndexCreationProfile);
     region.executeSynchronizedOperationOnCacheProfiles(validateIndexProfile);
 
-    String aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
+    var aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
     region.updatePRConfigWithNewGatewaySenderAfterAssigningBuckets(aeqId);
-    LuceneIndexImpl luceneIndex = beforeDataRegionCreated(indexName, regionPath,
+    var luceneIndex = beforeDataRegionCreated(indexName, regionPath,
         region.getAttributes(), analyzer, fieldAnalyzers, aeqId, serializer, fields);
 
     try {
@@ -308,9 +303,9 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
       if (userRegion.getDataStore() == null) {
         return true;
       }
-      PartitionedRepositoryManager repositoryManager =
+      var repositoryManager =
           (PartitionedRepositoryManager) luceneIndex.getRepositoryManager();
-      Set<Integer> primaryBucketIds = userRegion.getDataStore().getAllLocalPrimaryBucketIds();
+      var primaryBucketIds = userRegion.getDataStore().getAllLocalPrimaryBucketIds();
       /**
        *
        * Calling getRepository will in turn call computeRepository
@@ -319,7 +314,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
        **/
       for (final int primaryBucketId : primaryBucketIds) {
         try {
-          BucketRegion userBucket = userRegion.getDataStore().getLocalBucketById(primaryBucketId);
+          var userBucket = userRegion.getDataStore().getLocalBucketById(primaryBucketId);
           if (userBucket == null) {
             throw new BucketNotFoundException(
                 "Bucket ID : " + primaryBucketId + " not found during lucene indexing");
@@ -358,8 +353,8 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
 
     // For now we cannot support eviction with local destroy.
     // Eviction with overflow to disk still needs to be supported
-    EvictionAttributes evictionAttributes = attrs.getEvictionAttributes();
-    EvictionAlgorithm evictionAlgorithm = evictionAttributes.getAlgorithm();
+    var evictionAttributes = attrs.getEvictionAttributes();
+    var evictionAlgorithm = evictionAttributes.getAlgorithm();
     if (evictionAlgorithm != EvictionAlgorithm.NONE
         && evictionAttributes.getAction().isLocalDestroy()) {
       throw new UnsupportedOperationException(
@@ -379,10 +374,10 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
       managementListener.afterIndexCreated(index);
     }
 
-    String aeqId = LuceneServiceImpl.getUniqueIndexName(index.getName(), index.getRegionPath());
+    var aeqId = LuceneServiceImpl.getUniqueIndexName(index.getName(), index.getRegionPath());
 
     ((LuceneIndexImpl) index).getDataRegion().addAsyncEventQueueId(aeqId, true);
-    PartitionedRepositoryManager repositoryManager =
+    var repositoryManager =
         (PartitionedRepositoryManager) index.getRepositoryManager();
     repositoryManager.allowRepositoryComputation();
     registerIndex(index);
@@ -392,7 +387,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
       RegionAttributes attributes, final Analyzer analyzer,
       final Map<String, Analyzer> fieldAnalyzers, String aeqId, final LuceneSerializer serializer,
       final String... fields) {
-    LuceneIndexImpl index = createIndexObject(indexName, regionPath);
+    var index = createIndexObject(indexName, regionPath);
     index.setSearchableFields(fields);
     index.setAnalyzer(analyzer);
     index.setFieldAnalyzers(fieldAnalyzers);
@@ -409,7 +404,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
 
   private void registerDefinedIndex(final String indexName, final String regionPath,
       final LuceneIndexCreationProfile luceneIndexCreationProfile) {
-    String regionAndIndex = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
+    var regionAndIndex = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
     if (definedIndexMap.containsKey(regionAndIndex) || indexMap.containsKey(regionAndIndex)) {
       throw new LuceneIndexExistsException(indexName, regionPath);
     }
@@ -432,7 +427,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
 
   public List<LuceneIndex> getIndexes(String regionPath) {
     List<LuceneIndex> indexes = new ArrayList();
-    for (LuceneIndex index : getAllIndexes()) {
+    for (var index : getAllIndexes()) {
       if (index.getRegionPath().equals(regionPath)) {
         indexes.add(index);
       }
@@ -442,7 +437,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
 
   public List<LuceneIndexCreationProfile> getDefinedIndexes(String regionPath) {
     List<LuceneIndexCreationProfile> profiles = new ArrayList();
-    for (LuceneIndexCreationProfile profile : getAllDefinedIndexes()) {
+    for (var profile : getAllDefinedIndexes()) {
       if (profile.getRegionPath().equals(regionPath)) {
         profiles.add(profile);
       }
@@ -459,7 +454,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
     if (!regionPath.startsWith(SEPARATOR)) {
       regionPath = SEPARATOR + regionPath;
     }
-    LuceneIndexImpl indexImpl = (LuceneIndexImpl) getIndex(indexName, regionPath);
+    var indexImpl = (LuceneIndexImpl) getIndex(indexName, regionPath);
     if (indexImpl == null) {
       destroyDefinedIndex(indexName, regionPath);
     } else {
@@ -474,10 +469,10 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
     if (!regionPath.startsWith(SEPARATOR)) {
       regionPath = SEPARATOR + regionPath;
     }
-    String uniqueIndexName = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
+    var uniqueIndexName = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
     if (definedIndexMap.containsKey(uniqueIndexName)) {
       definedIndexMap.remove(uniqueIndexName);
-      RegionListener listenerToRemove = getRegionListener(indexName, regionPath);
+      var listenerToRemove = getRegionListener(indexName, regionPath);
       if (listenerToRemove != null) {
         cache.removeRegionListener(listenerToRemove);
       }
@@ -495,9 +490,9 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
       regionPath = SEPARATOR + regionPath;
     }
     RegionListener rl = null;
-    for (RegionListener listener : cache.getRegionListeners()) {
+    for (var listener : cache.getRegionListeners()) {
       if (listener instanceof LuceneRegionListener) {
-        LuceneRegionListener lrl = (LuceneRegionListener) listener;
+        var lrl = (LuceneRegionListener) listener;
         if (lrl.getRegionPath().equals(regionPath) && lrl.getIndexName().equals(indexName)) {
           rl = lrl;
           break;
@@ -517,9 +512,9 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
       regionPath = SEPARATOR + regionPath;
     }
     List<LuceneIndexImpl> indexesToDestroy = new ArrayList<>();
-    for (LuceneIndex index : getAllIndexes()) {
+    for (var index : getAllIndexes()) {
       if (index.getRegionPath().equals(regionPath)) {
-        LuceneIndexImpl indexImpl = (LuceneIndexImpl) index;
+        var indexImpl = (LuceneIndexImpl) index;
         indexImpl.destroy(initiator);
         indexesToDestroy.add(indexImpl);
       }
@@ -546,7 +541,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
 
     // Iterate the defined indexes to get the ones for the regionPath
     List<LuceneIndexCreationProfile> indexesToDestroy = new ArrayList<>();
-    for (Map.Entry<String, LuceneIndexCreationProfile> entry : definedIndexMap.entrySet()) {
+    for (var entry : definedIndexMap.entrySet()) {
       if (entry.getValue().getRegionPath().equals(regionPath)) {
         indexesToDestroy.add(entry.getValue());
       }
@@ -558,7 +553,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
           String.format("No Lucene indexes were found in region %s",
               regionPath));
     } else {
-      for (LuceneIndexCreationProfile profile : indexesToDestroy) {
+      for (var profile : indexesToDestroy) {
         destroyDefinedIndex(profile.getIndexName(), profile.getRegionPath());
       }
     }
@@ -594,7 +589,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
   }
 
   private void registerIndex(LuceneIndex index) {
-    String regionAndIndex = getUniqueIndexName(index.getName(), index.getRegionPath());
+    var regionAndIndex = getUniqueIndexName(index.getName(), index.getRegionPath());
     if (hasIndexBeenDestroyed(regionAndIndex)) {
       ((InternalLuceneIndex) index).destroy(true);
       throw new LuceneIndexDestroyedException(index.getName(), index.getRegionPath());
@@ -664,12 +659,12 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
       return false;
     }
 
-    WaitUntilFlushedFunctionContext context =
+    var context =
         new WaitUntilFlushedFunctionContext(indexName, timeout, unit);
-    Execution execution = FunctionService.onRegion(dataRegion);
-    ResultCollector rs = execution.setArguments(context).execute(WaitUntilFlushedFunction.ID);
-    List<Boolean> results = (List<Boolean>) rs.getResult();
-    for (Boolean oneResult : results) {
+    var execution = FunctionService.onRegion(dataRegion);
+    var rs = execution.setArguments(context).execute(WaitUntilFlushedFunction.ID);
+    var results = (List<Boolean>) rs.getResult();
+    for (var oneResult : results) {
       if (oneResult == false) {
         return false;
       }
@@ -691,9 +686,9 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
       // Also a check for PartitionedRegion. As we cannot use the same method calls to
       // to get the members hosting the region for RR (future implementation)
       if (region instanceof PartitionedRegion) {
-        PartitionedRegion dataRegion = (PartitionedRegion) region;
+        var dataRegion = (PartitionedRegion) region;
         // Validate all members are Apache Geode v1.7.0 or above
-        Set<InternalDistributedMember> remoteMembers =
+        var remoteMembers =
             dataRegion.getRegionAdvisor().adviseAllPRNodes();
         if (isAnyRemoteMemberVersionLessThanGeode1_7_0(remoteMembers)) {
           throw new IllegalStateException(
@@ -703,11 +698,11 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
         }
       }
     }
-    Execution execution = FunctionService.onRegion(region);
-    ResultCollector resultCollector =
+    var execution = FunctionService.onRegion(region);
+    var resultCollector =
         execution.setArguments(indexName).execute(IndexingInProgressFunction.ID);
-    List<Boolean> results = (List<Boolean>) resultCollector.getResult();
-    for (Boolean result : results) {
+    var results = (List<Boolean>) resultCollector.getResult();
+    for (var result : results) {
       if (result == true) {
         return true;
       }
@@ -717,7 +712,7 @@ public class LuceneServiceImpl implements InternalLuceneService, DataSerializabl
 
   private boolean isAnyRemoteMemberVersionLessThanGeode1_7_0(
       Set<InternalDistributedMember> remoteMembers) {
-    for (InternalDistributedMember remoteMember : remoteMembers) {
+    for (var remoteMember : remoteMembers) {
       if (remoteMember.getVersion().ordinal() < KnownVersion.GEODE_1_7_0.ordinal()) {
         return true;
       }

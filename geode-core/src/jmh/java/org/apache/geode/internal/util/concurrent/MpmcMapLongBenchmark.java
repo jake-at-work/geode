@@ -152,8 +152,8 @@ public class MpmcMapLongBenchmark {
 
   @Benchmark
   public void workload() {
-    long key = randomKey();
-    Object value = accessor.get(key);
+    var key = randomKey();
+    var value = accessor.get(key);
     if (null == value) {
       value = accessor.createValue(key);
     }

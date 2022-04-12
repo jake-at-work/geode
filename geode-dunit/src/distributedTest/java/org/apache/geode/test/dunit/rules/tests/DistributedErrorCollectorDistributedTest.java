@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedErrorCollector;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 
@@ -48,7 +46,7 @@ public class DistributedErrorCollectorDistributedTest {
 
   @Test
   public void errorCollectorHasFieldNamedErrors() throws Exception {
-    Field errorsField = ErrorCollector.class.getDeclaredField("errors");
+    var errorsField = ErrorCollector.class.getDeclaredField("errors");
 
     assertThat(errorsField.getDeclaringClass()).isEqualTo(ErrorCollector.class);
   }
@@ -71,7 +69,7 @@ public class DistributedErrorCollectorDistributedTest {
   @Test
   public void whenCheckThatFailsInEveryDUnitVM_resultIncludesAllErrors() {
     List<Throwable> errors = new ArrayList<>();
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       errors.add(new AssertionError(MESSAGE + " in VM-" + vm.getId()));
     }
 
@@ -82,7 +80,7 @@ public class DistributedErrorCollectorDistributedTest {
   public void whenCheckThatFailsInEveryDUnitVMAndController_resultIncludesAllErrors() {
     List<Throwable> errors = new ArrayList<>();
     errors.add(new AssertionError(MESSAGE + " in VM-CONTROLLER"));
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       errors.add(new AssertionError(MESSAGE + " in VM-" + vm.getId()));
     }
 
@@ -103,7 +101,7 @@ public class DistributedErrorCollectorDistributedTest {
   @Test
   public void whenEveryDUnitVMAddsError_resultIncludesAllErrors() {
     List<Throwable> errors = new ArrayList<>();
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       errors.add(new NullPointerException(MESSAGE + " in VM-" + vm.getId()));
     }
 
@@ -114,7 +112,7 @@ public class DistributedErrorCollectorDistributedTest {
   public void whenEveryDUnitVMAndControllerAddsError_resultIncludesAllErrors() {
     List<Throwable> errors = new ArrayList<>();
     errors.add(new NullPointerException(MESSAGE + " in VM-CONTROLLER"));
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       errors.add(new NullPointerException(MESSAGE + " in VM-" + vm.getId()));
     }
 
@@ -237,7 +235,7 @@ public class DistributedErrorCollectorDistributedTest {
 
     @Test
     public void assertionFailsInEveryDUnitVM() {
-      for (VM vm : getAllVMs()) {
+      for (var vm : getAllVMs()) {
         vm.invoke(
             () -> errorCollector.checkThat(MESSAGE + " in VM-" + vm.getId(), false, is(true)));
       }
@@ -255,7 +253,7 @@ public class DistributedErrorCollectorDistributedTest {
     @Test
     public void assertionFailsInEveryDUnitVM() {
       errorCollector.checkThat(MESSAGE + " in VM-CONTROLLER", false, is(true));
-      for (VM vm : getAllVMs()) {
+      for (var vm : getAllVMs()) {
         vm.invoke(
             () -> errorCollector.checkThat(MESSAGE + " in VM-" + vm.getId(), false, is(true)));
       }
@@ -304,7 +302,7 @@ public class DistributedErrorCollectorDistributedTest {
 
     @Test
     public void exceptionInEveryDUnitVM() {
-      for (VM vm : getAllVMs()) {
+      for (var vm : getAllVMs()) {
         vm.invoke(() -> errorCollector
             .addError(new NullPointerException(MESSAGE + " in VM-" + vm.getId())));
       }
@@ -322,7 +320,7 @@ public class DistributedErrorCollectorDistributedTest {
     @Test
     public void exceptionInEveryDUnitVM() {
       errorCollector.addError(new NullPointerException(MESSAGE + " in VM-CONTROLLER"));
-      for (VM vm : getAllVMs()) {
+      for (var vm : getAllVMs()) {
         vm.invoke(() -> errorCollector
             .addError(new NullPointerException(MESSAGE + " in VM-" + vm.getId())));
       }
@@ -357,7 +355,7 @@ public class DistributedErrorCollectorDistributedTest {
 
     @Test
     public void addDUnitVM() {
-      int startingVMCount = getVMCount();
+      var startingVMCount = getVMCount();
 
       getVM(getVMCount());
 
@@ -449,7 +447,7 @@ public class DistributedErrorCollectorDistributedTest {
 
     @Test
     public void checkSucceeds() {
-      Object result = errorCollector.checkSucceeds(Object::new);
+      var result = errorCollector.checkSucceeds(Object::new);
 
       assertThat(result).isNotNull();
     }

@@ -34,8 +34,8 @@ public class ConnectionAccountingConcurrentTest {
   @Test
   public void tryPrefillStaysBelowOrAtMin(ParallelExecutor executor)
       throws ExecutionException, InterruptedException {
-    final int min = count - 1;
-    ConnectionAccounting accountant = new ConnectionAccounting(min, min + 4);
+    final var min = count - 1;
+    var accountant = new ConnectionAccounting(min, min + 4);
 
     executor.inParallel(() -> {
       accountant.tryPrefill();
@@ -50,8 +50,8 @@ public class ConnectionAccountingConcurrentTest {
   @Test
   public void cancelTryPrefillStaysUnderMin(ParallelExecutor executor)
       throws ExecutionException, InterruptedException {
-    final int min = count - 1;
-    ConnectionAccounting accountant = new ConnectionAccounting(min, min + 4);
+    final var min = count - 1;
+    var accountant = new ConnectionAccounting(min, min + 4);
 
     executor.inParallel(() -> {
       if (accountant.tryPrefill()) {
@@ -67,7 +67,7 @@ public class ConnectionAccountingConcurrentTest {
 
   @Test
   public void creates(ParallelExecutor executor) throws Exception {
-    ConnectionAccounting accountant = new ConnectionAccounting(0, 1);
+    var accountant = new ConnectionAccounting(0, 1);
 
     executor.inParallel(() -> {
       accountant.create();
@@ -81,7 +81,7 @@ public class ConnectionAccountingConcurrentTest {
 
   @Test
   public void tryCreateStaysWithinMax(ParallelExecutor executor) throws Exception {
-    ConnectionAccounting accountant = new ConnectionAccounting(1, count);
+    var accountant = new ConnectionAccounting(1, count);
 
     executor.inParallel(() -> {
       if (accountant.tryCreate()) {
@@ -96,7 +96,7 @@ public class ConnectionAccountingConcurrentTest {
 
   @Test
   public void cancelTryCreateStaysWithinMax(ParallelExecutor executor) throws Exception {
-    ConnectionAccounting accountant = new ConnectionAccounting(1, count);
+    var accountant = new ConnectionAccounting(1, count);
 
     executor.inParallel(() -> {
       if (accountant.tryCreate()) {
@@ -112,7 +112,7 @@ public class ConnectionAccountingConcurrentTest {
 
   @Test
   public void destroyAndIsUnderMinimum(ParallelExecutor executor) throws Exception {
-    ConnectionAccounting accountant = new ConnectionAccounting(2, 4);
+    var accountant = new ConnectionAccounting(2, 4);
     repeat(accountant::create, count);
 
     executor.inParallel(() -> {
@@ -130,9 +130,9 @@ public class ConnectionAccountingConcurrentTest {
 
   @Test
   public void tryDestroyNeverGoesBelowMax(ParallelExecutor executor) throws Exception {
-    final int overfillMax = Math.max(count, 4);
-    final int max = overfillMax / 2;
-    ConnectionAccounting accountant = new ConnectionAccounting(1, max);
+    final var overfillMax = Math.max(count, 4);
+    final var max = overfillMax / 2;
+    var accountant = new ConnectionAccounting(1, max);
     repeat(accountant::create, overfillMax);
 
     executor.inParallel(() -> {
@@ -148,9 +148,9 @@ public class ConnectionAccountingConcurrentTest {
 
   @Test
   public void cancelTryDestroyStaysAboveMax(ParallelExecutor executor) throws Exception {
-    final int overfillMax = Math.max(count, 4);
-    final int max = overfillMax / 2;
-    ConnectionAccounting accountant = new ConnectionAccounting(1, max);
+    final var overfillMax = Math.max(count, 4);
+    final var max = overfillMax / 2;
+    var accountant = new ConnectionAccounting(1, max);
     repeat(accountant::create, overfillMax);
 
     executor.inParallel(() -> {
@@ -169,10 +169,10 @@ public class ConnectionAccountingConcurrentTest {
 
   @Test
   public void mixItUp(ParallelExecutor executor) throws Exception {
-    final int overfill = Math.max(count, 8);
-    final int max = overfill / 4;
-    final int overfillMax = overfill + max;
-    ConnectionAccounting accountant = new ConnectionAccounting(1, max);
+    final var overfill = Math.max(count, 8);
+    final var max = overfill / 4;
+    final var overfillMax = overfill + max;
+    var accountant = new ConnectionAccounting(1, max);
     repeat(accountant::create, overfill);
 
     executor.inParallel(() -> {

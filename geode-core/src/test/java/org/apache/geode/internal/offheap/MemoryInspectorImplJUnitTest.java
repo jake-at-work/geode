@@ -67,7 +67,7 @@ public class MemoryInspectorImplJUnitTest {
 
   @Test
   public void getBlockAfterBeforeCreateSnapshotReturnsNull() {
-    MemoryBlock block = mock(MemoryBlock.class);
+    var block = mock(MemoryBlock.class);
     assertNull(inspector.getBlockAfter(block));
   }
 
@@ -111,28 +111,28 @@ public class MemoryInspectorImplJUnitTest {
 
   @Test
   public void getFirstBlockReturnsFirstBlockFromSnapshot() {
-    List<MemoryBlock> fakeSnapshot = setupFakeSnapshot();
+    var fakeSnapshot = setupFakeSnapshot();
 
     assertSame(fakeSnapshot.get(0), inspector.getFirstBlock());
   }
 
   @Test
   public void getFirstBlockAfterReturnsCorrectBlock() {
-    List<MemoryBlock> fakeSnapshot = setupFakeSnapshot();
+    var fakeSnapshot = setupFakeSnapshot();
 
     assertSame(fakeSnapshot.get(1), inspector.getBlockAfter(fakeSnapshot.get(0)));
   }
 
   @Test
   public void getFirstBlockAfterReturnsNullForLastBlock() {
-    List<MemoryBlock> fakeSnapshot = setupFakeSnapshot();
+    var fakeSnapshot = setupFakeSnapshot();
 
     assertNull(inspector.getBlockAfter(fakeSnapshot.get(1)));
   }
 
   private List<MemoryBlock> setupFakeSnapshot() {
-    MemoryBlock mock1 = mock(MemoryBlock.class);
-    MemoryBlock mock2 = mock(MemoryBlock.class);
+    var mock1 = mock(MemoryBlock.class);
+    var mock2 = mock(MemoryBlock.class);
     List<MemoryBlock> memoryBlocks = new ArrayList<>();
     memoryBlocks.add(mock1);
     memoryBlocks.add(mock2);

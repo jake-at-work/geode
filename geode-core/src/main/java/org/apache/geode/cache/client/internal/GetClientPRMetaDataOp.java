@@ -15,7 +15,6 @@
 package org.apache.geode.cache.client.internal;
 
 import java.util.List;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +24,6 @@ import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.internal.cache.BucketServerLocation66;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -83,24 +81,24 @@ public class GetClientPRMetaDataOp {
     protected Object processResponse(final @NotNull Message msg) throws Exception {
       switch (msg.getMessageType()) {
         case MessageType.GET_CLIENT_PR_METADATA_ERROR:
-          String errorMsg = msg.getPart(0).getString();
+          var errorMsg = msg.getPart(0).getString();
           if (logger.isDebugEnabled()) {
             logger.debug(errorMsg);
           }
           throw new ServerOperationException(errorMsg);
         case MessageType.RESPONSE_CLIENT_PR_METADATA:
-          final boolean isDebugEnabled = logger.isDebugEnabled();
+          final var isDebugEnabled = logger.isDebugEnabled();
           if (isDebugEnabled) {
             logger.debug("GetClientPRMetaDataOpImpl#processResponse: received message of type : {}"
                 + MessageType.getString(msg.getMessageType()));
           }
-          int numParts = msg.getNumberOfParts();
-          ClientPartitionAdvisor advisor = cms.getClientPartitionAdvisor(regionFullPath);
-          for (int i = 0; i < numParts; i++) {
-            Object result = msg.getPart(i).getObject();
-            List<BucketServerLocation66> locations = (List<BucketServerLocation66>) result;
+          var numParts = msg.getNumberOfParts();
+          var advisor = cms.getClientPartitionAdvisor(regionFullPath);
+          for (var i = 0; i < numParts; i++) {
+            var result = msg.getPart(i).getObject();
+            var locations = (List<BucketServerLocation66>) result;
             if (!locations.isEmpty()) {
-              int bucketId = locations.get(0).getBucketId();
+              var bucketId = locations.get(0).getBucketId();
               if (isDebugEnabled) {
                 logger.debug(
                     "GetClientPRMetaDataOpImpl#processResponse: for bucketId : {} locations are {}",
@@ -110,10 +108,10 @@ public class GetClientPRMetaDataOp {
                 advisor.updateBucketServerLocations(bucketId, locations, cms);
               }
 
-              Set<ClientPartitionAdvisor> cpas =
+              var cpas =
                   cms.getColocatedClientPartitionAdvisor(regionFullPath);
               if (cpas != null && !cpas.isEmpty()) {
-                for (ClientPartitionAdvisor colCPA : cpas) {
+                for (var colCPA : cpas) {
                   colCPA.updateBucketServerLocations(bucketId, locations, cms);
                 }
               }
@@ -130,9 +128,9 @@ public class GetClientPRMetaDataOp {
             logger.debug(
                 "GetClientPRMetaDataOpImpl#processResponse: received message of type EXCEPTION");
           }
-          Part part = msg.getPart(0);
-          Object obj = part.getObject();
-          String s = "While performing  GetClientPRMetaDataOp " + ((Throwable) obj).getMessage();
+          var part = msg.getPart(0);
+          var obj = part.getObject();
+          var s = "While performing  GetClientPRMetaDataOp " + ((Throwable) obj).getMessage();
           throw new ServerOperationException(s, (Throwable) obj);
         default:
           throw new InternalGemFireError(String.format("Unknown message type %s",

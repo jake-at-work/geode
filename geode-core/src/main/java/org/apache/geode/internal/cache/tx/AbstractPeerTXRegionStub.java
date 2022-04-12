@@ -38,7 +38,7 @@ public abstract class AbstractPeerTXRegionStub implements TXRegionStub {
   @Override
   public Set getRegionKeysForIteration() {
     try {
-      RemoteFetchKeysMessage.FetchKeysResponse response =
+      var response =
           RemoteFetchKeysMessage.send((LocalRegion) getRegion(), state.getTarget());
       return response.waitForKeys();
     } catch (RegionDestroyedException regionDestroyedException) {
@@ -58,7 +58,7 @@ public abstract class AbstractPeerTXRegionStub implements TXRegionStub {
   @Override
   public int entryCount() {
     try {
-      RemoteSizeMessage.SizeResponse response =
+      var response =
           RemoteSizeMessage.send(state.getTarget(), getRegion());
       return response.waitForSize();
     } catch (RegionDestroyedException regionDestroyedException) {

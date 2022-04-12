@@ -32,7 +32,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.internal.cache.extension.Extensible;
-import org.apache.geode.internal.cache.extension.Extension;
 import org.apache.geode.management.internal.cli.CliUtils;
 import org.apache.geode.management.internal.configuration.domain.XmlEntity;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
@@ -52,27 +51,27 @@ public class AlterMockCacheExtensionFunction implements Function, DataSerializab
 
   @Override
   public void execute(FunctionContext context) {
-    final Cache cache = CacheFactory.getAnyInstance();
+    final var cache = CacheFactory.getAnyInstance();
 
     if (!(cache instanceof Extensible)) {
       throw new FunctionException("Not extensible cache.");
     }
 
-    final String value = (String) ((Object[]) context.getArguments())[0];
+    final var value = (String) ((Object[]) context.getArguments())[0];
 
     @SuppressWarnings("unchecked")
-    final Extensible<Cache> extensible = (Extensible<Cache>) cache;
-    for (Extension<Cache> extension : extensible.getExtensionPoint().getExtensions()) {
+    final var extensible = (Extensible<Cache>) cache;
+    for (var extension : extensible.getExtensionPoint().getExtensions()) {
       if (extension instanceof MockCacheExtension) {
         ((MockCacheExtension) extension).setValue(value);
       }
     }
 
-    final XmlEntity xmlEntity =
+    final var xmlEntity =
         XmlEntity.builder().withType(ELEMENT_CACHE).withNamespace(PREFIX, NAMESPACE).build();
 
     final ResultSender<Object> resultSender = context.getResultSender();
-    final String memberNameOrId =
+    final var memberNameOrId =
         CliUtils.getMemberNameOrId(cache.getDistributedSystem().getDistributedMember());
 
     resultSender.lastResult(new CliFunctionResult(memberNameOrId, xmlEntity, CliStrings

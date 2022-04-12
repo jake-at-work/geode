@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -62,7 +61,6 @@ import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.DeserializationContext;
-import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.internal.serialization.StaticSerialization;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -111,35 +109,35 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
    *
    */
   public static boolean distribute(EntryEventImpl event, PutAllEntryData[] data, int dataCount) {
-    boolean successful = false;
-    DistributedRegion r = (DistributedRegion) event.getRegion();
+    var successful = false;
+    var r = (DistributedRegion) event.getRegion();
     Collection<InternalDistributedMember> replicates =
         r.getCacheDistributionAdvisor().adviseInitializedReplicates();
     if (replicates.isEmpty()) {
       return false;
     }
     if (replicates.size() > 1) {
-      ArrayList<InternalDistributedMember> l = new ArrayList<>(replicates);
+      var l = new ArrayList<InternalDistributedMember>(replicates);
       Collections.shuffle(l);
       replicates = l;
     }
-    int attempts = 0;
-    for (InternalDistributedMember replicate : replicates) {
+    var attempts = 0;
+    for (var replicate : replicates) {
       try {
         attempts++;
-        final boolean posDup = (attempts > 1);
-        PutAllResponse response = send(replicate, event, data, dataCount, false, posDup);
+        final var posDup = (attempts > 1);
+        var response = send(replicate, event, data, dataCount, false, posDup);
         response.waitForRemoteResponse();
-        VersionedObjectList result = response.getResponse();
+        var result = response.getResponse();
 
         // Set successful version tags in PutAllEntryData.
-        List<Object> successfulKeys = result.getKeys();
+        var successfulKeys = result.getKeys();
         @SuppressWarnings("rawtypes")
-        List<VersionTag> versions = result.getVersionTags();
-        for (PutAllEntryData putAllEntry : data) {
-          Object key = putAllEntry.getKey();
+        var versions = result.getVersionTags();
+        for (var putAllEntry : data) {
+          var key = putAllEntry.getKey();
           if (successfulKeys.contains(key)) {
-            int index = successfulKeys.indexOf(key);
+            var index = successfulKeys.indexOf(key);
             putAllEntry.versionTag = versions.get(index);
           }
         }
@@ -202,8 +200,8 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
   public static PutAllResponse send(DistributedMember recipient, EntryEventImpl event,
       PutAllEntryData[] putAllData, int putAllDataCount, boolean useOriginRemote,
       boolean possibleDuplicate) throws RemoteOperationException {
-    PutAllResponse p = new PutAllResponse(event.getRegion().getSystem(), recipient);
-    RemotePutAllMessage msg = new RemotePutAllMessage(event, recipient, p, putAllData,
+    var p = new PutAllResponse(event.getRegion().getSystem(), recipient);
+    var msg = new RemotePutAllMessage(event, recipient, p, putAllData,
         putAllDataCount, useOriginRemote, possibleDuplicate, !event.isGenerateCallbacks());
     Set<?> failures = event.getRegion().getDistributionManager().putOutgoing(msg);
     if (failures != null && failures.size() > 0) {
@@ -237,16 +235,16 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
     putAllDataCount = (int) InternalDataSerializer.readUnsignedVL(in);
     putAllData = new PutAllEntryData[putAllDataCount];
     if (putAllDataCount > 0) {
-      final KnownVersion version = StaticSerialization.getVersionForDataStreamOrNull(in);
-      final ByteArrayDataInput bytesIn = new ByteArrayDataInput();
-      for (int i = 0; i < putAllDataCount; i++) {
+      final var version = StaticSerialization.getVersionForDataStreamOrNull(in);
+      final var bytesIn = new ByteArrayDataInput();
+      for (var i = 0; i < putAllDataCount; i++) {
         putAllData[i] = new PutAllEntryData(in, context, eventId, i);
       }
 
-      boolean hasTags = in.readBoolean();
+      var hasTags = in.readBoolean();
       if (hasTags) {
-        EntryVersionsList versionTags = EntryVersionsList.create(in);
-        for (int i = 0; i < putAllDataCount; i++) {
+        var versionTags = EntryVersionsList.create(in);
+        for (var i = 0; i < putAllDataCount; i++) {
           putAllData[i].versionTag = versionTags.get(i);
         }
       }
@@ -267,10 +265,10 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
 
     if (putAllDataCount > 0) {
 
-      EntryVersionsList versionTags = new EntryVersionsList(putAllDataCount);
+      var versionTags = new EntryVersionsList(putAllDataCount);
 
-      boolean hasTags = false;
-      for (int i = 0; i < putAllDataCount; i++) {
+      var hasTags = false;
+      for (var i = 0; i < putAllDataCount; i++) {
         if (!hasTags && putAllData[i].versionTag != null) {
           hasTags = true;
         }
@@ -290,7 +288,7 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
 
   @Override
   protected short computeCompressedShort() {
-    short flags = super.computeCompressedShort();
+    var flags = super.computeCompressedShort();
     if (posDup) {
       flags |= POS_DUP;
     }
@@ -314,9 +312,9 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
 
     final boolean sendReply;
 
-    InternalDistributedMember eventSender = getSender();
+    var eventSender = getSender();
 
-    long lastModified = 0L;
+    var lastModified = 0L;
     try {
       sendReply = doLocalPutAll(r, eventSender, lastModified);
     } catch (RemoteOperationException e) {
@@ -343,10 +341,10 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
    */
   public boolean doLocalPutAll(final LocalRegion r, final InternalDistributedMember eventSender,
       long lastModified) throws EntryExistsException, RemoteOperationException {
-    final DistributedRegion dr = (DistributedRegion) r;
+    final var dr = (DistributedRegion) r;
 
     @Released
-    EntryEventImpl baseEvent = EntryEventImpl.create(r, Operation.PUTALL_CREATE, null, null,
+    var baseEvent = EntryEventImpl.create(r, Operation.PUTALL_CREATE, null, null,
         callbackArg, false, eventSender, !skipCallbacks);
     try {
 
@@ -363,17 +361,17 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
             "RemotePutAllMessage.doLocalPutAll: eventSender is {}, baseEvent is {}, msg is {}",
             eventSender, baseEvent, this);
       }
-      final DistributedPutAllOperation dpao =
+      final var dpao =
           new DistributedPutAllOperation(baseEvent, putAllDataCount, false);
       try {
         r.lockRVVForBulkOp();
-        final VersionedObjectList versions =
+        final var versions =
             new VersionedObjectList(putAllDataCount, true, dr.getConcurrencyChecksEnabled());
         dr.syncBulkOp(() -> {
-          InternalDistributedMember myId = r.getDistributionManager().getDistributionManagerId();
-          for (int i = 0; i < putAllDataCount; ++i) {
+          var myId = r.getDistributionManager().getDistributionManagerId();
+          for (var i = 0; i < putAllDataCount; ++i) {
             @Released
-            EntryEventImpl ev = PutAllPRMessage.getEventFromEntry(r, myId, eventSender, i,
+            var ev = PutAllPRMessage.getEventFromEntry(r, myId, eventSender, i,
                 putAllData, false, bridgeContext, posDup, !skipCallbacks);
             try {
               ev.setPutAllOperation(dpao);
@@ -412,7 +410,7 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
     if (bridgeContext != null) {
       buff.append("; bridgeContext=").append(bridgeContext);
     }
-    for (int i = 0; i < putAllDataCount; i++) {
+    for (var i = 0; i < putAllDataCount; i++) {
       buff.append("; entry" + i + ":")
           .append(putAllData[i] == null ? "null" : putAllData[i].getKey());
     }
@@ -437,7 +435,7 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
     public static void send(InternalDistributedMember recipient, int processorId, ReplySender dm,
         VersionedObjectList versions, PutAllEntryData[] putAllData, int putAllDataCount) {
       Assert.assertTrue(recipient != null, "PutAllReplyMessage NULL reply message");
-      PutAllReplyMessage m =
+      var m =
           new PutAllReplyMessage(processorId, versions, putAllData, putAllDataCount);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
@@ -450,7 +448,7 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 rp) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
 
       if (rp == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -459,7 +457,7 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
         return;
       }
       if (rp instanceof PutAllResponse) {
-        PutAllResponse processor = (PutAllResponse) rp;
+        var processor = (PutAllResponse) rp;
         processor.setResponse(this);
       }
       rp.process(this);

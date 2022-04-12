@@ -19,11 +19,9 @@ package org.apache.geode.tools.pulse.internal.service;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
@@ -62,26 +60,26 @@ public class ClusterSelectedRegionsMemberService implements PulseService {
 
   // Comparator based upon regions entry count
   private static final Comparator<Cluster.RegionOnMember> romEntryCountComparator = (m1, m2) -> {
-    long m1EntryCount = m1.getEntryCount();
-    long m2EntryCount = m2.getEntryCount();
+    var m1EntryCount = m1.getEntryCount();
+    var m2EntryCount = m2.getEntryCount();
     return Long.compare(m1EntryCount, m2EntryCount);
   };
 
   @Override
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
-    String userName = request.getUserPrincipal().getName();
-    String pulseData = request.getParameter("pulseData");
-    JsonNode parameterMap = mapper.readTree(pulseData);
-    String selectedRegionFullPath =
+    var userName = request.getUserPrincipal().getName();
+    var pulseData = request.getParameter("pulseData");
+    var parameterMap = mapper.readTree(pulseData);
+    var selectedRegionFullPath =
         parameterMap.get("ClusterSelectedRegionsMember").get("regionFullPath").textValue();
     logger.trace("ClusterSelectedRegionsMemberService selectedRegionFullPath = {}",
         selectedRegionFullPath);
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     // getting cluster's Regions
     responseJSON.put("clusterName", cluster.getServerName());
@@ -96,18 +94,18 @@ public class ClusterSelectedRegionsMemberService implements PulseService {
    * Create JSON for selected cluster region's all members
    */
   private ObjectNode getSelectedRegionsMembersJson(Cluster cluster, String selectedRegionFullPath) {
-    Cluster.Region reg = cluster.getClusterRegion(selectedRegionFullPath);
+    var reg = cluster.getClusterRegion(selectedRegionFullPath);
 
     if (reg != null) {
-      ObjectNode regionMemberJSON = mapper.createObjectNode();
-      RegionOnMember[] regionOnMembers = reg.getRegionOnMembers();
+      var regionMemberJSON = mapper.createObjectNode();
+      var regionOnMembers = reg.getRegionOnMembers();
 
       // sort on entry count
-      List<RegionOnMember> romList = Arrays.asList(regionOnMembers);
+      var romList = Arrays.asList(regionOnMembers);
       romList.sort(romEntryCountComparator);
 
-      for (RegionOnMember rom : romList) {
-        ObjectNode memberJSON = mapper.createObjectNode();
+      for (var rom : romList) {
+        var memberJSON = mapper.createObjectNode();
         memberJSON.put("memberName", rom.getMemberName());
         memberJSON.put("regionFullPath", rom.getRegionFullPath());
         memberJSON.put("entryCount", rom.getEntryCount());
@@ -146,7 +144,7 @@ public class ClusterSelectedRegionsMemberService implements PulseService {
       logger.debug("calling getSelectedRegionsMembersJson :: regionJSON = {}", regionMemberJSON);
       return regionMemberJSON;
     } else {
-      ObjectNode responseJSON = mapper.createObjectNode();
+      var responseJSON = mapper.createObjectNode();
       responseJSON.put("errorOnRegion", "Region [" + selectedRegionFullPath + "] is not available");
       return responseJSON;
     }

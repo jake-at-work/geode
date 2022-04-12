@@ -121,15 +121,15 @@ public class LocatorDiscovery {
       GeodeGlossary.GEMFIRE_PREFIX + "LocatorDiscovery.FAILURE_LOG_MAX_INTERVAL", 300000);
 
   public boolean skipFailureLogging(DistributionLocatorId locatorId) {
-    boolean skipLogging = false;
+    var skipLogging = false;
     if (failureLogInterval.size() < FAILURE_MAP_MAXSIZE) {
-      long[] logInterval = failureLogInterval.get(locatorId);
+      var logInterval = failureLogInterval.get(locatorId);
       if (logInterval == null) {
         logInterval = failureLogInterval.putIfAbsent(locatorId,
             new long[] {System.currentTimeMillis(), 1000});
       }
       if (logInterval != null) {
-        long currentTime = System.currentTimeMillis();
+        var currentTime = System.currentTimeMillis();
         if ((currentTime - logInterval[0]) < logInterval[1]) {
           skipLogging = true;
         } else {
@@ -159,10 +159,10 @@ public class LocatorDiscovery {
   }
 
   private void exchangeLocalLocators() {
-    int retryAttempt = 1;
+    var retryAttempt = 1;
     while (!discoverer.isStopped()) {
       try {
-        RemoteLocatorJoinResponse response = (RemoteLocatorJoinResponse) locatorClient
+        var response = (RemoteLocatorJoinResponse) locatorClient
             .requestToServer(locatorId.getHost(), request, WAN_LOCATOR_CONNECTION_TIMEOUT, true);
         if (response != null) {
           addExchangedLocators(response);
@@ -173,7 +173,7 @@ public class LocatorDiscovery {
         }
       } catch (IOException ioe) {
         if (retryAttempt == WAN_LOCATOR_CONNECTION_RETRY_ATTEMPT) {
-          ConnectionException coe =
+          var coe =
               new ConnectionException("Not able to connect to local locator after "
                   + WAN_LOCATOR_CONNECTION_RETRY_ATTEMPT + " retry attempts", ioe);
           logger.fatal(
@@ -202,22 +202,22 @@ public class LocatorDiscovery {
   }
 
   public void exchangeRemoteLocators() {
-    int retryAttempt = 1;
+    var retryAttempt = 1;
     while (!discoverer.isStopped()) {
       try {
-        RemoteLocatorJoinResponse response = (RemoteLocatorJoinResponse) locatorClient
+        var response = (RemoteLocatorJoinResponse) locatorClient
             .requestToServer(locatorId.getHost(), request, WAN_LOCATOR_CONNECTION_TIMEOUT, true);
         if (response != null) {
           addExchangedLocators(response);
           logger.info(
               "Locator discovery task for locator {} exchanged locator information with {}: {}.",
               request.getLocator(), locatorId, response.getLocators());
-          RemoteLocatorPingRequest pingRequest = new RemoteLocatorPingRequest("");
+          var pingRequest = new RemoteLocatorPingRequest("");
           while (true) {
             if (!skipWaiting) {
               Thread.sleep(WAN_LOCATOR_PING_INTERVAL);
             }
-            RemoteLocatorPingResponse pingResponse = (RemoteLocatorPingResponse) locatorClient
+            var pingResponse = (RemoteLocatorPingResponse) locatorClient
                 .requestToServer(new HostAndPort(locatorId.getHostName(), locatorId.getPort()),
                     pingRequest, WAN_LOCATOR_CONNECTION_TIMEOUT, true);
             if (pingResponse != null) {

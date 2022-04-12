@@ -30,9 +30,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.KeyFactory;
-import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -41,7 +39,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -55,7 +52,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyAgreement;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -157,25 +153,25 @@ public class EncryptorImpl implements Encryptor {
 
   protected Cipher getDecryptCipher(String dhSKAlgo, PublicKey publicKey) throws Exception {
     if (_decrypt == null) {
-      KeyAgreement ka = KeyAgreement.getInstance("DH");
+      var ka = KeyAgreement.getInstance("DH");
       ka.init(dhPrivateKey);
       ka.doPhase(publicKey, true);
 
       Cipher decrypt;
 
-      int keysize = getKeySize(dhSKAlgo);
-      int blocksize = getBlockSize(dhSKAlgo);
+      var keysize = getKeySize(dhSKAlgo);
+      var blocksize = getBlockSize(dhSKAlgo);
 
       if (keysize == -1 || blocksize == -1) {
-        SecretKey sKey = ka.generateSecret(dhSKAlgo);
+        var sKey = ka.generateSecret(dhSKAlgo);
         decrypt = Cipher.getInstance(dhSKAlgo);
         decrypt.init(Cipher.DECRYPT_MODE, sKey);
       } else {
-        String algoStr = getDhAlgoStr(dhSKAlgo);
+        var algoStr = getDhAlgoStr(dhSKAlgo);
 
-        byte[] sKeyBytes = ka.generateSecret();
-        SecretKeySpec sks = new SecretKeySpec(sKeyBytes, 0, keysize, algoStr);
-        IvParameterSpec ivps = new IvParameterSpec(sKeyBytes, keysize, blocksize);
+        var sKeyBytes = ka.generateSecret();
+        var sks = new SecretKeySpec(sKeyBytes, 0, keysize, algoStr);
+        var ivps = new IvParameterSpec(sKeyBytes, keysize, blocksize);
 
         decrypt = Cipher.getInstance(algoStr + "/CBC/PKCS5Padding");
         decrypt.init(Cipher.DECRYPT_MODE, sks, ivps);
@@ -195,10 +191,10 @@ public class EncryptorImpl implements Encryptor {
     certificateMap = new HashMap();
     certificateFilePath = props.getProperty(PUBLIC_KEY_FILE_PROP);
     if (certificateFilePath != null && certificateFilePath.length() > 0) {
-      KeyStore ks = KeyStore.getInstance("JKS");
-      String keyStorePass = props.getProperty(PUBLIC_KEY_PASSWD_PROP);
-      char[] passPhrase = (keyStorePass != null ? keyStorePass.toCharArray() : null);
-      FileInputStream keystorefile = new FileInputStream(certificateFilePath);
+      var ks = KeyStore.getInstance("JKS");
+      var keyStorePass = props.getProperty(PUBLIC_KEY_PASSWD_PROP);
+      var passPhrase = (keyStorePass != null ? keyStorePass.toCharArray() : null);
+      var keystorefile = new FileInputStream(certificateFilePath);
       try {
         ks.load(keystorefile, passPhrase);
       } finally {
@@ -206,10 +202,10 @@ public class EncryptorImpl implements Encryptor {
       }
       Enumeration aliases = ks.aliases();
       while (aliases.hasMoreElements()) {
-        String alias = (String) aliases.nextElement();
-        Certificate cert = ks.getCertificate(alias);
+        var alias = (String) aliases.nextElement();
+        var cert = ks.getCertificate(alias);
         if (cert instanceof X509Certificate) {
-          String subject = ((X509Certificate) cert).getSubjectDN().getName();
+          var subject = ((X509Certificate) cert).getSubjectDN().getName();
           certificateMap.put(subject, cert);
         }
       }
@@ -221,25 +217,25 @@ public class EncryptorImpl implements Encryptor {
    */
   public static void initPrivateKey(Properties props) throws Exception {
 
-    String privateKeyFilePath = props.getProperty(PRIVATE_KEY_FILE_PROP);
+    var privateKeyFilePath = props.getProperty(PRIVATE_KEY_FILE_PROP);
     privateKeyAlias = "";
     privateKeyEncrypt = null;
     if (privateKeyFilePath != null && privateKeyFilePath.length() > 0) {
-      KeyStore ks = KeyStore.getInstance("PKCS12");
+      var ks = KeyStore.getInstance("PKCS12");
       privateKeyAlias = props.getProperty(PRIVATE_KEY_ALIAS_PROP);
       if (privateKeyAlias == null) {
         privateKeyAlias = "";
       }
-      String keyStorePass = props.getProperty(PRIVATE_KEY_PASSWD_PROP);
-      char[] passPhrase = (keyStorePass != null ? keyStorePass.toCharArray() : null);
-      FileInputStream privateKeyFile = new FileInputStream(privateKeyFilePath);
+      var keyStorePass = props.getProperty(PRIVATE_KEY_PASSWD_PROP);
+      var passPhrase = (keyStorePass != null ? keyStorePass.toCharArray() : null);
+      var privateKeyFile = new FileInputStream(privateKeyFilePath);
       try {
         ks.load(privateKeyFile, passPhrase);
       } finally {
         privateKeyFile.close();
       }
-      Key key = ks.getKey(privateKeyAlias, passPhrase);
-      Certificate keyCert = ks.getCertificate(privateKeyAlias);
+      var key = ks.getKey(privateKeyAlias, passPhrase);
+      var keyCert = ks.getCertificate(privateKeyAlias);
       if (key instanceof PrivateKey && keyCert instanceof X509Certificate) {
         privateKeyEncrypt = (PrivateKey) key;
         privateKeySignAlgo = ((X509Certificate) keyCert).getSigAlgName();
@@ -261,10 +257,10 @@ public class EncryptorImpl implements Encryptor {
     // that has authenticator defined.
     if ((dhSKAlgo != null
         && dhSKAlgo.length() > 0) /* || securityService.isClientSecurityRequired() */) {
-      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
-      DHParameterSpec dhSpec = new DHParameterSpec(dhP, dhG, dhL);
+      var keyGen = KeyPairGenerator.getInstance("DH");
+      var dhSpec = new DHParameterSpec(dhP, dhG, dhL);
       keyGen.initialize(dhSpec);
-      KeyPair keypair = keyGen.generateKeyPair();
+      var keypair = keyGen.generateKeyPair();
 
       // Get the generated public and private keys
       dhPrivateKey = keypair.getPrivate();
@@ -272,7 +268,7 @@ public class EncryptorImpl implements Encryptor {
 
       random = new SecureRandom();
       // Force the random generator to seed itself.
-      byte[] someBytes = new byte[48];
+      var someBytes = new byte[48];
       random.nextBytes(someBytes);
     }
   }
@@ -286,7 +282,7 @@ public class EncryptorImpl implements Encryptor {
       } else {
         algo = dhSKAlgo;
       }
-      Cipher c = getDecryptCipher(algo, clientPublicKey);
+      var c = getDecryptCipher(algo, clientPublicKey);
       return decryptBytes(data, c);
     } else {
       return data;
@@ -316,25 +312,25 @@ public class EncryptorImpl implements Encryptor {
 
   protected Cipher getEncryptCipher(String dhSKAlgo, PublicKey publicKey) throws Exception {
     if (_encrypt == null) {
-      KeyAgreement ka = KeyAgreement.getInstance("DH");
+      var ka = KeyAgreement.getInstance("DH");
       ka.init(dhPrivateKey);
       ka.doPhase(publicKey, true);
 
       Cipher encrypt;
 
-      int keysize = getKeySize(dhSKAlgo);
-      int blocksize = getBlockSize(dhSKAlgo);
+      var keysize = getKeySize(dhSKAlgo);
+      var blocksize = getBlockSize(dhSKAlgo);
 
       if (keysize == -1 || blocksize == -1) {
-        SecretKey sKey = ka.generateSecret(dhSKAlgo);
+        var sKey = ka.generateSecret(dhSKAlgo);
         encrypt = Cipher.getInstance(dhSKAlgo);
         encrypt.init(Cipher.ENCRYPT_MODE, sKey);
       } else {
-        String dhAlgoStr = getDhAlgoStr(dhSKAlgo);
+        var dhAlgoStr = getDhAlgoStr(dhSKAlgo);
 
-        byte[] sKeyBytes = ka.generateSecret();
-        SecretKeySpec sks = new SecretKeySpec(sKeyBytes, 0, keysize, dhAlgoStr);
-        IvParameterSpec ivps = new IvParameterSpec(sKeyBytes, keysize, blocksize);
+        var sKeyBytes = ka.generateSecret();
+        var sks = new SecretKeySpec(sKeyBytes, 0, keysize, dhAlgoStr);
+        var ivps = new IvParameterSpec(sKeyBytes, keysize, blocksize);
 
         encrypt = Cipher.getInstance(dhAlgoStr + "/CBC/PKCS5Padding");
         encrypt.init(Cipher.ENCRYPT_MODE, sks, ivps);
@@ -353,7 +349,7 @@ public class EncryptorImpl implements Encryptor {
     byte acceptanceCode;
     try {
       logWriter.fine("HandShake: using Diffie-Hellman key exchange with algo " + dhSKAlgo);
-      boolean requireAuthentication =
+      var requireAuthentication =
           (certificateFilePath != null && certificateFilePath.length() > 0);
       if (requireAuthentication) {
         logWriter.fine("HandShake: server authentication using digital " + "signature required");
@@ -365,7 +361,7 @@ public class EncryptorImpl implements Encryptor {
       // Send the symmetric encryption algorithm name
       DataSerializer.writeString(dhSKAlgo, heapdos);
       // Send the DH public key
-      byte[] keyBytes = dhPublicKey.getEncoded();
+      var keyBytes = dhPublicKey.getEncoded();
       DataSerializer.writeByteArray(keyBytes, heapdos);
       byte[] clientChallenge = null;
       if (requireAuthentication) {
@@ -385,8 +381,8 @@ public class EncryptorImpl implements Encryptor {
         // Get the public key of the other side
         keyBytes = DataSerializer.readByteArray(dis);
         if (requireAuthentication) {
-          String subject = DataSerializer.readString(dis);
-          byte[] signatureBytes = DataSerializer.readByteArray(dis);
+          var subject = DataSerializer.readString(dis);
+          var signatureBytes = DataSerializer.readByteArray(dis);
           if (!certificateMap.containsKey(subject)) {
             throw new AuthenticationFailedException(
                 String.format("HandShake failed to find public key for server with subject %s",
@@ -394,8 +390,8 @@ public class EncryptorImpl implements Encryptor {
           }
 
           // Check the signature with the public key
-          X509Certificate cert = (X509Certificate) certificateMap.get(subject);
-          Signature sig = Signature.getInstance(cert.getSigAlgName());
+          var cert = (X509Certificate) certificateMap.get(subject);
+          var sig = Signature.getInstance(cert.getSigAlgName());
           sig.initVerify(cert);
           sig.update(clientChallenge);
           // Check the challenge string
@@ -407,17 +403,17 @@ public class EncryptorImpl implements Encryptor {
         }
 
         // Read server challenge bytes
-        byte[] serverChallenge = DataSerializer.readByteArray(dis);
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFact = KeyFactory.getInstance("DH");
+        var serverChallenge = DataSerializer.readByteArray(dis);
+        var x509KeySpec = new X509EncodedKeySpec(keyBytes);
+        var keyFact = KeyFactory.getInstance("DH");
         // PublicKey pubKey = keyFact.generatePublic(x509KeySpec);
         clientPublicKey = keyFact.generatePublic(x509KeySpec);
 
-        try (HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+        try (var hdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
           // Add the challenge string
           DataSerializer.writeByteArray(serverChallenge, hdos);
           // byte[] encBytes = encrypt.doFinal(hdos.toByteArray());
-          byte[] encBytes =
+          var encBytes =
               encryptBytes(hdos.toByteArray(), getEncryptCipher(dhSKAlgo, clientPublicKey));
           DataSerializer.writeByteArray(encBytes, dos);
         }
@@ -438,7 +434,7 @@ public class EncryptorImpl implements Encryptor {
     byte acceptanceCode;
     try {
       logWriter.fine("HandShake: using Diffie-Hellman key exchange with algo " + dhSKAlgo);
-      boolean requireAuthentication =
+      var requireAuthentication =
           (certificateFilePath != null && certificateFilePath.length() > 0);
       if (requireAuthentication) {
         logWriter.fine("HandShake: server authentication using digital signature required");
@@ -449,7 +445,7 @@ public class EncryptorImpl implements Encryptor {
       // Send the symmetric encryption algorithm name
       DataSerializer.writeString(dhSKAlgo, heapdos);
       // Send the DH public key
-      byte[] keyBytes = dhPublicKey.getEncoded();
+      var keyBytes = dhPublicKey.getEncoded();
       DataSerializer.writeByteArray(keyBytes, heapdos);
       byte[] clientChallenge = null;
       if (requireAuthentication) {
@@ -469,8 +465,8 @@ public class EncryptorImpl implements Encryptor {
         // Get the public key of the other side
         keyBytes = DataSerializer.readByteArray(dis);
         if (requireAuthentication) {
-          String subject = DataSerializer.readString(dis);
-          byte[] signatureBytes = DataSerializer.readByteArray(dis);
+          var subject = DataSerializer.readString(dis);
+          var signatureBytes = DataSerializer.readByteArray(dis);
           if (!certificateMap.containsKey(subject)) {
             throw new AuthenticationFailedException(
                 String.format("HandShake failed to find public key for server with subject %s",
@@ -478,8 +474,8 @@ public class EncryptorImpl implements Encryptor {
           }
 
           // Check the signature with the public key
-          X509Certificate cert = (X509Certificate) certificateMap.get(subject);
-          Signature sig = Signature.getInstance(cert.getSigAlgName());
+          var cert = (X509Certificate) certificateMap.get(subject);
+          var sig = Signature.getInstance(cert.getSigAlgName());
           sig.initVerify(cert);
           sig.update(clientChallenge);
           // Check the challenge string
@@ -490,22 +486,20 @@ public class EncryptorImpl implements Encryptor {
           logWriter.fine("HandShake: Successfully verified the " + "digital signature from server");
         }
 
-        byte[] challenge = DataSerializer.readByteArray(dis);
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFact = KeyFactory.getInstance("DH");
+        var challenge = DataSerializer.readByteArray(dis);
+        var x509KeySpec = new X509EncodedKeySpec(keyBytes);
+        var keyFact = KeyFactory.getInstance("DH");
         // PublicKey pubKey = keyFact.generatePublic(x509KeySpec);
         clientPublicKey = keyFact.generatePublic(x509KeySpec);
 
-
-
-        HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+        var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
         try {
           DataSerializer.writeProperties(p_credentials, hdos);
           // Also add the challenge string
           DataSerializer.writeByteArray(challenge, hdos);
 
           // byte[] encBytes = encrypt.doFinal(hdos.toByteArray());
-          byte[] encBytes =
+          var encBytes =
               encryptBytes(hdos.toByteArray(), getEncryptCipher(dhSKAlgo, clientPublicKey));
           DataSerializer.writeByteArray(encBytes, dos);
         } finally {
@@ -526,18 +520,18 @@ public class EncryptorImpl implements Encryptor {
   void readEncryptedCredentials(DataInputStream dis, DataOutputStream dos, DistributedSystem system,
       boolean requireAuthentication) throws Exception {
     appSecureMode = CREDENTIALS_DHENCRYPT;
-    boolean sendAuthentication = dis.readBoolean();
-    InternalLogWriter securityLogWriter = (InternalLogWriter) system.getSecurityLogWriter();
+    var sendAuthentication = dis.readBoolean();
+    var securityLogWriter = (InternalLogWriter) system.getSecurityLogWriter();
     // Get the symmetric encryption algorithm to be used
     clientSKAlgo = DataSerializer.readString(dis);
     // Get the public key of the other side
-    byte[] keyBytes = DataSerializer.readByteArray(dis);
+    var keyBytes = DataSerializer.readByteArray(dis);
     byte[] challenge = null;
     // PublicKey pubKey = null;
     if (requireAuthentication) {
       // Generate PublicKey from encoded form
-      X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-      KeyFactory keyFact = KeyFactory.getInstance("DH");
+      var x509KeySpec = new X509EncodedKeySpec(keyBytes);
+      var keyFact = KeyFactory.getInstance("DH");
       clientPublicKey = keyFact.generatePublic(x509KeySpec);
 
       // Send the public key to other side
@@ -549,16 +543,16 @@ public class EncryptorImpl implements Encryptor {
       // sign the challenge from client.
       if (sendAuthentication) {
         // Get the challenge string from client
-        byte[] clientChallenge = DataSerializer.readByteArray(dis);
+        var clientChallenge = DataSerializer.readByteArray(dis);
         if (privateKeyEncrypt == null) {
           throw new AuthenticationFailedException(
               "Server private key not available for creating signature.");
         }
         // Sign the challenge from client and send it to the client
-        Signature sig = Signature.getInstance(privateKeySignAlgo);
+        var sig = Signature.getInstance(privateKeySignAlgo);
         sig.initSign(privateKeyEncrypt);
         sig.update(clientChallenge);
-        byte[] signedBytes = sig.sign();
+        var signedBytes = sig.sign();
         dos.writeByte(REPLY_OK);
         DataSerializer.writeByteArray(keyBytes, dos);
         // DataSerializer.writeString(privateKeyAlias, dos);
@@ -579,13 +573,13 @@ public class EncryptorImpl implements Encryptor {
       dos.flush();
 
       // Read and decrypt the credentials
-      byte[] encBytes = DataSerializer.readByteArray(dis);
-      Cipher c = getDecryptCipher(clientSKAlgo, clientPublicKey);
-      byte[] credentialBytes = decryptBytes(encBytes, c);
-      ByteArrayDataInput dinp = new ByteArrayDataInput(credentialBytes);
+      var encBytes = DataSerializer.readByteArray(dis);
+      var c = getDecryptCipher(clientSKAlgo, clientPublicKey);
+      var credentialBytes = decryptBytes(encBytes, c);
+      var dinp = new ByteArrayDataInput(credentialBytes);
       // credentials = DataSerializer.readProperties(dinp);//Hitesh: we don't send in handshake
       // now
-      byte[] challengeRes = DataSerializer.readByteArray(dinp);
+      var challengeRes = DataSerializer.readByteArray(dinp);
       // Check the challenge string
       if (!Arrays.equals(challenge, challengeRes)) {
         throw new AuthenticationFailedException(
@@ -607,18 +601,18 @@ public class EncryptorImpl implements Encryptor {
       throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
       SignatureException, NoSuchPaddingException, InvalidAlgorithmParameterException,
       IllegalBlockSizeException, BadPaddingException, ClassNotFoundException {
-    boolean sendAuthentication = dis.readBoolean();
-    InternalLogWriter securityLogWriter = (InternalLogWriter) system.getSecurityLogWriter();
+    var sendAuthentication = dis.readBoolean();
+    var securityLogWriter = (InternalLogWriter) system.getSecurityLogWriter();
     // Get the symmetric encryption algorithm to be used
-    String skAlgo = DataSerializer.readString(dis);
+    var skAlgo = DataSerializer.readString(dis);
     // Get the public key of the other side
-    byte[] keyBytes = DataSerializer.readByteArray(dis);
+    var keyBytes = DataSerializer.readByteArray(dis);
     byte[] challenge = null;
     PublicKey pubKey = null;
     if (requireAuthentication) {
       // Generate PublicKey from encoded form
-      X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-      KeyFactory keyFact = KeyFactory.getInstance("DH");
+      var x509KeySpec = new X509EncodedKeySpec(keyBytes);
+      var keyFact = KeyFactory.getInstance("DH");
       pubKey = keyFact.generatePublic(x509KeySpec);
 
       // Send the public key to other side
@@ -630,16 +624,16 @@ public class EncryptorImpl implements Encryptor {
       // sign the challenge from client.
       if (sendAuthentication) {
         // Get the challenge string from client
-        byte[] clientChallenge = DataSerializer.readByteArray(dis);
+        var clientChallenge = DataSerializer.readByteArray(dis);
         if (privateKeyEncrypt == null) {
           throw new AuthenticationFailedException(
               "Server private key not available for creating signature.");
         }
         // Sign the challenge from client and send it to the client
-        Signature sig = Signature.getInstance(privateKeySignAlgo);
+        var sig = Signature.getInstance(privateKeySignAlgo);
         sig.initSign(privateKeyEncrypt);
         sig.update(clientChallenge);
-        byte[] signedBytes = sig.sign();
+        var signedBytes = sig.sign();
         dos.writeByte(REPLY_OK);
         DataSerializer.writeByteArray(keyBytes, dos);
         // DataSerializer.writeString(privateKeyAlias, dos);
@@ -660,35 +654,35 @@ public class EncryptorImpl implements Encryptor {
       dos.flush();
 
       // Read and decrypt the credentials
-      byte[] encBytes = DataSerializer.readByteArray(dis);
-      KeyAgreement ka = KeyAgreement.getInstance("DH");
+      var encBytes = DataSerializer.readByteArray(dis);
+      var ka = KeyAgreement.getInstance("DH");
       ka.init(dhPrivateKey);
       ka.doPhase(pubKey, true);
 
       Cipher decrypt;
 
-      int keysize = getKeySize(skAlgo);
-      int blocksize = getBlockSize(skAlgo);
+      var keysize = getKeySize(skAlgo);
+      var blocksize = getBlockSize(skAlgo);
 
       if (keysize == -1 || blocksize == -1) {
-        SecretKey sKey = ka.generateSecret(skAlgo);
+        var sKey = ka.generateSecret(skAlgo);
         decrypt = Cipher.getInstance(skAlgo);
         decrypt.init(Cipher.DECRYPT_MODE, sKey);
       } else {
-        String algoStr = getDhAlgoStr(skAlgo);
+        var algoStr = getDhAlgoStr(skAlgo);
 
-        byte[] sKeyBytes = ka.generateSecret();
-        SecretKeySpec sks = new SecretKeySpec(sKeyBytes, 0, keysize, algoStr);
-        IvParameterSpec ivps = new IvParameterSpec(sKeyBytes, keysize, blocksize);
+        var sKeyBytes = ka.generateSecret();
+        var sks = new SecretKeySpec(sKeyBytes, 0, keysize, algoStr);
+        var ivps = new IvParameterSpec(sKeyBytes, keysize, blocksize);
 
         decrypt = Cipher.getInstance(algoStr + "/CBC/PKCS5Padding");
         decrypt.init(Cipher.DECRYPT_MODE, sks, ivps);
       }
 
-      byte[] credentialBytes = decrypt.doFinal(encBytes);
-      ByteArrayDataInput dinp = new ByteArrayDataInput(credentialBytes);
+      var credentialBytes = decrypt.doFinal(encBytes);
+      var dinp = new ByteArrayDataInput(credentialBytes);
       credentials = DataSerializer.readProperties(dinp);
-      byte[] challengeRes = DataSerializer.readByteArray(dinp);
+      var challengeRes = DataSerializer.readByteArray(dinp);
       // Check the challenge string
       if (!Arrays.equals(challenge, challengeRes)) {
         throw new AuthenticationFailedException(
@@ -709,16 +703,16 @@ public class EncryptorImpl implements Encryptor {
 
   private static int getKeySize(String skAlgo) {
     // skAlgo contain both algo and key size info
-    int colIdx = skAlgo.indexOf(':');
+    var colIdx = skAlgo.indexOf(':');
     String algoStr;
-    int algoKeySize = 0;
+    var algoKeySize = 0;
     if (colIdx >= 0) {
       algoStr = skAlgo.substring(0, colIdx);
       algoKeySize = Integer.parseInt(skAlgo.substring(colIdx + 1));
     } else {
       algoStr = skAlgo;
     }
-    int keysize = -1;
+    var keysize = -1;
     if (algoStr.equalsIgnoreCase("DESede")) {
       keysize = 24;
     } else if (algoStr.equalsIgnoreCase("Blowfish")) {
@@ -730,7 +724,7 @@ public class EncryptorImpl implements Encryptor {
   }
 
   private static String getDhAlgoStr(String skAlgo) {
-    int colIdx = skAlgo.indexOf(':');
+    var colIdx = skAlgo.indexOf(':');
     String algoStr;
     if (colIdx >= 0) {
       algoStr = skAlgo.substring(0, colIdx);
@@ -741,8 +735,8 @@ public class EncryptorImpl implements Encryptor {
   }
 
   private static int getBlockSize(String skAlgo) {
-    int blocksize = -1;
-    String algoStr = getDhAlgoStr(skAlgo);
+    var blocksize = -1;
+    var algoStr = getDhAlgoStr(skAlgo);
     if (algoStr.equalsIgnoreCase("DESede")) {
       blocksize = 8;
     } else if (algoStr.equalsIgnoreCase("Blowfish")) {

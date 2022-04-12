@@ -86,7 +86,7 @@ public class CompiledLike extends CompiledComparison {
   OrganizedOperands organizeOperands(ExecutionContext context, boolean completeExpansionNeeded,
       RuntimeIterator[] indpndntItrs) throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
-    CompiledComparison[] cvs = getExpandedOperandsWithIndexInfoSetIfAny(context);
+    var cvs = getExpandedOperandsWithIndexInfoSetIfAny(context);
     Filter filter = null;
     if (cvs.length == 1) {
       // For the equality condition
@@ -111,7 +111,7 @@ public class CompiledLike extends CompiledComparison {
       }
     }
 
-    OrganizedOperands result = new OrganizedOperands();
+    var result = new OrganizedOperands();
     result.isSingleFilter = true;
     result.filterOperand = filter;
     return result;
@@ -125,11 +125,11 @@ public class CompiledLike extends CompiledComparison {
   CompiledComparison[] getExpandedOperandsWithIndexInfoSetIfAny(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException,
       FunctionDomainException, QueryInvocationTargetException {
-    String pattern = (String) bindArg.evaluate(context);
+    var pattern = (String) bindArg.evaluate(context);
     // check if it is filter evaluatable
-    CompiledComparison[] cvs = getRangeIfSargable(context, var, pattern);
+    var cvs = getRangeIfSargable(context, var, pattern);
 
-    for (CompiledComparison cc : cvs) {
+    for (var cc : cvs) {
       // negation supported only for trailing %
       if ((getOperator() == OQLLexerTokenTypes.TOK_NE)
           && (getWildcardPosition(context) == getPatternLength(context) - 1)
@@ -139,12 +139,12 @@ public class CompiledLike extends CompiledComparison {
       cc.computeDependencies(context);
       // Set the indexinfo for the newly created CCs with the indexinfo of this
       // CompiledLike object
-      IndexInfo[] thisIndexInfo = ((IndexInfo[]) context.cacheGet(this));
+      var thisIndexInfo = ((IndexInfo[]) context.cacheGet(this));
       if (thisIndexInfo != null && thisIndexInfo.length > 0) {
         // set the index key in the indexinfo of the CC since the index key
         // in the indexinfo of this object might have been modified in the
         // checkIfSargableAndRemoveEscapeChars method
-        IndexInfo indexInfo =
+        var indexInfo =
             new IndexInfo(cc.getKey(context), thisIndexInfo[0]._path, thisIndexInfo[0]._index,
                 thisIndexInfo[0]._matchLevel, thisIndexInfo[0].mapping, cc.getOperator());
         context.cachePut(cc, new IndexInfo[] {indexInfo});
@@ -166,10 +166,10 @@ public class CompiledLike extends CompiledComparison {
       boolean isIntersection, boolean conditioningNeeded, boolean evaluateProjection)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    OrganizedOperands newOperands =
+    var newOperands =
         organizeOperands(context, completeExpansionNeeded, indpndntItrs);
     assert newOperands.iterateOperand == null;
-    SelectResults result = intermediateResults;
+    var result = intermediateResults;
     result = (newOperands.filterOperand).filterEvaluate(context, intermediateResults,
         completeExpansionNeeded, iterOperands, indpndntItrs, isIntersection, conditioningNeeded,
         evaluateProjection);
@@ -181,11 +181,11 @@ public class CompiledLike extends CompiledComparison {
   public SelectResults filterEvaluate(ExecutionContext context, SelectResults intermediateResults)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    RuntimeIterator grpItr = (RuntimeIterator) QueryUtils
+    var grpItr = (RuntimeIterator) QueryUtils
         .getCurrentScopeUltimateRuntimeIteratorsIfAny(this, context).iterator().next();
-    OrganizedOperands newOperands = organizeOperands(context, true, new RuntimeIterator[] {grpItr});
+    var newOperands = organizeOperands(context, true, new RuntimeIterator[] {grpItr});
     assert newOperands.iterateOperand == null;
-    SelectResults result = intermediateResults;
+    var result = intermediateResults;
     result = (newOperands.filterOperand).filterEvaluate(context, intermediateResults);
     return result;
   }
@@ -199,16 +199,16 @@ public class CompiledLike extends CompiledComparison {
   CompiledComparison[] getRangeIfSargable(ExecutionContext context, CompiledValue var,
       String pattern) {
     CompiledComparison[] cv = null;
-    StringBuilder buffer = new StringBuilder(pattern);
+    var buffer = new StringBuilder(pattern);
     // check if the string has a % or _ anywhere
-    int wildcardPosition = checkIfSargableAndRemoveEscapeChars(context, buffer);
+    var wildcardPosition = checkIfSargableAndRemoveEscapeChars(context, buffer);
     context.cachePut(wildcardPositionKey, wildcardPosition);
-    int patternLength = buffer.length();
+    var patternLength = buffer.length();
     context.cachePut(patternLengthKey, patternLength);
     context.cachePut(isIndexEvaluatedKey, true);
     // if wildcardPosition is >= 0 means it is sargable
     if (wildcardPosition >= 0) {
-      int len = patternLength;
+      var len = patternLength;
       if (wildcardPosition == 0) {
         // wildcard is the leading char
         // change the like predicate to >= "" and like
@@ -218,13 +218,13 @@ public class CompiledLike extends CompiledComparison {
       } else {
         // the wildcard is not the first char
         // delete all chars after the wildchar
-        for (int k = len - 1; k >= wildcardPosition; k--) {
+        for (var k = len - 1; k >= wildcardPosition; k--) {
           buffer.deleteCharAt(k);
           --len;
         }
 
-        String lowerBound = buffer.toString();
-        int upperBoundPosition = len - 1;
+        var lowerBound = buffer.toString();
+        var upperBoundPosition = len - 1;
         char upperBoundChar;
         while (true) {
           upperBoundChar = (buffer.charAt(upperBoundPosition));
@@ -237,10 +237,10 @@ public class CompiledLike extends CompiledComparison {
         }
         buffer.delete(upperBoundPosition, len);
         buffer.append(upperBoundChar);
-        String upperBound = buffer.toString();
-        CompiledComparison c1 =
+        var upperBound = buffer.toString();
+        var c1 =
             new CompiledComparison(var, new CompiledLiteral(lowerBound), OQLLexerTokenTypes.TOK_GE);
-        CompiledComparison c2 =
+        var c2 =
             new CompiledComparison(var, new CompiledLiteral(upperBound), OQLLexerTokenTypes.TOK_LT);
 
         // if % is not the last char in the string.
@@ -273,12 +273,12 @@ public class CompiledLike extends CompiledComparison {
   }
 
   private String getRegexPattern(String pattern) {
-    StringBuilder sb = new StringBuilder();
-    boolean prevMetaChar = false;
-    int len = pattern.length();
+    var sb = new StringBuilder();
+    var prevMetaChar = false;
+    var len = pattern.length();
 
-    for (int i = 0; i < len; i++) {
-      char ch = pattern.charAt(i);
+    for (var i = 0; i < len; i++) {
+      var ch = pattern.charAt(i);
       switch (ch) {
         // meta chars: \ ^ * . + ? ( ) | [ ]
         case ']':
@@ -322,8 +322,8 @@ public class CompiledLike extends CompiledComparison {
 
           // Check if the % has a valid escape. Backtrack to check for \.
           // If the number of \ on back track is odd, then % is escaped.
-          int numConsecutiveBackSlash = 0;
-          for (int j = i - 1; j > -1; --j) {
+          var numConsecutiveBackSlash = 0;
+          for (var j = i - 1; j > -1; --j) {
             if (pattern.charAt(j) == '\\') {
               ++numConsecutiveBackSlash;
             } else {
@@ -356,7 +356,7 @@ public class CompiledLike extends CompiledComparison {
           }
 
           numConsecutiveBackSlash = 0;
-          for (int j = i - 1; j > -1; --j) {
+          for (var j = i - 1; j > -1; --j) {
             if (pattern.charAt(j) == '\\') {
               ++numConsecutiveBackSlash;
             } else {
@@ -391,10 +391,10 @@ public class CompiledLike extends CompiledComparison {
    * @return position of wildcard if sargable otherwise -1
    */
   int checkIfSargableAndRemoveEscapeChars(ExecutionContext context, StringBuilder buffer) {
-    int len = buffer.length();
-    int wildcardPosition = -1;
-    for (int i = 0; i < len; ++i) {
-      char ch = buffer.charAt(i);
+    var len = buffer.length();
+    var wildcardPosition = -1;
+    for (var i = 0; i < len; ++i) {
+      var ch = buffer.charAt(i);
       if (ch == UNDERSCORE) {
         context.cachePut(wildcardTypeKey, WILDCARD_UNDERSCORE);
         wildcardPosition = i; // the position of the wildcard
@@ -422,10 +422,10 @@ public class CompiledLike extends CompiledComparison {
     // reset the isIndexEvaluated flag here since index is not being used here
     context.cachePut(isIndexEvaluatedKey, false);
 
-    Pattern pattern = (Pattern) context.cacheGet(bindArg);
+    var pattern = (Pattern) context.cacheGet(bindArg);
     if (pattern == null) {
-      String strPattern = bindArg.evaluate(context).toString(); // handles both Strings and
-                                                                // PdxStrings
+      var strPattern = bindArg.evaluate(context).toString(); // handles both Strings and
+                                                             // PdxStrings
       if (strPattern == null) {
         throw new UnsupportedOperationException(
             "Null values are not supported with LIKE predicate.");
@@ -433,7 +433,7 @@ public class CompiledLike extends CompiledComparison {
       pattern = Pattern.compile(getRegexPattern(strPattern), Pattern.MULTILINE | Pattern.DOTALL);
       context.cachePut(bindArg, pattern);
     }
-    Object value = var.evaluate(context);
+    var value = var.evaluate(context);
     if (value == null) {
       return null;
     }
@@ -447,7 +447,7 @@ public class CompiledLike extends CompiledComparison {
     }
 
     // Check if LIKE clause is negated (_operator == TOK_NE) in query.
-    boolean isMatched = pattern.matcher(value.toString()).matches();
+    var isMatched = pattern.matcher(value.toString()).matches();
     if (getOperator() == TOK_NE) {
       isMatched = !isMatched;
     }
@@ -498,9 +498,9 @@ public class CompiledLike extends CompiledComparison {
       NameResolutionException, QueryInvocationTargetException {
 
     if (getPlanInfo(context).evalAsFilter) {
-      PlanInfo pi = getPlanInfo(context);
+      var pi = getPlanInfo(context);
       if (pi.indexes.size() == 1) {
-        IndexProtocol ip = (IndexProtocol) pi.indexes.get(0);
+        var ip = (IndexProtocol) pi.indexes.get(0);
         return ip.getCanonicalizedIndexedExpression().equals(canonicalizedOrderByClause);
       }
     }

@@ -51,15 +51,12 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.internal.DestroyOp;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.Locator;
-import org.apache.geode.distributed.internal.Distribution;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.membership.api.MemberDisconnectedException;
 import org.apache.geode.distributed.internal.membership.api.MembershipManagerHelper;
@@ -100,7 +97,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   public void setup() {
     // stress testing needs this so that join attempts don't give up too soon
     Invoke.invokeInEveryVM(() -> System.setProperty("p2p.joinTimeout", "120000"));
-    VM locatorVM = VM.getVM(4);
+    var locatorVM = VM.getVM(4);
     final int port = locatorVM.invoke(() -> {
       System.setProperty(BYPASS_DISCOVERY_PROPERTY, "true");
       // set a big weight on the locator to prevent total shutdown when one server decides
@@ -119,7 +116,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
+    var result = super.getDistributedSystemProperties();
     result.put(ENABLE_NETWORK_PARTITION_DETECTION, "false");
     result.put(LOCATORS, "localhost[" + locatorPort + "]");
     return result;
@@ -173,8 +170,8 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
         } else {
           getCache().createRegionFactory(RegionShortcut.PARTITION).create(PR_REG_NAME);
         }
-        int port = getRandomAvailableTCPPort();
-        CacheServer s = getCache().addCacheServer();
+        var port = getRandomAvailableTCPPort();
+        var s = getCache().addCacheServer();
         s.setPort(port);
         s.start();
         return port;
@@ -208,18 +205,18 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory ccf = new ClientCacheFactory();
+        var ccf = new ClientCacheFactory();
         ccf.addPoolServer("localhost"/* getServerHostName(Host.getHost(0)) */, port1);
         if (port2 > 0) {
           ccf.addPoolServer("localhost", port2);
         }
         ccf.setPoolSubscriptionEnabled(true);
         ccf.set(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
-        ClientCache cCache = getClientCache(ccf);
+        var cCache = getClientCache(ccf);
         ClientRegionFactory<Integer, String> crf = cCache.createClientRegionFactory(
             isEmpty ? ClientRegionShortcut.PROXY : ClientRegionShortcut.CACHING_PROXY);
-        Region<Integer, String> r = crf.create(REP_REG_NAME);
-        Region<Integer, String> pr = crf.create(PR_REG_NAME);
+        var r = crf.create(REP_REG_NAME);
+        var pr = crf.create(PR_REG_NAME);
         if (ri) {
           r.registerInterestRegex(".*");
           pr.registerInterestRegex(".*");
@@ -294,17 +291,17 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   // test for bug #42164
   @Test
   public void testListenerNotInvokedForRejectedOperation() {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(1);
-    VM client1 = host.getVM(2);
-    VM client2 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(1);
+    var client1 = host.getVM(2);
+    var client2 = host.getVM(3);
     int port1 = createRegionsAndStartServer(vm1);
     int port2 = createRegionsAndStartServer(vm2);
     createClientRegionWithRI(client1, port1, true);
     createClientRegionWithRI(client2, port2, true);
 
-    SerializableCallable addListenerToClientForInitialCreates = new SerializableCallable() {
+    var addListenerToClientForInitialCreates = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(REP_REG_NAME);
@@ -322,7 +319,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region<Integer, String> r = getGemfireCache().getRegion(REP_REG_NAME);
         Region<Integer, String> pr = getGemfireCache().getRegion(PR_REG_NAME);
-        for (int i = 0; i < MAX_ENTRIES; i++) {
+        for (var i = 0; i < MAX_ENTRIES; i++) {
           r.put(i, "value" + i);
           pr.put(i, "value" + i);
         }
@@ -330,7 +327,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    SerializableCallable waitForInitialCreates = new SerializableCallable() {
+    var waitForInitialCreates = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region<Integer, String> r = getGemfireCache().getRegion(REP_REG_NAME);
@@ -341,13 +338,13 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       }
 
       private void waitForCreates(Region region) {
-        CacheListener[] listeners = region.getAttributes().getCacheListeners();
-        boolean listenerFound = false;
-        for (CacheListener listener : listeners) {
+        var listeners = region.getAttributes().getCacheListeners();
+        var listenerFound = false;
+        for (var listener : listeners) {
           if (listener instanceof InitialCreatesListener) {
             listenerFound = true;
-            final InitialCreatesListener initialCreatesListener = (InitialCreatesListener) listener;
-            WaitCriterion wc = new WaitCriterion() {
+            final var initialCreatesListener = (InitialCreatesListener) listener;
+            var wc = new WaitCriterion() {
               @Override
               public boolean done() {
                 return initialCreatesListener.numCreates.get() == MAX_ENTRIES;
@@ -370,7 +367,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
     client1.invoke(waitForInitialCreates);
     client2.invoke(waitForInitialCreates);
 
-    SerializableCallable addListener = new SerializableCallable() {
+    var addListener = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(REP_REG_NAME);
@@ -382,7 +379,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
     };
     vm1.invoke(addListener);
     vm2.invoke(addListener);
-    SerializableCallable addListenerToClient = new SerializableCallable() {
+    var addListenerToClient = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(REP_REG_NAME);
@@ -399,19 +396,19 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         Region r = getCache().getRegion(REP_REG_NAME);
         Region pr = getCache().getRegion(PR_REG_NAME);
-        for (int i = 0; i < MAX_ENTRIES; i++) {
+        for (var i = 0; i < MAX_ENTRIES; i++) {
           assertEquals("value" + i, r.putIfAbsent(i, "piavalue"));
           assertEquals("value" + i, pr.putIfAbsent(i, "piavalue"));
         }
-        for (int i = 0; i < MAX_ENTRIES; i++) {
+        for (var i = 0; i < MAX_ENTRIES; i++) {
           assertFalse(r.replace(i, "value", "replace1Value"));
           assertFalse(pr.replace(i, "value", "replace1Value"));
         }
-        for (int i = MAX_ENTRIES + 1; i < MAX_ENTRIES * 2; i++) {
+        for (var i = MAX_ENTRIES + 1; i < MAX_ENTRIES * 2; i++) {
           assertNull(r.replace(i, "replace2value" + i));
           assertNull(pr.replace(i, "replace2value" + i));
         }
-        for (int i = MAX_ENTRIES + 1; i < MAX_ENTRIES * 2; i++) {
+        for (var i = MAX_ENTRIES + 1; i < MAX_ENTRIES * 2; i++) {
           assertFalse(r.remove(i, "removeValue" + i));
           assertFalse(pr.remove(i, "removeValue" + i));
         }
@@ -431,9 +428,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void dotestConcOps(final boolean emptyClient) {
-    Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(2);
+    var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(2);
     int port1 = createRegionsAndStartServer(server);
 
     createClientRegion(client, port1, emptyClient, -1);
@@ -472,7 +469,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       public Object call() {
         final Region r = getCache().getRegion(REP_REG_NAME);
         final Region pr = getCache().getRegion(PR_REG_NAME);
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           AssertionError e = null;
 
           @Override
@@ -530,7 +527,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       public Object call() {
         final Region r = getCache().getRegion(REP_REG_NAME);
         final Region pr = getCache().getRegion(PR_REG_NAME);
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           AssertionError e = null;
 
           @Override
@@ -577,9 +574,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testNullValueFromNonEmptyClients() {
-    Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(2);
+    var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(2);
     int port1 = createRegionsAndStartServer(server);
 
     createClientRegion(client, port1, true, -1);
@@ -622,9 +619,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doPutIfAbsentWork(final boolean cs) {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(2);
     if (cs) {
       int port1 = createRegionsAndStartServer(vm1);
       createClientRegion(vm2, port1, false, -1);
@@ -677,9 +674,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doRemoveWork(final boolean cs) {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(2);
     if (cs) {
       int port1 = createRegionsAndStartServer(vm1);
       createClientRegion(vm2, port1, true, -1);
@@ -744,9 +741,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doReplaceWork(final boolean cs) {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(2);
     if (cs) {
       int port1 = createRegionsAndStartServer(vm1);
       createClientRegion(vm2, port1, true, -1);
@@ -823,9 +820,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void do42167Work(final boolean emptyClient, final String regionName) {
-    Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(2);
+    var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(2);
     int port1 = createRegionsAndStartServer(server);
 
     createClientRegion(client, port1, emptyClient, -1);
@@ -908,9 +905,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doBug42189Work(final String regionName) {
-    Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(2);
+    var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(2);
     int port1 = createRegionsAndStartServer(server);
 
     createClientRegion(client, port1, false, -1);
@@ -921,7 +918,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
         r.create("key0", null);
         assertNull(r.putIfAbsent("key0", "value"));
         assertTrue(r.containsKey("key0"));
-        Object v = r.get("key0");
+        var v = r.get("key0");
         assertNull("expected null but was " + v, v);
         return null;
       }
@@ -932,7 +929,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
         final Region r = getCache().getRegion(regionName);
         assertNull(r.putIfAbsent("key0", "value"));
         assertTrue(r.containsKeyOnServer("key0"));
-        Object v = r.get("key0");
+        var v = r.get("key0");
         assertNull("expected null but was " + v, v);
         return null;
       }
@@ -969,9 +966,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doPutIfAbsentPutsKeyInLocalClientCacheWork(final String regionName) {
-    Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(2);
+    var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(2);
     int port1 = createRegionsAndStartServer(server);
 
     createClientRegion(client, port1, false, -1);
@@ -1008,9 +1005,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doReplacePutsKeyInLocalClientCacheWork(final String regionName) {
-    Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(2);
+    var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(2);
     int port1 = createRegionsAndStartServer(server);
 
     createClientRegion(client, port1, false, -1);
@@ -1047,10 +1044,10 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(regionName);
-        final String key = "bug42221";
+        final var key = "bug42221";
         r.putIfAbsent(key, null);
         assertTrue(r.containsKey(key));
-        Object result = r.replace(key, "not null");
+        var result = r.replace(key, "not null");
         assertEquals(null, result);
         assertTrue(r.containsKey(key));
         assertEquals(r.get(key), "not null");
@@ -1063,11 +1060,11 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(regionName);
-        final String key = "bug42242";
+        final var key = "bug42242";
         r.putIfAbsent(key, null);
         assertTrue(r.containsKey(key));
         assertTrue(r.containsKeyOnServer(key));
-        boolean result = r.remove(key, null);
+        var result = r.remove(key, null);
         assertTrue(result);
         assertFalse(r.containsKey(key));
         assertFalse(r.containsKeyOnServer(key));
@@ -1079,11 +1076,11 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(regionName);
-        final String key = "bug42242b";
+        final var key = "bug42242b";
         r.putIfAbsent(key, null);
         assertTrue(r.containsKey(key));
         assertTrue(r.containsKeyOnServer(key));
-        boolean result = r.replace(key, null, "new value");
+        var result = r.replace(key, null, "new value");
         assertTrue(result);
         result = r.remove(key, "new value");
         assertTrue(result);
@@ -1093,7 +1090,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       }
     });
     // bug #42242c - remove does not work for entry that's on the server but not on the client
-    final String key = "bug42242c";
+    final var key = "bug42242c";
     client.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
@@ -1115,7 +1112,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         final Region r = getCache().getRegion(regionName);
-        WaitCriterion w = new WaitCriterion() {
+        var w = new WaitCriterion() {
           @Override
           public String description() {
             return "waiting for server operation to reach client";
@@ -1128,7 +1125,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
         };
         GeodeAwaitility.await().untilAsserted(w);
         assertTrue(r.containsKeyOnServer(key));
-        boolean result = r.remove(key, null);
+        var result = r.remove(key, null);
         // if (!result) {
         // ((LocalRegion)r).dumpBackingMap();
         // }
@@ -1161,9 +1158,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doTestWithDeltaWork(final boolean clientServer, final String regName) {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(1);
 
     if (clientServer) {
       int port = createRegionsAndStartServer(vm1);
@@ -1177,9 +1174,9 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region r = getCache().getRegion(regName);
-        CustomerDelta c = new CustomerDelta("cust1", "addr1");
+        var c = new CustomerDelta("cust1", "addr1");
         assertNull(r.putIfAbsent("k1", c));
-        CustomerDelta newc = new CustomerDelta(c);
+        var newc = new CustomerDelta(c);
         newc.setAddress("updatedAddress");
         assertEquals(c, r.putIfAbsent("k1", c));
         assertEquals(c, r.replace("k1", newc));
@@ -1224,27 +1221,27 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doRetriedOperation(final Operation op, boolean usePR) {
-    Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM client = host.getVM(2);
+    var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var client = host.getVM(2);
     final int port1 = createRegionsAndStartServer(server1, true);
     final int port2 = createRegionsAndStartServer(server2, true);
-    final String regionName = usePR ? PR_REG_NAME : REP_REG_NAME;
+    final var regionName = usePR ? PR_REG_NAME : REP_REG_NAME;
 
     IgnoredException.addIgnoredException("java.net.SocketException");
 
     createClientRegion(client, port1, false, port2);
 
-    SerializableCallable getID = new SerializableCallable("get DM ID") {
+    var getID = new SerializableCallable("get DM ID") {
       @Override
       public Object call() {
         return getSystem().getDistributedMember();
       }
     };
 
-    final InternalDistributedMember server1ID = (InternalDistributedMember) server1.invoke(getID);
-    final InternalDistributedMember server2ID = (InternalDistributedMember) server2.invoke(getID);
+    final var server1ID = (InternalDistributedMember) server1.invoke(getID);
+    final var server2ID = (InternalDistributedMember) server2.invoke(getID);
 
     Set<IgnoredException> exceptions = new HashSet<>();
     exceptions.add(IgnoredException.addIgnoredException("Membership: requesting removal", server1));
@@ -1273,7 +1270,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
           r.getAttributesMutator().addCacheListener(new CacheListenerAdapter() {
             private void killSender(EntryEvent event) {
               if (event.isOriginRemote()) {
-                Distribution mgr =
+                var mgr =
                     MembershipManagerHelper.getDistribution(getSystem());
                 mgr.requestMemberRemoval(server2ID, "removing for test");
                 try {
@@ -1315,7 +1312,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
           r.getAttributesMutator().addCacheListener(new CacheListenerAdapter() {
             private void killSender(EntryEvent event) {
               if (event.isOriginRemote()) {
-                Distribution mgr =
+                var mgr =
                     MembershipManagerHelper.getDistribution(getSystem());
                 mgr.requestMemberRemoval(server1ID, "removing for test");
                 try {
@@ -1352,7 +1349,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       client.invoke(new SerializableRunnable() {
         @Override
         public void run() {
-          GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+          var cache = (GemFireCacheImpl) getCache();
           Region r = cache.getRegion(regionName);
           if (op == Operation.PUT_IF_ABSENT) {
             assertTrue("expected putIfAbsent to succeed and return null",
@@ -1368,7 +1365,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       });
     } finally {
       disconnectAllFromDS();
-      for (IgnoredException ex : exceptions) {
+      for (var ex : exceptions) {
         ex.remove();
       }
     }
@@ -1410,11 +1407,11 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
 
     @Override
     public void fromDelta(DataInput in) throws IOException, InvalidDeltaException {
-      boolean nameC = in.readBoolean();
+      var nameC = in.readBoolean();
       if (nameC) {
         name = in.readUTF();
       }
-      boolean addressC = in.readBoolean();
+      var addressC = in.readBoolean();
       if (addressC) {
         address = in.readUTF();
       }
@@ -1460,7 +1457,7 @@ public class ConcurrentMapOpsDUnitTest extends JUnit4CacheTestCase {
       if (!(obj instanceof CustomerDelta)) {
         return false;
       }
-      CustomerDelta other = (CustomerDelta) obj;
+      var other = (CustomerDelta) obj;
       return name.equals(other.name) && address.equals(other.address);
     }
 

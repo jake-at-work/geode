@@ -50,7 +50,7 @@ public class DeregisterDriverFunctionTest {
 
   @Test
   public void testExecuteFunctionDoesNotReturnError() {
-    CliFunctionResult functionResult = function.executeFunction(context);
+    var functionResult = function.executeFunction(context);
     assertThat(functionResult.getStatusMessage())
         .contains(DRIVER_CLASS_NAME + " was successfully deregistered.");
     assertThat(functionResult.getStatus()).contains(CliFunctionResult.StatusState.OK.toString());
@@ -58,9 +58,9 @@ public class DeregisterDriverFunctionTest {
 
   @Test
   public void testExecuteFunctionReturnsWithException() throws SQLException {
-    String exceptionString = "Test SQL Exception";
+    var exceptionString = "Test SQL Exception";
     doThrow(new SQLException(exceptionString)).when(util).deregisterDriver(DRIVER_CLASS_NAME);
-    CliFunctionResult functionResult = function.executeFunction(context);
+    var functionResult = function.executeFunction(context);
     assertThat(functionResult.getStatusMessage()).contains(exceptionString);
     assertThat(functionResult.getStatus()).contains(CliFunctionResult.StatusState.ERROR.toString());
   }

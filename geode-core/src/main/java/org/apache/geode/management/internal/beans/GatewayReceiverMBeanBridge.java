@@ -14,14 +14,10 @@
  */
 package org.apache.geode.management.internal.beans;
 
-import java.util.List;
-import java.util.Set;
 
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.internal.cache.InternalCacheServer;
-import org.apache.geode.internal.cache.tier.Acceptor;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.wan.GatewayReceiverStats;
 import org.apache.geode.management.internal.ManagementConstants;
@@ -97,15 +93,15 @@ public class GatewayReceiverMBeanBridge extends ServerBridge {
   }
 
   public String[] getGatewayTransportFilters() {
-    List<GatewayTransportFilter> transportFilters = gatewayReceiver.getGatewayTransportFilters();
+    var transportFilters = gatewayReceiver.getGatewayTransportFilters();
     String[] transportFiltersStringArray = null;
     if (transportFilters != null && !transportFilters.isEmpty()) {
       transportFiltersStringArray = new String[transportFilters.size()];
     } else {
       return transportFiltersStringArray;
     }
-    int j = 0;
-    for (GatewayTransportFilter filter : transportFilters) {
+    var j = 0;
+    for (var filter : transportFilters) {
       transportFiltersStringArray[j] = filter.toString();
       j++;
     }
@@ -157,8 +153,8 @@ public class GatewayReceiverMBeanBridge extends ServerBridge {
   }
 
   public String[] getConnectedGatewaySenders() {
-    Acceptor acceptor = getReceiverServer().getAcceptor();
-    Set<ServerConnection> serverConnections = acceptor.getAllServerConnections();
+    var acceptor = getReceiverServer().getAcceptor();
+    var serverConnections = acceptor.getAllServerConnections();
     if (serverConnections == null || serverConnections.isEmpty()) {
       return new String[0];
     }
@@ -167,7 +163,7 @@ public class GatewayReceiverMBeanBridge extends ServerBridge {
 
   long getAverageBatchProcessingTime() {
     if (getStatistic(StatsKey.TOTAL_BATCHES).longValue() != 0) {
-      long processTimeInNano = getStatistic(StatsKey.BATCH_PROCESS_TIME).longValue()
+      var processTimeInNano = getStatistic(StatsKey.BATCH_PROCESS_TIME).longValue()
           / getStatistic(StatsKey.TOTAL_BATCHES).longValue();
 
       return ManagementConstants.nanoSeconds.toMillis(processTimeInNano);

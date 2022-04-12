@@ -53,15 +53,12 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.ForcedDisconnectException;
-import org.apache.geode.admin.AdminDistributedSystem;
 import org.apache.geode.admin.AdminDistributedSystemFactory;
 import org.apache.geode.admin.AlertLevel;
-import org.apache.geode.admin.DistributedSystemConfig;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
@@ -74,7 +71,6 @@ import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.membership.api.MemberDisconnectedException;
 import org.apache.geode.distributed.internal.membership.api.MembershipManagerHelper;
-import org.apache.geode.distributed.internal.membership.api.MembershipView;
 import org.apache.geode.distributed.internal.membership.gms.GMSMembership;
 import org.apache.geode.internal.cache.StateFlushOperation;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -130,7 +126,7 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
+    var result = super.getDistributedSystemProperties();
     result.put(ConfigurationProperties.LOCATORS, "localhost[" + locatorPort + "]");
     return result;
   }
@@ -148,8 +144,8 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
 
   @Test
   public void testGetDistributionVMType() {
-    DistributionManager dm = getSystem().getDistributionManager();
-    InternalDistributedMember member = dm.getId();
+    var dm = getSystem().getDistributionManager();
+    var member = dm.getId();
 
     assertThat(ClusterDistributionManager.NORMAL_DM_TYPE).isEqualTo(member.getVmKind());
   }
@@ -163,33 +159,33 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
   @Test
   public void testSurpriseMemberHandling() {
     System.setProperty(GEMFIRE_PREFIX + "surprise-member-timeout", "3000");
-    InternalDistributedSystem system = getSystem();
-    Distribution membershipManager =
+    var system = getSystem();
+    var membershipManager =
         MembershipManagerHelper.getDistribution(system);
 
-    InternalDistributedMember member = new InternalDistributedMember(getIPLiteral(), 12345);
+    var member = new InternalDistributedMember(getIPLiteral(), 12345);
 
     // first make sure we can't add this as a surprise member (bug #44566)
     // if the view number isn't being recorded correctly the test will pass but the
     // functionality is broken
     assertThat(membershipManager.getView().getViewId()).isGreaterThan(0);
 
-    int oldViewId = member.getVmViewId();
+    var oldViewId = member.getVmViewId();
     member.setVmViewId(membershipManager.getView().getViewId() - 1);
 
     addIgnoredException("attempt to add old member");
     addIgnoredException("Removing shunned GemFire node");
 
-    boolean accepted = membershipManager.addSurpriseMember(member);
+    var accepted = membershipManager.addSurpriseMember(member);
     assertThat(accepted).as("member with old ID was not rejected (bug #44566)").isFalse();
 
     member.setVmViewId(oldViewId);
 
     // now forcibly add it as a surprise member and show that it is reaped
     long gracePeriod = 5000;
-    long startTime = System.currentTimeMillis();
-    long timeout = ((GMSMembership) membershipManager.getMembership()).getSurpriseMemberTimeout();
-    long birthTime = startTime - timeout + gracePeriod;
+    var startTime = System.currentTimeMillis();
+    var timeout = ((GMSMembership) membershipManager.getMembership()).getSurpriseMemberTimeout();
+    var birthTime = startTime - timeout + gracePeriod;
     MembershipManagerHelper.addSurpriseMember(system, member, birthTime);
     assertThat(membershipManager.isSurpriseMember(member)).as("Member was not a surprise member")
         .isTrue();
@@ -200,7 +196,7 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
 
   @Test
   public void shutdownMessageCausesListenerInvocation() {
-    final AtomicBoolean listenerInvoked = new AtomicBoolean();
+    final var listenerInvoked = new AtomicBoolean();
     vm1.invoke("join the cluster", () -> getSystem().getDistributedMember()); // lead member
     system = getSystem(); // non-lead member
     // this membership listener will be invoked when the shutdown message is received
@@ -212,12 +208,12 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
         listenerInvoked.set(Boolean.TRUE);
       }
     });
-    final InternalDistributedMember memberID = system.getDistributedMember();
+    final var memberID = system.getDistributedMember();
     locatorvm.invoke("send a shutdown message", () -> {
-      final DistributionManager distributionManager =
+      final var distributionManager =
           ((InternalDistributedSystem) Locator.getLocator().getDistributedSystem())
               .getDistributionManager();
-      final ShutdownMessage shutdownMessage = new ShutdownMessage();
+      final var shutdownMessage = new ShutdownMessage();
       shutdownMessage.setRecipient(memberID);
       shutdownMessage.setDistributionManagerId(distributionManager.getDistributionManagerId());
       distributionManager.putOutgoing(shutdownMessage);
@@ -229,21 +225,21 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
   public void shutdownMessageCausesTargetMemberToLeaveStateFlushReplyProcessor() {
     vm1.invoke("join the cluster", () -> getSystem().getDistributedMember()); // lead member
     system = getSystem(); // non-lead member
-    DistributedMember targetId = locatorvm.invoke(() -> {
+    var targetId = locatorvm.invoke(() -> {
       return Locator.getLocator().getDistributedSystem().getDistributedMember();
     });
 
-    StateFlushOperation.StateFlushReplyProcessor stateFlushReplyProcessor =
+    var stateFlushReplyProcessor =
         new StateFlushOperation.StateFlushReplyProcessor(getSystem().getDistributionManager(),
             new HashSet(), targetId);
     system.getDistributionManager().addMembershipListener(stateFlushReplyProcessor);
-    final InternalDistributedMember memberID = system.getDistributedMember();
+    final var memberID = system.getDistributedMember();
 
     locatorvm.invoke("send a shutdown message", () -> {
-      final DistributionManager distributionManager =
+      final var distributionManager =
           ((InternalDistributedSystem) Locator.getLocator().getDistributedSystem())
               .getDistributionManager();
-      final ShutdownMessage shutdownMessage = new ShutdownMessage();
+      final var shutdownMessage = new ShutdownMessage();
       shutdownMessage.setRecipient(memberID);
       shutdownMessage.setDistributionManagerId(distributionManager.getDistributionManagerId());
       distributionManager.putOutgoing(shutdownMessage);
@@ -264,7 +260,7 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
     // in order to set a small ack-wait-threshold, we have to remove the
     // system property established by the dunit harness
     System.clearProperty(GEMFIRE_PREFIX + ACK_WAIT_THRESHOLD);
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(ACK_WAIT_THRESHOLD, "3");
     config.setProperty(ACK_SEVERE_ALERT_THRESHOLD, "3");
@@ -275,7 +271,7 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
     regionFactory.setScope(Scope.DISTRIBUTED_ACK);
     regionFactory.setDataPolicy(DataPolicy.REPLICATE);
     assertThat(getCache().isClosed()).isFalse();
-    Region<String, String> region = regionFactory.create("testRegion");
+    var region = regionFactory.create("testRegion");
 
     addIgnoredException("elapsed while waiting for replies");
     // Ignore logging from Connection.doSevereAlertProcessing()
@@ -318,7 +314,7 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
     // system property established by the dunit harness
     System.clearProperty(GEMFIRE_PREFIX + ACK_WAIT_THRESHOLD);
 
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(MCAST_PORT, "0"); // loner
     config.setProperty(ACK_WAIT_THRESHOLD, "5");
     config.setProperty(ACK_SEVERE_ALERT_THRESHOLD, "5");
@@ -328,7 +324,7 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
     RegionFactory<String, String> regionFactory = getCache().createRegionFactory();
     regionFactory.setScope(Scope.DISTRIBUTED_ACK);
     regionFactory.setDataPolicy(DataPolicy.REPLICATE);
-    Region<String, String> region = regionFactory.create("testRegion");
+    var region = regionFactory.create("testRegion");
 
     addIgnoredException("sec have elapsed while waiting for replies");
     // Ignore logging from Connection.doSevereAlertProcessing()
@@ -376,7 +372,7 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
    */
   @Test
   public void testBadBindAddress() throws Exception {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(MCAST_PORT, "0"); // loner
     config.setProperty(ACK_WAIT_THRESHOLD, "5");
     config.setProperty(ACK_SEVERE_ALERT_THRESHOLD, "5");
@@ -399,11 +395,11 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
    */
   @Test
   public void testWaitForViewInstallation() {
-    InternalDistributedSystem system = getSystem();
-    ClusterDistributionManager dm = (ClusterDistributionManager) system.getDM();
-    MembershipView<InternalDistributedMember> view = dm.getDistribution().getView();
+    var system = getSystem();
+    var dm = (ClusterDistributionManager) system.getDM();
+    var view = dm.getDistribution().getView();
 
-    AtomicBoolean waitForViewInstallationDone = new AtomicBoolean();
+    var waitForViewInstallationDone = new AtomicBoolean();
     executorService.submit(() -> {
       try {
         dm.waitForViewInstallation(view.getViewId() + 1);
@@ -430,11 +426,11 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
   @Test
   public void testWaitForViewInstallationDisconnectDS()
       throws InterruptedException, TimeoutException, BrokenBarrierException, ExecutionException {
-    InternalDistributedSystem system = getSystem();
-    ClusterDistributionManager dm = (ClusterDistributionManager) system.getDM();
-    MembershipView<InternalDistributedMember> view = dm.getDistribution().getView();
+    var system = getSystem();
+    var dm = (ClusterDistributionManager) system.getDM();
+    var view = dm.getDistribution().getView();
 
-    CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
+    var cyclicBarrier = new CyclicBarrier(2);
     Future future = executorService.submit(() -> {
       try {
         cyclicBarrier.await(getTimeout().toMillis(), TimeUnit.MILLISECONDS);
@@ -500,9 +496,9 @@ public class ClusterDistributionManagerDUnitTest extends CacheTestCase {
   }
 
   private void createAlertListener() throws Exception {
-    DistributedSystemConfig config =
+    var config =
         AdminDistributedSystemFactory.defineDistributedSystem(getSystemStatic(), null);
-    AdminDistributedSystem adminSystem = AdminDistributedSystemFactory.getDistributedSystem(config);
+    var adminSystem = AdminDistributedSystemFactory.getDistributedSystem(config);
     adminSystem.setAlertLevel(AlertLevel.SEVERE);
     adminSystem.addAlertListener(alert -> {
       try {

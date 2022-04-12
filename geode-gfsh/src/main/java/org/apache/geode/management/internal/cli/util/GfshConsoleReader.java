@@ -53,7 +53,7 @@ public class GfshConsoleReader extends GfeConsoleReader {
   public char[] readPassword(String textToPrompt) {
     char[] password = null;
     if (isSupported()) {
-      String passwordString = gfsh.readWithMask(textToPrompt, '*');
+      var passwordString = gfsh.readWithMask(textToPrompt, '*');
       password = passwordString.toCharArray();
     }
     return password;

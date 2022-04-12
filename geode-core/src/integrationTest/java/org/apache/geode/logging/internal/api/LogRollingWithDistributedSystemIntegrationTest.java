@@ -83,7 +83,7 @@ public class LogRollingWithDistributedSystemIntegrationTest {
 
   @Test
   public void testSimpleStartRestartWithRolling() {
-    Properties config = createConfig();
+    var config = createConfig();
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
     config.setProperty(LOG_FILE_SIZE_LIMIT, "1");
     config.setProperty(LOG_DISK_SPACE_LIMIT, "200");
@@ -91,11 +91,11 @@ public class LogRollingWithDistributedSystemIntegrationTest {
     system = DistributedSystem.connect(config);
     system.disconnect();
 
-    for (int mainInt = 2; mainInt <= 4; mainInt++) {
+    for (var mainInt = 2; mainInt <= 4; mainInt++) {
       assertThat(metaFile(mainInt - 1)).exists();
 
-      File newMetaFile = metaFile(mainInt);
-      File newRolledLogFile = childFile(mainInt - 1, 1);
+      var newMetaFile = metaFile(mainInt);
+      var newRolledLogFile = childFile(mainInt - 1, 1);
 
       assertThat(newMetaFile).doesNotExist();
       assertThat(newRolledLogFile).as("mainInt=" + mainInt + ", newMetaFile=" + newMetaFile
@@ -112,7 +112,7 @@ public class LogRollingWithDistributedSystemIntegrationTest {
 
   @Test
   public void testStartWithRollingThenRestartWithRolling() throws Exception {
-    Properties config = createConfig();
+    var config = createConfig();
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
     config.setProperty(LOG_FILE_SIZE_LIMIT, "1");
 
@@ -120,7 +120,7 @@ public class LogRollingWithDistributedSystemIntegrationTest {
 
     logAndRollAndVerify(1);
 
-    DistributedSystem firstSystem = system;
+    var firstSystem = system;
 
     assertThat(logFile).exists();
     assertThat(childFile(1, 1)).exists();
@@ -139,7 +139,7 @@ public class LogRollingWithDistributedSystemIntegrationTest {
 
   @Test
   public void testLogFileLayoutAndRolling() throws Exception {
-    Properties config = createConfig();
+    var config = createConfig();
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
     config.setProperty(LOG_FILE_SIZE_LIMIT, "1");
 
@@ -150,7 +150,7 @@ public class LogRollingWithDistributedSystemIntegrationTest {
 
   @Test
   public void testSecurityLogFileLayoutAndRolling() throws Exception {
-    Properties config = createConfig();
+    var config = createConfig();
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
     config.setProperty(LOG_FILE_SIZE_LIMIT, "1");
     config.setProperty(SECURITY_LOG_FILE, securityLogFile.getAbsolutePath());
@@ -162,37 +162,37 @@ public class LogRollingWithDistributedSystemIntegrationTest {
 
   @Test
   public void with_logFileSizeLimit_should_createMetaLogFile() {
-    Properties config = createConfig();
+    var config = createConfig();
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
     config.setProperty(LOG_FILE_SIZE_LIMIT, "1");
 
     system = DistributedSystem.connect(config);
 
-    File[] metaLogsMatched =
+    var metaLogsMatched =
         dir.listFiles((dir, name) -> mainIdPattern.matcher(name).matches());
     assertThat(metaLogsMatched).hasSize(1);
 
-    File metaLogFile = metaFile(1);
+    var metaLogFile = metaFile(1);
     assertThat(metaLogFile).exists();
   }
 
   @Test
   public void without_logFileSizeLimit_shouldNot_createMetaLogFile() {
-    Properties config = createConfig();
+    var config = createConfig();
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
 
     system = DistributedSystem.connect(config);
 
-    File[] metaLogsMatched =
+    var metaLogsMatched =
         dir.listFiles((dir, name) -> mainIdPattern.matcher(name).matches());
     assertThat(metaLogsMatched).hasSize(0);
 
-    File metaLogFile = metaFile(12);
+    var metaLogFile = metaFile(12);
     assertThat(metaLogFile).doesNotExist();
   }
 
   private Properties createConfig() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(MCAST_PORT, "0");
     return config;
@@ -201,13 +201,13 @@ public class LogRollingWithDistributedSystemIntegrationTest {
   private String readContents(final File file) throws IOException {
     assertThat(file).exists();
 
-    BufferedReader reader = new BufferedReader(new FileReader(file));
-    StringBuilder buffer = new StringBuilder();
+    var reader = new BufferedReader(new FileReader(file));
+    var buffer = new StringBuilder();
     int numRead;
-    char[] chars = new char[1024];
+    var chars = new char[1024];
 
     while ((numRead = reader.read(chars)) != -1) {
-      String readData = String.valueOf(chars, 0, numRead);
+      var readData = String.valueOf(chars, 0, numRead);
       buffer.append(readData);
       chars = new char[1024];
     }
@@ -224,16 +224,16 @@ public class LogRollingWithDistributedSystemIntegrationTest {
    * 6. Show that meta has right stuff in it<br>
    */
   private void logAndRollAndVerify(final int mainId) throws IOException {
-    File metaLogFile = metaFile(mainId);
-    File childLogFile01 = childFile(mainId, 1);
-    File childLogFile02 = childFile(mainId, 2);
+    var metaLogFile = metaFile(mainId);
+    var childLogFile01 = childFile(mainId, 1);
+    var childLogFile02 = childFile(mainId, 2);
 
-    String switchingToLog = "Switching to log " + logFile;
-    String rollingCurrentLogTo01 = "Rolling current log to " + childLogFile01;
-    String rollingCurrentLogTo02 = "Rolling current log to " + childLogFile02;
+    var switchingToLog = "Switching to log " + logFile;
+    var rollingCurrentLogTo01 = "Rolling current log to " + childLogFile01;
+    var rollingCurrentLogTo02 = "Rolling current log to " + childLogFile02;
 
-    String messageInChild = "hey im the first child";
-    String messagePrefix = "hey whatsup i can't believe it wow ";
+    var messageInChild = "hey im the first child";
+    var messagePrefix = "hey whatsup i can't believe it wow ";
 
     system.getLogWriter().info(messageInChild);
 
@@ -249,7 +249,7 @@ public class LogRollingWithDistributedSystemIntegrationTest {
     assertThat(childLogFile01).exists();
     assertThat(childLogFile02).exists();
 
-    String metaLogContents = readContents(metaLogFile);
+    var metaLogContents = readContents(metaLogFile);
     assertThat(metaLogContents).contains(rollingCurrentLogTo01);
     assertThat(metaLogContents).contains(rollingCurrentLogTo02);
     assertThat(metaLogContents).doesNotContain(messagePrefix);
@@ -268,19 +268,19 @@ public class LogRollingWithDistributedSystemIntegrationTest {
    * 6. Show that meta has right stuff in it<br>
    */
   private void securityLogAndRollAndVerify(final int mainId) throws IOException {
-    File metaLogFile = metaFile(mainId);
-    File childLogFile01 = childFile(mainId, 1);
-    File childLogFile02 = childFile(mainId, 2);
-    File childSecurityLogFile01 = childSecurityFile(mainId, 1);
-    File childSecurityLogFile02 = childSecurityFile(mainId, 2);
+    var metaLogFile = metaFile(mainId);
+    var childLogFile01 = childFile(mainId, 1);
+    var childLogFile02 = childFile(mainId, 2);
+    var childSecurityLogFile01 = childSecurityFile(mainId, 1);
+    var childSecurityLogFile02 = childSecurityFile(mainId, 2);
 
-    String switchingToLog = "Switching to log " + logFile;
-    String rollingCurrentLogTo01 = "Rolling current log to " + childLogFile01;
-    String rollingCurrentLogTo02 = "Rolling current log to " + childLogFile02;
+    var switchingToLog = "Switching to log " + logFile;
+    var rollingCurrentLogTo01 = "Rolling current log to " + childLogFile01;
+    var rollingCurrentLogTo02 = "Rolling current log to " + childLogFile02;
 
-    String messageInChild = "hey im the first child";
-    String messageInSecurityChild = "hey im the first security child";
-    String messagePrefix = "hey whatsup i can't believe it wow ";
+    var messageInChild = "hey im the first child";
+    var messageInSecurityChild = "hey im the first security child";
+    var messagePrefix = "hey whatsup i can't believe it wow ";
 
     system.getLogWriter().info(messageInChild);
     system.getSecurityLogWriter().info(messageInSecurityChild);
@@ -303,7 +303,7 @@ public class LogRollingWithDistributedSystemIntegrationTest {
     assertThat(readContents(logFile)).contains(messagePrefix);
     assertThat(readContents(securityLogFile)).contains(messagePrefix);
 
-    String metaLogContents = readContents(metaLogFile);
+    var metaLogContents = readContents(metaLogFile);
     assertThat(metaLogContents).contains(rollingCurrentLogTo01);
     assertThat(metaLogContents).contains(rollingCurrentLogTo02);
     assertThat(metaLogContents).doesNotContain(messagePrefix);
@@ -316,7 +316,7 @@ public class LogRollingWithDistributedSystemIntegrationTest {
 
   private void logUntilFileExists(final LogWriter logWriter, final String message,
       final File logFile) {
-    for (int i = 0; i < MAX_LOG_STATEMENTS && !logFile.exists(); i++) {
+    for (var i = 0; i < MAX_LOG_STATEMENTS && !logFile.exists(); i++) {
       logWriter.info(message + "line-" + i);
     }
     assertThat(logFile).exists();

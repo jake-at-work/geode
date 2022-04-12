@@ -98,11 +98,11 @@ public class FastLoggerIntegrationTest {
     assertThat(logger).isInstanceOf(FastLogger.class);
     assertThat(logger.getLevel()).isEqualTo(Level.WARN);
 
-    LogConfig logConfig = mock(LogConfig.class);
+    var logConfig = mock(LogConfig.class);
     when(logConfig.getLogLevel()).thenReturn(CONFIG.intLevel());
     when(logConfig.getSecurityLogLevel()).thenReturn(CONFIG.intLevel());
 
-    LogConfigSupplier logConfigSupplier = mock(LogConfigSupplier.class);
+    var logConfigSupplier = mock(LogConfigSupplier.class);
     when(logConfigSupplier.getLogConfig()).thenReturn(logConfig);
 
     configuration = create(LogLevelUpdateOccurs.NEVER, LogLevelUpdateScope.GEODE_LOGGERS);
@@ -339,7 +339,7 @@ public class FastLoggerIntegrationTest {
     assertThat(logger.isFatalEnabled(unusedMarker))
         .isEqualTo(level.isLessSpecificThan(Level.FATAL));
 
-    boolean delegating = ((FastLogger) logger).isDelegating();
+    var delegating = ((FastLogger) logger).isDelegating();
     assertThat(delegating).isEqualTo(expectIsDelegating);
     assertThat(delegating).isEqualTo(level.isLessSpecificThan(Level.DEBUG));
     assertThat(delegating).isEqualTo(expectIsDelegating);
@@ -537,20 +537,20 @@ public class FastLoggerIntegrationTest {
 
   private static void writeSimpleConfigFile(final File configFile, final Level level)
       throws IOException {
-    String xml =
+    var xml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<Configuration monitorInterval=\"5\">"
             + "<Appenders><Console name=\"STDOUT\" target=\"SYSTEM_OUT\"/></Appenders>"
             + "<Loggers>" + "<Logger name=\"" + TEST_LOGGER_NAME + "\" level=\"" + level.name()
             + "\" additivity=\"true\">" + "<AppenderRef ref=\"STDOUT\"/>" + "</Logger>"
             + "<Root level=\"FATAL\"/>" + "</Loggers>" + "</Configuration>";
-    BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
+    var writer = new BufferedWriter(new FileWriter(configFile));
     writer.write(xml);
     writer.close();
   }
 
   private static void writeLoggerFilterConfigFile(final File configFile, final Level level)
       throws IOException {
-    String xml =
+    var xml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<Configuration monitorInterval=\"5\">"
             + "<Appenders><Console name=\"STDOUT\" target=\"SYSTEM_OUT\"/></Appenders>"
             + "<Loggers>" + "<Logger name=\"" + TEST_LOGGER_NAME + "\" level=\"" + level.name()
@@ -558,14 +558,14 @@ public class FastLoggerIntegrationTest {
             + ENABLED_MARKER_NAME + "\" onMatch=\"ACCEPT\" onMismatch=\"DENY\"/>" + "</filters>"
             + "<AppenderRef ref=\"STDOUT\"/>" + "</Logger>" + "<Root level=\"FATAL\"/>"
             + "</Loggers>" + "</Configuration>";
-    BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
+    var writer = new BufferedWriter(new FileWriter(configFile));
     writer.write(xml);
     writer.close();
   }
 
   private static void writeContextWideFilterConfigFile(final File configFile, final Level level)
       throws IOException {
-    String xml =
+    var xml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<Configuration monitorInterval=\"5\">"
             + "<Appenders><Console name=\"STDOUT\" target=\"SYSTEM_OUT\"/></Appenders>"
             + "<Loggers>" + "<Logger name=\"" + TEST_LOGGER_NAME + "\" level=\"" + level.name()
@@ -573,14 +573,14 @@ public class FastLoggerIntegrationTest {
             + "<AppenderRef ref=\"STDOUT\"/>" + "</Root>" + "</Loggers>" + "<filters>"
             + "<MarkerFilter marker=\"" + ENABLED_MARKER_NAME
             + "\" onMatch=\"ACCEPT\" onMismatch=\"DENY\"/>" + "</filters>" + "</Configuration>";
-    BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
+    var writer = new BufferedWriter(new FileWriter(configFile));
     writer.write(xml);
     writer.close();
   }
 
   private static void writeAppenderFilterConfigFile(final File configFile, final Level level)
       throws IOException {
-    String xml =
+    var xml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<Configuration monitorInterval=\"5\">"
             + "<Appenders>" + "<Console name=\"STDOUT\" target=\"SYSTEM_OUT\">" + "<filters>"
             + "<MarkerFilter marker=\"" + ENABLED_MARKER_NAME
@@ -588,14 +588,14 @@ public class FastLoggerIntegrationTest {
             + "</Appenders>" + "<Loggers>" + "<Logger name=\"" + TEST_LOGGER_NAME + "\" level=\""
             + level.name() + "\" additivity=\"true\">" + "</Logger>" + "<Root level=\"FATAL\">"
             + "<AppenderRef ref=\"STDOUT\"/>" + "</Root>" + "</Loggers>" + "</Configuration>";
-    BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
+    var writer = new BufferedWriter(new FileWriter(configFile));
     writer.write(xml);
     writer.close();
   }
 
   private static void writeAppenderRefFilterConfigFile(final File configFile, final Level level)
       throws IOException {
-    String xml =
+    var xml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<Configuration monitorInterval=\"5\">"
             + "<Appenders>" + "<Console name=\"STDOUT\" target=\"SYSTEM_OUT\">" + "</Console>"
             + "</Appenders>" + "<Loggers>" + "<Logger name=\"" + TEST_LOGGER_NAME + "\" level=\""
@@ -603,7 +603,7 @@ public class FastLoggerIntegrationTest {
             + "<AppenderRef ref=\"STDOUT\">" + "<filters>" + "<MarkerFilter marker=\""
             + ENABLED_MARKER_NAME + "\" onMatch=\"ACCEPT\" onMismatch=\"DENY\"/>" + "</filters>"
             + "</AppenderRef>" + "</Root>" + "</Loggers>" + "</Configuration>";
-    BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
+    var writer = new BufferedWriter(new FileWriter(configFile));
     writer.write(xml);
     writer.close();
   }

@@ -34,17 +34,17 @@ public class CustomerFixedPartitionResolver implements FixedPartitionResolver, D
   @Override
   public String getPartitionName(EntryOperation opDetails, Set allAvailablePartitions) {
 
-    int customerID = -1;
+    var customerID = -1;
 
     if (opDetails.getKey() instanceof ShipmentId) {
-      ShipmentId shipmentId = (ShipmentId) opDetails.getKey();
+      var shipmentId = (ShipmentId) opDetails.getKey();
       customerID = shipmentId.getOrderId().getCustId().getCustId();
     }
     if (opDetails.getKey() instanceof OrderId) {
-      OrderId orderId = (OrderId) opDetails.getKey();
+      var orderId = (OrderId) opDetails.getKey();
       customerID = orderId.getCustId().getCustId();
     } else if (opDetails.getKey() instanceof CustId) {
-      CustId custId = (CustId) opDetails.getKey();
+      var custId = (CustId) opDetails.getKey();
       customerID = custId.getCustId();
     }
 
@@ -68,14 +68,14 @@ public class CustomerFixedPartitionResolver implements FixedPartitionResolver, D
     Serializable routingbject = null;
 
     if (opDetails.getKey() instanceof ShipmentId) {
-      ShipmentId shipmentId = (ShipmentId) opDetails.getKey();
+      var shipmentId = (ShipmentId) opDetails.getKey();
       routingbject = shipmentId.getOrderId().getCustId();
     }
     if (opDetails.getKey() instanceof OrderId) {
-      OrderId orderId = (OrderId) opDetails.getKey();
+      var orderId = (OrderId) opDetails.getKey();
       routingbject = orderId.getCustId();
     } else if (opDetails.getKey() instanceof CustId) {
-      CustId custId = (CustId) opDetails.getKey();
+      var custId = (CustId) opDetails.getKey();
       routingbject = custId.getCustId();
     }
     return routingbject;

@@ -18,14 +18,9 @@ package org.apache.geode.redis.internal.commands.executor.string;
 import static org.apache.geode.redis.internal.netty.Coder.bytesToLong;
 import static org.apache.geode.redis.internal.netty.Coder.narrowLongToInt;
 
-import java.util.List;
-
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class SetBitExecutor implements CommandExecutor {
@@ -39,15 +34,15 @@ public class SetBitExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
+    var commandElems = command.getProcessedCommand();
+    var region = context.getRegion();
+    var key = command.getKey();
 
     long offset;
     int value;
     try {
-      byte[] offAr = commandElems.get(2);
-      byte[] valAr = commandElems.get(3);
+      var offAr = commandElems.get(2);
+      var valAr = commandElems.get(3);
       offset = bytesToLong(offAr);
       value = narrowLongToInt(bytesToLong(valAr));
     } catch (NumberFormatException e) {
@@ -62,8 +57,8 @@ public class SetBitExecutor implements CommandExecutor {
       return RedisResponse.error(ERROR_ILLEGAL_OFFSET);
     }
 
-    int byteIndex = (int) (offset / 8);
-    byte bitIndex = (byte) (offset % 8);
+    var byteIndex = (int) (offset / 8);
+    var bitIndex = (byte) (offset % 8);
     int returnBit = context.stringLockedExecute(key, false,
         string -> string.setbit(region, key, value, byteIndex, bitIndex));
 

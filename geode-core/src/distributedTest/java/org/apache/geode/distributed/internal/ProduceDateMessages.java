@@ -26,13 +26,13 @@ import org.apache.geode.internal.Assert;
 public class ProduceDateMessages {
 
   public static void main(String[] args) throws InterruptedException {
-    InternalDistributedSystem system =
+    var system =
         (InternalDistributedSystem) DistributedSystem.connect(new Properties());
-    DistributionManager dm = system.getDistributionManager();
+    var dm = system.getDistributionManager();
     System.out.println("Got DM: " + dm);
 
     while (true) {
-      DateMessage message = new DateMessage();
+      var message = new DateMessage();
 
       // Make sure that message state was reset
       Assert.assertTrue(message.getDate() == null);

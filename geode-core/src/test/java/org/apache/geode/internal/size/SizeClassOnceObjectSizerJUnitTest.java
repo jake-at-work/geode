@@ -27,20 +27,20 @@ public class SizeClassOnceObjectSizerJUnitTest {
 
   @Test
   public void test() {
-    byte[] b1 = new byte[5];
-    byte[] b2 = new byte[15];
+    var b1 = new byte[5];
+    var b2 = new byte[15];
 
     // Make sure that we actually size byte arrays each time
     assertEquals(roundup(OBJECT_SIZE + 4 + 5), ObjectSizer.SIZE_CLASS_ONCE.sizeof(b1));
     assertEquals(roundup(OBJECT_SIZE + 4 + 15), ObjectSizer.SIZE_CLASS_ONCE.sizeof(b2));
 
-    String s1 = "12345";
-    String s2 = "1234567890";
+    var s1 = "12345";
+    var s2 = "1234567890";
 
     // The size of a string varies based on the JDK version. With 1.7.0_06
     // a couple of fields were removed. So just measure the size of an empty string.
-    String emptyString = "";
-    int emptySize = ObjectSizer.SIZE_CLASS_ONCE.sizeof(emptyString)
+    var emptyString = "";
+    var emptySize = ObjectSizer.SIZE_CLASS_ONCE.sizeof(emptyString)
         - ObjectSizer.SIZE_CLASS_ONCE.sizeof(new char[0]);
 
     // Make sure that we actually size strings each time
@@ -49,9 +49,9 @@ public class SizeClassOnceObjectSizerJUnitTest {
     assertEquals(emptySize + roundup(OBJECT_SIZE + 4 + 10 * 2),
         ObjectSizer.SIZE_CLASS_ONCE.sizeof(s2));
 
-    TestObject t1 = new TestObject(5);
-    TestObject t2 = new TestObject(15);
-    int t1Size = ObjectSizer.SIZE_CLASS_ONCE.sizeof(t1);
+    var t1 = new TestObject(5);
+    var t2 = new TestObject(15);
+    var t1Size = ObjectSizer.SIZE_CLASS_ONCE.sizeof(t1);
     assertEquals(roundup(OBJECT_SIZE + REFERENCE_SIZE) + roundup(OBJECT_SIZE + 4 + 5), t1Size);
     // Since we are using SIZE_CLASS_ONCE t2 should have the same size as t1
     assertEquals(t1Size, ObjectSizer.SIZE_CLASS_ONCE.sizeof(t2));

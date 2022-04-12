@@ -16,7 +16,6 @@ package org.apache.geode.management.internal.cli.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -42,10 +41,10 @@ public class HyphenFormatter {
     }
     formatted = new StringBuilder();
 
-    List<String> strings = split(command);
-    for (String string : strings) {
+    var strings = split(command);
+    for (var string : strings) {
       if (string.contains(EQUAL_HYPHEN)) {
-        int indexOfEquals = string.indexOf(EQUAL);
+        var indexOfEquals = string.indexOf(EQUAL);
         formatted.append(string, 0, indexOfEquals + 1);
         formatted.append(QUOTE);
         formatted.append(string.substring(indexOfEquals + 1));
@@ -67,19 +66,19 @@ public class HyphenFormatter {
 
   private List<String> split(String cmd) {
     List<String> strings = new ArrayList<>();
-    Matcher matcher = Pattern.compile(OPTION_PATTERN).matcher(cmd);
+    var matcher = Pattern.compile(OPTION_PATTERN).matcher(cmd);
 
-    int index = 0; // first index of --option=
+    var index = 0; // first index of --option=
 
     while (matcher.find()) {
       if (matcher.start() > index) {
-        String option = cmd.substring(index, matcher.start()).trim();
+        var option = cmd.substring(index, matcher.start()).trim();
         strings.add(option);
       }
       index = matcher.start();
     }
 
-    String lastOne = cmd.substring(index);
+    var lastOne = cmd.substring(index);
     if (lastOne != null) {
       strings.add(lastOne);
     }

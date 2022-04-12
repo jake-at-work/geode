@@ -31,7 +31,6 @@ import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
 import org.apache.geode.util.internal.GeodeGlossary;
 
@@ -66,11 +65,11 @@ public class PartitionedRegionCqQueryOptimizedExecuteDUnitTest
 
   @Test
   public void testCqExecuteWithoutQueryExecution() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final int numOfEntries = 10;
-    final String cqName = "testCqExecuteWithoutQueryExecution_1";
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var numOfEntries = 10;
+    final var cqName = "testCqExecuteWithoutQueryExecution_1";
 
     createServer(server);
     // Create values.
@@ -78,7 +77,7 @@ public class PartitionedRegionCqQueryOptimizedExecuteDUnitTest
 
     final int thePort =
         server.invoke(PartitionedRegionCqQueryOptimizedExecuteDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
     // Create client.
     createClient(client, thePort, host0);
@@ -95,7 +94,7 @@ public class PartitionedRegionCqQueryOptimizedExecuteDUnitTest
       public void run2() throws CacheException {
         assertFalse("CqServiceImpl.EXECUTE_QUERY_DURING_INIT flag should be false ",
             CqServiceImpl.EXECUTE_QUERY_DURING_INIT);
-        Number numOfQueryExecutions = getCache().getCachePerfStats()
+        var numOfQueryExecutions = getCache().getCachePerfStats()
             .getStats().get("queryExecutions");
         assertEquals("Number of query executions for cq.execute should be 0 ", 0L,
             numOfQueryExecutions);
@@ -107,7 +106,7 @@ public class PartitionedRegionCqQueryOptimizedExecuteDUnitTest
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
-        for (int i = numOfEntries + 1; i <= numOfEntries * 2; i++) {
+        for (var i = numOfEntries + 1; i <= numOfEntries * 2; i++) {
           region1.put(KEY + i, new Portfolio(i));
         }
         LogWriterUtils.getLogWriter()
@@ -150,11 +149,11 @@ public class PartitionedRegionCqQueryOptimizedExecuteDUnitTest
 
   @Test
   public void testCqExecuteWithoutQueryExecutionAndNoRSCaching() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final int numOfEntries = 10;
-    final String cqName = "testCqExecuteWithoutQueryExecution_1";
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var numOfEntries = 10;
+    final var cqName = "testCqExecuteWithoutQueryExecution_1";
 
     server.invoke(new CacheSerializableRunnable("execute cq") {
       @Override
@@ -168,7 +167,7 @@ public class PartitionedRegionCqQueryOptimizedExecuteDUnitTest
     createValues(server, regions[0], numOfEntries);
 
     final int thePort = server.invoke(PartitionedRegionCqQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
     // Create client.
     createClient(client, thePort, host0);
@@ -187,7 +186,7 @@ public class PartitionedRegionCqQueryOptimizedExecuteDUnitTest
             CqServiceImpl.EXECUTE_QUERY_DURING_INIT);
         assertFalse(GeodeGlossary.GEMFIRE_PREFIX + "cq.MAINTAIN_KEYS flag should be false ",
             CqServiceProvider.MAINTAIN_KEYS);
-        Number numOfQueryExecutions = getCache().getCachePerfStats()
+        var numOfQueryExecutions = getCache().getCachePerfStats()
             .getStats().get("queryExecutions");
         assertEquals("Number of query executions for cq.execute should be 0 ", 0L,
             numOfQueryExecutions);
@@ -199,7 +198,7 @@ public class PartitionedRegionCqQueryOptimizedExecuteDUnitTest
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
-        for (int i = numOfEntries + 1; i <= numOfEntries * 2; i++) {
+        for (var i = numOfEntries + 1; i <= numOfEntries * 2; i++) {
           region1.put(KEY + i, new Portfolio(i));
         }
         LogWriterUtils.getLogWriter()

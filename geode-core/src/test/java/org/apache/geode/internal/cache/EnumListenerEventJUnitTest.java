@@ -53,7 +53,7 @@ public class EnumListenerEventJUnitTest {
 
   // check that the code and object both match
   private void checkAndAssert(int code, EnumListenerEvent event) {
-    EnumListenerEvent localEvent = EnumListenerEvent.getEnumListenerEvent(code);
+    var localEvent = EnumListenerEvent.getEnumListenerEvent(code);
     assertTrue(localEvent == event);
     if (localEvent != null) {
       assertTrue(localEvent.getEventCode() == code);

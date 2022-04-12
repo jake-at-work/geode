@@ -76,7 +76,7 @@ public abstract class ClassUtils {
    * @see java.lang.Class#getName()
    */
   public static String getClassName(final Object obj) {
-    final Class objType = getClass(obj);
+    final var objType = getClass(obj);
     return (objType == null ? null : objType.getName());
   }
 
@@ -129,10 +129,10 @@ public abstract class ClassUtils {
    * @see java.lang.Class#isInstance(Object)
    */
   public static boolean isNotInstanceOf(final Object obj, final Class... types) {
-    boolean condition = true;
+    var condition = true;
 
     if (types != null) {
-      for (int index = 0; index < types.length && condition; index++) {
+      for (var index = 0; index < types.length && condition; index++) {
         condition &= !types[index].isInstance(obj);
       }
     }

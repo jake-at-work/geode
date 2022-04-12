@@ -24,9 +24,9 @@ public class RunOutOfMemoryFunction implements Function<Void> {
 
   @Override
   public void execute(FunctionContext<Void> context) {
-    byte[] bytes = new byte[Integer.MAX_VALUE / 2];
-    byte[] bytes1 = new byte[Integer.MAX_VALUE / 2];
-    byte[] bytes2 = new byte[Integer.MAX_VALUE / 2];
+    var bytes = new byte[Integer.MAX_VALUE / 2];
+    var bytes1 = new byte[Integer.MAX_VALUE / 2];
+    var bytes2 = new byte[Integer.MAX_VALUE / 2];
 
     Region<String, byte[]> testRegion = context.getCache().getRegion(SEPARATOR + "testRegion");
     testRegion.put("byteArray", bytes);

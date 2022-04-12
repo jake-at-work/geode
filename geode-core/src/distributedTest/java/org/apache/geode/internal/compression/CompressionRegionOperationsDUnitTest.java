@@ -190,7 +190,7 @@ public class CompressionRegionOperationsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         Region<String, String> region = getCache().getRegion(REGION_NAME);
-        String oldValue = region.put(KEY_1, VALUE_1);
+        var oldValue = region.put(KEY_1, VALUE_1);
         assertNull(oldValue);
 
         oldValue = region.get(KEY_1);
@@ -218,7 +218,7 @@ public class CompressionRegionOperationsDUnitTest extends JUnit4CacheTestCase {
         oldValue = region.get(KEY_3);
         assertEquals(VALUE_3, oldValue);
 
-        Map<String, String> getAllMap = region.getAll(getAllCollection);
+        var getAllMap = region.getAll(getAllCollection);
         assertTrue(getAllMap.containsValue(VALUE_1));
         assertTrue(getAllMap.containsValue(VALUE_2));
         assertTrue(getAllMap.containsValue(VALUE_3));
@@ -258,7 +258,7 @@ public class CompressionRegionOperationsDUnitTest extends JUnit4CacheTestCase {
       public void run() {
         Region<String, String> region = getCache().getRegion(REGION_NAME);
 
-        String oldValue = region.put(KEY_1, VALUE_1);
+        var oldValue = region.put(KEY_1, VALUE_1);
         assertNull(oldValue);
 
         oldValue = region.get(KEY_1);
@@ -339,7 +339,7 @@ public class CompressionRegionOperationsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         Region<String, Object> region = getCache().getRegion(REGION_NAME);
-        String oldValue = (String) region.put(KEY_1,
+        var oldValue = (String) region.put(KEY_1,
             CachedDeserializableFactory.create(EntryEventImpl.serialize(VALUE_1), getCache()));
         assertNull(oldValue);
 
@@ -370,7 +370,7 @@ public class CompressionRegionOperationsDUnitTest extends JUnit4CacheTestCase {
         oldValue = (String) region.get(KEY_3);
         assertEquals(VALUE_3, oldValue);
 
-        Map<String, Object> getAllMap = region.getAll(getAllCollection);
+        var getAllMap = region.getAll(getAllCollection);
         assertTrue(getAllMap.containsValue(VALUE_1));
         assertTrue(getAllMap.containsValue(VALUE_2));
         assertTrue(getAllMap.containsValue(VALUE_3));
@@ -406,7 +406,7 @@ public class CompressionRegionOperationsDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         Region<String, byte[]> region = getCache().getRegion(REGION_NAME);
-        byte[] oldValue = region.put(KEY_1, VALUE_1.getBytes());
+        var oldValue = region.put(KEY_1, VALUE_1.getBytes());
         assertNull(oldValue);
 
         oldValue = region.get(KEY_1);
@@ -434,7 +434,7 @@ public class CompressionRegionOperationsDUnitTest extends JUnit4CacheTestCase {
         oldValue = region.get(KEY_3);
         assertEquals(VALUE_3, new String(oldValue));
 
-        Map<String, byte[]> getAllMap = region.getAll(getAllCollection);
+        var getAllMap = region.getAll(getAllCollection);
         oldValue = getAllMap.get(KEY_1);
         assertEquals(VALUE_1, new String(oldValue));
 

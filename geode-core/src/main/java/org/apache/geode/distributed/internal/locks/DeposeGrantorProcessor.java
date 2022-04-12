@@ -55,12 +55,12 @@ public class DeposeGrantorProcessor extends ReplyProcessor21 {
   static void send(String serviceName, InternalDistributedMember oldGrantor,
       InternalDistributedMember newGrantor, long newGrantorVersion, int newGrantorSerialNumber,
       DistributionManager dm) {
-    final InternalDistributedMember elder = dm.getId();
+    final var elder = dm.getId();
     if (elder.equals(oldGrantor)) {
       doOldGrantorWork(serviceName, elder, newGrantor, newGrantorVersion, newGrantorSerialNumber,
           dm, null);
     } else {
-      DeposeGrantorProcessor processor = new DeposeGrantorProcessor(dm, oldGrantor);
+      var processor = new DeposeGrantorProcessor(dm, oldGrantor);
       DeposeGrantorMessage.send(serviceName, oldGrantor, newGrantor, newGrantorVersion,
           newGrantorSerialNumber, dm, processor);
       try {
@@ -76,9 +76,9 @@ public class DeposeGrantorProcessor extends ReplyProcessor21 {
       final long newGrantorVersion, final int newGrantorSerialNumber, final DistributionManager dm,
       final DeposeGrantorMessage msg) {
     try {
-      DLockService svc = DLockService.getInternalServiceNamed(serviceName);
+      var svc = DLockService.getInternalServiceNamed(serviceName);
       if (svc != null) {
-        LockGrantorId newLockGrantorId =
+        var newLockGrantorId =
             new LockGrantorId(dm, youngTurk, newGrantorVersion, newGrantorSerialNumber);
         svc.deposeOlderLockGrantorId(newLockGrantorId);
       }
@@ -112,7 +112,7 @@ public class DeposeGrantorProcessor extends ReplyProcessor21 {
     protected static void send(String serviceName, InternalDistributedMember oldGrantor,
         InternalDistributedMember newGrantor, long newGrantorVersion, int newGrantorSerialNumber,
         DistributionManager dm, ReplyProcessor21 proc) {
-      DeposeGrantorMessage msg = new DeposeGrantorMessage();
+      var msg = new DeposeGrantorMessage();
       msg.serviceName = serviceName;
       msg.newGrantor = newGrantor;
       msg.newGrantorVersion = newGrantorVersion;
@@ -141,8 +141,8 @@ public class DeposeGrantorProcessor extends ReplyProcessor21 {
       // mark it as being destroyed until we hear from this.newGrantor
       // or it goes away or the grantor that sent us this message goes away.
 
-      InternalDistributedMember elder = getSender();
-      InternalDistributedMember youngTurk = newGrantor;
+      var elder = getSender();
+      var youngTurk = newGrantor;
 
       doOldGrantorWork(serviceName, elder, youngTurk, newGrantorVersion,
           newGrantorSerialNumber, dm, this);

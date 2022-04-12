@@ -102,7 +102,7 @@ public class DistributedCountersDistributedTest implements Serializable {
   public void getTotal_afterIncrementingOnce_returnsOne() {
     distributedCounters.initialize(ID).increment(ID);
 
-    int total = distributedCounters.getTotal(ID);
+    var total = distributedCounters.getTotal(ID);
 
     assertThat(total).isEqualTo(1);
   }
@@ -110,13 +110,13 @@ public class DistributedCountersDistributedTest implements Serializable {
   @Test
   public void getTotal_afterIncrementingInEveryVm_returnsSameValueAsVmCount() {
     distributedCounters.initialize(ID);
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       vm.invoke(() -> {
         distributedCounters.increment(ID);
       });
     }
 
-    int total = distributedCounters.getTotal(ID);
+    var total = distributedCounters.getTotal(ID);
 
     assertThat(total).isEqualTo(getVMCount());
   }
@@ -124,7 +124,7 @@ public class DistributedCountersDistributedTest implements Serializable {
   @Test
   public void getTotal_afterIncrementingInEveryVmAndController_returnsSameValueAsVmCountPlusOne() {
     distributedCounters.initialize(ID).increment(ID);
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       vm.invoke(() -> {
         distributedCounters.increment(ID);
       });
@@ -135,27 +135,27 @@ public class DistributedCountersDistributedTest implements Serializable {
   @Test
   public void getTotal_afterIncrementingByLotsOfThreadsInEveryVm_returnsExpectedTotal()
       throws Exception {
-    int numThreads = 10;
+    var numThreads = 10;
     givenExecutorInEveryVM(numThreads);
     givenSharedCounterFor(ID);
 
     // inc ID in numThreads in every VM (4 DUnit VMs + Controller VM)
     submitIncrementTasks(numThreads, ID);
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       vm.invoke(() -> submitIncrementTasks(numThreads, ID));
     }
 
     // await CompletableFuture in every VM
-    Stopwatch stopwatch = Stopwatch.createStarted();
+    var stopwatch = Stopwatch.createStarted();
     combined.get(calculateTimeoutMillis(stopwatch), MILLISECONDS);
-    for (VM vm : getAllVMs()) {
-      long timeoutMillis = calculateTimeoutMillis(stopwatch);
+    for (var vm : getAllVMs()) {
+      var timeoutMillis = calculateTimeoutMillis(stopwatch);
       vm.invoke(() -> combined.get(timeoutMillis, MILLISECONDS));
     }
 
-    int dunitVMCount = getVMCount();
-    int controllerPlusDUnitVMCount = dunitVMCount + 1;
-    int expectedIncrements = controllerPlusDUnitVMCount * numThreads;
+    var dunitVMCount = getVMCount();
+    var controllerPlusDUnitVMCount = dunitVMCount + 1;
+    var expectedIncrements = controllerPlusDUnitVMCount * numThreads;
 
     assertThat(distributedCounters.getTotal(ID)).isEqualTo(expectedIncrements);
   }
@@ -164,7 +164,7 @@ public class DistributedCountersDistributedTest implements Serializable {
   public void newVmInitializesExistingCounterToZero() {
     distributedCounters.initialize(ID);
 
-    VM newVM = getVM(getVMCount());
+    var newVM = getVM(getVMCount());
 
     assertThat(newVM.invoke(() -> distributedCounters.getLocal(ID))).isEqualTo(0);
   }
@@ -172,7 +172,7 @@ public class DistributedCountersDistributedTest implements Serializable {
   @Test
   public void whenNewVmIncrementsCounter_totalIncludesThatValue() {
     distributedCounters.initialize(ID);
-    VM newVM = getVM(getVMCount());
+    var newVM = getVM(getVMCount());
 
     newVM.invoke(() -> distributedCounters.increment(ID));
 
@@ -223,7 +223,7 @@ public class DistributedCountersDistributedTest implements Serializable {
     executor = Executors.newFixedThreadPool(numThreads);
     futures = new ArrayList<>();
 
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       vm.invoke(() -> {
         executor = Executors.newFixedThreadPool(numThreads);
         futures = new ArrayList<>();
@@ -232,7 +232,7 @@ public class DistributedCountersDistributedTest implements Serializable {
   }
 
   private void submitIncrementTasks(final int numThreads, final Serializable id) {
-    for (int i = 0; i < numThreads; i++) {
+    for (var i = 0; i < numThreads; i++) {
       futures.add(supplyAsync(() -> {
         distributedCounters.increment(id);
         return true;
@@ -255,7 +255,7 @@ public class DistributedCountersDistributedTest implements Serializable {
 
     @Test
     public void initializesCounterInEveryVm() {
-      for (VM vm : VM.toArray(getAllVMs(), getController())) {
+      for (var vm : VM.toArray(getAllVMs(), getController())) {
         vm.invoke(() -> {
           assertThat(distCounters.getLocal(ID)).isEqualTo(0);
         });

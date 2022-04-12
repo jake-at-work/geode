@@ -21,13 +21,11 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.lang.Identifiable;
 import org.apache.geode.management.configuration.Region;
@@ -58,7 +56,7 @@ public class RegionConfigManager extends CacheConfigurationManager<Region> {
 
   @Override
   public List<Region> list(Region filter, CacheConfig existing) {
-    Stream<RegionConfig> stream = existing.getRegions().stream();
+    var stream = existing.getRegions().stream();
     if (StringUtils.isNotBlank(filter.getName())) {
       stream = stream.filter(r -> filter.getName().equals(r.getName()));
     }
@@ -85,8 +83,8 @@ public class RegionConfigManager extends CacheConfigurationManager<Region> {
     }
 
     // the beginning part of the type has to be the same
-    String incomingType = incoming.getType().name().split("_")[0];
-    String existingType = existing.getType().name().split("_")[0];
+    var incomingType = incoming.getType().name().split("_")[0];
+    var existingType = existing.getType().name().split("_")[0];
     if (!incomingType.equals(existingType)) {
       raiseIncompatibilityError(incoming, group, existing);
     }

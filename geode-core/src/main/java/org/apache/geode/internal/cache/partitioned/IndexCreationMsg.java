@@ -107,13 +107,13 @@ public class IndexCreationMsg extends PartitionMessage {
       long startTime) throws CacheException, ForceReattemptException {
     // region exists
     ReplyException replyEx = null;
-    boolean result = false;
+    var result = false;
     List<Index> indexes = null;
     List<String> failedIndexNames = new ArrayList<>();
 
     if (logger.isDebugEnabled()) {
-      StringBuilder sb = new StringBuilder();
-      for (IndexCreationData icd : indexDefinitions) {
+      var sb = new StringBuilder();
+      for (var icd : indexDefinitions) {
         sb.append(icd.getIndexName()).append(" ");
       }
       logger.debug(
@@ -130,8 +130,8 @@ public class IndexCreationMsg extends PartitionMessage {
       failedIndexNames.addAll(exx.getExceptionsMap().keySet());
 
       if (logger.isDebugEnabled()) {
-        StringBuilder exceptionMsgs = new StringBuilder();
-        for (Exception ex : exx.getExceptionsMap().values()) {
+        var exceptionMsgs = new StringBuilder();
+        for (var ex : exx.getExceptionsMap().values()) {
           exceptionMsgs.append(ex.getMessage()).append("\n");
         }
         logger.debug("Got an MultiIndexCreationException with \n: {}", exceptionMsgs);
@@ -147,8 +147,8 @@ public class IndexCreationMsg extends PartitionMessage {
 
     if (result) {
       Map<String, Integer> indexBucketsMap = new HashMap<>();
-      for (Index index : indexes) {
-        PartitionedIndex prIndex = (PartitionedIndex) index;
+      for (var index : indexes) {
+        var prIndex = (PartitionedIndex) index;
         indexBucketsMap.put(prIndex.getName(), prIndex.getNumberOfIndexedBuckets());
       }
       sendReply(getSender(), getProcessorId(), dm, replyEx, result, indexBucketsMap,
@@ -156,10 +156,10 @@ public class IndexCreationMsg extends PartitionMessage {
     } else {
       // add the indexes that were successfully created to the map
       Map<String, Integer> indexBucketsMap = new HashMap<>();
-      for (IndexCreationData icd : indexDefinitions) {
+      for (var icd : indexDefinitions) {
         // if the index was successfully created
         if (!failedIndexNames.contains(icd.getIndexName())) {
-          PartitionedIndex prIndex = pr.getIndex(icd.getIndexName());
+          var prIndex = pr.getIndex(icd.getIndexName());
           indexBucketsMap.put(icd.getIndexName(), prIndex.getNumberOfIndexedBuckets());
         }
       }
@@ -180,10 +180,10 @@ public class IndexCreationMsg extends PartitionMessage {
   @Override
   public void process(final ClusterDistributionManager dm) {
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
     Throwable thr = null;
-    boolean sendReply = true;
+    var sendReply = true;
     PartitionedRegion pr = null;
 
     try {
@@ -199,8 +199,8 @@ public class IndexCreationMsg extends PartitionMessage {
           logger.debug("Index creation message got the pr {}", pr);
         }
         if (null == pr) {
-          boolean wait = true;
-          int attempts = 0;
+          var wait = true;
+          var attempts = 0;
           while (wait && attempts < 30) { // max 30 seconds of wait.
             dm.getCancelCriterion().checkCancelInProgress(null);
             if (isDebugEnabled) {
@@ -209,7 +209,7 @@ public class IndexCreationMsg extends PartitionMessage {
                   regionId);
             }
             try {
-              boolean interrupted = Thread.interrupted();
+              var interrupted = Thread.interrupted();
               try {
                 Thread.sleep(500);
               } catch (InterruptedException e) {
@@ -247,11 +247,11 @@ public class IndexCreationMsg extends PartitionMessage {
               regionId);
         }
 
-        boolean wait = true;
+        var wait = true;
         while (wait) {
           dm.getCancelCriterion().checkCancelInProgress(null);
           try {
-            boolean interrupted = Thread.interrupted();
+            var interrupted = Thread.interrupted();
             try {
               Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -278,7 +278,7 @@ public class IndexCreationMsg extends PartitionMessage {
       }
 
       if (pr == null /* && failIfRegionMissing() */) {
-        String msg =
+        var msg =
             String.format(
                 "Could not get Partitioned Region from Id %s for message %s received on member= %s map= %s",
                 regionId, this, dm.getId(),
@@ -346,7 +346,7 @@ public class IndexCreationMsg extends PartitionMessage {
   public static PartitionResponse send(InternalDistributedMember recipient, PartitionedRegion pr,
       HashSet<IndexCreationData> indexDefinitions) {
 
-    RegionAdvisor advisor = (RegionAdvisor) (pr.getDistributionAdvisor());
+    var advisor = (RegionAdvisor) (pr.getDistributionAdvisor());
     final Set<InternalDistributedMember> recipients;
     /*
      * Will only send create index to all the members storing data
@@ -358,7 +358,7 @@ public class IndexCreationMsg extends PartitionMessage {
       recipients.add(recipient);
     }
 
-    for (InternalDistributedMember rec : recipients) {
+    for (var rec : recipients) {
       if (rec.getVersion().isOlderThan(KnownVersion.GFE_81)) {
         throw new UnsupportedOperationException(
             "Indexes should not be created during rolling upgrade");
@@ -374,7 +374,7 @@ public class IndexCreationMsg extends PartitionMessage {
           (IndexCreationResponse) (new IndexCreationMsg()).createReplyProcessor(pr, recipients);
     }
 
-    IndexCreationMsg indMsg =
+    var indMsg =
         new IndexCreationMsg(recipients, pr.getPRId(), processor, indexDefinitions);
     indMsg.setTransactionDistributed(pr.getCache().getTxManager().isDistributed());
     if (logger.isDebugEnabled()) {
@@ -440,8 +440,8 @@ public class IndexCreationMsg extends PartitionMessage {
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    for (IndexCreationData icd : indexDefinitions) {
+    var sb = new StringBuilder();
+    for (var icd : indexDefinitions) {
       sb.append(icd.getIndexName()).append(" ");
     }
     return sb.toString();
@@ -629,7 +629,7 @@ public class IndexCreationMsg extends PartitionMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, ReplyException ex, boolean result,
         Map<String, Integer> indexBucketsMap, int numTotalBuckets) {
-      IndexCreationReplyMsg indMsg = new IndexCreationReplyMsg(processorId, ex, result, result,
+      var indMsg = new IndexCreationReplyMsg(processorId, ex, result, result,
           indexBucketsMap, numTotalBuckets);
       indMsg.setRecipient(recipient);
       dm.putOutgoing(indMsg);
@@ -645,7 +645,7 @@ public class IndexCreationMsg extends PartitionMessage {
       if (logger.isDebugEnabled()) {
         logger.debug("Processor id is : {}", processorId);
       }
-      IndexCreationResponse processor = (IndexCreationResponse) p;
+      var processor = (IndexCreationResponse) p;
       if (processor != null) {
         processor.setResponse(result, indexBucketsMap, numTotalBuckets);
         processor.process(this);

@@ -146,23 +146,23 @@ public class CommandInitializer implements CommandRegistry {
   boolean registerCommand(final int messageType,
       final Map<KnownVersion, Command> versionToNewCommand,
       final LinkedHashMap<KnownVersion, ConcurrentMap<Integer, Command>> allCommands) {
-    boolean modified = false;
+    var modified = false;
     Command command = null;
 
-    for (Map.Entry<KnownVersion, ConcurrentMap<Integer, Command>> entry : allCommands.entrySet()) {
-      KnownVersion version = entry.getKey();
+    for (var entry : allCommands.entrySet()) {
+      var version = entry.getKey();
 
       // Get the current set of commands for this version.
       Map<Integer, Command> commandMap = entry.getValue();
 
       // See if we have a new command to insert into this map. Otherwise, keep using the command we
       // have already read
-      Command newCommand = versionToNewCommand.get(version);
+      var newCommand = versionToNewCommand.get(version);
       if (newCommand != null) {
         command = newCommand;
       }
       if (command != null) {
-        Command oldCommand = commandMap.get(messageType);
+        var oldCommand = commandMap.get(messageType);
         if (oldCommand != null && oldCommand != command) {
           throw new InternalGemFireError("Command is already defined int the map for message Type "
               + MessageType.getString(messageType) + ". Old Value=" + commandMap.get(messageType)
@@ -176,13 +176,13 @@ public class CommandInitializer implements CommandRegistry {
   }
 
   private static LinkedHashMap<KnownVersion, ConcurrentMap<Integer, Command>> initializeAllCommands() {
-    final LinkedHashMap<KnownVersion, ConcurrentMap<Integer, Command>> allCommands =
-        new LinkedHashMap<>();
+    final var allCommands =
+        new LinkedHashMap<KnownVersion, ConcurrentMap<Integer, Command>>();
 
-    final ConcurrentMap<Integer, Command> gfe81Commands = buildGfe81Commands();
+    final var gfe81Commands = buildGfe81Commands();
     allCommands.put(KnownVersion.GFE_81, gfe81Commands);
 
-    final ConcurrentMap<Integer, Command> gfe90Commands =
+    final var gfe90Commands =
         buildGfe90Commands(allCommands.get(KnownVersion.GFE_81));
     allCommands.put(KnownVersion.GFE_90, gfe90Commands);
     allCommands.put(KnownVersion.GEODE_1_1_0, gfe90Commands);
@@ -194,7 +194,7 @@ public class CommandInitializer implements CommandRegistry {
     allCommands.put(KnownVersion.GEODE_1_6_0, gfe90Commands);
     allCommands.put(KnownVersion.GEODE_1_7_0, gfe90Commands);
 
-    final ConcurrentMap<Integer, Command> geode18Commands =
+    final var geode18Commands =
         buildGeode18Commands(allCommands.get(KnownVersion.GEODE_1_7_0));
     allCommands.put(KnownVersion.GEODE_1_8_0, geode18Commands);
     allCommands.put(KnownVersion.GEODE_1_9_0, geode18Commands);
@@ -313,7 +313,7 @@ public class CommandInitializer implements CommandRegistry {
       final Map<KnownVersion, ConcurrentMap<Integer, Command>> modifiableMap) {
     final Map<KnownVersion, Map<Integer, Command>> unmodifiableMap =
         new LinkedHashMap<>(modifiableMap.size());
-    for (Map.Entry<KnownVersion, ConcurrentMap<Integer, Command>> e : modifiableMap.entrySet()) {
+    for (var e : modifiableMap.entrySet()) {
       unmodifiableMap.put(e.getKey(), unmodifiableMap(e.getValue()));
     }
     return unmodifiableMap(unmodifiableMap);

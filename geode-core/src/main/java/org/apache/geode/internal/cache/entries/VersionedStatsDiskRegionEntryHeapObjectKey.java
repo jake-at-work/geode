@@ -24,7 +24,6 @@ import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.InternalStatisticsDisabledException;
 import org.apache.geode.internal.cache.DiskId;
-import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.RegionEntryContext;
@@ -158,9 +157,9 @@ public class VersionedStatsDiskRegionEntryHeapObjectKey extends VersionedStatsDi
   }
 
   private void diskInitialize(final RegionEntryContext context, final Object value) {
-    DiskRecoveryStore diskRecoveryStore = (DiskRecoveryStore) context;
-    DiskStoreImpl diskStore = diskRecoveryStore.getDiskStore();
-    long maxOplogSize = diskStore.getMaxOplogSize();
+    var diskRecoveryStore = (DiskRecoveryStore) context;
+    var diskStore = diskRecoveryStore.getDiskStore();
+    var maxOplogSize = diskStore.getMaxOplogSize();
     // get appropriate instance of DiskId implementation based on maxOplogSize
     id = DiskId.createDiskId(maxOplogSize, true, diskStore.needsLinkedList());
     Helper.initialize(this, diskRecoveryStore, value);
@@ -270,7 +269,7 @@ public class VersionedStatsDiskRegionEntryHeapObjectKey extends VersionedStatsDi
   @Override
   public void setVersions(final VersionTag versionTag) {
     memberId = versionTag.getMemberID();
-    int eVersion = versionTag.getEntryVersion();
+    var eVersion = versionTag.getEntryVersion();
     entryVersionLowBytes = (short) (eVersion & 0xffff);
     entryVersionHighByte = (byte) ((eVersion & 0xff0000) >> 16);
     regionVersionHighBytes = versionTag.getRegionVersionHighBytes();
@@ -301,7 +300,7 @@ public class VersionedStatsDiskRegionEntryHeapObjectKey extends VersionedStatsDi
   // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
   @Override
   public VersionTag asVersionTag() {
-    VersionTag tag = VersionTag.create(memberId);
+    var tag = VersionTag.create(memberId);
     tag.setEntryVersion(getEntryVersion());
     tag.setRegionVersion(regionVersionHighBytes, regionVersionLowBytes);
     tag.setVersionTimeStamp(getVersionTimeStamp());

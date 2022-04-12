@@ -43,9 +43,7 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
-import org.apache.geode.internal.cache.ha.HARegionQueueStats;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.test.dunit.VM;
@@ -119,7 +117,7 @@ public class QueueRemovalMessageProcessingDistributedTest implements Serializabl
 
   @Test
   public void testQRMOfExpiredEventsProcessedSuccessfully() {
-    int putCount = 10;
+    var putCount = 10;
 
     client2.invoke(() -> doPuts(putCount));
 
@@ -128,7 +126,7 @@ public class QueueRemovalMessageProcessingDistributedTest implements Serializabl
     client1.invoke(() -> await().until(() -> DESTROYED_COUNT.get() == 10));
 
     // totalEvents = putCount * 2 [eviction-destroys] + 1 [marker message]
-    int totalEvents = putCount * 2 + 1;
+    var totalEvents = putCount * 2 + 1;
 
     primary.invoke(() -> verifyClientSubscriptionStatsOnPrimary(totalEvents));
     secondary.invoke(() -> verifyClientSubscriptionStatsOnSecondary(totalEvents));
@@ -137,8 +135,8 @@ public class QueueRemovalMessageProcessingDistributedTest implements Serializabl
   private int createCacheServerWithPRDatastore() throws IOException {
     cacheRule.createCache();
 
-    PartitionAttributesFactory<String, String> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<String, String>();
     partitionAttributesFactory.setRedundantCopies(1);
     partitionAttributesFactory.setTotalNumBuckets(TOTAL_NUM_BUCKETS);
 
@@ -150,18 +148,18 @@ public class QueueRemovalMessageProcessingDistributedTest implements Serializabl
 
     regionFactory.create(regionName);
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
   }
 
   private void createClientCacheWithRI(int port1, int port2, String durableClientId) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(DURABLE_CLIENT_ID, durableClientId);
     config.setProperty(DURABLE_CLIENT_TIMEOUT, "300000");
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory(config);
+    var clientCacheFactory = new ClientCacheFactory(config);
     clientCacheFactory.addPoolServer(hostName, port1);
     clientCacheFactory.addPoolServer(hostName, port2);
     clientCacheFactory.setPoolSubscriptionAckInterval(50);
@@ -180,18 +178,18 @@ public class QueueRemovalMessageProcessingDistributedTest implements Serializabl
       }
     });
 
-    Region<String, String> region = clientRegionFactory.create(regionName);
+    var region = clientRegionFactory.create(regionName);
 
     region.registerInterest("ALL_KEYS", true);
     clientCacheRule.getClientCache().readyForEvents();
   }
 
   private void createClientCache(int port, String durableClientId) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(DURABLE_CLIENT_ID, durableClientId);
     config.setProperty(DURABLE_CLIENT_TIMEOUT, "300000");
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory(config);
+    var clientCacheFactory = new ClientCacheFactory(config);
     clientCacheFactory.setPoolSubscriptionAckInterval(50);
     clientCacheFactory.setPoolSubscriptionRedundancy(1);
     clientCacheFactory.addPoolServer(hostName, port);
@@ -207,7 +205,7 @@ public class QueueRemovalMessageProcessingDistributedTest implements Serializabl
   private void doPuts(int putCount) {
     Region<String, String> region = clientCacheRule.getClientCache().getRegion(regionName);
 
-    for (int i = 1; i <= putCount; i++) {
+    for (var i = 1; i <= putCount; i++) {
       region.put("KEY-" + i, "VALUE-" + i);
     }
   }
@@ -217,18 +215,18 @@ public class QueueRemovalMessageProcessingDistributedTest implements Serializabl
   }
 
   private boolean allEventsHaveBeenDispatched(final int eventsCount) {
-    HARegionQueueStats stats = getCacheClientProxy().getHARegionQueue().getStatistics();
-    long dispatched = stats.getEventsDispatched();
+    var stats = getCacheClientProxy().getHARegionQueue().getStatistics();
+    var dispatched = stats.getEventsDispatched();
     return eventsCount == dispatched;
   }
 
   private void verifyClientSubscriptionStatsOnSecondary(final int eventsCount) {
     await().until(() -> {
-      HARegionQueueStats stats = getCacheClientProxy().getHARegionQueue().getStatistics();
+      var stats = getCacheClientProxy().getHARegionQueue().getStatistics();
 
-      int numOfEvents = eventsCount - 1; // No marker
+      var numOfEvents = eventsCount - 1; // No marker
 
-      long qrmed = stats.getEventsRemovedByQrm();
+      var qrmed = stats.getEventsRemovedByQrm();
 
       return qrmed == numOfEvents || qrmed + 1 == numOfEvents;
       // Why +1 above? Because sometimes(TODO: explain further) there may

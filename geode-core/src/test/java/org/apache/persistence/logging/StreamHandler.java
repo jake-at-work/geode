@@ -56,7 +56,7 @@ public class StreamHandler extends Handler {
 
   @Override
   public void publish(LogRecord record) {
-    Formatter formatter = getFormatter();
+    var formatter = getFormatter();
     pw.print(formatter.format(record));
   }
 

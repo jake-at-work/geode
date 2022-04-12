@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import junitparams.Parameters;
@@ -39,7 +38,6 @@ import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.lucene.internal.LuceneIndexForPartitionedRegion;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.test.TestObject;
-import org.apache.geode.cache.snapshot.RegionSnapshotService;
 import org.apache.geode.cache.snapshot.SnapshotOptions;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.test.dunit.AsyncInvocation;
@@ -79,8 +77,8 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   }
 
   private Object[] parametersForIndexDestroys() {
-    String[] destroyDataRegionParameters = {"true", "false"};
-    RegionTestableType[] regionTestTypes = getListOfRegionTestTypes();
+    var destroyDataRegionParameters = new String[] {"true", "false"};
+    var regionTestTypes = getListOfRegionTestTypes();
     return parameterCombiner(destroyDataRegionParameters, regionTestTypes);
   }
 
@@ -266,7 +264,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   public void verifyDestroySingleIndexWhileDoingQueries(RegionTestableType regionType)
       throws Exception {
     // Create index and region
-    SerializableRunnableIF createIndex = createIndex();
+    var createIndex = createIndex();
     dataStore1.invoke(() -> initDataStore(createIndex, regionType));
     dataStore2.invoke(() -> initDataStore(createIndex, regionType));
     accessor.invoke(() -> initAccessor(createIndex, regionType));
@@ -277,7 +275,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
     accessor.invoke(this::verifyIndexCreated);
 
     // Do puts
-    int numPuts = 100;
+    var numPuts = 100;
     accessor.invoke(() -> doPuts(numPuts));
 
     // Wait until queue is flushed
@@ -310,7 +308,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   public void verifyDestroyAllIndexesWhileDoingQueries(RegionTestableType regionType)
       throws Exception {
     // Create indexes and region
-    SerializableRunnableIF createIndexes = createIndexes();
+    var createIndexes = createIndexes();
     dataStore1.invoke(() -> initDataStore(createIndexes, regionType));
     dataStore2.invoke(() -> initDataStore(createIndexes, regionType));
     accessor.invoke(() -> initAccessor(createIndexes, regionType));
@@ -321,7 +319,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
     accessor.invoke(this::verifyIndexesCreated);
 
     // Do puts
-    int numPuts = 100;
+    var numPuts = 100;
     accessor.invoke(() -> doPuts(numPuts));
 
     // Wait until queues are flushed
@@ -354,7 +352,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   @Parameters(method = "getListOfRegionTestTypes")
   public void verifyDestroyRecreateIndexSameName(RegionTestableType regionType) {
     // Create index and region
-    SerializableRunnableIF createIndex = createIndex();
+    var createIndex = createIndex();
     dataStore1.invoke(() -> initDataStore(createIndex, regionType));
     dataStore2.invoke(() -> initDataStore(createIndex, regionType));
     accessor.invoke(() -> initAccessor(createIndex, regionType));
@@ -365,7 +363,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
     accessor.invoke(this::verifyIndexCreated);
 
     // Do puts to cause IndexRepositories to be created
-    int numPuts = 100;
+    var numPuts = 100;
     accessor.invoke(() -> doPuts(numPuts));
 
     // Wait until queue is flushed
@@ -408,7 +406,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   @Parameters(method = "getListOfRegionTestTypes")
   public void verifyDestroyRecreateIndexDifferentName(RegionTestableType regionType) {
     // Create index and region
-    SerializableRunnableIF createIndex = createIndex();
+    var createIndex = createIndex();
     dataStore1.invoke(() -> initDataStore(createIndex, regionType));
     dataStore2.invoke(() -> initDataStore(createIndex, regionType));
     accessor.invoke(() -> initAccessor(createIndex, regionType));
@@ -419,7 +417,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
     accessor.invoke(this::verifyIndexCreated);
 
     // Do puts to cause IndexRepositories to be created
-    int numPuts = 100;
+    var numPuts = 100;
     accessor.invoke(() -> doPuts(numPuts));
 
     // Wait until queue is flushed
@@ -442,8 +440,8 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
     dataStore1.invoke(() -> destroyDataRegion(true));
 
     // Recreate index and region
-    String newIndexName = INDEX_NAME + "+_1";
-    SerializableRunnableIF createIndexNewName = createIndex(newIndexName, REGION_NAME, "field1");
+    var newIndexName = INDEX_NAME + "+_1";
+    var createIndexNewName = createIndex(newIndexName, REGION_NAME, "field1");
     dataStore1.invoke(() -> initDataStore(createIndexNewName, regionType));
     dataStore2.invoke(() -> initDataStore(createIndexNewName, regionType));
     accessor.invoke(() -> initAccessor(createIndexNewName, regionType));
@@ -463,7 +461,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   @Test
   @Parameters(method = "getListOfRegionTestTypes")
   public void verifyDestroyRecreateDifferentIndex(RegionTestableType regionType) {
-    SerializableRunnableIF createIndex = createIndex();
+    var createIndex = createIndex();
     dataStore1.invoke(() -> initDataStore(createIndex, regionType));
     dataStore2.invoke(() -> initDataStore(createIndex, regionType));
     accessor.invoke(() -> initAccessor(createIndex, regionType));
@@ -474,7 +472,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
     accessor.invoke(this::verifyIndexCreated);
 
     // Do puts to cause IndexRepositories to be created
-    int numPuts = 1000;
+    var numPuts = 1000;
     accessor.invoke(() -> doPuts(numPuts));
 
     // Wait until queue is flushed
@@ -497,7 +495,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
     dataStore1.invoke(() -> destroyDataRegion(true));
 
     // Create new index and region
-    SerializableRunnableIF createNewIndex = createIndex(INDEX_NAME, REGION_NAME, "field2");
+    var createNewIndex = createIndex(INDEX_NAME, REGION_NAME, "field2");
     dataStore1.invoke(() -> initDataStore(createNewIndex, regionType));
     dataStore2.invoke(() -> initDataStore(createNewIndex, regionType));
     accessor.invoke(() -> initAccessor(createNewIndex, regionType));
@@ -517,8 +515,8 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   @Test
   @Parameters(method = "getListOfRegionTestTypes")
   public void verifyCreateDestroyDefinedIndex(RegionTestableType regionType) {
-    String[] regionNames = {REGION_NAME, SEPARATOR + REGION_NAME};
-    for (String regionName : regionNames) {
+    var regionNames = new String[] {REGION_NAME, SEPARATOR + REGION_NAME};
+    for (var regionName : regionNames) {
       dataStore1.invoke(createIndex(INDEX_NAME, regionName, "field1"));
       dataStore1.invoke(() -> verifyDefinedIndexCreated(INDEX_NAME, regionName));
       dataStore1.invoke(() -> destroyDefinedIndex(INDEX_NAME, regionName));
@@ -532,26 +530,26 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
 
   private SerializableRunnableIF createIndex(String indexName, String regionName, String field) {
     return () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields(field).create(indexName, regionName);
     };
   }
 
   private SerializableRunnableIF createIndexes() {
     return () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("field1").create(INDEX1_NAME, REGION_NAME);
       luceneService.createIndexFactory().setFields("field2").create(INDEX2_NAME, REGION_NAME);
     };
   }
 
   private void verifyIndexCreated() {
-    LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var luceneService = LuceneServiceProvider.get(getCache());
     assertNotNull(luceneService.getIndex(INDEX_NAME, REGION_NAME));
   }
 
   private void verifyIndexesCreated() {
-    LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var luceneService = LuceneServiceProvider.get(getCache());
     assertNotNull(luceneService.getIndex(INDEX1_NAME, REGION_NAME));
     assertNotNull(luceneService.getIndex(INDEX2_NAME, REGION_NAME));
   }
@@ -561,7 +559,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   }
 
   private void verifyDefinedIndexCreated(String indexName, String regionName) {
-    LuceneServiceImpl luceneService = (LuceneServiceImpl) LuceneServiceProvider.get(getCache());
+    var luceneService = (LuceneServiceImpl) LuceneServiceProvider.get(getCache());
     assertNotNull(luceneService.getDefinedIndex(indexName, regionName));
     assertEquals(1, getCache().getRegionListeners().size());
   }
@@ -571,20 +569,20 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   }
 
   private void verifyDefinedIndexDestroyed(String indexName, String regionName) {
-    LuceneServiceImpl luceneService = (LuceneServiceImpl) LuceneServiceProvider.get(getCache());
+    var luceneService = (LuceneServiceImpl) LuceneServiceProvider.get(getCache());
     assertNull(luceneService.getDefinedIndex(indexName, regionName));
     assertEquals(0, getCache().getRegionListeners().size());
   }
 
   private void waitUntilFlushed(String indexName) throws Exception {
-    LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var luceneService = LuceneServiceProvider.get(getCache());
     assertTrue(
         luceneService.waitUntilFlushed(indexName, REGION_NAME, 30000, TimeUnit.MILLISECONDS));
   }
 
   private void doPuts(int numPuts) throws Exception {
     Region region = getCache().getRegion(REGION_NAME);
-    for (int i = 0; i < numPuts; i++) {
+    for (var i = 0; i < numPuts; i++) {
       region.put(i, new TestObject("field1Value", "field2Value"));
     }
   }
@@ -592,7 +590,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   private void doPutsUntilStopped() throws Exception {
     allowPuts();
     Region region = getCache().getRegion(REGION_NAME);
-    int i = 0;
+    var i = 0;
     while (!STOP_PUTS) {
       region.put(i++, new TestObject());
       NUM_PUTS_COMPLETED = i;
@@ -602,7 +600,7 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   private void doQueriesUntilException(String indexName, String queryString, String field,
       int expectedResultsSize) throws Exception {
     allowQueries();
-    int i = 0;
+    var i = 0;
     while (!STOP_QUERIES) {
       try {
         executeQuery(indexName, queryString, field, expectedResultsSize);
@@ -645,10 +643,10 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
 
   private void executeQuery(String indexName, String queryString, String field,
       int expectedResultsSize) throws LuceneQueryException {
-    LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var luceneService = LuceneServiceProvider.get(getCache());
     LuceneQuery query = luceneService.createLuceneQueryFactory().setLimit(expectedResultsSize)
         .create(indexName, REGION_NAME, queryString, field);
-    Collection results = query.findValues();
+    var results = query.findValues();
     assertEquals(expectedResultsSize, results.size());
   }
 
@@ -665,8 +663,8 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
         fail(e);
       } else {
         // Verify the correct exception is thrown
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < indexNames.length; i++) {
+        var builder = new StringBuilder();
+        for (var i = 0; i < indexNames.length; i++) {
           builder.append(indexNames[i]);
           if (i + 1 != indexNames.length) {
             builder.append(',');
@@ -680,17 +678,17 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   }
 
   private void destroyIndex() {
-    LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var luceneService = LuceneServiceProvider.get(getCache());
     luceneService.destroyIndex(INDEX_NAME, REGION_NAME);
   }
 
   private void destroyDefinedIndex(String indexName, String regionName) {
-    LuceneServiceImpl luceneService = (LuceneServiceImpl) LuceneServiceProvider.get(getCache());
+    var luceneService = (LuceneServiceImpl) LuceneServiceProvider.get(getCache());
     luceneService.destroyDefinedIndex(indexName, regionName);
   }
 
   private void destroyIndexes() {
-    LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var luceneService = LuceneServiceProvider.get(getCache());
     luceneService.destroyIndexes(REGION_NAME);
   }
 
@@ -704,36 +702,36 @@ public class LuceneIndexDestroyDUnitTest extends LuceneDUnitTest {
   }
 
   private void verifyIndexDestroyed(String indexName) {
-    LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var luceneService = LuceneServiceProvider.get(getCache());
 
     // Verify the index itself no longer exists
     assertNull(luceneService.getIndex(indexName, REGION_NAME));
 
     // Verify the underlying files region no longer exists
-    String filesRegionName = LuceneServiceImpl.getUniqueIndexRegionName(indexName, REGION_NAME,
+    var filesRegionName = LuceneServiceImpl.getUniqueIndexRegionName(indexName, REGION_NAME,
         LuceneIndexForPartitionedRegion.FILES_REGION_SUFFIX);
     assertNull(getCache().getRegion(filesRegionName));
 
     // Verify the underlying AsyncEventQueue no longer exists
-    String aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, REGION_NAME);
+    var aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, REGION_NAME);
     assertNull(getCache().getAsyncEventQueue(aeqId));
 
     // Verify the data region extension no longer exists
-    LocalRegion region = (LocalRegion) getCache().getRegion(REGION_NAME);
+    var region = (LocalRegion) getCache().getRegion(REGION_NAME);
     assertFalse(region.getExtensionPoint().getExtensions().iterator().hasNext());
   }
 
   private void exportData(RegionTestableType regionType) throws Exception {
     Region region = getCache().getRegion(REGION_NAME);
-    RegionSnapshotService service = region.getSnapshotService();
+    var service = region.getSnapshotService();
     service.save(getSnapshotFile(getDiskDirs()[0], regionType),
         SnapshotOptions.SnapshotFormat.GEODE);
   }
 
   private void importData(RegionTestableType regionType, int expectedRegionSize) throws Exception {
     Region region = getCache().getRegion(REGION_NAME);
-    RegionSnapshotService service = region.getSnapshotService();
-    SnapshotOptions options = service.createOptions();
+    var service = region.getSnapshotService();
+    var options = service.createOptions();
     options.invokeCallbacks(true);
     service.load(getSnapshotFile(getDiskDirs()[0], regionType),
         SnapshotOptions.SnapshotFormat.GEODE, options);

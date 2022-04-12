@@ -18,8 +18,6 @@ import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -91,7 +89,7 @@ public class SystemTimer {
       }
     }
 
-    WeakReference<SystemTimer> wr = new WeakReference<>(systemTimer);
+    var wr = new WeakReference<SystemTimer>(systemTimer);
     synchronized (timers) {
       timers.add(wr);
     }
@@ -131,19 +129,19 @@ public class SystemTimer {
       // Too soon.
       return;
     }
-    final boolean isDebugEnabled = logger.isTraceEnabled();
+    final var isDebugEnabled = logger.isTraceEnabled();
     synchronized (distributedSystemTimers) {
-      Iterator<Map.Entry<DistributedSystem, Set<WeakReference<SystemTimer>>>> allSystemsIterator =
+      var allSystemsIterator =
           distributedSystemTimers.entrySet().iterator();
       while (allSystemsIterator.hasNext()) {
-        Map.Entry<DistributedSystem, Set<WeakReference<SystemTimer>>> entry =
+        var entry =
             allSystemsIterator.next();
-        Set<WeakReference<SystemTimer>> timers = entry.getValue();
+        var timers = entry.getValue();
         synchronized (timers) {
-          Iterator<WeakReference<SystemTimer>> timersIterator = timers.iterator();
+          var timersIterator = timers.iterator();
           while (timersIterator.hasNext()) {
-            WeakReference<SystemTimer> wr = timersIterator.next();
-            SystemTimer st = wr.get();
+            var wr = timersIterator.next();
+            var st = wr.get();
             if (st == null || st.isCancelled()) {
               timersIterator.remove();
             }
@@ -170,17 +168,17 @@ public class SystemTimer {
   private static void removeTimer(SystemTimer timerToRemove) {
     synchronized (distributedSystemTimers) {
       // Get the timers for the distributed system
-      Set<WeakReference<SystemTimer>> timers =
+      var timers =
           distributedSystemTimers.get(timerToRemove.distributedSystem);
       if (timers == null) {
         return; // already gone
       }
 
       synchronized (timers) {
-        Iterator<WeakReference<SystemTimer>> timersIterator = timers.iterator();
+        var timersIterator = timers.iterator();
         while (timersIterator.hasNext()) {
-          WeakReference<SystemTimer> ref = timersIterator.next();
-          SystemTimer timer = ref.get();
+          var ref = timersIterator.next();
+          var timer = ref.get();
           if (timer == null) {
             timersIterator.remove();
           } else if (timer == timerToRemove) {
@@ -218,8 +216,8 @@ public class SystemTimer {
 
     // cancel all of the timers
     synchronized (timers) {
-      for (WeakReference<SystemTimer> wr : timers) {
-        SystemTimer st = wr.get();
+      for (var wr : timers) {
+        var st = wr.get();
         // it.remove(); Not necessary, we're emptying the list...
         if (st != null) {
           st.cancelled = true; // for safety :-)

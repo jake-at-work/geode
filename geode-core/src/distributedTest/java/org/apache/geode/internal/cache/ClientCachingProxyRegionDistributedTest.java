@@ -31,9 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.EntryDestroyedException;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -64,9 +62,9 @@ public class ClientCachingProxyRegionDistributedTest implements Serializable {
         .withServerConnection(server.getPort()));
 
     client.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
+      var clientCache = ClusterStartupRule.getClientCache();
       assertThat(clientCache).isNotNull();
-      Region<String, String> clientRegion = clientCache
+      var clientRegion = clientCache
           .<String, String>createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
           .create(testName.getMethodName());
 
@@ -85,14 +83,14 @@ public class ClientCachingProxyRegionDistributedTest implements Serializable {
   @Test
   public void getAllShouldNotThrowExceptionWhenEntryIsLocallyDeletedBetweenFetches() {
     client.invoke(() -> {
-      final String testKey = KEYS.get(0);
+      final var testKey = KEYS.get(0);
       assertThat(ClusterStartupRule.getClientCache()).isNotNull();
-      LocalRegion clientRegion = spy((LocalRegion) ClusterStartupRule.getClientCache()
+      var clientRegion = spy((LocalRegion) ClusterStartupRule.getClientCache()
           .getRegion(testName.getMethodName()));
 
       doAnswer(invocation -> {
         // Retrieve the original entry.
-        Object entry = invocation.callRealMethod();
+        var entry = invocation.callRealMethod();
         // Destroy the entry locally to simulate an expiration/eviction.
         clientRegion.localDestroy(testKey);
         // Return the original entry.
@@ -100,7 +98,7 @@ public class ClientCachingProxyRegionDistributedTest implements Serializable {
       }).when(clientRegion).accessEntry(KEYS.get(0), true);
 
       @SuppressWarnings("unchecked")
-      Map<String, String> getAllResult = (Map<String, String>) clientRegion.getAll(KEYS);
+      var getAllResult = (Map<String, String>) clientRegion.getAll(KEYS);
       // Locally destroyed entries should be retrieved from the server.
       IntStream.range(0, KEYS.size())
           .forEach(i -> assertThat(getAllResult.get(KEYS.get(i))).isEqualTo(VALUES.get(i)));

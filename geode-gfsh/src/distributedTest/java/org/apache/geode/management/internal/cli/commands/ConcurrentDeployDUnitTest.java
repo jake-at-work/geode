@@ -54,13 +54,13 @@ public class ConcurrentDeployDUnitTest {
     gfsh2 = lsRule.getVM(2);
     gfsh3 = lsRule.getVM(3);
 
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
     gfsh1.invoke(() -> connectToLocator(locatorPort));
     gfsh2.invoke(() -> connectToLocator(locatorPort));
     gfsh3.invoke(() -> connectToLocator(locatorPort));
 
-    File jar1 = jar1Rule.getJarFile();
+    var jar1 = jar1Rule.getJarFile();
     AsyncInvocation<Void> gfsh1Invocation =
         gfsh1.invokeAsync(() -> loopThroughDeployAndUndeploys(jar1));
     AsyncInvocation<Void> gfsh2Invocation =
@@ -86,10 +86,10 @@ public class ConcurrentDeployDUnitTest {
   }
 
   public static void loopThroughDeployAndUndeploys(File jar1) {
-    int numTimesToExecute = 50;
+    var numTimesToExecute = 50;
     String command;
 
-    for (int i = 1; i <= numTimesToExecute; i++) {
+    for (var i = 1; i <= numTimesToExecute; i++) {
       command = "deploy --jar=" + jar1.getAbsolutePath();
       gfsh.executeAndAssertThat(command).statusIsSuccess();
 

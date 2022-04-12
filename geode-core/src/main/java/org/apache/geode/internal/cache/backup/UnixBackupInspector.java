@@ -34,23 +34,23 @@ class UnixBackupInspector extends BackupInspector {
 
   @Override
   public String getCopyFromForOplogFile(final String oplogFileName) {
-    String line = getOplogLineFromFilename(oplogFileName);
+    var line = getOplogLineFromFilename(oplogFileName);
     if (line == null) {
       return null;
     }
 
-    String[] parts = line.split("\\s");
+    var parts = line.split("\\s");
     return parts[2].substring(1, parts[2].length() - 1);
   }
 
   @Override
   public String getCopyToForOplogFile(final String oplogFileName) {
-    String line = getOplogLineFromFilename(oplogFileName);
+    var line = getOplogLineFromFilename(oplogFileName);
     if (line == null) {
       return null;
     }
 
-    String[] parts = line.split("\\s");
+    var parts = line.split("\\s");
     return parts[3].substring(1, parts[3].length() - 1);
   }
 
@@ -63,9 +63,9 @@ class UnixBackupInspector extends BackupInspector {
         // ensure that statements creating directories is not interpreted as oplog files.
         continue;
       }
-      int beginIndex = line.lastIndexOf(File.separator) + 1;
-      int endIndex = line.length() - 1;
-      String oplogName = line.substring(beginIndex, endIndex);
+      var beginIndex = line.lastIndexOf(File.separator) + 1;
+      var endIndex = line.length() - 1;
+      var oplogName = line.substring(beginIndex, endIndex);
       addOplogLine(oplogName, line);
     }
   }

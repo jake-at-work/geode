@@ -37,7 +37,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexNameConflictException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.internal.index.PartitionedIndex;
 import org.apache.geode.test.dunit.VM;
@@ -101,7 +100,7 @@ public class PRWithIndexAfterRebalanceRegressionTest implements Serializable {
     // Do Puts
     vm1.invoke("putting data", () -> {
       Region region = cacheRule.getCache().getRegion(regionName);
-      for (int i = 0; i < 2000; i++) {
+      for (var i = 0; i < 2000; i++) {
         region.put(i, new TestObject(i));
       }
     });
@@ -119,7 +118,7 @@ public class PRWithIndexAfterRebalanceRegressionTest implements Serializable {
 
   private void createAccessor() {
     cacheRule.createCache();
-    PartitionAttributesFactory paf =
+    var paf =
         new PartitionAttributesFactory().setTotalNumBuckets(10).setLocalMaxMemory(0);
     cacheRule.getCache().createRegionFactory(PARTITION_PROXY).setPartitionAttributes(paf.create())
         .create(regionName);
@@ -127,7 +126,7 @@ public class PRWithIndexAfterRebalanceRegressionTest implements Serializable {
 
   private void createPartitionedRegion() {
     cacheRule.createCache();
-    PartitionAttributesFactory paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
+    var paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
     cacheRule.getCache().createRegionFactory(PARTITION).setPartitionAttributes(paf.create())
         .create(regionName);
   }
@@ -139,9 +138,9 @@ public class PRWithIndexAfterRebalanceRegressionTest implements Serializable {
 
   private void checkForLingeringBucketIndexes(String indexName) {
     Region region = cacheRule.getCache().getRegion(regionName);
-    QueryService queryService = cacheRule.getCache().getQueryService();
-    PartitionedIndex index = (PartitionedIndex) queryService.getIndex(region, indexName);
-    for (Index bucketIndex : (List<Index>) index.getBucketIndexes()) {
+    var queryService = cacheRule.getCache().getQueryService();
+    var index = (PartitionedIndex) queryService.getIndex(region, indexName);
+    for (var bucketIndex : (List<Index>) index.getBucketIndexes()) {
       assertThat(bucketIndex.getRegion().isDestroyed()).isFalse();
     }
   }

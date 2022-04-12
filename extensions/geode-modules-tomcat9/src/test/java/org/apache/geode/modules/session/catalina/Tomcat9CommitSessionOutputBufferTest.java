@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
 
 import org.apache.coyote.OutputBuffer;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 public class Tomcat9CommitSessionOutputBufferTest {
 
@@ -37,11 +36,11 @@ public class Tomcat9CommitSessionOutputBufferTest {
 
   @Test
   public void testDoWrite() throws IOException {
-    final ByteBuffer byteBuffer = ByteBuffer.allocate(0);
+    final var byteBuffer = ByteBuffer.allocate(0);
 
     commitSesssionOutputBuffer.doWrite(byteBuffer);
 
-    final InOrder inOrder = inOrder(sessionCommitter, delegate);
+    final var inOrder = inOrder(sessionCommitter, delegate);
     inOrder.verify(sessionCommitter).commit();
     inOrder.verify(delegate).doWrite(byteBuffer);
     inOrder.verifyNoMoreInteractions();
@@ -53,7 +52,7 @@ public class Tomcat9CommitSessionOutputBufferTest {
 
     assertThat(commitSesssionOutputBuffer.getBytesWritten()).isEqualTo(42L);
 
-    final InOrder inOrder = inOrder(sessionCommitter, delegate);
+    final var inOrder = inOrder(sessionCommitter, delegate);
     inOrder.verify(delegate).getBytesWritten();
     inOrder.verifyNoMoreInteractions();
   }

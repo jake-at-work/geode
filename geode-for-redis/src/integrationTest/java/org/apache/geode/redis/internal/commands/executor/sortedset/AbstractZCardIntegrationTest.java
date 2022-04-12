@@ -61,8 +61,8 @@ public abstract class AbstractZCardIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void zcardReturnsCorrectSetSize() {
-    final String key = "key";
-    Map<String, Double> updateMap = makeMemberScoreMap("member");
+    final var key = "key";
+    var updateMap = makeMemberScoreMap("member");
     jedis.zadd(key, updateMap);
 
     assertThat(jedis.zcard(key)).isEqualTo(SET_SIZE);
@@ -70,7 +70,7 @@ public abstract class AbstractZCardIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void zcardErrors_givenWrongKeyType() {
-    final String key = "key";
+    final var key = "key";
     jedis.set(key, "value");
     assertThatThrownBy(
         () -> jedis.sendCommand(key, Protocol.Command.ZCARD, key))
@@ -79,7 +79,7 @@ public abstract class AbstractZCardIntegrationTest implements RedisIntegrationTe
 
   private Map<String, Double> makeMemberScoreMap(String baseString) {
     Map<String, Double> scoreMemberPairs = new HashMap<>();
-    for (int i = 0; i < SET_SIZE; i++) {
+    for (var i = 0; i < SET_SIZE; i++) {
       scoreMemberPairs.put(baseString + i, Double.valueOf(i + ""));
     }
     return scoreMemberPairs;

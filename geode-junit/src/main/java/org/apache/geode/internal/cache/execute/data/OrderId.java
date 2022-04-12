@@ -69,7 +69,7 @@ public class OrderId implements DataSerializable {
       return false;
     }
 
-    OrderId otherOrderId = (OrderId) o;
+    var otherOrderId = (OrderId) o;
     return (otherOrderId.orderId.equals(orderId) && otherOrderId.custId.equals(custId));
 
   }

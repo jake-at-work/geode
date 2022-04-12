@@ -27,8 +27,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.Result;
-import org.mockito.InOrder;
 
 import org.apache.geode.test.junit.runners.TestRunner;
 
@@ -69,14 +67,14 @@ public class ExecutorServiceRuleIntegrationTest {
 
   @Test
   public void awaitTermination() {
-    Result result = TestRunner.runTest(Awaits.class);
+    var result = TestRunner.runTest(Awaits.class);
     assertThat(result.wasSuccessful()).isTrue();
 
     assertThat(isTestHung()).isTrue();
     await().untilAsserted(() -> assertThat(executorService.isTerminated()).isTrue());
     invocations.afterRule();
 
-    InOrder invocationOrder = inOrder(invocations);
+    var invocationOrder = inOrder(invocations);
     invocationOrder.verify(invocations).afterTest();
     invocationOrder.verify(invocations).afterHangLatch();
     invocationOrder.verify(invocations).afterTerminateLatch();

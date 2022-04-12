@@ -18,8 +18,6 @@ package org.apache.geode.internal.util;
 import static java.lang.System.lineSeparator;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.ServiceLoader;
 
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +31,8 @@ public class ProductVersionUtil {
   public static final String line = "----------------------------------------";
 
   public static @NotNull DistributionVersion getDistributionVersion() {
-    final ServiceLoader<DistributionVersion> loader = ServiceLoader.load(DistributionVersion.class);
-    final Iterator<DistributionVersion> loaderIter = loader.iterator();
+    final var loader = ServiceLoader.load(DistributionVersion.class);
+    final var loaderIter = loader.iterator();
     if (loaderIter.hasNext()) {
       return loaderIter.next();
     }
@@ -47,12 +45,12 @@ public class ProductVersionUtil {
 
   public static <T extends Appendable> @NotNull T appendFullVersion(final @NotNull T appendable)
       throws IOException {
-    for (final ComponentVersion version : getComponentVersions()) {
+    for (final var version : getComponentVersions()) {
       appendable
           .append(line).append(lineSeparator())
           .append(version.getName()).append(lineSeparator())
           .append(line).append(lineSeparator());
-      for (final Map.Entry<String, String> entry : version.getDetails().entrySet()) {
+      for (final var entry : version.getDetails().entrySet()) {
         appendable.append(entry.getKey()).append(": ").append(entry.getValue())
             .append(lineSeparator());
       }

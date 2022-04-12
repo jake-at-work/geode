@@ -33,7 +33,7 @@ public class CompressionRegionOperationsOffHeapDUnitTest
 
   @Override
   public final void preTearDownAssertions() throws Exception {
-    SerializableRunnable checkOrphans = new SerializableRunnable() {
+    var checkOrphans = new SerializableRunnable() {
 
       @Override
       public void run() {
@@ -48,7 +48,7 @@ public class CompressionRegionOperationsOffHeapDUnitTest
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.setProperty(OFF_HEAP_MEMORY_SIZE, "1m");
     return props;
   }

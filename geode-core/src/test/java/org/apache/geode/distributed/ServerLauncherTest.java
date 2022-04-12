@@ -57,7 +57,7 @@ public class ServerLauncherTest {
 
   @Test
   public void constructorCorrectlySetsServerLauncherParameters() {
-    ServerLauncher launcher = new Builder().setServerBindAddress(null).setServerPort(11235)
+    var launcher = new Builder().setServerBindAddress(null).setServerPort(11235)
         .setMaxThreads(10).setMaxConnections(100).setMaxMessageCount(5).setMessageTimeToLive(10000)
         .setSocketBufferSize(2048).setHostNameForClients("hostName4Clients")
         .setDisableDefaultServer(Boolean.FALSE).build();
@@ -78,29 +78,29 @@ public class ServerLauncherTest {
 
   @Test
   public void isServingReturnsTrueWhenCacheHasOneCacheServer() {
-    Cache cache = mock(Cache.class);
-    CacheServer cacheServer = mock(CacheServer.class);
+    var cache = mock(Cache.class);
+    var cacheServer = mock(CacheServer.class);
     when(cache.getCacheServers()).thenReturn(Collections.singletonList(cacheServer));
 
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     assertThat(launcher.isServing(cache)).isTrue();
   }
 
   @Test
   public void isServingReturnsFalseWhenCacheHasZeroCacheServers() {
-    Cache cache = mock(Cache.class);
+    var cache = mock(Cache.class);
     when(cache.getCacheServers()).thenReturn(Collections.emptyList());
 
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     assertThat(launcher.isServing(cache)).isFalse();
   }
 
   @Test
   public void reconnectedCacheIsClosed() {
-    Cache cache = mock(Cache.class, "Cache");
-    Cache reconnectedCache = mock(Cache.class, "ReconnectedCache");
+    var cache = mock(Cache.class, "Cache");
+    var reconnectedCache = mock(Cache.class, "ReconnectedCache");
     when(cache.isReconnecting()).thenReturn(false).thenReturn(false).thenReturn(true);
     when(cache.getCacheServers()).thenReturn(Collections.emptyList());
     when(cache.getReconnectedCache()).thenReturn(reconnectedCache);
@@ -114,7 +114,7 @@ public class ServerLauncherTest {
 
   @Test
   public void isRunningReturnsTrueWhenRunningIsSetTrue() {
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     launcher.running.set(true);
 
@@ -123,7 +123,7 @@ public class ServerLauncherTest {
 
   @Test
   public void isRunningReturnsFalseWhenRunningIsSetFalse() {
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     launcher.running.set(false);
 
@@ -132,16 +132,16 @@ public class ServerLauncherTest {
 
   @Test
   public void reconnectingDistributedSystemIsDisconnectedOnStop() {
-    Cache cache = mock(Cache.class, "Cache");
-    DistributedSystem system = mock(DistributedSystem.class, "DistributedSystem");
-    Cache reconnectedCache = mock(Cache.class, "ReconnectedCache");
+    var cache = mock(Cache.class, "Cache");
+    var system = mock(DistributedSystem.class, "DistributedSystem");
+    var reconnectedCache = mock(Cache.class, "ReconnectedCache");
     when(cache.isReconnecting()).thenReturn(true);
     when(cache.getReconnectedCache()).thenReturn(reconnectedCache);
     when(reconnectedCache.isReconnecting()).thenReturn(true);
     when(reconnectedCache.getReconnectedCache()).thenReturn(null);
     when(reconnectedCache.getDistributedSystem()).thenReturn(system);
 
-    ServerLauncher launcher = new Builder().setCache(cache).build();
+    var launcher = new Builder().setCache(cache).build();
     launcher.running.set(true);
     launcher.stop();
 
@@ -156,12 +156,12 @@ public class ServerLauncherTest {
 
   @Test
   public void isWaitingReturnsTrueWhenSystemIsConnected() {
-    Cache cache = mock(Cache.class, "Cache");
-    DistributedSystem system = mock(DistributedSystem.class, "DistributedSystem");
+    var cache = mock(Cache.class, "Cache");
+    var system = mock(DistributedSystem.class, "DistributedSystem");
     when(cache.getDistributedSystem()).thenReturn(system);
     when(system.isConnected()).thenReturn(true);
 
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
     launcher.running.set(true);
 
     assertThat(launcher.isWaiting(cache)).isTrue();
@@ -169,13 +169,13 @@ public class ServerLauncherTest {
 
   @Test
   public void isWaitingReturnsFalseWhenSystemIsNotConnected() {
-    Cache cache = mock(Cache.class, "Cache");
-    DistributedSystem system = mock(DistributedSystem.class, "DistributedSystem");
+    var cache = mock(Cache.class, "Cache");
+    var system = mock(DistributedSystem.class, "DistributedSystem");
     when(cache.getDistributedSystem()).thenReturn(system);
     when(system.isConnected()).thenReturn(false);
     when(cache.isReconnecting()).thenReturn(false);
 
-    ServerLauncher launcher = new Builder().setMemberName("serverOne").build();
+    var launcher = new Builder().setMemberName("serverOne").build();
     launcher.running.set(true);
 
     assertThat(launcher.isWaiting(cache)).isFalse();
@@ -183,14 +183,14 @@ public class ServerLauncherTest {
 
   @Test
   public void isWaitingReturnsFalseByDefault() {
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     assertThat(launcher.isWaiting(null)).isFalse();
   }
 
   @Test
   public void isWaitingReturnsFalseWhenNotRunning() {
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     launcher.running.set(false);
 
@@ -199,23 +199,23 @@ public class ServerLauncherTest {
 
   @Test
   public void isDisableDefaultServerReturnsFalseByDefault() {
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     assertThat(launcher.isDisableDefaultServer()).isFalse();
   }
 
   @Test
   public void isDefaultServerEnabledForCacheReturnsTrueByDefault() {
-    Cache cache = mock(Cache.class, "Cache");
+    var cache = mock(Cache.class, "Cache");
 
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     assertThat(launcher.isDefaultServerEnabled(cache)).isTrue();
   }
 
   @Test
   public void isDefaultServerEnabledForNullThrowsNullPointerException() {
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     assertThatThrownBy(() -> launcher.isDefaultServerEnabled(null))
         .isInstanceOf(NullPointerException.class);
@@ -223,39 +223,39 @@ public class ServerLauncherTest {
 
   @Test
   public void isDefaultServerEnabledReturnsFalseWhenCacheServersExist() {
-    Cache cache = mock(Cache.class, "Cache");
-    CacheServer cacheServer = mock(CacheServer.class, "CacheServer");
+    var cache = mock(Cache.class, "Cache");
+    var cacheServer = mock(CacheServer.class, "CacheServer");
     when(cache.getCacheServers()).thenReturn(Collections.singletonList(cacheServer));
 
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     assertThat(launcher.isDefaultServerEnabled(cache)).isFalse();
   }
 
   @Test
   public void isDisableDefaultServerReturnsTrueWhenDisabled() {
-    ServerLauncher launcher = new Builder().setDisableDefaultServer(true).build();
+    var launcher = new Builder().setDisableDefaultServer(true).build();
 
     assertThat(launcher.isDisableDefaultServer()).isTrue();
   }
 
   @Test
   public void isDefaultServerEnabledReturnsFalseWhenDefaultServerDisabledIsTrueAndNoCacheServersExist() {
-    Cache cache = mock(Cache.class, "Cache");
+    var cache = mock(Cache.class, "Cache");
     when(cache.getCacheServers()).thenReturn(Collections.emptyList());
 
-    ServerLauncher launcher = new Builder().setDisableDefaultServer(true).build();
+    var launcher = new Builder().setDisableDefaultServer(true).build();
 
     assertThat(launcher.isDefaultServerEnabled(cache)).isFalse();
   }
 
   @Test
   public void isDefaultServerEnabledReturnsFalseWhenDefaultServerDisabledIsTrueAndCacheServersExist() {
-    Cache cache = mock(Cache.class, "Cache");
-    CacheServer cacheServer = mock(CacheServer.class, "CacheServer");
+    var cache = mock(Cache.class, "Cache");
+    var cacheServer = mock(CacheServer.class, "CacheServer");
     when(cache.getCacheServers()).thenReturn(Collections.singletonList(cacheServer));
 
-    ServerLauncher launcher = new Builder().setDisableDefaultServer(true).build();
+    var launcher = new Builder().setDisableDefaultServer(true).build();
 
     assertThat(launcher.isDefaultServerEnabled(cache)).isFalse();
   }
@@ -263,10 +263,10 @@ public class ServerLauncherTest {
   @Test
   public void startCacheServerStartsCacheServerWithBuilderValues() throws IOException {
     Cache cache = createCache();
-    CacheServer cacheServer = mock(CacheServer.class, "CacheServer");
+    var cacheServer = mock(CacheServer.class, "CacheServer");
     when(cache.getCacheServers()).thenReturn(Collections.emptyList());
     when(cache.addCacheServer()).thenReturn(cacheServer);
-    ServerLauncher launcher = new Builder()
+    var launcher = new Builder()
         .setServerBindAddress(null)
         .setServerPort(11235)
         .setMaxThreads(10)
@@ -295,10 +295,10 @@ public class ServerLauncherTest {
   @Test
   public void startCacheServerDoesNothingWhenDefaultServerDisabled() {
     Cache cache = createCache();
-    CacheServer cacheServer = mock(CacheServer.class, "CacheServer");
+    var cacheServer = mock(CacheServer.class, "CacheServer");
     when(cache.getCacheServers()).thenReturn(Collections.emptyList());
     when(cache.addCacheServer()).thenReturn(cacheServer);
-    ServerLauncher launcher = new Builder()
+    var launcher = new Builder()
         .setDisableDefaultServer(true)
         .setServerLauncherCacheProvider((a, b) -> cache)
         .setControllableProcessFactory(() -> mock(ControllableProcess.class))
@@ -312,11 +312,11 @@ public class ServerLauncherTest {
   @Test
   public void startCacheServerDoesNothingWhenCacheServerAlreadyExists() {
     Cache cache = createCache();
-    CacheServer cacheServer1 = mock(CacheServer.class, "CacheServer1");
-    CacheServer cacheServer2 = mock(CacheServer.class, "CacheServer2");
+    var cacheServer1 = mock(CacheServer.class, "CacheServer1");
+    var cacheServer2 = mock(CacheServer.class, "CacheServer2");
     when(cache.getCacheServers()).thenReturn(Collections.singletonList(cacheServer1));
     when(cache.addCacheServer()).thenReturn(cacheServer1);
-    ServerLauncher launcher = new Builder()
+    var launcher = new Builder()
         .setControllableProcessFactory(() -> mock(ControllableProcess.class))
         .setDisableDefaultServer(true)
         .setServerLauncherCacheProvider((a, b) -> cache)
@@ -329,12 +329,12 @@ public class ServerLauncherTest {
 
   @Test
   public void startRunsCompletionActionAfterStartupTasksComplete() {
-    Runnable startupCompletionAction = mock(Runnable.class);
+    var startupCompletionAction = mock(Runnable.class);
     @SuppressWarnings("unchecked")
     Consumer<Throwable> startupExceptionAction = mock(Consumer.class);
-    InternalResourceManager internalResourceManager = mock(InternalResourceManager.class);
+    var internalResourceManager = mock(InternalResourceManager.class);
     Cache cache = createCache(internalResourceManager);
-    ServerLauncher serverLauncher = new Builder()
+    var serverLauncher = new Builder()
         .setControllableProcessFactory(() -> mock(ControllableProcess.class))
         .setDisableDefaultServer(true)
         .setServerLauncherCacheProvider((a, b) -> cache)
@@ -353,12 +353,12 @@ public class ServerLauncherTest {
 
   @Test
   public void startRunsExceptionActionAfterStartupTasksError() {
-    Runnable startupCompletionAction = mock(Runnable.class);
+    var startupCompletionAction = mock(Runnable.class);
     @SuppressWarnings("unchecked")
     Consumer<Throwable> startupExceptionAction = mock(Consumer.class);
-    InternalResourceManager internalResourceManager = mock(InternalResourceManager.class);
+    var internalResourceManager = mock(InternalResourceManager.class);
     Cache cache = createCache(internalResourceManager);
-    ServerLauncher serverLauncher = new Builder()
+    var serverLauncher = new Builder()
         .setControllableProcessFactory(() -> mock(ControllableProcess.class))
         .setDisableDefaultServer(true)
         .setServerLauncherCacheProvider((a, b) -> cache)
@@ -376,12 +376,12 @@ public class ServerLauncherTest {
 
   @Test
   public void startUsesCacheProviderFromBuilder() {
-    ServerLauncherCacheProvider serverLauncherCacheProvider =
+    var serverLauncherCacheProvider =
         mock(ServerLauncherCacheProvider.class);
     Cache cacheFromBuilder = createCache();
     when(serverLauncherCacheProvider.createCache(any(), any())).thenReturn(cacheFromBuilder);
 
-    ServerLauncher serverLauncher = new Builder()
+    var serverLauncher = new Builder()
         .setControllableProcessFactory(() -> mock(ControllableProcess.class))
         .setDisableDefaultServer(true)
         .setServerLauncherCacheProvider(serverLauncherCacheProvider)
@@ -393,13 +393,13 @@ public class ServerLauncherTest {
 
   @Test
   public void startUsesControllableProcessFromBuilder() {
-    ServerLauncherCacheProvider serverLauncherCacheProvider =
+    var serverLauncherCacheProvider =
         mock(ServerLauncherCacheProvider.class);
-    ControllableProcess controllableProcess = mock(ControllableProcess.class);
+    var controllableProcess = mock(ControllableProcess.class);
     Cache cacheFromBuilder = createCache();
     when(serverLauncherCacheProvider.createCache(any(), any())).thenReturn(cacheFromBuilder);
 
-    ServerLauncher serverLauncher = new Builder()
+    var serverLauncher = new Builder()
         .setControllableProcessFactory(() -> controllableProcess)
         .setDisableDefaultServer(true)
         .setServerLauncherCacheProvider(serverLauncherCacheProvider)
@@ -413,22 +413,22 @@ public class ServerLauncherTest {
 
   @Test
   public void startWaitsForStartupTasksToComplete() {
-    ServerLauncherCacheProvider cacheProvider = mock(ServerLauncherCacheProvider.class);
-    InternalResourceManager internalResourceManager = mock(InternalResourceManager.class);
-    InternalCache cacheFromBuilder = createCache(internalResourceManager);
+    var cacheProvider = mock(ServerLauncherCacheProvider.class);
+    var internalResourceManager = mock(InternalResourceManager.class);
+    var cacheFromBuilder = createCache(internalResourceManager);
     CompletableFuture<Void> startupTasks = spy(new CompletableFuture<>());
     when(cacheProvider.createCache(any(), any()))
         .thenReturn(cacheFromBuilder);
     when(internalResourceManager.allOfStartupTasks())
         .thenReturn(startupTasks);
 
-    ServerLauncher serverLauncher = new Builder()
+    var serverLauncher = new Builder()
         .setControllableProcessFactory(() -> mock(ControllableProcess.class))
         .setDisableDefaultServer(true)
         .setServerLauncherCacheProvider(cacheProvider)
         .build();
 
-    CompletableFuture<Void> serverLauncherStart = CompletableFuture.runAsync(serverLauncher::start);
+    var serverLauncherStart = CompletableFuture.runAsync(serverLauncher::start);
 
     await().untilAsserted(() -> verify(startupTasks).thenRun(any()));
     assertThat(serverLauncherStart).isNotDone();
@@ -439,7 +439,7 @@ public class ServerLauncherTest {
   }
 
   private CompletableFuture<Void> completedExceptionallyFuture() {
-    CompletableFuture<Void> completedExceptionallyFuture = new CompletableFuture<>();
+    var completedExceptionallyFuture = new CompletableFuture<Void>();
     completedExceptionallyFuture.completeExceptionally(new RuntimeException());
     return completedExceptionallyFuture;
   }
@@ -449,8 +449,8 @@ public class ServerLauncherTest {
   }
 
   private InternalCache createCache(InternalResourceManager internalResourceManager) {
-    InternalCache cache = mock(InternalCache.class);
-    CacheServer cacheServer = mock(CacheServer.class);
+    var cache = mock(InternalCache.class);
+    var cacheServer = mock(CacheServer.class);
 
     when(cache.addCacheServer()).thenReturn(cacheServer);
     when(cache.getResourceManager()).thenReturn(internalResourceManager);

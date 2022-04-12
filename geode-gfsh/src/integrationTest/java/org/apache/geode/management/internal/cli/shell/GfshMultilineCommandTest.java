@@ -43,7 +43,7 @@ public class GfshMultilineCommandTest {
   public void testMultiLineCommand() throws Exception {
     gfsh.connectAndVerify(server.getJmxPort(), GfshCommandRule.PortType.jmxManager);
     // Execute a command
-    CommandStringBuilder csb = new CommandStringBuilder(LIST_MEMBER);
+    var csb = new CommandStringBuilder(LIST_MEMBER);
     csb.addOption(GROUP, "nogroup");
     gfsh.executeAndAssertThat(csb.getCommandString()).statusIsSuccess();
     assertThat(gfsh.getGfshOutput().trim()).isEqualTo(NO_MEMBERS_FOUND_MESSAGE);

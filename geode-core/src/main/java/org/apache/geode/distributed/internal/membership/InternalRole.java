@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.distributed.Role;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 
 /**
@@ -82,7 +81,7 @@ public class InternalRole implements Role {
       throw new ClassCastException(
           "InternalRole.compareTo(): comparison between different classes");
     }
-    InternalRole other = (InternalRole) o;
+    var other = (InternalRole) o;
     return name.compareTo(other.name);
   }
 
@@ -103,7 +102,7 @@ public class InternalRole implements Role {
     if (!(other instanceof InternalRole)) {
       return false;
     }
-    final InternalRole that = (InternalRole) other;
+    final var that = (InternalRole) other;
 
     return StringUtils.equals(name, that.name);
   }
@@ -116,8 +115,8 @@ public class InternalRole implements Role {
    */
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + (name == null ? 0 : name.hashCode());
 
@@ -130,7 +129,7 @@ public class InternalRole implements Role {
    */
   public static InternalRole getRole(String name) {
     synchronized (roles) {
-      InternalRole role = (InternalRole) roles.get(name);
+      var role = (InternalRole) roles.get(name);
       if (role == null) {
         role = new InternalRole(name);
         roles.put(name, role);
@@ -141,23 +140,23 @@ public class InternalRole implements Role {
 
   @Override
   public boolean isPresent() {
-    InternalDistributedSystem sys = InternalDistributedSystem.getAnyInstance();
+    var sys = InternalDistributedSystem.getAnyInstance();
     if (sys == null) {
       throw new IllegalStateException(
           "isPresent requires a connection to the distributed system.");
     }
-    DistributionManager dm = sys.getDistributionManager();
+    var dm = sys.getDistributionManager();
     return dm.isRolePresent(this);
   }
 
   @Override
   public int getCount() {
-    InternalDistributedSystem sys = InternalDistributedSystem.getAnyInstance();
+    var sys = InternalDistributedSystem.getAnyInstance();
     if (sys == null) {
       throw new IllegalStateException(
           "getCount requires a connection to the distributed system.");
     }
-    DistributionManager dm = sys.getDistributionManager();
+    var dm = sys.getDistributionManager();
     return dm.getRoleCount(this);
   }
 

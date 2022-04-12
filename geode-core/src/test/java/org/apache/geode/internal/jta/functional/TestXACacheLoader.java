@@ -14,11 +14,7 @@
  */
 package org.apache.geode.internal.jta.functional;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 
-import javax.naming.Context;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
 
@@ -51,11 +47,11 @@ public class TestXACacheLoader implements CacheLoader {
   private Object loadFromDatabase(Object ob) {
     Object obj = null;
     try {
-      Context ctx = CacheFactory.getAnyInstance().getJNDIContext();
-      DataSource ds = (DataSource) ctx.lookup("java:/XAPooledDataSource");
-      Connection conn = ds.getConnection();
-      Statement stm = conn.createStatement();
-      ResultSet rs = stm.executeQuery("select name from " + tableName + " where id = ("
+      var ctx = CacheFactory.getAnyInstance().getJNDIContext();
+      var ds = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var conn = ds.getConnection();
+      var stm = conn.createStatement();
+      var rs = stm.executeQuery("select name from " + tableName + " where id = ("
           + new Integer(ob.toString()) + ")");
       rs.next();
       obj = rs.getString(1);
@@ -80,12 +76,12 @@ public class TestXACacheLoader implements CacheLoader {
     cache = CacheUtils.getCache();
     currRegion = cache.getRegion("root");
     try {
-      Context ctx = cache.getJNDIContext();
-      UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+      var ctx = cache.getJNDIContext();
+      var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
       utx.begin();
-      AttributesFactory fac = new AttributesFactory(currRegion.getAttributes());
+      var fac = new AttributesFactory(currRegion.getAttributes());
       fac.setCacheLoader(new TestXACacheLoader());
-      Region re = currRegion.createSubregion("employee", fac.create());
+      var re = currRegion.createSubregion("employee", fac.create());
       System.out.println(re.get(args[0]));
       utx.rollback();
       System.out.println(re.get(args[0]));

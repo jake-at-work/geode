@@ -35,18 +35,18 @@ public class TimeUtils {
    */
   public static String convertTimeMillisecondsToHMS(long longMilliSecs) {
 
-    long days = longMilliSecs / (1000 * 60 * 60 * 24);
-    long remainder = longMilliSecs % (1000 * 60 * 60 * 24);
+    var days = longMilliSecs / (1000 * 60 * 60 * 24);
+    var remainder = longMilliSecs % (1000 * 60 * 60 * 24);
 
-    long hours = remainder / (1000 * 60 * 60);
+    var hours = remainder / (1000 * 60 * 60);
     remainder = remainder % (1000 * 60 * 60);
 
-    long mins = remainder / (1000 * 60);
+    var mins = remainder / (1000 * 60);
     remainder = remainder % (1000 * 60);
 
-    long secs = remainder / 1000;
+    var secs = remainder / 1000;
 
-    String strDaysHrsMinsSecs = "";
+    var strDaysHrsMinsSecs = "";
 
     if (days > 0) {
       strDaysHrsMinsSecs += days + " Days ";
@@ -77,18 +77,18 @@ public class TimeUtils {
    */
   public static String convertTimeSecondsToHMS(long longSecs) {
 
-    long days = longSecs / (60 * 60 * 24);
-    long remainder = longSecs % (60 * 60 * 24);
+    var days = longSecs / (60 * 60 * 24);
+    var remainder = longSecs % (60 * 60 * 24);
 
-    long hours = remainder / (60 * 60);
+    var hours = remainder / (60 * 60);
     remainder = remainder % (60 * 60);
 
-    long mins = remainder / (60);
+    var mins = remainder / (60);
     remainder = remainder % (60);
 
-    long secs = remainder;
+    var secs = remainder;
 
-    String strDaysHrsMinsSecs = "";
+    var strDaysHrsMinsSecs = "";
 
     if (days > 0) {
       strDaysHrsMinsSecs += days + " Days ";

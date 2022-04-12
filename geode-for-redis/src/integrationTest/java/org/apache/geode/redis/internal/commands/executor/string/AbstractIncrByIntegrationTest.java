@@ -63,7 +63,7 @@ public abstract class AbstractIncrByIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testIncrBy_failsWhenPerformedOnNonIntegerValue() {
-    String key = "key";
+    var key = "key";
     jedis1.sadd(key, "member");
     assertThatThrownBy(() -> jedis1.incrBy(key, 1)).hasMessage(ERROR_WRONG_TYPE);
   }
@@ -76,9 +76,9 @@ public abstract class AbstractIncrByIntegrationTest implements RedisIntegrationT
 
   @Test
   public void incrBy_incrementsPositiveIntegerValue() {
-    String key = "key";
-    int num = 100;
-    int increment = rand.nextInt(100);
+    var key = "key";
+    var num = 100;
+    var increment = rand.nextInt(100);
 
     jedis1.set(key, String.valueOf(num));
     jedis1.incrBy(key, increment);
@@ -87,9 +87,9 @@ public abstract class AbstractIncrByIntegrationTest implements RedisIntegrationT
 
   @Test
   public void incrBy_incrementsNegativeValue() {
-    String key = "key";
-    int num = -100;
-    int increment = rand.nextInt(100);
+    var key = "key";
+    var num = -100;
+    var increment = rand.nextInt(100);
 
     jedis1.set(key, "" + num);
     jedis1.incrBy(key, increment);
@@ -98,7 +98,7 @@ public abstract class AbstractIncrByIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testIncrBy_IncrementingMaxValueThrowsError() {
-    String key = "key";
+    var key = "key";
     Long increment = Long.MAX_VALUE / 2;
 
     jedis1.set(key, String.valueOf(Long.MAX_VALUE));
@@ -107,19 +107,19 @@ public abstract class AbstractIncrByIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testConcurrentIncrBy_performsAllIncrBys() {
-    String key = "key";
-    AtomicInteger expectedValue = new AtomicInteger(0);
+    var key = "key";
+    var expectedValue = new AtomicInteger(0);
 
     jedis1.set(key, "0");
 
     new ConcurrentLoopingThreads(1000,
         (i) -> {
-          int increment = ThreadLocalRandom.current().nextInt(-50, 50);
+          var increment = ThreadLocalRandom.current().nextInt(-50, 50);
           expectedValue.addAndGet(increment);
           jedis1.incrBy(key, increment);
         },
         (i) -> {
-          int increment = ThreadLocalRandom.current().nextInt(-50, 50);
+          var increment = ThreadLocalRandom.current().nextInt(-50, 50);
           expectedValue.addAndGet(increment);
           jedis1.incrBy(key, increment);
         }).run();

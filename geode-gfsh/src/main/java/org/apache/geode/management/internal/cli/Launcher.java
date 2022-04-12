@@ -29,7 +29,6 @@ import org.springframework.shell.core.ExitShellRequest;
 
 import org.apache.geode.internal.ExitCode;
 import org.apache.geode.internal.util.ArgumentRedactor;
-import org.apache.geode.internal.version.DistributionVersion;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.cli.shell.GfshConfig;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -121,15 +120,15 @@ public class Launcher {
   public static void main(final String[] args) {
     // first check whether required dependencies exist in the classpath
     // should we start without tomcat/servlet jars?
-    String nonExistingDependency = CliUtils.cliDependenciesExist(true);
+    var nonExistingDependency = CliUtils.cliDependenciesExist(true);
     if (nonExistingDependency != null) {
       System.err.println("Required (" + nonExistingDependency
           + ") libraries not found in the classpath. gfsh can't start.");
       return;
     }
 
-    Launcher launcher = new Launcher();
-    int exitValue = launcher.parseCommandLine(args);
+    var launcher = new Launcher();
+    var exitValue = launcher.parseCommandLine(args);
     ExitCode.fromValue(exitValue).doSystemExit();
   }
 
@@ -142,10 +141,10 @@ public class Launcher {
       System.err.println("ERROR : " + isex.getMessage());
     }
 
-    ExitShellRequest exitRequest = ExitShellRequest.NORMAL_EXIT;
+    var exitRequest = ExitShellRequest.NORMAL_EXIT;
 
     if (gfsh != null) {
-      final String commandLineCommand = combineStrings(args);
+      final var commandLineCommand = combineStrings(args);
 
       if (commandLineCommand.startsWith(HELP)) {
         if (commandLineCommand.equals(HELP)) {
@@ -156,8 +155,8 @@ public class Launcher {
           gfsh.executeCommand(commandLineCommand);
         }
       } else {
-        boolean commandIsAllowed = false;
-        for (String allowedCommandLineCommand : allowedCommandLineCommands) {
+        var commandIsAllowed = false;
+        for (var allowedCommandLineCommand : allowedCommandLineCommands) {
           if (commandLineCommand.startsWith(allowedCommandLineCommand)) {
             commandIsAllowed = true;
             break;
@@ -192,8 +191,8 @@ public class Launcher {
           CliStrings.format(MSG_INVALID_COMMAND_OR_OPTION, StringUtils.join(args, SEPARATOR)));
       return ExitShellRequest.FATAL_EXIT.getExitCode();
     }
-    boolean launchShell = true;
-    boolean onlyPrintUsage = parsedOptions.has(HELP_OPTION);
+    var launchShell = true;
+    var onlyPrintUsage = parsedOptions.has(HELP_OPTION);
     if (parsedOptions.has(EXECUTE_OPTION) || onlyPrintUsage) {
       launchShell = false;
     }
@@ -206,7 +205,7 @@ public class Launcher {
       System.err.println("ERROR : " + isex.getMessage());
     }
 
-    ExitShellRequest exitRequest = ExitShellRequest.NORMAL_EXIT;
+    var exitRequest = ExitShellRequest.NORMAL_EXIT;
 
     if (gfsh != null) {
       try {
@@ -218,12 +217,12 @@ public class Launcher {
           printUsage(gfsh, System.out);
         } else {
           @SuppressWarnings("unchecked")
-          List<String> commandsToExecute = (List<String>) parsedOptions.valuesOf(EXECUTE_OPTION);
+          var commandsToExecute = (List<String>) parsedOptions.valuesOf(EXECUTE_OPTION);
 
           // Execute all of the commands in the list, one at a time.
-          for (int i = 0; i < commandsToExecute.size()
+          for (var i = 0; i < commandsToExecute.size()
               && exitRequest == ExitShellRequest.NORMAL_EXIT; i++) {
-            String command = commandsToExecute.get(i);
+            var command = commandsToExecute.get(i);
             // sanitize the output string to not show the password
             System.out.println(GfshParser.LINE_SEPARATOR + "(" + (i + 1) + ") Executing - "
                 + ArgumentRedactor.redact(command) + GfshParser.LINE_SEPARATOR);
@@ -255,8 +254,8 @@ public class Launcher {
   }
 
   private String combineStrings(String... strings) {
-    StringBuilder stringBuilder = new StringBuilder();
-    for (String string : strings) {
+    var stringBuilder = new StringBuilder();
+    for (var string : strings) {
       stringBuilder.append(string).append(" ");
     }
 
@@ -264,8 +263,8 @@ public class Launcher {
   }
 
   private void printUsage(final Gfsh gfsh, final PrintStream stream) {
-    int terminalWidth = gfsh.getTerminalWidth();
-    final DistributionVersion distributionVersion = getDistributionVersion();
+    var terminalWidth = gfsh.getTerminalWidth();
+    final var distributionVersion = getDistributionVersion();
     stream.print(distributionVersion.getName() + " v");
     stream.print(distributionVersion.getVersion());
     stream.println(" Command Line Shell" + GfshParser.LINE_SEPARATOR);

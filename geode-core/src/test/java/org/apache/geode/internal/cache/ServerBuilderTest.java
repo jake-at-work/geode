@@ -59,31 +59,31 @@ public class ServerBuilderTest {
 
   @Test
   public void sendResourceEventsIsTrueByDefault() {
-    ServerBuilder builder = new ServerBuilder(cache, securityService, statisticsClock);
+    var builder = new ServerBuilder(cache, securityService, statisticsClock);
 
     assertThat(builder.isSendResourceEvents()).isTrue();
   }
 
   @Test
   public void includeMemberGroupsIsTrueByDefault() {
-    ServerBuilder builder = new ServerBuilder(cache, securityService, statisticsClock);
+    var builder = new ServerBuilder(cache, securityService, statisticsClock);
 
     assertThat(builder.isIncludeMemberGroups()).isTrue();
   }
 
   @Test
   public void socketCreatorIsForServerByDefault() {
-    ServerBuilder builder = new ServerBuilder(cache, securityService, statisticsClock);
+    var builder = new ServerBuilder(cache, securityService, statisticsClock);
 
     assertThat(builder.getSocketCreatorSupplier()).isSameAs(SERVER.getSupplier());
   }
 
   @Test
   public void forGatewayReceiverUnsetsSendResourceEvents() {
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var gatewayReceiver = mock(GatewayReceiver.class);
     when(gatewayReceiver.getGatewayTransportFilters())
         .thenReturn(singletonList(mock(GatewayTransportFilter.class)));
-    ServerBuilder builder = new ServerBuilder(cache, securityService, statisticsClock);
+    var builder = new ServerBuilder(cache, securityService, statisticsClock);
 
     builder.forGatewayReceiver(gatewayReceiver);
 
@@ -92,10 +92,10 @@ public class ServerBuilderTest {
 
   @Test
   public void forGatewayReceiverUnsetsIncludeMemberGroups() {
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var gatewayReceiver = mock(GatewayReceiver.class);
     when(gatewayReceiver.getGatewayTransportFilters())
         .thenReturn(singletonList(mock(GatewayTransportFilter.class)));
-    ServerBuilder builder = new ServerBuilder(cache, securityService, statisticsClock);
+    var builder = new ServerBuilder(cache, securityService, statisticsClock);
 
     builder.forGatewayReceiver(gatewayReceiver);
 
@@ -104,10 +104,10 @@ public class ServerBuilderTest {
 
   @Test
   public void forGatewayReceiverSetsSocketCreatorForGateway() {
-    GatewayReceiver gatewayReceiver = mock(GatewayReceiver.class);
+    var gatewayReceiver = mock(GatewayReceiver.class);
     when(gatewayReceiver.getGatewayTransportFilters())
         .thenReturn(singletonList(mock(GatewayTransportFilter.class)));
-    ServerBuilder builder = new ServerBuilder(cache, securityService, statisticsClock);
+    var builder = new ServerBuilder(cache, securityService, statisticsClock);
 
     builder.forGatewayReceiver(gatewayReceiver);
 
@@ -116,9 +116,9 @@ public class ServerBuilderTest {
 
   @Test
   public void setCacheClientNotifierProviderReplacesCacheClientNotifierProvider() {
-    CacheClientNotifierProvider cacheClientNotifierProvider =
+    var cacheClientNotifierProvider =
         mock(CacheClientNotifierProvider.class);
-    ServerBuilder builder = new ServerBuilder(cache, securityService, statisticsClock);
+    var builder = new ServerBuilder(cache, securityService, statisticsClock);
 
     builder.setCacheClientNotifierProvider(cacheClientNotifierProvider);
 
@@ -127,9 +127,9 @@ public class ServerBuilderTest {
 
   @Test
   public void setClientHealthMonitorProviderReplacesClientHealthMonitorProvider() {
-    ClientHealthMonitorProvider clientHealthMonitorProvider =
+    var clientHealthMonitorProvider =
         mock(ClientHealthMonitorProvider.class);
-    ServerBuilder builder = new ServerBuilder(cache, securityService, statisticsClock);
+    var builder = new ServerBuilder(cache, securityService, statisticsClock);
 
     builder.setClientHealthMonitorProvider(clientHealthMonitorProvider);
 
@@ -138,9 +138,9 @@ public class ServerBuilderTest {
 
   @Test
   public void setCacheServerAdvisorProviderReplacesCacheServerAdvisorProvider() {
-    Function<DistributionAdvisee, CacheServerAdvisor> cacheServerAdvisorProvider =
-        a -> mock(CacheServerAdvisor.class);
-    ServerBuilder builder = new ServerBuilder(cache, securityService, statisticsClock);
+    var cacheServerAdvisorProvider =
+        (Function<DistributionAdvisee, CacheServerAdvisor>) a -> mock(CacheServerAdvisor.class);
+    var builder = new ServerBuilder(cache, securityService, statisticsClock);
 
     builder.setCacheServerAdvisorProvider(cacheServerAdvisorProvider);
 

@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.search.Query;
@@ -35,16 +34,12 @@ import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.lucene.LuceneIndexNotFoundException;
 import org.apache.geode.cache.lucene.LuceneQueryException;
 import org.apache.geode.cache.lucene.LuceneQueryProvider;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.internal.InternalLuceneIndex;
 import org.apache.geode.cache.lucene.internal.LuceneIndexCreationInProgressException;
-import org.apache.geode.cache.lucene.internal.LuceneIndexStats;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.internal.repository.IndexRepository;
 import org.apache.geode.cache.lucene.internal.repository.IndexResultCollector;
-import org.apache.geode.cache.lucene.internal.repository.RepositoryManager;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.BucketNotFoundException;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PrimaryBucketException;
@@ -70,9 +65,9 @@ public class LuceneQueryFunction implements InternalFunction<LuceneFunctionConte
   @Override
   public void execute(FunctionContext<LuceneFunctionContext> context) {
     if (context.getResultSender() instanceof PartitionedRegionFunctionResultSender) {
-      PartitionedRegionFunctionResultSender resultSender =
+      var resultSender =
           (PartitionedRegionFunctionResultSender) context.getResultSender();
-      KnownVersion clientVersion = resultSender.getClientVersion();
+      var clientVersion = resultSender.getClientVersion();
       if (LuceneServiceImpl.LUCENE_REINDEX == false
           || (clientVersion != null && clientVersion
               .ordinal() < LuceneServiceImpl.LUCENE_REINDEX_ENABLED_VERSION_ORDINAL)) {
@@ -86,15 +81,15 @@ public class LuceneQueryFunction implements InternalFunction<LuceneFunctionConte
 
   private void handleIfRetryNeededOnException(LuceneIndexCreationInProgressException ex,
       RegionFunctionContext ctx) {
-    PartitionedRegion userDataRegion = (PartitionedRegion) ctx.getDataSet();
+    var userDataRegion = (PartitionedRegion) ctx.getDataSet();
 
     // get the remote members
-    Set<InternalDistributedMember> remoteMembers =
+    var remoteMembers =
         userDataRegion.getRegionAdvisor().adviseAllPRNodes();
     // Old members with version numbers 1.6 or lower cannot handle IndexCreationInProgressException
     // Hence the query waits for the repositories to be ready instead of throwing the exception
     if (!remoteMembers.isEmpty()) {
-      for (InternalDistributedMember remoteMember : remoteMembers) {
+      for (var remoteMember : remoteMembers) {
         if (remoteMember.getVersion().ordinal() < KnownVersion.GEODE_1_6_0.ordinal()) {
           // re-execute but wait till indexing is complete
           execute(ctx, true);
@@ -109,7 +104,7 @@ public class LuceneQueryFunction implements InternalFunction<LuceneFunctionConte
   }
 
   public void execute(FunctionContext<LuceneFunctionContext> context, boolean waitForRepository) {
-    RegionFunctionContext ctx = (RegionFunctionContext) context;
+    var ctx = (RegionFunctionContext) context;
     ResultSender<TopEntriesCollector> resultSender = ctx.getResultSender();
 
     Region region = ctx.getDataSet();
@@ -120,25 +115,25 @@ public class LuceneQueryFunction implements InternalFunction<LuceneFunctionConte
       throw new IllegalArgumentException("Missing search context");
     }
 
-    LuceneQueryProvider queryProvider = searchContext.getQueryProvider();
+    var queryProvider = searchContext.getQueryProvider();
     if (queryProvider == null) {
       throw new IllegalArgumentException("Missing query provider");
     }
 
-    InternalLuceneIndex index = getLuceneIndex(context.getCache(), region, searchContext);
+    var index = getLuceneIndex(context.getCache(), region, searchContext);
     if (index == null) {
       throw new LuceneIndexNotFoundException(searchContext.getIndexName(), region.getFullPath());
     }
-    RepositoryManager repoManager = index.getRepositoryManager();
-    LuceneIndexStats stats = index.getIndexStats();
+    var repoManager = index.getRepositoryManager();
+    var stats = index.getIndexStats();
 
-    Query query = getQuery(queryProvider, index);
+    var query = getQuery(queryProvider, index);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Executing lucene query: {}, on region {}", query, region.getFullPath());
     }
 
-    int resultLimit = searchContext.getLimit();
+    var resultLimit = searchContext.getLimit();
     CollectorManager manager = searchContext.getCollectorManager();
     if (manager == null) {
       manager = new TopEntriesCollectorManager(null, resultLimit);
@@ -147,14 +142,14 @@ public class LuceneQueryFunction implements InternalFunction<LuceneFunctionConte
     Collection<IndexResultCollector> results = new ArrayList<>();
     TopEntriesCollector mergedResult = null;
     try {
-      long start = stats.startQuery();
+      var start = stats.startQuery();
       Collection<IndexRepository> repositories = null;
 
       try {
         repositories = repoManager.getRepositories(ctx, waitForRepository);
 
-        for (IndexRepository repo : repositories) {
-          IndexResultCollector collector = manager.newCollector(repo.toString());
+        for (var repo : repositories) {
+          var collector = manager.newCollector(repo.toString());
           if (logger.isDebugEnabled()) {
             logger.debug("Executing search on repo: " + repo);
           }
@@ -184,7 +179,7 @@ public class LuceneQueryFunction implements InternalFunction<LuceneFunctionConte
 
   private InternalLuceneIndex getLuceneIndex(final Cache cache, final Region region,
       final LuceneFunctionContext<IndexResultCollector> searchContext) {
-    LuceneService service = LuceneServiceProvider.get(cache);
+    var service = LuceneServiceProvider.get(cache);
     InternalLuceneIndex index = null;
     try {
       index = (InternalLuceneIndex) service.getIndex(searchContext.getIndexName(),

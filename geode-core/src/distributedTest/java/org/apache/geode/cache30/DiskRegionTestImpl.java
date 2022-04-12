@@ -28,9 +28,7 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.Scope;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 
 /**
  * An instance of this class is delegated to by test classes that test disk regions.
@@ -63,9 +61,9 @@ public class DiskRegionTestImpl implements Serializable {
    * Tests that you can create a disk region
    */
   public void testCreateDiskRegion() throws CacheException {
-    final String name = rtc.getUniqueName();
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    final var name = rtc.getUniqueName();
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
     vm0.invoke(createRgnRunnable(name));
   }
@@ -85,15 +83,15 @@ public class DiskRegionTestImpl implements Serializable {
     RegionAttributes attrs = rtc.getRegionAttributes();
     assertTrue("This test not appropriate for non-backup regions", attrs.getPersistBackup());
 
-    final String name = rtc.getUniqueName();
-    final String key1 = "KEY1";
-    final String key2 = "KEY2";
-    final String value1 = "VALUE1";
-    final String value2 = "VALUE2";
+    final var name = rtc.getUniqueName();
+    final var key1 = "KEY1";
+    final var key2 = "KEY2";
+    final var value1 = "VALUE1";
+    final var value2 = "VALUE2";
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     // VM vm2 = host.getVM(2);
 
     vm0.invoke(new CacheSerializableRunnable("Create backup Region in VM0") {
@@ -115,18 +113,18 @@ public class DiskRegionTestImpl implements Serializable {
     vm1.invoke(new CacheSerializableRunnable("Create & Populate non-mirrored in VM1") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         // set scope to be same as test region
-        Scope scope = rtc.getRegionAttributes().getScope();
+        var scope = rtc.getRegionAttributes().getScope();
         factory.setScope(scope);
-        DataPolicy dataPolicy = rtc.getRegionAttributes().getDataPolicy();
+        var dataPolicy = rtc.getRegionAttributes().getDataPolicy();
         factory.setDataPolicy(dataPolicy);
-        RegionAttributes attrs2 = factory.create();
-        Region rgn = rtc.createRegion(name, attrs2);
+        var attrs2 = factory.create();
+        var rgn = rtc.createRegion(name, attrs2);
 
         // Fill the region with some keys.
-        for (int i = 0; i < NUM_ENTRIES; i++) {
-          byte[] value = new byte[VALUE_SIZE];
+        for (var i = 0; i < NUM_ENTRIES; i++) {
+          var value = new byte[VALUE_SIZE];
           Arrays.fill(value, (byte) 0xAB);
           rgn.put(i, value);
         }
@@ -142,21 +140,21 @@ public class DiskRegionTestImpl implements Serializable {
       }
     });
 
-    String runnableName =
+    var runnableName =
         "Re-create backup region in VM0 with mirror " + "KEYS_VALUES and Do Verification";
     vm0.invoke(new CacheSerializableRunnable(runnableName) {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory =
+        var factory =
             new AttributesFactory(rtc.getRegionAttributes());
         factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-        RegionAttributes attrs2 = factory.create();
-        Region rgn = rtc.createRegion(name, attrs2);
+        var attrs2 = factory.create();
+        var rgn = rtc.createRegion(name, attrs2);
 
         // verify
         assertEquals(NUM_ENTRIES + 2, rgn.keySet().size());
 
-        boolean RECOVER_VALUES = true;
+        var RECOVER_VALUES = true;
 
         if (RECOVER_VALUES) {
           assertEquals(value1, rgn.getEntry(key1).getValue());
@@ -169,10 +167,10 @@ public class DiskRegionTestImpl implements Serializable {
         assertEquals(value2, valueOnDisk(rgn, key2));
 
         // The following also verifies TEMP values were overwritten
-        for (int i = 0; i < NUM_ENTRIES; i++) {
-          Region.Entry entry = rgn.getEntry(i);
+        for (var i = 0; i < NUM_ENTRIES; i++) {
+          var entry = rgn.getEntry(i);
           assertNotNull("No entry for key " + i, entry);
-          byte[] v = (byte[]) entry.getValue();
+          var v = (byte[]) entry.getValue();
           assertNotNull("Null value for key " + i, v);
           assertEquals(VALUE_SIZE, v.length);
           // test a byte
@@ -197,10 +195,10 @@ public class DiskRegionTestImpl implements Serializable {
         assertEquals(value2, valueOnDisk(rgn, key2));
 
         // The following also verifies TEMP values were overwritten
-        for (int i = 0; i < NUM_ENTRIES; i++) {
-          Region.Entry entry = rgn.getEntry(i);
+        for (var i = 0; i < NUM_ENTRIES; i++) {
+          var entry = rgn.getEntry(i);
           assertNotNull("No entry for key " + i, entry);
-          byte[] v = (byte[]) entry.getValue();
+          var v = (byte[]) entry.getValue();
           assertNotNull("Null value for key " + i, v);
           assertEquals(VALUE_SIZE, v.length);
           // test a byte
@@ -212,13 +210,13 @@ public class DiskRegionTestImpl implements Serializable {
 
 
       private Object valueInVM(Region rgn, Object key) throws EntryNotFoundException {
-        org.apache.geode.internal.cache.LocalRegion lrgn =
+        var lrgn =
             (org.apache.geode.internal.cache.LocalRegion) rgn;
         return lrgn.getValueInVM(key);
       }
 
       private Object valueOnDisk(Region rgn, Object key) throws EntryNotFoundException {
-        org.apache.geode.internal.cache.LocalRegion lrgn =
+        var lrgn =
             (org.apache.geode.internal.cache.LocalRegion) rgn;
         return lrgn.getValueOnDisk(key);
       }

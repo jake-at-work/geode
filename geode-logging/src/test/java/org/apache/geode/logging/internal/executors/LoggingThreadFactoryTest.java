@@ -22,8 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -37,69 +35,69 @@ public class LoggingThreadFactoryTest {
 
   @Test
   public void verifyFirstThreadName() {
-    LoggingThreadFactory factory = new LoggingThreadFactory("baseName");
+    var factory = new LoggingThreadFactory("baseName");
 
-    Thread thread = factory.newThread(null);
+    var thread = factory.newThread(null);
 
     assertThat(thread.getName()).isEqualTo("baseName" + 1);
   }
 
   @Test
   public void verifySecondThreadName() {
-    LoggingThreadFactory factory = new LoggingThreadFactory("baseName");
+    var factory = new LoggingThreadFactory("baseName");
     factory.newThread(null);
 
-    Thread thread = factory.newThread(null);
+    var thread = factory.newThread(null);
 
     assertThat(thread.getName()).isEqualTo("baseName" + 2);
   }
 
   @Test
   public void verifyThreadsAreDaemons() {
-    LoggingThreadFactory factory = new LoggingThreadFactory("baseName");
+    var factory = new LoggingThreadFactory("baseName");
 
-    Thread thread = factory.newThread(null);
+    var thread = factory.newThread(null);
 
     assertThat(thread.isDaemon()).isTrue();
   }
 
   @Test
   public void verifyThreadHaveExpectedHandler() {
-    UncaughtExceptionHandler handler = LoggingUncaughtExceptionHandler.getInstance();
-    LoggingThreadFactory factory = new LoggingThreadFactory("baseName");
+    var handler = LoggingUncaughtExceptionHandler.getInstance();
+    var factory = new LoggingThreadFactory("baseName");
 
-    Thread thread = factory.newThread(null);
+    var thread = factory.newThread(null);
 
     assertThat(thread.getUncaughtExceptionHandler()).isSameAs(handler);
   }
 
   @Test
   public void verifyThreadInitializerCalledCorrectly() {
-    ThreadInitializer threadInitializer = mock(ThreadInitializer.class);
-    LoggingThreadFactory factory = new LoggingThreadFactory("baseName", threadInitializer, null);
+    var threadInitializer = mock(ThreadInitializer.class);
+    var factory = new LoggingThreadFactory("baseName", threadInitializer, null);
 
-    Thread thread = factory.newThread(null);
+    var thread = factory.newThread(null);
 
     verify(threadInitializer).initialize(thread);
   }
 
   @Test
   public void verifyCommandWrapperNotCalledIfThreadIsNotStarted() {
-    CommandWrapper commandWrapper = mock(CommandWrapper.class);
-    LoggingThreadFactory factory = new LoggingThreadFactory("baseName", commandWrapper);
+    var commandWrapper = mock(CommandWrapper.class);
+    var factory = new LoggingThreadFactory("baseName", commandWrapper);
 
-    Thread thread = factory.newThread(null);
+    var thread = factory.newThread(null);
 
     verify(commandWrapper, never()).invoke(any());
   }
 
   @Test
   public void verifyCommandWrapperCalledIfThreadStarted() throws InterruptedException {
-    CommandWrapper commandWrapper = mock(CommandWrapper.class);
-    Runnable command = mock(Runnable.class);
-    LoggingThreadFactory factory = new LoggingThreadFactory("baseName", commandWrapper);
+    var commandWrapper = mock(CommandWrapper.class);
+    var command = mock(Runnable.class);
+    var factory = new LoggingThreadFactory("baseName", commandWrapper);
 
-    Thread thread = factory.newThread(command);
+    var thread = factory.newThread(command);
     thread.start();
     thread.join();
 
@@ -108,10 +106,10 @@ public class LoggingThreadFactoryTest {
 
   @Test
   public void verifyCommandCalledIfThreadStarted() throws InterruptedException {
-    Runnable command = mock(Runnable.class);
-    LoggingThreadFactory factory = new LoggingThreadFactory("baseName");
+    var command = mock(Runnable.class);
+    var factory = new LoggingThreadFactory("baseName");
 
-    Thread thread = factory.newThread(command);
+    var thread = factory.newThread(command);
     thread.start();
     thread.join();
 

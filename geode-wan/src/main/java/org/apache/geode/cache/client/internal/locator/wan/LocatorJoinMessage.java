@@ -93,7 +93,7 @@ public class LocatorJoinMessage extends ServerLocationRequest {
     if (!(obj instanceof LocatorJoinMessage)) {
       return false;
     }
-    LocatorJoinMessage myObject = (LocatorJoinMessage) obj;
+    var myObject = (LocatorJoinMessage) obj;
     return (distributedSystemId == myObject.getDistributedSystemId())
         && locator.equals(myObject.getLocator());
   }

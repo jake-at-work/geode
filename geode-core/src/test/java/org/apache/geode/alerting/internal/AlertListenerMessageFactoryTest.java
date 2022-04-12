@@ -32,7 +32,6 @@ import org.mockito.quality.Strictness;
 import org.apache.geode.alerting.internal.spi.AlertLevel;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.admin.remote.AlertListenerMessage;
 import org.apache.geode.test.junit.categories.AlertingTest;
 
 /**
@@ -55,7 +54,7 @@ public class AlertListenerMessageFactoryTest {
 
   @Test
   public void createAlertListenerMessage() {
-    AlertListenerMessage message = alertListenerMessageFactory.createAlertListenerMessage(member,
+    var message = alertListenerMessageFactory.createAlertListenerMessage(member,
         AlertLevel.WARNING, Instant.now(), "connectionName", "threadName",
         Thread.currentThread().getId(), "formattedMessage", null);
 
@@ -68,7 +67,7 @@ public class AlertListenerMessageFactoryTest {
   public void createAlertListenerMessage_requiresInternalDistributedMember() {
     member = mock(DistributedMember.class);
 
-    Throwable thrown = catchThrowable(
+    var thrown = catchThrowable(
         () -> alertListenerMessageFactory.createAlertListenerMessage(member, AlertLevel.WARNING,
             Instant.now(), "connectionName", "threadName", Thread.currentThread().getId(),
             "formattedMessage", null));

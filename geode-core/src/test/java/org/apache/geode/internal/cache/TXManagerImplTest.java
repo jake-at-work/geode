@@ -37,7 +37,6 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -92,7 +91,7 @@ public class TXManagerImplTest {
     when(msg.canParticipateInTransaction()).thenReturn(true);
 
     spyCache = spy(Fakes.cache());
-    InternalDistributedSystem distributedSystem = mock(InternalDistributedSystem.class);
+    var distributedSystem = mock(InternalDistributedSystem.class);
     doReturn(distributedSystem).when(spyCache).getDistributedSystem();
     when(distributedSystem.getDistributionManager()).thenReturn(dm);
     when(distributedSystem.getDistributedMember()).thenReturn(member);
@@ -103,7 +102,7 @@ public class TXManagerImplTest {
 
   @Test
   public void getOrSetHostedTXStateAbleToSetTXStateAndGetLock() {
-    TXStateProxy tx = txMgr.getOrSetHostedTXState(txid, msg);
+    var tx = txMgr.getOrSetHostedTXState(txid, msg);
 
     assertNotNull(tx);
     assertEquals(tx, txMgr.getHostedTXState(txid));
@@ -113,9 +112,9 @@ public class TXManagerImplTest {
   @Test
   public void testBeginJTAOverflowUniqIdToZero() {
     TXManagerImpl.INITIAL_UNIQUE_ID_VALUE = Integer.MAX_VALUE;
-    TXManagerImpl txManager = new TXManagerImpl(mock(CachePerfStats.class), cache, disabledClock());
+    var txManager = new TXManagerImpl(mock(CachePerfStats.class), cache, disabledClock());
     txManager.setDistributed(false);
-    TXStateProxy proxy = txManager.beginJTA();
+    var proxy = txManager.beginJTA();
     assertEquals(1, proxy.getTxId().getUniqId());
     assertNotNull(txManager);
     TXManagerImpl.INITIAL_UNIQUE_ID_VALUE = 0;
@@ -123,16 +122,16 @@ public class TXManagerImplTest {
 
   @Test
   public void testBeginJTAUniqIdIncrement() {
-    TXManagerImpl txManager = new TXManagerImpl(mock(CachePerfStats.class), cache, disabledClock());
+    var txManager = new TXManagerImpl(mock(CachePerfStats.class), cache, disabledClock());
     txManager.setDistributed(false);
-    TXStateProxy proxy = txManager.beginJTA();
+    var proxy = txManager.beginJTA();
     assertEquals(1, proxy.getTxId().getUniqId());
     assertNotNull(txManager);
   }
 
   @Test
   public void getLockAfterTXStateRemoved() throws InterruptedException {
-    TXStateProxy tx = txMgr.getOrSetHostedTXState(txid, msg);
+    var tx = txMgr.getOrSetHostedTXState(txid, msg);
 
     assertEquals(tx, txMgr.getHostedTXState(txid));
     assertTrue(txMgr.getLock(tx, txid));
@@ -140,15 +139,15 @@ public class TXManagerImplTest {
     assertTrue(txMgr.getLock(tx, txid));
     tx.getLock().unlock();
 
-    TXStateProxy oldtx = txMgr.getOrSetHostedTXState(txid, msg);
+    var oldtx = txMgr.getOrSetHostedTXState(txid, msg);
     assertEquals(tx, oldtx);
 
-    Thread t1 = new Thread(() -> txMgr.removeHostedTXState(txid));
+    var t1 = new Thread(() -> txMgr.removeHostedTXState(txid));
     t1.start();
 
     t1.join();
 
-    TXStateProxy curTx = txMgr.getHostedTXState(txid);
+    var curTx = txMgr.getHostedTXState(txid);
     assertNull(curTx);
 
     // after failover command removed the txid from hostedTXState,
@@ -161,17 +160,17 @@ public class TXManagerImplTest {
 
   @Test
   public void getLockAfterTXStateReplaced() throws InterruptedException {
-    TXStateProxy oldtx = txMgr.getOrSetHostedTXState(txid, msg);
+    var oldtx = txMgr.getOrSetHostedTXState(txid, msg);
 
     assertEquals(oldtx, txMgr.getHostedTXState(txid));
     assertTrue(txMgr.getLock(oldtx, txid));
     assertNotNull(oldtx);
     oldtx.getLock().unlock();
 
-    TXStateProxy tx = txMgr.getOrSetHostedTXState(txid, msg);
+    var tx = txMgr.getOrSetHostedTXState(txid, msg);
     assertEquals(tx, oldtx);
 
-    Thread t1 = new Thread(() -> {
+    var t1 = new Thread(() -> {
       txMgr.removeHostedTXState(txid);
       // replace with new TXState
       txMgr.getOrSetHostedTXState(txid, msg);
@@ -180,7 +179,7 @@ public class TXManagerImplTest {
 
     t1.join();
 
-    TXStateProxy curTx = txMgr.getHostedTXState(txid);
+    var curTx = txMgr.getHostedTXState(txid);
     assertNotNull(curTx);
     // replaced
     assertNotEquals(tx, curTx);
@@ -192,17 +191,17 @@ public class TXManagerImplTest {
 
   @Test
   public void getLockAfterTXStateCommitted() throws InterruptedException {
-    TXStateProxy oldtx = txMgr.getOrSetHostedTXState(txid, msg);
+    var oldtx = txMgr.getOrSetHostedTXState(txid, msg);
 
     assertEquals(oldtx, txMgr.getHostedTXState(txid));
     assertTrue(txMgr.getLock(oldtx, txid));
     assertNotNull(oldtx);
     oldtx.getLock().unlock();
 
-    TXStateProxy tx = txMgr.getOrSetHostedTXState(txid, msg);
+    var tx = txMgr.getOrSetHostedTXState(txid, msg);
     assertEquals(tx, oldtx);
 
-    Thread t1 = new Thread(() -> {
+    var t1 = new Thread(() -> {
       when(msg.getTXOriginatorClient()).thenReturn(mock(InternalDistributedMember.class));
       TXStateProxy tx3;
       try {
@@ -224,7 +223,7 @@ public class TXManagerImplTest {
 
     t1.join();
 
-    TXStateProxy curTx = txMgr.getHostedTXState(txid);
+    var curTx = txMgr.getHostedTXState(txid);
     assertNull(curTx);
 
     assertFalse(tx.isInProgress());
@@ -245,7 +244,7 @@ public class TXManagerImplTest {
   public void masqueradeAsCanGetLockAfterTXStateIsReplaced() throws InterruptedException {
     TXStateProxy tx;
 
-    Thread t1 = new Thread(() -> {
+    var t1 = new Thread(() -> {
       tx1 = txMgr.getHostedTXState(txid);
       assertNull(tx1);
       tx1 = txMgr.getOrSetHostedTXState(txid, msg);
@@ -281,7 +280,7 @@ public class TXManagerImplTest {
 
   @Test
   public void testTxStateWithNotFinishedTx() {
-    TXStateProxy tx = txMgr.getOrSetHostedTXState(notCompletedTxid, msg);
+    var tx = txMgr.getOrSetHostedTXState(notCompletedTxid, msg);
     assertTrue(tx.isInProgress());
   }
 
@@ -290,7 +289,7 @@ public class TXManagerImplTest {
     when(msg.getTXOriginatorClient()).thenReturn(mock(InternalDistributedMember.class));
     setupTx();
 
-    TXStateProxy tx = txMgr.masqueradeAs(commitMsg);
+    var tx = txMgr.masqueradeAs(commitMsg);
     try {
       tx.commit();
     } finally {
@@ -304,7 +303,7 @@ public class TXManagerImplTest {
     when(msg.getTXOriginatorClient()).thenReturn(mock(InternalDistributedMember.class));
     setupTx();
 
-    TXStateProxy tx = txMgr.masqueradeAs(rollbackMsg);
+    var tx = txMgr.masqueradeAs(rollbackMsg);
     try {
       tx.rollback();
     } finally {
@@ -314,7 +313,7 @@ public class TXManagerImplTest {
   }
 
   private void setupTx() throws InterruptedException {
-    TXStateProxy tx = txMgr.masqueradeAs(msg);
+    var tx = txMgr.masqueradeAs(msg);
     tx.setCommitOnBehalfOfRemoteStub(true);
     txMgr.unmasquerade(tx);
   }
@@ -323,7 +322,7 @@ public class TXManagerImplTest {
   public void txRolledbackShouldCompleteTx() throws InterruptedException {
     when(msg.getTXOriginatorClient()).thenReturn(mock(InternalDistributedMember.class));
 
-    Thread t1 = new Thread(() -> {
+    var t1 = new Thread(() -> {
       try {
         tx1 = txMgr.masqueradeAs(msg);
       } catch (InterruptedException e) {
@@ -333,7 +332,7 @@ public class TXManagerImplTest {
 
       msg.process(dm);
 
-      TXStateProxy existingTx = masqueradeToRollback();
+      var existingTx = masqueradeToRollback();
       latch.countDown();
       await()
           .until(() -> tx1.getLock().hasQueuedThreads());
@@ -344,7 +343,7 @@ public class TXManagerImplTest {
 
     assertTrue(latch.await(60, TimeUnit.SECONDS));
 
-    TXStateProxy tx = txMgr.masqueradeAs(rollbackMsg);
+    var tx = txMgr.masqueradeAs(rollbackMsg);
     assertEquals(tx, tx1);
     t1.join();
     rollbackTransaction(tx);
@@ -374,7 +373,7 @@ public class TXManagerImplTest {
   @Test
   public void txStateNotCleanedupIfNotRemovedFromHostedTxStatesMap() {
     tx1 = txMgr.getOrSetHostedTXState(txid, msg);
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) tx1;
+    var txStateProxy = (TXStateProxyImpl) tx1;
     assertNotNull(txStateProxy);
     assertFalse(txStateProxy.getLocalRealDeal().isClosed());
 
@@ -387,7 +386,7 @@ public class TXManagerImplTest {
   @Test
   public void txStateCleanedUpIfRemovedFromHostedTxStatesMapCausedByFailover() {
     tx1 = txMgr.getOrSetHostedTXState(txid, msg);
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) tx1;
+    var txStateProxy = (TXStateProxyImpl) tx1;
     assertNotNull(txStateProxy);
     assertFalse(txStateProxy.getLocalRealDeal().isClosed());
     txStateProxy.setRemovedCausedByFailover(true);
@@ -402,7 +401,7 @@ public class TXManagerImplTest {
   @Test
   public void txStateDoesNotCleanUpIfRemovedFromHostedTxStatesMapNotCausedByFailover() {
     tx1 = txMgr.getOrSetHostedTXState(txid, msg);
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) tx1;
+    var txStateProxy = (TXStateProxyImpl) tx1;
     assertNotNull(txStateProxy);
     assertFalse(txStateProxy.getLocalRealDeal().isClosed());
 
@@ -417,7 +416,7 @@ public class TXManagerImplTest {
   public void clientTransactionWithIdleTimeLongerThanTransactionTimeoutIsRemoved()
       throws Exception {
     when(msg.getTXOriginatorClient()).thenReturn(mock(InternalDistributedMember.class));
-    TXStateProxyImpl tx = spy((TXStateProxyImpl) txMgr.getOrSetHostedTXState(txid, msg));
+    var tx = spy((TXStateProxyImpl) txMgr.getOrSetHostedTXState(txid, msg));
     doReturn(true).when(tx).isOverTransactionTimeoutLimit();
 
     txMgr.scheduleToRemoveExpiredClientTransaction(txid);
@@ -427,7 +426,7 @@ public class TXManagerImplTest {
 
   @Test
   public void clientTransactionsToBeRemovedAndDistributedAreSentToRemoveServerIfWithNoTimeout() {
-    Set<TXId> txIds = (Set<TXId>) mock(Set.class);
+    var txIds = (Set<TXId>) mock(Set.class);
     doReturn(0).when(spyTxMgr).getTransactionTimeToLive();
     when(txIds.iterator()).thenAnswer(
         (Answer<Iterator<TXId>>) invocation -> Arrays.asList(txid, mock(TXId.class)).iterator());
@@ -440,9 +439,9 @@ public class TXManagerImplTest {
   @Test
   public void clientTransactionsToBeExpiredAreRemovedAndNotDistributedIfWithNoTimeout() {
     doReturn(1).when(spyTxMgr).getTransactionTimeToLive();
-    TXId txId1 = mock(TXId.class);
-    TXId txId2 = mock(TXId.class);
-    TXId txId3 = mock(TXId.class);
+    var txId1 = mock(TXId.class);
+    var txId2 = mock(TXId.class);
+    var txId3 = mock(TXId.class);
     tx1 = spyTxMgr.getOrSetHostedTXState(txId1, msg);
     tx2 = spyTxMgr.getOrSetHostedTXState(txId2, msg);
     Set<TXId> txIds = spy(new HashSet<>());
@@ -483,9 +482,9 @@ public class TXManagerImplTest {
   @Test
   public void clientTransactionsToBeExpiredIsScheduledToBeRemoved() {
     doReturn(1).when(spyTxMgr).getTransactionTimeToLive();
-    TXId txId1 = mock(TXId.class);
-    TXId txId2 = mock(TXId.class);
-    TXId txId3 = mock(TXId.class);
+    var txId1 = mock(TXId.class);
+    var txId2 = mock(TXId.class);
+    var txId3 = mock(TXId.class);
     tx1 = spyTxMgr.getOrSetHostedTXState(txId1, msg);
     tx2 = spyTxMgr.getOrSetHostedTXState(txId2, msg);
     Set<TXId> set = new HashSet<>();
@@ -516,7 +515,7 @@ public class TXManagerImplTest {
   @Test
   public void unmasqueradeReleasesTheLockHeld() {
     tx1 = mock(TXStateProxyImpl.class);
-    ReentrantLock lock = mock(ReentrantLock.class);
+    var lock = mock(ReentrantLock.class);
     when(tx1.getLock()).thenReturn(lock);
 
     spyTxMgr.unmasquerade(tx1);
@@ -527,7 +526,7 @@ public class TXManagerImplTest {
   @Test(expected = RuntimeException.class)
   public void unmasqueradeReleasesTheLockHeldWhenCleanupTransactionIfNoLongerHostFailedWithException() {
     tx1 = mock(TXStateProxyImpl.class);
-    ReentrantLock lock = mock(ReentrantLock.class);
+    var lock = mock(ReentrantLock.class);
     when(tx1.getLock()).thenReturn(lock);
     doThrow(new RuntimeException()).when(spyTxMgr)
         .cleanupTransactionIfNoLongerHostCausedByFailover(tx1);
@@ -547,8 +546,8 @@ public class TXManagerImplTest {
 
   @Test
   public void removeHostedTXStateSetFlagIfCausedByFailover() {
-    Map<TXId, TXStateProxy> hostedTXStates = txMgr.getHostedTXStates();
-    TXStateProxyImpl txStateProxy = mock(TXStateProxyImpl.class);
+    var hostedTXStates = txMgr.getHostedTXStates();
+    var txStateProxy = mock(TXStateProxyImpl.class);
     hostedTXStates.put(txid, txStateProxy);
 
     txMgr.removeHostedTXState(txid, true);
@@ -558,8 +557,8 @@ public class TXManagerImplTest {
 
   @Test
   public void removeHostedTXStateDoesNotSetFlagIfNotCausedByFailover() {
-    Map<TXId, TXStateProxy> hostedTXStates = txMgr.getHostedTXStates();
-    TXStateProxyImpl txStateProxy = mock(TXStateProxyImpl.class);
+    var hostedTXStates = txMgr.getHostedTXStates();
+    var txStateProxy = mock(TXStateProxyImpl.class);
     hostedTXStates.put(txid, txStateProxy);
 
     txMgr.removeHostedTXState(txid);

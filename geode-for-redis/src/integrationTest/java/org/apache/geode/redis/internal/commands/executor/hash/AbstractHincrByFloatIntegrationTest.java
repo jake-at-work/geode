@@ -99,21 +99,21 @@ public abstract class AbstractHincrByFloatIntegrationTest implements RedisIntegr
 
   @Test
   public void testHincrByFloat() {
-    double incr = 0.37373;
-    String key = "key";
-    String field = "field";
+    var incr = 0.37373;
+    var key = "key";
+    var field = "field";
     jedis.hset(key, field, "1.0");
 
-    double response = jedis.hincrByFloat(key, field, incr);
+    var response = jedis.hincrByFloat(key, field, incr);
     assertThat(response).isEqualTo(incr + 1, offset(.00001));
   }
 
   @Test
   public void testHincrByFloat_likeRedisDoesIt() {
-    String key = "key";
-    String field = "field";
+    var key = "key";
+    var field = "field";
 
-    Object response = jedis.sendCommand(key, Protocol.Command.HINCRBYFLOAT, key, field, "1.23");
+    var response = jedis.sendCommand(key, Protocol.Command.HINCRBYFLOAT, key, field, "1.23");
     assertThat(new String((byte[]) response)).isEqualTo("1.23");
 
     response = jedis.sendCommand(key, Protocol.Command.HINCRBYFLOAT, key, field, "0.77");
@@ -125,41 +125,41 @@ public abstract class AbstractHincrByFloatIntegrationTest implements RedisIntegr
 
   @Test
   public void testHincrByFloat_whenFieldDoesNotExist() {
-    double incr = 0.37373;
-    String key = "key";
-    String field = "field";
+    var incr = 0.37373;
+    var key = "key";
+    var field = "field";
     jedis.hset(key, "other-field", "a");
 
-    double response = jedis.hincrByFloat(key, field, incr);
+    var response = jedis.hincrByFloat(key, field, incr);
     assertThat(response).isEqualTo(incr);
   }
 
   @Test
   public void testHincrByFloat_whenKeyDoesNotExist() {
-    double incr = 0.37373;
+    var incr = 0.37373;
 
-    double response = jedis.hincrByFloat("new", "newField", incr);
+    var response = jedis.hincrByFloat("new", "newField", incr);
     assertThat(response).isEqualTo(incr);
   }
 
   @Test
   public void testIncrByFloat_withReallyBigNumbers() {
     // max unsigned long long - 1
-    BigDecimal biggy = new BigDecimal("18446744073709551614");
+    var biggy = new BigDecimal("18446744073709551614");
     jedis.hset("key", "number", biggy.toPlainString());
 
     // Beyond this, native redis produces inconsistent results.
-    Object rawResult =
+    var rawResult =
         jedis.sendCommand("key", Protocol.Command.HINCRBYFLOAT, "key", "number", "1");
-    BigDecimal result = new BigDecimal(new String((byte[]) rawResult));
+    var result = new BigDecimal(new String((byte[]) rawResult));
 
     assertThat(result.toPlainString()).isEqualTo(biggy.add(BigDecimal.ONE).toPlainString());
   }
 
   @Test
   public void hincrByFloatFails_whenFieldIsNotANumber() {
-    String key = "key";
-    String field = "field";
+    var key = "key";
+    var field = "field";
     jedis.hset(key, field, "foobar");
     assertThatThrownBy(() -> jedis.hincrByFloat(key, field, 1.5))
         .hasMessage(HASH_VALUE_NOT_FLOAT);
@@ -167,8 +167,8 @@ public abstract class AbstractHincrByFloatIntegrationTest implements RedisIntegr
 
   @Test
   public void testConcurrentHincrByFloat_sameKeyPerClient() {
-    String key = "HSET_KEY";
-    String field = "HSET_FIELD";
+    var key = "HSET_KEY";
+    var field = "HSET_FIELD";
 
     jedis.hset(key, field, "0");
 
@@ -176,7 +176,7 @@ public abstract class AbstractHincrByFloatIntegrationTest implements RedisIntegr
         (i) -> jedis.hincrByFloat(key, field, 0.5),
         (i) -> jedis.hincrByFloat(key, field, 1.0)).run();
 
-    String value = jedis.hget(key, field);
+    var value = jedis.hget(key, field);
     assertThat(Float.valueOf(value)).isEqualTo(ITERATION_COUNT * 1.5f);
   }
 

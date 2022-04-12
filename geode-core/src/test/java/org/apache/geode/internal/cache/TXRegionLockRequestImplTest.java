@@ -46,7 +46,7 @@ public class TXRegionLockRequestImplTest {
 
   @Test
   public void getKeysThrowsCancelExceptionIfCacheIsClosed() {
-    TXRegionLockRequestImpl txRegionLockRequest = new TXRegionLockRequestImpl(cache, region);
+    var txRegionLockRequest = new TXRegionLockRequestImpl(cache, region);
     assertThatThrownBy(txRegionLockRequest::getKeys).isInstanceOf(CancelException.class);
   }
 }

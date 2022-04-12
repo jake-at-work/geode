@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -44,17 +43,17 @@ public class ManagementUtilsTest {
 
   @Test
   public void filesToBytesAndThenBytesToFiles() throws IOException {
-    File file1 = new File(temporaryFolder.getRoot(), "file1.txt");
-    File file2 = new File(temporaryFolder.getRoot(), "file2.txt");
+    var file1 = new File(temporaryFolder.getRoot(), "file1.txt");
+    var file2 = new File(temporaryFolder.getRoot(), "file2.txt");
 
     FileUtils.write(file1, "file1-content", "UTF-8");
     FileUtils.write(file2, "file2-content", "UTF-8");
 
-    List<String> fileNames = Arrays.asList(file1.getAbsolutePath(), file2.getAbsolutePath());
-    Byte[][] bytes = ManagementUtils.filesToBytes(fileNames);
+    var fileNames = Arrays.asList(file1.getAbsolutePath(), file2.getAbsolutePath());
+    var bytes = ManagementUtils.filesToBytes(fileNames);
 
-    File dir = temporaryFolder.newFolder("temp");
-    List<String> filePaths = ManagementUtils.bytesToFiles(bytes, dir.getAbsolutePath());
+    var dir = temporaryFolder.newFolder("temp");
+    var filePaths = ManagementUtils.bytesToFiles(bytes, dir.getAbsolutePath());
 
     assertThat(filePaths).hasSize(2);
     assertThat(new File(filePaths.get(0))).hasContent("file1-content");
@@ -63,12 +62,12 @@ public class ManagementUtilsTest {
 
   @Test
   public void getAllRegionNamesWithSubregions() {
-    Cache cache = mock(Cache.class);
+    var cache = mock(Cache.class);
 
     Region<?, ?> regionWithSubregion = mock(Region.class);
     Region<?, ?> regionWithoutSubregions = mock(Region.class);
     Region<?, ?> subregion = mock(Region.class);
-    List<Region<?, ?>> rootRegions = Arrays.asList(regionWithSubregion, regionWithoutSubregions);
+    var rootRegions = Arrays.asList(regionWithSubregion, regionWithoutSubregions);
 
     when(cache.rootRegions()).thenReturn(new HashSet<>(rootRegions));
     when(regionWithSubregion.subregions(anyBoolean())).thenReturn(Collections.singleton(subregion));
@@ -82,11 +81,11 @@ public class ManagementUtilsTest {
 
   @Test
   public void exceptionGettingSubregions() {
-    Cache cache = mock(Cache.class);
+    var cache = mock(Cache.class);
 
     Region<?, ?> regionDestroyed = mock(Region.class);
     Region<?, ?> regionNotDestroyed = mock(Region.class);
-    List<Region<?, ?>> rootRegions = Arrays.asList(regionDestroyed, regionNotDestroyed);
+    var rootRegions = Arrays.asList(regionDestroyed, regionNotDestroyed);
 
     when(cache.rootRegions()).thenReturn(new HashSet<>(rootRegions));
     when(regionDestroyed.subregions(anyBoolean())).thenThrow(new RegionDestroyedException("", ""));

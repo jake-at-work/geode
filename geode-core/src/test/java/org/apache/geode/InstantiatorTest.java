@@ -29,9 +29,9 @@ public class InstantiatorTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    Instantiator mockInstantiator = mock(Instantiator.class);
-    EventID mockEventID = mock(EventID.class);
-    ClientProxyMembershipID mockClientProxyMembershipID = mock(ClientProxyMembershipID.class);
+    var mockInstantiator = mock(Instantiator.class);
+    var mockEventID = mock(EventID.class);
+    var mockClientProxyMembershipID = mock(ClientProxyMembershipID.class);
 
     when(mockInstantiator.getInstantiatedClass()).thenReturn(null);
     when(mockInstantiator.getId()).thenReturn(0);

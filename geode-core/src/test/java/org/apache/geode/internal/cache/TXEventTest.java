@@ -26,8 +26,8 @@ public class TXEventTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    TXEvent mockTXEvent = mock(TXEvent.class);
-    Cache mockCache = mock(Cache.class);
+    var mockTXEvent = mock(TXEvent.class);
+    var mockCache = mock(Cache.class);
     when(mockTXEvent.getCache()).thenReturn(mockCache);
     assertThat(mockTXEvent.getCache()).isSameAs(mockCache);
   }

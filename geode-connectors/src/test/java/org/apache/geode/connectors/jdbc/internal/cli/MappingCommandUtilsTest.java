@@ -56,7 +56,7 @@ public class MappingCommandUtilsTest {
   @Test
   public void getCacheConfigReturnsCorrectCacheConfig() throws PreconditionException {
     when(configurationPersistenceService.getCacheConfig(GROUPNAME)).thenReturn(cacheConfig);
-    CacheConfig result =
+    var result =
         MappingCommandUtils.getCacheConfig(configurationPersistenceService, GROUPNAME);
 
     assertThat(result).isEqualTo(cacheConfig);
@@ -69,7 +69,7 @@ public class MappingCommandUtilsTest {
     when(regionConfig.getName()).thenReturn(TESTREGION);
     when(cacheConfig.getRegions()).thenReturn(regionsList);
 
-    RegionConfig result = MappingCommandUtils.checkForRegion(TESTREGION, cacheConfig, GROUPNAME);
+    var result = MappingCommandUtils.checkForRegion(TESTREGION, cacheConfig, GROUPNAME);
 
     assertThat(result).isEqualTo(regionConfig);
   }
@@ -77,8 +77,8 @@ public class MappingCommandUtilsTest {
   @Test
   public void getMappingsFromRegionConfigReturnsCorrectMappings() {
 
-    RegionMapping validRegionMapping = mock(RegionMapping.class);
-    CacheElement invalidRegionMapping = mock(CacheElement.class);
+    var validRegionMapping = mock(RegionMapping.class);
+    var invalidRegionMapping = mock(CacheElement.class);
     List<CacheElement> cacheElements = new ArrayList<>();
     cacheElements.add(validRegionMapping);
     cacheElements.add(invalidRegionMapping);
@@ -94,15 +94,15 @@ public class MappingCommandUtilsTest {
 
   @Test
   public void createAsyncEventQueueNameProducesCorrectName() {
-    String result = MappingCommandUtils.createAsyncEventQueueName(TESTREGION);
+    var result = MappingCommandUtils.createAsyncEventQueueName(TESTREGION);
 
     assertThat(result).isEqualTo("JDBC#testRegion");
   }
 
   @Test
   public void testFindAsyncEventQueueReturnsCorrectObject() {
-    AsyncEventQueue asyncEventQueue = mock(AsyncEventQueue.class);
-    AsyncEventQueue wrongAsyncEventQueue = mock(AsyncEventQueue.class);
+    var asyncEventQueue = mock(AsyncEventQueue.class);
+    var wrongAsyncEventQueue = mock(AsyncEventQueue.class);
     when(asyncEventQueue.getId())
         .thenReturn(MappingCommandUtils.createAsyncEventQueueName(TESTREGION));
     when(wrongAsyncEventQueue.getId()).thenReturn("Wrong Id");
@@ -114,15 +114,15 @@ public class MappingCommandUtilsTest {
     when(regionConfig.getName()).thenReturn(TESTREGION);
     when(cacheConfig.getAsyncEventQueues()).thenReturn(asyncEventQueues);
 
-    AsyncEventQueue result = MappingCommandUtils.findAsyncEventQueue(cacheConfig, regionConfig);
+    var result = MappingCommandUtils.findAsyncEventQueue(cacheConfig, regionConfig);
 
     assertThat(result).isEqualTo(asyncEventQueue);
   }
 
   @Test
   public void testIsMappingAsyncReturnsCorrectValue() {
-    AsyncEventQueue asyncEventQueue = mock(AsyncEventQueue.class);
-    AsyncEventQueue wrongAsyncEventQueue = mock(AsyncEventQueue.class);
+    var asyncEventQueue = mock(AsyncEventQueue.class);
+    var wrongAsyncEventQueue = mock(AsyncEventQueue.class);
     when(asyncEventQueue.getId())
         .thenReturn(MappingCommandUtils.createAsyncEventQueueName(TESTREGION));
     when(wrongAsyncEventQueue.getId()).thenReturn("Wrong Id");
@@ -134,7 +134,7 @@ public class MappingCommandUtilsTest {
     when(regionConfig.getName()).thenReturn(TESTREGION);
     when(cacheConfig.getAsyncEventQueues()).thenReturn(asyncEventQueues);
 
-    boolean result = MappingCommandUtils.isMappingSynchronous(cacheConfig, regionConfig);
+    var result = MappingCommandUtils.isMappingSynchronous(cacheConfig, regionConfig);
 
     assertThat(result).isEqualTo(false);
   }
@@ -143,7 +143,7 @@ public class MappingCommandUtilsTest {
   public void testIsPartitionWithPartitionDataPolicyReturnsTrue() {
     when(regionAttributesType.getDataPolicy()).thenReturn(RegionAttributesDataPolicy.PARTITION);
 
-    boolean result = MappingCommandUtils.isPartition(regionAttributesType);
+    var result = MappingCommandUtils.isPartition(regionAttributesType);
 
     assertThat(result).isEqualTo(true);
   }
@@ -153,7 +153,7 @@ public class MappingCommandUtilsTest {
     when(regionAttributesType.getDataPolicy())
         .thenReturn(RegionAttributesDataPolicy.PERSISTENT_PARTITION);
 
-    boolean result = MappingCommandUtils.isPartition(regionAttributesType);
+    var result = MappingCommandUtils.isPartition(regionAttributesType);
 
     assertThat(result).isEqualTo(true);
   }
@@ -162,7 +162,7 @@ public class MappingCommandUtilsTest {
   public void testIsPartitionWithPersistentPartitionRefidReturnsTrue() {
     when(regionAttributesType.getRefid()).thenReturn(RegionShortcut.PARTITION.name());
 
-    boolean result = MappingCommandUtils.isPartition(regionAttributesType);
+    var result = MappingCommandUtils.isPartition(regionAttributesType);
 
     assertThat(result).isEqualTo(true);
   }
@@ -171,7 +171,7 @@ public class MappingCommandUtilsTest {
   public void testIsPartitionWithLocalRefidReturnsFalse() {
     when(regionAttributesType.getRefid()).thenReturn(RegionShortcut.LOCAL.name());
 
-    boolean result = MappingCommandUtils.isPartition(regionAttributesType);
+    var result = MappingCommandUtils.isPartition(regionAttributesType);
 
     assertThat(result).isEqualTo(false);
   }
@@ -181,7 +181,7 @@ public class MappingCommandUtilsTest {
     when(regionAttributesType.getDataPolicy()).thenReturn(null);
     when(regionAttributesType.getRefid()).thenReturn(null);
 
-    boolean result = MappingCommandUtils.isPartition(regionAttributesType);
+    var result = MappingCommandUtils.isPartition(regionAttributesType);
 
     assertThat(result).isEqualTo(false);
   }
@@ -190,7 +190,7 @@ public class MappingCommandUtilsTest {
   public void testIsPartitionWithReplicateDataPolicyReturnsFalse() {
     when(regionAttributesType.getDataPolicy()).thenReturn(RegionAttributesDataPolicy.REPLICATE);
 
-    boolean result = MappingCommandUtils.isPartition(regionAttributesType);
+    var result = MappingCommandUtils.isPartition(regionAttributesType);
 
     assertThat(result).isEqualTo(false);
   }

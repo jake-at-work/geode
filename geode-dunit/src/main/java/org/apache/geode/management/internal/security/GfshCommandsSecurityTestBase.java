@@ -17,8 +17,6 @@ package org.apache.geode.management.internal.security;
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.apache.shiro.authz.permission.WildcardPermission;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -29,7 +27,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.ConnectionConfiguration;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -126,12 +123,12 @@ public class GfshCommandsSecurityTestBase {
   }
 
   private void runCommandsPermittedAndForbiddenBy(String permission) throws Exception {
-    List<TestCommand> allPermitted =
+    var allPermitted =
         TestCommand.getPermittedCommands(new WildcardPermission(permission, true));
 
-    for (TestCommand permitted : allPermitted) {
+    for (var permitted : allPermitted) {
       System.out.println("Processing authorized command: " + permitted.getCommand());
-      CommandResult result = gfshConnection.executeCommand(permitted.getCommand());
+      var result = gfshConnection.executeCommand(permitted.getCommand());
       assertThat(result).isNotNull();
 
       // for permitted commands, if any error happens, it's not an Unauthorized error
@@ -141,9 +138,9 @@ public class GfshCommandsSecurityTestBase {
     }
 
     // skip no permission commands
-    List<TestCommand> others = TestCommand.getOnlineCommands();
+    var others = TestCommand.getOnlineCommands();
     others.removeAll(allPermitted);
-    for (TestCommand other : others) {
+    for (var other : others) {
       System.out.println("Processing unauthorized command: " + other.getCommand());
       gfshConnection.executeAndAssertThat(other.getCommand()).statusIsError()
           .containsOutput("Unauthorized");
@@ -153,7 +150,7 @@ public class GfshCommandsSecurityTestBase {
   @Test
   @ConnectionConfiguration(user = "data,cluster", password = "data,cluster")
   public void modifyInternalRegionSuperUser() {
-    CommandResult result =
+    var result =
         gfshConnection.executeCommand("put --key=key1 --value=value1 --region=PdxTypes");
     assertThat(result.getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(result.asString()).contains("Unauthorized");

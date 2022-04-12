@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -38,8 +36,6 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.params.SetParams;
 
-import org.apache.geode.internal.cache.BucketDump;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.redis.ConcurrentLoopingThreads;
 import org.apache.geode.redis.internal.services.RegionProvider;
@@ -65,13 +61,13 @@ public class StringsDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = clusterStartUp.startLocatorVM(0);
+    var locatorPort = locator.getPort();
     server1 = clusterStartUp.startRedisVM(1, locatorPort);
     server2 = clusterStartUp.startRedisVM(2, locatorPort);
     server3 = clusterStartUp.startRedisVM(3, locatorPort);
 
-    int redisServerPort1 = clusterStartUp.getRedisPort(1);
+    var redisServerPort1 = clusterStartUp.getRedisPort(1);
     jedisCluster =
         new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort1), REDIS_CLIENT_TIMEOUT);
   }
@@ -88,8 +84,8 @@ public class StringsDUnitTest {
 
   @Test
   public void get_shouldAllowClientToLocateDataForGivenKey() {
-    List<String> keys = makeStringList(LIST_SIZE, "key1-");
-    List<String> values = makeStringList(LIST_SIZE, "values1-");
+    var keys = makeStringList(LIST_SIZE, "key1-");
+    var values = makeStringList(LIST_SIZE, "values1-");
 
     new ConcurrentLoopingThreads(LIST_SIZE,
         (i) -> jedisCluster.set(keys.get(i), values.get(i))).run();
@@ -101,10 +97,10 @@ public class StringsDUnitTest {
   @Test
   public void setnx_shouldOnlySucceedOnceForAParticularKey_givenMultipleClientsSettingSameKey() {
 
-    List<String> keys = makeStringList(LIST_SIZE, "key1-");
-    List<String> values = makeStringList(LIST_SIZE, "values1-");
-    AtomicInteger successes1 = new AtomicInteger(0);
-    AtomicInteger successes2 = new AtomicInteger(0);
+    var keys = makeStringList(LIST_SIZE, "key1-");
+    var values = makeStringList(LIST_SIZE, "values1-");
+    var successes1 = new AtomicInteger(0);
+    var successes2 = new AtomicInteger(0);
 
     new ConcurrentLoopingThreads(LIST_SIZE,
         makeSetNXConsumer(keys, values, successes1, jedisCluster),
@@ -126,13 +122,13 @@ public class StringsDUnitTest {
 
   @Test
   public void setxx_shouldAlwaysSucceed_givenMultipleClientsSettingSameKeyThatAlreadyExists() {
-    List<String> keys = makeStringList(LIST_SIZE, "key1-");
-    List<String> values = makeStringList(LIST_SIZE, "values1-");
+    var keys = makeStringList(LIST_SIZE, "key1-");
+    var values = makeStringList(LIST_SIZE, "values1-");
 
-    AtomicLong successes1 = new AtomicLong(0);
-    AtomicLong successes2 = new AtomicLong(0);
+    var successes1 = new AtomicLong(0);
+    var successes2 = new AtomicLong(0);
 
-    for (int i = 0; i < LIST_SIZE; i++) {
+    for (var i = 0; i < LIST_SIZE; i++) {
       jedisCluster.set(keys.get(i), values.get(i));
     }
 
@@ -145,16 +141,16 @@ public class StringsDUnitTest {
 
   @Test
   public void set_shouldAllowMultipleClientsToSetValuesOnDifferentKeysConcurrently() {
-    List<String> keys1 = makeStringList(LIST_SIZE, "key1-");
-    List<String> values1 = makeStringList(LIST_SIZE, "values1-");
-    List<String> keys2 = makeStringList(LIST_SIZE, "key2-");
-    List<String> values2 = makeStringList(LIST_SIZE, "values2-");
+    var keys1 = makeStringList(LIST_SIZE, "key1-");
+    var values1 = makeStringList(LIST_SIZE, "values1-");
+    var keys2 = makeStringList(LIST_SIZE, "key2-");
+    var values2 = makeStringList(LIST_SIZE, "values2-");
 
     new ConcurrentLoopingThreads(LIST_SIZE,
         (i) -> jedisCluster.set(keys1.get(i), values1.get(i)),
         (i) -> jedisCluster.set(keys2.get(i), values2.get(i))).run();
 
-    for (int i = 0; i < LIST_SIZE; i++) {
+    for (var i = 0; i < LIST_SIZE; i++) {
       assertThat(jedisCluster.get(keys1.get(i))).isEqualTo(values1.get(i));
       assertThat(jedisCluster.get(keys2.get(i))).isEqualTo(values2.get(i));
     }
@@ -162,8 +158,8 @@ public class StringsDUnitTest {
 
   @Test
   public void set_shouldAllowMultipleClientsToSetValuesOnTheSameKeysConcurrently() {
-    List<String> keys = makeStringList(LIST_SIZE, "key1-");
-    List<String> values = makeStringList(LIST_SIZE, "values1-");
+    var keys = makeStringList(LIST_SIZE, "key1-");
+    var values = makeStringList(LIST_SIZE, "values1-");
 
     new ConcurrentLoopingThreads(LIST_SIZE,
         (i) -> jedisCluster.set(keys.get(i), values.get(i)),
@@ -176,15 +172,15 @@ public class StringsDUnitTest {
 
   @Test
   public void append_shouldAllowMultipleClientsToAppendDifferentValueToSameKeyConcurrently() {
-    List<String> keys = makeStringList(LIST_SIZE, "key1-");
-    List<String> values1 = makeStringList(LIST_SIZE, "values1-");
-    List<String> values2 = makeStringList(LIST_SIZE, "values2-");
+    var keys = makeStringList(LIST_SIZE, "key1-");
+    var values1 = makeStringList(LIST_SIZE, "values1-");
+    var values2 = makeStringList(LIST_SIZE, "values2-");
 
     new ConcurrentLoopingThreads(LIST_SIZE,
         (i) -> jedisCluster.append(keys.get(i), values1.get(i)),
         (i) -> jedisCluster.append(keys.get(i), values2.get(i))).runInLockstep();
 
-    for (int i = 0; i < LIST_SIZE; i++) {
+    for (var i = 0; i < LIST_SIZE; i++) {
       assertThat(jedisCluster.get(keys.get(i))).contains(values1.get(i));
       assertThat(jedisCluster.get(keys.get(i))).contains(values2.get(i));
     }
@@ -192,16 +188,16 @@ public class StringsDUnitTest {
 
   @Test
   public void append_shouldAllowMultipleClientsToSetrangeDifferentValueToSameKeyConcurrently() {
-    List<String> keys = makeStringList(LIST_SIZE, "key1-");
-    List<String> values1 = makeStringList(LIST_SIZE, "values1-");
-    List<String> values2 = makeStringList(LIST_SIZE, "values2-");
+    var keys = makeStringList(LIST_SIZE, "key1-");
+    var values1 = makeStringList(LIST_SIZE, "values1-");
+    var values2 = makeStringList(LIST_SIZE, "values2-");
 
     new ConcurrentLoopingThreads(LIST_SIZE,
         (i) -> jedisCluster.setrange(keys.get(i), 0, values1.get(i)),
         (i) -> jedisCluster.setrange(keys.get(i), values1.get(i).length(),
             values2.get(i))).runInLockstep();
 
-    for (int i = 0; i < LIST_SIZE; i++) {
+    for (var i = 0; i < LIST_SIZE; i++) {
       assertThat(jedisCluster.get(keys.get(i))).contains(values1.get(i));
       assertThat(jedisCluster.get(keys.get(i))).contains(values2.get(i));
     }
@@ -209,8 +205,8 @@ public class StringsDUnitTest {
 
   @Test
   public void decr_shouldDecrementWhileDoingConcurrentDecr() {
-    String key = "key";
-    int initialValue = NUM_ITERATIONS * 2;
+    var key = "key";
+    var initialValue = NUM_ITERATIONS * 2;
     jedisCluster.set(key, String.valueOf(initialValue));
 
     new ConcurrentLoopingThreads(NUM_ITERATIONS,
@@ -223,8 +219,8 @@ public class StringsDUnitTest {
 
   @Test
   public void decrby_shouldDecrementReliably_givenConcurrentThreadsPerformingDecrby() {
-    String key = "key";
-    int initialValue = NUM_ITERATIONS * 6;
+    var key = "key";
+    var initialValue = NUM_ITERATIONS * 6;
     jedisCluster.set(key, String.valueOf(initialValue));
 
     new ConcurrentLoopingThreads(NUM_ITERATIONS,
@@ -236,23 +232,23 @@ public class StringsDUnitTest {
 
   @Test
   public void strLen_returnsStringLengthWhileConcurrentlyUpdatingValues() {
-    for (int i = 0; i < LIST_SIZE; i++) {
+    for (var i = 0; i < LIST_SIZE; i++) {
       jedisCluster.set("key-" + i, "value-" + i);
     }
 
     new ConcurrentLoopingThreads(LIST_SIZE,
         (i) -> jedisCluster.set("key-" + i, "changedValue-" + i),
         (i) -> {
-          long stringLength = jedisCluster.strlen("key-" + i);
+          var stringLength = jedisCluster.strlen("key-" + i);
           assertThat(
               stringLength == ("changedValue-" + i).length()
                   || stringLength == ("value-" + i).length()).isTrue();
         }).runInLockstep();
 
-    for (int i = 0; i < LIST_SIZE; i++) {
-      String key = "key-" + i;
-      String value = jedisCluster.get(key);
-      String expectedValue = "changedValue-" + i;
+    for (var i = 0; i < LIST_SIZE; i++) {
+      var key = "key-" + i;
+      var value = jedisCluster.get(key);
+      var expectedValue = "changedValue-" + i;
 
       assertThat(value.length()).isEqualTo(expectedValue.length());
       assertThat(value).isEqualTo(expectedValue);
@@ -261,18 +257,18 @@ public class StringsDUnitTest {
 
   @Test
   public void givenBucketsMoveDuringAppend_thenDataIsNotLost() throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
+    var running = new AtomicBoolean(true);
 
     List<String> hashtags = new ArrayList<>();
     hashtags.add(clusterStartUp.getKeyOnServer("append", 1));
     hashtags.add(clusterStartUp.getKeyOnServer("append", 2));
     hashtags.add(clusterStartUp.getKeyOnServer("append", 3));
 
-    Future<Integer> future1 = executor.submit(() -> performAppend(1, hashtags.get(0), running));
-    Future<Integer> future2 = executor.submit(() -> performAppend(2, hashtags.get(1), running));
-    Future<Integer> future3 = executor.submit(() -> performAppend(3, hashtags.get(2), running));
+    var future1 = executor.submit(() -> performAppend(1, hashtags.get(0), running));
+    var future2 = executor.submit(() -> performAppend(2, hashtags.get(1), running));
+    var future3 = executor.submit(() -> performAppend(3, hashtags.get(2), running));
 
-    for (int i = 0; i < 100 && running.get(); i++) {
+    for (var i = 0; i < 100 && running.get(); i++) {
       clusterStartUp.moveBucketForKey(hashtags.get(i % hashtags.size()));
       Thread.sleep(200);
     }
@@ -291,11 +287,11 @@ public class StringsDUnitTest {
   }
 
   private int performAppend(int index, String hashtag, AtomicBoolean isRunning) {
-    String key = makeKey(hashtag, index);
-    int iterationCount = 0;
+    var key = makeKey(hashtag, index);
+    var iterationCount = 0;
 
     while (isRunning.get()) {
-      String appendString = "-" + key + "-" + iterationCount + "-";
+      var appendString = "-" + key + "-" + iterationCount + "-";
       try {
         jedisCluster.append(key, appendString);
       } catch (Exception ex) {
@@ -309,15 +305,15 @@ public class StringsDUnitTest {
   }
 
   private void verifyAppendResult(String key, int iterationCount) {
-    String storedString = jedisCluster.get(key);
+    var storedString = jedisCluster.get(key);
 
-    int idx = 0;
-    int i = 0;
+    var idx = 0;
+    var i = 0;
     while (i < iterationCount) {
-      String expectedValue = "-" + key + "-" + i + "-";
-      String foundValue = storedString.substring(idx, idx + expectedValue.length());
-      int subsectionStart = Math.max(0, idx - (2 * expectedValue.length()));
-      int subsectionEnd = Math.min(storedString.length(), idx + (2 * expectedValue.length()));
+      var expectedValue = "-" + key + "-" + i + "-";
+      var foundValue = storedString.substring(idx, idx + expectedValue.length());
+      var subsectionStart = Math.max(0, idx - (2 * expectedValue.length()));
+      var subsectionEnd = Math.min(storedString.length(), idx + (2 * expectedValue.length()));
 
       assertThat(foundValue)
           .as("unexpected " + foundValue + " at index " + i + " iterationCount="
@@ -332,7 +328,7 @@ public class StringsDUnitTest {
 
   private List<String> makeStringList(int setSize, String baseString) {
     List<String> strings = new ArrayList<>();
-    for (int i = 0; i < setSize; i++) {
+    for (var i = 0; i < setSize; i++) {
       strings.add(baseString + i);
     }
     return strings;
@@ -341,9 +337,9 @@ public class StringsDUnitTest {
   private Consumer<Integer> makeSetXXConsumer(List<String> keys, List<String> values,
       AtomicLong counter, JedisCluster jedis) {
     return (i) -> {
-      SetParams setParams = new SetParams();
+      var setParams = new SetParams();
       setParams.xx();
-      String result = jedis.set(keys.get(i), values.get(i), setParams);
+      var result = jedis.set(keys.get(i), values.get(i), setParams);
       if (result != null) {
         counter.getAndIncrement();
       }
@@ -353,9 +349,9 @@ public class StringsDUnitTest {
   private Consumer<Integer> makeSetNXConsumer(List<String> keys, List<String> values,
       AtomicInteger counter, JedisCluster jedis) {
     return (i) -> {
-      SetParams setParams = new SetParams();
+      var setParams = new SetParams();
       setParams.nx();
-      String result = jedis.set(keys.get(i), values.get(i), setParams);
+      var result = jedis.set(keys.get(i), values.get(i), setParams);
       if (result != null) {
         counter.getAndIncrement();
       }
@@ -364,14 +360,14 @@ public class StringsDUnitTest {
 
   private void compareBuckets() {
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      PartitionedRegion region =
+      var cache = ClusterStartupRule.getCache();
+      var region =
           (PartitionedRegion) cache.getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
-      for (int j = 0; j < region.getTotalNumberOfBuckets(); j++) {
-        List<BucketDump> buckets = region.getAllBucketEntries(j);
+      for (var j = 0; j < region.getTotalNumberOfBuckets(); j++) {
+        var buckets = region.getAllBucketEntries(j);
         assertThat(buckets.size()).isEqualTo(2);
-        Map<Object, Object> bucket1 = buckets.get(0).getValues();
-        Map<Object, Object> bucket2 = buckets.get(1).getValues();
+        var bucket1 = buckets.get(0).getValues();
+        var bucket2 = buckets.get(1).getValues();
         assertThat(bucket1).containsExactlyEntriesOf(bucket2);
       }
     });

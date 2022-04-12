@@ -15,7 +15,6 @@
 
 package org.apache.geode.internal.cache.locks;
 
-import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
 
 import org.apache.logging.log4j.Logger;
@@ -24,7 +23,6 @@ import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.locks.DLockBatch;
 import org.apache.geode.distributed.internal.locks.DLockGrantor;
 import org.apache.geode.distributed.internal.locks.DLockLessorDepartureHandler;
-import org.apache.geode.distributed.internal.locks.DLockService;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -51,7 +49,7 @@ public class TXLessorDepartureHandler implements DLockLessorDepartureHandler {
   @Override
   public void handleDepartureOf(InternalDistributedMember owner, DLockGrantor grantor) {
     // get DTLS
-    TXLockService dtls = TXLockService.getDTLS();
+    var dtls = TXLockService.getDTLS();
     if (dtls == null) {
       return;
     }
@@ -61,7 +59,7 @@ public class TXLessorDepartureHandler implements DLockLessorDepartureHandler {
         return;
       }
 
-      DLockService dlock = ((TXLockServiceImpl) dtls).getInternalDistributedLockService();
+      var dlock = ((TXLockServiceImpl) dtls).getInternalDistributedLockService();
 
       // DLockGrantor grantor = DLockGrantor.waitForGrantor(dlock, true);
       if (grantor == null || grantor.isDestroyed()) {
@@ -71,7 +69,7 @@ public class TXLessorDepartureHandler implements DLockLessorDepartureHandler {
       }
 
       // verify owner has active txLock
-      DLockBatch[] batches = grantor.getLockBatches(owner);
+      var batches = grantor.getLockBatches(owner);
       if (batches.length == 0) {
         logger.debug("{} has no active lock batches; exiting TXLessorDepartureHandler", owner);
         return;
@@ -88,12 +86,12 @@ public class TXLessorDepartureHandler implements DLockLessorDepartureHandler {
     synchronized (stateLock) {
       processingDepartures = true;
     }
-    Runnable recoverTx = () -> {
+    var recoverTx = (Runnable) () -> {
       try {
-        for (final DLockBatch dLockBatch : batches) {
-          TXLockBatch batch = (TXLockBatch) dLockBatch;
+        for (final var dLockBatch : batches) {
+          var batch = (TXLockBatch) dLockBatch;
           // send TXOriginatorDepartureMessage
-          Set participants = batch.getParticipants();
+          var participants = batch.getParticipants();
           TXOriginatorRecoveryProcessor.sendMessage(participants, owner, batch.getTXLockId(),
               grantor, dm);
         }

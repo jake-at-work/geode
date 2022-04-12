@@ -139,12 +139,12 @@ public class IUMRSingleRegionJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     ds = DistributedSystem.connect(props);
     cache = CacheFactory.create(ds);
     /* create region containing Country objects */
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setValueConstraint(Country.class);
     region = cache.createRegion("Countries", factory.create());
@@ -161,30 +161,30 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testChangedFormClauseOrder1() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR003
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT * FROM " + SEPARATOR + "Countries c, c.states s, s.districts d,"
             + " d.villages v, d.cities ct WHERE v.name = 'MAHARASHTRA_VILLAGE1'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("villageName", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -198,30 +198,30 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testChangedFormClauseOrder2() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR008
-    String sqlStr = "SELECT DISTINCT * FROM " + SEPARATOR
+    var sqlStr = "SELECT DISTINCT * FROM " + SEPARATOR
         + "Countries c, c.states s, s.districts d, d.villages v,"
         + " d.cities ct WHERE v.name='MAHARASHTRA_VILLAGE1' AND ct.name = 'PUNE'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -248,30 +248,30 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testChangedFormClauseOrder3() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR009
-    String sqlStr = "SELECT DISTINCT * FROM " + SEPARATOR
+    var sqlStr = "SELECT DISTINCT * FROM " + SEPARATOR
         + "Countries c, c.states s, s.districts d, d.villages v, "
         + "d.cities ct WHERE ct.name = 'PUNE' AND s.name = 'MAHARASHTRA'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -298,28 +298,28 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testSelectBestIndex1() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR010
-    String sqlStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Countries c WHERE c.name = 'INDIA'";
+    var sqlStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Countries c WHERE c.name = 'INDIA'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("countryName2", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -333,30 +333,30 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testSelectBestIndex2() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR011
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "Countries c, c.states s, s.districts d, d.cities ct, d.villages v WHERE c.name = 'INDIA'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();
+      var qs2 = cache.getQueryService();
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("countryName1", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -370,23 +370,23 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testProjectionAttr1() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR012
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "Countries c, c.states s, s.districts d WHERE d.name = 'PUNEDIST' AND s.name = 'GUJARAT'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
@@ -394,7 +394,7 @@ public class IUMRSingleRegionJUnitTest {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -421,30 +421,30 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testCutDown1() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR013
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "Countries c, c.states s, s.districts d, d.cities ct WHERE ct.name = 'MUMBAI'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("cityName", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -458,30 +458,30 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testCutDown2() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR014
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT c.name, s.name, d.name, ct.name FROM " + SEPARATOR
             + "Countries c, c.states s, s.districts d, d.cities ct WHERE ct.name = 'MUMBAI' OR ct.name = 'CHENNAI'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("cityName", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -495,23 +495,23 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testCutDown3() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR015
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT c.name, s.name FROM " + SEPARATOR
             + "Countries c, c.states s, s.districts d, d.cities ct WHERE ct.name = 'MUMBAI' OR s.name = 'GUJARAT'";
 
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
@@ -519,7 +519,7 @@ public class IUMRSingleRegionJUnitTest {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -546,9 +546,9 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testSelectAsFromClause() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR016
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT c.name, s.name, ct.name FROM " + SEPARATOR
             + "Countries c, c.states s, (SELECT DISTINCT * FROM "
             + SEPARATOR
@@ -558,14 +558,14 @@ public class IUMRSingleRegionJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
@@ -573,7 +573,7 @@ public class IUMRSingleRegionJUnitTest {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -600,9 +600,9 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testSelectAsWhereClause() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR017
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT c.name, s.name, ct.name FROM " + SEPARATOR
             + "Countries c, c.states s, s.districts d,"
             + " d.cities ct WHERE ct.name = element (SELECT DISTINCT ct.name FROM " + SEPARATOR
@@ -612,14 +612,14 @@ public class IUMRSingleRegionJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
@@ -627,7 +627,7 @@ public class IUMRSingleRegionJUnitTest {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -654,9 +654,9 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testFunctionUse1() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR018
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT c.name, s.name, ct.name FROM " + SEPARATOR
             + "Countries c, c.states s, s.districts d, "
             + "d.cities ct, d.getVillages() v WHERE v.getName() = 'PUNJAB_VILLAGE1'";
@@ -664,21 +664,21 @@ public class IUMRSingleRegionJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("villageName", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -692,9 +692,9 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testFunctionUse2() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR019
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT s.name, s.getDistricts(), ct.getName() FROM " + SEPARATOR
             + "Countries c, c.getStates() s, "
             + "s.getDistricts() d, d.getCities() ct WHERE ct.getName() = 'PUNE' OR ct.name = 'CHANDIGARH' "
@@ -703,14 +703,14 @@ public class IUMRSingleRegionJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
@@ -718,7 +718,7 @@ public class IUMRSingleRegionJUnitTest {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
 
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       String temp;
 
       while (itr.hasNext()) {
@@ -745,9 +745,9 @@ public class IUMRSingleRegionJUnitTest {
 
   @Test
   public void testFunctionUse3() throws Exception {
-    SelectResults[][] rs = new SelectResults[1][2];
+    var rs = new SelectResults[1][2];
     // Test Case No. IUMR020
-    String sqlStr =
+    var sqlStr =
         "SELECT DISTINCT d.getName(), d.getCities(), d.getVillages() FROM " + SEPARATOR
             + "Countries c, "
             + "c.states s, s.districts d WHERE d.name = 'MUMBAIDIST'";
@@ -755,21 +755,21 @@ public class IUMRSingleRegionJUnitTest {
     // query execution without Index.
     Query q = null;
     try {
-      QueryService qs1 = cache.getQueryService();
+      var qs1 = cache.getQueryService();
       q = qs1.newQuery(sqlStr);
       rs[0][0] = (SelectResults) q.execute();
 
       createIndex();
-      QueryService qs2 = cache.getQueryService();// ????
+      var qs2 = cache.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
       rs[0][1] = (SelectResults) q.execute();
 
       if (!observer.isIndexesUsed) {
         fail("------------ INDEX IS NOT USED FOR THE QUERY:: " + q.getQueryString());
       }
-      Iterator itr = observer.indexesUsed.iterator();
+      var itr = observer.indexesUsed.iterator();
       assertEquals("districtName", itr.next().toString());
 
       areResultsMatching(rs, new String[] {sqlStr});
@@ -782,7 +782,7 @@ public class IUMRSingleRegionJUnitTest {
   }// end of test
 
   private static void areResultsMatching(SelectResults[][] rs, String[] queries) {
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsWithoutAndWithIndexes(rs, 1, queries);
 
   }// end of areResultsMatching
@@ -790,11 +790,11 @@ public class IUMRSingleRegionJUnitTest {
   // ////////////// function to pupualte data in single region //////////////
   private void populateData() throws Exception {
     /* create villages */
-    Village v1 = new Village("MAHARASHTRA_VILLAGE1", 123456);
-    Village v2 = new Village("PUNJAB_VILLAGE1", 123789);
-    Village v3 = new Village("KERALA_VILLAGE1", 456789);
-    Village v4 = new Village("GUJARAT_VILLAGE1", 123478);
-    Village v5 = new Village("AASAM_VILLAGE1", 783456);
+    var v1 = new Village("MAHARASHTRA_VILLAGE1", 123456);
+    var v2 = new Village("PUNJAB_VILLAGE1", 123789);
+    var v3 = new Village("KERALA_VILLAGE1", 456789);
+    var v4 = new Village("GUJARAT_VILLAGE1", 123478);
+    var v5 = new Village("AASAM_VILLAGE1", 783456);
     Set villages = new HashSet();
     villages.add(v1);
     villages.add(v2);
@@ -803,10 +803,10 @@ public class IUMRSingleRegionJUnitTest {
     villages.add(v5);
 
     /* create cities */
-    City ct1 = new City("MUMBAI", 123456);
-    City ct2 = new City("PUNE", 123789);
-    City ct3 = new City("GANDHINAGAR", 456789);
-    City ct4 = new City("CHANDIGARH", 123478);
+    var ct1 = new City("MUMBAI", 123456);
+    var ct2 = new City("PUNE", 123789);
+    var ct3 = new City("GANDHINAGAR", 456789);
+    var ct4 = new City("CHANDIGARH", 123478);
     Set cities = new HashSet();
     cities.add(ct1);
     cities.add(ct2);
@@ -814,10 +814,10 @@ public class IUMRSingleRegionJUnitTest {
     cities.add(ct4);
 
     /* create districts */
-    District d1 = new District("MUMBAIDIST", cities, villages);
-    District d2 = new District("PUNEDIST", cities, villages);
-    District d3 = new District("GANDHINAGARDIST", cities, villages);
-    District d4 = new District("CHANDIGARHDIST", cities, villages);
+    var d1 = new District("MUMBAIDIST", cities, villages);
+    var d2 = new District("PUNEDIST", cities, villages);
+    var d3 = new District("GANDHINAGARDIST", cities, villages);
+    var d4 = new District("CHANDIGARHDIST", cities, villages);
     Set districts = new HashSet();
     districts.add(d1);
     districts.add(d2);
@@ -825,11 +825,11 @@ public class IUMRSingleRegionJUnitTest {
     districts.add(d4);
 
     /* create states */
-    State s1 = new State("MAHARASHTRA", "west", districts);
-    State s2 = new State("PUNJAB", "north", districts);
-    State s3 = new State("GUJARAT", "west", districts);
-    State s4 = new State("KERALA", "south", districts);
-    State s5 = new State("AASAM", "east", districts);
+    var s1 = new State("MAHARASHTRA", "west", districts);
+    var s2 = new State("PUNJAB", "north", districts);
+    var s3 = new State("GUJARAT", "west", districts);
+    var s4 = new State("KERALA", "south", districts);
+    var s5 = new State("AASAM", "east", districts);
     Set states = new HashSet();
     states.add(s1);
     states.add(s2);
@@ -838,13 +838,13 @@ public class IUMRSingleRegionJUnitTest {
     states.add(s5);
 
     /* create countries */
-    Country c1 = new Country("INDIA", "asia", states);
-    Country c2 = new Country("ISRAEL", "africa", states);
-    Country c3 = new Country("CANADA", "america", states);
-    Country c4 = new Country("AUSTRALIA", "australia", states);
-    Country c5 = new Country("MALAYSIA", "asia", states);
+    var c1 = new Country("INDIA", "asia", states);
+    var c2 = new Country("ISRAEL", "africa", states);
+    var c3 = new Country("CANADA", "america", states);
+    var c4 = new Country("AUSTRALIA", "australia", states);
+    var c5 = new Country("MALAYSIA", "asia", states);
 
-    for (int i = 0; i < 25; i++) {
+    for (var i = 0; i < 25; i++) {
       int temp;
       temp = i % 5;
       switch (temp) {

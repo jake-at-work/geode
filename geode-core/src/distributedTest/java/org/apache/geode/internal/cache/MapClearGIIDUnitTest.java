@@ -33,18 +33,15 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Assert;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
@@ -78,11 +75,11 @@ public class MapClearGIIDUnitTest extends JUnit4CacheTestCase {
   }
 
   public static void createRegionInVm0() {
-    AttributesFactory<String, String> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<String, String>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setConcurrencyChecksEnabled(true);
-    RegionAttributes<String, String> attr = factory.create();
+    var attr = factory.create();
 
     region = new MapClearGIIDUnitTest().getCache().createRegion("map", attr);
 
@@ -91,10 +88,10 @@ public class MapClearGIIDUnitTest extends JUnit4CacheTestCase {
 
   public static void clearRegionInVm1() {
     // wait for profile of getInitialImage cache to show up
-    final org.apache.geode.internal.cache.CacheDistributionAdvisor adv =
+    final var adv =
         ((org.apache.geode.internal.cache.DistributedRegion) region).getCacheDistributionAdvisor();
-    final int expectedProfiles = 1;
-    WaitCriterion ev = new WaitCriterion() {
+    final var expectedProfiles = 1;
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         int numProfiles;
@@ -115,9 +112,9 @@ public class MapClearGIIDUnitTest extends JUnit4CacheTestCase {
   // test methods
   @Test
   public void testClearImageStateFlag() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     // vm0.invoke(() -> MapClearGIIDUnitTest.createCacheVM0());
 
     vm0.invoke(new CacheSerializableRunnable("createCacheVM0") {
@@ -125,13 +122,13 @@ public class MapClearGIIDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         InitialImageOperation.slowImageProcessing = 10;
         slowImageSleeps.set(0);
-        Properties mprops = new Properties();
+        var mprops = new Properties();
         // mprops.setProperty(DistributionConfig.SystemConfigurationProperties.MCAST_PORT, "7777");
 
         getSystem(mprops);
         // ds = DistributedSystem.connect(props);
         getCache();
-        CacheObserverImpl observer = new CacheObserverImpl();
+        var observer = new CacheObserverImpl();
         CacheObserverHolder.setInstance(observer);
         LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
       }
@@ -139,32 +136,32 @@ public class MapClearGIIDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(new CacheSerializableRunnable("createCacheVM1") {
       @Override
       public void run2() throws CacheException {
-        Properties mprops = new Properties();
+        var mprops = new Properties();
         // mprops.setProperty(DistributionConfig.SystemConfigurationProperties.MCAST_PORT, "7777");
         getSystem(mprops);
         // ds = DistributedSystem.connect(null);
         getCache();
-        AttributesFactory<String, String> factory = new AttributesFactory<>();
+        var factory = new AttributesFactory<String, String>();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setDataPolicy(DataPolicy.REPLICATE);
         factory.setConcurrencyChecksEnabled(true);
-        RegionAttributes<String, String> attr = factory.create();
+        var attr = factory.create();
         region = createRootRegion("map", attr);
         // region = region.createSubregion("map",attr);
-        for (int i = 0; i < 10000; ++i) {
+        for (var i = 0; i < 10000; ++i) {
           region.put("" + i, "" + i);
         }
       }
     });
     LogWriterUtils.getLogWriter().info("Cache created in VM1 successfully");
     try {
-      AsyncInvocation<Object> asyncGII = vm0.invokeAsync(MapClearGIIDUnitTest::createRegionInVm0);
+      var asyncGII = vm0.invokeAsync(MapClearGIIDUnitTest::createRegionInVm0);
       // wait until vm0's gii has done 20 slow image sleeps (10ms*20 = 200ms)
       // before starting the clear
       vm0.invoke(new CacheSerializableRunnable("wait for sleeps") {
         @Override
         public void run2() throws CacheException {
-          WaitCriterion ev = new WaitCriterion() {
+          var ev = new WaitCriterion() {
             @Override
             public boolean done() {
               return slowImageSleeps.get() >= 20;
@@ -183,7 +180,7 @@ public class MapClearGIIDUnitTest extends JUnit4CacheTestCase {
       // wait for GII to complete
       ThreadUtils.join(asyncGII, 30 * 1000);
       if (asyncGII.exceptionOccurred()) {
-        Throwable t = asyncGII.getException();
+        var t = asyncGII.getException();
         Assert.fail("createRegionInVM0 failed", t);
       }
       assertTrue(vm0.invoke(MapClearGIIDUnitTest::checkImageStateFlag));
@@ -212,7 +209,7 @@ public class MapClearGIIDUnitTest extends JUnit4CacheTestCase {
     @Override
     public void afterRegionClear(RegionEvent<?, ?> event) {
       LogWriterUtils.getLogWriter().info("**********Received clear event in VM0 . ");
-      Region<?, ?> rgn = event.getRegion();
+      var rgn = event.getRegion();
       wasGIIInProgressDuringClear = ((LocalRegion) rgn).getImageState().wasRegionClearedDuringGII();
       InitialImageOperation.slowImageProcessing = 0;
       slowImageSleeps.set(0);

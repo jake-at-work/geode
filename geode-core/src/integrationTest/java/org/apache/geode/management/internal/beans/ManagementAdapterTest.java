@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ResourceEvent;
 import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.DiskStoreStats;
@@ -60,10 +59,10 @@ public class ManagementAdapterTest {
   @Test
   public void testHandlingNotificationsConcurrently() {
     // continuously send cache creation/removal notifications, thread modifying the state
-    Callable<Void> cacheNotifications = () -> {
+    var cacheNotifications = (Callable<Void>) () -> {
       if (raceConditionFound.get() == Boolean.FALSE) {
         try {
-          InternalDistributedSystem ids = cache.getInternalDistributedSystem();
+          var ids = cache.getInternalDistributedSystem();
           ids.handleResourceEvent(ResourceEvent.CACHE_REMOVE, cache);
           Thread.sleep(10);
           ids.handleResourceEvent(ResourceEvent.CACHE_CREATE, cache);
@@ -76,10 +75,10 @@ public class ManagementAdapterTest {
     };
 
     // continuously send disk creation/removal, thread relying on state
-    Callable<Void> diskNotifications = () -> {
+    var diskNotifications = (Callable<Void>) () -> {
       if (raceConditionFound.get() == Boolean.FALSE) {
         try {
-          InternalDistributedSystem ids = cache.getInternalDistributedSystem();
+          var ids = cache.getInternalDistributedSystem();
           ids.handleResourceEvent(ResourceEvent.DISKSTORE_CREATE, diskStore);
           Thread.sleep(5);
           ids.handleResourceEvent(ResourceEvent.DISKSTORE_REMOVE, diskStore);
@@ -92,13 +91,13 @@ public class ManagementAdapterTest {
     };
 
     // scans server log to see if there is null pointer due to caused by cache removal.
-    Callable<Boolean> scanLogs = () -> {
+    var scanLogs = (Callable<Boolean>) () -> {
       if (raceConditionFound.get() == Boolean.FALSE) {
         try {
-          File logFile = new File("server.log");
-          Scanner scanner = new Scanner(logFile);
+          var logFile = new File("server.log");
+          var scanner = new Scanner(logFile);
           while (scanner.hasNextLine()) {
-            final String lineFromFile = scanner.nextLine();
+            final var lineFromFile = scanner.nextLine();
             if (lineFromFile.contains("java.lang.NullPointerException")) {
               raceConditionFound.set(Boolean.TRUE);
               break;
@@ -111,9 +110,9 @@ public class ManagementAdapterTest {
       return raceConditionFound.get();
     };
 
-    Duration notificationRunDuration = Duration.ofSeconds(3);
-    Duration scannerRunDuration = Duration.ofSeconds(4);
-    Duration timeout = Duration.ofSeconds(10);
+    var notificationRunDuration = Duration.ofSeconds(3);
+    var scannerRunDuration = Duration.ofSeconds(4);
+    var timeout = Duration.ofSeconds(10);
 
     concurrencyRule.setTimeout(timeout);
     concurrencyRule.add(cacheNotifications).repeatForDuration(notificationRunDuration);

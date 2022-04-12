@@ -16,11 +16,9 @@ package org.apache.geode.management.internal.cli.remote;
 
 import static org.apache.geode.management.internal.api.LocatorClusterManagementService.CMS_DLOCK_SERVICE_NAME;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.springframework.shell.core.Parser;
 import org.springframework.shell.event.ParseResult;
@@ -28,7 +26,6 @@ import org.springframework.shell.event.ParseResult;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.internal.CommandProcessor;
-import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.internal.locks.DLockService;
 import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.cache.CacheService;
@@ -94,8 +91,8 @@ public class OnlineCommandProcessor implements CommandProcessor {
 
   public ResultModel executeCommand(String command, Map<String, String> env,
       List<String> stagedFilePaths) {
-    CommentSkipHelper commentSkipper = new CommentSkipHelper();
-    String commentLessLine = commentSkipper.skipComments(command);
+    var commentSkipper = new CommentSkipHelper();
+    var commentLessLine = commentSkipper.skipComments(command);
     if (commentLessLine == null || commentLessLine.isEmpty()) {
       return null;
     }
@@ -103,28 +100,28 @@ public class OnlineCommandProcessor implements CommandProcessor {
     CommandExecutionContext.setShellEnv(env);
     CommandExecutionContext.setFilePathToShell(stagedFilePaths);
 
-    final CommandExecutor commandExecutor = getCommandExecutor();
-    ParseResult parseResult = parseCommand(commentLessLine);
+    final var commandExecutor = getCommandExecutor();
+    var parseResult = parseCommand(commentLessLine);
 
     if (parseResult == null) {
-      String version = GemFireVersion.getGemFireVersion();
-      String message = "Could not parse command string. " + command + "." + System.lineSeparator() +
+      var version = GemFireVersion.getGemFireVersion();
+      var message = "Could not parse command string. " + command + "." + System.lineSeparator() +
           "The command or some options in this command may not be supported by this locator(" +
           version + ") gfsh is connected with.";
       return ResultModel.createError(message);
     }
 
-    Method method = parseResult.getMethod();
+    var method = parseResult.getMethod();
 
     // do general authorization check here
-    ResourceOperation resourceOperation = method.getAnnotation(ResourceOperation.class);
+    var resourceOperation = method.getAnnotation(ResourceOperation.class);
     if (resourceOperation != null) {
       securityService.authorize(resourceOperation.resource(), resourceOperation.operation(),
           resourceOperation.target(), ResourcePermission.ALL);
     }
 
     // this command processor does not execute commands that need fileData passed from client
-    CliMetaData metaData = method.getAnnotation(CliMetaData.class);
+    var metaData = method.getAnnotation(CliMetaData.class);
     if (metaData != null && metaData.isFileUploaded() && stagedFilePaths == null) {
       return ResultModel
           .createError(command + " can not be executed only from server side");
@@ -142,10 +139,10 @@ public class OnlineCommandProcessor implements CommandProcessor {
 
   @Override
   public boolean init(Cache cache) {
-    Properties cacheProperties = cache.getDistributedSystem().getProperties();
+    var cacheProperties = cache.getDistributedSystem().getProperties();
     securityService = ((InternalCache) cache).getSecurityService();
     gfshParser = new GfshParser(new CommandManager(cacheProperties, (InternalCache) cache));
-    DistributedLockService cmsDlockService = DLockService.getOrCreateService(
+    var cmsDlockService = DLockService.getOrCreateService(
         CMS_DLOCK_SERVICE_NAME,
         ((InternalCache) cache).getInternalDistributedSystem());
     executor = new CommandExecutor(cmsDlockService);

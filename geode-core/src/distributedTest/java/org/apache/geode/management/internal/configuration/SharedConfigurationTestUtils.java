@@ -14,7 +14,6 @@
  */
 package org.apache.geode.management.internal.configuration;
 
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
@@ -24,9 +23,9 @@ public class SharedConfigurationTestUtils {
   public static final SerializableRunnable cleanupLocator = new SerializableRunnable() {
     @Override
     public void run() {
-      InternalLocator locator = InternalLocator.getLocator();
+      var locator = InternalLocator.getLocator();
       if (locator != null) {
-        InternalConfigurationPersistenceService sharedConfig =
+        var sharedConfig =
             locator.getConfigurationPersistenceService();
         if (sharedConfig != null) {
           sharedConfig.destroySharedConfiguration();

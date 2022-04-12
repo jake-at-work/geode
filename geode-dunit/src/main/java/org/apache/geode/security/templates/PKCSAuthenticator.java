@@ -20,7 +20,6 @@ import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.Signature;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Enumeration;
@@ -78,24 +77,24 @@ public class PKCSAuthenticator implements Authenticator {
   @Override
   public Principal authenticate(final Properties credentials, final DistributedMember member)
       throws AuthenticationFailedException {
-    final String alias = (String) credentials.get(PKCSAuthInit.KEYSTORE_ALIAS);
+    final var alias = (String) credentials.get(PKCSAuthInit.KEYSTORE_ALIAS);
     if (alias == null || alias.length() <= 0) {
       throw new AuthenticationFailedException("No alias received");
     }
 
     try {
-      final X509Certificate cert = getCertificate(alias);
+      final var cert = getCertificate(alias);
       if (cert == null) {
         throw newException("No certificate found for alias:" + alias);
       }
 
-      final byte[] signatureBytes = (byte[]) credentials.get(PKCSAuthInit.SIGNATURE_DATA);
+      final var signatureBytes = (byte[]) credentials.get(PKCSAuthInit.SIGNATURE_DATA);
       if (signatureBytes == null) {
         throw newException(
             "signature data property [" + PKCSAuthInit.SIGNATURE_DATA + "] not provided");
       }
 
-      final Signature sig = Signature.getInstance(cert.getSigAlgName());
+      final var sig = Signature.getInstance(cert.getSigAlgName());
       sig.initVerify(cert);
       sig.update(alias.getBytes(StandardCharsets.UTF_8));
 
@@ -115,9 +114,9 @@ public class PKCSAuthenticator implements Authenticator {
 
   private void populateMap() {
     try {
-      final KeyStore keyStore = KeyStore.getInstance("JKS");
-      final char[] passPhrase = pubKeyPass != null ? pubKeyPass.toCharArray() : null;
-      final FileInputStream keyStoreFile = new FileInputStream(pubKeyFilePath);
+      final var keyStore = KeyStore.getInstance("JKS");
+      final var passPhrase = pubKeyPass != null ? pubKeyPass.toCharArray() : null;
+      final var keyStoreFile = new FileInputStream(pubKeyFilePath);
 
       try {
         keyStore.load(keyStoreFile, passPhrase);
@@ -126,8 +125,8 @@ public class PKCSAuthenticator implements Authenticator {
       }
 
       for (Enumeration e = keyStore.aliases(); e.hasMoreElements();) {
-        final Object alias = e.nextElement();
-        final Certificate cert = keyStore.getCertificate((String) alias);
+        final var alias = e.nextElement();
+        final var cert = keyStore.getCertificate((String) alias);
         if (cert instanceof X509Certificate) {
           aliasCertificateMap.put(alias, cert);
         }
@@ -140,7 +139,7 @@ public class PKCSAuthenticator implements Authenticator {
   }
 
   private AuthenticationFailedException newException(final String message, final Exception cause) {
-    final String fullMessage =
+    final var fullMessage =
         "PKCSAuthenticator: Authentication of client failed due to: " + message;
     if (cause != null) {
       return new AuthenticationFailedException(fullMessage, cause);

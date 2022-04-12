@@ -94,9 +94,9 @@ public abstract class SizeableBytes2ObjectOpenCustomHashMapWithCursor<V>
       // Emit all of the entries at the cursor. This means looking forward in the hash
       // table for any non-null entries that might hash to the current cursor and emitting
       // those as well. This may even wrap around to the front of the hashtable.
-      int position = cursor;
+      var position = cursor;
       while (key[position & mask] != null) {
-        byte[] currentKey = key[position & mask];
+        var currentKey = key[position & mask];
         if (keyHashesTo(currentKey, position, cursor & mask)) {
           consumer.consume(privateData, currentKey, value[position & mask]);
           count--;
@@ -128,8 +128,8 @@ public abstract class SizeableBytes2ObjectOpenCustomHashMapWithCursor<V>
   static int rev(int value) {
     // This implementation is also based on dict.c from redis, which was originally from
     // http://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel
-    int s = 32;
-    int mask = ~0;
+    var s = 32;
+    var mask = ~0;
     while ((s >>>= 1) > 0) {
       mask ^= (mask << s);
       value = ((value >>> s) & mask) | ((value << s) & ~mask);
@@ -149,7 +149,7 @@ public abstract class SizeableBytes2ObjectOpenCustomHashMapWithCursor<V>
     // is null, we know that the element at position does hash to the expected
     // hash because it is not here as a result of a collision at some previous position.
 
-    byte[] previousKey = key[(currentPosition - 1) & mask];
+    var previousKey = key[(currentPosition - 1) & mask];
     return previousKey == null || hash(currentKey) == expectedHash;
   }
 
@@ -160,7 +160,7 @@ public abstract class SizeableBytes2ObjectOpenCustomHashMapWithCursor<V>
 
   @Override
   public V put(byte[] k, V v) {
-    V oldValue = super.put(k, v);
+    var oldValue = super.put(k, v);
     if (oldValue == null) {
       // A create
       arrayContentsOverhead += sizeKey(k) + sizeValue(v);
@@ -173,7 +173,7 @@ public abstract class SizeableBytes2ObjectOpenCustomHashMapWithCursor<V>
 
   @Override
   public V remove(Object k) {
-    V oldValue = super.remove(k);
+    var oldValue = super.remove(k);
     if (oldValue != null) {
       arrayContentsOverhead -= sizeKey((byte[]) k) + sizeValue(oldValue);
     }

@@ -154,7 +154,7 @@ public class MBeanAggregator implements ProxyListener {
     if (!distributedMBeanList.contains(interfaceClass)) {
       return;
     }
-    AggregateHandler handler = getHandler(interfaceClass);
+    var handler = getHandler(interfaceClass);
     handler.handleProxyAddition(objectName, interfaceClass, proxyObject, newVal);
   }
 
@@ -164,7 +164,7 @@ public class MBeanAggregator implements ProxyListener {
     if (!distributedMBeanList.contains(interfaceClass)) {
       return;
     }
-    AggregateHandler handler = getHandler(interfaceClass);
+    var handler = getHandler(interfaceClass);
     handler.handleProxyRemoval(objectName, interfaceClass, proxyObject, oldVal);
   }
 
@@ -174,7 +174,7 @@ public class MBeanAggregator implements ProxyListener {
     if (!distributedMBeanList.contains(interfaceClass)) {
       return;
     }
-    AggregateHandler handler = getHandler(interfaceClass);
+    var handler = getHandler(interfaceClass);
     handler.handleProxyUpdate(objectName, interfaceClass, proxyObject, newVal, oldVal);
   }
 
@@ -184,7 +184,7 @@ public class MBeanAggregator implements ProxyListener {
     if (!distributedMBeanList.contains(interfaceClass)) {
       return;
     }
-    AggregateHandler handler = getHandler(interfaceClass);
+    var handler = getHandler(interfaceClass);
     handler.handlePseudoCreateProxy(objectName, interfaceClass, proxyObject, newVal);
   }
 
@@ -200,7 +200,7 @@ public class MBeanAggregator implements ProxyListener {
     public void handleProxyAddition(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent newVal) {
 
-      CacheServerMXBean serverProxy = (CacheServerMXBean) interfaceClass.cast(proxyObject);
+      var serverProxy = (CacheServerMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.addServerToSystem(objectName, serverProxy, newVal);
 
     }
@@ -208,7 +208,7 @@ public class MBeanAggregator implements ProxyListener {
     @Override
     public void handleProxyRemoval(ObjectName objectName, Class interfaceClass, Object obj,
         FederationComponent oldVal) {
-      CacheServerMXBean serverProxy = (CacheServerMXBean) interfaceClass.cast(obj);
+      var serverProxy = (CacheServerMXBean) interfaceClass.cast(obj);
       distributedSystemBridge.removeServerFromSystem(objectName, serverProxy, oldVal);
 
     }
@@ -238,7 +238,7 @@ public class MBeanAggregator implements ProxyListener {
     public void handleProxyAddition(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent newVal) {
 
-      GatewayReceiverMXBean proxy = (GatewayReceiverMXBean) interfaceClass.cast(proxyObject);
+      var proxy = (GatewayReceiverMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.addGatewayReceiverToSystem(objectName, proxy, newVal);
 
     }
@@ -246,7 +246,7 @@ public class MBeanAggregator implements ProxyListener {
     @Override
     public void handleProxyRemoval(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent oldVal) {
-      GatewayReceiverMXBean proxy = (GatewayReceiverMXBean) interfaceClass.cast(proxyObject);
+      var proxy = (GatewayReceiverMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.removeGatewayReceiverFromSystem(objectName, proxy, oldVal);
 
     }
@@ -278,14 +278,14 @@ public class MBeanAggregator implements ProxyListener {
     public void handleProxyAddition(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent newVal) {
 
-      GatewaySenderMXBean proxy = (GatewaySenderMXBean) interfaceClass.cast(proxyObject);
+      var proxy = (GatewaySenderMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.addGatewaySenderToSystem(objectName, proxy, newVal);
     }
 
     @Override
     public void handleProxyRemoval(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent oldVal) {
-      GatewaySenderMXBean proxy = (GatewaySenderMXBean) interfaceClass.cast(proxyObject);
+      var proxy = (GatewaySenderMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.removeGatewaySenderFromSystem(objectName, proxy, oldVal);
     }
 
@@ -312,7 +312,7 @@ public class MBeanAggregator implements ProxyListener {
     @Override
     public void handleProxyAddition(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent newVal) {
-      RegionMXBean regionProxy = (RegionMXBean) interfaceClass.cast(proxyObject);
+      var regionProxy = (RegionMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.addRegion(objectName, regionProxy, newVal);
 
     }
@@ -320,7 +320,7 @@ public class MBeanAggregator implements ProxyListener {
     @Override
     public void handleProxyRemoval(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent oldVal) {
-      RegionMXBean regionProxy = (RegionMXBean) interfaceClass.cast(proxyObject);
+      var regionProxy = (RegionMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.removeRegion(objectName, regionProxy, oldVal);
     }
 
@@ -347,7 +347,7 @@ public class MBeanAggregator implements ProxyListener {
     @Override
     public void handleProxyAddition(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent newVal) {
-      MemberMXBean memberProxy = (MemberMXBean) interfaceClass.cast(proxyObject);
+      var memberProxy = (MemberMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.addMemberToSystem(objectName, memberProxy, newVal);
 
     }
@@ -355,7 +355,7 @@ public class MBeanAggregator implements ProxyListener {
     @Override
     public void handleProxyRemoval(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent oldVal) {
-      MemberMXBean memberProxy = (MemberMXBean) interfaceClass.cast(proxyObject);
+      var memberProxy = (MemberMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.removeMemberFromSystem(objectName, memberProxy, oldVal);
     }
 
@@ -384,7 +384,7 @@ public class MBeanAggregator implements ProxyListener {
     public void handleProxyAddition(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent newVal) {
 
-      LockServiceMXBean lockServiceProxy = (LockServiceMXBean) interfaceClass.cast(proxyObject);
+      var lockServiceProxy = (LockServiceMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.addLockService(objectName, lockServiceProxy, newVal);
 
     }
@@ -392,7 +392,7 @@ public class MBeanAggregator implements ProxyListener {
     @Override
     public void handleProxyRemoval(ObjectName objectName, Class interfaceClass, Object proxyObject,
         FederationComponent oldVal) {
-      LockServiceMXBean lockServiceProxy = (LockServiceMXBean) interfaceClass.cast(proxyObject);
+      var lockServiceProxy = (LockServiceMXBean) interfaceClass.cast(proxyObject);
       distributedSystemBridge.removeLockService(objectName, lockServiceProxy, oldVal);
     }
 

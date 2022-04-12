@@ -92,7 +92,7 @@ public class ObjectGraphSizer {
    */
   public static long size(Object root, ObjectFilter filter, boolean includeStatics)
       throws IllegalArgumentException, IllegalAccessException {
-    SizeVisitor visitor = new SizeVisitor(filter);
+    var visitor = new SizeVisitor(filter);
     ObjectTraverser.breadthFirstSearch(root, visitor, includeStatics);
 
     return visitor.getTotalSize();
@@ -105,7 +105,7 @@ public class ObjectGraphSizer {
 
   public static String histogram(Object root, ObjectFilter filter, boolean includeStatics)
       throws IllegalArgumentException, IllegalAccessException {
-    HistogramVistor visitor = new HistogramVistor(filter);
+    var visitor = new HistogramVistor(filter);
     ObjectTraverser.breadthFirstSearch(root, visitor, includeStatics);
 
     return visitor.dump();
@@ -126,7 +126,7 @@ public class ObjectGraphSizer {
       if (!filter.accept(parent, object)) {
         return false;
       }
-      Integer count = countHisto.get(object.getClass());
+      var count = countHisto.get(object.getClass());
       if (count == null) {
         count = 1;
       } else {
@@ -141,7 +141,7 @@ public class ObjectGraphSizer {
       } catch (IllegalArgumentException e) {
         throw new RuntimeException(e);
       }
-      Long size = sizeHisto.get(object.getClass());
+      var size = sizeHisto.get(object.getClass());
       if (size == null) {
         size = objectSize;
       } else {
@@ -154,24 +154,24 @@ public class ObjectGraphSizer {
     }
 
     public String dump() {
-      StringBuilder result = new StringBuilder();
+      var result = new StringBuilder();
       result.append("clazz\tsize\tcount\n");
-      Set<HistogramEntry> orderedSize = getOrderedSet();
-      for (HistogramEntry entry : orderedSize) {
-        Class clazz = entry.clazz;
-        Integer count = entry.count;
-        Long size = entry.size;
+      var orderedSize = getOrderedSet();
+      for (var entry : orderedSize) {
+        var clazz = entry.clazz;
+        var count = entry.count;
+        var size = entry.size;
         result.append(clazz + "\t" + size + "\t" + count + "\n");
       }
       return result.toString();
     }
 
     public Set<HistogramEntry> getOrderedSet() {
-      TreeSet<HistogramEntry> result = new TreeSet<>();
-      for (Map.Entry<Class, Long> entry : sizeHisto.entrySet()) {
-        Class clazz = entry.getKey();
-        Long size = entry.getValue();
-        Integer count = countHisto.get(clazz);
+      var result = new TreeSet<HistogramEntry>();
+      for (var entry : sizeHisto.entrySet()) {
+        var clazz = entry.getKey();
+        var size = entry.getValue();
+        var count = countHisto.get(clazz);
         result.add(new HistogramEntry(clazz, count, size));
       }
       return result;
@@ -192,7 +192,7 @@ public class ObjectGraphSizer {
 
       @Override
       public int compareTo(HistogramEntry o) {
-        int diff = size.compareTo(o.size);
+        var diff = size.compareTo(o.size);
         if (diff == 0) {
           diff = clazz.getName().compareTo(o.clazz.getName());
         }

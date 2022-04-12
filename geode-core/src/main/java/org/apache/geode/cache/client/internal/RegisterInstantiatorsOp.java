@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.apache.geode.Instantiator;
 import org.apache.geode.SerializationException;
 import org.apache.geode.internal.InternalInstantiator.InstantiatorAttributesHolder;
-import org.apache.geode.internal.cache.ClientServerObserver;
 import org.apache.geode.internal.cache.ClientServerObserverHolder;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.tier.MessageType;
@@ -71,10 +70,10 @@ public class RegisterInstantiatorsOp {
      */
     public RegisterInstantiatorsOpImpl(Instantiator[] instantiators, EventID eventId) {
       super(MessageType.REGISTER_INSTANTIATORS, instantiators.length * 3 + 1);
-      for (Instantiator instantiator : instantiators) {
+      for (var instantiator : instantiators) {
         // strip '.class' off these class names
-        String className = instantiator.getClass().toString().substring(6);
-        String instantiatedClassName = instantiator.getInstantiatedClass().toString().substring(6);
+        var className = instantiator.getClass().toString().substring(6);
+        var instantiatedClassName = instantiator.getInstantiatedClass().toString().substring(6);
         try {
           getMessage().addBytesPart(BlobHelper.serializeToBlob(className));
           getMessage().addBytesPart(BlobHelper.serializeToBlob(instantiatedClassName));
@@ -86,7 +85,7 @@ public class RegisterInstantiatorsOp {
       getMessage().addBytesPart(eventId.calcBytes());
       // // // CALLBACK FOR TESTING PURPOSE ONLY ////
       if (PoolImpl.IS_INSTANTIATOR_CALLBACK) {
-        ClientServerObserver bo = ClientServerObserverHolder.getInstance();
+        var bo = ClientServerObserverHolder.getInstance();
         bo.beforeSendingToServer(eventId);
       }
     }
@@ -96,10 +95,10 @@ public class RegisterInstantiatorsOp {
      */
     public RegisterInstantiatorsOpImpl(Object[] holders, EventID eventId) {
       super(MessageType.REGISTER_INSTANTIATORS, holders.length * 3 + 1);
-      for (Object obj : holders) {
+      for (var obj : holders) {
         String instantiatorClassName = null;
         String instantiatedClassName = null;
-        int id = 0;
+        var id = 0;
         if (obj instanceof Instantiator) {
           instantiatorClassName = ((Instantiator) obj).getClass().getName();
           instantiatedClassName = ((Instantiator) obj).getInstantiatedClass().getName();
@@ -120,7 +119,7 @@ public class RegisterInstantiatorsOp {
       getMessage().addBytesPart(eventId.calcBytes());
       // // // CALLBACK FOR TESTING PURPOSE ONLY ////
       if (PoolImpl.IS_INSTANTIATOR_CALLBACK) {
-        ClientServerObserver bo = ClientServerObserverHolder.getInstance();
+        var bo = ClientServerObserverHolder.getInstance();
         bo.beforeSendingToServer(eventId);
       }
     }

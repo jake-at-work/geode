@@ -27,7 +27,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -39,10 +38,10 @@ public class BucketRegionJUnitTest extends DistributedRegionJUnitTest {
   @Override
   protected void setInternalRegionArguments(InternalRegionArguments ira) {
     // PR specific
-    PartitionedRegion pr = mock(PartitionedRegion.class);
-    BucketAdvisor ba = mock(BucketAdvisor.class);
+    var pr = mock(PartitionedRegion.class);
+    var ba = mock(BucketAdvisor.class);
     ReadWriteLock primaryMoveLock = new ReentrantReadWriteLock();
-    Lock primaryMoveReadLock = primaryMoveLock.readLock();
+    var primaryMoveReadLock = primaryMoveLock.readLock();
     when(ba.getPrimaryMoveReadLock()).thenReturn(primaryMoveReadLock);
     when(ba.getProxyBucketRegion()).thenReturn(mock(ProxyBucketRegion.class));
     when(ba.isPrimary()).thenReturn(true);
@@ -54,7 +53,7 @@ public class BucketRegionJUnitTest extends DistributedRegionJUnitTest {
   protected DistributedRegion createAndDefineRegion(boolean isConcurrencyChecksEnabled,
       RegionAttributes ra, InternalRegionArguments ira, GemFireCacheImpl cache,
       StatisticsClock statisticsClock) {
-    BucketRegion br = new BucketRegion("testRegion", ra, null, cache, ira, statisticsClock);
+    var br = new BucketRegion("testRegion", ra, null, cache, ira, statisticsClock);
     // it is necessary to set the event tracker to initialized, since initialize() in not being
     // called on the instantiated region
     br.getEventTracker().setInitialized();
@@ -77,7 +76,7 @@ public class BucketRegionJUnitTest extends DistributedRegionJUnitTest {
   @Override
   protected void verifyDistributeUpdate(DistributedRegion region, EntryEventImpl event, int cnt) {
     assertTrue(region instanceof BucketRegion);
-    BucketRegion br = (BucketRegion) region;
+    var br = (BucketRegion) region;
     br.virtualPut(event, false, false, null, false, 12345L, false);
     // verify the result
     if (cnt > 0) {
@@ -90,7 +89,7 @@ public class BucketRegionJUnitTest extends DistributedRegionJUnitTest {
   @Override
   protected void verifyDistributeDestroy(DistributedRegion region, EntryEventImpl event, int cnt) {
     assertTrue(region instanceof BucketRegion);
-    BucketRegion br = (BucketRegion) region;
+    var br = (BucketRegion) region;
     br.basicDestroy(event, false, null);
     // verify the result
     if (cnt > 0) {
@@ -104,7 +103,7 @@ public class BucketRegionJUnitTest extends DistributedRegionJUnitTest {
   protected void verifyDistributeInvalidate(DistributedRegion region, EntryEventImpl event,
       int cnt) {
     assertTrue(region instanceof BucketRegion);
-    BucketRegion br = (BucketRegion) region;
+    var br = (BucketRegion) region;
     br.basicInvalidate(event);
     // verify the result
     if (cnt > 0) {
@@ -118,7 +117,7 @@ public class BucketRegionJUnitTest extends DistributedRegionJUnitTest {
   protected void verifyDistributeUpdateEntryVersion(DistributedRegion region, EntryEventImpl event,
       int cnt) {
     assertTrue(region instanceof BucketRegion);
-    BucketRegion br = (BucketRegion) region;
+    var br = (BucketRegion) region;
     br.basicUpdateEntryVersion(event);
     // verify the result
     if (cnt > 0) {

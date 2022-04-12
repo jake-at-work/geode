@@ -21,7 +21,6 @@ import static org.mockito.Mockito.times;
 import java.io.DataOutput;
 
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 
@@ -29,7 +28,7 @@ public class RVVExceptionJUnitTest {
 
   @Test
   public void testRVVExceptionB() {
-    RVVExceptionB ex = new RVVExceptionB(5, 10);
+    var ex = new RVVExceptionB(5, 10);
     ex.add(8);
     ex.add(6);
     assertEquals(8, ex.getHighestReceivedVersion());
@@ -44,7 +43,7 @@ public class RVVExceptionJUnitTest {
 
   @Test
   public void testRVVExceptionT() {
-    RVVExceptionT ex = new RVVExceptionT(5, 10);
+    var ex = new RVVExceptionT(5, 10);
     ex.add(8);
     ex.add(6);
     assertEquals(8, ex.getHighestReceivedVersion());
@@ -64,8 +63,8 @@ public class RVVExceptionJUnitTest {
     ex.add(74);
     ex.add(73);
 
-    DataOutput mockOutput = mock(DataOutput.class);
-    InOrder inOrder = Mockito.inOrder(mockOutput);
+    var mockOutput = mock(DataOutput.class);
+    var inOrder = Mockito.inOrder(mockOutput);
     ex.toData(mockOutput);
 
     inOrder.verify(mockOutput).writeByte(50); // prev = 50

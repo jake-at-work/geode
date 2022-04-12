@@ -46,7 +46,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.TXStateProxyImpl;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -85,9 +84,9 @@ public class SetOperationJTAJUnitTest {
   @Test
   @Parameters({"true", "false"})
   public void testRegionKeysetWithJTA(boolean disableSetOpToStartJTA) throws Exception {
-    Region<Long, String> region = setupAndLoadRegion(disableSetOpToStartJTA);
-    Context ctx = cache.getJNDIContext();
-    UserTransaction userTX = startUserTransaction(ctx);
+    var region = setupAndLoadRegion(disableSetOpToStartJTA);
+    var ctx = cache.getJNDIContext();
+    var userTX = startUserTransaction(ctx);
     try {
       userTX.begin();
       Collection<Long> set = region.keySet();
@@ -104,12 +103,12 @@ public class SetOperationJTAJUnitTest {
   @Test
   @Parameters({"true", "false"})
   public void testRegionValuesWithJTA(boolean disableSetOpToStartJTA) throws Exception {
-    Region<Long, String> region = setupAndLoadRegion(disableSetOpToStartJTA);
-    Context ctx = cache.getJNDIContext();
-    UserTransaction userTX = startUserTransaction(ctx);
+    var region = setupAndLoadRegion(disableSetOpToStartJTA);
+    var ctx = cache.getJNDIContext();
+    var userTX = startUserTransaction(ctx);
     try {
       userTX.begin();
-      Collection<String> set = region.values();
+      var set = region.values();
       set.forEach((value) -> assertTrue(testData.containsValue(value)));
       testData.values().forEach((value) -> assertTrue(set.contains(value)));
     } finally {
@@ -123,9 +122,9 @@ public class SetOperationJTAJUnitTest {
   @Test
   @Parameters({"true", "false"})
   public void testRegionEntriesWithJTA(boolean disableSetOpToStartJTA) throws Exception {
-    Region<Long, String> region = setupAndLoadRegion(disableSetOpToStartJTA);
-    Context ctx = cache.getJNDIContext();
-    UserTransaction userTX = startUserTransaction(ctx);
+    var region = setupAndLoadRegion(disableSetOpToStartJTA);
+    var ctx = cache.getJNDIContext();
+    var userTX = startUserTransaction(ctx);
     try {
       userTX.begin();
       Collection<Map.Entry<Long, String>> set = region.entrySet();
@@ -144,7 +143,7 @@ public class SetOperationJTAJUnitTest {
 
   private Region<Long, String> setupAndLoadRegion(boolean disableSetOpToStartTx) {
     cache = createCache(disableSetOpToStartTx);
-    Region<Long, String> region = createRegion(cache);
+    var region = createRegion(cache);
     testData.forEach(region::put);
     return region;
   }
@@ -164,7 +163,7 @@ public class SetOperationJTAJUnitTest {
 
   protected Region<Long, String> createRegion(Cache cache) {
     RegionFactory<Long, String> rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    Region<Long, String> r = rf.create(REGION_NAME);
+    var r = rf.create(REGION_NAME);
     return r;
   }
 
@@ -178,14 +177,14 @@ public class SetOperationJTAJUnitTest {
       logger.info("setting system property {} to true ", RESTORE_SET_OPERATION_PROPERTY);
       System.setProperty(RESTORE_SET_OPERATION_PROPERTY, "true");
     }
-    CacheFactory cf = new CacheFactory().set(MCAST_PORT, "0");
+    var cf = new CacheFactory().set(MCAST_PORT, "0");
     cache = cf.create();
     return cache;
   }
 
   protected void closeCache() {
     if (cache != null) {
-      Cache c = cache;
+      var c = cache;
       cache = null;
       c.close();
     }
@@ -198,12 +197,12 @@ public class SetOperationJTAJUnitTest {
   }
 
   private void verifyRegionValuesWhenSetOperationStartsJTA() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    UserTransaction userTX = startUserTransaction(ctx);
+    var ctx = cache.getJNDIContext();
+    var userTX = startUserTransaction(ctx);
     Region<Long, String> region = cache.getRegion(SEPARATOR + REGION_NAME);
     try {
       userTX.begin();
-      Collection<String> set = region.values();
+      var set = region.values();
       set.forEach((value) -> assertTrue(testData.containsValue(value)));
       testData.values().forEach((value) -> assertTrue(set.contains(value)));
       assertEquals(testData.size(), set.size());
@@ -223,12 +222,12 @@ public class SetOperationJTAJUnitTest {
   }
 
   private void verifyRegionValuesWhenSetOperationDoesNotStartJTA() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    UserTransaction userTX = startUserTransaction(ctx);
+    var ctx = cache.getJNDIContext();
+    var userTX = startUserTransaction(ctx);
     Region<Long, String> region = cache.getRegion(SEPARATOR + REGION_NAME);
     try {
       userTX.begin();
-      Collection<String> set = region.values();
+      var set = region.values();
       set.forEach((value) -> assertTrue(testData.containsValue(value)));
       testData.values().forEach((value) -> assertTrue(set.contains(value)));
       assertEquals(testData.size(), set.size());
@@ -333,7 +332,7 @@ public class SetOperationJTAJUnitTest {
   }
 
   private void doTxFunction(boolean disableSetOpToStartJTA) {
-    DistributedMember owner = cache.getDistributedSystem().getDistributedMember();
+    var owner = cache.getDistributedSystem().getDistributedMember();
     if (disableSetOpToStartJTA) {
       FunctionService.onMember(owner).execute(TXFunctionSetOpDoesNoStartJTA.id).getResult();
     } else {

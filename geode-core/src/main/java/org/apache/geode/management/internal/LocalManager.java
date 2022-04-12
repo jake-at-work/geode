@@ -18,7 +18,6 @@ import static org.apache.geode.logging.internal.executors.LoggingExecutors.newSi
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -113,7 +112,7 @@ public class LocalManager extends Manager {
       }
 
       // Create anonymous stats holder for Management Regions
-      HasCachePerfStats monitoringRegionStats = new HasCachePerfStats() {
+      var monitoringRegionStats = new HasCachePerfStats() {
 
         @Override
         public CachePerfStats getCachePerfStats() {
@@ -144,7 +143,7 @@ public class LocalManager extends Manager {
       notificationFactory.setIsUsedForMetaRegion(true);
       notificationFactory.setCachePerfStatsHolder(monitoringRegionStats);
 
-      String appender = MBeanJMXAdapter.getUniqueIDForMember(system.getDistributedMember());
+      var appender = MBeanJMXAdapter.getUniqueIDForMember(system.getDistributedMember());
 
       try {
         repo.setLocalMonitoringRegion(
@@ -153,7 +152,7 @@ public class LocalManager extends Manager {
         throw new ManagementException(e);
       }
 
-      boolean notifRegionCreated = false;
+      var notifRegionCreated = false;
       try {
         repo.setLocalNotificationRegion(
             notificationFactory.create(ManagementConstants.NOTIFICATION_REGION + "_" + appender));
@@ -172,7 +171,7 @@ public class LocalManager extends Manager {
       managementTask.get().run();
       // All local resources are created for the ManagementTask
       // Now Management tasks can proceed.
-      int updateRate = system.getConfig().getJmxManagerUpdateRate();
+      var updateRate = system.getConfig().getJmxManagerUpdateRate();
       singleThreadFederationScheduler.get().scheduleAtFixedRate(managementTask.get(), updateRate,
           updateRate, TimeUnit.MILLISECONDS);
 
@@ -208,7 +207,7 @@ public class LocalManager extends Manager {
   private void shutdownTasks() {
     // No need of pooledGIIExecutor as this node wont do GII again
     // so better to release resources
-    ScheduledExecutorService executor = singleThreadFederationScheduler.get();
+    var executor = singleThreadFederationScheduler.get();
     if (executor != null) {
       executor.shutdownNow();
     }
@@ -224,7 +223,7 @@ public class LocalManager extends Manager {
     if (!cache.isClosed() && InternalDistributedSystem.getConnectedInstance() != null) {
       if (repo.getLocalMonitoringRegion() != null) {
         // To delete an entry from the region
-        for (String name : repo.getLocalMonitoringRegion().keySet()) {
+        for (var name : repo.getLocalMonitoringRegion().keySet()) {
           ObjectName objName = null;
           try {
             objName = ObjectName.getInstance(name);
@@ -293,13 +292,13 @@ public class LocalManager extends Manager {
     try {
       synchronized (lock) {
         replicaMap.clear();
-        Set<ObjectName> keySet = federatedComponentMap.keySet();
+        var keySet = federatedComponentMap.keySet();
         if (keySet.isEmpty()) {
           return;
         }
 
-        for (ObjectName objectName : keySet) {
-          FederationComponent fedCompInstance = federatedComponentMap.get(objectName);
+        for (var objectName : keySet) {
+          var fedCompInstance = federatedComponentMap.get(objectName);
 
           if (Thread.interrupted()) {
             replicaMap.clear();
@@ -307,9 +306,9 @@ public class LocalManager extends Manager {
           }
 
           if (fedCompInstance != null) {
-            boolean stateChanged = fedCompInstance.refreshObjectState(service.isManager());
+            var stateChanged = fedCompInstance.refreshObjectState(service.isManager());
             if (!stopCacheOps) {
-              String key = objectName.toString();
+              var key = objectName.toString();
               if (stateChanged || !repo.keyExistsInLocalMonitoringRegion(key)) {
                 replicaMap.put(key, fedCompInstance);
               }

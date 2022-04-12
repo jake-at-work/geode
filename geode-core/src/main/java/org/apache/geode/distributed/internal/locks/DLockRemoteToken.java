@@ -81,12 +81,12 @@ public class DLockRemoteToken implements DataSerializableFixedID {
    */
   public static DLockRemoteToken createFromDataInput(DataInput in)
       throws IOException, ClassNotFoundException {
-    Object name = DataSerializer.readObject(in);
+    var name = DataSerializer.readObject(in);
     RemoteThread lesseeThread = null;
     InternalDistributedMember lessee = DataSerializer.readObject(in);
     lesseeThread = new RemoteThread(lessee, in.readInt());
-    int leaseId = in.readInt();
-    long leaseExpireTime = in.readLong();
+    var leaseId = in.readInt();
+    var leaseExpireTime = in.readLong();
     return new DLockRemoteToken(name, lesseeThread, leaseId, leaseExpireTime);
   }
 

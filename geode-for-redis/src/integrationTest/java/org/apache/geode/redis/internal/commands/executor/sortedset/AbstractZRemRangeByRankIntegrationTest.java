@@ -198,7 +198,7 @@ public abstract class AbstractZRemRangeByRankIntegrationTest implements RedisInt
 
   // Add 10 members with the different scores and member names
   private void populateSortedSet() {
-    for (int i = 0; i < 10; ++i) {
+    for (var i = 0; i < 10; ++i) {
       jedis.zadd(KEY, BASE_SCORE + i, BASE_MEMBER_NAME + i);
     }
   }

@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.CancelCriterion;
-import org.apache.geode.Statistics;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.logging.internal.executors.LoggingExecutors;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -40,7 +39,7 @@ public class CallbackSampler {
   }
 
   public void start(StatisticsManager statisticsManager, int sampleInterval, TimeUnit timeUnit) {
-    ScheduledExecutorService executor =
+    var executor =
         LoggingExecutors.newSingleThreadScheduledExecutor("CallbackSampler");
     start(executor, statisticsManager, sampleInterval, timeUnit);
   }
@@ -58,12 +57,12 @@ public class CallbackSampler {
     if (cancelCriterion.isCancelInProgress()) {
       executor.shutdown();
     }
-    int errors = 0;
-    int suppliers = 0;
-    long start = System.nanoTime();
+    var errors = 0;
+    var suppliers = 0;
+    var start = System.nanoTime();
     try {
-      for (Statistics stats : statisticsManager.getStatsList()) {
-        StatisticsImpl statistics = (StatisticsImpl) stats;
+      for (var stats : statisticsManager.getStatsList()) {
+        var statistics = (StatisticsImpl) stats;
         errors += statistics.updateSuppliedValues();
         suppliers += statistics.getSupplierCount();
       }
@@ -72,7 +71,7 @@ public class CallbackSampler {
     } catch (Throwable throwable) {
       logger.error("Error invoking statistic suppliers", throwable);
     } finally {
-      long end = System.nanoTime();
+      var end = System.nanoTime();
       statSamplerStats.incSampleCallbackDuration(TimeUnit.NANOSECONDS.toMillis(end - start));
       statSamplerStats.incSampleCallbackErrors(errors);
       statSamplerStats.setSampleCallbacks(suppliers);

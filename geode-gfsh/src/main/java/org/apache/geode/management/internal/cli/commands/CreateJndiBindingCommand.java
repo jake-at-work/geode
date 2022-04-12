@@ -15,9 +15,7 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -25,7 +23,6 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.JndiBindingsType;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.lang.Identifiable;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -33,7 +30,6 @@ import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.functions.CreateJndiBindingFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -130,7 +126,7 @@ public class CreateJndiBindingCommand extends SingleGfshCommand {
       @CliOption(key = DATASOURCE_CONFIG_PROPERTIES, optionContext = "splittingRegex=,(?![^{]*\\})",
           help = DATASOURCE_CONFIG_PROPERTIES_HELP) JndiBindingsType.JndiBinding.ConfigProperty[] dsConfigProperties) {
 
-    JndiBindingsType.JndiBinding configuration = new JndiBindingsType.JndiBinding();
+    var configuration = new JndiBindingsType.JndiBinding();
     configuration.setBlockingTimeoutSeconds(Objects.toString(blockingTimeout, null));
     configuration.setConnPooledDatasourceClass(connectionPooledDatasource);
     configuration.setConnectionUrl(connectionUrl);
@@ -153,21 +149,21 @@ public class CreateJndiBindingCommand extends SingleGfshCommand {
     InternalConfigurationPersistenceService service = getConfigurationPersistenceService();
 
     if (service != null) {
-      CacheConfig cacheConfig = service.getCacheConfig("cluster");
+      var cacheConfig = service.getCacheConfig("cluster");
       if (cacheConfig != null && Identifiable.exists(cacheConfig.getJndiBindings(), jndiName)) {
-        String message =
+        var message =
             CliStrings.format("Jndi binding with jndi-name \"{0}\" already exists.", jndiName);
         return ifNotExists ? ResultModel.createInfo("Skipping: " + message)
             : ResultModel.createError(message);
       }
     }
 
-    Set<DistributedMember> targetMembers = findMembers(null, null);
+    var targetMembers = findMembers(null, null);
     if (targetMembers.size() > 0) {
-      Object[] arguments = new Object[] {configuration, false};
-      List<CliFunctionResult> jndiCreationResult = executeAndGetFunctionResult(
+      var arguments = new Object[] {configuration, false};
+      var jndiCreationResult = executeAndGetFunctionResult(
           new CreateJndiBindingFunction(), arguments, targetMembers);
-      ResultModel result = ResultModel.createMemberStatusResult(jndiCreationResult);
+      var result = ResultModel.createMemberStatusResult(jndiCreationResult);
       result.setConfigObject(configuration);
       return result;
     } else {

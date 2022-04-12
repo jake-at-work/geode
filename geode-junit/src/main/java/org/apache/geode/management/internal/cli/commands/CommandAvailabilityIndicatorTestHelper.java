@@ -17,10 +17,6 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 
 import org.apache.geode.management.cli.CliMetaData;
@@ -31,21 +27,21 @@ import org.apache.geode.management.internal.cli.CommandManager;
 public class CommandAvailabilityIndicatorTestHelper {
 
   public static void assertOnlineCommandsHasAvailabilityIndicator(CommandManager manager) {
-    List<CommandMarker> commandMarkers = manager.getCommandMarkers();
-    for (CommandMarker commandMarker : commandMarkers) {
+    var commandMarkers = manager.getCommandMarkers();
+    for (var commandMarker : commandMarkers) {
       // ignore all the other commands beside GfshCommand
       if (!GfshCommand.class.isAssignableFrom(commandMarker.getClass())) {
         continue;
       }
 
-      for (Method method : commandMarker.getClass().getMethods()) {
-        CliCommand cliCommand = method.getAnnotation(CliCommand.class);
+      for (var method : commandMarker.getClass().getMethods()) {
+        var cliCommand = method.getAnnotation(CliCommand.class);
         if (cliCommand == null) {
           // the method is not a command method
           continue;
         }
 
-        CliMetaData cliMetaData = method.getAnnotation(CliMetaData.class);
+        var cliMetaData = method.getAnnotation(CliMetaData.class);
         // all the online commands have availability indicator defined in the commandManager
         if (cliMetaData == null || !cliMetaData.shellOnly()) {
           assertThat(manager.getHelper().hasAvailabilityIndicator(cliCommand.value()[0]))

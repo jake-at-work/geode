@@ -18,12 +18,10 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.geode.internal.Assert.assertState;
 
 import java.io.IOException;
-import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.Query;
-import javax.management.QueryExp;
 
 import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.MemberMXBean;
@@ -69,7 +67,7 @@ public class MXBeanProvider {
     MemberMXBean memberBean = null;
 
     try {
-      String objectNamePattern = ManagementConstants.OBJECTNAME__PREFIX;
+      var objectNamePattern = ManagementConstants.OBJECTNAME__PREFIX;
 
       objectNamePattern += (isBlank(serviceName)
           ? ""
@@ -79,12 +77,12 @@ public class MXBeanProvider {
       // NOTE throws a MalformedObjectNameException, however, this should not happen since the
       // ObjectName is constructed
       // here in a conforming pattern
-      final ObjectName objectName = ObjectName.getInstance(objectNamePattern);
+      final var objectName = ObjectName.getInstance(objectNamePattern);
 
-      final QueryExp query = Query.or(Query.eq(Query.attr("Name"), Query.value(member)),
+      final var query = Query.or(Query.eq(Query.attr("Name"), Query.value(member)),
           Query.eq(Query.attr("Id"), Query.value(member)));
 
-      final Set<ObjectName> memberObjectNames =
+      final var memberObjectNames =
           Gfsh.getCurrentInstance().getOperationInvoker().queryNames(objectName, query);
 
       if (!memberObjectNames.isEmpty()) {

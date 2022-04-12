@@ -17,13 +17,9 @@ package org.apache.geode.test.junit.rules;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-import java.util.List;
-
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 
 import org.apache.geode.test.junit.Retry;
 import org.apache.geode.test.junit.runners.TestRunner;
@@ -36,14 +32,14 @@ public class RetryRuleLocalWithErrorTest {
 
   @Test
   public void failsUnused() {
-    Result result = TestRunner.runTest(FailsUnused.class);
+    var result = TestRunner.runTest(FailsUnused.class);
 
     assertThat(result.wasSuccessful()).isFalse();
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     assertThat(failures.size()).as("Failures: " + failures).isEqualTo(1);
 
-    Failure failure = failures.get(0);
+    var failure = failures.get(0);
     assertThat(failure.getException()).isExactlyInstanceOf(AssertionError.class)
         .hasMessage(FailsUnused.message);
     assertThat(FailsUnused.count).isEqualTo(1);
@@ -51,7 +47,7 @@ public class RetryRuleLocalWithErrorTest {
 
   @Test
   public void passesUnused() {
-    Result result = TestRunner.runTest(PassesUnused.class);
+    var result = TestRunner.runTest(PassesUnused.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(PassesUnused.count).isEqualTo(1);
@@ -59,14 +55,14 @@ public class RetryRuleLocalWithErrorTest {
 
   @Test
   public void failsOnSecondAttempt() {
-    Result result = TestRunner.runTest(FailsOnSecondAttempt.class);
+    var result = TestRunner.runTest(FailsOnSecondAttempt.class);
 
     assertThat(result.wasSuccessful()).isFalse();
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     assertThat(failures.size()).as("Failures: " + failures).isEqualTo(1);
 
-    Failure failure = failures.get(0);
+    var failure = failures.get(0);
     assertThat(failure.getException()).isExactlyInstanceOf(AssertionError.class)
         .hasMessage(FailsOnSecondAttempt.message);
     assertThat(FailsOnSecondAttempt.count).isEqualTo(2);
@@ -74,7 +70,7 @@ public class RetryRuleLocalWithErrorTest {
 
   @Test
   public void passesOnSecondAttempt() {
-    Result result = TestRunner.runTest(PassesOnSecondAttempt.class);
+    var result = TestRunner.runTest(PassesOnSecondAttempt.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(PassesOnSecondAttempt.count).isEqualTo(2);
@@ -82,14 +78,14 @@ public class RetryRuleLocalWithErrorTest {
 
   @Test
   public void failsOnThirdAttempt() {
-    Result result = TestRunner.runTest(FailsOnThirdAttempt.class);
+    var result = TestRunner.runTest(FailsOnThirdAttempt.class);
 
     assertThat(result.wasSuccessful()).isFalse();
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     assertThat(failures.size()).as("Failures: " + failures).isEqualTo(1);
 
-    Failure failure = failures.get(0);
+    var failure = failures.get(0);
     assertThat(failure.getException()).isExactlyInstanceOf(AssertionError.class)
         .hasMessage(FailsOnThirdAttempt.message);
     assertThat(FailsOnThirdAttempt.count).isEqualTo(3);
@@ -97,7 +93,7 @@ public class RetryRuleLocalWithErrorTest {
 
   @Test
   public void passesOnThirdAttempt() {
-    Result result = TestRunner.runTest(PassesOnThirdAttempt.class);
+    var result = TestRunner.runTest(PassesOnThirdAttempt.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(PassesOnThirdAttempt.count).isEqualTo(3);

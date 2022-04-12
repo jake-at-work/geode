@@ -21,7 +21,6 @@ import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 
 import org.apache.logging.log4j.Logger;
@@ -61,11 +60,11 @@ public class FetchHostResponse extends AdminResponse {
    */
   public static FetchHostResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    FetchHostResponse m = new FetchHostResponse();
+    var m = new FetchHostResponse();
     m.setRecipient(recipient);
     try {
       InetAddress host = null;
-      String bindAddress = dm.getConfig().getBindAddress();
+      var bindAddress = dm.getConfig().getBindAddress();
       try {
         if (bindAddress != null && !bindAddress.equals(DistributionConfig.DEFAULT_BIND_ADDRESS)) {
           host = InetAddress.getByName(bindAddress);
@@ -80,24 +79,24 @@ public class FetchHostResponse extends AdminResponse {
       m.host = host;
       m.isDedicatedCacheServer = false;
 
-      DistributionConfig config = dm.getSystem().getConfig();
+      var config = dm.getSystem().getConfig();
       m.name = config.getName();
 
       m.workingDir = new File(System.getProperty("user.dir")).getAbsoluteFile();
 
-      URL url = GemFireVersion.getJarURL();
+      var url = GemFireVersion.getJarURL();
       if (url == null) {
         throw new IllegalStateException(
             "Could not find gemfire.jar.");
       }
-      String path = url.getPath();
+      var path = url.getPath();
       if (path.startsWith("file:")) {
         path = path.substring("file:".length());
       }
 
-      File gemfireJar = new File(path);
-      File lib = gemfireJar.getParentFile();
-      File product = lib.getParentFile();
+      var gemfireJar = new File(path);
+      var lib = gemfireJar.getParentFile();
+      var product = lib.getParentFile();
       m.geodeHomeDir = product.getCanonicalFile();// may thro' IOException if url is not in a proper
       // format
     } catch (Exception ex) {

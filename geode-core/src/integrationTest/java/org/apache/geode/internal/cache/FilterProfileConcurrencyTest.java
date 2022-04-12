@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,17 +40,17 @@ public class FilterProfileConcurrencyTest {
       ParallelExecutor executor) throws Exception {
     // warmUp();
 
-    FilterProfile profile = createFilterProfile();
+    var profile = createFilterProfile();
 
     // In parallel, serialize the filter profile
     // and add a new client
-    Future<byte[]> serializer = executor.inParallel(() -> serialize(profile));
+    var serializer = executor.inParallel(() -> serialize(profile));
     executor.inParallel(() -> addClient(profile));
     executor.execute();
 
     // Make sure we can deserialize the filter profile
-    byte[] bytes = serializer.get();
-    Object deserialized = deserialize(bytes);
+    var bytes = serializer.get();
+    var deserialized = deserialize(bytes);
     assertEquals(FilterProfile.class, deserialized.getClass());
 
   }
@@ -75,8 +74,8 @@ public class FilterProfileConcurrencyTest {
   }
 
   private void warmUp() throws IOException {
-    FilterProfile profile = createFilterProfile();
-    byte[] bytes = BlobHelper.serializeToBlob(profile);
+    var profile = createFilterProfile();
+    var bytes = BlobHelper.serializeToBlob(profile);
     addClient(profile);
   }
 }

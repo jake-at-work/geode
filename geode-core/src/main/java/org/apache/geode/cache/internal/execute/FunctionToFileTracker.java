@@ -18,14 +18,12 @@ package org.apache.geode.cache.internal.execute;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -63,10 +61,10 @@ public class FunctionToFileTracker {
 
     List<Function<?>> registeredFunctions = new LinkedList<>();
     try {
-      Collection<String> functionClasses = findFunctionsInThisJar(jarFile);
-      String filePath = jarFile.getAbsolutePath();
+      var functionClasses = findFunctionsInThisJar(jarFile);
+      var filePath = jarFile.getAbsolutePath();
       Collection<Function<?>> functions = new LinkedList<>();
-      for (String functionClass : functionClasses) {
+      for (var functionClass : functionClasses) {
         logger.debug("Attempting to load class: {}, from JAR file: {}", functionClass,
             filePath);
         try {
@@ -82,8 +80,8 @@ public class FunctionToFileTracker {
       logger.error("Exception when trying to find function classes from Jar", ioex);
       throw ioex;
     }
-    String artifactId = JarFileUtils.toArtifactId(jarFile.getName());
-    List<Function<?>> previouslyRegisteredFunctions =
+    var artifactId = JarFileUtils.toArtifactId(jarFile.getName());
+    var previouslyRegisteredFunctions =
         deploymentToFunctionsMap.remove(artifactId);
     if (!registeredFunctions.isEmpty()) {
       deploymentToFunctionsMap.put(artifactId, registeredFunctions);
@@ -98,7 +96,7 @@ public class FunctionToFileTracker {
       return;
     }
 
-    List<String> currentlyRegisteredFunctionIDs =
+    var currentlyRegisteredFunctionIDs =
         registeredFunctions.stream().map(Function::getId).collect(Collectors.toList());
     previouslyRegisteredFunctions.stream().map(Function::getId)
         .filter(functionId -> !currentlyRegisteredFunctionIDs.contains(functionId))
@@ -107,14 +105,14 @@ public class FunctionToFileTracker {
 
   private Collection<Function<?>> loadFunctionFromClassName(String className)
       throws ClassNotFoundException {
-    Class<?> clazz = ClassPathLoader.getLatest().forName(className);
+    var clazz = ClassPathLoader.getLatest().forName(className);
     return getRegisterableFunctionsFromClass(clazz);
   }
 
   private List<Function<?>> registerFunction(String jarFilePath,
       Collection<Function<?>> functions) {
     List<Function<?>> registeredFunctions = new ArrayList<>();
-    for (Function<?> function : functions) {
+    for (var function : functions) {
       FunctionService.registerFunction(function);
       logger.debug("Registering function class: {}, from JAR file: {}",
           function.getClass().getName(), jarFilePath);
@@ -131,7 +129,7 @@ public class FunctionToFileTracker {
    *        unregistered.
    */
   public void unregisterFunctionsForDeployment(String jarFileName) {
-    List<Function<?>> functions =
+    var functions =
         deploymentToFunctionsMap.remove(JarFileUtils.getArtifactId(jarFileName));
     if (functions != null) {
       functions.stream().map(Function::getId).forEach(FunctionService::unregisterFunction);
@@ -156,19 +154,19 @@ public class FunctionToFileTracker {
 
     try {
       if (Function.class.isAssignableFrom(clazz) && !Modifier.isAbstract(clazz.getModifiers())) {
-        boolean registerUninitializedFunction = true;
+        var registerUninitializedFunction = true;
         if (Declarable.class.isAssignableFrom(clazz)) {
           try {
-            InternalCache cache = (InternalCache) CacheFactory.getAnyInstance();
-            final List<Properties> propertiesList = cache.getDeclarableProperties(clazz.getName());
+            var cache = (InternalCache) CacheFactory.getAnyInstance();
+            final var propertiesList = cache.getDeclarableProperties(clazz.getName());
 
             if (!propertiesList.isEmpty()) {
               registerUninitializedFunction = false;
               // It's possible that the same function was declared multiple times in cache.xml
               // with different properties. So, register the function using each set of
               // properties.
-              for (Properties properties : propertiesList) {
-                Function<?> function = newFunction((Class<Function<?>>) clazz, true);
+              for (var properties : propertiesList) {
+                var function = newFunction((Class<Function<?>>) clazz, true);
                 if (function != null) {
                   ((Declarable) function).initialize(cache, properties);
                   ((Declarable) function).init(properties); // for backwards compatibility
@@ -185,7 +183,7 @@ public class FunctionToFileTracker {
 
         if (registerUninitializedFunction) {
           @SuppressWarnings("unchecked")
-          Function<?> function = newFunction((Class<Function<?>>) clazz, false);
+          var function = newFunction((Class<Function<?>>) clazz, false);
           if (function != null && function.getId() != null) {
             registerableFunctions.add(function);
           }
@@ -201,7 +199,7 @@ public class FunctionToFileTracker {
   private Function<?> newFunction(final Class<Function<?>> clazz,
       final boolean errorOnNoSuchMethod) {
     try {
-      final Constructor<Function<?>> constructor = clazz.getConstructor();
+      final var constructor = clazz.getConstructor();
       return constructor.newInstance();
     } catch (NoSuchMethodException nsmex) {
       if (errorOnNoSuchMethod) {

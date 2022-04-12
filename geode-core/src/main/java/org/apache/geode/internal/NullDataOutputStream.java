@@ -241,7 +241,7 @@ public class NullDataOutputStream extends OutputStream implements ObjToByteArray
    */
   @Override
   public void writeBytes(String str) throws IOException {
-    int strlen = str.length();
+    var strlen = str.length();
     if (strlen > 0) {
       size += strlen;
     }
@@ -260,7 +260,7 @@ public class NullDataOutputStream extends OutputStream implements ObjToByteArray
    */
   @Override
   public void writeChars(String s) throws IOException {
-    int len = s.length();
+    var len = s.length();
     if (len > 0) {
       size += len * 2;
     }
@@ -319,12 +319,12 @@ public class NullDataOutputStream extends OutputStream implements ObjToByteArray
    */
   @Override
   public void writeUTF(String str) throws IOException {
-    int strlen = str.length();
+    var strlen = str.length();
     if (strlen > 65535) {
       throw new UTFDataFormatException();
     }
-    int utfSize = 0;
-    for (int i = 0; i < strlen; i++) {
+    var utfSize = 0;
+    for (var i = 0; i < strlen; i++) {
       int c = str.charAt(i);
       if ((c >= 0x0001) && (c <= 0x007F)) {
         utfSize += 1;

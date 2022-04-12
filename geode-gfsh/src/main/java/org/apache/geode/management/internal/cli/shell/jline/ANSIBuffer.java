@@ -316,7 +316,7 @@ public class ANSIBuffer {
 
   public static void main(final String[] args) throws Exception {
     // sequence, one can use: ANSI.setkey ("0;59", "\"Hello F1\";13;10").
-    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    var reader = new BufferedReader(new InputStreamReader(System.in));
     System.out.print(ANSICodes.setkey("97", "97;98;99;13") + ANSICodes.attrib(ANSICodes.OFF));
     System.out.flush();
 
@@ -332,7 +332,7 @@ public class ANSIBuffer {
   private static final boolean BRIGHT_COLORS = ROO_BRIGHT_COLORS || SHELL_BRIGHT_COLORS;
 
   public static ANSIBuffer getANSIBuffer() {
-    final char esc = (char) 27;
+    final var esc = (char) 27;
     return new ANSIBuffer() {
       @Override
       public ANSIBuffer reverse(final String str) {

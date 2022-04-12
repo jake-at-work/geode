@@ -84,7 +84,7 @@ public abstract class CacheConfigurationManager<T extends AbstractConfiguration>
 
   @Override
   public final List<T> list(T filterConfig, String groupName) {
-    CacheConfig currentPersistedConfig =
+    var currentPersistedConfig =
         persistenceService.getCacheConfig(
             AbstractConfiguration.isCluster(groupName) ? AbstractConfiguration.CLUSTER : groupName,
             true);

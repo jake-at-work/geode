@@ -59,16 +59,16 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void testOverflowSyncRollOlg1() {
     try {
       // Create four Dirs for Disk Dirs
-      File file1 = new File("testOverflowSyncRollOlg1Dir1");
+      var file1 = new File("testOverflowSyncRollOlg1Dir1");
       file1.mkdir();
       file1.deleteOnExit();
-      File file2 = new File("testOverflowSyncRollOlg1Dir2");
+      var file2 = new File("testOverflowSyncRollOlg1Dir2");
       file2.mkdir();
       file2.deleteOnExit();
-      File file3 = new File("testOverflowSyncRollOlg1Dir3");
+      var file3 = new File("testOverflowSyncRollOlg1Dir3");
       file3.mkdir();
       file3.deleteOnExit();
-      File file4 = new File("testOverflowSyncRollOlg1Dir4");
+      var file4 = new File("testOverflowSyncRollOlg1Dir4");
       file4.mkdir();
       file4.deleteOnExit();
       dirs = new File[4];
@@ -104,16 +104,16 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void testOverflowASyncWithBufferRollOlg2() {
     try {
       // Create four Dirs for Disk Dirs
-      File file1 = new File("testOverflowASyncWithBufferRollOlg2Dir1");
+      var file1 = new File("testOverflowASyncWithBufferRollOlg2Dir1");
       file1.mkdir();
       file1.deleteOnExit();
-      File file2 = new File("testOverflowASyncWithBufferRollOlg2Dir2");
+      var file2 = new File("testOverflowASyncWithBufferRollOlg2Dir2");
       file2.mkdir();
       file2.deleteOnExit();
-      File file3 = new File("testOverflowASyncWithBufferRollOlg2Dir3");
+      var file3 = new File("testOverflowASyncWithBufferRollOlg2Dir3");
       file3.mkdir();
       file3.deleteOnExit();
-      File file4 = new File("testOverflowASyncWithBufferRollOlg2Dir4");
+      var file4 = new File("testOverflowASyncWithBufferRollOlg2Dir4");
       file4.mkdir();
       file4.deleteOnExit();
       dirs = new File[4];
@@ -152,16 +152,16 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void testOverflowASyncWithoutBufferRollOlg3() {
     try {
       // Create four Dirs for Disk Dirs
-      File file1 = new File("testOverflowASyncWithoutBufferRollOlg3Dir1");
+      var file1 = new File("testOverflowASyncWithoutBufferRollOlg3Dir1");
       file1.mkdir();
       file1.deleteOnExit();
-      File file2 = new File("testOverflowASyncWithoutBufferRollOlg3Dir2");
+      var file2 = new File("testOverflowASyncWithoutBufferRollOlg3Dir2");
       file2.mkdir();
       file2.deleteOnExit();
-      File file3 = new File("testOverflowASyncWithoutBufferRollOlg3Dir3");
+      var file3 = new File("testOverflowASyncWithoutBufferRollOlg3Dir3");
       file3.mkdir();
       file3.deleteOnExit();
-      File file4 = new File("testOverflowASyncWithoutBufferRollOlg3Dir4");
+      var file4 = new File("testOverflowASyncWithoutBufferRollOlg3Dir4");
       file4.mkdir();
       file4.deleteOnExit();
       dirs = new File[4];
@@ -202,16 +202,16 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void testpersistSyncRollOlg4() {
     try {
       // Create four Dirs for Disk Dirs
-      File file1 = new File("testpersistSyncRollOlg4Dir1");
+      var file1 = new File("testpersistSyncRollOlg4Dir1");
       file1.mkdir();
       file1.deleteOnExit();
-      File file2 = new File("testpersistSyncRollOlg4Dir2");
+      var file2 = new File("testpersistSyncRollOlg4Dir2");
       file2.mkdir();
       file2.deleteOnExit();
-      File file3 = new File("testpersistSyncRollOlg4Dir3");
+      var file3 = new File("testpersistSyncRollOlg4Dir3");
       file3.mkdir();
       file3.deleteOnExit();
-      File file4 = new File("testpersistSyncRollOlg4Dir4");
+      var file4 = new File("testpersistSyncRollOlg4Dir4");
       file4.mkdir();
       file4.deleteOnExit();
       dirs = new File[4];
@@ -247,16 +247,16 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void testpersistASyncWithBufferRollOlg5() {
     try {
       // Create four Dirs for Disk Dirs
-      File file1 = new File("testpersistASyncWithBufferRollOlg5Dir1");
+      var file1 = new File("testpersistASyncWithBufferRollOlg5Dir1");
       file1.mkdir();
       file1.deleteOnExit();
-      File file2 = new File("testpersistASyncWithBufferRollOlg5Dir2");
+      var file2 = new File("testpersistASyncWithBufferRollOlg5Dir2");
       file2.mkdir();
       file2.deleteOnExit();
-      File file3 = new File("testpersistASyncWithBufferRollOlg5Dir3");
+      var file3 = new File("testpersistASyncWithBufferRollOlg5Dir3");
       file3.mkdir();
       file3.deleteOnExit();
-      File file4 = new File("testpersistASyncWithBufferRollOlg5Dir4");
+      var file4 = new File("testpersistASyncWithBufferRollOlg5Dir4");
       file4.mkdir();
       file4.deleteOnExit();
       dirs = new File[4];
@@ -295,16 +295,16 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void testPersistASyncWithoutBufferRollOlg6() {
     try {
       // Create four Dirs for Disk Dirs
-      File file1 = new File("testPersistASyncWithoutBufferRollOlg6Dir1");
+      var file1 = new File("testPersistASyncWithoutBufferRollOlg6Dir1");
       file1.mkdir();
       file1.deleteOnExit();
-      File file2 = new File("testPersistASyncWithoutBufferRollOlg6Dir2");
+      var file2 = new File("testPersistASyncWithoutBufferRollOlg6Dir2");
       file2.mkdir();
       file2.deleteOnExit();
-      File file3 = new File("testPersistASyncWithoutBufferRollOlg6Dir3");
+      var file3 = new File("testPersistASyncWithoutBufferRollOlg6Dir3");
       file3.mkdir();
       file3.deleteOnExit();
-      File file4 = new File("testPersistASyncWithoutBufferRollOlg6Dir4");
+      var file4 = new File("testPersistASyncWithoutBufferRollOlg6Dir4");
       file4.mkdir();
       file4.deleteOnExit();
       dirs = new File[4];
@@ -345,16 +345,16 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void testPersistOverflowSyncRollOlg7() {
     try {
       // Create four Dirs for Disk Dirs
-      File file1 = new File("testPersistOverflowSyncRollOlg7Dir1");
+      var file1 = new File("testPersistOverflowSyncRollOlg7Dir1");
       file1.mkdir();
       file1.deleteOnExit();
-      File file2 = new File("testPersistOverflowSyncRollOlg7Dir2");
+      var file2 = new File("testPersistOverflowSyncRollOlg7Dir2");
       file2.mkdir();
       file2.deleteOnExit();
-      File file3 = new File("testPersistOverflowSyncRollOlg7Dir3");
+      var file3 = new File("testPersistOverflowSyncRollOlg7Dir3");
       file3.mkdir();
       file3.deleteOnExit();
-      File file4 = new File("testPersistOverflowSyncRollOlg7Dir4");
+      var file4 = new File("testPersistOverflowSyncRollOlg7Dir4");
       file4.mkdir();
       file4.deleteOnExit();
       dirs = new File[4];
@@ -392,16 +392,16 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void testPersistOverflowASyncWithBufferRollOlg8() {
     try {
       // Create four Dirs for Disk Dirs
-      File file1 = new File("testPersistOverflowASyncWithBufferRollOlg8Dir1");
+      var file1 = new File("testPersistOverflowASyncWithBufferRollOlg8Dir1");
       file1.mkdir();
       file1.deleteOnExit();
-      File file2 = new File("testPersistOverflowASyncWithBufferRollOlg8Dir2");
+      var file2 = new File("testPersistOverflowASyncWithBufferRollOlg8Dir2");
       file2.mkdir();
       file2.deleteOnExit();
-      File file3 = new File("testPersistOverflowASyncWithBufferRollOlg8Dir3");
+      var file3 = new File("testPersistOverflowASyncWithBufferRollOlg8Dir3");
       file3.mkdir();
       file3.deleteOnExit();
-      File file4 = new File("testPersistOverflowASyncWithBufferRollOlg8Dir4");
+      var file4 = new File("testPersistOverflowASyncWithBufferRollOlg8Dir4");
       file4.mkdir();
       file4.deleteOnExit();
       dirs = new File[4];
@@ -442,16 +442,16 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void testPersistOverflowASyncWithoutBufferRollOlg9() {
     try {
       // Create four Dirs for Disk Dirs
-      File file1 = new File("testPersistOverflowASyncWithoutBufferRollOlg9Dir1");
+      var file1 = new File("testPersistOverflowASyncWithoutBufferRollOlg9Dir1");
       file1.mkdir();
       file1.deleteOnExit();
-      File file2 = new File("testPersistOverflowASyncWithoutBufferRollOlg9Dir2");
+      var file2 = new File("testPersistOverflowASyncWithoutBufferRollOlg9Dir2");
       file2.mkdir();
       file2.deleteOnExit();
-      File file3 = new File("testPersistOverflowASyncWithoutBufferRollOlg9Dir3");
+      var file3 = new File("testPersistOverflowASyncWithoutBufferRollOlg9Dir3");
       file3.mkdir();
       file3.deleteOnExit();
-      File file4 = new File("testPersistOverflowASyncWithoutBufferRollOlg9Dir4");
+      var file4 = new File("testPersistOverflowASyncWithoutBufferRollOlg9Dir4");
       file4.mkdir();
       file4.deleteOnExit();
       dirs = new File[4];
@@ -501,9 +501,9 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public static boolean UNIQUE_KEYS = Boolean.getBoolean("DRP.UNIQUE_KEYS");
 
   public void populateData0to60k() {
-    final byte[] value = new byte[ENTRY_SIZE];
+    final var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
-    for (int i = 0; i < 60000; i++) {
+    for (var i = 0; i < 60000; i++) {
       region.put("" + i, value);
       // System.out.println(i);
     }
@@ -513,22 +513,22 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void populateData60kto100k() {
     // Put for validation.
     putForValidation(region);
-    final byte[] value = new byte[ENTRY_SIZE];
+    final var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
-    long startTime = System.currentTimeMillis();
-    for (int i = 60000; i < 100000; i++) {
+    var startTime = System.currentTimeMillis();
+    for (var i = 60000; i < 100000; i++) {
       region.put("" + i, value);
       // System.out.println(i);
     }
-    long endTime = System.currentTimeMillis();
+    var endTime = System.currentTimeMillis();
     System.out.println(" done with putting");
     // validate put operation
     validatePut(region);
     region.close(); // closes disk file which will flush all buffers
     float et = endTime - startTime;
-    float etSecs = et / 1000f;
-    float opPerSec = etSecs == 0 ? 0 : (40000 / (et / 1000f));
-    float bytesPerSec = etSecs == 0 ? 0 : ((40000 * ENTRY_SIZE) / (et / 1000f));
+    var etSecs = et / 1000f;
+    var opPerSec = etSecs == 0 ? 0 : (40000 / (et / 1000f));
+    var bytesPerSec = etSecs == 0 ? 0 : ((40000 * ENTRY_SIZE) / (et / 1000f));
     stats = "et=" + et + "ms writes/sec=" + opPerSec + " bytes/sec=" + bytesPerSec;
     log.info(stats);
   }
@@ -536,30 +536,30 @@ public class DiskRegionRollOpLogJUnitPerformanceTest extends DiskRegionTestingBa
   public void populateDataPutOnSameKey() {
     // Put for validation.
     putForValidation(region);
-    final byte[] value = new byte[ENTRY_SIZE];
+    final var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
-    long startTime = System.currentTimeMillis();
-    for (int i = 0; i < OP_COUNT; i++) {
+    var startTime = System.currentTimeMillis();
+    for (var i = 0; i < OP_COUNT; i++) {
       region.put("K", value);
     }
-    long endTime = System.currentTimeMillis();
+    var endTime = System.currentTimeMillis();
     System.out.println(" done with putting");
     // validate put operation
     validatePut(region);
     region.close(); // closes disk file which will flush all buffers
     float et = endTime - startTime;
-    float etSecs = et / 1000f;
-    float opPerSec = etSecs == 0 ? 0 : (OP_COUNT / (et / 1000f));
-    float bytesPerSec = etSecs == 0 ? 0 : ((OP_COUNT * ENTRY_SIZE) / (et / 1000f));
+    var etSecs = et / 1000f;
+    var opPerSec = etSecs == 0 ? 0 : (OP_COUNT / (et / 1000f));
+    var bytesPerSec = etSecs == 0 ? 0 : ((OP_COUNT * ENTRY_SIZE) / (et / 1000f));
     stats_ForSameKeyputs = "et=" + et + "ms writes/sec=" + opPerSec + " bytes/sec=" + bytesPerSec;
     log.info(stats_ForSameKeyputs);
   }
 
   @Override
   protected void deleteFiles() {
-    for (int i = 0; i < 4; i++) {
-      File[] files = dirs[i].listFiles();
-      for (final File file : files) {
+    for (var i = 0; i < 4; i++) {
+      var files = dirs[i].listFiles();
+      for (final var file : files) {
         file.delete();
       }
     }

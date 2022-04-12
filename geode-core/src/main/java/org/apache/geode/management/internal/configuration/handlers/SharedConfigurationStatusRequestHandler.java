@@ -27,7 +27,7 @@ public class SharedConfigurationStatusRequestHandler implements TcpHandler {
   @Override
   public Object processRequest(Object request) throws IOException {
     assert request instanceof SharedConfigurationStatusRequest;
-    InternalLocator locator = InternalLocator.getLocator();
+    var locator = InternalLocator.getLocator();
     return locator.getSharedConfigurationStatus();
   }
 

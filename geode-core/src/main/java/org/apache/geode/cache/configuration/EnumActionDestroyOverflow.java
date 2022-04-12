@@ -60,7 +60,7 @@ public enum EnumActionDestroyOverflow {
   }
 
   public static EnumActionDestroyOverflow fromValue(String v) {
-    for (EnumActionDestroyOverflow c : EnumActionDestroyOverflow.values()) {
+    for (var c : EnumActionDestroyOverflow.values()) {
       if (c.value.equals(v)) {
         return c;
       }

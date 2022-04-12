@@ -26,10 +26,10 @@ public class WellKnownClassSizerJUnitTest {
 
   @Test
   public void testByteArrays() {
-    byte[] test1 = new byte[5];
-    byte[] test2 = new byte[8];
+    var test1 = new byte[5];
+    var test2 = new byte[8];
 
-    ReflectionSingleObjectSizer referenceSizer = new ReflectionSingleObjectSizer();
+    var referenceSizer = new ReflectionSingleObjectSizer();
 
     assertEquals(referenceSizer.sizeof(test1), WellKnownClassSizer.sizeof(test1));
     assertEquals(referenceSizer.sizeof(test2), WellKnownClassSizer.sizeof(test2));
@@ -39,16 +39,16 @@ public class WellKnownClassSizerJUnitTest {
 
   @Test
   public void testStrings() {
-    String test1 = "123";
-    String test2 = "012345678";
+    var test1 = "123";
+    var test2 = "012345678";
 
-    ReflectionSingleObjectSizer referenceSizer = new ReflectionSingleObjectSizer();
+    var referenceSizer = new ReflectionSingleObjectSizer();
     test1.toCharArray();
 
     // The size of a string varies based on the JDK version. With 1.7.0_06
     // a couple of fields were removed. So just measure the size of an empty string.
-    String emptyString = "";
-    int emptySize = ObjectSizer.SIZE_CLASS_ONCE.sizeof(emptyString)
+    var emptyString = "";
+    var emptySize = ObjectSizer.SIZE_CLASS_ONCE.sizeof(emptyString)
         - ObjectSizer.SIZE_CLASS_ONCE.sizeof(new char[0]);
 
     assertEquals(emptySize + roundup(OBJECT_SIZE + 4 + 3 * 2), WellKnownClassSizer.sizeof(test1));

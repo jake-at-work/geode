@@ -73,8 +73,8 @@ public class SimpleClass1 implements PdxSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + (myFlag ? 1231 : 1237);
     result = prime * result + Float.floatToIntBits(myFloat);
     result = prime * result + myInt;
@@ -97,7 +97,7 @@ public class SimpleClass1 implements PdxSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SimpleClass1 other = (SimpleClass1) obj;
+    var other = (SimpleClass1) obj;
     if (myFlag != other.myFlag) {
       return false;
     }

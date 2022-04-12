@@ -45,7 +45,6 @@ import org.apache.geode.redis.internal.data.RedisList;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
@@ -64,11 +63,11 @@ public class RPopLPushDUnitTest {
 
   @Before
   public void testSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     clusterStartUp.startRedisVM(1, locator.getPort());
     clusterStartUp.startRedisVM(2, locator.getPort());
     clusterStartUp.startRedisVM(3, locator.getPort());
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort), 20_000);
     clusterStartUp.flushAll();
   }
@@ -80,20 +79,20 @@ public class RPopLPushDUnitTest {
 
   @Test
   public void shouldDistributeDataAmongCluster_andRetainDataAfterServerCrash() {
-    int primaryVMIndex = 1;
-    final String tag = "{" + clusterStartUp.getKeyOnServer("tag", primaryVMIndex) + "}";
-    final String sourceKey = tag + KEY_1;
-    final String destinationKey = tag + KEY_2;
+    var primaryVMIndex = 1;
+    final var tag = "{" + clusterStartUp.getKeyOnServer("tag", primaryVMIndex) + "}";
+    final var sourceKey = tag + KEY_1;
+    final var destinationKey = tag + KEY_2;
 
-    final int elementsToMove = 5;
-    final int initialElementCount = elementsToMove * 2;
+    final var elementsToMove = 5;
+    final var initialElementCount = elementsToMove * 2;
 
-    List<String> initialElements = makeInitialElementsList(initialElementCount);
+    var initialElements = makeInitialElementsList(initialElementCount);
 
     jedis.lpush(sourceKey, initialElements.toArray(new String[0]));
 
     // Move half the elements from the source list to the destination
-    for (int i = 0; i < elementsToMove; ++i) {
+    for (var i = 0; i < elementsToMove; ++i) {
       assertThat(jedis.rpoplpush(sourceKey, destinationKey)).isEqualTo(initialElements.get(i));
     }
 
@@ -112,13 +111,13 @@ public class RPopLPushDUnitTest {
   @Test
   public void givenBucketsMovedDuringRPopLPush_thenOperationsAreNotLostOrDuplicated()
       throws InterruptedException, ExecutionException {
-    final AtomicBoolean continueRunning = new AtomicBoolean(true);
-    final List<String> hashTags = getHashTagsForEachServer();
-    final int initialElementCount = 1000;
+    final var continueRunning = new AtomicBoolean(true);
+    final var hashTags = getHashTagsForEachServer();
+    final var initialElementCount = 1000;
 
-    List<String> initialElements = makeInitialElementsList(initialElementCount);
+    var initialElements = makeInitialElementsList(initialElementCount);
 
-    for (String hashTag : hashTags) {
+    for (var hashTag : hashTags) {
       jedis.lpush(hashTag + KEY_1, initialElements.toArray(new String[0]));
     }
 
@@ -130,7 +129,7 @@ public class RPopLPushDUnitTest {
         executor.runAsync(() -> repeatRPopLPushWithSameSourceAndDest(hashTags.get(2),
             initialElements, continueRunning));
 
-    for (int i = 0; i < 25 && continueRunning.get(); i++) {
+    for (var i = 0; i < 25 && continueRunning.get(); i++) {
       clusterStartUp.moveBucketForKey(hashTags.get(i % hashTags.size()));
       Thread.sleep(200);
     }
@@ -145,24 +144,24 @@ public class RPopLPushDUnitTest {
   @Ignore("GEODE-10121")
   @Test
   public void rpoplpush_isTransactional() {
-    String hashTag = "{" + clusterStartUp.getKeyOnServer("tag", 1) + "}";
+    var hashTag = "{" + clusterStartUp.getKeyOnServer("tag", 1) + "}";
 
     // Create two real RedisList entries
-    String sourceKey = hashTag + KEY_1;
-    String[] sourceElements = {"sourceElement1", "sourceElement2"};
+    var sourceKey = hashTag + KEY_1;
+    var sourceElements = new String[] {"sourceElement1", "sourceElement2"};
     jedis.lpush(sourceKey, sourceElements);
-    String destinationKey = hashTag + KEY_2;
-    String destinationElement = "destinationElement";
+    var destinationKey = hashTag + KEY_2;
+    var destinationElement = "destinationElement";
     jedis.lpush(destinationKey, destinationElement);
 
-    String throwingRedisListKey = hashTag + "ThrowingRedisList";
-    String throwingListElement = "shouldNotMove";
+    var throwingRedisListKey = hashTag + "ThrowingRedisList";
+    var throwingListElement = "shouldNotMove";
 
     // Put a test version of RedisList directly into the region that throws if rpop() or lpush() are
     // called on it
     clusterStartUp.getMember(1).invoke(() -> {
-      RedisKey throwingKey = new RedisKey(throwingRedisListKey.getBytes(StandardCharsets.UTF_8));
-      ThrowingRedisList throwingRedisList = new ThrowingRedisList();
+      var throwingKey = new RedisKey(throwingRedisListKey.getBytes(StandardCharsets.UTF_8));
+      var throwingRedisList = new ThrowingRedisList();
       throwingRedisList.elementInsert(throwingListElement.getBytes(StandardCharsets.UTF_8), 0);
       ClusterStartupRule.getCache().getRegion(DEFAULT_REDIS_REGION_NAME).put(throwingKey,
           throwingRedisList);
@@ -203,18 +202,18 @@ public class RPopLPushDUnitTest {
 
   private void repeatRPopLPush(String hashTag, List<String> initialElements,
       AtomicBoolean continueRunning) {
-    String source = hashTag + KEY_1;
-    String destination = hashTag + KEY_2;
+    var source = hashTag + KEY_1;
+    var destination = hashTag + KEY_2;
 
     // For easier validation
     List<String> reversedInitialElements = new ArrayList<>(initialElements);
     Collections.reverse(reversedInitialElements);
 
     while (continueRunning.get()) {
-      for (int i = 0; i < initialElements.size(); i++) {
+      for (var i = 0; i < initialElements.size(); i++) {
         assertThat(jedis.rpoplpush(source, destination)).isEqualTo(initialElements.get(i));
 
-        int movedIndex = (reversedInitialElements.size() - 1) - i;
+        var movedIndex = (reversedInitialElements.size() - 1) - i;
         // Confirm we moved the correct element
         assertThat(jedis.lrange(destination, 0, -1)).containsExactlyElementsOf(
             reversedInitialElements.subList(movedIndex, reversedInitialElements.size()));
@@ -226,7 +225,7 @@ public class RPopLPushDUnitTest {
       assertThat(jedis.exists(source)).isFalse();
 
       // Swap the source and destination keys
-      String tmp = source;
+      var tmp = source;
       source = destination;
       destination = tmp;
     }
@@ -234,14 +233,14 @@ public class RPopLPushDUnitTest {
 
   private void repeatRPopLPushWithSameSourceAndDest(String hashTag, List<String> initialElements,
       AtomicBoolean continueRunning) {
-    String key = hashTag + KEY_1;
+    var key = hashTag + KEY_1;
 
     // For easier validation
     List<String> expectedElements = new ArrayList<>(initialElements);
     Collections.reverse(expectedElements);
 
     while (continueRunning.get()) {
-      for (String element : initialElements) {
+      for (var element : initialElements) {
         assertThat(jedis.rpoplpush(key, key)).isEqualTo(element);
         Collections.rotate(expectedElements, 1);
         assertThat(jedis.lrange(key, 0, -1)).containsExactlyElementsOf(expectedElements);

@@ -119,8 +119,8 @@ public class Tomcat7DeltaSessionManagerTest
 
   @Test
   public void setContainerSetsProperContainerAndMaxInactiveInterval() {
-    final Context container = mock(Context.class);
-    final int containerMaxInactiveInterval = 3;
+    final var container = mock(Context.class);
+    final var containerMaxInactiveInterval = 3;
 
     doReturn(containerMaxInactiveInterval).when(container).getSessionTimeout();
 

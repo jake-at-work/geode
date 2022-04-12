@@ -76,7 +76,7 @@ public class OplogFlushTest extends DiskRegionTestingBase {
 
   private void verifyBB(ByteBuffer bb, byte[] src) {
     bb.flip();
-    for (int i = 0; i < src.length; ++i) {
+    for (var i = 0; i < src.length; ++i) {
       assertEquals("Channel contents does not match expected at index " + i, src[i], bb.get());
     }
   }
@@ -94,8 +94,8 @@ public class OplogFlushTest extends DiskRegionTestingBase {
    */
   private long fakeWriteArrayBB(ByteBuffer[] bbArray) throws IOException {
     nFakeChannelWrites++;
-    for (ByteBuffer b : bbArray) {
-      int numFakeWrite = b.limit() / 2;
+    for (var b : bbArray) {
+      var numFakeWrite = b.limit() / 2;
       if (b.position() <= 0) {
         b.position(numFakeWrite);
         return numFakeWrite;
@@ -122,7 +122,7 @@ public class OplogFlushTest extends DiskRegionTestingBase {
     try {
       // Force channel.write() failures when writing the first entry
       doAnswer(new FakeChannelWriteBB()).when(spyCh).write(bb1);
-      long chStartPos = ol.getFileChannel().position();
+      var chStartPos = ol.getFileChannel().position();
       bb1.clear();
       bb1.put(entry1);
       ol.flushAll(true);
@@ -133,10 +133,10 @@ public class OplogFlushTest extends DiskRegionTestingBase {
       bb1.clear();
       bb1.put(entry2);
       ol.flushAll(true);
-      long chEndPos = ol.getFileChannel().position();
+      var chEndPos = ol.getFileChannel().position();
       assertEquals("Change in channel position does not equal the size of the data flushed",
           entry1.length + entry2.length, chEndPos - chStartPos);
-      ByteBuffer dst = ByteBuffer.allocateDirect(entry1.length);
+      var dst = ByteBuffer.allocateDirect(entry1.length);
       ol.getFileChannel().position(chStartPos);
       ol.getFileChannel().read(dst);
       verifyBB(dst, entry1);
@@ -148,8 +148,8 @@ public class OplogFlushTest extends DiskRegionTestingBase {
   @Test
   public void testAsyncChannelWriteRetriesOnFailureDuringFlush() throws Exception {
     region = DiskRegionHelperFactory.getAsyncOverFlowAndPersistRegion(cache, null);
-    DiskRegion dr = ((LocalRegion) region).getDiskRegion();
-    Oplog[] oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
+    var dr = ((LocalRegion) region).getDiskRegion();
+    var oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
     assertNotNull("Unexpected null Oplog[] for " + dr.getName(), oplogs);
     assertNotNull("Unexpected null Oplog", oplogs[0]);
 
@@ -159,8 +159,8 @@ public class OplogFlushTest extends DiskRegionTestingBase {
   @Test
   public void testChannelWriteRetriesOnFailureDuringFlush() throws Exception {
     region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, null);
-    DiskRegion dr = ((LocalRegion) region).getDiskRegion();
-    Oplog[] oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
+    var dr = ((LocalRegion) region).getDiskRegion();
+    var oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
     assertNotNull("Unexpected null Oplog[] for " + dr.getName(), oplogs);
     assertNotNull("Unexpected null Oplog", oplogs[0]);
 
@@ -170,8 +170,8 @@ public class OplogFlushTest extends DiskRegionTestingBase {
   @Test
   public void testChannelRecoversFromWriteFailureRepeatedRetriesDuringFlush() throws Exception {
     region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, null);
-    DiskRegion dr = ((LocalRegion) region).getDiskRegion();
-    Oplog[] oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
+    var dr = ((LocalRegion) region).getDiskRegion();
+    var oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
     assertNotNull("Unexpected null Oplog[] for " + dr.getName(), oplogs);
     assertNotNull("Unexpected null Oplog", oplogs[0]);
 
@@ -184,8 +184,8 @@ public class OplogFlushTest extends DiskRegionTestingBase {
     expectedException.expect(DiskAccessException.class);
     expectedException.expectCause(instanceOf(IOException.class));
     region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, null);
-    DiskRegion dr = ((LocalRegion) region).getDiskRegion();
-    Oplog[] oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
+    var dr = ((LocalRegion) region).getDiskRegion();
+    var oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
     assertNotNull("Unexpected null Oplog[] for " + dr.getName(), oplogs);
     assertNotNull("Unexpected null Oplog", oplogs[0]);
 
@@ -221,8 +221,8 @@ public class OplogFlushTest extends DiskRegionTestingBase {
   @Test
   public void testOplogByteArrayFlush() throws Exception {
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, null, Scope.LOCAL);
-    DiskRegion dr = ((LocalRegion) region).getDiskRegion();
-    Oplog[] oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
+    var dr = ((LocalRegion) region).getDiskRegion();
+    var oplogs = dr.getDiskStore().getPersistentOplogs().getAllOplogs();
     assertNotNull("Unexpected null Oplog[] for " + dr.getName(), oplogs);
     assertNotNull("Unexpected null Oplog", oplogs[0]);
 

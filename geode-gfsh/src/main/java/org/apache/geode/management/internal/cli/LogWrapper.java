@@ -79,7 +79,7 @@ public class LogWrapper {
   public void configure(GfshConfig config) {
     if (config.isLoggingEnabled()) {
       try {
-        FileHandler fileHandler = new FileHandler(config.getLogFilePath(),
+        var fileHandler = new FileHandler(config.getLogFilePath(),
             config.getLogFileSizeLimit(), config.getLogFileCount(), true);
         fileHandler.setFormatter(new GemFireFormatter());
         fileHandler.setLevel(config.getLogLevel());
@@ -93,7 +93,7 @@ public class LogWrapper {
 
   private static void addDefaultConsoleHandler(Logger logger, String errorMessage,
       String logFilePath) {
-    ConsoleHandler consoleHandler = new ConsoleHandler();
+    var consoleHandler = new ConsoleHandler();
     consoleHandler.setFormatter(new GemFireFormatter());
     logger.addHandler(consoleHandler);
 
@@ -112,7 +112,7 @@ public class LogWrapper {
   public static void close() {
     synchronized (INSTANCE_LOCK) {
       if (INSTANCE != null) {
-        Logger innerLogger = INSTANCE.logger;
+        var innerLogger = INSTANCE.logger;
         // remove any existing handlers
         cleanupLogger(innerLogger);
       }
@@ -128,8 +128,8 @@ public class LogWrapper {
    */
   private static void cleanupLogger(Logger logger) {
     if (logger != null) {
-      Handler[] handlers = logger.getHandlers();
-      for (Handler handler : handlers) {
+      var handlers = logger.getHandlers();
+      for (var handler : handlers) {
         handler.close();
         logger.removeHandler(handler);
       }
@@ -289,15 +289,15 @@ public class LogWrapper {
 
     @Override
     public synchronized String format(LogRecord record) {
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw);
+      var sw = new StringWriter();
+      var pw = new PrintWriter(sw);
 
       pw.println();
       pw.print('[');
       pw.print(record.getLevel().getName().toLowerCase());
       pw.print(' ');
       pw.print(formatDate(new Date(record.getMillis())));
-      String threadName = Thread.currentThread().getName();
+      var threadName = Thread.currentThread().getName();
       if (threadName != null) {
         pw.print(' ');
         pw.print(threadName);
@@ -312,7 +312,7 @@ public class LogWrapper {
       pw.print(record.getSequenceNumber());
       pw.print(") ");
 
-      String msg = record.getMessage();
+      var msg = record.getMessage();
       if (msg != null) {
         try {
           formatText(pw, msg, 40);
@@ -336,17 +336,17 @@ public class LogWrapper {
     }
 
     private void formatText(PrintWriter writer, String target, int initialLength) {
-      BreakIterator boundary = BreakIterator.getLineInstance();
+      var boundary = BreakIterator.getLineInstance();
       boundary.setText(target);
-      int start = boundary.first();
-      int end = boundary.next();
-      int lineLength = initialLength;
+      var start = boundary.first();
+      var end = boundary.next();
+      var lineLength = initialLength;
 
       while (end != BreakIterator.DONE) {
         // Look at the end and only accept whitespace breaks
-        char endChar = target.charAt(end - 1);
+        var endChar = target.charAt(end - 1);
         while (!Character.isWhitespace(endChar)) {
-          int lastEnd = end;
+          var lastEnd = end;
           end = boundary.next();
           if (end == BreakIterator.DONE) {
             // give up. We are at the end of the string
@@ -355,7 +355,7 @@ public class LogWrapper {
           }
           endChar = target.charAt(end - 1);
         }
-        int wordEnd = end;
+        var wordEnd = end;
         if (endChar == '\n') {
           // trim off the \n since println will do it for us
           wordEnd--;
@@ -366,7 +366,7 @@ public class LogWrapper {
           // figure tabs use 8 characters
           lineLength += 7;
         }
-        String word = target.substring(start, wordEnd);
+        var word = target.substring(start, wordEnd);
         lineLength += word.length();
         writer.print(word);
         if (endChar == '\n' || endChar == '\r') {

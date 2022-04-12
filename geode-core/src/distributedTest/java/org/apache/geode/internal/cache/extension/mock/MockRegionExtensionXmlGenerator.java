@@ -22,7 +22,6 @@ import static org.apache.geode.internal.cache.extension.mock.MockExtensionXmlPar
 import static org.apache.geode.internal.cache.xmlcache.XmlGeneratorUtils.addAttribute;
 import static org.apache.geode.internal.cache.xmlcache.XmlGeneratorUtils.emptyElement;
 
-import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -44,12 +43,12 @@ public class MockRegionExtensionXmlGenerator
 
   @Override
   public void generate(CacheXmlGenerator cacheXmlGenerator) throws SAXException {
-    final ContentHandler handler = cacheXmlGenerator.getContentHandler();
+    final var handler = cacheXmlGenerator.getContentHandler();
 
     try {
       handler.startPrefixMapping(PREFIX, NAMESPACE);
 
-      final AttributesImpl atts = new AttributesImpl();
+      final var atts = new AttributesImpl();
       addAttribute(atts, ATTRIBUTE_VALUE, extension.getValue());
       emptyElement(handler, PREFIX, ELEMENT_REGION, atts);
     } finally {

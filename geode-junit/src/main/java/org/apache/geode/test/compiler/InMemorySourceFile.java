@@ -43,16 +43,16 @@ public class InMemorySourceFile extends SimpleJavaFileObject {
   }
 
   static InMemorySourceFile fromSourceCode(String sourceCode) {
-    String className = new ClassNameExtractor().extractFromSourceCode(sourceCode);
+    var className = new ClassNameExtractor().extractFromSourceCode(sourceCode);
     System.out.println("DHE: extracted class name: " + className);
     return new InMemorySourceFile(className, sourceCode);
   }
 
   static InMemorySourceFile fromClassName(String className) {
-    ClassNameWithPackage classNameWithPackage = ClassNameWithPackage.of(className);
-    boolean isPackageSpecified = StringUtils.isNotBlank(classNameWithPackage.packageName);
+    var classNameWithPackage = ClassNameWithPackage.of(className);
+    var isPackageSpecified = StringUtils.isNotBlank(classNameWithPackage.packageName);
 
-    StringBuilder sourceCode = new StringBuilder();
+    var sourceCode = new StringBuilder();
     if (isPackageSpecified) {
       sourceCode.append(String.format("package %s;", classNameWithPackage.packageName));
       sourceCode.append(lineSeparator());
@@ -68,14 +68,14 @@ public class InMemorySourceFile extends SimpleJavaFileObject {
     private final String simpleClassName;
 
     static ClassNameWithPackage of(String fqClassName) {
-      int indexOfLastDot = fqClassName.lastIndexOf('.');
+      var indexOfLastDot = fqClassName.lastIndexOf('.');
 
       if (indexOfLastDot == -1) {
         return new ClassNameWithPackage("", fqClassName);
       }
 
-      String specifiedPackage = fqClassName.substring(0, indexOfLastDot);
-      String simpleClassName = fqClassName.substring(indexOfLastDot + 1);
+      var specifiedPackage = fqClassName.substring(0, indexOfLastDot);
+      var simpleClassName = fqClassName.substring(indexOfLastDot + 1);
 
       return new ClassNameWithPackage(specifiedPackage, simpleClassName);
     }

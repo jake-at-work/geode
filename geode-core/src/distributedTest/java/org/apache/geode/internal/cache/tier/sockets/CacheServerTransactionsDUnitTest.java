@@ -43,7 +43,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.DistributedSystem;
@@ -118,7 +117,7 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
    */
   @Test
   public void testOneServerToClientTransactionsPropagation() {
-    Integer port1 = initServerCache(server1);
+    var port1 = initServerCache(server1);
     client1.invoke(() -> CacheServerTransactionsDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port1));
     client2.invoke(() -> CacheServerTransactionsDUnitTest
@@ -149,8 +148,8 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
    */
   @Test
   public void testServerToClientTransactionsPropagation() {
-    Integer port1 = initServerCache(server1);
-    Integer port2 = initServerCache(server2);
+    var port1 = initServerCache(server1);
+    var port2 = initServerCache(server2);
     client1.invoke(() -> CacheServerTransactionsDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port1, port2));
     client2.invoke(() -> CacheServerTransactionsDUnitTest
@@ -184,8 +183,8 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
    */
   @Test
   public void testServerToClientTransactionsPropagationWithOneClientConnectedToOneServer() {
-    Integer port1 = initServerCache(server1);
-    Integer port2 = initServerCache(server2);
+    var port1 = initServerCache(server1);
+    var port2 = initServerCache(server2);
     client1.invoke(() -> CacheServerTransactionsDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port1));
     client2.invoke(() -> CacheServerTransactionsDUnitTest
@@ -219,7 +218,7 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
    */
   @Test
   public void testInvalidatesOneServerToClientTransactionsPropagation() {
-    Integer port1 = initServerCache(server1);
+    var port1 = initServerCache(server1);
     client1.invoke(() -> CacheServerTransactionsDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port1));
     client2.invoke(() -> CacheServerTransactionsDUnitTest
@@ -245,8 +244,8 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
    */
   @Test
   public void testInvalidatesServerToClientTransactionsPropagation() {
-    Integer port1 = initServerCache(server1);
-    Integer port2 = initServerCache(server2);
+    var port1 = initServerCache(server1);
+    var port2 = initServerCache(server2);
     client1.invoke(() -> CacheServerTransactionsDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port1, port2));
     client2.invoke(() -> CacheServerTransactionsDUnitTest
@@ -274,8 +273,8 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
    */
   @Test
   public void testInvalidatesServerToClientTransactionsPropagationWithOneConnection() {
-    Integer port1 = initServerCache(server1);
-    Integer port2 = initServerCache(server2);
+    var port1 = initServerCache(server1);
+    var port2 = initServerCache(server2);
     client1.invoke(() -> CacheServerTransactionsDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port1));
     client2.invoke(() -> CacheServerTransactionsDUnitTest
@@ -304,7 +303,7 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
    */
   @Test
   public void testDestroysOneServerToClientTransactionsPropagation() {
-    Integer port1 = initServerCache(server1);
+    var port1 = initServerCache(server1);
     client1.invoke(() -> CacheServerTransactionsDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port1));
     client2.invoke(() -> CacheServerTransactionsDUnitTest
@@ -330,8 +329,8 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
    */
   @Test
   public void testDestroysServerToClientTransactionsPropagation() {
-    Integer port1 = initServerCache(server1);
-    Integer port2 = initServerCache(server2);
+    var port1 = initServerCache(server1);
+    var port2 = initServerCache(server2);
     client1.invoke(() -> CacheServerTransactionsDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port1, port2));
     client2.invoke(() -> CacheServerTransactionsDUnitTest
@@ -360,8 +359,8 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
    */
   @Test
   public void testDestroysServerToClientTransactionsPropagationWithOneConnection() {
-    Integer port1 = initServerCache(server1);
-    Integer port2 = initServerCache(server2);
+    var port1 = initServerCache(server1);
+    var port2 = initServerCache(server2);
     client1.invoke(() -> CacheServerTransactionsDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(server1.getHost()), port1));
     client2.invoke(() -> CacheServerTransactionsDUnitTest
@@ -392,7 +391,7 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
   @Test
   public void testClientToServerCommits() {
     fail("Invoking bad method");
-    int port1 = 0;
+    var port1 = 0;
     // Integer port1 = ((Integer)server1.invoke(() ->
     // CacheServerTransactionsDUnitTest.createServerCache()));
     // Integer port2 = ((Integer)server2.invoke(() ->
@@ -410,7 +409,7 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
   }
 
   private CacheSerializableRunnable resetFlags() {
-    CacheSerializableRunnable resetFlags = new CacheSerializableRunnable("resetFlags") {
+    var resetFlags = new CacheSerializableRunnable("resetFlags") {
       @Override
       public void run2() throws CacheException {
         destroyed = false;
@@ -440,7 +439,7 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
     assertNotNull(r1);
     try {
       getLogWriter().info("vlaue for the key k1" + r1.getEntry(k1).getValue());
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           Thread.yield(); // TODO is this necessary?
@@ -547,7 +546,7 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
       // wait until
       // condition is
       // met
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           Thread.yield(); // TODO is this necessary?
@@ -584,7 +583,7 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
     assertNotNull(r1);
 
     try {
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           Thread.yield(); // TODO is this necessary?
@@ -658,15 +657,15 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
   }
 
   public static void createClientCache(String host, Integer port) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new CacheServerTransactionsDUnitTest().createCache(props);
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(host, port)
+    var p = (PoolImpl) PoolManager.createFactory().addServer(host, port)
         .setSubscriptionEnabled(true)
         // .setRetryInterval(2000)
         .create("CacheServerTransctionDUnitTestPool2");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(p.getName());
     factory.setCacheListener(new CacheListenerAdapter() {
@@ -686,23 +685,23 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
         }
       }
     });
-    Region region1 = cache.createRegion(REGION_NAME, factory.create());
+    var region1 = cache.createRegion(REGION_NAME, factory.create());
     assertNotNull(region1);
     pool = p;
     registerKeys();
   }
 
   public static void createClientCache(String host, Integer port1, Integer port2) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new CacheServerTransactionsDUnitTest().createCache(props);
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(host, port1)
+    var p = (PoolImpl) PoolManager.createFactory().addServer(host, port1)
         .addServer(host, port2).setSubscriptionEnabled(true)
         // .setRetryInterval(2000)
         .create("CacheServerTransctionDUnitTestPool2");
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(p.getName());
     factory.setCacheListener(new CacheListenerAdapter() {
@@ -722,7 +721,7 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
         }
       }
     });
-    Region region1 = cache.createRegion(REGION_NAME, factory.create());
+    var region1 = cache.createRegion(REGION_NAME, factory.create());
     assertNotNull(region1);
     pool = p;
     registerKeys();
@@ -733,14 +732,14 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
   }
 
   private Integer initServerCache(VM server) {
-    Object[] args = new Object[] {getMaxThreads()};
+    var args = new Object[] {getMaxThreads()};
     return server.invoke(CacheServerTransactionsDUnitTest.class, "createServerCache",
         args);
   }
 
   public static Integer createServerCache(Integer maxThreads) throws Exception {
     new CacheServerTransactionsDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setCacheListener(new CacheListenerAdapter() {
@@ -760,10 +759,10 @@ public class CacheServerTransactionsDUnitTest extends JUnit4DistributedTestCase 
         }
       }
     });
-    Region r1 = cache.createRegion(REGION_NAME, factory.create());
+    var r1 = cache.createRegion(REGION_NAME, factory.create());
     assertNotNull(r1);
-    CacheServer server1 = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server1.setPort(port);
     server1.setMaxThreads(maxThreads);
     server1.setNotifyBySubscription(true);

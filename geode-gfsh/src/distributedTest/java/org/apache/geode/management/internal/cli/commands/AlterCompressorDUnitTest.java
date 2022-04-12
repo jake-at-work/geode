@@ -25,18 +25,13 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.cache.CachedDeserializable;
 import org.apache.geode.internal.cache.CachedDeserializableFactory;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.management.internal.configuration.utils.XmlUtils;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -109,7 +104,7 @@ public class AlterCompressorDUnitTest {
 
     // Alter disk-store & region to add compressor
     Stream.of(server1, server2).forEach(server -> {
-      String diskDir = server.getWorkingDir() + "/diskStore";
+      var diskDir = server.getWorkingDir() + "/diskStore";
       // make sure offline diskstore has no compressor
       gfsh.executeAndAssertThat(
           "describe offline-disk-store --name=diskStore --disk-dirs=" + diskDir).statusIsSuccess()
@@ -129,10 +124,10 @@ public class AlterCompressorDUnitTest {
       // add the compressor to the region attributes and put it back in cluster config
       // this is just a hack to change the cache.xml so that when server restarts it restarts
       // with new region attributes
-      InternalConfigurationPersistenceService ccService =
+      var ccService =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      Configuration configuration = ccService.getConfiguration("dataStore");
-      String modifiedXml =
+      var configuration = ccService.getConfiguration("dataStore");
+      var modifiedXml =
           addCompressor(configuration.getCacheXmlContent(), TestCompressor1.class.getName());
       configuration.setCacheXmlContent(modifiedXml);
       ccService.getConfigurationRegion().put("dataStore", configuration);
@@ -150,7 +145,7 @@ public class AlterCompressorDUnitTest {
     server3.stop(false);
 
     Stream.of(server1, server2).forEach(server -> {
-      String diskDir = server.getWorkingDir() + "/diskStore";
+      var diskDir = server.getWorkingDir() + "/diskStore";
       // make sure offline diskstore has no compressor
       gfsh.executeAndAssertThat(
           "describe offline-disk-store --name=diskStore --disk-dirs=" + diskDir).statusIsSuccess()
@@ -170,10 +165,10 @@ public class AlterCompressorDUnitTest {
       // remove the compressor to the region attributes and put it back in cluster config
       // this is just a hack to change the cache.xml so that when server restarts it restarts
       // with new region attributes
-      InternalConfigurationPersistenceService ccService =
+      var ccService =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      Configuration configuration = ccService.getConfiguration("dataStore");
-      String modifiedXml = removeCompressor(configuration.getCacheXmlContent());
+      var configuration = ccService.getConfiguration("dataStore");
+      var modifiedXml = removeCompressor(configuration.getCacheXmlContent());
       configuration.setCacheXmlContent(modifiedXml);
       ccService.getConfigurationRegion().put("dataStore", configuration);
     });
@@ -193,8 +188,8 @@ public class AlterCompressorDUnitTest {
   }
 
   private static String addCompressor(String cacheXmlContent, String name) throws Exception {
-    Document document = XmlUtils.createDocumentFromXml(cacheXmlContent);
-    NodeList nodeList = document.getElementsByTagName("region-attributes");
+    var document = XmlUtils.createDocumentFromXml(cacheXmlContent);
+    var nodeList = document.getElementsByTagName("region-attributes");
     Node compressor = document.createElement("compressor");
     Node classname = document.createElement("class-name");
     classname.setTextContent(name);
@@ -204,10 +199,10 @@ public class AlterCompressorDUnitTest {
   }
 
   private static String removeCompressor(String cacheXmlContent) {
-    String beginTag = "<compressor>";
-    String endTag = "</compressor>";
-    int beginIndex = cacheXmlContent.indexOf(beginTag);
-    int endIndex = cacheXmlContent.indexOf(endTag);
+    var beginTag = "<compressor>";
+    var endTag = "</compressor>";
+    var beginIndex = cacheXmlContent.indexOf(beginTag);
+    var endIndex = cacheXmlContent.indexOf(endTag);
     return cacheXmlContent.substring(0, beginIndex)
         + cacheXmlContent.substring(endIndex + endTag.length());
   }
@@ -219,14 +214,14 @@ public class AlterCompressorDUnitTest {
     assertThat(testRegion.getAttributes().getCompressor()).isInstanceOf(TestCompressor1.class);
 
     // assert that entry value is actually compressed
-    TestCompressor1 compressor = new TestCompressor1();
-    LocalRegion localReg = ((LocalRegion) testRegion);
-    RegionEntry entry = localReg.entries.getEntry("key19");
-    Object value = entry.getValue();
+    var compressor = new TestCompressor1();
+    var localReg = ((LocalRegion) testRegion);
+    var entry = localReg.entries.getEntry("key19");
+    var value = entry.getValue();
 
     assertThat(value).isInstanceOf(byte[].class);
-    byte[] actual = (byte[]) value;
-    byte[] expected = EntryEventImpl
+    var actual = (byte[]) value;
+    var expected = EntryEventImpl
         .serialize(CachedDeserializableFactory.create(EntryEventImpl.serialize("value19"), null));
     assertThat(actual).isEqualTo(compressor.compress(expected));
   }
@@ -237,11 +232,11 @@ public class AlterCompressorDUnitTest {
     assertThat(testRegion.getAttributes().getCompressor()).isNull();
 
     // assert that values are not compressed
-    LocalRegion localReg = ((LocalRegion) testRegion);
-    RegionEntry entry = localReg.entries.getEntry("key19");
-    Object value = entry.getValue();
+    var localReg = ((LocalRegion) testRegion);
+    var entry = localReg.entries.getEntry("key19");
+    var value = entry.getValue();
     assertThat(value).isInstanceOf(CachedDeserializable.class);
-    CachedDeserializable expected =
+    var expected =
         CachedDeserializableFactory.create(EntryEventImpl.serialize("value19"), null);
     assertThat(((CachedDeserializable) value).getSerializedValue())
         .isEqualTo(expected.getSerializedValue());

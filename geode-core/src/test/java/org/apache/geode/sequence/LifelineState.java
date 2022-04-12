@@ -17,7 +17,6 @@ package org.apache.geode.sequence;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -55,28 +54,28 @@ public class LifelineState {
   }
 
   public void paint(Graphics2D g, StateColorMap colorMap) {
-    Rectangle bounds = g.getClipBounds();
+    var bounds = g.getClipBounds();
     if (startY > bounds.getMaxY() || startY + height < bounds.getMinY()) {
       return;
     }
 
-    int x = line.getX();
-    int width = line.getWidth();
+    var x = line.getX();
+    var width = line.getWidth();
 
-    Color color = colorMap.getColor(stateName);
+    var color = colorMap.getColor(stateName);
     g.setColor(color);
     g.fillRoundRect(x, startY, width, height, ARC_SIZE, ARC_SIZE);
     g.setColor(Color.BLACK);
   }
 
   public void highlight(Graphics2D g) {
-    Rectangle bounds = g.getClipBounds();
+    var bounds = g.getClipBounds();
     if (startY > bounds.getMaxY() || startY + height < bounds.getMinY()) {
       return;
     }
 
-    int x = line.getX();
-    int width = line.getWidth();
+    var x = line.getX();
+    var width = line.getWidth();
 
     g.drawRoundRect(x, startY, width, height, ARC_SIZE, ARC_SIZE);
   }

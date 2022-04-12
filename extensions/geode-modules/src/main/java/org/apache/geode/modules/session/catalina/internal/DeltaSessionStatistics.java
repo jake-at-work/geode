@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
 public class DeltaSessionStatistics {
@@ -37,7 +36,7 @@ public class DeltaSessionStatistics {
 
   static {
     // Initialize type
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     type = f.createType(typeName, typeName,
         new StatisticDescriptor[] {
             f.createLongCounter(SESSIONS_CREATED, "The number of sessions created", "operations"),

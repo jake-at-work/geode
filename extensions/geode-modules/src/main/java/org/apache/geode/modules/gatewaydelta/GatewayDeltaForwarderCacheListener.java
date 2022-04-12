@@ -48,7 +48,7 @@ public class GatewayDeltaForwarderCacheListener extends CacheListenerAdapter<Str
     // gateway delta region
     if (event.getCallbackArgument() == null) {
       if (cache.getLogger().fineEnabled()) {
-        String builder = "GatewayDeltaForwarderCacheListener: Received create event for "
+        var builder = "GatewayDeltaForwarderCacheListener: Received create event for "
             + event.getKey() + "->" + event.getNewValue()
             + " that originated in the local site. Sending it to the remote site.";
         cache.getLogger().fine(
@@ -56,8 +56,8 @@ public class GatewayDeltaForwarderCacheListener extends CacheListenerAdapter<Str
       }
 
       // Distribute the create event to the gateway hub(s)
-      String regionName = event.getRegion().getFullPath();
-      String sessionId = event.getKey();
+      var regionName = event.getRegion().getFullPath();
+      var sessionId = event.getKey();
       SerializedCacheValue scv = event.getSerializedNewValue();
       if (scv == null) {
         getGatewayDeltaRegion().put(sessionId, new GatewayDeltaCreateEvent(regionName, sessionId,
@@ -68,7 +68,7 @@ public class GatewayDeltaForwarderCacheListener extends CacheListenerAdapter<Str
       }
     } else {
       if (cache.getLogger().fineEnabled()) {
-        String builder = "GatewayDeltaForwarderCacheListener: Received create event for "
+        var builder = "GatewayDeltaForwarderCacheListener: Received create event for "
             + event.getKey() + "->" + event.getNewValue()
             + " that originated in the remote site.";
         cache.getLogger().fine(builder);
@@ -82,7 +82,7 @@ public class GatewayDeltaForwarderCacheListener extends CacheListenerAdapter<Str
     // gateway delta region
     if (event.getCallbackArgument() == null) {
       if (cache.getLogger().fineEnabled()) {
-        String builder = "GatewayDeltaForwarderCacheListener: Received update event for "
+        var builder = "GatewayDeltaForwarderCacheListener: Received update event for "
             + event.getKey() + "->" + event.getNewValue()
             + " that originated in the local site. Sending it to the remote site.";
         cache.getLogger().fine(
@@ -90,14 +90,14 @@ public class GatewayDeltaForwarderCacheListener extends CacheListenerAdapter<Str
       }
 
       // Distribute the update event to the gateway hub(s)
-      GatewayDelta session = event.getNewValue();
+      var session = event.getNewValue();
       getGatewayDeltaRegion().put(event.getKey(), session.getCurrentGatewayDeltaEvent());
 
       // Reset the current delta
       session.setCurrentGatewayDeltaEvent(null);
     } else {
       if (cache.getLogger().fineEnabled()) {
-        String builder = "GatewayDeltaForwarderCacheListener: Received update event for "
+        var builder = "GatewayDeltaForwarderCacheListener: Received update event for "
             + event.getKey() + "->" + event.getNewValue()
             + " that originated in the remote site.";
         cache.getLogger().fine(builder);
@@ -111,7 +111,7 @@ public class GatewayDeltaForwarderCacheListener extends CacheListenerAdapter<Str
     // gateway delta region
     if (event.getCallbackArgument() != null) {
       if (cache.getLogger().fineEnabled()) {
-        String builder = "GatewayDeltaForwarderCacheListener: Received destroy event for "
+        var builder = "GatewayDeltaForwarderCacheListener: Received destroy event for "
             + event.getKey() + "->" + event.getNewValue()
             + " that originated in the local site. Sending it to the remote site.";
         cache.getLogger().fine(
@@ -119,12 +119,12 @@ public class GatewayDeltaForwarderCacheListener extends CacheListenerAdapter<Str
       }
 
       // Distribute the destroy event to the gateway hub(s)
-      String sessionId = event.getKey();
+      var sessionId = event.getKey();
       getGatewayDeltaRegion().put(sessionId,
           new GatewayDeltaDestroyEvent(event.getRegion().getFullPath(), sessionId));
     } else {
       if (cache.getLogger().fineEnabled()) {
-        String builder = "GatewayDeltaForwarderCacheListener: Received destroy event for session "
+        var builder = "GatewayDeltaForwarderCacheListener: Received destroy event for session "
             + event.getKey()
             + " that either expired or originated in the remote site.";
         cache.getLogger().fine(builder);
@@ -154,7 +154,7 @@ public class GatewayDeltaForwarderCacheListener extends CacheListenerAdapter<Str
     }
 
     if (cache.getLogger().fineEnabled()) {
-      String builder = "GatewayDeltaForwarderCacheListener: Created gateway delta region: "
+      var builder = "GatewayDeltaForwarderCacheListener: Created gateway delta region: "
           + region;
       cache.getLogger().fine(builder);
     }

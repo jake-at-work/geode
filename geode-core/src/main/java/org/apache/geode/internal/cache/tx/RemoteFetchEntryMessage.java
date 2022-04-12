@@ -38,7 +38,6 @@ import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.cache.EntrySnapshot;
-import org.apache.geode.internal.cache.KeyInfo;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.NonLocalRegionEntry;
 import org.apache.geode.internal.cache.RemoteOperationException;
@@ -82,8 +81,8 @@ public class RemoteFetchEntryMessage extends RemoteOperationMessage {
   public static FetchEntryResponse send(InternalDistributedMember recipient, LocalRegion r,
       final Object key) throws RemoteOperationException {
     Assert.assertTrue(recipient != null, "RemoteFetchEntryMessage NULL recipient");
-    FetchEntryResponse p = new FetchEntryResponse(r.getSystem(), recipient, r, key);
-    RemoteFetchEntryMessage m = new RemoteFetchEntryMessage(recipient, r.getFullPath(), p, key);
+    var p = new FetchEntryResponse(r.getSystem(), recipient, r, key);
+    var m = new RemoteFetchEntryMessage(recipient, r.getFullPath(), p, key);
 
     Set<?> failures = r.getDistributionManager().putOutgoing(m);
     if (failures != null && failures.size() > 0) {
@@ -100,13 +99,13 @@ public class RemoteFetchEntryMessage extends RemoteOperationMessage {
     r.waitOnInitialization(); // bug #43371 - accessing a region before it's initialized
     EntrySnapshot val;
     try {
-      final KeyInfo keyInfo = r.getKeyInfo(key);
+      final var keyInfo = r.getKeyInfo(key);
       Region.Entry<?, ?> re = r.getDataView().getEntry(keyInfo, r, true);
       if (re == null) {
         r.checkEntryNotFound(key);
       }
-      NonLocalRegionEntry nlre = new NonLocalRegionEntry(re, r);
-      LocalRegion dataReg = r.getDataRegionForRead(keyInfo);
+      var nlre = new NonLocalRegionEntry(re, r);
+      var dataReg = r.getDataRegionForRead(keyInfo);
       val = new EntrySnapshot(nlre, dataReg, r, false);
       FetchEntryReplyMessage.send(getSender(), getProcessorId(), val, dm, null);
     } catch (TransactionException tex) {
@@ -175,7 +174,7 @@ public class RemoteFetchEntryMessage extends RemoteOperationMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         EntrySnapshot value, DistributionManager dm, ReplyException re) {
       Assert.assertTrue(recipient != null, "FetchEntryReplyMessage NULL recipient");
-      FetchEntryReplyMessage m = new FetchEntryReplyMessage(processorId, value, re);
+      var m = new FetchEntryReplyMessage(processorId, value, re);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -187,9 +186,9 @@ public class RemoteFetchEntryMessage extends RemoteOperationMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final boolean isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
+      final var isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
 
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (isDebugEnabled) {
         logger.trace(LogMarker.DM_VERBOSE,
             "FetchEntryReplyMessage process invoking reply processor with processorId:{}",
@@ -235,7 +234,7 @@ public class RemoteFetchEntryMessage extends RemoteOperationMessage {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      boolean nullEntry = in.readBoolean();
+      var nullEntry = in.readBoolean();
       if (!nullEntry) {
         // EntrySnapshot.setRegion is called later
         value = new EntrySnapshot(in, null);
@@ -272,7 +271,7 @@ public class RemoteFetchEntryMessage extends RemoteOperationMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof FetchEntryReplyMessage) {
-          FetchEntryReplyMessage reply = (FetchEntryReplyMessage) msg;
+          var reply = (FetchEntryReplyMessage) msg;
           returnValue = reply.getValue();
           if (returnValue != null) {
             returnValue.setRegion(region);

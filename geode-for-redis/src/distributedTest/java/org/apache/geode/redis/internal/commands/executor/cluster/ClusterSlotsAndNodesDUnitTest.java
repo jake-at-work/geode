@@ -22,7 +22,6 @@ import static org.springframework.data.redis.connection.ClusterSlotHashUtil.calc
 
 import java.util.BitSet;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.assertj.core.data.Offset;
@@ -36,9 +35,6 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.ResourceManager;
-import org.apache.geode.redis.ClusterNode;
 import org.apache.geode.redis.ClusterNodes;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -74,8 +70,8 @@ public class ClusterSlotsAndNodesDUnitTest {
 
   @Before
   public void setup() {
-    int redisServerPort1 = cluster.getRedisPort(1);
-    int redisServerPort2 = cluster.getRedisPort(2);
+    var redisServerPort1 = cluster.getRedisPort(1);
+    var redisServerPort2 = cluster.getRedisPort(2);
     jedis1 = new Jedis(LOCAL_HOST, redisServerPort1, JEDIS_TIMEOUT);
     jedis2 = new Jedis(LOCAL_HOST, redisServerPort2, JEDIS_TIMEOUT);
 
@@ -96,10 +92,10 @@ public class ClusterSlotsAndNodesDUnitTest {
 
   @Test
   public void eachServerProducesTheSameNodeInformation() {
-    List<ClusterNode> nodes1 = ClusterNodes.parseClusterNodes(jedis1.clusterNodes()).getNodes();
+    var nodes1 = ClusterNodes.parseClusterNodes(jedis1.clusterNodes()).getNodes();
     assertThat(nodes1).hasSize(2);
 
-    List<ClusterNode> nodes2 = ClusterNodes.parseClusterNodes(jedis2.clusterNodes()).getNodes();
+    var nodes2 = ClusterNodes.parseClusterNodes(jedis2.clusterNodes()).getNodes();
     assertThat(nodes2).hasSize(2);
 
     assertThat(nodes1).containsExactlyInAnyOrderElementsOf(nodes2);
@@ -107,8 +103,8 @@ public class ClusterSlotsAndNodesDUnitTest {
 
   @Test
   public void eachServerProducesTheSameSlotInformation() {
-    List<Object> slots1 = jedis1.clusterSlots();
-    List<Object> slots2 = jedis2.clusterSlots();
+    var slots1 = jedis1.clusterSlots();
+    var slots2 = jedis2.clusterSlots();
 
     assertThat(slots1).usingRecursiveComparison().isEqualTo(slots2);
   }
@@ -116,13 +112,13 @@ public class ClusterSlotsAndNodesDUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void slotInformationIsCorrect() {
-    List<Object> slots = jedis1.clusterSlots();
+    var slots = jedis1.clusterSlots();
 
     assertThat(slots).hasSize(REDIS_REGION_BUCKETS);
 
-    for (int i = 0; i < REDIS_REGION_BUCKETS; i++) {
-      long slotStart = (long) ((List<Object>) slots.get(i)).get(0);
-      long slotEnd = (long) ((List<Object>) slots.get(i)).get(1);
+    for (var i = 0; i < REDIS_REGION_BUCKETS; i++) {
+      var slotStart = (long) ((List<Object>) slots.get(i)).get(0);
+      var slotEnd = (long) ((List<Object>) slots.get(i)).get(1);
 
       assertThat(slotStart).isEqualTo((long) i * REDIS_REGION_BUCKETS);
       assertThat(slotEnd).isEqualTo((long) i * REDIS_REGION_BUCKETS + (REDIS_SLOTS_PER_BUCKET - 1));
@@ -131,8 +127,8 @@ public class ClusterSlotsAndNodesDUnitTest {
 
   @Test
   public void slotsDistributionIsFairlyUniform() {
-    List<Object> slots = jedis1.clusterSlots();
-    List<ClusterNode> nodes = ClusterNodes.parseClusterSlots(slots).getNodes();
+    var slots = jedis1.clusterSlots();
+    var nodes = ClusterNodes.parseClusterSlots(slots).getNodes();
 
     assertThat(nodes.get(0).slots.size()).isCloseTo(REDIS_REGION_BUCKETS / 2, Offset.offset(2));
     assertThat(nodes.get(1).slots.size()).isCloseTo(REDIS_REGION_BUCKETS / 2, Offset.offset(2));
@@ -143,15 +139,15 @@ public class ClusterSlotsAndNodesDUnitTest {
     cluster.startRedisVM(3, locator.getPort());
     rebalanceAllRegions(server1);
 
-    List<Object> slots = jedis1.clusterSlots();
-    List<ClusterNode> nodes = ClusterNodes.parseClusterSlots(slots).getNodes();
+    var slots = jedis1.clusterSlots();
+    var nodes = ClusterNodes.parseClusterSlots(slots).getNodes();
 
     assertThat(nodes).as("incorrect number of nodes").hasSize(3);
     assertThat(nodes.get(0).slots.size()).isCloseTo(REDIS_REGION_BUCKETS / 3, Offset.offset(2));
     assertThat(nodes.get(1).slots.size()).isCloseTo(REDIS_REGION_BUCKETS / 3, Offset.offset(2));
     assertThat(nodes.get(2).slots.size()).isCloseTo(REDIS_REGION_BUCKETS / 3, Offset.offset(2));
 
-    String info = jedis1.clusterInfo();
+    var info = jedis1.clusterInfo();
     assertThat(info).contains("cluster_known_nodes:3");
     assertThat(info).contains("cluster_size:3");
 
@@ -172,13 +168,13 @@ public class ClusterSlotsAndNodesDUnitTest {
 
   @Test
   public void whenMultipleServersFail_bucketsAreRecreated() {
-    int ENTRIES = 1000;
+    var ENTRIES = 1000;
 
     cluster.startRedisVM(3, locator.getPort());
     cluster.startRedisVM(4, locator.getPort());
     rebalanceAllRegions(server1);
 
-    for (int i = 0; i < ENTRIES; i++) {
+    for (var i = 0; i < ENTRIES; i++) {
       jedisCluster.set("key-" + i, "value-" + 1);
     }
 
@@ -189,46 +185,46 @@ public class ClusterSlotsAndNodesDUnitTest {
     jedis1.clusterSlots();
     rebalanceAllRegions(server1);
 
-    int keysRemaining = 0;
-    for (int i = 0; i < ENTRIES; i++) {
+    var keysRemaining = 0;
+    for (var i = 0; i < ENTRIES; i++) {
       keysRemaining += jedisCluster.get("key-" + i) != null ? 1 : 0;
     }
 
     assertThat(keysRemaining).isLessThan(ENTRIES);
 
-    List<Object> slots = jedis1.clusterSlots();
-    List<ClusterNode> nodes = ClusterNodes.parseClusterSlots(slots).getNodes();
+    var slots = jedis1.clusterSlots();
+    var nodes = ClusterNodes.parseClusterSlots(slots).getNodes();
 
     assertThat(nodes).as("incorrect number of nodes").hasSize(2);
     assertThat(nodes.get(0).slots.size() + nodes.get(1).slots.size())
         .isEqualTo(REDIS_REGION_BUCKETS);
     assertThat(nodes.get(0).slots.size()).isCloseTo(REDIS_REGION_BUCKETS / 2, Offset.offset(2));
 
-    String info = jedis1.clusterInfo();
+    var info = jedis1.clusterInfo();
     assertThat(info).contains("cluster_known_nodes:2");
     assertThat(info).contains("cluster_size:2");
   }
 
   @Test
   public void slotsAreNotMissingOrDuplicatedWhenPrimariesAreMoving() throws Exception {
-    AtomicBoolean done = new AtomicBoolean();
-    CompletableFuture<Void> startupShutdownFuture = executor.runAsync(() -> {
+    var done = new AtomicBoolean();
+    var startupShutdownFuture = executor.runAsync(() -> {
       while (!done.get()) {
-        MemberVM server3 = cluster.startRedisVM(3, locator.getPort());
+        var server3 = cluster.startRedisVM(3, locator.getPort());
         rebalanceAllRegions(server3);
         server3.stop();
       }
     });
 
-    long endTime = System.currentTimeMillis() + 60_000;
-    CompletableFuture<Integer> getSlotsFuture = executor.supplyAsync(() -> {
-      int iterations = 0;
+    var endTime = System.currentTimeMillis() + 60_000;
+    var getSlotsFuture = executor.supplyAsync(() -> {
+      var iterations = 0;
 
       while (System.currentTimeMillis() < endTime) {
-        List<ClusterNode> nodes = ClusterNodes.parseClusterSlots(jedis1.clusterSlots()).getNodes();
+        var nodes = ClusterNodes.parseClusterSlots(jedis1.clusterSlots()).getNodes();
 
         /// Ensure there is no missing or duplicate slot info
-        BitSet missingSlots = new BitSet();
+        var missingSlots = new BitSet();
         // Set all bits as missing
         missingSlots.flip(0, 16384);
         nodes.stream()
@@ -252,8 +248,8 @@ public class ClusterSlotsAndNodesDUnitTest {
 
   @Test
   public void hostAndPortInfoIsUnique_whenPrimariesAreMoving() throws Exception {
-    AtomicBoolean done = new AtomicBoolean();
-    CompletableFuture<Void> startupShutdownFuture = executor.runAsync(() -> {
+    var done = new AtomicBoolean();
+    var startupShutdownFuture = executor.runAsync(() -> {
       while (!done.get()) {
         server2.stop();
         server2 = cluster.startRedisVM(2, locator.getPort());
@@ -261,12 +257,12 @@ public class ClusterSlotsAndNodesDUnitTest {
       }
     });
 
-    long endTime = System.currentTimeMillis() + 60_000;
-    CompletableFuture<Integer> getSlotsFuture = executor.supplyAsync(() -> {
-      int iterations = 0;
+    var endTime = System.currentTimeMillis() + 60_000;
+    var getSlotsFuture = executor.supplyAsync(() -> {
+      var iterations = 0;
 
       while (System.currentTimeMillis() < endTime) {
-        List<ClusterNode> nodes = ClusterNodes.parseClusterNodes(jedis1.clusterNodes()).getNodes();
+        var nodes = ClusterNodes.parseClusterNodes(jedis1.clusterNodes()).getNodes();
 
         if (nodes.size() != 2) {
           continue;
@@ -288,9 +284,9 @@ public class ClusterSlotsAndNodesDUnitTest {
 
   @Test
   public void clusterSlotsAndClusterNodesResponseIsEquivalent() {
-    List<ClusterNode> nodesFromSlots =
+    var nodesFromSlots =
         ClusterNodes.parseClusterSlots(jedis1.clusterSlots()).getNodes();
-    List<ClusterNode> nodesFromNodes =
+    var nodesFromNodes =
         ClusterNodes.parseClusterNodes(jedis1.clusterNodes()).getNodes();
 
     assertThat(nodesFromSlots).containsExactlyInAnyOrderElementsOf(nodesFromNodes);
@@ -305,8 +301,8 @@ public class ClusterSlotsAndNodesDUnitTest {
 
   private static void rebalanceAllRegions(MemberVM vm) {
     vm.invoke("Running rebalance", () -> {
-      ResourceManager manager = ClusterStartupRule.getCache().getResourceManager();
-      RebalanceFactory factory = manager.createRebalanceFactory();
+      var manager = ClusterStartupRule.getCache().getResourceManager();
+      var factory = manager.createRebalanceFactory();
       try {
         factory.start().getResults();
       } catch (InterruptedException e) {

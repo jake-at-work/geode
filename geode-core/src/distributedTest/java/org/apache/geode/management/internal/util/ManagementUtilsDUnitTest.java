@@ -32,7 +32,6 @@ import org.junit.Test;
 
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.internal.exceptions.UserErrorException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -54,7 +53,7 @@ public class ManagementUtilsDUnitTest {
     locator = lsRule.startLocatorVM(0);
     gfsh.connectAndVerify(locator);
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(ConfigurationProperties.NAME, "member1");
     properties.setProperty(ConfigurationProperties.GROUPS, "group1");
     lsRule.startServerVM(1, properties, locator.getPort());
@@ -87,7 +86,7 @@ public class ManagementUtilsDUnitTest {
   @Test
   public void findMembers() throws Exception {
     locator.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       // can't pass in both group and names
       assertThatThrownBy(
           () -> ManagementUtils.findMembers("group1".split(","), "member1".split(","), cache))
@@ -139,7 +138,7 @@ public class ManagementUtilsDUnitTest {
   @Test
   public void getAllMembers() throws Exception {
     locator.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       members = ManagementUtils.getAllMembers(cache);
       assertThat(getNames(members)).containsExactlyInAnyOrder("locator-0", "member1", "member2",
           "member3", "member4");
@@ -153,7 +152,7 @@ public class ManagementUtilsDUnitTest {
   @Test
   public void getRegionAssociatedMembers() throws Exception {
     locator.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       members = ManagementUtils.getRegionAssociatedMembers("commonRegion", cache, true);
       assertThat(getNames(members)).containsExactlyInAnyOrder("member1", "member2", "member3",
           "member4");
@@ -166,9 +165,9 @@ public class ManagementUtilsDUnitTest {
   @Test
   public void getRegionsAssociatedMembers() throws Exception {
     locator.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       // this finds the members that host both these two regions
-      Set<String> regions =
+      var regions =
           Arrays.stream("commonRegion,group1Region".split(",")).collect(Collectors.toSet());
       members = ManagementUtils.getQueryRegionsAssociatedMembers(regions, cache, true);
       assertThat(getNames(members)).containsExactlyInAnyOrder("member1", "member2");
@@ -182,7 +181,7 @@ public class ManagementUtilsDUnitTest {
   @Test
   public void getRegionsAssociatedMembersInvalidRegion() {
     locator.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       Set<String> regions = new HashSet<>();
       regions.add(SEPARATOR + "asdfghjkl");
 
@@ -197,7 +196,7 @@ public class ManagementUtilsDUnitTest {
   @Test
   public void getRegionsAssociatedMembersInvalidRegions() {
     locator.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       Set<String> regions = new HashSet<>();
       regions.add(SEPARATOR + "asdfghjkl");
       regions.add(SEPARATOR + "asdfghjklmn");
@@ -213,7 +212,7 @@ public class ManagementUtilsDUnitTest {
   @Test
   public void getRegionsAssociatedMembersInvalidAndValidRegions() {
     locator.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       Set<String> regions = new HashSet<>();
       regions.add(SEPARATOR + "asdfghjkl");
       regions.add(SEPARATOR + "commonRegion");
@@ -229,7 +228,7 @@ public class ManagementUtilsDUnitTest {
   @Test
   public void getMemberByNameOrId() throws Exception {
     locator.invoke(() -> {
-      DistributedMember member =
+      var member =
           ManagementUtils.getDistributedMemberByNameOrId("member1", ClusterStartupRule.getCache());
       assertThat(member.getName()).isEqualTo("member1");
       assertThat(member.getId()).contains("member1:");
@@ -243,9 +242,9 @@ public class ManagementUtilsDUnitTest {
 
   @Test
   public void getAllLocators() throws Exception {
-    MemberVM newLocator = lsRule.startLocatorVM(5, locator.getPort());
+    var newLocator = lsRule.startLocatorVM(5, locator.getPort());
     locator.invoke(() -> {
-      Set<DistributedMember> allLocators =
+      var allLocators =
           ManagementUtils.getAllLocators(ClusterStartupRule.getCache());
       assertThat(allLocators).hasSize(2);
     });

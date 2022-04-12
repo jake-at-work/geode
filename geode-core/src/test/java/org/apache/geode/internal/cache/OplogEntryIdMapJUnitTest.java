@@ -28,7 +28,7 @@ public class OplogEntryIdMapJUnitTest {
 
   @Test
   public void testBasics() {
-    OplogEntryIdMap m = new OplogEntryIdMap();
+    var m = new OplogEntryIdMap();
     for (long i = 1; i <= 777777; i++) {
       assertEquals(null, m.get(i));
     }
@@ -54,13 +54,13 @@ public class OplogEntryIdMapJUnitTest {
     assertEquals(0x00000000FFFFFFFFL, m.get(0x00000000FFFFFFFFL));
     assertEquals(777777 + 1, m.size());
 
-    for (long i = 0x00000000FFFFFFFFL + 1; i <= 0x00000000FFFFFFFFL + 777777; i++) {
+    for (var i = 0x00000000FFFFFFFFL + 1; i <= 0x00000000FFFFFFFFL + 777777; i++) {
       assertEquals(null, m.get(i));
     }
-    for (long i = 0x00000000FFFFFFFFL + 1; i <= 0x00000000FFFFFFFFL + 777777; i++) {
+    for (var i = 0x00000000FFFFFFFFL + 1; i <= 0x00000000FFFFFFFFL + 777777; i++) {
       m.put(i, i);
     }
-    for (long i = 0x00000000FFFFFFFFL + 1; i <= 0x00000000FFFFFFFFL + 777777; i++) {
+    for (var i = 0x00000000FFFFFFFFL + 1; i <= 0x00000000FFFFFFFFL + 777777; i++) {
       assertEquals(i, m.get(i));
     }
     assertEquals(777777 + 1 + 777777, m.size());
@@ -78,8 +78,8 @@ public class OplogEntryIdMapJUnitTest {
     assertEquals(Long.MIN_VALUE, m.get(Long.MIN_VALUE));
     assertEquals(777777 + 1 + 777777 + 1 + 1, m.size());
 
-    int count = 0;
-    for (OplogEntryIdMap.Iterator it = m.iterator(); it.hasNext();) {
+    var count = 0;
+    for (var it = m.iterator(); it.hasNext();) {
       count++;
       it.advance();
       it.key();

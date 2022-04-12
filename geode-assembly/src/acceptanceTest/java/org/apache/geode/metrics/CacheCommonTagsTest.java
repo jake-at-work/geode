@@ -19,10 +19,7 @@ import static org.apache.geode.distributed.ConfigurationProperties.NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.UnknownHostException;
-import java.util.List;
 
-import io.micrometer.core.instrument.Meter;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.junit.After;
 import org.junit.Test;
@@ -45,14 +42,14 @@ public class CacheCommonTagsTest {
   @Test
   public void metersHaveHostTag() throws UnknownHostException {
     cache = (InternalCache) new CacheFactory().create();
-    MeterRegistry meterRegistry = cache.getMeterRegistry();
-    List<Meter> meters = meterRegistry.getMeters();
+    var meterRegistry = cache.getMeterRegistry();
+    var meters = meterRegistry.getMeters();
 
     assertThat(meters)
         .isNotEmpty();
 
-    for (Meter meter : meters) {
-      Meter.Id meterId = meter.getId();
+    for (var meter : meters) {
+      var meterId = meter.getId();
 
       assertThat(meter.getId().getTags())
           .as("Tags for meter with name " + meterId.getName())
@@ -63,14 +60,14 @@ public class CacheCommonTagsTest {
   @Test
   public void metersHaveClusterTag() {
     cache = (InternalCache) new CacheFactory().create();
-    MeterRegistry meterRegistry = cache.getMeterRegistry();
-    List<Meter> meters = meterRegistry.getMeters();
+    var meterRegistry = cache.getMeterRegistry();
+    var meters = meterRegistry.getMeters();
 
     assertThat(meters)
         .isNotEmpty();
 
-    for (Meter meter : meters) {
-      Meter.Id meterId = meter.getId();
+    for (var meter : meters) {
+      var meterId = meter.getId();
 
       assertThat(meter.getId().getTags())
           .as("Tags for meter with name " + meterId.getName())
@@ -80,16 +77,16 @@ public class CacheCommonTagsTest {
 
   @Test
   public void metersHaveMemberTagIfMemberNameExists() {
-    String memberName = "my-name";
+    var memberName = "my-name";
     cache = (InternalCache) new CacheFactory().set(NAME, memberName).create();
-    MeterRegistry meterRegistry = cache.getMeterRegistry();
-    List<Meter> meters = meterRegistry.getMeters();
+    var meterRegistry = cache.getMeterRegistry();
+    var meters = meterRegistry.getMeters();
 
     assertThat(meters)
         .isNotEmpty();
 
-    for (Meter meter : meters) {
-      Meter.Id meterId = meter.getId();
+    for (var meter : meters) {
+      var meterId = meter.getId();
 
       assertThat(meter.getId().getTags())
           .as("Tags for meter with name " + meterId.getName())
@@ -100,15 +97,15 @@ public class CacheCommonTagsTest {
   @Test
   public void metersDoNotHaveMemberTagIfMemberNameIsEmpty() {
     cache = (InternalCache) new CacheFactory().set(NAME, "").create();
-    MeterRegistry meterRegistry = cache.getMeterRegistry();
-    List<Meter> meters = meterRegistry.getMeters();
+    var meterRegistry = cache.getMeterRegistry();
+    var meters = meterRegistry.getMeters();
 
     assertThat(meters)
         .isNotEmpty();
 
-    for (Meter meter : meters) {
-      Meter.Id meterId = meter.getId();
-      List<String> tagNames = meterId.getTags().stream().map(Tag::getKey).collect(toList());
+    for (var meter : meters) {
+      var meterId = meter.getId();
+      var tagNames = meterId.getTags().stream().map(Tag::getKey).collect(toList());
 
       assertThat(tagNames)
           .as("Tag names for meter with name " + meterId.getName())
@@ -119,15 +116,15 @@ public class CacheCommonTagsTest {
   @Test
   public void metersDoNotHaveMemberTagIfMemberNameIsMissing() {
     cache = (InternalCache) new CacheFactory().create();
-    MeterRegistry meterRegistry = cache.getMeterRegistry();
-    List<Meter> meters = meterRegistry.getMeters();
+    var meterRegistry = cache.getMeterRegistry();
+    var meters = meterRegistry.getMeters();
 
     assertThat(meters)
         .isNotEmpty();
 
-    for (Meter meter : meters) {
-      Meter.Id meterId = meter.getId();
-      List<String> tagNames = meterId.getTags().stream().map(Tag::getKey).collect(toList());
+    for (var meter : meters) {
+      var meterId = meter.getId();
+      var tagNames = meterId.getTags().stream().map(Tag::getKey).collect(toList());
 
       assertThat(tagNames)
           .as("Tag names for meter with name " + meterId.getName())

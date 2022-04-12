@@ -86,7 +86,7 @@ public class ExportDataIntegrationTest {
     gfsh.connectAndVerify(server.getEmbeddedLocatorPort(), GfshCommandRule.PortType.locator);
     region = server.getCache().getRegion(TEST_REGION_NAME);
     loadRegion("value");
-    Path basePath = tempDir.getRoot().toPath();
+    var basePath = tempDir.getRoot().toPath();
     snapshotFile = basePath.resolve(SNAPSHOT_FILE);
     snapshotDir = basePath.resolve(SNAPSHOT_DIR);
   }
@@ -94,7 +94,7 @@ public class ExportDataIntegrationTest {
   @Test
   public void testExport() {
     loadRegion(new StringWrapper("value"));
-    String exportCommand = buildBaseExportCommand()
+    var exportCommand = buildBaseExportCommand()
         .addOption(CliStrings.EXPORT_DATA__FILE, snapshotFile.toString()).getCommandString();
     gfsh.executeAndAssertThat(exportCommand).statusIsSuccess();
     assertThat(gfsh.getGfshOutput()).contains("Data successfully exported ");
@@ -102,7 +102,7 @@ public class ExportDataIntegrationTest {
 
   @Test
   public void testParallelExport() {
-    String exportCommand =
+    var exportCommand =
         buildBaseExportCommand().addOption(CliStrings.EXPORT_DATA__DIR, snapshotDir.toString())
             .addOption(CliStrings.EXPORT_DATA__PARALLEL, "true").getCommandString();
     gfsh.executeAndAssertThat(exportCommand).statusIsSuccess();
@@ -111,8 +111,8 @@ public class ExportDataIntegrationTest {
 
   @Test
   public void testInvalidMember() {
-    String invalidMemberName = "invalidMember";
-    String invalidMemberCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
+    var invalidMemberName = "invalidMember";
+    var invalidMemberCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
         .addOption(CliStrings.MEMBER, invalidMemberName)
         .addOption(CliStrings.EXPORT_DATA__REGION, TEST_REGION_NAME)
         .addOption(CliStrings.EXPORT_DATA__FILE, snapshotFile.toString()).getCommandString();
@@ -122,7 +122,7 @@ public class ExportDataIntegrationTest {
 
   @Test
   public void testNonExistentRegion() {
-    String nonExistentRegionCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
+    var nonExistentRegionCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
         .addOption(CliStrings.MEMBER, server.getName())
         .addOption(CliStrings.EXPORT_DATA__REGION, SEPARATOR + "nonExistentRegion")
         .addOption(CliStrings.EXPORT_DATA__FILE, snapshotFile.toString()).getCommandString();
@@ -134,7 +134,7 @@ public class ExportDataIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testInvalidFile() {
-    String invalidFileCommand = buildBaseExportCommand()
+    var invalidFileCommand = buildBaseExportCommand()
         .addOption(CliStrings.EXPORT_DATA__FILE, snapshotFile.toString() + ".invalid")
         .getCommandString();
     gfsh.executeCommand(invalidFileCommand);
@@ -145,7 +145,7 @@ public class ExportDataIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testMissingRegion() {
-    String missingRegionCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
+    var missingRegionCommand = new CommandStringBuilder(CliStrings.EXPORT_DATA)
         .addOption(CliStrings.MEMBER, server.getName())
         .addOption(CliStrings.EXPORT_DATA__FILE, snapshotFile.toString()).getCommandString();
     gfsh.executeCommand(missingRegionCommand);
@@ -155,7 +155,7 @@ public class ExportDataIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testMissingFileAndDirectory() {
-    String missingFileAndDirCommand = buildBaseExportCommand().getCommandString();
+    var missingFileAndDirCommand = buildBaseExportCommand().getCommandString();
     gfsh.executeCommand(missingFileAndDirCommand);
     assertThat(gfsh.getGfshOutput()).contains("Must specify a location to save snapshot");
   }
@@ -163,7 +163,7 @@ public class ExportDataIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testParallelExportWithOnlyFile() {
-    String exportCommand =
+    var exportCommand =
         buildBaseExportCommand().addOption(CliStrings.EXPORT_DATA__FILE, snapshotFile.toString())
             .addOption(CliStrings.EXPORT_DATA__PARALLEL, "true").getCommandString();
     gfsh.executeCommand(exportCommand);
@@ -173,7 +173,7 @@ public class ExportDataIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testSpecifyingDirectoryAndFileCommands() {
-    String exportCommand =
+    var exportCommand =
         buildBaseExportCommand().addOption(CliStrings.EXPORT_DATA__FILE, snapshotFile.toString())
             .addOption(CliStrings.EXPORT_DATA__DIR, snapshotDir.toString()).getCommandString();
     gfsh.executeCommand(exportCommand);

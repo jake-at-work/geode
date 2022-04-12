@@ -44,7 +44,7 @@ public class MemberLevelStatsIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ENABLE_TIME_STATISTICS, "true");
     props.setProperty(STATISTIC_SAMPLE_RATE, "60000");
     props.setProperty(STATISTIC_SAMPLING_ENABLED, "false");
@@ -59,8 +59,8 @@ public class MemberLevelStatsIntegrationTest {
 
   @Test
   public void testCacheBasedStats() {
-    ManagementService service = ManagementService.getExistingManagementService(cache);
-    long start = cache.getInternalResourceManager().getStats().startRebalance();
+    var service = ManagementService.getExistingManagementService(cache);
+    var start = cache.getInternalResourceManager().getStats().startRebalance();
 
     assertEquals(1, service.getMemberMXBean().getRebalancesInProgress());
 

@@ -31,9 +31,7 @@ import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.TombstoneService;
-import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.test.dunit.SerializableRunnable;
 
 /**
@@ -50,7 +48,7 @@ public class GlobalRegionCCEDUnitTest extends GlobalRegionDUnitTest {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties p = super.getDistributedSystemProperties();
+    var p = super.getDistributedSystemProperties();
     p.put(CONSERVE_SOCKETS, "false");
     if (distributedSystemID > 0) {
       p.put(DISTRIBUTED_SYSTEM_ID, "" + distributedSystemID);
@@ -63,7 +61,7 @@ public class GlobalRegionCCEDUnitTest extends GlobalRegionDUnitTest {
    */
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.GLOBAL);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setConcurrencyChecksEnabled(true);
@@ -76,7 +74,7 @@ public class GlobalRegionCCEDUnitTest extends GlobalRegionDUnitTest {
     if (ra == null) {
       throw new IllegalStateException("The region shortcut " + type + " has been removed.");
     }
-    AttributesFactory<K, V> factory = new AttributesFactory<>(ra);
+    var factory = new AttributesFactory<K, V>(ra);
     factory.setConcurrencyChecksEnabled(true);
     factory.setScope(Scope.GLOBAL);
     return factory.create();
@@ -148,8 +146,8 @@ public class GlobalRegionCCEDUnitTest extends GlobalRegionDUnitTest {
   @Test
   public void testTombstoneExpirationRace() {
 
-    final String name = getUniqueName() + "-CC";
-    SerializableRunnable createRegion = new SerializableRunnable() {
+    final var name = getUniqueName() + "-CC";
+    var createRegion = new SerializableRunnable() {
       @Override
       public void run() {
         RegionFactory f = getCache().createRegionFactory(getRegionAttributes());
@@ -166,8 +164,8 @@ public class GlobalRegionCCEDUnitTest extends GlobalRegionDUnitTest {
       // make the entry for cckey0 a tombstone in this VM and set its
       // modification time to be older than the tombstone GC interval. This
       // means it could be in the process of being reaped by distributed-GC
-      RegionEntry entry = CCRegion.getRegionEntry("cckey0");
-      VersionTag tag = entry.getVersionStamp().asVersionTag();
+      var entry = CCRegion.getRegionEntry("cckey0");
+      var tag = entry.getVersionStamp().asVersionTag();
       assertTrue(tag.getEntryVersion() > 1);
       tag.setVersionTimeStamp(
           System.currentTimeMillis() - TombstoneService.REPLICATE_TOMBSTONE_TIMEOUT - 1000);
@@ -185,7 +183,7 @@ public class GlobalRegionCCEDUnitTest extends GlobalRegionDUnitTest {
       CCRegion.put("cckey0", "updateAfterReap");
     });
     vm1.invoke("Check that the create() was applied", () -> {
-      RegionEntry entry = CCRegion.getRegionEntry("cckey0");
+      var entry = CCRegion.getRegionEntry("cckey0");
       assertThat(entry.getVersionStamp().getEntryVersion()).isEqualTo(1);
     });
     disconnectAllFromDS();

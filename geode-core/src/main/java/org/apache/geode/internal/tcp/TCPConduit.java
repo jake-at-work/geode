@@ -28,7 +28,6 @@ import java.net.UnknownHostException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
@@ -291,7 +290,7 @@ public class TCPConduit implements Runnable {
    */
   private void parseProperties(Properties p) {
     if (p != null) {
-      String s = p.getProperty("p2p.tcpBufferSize", String.valueOf(tcpBufferSize));
+      var s = p.getProperty("p2p.tcpBufferSize", String.valueOf(tcpBufferSize));
       try {
         tcpBufferSize = Integer.parseInt(s);
       } catch (Exception e) {
@@ -328,7 +327,7 @@ public class TCPConduit implements Runnable {
    * binds the server socket and gets threads going
    */
   private void startAcceptor() throws ConnectionException {
-    int p = port;
+    var p = port;
 
     createServerSocket();
 
@@ -352,7 +351,7 @@ public class TCPConduit implements Runnable {
         socket.close();
       }
     } catch (IOException io) {
-      String s = "While creating ServerSocket on port " + p;
+      var s = "While creating ServerSocket on port " + p;
       throw new ConnectionException(s, io);
     }
     port = localPort;
@@ -363,9 +362,9 @@ public class TCPConduit implements Runnable {
    * this.bindAddress, which must be set before invoking this method.
    */
   private void createServerSocket() {
-    int serverPort = port;
-    int connectionRequestBacklog = BACKLOG;
-    InetAddress bindAddress = address;
+    var serverPort = port;
+    var connectionRequestBacklog = BACKLOG;
+    var bindAddress = address;
 
     try {
       if (serverPort <= 0) {
@@ -374,10 +373,10 @@ public class TCPConduit implements Runnable {
             socketCreator.forAdvancedUse().useSSL());
 
       } else {
-        ServerSocketChannel channel = ServerSocketChannel.open();
+        var channel = ServerSocketChannel.open();
         socket = channel.socket();
 
-        InetSocketAddress inetSocketAddress =
+        var inetSocketAddress =
             new InetSocketAddress(isBindAddress ? bindAddress : null, serverPort);
         socket.bind(inetSocketAddress, connectionRequestBacklog);
       }
@@ -386,7 +385,7 @@ public class TCPConduit implements Runnable {
         // set these buffers early so that large buffers will be allocated
         // on accepted sockets (see java.net.ServerSocket.setReceiverBufferSize javadocs)
         socket.setReceiveBufferSize(tcpBufferSize);
-        int newSize = socket.getReceiveBufferSize();
+        var newSize = socket.getReceiveBufferSize();
         if (newSize != tcpBufferSize) {
           logger.info("{} is {} instead of the requested {}",
               "Listener receiverBufferSize", newSize, tcpBufferSize);
@@ -453,14 +452,14 @@ public class TCPConduit implements Runnable {
       }
       try {
         // set timeout endpoint here since interrupt() has been known to hang
-        long timeout = System.currentTimeMillis() + LISTENER_CLOSE_TIMEOUT;
-        Thread t = thread;
+        var timeout = System.currentTimeMillis() + LISTENER_CLOSE_TIMEOUT;
+        var t = thread;
         if (channel != null) {
           channel.close();
           // NOTE: do not try to interrupt the listener thread at this point;
           // doing so interferes with the channel's socket logic.
         } else {
-          ServerSocket s = socket;
+          var s = socket;
           if (s != null) {
             s.close();
           }
@@ -537,7 +536,7 @@ public class TCPConduit implements Runnable {
 
       Socket othersock = null;
       try {
-        SocketChannel otherChannel = channel.accept();
+        var otherChannel = channel.accept();
         othersock = otherChannel.socket();
         if (stopped) {
           try {
@@ -617,7 +616,7 @@ public class TCPConduit implements Runnable {
   }
 
   ConnectionTable getConTable() {
-    ConnectionTable result = conTable;
+    var result = conTable;
     if (result == null) {
       stopper.checkCancelInProgress(null);
       throw new DistributedSystemDisconnectedException("tcp layer has been shutdown");
@@ -736,9 +735,9 @@ public class TCPConduit implements Runnable {
 
     InternalDistributedMember memberInTrouble = null;
     Connection conn = null;
-    for (boolean breakLoop = false;;) {
+    for (var breakLoop = false;;) {
       stopper.checkCancelInProgress(null);
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         // If this is the second time through this loop, we had problems.
         // Tear down the connection so that it gets rebuilt.
@@ -797,7 +796,7 @@ public class TCPConduit implements Runnable {
           // Get (or regenerate) the connection
           // this could generate a ConnectionException, so it must be caught and retried
           boolean retryForOldConnection;
-          boolean debugRetry = false;
+          var debugRetry = false;
           do {
             retryForOldConnection = false;
             conn = getConTable().get(memberAddress, preserveOrder, startTime, ackTimeout,
@@ -922,7 +921,7 @@ public class TCPConduit implements Runnable {
   }
 
   public void removeEndpoint(DistributedMember mbr, String reason, boolean notifyDisconnect) {
-    ConnectionTable ct = conTable;
+    var ct = conTable;
     if (ct == null) {
       return;
     }
@@ -933,7 +932,7 @@ public class TCPConduit implements Runnable {
    * check to see if there are still any receiver threads for the given end-point
    */
   public boolean hasReceiversFor(DistributedMember endPoint) {
-    ConnectionTable ct = conTable;
+    var ct = conTable;
     return ct != null && ct.hasReceiversFor(endPoint);
   }
 
@@ -984,7 +983,7 @@ public class TCPConduit implements Runnable {
 
     @Override
     public String cancelInProgress() {
-      DistributionManager dm = getDM();
+      var dm = getDM();
       if (dm == null) {
         return "no distribution manager";
       }
@@ -996,15 +995,15 @@ public class TCPConduit implements Runnable {
 
     @Override
     public RuntimeException generateCancelledException(Throwable e) {
-      String reason = cancelInProgress();
+      var reason = cancelInProgress();
       if (reason == null) {
         return null;
       }
-      DistributionManager dm = getDM();
+      var dm = getDM();
       if (dm == null) {
         return new DistributedSystemDisconnectedException("no distribution manager");
       }
-      RuntimeException result = dm.getCancelCriterion().generateCancelledException(e);
+      var result = dm.getCancelCriterion().generateCancelledException(e);
       if (result != null) {
         return result;
       }

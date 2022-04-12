@@ -21,13 +21,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.jndi.JNDIInvoker;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.management.internal.configuration.utils.XmlUtils;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -70,17 +66,17 @@ public class DestroySecondJndiBindingCommandDUnitTest {
 
     // verify cluster config is updated
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService ccService =
+      var ccService =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      Configuration configuration = ccService.getConfiguration("cluster");
-      Document document = XmlUtils.createDocumentFromXml(configuration.getCacheXmlContent());
-      NodeList jndiBindings = document.getElementsByTagName("jndi-binding");
+      var configuration = ccService.getConfiguration("cluster");
+      var document = XmlUtils.createDocumentFromXml(configuration.getCacheXmlContent());
+      var jndiBindings = document.getElementsByTagName("jndi-binding");
 
       assertThat(jndiBindings.getLength()).isEqualTo(1);
 
-      boolean found = false;
-      for (int i = 0; i < jndiBindings.getLength(); i++) {
-        Element eachBinding = (Element) jndiBindings.item(i);
+      var found = false;
+      for (var i = 0; i < jndiBindings.getLength(); i++) {
+        var eachBinding = (Element) jndiBindings.item(i);
         if (eachBinding.getAttribute("jndi-name").equals("jndi2")) {
           found = true;
           break;
@@ -89,8 +85,8 @@ public class DestroySecondJndiBindingCommandDUnitTest {
       assertThat(found).isFalse();
 
       found = false;
-      for (int i = 0; i < jndiBindings.getLength(); i++) {
-        Element eachBinding = (Element) jndiBindings.item(i);
+      for (var i = 0; i < jndiBindings.getLength(); i++) {
+        var eachBinding = (Element) jndiBindings.item(i);
         if (eachBinding.getAttribute("jndi-name").equals("jndi1")) {
           found = true;
           break;

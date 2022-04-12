@@ -45,7 +45,7 @@ public class AlertLevelChangeMessage extends SerialDistributionMessage {
    * Creates a new {@code AlertLevelChangeMessage}.
    */
   public static AlertLevelChangeMessage create(int newLevel) {
-    AlertLevelChangeMessage alertLevelChangeMessage = new AlertLevelChangeMessage();
+    var alertLevelChangeMessage = new AlertLevelChangeMessage();
     alertLevelChangeMessage.newLevel = newLevel;
     return alertLevelChangeMessage;
   }

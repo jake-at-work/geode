@@ -43,22 +43,21 @@ public class GatewaySenderAdvisorTest {
   @Test
   public void testGatewaySenderProfileSerializeAndDeserializeCurrent()
       throws IOException, ClassNotFoundException {
-    InternalDistributedMember internalDistributedMember =
+    var internalDistributedMember =
         new InternalDistributedMember("localhost", 8888);
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    GatewaySenderAdvisor.GatewaySenderProfile gatewaySenderProfile =
+    var byteArrayOutputStream = new ByteArrayOutputStream();
+    var gatewaySenderProfile =
         new GatewaySenderAdvisor.GatewaySenderProfile(internalDistributedMember, 1);
 
-
-    VersionedDataOutputStream versionedDataOutputStream =
+    var versionedDataOutputStream =
         new VersionedDataOutputStream(byteArrayOutputStream, KnownVersion.CURRENT);
     DataSerializer.writeObject(gatewaySenderProfile, versionedDataOutputStream);
     versionedDataOutputStream.flush();
 
-    ByteBuffer bb = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
-    ByteBufferInputStream byteBufferInputStream = new ByteBufferInputStream(bb);
+    var bb = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
+    var byteBufferInputStream = new ByteBufferInputStream(bb);
 
-    VersionedDataInputStream versionedDataInputStream =
+    var versionedDataInputStream =
         new VersionedDataInputStream(byteBufferInputStream, KnownVersion.CURRENT);
     GatewaySenderAdvisor.GatewaySenderProfile gatewaySenderProfile2 =
         DataSerializer.readObject(versionedDataInputStream);
@@ -69,22 +68,21 @@ public class GatewaySenderAdvisorTest {
   @Test
   public void testGatewaySenderProfileSerializeAndDeserialize113()
       throws IOException, ClassNotFoundException {
-    InternalDistributedMember internalDistributedMember =
+    var internalDistributedMember =
         new InternalDistributedMember("localhost", 8888);
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    GatewaySenderAdvisor.GatewaySenderProfile gatewaySenderProfile =
+    var byteArrayOutputStream = new ByteArrayOutputStream();
+    var gatewaySenderProfile =
         new GatewaySenderAdvisor.GatewaySenderProfile(internalDistributedMember, 1);
 
-
-    VersionedDataOutputStream versionedDataOutputStream =
+    var versionedDataOutputStream =
         new VersionedDataOutputStream(byteArrayOutputStream, KnownVersion.GEODE_1_13_0);
     DataSerializer.writeObject(gatewaySenderProfile, versionedDataOutputStream);
     versionedDataOutputStream.flush();
 
-    ByteBuffer bb = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
-    ByteBufferInputStream byteBufferInputStream = new ByteBufferInputStream(bb);
+    var bb = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
+    var byteBufferInputStream = new ByteBufferInputStream(bb);
 
-    VersionedDataInputStream versionedDataInputStream =
+    var versionedDataInputStream =
         new VersionedDataInputStream(byteBufferInputStream, KnownVersion.GEODE_1_13_0);
     GatewaySenderAdvisor.GatewaySenderProfile gatewaySenderProfile2 =
         DataSerializer.readObject(versionedDataInputStream);

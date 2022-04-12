@@ -16,7 +16,6 @@ package org.apache.geode.internal.cache;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -28,7 +27,6 @@ import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.FixedPartitionAttributes;
 import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.Scope;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -61,8 +59,8 @@ public class PartitionRegionConfigValidator {
    * Attributes set in PR Config obtained from global meta-data allPartitionedRegion region
    */
   void validatePartitionAttrsFromPRConfig(PartitionRegionConfig prconf) {
-    final PartitionAttributes prconfPA = prconf.getPartitionAttrs();
-    final PartitionAttributes userPA = pr.getAttributes().getPartitionAttributes();
+    final var prconfPA = prconf.getPartitionAttrs();
+    final var userPA = pr.getAttributes().getPartitionAttributes();
 
     if (userPA.getTotalSize() != prconfPA.getTotalSize()) {
       throw new IllegalStateException(
@@ -81,8 +79,8 @@ public class PartitionRegionConfigValidator {
       validateDistributedEvictionAttributes(prconf.getEvictionAttributes());
     }
 
-    Scope prconfScope = prconf.getScope();
-    Scope myScope = pr.getScope();
+    var prconfScope = prconf.getScope();
+    var myScope = pr.getScope();
     if (!myScope.equals(prconfScope)) {
       throw new IllegalStateException(
           String.format(
@@ -90,7 +88,7 @@ public class PartitionRegionConfigValidator {
               prconfScope));
     }
 
-    final int prconfTotalNumBuckets = prconfPA.getTotalNumBuckets();
+    final var prconfTotalNumBuckets = prconfPA.getTotalNumBuckets();
     if (userPA.getTotalNumBuckets() != prconfTotalNumBuckets) {
       throw new IllegalStateException(
           String.format(
@@ -107,7 +105,7 @@ public class PartitionRegionConfigValidator {
   private void validatePartitionListeners(final PartitionRegionConfig prconf,
       final PartitionAttributes userPA) {
 
-    ArrayList<String> prconfList = prconf.getPartitionListenerClassNames();
+    var prconfList = prconf.getPartitionListenerClassNames();
 
     if (userPA.getPartitionListeners() == null && userPA.getPartitionListeners().length == 0
         && prconfList != null) {
@@ -117,8 +115,8 @@ public class PartitionRegionConfigValidator {
               null, prconfList));
     }
     if (userPA.getPartitionListeners() != null && prconfList != null) {
-      ArrayList<String> userPRList = new ArrayList<>();
-      for (int i = 0; i < userPA.getPartitionListeners().length; i++) {
+      var userPRList = new ArrayList<String>();
+      for (var i = 0; i < userPA.getPartitionListeners().length; i++) {
         userPRList.add(userPA.getPartitionListeners()[i].getClass().getName());
       }
 
@@ -129,7 +127,7 @@ public class PartitionRegionConfigValidator {
                 userPRList, prconfList));
       }
 
-      for (String listener : prconfList) {
+      for (var listener : prconfList) {
         if (!(userPRList.contains(listener))) {
           throw new IllegalStateException(
               String.format(
@@ -219,7 +217,7 @@ public class PartitionRegionConfigValidator {
    * @see #validateEvictionAttributesAgainstLocalMaxMemory()
    */
   private void validateDistributedEvictionAttributes(final EvictionAttributes prconfEa) {
-    final EvictionAttributes ea = pr.getAttributes().getEvictionAttributes();
+    final var ea = pr.getAttributes().getEvictionAttributes();
     // there is no such thing as null EvictionAttributes, assert that is true
     Assert.assertTrue(ea != null);
     Assert.assertTrue(prconfEa != null);
@@ -234,7 +232,7 @@ public class PartitionRegionConfigValidator {
     // Further validation should occur for datastores to ensure consistent
     // behavior wrt local max memory and
     // total number of buckets
-    final boolean equivAlgoAndAction = ea.getAlgorithm().equals(prconfEa.getAlgorithm())
+    final var equivAlgoAndAction = ea.getAlgorithm().equals(prconfEa.getAlgorithm())
         && ea.getAction().equals(prconfEa.getAction());
 
     if (!equivAlgoAndAction) {
@@ -271,7 +269,7 @@ public class PartitionRegionConfigValidator {
    * @see #validateDistributedEvictionAttributes(EvictionAttributes)
    */
   void validateEvictionAttributesAgainstLocalMaxMemory() {
-    final EvictionAttributes ea = pr.getEvictionAttributes();
+    final var ea = pr.getEvictionAttributes();
     if (pr.getLocalMaxMemory() == 0 && !ea.getAction().isNone()) {
       // This is an accessor which won't ever do eviction, say so
       logger.info(
@@ -284,13 +282,13 @@ public class PartitionRegionConfigValidator {
    * validates the persistence for datastores should match between members
    */
   void validatePersistentMatchBetweenDataStores(PartitionRegionConfig prconf) {
-    final boolean isPersistent =
+    final var isPersistent =
         pr.getAttributes().getDataPolicy() == DataPolicy.PERSISTENT_PARTITION;
     if (pr.getLocalMaxMemory() == 0 || prconf == null) {
       return;
     }
-    Set<Node> nodes = prconf.getNodes();
-    for (final Node n : nodes) {
+    var nodes = prconf.getNodes();
+    for (final var n : nodes) {
       if (n.getPRType() != Node.ACCESSOR_DATASTORE) {
         continue;
       } else {
@@ -304,12 +302,12 @@ public class PartitionRegionConfigValidator {
   }
 
   void validateColocation() {
-    final PartitionAttributesImpl userPA =
+    final var userPA =
         (PartitionAttributesImpl) pr.getAttributes().getPartitionAttributes();
 
     userPA.validateColocation(pr.getCache()); // do this here to fix bug 47197
 
-    PartitionedRegion colocatedPR = ColocationHelper.getColocatedRegion(pr);
+    var colocatedPR = ColocationHelper.getColocatedRegion(pr);
     if (colocatedPR != null) {
       if (colocatedPR.getPartitionAttributes().getTotalNumBuckets() != userPA
           .getTotalNumBuckets()) {
@@ -343,8 +341,8 @@ public class PartitionRegionConfigValidator {
     if (pr.getLocalMaxMemory() == 0 || prconf == null) {
       return;
     }
-    Set<Node> nodes = prconf.getNodes();
-    for (final Node n : nodes) {
+    var nodes = prconf.getNodes();
+    for (final var n : nodes) {
       if (n.getPRType() != Node.ACCESSOR_DATASTORE) {
         continue;
       } else {
@@ -389,8 +387,8 @@ public class PartitionRegionConfigValidator {
    * than total-num-buckets defined
    */
   private void validateFixedPartitionAttributesAgainstTotalNumberBuckets() {
-    for (FixedPartitionAttributesImpl fpa : pr.getFixedPartitionAttributesImpl()) {
-      int numBuckets = 0;
+    for (var fpa : pr.getFixedPartitionAttributesImpl()) {
+      var numBuckets = 0;
 
       Set<FixedPartitionAttributesImpl> allFPAs = new HashSet<>(
           pr.getRegionAdvisor().adviseAllFixedPartitionAttributes());
@@ -413,13 +411,13 @@ public class PartitionRegionConfigValidator {
    * defined Validate that the num-buckets defined for a partition are same across all datastores
    */
   private void validateFixedPartitionAttributesAgainstRedundantCopies() {
-    for (FixedPartitionAttributesImpl fpa : pr.getFixedPartitionAttributesImpl()) {
-      List<FixedPartitionAttributesImpl> allSameFPAs =
+    for (var fpa : pr.getFixedPartitionAttributesImpl()) {
+      var allSameFPAs =
           pr.getRegionAdvisor().adviseSameFPAs(fpa);
       allSameFPAs.add(fpa);
 
       if (!allSameFPAs.isEmpty()) {
-        int numSecondaries = 0;
+        var numSecondaries = 0;
         for (FixedPartitionAttributes otherfpa : allSameFPAs) {
           if (fpa.getNumBuckets() != otherfpa.getNumBuckets()) {
             throw new IllegalStateException(
@@ -447,7 +445,7 @@ public class PartitionRegionConfigValidator {
    * Validate that same partition is not defined as primary on more that one datastore
    */
   private void validatePrimaryFixedPartitionAttributes() {
-    List<FixedPartitionAttributesImpl> remotePrimaryFPAs =
+    var remotePrimaryFPAs =
         pr.getRegionAdvisor().adviseRemotePrimaryFPAs();
 
     for (FixedPartitionAttributes fpa : pr.getFixedPartitionAttributesImpl()) {
@@ -461,15 +459,15 @@ public class PartitionRegionConfigValidator {
   }
 
   public void validateFixedPABetweenDataStores(PartitionRegionConfig prconf) {
-    boolean isDataStore = pr.localMaxMemory > 0;
-    boolean isFixedPR = pr.fixedPAttrs != null;
+    var isDataStore = pr.localMaxMemory > 0;
+    var isFixedPR = pr.fixedPAttrs != null;
 
-    Set<Node> nodes = prconf.getNodes();
-    for (final Node n : nodes) {
+    var nodes = prconf.getNodes();
+    for (final var n : nodes) {
       if (isFixedPR) {
         if (n.getPRType() == Node.DATASTORE || n.getPRType() == Node.ACCESSOR_DATASTORE) {
           // throw exception
-          Object[] prms = new Object[] {pr.getName()};
+          var prms = new Object[] {pr.getName()};
           throw new IllegalStateException(
               String.format(
                   "Region %s uses fixed partitioning but at least one datastore node (localMaxMemory > 0) has no fixed partitions. Please make sure that each datastore creating this region is configured with at least one fixed partition.",
@@ -479,7 +477,7 @@ public class PartitionRegionConfigValidator {
         if (isDataStore) {
           if (n.getPRType() == Node.FIXED_PR_ACCESSOR || n.getPRType() == Node.FIXED_PR_DATASTORE) {
             // throw Exception
-            Object[] prms = new Object[] {pr.getName()};
+            var prms = new Object[] {pr.getName()};
             throw new IllegalStateException(
                 String.format(
                     "Region %s uses fixed partitioning but at least one datastore node (localMaxMemory > 0) has no fixed partitions. Please make sure that each datastore creating this region is configured with at least one fixed partition.",

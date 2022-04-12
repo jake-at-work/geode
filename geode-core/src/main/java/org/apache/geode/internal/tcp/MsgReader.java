@@ -55,20 +55,20 @@ public class MsgReader {
   }
 
   Header readHeader() throws IOException {
-    try (final ByteBufferSharing sharedBuffer = readAtLeast(Connection.MSG_HEADER_BYTES)) {
-      ByteBuffer unwrappedBuffer = sharedBuffer.getBuffer();
+    try (final var sharedBuffer = readAtLeast(Connection.MSG_HEADER_BYTES)) {
+      var unwrappedBuffer = sharedBuffer.getBuffer();
 
       Assert.assertTrue(unwrappedBuffer.remaining() >= Connection.MSG_HEADER_BYTES);
 
       try {
-        int nioMessageLength = unwrappedBuffer.getInt();
+        var nioMessageLength = unwrappedBuffer.getInt();
         /* nioMessageVersion = */
         Connection.calcHdrVersion(nioMessageLength);
         nioMessageLength = Connection.calcMsgByteSize(nioMessageLength);
-        byte nioMessageType = unwrappedBuffer.get();
-        short nioMsgId = unwrappedBuffer.getShort();
+        var nioMessageType = unwrappedBuffer.get();
+        var nioMsgId = unwrappedBuffer.getShort();
 
-        boolean directAck = (nioMessageType & Connection.DIRECT_ACK_BIT) != 0;
+        var directAck = (nioMessageType & Connection.DIRECT_ACK_BIT) != 0;
         if (directAck) {
           nioMessageType &= ~Connection.DIRECT_ACK_BIT; // clear the ack bit
         }
@@ -90,11 +90,11 @@ public class MsgReader {
    */
   DistributionMessage readMessage(Header header)
       throws IOException, ClassNotFoundException {
-    try (final ByteBufferSharing sharedBuffer = readAtLeast(header.messageLength)) {
-      ByteBuffer nioInputBuffer = sharedBuffer.getBuffer();
+    try (final var sharedBuffer = readAtLeast(header.messageLength)) {
+      var nioInputBuffer = sharedBuffer.getBuffer();
       Assert.assertTrue(nioInputBuffer.remaining() >= header.messageLength);
       getStats().incMessagesBeingReceived(true, header.messageLength);
-      long startSer = getStats().startMsgDeserialization();
+      var startSer = getStats().startMsgDeserialization();
       try {
         byteBufferInputStream.setBuffer(nioInputBuffer);
         ReplyProcessor21.initMessageRPId();
@@ -113,8 +113,8 @@ public class MsgReader {
 
   void readChunk(Header header, MsgDestreamer md)
       throws IOException {
-    try (final ByteBufferSharing sharedBuffer = readAtLeast(header.messageLength)) {
-      ByteBuffer unwrappedBuffer = sharedBuffer.getBuffer();
+    try (final var sharedBuffer = readAtLeast(header.messageLength)) {
+      var unwrappedBuffer = sharedBuffer.getBuffer();
       getStats().incMessagesBeingReceived(md.size() == 0, header.messageLength);
       md.addChunk(unwrappedBuffer, header.messageLength);
       // show that the bytes have been consumed by adjusting the buffer's position

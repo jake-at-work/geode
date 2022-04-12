@@ -24,10 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -54,13 +51,13 @@ public class ClientQueryAuthDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testQuery() {
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("stranger", "1234567", server.getPort());
-      final Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("stranger", "1234567", server.getPort());
+      final var region = createProxyRegion(cache, REGION_NAME);
 
-      String query = "select * from " + SEPARATOR + "AuthRegion";
+      var query = "select * from " + SEPARATOR + "AuthRegion";
       assertNotAuthorized(() -> region.query(query), "DATA:READ:AuthRegion");
 
-      Pool pool = PoolManager.find(region);
+      var pool = PoolManager.find(region);
       assertNotAuthorized(() -> pool.getQueryService().newQuery(query).execute(),
           "DATA:READ:AuthRegion");
     });

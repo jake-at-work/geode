@@ -85,11 +85,11 @@ public class ShutdownCommandDUnitTest implements
     server1 = getVM(1);
     server2 = getVM(2);
 
-    File locatorDir = temporaryFolder.newFolder(LOCATOR_NAME);
-    File server1Dir = temporaryFolder.newFolder(SERVER1_NAME);
-    File server2Dir = temporaryFolder.newFolder(SERVER2_NAME);
+    var locatorDir = temporaryFolder.newFolder(LOCATOR_NAME);
+    var server1Dir = temporaryFolder.newFolder(SERVER1_NAME);
+    var server2Dir = temporaryFolder.newFolder(SERVER2_NAME);
 
-    int[] ports = getRandomAvailableTCPPorts(3);
+    var ports = getRandomAvailableTCPPorts(3);
     locatorPort = ports[0];
     locatorJmxPort = ports[1];
     locatorHttpPort = ports[2];
@@ -106,11 +106,11 @@ public class ShutdownCommandDUnitTest implements
 
   @Test
   public void testShutdownServers() {
-    String command = "shutdown";
+    var command = "shutdown";
 
     gfsh.executeAndAssertThat(command).statusIsSuccess().containsOutput("Shutdown is triggered");
 
-    for (VM vm : toArray(server1, server2)) {
+    for (var vm : toArray(server1, server2)) {
       vm.invoke(() -> verifyNotConnected(SERVER_LAUNCHER.get().getCache()));
     }
 
@@ -120,7 +120,7 @@ public class ShutdownCommandDUnitTest implements
 
   @Test
   public void testShutdownAll() {
-    String command = "shutdown --include-locators=true";
+    var command = "shutdown --include-locators=true";
 
     gfsh.executeAndAssertThat(command).statusIsSuccess().containsOutput("Shutdown is triggered");
     server1.invoke(() -> verifyNotConnected(SERVER_LAUNCHER.get().getCache()));
@@ -149,7 +149,7 @@ public class ShutdownCommandDUnitTest implements
     LOCATOR_LAUNCHER.get().start();
 
     await().untilAsserted(() -> {
-      InternalLocator locator = (InternalLocator) LOCATOR_LAUNCHER.get().getLocator();
+      var locator = (InternalLocator) LOCATOR_LAUNCHER.get().getLocator();
       assertThat(locator.isSharedConfigurationRunning())
           .as("Locator shared configuration is running on locator" + getVMId())
           .isTrue();

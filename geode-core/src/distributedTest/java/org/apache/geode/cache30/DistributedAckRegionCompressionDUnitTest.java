@@ -39,7 +39,7 @@ public class DistributedAckRegionCompressionDUnitTest extends DistributedAckRegi
       return super.getRegionAttributes();
     }
     RegionAttributes<K, V> attrs = super.getRegionAttributes();
-    AttributesFactory<K, V> factory = new AttributesFactory<>(attrs);
+    var factory = new AttributesFactory<K, V>(attrs);
     factory.setCompressor(compressor);
     return factory.create();
   }
@@ -54,7 +54,7 @@ public class DistributedAckRegionCompressionDUnitTest extends DistributedAckRegi
       return super.getRegionAttributes(type);
     }
     RegionAttributes<K, V> ra = super.getRegionAttributes(type);
-    AttributesFactory<K, V> factory = new AttributesFactory<>(ra);
+    var factory = new AttributesFactory<K, V>(ra);
     if (!ra.getDataPolicy().isEmpty()) {
       factory.setCompressor(compressor);
     }

@@ -29,7 +29,6 @@ import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.MessageWithReply;
 import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.SerialDistributionMessage;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -47,17 +46,17 @@ public class RemoveCacheServerProfileMessage extends SerialDistributionMessage
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    final InitializationLevel oldLevel =
+    final var oldLevel =
         LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
     try {
-      InternalCache cache = dm.getCache();
+      var cache = dm.getCache();
       // will be null if not initialized
       if (cache != null && !cache.isClosed()) {
         operateOnCache(cache);
       }
     } finally {
       LocalRegion.setThreadInitLevelRequirement(oldLevel);
-      ReplyMessage reply = new ReplyMessage();
+      var reply = new ReplyMessage();
       reply.setProcessorId(processorId);
       reply.setRecipient(getSender());
       try {
@@ -69,12 +68,12 @@ public class RemoveCacheServerProfileMessage extends SerialDistributionMessage
   }
 
   private void operateOnCache(InternalCache cache) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (cache.getCacheServers().size() == 0) {
 
-      for (DistributedRegion r : getDistributedRegions(cache)) {
-        CacheDistributionAdvisor cda = r.getDistributionAdvisor();
-        CacheDistributionAdvisor.CacheProfile cp =
+      for (var r : getDistributedRegions(cache)) {
+        var cda = r.getDistributionAdvisor();
+        var cp =
             (CacheDistributionAdvisor.CacheProfile) cda.getProfile(getSender());
         if (cp != null) {
           if (isDebugEnabled) {
@@ -84,9 +83,9 @@ public class RemoveCacheServerProfileMessage extends SerialDistributionMessage
           cp.hasCacheServer = false;
         }
       }
-      for (PartitionedRegion r : getPartitionedRegions(cache)) {
-        CacheDistributionAdvisor cda = (CacheDistributionAdvisor) r.getDistributionAdvisor();
-        CacheDistributionAdvisor.CacheProfile cp =
+      for (var r : getPartitionedRegions(cache)) {
+        var cda = (CacheDistributionAdvisor) r.getDistributionAdvisor();
+        var cp =
             (CacheDistributionAdvisor.CacheProfile) cda.getProfile(getSender());
         if (cp != null) {
           if (isDebugEnabled) {
@@ -101,18 +100,18 @@ public class RemoveCacheServerProfileMessage extends SerialDistributionMessage
 
   /** set the hasCacheServer flags for all regions in this cache */
   public void operateOnLocalCache(InternalCache cache) {
-    final InitializationLevel oldLevel =
+    final var oldLevel =
         LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
     if (cache.getCacheServers().size() == 0) {
       try {
-        for (InternalRegion r : getAllRegions(cache)) {
-          FilterProfile fp = r.getFilterProfile();
+        for (var r : getAllRegions(cache)) {
+          var fp = r.getFilterProfile();
           if (fp != null) {
             fp.getLocalProfile().hasCacheServer = false;
           }
         }
-        for (PartitionedRegion r : getPartitionedRegions(cache)) {
-          FilterProfile fp = r.getFilterProfile();
+        for (var r : getPartitionedRegions(cache)) {
+          var fp = r.getFilterProfile();
           if (fp != null) {
             fp.getLocalProfile().hasCacheServer = false;
           }
@@ -130,7 +129,7 @@ public class RemoveCacheServerProfileMessage extends SerialDistributionMessage
 
   private Set<DistributedRegion> getDistributedRegions(InternalCache internalCache) {
     Set<DistributedRegion> result = new HashSet<>();
-    for (InternalRegion r : internalCache.getAllRegions()) {
+    for (var r : internalCache.getAllRegions()) {
       if (r instanceof DistributedRegion) {
         result.add((DistributedRegion) r);
       }

@@ -61,7 +61,7 @@ public class Breadcrumbs {
 
   static {
     // initialize breadcrumb delimiter strings
-    for (int i = 0; i <= Crumbiest.ordinal(); i++) {
+    for (var i = 0; i <= Crumbiest.ordinal(); i++) {
       crumbStarts[i] = CommonBreadcrumbStart + crumbLabels[i] + CrumbDelimiter + " ";
       crumbEnds[i] = " " + CrumbDelimiter + crumbLabels[i] + CrumbDelimiter;
     }
@@ -89,7 +89,7 @@ public class Breadcrumbs {
   public static void setEventId(Object crumb) {
     if (ENABLED) {
       if (crumb instanceof EventID) {
-        EventID other = EventIDs.get();
+        var other = EventIDs.get();
         if (other != null && other != crumb) {
           ((EventID) crumb).incBreadcrumbCounter();
           setBreadcrumb(Thread.currentThread(), CrumbType.EVENTID, crumb);
@@ -137,8 +137,8 @@ public class Breadcrumbs {
 
   /** clears the breadcrumb from the name of the given thread */
   private static void clearBreadcrumb(Thread t) {
-    String name = t.getName();
-    int i = name.indexOf(CommonBreadcrumbStart);
+    var name = t.getName();
+    var i = name.indexOf(CommonBreadcrumbStart);
     if (i >= 0) {
       t.setName(name.substring(0, i));
     }
@@ -154,8 +154,8 @@ public class Breadcrumbs {
    */
   private static void setCrumbInThread(Thread t, CrumbType type, Object crumb) {
 
-    int typeIndex = type.ordinal();
-    String name = t.getName();
+    var typeIndex = type.ordinal();
+    var name = t.getName();
     String crumbString;
 
     if (crumb == null) {
@@ -164,12 +164,12 @@ public class Breadcrumbs {
       crumbString = crumbStarts[typeIndex] + crumb + crumbEnds[typeIndex];
     }
 
-    int startIndex = name.indexOf(crumbStarts[typeIndex]);
-    int endIndex = -1;
+    var startIndex = name.indexOf(crumbStarts[typeIndex]);
+    var endIndex = -1;
 
     if (startIndex < 0) {
       // there may be a higher numbered breadcrumb already in the thread name
-      for (int i = typeIndex + 1; (startIndex < 0) && (i <= Crumbiest.ordinal()); i++) {
+      for (var i = typeIndex + 1; (startIndex < 0) && (i <= Crumbiest.ordinal()); i++) {
         startIndex = name.indexOf(crumbStarts[i]);
         if (startIndex >= 0) {
           endIndex = name.indexOf(crumbEnds[i], startIndex + 1);
@@ -199,8 +199,8 @@ public class Breadcrumbs {
 
 
   private static void clearCrumbInThread(Thread t) {
-    String name = t.getName();
-    int i = name.indexOf(CommonBreadcrumbStart);
+    var name = t.getName();
+    var i = name.indexOf(CommonBreadcrumbStart);
     if (i >= 0) {
       t.setName(name.substring(0, i));
     }

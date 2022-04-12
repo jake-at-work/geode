@@ -64,7 +64,7 @@ public class CustId implements DataSerializable {
       return false;
     }
 
-    CustId otherCustId = (CustId) o;
+    var otherCustId = (CustId) o;
     return (otherCustId.custId.equals(custId));
 
   }

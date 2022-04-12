@@ -19,9 +19,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.DataInputStream;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -38,7 +36,7 @@ public class ResultsBagJUnitTest {
 
   @Test
   public void testDuplicates() {
-    ResultsBag bag = new ResultsBag();
+    var bag = new ResultsBag();
     bag.add("one");
     bag.add("two");
     assertEquals(2, bag.size());
@@ -57,16 +55,16 @@ public class ResultsBagJUnitTest {
 
   @Test
   public void testIteration() {
-    ResultsBag bag = new ResultsBag();
+    var bag = new ResultsBag();
     bag.add(1);
     bag.add(2);
     bag.add(2);
 
-    int numOnes = 0;
-    int numTwos = 0;
+    var numOnes = 0;
+    var numTwos = 0;
     Integer one = 1;
     Integer two = 2;
-    for (Object n : bag) {
+    for (var n : bag) {
       if (one.equals(n)) {
         numOnes++;
       } else if (two.equals(n)) {
@@ -81,7 +79,7 @@ public class ResultsBagJUnitTest {
 
   @Test
   public void testSerializingSetViewWithNulls() throws Exception {
-    ResultsBag bag = new ResultsBag();
+    var bag = new ResultsBag();
     bag.add(4);
     bag.add(2);
     bag.add(42);
@@ -93,17 +91,17 @@ public class ResultsBagJUnitTest {
     assertEquals(1, bag.occurrences(4));
     assertEquals(3, bag.occurrences(null));
 
-    Set set = bag.asSet();
+    var set = bag.asSet();
     assertEquals(4, set.size());
     assertTrue(set.contains(4));
     assertTrue(set.contains(null));
 
-    ResultsCollectionWrapper w =
+    var w =
         new ResultsCollectionWrapper(new ObjectTypeImpl(Integer.class), set);
 
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(w, hdos);
-    DataInputStream in = new DataInputStream(hdos.getInputStream());
+    var in = new DataInputStream(hdos.getInputStream());
     SelectResults setCopy = DataSerializer.readObject(in);
 
     assertEquals(4, setCopy.size());
@@ -113,7 +111,7 @@ public class ResultsBagJUnitTest {
 
   @Test
   public void testNulls() {
-    ResultsBag bag = new ResultsBag();
+    var bag = new ResultsBag();
     assertTrue(bag.isEmpty());
     bag.add(null);
     assertTrue(!bag.isEmpty());
@@ -131,12 +129,12 @@ public class ResultsBagJUnitTest {
     assertEquals(5, bag.size());
     assertEquals(2, bag.occurrences(null));
 
-    int numNulls = 0;
-    int numOnes = 0;
-    int numTwos = 0;
+    var numNulls = 0;
+    var numOnes = 0;
+    var numTwos = 0;
     Integer one = 1;
     Integer two = 2;
-    for (Object n : bag) {
+    for (var n : bag) {
       if (one.equals(n)) {
         numOnes++;
       } else if (two.equals(n)) {
@@ -152,7 +150,7 @@ public class ResultsBagJUnitTest {
     assertEquals(2, numNulls);
 
     // make sure toString doesn't blow up with nulls
-    String s = bag.toString();
+    var s = bag.toString();
     assertTrue("toString didn't contain 'null': '" + s + "'", s.indexOf("null") > 0);
 
     assertTrue(bag.remove(null));
@@ -165,7 +163,7 @@ public class ResultsBagJUnitTest {
 
   @Test
   public void testIterationNullRemoval() {
-    ResultsBag bag = new ResultsBag();
+    var bag = new ResultsBag();
     bag.add(null);
     bag.add(null);
 
@@ -174,8 +172,8 @@ public class ResultsBagJUnitTest {
     bag.add(2);
     assertEquals(5, bag.size());
 
-    for (Iterator itr = bag.iterator(); itr.hasNext();) {
-      Object n = itr.next();
+    for (var itr = bag.iterator(); itr.hasNext();) {
+      var n = itr.next();
       if (n == null) {
         itr.remove();
       }
@@ -186,7 +184,7 @@ public class ResultsBagJUnitTest {
 
   @Test
   public void testIterationRemoval() {
-    ResultsBag bag = new ResultsBag();
+    var bag = new ResultsBag();
 
     bag.add(1);
     bag.add(2);
@@ -197,14 +195,14 @@ public class ResultsBagJUnitTest {
 
     assertEquals(6, bag.size());
 
-    Iterator itr = bag.iterator();
-    for (int i = 0; i < 3; i++) {
+    var itr = bag.iterator();
+    for (var i = 0; i < 3; i++) {
       itr.next();
       itr.remove();
     }
     assertEquals(3, bag.size());
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       itr.next();
       itr.remove();
     }
@@ -214,7 +212,7 @@ public class ResultsBagJUnitTest {
 
   @Test
   public void testNoSuchElementException() {
-    ResultsBag bag = new ResultsBag();
+    var bag = new ResultsBag();
 
     bag.add(1);
     bag.add(2);
@@ -225,8 +223,8 @@ public class ResultsBagJUnitTest {
 
     assertEquals(6, bag.size());
 
-    Iterator itr = bag.iterator();
-    for (int i = 0; i < 6; i++) {
+    var itr = bag.iterator();
+    for (var i = 0; i < 6; i++) {
       itr.next();
     }
     try {
@@ -238,7 +236,7 @@ public class ResultsBagJUnitTest {
 
     // test with removes
     itr = bag.iterator();
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       itr.next();
       itr.remove();
     }
@@ -266,7 +264,7 @@ public class ResultsBagJUnitTest {
     assertEquals(9, bag.size());
 
     itr = bag.iterator();
-    for (int i = 0; i < 9; i++) {
+    for (var i = 0; i < 9; i++) {
       itr.next();
     }
     try {
@@ -278,7 +276,7 @@ public class ResultsBagJUnitTest {
 
     // test with removes
     itr = bag.iterator();
-    for (int i = 0; i < 9; i++) {
+    for (var i = 0; i < 9; i++) {
       itr.next();
       itr.remove();
     }

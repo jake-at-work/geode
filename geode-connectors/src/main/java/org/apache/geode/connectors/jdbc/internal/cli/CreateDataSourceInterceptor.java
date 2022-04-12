@@ -39,14 +39,14 @@ public class CreateDataSourceInterceptor extends UsernamePasswordInterceptor {
 
   @Override
   public ResultModel preExecution(GfshParseResult parseResult) {
-    String pooled = parseResult.getParamValueAsString(CreateDataSourceCommand.POOLED);
+    var pooled = parseResult.getParamValueAsString(CreateDataSourceCommand.POOLED);
     if (pooled != null && pooled.equalsIgnoreCase("false")) {
-      String poolProperties =
+      var poolProperties =
           parseResult.getParamValueAsString(CreateDataSourceCommand.POOL_PROPERTIES);
       if (poolProperties != null && poolProperties.length() > 0) {
         return ResultModel.createError(POOL_PROPERTIES_ONLY_VALID_ON_POOLED_DATA_SOURCE);
       }
-      String pooledDataSourceFactoryClass = parseResult
+      var pooledDataSourceFactoryClass = parseResult
           .getParamValueAsString(CreateDataSourceCommand.POOLED_DATA_SOURCE_FACTORY_CLASS);
       if (pooledDataSourceFactoryClass != null && pooledDataSourceFactoryClass.length() > 0) {
         return ResultModel.createError(

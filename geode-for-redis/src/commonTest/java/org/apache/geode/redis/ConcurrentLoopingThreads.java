@@ -61,7 +61,7 @@ public class ConcurrentLoopingThreads {
   }
 
   private ConcurrentLoopingThreads start(boolean lockstep, Runnable barrierAction) {
-    CyclicBarrier barrier = new CyclicBarrier(functions.length, barrierAction);
+    var barrier = new CyclicBarrier(functions.length, barrierAction);
 
     loopingFutures = Arrays
         .stream(functions)
@@ -80,7 +80,7 @@ public class ConcurrentLoopingThreads {
     boolean timeOutExceptionThrown;
     do {
       timeOutExceptionThrown = false;
-      for (Future<?> loopingThread : loopingFutures) {
+      for (var loopingThread : loopingFutures) {
         try {
           loopingThread.get(1, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
@@ -117,7 +117,7 @@ public class ConcurrentLoopingThreads {
    * implies running in lockstep. This would typically be used to provide some form of validation.
    */
   public void runWithAction(Runnable action) {
-    Runnable innerRunnable = () -> {
+    var innerRunnable = (Runnable) () -> {
       try {
         action.run();
       } catch (Throwable e) {
@@ -164,7 +164,7 @@ public class ConcurrentLoopingThreads {
       if (!lockstep) {
         waitForBarrier();
       }
-      for (int i = 0; i < iterationCount && running.get(); i++) {
+      for (var i = 0; i < iterationCount && running.get(); i++) {
         runnable.accept(i);
         if (lockstep) {
           waitForBarrier();

@@ -20,17 +20,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.ObjectName;
-
 import org.springframework.shell.core.annotation.CliCommand;
 
 import org.apache.geode.management.CacheServerMXBean;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.LogWrapper;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -41,14 +37,14 @@ public class ListClientCommand extends GfshCommand {
   @ResourceOperation(resource = ResourcePermission.Resource.CLUSTER,
       operation = ResourcePermission.Operation.READ)
   public ResultModel listClient() throws Exception {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
-    TabularResultModel resultTable = result.addTable("clientList");
-    String headerText = "Client List";
+    var resultTable = result.addTable("clientList");
+    var headerText = "Client List";
     resultTable.setHeader(headerText);
 
-    ManagementService service = getManagementService();
-    ObjectName[] cacheServers = service.getDistributedSystemMXBean().listCacheServerObjectNames();
+    var service = getManagementService();
+    var cacheServers = service.getDistributedSystemMXBean().listCacheServerObjectNames();
 
     if (cacheServers.length == 0) {
       return ResultModel.createInfo(
@@ -57,20 +53,20 @@ public class ListClientCommand extends GfshCommand {
 
     Map<String, List<String>> clientServerMap = new HashMap<>();
 
-    for (ObjectName objName : cacheServers) {
-      CacheServerMXBean serverMbean = service.getMBeanInstance(objName, CacheServerMXBean.class);
-      String[] listOfClient = serverMbean.getClientIds();
+    for (var objName : cacheServers) {
+      var serverMbean = service.getMBeanInstance(objName, CacheServerMXBean.class);
+      var listOfClient = serverMbean.getClientIds();
 
       if (listOfClient == null || listOfClient.length == 0) {
         continue;
       }
 
 
-      for (String clientName : listOfClient) {
-        String serverDetails = "member=" + objName.getKeyProperty("member") + ",port="
+      for (var clientName : listOfClient) {
+        var serverDetails = "member=" + objName.getKeyProperty("member") + ",port="
             + objName.getKeyProperty("port");
         if (clientServerMap.containsKey(clientName)) {
-          List<String> listServers = clientServerMap.get(clientName);
+          var listServers = clientServerMap.get(clientName);
           listServers.add(serverDetails);
         } else {
           List<String> listServer = new ArrayList<>();
@@ -85,15 +81,15 @@ public class ListClientCommand extends GfshCommand {
           CliStrings.format(CliStrings.LIST_COULD_NOT_RETRIEVE_CLIENT_LIST));
     }
 
-    String memberSeparator = ";  ";
+    var memberSeparator = ";  ";
 
-    for (Map.Entry<String, List<String>> pairs : clientServerMap.entrySet()) {
-      String client = pairs.getKey();
-      List<String> servers = pairs.getValue();
-      StringBuilder serverListForClient = new StringBuilder();
-      int serversSize = servers.size();
-      int i = 0;
-      for (String server : servers) {
+    for (var pairs : clientServerMap.entrySet()) {
+      var client = pairs.getKey();
+      var servers = pairs.getValue();
+      var serverListForClient = new StringBuilder();
+      var serversSize = servers.size();
+      var i = 0;
+      for (var server : servers) {
         serverListForClient.append(server);
         if (i < serversSize - 1) {
           serverListForClient.append(memberSeparator);

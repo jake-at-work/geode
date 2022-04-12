@@ -33,7 +33,6 @@ import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.TXStateProxyImpl;
-import org.apache.geode.internal.cache.execute.metrics.FunctionStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.internal.cache.execute.util.SynchronizedResultCollector;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -149,7 +148,7 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
       }
 
       if (function.hasResult()) { // have Results
-        final int timeoutMs = TimeoutHelper.toMillis(timeout, unit);
+        final var timeoutMs = TimeoutHelper.toMillis(timeout, unit);
         hasResult = 1;
         if (rc == null) { // Default Result Collector
           ResultCollector defaultCollector = new DefaultResultCollector();
@@ -178,7 +177,7 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
       byte hasResult = 0;
       if (resultReq) { // have Results
         hasResult = 1;
-        final int timeoutMs = TimeoutHelper.toMillis(timeout, unit);
+        final var timeoutMs = TimeoutHelper.toMillis(timeout, unit);
         if (rc == null) { // Default Result Collector
           ResultCollector defaultCollector = new DefaultResultCollector();
           return executeOnServer(functionId, defaultCollector, hasResult, isHA, optimizeForWrite,
@@ -197,10 +196,10 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
 
   private ResultCollector executeOnServer(Function function, ResultCollector collector,
       byte hasResult, int timeoutMs) throws FunctionException {
-    ServerRegionProxy srp = getServerRegionProxy();
-    FunctionStats stats =
+    var srp = getServerRegionProxy();
+    var stats =
         FunctionStatsManager.getFunctionStats(function.getId(), region.getSystem());
-    long start = stats.startFunctionExecution(true);
+    var start = stats.startFunctionExecution(true);
     try {
       validateExecution(function, null);
       srp.executeFunction(function, this, collector, hasResult,
@@ -220,9 +219,9 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
       byte hasResult, boolean isHA, boolean optimizeForWrite, int timeoutMs)
       throws FunctionException {
 
-    ServerRegionProxy srp = getServerRegionProxy();
-    FunctionStats stats = FunctionStatsManager.getFunctionStats(functionId, region.getSystem());
-    long start = stats.startFunctionExecution(true);
+    var srp = getServerRegionProxy();
+    var stats = FunctionStatsManager.getFunctionStats(functionId, region.getSystem());
+    var start = stats.startFunctionExecution(true);
     try {
       validateExecution(null, null);
       srp.executeFunction(functionId, this, collector, hasResult, isHA,
@@ -240,10 +239,10 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
 
 
   private void executeOnServerNoAck(Function function, byte hasResult) throws FunctionException {
-    ServerRegionProxy srp = getServerRegionProxy();
-    FunctionStats stats =
+    var srp = getServerRegionProxy();
+    var stats =
         FunctionStatsManager.getFunctionStats(function.getId(), region.getSystem());
-    long start = stats.startFunctionExecution(false);
+    var start = stats.startFunctionExecution(false);
     try {
       validateExecution(function, null);
       srp.executeFunctionNoAck(region.getFullPath(), function, this, hasResult);
@@ -259,9 +258,9 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
 
   private void executeOnServerNoAck(String functionId, byte hasResult, boolean isHA,
       boolean optimizeForWrite) throws FunctionException {
-    ServerRegionProxy srp = getServerRegionProxy();
-    FunctionStats stats = FunctionStatsManager.getFunctionStats(functionId, region.getSystem());
-    long start = stats.startFunctionExecution(false);
+    var srp = getServerRegionProxy();
+    var stats = FunctionStatsManager.getFunctionStats(functionId, region.getSystem());
+    var start = stats.startFunctionExecution(false);
     try {
       validateExecution(null, null);
       srp.executeFunctionNoAck(region.getFullPath(), functionId, this, hasResult, isHA,
@@ -277,14 +276,14 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
   }
 
   private ServerRegionProxy getServerRegionProxy() throws FunctionException {
-    ServerRegionProxy srp = region.getServerProxy();
+    var srp = region.getServerProxy();
     if (srp != null) {
       if (logger.isDebugEnabled()) {
         logger.debug("Found server region proxy on region. RegionName: {}", region.getName());
       }
       return srp;
     } else {
-      String message = srp + ": "
+      var message = srp + ": "
           + "No available connection was found. Server Region Proxy is not available for this region "
           + region.getName();
       throw new FunctionException(message);
@@ -340,7 +339,7 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
   public void validateExecution(Function function, Set targetMembers) {
     InternalCache cache = GemFireCacheImpl.getInstance();
     if (cache != null && cache.getTxManager().getTXState() != null) {
-      TXStateProxyImpl tx = (TXStateProxyImpl) cache.getTxManager().getTXState();
+      var tx = (TXStateProxyImpl) cache.getTxManager().getTXState();
       tx.getRealDeal(null, region);
       tx.incOperationCount();
     }
@@ -357,11 +356,11 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
       throw new FunctionException(
           "The input function for the execute function request is null");
     }
-    int timeoutInMs = (int) TimeUnit.MILLISECONDS.convert(timeout, unit);
+    var timeoutInMs = (int) TimeUnit.MILLISECONDS.convert(timeout, unit);
     isFnSerializationReqd = false;
-    Function functionObject = FunctionService.getFunction(functionName);
+    var functionObject = FunctionService.getFunction(functionName);
     if (functionObject == null) {
-      byte[] functionAttributes = getFunctionAttributes(functionName);
+      var functionAttributes = getFunctionAttributes(functionName);
 
       if (functionAttributes == null) {
         // GEODE-5618: Set authentication properties before executing the internal function.
@@ -373,7 +372,7 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
             UserAttributes.userAttributes.set(proxyCache.getUserAttributes());
           }
 
-          ServerRegionProxy srp = getServerRegionProxy();
+          var srp = getServerRegionProxy();
           Object obj = srp.getFunctionAttributes(functionName);
           functionAttributes = (byte[]) obj;
           addFunctionAttributes(functionName, functionAttributes);
@@ -382,9 +381,9 @@ public class ServerRegionFunctionExecutor extends AbstractExecution {
         }
       }
 
-      boolean isHA = functionAttributes[1] == 1;
-      boolean hasResult = functionAttributes[0] == 1;
-      boolean optimizeForWrite = functionAttributes[2] == 1;
+      var isHA = functionAttributes[1] == 1;
+      var hasResult = functionAttributes[0] == 1;
+      var optimizeForWrite = functionAttributes[2] == 1;
       return executeFunction(functionName, hasResult, isHA, optimizeForWrite, timeout, unit);
     } else {
       return executeFunction(functionObject, timeout, unit);

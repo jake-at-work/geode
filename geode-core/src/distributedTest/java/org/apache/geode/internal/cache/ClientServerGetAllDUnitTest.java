@@ -25,7 +25,6 @@ import static org.apache.geode.test.dunit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -40,13 +39,10 @@ import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.internal.AvailablePortHelper;
@@ -75,12 +71,12 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testGetAllFromServer() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final String regionName = getUniqueName();
-    final int serverPort = getRandomAvailableTCPPort();
-    final String serverHost = NetworkUtils.getServerHostName(server.getHost());
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var regionName = getUniqueName();
+    final var serverPort = getRandomAvailableTCPPort();
+    final var serverHost = NetworkUtils.getServerHostName(server.getHost());
 
     createBridgeServer(server, regionName, serverPort, false, false);
 
@@ -92,7 +88,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       public void run2() throws CacheException {
         // Build collection of keys
         Collection keys = new ArrayList();
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
           keys.add("key-" + i);
         }
 
@@ -100,7 +96,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
         // Invoke getAll
         Region region = getRootRegion(regionName);
-        Map result = region.getAll(keys);
+        var result = region.getAll(keys);
 
         // Verify result size is correct
         assertEquals(6, result.size());
@@ -108,10 +104,10 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         // Verify the result contains each key,
         // and the value for each key is correct
         // (the server has a loader that returns the key as the value)
-        for (final Object o : keys) {
-          String key = (String) o;
+        for (final var o : keys) {
+          var key = (String) o;
           assertTrue(result.containsKey(key));
-          Object value = result.get(key);
+          var value = result.get(key);
           if (!key.equals(ClientServerTestCase.NON_EXISTENT_KEY)) {
             assertEquals(key, value);
           } else {
@@ -128,12 +124,12 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testOffHeapGetAllFromServer() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final String regionName = getUniqueName();
-    final int serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    final String serverHost = NetworkUtils.getServerHostName(server.getHost());
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var regionName = getUniqueName();
+    final var serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    final var serverHost = NetworkUtils.getServerHostName(server.getHost());
 
     createBridgeServer(server, regionName, serverPort, false, false, true/* offheap */);
 
@@ -145,7 +141,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       public void run2() throws CacheException {
         // Build collection of keys
         Collection keys = new ArrayList();
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
           keys.add("key-" + i);
         }
 
@@ -153,7 +149,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
         // Invoke getAll
         Region region = getRootRegion(regionName);
-        Map result = region.getAll(keys);
+        var result = region.getAll(keys);
 
         // Verify result size is correct
         assertEquals(6, result.size());
@@ -161,10 +157,10 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         // Verify the result contains each key,
         // and the value for each key is correct
         // (the server has a loader that returns the key as the value)
-        for (final Object o : keys) {
-          String key = (String) o;
+        for (final var o : keys) {
+          var key = (String) o;
           assertTrue(result.containsKey(key));
-          Object value = result.get(key);
+          var value = result.get(key);
           if (!key.equals(ClientServerTestCase.NON_EXISTENT_KEY)) {
             assertEquals(key, value);
           } else {
@@ -182,79 +178,79 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testLargeOffHeapGetAllFromServer() throws Throwable {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final String regionName = getUniqueName();
-    final int serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    final String serverHost = NetworkUtils.getServerHostName(server.getHost());
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var regionName = getUniqueName();
+    final var serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    final var serverHost = NetworkUtils.getServerHostName(server.getHost());
 
     createBridgeServer(server, regionName, serverPort, false, false, true/* offheap */);
 
     createBridgeClient(client, regionName, serverHost, new int[] {serverPort}, true);
 
-    final int VALUE_SIZE = 1024 * 2/* *1024 */;
+    final var VALUE_SIZE = 1024 * 2/* *1024 */;
 
-    final int VALUE_COUNT = 100;
+    final var VALUE_COUNT = 100;
 
     client.invoke(new CacheSerializableRunnable("put entries on server") {
       @Override
       public void run2() throws CacheException {
-        final byte[] VALUE = new byte[VALUE_SIZE];
-        for (int i = 0; i < VALUE_SIZE; i++) {
+        final var VALUE = new byte[VALUE_SIZE];
+        for (var i = 0; i < VALUE_SIZE; i++) {
           VALUE[i] = (byte) i;
         }
         Region region = getRootRegion(regionName);
-        for (int i = 0; i < VALUE_COUNT; i++) {
+        for (var i = 0; i < VALUE_COUNT; i++) {
           region.put("k" + i, new UnitTestValueHolder(VALUE));
         }
       }
     });
 
-    CacheSerializableRunnable clientGetAll =
+    var clientGetAll =
         new CacheSerializableRunnable("Get all entries from server") {
           @Override
           public void run2() throws CacheException {
             // Build collection of keys
             Collection keys = new ArrayList();
-            for (int i = 0; i < VALUE_COUNT; i++) {
+            for (var i = 0; i < VALUE_COUNT; i++) {
               keys.add("k" + i);
             }
 
             // Invoke getAll
             Region region = getRootRegion(regionName);
-            final int GET_COUNT = 10/* 0 */;
-            long start = System.currentTimeMillis();
+            final var GET_COUNT = 10/* 0 */;
+            var start = System.currentTimeMillis();
             Map result = null;
-            for (int i = 0; i < GET_COUNT; i++) {
+            for (var i = 0; i < GET_COUNT; i++) {
               result = null; // allow gc to get rid of previous map before deserializing the next
                              // one
               result = region.getAll(keys);
             }
-            long end = System.currentTimeMillis();
-            long totalBytesRead = ((long) GET_COUNT * VALUE_COUNT * VALUE_SIZE);
-            long elapsedMillis = (end - start);
+            var end = System.currentTimeMillis();
+            var totalBytesRead = ((long) GET_COUNT * VALUE_COUNT * VALUE_SIZE);
+            var elapsedMillis = (end - start);
             System.out.println("PERF: read " + totalBytesRead + " bytes in " + elapsedMillis
                 + " millis. bps=" + (((double) totalBytesRead / elapsedMillis) * 1000));
 
             // Verify result size is correct
             assertEquals(VALUE_COUNT, result.size());
 
-            final byte[] EXPECTED = new byte[VALUE_SIZE];
-            for (int i = 0; i < VALUE_SIZE; i++) {
+            final var EXPECTED = new byte[VALUE_SIZE];
+            for (var i = 0; i < VALUE_SIZE; i++) {
               EXPECTED[i] = (byte) i;
             }
             // Verify the result contains each key,
             // and the value for each key is correct
             // (the server has a loader that returns the key as the value)
-            for (final Object o : keys) {
-              String key = (String) o;
+            for (final var o : keys) {
+              var key = (String) o;
               assertTrue(result.containsKey(key));
-              Object value = result.get(key);
+              var value = result.get(key);
               if (value instanceof UnitTestValueHolder) {
-                Object v = ((UnitTestValueHolder) value).getValue();
+                var v = ((UnitTestValueHolder) value).getValue();
                 if (v instanceof byte[]) {
-                  byte[] bytes = (byte[]) v;
+                  var bytes = (byte[]) v;
                   if (bytes.length != VALUE_SIZE) {
                     fail("expected value for key " + key + " to be an array of size " + (VALUE_SIZE)
                         + " but it was: " + bytes.length);
@@ -275,12 +271,12 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         };
     // Run getAll
     {
-      final int THREAD_COUNT = 4;
-      AsyncInvocation[] ais = new AsyncInvocation[THREAD_COUNT];
-      for (int i = 0; i < THREAD_COUNT; i++) {
+      final var THREAD_COUNT = 4;
+      var ais = new AsyncInvocation[THREAD_COUNT];
+      for (var i = 0; i < THREAD_COUNT; i++) {
         ais[i] = client.invokeAsync(clientGetAll);
       }
-      for (int i = 0; i < THREAD_COUNT; i++) {
+      for (var i = 0; i < THREAD_COUNT; i++) {
         ais[i].getResult();
       }
     }
@@ -288,7 +284,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
     server.invoke(new CacheSerializableRunnable("Dump OffHeap Stats") {
       @Override
       public void run2() throws CacheException {
-        MemoryAllocatorImpl ma = MemoryAllocatorImpl.getAllocator();
+        var ma = MemoryAllocatorImpl.getAllocator();
         System.out.println("STATS: objects=" + ma.getStats().getObjects() + " usedMemory="
             + ma.getStats().getUsedMemory() + " reads=" + ma.getStats().getReads());
       }
@@ -301,7 +297,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.put(SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.UnitTestValueHolder");
     return properties;
@@ -309,30 +305,30 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testLargeGetAllFromServer() throws Throwable {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final String regionName = getUniqueName();
-    final int serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    final String serverHost = NetworkUtils.getServerHostName(server.getHost());
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var regionName = getUniqueName();
+    final var serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    final var serverHost = NetworkUtils.getServerHostName(server.getHost());
 
     createBridgeServer(server, regionName, serverPort, false, false);
 
     createBridgeClient(client, regionName, serverHost, new int[] {serverPort}, true);
 
-    final int VALUE_SIZE = 1024 * 2/* *1024 */;
+    final var VALUE_SIZE = 1024 * 2/* *1024 */;
 
-    final int VALUE_COUNT = 100;
+    final var VALUE_COUNT = 100;
 
     client.invoke(new CacheSerializableRunnable("put entries on server") {
       @Override
       public void run2() throws CacheException {
-        final byte[] VALUE = new byte[VALUE_SIZE];
-        for (int i = 0; i < VALUE_SIZE; i++) {
+        final var VALUE = new byte[VALUE_SIZE];
+        for (var i = 0; i < VALUE_SIZE; i++) {
           VALUE[i] = (byte) i;
         }
         Region region = getRootRegion(regionName);
-        for (int i = 0; i < VALUE_COUNT; i++) {
+        for (var i = 0; i < VALUE_COUNT; i++) {
           region.put("k" + i, new UnitTestValueHolder(VALUE));
         }
       }
@@ -343,56 +339,56 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion(regionName);
-        for (int i = 0; i < VALUE_COUNT; i++) {
+        for (var i = 0; i < VALUE_COUNT; i++) {
           region.get("k" + i);
         }
       }
     });
 
-    CacheSerializableRunnable clientGetAll =
+    var clientGetAll =
         new CacheSerializableRunnable("Get all entries from server") {
           @Override
           public void run2() throws CacheException {
             // Build collection of keys
             Collection keys = new ArrayList();
-            for (int i = 0; i < VALUE_COUNT; i++) {
+            for (var i = 0; i < VALUE_COUNT; i++) {
               keys.add("k" + i);
             }
 
             // Invoke getAll
             Region region = getRootRegion(regionName);
-            final int GET_COUNT = 10/* 0 */;
-            long start = System.currentTimeMillis();
+            final var GET_COUNT = 10/* 0 */;
+            var start = System.currentTimeMillis();
             Map result = null;
-            for (int i = 0; i < GET_COUNT; i++) {
+            for (var i = 0; i < GET_COUNT; i++) {
               result = null; // allow gc to get rid of previous map before deserializing the next
                              // one
               result = region.getAll(keys);
             }
-            long end = System.currentTimeMillis();
-            long totalBytesRead = ((long) GET_COUNT * VALUE_COUNT * VALUE_SIZE);
-            long elapsedMillis = (end - start);
+            var end = System.currentTimeMillis();
+            var totalBytesRead = ((long) GET_COUNT * VALUE_COUNT * VALUE_SIZE);
+            var elapsedMillis = (end - start);
             System.out.println("PERF: read " + totalBytesRead + " bytes in " + elapsedMillis
                 + " millis. bps=" + (((double) totalBytesRead / elapsedMillis) * 1000));
 
             // Verify result size is correct
             assertEquals(VALUE_COUNT, result.size());
 
-            final byte[] EXPECTED = new byte[VALUE_SIZE];
-            for (int i = 0; i < VALUE_SIZE; i++) {
+            final var EXPECTED = new byte[VALUE_SIZE];
+            for (var i = 0; i < VALUE_SIZE; i++) {
               EXPECTED[i] = (byte) i;
             }
             // Verify the result contains each key,
             // and the value for each key is correct
             // (the server has a loader that returns the key as the value)
-            for (final Object o : keys) {
-              String key = (String) o;
+            for (final var o : keys) {
+              var key = (String) o;
               assertTrue(result.containsKey(key));
-              Object value = result.get(key);
+              var value = result.get(key);
               if (value instanceof UnitTestValueHolder) {
-                Object v = ((UnitTestValueHolder) value).getValue();
+                var v = ((UnitTestValueHolder) value).getValue();
                 if (v instanceof byte[]) {
-                  byte[] bytes = (byte[]) v;
+                  var bytes = (byte[]) v;
                   if (bytes.length != VALUE_SIZE) {
                     fail("expected value for key " + key + " to be an array of size " + (VALUE_SIZE)
                         + " but it was: " + bytes.length);
@@ -413,12 +409,12 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         };
     // Run getAll
     {
-      final int THREAD_COUNT = 4;
-      AsyncInvocation[] ais = new AsyncInvocation[THREAD_COUNT];
-      for (int i = 0; i < THREAD_COUNT; i++) {
+      final var THREAD_COUNT = 4;
+      var ais = new AsyncInvocation[THREAD_COUNT];
+      for (var i = 0; i < THREAD_COUNT; i++) {
         ais[i] = client.invokeAsync(clientGetAll);
       }
-      for (int i = 0; i < THREAD_COUNT; i++) {
+      for (var i = 0; i < THREAD_COUNT; i++) {
         ais[i].getResult();
       }
     }
@@ -427,12 +423,12 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testGetAllWithCallbackFromServer() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final String regionName = getUniqueName();
-    final int serverPort = getRandomAvailableTCPPort();
-    final String serverHost = NetworkUtils.getServerHostName(server.getHost());
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var regionName = getUniqueName();
+    final var serverPort = getRandomAvailableTCPPort();
+    final var serverHost = NetworkUtils.getServerHostName(server.getHost());
 
     createBridgeServer(server, regionName, serverPort, false, true);
 
@@ -444,7 +440,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       public void run2() throws CacheException {
         // Build collection of keys
         Collection keys = new ArrayList();
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
           keys.add("key-" + i);
         }
 
@@ -452,7 +448,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
         // Invoke getAll
         Region region = getRootRegion(regionName);
-        Map result = region.getAll(keys, CALLBACK_ARG);
+        var result = region.getAll(keys, CALLBACK_ARG);
 
         // Verify result size is correct
         assertEquals(6, result.size());
@@ -460,10 +456,10 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         // Verify the result contains each key,
         // and the value for each key is correct
         // (the server has a loader that returns the key as the value)
-        for (final Object o : keys) {
-          String key = (String) o;
+        for (final var o : keys) {
+          var key = (String) o;
           assertTrue(result.containsKey(key));
-          Object value = result.get(key);
+          var value = result.get(key);
           if (!key.equals(ClientServerTestCase.NON_EXISTENT_KEY)) {
             assertEquals(key, value);
           } else {
@@ -490,15 +486,15 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testGetAllFromServerWithPR() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM client = host.getVM(2);
-    final String regionName = getUniqueName();
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    final int server1Port = ports[0];
-    final int server2Port = ports[1];
-    final String serverHost = NetworkUtils.getServerHostName(server1.getHost());
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var client = host.getVM(2);
+    final var regionName = getUniqueName();
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    final var server1Port = ports[0];
+    final var server2Port = ports[1];
+    final var serverHost = NetworkUtils.getServerHostName(server1.getHost());
 
     createBridgeServer(server1, regionName, server1Port, true, false);
 
@@ -511,7 +507,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion(regionName);
-        for (int i = 0; i < 200; i++) {
+        for (var i = 0; i < 200; i++) {
           region.put(i, i);
         }
 
@@ -523,14 +519,14 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         }
         // Build collection of keys
         Collection keys = new ArrayList();
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
           keys.add("key-" + i);
         }
         keys.add(ClientServerTestCase.NON_EXISTENT_KEY); // this will not be load CacheLoader
 
         // Invoke getAll
 
-        Map result = region.getAll(keys);
+        var result = region.getAll(keys);
 
 
         // Verify result size is correct
@@ -539,10 +535,10 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         // Verify the result contains each key,
         // and the value for each key is correct
         // (the server has a loader that returns the key as the value)
-        for (final Object o : keys) {
-          String key = (String) o;
+        for (final var o : keys) {
+          var key = (String) o;
           assertTrue(result.containsKey(key));
-          Object value = result.get(key);
+          var value = result.get(key);
           if (!key.equals(ClientServerTestCase.NON_EXISTENT_KEY)) {
             assertEquals(key, value);
           } else {
@@ -559,12 +555,12 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
   }
 
   private void testGetFromServer(final int numLocalValues) {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final String regionName = getUniqueName();
-    final int serverPort = getRandomAvailableTCPPort();
-    final String serverHost = NetworkUtils.getServerHostName(server.getHost());
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var regionName = getUniqueName();
+    final var serverPort = getRandomAvailableTCPPort();
+    final var serverHost = NetworkUtils.getServerHostName(server.getHost());
 
     createBridgeServer(server, regionName, serverPort, false, false);
 
@@ -575,7 +571,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion(regionName);
-        for (int i = 0; i < numLocalValues; i++) {
+        for (var i = 0; i < numLocalValues; i++) {
           region.put("key-" + i, "value-from-client-" + i);
         }
       }
@@ -587,13 +583,13 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       public void run2() throws CacheException {
         // Build collection of keys
         Collection keys = new ArrayList();
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
           keys.add("key-" + i);
         }
 
         // Invoke getAll
         Region region = getRootRegion(regionName);
-        Map result = region.getAll(keys);
+        var result = region.getAll(keys);
 
         // Verify result size is correct
         assertEquals(5, result.size());
@@ -602,11 +598,11 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         // and the value for each key is correct
         // (the server has a loader that returns the key as the value)
         // (the local value contains the phrase 'from client')
-        int i = 0;
-        for (Iterator it = keys.iterator(); it.hasNext(); i++) {
-          String key = (String) it.next();
+        var i = 0;
+        for (var it = keys.iterator(); it.hasNext(); i++) {
+          var key = (String) it.next();
           assertTrue(result.containsKey(key));
-          Object value = result.get(key);
+          var value = result.get(key);
           if (i < numLocalValues) {
             assertEquals("value-from-client-" + i, value);
           } else {
@@ -623,13 +619,13 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testGetAllWithExtraKeyFromServer() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final String regionName = getUniqueName();
-    final int serverPort = getRandomAvailableTCPPort();
-    final String serverHost = NetworkUtils.getServerHostName(server.getHost());
-    final int numLocalValues = 101;
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var regionName = getUniqueName();
+    final var serverPort = getRandomAvailableTCPPort();
+    final var serverHost = NetworkUtils.getServerHostName(server.getHost());
+    final var numLocalValues = 101;
 
     createBridgeServerWithoutLoader(server, regionName, serverPort, false);
 
@@ -640,7 +636,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion(regionName);
-        for (int i = 0; i < numLocalValues; i++) {
+        for (var i = 0; i < numLocalValues; i++) {
           region.put("key-" + i, "value-from-client-" + i);
         }
       }
@@ -650,7 +646,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion(regionName);
-        for (int i = numLocalValues; i < numLocalValues * 2; i++) {
+        for (var i = numLocalValues; i < numLocalValues * 2; i++) {
           region.put("key-" + i, "value-from-server-" + i);
         }
         region.getCache().getLogger().fine("The region entries in server " + region.entrySet());
@@ -664,7 +660,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       public void run2() throws CacheException {
         // Build collection of keys
         Collection keys = new ArrayList();
-        for (int i = 0; i < numLocalValues * 3; i++) {
+        for (var i = 0; i < numLocalValues * 3; i++) {
           keys.add("key-" + i);
         }
 
@@ -673,7 +669,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         region.getCache().getLogger()
             .fine("The region entries in client before getAll " + region.entrySet());
         assertEquals(region.entrySet().size(), numLocalValues);
-        Map result = region.getAll(keys);
+        var result = region.getAll(keys);
         assertEquals(region.entrySet().size(), 2 * numLocalValues);
         region.getCache().getLogger()
             .fine("The region entries in client after getAll " + region.entrySet());
@@ -683,11 +679,11 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
         // Verify the result contains each key,
         // and the value for each key is correct
-        int i = 0;
-        for (Iterator it = keys.iterator(); it.hasNext(); i++) {
-          String key = (String) it.next();
+        var i = 0;
+        for (var it = keys.iterator(); it.hasNext(); i++) {
+          var key = (String) it.next();
           assertTrue(result.containsKey(key));
-          Object value = result.get(key);
+          var value = result.get(key);
           if (i < numLocalValues) {
             assertEquals("value-from-client-" + i, value);
           } else if (i < 2 * numLocalValues) {
@@ -714,14 +710,14 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         // Create DS
-        Properties config = getDistributedSystemProperties();
+        var config = getDistributedSystemProperties();
         if (offheap) {
           config.setProperty(OFF_HEAP_MEMORY_SIZE, "350m");
         }
         getSystem(config);
 
         // Create Region
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         if (offheap) {
           factory.setOffHeap(true);
         }
@@ -737,13 +733,13 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
           factory.setScope(Scope.DISTRIBUTED_ACK);
           factory.setDataPolicy(DataPolicy.REPLICATE);
         }
-        Region region = createRootRegion(regionName, factory.create());
+        var region = createRootRegion(regionName, factory.create());
         if (createPR) {
           assertTrue(region instanceof PartitionedRegion);
         }
         try {
           Cache cache = getCache();
-          CacheServer bridge = cache.addCacheServer();
+          var bridge = cache.addCacheServer();
           bridge.setPort(serverPort);
           // for off-heap I want the server to use a selector
           bridge.setMaxThreads(offheap ? 16 : getMaxThreads());
@@ -779,13 +775,13 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         // Create DS
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(LOCATORS,
             "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
         getSystem(config);
 
         // Create Region
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         if (createPR) {
           factory.setDataPolicy(DataPolicy.PARTITION);
           factory.setPartitionAttributes((new PartitionAttributesFactory()).create());
@@ -793,7 +789,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
           factory.setScope(Scope.DISTRIBUTED_ACK);
           factory.setDataPolicy(DataPolicy.REPLICATE);
         }
-        Region region = createRootRegion(regionName, factory.create());
+        var region = createRootRegion(regionName, factory.create());
         if (createPR) {
           assertTrue(region instanceof PartitionedRegion);
         }
@@ -818,15 +814,15 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         // Create DS
-        Properties config = getDistributedSystemProperties();
-        ClientCache clientCache = getClientCache(new ClientCacheFactory(config));
+        var config = getDistributedSystemProperties();
+        var clientCache = getClientCache(new ClientCacheFactory(config));
 
         // Create Region
         ClientRegionFactory factory = clientCache.createClientRegionFactory(
             proxy ? ClientRegionShortcut.PROXY : ClientRegionShortcut.CACHING_PROXY);
         {
-          PoolFactory pf = PoolManager.createFactory();
-          for (final int serverPort : serverPorts) {
+          var pf = PoolManager.createFactory();
+          for (final var serverPort : serverPorts) {
             pf.addServer(serverHost, serverPort);
           }
           if (proxy) {

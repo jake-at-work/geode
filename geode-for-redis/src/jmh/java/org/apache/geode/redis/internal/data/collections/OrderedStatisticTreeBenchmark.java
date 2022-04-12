@@ -34,9 +34,9 @@ public class OrderedStatisticTreeBenchmark {
 
     @Setup
     public void generateData() {
-      Random random = new Random(0);
+      var random = new Random(0);
       set = new OrderStatisticsTree<>();
-      for (int i = 0; i < DATA_SIZE; i++) {
+      for (var i = 0; i < DATA_SIZE; i++) {
         values[i] = random.nextLong();
         set.add(values[i]);
       }
@@ -64,7 +64,7 @@ public class OrderedStatisticTreeBenchmark {
     if (state.current == 0) {
       state.set = new OrderStatisticsTree<>();
     }
-    final boolean result = state.set.add(state.values[state.current]);
+    final var result = state.set.add(state.values[state.current]);
     state.current++;
     return result;
   }

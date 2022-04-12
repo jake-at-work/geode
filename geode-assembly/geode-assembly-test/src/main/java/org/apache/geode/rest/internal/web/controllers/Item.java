@@ -103,7 +103,7 @@ public class Item implements PdxSerializable {
       return false;
     }
 
-    final Item that = (Item) obj;
+    final var that = (Item) obj;
 
     return (ObjectUtils.equals(getItemNo(), that.getItemNo())
         && ObjectUtils.equals(getDescription(), that.getDescription())
@@ -114,7 +114,7 @@ public class Item implements PdxSerializable {
 
   @Override
   public int hashCode() {
-    int hashValue = 17;
+    var hashValue = 17;
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getItemNo());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getDescription());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getQuantity());

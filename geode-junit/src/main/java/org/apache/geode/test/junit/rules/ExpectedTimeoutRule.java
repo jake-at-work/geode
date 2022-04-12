@@ -116,7 +116,7 @@ public class ExpectedTimeoutRule implements TestRule {
 
   @Override
   public Statement apply(final Statement base, final Description description) {
-    Statement next = delegate.apply(base, description);
+    var next = delegate.apply(base, description);
     return new ExpectedTimeoutStatement(next);
   }
 
@@ -161,7 +161,7 @@ public class ExpectedTimeoutRule implements TestRule {
 
     @Override
     public void evaluate() throws Throwable {
-      long start = System.nanoTime();
+      var start = System.nanoTime();
       next.evaluate();
       handleTime(System.nanoTime() - start);
     }

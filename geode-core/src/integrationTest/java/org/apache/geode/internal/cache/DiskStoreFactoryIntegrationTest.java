@@ -93,10 +93,10 @@ public class DiskStoreFactoryIntegrationTest {
    */
   @Test
   public void testGetDefaultInstance() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testGetDefaultInstance";
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testGetDefaultInstance";
     assertThat(cache.findDiskStore(name)).isNull();
-    DiskStore ds = dsf.create(name);
+    var ds = dsf.create(name);
 
     assertThat(cache.findDiskStore(name)).isEqualTo(ds);
     assertThat(ds.getName()).isEqualTo(name);
@@ -121,9 +121,9 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testNonDefaults() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testNonDefaults";
-    DiskStore ds = dsf.setAutoCompact(!DiskStoreFactory.DEFAULT_AUTO_COMPACT)
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testNonDefaults";
+    var ds = dsf.setAutoCompact(!DiskStoreFactory.DEFAULT_AUTO_COMPACT)
         .setCompactionThreshold(DiskStoreFactory.DEFAULT_COMPACTION_THRESHOLD / 2)
         .setAllowForceCompaction(!DiskStoreFactory.DEFAULT_ALLOW_FORCE_COMPACTION)
         .setMaxOplogSize(DiskStoreFactory.DEFAULT_MAX_OPLOG_SIZE + 1)
@@ -144,9 +144,9 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testCompactionThreshold() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testCompactionThreshold1";
-    DiskStore ds = dsf.setCompactionThreshold(0).create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testCompactionThreshold1";
+    var ds = dsf.setCompactionThreshold(0).create(name);
     assertThat(ds.getCompactionThreshold()).isEqualTo(0);
     name = "testCompactionThreshold2";
     ds = dsf.setCompactionThreshold(100).create(name);
@@ -161,9 +161,9 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testQueueSize() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testQueueSize";
-    DiskStore ds = dsf.setQueueSize(0).create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testQueueSize";
+    var ds = dsf.setQueueSize(0).create(name);
     assertThat(ds.getQueueSize()).isEqualTo(0);
     name = "testQueueSize2";
     ds = dsf.setQueueSize(Integer.MAX_VALUE).create(name);
@@ -175,9 +175,9 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testWriteBufferSize() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testWriteBufferSize";
-    DiskStore ds = dsf.setWriteBufferSize(0).create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testWriteBufferSize";
+    var ds = dsf.setWriteBufferSize(0).create(name);
     assertThat(ds.getWriteBufferSize()).isEqualTo(0);
     name = "testWriteBufferSize2";
     ds = dsf.setWriteBufferSize(Integer.MAX_VALUE).create(name);
@@ -190,9 +190,9 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testTimeInterval() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testTimeInterval";
-    DiskStore ds = dsf.setTimeInterval(0).create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testTimeInterval";
+    var ds = dsf.setTimeInterval(0).create(name);
     assertThat(ds.getTimeInterval()).isEqualTo(0);
     name = "testTimeInterval2";
     ds = dsf.setTimeInterval(Long.MAX_VALUE).create(name);
@@ -204,12 +204,12 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testMaxOplogSize() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testMaxOplogSize";
-    DiskStore ds = dsf.setMaxOplogSize(0).create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testMaxOplogSize";
+    var ds = dsf.setMaxOplogSize(0).create(name);
     assertThat(ds.getMaxOplogSize()).isEqualTo(0);
     name = "testMaxOplogSize2";
-    long max = Long.MAX_VALUE / (1024 * 1024);
+    var max = Long.MAX_VALUE / (1024 * 1024);
     ds = dsf.setMaxOplogSize(max).create(name);
     assertThat(ds.getMaxOplogSize()).isEqualTo(max);
 
@@ -221,25 +221,25 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testFlush() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testFlush";
-    DiskStore ds = dsf.create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testFlush";
+    var ds = dsf.create(name);
     ds.flush();
   }
 
   @Test
   public void testForceRoll() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testForceRoll";
-    DiskStore ds = dsf.create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testForceRoll";
+    var ds = dsf.create(name);
     ds.forceRoll();
   }
 
   @Test
   public void testDestroyWithPersistentRegion() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testDestroy";
-    DiskStore ds = dsf.create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testDestroy";
+    var ds = dsf.create(name);
     Region region = cache.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT)
         .setDiskStoreName("testDestroy").create("region");
     assertThatThrownBy(ds::destroy).isInstanceOf(IllegalStateException.class);
@@ -251,9 +251,9 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testDestroyWithClosedRegion() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testDestroy";
-    DiskStore ds = dsf.create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testDestroy";
+    var ds = dsf.create(name);
     Region region = cache.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT)
         .setDiskStoreName("testDestroy").create("region");
 
@@ -264,9 +264,9 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testDestroyWithOverflowRegion() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testDestroy";
-    DiskStore ds = dsf.create(name);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testDestroy";
+    var ds = dsf.create(name);
 
     Region region = cache.createRegionFactory(RegionShortcut.LOCAL_OVERFLOW)
         .setDiskStoreName("testDestroy").create("region");
@@ -279,22 +279,22 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void testForceCompaction() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setAllowForceCompaction(true);
-    String name = "testForceCompaction";
-    DiskStore ds = dsf.create(name);
+    var name = "testForceCompaction";
+    var ds = dsf.create(name);
     assertThat(ds.forceCompaction()).isFalse();
   }
 
   @Test
   @SuppressWarnings("deprecation")
   public void testMissingInitFile() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testMissingInitFile";
-    DiskStore diskStore = dsf.create(name);
-    File ifFile = new File(diskStore.getDiskDirs()[0], "BACKUP" + name + DiskInitFile.IF_FILE_EXT);
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testMissingInitFile";
+    var diskStore = dsf.create(name);
+    var ifFile = new File(diskStore.getDiskDirs()[0], "BACKUP" + name + DiskInitFile.IF_FILE_EXT);
     assertThat(ifFile.exists()).isTrue();
-    AttributesFactory<String, String> af = new AttributesFactory<>();
+    var af = new AttributesFactory<String, String>();
     af.setDiskStoreName(name);
     af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     cache.createRegion("r", af.create());
@@ -316,11 +316,11 @@ public class DiskStoreFactoryIntegrationTest {
   }
 
   private void removeFiles(DiskStore diskStore) {
-    final String diskStoreName = diskStore.getName();
-    File[] dirs = diskStore.getDiskDirs();
+    final var diskStoreName = diskStore.getName();
+    var dirs = diskStore.getDiskDirs();
 
-    for (File dir : dirs) {
-      File[] files = dir.listFiles((file, name) -> name.startsWith("BACKUP" + diskStoreName));
+    for (var dir : dirs) {
+      var files = dir.listFiles((file, name) -> name.startsWith("BACKUP" + diskStoreName));
       assertThat(files).isNotNull();
       Arrays.stream(files).forEach(file -> assertThat(file.delete()).isTrue());
     }
@@ -329,14 +329,14 @@ public class DiskStoreFactoryIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testMissingCrfFile() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testMissingCrfFile";
-    DiskStore diskStore = dsf.create(name);
-    File crfFile = new File(diskStore.getDiskDirs()[0], "BACKUP" + name + "_1.crf");
-    AttributesFactory<String, String> af = new AttributesFactory<>();
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testMissingCrfFile";
+    var diskStore = dsf.create(name);
+    var crfFile = new File(diskStore.getDiskDirs()[0], "BACKUP" + name + "_1.crf");
+    var af = new AttributesFactory<String, String>();
     af.setDiskStoreName(name);
     af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    Region<String, String> r = cache.createRegion("r", af.create());
+    var r = cache.createRegion("r", af.create());
     r.put("key", "value");
     assertThat(crfFile.exists()).isTrue();
     cache.close();
@@ -359,14 +359,14 @@ public class DiskStoreFactoryIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testMissingDrfFile() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    String name = "testMissingDrfFile";
-    DiskStore diskStore = dsf.create(name);
-    File drfFile = new File(diskStore.getDiskDirs()[0], "BACKUP" + name + "_1.drf");
-    AttributesFactory<String, String> af = new AttributesFactory<>();
+    var dsf = cache.createDiskStoreFactory();
+    var name = "testMissingDrfFile";
+    var diskStore = dsf.create(name);
+    var drfFile = new File(diskStore.getDiskDirs()[0], "BACKUP" + name + "_1.drf");
+    var af = new AttributesFactory<String, String>();
     af.setDiskStoreName(name);
     af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    Region<String, String> r = cache.createRegion("r", af.create());
+    var r = cache.createRegion("r", af.create());
     r.put("key", "value");
     assertThat(drfFile.exists()).isTrue();
     cache.close();
@@ -389,13 +389,13 @@ public class DiskStoreFactoryIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void testRedefiningDefaultDiskStore() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setAutoCompact(!DiskStoreFactory.DEFAULT_AUTO_COMPACT);
     assertThat(cache.findDiskStore(DiskStoreFactory.DEFAULT_DISK_STORE_NAME)).isNull();
-    DiskStore diskStore = dsf.create(DiskStoreFactory.DEFAULT_DISK_STORE_NAME);
-    AttributesFactory<String, String> af = new AttributesFactory<>();
+    var diskStore = dsf.create(DiskStoreFactory.DEFAULT_DISK_STORE_NAME);
+    var af = new AttributesFactory<String, String>();
     af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    Region<String, String> r = cache.createRegion("r", af.create());
+    var r = cache.createRegion("r", af.create());
     r.put("key", "value");
     DiskStore ds = ((LocalRegion) r).getDiskStore();
     assertThat(cache.findDiskStore(DiskStoreFactory.DEFAULT_DISK_STORE_NAME)).isEqualTo(ds);
@@ -408,10 +408,10 @@ public class DiskStoreFactoryIntegrationTest {
 
   @Test
   public void failedDiskStoreInitialRecoveryCleansUpDiskStore() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    DiskStoreImpl diskStore = mock(DiskStoreImpl.class);
+    var dsf = cache.createDiskStoreFactory();
+    var diskStore = mock(DiskStoreImpl.class);
     doThrow(RuntimeException.class).when(diskStore).doInitialRecovery();
-    boolean threwException = false;
+    var threwException = false;
     try {
       ((DiskStoreFactoryImpl) dsf).initializeDiskStore(diskStore);
     } catch (RuntimeException e) {
@@ -424,7 +424,7 @@ public class DiskStoreFactoryIntegrationTest {
   @Test
   public void checkIfDirectoriesExistShouldCreateDirectoriesWhenTheyDoNotExist()
       throws IOException {
-    File[] diskDirs = new File[3];
+    var diskDirs = new File[3];
     diskDirs[0] = new File(
         temporaryFolder.getRoot().getAbsolutePath() + File.separator + "randomNonExistingDiskDir");
     diskDirs[1] = temporaryFolder.newFolder("existingDiskDir");
@@ -441,7 +441,7 @@ public class DiskStoreFactoryIntegrationTest {
   @Test
   public void setDiskDirsShouldInitializeInternalMetadataAndCreateDirectoriesWhenTheyDoNotExist()
       throws IOException {
-    File[] diskDirs = new File[3];
+    var diskDirs = new File[3];
     diskDirs[0] =
         new File(temporaryFolder.getRoot().getAbsolutePath() + File.separator + "randomDiskDir");
     diskDirs[1] = temporaryFolder.newFolder("existingDiskDir");
@@ -451,7 +451,7 @@ public class DiskStoreFactoryIntegrationTest {
     assertThat(Files.exists(diskDirs[1].toPath())).isTrue();
     assertThat(Files.exists(diskDirs[2].toPath())).isFalse();
 
-    DiskStoreFactoryImpl factoryImpl =
+    var factoryImpl =
         (DiskStoreFactoryImpl) cache.createDiskStoreFactory().setDiskDirs(diskDirs);
     Arrays.stream(diskDirs).forEach(diskDir -> assertThat(Files.exists(diskDir.toPath())).isTrue());
     assertThat(factoryImpl.getDiskStoreAttributes().diskDirs).isEqualTo(diskDirs);

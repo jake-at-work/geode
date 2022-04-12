@@ -30,7 +30,7 @@ public class IndexDefinition {
   @SuppressWarnings("deprecation")
   static void addIndex(String name, String expression, String fromClause,
       org.apache.geode.cache.query.IndexType type) {
-    RegionConfig.Index index = new RegionConfig.Index();
+    var index = new RegionConfig.Index();
     index.setName(name);
     index.setFromClause(fromClause);
     index.setType(type.getName());

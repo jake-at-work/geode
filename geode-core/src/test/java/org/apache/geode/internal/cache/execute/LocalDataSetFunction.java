@@ -16,9 +16,6 @@ package org.apache.geode.internal.cache.execute;
 
 import static org.apache.geode.cache.Region.SEPARATOR;
 
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionAdapter;
 import org.apache.geode.cache.execute.FunctionContext;
@@ -37,28 +34,28 @@ public class LocalDataSetFunction extends FunctionAdapter {
 
   @Override
   public void execute(FunctionContext context) {
-    RegionFunctionContext rContext = (RegionFunctionContext) context;
+    var rContext = (RegionFunctionContext) context;
     Region cust = rContext.getDataSet();
-    LocalDataSet localCust = (LocalDataSet) PartitionRegionHelper.getLocalDataForContext(rContext);
-    Map<String, Region<?, ?>> localColocatedRegions =
+    var localCust = (LocalDataSet) PartitionRegionHelper.getLocalDataForContext(rContext);
+    var localColocatedRegions =
         PartitionRegionHelper.getLocalColocatedRegions(rContext);
-    Map<String, Region<?, ?>> colocatedRegions = PartitionRegionHelper.getColocatedRegions(cust);
+    var colocatedRegions = PartitionRegionHelper.getColocatedRegions(cust);
 
 
     Assert.assertTrue(colocatedRegions.size() == 2);
 
-    Set custKeySet = cust.keySet();
-    Set localCustKeySet = localCust.keySet();
+    var custKeySet = cust.keySet();
+    var localCustKeySet = localCust.keySet();
 
     Region ord = colocatedRegions.get(SEPARATOR + "OrderPR");
     Region localOrd = localColocatedRegions.get(SEPARATOR + "OrderPR");
-    Set ordKeySet = ord.keySet();
-    Set localOrdKeySet = localOrd.keySet();
+    var ordKeySet = ord.keySet();
+    var localOrdKeySet = localOrd.keySet();
 
     Region ship = colocatedRegions.get(SEPARATOR + "ShipmentPR");
     Region localShip = localColocatedRegions.get(SEPARATOR + "ShipmentPR");
-    Set shipKeySet = ship.keySet();
-    Set localShipKeySet = localShip.keySet();
+    var shipKeySet = ship.keySet();
+    var localShipKeySet = localShip.keySet();
 
     Assert.assertTrue(
         localCust.getBucketSet().size() == ((LocalDataSet) localOrd).getBucketSet().size());

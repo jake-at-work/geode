@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
@@ -109,9 +108,9 @@ public class HARegionQueueStats {
    * Static initializer to create and initialize the <code>StatisticsType</code>
    */
   static {
-    String statName = "ClientSubscriptionStats";
+    var statName = "ClientSubscriptionStats";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     _type = f.createType(statName, statName, new StatisticDescriptor[] {
         f.createLongCounter(EVENTS_QUEUED, "Number of events added to queue.", "operations"),

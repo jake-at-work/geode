@@ -75,7 +75,7 @@ public class CacheXmlVersionJUnitTest {
    */
   @Test
   public void testValueForVersion() {
-    for (final CacheXmlVersion cacheXmlVersion : CacheXmlVersion.values()) {
+    for (final var cacheXmlVersion : CacheXmlVersion.values()) {
       assertSame(cacheXmlVersion, CacheXmlVersion.valueForVersion(cacheXmlVersion.getVersion()));
     }
   }

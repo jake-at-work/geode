@@ -54,7 +54,7 @@ public class TouchReplicatedRegionEntriesFunctionIntegrationTest {
         .create(REGION_NAME);
 
     IntStream.range(0, 20).forEach(i -> {
-      String key = "key_" + i;
+      var key = "key_" + i;
       region.put(key, "value_" + i);
 
       Long laTime = ((InternalRegion) region).getEntry(key).getStatistics().getLastAccessedTime();
@@ -81,23 +81,23 @@ public class TouchReplicatedRegionEntriesFunctionIntegrationTest {
 
   @Test
   public void executeShouldDoNothingWhenRegionDoesNotExist() {
-    Object[] arguments = new Object[] {SEPARATOR + "nonExistingRegion", null};
+    var arguments = new Object[] {SEPARATOR + "nonExistingRegion", null};
     executeFunctionAndAssertLastAccessedTimeIsNotUpdated(arguments);
   }
 
   @Test
   public void executeShouldDoNothingWhenKeySetIsEmpty() {
-    Object[] arguments = new Object[] {REGION_NAME, Collections.emptySet()};
+    var arguments = new Object[] {REGION_NAME, Collections.emptySet()};
     executeFunctionAndAssertLastAccessedTimeIsNotUpdated(arguments);
   }
 
   @Test
   public void executeShouldUpdateEntryLastAccessedTimeForKeysPresentInTheFilter() {
     Set<String> keysToTouch = new HashSet<>(Arrays.asList("key_1", "key_5", "key_3"));
-    Object[] args = new Object[] {REGION_NAME, keysToTouch};
+    var args = new Object[] {REGION_NAME, keysToTouch};
 
     // Wait until time passes.
-    long currentTime = System.nanoTime();
+    var currentTime = System.nanoTime();
     await().untilAsserted(() -> assertThat(System.nanoTime()).isGreaterThan(currentTime));
 
     // Execute function on specific keys.

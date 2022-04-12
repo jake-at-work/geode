@@ -49,18 +49,18 @@ public class ChangeLogLevelCommandDistributedTestBase {
 
   @BeforeClass
   public static void setup() {
-    Properties managerProps = new Properties();
+    var managerProps = new Properties();
     managerProps.setProperty(NAME, MANAGER_NAME);
     managerProps.setProperty(GROUPS, GROUP0);
     locator =
         clusterStartupRule.startLocatorVM(0, l -> l.withHttpService().withProperties(managerProps));
 
-    Properties server1Props = new Properties();
+    var server1Props = new Properties();
     server1Props.setProperty(NAME, SERVER1_NAME);
     server1Props.setProperty(GROUPS, GROUP1);
     clusterStartupRule.startServerVM(1, server1Props, locator.getPort());
 
-    Properties server2Props = new Properties();
+    var server2Props = new Properties();
     server2Props.setProperty(NAME, SERVER2_NAME);
     server2Props.setProperty(GROUPS, GROUP2);
     clusterStartupRule.startServerVM(2, server2Props, locator.getPort());
@@ -78,7 +78,7 @@ public class ChangeLogLevelCommandDistributedTestBase {
 
   @Test
   public void testChangeLogLevelForGroups() {
-    String commandString = "change loglevel --loglevel=finer --groups=" + GROUP1 + "," + GROUP2;
+    var commandString = "change loglevel --loglevel=finer --groups=" + GROUP1 + "," + GROUP2;
 
     gfsh.executeAndAssertThat(commandString).statusIsSuccess()
         .containsOutput(SERVER1_NAME, SERVER2_NAME).doesNotContainOutput(MANAGER_NAME);
@@ -86,7 +86,7 @@ public class ChangeLogLevelCommandDistributedTestBase {
 
   @Test
   public void testChangeLogLevelForGroup() {
-    String commandString = "change loglevel --loglevel=finer --groups=" + GROUP1;
+    var commandString = "change loglevel --loglevel=finer --groups=" + GROUP1;
 
     gfsh.executeAndAssertThat(commandString).statusIsSuccess().containsOutput(SERVER1_NAME)
         .doesNotContainOutput(SERVER2_NAME, MANAGER_NAME);
@@ -94,7 +94,7 @@ public class ChangeLogLevelCommandDistributedTestBase {
 
   @Test
   public void testChangeLogLevelForMembers() {
-    String commandString =
+    var commandString =
         "change loglevel --loglevel=finer --members=" + SERVER1_NAME + "," + SERVER2_NAME;
 
     gfsh.executeAndAssertThat(commandString).statusIsSuccess()
@@ -103,7 +103,7 @@ public class ChangeLogLevelCommandDistributedTestBase {
 
   @Test
   public void testChangeLogLevelForMember() {
-    String commandString = "change loglevel --loglevel=finer --members=" + SERVER1_NAME;
+    var commandString = "change loglevel --loglevel=finer --members=" + SERVER1_NAME;
 
     gfsh.executeAndAssertThat(commandString).statusIsSuccess().containsOutput(SERVER1_NAME)
         .doesNotContainOutput(SERVER2_NAME, MANAGER_NAME);
@@ -111,7 +111,7 @@ public class ChangeLogLevelCommandDistributedTestBase {
 
   @Test
   public void testChangeLogLevelForInvalidMember() {
-    String commandString = "change loglevel --loglevel=finer --members=NotAValidMember";
+    var commandString = "change loglevel --loglevel=finer --members=NotAValidMember";
 
     gfsh.executeAndAssertThat(commandString).statusIsError()
         .containsOutput("No members were found matching the given member IDs or groups.");

@@ -28,7 +28,6 @@ import java.util.Set;
 import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheLoader;
@@ -36,11 +35,9 @@ import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.cache30.CacheSerializableRunnable;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.test.dunit.Host;
@@ -68,7 +65,7 @@ public class CacheAdvisorDUnitTest extends JUnit4CacheTestCase {
    */
   protected InternalDistributedMember getDistributionManagerId() {
     Cache cache = getCache();
-    DistributedSystem ds = cache.getDistributedSystem();
+    var ds = cache.getDistributedSystem();
     return ((InternalDistributedSystem) ds).getDistributionManager().getId();
   }
 
@@ -76,10 +73,10 @@ public class CacheAdvisorDUnitTest extends JUnit4CacheTestCase {
   public final void postSetUp() throws Exception {
     List vmList = new ArrayList();
     List idList = new ArrayList();
-    for (int h = 0; h < Host.getHostCount(); h++) {
-      Host host = Host.getHost(h);
-      for (int v = 0; v < host.getVMCount(); v++) {
-        VM vm = host.getVM(v);
+    for (var h = 0; h < Host.getHostCount(); h++) {
+      var host = Host.getHost(h);
+      for (var v = 0; v < host.getVMCount(); v++) {
+        var vm = host.getVM(v);
         vmList.add(vm);
         idList.add(vm.invoke(this, "getDistributionManagerId"));
       }
@@ -91,26 +88,26 @@ public class CacheAdvisorDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testGenericAdvice() throws Exception {
-    final RegionAttributes attrs = new AttributesFactory().create();
+    final var attrs = new AttributesFactory().create();
     assertTrue(attrs.getScope().isDistributedNoAck());
     assertTrue(attrs.getScope().isDistributed());
-    final String rgnName = getUniqueName();
-    for (final VM vm : vms) {
+    final var rgnName = getUniqueName();
+    for (final var vm : vms) {
       vm.invoke(
           new CacheSerializableRunnable("CacheAdvisorDUnitTest.testGenericAdvice;createRegion") {
             @Override
             public void run2() throws CacheException {
-              final RegionAttributes attrs = new AttributesFactory().create();
+              final var attrs = new AttributesFactory().create();
               createRegion(rgnName, attrs);
             }
           });
     }
 
     Set expected = new HashSet(Arrays.asList(ids));
-    DistributedRegion rgn = (DistributedRegion) createRegion(rgnName, attrs);
+    var rgn = (DistributedRegion) createRegion(rgnName, attrs);
 
     // root region
-    DistributedRegion rootRgn = (DistributedRegion) getRootRegion();
+    var rootRgn = (DistributedRegion) getRootRegion();
     Set actual = rootRgn.getDistributionAdvisor().adviseGeneric();
     assertEquals("Unexpected advice for root region=" + rootRgn, expected, actual);
 
@@ -121,19 +118,19 @@ public class CacheAdvisorDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testNetWriteAdvice() throws Exception {
-    final String rgnName = getUniqueName();
+    final var rgnName = getUniqueName();
     Set expected = new HashSet();
-    for (int i = 0; i < vms.length; i++) {
-      VM vm = vms[i];
-      InternalDistributedMember id = ids[i];
+    for (var i = 0; i < vms.length; i++) {
+      var vm = vms[i];
+      var id = ids[i];
       if (i % 2 == 0) {
         expected.add(id);
       }
-      final int index = i;
+      final var index = i;
       vm.invoke(new CacheSerializableRunnable("CacheAdvisorDUnitTest.testNetWriteAdvice") {
         @Override
         public void run2() throws CacheException {
-          AttributesFactory fac = new AttributesFactory();
+          var fac = new AttributesFactory();
           if (index % 2 == 0) {
             fac.setCacheWriter(new CacheWriterAdapter());
           }
@@ -142,26 +139,26 @@ public class CacheAdvisorDUnitTest extends JUnit4CacheTestCase {
       });
     }
 
-    RegionAttributes attrs = new AttributesFactory().create();
-    DistributedRegion rgn = (DistributedRegion) createRegion(rgnName, attrs);
+    var attrs = new AttributesFactory().create();
+    var rgn = (DistributedRegion) createRegion(rgnName, attrs);
     assertEquals(expected, rgn.getCacheDistributionAdvisor().adviseNetWrite());
   }
 
   @Test
   public void testNetLoadAdvice() throws Exception {
-    final String rgnName = getUniqueName();
+    final var rgnName = getUniqueName();
     Set expected = new HashSet();
-    for (int i = 0; i < vms.length; i++) {
-      VM vm = vms[i];
-      InternalDistributedMember id = ids[i];
+    for (var i = 0; i < vms.length; i++) {
+      var vm = vms[i];
+      var id = ids[i];
       if (i % 2 == 1) {
         expected.add(id);
       }
-      final int index = i;
+      final var index = i;
       vm.invoke(new CacheSerializableRunnable("CacheAdvisorDUnitTest.testNetLoadAdvice") {
         @Override
         public void run2() throws CacheException {
-          AttributesFactory fac = new AttributesFactory();
+          var fac = new AttributesFactory();
           if (index % 2 == 1) {
             fac.setCacheLoader(new CacheLoader() {
               @Override
@@ -178,35 +175,35 @@ public class CacheAdvisorDUnitTest extends JUnit4CacheTestCase {
       });
     }
 
-    RegionAttributes attrs = new AttributesFactory().create();
-    DistributedRegion rgn = (DistributedRegion) createRegion(rgnName, attrs);
+    var attrs = new AttributesFactory().create();
+    var rgn = (DistributedRegion) createRegion(rgnName, attrs);
     assertEquals(expected, rgn.getCacheDistributionAdvisor().adviseNetLoad());
   }
 
   @Test
   public void testNetLoadAdviceWithAttributesMutator() throws Exception {
-    final String rgnName = getUniqueName();
+    final var rgnName = getUniqueName();
 
-    AttributesFactory fac = new AttributesFactory();
+    var fac = new AttributesFactory();
     fac.setScope(Scope.DISTRIBUTED_ACK);
-    RegionAttributes attrs = fac.create();
-    DistributedRegion rgn = (DistributedRegion) createRegion(rgnName, attrs);
+    var attrs = fac.create();
+    var rgn = (DistributedRegion) createRegion(rgnName, attrs);
 
     Invoke.invokeInEveryVM(new CacheSerializableRunnable(
         "CachAdvisorTest.testNetLoadAdviceWithAttributesMutator;createRegion") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory f = new AttributesFactory();
+        var f = new AttributesFactory();
         f.setScope(Scope.DISTRIBUTED_ACK);
         createRegion(rgnName, f.create());
       }
     });
 
     Set expected = new HashSet();
-    for (int i = 1; i < vms.length; i += 2) {
-      VM vm = vms[i];
-      final int numVMsMinusOne = vms.length;
-      InternalDistributedMember id = ids[i];
+    for (var i = 1; i < vms.length; i += 2) {
+      var vm = vms[i];
+      final var numVMsMinusOne = vms.length;
+      var id = ids[i];
       expected.add(id);
       // final int index = i;
       vm.invoke(new CacheSerializableRunnable(
@@ -216,7 +213,7 @@ public class CacheAdvisorDUnitTest extends JUnit4CacheTestCase {
           Region rgn1 = getRootRegion().getSubregion(rgnName);
           assertEquals(numVMsMinusOne,
               ((DistributedRegion) rgn1).getDistributionAdvisor().adviseGeneric().size());
-          AttributesMutator mut = rgn1.getAttributesMutator();
+          var mut = rgn1.getAttributesMutator();
           mut.setCacheLoader(new CacheLoader() {
             @Override
             public Object load(LoaderHelper helper) throws CacheLoaderException {
@@ -239,30 +236,30 @@ public class CacheAdvisorDUnitTest extends JUnit4CacheTestCase {
    * @param op needs to be one of the following: CACHE_CLOSE REGION_CLOSE REGION_LOCAL_DESTROY
    */
   private void basicTestClose(Operation op) throws Exception {
-    final String rgnName = getUniqueName();
-    for (final VM vm : vms) {
+    final var rgnName = getUniqueName();
+    for (final var vm : vms) {
       vm.invoke(
           new CacheSerializableRunnable("CacheAdvisorDUnitTest.basicTestClose; createRegion") {
             @Override
             public void run2() throws CacheException {
-              final RegionAttributes attrs = new AttributesFactory().create();
+              final var attrs = new AttributesFactory().create();
               createRegion(rgnName, attrs);
             }
           });
     }
 
-    final RegionAttributes attrs = new AttributesFactory().create();
-    DistributedRegion rgn = (DistributedRegion) createRegion(rgnName, attrs);
+    final var attrs = new AttributesFactory().create();
+    var rgn = (DistributedRegion) createRegion(rgnName, attrs);
     Set expected = new HashSet(Arrays.asList(ids));
     assertEquals(expected, rgn.getDistributionAdvisor().adviseGeneric());
-    final InternalDistributedMember myMemberId = getSystem().getDistributionManager().getId();
+    final var myMemberId = getSystem().getDistributionManager().getId();
 
     // assert that other VMs advisors have test member id
     Invoke.invokeInEveryVM(
         new CacheSerializableRunnable("CacheAdvisorDUnitTest.basicTestClose;verify1") {
           @Override
           public void run2() throws CacheException {
-            DistributedRegion rgn1 = (DistributedRegion) getRootRegion();
+            var rgn1 = (DistributedRegion) getRootRegion();
             assertTrue(rgn1.getDistributionAdvisor().adviseGeneric().contains(myMemberId));
             rgn1 = (DistributedRegion) rgn1.getSubregion(rgnName);
             assertTrue(rgn1.getDistributionAdvisor().adviseGeneric().contains(myMemberId));
@@ -277,12 +274,12 @@ public class CacheAdvisorDUnitTest extends JUnit4CacheTestCase {
     } else {
       fail("expected op(" + op + ") to be CACHE_CLOSE, REGION_CLOSE, or REGION_LOCAL_DESTROY");
     }
-    final InternalDistributedMember closedMemberId = getSystem().getDistributionManager().getId();
+    final var closedMemberId = getSystem().getDistributionManager().getId();
     Invoke.invokeInEveryVM(
         new CacheSerializableRunnable("CacheAdvisorDUnitTest.basicTestClose;verify") {
           @Override
           public void run2() throws CacheException {
-            DistributedRegion rgn1 = (DistributedRegion) getRootRegion();
+            var rgn1 = (DistributedRegion) getRootRegion();
             assertTrue(!rgn1.getDistributionAdvisor().adviseGeneric().contains(closedMemberId));
 
             rgn1 = (DistributedRegion) rgn1.getSubregion(rgnName);

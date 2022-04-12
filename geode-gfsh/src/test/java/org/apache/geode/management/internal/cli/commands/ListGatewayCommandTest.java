@@ -54,8 +54,8 @@ public class ListGatewayCommandTest {
   @Before
   public void setup() {
     command = spy(ListGatewayCommand.class);
-    DistributedMember member = mock(DistributedMember.class);
-    SystemManagementService service = mock(SystemManagementService.class);
+    var member = mock(DistributedMember.class);
+    var service = mock(SystemManagementService.class);
 
     doReturn(Stream.of(member).collect(toSet())).when(command).findMembers(any(), any());
     doReturn(service).when(command).getManagementService();
@@ -70,7 +70,7 @@ public class ListGatewayCommandTest {
 
   @Test
   public void listGatewaysDisplaysGatewaySendersAndReceivers() {
-    ResultModel crd = new ResultModel();
+    var crd = new ResultModel();
     crd.setHeader(CliStrings.HEADER_GATEWAYS);
 
     doReturn(new String[] {"10.118.19.31(server-ny-2:33256)<v2>:1029",
@@ -87,7 +87,7 @@ public class ListGatewayCommandTest {
 
   @Test
   public void listGatewaysDisplaysGatewayReceiversWhenEmpty() {
-    ResultModel crd = new ResultModel();
+    var crd = new ResultModel();
 
     doReturn(new String[0]).when(receiverMXBean).getConnectedGatewaySenders();
 
@@ -99,7 +99,7 @@ public class ListGatewayCommandTest {
 
   @Test
   public void listGatewaysDisplaysGatewayReceiversWhenNull() {
-    ResultModel crd = new ResultModel();
+    var crd = new ResultModel();
 
     doReturn(null).when(receiverMXBean).getConnectedGatewaySenders();
 

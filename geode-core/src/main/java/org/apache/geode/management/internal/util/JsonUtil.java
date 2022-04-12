@@ -48,7 +48,7 @@ public class JsonUtil {
     }
 
     List<String> result = new ArrayList<>();
-    for (JsonNode node : jsonArray) {
+    for (var node : jsonArray) {
       result.add(node.asText());
     }
 

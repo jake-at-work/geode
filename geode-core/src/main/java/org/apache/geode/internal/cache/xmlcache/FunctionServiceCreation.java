@@ -37,7 +37,7 @@ public class FunctionServiceCreation {
   }
 
   public void create() {
-    for (Function function : functions) {
+    for (var function : functions) {
       FunctionService.registerFunction(function);
     }
   }
@@ -48,7 +48,7 @@ public class FunctionServiceCreation {
 
   public Map<String, Function> getFunctions() {
     Map<String, Function> result = new HashMap<>();
-    for (Function function : functions) {
+    for (var function : functions) {
       result.put(function.getId(), function);
     }
     return result;

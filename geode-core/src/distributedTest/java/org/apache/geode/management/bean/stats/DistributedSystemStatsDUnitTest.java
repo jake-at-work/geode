@@ -20,9 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
-import java.util.Set;
-
-import javax.management.ObjectName;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,12 +27,10 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.DistributedSystemMXBean;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.ManagementTestRule;
 import org.apache.geode.management.Manager;
 import org.apache.geode.management.Member;
 import org.apache.geode.management.MemberMXBean;
-import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.JMXTest;
 
@@ -55,16 +50,16 @@ public class DistributedSystemStatsDUnitTest implements Serializable {
   @Test
   public void testDistributedSystemStats() throws Exception {
     managerVM.invoke("verifyMBeans", () -> {
-      DistributedSystemMXBean distributedSystemMXBean = awaitDistributedSystemMXBean();
+      var distributedSystemMXBean = awaitDistributedSystemMXBean();
 
       // next block awaits all memberMXBeanName to refresh (getLastUpdateTime)
-      SystemManagementService service = managementTestRule.getSystemManagementService();
-      Set<DistributedMember> otherMemberSet = managementTestRule.getOtherNormalMembers();
+      var service = managementTestRule.getSystemManagementService();
+      var otherMemberSet = managementTestRule.getOtherNormalMembers();
       assertEquals(3, otherMemberSet.size());
-      for (DistributedMember member : otherMemberSet) {
-        MemberMXBean memberMXBean = awaitMemberMXBeanProxy(member);
-        ObjectName memberMXBeanName = service.getMemberMBeanName(member);
-        long lastRefreshTime = service.getLastUpdateTime(memberMXBeanName);
+      for (var member : otherMemberSet) {
+        var memberMXBean = awaitMemberMXBeanProxy(member);
+        var memberMXBeanName = service.getMemberMBeanName(member);
+        var lastRefreshTime = service.getLastUpdateTime(memberMXBeanName);
 
         await()
             .untilAsserted(
@@ -76,10 +71,10 @@ public class DistributedSystemStatsDUnitTest implements Serializable {
   }
 
   private MemberMXBean awaitMemberMXBeanProxy(final DistributedMember member) {
-    SystemManagementService service = managementTestRule.getSystemManagementService();
-    ObjectName objectName = service.getMemberMBeanName(member);
+    var service = managementTestRule.getSystemManagementService();
+    var objectName = service.getMemberMBeanName(member);
 
-    String alias = "Awaiting MemberMXBean proxy for " + member;
+    var alias = "Awaiting MemberMXBean proxy for " + member;
     await(alias)
         .untilAsserted(
             () -> assertThat(service.getMBeanProxy(objectName, MemberMXBean.class)).isNotNull());
@@ -88,7 +83,7 @@ public class DistributedSystemStatsDUnitTest implements Serializable {
   }
 
   private DistributedSystemMXBean awaitDistributedSystemMXBean() {
-    ManagementService service = managementTestRule.getManagementService();
+    var service = managementTestRule.getManagementService();
 
     await().untilAsserted(() -> assertThat(service.getDistributedSystemMXBean()).isNotNull());
 

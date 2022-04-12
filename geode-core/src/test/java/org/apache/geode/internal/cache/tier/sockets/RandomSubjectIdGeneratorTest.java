@@ -32,7 +32,6 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 
@@ -46,7 +45,7 @@ class RandomSubjectIdGeneratorTest {
 
   @Test
   void initializesRandomBeforeFirstCallToNextLong() {
-    InOrder inOrder = inOrder(initializer, random);
+    var inOrder = inOrder(initializer, random);
     when(random.nextLong()).thenReturn(3L);
     doNothing().when(initializer).accept(any());
 
@@ -60,7 +59,7 @@ class RandomSubjectIdGeneratorTest {
 
   @Test
   void returnsNextRandomLong() {
-    List<Long> randomLongs = Arrays.asList(234195L, 28L, -5324L);
+    var randomLongs = Arrays.asList(234195L, 28L, -5324L);
     when(random.nextLong())
         .thenReturn(randomLongs.get(0))
         .thenReturn(randomLongs.get(1))
@@ -73,7 +72,7 @@ class RandomSubjectIdGeneratorTest {
     generatedIds.add(generator.generateId());
     generatedIds.add(generator.generateId());
 
-    List<OptionalLong> expectedIds = randomLongs.stream().map(OptionalLong::of).collect(toList());
+    var expectedIds = randomLongs.stream().map(OptionalLong::of).collect(toList());
     assertThat(generatedIds)
         .isEqualTo(expectedIds);
   }
@@ -88,7 +87,7 @@ class RandomSubjectIdGeneratorTest {
     SubjectIdGenerator generator = new RandomSubjectIdGenerator(random, initializer);
 
     generator.generateId(); // Remembers and returns first random long
-    OptionalLong generatedId = generator.generateId(); // Random repeats first random long
+    var generatedId = generator.generateId(); // Random repeats first random long
 
     assertThat(generatedId)
         .isEmpty();// Generator reports ID exhaustion by returning an empty OptionalLong
@@ -96,8 +95,8 @@ class RandomSubjectIdGeneratorTest {
 
   @Test
   void reInitializesRandomAfterIdExhaustion() {
-    InOrder inOrder = inOrder(initializer, random);
-    long firstRandomLong = 9934L;
+    var inOrder = inOrder(initializer, random);
+    var firstRandomLong = 9934L;
     when(random.nextLong())
         .thenReturn(firstRandomLong)
         .thenReturn(22L)
@@ -120,8 +119,8 @@ class RandomSubjectIdGeneratorTest {
 
   @Test
   void continuesWithReinitializedRandomAfterIdExhaustion() {
-    long firstRandomLong = 9934L;
-    List<Long> randomLongsAfterIdExhaustion = Arrays.asList(128752L, -98765L, -2368115L);
+    var firstRandomLong = 9934L;
+    var randomLongsAfterIdExhaustion = Arrays.asList(128752L, -98765L, -2368115L);
     when(random.nextLong())
         .thenReturn(firstRandomLong)
         .thenReturn(firstRandomLong)
@@ -139,7 +138,7 @@ class RandomSubjectIdGeneratorTest {
     idsGeneratedAfterIdExhaustion.add(generator.generateId());
     idsGeneratedAfterIdExhaustion.add(generator.generateId());
 
-    List<OptionalLong> idsExpectedAfterExhaustion = randomLongsAfterIdExhaustion.stream()
+    var idsExpectedAfterExhaustion = randomLongsAfterIdExhaustion.stream()
         .map(OptionalLong::of)
         .collect(toList());
     assertThat(idsGeneratedAfterIdExhaustion)

@@ -45,16 +45,16 @@ public class StatMonitorHandlerWithEnabledMonitorThreadTest {
 
   @Test
   public void testStatMonitorNotifierAliveButWaiting() throws Exception {
-    StatMonitorHandler handler = new StatMonitorHandler();
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    var handler = new StatMonitorHandler();
+    var monitor = new TestStatisticsMonitor();
     handler.addMonitor(monitor);
 
-    final StatMonitorNotifier notifier = handler.getStatMonitorNotifier();
+    final var notifier = handler.getStatMonitorNotifier();
     assertTrue(notifier.isAlive());
 
     waitUntilWaiting(notifier);
 
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       assertTrue(notifier.isWaiting());
       Thread.sleep(10);
     }
@@ -62,11 +62,11 @@ public class StatMonitorHandlerWithEnabledMonitorThreadTest {
 
   @Test
   public void testStatMonitorNotifierWakesUpForWork() throws Exception {
-    StatMonitorHandler handler = new StatMonitorHandler();
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    var handler = new StatMonitorHandler();
+    var monitor = new TestStatisticsMonitor();
     handler.addMonitor(monitor);
 
-    final StatMonitorNotifier notifier = handler.getStatMonitorNotifier();
+    final var notifier = handler.getStatMonitorNotifier();
     assertTrue(notifier.isAlive());
 
     waitUntilWaiting(notifier);
@@ -83,8 +83,8 @@ public class StatMonitorHandlerWithEnabledMonitorThreadTest {
   }
 
   private static void waitUntilWaiting(StatMonitorNotifier notifier) throws InterruptedException {
-    boolean done = false;
-    for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < 2000; done =
+    var done = false;
+    for (var time = new StopWatch(true); !done && time.elapsedTimeMillis() < 2000; done =
         (notifier.isWaiting())) {
       Thread.sleep(10);
     }
@@ -94,8 +94,8 @@ public class StatMonitorHandlerWithEnabledMonitorThreadTest {
   private static void waitForNotificationCount(final TestStatisticsMonitor monitor,
       final int expected, final long ms, final long interval, final boolean throwOnTimeout)
       throws InterruptedException {
-    boolean done = false;
-    for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < ms; done =
+    var done = false;
+    for (var time = new StopWatch(true); !done && time.elapsedTimeMillis() < ms; done =
         (monitor.getNotificationCount() >= expected)) {
       Thread.sleep(interval);
     }

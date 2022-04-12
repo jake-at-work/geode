@@ -58,7 +58,7 @@ public class LogFilter {
   }
 
   public LineFilterResult acceptsLine(String logLine) {
-    LogLevelExtractor.Result result = LogLevelExtractor.extract(logLine);
+    var result = LogLevelExtractor.extract(logLine);
 
     return acceptsLogEntry(result);
   }
@@ -108,7 +108,7 @@ public class LogFilter {
 
   private static LocalDateTime getEndTimeOf(Path file) {
     try {
-      long lastModifiedMillis = file.toFile().lastModified();
+      var lastModifiedMillis = file.toFile().lastModified();
       return Instant.ofEpochMilli(lastModifiedMillis).atZone(ZoneId.systemDefault())
           .toLocalDateTime();
     } catch (Exception e) {

@@ -17,12 +17,10 @@ package org.apache.geode.metrics.internal;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.Test;
@@ -52,9 +50,9 @@ public class StandardMeterBinderTest {
     assertThat(registry.find("jvm.threads.daemon").gauge()).isNotNull();
     assertThat(registry.find("jvm.threads.live").gauge()).isNotNull();
 
-    Collection<Gauge> meters = registry.find("jvm.threads.states").gauges();
+    var meters = registry.find("jvm.threads.states").gauges();
 
-    List<String> threadStateTagValues = meters.stream()
+    var threadStateTagValues = meters.stream()
         .map(meter -> meter.getId().getTag("state"))
         .filter(Objects::nonNull)
         .collect(toList());

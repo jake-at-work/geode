@@ -34,7 +34,6 @@ import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.execute.metrics.FunctionStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.internal.cache.execute.util.SynchronizedResultCollector;
 
@@ -95,7 +94,7 @@ public class ServerFunctionExecutor extends AbstractExecution {
         UserAttributes.userAttributes.set(proxyCache.getUserAttributes());
       }
 
-      final int timeoutMs = TimeoutHelper.toMillis(timeout, unit);
+      final var timeoutMs = TimeoutHelper.toMillis(timeout, unit);
       byte hasResult = 0;
       if (result) {
         hasResult = 1;
@@ -128,7 +127,7 @@ public class ServerFunctionExecutor extends AbstractExecution {
 
       if (function.hasResult()) {
         hasResult = 1;
-        final int timeoutMs = TimeoutHelper.toMillis(timeout, unit);
+        final var timeoutMs = TimeoutHelper.toMillis(timeout, unit);
 
         if (rc == null) {
           ResultCollector defaultCollector = new DefaultResultCollector();
@@ -148,24 +147,26 @@ public class ServerFunctionExecutor extends AbstractExecution {
 
   private ResultCollector executeOnServer(Function function, ResultCollector rc, byte hasResult,
       int timeoutMs) {
-    FunctionStats stats = FunctionStatsManager.getFunctionStats(function.getId());
-    long start = stats.startFunctionExecution(true);
+    var stats = FunctionStatsManager.getFunctionStats(function.getId());
+    var start = stats.startFunctionExecution(true);
     try {
       validateExecution(function, null);
 
-      final ExecuteFunctionOpImpl executeFunctionOp =
+      final var executeFunctionOp =
           new ExecuteFunctionOpImpl(function, args, memberMappedArg,
               rc, isFnSerializationReqd, (byte) 0, groups, allServers, isIgnoreDepartedMembers(),
               timeoutMs);
 
-      final Supplier<ExecuteFunctionOpImpl> executeFunctionOpSupplier =
-          () -> new ExecuteFunctionOpImpl(function, args, memberMappedArg,
+      final var executeFunctionOpSupplier =
+          (Supplier<ExecuteFunctionOpImpl>) () -> new ExecuteFunctionOpImpl(function, args,
+              memberMappedArg,
               rc, isFnSerializationReqd, (byte) 0,
               null/* onGroups does not use single-hop for now */,
               false, false, timeoutMs);
 
-      final Supplier<ExecuteFunctionOpImpl> reExecuteFunctionOpSupplier =
-          () -> new ExecuteFunctionOpImpl(function, getArguments(),
+      final var reExecuteFunctionOpSupplier =
+          (Supplier<ExecuteFunctionOpImpl>) () -> new ExecuteFunctionOpImpl(function,
+              getArguments(),
               getMemberMappedArgument(), rc,
               isFnSerializationReqd, (byte) 1, groups, allServers,
               isIgnoreDepartedMembers(), timeoutMs);
@@ -192,24 +193,25 @@ public class ServerFunctionExecutor extends AbstractExecution {
 
   private ResultCollector executeOnServer(String functionId, ResultCollector rc, byte hasResult,
       boolean isHA, boolean optimizeForWrite, int timeoutMs) {
-    FunctionStats stats = FunctionStatsManager.getFunctionStats(functionId);
-    long start = stats.startFunctionExecution(true);
+    var stats = FunctionStatsManager.getFunctionStats(functionId);
+    var start = stats.startFunctionExecution(true);
     try {
       validateExecution(null, null);
 
-      final ExecuteFunctionOpImpl executeFunctionOp =
+      final var executeFunctionOp =
           new ExecuteFunctionOpImpl(functionId, args, memberMappedArg, hasResult,
               rc, isFnSerializationReqd, isHA, optimizeForWrite, (byte) 0, groups, allServers,
               isIgnoreDepartedMembers(), timeoutMs);
 
-      final Supplier<ExecuteFunctionOpImpl> executeFunctionOpSupplier =
-          () -> new ExecuteFunctionOpImpl(functionId, args, memberMappedArg,
+      final var executeFunctionOpSupplier =
+          (Supplier<ExecuteFunctionOpImpl>) () -> new ExecuteFunctionOpImpl(functionId, args,
+              memberMappedArg,
               hasResult,
               rc, isFnSerializationReqd, isHA, optimizeForWrite, (byte) 0,
               null/* onGroups does not use single-hop for now */, false, false, timeoutMs);
 
-      final Supplier<ExecuteFunctionOpImpl> reExecuteFunctionOpSupplier =
-          () -> new ExecuteFunctionOpImpl(functionId, args,
+      final var reExecuteFunctionOpSupplier =
+          (Supplier<ExecuteFunctionOpImpl>) () -> new ExecuteFunctionOpImpl(functionId, args,
               getMemberMappedArgument(),
               hasResult, rc, isFnSerializationReqd, isHA, optimizeForWrite, (byte) 1,
               groups, allServers, isIgnoreDepartedMembers(), timeoutMs);
@@ -236,8 +238,8 @@ public class ServerFunctionExecutor extends AbstractExecution {
   }
 
   private void executeOnServerNoAck(Function function, byte hasResult) {
-    FunctionStats stats = FunctionStatsManager.getFunctionStats(function.getId());
-    long start = stats.startFunctionExecution(false);
+    var stats = FunctionStatsManager.getFunctionStats(function.getId());
+    var start = stats.startFunctionExecution(false);
     try {
       validateExecution(function, null);
       ExecuteFunctionNoAckOp.execute(pool, function, args, memberMappedArg, allServers,
@@ -256,8 +258,8 @@ public class ServerFunctionExecutor extends AbstractExecution {
 
   private void executeOnServerNoAck(String functionId, byte hasResult, boolean isHA,
       boolean optimizeForWrite) {
-    FunctionStats stats = FunctionStatsManager.getFunctionStats(functionId);
-    long start = stats.startFunctionExecution(false);
+    var stats = FunctionStatsManager.getFunctionStats(functionId);
+    var start = stats.startFunctionExecution(false);
     try {
       validateExecution(null, null);
       ExecuteFunctionNoAckOp.execute(pool, functionId, args, memberMappedArg, allServers,
@@ -341,9 +343,9 @@ public class ServerFunctionExecutor extends AbstractExecution {
           "The input function for the execute function request is null");
     }
     isFnSerializationReqd = false;
-    Function functionObject = FunctionService.getFunction(functionName);
+    var functionObject = FunctionService.getFunction(functionName);
     if (functionObject == null) {
-      byte[] functionAttributes = getFunctionAttributes(functionName);
+      var functionAttributes = getFunctionAttributes(functionName);
       if (functionAttributes == null) {
         // Set authentication properties before executing the internal function.
         try {
@@ -354,7 +356,7 @@ public class ServerFunctionExecutor extends AbstractExecution {
             UserAttributes.userAttributes.set(proxyCache.getUserAttributes());
           }
 
-          Object obj = GetFunctionAttributeOp.execute(pool, functionName);
+          var obj = GetFunctionAttributeOp.execute(pool, functionName);
           functionAttributes = (byte[]) obj;
           addFunctionAttributes(functionName, functionAttributes);
         } finally {
@@ -362,9 +364,9 @@ public class ServerFunctionExecutor extends AbstractExecution {
         }
       }
 
-      boolean isHA = functionAttributes[1] == 1;
-      boolean hasResult = functionAttributes[0] == 1;
-      boolean optimizeForWrite = functionAttributes[2] == 1;
+      var isHA = functionAttributes[1] == 1;
+      var hasResult = functionAttributes[0] == 1;
+      var optimizeForWrite = functionAttributes[2] == 1;
       return executeFunction(functionName, hasResult, isHA, optimizeForWrite, timeout, unit);
     } else {
       return executeFunction(functionObject, timeout, unit);

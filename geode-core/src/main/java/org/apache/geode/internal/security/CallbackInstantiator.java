@@ -19,7 +19,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.SECURITY_POST
 import static org.apache.geode.internal.ClassLoadUtils.classFromName;
 import static org.apache.geode.internal.ClassLoadUtils.methodFromName;
 
-import java.lang.reflect.Method;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -58,22 +57,22 @@ public class CallbackInstantiator {
   }
 
   public static SecurityManager getSecurityManager(Properties properties) {
-    String securityManagerConfig = properties.getProperty(SECURITY_MANAGER);
+    var securityManagerConfig = properties.getProperty(SECURITY_MANAGER);
     if (StringUtils.isBlank(securityManagerConfig)) {
       return null;
     }
-    SecurityManager securityManager =
+    var securityManager =
         getObjectOfTypeFromClassName(securityManagerConfig, SecurityManager.class);
     securityManager.init(properties);
     return securityManager;
   }
 
   public static PostProcessor getPostProcessor(Properties properties) {
-    String postProcessorConfig = properties.getProperty(SECURITY_POST_PROCESSOR);
+    var postProcessorConfig = properties.getProperty(SECURITY_POST_PROCESSOR);
     if (StringUtils.isBlank(postProcessorConfig)) {
       return null;
     }
-    PostProcessor postProcessor =
+    var postProcessor =
         getObjectOfTypeFromClassName(postProcessorConfig, PostProcessor.class);
     postProcessor.init(properties);
     return postProcessor;
@@ -85,7 +84,7 @@ public class CallbackInstantiator {
   private static <T> T getObjectOfTypeFromFactoryMethod(String factoryMethodName) {
     T actualObject;
     try {
-      Method factoryMethod = methodFromName(factoryMethodName);
+      var factoryMethod = methodFromName(factoryMethodName);
       actualObject = (T) factoryMethod.invoke(null, (Object[]) null);
     } catch (Exception e) {
       throw new GemFireSecurityException("Instance could not be obtained from " + factoryMethodName,

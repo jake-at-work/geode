@@ -94,8 +94,8 @@ public class RemoteStatResource implements StatResource, DataSerializable {
 
   @Override
   public Stat getStatByName(String name) {
-    Stat[] stats = getStats();
-    for (final Stat stat : stats) {
+    var stats = getStats();
+    for (final var stat : stats) {
       if (name.equals(stat.getName())) {
         return stat;
       }
@@ -135,7 +135,7 @@ public class RemoteStatResource implements StatResource, DataSerializable {
   @Override
   public boolean equals(Object other) {
     if (other instanceof RemoteStatResource) {
-      RemoteStatResource rsrc = (RemoteStatResource) other;
+      var rsrc = (RemoteStatResource) other;
       return (rsrcUniqueId == rsrc.rsrcUniqueId && vm.equals(rsrc.vm));
     } else {
       return false;

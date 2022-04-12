@@ -17,9 +17,6 @@ package org.apache.geode.metrics.function.executions;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.stream.Collectors.toList;
 
-import java.util.Collection;
-import java.util.List;
-
 import io.micrometer.core.instrument.Timer;
 
 import org.apache.geode.cache.execute.Function;
@@ -31,11 +28,11 @@ public class GetFunctionExecutionTimerValues implements Function<Void> {
 
   @Override
   public void execute(FunctionContext<Void> context) {
-    Collection<Timer> timers = SimpleMetricsPublishingService.getRegistry()
+    var timers = SimpleMetricsPublishingService.getRegistry()
         .find("geode.function.executions")
         .timers();
 
-    List<ExecutionsTimerValues> result = timers.stream()
+    var result = timers.stream()
         .map(GetFunctionExecutionTimerValues::toExecutionsTimerValues)
         .filter(t -> !t.functionId.equals(ID))
         .collect(toList());
@@ -49,8 +46,8 @@ public class GetFunctionExecutionTimerValues implements Function<Void> {
   }
 
   private static ExecutionsTimerValues toExecutionsTimerValues(Timer t) {
-    String functionId = t.getId().getTag("function");
-    boolean succeeded = Boolean.parseBoolean(t.getId().getTag("succeeded"));
+    var functionId = t.getId().getTag("function");
+    var succeeded = Boolean.parseBoolean(t.getId().getTag("succeeded"));
 
     return new ExecutionsTimerValues(
         functionId,

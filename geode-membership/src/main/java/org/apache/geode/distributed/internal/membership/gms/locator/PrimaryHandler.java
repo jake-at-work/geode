@@ -67,7 +67,7 @@ public class PrimaryHandler implements TcpHandler {
   @Override
   public synchronized void init(TcpServer tcpServer) {
     this.tcpServer = tcpServer;
-    for (TcpHandler handler : allHandlers) {
+    for (var handler : allHandlers) {
       handler.init(tcpServer);
     }
   }
@@ -93,7 +93,7 @@ public class PrimaryHandler implements TcpHandler {
 
       // either there is a configuration problem or the locator is still starting up
       if (giveup == 0) {
-        int locatorWaitTime = this.locatorWaitTime;
+        var locatorWaitTime = this.locatorWaitTime;
         if (locatorWaitTime <= 0) {
           // always retry some number of times
           locatorWaitTime = 30;
@@ -116,7 +116,7 @@ public class PrimaryHandler implements TcpHandler {
 
   @Override
   public void shutDown() {
-    for (TcpHandler handler : allHandlers) {
+    for (var handler : allHandlers) {
       try {
         handler.shutDown();
       } catch (Throwable e) {
@@ -142,7 +142,7 @@ public class PrimaryHandler implements TcpHandler {
 
   @Override
   public void endRequest(Object request, long startTime) {
-    TcpHandler handler = handlerMapping.get(request.getClass());
+    var handler = handlerMapping.get(request.getClass());
     if (handler != null) {
       handler.endRequest(request, startTime);
     }
@@ -150,7 +150,7 @@ public class PrimaryHandler implements TcpHandler {
 
   @Override
   public void endResponse(Object request, long startTime) {
-    TcpHandler handler = handlerMapping.get(request.getClass());
+    var handler = handlerMapping.get(request.getClass());
     if (handler != null) {
       handler.endResponse(request, startTime);
     }

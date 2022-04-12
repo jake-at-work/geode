@@ -16,7 +16,6 @@
 package org.apache.geode.modules.session;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -38,12 +37,12 @@ public class CommandServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
 
-    QueryCommand cmd = QueryCommand.UNKNOWN;
-    String param = request.getParameter("param");
-    String value = request.getParameter("value");
-    PrintWriter out = response.getWriter();
+    var cmd = QueryCommand.UNKNOWN;
+    var param = request.getParameter("param");
+    var value = request.getParameter("value");
+    var out = response.getWriter();
 
-    String cmdStr = request.getParameter("cmd");
+    var cmdStr = request.getParameter("cmd");
     if (cmdStr != null) {
       cmd = QueryCommand.valueOf(cmdStr);
     }
@@ -61,7 +60,7 @@ public class CommandServlet extends HttpServlet {
         break;
       case GET:
         session = request.getSession();
-        String val = (String) session.getAttribute(param);
+        var val = (String) session.getAttribute(param);
         if (val != null) {
           out.write(val);
         }
@@ -72,7 +71,7 @@ public class CommandServlet extends HttpServlet {
         session.invalidate();
         break;
       case CALLBACK:
-        Callback c = (Callback) context.getAttribute("callback");
+        var c = (Callback) context.getAttribute("callback");
         c.call(request, response);
         break;
     }

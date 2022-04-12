@@ -29,7 +29,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -72,7 +71,7 @@ public class ConfigurationIntegrationTest {
     geodeSecurityLogger = LogManager.getLogger(SECURITY_LOGGER_NAME);
     applicationLogger = LogManager.getLogger(APPLICATION_LOGGER_NAME);
 
-    List<LoggerConfig> loggerConfigs = Arrays.asList(getLoggerConfig(geodeLogger),
+    var loggerConfigs = Arrays.asList(getLoggerConfig(geodeLogger),
         getLoggerConfig(geodeSecurityLogger), getLoggerConfig(applicationLogger));
 
     Log4jLoggingProvider.updateLogLevel(Level.INFO, loggerConfigs.toArray(new LoggerConfig[0]));
@@ -89,7 +88,7 @@ public class ConfigurationIntegrationTest {
   public void updatesLogLevelForScopeGeodeLoggers() {
     when(logConfig.getLogLevel()).thenReturn(WARNING.intLevel());
 
-    Configuration configuration = Configuration.create(ALWAYS, GEODE_LOGGERS);
+    var configuration = Configuration.create(ALWAYS, GEODE_LOGGERS);
     configuration.initialize(logConfigSupplier);
 
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.WARN);
@@ -101,7 +100,7 @@ public class ConfigurationIntegrationTest {
   public void updatesLogLevelForScopeGeodeAndSecurityLoggers() {
     when(logConfig.getLogLevel()).thenReturn(WARNING.intLevel());
 
-    Configuration configuration = Configuration.create(ALWAYS, GEODE_AND_SECURITY_LOGGERS);
+    var configuration = Configuration.create(ALWAYS, GEODE_AND_SECURITY_LOGGERS);
     configuration.initialize(logConfigSupplier);
 
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.WARN);
@@ -113,7 +112,7 @@ public class ConfigurationIntegrationTest {
   public void updatesLogLevelForScopeAllLoggers() {
     when(logConfig.getLogLevel()).thenReturn(WARNING.intLevel());
 
-    Configuration configuration = Configuration.create(ALWAYS, ALL_LOGGERS);
+    var configuration = Configuration.create(ALWAYS, ALL_LOGGERS);
     configuration.initialize(logConfigSupplier);
 
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.WARN);
@@ -125,7 +124,7 @@ public class ConfigurationIntegrationTest {
   public void updatesLogLevelForScopeGeodeAndApplicationLoggers() {
     when(logConfig.getLogLevel()).thenReturn(WARNING.intLevel());
 
-    Configuration configuration = Configuration.create(ALWAYS, GEODE_AND_APPLICATION_LOGGERS);
+    var configuration = Configuration.create(ALWAYS, GEODE_AND_APPLICATION_LOGGERS);
     configuration.initialize(logConfigSupplier);
 
     assertThat(geodeLogger.getLevel()).isEqualTo(Level.WARN);

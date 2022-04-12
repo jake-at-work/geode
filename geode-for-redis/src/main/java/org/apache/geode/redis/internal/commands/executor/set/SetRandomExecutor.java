@@ -29,9 +29,9 @@ import org.apache.geode.redis.internal.services.RegionProvider;
 public abstract class SetRandomExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    RedisKey key = command.getKey();
-    boolean hasCount = commandElems.size() == 3;
+    var commandElems = command.getProcessedCommand();
+    var key = command.getKey();
+    var hasCount = commandElems.size() == 3;
 
     int count;
     if (hasCount) {
@@ -44,7 +44,7 @@ public abstract class SetRandomExecutor implements CommandExecutor {
       count = 1;
     }
 
-    List<byte[]> results =
+    var results =
         context.lockedExecute(key, () -> performCommand(count, context.getRegionProvider(), key));
 
     if (hasCount) {

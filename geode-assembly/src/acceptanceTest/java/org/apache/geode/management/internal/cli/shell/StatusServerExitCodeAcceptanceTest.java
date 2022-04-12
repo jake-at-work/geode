@@ -31,7 +31,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.ExitCode;
 import org.apache.geode.internal.process.PidFile;
 import org.apache.geode.test.junit.categories.GfshTest;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 
@@ -59,7 +58,7 @@ public class StatusServerExitCodeAcceptanceTest {
     rootPath = gfshRule.getTemporaryFolder().getRoot().toPath();
     locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    GfshExecution execution = GfshScript.of(
+    var execution = GfshScript.of(
         "start locator --name=" + LOCATOR_NAME + " --port=" + locatorPort,
         "start server --disable-default-server --name=" + SERVER_NAME)
         .execute(gfshRule);
@@ -75,17 +74,17 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @BeforeClass
   public static void setUpJavaTools() {
-    String javaHome = System.getProperty("java.home");
+    var javaHome = System.getProperty("java.home");
     assertThat(javaHome)
         .as("System.getProperty(\"java.home\")")
         .isNotNull();
 
-    Path javaHomeFile = new File(javaHome).toPath();
+    var javaHomeFile = new File(javaHome).toPath();
     assertThat(javaHomeFile)
         .as(javaHomeFile + ": " + printDirectoryTree(javaHomeFile.toFile()))
         .exists();
 
-    String toolsPath = javaHomeFile.toFile().getName().equalsIgnoreCase("jre")
+    var toolsPath = javaHomeFile.toFile().getName().equalsIgnoreCase("jre")
         ? ".." + File.separator + "lib" + File.separator + "tools.jar"
         : "lib" + File.separator + "tools.jar";
     toolsJar = javaHomeFile.resolve(toolsPath);
@@ -93,7 +92,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void statusCommandWithInvalidOptionValueShouldFail() {
-    String commandWithBadPid = "status server --pid=-1";
+    var commandWithBadPid = "status server --pid=-1";
 
     GfshScript.of(commandWithBadPid)
         .withName("test-frame")
@@ -103,7 +102,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void statusCommandWithIncorrectDirShouldFail() {
-    String commandWithWrongDir = "status server --dir=.";
+    var commandWithWrongDir = "status server --dir=.";
 
     GfshScript.of(commandWithWrongDir)
         .withName("test-frame")
@@ -113,7 +112,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void statusCommandWithIncorrectNameShouldFail() {
-    String commandWithWrongName = "status server --name=some-server-name";
+    var commandWithWrongName = "status server --name=some-server-name";
 
     GfshScript.of(commandWithWrongName)
         .withName("test-frame")
@@ -123,7 +122,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void statusCommandWithIncorrectPidShouldFail() {
-    String commandWithWrongPid = "status server --pid=100";
+    var commandWithWrongPid = "status server --pid=100";
 
     GfshScript.of(commandWithWrongPid)
         .withName("test-frame")
@@ -134,7 +133,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void onlineStatusCommandShouldFailWhenNotConnected_server_name() {
-    String statusCommand = "status server --name=" + SERVER_NAME;
+    var statusCommand = "status server --name=" + SERVER_NAME;
 
     GfshScript.of(statusCommand)
         .withName("test-frame")
@@ -144,7 +143,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void onlineStatusCommandShouldSucceedWhenConnected_server_name() {
-    String statusCommand = "status server --name=" + SERVER_NAME;
+    var statusCommand = "status server --name=" + SERVER_NAME;
 
     GfshScript.of(connectCommand, statusCommand)
         .withName("test-frame")
@@ -154,7 +153,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void offlineStatusCommandShouldSucceedWhenConnected_server_dir() {
-    String statusCommand = "status server --dir=" + serverDir;
+    var statusCommand = "status server --dir=" + serverDir;
 
     GfshScript.of(connectCommand, statusCommand)
         .withName("test-frame")
@@ -164,7 +163,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void offlineStatusCommandShouldSucceedWhenConnected_server_pid() {
-    String statusCommand = "status server --pid=" + serverPid;
+    var statusCommand = "status server --pid=" + serverPid;
 
     GfshScript.of(connectCommand, statusCommand)
         .withName("test-frame")
@@ -175,7 +174,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void offlineStatusCommandShouldSucceedEvenWhenNotConnected_server_dir() {
-    String statusCommand = "status server --dir=" + serverDir;
+    var statusCommand = "status server --dir=" + serverDir;
 
     GfshScript.of(statusCommand)
         .withName("test-frame")
@@ -185,7 +184,7 @@ public class StatusServerExitCodeAcceptanceTest {
 
   @Test
   public void offlineStatusCommandShouldSucceedEvenWhenNotConnected_server_pid() {
-    String statusCommand = "status server --pid=" + serverPid;
+    var statusCommand = "status server --pid=" + serverPid;
 
     GfshScript.of(statusCommand)
         .withName("test-frame")
@@ -195,14 +194,14 @@ public class StatusServerExitCodeAcceptanceTest {
   }
 
   private static int readPidFile(String memberName, String pidFileEndsWith) throws IOException {
-    File directory = rootPath.resolve(memberName).toFile();
-    File[] files = directory.listFiles();
+    var directory = rootPath.resolve(memberName).toFile();
+    var files = directory.listFiles();
 
     assertThat(files)
         .as(String.format("Expected directory ('%s') for member '%s'.", directory, memberName))
         .isNotNull();
 
-    File pidFile = stream(files)
+    var pidFile = stream(files)
         .filter(file -> file.getName().endsWith(pidFileEndsWith))
         .findFirst()
         .orElseThrow(() -> new RuntimeException(String

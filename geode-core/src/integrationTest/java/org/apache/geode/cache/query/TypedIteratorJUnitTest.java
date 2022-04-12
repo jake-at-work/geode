@@ -31,7 +31,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 
@@ -44,7 +43,7 @@ public class TypedIteratorJUnitTest {
   @Test
   public void testUntyped() throws QueryException {
     // one untyped iterator is now resolved fine
-    Query q =
+    var q =
         qs.newQuery("SELECT DISTINCT * " + "FROM " + SEPARATOR + "pos " + "WHERE ID = 3 ");
     q.execute();
 
@@ -60,10 +59,10 @@ public class TypedIteratorJUnitTest {
 
   @Test
   public void testTyped() throws QueryException {
-    Query q = qs.newQuery( // must quote "query" because it is a reserved word
+    var q = qs.newQuery( // must quote "query" because it is a reserved word
         "IMPORT org.apache.geode.cache.\"query\".data.Portfolio;\n" + "SELECT DISTINCT *\n"
             + "FROM " + SEPARATOR + "pos TYPE Portfolio\n" + "WHERE ID = 3  ");
-    Object r = q.execute();
+    var r = q.execute();
 
 
     q = qs.newQuery( // must quote "query" because it is a reserved word
@@ -75,10 +74,10 @@ public class TypedIteratorJUnitTest {
 
   @Test
   public void testTypeCasted() throws QueryException {
-    Query q = qs.newQuery( // must quote "query" because it is a reserved word
+    var q = qs.newQuery( // must quote "query" because it is a reserved word
         "IMPORT org.apache.geode.cache.\"query\".data.Portfolio;\n" + "SELECT DISTINCT *\n"
             + "FROM (collection<Portfolio>)" + SEPARATOR + "pos\n" + "WHERE ID = 3  ");
-    Object r = q.execute();
+    var r = q.execute();
 
     q = qs.newQuery( // must quote "query" because it is a reserved word
         "IMPORT org.apache.geode.cache.\"query\".data.Position;\n" + "SELECT DISTINCT *\n"
@@ -91,8 +90,8 @@ public class TypedIteratorJUnitTest {
   public void setUp() throws Exception {
     CacheUtils.startCache();
     cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var attributesFactory = new AttributesFactory();
+    var regionAttributes = attributesFactory.create();
 
     region = cache.createRegion("pos", regionAttributes);
     region.put("0", new Portfolio(0));

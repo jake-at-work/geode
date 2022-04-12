@@ -35,7 +35,7 @@ public class UnknownVersionJUnitTest extends TestCase {
 
   @Test
   public void testEqualMaxSameIdentity() {
-    final UnknownVersion versionOrdinal = construct(Short.MAX_VALUE);
+    final var versionOrdinal = construct(Short.MAX_VALUE);
     validateEqual(versionOrdinal, versionOrdinal);
   }
 

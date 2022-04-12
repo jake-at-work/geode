@@ -46,11 +46,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -71,7 +69,6 @@ import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.lang.ObjectUtils;
-import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.net.SocketCreator;
 import org.apache.geode.internal.process.ConnectionFailedException;
@@ -81,7 +78,6 @@ import org.apache.geode.internal.process.FileAlreadyExistsException;
 import org.apache.geode.internal.process.FileControllableProcess;
 import org.apache.geode.internal.process.MBeanInvocationFailedException;
 import org.apache.geode.internal.process.PidUnavailableException;
-import org.apache.geode.internal.process.ProcessController;
 import org.apache.geode.internal.process.ProcessControllerFactory;
 import org.apache.geode.internal.process.ProcessControllerParameters;
 import org.apache.geode.internal.process.ProcessLauncherContext;
@@ -330,15 +326,15 @@ public class LocatorLauncher extends AbstractLauncher<String> {
       throws IOException {
 
     // final int timeout = (60 * 2 * 1000); // 2 minutes
-    final int timeout = Integer.MAX_VALUE; // 2 minutes
+    final var timeout = Integer.MAX_VALUE; // 2 minutes
 
     try {
 
-      final SSLConfig sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(
+      final var sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(
           properties,
           SecurableCommunicationChannel.LOCATOR);
       final TcpSocketCreator socketCreator = new SocketCreator(sslConfig);
-      final TcpClient client = new TcpClient(socketCreator,
+      final var client = new TcpClient(socketCreator,
           InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
           InternalDataSerializer.getDSFIDSerializer().getObjectDeserializer(),
           TcpSocketFactory.DEFAULT);
@@ -540,7 +536,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
    * @see #getPort()
    */
   public String getPortAsString() {
-    Integer port = getPort();
+    var port = getPort();
     return (port != null ? port : getDefaultLocatorPort()).toString();
   }
 
@@ -591,7 +587,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
       info(wrap("> java ... " + getClass().getName() + " " + usageMap.get(command), 80, "\t\t"));
       info("\n\noptions: \n\n");
 
-      for (String option : command.getOptions()) {
+      for (var option : command.getOptions()) {
         info(wrap("--" + option + ": " + helpMap.get(option) + "\n", 80, "\t"));
       }
 
@@ -716,7 +712,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
     if (isStartable()) {
       INSTANCE.compareAndSet(null, this);
 
-      boolean serializationFilterConfigured = configureGlobalSerialFilterIfEnabled();
+      var serializationFilterConfigured = configureGlobalSerialFilterIfEnabled();
 
       try {
         process =
@@ -888,11 +884,11 @@ public class LocatorLauncher extends AbstractLauncher<String> {
    */
   public LocatorState waitOnStatusResponse(final long timeout, final long interval,
       final TimeUnit timeUnit) {
-    final long endTimeInMilliseconds = (System.currentTimeMillis() + timeUnit.toMillis(timeout));
+    final var endTimeInMilliseconds = (System.currentTimeMillis() + timeUnit.toMillis(timeout));
 
     while (System.currentTimeMillis() < endTimeInMilliseconds) {
       try {
-        LocatorStatusResponse response = statusForLocator(getPort(), getBindAddressString());
+        var response = statusForLocator(getPort(), getBindAddressString());
         return new LocatorState(this, Status.ONLINE, response);
       } catch (Exception handled) {
         timedWait(interval, timeUnit);
@@ -944,7 +940,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
    * @see org.apache.geode.distributed.LocatorLauncher.LocatorState
    */
   public LocatorState status() {
-    final LocatorLauncher launcher = getInstance();
+    final var launcher = getInstance();
     // if this instance is starting then return local status
     if (starting.get()) {
       debug(
@@ -995,10 +991,10 @@ public class LocatorLauncher extends AbstractLauncher<String> {
 
   private LocatorState statusWithPid() {
     try {
-      final ProcessController controller = new ProcessControllerFactory()
+      final var controller = new ProcessControllerFactory()
           .createProcessController(controllerParameters, getPid());
       controller.checkPidSupport();
-      final String statusJson = controller.status();
+      final var statusJson = controller.status();
       return LocatorState.fromJson(statusJson);
     } catch (ConnectionFailedException handled) {
       // failed to attach to locator JVM
@@ -1017,7 +1013,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
 
   private LocatorState statusWithPort() {
     try {
-      LocatorStatusResponse response = statusForLocator(getPort(), getBindAddressString());
+      var response = statusForLocator(getPort(), getBindAddressString());
       return new LocatorState(this, Status.ONLINE, response);
     } catch (Exception handled) {
       return createNoResponseState(handled,
@@ -1026,22 +1022,22 @@ public class LocatorLauncher extends AbstractLauncher<String> {
   }
 
   private LocatorState statusWithWorkingDirectory() {
-    int parsedPid = 0;
+    var parsedPid = 0;
     try {
-      final ProcessController controller =
+      final var controller =
           new ProcessControllerFactory().createProcessController(controllerParameters,
               new File(getWorkingDirectory()), ProcessType.LOCATOR.getPidFileName());
       parsedPid = controller.getProcessId();
 
       // note: in-process request will go infinite loop unless we do the following
       if (parsedPid == ProcessUtils.identifyPid()) {
-        LocatorLauncher runningLauncher = getInstance();
+        var runningLauncher = getInstance();
         if (runningLauncher != null) {
           return runningLauncher.status();
         }
       }
 
-      final String statusJson = controller.status();
+      final var statusJson = controller.status();
       return LocatorState.fromJson(statusJson);
     } catch (ConnectionFailedException handled) {
       // failed to attach to locator JVM
@@ -1100,7 +1096,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
    * @see org.apache.geode.distributed.AbstractLauncher.Status#STOPPED
    */
   public LocatorState stop() {
-    final LocatorLauncher launcher = getInstance();
+    final var launcher = getInstance();
     // if this instance is running then stop it
     if (isStoppable()) {
       return stopInProcess();
@@ -1137,7 +1133,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
 
   private LocatorState stopWithPid() {
     try {
-      final ProcessController controller = new ProcessControllerFactory()
+      final var controller = new ProcessControllerFactory()
           .createProcessController(new LocatorControllerParameters(), getPid());
       controller.checkPidSupport();
       controller.stop();
@@ -1154,16 +1150,16 @@ public class LocatorLauncher extends AbstractLauncher<String> {
   }
 
   private LocatorState stopWithWorkingDirectory() {
-    int parsedPid = 0;
+    var parsedPid = 0;
     try {
-      final ProcessController controller =
+      final var controller =
           new ProcessControllerFactory().createProcessController(controllerParameters,
               new File(getWorkingDirectory()), ProcessType.LOCATOR.getPidFileName());
       parsedPid = controller.getProcessId();
 
       // NOTE in-process request will go infinite loop unless we do the following
       if (parsedPid == ProcessUtils.identifyPid()) {
-        final LocatorLauncher runningLauncher = getInstance();
+        final var runningLauncher = getInstance();
         if (runningLauncher != null) {
           return runningLauncher.stopInProcess();
         }
@@ -1204,12 +1200,12 @@ public class LocatorLauncher extends AbstractLauncher<String> {
   }
 
   private Properties getOverriddenDefaults() throws IOException {
-    Properties overriddenDefaults = new Properties();
+    var overriddenDefaults = new Properties();
 
     overriddenDefaults.put(ProcessLauncherContext.OVERRIDDEN_DEFAULTS_PREFIX.concat(LOG_FILE),
         getLogFile().getCanonicalPath());
 
-    for (String key : System.getProperties().stringPropertyNames()) {
+    for (var key : System.getProperties().stringPropertyNames()) {
       if (key.startsWith(ProcessLauncherContext.OVERRIDDEN_DEFAULTS_PREFIX)) {
         overriddenDefaults.put(key, System.getProperty(key));
       }
@@ -1331,7 +1327,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
      *         used by the Locator.
      */
     private OptionParser getParser() {
-      final OptionParser parser = new OptionParser(true);
+      final var parser = new OptionParser(true);
 
       parser.accepts("bind-address").withRequiredArg().ofType(String.class);
       parser.accepts("debug");
@@ -1361,7 +1357,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
         parseCommand(args);
         parseMemberName(args);
 
-        final OptionSet options = getParser().parse(args);
+        final var options = getParser().parse(args);
 
         setDebug(options.has("debug"));
         setDeletePidFileOnStop(options.has("delete-pid-file-on-stop"));
@@ -1416,8 +1412,8 @@ public class LocatorLauncher extends AbstractLauncher<String> {
       // argument in the
       // list, but does it really matter? stop after we find one valid command.
       if (args != null) {
-        for (String arg : args) {
-          final Command command = Command.valueOfName(arg);
+        for (var arg : args) {
+          final var command = Command.valueOfName(arg);
           if (command != null) {
             setCommand(command);
             break;
@@ -1438,7 +1434,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
      */
     protected void parseMemberName(final String... args) {
       if (args != null) {
-        for (String arg : args) {
+        for (var arg : args) {
           if (!(arg.startsWith(OPTION_PREFIX) || Command.isCommand(arg))) {
             setMemberName(arg);
             break;
@@ -1632,7 +1628,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
         return this;
       } else {
         try {
-          InetAddress address = InetAddress.getByName(addressString);
+          var address = InetAddress.getByName(addressString);
           if (LocalHostUtil.isLocalHost(address)) {
             bindAddress = new HostAddress(addressString);
             return this;
@@ -2013,7 +2009,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
      *         the specified name exists.
      */
     public static Command valueOfName(final String name) {
-      for (Command command : values()) {
+      for (var command : values()) {
         if (command.getName().equalsIgnoreCase(name)) {
           return command;
         }
@@ -2090,11 +2086,11 @@ public class LocatorLauncher extends AbstractLauncher<String> {
      */
     public static LocatorState fromJson(final String json) {
       try {
-        final JsonNode jsonObject = new ObjectMapper().readTree(json);
+        final var jsonObject = new ObjectMapper().readTree(json);
 
-        final Status status = Status.valueOfDescription(jsonObject.get(JSON_STATUS).asText());
+        final var status = Status.valueOfDescription(jsonObject.get(JSON_STATUS).asText());
 
-        final List<String> jvmArguments = JsonUtil.toStringList(jsonObject.get(JSON_JVMARGUMENTS));
+        final var jvmArguments = JsonUtil.toStringList(jsonObject.get(JSON_JVMARGUMENTS));
 
         return new LocatorState(status, jsonObject.get(JSON_STATUSMESSAGE).asText(),
             jsonObject.get(JSON_TIMESTAMP).asLong(), jsonObject.get(JSON_LOCATION).asText(),
@@ -2112,7 +2108,7 @@ public class LocatorLauncher extends AbstractLauncher<String> {
 
     public static LocatorState fromDirectory(final String workingDirectory,
         final String memberName) {
-      LocatorState locatorState =
+      var locatorState =
           new LocatorLauncher.Builder().setWorkingDirectory(workingDirectory).build().status();
 
       if (ObjectUtils.equals(locatorState.getMemberName(), memberName)) {
@@ -2168,8 +2164,8 @@ public class LocatorLauncher extends AbstractLauncher<String> {
 
     private static String getBindAddressAsString(LocatorLauncher launcher) {
       if (InternalLocator.hasLocator()) {
-        final InternalLocator locator = InternalLocator.getLocator();
-        String bindAddress = locator.getBindAddressString();
+        final var locator = InternalLocator.getLocator();
+        var bindAddress = locator.getBindAddressString();
         if (bindAddress != null && !bindAddress.isEmpty()) {
           return bindAddress;
         }
@@ -2179,11 +2175,11 @@ public class LocatorLauncher extends AbstractLauncher<String> {
 
     private static String getLogFileCanonicalPath(LocatorLauncher launcher) {
       if (InternalLocator.hasLocator()) {
-        final InternalLocator locator = InternalLocator.getLocator();
-        final File logFile = locator.getLogFile();
+        final var locator = InternalLocator.getLocator();
+        final var logFile = locator.getLogFile();
 
         if (logFile != null && logFile.isFile()) {
-          final String logFileCanonicalPath = tryGetCanonicalPathElseGetAbsolutePath(logFile);
+          final var logFileCanonicalPath = tryGetCanonicalPathElseGetAbsolutePath(logFile);
           if (isNotBlank(logFileCanonicalPath)) { // this is probably not need but a
             // safe check none-the-less.
             return logFileCanonicalPath;
@@ -2195,8 +2191,8 @@ public class LocatorLauncher extends AbstractLauncher<String> {
 
     private static String getPortAsString(LocatorLauncher launcher) {
       if (InternalLocator.hasLocator()) {
-        final InternalLocator locator = InternalLocator.getLocator();
-        final String portAsString = String.valueOf(locator.getPort());
+        final var locator = InternalLocator.getLocator();
+        final var portAsString = String.valueOf(locator.getPort());
         if (isNotBlank(portAsString)) {
           return portAsString;
         }

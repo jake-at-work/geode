@@ -16,7 +16,6 @@ package org.apache.geode.cache.asyncqueue.internal;
 
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.cache.wan.GatewaySenderStats;
 import org.apache.geode.internal.statistics.StatisticsClock;
@@ -32,7 +31,7 @@ public class AsyncEventQueueStats extends GatewaySenderStats {
 
 
   static {
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     type = createType(f, typeName, "Stats for activity in the AsyncEventQueue");
   }
 

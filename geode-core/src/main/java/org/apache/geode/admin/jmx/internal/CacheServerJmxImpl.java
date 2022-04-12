@@ -15,13 +15,9 @@
 package org.apache.geode.admin.jmx.internal;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.Notification;
@@ -114,7 +110,7 @@ public class CacheServerJmxImpl extends CacheServerImpl
         MBeanUtils.createMBean(this, addDynamicAttributes(MBeanUtils.lookupManagedBean(this)));
 
     // Refresh Interval
-    AdminDistributedSystemJmxImpl sysJmx = (AdminDistributedSystemJmxImpl) system;
+    var sysJmx = (AdminDistributedSystemJmxImpl) system;
     if (sysJmx.getRefreshInterval() > 0) {
       refreshInterval = sysJmx.getRefreshInterval();
     }
@@ -157,18 +153,18 @@ public class CacheServerJmxImpl extends CacheServerImpl
   @Override
   public void cleanupResource() {
     synchronized (managedStatisticsResourcesMap) {
-      ConfigurationParameter[] names = getConfiguration();
+      var names = getConfiguration();
       if (names != null) {
-        for (ConfigurationParameter parm : names) {
+        for (var parm : names) {
           ((ConfigurationParameterImpl) parm).removeConfigurationParameterListener(this);
         }
       }
       parms.clear();
 
-      Collection<StatisticResourceJmxImpl> statisticResources =
+      var statisticResources =
           managedStatisticsResourcesMap.values();
 
-      for (StatisticResourceJmxImpl statisticResource : statisticResources) {
+      for (var statisticResource : statisticResources) {
         MBeanUtils.unregisterMBean(statisticResource);
       }
 
@@ -273,7 +269,7 @@ public class CacheServerJmxImpl extends CacheServerImpl
    */
   @Override
   public void _setRefreshInterval(int refreshInterval) {
-    boolean isRegistered = MBeanUtils.isRefreshNotificationRegistered(this,
+    var isRegistered = MBeanUtils.isRefreshNotificationRegistered(this,
         RefreshNotificationType.SYSTEM_MEMBER_CONFIG);
 
     if (isRegistered && (getRefreshInterval() == refreshInterval)) {
@@ -360,7 +356,7 @@ public class CacheServerJmxImpl extends CacheServerImpl
    */
   @Override
   public void handleNotification(Notification notification, Object hb) {
-    AdminDistributedSystemJmxImpl systemJmx = (AdminDistributedSystemJmxImpl) system;
+    var systemJmx = (AdminDistributedSystemJmxImpl) system;
 
     if (!systemJmx.isRmiClientCountZero()) {
       Helper.handleNotification(this, notification, hb);
@@ -400,7 +396,7 @@ public class CacheServerJmxImpl extends CacheServerImpl
       /*
        * Ensuring that a single instance of Statistic Resource is created per StatResource.
        */
-      StatisticResourceJmxImpl statisticResourceJmxImpl = managedStatisticsResourcesMap.get(stat);
+      var statisticResourceJmxImpl = managedStatisticsResourcesMap.get(stat);
       if (statisticResourceJmxImpl != null) {
         managedStatisticResource = statisticResourceJmxImpl;
       } else {
@@ -460,15 +456,15 @@ public class CacheServerJmxImpl extends CacheServerImpl
   public List<ManagedResource> cleanupBridgeClientResources(String clientId) {
     List<ManagedResource> returnedResources = new ArrayList<>();
 
-    String compatibleId = "id_" + MBeanUtils.makeCompliantMBeanNameProperty(clientId);
+    var compatibleId = "id_" + MBeanUtils.makeCompliantMBeanNameProperty(clientId);
     synchronized (managedStatisticsResourcesMap) {
-      Set<Entry<StatResource, StatisticResourceJmxImpl>> entrySet =
+      var entrySet =
           managedStatisticsResourcesMap.entrySet();
 
-      for (Iterator<Entry<StatResource, StatisticResourceJmxImpl>> it = entrySet.iterator(); it
+      for (var it = entrySet.iterator(); it
           .hasNext();) {
-        Entry<StatResource, StatisticResourceJmxImpl> entry = it.next();
-        StatisticResourceJmxImpl resource = entry.getValue();
+        var entry = it.next();
+        var resource = entry.getValue();
         if (resource.getMBeanName().contains(compatibleId)) {
           it.remove(); // remove matching entry
           returnedResources.add(resource);
@@ -501,7 +497,7 @@ public class CacheServerJmxImpl extends CacheServerImpl
     }
 
     if (cleanedUp != null) {
-      for (ManagedResource resource : cleanedUp) {
+      for (var resource : cleanedUp) {
         MBeanUtils.unregisterMBean(resource);
       }
     }
@@ -545,7 +541,7 @@ public class CacheServerJmxImpl extends CacheServerImpl
    */
   @Override
   public void handleRegionCreate(SystemMemberRegionEvent event) {
-    Notification notification = new Notification(NOTIF_REGION_CREATED, modelMBean,
+    var notification = new Notification(NOTIF_REGION_CREATED, modelMBean,
         Helper.getNextNotificationSequenceNumber(), Helper.getRegionEventDetails(event));
 
     notification.setUserData(event.getRegionPath());
@@ -563,17 +559,17 @@ public class CacheServerJmxImpl extends CacheServerImpl
    */
   @Override
   public void handleRegionLoss(SystemMemberRegionEvent event) {
-    SystemMemberCacheJmxImpl cacheResource = managedSystemMemberCache;
+    var cacheResource = managedSystemMemberCache;
 
     if (cacheResource != null) {
-      ManagedResource cleanedUp = cacheResource.cleanupRegionResources(event.getRegionPath());
+      var cleanedUp = cacheResource.cleanupRegionResources(event.getRegionPath());
 
       if (cleanedUp != null) {
         MBeanUtils.unregisterMBean(cleanedUp);
       }
     }
 
-    Notification notification = new Notification(NOTIF_REGION_LOST, modelMBean,
+    var notification = new Notification(NOTIF_REGION_LOST, modelMBean,
         Helper.getNextNotificationSequenceNumber(), Helper.getRegionEventDetails(event));
 
     notification.setUserData(event.getRegionPath());

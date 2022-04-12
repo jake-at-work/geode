@@ -30,7 +30,7 @@ public class SystemProperty {
    * @return an Optional containing the Boolean value of the system property
    */
   public static Optional<Boolean> getProductBooleanProperty(String name) {
-    String property = getProperty(name);
+    var property = getProperty(name);
     return property != null ? Optional.of(Boolean.parseBoolean(property)) : Optional.empty();
   }
 
@@ -42,7 +42,7 @@ public class SystemProperty {
    * @return an Optional containing the Integer value of the system property
    */
   public static Optional<Integer> getProductIntegerProperty(String name) {
-    Integer propertyValue = Integer.getInteger(DEFAULT_PREFIX + name);
+    var propertyValue = Integer.getInteger(DEFAULT_PREFIX + name);
     if (propertyValue == null) {
       propertyValue = Integer.getInteger(GEMFIRE_PREFIX + name);
     }
@@ -72,7 +72,7 @@ public class SystemProperty {
    * @return an Optional containing the Long value of the system property
    */
   public static Optional<Long> getProductLongProperty(String name) {
-    Long propertyValue = Long.getLong(DEFAULT_PREFIX + name);
+    var propertyValue = Long.getLong(DEFAULT_PREFIX + name);
     if (propertyValue == null) {
       propertyValue = Long.getLong(GEMFIRE_PREFIX + name);
     }
@@ -95,12 +95,12 @@ public class SystemProperty {
    * @return an Optional containing the String value of the system property
    */
   public static Optional<String> getProductStringProperty(String name) {
-    String property = getProperty(name);
+    var property = getProperty(name);
     return property != null ? Optional.of(property) : Optional.empty();
   }
 
   public static String getProperty(String name) {
-    String property = getGeodeProperty(name);
+    var property = getGeodeProperty(name);
     return property != null ? property : getGemfireProperty(name);
   }
 

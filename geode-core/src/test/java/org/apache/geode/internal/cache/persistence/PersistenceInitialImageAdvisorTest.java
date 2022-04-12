@@ -46,7 +46,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.mockito.InOrder;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -84,7 +83,7 @@ public class PersistenceInitialImageAdvisorTest {
   public void clearsEqualMembers_ifHasDiskImageAndAllReplicatesAreUnequal() {
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisorWithDiskImage();
 
-    InitialImageAdvice adviceFromCacheDistributionAdvisor = adviceWithReplicates(3);
+    var adviceFromCacheDistributionAdvisor = adviceWithReplicates(3);
     when(cacheDistributionAdvisor.adviseInitialImage(isNull(), anyBoolean()))
         .thenReturn(adviceFromCacheDistributionAdvisor);
 
@@ -98,11 +97,11 @@ public class PersistenceInitialImageAdvisorTest {
   public void adviceIncludesAllReplicates_ifHasDiskImageAndAllReplicatesAreUnequal() {
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisorWithDiskImage();
 
-    InitialImageAdvice adviceFromCacheDistributionAdvisor = adviceWithReplicates(3);
+    var adviceFromCacheDistributionAdvisor = adviceWithReplicates(3);
     when(cacheDistributionAdvisor.adviseInitialImage(isNull(), anyBoolean()))
         .thenReturn(adviceFromCacheDistributionAdvisor);
 
-    InitialImageAdvice result = persistenceInitialImageAdvisor.getAdvice(null);
+    var result = persistenceInitialImageAdvisor.getAdvice(null);
 
     assertThat(result.getReplicates())
         .isEqualTo(adviceFromCacheDistributionAdvisor.getReplicates());
@@ -117,7 +116,7 @@ public class PersistenceInitialImageAdvisorTest {
     when(persistenceAdvisor.checkMyStateOnMembers(any()))
         .thenReturn(true);
 
-    InitialImageAdvice result = persistenceInitialImageAdvisor.getAdvice(null);
+    var result = persistenceInitialImageAdvisor.getAdvice(null);
 
     assertThat(result.getReplicates())
         .isEmpty();
@@ -125,15 +124,15 @@ public class PersistenceInitialImageAdvisorTest {
 
   @Test
   public void adviceIncludesAllReplicates_ifReplicatesAndNoDiskImage() {
-    boolean hasDiskImage = false;
+    var hasDiskImage = false;
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisor(hasDiskImage);
 
-    InitialImageAdvice adviceFromCacheDistributionAdvisor = adviceWithReplicates(9);
+    var adviceFromCacheDistributionAdvisor = adviceWithReplicates(9);
 
     when(cacheDistributionAdvisor.adviseInitialImage(isNull(), anyBoolean()))
         .thenReturn(adviceFromCacheDistributionAdvisor);
 
-    InitialImageAdvice result = persistenceInitialImageAdvisor.getAdvice(null);
+    var result = persistenceInitialImageAdvisor.getAdvice(null);
 
     assertThat(result.getReplicates())
         .isEqualTo(adviceFromCacheDistributionAdvisor.getReplicates());
@@ -141,7 +140,7 @@ public class PersistenceInitialImageAdvisorTest {
 
   @Test
   public void obtainsFreshAdvice_ifAdviceIncludesNoReplicatesAndPreviousAdviceHasReplicates() {
-    InitialImageAdvice previousAdviceWithReplicates = adviceWithReplicates(1);
+    var previousAdviceWithReplicates = adviceWithReplicates(1);
 
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisorWithDiskImage();
 
@@ -150,7 +149,7 @@ public class PersistenceInitialImageAdvisorTest {
 
     persistenceInitialImageAdvisor.getAdvice(previousAdviceWithReplicates);
 
-    InOrder inOrder = inOrder(cacheDistributionAdvisor);
+    var inOrder = inOrder(cacheDistributionAdvisor);
 
     inOrder.verify(cacheDistributionAdvisor, times(1))
         .adviseInitialImage(same(previousAdviceWithReplicates), anyBoolean());
@@ -164,7 +163,7 @@ public class PersistenceInitialImageAdvisorTest {
   public void attemptsToUpdateMembershipViewFromEachNonPersistentReplicate_ifAllReplicatesAreNonPersistent() {
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisorWithDiskImage();
 
-    InitialImageAdvice adviceWithNonPersistentReplicates = adviceWithNonPersistentReplicates(4);
+    var adviceWithNonPersistentReplicates = adviceWithNonPersistentReplicates(4);
 
     when(cacheDistributionAdvisor.adviseInitialImage(isNull(), anyBoolean()))
         .thenReturn(adviceWithNonPersistentReplicates, adviceWithReplicates(1));
@@ -175,7 +174,7 @@ public class PersistenceInitialImageAdvisorTest {
 
     persistenceInitialImageAdvisor.getAdvice(null);
 
-    for (InternalDistributedMember peer : adviceWithNonPersistentReplicates.getNonPersistent()) {
+    for (var peer : adviceWithNonPersistentReplicates.getNonPersistent()) {
       verify(persistenceAdvisor, times(1))
           .updateMembershipView(peer, true);
     }
@@ -185,7 +184,7 @@ public class PersistenceInitialImageAdvisorTest {
   public void updatesMembershipViewFromFirstNonPersistentReplicateThatReplies() {
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisorWithDiskImage();
 
-    InitialImageAdvice adviceWithNonPersistentReplicates = adviceWithNonPersistentReplicates(4);
+    var adviceWithNonPersistentReplicates = adviceWithNonPersistentReplicates(4);
 
     when(cacheDistributionAdvisor.adviseInitialImage(isNull(), anyBoolean()))
         .thenReturn(adviceWithNonPersistentReplicates, adviceWithReplicates(1));
@@ -205,13 +204,13 @@ public class PersistenceInitialImageAdvisorTest {
   public void propagatesException_ifCancelInProgress() {
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisorWithDiskImage();
 
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(cacheDistributionAdvisor.getAdvisee().getCancelCriterion())
         .thenReturn(cancelCriterion);
     doThrow(new CacheClosedException("test"))
         .when(cancelCriterion).checkCancelInProgress(any());
 
-    Throwable thrown = catchThrowable(() -> persistenceInitialImageAdvisor.getAdvice(null));
+    var thrown = catchThrowable(() -> persistenceInitialImageAdvisor.getAdvice(null));
 
     assertThat(thrown)
         .isInstanceOf(CacheClosedException.class);
@@ -221,14 +220,14 @@ public class PersistenceInitialImageAdvisorTest {
   public void returnsAdviceFromCacheDistributionAdvisor_ifNoOnlineOrPreviouslyOnlineMembers() {
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisorWithDiskImage();
 
-    InitialImageAdvice adviceFromCacheDistributionAdvisor = new InitialImageAdvice();
+    var adviceFromCacheDistributionAdvisor = new InitialImageAdvice();
 
     when(cacheDistributionAdvisor.adviseInitialImage(isNull(), anyBoolean()))
         .thenReturn(adviceFromCacheDistributionAdvisor);
     when(persistenceAdvisor.getPersistedOnlineOrEqualMembers())
         .thenReturn(new HashSet<>());
 
-    InitialImageAdvice result = persistenceInitialImageAdvisor.getAdvice(null);
+    var result = persistenceInitialImageAdvisor.getAdvice(null);
 
     assertThat(result)
         .isSameAs(adviceFromCacheDistributionAdvisor);
@@ -238,8 +237,8 @@ public class PersistenceInitialImageAdvisorTest {
   public void adviceIncludesReplicatesThatAppearWhileAcquiringTieLock() {
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisorWithDiskImage();
 
-    InitialImageAdvice adviceBeforeAcquiringTieLock = new InitialImageAdvice();
-    InitialImageAdvice adviceAfterAcquiringTieLock = adviceWithReplicates(4);
+    var adviceBeforeAcquiringTieLock = new InitialImageAdvice();
+    var adviceAfterAcquiringTieLock = adviceWithReplicates(4);
 
     when(persistenceAdvisor.getPersistedOnlineOrEqualMembers())
         .thenReturn(persistentMemberIDs(1));
@@ -251,7 +250,7 @@ public class PersistenceInitialImageAdvisorTest {
     when(cacheDistributionAdvisor.adviseInitialImage(any(), anyBoolean()))
         .thenReturn(adviceBeforeAcquiringTieLock, adviceAfterAcquiringTieLock);
 
-    InitialImageAdvice result = persistenceInitialImageAdvisor.getAdvice(null);
+    var result = persistenceInitialImageAdvisor.getAdvice(null);
 
     assertThat(result.getReplicates())
         .isEqualTo(adviceAfterAcquiringTieLock.getReplicates());
@@ -261,8 +260,8 @@ public class PersistenceInitialImageAdvisorTest {
   public void propagatesException_ifIncompatibleWithReplicateThatAppearsWhileAcquiringTieLock() {
     persistenceInitialImageAdvisor = persistenceInitialImageAdvisorWithDiskImage();
 
-    InitialImageAdvice adviceBeforeAcquiringTieLock = new InitialImageAdvice();
-    InitialImageAdvice adviceAfterAcquiringTieLock = adviceWithReplicates(4);
+    var adviceBeforeAcquiringTieLock = new InitialImageAdvice();
+    var adviceAfterAcquiringTieLock = adviceWithReplicates(4);
 
     when(persistenceAdvisor.getPersistedOnlineOrEqualMembers())
         .thenReturn(persistentMemberIDs(1));
@@ -277,7 +276,7 @@ public class PersistenceInitialImageAdvisorTest {
     doThrow(ConflictingPersistentDataException.class)
         .when(persistenceAdvisor).checkMyStateOnMembers(any());
 
-    Throwable thrown = catchThrowable(() -> persistenceInitialImageAdvisor.getAdvice(null));
+    var thrown = catchThrowable(() -> persistenceInitialImageAdvisor.getAdvice(null));
 
     assertThat(thrown)
         .isInstanceOf(ConflictingPersistentDataException.class);
@@ -294,7 +293,7 @@ public class PersistenceInitialImageAdvisorTest {
             .setWarning(advisor::logWaitingForMembers)
             .create());
 
-    HashSet<PersistentMemberID> offlineMembersToWaitFor = memberIDs("offline member", 1);
+    var offlineMembersToWaitFor = memberIDs("offline member", 1);
     Set<PersistentMemberID> membersToWaitFor = new HashSet<>(offlineMembersToWaitFor);
 
     when(persistenceAdvisor.getPersistedOnlineOrEqualMembers())
@@ -311,7 +310,7 @@ public class PersistenceInitialImageAdvisorTest {
 
     persistenceInitialImageAdvisor.getAdvice(null);
 
-    InOrder inOrder = inOrder(persistenceAdvisor);
+    var inOrder = inOrder(persistenceAdvisor);
 
     inOrder.verify(persistenceAdvisor, times(1))
         .beginWaitingForMembershipChange(membersToWaitFor);
@@ -336,18 +335,18 @@ public class PersistenceInitialImageAdvisorTest {
   }
 
   private PersistenceInitialImageAdvisor persistenceInitialImageAdvisorWithDiskImage() {
-    boolean hasDiskImage = true;
+    var hasDiskImage = true;
     return persistenceInitialImageAdvisor(hasDiskImage);
   }
 
   private static InitialImageAdvice adviceWithReplicates(int count) {
-    Set<InternalDistributedMember> replicates = members("replicate", count);
+    var replicates = members("replicate", count);
     return new InitialImageAdvice(replicates, emptySet(), emptySet(), emptySet(), emptySet(),
         emptySet(), emptyMap());
   }
 
   private static InitialImageAdvice adviceWithNonPersistentReplicates(int count) {
-    Set<InternalDistributedMember> nonPersistentReplicates = members("non-persistent", count);
+    var nonPersistentReplicates = members("non-persistent", count);
     return new InitialImageAdvice(emptySet(), emptySet(), emptySet(), emptySet(), emptySet(),
         nonPersistentReplicates, emptyMap());
   }

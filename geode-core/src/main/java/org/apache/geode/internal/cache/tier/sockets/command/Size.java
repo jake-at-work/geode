@@ -22,13 +22,10 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.GemFireSecurityException;
@@ -46,7 +43,7 @@ public class Size extends BaseCommand {
 
   private static void writeSizeResponse(Integer sizeCount, Message origMsg,
       ServerConnection servConn) throws IOException {
-    Message responseMsg = servConn.getResponseMessage();
+    var responseMsg = servConn.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setNumberOfParts(1);
     responseMsg.setTransactionId(origMsg.getTransactionId());
@@ -59,16 +56,16 @@ public class Size extends BaseCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start)
       throws IOException, InterruptedException {
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var stats = serverConnection.getCacheServerStats();
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
 
-    long oldStart = start;
+    var oldStart = start;
     start = DistributionStats.getStatTime();
     stats.incReadSizeRequestTime(start - oldStart);
     // Retrieve the data from the message parts
-    Part regionNamePart = clientMessage.getPart(0);
-    String regionName = regionNamePart.getCachedString();
+    var regionNamePart = clientMessage.getPart(0);
+    var regionName = regionNamePart.getCachedString();
 
     if (regionName == null) {
       logger.warn("The input region name for the %s request is null", "size");
@@ -79,9 +76,9 @@ public class Size extends BaseCommand {
       return;
     }
 
-    LocalRegion region = (LocalRegion) crHelper.getRegion(regionName);
+    var region = (LocalRegion) crHelper.getRegion(regionName);
     if (region == null) {
-      String reason = " was not found during size request";
+      var reason = " was not found during size request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;

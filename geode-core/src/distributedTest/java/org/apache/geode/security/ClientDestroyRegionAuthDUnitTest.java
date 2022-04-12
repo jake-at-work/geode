@@ -23,7 +23,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -50,7 +49,7 @@ public class ClientDestroyRegionAuthDUnitTest extends JUnit4DistributedTestCase 
   @Test
   public void testDestroyRegion() throws InterruptedException {
     client1.invoke(() -> {
-      ClientCache cache =
+      var cache =
           SecurityTestUtil.createClientCache("dataWriter", "1234567", server.getPort());
 
       Region region =
@@ -59,7 +58,7 @@ public class ClientDestroyRegionAuthDUnitTest extends JUnit4DistributedTestCase 
     });
 
     client2.invoke(() -> {
-      ClientCache cache =
+      var cache =
           SecurityTestUtil.createClientCache("authRegionManager", "1234567", server.getPort());
 
       Region region =
@@ -68,7 +67,7 @@ public class ClientDestroyRegionAuthDUnitTest extends JUnit4DistributedTestCase 
     });
 
     client3.invoke(() -> {
-      ClientCache cache =
+      var cache =
           SecurityTestUtil.createClientCache("super-user", "1234567", server.getPort());
 
       Region region =

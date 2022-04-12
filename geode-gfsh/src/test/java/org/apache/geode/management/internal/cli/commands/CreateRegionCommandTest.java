@@ -40,7 +40,6 @@ import org.apache.geode.management.DistributedRegionMXBean;
 import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.configuration.ClassName;
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.functions.CreateRegionFunctionArgs;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.junit.rules.GfshParserRule;
@@ -58,7 +57,7 @@ public class CreateRegionCommandTest {
   @Before
   public void before() {
     command = spy(CreateRegionCommand.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     doReturn(cache).when(command).getCache();
 
     service = mock(ManagementService.class);
@@ -149,7 +148,7 @@ public class CreateRegionCommandTest {
     ResultCollector<Object, List<Object>> resultCollector = mock(ResultCollector.class);
     doReturn(resultCollector).when(command).executeFunction(any(), any(), any(Set.class));
     when(resultCollector.getResult()).thenReturn(Collections.emptyList());
-    DistributedSystemMXBean dsMBean = mock(DistributedSystemMXBean.class);
+    var dsMBean = mock(DistributedSystemMXBean.class);
     doReturn(dsMBean).when(command).getDSMBean();
     doReturn(new String[] {}).when(dsMBean).listGatewaySenders();
     doReturn(Collections.singleton(mock(DistributedMember.class))).when(command).findMembers(any(),
@@ -158,10 +157,10 @@ public class CreateRegionCommandTest {
     when(service.getDistributedRegionMXBean(any())).thenReturn(null);
 
     parser.executeAndAssertThat(command, "create region --name=A --type=REPLICATE").statusIsError();
-    ArgumentCaptor<CreateRegionFunctionArgs> argsCaptor =
+    var argsCaptor =
         ArgumentCaptor.forClass(CreateRegionFunctionArgs.class);
     verify(command).executeFunction(any(), argsCaptor.capture(), any(Set.class));
-    CreateRegionFunctionArgs args = argsCaptor.getValue();
+    var args = argsCaptor.getValue();
 
     assertThat(args.getConfig().getRegionAttributes()).isNotNull();
   }
@@ -192,7 +191,7 @@ public class CreateRegionCommandTest {
 
   @Test
   public void declarableClassIsNullIfNotSpecified() {
-    GfshParseResult result = parser.parse("create region --name=region --cache-writer");
+    var result = parser.parse("create region --name=region --cache-writer");
     assertThat(result.getParamValue("cache-writer")).isNull();
     assertThat(result.getParamValue("cache-loader")).isNull();
     assertThat(result.getParamValue("cache-listener")).isNull();
@@ -202,7 +201,7 @@ public class CreateRegionCommandTest {
   // this is enforced by the parser, if empty string is passed, parser will turn that into null
   // first
   public void declarableClassIsNullWhenEmptyStringIsPassed() {
-    GfshParseResult result = parser
+    var result = parser
         .parse("create region --name=region --cache-writer='' --cache-loader --cache-listener=''");
     assertThat(result.getParamValue("cache-writer")).isNull();
     assertThat(result.getParamValue("cache-loader")).isNull();
@@ -211,7 +210,7 @@ public class CreateRegionCommandTest {
 
   @Test
   public void emptySpace() {
-    GfshParseResult result = parser
+    var result = parser
         .parse("create region --name=region --cache-writer=' ' --cache-loader --cache-listener=''");
     assertThat(result.getParamValue("cache-writer")).isEqualTo(ClassName.EMPTY);
     assertThat(result.getParamValue("cache-listener")).isNull();
@@ -220,28 +219,28 @@ public class CreateRegionCommandTest {
 
   @Test
   public void parseDeclarableWithClassOnly() {
-    GfshParseResult result = parser.parse("create region --name=region --cache-writer=my.abc");
-    ClassName writer = (ClassName) result.getParamValue("cache-writer");
+    var result = parser.parse("create region --name=region --cache-writer=my.abc");
+    var writer = (ClassName) result.getParamValue("cache-writer");
     assertThat(writer.getClassName()).isEqualTo("my.abc");
     assertThat(writer.getInitProperties()).isNotNull().isEmpty();
   }
 
   @Test
   public void parseDeclarableWithClassAndProps() {
-    String json = "{'k1':'v1','k2':'v2'}";
-    GfshParseResult result =
+    var json = "{'k1':'v1','k2':'v2'}";
+    var result =
         parser.parse("create region --name=region --cache-writer=my.abc" + json);
-    ClassName writer = (ClassName) result.getParamValue("cache-writer");
+    var writer = (ClassName) result.getParamValue("cache-writer");
     assertThat(writer.getClassName()).isEqualTo("my.abc");
     assertThat(writer.getInitProperties()).containsKeys("k1", "k2");
   }
 
   @Test
   public void parseDeclarableWithJsonWithSpace() {
-    String json = "{'k1' : 'v   1', 'k2' : 'v2'}";
-    GfshParseResult result =
+    var json = "{'k1' : 'v   1', 'k2' : 'v2'}";
+    var result =
         parser.parse("create region --name=region --cache-writer=\"my.abc" + json + "\"");
-    ClassName writer = (ClassName) result.getParamValue("cache-writer");
+    var writer = (ClassName) result.getParamValue("cache-writer");
     assertThat(writer.getClassName()).isEqualTo("my.abc");
     assertThat(writer.getInitProperties()).containsOnlyKeys("k1", "k2").containsEntry("k1",
         "v   1");
@@ -249,41 +248,41 @@ public class CreateRegionCommandTest {
 
   @Test
   public void cacheListenerClassOnly() {
-    GfshParseResult result =
+    var result =
         parser.parse("create region --name=region --cache-listener=my.abc,my.def");
-    ClassName[] listeners = (ClassName[]) result.getParamValue("cache-listener");
+    var listeners = (ClassName[]) result.getParamValue("cache-listener");
     assertThat(listeners).hasSize(2).contains(new ClassName("my.abc"), new ClassName("my.def"));
   }
 
   @Test
   public void cacheListenerClassAndProps() {
-    String json1 = "{'k1':'v1'}";
-    String json2 = "{'k2':'v2'}";
-    GfshParseResult result = parser
+    var json1 = "{'k1':'v1'}";
+    var json2 = "{'k2':'v2'}";
+    var result = parser
         .parse("create region --name=region --cache-listener=my.abc" + json1 + ",my.def" + json2);
-    ClassName[] listeners = (ClassName[]) result.getParamValue("cache-listener");
+    var listeners = (ClassName[]) result.getParamValue("cache-listener");
     assertThat(listeners).hasSize(2).contains(new ClassName("my.abc", json1),
         new ClassName("my.def", json2));
   }
 
   @Test
   public void cacheListenerClassAndJsonWithComma() {
-    String json1 = "{'k1':'v1','k2':'v2'}";
-    String json2 = "{'k2':'v2'}";
-    GfshParseResult result = parser
+    var json1 = "{'k1':'v1','k2':'v2'}";
+    var json2 = "{'k2':'v2'}";
+    var result = parser
         .parse("create region --name=region --cache-listener=my.abc" + json1 + ",my.def" + json2);
-    ClassName[] listeners = (ClassName[]) result.getParamValue("cache-listener");
+    var listeners = (ClassName[]) result.getParamValue("cache-listener");
     assertThat(listeners).hasSize(2).contains(new ClassName("my.abc", json1),
         new ClassName("my.def", json2));
   }
 
   @Test
   public void cacheListenerClassAndJsonWithCommaAndSpace() {
-    String json1 = "{'k1' : 'v1', 'k2' : 'v2'}";
-    String json2 = "{'k2' : 'v2'}";
-    GfshParseResult result = parser.parse(
+    var json1 = "{'k1' : 'v1', 'k2' : 'v2'}";
+    var json2 = "{'k2' : 'v2'}";
+    var result = parser.parse(
         "create region --name=region --cache-listener=\"my.abc" + json1 + ",my.def" + json2 + "\"");
-    ClassName[] listeners = (ClassName[]) result.getParamValue("cache-listener");
+    var listeners = (ClassName[]) result.getParamValue("cache-listener");
     assertThat(listeners).hasSize(2).contains(new ClassName("my.abc", json1),
         new ClassName("my.def", json2));
   }

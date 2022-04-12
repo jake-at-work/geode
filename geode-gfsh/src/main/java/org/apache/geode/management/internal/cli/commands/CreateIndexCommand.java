@@ -21,7 +21,6 @@ import static org.apache.geode.management.internal.cli.remote.CommandExecutor.SE
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +28,6 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.distributed.DistributedMember;
@@ -39,9 +37,7 @@ import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.configuration.AbstractConfiguration;
 import org.apache.geode.management.internal.cli.functions.CreateIndexFunction;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -80,14 +76,14 @@ public class CreateIndexCommand extends GfshCommand {
     // first find out what groups this region belongs to when using cluster configuration
     InternalConfigurationPersistenceService ccService = getConfigurationPersistenceService();
     final Set<DistributedMember> targetMembers;
-    ResultModel resultModel = new ResultModel();
-    InfoResultModel info = resultModel.addInfo();
+    var resultModel = new ResultModel();
+    var info = resultModel.addInfo();
     String regionName = null;
     // if cluster management service is enabled and user did not specify a member id, then
     // we will find the applicable members based on the what group this region is on
     if (ccService != null && memberNameOrID == null) {
       regionName = getValidRegionName(regionPath);
-      Set<String> calculatedGroups = getGroupsContainingRegion(ccService, regionName);
+      var calculatedGroups = getGroupsContainingRegion(ccService, regionName);
       if (calculatedGroups.isEmpty()) {
         return ResultModel.createError("Region " + regionName + " does not exist.");
       }
@@ -113,7 +109,7 @@ public class CreateIndexCommand extends GfshCommand {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    RegionConfig.Index index = new RegionConfig.Index();
+    var index = new RegionConfig.Index();
     index.setName(indexName);
     index.setExpression(indexedExpression);
     index.setFromClause(regionPath);
@@ -124,7 +120,7 @@ public class CreateIndexCommand extends GfshCommand {
       index.setType(indexType.getName());
     }
 
-    List<CliFunctionResult> functionResults =
+    var functionResults =
         executeAndGetFunctionResult(createIndexFunction, index, targetMembers);
     resultModel.addTableAndSetStatus("createIndex", functionResults, true, false);
 
@@ -145,15 +141,15 @@ public class CreateIndexCommand extends GfshCommand {
       return resultModel;
     }
 
-    final InfoResultModel groupStatus = resultModel.addInfo("groupStatus");
-    String finalRegionName = regionName;
+    final var groupStatus = resultModel.addInfo("groupStatus");
+    var finalRegionName = regionName;
     // at this point, groups should be the regionConfig's groups
     if (groups.length == 0) {
       groups = new String[] {"cluster"};
     }
-    for (String group : groups) {
+    for (var group : groups) {
       ccService.updateCacheConfig(group, cacheConfig -> {
-        RegionConfig regionConfig = cacheConfig.findRegionConfiguration(finalRegionName);
+        var regionConfig = cacheConfig.findRegionConfiguration(finalRegionName);
         regionConfig.getIndexes().add(index);
         groupStatus
             .addLine("Cluster configuration for group '" + group + "' is updated.");
@@ -168,7 +164,7 @@ public class CreateIndexCommand extends GfshCommand {
   // since we can't create index on regions with . in it's name, we will assume tht regionName
   // returned here should not have "."
   String getValidRegionName(String regionPath) {
-    String regionName = regionPath.trim().split(" ")[0];
+    var regionName = regionPath.trim().split(" ")[0];
     regionName = StringUtils.removeStart(regionName, SEPARATOR);
     if (regionName.contains(".")) {
       regionName = regionName.substring(0, regionName.indexOf('.'));
@@ -180,8 +176,8 @@ public class CreateIndexCommand extends GfshCommand {
   Set<String> getGroupsContainingRegion(ConfigurationPersistenceService cps,
       String regionName) {
     Set<String> foundGroups = new HashSet<>();
-    for (String group : cps.getGroups()) {
-      CacheConfig cacheConfig = cps.getCacheConfig(group, true);
+    for (var group : cps.getGroups()) {
+      var cacheConfig = cps.getCacheConfig(group, true);
       if (cacheConfig.findRegionConfiguration(regionName) != null) {
         foundGroups.add(group);
       }

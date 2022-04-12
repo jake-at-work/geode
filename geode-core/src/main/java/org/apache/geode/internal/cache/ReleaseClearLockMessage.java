@@ -53,8 +53,8 @@ public class ReleaseClearLockMessage extends HighPriorityDistributionMessage
 
   public static void send(Set<InternalDistributedMember> members, DistributionManager dm,
       String regionPath) throws ReplyException {
-    ReplyProcessor21 processor = new ReplyProcessor21(dm, members);
-    ReleaseClearLockMessage msg =
+    var processor = new ReplyProcessor21(dm, members);
+    var msg =
         new ReleaseClearLockMessage(regionPath, processor.getProcessorId());
     msg.setRecipients(members);
 
@@ -66,7 +66,7 @@ public class ReleaseClearLockMessage extends HighPriorityDistributionMessage
   protected void process(ClusterDistributionManager dm) {
     ReplyException exception = null;
     try {
-      DistributedRegion region = DistributedClearOperation.regionUnlocked(getSender(), regionPath);
+      var region = DistributedClearOperation.regionUnlocked(getSender(), regionPath);
       if (region != null && region.getVersionVector() != null) {
         region.getVersionVector().unlockForClear(getSender());
       }
@@ -77,7 +77,7 @@ public class ReleaseClearLockMessage extends HighPriorityDistributionMessage
       SystemFailure.checkFailure();
       exception = new ReplyException(t);
     } finally {
-      ReplyMessage replyMsg = new ReplyMessage();
+      var replyMsg = new ReplyMessage();
       replyMsg.setProcessorId(processorId);
       replyMsg.setRecipient(getSender());
       if (exception != null) {

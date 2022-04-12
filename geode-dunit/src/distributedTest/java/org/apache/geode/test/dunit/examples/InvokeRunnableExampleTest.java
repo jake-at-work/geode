@@ -21,7 +21,6 @@ import static org.apache.geode.test.dunit.VM.getVMCount;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 
 public class InvokeRunnableExampleTest {
@@ -31,15 +30,15 @@ public class InvokeRunnableExampleTest {
 
   @Test
   public void invokeHelloWorldForEachVMInGetAllVMs() {
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       vm.invoke(() -> System.out.println(vm + " says Hello World!"));
     }
   }
 
   @Test
   public void invokeHelloWorldInEachVMInOrder() {
-    for (int whichVM = 0; whichVM < getVMCount(); whichVM++) {
-      VM vm = getVM(whichVM);
+    for (var whichVM = 0; whichVM < getVMCount(); whichVM++) {
+      var vm = getVM(whichVM);
       vm.invoke(() -> System.out.println(vm + " says Hello World!"));
     }
   }

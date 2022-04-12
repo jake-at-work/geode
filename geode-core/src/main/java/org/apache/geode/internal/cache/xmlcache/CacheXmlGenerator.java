@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,7 +39,6 @@ import java.util.TreeSet;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
@@ -70,13 +68,11 @@ import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.DiskWriteAttributes;
 import org.apache.geode.cache.DynamicRegionFactory;
-import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.FixedPartitionAttributes;
-import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.MembershipAttributes;
 import org.apache.geode.cache.MirrorType;
 import org.apache.geode.cache.PartitionAttributes;
@@ -87,9 +83,6 @@ import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
-import org.apache.geode.cache.TransactionListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.Pool;
@@ -103,7 +96,6 @@ import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.internal.index.HashIndex;
 import org.apache.geode.cache.query.internal.index.PrimaryKeyIndex;
 import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.cache.server.ServerLoadProbe;
 import org.apache.geode.cache.util.ObjectSizer;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
@@ -113,7 +105,6 @@ import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.distributed.Role;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.AbstractRegion;
-import org.apache.geode.internal.cache.CacheConfig;
 import org.apache.geode.internal.cache.ClientSubscriptionConfigImpl;
 import org.apache.geode.internal.cache.ColocationHelper;
 import org.apache.geode.internal.cache.DiskWriteAttributesImpl;
@@ -385,8 +376,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       Source src = new SAXSource(this, new InputSource());
       Result res = new StreamResult(pw);
 
-      TransformerFactory xFactory = TransformerFactory.newInstance();
-      Transformer xform = xFactory.newTransformer();
+      var xFactory = TransformerFactory.newInstance();
+      var xform = xFactory.newTransformer();
       xform.setOutputProperty(OutputKeys.METHOD, "xml");
       xform.setOutputProperty(OutputKeys.INDENT, "yes");
       if (!useSchema) {
@@ -414,11 +405,11 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
   public void parse(InputSource input) throws SAXException {
     Assert.assertTrue(handler != null);
 
-    boolean isClientCache = creation instanceof ClientCacheCreation;
+    var isClientCache = creation instanceof ClientCacheCreation;
 
     handler.startDocument();
 
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     if (useSchema) {
       if (null == version.getSchemaLocation()) {
         throw new IllegalStateException("No schema for version " + version.getVersion());
@@ -475,8 +466,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
       if (!isClientCache) {
         if (version.compareTo(CacheXmlVersion.GEMFIRE_7_0) >= 0) {
-          Set<GatewaySender> senderSet = cache.getGatewaySenders();
-          for (GatewaySender sender : senderSet) {
+          var senderSet = cache.getGatewaySenders();
+          for (var sender : senderSet) {
             generateGatewaySender(sender);
           }
           generateGatewayReceiver(cache);
@@ -491,7 +482,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       }
 
       if (!isClientCache) {
-        for (CacheServer bridge : cache.getCacheServers()) {
+        for (var bridge : cache.getCacheServers()) {
           generate(bridge);
         }
       }
@@ -504,19 +495,19 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
           pools = creation.getPools().values().iterator();
         }
         while (pools.hasNext()) {
-          Pool cp = (Pool) pools.next();
+          var cp = (Pool) pools.next();
           generate(cp);
         }
       }
 
       if (version.compareTo(CacheXmlVersion.GEMFIRE_6_5) >= 0) {
         if (cache instanceof GemFireCacheImpl) {
-          InternalCache gfc = (InternalCache) cache;
-          for (DiskStore ds : gfc.listDiskStores()) {
+          var gfc = (InternalCache) cache;
+          for (var ds : gfc.listDiskStores()) {
             generate(ds);
           }
         } else {
-          for (DiskStore ds : creation.listDiskStores()) {
+          for (var ds : creation.listDiskStores()) {
             generate(ds);
           }
         }
@@ -527,10 +518,10 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
       if (version.compareTo(CacheXmlVersion.GEMFIRE_4_1) >= 0) {
         Map namedAttributes = cache.listRegionAttributes();
-        for (Object o : namedAttributes.entrySet()) {
-          Map.Entry entry = (Map.Entry) o;
-          String id = (String) entry.getKey();
-          RegionAttributes attrs = (RegionAttributes) entry.getValue();
+        for (var o : namedAttributes.entrySet()) {
+          var entry = (Map.Entry) o;
+          var id = (String) entry.getKey();
+          var attrs = (RegionAttributes) entry.getValue();
           // Since CacheCreation predefines these even in later versions
           // we need to exclude them in all versions.
           // It would be better if CacheCreation could only predefine them
@@ -561,9 +552,9 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       if (cache instanceof GemFireCacheImpl) {
         generateRegions();
       } else {
-        TreeSet<Region<?, ?>> rSet = new TreeSet<>(new RegionComparator());
+        var rSet = new TreeSet<Region<?, ?>>(new RegionComparator());
         rSet.addAll(cache.rootRegions());
-        for (Region<?, ?> region : rSet) {
+        for (var region : rSet) {
           generateRegion(region);
         }
       }
@@ -578,12 +569,12 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       if (!isClientCache) {
         if (version.compareTo(CacheXmlVersion.GEMFIRE_6_5) >= 0) {
           if (cache instanceof GemFireCacheImpl) {
-            InternalCache internalCache = (InternalCache) cache;
-            for (File file : internalCache.getBackupFiles()) {
+            var internalCache = (InternalCache) cache;
+            for (var file : internalCache.getBackupFiles()) {
               generateBackupFile(file);
             }
           } else {
-            for (File file : creation.getBackupFiles()) {
+            for (var file : creation.getBackupFiles()) {
               generateBackupFile(file);
             }
           }
@@ -596,7 +587,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     if (cache instanceof Extensible) {
       @SuppressWarnings("unchecked")
-      final Extensible<Cache> extensible = (Extensible<Cache>) cache;
+      final var extensible = (Extensible<Cache>) cache;
       generate(extensible);
     }
 
@@ -609,8 +600,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
   }
 
   private void generatePdx() throws SAXException {
-    AttributesImpl atts = new AttributesImpl();
-    CacheConfig config = ((InternalCache) cache).getCacheConfig();
+    var atts = new AttributesImpl();
+    var config = ((InternalCache) cache).getCacheConfig();
     if (config.pdxReadSerializedUserSet) {
       if (generateDefaults() || cache.getPdxReadSerialized()) {
         atts.addAttribute("", "", READ_SERIALIZED, "",
@@ -664,12 +655,12 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     Set<Region> generatedRegions = new HashSet<>();
 
     // Merge from persist_Nov10 - iterate the regions in order for persistent recovery.
-    TreeSet<Region<?, ?>> rSet = new TreeSet<>(new RegionComparator());
+    var rSet = new TreeSet<Region<?, ?>>(new RegionComparator());
     rSet.addAll(cache.rootRegions());
-    for (Region<?, ?> root : rSet) {
+    for (var root : rSet) {
       Assert.assertTrue(root instanceof LocalRegion);
       if (root instanceof PartitionedRegion) {
-        PartitionedRegion pr = (PartitionedRegion) root;
+        var pr = (PartitionedRegion) root;
         if (pr.getColocatedWith() != null) {
           colocatedChildRegions.add(root);
         } else {
@@ -678,11 +669,11 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
         }
       } else {
         // normal non pr regions, but they can have PR as subregions
-        boolean found = false;
-        for (Region<?, ?> subregion : root.subregions(false)) {
+        var found = false;
+        for (var subregion : root.subregions(false)) {
           Assert.assertTrue(subregion instanceof LocalRegion);
           if (subregion instanceof PartitionedRegion) {
-            PartitionedRegion pr = (PartitionedRegion) subregion;
+            var pr = (PartitionedRegion) subregion;
             if (pr.getColocatedWith() != null) {
               colocatedChildRegions.add(root);
               found = true;
@@ -696,13 +687,13 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
         }
       }
     }
-    TreeSet<Region<?, ?>> rColSet = new TreeSet<>(new RegionComparator());
+    var rColSet = new TreeSet<Region<?, ?>>(new RegionComparator());
     rColSet.addAll(colocatedChildRegions);
-    for (Region<?, ?> root : rColSet) {
+    for (var root : rColSet) {
       Assert.assertTrue(root instanceof LocalRegion);
       if (root instanceof PartitionedRegion) {
-        PartitionedRegion pr = (PartitionedRegion) root;
-        PartitionedRegion colocatedWithPr = ColocationHelper.getColocatedRegion(pr);
+        var pr = (PartitionedRegion) root;
+        var colocatedWithPr = ColocationHelper.getColocatedRegion(pr);
         if (colocatedWithPr != null && !generatedRegions.contains(colocatedWithPr)) {
           generateRegion(colocatedWithPr);
           generatedRegions.add(colocatedWithPr);
@@ -722,18 +713,18 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
    * Generate a resource-manager element
    */
   private void generateResourceManager() throws SAXException {
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     if (cache instanceof CacheCreation && creation.hasResourceManager()) {
-      boolean generateIt = false;
+      var generateIt = false;
       if (creation.getResourceManager().hasCriticalHeap()) {
-        float chp = creation.getResourceManager().getCriticalHeapPercentage();
+        var chp = creation.getResourceManager().getCriticalHeapPercentage();
         if (generateDefaults() || chp != MemoryThresholds.DEFAULT_CRITICAL_PERCENTAGE) {
           atts.addAttribute("", "", CRITICAL_HEAP_PERCENTAGE, "", String.valueOf(chp));
           generateIt = true;
         }
       }
       if (creation.getResourceManager().hasEvictionHeap()) {
-        float ehp = creation.getResourceManager().getEvictionHeapPercentage();
+        var ehp = creation.getResourceManager().getEvictionHeapPercentage();
         if (generateDefaults() || ehp != MemoryThresholds.DEFAULT_EVICTION_PERCENTAGE) {
           atts.addAttribute("", "", EVICTION_HEAP_PERCENTAGE, "", String.valueOf(ehp));
           generateIt = true;
@@ -742,14 +733,14 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
       if (version.compareTo(CacheXmlVersion.GEODE_1_0) >= 0) {
         if (creation.getResourceManager().hasCriticalOffHeap()) {
-          float chp = creation.getResourceManager().getCriticalOffHeapPercentage();
+          var chp = creation.getResourceManager().getCriticalOffHeapPercentage();
           if (generateDefaults() || chp != MemoryThresholds.DEFAULT_CRITICAL_PERCENTAGE) {
             atts.addAttribute("", "", CRITICAL_OFF_HEAP_PERCENTAGE, "", String.valueOf(chp));
             generateIt = true;
           }
         }
         if (creation.getResourceManager().hasEvictionOffHeap()) {
-          float ehp = creation.getResourceManager().getEvictionOffHeapPercentage();
+          var ehp = creation.getResourceManager().getEvictionOffHeapPercentage();
           if (generateDefaults() || ehp != MemoryThresholds.DEFAULT_EVICTION_PERCENTAGE) {
             atts.addAttribute("", "", EVICTION_OFF_HEAP_PERCENTAGE, "", String.valueOf(ehp));
             generateIt = true;
@@ -761,13 +752,13 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       }
     } else if (cache instanceof GemFireCacheImpl) {
       {
-        int chp = (int) cache.getResourceManager().getCriticalHeapPercentage();
+        var chp = (int) cache.getResourceManager().getCriticalHeapPercentage();
         if (generateDefaults() || chp != MemoryThresholds.DEFAULT_CRITICAL_PERCENTAGE) {
           atts.addAttribute("", "", CRITICAL_HEAP_PERCENTAGE, "", String.valueOf(chp));
         }
       }
       {
-        int ehp = (int) cache.getResourceManager().getEvictionHeapPercentage();
+        var ehp = (int) cache.getResourceManager().getEvictionHeapPercentage();
         if (generateDefaults() || ehp != MemoryThresholds.DEFAULT_EVICTION_PERCENTAGE) {
           atts.addAttribute("", "", EVICTION_HEAP_PERCENTAGE, "", String.valueOf(ehp));
         }
@@ -775,13 +766,13 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
       if (version.compareTo(CacheXmlVersion.GEODE_1_0) >= 0) {
         {
-          int chp = (int) cache.getResourceManager().getCriticalOffHeapPercentage();
+          var chp = (int) cache.getResourceManager().getCriticalOffHeapPercentage();
           if (generateDefaults() || chp != MemoryThresholds.DEFAULT_CRITICAL_PERCENTAGE) {
             atts.addAttribute("", "", CRITICAL_OFF_HEAP_PERCENTAGE, "", String.valueOf(chp));
           }
         }
         {
-          int ehp = (int) cache.getResourceManager().getEvictionOffHeapPercentage();
+          var ehp = (int) cache.getResourceManager().getEvictionOffHeapPercentage();
           if (generateDefaults() || ehp != MemoryThresholds.DEFAULT_EVICTION_PERCENTAGE) {
             atts.addAttribute("", "", EVICTION_OFF_HEAP_PERCENTAGE, "", String.valueOf(ehp));
           }
@@ -809,13 +800,13 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
    *
    */
   private void generateSerializerRegistration() throws SAXException {
-    final SerializerCreation sc = creation.getSerializerCreation();
+    final var sc = creation.getSerializerCreation();
     if (sc == null) {
       return;
     }
 
     handler.startElement("", TOP_SERIALIZER_REGISTRATION, TOP_SERIALIZER_REGISTRATION, EMPTY);
-    for (Class c : sc.getSerializerRegistrations()) {
+    for (var c : sc.getSerializerRegistrations()) {
       handler.startElement("", SERIALIZER_REGISTRATION, SERIALIZER_REGISTRATION, EMPTY);
       handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
       handler.characters(c.getName().toCharArray(), 0, c.getName().length());
@@ -823,11 +814,11 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       handler.endElement("", SERIALIZER_REGISTRATION, SERIALIZER_REGISTRATION);
     }
 
-    for (Map.Entry<Class, Integer> e : sc.getInstantiatorRegistrations().entrySet()) {
-      Class c = e.getKey();
-      Integer i = e.getValue();
+    for (var e : sc.getInstantiatorRegistrations().entrySet()) {
+      var c = e.getKey();
+      var i = e.getValue();
 
-      AttributesImpl atts = new AttributesImpl();
+      var atts = new AttributesImpl();
       atts.addAttribute("", "", ID, "", i.toString());
       handler.startElement("", INSTANTIATOR_REGISTRATION, INSTANTIATOR_REGISTRATION, atts);
       handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
@@ -852,7 +843,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       return;
     }
     handler.startElement("", FUNCTION_SERVICE, FUNCTION_SERVICE, EMPTY);
-    for (Function function : functions) {
+    for (var function : functions) {
       if (function instanceof Declarable) {
         handler.startElement("", FUNCTION, FUNCTION, EMPTY);
         generate((Declarable) function, false);
@@ -870,15 +861,15 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
    * @since GemFire 5.7
    */
   private void generateClientHaQueue(CacheServer bridge) {
-    AttributesImpl atts = new AttributesImpl();
-    ClientSubscriptionConfigImpl csc =
+    var atts = new AttributesImpl();
+    var csc =
         (ClientSubscriptionConfigImpl) bridge.getClientSubscriptionConfig();
     try {
       atts.addAttribute("", "", CLIENT_SUBSCRIPTION_EVICTION_POLICY, "", csc.getEvictionPolicy());
       atts.addAttribute("", "", CLIENT_SUBSCRIPTION_CAPACITY, "",
           String.valueOf(csc.getCapacity()));
       if (version.compareTo(CacheXmlVersion.GEMFIRE_6_5) >= 0) {
-        String dsVal = csc.getDiskStoreName();
+        var dsVal = csc.getDiskStoreName();
         if (dsVal != null) {
           atts.addAttribute("", "", DISK_STORE_NAME, "", dsVal);
         }
@@ -903,7 +894,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (version.compareTo(CacheXmlVersion.GEMFIRE_4_0) < 0) {
       return;
     }
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     try {
       if (generateDefaults() || bridge.getPort() != CacheServer.DEFAULT_PORT) {
         atts.addAttribute("", "", PORT, "", String.valueOf(bridge.getPort()));
@@ -994,9 +985,9 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       }
 
       if (version.compareTo(CacheXmlVersion.GEMFIRE_5_7) >= 0) {
-        String[] groups = bridge.getGroups();
+        var groups = bridge.getGroups();
         if (groups.length > 0) {
-          for (String group : groups) {
+          for (var group : groups) {
             handler.startElement("", GROUP, GROUP, EMPTY);
             handler.characters(group.toCharArray(), 0, group.length());
             handler.endElement("", GROUP, GROUP);
@@ -1007,7 +998,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
           generateClientHaQueue(bridge);
         }
 
-        ServerLoadProbe probe = bridge.getLoadProbe();
+        var probe = bridge.getLoadProbe();
         if (generateDefaults() || !probe.equals(CacheServer.DEFAULT_LOAD_PROBE)) {
           generate(LOAD_PROBE, probe);
         }
@@ -1029,7 +1020,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (version.compareTo(CacheXmlVersion.GEMFIRE_6_5) < 0) {
       return;
     }
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     try {
       atts.addAttribute("", "", NAME, "", ds.getName());
 
@@ -1111,20 +1102,20 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
       if ((!(ds instanceof DiskStoreAttributesCreation)
           || ((DiskStoreAttributesCreation) ds).hasDiskDirs())) {
-        File[] diskDirs = ds.getDiskDirs();
-        int[] diskSizes = ds.getDiskDirSizes();
+        var diskDirs = ds.getDiskDirs();
+        var diskSizes = ds.getDiskDirSizes();
         if (diskDirs != null && diskDirs.length > 0) {
           if (generateDefaults() || !Arrays.equals(diskDirs, DefaultDiskDirs.getDefaultDiskDirs())
               || !Arrays.equals(diskSizes, DiskStoreFactory.DEFAULT_DISK_DIR_SIZES)) {
             handler.startElement("", DISK_DIRS, DISK_DIRS, EMPTY);
-            for (int i = 0; i < diskDirs.length; i++) {
-              AttributesImpl diskAtts = new AttributesImpl();
+            for (var i = 0; i < diskDirs.length; i++) {
+              var diskAtts = new AttributesImpl();
               if (diskSizes[i] != DiskStoreFactory.DEFAULT_DISK_DIR_SIZE) {
                 diskAtts.addAttribute("", "", DIR_SIZE, "", String.valueOf(diskSizes[i]));
               }
               handler.startElement("", DISK_DIR, DISK_DIR, diskAtts);
-              File dir = diskDirs[i];
-              String name = generateDefaults() ? dir.getAbsolutePath() : dir.getPath();
+              var dir = diskDirs[i];
+              var name = generateDefaults() ? dir.getAbsolutePath() : dir.getPath();
               handler.characters(name.toCharArray(), 0, name.length());
               handler.endElement("", DISK_DIR, DISK_DIR);
             }
@@ -1160,7 +1151,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       // no need to generate xml for gateway pools
       return;
     }
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     try {
       atts.addAttribute("", "", NAME, "", cp.getName());
       if (version.compareTo(CacheXmlVersion.GEODE_1_0) >= 0) {
@@ -1264,8 +1255,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     } finally {
       handler.startElement("", CONNECTION_POOL, CONNECTION_POOL, atts);
       {
-        for (InetSocketAddress addr : cp.getLocators()) {
-          AttributesImpl sAtts = new AttributesImpl();
+        for (var addr : cp.getLocators()) {
+          var sAtts = new AttributesImpl();
           sAtts.addAttribute("", "", HOST, "", addr.getHostString());
           sAtts.addAttribute("", "", PORT, "", String.valueOf(addr.getPort()));
           handler.startElement("", LOCATOR, LOCATOR, sAtts);
@@ -1273,8 +1264,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
         }
       }
       {
-        for (InetSocketAddress addr : cp.getServers()) {
-          AttributesImpl sAtts = new AttributesImpl();
+        for (var addr : cp.getServers()) {
+          var sAtts = new AttributesImpl();
           sAtts.addAttribute("", "", HOST, "", addr.getHostString());
           sAtts.addAttribute("", "", PORT, "", String.valueOf(addr.getPort()));
           handler.startElement("", SERVER, SERVER, sAtts);
@@ -1309,8 +1300,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     handler.startElement("", TRANSACTION_MANAGER, TRANSACTION_MANAGER, EMPTY);
     {
-      TransactionListener[] listeners = txMgr.getListeners();
-      for (TransactionListener listener : listeners) {
+      var listeners = txMgr.getListeners();
+      for (var listener : listeners) {
         generate(TRANSACTION_LISTENER, listener);
       }
       if (txMgr.getWriter() != null) {
@@ -1333,7 +1324,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (c instanceof CacheCreation) {
       cfg = ((CacheCreation) c).getDynamicRegionFactoryConfig();
     } else {
-      DynamicRegionFactory drf = DynamicRegionFactory.get();
+      var drf = DynamicRegionFactory.get();
       if (drf == null || drf.isClosed()) {
         return;
       }
@@ -1342,7 +1333,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (cfg == null) {
       return;
     }
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     if (!cfg.getPersistBackup()) {
       atts.addAttribute("", "", DISABLE_PERSIST_BACKUP, "", "true");
     }
@@ -1354,10 +1345,10 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     }
     handler.startElement("", DYNAMIC_REGION_FACTORY, DYNAMIC_REGION_FACTORY, atts);
     {
-      File dir = cfg.getDiskDir();
+      var dir = cfg.getDiskDir();
       if (dir != null) {
         handler.startElement("", DISK_DIR, DISK_DIR, EMPTY);
-        String name = generateDefaults() ? dir.getAbsolutePath() : dir.getPath();
+        var name = generateDefaults() ? dir.getAbsolutePath() : dir.getPath();
         handler.characters(name.toCharArray(), 0, name.length());
         handler.endElement("", DISK_DIR, DISK_DIR);
       }
@@ -1366,7 +1357,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
   }
 
   private void generateGatewaySender(GatewaySender sender) throws SAXException {
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     // id
     atts.addAttribute("", "", ID, "", sender.getId());
     // remote-distributed-system
@@ -1471,7 +1462,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     handler.startElement("", GATEWAY_SENDER, GATEWAY_SENDER, atts);
 
-    for (GatewayEventFilter gef : sender.getGatewayEventFilters()) {
+    for (var gef : sender.getGatewayEventFilters()) {
       generateGatewayEventFilter(gef);
     }
 
@@ -1481,7 +1472,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       }
     }
 
-    for (GatewayTransportFilter gsf : sender.getGatewayTransportFilters()) {
+    for (var gsf : sender.getGatewayTransportFilters()) {
       generateGatewayTransportFilter(gsf);
     }
 
@@ -1489,9 +1480,9 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
   }
 
   private void generateAsyncEventQueue(Cache cache) throws SAXException {
-    Set<AsyncEventQueue> asyncEventQueues = cache.getAsyncEventQueues();
-    for (AsyncEventQueue asyncEventQueue : asyncEventQueues) {
-      AttributesImpl atts = new AttributesImpl();
+    var asyncEventQueues = cache.getAsyncEventQueues();
+    for (var asyncEventQueue : asyncEventQueues) {
+      var atts = new AttributesImpl();
       // id
       atts.addAttribute("", "", ID, "", asyncEventQueue.getId());
       // parallel
@@ -1567,9 +1558,9 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       // AsyncEventQueue element start
       handler.startElement("", ASYNC_EVENT_QUEUE, ASYNC_EVENT_QUEUE, atts);
 
-      List<GatewayEventFilter> eventFilters = asyncEventQueue.getGatewayEventFilters();
+      var eventFilters = asyncEventQueue.getGatewayEventFilters();
       if (eventFilters != null) {
-        for (GatewayEventFilter eventFilter : eventFilters) {
+        for (var eventFilter : eventFilters) {
           generateGatewayEventFilter(eventFilter);
         }
       }
@@ -1581,7 +1572,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
         }
       }
 
-      AsyncEventListener asyncListener = asyncEventQueue.getAsyncEventListener();
+      var asyncListener = asyncEventQueue.getAsyncEventListener();
       if (asyncListener != null) {
         generate(ASYNC_EVENT_LISTENER, asyncListener);
       }
@@ -1592,9 +1583,9 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
 
   private void generateGatewayReceiver(Cache cache) throws SAXException {
-    Set<GatewayReceiver> receiverList = cache.getGatewayReceivers();
-    for (GatewayReceiver receiver : receiverList) {
-      AttributesImpl atts = new AttributesImpl();
+    var receiverList = cache.getGatewayReceivers();
+    for (var receiver : receiverList) {
+      var atts = new AttributesImpl();
       try {
         // hostnameForSenders
         if (generateDefaults() || receiver.getHostnameForSenders() != null) {
@@ -1637,7 +1628,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
       } finally {
         handler.startElement("", GATEWAY_RECEIVER, GATEWAY_RECEIVER, atts);
-        for (GatewayTransportFilter gsf : receiver.getGatewayTransportFilters()) {
+        for (var gsf : receiver.getGatewayTransportFilters()) {
           generateGatewayTransportFilter(gsf);
         }
         handler.endElement("", GATEWAY_RECEIVER, GATEWAY_RECEIVER);
@@ -1647,7 +1638,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
   private void generateGatewayEventFilter(GatewayEventFilter gef) throws SAXException {
     handler.startElement("", GATEWAY_EVENT_FILTER, GATEWAY_EVENT_FILTER, EMPTY);
-    String className = gef.getClass().getName();
+    var className = gef.getClass().getName();
 
     handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
     handler.characters(className.toCharArray(), 0, className.length());
@@ -1662,7 +1653,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
   private void generateGatewayTransportFilter(GatewayTransportFilter gef) throws SAXException {
     handler.startElement("", GATEWAY_TRANSPORT_FILTER, GATEWAY_TRANSPORT_FILTER, EMPTY);
-    String className = gef.getClass().getName();
+    var className = gef.getClass().getName();
 
     handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
     handler.characters(className.toCharArray(), 0, className.length());
@@ -1680,7 +1671,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     handler.startElement("", GATEWAY_EVENT_SUBSTITUTION_FILTER, GATEWAY_EVENT_SUBSTITUTION_FILTER,
         EMPTY);
-    String className = filter.getClass().getName();
+    var className = filter.getClass().getName();
 
     handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
     handler.characters(className.toCharArray(), 0, className.length());
@@ -1701,11 +1692,11 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       return;
     }
 
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     atts.addAttribute("", "", NAME, "", region.getName());
     if (region instanceof RegionCreation) {
-      RegionCreation rc = (RegionCreation) region;
-      String refId = rc.getRefid();
+      var rc = (RegionCreation) region;
+      var refId = rc.getRefid();
       if (refId != null) {
         atts.addAttribute("", "", REFID, "", refId);
       }
@@ -1713,7 +1704,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     handler.startElement("", elementName, elementName, atts);
 
     if (region instanceof RegionCreation) {
-      RegionCreation rc = (RegionCreation) region;
+      var rc = (RegionCreation) region;
       if (rc.hasAttributes()) {
         generate(null /* unknown id */, region.getAttributes());
       }
@@ -1722,8 +1713,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     }
 
     // generate index data here
-    Collection<Index> indexesForRegion = cache.getQueryService().getIndexes(region);
-    for (Index index : indexesForRegion) {
+    var indexesForRegion = cache.getQueryService().getIndexes(region);
+    for (var index : indexesForRegion) {
       generate(index);
     }
 
@@ -1731,7 +1722,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       if (includeKeysValues) {
         if (!region.isEmpty()) {
           for (Object o : region.entrySet(false)) {
-            Region.Entry entry = (Region.Entry) o;
+            var entry = (Region.Entry) o;
             generate(entry);
           }
         }
@@ -1739,21 +1730,21 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     } else {
       if (includeKeysValues) {
         for (Object o : region.entrySet(false)) {
-          Region.Entry entry = (Region.Entry) o;
+          var entry = (Region.Entry) o;
           generate(entry);
         }
       }
     }
 
-    TreeSet<Region<?, ?>> rSet = new TreeSet<>(new RegionComparator());
+    var rSet = new TreeSet<Region<?, ?>>(new RegionComparator());
     rSet.addAll(region.subregions(false));
-    for (Region<?, ?> subregion : rSet) {
+    for (var subregion : rSet) {
       generate(subregion, REGION);
     }
 
     if (region instanceof Extensible) {
       @SuppressWarnings({"unchecked"})
-      Extensible<Region<?, ?>> extensible = (Extensible<Region<?, ?>>) region;
+      var extensible = (Extensible<Region<?, ?>>) region;
       generate(extensible);
     }
 
@@ -1788,12 +1779,12 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (index == null) {
       return;
     }
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
 
     if (index instanceof IndexCreationData) {
-      IndexCreationData indexData = (IndexCreationData) index;
+      var indexData = (IndexCreationData) index;
       atts.addAttribute("", "", NAME, "", indexData.getIndexName());
-      String indexType = indexData.getIndexType();
+      var indexType = indexData.getIndexType();
       if (indexType.equals("KEY")) {
         atts.addAttribute("", "", KEY_INDEX, "", "true");
       } else {
@@ -1814,7 +1805,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
         atts.addAttribute("", "", KEY_INDEX, "", "true");
       } else {
         atts.addAttribute("", "", KEY_INDEX, "", "false");
-        String indexType = "range";
+        var indexType = "range";
         if (index instanceof HashIndex) {
           indexType = "hash";
         }
@@ -1834,7 +1825,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
    * @param id The id of the named region attributes (may be <code>null</code>)
    */
   private void generate(String id, RegionAttributes<?, ?> attrs) throws SAXException {
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
 
     if (id != null) {
       atts.addAttribute("", "", ID, "", id);
@@ -1844,7 +1835,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     // we have no way of generating a refid, because by this
     // point, the refid information is lost.
     if (attrs instanceof RegionAttributesCreation) {
-      String refId = ((RegionAttributesCreation) attrs).getRefid();
+      var refId = ((RegionAttributesCreation) attrs).getRefid();
       if (refId != null) {
         atts.addAttribute("", "", REFID, "", refId);
       }
@@ -1853,7 +1844,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if ((!(attrs instanceof RegionAttributesCreation)
         || ((RegionAttributesCreation) attrs).hasScope())) {
       String scopeString;
-      Scope scope = attrs.getScope();
+      var scope = attrs.getScope();
       if (scope.equals(Scope.LOCAL)) {
         scopeString = LOCAL;
 
@@ -1874,7 +1865,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
       final boolean isPartitionedRegion;
       if (attrs instanceof RegionAttributesCreation) {
-        RegionAttributesCreation rac = (RegionAttributesCreation) attrs;
+        var rac = (RegionAttributesCreation) attrs;
         isPartitionedRegion = rac.getPartitionAttributes() != null
             || (rac.hasDataPolicy() && rac.getDataPolicy().withPartitioning());
       } else {
@@ -1941,7 +1932,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       if ((!(attrs instanceof RegionAttributesCreation)
           || ((RegionAttributesCreation) attrs).hasDataPolicy())) {
         String dpString;
-        DataPolicy dp = attrs.getDataPolicy();
+        var dp = attrs.getDataPolicy();
         if (dp.isEmpty()) {
           dpString = EMPTY_DP;
         } else if (dp.isNormal()) {
@@ -1983,7 +1974,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       if ((!(attrs instanceof RegionAttributesCreation)
           || ((RegionAttributesCreation) attrs).hasMirrorType())) {
         String mirrorString;
-        MirrorType mirror = attrs.getMirrorType();
+        var mirror = attrs.getMirrorType();
         if (mirror.equals(MirrorType.NONE)) {
           mirrorString = NONE;
         } else if (mirror.equals(MirrorType.KEYS)) {
@@ -2061,7 +2052,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (version.compareTo(CacheXmlVersion.GEMFIRE_5_7) >= 0) {
       if ((!(attrs instanceof RegionAttributesCreation)
           || ((RegionAttributesCreation) attrs).hasPoolName())) {
-        String cpVal = attrs.getPoolName();
+        var cpVal = attrs.getPoolName();
         if (cpVal == null) {
           cpVal = "";
         }
@@ -2073,7 +2064,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (version.compareTo(CacheXmlVersion.GEMFIRE_6_5) >= 0) {
       if ((!(attrs instanceof RegionAttributesCreation)
           || ((RegionAttributesCreation) attrs).hasDiskStoreName())) {
-        String dsVal = attrs.getDiskStoreName();
+        var dsVal = attrs.getDiskStoreName();
         if (dsVal != null) {
           atts.addAttribute("", "", DISK_STORE_NAME, "", dsVal);
         }
@@ -2100,9 +2091,9 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       if ((!(attrs instanceof RegionAttributesCreation)
           || ((RegionAttributesCreation) attrs).hasGatewaySenderId())) {
         Set<String> senderIds = new HashSet<>(attrs.getGatewaySenderIds());
-        StringBuilder senderStringBuff = new StringBuilder();
+        var senderStringBuff = new StringBuilder();
         if (senderIds.size() != 0) {
-          for (String senderId : senderIds) {
+          for (var senderId : senderIds) {
             if (!(senderStringBuff.length() == 0)) {
               senderStringBuff.append(",");
             }
@@ -2119,9 +2110,9 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       if ((!(attrs instanceof RegionAttributesCreation)
           || ((RegionAttributesCreation) attrs).hasAsyncEventListeners())) {
         Set<String> asyncEventQueueIds = new HashSet<>(attrs.getAsyncEventQueueIds());
-        StringBuilder asyncEventQueueStringBuff = new StringBuilder();
+        var asyncEventQueueStringBuff = new StringBuilder();
         if (asyncEventQueueIds.size() != 0) {
-          for (String asyncEventQueueId : asyncEventQueueIds) {
+          for (var asyncEventQueueId : asyncEventQueueIds) {
             if (!(asyncEventQueueStringBuff.length() == 0)) {
               asyncEventQueueStringBuff.append(",");
             }
@@ -2198,18 +2189,18 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
       if ((!(attrs instanceof RegionAttributesCreation)
           || ((RegionAttributesCreation) attrs).hasDiskDirs())) {
-        File[] diskDirs = attrs.getDiskDirs();
-        int[] diskSizes = attrs.getDiskDirSizes();
+        var diskDirs = attrs.getDiskDirs();
+        var diskSizes = attrs.getDiskDirSizes();
         if (diskDirs != null && diskDirs.length > 0) {
           handler.startElement("", DISK_DIRS, DISK_DIRS, EMPTY);
-          for (int i = 0; i < diskDirs.length; i++) {
-            AttributesImpl diskAtts = new AttributesImpl();
+          for (var i = 0; i < diskDirs.length; i++) {
+            var diskAtts = new AttributesImpl();
             if (diskSizes[i] != DiskStoreFactory.DEFAULT_DISK_DIR_SIZE) {
               diskAtts.addAttribute("", "", DIR_SIZE, "", String.valueOf(diskSizes[i]));
             }
             handler.startElement("", DISK_DIR, DISK_DIR, diskAtts);
-            File dir = diskDirs[i];
-            String name = generateDefaults() ? dir.getAbsolutePath() : dir.getPath();
+            var dir = diskDirs[i];
+            var name = generateDefaults() ? dir.getAbsolutePath() : dir.getPath();
             handler.characters(name.toCharArray(), 0, name.length());
             handler.endElement("", DISK_DIR, DISK_DIR);
           }
@@ -2221,7 +2212,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (version.compareTo(CacheXmlVersion.GEMFIRE_5_0) >= 0) {
       if ((!(attrs instanceof RegionAttributesCreation)
           || ((RegionAttributesCreation) attrs).hasPartitionAttributes())) {
-        PartitionAttributes p = attrs.getPartitionAttributes();
+        var p = attrs.getPartitionAttributes();
         if (p != null) {
           generate(p);
         }
@@ -2229,7 +2220,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     }
 
     if (version.compareTo(CacheXmlVersion.GEMFIRE_5_0) >= 0) {
-      MembershipAttributes p = attrs.getMembershipAttributes();
+      var p = attrs.getMembershipAttributes();
       if (p != null && p.hasRequiredRoles()) {
         generate(p);
       }
@@ -2238,7 +2229,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (version.compareTo(CacheXmlVersion.GEMFIRE_5_0) >= 0) {
       if ((!(attrs instanceof RegionAttributesCreation)
           || ((RegionAttributesCreation) attrs).hasSubscriptionAttributes())) {
-        SubscriptionAttributes sa = attrs.getSubscriptionAttributes();
+        var sa = attrs.getSubscriptionAttributes();
         if (sa != null) {
           if (generateDefaults() || !sa.equals(new SubscriptionAttributes())) {
             generate(sa);
@@ -2258,7 +2249,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if ((!(attrs instanceof RegionAttributesCreation)
         || ((RegionAttributesCreation) attrs).hasCacheListeners())) {
       CacheListener[] listeners = attrs.getCacheListeners();
-      for (CacheListener listener : listeners) {
+      for (var listener : listeners) {
         generate(CACHE_LISTENER, listener);
       }
     }
@@ -2288,7 +2279,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     handler.startElement("", kind, kind, EMPTY);
 
-    String className = callback.getClass().getName();
+    var className = callback.getClass().getName();
     handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
     handler.characters(className.toCharArray(), 0, className.length());
     handler.endElement("", CLASS_NAME, CLASS_NAME);
@@ -2313,7 +2304,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     handler.startElement("", CacheXml.INITIALIZER, CacheXml.INITIALIZER, EMPTY);
 
-    String className = d.getClass().getName();
+    var className = d.getClass().getName();
     handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
     handler.characters(className.toCharArray(), 0, className.length());
     handler.endElement("", CLASS_NAME, CLASS_NAME);
@@ -2324,12 +2315,12 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
   }
 
   private void generate(EvictionAttributes ea) throws SAXException {
-    EvictionAction eAction = ea.getAction();
+    var eAction = ea.getAction();
     if (eAction.isNone()) {
       return;
     }
 
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
     atts.addAttribute("", "", ACTION, "", eAction.toString());
 
     handler.startElement("", EVICTION_ATTRIBUTES, EVICTION_ATTRIBUTES, EMPTY);
@@ -2340,7 +2331,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     } else if (ea.getAlgorithm() == EvictionAlgorithm.LRU_MEMORY) {
       atts.addAttribute("", "", MAXIMUM, "", String.valueOf(ea.getMaximum()));
       handler.startElement("", LRU_MEMORY_SIZE, LRU_MEMORY_SIZE, atts);
-      ObjectSizer os = ea.getObjectSizer();
+      var os = ea.getObjectSizer();
       if (os != null && os != ObjectSizer.DEFAULT) {
         generate((Declarable) os, false);
       }
@@ -2348,7 +2339,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     } else if (ea.getAlgorithm() == EvictionAlgorithm.LRU_HEAP) {
       handler.startElement("", LRU_HEAP_PERCENTAGE, LRU_HEAP_PERCENTAGE, atts);
       if (version.compareTo(CacheXmlVersion.GEMFIRE_6_0) >= 0) {
-        ObjectSizer os = ea.getObjectSizer();
+        var os = ea.getObjectSizer();
         if (!(os instanceof SizeClassOnceObjectSizer)) {
           if (os != null) {
             generate((Declarable) os, false);
@@ -2372,9 +2363,9 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     handler.startElement("", kind, kind, EMPTY);
 
-    int timeout = attrs.getTimeout();
-    ExpirationAction action = attrs.getAction();
-    AttributesImpl atts = new AttributesImpl();
+    var timeout = attrs.getTimeout();
+    var action = attrs.getAction();
+    var atts = new AttributesImpl();
     atts.addAttribute("", "", TIMEOUT, "", String.valueOf(timeout));
 
     String actionString;
@@ -2399,7 +2390,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     handler.startElement("", EXPIRATION_ATTRIBUTES, EXPIRATION_ATTRIBUTES, atts);
     if (custom != null) {
-      AttributesImpl endAtts = new AttributesImpl();
+      var endAtts = new AttributesImpl();
       handler.startElement("", CUSTOM_EXPIRY, CUSTOM_EXPIRY, endAtts);
       generate(custom, false);
       handler.endElement("", CUSTOM_EXPIRY, CUSTOM_EXPIRY);
@@ -2418,8 +2409,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     }
 
     String interestString;
-    InterestPolicy ip = attrs.getInterestPolicy();
-    AttributesImpl atts = new AttributesImpl();
+    var ip = attrs.getInterestPolicy();
+    var atts = new AttributesImpl();
 
     if (ip.isAll()) {
       interestString = ALL;
@@ -2440,7 +2431,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
    * Generates XML for a <code>PartitionAttributes</code>
    */
   private void generate(PartitionAttributes<?, ?> pa) throws SAXException {
-    AttributesImpl atts = new AttributesImpl();
+    var atts = new AttributesImpl();
 
     if (generateDefaults() || pa.getRedundantCopies() != 0) {
       atts.addAttribute("", "", PARTITION_REDUNDANT_COPIES, "",
@@ -2496,8 +2487,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     }
 
     if (version.compareTo(CacheXmlVersion.GEMFIRE_6_1) >= 0) {
-      PartitionListener[] listeners = pa.getPartitionListeners();
-      for (PartitionListener listener : listeners) {
+      var listeners = pa.getPartitionListeners();
+      for (var listener : listeners) {
         if (listener != null) {
           generate(listener);
         }
@@ -2505,14 +2496,14 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     }
 
     if (version.compareTo(CacheXmlVersion.GEMFIRE_6_6) >= 0) {
-      List<FixedPartitionAttributes> staticAttrs = pa.getFixedPartitionAttributes();
+      var staticAttrs = pa.getFixedPartitionAttributes();
       if (staticAttrs != null) {
         generateFixedPartitionAttributes(staticAttrs);
       }
     }
 
     if (version.compareTo(CacheXmlVersion.GEMFIRE_5_1) < 0) {
-      Properties p = pa.getLocalProperties();
+      var p = pa.getLocalProperties();
       generate(p, LOCAL_PROPERTIES);
 
       p = pa.getGlobalProperties();
@@ -2532,7 +2523,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     handler.startElement("", CacheXml.PARTITION_RESOLVER, CacheXml.PARTITION_RESOLVER, EMPTY);
 
-    String className = rr.getClass().getName();
+    var className = rr.getClass().getName();
 
     handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
     handler.characters(className.toCharArray(), 0, className.length());
@@ -2555,7 +2546,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     handler.startElement("", CacheXml.PARTITION_LISTENER, CacheXml.PARTITION_LISTENER, EMPTY);
 
-    String className = pl.getClass().getName();
+    var className = pl.getClass().getName();
 
     handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
     handler.characters(className.toCharArray(), 0, className.length());
@@ -2573,8 +2564,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
    */
   private void generateFixedPartitionAttributes(List<FixedPartitionAttributes> allStaticAttrs)
       throws SAXException {
-    for (FixedPartitionAttributes attr : allStaticAttrs) {
-      AttributesImpl sAtts = new AttributesImpl();
+    for (var attr : allStaticAttrs) {
+      var sAtts = new AttributesImpl();
       sAtts.addAttribute("", "", PARTITION_NAME, "", attr.getPartitionName());
       sAtts.addAttribute("", "", IS_PRIMARY, "", String.valueOf(attr.isPrimary()));
       sAtts.addAttribute("", "", NUM_BUCKETS, "", String.valueOf(attr.getNumBuckets()));
@@ -2601,7 +2592,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       maxOplogSizeString = "" + maxOplogSize;
     }
     {
-      AttributesImpl atts = new AttributesImpl();
+      var atts = new AttributesImpl();
       if (dwa.isRollOplogs() != DiskWriteAttributesImpl.getDefaultRollOplogsValue()) {
         atts.addAttribute("", "", ROLL_OPLOG, "", String.valueOf(dwa.isRollOplogs()));
       }
@@ -2615,7 +2606,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       handler.endElement("", SYNCHRONOUS_WRITES, SYNCHRONOUS_WRITES);
 
     } else {
-      AttributesImpl atts = new AttributesImpl();
+      var atts = new AttributesImpl();
       if (dwa.getTimeInterval() != -1) {
         atts.addAttribute("", "", TIME_INTERVAL, "", String.valueOf(dwa.getTimeInterval()));
       } else {
@@ -2635,18 +2626,18 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
   private void generate(MembershipAttributes ra) throws SAXException {
     Set roles = ra.getRequiredRoles();
 
-    String laction = ra.getLossAction().toString().toLowerCase().replace('_', '-');
-    String raction = ra.getResumptionAction().toString().toLowerCase().replace('_', '-');
+    var laction = ra.getLossAction().toString().toLowerCase().replace('_', '-');
+    var raction = ra.getResumptionAction().toString().toLowerCase().replace('_', '-');
 
-    AttributesImpl raAtts = new AttributesImpl();
+    var raAtts = new AttributesImpl();
     raAtts.addAttribute("", "", LOSS_ACTION, "", laction);
     raAtts.addAttribute("", "", RESUMPTION_ACTION, "", raction);
 
     handler.startElement("", MEMBERSHIP_ATTRIBUTES, MEMBERSHIP_ATTRIBUTES, raAtts);
 
-    for (Object o : roles) {
-      Role role = (Role) o;
-      AttributesImpl roleAtts = new AttributesImpl();
+    for (var o : roles) {
+      var role = (Role) o;
+      var roleAtts = new AttributesImpl();
       roleAtts.addAttribute("", "", NAME, "", role.getName());
       handler.startElement("", REQUIRED_ROLE, REQUIRED_ROLE, roleAtts);
       handler.endElement("", REQUIRED_ROLE, REQUIRED_ROLE);
@@ -2677,13 +2668,13 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       handler.startElement("", DECLARABLE, DECLARABLE, EMPTY);
     }
 
-    String className = d.getClass().getName();
+    var className = d.getClass().getName();
     handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
     handler.characters(className.toCharArray(), 0, className.length());
     handler.endElement("", CLASS_NAME, CLASS_NAME);
 
     if (d instanceof Declarable2) {
-      Properties props = ((Declarable2) d).getConfig();
+      var props = ((Declarable2) d).getConfig();
       generate(props, null);
     }
 
@@ -2700,7 +2691,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
   private void generate(Class c, String element) throws SAXException {
     if (c != null) {
       handler.startElement("", element, element, EMPTY);
-      String className = c.getName();
+      var className = c.getName();
       handler.characters(className.toCharArray(), 0, className.length());
       handler.endElement("", element, element);
     }
@@ -2713,7 +2704,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
   private void generate(Object o) throws SAXException {
     if (o instanceof String) {
       handler.startElement("", STRING, STRING, EMPTY);
-      String s = (String) o;
+      var s = (String) o;
       handler.characters(s.toCharArray(), 0, s.length());
       handler.endElement("", STRING, STRING);
 
@@ -2722,7 +2713,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
 
     } else if (o == null) {
       handler.startElement("", STRING, STRING, EMPTY);
-      String s = "null";
+      var s = "null";
       handler.characters(s.toCharArray(), 0, s.length());
       handler.endElement("", STRING, STRING);
 
@@ -2730,7 +2721,7 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       // Instead of blowing up, just put a String entry...
 
       handler.startElement("", STRING, STRING, EMPTY);
-      String s = o.getClass().getName();
+      var s = o.getClass().getName();
       handler.characters(s.toCharArray(), 0, s.length());
       handler.endElement("", STRING, STRING);
     }
@@ -2743,11 +2734,11 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
     if (elementName != null) {
       handler.startElement("", elementName, elementName, EMPTY);
     }
-    for (Map.Entry<Object, Object> entry : props.entrySet()) {
-      String name = (String) entry.getKey();
-      Object value = entry.getValue();
+    for (var entry : props.entrySet()) {
+      var name = (String) entry.getKey();
+      var value = entry.getValue();
 
-      AttributesImpl atts = new AttributesImpl();
+      var atts = new AttributesImpl();
       atts.addAttribute("", "", NAME, "", name);
 
       handler.startElement("", PARAMETER, PARAMETER, atts);
@@ -2847,8 +2838,8 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
    * bug 30995 for the feature request.
    */
   public static void main(String[] args) throws IOException {
-    FileWriter fw = new FileWriter(new File("cache.xml"));
-    PrintWriter pw = new PrintWriter(fw);
+    var fw = new FileWriter(new File("cache.xml"));
+    var pw = new PrintWriter(fw);
 
     generateDefault(pw);
     pw.close();

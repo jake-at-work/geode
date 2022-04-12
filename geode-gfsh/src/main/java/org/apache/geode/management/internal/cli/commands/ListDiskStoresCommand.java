@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
@@ -32,7 +31,6 @@ import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.domain.DiskStoreDetails;
 import org.apache.geode.management.internal.cli.functions.ListDiskStoresFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -43,7 +41,7 @@ public class ListDiskStoresCommand extends GfshCommand {
   @ResourceOperation(resource = ResourcePermission.Resource.CLUSTER,
       operation = ResourcePermission.Operation.READ)
   public ResultModel listDiskStores() {
-    Set<DistributedMember> dataMembers =
+    var dataMembers =
         DiskStoreCommandsUtils.getNormalMembers((InternalCache) getCache());
 
     if (dataMembers.isEmpty()) {
@@ -55,7 +53,7 @@ public class ListDiskStoresCommand extends GfshCommand {
 
   @SuppressWarnings("unchecked")
   List<DiskStoreDetails> getDiskStoreListing(Set<DistributedMember> members) {
-    final Execution membersFunctionExecutor = getMembersFunctionExecutor(members);
+    final var membersFunctionExecutor = getMembersFunctionExecutor(members);
     if (membersFunctionExecutor instanceof AbstractExecution) {
       ((AbstractExecution) membersFunctionExecutor).setIgnoreDepartedMembers(true);
     }
@@ -63,7 +61,7 @@ public class ListDiskStoresCommand extends GfshCommand {
     final ResultCollector<?, ?> resultCollector =
         membersFunctionExecutor.execute(new ListDiskStoresFunction());
 
-    final List<?> results = (List<?>) resultCollector.getResult();
+    final var results = (List<?>) resultCollector.getResult();
     final List<DiskStoreDetails> distributedSystemMemberDiskStores =
         new ArrayList<>(results.size());
 
@@ -80,11 +78,11 @@ public class ListDiskStoresCommand extends GfshCommand {
 
   private ResultModel toTabularResult(final List<DiskStoreDetails> diskStoreList) {
     if (!diskStoreList.isEmpty()) {
-      ResultModel result = new ResultModel();
-      TabularResultModel diskStoreData =
+      var result = new ResultModel();
+      var diskStoreData =
           result.addTable(DescribeDiskStoreCommand.DISK_STORE_SECTION);
 
-      for (final DiskStoreDetails diskStoreDetails : diskStoreList) {
+      for (final var diskStoreDetails : diskStoreList) {
         diskStoreData.accumulate("Member Name", diskStoreDetails.getMemberName());
         diskStoreData.accumulate("Member Id", diskStoreDetails.getMemberId());
         diskStoreData.accumulate("Disk Store Name", diskStoreDetails.getName());

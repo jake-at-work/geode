@@ -64,7 +64,7 @@ public class HttpResponseAssert extends AbstractAssert<HttpResponseAssert, HttpR
   }
 
   public HttpResponseAssert hasStatusCode(int... httpStatus) {
-    int statusCode = actual.getStatusLine().getStatusCode();
+    var statusCode = actual.getStatusLine().getStatusCode();
     assertThat(statusCode)
         .describedAs(logMessage + "\n" + descriptionText())
         .isIn(Arrays.stream(httpStatus).boxed().collect(Collectors.toList()));
@@ -81,13 +81,13 @@ public class HttpResponseAssert extends AbstractAssert<HttpResponseAssert, HttpR
 
   public <R extends AbstractConfiguration> ClusterManagementResult getClusterManagementResult()
       throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
+    var mapper = new ObjectMapper();
     return mapper.readValue(responseBody, ClusterManagementResult.class);
   }
 
   public <R extends AbstractConfiguration> ClusterManagementRealizationResult getClusterManagementRealizationResult()
       throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
+    var mapper = new ObjectMapper();
     return mapper.readValue(responseBody, ClusterManagementRealizationResult.class);
   }
 
@@ -104,15 +104,15 @@ public class HttpResponseAssert extends AbstractAssert<HttpResponseAssert, HttpR
   }
 
   public JsonNode getJsonObject() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
+    var mapper = new ObjectMapper();
     return mapper.readTree(responseBody);
   }
 
   public ListAssert<Double> hasJsonArrayOfDoubles() throws IOException {
-    JsonNode array = getJsonObject();
+    var array = getJsonObject();
     List<Double> list = new ArrayList<>();
 
-    for (int i = 0; i < array.size(); i++) {
+    for (var i = 0; i < array.size(); i++) {
       list.add(array.get(i).doubleValue());
     }
     return assertThat(list);

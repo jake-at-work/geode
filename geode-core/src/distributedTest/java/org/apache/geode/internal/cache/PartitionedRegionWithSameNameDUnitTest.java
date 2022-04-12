@@ -172,7 +172,7 @@ public class PartitionedRegionWithSameNameDUnitTest extends CacheTestCase {
 
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.REPLICATE);
 
-    Region childRegion = regionFactory.createSubregion(parentRegion, childRegionName);
+    var childRegion = regionFactory.createSubregion(parentRegion, childRegionName);
     assertThat(childRegion).isNotNull();
   }
 
@@ -181,39 +181,39 @@ public class PartitionedRegionWithSameNameDUnitTest extends CacheTestCase {
     Region parentRegion = getCache().getRegion(parentRegionName);
     assertThat(parentRegion).isNotNull();
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setRedundantCopies(redundancy);
 
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
     regionFactory.setPartitionAttributes(paf.create());
 
-    Region childRegion = regionFactory.createSubregion(parentRegion, childRegionName);
+    var childRegion = regionFactory.createSubregion(parentRegion, childRegionName);
     assertThat(childRegion).isNotNull();
   }
 
   private void createDistributedRegion(final String regionName) {
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.REPLICATE);
-    Region region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     assertThat(region).isNotNull();
   }
 
   private void createLocalRegion(final String regionName) {
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.LOCAL);
-    Region region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     assertThat(region).isNotNull();
   }
 
   private void createPartitionedRegion(final String regionName, final int localMaxMemory,
       final int redundancy) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setRedundantCopies(redundancy);
 
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
     regionFactory.setPartitionAttributes(paf.create());
 
-    Region region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     assertThat(region).isNotNull();
   }
 
@@ -254,7 +254,7 @@ public class PartitionedRegionWithSameNameDUnitTest extends CacheTestCase {
     Region parentRegion = getCache().getRegion(parentRegionName);
     assertThat(parentRegion).isNotNull();
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(localMaxMemory);
     paf.setRedundantCopies(redundancy);
 

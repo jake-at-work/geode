@@ -20,23 +20,18 @@ import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_INTEGER;
 import static org.apache.geode.redis.internal.netty.Coder.bytesToLong;
 import static org.apache.geode.redis.internal.netty.Coder.narrowLongToInt;
 
-import java.util.List;
-
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class LSetExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElements = command.getProcessedCommand();
-    RedisKey key = command.getKey();
-    Region<RedisKey, RedisData> region = context.getRegion();
-    byte[] value = commandElements.get(3);
+    var commandElements = command.getProcessedCommand();
+    var key = command.getKey();
+    var region = context.getRegion();
+    var value = commandElements.get(3);
     int index;
 
     try {

@@ -23,7 +23,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
-import org.junit.runner.Result;
 
 import org.apache.geode.test.junit.runners.TestRunner;
 
@@ -51,7 +50,7 @@ public class RuleListTest {
 
   @Test
   public void firstShouldBeFirstBeforeLastAfter() {
-    Result result = TestRunner.runTest(ThreeRules.class);
+    var result = TestRunner.runTest(ThreeRules.class);
 
     assertThat(result.wasSuccessful()).isTrue();
 

@@ -19,10 +19,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 
 import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardEngine;
 import org.apache.catalina.core.StandardService;
 import org.apache.catalina.core.StandardWrapper;
@@ -52,12 +49,12 @@ public class EmbeddedTomcat {
     container.setRealm(new MemoryRealm());
 
     // create webapp loader
-    WebappLoader loader = new WebappLoader(getClass().getClassLoader());
+    var loader = new WebappLoader(getClass().getClassLoader());
     // The classes directory for the web application being run.
     loader.addRepository(new File("target/classes").toURI().toURL().toString());
 
     // The web resources directory for the web application being run.
-    String webappDir = "";
+    var webappDir = "";
     rootContext = container.createContext("", webappDir);
     rootContext.setLoader(loader);
     rootContext.setReloadable(true);
@@ -66,13 +63,13 @@ public class EmbeddedTomcat {
     rootContext.setIgnoreAnnotations(true);
 
     // create host
-    Host localHost = container.createHost("127.0.0.1", new File("").getAbsolutePath());
+    var localHost = container.createHost("127.0.0.1", new File("").getAbsolutePath());
     localHost.addChild(rootContext);
 
     localHost.setDeployOnStartup(true);
 
     // create engine
-    Engine engine = container.createEngine();
+    var engine = container.createEngine();
     engine.setName("localEngine");
     engine.addChild(localHost);
     engine.setDefaultHost(localHost.getName());
@@ -81,7 +78,7 @@ public class EmbeddedTomcat {
     container.addEngine(engine);
 
     // create http connector
-    Connector httpConnector = container.createConnector((InetAddress) null, port, false);
+    var httpConnector = container.createConnector((InetAddress) null, port, false);
     container.addConnector(httpConnector);
     container.setAwait(true);
 
@@ -116,7 +113,7 @@ public class EmbeddedTomcat {
   }
 
   StandardWrapper addServlet(String path, String name, String clazz) {
-    StandardWrapper servlet = (StandardWrapper) rootContext.createWrapper();
+    var servlet = (StandardWrapper) rootContext.createWrapper();
     servlet.setName(name);
     servlet.setServletClass(clazz);
     servlet.setLoadOnStartup(1);

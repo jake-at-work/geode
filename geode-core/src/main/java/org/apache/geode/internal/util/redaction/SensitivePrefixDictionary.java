@@ -27,7 +27,7 @@ class SensitivePrefixDictionary implements SensitiveDataDictionary {
     if (string == null) {
       return false;
     }
-    for (String prefix : sensitivePrefixes) {
+    for (var prefix : sensitivePrefixes) {
       if (string.toLowerCase().startsWith(prefix.toLowerCase())) {
         return true;
       }

@@ -48,7 +48,6 @@ import org.apache.geode.internal.cache.eviction.EvictionController;
 import org.apache.geode.internal.cache.persistence.BytesAndBits;
 import org.apache.geode.internal.cache.persistence.DiskRecoveryStore;
 import org.apache.geode.internal.cache.persistence.DiskRegionView;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.offheap.AddressableMemoryManager;
 import org.apache.geode.internal.offheap.OffHeapHelper;
@@ -142,7 +141,7 @@ public interface DiskEntry extends RegionEntry {
      * @since GemFire 3.2.1
      */
     public static Object getValueOnDisk(DiskEntry entry, DiskRegion dr) {
-      DiskId id = entry.getDiskId();
+      var id = entry.getDiskId();
       if (id == null) {
         return null;
       }
@@ -172,7 +171,7 @@ public interface DiskEntry extends RegionEntry {
      * @return either null, byte array, or CacheDeserializable
      */
     public static Object getSerializedValueOnDisk(DiskEntry entry, DiskRegion dr) {
-      DiskId did = entry.getDiskId();
+      var did = entry.getDiskId();
       if (did == null) {
         return null;
       }
@@ -201,9 +200,9 @@ public interface DiskEntry extends RegionEntry {
     public static Object getValueOnDiskOrBuffer(DiskEntry entry, DiskRegion dr,
         RegionEntryContext context) {
       @Released
-      Object v = getOffHeapValueOnDiskOrBuffer(entry, dr, context);
+      var v = getOffHeapValueOnDiskOrBuffer(entry, dr, context);
       if (v instanceof CachedDeserializable) {
-        CachedDeserializable cd = (CachedDeserializable) v;
+        var cd = (CachedDeserializable) v;
         try {
           v = cd.getDeserializedValue(null, null);
         } finally {
@@ -216,7 +215,7 @@ public interface DiskEntry extends RegionEntry {
     @Retained
     static Object getOffHeapValueOnDiskOrBuffer(DiskEntry entry, DiskRegion dr,
         RegionEntryContext context) {
-      DiskId did = entry.getDiskId();
+      var did = entry.getDiskId();
       Object syncObj = did;
       if (syncObj == null) {
         syncObj = entry;
@@ -228,7 +227,7 @@ public interface DiskEntry extends RegionEntry {
         synchronized (syncObj) {
           if (did != null && did.isPendingAsync()) {
             @Retained
-            Object v = entry.getValueRetain(context, true);
+            var v = entry.getValueRetain(context, true);
 
             if (Token.isRemovedFromDisk(v)) {
               v = null;
@@ -361,7 +360,7 @@ public interface DiskEntry extends RegionEntry {
       if (Token.isRemovedFromDisk(value)) {
         return false;
       } else if (value instanceof CachedDeserializable) {
-        CachedDeserializable cd = (CachedDeserializable) value;
+        var cd = (CachedDeserializable) value;
         try {
           if (!cd.isSerialized()) {
             entry.setSerialized(false);
@@ -370,13 +369,13 @@ public interface DiskEntry extends RegionEntry {
           } else {
             // don't serialize here if it is not already serialized
 
-            Object tmp = cd.getValue();
+            var tmp = cd.getValue();
             if (tmp instanceof byte[]) {
               entry.setValue(tmp);
               entry.setSerialized(true);
             } else {
               try {
-                HeapDataOutputStream hdos = new HeapDataOutputStream(version);
+                var hdos = new HeapDataOutputStream(version);
                 BlobHelper.serializeTo(tmp, hdos);
                 hdos.trim();
                 entry.setValue(hdos);
@@ -406,7 +405,7 @@ public interface DiskEntry extends RegionEntry {
       } else if (value == Token.TOMBSTONE) {
         entry.setTombstone();
       } else {
-        Object preparedValue = value;
+        var preparedValue = value;
         if (preparedValue != null) {
           preparedValue = AbstractRegionEntry.prepareValueForGII(preparedValue);
           if (preparedValue == null) {
@@ -415,7 +414,7 @@ public interface DiskEntry extends RegionEntry {
         }
         {
           try {
-            HeapDataOutputStream hdos = new HeapDataOutputStream(version);
+            var hdos = new HeapDataOutputStream(version);
             BlobHelper.serializeTo(preparedValue, hdos);
             hdos.trim();
             entry.setValue(hdos);
@@ -446,8 +445,8 @@ public interface DiskEntry extends RegionEntry {
 
       if (newValue instanceof RecoveredEntry) {
         // Set the id directly, the value will also be set if RECOVER_VALUES
-        RecoveredEntry re = (RecoveredEntry) newValue;
-        DiskId did = entry.getDiskId();
+        var re = (RecoveredEntry) newValue;
+        var did = entry.getDiskId();
         did.setOplogId(re.getOplogId());
         did.setOffsetInOplog(re.getOffsetInOplog());
         did.setKeyId(re.getRecoveredKeyId());
@@ -463,7 +462,7 @@ public interface DiskEntry extends RegionEntry {
           }
         }
       } else {
-        DiskId did = entry.getDiskId();
+        var did = entry.getDiskId();
         if (did != null) {
           did.setKeyId(DiskRegion.INVALID_ID);
         }
@@ -553,11 +552,11 @@ public interface DiskEntry extends RegionEntry {
 
       @Override
       public void sendTo(ByteBuffer bb, Flushable flushable) throws IOException {
-        int offset = 0;
-        final int maxOffset = getLength();
+        var offset = 0;
+        final var maxOffset = getLength();
         while (offset < maxOffset) {
-          int bytesThisTime = maxOffset - offset;
-          boolean needsFlush = false;
+          var bytesThisTime = maxOffset - offset;
+          var needsFlush = false;
           if (bytesThisTime > bb.remaining()) {
             needsFlush = true;
             bytesThisTime = bb.remaining();
@@ -575,9 +574,9 @@ public interface DiskEntry extends RegionEntry {
         if (bytes == null) {
           return "null";
         }
-        StringBuilder sb = new StringBuilder();
-        int len = getLength();
-        for (int i = 0; i < len; i++) {
+        var sb = new StringBuilder();
+        var len = getLength();
+        for (var i = 0; i < len; i++) {
           sb.append(bytes[i]).append(", ");
         }
         return sb.toString();
@@ -651,23 +650,23 @@ public interface DiskEntry extends RegionEntry {
 
       @Override
       public void sendTo(ByteBuffer bb, Flushable flushable) throws IOException {
-        final int maxOffset = getLength();
+        final var maxOffset = getLength();
         if (maxOffset == 0) {
           return;
         }
         if (maxOffset > bb.capacity()) {
-          ByteBuffer chunkbb = offHeapData.createDirectByteBuffer();
+          var chunkbb = offHeapData.createDirectByteBuffer();
           if (chunkbb != null) {
             flushable.flush(bb, chunkbb);
             return;
           }
         }
-        final long bbAddress = AddressableMemoryManager.getDirectByteBufferAddress(bb);
+        final var bbAddress = AddressableMemoryManager.getDirectByteBufferAddress(bb);
         if (bbAddress != 0L) {
-          int bytesRemaining = maxOffset;
-          int availableSpace = bb.remaining();
-          long addrToWrite = bbAddress + bb.position();
-          long addrToRead = offHeapData.getAddressForReadingData(0, maxOffset);
+          var bytesRemaining = maxOffset;
+          var availableSpace = bb.remaining();
+          var addrToWrite = bbAddress + bb.position();
+          var addrToRead = offHeapData.getAddressForReadingData(0, maxOffset);
           if (bytesRemaining > availableSpace) {
             do {
               AddressableMemoryManager.copyMemory(addrToRead, addrToWrite, availableSpace);
@@ -682,8 +681,8 @@ public interface DiskEntry extends RegionEntry {
           AddressableMemoryManager.copyMemory(addrToRead, addrToWrite, bytesRemaining);
           bb.position(bb.position() + bytesRemaining);
         } else {
-          long addr = offHeapData.getAddressForReadingData(0, maxOffset);
-          final long endAddr = addr + maxOffset;
+          var addr = offHeapData.getAddressForReadingData(0, maxOffset);
+          final var endAddr = addr + maxOffset;
           while (addr != endAddr) {
             bb.put(AddressableMemoryManager.readByte(addr));
             addr++;
@@ -728,10 +727,10 @@ public interface DiskEntry extends RegionEntry {
       } else if (value == Token.TOMBSTONE) {
         return TOMBSTONE_VW;
       } else {
-        boolean isSerializedObject = true;
+        var isSerializedObject = true;
         byte[] bytes;
         if (value instanceof CachedDeserializable) {
-          CachedDeserializable proxy = (CachedDeserializable) value;
+          var proxy = (CachedDeserializable) value;
           if (wrapOffHeapReference(proxy)) {
             return new OffHeapValueWrapper((StoredObject) proxy);
           }
@@ -774,7 +773,7 @@ public interface DiskEntry extends RegionEntry {
         // Since NIO is used if the chunk of memory is large we can write it
         // to the file using the off-heap memory with no extra copying.
         // So we give preference to getRawNewValue over getCachedSerializedNewValue
-        final Object rawValue = event.getRawNewValue();
+        final var rawValue = event.getRawNewValue();
         if (wrapOffHeapReference(rawValue)) {
           return new OffHeapValueWrapper((StoredObject) rawValue);
         }
@@ -786,7 +785,7 @@ public interface DiskEntry extends RegionEntry {
         }
       }
       @Retained
-      final Object value = entry.getValueRetain(region, true);
+      final var value = entry.getValueRetain(region, true);
       try {
         return createValueWrapper(value, event);
       } finally {
@@ -832,11 +831,11 @@ public interface DiskEntry extends RegionEntry {
         throw new NullPointerException(
             "Entry's value should not be null.");
       }
-      boolean basicUpdateCalled = false;
+      var basicUpdateCalled = false;
       try {
 
-        DiskRegion dr = region.getDiskRegion();
-        DiskId did = entry.getDiskId();
+        var dr = region.getDiskRegion();
+        var did = entry.getDiskId();
         Object syncObj = did;
         if (syncObj == null) {
           syncObj = entry;
@@ -875,8 +874,8 @@ public interface DiskEntry extends RegionEntry {
     private static AsyncDiskEntry basicUpdate(DiskEntry entry, InternalRegion region,
         @Unretained Object newValue, EntryEventImpl event) throws RegionClearedException {
       AsyncDiskEntry result = null;
-      DiskRegion dr = region.getDiskRegion();
-      DiskId did = entry.getDiskId();
+      var dr = region.getDiskRegion();
+      var did = entry.getDiskId();
       Token oldValue;
       int oldValueLength;
       oldValue = entry.getValueAsToken();
@@ -884,7 +883,7 @@ public interface DiskEntry extends RegionEntry {
         if (dr.isBackup()) {
           dr.testIsRecoveredAndClear(did);
         }
-        boolean caughtCacheClosed = false;
+        var caughtCacheClosed = false;
         try {
           if (!Token.isRemovedFromDisk(oldValue)) {
             result = basicRemoveFromDisk(entry, region, false);
@@ -904,7 +903,7 @@ public interface DiskEntry extends RegionEntry {
       } else if (newValue instanceof RecoveredEntry) {
         ((RecoveredEntry) newValue).applyToDiskEntry(entry, region, dr, did);
       } else {
-        boolean newValueStoredInEntry = false;
+        var newValueStoredInEntry = false;
         try {
           // The new value in the entry needs to be set after the disk writing
           // has succeeded.
@@ -941,7 +940,7 @@ public interface DiskEntry extends RegionEntry {
             } else {
               // If we have concurrency checks enabled for a persistent region, we need
               // to add an entry to the async queue for every update to maintain the RVV
-              boolean maintainRVV = region.getConcurrencyChecksEnabled();
+              var maintainRVV = region.getConcurrencyChecksEnabled();
 
               if (!did.isPendingAsync() || maintainRVV) {
                 // if the entry is not async, we need to schedule it
@@ -949,7 +948,7 @@ public interface DiskEntry extends RegionEntry {
                 // to the queue for every entry.
                 did.setPendingAsync(true);
                 VersionTag tag = null;
-                VersionStamp stamp = entry.getVersionStamp();
+                var stamp = entry.getVersionStamp();
                 if (stamp != null) {
                   tag = stamp.asVersionTag();
                 }
@@ -996,14 +995,14 @@ public interface DiskEntry extends RegionEntry {
         }
       }
       if (entry instanceof EvictableEntry) {
-        EvictableEntry le = (EvictableEntry) entry;
+        var le = (EvictableEntry) entry;
         le.unsetEvicted();
       }
       return result;
     }
 
     private static int getValueLength(DiskId did) {
-      int result = 0;
+      var result = 0;
       if (did != null) {
         synchronized (did) {
           result = did.getValueLength();
@@ -1013,7 +1012,7 @@ public interface DiskEntry extends RegionEntry {
     }
 
     public static Object getValueInVMOrDiskWithoutFaultIn(DiskEntry entry, InternalRegion region) {
-      Object result = OffHeapHelper.copyAndReleaseIfNeeded(
+      var result = OffHeapHelper.copyAndReleaseIfNeeded(
           getValueOffHeapOrDiskWithoutFaultIn(entry, region), region.getCache());
       if (result instanceof CachedDeserializable) {
         result = ((CachedDeserializable) result).getDeserializedValue(null, null);
@@ -1025,7 +1024,7 @@ public interface DiskEntry extends RegionEntry {
     public static Object getValueOffHeapOrDiskWithoutFaultIn(DiskEntry entry,
         InternalRegion region) {
       @Retained
-      Object v = entry.getValueRetain(region, true);
+      var v = entry.getValueRetain(region, true);
 
       if (v == null || Token.isRemovedFromDisk(v) && !region.isIndexCreationThread()) {
         synchronized (entry) {
@@ -1058,22 +1057,22 @@ public interface DiskEntry extends RegionEntry {
     @Retained
     private static Object faultInValue(DiskEntry entry, InternalRegion region,
         boolean retainResult) {
-      DiskRegion dr = region.getDiskRegion();
+      var dr = region.getDiskRegion();
       @Retained
-      Object v = entry.getValueRetain(region, true);
+      var v = entry.getValueRetain(region, true);
 
-      boolean lruFaultedIn = false;
-      boolean done = false;
+      var lruFaultedIn = false;
+      var done = false;
       try {
         if (entry instanceof EvictableEntry && !dr.isSync()) {
           synchronized (entry) {
-            DiskId did = entry.getDiskId();
+            var did = entry.getDiskId();
             if (did != null && did.isPendingAsync()) {
               done = true;
               // See if it is pending async because of a faultOut.
               // If so then if we are not a backup then we can unschedule the pending async.
               // In either case we need to do the lruFaultIn logic.
-              boolean evicted = ((EvictableEntry) entry).isEvicted();
+              var evicted = ((EvictableEntry) entry).isEvicted();
               if (evicted) {
                 if (!dr.isBackup()) {
                   // @todo do we also need a bit that tells us if it is in the async queue?
@@ -1122,13 +1121,13 @@ public interface DiskEntry extends RegionEntry {
 
     public static void recoverValue(DiskEntry entry, long oplogId, DiskRecoveryStore recoveryStore,
         ByteArrayDataInput in) {
-      boolean lruFaultedIn = false;
+      var lruFaultedIn = false;
       synchronized (entry) {
         if (entry.isValueNull()) {
-          DiskId did = entry.getDiskId();
+          var did = entry.getDiskId();
           if (did != null) {
             Object value = null;
-            DiskRegionView dr = recoveryStore.getDiskRegionView();
+            var dr = recoveryStore.getDiskRegionView();
             dr.acquireReadLock();
             try {
               synchronized (did) {
@@ -1170,7 +1169,7 @@ public interface DiskEntry extends RegionEntry {
         // if a bucket region then create a CachedDeserializable here instead of object
         value = dr.getRaw(did); // fix bug 40192
         if (value instanceof BytesAndBits) {
-          BytesAndBits bb = (BytesAndBits) value;
+          var bb = (BytesAndBits) value;
           if (EntryBits.isInvalid(bb.getBits())) {
             value = Token.INVALID;
           } else if (EntryBits.isLocalInvalid(bb.getBits())) {
@@ -1208,7 +1207,7 @@ public interface DiskEntry extends RegionEntry {
     }
 
     private static void lruEntryFaultIn(EvictableEntry entry, DiskRecoveryStore recoveryStore) {
-      RegionMap rm = recoveryStore.getRegionMap();
+      var rm = recoveryStore.getRegionMap();
       try {
         rm.lruEntryFaultIn(entry);
       } catch (DiskAccessException dae) {
@@ -1224,15 +1223,15 @@ public interface DiskEntry extends RegionEntry {
      */
     private static Object readValueFromDisk(DiskEntry entry, DiskRecoveryStore region) {
 
-      DiskRegionView dr = region.getDiskRegionView();
-      DiskId did = entry.getDiskId();
+      var dr = region.getDiskRegionView();
+      var did = entry.getDiskId();
       if (did == null) {
         return null;
       }
       dr.acquireReadLock();
       try {
         synchronized (did) {
-          Object value = getValueFromDisk(dr, did, null, dr.getCache());
+          var value = getValueFromDisk(dr, did, null, dr.getCache());
           if (value == null) {
             return null;
           }
@@ -1253,12 +1252,12 @@ public interface DiskEntry extends RegionEntry {
     @Unretained
     private static Object setValueOnFaultIn(Object value, DiskId did, DiskEntry entry,
         DiskRegionView dr, DiskRecoveryStore region) {
-      int bytesOnDisk = getValueLength(did);
+      var bytesOnDisk = getValueLength(did);
       // Retained by the prepareValueForCache call for the region entry.
       // NOTE that we return this value unretained because the retain is owned by the region entry
       // not the caller.
       @Retained
-      Object preparedValue = entry.prepareValueForCache((RegionEntryContext) region, value, false);
+      var preparedValue = entry.prepareValueForCache((RegionEntryContext) region, value, false);
       region.updateSizeOnFaultIn(entry.getKey(), region.calculateValueSize(preparedValue),
           bytesOnDisk);
 
@@ -1298,7 +1297,7 @@ public interface DiskEntry extends RegionEntry {
         drv.incNumOverflowBytesOnDisk(overflowBytesOnDiskDelta);
       }
       if (owner instanceof BucketRegion) {
-        BucketRegion br = (BucketRegion) owner;
+        var br = (BucketRegion) owner;
         br.incNumEntriesInVM(entriesInVmDelta);
         br.incNumOverflowOnDisk(overflowOnDiskDelta);
         br.incNumOverflowBytesOnDisk(overflowBytesOnDiskDelta);
@@ -1321,17 +1320,17 @@ public interface DiskEntry extends RegionEntry {
      */
     public static int overflowToDisk(DiskEntry entry, InternalRegion region,
         EvictionController ccHelper) throws RegionClearedException {
-      DiskRegion dr = region.getDiskRegion();
-      final int oldSize = region.calculateRegionEntryValueSize(entry);
+      var dr = region.getDiskRegion();
+      final var oldSize = region.calculateRegionEntryValueSize(entry);
       // Get diskID . If it is null, it implies it is overflow only mode.
-      DiskId did = entry.getDiskId();
+      var did = entry.getDiskId();
       if (did == null) {
         ((EvictableEntry) entry).setDelayedDiskId(region);
         did = entry.getDiskId();
       }
 
       final int change;
-      boolean scheduledAsyncHere = false;
+      var scheduledAsyncHere = false;
       dr.acquireReadLock();
       try {
         synchronized (did) {
@@ -1341,7 +1340,7 @@ public interface DiskEntry extends RegionEntry {
           }
 
           // TODO: Check if we need to overflow even when id is = 0
-          boolean wasAlreadyPendingAsync = did.isPendingAsync();
+          var wasAlreadyPendingAsync = did.isPendingAsync();
           if (did.needsToBeWritten()) {
             if (doSynchronousWrite(region, dr)) {
               writeToDisk(entry, region, false);
@@ -1384,7 +1383,7 @@ public interface DiskEntry extends RegionEntry {
     }
 
     private static void scheduleAsyncWrite(AsyncDiskEntry ade) {
-      DiskRegion dr = ade.region.getDiskRegion();
+      var dr = ade.region.getDiskRegion();
       dr.scheduleAsyncWrite(ade);
     }
 
@@ -1397,7 +1396,7 @@ public interface DiskEntry extends RegionEntry {
       if (region.isThisRegionBeingClosedOrDestroyed()) {
         return;
       }
-      DiskRegion dr = region.getDiskRegion();
+      var dr = region.getDiskRegion();
       if (!dr.isBackup()) {
         return;
       }
@@ -1429,7 +1428,7 @@ public interface DiskEntry extends RegionEntry {
       if (region.isThisRegionBeingClosedOrDestroyed()) {
         return;
       }
-      DiskRegion dr = region.getDiskRegion();
+      var dr = region.getDiskRegion();
       if (!asyncQueueWasFull) {
         dr.setClearCountReference();
       }
@@ -1443,12 +1442,12 @@ public interface DiskEntry extends RegionEntry {
         try {
           dr.acquireReadLock();
           try {
-            DiskId did = entry.getDiskId();
+            var did = entry.getDiskId();
             synchronized (did) {
               if (did.isPendingAsync()) {
                 did.setPendingAsync(false);
-                final Token entryVal = entry.getValueAsToken();
-                final int entryValSize = region.calculateRegionEntryValueSize(entry);
+                final var entryVal = entry.getValueAsToken();
+                final var entryValSize = region.calculateRegionEntryValueSize(entry);
                 try {
                   if (Token.isRemovedFromDisk(entryVal)) {
                     if (region.isThisRegionBeingClosedOrDestroyed()) {
@@ -1490,7 +1489,7 @@ public interface DiskEntry extends RegionEntry {
                 // See if we the entry we wrote to disk has the same tag
                 // as this entry. If not, write the tag as a conflicting operation.
                 // to update the RVV.
-                VersionStamp stamp = entry.getVersionStamp();
+                var stamp = entry.getVersionStamp();
                 if (tag != null && stamp != null && (stamp.getMemberID() != tag.getMemberID()
                     || stamp.getRegionVersion() != tag.getRegionVersion())) {
                   DiskEntry.Helper.doAsyncFlush(tag, region);
@@ -1522,8 +1521,8 @@ public interface DiskEntry extends RegionEntry {
      */
     public static void removeFromDisk(DiskEntry entry, InternalRegion region, boolean isClear)
         throws RegionClearedException {
-      DiskRegion dr = region.getDiskRegion();
-      DiskId did = entry.getDiskId();
+      var dr = region.getDiskRegion();
+      var did = entry.getDiskId();
       Object syncObj = did;
       if (did == null) {
         syncObj = entry;
@@ -1549,8 +1548,8 @@ public interface DiskEntry extends RegionEntry {
 
     private static AsyncDiskEntry basicRemoveFromDisk(DiskEntry entry, InternalRegion region,
         boolean isClear) throws RegionClearedException {
-      final DiskRegion dr = region.getDiskRegion();
-      final DiskId did = entry.getDiskId();
+      final var dr = region.getDiskRegion();
+      final var did = entry.getDiskId();
       final Object curValAsToken = entry.getValueAsToken();
       if (did == null || (dr.isBackup() && did.getKeyId() == DiskRegion.INVALID_ID)) {
         // Not on disk yet
@@ -1566,7 +1565,7 @@ public interface DiskEntry extends RegionEntry {
       did.unmarkForWriting();
 
       // System.out.println("DEBUG: removeFromDisk doing remove(" + id + ")");
-      int oldValueLength = did.getValueLength();
+      var oldValueLength = did.getValueLength();
       if (doSynchronousWrite(region, dr) || isClear) {
         dr.remove(region, entry, false, isClear);
         if (dr.isBackup()) {
@@ -1578,11 +1577,11 @@ public interface DiskEntry extends RegionEntry {
       } else {
         // If we have concurrency checks enabled for a persistent region, we need
         // to add an entry to the async queue for every update to maintain the RVV
-        boolean maintainRVV = region.getConcurrencyChecksEnabled() && dr.isBackup();
+        var maintainRVV = region.getConcurrencyChecksEnabled() && dr.isBackup();
         if (!did.isPendingAsync() || maintainRVV) {
           did.setPendingAsync(true);
           VersionTag tag = null;
-          VersionStamp stamp = entry.getVersionStamp();
+          var stamp = entry.getVersionStamp();
           if (stamp != null) {
             tag = stamp.asVersionTag();
           }
@@ -1598,14 +1597,14 @@ public interface DiskEntry extends RegionEntry {
     }
 
     public static void updateVersionOnly(DiskEntry entry, InternalRegion region, VersionTag tag) {
-      DiskRegion dr = region.getDiskRegion();
+      var dr = region.getDiskRegion();
       if (!dr.isBackup()) {
         return;
       }
 
       assert tag != null && tag.getMemberID() != null;
-      boolean scheduleAsync = false;
-      DiskId did = entry.getDiskId();
+      var scheduleAsync = false;
+      var did = entry.getDiskId();
       Object syncObj = did;
       if (syncObj == null) {
         syncObj = entry;
@@ -1740,7 +1739,7 @@ public interface DiskEntry extends RegionEntry {
 
     public void applyToDiskEntry(PlaceHolderDiskRegion drv, DiskEntry entry,
         RegionEntryContext context) {
-      DiskId did = entry.getDiskId();
+      var did = entry.getDiskId();
       synchronized (did) {
         applyToDiskEntry(entry, context, drv, did);
       }
@@ -1752,9 +1751,9 @@ public interface DiskEntry extends RegionEntry {
       // Now that oplog creates are immediately put in cache
       // a later oplog modify will get us here
       Object oldValueAsToken = entry.getValueAsToken();
-      boolean oldValueWasNull = oldValueAsToken == null;
-      long oldOplogId = did.getOplogId();
-      long newOplogId = getOplogId();
+      var oldValueWasNull = oldValueAsToken == null;
+      var oldOplogId = did.getOplogId();
+      var newOplogId = getOplogId();
       if (newOplogId != oldOplogId) {
         did.setOplogId(newOplogId);
         setOplogId(oldOplogId); // so caller knows oldoplog id
@@ -1777,18 +1776,18 @@ public interface DiskEntry extends RegionEntry {
       if (!getValueRecovered()) { // recovering an entry whose new value is on disk
         if (!oldValueWasNull) { // the entry's old value is in vm
           // TODO: oldKeyId == 0 is the ILLEGAL id; what does that indicate?
-          int inVM = -1;
+          var inVM = -1;
           if (Token.isInvalidOrRemoved(oldValueAsToken)) { // but tokens are never in vm
             inVM = 0;
           }
           Helper.updateStats(dr, region, inVM, 1/* OnDisk */, did.getValueLength());
         } else { // the entry's old value is also on disk
-          int valueLenDelta = -oldValueLength; // but it is no longer
+          var valueLenDelta = -oldValueLength; // but it is no longer
           valueLenDelta += did.getValueLength(); // new one is now on disk
           Helper.updateStats(dr, region, 0, 0, valueLenDelta);
         }
       } else { // recovering an entry whose new value is in vm
-        int inVM = 1;
+        var inVM = 1;
         if (Token.isInvalidOrRemoved(getValue())) { // but tokens never in vm
           inVM = 0;
         }

@@ -57,7 +57,7 @@ public class TabularResultModel extends AbstractResultModel {
   }
 
   public void setColumnHeader(String... columnHeaders) {
-    for (String columnHeader : columnHeaders) {
+    for (var columnHeader : columnHeaders) {
       table.put(columnHeader, new ArrayList<>());
     }
   }
@@ -66,8 +66,8 @@ public class TabularResultModel extends AbstractResultModel {
     if (values.length != table.size()) {
       throw new IllegalStateException("row size is different than the column header size.");
     }
-    List<String> columnHeaders = getHeaders();
-    for (int i = 0; i < values.length; i++) {
+    var columnHeaders = getHeaders();
+    for (var i = 0; i < values.length; i++) {
       table.get(columnHeaders.get(i)).add(values[i]);
     }
   }
@@ -104,9 +104,9 @@ public class TabularResultModel extends AbstractResultModel {
 
   @JsonIgnore
   public List<String> getValuesInRow(int index) {
-    List<String> headers = getHeaders();
+    var headers = getHeaders();
     List<String> values = new ArrayList<>();
-    for (String header : headers) {
+    for (var header : headers) {
       values.add(table.get(header).get(index));
     }
     return values;

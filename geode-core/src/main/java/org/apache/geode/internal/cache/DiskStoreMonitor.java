@@ -18,7 +18,6 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -139,7 +138,7 @@ public class DiskStoreMonitor {
     }
 
     Set<DirectoryHolderUsage> du = new HashSet<>();
-    for (DirectoryHolder dir : ds.getDirectoryHolders()) {
+    for (var dir : ds.getDirectoryHolders()) {
       du.add(new DirectoryHolderUsage(ds, dir));
     }
     disks.put(ds, du);
@@ -155,9 +154,9 @@ public class DiskStoreMonitor {
   }
 
   public boolean isNormal(DiskStoreImpl ds, DirectoryHolder dir) {
-    Set<DirectoryHolderUsage> dirs = disks.get(ds);
+    var dirs = disks.get(ds);
     if (dirs != null) {
-      for (DirectoryHolderUsage du : dirs) {
+      for (var du : dirs) {
         if (du.dir == dir) {
           return du.getState() == DiskState.NORMAL;
         }
@@ -178,10 +177,10 @@ public class DiskStoreMonitor {
 
   private void checkUsage() {
     // Check disk stores / dirs
-    for (Entry<DiskStoreImpl, Set<DirectoryHolderUsage>> entry : disks.entrySet()) {
-      DiskStoreImpl ds = entry.getKey();
+    for (var entry : disks.entrySet()) {
+      var ds = entry.getKey();
       for (DiskUsage du : entry.getValue()) {
-        DiskState update =
+        var update =
             du.update(ds.getDiskUsageWarningPercentage(), ds.getDiskUsageCriticalPercentage());
         if (update == DiskState.CRITICAL) {
           break;
@@ -236,32 +235,32 @@ public class DiskStoreMonitor {
         return current;
       }
 
-      long minMegabytes = getMinimumSpace();
-      final long minBytes = minMegabytes * 1024 * 1024;
+      var minMegabytes = getMinimumSpace();
+      final var minBytes = minMegabytes * 1024 * 1024;
       if (logger.isTraceEnabled(LogMarker.DISK_STORE_MONITOR_VERBOSE)) {
         logger.trace(LogMarker.DISK_STORE_MONITOR_VERBOSE,
             "Checking usage for directory {}, minimum free space is {} MB", dir().getAbsolutePath(),
             minMegabytes);
       }
 
-      long start = System.nanoTime();
-      long remaining = dir().getUsableSpace();
-      long total = dir().getTotalSpace();
-      long elapsed = System.nanoTime() - start;
+      var start = System.nanoTime();
+      var remaining = dir().getUsableSpace();
+      var total = dir().getTotalSpace();
+      var elapsed = System.nanoTime() - start;
 
-      double use = 100.0 * (total - remaining) / total;
+      var use = 100.0 * (total - remaining) / total;
       recordStats(total, remaining, elapsed);
 
-      final DecimalFormat decimalFormat = new DecimalFormat("#.#");
-      String pct = decimalFormat.format(use) + "%";
+      final var decimalFormat = new DecimalFormat("#.#");
+      var pct = decimalFormat.format(use) + "%";
       if (logger.isTraceEnabled(LogMarker.DISK_STORE_MONITOR_VERBOSE)) {
         logger.trace(LogMarker.DISK_STORE_MONITOR_VERBOSE,
             "Directory {} has {} bytes free out of {} ({} usage)", dir().getAbsolutePath(),
             remaining, total, pct);
       }
 
-      boolean belowMin = remaining < minBytes;
-      DiskState next = DiskState.select(use, warning, critical, belowMin);
+      var belowMin = remaining < minBytes;
+      var next = DiskState.select(use, warning, critical, belowMin);
       if (next == current) {
         return next;
       }
@@ -303,7 +302,7 @@ public class DiskStoreMonitor {
 
     @Override
     protected void handleStateChange(DiskState next, String pct, String critcalMessage) {
-      Object[] args = new Object[] {dir.getAbsolutePath(), pct};
+      var args = new Object[] {dir.getAbsolutePath(), pct};
       switch (next) {
         case NORMAL:
           logger.info(LogMarker.DISK_STORE_MONITOR_MARKER,
@@ -351,7 +350,7 @@ public class DiskStoreMonitor {
         _testAction.handleDiskStateChange(next);
       }
 
-      Object[] args = new Object[] {dir.getDir(), disk.getName(), pct};
+      var args = new Object[] {dir.getDir(), disk.getName(), pct};
 
       switch (next) {
         case NORMAL:
@@ -368,7 +367,7 @@ public class DiskStoreMonitor {
           logger.error(LogMarker.DISK_STORE_MONITOR_MARKER,
               "The disk volume {} for disk store {} has exceeded the critical usage threshold and is {} full",
               args);
-          String msg = "Critical disk usage threshold exceeded for volume "
+          var msg = "Critical disk usage threshold exceeded for volume "
               + dir.getDir().getAbsolutePath() + ": " + criticalMessage;
           disk.handleDiskAccessException(new DiskAccessException(msg, disk));
           break;

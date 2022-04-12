@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import org.apache.geode.GemFireCacheException;
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -33,7 +32,7 @@ public class AppCacheSnapshotMessage extends RegionAdminMessage {
   private int snapshotId;
 
   public static AppCacheSnapshotMessage create(String regionName, int snapshotId) {
-    AppCacheSnapshotMessage m = new AppCacheSnapshotMessage();
+    var m = new AppCacheSnapshotMessage();
     m.setRegionName(regionName);
     // m.numResults = numResults;
     m.snapshotId = snapshotId;
@@ -42,12 +41,12 @@ public class AppCacheSnapshotMessage extends RegionAdminMessage {
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    Region r = getRegion(dm.getSystem());
+    var r = getRegion(dm.getSystem());
     if (r != null) {
       try {
         // LinkedList entries = getEntriesForRegion(r, this.getSender());
         // new ResponseThread(this.getSender(), numResults, dm, this.snapshotId).start();
-        SnapshotResultMessage m = SnapshotResultMessage.create(r, snapshotId);
+        var m = SnapshotResultMessage.create(r, snapshotId);
         m.setRecipient(getSender());
         dm.putOutgoing(m);
       } catch (CacheException ex) {

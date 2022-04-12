@@ -78,37 +78,37 @@ public abstract class AbstractZRevRankIntegrationTest implements RedisIntegratio
     List<String> membersInRankOrder = new ArrayList<>();
     // Add members with scores in increasing rank order, including positive and negative infinity,
     // and keep track of the rank order in membersInRankOrder
-    String firstMember = MEMBER + membersMap.size();
+    var firstMember = MEMBER + membersMap.size();
     membersMap.put(firstMember, Double.NEGATIVE_INFINITY);
     membersInRankOrder.add(firstMember);
 
-    for (int i = membersMap.size(); i < 10; ++i) {
-      String memberName = MEMBER + i;
+    for (var i = membersMap.size(); i < 10; ++i) {
+      var memberName = MEMBER + i;
       membersMap.put(memberName, (double) i);
       membersInRankOrder.add(memberName);
     }
 
-    String finalMember = MEMBER + membersMap.size();
+    var finalMember = MEMBER + membersMap.size();
     membersMap.put(finalMember, Double.POSITIVE_INFINITY);
     membersInRankOrder.add(finalMember);
 
     jedis.zadd(KEY, membersMap);
 
     // Assert that revRank returns the expected rank
-    for (int i = 0; i < membersInRankOrder.size(); i++) {
-      String member = membersInRankOrder.get(i);
-      int expectedRevRank = membersInRankOrder.size() - i - 1;
+    for (var i = 0; i < membersInRankOrder.size(); i++) {
+      var member = membersInRankOrder.get(i);
+      var expectedRevRank = membersInRankOrder.size() - i - 1;
       assertThat(jedis.zrevrank(KEY, member)).isEqualTo(expectedRevRank);
     }
   }
 
   @Test
   public void shouldReturnReverseRankByLex_givenMembersWithSameScore() {
-    String firstMember = "aaa";
-    String secondMember = "bbb";
-    String thirdMember = "ccc";
+    var firstMember = "aaa";
+    var secondMember = "bbb";
+    var thirdMember = "ccc";
 
-    double score = 1.0;
+    var score = 1.0;
     jedis.zadd(KEY, score, firstMember);
     jedis.zadd(KEY, score, secondMember);
     jedis.zadd(KEY, score, thirdMember);
@@ -120,9 +120,9 @@ public abstract class AbstractZRevRankIntegrationTest implements RedisIntegratio
 
   @Test
   public void shouldUpdateRank_whenScoreChanges() {
-    String firstMember = "first";
-    String secondMember = "second";
-    String thirdMember = "third";
+    var firstMember = "first";
+    var secondMember = "second";
+    var thirdMember = "third";
 
     jedis.zadd(KEY, 1.0, firstMember);
     jedis.zadd(KEY, 2.0, secondMember);

@@ -28,7 +28,7 @@ public class InterruptsConserveSocketsFalseDUnitTest extends InterruptsDUnitTest
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.setProperty(CONSERVE_SOCKETS, "false");
     return props;
   }

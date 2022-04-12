@@ -16,21 +16,13 @@ package org.apache.geode.connectors.jdbc.internal.cli;
 
 import static org.apache.geode.connectors.jdbc.internal.cli.ListDriversCommand.NO_MEMBERS_FOUND;
 
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.annotations.Experimental;
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.JndiBindingsType;
-import org.apache.geode.distributed.ConfigurationPersistenceService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -53,14 +45,14 @@ public class DeregisterDriverCommand extends GfshCommand {
       @CliOption(key = DRIVER_CLASS_NAME, help = DRIVER_CLASS_NAME_HELP,
           mandatory = true) String driverClassName) {
     try {
-      ConfigurationPersistenceService ccService = getConfigurationPersistenceService();
+      var ccService = getConfigurationPersistenceService();
       if (ccService == null) {
         return ResultModel.createError("Cluster configuration service must be enabled.");
       }
 
-      CacheConfig cacheConfig = ccService.getCacheConfig(null);
+      var cacheConfig = ccService.getCacheConfig(null);
       if (cacheConfig != null) {
-        for (JndiBindingsType.JndiBinding dataSource : cacheConfig.getJndiBindings()) {
+        for (var dataSource : cacheConfig.getJndiBindings()) {
           if (driverClassName.equals(dataSource.getJdbcDriverClass())) {
             return ResultModel
                 .createError("Driver is currently in use by " + dataSource.getJndiName());
@@ -68,11 +60,11 @@ public class DeregisterDriverCommand extends GfshCommand {
         }
       }
 
-      Set<DistributedMember> targetMembers = findMembers(null, null);
+      var targetMembers = findMembers(null, null);
 
       if (targetMembers.size() > 0) {
-        Object[] arguments = new Object[] {driverClassName};
-        List<CliFunctionResult> deregisterDriverResults = executeAndGetFunctionResult(
+        var arguments = new Object[] {driverClassName};
+        var deregisterDriverResults = executeAndGetFunctionResult(
             new DeregisterDriverFunction(), arguments, targetMembers);
         return ResultModel.createMemberStatusResult(deregisterDriverResults, EXPERIMENTAL, null,
             false, true);

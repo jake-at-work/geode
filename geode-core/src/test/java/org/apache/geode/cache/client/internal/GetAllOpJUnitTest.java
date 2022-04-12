@@ -49,16 +49,16 @@ public class GetAllOpJUnitTest {
   @Before
   public void setup() {
     when(region.getCache()).thenReturn(cache);
-    ClientMetadataService cms = mock(ClientMetadataService.class);
+    var cms = mock(ClientMetadataService.class);
     when(cache.getClientMetadataService()).thenReturn(cms);
 
     keys = new ArrayList<>();
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       keys.add(i);
     }
     Map<ServerLocation, Set> serverToFilterMap = new HashMap<>();
     when(cms.getServerToFilterMap(keys, region, true)).thenReturn(serverToFilterMap);
-    ServerLocation serverLocation = new ServerLocation("localhost", 12345);
+    var serverLocation = new ServerLocation("localhost", 12345);
     serverToFilterMap.put(serverLocation, new HashSet(keys));
   }
 
@@ -67,9 +67,9 @@ public class GetAllOpJUnitTest {
     when(region.getFullPath()).thenReturn("/testRegion")
         .thenThrow(new ServerOperationException(new SerializationException("testRetry")))
         .thenReturn("/testRegion");
-    VersionedObjectList vol = new VersionedObjectList();
+    var vol = new VersionedObjectList();
     when(pool.execute(any())).thenReturn(vol);
-    VersionedObjectList result = GetAllOp.execute(pool, region, keys, -1, null);
+    var result = GetAllOp.execute(pool, region, keys, -1, null);
     assertThat(result.getKeys()).isEqualTo(keys);
     Mockito.verify(pool, times(1)).execute(any());
   }
@@ -79,9 +79,9 @@ public class GetAllOpJUnitTest {
     when(region.getFullPath()).thenReturn("/testRegion")
         .thenThrow(new ServerOperationException(new IOException("testRetry")))
         .thenReturn("/testRegion");
-    VersionedObjectList vol = new VersionedObjectList();
+    var vol = new VersionedObjectList();
     when(pool.execute(any())).thenReturn(vol);
-    VersionedObjectList result = GetAllOp.execute(pool, region, keys, -1, null);
+    var result = GetAllOp.execute(pool, region, keys, -1, null);
     assertThat(result).isNull();
     Mockito.verify(pool, times(0)).execute(any());
   }
@@ -91,9 +91,9 @@ public class GetAllOpJUnitTest {
     when(region.getFullPath()).thenReturn("/testRegion")
         .thenThrow(new BucketMovedException("testRetry"))
         .thenReturn("/testRegion");
-    VersionedObjectList vol = new VersionedObjectList();
+    var vol = new VersionedObjectList();
     when(pool.execute(any())).thenReturn(vol);
-    VersionedObjectList result = GetAllOp.execute(pool, region, keys, -1, null);
+    var result = GetAllOp.execute(pool, region, keys, -1, null);
     assertThat(result).isNull();
     Mockito.verify(pool, times(0)).execute(any());
   }

@@ -14,17 +14,13 @@
  */
 package org.apache.geode.internal.cache;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.InternalGemFireException;
-import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.internal.Assert;
-import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.entries.DiskEntry;
 import org.apache.geode.internal.cache.eviction.AbstractEvictionController;
 import org.apache.geode.internal.cache.eviction.CachedDeserializableValueWrapper;
@@ -100,7 +96,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
 
   private static EvictionController createEvictionController(EvictableRegion owner,
       InternalRegionArguments internalRegionArgs) {
-    EvictionController controller = owner.getExistingController(internalRegionArgs);
+    var controller = owner.getExistingController(internalRegionArgs);
     if (controller == null) {
       controller = AbstractEvictionController.create(owner.getEvictionAttributes(),
           owner.getOffHeap(), owner.getStatisticsFactory(), owner.getNameForStats());
@@ -118,7 +114,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
   private final ThreadLocal callbackDisabled = new ThreadLocal();
 
   private int getDelta() {
-    Object d = lruDelta.get();
+    var d = lruDelta.get();
     lruDelta.set(null); // We only want the delta consumed once
     if (d == null) {
       return 0;
@@ -137,7 +133,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
       }
       setMustRemove(true);
     }
-    Integer delt = (Integer) lruDelta.get();
+    var delt = (Integer) lruDelta.get();
     if (delt != null) {
       delta += delt;
     }
@@ -161,7 +157,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
         // no need to worry about the value changing form with entry LRU.
         return false;
       }
-      Object curVal = le.getValue(); // OFFHEAP: _getValue ok
+      var curVal = le.getValue(); // OFFHEAP: _getValue ok
       if (curVal != cd) {
         if (cd instanceof StoredObject) {
           if (!cd.equals(curVal)) {
@@ -172,12 +168,12 @@ public class VMLRURegionMap extends AbstractRegionMap {
         }
       }
     }
-    boolean result = false;
-    int delta =
+    var result = false;
+    var delta =
         le.updateEntrySize(getEvictionController(), new CachedDeserializableValueWrapper(v));
     if (delta != 0) {
       result = true;
-      boolean disabledLURCallbacks = disableLruUpdateCallback();
+      var disabledLURCallbacks = disableLruUpdateCallback();
       // by making sure that callbacks are disabled when we call
       // setDelta; it ensures that the setDelta will just inc the delta
       // value and not call lruUpdateCallback which we call in
@@ -205,7 +201,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
   }
 
   private boolean getMustRemove() {
-    Object d = mustRemove.get();
+    var d = mustRemove.get();
     if (d == null) {
       return false;
     }
@@ -217,7 +213,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
   }
 
   private boolean getCallbackDisabled() {
-    Object d = callbackDisabled.get();
+    var d = callbackDisabled.get();
     if (d == null) {
       return false;
     }
@@ -236,10 +232,10 @@ public class VMLRURegionMap extends AbstractRegionMap {
    */
   protected int evictEntry(EvictableEntry entry, EvictionCounters stats)
       throws RegionClearedException {
-    EvictionAction action = getEvictionController().getEvictionAction();
-    LocalRegion region = _getOwner();
+    var action = getEvictionController().getEvictionAction();
+    var region = _getOwner();
     if (action.isLocalDestroy()) {
-      int size = entry.getEntrySize();
+      var size = entry.getEntrySize();
       if (region.evictDestroy(entry)) {
         stats.incDestroys();
         return size;
@@ -248,7 +244,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
       }
     } else if (action.isOverflowToDisk()) {
       Assert.assertTrue(entry instanceof DiskEntry);
-      int change = 0;
+      var change = 0;
       synchronized (entry) {
         if (entry.isInUseByTransaction()) {
           entry.unsetEvicted();
@@ -260,7 +256,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
         }
 
         // Do the following check while synchronized to fix bug 31761
-        Token entryVal = entry.getValueAsToken();
+        var entryVal = entry.getValueAsToken();
         if (entryVal == null) {
           if (logger.isTraceEnabled(LogMarker.LRU_VERBOSE)) {
             logger.trace(LogMarker.LRU_VERBOSE, "no need to evict already evicted key={}",
@@ -281,11 +277,11 @@ public class VMLRURegionMap extends AbstractRegionMap {
         change =
             DiskEntry.Helper.overflowToDisk((DiskEntry) entry, region, getEvictionController());
       }
-      boolean result = change < 0;
+      var result = change < 0;
       if (result) {
 
         if (_getOwner() instanceof BucketRegion) {
-          BucketRegion bucketRegion = (BucketRegion) _getOwner();
+          var bucketRegion = (BucketRegion) _getOwner();
           bucketRegion.updateCounter(change);
           stats.updateCounter(change);
         } else {
@@ -315,7 +311,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
   protected void changeTotalEntrySize(int delta) {
     if (_isOwnerALocalRegion()) {
       if (_getOwner() instanceof BucketRegion) {
-        BucketRegion bucketRegion = (BucketRegion) _getOwner();
+        var bucketRegion = (BucketRegion) _getOwner();
         bucketRegion.updateCounter(delta);
       }
     }
@@ -341,7 +337,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
    */
   protected long getLimit() {
     if (_getOwner() instanceof BucketRegion) {
-      BucketRegion bucketRegion = (BucketRegion) _getOwner();
+      var bucketRegion = (BucketRegion) _getOwner();
       return bucketRegion.getLimit();
     }
     return getEvictionController().getCounters().getLimit();
@@ -359,7 +355,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
    */
   protected long getTotalEntrySize() {
     if (_getOwnerObject() instanceof BucketRegion) {
-      BucketRegion bucketRegion = (BucketRegion) _getOwner();
+      var bucketRegion = (BucketRegion) _getOwner();
       return bucketRegion.getCounter();
     }
     return getEvictionController().getCounters().getCounter();
@@ -367,13 +363,13 @@ public class VMLRURegionMap extends AbstractRegionMap {
 
   @Override
   public void lruUpdateCallback() {
-    final boolean isDebugEnabled_LRU = logger.isTraceEnabled(LogMarker.LRU_VERBOSE);
+    final var isDebugEnabled_LRU = logger.isTraceEnabled(LogMarker.LRU_VERBOSE);
 
     if (getCallbackDisabled()) {
       return;
     }
-    final int delta = getDelta();
-    int bytesToEvict = delta;
+    final var delta = getDelta();
+    var bytesToEvict = delta;
     resetThreadLocals();
     if (isDebugEnabled_LRU && _isOwnerALocalRegion()) {
       logger.trace(LogMarker.LRU_VERBOSE,
@@ -381,7 +377,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
           getTotalEntrySize(), getEvictionList().size(), size(), delta, getLimit(),
           _getOwner().getTombstoneCount());
     }
-    EvictionCounters stats = getEvictionList().getStatistics();
+    var stats = getEvictionList().getStatistics();
     if (!_isOwnerALocalRegion()) {
       changeTotalEntrySize(delta);
       // instead of evicting we just quit faulting values in
@@ -390,16 +386,16 @@ public class VMLRURegionMap extends AbstractRegionMap {
       try {
         while (bytesToEvict > 0
             && getEvictionController().mustEvict(stats, _getOwner(), bytesToEvict)) {
-          boolean evictFromThisRegion = true;
+          var evictFromThisRegion = true;
           if (HeapEvictor.EVICT_HIGH_ENTRY_COUNT_BUCKETS_FIRST
               && _getOwner() instanceof BucketRegion) {
             long bytesEvicted = 0;
             long totalBytesEvicted = 0;
-            List<BucketRegion> regions =
+            var regions =
                 _getOwner().getPartitionedRegion().getSortedBuckets();
-            Iterator<BucketRegion> iter = regions.iterator();
+            var iter = regions.iterator();
             while (iter.hasNext()) {
-              BucketRegion region = iter.next();
+              var region = iter.next();
               // only primaries can trigger inline eviction fix for 41814
               if (!region.getBucketAdvisor().isPrimary()) {
                 try {
@@ -430,9 +426,9 @@ public class VMLRURegionMap extends AbstractRegionMap {
             }
           }
           if (evictFromThisRegion) {
-            EvictableEntry removalEntry = getEvictionList().getEvictableEntry();
+            var removalEntry = getEvictionList().getEvictableEntry();
             if (removalEntry != null) {
-              int sizeOfValue = evictEntry(removalEntry, stats);
+              var sizeOfValue = evictEntry(removalEntry, stats);
               if (sizeOfValue != 0) {
                 bytesToEvict -= sizeOfValue;
                 if (isDebugEnabled_LRU) {
@@ -470,7 +466,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
         // to fix bug 48285 do no evict if bytesToEvict <= 0.
         while (bytesToEvict > 0
             && getEvictionController().mustEvict(stats, _getOwner(), bytesToEvict)) {
-          EvictableEntry removalEntry = getEvictionList().getEvictableEntry();
+          var removalEntry = getEvictionList().getEvictableEntry();
           if (removalEntry != null) {
             if (evictEntry(removalEntry, stats) != 0) {
               if (isDebugEnabled_LRU) {
@@ -513,17 +509,17 @@ public class VMLRURegionMap extends AbstractRegionMap {
   }
 
   private boolean mustEvict() {
-    LocalRegion owner = _getOwner();
-    InternalResourceManager resourceManager = owner.getCache().getInternalResourceManager();
-    boolean offheap = owner.getAttributes().getOffHeap();
+    var owner = _getOwner();
+    var resourceManager = owner.getCache().getInternalResourceManager();
+    var offheap = owner.getAttributes().getOffHeap();
     return resourceManager.getMemoryMonitor(offheap).getState().isEviction() && sizeInVM() > 0;
   }
 
   @Override
   public int centralizedLruUpdateCallback() {
-    final boolean isDebugEnabled_LRU = logger.isTraceEnabled(LogMarker.LRU_VERBOSE);
+    final var isDebugEnabled_LRU = logger.isTraceEnabled(LogMarker.LRU_VERBOSE);
 
-    int evictedBytes = 0;
+    var evictedBytes = 0;
     if (getCallbackDisabled()) {
       return evictedBytes;
     }
@@ -534,10 +530,10 @@ public class VMLRURegionMap extends AbstractRegionMap {
           "centralLruUpdateCallback: lru size is now {}, limit is: {}", getTotalEntrySize(),
           getLimit());
     }
-    EvictionCounters stats = getEvictionList().getStatistics();
+    var stats = getEvictionList().getStatistics();
     try {
       while (mustEvict() && evictedBytes == 0) {
-        EvictableEntry removalEntry = getEvictionList().getEvictableEntry();
+        var removalEntry = getEvictionList().getEvictableEntry();
         if (removalEntry != null) {
           evictedBytes = evictEntry(removalEntry, stats);
           if (evictedBytes != 0) {
@@ -580,7 +576,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
    */
   @Override
   public void updateEvictionCounter() {
-    final int delta = getDelta();
+    final var delta = getDelta();
     resetThreadLocals();
     if (logger.isTraceEnabled(LogMarker.LRU_VERBOSE)) {
       logger.trace(LogMarker.LRU_VERBOSE, "updateStats - delta is: {} total is: {} limit is: {}",
@@ -657,7 +653,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
    */
   @Override
   public void lruEntryCreate(RegionEntry re) {
-    EvictableEntry e = (EvictableEntry) re;
+    var e = (EvictableEntry) re;
     if (logger.isTraceEnabled(LogMarker.LRU_VERBOSE)) {
       logger.trace(LogMarker.LRU_VERBOSE,
           "lruEntryCreate for key={}; list size is: {}; actual size is: {}; map size is: {}; entry size: {}; in lru clock: {}",
@@ -665,9 +661,9 @@ public class VMLRURegionMap extends AbstractRegionMap {
           !e.isEvicted());
     }
     e.unsetEvicted();
-    EvictionList lruList = getEvictionList();
-    DiskRegion disk = _getOwner().getDiskRegion();
-    boolean possibleClear = disk != null && disk.didClearCountChange();
+    var lruList = getEvictionList();
+    var disk = _getOwner().getDiskRegion();
+    var possibleClear = disk != null && disk.didClearCountChange();
     if (!possibleClear || _getOwner().basicGetEntry(re.getKey()) == re) {
       lruList.appendEntry(e);
       lruEntryUpdate(e);
@@ -676,15 +672,15 @@ public class VMLRURegionMap extends AbstractRegionMap {
 
   @Override
   public void lruEntryUpdate(RegionEntry re) {
-    final EvictableEntry e = (EvictableEntry) re;
+    final var e = (EvictableEntry) re;
     setDelta(e.updateEntrySize(getEvictionController()));
     if (logger.isDebugEnabled()) {
       logger.debug("lruEntryUpdate for key={} size={}", re.getKey(), e.getEntrySize());
     }
-    EvictionList lruList = getEvictionList();
+    var lruList = getEvictionList();
     if (_isOwnerALocalRegion()) {
-      DiskRegion disk = _getOwner().getDiskRegion();
-      boolean possibleClear = disk != null && disk.didClearCountChange();
+      var disk = _getOwner().getDiskRegion();
+      var possibleClear = disk != null && disk.didClearCountChange();
       if (!possibleClear || _getOwner().basicGetEntry(re.getKey()) == re) {
         if (e instanceof DiskEntry) {
           if (!e.isEvicted()) {
@@ -718,7 +714,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
 
   @Override
   public void lruEntryDestroy(RegionEntry regionEntry) {
-    final EvictableEntry e = (EvictableEntry) regionEntry;
+    final var e = (EvictableEntry) regionEntry;
     if (logger.isTraceEnabled(LogMarker.LRU_VERBOSE)) {
       logger.trace(LogMarker.LRU_VERBOSE,
           "lruEntryDestroy for key={}; list size is: {}; actual size is: {}; map size is: {}; entry size: {}; in lru clock: {}",
@@ -728,7 +724,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
 
     getEvictionList().destroyEntry(e);
     changeTotalEntrySize(-1 * e.getEntrySize());// subtract the size.
-    Token vTok = regionEntry.getValueAsToken();
+    var vTok = regionEntry.getValueAsToken();
     if (vTok == Token.DESTROYED || vTok == Token.TOMBSTONE) {
       // OFFHEAP noop TODO: use re.isDestroyedOrTombstone
       // if in token mode we need to recalculate the size of the entry since it's
@@ -745,10 +741,10 @@ public class VMLRURegionMap extends AbstractRegionMap {
     if (logger.isDebugEnabled()) {
       logger.debug("lruEntryFaultIn for key={} size={}", e.getKey(), e.getEntrySize());
     }
-    EvictionList lruList = getEvictionList();
+    var lruList = getEvictionList();
     if (_isOwnerALocalRegion()) {
-      DiskRegion disk = _getOwner().getDiskRegion();
-      boolean possibleClear = disk != null && disk.didClearCountChange();
+      var disk = _getOwner().getDiskRegion();
+      var possibleClear = disk != null && disk.didClearCountChange();
       if (!possibleClear || _getOwner().basicGetEntry(e.getKey()) == e) {
         lruEntryUpdate(e);
         e.unsetEvicted();
@@ -783,7 +779,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
   @Override
   public boolean confirmEvictionDestroy(RegionEntry regionEntry) {
     // We assume here that a LRURegionMap contains LRUEntries
-    EvictableEntry lruRe = (EvictableEntry) regionEntry;
+    var lruRe = (EvictableEntry) regionEntry;
     if (lruRe.isInUseByTransaction() || lruRe.isDestroyed()) {
       lruRe.unsetEvicted();
       return false;

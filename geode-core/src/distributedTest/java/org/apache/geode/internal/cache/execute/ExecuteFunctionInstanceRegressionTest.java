@@ -108,7 +108,7 @@ public class ExecuteFunctionInstanceRegressionTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.test.junit.rules.**;org.apache.geode.internal.cache.execute.**;org.apache.geode.internal.cache.functions.**;org.apache.geode.test.dunit.**");
     return config;
@@ -127,7 +127,7 @@ public class ExecuteFunctionInstanceRegressionTest extends CacheTestCase {
     datastore3.invoke(() -> FunctionService.registerFunction(new BooleanFunction(false)));
 
     datastore3.invoke(() -> {
-      PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(regionName);
+      var pr = (PartitionedRegion) getCache().getRegion(regionName);
       createAllBuckets(pr);
 
       ResultCollector<Boolean, Collection<Boolean>> rc =
@@ -136,8 +136,8 @@ public class ExecuteFunctionInstanceRegressionTest extends CacheTestCase {
     });
 
     datastore3.invoke(() -> {
-      PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(regionName);
-      ResultCollector<Boolean, Collection<Boolean>> rc =
+      var pr = (PartitionedRegion) getCache().getRegion(regionName);
+      var rc =
           executeFunctionWithInstance(pr, new BooleanFunction(true));
 
       validateResults(rc, true);
@@ -145,7 +145,7 @@ public class ExecuteFunctionInstanceRegressionTest extends CacheTestCase {
   }
 
   private void createPartitionedRegion() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(10);
     paf.setRedundantCopies(0);
     paf.setTotalNumBuckets(17);
@@ -157,11 +157,11 @@ public class ExecuteFunctionInstanceRegressionTest extends CacheTestCase {
   }
 
   private void createAllBuckets(final PartitionedRegion pr) {
-    for (int bucketId = 0; bucketId < pr.getTotalNumberOfBuckets(); bucketId++) {
+    for (var bucketId = 0; bucketId < pr.getTotalNumberOfBuckets(); bucketId++) {
       pr.put(bucketId, bucketId);
     }
 
-    for (int bucketId = 0; bucketId < pr.getTotalNumberOfBuckets(); bucketId++) {
+    for (var bucketId = 0; bucketId < pr.getTotalNumberOfBuckets(); bucketId++) {
       assertThat(pr.getBucketKeys(bucketId)).hasSize(1);
     }
   }
@@ -169,19 +169,19 @@ public class ExecuteFunctionInstanceRegressionTest extends CacheTestCase {
   private ResultCollector<Boolean, Collection<Boolean>> executeFunctionWithInstance(
       final Region region, final BooleanFunction function) {
     Execution<Void, Boolean, Collection<Boolean>> dataSet = FunctionService.onRegion(region);
-    ResultCollector<Boolean, Collection<Boolean>> resultCollector = dataSet.execute(function);
+    var resultCollector = dataSet.execute(function);
     return resultCollector;
   }
 
   private ResultCollector executeFunctionWithId(final Region region, final String functionId) {
     Execution<Void, Boolean, Collection<Boolean>> dataSet = FunctionService.onRegion(region);
-    ResultCollector<Boolean, Collection<Boolean>> resultCollector = dataSet.execute(functionId);
+    var resultCollector = dataSet.execute(functionId);
     return resultCollector;
   }
 
   private void validateResults(final ResultCollector<Boolean, Collection<Boolean>> resultCollector,
       final boolean expectedResult) {
-    Collection<Boolean> results = resultCollector.getResult();
+    var results = resultCollector.getResult();
     assertThat(results).hasSize(4).containsExactly(expectedResult, expectedResult, expectedResult,
         expectedResult);
   }

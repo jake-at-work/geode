@@ -73,14 +73,14 @@ public class CommandIntegrationTest {
 
   @Test
   public void commandReturnsResultsMatchingNativeRedis() {
-    Map<String, CommandStructure> goldenResults = processRawCommands(redisClient.command());
-    Map<String, CommandStructure> results = processRawCommands(radishClient.command());
+    var goldenResults = processRawCommands(redisClient.command());
+    var results = processRawCommands(radishClient.command());
 
     List<String> commands = new ArrayList<>(results.keySet());
     Collections.sort(commands);
 
-    SoftAssertions softly = new SoftAssertions();
-    for (String command : commands) {
+    var softly = new SoftAssertions();
+    for (var command : commands) {
       // TODO: remove special case once LPOP implements 6.2+ semantics
       if (command.equalsIgnoreCase("LPOP")) {
         continue;
@@ -98,10 +98,10 @@ public class CommandIntegrationTest {
 
   @Test
   public void commandWithInvalidSubcommand_returnCommandError() {
-    String invalidSubcommand = "fakeSubcommand";
+    var invalidSubcommand = "fakeSubcommand";
     RedisCodec<String, String> codec = StringCodec.UTF8;
 
-    CommandArgs<String, String> args =
+    var args =
         new CommandArgs<>(codec).add(CommandType.COMMAND).add(invalidSubcommand);
     assertThatThrownBy(
         () -> radishClient.dispatch(CommandType.COMMAND, new NestedMultiOutput<>(codec), args))
@@ -112,21 +112,21 @@ public class CommandIntegrationTest {
   @Test
   public void commandDoesNotReturnUnsupported_whenUnsupportedCommandsAreDisabled() {
     radishServer.setEnableUnsupportedCommands(false);
-    Map<String, CommandStructure> results = processRawCommands(radishClient.command());
+    var results = processRawCommands(radishClient.command());
 
     // Find an unsupported command
-    RedisCommandType someUnsupported = Arrays.stream(RedisCommandType.values())
+    var someUnsupported = Arrays.stream(RedisCommandType.values())
         .filter(RedisCommandType::isUnsupported).findFirst()
         .orElseThrow(() -> new AssertionError("Could not find any UNSUPPORTED commands"));
 
-    for (CommandStructure meta : results.values()) {
+    for (var meta : results.values()) {
       assertThat(meta.name).isNotEqualToIgnoringCase(someUnsupported.name());
     }
   }
 
   private void compareCommands(CommandStructure actual, CommandStructure expected) {
     assertThat(actual).as("no metadata for " + expected.name).isNotNull();
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
     softly.assertThat(actual.arity).as(expected.name + ".arity").isEqualTo(expected.arity);
     softly.assertThat(actual.flags).as(expected.name + ".flags")
         .containsExactlyInAnyOrderElementsOf(expected.flags);
@@ -149,11 +149,11 @@ public class CommandIntegrationTest {
   private Map<String, CommandStructure> processRawCommands(List<Object> rawCommands) {
     Map<String, CommandStructure> commands = new HashMap<>();
 
-    for (Object rawEntry : rawCommands) {
-      List<Object> entry = (List<Object>) rawEntry;
-      String key = (String) entry.get(0);
+    for (var rawEntry : rawCommands) {
+      var entry = (List<Object>) rawEntry;
+      var key = (String) entry.get(0);
 
-      CommandStructure cmd = new CommandStructure(
+      var cmd = new CommandStructure(
           key,
           (long) entry.get(1),
           (List<String>) entry.get(2),

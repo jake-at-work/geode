@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.cert.X509Certificate;
 import java.time.Duration;
 
 import org.junit.After;
@@ -58,11 +57,11 @@ public class FileWatchingX509ExtendedTrustManagerIntegrationTest {
 
   @Test
   public void initializesTrustManager() throws Exception {
-    CertificateMaterial caCert = storeCa(trustStore);
+    var caCert = storeCa(trustStore);
 
     target = newFileWatchingTrustManager(sslConfigFor(trustStore));
 
-    X509Certificate[] issuers = target.getAcceptedIssuers();
+    var issuers = target.getAcceptedIssuers();
     assertThat(issuers).containsExactly(caCert.getCertificate());
   }
 
@@ -74,10 +73,10 @@ public class FileWatchingX509ExtendedTrustManagerIntegrationTest {
 
     pauseForFileWatcherToStartDetectingChanges();
 
-    CertificateMaterial updated = storeCa(trustStore);
+    var updated = storeCa(trustStore);
 
     await().untilAsserted(() -> {
-      X509Certificate[] issuers = target.getAcceptedIssuers();
+      var issuers = target.getAcceptedIssuers();
       assertThat(issuers).containsExactly(updated.getCertificate());
     });
   }
@@ -93,13 +92,13 @@ public class FileWatchingX509ExtendedTrustManagerIntegrationTest {
 
   @Test
   public void returnsNewInstanceForDifferentPath() throws Exception {
-    Path differentPath = temporaryFolder.newFile("another-keystore.jks").toPath();
+    var differentPath = temporaryFolder.newFile("another-keystore.jks").toPath();
     storeCa(differentPath);
     storeCa(trustStore);
 
     target = newFileWatchingTrustManager(sslConfigFor(trustStore));
 
-    FileWatchingX509ExtendedTrustManager other =
+    var other =
         newFileWatchingTrustManager(sslConfigFor(differentPath));
     try {
       assertThat(target).isNotSameAs(other);
@@ -110,9 +109,9 @@ public class FileWatchingX509ExtendedTrustManagerIntegrationTest {
 
   @Test
   public void throwsIfUnableToLoadTrustManager() {
-    Path notFoundFile = temporaryFolder.getRoot().toPath().resolve("notfound");
+    var notFoundFile = temporaryFolder.getRoot().toPath().resolve("notfound");
 
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> newFileWatchingTrustManager(sslConfigFor(notFoundFile)));
 
     assertThat(thrown).isNotNull();
@@ -132,8 +131,8 @@ public class FileWatchingX509ExtendedTrustManagerIntegrationTest {
   }
 
   private CertificateMaterial storeCa(Path trustStore) throws Exception {
-    CertificateMaterial cert = new CertificateBuilder().commonName("geode").generate();
-    CertStores store = new CertStores("");
+    var cert = new CertificateBuilder().commonName("geode").generate();
+    var store = new CertStores("");
     store.trust("default", cert);
     store.createTrustStore(trustStore.toString(), dummyPassword);
     return cert;

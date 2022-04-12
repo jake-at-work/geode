@@ -32,17 +32,11 @@ import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.internal.Endpoint;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.util.CacheListenerAdapter;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.security.UpdatableUserAuthInitialize;
-import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.SerializableFunction;
@@ -64,20 +58,21 @@ public class SlowDispatcherDUnitTest {
   @Before
   public void setup() {
     locator = cluster.startLocatorVM(0);
-    int locatorPort = locator.getPort();
-    SerializableFunction<ServerStarterRule> serverStartRule =
-        s -> s.withSystemProperty("slowStartTimeForTesting", "10000")
+    var locatorPort = locator.getPort();
+    var serverStartRule =
+        (SerializableFunction<ServerStarterRule>) s -> s
+            .withSystemProperty("slowStartTimeForTesting", "10000")
             .withConnectionToLocator(locatorPort);
     server1 = cluster.startServerVM(1, serverStartRule);
     server2 = cluster.startServerVM(2, serverStartRule);
 
     MemberVM.invokeInEveryMember(() -> {
       CacheClientProxy.isSlowStartForTesting = true;
-      InternalCache cache = ClusterStartupRule.getCache();
-      RegionFactory<Object, Object> regionFactory =
+      var cache = ClusterStartupRule.getCache();
+      var regionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
 
-      PartitionAttributesFactory pfact = new PartitionAttributesFactory();
+      var pfact = new PartitionAttributesFactory();
       pfact.setRedundantCopies(1);
       regionFactory.setPartitionAttributes(pfact.create());
       regionFactory.create(PARTITION_REGION);
@@ -89,10 +84,10 @@ public class SlowDispatcherDUnitTest {
   @Test
   public void registeredInterest_durableClient_kill_primarySever_receives_marker()
       throws Exception {
-    int locatorPort = locator.getPort();
-    int server1Port = server1.getPort();
-    int server2Port = server2.getPort();
-    ClientVM clientVM = cluster.startClientVM(3,
+    var locatorPort = locator.getPort();
+    var server1Port = server1.getPort();
+    var server2Port = server2.getPort();
+    var clientVM = cluster.startClientVM(3,
         c -> c.withProperty(DURABLE_CLIENT_ID, "123456")
             .withCacheSetup(
                 a -> a.setPoolSubscriptionRedundancy(1).setPoolSubscriptionEnabled(true)
@@ -101,8 +96,8 @@ public class SlowDispatcherDUnitTest {
 
     clientVM.invoke(() -> {
       myListener = new KeyValueCacheListener();
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Region<Object, Object> clientRegion =
+      var clientCache = ClusterStartupRule.getClientCache();
+      var clientRegion =
           clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
               .addCacheListener(myListener)
               .create(PARTITION_REGION);
@@ -111,20 +106,20 @@ public class SlowDispatcherDUnitTest {
     });
 
     // create another client to do puts
-    ClientVM putClient = cluster.startClientVM(4,
+    var putClient = cluster.startClientVM(4,
         c -> c.withProperty(SECURITY_CLIENT_AUTH_INIT, UpdatableUserAuthInitialize.class.getName())
             .withPoolSubscription(false)
             .withLocatorConnection(locatorPort));
-    AsyncInvocation putAsync = putClient.invokeAsync(() -> {
+    var putAsync = putClient.invokeAsync(() -> {
       UpdatableUserAuthInitialize.setUser("putter");
-      Region<Object, Object> proxyRegion =
+      var proxyRegion =
           ClusterStartupRule.clientCacheRule.createProxyRegion(PARTITION_REGION);
       IntStream.range(0, 50).forEach(i -> proxyRegion.put("key", i));
     });
 
-    Boolean server1IsPrimary = clientVM.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Endpoint endpoint =
+    var server1IsPrimary = clientVM.invoke(() -> {
+      var clientCache = ClusterStartupRule.getClientCache();
+      var endpoint =
           ((PoolImpl) clientCache.getDefaultPool()).getPrimaryConnection().getEndpoint();
       return endpoint.toString().contains("server-1");
     });

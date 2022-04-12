@@ -29,10 +29,10 @@ public class CacheTransactionManagerCreationTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    CacheTransactionManagerCreation mockCacheTransactionManagerCreation =
+    var mockCacheTransactionManagerCreation =
         mock(CacheTransactionManagerCreation.class);
-    TransactionListener mockTransactionListener = mock(TransactionListener.class);
-    TransactionWriter mockTransactionWriter = mock(TransactionWriter.class);
+    var mockTransactionListener = mock(TransactionListener.class);
+    var mockTransactionWriter = mock(TransactionWriter.class);
 
     when(mockCacheTransactionManagerCreation.getListener()).thenReturn(mockTransactionListener);
 

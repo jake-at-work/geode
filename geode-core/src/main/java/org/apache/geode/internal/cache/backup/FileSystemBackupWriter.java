@@ -25,7 +25,6 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 
 import org.apache.geode.cache.DiskStore;
-import org.apache.geode.internal.cache.DirectoryHolder;
 import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 
@@ -77,19 +76,19 @@ class FileSystemBackupWriter implements BackupWriter {
   }
 
   private void backupAllFilesets(BackupDefinition backupDefinition) throws IOException {
-    RestoreScript restoreScript = backupDefinition.getRestoreScript();
+    var restoreScript = backupDefinition.getRestoreScript();
     backupDiskInitFiles(backupDefinition.getDiskInitFiles());
     backupOplogs(backupDefinition.getOplogFilesByDiskStore(), restoreScript);
     backupConfigFiles(backupDefinition.getConfigFiles());
     backupUserFiles(backupDefinition.getUserFiles(), restoreScript);
     backupDeployedJars(backupDefinition.getDeployedJars(), restoreScript);
-    File scriptFile = restoreScript.generate(backupDirectory.toFile());
+    var scriptFile = restoreScript.generate(backupDirectory.toFile());
     backupRestoreScript(scriptFile.toPath());
     writeReadMe();
   }
 
   private void writeReadMe() throws IOException {
-    String text =
+    var text =
         "This directory contains a backup of the persistent data for a single gemfire VM. The layout is:diskstoresA backup of the persistent disk stores in the VMuserAny files specified by the backup element in the cache.xml file.configThe cache.xml and gemfire.properties for the backed up member.restore.[sh|bat]A script to restore the backup.Please note that the config is not restored, only the diskstores and user files.";
     Files.write(backupDirectory.resolve(README_FILE), text.getBytes());
   }
@@ -99,8 +98,8 @@ class FileSystemBackupWriter implements BackupWriter {
   }
 
   private void backupDiskInitFiles(Map<DiskStore, Path> diskInitFiles) throws IOException {
-    for (Map.Entry<DiskStore, Path> entry : diskInitFiles.entrySet()) {
-      Path destinationDirectory = getOplogBackupDir(entry.getKey(),
+    for (var entry : diskInitFiles.entrySet()) {
+      var destinationDirectory = getOplogBackupDir(entry.getKey(),
           ((DiskStoreImpl) entry.getKey()).getInforFileDirIndex());
       Files.createDirectories(destinationDirectory);
       Files.copy(entry.getValue(), destinationDirectory.resolve(entry.getValue().getFileName()),
@@ -110,14 +109,14 @@ class FileSystemBackupWriter implements BackupWriter {
 
   private void backupUserFiles(Map<Path, Path> userFiles, RestoreScript restoreScript)
       throws IOException {
-    Path userDirectory = backupDirectory.resolve(USER_FILES_DIRECTORY);
+    var userDirectory = backupDirectory.resolve(USER_FILES_DIRECTORY);
     Files.createDirectories(userDirectory);
 
-    for (Map.Entry<Path, Path> userFileEntry : userFiles.entrySet()) {
-      Path userFile = userFileEntry.getKey();
-      Path originalFile = userFileEntry.getValue();
+    for (var userFileEntry : userFiles.entrySet()) {
+      var userFile = userFileEntry.getKey();
+      var originalFile = userFileEntry.getValue();
 
-      Path destination = userDirectory.resolve(userFile.getFileName());
+      var destination = userDirectory.resolve(userFile.getFileName());
       moveFileOrDirectory(userFile, destination);
       restoreScript.addUserFile(originalFile.toFile(), destination.toFile());
     }
@@ -125,39 +124,39 @@ class FileSystemBackupWriter implements BackupWriter {
 
   private void backupDeployedJars(Map<Path, Path> jarFiles, RestoreScript restoreScript)
       throws IOException {
-    Path jarsDirectory = backupDirectory.resolve(DEPLOYED_JARS_DIRECTORY);
+    var jarsDirectory = backupDirectory.resolve(DEPLOYED_JARS_DIRECTORY);
     Files.createDirectories(jarsDirectory);
 
-    for (Map.Entry<Path, Path> jarFileEntry : jarFiles.entrySet()) {
-      Path jarFile = jarFileEntry.getKey();
-      Path originalFile = jarFileEntry.getValue();
+    for (var jarFileEntry : jarFiles.entrySet()) {
+      var jarFile = jarFileEntry.getKey();
+      var originalFile = jarFileEntry.getValue();
 
-      Path destination = jarsDirectory.resolve(jarFile.getFileName());
+      var destination = jarsDirectory.resolve(jarFile.getFileName());
       moveFileOrDirectory(jarFile, destination);
       restoreScript.addFile(originalFile.toFile(), destination.toFile());
     }
   }
 
   private void backupConfigFiles(Collection<Path> configFiles) throws IOException {
-    Path configDirectory = backupDirectory.resolve(CONFIG_DIRECTORY);
+    var configDirectory = backupDirectory.resolve(CONFIG_DIRECTORY);
     Files.createDirectories(configDirectory);
     moveFilesOrDirectories(configFiles, configDirectory);
   }
 
   private void backupOplogs(Map<DiskStore, Collection<Path>> oplogFiles,
       RestoreScript restoreScript) throws IOException {
-    File storesDir = new File(backupDirectory.toFile(), DATA_STORES_DIRECTORY);
-    for (Map.Entry<DiskStore, Collection<Path>> entry : oplogFiles.entrySet()) {
-      DiskStoreImpl diskStore = (DiskStoreImpl) entry.getKey();
-      boolean diskstoreHasFilesInBackup = false;
-      for (Path path : entry.getValue()) {
+    var storesDir = new File(backupDirectory.toFile(), DATA_STORES_DIRECTORY);
+    for (var entry : oplogFiles.entrySet()) {
+      var diskStore = (DiskStoreImpl) entry.getKey();
+      var diskstoreHasFilesInBackup = false;
+      for (var path : entry.getValue()) {
         if (filter.accept(diskStore, path)) {
           diskstoreHasFilesInBackup = true;
-          int index = diskStore.getInforFileDirIndex();
-          Path backupDir = createOplogBackupDir(diskStore, index);
+          var index = diskStore.getInforFileDirIndex();
+          var backupDir = createOplogBackupDir(diskStore, index);
           backupOplog(backupDir, path);
         } else {
-          Map<String, File> baselineOplogMap =
+          var baselineOplogMap =
               incrementalBaselineLocation.getBackedUpOplogs(diskStore);
           restoreScript.addBaselineFile(baselineOplogMap.get(path.getFileName().toString()),
               new File(path.toAbsolutePath().getParent().getParent().toFile(),
@@ -168,14 +167,14 @@ class FileSystemBackupWriter implements BackupWriter {
         addDiskStoreDirectoriesToRestoreScript((DiskStoreImpl) entry.getKey(),
             getBaseBackupDirectory().toFile(), restoreScript);
       }
-      File targetStoresDir = new File(storesDir, getBackupDirName(diskStore));
+      var targetStoresDir = new File(storesDir, getBackupDirName(diskStore));
       addDiskStoreDirectoriesToRestoreScript(diskStore, targetStoresDir, restoreScript);
 
     }
   }
 
   private Path getOplogBackupDir(DiskStore diskStore, int index) {
-    String name = diskStore.getName();
+    var name = diskStore.getName();
     if (name == null) {
       name = GemFireCacheImpl.getDefaultDiskStoreName();
     }
@@ -185,7 +184,7 @@ class FileSystemBackupWriter implements BackupWriter {
   }
 
   private Path createOplogBackupDir(DiskStore diskStore, int index) throws IOException {
-    Path oplogBackupDir = getOplogBackupDir(diskStore, index);
+    var oplogBackupDir = getOplogBackupDir(diskStore, index);
     Files.createDirectories(oplogBackupDir);
     return oplogBackupDir;
   }
@@ -195,7 +194,7 @@ class FileSystemBackupWriter implements BackupWriter {
    * concatenation of the disk store name and id.
    */
   private String getBackupDirName(DiskStoreImpl diskStore) {
-    String name = diskStore.getName();
+    var name = diskStore.getName();
 
     if (name == null) {
       name = GemFireCacheImpl.getDefaultDiskStoreName();
@@ -214,8 +213,8 @@ class FileSystemBackupWriter implements BackupWriter {
 
   private void moveFilesOrDirectories(Collection<Path> paths, Path targetDirectory)
       throws IOException {
-    for (Path userFile : paths) {
-      Path destination = targetDirectory.resolve(userFile.getFileName());
+    for (var userFile : paths) {
+      var destination = targetDirectory.resolve(userFile.getFileName());
       moveFileOrDirectory(userFile, destination);
     }
   }
@@ -230,9 +229,9 @@ class FileSystemBackupWriter implements BackupWriter {
 
   private void addDiskStoreDirectoriesToRestoreScript(DiskStoreImpl diskStore, File targetDir,
       RestoreScript restoreScript) {
-    DirectoryHolder[] directories = diskStore.getDirectoryHolders();
-    for (int i = 0; i < directories.length; i++) {
-      File backupDir = getBackupDirForCurrentMember(targetDir, i);
+    var directories = diskStore.getDirectoryHolders();
+    for (var i = 0; i < directories.length; i++) {
+      var backupDir = getBackupDirForCurrentMember(targetDir, i);
       restoreScript.addFile(directories[i].getDir(), backupDir);
     }
   }

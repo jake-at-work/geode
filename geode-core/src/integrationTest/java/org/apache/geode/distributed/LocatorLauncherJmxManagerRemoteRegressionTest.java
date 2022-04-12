@@ -38,7 +38,7 @@ public class LocatorLauncherJmxManagerRemoteRegressionTest
 
   @Before
   public void before() throws Exception {
-    int[] ports = getRandomAvailableTCPPorts(3);
+    var ports = getRandomAvailableTCPPorts(3);
     defaultLocatorPort = ports[0];
     nonDefaultLocatorPort = ports[1];
     jmxManagerPort = ports[2];

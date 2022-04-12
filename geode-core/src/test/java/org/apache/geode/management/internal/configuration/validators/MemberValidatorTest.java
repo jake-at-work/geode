@@ -52,32 +52,32 @@ public class MemberValidatorTest {
 
   @Before
   public void before() throws Exception {
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     service = mock(ConfigurationPersistenceService.class);
     regionManager = new RegionConfigManager(null);
     when(service.getCacheConfig(any(), eq(true))).thenReturn(new CacheConfig());
     regionManager = new RegionConfigManager(null);
     validator = spy(new MemberValidator(cache, service));
 
-    DistributedMember member1 = mock(DistributedMember.class);
+    var member1 = mock(DistributedMember.class);
     when(member1.getGroups()).thenReturn(null);
     when(member1.getName()).thenReturn("member1");
 
-    DistributedMember member2 = mock(DistributedMember.class);
+    var member2 = mock(DistributedMember.class);
     when(member2.getGroups()).thenReturn(Collections.singletonList("group1"));
 
     when(member2.getName()).thenReturn("member2");
 
-    DistributedMember member3 = mock(DistributedMember.class);
+    var member3 = mock(DistributedMember.class);
     when(member3.getGroups()).thenReturn(Collections.singletonList("group2"));
 
     when(member3.getName()).thenReturn("member3");
 
-    DistributedMember member4 = mock(DistributedMember.class);
+    var member4 = mock(DistributedMember.class);
     when(member4.getGroups()).thenReturn(Arrays.asList("group1", "group2"));
     when(member4.getName()).thenReturn("member4");
 
-    DistributedMember member5 = mock(DistributedMember.class);
+    var member5 = mock(DistributedMember.class);
     when(member5.getGroups()).thenReturn(Collections.singletonList("group3"));
     when(member5.getName()).thenReturn("member5");
 
@@ -174,7 +174,7 @@ public class MemberValidatorTest {
     when(service.getCacheConfig("group1", true)).thenReturn(cacheConfig);
     when(service.getCacheConfig("group2", true)).thenReturn(cacheConfig);
 
-    CacheConfig another = new CacheConfig();
+    var another = new CacheConfig();
     when(service.getCacheConfig("group3", true)).thenReturn(another);
     assertThat(validator.findGroupsWithThisElement(regionConfig, regionManager))
         .containsExactlyInAnyOrder("group1", "group2");

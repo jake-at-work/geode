@@ -174,7 +174,7 @@ public class Get70Test {
 
   @Test
   public void callsEndGetForClient_ifGetSucceedsWithHit() throws IOException {
-    CachePerfStats regionPerfStats = mock(CachePerfStats.class);
+    var regionPerfStats = mock(CachePerfStats.class);
     when(region.getRegionPerfStats()).thenReturn(regionPerfStats);
     when(region.getRetained(any(), any(), anyBoolean(), anyBoolean(), any(), any(), anyBoolean()))
         .thenReturn("data");
@@ -186,7 +186,7 @@ public class Get70Test {
 
   @Test
   public void callsEndGetForClient_ifGetSucceedsWithMiss() throws IOException {
-    CachePerfStats regionPerfStats = mock(CachePerfStats.class);
+    var regionPerfStats = mock(CachePerfStats.class);
     when(region.getRegionPerfStats()).thenReturn(regionPerfStats);
     when(region.getRetained(any(), any(), anyBoolean(), anyBoolean(), any(), any(), anyBoolean()))
         .thenReturn(null);
@@ -201,7 +201,7 @@ public class Get70Test {
     givenIntegratedSecurity();
     givenIntegratedSecurityNotAuthorized();
 
-    CachePerfStats regionPerfStats = mock(CachePerfStats.class);
+    var regionPerfStats = mock(CachePerfStats.class);
     when(region.getRegionPerfStats()).thenReturn(regionPerfStats);
 
     get70.cmdExecute(message, serverConnection, securityService, 0);

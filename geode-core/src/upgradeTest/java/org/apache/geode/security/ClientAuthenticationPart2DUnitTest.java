@@ -19,7 +19,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -45,7 +44,7 @@ import org.apache.geode.test.version.VersionManager;
 public class ClientAuthenticationPart2DUnitTest extends ClientAuthenticationTestCase {
   @Parameterized.Parameters
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersions();
+    var result = VersionManager.getInstance().getVersions();
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
     } else {
@@ -73,15 +72,15 @@ public class ClientAuthenticationPart2DUnitTest extends ClientAuthenticationTest
   @Test
   public void testServerConnectionAcceptsOldInternalMessagesIfAllowed() throws Exception {
 
-    ServerConnection serverConnection = mock(ServerConnection.class);
+    var serverConnection = mock(ServerConnection.class);
     when(serverConnection.isInternalMessage(any(Message.class), any(Boolean.class)))
         .thenCallRealMethod();
 
-    int[] oldInternalMessages = new int[] {MessageType.ADD_PDX_TYPE, MessageType.ADD_PDX_ENUM,
+    var oldInternalMessages = new int[] {MessageType.ADD_PDX_TYPE, MessageType.ADD_PDX_ENUM,
         MessageType.REGISTER_INSTANTIATORS, MessageType.REGISTER_DATASERIALIZERS};
 
-    for (final int oldInternalMessage : oldInternalMessages) {
-      Message message = mock(Message.class);
+    for (final var oldInternalMessage : oldInternalMessages) {
+      var message = mock(Message.class);
       when(message.getMessageType()).thenReturn(oldInternalMessage);
 
       Assert.assertFalse(serverConnection.isInternalMessage(message, false));

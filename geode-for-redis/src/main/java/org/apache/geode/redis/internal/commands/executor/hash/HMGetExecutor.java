@@ -14,12 +14,10 @@
  */
 package org.apache.geode.redis.internal.commands.executor.hash;
 
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 /**
@@ -46,11 +44,11 @@ public class HMGetExecutor implements CommandExecutor {
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
 
-    RedisKey key = command.getKey();
-    List<byte[]> commandElements = command.getProcessedCommand();
-    List<byte[]> fields = commandElements.subList(2, commandElements.size());
+    var key = command.getKey();
+    var commandElements = command.getProcessedCommand();
+    var fields = commandElements.subList(2, commandElements.size());
 
-    List<byte[]> values = context.hashLockedExecute(key, true, hash -> hash.hmget(fields));
+    var values = context.hashLockedExecute(key, true, hash -> hash.hmget(fields));
 
     return RedisResponse.array(values, true);
   }

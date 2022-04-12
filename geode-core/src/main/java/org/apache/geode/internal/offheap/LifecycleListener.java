@@ -55,19 +55,19 @@ public interface LifecycleListener {
   void beforeClose(MemoryAllocatorImpl allocator);
 
   static void invokeBeforeClose(MemoryAllocatorImpl allocator) {
-    for (LifecycleListener listener : lifecycleListeners) {
+    for (var listener : lifecycleListeners) {
       listener.beforeClose(allocator);
     }
   }
 
   static void invokeAfterReuse(MemoryAllocatorImpl allocator) {
-    for (LifecycleListener listener : lifecycleListeners) {
+    for (var listener : lifecycleListeners) {
       listener.afterReuse(allocator);
     }
   }
 
   static void invokeAfterCreate(MemoryAllocatorImpl allocator) {
-    for (LifecycleListener listener : lifecycleListeners) {
+    for (var listener : lifecycleListeners) {
       listener.afterCreate(allocator);
     }
   }

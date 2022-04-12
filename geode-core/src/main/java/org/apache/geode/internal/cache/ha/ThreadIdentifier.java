@@ -150,16 +150,16 @@ public class ThreadIdentifier implements DataSerializable {
     if ((obj == null) || !(obj instanceof ThreadIdentifier)) {
       return false;
     }
-    ThreadIdentifier other = (ThreadIdentifier) obj;
+    var other = (ThreadIdentifier) obj;
     return (threadID == other.threadID
         && EventID.equalMembershipIds(membershipID, other.membershipID));
   }
 
   @Override
   public int hashCode() {
-    final int mult = 37;
+    final var mult = 37;
 
-    int result = EventID.hashCodeMemberId(membershipID);
+    var result = EventID.hashCodeMemberId(membershipID);
     result = mult * result + (int) threadID;
     result = mult * result + (int) (threadID >>> 32);
 
@@ -175,8 +175,8 @@ public class ThreadIdentifier implements DataSerializable {
   }
 
   public static String toDisplayString(long tid) {
-    StringBuilder sb = new StringBuilder();
-    long lower = Bits.THREAD_ID.extract(tid);
+    var sb = new StringBuilder();
+    var lower = Bits.THREAD_ID.extract(tid);
     if (lower != tid) {
       sb.append("0x");
       sb.append(Long.toHexString(tid >> Bits.THREAD_ID.width));
@@ -198,7 +198,7 @@ public class ThreadIdentifier implements DataSerializable {
 
   public String expensiveToString() {
     Object mbr;
-    try (ByteArrayDataInput byteArrayDataInput = new ByteArrayDataInput(membershipID)) {
+    try (var byteArrayDataInput = new ByteArrayDataInput(membershipID)) {
       mbr = InternalDistributedMember.readEssentialData(byteArrayDataInput);
     } catch (Exception e) {
       mbr = membershipID; // punt and use the bytes

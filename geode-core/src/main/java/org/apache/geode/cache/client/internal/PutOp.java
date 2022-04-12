@@ -31,11 +31,8 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.cache.CachedDeserializable;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -63,18 +60,18 @@ public class PutOp {
   public static Object execute(ExecutablePool pool, LocalRegion region, Object key, Object value,
       byte[] deltaBytes, EntryEventImpl event, Operation operation, boolean requireOldValue,
       Object expectedOldValue, Object callbackArg, boolean prSingleHopEnabled) {
-    PutOpImpl op = new PutOpImpl(region, key, value, deltaBytes, event, operation, requireOldValue,
+    var op = new PutOpImpl(region, key, value, deltaBytes, event, operation, requireOldValue,
         expectedOldValue, callbackArg, false/* donot send full obj; send delta */,
         prSingleHopEnabled);
 
     if (prSingleHopEnabled) {
-      ClientMetadataService cms = region.getCache().getClientMetadataService();
-      ServerLocation server =
+      var cms = region.getCache().getClientMetadataService();
+      var server =
           cms.getBucketServerLocation(region, Operation.UPDATE, key, value, callbackArg);
       if (server != null) {
         try {
-          PoolImpl poolImpl = (PoolImpl) pool;
-          boolean onlyUseExistingCnx = (poolImpl.getMaxConnections() != -1
+          var poolImpl = (PoolImpl) pool;
+          var onlyUseExistingCnx = (poolImpl.getMaxConnections() != -1
               && poolImpl.getConnectionCount() >= poolImpl.getMaxConnections());
           op.setAllowDuplicateMetadataRefresh(!onlyUseExistingCnx);
           return pool.executeOn(new ServerLocation(server.getHostName(), server.getPort()), op,
@@ -89,7 +86,7 @@ public class PutOp {
         }
       }
     }
-    Object result = pool.execute(op);
+    var result = pool.execute(op);
     if (op.getMessage().isRetry()) {
       event.setRetried(true);
     }
@@ -187,7 +184,7 @@ public class PutOp {
         boolean prSingleHopEnabled) {
       super(MessageType.PUT,
           7 + (callbackArg != null ? 1 : 0) + (expectedOldValue != null ? 1 : 0));
-      final boolean isDebugEnabled = logger.isDebugEnabled();
+      final var isDebugEnabled = logger.isDebugEnabled();
       if (isDebugEnabled) {
         logger.debug("PutOpImpl constructing message for {}; operation={}", event.getEventId(),
             op);
@@ -202,7 +199,7 @@ public class PutOp {
       this.expectedOldValue = expectedOldValue;
       getMessage().addStringPart(regionName, true);
       getMessage().addBytePart(op.ordinal);
-      int flags = 0;
+      var flags = 0;
       if (requireOldValue) {
         flags |= 0x01;
       }
@@ -226,14 +223,14 @@ public class PutOp {
           logger.debug("PutOp: Sending delta for key {}", this.key);
         }
       } else if (value instanceof CachedDeserializable) {
-        CachedDeserializable cd = (CachedDeserializable) value;
+        var cd = (CachedDeserializable) value;
         if (!cd.isSerialized()) {
           // it is a byte[]
           getMessage().addObjPart(Boolean.FALSE);
           getMessage().addObjPart(cd.getDeserializedForReading());
         } else {
           getMessage().addObjPart(Boolean.FALSE);
-          Object cdValue = cd.getValue();
+          var cdValue = cd.getValue();
           if (cdValue instanceof byte[]) {
             getMessage().addRawPart((byte[]) cdValue, true);
           } else {
@@ -273,13 +270,13 @@ public class PutOp {
         throws Exception {
       processAck(msg, con);
       if (prSingleHopEnabled) {
-        Part part = msg.getPart(0);
-        byte[] bytesReceived = part.getSerializedForm();
+        var part = msg.getPart(0);
+        var bytesReceived = part.getSerializedForm();
         if (bytesReceived[0] != ClientMetadataService.INITIAL_VERSION
             && bytesReceived.length == ClientMetadataService.SIZE_BYTES_ARRAY_RECEIVED) {
           if (region != null) {
-            ClientMetadataService cms = region.getCache().getClientMetadataService();
-            byte myVersion =
+            var cms = region.getCache().getClientMetadataService();
+            var myVersion =
                 cms.getMetaDataVersion(region, Operation.UPDATE, key, value, callbackArg);
             if (myVersion != bytesReceived[0] || isAllowDuplicateMetadataRefresh()) {
               cms.scheduleGetPRMetaData(region, false, bytesReceived[1]);
@@ -288,13 +285,13 @@ public class PutOp {
         }
       }
       if (msg.getMessageType() == MessageType.REPLY && msg.getNumberOfParts() > 1) {
-        int flags = msg.getPart(1).getInt();
-        int partIdx = 2;
+        var flags = msg.getPart(1).getInt();
+        var partIdx = 2;
         Object oldValue = null;
         if ((flags & HAS_OLD_VALUE_FLAG) != 0) {
           oldValue = msg.getPart(partIdx++).getObject();
           if ((flags & OLD_VALUE_IS_OBJECT_FLAG) != 0 && oldValue instanceof byte[]) {
-            try (ByteArrayDataInput din = new ByteArrayDataInput((byte[]) oldValue)) {
+            try (var din = new ByteArrayDataInput((byte[]) oldValue)) {
               oldValue = DataSerializer.readObject(din);
             }
           }
@@ -302,7 +299,7 @@ public class PutOp {
         // if the server has versioning we will attach it to the client's event
         // here so it can be applied to the cache
         if ((flags & HAS_VERSION_TAG) != 0) {
-          VersionTag tag = (VersionTag) msg.getPart(partIdx).getObject();
+          var tag = (VersionTag) msg.getPart(partIdx).getObject();
           // we use the client's ID since we apparently don't track the server's ID in connections
           tag.replaceNullIDs((InternalDistributedMember) con.getEndpoint().getMemberId());
           checkForDeltaConflictAndSetVersionTag(tag, con);
@@ -314,18 +311,18 @@ public class PutOp {
 
     void checkForDeltaConflictAndSetVersionTag(VersionTag versionTag, Connection connection)
         throws Exception {
-      RegionEntry regionEntry = event.getRegionEntry();
+      var regionEntry = event.getRegionEntry();
       if (regionEntry == null) {
         event.setVersionTag(versionTag);
         return;
       }
-      VersionStamp versionStamp = regionEntry.getVersionStamp();
+      var versionStamp = regionEntry.getVersionStamp();
       if (deltaSent && versionTag.getEntryVersion() > versionStamp.getEntryVersion() + 1) {
         // Delta can't be applied, need to get full value.
         if (logger.isDebugEnabled()) {
           logger.debug("Version is out of order. Need to get from server to perform delta update.");
         }
-        Object object = getFullValue(connection);
+        var object = getFullValue(connection);
         event.setNewValue(object);
       } else {
         event.setVersionTag(versionTag);
@@ -333,7 +330,7 @@ public class PutOp {
     }
 
     Object getFullValue(Connection connection) throws Exception {
-      GetOp.GetOpImpl getOp =
+      var getOp =
           new GetOp.GetOpImpl(region, key, callbackArg, prSingleHopEnabled, event);
       return getOp.attempt(connection);
     }
@@ -348,13 +345,13 @@ public class PutOp {
      * @since GemFire 6.1
      */
     private void processAck(Message msg, Connection con) throws Exception {
-      final int msgType = msg.getMessageType();
+      final var msgType = msg.getMessageType();
       // Update delta stats
       if (deltaSent && region != null) {
         region.getCachePerfStats().incDeltasSent();
       }
       if (msgType != MessageType.REPLY) {
-        Part part = msg.getPart(0);
+        var part = msg.getPart(0);
         if (msgType == MessageType.PUT_DELTA_ERROR) {
           if (logger.isDebugEnabled()) {
             logger.debug("PutOp: Sending full value as delta failed on server...");
@@ -368,7 +365,7 @@ public class PutOp {
             region.getCachePerfStats().incDeltaFullValuesSent();
           }
         } else if (msgType == MessageType.EXCEPTION) {
-          String s = ": While performing a remote " + "put";
+          var s = ": While performing a remote " + "put";
           throw new ServerOperationException(s, (Throwable) part.getObject());
           // Get the exception toString part.
           // This was added for c++ thin client and not used in java

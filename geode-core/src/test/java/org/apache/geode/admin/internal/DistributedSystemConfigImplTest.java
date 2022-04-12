@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.logging.internal.spi.LogConfig;
 import org.apache.geode.logging.internal.spi.LogWriterLevel;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
@@ -39,8 +38,8 @@ public class DistributedSystemConfigImplTest {
 
   @Test
   public void createLogConfigCreatesLogConfigWithUsableLogLevel() {
-    LogConfig logConfig = distributedSystemConfigImpl.createLogConfig();
-    int logLevel = logConfig.getLogLevel();
+    var logConfig = distributedSystemConfigImpl.createLogConfig();
+    var logLevel = logConfig.getLogLevel();
 
     assertThat(logLevel).isNotEqualTo(0);
     assertThat(LogWriterLevel.find(logLevel)).isInstanceOf(LogWriterLevel.class);
@@ -48,8 +47,8 @@ public class DistributedSystemConfigImplTest {
 
   @Test
   public void createLogConfigCreatesLogConfigWithUsableSecurityLogLevel() {
-    LogConfig logConfig = distributedSystemConfigImpl.createLogConfig();
-    int securityLogLevel = logConfig.getSecurityLogLevel();
+    var logConfig = distributedSystemConfigImpl.createLogConfig();
+    var securityLogLevel = logConfig.getSecurityLogLevel();
 
     assertThat(securityLogLevel).isNotEqualTo(0);
     assertThat(LogWriterLevel.find(securityLogLevel)).isInstanceOf(LogWriterLevel.class);

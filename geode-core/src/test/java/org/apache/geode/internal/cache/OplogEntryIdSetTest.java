@@ -41,7 +41,7 @@ public class OplogEntryIdSetTest {
 
   @Test
   public void testBasics() {
-    OplogEntryIdSet s = new OplogEntryIdSet();
+    var s = new OplogEntryIdSet();
 
     LongStream.range(1, 777777).forEach(i -> assertThat(s.contains(i)).isFalse());
     LongStream.range(1, 777777).forEach(s::add);
@@ -73,11 +73,11 @@ public class OplogEntryIdSetTest {
 
   @Test
   public void addMethodOverflowsWhenInternalAddThrowsIllegalArgumentException() {
-    int testEntries = 1000;
-    int magicInt = testEntries + 1;
-    long magicLong = 0x00000000FFFFFFFFL + testEntries + 1;
+    var testEntries = 1000;
+    var magicInt = testEntries + 1;
+    var magicLong = 0x00000000FFFFFFFFL + testEntries + 1;
 
-    Answer<Void> answer = invocationOnMock -> {
+    var answer = (Answer<Void>) invocationOnMock -> {
       Number value = invocationOnMock.getArgument(0);
       if ((value.intValue() == magicInt) || (value.longValue() == magicLong)) {
         throw new IllegalArgumentException(
@@ -87,15 +87,15 @@ public class OplogEntryIdSetTest {
       return null;
     };
 
-    IntOpenHashSet intOpenHashSet = spy(IntOpenHashSet.class);
+    var intOpenHashSet = spy(IntOpenHashSet.class);
     doAnswer(answer).when(intOpenHashSet).add(anyInt());
-    LongOpenHashSet longOpenHashSet = spy(LongOpenHashSet.class);
+    var longOpenHashSet = spy(LongOpenHashSet.class);
     doAnswer(answer).when(longOpenHashSet).add(anyLong());
     List<IntOpenHashSet> intOpenHashSets =
         new ArrayList<>(Collections.singletonList(intOpenHashSet));
     List<LongOpenHashSet> longOpenHashSets =
         new ArrayList<>(Collections.singletonList(longOpenHashSet));
-    OplogEntryIdSet oplogEntryIdSet = new OplogEntryIdSet(intOpenHashSets, longOpenHashSets);
+    var oplogEntryIdSet = new OplogEntryIdSet(intOpenHashSets, longOpenHashSets);
 
     // Insert some entries.
     assertThat(intOpenHashSets).hasSize(1);
@@ -120,46 +120,46 @@ public class OplogEntryIdSetTest {
 
   @Test
   public void sizeShouldIncludeOverflownSets() {
-    int testEntries = 1000;
+    var testEntries = 1000;
     List<IntOpenHashSet> intHashSets = new ArrayList<>();
     List<LongOpenHashSet> longHashSets = new ArrayList<>();
 
     IntStream.range(1, testEntries + 1).forEach(value -> {
-      IntOpenHashSet intOpenHashSet = new IntOpenHashSet();
+      var intOpenHashSet = new IntOpenHashSet();
       intOpenHashSet.add(value);
       intHashSets.add(intOpenHashSet);
     });
 
     LongStream.range(0x00000000FFFFFFFFL + 1, 0x00000000FFFFFFFFL + testEntries + 1)
         .forEach(value -> {
-          LongOpenHashSet longOpenHashSet = new LongOpenHashSet();
+          var longOpenHashSet = new LongOpenHashSet();
           longOpenHashSet.add(value);
           longHashSets.add(longOpenHashSet);
         });
 
-    OplogEntryIdSet oplogEntryIdSet = new OplogEntryIdSet(intHashSets, longHashSets);
+    var oplogEntryIdSet = new OplogEntryIdSet(intHashSets, longHashSets);
     assertThat(oplogEntryIdSet.size()).isEqualTo(testEntries * 2);
   }
 
   @Test
   public void containsShouldSearchAcrossOverflownSets() {
-    int testEntries = 1000;
+    var testEntries = 1000;
     List<IntOpenHashSet> intHashSets = new ArrayList<>();
     List<LongOpenHashSet> longHashSets = new ArrayList<>();
 
     IntStream.range(1, testEntries).forEach(value -> {
-      IntOpenHashSet intOpenHashSet = new IntOpenHashSet();
+      var intOpenHashSet = new IntOpenHashSet();
       intOpenHashSet.add(value);
       intHashSets.add(intOpenHashSet);
     });
 
     LongStream.range(0x00000000FFFFFFFFL + 1, 0x00000000FFFFFFFFL + testEntries).forEach(value -> {
-      LongOpenHashSet longOpenHashSet = new LongOpenHashSet();
+      var longOpenHashSet = new LongOpenHashSet();
       longOpenHashSet.add(value);
       longHashSets.add(longOpenHashSet);
     });
 
-    OplogEntryIdSet oplogEntryIdSet = new OplogEntryIdSet(intHashSets, longHashSets);
+    var oplogEntryIdSet = new OplogEntryIdSet(intHashSets, longHashSets);
 
     // All entries should be searchable across overflown sets
     IntStream.range(1, testEntries).forEach(i -> assertThat(oplogEntryIdSet.contains(i)).isTrue());

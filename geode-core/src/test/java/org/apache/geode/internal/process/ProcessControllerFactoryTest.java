@@ -67,7 +67,7 @@ public class ProcessControllerFactoryTest {
   public void createProcessController_withAttachAPI_returnsMBeanProcessController()
       throws Exception {
     // act
-    ProcessController controller = factory.createProcessController(parameters, pid);
+    var controller = factory.createProcessController(parameters, pid);
 
     // assert
     assertThat(controller).isInstanceOf(MBeanOrFileProcessController.class);
@@ -81,7 +81,7 @@ public class ProcessControllerFactoryTest {
     factory = new ProcessControllerFactory();
 
     // act
-    ProcessController controller = factory.createProcessController(parameters, pid);
+    var controller = factory.createProcessController(parameters, pid);
 
     // assert
     assertThat(controller).isInstanceOf(FileProcessController.class);

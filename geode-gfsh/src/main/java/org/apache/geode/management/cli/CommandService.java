@@ -123,7 +123,7 @@ public abstract class CommandService {
     }
 
     if (localCommandService == null || !localCommandService.isUsable()) {
-      String nonExistingDependency = CliUtils.cliDependenciesExist(false);
+      var nonExistingDependency = CliUtils.cliDependenciesExist(false);
       if (nonExistingDependency != null) {
         throw new DependenciesNotFoundException(
             String.format(

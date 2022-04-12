@@ -18,9 +18,6 @@ import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URL;
-import java.util.List;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LogEvent;
@@ -68,7 +65,7 @@ public class GemfireVerboseMarkerFilterAcceptIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
@@ -85,8 +82,8 @@ public class GemfireVerboseMarkerFilterAcceptIntegrationTest {
     logger.info(LogMarker.GEMFIRE_VERBOSE, logMessage);
 
     LogEvent theLogEvent = null;
-    List<LogEvent> events = listAppender.getEvents();
-    for (LogEvent logEvent : events) {
+    var events = listAppender.getEvents();
+    for (var logEvent : events) {
       if (logEvent.getMessage().getFormattedMessage().contains(logMessage)) {
         theLogEvent = logEvent;
       }
@@ -105,8 +102,8 @@ public class GemfireVerboseMarkerFilterAcceptIntegrationTest {
     logger.info(LogMarker.GEODE_VERBOSE, logMessage);
 
     LogEvent theLogEvent = null;
-    List<LogEvent> events = listAppender.getEvents();
-    for (LogEvent logEvent : events) {
+    var events = listAppender.getEvents();
+    for (var logEvent : events) {
       if (logEvent.getMessage().getFormattedMessage().contains(logMessage)) {
         theLogEvent = logEvent;
       }

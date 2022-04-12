@@ -44,7 +44,7 @@ public class RedisProxyOutboundHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelRead(final ChannelHandlerContext ctx, Object msg) {
-    RedisResponseProcessor processor = processors.poll();
+    var processor = processors.poll();
     if (processor == null) {
       logger.warn("No processor queued - will use default noop processor");
       processor = NoopRedisResponseProcessor.INSTANCE;

@@ -35,7 +35,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
@@ -46,7 +45,6 @@ import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -63,18 +61,18 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(ClearMultiVmDUnitTest::createCache);
     vm1.invoke(ClearMultiVmDUnitTest::createCache);
   }
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(ClearMultiVmDUnitTest::closeCache);
     vm1.invoke(ClearMultiVmDUnitTest::closeCache);
     cache = null;
@@ -90,13 +88,13 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     try {
       ds = (new ClearMultiVmDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setConcurrencyChecksEnabled(true);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
 
-      AttributesFactory factory1 = new AttributesFactory();
+      var factory1 = new AttributesFactory();
       factory1.setScope(Scope.DISTRIBUTED_ACK);
       factory.setConcurrencyChecksEnabled(true);
       factory1.setDataPolicy(DataPolicy.REPLICATE);
@@ -121,9 +119,9 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
   @Test
   public void testClearSimpleScenarios() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     // verifying Single VM clear functionalities
     vm0.invoke(new CacheSerializableRunnable("temp1") {
@@ -186,10 +184,10 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
       public void run2() throws CacheException {
         region.put(1, "first");
         region.put(2, "second");
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
-        RegionAttributes attr = factory.create();
-        Region subRegion = region.createSubregion("subr", attr);
+        var attr = factory.create();
+        var subRegion = region.createSubregion("subr", attr);
         subRegion.put(3, "third");
         subRegion.put(4, "forth");
         region.clear();
@@ -202,15 +200,15 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
 
   @Test
   public void testClearMultiVM() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     // put 3 key/values in vm0 and get from vm1
-    Object[] objArr = new Object[1];
+    var objArr = new Object[1];
     // Integer in = new Integer(i);
     // objArr[0] = (Object) in;
-    for (int i = 1; i < 4; i++) {
+    for (var i = 1; i < 4; i++) {
       objArr[0] = "" + i;
       vm0.invoke(ClearMultiVmDUnitTest.class, "putMethod", objArr);
       vm1.invoke(ClearMultiVmDUnitTest.class, "getMethod", objArr);
@@ -235,9 +233,7 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     j = vm1.invoke(ClearMultiVmDUnitTest::sizeMethod);
     assertEquals(1, j);
 
-
-
-    int i = 6;
+    var i = 6;
     objArr[0] = "" + i;
     vm1.invoke(ClearMultiVmDUnitTest.class, "getMethod", objArr);
 
@@ -248,9 +244,9 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
 
   @Test
   public void testClearExceptions() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     vm1.invoke(ClearMultiVmDUnitTest::localDestroyRegionMethod);
     vm0.invoke(new CacheSerializableRunnable("exception in vm0") {
@@ -283,17 +279,17 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     if (false) {
       getSystem().getLogWriter().severe("testGiiandClear skipped because of bug 34963");
     } else {
-      Host host = Host.getHost(0);
-      VM vm0 = host.getVM(0);
-      VM vm1 = host.getVM(1);
+      var host = Host.getHost(0);
+      var vm0 = host.getVM(0);
+      var vm1 = host.getVM(1);
 
       SerializableRunnable create = new CacheSerializableRunnable("create mirrored region") {
         @Override
         public void run2() throws CacheException {
-          AttributesFactory factory1 = new AttributesFactory();
+          var factory1 = new AttributesFactory();
           factory1.setScope(Scope.DISTRIBUTED_ACK);
           factory1.setDataPolicy(DataPolicy.REPLICATE);
-          RegionAttributes attr1 = factory1.create();
+          var attr1 = factory1.create();
           mirroredRegion = cache.createRegion("mirrored", attr1);
           // reset slow
           org.apache.geode.internal.cache.InitialImageOperation.slowImageProcessing = 0;
@@ -306,7 +302,7 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
       vm0.invoke(new CacheSerializableRunnable("put initial data") {
         @Override
         public void run2() throws CacheException {
-          for (int i = 0; i < 1000; i++) {
+          for (var i = 0; i < 1000; i++) {
             mirroredRegion.put(i, (new Integer(i)).toString());
           }
         }
@@ -318,7 +314,7 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
         public void run() {
           // if this is a no_ack test, then we need to slow down more because of the
           // pauses in the nonblocking operations
-          int pause = 50;
+          var pause = 50;
           org.apache.geode.internal.cache.InitialImageOperation.slowImageProcessing = pause;
         }
       });
@@ -363,7 +359,7 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
 
   public static void firstVM() {
     // put one entry
-    int i = 5;
+    var i = 5;
     region.put(i, "firstVM");
 
     // test localClear
@@ -373,7 +369,7 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     paperWork.put("localClear", "true");
 
     // wait unit clear on 2nd VM
-    boolean val = false;
+    var val = false;
     while (!val) {
       val = paperWork.containsKey("localClearVerified");
     }
@@ -393,7 +389,7 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
 
   public static void secondVM() {
     // verify that localClear on the other VM does not affect size on this VM
-    boolean val = false;
+    var val = false;
     while (!val) {
       val = paperWork.containsKey("localClear");
     }
@@ -419,7 +415,7 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     Object obj = null;
     try {
       if (ob != null) {
-        String str = "first";
+        var str = "first";
         obj = region.put(ob, str);
       }
     } catch (Exception ex) {
@@ -440,7 +436,7 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
   }
 
   public static boolean containsValueMethod(Object ob) {
-    boolean flag = false;
+    var flag = false;
     try {
       flag = region.containsValue(ob);
     } catch (Exception ex) {
@@ -450,7 +446,7 @@ public class ClearMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO: 
   }
 
   public static int sizeMethod() {
-    int i = 0;
+    var i = 0;
     try {
       i = region.size();
     } catch (Exception ex) {

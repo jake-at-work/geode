@@ -27,7 +27,6 @@ import org.apache.geode.cache.DynamicRegionFactory;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.ResourceException;
 import org.apache.geode.cache.client.internal.PutAllOp;
-import org.apache.geode.cache.operations.RemoveAllOperationContext;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.LocalRegion;
@@ -37,14 +36,10 @@ import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
-import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.util.Breadcrumbs;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -66,30 +61,30 @@ public class RemoveAll extends BaseCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long startp)
       throws IOException, InterruptedException {
-    long start = startp; // copy this since we need to modify it
+    var start = startp; // copy this since we need to modify it
 
-    final CacheServerStats stats = serverConnection.getCacheServerStats();
+    final var stats = serverConnection.getCacheServerStats();
 
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE);
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadRemoveAllRequestTime(start - oldStart);
     }
 
     final String regionName;
     VersionedObjectList response;
-    boolean replyWithMetaData = false;
+    var replyWithMetaData = false;
     try {
       // Retrieve the data from the message parts
       // part 0: region name
-      Part regionNamePart = clientMessage.getPart(0);
+      var regionNamePart = clientMessage.getPart(0);
       regionName = regionNamePart.getCachedString();
 
-      StringBuilder errMessage = new StringBuilder();
+      var errMessage = new StringBuilder();
       if (regionName == null) {
-        String txt =
+        var txt =
             "The input region name for the removeAll request is null";
         logger.warn("{} : {}",
             new Object[] {serverConnection.getName(), txt});
@@ -99,52 +94,52 @@ public class RemoveAll extends BaseCommand {
         serverConnection.setAsTrue(RESPONDED);
         return;
       }
-      LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+      var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
       if (region == null) {
-        String reason = " was not found during removeAll request";
+        var reason = " was not found during removeAll request";
         writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
         serverConnection.setAsTrue(RESPONDED);
         return;
       }
 
       // part 1: eventID
-      Part eventPart = clientMessage.getPart(1);
-      ByteBuffer eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
-      long threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-      long sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-      EventID eventId =
+      var eventPart = clientMessage.getPart(1);
+      var eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
+      var threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+      var sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+      var eventId =
           new EventID(serverConnection.getEventMemberIDByteArray(), threadId, sequenceId);
 
       Breadcrumbs.setEventId(eventId);
 
       // part 2: flags
-      int flags = clientMessage.getPart(2).getInt();
-      boolean clientIsEmpty = (flags & PutAllOp.FLAG_EMPTY) != 0;
-      boolean clientHasCCEnabled = (flags & PutAllOp.FLAG_CONCURRENCY_CHECKS) != 0;
+      var flags = clientMessage.getPart(2).getInt();
+      var clientIsEmpty = (flags & PutAllOp.FLAG_EMPTY) != 0;
+      var clientHasCCEnabled = (flags & PutAllOp.FLAG_CONCURRENCY_CHECKS) != 0;
 
       // part 3: callbackArg
-      Object callbackArg = clientMessage.getPart(3).getObject();
+      var callbackArg = clientMessage.getPart(3).getObject();
 
       // part 4: number of keys
-      final Part numberOfKeysPart = clientMessage.getPart(4);
-      final int numberOfKeys = numberOfKeysPart.getInt();
+      final var numberOfKeysPart = clientMessage.getPart(4);
+      final var numberOfKeys = numberOfKeysPart.getInt();
 
       if (logger.isDebugEnabled()) {
-        StringBuilder buffer = new StringBuilder();
+        var buffer = new StringBuilder();
         buffer.append(serverConnection.getName()).append(": Received removeAll request from ")
             .append(serverConnection.getSocketString()).append(" for region ").append(regionName)
             .append(callbackArg != null ? (" callbackArg " + callbackArg) : "").append(" with ")
             .append(numberOfKeys).append(" keys.");
         logger.debug(buffer);
       }
-      final ArrayList<Object> keys = new ArrayList<>(numberOfKeys);
-      final ArrayList<VersionTag<?>> retryVersions = new ArrayList<>(numberOfKeys);
+      final var keys = new ArrayList<Object>(numberOfKeys);
+      final var retryVersions = new ArrayList<VersionTag<?>>(numberOfKeys);
       Object key;
-      for (int i = 0; i < numberOfKeys; i++) {
-        final Part keyPart = clientMessage.getPart(5 + i);
+      for (var i = 0; i < numberOfKeys; i++) {
+        final var keyPart = clientMessage.getPart(5 + i);
         key = keyPart.getStringOrObject();
         if (key == null) {
-          String txt =
+          var txt =
               "One of the input keys for the removeAll request is null";
           logger.warn("{} : {}",
               new Object[] {serverConnection.getName(), txt});
@@ -158,19 +153,19 @@ public class RemoveAll extends BaseCommand {
           // Constuct the thread id/sequence id information for this element of the bulk op
 
           // The sequence id is constructed from the base sequence id and the offset
-          EventID entryEventId = new EventID(eventId, i);
+          var entryEventId = new EventID(eventId, i);
 
           // For PRs, the thread id assigned as a fake thread id.
           if (region instanceof PartitionedRegion) {
-            PartitionedRegion pr = (PartitionedRegion) region;
-            int bucketId = pr.getKeyInfo(key).getBucketId();
-            long entryThreadId =
+            var pr = (PartitionedRegion) region;
+            var bucketId = pr.getKeyInfo(key).getBucketId();
+            var entryThreadId =
                 ThreadIdentifier.createFakeThreadIDForBulkOp(bucketId, entryEventId.getThreadID());
             entryEventId = new EventID(entryEventId.getMembershipID(), entryThreadId,
                 entryEventId.getSequenceID());
           }
 
-          VersionTag<?> tag = findVersionTagsForRetriedBulkOp(region, entryEventId);
+          var tag = findVersionTagsForRetriedBulkOp(region, entryEventId);
           retryVersions.add(tag);
           // FIND THE VERSION TAG FOR THIS KEY - but how? all we have is the
           // removeAll eventId, not individual eventIds for entries, right?
@@ -183,18 +178,18 @@ public class RemoveAll extends BaseCommand {
       if (clientMessage.getNumberOfParts() == (5 + numberOfKeys + 1)) {// it means optional timeout
                                                                        // has been
         // added
-        int timeout = clientMessage.getPart(5 + numberOfKeys).getInt();
+        var timeout = clientMessage.getPart(5 + numberOfKeys).getInt();
         serverConnection.setRequestSpecificTimeout(timeout);
       }
 
       securityService.authorize(Resource.DATA, Operation.WRITE, regionName);
 
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       if (authzRequest != null) {
         if (DynamicRegionFactory.regionIsDynamicRegionList(regionName)) {
           authzRequest.createRegionAuthorize(regionName);
         } else {
-          RemoveAllOperationContext removeAllContext =
+          var removeAllContext =
               authzRequest.removeAllAuthorize(regionName, keys, callbackArg);
           callbackArg = removeAllContext.getCallbackArg();
         }
@@ -215,7 +210,7 @@ public class RemoveAll extends BaseCommand {
       }
 
       if (region instanceof PartitionedRegion) {
-        PartitionedRegion pr = (PartitionedRegion) region;
+        var pr = (PartitionedRegion) region;
         if (pr.getNetworkHopType() != PartitionedRegion.NETWORK_HOP_NONE) {
           writeReplyWithRefreshMetadata(clientMessage, response, serverConnection, pr,
               pr.getNetworkHopType());
@@ -240,7 +235,7 @@ public class RemoveAll extends BaseCommand {
       // }
       return;
     } finally {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessRemoveAllTime(start - oldStart);
     }
@@ -268,10 +263,10 @@ public class RemoveAll extends BaseCommand {
   protected void writeReply(Message origMsg, VersionedObjectList response,
       ServerConnection servConn) throws IOException {
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
-    ChunkedMessage replyMsg = servConn.getChunkedResponseMessage();
+    var replyMsg = servConn.getChunkedResponseMessage();
     replyMsg.setMessageType(MessageType.RESPONSE);
     replyMsg.setTransactionId(origMsg.getTransactionId());
-    int listSize = (response == null) ? 0 : response.size();
+    var listSize = (response == null) ? 0 : response.size();
     if (response != null) {
       response.setKeys(null);
     }
@@ -281,12 +276,12 @@ public class RemoveAll extends BaseCommand {
     }
     replyMsg.sendHeader();
     if (listSize > 0) {
-      int chunkSize = 2 * MAXIMUM_CHUNK_SIZE;
+      var chunkSize = 2 * MAXIMUM_CHUNK_SIZE;
       // Chunker will stream over the list in its toData method
-      VersionedObjectList.Chunker chunk =
+      var chunk =
           new VersionedObjectList.Chunker(response, chunkSize, false, false);
-      for (int i = 0; i < listSize; i += chunkSize) {
-        boolean lastChunk = (i + chunkSize >= listSize);
+      for (var i = 0; i < listSize; i += chunkSize) {
+        var lastChunk = (i + chunkSize >= listSize);
         replyMsg.setNumberOfParts(1);
         replyMsg.setMessageType(MessageType.RESPONSE);
         replyMsg.setLastChunk(lastChunk);
@@ -315,11 +310,11 @@ public class RemoveAll extends BaseCommand {
   private void writeReplyWithRefreshMetadata(Message origMsg, VersionedObjectList response,
       ServerConnection servConn, PartitionedRegion pr, byte nwHop) throws IOException {
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
-    ChunkedMessage replyMsg = servConn.getChunkedResponseMessage();
+    var replyMsg = servConn.getChunkedResponseMessage();
     replyMsg.setMessageType(MessageType.RESPONSE);
     replyMsg.setTransactionId(origMsg.getTransactionId());
     replyMsg.sendHeader();
-    int listSize = (response == null) ? 0 : response.size();
+    var listSize = (response == null) ? 0 : response.size();
     if (logger.isDebugEnabled()) {
       logger.debug(
           "sending chunked response header with metadata refresh status. Version list size = {}{}",
@@ -335,12 +330,12 @@ public class RemoveAll extends BaseCommand {
       replyMsg.setLastChunk(false);
       replyMsg.sendChunk(servConn);
 
-      int chunkSize = 2 * MAXIMUM_CHUNK_SIZE; // MAXIMUM_CHUNK_SIZE
+      var chunkSize = 2 * MAXIMUM_CHUNK_SIZE; // MAXIMUM_CHUNK_SIZE
       // Chunker will stream over the list in its toData method
-      VersionedObjectList.Chunker chunk =
+      var chunk =
           new VersionedObjectList.Chunker(response, chunkSize, false, false);
-      for (int i = 0; i < listSize; i += chunkSize) {
-        boolean lastChunk = (i + chunkSize >= listSize);
+      for (var i = 0; i < listSize; i += chunkSize) {
+        var lastChunk = (i + chunkSize >= listSize);
         replyMsg.setNumberOfParts(1); // resets the message
         replyMsg.setMessageType(MessageType.RESPONSE);
         replyMsg.setLastChunk(lastChunk);

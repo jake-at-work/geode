@@ -39,11 +39,8 @@ import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.DistributedRegion;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
-import org.apache.geode.internal.cache.partitioned.Bucket;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -72,9 +69,9 @@ public class PrepareNewPersistentMemberMessage extends HighPriorityDistributionM
 
   public static void send(Set<InternalDistributedMember> members, DistributionManager dm,
       String regionPath, PersistentMemberID oldId, PersistentMemberID newId) throws ReplyException {
-    InternalCache cache = dm.getExistingCache();
-    ReplyProcessor21 processor = new ReplyProcessor21(dm, members, cache.getCancelCriterion());
-    PrepareNewPersistentMemberMessage msg =
+    var cache = dm.getExistingCache();
+    var processor = new ReplyProcessor21(dm, members, cache.getCancelCriterion());
+    var msg =
         new PrepareNewPersistentMemberMessage(regionPath, oldId, newId, processor.getProcessorId());
     msg.setRecipients(members);
     dm.putOutgoing(msg);
@@ -83,12 +80,12 @@ public class PrepareNewPersistentMemberMessage extends HighPriorityDistributionM
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+    final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
 
     PersistentMemberState state = null;
     PersistentMemberID myId = null;
     ReplyException exception = null;
-    boolean sendReply = true;
+    var sendReply = true;
     try {
       // get the region from the path, but do NOT wait on initialization,
       // otherwise we could have a distributed deadlock
@@ -99,7 +96,7 @@ public class PrepareNewPersistentMemberMessage extends HighPriorityDistributionM
       if (region instanceof DistributedRegion) {
         persistenceAdvisor = ((DistributedRegion) region).getPersistenceAdvisor();
       } else if (region == null) {
-        Bucket proxy =
+        var proxy =
             PartitionedRegionHelper.getProxyBucketRegion(dm.getCache(), regionPath);
         if (proxy != null) {
           persistenceAdvisor = proxy.getPersistenceAdvisor();
@@ -127,7 +124,7 @@ public class PrepareNewPersistentMemberMessage extends HighPriorityDistributionM
       exception = new ReplyException(t);
     } finally {
       LocalRegion.setThreadInitLevelRequirement(oldLevel);
-      ReplyMessage replyMsg = createReplyMessage();
+      var replyMsg = createReplyMessage();
       replyMsg.setRecipient(getSender());
       replyMsg.setProcessorId(processorId);
       if (exception != null) {
@@ -158,7 +155,7 @@ public class PrepareNewPersistentMemberMessage extends HighPriorityDistributionM
     super.fromData(in, context);
     regionPath = DataSerializer.readString(in);
     processorId = in.readInt();
-    boolean hasOldId = in.readBoolean();
+    var hasOldId = in.readBoolean();
     if (hasOldId) {
       oldId = new PersistentMemberID();
       InternalDataSerializer.invokeFromData(oldId, in);

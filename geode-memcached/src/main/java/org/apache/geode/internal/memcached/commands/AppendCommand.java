@@ -17,7 +17,6 @@ package org.apache.geode.internal.memcached.commands;
 import java.nio.ByteBuffer;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.internal.memcached.Reply;
 import org.apache.geode.internal.memcached.RequestReader;
 import org.apache.geode.internal.memcached.ResponseStatus;
@@ -32,13 +31,13 @@ public class AppendCommand extends StorageCommand {
 
   @Override
   public ByteBuffer processStorageCommand(String key, byte[] value, int flags, Cache cache) {
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
-    ValueWrapper oldValWrapper = r.get(key);
-    String retVal = Reply.NOT_FOUND.toString();
+    var r = getMemcachedRegion(cache);
+    var oldValWrapper = r.get(key);
+    var retVal = Reply.NOT_FOUND.toString();
     if (oldValWrapper != null) {
-      byte[] appendVal = value;
-      byte[] oldVal = oldValWrapper.getValue();
-      byte[] newVal = new byte[oldVal.length + appendVal.length];
+      var appendVal = value;
+      var oldVal = oldValWrapper.getValue();
+      var newVal = new byte[oldVal.length + appendVal.length];
       System.arraycopy(oldVal, 0, newVal, 0, oldVal.length);
       System.arraycopy(appendVal, 0, newVal, oldVal.length, appendVal.length);
       r.put(key, ValueWrapper.getWrappedValue(newVal, flags));
@@ -50,17 +49,17 @@ public class AppendCommand extends StorageCommand {
   @Override
   public ByteBuffer processBinaryStorageCommand(Object key, byte[] value, long cas, int flags,
       Cache cache, RequestReader request) {
-    ByteBuffer response = request.getResponse();
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
+    var response = request.getResponse();
+    var r = getMemcachedRegion(cache);
     try {
-      ValueWrapper oldValWrapper = r.get(key);
+      var oldValWrapper = r.get(key);
       if (oldValWrapper != null) {
-        byte[] appendVal = value;
-        byte[] oldVal = oldValWrapper.getValue();
-        byte[] newVal = new byte[oldVal.length + appendVal.length];
+        var appendVal = value;
+        var oldVal = oldValWrapper.getValue();
+        var newVal = new byte[oldVal.length + appendVal.length];
         System.arraycopy(oldVal, 0, newVal, 0, oldVal.length);
         System.arraycopy(appendVal, 0, newVal, oldVal.length, appendVal.length);
-        ValueWrapper val = ValueWrapper.getWrappedValue(newVal, flags);
+        var val = ValueWrapper.getWrappedValue(newVal, flags);
         try {
           r.put(key, val);
           if (isQuiet()) {

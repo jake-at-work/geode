@@ -49,7 +49,7 @@ public class BucketOperatorImpl implements BucketOperator {
   @Override
   public void createRedundantBucket(InternalDistributedMember targetMember, int bucketId,
       Map<String, Long> colocatedRegionBytes, Completion completion) {
-    boolean result = false;
+    var result = false;
     try {
       result = rebalanceOp.createRedundantBucketForRegion(targetMember, bucketId);
     } finally {

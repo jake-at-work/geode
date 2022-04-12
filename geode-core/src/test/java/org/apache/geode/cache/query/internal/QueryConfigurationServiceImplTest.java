@@ -128,7 +128,7 @@ public class QueryConfigurationServiceImplTest {
   public void updateMethodAuthorizerDoesNothingWhenSecurityIsDisabled() {
     when(mockSecurity.isIntegratedSecurity()).thenReturn(false);
     configService.init(mockCache);
-    MethodInvocationAuthorizer authorizer = configService.getMethodAuthorizer();
+    var authorizer = configService.getMethodAuthorizer();
     assertThat(authorizer).isSameAs(QueryConfigurationServiceImpl.getNoOpAuthorizer());
 
     configService.updateMethodAuthorizer(mockCache, false,
@@ -143,7 +143,7 @@ public class QueryConfigurationServiceImplTest {
     when(mockSecurity.isIntegratedSecurity()).thenReturn(true);
     configService.init(mockCache);
 
-    MethodInvocationAuthorizer authorizer = configService.getMethodAuthorizer();
+    var authorizer = configService.getMethodAuthorizer();
     assertThat(authorizer).isSameAs(QueryConfigurationServiceImpl.getNoOpAuthorizer());
 
     configService.updateMethodAuthorizer(mockCache, false,
@@ -165,16 +165,16 @@ public class QueryConfigurationServiceImplTest {
   @Test
   public void updateMethodAuthorizerSetsUserSpecifiedAuthorizer() {
     when(mockSecurity.isIntegratedSecurity()).thenReturn(true);
-    String testAuthorizerName = TestMethodAuthorizer.class.getName();
+    var testAuthorizerName = TestMethodAuthorizer.class.getName();
     Set<String> parameters = new HashSet<>();
-    String testParam1 = "test1";
-    String testParam2 = "test2";
+    var testParam1 = "test1";
+    var testParam2 = "test2";
     parameters.add(testParam1);
     parameters.add(testParam2);
 
     configService.updateMethodAuthorizer(mockCache, false, testAuthorizerName, parameters);
     assertThat(configService.getMethodAuthorizer()).isInstanceOf(TestMethodAuthorizer.class);
-    TestMethodAuthorizer methodAuthorizer =
+    var methodAuthorizer =
         (TestMethodAuthorizer) configService.getMethodAuthorizer();
     assertThat(methodAuthorizer.getParameters()).isEqualTo(parameters);
   }
@@ -197,7 +197,7 @@ public class QueryConfigurationServiceImplTest {
 
     configService.init(mockCache);
     assertThat(configService.getMethodAuthorizer()).isInstanceOf(RestrictedMethodAuthorizer.class);
-    String className = "FakeClassName";
+    var className = "FakeClassName";
     assertThatThrownBy(
         () -> configService.updateMethodAuthorizer(mockCache, false, className, EMPTY_SET))
             .isInstanceOf(QueryConfigurationServiceException.class);
@@ -210,7 +210,7 @@ public class QueryConfigurationServiceImplTest {
 
     configService.init(mockCache);
     assertThat(configService.getMethodAuthorizer()).isInstanceOf(RestrictedMethodAuthorizer.class);
-    String className = getClass().getName();
+    var className = getClass().getName();
     assertThatThrownBy(
         () -> configService.updateMethodAuthorizer(mockCache, false, className, EMPTY_SET))
             .hasCauseInstanceOf(QueryConfigurationServiceException.class)
@@ -254,8 +254,8 @@ public class QueryConfigurationServiceImplTest {
   @Parameters(method = "getMethodAuthorizerClasses")
   public void updateMethodAuthorizerChangesMethodAuthorizerAndInvalidatesCqsCacheWhenCqsAreRunningAndForceUpdateFlagIsSetAsTrue(
       Class methodAuthorizerClass) {
-    ServerCQ serverCQ1 = mock(ServerCQ.class);
-    ServerCQ serverCQ2 = mock(ServerCQ.class);
+    var serverCQ1 = mock(ServerCQ.class);
+    var serverCQ2 = mock(ServerCQ.class);
     when(mockSecurity.isIntegratedSecurity()).thenReturn(true);
     doReturn(Arrays.asList(serverCQ1, serverCQ2)).when(mockCqService).getAllCqs();
     configService.init(mockCache);

@@ -15,7 +15,6 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import javax.management.ObjectName;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
@@ -27,7 +26,6 @@ import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.ManagementConstants;
 import org.apache.geode.management.internal.SystemManagementService;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -43,8 +41,8 @@ public class ShowLogCommand extends GfshCommand {
           help = CliStrings.SHOW_LOG_MEMBER_HELP, mandatory = true) String memberNameOrId,
       @CliOption(key = CliStrings.SHOW_LOG_LINE_NUM, unspecifiedDefaultValue = "0",
           help = CliStrings.SHOW_LOG_LINE_NUM_HELP) int numberOfLines) {
-    DistributedMember targetMember = getMember(memberNameOrId);
-    MemberMXBean targetMemberMXBean = getMemberMxBean(targetMember);
+    var targetMember = getMember(memberNameOrId);
+    var targetMemberMXBean = getMemberMxBean(targetMember);
 
     if (numberOfLines > ManagementConstants.MAX_SHOW_LOG_LINES) {
       numberOfLines = ManagementConstants.MAX_SHOW_LOG_LINES;
@@ -54,10 +52,10 @@ public class ShowLogCommand extends GfshCommand {
       numberOfLines = ManagementConstants.DEFAULT_SHOW_LOG_LINES;
     }
 
-    ResultModel result = new ResultModel();
-    InfoResultModel resultInfo = result.addInfo();
+    var result = new ResultModel();
+    var resultInfo = result.addInfo();
     if (targetMemberMXBean != null) {
-      String log = targetMemberMXBean.showLog(numberOfLines);
+      var log = targetMemberMXBean.showLog(numberOfLines);
       if (log != null) {
         resultInfo.addLine(log);
       } else {
@@ -77,7 +75,7 @@ public class ShowLogCommand extends GfshCommand {
     if (getCache().getDistributedSystem().getDistributedMember().equals(targetMember)) {
       return service.getMemberMXBean();
     } else {
-      ObjectName objectName = service.getMemberMBeanName(targetMember);
+      var objectName = service.getMemberMBeanName(targetMember);
       return service.getMBeanProxy(objectName, MemberMXBean.class);
     }
   }

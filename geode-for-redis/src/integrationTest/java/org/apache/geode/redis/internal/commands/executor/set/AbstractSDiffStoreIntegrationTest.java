@@ -62,7 +62,7 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
 
   @Test
   public void sdifstore_withSetsFromDifferentSlots_returnsCrossSlotError() {
-    String setKeyDifferentSlot = "{tag2}set2";
+    var setKeyDifferentSlot = "{tag2}set2";
     jedis.sadd(SET_KEY, "member1");
     jedis.sadd(setKeyDifferentSlot, "member2");
 
@@ -72,10 +72,10 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
 
   @Test
   public void sdiffstore_withNonSetKeyAsFirstKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
-    String secondSetKey = "{tag1}secondKey";
+    var secondSetKey = "{tag1}secondKey";
     jedis.sadd(SET_KEY, SET_MEMBERS);
     jedis.sadd(secondSetKey, SET_MEMBERS);
     assertThatThrownBy(() -> jedis.sdiffstore(DESTINATION_KEY, stringKey, SET_KEY, secondSetKey))
@@ -84,10 +84,10 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
 
   @Test
   public void sdiffstore_withNonSetKeyAsThirdKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
-    String secondSetKey = "{tag1}secondKey";
+    var secondSetKey = "{tag1}secondKey";
     jedis.sadd(SET_KEY, SET_MEMBERS);
     jedis.sadd(secondSetKey, SET_MEMBERS);
     assertThatThrownBy(() -> jedis.sdiffstore(DESTINATION_KEY, SET_KEY, secondSetKey, stringKey))
@@ -96,7 +96,7 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
 
   @Test
   public void sdiffstore_withNonSetKeyAsThirdKeyAndNonExistentSetAsFirstKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(SET_KEY, SET_MEMBERS);
@@ -136,8 +136,8 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
 
   @Test
   public void sdiffstoreWithNonExistentDest_withOverlappingSets_returnsSDiffSizeAndStoresSDiff() {
-    String key = "{tag1}key";
-    String[] result = {"three", "four", "five"};
+    var key = "{tag1}key";
+    var result = new String[] {"three", "four", "five"};
     jedis.sadd(SET_KEY, SET_MEMBERS);
     jedis.sadd(key, DESTINATION_MEMBERS);
     assertThat(jedis.sdiffstore(DESTINATION_KEY, SET_KEY, key)).isEqualTo(3);
@@ -146,8 +146,8 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
 
   @Test
   public void sdiffstoreWithNonExistentDest_withNonOverlappingSets_returnsSDiffSizeAndStoresSDiff() {
-    String key = "{tag1}key";
-    String[] members = {"nine", "twelve"};
+    var key = "{tag1}key";
+    var members = new String[] {"nine", "twelve"};
     jedis.sadd(SET_KEY, SET_MEMBERS);
     jedis.sadd(key, members);
     assertThat(jedis.sdiffstore(DESTINATION_KEY, SET_KEY, key)).isEqualTo(SET_MEMBERS.length);
@@ -156,7 +156,7 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
 
   @Test
   public void sdiffstoreWithNonExistentDest_withIdenticalSets_returnsZeroAndDestKeyDoesNotExist() {
-    String key = "{tag1}key";
+    var key = "{tag1}key";
     jedis.sadd(SET_KEY, SET_MEMBERS);
     jedis.sadd(key, SET_MEMBERS);
     assertThat(jedis.sdiffstore(DESTINATION_KEY, SET_KEY, key)).isEqualTo(0);
@@ -173,8 +173,8 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
   // Destination Key has members
   @Test
   public void sdiffstoreWithExistentDest_withOverlappingSets_returnsSDiffSizeAndStoresSDiff() {
-    String key = "{tag1}key";
-    String[] result = {"three", "four", "five"};
+    var key = "{tag1}key";
+    var result = new String[] {"three", "four", "five"};
     jedis.sadd(DESTINATION_KEY, DESTINATION_MEMBERS);
     jedis.sadd(SET_KEY, SET_MEMBERS);
     jedis.sadd(key, DESTINATION_MEMBERS);
@@ -184,7 +184,7 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
 
   @Test
   public void sdiffstoreWithExistentDest_withIdenticalSets_returnsZeroAndDestKeyDoesNotExist() {
-    String key = "{tag1}key";
+    var key = "{tag1}key";
     jedis.sadd(DESTINATION_KEY, DESTINATION_MEMBERS);
     jedis.sadd(SET_KEY, SET_MEMBERS);
     jedis.sadd(key, SET_MEMBERS);
@@ -209,12 +209,12 @@ public abstract class AbstractSDiffStoreIntegrationTest implements RedisIntegrat
 
   @Test
   public void ensureSetConsistency_whenRunningConcurrently() {
-    String firstKey = "{tag1}firstset";
-    String secondKey = "{tag1}secondset";
+    var firstKey = "{tag1}firstset";
+    var secondKey = "{tag1}secondset";
     jedis.sadd(firstKey, SET_MEMBERS);
     jedis.sadd(secondKey, SET_MEMBERS);
 
-    final AtomicLong sdiffSize = new AtomicLong(0);
+    final var sdiffSize = new AtomicLong(0);
     new ConcurrentLoopingThreads(1000,
         i -> jedis.srem(secondKey, SET_MEMBERS),
         i -> sdiffSize.set(jedis.sdiffstore(DESTINATION_KEY, firstKey, secondKey)))

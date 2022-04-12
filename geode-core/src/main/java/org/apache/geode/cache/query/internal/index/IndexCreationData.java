@@ -147,7 +147,7 @@ public class IndexCreationData implements DataSerializableFixedID {
     fromClause = in.readUTF();
     loadEntries = in.readBoolean();
 
-    byte byteIndexType = in.readByte();
+    var byteIndexType = in.readByte();
     if (0 == byteIndexType) {
       indexType = IndexType.PRIMARY_KEY;
     } else if (1 == byteIndexType) {
@@ -156,7 +156,7 @@ public class IndexCreationData implements DataSerializableFixedID {
       indexType = IndexType.FUNCTIONAL;
     }
 
-    boolean isImportStr = in.readBoolean();
+    var isImportStr = in.readBoolean();
     if (isImportStr) {
       importStr = in.readUTF();
     }

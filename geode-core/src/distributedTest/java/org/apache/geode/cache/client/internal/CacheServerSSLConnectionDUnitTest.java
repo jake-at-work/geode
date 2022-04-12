@@ -94,9 +94,7 @@ import org.apache.geode.distributed.Locator;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.security.AuthenticationRequiredException;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.RMIException;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
 import org.apache.geode.test.junit.categories.ClientServerTest;
@@ -167,8 +165,8 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
 
   @After
   public void tearDown() {
-    VM serverVM = getVM(1);
-    VM clientVM = getVM(2);
+    var serverVM = getVM(1);
+    var clientVM = getVM(2);
 
     clientVM.invoke(CacheServerSSLConnectionDUnitTest::closeClientCacheTask);
     serverVM.invoke(CacheServerSSLConnectionDUnitTest::closeCacheTask);
@@ -204,14 +202,14 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
       throws Exception {
     System.setProperty("javax.net.debug", "ssl,handshake");
 
-    Properties gemFireProps = new Properties();
+    var gemFireProps = new Properties();
     if (optionalLocatorPort > 0) {
       gemFireProps.setProperty("locators", "localhost[" + optionalLocatorPort + "]");
     }
 
-    String cacheServerSslprotocols = "any";
-    String cacheServerSslciphers = "any";
-    boolean cacheServerSslRequireAuth = true;
+    var cacheServerSslprotocols = "any";
+    var cacheServerSslciphers = "any";
+    var cacheServerSslRequireAuth = true;
     if (!useOldSSLSettings) {
       getNewSSLSettings(gemFireProps, cacheServerSslprotocols, cacheServerSslciphers,
           cacheServerSslRequireAuth);
@@ -222,10 +220,10 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
       gemFireProps.setProperty(CLUSTER_SSL_REQUIRE_AUTHENTICATION,
           String.valueOf(cacheServerSslRequireAuth));
 
-      String keyStore =
+      var keyStore =
           createTempFileFromResource(CacheServerSSLConnectionDUnitTest.class, SERVER_KEY_STORE)
               .getAbsolutePath();
-      String trustStore =
+      var trustStore =
           createTempFileFromResource(CacheServerSSLConnectionDUnitTest.class,
               SERVER_TRUST_STORE).getAbsolutePath();
       gemFireProps.setProperty(CLUSTER_SSL_KEYSTORE_TYPE, "jks");
@@ -234,14 +232,14 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
       gemFireProps.setProperty(CLUSTER_SSL_TRUSTSTORE, trustStore);
       gemFireProps.setProperty(CLUSTER_SSL_TRUSTSTORE_PASSWORD, "password");
     }
-    StringWriter sw = new StringWriter();
-    PrintWriter writer = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var writer = new PrintWriter(sw);
     gemFireProps.list(writer);
     System.out.println("Starting cacheserver ds with following properties \n" + sw);
     createCache(gemFireProps);
 
     RegionFactory factory = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    Region r = factory.create("serverRegion");
+    var r = factory.create("serverRegion");
     r.put("serverkey", "servervalue");
   }
 
@@ -253,10 +251,10 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
     gemFireProps.setProperty(SSL_CIPHERS, cacheServerSslciphers);
     gemFireProps.setProperty(SSL_REQUIRE_AUTHENTICATION, String.valueOf(cacheServerSslRequireAuth));
 
-    String keyStore =
+    var keyStore =
         createTempFileFromResource(CacheServerSSLConnectionDUnitTest.class, SERVER_KEY_STORE)
             .getAbsolutePath();
-    String trustStore =
+    var trustStore =
         createTempFileFromResource(CacheServerSSLConnectionDUnitTest.class, SERVER_TRUST_STORE)
             .getAbsolutePath();
     gemFireProps.setProperty(SSL_KEYSTORE_TYPE, "jks");
@@ -270,15 +268,15 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
       boolean cacheServerSslRequireAuth, String keyStore, String trustStore, boolean subscription,
       boolean clientHasTrustedKeystore) {
     System.setProperty("javax.net.debug", "ssl,handshake");
-    Properties gemFireProps = new Properties();
+    var gemFireProps = new Properties();
 
-    String cacheServerSslprotocols = "any";
-    String cacheServerSslciphers = "any";
+    var cacheServerSslprotocols = "any";
+    var cacheServerSslciphers = "any";
 
-    String keyStorePath =
+    var keyStorePath =
         createTempFileFromResource(CacheServerSSLConnectionDUnitTest.class, keyStore)
             .getAbsolutePath();
-    String trustStorePath =
+    var trustStorePath =
         createTempFileFromResource(CacheServerSSLConnectionDUnitTest.class, trustStore)
             .getAbsolutePath();
 
@@ -324,19 +322,19 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
       }
     }
 
-    StringWriter sw = new StringWriter();
-    PrintWriter writer = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var writer = new PrintWriter(sw);
     gemFireProps.list(writer);
     System.out.println("Starting client ds with following properties \n" + sw.getBuffer());
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory(gemFireProps);
+    var clientCacheFactory = new ClientCacheFactory(gemFireProps);
     clientCacheFactory.setPoolSubscriptionEnabled(subscription).addPoolServer(host, port);
     clientCacheFactory.setPoolRetryAttempts(5);
     clientCache = clientCacheFactory.create();
 
     ClientRegionFactory<String, String> regionFactory =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-    Region<String, String> region = regionFactory.create("serverRegion");
+    var region = regionFactory.create("serverRegion");
     assertNotNull(region);
   }
 
@@ -395,7 +393,7 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
   }
 
   private static Object[] getCacheServerEndPointTask() { // TODO: avoid Object[]
-    Object[] array = new Object[2];
+    var array = new Object[2];
     array[0] = instance.getCacheServerHost();
     array[1] = instance.getCacheServerPort();
     return array;
@@ -415,21 +413,21 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
 
   @Test
   public void testCacheServerSSL() throws Exception {
-    VM serverVM = getVM(1);
-    VM clientVM = getVM(2);
-    VM serverVM2 = getVM(3);
+    var serverVM = getVM(1);
+    var clientVM = getVM(2);
+    var serverVM2 = getVM(3);
 
-    boolean cacheServerSslenabled = true;
-    boolean cacheClientSslenabled = true;
-    boolean cacheClientSslRequireAuth = true;
+    var cacheServerSslenabled = true;
+    var cacheClientSslenabled = true;
+    var cacheClientSslRequireAuth = true;
 
-    Properties locatorProps = new Properties();
-    String cacheServerSslprotocols = "any";
-    String cacheServerSslciphers = "any";
-    boolean cacheServerSslRequireAuth = true;
+    var locatorProps = new Properties();
+    var cacheServerSslprotocols = "any";
+    var cacheServerSslciphers = "any";
+    var cacheServerSslRequireAuth = true;
     getNewSSLSettings(locatorProps, cacheServerSslprotocols, cacheServerSslciphers,
         cacheServerSslRequireAuth);
-    Locator locator = Locator.startLocatorAndDS(0, new File(""), locatorProps);
+    var locator = Locator.startLocatorAndDS(0, new File(""), locatorProps);
     int locatorPort = locator.getPort();
     try {
       serverVM.invoke(() -> setUpServerVMTask(cacheServerSslenabled, locatorPort));
@@ -437,7 +435,7 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
       serverVM2.invoke(() -> setUpServerVMTask(cacheServerSslenabled, locatorPort));
       serverVM2.invoke(CacheServerSSLConnectionDUnitTest::createServerTask);
 
-      String hostName = getHostName();
+      var hostName = getHostName();
 
       clientVM.invoke(() -> setUpClientVMTask(hostName, port, cacheClientSslenabled,
           cacheClientSslRequireAuth, CLIENT_KEY_STORE, CLIENT_TRUST_STORE, true));
@@ -460,9 +458,9 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
    */
   @Test
   public void clientSlowToHandshakeDoesNotBlockServer() throws Throwable {
-    VM serverVM = getVM(1);
-    VM clientVM = getVM(2);
-    VM slowClientVM = getVM(3);
+    var serverVM = getVM(1);
+    var clientVM = getVM(2);
+    var slowClientVM = getVM(3);
 
     getBlackboard().initBlackboard();
 
@@ -470,14 +468,14 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
     // is never performed. The server will log this exception & it should be ignored
     addIgnoredException(SSLHandshakeException.class);
 
-    boolean cacheServerSslenabled = true;
-    boolean cacheClientSslenabled = true;
-    boolean cacheClientSslRequireAuth = true;
+    var cacheServerSslenabled = true;
+    var cacheClientSslenabled = true;
+    var cacheClientSslRequireAuth = true;
 
     serverVM.invoke(() -> setUpServerVMTask(cacheServerSslenabled, 0));
     int port = serverVM.invoke(CacheServerSSLConnectionDUnitTest::createServerTask);
 
-    String hostName = getHostName();
+    var hostName = getHostName();
 
     AsyncInvocation slowAsync = slowClientVM.invokeAsync(() -> connectToServer(hostName, port));
     try {
@@ -495,7 +493,7 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
   }
 
   private void connectToServer(String hostName, int port) throws Exception {
-    Socket sock = new Socket();
+    var sock = new Socket();
     sock.connect(new InetSocketAddress(hostName, port));
     try {
       getBlackboard().signalGate("serverIsBlocked");
@@ -507,22 +505,22 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
 
   @Test
   public void testNonSSLClient() {
-    VM serverVM = getVM(1);
-    VM clientVM = getVM(2);
+    var serverVM = getVM(1);
+    var clientVM = getVM(2);
 
-    boolean cacheServerSslenabled = true;
-    boolean cacheClientSslenabled = false;
-    boolean cacheClientSslRequireAuth = true;
+    var cacheServerSslenabled = true;
+    var cacheClientSslenabled = false;
+    var cacheClientSslRequireAuth = true;
 
     serverVM.invoke(() -> setUpServerVMTask(cacheServerSslenabled, 0));
     serverVM.invoke(CacheServerSSLConnectionDUnitTest::createServerTask);
 
-    Object[] array = serverVM.invoke(CacheServerSSLConnectionDUnitTest::getCacheServerEndPointTask);
-    String hostName = (String) array[0];
+    var array = serverVM.invoke(CacheServerSSLConnectionDUnitTest::getCacheServerEndPointTask);
+    var hostName = (String) array[0];
     int port = (Integer) array[1];
 
-    try (IgnoredException i1 = addIgnoredException(SSLException.class);
-        IgnoredException i2 = addIgnoredException(IOException.class)) {
+    try (var i1 = addIgnoredException(SSLException.class);
+        var i2 = addIgnoredException(IOException.class)) {
       clientVM.invoke(() -> setUpClientVMTaskNoSubscription(hostName, port, cacheClientSslenabled,
           cacheClientSslRequireAuth, TRUSTED_STORE, TRUSTED_STORE));
       clientVM.invoke(CacheServerSSLConnectionDUnitTest::doClientRegionTestTask);
@@ -536,12 +534,12 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
 
   @Test
   public void testSSLClientWithNoAuth() {
-    VM serverVM = getVM(1);
-    VM clientVM = getVM(2);
+    var serverVM = getVM(1);
+    var clientVM = getVM(2);
 
-    boolean cacheServerSslenabled = true;
-    boolean cacheClientSslenabled = true;
-    boolean cacheClientSslRequireAuth = false;
+    var cacheServerSslenabled = true;
+    var cacheClientSslenabled = true;
+    var cacheClientSslRequireAuth = false;
 
     addIgnoredException("SSLHandshakeException");
     addIgnoredException("ValidatorException");
@@ -549,8 +547,8 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
     serverVM.invoke(() -> setUpServerVMTask(cacheServerSslenabled, 0));
     serverVM.invoke(CacheServerSSLConnectionDUnitTest::createServerTask);
 
-    Object[] array = serverVM.invoke(CacheServerSSLConnectionDUnitTest::getCacheServerEndPointTask);
-    String hostName = (String) array[0];
+    var array = serverVM.invoke(CacheServerSSLConnectionDUnitTest::getCacheServerEndPointTask);
+    var hostName = (String) array[0];
     int port = (Integer) array[1];
 
     clientVM.invoke(() -> setUpClientVMTask(hostName, port, cacheClientSslenabled,
@@ -561,18 +559,18 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
 
   @Test
   public void untrustedClientIsRejected() {
-    VM serverVM = getVM(1);
-    VM clientVM = getVM(2);
+    var serverVM = getVM(1);
+    var clientVM = getVM(2);
 
-    boolean cacheServerSslenabled = true;
-    boolean cacheClientSslenabled = true;
-    boolean cacheClientSslRequireAuth = false;
+    var cacheServerSslenabled = true;
+    var cacheClientSslenabled = true;
+    var cacheClientSslRequireAuth = false;
 
     serverVM.invoke(() -> setUpServerVMTask(cacheServerSslenabled, 0));
     serverVM.invoke(CacheServerSSLConnectionDUnitTest::createServerTask);
 
-    Object[] array = serverVM.invoke(CacheServerSSLConnectionDUnitTest::getCacheServerEndPointTask);
-    String hostName = (String) array[0];
+    var array = serverVM.invoke(CacheServerSSLConnectionDUnitTest::getCacheServerEndPointTask);
+    var hostName = (String) array[0];
     int port = (Integer) array[1];
 
     addIgnoredException("SSLHandshakeException");
@@ -591,21 +589,21 @@ public class CacheServerSSLConnectionDUnitTest extends JUnit4DistributedTestCase
 
   @Test
   public void testSSLClientWithNonSSLServer() {
-    VM serverVM = getVM(1);
-    VM clientVM = getVM(2);
+    var serverVM = getVM(1);
+    var clientVM = getVM(2);
 
-    boolean cacheServerSslenabled = false;
-    boolean cacheClientSslenabled = true;
-    boolean cacheClientSslRequireAuth = true;
+    var cacheServerSslenabled = false;
+    var cacheClientSslenabled = true;
+    var cacheClientSslRequireAuth = true;
 
     serverVM.invoke(() -> setUpServerVMTask(cacheServerSslenabled, 0));
     serverVM.invoke(CacheServerSSLConnectionDUnitTest::createServerTask);
 
-    Object[] array = serverVM.invoke(CacheServerSSLConnectionDUnitTest::getCacheServerEndPointTask);
-    String hostName = (String) array[0];
+    var array = serverVM.invoke(CacheServerSSLConnectionDUnitTest::getCacheServerEndPointTask);
+    var hostName = (String) array[0];
     int port = (Integer) array[1];
 
-    try (IgnoredException i = addIgnoredException(SSLHandshakeException.class)) {
+    try (var i = addIgnoredException(SSLHandshakeException.class)) {
       clientVM.invoke(() -> setUpClientVMTask(hostName, port, cacheClientSslenabled,
           cacheClientSslRequireAuth, TRUSTED_STORE, TRUSTED_STORE, true));
       clientVM.invoke(CacheServerSSLConnectionDUnitTest::doClientRegionTestTask);

@@ -47,8 +47,8 @@ public class InsertByteArray extends DeltaInfo {
   }
 
   public static void deserializeFrom(DataInput in, AbstractRedisData redisData) throws IOException {
-    int index = DataSerializer.readPrimitiveInt(in);
-    byte[] bytearray = DataSerializer.readByteArray(in);
+    var index = DataSerializer.readPrimitiveInt(in);
+    var bytearray = DataSerializer.readByteArray(in);
     redisData.applyInsertByteArrayDelta(bytearray, index);
   }
 }

@@ -16,8 +16,6 @@ package org.apache.geode.internal.cache.partitioned;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Iterator;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
@@ -26,11 +24,8 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.control.RebalanceResults;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
@@ -53,7 +48,7 @@ public class PartitionedRegionAttributesMutatorDUnitTest extends CacheTestCase {
    */
   @Test
   public void canStillRebalanceAfterAlteringEntryTimeToLive() {
-    VM vm0 = VM.getVM(0);
+    var vm0 = VM.getVM(0);
     IntStream.range(0, NUM_VMS).forEach(this::createRegionsOnVM);
 
     vm0.invoke(this::createAllBuckets);
@@ -70,27 +65,27 @@ public class PartitionedRegionAttributesMutatorDUnitTest extends CacheTestCase {
 
   private void alterRegion() {
     Cache cache = getCache();
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(COLOCATED);
+    var region = (PartitionedRegion) cache.getRegion(COLOCATED);
     region.getAttributesMutator().setEntryTimeToLive(new ExpirationAttributes(1000));
   }
 
   private void checkRedundancyLevel() {
     Cache cache = getCache();
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(COLOCATED);
+    var region = (PartitionedRegion) cache.getRegion(COLOCATED);
     assertThat(region.getPrStats().getLowRedundancyBucketCount()).isEqualTo(0);
   }
 
   private void moveBuckets() throws InterruptedException {
     // Move some data, to force a rebalance
-    Region<Object, Object> base = getCache().getRegion(BASE);
-    Set<DistributedMember> allMembersForKey =
+    var base = getCache().getRegion(BASE);
+    var allMembersForKey =
         PartitionRegionHelper.getAllMembersForKey(base, 0);
 
-    Iterator<DistributedMember> memberIterator = allMembersForKey.iterator();
-    DistributedMember member1 = memberIterator.next();
-    DistributedMember member2 = memberIterator.next();
+    var memberIterator = allMembersForKey.iterator();
+    var member1 = memberIterator.next();
+    var member2 = memberIterator.next();
 
-    RebalanceResults results = PartitionRegionHelper.moveData(base, member1, member2, 100);
+    var results = PartitionRegionHelper.moveData(base, member1, member2, 100);
     assertThat(results.getTotalBucketTransfersCompleted()).isGreaterThan(1);
   }
 

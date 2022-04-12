@@ -74,7 +74,7 @@ public class TXFailoverOpTest {
 
   @Test
   public void txFailoverThrowsTransactionExceptionBack() throws Exception {
-    OpExecutorImpl exec = getTestableOpExecutorImpl();
+    var exec = getTestableOpExecutorImpl();
     exec.setupServerAffinity(Boolean.TRUE);
     expectedException.expect(TransactionException.class);
     TXFailoverOp.execute(exec, 1);

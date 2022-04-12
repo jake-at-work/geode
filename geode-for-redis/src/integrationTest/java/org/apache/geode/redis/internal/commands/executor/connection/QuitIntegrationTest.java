@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
@@ -51,7 +50,7 @@ public class QuitIntegrationTest {
 
   @Test
   public void quit_returnsOK() {
-    String reply = jedis.quit();
+    var reply = jedis.quit();
     assertThat(reply).isEqualTo("OK");
   }
 
@@ -67,10 +66,10 @@ public class QuitIntegrationTest {
 
   @Test
   public void quit_preventsSubsequentCommandExecution() {
-    Pipeline pipeline = jedis.pipelined();
+    var pipeline = jedis.pipelined();
 
-    String key = randString();
-    String value = randString();
+    var key = randString();
+    var value = randString();
 
     pipeline.sendCommand(Protocol.Command.QUIT, new String[] {});
     pipeline.sendCommand(Protocol.Command.SET, key, value);

@@ -32,9 +32,7 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.FixedPartitionAttributes;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.compression.SnappyCompressor;
@@ -43,7 +41,6 @@ import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.cli.util.RegionAttributesNames;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.RegionsTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.VMProvider;
@@ -79,7 +76,7 @@ public class DescribeRegionDUnitTest {
 
   @BeforeClass
   public static void setupSystem() throws Exception {
-    MemberVM locator = lsRule.startLocatorVM(0);
+    var locator = lsRule.startLocatorVM(0);
     server1 = lsRule.startServerVM(1, "group1", locator.getPort());
     server2 = lsRule.startServerVM(2, "group2", locator.getPort());
     server3 = lsRule.startServerVM(3, locator.getPort());
@@ -92,15 +89,15 @@ public class DescribeRegionDUnitTest {
           cache.createRegionFactory(RegionShortcut.PARTITION);
       dataRegionFactory.setConcurrencyLevel(4);
       @SuppressWarnings("deprecation")
-      EvictionAttributes ea =
+      var ea =
           EvictionAttributes.createLIFOEntryAttributes(100, EvictionAction.LOCAL_DESTROY);
       dataRegionFactory.setEvictionAttributes(ea);
       dataRegionFactory.setEnableAsyncConflation(true);
 
-      FixedPartitionAttributes fpa =
+      var fpa =
           FixedPartitionAttributes.createFixedPartition(PART1_NAME, true);
       @SuppressWarnings("deprecation")
-      PartitionAttributes<String, Integer> pa =
+      var pa =
           new PartitionAttributesFactory<String, Integer>().setLocalMaxMemory(100)
               .setRecoveryDelay(2).setTotalMaxMemory(200).setRedundantCopies(1)
               .addFixedPartitionAttributes(fpa).create();
@@ -120,14 +117,14 @@ public class DescribeRegionDUnitTest {
           cache.createRegionFactory(RegionShortcut.PARTITION);
       dataRegionFactory.setConcurrencyLevel(4);
       @SuppressWarnings("deprecation")
-      EvictionAttributes ea =
+      var ea =
           EvictionAttributes.createLIFOEntryAttributes(100, EvictionAction.LOCAL_DESTROY);
       dataRegionFactory.setEvictionAttributes(ea);
       dataRegionFactory.setEnableAsyncConflation(true);
 
-      FixedPartitionAttributes fpa = FixedPartitionAttributes.createFixedPartition(PART2_NAME, 4);
+      var fpa = FixedPartitionAttributes.createFixedPartition(PART2_NAME, 4);
       @SuppressWarnings("deprecation")
-      PartitionAttributes<String, Integer> pa =
+      var pa =
           new PartitionAttributesFactory<String, Integer>().setLocalMaxMemory(150)
               .setRecoveryDelay(4).setTotalMaxMemory(200).setRedundantCopies(1)
               .addFixedPartitionAttributes(fpa).create();
@@ -157,7 +154,7 @@ public class DescribeRegionDUnitTest {
 
   @Test
   public void describeRegionOnBothServers() {
-    CommandStringBuilder csb = new CommandStringBuilder(DESCRIBE_REGION);
+    var csb = new CommandStringBuilder(DESCRIBE_REGION);
     csb.addOption(DESCRIBE_REGION__NAME, PR1);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess().containsOutput(PR1, "server-1",
         "server-2");
@@ -165,7 +162,7 @@ public class DescribeRegionDUnitTest {
 
   @Test
   public void describeLocalRegionOnlyOneServer1() {
-    CommandStringBuilder csb = new CommandStringBuilder(DESCRIBE_REGION);
+    var csb = new CommandStringBuilder(DESCRIBE_REGION);
     csb.addOption(DESCRIBE_REGION__NAME, LOCAL_REGION);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .containsOutput(LOCAL_REGION, "server-1").doesNotContainOutput("server-2");
@@ -173,7 +170,7 @@ public class DescribeRegionDUnitTest {
 
   @Test
   public void describeRegionWithCustomExpiry() {
-    CommandResultAssert result = gfsh.executeAndAssertThat("describe region --name=" + PR1)
+    var result = gfsh.executeAndAssertThat("describe region --name=" + PR1)
         .statusIsSuccess();
 
     result.hasTableSection("non-default-1")
@@ -192,9 +189,9 @@ public class DescribeRegionDUnitTest {
   @Test
   public void describeRegionWithCompressionCodec() {
     // Test the describe command; look for compression
-    CommandStringBuilder csb = new CommandStringBuilder(DESCRIBE_REGION);
+    var csb = new CommandStringBuilder(DESCRIBE_REGION);
     csb.addOption(DESCRIBE_REGION__NAME, COMPRESSED_REGION_NAME);
-    String commandString = csb.toString();
+    var commandString = csb.toString();
     gfsh.executeAndAssertThat(commandString).statusIsSuccess().containsOutput(
         COMPRESSED_REGION_NAME, RegionAttributesNames.COMPRESSOR,
         RegionEntryContext.DEFAULT_COMPRESSION_PROVIDER);
@@ -208,12 +205,12 @@ public class DescribeRegionDUnitTest {
 
   @Test
   public void testDescribeRegionReturnsDescriptionFromAllMembers() {
-    CommandStringBuilder csb = new CommandStringBuilder(DESCRIBE_REGION);
+    var csb = new CommandStringBuilder(DESCRIBE_REGION);
     csb.addOption(DESCRIBE_REGION__NAME, HOSTING_AND_ACCESSOR_REGION_NAME);
 
-    String command = csb.toString();
+    var command = csb.toString();
 
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
+    var commandResultAssert = gfsh.executeAndAssertThat(command).statusIsSuccess();
     commandResultAssert.hasDataSection("region-1").hasContent()
         .containsEntry("Name", HOSTING_AND_ACCESSOR_REGION_NAME)
         .containsEntry("Data Policy", "partition")
@@ -238,7 +235,7 @@ public class DescribeRegionDUnitTest {
   }
 
   static List<String> extractHostingMembers(Map<String, String> map) {
-    String key = "Hosting Members";
+    var key = "Hosting Members";
     assertThat(map).containsKeys(key);
     return Arrays.asList(map.get(key).split("\n"));
   }
@@ -257,7 +254,7 @@ public class DescribeRegionDUnitTest {
   }
 
   private static void createLocalRegion(final String regionName) {
-    final Cache cache = CacheFactory.getAnyInstance();
+    final var cache = CacheFactory.getAnyInstance();
     // Create the data region
     RegionFactory<String, Integer> dataRegionFactory =
         cache.createRegionFactory(RegionShortcut.LOCAL);
@@ -271,7 +268,7 @@ public class DescribeRegionDUnitTest {
    */
   @SuppressWarnings("deprecation")
   private static void createCompressedRegion(final String regionName) {
-    final Cache cache = CacheFactory.getAnyInstance();
+    final var cache = CacheFactory.getAnyInstance();
 
     RegionFactory<String, Integer> dataRegionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
@@ -281,14 +278,14 @@ public class DescribeRegionDUnitTest {
 
   @SuppressWarnings("deprecation")
   private static void createRegionsWithSubRegions() {
-    final Cache cache = CacheFactory.getAnyInstance();
+    final var cache = CacheFactory.getAnyInstance();
 
     RegionFactory<String, Integer> dataRegionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
     dataRegionFactory.setConcurrencyLevel(3);
-    Region<String, Integer> region1 = dataRegionFactory.create(REGION1);
+    var region1 = dataRegionFactory.create(REGION1);
     region1.createSubregion(SUBREGION1C, region1.getAttributes());
-    Region<String, Integer> subregion2 =
+    var subregion2 =
         region1.createSubregion(SUBREGION1A, region1.getAttributes());
 
     subregion2.createSubregion(SUBREGION1B, subregion2.getAttributes());

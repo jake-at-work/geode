@@ -49,8 +49,8 @@ public class CustomAuthRealm extends AuthorizingRealm {
   @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
       throws AuthenticationException {
-    GeodeAuthenticationToken authToken = (GeodeAuthenticationToken) token;
-    Object principal = securityManager.authenticate(authToken.getProperties());
+    var authToken = (GeodeAuthenticationToken) token;
+    var principal = securityManager.authenticate(authToken.getProperties());
     return new SimpleAuthenticationInfo(principal, authToken.getCredentials(), REALM_NAME);
 
   }
@@ -63,8 +63,8 @@ public class CustomAuthRealm extends AuthorizingRealm {
 
   @Override
   public boolean isPermitted(PrincipalCollection principals, Permission permission) {
-    ResourcePermission context = (ResourcePermission) permission;
-    Serializable principal = (Serializable) principals.getPrimaryPrincipal();
+    var context = (ResourcePermission) permission;
+    var principal = (Serializable) principals.getPrimaryPrincipal();
     return securityManager.authorize(principal, context);
   }
 

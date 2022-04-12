@@ -20,15 +20,12 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.OperatingSystemMXBean;
-import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.management.JMRuntimeException;
 import javax.management.MalformedObjectNameException;
@@ -37,14 +34,11 @@ import javax.management.ObjectName;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.internal.CommandProcessor;
-import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.LocatorLauncher;
 import org.apache.geode.distributed.ServerLauncher;
@@ -55,9 +49,7 @@ import org.apache.geode.distributed.internal.locks.DLockService;
 import org.apache.geode.distributed.internal.locks.DLockStats;
 import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.cache.CachePerfStats;
-import org.apache.geode.internal.cache.DirectoryHolder;
 import org.apache.geode.internal.cache.DiskDirectoryStats;
-import org.apache.geode.internal.cache.DiskRegion;
 import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.DiskStoreStats;
 import org.apache.geode.internal.cache.InternalCache;
@@ -68,7 +60,6 @@ import org.apache.geode.internal.cache.control.ResourceManagerStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionServiceStats;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.MemoryAllocator;
 import org.apache.geode.internal.offheap.OffHeapMemoryStats;
 import org.apache.geode.internal.process.PidUnavailableException;
 import org.apache.geode.internal.process.ProcessUtils;
@@ -83,7 +74,6 @@ import org.apache.geode.internal.stats50.VMStats50;
 import org.apache.geode.internal.tcp.ConnectionTable;
 import org.apache.geode.logging.internal.executors.LoggingThread;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogFile;
 import org.apache.geode.management.GemFireProperties;
 import org.apache.geode.management.JVMMetrics;
 import org.apache.geode.management.OSMetrics;
@@ -267,21 +257,21 @@ public class MemberMBeanBridge {
   }
 
   MemberMBeanBridge init() {
-    CachePerfStats cachePerfStats = cache.getCachePerfStats();
+    var cachePerfStats = cache.getCachePerfStats();
     addCacheStats(cachePerfStats);
     addFunctionStats(system.getFunctionStatsManager().getFunctionServiceStats());
 
     if (system.getDistributionManager().getStats() instanceof DistributionStats) {
-      DistributionStats distributionStats =
+      var distributionStats =
           (DistributionStats) system.getDistributionManager().getStats();
       addDistributionStats(distributionStats);
     }
 
     systemStat = fetchSystemStats();
 
-    MemoryAllocator allocator = cache.getOffHeapStore();
+    var allocator = cache.getOffHeapStore();
     if (null != allocator) {
-      OffHeapMemoryStats offHeapStats = allocator.getStats();
+      var offHeapStats = allocator.getStats();
 
       if (null != offHeapStats) {
         addOffHeapStats(offHeapStats);
@@ -298,7 +288,7 @@ public class MemberMBeanBridge {
 
   private Statistics fetchSystemStats() {
     if (osStatisticsProvider.osStatsSupported()) {
-      Statistics[] systemStats = system.findStatisticsByType(LinuxSystemStats.getType());
+      var systemStats = system.findStatisticsByType(LinuxSystemStats.getType());
 
       if (systemStats != null) {
         return systemStats[0];
@@ -308,30 +298,30 @@ public class MemberMBeanBridge {
   }
 
   private void addOffHeapStats(OffHeapMemoryStats offHeapStats) {
-    Statistics offHeapMemoryStatistics = offHeapStats.getStats();
+    var offHeapMemoryStatistics = offHeapStats.getStats();
     monitor.addStatisticsToMonitor(offHeapMemoryStatistics);
   }
 
   @VisibleForTesting
   public void addCacheStats(CachePerfStats cachePerfStats) {
-    Statistics cachePerfStatistics = cachePerfStats.getStats();
+    var cachePerfStatistics = cachePerfStats.getStats();
     monitor.addStatisticsToMonitor(cachePerfStatistics);
   }
 
   @VisibleForTesting
   public void addFunctionStats(FunctionServiceStats functionServiceStats) {
-    Statistics functionStatistics = functionServiceStats.getStats();
+    var functionStatistics = functionServiceStats.getStats();
     monitor.addStatisticsToMonitor(functionStatistics);
   }
 
   @VisibleForTesting
   public void addDistributionStats(DistributionStats distributionStats) {
-    Statistics dsStats = distributionStats.getStats();
+    var dsStats = distributionStats.getStats();
     monitor.addStatisticsToMonitor(dsStats);
   }
 
   void addDiskStore(DiskStore dsi) {
-    DiskStoreImpl impl = (DiskStoreImpl) dsi;
+    var impl = (DiskStoreImpl) dsi;
     addDiskStoreStats(impl.getStats());
   }
 
@@ -341,7 +331,7 @@ public class MemberMBeanBridge {
   }
 
   void removeDiskStore(DiskStore dsi) {
-    DiskStoreImpl impl = (DiskStoreImpl) dsi;
+    var impl = (DiskStoreImpl) dsi;
     removeDiskStoreStats(impl.getStats());
   }
 
@@ -354,11 +344,11 @@ public class MemberMBeanBridge {
       addPartitionedRegionStats(((PartitionedRegion) region).getPrStats());
     }
 
-    InternalRegion internalRegion = (InternalRegion) region;
+    var internalRegion = (InternalRegion) region;
     addLRUStats(internalRegion.getEvictionStatistics());
-    DiskRegion dr = internalRegion.getDiskRegion();
+    var dr = internalRegion.getDiskRegion();
     if (dr != null) {
-      for (DirectoryHolder dh : dr.getDirectories()) {
+      for (var dh : dr.getDirectories()) {
         addDirectoryStats(dh.getDiskDirectoryStats());
       }
     }
@@ -384,12 +374,12 @@ public class MemberMBeanBridge {
       removePartitionedRegionStats(((PartitionedRegion) region).getPrStats());
     }
 
-    InternalRegion internalRegion = (InternalRegion) region;
+    var internalRegion = (InternalRegion) region;
     removeLRUStats(internalRegion.getEvictionStatistics());
 
-    DiskRegion diskRegion = internalRegion.getDiskRegion();
+    var diskRegion = internalRegion.getDiskRegion();
     if (diskRegion != null) {
-      for (DirectoryHolder directoryHolder : diskRegion.getDirectories()) {
+      for (var directoryHolder : diskRegion.getDirectories()) {
         removeDirectoryStats(directoryHolder.getDiskDirectoryStats());
       }
     }
@@ -412,7 +402,7 @@ public class MemberMBeanBridge {
 
   void addLockServiceStats(DLockService lock) {
     if (!lockServicesStatsAdded) {
-      DLockStats stats = (DLockStats) lock.getStats();
+      var stats = (DLockStats) lock.getStats();
       addLockServiceStats(stats);
       lockServicesStatsAdded = true;
     }
@@ -452,22 +442,22 @@ public class MemberMBeanBridge {
   @VisibleForTesting
   public void addVMStats(VMStatsContract vmStatsContract) {
     if (vmStatsContract instanceof VMStats50) {
-      VMStats50 vmStats50 = (VMStats50) vmStatsContract;
-      Statistics vmStats = vmStats50.getVMStats();
+      var vmStats50 = (VMStats50) vmStatsContract;
+      var vmStats = vmStats50.getVMStats();
       if (vmStats != null) {
         vmStatsMonitor.addStatisticsToMonitor(vmStats);
       }
 
-      Statistics vmHeapStats = vmStats50.getVMHeapStats();
+      var vmHeapStats = vmStats50.getVMHeapStats();
       if (vmHeapStats != null) {
         vmStatsMonitor.addStatisticsToMonitor(vmHeapStats);
       }
 
-      StatisticsType gcType = VMStats50.getGCType();
+      var gcType = VMStats50.getGCType();
       if (gcType != null) {
-        Statistics[] gcStats = statisticsManager.findStatisticsByType(gcType);
+        var gcStats = statisticsManager.findStatisticsByType(gcType);
         if (gcStats != null && gcStats.length > 0) {
-          for (Statistics gcStat : gcStats) {
+          for (var gcStat : gcStats) {
             if (gcStat != null) {
               gcMonitor.addStatisticsToMonitor(gcStat);
             }
@@ -587,15 +577,15 @@ public class MemberMBeanBridge {
   }
 
   JVMMetrics fetchJVMMetrics() {
-    long gcCount = getGCStatistic(StatsKey.VM_GC_STATS_COLLECTIONS).longValue();
-    long gcTimeMillis = getGCStatistic(StatsKey.VM_GC_STATS_COLLECTION_TIME).longValue();
+    var gcCount = getGCStatistic(StatsKey.VM_GC_STATS_COLLECTIONS).longValue();
+    var gcTimeMillis = getGCStatistic(StatsKey.VM_GC_STATS_COLLECTION_TIME).longValue();
 
-    long initMemory = memoryMXBean.getHeapMemoryUsage().getInit();
-    long committedMemory = memoryMXBean.getHeapMemoryUsage().getCommitted();
-    long usedMemory = getVMStatistic(StatsKey.VM_USED_MEMORY).longValue();
-    long maxMemory = memoryMXBean.getHeapMemoryUsage().getMax();
+    var initMemory = memoryMXBean.getHeapMemoryUsage().getInit();
+    var committedMemory = memoryMXBean.getHeapMemoryUsage().getCommitted();
+    var usedMemory = getVMStatistic(StatsKey.VM_USED_MEMORY).longValue();
+    var maxMemory = memoryMXBean.getHeapMemoryUsage().getMax();
 
-    int totalThreads = getVMStatistic(StatsKey.VM_STATS_NUM_THREADS).intValue();
+    var totalThreads = getVMStatistic(StatsKey.VM_STATS_NUM_THREADS).intValue();
 
     return new JVMMetrics(gcCount, gcTimeMillis, initMemory, committedMemory, usedMemory, maxMemory,
         totalThreads);
@@ -608,14 +598,14 @@ public class MemberMBeanBridge {
    */
   OSMetrics fetchOSMetrics() {
     try {
-      String name = osBean.getName();
-      String version = osBean.getVersion();
-      String arch = osBean.getArch();
-      int availableProcessors = osBean.getAvailableProcessors();
-      double systemLoadAverage = osBean.getSystemLoadAverage();
+      var name = osBean.getName();
+      var version = osBean.getVersion();
+      var arch = osBean.getArch();
+      var availableProcessors = osBean.getAvailableProcessors();
+      var systemLoadAverage = osBean.getSystemLoadAverage();
 
-      long openFileDescriptorCount = getVMStatistic(StatsKey.VM_STATS_OPEN_FDS).longValue();
-      long processCpuTime = getVMStatistic(StatsKey.VM_PROCESS_CPU_TIME).longValue();
+      var openFileDescriptorCount = getVMStatistic(StatsKey.VM_STATS_OPEN_FDS).longValue();
+      var processCpuTime = getVMStatistic(StatsKey.VM_PROCESS_CPU_TIME).longValue();
 
       long maxFileDescriptorCount;
       try {
@@ -700,13 +690,13 @@ public class MemberMBeanBridge {
     List<String> compactedStores = new ArrayList<>();
 
     if (cache != null && !cache.isClosed()) {
-      for (DiskStore store : cache.listDiskStoresIncludingRegionOwned()) {
+      for (var store : cache.listDiskStoresIncludingRegionOwned()) {
         if (store.forceCompaction()) {
           compactedStores.add(((DiskStoreImpl) store).getPersistentID().getDirectory());
         }
       }
     }
-    String[] compactedStoresAr = new String[compactedStores.size()];
+    var compactedStoresAr = new String[compactedStores.size()];
     return compactedStores.toArray(compactedStoresAr);
   }
 
@@ -721,8 +711,8 @@ public class MemberMBeanBridge {
     String[] returnString = null;
     if (diskCollection != null && !diskCollection.isEmpty()) {
       returnString = new String[diskCollection.size()];
-      Iterator<DiskStore> it = diskCollection.iterator();
-      int i = 0;
+      var it = diskCollection.iterator();
+      var i = 0;
       while (it.hasNext()) {
         returnString[i] = it.next().getName();
         i++;
@@ -745,10 +735,10 @@ public class MemberMBeanBridge {
     String childTail = null;
     String mainTail;
     try {
-      InternalDistributedSystem sys = system;
+      var sys = system;
 
       if (sys.getLogFile().isPresent()) {
-        LogFile logFile = sys.getLogFile().get();
+        var logFile = sys.getLogFile().get();
         childTail = BeanUtilFuncs.tailSystemLog(logFile.getChildLogFile(), numLines);
         mainTail = BeanUtilFuncs.tailSystemLog(sys.getConfig(), numLines);
         if (mainTail == null) {
@@ -764,7 +754,7 @@ public class MemberMBeanBridge {
       mainTail = "";
     }
 
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append(mainTail);
     if (childTail != null) {
       result.append(lineSeparator())
@@ -814,8 +804,8 @@ public class MemberMBeanBridge {
   }
 
   String[] getGroups() {
-    List<String> groups = cache.getDistributedSystem().getDistributedMember().getGroups();
-    String[] groupsArray = new String[groups.size()];
+    var groups = cache.getDistributedSystem().getDistributedMember().getGroups();
+    var groupsArray = new String[groups.size()];
     groupsArray = groups.toArray(groupsArray);
     return groupsArray;
   }
@@ -826,10 +816,10 @@ public class MemberMBeanBridge {
 
   String[] listConnectedGatewayReceivers() {
     if (cache != null && !cache.getGatewayReceivers().isEmpty()) {
-      Set<GatewayReceiver> receivers = cache.getGatewayReceivers();
-      String[] receiverArray = new String[receivers.size()];
-      int j = 0;
-      for (GatewayReceiver recv : receivers) {
+      var receivers = cache.getGatewayReceivers();
+      var receiverArray = new String[receivers.size()];
+      var j = 0;
+      for (var recv : receivers) {
         receiverArray[j] = recv.getBindAddress();
         j++;
       }
@@ -840,10 +830,10 @@ public class MemberMBeanBridge {
 
   String[] listConnectedGatewaySenders() {
     if (cache != null && !cache.getGatewaySenders().isEmpty()) {
-      Set<GatewaySender> senders = cache.getGatewaySenders();
-      String[] senderArray = new String[senders.size()];
-      int j = 0;
-      for (GatewaySender sender : senders) {
+      var senders = cache.getGatewaySenders();
+      var senderArray = new String[senders.size()];
+      var j = 0;
+      for (var sender : senders) {
         senderArray[j] = sender.getId();
         j++;
       }
@@ -888,26 +878,26 @@ public class MemberMBeanBridge {
   }
 
   String[] fetchJvmThreads() {
-    long[] threadIds = threadMXBean.getAllThreadIds();
-    ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadIds, 0);
+    var threadIds = threadMXBean.getAllThreadIds();
+    var threadInfos = threadMXBean.getThreadInfo(threadIds, 0);
     if (threadInfos == null || threadInfos.length < 1) {
       return ManagementConstants.NO_DATA_STRING;
     }
     List<String> threadList = new ArrayList<>(threadInfos.length);
-    for (ThreadInfo threadInfo : threadInfos) {
+    for (var threadInfo : threadInfos) {
       if (threadInfo != null) {
         threadList.add(threadInfo.getThreadName());
       }
     }
-    String[] result = new String[threadList.size()];
+    var result = new String[threadList.size()];
     return threadList.toArray(result);
   }
 
   String[] getListOfRegions() {
-    Set<InternalRegion> listOfAppRegions = cache.getApplicationRegions();
+    var listOfAppRegions = cache.getApplicationRegions();
     if (listOfAppRegions != null && !listOfAppRegions.isEmpty()) {
-      String[] regions = new String[listOfAppRegions.size()];
-      int j = 0;
+      var regions = new String[listOfAppRegions.size()];
+      var j = 0;
       for (Region region : listOfAppRegions) {
         regions[j] = region.getFullPath();
         j++;
@@ -930,10 +920,10 @@ public class MemberMBeanBridge {
   }
 
   String[] getRootRegionNames() {
-    Set<Region<?, ?>> listOfRootRegions = cache.rootRegions();
+    var listOfRootRegions = cache.rootRegions();
     if (listOfRootRegions != null && !listOfRootRegions.isEmpty()) {
-      String[] regionNames = new String[listOfRootRegions.size()];
-      int j = 0;
+      var regionNames = new String[listOfRootRegions.size()];
+      var j = 0;
       for (Region region : listOfRootRegions) {
         regionNames[j] = region.getFullPath();
         j++;
@@ -1292,8 +1282,8 @@ public class MemberMBeanBridge {
   }
 
   int getOffHeapObjects() {
-    int objects = 0;
-    OffHeapMemoryStats stats = getOffHeapStats();
+    var objects = 0;
+    var stats = getOffHeapStats();
 
     if (null != stats) {
       objects = stats.getObjects();
@@ -1313,7 +1303,7 @@ public class MemberMBeanBridge {
   }
 
   long getOffHeapMaxMemory() {
-    OffHeapMemoryStats stats = getOffHeapStats();
+    var stats = getOffHeapStats();
 
     if (null != stats) {
       return stats.getMaxMemory();
@@ -1323,7 +1313,7 @@ public class MemberMBeanBridge {
   }
 
   long getOffHeapFreeMemory() {
-    OffHeapMemoryStats stats = getOffHeapStats();
+    var stats = getOffHeapStats();
 
     if (null != stats) {
       return stats.getFreeMemory();
@@ -1333,7 +1323,7 @@ public class MemberMBeanBridge {
   }
 
   long getOffHeapUsedMemory() {
-    OffHeapMemoryStats stats = getOffHeapStats();
+    var stats = getOffHeapStats();
 
     if (null != stats) {
       return stats.getUsedMemory();
@@ -1343,7 +1333,7 @@ public class MemberMBeanBridge {
   }
 
   int getOffHeapFragmentation() {
-    OffHeapMemoryStats stats = getOffHeapStats();
+    var stats = getOffHeapStats();
 
     if (null != stats) {
       return stats.getFragmentation();
@@ -1353,7 +1343,7 @@ public class MemberMBeanBridge {
   }
 
   long getOffHeapFragments() {
-    OffHeapMemoryStats stats = getOffHeapStats();
+    var stats = getOffHeapStats();
 
     if (null != stats) {
       return stats.getFragments();
@@ -1363,7 +1353,7 @@ public class MemberMBeanBridge {
   }
 
   long getOffHeapFreedChunks() {
-    OffHeapMemoryStats stats = getOffHeapStats();
+    var stats = getOffHeapStats();
 
     if (null != stats) {
       return stats.getFreedChunks();
@@ -1373,7 +1363,7 @@ public class MemberMBeanBridge {
   }
 
   int getOffHeapLargestFragment() {
-    OffHeapMemoryStats stats = getOffHeapStats();
+    var stats = getOffHeapStats();
 
     if (null != stats) {
       return stats.getLargestFragment();
@@ -1383,7 +1373,7 @@ public class MemberMBeanBridge {
   }
 
   long getOffHeapCompactionTime() {
-    OffHeapMemoryStats stats = getOffHeapStats();
+    var stats = getOffHeapStats();
 
     if (null != stats) {
       return stats.getDefragmentationTime();
@@ -1393,7 +1383,7 @@ public class MemberMBeanBridge {
   }
 
   private OffHeapMemoryStats getOffHeapStats() {
-    MemoryAllocator offHeap = cache.getOffHeapStore();
+    var offHeap = cache.getOffHeapStore();
 
     if (null != offHeap) {
       return offHeap.getStats();

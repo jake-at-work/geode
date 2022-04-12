@@ -95,7 +95,7 @@ public class DistributedMap<K, V> extends AbstractDistributedRule implements Map
 
   @Override
   protected void after() {
-    for (Map<?, ?> map : MAPS.get().values()) {
+    for (var map : MAPS.get().values()) {
       map.clear();
     }
     MAPS.get().clear();
@@ -181,9 +181,9 @@ public class DistributedMap<K, V> extends AbstractDistributedRule implements Map
   }
 
   private VM controller() {
-    VM vm = controller.get();
+    var vm = controller.get();
     if (vm == null) {
-      String message = getClass().getSimpleName() + " has not been initialized by JUnit";
+      var message = getClass().getSimpleName() + " has not been initialized by JUnit";
       throw new IllegalStateException(message);
     }
     return vm;

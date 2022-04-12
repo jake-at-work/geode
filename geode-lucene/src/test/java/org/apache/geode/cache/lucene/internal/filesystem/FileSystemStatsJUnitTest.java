@@ -40,13 +40,12 @@ public class FileSystemStatsJUnitTest {
 
   @Before
   public void createStats() {
-    StatisticsFactory statsFactory = mock(StatisticsFactory.class);
+    var statsFactory = mock(StatisticsFactory.class);
     statistics = mock(Statistics.class);
     when(statsFactory.createAtomicStatistics(any(), anyString())).thenReturn(statistics);
     stats = new FileSystemStats(statsFactory, "stats");
 
-
-    ArgumentCaptor<StatisticsType> statsTypeCaptor = ArgumentCaptor.forClass(StatisticsType.class);
+    var statsTypeCaptor = ArgumentCaptor.forClass(StatisticsType.class);
     verify(statsFactory).createAtomicStatistics(statsTypeCaptor.capture(), anyString());
     type = statsTypeCaptor.getValue();
   }
@@ -88,12 +87,12 @@ public class FileSystemStatsJUnitTest {
   }
 
   private void verifyIncInt(final String statName, final int value) {
-    final int statId = type.nameToId(statName);
+    final var statId = type.nameToId(statName);
     verify(statistics).incInt(eq(statId), eq(value));
   }
 
   private void verifyIncLong(final String statName, final long value) {
-    final int statId = type.nameToId(statName);
+    final var statId = type.nameToId(statName);
     verify(statistics).incLong(eq(statId), eq(value));
   }
 

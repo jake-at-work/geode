@@ -100,7 +100,7 @@ public class WanCopyRegionFunctionDelegateTest {
     connectionMock = mock(PooledConnection.class);
     dispatcherMock = mock(GatewaySenderEventDispatcher.class);
     eventCreatorMock = mock(EventCreator.class);
-    AbstractGatewaySenderEventProcessor eventProcessorMock =
+    var eventProcessorMock =
         mock(AbstractGatewaySenderEventProcessor.class);
     regionAttributesMock = mock(RegionAttributes.class);
     internalCacheMock = mock(InternalCache.class);
@@ -141,8 +141,8 @@ public class WanCopyRegionFunctionDelegateTest {
   public void doPostSendBatchActions_SleepIfMaxRateIsNotZero()
       throws InterruptedException, BatchException70 {
     // arrange
-    Object[] options = new Object[] {"myRegion", "mySender", false, 1L, 2};
-    ThreadSleeper sleeperMock =
+    var options = new Object[] {"myRegion", "mySender", false, 1L, 2};
+    var sleeperMock =
         mock(ThreadSleeper.class);
     doNothing().when(sleeperMock).sleep(anyLong());
 
@@ -150,7 +150,7 @@ public class WanCopyRegionFunctionDelegateTest {
     executeWanCopyRegionFunction(options, sleeperMock);
 
     // assert
-    ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
+    var captor = ArgumentCaptor.forClass(Long.class);
     verify(sleeperMock, times(1)).sleep(captor.capture());
     assertThat(captor.getValue()).isGreaterThan(0).isLessThanOrEqualTo(2000);
   }
@@ -160,13 +160,13 @@ public class WanCopyRegionFunctionDelegateTest {
       throws InterruptedException {
     // arrange
     long maxRate = 1;
-    long elapsedTime = 20L;
-    InterruptedException thrownByThreadSleeper = new InterruptedException("thrownByThreadSleeper");
+    var elapsedTime = 20L;
+    var thrownByThreadSleeper = new InterruptedException("thrownByThreadSleeper");
     when(clockMock.millis()).thenReturn(startTime + elapsedTime);
     doThrow(thrownByThreadSleeper).when(threadSleeperMock).sleep(anyLong());
 
     // act
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> function.doPostSendBatchActions(startTime, entries, maxRate));
 
     // assert
@@ -179,7 +179,7 @@ public class WanCopyRegionFunctionDelegateTest {
 
     // act
     Thread.currentThread().interrupt();
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> function.doPostSendBatchActions(startTime, entries, maxRate));
 
     // assert
@@ -191,7 +191,7 @@ public class WanCopyRegionFunctionDelegateTest {
       throws InterruptedException {
     // arrange
     when(((AbstractGatewaySender) gatewaySenderMock).getProxy()).thenReturn(poolMock);
-    PooledConnection oldWanSiteConn = mock(PooledConnection.class);
+    var oldWanSiteConn = mock(PooledConnection.class);
     when(oldWanSiteConn.getWanSiteVersion()).thenReturn(KnownVersion.GEODE_1_14_0.ordinal());
     when(poolMock.acquireConnection()).thenReturn(oldWanSiteConn);
     Set<Region.Entry<Object, Object>> entries = new HashSet<>();
@@ -199,7 +199,7 @@ public class WanCopyRegionFunctionDelegateTest {
     when(regionMock.entrySet()).thenReturn(uncheckedCast(entries));
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -220,7 +220,7 @@ public class WanCopyRegionFunctionDelegateTest {
     when(regionMock.entrySet()).thenReturn(uncheckedCast(entries));
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -239,7 +239,7 @@ public class WanCopyRegionFunctionDelegateTest {
     when(regionMock.entrySet()).thenReturn(new HashSet<>());
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -259,7 +259,7 @@ public class WanCopyRegionFunctionDelegateTest {
     when(regionMock.entrySet()).thenReturn(uncheckedCast(entries));
 
     // act
-    Throwable thrown = catchThrowable(() -> function.wanCopyRegion(internalCacheMock, "member1",
+    var thrown = catchThrowable(() -> function.wanCopyRegion(internalCacheMock, "member1",
         regionMock, gatewaySenderMock, 1, 10));
 
     // assert
@@ -276,7 +276,7 @@ public class WanCopyRegionFunctionDelegateTest {
     when(regionMock.entrySet()).thenReturn(new HashSet<>());
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -300,7 +300,7 @@ public class WanCopyRegionFunctionDelegateTest {
         .sendBatch(anyList(), any(), any(), anyInt(), anyBoolean());
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 1);
 
     // assert
@@ -320,7 +320,7 @@ public class WanCopyRegionFunctionDelegateTest {
     doNothing().when(dispatcherMock).sendBatch(anyList(), any(), any(), anyInt(), anyBoolean());
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -333,7 +333,7 @@ public class WanCopyRegionFunctionDelegateTest {
   public void wanCopyRegion_verifySuccessWithRetryWhenConnectionDestroyed()
       throws BatchException70, InterruptedException {
     // arrange
-    ConnectionDestroyedException exceptionWhenSendingBatch =
+    var exceptionWhenSendingBatch =
         new ConnectionDestroyedException("My connection exception", new Exception());
     when(((AbstractGatewaySender) gatewaySenderMock).getProxy()).thenReturn(poolMock);
     when(poolMock.acquireConnection()).thenReturn(connectionMock).thenReturn(connectionMock);
@@ -344,7 +344,7 @@ public class WanCopyRegionFunctionDelegateTest {
         any(), anyInt(), anyBoolean());
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -364,7 +364,7 @@ public class WanCopyRegionFunctionDelegateTest {
     when(regionMock.entrySet()).thenReturn(uncheckedCast(entries));
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -377,7 +377,7 @@ public class WanCopyRegionFunctionDelegateTest {
   public void wanCopyRegion_verifyErrorWhenConnectionDestroyedTwice()
       throws BatchException70, InterruptedException {
     // arrange
-    ConnectionDestroyedException exceptionWhenSendingBatch =
+    var exceptionWhenSendingBatch =
         new ConnectionDestroyedException("My connection exception", new Exception());
     when(((AbstractGatewaySender) gatewaySenderMock).getProxy()).thenReturn(poolMock);
     when(poolMock.acquireConnection()).thenReturn(connectionMock).thenReturn(connectionMock);
@@ -388,7 +388,7 @@ public class WanCopyRegionFunctionDelegateTest {
         anyInt(), anyBoolean());
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -410,7 +410,7 @@ public class WanCopyRegionFunctionDelegateTest {
     doReturn(true).when(regionMock).isDestroyed();
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -423,7 +423,7 @@ public class WanCopyRegionFunctionDelegateTest {
   public void wanCopyRegion_verifySuccessWithRetryWhenServerConnectivityException()
       throws BatchException70, InterruptedException {
     // arrange
-    ServerConnectivityException exceptionWhenSendingBatch =
+    var exceptionWhenSendingBatch =
         new ServerConnectivityException("My connection exception", new Exception());
     when(((AbstractGatewaySender) gatewaySenderMock).getProxy()).thenReturn(poolMock);
     when(poolMock.acquireConnection()).thenReturn(connectionMock).thenReturn(connectionMock);
@@ -434,7 +434,7 @@ public class WanCopyRegionFunctionDelegateTest {
         any(), anyInt(), anyBoolean());
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -447,7 +447,7 @@ public class WanCopyRegionFunctionDelegateTest {
   public void wanCopyRegion_verifyErrorWhenServerConnectivityExceptionTwice()
       throws BatchException70, InterruptedException {
     // arrange
-    ServerConnectivityException exceptionWhenSendingBatch =
+    var exceptionWhenSendingBatch =
         new ServerConnectivityException("My connection exception", new Exception());
     when(((AbstractGatewaySender) gatewaySenderMock).getProxy()).thenReturn(poolMock);
     when(poolMock.acquireConnection()).thenReturn(connectionMock).thenReturn(connectionMock);
@@ -458,7 +458,7 @@ public class WanCopyRegionFunctionDelegateTest {
         anyInt(), anyBoolean());
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -471,9 +471,9 @@ public class WanCopyRegionFunctionDelegateTest {
   public void wanCopyRegion_verifyErrorWhenBatchExceptionWhileSendingBatch()
       throws BatchException70, InterruptedException {
     // arrange
-    BatchException70 exceptionWhenSendingBatch =
+    var exceptionWhenSendingBatch =
         new BatchException70("My batch exception", new Exception("test exception"), 0, 0);
-    BatchException70 topLevelException =
+    var topLevelException =
         new BatchException70(Collections.singletonList(exceptionWhenSendingBatch));
     when(((AbstractGatewaySender) gatewaySenderMock).getProxy()).thenReturn(poolMock);
     when(poolMock.acquireConnection()).thenReturn(connectionMock);
@@ -484,7 +484,7 @@ public class WanCopyRegionFunctionDelegateTest {
         anyInt(), anyBoolean());
 
     // act
-    CliFunctionResult result =
+    var result =
         function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1, 10);
 
     // assert
@@ -498,7 +498,7 @@ public class WanCopyRegionFunctionDelegateTest {
   public void wanCopyRegion_verifyExceptionThrownWhenExceptionWhileSendingBatch()
       throws BatchException70 {
     // arrange
-    RuntimeException exceptionWhenSendingBatch =
+    var exceptionWhenSendingBatch =
         new RuntimeException("Exception when sending batch");
     when(((AbstractGatewaySender) gatewaySenderMock).getProxy()).thenReturn(poolMock);
     when(poolMock.acquireConnection()).thenReturn(connectionMock);
@@ -509,7 +509,7 @@ public class WanCopyRegionFunctionDelegateTest {
         anyInt(), anyBoolean());
 
     // act
-    Throwable thrown = catchThrowable(
+    var thrown = catchThrowable(
         () -> function.wanCopyRegion(internalCacheMock, "member1", regionMock, gatewaySenderMock, 1,
             10));
 
@@ -529,35 +529,35 @@ public class WanCopyRegionFunctionDelegateTest {
 
   @Test
   public void getTimeToSleep_ReturnZeroWhenBelowMaxRate() {
-    long elapsedTime = 2000L;
+    var elapsedTime = 2000L;
     when(clockMock.millis()).thenReturn(startTime + elapsedTime);
     assertThat(function.getTimeToSleep(startTime, 1, 1)).isEqualTo(0);
   }
 
   @Test
   public void getTimeToSleep_ReturnZeroWhenOnMaxRate() {
-    long elapsedTime = 1000L;
+    var elapsedTime = 1000L;
     when(clockMock.millis()).thenReturn(startTime + elapsedTime);
     assertThat(function.getTimeToSleep(startTime, 1, 1)).isEqualTo(0);
   }
 
   @Test
   public void getTimeToSleep_ReturnZeroWhenAboveMaxRate_value1() {
-    long elapsedTime = 1000L;
+    var elapsedTime = 1000L;
     when(clockMock.millis()).thenReturn(startTime + elapsedTime);
     assertThat(function.getTimeToSleep(startTime, 2, 1)).isEqualTo(1000);
   }
 
   @Test
   public void getTimeToSleep_ReturnZeroWhenAboveMaxRate_value2() {
-    long elapsedTime = 1000L;
+    var elapsedTime = 1000L;
     when(clockMock.millis()).thenReturn(startTime + elapsedTime);
     assertThat(function.getTimeToSleep(startTime, 4, 1)).isEqualTo(3000);
   }
 
   @Test
   public void getTimeToSleep_ReturnZeroWhenAboveMaxRate_value3() {
-    long elapsedTime = 2000L;
+    var elapsedTime = 2000L;
     when(clockMock.millis()).thenReturn(startTime + elapsedTime);
     assertThat(function.getTimeToSleep(startTime, 4, 1)).isEqualTo(2000);
   }
@@ -580,11 +580,11 @@ public class WanCopyRegionFunctionDelegateTest {
   public void eventCreator_createGatewaySenderEventDoesNotCreateEventIfTimestampIsBeforeNonTXEntryTimestamp() {
     // arrange
     EventCreator eventCreator = new EventCreatorImpl();
-    long timestamp = System.currentTimeMillis();
-    long entryTimestamp = timestamp + 1000;
-    NonTXEntry entry = mock(NonTXEntry.class);
-    RegionEntry regionEntryMock = mock(RegionEntry.class);
-    VersionStamp versionStampMock = mock(VersionStamp.class);
+    var timestamp = System.currentTimeMillis();
+    var entryTimestamp = timestamp + 1000;
+    var entry = mock(NonTXEntry.class);
+    var regionEntryMock = mock(RegionEntry.class);
+    var versionStampMock = mock(VersionStamp.class);
     when(versionStampMock.getVersionTimeStamp()).thenReturn(entryTimestamp);
     when(regionMock.getAttributes().getConcurrencyChecksEnabled()).thenReturn(true);
     when(regionEntryMock.getVersionStamp()).thenReturn(versionStampMock);
@@ -602,10 +602,10 @@ public class WanCopyRegionFunctionDelegateTest {
   public void eventCreator_createGatewaySenderEventDoesNotCreateEventIfTimestampIsBeforeEntrySnapshotTimestamp() {
     // arrange
     EventCreator eventCreator = new EventCreatorImpl();
-    long timestamp = System.currentTimeMillis();
-    long entryTimestamp = timestamp + 1000;
-    EntrySnapshot entry = mock(EntrySnapshot.class);
-    VersionTag versionTagMock = mock(VersionTag.class);
+    var timestamp = System.currentTimeMillis();
+    var entryTimestamp = timestamp + 1000;
+    var entry = mock(EntrySnapshot.class);
+    var versionTagMock = mock(VersionTag.class);
     when(versionTagMock.getVersionTimeStamp()).thenReturn(entryTimestamp);
     when(entry.getVersionTag()).thenReturn(versionTagMock);
 
@@ -637,7 +637,7 @@ public class WanCopyRegionFunctionDelegateTest {
 
     doNothing().when(dispatcherMock).sendBatch(anyList(), any(), any(), anyInt(), anyBoolean());
 
-    AbstractGatewaySender gatewaySenderMock = mock(AbstractGatewaySender.class);
+    var gatewaySenderMock = mock(AbstractGatewaySender.class);
     when(gatewaySenderMock.getId()).thenReturn((String) options[1]);
     when(gatewaySenderMock.isRunning()).thenReturn(true);
     when(gatewaySenderMock.isParallel()).thenReturn(true);
@@ -646,16 +646,16 @@ public class WanCopyRegionFunctionDelegateTest {
     when(gatewaySenderMock.getProxy()).thenReturn(poolMock);
     when(poolMock.acquireConnection()).thenReturn(connectionMock).thenReturn(connectionMock);
 
-    AbstractGatewaySenderEventProcessor eventProcessorMock =
+    var eventProcessorMock =
         mock(AbstractGatewaySenderEventProcessor.class);
     when(eventProcessorMock.getDispatcher()).thenReturn(dispatcherMock);
     when(gatewaySenderMock.getEventProcessor()).thenReturn(eventProcessorMock);
 
-    InternalCache internalCacheMock = mock(InternalCache.class);
+    var internalCacheMock = mock(InternalCache.class);
     when(internalCacheMock.getRegion(any())).thenReturn(uncheckedCast(regionMock));
     when(internalCacheMock.getGatewaySender(any())).thenReturn(gatewaySenderMock);
 
-    WanCopyRegionFunctionDelegate function =
+    var function =
         new WanCopyRegionFunctionDelegate(Clock.systemDefaultZone(),
             sleeper, eventCreatorMock, 0);
 

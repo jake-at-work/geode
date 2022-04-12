@@ -124,7 +124,7 @@ public class ConcurrentParallelGatewaySenderQueue implements RegionQueue {
   }
 
   public String displayContent() {
-    ParallelGatewaySenderQueue pgsq = (ParallelGatewaySenderQueue) (processors[0].getQueue());
+    var pgsq = (ParallelGatewaySenderQueue) (processors[0].getQueue());
     return pgsq.displayContent();
   }
 
@@ -157,7 +157,7 @@ public class ConcurrentParallelGatewaySenderQueue implements RegionQueue {
 
   public long estimateMemoryFootprint(SingleObjectSizer sizer) {
     long size = 0;
-    for (final ParallelGatewaySenderEventProcessor processor : processors) {
+    for (final var processor : processors) {
       size += ((ParallelGatewaySenderQueue) processor.getQueue())
           .estimateMemoryFootprint(sizer);
     }
@@ -165,7 +165,7 @@ public class ConcurrentParallelGatewaySenderQueue implements RegionQueue {
   }
 
   public void removeShadowPR(String prRegionName) {
-    for (final ParallelGatewaySenderEventProcessor processor : processors) {
+    for (final var processor : processors) {
       processor.removeShadowPR(prRegionName);
     }
   }
@@ -180,7 +180,7 @@ public class ConcurrentParallelGatewaySenderQueue implements RegionQueue {
     }
     sender.getLifeCycleLock().writeLock().lock();
     try {
-      for (final ParallelGatewaySenderEventProcessor processor : processors) {
+      for (final var processor : processors) {
         processor.addShadowPartitionedRegionForUserPR(pr);
       }
     } finally {
@@ -189,7 +189,7 @@ public class ConcurrentParallelGatewaySenderQueue implements RegionQueue {
   }
 
   private ParallelGatewaySenderEventProcessor getPGSProcessor(int bucketId) {
-    int index = bucketId % processors.length;
+    var index = bucketId % processors.length;
     return processors[index];
   }
 
@@ -210,7 +210,7 @@ public class ConcurrentParallelGatewaySenderQueue implements RegionQueue {
   }
 
   public void cleanUp() {
-    for (final ParallelGatewaySenderEventProcessor processor : processors) {
+    for (final var processor : processors) {
       ((ParallelGatewaySenderQueue) processor.getQueue()).cleanUp();
     }
   }
@@ -220,7 +220,7 @@ public class ConcurrentParallelGatewaySenderQueue implements RegionQueue {
   }
 
   public void addShadowPartitionedRegionForUserRR(DistributedRegion userRegion) {
-    for (final ParallelGatewaySenderEventProcessor processor : processors) {
+    for (final var processor : processors) {
       processor.addShadowPartitionedRegionForUserRR(userRegion);
     }
   }

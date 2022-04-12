@@ -45,17 +45,13 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.security.MethodInvocationAuthorizer;
 import org.apache.geode.cache.query.security.RestrictedMethodAuthorizer;
 import org.apache.geode.examples.SimpleSecurityManager;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.test.assertj.LogFileAssert;
 import org.apache.geode.test.dunit.rules.ClientVM;
@@ -134,7 +130,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
         .withProperty("log-file", logFile.getAbsolutePath()));
 
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
       internalCache.getService(QueryConfigurationService.class).updateMethodAuthorizer(
           internalCache, false, TestMethodAuthorizer.class.getName(),
@@ -155,9 +151,9 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
 
   private void createAndPopulateRegion(String regionName, RegionShortcut shortcut) {
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
-      Region<Integer, QueryObject> region =
+      var region =
           internalCache.<Integer, QueryObject>createRegionFactory(shortcut).create(regionName);
       IntStream.range(0, ENTRIES).forEach(id -> region.put(id, new QueryObject(id, "name_" + id)));
       await().untilAsserted(() -> assertThat(region.size()).isEqualTo(ENTRIES));
@@ -218,12 +214,12 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
   private void executeOperationFromClient(String regionName, Operation operation) {
     client.invoke(() -> {
       assertThat(ClusterStartupRule.getClientCache()).isNotNull();
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Region<Integer, QueryObject> region =
+      var clientCache = ClusterStartupRule.getClientCache();
+      var region =
           clientCache.<Integer, QueryObject>createClientRegionFactory(ClientRegionShortcut.PROXY)
               .create(regionName);
 
-      ThrowableAssert.ThrowingCallable operationCallable =
+      var operationCallable =
           getRegionOperation(operation, region);
       assertThatCode(operationCallable).doesNotThrowAnyException();
     });
@@ -240,15 +236,15 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
   @TestCaseName("[{index}] {method}(RegionType:{0})")
   public void queriesInFlightExecutedByClientsShouldNotBeAffectedWhenMethodAuthorizerIsChanged(
       RegionShortcut regionShortcut) {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     createAndPopulateRegion(regionName, regionShortcut);
-    String queryString =
+    var queryString =
         "<TRACE> SELECT object." + QueryObject.GET_NAME_METHOD + " FROM " + SEPARATOR + regionName
             + " object";
 
     // Set test query observer.
     server.invoke(() -> {
-      TestQueryObserver queryObserver =
+      var queryObserver =
           new TestQueryObserver(RestrictedMethodAuthorizer.class.getName(), Collections.emptySet());
       QueryObserverHolder.setInstance(queryObserver);
     });
@@ -256,10 +252,10 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
     // Execute query from the client.
     client.invoke(() -> {
       assertThat(ClusterStartupRule.getClientCache()).isNotNull();
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Query query = clientCache.getQueryService().newQuery(queryString);
+      var clientCache = ClusterStartupRule.getClientCache();
+      var query = clientCache.getQueryService().newQuery(queryString);
       @SuppressWarnings("unchecked")
-      SelectResults<QueryObject> result = (SelectResults<QueryObject>) query.execute();
+      var result = (SelectResults<QueryObject>) query.execute();
       assertThat(result.size()).isEqualTo(ENTRIES);
     });
 
@@ -267,8 +263,8 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
     server.invoke(QueryObserverHolder::reset);
     client.invoke(() -> {
       assertThat(ClusterStartupRule.getClientCache()).isNotNull();
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Query newQuery = clientCache.getQueryService().newQuery(queryString);
+      var clientCache = ClusterStartupRule.getClientCache();
+      var newQuery = clientCache.getQueryService().newQuery(queryString);
       assertThatThrownBy(newQuery::execute)
           .isInstanceOf(ServerOperationException.class)
           .hasCauseInstanceOf(NotAuthorizedException.class)
@@ -288,30 +284,30 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
   @TestCaseName("[{index}] {method}(RegionType:{0})")
   public void queriesInFlightExecutedByServersShouldNotBeAffectedWhenMethodAuthorizerIsChanged(
       RegionShortcut regionShortcut) {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     createAndPopulateRegion(regionName, regionShortcut);
-    String queryString =
+    var queryString =
         "<TRACE> SELECT object." + QueryObject.GET_NAME_METHOD + " FROM " + SEPARATOR + regionName
             + " object";
 
     server.invoke(() -> {
       // Set test query observer.
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
-      TestQueryObserver queryObserver =
+      var queryObserver =
           new TestQueryObserver(RestrictedMethodAuthorizer.class.getName(), Collections.emptySet());
       QueryObserverHolder.setInstance(queryObserver);
 
       // Execute query.
-      Query query = internalCache.getQueryService().newQuery(queryString);
+      var query = internalCache.getQueryService().newQuery(queryString);
       @SuppressWarnings("unchecked")
-      SelectResults<QueryObject> result = (SelectResults<QueryObject>) query.execute();
+      var result = (SelectResults<QueryObject>) query.execute();
       assertThat(queryObserver.invocations.get()).isEqualTo(1);
       assertThat(result.size()).isEqualTo(ENTRIES);
 
       // Execute query again, it should fail as the restricted authorizer has been installed.
       QueryObserverHolder.reset();
-      Query newQuery = internalCache.getQueryService().newQuery(queryString);
+      var newQuery = internalCache.getQueryService().newQuery(queryString);
       assertThatThrownBy(newQuery::execute)
           .isInstanceOf(NotAuthorizedException.class)
           .hasMessage(RestrictedMethodAuthorizer.UNAUTHORIZED_STRING + QueryObject.GET_NAME_METHOD);
@@ -330,18 +326,18 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
   @TestCaseName("[{index}] {method}(RegionType:{0};Operation:{1})")
   public void indexesShouldNotBeAffectedByMethodAuthorizerChangeAfterRegionOperationOnClientWhenIndexedExpressionContainsMethodsAllowedByTheNewAuthorizer(
       RegionShortcut regionShortcut, Operation operation) {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     createAndPopulateRegion(regionName, regionShortcut);
 
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
 
       // Index is valid.
-      QueryService queryService = internalCache.getQueryService();
+      var queryService = internalCache.getQueryService();
       queryService.createIndex(NAME_INDEX_IDENTIFIER, "e." + QueryObject.GET_NAME_METHOD,
           SEPARATOR + regionName + " e");
-      Index index =
+      var index =
           queryService.getIndex(internalCache.getRegion(regionName), NAME_INDEX_IDENTIFIER);
       assertThat(index.isValid()).isTrue();
 
@@ -356,11 +352,11 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
 
     // Assert that operation succeeded and that index is still valid.
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
-      QueryService queryService = internalCache.getQueryService();
+      var queryService = internalCache.getQueryService();
       Region<Integer, QueryObject> region = internalCache.getRegion(regionName);
-      Index indexInvalid =
+      var indexInvalid =
           queryService.getIndex(internalCache.getRegion(regionName), NAME_INDEX_IDENTIFIER);
       assertThat(indexInvalid.isValid()).isTrue();
       assertRegionOperationResult(operation, region);
@@ -383,24 +379,24 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
   @TestCaseName("[{index}] {method}(RegionType:{0};Operation:{1})")
   public void indexesShouldNotBeAffectedByMethodAuthorizerChangeAfterRegionOperationOnServerWhenIndexedExpressionContainsMethodsAllowedByTheNewAuthorizer(
       RegionShortcut regionShortcut, Operation operation) {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     createAndPopulateRegion(regionName, regionShortcut);
 
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
       Region<Integer, QueryObject> region = internalCache.getRegion(regionName);
 
       // Index is valid.
-      QueryService queryService = internalCache.getQueryService();
+      var queryService = internalCache.getQueryService();
       queryService.createIndex(NAME_INDEX_IDENTIFIER, "e." + QueryObject.GET_NAME_METHOD,
           SEPARATOR + regionName + " e");
-      Index index =
+      var index =
           queryService.getIndex(internalCache.getRegion(regionName), NAME_INDEX_IDENTIFIER);
       assertThat(index.isValid()).isTrue();
 
       // Operation to invoke.
-      ThrowableAssert.ThrowingCallable operationCallable =
+      var operationCallable =
           getRegionOperation(operation, region);
 
       // Change the authorizer (still allow 'getName' to be executed)
@@ -410,7 +406,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
 
       // Execute operation, assert operation result, index is valid and no exceptions logged.
       assertThatCode(operationCallable).doesNotThrowAnyException();
-      Index indexInvalid =
+      var indexInvalid =
           queryService.getIndex(internalCache.getRegion(regionName), NAME_INDEX_IDENTIFIER);
       assertThat(indexInvalid.isValid()).isTrue();
       assertRegionOperationResult(operation, region);
@@ -433,18 +429,18 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
   @TestCaseName("[{index}] {method}(RegionType:{0};Operation:{1})")
   public void indexesShouldBeMarkedAsInvalidDuringMappingRemovalOrAdditionAfterRegionOperationOnClientWhenMethodAuthorizerIsChangedAndIndexExpressionContainsMethodsNotAllowedByTheNewAuthorizer(
       RegionShortcut regionShortcut, Operation operation) {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     createAndPopulateRegion(regionName, regionShortcut);
 
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
 
       // Index is valid.
-      QueryService queryService = internalCache.getQueryService();
+      var queryService = internalCache.getQueryService();
       queryService.createIndex(ID_INDEX_IDENTIFIER, "e." + QueryObject.GET_ID_METHOD,
           SEPARATOR + regionName + " e");
-      Index index = queryService.getIndex(internalCache.getRegion(regionName), ID_INDEX_IDENTIFIER);
+      var index = queryService.getIndex(internalCache.getRegion(regionName), ID_INDEX_IDENTIFIER);
       assertThat(index.isValid()).isTrue();
 
       // Change the authorizer (deny everything not allowed by default).
@@ -457,11 +453,11 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
 
     // Assert that operation succeeded but index is marked as invalid.
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
-      QueryService queryService = internalCache.getQueryService();
+      var queryService = internalCache.getQueryService();
       Region<Integer, QueryObject> region = internalCache.getRegion(regionName);
-      Index indexInvalid =
+      var indexInvalid =
           queryService.getIndex(internalCache.getRegion(regionName), ID_INDEX_IDENTIFIER);
       assertThat(indexInvalid.isValid()).isFalse();
       assertRegionOperationResult(operation, region);
@@ -485,23 +481,23 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
   @TestCaseName("[{index}] {method}(RegionType:{0};Operation:{1})")
   public void indexesShouldBeMarkedAsInvalidDuringMappingRemovalOrAdditionAfterRegionOperationOnServerWhenMethodAuthorizerIsChangedAndIndexExpressionContainsMethodsNotAllowedByTheNewAuthorizer(
       RegionShortcut regionShortcut, Operation operation) {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     createAndPopulateRegion(regionName, regionShortcut);
 
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
       Region<Integer, QueryObject> region = internalCache.getRegion(regionName);
 
       // Index is valid.
-      QueryService queryService = internalCache.getQueryService();
+      var queryService = internalCache.getQueryService();
       queryService.createIndex(ID_INDEX_IDENTIFIER, "e." + QueryObject.GET_ID_METHOD,
           SEPARATOR + regionName + " e");
-      Index index = queryService.getIndex(internalCache.getRegion(regionName), ID_INDEX_IDENTIFIER);
+      var index = queryService.getIndex(internalCache.getRegion(regionName), ID_INDEX_IDENTIFIER);
       assertThat(index.isValid()).isTrue();
 
       // Operation to invoke.
-      ThrowableAssert.ThrowingCallable operationCallable =
+      var operationCallable =
           getRegionOperation(operation, region);
 
       // Change the authorizer (deny everything not allowed by default).
@@ -511,7 +507,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
       // Execute operation, should succeed but index modification should fail, marking it as
       // invalid.
       assertThatCode(operationCallable).doesNotThrowAnyException();
-      Index indexInvalid =
+      var indexInvalid =
           queryService.getIndex(internalCache.getRegion(regionName), ID_INDEX_IDENTIFIER);
       assertThat(indexInvalid.isValid()).isFalse();
 
@@ -556,7 +552,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      QueryObject that = (QueryObject) o;
+      var that = (QueryObject) o;
       if (getId() != that.getId()) {
         return false;
       }
@@ -566,7 +562,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
 
     @Override
     public int hashCode() {
-      int result = getId();
+      var result = getId();
       result = 31 * result + (getName() != null ? getName().hashCode() : 0);
       return result;
     }
@@ -607,7 +603,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
     public void startQuery(Query query) {
       invocations.incrementAndGet();
 
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
       internalCache.getService(QueryConfigurationService.class)
           .updateMethodAuthorizer(internalCache, false, authorizerClassName, authorizerParameters);

@@ -75,7 +75,7 @@ public class PRDiskConflictWithColocationDistributedTest implements Serializable
   public void setUp() {
     vm0 = getVM(0);
 
-    String uniqueName = getClass().getSimpleName() + "-" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "-" + testName.getMethodName();
     partitionedRegionName = uniqueName + "-partitionedRegion";
 
     // NOTE: tests will fail if childRegionName contains "_" character (not sure why)
@@ -118,7 +118,7 @@ public class PRDiskConflictWithColocationDistributedTest implements Serializable
 
     await().until(() -> basicGetCache().isClosed());
 
-    Throwable throwable =
+    var throwable =
         catchThrowable(() -> basicGetCache().getCancelCriterion().checkCancelInProgress(null));
     assertThat(throwable).isInstanceOf(CacheClosedException.class)
         .hasCauseInstanceOf(ConflictingPersistentDataException.class);
@@ -126,7 +126,7 @@ public class PRDiskConflictWithColocationDistributedTest implements Serializable
 
   private void createColocatedPR(final int redundantCopies) throws InterruptedException {
     // Wait for both nested PRs to be created
-    CountDownLatch recoveryDone = new CountDownLatch(2);
+    var recoveryDone = new CountDownLatch(2);
 
     ResourceObserver observer = new ResourceObserverAdapter() {
       @Override
@@ -158,7 +158,7 @@ public class PRDiskConflictWithColocationDistributedTest implements Serializable
   private void createColocatedPRWithObserver(final int redundantCopies)
       throws InterruptedException {
     // Wait for both nested PRs to be created
-    CountDownLatch recoveryDone = new CountDownLatch(2);
+    var recoveryDone = new CountDownLatch(2);
 
     ResourceObserver observer = new ResourceObserverAdapter() {
       @Override
@@ -171,7 +171,7 @@ public class PRDiskConflictWithColocationDistributedTest implements Serializable
 
     // Wait for parent and child region to be created.
     // And throw exception while region is getting initialized.
-    CountDownLatch childRegionCreated = new CountDownLatch(1);
+    var childRegionCreated = new CountDownLatch(1);
 
     PersistenceAdvisorImpl.setPersistenceAdvisorObserver(regionPath -> {
       if (regionPath.contains(childRegionName)) {
@@ -213,7 +213,7 @@ public class PRDiskConflictWithColocationDistributedTest implements Serializable
   private void createData(final int startKey, final int endKey, final String value,
       final String regionName) {
     Region<Integer, String> region = getCache().getRegion(regionName);
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       region.put(i, value);
     }
   }

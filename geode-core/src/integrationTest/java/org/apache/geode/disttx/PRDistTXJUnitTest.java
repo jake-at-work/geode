@@ -40,7 +40,7 @@ public class PRDistTXJUnitTest extends PRTXJUnitTest {
 
   @Override
   protected void createCache() throws Exception {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0"); // loner
     p.setProperty(ConfigurationProperties.DISTRIBUTED_TRANSACTIONS, "true");
 

@@ -57,7 +57,7 @@ public class ThreadsMonitoringJUnitTest {
   @Test
   public void testVerifyTypeOfElements() {
     try {
-      for (int i = 0; i < ThreadsMonitoring.Mode.values().length; i++) {
+      for (var i = 0; i < ThreadsMonitoring.Mode.values().length; i++) {
         assertTrue(
             ThreadsMonitoring.Mode.values()[i].name().equals(ModeExpected.values()[i].name()));
       }

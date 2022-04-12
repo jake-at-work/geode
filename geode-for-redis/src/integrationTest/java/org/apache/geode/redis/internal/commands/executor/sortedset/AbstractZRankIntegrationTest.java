@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -82,19 +81,19 @@ public abstract class AbstractZRankIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void shouldReturnRankByScore_givenUniqueScoresAndMembers() {
-    Map<String, Double> map = makeMemberScoreMap_differentScores();
+    var map = makeMemberScoreMap_differentScores();
     jedis.zadd(KEY, map);
 
     // get the ranks of the members
-    String[] members = new String[ENTRY_COUNT];
-    for (String memberName : map.keySet()) {
+    var members = new String[ENTRY_COUNT];
+    for (var memberName : map.keySet()) {
       long rank = jedis.zrank(KEY, memberName);
       members[(int) rank] = memberName;
     }
 
     Double previousScore = Double.NEGATIVE_INFINITY;
-    for (String member : members) {
-      Double score = jedis.zscore(KEY, member);
+    for (var member : members) {
+      var score = jedis.zscore(KEY, member);
       assertThat(score).isGreaterThanOrEqualTo(previousScore);
       previousScore = score;
     }
@@ -102,13 +101,13 @@ public abstract class AbstractZRankIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void shouldReturnRankByLex_givenMembersWithSameScore() {
-    Map<String, Double> map = makeMemberScoreMap_sameScores();
+    var map = makeMemberScoreMap_sameScores();
     jedis.zadd(KEY, map);
 
     // get the ranks of the members
     Map<Long, byte[]> rankMap = new HashMap<>();
     List<byte[]> memberList = new ArrayList<>();
-    for (String memberName : map.keySet()) {
+    for (var memberName : map.keySet()) {
       long rank = jedis.zrank(KEY, memberName);
       rankMap.put(rank, memberName.getBytes());
       memberList.add(memberName.getBytes());
@@ -139,8 +138,8 @@ public abstract class AbstractZRankIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void shouldSort_byBothScoreAndLexical() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap_withVariedScores();
-    Map<Long, String> rankMap = makeRankToMemberMap_withExpectedRankings();
+    var memberScoreMap = makeMemberScoreMap_withVariedScores();
+    var rankMap = makeRankToMemberMap_withExpectedRankings();
 
     jedis.zadd(KEY, memberScoreMap);
 
@@ -195,9 +194,9 @@ public abstract class AbstractZRankIntegrationTest implements RedisIntegrationTe
     Map<String, Double> map = new HashMap<>();
 
     // Use set so all values are unique.
-    Set<String> memberSet = initializeSetWithRandomMemberValues();
+    var memberSet = initializeSetWithRandomMemberValues();
 
-    for (String s : memberSet) {
+    for (var s : memberSet) {
       map.put(s, 1.0);
     }
 
@@ -210,16 +209,16 @@ public abstract class AbstractZRankIntegrationTest implements RedisIntegrationTe
     // Use sets so all values are unique.
     Set<Double> scoreSet = new HashSet<>();
     while (scoreSet.size() < ENTRY_COUNT - 2) {
-      double score = random.nextDouble();
+      var score = random.nextDouble();
       scoreSet.add(score);
     }
     scoreSet.add(Double.POSITIVE_INFINITY);
     scoreSet.add(Double.NEGATIVE_INFINITY);
 
-    Set<String> memberSet = initializeSetWithRandomMemberValues();
+    var memberSet = initializeSetWithRandomMemberValues();
 
-    Iterator<String> memberIterator = memberSet.iterator();
-    Iterator<Double> scoreIterator = scoreSet.iterator();
+    var memberIterator = memberSet.iterator();
+    var scoreIterator = scoreSet.iterator();
     while (memberIterator.hasNext()) {
       map.put(memberIterator.next(), scoreIterator.next());
     }
@@ -228,17 +227,17 @@ public abstract class AbstractZRankIntegrationTest implements RedisIntegrationTe
   }
 
   private Set<String> initializeSetWithRandomMemberValues() {
-    byte[] memberNameArray = new byte[6];
+    var memberNameArray = new byte[6];
     Set<String> memberSet = new HashSet<>();
     while (memberSet.size() < ENTRY_COUNT) {
       random.nextBytes(memberNameArray);
       // Ensure all byte values are positive as negative values can cause issues in Windows tests
-      for (int i = 0; i < memberNameArray.length; ++i) {
+      for (var i = 0; i < memberNameArray.length; ++i) {
         if (memberNameArray[i] < 0) {
           memberNameArray[i] = (byte) -memberNameArray[i];
         }
       }
-      String memberName = new String(memberNameArray);
+      var memberName = new String(memberNameArray);
       memberSet.add(memberName);
     }
     return memberSet;

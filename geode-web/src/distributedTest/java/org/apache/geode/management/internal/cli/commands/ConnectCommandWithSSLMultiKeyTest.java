@@ -34,7 +34,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
-import org.apache.geode.cache.ssl.CertificateMaterial;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -60,38 +59,38 @@ public class ConnectCommandWithSSLMultiKeyTest {
   @BeforeClass
   public static void beforeClass() throws Exception {
 
-    CertificateMaterial ca = new CertificateBuilder()
+    var ca = new CertificateBuilder()
         .commonName("Test CA")
         .isCA()
         .generate();
 
-    CertificateMaterial memberMaterial = new CertificateBuilder()
+    var memberMaterial = new CertificateBuilder()
         .commonName("member")
         .sanDnsName("localhost")
         .issuedBy(ca)
         .generate();
 
-    CertStores memberStore = new CertStores("member");
+    var memberStore = new CertStores("member");
     memberStore.withCertificate("member", memberMaterial);
     memberStore.trust("ca", ca);
 
-    final Properties memberProperties = memberStore.propertiesWith("all", true, false);
+    final var memberProperties = memberStore.propertiesWith("all", true, false);
 
     locator = clusterRule.startLocatorVM(0,
         l -> l.withProperties(memberProperties)
             .withProperty(JMX_MANAGER_HOSTNAME_FOR_CLIENTS, "localhost")
             .withHttpService());
 
-    CertificateMaterial clientMaterial = new CertificateBuilder()
+    var clientMaterial = new CertificateBuilder()
         .commonName("client")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial selfSigned = new CertificateBuilder()
+    var selfSigned = new CertificateBuilder()
         .commonName("bad-self-signed")
         .generate();
 
-    CertStores clientStore = new CertStores("client");
+    var clientStore = new CertStores("client");
     clientStore.withCertificate("bad-self-signed", selfSigned);
     clientStore.withCertificate("client", clientMaterial);
     clientStore.trust("ca", ca);

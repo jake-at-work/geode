@@ -27,7 +27,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.text.MessageFormat;
-import java.util.Map;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -37,9 +36,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.InOrder;
 
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.locks.DLockService;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.backup.AbortBackupRequest;
@@ -64,24 +61,24 @@ public class DistributedSystemBridgeIntegrationTest {
   @Before
   public void createCache() throws MalformedObjectNameException {
     cache = Fakes.cache();
-    PersistentMemberManager memberManager = mock(PersistentMemberManager.class);
+    var memberManager = mock(PersistentMemberManager.class);
     backupService = mock(BackupService.class);
     when(cache.getBackupService()).thenReturn(backupService);
     when(cache.getPersistentMemberManager()).thenReturn(memberManager);
     when(cache.getBackupService()).thenReturn(backupService);
 
-    DLockService dlock = mock(DLockService.class);
+    var dlock = mock(DLockService.class);
     when(dlock.lock(any(), anyLong(), anyLong())).thenReturn(true);
 
     DLockService.addLockServiceForTests(BackupLockService.LOCK_SERVICE_NAME, dlock);
 
-    ObjectName name1 = ObjectName
+    var name1 = ObjectName
         .getInstance(MessageFormat.format(OBJECTNAME__GATEWAYSENDER_MXBEAN, "sender1", "server1"));
-    ObjectName name2 = ObjectName
+    var name2 = ObjectName
         .getInstance(MessageFormat.format(OBJECTNAME__GATEWAYSENDER_MXBEAN, "sender2", "server2"));
-    ObjectName name3 = ObjectName
+    var name3 = ObjectName
         .getInstance(MessageFormat.format(OBJECTNAME__GATEWAYSENDER_MXBEAN, "sender3", "server3"));
-    ObjectName name4 = ObjectName
+    var name4 = ObjectName
         .getInstance(MessageFormat.format(OBJECTNAME__GATEWAYSENDER_MXBEAN, "sender4", "server4"));
 
     bean1 = mock(GatewaySenderMXBean.class);
@@ -108,11 +105,11 @@ public class DistributedSystemBridgeIntegrationTest {
 
   @Test
   public void testSuccessfulBackup() throws Exception {
-    DistributionManager dm = cache.getDistributionManager();
+    var dm = cache.getDistributionManager();
 
     bridge.backupAllMembers(temporaryFolder.getRoot().getAbsolutePath(), null);
 
-    InOrder inOrder = inOrder(dm, backupService);
+    var inOrder = inOrder(dm, backupService);
     inOrder.verify(dm).putOutgoing(isA(PrepareBackupRequest.class));
     inOrder.verify(backupService).prepareBackup(any(), any());
     inOrder.verify(dm).putOutgoing(isA(FinishBackupRequest.class));
@@ -121,9 +118,9 @@ public class DistributedSystemBridgeIntegrationTest {
 
   @Test
   public void testPrepareErrorAbortsBackup() {
-    DistributionManager dm = cache.getDistributionManager();
-    PersistentMemberManager memberManager = mock(PersistentMemberManager.class);
-    BackupService backupService = mock(BackupService.class);
+    var dm = cache.getDistributionManager();
+    var memberManager = mock(PersistentMemberManager.class);
+    var backupService = mock(BackupService.class);
     when(cache.getBackupService()).thenReturn(backupService);
     when(cache.getPersistentMemberManager()).thenReturn(memberManager);
     when(cache.getBackupService()).thenReturn(backupService);
@@ -151,7 +148,7 @@ public class DistributedSystemBridgeIntegrationTest {
     doReturn(true).when(bean4).isParallel();
     doReturn(true).when(bean4).isConnected();
 
-    Map<String, Boolean> status = bridge.viewRemoteClusterStatus();
+    var status = bridge.viewRemoteClusterStatus();
     assertThat(status.keySet()).hasSize(2);
     assertThat(status.keySet()).contains("2", "3");
     assertThat(status.values()).contains(true, true);
@@ -171,7 +168,7 @@ public class DistributedSystemBridgeIntegrationTest {
     doReturn(true).when(bean4).isParallel();
     doReturn(false).when(bean4).isConnected();
 
-    Map<String, Boolean> status = bridge.viewRemoteClusterStatus();
+    var status = bridge.viewRemoteClusterStatus();
     assertThat(status.keySet()).hasSize(2);
     assertThat(status.keySet()).contains("2", "3");
     assertThat(status.values()).contains(true, false);
@@ -199,7 +196,7 @@ public class DistributedSystemBridgeIntegrationTest {
     doReturn(false).when(bean4).isPrimary();
     doReturn(false).when(bean4).isConnected();
 
-    Map<String, Boolean> status = bridge.viewRemoteClusterStatus();
+    var status = bridge.viewRemoteClusterStatus();
     assertThat(status.keySet()).hasSize(2);
     assertThat(status.keySet()).contains("2", "3");
     assertThat(status.values()).contains(true, true);
@@ -227,7 +224,7 @@ public class DistributedSystemBridgeIntegrationTest {
     doReturn(false).when(bean4).isPrimary();
     doReturn(true).when(bean4).isConnected();
 
-    Map<String, Boolean> status = bridge.viewRemoteClusterStatus();
+    var status = bridge.viewRemoteClusterStatus();
     assertThat(status.keySet()).hasSize(2);
     assertThat(status.keySet()).contains("2", "3");
     assertThat(status.values()).contains(true, false);

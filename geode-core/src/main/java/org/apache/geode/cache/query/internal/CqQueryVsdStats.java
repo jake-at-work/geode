@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.internal.cache.tier.MessageType;
@@ -86,9 +85,9 @@ public class CqQueryVsdStats {
    * Static initializer to create and initialize the <code>StatisticsType</code>
    */
   static {
-    String statName = "CqQueryStats";
+    var statName = "CqQueryStats";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     _type = f.createType(statName, statName,
         new StatisticDescriptor[] {f.createLongCounter(CQ_INITIAL_RESULTS_TIME,

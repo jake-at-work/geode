@@ -55,7 +55,7 @@ public abstract class AbstractUnlinkIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testUnlink_unlinkingOneKey_removesKeyAndReturnsOne() {
-    String key1 = "firstKey";
+    var key1 = "firstKey";
     jedis.set(key1, "value1");
 
     Long unlinkedCount = jedis.unlink(key1);
@@ -71,9 +71,9 @@ public abstract class AbstractUnlinkIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testUnlink_unlinkingMultipleKeys_returnsCountOfOnlyUnlinkedKeys() {
-    String key1 = "{tag1}firstKey";
-    String key2 = "{tag1}secondKey";
-    String key3 = "{tag1}thirdKey";
+    var key1 = "{tag1}firstKey";
+    var key2 = "{tag1}secondKey";
+    var key3 = "{tag1}thirdKey";
 
     jedis.set(key1, "value1");
     jedis.set(key2, "value2");
@@ -85,14 +85,14 @@ public abstract class AbstractUnlinkIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testConcurrentUnlink_differentClients() {
-    String keyBaseName = "UNLINKBASE";
+    var keyBaseName = "UNLINKBASE";
 
-    int ITERATION_COUNT = 4000;
+    var ITERATION_COUNT = 4000;
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> jedis.set(keyBaseName + i, "value" + i))
             .run();
 
-    AtomicLong unlinkedCount = new AtomicLong();
+    var unlinkedCount = new AtomicLong();
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> unlinkedCount.addAndGet(jedis.unlink(keyBaseName + i)),
         (i) -> unlinkedCount.addAndGet(jedis.unlink(keyBaseName + i)))
@@ -100,14 +100,14 @@ public abstract class AbstractUnlinkIntegrationTest implements RedisIntegrationT
 
     assertThat(unlinkedCount.get()).isEqualTo(ITERATION_COUNT);
 
-    for (int i = 0; i < ITERATION_COUNT; i++) {
+    for (var i = 0; i < ITERATION_COUNT; i++) {
       assertThat(jedis.get(keyBaseName + i)).isNull();
     }
   }
 
   @Test
   public void testUnlink_withBinaryKey() {
-    byte[] key = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    var key = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
     jedis.set(key, "foo".getBytes());
     jedis.unlink(key);

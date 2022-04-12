@@ -43,20 +43,20 @@ public class InstallerJUnitTest {
   }
 
   private void testTransformation(final String name) throws Exception {
-    File webXmlFile = temporaryFolder.newFile();
+    var webXmlFile = temporaryFolder.newFile();
     FileUtils.copyFile(new File(getClass().getResource(name).getFile()), webXmlFile);
-    final String[] args = {"-t", "peer-to-peer", "-w", webXmlFile.getAbsolutePath()};
+    final var args = new String[] {"-t", "peer-to-peer", "-w", webXmlFile.getAbsolutePath()};
 
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    var output = new ByteArrayOutputStream();
     try (InputStream input = new FileInputStream(webXmlFile)) {
       new Installer(args).processWebXml(input, output);
     }
 
-    String expected =
+    var expected =
         IOUtils.toString(getClass().getResource(name + ".expected"), Charset.defaultCharset())
             .replaceAll(IOUtils.LINE_SEPARATOR_WINDOWS, "")
             .replaceAll(IOUtils.LINE_SEPARATOR_UNIX, "");
-    String actual = output.toString().replaceAll(IOUtils.LINE_SEPARATOR_WINDOWS, "")
+    var actual = output.toString().replaceAll(IOUtils.LINE_SEPARATOR_WINDOWS, "")
         .replaceAll(IOUtils.LINE_SEPARATOR_UNIX, "");
     assertThat(actual).isEqualToIgnoringWhitespace(expected);
   }

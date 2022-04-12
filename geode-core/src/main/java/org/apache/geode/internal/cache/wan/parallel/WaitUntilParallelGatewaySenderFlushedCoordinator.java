@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +31,6 @@ import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.BucketRegionQueue;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -50,23 +48,23 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinator
 
   @Override
   public boolean waitUntilFlushed() throws Throwable {
-    boolean localResult = true;
+    var localResult = true;
     Throwable exceptionToThrow = null;
-    ConcurrentParallelGatewaySenderQueue prq =
+    var prq =
         (ConcurrentParallelGatewaySenderQueue) sender.getQueue();
-    PartitionedRegion pr = (PartitionedRegion) prq.getRegion();
+    var pr = (PartitionedRegion) prq.getRegion();
     if (pr == null) {
       sender.getCancelCriterion().checkCancelInProgress(null);
     }
 
-    ExecutorService service =
+    var service =
         sender.getDistributionManager().getExecutors().getWaitingThreadPool();
     List<Future<Boolean>> callableFutures = new ArrayList<>();
-    int callableCount = 0;
-    long nanosRemaining = unit.toNanos(timeout);
-    long endTime = System.nanoTime() + nanosRemaining;
-    Set<BucketRegion> localBucketRegions = getLocalBucketRegions(pr);
-    for (BucketRegion br : localBucketRegions) {
+    var callableCount = 0;
+    var nanosRemaining = unit.toNanos(timeout);
+    var endTime = System.nanoTime() + nanosRemaining;
+    var localBucketRegions = getLocalBucketRegions(pr);
+    for (var br : localBucketRegions) {
       // timeout exceeded, do not submit more callables, return localResult false
       if (System.nanoTime() >= endTime) {
         localResult = false;
@@ -84,7 +82,7 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinator
       callableCount++;
       if ((callableCount % CALLABLES_CHUNK_SIZE) == 0
           || callableCount == localBucketRegions.size()) {
-        CallablesChunkResults callablesChunkResults =
+        var callablesChunkResults =
             new CallablesChunkResults(localResult, exceptionToThrow, callableFutures).invoke();
         localResult = callablesChunkResults.getLocalResult();
         exceptionToThrow = callablesChunkResults.getExceptionToThrow();
@@ -162,7 +160,7 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinator
 
     private void initializeResponses() {
       responses = new ConcurrentHashMap<>();
-      for (InternalDistributedMember member : getMembers()) {
+      for (var member : getMembers()) {
         responses.put(member, false);
       }
     }
@@ -171,7 +169,7 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinator
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof ReplyMessage) {
-          ReplyMessage reply = (ReplyMessage) msg;
+          var reply = (ReplyMessage) msg;
           if (logger.isDebugEnabled()) {
             logger
                 .debug("WaitUntilGatewaySenderFlushedReplyProcessor: Processing reply from sender="
@@ -190,7 +188,7 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinator
     }
 
     public boolean getCombinedResult() {
-      boolean combinedResult = true;
+      var combinedResult = true;
       for (boolean singleMemberResult : responses.values()) {
         combinedResult = combinedResult && singleMemberResult;
       }
@@ -223,8 +221,8 @@ public class WaitUntilParallelGatewaySenderFlushedCoordinator
     }
 
     public CallablesChunkResults invoke() throws InterruptedException {
-      for (Future<Boolean> future : callableFutures) {
-        boolean singleBucketResult = false;
+      for (var future : callableFutures) {
+        var singleBucketResult = false;
         try {
           singleBucketResult = future.get();
         } catch (ExecutionException e) {

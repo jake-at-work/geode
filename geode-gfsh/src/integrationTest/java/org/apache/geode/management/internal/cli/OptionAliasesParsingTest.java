@@ -278,7 +278,7 @@ public class OptionAliasesParsingTest {
   }
 
   private void validateParsedResults(boolean canHaveMembers, boolean canHaveGroups) {
-    GfshParseResult result = parser.parse(buffer);
+    var result = parser.parse(buffer);
     if (canHaveMembers) {
       assertThat(result.getParamValueAsString("member")).isEqualTo("m1,m2");
     }
@@ -289,7 +289,7 @@ public class OptionAliasesParsingTest {
 
   private void validateParsedResults(boolean canHaveMembers, boolean canHaveGroups,
       boolean canHaveJars) {
-    GfshParseResult result = parser.parse(buffer);
+    var result = parser.parse(buffer);
     validateParsedResults(canHaveMembers, canHaveGroups);
     if (canHaveJars) {
       assertThat(result.getParamValueAsString("jar")).isEqualTo("j1,j2");
@@ -302,7 +302,7 @@ public class OptionAliasesParsingTest {
   @Test
   public void gc_memberWithCommas() {
     buffer = "gc --member=m1,m2";
-    GfshParseResult result = parser.parse(buffer);
+    var result = parser.parse(buffer);
     assertThat(result.getParamValueAsString("member")).isEqualTo("m1,m2");
   }
 
@@ -315,7 +315,7 @@ public class OptionAliasesParsingTest {
   @Test
   public void destroyFunction_memberWithCommas() {
     buffer = "destroy function --id=function1 --member=m1,m2";
-    GfshParseResult result = parser.parse(buffer);
+    var result = parser.parse(buffer);
     assertThat(result.getParamValueAsString("member")).isEqualTo("m1,m2");
   }
 

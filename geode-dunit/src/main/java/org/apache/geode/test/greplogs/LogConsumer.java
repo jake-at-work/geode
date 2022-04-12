@@ -40,7 +40,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LogConsumer {
@@ -79,7 +78,7 @@ public class LogConsumer {
 
     // IgnoredException injects lines into the log to start or end ignore periods.
     // Process those lines, then exit.
-    Matcher expectedExceptionMatcher = IGNORED_EXCEPTION.matcher(line);
+    var expectedExceptionMatcher = IGNORED_EXCEPTION.matcher(line);
     if (expectedExceptionMatcher.find()) {
       expectedExceptionMatcherHandler(expectedExceptionMatcher);
       return null;
@@ -187,11 +186,11 @@ public class LogConsumer {
     // we found a blank line so print the suspect string and reset the savetag flag
     saveFlag = false;
 
-    Matcher shortErrMatcher = ERROR_SHORT_NAME.matcher(all.toString());
+    var shortErrMatcher = ERROR_SHORT_NAME.matcher(all.toString());
     if (shortErrMatcher.matches()) {
-      String shortName = shortErrMatcher.group(1);
-      Integer i = individualErrorCount.get(shortName);
-      int occurrences = i == null ? 1 : i + 1;
+      var shortName = shortErrMatcher.group(1);
+      var i = individualErrorCount.get(shortName);
+      var occurrences = i == null ? 1 : i + 1;
       individualErrorCount.put(shortName, occurrences);
       return enforceErrorLimit(occurrences, all.toString(), savelinenum, logName);
     }
@@ -217,17 +216,17 @@ public class LogConsumer {
   }
 
   private String getShortName(CharSequence line) {
-    Matcher exception2Matcher = EXCEPTION_2.matcher(line);
+    var exception2Matcher = EXCEPTION_2.matcher(line);
     if (exception2Matcher.find()) {
       return exception2Matcher.group(1);
     }
 
-    Matcher exception3Matcher = EXCEPTION_3.matcher(line);
+    var exception3Matcher = EXCEPTION_3.matcher(line);
     if (exception3Matcher.find()) {
       return exception3Matcher.group(1);
     }
 
-    Matcher exception4Matcher = EXCEPTION_4.matcher(line);
+    var exception4Matcher = EXCEPTION_4.matcher(line);
     if (exception4Matcher.find()) {
       return exception4Matcher.group(1);
     }
@@ -272,7 +271,7 @@ public class LogConsumer {
 
   private String enforceErrorLimit(int hits, String line, int linenum, String filename) {
     if (hits < skipLimit) {
-      String string = "-----------------------------------------------------------------------"
+      var string = "-----------------------------------------------------------------------"
           + lineSeparator()
           + "Found suspect string in '" + filename + "' at line " + linenum
           + lineSeparator() + lineSeparator()
@@ -281,7 +280,7 @@ public class LogConsumer {
     }
 
     if (hits == skipLimit) {
-      String string = lineSeparator() + lineSeparator()
+      var string = lineSeparator() + lineSeparator()
           + "Hit occurrence limit of " + hits + " for this string."
           + lineSeparator()
           + "Further reporting of this type of error will be suppressed."

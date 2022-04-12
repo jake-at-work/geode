@@ -30,7 +30,7 @@ public class ColocationLoggerFactoryTest {
 
   @Test
   public void createReturnsColocationLoggerFactoryImplByDefault() {
-    ColocationLoggerFactory factory = ColocationLoggerFactory.create();
+    var factory = ColocationLoggerFactory.create();
 
     assertThat(factory).isInstanceOf(SingleThreadColocationLoggerFactory.class);
   }
@@ -40,7 +40,7 @@ public class ColocationLoggerFactoryTest {
     System.setProperty(COLOCATION_LOGGER_FACTORY_PROPERTY,
         MyColocationLoggerFactory.class.getName());
 
-    ColocationLoggerFactory factory = ColocationLoggerFactory.create();
+    var factory = ColocationLoggerFactory.create();
 
     assertThat(factory).isInstanceOf(MyColocationLoggerFactory.class);
   }
@@ -49,7 +49,7 @@ public class ColocationLoggerFactoryTest {
   public void createReturnsDefaultIfSystemPropertyValueDoesNotExist() {
     System.setProperty(COLOCATION_LOGGER_FACTORY_PROPERTY, "does.not.Exist");
 
-    ColocationLoggerFactory factory = ColocationLoggerFactory.create();
+    var factory = ColocationLoggerFactory.create();
 
     assertThat(factory).isInstanceOf(SingleThreadColocationLoggerFactory.class);
   }
@@ -59,7 +59,7 @@ public class ColocationLoggerFactoryTest {
     System.setProperty(COLOCATION_LOGGER_FACTORY_PROPERTY,
         DoesNotImplementInterface.class.getName());
 
-    ColocationLoggerFactory factory = ColocationLoggerFactory.create();
+    var factory = ColocationLoggerFactory.create();
 
     assertThat(factory).isInstanceOf(SingleThreadColocationLoggerFactory.class);
   }
@@ -68,7 +68,7 @@ public class ColocationLoggerFactoryTest {
   public void createReturnsDefaultIfSystemPropertyValueIsPrivateClass() {
     System.setProperty(COLOCATION_LOGGER_FACTORY_PROPERTY, PrivateFactory.class.getName());
 
-    ColocationLoggerFactory factory = ColocationLoggerFactory.create();
+    var factory = ColocationLoggerFactory.create();
 
     assertThat(factory).isInstanceOf(SingleThreadColocationLoggerFactory.class);
   }

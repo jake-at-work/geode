@@ -110,8 +110,8 @@ public class Node extends ExternalizableDSFID {
   }
 
   void setLoaderAndWriter(CacheLoader loader, CacheWriter writer) {
-    byte loaderByte = (byte) (loader != null ? 0x01 : 0x00);
-    byte writerByte = (byte) (writer != null ? 0x02 : 0x00);
+    var loaderByte = (byte) (loader != null ? 0x01 : 0x00);
+    var writerByte = (byte) (writer != null ? 0x02 : 0x00);
     cacheLoaderWriterByte = (byte) (loaderByte + writerByte);
   }
 
@@ -129,7 +129,7 @@ public class Node extends ExternalizableDSFID {
       return true;
     }
     if (obj instanceof Node) {
-      Node n = (Node) obj;
+      var n = (Node) obj;
       return memberId.equals(n.memberId) && serialNumber == n.serialNumber;
     }
     return false;

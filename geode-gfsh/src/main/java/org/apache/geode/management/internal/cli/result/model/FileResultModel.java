@@ -122,15 +122,15 @@ public class FileResultModel {
    * @return the message you would like to return to the user.
    */
   public String saveFile(File directory) throws IOException {
-    String options = "(Y/N)";
-    File file = new File(directory, filename).getAbsoluteFile();
+    var options = "(Y/N)";
+    var file = new File(directory, filename).getAbsoluteFile();
 
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
     if (file.exists()) {
-      String fileExistsMessage = String.format("File \"%s\" already exists", filename);
+      var fileExistsMessage = String.format("File \"%s\" already exists", filename);
       if (gfsh != null && !gfsh.isQuietMode()) {
         fileExistsMessage += " Overwrite? " + options + " : ";
-        String interaction = gfsh.interact(fileExistsMessage);
+        var interaction = gfsh.interact(fileExistsMessage);
         if (!"y".equalsIgnoreCase(interaction.trim())) {
           // do not save file & continue
           return "User aborted. Did not overwrite " + file.getAbsolutePath();
@@ -140,14 +140,14 @@ public class FileResultModel {
       }
     }
     if (type == FileResultModel.FILE_TYPE_TEXT) {
-      FileWriter fw = new FileWriter(file);
-      BufferedWriter bw = new BufferedWriter(fw);
+      var fw = new FileWriter(file);
+      var bw = new BufferedWriter(fw);
       bw.write(new String(data));
       bw.flush();
       fw.flush();
       fw.close();
     } else if (type == FileResultModel.FILE_TYPE_BINARY) {
-      FileOutputStream fos = new FileOutputStream(file);
+      var fos = new FileOutputStream(file);
       fos.write(data);
       fos.flush();
       fos.close();

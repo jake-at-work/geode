@@ -21,10 +21,8 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexNameConflictException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -39,11 +37,11 @@ public class IndexRealizer implements ConfigurationRealizer<Index, IndexInfo> {
 
   @Override
   public RealizationResult create(Index config, InternalCache cache) {
-    QueryService queryService = cache.getQueryService();
-    String indexName = config.getName();
-    String indexedExpression = config.getExpression();
-    String fromClause = config.getRegionPath();
-    RealizationResult realizationResult = new RealizationResult();
+    var queryService = cache.getQueryService();
+    var indexName = config.getName();
+    var indexedExpression = config.getExpression();
+    var fromClause = config.getRegionPath();
+    var realizationResult = new RealizationResult();
     try {
       if (config.getIndexType() == IndexType.KEY) {
         queryService.createKeyIndex(indexName, indexedExpression, fromClause);
@@ -72,17 +70,17 @@ public class IndexRealizer implements ConfigurationRealizer<Index, IndexInfo> {
 
   @Override
   public IndexInfo get(Index config, InternalCache cache) {
-    String regionName = config.getRegionName();
-    String indexName = config.getName();
+    var regionName = config.getRegionName();
+    var indexName = config.getName();
     if (regionName == null || indexName == null) {
       return null;
     }
-    Region<Object, Object> region = cache.getRegion(SEPARATOR + regionName);
+    var region = cache.getRegion(SEPARATOR + regionName);
     if (region == null) {
       return null;
     }
-    QueryService queryService = cache.getQueryService();
-    org.apache.geode.cache.query.Index index = queryService.getIndex(region, indexName);
+    var queryService = cache.getQueryService();
+    var index = queryService.getIndex(region, indexName);
     if (index == null) {
       return null;
     }
@@ -97,15 +95,15 @@ public class IndexRealizer implements ConfigurationRealizer<Index, IndexInfo> {
 
   @Override
   public RealizationResult delete(Index config, InternalCache cache) {
-    QueryService queryService = cache.getQueryService();
-    RealizationResult realizationResult = new RealizationResult();
-    Region<Object, Object> region = cache.getRegion(SEPARATOR + config.getRegionName());
+    var queryService = cache.getQueryService();
+    var realizationResult = new RealizationResult();
+    var region = cache.getRegion(SEPARATOR + config.getRegionName());
     if (region == null) {
       realizationResult.setSuccess(false);
       realizationResult.setMessage("Region for index not found: " + config.getRegionName());
       return realizationResult;
     }
-    org.apache.geode.cache.query.Index index = queryService.getIndex(region, config.getName());
+    var index = queryService.getIndex(region, config.getName());
     if (index == null) {
       realizationResult.setSuccess(false);
       realizationResult.setMessage("Index not found for Region: "

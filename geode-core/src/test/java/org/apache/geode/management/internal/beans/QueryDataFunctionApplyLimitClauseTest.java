@@ -42,8 +42,8 @@ public class QueryDataFunctionApplyLimitClauseTest {
 
   @Test
   public void applyLimitClauseDoesNothingIfLimitClauseSpecified() {
-    String limitClause = " LIMIT 50";
-    String selectQueryWithLimit = selectQuery + limitClause;
+    var limitClause = " LIMIT 50";
+    var selectQueryWithLimit = selectQuery + limitClause;
     assertThat(
         QueryDataFunction.applyLimitClause(selectQueryWithLimit, limit_10, queryResultSetLimit_100))
             .isEqualTo(selectQueryWithLimit);
@@ -63,7 +63,7 @@ public class QueryDataFunctionApplyLimitClauseTest {
 
   @Test // GEODE-1907
   public void applyLimitClauseAddsQueryResultSetLimitIfMissingSpaceAfterFrom() {
-    String selectQueryMissingSpaceAfterFrom = "SELECT * FROM" + SEPARATOR + "MyRegion";
+    var selectQueryMissingSpaceAfterFrom = "SELECT * FROM" + SEPARATOR + "MyRegion";
     assertThat(QueryDataFunction.applyLimitClause(selectQueryMissingSpaceAfterFrom, limit_0,
         queryResultSetLimit_100))
             .isEqualTo(selectQueryMissingSpaceAfterFrom + " LIMIT " + queryResultSetLimit_100);
@@ -71,7 +71,7 @@ public class QueryDataFunctionApplyLimitClauseTest {
 
   @Test
   public void applyLimitClauseDoesNotAddQueryResultSetLimitIfMissingSpaceAfterFromButLimitIsPresent() {
-    String selectQueryMissingSpaceAfterFromWithLimit =
+    var selectQueryMissingSpaceAfterFromWithLimit =
         "SELECT * FROM" + SEPARATOR + "MyRegion LIMIT " + limit_10;
     assertThat(QueryDataFunction.applyLimitClause(selectQueryMissingSpaceAfterFromWithLimit,
         limit_0, queryResultSetLimit_100)).isEqualTo(selectQueryMissingSpaceAfterFromWithLimit);
@@ -79,21 +79,21 @@ public class QueryDataFunctionApplyLimitClauseTest {
 
   @Test
   public void applyLimitClauseShouldTrimQuery() throws Exception {
-    String query = selectQuery + System.lineSeparator();
+    var query = selectQuery + System.lineSeparator();
     assertThat(QueryDataFunction.applyLimitClause(query, limit_10, queryResultSetLimit_100))
         .isEqualTo(selectQuery + " LIMIT " + limit_10);
   }
 
   @Test
   public void applyLimitClauseShouldTrimQueryAndUseDefaultLimit() throws Exception {
-    String query = selectQuery + System.lineSeparator();
+    var query = selectQuery + System.lineSeparator();
     assertThat(QueryDataFunction.applyLimitClause(query, limit_0, queryResultSetLimit_100))
         .isEqualTo(selectQuery + " LIMIT " + queryResultSetLimit_100);
   }
 
   @Test
   public void applyLimitClauseShouldIgnoreComments() throws Exception {
-    String query = "--comment" + System.lineSeparator() + selectQuery + System.lineSeparator()
+    var query = "--comment" + System.lineSeparator() + selectQuery + System.lineSeparator()
         + "--comment" + System.lineSeparator();
     assertThat(QueryDataFunction.applyLimitClause(query, limit_10, queryResultSetLimit_100))
         .isEqualTo(selectQuery + " LIMIT " + limit_10);
@@ -101,7 +101,7 @@ public class QueryDataFunctionApplyLimitClauseTest {
 
   @Test
   public void applyLimitShouldIgnoreNewLinesBetweenAndAfterQuery() throws Exception {
-    String query = "select" + System.lineSeparator() + " * from" + System.lineSeparator()
+    var query = "select" + System.lineSeparator() + " * from" + System.lineSeparator()
         + "/testRegion" + System.lineSeparator();
     assertThat(QueryDataFunction.applyLimitClause(query, limit_0, queryResultSetLimit_100))
         .isEqualTo("select  * from /testRegion LIMIT 100");
@@ -123,7 +123,7 @@ public class QueryDataFunctionApplyLimitClauseTest {
 
   @Test
   public void brokenSelectAndBrokenFromClauseShouldAddLimitAsWell() throws Exception {
-    String query = "select r.name," + System.lineSeparator() + "r.id from" + System.lineSeparator()
+    var query = "select r.name," + System.lineSeparator() + "r.id from" + System.lineSeparator()
         + "/testRegion" + System.lineSeparator() + "r" + System.lineSeparator();
     assertThat(QueryDataFunction.applyLimitClause(query, limit_0, queryResultSetLimit_100))
         .isEqualTo("select r.name, r.id from /testRegion r LIMIT 100");

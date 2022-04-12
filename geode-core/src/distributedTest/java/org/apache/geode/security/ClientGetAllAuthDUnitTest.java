@@ -21,15 +21,12 @@ import static org.apache.geode.security.SecurityTestUtil.createProxyRegion;
 import static org.jgroups.util.Util.assertEquals;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
@@ -55,18 +52,18 @@ public class ClientGetAllAuthDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testGetAll() {
     client1.invoke("logging in Stranger", () -> {
-      ClientCache cache = createClientCache("stranger", "1234567", server.getPort());
+      var cache = createClientCache("stranger", "1234567", server.getPort());
 
-      Region region = createProxyRegion(cache, REGION_NAME);
-      Map emptyMap = region.getAll(Arrays.asList("key1", "key2", "key3", "key4"));
+      var region = createProxyRegion(cache, REGION_NAME);
+      var emptyMap = region.getAll(Arrays.asList("key1", "key2", "key3", "key4"));
       assertTrue(emptyMap.isEmpty());
     });
 
     client2.invoke("logging in authRegionReader", () -> {
-      ClientCache cache = createClientCache("authRegionReader", "1234567", server.getPort());
+      var cache = createClientCache("authRegionReader", "1234567", server.getPort());
 
-      Region region = createProxyRegion(cache, REGION_NAME);
-      Map filledMap = region.getAll(Arrays.asList("key1", "key2", "key3", "key4"));
+      var region = createProxyRegion(cache, REGION_NAME);
+      var filledMap = region.getAll(Arrays.asList("key1", "key2", "key3", "key4"));
       assertEquals("Map should contain 4 entries", 4, filledMap.size());
       assertTrue(filledMap.containsKey("key1"));
     });

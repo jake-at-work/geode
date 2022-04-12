@@ -32,7 +32,6 @@ import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.ValueComparisonHelper;
 import org.apache.geode.internal.cache.entries.AbstractRegionEntry;
 import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationException;
-import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.offheap.OffHeapHelper;
 import org.apache.geode.internal.offheap.ReferenceCountHelper;
@@ -175,8 +174,8 @@ public class RegionMapPut extends AbstractRegionMapPut {
 
   @Override
   protected void setOldValueInEvent() {
-    final EntryEventImpl event = getEvent();
-    final RegionEntry re = getRegionEntry();
+    final var event = getEvent();
+    final var re = getRegionEntry();
     event.setRegionEntry(re);
     if (event.getOperation().guaranteesOldValue()) {
       setOldValueEvenIfFaultedOut();
@@ -184,7 +183,7 @@ public class RegionMapPut extends AbstractRegionMapPut {
       setOldValueIfNotFaultedOut();
     } else {
       @Unretained
-      Object existingValue = re.getValue();
+      var existingValue = re.getValue();
       if (existingValue instanceof GatewaySenderEventImpl) {
         event.setOldValue(existingValue, true);
       }
@@ -192,10 +191,10 @@ public class RegionMapPut extends AbstractRegionMapPut {
   }
 
   private void setOldValueIfNotFaultedOut() {
-    final EntryEventImpl event = getEvent();
+    final var event = getEvent();
     ReferenceCountHelper.skipRefCountTracking();
     @Released
-    Object oldValueInVM = getRegionEntry().getValueRetain(event.getRegion(), true);
+    var oldValueInVM = getRegionEntry().getValueRetain(event.getRegion(), true);
     if (oldValueInVM == null) {
       oldValueInVM = Token.NOT_AVAILABLE;
     }
@@ -208,10 +207,10 @@ public class RegionMapPut extends AbstractRegionMapPut {
   }
 
   private void setOldValueEvenIfFaultedOut() {
-    final EntryEventImpl event = getEvent();
+    final var event = getEvent();
     ReferenceCountHelper.skipRefCountTracking();
     @Released
-    Object oldValueInVMOrDisk =
+    var oldValueInVMOrDisk =
         getRegionEntry().getValueOffHeapOrDiskWithoutFaultIn(event.getRegion());
     ReferenceCountHelper.unskipRefCountTracking();
     try {
@@ -232,7 +231,7 @@ public class RegionMapPut extends AbstractRegionMapPut {
 
   @Override
   protected void invokeCacheWriter() {
-    final EntryEventImpl event = getEvent();
+    final var event = getEvent();
     if (getOwner().isInitialized() && isCacheWrite()) {
       if (!isReplaceOnClient()) {
         if (getRegionEntry().isDestroyedOrRemoved()) {
@@ -260,8 +259,8 @@ public class RegionMapPut extends AbstractRegionMapPut {
     } catch (RegionClearedException rce) {
       setClearOccurred(true);
     } catch (ConcurrentCacheModificationException ccme) {
-      final EntryEventImpl event = getEvent();
-      VersionTag tag = event.getVersionTag();
+      final var event = getEvent();
+      var tag = event.getVersionTag();
       if (tag != null && tag.isTimeStampUpdated()) {
         getOwner().notifyTimestampsToGateways(event);
       }
@@ -271,15 +270,15 @@ public class RegionMapPut extends AbstractRegionMapPut {
 
   @Override
   protected void doBeforeCompletionActions() {
-    final EntryEventImpl event = getEvent();
+    final var event = getEvent();
     getOwner().recordEvent(event);
     if (!isOwnerInitialized()) {
       event.inhibitCacheListenerNotification(true);
     }
     updateLru();
 
-    final RegionEntry re = getRegionEntry();
-    long lastModTime = getOwner().basicPutPart2(event, re, isOwnerInitialized(),
+    final var re = getRegionEntry();
+    var lastModTime = getOwner().basicPutPart2(event, re, isOwnerInitialized(),
         getLastModifiedTime(), isClearOccurred());
     setLastModifiedTime(lastModTime);
   }
@@ -303,7 +302,7 @@ public class RegionMapPut extends AbstractRegionMapPut {
   protected void doAfterCompletionActions(boolean disabledEviction) {
     try {
       if (isCompleted()) {
-        final boolean invokeListeners = getEvent().basicGetNewValue() != Token.TOMBSTONE;
+        final var invokeListeners = getEvent().basicGetNewValue() != Token.TOMBSTONE;
         getOwner().basicPutPart3(getEvent(), getRegionEntry(), isOwnerInitialized(),
             getLastModifiedTime(), invokeListeners, isIfNew(), isIfOld(), getExpectedOldValue(),
             isRequireOldValue());
@@ -366,8 +365,8 @@ public class RegionMapPut extends AbstractRegionMapPut {
 
   private boolean checkUpdatePreconditions() {
     if (isIfOld()) {
-      final EntryEventImpl event = getEvent();
-      final RegionEntry re = getRegionEntry();
+      final var event = getEvent();
+      final var re = getRegionEntry();
       // only update, so just do tombstone maintainence and exit
       if (re.isTombstone() && event.getVersionTag() != null) {
         // refresh the tombstone so it doesn't time out too soon
@@ -389,7 +388,7 @@ public class RegionMapPut extends AbstractRegionMapPut {
   private boolean checkUninitializedRegionPreconditions() {
     if (!getOwner().isInitialized()) {
       if (!isOverwriteDestroyed()) {
-        Token oldValueInVM = getRegionEntry().getValueAsToken();
+        var oldValueInVM = getRegionEntry().getValueAsToken();
         if (oldValueInVM == Token.DESTROYED || oldValueInVM == Token.TOMBSTONE) {
           getEvent().setOldValueDestroyedToken();
           return false;
@@ -403,11 +402,11 @@ public class RegionMapPut extends AbstractRegionMapPut {
     if (isIfNew()) {
       if (!getRegionEntry().isDestroyedOrRemoved()) {
         // retain the version stamp of the existing entry for use in processing failures
-        EntryEventImpl event = getEvent();
+        var event = getEvent();
         if (getOwner().getConcurrencyChecksEnabled() &&
             event.getOperation() == Operation.PUT_IF_ABSENT &&
             event.isPossibleDuplicate()) {
-          Object retainedValue = getRegionEntry().getValueRetain(getOwner());
+          var retainedValue = getRegionEntry().getValueRetain(getOwner());
           try {
             if (ValueComparisonHelper.checkEquals(retainedValue,
                 getEvent().getRawNewValue(),
@@ -439,12 +438,12 @@ public class RegionMapPut extends AbstractRegionMapPut {
   private boolean checkExpectedOldValuePrecondition() {
     // replace is propagated to server, so no need to check
     // satisfiesOldValue on client
-    final EntryEventImpl event = getEvent();
+    final var event = getEvent();
     if (getExpectedOldValue() != null && !isReplaceOnClient()) {
       assert event.getOperation().guaranteesOldValue();
       // We already called setOldValueInEvent so the event will have the old value.
       @Unretained
-      Object v = event.getRawOldValue();
+      var v = event.getRawOldValue();
       // Note that v will be null instead of INVALID because setOldValue`
       // converts INVALID to null.
       // But checkExpectedOldValue handle this and says INVALID equals null.
@@ -454,9 +453,9 @@ public class RegionMapPut extends AbstractRegionMapPut {
   }
 
   private void createEntry() throws RegionClearedException {
-    final EntryEventImpl event = getEvent();
-    final RegionEntry re = getRegionEntry();
-    final boolean wasTombstone = re.isTombstone();
+    final var event = getEvent();
+    final var re = getRegionEntry();
+    final var wasTombstone = re.isTombstone();
     getRegionMap().processVersionTag(re, event);
     event.putNewEntry(getOwner(), re);
     updateSize(0, false, wasTombstone);
@@ -466,10 +465,10 @@ public class RegionMapPut extends AbstractRegionMapPut {
   }
 
   private void updateEntry() throws RegionClearedException {
-    final EntryEventImpl event = getEvent();
-    final RegionEntry re = getRegionEntry();
-    final boolean wasTombstone = re.isTombstone();
-    final int oldSize = event.getRegion().calculateRegionEntryValueSize(re);
+    final var event = getEvent();
+    final var re = getRegionEntry();
+    final var wasTombstone = re.isTombstone();
+    final var oldSize = event.getRegion().calculateRegionEntryValueSize(re);
     getRegionMap().processVersionTag(re, event);
     event.putExistingEntry(event.getRegion(), re, isRequireOldValue(), getOldValueForDelta());
     EntryLogger.logPut(event);
@@ -477,9 +476,9 @@ public class RegionMapPut extends AbstractRegionMapPut {
   }
 
   private void updateSize(int oldSize, boolean isUpdate, boolean wasTombstone) {
-    final EntryEventImpl event = getEvent();
-    final Object key = event.getKey();
-    final int newBucketSize = event.getNewValueBucketSize();
+    final var event = getEvent();
+    final var key = event.getKey();
+    final var newBucketSize = event.getNewValueBucketSize();
     if (isUpdate && !wasTombstone) {
       getOwner().updateSizeOnPut(key, oldSize, newBucketSize);
     } else {

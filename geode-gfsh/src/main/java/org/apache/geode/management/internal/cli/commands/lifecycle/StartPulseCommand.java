@@ -30,7 +30,6 @@ import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.internal.ManagementConstants;
 import org.apache.geode.management.internal.cli.commands.OfflineGfshCommand;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.shell.OperationInvoker;
 import org.apache.geode.management.internal.i18n.CliStrings;
 
 public class StartPulseCommand extends OfflineGfshCommand {
@@ -46,19 +45,19 @@ public class StartPulseCommand extends OfflineGfshCommand {
       return ResultModel.createInfo(CliStrings.START_PULSE__RUN);
     } else {
       if (isConnectedAndReady()) {
-        OperationInvoker operationInvoker = getGfsh().getOperationInvoker();
+        var operationInvoker = getGfsh().getOperationInvoker();
 
-        ObjectName managerObjectName = (ObjectName) operationInvoker.getAttribute(
+        var managerObjectName = (ObjectName) operationInvoker.getAttribute(
             ManagementConstants.OBJECTNAME__DISTRIBUTEDSYSTEM_MXBEAN, "ManagerObjectName");
 
-        String pulseURL =
+        var pulseURL =
             (String) operationInvoker.getAttribute(managerObjectName.toString(), "PulseURL");
 
         if (StringUtils.isNotBlank(pulseURL)) {
           browse(URI.create(pulseURL));
           return ResultModel.createError(CliStrings.START_PULSE__RUN + " with URL: " + pulseURL);
         } else {
-          String pulseMessage = (String) operationInvoker
+          var pulseMessage = (String) operationInvoker
               .getAttribute(managerObjectName.toString(), "StatusMessage");
           return (StringUtils.isNotBlank(pulseMessage)
               ? ResultModel.createError(pulseMessage)

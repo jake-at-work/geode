@@ -61,13 +61,13 @@ public class DistributedExecutorServiceRuleUnlimitedThreadCountTest implements S
   public void doesNotLimitThreadCount() {
     Stream.of(getController(), getVM(0)).forEach(vm -> vm.invoke(() -> {
       Collection<Future<Void>> tasks = new ArrayList<>();
-      for (int i = 1; i <= PARALLEL_TASK_COUNT; i++) {
+      for (var i = 1; i <= PARALLEL_TASK_COUNT; i++) {
         tasks.add(executorServiceRule.submit(() -> {
           BARRIER.get().await(TIMEOUT, UNIT);
         }));
       }
       await().untilAsserted(() -> assertThat(COMPLETED.get()).isTrue());
-      for (Future<Void> task : tasks) {
+      for (var task : tasks) {
         assertThat(task).isDone();
       }
     }));

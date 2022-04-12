@@ -64,12 +64,12 @@ public class LocatorLauncherWithPulseAndCustomLogConfigAcceptanceTest {
 
   @Before
   public void setUpJava() {
-    String javaHome = System.getProperty("java.home");
+    var javaHome = System.getProperty("java.home");
     assertThat(javaHome)
         .as("java.home is not null")
         .isNotNull();
 
-    String java = isWindows() ? "java.exe" : "java";
+    var java = isWindows() ? "java.exe" : "java";
     javaBin = Paths.get(javaHome, "bin", java);
     assertThat(javaBin)
         .as("JAVA_HOME/bin/" + java + " exists")
@@ -78,7 +78,7 @@ public class LocatorLauncherWithPulseAndCustomLogConfigAcceptanceTest {
 
   @Before
   public void setUpGeodeDependencies() {
-    Path geodeHome = requiresGeodeHome.getGeodeHome().toPath();
+    var geodeHome = requiresGeodeHome.getGeodeHome().toPath();
     geodeDependencies = geodeHome.resolve("lib/geode-dependencies.jar");
 
     assertThat(geodeDependencies)
@@ -108,7 +108,7 @@ public class LocatorLauncherWithPulseAndCustomLogConfigAcceptanceTest {
 
   @Before
   public void setUpRandomPorts() {
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
     locatorPort = ports[0];
     httpServicePort = ports[1];
   }
@@ -122,7 +122,7 @@ public class LocatorLauncherWithPulseAndCustomLogConfigAcceptanceTest {
 
   @Test
   public void locatorLauncherUsesSpecifiedConfigFileWithoutGeodePlugins() throws Exception {
-    ProcessBuilder processBuilder = new ProcessBuilder()
+    var processBuilder = new ProcessBuilder()
         .redirectErrorStream(true)
         .redirectOutput(stdoutFile.toFile())
         .directory(temporaryFolder.getRoot())
@@ -167,10 +167,10 @@ public class LocatorLauncherWithPulseAndCustomLogConfigAcceptanceTest {
   public void locatorLauncherUsesConfigFileInClasspathWithoutGeodePlugins() throws Exception {
     copy(configWithoutGeodePluginsFile, temporaryFolder.getRoot().toPath().resolve("log4j2.xml"));
 
-    String classpath = temporaryFolder.getRoot().getAbsolutePath() + File.pathSeparator +
+    var classpath = temporaryFolder.getRoot().getAbsolutePath() + File.pathSeparator +
         geodeDependencies.toFile().getAbsolutePath();
 
-    ProcessBuilder processBuilder = new ProcessBuilder()
+    var processBuilder = new ProcessBuilder()
         .redirectErrorStream(true)
         .redirectOutput(stdoutFile.toFile())
         .directory(temporaryFolder.getRoot())
@@ -213,7 +213,7 @@ public class LocatorLauncherWithPulseAndCustomLogConfigAcceptanceTest {
   @Test
   @Ignore("GEODE-8197")
   public void locatorLauncherUsesSpecifiedConfigFileWithGeodePlugins() throws Exception {
-    ProcessBuilder processBuilder = new ProcessBuilder()
+    var processBuilder = new ProcessBuilder()
         .redirectErrorStream(true)
         .redirectOutput(stdoutFile.toFile())
         .directory(temporaryFolder.getRoot())
@@ -259,10 +259,10 @@ public class LocatorLauncherWithPulseAndCustomLogConfigAcceptanceTest {
   public void locatorLauncherUsesConfigFileInClasspathWithGeodePlugins() throws Exception {
     copy(configWithGeodePluginsFile, temporaryFolder.getRoot().toPath().resolve("log4j2.xml"));
 
-    String classpath = temporaryFolder.getRoot().getAbsolutePath() + File.pathSeparator +
+    var classpath = temporaryFolder.getRoot().getAbsolutePath() + File.pathSeparator +
         geodeDependencies.toFile().getAbsolutePath();
 
-    ProcessBuilder processBuilder = new ProcessBuilder()
+    var processBuilder = new ProcessBuilder()
         .redirectErrorStream(true)
         .redirectOutput(stdoutFile.toFile())
         .directory(temporaryFolder.getRoot())

@@ -224,7 +224,7 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
 
   @Override
   public CacheListener getCacheListener() {
-    CacheListener[] listeners = getCacheListeners();
+    var listeners = getCacheListeners();
     if (listeners.length == 0) {
       return null;
     } else if (listeners.length == 1) {
@@ -243,8 +243,8 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
     if (cacheListenerDescs == null || cacheListenerDescs.length == 0) {
       return EMPTY_LISTENERS;
     } else {
-      CacheListener[] result = new CacheListener[cacheListenerDescs.length];
-      for (int i = 0; i < result.length; i++) {
+      var result = new CacheListener[cacheListenerDescs.length];
+      for (var i = 0; i < result.length; i++) {
         result[i] = new RemoteCacheListener(cacheListenerDescs[i]);
       }
       return result;
@@ -501,8 +501,8 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
     if (l == null) {
       return new String[0];
     } else {
-      String[] result = new String[l.length];
-      for (int i = 0; i < l.length; i++) {
+      var result = new String[l.length];
+      for (var i = 0; i < l.length; i++) {
         result[i] = getDesc(l[i]);
       }
       return result;
@@ -691,8 +691,8 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
       return Collections.EMPTY_SET;
     } else {
       Set<String> senderIds = new HashSet<>();
-      String[] result = new String[gatewaySendersDescs.length];
-      for (int i = 0; i < result.length; i++) {
+      var result = new String[gatewaySendersDescs.length];
+      for (var i = 0; i < result.length; i++) {
         result[i] = gatewaySendersDescs[i];
         senderIds.add(result[i]);
       }
@@ -706,8 +706,8 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
       return Collections.EMPTY_SET;
     } else {
       Set<String> asyncEventQueues = new HashSet<>();
-      String[] result = new String[asyncEventQueueDescs.length];
-      for (int i = 0; i < result.length; i++) {
+      var result = new String[asyncEventQueueDescs.length];
+      for (var i = 0; i < result.length; i++) {
         result[i] = asyncEventQueueDescs[i];
         asyncEventQueues.add(result[i]);
       }

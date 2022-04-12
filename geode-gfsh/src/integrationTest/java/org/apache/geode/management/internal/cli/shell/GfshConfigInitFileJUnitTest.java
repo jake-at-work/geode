@@ -64,8 +64,8 @@ public class GfshConfigInitFileJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    String userDir = temporaryFolder_CurrentDirectory.getRoot().getAbsolutePath();
-    String userHome = temporaryFolder_HomeDirectory.getRoot().getAbsolutePath();
+    var userDir = temporaryFolder_CurrentDirectory.getRoot().getAbsolutePath();
+    var userHome = temporaryFolder_HomeDirectory.getRoot().getAbsolutePath();
 
     System.setProperty("user.dir", userDir);
     System.setProperty("user.home", userHome);
@@ -83,16 +83,16 @@ public class GfshConfigInitFileJUnitTest {
     System.setProperty(INIT_FILE_PROPERTY,
         temporaryFolder_AnotherDirectory.newFile(INIT_FILE_NAME).getAbsolutePath());
 
-    String argument = temporaryFolder_AnotherDirectory.newFile("junit").getAbsolutePath();
+    var argument = temporaryFolder_AnotherDirectory.newFile("junit").getAbsolutePath();
 
     /*
      * String historyFileName, String defaultPrompt, int historySize, String logDir, Level logLevel,
      * Integer logLimit, Integer logCount, String initFileName
      */
-    GfshConfig gfshConfig = new GfshConfig("historyFileName", "", 0,
+    var gfshConfig = new GfshConfig("historyFileName", "", 0,
         temporaryFolder_CurrentDirectory.getRoot().getAbsolutePath(), null, null, null, argument);
 
-    String result = gfshConfig.getInitFileName();
+    var result = gfshConfig.getInitFileName();
 
     assertEquals(argument, result);
   }
@@ -102,17 +102,17 @@ public class GfshConfigInitFileJUnitTest {
   public void systemPropertySelectedFirst() throws Exception {
     temporaryFolder_HomeDirectory.newFile(INIT_FILE_NAME);
     temporaryFolder_CurrentDirectory.newFile(INIT_FILE_NAME);
-    String fileName = temporaryFolder_AnotherDirectory.newFile(INIT_FILE_NAME).getAbsolutePath();
+    var fileName = temporaryFolder_AnotherDirectory.newFile(INIT_FILE_NAME).getAbsolutePath();
     System.setProperty(INIT_FILE_PROPERTY, fileName);
 
     /*
      * String historyFileName, String defaultPrompt, int historySize, String logDir, Level logLevel,
      * Integer logLimit, Integer logCount, String initFileName
      */
-    GfshConfig gfshConfig = new GfshConfig("historyFileName", "", 0,
+    var gfshConfig = new GfshConfig("historyFileName", "", 0,
         temporaryFolder_CurrentDirectory.getRoot().getAbsolutePath(), null, null, null, null);
 
-    String result = gfshConfig.getInitFileName();
+    var result = gfshConfig.getInitFileName();
 
     assertEquals(fileName, result);
   }
@@ -121,16 +121,16 @@ public class GfshConfigInitFileJUnitTest {
   @Test
   public void currentDirectorySelectedSecond() throws Exception {
     temporaryFolder_HomeDirectory.newFile(INIT_FILE_NAME);
-    String fileName = temporaryFolder_CurrentDirectory.newFile(INIT_FILE_NAME).getAbsolutePath();
+    var fileName = temporaryFolder_CurrentDirectory.newFile(INIT_FILE_NAME).getAbsolutePath();
 
     /*
      * String historyFileName, String defaultPrompt, int historySize, String logDir, Level logLevel,
      * Integer logLimit, Integer logCount, String initFileName
      */
-    GfshConfig gfshConfig = new GfshConfig("historyFileName", "", 0,
+    var gfshConfig = new GfshConfig("historyFileName", "", 0,
         temporaryFolder_CurrentDirectory.getRoot().getAbsolutePath(), null, null, null, null);
 
-    String result = gfshConfig.getInitFileName();
+    var result = gfshConfig.getInitFileName();
 
     assertEquals(fileName, result);
   }
@@ -138,16 +138,16 @@ public class GfshConfigInitFileJUnitTest {
   // Home directory file selected if only one present
   @Test
   public void homeDirectorySelectedThird() throws Exception {
-    String fileName = temporaryFolder_HomeDirectory.newFile(INIT_FILE_NAME).getAbsolutePath();
+    var fileName = temporaryFolder_HomeDirectory.newFile(INIT_FILE_NAME).getAbsolutePath();
 
     /*
      * String historyFileName, String defaultPrompt, int historySize, String logDir, Level logLevel,
      * Integer logLimit, Integer logCount, String initFileName
      */
-    GfshConfig gfshConfig = new GfshConfig("historyFileName", "", 0,
+    var gfshConfig = new GfshConfig("historyFileName", "", 0,
         temporaryFolder_CurrentDirectory.getRoot().getAbsolutePath(), null, null, null, null);
 
-    String result = gfshConfig.getInitFileName();
+    var result = gfshConfig.getInitFileName();
 
     assertEquals(fileName, result);
   }
@@ -159,17 +159,17 @@ public class GfshConfigInitFileJUnitTest {
      * String historyFileName, String defaultPrompt, int historySize, String logDir, Level logLevel,
      * Integer logLimit, Integer logCount, String initFileName
      */
-    GfshConfig gfshConfig = new GfshConfig("historyFileName", "", 0,
+    var gfshConfig = new GfshConfig("historyFileName", "", 0,
         temporaryFolder_CurrentDirectory.getRoot().getAbsolutePath(), null, null, null, null);
 
-    String result = gfshConfig.getInitFileName();
+    var result = gfshConfig.getInitFileName();
 
     assertNull(result);
   }
 
   @Test
   public void historyFileLocationTest() throws Exception {
-    GfshConfig gfshConfig = new GfshConfig();
+    var gfshConfig = new GfshConfig();
     assertEquals(".geode", (new File(gfshConfig.getHistoryFileName())).getParentFile().getName());
   }
 }

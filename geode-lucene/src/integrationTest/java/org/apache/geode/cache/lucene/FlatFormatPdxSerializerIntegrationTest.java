@@ -36,9 +36,9 @@ import org.apache.geode.test.junit.categories.LuceneTest;
 public class FlatFormatPdxSerializerIntegrationTest {
 
   private PdxInstance createPdxInstance() {
-    HashSet positions = new HashSet();
+    var positions = new HashSet();
 
-    PdxInstanceFactoryImpl outForPosition1 = (PdxInstanceFactoryImpl) PdxInstanceFactoryImpl
+    var outForPosition1 = (PdxInstanceFactoryImpl) PdxInstanceFactoryImpl
         .newCreator("dummy.PositionPdx", false, localCacheRule.getCache());
     outForPosition1.writeString("country", "USA");
     outForPosition1.writeString("secId", "DELL");
@@ -47,9 +47,9 @@ public class FlatFormatPdxSerializerIntegrationTest {
     outForPosition1.writeInt("portfolioId", 3);
     // Identity Field.
     outForPosition1.markIdentityField("secId");
-    PdxInstance position1_pdx = outForPosition1.create();
+    var position1_pdx = outForPosition1.create();
 
-    PdxInstanceFactoryImpl outForPositions1 = (PdxInstanceFactoryImpl) PdxInstanceFactoryImpl
+    var outForPositions1 = (PdxInstanceFactoryImpl) PdxInstanceFactoryImpl
         .newCreator("dummy.PositionPdx", false, localCacheRule.getCache());
     outForPositions1.writeString("country", "USA");
     outForPositions1.writeString("secId", "AAPL");
@@ -58,9 +58,9 @@ public class FlatFormatPdxSerializerIntegrationTest {
     outForPositions1.writeInt("portfolioId", 3);
     // Identity Field.
     outForPositions1.markIdentityField("secId");
-    PdxInstance positions1_pdx = outForPositions1.create();
+    var positions1_pdx = outForPositions1.create();
 
-    PdxInstanceFactoryImpl outForPositions2 = (PdxInstanceFactoryImpl) PdxInstanceFactoryImpl
+    var outForPositions2 = (PdxInstanceFactoryImpl) PdxInstanceFactoryImpl
         .newCreator("dummy.PositionPdx", false, localCacheRule.getCache());
     outForPositions2.writeString("country", "USA");
     outForPositions2.writeString("secId", "IBM");
@@ -69,12 +69,12 @@ public class FlatFormatPdxSerializerIntegrationTest {
     outForPositions2.writeInt("portfolioId", 3);
     // Identity Field.
     outForPositions2.markIdentityField("secId");
-    PdxInstance positions2_pdx = outForPositions2.create();
+    var positions2_pdx = outForPositions2.create();
 
     positions.add(positions1_pdx);
     positions.add(positions2_pdx);
 
-    PdxInstanceFactoryImpl out = (PdxInstanceFactoryImpl) PdxInstanceFactoryImpl
+    var out = (PdxInstanceFactoryImpl) PdxInstanceFactoryImpl
         .newCreator("dummy.PortfolioPdx", false, localCacheRule.getCache());
     out.writeInt("ID", 3);
     out.writeObject("position1", position1_pdx);
@@ -86,7 +86,7 @@ public class FlatFormatPdxSerializerIntegrationTest {
     out.writeIntArray("intArr", new int[] {2001, 2017});
     // Identity Field.
     out.markIdentityField("ID");
-    PdxInstance pdx = out.create();
+    var pdx = out.create();
     return pdx;
   }
 
@@ -95,18 +95,18 @@ public class FlatFormatPdxSerializerIntegrationTest {
 
   @Test
   public void shouldParseTopLevelPdxIntArray() {
-    String[] fields = new String[] {"description", "status", "names", "intArr", "position1.country",
+    var fields = new String[] {"description", "status", "names", "intArr", "position1.country",
         "position1.sharesOutstanding", "position1.secId", "positions.country",
         "positions.sharesOutstanding", "positions.secId"};
 
-    FlatFormatSerializer serializer = new FlatFormatSerializer();
-    PdxInstance pdx = createPdxInstance();
+    var serializer = new FlatFormatSerializer();
+    var pdx = createPdxInstance();
 
-    Document doc1 = invokeSerializer(serializer, pdx, fields);
+    var doc1 = invokeSerializer(serializer, pdx, fields);
     assertEquals(17, doc1.getFields().size());
 
-    IndexableField[] fieldsInDoc = doc1.getFields("intArr");
-    Collection<Object> results = getResultCollection(fieldsInDoc, true);
+    var fieldsInDoc = doc1.getFields("intArr");
+    var results = getResultCollection(fieldsInDoc, true);
     assertEquals(2, results.size());
     assertTrue(results.contains(2001));
     assertTrue(results.contains(2017));
@@ -114,28 +114,28 @@ public class FlatFormatPdxSerializerIntegrationTest {
 
   @Test
   public void shouldParseTopLevelPdxStringField() {
-    String[] fields = new String[] {"status"};
+    var fields = new String[] {"status"};
 
-    FlatFormatSerializer serializer = new FlatFormatSerializer();
-    PdxInstance pdx = createPdxInstance();
-    Document doc1 = invokeSerializer(serializer, pdx, fields);
+    var serializer = new FlatFormatSerializer();
+    var pdx = createPdxInstance();
+    var doc1 = invokeSerializer(serializer, pdx, fields);
 
-    IndexableField[] fieldsInDoc = doc1.getFields("status");
-    Collection<Object> results = getResultCollection(fieldsInDoc, false);
+    var fieldsInDoc = doc1.getFields("status");
+    var results = getResultCollection(fieldsInDoc, false);
     assertEquals(1, results.size());
     assertTrue(results.contains("active"));
   }
 
   @Test
   public void shouldParseSecondTopLevelPdxStringField() {
-    String[] fields = new String[] {"positions.secId"};
+    var fields = new String[] {"positions.secId"};
 
-    FlatFormatSerializer serializer = new FlatFormatSerializer();
-    PdxInstance pdx = createPdxInstance();
-    Document doc1 = invokeSerializer(serializer, pdx, fields);
+    var serializer = new FlatFormatSerializer();
+    var pdx = createPdxInstance();
+    var doc1 = invokeSerializer(serializer, pdx, fields);
 
-    IndexableField[] fieldsInDoc = doc1.getFields("positions.secId");
-    Collection<Object> results = getResultCollection(fieldsInDoc, false);
+    var fieldsInDoc = doc1.getFields("positions.secId");
+    var results = getResultCollection(fieldsInDoc, false);
     assertEquals(2, results.size());
     assertTrue(results.contains("IBM"));
     assertTrue(results.contains("AAPL"));
@@ -143,14 +143,14 @@ public class FlatFormatPdxSerializerIntegrationTest {
 
   @Test
   public void shouldParseSecondTopLevelPdxDoubleField() {
-    String[] fields = new String[] {"positions.sharesOutstanding"};
+    var fields = new String[] {"positions.sharesOutstanding"};
 
-    FlatFormatSerializer serializer = new FlatFormatSerializer();
-    PdxInstance pdx = createPdxInstance();
-    Document doc1 = invokeSerializer(serializer, pdx, fields);
+    var serializer = new FlatFormatSerializer();
+    var pdx = createPdxInstance();
+    var doc1 = invokeSerializer(serializer, pdx, fields);
 
-    IndexableField[] fieldsInDoc = doc1.getFields("positions.sharesOutstanding");
-    Collection<Object> results = getResultCollection(fieldsInDoc, true);
+    var fieldsInDoc = doc1.getFields("positions.sharesOutstanding");
+    var results = getResultCollection(fieldsInDoc, true);
     assertEquals(2, results.size());
     assertTrue(results.contains(5000.0));
     assertTrue(results.contains(4000.0));
@@ -158,7 +158,7 @@ public class FlatFormatPdxSerializerIntegrationTest {
 
   private Collection<Object> getResultCollection(IndexableField[] fieldsInDoc, boolean isNumeric) {
     Collection<Object> results = new LinkedHashSet();
-    for (IndexableField field : fieldsInDoc) {
+    for (var field : fieldsInDoc) {
       if (isNumeric) {
         results.add(field.numericValue());
       } else {
@@ -170,7 +170,7 @@ public class FlatFormatPdxSerializerIntegrationTest {
 
   private static Document invokeSerializer(LuceneSerializer mapper, Object object,
       String[] fields) {
-    LuceneIndex index = Mockito.mock(LuceneIndex.class);
+    var index = Mockito.mock(LuceneIndex.class);
     Mockito.when(index.getFieldNames()).thenReturn(fields);
     Collection<Document> docs = mapper.toDocuments(index, object);
     assertEquals(1, docs.size());

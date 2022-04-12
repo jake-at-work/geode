@@ -17,8 +17,6 @@ package org.apache.geode.internal.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -34,12 +32,12 @@ public class PartitionedRegionIntegrationTest {
 
   @Test
   public void bucketSorterShutdownAfterRegionDestroy() {
-    PartitionedRegion region =
+    var region =
         (PartitionedRegion) server.createRegion(RegionShortcut.PARTITION, "PR1",
             f -> f.setEvictionAttributes(
                 EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.LOCAL_DESTROY)));
 
-    ScheduledExecutorService bucketSorter = region.getBucketSorter();
+    var bucketSorter = region.getBucketSorter();
     assertThat(bucketSorter).isNotNull();
 
     region.destroyRegion();
@@ -49,10 +47,10 @@ public class PartitionedRegionIntegrationTest {
 
   @Test
   public void bucketSorterIsNotCreatedIfNoEviction() {
-    PartitionedRegion region =
+    var region =
         (PartitionedRegion) server.createRegion(RegionShortcut.PARTITION, "PR1",
             rf -> rf.setOffHeap(false));
-    ScheduledExecutorService bucketSorter = region.getBucketSorter();
+    var bucketSorter = region.getBucketSorter();
     assertThat(bucketSorter).isNull();
   }
 }

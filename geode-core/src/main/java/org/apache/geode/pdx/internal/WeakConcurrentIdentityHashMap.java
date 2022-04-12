@@ -56,7 +56,7 @@ class WeakConcurrentIdentityHashMap<K, V> {
 
   public V get(K key) {
     expunge();
-    WeakReference<K> keyref = makeReference(key);
+    var keyref = makeReference(key);
     return map.get(keyref);
   }
 
@@ -65,13 +65,13 @@ class WeakConcurrentIdentityHashMap<K, V> {
     if (key == null) {
       throw new IllegalArgumentException("Null key");
     }
-    WeakReference<K> keyref = makeReference(key, refQueue);
+    var keyref = makeReference(key, refQueue);
     return map.put(keyref, value);
   }
 
   public V remove(K key) {
     expunge();
-    WeakReference<K> keyref = makeReference(key);
+    var keyref = makeReference(key);
     return map.remove(keyref);
   }
 
@@ -118,7 +118,7 @@ class WeakConcurrentIdentityHashMap<K, V> {
       if (!(o instanceof IdentityWeakReference)) {
         return false;
       }
-      IdentityWeakReference wr = (IdentityWeakReference) o;
+      var wr = (IdentityWeakReference) o;
       Object got = get();
       return (got != null && got == wr.get());
     }

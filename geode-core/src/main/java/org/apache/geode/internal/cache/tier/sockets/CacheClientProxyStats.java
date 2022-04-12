@@ -19,7 +19,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
@@ -100,9 +99,9 @@ public class CacheClientProxyStats implements MessageStats {
    * Static initializer to create and initialize the <code>StatisticsType</code>
    */
   static {
-    String statName = "CacheClientProxyStatistics";
+    var statName = "CacheClientProxyStatistics";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     _type = f.createType(statName, statName, new StatisticDescriptor[] {
         f.createIntCounter(MESSAGES_RECEIVED, "Number of client messages received.", "operations"),
@@ -399,13 +398,13 @@ public class CacheClientProxyStats implements MessageStats {
    *        the message processing time).
    */
   public void endMessage(long start) {
-    long ts = DistributionStats.getStatTime();
+    var ts = DistributionStats.getStatTime();
 
     // Increment number of notifications
     _stats.incInt(_messagesProcessedId, 1);
 
     // Increment notification time
-    long elapsed = ts - start;
+    var elapsed = ts - start;
     _stats.incLong(_messageProcessingTimeId, elapsed);
   }
 
@@ -449,11 +448,11 @@ public class CacheClientProxyStats implements MessageStats {
   }
 
   public void endMessageQueueStats(long startTime) {
-    long ts = DistributionStats.getStatTime();
+    var ts = DistributionStats.getStatTime();
 
     decMessagesBeingQueuedInProgress();
 
-    long elapsed = ts - startTime;
+    var elapsed = ts - startTime;
     _stats.incLong(_messagesBeingQueuedTimeId, elapsed);
   }
 }

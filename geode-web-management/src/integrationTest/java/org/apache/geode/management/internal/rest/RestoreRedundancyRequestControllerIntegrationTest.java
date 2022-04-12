@@ -37,19 +37,15 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
-import org.apache.geode.management.api.ClusterManagementListOperationsResult;
-import org.apache.geode.management.api.ClusterManagementOperationResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.api.ClusterManagementServiceTransport;
 import org.apache.geode.management.api.RestTemplateClusterManagementServiceTransport;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.operation.RestoreRedundancyRequest;
-import org.apache.geode.management.runtime.RestoreRedundancyResults;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = {"classpath*:WEB-INF/management-servlet.xml"},
@@ -71,7 +67,7 @@ public class RestoreRedundancyRequestControllerIntegrationTest {
   public void before() {
     context = new LocatorWebContext(webApplicationContext);
 
-    RestTemplate template = new RestTemplate();
+    var template = new RestTemplate();
     template.setRequestFactory(context.getRequestFactory());
     ClusterManagementServiceTransport transport =
         new RestTemplateClusterManagementServiceTransport(template);
@@ -80,7 +76,7 @@ public class RestoreRedundancyRequestControllerIntegrationTest {
 
   @Test
   public void start() throws Exception {
-    String json = "{}";
+    var json = "{}";
     context.perform(post("/v1" + RESTORE_REDUNDANCY_URL).content(json))
         .andExpect(status().isAccepted())
         .andExpect(content().string(not(containsString("\"class\""))))
@@ -92,15 +88,15 @@ public class RestoreRedundancyRequestControllerIntegrationTest {
 
   @Test
   public void getStatus() throws Exception {
-    String json = "{}";
-    CompletableFuture<String> futureUri = new CompletableFuture<>();
+    var json = "{}";
+    var futureUri = new CompletableFuture<String>();
     context.perform(post("/v1" + RESTORE_REDUNDANCY_URL).content(json))
         .andExpect(status().isAccepted())
         .andExpect(new ResponseBodyMatchers().containsObjectAsJson(futureUri))
         .andExpect(jsonPath("$.statusMessage", Matchers.containsString("Operation started")));
     while (true) {
       try {
-        ResultActions resultActions = context.perform(get(futureUri.get()));
+        var resultActions = context.perform(get(futureUri.get()));
         resultActions
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.statusCode", Matchers.is("IN_PROGRESS")));
@@ -116,8 +112,8 @@ public class RestoreRedundancyRequestControllerIntegrationTest {
   static class ResponseBodyMatchers {
     ResultMatcher containsObjectAsJson(CompletableFuture<String> futureUri) {
       return mvcResult -> {
-        String json = mvcResult.getResponse().getContentAsString();
-        String uri =
+        var json = mvcResult.getResponse().getContentAsString();
+        var uri =
             json.replaceFirst(".*\"self\":\"[^\"]*" + URI_VERSION, URI_VERSION).replaceFirst("\".*",
                 "");
         futureUri.complete(uri);
@@ -138,7 +134,7 @@ public class RestoreRedundancyRequestControllerIntegrationTest {
 
   @Test
   public void list() throws Exception {
-    String json = "{}";
+    var json = "{}";
     context.perform(post("/v1" + RESTORE_REDUNDANCY_URL).content(json));
     context.perform(get("/v1" + RESTORE_REDUNDANCY_URL))
         .andExpect(status().isOk())
@@ -153,9 +149,9 @@ public class RestoreRedundancyRequestControllerIntegrationTest {
 
   @Test
   public void doOperation() throws Exception {
-    RestoreRedundancyRequest rebalance =
+    var rebalance =
         new RestoreRedundancyRequest();
-    ClusterManagementOperationResult<RestoreRedundancyRequest, RestoreRedundancyResults> result =
+    var result =
         client.start(rebalance);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusMessage())
@@ -165,7 +161,7 @@ public class RestoreRedundancyRequestControllerIntegrationTest {
   @Test
   public void doListOperations() {
     client.start(new RestoreRedundancyRequest());
-    ClusterManagementListOperationsResult<RestoreRedundancyRequest, RestoreRedundancyResults> listResult =
+    var listResult =
         client.list(new RestoreRedundancyRequest());
     assertThat(listResult.getResult().size()).isGreaterThanOrEqualTo(1);
     assertThat(listResult.getResult().get(0).getOperationStart()).isNotNull();

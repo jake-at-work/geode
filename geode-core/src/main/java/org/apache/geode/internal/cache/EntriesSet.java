@@ -132,7 +132,7 @@ public class EntriesSet extends AbstractSet implements LogWithToString {
 
     @Override
     public Object next() {
-      final Object result = nextElem;
+      final var result = nextElem;
       if (result != null) {
         nextElem = moveNext();
         return result;
@@ -146,7 +146,7 @@ public class EntriesSet extends AbstractSet implements LogWithToString {
       // OR we run out of elements and return null
       for (;;) {
         if (currItr.hasNext()) {
-          final Object currKey = currItr.next();
+          final var currKey = currItr.next();
           final Object result;
 
           keyInfo.setKey(currKey);
@@ -170,7 +170,7 @@ public class EntriesSet extends AbstractSet implements LogWithToString {
               return result;
             }
           } else {
-            Region.Entry re = (Region.Entry) view.getEntryForIterator(keyInfo, currRgn,
+            var re = (Region.Entry) view.getEntryForIterator(keyInfo, currRgn,
                 rememberReads, allowTombstones);
             if (re != null) {
               try {
@@ -228,7 +228,7 @@ public class EntriesSet extends AbstractSet implements LogWithToString {
     if (iterType == IteratorType.VALUES) {
       // if this is a values-view, then we have to filter out nulls to
       // determine the correct size
-      int s = 0;
+      var s = 0;
       for (Iterator<Object> itr = new EntriesIterator(); itr.hasNext(); itr.next()) {
         s++;
       }
@@ -248,7 +248,7 @@ public class EntriesSet extends AbstractSet implements LogWithToString {
   @Override
   public Object[] toArray(final Object[] array) {
     checkTX();
-    final ArrayList<Object> temp = new ArrayList<>(size());
+    final var temp = new ArrayList<Object>(size());
     final Iterator<Object> iter = new EntriesIterator();
     while (iter.hasNext()) {
       temp.add(iter.next());

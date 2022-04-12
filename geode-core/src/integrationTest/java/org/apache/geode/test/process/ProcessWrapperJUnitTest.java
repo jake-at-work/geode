@@ -40,7 +40,7 @@ public class ProcessWrapperJUnitTest {
 
   @Test
   public void testClassPath() throws Exception {
-    final String classPath = System.getProperty("java.class.path");
+    final var classPath = System.getProperty("java.class.path");
     assertTrue("Classpath is missing log4j-api: " + classPath,
         classPath.toLowerCase().contains("log4j-api"));
     assertTrue("Classpath is missing log4j-core: " + classPath,

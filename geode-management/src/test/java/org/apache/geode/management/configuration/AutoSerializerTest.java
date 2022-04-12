@@ -29,21 +29,21 @@ public class AutoSerializerTest {
 
   @Test
   public void constructorWithNoPatterns() {
-    AutoSerializer autoSerializer = new AutoSerializer(true);
+    var autoSerializer = new AutoSerializer(true);
     assertThat(autoSerializer.getPatterns()).isNull();
   }
 
   @Test
   public void constructorWithNullPatterns() {
-    AutoSerializer autoSerializer = new AutoSerializer(true, (String[]) null);
+    var autoSerializer = new AutoSerializer(true, (String[]) null);
     assertThat(autoSerializer.getPatterns()).isNull();
   }
 
   @Test
   public void serialization() throws JsonProcessingException {
-    AutoSerializer originalAutoSerializer = new AutoSerializer(true, "pat1", "pat2");
-    String json = mapper.writeValueAsString(originalAutoSerializer);
-    AutoSerializer deserializedAutoSerializer = mapper.readValue(json, AutoSerializer.class);
+    var originalAutoSerializer = new AutoSerializer(true, "pat1", "pat2");
+    var json = mapper.writeValueAsString(originalAutoSerializer);
+    var deserializedAutoSerializer = mapper.readValue(json, AutoSerializer.class);
 
     assertThat(deserializedAutoSerializer.isPortable()).as("portable").isTrue();
     assertThat(deserializedAutoSerializer.getPatterns()).as("patterns").containsExactly("pat1",
@@ -52,9 +52,9 @@ public class AutoSerializerTest {
 
   @Test
   public void serializationOfNull() throws JsonProcessingException {
-    AutoSerializer originalAutoSerializer = new AutoSerializer(null, null);
-    String json = mapper.writeValueAsString(originalAutoSerializer);
-    AutoSerializer deserializedAutoSerializer = mapper.readValue(json, AutoSerializer.class);
+    var originalAutoSerializer = new AutoSerializer(null, null);
+    var json = mapper.writeValueAsString(originalAutoSerializer);
+    var deserializedAutoSerializer = mapper.readValue(json, AutoSerializer.class);
 
     assertThat(deserializedAutoSerializer.isPortable()).as("portable").isNull();
     assertThat(deserializedAutoSerializer.getPatterns()).as("patterns").isNull();

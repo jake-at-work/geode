@@ -15,7 +15,6 @@
 
 package org.apache.geode.cache.client.internal;
 
-import java.net.Socket;
 
 /**
  * Derivatives of this class can have an alternative socket timeout from the default connection
@@ -34,10 +33,10 @@ public abstract class AbstractOpWithTimeout extends AbstractOp {
 
   @Override
   public Object attempt(final Connection connection) throws Exception {
-    final Socket socket = connection.getSocket();
-    final int previousTimeoutMs = socket.getSoTimeout();
-    final int timeoutMs = getTimeoutMs();
-    final boolean changeTimeout = previousTimeoutMs != timeoutMs;
+    final var socket = connection.getSocket();
+    final var previousTimeoutMs = socket.getSoTimeout();
+    final var timeoutMs = getTimeoutMs();
+    final var changeTimeout = previousTimeoutMs != timeoutMs;
     if (changeTimeout) {
       socket.setSoTimeout(timeoutMs);
     }

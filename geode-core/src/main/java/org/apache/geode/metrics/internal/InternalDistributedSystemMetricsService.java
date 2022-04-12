@@ -150,10 +150,10 @@ public class InternalDistributedSystemMetricsService implements MetricsService {
 
   private void addCommonTags(InternalDistributedSystem system, boolean isClient,
       boolean hasLocators, boolean hasCacheServer) {
-    int clusterId = system.getConfig().getDistributedSystemId();
+    var clusterId = system.getConfig().getDistributedSystemId();
 
-    String memberName = system.getName();
-    String hostName = system.getDistributedMember().getHost();
+    var memberName = system.getName();
+    var hostName = system.getDistributedMember().getHost();
 
     requireNonNull(memberName, "Member Name is null.");
     requireNonNull(hostName, "Host Name is null.");

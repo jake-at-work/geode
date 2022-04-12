@@ -20,7 +20,6 @@ import javax.management.Descriptor;
 import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
 import javax.management.ListenerNotFoundException;
-import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanNotificationInfo;
@@ -42,9 +41,7 @@ import javax.management.ServiceNotFoundException;
 import javax.management.loading.ClassLoaderRepository;
 import javax.management.modelmbean.InvalidTargetObjectTypeException;
 import javax.management.modelmbean.ModelMBean;
-import javax.management.modelmbean.ModelMBeanAttributeInfo;
 import javax.management.modelmbean.ModelMBeanInfo;
-import javax.management.modelmbean.ModelMBeanOperationInfo;
 
 import mx4j.ImplementationException;
 import mx4j.log.FileLogger;
@@ -88,7 +85,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     try {
       load();
     } catch (Exception x) {
-      Logger logger = getLogger();
+      var logger = getLogger();
       logger.warn("Cannot restore previously saved status", x);
     }
   }
@@ -155,7 +152,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
     m_modelMBeanInfo = (ModelMBeanInfo) modelMBeanInfo.clone();
 
-    Logger logger = getLogger();
+    var logger = getLogger();
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("ModelMBeanInfo successfully set to: " + m_modelMBeanInfo);
     }
@@ -179,7 +176,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       throw new InvalidTargetObjectTypeException(resourceType);
     }
 
-    Logger logger = getLogger();
+    var logger = getLogger();
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("Setting managed resource to be: " + resource);
     }
@@ -208,20 +205,20 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       throw new RuntimeOperationsException(new IllegalArgumentException(
           "Listener cannot be null."));
     }
-    AttributeChangeNotificationFilter filter = new AttributeChangeNotificationFilter();
+    var filter = new AttributeChangeNotificationFilter();
     if (attributeName != null) {
       filter.enableAttribute(attributeName);
     } else {
-      MBeanAttributeInfo[] ai = m_modelMBeanInfo.getAttributes();
-      for (final MBeanAttributeInfo mBeanAttributeInfo : ai) {
-        Descriptor d = mBeanAttributeInfo.getDescriptor();
+      var ai = m_modelMBeanInfo.getAttributes();
+      for (final var mBeanAttributeInfo : ai) {
+        var d = mBeanAttributeInfo.getDescriptor();
         filter.enableAttribute((String) d.getFieldValue("name"));
       }
     }
 
     getAttributeChangeBroadcaster().addNotificationListener(listener, filter, handback);
 
-    Logger logger = getLogger();
+    var logger = getLogger();
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("Listener " + listener + " for attribute " + attributeName
           + " added successfully, handback is " + handback);
@@ -257,20 +254,20 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       throw new RuntimeOperationsException(new IllegalArgumentException(
           "Listener cannot be null."));
     }
-    AttributeChangeNotificationFilter filter = new AttributeChangeNotificationFilter();
+    var filter = new AttributeChangeNotificationFilter();
     if (attributeName != null) {
       filter.enableAttribute(attributeName);
     } else {
-      MBeanAttributeInfo[] ai = m_modelMBeanInfo.getAttributes();
-      for (final MBeanAttributeInfo mBeanAttributeInfo : ai) {
-        Descriptor d = mBeanAttributeInfo.getDescriptor();
+      var ai = m_modelMBeanInfo.getAttributes();
+      for (final var mBeanAttributeInfo : ai) {
+        var d = mBeanAttributeInfo.getDescriptor();
         filter.enableAttribute((String) d.getFieldValue("name"));
       }
     }
 
     getAttributeChangeBroadcaster().removeNotificationListener(listener, filter, handback);
 
-    Logger logger = getLogger();
+    var logger = getLogger();
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("Listener " + listener + " for attribute " + attributeName
           + " removed successfully, handback is " + handback);
@@ -303,8 +300,8 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
     // TODO: the source must be the object name of the MBean if the listener was registered through
     // MBeanServer
-    Object oldValue = oldAttribute.getValue();
-    AttributeChangeNotification n = new AttributeChangeNotification(this, 1,
+    var oldValue = oldAttribute.getValue();
+    var n = new AttributeChangeNotification(this, 1,
         System.currentTimeMillis(), "Attribute value changed", oldAttribute.getName(),
         oldValue == null ? null : oldValue.getClass().getName(), oldValue, newAttribute.getValue());
     sendAttributeChangeNotification(n);
@@ -320,14 +317,14 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
     getAttributeChangeBroadcaster().sendNotification(notification);
 
-    Logger modelMBeanLogger = getModelMBeanLogger(notification.getType());
+    var modelMBeanLogger = getModelMBeanLogger(notification.getType());
     if (modelMBeanLogger != null) {
       if (modelMBeanLogger.isEnabledFor(Logger.DEBUG)) {
         modelMBeanLogger.debug("ModelMBean log: " + new Date() + " - " + notification);
       }
     }
 
-    Logger logger = getLogger();
+    var logger = getLogger();
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("Attribute change notification " + notification + " sent");
     }
@@ -335,7 +332,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
   @Override
   public void sendNotification(String message) throws MBeanException, RuntimeOperationsException {
-    Notification notification = new Notification("jmx.modelmbean.general", this, 1, message);
+    var notification = new Notification("jmx.modelmbean.general", this, 1, message);
     sendNotification(notification);
   }
 
@@ -354,13 +351,13 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
           "Attribute names cannot be null."));
     }
 
-    Logger logger = getLogger();
+    var logger = getLogger();
 
-    AttributeList list = new AttributeList();
-    for (String attrName : attributes) {
+    var list = new AttributeList();
+    for (var attrName : attributes) {
       Attribute attribute = null;
       try {
-        Object value = getAttribute(attrName);
+        var value = getAttribute(attrName);
         attribute = new Attribute(attrName, value);
         list.add(attribute);
       } catch (Exception x) {
@@ -381,10 +378,10 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
           "Attribute name cannot be null."));
     }
 
-    Logger logger = getLogger();
+    var logger = getLogger();
 
     // I want the real info, not its clone
-    ModelMBeanInfo info = getModelMBeanInfo();
+    var info = getModelMBeanInfo();
     if (info == null) {
       throw new AttributeNotFoundException(
           "ModelMBeanInfo is null");
@@ -394,7 +391,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     // This is a clone, we use it read only
-    ModelMBeanAttributeInfo attrInfo = info.getAttribute(attribute);
+    var attrInfo = info.getAttribute(attribute);
     if (attrInfo == null) {
       throw new AttributeNotFoundException(
           String.format("Cannot find ModelMBeanAttributeInfo for attribute %s",
@@ -409,7 +406,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     // This returns a clone of the mbean descriptor, we use it read only
-    Descriptor mbeanDescriptor = info.getMBeanDescriptor();
+    var mbeanDescriptor = info.getMBeanDescriptor();
     if (mbeanDescriptor == null) {
       throw new AttributeNotFoundException(
           "MBean descriptor cannot be null");
@@ -419,7 +416,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     // This descriptor is a clone
-    Descriptor attributeDescriptor = attrInfo.getDescriptor();
+    var attributeDescriptor = attrInfo.getDescriptor();
     if (attributeDescriptor == null) {
       throw new AttributeNotFoundException(
           String.format("Attribute descriptor for attribute %s cannot be null",
@@ -431,16 +428,16 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
     Object returnValue = null;
 
-    String lastUpdateField = "lastUpdatedTimeStamp";
+    var lastUpdateField = "lastUpdatedTimeStamp";
 
-    int staleness = getStaleness(attributeDescriptor, mbeanDescriptor, lastUpdateField);
+    var staleness = getStaleness(attributeDescriptor, mbeanDescriptor, lastUpdateField);
 
     if (staleness == ALWAYS_STALE || staleness == STALE) {
       if (logger.isEnabledFor(Logger.TRACE)) {
         logger.trace("Value is stale");
       }
 
-      String getter = (String) attributeDescriptor.getFieldValue("getMethod");
+      var getter = (String) attributeDescriptor.getFieldValue("getMethod");
       if (logger.isEnabledFor(Logger.DEBUG)) {
         logger.debug("getMethod field is: " + getter);
       }
@@ -452,7 +449,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
           // Check if the return type is of the same type
           // As an extension allow covariant return type
           Class returned = returnValue.getClass();
-          Class declared = loadClassWithContextClassLoader(attrInfo.getType());
+          var declared = loadClassWithContextClassLoader(attrInfo.getType());
 
           checkAssignability(returned, declared);
         }
@@ -466,7 +463,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
           logger.trace("Invoking attribute getter...");
         }
         // As an extension, allow attributes to be called on target objects also
-        Object target = resolveTargetObject(attributeDescriptor);
+        var target = resolveTargetObject(attributeDescriptor);
         returnValue = invokeMethod(target, getter, new Class[0], new Object[0]);
         if (logger.isEnabledFor(Logger.DEBUG)) {
           logger.debug("Returned value is: " + returnValue);
@@ -476,7 +473,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
           // Check if the return type is of the same type
           // As an extension allow covariant return type
           Class returned = returnValue.getClass();
-          Class declared = loadClassWithContextClassLoader(attrInfo.getType());
+          var declared = loadClassWithContextClassLoader(attrInfo.getType());
 
           checkAssignability(returned, declared);
         }
@@ -506,7 +503,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
         // Check if the return type is of the same type
         // As an extension allow covariant return type
         Class returned = returnValue.getClass();
-        Class declared = loadClassWithContextClassLoader(attrInfo.getType());
+        var declared = loadClassWithContextClassLoader(attrInfo.getType());
 
         checkAssignability(returned, declared);
       }
@@ -528,12 +525,12 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
           "Attribute list cannot be null."));
     }
 
-    Logger logger = getLogger();
+    var logger = getLogger();
 
-    AttributeList list = new AttributeList();
-    for (final Object o : attributes) {
-      Attribute attribute = (Attribute) o;
-      String name = attribute.getName();
+    var list = new AttributeList();
+    for (final var o : attributes) {
+      var attribute = (Attribute) o;
+      var name = attribute.getName();
       try {
         setAttribute(attribute);
         list.add(attribute);
@@ -555,11 +552,11 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
           "Attribute cannot be null."));
     }
 
-    Logger logger = getLogger();
+    var logger = getLogger();
 
     // No need to synchronize: I work mostly on clones
     // I want the real info, not its clone
-    ModelMBeanInfo info = getModelMBeanInfo();
+    var info = getModelMBeanInfo();
     if (info == null) {
       throw new AttributeNotFoundException(
           "ModelMBeanInfo is null");
@@ -568,11 +565,11 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       logger.debug("ModelMBeanInfo is: " + info);
     }
 
-    String attrName = attribute.getName();
-    Object attrValue = attribute.getValue();
+    var attrName = attribute.getName();
+    var attrValue = attribute.getValue();
 
     // This is a clone, we use it read only
-    ModelMBeanAttributeInfo attrInfo = info.getAttribute(attrName);
+    var attrInfo = info.getAttribute(attrName);
     if (attrInfo == null) {
       throw new AttributeNotFoundException(
           String.format("Cannot find ModelMBeanAttributeInfo for attribute %s",
@@ -588,7 +585,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     // This returns a clone of the mbean descriptor, we use it read only
-    Descriptor mbeanDescriptor = info.getMBeanDescriptor();
+    var mbeanDescriptor = info.getMBeanDescriptor();
     if (mbeanDescriptor == null) {
       throw new AttributeNotFoundException(
           "MBean descriptor cannot be null");
@@ -598,7 +595,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     // This descriptor is a clone
-    Descriptor attributeDescriptor = attrInfo.getDescriptor();
+    var attributeDescriptor = attrInfo.getDescriptor();
     if (attributeDescriptor == null) {
       throw new AttributeNotFoundException(
           String.format("Attribute descriptor for attribute %s cannot be null",
@@ -608,7 +605,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       logger.debug("Attribute descriptor is: " + attributeDescriptor);
     }
 
-    String lastUpdateField = "lastUpdatedTimeStamp";
+    var lastUpdateField = "lastUpdatedTimeStamp";
 
     Object oldValue = null;
     try {
@@ -623,23 +620,23 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     // Check if setMethod is present
-    String method = (String) attributeDescriptor.getFieldValue("setMethod");
+    var method = (String) attributeDescriptor.getFieldValue("setMethod");
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("setMethod field is: " + method);
     }
     if (method != null) {
-      Class declared = loadClassWithContextClassLoader(attrInfo.getType());
+      var declared = loadClassWithContextClassLoader(attrInfo.getType());
       if (attrValue != null) {
         Class parameter = attrValue.getClass();
         checkAssignability(parameter, declared);
       }
 
       // As an extension, allow attributes to be called on target objects also
-      Object target = resolveTargetObject(attributeDescriptor);
+      var target = resolveTargetObject(attributeDescriptor);
       invokeMethod(target, method, new Class[] {declared}, new Object[] {attrValue});
 
       // Cache the value only if currencyTimeLimit is not 0, ie it is not always stale
-      int staleness = getStaleness(attributeDescriptor, mbeanDescriptor, lastUpdateField);
+      var staleness = getStaleness(attributeDescriptor, mbeanDescriptor, lastUpdateField);
       if (staleness != ALWAYS_STALE) {
         attributeDescriptor.setField("value", attrValue);
         attributeDescriptor.setField(lastUpdateField, System.currentTimeMillis());
@@ -654,7 +651,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     } else {
       if (attrValue != null) {
         Class parameter = attrValue.getClass();
-        Class declared = loadClassWithContextClassLoader(attrInfo.getType());
+        var declared = loadClassWithContextClassLoader(attrInfo.getType());
 
         checkAssignability(parameter, declared);
       }
@@ -673,7 +670,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     sendAttributeChangeNotification(new Attribute(attrName, oldValue), attribute);
 
     // Persist this ModelMBean
-    boolean persistNow = shouldPersistNow(attributeDescriptor, mbeanDescriptor, lastUpdateField);
+    var persistNow = shouldPersistNow(attributeDescriptor, mbeanDescriptor, lastUpdateField);
     if (persistNow) {
       if (logger.isEnabledFor(Logger.TRACE)) {
         logger.trace("Persisting this ModelMBean...");
@@ -708,10 +705,10 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       params = new String[0];
     }
 
-    Logger logger = getLogger();
+    var logger = getLogger();
 
     // Find operation descriptor
-    ModelMBeanInfo info = getModelMBeanInfo();
+    var info = getModelMBeanInfo();
     if (info == null) {
       throw new MBeanException(new ServiceNotFoundException(
           "ModelMBeanInfo is null"));
@@ -721,7 +718,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     // This is a clone, we use it read only
-    ModelMBeanOperationInfo operInfo = info.getOperation(method);
+    var operInfo = info.getOperation(method);
     if (operInfo == null) {
       throw new MBeanException(new ServiceNotFoundException(
           String.format("Cannot find ModelMBeanOperationInfo for operation %s",
@@ -732,13 +729,13 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     // This descriptor is a clone
-    Descriptor operationDescriptor = operInfo.getDescriptor();
+    var operationDescriptor = operInfo.getDescriptor();
     if (operationDescriptor == null) {
       throw new MBeanException(new ServiceNotFoundException(
           String.format("Operation descriptor for operation %s cannot be null",
               method)));
     }
-    String role = (String) operationDescriptor.getFieldValue("role");
+    var role = (String) operationDescriptor.getFieldValue("role");
     if (role == null || !role.equals("operation")) {
       throw new MBeanException(new ServiceNotFoundException(
           String.format("Operation descriptor field 'role' must be 'operation', not %s",
@@ -749,7 +746,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     // This returns a clone of the mbean descriptor, we use it read only
-    Descriptor mbeanDescriptor = info.getMBeanDescriptor();
+    var mbeanDescriptor = info.getMBeanDescriptor();
     if (mbeanDescriptor == null) {
       throw new MBeanException(new ServiceNotFoundException(
           "MBean descriptor cannot be null"));
@@ -760,10 +757,10 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
     Object returnValue = null;
 
-    String lastUpdateField = "lastReturnedTimeStamp";
+    var lastUpdateField = "lastReturnedTimeStamp";
 
     // Check if the method should be invoked given the cache settings
-    int staleness = getStaleness(operationDescriptor, mbeanDescriptor, lastUpdateField);
+    var staleness = getStaleness(operationDescriptor, mbeanDescriptor, lastUpdateField);
 
     if (staleness == ALWAYS_STALE || staleness == STALE) {
       if (logger.isEnabledFor(Logger.TRACE)) {
@@ -784,7 +781,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       }
 
       // Find target object
-      Object target = resolveTargetObject(operationDescriptor);
+      var target = resolveTargetObject(operationDescriptor);
       returnValue = invokeMethod(target, method, parameters, arguments);
 
       if (logger.isEnabledFor(Logger.DEBUG)) {
@@ -793,7 +790,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
       if (returnValue != null) {
         Class parameter = returnValue.getClass();
-        Class declared = loadClassWithContextClassLoader(operInfo.getReturnType());
+        var declared = loadClassWithContextClassLoader(operInfo.getReturnType());
 
         checkAssignability(parameter, declared);
       }
@@ -819,7 +816,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
       if (returnValue != null) {
         Class parameter = returnValue.getClass();
-        Class declared = loadClassWithContextClassLoader(operInfo.getReturnType());
+        var declared = loadClassWithContextClassLoader(operInfo.getReturnType());
 
         checkAssignability(parameter, declared);
       }
@@ -832,8 +829,8 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     // As an extension, persist this model mbean also after operation invocation, but using only
     // settings provided in the operation descriptor, without falling back to defaults set in
     // the MBean descriptor
-    boolean persistNow = shouldPersistNow(operationDescriptor, null, lastUpdateField);
-    int impact = operInfo.getImpact();
+    var persistNow = shouldPersistNow(operationDescriptor, null, lastUpdateField);
+    var impact = operInfo.getImpact();
     if (persistNow && impact != MBeanOperationInfo.INFO) {
       if (logger.isEnabledFor(Logger.TRACE)) {
         logger.trace("Persisting this ModelMBean...");
@@ -858,15 +855,15 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
   }
 
   private Object resolveTargetObject(Descriptor descriptor) throws MBeanException {
-    Logger logger = getLogger();
-    Object target = descriptor.getFieldValue("targetObject");
+    var logger = getLogger();
+    var target = descriptor.getFieldValue("targetObject");
     if (logger.isEnabledFor(Logger.TRACE)) {
       logger.trace("targetObject is: " + target);
     }
     if (target == null) {
       target = getManagedResource();
     } else {
-      String targetObjectType = (String) descriptor.getFieldValue("targetObjectType");
+      var targetObjectType = (String) descriptor.getFieldValue("targetObjectType");
       if (logger.isEnabledFor(Logger.TRACE)) {
         logger.trace("targetObjectType is: " + targetObjectType);
       }
@@ -884,19 +881,19 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
   @Override
   public void load() throws MBeanException, RuntimeOperationsException, InstanceNotFoundException {
-    PersisterMBean persister = findPersister();
+    var persister = findPersister();
     if (persister != null) {
-      ModelMBeanInfo info = (ModelMBeanInfo) persister.load();
+      var info = (ModelMBeanInfo) persister.load();
       setModelMBeanInfo(info);
     }
   }
 
   @Override
   public void store() throws MBeanException, RuntimeOperationsException, InstanceNotFoundException {
-    PersisterMBean persister = findPersister();
+    var persister = findPersister();
     if (persister != null) {
       // Take a clone to avoid synchronization problems
-      ModelMBeanInfo info = (ModelMBeanInfo) getMBeanInfo();
+      var info = (ModelMBeanInfo) getMBeanInfo();
       persister.store(info);
     }
   }
@@ -911,11 +908,11 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
 
   private boolean shouldPersistNow(Descriptor attribute, Descriptor mbean, String lastUpdateField) {
-    int persist = getPersistPolicy(attribute, mbean);
+    var persist = getPersistPolicy(attribute, mbean);
     if (persist == PERSIST_NO_MORE_OFTEN_THAN) {
-      Long period = getFieldTimeValue(attribute, mbean, "persistPeriod");
-      long now = System.currentTimeMillis();
-      Long lastUpdate = (Long) attribute.getFieldValue(lastUpdateField);
+      var period = getFieldTimeValue(attribute, mbean, "persistPeriod");
+      var now = System.currentTimeMillis();
+      var lastUpdate = (Long) attribute.getFieldValue(lastUpdateField);
       return now - lastUpdate >= period;
     } else if (persist == PERSIST_NEVER) {
       return false;
@@ -930,9 +927,9 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
   }
 
   private int getPersistPolicy(Descriptor descriptor, Descriptor mbean) {
-    Logger logger = getLogger();
+    var logger = getLogger();
 
-    String persist = (String) descriptor.getFieldValue("persistPolicy");
+    var persist = (String) descriptor.getFieldValue("persistPolicy");
     if (persist == null && mbean != null) {
       persist = (String) mbean.getFieldValue("persistPolicy");
     }
@@ -959,7 +956,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
         return PERSIST_ON_TIMER;
       } else if (persist.equals("NoMoreOftenThan")) {
         if (logger.isEnabledFor(Logger.TRACE)) {
-          Long period = getFieldTimeValue(descriptor, mbean, "persistPeriod");
+          var period = getFieldTimeValue(descriptor, mbean, "persistPeriod");
           logger.trace("Persist no more often than " + period);
         }
         return PERSIST_NO_MORE_OFTEN_THAN;
@@ -974,9 +971,9 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
   }
 
   private int getStaleness(Descriptor attribute, Descriptor mbean, String lastUpdateField) {
-    Logger logger = getLogger();
+    var logger = getLogger();
 
-    Long currencyTimeLimit = getFieldTimeValue(attribute, mbean, "currencyTimeLimit");
+    var currencyTimeLimit = getFieldTimeValue(attribute, mbean, "currencyTimeLimit");
     if (currencyTimeLimit == null) {
       // No time limit defined
       if (logger.isEnabledFor(Logger.TRACE)) {
@@ -984,7 +981,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       }
       return ALWAYS_STALE;
     } else {
-      long ctl = currencyTimeLimit * 1000;
+      var ctl = currencyTimeLimit * 1000;
       if (logger.isEnabledFor(Logger.TRACE)) {
         logger.trace("currencyTimeLimit is (ms): " + ctl);
       }
@@ -1003,7 +1000,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
         }
         return ALWAYS_STALE;
       } else {
-        Long timestamp = (Long) attribute.getFieldValue(lastUpdateField);
+        var timestamp = (Long) attribute.getFieldValue(lastUpdateField);
         long luts = 0;
 
         if (timestamp != null) {
@@ -1013,7 +1010,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
           logger.debug(lastUpdateField + " is: " + luts);
         }
 
-        long now = System.currentTimeMillis();
+        var now = System.currentTimeMillis();
         if (now < luts + ctl) {
           // Seems to be not stale, but has been set at least once ?
           if (timestamp == null) {
@@ -1040,9 +1037,9 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
   }
 
   private Long getFieldTimeValue(Descriptor descriptor, Descriptor mbean, String field) {
-    Logger logger = getLogger();
+    var logger = getLogger();
 
-    Object value = descriptor.getFieldValue(field);
+    var value = descriptor.getFieldValue(field);
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("Descriptor's " + field + " field: " + value);
     }
@@ -1063,7 +1060,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
     if (value instanceof String) {
       try {
-        long ctl = Long.parseLong((String) value);
+        var ctl = Long.parseLong((String) value);
         return ctl;
       } catch (NumberFormatException x) {
         return 0L;
@@ -1098,8 +1095,8 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     }
 
     try {
-      Object value = method.invoke(realTarget, args);
-      Logger logger = getLogger();
+      var value = method.invoke(realTarget, args);
+      var logger = getLogger();
       if (logger.isEnabledFor(Logger.DEBUG)) {
         logger.debug("Method invocation returned value: " + value);
       }
@@ -1109,7 +1106,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     } catch (IllegalArgumentException x) {
       throw new MBeanException(x);
     } catch (InvocationTargetException x) {
-      Throwable t = x.getTargetException();
+      var t = x.getTargetException();
       if (t instanceof Error) {
         throw new MBeanException(new RuntimeErrorException((Error) t));
       } else {
@@ -1120,7 +1117,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
   private Logger getModelMBeanLogger(String notificationType) throws MBeanException {
     // Get a copy to avoid synchronization
-    ModelMBeanInfo info = getModelMBeanInfo();
+    var info = getModelMBeanInfo();
 
     // First look if there is a suitable notification descriptor, otherwise use MBean descriptor
     Descriptor descriptor = null;
@@ -1140,7 +1137,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
   }
 
   private Logger findLogger(Descriptor descriptor) {
-    Logger logger = getLogger();
+    var logger = getLogger();
 
     if (descriptor == null) {
       if (logger.isEnabledFor(Logger.TRACE)) {
@@ -1149,8 +1146,8 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       return null;
     }
 
-    String log = (String) descriptor.getFieldValue("log");
-    String location = (String) descriptor.getFieldValue("logFile");
+    var log = (String) descriptor.getFieldValue("log");
+    var location = (String) descriptor.getFieldValue("logFile");
 
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("Log fields: log=" + log + ", file=" + location);
@@ -1179,14 +1176,14 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
 
       // It seems that the user wants to delegate a registered mbean to log
       try {
-        ObjectName objectName = new ObjectName(location);
-        MBeanServer server = getMBeanServer();
+        var objectName = new ObjectName(location);
+        var server = getMBeanServer();
         if (server == null) {
           throw new MBeanException(new IllegalStateException(
               "MX4JModelMBean is not registered."));
         }
         if (server.isRegistered(objectName)) {
-          MBeanLogger l = new MBeanLogger(server, objectName);
+          var l = new MBeanLogger(server, objectName);
           if (logger.isEnabledFor(Logger.DEBUG)) {
             logger.debug("ModelMBean log supported by delegating to this MBean: " + objectName);
           }
@@ -1230,9 +1227,9 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
   }
 
   private PersisterMBean findPersister() throws MBeanException, InstanceNotFoundException {
-    Logger logger = getLogger();
+    var logger = getLogger();
 
-    ModelMBeanInfo info = getModelMBeanInfo();
+    var info = getModelMBeanInfo();
     if (info == null) {
       // Not yet initialized
       if (logger.isEnabledFor(Logger.TRACE)) {
@@ -1240,7 +1237,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       }
       return null;
     }
-    Descriptor mbeanDescriptor = info.getMBeanDescriptor();
+    var mbeanDescriptor = info.getMBeanDescriptor();
     if (mbeanDescriptor == null) {
       // This is normally should not happen if ModelMBeanInfoSupport is used
       if (logger.isEnabledFor(Logger.TRACE)) {
@@ -1249,9 +1246,9 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       return null;
     }
 
-    String location = (String) mbeanDescriptor.getFieldValue("persistLocation");
-    String name = (String) mbeanDescriptor.getFieldValue("persistName");
-    String mbeanName = (String) mbeanDescriptor.getFieldValue("name");
+    var location = (String) mbeanDescriptor.getFieldValue("persistLocation");
+    var name = (String) mbeanDescriptor.getFieldValue("persistName");
+    var mbeanName = (String) mbeanDescriptor.getFieldValue("name");
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("Persistence fields: location=" + location + ", name=" + name);
     }
@@ -1266,9 +1263,9 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     // Try to see if this mbean should delegate to another mbean
     if (name != null) {
       try {
-        ObjectName objectName = new ObjectName(name.trim());
+        var objectName = new ObjectName(name.trim());
         // OK, a valid object name
-        MBeanServer server = getMBeanServer();
+        var server = getMBeanServer();
         if (server == null) {
           throw new MBeanException(new IllegalStateException(
               "MX4JModelMBean is not registered."));
@@ -1293,14 +1290,14 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       }
 
       // Default is serialization to file
-      FilePersister persister = new FilePersister(location, name);
+      var persister = new FilePersister(location, name);
       if (logger.isEnabledFor(Logger.DEBUG)) {
         logger.debug("Persistence is realized through file system in " + persister.getFileName());
       }
       return persister;
     } else {
       // Only location given, use MBean name
-      FilePersister persister = new FilePersister(location, mbeanName);
+      var persister = new FilePersister(location, mbeanName);
       if (logger.isEnabledFor(Logger.DEBUG)) {
         logger.debug("Persistence is realized through file system in " + persister.getFileName());
       }
@@ -1312,7 +1309,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
     try {
       return Utils.loadClass(Thread.currentThread().getContextClassLoader(), name);
     } catch (ClassNotFoundException x) {
-      Logger logger = getLogger();
+      var logger = getLogger();
       if (logger.isEnabledFor(Logger.TRACE)) {
         logger.trace("Cannot find attribute's declared return class", x);
       }
@@ -1321,7 +1318,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
   }
 
   private void checkAssignability(Class parameter, Class declared) throws MBeanException {
-    Logger logger = getLogger();
+    var logger = getLogger();
 
     if (logger.isEnabledFor(Logger.DEBUG)) {
       logger.debug("The class of the parameter is: " + parameter);
@@ -1335,7 +1332,7 @@ public class MX4JModelMBean implements ModelMBean, MBeanRegistration, Notificati
       }
     }
 
-    boolean assignable = false;
+    var assignable = false;
 
     if (declared == null || parameter == null) {
       assignable = false;

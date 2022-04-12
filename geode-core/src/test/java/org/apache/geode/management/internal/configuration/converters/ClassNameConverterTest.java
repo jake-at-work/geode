@@ -17,7 +17,6 @@ package org.apache.geode.management.internal.configuration.converters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -38,13 +37,13 @@ public class ClassNameConverterTest {
 
   @Test
   public void fromConfig() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put("field1", "value1");
     properties.put("field2", "value2");
-    ClassName className = new ClassName("xyz", properties);
-    DeclarableType declarableType = converter.fromConfigObject(className);
+    var className = new ClassName("xyz", properties);
+    var declarableType = converter.fromConfigObject(className);
     assertThat(declarableType.getClassName()).isEqualTo("xyz");
-    List<ParameterType> parameters = declarableType.getParameters();
+    var parameters = declarableType.getParameters();
     assertThat(parameters).extracting(ParameterType::getName).containsExactlyInAnyOrder("field1",
         "field2");
     assertThat(parameters).extracting(ObjectType::getString).containsExactlyInAnyOrder("value1",
@@ -53,23 +52,23 @@ public class ClassNameConverterTest {
 
   @Test
   public void fromDeclarable() {
-    DeclarableType type = new DeclarableType();
+    var type = new DeclarableType();
     type.setClassName("xyz");
 
     // this will get converted
-    ParameterType param1 = new ParameterType();
+    var param1 = new ParameterType();
     param1.setName("field1");
     param1.setString("value1");
 
     // this won't get converted
-    ParameterType param2 = new ParameterType();
+    var param2 = new ParameterType();
     param2.setName("field2");
     param2.setDeclarable(new DeclarableType());
 
     type.getParameters().add(param1);
     type.getParameters().add(param2);
 
-    ClassName className = converter.fromXmlObject(type);
+    var className = converter.fromXmlObject(type);
     assertThat(className.getClassName()).isEqualTo("xyz");
     assertThat(className.getInitProperties()).hasSize(1).containsOnlyKeys("field1");
   }

@@ -34,9 +34,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -52,7 +50,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    * Create a map from Integers 1-5 to Strings "A"-"E".
    */
   private CopyOnWriteHashMap map5() {
-    CopyOnWriteHashMap map = newMap();
+    var map = newMap();
     assertTrue(map.isEmpty());
     map.put(one, "A");
     map.put(two, "B");
@@ -73,7 +71,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testClear() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     map.clear();
     assertEquals(map.size(), 0);
   }
@@ -83,8 +81,8 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testEquals() {
-    CopyOnWriteHashMap map1 = map5();
-    CopyOnWriteHashMap map2 = map5();
+    var map1 = map5();
+    var map2 = map5();
     assertEquals(map1, map2);
     assertEquals(map2, map1);
     map1.clear();
@@ -97,7 +95,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testContainsKey() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     assertTrue(map.containsKey(one));
     assertFalse(map.containsKey(zero));
   }
@@ -107,7 +105,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testContainsValue() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     assertTrue(map.containsValue("A"));
     assertFalse(map.containsValue("Z"));
   }
@@ -117,9 +115,9 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testGet() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     assertEquals("A", map.get(one));
-    CopyOnWriteHashMap empty = newMap();
+    var empty = newMap();
     assertNull(map.get("anything"));
   }
 
@@ -128,8 +126,8 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testIsEmpty() {
-    CopyOnWriteHashMap empty = newMap();
-    CopyOnWriteHashMap map = map5();
+    var empty = newMap();
+    var map = map5();
     assertTrue(empty.isEmpty());
     assertFalse(map.isEmpty());
   }
@@ -139,8 +137,8 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testKeySet() {
-    CopyOnWriteHashMap map = map5();
-    Set s = map.keySet();
+    var map = map5();
+    var s = map.keySet();
     assertEquals(5, s.size());
     assertTrue(s.contains(one));
     assertTrue(s.contains(two));
@@ -154,9 +152,9 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testKeySetToArray() {
-    CopyOnWriteHashMap map = map5();
-    Set s = map.keySet();
-    Object[] ar = s.toArray();
+    var map = map5();
+    var s = map.keySet();
+    var ar = s.toArray();
     assertTrue(s.containsAll(Arrays.asList(ar)));
     assertEquals(5, ar.length);
     ar[0] = m10;
@@ -168,10 +166,10 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testValuesToArray() {
-    CopyOnWriteHashMap map = map5();
-    Collection v = map.values();
-    Object[] ar = v.toArray();
-    ArrayList s = new ArrayList(Arrays.asList(ar));
+    var map = map5();
+    var v = map.values();
+    var ar = v.toArray();
+    var s = new ArrayList(Arrays.asList(ar));
     assertEquals(5, ar.length);
     assertTrue(s.contains("A"));
     assertTrue(s.contains("B"));
@@ -185,11 +183,11 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testEntrySetToArray() {
-    CopyOnWriteHashMap map = map5();
-    Set s = map.entrySet();
-    Object[] ar = s.toArray();
+    var map = map5();
+    var s = map.entrySet();
+    var ar = s.toArray();
     assertEquals(5, ar.length);
-    for (int i = 0; i < 5; ++i) {
+    for (var i = 0; i < 5; ++i) {
       assertTrue(map.containsKey(((Map.Entry) (ar[i])).getKey()));
       assertTrue(map.containsValue(((Map.Entry) (ar[i])).getValue()));
     }
@@ -200,8 +198,8 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testValues() {
-    CopyOnWriteHashMap map = map5();
-    Collection s = map.values();
+    var map = map5();
+    var s = map.values();
     assertEquals(5, s.size());
     assertTrue(s.contains("A"));
     assertTrue(s.contains("B"));
@@ -215,11 +213,11 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testEntrySet() {
-    CopyOnWriteHashMap map = map5();
-    Set s = map.entrySet();
+    var map = map5();
+    var s = map.entrySet();
     assertEquals(5, s.size());
-    for (final Object o : s) {
-      Map.Entry e = (Map.Entry) o;
+    for (final var o : s) {
+      var e = (Map.Entry) o;
       assertTrue((e.getKey().equals(one) && e.getValue().equals("A"))
           || (e.getKey().equals(two) && e.getValue().equals("B"))
           || (e.getKey().equals(three) && e.getValue().equals("C"))
@@ -233,8 +231,8 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testPutAll() {
-    CopyOnWriteHashMap empty = newMap();
-    CopyOnWriteHashMap map = map5();
+    var empty = newMap();
+    var map = map5();
     empty.putAll(map);
     assertEquals(5, empty.size());
     assertTrue(empty.containsKey(one));
@@ -249,7 +247,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testPutIfAbsent() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     map.putIfAbsent(six, "Z");
     assertTrue(map.containsKey(six));
   }
@@ -259,7 +257,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testPutIfAbsent2() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     assertEquals("A", map.putIfAbsent(one, "Z"));
   }
 
@@ -268,7 +266,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testReplace() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     assertNull(map.replace(six, "Z"));
     assertFalse(map.containsKey(six));
   }
@@ -278,7 +276,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testReplace2() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     assertNotNull(map.replace(one, "Z"));
     assertEquals("Z", map.get(one));
   }
@@ -289,7 +287,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testReplaceValue() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     assertEquals("A", map.get(one));
     assertFalse(map.replace(one, "Z", "Z"));
     assertEquals("A", map.get(one));
@@ -300,7 +298,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testReplaceValue2() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     assertEquals("A", map.get(one));
     assertTrue(map.replace(one, "A", "Z"));
     assertEquals("Z", map.get(one));
@@ -312,7 +310,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testRemove() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     map.remove(five);
     assertEquals(4, map.size());
     assertFalse(map.containsKey(five));
@@ -323,7 +321,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testRemove2() {
-    CopyOnWriteHashMap map = map5();
+    var map = map5();
     map.remove(five, "E");
     assertEquals(4, map.size());
     assertFalse(map.containsKey(five));
@@ -338,8 +336,8 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testSize() {
-    CopyOnWriteHashMap map = map5();
-    CopyOnWriteHashMap empty = newMap();
+    var map = map5();
+    var empty = newMap();
     assertEquals(0, empty.size());
     assertEquals(5, map.size());
   }
@@ -349,9 +347,9 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testToString() {
-    CopyOnWriteHashMap map = map5();
-    String s = map.toString();
-    for (int i = 1; i <= 5; ++i) {
+    var map = map5();
+    var s = map.toString();
+    for (var i = 1; i <= 5; ++i) {
       assertTrue(s.indexOf(String.valueOf(i)) >= 0);
     }
   }
@@ -363,7 +361,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testGetNull() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     assertNull(c.get(null));
   }
 
@@ -372,7 +370,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testContainsKeyNull() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     assertFalse(c.containsKey(null));
   }
 
@@ -381,7 +379,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testContainsValue_NullPointerException() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     assertFalse(c.containsValue(null));
   }
 
@@ -390,7 +388,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testPut1NullKey() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.put(null, "whatever");
     assertTrue(c.containsKey(null));
     assertEquals("whatever", c.get(null));
@@ -401,7 +399,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testPut2NullValue() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.put("whatever", null);
     assertTrue(c.containsKey("whatever"));
     assertEquals(null, c.get("whatever"));
@@ -412,7 +410,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testPutIfAbsent1NullKey() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.putIfAbsent(null, "whatever");
     assertTrue(c.containsKey(null));
     assertEquals("whatever", c.get(null));
@@ -423,7 +421,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testReplace_NullPointerException() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     assertNull(c.replace(null, "whatever"));
   }
 
@@ -432,7 +430,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testReplaceValueNullKey() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.replace(null, one, "whatever");
     assertFalse(c.containsKey(null));
   }
@@ -442,7 +440,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testPutIfAbsent2_NullPointerException() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.putIfAbsent("whatever", null);
     assertTrue(c.containsKey("whatever"));
     assertNull(c.get("whatever"));
@@ -454,7 +452,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testReplace2Null() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.replace("whatever", null);
     assertFalse(c.containsKey("whatever"));
     assertNull(c.get("whatever"));
@@ -465,7 +463,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testReplaceValue2Null() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.replace("whatever", null, "A");
     assertFalse(c.containsKey("whatever"));
   }
@@ -475,7 +473,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testReplaceValue3Null() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.replace("whatever", one, null);
     assertFalse(c.containsKey("whatever"));
   }
@@ -486,7 +484,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testRemoveNull() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.put("sadsdf", "asdads");
     c.remove(null);
   }
@@ -496,7 +494,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testRemove2_NullPointerException() {
-    CopyOnWriteHashMap c = newMap();
+    var c = newMap();
     c.put("sadsdf", "asdads");
     assertFalse(c.remove(null, "whatever"));
   }
@@ -507,7 +505,7 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
   @Test
   public void testRemove3() {
     try {
-      CopyOnWriteHashMap c = newMap();
+      var c = newMap();
       c.put("sadsdf", "asdads");
       assertFalse(c.remove("sadsdf", null));
     } catch (NullPointerException e) {
@@ -520,16 +518,16 @@ public class CopyOnWriteHashMapJUnitTest extends JSR166TestCase { // TODO: refor
    */
   @Test
   public void testSerialization() throws Exception {
-    CopyOnWriteHashMap q = map5();
+    var q = map5();
 
-    ByteArrayOutputStream bout = new ByteArrayOutputStream(10000);
-    ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(bout));
+    var bout = new ByteArrayOutputStream(10000);
+    var out = new ObjectOutputStream(new BufferedOutputStream(bout));
     out.writeObject(q);
     out.close();
 
-    ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
-    ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(bin));
-    CopyOnWriteHashMap r = (CopyOnWriteHashMap) in.readObject();
+    var bin = new ByteArrayInputStream(bout.toByteArray());
+    var in = new ObjectInputStream(new BufferedInputStream(bin));
+    var r = (CopyOnWriteHashMap) in.readObject();
     assertEquals(q.size(), r.size());
     assertTrue(q.equals(r));
     assertTrue(r.equals(q));

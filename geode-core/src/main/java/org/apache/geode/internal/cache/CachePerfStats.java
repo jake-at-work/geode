@@ -19,7 +19,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.distributed.internal.PoolStatHelper;
@@ -170,193 +169,193 @@ public class CachePerfStats {
   protected static final int previouslySeenEventsId;
 
   static {
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
-    final String loadsInProgressDesc =
+    final var loadsInProgressDesc =
         "Current number of threads in this cache doing a cache load.";
-    final String loadsCompletedDesc =
+    final var loadsCompletedDesc =
         "Total number of times a load on this cache has completed (as a result of either a local get() or a remote netload).";
-    final String loadTimeDesc = "Total time spent invoking loaders on this cache.";
-    final String netloadsInProgressDesc =
+    final var loadTimeDesc = "Total time spent invoking loaders on this cache.";
+    final var netloadsInProgressDesc =
         "Current number of threads doing a network load initiated by a get() in this cache.";
-    final String netloadsCompletedDesc =
+    final var netloadsCompletedDesc =
         "Total number of times a network load initiated on this cache has completed.";
-    final String netloadTimeDesc = "Total time spent doing network loads on this cache.";
-    final String netsearchesInProgressDesc =
+    final var netloadTimeDesc = "Total time spent doing network loads on this cache.";
+    final var netsearchesInProgressDesc =
         "Current number of threads doing a network search initiated by a get() in this cache.";
-    final String netsearchesCompletedDesc =
+    final var netsearchesCompletedDesc =
         "Total number of times network searches initiated by this cache have completed.";
-    final String netsearchTimeDesc = "Total time spent doing network searches for cache values.";
-    final String cacheWriterCallsInProgressDesc =
+    final var netsearchTimeDesc = "Total time spent doing network searches for cache values.";
+    final var cacheWriterCallsInProgressDesc =
         "Current number of threads doing a cache writer call.";
-    final String cacheWriterCallsCompletedDesc =
+    final var cacheWriterCallsCompletedDesc =
         "Total number of times a cache writer call has completed.";
-    final String cacheWriterCallTimeDesc = "Total time spent doing cache writer calls.";
-    final String cacheListenerCallsInProgressDesc =
+    final var cacheWriterCallTimeDesc = "Total time spent doing cache writer calls.";
+    final var cacheListenerCallsInProgressDesc =
         "Current number of threads doing a cache listener call.";
-    final String cacheListenerCallsCompletedDesc =
+    final var cacheListenerCallsCompletedDesc =
         "Total number of times a cache listener call has completed.";
-    final String cacheListenerCallTimeDesc = "Total time spent doing cache listener calls.";
-    final String getInitialImagesInProgressDesc =
+    final var cacheListenerCallTimeDesc = "Total time spent doing cache listener calls.";
+    final var getInitialImagesInProgressDesc =
         "Current number of getInitialImage operations currently in progress.";
-    final String getInitialImagesCompletedDesc =
+    final var getInitialImagesCompletedDesc =
         "Total number of times getInitialImages (both delta and full GII) initiated by this cache have completed.";
-    final String deltaGetInitialImagesCompletedDesc =
+    final var deltaGetInitialImagesCompletedDesc =
         "Total number of times delta getInitialImages initiated by this cache have completed.";
-    final String getInitialImageTimeDesc =
+    final var getInitialImageTimeDesc =
         "Total time spent doing getInitialImages for region creation.";
-    final String getInitialImageKeysReceivedDesc =
+    final var getInitialImageKeysReceivedDesc =
         "Total number of keys received while doing getInitialImage operations.";
-    final String regionsDesc = "The current number of regions in the cache.";
-    final String partitionedRegionsDesc = "The current number of partitioned regions in the cache.";
-    final String destroysDesc =
+    final var regionsDesc = "The current number of regions in the cache.";
+    final var partitionedRegionsDesc = "The current number of partitioned regions in the cache.";
+    final var destroysDesc =
         "The total number of times a cache object entry has been destroyed in this cache.";
-    final String updatesDesc =
+    final var updatesDesc =
         "The total number of updates originating remotely that have been applied to this cache.";
-    final String updateTimeDesc = "Total time spent performing an update.";
-    final String invalidatesDesc =
+    final var updateTimeDesc = "Total time spent performing an update.";
+    final var invalidatesDesc =
         "The total number of times an existing cache object entry value in this cache has been invalidated";
-    final String getsDesc =
+    final var getsDesc =
         "The total number of times a successful get has been done on this cache.";
-    final String createsDesc = "The total number of times an entry is added to this cache.";
-    final String putsDesc =
+    final var createsDesc = "The total number of times an entry is added to this cache.";
+    final var putsDesc =
         "The total number of times an entry is added or replaced in this cache as a result of a local operation (put(), create(), or get() which results in load, netsearch, or netloading a value). Note that this only counts puts done explicitly on this cache. It does not count updates pushed from other caches.";
-    final String putTimeDesc =
+    final var putTimeDesc =
         "Total time spent adding or replacing an entry in this cache as a result of a local operation.  This includes synchronizing on the map, invoking cache callbacks, sending messages to other caches and waiting for responses (if required).";
-    final String putallsDesc =
+    final var putallsDesc =
         "The total number of times a map is added or replaced in this cache as a result of a local operation. Note that this only counts putAlls done explicitly on this cache. It does not count updates pushed from other caches.";
-    final String putallTimeDesc =
+    final var putallTimeDesc =
         "Total time spent replacing a map in this cache as a result of a local operation.  This includes synchronizing on the map, invoking cache callbacks, sending messages to other caches and waiting for responses (if required).";
-    final String removeAllsDesc =
+    final var removeAllsDesc =
         "The total number of removeAll operations that originated in this cache. Note that this only counts removeAlls done explicitly on this cache. It does not count removes pushed from other caches.";
-    final String removeAllTimeDesc =
+    final var removeAllTimeDesc =
         "Total time spent performing removeAlls that originated in this cache. This includes time spent waiting for the removeAll to be done in remote caches (if required).";
-    final String getTimeDesc =
+    final var getTimeDesc =
         "Total time spent doing get operations from this cache (including netsearch and netload)";
-    final String eventQueueSizeDesc = "The number of cache events waiting to be processed.";
-    final String eventQueueThrottleTimeDesc =
+    final var eventQueueSizeDesc = "The number of cache events waiting to be processed.";
+    final var eventQueueThrottleTimeDesc =
         "The total amount of time, in nanoseconds, spent delayed by the event queue throttle.";
-    final String eventQueueThrottleCountDesc =
+    final var eventQueueThrottleCountDesc =
         "The total number of times a thread was delayed in adding an event to the event queue.";
-    final String eventThreadsDesc = "The number of threads currently processing events.";
-    final String missesDesc =
+    final var eventThreadsDesc = "The number of threads currently processing events.";
+    final var missesDesc =
         "Total number of times a get on the cache did not find a value already in local memory. The number of hits (i.e. gets that did not miss) can be calculated by subtracting misses from gets.";
-    final String queryExecutionsDesc = "Total number of times some query has been executed";
-    final String queryExecutionTimeDesc = "Total time spent executing queries";
-    final String queryResultsHashCollisionsDesc =
+    final var queryExecutionsDesc = "Total number of times some query has been executed";
+    final var queryExecutionTimeDesc = "Total time spent executing queries";
+    final var queryResultsHashCollisionsDesc =
         "Total number of times an hash code collision occurred when inserting an object into an OQL result set or rehashing it";
-    final String queryResultsHashCollisionProbeTimeDesc =
+    final var queryResultsHashCollisionProbeTimeDesc =
         "Total time spent probing the hashtable in an OQL result set due to hash code collisions, includes reads, writes, and rehashes";
-    final String partitionedRegionOQLQueryRetriesDesc =
+    final var partitionedRegionOQLQueryRetriesDesc =
         "Total number of times an OQL Query on a Partitioned Region had to be retried";
-    final String txSuccessLifeTimeDesc =
+    final var txSuccessLifeTimeDesc =
         "The total amount of time, in nanoseconds, spent in a transaction before a successful commit. The time measured starts at transaction begin and ends when commit is called.";
-    final String txFailedLifeTimeDesc =
+    final var txFailedLifeTimeDesc =
         "The total amount of time, in nanoseconds, spent in a transaction before a failed commit. The time measured starts at transaction begin and ends when commit is called.";
-    final String txRollbackLifeTimeDesc =
+    final var txRollbackLifeTimeDesc =
         "The total amount of time, in nanoseconds, spent in a transaction before an explicit rollback. The time measured starts at transaction begin and ends when rollback is called.";
-    final String txCommitsDesc = "Total number times a transaction commit has succeeded.";
-    final String txFailuresDesc = "Total number times a transaction commit has failed.";
-    final String txRollbacksDesc =
+    final var txCommitsDesc = "Total number times a transaction commit has succeeded.";
+    final var txFailuresDesc = "Total number times a transaction commit has failed.";
+    final var txRollbacksDesc =
         "Total number times a transaction has been explicitly rolled back.";
-    final String txCommitTimeDesc =
+    final var txCommitTimeDesc =
         "The total amount of time, in nanoseconds, spent doing successful transaction commits.";
-    final String txFailureTimeDesc =
+    final var txFailureTimeDesc =
         "The total amount of time, in nanoseconds, spent doing failed transaction commits.";
-    final String txRollbackTimeDesc =
+    final var txRollbackTimeDesc =
         "The total amount of time, in nanoseconds, spent doing explicit transaction rollbacks.";
-    final String txCommitChangesDesc = "Total number of changes made by committed transactions.";
-    final String txFailureChangesDesc = "Total number of changes lost by failed transactions.";
-    final String txRollbackChangesDesc =
+    final var txCommitChangesDesc = "Total number of changes made by committed transactions.";
+    final var txFailureChangesDesc = "Total number of changes lost by failed transactions.";
+    final var txRollbackChangesDesc =
         "Total number of changes lost by explicit transaction rollbacks.";
-    final String txConflictCheckTimeDesc =
+    final var txConflictCheckTimeDesc =
         "The total amount of time, in nanoseconds, spent doing conflict checks during transaction commit";
-    final String reliableQueuedOpsDesc =
+    final var reliableQueuedOpsDesc =
         "Current number of cache operations queued for distribution to required roles.";
-    final String reliableQueueSizeDesc =
+    final var reliableQueueSizeDesc =
         "Current size in megabytes of disk used to queue for distribution to required roles.";
-    final String reliableQueueMaxDesc =
+    final var reliableQueueMaxDesc =
         "Maximum size in megabytes allotted for disk usage to queue for distribution to required roles.";
-    final String reliableRegionsDesc = "Current number of regions configured for reliability.";
-    final String reliableRegionsMissingDesc =
+    final var reliableRegionsDesc = "Current number of regions configured for reliability.";
+    final var reliableRegionsMissingDesc =
         "Current number regions configured for reliability that are missing required roles.";
-    final String reliableRegionsQueuingDesc =
+    final var reliableRegionsQueuingDesc =
         "Current number regions configured for reliability that are queuing for required roles.";
-    final String reliableRegionsMissingFullAccessDesc =
+    final var reliableRegionsMissingFullAccessDesc =
         "Current number of regions configured for reliablity that are missing require roles with full access";
-    final String reliableRegionsMissingLimitedAccessDesc =
+    final var reliableRegionsMissingLimitedAccessDesc =
         "Current number of regions configured for reliablity that are missing required roles with Limited access";
-    final String reliableRegionsMissingNoAccessDesc =
+    final var reliableRegionsMissingNoAccessDesc =
         "Current number of regions configured for reliablity that are missing required roles with No access";
-    final String clearsDesc = "The total number of times a clear has been done on this cache.";
-    final String metaDataRefreshCountDesc =
+    final var clearsDesc = "The total number of times a clear has been done on this cache.";
+    final var metaDataRefreshCountDesc =
         "Total number of times the meta data is refreshed due to hopping observed.";
-    final String conflatedEventsDesc =
+    final var conflatedEventsDesc =
         "Number of events not delivered due to conflation.  Typically this means that the event arrived after a later event was already applied to the cache.";
-    final String tombstoneCountDesc =
+    final var tombstoneCountDesc =
         "Number of destroyed entries that are retained for concurrent modification detection";
-    final String tombstoneGCCountDesc =
+    final var tombstoneGCCountDesc =
         "Number of garbage-collections performed on destroyed entries";
-    final String tombstoneOverhead1Desc =
+    final var tombstoneOverhead1Desc =
         "Amount of memory consumed by destroyed entries in replicated or partitioned regions";
-    final String tombstoneOverhead2Desc =
+    final var tombstoneOverhead2Desc =
         "Amount of memory consumed by destroyed entries in non-replicated regions";
-    final String clearTimeoutsDesc =
+    final var clearTimeoutsDesc =
         "Number of timeouts waiting for events concurrent to a clear() operation to be received and applied before performing the clear()";
-    final String deltaUpdatesDesc =
+    final var deltaUpdatesDesc =
         "The total number of times entries in this cache are updated through delta bytes.";
-    final String deltaUpdatesTimeDesc =
+    final var deltaUpdatesTimeDesc =
         "Total time spent applying the received delta bytes to entries in this cache.";
-    final String deltaFailedUpdatesDesc =
+    final var deltaFailedUpdatesDesc =
         "The total number of times entries in this cache failed to be updated through delta bytes.";
-    final String deltasPreparedDesc = "The total number of times delta was prepared in this cache.";
-    final String deltasPreparedTimeDesc = "Total time spent preparing delta bytes in this cache.";
-    final String deltasSentDesc =
+    final var deltasPreparedDesc = "The total number of times delta was prepared in this cache.";
+    final var deltasPreparedTimeDesc = "Total time spent preparing delta bytes in this cache.";
+    final var deltasSentDesc =
         "The total number of times delta was sent to remote caches. This excludes deltas sent from server to client.";
-    final String deltaFullValuesSentDesc =
+    final var deltaFullValuesSentDesc =
         "The total number of times a full value was sent to a remote cache.";
-    final String deltaFullValuesRequestedDesc =
+    final var deltaFullValuesRequestedDesc =
         "The total number of times a full value was requested by this cache.";
-    final String importedEntriesCountDesc =
+    final var importedEntriesCountDesc =
         "The total number of entries imported from a snapshot file.";
-    final String importTimeDesc = "The total time spent importing entries from a snapshot file.";
-    final String exportedEntriesCountDesc =
+    final var importTimeDesc = "The total time spent importing entries from a snapshot file.";
+    final var exportedEntriesCountDesc =
         "The total number of entries exported into a snapshot file.";
-    final String exportTimeDesc = "The total time spent exporting entries into a snapshot file.";
-    final String compressionCompressTimeDesc = "The total time spent compressing data.";
-    final String compressionDecompressTimeDesc = "The total time spent decompressing data.";
-    final String compressionCompressionsDesc = "The total number of compression operations.";
-    final String compressionDecompressionsDesc = "The total number of decompression operations.";
-    final String compressionPreCompresssedBytesDesc =
+    final var exportTimeDesc = "The total time spent exporting entries into a snapshot file.";
+    final var compressionCompressTimeDesc = "The total time spent compressing data.";
+    final var compressionDecompressTimeDesc = "The total time spent decompressing data.";
+    final var compressionCompressionsDesc = "The total number of compression operations.";
+    final var compressionDecompressionsDesc = "The total number of decompression operations.";
+    final var compressionPreCompresssedBytesDesc =
         "The total number of bytes before compressing.";
-    final String compressionPostCompressedBytesDesc =
+    final var compressionPostCompressedBytesDesc =
         "The total number of bytes after compressing.";
 
     // total actual evictions (entries evicted)
-    final String evictByCriteria_evictionsDesc = "The total number of entries evicted";
+    final var evictByCriteria_evictionsDesc = "The total number of entries evicted";
 
     // total eviction time including product + user expr.
-    final String evictByCriteria_evictionTimeDesc = "Time taken for eviction process";
-    final String evictByCriteria_evictionsInProgressDesc = "Total number of evictions in progress";
+    final var evictByCriteria_evictionTimeDesc = "Time taken for eviction process";
+    final var evictByCriteria_evictionsInProgressDesc = "Total number of evictions in progress";
 
     // total eviction attempts
-    final String evictByCriteria_evaluationsDesc = "Total number of evaluations for eviction";
+    final var evictByCriteria_evaluationsDesc = "Total number of evaluations for eviction";
 
     // time taken to evaluate user expression.
-    final String evictByCriteria_evaluationTimeDesc =
+    final var evictByCriteria_evaluationTimeDesc =
         "Total time taken for evaluation of user expression during eviction";
 
-    final String handlingNetsearchesInProgressDesc =
+    final var handlingNetsearchesInProgressDesc =
         "Current number of threads handling a network search initiated by a remote cache.";
-    final String handlingNetsearchesCompletedDesc =
+    final var handlingNetsearchesCompletedDesc =
         "Total number of times handling a network search initiated by a remote cache completed with success.";
-    final String handlingNetsearchesTimeDesc =
+    final var handlingNetsearchesTimeDesc =
         "Total time spent handling successful network searches for remote caches.";
-    final String handlingNetsearchesFailedDesc =
+    final var handlingNetsearchesFailedDesc =
         "Total number of times handling a network search initiated by a remote cache failed without success.";
-    final String handlingNetsearchesFailedTimeDesc =
+    final var handlingNetsearchesFailedTimeDesc =
         "Total time spent handling failed network searches for remote caches.";
-    final String previouslySeenEventsDesc =
+    final var previouslySeenEventsDesc =
         "The number of previously seen events ignored by the event tracker.";
 
     type = f.createType("CachePerfStats", "Statistics about GemFire cache performance",
@@ -928,7 +927,7 @@ public class CachePerfStats {
   public void endLoad(long start) {
     // note that load times are used in health checks and
     // should not be disabled by enableClockStats==false
-    long ts = NanoTimer.getTime(); // don't use getStatTime so always enabled
+    var ts = NanoTimer.getTime(); // don't use getStatTime so always enabled
     stats.incLong(loadTimeId, ts - start);
     stats.incLong(loadsInProgressId, -1);
     stats.incLong(loadsCompletedId, 1);
@@ -967,7 +966,7 @@ public class CachePerfStats {
   public void endNetsearch(long start) {
     // note that netsearch is used in health checks and timings should
     // not be disabled by enableClockStats==false
-    long ts = NanoTimer.getTime(); // don't use getStatTime so always enabled
+    var ts = NanoTimer.getTime(); // don't use getStatTime so always enabled
     stats.incLong(netsearchTimeId, ts - start);
     stats.incLong(netsearchesInProgressId, -1);
     stats.incLong(netsearchesCompletedId, 1);
@@ -1064,7 +1063,7 @@ public class CachePerfStats {
   }
 
   public void endIndexUpdate(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(indexUpdateTimeId, ts - start);
     stats.incLong(indexUpdateInProgressId, -1);
     stats.incLong(indexUpdateCompletedId, 1);
@@ -1080,7 +1079,7 @@ public class CachePerfStats {
   }
 
   void endIndexInitialization(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(indexInitializationTimeId, ts - start);
     stats.incLong(indexInitializationInProgressId, -1);
     stats.incLong(indexInitializationCompletedId, 1);
@@ -1122,7 +1121,7 @@ public class CachePerfStats {
    */
   public void endGet(long start, boolean miss) {
     if (clock.isEnabled()) {
-      long delta = getTime() - start;
+      var delta = getTime() - start;
       stats.incLong(getTimeId, delta);
     }
     stats.incLong(getsId, 1L);
@@ -1514,7 +1513,7 @@ public class CachePerfStats {
    * @param success true if handling the netsearch was successful
    */
   public void endHandlingNetsearch(long start, boolean success) {
-    long ts = getTime();
+    var ts = getTime();
     if (success) {
       stats.incLong(handlingNetsearchesCompletedId, 1);
       stats.incLong(handlingNetsearchesTimeId, ts - start);

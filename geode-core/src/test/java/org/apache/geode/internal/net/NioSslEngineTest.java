@@ -74,14 +74,14 @@ public class NioSslEngineTest {
   public void setUp() throws Exception {
     mockEngine = mock(SSLEngine.class);
 
-    SSLSession mockSession = mock(SSLSession.class);
+    var mockSession = mock(SSLSession.class);
     when(mockEngine.getSession()).thenReturn(mockSession);
     when(mockSession.getPacketBufferSize()).thenReturn(netBufferSize);
     when(mockSession.getApplicationBufferSize()).thenReturn(appBufferSize);
 
     mockStats = mock(DMStats.class);
 
-    final BufferPool bufferPool = new BufferPool(mockStats);
+    final var bufferPool = new BufferPool(mockStats);
     spyBufferPool = spy(bufferPool);
     nioSslEngine = new NioSslEngine(mockEngine, spyBufferPool);
     spyNioSslEngine = spy(nioSslEngine);
@@ -89,7 +89,7 @@ public class NioSslEngineTest {
 
   @Test
   public void engineUsesDirectBuffers() throws IOException {
-    try (final ByteBufferSharing outputSharing =
+    try (final var outputSharing =
         nioSslEngine.getOutputBufferVendorForTestingOnly().open()) {
       assertThat(outputSharing.getBuffer().isDirect()).isTrue();
     }
@@ -97,9 +97,9 @@ public class NioSslEngineTest {
 
   @Test
   public void handshake() throws Exception {
-    SocketChannel mockChannel = mock(SocketChannel.class);
+    var mockChannel = mock(SocketChannel.class);
     when(mockChannel.read(any(ByteBuffer.class))).thenReturn(100, 100, 100, 0);
-    Socket mockSocket = mock(Socket.class);
+    var mockSocket = mock(Socket.class);
     when(mockChannel.socket()).thenReturn(mockSocket);
     when(mockSocket.isClosed()).thenReturn(false);
 
@@ -132,9 +132,9 @@ public class NioSslEngineTest {
 
   @Test
   public void handshakeWithInsufficientBufferSize() throws Exception {
-    SocketChannel mockChannel = mock(SocketChannel.class);
+    var mockChannel = mock(SocketChannel.class);
     when(mockChannel.read(any(ByteBuffer.class))).thenReturn(100, 100, 100, 0);
-    Socket mockSocket = mock(Socket.class);
+    var mockSocket = mock(Socket.class);
     when(mockChannel.socket()).thenReturn(mockSocket);
     when(mockSocket.isClosed()).thenReturn(false);
 
@@ -145,16 +145,16 @@ public class NioSslEngineTest {
 
   @Test
   public void handshakeDetectsClosedSocket() throws Exception {
-    SocketChannel mockChannel = mock(SocketChannel.class);
+    var mockChannel = mock(SocketChannel.class);
     when(mockChannel.read(any(ByteBuffer.class))).thenReturn(100, 100, 100, 0);
-    Socket mockSocket = mock(Socket.class);
+    var mockSocket = mock(Socket.class);
     when(mockChannel.socket()).thenReturn(mockSocket);
     when(mockSocket.isClosed()).thenReturn(true);
 
     // initial read of handshake status followed by read of handshake status after task execution
     when(mockEngine.getHandshakeStatus()).thenReturn(NEED_UNWRAP);
 
-    ByteBuffer byteBuffer = ByteBuffer.allocate(netBufferSize);
+    var byteBuffer = ByteBuffer.allocate(netBufferSize);
 
     assertThatThrownBy(() -> spyNioSslEngine.handshake(mockChannel, 10000, byteBuffer))
         .isInstanceOf(
@@ -164,9 +164,9 @@ public class NioSslEngineTest {
 
   @Test
   public void handshakeDoesNotTerminateWithFinished() throws Exception {
-    SocketChannel mockChannel = mock(SocketChannel.class);
+    var mockChannel = mock(SocketChannel.class);
     when(mockChannel.read(any(ByteBuffer.class))).thenReturn(100, 100, 100, 0);
-    Socket mockSocket = mock(Socket.class);
+    var mockSocket = mock(Socket.class);
     when(mockChannel.socket()).thenReturn(mockSocket);
     when(mockSocket.isClosed()).thenReturn(false);
 
@@ -180,7 +180,7 @@ public class NioSslEngineTest {
     when(mockEngine.wrap(any(ByteBuffer.class), any(ByteBuffer.class))).thenReturn(
         new SSLEngineResult(CLOSED, NOT_HANDSHAKING, 100, 0));
 
-    ByteBuffer byteBuffer = ByteBuffer.allocate(netBufferSize);
+    var byteBuffer = ByteBuffer.allocate(netBufferSize);
 
     assertThatThrownBy(() -> spyNioSslEngine.handshake(mockChannel, 10000, byteBuffer))
         .isInstanceOf(
@@ -190,26 +190,26 @@ public class NioSslEngineTest {
 
   @Test
   public void wrap() throws Exception {
-    try (final ByteBufferSharing outputSharing =
+    try (final var outputSharing =
         nioSslEngine.getOutputBufferVendorForTestingOnly().open()) {
 
       // make the application data too big to fit into the engine's encryption buffer
-      ByteBuffer appData =
+      var appData =
           ByteBuffer.allocate(outputSharing.getBuffer().capacity() + 100);
-      byte[] appBytes = new byte[appData.capacity()];
+      var appBytes = new byte[appData.capacity()];
       Arrays.fill(appBytes, (byte) 0x1F);
       appData.put(appBytes);
       appData.flip();
 
       // create an engine that will transfer bytes from the application buffer to the encrypted
       // buffer
-      TestSSLEngine testEngine = new TestSSLEngine();
+      var testEngine = new TestSSLEngine();
       testEngine.addReturnResult(
           new SSLEngineResult(OK, NEED_TASK, appData.remaining(), appData.remaining()));
       spyNioSslEngine.engine = testEngine;
 
-      try (final ByteBufferSharing outputSharing2 = spyNioSslEngine.wrap(appData)) {
-        ByteBuffer wrappedBuffer = outputSharing2.getBuffer();
+      try (final var outputSharing2 = spyNioSslEngine.wrap(appData)) {
+        var wrappedBuffer = outputSharing2.getBuffer();
 
         verify(spyBufferPool, times(1)).expandWriteBufferIfNeeded(any(BufferPool.BufferType.class),
             any(ByteBuffer.class), any(Integer.class));
@@ -222,19 +222,19 @@ public class NioSslEngineTest {
 
   @Test
   public void wrapFails() throws IOException {
-    try (final ByteBufferSharing outputSharing =
+    try (final var outputSharing =
         nioSslEngine.getOutputBufferVendorForTestingOnly().open()) {
       // make the application data too big to fit into the engine's encryption buffer
-      ByteBuffer appData =
+      var appData =
           ByteBuffer.allocate(outputSharing.getBuffer().capacity() + 100);
-      byte[] appBytes = new byte[appData.capacity()];
+      var appBytes = new byte[appData.capacity()];
       Arrays.fill(appBytes, (byte) 0x1F);
       appData.put(appBytes);
       appData.flip();
 
       // create an engine that will transfer bytes from the application buffer to the encrypted
       // buffer
-      TestSSLEngine testEngine = new TestSSLEngine();
+      var testEngine = new TestSSLEngine();
       testEngine.addReturnResult(
           new SSLEngineResult(CLOSED, NEED_TASK, appData.remaining(), appData.remaining()));
       spyNioSslEngine.engine = testEngine;
@@ -246,23 +246,23 @@ public class NioSslEngineTest {
 
   @Test
   public void unwrapWithBufferOverflow() throws Exception {
-    try (final ByteBufferSharing inputSharing =
+    try (final var inputSharing =
         nioSslEngine.getInputBufferVendorForTestingOnly().open()) {
       // make the application data too big to fit into the engine's encryption buffer
-      final ByteBuffer peerAppData = inputSharing.getBuffer();
+      final var peerAppData = inputSharing.getBuffer();
 
-      int originalPeerAppDataCapacity = peerAppData.capacity();
-      int originalPeerAppDataPosition = originalPeerAppDataCapacity / 2;
+      var originalPeerAppDataCapacity = peerAppData.capacity();
+      var originalPeerAppDataPosition = originalPeerAppDataCapacity / 2;
       peerAppData.position(originalPeerAppDataPosition);
-      ByteBuffer wrappedData = ByteBuffer.allocate(originalPeerAppDataCapacity + 100);
-      byte[] netBytes = new byte[wrappedData.capacity()];
+      var wrappedData = ByteBuffer.allocate(originalPeerAppDataCapacity + 100);
+      var netBytes = new byte[wrappedData.capacity()];
       Arrays.fill(netBytes, (byte) 0x1F);
       wrappedData.put(netBytes);
       wrappedData.flip();
 
       // create an engine that will transfer bytes from the application buffer to the encrypted
       // buffer
-      TestSSLEngine testEngine = new TestSSLEngine();
+      var testEngine = new TestSSLEngine();
       spyNioSslEngine.engine = testEngine;
 
       testEngine.addReturnResult(
@@ -271,13 +271,13 @@ public class NioSslEngineTest {
           new SSLEngineResult(BUFFER_OVERFLOW, NEED_UNWRAP, 0, 0), // 90,000 bytes
           new SSLEngineResult(OK, FINISHED, netBytes.length, netBytes.length));
 
-      int expectedCapacity = 2 * originalPeerAppDataCapacity - originalPeerAppDataPosition;
+      var expectedCapacity = 2 * originalPeerAppDataCapacity - originalPeerAppDataPosition;
       expectedCapacity =
           2 * (expectedCapacity - originalPeerAppDataPosition) + originalPeerAppDataPosition;
       expectedCapacity =
           2 * (expectedCapacity - originalPeerAppDataPosition) + originalPeerAppDataPosition;
-      try (final ByteBufferSharing sharedBuffer = spyNioSslEngine.unwrap(wrappedData)) {
-        ByteBuffer unwrappedBuffer = sharedBuffer.getBuffer();
+      try (final var sharedBuffer = spyNioSslEngine.unwrap(wrappedData)) {
+        var unwrappedBuffer = sharedBuffer.getBuffer();
         unwrappedBuffer.flip();
         assertThat(unwrappedBuffer.capacity()).isEqualTo(expectedCapacity);
       }
@@ -287,23 +287,23 @@ public class NioSslEngineTest {
 
   @Test
   public void unwrapWithBufferUnderflow() throws Exception {
-    try (final ByteBufferSharing inputSharing =
+    try (final var inputSharing =
         nioSslEngine.getInputBufferVendorForTestingOnly().open()) {
-      ByteBuffer wrappedData =
+      var wrappedData =
           ByteBuffer.allocate(inputSharing.getBuffer().capacity());
-      byte[] netBytes = new byte[wrappedData.capacity() / 2];
+      var netBytes = new byte[wrappedData.capacity() / 2];
       Arrays.fill(netBytes, (byte) 0x1F);
       wrappedData.put(netBytes);
       wrappedData.flip();
 
       // create an engine that will transfer bytes from the application buffer to the encrypted
       // buffer
-      TestSSLEngine testEngine = new TestSSLEngine();
+      var testEngine = new TestSSLEngine();
       testEngine.addReturnResult(new SSLEngineResult(BUFFER_UNDERFLOW, NEED_TASK, 0, 0));
       spyNioSslEngine.engine = testEngine;
 
-      try (final ByteBufferSharing sharedBuffer = spyNioSslEngine.unwrap(wrappedData)) {
-        ByteBuffer unwrappedBuffer = sharedBuffer.getBuffer();
+      try (final var sharedBuffer = spyNioSslEngine.unwrap(wrappedData)) {
+        var unwrappedBuffer = sharedBuffer.getBuffer();
         unwrappedBuffer.flip();
         assertThat(unwrappedBuffer.remaining()).isEqualTo(0);
       }
@@ -313,24 +313,24 @@ public class NioSslEngineTest {
 
   @Test
   public void unwrapWithDecryptionError() throws IOException {
-    try (final ByteBufferSharing inputSharing =
+    try (final var inputSharing =
         nioSslEngine.getInputBufferVendorForTestingOnly().open()) {
       // make the application data too big to fit into the engine's encryption buffer
-      ByteBuffer wrappedData =
+      var wrappedData =
           ByteBuffer.allocate(inputSharing.getBuffer().capacity());
-      byte[] netBytes = new byte[wrappedData.capacity() / 2];
+      var netBytes = new byte[wrappedData.capacity() / 2];
       Arrays.fill(netBytes, (byte) 0x1F);
       wrappedData.put(netBytes);
       wrappedData.flip();
 
       // create an engine that will transfer bytes from the application buffer to the encrypted
       // buffer
-      TestSSLEngine testEngine = new TestSSLEngine();
+      var testEngine = new TestSSLEngine();
       testEngine.addReturnResult(new SSLEngineResult(CLOSED, FINISHED, 0, 0));
       spyNioSslEngine.engine = testEngine;
 
       assertThatThrownBy(() -> {
-        try (final ByteBufferSharing unused = spyNioSslEngine.unwrap(wrappedData)) {
+        try (final var unused = spyNioSslEngine.unwrap(wrappedData)) {
         }
       }).isInstanceOf(SSLException.class)
           .hasMessageContaining("Error decrypting data");
@@ -339,24 +339,24 @@ public class NioSslEngineTest {
 
   @Test
   public void unwrapWithClosedEngineButDataInDecryptedBuffer() throws IOException {
-    try (final ByteBufferSharing inputSharing = nioSslEngine.getUnwrappedBuffer()) {
+    try (final var inputSharing = nioSslEngine.getUnwrappedBuffer()) {
       // make the application data too big to fit into the engine's encryption buffer
-      ByteBuffer wrappedData =
+      var wrappedData =
           ByteBuffer.allocate(inputSharing.getBuffer().capacity());
-      byte[] netBytes = new byte[wrappedData.capacity() / 2];
+      var netBytes = new byte[wrappedData.capacity() / 2];
       Arrays.fill(netBytes, (byte) 0x1F);
       wrappedData.put(netBytes);
       wrappedData.flip();
-      final int arbitraryAmountOfRealData = 31; // bytes
+      final var arbitraryAmountOfRealData = 31; // bytes
       inputSharing.getBuffer().position(arbitraryAmountOfRealData);
 
       // create an engine that will transfer bytes from the application buffer to the encrypted
       // buffer
-      TestSSLEngine testEngine = new TestSSLEngine();
+      var testEngine = new TestSSLEngine();
       testEngine.addReturnResult(new SSLEngineResult(CLOSED, FINISHED, 0, 0));
       spyNioSslEngine.engine = testEngine;
 
-      try (final ByteBufferSharing inputSharing2 = spyNioSslEngine.unwrap(wrappedData)) {
+      try (final var inputSharing2 = spyNioSslEngine.unwrap(wrappedData)) {
         assertThat(inputSharing2.getBuffer().position()).isEqualTo(arbitraryAmountOfRealData);
       }
     }
@@ -364,8 +364,8 @@ public class NioSslEngineTest {
 
   @Test
   public void close() throws Exception {
-    SocketChannel mockChannel = mock(SocketChannel.class);
-    Socket mockSocket = mock(Socket.class);
+    var mockChannel = mock(SocketChannel.class);
+    var mockSocket = mock(Socket.class);
     when(mockChannel.socket()).thenReturn(mockSocket);
     when(mockSocket.isClosed()).thenReturn(false);
 
@@ -384,8 +384,8 @@ public class NioSslEngineTest {
 
   @Test
   public void closeWhenUnwrapError() throws Exception {
-    SocketChannel mockChannel = mock(SocketChannel.class);
-    Socket mockSocket = mock(Socket.class);
+    var mockChannel = mock(SocketChannel.class);
+    var mockSocket = mock(Socket.class);
     when(mockChannel.socket()).thenReturn(mockSocket);
     when(mockSocket.isClosed()).thenReturn(true);
 
@@ -399,14 +399,14 @@ public class NioSslEngineTest {
 
   @Test
   public void closeWhenSocketWriteError() throws Exception {
-    SocketChannel mockChannel = mock(SocketChannel.class);
-    Socket mockSocket = mock(Socket.class);
+    var mockChannel = mock(SocketChannel.class);
+    var mockSocket = mock(Socket.class);
     when(mockChannel.socket()).thenReturn(mockSocket);
     when(mockSocket.isClosed()).thenReturn(true);
 
     when(mockEngine.isOutboundDone()).thenReturn(Boolean.FALSE);
     when(mockEngine.wrap(any(ByteBuffer.class), any(ByteBuffer.class))).thenAnswer((x) -> {
-      try (final ByteBufferSharing outputSharing =
+      try (final var outputSharing =
           nioSslEngine.getOutputBufferVendorForTestingOnly().open()) {
         // give the NioSslEngine something to write on its socket channel, simulating a TLS close
         // message
@@ -421,7 +421,7 @@ public class NioSslEngineTest {
 
   @Test
   public void ensureWrappedCapacityOfSmallMessage() {
-    ByteBuffer buffer = ByteBuffer.allocate(netBufferSize);
+    var buffer = ByteBuffer.allocate(netBufferSize);
     assertThat(
         nioSslEngine.ensureWrappedCapacity(10, buffer, BufferPool.BufferType.UNTRACKED))
             .isEqualTo(buffer);
@@ -437,16 +437,16 @@ public class NioSslEngineTest {
 
   @Test
   public void readAtLeast() throws Exception {
-    final int amountToRead = 150;
-    final int individualRead = 60;
-    final int preexistingBytes = 10;
-    ByteBuffer wrappedBuffer = ByteBuffer.allocate(1000);
-    SocketChannel mockChannel = mock(SocketChannel.class);
+    final var amountToRead = 150;
+    final var individualRead = 60;
+    final var preexistingBytes = 10;
+    var wrappedBuffer = ByteBuffer.allocate(1000);
+    var mockChannel = mock(SocketChannel.class);
 
-    try (final ByteBufferSharing inputSharing =
+    try (final var inputSharing =
         nioSslEngine.getInputBufferVendorForTestingOnly().open()) {
       // force a compaction by making the decoded buffer appear near to being full
-      ByteBuffer unwrappedBuffer = inputSharing.getBuffer();
+      var unwrappedBuffer = inputSharing.getBuffer();
       unwrappedBuffer.position(unwrappedBuffer.capacity() - individualRead);
       unwrappedBuffer.limit(unwrappedBuffer.position() + preexistingBytes);
 
@@ -457,13 +457,13 @@ public class NioSslEngineTest {
         return individualRead;
       });
 
-      TestSSLEngine testSSLEngine = new TestSSLEngine();
+      var testSSLEngine = new TestSSLEngine();
       testSSLEngine.addReturnResult(new SSLEngineResult(OK, NEED_UNWRAP, 0, 0));
       nioSslEngine.engine = testSSLEngine;
 
-      try (final ByteBufferSharing sharedBuffer =
+      try (final var sharedBuffer =
           nioSslEngine.readAtLeast(mockChannel, amountToRead, wrappedBuffer)) {
-        ByteBuffer data = sharedBuffer.getBuffer();
+        var data = sharedBuffer.getBuffer();
         verify(mockChannel, times(3)).read(isA(ByteBuffer.class));
         assertThat(data.position()).isEqualTo(0);
         assertThat(data.limit()).isEqualTo(individualRead * 3 + preexistingBytes);
@@ -480,15 +480,15 @@ public class NioSslEngineTest {
    */
   @Test
   public void readAtLeastUsingSmallAppBuffer() throws Exception {
-    final int amountToRead = 150;
-    final int individualRead = 60;
-    final int preexistingBytes = 10;
-    ByteBuffer wrappedBuffer = ByteBuffer.allocate(1000);
-    SocketChannel mockChannel = mock(SocketChannel.class);
+    final var amountToRead = 150;
+    final var individualRead = 60;
+    final var preexistingBytes = 10;
+    var wrappedBuffer = ByteBuffer.allocate(1000);
+    var mockChannel = mock(SocketChannel.class);
 
     // force buffer expansion by making a small decoded buffer appear near to being full
-    int initialUnwrappedBufferSize = 100;
-    ByteBuffer unwrappedBuffer = ByteBuffer.allocate(initialUnwrappedBufferSize);
+    var initialUnwrappedBufferSize = 100;
+    var unwrappedBuffer = ByteBuffer.allocate(initialUnwrappedBufferSize);
     unwrappedBuffer.position(7).limit(preexistingBytes + 7); // 7 bytes of message header - ignored
 
     nioSslEngine.getInputBufferVendorForTestingOnly().setBufferForTestingOnly(unwrappedBuffer);
@@ -500,7 +500,7 @@ public class NioSslEngineTest {
       return individualRead;
     });
 
-    TestSSLEngine testSSLEngine = new TestSSLEngine();
+    var testSSLEngine = new TestSSLEngine();
     testSSLEngine.addReturnResult(
         new SSLEngineResult(BUFFER_OVERFLOW, NEED_UNWRAP, 0, 0), // expand 100 bytes to 93*2+7
         new SSLEngineResult(OK, NEED_UNWRAP, 0, 0), // 10 + 60 bytes = 70
@@ -508,15 +508,15 @@ public class NioSslEngineTest {
         new SSLEngineResult(OK, NEED_UNWRAP, 0, 0)); // 130 + 60 bytes = 190
     nioSslEngine.engine = testSSLEngine;
 
-    try (final ByteBufferSharing sharedBuffer =
+    try (final var sharedBuffer =
         nioSslEngine.readAtLeast(mockChannel, amountToRead, wrappedBuffer)) {
-      ByteBuffer data = sharedBuffer.getBuffer();
+      var data = sharedBuffer.getBuffer();
       verify(mockChannel, times(3)).read(isA(ByteBuffer.class));
       assertThat(data.position()).isEqualTo(0);
       assertThat(data.limit()).isEqualTo(individualRead * 3 + preexistingBytes);
       // The initial available space in the unwrapped buffer should have doubled
-      int initialFreeSpace = initialUnwrappedBufferSize - preexistingBytes;
-      try (final ByteBufferSharing inputSharing =
+      var initialFreeSpace = initialUnwrappedBufferSize - preexistingBytes;
+      try (final var inputSharing =
           nioSslEngine.getInputBufferVendorForTestingOnly().open()) {
         assertThat(inputSharing.getBuffer().capacity())
             .isEqualTo(2 * initialFreeSpace + preexistingBytes);
@@ -532,16 +532,16 @@ public class NioSslEngineTest {
    */
   @Test
   public void readAtLeastUsingSmallAppBufferAtWriteLimit() throws Exception {
-    final int amountToRead = 150;
-    final int individualRead = 150;
+    final var amountToRead = 150;
+    final var individualRead = 150;
 
-    int initialUnwrappedBufferSize = 100;
-    final int preexistingBytes = initialUnwrappedBufferSize - 7;
-    ByteBuffer wrappedBuffer = ByteBuffer.allocate(1000);
-    SocketChannel mockChannel = mock(SocketChannel.class);
+    var initialUnwrappedBufferSize = 100;
+    final var preexistingBytes = initialUnwrappedBufferSize - 7;
+    var wrappedBuffer = ByteBuffer.allocate(1000);
+    var mockChannel = mock(SocketChannel.class);
 
     // force buffer expansion by making a small decoded buffer appear near to being full
-    ByteBuffer unwrappedBuffer = ByteBuffer.allocate(initialUnwrappedBufferSize);
+    var unwrappedBuffer = ByteBuffer.allocate(initialUnwrappedBufferSize);
     unwrappedBuffer.position(7).limit(preexistingBytes + 7); // 7 bytes of message header - ignored
     nioSslEngine.getInputBufferVendorForTestingOnly().setBufferForTestingOnly(unwrappedBuffer);
 
@@ -552,7 +552,7 @@ public class NioSslEngineTest {
       return individualRead;
     });
 
-    TestSSLEngine testSSLEngine = new TestSSLEngine();
+    var testSSLEngine = new TestSSLEngine();
     testSSLEngine.addReturnResult(
         new SSLEngineResult(BUFFER_OVERFLOW, NEED_UNWRAP, 0, 0),
         new SSLEngineResult(BUFFER_OVERFLOW, NEED_UNWRAP, 0, 0),
@@ -560,9 +560,9 @@ public class NioSslEngineTest {
         new SSLEngineResult(OK, NEED_UNWRAP, 0, 0));
     nioSslEngine.engine = testSSLEngine;
 
-    try (final ByteBufferSharing sharedBuffer =
+    try (final var sharedBuffer =
         nioSslEngine.readAtLeast(mockChannel, amountToRead, wrappedBuffer)) {
-      ByteBuffer data = sharedBuffer.getBuffer();
+      var data = sharedBuffer.getBuffer();
       verify(mockChannel, times(1)).read(isA(ByteBuffer.class));
       assertThat(data.position()).isEqualTo(0);
       assertThat(data.limit())
@@ -582,7 +582,7 @@ public class NioSslEngineTest {
     private int numberOfUnwrapsPerformed;
 
     private SSLEngineResult nextResult() {
-      SSLEngineResult result = returnResults.remove(0);
+      var result = returnResults.remove(0);
       if (returnResults.isEmpty()) {
         returnResults.add(result);
       }
@@ -595,7 +595,7 @@ public class NioSslEngineTest {
 
     @Override
     public SSLEngineResult wrap(ByteBuffer[] sources, int i, int i1, ByteBuffer destination) {
-      for (ByteBuffer source : sources) {
+      for (var source : sources) {
         destination.put(source);
       }
       return nextResult();
@@ -603,7 +603,7 @@ public class NioSslEngineTest {
 
     @Override
     public SSLEngineResult unwrap(ByteBuffer source, ByteBuffer[] destinations, int i, int i1) {
-      SSLEngineResult sslEngineResult = nextResult();
+      var sslEngineResult = nextResult();
       if (sslEngineResult.getStatus() != BUFFER_UNDERFLOW
           && sslEngineResult.getStatus() != BUFFER_OVERFLOW
           && sslEngineResult.getStatus() != CLOSED) {
@@ -710,7 +710,7 @@ public class NioSslEngineTest {
      * the last return result will repeat forever
      */
     void addReturnResult(SSLEngineResult... sslEngineResult) {
-      for (SSLEngineResult result : sslEngineResult) {
+      for (var result : sslEngineResult) {
         returnResults.add(result);
       }
     }

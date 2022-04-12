@@ -16,9 +16,7 @@
 
 package org.apache.geode.management.internal.api;
 
-import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +29,6 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.tcpserver.HostAndPort;
@@ -39,7 +36,6 @@ import org.apache.geode.distributed.internal.tcpserver.TcpClient;
 import org.apache.geode.distributed.internal.tcpserver.TcpSocketFactory;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
-import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.net.SSLUtil;
 import org.apache.geode.internal.net.SocketCreatorFactory;
@@ -69,7 +65,7 @@ public class GeodeConnectionConfig extends ConnectionConfig {
       new GetMemberInformationFunction();
 
   public GeodeConnectionConfig(GemFireCache cache) {
-    GemFireCacheImpl cacheImpl = (GemFireCacheImpl) cache;
+    var cacheImpl = (GemFireCacheImpl) cache;
     if (cacheImpl.isServer()) {
       setServerCache(cacheImpl);
     } else if (cacheImpl.isClient()) {
@@ -80,11 +76,11 @@ public class GeodeConnectionConfig extends ConnectionConfig {
   }
 
   private void setServerCache(GemFireCacheImpl cache) {
-    Set<InternalDistributedMember> locatorsWithClusterConfig =
+    var locatorsWithClusterConfig =
         cache.getDistributionManager().getAllHostedLocatorsWithSharedConfiguration()
             .keySet();
 
-    ClusterManagementServiceInfo cmsInfo =
+    var cmsInfo =
         getClusterManagementServiceInfo(locatorsWithClusterConfig);
 
     configureBuilder(cache.getSystem().getConfig(), cmsInfo);
@@ -94,7 +90,7 @@ public class GeodeConnectionConfig extends ConnectionConfig {
     DistributionConfig config;
     ClusterManagementServiceInfo cmsInfo;
 
-    List<InetSocketAddress> locators = clientCache.getDefaultPool().getLocators();
+    var locators = clientCache.getDefaultPool().getLocators();
 
     if (locators.size() == 0) {
       throw new IllegalStateException(
@@ -102,14 +98,14 @@ public class GeodeConnectionConfig extends ConnectionConfig {
     }
     config = ((GemFireCacheImpl) clientCache).getSystem().getConfig();
     SocketCreatorFactory.setDistributionConfig(config);
-    TcpClient client =
+    var client =
         new TcpClient(SocketCreatorFactory
             .getSocketCreatorForComponent(SecurableCommunicationChannel.LOCATOR),
             InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
             InternalDataSerializer.getDSFIDSerializer().getObjectDeserializer(),
             TcpSocketFactory.DEFAULT);
     cmsInfo = null;
-    for (InetSocketAddress locator : locators) {
+    for (var locator : locators) {
       try {
         cmsInfo = (ClusterManagementServiceInfo) client.requestToServer(
             new HostAndPort(locator.getHostString(), locator.getPort()),
@@ -143,11 +139,11 @@ public class GeodeConnectionConfig extends ConnectionConfig {
     // if user didn't pass in a username and the locator requires credentials, use the credentials
     // user used to create the client cache
     if (cmsInfo.isSecured() && getUsername() == null) {
-      Properties securityProps = config.getSecurityProps();
-      String username = securityProps.getProperty(AuthInitialize.SECURITY_USERNAME);
-      String password = securityProps.getProperty(AuthInitialize.SECURITY_PASSWORD);
+      var securityProps = config.getSecurityProps();
+      var username = securityProps.getProperty(AuthInitialize.SECURITY_USERNAME);
+      var password = securityProps.getProperty(AuthInitialize.SECURITY_PASSWORD);
       if (StringUtils.isBlank(username)) {
-        String message =
+        var message =
             "You will need to set the buildWithHostAddress username and password or specify security-username and security-password in the properties when starting this geode server/client.";
         throw new IllegalStateException(message);
       }
@@ -156,7 +152,7 @@ public class GeodeConnectionConfig extends ConnectionConfig {
     }
 
     if (cmsInfo.isSSL()) {
-      SSLConfig sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(
+      var sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(
           config, SecurableCommunicationChannel.WEB);
       if (!sslConfig.useDefaultSSLContext() && sslConfig.getTruststore() == null) {
         throw new IllegalStateException(
@@ -169,13 +165,13 @@ public class GeodeConnectionConfig extends ConnectionConfig {
 
   private ClusterManagementServiceInfo getClusterManagementServiceInfo(
       Set<InternalDistributedMember> locators) {
-    ClusterManagementServiceInfo info = new ClusterManagementServiceInfo();
+    var info = new ClusterManagementServiceInfo();
     MemberInformation memberInfo = null;
-    for (InternalDistributedMember locator : locators) {
+    for (var locator : locators) {
       try {
-        ResultCollector resultCollector =
+        var resultCollector =
             FunctionService.onMember(locator).execute(MEMBER_INFORMATION_FUNCTION);
-        List<MemberInformation> memberInformations =
+        var memberInformations =
             (List<MemberInformation>) resultCollector.getResult();
         // Is this even possible?
         if (memberInformations.isEmpty()) {

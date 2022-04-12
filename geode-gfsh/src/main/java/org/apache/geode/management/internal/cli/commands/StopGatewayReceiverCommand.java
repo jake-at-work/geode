@@ -15,14 +15,11 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.Set;
 
-import javax.management.ObjectName;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.GatewayReceiverMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
@@ -30,7 +27,6 @@ import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -53,15 +49,15 @@ public class StopGatewayReceiverCommand extends GfshCommand {
 
     GatewayReceiverMXBean receiverBean;
 
-    Set<DistributedMember> dsMembers = findMembers(onGroup, onMember);
+    var dsMembers = findMembers(onGroup, onMember);
     if (dsMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    ResultModel resultModel = new ResultModel();
-    TabularResultModel resultData = resultModel.addTable(CliStrings.STOP_GATEWAYRECEIVER);
-    for (DistributedMember member : dsMembers) {
-      ObjectName gatewayReceiverObjectName = MBeanJMXAdapter.getGatewayReceiverMBeanName(member);
+    var resultModel = new ResultModel();
+    var resultData = resultModel.addTable(CliStrings.STOP_GATEWAYRECEIVER);
+    for (var member : dsMembers) {
+      var gatewayReceiverObjectName = MBeanJMXAdapter.getGatewayReceiverMBeanName(member);
 
       if (gatewayReceiverObjectName != null) {
         receiverBean =

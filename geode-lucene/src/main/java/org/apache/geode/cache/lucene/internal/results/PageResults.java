@@ -41,7 +41,7 @@ public class PageResults extends ArrayList<PageEntry> implements DataSerializabl
   public void toData(final DataOutput out,
       SerializationContext context) throws IOException {
     out.writeInt(size());
-    for (PageEntry entry : this) {
+    for (var entry : this) {
       entry.toData(out);
     }
   }
@@ -49,9 +49,9 @@ public class PageResults extends ArrayList<PageEntry> implements DataSerializabl
   @Override
   public void fromData(final DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    int size = in.readInt();
-    for (int i = 0; i < size; i++) {
-      PageEntry entry = new PageEntry();
+    var size = in.readInt();
+    for (var i = 0; i < size; i++) {
+      var entry = new PageEntry();
       entry.fromData(in);
       add(entry);
     }

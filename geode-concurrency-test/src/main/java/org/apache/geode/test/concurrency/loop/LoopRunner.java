@@ -39,17 +39,17 @@ public class LoopRunner implements Runner {
 
   @Override
   public List<Throwable> runTestMethod(Method child) {
-    int count = getCount(child);
+    var count = getCount(child);
 
-    ExecutorService executorService = Executors.newCachedThreadPool();
+    var executorService = Executors.newCachedThreadPool();
     try {
       ParallelExecutor executor = new DelegatingExecutor(executorService);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         try {
-          Object test = child.getDeclaringClass().getDeclaredConstructor().newInstance();
+          var test = child.getDeclaringClass().getDeclaredConstructor().newInstance();
           child.invoke(test, executor);
         } catch (InvocationTargetException ex) {
-          Throwable exceptionToReturn = ex.getCause();
+          var exceptionToReturn = ex.getCause();
           if (exceptionToReturn == null) {
             exceptionToReturn = ex;
           }
@@ -66,7 +66,7 @@ public class LoopRunner implements Runner {
   }
 
   private int getCount(Method child) {
-    LoopRunnerConfig config = child.getDeclaringClass().getAnnotation(LoopRunnerConfig.class);
+    var config = child.getDeclaringClass().getAnnotation(LoopRunnerConfig.class);
     if (config == null) {
       return DEFAULT_COUNT;
     }
@@ -88,7 +88,7 @@ public class LoopRunner implements Runner {
     @Override
     public <T> Future<T> inParallel(Callable<T> callable) {
       callablesStarting.getAndIncrement();
-      Future<T> future = executorService.submit(() -> {
+      var future = executorService.submit(() -> {
         callablesStarting.getAndDecrement();
         start.await();
         return callable.call();

@@ -29,16 +29,16 @@ class ThreadSleep {
    * @param duration duration to sleep
    */
   static void sleepForAtLeast(Duration duration) {
-    long sleepTimeNanos = duration.toNanos();
-    long startTimeNanos = nanoTime();
+    var sleepTimeNanos = duration.toNanos();
+    var startTimeNanos = nanoTime();
 
     while (true) {
-      long elapsedTimeNanos = nanoTime() - startTimeNanos;
+      var elapsedTimeNanos = nanoTime() - startTimeNanos;
       if (elapsedTimeNanos >= sleepTimeNanos) {
         break;
       }
 
-      long remainingTimeNanos = sleepTimeNanos - elapsedTimeNanos;
+      var remainingTimeNanos = sleepTimeNanos - elapsedTimeNanos;
       try {
         Thread.sleep(max(MIN_TIME_TO_SLEEP.toMillis(), NANOSECONDS.toMillis(remainingTimeNanos)));
       } catch (InterruptedException ignored) {

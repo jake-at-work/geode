@@ -63,17 +63,17 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
    */
   @Test
   public void testHitMissCount() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = "KEY"; // value exists
     Object key2 = "KEY2"; // no entry
     Object key3 = "KEY3"; // entry, invalid
     Object value = "VALUE";
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setStatisticsEnabled(true);
 
-    Region region = createPartitionedRegion(name, factory.create());
-    CacheStatistics rStats = region.getStatistics();
+    var region = createPartitionedRegion(name, factory.create());
+    var rStats = region.getStatistics();
     assertEquals(0, rStats.getHitCount());
     assertEquals(0, rStats.getMissCount());
     assertEquals(0.0f, rStats.getHitRatio(), 0.0f);
@@ -135,7 +135,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
   @Test
   public void testTimeStats() throws CacheException, InterruptedException {
     final long ESTAT_RES = 100; // the resolution, in ms, of entry stats
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key1 = 1;
     Object key2 = 2;
     Object missingKey = 999;
@@ -145,12 +145,12 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
     long oldBefore;
     long oldAfter;
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     // factory.setScope(Scope.LOCAL);
     factory.setStatisticsEnabled(true);
 
-    Region region = createPartitionedRegion(name, factory.create());
-    CacheStatistics rStats = region.getStatistics();
+    var region = createPartitionedRegion(name, factory.create());
+    var rStats = region.getStatistics();
 
     assertEquals(0, rStats.getLastAccessedTime());
     assertEquals(0, rStats.getLastModifiedTime());
@@ -179,7 +179,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
     waitForClockToChange(region);
     before = ((InternalRegion) region).cacheTimeMillis();
     region.put(key1, value);
-    CacheStatistics eStats = region.getEntry(key1).getStatistics();
+    var eStats = region.getEntry(key1).getStatistics();
     after = ((InternalRegion) region).cacheTimeMillis();
 
     assertInRange(before, after, rStats.getLastModifiedTime());
@@ -203,15 +203,15 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
     assertInRange(before - ESTAT_RES, after + ESTAT_RES, eStats.getLastAccessedTime());
     assertInRange(oldBefore - ESTAT_RES, oldAfter + ESTAT_RES, eStats.getLastModifiedTime());
 
-    long oldOldBefore = oldBefore;
-    long oldOldAfter = oldAfter;
+    var oldOldBefore = oldBefore;
+    var oldOldAfter = oldAfter;
     oldBefore = before;
     oldAfter = after;
     waitForClockToChange(region, ESTAT_RES);
     before = ((InternalRegion) region).cacheTimeMillis();
     region.create(key2, null);
     region.get(key2);
-    CacheStatistics eStats2 = region.getEntry(key2).getStatistics();
+    var eStats2 = region.getEntry(key2).getStatistics();
     after = ((InternalRegion) region).cacheTimeMillis();
 
     assertInRange(before, after, rStats.getLastModifiedTime());
@@ -248,7 +248,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
    * milliseconds passed in the <code>millisecs</code> argument.
    */
   private void waitForClockToChange(Region region, long millisecs) {
-    long time = ((InternalRegion) region).cacheTimeMillis();
+    var time = ((InternalRegion) region).cacheTimeMillis();
     while (time >= ((InternalRegion) region).cacheTimeMillis() + millisecs) {
     }
   }
@@ -269,7 +269,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
    */
   @Test
   public void testDistributedStats() {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key0 = 0;
     final Object key1 = 1;
     final Object key2 = 2;
@@ -283,11 +283,11 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
     final Object notPresentKey3 = "NOT_PRESENT_3";
     final Object notPresentKey4 = "NOT_PRESENT_4";
 
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
 
-    SerializableRunnableIF create = () -> {
-      AttributesFactory factory = new AttributesFactory();
+    var create = (SerializableRunnableIF) () -> {
+      var factory = new AttributesFactory();
       factory.setEarlyAck(false);
       factory.setStatisticsEnabled(true);
       createPartitionedRegion(name, factory.create());
@@ -298,7 +298,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
 
     vm0.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
+      var stats = region.getStatistics();
       region.put(key0, value);
       region.put(key1, value1);
 
@@ -309,7 +309,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
 
     vm1.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
+      var stats = region.getStatistics();
       region.put(key2, value3);
       region.put(key3, value3);
 
@@ -320,11 +320,11 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
 
     vm0.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
+      var stats = region.getStatistics();
       lastAccessed = stats.getLastAccessedTime();
       lastModified = stats.getLastModifiedTime();
 
-      Object result = region.get(key0);
+      var result = region.get(key0);
       region.get(key1);
       region.get(key2);
       region.get(key3);
@@ -341,10 +341,10 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
 
     vm0.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
+      var stats = region.getStatistics();
       lastAccessed = stats.getLastAccessedTime();
 
-      Object result = region.get(key0);
+      var result = region.get(key0);
       region.get(key1);
       region.get(key2);
       region.get(key3);
@@ -361,33 +361,33 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
 
     vm0.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
-      long before = ((InternalRegion) region).cacheTimeMillis();
+      var stats = region.getStatistics();
+      var before = ((InternalRegion) region).cacheTimeMillis();
       region.put(key0, value);
       region.put(key1, value1);
       region.put(key2, value2);
       region.put(key3, value3);
-      long after = ((InternalRegion) region).cacheTimeMillis();
+      var after = ((InternalRegion) region).cacheTimeMillis();
       assertTrue(before <= stats.getLastModifiedTime());
       assertTrue(after >= stats.getLastModifiedTime());
     });
 
     vm1.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
-      long before = ((InternalRegion) region).cacheTimeMillis();
+      var stats = region.getStatistics();
+      var before = ((InternalRegion) region).cacheTimeMillis();
       region.put(key0, value);
       region.put(key1, value1);
       region.put(key2, value2);
       region.put(key3, value3);
-      long after = ((InternalRegion) region).cacheTimeMillis();
+      var after = ((InternalRegion) region).cacheTimeMillis();
       assertTrue(before <= stats.getLastModifiedTime());
       assertTrue(after >= stats.getLastModifiedTime());
     });
 
     vm0.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
+      var stats = region.getStatistics();
       lastAccessed = stats.getLastAccessedTime();
       lastModified = stats.getLastModifiedTime();
       region.invalidate(key0);
@@ -400,7 +400,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
 
     vm1.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
+      var stats = region.getStatistics();
       lastAccessed = stats.getLastAccessedTime();
       lastModified = stats.getLastModifiedTime();
       region.invalidate(key2);
@@ -414,7 +414,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
 
     vm0.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
+      var stats = region.getStatistics();
       lastModified = stats.getLastModifiedTime();
       region.destroy(key0);
       region.destroy(key1);
@@ -426,7 +426,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
 
     vm1.invoke(() -> {
       Region region = getRootRegion(name);
-      CacheStatistics stats = region.getStatistics();
+      var stats = region.getStatistics();
       lastModified = stats.getLastModifiedTime();
       region.destroy(key2);
       region.destroy(key3);
@@ -444,19 +444,19 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
    */
   @Test
   public void testDisabledStatistics() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = "KEY";
     Object value = "VALUE";
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setStatisticsEnabled(false);
-    Region region = createPartitionedRegion(name, factory.create());
+    var region = createPartitionedRegion(name, factory.create());
 
     assertThatThrownBy(region::getStatistics)
         .isInstanceOf(StatisticsDisabledException.class);
 
     region.put(key, value);
-    Region.Entry entry = region.getEntry(key);
+    var entry = region.getEntry(key);
 
     assertThatThrownBy(entry::getStatistics).isInstanceOf(StatisticsDisabledException.class);
   }
@@ -466,24 +466,24 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
    */
   @Test
   public void testProxyRegionStats() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = 0;
     Object missingKey = 999;
     Object value = "VALUE";
 
     // Create the PARTITION_PROXY region
-    AttributesFactory proxyRegionAttrsFactory = new AttributesFactory();
+    var proxyRegionAttrsFactory = new AttributesFactory();
     proxyRegionAttrsFactory.setStatisticsEnabled(true);
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     // Setting LocalMaxMemory to 0 makes the region of PROXY type
     paf.setLocalMaxMemory(0);
     proxyRegionAttrsFactory.setPartitionAttributes(paf.create());
-    Region region = createPartitionedRegion(name, proxyRegionAttrsFactory.create());
+    var region = createPartitionedRegion(name, proxyRegionAttrsFactory.create());
 
     // Create the region as not proxy on another server to be able to add entries.
-    VM vm0 = VM.getVM(0);
+    var vm0 = VM.getVM(0);
     vm0.invoke(() -> {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setStatisticsEnabled(true);
       createPartitionedRegion(name, factory.create());
     });
@@ -492,7 +492,7 @@ public class CacheStatisticsPartitionedRegionDUnitTest extends JUnit4CacheTestCa
     region.get(key);
     region.get(missingKey);
 
-    CacheStatistics stats = region.getStatistics();
+    var stats = region.getStatistics();
     assertEquals(0, stats.getLastModifiedTime());
     assertEquals(0, stats.getLastAccessedTime());
     assertEquals(0, stats.getHitCount());

@@ -19,12 +19,9 @@ import static org.junit.Assert.assertNotSame;
 
 import org.junit.Test;
 
-import org.apache.geode.management.DistributedSystemMXBean;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.ManagementTestBase;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 
 /**
@@ -46,11 +43,11 @@ public class TestHeapDUnitTest extends ManagementTestBase {
   }
 
   public static long getHeapSizeOfDS() {
-    final WaitCriterion waitCriteria = new WaitCriterion() {
+    final var waitCriteria = new WaitCriterion() {
       @Override
       public boolean done() {
-        final ManagementService service = getManagementService();
-        final DistributedSystemMXBean bean = service.getDistributedSystemMXBean();
+        final var service = getManagementService();
+        final var bean = service.getDistributedSystemMXBean();
         if (bean != null) {
           return bean.getTotalHeapSize() > 0;
         }
@@ -64,7 +61,7 @@ public class TestHeapDUnitTest extends ManagementTestBase {
     };
 
     GeodeAwaitility.await().untilAsserted(waitCriteria);
-    final DistributedSystemMXBean bean = getManagementService().getDistributedSystemMXBean();
+    final var bean = getManagementService().getDistributedSystemMXBean();
     assertNotNull(bean);
     return bean.getTotalHeapSize() * 1000;
   }
@@ -73,7 +70,7 @@ public class TestHeapDUnitTest extends ManagementTestBase {
   public void testTotalHeapSize() throws Exception {
     initManagement(false);
     long totalHeapSizeOnAll = 0;
-    for (VM vm : managedNodeList) {
+    for (var vm : managedNodeList) {
       totalHeapSizeOnAll = totalHeapSizeOnAll
           + ((Number) vm.invoke(TestHeapDUnitTest::getHeapSizeOfClient)).longValue();
     }

@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.Query;
@@ -100,11 +99,11 @@ public class QueryAccessController extends AbstractBaseController {
   public ResponseEntity<?> list() {
     logger.debug("Listing all parametrized Queries in GemFire...");
 
-    final Region<String, String> parametrizedQueryRegion =
+    final var parametrizedQueryRegion =
         getQueryStore(PARAMETERIZED_QUERIES_REGION);
 
-    String queryListAsJson = JSONUtils.formulateJsonForListQueriesCall(parametrizedQueryRegion);
-    final HttpHeaders headers = new HttpHeaders();
+    var queryListAsJson = JSONUtils.formulateJsonForListQueriesCall(parametrizedQueryRegion);
+    final var headers = new HttpHeaders();
     headers.setLocation(toUri("queries"));
     return new ResponseEntity<>(queryListAsJson, headers, HttpStatus.OK);
   }
@@ -129,7 +128,7 @@ public class QueryAccessController extends AbstractBaseController {
   public ResponseEntity<?> create(@RequestParam("id") final String queryId,
       @RequestParam(value = "q", required = false) String oqlInUrl,
       @RequestBody(required = false) final String oqlInBody) {
-    final String oqlStatement = validateQuery(oqlInUrl, oqlInBody);
+    final var oqlStatement = validateQuery(oqlInUrl, oqlInBody);
     logger.debug("Creating a named, parametrized Query ({}) with ID ({})...", oqlStatement,
         queryId);
 
@@ -139,7 +138,7 @@ public class QueryAccessController extends AbstractBaseController {
     final String existingOql =
         createNamedQuery(PARAMETERIZED_QUERIES_REGION, queryId, oqlStatement);
 
-    final HttpHeaders headers = new HttpHeaders();
+    final var headers = new HttpHeaders();
     headers.setLocation(toUri("queries", queryId));
 
     if (existingOql != null) {
@@ -172,13 +171,13 @@ public class QueryAccessController extends AbstractBaseController {
     logger.debug("Running an adhoc Query ({})...", oql);
 
     oql = decode(oql);
-    final Query query = getQueryService().newQuery(oql);
+    final var query = getQueryService().newQuery(oql);
 
     // NOTE Query.execute throws many checked Exceptions; let the BaseControllerAdvice Exception
     // handlers catch
     // and handle the Exceptions appropriately (500 Server Error)!
     try {
-      Object queryResult = query.execute();
+      var queryResult = query.execute();
       return processQueryResponse(query, null, queryResult);
     } catch (FunctionDomainException fde) {
       throw new GemfireRestException(
@@ -238,12 +237,12 @@ public class QueryAccessController extends AbstractBaseController {
       // Its a compiled query.
 
       // Convert arguments into Object[]
-      Object[] args = jsonToObjectArray(arguments);
+      var args = jsonToObjectArray(arguments);
 
       Query compiledQuery = compiledQueries.get(queryId);
       if (compiledQuery == null) {
         // This is first time the query is seen by this server.
-        final String oql = getQueryStore(PARAMETERIZED_QUERIES_REGION).get(queryId);
+        final var oql = getQueryStore(PARAMETERIZED_QUERIES_REGION).get(queryId);
 
         ValidationUtils.returnValueThrowOnNull(oql, new ResourceNotFoundException(
             String.format("No Query with ID (%1$s) was found!", queryId)));
@@ -258,7 +257,7 @@ public class QueryAccessController extends AbstractBaseController {
       // handlers catch
       // and handle the Exceptions appropriately (500 Server Error)!
       try {
-        Object queryResult = compiledQuery.execute(args);
+        var queryResult = compiledQuery.execute(args);
         return processQueryResponse(compiledQuery, args, queryResult);
       } catch (FunctionDomainException fde) {
         throw new GemfireRestException(
@@ -311,7 +310,7 @@ public class QueryAccessController extends AbstractBaseController {
   public ResponseEntity<?> update(@PathVariable("query") final String queryId,
       @RequestParam(value = "q", required = false) String oqlInUrl,
       @RequestBody(required = false) final String oqlInBody) {
-    final String oqlStatement = validateQuery(oqlInUrl, oqlInBody);
+    final var oqlStatement = validateQuery(oqlInUrl, oqlInBody);
 
     logger.debug("Updating a named, parametrized Query ({}) with ID ({})...", oqlStatement,
         queryId);

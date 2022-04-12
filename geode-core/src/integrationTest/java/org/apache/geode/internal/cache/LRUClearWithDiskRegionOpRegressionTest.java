@@ -28,11 +28,9 @@ import org.junit.rules.TestName;
 
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 
 /**
@@ -57,14 +55,14 @@ public class LRUClearWithDiskRegionOpRegressionTest {
 
   @Before
   public void setUp() throws Exception {
-    String regionName = testName.getMethodName();
-    File dir = temporaryFolder.newFolder(testName.getMethodName());
+    var regionName = testName.getMethodName();
+    var dir = temporaryFolder.newFolder(testName.getMethodName());
 
     cache = (InternalCache) new CacheFactory().set("locators", "").set("mcast-port", "0").create();
 
     InternalRegionFactory<Integer, Integer> factory = cache.createInternalRegionFactory();
 
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setDiskDirsAndSizes(new File[] {dir}, new int[] {Integer.MAX_VALUE});
     diskStoreFactory.setAutoCompact(false);
 
@@ -77,12 +75,12 @@ public class LRUClearWithDiskRegionOpRegressionTest {
     factory.setEvictionAttributes(
         EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.OVERFLOW_TO_DISK));
 
-    RegionAttributes<Integer, Integer> regionAttributes = factory.getCreateAttributes();
+    var regionAttributes = factory.getCreateAttributes();
 
-    InternalRegionArguments args = new InternalRegionArguments().setDestroyLockFlag(true)
+    var args = new InternalRegionArguments().setDestroyLockFlag(true)
         .setRecreateFlag(false).setSnapshotInputStream(null).setImageTarget(null);
 
-    DistributedRegion distributedRegion =
+    var distributedRegion =
         new DistributedRegion(regionName, regionAttributes, null, cache, args, disabledClock());
 
     factory.setInternalMetaRegion(distributedRegion)
@@ -98,7 +96,7 @@ public class LRUClearWithDiskRegionOpRegressionTest {
   @Test
   public void testPutWhileClear() throws Exception {
     // put two entries into the region
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       region.put(i, i);
     }
 

@@ -28,8 +28,8 @@ public class ClusterDistributionManagerTest {
 
   @Test
   public void membershipFailureProcessingCreatesForcedDisconnectException() {
-    ClusterDistributionManager manager = mock(ClusterDistributionManager.class);
-    ClusterDistributionManager.DMListener listener =
+    var manager = mock(ClusterDistributionManager.class);
+    var listener =
         new ClusterDistributionManager.DMListener(manager);
     listener.membershipFailure("Testing", new MemberDisconnectedException("testing"));
     // the root cause of membership failure should only be set once

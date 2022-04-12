@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.IntSupplier;
-import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
@@ -121,7 +120,7 @@ public abstract class ServerContainer {
     warFile = new File(install.getWarFilePath());
 
     // Create the Cargo Container instance wrapping our physical container
-    LocalConfiguration configuration = (LocalConfiguration) new DefaultConfigurationFactory()
+    var configuration = (LocalConfiguration) new DefaultConfigurationFactory()
         .createConfiguration(install.getInstallId(), ContainerType.INSTALLED,
             ConfigurationType.STANDALONE, this.containerConfigHome.getAbsolutePath());
     // Set configuration/container logging level
@@ -146,7 +145,7 @@ public abstract class ServerContainer {
     container.setOutput(cargoLogDir.getAbsolutePath() + "/container.log");
 
     // Set cacheXML file
-    File installXMLFile = install.getCacheXMLFile();
+    var installXMLFile = install.getCacheXMLFile();
     // Sets the cacheXMLFile variable and adds the cache XML file server system property map
     setCacheXMLFile(new File(cargoLogDir.getAbsolutePath() + "/" + installXMLFile.getName()));
     // Copy the cacheXML file to a new, unique location for this container
@@ -167,7 +166,7 @@ public abstract class ServerContainer {
    */
   public void deployWar() {
     // Get the cargo war from the war file
-    WAR war = new WAR(warFile.getAbsolutePath());
+    var war = new WAR(warFile.getAbsolutePath());
     // Set context access to nothing
     war.setContext("");
     // Deploy the war the container's configuration
@@ -186,17 +185,17 @@ public abstract class ServerContainer {
           + " failed to start because it is currently " + container.getState());
     }
 
-    LocalConfiguration config = getConfiguration();
+    var config = getConfiguration();
     // Set container ports from available ports
-    int servletPort = portSupplier.getAsInt();
-    int containerRmiPort = portSupplier.getAsInt();
-    int tomcatAjpPort = portSupplier.getAsInt();
+    var servletPort = portSupplier.getAsInt();
+    var containerRmiPort = portSupplier.getAsInt();
+    var tomcatAjpPort = portSupplier.getAsInt();
     config.setProperty(ServletPropertySet.PORT, Integer.toString(servletPort));
     config.setProperty(GeneralPropertySet.RMI_PORT, Integer.toString(containerRmiPort));
     config.setProperty(TomcatPropertySet.AJP_PORT, Integer.toString(tomcatAjpPort));
     config.setProperty(GeneralPropertySet.PORT_OFFSET, "0");
-    int jvmJmxPort = portSupplier.getAsInt();
-    String jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=" + jvmJmxPort;
+    var jvmJmxPort = portSupplier.getAsInt();
+    var jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=" + jvmJmxPort;
     jvmArgs += getJvmModuleOptions().stream()
         .collect(joining(" ", " ", ""));
     config.setProperty(GeneralPropertySet.START_JVMARGS, jvmArgs);
@@ -236,7 +235,7 @@ public abstract class ServerContainer {
   }
 
   private static void dumpLogsInDir(Path dir) {
-    try (Stream<Path> paths = Files.list(dir)) {
+    try (var paths = Files.list(dir)) {
       paths.forEach(ServerContainer::dumpToStdOut);
     } catch (IOException thrown) {
       System.out.println("-------------------------------------------");
@@ -266,7 +265,7 @@ public abstract class ServerContainer {
     System.out.println("-------------------------------------------");
     System.out.println("Configuration for container " + this);
     System.out.println("-------------------------------------------");
-    LocalConfiguration configuration = getConfiguration();
+    var configuration = getConfiguration();
     System.out.format("Name: %s%n", configuration);
     System.out.format("Class: %s%n", configuration.getClass());
     System.out.println("Properties:");
@@ -280,7 +279,7 @@ public abstract class ServerContainer {
    * directory specified by {@link #cargoLogDir}
    */
   public void cleanUp() throws IOException {
-    File configDir = new File(getConfiguration().getHome());
+    var configDir = new File(getConfiguration().getHome());
 
     if (configDir.exists()) {
       logger.info("Deleting configuration folder {}", configDir.getAbsolutePath());
@@ -335,7 +334,7 @@ public abstract class ServerContainer {
   public void setLoggingLevel(String loggingLevel) {
     this.loggingLevel = loggingLevel;
 
-    LocalConfiguration config = getConfiguration();
+    var config = getConfiguration();
     config.setProperty(GeneralPropertySet.LOGGING, loggingLevel);
     container.setConfiguration(config);
   }
@@ -394,7 +393,7 @@ public abstract class ServerContainer {
    * The container's port for the specified port type
    */
   public String getPort(String portType) {
-    LocalConfiguration config = getConfiguration();
+    var config = getConfiguration();
     config.applyPortOffset();
 
     if (!container.getState().isStarted()) {
@@ -436,7 +435,7 @@ public abstract class ServerContainer {
    */
   private void updateLocator() throws IOException {
     if (getInstall().isClientServer()) {
-      HashMap<String, String> attributes = new HashMap<>();
+      var attributes = new HashMap<String, String>();
       attributes.put("host", locatorAddress);
       attributes.put("port", Integer.toString(locatorPort));
 

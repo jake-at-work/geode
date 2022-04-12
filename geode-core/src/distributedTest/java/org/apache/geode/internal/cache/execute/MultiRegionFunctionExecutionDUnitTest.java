@@ -73,7 +73,7 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     vm2 = host.getVM(2);
@@ -104,8 +104,8 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
 
       @Override
       public void execute(FunctionContext context) {
-        MultiRegionFunctionContext mrContext = (MultiRegionFunctionContext) context;
-        Set<Region> regions = mrContext.getRegions();
+        var mrContext = (MultiRegionFunctionContext) context;
+        var regions = mrContext.getRegions();
         Assert.assertTrue(1 == regions.size());
         context.getResultSender().lastResult(Boolean.TRUE);
       }
@@ -122,8 +122,8 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
 
       @Override
       public void execute(FunctionContext context) {
-        MultiRegionFunctionContext mrContext = (MultiRegionFunctionContext) context;
-        Set<Region> regions = mrContext.getRegions();
+        var mrContext = (MultiRegionFunctionContext) context;
+        var regions = mrContext.getRegions();
         Assert.assertTrue(0 != regions.size());
         context.getResultSender().lastResult(Boolean.TRUE);
       }
@@ -144,8 +144,8 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
 
       @Override
       public void execute(FunctionContext context) {
-        MultiRegionFunctionContext mrContext = (MultiRegionFunctionContext) context;
-        Set<Region> regions = mrContext.getRegions();
+        var mrContext = (MultiRegionFunctionContext) context;
+        var regions = mrContext.getRegions();
         Assert.assertTrue(0 != regions.size());
         context.getResultSender().lastResult(Boolean.TRUE);
       }
@@ -173,13 +173,13 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
     regions.add(RR2);
     regions.add(LR1);
     long timeout = 8000;
-    TimeUnit unit = TimeUnit.MILLISECONDS;
+    var unit = TimeUnit.MILLISECONDS;
 
-    Object result = InternalFunctionService.onRegions(regions).execute(new FunctionAdapter() {
+    var result = InternalFunctionService.onRegions(regions).execute(new FunctionAdapter() {
       @Override
       public void execute(FunctionContext context) {
-        MultiRegionFunctionContext mrContext = (MultiRegionFunctionContext) context;
-        Set<Region> regions = mrContext.getRegions();
+        var mrContext = (MultiRegionFunctionContext) context;
+        var regions = mrContext.getRegions();
         Assert.assertTrue(0 != regions.size());
         try {
           Thread.sleep(2000);
@@ -212,13 +212,13 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
     regions.add(RR2);
     regions.add(LR1);
     long timeout = 1000;
-    TimeUnit unit = TimeUnit.MILLISECONDS;
+    var unit = TimeUnit.MILLISECONDS;
     assertThatThrownBy(() -> {
       InternalFunctionService.onRegions(regions).execute(new FunctionAdapter() {
         @Override
         public void execute(FunctionContext context) {
-          MultiRegionFunctionContext mrContext = (MultiRegionFunctionContext) context;
-          Set<Region> regions = mrContext.getRegions();
+          var mrContext = (MultiRegionFunctionContext) context;
+          var regions = mrContext.getRegions();
           Assert.assertTrue(0 != regions.size());
           try {
             Thread.sleep(2000);
@@ -242,7 +242,7 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.execute.MultiRegionFunctionExecutionDUnitTest*"
             + ";org.apache.geode.test.dunit.**" + ";org.apache.geode.test.junit.rules.**"
@@ -252,7 +252,7 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
 
   public void createCache() {
     try {
-      Properties props = getDistributedSystemProperties();
+      var props = getDistributedSystemProperties();
       DistributedSystem ds = getSystem(props);
       assertNotNull(ds);
       ds.disconnect();
@@ -268,10 +268,10 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
   public static void createRegionsOnVm0() {
     new MultiRegionFunctionExecutionDUnitTest().createCache();
 
-    PartitionAttributesFactory pf = new PartitionAttributesFactory();
+    var pf = new PartitionAttributesFactory();
     pf.setTotalNumBuckets(12);
     pf.setRedundantCopies(1);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPartitionAttributes(pf.create());
     cache.createRegion("PR1", factory.create());
 
@@ -288,10 +288,10 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
   public static void createRegionsOnVm1() {
     new MultiRegionFunctionExecutionDUnitTest().createCache();
 
-    PartitionAttributesFactory pf = new PartitionAttributesFactory();
+    var pf = new PartitionAttributesFactory();
     pf.setTotalNumBuckets(12);
     pf.setRedundantCopies(1);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPartitionAttributes(pf.create());
     cache.createRegion("PR1", factory.create());
 
@@ -308,11 +308,11 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
   public static void createRegionsOnVm2() {
     new MultiRegionFunctionExecutionDUnitTest().createCache();
 
-    PartitionAttributesFactory pf = new PartitionAttributesFactory();
+    var pf = new PartitionAttributesFactory();
     pf.setTotalNumBuckets(12);
     pf.setRedundantCopies(1);
     pf.setLocalMaxMemory(0);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPartitionAttributes(pf.create());
     cache.createRegion("PR1", factory.create());
 
@@ -337,10 +337,10 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
   public static void createRegionsOnVm3() {
     new MultiRegionFunctionExecutionDUnitTest().createCache();
 
-    PartitionAttributesFactory pf = new PartitionAttributesFactory();
+    var pf = new PartitionAttributesFactory();
     pf.setTotalNumBuckets(12);
     pf.setRedundantCopies(1);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPartitionAttributes(pf.create());
     cache.createRegion("PR1", factory.create());
 
@@ -365,10 +365,10 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
   public static void createRegionsOnUnitControllerVm() {
     new MultiRegionFunctionExecutionDUnitTest().createCache();
 
-    PartitionAttributesFactory pf = new PartitionAttributesFactory();
+    var pf = new PartitionAttributesFactory();
     pf.setTotalNumBuckets(12);
     pf.setRedundantCopies(1);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPartitionAttributes(pf.create());
     PR1 = cache.createRegion("PR1", factory.create());
 
@@ -393,7 +393,7 @@ public class MultiRegionFunctionExecutionDUnitTest extends JUnit4CacheTestCase {
     factory.setScope(Scope.LOCAL);
     LR1 = cache.createRegion("LR1", factory.create());
 
-    for (int i = 0; i < 24; i++) {
+    for (var i = 0; i < 24; i++) {
       PR1.put(i, i);
       PR2.put(i, i);
       RR1.put(i, i);

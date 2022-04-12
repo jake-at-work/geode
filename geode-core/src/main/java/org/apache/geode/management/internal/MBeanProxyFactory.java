@@ -14,7 +14,6 @@
  */
 package org.apache.geode.management.internal;
 
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -65,12 +64,12 @@ public class MBeanProxyFactory {
   void createProxy(DistributedMember member, ObjectName objectName,
       Region<String, Object> monitoringRegion, Object newValue) {
     try {
-      FederationComponent federation = (FederationComponent) newValue;
-      String interfaceClassName = federation.getMBeanInterfaceClass();
+      var federation = (FederationComponent) newValue;
+      var interfaceClassName = federation.getMBeanInterfaceClass();
 
-      Class interfaceClass = ClassLoadUtils.classFromName(interfaceClassName);
+      var interfaceClass = ClassLoadUtils.classFromName(interfaceClassName);
 
-      Object proxy = MBeanProxyInvocationHandler.newProxyInstance(member, monitoringRegion,
+      var proxy = MBeanProxyInvocationHandler.newProxyInstance(member, monitoringRegion,
           objectName, federation, interfaceClass);
 
       jmxAdapter.registerMBeanProxy(proxy, objectName);
@@ -79,7 +78,7 @@ public class MBeanProxyFactory {
         logger.debug("Registered ObjectName : {}", objectName);
       }
 
-      ProxyInfo proxyInfo = new ProxyInfo(interfaceClass, proxy, objectName);
+      var proxyInfo = new ProxyInfo(interfaceClass, proxy, objectName);
       proxyRepo.addProxyToRepository(member, proxyInfo);
 
       service.afterCreateProxy(objectName, interfaceClass, proxy, (FederationComponent) newValue);
@@ -105,11 +104,11 @@ public class MBeanProxyFactory {
       logger.debug("Creating proxy for: {}", member.getId());
     }
 
-    Set<Map.Entry<String, Object>> mbeans = monitoringRegion.entrySet();
+    var mbeans = monitoringRegion.entrySet();
 
-    for (Map.Entry<String, Object> mbean : mbeans) {
+    for (var mbean : mbeans) {
       try {
-        ObjectName objectName = ObjectName.getInstance(mbean.getKey());
+        var objectName = ObjectName.getInstance(mbean.getKey());
 
         if (logger.isDebugEnabled()) {
           logger.debug("Creating proxy for ObjectName {}", objectName);
@@ -127,20 +126,20 @@ public class MBeanProxyFactory {
    * Removes all proxies for a given member
    */
   void removeAllProxies(DistributedMember member, Region<String, Object> monitoringRegion) {
-    Set<Entry<String, Object>> entries = monitoringRegion.entrySet();
+    var entries = monitoringRegion.entrySet();
 
     if (logger.isDebugEnabled()) {
       logger.debug("Removing {} proxies for member {}", entries.size(), member.getId());
     }
 
-    for (Entry<String, Object> entry : entries) {
+    for (var entry : entries) {
       String key = null;
       try {
         // MBean Name in String format.
         key = entry.getKey();
         // Federation Component
-        Object federation = entry.getValue();
-        ObjectName mbeanName = ObjectName.getInstance(key);
+        var federation = entry.getValue();
+        var mbeanName = ObjectName.getInstance(key);
         removeProxy(member, mbeanName, federation);
       } catch (EntryNotFoundException entryNotFoundException) {
         // Entry has already been removed by another thread, so no need to remove it
@@ -163,7 +162,7 @@ public class MBeanProxyFactory {
 
       }
 
-      ProxyInfo proxyInfo = proxyRepo.findProxyInfo(objectName);
+      var proxyInfo = proxyRepo.findProxyInfo(objectName);
       proxyRepo.removeProxy(member, objectName);
       if (proxyInfo != null) {
         service.afterRemoveProxy(objectName, proxyInfo.getProxyInterface(),
@@ -185,7 +184,7 @@ public class MBeanProxyFactory {
   void updateProxy(ObjectName objectName, ProxyInfo proxyInfo, Object newObject, Object oldObject) {
     try {
       if (proxyInfo != null) {
-        Class interfaceClass = proxyInfo.getProxyInterface();
+        var interfaceClass = proxyInfo.getProxyInterface();
         service.afterUpdateProxy(objectName, interfaceClass, proxyInfo.getProxyInstance(),
             (FederationComponent) newObject, (FederationComponent) oldObject);
       }
@@ -230,7 +229,7 @@ public class MBeanProxyFactory {
    * @return last updated time of the proxy
    */
   long getLastUpdateTime(ObjectName objectName) {
-    ProxyInterface proxyInterface = findProxy(objectName, ProxyInterface.class);
+    var proxyInterface = findProxy(objectName, ProxyInterface.class);
     return proxyInterface.getLastRefreshedTime();
   }
 

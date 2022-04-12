@@ -14,11 +14,9 @@
  */
 package org.apache.geode.admin.jmx.internal;
 
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
@@ -165,15 +163,15 @@ public class MBeanUtils {
         }
         registry.setMBeanServer(mbeanServer);
 
-        String mbeansResource = getOSPath("/org/apache/geode/admin/jmx/mbeans-descriptors.xml");
+        var mbeansResource = getOSPath("/org/apache/geode/admin/jmx/mbeans-descriptors.xml");
 
-        URL url = ClassPathLoader.getLatest().getResource(MBeanUtils.class, mbeansResource);
+        var url = ClassPathLoader.getLatest().getResource(MBeanUtils.class, mbeansResource);
         raiseOnFailure(url != null, String.format("Failed to find %s",
             mbeansResource));
         registry.loadMetadata(url);
 
         // simple test to make sure the xml was actually loaded and is valid...
-        String[] test = registry.findManagedBeans();
+        var test = registry.findManagedBeans();
         raiseOnFailure(test != null && test.length > 0,
             String.format("Failed to load metadata from %s",
                 mbeansResource));
@@ -211,7 +209,7 @@ public class MBeanUtils {
   static ObjectName createMBean(ManagedResource resource, ManagedBean managed) {
 
     try {
-      DynamicManagedBean mb = new DynamicManagedBean(managed);
+      var mb = new DynamicManagedBean(managed);
       resource.setModelMBean(mb.createMBean(resource));
 
       // create the ObjectName and register the MBean...
@@ -257,7 +255,7 @@ public class MBeanUtils {
    */
   static ObjectName ensureMBeanIsRegistered(ManagedResource resource) {
     try {
-      ObjectName objName = ObjectName.getInstance(resource.getMBeanName());
+      var objName = ObjectName.getInstance(resource.getMBeanName());
       synchronized (MBeanUtils.class) {
         if (mbeanServer != null && !mbeanServer.isRegistered(objName)) {
           return createMBean(resource);
@@ -360,7 +358,7 @@ public class MBeanUtils {
       // TODO: change to manipulating timer indirectly thru mserver...
 
       // check for pre-existing refresh notification entry...
-      Integer timerNotificationId = notifications.get(type);
+      var timerNotificationId = notifications.get(type);
       if (timerNotificationId != null) {
         try {
           // found one, so let's remove it...
@@ -417,7 +415,7 @@ public class MBeanUtils {
    */
   static boolean isRefreshNotificationRegistered(NotificationListener client,
       RefreshNotificationType type) {
-    boolean isRegistered = false;
+    var isRegistered = false;
 
     // get the notifications for the specified client...
     Map<RefreshNotificationType, Integer> notifications = null;
@@ -428,7 +426,7 @@ public class MBeanUtils {
     // never registered before if null ...
     if (notifications != null) {
       // check for pre-existing refresh notification entry...
-      Integer timerNotificationId = notifications.get(type);
+      var timerNotificationId = notifications.get(type);
       if (timerNotificationId != null) {
         isRegistered = true;
       }
@@ -533,7 +531,7 @@ public class MBeanUtils {
   static void releaseMBeanServer() {
     try {
       // unregister all GemFire mbeans...
-      for (final ObjectName name : mbeanServer.queryNames(null, null)) {
+      for (final var name : mbeanServer.queryNames(null, null)) {
         if (name.getDomain().startsWith(DEFAULT_DOMAIN)) {
           unregisterMBean(name);
         }
@@ -632,10 +630,10 @@ public class MBeanUtils {
     if (notifications != null) {
 
       // Fix for findbugs reported inefficiency with keySet().
-      Set<Map.Entry<RefreshNotificationType, Integer>> entries = notifications.entrySet();
+      var entries = notifications.entrySet();
 
-      for (Map.Entry<RefreshNotificationType, Integer> e : entries) {
-        Integer timerNotificationId = e.getValue();
+      for (var e : entries) {
+        var timerNotificationId = e.getValue();
         if (null != timerNotificationId) {
           try {
             // found one, so let's remove it...
@@ -691,12 +689,12 @@ public class MBeanUtils {
     }
     try {
       // the MBeanServerDelegate name is spec'ed as the following...
-      ObjectName delegate = ObjectName.getInstance("JMImplementation:type=MBeanServerDelegate");
+      var delegate = ObjectName.getInstance("JMImplementation:type=MBeanServerDelegate");
       mbeanServer.addNotificationListener(delegate, (notification, handback) -> {
-        MBeanServerNotification serverNotification = (MBeanServerNotification) notification;
+        var serverNotification = (MBeanServerNotification) notification;
         if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION
             .equals(serverNotification.getType())) {
-          ObjectName objectName = serverNotification.getMBeanName();
+          var objectName = serverNotification.getMBeanName();
           synchronized (MBeanUtils.managedResources) {
             Object entry = MBeanUtils.managedResources.get(objectName);
             if (entry == null) {
@@ -706,7 +704,7 @@ public class MBeanUtils {
               throw new ClassCastException(String.format("%s is not a ManagedResource",
                   entry.getClass().getName()));
             }
-            ManagedResource resource = (ManagedResource) entry;
+            var resource = (ManagedResource) entry;
             {
               // call cleanup on managedResource
               cleanupResource(resource);

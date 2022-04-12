@@ -27,7 +27,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import org.apache.geode.cache.CacheXmlException;
-import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.lucene.LuceneSerializer;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.xmlcache.AbstractXmlParser;
@@ -72,7 +71,7 @@ public class LuceneXmlParser extends AbstractXmlParser {
       throw new CacheXmlException(
           "lucene <serializer> elements must occur within lucene <index> elements");
     }
-    LuceneIndexCreation creation = (LuceneIndexCreation) stack.peek();
+    var creation = (LuceneIndexCreation) stack.peek();
   }
 
   private void startField(Attributes atts) {
@@ -85,13 +84,13 @@ public class LuceneXmlParser extends AbstractXmlParser {
       throw new CacheXmlException(
           "lucene <field> elements must occur within lucene <index> elements");
     }
-    LuceneIndexCreation creation = (LuceneIndexCreation) stack.peek();
-    String name = atts.getValue(NAME);
-    String className = atts.getValue(ANALYZER);
+    var creation = (LuceneIndexCreation) stack.peek();
+    var name = atts.getValue(NAME);
+    var className = atts.getValue(ANALYZER);
     if (className == null) {
       creation.addField(name);
     } else {
-      Analyzer analyzer = createAnalyzer(className);
+      var analyzer = createAnalyzer(className);
       creation.addFieldAndAnalyzer(name, analyzer);
     }
   }
@@ -100,9 +99,9 @@ public class LuceneXmlParser extends AbstractXmlParser {
     if (!(stack.peek() instanceof RegionCreation)) {
       throw new CacheXmlException("lucene <index> elements must occur within <region> elements");
     }
-    final RegionCreation region = (RegionCreation) stack.peek();
-    String name = atts.getValue(NAME);
-    LuceneIndexCreation indexCreation = new LuceneIndexCreation();
+    final var region = (RegionCreation) stack.peek();
+    var name = atts.getValue(NAME);
+    var indexCreation = new LuceneIndexCreation();
     indexCreation.setName(name);
     indexCreation.setRegion(region);
     region.getExtensionPoint().addExtension(indexCreation);
@@ -135,13 +134,13 @@ public class LuceneXmlParser extends AbstractXmlParser {
   }
 
   private void endSerializer() {
-    Declarable d = CacheXmlParser.createDeclarable(cache, stack);
+    var d = CacheXmlParser.createDeclarable(cache, stack);
     if (!(d instanceof LuceneSerializer)) {
       throw new CacheXmlException(
           d.getClass().getName() + " is not an instance of LuceneSerializer");
     }
 
-    LuceneIndexCreation indexCreation = (LuceneIndexCreation) stack.peek();
+    var indexCreation = (LuceneIndexCreation) stack.peek();
     indexCreation.setLuceneSerializer((LuceneSerializer) d);
 
   }

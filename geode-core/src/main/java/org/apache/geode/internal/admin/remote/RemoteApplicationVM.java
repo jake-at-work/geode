@@ -51,7 +51,7 @@ public class RemoteApplicationVM extends RemoteGemFireVM implements ApplicationV
     if (!(obj instanceof RemoteApplicationVM)) {
       return false;
     } else {
-      RemoteApplicationVM vm = (RemoteApplicationVM) obj;
+      var vm = (RemoteApplicationVM) obj;
       return (agent == vm.agent) && id.equals(vm.id);
     }
   }

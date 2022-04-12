@@ -26,7 +26,7 @@ public class NoOpCommand extends AbstractCommand {
   public ByteBuffer processCommand(RequestReader request, Protocol protocol, Cache cache) {
     assert protocol == Protocol.BINARY;
     request.getRequest().position(HEADER_LENGTH);
-    ByteBuffer response = request.getResponse();
+    var response = request.getResponse();
     return response;
   }
 

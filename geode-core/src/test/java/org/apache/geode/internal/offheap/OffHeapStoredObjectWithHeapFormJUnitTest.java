@@ -27,10 +27,10 @@ public class OffHeapStoredObjectWithHeapFormJUnitTest extends OffHeapStoredObjec
 
   @Test
   public void getRawBytesShouldReturnCachedHeapForm() {
-    OffHeapStoredObject chunk = createValueAsUnserializedStoredObject(getValue());
+    var chunk = createValueAsUnserializedStoredObject(getValue());
 
-    byte[] valueInBytes = getValueAsByteArray();
-    OffHeapStoredObjectWithHeapForm heapForm =
+    var valueInBytes = getValueAsByteArray();
+    var heapForm =
         new OffHeapStoredObjectWithHeapForm(chunk, valueInBytes);
 
     assertNotNull(heapForm);
@@ -40,13 +40,13 @@ public class OffHeapStoredObjectWithHeapFormJUnitTest extends OffHeapStoredObjec
 
   @Test
   public void getChunkWithoutHeapFormShouldReturnGemFireChunk() {
-    OffHeapStoredObject chunk = createValueAsSerializedStoredObject(getValue());
+    var chunk = createValueAsSerializedStoredObject(getValue());
 
-    byte[] valueInBytes = getValueAsByteArray();
-    OffHeapStoredObjectWithHeapForm heapForm =
+    var valueInBytes = getValueAsByteArray();
+    var heapForm =
         new OffHeapStoredObjectWithHeapForm(chunk, valueInBytes);
 
-    OffHeapStoredObject chunkWithOutHeapForm =
+    var chunkWithOutHeapForm =
         (OffHeapStoredObject) heapForm.getStoredObjectWithoutHeapForm();
 
     assertNotNull(chunkWithOutHeapForm);

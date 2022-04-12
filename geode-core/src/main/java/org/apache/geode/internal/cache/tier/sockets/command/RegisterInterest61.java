@@ -23,7 +23,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.DynamicRegionFactory;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.client.internal.RegisterInterestOp;
-import org.apache.geode.cache.operations.RegisterInterestOperationContext;
 import org.apache.geode.distributed.internal.LonerDistributionManager;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -31,14 +30,9 @@ import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.InterestType;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
-import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.cache.vmotion.VMotionObserver;
 import org.apache.geode.internal.cache.vmotion.VMotionObserverHolder;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.ResourcePermission.Operation;
 import org.apache.geode.security.ResourcePermission.Resource;
@@ -71,10 +65,10 @@ public class RegisterInterest61 extends BaseCommand {
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE);
 
     // Retrieve the data from the message parts
-    final Part regionNamePart = clientMessage.getPart(0);
-    final String regionName = regionNamePart.getCachedString();
+    final var regionNamePart = clientMessage.getPart(0);
+    final var regionName = regionNamePart.getCachedString();
 
-    final InterestType interestType = InterestType.valueOf(clientMessage.getPart(1).getInt());
+    final var interestType = InterestType.valueOf(clientMessage.getPart(1).getInt());
 
     final InterestResultPolicy policy;
     try {
@@ -87,8 +81,8 @@ public class RegisterInterest61 extends BaseCommand {
 
     final boolean isDurable;
     try {
-      Part durablePart = clientMessage.getPart(3);
-      byte[] durablePartBytes = (byte[]) durablePart.getObject();
+      var durablePart = clientMessage.getPart(3);
+      var durablePartBytes = (byte[]) durablePart.getObject();
       isDurable = durablePartBytes[0] == 0x01;
     } catch (Exception e) {
       writeChunkedException(clientMessage, e, serverConnection);
@@ -99,8 +93,8 @@ public class RegisterInterest61 extends BaseCommand {
     final DataPolicy regionDataPolicy;
     final boolean serializeValues;
     try {
-      final Part regionDataPolicyPart = clientMessage.getPart(clientMessage.getNumberOfParts() - 1);
-      final byte[] regionDataPolicyPartBytes = (byte[]) regionDataPolicyPart.getObject();
+      final var regionDataPolicyPart = clientMessage.getPart(clientMessage.getNumberOfParts() - 1);
+      final var regionDataPolicyPartBytes = (byte[]) regionDataPolicyPart.getObject();
       // The second byte here is serializeValues
       regionDataPolicy = DataPolicy.fromOrdinal(regionDataPolicyPartBytes[0]);
       serializeValues = regionDataPolicyPartBytes[1] == (byte) 0x01;
@@ -112,7 +106,7 @@ public class RegisterInterest61 extends BaseCommand {
 
     Object key;
     try {
-      final Part keyPart = clientMessage.getPart(4);
+      final var keyPart = clientMessage.getPart(4);
       key = keyPart.getStringOrObject();
     } catch (Exception e) {
       writeChunkedException(clientMessage, e, serverConnection);
@@ -122,8 +116,8 @@ public class RegisterInterest61 extends BaseCommand {
 
     final boolean sendUpdatesAsInvalidates;
     try {
-      final Part notifyPart = clientMessage.getPart(5);
-      final byte[] notifyPartBytes = (byte[]) notifyPart.getObject();
+      final var notifyPart = clientMessage.getPart(5);
+      final var notifyPartBytes = (byte[]) notifyPart.getObject();
       sendUpdatesAsInvalidates = notifyPartBytes[0] == 0x01;
     } catch (Exception e) {
       writeChunkedException(clientMessage, e, serverConnection);
@@ -158,7 +152,7 @@ public class RegisterInterest61 extends BaseCommand {
       return;
     }
 
-    final LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+    final var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
     if (region == null) {
       logger.info("{}: Region named {} was not found during register interest request.",
           serverConnection.getName(), regionName);
@@ -170,10 +164,10 @@ public class RegisterInterest61 extends BaseCommand {
       } else {
         securityService.authorize(Resource.DATA, Operation.READ, regionName, key);
       }
-      AuthorizeRequest authorizeRequest = serverConnection.getAuthzRequest();
+      var authorizeRequest = serverConnection.getAuthzRequest();
       if (authorizeRequest != null) {
         if (!DynamicRegionFactory.regionIsDynamicRegionList(regionName)) {
-          RegisterInterestOperationContext registerContext =
+          var registerContext =
               authorizeRequest.registerInterestAuthorize(regionName, key, interestType, policy);
           key = registerContext.getKey();
         }
@@ -190,17 +184,17 @@ public class RegisterInterest61 extends BaseCommand {
       return;
     }
 
-    CacheClientProxy ccp = serverConnection.getAcceptor().getCacheClientNotifier()
+    var ccp = serverConnection.getAcceptor().getCacheClientNotifier()
         .getClientProxy(serverConnection.getProxyID());
     if (ccp == null) {
-      IOException ioException =
+      var ioException =
           new IOException("CacheClientProxy for this client is no longer on the server");
       writeChunkedException(clientMessage, ioException, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
     }
-    boolean isPrimary = ccp.isPrimary();
-    ChunkedMessage chunkedResponseMsg = serverConnection.getRegisterInterestResponseMessage();
+    var isPrimary = ccp.isPrimary();
+    var chunkedResponseMsg = serverConnection.getRegisterInterestResponseMessage();
     if (!isPrimary) {
       chunkedResponseMsg.setMessageType(MessageType.RESPONSE_FROM_SECONDARY);
       chunkedResponseMsg.setTransactionId(clientMessage.getTransactionId());
@@ -250,7 +244,7 @@ public class RegisterInterest61 extends BaseCommand {
    */
   private static void testHookToTriggerVMotionBeforeRegisterInterest() {
     if (VMOTION_DURING_REGISTER_INTEREST_FLAG) {
-      VMotionObserver vmo = VMotionObserverHolder.getInstance();
+      var vmo = VMotionObserverHolder.getInstance();
       vmo.vMotionBeforeRegisterInterest();
     }
   }

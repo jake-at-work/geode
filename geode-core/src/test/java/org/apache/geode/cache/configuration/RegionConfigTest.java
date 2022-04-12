@@ -16,7 +16,6 @@ package org.apache.geode.cache.configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +34,7 @@ public class RegionConfigTest {
 
   @Test
   public void indexType() throws Exception {
-    RegionConfig.Index index = new RegionConfig.Index();
+    var index = new RegionConfig.Index();
     assertThat(index.isKeyIndex()).isNull();
     assertThat(index.getType()).isEqualTo("range");
 
@@ -58,42 +57,42 @@ public class RegionConfigTest {
 
   @Test
   public void index() throws Exception {
-    String xml = "<region name=\"region1\" refid=\"REPLICATE\">\n"
+    var xml = "<region name=\"region1\" refid=\"REPLICATE\">\n"
         + "<region-attributes data-policy=\"replicate\" scope=\"distributed-ack\" concurrency-checks-enabled=\"true\"/>\n"
         + "<index name=\"index1\" expression=\"id\" from-clause=\"/region1\" key-index=\"true\"/>\n"
         + "</region>";
 
-    RegionConfig regionConfig = service.unMarshall(xml, RegionConfig.class);
+    var regionConfig = service.unMarshall(xml, RegionConfig.class);
 
-    RegionConfig.Index index = regionConfig.getIndexes().get(0);
+    var index = regionConfig.getIndexes().get(0);
     assertThat(index.isKeyIndex()).isTrue();
     assertThat(index.getType()).isEqualTo("key");
 
-    String json = GeodeJsonMapper.getMapper().writeValueAsString(index);
+    var json = GeodeJsonMapper.getMapper().writeValueAsString(index);
     System.out.println(json);
-    RegionConfig.Index newIndex =
+    var newIndex =
         GeodeJsonMapper.getMapper().readValue(json, RegionConfig.Index.class);
     assertThat(newIndex.isKeyIndex()).isTrue();
     assertThat(newIndex.getType()).isEqualTo("key");
 
-    CacheConfig cacheConfig = new CacheConfig();
+    var cacheConfig = new CacheConfig();
     regionConfig.getIndexes().clear();
     regionConfig.getIndexes().add(newIndex);
     cacheConfig.getRegions().add(regionConfig);
 
     // the end xml should not have "type" attribute in index definition
-    String newXml = service.marshall(cacheConfig);
+    var newXml = service.marshall(cacheConfig);
     System.out.println(newXml);
     assertThat(newXml).doesNotContain("type=");
   }
 
   @Test
   public void diskDirTypeInXml() throws Exception {
-    CacheConfig cacheConfig = new CacheConfig();
-    DiskStoreType diskStore = new DiskStoreType();
+    var cacheConfig = new CacheConfig();
+    var diskStore = new DiskStoreType();
     diskStore.setName("diskStore");
-    DiskDirType dir1 = new DiskDirType();
-    DiskDirType dir2 = new DiskDirType();
+    var dir1 = new DiskDirType();
+    var dir2 = new DiskDirType();
     dir1.setContent("./data/persist");
     dir2.setContent("/data/persist");
 
@@ -102,10 +101,10 @@ public class RegionConfigTest {
 
     cacheConfig.getDiskStores().add(diskStore);
 
-    String xml = service.marshall(cacheConfig);
+    var xml = service.marshall(cacheConfig);
     System.out.println(xml);
 
-    String diskStoreXml = "<disk-store name=\"diskStore\">\n"
+    var diskStoreXml = "<disk-store name=\"diskStore\">\n"
         + "        <disk-dirs>\n"
         + "            <disk-dir>./data/persist</disk-dir>\n"
         + "            <disk-dir>/data/persist</disk-dir>\n"
@@ -113,38 +112,38 @@ public class RegionConfigTest {
         + "    </disk-store>";
     assertThat(xml).contains(diskStoreXml);
 
-    DiskStoreType parsedDiskStore = service.unMarshall(diskStoreXml, DiskStoreType.class);
+    var parsedDiskStore = service.unMarshall(diskStoreXml, DiskStoreType.class);
     assertThat(parsedDiskStore.getDiskDirs()).hasSize(2);
 
     cacheConfig.getDiskStores().clear();
     cacheConfig.getDiskStores().add(parsedDiskStore);
 
-    String xml2 = service.marshall(cacheConfig);
+    var xml2 = service.marshall(cacheConfig);
     System.out.println(xml2);
     assertThat(xml.replace('\\', '/')).contains(diskStoreXml);
   }
 
   @Test
   public void diskDirTypeInJson() throws Exception {
-    DiskStoreType diskStore = new DiskStoreType();
+    var diskStore = new DiskStoreType();
     diskStore.setName("diskStore");
-    DiskDirType dir1 = new DiskDirType();
-    DiskDirType dir2 = new DiskDirType();
+    var dir1 = new DiskDirType();
+    var dir2 = new DiskDirType();
     dir1.setContent("./data/persist");
     dir2.setContent("/data/persist");
 
     diskStore.getDiskDirs().add(dir1);
     diskStore.getDiskDirs().add(dir2);
 
-    ObjectMapper mapper = GeodeJsonMapper.getMapper();
-    String json = mapper.writeValueAsString(diskStore);
+    var mapper = GeodeJsonMapper.getMapper();
+    var json = mapper.writeValueAsString(diskStore);
     System.out.println(json);
 
-    String goldenJson =
+    var goldenJson =
         "\"diskDirs\":[{\"content\":\"./data/persist\"},{\"content\":\"/data/persist\"}]";
     assertThat(json.replace('\\', '/')).contains(goldenJson);
 
-    DiskStoreType newDiskStore = mapper.readValue(json, DiskStoreType.class);
+    var newDiskStore = mapper.readValue(json, DiskStoreType.class);
     assertThat(newDiskStore.getDiskDirs()).hasSize(2);
 
   }

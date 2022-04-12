@@ -43,7 +43,7 @@ public class DiskUsageTest {
 
   @Test
   public void updateReturnsCurrentStateIfDirectoryDoesNotExist() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     DiskUsage diskUsage = new TestableDiskUsage(dir);
     assertThat(diskUsage.update(1.0f, 0.0f)).isEqualTo(DiskState.NORMAL);
     verify(dir, times(1)).exists();
@@ -51,34 +51,34 @@ public class DiskUsageTest {
 
   @Test
   public void updateSendsTotalToRecordsStats() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     final long expectedTotal = 123;
     when(dir.getTotalSpace()).thenReturn(expectedTotal);
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir);
+    var diskUsage = new TestableDiskUsage(dir);
     diskUsage.update(0.0f, 1.0f);
     assertThat(diskUsage.getTotal()).isEqualTo(expectedTotal);
   }
 
   @Test
   public void updateSendsUsableSpaceToRecordsStats() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     final long expectedFree = 456;
     when(dir.getUsableSpace()).thenReturn(expectedFree);
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir);
+    var diskUsage = new TestableDiskUsage(dir);
     diskUsage.update(0.0f, 1.0f);
     assertThat(diskUsage.getFree()).isEqualTo(expectedFree);
   }
 
   @Test
   public void updateChangesStateToWarn() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     // File indicates 2% of disk used
     when(dir.getTotalSpace()).thenReturn(100L);
     when(dir.getUsableSpace()).thenReturn(98L);
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir);
+    var diskUsage = new TestableDiskUsage(dir);
     // warn if over 1.9% used
     assertThat(diskUsage.update(1.9f, 0.0f)).isEqualTo(DiskState.WARN);
     assertThat(diskUsage.getNext()).isEqualTo(DiskState.WARN);
@@ -88,12 +88,12 @@ public class DiskUsageTest {
 
   @Test
   public void updateStaysNormalIfBelowWarnThreshold() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     // File indicates 2% of disk used
     when(dir.getTotalSpace()).thenReturn(100L);
     when(dir.getUsableSpace()).thenReturn(98L);
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir);
+    var diskUsage = new TestableDiskUsage(dir);
     // warn if over 2.1% used
     assertThat(diskUsage.update(2.1f, 0.0f)).isEqualTo(DiskState.NORMAL);
     assertThat(diskUsage.getNext()).isNull();
@@ -103,12 +103,12 @@ public class DiskUsageTest {
 
   @Test
   public void updateWarnThresholdIgnoresMinimum() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     // File indicates 2% of disk used
     when(dir.getTotalSpace()).thenReturn(100L);
     when(dir.getUsableSpace()).thenReturn(98L);
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir, 1);
+    var diskUsage = new TestableDiskUsage(dir, 1);
     // warn if over 2.1% used
     assertThat(diskUsage.update(2.1f, 0.0f)).isEqualTo(DiskState.NORMAL);
     assertThat(diskUsage.getNext()).isNull();
@@ -118,12 +118,12 @@ public class DiskUsageTest {
 
   @Test
   public void updateChangesStateToCritical() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     // File indicates 2% of disk used
     when(dir.getTotalSpace()).thenReturn(100L);
     when(dir.getUsableSpace()).thenReturn(98L);
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir);
+    var diskUsage = new TestableDiskUsage(dir);
     // critical if over 1.9% used
     assertThat(diskUsage.update(0.0f, 1.9f)).isEqualTo(DiskState.CRITICAL);
     assertThat(diskUsage.getNext()).isEqualTo(DiskState.CRITICAL);
@@ -134,12 +134,12 @@ public class DiskUsageTest {
 
   @Test
   public void updateStaysNormalIfBelowCriticalThreshold() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     // File indicates 2% of disk used
     when(dir.getTotalSpace()).thenReturn(100L);
     when(dir.getUsableSpace()).thenReturn(98L);
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir);
+    var diskUsage = new TestableDiskUsage(dir);
     // critical if over 2.1% used
     assertThat(diskUsage.update(0.0f, 2.1f)).isEqualTo(DiskState.NORMAL);
     assertThat(diskUsage.getNext()).isNull();
@@ -149,12 +149,12 @@ public class DiskUsageTest {
 
   @Test
   public void updateCriticalThresholdGoesCriticalIfBelowMinimum() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     // File indicates 2% of disk used
     when(dir.getTotalSpace()).thenReturn(100L);
     when(dir.getUsableSpace()).thenReturn(98L);
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir, 1/* one megabyte */);
+    var diskUsage = new TestableDiskUsage(dir, 1/* one megabyte */);
     // critical if over 2.1% used
     assertThat(diskUsage.update(0.0f, 2.1f)).isEqualTo(DiskState.CRITICAL);
     assertThat(diskUsage.getNext()).isEqualTo(DiskState.CRITICAL);
@@ -165,12 +165,12 @@ public class DiskUsageTest {
 
   @Test
   public void criticalMessageStatesUsageExceedsCritical() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     when(dir.getTotalSpace()).thenReturn(1024L * 1024L * 3L);
     when(dir.getUsableSpace()).thenReturn(1024L * 1024L * 2L);
 
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir, 1/* one megabyte */);
+    var diskUsage = new TestableDiskUsage(dir, 1/* one megabyte */);
 
     assertThat(diskUsage.update(0.0f, 33.2f)).isEqualTo(DiskState.CRITICAL);
     assertThat(diskUsage.getNext()).isEqualTo(DiskState.CRITICAL);
@@ -181,12 +181,12 @@ public class DiskUsageTest {
 
   @Test
   public void criticalMessageStatesUsageExceedsCriticalWithManyDigits() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     when(dir.getTotalSpace()).thenReturn(1024L * 1024L * 3L);
     when(dir.getUsableSpace()).thenReturn(1024L * 1024L * 2L);
 
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir, 1/* one megabyte */);
+    var diskUsage = new TestableDiskUsage(dir, 1/* one megabyte */);
 
     assertThat(diskUsage.update(0.0f, 33.25783495783648593746336f)).isEqualTo(DiskState.CRITICAL);
     assertThat(diskUsage.getNext()).isEqualTo(DiskState.CRITICAL);
@@ -197,12 +197,12 @@ public class DiskUsageTest {
 
   @Test
   public void updateCriticalThresholdStaysNormalIfFreeSpaceAboveMinimum() {
-    File dir = mock(File.class);
+    var dir = mock(File.class);
     when(dir.exists()).thenReturn(true);
     // File indicates 98% of disk used
     when(dir.getTotalSpace()).thenReturn(100L * 1024 * 1024);
     when(dir.getUsableSpace()).thenReturn(2L * 1024 * 1024);
-    TestableDiskUsage diskUsage = new TestableDiskUsage(dir, 1/* one megabyte */);
+    var diskUsage = new TestableDiskUsage(dir, 1/* one megabyte */);
     // critical if over 98.1% used
     assertThat(diskUsage.update(0.0f, 98.1f)).isEqualTo(DiskState.NORMAL);
     assertThat(diskUsage.getNext()).isNull();

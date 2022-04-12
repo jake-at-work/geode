@@ -22,7 +22,6 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.getTimeout;
 
 import java.nio.file.Path;
-import java.util.concurrent.Future;
 
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +29,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.test.assertj.LogFileAssert;
@@ -70,12 +68,12 @@ public class MissingDiskStoreAcceptanceTest {
     server1Folder = temporaryFolder.newFolder(SERVER_1_NAME).toPath().toAbsolutePath();
     server2Folder = temporaryFolder.newFolder(SERVER_2_NAME).toPath().toAbsolutePath();
 
-    int[] ports = getRandomAvailableTCPPorts(3);
+    var ports = getRandomAvailableTCPPorts(3);
     locatorPort = ports[0];
-    int server1Port = ports[1];
-    int server2Port = ports[2];
+    var server1Port = ports[1];
+    var server2Port = ports[2];
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + LOCATOR_NAME,
         "--dir=" + locatorFolder,
@@ -96,7 +94,7 @@ public class MissingDiskStoreAcceptanceTest {
         "--locators=localhost[" + locatorPort + "]",
         "--server-port=" + server2Port);
 
-    String createRegionCommand = String.join(" ",
+    var createRegionCommand = String.join(" ",
         "create region",
         "--name=" + REGION_NAME,
         "--type=REPLICATE_PERSISTENT");
@@ -122,7 +120,7 @@ public class MissingDiskStoreAcceptanceTest {
 
   @Test
   public void waitingForMembersMessageIsLogged() throws Exception {
-    Region<Integer, Integer> region = clientCache.<Integer, Integer>createClientRegionFactory(PROXY)
+    var region = clientCache.<Integer, Integer>createClientRegionFactory(PROXY)
         .create(REGION_NAME);
 
     region.put(1, 1);
@@ -131,14 +129,14 @@ public class MissingDiskStoreAcceptanceTest {
     region.put(1, 2);
     gfshRule.execute("stop server --dir=" + server2Folder);
 
-    String connectToLocatorCommand = "connect --locator=localhost[" + locatorPort + "]";
+    var connectToLocatorCommand = "connect --locator=localhost[" + locatorPort + "]";
 
-    Future<Void> startServer1 = executorServiceRule.submit(() -> {
+    var startServer1 = executorServiceRule.submit(() -> {
       gfshRule.execute(connectToLocatorCommand, startServer1Command);
     });
 
     await().untilAsserted(() -> {
-      String waitingForMembersMessage = String.format(
+      var waitingForMembersMessage = String.format(
           "Region %s has potentially stale data. It is waiting for another member to recover the latest data.",
           SEPARATOR + REGION_NAME);
 

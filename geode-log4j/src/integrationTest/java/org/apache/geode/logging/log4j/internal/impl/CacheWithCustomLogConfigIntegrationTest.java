@@ -22,8 +22,6 @@ import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -88,14 +86,14 @@ public class CacheWithCustomLogConfigIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
 
   @Before
   public void setUp() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOG_LEVEL, INFO.name());
@@ -138,7 +136,7 @@ public class CacheWithCustomLogConfigIntegrationTest {
   public void cacheLogWriterWarnMessageIsLogged() {
     geodeLogger.warn(warnMessage);
 
-    LogEvent logEvent = findLogEventContaining(warnMessage);
+    var logEvent = findLogEventContaining(warnMessage);
     assertThat(logEvent).as(logEventContaining(warnMessage)).isNotNull();
     assertThat(logEvent.getLoggerName()).isEqualTo(geodeLogger.getName());
     assertThat(logEvent.getLevel()).isEqualTo(Level.WARN);
@@ -156,7 +154,7 @@ public class CacheWithCustomLogConfigIntegrationTest {
   public void loggerWarnMessageIsLogged() {
     logger.warn(warnMessage);
 
-    LogEvent logEvent = findLogEventContaining(warnMessage);
+    var logEvent = findLogEventContaining(warnMessage);
     assertThat(logEvent).as(logEventContaining(warnMessage)).isNotNull();
     assertThat(logEvent.getLoggerName()).isEqualTo(logger.getName());
     assertThat(logEvent.getLevel()).isEqualTo(Level.WARN);
@@ -168,8 +166,8 @@ public class CacheWithCustomLogConfigIntegrationTest {
   }
 
   private LogEvent findLogEventContaining(final String logMessage) {
-    List<LogEvent> logEvents = listAppender.getEvents();
-    for (LogEvent logEvent : logEvents) {
+    var logEvents = listAppender.getEvents();
+    for (var logEvent : logEvents) {
       if (logEvent.getMessage().getFormattedMessage().contains(logMessage)) {
         return logEvent;
       }

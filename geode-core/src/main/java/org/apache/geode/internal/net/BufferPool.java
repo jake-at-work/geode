@@ -117,13 +117,13 @@ public class BufferPool {
   }
 
   public ByteBuffer acquireNonDirectSenderBuffer(int size) {
-    ByteBuffer result = ByteBuffer.allocate(size);
+    var result = ByteBuffer.allocate(size);
     stats.incSenderBufferSize(size, false);
     return result;
   }
 
   public ByteBuffer acquireNonDirectReceiveBuffer(int size) {
-    ByteBuffer result = ByteBuffer.allocate(size);
+    var result = ByteBuffer.allocate(size);
     stats.incReceiverBufferSize(size, false);
     return result;
   }
@@ -146,9 +146,9 @@ public class BufferPool {
       bufferTempQueue = bufferMiddleQueue;
     }
 
-    BBSoftReference ref = bufferTempQueue.poll();
+    var ref = bufferTempQueue.poll();
     while (ref != null) {
-      ByteBuffer bb = ref.getBB();
+      var bb = ref.getBB();
       if (bb == null) {
         // it was garbage collected
         updateBufferStats(-defaultSize, ref.getSend(), true);
@@ -174,12 +174,12 @@ public class BufferPool {
     ByteBuffer result;
     IdentityHashMap<BBSoftReference, BBSoftReference> alreadySeen = null; // keys are used like a
     // set
-    BBSoftReference ref = bufferLargeQueue.poll();
+    var ref = bufferLargeQueue.poll();
     while (ref != null) {
-      ByteBuffer bb = ref.getBB();
+      var bb = ref.getBB();
       if (bb == null) {
         // it was garbage collected
-        int refSize = ref.consumeSize();
+        var refSize = ref.consumeSize();
         if (refSize > 0) {
           updateBufferStats(-refSize, ref.getSend(), true);
         }
@@ -305,7 +305,7 @@ public class BufferPool {
   private void releaseBuffer(ByteBuffer buffer, boolean send) {
     if (buffer.isDirect()) {
       buffer = getPoolableBuffer(buffer);
-      BBSoftReference bbRef = new BBSoftReference(buffer, send);
+      var bbRef = new BBSoftReference(buffer, send);
       if (buffer.capacity() <= SMALL_BUFFER_SIZE) {
         bufferSmallQueue.offer(bbRef);
       } else if (buffer.capacity() <= MEDIUM_BUFFER_SIZE) {
@@ -329,7 +329,7 @@ public class BufferPool {
    */
   @VisibleForTesting
   ByteBuffer getPoolableBuffer(final ByteBuffer buffer) {
-    final Object attachment = DirectBuffer.attachment(buffer);
+    final var attachment = DirectBuffer.attachment(buffer);
 
     if (null == attachment) {
       return buffer;
@@ -374,7 +374,7 @@ public class BufferPool {
     }
 
     synchronized int consumeSize() {
-      int result = size;
+      var result = size;
       size = 0;
       return result;
     }

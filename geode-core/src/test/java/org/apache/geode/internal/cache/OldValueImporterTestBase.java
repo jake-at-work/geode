@@ -45,13 +45,13 @@ public abstract class OldValueImporterTestBase {
 
   @Test
   public void testValueSerialization() throws Exception {
-    byte[] bytes = new byte[1024];
-    HeapDataOutputStream hdos = new HeapDataOutputStream(bytes);
-    OldValueImporter imsg = createImporter();
+    var bytes = new byte[1024];
+    var hdos = new HeapDataOutputStream(bytes);
+    var imsg = createImporter();
 
     // null byte array value
     {
-      OldValueImporter omsg = createImporter();
+      var omsg = createImporter();
       omsg.importOldBytes(null, false);
       toData(omsg, hdos);
       fromData(imsg, bytes);
@@ -60,7 +60,7 @@ public abstract class OldValueImporterTestBase {
 
     // null object value
     {
-      OldValueImporter omsg = createImporter();
+      var omsg = createImporter();
       omsg.importOldObject(null, true);
       toData(omsg, hdos);
       fromData(imsg, bytes);
@@ -69,8 +69,8 @@ public abstract class OldValueImporterTestBase {
 
     // simple byte array
     {
-      byte[] baValue = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
-      OldValueImporter omsg = createImporter();
+      var baValue = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+      var omsg = createImporter();
       omsg.importOldBytes(baValue, false);
       hdos = new HeapDataOutputStream(bytes);
       toData(omsg, hdos);
@@ -80,9 +80,9 @@ public abstract class OldValueImporterTestBase {
 
     // String in serialized form
     {
-      String stringValue = "1,2,3,4,5,6,7,8,9";
-      byte[] stringValueBlob = EntryEventImpl.serialize(stringValue);
-      OldValueImporter omsg = createImporter();
+      var stringValue = "1,2,3,4,5,6,7,8,9";
+      var stringValueBlob = EntryEventImpl.serialize(stringValue);
+      var omsg = createImporter();
       omsg.importOldBytes(stringValueBlob, true);
       hdos = new HeapDataOutputStream(bytes);
       toData(omsg, hdos);
@@ -93,9 +93,9 @@ public abstract class OldValueImporterTestBase {
 
     // String in object form
     {
-      String stringValue = "1,2,3,4,5,6,7,8,9";
-      byte[] stringValueBlob = EntryEventImpl.serialize(stringValue);
-      OldValueImporter omsg = createImporter();
+      var stringValue = "1,2,3,4,5,6,7,8,9";
+      var stringValueBlob = EntryEventImpl.serialize(stringValue);
+      var omsg = createImporter();
       omsg.importOldObject(stringValue, true);
       hdos = new HeapDataOutputStream(bytes);
       toData(omsg, hdos);
@@ -106,14 +106,14 @@ public abstract class OldValueImporterTestBase {
 
     // off-heap DataAsAddress byte array
     {
-      MemoryAllocatorImpl sma =
+      var sma =
           MemoryAllocatorImpl.createForUnitTest(new NullOutOfOffHeapMemoryListener(),
               new NullOffHeapMemoryStats(), new SlabImpl[] {new SlabImpl(1024 * 1024)});
       try {
-        byte[] baValue = new byte[] {1, 2};
-        TinyStoredObject baValueSO =
+        var baValue = new byte[] {1, 2};
+        var baValueSO =
             (TinyStoredObject) sma.allocateAndInitialize(baValue, false, false);
-        OldValueImporter omsg = createImporter();
+        var omsg = createImporter();
         omsg.importOldObject(baValueSO, false);
         hdos = new HeapDataOutputStream(bytes);
         toData(omsg, hdos);
@@ -125,14 +125,14 @@ public abstract class OldValueImporterTestBase {
     }
     // off-heap Chunk byte array
     {
-      MemoryAllocatorImpl sma =
+      var sma =
           MemoryAllocatorImpl.createForUnitTest(new NullOutOfOffHeapMemoryListener(),
               new NullOffHeapMemoryStats(), new SlabImpl[] {new SlabImpl(1024 * 1024)});
       try {
-        byte[] baValue = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
-        OffHeapStoredObject baValueSO =
+        var baValue = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
+        var baValueSO =
             (OffHeapStoredObject) sma.allocateAndInitialize(baValue, false, false);
-        OldValueImporter omsg = createImporter();
+        var omsg = createImporter();
         omsg.importOldObject(baValueSO, false);
         hdos = new HeapDataOutputStream(bytes);
         toData(omsg, hdos);
@@ -144,15 +144,15 @@ public abstract class OldValueImporterTestBase {
     }
     // off-heap DataAsAddress String
     {
-      MemoryAllocatorImpl sma =
+      var sma =
           MemoryAllocatorImpl.createForUnitTest(new NullOutOfOffHeapMemoryListener(),
               new NullOffHeapMemoryStats(), new SlabImpl[] {new SlabImpl(1024 * 1024)});
       try {
-        String baValue = "12";
-        byte[] baValueBlob = BlobHelper.serializeToBlob(baValue);
-        TinyStoredObject baValueSO =
+        var baValue = "12";
+        var baValueBlob = BlobHelper.serializeToBlob(baValue);
+        var baValueSO =
             (TinyStoredObject) sma.allocateAndInitialize(baValueBlob, true, false);
-        OldValueImporter omsg = createImporter();
+        var omsg = createImporter();
         omsg.importOldObject(baValueSO, true);
         hdos = new HeapDataOutputStream(bytes);
         toData(omsg, hdos);
@@ -165,15 +165,15 @@ public abstract class OldValueImporterTestBase {
     }
     // off-heap Chunk String
     {
-      MemoryAllocatorImpl sma =
+      var sma =
           MemoryAllocatorImpl.createForUnitTest(new NullOutOfOffHeapMemoryListener(),
               new NullOffHeapMemoryStats(), new SlabImpl[] {new SlabImpl(1024 * 1024)});
       try {
-        String baValue = "12345678";
-        byte[] baValueBlob = BlobHelper.serializeToBlob(baValue);
-        OffHeapStoredObject baValueSO =
+        var baValue = "12345678";
+        var baValueBlob = BlobHelper.serializeToBlob(baValue);
+        var baValueSO =
             (OffHeapStoredObject) sma.allocateAndInitialize(baValueBlob, true, false);
-        OldValueImporter omsg = createImporter();
+        var omsg = createImporter();
         omsg.importOldObject(baValueSO, true);
         hdos = new HeapDataOutputStream(bytes);
         toData(omsg, hdos);

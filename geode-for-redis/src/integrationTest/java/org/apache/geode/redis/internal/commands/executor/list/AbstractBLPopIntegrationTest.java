@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -98,7 +97,7 @@ public abstract class AbstractBLPopIntegrationTest implements RedisIntegrationTe
   public void testBLPopWhenValueExists() {
     jedis.lpush(KEY, "value1", "value2");
 
-    List<String> result = jedis.blpop(0, KEY);
+    var result = jedis.blpop(0, KEY);
 
     assertThat(result).containsExactly(KEY, "value2");
     assertThat(jedis.lpop(KEY)).isEqualTo("value1");
@@ -108,14 +107,14 @@ public abstract class AbstractBLPopIntegrationTest implements RedisIntegrationTe
   public void testBLPopDoesNotError_whenTimeoutHasExponent() {
     jedis.lpush(KEY, "value1", "value2");
 
-    Object result = jedis.sendCommand(KEY, Protocol.Command.BLPOP, KEY, "1E+3");
+    var result = jedis.sendCommand(KEY, Protocol.Command.BLPOP, KEY, "1E+3");
 
     assertThat(result).isNotNull();
   }
 
   @Test
   public void testBLPopWhenValueDoesNotExist() throws Exception {
-    Future<List<String>> future = executor.submit(() -> jedis.blpop(0, KEY));
+    var future = executor.submit(() -> jedis.blpop(0, KEY));
 
     awaitEventDistributorSize(1);
     jedis.lpush(KEY, "value1", "value2");
@@ -126,7 +125,7 @@ public abstract class AbstractBLPopIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void testRPushFiresEventForBLPop() throws Exception {
-    Future<List<String>> future = executor.submit(() -> jedis.blpop(0, KEY));
+    var future = executor.submit(() -> jedis.blpop(0, KEY));
 
     awaitEventDistributorSize(1);
     jedis.rpush(KEY, "value1", "value2");
@@ -137,8 +136,8 @@ public abstract class AbstractBLPopIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void testBLPopWhenTimeoutIsExceeded() {
-    int timeout = 10;
-    Future<List<String>> future = executor.submit(() -> jedis.blpop(timeout, KEY));
+    var timeout = 10;
+    var future = executor.submit(() -> jedis.blpop(timeout, KEY));
     GeodeAwaitility.await().atMost(timeout * 2, TimeUnit.SECONDS)
         .untilAsserted(() -> assertThat(future.get()).isNull());
   }
@@ -147,7 +146,7 @@ public abstract class AbstractBLPopIntegrationTest implements RedisIntegrationTe
   public void testBLpopFirstKeyDoesNotExistButSecondOneDoes() {
     jedis.lpush("{A}key2", "value2");
 
-    List<String> result = jedis.blpop(0, "{A}key1", "{A}key2");
+    var result = jedis.blpop(0, "{A}key1", "{A}key2");
 
     assertThat(result).containsExactly("{A}key2", "value2");
   }
@@ -157,18 +156,18 @@ public abstract class AbstractBLPopIntegrationTest implements RedisIntegrationTe
     jedis.lpush("{A}key2", "value2");
     jedis.lpush("{A}key3", "value3");
 
-    List<String> result = jedis.blpop(0, "{A}key1", "{A}key3", "{A}key2");
+    var result = jedis.blpop(0, "{A}key1", "{A}key3", "{A}key2");
 
     assertThat(result).containsExactly("{A}key3", "value3");
   }
 
   @Test
   public void testBLPopWhenValueGetsCreated_withRename() throws Exception {
-    String initialName = "{tag}initial";
-    String changedName = "{tag}changed";
+    var initialName = "{tag}initial";
+    var changedName = "{tag}changed";
     jedis.lpush(initialName, "value1", "value2");
 
-    Future<List<String>> future = executor.submit(() -> jedis.blpop(10, changedName));
+    var future = executor.submit(() -> jedis.blpop(10, changedName));
     awaitEventDistributorSize(1);
 
     jedis.rename(initialName, changedName);
@@ -179,13 +178,13 @@ public abstract class AbstractBLPopIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void testBLPopWhenValueGetsCreated_withRestore() throws Exception {
-    String key = "key";
+    var key = "key";
     jedis.lpush(key, "value1", "value2");
 
-    byte[] dumpBytes = jedis.dump(key);
+    var dumpBytes = jedis.dump(key);
     jedis.del(key);
 
-    Future<List<String>> future = executor.submit(() -> jedis.blpop(10, key));
+    var future = executor.submit(() -> jedis.blpop(10, key));
     awaitEventDistributorSize(1);
 
     jedis.restore(key, 0, dumpBytes);
@@ -196,15 +195,15 @@ public abstract class AbstractBLPopIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void testConcurrentBLPop() throws Exception {
-    int totalElements = 10_000;
-    List<Object> accumulated = Collections.synchronizedList(new ArrayList<>(totalElements + 2));
-    AtomicBoolean running = new AtomicBoolean(true);
+    var totalElements = 10_000;
+    var accumulated = Collections.synchronizedList(new ArrayList<>(totalElements + 2));
+    var running = new AtomicBoolean(true);
 
-    Future<Void> future1 = executor.submit(() -> doBLPop(running, accumulated));
-    Future<Void> future2 = executor.submit(() -> doBLPop(running, accumulated));
+    var future1 = executor.submit(() -> doBLPop(running, accumulated));
+    var future2 = executor.submit(() -> doBLPop(running, accumulated));
 
     List<String> result = new ArrayList<>();
-    for (int i = 0; i < totalElements; i++) {
+    for (var i = 0; i < totalElements; i++) {
       jedis.lpush(KEY, "value" + i);
       result.add("value" + i);
     }

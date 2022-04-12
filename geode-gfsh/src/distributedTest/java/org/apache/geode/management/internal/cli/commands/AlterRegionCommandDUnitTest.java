@@ -38,15 +38,8 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.cache.EvictionAlgorithm;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.ExpirationAction;
-import org.apache.geode.cache.ExpirationAttributes;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.EnumActionDestroyOverflow;
-import org.apache.geode.cache.configuration.RegionAttributesType;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.test.compiler.ClassBuilder;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -93,18 +86,18 @@ public class AlterRegionCommandDUnitTest {
 
   @Test
   public void alterRegionResetCacheListeners() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=PARTITION")
         .statusIsSuccess();
 
-    String listenerABC =
+    var listenerABC =
         "com.cadrdunit.RegionAlterCacheListenerA,com.cadrdunit.RegionAlterCacheListenerB,com.cadrdunit.RegionAlterCacheListenerC";
     gfsh.executeAndAssertThat(
         "alter region --name=" + regionName + " --cache-listener=" + listenerABC)
         .statusIsSuccess().tableHasRowCount(3);
 
     VMProvider.invokeInEveryMember(() -> {
-      RegionAttributes<Object, Object> attributes =
+      var attributes =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName)
               .getAttributes();
       assertEquals(3, attributes.getCacheListeners().length);
@@ -130,7 +123,7 @@ public class AlterRegionCommandDUnitTest {
         .containsExactly("server-1", "OK", "Region " + regionName + " altered");
     // remove listener on server1
     server1.invoke(() -> {
-      RegionAttributes<Object, Object> attributes =
+      var attributes =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName)
               .getAttributes();
       assertEquals(0, attributes.getCacheListeners().length);
@@ -141,16 +134,16 @@ public class AlterRegionCommandDUnitTest {
 
   @Test
   public void alterEntryIdleTimeExpiration() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName
             + " --type=REPLICATE --entry-idle-time-expiration=10 --enable-statistics")
         .statusIsSuccess();
 
     server1.invoke(() -> {
-      Region<Object, Object> region =
+      var region =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName);
-      ExpirationAttributes expiry = region.getAttributes().getEntryIdleTimeout();
+      var expiry = region.getAttributes().getEntryIdleTimeout();
       assertThat(expiry.getTimeout()).isEqualTo(10);
       assertThat(expiry.getAction()).isEqualTo(ExpirationAction.INVALIDATE);
     });
@@ -159,9 +152,9 @@ public class AlterRegionCommandDUnitTest {
         "alter region --name=" + regionName + " --entry-idle-time-expiration-action=DESTROY")
         .statusIsSuccess();
     server1.invoke(() -> {
-      Region<Object, Object> region =
+      var region =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName);
-      ExpirationAttributes expiry = region.getAttributes().getEntryIdleTimeout();
+      var expiry = region.getAttributes().getEntryIdleTimeout();
       assertThat(expiry.getTimeout()).isEqualTo(10);
       assertThat(expiry.getAction()).isEqualTo(ExpirationAction.DESTROY);
     });
@@ -170,9 +163,9 @@ public class AlterRegionCommandDUnitTest {
         "alter region --name=" + regionName + " --entry-idle-time-expiration=5")
         .statusIsSuccess();
     server1.invoke(() -> {
-      Region<Object, Object> region =
+      var region =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName);
-      ExpirationAttributes expiry = region.getAttributes().getEntryIdleTimeout();
+      var expiry = region.getAttributes().getEntryIdleTimeout();
       assertThat(expiry.getTimeout()).isEqualTo(5);
       assertThat(expiry.getAction()).isEqualTo(ExpirationAction.DESTROY);
     });
@@ -183,16 +176,16 @@ public class AlterRegionCommandDUnitTest {
 
   @Test
   public void alterEntryIdleTimeExpirationAction() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName
             + " --type=REPLICATE --entry-idle-time-expiration-action=destroy --enable-statistics")
         .statusIsSuccess();
 
     server1.invoke(() -> {
-      Region<Object, Object> region =
+      var region =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName);
-      ExpirationAttributes expiry = region.getAttributes().getEntryIdleTimeout();
+      var expiry = region.getAttributes().getEntryIdleTimeout();
       assertThat(expiry.getTimeout()).isEqualTo(0);
       assertThat(expiry.getAction()).isEqualTo(ExpirationAction.DESTROY);
     });
@@ -201,9 +194,9 @@ public class AlterRegionCommandDUnitTest {
         "alter region --name=" + regionName + " --entry-idle-time-expiration-action=invalidate")
         .statusIsSuccess();
     server1.invoke(() -> {
-      Region<Object, Object> region =
+      var region =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName);
-      ExpirationAttributes expiry = region.getAttributes().getEntryIdleTimeout();
+      var expiry = region.getAttributes().getEntryIdleTimeout();
       assertThat(expiry.getTimeout()).isEqualTo(0);
       assertThat(expiry.getAction()).isEqualTo(ExpirationAction.INVALIDATE);
     });
@@ -212,9 +205,9 @@ public class AlterRegionCommandDUnitTest {
         "alter region --name=" + regionName + " --entry-idle-time-expiration=5")
         .statusIsSuccess();
     server1.invoke(() -> {
-      Region<Object, Object> region =
+      var region =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName);
-      ExpirationAttributes expiry = region.getAttributes().getEntryIdleTimeout();
+      var expiry = region.getAttributes().getEntryIdleTimeout();
       assertThat(expiry.getTimeout()).isEqualTo(5);
       assertThat(expiry.getAction()).isEqualTo(ExpirationAction.INVALIDATE);
     });
@@ -224,7 +217,7 @@ public class AlterRegionCommandDUnitTest {
 
   @Test
   public void alterRegionStatisticsNotEnabled() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     IgnoredException.addIgnoredException(
         "java.lang.IllegalStateException: Cannot set idle timeout when statistics are disabled");
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=REPLICATE")
@@ -245,7 +238,7 @@ public class AlterRegionCommandDUnitTest {
 
   @Test
   public void alterExpirationAttributesWithStatisticsEnabled() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName + " --type=REPLICATE --enable-statistics")
         .statusIsSuccess();
@@ -259,9 +252,9 @@ public class AlterRegionCommandDUnitTest {
         .statusIsSuccess();
 
     server1.invoke(() -> {
-      Region<Object, Object> region =
+      var region =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName);
-      ExpirationAttributes expiry = region.getAttributes().getEntryIdleTimeout();
+      var expiry = region.getAttributes().getEntryIdleTimeout();
       assertThat(expiry.getTimeout()).isEqualTo(0);
       assertThat(expiry.getAction()).isEqualTo(ExpirationAction.INVALIDATE);
       assertThat(region.getAttributes().getCustomEntryIdleTimeout().getClass().getName())
@@ -273,9 +266,9 @@ public class AlterRegionCommandDUnitTest {
         .statusIsSuccess();
 
     server1.invoke(() -> {
-      Region<Object, Object> region =
+      var region =
           Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(regionName);
-      ExpirationAttributes expiry = region.getAttributes().getEntryIdleTimeout();
+      var expiry = region.getAttributes().getEntryIdleTimeout();
       assertThat(expiry.getTimeout()).isEqualTo(0);
       assertThat(expiry.getAction()).isEqualTo(ExpirationAction.INVALIDATE);
       assertThat(region.getAttributes().getCustomEntryIdleTimeout()).isNull();
@@ -286,7 +279,7 @@ public class AlterRegionCommandDUnitTest {
 
   @Test
   public void alterEvictionMaxOnRegionWithoutEvictionAttributesHasNoEffect() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=REPLICATE")
         .statusIsSuccess();
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + regionName, 3);
@@ -295,19 +288,19 @@ public class AlterRegionCommandDUnitTest {
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      CacheConfig config = Objects.requireNonNull(ClusterStartupRule.getLocator())
+      var config = Objects.requireNonNull(ClusterStartupRule.getLocator())
           .getConfigurationPersistenceService()
           .getCacheConfig("cluster");
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
-      RegionAttributesType.EvictionAttributes evictionAttributes =
+      var regionConfig = find(config.getRegions(), regionName);
+      var evictionAttributes =
           regionConfig.getRegionAttributes().getEvictionAttributes();
       assertThat(evictionAttributes).isNull();
     });
 
     server1.invoke(() -> {
-      Region<Object, Object> region = Objects.requireNonNull(ClusterStartupRule.getCache())
+      var region = Objects.requireNonNull(ClusterStartupRule.getCache())
           .getRegion(SEPARATOR + regionName);
-      EvictionAttributes evictionAttributes = region.getAttributes().getEvictionAttributes();
+      var evictionAttributes = region.getAttributes().getEvictionAttributes();
       assertThat(evictionAttributes.getAlgorithm()).isEqualTo(EvictionAlgorithm.NONE);
     });
 
@@ -317,7 +310,7 @@ public class AlterRegionCommandDUnitTest {
 
   @Test
   public void alterRegionWithEvictionMaxOnRegionWithEviction() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName
             + " --type=REPLICATE --eviction-entry-count=20 --eviction-action=local-destroy")
@@ -328,11 +321,11 @@ public class AlterRegionCommandDUnitTest {
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      CacheConfig config = Objects.requireNonNull(ClusterStartupRule.getLocator())
+      var config = Objects.requireNonNull(ClusterStartupRule.getLocator())
           .getConfigurationPersistenceService()
           .getCacheConfig("cluster");
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
-      RegionAttributesType.EvictionAttributes evictionAttributes =
+      var regionConfig = find(config.getRegions(), regionName);
+      var evictionAttributes =
           regionConfig.getRegionAttributes().getEvictionAttributes();
       assertThat(evictionAttributes.getLruEntryCount().getMaximum()).isEqualTo("30");
       assertThat(evictionAttributes.getLruEntryCount().getAction()).isEqualTo(
@@ -344,16 +337,15 @@ public class AlterRegionCommandDUnitTest {
   }
 
   private static void deployJarFilesForRegionAlter() throws IOException {
-    ClassBuilder classBuilder = new ClassBuilder();
-    final File jarFile1 = new File(temporaryFolder.getRoot(), "testAlterRegion1.jar");
-    final File jarFile2 = new File(temporaryFolder.getRoot(), "testAlterRegion2.jar");
-    final File jarFile3 = new File(temporaryFolder.getRoot(), "testAlterRegion3.jar");
-    final File jarFile4 = new File(temporaryFolder.getRoot(), "testAlterRegion4.jar");
-    final File jarFile5 = new File(temporaryFolder.getRoot(), "testAlterRegion5.jar");
-    final File jarFile6 = new File(temporaryFolder.getRoot(), "testAlterRegion6.jar");
+    var classBuilder = new ClassBuilder();
+    final var jarFile1 = new File(temporaryFolder.getRoot(), "testAlterRegion1.jar");
+    final var jarFile2 = new File(temporaryFolder.getRoot(), "testAlterRegion2.jar");
+    final var jarFile3 = new File(temporaryFolder.getRoot(), "testAlterRegion3.jar");
+    final var jarFile4 = new File(temporaryFolder.getRoot(), "testAlterRegion4.jar");
+    final var jarFile5 = new File(temporaryFolder.getRoot(), "testAlterRegion5.jar");
+    final var jarFile6 = new File(temporaryFolder.getRoot(), "testAlterRegion6.jar");
 
-
-    byte[] jarBytes =
+    var jarBytes =
         classBuilder.createJarFromClassContent("com/cadrdunit/RegionAlterCacheListenerA",
             "package com.cadrdunit;" + "import org.apache.geode.cache.util.CacheListenerAdapter;"
                 + "public class RegionAlterCacheListenerA extends CacheListenerAdapter {}");

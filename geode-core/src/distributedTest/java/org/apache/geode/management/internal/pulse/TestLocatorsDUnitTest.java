@@ -19,8 +19,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import org.apache.geode.management.DistributedSystemMXBean;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.ManagementTestBase;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.LogWriterUtils;
@@ -42,11 +40,11 @@ public class TestLocatorsDUnitTest extends ManagementTestBase {
 
   public static int getNumOfLocatorFromMBean() {
 
-    final WaitCriterion waitCriteria = new WaitCriterion() {
+    final var waitCriteria = new WaitCriterion() {
       @Override
       public boolean done() {
-        final ManagementService service = getManagementService();
-        final DistributedSystemMXBean bean = service.getDistributedSystemMXBean();
+        final var service = getManagementService();
+        final var bean = service.getDistributedSystemMXBean();
         if (bean != null) {
           return bean.getLocatorCount() > 0;
         }
@@ -59,7 +57,7 @@ public class TestLocatorsDUnitTest extends ManagementTestBase {
       }
     };
     GeodeAwaitility.await().untilAsserted(waitCriteria);
-    final DistributedSystemMXBean bean = getManagementService().getDistributedSystemMXBean();
+    final var bean = getManagementService().getDistributedSystemMXBean();
     assertNotNull(bean);
     return bean.getLocatorCount();
   }
@@ -67,7 +65,7 @@ public class TestLocatorsDUnitTest extends ManagementTestBase {
   @Test
   public void testLocatorsDUnitTest() throws Exception {
     initManagement(false);
-    int locatorCount =
+    var locatorCount =
         ((Number) managingNode.invoke(TestLocatorsDUnitTest::getNumOfLocatorFromMBean))
             .intValue();
     LogWriterUtils.getLogWriter().info("TestLocatorsDUnitTest locatorCount =" + locatorCount);

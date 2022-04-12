@@ -14,13 +14,11 @@
  */
 package org.apache.geode.redis.internal.commands.executor.string;
 
-import java.util.List;
 
 import org.apache.geode.redis.internal.RedisConstants;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.data.RedisString;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
@@ -32,9 +30,9 @@ public class BitCountExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
-    RedisKey key = command.getKey();
+    var key = command.getKey();
     long result;
 
     if (commandElems.size() == 4) {

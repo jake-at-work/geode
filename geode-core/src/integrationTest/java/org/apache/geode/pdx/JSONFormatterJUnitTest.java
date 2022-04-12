@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,54 +60,54 @@ public class JSONFormatterJUnitTest {
 
   @Test
   public void ValidatePdxInstanceToJsonConversion() throws Exception {
-    TestObjectForJSONFormatter actualTestObject = new TestObjectForJSONFormatter();
+    var actualTestObject = new TestObjectForJSONFormatter();
     actualTestObject.defaultInitialization();
 
     // Testcase-1: PdxInstance to Json conversion
     // put Object and getvalue as Pdxinstance
     region.put("201", actualTestObject);
-    Object receivedObject = region.get("201");
+    var receivedObject = region.get("201");
 
     assertTrue("receivedObject is expected to be of type PdxInstance",
         receivedObject instanceof PdxInstance);
 
     // PdxInstance->Json conversion
-    PdxInstance pi = (PdxInstance) receivedObject;
-    String json = JSONFormatter.toJSON(pi);
+    var pi = (PdxInstance) receivedObject;
+    var json = JSONFormatter.toJSON(pi);
 
     JSONFormatVerifyUtility.verifyJsonWithJavaObject(json, actualTestObject);
   }
 
   @Test
   public void verifyJsonToPdxInstanceConversion() throws Exception {
-    TestObjectForJSONFormatter expectedTestObject = new TestObjectForJSONFormatter();
+    var expectedTestObject = new TestObjectForJSONFormatter();
     expectedTestObject.defaultInitialization();
 
     // 1.gets pdxInstance using region.put() and region.get()
     region.put("501", expectedTestObject);
-    Object receivedObject = region.get("501");
+    var receivedObject = region.get("501");
     assertTrue("receivedObject is expected to be of type PdxInstance",
         receivedObject instanceof PdxInstance);
 
     // 2. Get the JSON string from actualTestObject using jackson ObjectMapper.
-    ObjectMapper objectMapper = new ObjectMapper();
+    var objectMapper = new ObjectMapper();
     objectMapper.setDateFormat(new SimpleDateFormat("MM/dd/yyyy"));
     objectMapper
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-    String json = objectMapper.writeValueAsString(expectedTestObject);
+    var json = objectMapper.writeValueAsString(expectedTestObject);
 
-    String jsonWithClassType = expectedTestObject.addClassTypeToJson(json);
+    var jsonWithClassType = expectedTestObject.addClassTypeToJson(json);
 
     // 3. Get PdxInstance from the Json String and Validate pi.getObject() API.
-    PdxInstance receivedPdxInstance = JSONFormatter.fromJSON(jsonWithClassType);
+    var receivedPdxInstance = JSONFormatter.fromJSON(jsonWithClassType);
     // Note: expectedPI will contains those fields that are part of toData()
     // expectedPI.className = "org.apache.geode.pdx.TestObjectForJSONFormatter"
     // actualPI will contains all the fields that are member of the class.
     // actualPI..className = __GEMFIRE_JSON
     // and hence actualPI.equals(expectedPI) will returns false.
 
-    Object actualTestObject = receivedPdxInstance.getObject();
+    var actualTestObject = receivedPdxInstance.getObject();
 
     assertTrue(actualTestObject instanceof TestObjectForJSONFormatter);
     assertEquals(actualTestObject, expectedTestObject);
@@ -118,31 +117,31 @@ public class JSONFormatterJUnitTest {
   @Test
   public void verifyJsonToPdxInstanceConversionWithJSONFormatter()
       throws Exception {
-    TestObjectForJSONFormatter expectedTestObject = new TestObjectForJSONFormatter();
+    var expectedTestObject = new TestObjectForJSONFormatter();
     expectedTestObject.defaultInitialization();
 
     // 1.gets pdxInstance using R.put() and R.get()
     region.put("501", expectedTestObject);
-    Object receivedObject = region.get("501");
+    var receivedObject = region.get("501");
     assertEquals("receivedObject is expected to be of type PdxInstance",
         PdxInstanceImpl.class,
         receivedObject.getClass());
 
-    PdxInstance expectedPI = (PdxInstance) receivedObject;
+    var expectedPI = (PdxInstance) receivedObject;
 
-    String json = JSONFormatter.toJSON(expectedPI);
+    var json = JSONFormatter.toJSON(expectedPI);
 
-    String jsonWithClassType = expectedTestObject.addClassTypeToJson(json);
+    var jsonWithClassType = expectedTestObject.addClassTypeToJson(json);
 
     // 3. Get PdxInstance from the Json String and Validate pi.getObject() API.
-    PdxInstance actualPI = JSONFormatter.fromJSON(jsonWithClassType);
+    var actualPI = JSONFormatter.fromJSON(jsonWithClassType);
     // Note: expectedPI will contains those fields that are part of toData()
     // expectedPI.className = "org.apache.geode.pdx.TestObjectForJSONFormatter"
     // actualPI will contains all the fields that are member of the class.
     // actualPI..className = __GEMFIRE_JSON
     // and hence actualPI.equals(expectedPI) will returns false.
 
-    Object actualTestObject = actualPI.getObject();
+    var actualTestObject = actualPI.getObject();
 
     assertEquals("receivedObject is expected to be of type PdxInstance",
         TestObjectForJSONFormatter.class, actualTestObject.getClass());
@@ -158,18 +157,18 @@ public class JSONFormatterJUnitTest {
    */
   @Test
   public void testJSONStringAsPdxObject() {
-    int pdxTypes = 0;
+    var pdxTypes = 0;
 
     if (cache.getRegion(PeerTypeRegistration.REGION_FULL_PATH) != null) {
       pdxTypes = cache.getRegion(PeerTypeRegistration.REGION_FULL_PATH).keySet()
           .size();
     }
 
-    String js = "{name:\"ValueExist\", age:14}";
+    var js = "{name:\"ValueExist\", age:14}";
 
     region.put(1, JSONFormatter.fromJSON(js));
 
-    String js2 = "{name:null, age:14}";
+    var js2 = "{name:null, age:14}";
 
     region.put(2, JSONFormatter.fromJSON(js2));
 
@@ -182,17 +181,17 @@ public class JSONFormatterJUnitTest {
     try {
       System.setProperty(JSONFormatter.SORT_JSON_FIELD_NAMES_PROPERTY, "true");
 
-      String js = "{b:\"b\", age:14, c:\"c' go\", bb:23}";
+      var js = "{b:\"b\", age:14, c:\"c' go\", bb:23}";
 
       region.put(1, JSONFormatter.fromJSON(js));
 
-      PdxInstance ret = (PdxInstance) region.get(1);
-      List<String> fieldNames = ret.getFieldNames();
+      var ret = (PdxInstance) region.get(1);
+      var fieldNames = ret.getFieldNames();
 
       assertEquals("There should be four fields", 4, fieldNames.size());
 
-      boolean sorted = true;
-      for (int i = 0; i < fieldNames.size() - 1; i++) {
+      var sorted = true;
+      for (var i = 0; i < fieldNames.size() - 1; i++) {
         if (fieldNames.get(i).compareTo(fieldNames.get(i + 1)) >= 0) {
           sorted = false;
         }
@@ -203,14 +202,14 @@ public class JSONFormatterJUnitTest {
       // Now do put with another jsonstring with same fields but different order
       // then verify we don't create another pdxtype
 
-      int pdxTypes = 0;
+      var pdxTypes = 0;
 
       if (cache.getRegion(PeerTypeRegistration.REGION_FULL_PATH) != null) {
         pdxTypes = cache.getRegion(PeerTypeRegistration.REGION_FULL_PATH)
             .keySet().size();
       }
 
-      String js2 = "{c:\"c' go\", bb:23, b:\"b\", age:14 }";
+      var js2 = "{c:\"c' go\", bb:23, b:\"b\", age:14 }";
       region.put(2, JSONFormatter.fromJSON(js2));
 
       assertEquals(pdxTypes,

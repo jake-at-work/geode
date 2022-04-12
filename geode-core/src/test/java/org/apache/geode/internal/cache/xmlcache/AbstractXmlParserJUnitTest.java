@@ -36,8 +36,8 @@ public class AbstractXmlParserJUnitTest {
    */
   @Test
   public void testSetStack() {
-    MockXmlParser m = new MockXmlParser();
-    Stack<Object> s = new Stack<>();
+    var m = new MockXmlParser();
+    var s = new Stack<Object>();
     m.setStack(s);
     assertSame(s, m.stack);
   }
@@ -47,8 +47,8 @@ public class AbstractXmlParserJUnitTest {
    */
   @Test
   public void testSetDocumentLocator() {
-    final MockXmlParser mockXmlParser = new MockXmlParser();
-    final Locator mockLocator = new Locator() {
+    final var mockXmlParser = new MockXmlParser();
+    final var mockLocator = new Locator() {
       @Override
       public String getSystemId() {
         return null;

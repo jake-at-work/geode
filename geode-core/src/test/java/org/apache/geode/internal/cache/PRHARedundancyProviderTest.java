@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -57,7 +56,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.partitioned.Bucket;
 import org.apache.geode.internal.cache.partitioned.CreateMissingBucketsTask;
-import org.apache.geode.internal.cache.partitioned.InternalPRInfo;
 import org.apache.geode.internal.cache.partitioned.LoadProbe;
 import org.apache.geode.internal.cache.partitioned.PartitionedRegionRebalanceOp;
 import org.apache.geode.internal.cache.partitioned.PersistentBucketRecoverer;
@@ -123,7 +121,7 @@ public class PRHARedundancyProviderTest {
     when(partitionedRegion.getRegionAdvisor().getCreatedBucketsCount()).thenReturn(17);
     when(partitionedRegion.getTotalNumberOfBuckets()).thenReturn(42);
 
-    InternalPRInfo internalPRInfo =
+    var internalPRInfo =
         prHaRedundancyProvider.buildPartitionedRegionInfo(false, mock(LoadProbe.class));
 
     assertThat(internalPRInfo.getConfiguredBucketCount()).isEqualTo(42);
@@ -154,7 +152,7 @@ public class PRHARedundancyProviderTest {
   @Test
   public void doNotNotReportStartupTaskIfRecoveryDelayIsNegative() {
     when(partitionedRegion.getRegionAdvisor()).thenReturn(mock(RegionAdvisor.class));
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(partitionAttributes.getStartupRecoveryDelay()).thenReturn(-1L);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(resourceManager.getExecutor()).thenReturn(mock(ScheduledExecutorService.class));
@@ -171,7 +169,7 @@ public class PRHARedundancyProviderTest {
   @Test
   public void doNotNotReportStartupTaskIfPartitionIsNotDataStore() {
     when(partitionedRegion.getRegionAdvisor()).thenReturn(mock(RegionAdvisor.class));
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(partitionedRegion.isDataStore()).thenReturn(false);
     when(resourceManager.getExecutor()).thenReturn(mock(ScheduledExecutorService.class));
@@ -188,10 +186,10 @@ public class PRHARedundancyProviderTest {
   @Test
   public void doNotNotReportStartupTaskIfExecutorRejectsRebalanceTask() {
     when(partitionedRegion.getRegionAdvisor()).thenReturn(mock(RegionAdvisor.class));
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(partitionedRegion.isDataStore()).thenReturn(true);
-    ScheduledExecutorService executor = mock(ScheduledExecutorService.class);
+    var executor = mock(ScheduledExecutorService.class);
     when(executor.schedule(any(Runnable.class), anyLong(), any()))
         .thenThrow(new RejectedExecutionException("Rejected for the test"));
     when(resourceManager.getExecutor()).thenReturn(executor);
@@ -208,10 +206,10 @@ public class PRHARedundancyProviderTest {
   @Test
   public void doNotNotReportStartupTaskIfIsHasShutDown() {
     when(partitionedRegion.getRegionAdvisor()).thenReturn(mock(RegionAdvisor.class));
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(partitionedRegion.isDataStore()).thenReturn(true);
-    ScheduledExecutorService executor = mock(ScheduledExecutorService.class);
+    var executor = mock(ScheduledExecutorService.class);
     when(resourceManager.getExecutor()).thenReturn(executor);
 
     prHaRedundancyProvider = new PRHARedundancyProvider(partitionedRegion, resourceManager,
@@ -226,10 +224,10 @@ public class PRHARedundancyProviderTest {
 
   @Test
   public void completesStartupTaskWhenRedundancyRecovered() {
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    var distributedSystem = mock(DistributedSystem.class);
     when(distributedSystem.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
 
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     when(cache.getDistributedSystem()).thenReturn(distributedSystem);
 
     when(partitionedRegion.getGemFireCache()).thenReturn(cache);
@@ -238,7 +236,7 @@ public class PRHARedundancyProviderTest {
     when(partitionedRegion.isDataStore()).thenReturn(true);
     when(partitionedRegion.getPrStats()).thenReturn(mock(PartitionedRegionStats.class));
 
-    ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
+    var executorService = mock(ScheduledExecutorService.class);
     when(resourceManager.getExecutor()).thenReturn(executorService);
 
     when(executorService.schedule(any(Runnable.class), anyLong(), any()))
@@ -258,16 +256,16 @@ public class PRHARedundancyProviderTest {
 
   @Test
   public void createBucketAtomicallyConvertsDiskAccessExceptionWhenCacheCloseInProgress() {
-    String partitionName = "partitionName";
-    DiskAccessException diskAccessException = new DiskAccessException("boom");
-    CacheClosedException cacheClosedException = new CacheClosedException(diskAccessException);
-    InternalDistributedMember internalDistributedMember = mock(InternalDistributedMember.class);
-    Set<InternalDistributedMember> memberSet = Collections.singleton(internalDistributedMember);
-    InternalCache internalCache = mock(InternalCache.class);
-    RegionAdvisor regionAdvisor = mock(RegionAdvisor.class);
-    Bucket bucket = mock(Bucket.class);
-    BucketAdvisor bucketAdvisor = mock(BucketAdvisor.class);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var partitionName = "partitionName";
+    var diskAccessException = new DiskAccessException("boom");
+    var cacheClosedException = new CacheClosedException(diskAccessException);
+    var internalDistributedMember = mock(InternalDistributedMember.class);
+    var memberSet = Collections.singleton(internalDistributedMember);
+    var internalCache = mock(InternalCache.class);
+    var regionAdvisor = mock(RegionAdvisor.class);
+    var bucket = mock(Bucket.class);
+    var bucketAdvisor = mock(BucketAdvisor.class);
+    var cancelCriterion = mock(CancelCriterion.class);
 
     prHaRedundancyProvider = new PRHARedundancyProvider(partitionedRegion, resourceManager);
 
@@ -291,15 +289,15 @@ public class PRHARedundancyProviderTest {
 
   @Test
   public void createBucketAtomicallyPropagatesDiskAccessExceptionWhenCacheCloseNotInProgress() {
-    String partitionName = "partitionName";
-    DiskAccessException diskAccessException = new DiskAccessException("boom");
-    InternalDistributedMember internalDistributedMember = mock(InternalDistributedMember.class);
-    Set<InternalDistributedMember> memberSet = Collections.singleton(internalDistributedMember);
-    InternalCache internalCache = mock(InternalCache.class);
-    RegionAdvisor regionAdvisor = mock(RegionAdvisor.class);
-    Bucket bucket = mock(Bucket.class);
-    BucketAdvisor bucketAdvisor = mock(BucketAdvisor.class);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var partitionName = "partitionName";
+    var diskAccessException = new DiskAccessException("boom");
+    var internalDistributedMember = mock(InternalDistributedMember.class);
+    var memberSet = Collections.singleton(internalDistributedMember);
+    var internalCache = mock(InternalCache.class);
+    var regionAdvisor = mock(RegionAdvisor.class);
+    var bucket = mock(Bucket.class);
+    var bucketAdvisor = mock(BucketAdvisor.class);
+    var cancelCriterion = mock(CancelCriterion.class);
 
     prHaRedundancyProvider = new PRHARedundancyProvider(partitionedRegion, resourceManager);
 
@@ -325,10 +323,10 @@ public class PRHARedundancyProviderTest {
   @TestCaseName("{method}[{index}]: {params}")
   public void startTaskCompletesExceptionallyIfExceptionIsThrown(
       ExceptionToThrow exceptionToThrow) {
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    var distributedSystem = mock(DistributedSystem.class);
     when(distributedSystem.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
 
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     when(cache.getDistributedSystem()).thenReturn(distributedSystem);
 
     when(partitionedRegion.getGemFireCache()).thenReturn(cache);
@@ -337,7 +335,7 @@ public class PRHARedundancyProviderTest {
     when(partitionedRegion.isDataStore()).thenReturn(true);
     when(partitionedRegion.getPrStats()).thenReturn(mock(PartitionedRegionStats.class));
 
-    ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
+    var executorService = mock(ScheduledExecutorService.class);
     when(resourceManager.getExecutor()).thenReturn(executorService);
 
     when(executorService.schedule(any(Runnable.class), anyLong(), any()))
@@ -346,7 +344,7 @@ public class PRHARedundancyProviderTest {
     @SuppressWarnings("unchecked")
     CompletableFuture<Void> providerStartupTask = mock(CompletableFuture.class);
 
-    Exception exception = exceptionToThrow.getException();
+    var exception = exceptionToThrow.getException();
 
     prHaRedundancyProvider = new PRHARedundancyProvider(partitionedRegion, resourceManager,
         (a, b) -> mock(PersistentBucketRecoverer.class),
@@ -365,7 +363,7 @@ public class PRHARedundancyProviderTest {
     when(partitionedRegion.getGemFireCache()).thenReturn(cache);
     when(cache.getInternalResourceManager()).thenReturn(resourceManager);
 
-    ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
+    var executorService = mock(ScheduledExecutorService.class);
     when(resourceManager.getExecutor()).thenReturn(executorService);
 
     prHaRedundancyProvider = new PRHARedundancyProvider(partitionedRegion, resourceManager,
@@ -384,7 +382,7 @@ public class PRHARedundancyProviderTest {
   }
 
   private static PartitionedRegionRebalanceOp createThrowingRebalanceOp(Exception exception) {
-    PartitionedRegionRebalanceOp rebalanceOp = mock(PartitionedRegionRebalanceOp.class);
+    var rebalanceOp = mock(PartitionedRegionRebalanceOp.class);
     when(rebalanceOp.execute()).thenThrow(exception);
     return rebalanceOp;
   }

@@ -157,7 +157,7 @@ public class SortedResultMapImpl implements ResultMap {
 
     @Override
     public Entry next() {
-      java.util.Map.Entry<Object, Object> next = iterator.next();
+      var next = iterator.next();
       return new EntryImpl((CachedDeserializable) next.getKey(),
           (CachedDeserializable) next.getValue());
     }

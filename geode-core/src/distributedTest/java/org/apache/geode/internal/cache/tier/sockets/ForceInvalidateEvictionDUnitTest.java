@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.DataPolicy;
@@ -38,9 +37,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.internal.cache.CachedDeserializable;
 import org.apache.geode.internal.cache.LocalRegion;
@@ -101,10 +98,10 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testPRToAccessor() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     createPR(vm0);
     createPR(vm1);
@@ -120,14 +117,14 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testBridgeClientWithPR() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm3 = host.getVM(3);
 
     createPR(vm0);
     createPR(vm1);
-    int port = addCacheServer(vm1);
+    var port = addCacheServer(vm1);
     createClient(vm3, port);
 
 
@@ -140,16 +137,16 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testBridgeClientWithAccessorServer() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
     createPR(vm0);
     createPR(vm1);
     createAccessor(vm2, false);
-    int port = addCacheServer(vm2);
+    var port = addCacheServer(vm2);
     createClient(vm3, port);
 
     doPropagationTest(vm0, vm3, true, true);
@@ -158,18 +155,18 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testBridgeClientWithAccessorSource() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
     createPR(vm0);
     createPR(vm1);
     createAccessor(vm2, false);
 
     // test an invalidate from the accessor through one of the data stores
-    int port1 = addCacheServer(vm0);
+    var port1 = addCacheServer(vm0);
     createClient(vm3, port1);
     doPropagationTest(vm2, vm3, true, true);
     vm3.invoke(new SerializableRunnable("close cache") {
@@ -182,24 +179,24 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
     });
 
     // test an invalidate from the accessor through the other data store
-    int port2 = addCacheServer(vm1);
+    var port2 = addCacheServer(vm1);
     createClient(vm3, port2);
     doPropagationTest(vm2, vm3, true, true);
   }
 
 
   private void createPR(VM vm) {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     vm.invoke(new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
-        RegionFactory rf = new RegionFactory();
+        var rf = new RegionFactory();
         rf.setOffHeap(isOffHeapEnabled());
         rf.setDataPolicy(DataPolicy.PARTITION);
 
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(1);
         paf.setTotalNumBuckets(5);
         rf.setPartitionAttributes(paf.create());
@@ -211,17 +208,17 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createAccessor(VM vm, final boolean allContent) {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     vm.invoke(new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
-        RegionFactory rf = new RegionFactory();
+        var rf = new RegionFactory();
         rf.setOffHeap(isOffHeapEnabled());
         rf.setDataPolicy(DataPolicy.PARTITION);
 
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(1);
         paf.setTotalNumBuckets(5);
         paf.setLocalMaxMemory(0);
@@ -238,41 +235,41 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void addListener(VM vm) {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     vm.invoke(new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(name);
-        AttributesMutator am = region.getAttributesMutator();
+        var am = region.getAttributesMutator();
         am.initCacheListeners(new CacheListener[] {new MyListener()});
       }
     });
   }
 
   private void removeListener(VM vm) {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     vm.invoke(new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(name);
-        AttributesMutator am = region.getAttributesMutator();
+        var am = region.getAttributesMutator();
         am.initCacheListeners(null);
       }
     });
   }
 
   private void checkAndClearListener(VM vm, final Serializable key, final boolean invalidated) {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     vm.invoke(new SerializableRunnable() {
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(name);
-        final MyListener listener = (MyListener) region.getAttributes().getCacheListeners()[0];
+        final var listener = (MyListener) region.getAttributes().getCacheListeners()[0];
         if (invalidated) {
           GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
 
@@ -296,12 +293,12 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
 
 
   private void checkValue(VM vm, final Serializable key, final Object expected) {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     vm.invoke(new SerializableRunnable() {
       @Override
       public void run() {
         Cache cache = getCache();
-        final LocalRegion region = (LocalRegion) cache.getRegion(name);
+        final var region = (LocalRegion) cache.getRegion(name);
 
         GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
 
@@ -330,7 +327,7 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void invalidateEntry(VM vm, final Serializable key) {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     vm.invoke(new SerializableRunnable() {
       @Override
       public void run() {
@@ -342,13 +339,13 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void putEntries(VM vm, final int start, final int end) {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     vm.invoke(new SerializableRunnable() {
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(name);
-        for (int i = start; i < end; i++) {
+        for (var i = start; i < end; i++) {
           region.put(i, "value");
         }
       }
@@ -356,23 +353,23 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createClient(VM vm, final int port) {
-    final String name = getUniqueName();
-    final Host host = Host.getHost(0);
+    final var name = getUniqueName();
+    final var host = Host.getHost(0);
     vm.invoke(new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
 
-        PoolFactory pf = PoolManager.createFactory();
+        var pf = PoolManager.createFactory();
         pf.addServer(NetworkUtils.getServerHostName(host), port);
         pf.setSubscriptionEnabled(true);
         pf.create(name);
-        RegionFactory rf = new RegionFactory();
+        var rf = new RegionFactory();
         rf.setOffHeap(isOffHeapEnabled());
         rf.setScope(Scope.LOCAL);
         rf.setPoolName(name);
-        Region region = rf.create(name);
+        var region = rf.create(name);
         region.registerInterest("ALL_KEYS");
       }
     });
@@ -380,12 +377,12 @@ public class ForceInvalidateEvictionDUnitTest extends JUnit4CacheTestCase {
   }
 
   private int addCacheServer(VM vm) {
-    final int port = getRandomAvailableTCPPort();
+    final var port = getRandomAvailableTCPPort();
     vm.invoke(new SerializableRunnable("add cache server") {
       @Override
       public void run() {
         Cache cache = getCache();
-        CacheServer server = cache.addCacheServer();
+        var server = cache.addCacheServer();
         server.setNotifyBySubscription(true);
         server.setPort(port);
         try {

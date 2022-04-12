@@ -41,8 +41,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import org.apache.logging.log4j.Logger;
@@ -393,7 +391,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void recoverFromFailedCompaction() {
-    File tmpFile = getTempFile();
+    var tmpFile = getTempFile();
     if (tmpFile.exists()) {
       // if the temp init file exists then we must have crashed during a compaction.
       // In this case we need to destroy the non temp file and rename the temp file.
@@ -427,11 +425,11 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     }
     DiskStoreID result = null;
     try {
-      try (final FileInputStream fis = new FileInputStream(ifFile);
-          final CountingDataInputStream dis =
+      try (final var fis = new FileInputStream(ifFile);
+          final var dis =
               new CountingDataInputStream(new BufferedInputStream(fis, 8 * 1024),
                   ifFile.length())) {
-        DiskInitFileParser parser = new DiskInitFileParser(dis, this);
+        var parser = new DiskInitFileParser(dis, this);
         result = parser.parse();
 
         gotEOF = parser.gotEOF();
@@ -441,7 +439,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
               ifLiveRecordCount, ifTotalRecordCount);
         }
       }
-      for (PlaceHolderDiskRegion drv : drMap.values()) {
+      for (var drv : drMap.values()) {
         if (drv.getMyPersistentID() != null || drv.getMyInitializingID() != null) {
           // Prepare each region we found in the init file for early recovery.
           if (drv.isBucket() || !getDiskStore().getOwnedByRegion()) {
@@ -486,7 +484,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   @Override
   public void cmnClearRegion(long drId, long clearOplogEntryId) {
-    DiskRegionView drv = getDiskRegionById(drId);
+    var drv = getDiskRegionById(drId);
     if (drv.getClearOplogEntryId() == DiskStoreImpl.INVALID_ID) {
       ifLiveRecordCount++;
     }
@@ -501,18 +499,18 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   @Override
   public void cmnClearRegion(long drId,
       ConcurrentHashMap<DiskStoreID, RegionVersionHolder<DiskStoreID>> memberToVersion) {
-    DiskRegionView drv = getDiskRegionById(drId);
+    var drv = getDiskRegionById(drId);
     if (drv.getClearRVV() == null) {
       ifLiveRecordCount++;
     }
     // otherwise previous clear is cancelled so don't change liveRecordCount
     ifTotalRecordCount++;
 
-    DiskStoreID ownerId = parent.getDiskStoreID();
+    var ownerId = parent.getDiskStoreID();
     // Create a fake RVV for clear purposes. We only need to memberToVersion information
-    RegionVersionHolder<DiskStoreID> ownerExceptions = memberToVersion.remove(ownerId);
-    long ownerVersion = ownerExceptions == null ? 0 : ownerExceptions.getVersion();
-    DiskRegionVersionVector rvv =
+    var ownerExceptions = memberToVersion.remove(ownerId);
+    var ownerVersion = ownerExceptions == null ? 0 : ownerExceptions.getVersion();
+    var rvv =
         new DiskRegionVersionVector(ownerId, memberToVersion, ownerVersion,
             new ConcurrentHashMap<>(), 0L, false, ownerExceptions);
     drv.setClearRVV(rvv);
@@ -542,7 +540,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       int concurrencyLevel, int initialCapacity, float loadFactor, boolean statisticsEnabled,
       boolean isBucket, EnumSet<DiskRegionFlag> flags, String partitionName, int startingBucketId,
       String compressorClassName, boolean offHeap) {
-    DiskRegionView dr = getDiskRegionById(drId);
+    var dr = getDiskRegionById(drId);
     if (dr != null) {
       // We don't want gateway queues to turn on versioning. Unfortunately, the only
       // way to indentify that a region is a gateway queue is by the region
@@ -606,7 +604,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   @Override
   public void cmnRmMemberId(long drId, PersistentMemberID pmid) {
-    DiskRegionView dr = getDiskRegionById(drId);
+    var dr = getDiskRegionById(drId);
     if (dr != null) {
       if (!dr.rmOnlineMember(pmid)) {
         if (!dr.rmOfflineMember(pmid)) {
@@ -629,7 +627,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   @Override
   public void cmnOfflineMemberId(long drId, PersistentMemberID pmid) {
-    DiskRegionView dr = getDiskRegionById(drId);
+    var dr = getDiskRegionById(drId);
     if (dr != null) {
       dr.addOfflineMember(pmid);
       if (dr.rmOnlineMember(pmid) || dr.rmEqualMember(pmid)) {
@@ -648,7 +646,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   @Override
   public void cmdOfflineAndEqualMemberId(long drId, PersistentMemberID pmid) {
-    DiskRegionView dr = getDiskRegionById(drId);
+    var dr = getDiskRegionById(drId);
     if (dr != null) {
       dr.addOfflineAndEqualMember(pmid);
       if (dr.rmOnlineMember(pmid) || dr.rmOfflineMember(pmid)) {
@@ -667,7 +665,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   @Override
   public void cmnOnlineMemberId(long drId, PersistentMemberID pmid) {
-    DiskRegionView dr = getDiskRegionById(drId);
+    var dr = getDiskRegionById(drId);
     if (dr != null) {
       dr.addOnlineMember(pmid);
       if (dr.rmOfflineMember(pmid) || dr.rmEqualMember(pmid)) {
@@ -687,7 +685,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   @Override
   public void cmnDataSerializerId(Class<? extends DataSerializer> dsc) {
     if (dsc != null) {
-      DataSerializer ds = InternalDataSerializer.register(dsc, /* dsId, */ true);
+      var ds = InternalDataSerializer.register(dsc, /* dsId, */ true);
       dsIds.add(ds.getId());
     }
     ifLiveRecordCount++;
@@ -775,12 +773,12 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   public void verifyOplogs(LongOpenHashSet foundCrfs, LongOpenHashSet foundDrfs,
       LongOpenHashSet expectedCrfIds, LongOpenHashSet expectedDrfIds) {
-    LongOpenHashSet missingCrfs = calcMissing(foundCrfs, expectedCrfIds);
-    LongOpenHashSet missingDrfs = calcMissing(foundDrfs, expectedDrfIds);
+    var missingCrfs = calcMissing(foundCrfs, expectedCrfIds);
+    var missingDrfs = calcMissing(foundDrfs, expectedDrfIds);
     // Note that finding extra ones is ok; it is possible we died just
     // after creating one but before we could record it in the if file
     // Or died just after deleting it but before we could record it in the if file.
-    boolean failed = false;
+    var failed = false;
     String msg = null;
     if (!missingCrfs.isEmpty()) {
       failed = true;
@@ -802,7 +800,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private LongOpenHashSet calcMissing(LongOpenHashSet found, LongOpenHashSet expected) {
-    LongOpenHashSet missing = new LongOpenHashSet(expected);
+    var missing = new LongOpenHashSet(expected);
     missing.removeAll(found);
     return missing;
   }
@@ -841,7 +839,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     lock(true);
     try {
       // need to call the constructor and addDiskRegion while synced
-      DiskRegion result = new DiskRegion(dsi, name, isBucket, isPersistBackup, overflowEnabled,
+      var result = new DiskRegion(dsi, name, isBucket, isPersistBackup, overflowEnabled,
           isSynchronous, stats, cancel, exceptionHandler, ra, flags, partitionName,
           startingBucketId, compressor == null ? null : compressor.getClass().getName(), offHeap);
       dsi.addDiskRegion(result);
@@ -863,7 +861,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   DiskRegionView getDiskRegionByPrName(String name) {
     lock(false);
     try {
-      for (PlaceHolderDiskRegion dr : drMapByName.values()) {
+      for (var dr : drMapByName.values()) {
         if (dr.isBucket()) {
           if (name.equals(dr.getPrName())) {
             return dr;
@@ -892,10 +890,10 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     // but since drId's can wrap around into negative numbers whatever
     // the last one we see is the right one to remember.
     parent.recoverRegionId(drId);
-    PlaceHolderDiskRegion dr = new PlaceHolderDiskRegion(parent, drId, regName);
+    var dr = new PlaceHolderDiskRegion(parent, drId, regName);
     Object old = drMap.put(drId, dr);
     assert old == null;
-    PlaceHolderDiskRegion oldDr = drMapByName.put(regName, dr);
+    var oldDr = drMapByName.put(regName, dr);
     if (oldDr != null) {
       drMap.remove(oldDr.getId()); // fix for bug 42043
     }
@@ -910,13 +908,13 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   private void writeIFRecord(byte b, DiskRegionView dr) {
     assert lock.isHeldByCurrentThread();
     try {
-      ByteBuffer bb = getIFWriteBuffer(1 + DR_ID_MAX_BYTES + 1);
+      var bb = getIFWriteBuffer(1 + DR_ID_MAX_BYTES + 1);
       bb.put(b);
       putDiskRegionID(bb, dr.getId());
       bb.put(END_OF_RECORD_ID);
       writeIFRecord(bb, false); // don't do stats for these small records
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -929,14 +927,14 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   private void writeIFRecord(byte b, DiskRegionView dr, long v) {
     assert lock.isHeldByCurrentThread();
     try {
-      ByteBuffer bb = getIFWriteBuffer(1 + DR_ID_MAX_BYTES + 8 + 1);
+      var bb = getIFWriteBuffer(1 + DR_ID_MAX_BYTES + 8 + 1);
       bb.put(b);
       putDiskRegionID(bb, dr.getId());
       bb.putLong(v);
       bb.put(END_OF_RECORD_ID);
       writeIFRecord(bb, false); // don't do stats for these small records
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -949,13 +947,13 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   private void writeIFRecord(byte b, long v) {
     assert lock.isHeldByCurrentThread();
     try {
-      ByteBuffer bb = getIFWriteBuffer(OPLOG_FILE_ID_REC_SIZE);
+      var bb = getIFWriteBuffer(OPLOG_FILE_ID_REC_SIZE);
       bb.put(b);
       bb.putLong(v);
       bb.put(END_OF_RECORD_ID);
       writeIFRecord(bb, false); // don't do stats for these small records
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -968,11 +966,11 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   private void writeIFRecord(byte b, DiskRegionView dr, String s) {
     assert lock.isHeldByCurrentThread();
     try {
-      int hdosSize = 1 + DR_ID_MAX_BYTES + estimateByteSize(s) + 1;
+      var hdosSize = 1 + DR_ID_MAX_BYTES + estimateByteSize(s) + 1;
       if (hdosSize < 32) {
         hdosSize = 32;
       }
-      try (HeapDataOutputStream hdos = new HeapDataOutputStream(hdosSize, KnownVersion.CURRENT)) {
+      try (var hdos = new HeapDataOutputStream(hdosSize, KnownVersion.CURRENT)) {
         hdos.write(b);
         writeDiskRegionID(hdos, dr.getId());
         hdos.writeUTF(s);
@@ -980,7 +978,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
         writeIFRecord(hdos, true);
       }
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -998,8 +996,8 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       boolean doStats) {
     assert lock.isHeldByCurrentThread();
     try {
-      byte[] pmidBytes = pmidToBytes(pmid);
-      ByteBuffer bb = getIFWriteBuffer(1 + DR_ID_MAX_BYTES + 4 + pmidBytes.length + 1);
+      var pmidBytes = pmidToBytes(pmid);
+      var bb = getIFWriteBuffer(1 + DR_ID_MAX_BYTES + 4 + pmidBytes.length + 1);
       bb.put(opcode);
       putDiskRegionID(bb, dr.getId());
       bb.putInt(pmidBytes.length);
@@ -1007,7 +1005,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       bb.put(END_OF_RECORD_ID);
       writeIFRecord(bb, doStats);
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -1026,10 +1024,10 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     if (drId >= 0 && drId <= 255) {
       bb.put((byte) drId);
     } else {
-      byte bytesNeeded = Oplog.bytesNeeded(drId);
+      var bytesNeeded = Oplog.bytesNeeded(drId);
       bb.put(bytesNeeded);
-      byte[] bytes = new byte[bytesNeeded];
-      for (int i = bytesNeeded - 1; i >= 0; i--) {
+      var bytes = new byte[bytesNeeded];
+      for (var i = bytesNeeded - 1; i >= 0; i--) {
         bytes[i] = (byte) (drId & 0xFF);
         drId >>= 8;
       }
@@ -1046,10 +1044,10 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     if (drId >= 0 && drId <= 255) {
       dos.write((byte) drId);
     } else {
-      byte bytesNeeded = Oplog.bytesNeeded(drId);
+      var bytesNeeded = Oplog.bytesNeeded(drId);
       dos.write(bytesNeeded);
-      byte[] bytes = new byte[bytesNeeded];
-      for (int i = bytesNeeded - 1; i >= 0; i--) {
+      var bytes = new byte[bytesNeeded];
+      for (var i = bytesNeeded - 1; i >= 0; i--) {
         bytes[i] = (byte) (drId & 0xFF);
         drId >>= 8;
       }
@@ -1058,7 +1056,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   static long readDiskRegionID(DataInput dis) throws IOException {
-    int bytesToRead = dis.readUnsignedByte();
+    var bytesToRead = dis.readUnsignedByte();
     if (bytesToRead <= DiskStoreImpl.MAX_RESERVED_DRID
         && bytesToRead >= DiskStoreImpl.MIN_RESERVED_DRID) {
       long result = dis.readByte(); // we want to sign extend this first byte
@@ -1200,9 +1198,9 @@ public class DiskInitFile implements DiskInitFileInterpreter {
         // instantiator already written to disk so just return
         return;
       }
-      final byte[] classNameBytes = classNameToBytes(instantiatorClassName);
-      final byte[] instClassNameBytes = classNameToBytes(instantiatedClassName);
-      ByteBuffer bb =
+      final var classNameBytes = classNameToBytes(instantiatorClassName);
+      final var instClassNameBytes = classNameToBytes(instantiatedClassName);
+      var bb =
           getIFWriteBuffer(1 + 4 + 4 + classNameBytes.length + 4 + instClassNameBytes.length + 1);
       bb.put(IFREC_INSTANTIATOR_ID);
       bb.putInt(id);
@@ -1223,12 +1221,12 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void saveInstantiators() {
-    Object[] objects = InternalInstantiator.getInstantiatorsForSerialization();
-    for (Object obj : objects) {
+    var objects = InternalInstantiator.getInstantiatorsForSerialization();
+    for (var obj : objects) {
       if (obj instanceof Instantiator) {
         saveInstantiator((Instantiator) obj);
       } else {
-        InstantiatorAttributesHolder iah = (InstantiatorAttributesHolder) obj;
+        var iah = (InstantiatorAttributesHolder) obj;
         saveInstantiator(iah.getId(), iah.getInstantiatorClassName(),
             iah.getInstantiatedClassName());
       }
@@ -1259,8 +1257,8 @@ public class DiskInitFile implements DiskInitFileInterpreter {
         // dataSerializer already written to disk so just return
         return;
       }
-      final byte[] classNameBytes = classToBytes(ds.getClass());
-      ByteBuffer bb = getIFWriteBuffer(1 + 4 + classNameBytes.length + 1);
+      final var classNameBytes = classToBytes(ds.getClass());
+      var bb = getIFWriteBuffer(1 + 4 + classNameBytes.length + 1);
       bb.put(IFREC_DATA_SERIALIZER_ID);
       bb.putInt(classNameBytes.length);
       bb.put(classNameBytes);
@@ -1277,8 +1275,8 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void saveDataSerializers() {
-    DataSerializer[] dataSerializers = InternalDataSerializer.getSerializers();
-    for (final DataSerializer dataSerializer : dataSerializers) {
+    var dataSerializers = InternalDataSerializer.getSerializers();
+    for (final var dataSerializer : dataSerializers) {
       saveDataSerializer(dataSerializer);
     }
   }
@@ -1316,7 +1314,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
         throw new CacheClosedException("The disk store is closed or closing");
       }
 
-      DiskAccessException dae = new DiskAccessException("The disk init file is closed", parent);
+      var dae = new DiskAccessException("The disk init file is closed", parent);
       parent.handleDiskAccessException(dae);
 
       throw dae;
@@ -1405,9 +1403,9 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       } catch (IOException ignore) {
       }
       // rename the old file to tmpFile
-      File tmpFile = getTempFile();
+      var tmpFile = getTempFile();
       if (ifFile.renameTo(tmpFile)) {
-        boolean success = false;
+        var success = false;
         try {
           // create the new file
           openRAF();
@@ -1469,7 +1467,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
     try {
       ifRAF = new RandomAccessFile(ifFile, getFileMode());
-      long len = ifRAF.length();
+      var len = ifRAF.length();
       if (len != 0) {
         ifRAF.seek(len);
       }
@@ -1487,7 +1485,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   private void openRAF2() {
     try {
       ifRAF = new RandomAccessFile(ifFile, getFileMode());
-      long len = ifRAF.length();
+      var len = ifRAF.length();
       if (len != 0) {
         // this.ifRAF.seek(len);
         if (gotEOF) {
@@ -1498,9 +1496,9 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       } else {
         // pre-allocate the if file using some percentage of max Oplog size but
         // with max of 10M and min of 1M
-        long maxSizeInMB = Math.min(Math.max(parent.getMaxOplogSize() / 200L, 1L), 10L);
-        byte[] buffer = new byte[(1024 * 1024)];
-        for (int i = 0; i < maxSizeInMB; i++) {
+        var maxSizeInMB = Math.min(Math.max(parent.getMaxOplogSize() / 200L, 1L), 10L);
+        var buffer = new byte[(1024 * 1024)];
+        for (var i = 0; i < maxSizeInMB; i++) {
           ifRAF.write(buffer);
         }
         ifRAF.seek(0L);
@@ -1546,7 +1544,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void saveCrfIds() {
-    for (final Long crfId : crfIds) {
+    for (final var crfId : crfIds) {
       writeIFRecord(IFREC_CRF_CREATE, crfId);
       ifLiveRecordCount++;
       ifTotalRecordCount++;
@@ -1554,7 +1552,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void saveDrfIds() {
-    for (final Long drfId : drfIds) {
+    for (final var drfId : drfIds) {
       writeIFRecord(IFREC_DRF_CREATE, drfId);
       ifLiveRecordCount++;
       ifTotalRecordCount++;
@@ -1562,7 +1560,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void saveKrfIds() {
-    for (final Long krfId : krfIds) {
+    for (final var krfId : krfIds) {
       writeIFRecord(IFREC_KRF_CREATE, krfId);
       ifLiveRecordCount++;
       ifTotalRecordCount++;
@@ -1570,7 +1568,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void savePRConfigs() {
-    for (Map.Entry<String, PRPersistentConfig> entry : prMap.entrySet()) {
+    for (var entry : prMap.entrySet()) {
       writePRCreate(entry.getKey(), entry.getValue());
       ifLiveRecordCount++;
       ifTotalRecordCount++;
@@ -1578,14 +1576,14 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void saveCanonicalIds() {
-    Int2ObjectOpenHashMap<Object> mappings = canonicalIdHolder.getAllMappings();
-    for (Int2ObjectMap.Entry<Object> entry : mappings.int2ObjectEntrySet()) {
+    var mappings = canonicalIdHolder.getAllMappings();
+    for (var entry : mappings.int2ObjectEntrySet()) {
       writeCanonicalId(entry.getIntKey(), entry.getValue());
     }
   }
 
   private void saveRevokedMembers() {
-    for (PersistentMemberPattern revoked : revokedMembers) {
+    for (var revoked : revokedMembers) {
       writeRevokedMember(revoked);
     }
   }
@@ -1593,7 +1591,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   private void writeDiskStoreId() {
     lock(true);
     try {
-      ByteBuffer bb = getIFWriteBuffer(1 + 6 + 1);
+      var bb = getIFWriteBuffer(1 + 6 + 1);
       bb.put(OPLOG_MAGIC_SEQ_ID);
       bb.put(Oplog.OPLOG_TYPE.IF.getBytes(), 0, Oplog.OPLOG_TYPE.getLen());
       bb.put(END_OF_RECORD_ID);
@@ -1606,7 +1604,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       bb.put(END_OF_RECORD_ID);
       writeIFRecord(bb, false); // don't do stats for these small records
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -1619,13 +1617,13 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void writeRevokedMember(PersistentMemberPattern revoked) {
-    try (HeapDataOutputStream hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT)) {
+    try (var hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT)) {
       hdos.write(IFREC_REVOKE_DISK_STORE_ID);
       InternalDataSerializer.invokeToData(revoked, hdos);
       hdos.write(END_OF_RECORD_ID);
       writeIFRecord(hdos, false); // don't do stats for these small records
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -1636,8 +1634,8 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void writeRegionConfig(DiskRegionView drv) {
-    int len = estimateByteSize(drv.getPartitionName());
-    try (HeapDataOutputStream bb = new HeapDataOutputStream(
+    var len = estimateByteSize(drv.getPartitionName());
+    try (var bb = new HeapDataOutputStream(
         1 + DR_ID_MAX_BYTES + 1 + 1 + 4 + 4 + 4 + 1 + 1 + 4 + len + 4 + 1 + 1 + 1,
         KnownVersion.CURRENT)) {
       bb.write(IFREC_REGION_CONFIG_ID_90);
@@ -1650,7 +1648,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       bb.writeFloat(drv.getLoadFactor());
       bb.write((byte) (drv.getStatisticsEnabled() ? 1 : 0));
       bb.write((byte) (drv.isBucket() ? 1 : 0));
-      final EnumSet<DiskRegionFlag> flags = drv.getFlags();
+      final var flags = drv.getFlags();
       bb.writeUTF(drv.getPartitionName());
       bb.writeInt(drv.getStartingBucketId());
       bb.writeUTF(drv.getCompressorClassName() == null ? "" : drv.getCompressorClassName());
@@ -1660,7 +1658,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       bb.write(END_OF_RECORD_ID);
       writeIFRecord(bb, false); // don't do stats for these small records
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -1671,11 +1669,11 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void writePRCreate(String name, PRPersistentConfig config) {
-    int nameLength = estimateByteSize(name);
-    String colocatedWith = config.getColocatedWith();
+    var nameLength = estimateByteSize(name);
+    var colocatedWith = config.getColocatedWith();
     colocatedWith = colocatedWith == null ? "" : colocatedWith;
-    int colocatedLength = estimateByteSize(colocatedWith);
-    try (HeapDataOutputStream hdos =
+    var colocatedLength = estimateByteSize(colocatedWith);
+    try (var hdos =
         new HeapDataOutputStream(1 + nameLength + 4 + colocatedLength + 1, KnownVersion.CURRENT)) {
       hdos.write(IFREC_PR_CREATE);
       hdos.writeUTF(name);
@@ -1684,7 +1682,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       hdos.write(END_OF_RECORD_ID);
       writeIFRecord(hdos, false);
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -1695,15 +1693,15 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void writePRDestroy(String name) {
-    int nameLength = estimateByteSize(name);
-    try (HeapDataOutputStream hdos =
+    var nameLength = estimateByteSize(name);
+    try (var hdos =
         new HeapDataOutputStream(1 + nameLength + 4 + 1, KnownVersion.CURRENT)) {
       hdos.write(IFREC_PR_DESTROY);
       hdos.writeUTF(name);
       hdos.write(END_OF_RECORD_ID);
       writeIFRecord(hdos, false);
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -1714,14 +1712,14 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void writeCanonicalId(int id, Object object) {
-    try (HeapDataOutputStream hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT)) {
+    try (var hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT)) {
       hdos.write(IFREC_ADD_CANONICAL_MEMBER_ID);
       hdos.writeInt(id);
       DataSerializer.writeObject(object, hdos);
       hdos.write(END_OF_RECORD_ID);
       writeIFRecord(hdos, true);
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -1747,13 +1745,13 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     if (drv.getClearRVV() != null) {
       writeClearRecord(drv, drv.getClearRVV());
     }
-    for (PersistentMemberID pmid : drv.getOnlineMembers()) {
+    for (var pmid : drv.getOnlineMembers()) {
       writePMIDRecord(IFREC_ONLINE_MEMBER_ID, drv, pmid, true);
     }
-    for (PersistentMemberID pmid : drv.getOfflineMembers()) {
+    for (var pmid : drv.getOfflineMembers()) {
       writePMIDRecord(IFREC_OFFLINE_MEMBER_ID, drv, pmid, true);
     }
-    for (PersistentMemberID pmid : drv.getOfflineAndEqualMembers()) {
+    for (var pmid : drv.getOfflineAndEqualMembers()) {
       writePMIDRecord(IFREC_OFFLINE_AND_EQUAL_MEMBER_ID, drv, pmid, true);
     }
     if (drv.getMyPersistentID() != null) {
@@ -1771,7 +1769,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   private byte[] pmidToBytes(PersistentMemberID id) {
     try {
-      HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+      var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
       InternalDataSerializer.invokeToData(id, hdos);
       return hdos.toByteArray();
     } catch (IOException ex) {
@@ -1783,10 +1781,10 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   DiskInitFile(String name, DiskStoreImpl parent, boolean shouldExist, Set<File> oplogs) {
     this.parent = parent;
-    File f = new File(this.parent.getInfoFileDir().getDir(), "BACKUP" + name + IF_FILE_EXT);
-    final boolean didNotExist = !f.exists();
+    var f = new File(this.parent.getInfoFileDir().getDir(), "BACKUP" + name + IF_FILE_EXT);
+    final var didNotExist = !f.exists();
     if (shouldExist && didNotExist) {
-      String msg = String.format("The init file %s does not exist.", f);
+      var msg = String.format("The init file %s does not exist.", f);
       if (!oplogs.isEmpty()) {
         Set<File> allOplogs = new LinkedHashSet<>(oplogs);
         msg +=
@@ -1842,7 +1840,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     lock(true);
     try {
       parent.rmById(dr.getId()); // fix for bug 41334
-      PlaceHolderDiskRegion phdr = new PlaceHolderDiskRegion(dr);
+      var phdr = new PlaceHolderDiskRegion(dr);
       drMap.put(dr.getId(), phdr);
       drMapByName.put(dr.getName(), phdr);
       // @todo make sure we only have one instance of the region for this name
@@ -1896,13 +1894,13 @@ public class DiskInitFile implements DiskInitFileInterpreter {
    * Write a clear with an RVV record.
    */
   private void writeClearRecord(DiskRegionView dr, RegionVersionVector<DiskStoreID> rvv) {
-    try (HeapDataOutputStream hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT)) {
+    try (var hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT)) {
       hdos.write(IFREC_CLEAR_REGION_WITH_RVV_ID);
       writeDiskRegionID(hdos, dr.getId());
       // We only need the memberToVersionMap for clear purposes
-      Map<DiskStoreID, RegionVersionHolder<DiskStoreID>> memberToVersion = rvv.getMemberToVersion();
+      var memberToVersion = rvv.getMemberToVersion();
       hdos.writeInt(memberToVersion.size());
-      for (Map.Entry<DiskStoreID, RegionVersionHolder<DiskStoreID>> entry : memberToVersion
+      for (var entry : memberToVersion
           .entrySet()) {
         InternalDataSerializer.invokeToData(entry.getKey(), hdos);
         synchronized (entry.getValue()) {
@@ -1912,7 +1910,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       hdos.write(END_OF_RECORD_ID);
       writeIFRecord(hdos, false); // don't do stats for these small records
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {
@@ -2088,7 +2086,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   int getOrCreateCanonicalId(Object object) {
     lock(true);
     try {
-      int id = canonicalIdHolder.getId(object);
+      var id = canonicalIdHolder.getId(object);
       if (id <= 0) {
         id = canonicalIdHolder.createId(object);
         writeCanonicalId(id, object);
@@ -2120,7 +2118,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
         ifRAF.close();
       } catch (IOException ignore) {
       }
-      for (DiskRegionView k : getKnown()) {
+      for (var k : getKnown()) {
         k.close();
       }
       if (liveRegions == 0 && !parent.isValidating()) {
@@ -2364,9 +2362,9 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   private Map<String, List<PlaceHolderDiskRegion>> getRegionsToDump(final String regName) {
     if (regName == null) {
       final Map<String, List<PlaceHolderDiskRegion>> regions = new HashMap<>();
-      for (final PlaceHolderDiskRegion dr : drMap.values()) {
+      for (final var dr : drMap.values()) {
         if (dr.isBucket()) {
-          final List<PlaceHolderDiskRegion> buckets =
+          final var buckets =
               regions.computeIfAbsent(dr.getPrName(), k -> new ArrayList<>());
           buckets.add(dr);
         } else {
@@ -2375,10 +2373,10 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       }
       return regions;
     } else {
-      DiskRegionView drv = getDiskRegionByName(regName);
+      var drv = getDiskRegionByName(regName);
       if (drv == null) {
         List<PlaceHolderDiskRegion> buckets = new ArrayList<>();
-        for (PlaceHolderDiskRegion dr : drMapByName.values()) {
+        for (var dr : drMapByName.values()) {
           if (dr.isBucket()) {
             if (dr.getName().equals(dr.getPrName())) {
               buckets.add(dr);
@@ -2402,12 +2400,12 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   public void dumpRegionInfo(PrintStream printStream, String regName) {
     printStream.println("Regions in the disk store:");
-    for (Map.Entry<String, List<PlaceHolderDiskRegion>> regionEntry : getRegionsToDump(regName)
+    for (var regionEntry : getRegionsToDump(regName)
         .entrySet()) {
       printStream.print("  ");
-      List<PlaceHolderDiskRegion> regions = regionEntry.getValue();
+      var regions = regionEntry.getValue();
       if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
-        for (PlaceHolderDiskRegion region : regions) {
+        for (var region : regions) {
           region.dump(printStream);
         }
       } else {
@@ -2420,11 +2418,11 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   public void dumpRegionMetadata(boolean showBuckets) {
     System.out.println("Disk Store ID: " + getDiskStore().getDiskStoreID());
     System.out.println("Regions in the disk store:");
-    for (Map.Entry<String, List<PlaceHolderDiskRegion>> regionEntry : getRegionsToDump(null)
+    for (var regionEntry : getRegionsToDump(null)
         .entrySet()) {
       System.out.print("  ");
-      List<PlaceHolderDiskRegion> regions = regionEntry.getValue();
-      PlaceHolderDiskRegion region0 = regions.get(0);
+      var regions = regionEntry.getValue();
+      var region0 = regions.get(0);
       if (region0.isBucket()) {
         dumpPRMetaData(showBuckets, regions);
 
@@ -2439,11 +2437,11 @@ public class DiskInitFile implements DiskInitFileInterpreter {
    * buckets.
    */
   private void dumpPRMetaData(boolean showBuckets, List<PlaceHolderDiskRegion> regions) {
-    StringBuilder msg = new StringBuilder(regions.get(0).getPrName());
+    var msg = new StringBuilder(regions.get(0).getPrName());
     regions.get(0).dumpCommonAttributes(msg);
 
     if (showBuckets) {
-      for (PlaceHolderDiskRegion region : regions) {
+      for (var region : regions) {
         msg.append("\n");
         msg.append("\n");
         msg.append(region.getName());
@@ -2453,30 +2451,30 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       Map<DiskStoreID, String> online = new HashMap<>();
       Map<DiskStoreID, String> offline = new HashMap<>();
       Map<DiskStoreID, String> equal = new HashMap<>();
-      for (PlaceHolderDiskRegion region : regions) {
-        for (PersistentMemberID mem : region.getOnlineMembers()) {
+      for (var region : regions) {
+        for (var mem : region.getOnlineMembers()) {
           online.put(mem.getDiskStoreId(), mem.getHost() + ":" + mem.getDirectory());
         }
-        for (PersistentMemberID mem : region.getOfflineMembers()) {
+        for (var mem : region.getOfflineMembers()) {
           offline.put(mem.getDiskStoreId(), mem.getHost() + ":" + mem.getDirectory());
         }
-        for (PersistentMemberID mem : region.getOfflineAndEqualMembers()) {
+        for (var mem : region.getOfflineAndEqualMembers()) {
           equal.put(mem.getDiskStoreId(), mem.getHost() + ":" + mem.getDirectory());
         }
       }
 
       msg.append("\n\tonlineMembers:");
-      for (Map.Entry<DiskStoreID, String> id : online.entrySet()) {
+      for (var id : online.entrySet()) {
         msg.append("\n\t\t").append(id.getKey()).append(" ").append(id.getValue());
       }
 
       msg.append("\n\tofflineMembers:");
-      for (Map.Entry<DiskStoreID, String> id : offline.entrySet()) {
+      for (var id : offline.entrySet()) {
         msg.append("\n\t\t").append(id.getKey()).append(" ").append(id.getValue());
       }
 
       msg.append("\n\tequalsMembers:");
-      for (Map.Entry<DiskStoreID, String> id : equal.entrySet()) {
+      for (var id : equal.entrySet()) {
         msg.append("\n\t\t").append(id.getKey()).append(" ").append(id.getValue());
       }
     }
@@ -2485,10 +2483,10 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   public void destroyPRRegion(String prName) {
-    ArrayList<PlaceHolderDiskRegion> buckets = new ArrayList<>();
+    var buckets = new ArrayList<PlaceHolderDiskRegion>();
     lock(true);
     try {
-      for (PlaceHolderDiskRegion dr : drMapByName.values()) {
+      for (var dr : drMapByName.values()) {
         if (dr.isBucket()) {
           if (prName.equals(dr.getPrName())) {
             buckets.add(dr);
@@ -2498,7 +2496,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     } finally {
       unlock(true);
     }
-    for (PlaceHolderDiskRegion dr : buckets) {
+    for (var dr : buckets) {
       endDestroyRegion(dr);
     }
 
@@ -2511,12 +2509,12 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       String lruLimitOption, String concurrencyLevelOption, String initialCapacityOption,
       String loadFactorOption, String compressorClassNameOption, String statisticsEnabledOption,
       String offHeapOption, boolean printToConsole) {
-    final StringBuilder sb = new StringBuilder();
-    final ArrayList<PlaceHolderDiskRegion> buckets = new ArrayList<>();
+    final var sb = new StringBuilder();
+    final var buckets = new ArrayList<PlaceHolderDiskRegion>();
 
     lock(true);
     try {
-      for (PlaceHolderDiskRegion dr : drMapByName.values()) {
+      for (var dr : drMapByName.values()) {
         if (dr.isBucket()) {
           if (prName.equals(dr.getPrName())) {
             buckets.add(dr);
@@ -2525,9 +2523,9 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       }
 
       // only print info on the first bucket to fix bug 41735
-      boolean printInfo = true;
-      for (PlaceHolderDiskRegion dr : buckets) {
-        String message = basicModifyRegion(printInfo, dr, lruOption, lruActionOption,
+      var printInfo = true;
+      for (var dr : buckets) {
+        var message = basicModifyRegion(printInfo, dr, lruOption, lruActionOption,
             lruLimitOption, concurrencyLevelOption, initialCapacityOption, loadFactorOption,
             compressorClassNameOption, statisticsEnabledOption, offHeapOption, printToConsole);
         if (printInfo) {
@@ -2560,20 +2558,20 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       String lruActionOption, String lruLimitOption, String concurrencyLevelOption,
       String initialCapacityOption, String loadFactorOption, String compressorClassNameOption,
       String statisticsEnabledOption, String offHeapOption, boolean printToConsole) {
-    byte lruAlgorithm = drv.getLruAlgorithm();
-    byte lruAction = drv.getLruAction();
-    int lruLimit = drv.getLruLimit();
-    int concurrencyLevel = drv.getConcurrencyLevel();
-    int initialCapacity = drv.getInitialCapacity();
-    float loadFactor = drv.getLoadFactor();
-    String compressorClassName = drv.getCompressorClassName();
-    boolean statisticsEnabled = drv.getStatisticsEnabled();
-    boolean offHeap = drv.getOffHeap();
-    StringBuilder sb = new StringBuilder();
-    final String lineSeparator = lineSeparator();
+    var lruAlgorithm = drv.getLruAlgorithm();
+    var lruAction = drv.getLruAction();
+    var lruLimit = drv.getLruLimit();
+    var concurrencyLevel = drv.getConcurrencyLevel();
+    var initialCapacity = drv.getInitialCapacity();
+    var loadFactor = drv.getLoadFactor();
+    var compressorClassName = drv.getCompressorClassName();
+    var statisticsEnabled = drv.getStatisticsEnabled();
+    var offHeap = drv.getOffHeap();
+    var sb = new StringBuilder();
+    final var lineSeparator = lineSeparator();
 
     if (lruOption != null) {
-      EvictionAlgorithm ea = EvictionAlgorithm.parseAction(lruOption);
+      var ea = EvictionAlgorithm.parseAction(lruOption);
       if (ea != null) {
         lruAlgorithm = (byte) ea.getValue();
       } else {
@@ -2588,7 +2586,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
       }
     }
     if (lruActionOption != null) {
-      EvictionAction ea = EvictionAction.parseAction(lruActionOption);
+      var ea = EvictionAction.parseAction(lruActionOption);
       if (ea != null) {
         lruAction = (byte) ea.getValue();
       } else {
@@ -2666,7 +2664,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     sb.append(((PlaceHolderDiskRegion) drv).dump2());
     sb.append(lineSeparator);
 
-    String message = sb.toString();
+    var message = sb.toString();
 
     if (printInfo && printToConsole) {
       System.out.println(message);
@@ -2677,13 +2675,13 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   private void writeGemfireVersion(KnownVersion version) {
     lock(true);
     try {
-      ByteBuffer bb = getIFWriteBuffer(1 + 3 + 1);
+      var bb = getIFWriteBuffer(1 + 3 + 1);
       bb.put(IFREC_GEMFIRE_VERSION);
       VersioningIO.writeOrdinal(bb, version.ordinal(), false);
       bb.put(END_OF_RECORD_ID);
       writeIFRecord(bb, false); // don't do stats for these small records
     } catch (IOException ex) {
-      DiskAccessException dae = new DiskAccessException(
+      var dae = new DiskAccessException(
           String.format("Failed writing data to initialization file because: %s", ex),
           parent);
       if (!compactInProgress) {

@@ -25,7 +25,7 @@ public class DBSizeExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    int size = context.getRegionProvider().getLocalDataRegion().size();
+    var size = context.getRegionProvider().getLocalDataRegion().size();
 
     return RedisResponse.integer(size);
   }

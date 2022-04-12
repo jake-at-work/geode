@@ -29,7 +29,6 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
@@ -53,7 +52,7 @@ public class AddFreeItemToOrders implements Function {
     if (context.getArguments() instanceof Boolean) {
 
     } else if (context.getArguments() instanceof String) {
-      String arg = (String) context.getArguments();
+      var arg = (String) context.getArguments();
     } else if (context.getArguments() instanceof Vector) {
 
     } else if (context.getArguments() instanceof Object[]) {
@@ -73,21 +72,21 @@ public class AddFreeItemToOrders implements Function {
       context.getResultSender().lastResult(vals);
     }
 
-    String oql =
+    var oql =
         "SELECT DISTINCT entry.key FROM " + SEPARATOR
             + "orders.entries entry WHERE entry.value.totalPrice > $1";
-    Object[] queryArgs = new Object[1];
+    var queryArgs = new Object[1];
     queryArgs[0] = argsList.get(0);
 
-    final Query query = cache.getQueryService().newQuery(oql);
+    final var query = cache.getQueryService().newQuery(oql);
 
     SelectResults result = null;
     try {
       result = (SelectResults) query.execute(queryArgs);
-      int resultSize = result.size();
+      var resultSize = result.size();
 
       if (result instanceof Collection<?>) {
-        for (Object item : result) {
+        for (var item : result) {
           keys.add(item);
         }
       }
@@ -120,12 +119,12 @@ public class AddFreeItemToOrders implements Function {
 
     // class has to be in classpath.
     try {
-      Item it = (Item) (argsList.get(1));
-      for (Object key : keys) {
-        Object obj = region.get(key);
+      var it = (Item) (argsList.get(1));
+      for (var key : keys) {
+        var obj = region.get(key);
         if (obj instanceof PdxInstance) {
-          PdxInstance pi = (PdxInstance) obj;
-          Order receivedOrder = (Order) pi.getObject();
+          var pi = (PdxInstance) obj;
+          var receivedOrder = (Order) pi.getObject();
           receivedOrder.addItem(it);
 
           region.put(key, receivedOrder);

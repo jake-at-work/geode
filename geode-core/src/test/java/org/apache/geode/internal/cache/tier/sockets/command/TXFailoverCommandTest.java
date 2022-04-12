@@ -43,19 +43,19 @@ public class TXFailoverCommandTest {
 
   @Test
   public void testTXFailoverSettingTargetNode() throws Exception {
-    ClientProxyMembershipID clientProxyMembershipID = mock(ClientProxyMembershipID.class);
-    FindRemoteTXMessageReplyProcessor processor = mock(FindRemoteTXMessageReplyProcessor.class);
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedMember client = mock(InternalDistributedMember.class);
-    InternalDistributedMember host = mock(InternalDistributedMember.class);
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
-    Message message = mock(Message.class);
-    ServerConnection serverConnection = mock(ServerConnection.class);
-    TXManagerImpl txManager = mock(TXManagerImpl.class);
+    var clientProxyMembershipID = mock(ClientProxyMembershipID.class);
+    var processor = mock(FindRemoteTXMessageReplyProcessor.class);
+    var cache = mock(InternalCache.class);
+    var client = mock(InternalDistributedMember.class);
+    var host = mock(InternalDistributedMember.class);
+    var system = mock(InternalDistributedSystem.class);
+    var message = mock(Message.class);
+    var serverConnection = mock(ServerConnection.class);
+    var txManager = mock(TXManagerImpl.class);
 
-    int uniqueId = 1;
-    TXId txId = new TXId(client, uniqueId);
-    TXStateProxyImpl proxy = new TXStateProxyImpl(cache, txManager, txId, null, disabledClock());
+    var uniqueId = 1;
+    var txId = new TXId(client, uniqueId);
+    var proxy = new TXStateProxyImpl(cache, txManager, txId, null, disabledClock());
 
     when(cache.getCacheTransactionManager()).thenReturn(txManager);
     when(cache.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
@@ -69,7 +69,7 @@ public class TXFailoverCommandTest {
 
     when(serverConnection.getReplyMessage()).thenReturn(mock(Message.class));
 
-    TXFailoverCommand command = spy(new TXFailoverCommand());
+    var command = spy(new TXFailoverCommand());
     doReturn(txId).when(command).createTXId(client, uniqueId);
     doReturn(processor).when(command).sendFindRemoteTXMessage(cache, txId);
 

@@ -329,7 +329,7 @@ public class RegionClusterStatsMonitor {
   }
 
   public int getAvgBucketSize() {
-    int bucketNum = getBucketCount();
+    var bucketNum = getBucketCount();
     if (bucketNum > 0) {
       return getTotalBucketSize() / bucketNum;
     } else {

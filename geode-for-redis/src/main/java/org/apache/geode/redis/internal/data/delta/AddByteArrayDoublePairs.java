@@ -51,17 +51,17 @@ public class AddByteArrayDoublePairs extends DeltaInfo {
   public void serializeTo(DataOutput out) throws IOException {
     super.serializeTo(out);
     DataSerializer.writePrimitiveInt(byteArrays.size(), out);
-    for (int i = 0; i < byteArrays.size(); i++) {
+    for (var i = 0; i < byteArrays.size(); i++) {
       DataSerializer.writeByteArray(byteArrays.get(i), out);
       DataSerializer.writePrimitiveDouble(doubles[i], out);
     }
   }
 
   public static void deserializeFrom(DataInput in, AbstractRedisData redisData) throws IOException {
-    int size = DataSerializer.readPrimitiveInt(in);
+    var size = DataSerializer.readPrimitiveInt(in);
     while (size > 0) {
-      byte[] byteArray = readByteArray(in);
-      double doubleValue = readPrimitiveDouble(in);
+      var byteArray = readByteArray(in);
+      var doubleValue = readPrimitiveDouble(in);
       redisData.applyAddByteArrayDoublePairDelta(byteArray, doubleValue);
       size--;
     }

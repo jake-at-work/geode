@@ -33,7 +33,6 @@ import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.data.PortfolioPdx;
 import org.apache.geode.compression.SnappyCompressor;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.pdx.internal.PdxString;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 
@@ -50,10 +49,10 @@ public abstract class AbstractIndexMaintenanceIntegrationTest {
   public void setPdxStringFlagWithAPdxStringShouldNotBeChangedAfterTheFirstCall() throws Exception {
     CacheUtils.startCache();
     Cache cache = CacheUtils.getCache();
-    LocalRegion region =
+    var region =
         (LocalRegion) cache.createRegionFactory(RegionShortcut.REPLICATE).create("portfolios");
-    QueryService qs = cache.getQueryService();
-    AbstractIndex statusIndex =
+    var qs = cache.getQueryService();
+    var statusIndex =
         createIndex(qs, "statusIndex", "value.status", SEPARATOR + "portfolios.entrySet()");
 
     statusIndex.setPdxStringFlag("StringKey");
@@ -69,10 +68,10 @@ public abstract class AbstractIndexMaintenanceIntegrationTest {
   public void setPdxStringFlagWithAStringShouldNotBeChangedAfterTheFirstCall() throws Exception {
     CacheUtils.startCache();
     Cache cache = CacheUtils.getCache();
-    LocalRegion region =
+    var region =
         (LocalRegion) cache.createRegionFactory(RegionShortcut.REPLICATE).create("portfolios");
-    QueryService qs = cache.getQueryService();
-    AbstractIndex statusIndex =
+    var qs = cache.getQueryService();
+    var statusIndex =
         createIndex(qs, "statusIndex", "value.status", SEPARATOR + "portfolios.entrySet()");
 
     statusIndex.setPdxStringFlag(new PdxString("PdxString Key"));
@@ -90,8 +89,8 @@ public abstract class AbstractIndexMaintenanceIntegrationTest {
     Cache cache = CacheUtils.getCache();
     cache.createRegionFactory(RegionShortcut.REPLICATE).setCompressor(new SnappyCompressor())
         .create("portfolios");
-    QueryService qs = cache.getQueryService();
-    AbstractIndex statusIndex =
+    var qs = cache.getQueryService();
+    var statusIndex =
         createIndex(qs, "statusIndex", "value.status", SEPARATOR + "portfolios.entrySet()");
 
     statusIndex.setPdxStringFlag(new PdxString("PdxString Key"));
@@ -104,15 +103,15 @@ public abstract class AbstractIndexMaintenanceIntegrationTest {
       throws Exception {
     CacheUtils.startCache();
     Cache cache = CacheUtils.getCache();
-    LocalRegion region =
+    var region =
         (LocalRegion) cache.createRegionFactory(RegionShortcut.REPLICATE).create("portfolios");
-    QueryService qs = cache.getQueryService();
-    AbstractIndex statusIndex =
+    var qs = cache.getQueryService();
+    var statusIndex =
         createIndex(qs, "statusIndex", "value.status", SEPARATOR + "portfolios.entrySet()");
 
-    PortfolioPdx p = new PortfolioPdx(1);
+    var p = new PortfolioPdx(1);
     region.put("KEY-1", p);
-    RegionEntry entry = region.getRegionEntry("KEY-1");
+    var entry = region.getRegionEntry("KEY-1");
     region.destroy("KEY-1");
 
     statusIndex.removeIndexMapping(entry, IndexProtocol.OTHER_OP);
@@ -122,12 +121,12 @@ public abstract class AbstractIndexMaintenanceIntegrationTest {
   public void indexKeysShouldBeStringIfRegionHasEvictionEnabled() throws Exception {
     CacheUtils.startCache();
     Cache cache = CacheUtils.getCache();
-    LocalRegion region =
+    var region =
         (LocalRegion) cache.createRegionFactory(RegionShortcut.REPLICATE)
             .setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes())
             .create("portfolios");
-    QueryService qs = cache.getQueryService();
-    AbstractIndex statusIndex =
+    var qs = cache.getQueryService();
+    var statusIndex =
         createIndex(qs, "statusIndex", "value.status", SEPARATOR + "portfolios.entrySet()");
 
     statusIndex.setPdxStringFlag(new PdxString("IndexKey"));

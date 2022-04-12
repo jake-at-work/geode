@@ -57,14 +57,14 @@ public class GfshStatusCommandsIntegrationTest {
 
   @Test
   public void statusServerWithWithNoOptions() throws Exception {
-    File serverDir = new File(temporaryFolder.getRoot(), "serverDir");
+    var serverDir = new File(temporaryFolder.getRoot(), "serverDir");
     serverDir.mkdirs();
     gfsh.executeAndAssertThat("status server").containsOutput("not responding");
   }
 
   @Test
   public void statusServerWithInvalidDirReturnsMeangingfulMessage() throws Exception {
-    File serverDir = new File(temporaryFolder.getRoot(), "serverDir");
+    var serverDir = new File(temporaryFolder.getRoot(), "serverDir");
     serverDir.mkdirs();
     gfsh.executeAndAssertThat("status server --dir=" + serverDir)
         .containsOutput("not responding");

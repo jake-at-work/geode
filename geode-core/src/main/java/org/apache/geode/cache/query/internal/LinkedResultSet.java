@@ -114,9 +114,9 @@ public class LinkedResultSet extends java.util.LinkedHashSet
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    int size = in.readInt();
+    var size = in.readInt();
     elementType = context.getDeserializer().readObject(in);
-    for (int j = size; j > 0; j--) {
+    for (var j = size; j > 0; j--) {
       add(context.getDeserializer().readObject(in));
     }
   }
@@ -127,7 +127,7 @@ public class LinkedResultSet extends java.util.LinkedHashSet
     // how do we serialize the comparator?
     out.writeInt(size());
     context.getSerializer().writeObject(elementType, out);
-    for (final Object o : this) {
+    for (final var o : this) {
       context.getSerializer().writeObject(o, out);
     }
   }

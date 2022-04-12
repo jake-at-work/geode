@@ -39,19 +39,19 @@ public class StatsLatency {
 
   public long getLatency() {
     if (numKeyType.equals(StatType.INT_TYPE)) {
-      int latestNumberCounter = monitor.getStatistic(numberKey).intValue();
+      var latestNumberCounter = monitor.getStatistic(numberKey).intValue();
 
-      long latestTimeCounter = monitor.getStatistic(timeKey).longValue();
+      var latestTimeCounter = monitor.getStatistic(timeKey).longValue();
 
-      long latency = MetricsCalculator.getLatency(prevIntNumberCounter, latestNumberCounter,
+      var latency = MetricsCalculator.getLatency(prevIntNumberCounter, latestNumberCounter,
           prevTimeCounter, latestTimeCounter);
       prevTimeCounter = latestTimeCounter;
       prevIntNumberCounter = latestNumberCounter;
       return latency;
     } else {
-      long latestNumberCounter = monitor.getStatistic(numberKey).longValue();
-      long latestTimeCounter = monitor.getStatistic(timeKey).longValue();
-      long latency = MetricsCalculator.getLatency(prevLongNumberCounter, latestNumberCounter,
+      var latestNumberCounter = monitor.getStatistic(numberKey).longValue();
+      var latestTimeCounter = monitor.getStatistic(timeKey).longValue();
+      var latency = MetricsCalculator.getLatency(prevLongNumberCounter, latestNumberCounter,
           prevTimeCounter, latestTimeCounter);
       prevLongNumberCounter = latestNumberCounter;
       prevTimeCounter = latestTimeCounter;

@@ -62,7 +62,7 @@ public class AlertingServiceWithLonerIntegrationTest {
     messageListener = spy(AlertListenerMessage.Listener.class);
     addListener(messageListener);
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
 
     system = (InternalDistributedSystem) DistributedSystem.connect(config);

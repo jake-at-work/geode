@@ -56,7 +56,7 @@ public class OperationState<A extends ClusterManagementOperation<V>, V extends O
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    OperationState<?, ?> that = (OperationState<?, ?>) o;
+    var that = (OperationState<?, ?>) o;
     return Objects.equals(getId(), that.getId()) &&
         Objects.equals(getOperation(), that.getOperation()) &&
         Objects.equals(getOperationStart(), that.getOperationStart()) &&

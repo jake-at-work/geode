@@ -36,7 +36,6 @@ import javax.naming.NoPermissionException;
 import javax.naming.NotContextException;
 import javax.transaction.SystemException;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.jta.TransactionUtils;
 import org.apache.geode.internal.jta.UserTransactionImpl;
@@ -146,8 +145,8 @@ public class ContextImpl implements Context {
     checkIsDestroyed();
     // We do not want to modify any of the parameters (JNDI requirement).
     // Clone <code> prefix </code> to satisfy the requirement.
-    Name parsedPrefix = getParsedName((Name) prefix.clone());
-    Name parsedName = getParsedName(name);
+    var parsedPrefix = getParsedName((Name) prefix.clone());
+    var parsedName = getParsedName(name);
     return parsedPrefix.addAll(parsedName);
   }
 
@@ -180,13 +179,13 @@ public class ContextImpl implements Context {
   @Override
   public Context createSubcontext(Name name) throws NamingException {
     checkIsDestroyed();
-    Name parsedName = getParsedName(name);
+    var parsedName = getParsedName(name);
     if (parsedName.size() == 0 || parsedName.get(0).length() == 0) {
       throw new InvalidNameException(
           "Name can not be empty!");
     }
-    String subContextName = parsedName.get(0);
-    Object boundObject = ctxMaps.get(parsedName.get(0));
+    var subContextName = parsedName.get(0);
+    var boundObject = ctxMaps.get(parsedName.get(0));
     if (parsedName.size() == 1) {
       // Check if name is already in use
       if (boundObject == null) {
@@ -242,13 +241,13 @@ public class ContextImpl implements Context {
   @Override
   public void destroySubcontext(Name name) throws NamingException {
     checkIsDestroyed();
-    Name parsedName = getParsedName(name);
+    var parsedName = getParsedName(name);
     if (parsedName.size() == 0 || parsedName.get(0).length() == 0) {
       throw new InvalidNameException(
           "Name can not be empty!");
     }
-    String subContextName = parsedName.get(0);
-    Object boundObject = ctxMaps.get(subContextName);
+    var subContextName = parsedName.get(0);
+    var boundObject = ctxMaps.get(subContextName);
     if (boundObject == null) {
       throw new NameNotFoundException(String.format("Name %s not found in the context!",
           subContextName));
@@ -256,7 +255,7 @@ public class ContextImpl implements Context {
     if (!(boundObject instanceof ContextImpl)) {
       throw new NotContextException();
     }
-    ContextImpl contextToDestroy = (ContextImpl) boundObject;
+    var contextToDestroy = (ContextImpl) boundObject;
     if (parsedName.size() == 1) {
       // Check if the Context to be destroyed is empty. Can not destroy
       // non-empty Context.
@@ -379,18 +378,18 @@ public class ContextImpl implements Context {
   @Override
   public NamingEnumeration listBindings(Name name) throws NamingException {
     checkIsDestroyed();
-    Name parsedName = getParsedName(name);
+    var parsedName = getParsedName(name);
     if (parsedName.size() == 0) {
-      Vector bindings = new Vector();
-      for (final Object o : ctxMaps.keySet()) {
-        String bindingName = (String) o;
+      var bindings = new Vector();
+      for (final var o : ctxMaps.keySet()) {
+        var bindingName = (String) o;
         bindings.addElement(new Binding(bindingName, ctxMaps.get(bindingName)));
       }
       return new NamingEnumerationImpl(bindings);
     } else {
-      Object subContext = ctxMaps.get(parsedName.get(0));
+      var subContext = ctxMaps.get(parsedName.get(0));
       if (subContext instanceof Context) {
-        Name nextLayer = nameParser.parse("");
+        var nextLayer = nameParser.parse("");
         // getSuffix(1) only apply to name with size() > 1
         if (parsedName.size() > 1) {
           nextLayer = parsedName.getSuffix(1);
@@ -443,9 +442,9 @@ public class ContextImpl implements Context {
   public Object lookup(Name name) throws NamingException {
     checkIsDestroyed();
     try {
-      Name parsedName = getParsedName(name);
-      String nameComponent = parsedName.get(0);
-      Object res = ctxMaps.get(nameComponent);
+      var parsedName = getParsedName(name);
+      var nameComponent = parsedName.get(0);
+      var res = ctxMaps.get(nameComponent);
       if (res instanceof UserTransactionImpl) {
         res = new UserTransactionImpl();
       }
@@ -465,7 +464,7 @@ public class ContextImpl implements Context {
       }
       return res;
     } catch (NameNotFoundException e) {
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (writer.infoEnabled()) {
         writer.info(String.format("ContextImpl::lookup::Error while looking up %s", name),
             e);
@@ -473,7 +472,7 @@ public class ContextImpl implements Context {
       throw new NameNotFoundException(
           String.format("Name %s not found", name));
     } catch (SystemException se) {
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (writer.severeEnabled()) {
         writer.info(
             "ContextImpl::lookup::Error while creating UserTransaction object",
@@ -499,7 +498,7 @@ public class ContextImpl implements Context {
     try {
       return lookup(nameParser.parse(name));
     } catch (NameNotFoundException e) {
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (writer.infoEnabled()) {
         writer.info(String.format("ContextImpl::lookup::Error while looking up %s", name),
             e);
@@ -545,16 +544,16 @@ public class ContextImpl implements Context {
   @Override
   public void rebind(Name name, Object obj) throws NamingException {
     checkIsDestroyed();
-    Name parsedName = getParsedName(name);
+    var parsedName = getParsedName(name);
     if (parsedName.size() == 0 || parsedName.get(0).length() == 0) {
       throw new InvalidNameException(
           "Name can not be empty!");
     }
-    String nameToBind = parsedName.get(0);
+    var nameToBind = parsedName.get(0);
     if (parsedName.size() == 1) {
       ctxMaps.put(nameToBind, obj);
     } else {
-      Object boundObject = ctxMaps.get(nameToBind);
+      var boundObject = ctxMaps.get(nameToBind);
       if (boundObject instanceof Context) {
         /*
          * Let the subcontext bind the object.
@@ -563,7 +562,7 @@ public class ContextImpl implements Context {
       } else {
         if (boundObject == null) {
           // Create new subcontext and let it do the binding
-          Context sub = createSubcontext(nameToBind);
+          var sub = createSubcontext(nameToBind);
           sub.bind(parsedName.getSuffix(1), obj);
         } else {
           throw new NotContextException(String.format("Expected Context but found %s",
@@ -637,12 +636,12 @@ public class ContextImpl implements Context {
   @Override
   public void unbind(Name name) throws NamingException {
     checkIsDestroyed();
-    Name parsedName = getParsedName(name);
+    var parsedName = getParsedName(name);
     if (parsedName.size() == 0 || parsedName.get(0).length() == 0) {
       throw new InvalidNameException(
           "Name can not be empty!");
     }
-    String nameToRemove = parsedName.get(0);
+    var nameToRemove = parsedName.get(0);
     // scenerio unbind a
     // remove a and its associated object
     if (parsedName.size() == 1) {
@@ -650,7 +649,7 @@ public class ContextImpl implements Context {
     } else {
       // scenerio unbind a/b or a/b/c
       // remove b and its associated object
-      Object boundObject = ctxMaps.get(nameToRemove);
+      var boundObject = ctxMaps.get(nameToRemove);
       if (boundObject instanceof Context) {
         // remove b and its associated object
         ((Context) boundObject).unbind(parsedName.getSuffix(1));
@@ -742,7 +741,7 @@ public class ContextImpl implements Context {
     }
     // Validate that there are not intermediate empty components.
     // Skip first and last element, they are valid
-    for (int i = 1; i < result.size() - 1; i++) {
+    for (var i = 1; i < result.size() - 1; i++) {
       if (result.get(i).length() == 0) {
         throw new InvalidNameException(
             "Empty intermediate components are not supported!");
@@ -759,8 +758,8 @@ public class ContextImpl implements Context {
    */
   String getCompoundStringName() throws NamingException {
     // StringBuilder compositeName = new StringBuilder();
-    String compositeName = "";
-    ContextImpl curCtx = this;
+    var compositeName = "";
+    var curCtx = this;
     while (!curCtx.isRootContext()) {
       compositeName = composeName(compositeName, curCtx.getAtomicName());
       curCtx = curCtx.getParentContext();

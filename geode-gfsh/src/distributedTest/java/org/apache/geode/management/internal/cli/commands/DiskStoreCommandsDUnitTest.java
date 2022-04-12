@@ -22,10 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.IntStream;
@@ -38,22 +36,14 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.DiskDirType;
-import org.apache.geode.cache.configuration.DiskStoreType;
 import org.apache.geode.distributed.Locator;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.cache.DiskInitFile;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.SnapshotTestUtil;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.PersistenceTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
@@ -108,12 +98,12 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void createDuplicateDiskStoreFails() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", GROUP);
 
-    MemberVM locator = rule.startLocatorVM(0);
+    var locator = rule.startLocatorVM(0);
     @SuppressWarnings("unused")
-    MemberVM server1 = rule.startServerVM(1, props, locator.getPort());
+    var server1 = rule.startServerVM(1, props, locator.getPort());
 
     gfsh.connectAndVerify(locator);
 
@@ -128,7 +118,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void createDuplicateDiskStoreFailsNoServers() throws Exception {
-    MemberVM locator = rule.startLocatorVM(0);
+    var locator = rule.startLocatorVM(0);
 
     gfsh.connectAndVerify(locator);
 
@@ -141,10 +131,10 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void createDuplicateDiskStoreOnDifferentGroups() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", GROUP);
 
-    MemberVM locator = rule.startLocatorVM(0);
+    var locator = rule.startLocatorVM(0);
     rule.startServerVM(1, props, locator.getPort());
 
     gfsh.connectAndVerify(locator);
@@ -158,12 +148,12 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testMissingDiskStore() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", GROUP);
 
-    MemberVM locator = rule.startLocatorVM(0);
-    MemberVM server1 = rule.startServerVM(1, props, locator.getPort());
-    MemberVM server2 = rule.startServerVM(2, props, locator.getPort());
+    var locator = rule.startLocatorVM(0);
+    var server1 = rule.startServerVM(1, props, locator.getPort());
+    var server2 = rule.startServerVM(2, props, locator.getPort());
 
     gfsh.connectAndVerify(locator);
 
@@ -185,10 +175,10 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
     server2.stop(false);
 
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server1.invokeAsync(() -> {
       // trying to restart the server asynchronously
-      ServerStarterRule serverRule = new ServerStarterRule().withProperties(props)
+      var serverRule = new ServerStarterRule().withProperties(props)
           .withName("server-1").withConnectionToLocator(locatorPort).withAutoStart();
       ClusterStartupRule.memberStarter = serverRule;
       serverRule.before();
@@ -196,12 +186,12 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
     locator.waitUntilDiskStoreIsReadyOnExactlyThisManyServers(DISKSTORE, 1);
 
-    TabularResultModel table =
+    var table =
         gfsh.executeAndAssertThat("show missing-disk-stores").statusIsSuccess()
             .containsOutput("Missing Disk Stores", "No missing colocated region found")
             .hasTableSection().getActual();
 
-    List<String> diskstoreIDs = table.getValuesInColumn("Disk Store ID");
+    var diskstoreIDs = table.getValuesInColumn("Disk Store ID");
     assertThat(diskstoreIDs.size()).isEqualTo(1);
 
     gfsh.executeAndAssertThat("revoke missing-disk-store --id=" + diskstoreIDs.get(0))
@@ -219,7 +209,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testValidateOfflineDiskStoreCommand() throws Exception {
-    MemberVM server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
+    var server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
 
     gfsh.connectAndVerify(server1.getJmxPort(), GfshCommandRule.PortType.jmxManager);
 
@@ -232,7 +222,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
     server1.stop(false);
 
-    String diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
+    var diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
     gfsh.executeAndAssertThat(
         "validate offline-disk-store --name=" + DISKSTORE + " --disk-dirs=" + diskDirs)
         .statusIsSuccess()
@@ -241,7 +231,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testExportOfflineDiskStore() throws Exception {
-    MemberVM server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
+    var server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
 
     gfsh.connectAndVerify(server1.getJmxPort(), GfshCommandRule.PortType.jmxManager);
 
@@ -254,8 +244,8 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
     server1.stop(false);
 
-    String diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
-    File exportDir = tempDir.newFolder();
+    var diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
+    var exportDir = tempDir.newFolder();
     gfsh.executeAndAssertThat("export offline-disk-store --name=" + DISKSTORE + " --disk-dirs="
         + diskDirs + " --dir=" + exportDir.getAbsolutePath()).statusIsSuccess()
         .containsOutput("Exported all regions from disk store DISKSTORE");
@@ -267,9 +257,9 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   private boolean diskStoreExistsInClusterConfig(MemberVM jmxManager) {
     return jmxManager.invoke(() -> {
-      InternalConfigurationPersistenceService sharedConfig =
+      var sharedConfig =
           ((InternalLocator) Locator.getLocator()).getConfigurationPersistenceService();
-      List<DiskStoreType> diskStores = sharedConfig.getCacheConfig(GROUP).getDiskStores();
+      var diskStores = sharedConfig.getCacheConfig(GROUP).getDiskStores();
 
       return diskStores.size() == 1 && DISKSTORE.equals(diskStores.get(0).getName());
     });
@@ -277,10 +267,10 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testCannotDestroyDiskStoreInUse() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", GROUP);
 
-    MemberVM locator = rule.startLocatorVM(0);
+    var locator = rule.startLocatorVM(0);
     rule.startServerVM(1, props, locator.getPort());
 
     gfsh.connectAndVerify(locator);
@@ -295,10 +285,10 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testDestroyUpdatesSharedConfig() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", GROUP);
 
-    MemberVM locator = rule.startLocatorVM(0);
+    var locator = rule.startLocatorVM(0);
     rule.startServerVM(1, props, locator.getPort());
 
     gfsh.connectAndVerify(locator.getJmxPort(), GfshCommandRule.PortType.jmxManager);
@@ -315,10 +305,10 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
   @Test
   @SuppressWarnings("deprecation")
   public void testBackupDiskStore() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", GROUP);
-    MemberVM locator = rule.startLocatorVM(0);
-    MemberVM server1 = rule.startServerVM(1, props, locator.getPort());
+    var locator = rule.startLocatorVM(0);
+    var server1 = rule.startServerVM(1, props, locator.getPort());
 
     gfsh.connectAndVerify(locator);
 
@@ -326,8 +316,8 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
     server1.invoke(dataProducer());
 
-    String backupDir = tempDir.newFolder().getCanonicalPath();
-    String diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
+    var backupDir = tempDir.newFolder().getCanonicalPath();
+    var diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
     gfsh.executeAndAssertThat(
         String.format("backup disk-store --dir=%s --baseline-dir=%s", diskDirs, backupDir))
         .statusIsSuccess()
@@ -336,7 +326,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void destroyDiskStoreIsIdempotent() throws Exception {
-    MemberVM locator = rule.startLocatorVM(0);
+    var locator = rule.startLocatorVM(0);
     rule.startServerVM(1, locator.getPort());
 
     gfsh.connectAndVerify(locator);
@@ -350,11 +340,11 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
+      var internalLocator = ClusterStartupRule.getLocator();
       assertThat(internalLocator).isNotNull();
-      InternalConfigurationPersistenceService cc =
+      var cc =
           internalLocator.getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
       assertThat(config.getDiskStores().size()).isEqualTo(0);
     });
 
@@ -364,11 +354,11 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testCompactDiskStore() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", GROUP);
 
-    MemberVM locator = rule.startLocatorVM(0);
-    MemberVM server1 = rule.startServerVM(1, props, locator.getPort());
+    var locator = rule.startLocatorVM(0);
+    var server1 = rule.startServerVM(1, props, locator.getPort());
     rule.startServerVM(2, props, locator.getPort());
 
     gfsh.connectAndVerify(locator);
@@ -376,17 +366,17 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
     createDiskStoreAndRegion(locator, 2);
 
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
       Region<Integer, String> r = cache.getRegion(REGION_1);
       // Make sure we have more than 1 log and there is something to compact
-      for (int i = 0; i < 10000; i++) {
+      for (var i = 0; i < 10000; i++) {
         r.put(i, "value_" + i);
         r.put(i, "another_value_" + i);
       }
     });
 
-    CommandResultAssert resultAssert = gfsh.executeAndAssertThat(
+    var resultAssert = gfsh.executeAndAssertThat(
         String.format("compact disk-store --name=%s --group=%s", DISKSTORE, GROUP))
         .statusIsSuccess();
 
@@ -396,7 +386,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testDescribeDiskStoreCommand() throws Exception {
-    MemberVM server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
+    var server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
 
     gfsh.connectAndVerify(server1.getJmxPort(), GfshCommandRule.PortType.jmxManager);
 
@@ -404,7 +394,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
     server1.invoke(dataProducer());
 
-    CommandResultAssert resultAssert = gfsh.executeAndAssertThat(
+    var resultAssert = gfsh.executeAndAssertThat(
         String.format("describe disk-store --member=%s --name=%s", server1.getName(), DISKSTORE))
         .statusIsSuccess();
     resultAssert.hasDataSection(DescribeDiskStoreCommand.DISK_STORE_SECTION)
@@ -423,7 +413,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testDescribeMissingDiskStoreCommand() throws Exception {
-    MemberVM server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
+    var server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
 
     gfsh.connectAndVerify(server1.getJmxPort(), GfshCommandRule.PortType.jmxManager);
 
@@ -443,7 +433,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testUpgradeOfflineDiskStoreCommandFailsAsExpected() throws Exception {
-    MemberVM server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
+    var server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
 
     gfsh.connectAndVerify(server1.getJmxPort(), GfshCommandRule.PortType.jmxManager);
 
@@ -452,7 +442,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
     server1.invoke(dataProducer());
 
     // Should not be able to do this on a running system
-    String diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
+    var diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
     gfsh.executeAndAssertThat(
         String.format("upgrade offline-disk-store --name=%s --disk-dirs=%s", DISKSTORE, diskDirs))
         .statusIsError().containsOutput("The disk is currently being used by another process");
@@ -466,10 +456,10 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void revokingUnknownDiskStoreShowsErrorCorrectly() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", GROUP);
 
-    MemberVM locator = rule.startLocatorVM(0);
+    var locator = rule.startLocatorVM(0);
     rule.startServerVM(1, props, locator.getPort());
 
     gfsh.connectAndVerify(locator);
@@ -479,7 +469,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
   @Test
   public void testAlterOfflineDiskStoreCommandFailsAsExpected() throws Exception {
-    MemberVM server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
+    var server1 = rule.startServerVM(0, x -> x.withJMXManager().withProperty("groups", GROUP));
 
     gfsh.connectAndVerify(server1.getJmxPort(), GfshCommandRule.PortType.jmxManager);
 
@@ -487,7 +477,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
 
     server1.invoke(dataProducer());
 
-    String diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
+    var diskDirs = new File(server1.getWorkingDir(), DISKSTORE).getAbsolutePath();
     gfsh.executeAndAssertThat(
         String.format("alter disk-store --name=%s --region=%s --disk-dirs=%s --compressor=foo.Bar",
             DISKSTORE, REGION_1, diskDirs))
@@ -510,7 +500,7 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
       "alter disk-store --region=testRegion --enable-statistics=true"})
   public void offlineDiskStoreCommandShouldNotCreateFolderIfDiskStoreDoesNotExist(
       String baseCommand) {
-    Path nonExistingDiskStorePath =
+    var nonExistingDiskStorePath =
         Paths.get(tempDir.getRoot().getAbsolutePath() + File.separator + "nonExistingDiskStore");
     assertThat(Files.exists(nonExistingDiskStorePath)).isFalse();
     gfsh.executeAndAssertThat(baseCommand + " --name=" + DISKSTORE + " --disk-dirs="
@@ -525,10 +515,10 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
       "alter disk-store --region=testRegion --enable-statistics=true"})
   public void offlineDiskStoreCommandShouldFailWhenDiskStoreFileDoesNotExist(
       String baseCommand) {
-    Path diskStorePath =
+    var diskStorePath =
         Paths.get(tempDir.getRoot().getAbsolutePath());
     assertThat(Files.exists(diskStorePath)).isTrue();
-    Path diskStoreFilePath =
+    var diskStoreFilePath =
         Paths.get(diskStorePath + File.separator + "BACKUPnonExistingDiskStore"
             + DiskInitFile.IF_FILE_EXT);
     assertThat(Files.exists(diskStoreFilePath)).isFalse();
@@ -543,8 +533,8 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
   public void validateDiskStoreDiskDirectoryPath(String diskDirectoryName)
       throws Exception {
     // Start locator and server
-    MemberVM locator = rule.startLocatorVM(0);
-    MemberVM server = rule.startServerVM(1, locator.getPort());
+    var locator = rule.startLocatorVM(0);
+    var server = rule.startServerVM(1, locator.getPort());
 
     // Connect gfsh
     gfsh.connectAndVerify(locator);
@@ -577,26 +567,26 @@ public class DiskStoreCommandsDUnitTest implements Serializable {
   }
 
   private void verifyDiskStoreInServer(String diskStoreName, String diskDirectoryName) {
-    DiskStore diskStore = ClusterStartupRule.getCache().findDiskStore(diskStoreName);
+    var diskStore = ClusterStartupRule.getCache().findDiskStore(diskStoreName);
     assertThat(diskStore).isNotNull();
-    File[] diskDirs = diskStore.getDiskDirs();
+    var diskDirs = diskStore.getDiskDirs();
     assertThat(diskDirs.length).isEqualTo(1);
-    File diskDir = diskDirs[0];
-    String absoluteDiskDirectoryName = Paths.get(diskDirectoryName).toAbsolutePath().toString();
+    var diskDir = diskDirs[0];
+    var absoluteDiskDirectoryName = Paths.get(diskDirectoryName).toAbsolutePath().toString();
     assertThat(diskDir.getAbsolutePath()).isEqualTo(absoluteDiskDirectoryName);
   }
 
   private void verifyDiskStoreInClusterConfiguration(String absoluteDirectoryName) {
-    InternalLocator internalLocator = ClusterStartupRule.getLocator();
-    InternalConfigurationPersistenceService cc =
+    var internalLocator = ClusterStartupRule.getLocator();
+    var cc =
         internalLocator.getConfigurationPersistenceService();
-    CacheConfig config = cc.getCacheConfig("cluster");
-    List<DiskStoreType> diskStores = config.getDiskStores();
+    var config = cc.getCacheConfig("cluster");
+    var diskStores = config.getDiskStores();
     assertThat(diskStores.size()).isEqualTo(1);
-    DiskStoreType diskStore = diskStores.get(0);
-    List<DiskDirType> diskDirs = diskStore.getDiskDirs();
+    var diskStore = diskStores.get(0);
+    var diskDirs = diskStore.getDiskDirs();
     assertThat(diskDirs.size()).isEqualTo(1);
-    DiskDirType diskDir = diskDirs.get(0);
+    var diskDir = diskDirs.get(0);
     assertThat(diskDir.getContent()).isEqualTo(absoluteDirectoryName);
   }
 }

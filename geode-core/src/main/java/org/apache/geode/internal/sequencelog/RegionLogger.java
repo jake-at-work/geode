@@ -70,7 +70,7 @@ public class RegionLogger {
   public static void logDestroy(String regionName, InternalDistributedMember memberId,
       PersistentMemberID persistentID, boolean isClose) {
     if (isEnabled()) {
-      final Pattern ALL_REGION_KEYS = Pattern.compile(regionName + ".*");
+      final var ALL_REGION_KEYS = Pattern.compile(regionName + ".*");
       GRAPH_LOGGER.logTransition(GraphType.REGION, regionName, "destroy", "destroyed", memberId,
           memberId);
       GRAPH_LOGGER.logTransition(GraphType.KEY, ALL_REGION_KEYS, "destroy", "destroyed", memberId,

@@ -31,7 +31,7 @@ public class CounterAssertTest {
 
   @Test
   public void hasCount_doesNotThrow_ifConditionAcceptsCount() {
-    double acceptableCount = 92.0;
+    var acceptableCount = 92.0;
 
     when(counter.count()).thenReturn(acceptableCount);
     when(countCondition.matches(acceptableCount)).thenReturn(true);
@@ -42,7 +42,7 @@ public class CounterAssertTest {
 
   @Test
   public void hasCount_failsDescriptively_ifConditionRejectsCount() {
-    double unacceptableCount = 92.0;
+    var unacceptableCount = 92.0;
 
     when(counter.count()).thenReturn(unacceptableCount);
     when(countCondition.matches(unacceptableCount)).thenReturn(false);

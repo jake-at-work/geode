@@ -20,7 +20,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
@@ -78,9 +77,9 @@ public class PoolStats {
   private static final int clientOpDurationId;
 
   static {
-    String statName = "PoolStats";
+    var statName = "PoolStats";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     _type = f.createType(statName, statName,
         new StatisticDescriptor[] {
@@ -334,7 +333,7 @@ public class PoolStats {
   }
 
   public void endConnectionWait(long start) {
-    long duration = getStatTime() - start;
+    var duration = getStatTime() - start;
     _stats.incInt(_CONNECTION_WAIT_IN_PROGRESS, -1);
     _stats.incInt(_CONNECTION_WAITS, 1);
     _stats.incLong(_CONNECTION_WAIT_TIME, duration);

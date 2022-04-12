@@ -48,40 +48,40 @@ public class ConfigurationJsonMappingTest {
 
   @Test
   public void serializeBasicRegion() throws Exception {
-    String json = mapper.writeValueAsString(region);
+    var json = mapper.writeValueAsString(region);
     System.out.println(json);
     assertThat(json).contains("class").contains("\"name\":\"test\"");
 
-    Region config = mapper.readValue(json, Region.class);
+    var config = mapper.readValue(json, Region.class);
     assertThat(config.getName()).isEqualTo(region.getName());
   }
 
   @Test
   public void serializeRegion() throws Exception {
-    Region value = new Region();
+    var value = new Region();
     value.setName("test");
-    String json = mapper.writeValueAsString(value);
+    var json = mapper.writeValueAsString(value);
     System.out.println(json);
     assertThat(json).contains("class").contains("\"name\":\"test\"");
 
-    Region config = mapper.readValue(json, Region.class);
+    var config = mapper.readValue(json, Region.class);
     assertThat(config.getName()).isEqualTo(region.getName());
   }
 
   @Test
   public void serializeMember() throws Exception {
-    String json = mapper.writeValueAsString(member);
+    var json = mapper.writeValueAsString(member);
     System.out.println(json);
     assertThat(json).contains("class").contains("\"id\":\"server\"");
 
-    MemberInformation config = mapper.readValue(json, MemberInformation.class);
+    var config = mapper.readValue(json, MemberInformation.class);
     assertThat(config.getId()).isEqualTo(member.getId());
   }
 
   @Test
   public void deserializeWithoutTypeInfo() throws Exception {
-    String json = "{'name':'test'}";
-    Region config = mapper.readValue(json, Region.class);
+    var json = "{'name':'test'}";
+    var config = mapper.readValue(json, Region.class);
     assertThat(config.getName()).isEqualTo("test");
   }
 
@@ -89,23 +89,23 @@ public class ConfigurationJsonMappingTest {
   public void getGroup() throws Exception {
     assertThat(region.getGroup()).isNull();
 
-    String json = mapper.writeValueAsString(region);
+    var json = mapper.writeValueAsString(region);
     assertThat(json).doesNotContain("\"group\"");
   }
 
   @Test
   public void group() throws Exception {
-    String json = "{'name':'test','group':'group1'}";
-    Region regionConfig = mapper.readValue(json, Region.class);
+    var json = "{'name':'test','group':'group1'}";
+    var regionConfig = mapper.readValue(json, Region.class);
     assertThat(regionConfig.getGroup()).isEqualTo("group1");
   }
 
   @Test
   public void serializeGroup() throws Exception {
-    Region config = new Region();
+    var config = new Region();
     config.setName("test");
     config.setGroup("group1");
-    String json = mapper.writeValueAsString(config);
+    var json = mapper.writeValueAsString(config);
     System.out.println(json);
     assertThat(json)
         .contains("\"group\":\"group1\"");
@@ -113,30 +113,30 @@ public class ConfigurationJsonMappingTest {
 
   @Test
   public void serializeGroupCluster() throws Exception {
-    Region config = new Region();
+    var config = new Region();
     config.setName("test");
     config.setGroup("cluster");
-    String json = mapper.writeValueAsString(config);
+    var json = mapper.writeValueAsString(config);
     System.out.println(json);
     assertThat(json).contains("\"group\":\"cluster\"");
   }
 
   @Test
   public void serializeNullGroup() throws Exception {
-    Region config = new Region();
+    var config = new Region();
     config.setName("test");
     config.setGroup(null);
-    String json = mapper.writeValueAsString(config);
+    var json = mapper.writeValueAsString(config);
     System.out.println(json);
     assertThat(json).doesNotContain("group");
   }
 
   @Test
   public void serializeEmptyGroup() throws Exception {
-    Region config = new Region();
+    var config = new Region();
     config.setName("test");
     config.setGroup("");
-    String json = mapper.writeValueAsString(config);
+    var json = mapper.writeValueAsString(config);
     System.out.println(json);
     assertThat(json).doesNotContain("group");
   }

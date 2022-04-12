@@ -41,15 +41,15 @@ public class FindVersionTagOperation {
   private static final Logger logger = LogService.getLogger();
 
   public static VersionTag findVersionTag(InternalRegion r, EventID eventId, boolean isBulkOp) {
-    DistributionManager dm = r.getDistributionManager();
+    var dm = r.getDistributionManager();
     Set recipients;
     if (r instanceof DistributedRegion) {
       recipients = ((DistributedRegion) r).getDistributionAdvisor().adviseCacheOp();
     } else {
       recipients = ((PartitionedRegion) r).getRegionAdvisor().adviseDataStore();
     }
-    ResultReplyProcessor processor = new ResultReplyProcessor(dm, recipients);
-    FindVersionTagMessage msg = new FindVersionTagMessage(recipients, processor.getProcessorId(),
+    var processor = new ResultReplyProcessor(dm, recipients);
+    var msg = new FindVersionTagMessage(recipients, processor.getProcessorId(),
         r.getFullPath(), eventId, isBulkOp);
     dm.putOutgoing(msg);
     try {
@@ -73,7 +73,7 @@ public class FindVersionTagOperation {
     @Override
     public void process(DistributionMessage msg) {
       if (msg instanceof VersionTagReply) {
-        VersionTagReply reply = (VersionTagReply) msg;
+        var reply = (VersionTagReply) msg;
         if (reply.versionTag != null) {
           versionTag = reply.versionTag;
           versionTag.replaceNullIDs(reply.getSender());
@@ -123,7 +123,7 @@ public class FindVersionTagOperation {
     protected void process(ClusterDistributionManager dm) {
       VersionTag result = null;
       try {
-        LocalRegion r = (LocalRegion) findRegion(dm);
+        var r = (LocalRegion) findRegion(dm);
         if (r == null) {
           if (logger.isDebugEnabled()) {
             logger.debug("Region not found, so ignoring version tag request: {}", this);
@@ -146,7 +146,7 @@ public class FindVersionTagOperation {
       } catch (RuntimeException e) {
         logger.warn("Exception thrown while searching for a version tag", e);
       } finally {
-        VersionTagReply reply = new VersionTagReply(result);
+        var reply = new VersionTagReply(result);
         reply.setProcessorId(processorId);
         reply.setRecipient(getSender());
         try {
@@ -159,7 +159,7 @@ public class FindVersionTagOperation {
 
     private InternalRegion findRegion(ClusterDistributionManager dm) {
       try {
-        InternalCache cache = dm.getCache();
+        var cache = dm.getCache();
         if (cache != null) {
           return cache.getRegionByPathForProcessing(regionName);
         }

@@ -40,13 +40,13 @@ public abstract class TestCacheWriter<K, V> extends TestCacheCallback implements
 
   public void beforeUpdate2(EntryEvent<K, V> event) throws CacheWriterException {
 
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
   public void beforeUpdate2(EntryEvent<K, V> event, Object arg) throws CacheWriterException {
 
-    String s = "Shouldn't be invoked";
+    var s = "Shouldn't be invoked";
     throw new UnsupportedOperationException(s);
   }
 
@@ -59,7 +59,7 @@ public abstract class TestCacheWriter<K, V> extends TestCacheCallback implements
 
   public void beforeCreate2(EntryEvent<K, V> event) throws CacheWriterException {
 
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
@@ -68,7 +68,7 @@ public abstract class TestCacheWriter<K, V> extends TestCacheCallback implements
    */
   public void beforeCreate2(EntryEvent<K, V> event, Object arg) throws CacheWriterException {
 
-    String s = "Shouldn't be invoked";
+    var s = "Shouldn't be invoked";
     throw new UnsupportedOperationException(s);
   }
 
@@ -81,13 +81,13 @@ public abstract class TestCacheWriter<K, V> extends TestCacheCallback implements
 
   public void beforeDestroy2(EntryEvent<K, V> event) throws CacheWriterException {
 
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
   public void beforeDestroy2(EntryEvent<K, V> event, Object arg) throws CacheWriterException {
 
-    String s = "Shouldn't be invoked";
+    var s = "Shouldn't be invoked";
     throw new UnsupportedOperationException(s);
   }
 
@@ -105,20 +105,20 @@ public abstract class TestCacheWriter<K, V> extends TestCacheCallback implements
 
   public void beforeRegionDestroy2(RegionEvent<K, V> event) throws CacheWriterException {
 
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
   public void beforeRegionDestroy2(RegionEvent<K, V> event, Object arg)
       throws CacheWriterException {
 
-    String s = "Shouldn't be invoked";
+    var s = "Shouldn't be invoked";
     throw new UnsupportedOperationException(s);
   }
 
   @Override
   public void beforeRegionClear(RegionEvent<K, V> event) throws CacheWriterException {
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 }

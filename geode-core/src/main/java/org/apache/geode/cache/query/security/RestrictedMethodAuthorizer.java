@@ -279,8 +279,8 @@ public final class RestrictedMethodAuthorizer implements MethodInvocationAuthori
   }
 
   private boolean isAllowedByDefault(Method method, Object target) {
-    String methodName = method.getName();
-    Set<Class> allowedClasses = allowedMethodsPerClass.get(methodName);
+    var methodName = method.getName();
+    var allowedClasses = allowedMethodsPerClass.get(methodName);
 
     if (allowedClasses == null) {
       return false;
@@ -297,7 +297,7 @@ public final class RestrictedMethodAuthorizer implements MethodInvocationAuthori
 
   private void authorizeRegionAccess(SecurityService securityService, Object target) {
     if (target instanceof Region) {
-      String regionName = ((Region) target).getName();
+      var regionName = ((Region) target).getName();
       securityService.authorize(ResourcePermission.Resource.DATA, ResourcePermission.Operation.READ,
           regionName);
     }
@@ -318,8 +318,8 @@ public final class RestrictedMethodAuthorizer implements MethodInvocationAuthori
    *         instance according to the Geode security rules, {@code false} otherwise.
    */
   public boolean isAllowedGeodeMethod(Method method, Object target) {
-    String methodName = method.getName();
-    Set<Class> allowedGeodeClassesForMethod = allowedGeodeMethodsPerClass.get(methodName);
+    var methodName = method.getName();
+    var allowedGeodeClassesForMethod = allowedGeodeMethodsPerClass.get(methodName);
 
     if (allowedGeodeClassesForMethod == null) {
       return false;

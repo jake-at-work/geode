@@ -26,7 +26,6 @@ import java.nio.ByteBuffer;
 import org.apache.coyote.OutputBuffer;
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 public class Tomcat8CommitSessionOutputBufferTest {
 
@@ -42,11 +41,11 @@ public class Tomcat8CommitSessionOutputBufferTest {
   @Deprecated
   @Test
   public void doWrite() throws IOException {
-    final ByteChunk byteChunk = new ByteChunk();
+    final var byteChunk = new ByteChunk();
 
     commitSesssionOutputBuffer.doWrite(byteChunk);
 
-    final InOrder inOrder = inOrder(sessionCommitter, delegate);
+    final var inOrder = inOrder(sessionCommitter, delegate);
     inOrder.verify(sessionCommitter).commit();
     inOrder.verify(delegate).doWrite(byteChunk);
     inOrder.verifyNoMoreInteractions();
@@ -54,11 +53,11 @@ public class Tomcat8CommitSessionOutputBufferTest {
 
   @Test
   public void testDoWrite() throws IOException {
-    final ByteBuffer byteBuffer = ByteBuffer.allocate(0);
+    final var byteBuffer = ByteBuffer.allocate(0);
 
     commitSesssionOutputBuffer.doWrite(byteBuffer);
 
-    final InOrder inOrder = inOrder(sessionCommitter, delegate);
+    final var inOrder = inOrder(sessionCommitter, delegate);
     inOrder.verify(sessionCommitter).commit();
     inOrder.verify(delegate).doWrite(byteBuffer);
     inOrder.verifyNoMoreInteractions();
@@ -70,7 +69,7 @@ public class Tomcat8CommitSessionOutputBufferTest {
 
     assertThat(commitSesssionOutputBuffer.getBytesWritten()).isEqualTo(42L);
 
-    final InOrder inOrder = inOrder(sessionCommitter, delegate);
+    final var inOrder = inOrder(sessionCommitter, delegate);
     inOrder.verify(delegate).getBytesWritten();
     inOrder.verifyNoMoreInteractions();
   }

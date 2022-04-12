@@ -21,11 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.time.Instant;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.io.IOUtils;
@@ -52,7 +49,7 @@ public class JarDeployerDeadlockTest {
 
   @Before
   public void setup() throws Exception {
-    File workingDir = temporaryFolder.newFolder();
+    var workingDir = temporaryFolder.newFolder();
     ClassPathLoader.getLatest().getJarDeploymentService()
         .reinitializeWithWorkingDirectory(workingDir);
     classBuilder = new ClassBuilder();
@@ -60,7 +57,7 @@ public class JarDeployerDeadlockTest {
 
   @After
   public void tearDown() {
-    for (String functionName : FunctionService.getRegisteredFunctions().keySet()) {
+    for (var functionName : FunctionService.getRegisteredFunctions().keySet()) {
       FunctionService.unregisterFunction(functionName);
     }
 
@@ -70,40 +67,40 @@ public class JarDeployerDeadlockTest {
   @Test
   public void testMultiThreadingDoesNotCauseDeadlock() throws Exception {
     // Add two JARs to the classpath
-    byte[] jarBytes = classBuilder.createJarFromName("JarClassLoaderJUnitA");
-    File jarFile = temporaryFolder.newFile("JarClassLoaderJUnitA.jar");
+    var jarBytes = classBuilder.createJarFromName("JarClassLoaderJUnitA");
+    var jarFile = temporaryFolder.newFile("JarClassLoaderJUnitA.jar");
     IOUtils.copy(new ByteArrayInputStream(jarBytes), new FileOutputStream(jarFile));
     ClassPathLoader.getLatest().getJarDeploymentService()
         .deploy(createDeploymentFromJar(jarFile));
 
     jarBytes = classBuilder.createJarFromClassContent("com/jcljunit/JarClassLoaderJUnitB",
         "package com.jcljunit; public class JarClassLoaderJUnitB {}");
-    File jarFile2 = temporaryFolder.newFile("JarClassLoaderJUnitB.jar");
+    var jarFile2 = temporaryFolder.newFile("JarClassLoaderJUnitB.jar");
     IOUtils.copy(new ByteArrayInputStream(jarBytes), new FileOutputStream(jarFile2));
     ClassPathLoader.getLatest().getJarDeploymentService()
         .deploy(createDeploymentFromJar(jarFile2));
 
-    String[] classNames = new String[] {"JarClassLoaderJUnitA", "com.jcljunit.JarClassLoaderJUnitB",
+    var classNames = new String[] {"JarClassLoaderJUnitA", "com.jcljunit.JarClassLoaderJUnitB",
         "NON-EXISTENT CLASS"};
 
-    final int threadCount = 10;
-    ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-    for (int i = 0; i < threadCount; i++) {
+    final var threadCount = 10;
+    var executorService = Executors.newFixedThreadPool(threadCount);
+    for (var i = 0; i < threadCount; i++) {
       executorService.submit(new ForNameExerciser(classNames));
     }
 
     executorService.shutdown();
     await().until(executorService::isTerminated);
 
-    ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-    long[] threadIds = threadMXBean.findDeadlockedThreads();
+    var threadMXBean = ManagementFactory.getThreadMXBean();
+    var threadIds = threadMXBean.findDeadlockedThreads();
 
     if (threadIds != null) {
-      StringBuilder deadLockTrace = new StringBuilder();
-      for (long threadId : threadIds) {
-        ThreadInfo threadInfo = threadMXBean.getThreadInfo(threadId, 100);
+      var deadLockTrace = new StringBuilder();
+      for (var threadId : threadIds) {
+        var threadInfo = threadMXBean.getThreadInfo(threadId, 100);
         deadLockTrace.append(threadInfo.getThreadName()).append("\n");
-        for (StackTraceElement stackTraceElem : threadInfo.getStackTrace()) {
+        for (var stackTraceElem : threadInfo.getStackTrace()) {
           deadLockTrace.append("\t").append(stackTraceElem).append("\n");
         }
       }
@@ -124,10 +121,10 @@ public class JarDeployerDeadlockTest {
 
     @Override
     public void run() {
-      for (int i = 0; i < numLoops; i++) {
+      for (var i = 0; i < numLoops; i++) {
         try {
           // Random select a name from the list of class names and try to load it
-          String className = classNames[random.nextInt(classNames.length)];
+          var className = classNames[random.nextInt(classNames.length)];
           Class.forName(className);
         } catch (ClassNotFoundException expected) { // expected
         } catch (Exception e) {
@@ -138,7 +135,7 @@ public class JarDeployerDeadlockTest {
   }
 
   private Deployment createDeploymentFromJar(File jar) {
-    Deployment deployment = new Deployment(jar.getName(), "test", Instant.now().toString());
+    var deployment = new Deployment(jar.getName(), "test", Instant.now().toString());
     deployment.setFile(jar);
     return deployment;
   }

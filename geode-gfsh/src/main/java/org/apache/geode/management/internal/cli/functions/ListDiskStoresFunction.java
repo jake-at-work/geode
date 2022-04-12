@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
@@ -58,14 +56,14 @@ public class ListDiskStoresFunction implements InternalFunction<Void> {
     final Set<DiskStoreDetails> memberDiskStores = new HashSet<>();
 
     try {
-      final Cache cache = context.getCache();
+      final var cache = context.getCache();
 
       if (cache instanceof InternalCache) {
-        final InternalCache gemfireCache = (InternalCache) cache;
+        final var gemfireCache = (InternalCache) cache;
 
         final DistributedMember member = gemfireCache.getMyId();
 
-        for (final DiskStore memberDiskStore : gemfireCache.listDiskStoresIncludingRegionOwned()) {
+        for (final var memberDiskStore : gemfireCache.listDiskStoresIncludingRegionOwned()) {
           memberDiskStores.add(new DiskStoreDetails(memberDiskStore.getDiskStoreUUID(),
               memberDiskStore.getName(), member.getId(), member.getName()));
         }

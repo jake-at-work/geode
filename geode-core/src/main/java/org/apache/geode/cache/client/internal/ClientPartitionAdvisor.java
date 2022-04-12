@@ -86,8 +86,8 @@ public class ClientPartitionAdvisor {
     }
     if (fpaSet != null) {
       fixedPAMap = new ConcurrentHashMap<>();
-      int totalFPABuckets = 0;
-      for (FixedPartitionAttributes fpa : fpaSet) {
+      var totalFPABuckets = 0;
+      for (var fpa : fpaSet) {
         List attrList = new ArrayList();
         totalFPABuckets += fpa.getNumBuckets();
         attrList.add(fpa.getNumBuckets());
@@ -102,7 +102,7 @@ public class ClientPartitionAdvisor {
 
   public ServerLocation adviseServerLocation(int bucketId) {
     if (bucketServerLocationsMap.containsKey(bucketId)) {
-      List<BucketServerLocation66> locations = bucketServerLocationsMap.get(bucketId);
+      var locations = bucketServerLocationsMap.get(bucketId);
       List<BucketServerLocation66> locationsCopy = new ArrayList<>(locations);
 
       if (locationsCopy.isEmpty()) {
@@ -111,17 +111,17 @@ public class ClientPartitionAdvisor {
       if (locationsCopy.size() == 1) {
         return locationsCopy.get(0);
       }
-      int index = random.nextInt(locationsCopy.size());
+      var index = random.nextInt(locationsCopy.size());
       return locationsCopy.get(index);
     }
     return null;
   }
 
   public ServerLocation adviseRandomServerLocation() {
-    ArrayList<Integer> bucketList = new ArrayList<>(bucketServerLocationsMap.keySet());
-    int size = bucketList.size();
+    var bucketList = new ArrayList<Integer>(bucketServerLocationsMap.keySet());
+    var size = bucketList.size();
     if (size > 0) {
-      List<BucketServerLocation66> locations =
+      var locations =
           bucketServerLocationsMap.get(bucketList.get(random.nextInt(size)));
       if (locations != null) {
         List<BucketServerLocation66> serverList = new ArrayList<>(locations);
@@ -145,9 +145,9 @@ public class ClientPartitionAdvisor {
 
   public ServerLocation advisePrimaryServerLocation(int bucketId) {
     if (bucketServerLocationsMap.containsKey(bucketId)) {
-      List<BucketServerLocation66> locations = bucketServerLocationsMap.get(bucketId);
+      var locations = bucketServerLocationsMap.get(bucketId);
       List<BucketServerLocation66> locationsCopy = new ArrayList<>(locations);
-      for (BucketServerLocation66 loc : locationsCopy) {
+      for (var loc : locationsCopy) {
         if (loc.isPrimary()) {
           return loc;
         }
@@ -161,13 +161,13 @@ public class ClientPartitionAdvisor {
     List<BucketServerLocation66> locationCopy = new ArrayList<>();
     List<BucketServerLocation66> locations;
 
-    boolean honourSeverGroup = cms.honourServerGroup();
+    var honourSeverGroup = cms.honourServerGroup();
 
     if (serverGroup.length() != 0 && honourSeverGroup) {
-      for (BucketServerLocation66 s : bucketServerLocations) {
-        String[] groups = s.getServerGroups();
+      for (var s : bucketServerLocations) {
+        var groups = s.getServerGroups();
         if (groups.length > 0) {
-          for (String str : groups) {
+          for (var str : groups) {
             if (str.equals(serverGroup)) {
               locationCopy.add(s);
               break;
@@ -186,10 +186,10 @@ public class ClientPartitionAdvisor {
   }
 
   public void removeBucketServerLocation(ServerLocation serverLocation) {
-    for (final Map.Entry<Integer, List<BucketServerLocation66>> entry : bucketServerLocationsMap
+    for (final var entry : bucketServerLocationsMap
         .entrySet()) {
-      Integer key = entry.getKey();
-      List<BucketServerLocation66> oldLocations = entry.getValue();
+      var key = entry.getKey();
+      var oldLocations = entry.getValue();
       List<BucketServerLocation66> newLocations =
           new ArrayList<>(oldLocations);
       // if this serverLocation contains in the list the remove the
@@ -251,10 +251,10 @@ public class ClientPartitionAdvisor {
 
   public int assignFixedBucketId(Region region, String partition, Object resolveKey) {
     if (fixedPAMap.containsKey(partition)) {
-      List<Integer> attList = fixedPAMap.get(partition);
-      int hc = resolveKey.hashCode();
-      int bucketId = Math.abs(hc % (attList.get(0)));
-      int partitionBucketID = bucketId + attList.get(1);
+      var attList = fixedPAMap.get(partition);
+      var hc = resolveKey.hashCode();
+      var bucketId = Math.abs(hc % (attList.get(0)));
+      var partitionBucketID = bucketId + attList.get(1);
       return partitionBucketID;
     } else {
       // We don't know as we might not have got the all FPAttributes

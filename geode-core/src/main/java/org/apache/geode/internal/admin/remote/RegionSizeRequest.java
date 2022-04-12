@@ -37,7 +37,7 @@ public class RegionSizeRequest extends RegionAdminRequest implements Cancellable
    * Returns a <code>ObjectNamesRequest</code> to be sent to the specified recipient.
    */
   public static RegionSizeRequest create() {
-    RegionSizeRequest m = new RegionSizeRequest();
+    var m = new RegionSizeRequest();
     return m;
   }
 

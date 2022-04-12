@@ -28,14 +28,12 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.domain.RegionInformation;
 import org.apache.geode.management.internal.cli.functions.GetRegionsFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.management.internal.util.ManagementUtils;
@@ -56,18 +54,18 @@ public class ListRegionCommand extends GfshCommand {
       @CliOption(key = {CliStrings.MEMBER, CliStrings.MEMBERS},
           optionContext = ConverterHint.MEMBERIDNAME,
           help = CliStrings.LIST_REGION__MEMBER__HELP) String[] memberNameOrId) {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
     ResultCollector<?, ?> rc;
-    Set<DistributedMember> targetMembers = findMembers(group, memberNameOrId);
+    var targetMembers = findMembers(group, memberNameOrId);
 
     if (targetMembers.isEmpty()) {
       return ResultModel.createInfo(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    TabularResultModel resultData = result.addTable("regionInfo");
+    var resultData = result.addTable("regionInfo");
     rc = ManagementUtils.executeFunction(getRegionsFunction, null, targetMembers);
-    ArrayList<?> resultList = (ArrayList<?>) rc.getResult();
+    var resultList = (ArrayList<?>) rc.getResult();
 
     if (resultList != null) {
       // Gather all RegionInformation into a flat set.
@@ -79,9 +77,9 @@ public class ListRegionCommand extends GfshCommand {
 
       Set<String> regionNames = new TreeSet<>();
 
-      for (RegionInformation regionInfo : regionInfoSet) {
+      for (var regionInfo : regionInfoSet) {
         regionNames.add(regionInfo.getName());
-        Set<String> subRegionNames = regionInfo.getSubRegionNames();
+        var subRegionNames = regionInfo.getSubRegionNames();
 
         regionNames.addAll(subRegionNames);
       }
@@ -90,7 +88,7 @@ public class ListRegionCommand extends GfshCommand {
         return ResultModel.createInfo(CliStrings.LIST_REGION__MSG__NOT_FOUND);
       }
 
-      for (String regionName : regionNames) {
+      for (var regionName : regionNames) {
         resultData.accumulate("List of regions", regionName);
       }
     }

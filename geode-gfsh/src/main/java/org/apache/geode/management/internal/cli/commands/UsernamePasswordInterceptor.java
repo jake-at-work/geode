@@ -40,10 +40,10 @@ public class UsernamePasswordInterceptor extends AbstractCliAroundInterceptor {
       return new ResultModel();
     }
 
-    String userInput = parseResult.getUserInput();
+    var userInput = parseResult.getUserInput();
 
-    String username = parseResult.getParamValueAsString("username");
-    String password = parseResult.getParamValueAsString("password");
+    var username = parseResult.getParamValueAsString("username");
+    var password = parseResult.getParamValueAsString("password");
 
     if (!StringUtils.isBlank(password) && StringUtils.isBlank(username)) {
       username = gfsh.readText(CliStrings.INTERCEPTOR_USERNAME);

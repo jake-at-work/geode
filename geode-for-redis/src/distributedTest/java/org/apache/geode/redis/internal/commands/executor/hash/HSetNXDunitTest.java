@@ -18,7 +18,6 @@ package org.apache.geode.redis.internal.commands.executor.hash;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
@@ -28,7 +27,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
@@ -44,12 +42,12 @@ public class HSetNXDunitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     cluster.startRedisVM(1, locator.getPort());
     cluster.startRedisVM(2, locator.getPort());
 
-    int redisServerPort1 = cluster.getRedisPort(1);
+    var redisServerPort1 = cluster.getRedisPort(1);
     clusterClient = RedisClusterClient.create("redis://localhost:" + redisServerPort1);
 
     lettuce = clusterClient.connect().sync();
@@ -68,14 +66,14 @@ public class HSetNXDunitTest {
   @Test
   public void testHSETNXReturnsOneWhenKeyDoesNotExistAndZeroWhenItDoes()
       throws ExecutionException, InterruptedException {
-    String key = "HSETNX";
+    var key = "HSETNX";
 
-    for (int i = 0; i < 1000; i++) {
-      int local_i = i;
+    for (var i = 0; i < 1000; i++) {
+      var local_i = i;
 
-      Future<Boolean> server_1_counter = executor.submit(
+      var server_1_counter = executor.submit(
           () -> lettuce.hsetnx(key, "field" + local_i, "value" + local_i));
-      Future<Boolean> server_2_counter = executor.submit(
+      var server_2_counter = executor.submit(
           () -> lettuce.hsetnx(key, "field" + local_i, "value" + local_i));
 
       assertThat(server_1_counter.get() ^ server_2_counter.get()).isTrue();

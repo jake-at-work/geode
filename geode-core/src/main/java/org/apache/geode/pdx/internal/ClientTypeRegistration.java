@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,11 +59,11 @@ public class ClientTypeRegistration implements TypeRegistration {
 
   @Override
   public int defineType(PdxType newType) {
-    Collection<Pool> pools = getAllPools();
+    var pools = getAllPools();
 
     ServerConnectivityException lastException = null;
-    int newTypeId = -1;
-    for (Pool pool : pools) {
+    var newTypeId = -1;
+    for (var pool : pools) {
       try {
         newTypeId = GetPDXIdForTypeOp.execute((ExecutablePool) pool, newType);
         newType.setTypeId(newTypeId);
@@ -83,8 +82,8 @@ public class ClientTypeRegistration implements TypeRegistration {
    * used by this client make it to all clusters this client is connected to.
    */
   private void copyTypeToOtherPools(PdxType newType, int newTypeId, Pool exception) {
-    Collection<Pool> pools = getAllPoolsExcept(exception);
-    for (Pool pool : pools) {
+    var pools = getAllPoolsExcept(exception);
+    for (var pool : pools) {
       try {
         sendTypeToPool(newType, newTypeId, pool);
       } catch (ServerConnectivityException e) {
@@ -112,12 +111,12 @@ public class ClientTypeRegistration implements TypeRegistration {
 
   @Override
   public PdxType getType(int typeId) {
-    Collection<Pool> pools = getAllPools();
+    var pools = getAllPools();
 
     ServerConnectivityException lastException = null;
-    for (Pool pool : pools) {
+    for (var pool : pools) {
       try {
-        PdxType type = GetPDXTypeByIdOp.execute((ExecutablePool) pool, typeId);
+        var type = GetPDXTypeByIdOp.execute((ExecutablePool) pool, typeId);
         if (type != null) {
           return type;
         }
@@ -137,10 +136,10 @@ public class ClientTypeRegistration implements TypeRegistration {
   }
 
   private Collection<Pool> getAllPools() {
-    Collection<Pool> pools = PoolManagerImpl.getPMI().getMap().values();
+    var pools = PoolManagerImpl.getPMI().getMap().values();
 
-    for (Iterator<Pool> itr = pools.iterator(); itr.hasNext();) {
-      PoolImpl pool = (PoolImpl) itr.next();
+    for (var itr = pools.iterator(); itr.hasNext();) {
+      var pool = (PoolImpl) itr.next();
       if (pool.isUsedByGateway()) {
         itr.remove();
       }
@@ -187,16 +186,16 @@ public class ClientTypeRegistration implements TypeRegistration {
 
   @Override
   public int getEnumId(Enum<?> v) {
-    EnumInfo enumInfo = new EnumInfo(v);
+    var enumInfo = new EnumInfo(v);
     return processEnumInfoForEnumId(enumInfo);
   }
 
   private int processEnumInfoForEnumId(EnumInfo enumInfo) {
-    Collection<Pool> pools = getAllPools();
+    var pools = getAllPools();
     ServerConnectivityException lastException = null;
-    for (Pool pool : pools) {
+    for (var pool : pools) {
       try {
-        int result = GetPDXIdForEnumOp.execute((ExecutablePool) pool, enumInfo);
+        var result = GetPDXIdForEnumOp.execute((ExecutablePool) pool, enumInfo);
         copyEnumToOtherPools(enumInfo, result, pool);
         return result;
       } catch (ServerConnectivityException e) {
@@ -212,8 +211,8 @@ public class ClientTypeRegistration implements TypeRegistration {
    * used by this client make it to all clusters this client is connected to.
    */
   private void copyEnumToOtherPools(EnumInfo enumInfo, int newTypeId, Pool exception) {
-    Collection<Pool> pools = getAllPoolsExcept(exception);
-    for (Pool pool : pools) {
+    var pools = getAllPoolsExcept(exception);
+    for (var pool : pools) {
       try {
         sendEnumIdToPool(enumInfo, newTypeId, pool);
       } catch (ServerConnectivityException e) {
@@ -244,12 +243,12 @@ public class ClientTypeRegistration implements TypeRegistration {
 
   @Override
   public EnumInfo getEnumById(int enumId) {
-    Collection<Pool> pools = getAllPools();
+    var pools = getAllPools();
 
     ServerConnectivityException lastException = null;
-    for (Pool pool : pools) {
+    for (var pool : pools) {
       try {
-        EnumInfo result = GetPDXEnumByIdOp.execute((ExecutablePool) pool, enumId);
+        var result = GetPDXEnumByIdOp.execute((ExecutablePool) pool, enumId);
         if (result != null) {
           return result;
         }
@@ -266,10 +265,10 @@ public class ClientTypeRegistration implements TypeRegistration {
 
   @Override
   public Map<Integer, PdxType> types() {
-    Collection<Pool> pools = getAllPools();
+    var pools = getAllPools();
 
     Map<Integer, PdxType> types = new HashMap<>();
-    for (Pool p : pools) {
+    for (var p : pools) {
       try {
         types.putAll(GetPDXTypesOp.execute((ExecutablePool) p));
       } catch (Exception e) {
@@ -281,10 +280,10 @@ public class ClientTypeRegistration implements TypeRegistration {
 
   @Override
   public Map<Integer, EnumInfo> enums() {
-    Collection<Pool> pools = getAllPools();
+    var pools = getAllPools();
 
     Map<Integer, EnumInfo> enums = new HashMap<>();
-    for (Pool p : pools) {
+    for (var p : pools) {
       enums.putAll(GetPDXEnumsOp.execute((ExecutablePool) p));
     }
     return enums;
@@ -295,7 +294,7 @@ public class ClientTypeRegistration implements TypeRegistration {
   public PdxType getPdxTypeForField(String fieldName, String className) {
     for (Object value : types().values()) {
       if (value instanceof PdxType) {
-        PdxType pdxType = (PdxType) value;
+        var pdxType = (PdxType) value;
         if (pdxType.getClassName().equals(className) && pdxType.getPdxField(fieldName) != null) {
           return pdxType;
         }
@@ -309,7 +308,7 @@ public class ClientTypeRegistration implements TypeRegistration {
     Set<PdxType> result = new HashSet<>();
     for (Object value : types().values()) {
       if (value instanceof PdxType) {
-        PdxType pdxType = (PdxType) value;
+        var pdxType = (PdxType) value;
         if (pdxType.getClassName().equals(className)) {
           result.add(pdxType);
         }
@@ -330,8 +329,8 @@ public class ClientTypeRegistration implements TypeRegistration {
    */
   @Override
   public void addImportedType(int typeId, PdxType importedType) {
-    Collection<Pool> pools = getAllPools();
-    for (Pool pool : pools) {
+    var pools = getAllPools();
+    for (var pool : pools) {
       try {
         sendTypeToPool(importedType, typeId, pool);
       } catch (ServerConnectivityException e) {
@@ -347,9 +346,9 @@ public class ClientTypeRegistration implements TypeRegistration {
    */
   @Override
   public void addImportedEnum(int enumId, EnumInfo importedInfo) {
-    Collection<Pool> pools = getAllPools();
+    var pools = getAllPools();
 
-    for (Pool pool : pools) {
+    for (var pool : pools) {
       try {
         sendEnumIdToPool(importedInfo, enumId, pool);
       } catch (ServerConnectivityException e) {

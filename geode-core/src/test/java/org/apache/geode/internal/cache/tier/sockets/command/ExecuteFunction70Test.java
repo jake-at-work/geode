@@ -103,24 +103,24 @@ public class ExecuteFunction70Test {
         mock(ServerToClientFunctionResultSender65Factory.class);
     functionContextImplFactory = mock(FunctionContextImplFactory.class);
 
-    AcceptorImpl acceptor = mock(AcceptorImpl.class);
-    InternalCache cache = mock(InternalCache.class);
-    ClusterDistributionManager clusterDistributionManager = mock(ClusterDistributionManager.class);
-    Message errorResponseMessage = mock(Message.class);
-    ExecuteFunctionOperationContext executeFunctionOperationContext =
+    var acceptor = mock(AcceptorImpl.class);
+    var cache = mock(InternalCache.class);
+    var clusterDistributionManager = mock(ClusterDistributionManager.class);
+    var errorResponseMessage = mock(Message.class);
+    var executeFunctionOperationContext =
         mock(ExecuteFunctionOperationContext.class);
-    Function functionObject = mock(Function.class);
-    Executor functionExecutor = mock(Executor.class);
-    InternalResourceManager internalResourceManager = mock(InternalResourceManager.class);
-    Message replyMessage = mock(Message.class);
-    ServerToClientFunctionResultSender65 serverToClientFunctionResultSender65 =
+    var functionObject = mock(Function.class);
+    var functionExecutor = mock(Executor.class);
+    var internalResourceManager = mock(InternalResourceManager.class);
+    var replyMessage = mock(Message.class);
+    var serverToClientFunctionResultSender65 =
         mock(ServerToClientFunctionResultSender65.class);
 
-    Part argsPart = mock(Part.class);
-    Part callbackArgPart = mock(Part.class);
-    Part functionPart = mock(Part.class);
-    Part functionStatePart = mock(Part.class);
-    Part partPart = mock(Part.class);
+    var argsPart = mock(Part.class);
+    var callbackArgPart = mock(Part.class);
+    var functionPart = mock(Part.class);
+    var functionStatePart = mock(Part.class);
+    var partPart = mock(Part.class);
 
     when(authzRequest.executeFunctionAuthorize(eq(FUNCTION_ID), eq(null), eq(null), eq(null),
         eq(OPTIMIZE_FOR_WRITE))).thenReturn(executeFunctionOperationContext);
@@ -134,7 +134,7 @@ public class ExecuteFunction70Test {
 
     when(callbackArgPart.getObject()).thenReturn(CALLBACK_ARG);
 
-    OperationExecutors executors = mock(OperationExecutors.class);
+    var executors = mock(OperationExecutors.class);
     when(clusterDistributionManager.getExecutors()).thenReturn(executors);
     when(executors.getFunctionExecutor()).thenReturn(functionExecutor);
 

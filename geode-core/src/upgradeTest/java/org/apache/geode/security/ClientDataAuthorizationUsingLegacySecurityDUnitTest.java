@@ -37,7 +37,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.distributed.ConfigurationProperties;
@@ -45,7 +44,6 @@ import org.apache.geode.security.templates.SimpleAccessController;
 import org.apache.geode.security.templates.SimpleAuthenticator;
 import org.apache.geode.security.templates.UserPasswordAuthInit;
 import org.apache.geode.security.templates.UsernamePrincipal;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.SecurityTest;
@@ -97,7 +95,7 @@ public class ClientDataAuthorizationUsingLegacySecurityDUnitTest {
   @Before
   public void setup() throws Exception {
     // We want the cluster VMs to be super-users for ease of testing / remote invocation.
-    Properties clusterMemberProperties = getVMPropertiesWithPermission("cluster,data");
+    var clusterMemberProperties = getVMPropertiesWithPermission("cluster,data");
 
     if (TestVersion.compare(clientVersion, "1.4.0") >= 0) {
       clusterMemberProperties.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
@@ -109,25 +107,25 @@ public class ClientDataAuthorizationUsingLegacySecurityDUnitTest {
     server.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
       RegionFactory<String, String> rf = cache.createRegionFactory(RegionShortcut.PARTITION);
-      Region<String, String> region = rf.create(regionName);
+      var region = rf.create(regionName);
       region.put(initKey, initValue);
     });
   }
 
   @Test
   public void dataWriteClientCanPut() throws Exception {
-    Properties props = getVMPropertiesWithPermission("dataWrite");
-    int locatorPort = locator.getPort();
+    var props = getVMPropertiesWithPermission("dataWrite");
+    var locatorPort = locator.getPort();
 
-    ClientVM clientVM = csRule.startClientVM(2, clientVersion, props, cf -> cf
+    var clientVM = csRule.startClientVM(2, clientVersion, props, cf -> cf
         .addPoolLocator("localhost", locatorPort));
 
     // Client adds data
     clientVM.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       ClientRegionFactory<String, String> rf =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region<String, String> region = rf.create(regionName);
+      var region = rf.create(regionName);
 
       region.put(singleKey, singleValue);
       region.putAll(keyValueMap);
@@ -144,22 +142,22 @@ public class ClientDataAuthorizationUsingLegacySecurityDUnitTest {
 
   @Test
   public void dataWriteCannotGet() throws Exception {
-    Properties props = getVMPropertiesWithPermission("dataWrite");
+    var props = getVMPropertiesWithPermission("dataWrite");
     if (TestVersion.compare(clientVersion, "1.4.0") >= 0) {
       props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
           "org.apache.geode.security.templates.UsernamePrincipal");
     }
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
-    ClientVM client = csRule.startClientVM(2, clientVersion, props, cf -> cf
+    var client = csRule.startClientVM(2, clientVersion, props, cf -> cf
         .addPoolLocator("localhost", locatorPort));
 
     // Client cannot get through any avenue
     client.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       ClientRegionFactory<String, String> rf =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region<String, String> region = rf.create(regionName);
+      var region = rf.create(regionName);
 
       assertThatThrownBy(() -> region.get(initKey))
           .hasCauseInstanceOf(NotAuthorizedException.class);
@@ -174,10 +172,10 @@ public class ClientDataAuthorizationUsingLegacySecurityDUnitTest {
 
   @Test
   public void dataReadClientCanGet() throws Exception {
-    Properties props = getVMPropertiesWithPermission("dataRead");
-    int locatorPort = locator.getPort();
+    var props = getVMPropertiesWithPermission("dataRead");
+    var locatorPort = locator.getPort();
 
-    ClientVM client = csRule.startClientVM(2, clientVersion, props, cf -> cf
+    var client = csRule.startClientVM(2, clientVersion, props, cf -> cf
         .addPoolLocator("localhost", locatorPort));
 
     // Add some values for the client to get
@@ -191,10 +189,10 @@ public class ClientDataAuthorizationUsingLegacySecurityDUnitTest {
 
     // Client can successfully get the data
     client.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       ClientRegionFactory<String, String> rf =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region<String, String> region = rf.create(regionName);
+      var region = rf.create(regionName);
 
       assertThat(region.get(initKey)).isEqualTo(initValue);
       assertThat(region.get(singleKey)).isEqualTo(singleValue);
@@ -204,22 +202,22 @@ public class ClientDataAuthorizationUsingLegacySecurityDUnitTest {
 
   @Test
   public void dataReadCannotPut() throws Exception {
-    Properties props = getVMPropertiesWithPermission("dataRead");
+    var props = getVMPropertiesWithPermission("dataRead");
     if (TestVersion.compare(clientVersion, "1.4.0") >= 0) {
       props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
           "org.apache.geode.security.templates.UsernamePrincipal");
     }
 
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
-    ClientVM clientVM = csRule.startClientVM(2, clientVersion, props, cf -> cf
+    var clientVM = csRule.startClientVM(2, clientVersion, props, cf -> cf
         .addPoolLocator("localhost", locatorPort));
 
     clientVM.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       ClientRegionFactory<String, String> rf =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region<String, String> region = rf.create(regionName);
+      var region = rf.create(regionName);
 
       assertThatThrownBy(() -> region.put(singleKey, singleValue))
           .hasCauseInstanceOf(NotAuthorizedException.class);
@@ -240,7 +238,7 @@ public class ClientDataAuthorizationUsingLegacySecurityDUnitTest {
   }
 
   private Properties getVMPropertiesWithPermission(String permission) {
-    Properties props = new Properties();
+    var props = new Properties();
     // Using the legacy security framework
     props.setProperty(SECURITY_CLIENT_AUTHENTICATOR,
         SimpleAuthenticator.class.getCanonicalName() + ".create");

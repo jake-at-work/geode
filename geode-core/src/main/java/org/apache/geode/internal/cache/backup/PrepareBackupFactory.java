@@ -39,8 +39,8 @@ class PrepareBackupFactory {
 
   PrepareBackup createPrepareBackup(InternalDistributedMember member, InternalCache cache,
       Properties properties) {
-    String memberId = cleanSpecialCharacters(member.toString());
-    BackupWriter backupWriter = BackupWriterFactory.getFactoryForType(properties.getProperty(TYPE))
+    var memberId = cleanSpecialCharacters(member.toString());
+    var backupWriter = BackupWriterFactory.getFactoryForType(properties.getProperty(TYPE))
         .createWriter(properties, memberId);
     return new PrepareBackup(member, cache, backupWriter);
   }

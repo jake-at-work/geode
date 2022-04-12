@@ -47,11 +47,11 @@ class FileSystemIncrementalBackupLocation implements IncrementalBackupLocation {
 
   @Override
   public Map<String, File> getBackedUpOplogs(DiskStore diskStore) throws IOException {
-    File checkedBaselineDir = checkBaseline(diskStore);
+    var checkedBaselineDir = checkBaseline(diskStore);
     if (checkedBaselineDir == null) {
       return Collections.emptyMap();
     }
-    Collection<File> baselineOplogFiles = getBackedUpOplogs(checkedBaselineDir, diskStore);
+    var baselineOplogFiles = getBackedUpOplogs(checkedBaselineDir, diskStore);
     baselineOplogFiles.addAll(getPreviouslyBackedUpOpLogs(checkedBaselineDir));
 
     // Map of baseline oplog file name to oplog file
@@ -59,14 +59,14 @@ class FileSystemIncrementalBackupLocation implements IncrementalBackupLocation {
   }
 
   Collection<File> getBackedUpOplogs(File checkedBaselineDir, DiskStore diskStore) {
-    File baselineDir = new File(checkedBaselineDir, BackupWriter.DATA_STORES_DIRECTORY);
+    var baselineDir = new File(checkedBaselineDir, BackupWriter.DATA_STORES_DIRECTORY);
     baselineDir = new File(baselineDir, getBackupDirName((DiskStoreImpl) diskStore));
     return FileUtils.listFiles(baselineDir, new String[] {"krf", "drf", "crf"}, true);
   }
 
   Collection<File> getPreviouslyBackedUpOpLogs(File checkedBaselineDir) throws IOException {
-    BackupInspector inspector = createBackupInspector(checkedBaselineDir);
-    HashSet<File> oplogs = new HashSet<>();
+    var inspector = createBackupInspector(checkedBaselineDir);
+    var oplogs = new HashSet<File>();
     if (inspector.isIncremental() && inspector.getIncrementalOplogFileNames() != null) {
       inspector.getIncrementalOplogFileNames().forEach(oplog -> {
         oplog = inspector.getCopyFromForOplogFile(oplog);
@@ -86,7 +86,7 @@ class FileSystemIncrementalBackupLocation implements IncrementalBackupLocation {
    * data stores directory for this member.
    */
   private File checkBaseline(DiskStore diskStore) {
-    File baselineDir = memberBackupLocationDir.toFile();
+    var baselineDir = memberBackupLocationDir.toFile();
 
     if (!baselineDir.exists()) {
       // hmmm, did this member have a restart? Determine which member dir might be a match for us
@@ -95,7 +95,7 @@ class FileSystemIncrementalBackupLocation implements IncrementalBackupLocation {
 
     if (null != baselineDir) {
       // check for existence of INCOMPLETE_BACKUP_FILE file
-      File incompleteBackup = new File(baselineDir, INCOMPLETE_BACKUP_FILE);
+      var incompleteBackup = new File(baselineDir, INCOMPLETE_BACKUP_FILE);
       if (incompleteBackup.exists()) {
         baselineDir = null;
       }
@@ -107,7 +107,7 @@ class FileSystemIncrementalBackupLocation implements IncrementalBackupLocation {
     File baselineDir = null;
 
     // Find the first matching DiskStoreId directory for this member.
-    File[] matchingFiles = baselineParentDir.toFile()
+    var matchingFiles = baselineParentDir.toFile()
         .listFiles((file, name) -> name.endsWith(getBackupDirName((DiskStoreImpl) diskStore)));
     // We found it? Good. Set this member's baseline to the backed up disk store's member dir (two
     // levels up).
@@ -123,7 +123,7 @@ class FileSystemIncrementalBackupLocation implements IncrementalBackupLocation {
    * concatenation of the disk store name and id.
    */
   String getBackupDirName(DiskStoreImpl diskStore) {
-    String name = diskStore.getName();
+    var name = diskStore.getName();
     if (name == null) {
       name = GemFireCacheImpl.getDefaultDiskStoreName();
     }

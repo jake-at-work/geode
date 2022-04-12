@@ -50,7 +50,7 @@ public class ObjectWithCharAttr implements Serializable {
 
   public boolean equals(Object t) {
     if (t instanceof ObjectWithCharAttr) {
-      ObjectWithCharAttr otherKey = (ObjectWithCharAttr) t;
+      var otherKey = (ObjectWithCharAttr) t;
       return otherKey.t == this.t;
     } else {
       return false;

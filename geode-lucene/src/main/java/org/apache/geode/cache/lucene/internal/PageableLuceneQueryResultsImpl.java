@@ -26,7 +26,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.lucene.LuceneResultStruct;
 import org.apache.geode.cache.lucene.PageableLuceneQueryResults;
 import org.apache.geode.cache.lucene.internal.distributed.EntryScore;
@@ -82,18 +81,18 @@ public class PageableLuceneQueryResultsImpl<K, V> implements PageableLuceneQuery
   public List<LuceneResultStruct<K, V>> getHitEntries(int fromIndex, int toIndex) {
     ArrayList<LuceneResultStruct<K, V>> results = null;
     try {
-      List<EntryScore<K>> scores = hits.subList(fromIndex, toIndex);
+      var scores = hits.subList(fromIndex, toIndex);
       Set<K> keys = new HashSet<>(scores.size());
-      for (EntryScore<K> score : scores) {
+      for (var score : scores) {
         keys.add(score.getKey());
       }
 
-      Map<K, V> values = getValues(keys);
+      var values = getValues(keys);
 
 
       results = new ArrayList<>(values.size());
-      for (EntryScore<K> score : scores) {
-        V value = values.get(score.getKey());
+      for (var score : scores) {
+        var value = values.get(score.getKey());
         if (value != null) {
           results.add(new LuceneResultStructImpl(score.getKey(), value, score.getScore()));
         }
@@ -108,7 +107,7 @@ public class PageableLuceneQueryResultsImpl<K, V> implements PageableLuceneQuery
   }
 
   protected Map<K, V> getValues(final Set<K> keys) {
-    ResultCollector resultCollector = onRegion().withFilter(keys)
+    var resultCollector = onRegion().withFilter(keys)
         .withCollector(new MapResultCollector()).execute(LuceneGetPageFunction.ID);
     return (Map<K, V>) resultCollector.getResult();
   }
@@ -122,7 +121,7 @@ public class PageableLuceneQueryResultsImpl<K, V> implements PageableLuceneQuery
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    List<LuceneResultStruct<K, V>> result = advancePage();
+    var result = advancePage();
     currentPage = null;
     return result;
   }
@@ -132,10 +131,10 @@ public class PageableLuceneQueryResultsImpl<K, V> implements PageableLuceneQuery
       return currentPage;
     }
 
-    int resultSize = (pageSize != Integer.MAX_VALUE) ? pageSize : hits.size();
+    var resultSize = (pageSize != Integer.MAX_VALUE) ? pageSize : hits.size();
     currentPage = new ArrayList<>(resultSize);
     while (currentPage.size() < pageSize && currentHit < hits.size()) {
-      int end = currentHit + pageSize - currentPage.size();
+      var end = currentHit + pageSize - currentPage.size();
       end = end > hits.size() ? hits.size() : end;
       currentPage.addAll(getHitEntries(currentHit, end));
       currentHit = end;
@@ -157,7 +156,7 @@ public class PageableLuceneQueryResultsImpl<K, V> implements PageableLuceneQuery
   @Override
   public float getMaxScore() {
     if (maxScore == Float.MIN_VALUE) {
-      for (EntryScore<K> score : hits) {
+      for (var score : hits) {
         maxScore = Math.max(maxScore, score.getScore());
       }
     }

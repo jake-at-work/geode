@@ -191,7 +191,7 @@ public class ManagedResourceType implements java.io.Serializable {
     if (!(other instanceof ManagedResourceType)) {
       return false;
     }
-    final ManagedResourceType that = (ManagedResourceType) other;
+    final var that = (ManagedResourceType) other;
 
     if (!StringUtils.equals(name, that.name)) {
       return false;
@@ -207,8 +207,8 @@ public class ManagedResourceType implements java.io.Serializable {
    */
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + (name == null ? 0 : name.hashCode());
     result = mult * result + (clazz == null ? 0 : clazz.hashCode());

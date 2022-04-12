@@ -15,12 +15,10 @@
 package org.apache.geode.rest.internal.web.controllers;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 
@@ -36,7 +34,7 @@ public class GetRegions implements Function {
   @Override
   public void execute(FunctionContext context) {
 
-    ArrayList<String> vals = new ArrayList<>();
+    var vals = new ArrayList<String>();
 
     Cache c = null;
     try {
@@ -46,8 +44,8 @@ public class GetRegions implements Function {
       context.getResultSender().lastResult(vals);
     }
 
-    final Set<Region<?, ?>> regionSet = c.rootRegions();
-    for (Region<?, ?> r : regionSet) {
+    final var regionSet = c.rootRegions();
+    for (var r : regionSet) {
       vals.add(r.getName());
     }
 

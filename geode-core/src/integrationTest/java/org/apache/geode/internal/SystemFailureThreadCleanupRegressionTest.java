@@ -34,8 +34,8 @@ public class SystemFailureThreadCleanupRegressionTest {
 
   @Test
   public void testNoGFThreadsRunningPostCacheClose() throws Exception {
-    ClientCacheFactory ccf = new ClientCacheFactory();
-    GemFireCacheImpl cache = (GemFireCacheImpl) ccf.create();
+    var ccf = new ClientCacheFactory();
+    var cache = (GemFireCacheImpl) ccf.create();
 
     SystemFailure.getFailure();
 
@@ -51,17 +51,17 @@ public class SystemFailureThreadCleanupRegressionTest {
   }
 
   private void checkThreads(boolean expectThreads) {
-    boolean proctorRunning = false;
-    boolean watchDogRunning = false;
+    var proctorRunning = false;
+    var watchDogRunning = false;
 
-    for (Thread t : Thread.getAllStackTraces().keySet()) {
+    for (var t : Thread.getAllStackTraces().keySet()) {
       if (t.getName().contains("SystemFailure WatchDog")) {
         watchDogRunning = true;
       } else if (t.getName().contains("SystemFailure Proctor")) {
         proctorRunning = true;
       }
     }
-    StringBuilder sb = new StringBuilder(new Date(System.currentTimeMillis()).toString());
+    var sb = new StringBuilder(new Date(System.currentTimeMillis()).toString());
     sb.append((watchDogRunning ^ expectThreads) ? " SystemFailure WatchDog, " : " ");
     sb.append((proctorRunning ^ expectThreads) ? "SystemFailure Proctor, " : "");
     sb.append(expectThreads ? "not started." : "still running.");

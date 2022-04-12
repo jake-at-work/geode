@@ -32,7 +32,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.DMStats;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.internal.cache.InitialImageOperation.ImageReplyMessage;
@@ -73,9 +72,9 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testLotsOfChunks() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     Invoke.invokeInEveryVM(new SerializableRunnable("reset chunk size") {
       @Override
       public void run() {
@@ -96,9 +95,9 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testFlowControlHappening() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     Invoke.invokeInEveryVM(new SerializableRunnable("set chunk size") {
       @Override
       public void run() {
@@ -122,7 +121,7 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
 
     createData(vm0, 0, 50, "1234567890");
 
-    AsyncInvocation async1 = createRegionAsync(vm1);
+    var async1 = createRegionAsync(vm1);
 
     async1.join(100);
     assertTrue(async1.isAlive());
@@ -172,9 +171,9 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testKillSenderNoHang() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     Invoke.invokeInEveryVM(new SerializableRunnable("set chunk size") {
       @Override
       public void run() {
@@ -199,7 +198,7 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
 
     createData(vm0, 0, 50, "1234567890");
 
-    AsyncInvocation async1 = createRegionAsync(vm1);
+    var async1 = createRegionAsync(vm1);
 
     vm1.invoke(new SerializableRunnable("Wait to flow control messages") {
 
@@ -261,9 +260,9 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void doCloseTest(boolean disconnect) throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     Invoke.invokeInEveryVM(new SerializableRunnable("set chunk size") {
       @Override
       public void run() {
@@ -327,7 +326,7 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
           @Override
           public void run() {
             getSystem();
-            final DMStats stats = getDMStats();
+            final var stats = getDMStats();
             assertEquals(2, stats.getInitialImageMessagesInFlight());
           }
         });
@@ -360,7 +359,7 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
 
         @Override
         public void run() {
-          final DMStats stats = getDMStats();
+          final var stats = getDMStats();
           GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
 
             @Override
@@ -388,7 +387,7 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
   // TODO Test destroying either side of the DS during the flow control, no hangs.
 
   protected void closeCache(final VM vm) {
-    SerializableRunnable closeCache = new SerializableRunnable("close cache") {
+    var closeCache = new SerializableRunnable("close cache") {
       @Override
       public void run() {
         Cache cache = getCache();
@@ -399,7 +398,7 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void disconnect(final VM vm) {
-    SerializableRunnable closeCache = new SerializableRunnable("close cache") {
+    var closeCache = new SerializableRunnable("close cache") {
       @Override
       public void run() {
         disconnectFromDS();
@@ -409,16 +408,16 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createRegion(VM vm) throws Throwable {
-    SerializableRunnable createRegion = getCreateRegionRunnable();
+    var createRegion = getCreateRegionRunnable();
     vm.invoke(createRegion);
   }
 
   private SerializableRunnable getCreateRegionRunnable() {
-    SerializableRunnable createRegion = new SerializableRunnable("Create non persistent region") {
+    var createRegion = new SerializableRunnable("Create non persistent region") {
       @Override
       public void run() {
         getCache();
-        RegionFactory rf = new RegionFactory();
+        var rf = new RegionFactory();
         rf.setDataPolicy(DataPolicy.REPLICATE);
         rf.setScope(Scope.DISTRIBUTED_ACK);
         rf.create(REGION_NAME);
@@ -428,19 +427,19 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
   }
 
   private AsyncInvocation createRegionAsync(VM vm) throws Throwable {
-    SerializableRunnable createRegion = getCreateRegionRunnable();
+    var createRegion = getCreateRegionRunnable();
     return vm.invokeAsync(createRegion);
   }
 
   protected void createData(VM vm, final int startKey, final int endKey, final Object value) {
-    SerializableRunnable createData = new SerializableRunnable() {
+    var createData = new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(REGION_NAME);
 
-        for (int i = startKey; i < endKey; i++) {
+        for (var i = startKey; i < endKey; i++) {
           region.put(i, value);
         }
       }
@@ -449,14 +448,14 @@ public class GIIFlowControlDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void checkData(VM vm0, final int startKey, final int endKey, final String value) {
-    SerializableRunnable checkData = new SerializableRunnable() {
+    var checkData = new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(REGION_NAME);
 
-        for (int i = startKey; i < endKey; i++) {
+        for (var i = startKey; i < endKey; i++) {
           assertEquals("On key " + i, value, region.get(i));
         }
       }

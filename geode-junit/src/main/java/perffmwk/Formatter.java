@@ -41,8 +41,8 @@ public class Formatter {
    * Centers the given string on the <code>PrintWriter</code>
    */
   public static void center(String s, PrintWriter pw) {
-    int indent = (WIDTH / 2) - (s.length() / 2);
-    for (int i = 0; i < indent; i++) {
+    var indent = (WIDTH / 2) - (s.length() / 2);
+    for (var i = 0; i < indent; i++) {
       pw.print(" ");
     }
     pw.println(s);
@@ -53,9 +53,9 @@ public class Formatter {
    * according to the pattern. String values are ignored.
    */
   public static Vector formatDecimal(Collection c, String pattern) {
-    DecimalFormat f = new DecimalFormat(pattern);
-    Vector v = new Vector();
-    for (Object o : c) {
+    var f = new DecimalFormat(pattern);
+    var v = new Vector();
+    for (var o : c) {
       if (o instanceof Double) {
         v.add(f.format(o));
       } else {
@@ -88,10 +88,10 @@ public class Formatter {
    * the left to the length of the longest one.
    */
   public static Vector padLeft(Collection strings) {
-    Vector v = new Vector();
-    int length = maxLength(strings);
-    for (final Object o : strings) {
-      String string = (String) o;
+    var v = new Vector();
+    var length = maxLength(strings);
+    for (final var o : strings) {
+      var string = (String) o;
       v.add(padLeft(string, length));
     }
     return v;
@@ -102,10 +102,10 @@ public class Formatter {
    * the right to the length of the longest one.
    */
   public static Vector padRight(Collection strings) {
-    Vector v = new Vector();
-    int length = maxLength(strings);
-    for (final Object o : strings) {
-      String string = (String) o;
+    var v = new Vector();
+    var length = maxLength(strings);
+    for (final var o : strings) {
+      var string = (String) o;
       v.add(padRight(string, length));
     }
     return v;
@@ -118,8 +118,8 @@ public class Formatter {
     if (s.length() > length) {
       throw new RuntimeException(s + " cannot be padded to length " + length + ", it is too long");
     }
-    String t = "";
-    for (int i = 0; i < length - s.length(); i++) {
+    var t = "";
+    for (var i = 0; i < length - s.length(); i++) {
       t += " ";
     }
     return t + s;
@@ -132,8 +132,8 @@ public class Formatter {
     if (s.length() > length) {
       throw new RuntimeException(s + " cannot be padded to length " + length + ", it is too long");
     }
-    String t = s;
-    for (int i = 0; i < length - s.length(); i++) {
+    var t = s;
+    for (var i = 0; i < length - s.length(); i++) {
       t += " ";
     }
     return t;
@@ -143,9 +143,9 @@ public class Formatter {
    * Returns the length of the longest string in the collection (0 if the collection is empty).
    */
   public static int maxLength(Collection strings) {
-    int max = 0;
-    for (final Object o : strings) {
-      String string = (String) o;
+    var max = 0;
+    for (final var o : strings) {
+      var string = (String) o;
       max = Math.max(max, string.length());
     }
     return max;

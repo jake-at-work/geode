@@ -29,8 +29,8 @@ public class RegionSubRegionSnapshotTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    RegionSubRegionSnapshot mockRegionSubRegionSnapshot = mock(RegionSubRegionSnapshot.class);
-    RegionSubRegionSnapshot mockRegionSubRegionSnapshotParent = mock(RegionSubRegionSnapshot.class);
+    var mockRegionSubRegionSnapshot = mock(RegionSubRegionSnapshot.class);
+    var mockRegionSubRegionSnapshotParent = mock(RegionSubRegionSnapshot.class);
 
     when(mockRegionSubRegionSnapshot.getEntryCount()).thenReturn(0);
     when(mockRegionSubRegionSnapshot.getName()).thenReturn("name");

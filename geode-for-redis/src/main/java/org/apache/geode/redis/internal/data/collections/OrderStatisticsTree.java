@@ -66,9 +66,9 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
   @Override
   public Object[] toArray() {
-    Object[] array = new Object[size];
-    Iterator<E> iterator = iterator();
-    int index = 0;
+    var array = new Object[size];
+    var iterator = iterator();
+    var index = 0;
 
     while (iterator.hasNext()) {
       array[index++] = iterator.next();
@@ -79,13 +79,13 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
   @Override
   public <T> T[] toArray(T[] a) {
-    Iterator<E> iterator = iterator();
+    var iterator = iterator();
 
     if (size > a.length) {
       a = Arrays.copyOf(a, size);
     }
 
-    int index = 0;
+    var index = 0;
 
     for (; index < size; ++index) {
       a[index] = uncheckedCast(iterator.next());
@@ -111,7 +111,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
   @Override
   public boolean addAll(Collection<? extends E> c) {
-    boolean modified = false;
+    var modified = false;
 
     for (E element : c) {
       if (add(element)) {
@@ -124,11 +124,11 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
   @Override
   public boolean retainAll(Collection<?> c) {
-    Iterator<E> iterator = iterator();
-    boolean modified = false;
+    var iterator = iterator();
+    var modified = false;
 
     while (iterator.hasNext()) {
-      E element = iterator.next();
+      var element = iterator.next();
 
       if (!c.contains(element)) {
         iterator.remove();
@@ -141,7 +141,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
   @Override
   public boolean removeAll(Collection<?> c) {
-    boolean modified = false;
+    var modified = false;
 
     for (Object element : c) {
       if (remove(element)) {
@@ -164,7 +164,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
     }
 
     Node<E> parent = null;
-    Node<E> node = root;
+    var node = root;
     int cmp;
 
     while (node != null) {
@@ -184,7 +184,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       }
     }
 
-    Node<E> newNode = new Node<>(element);
+    var newNode = new Node<E>(element);
 
     if (element.compareTo(parent.key) < 0) {
       parent.left = newNode;
@@ -195,8 +195,8 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
     newNode.parent = parent;
     size++;
     modCount++;
-    Node<E> hi = parent;
-    Node<E> lo = newNode;
+    var hi = parent;
+    var lo = newNode;
 
     while (hi != null) {
       if (hi.left == lo) {
@@ -221,7 +221,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
   private Node<E> getNode(int index) {
     checkIndex(index);
-    Node<E> node = root;
+    var node = root;
 
     while (true) {
       if (index > node.count) {
@@ -242,7 +242,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
   }
 
   private Node<E> findNode(E o) {
-    Node<E> x = root;
+    var x = root;
     int cmp;
 
     while (x != null && (cmp = o.compareTo(x.key)) != 0) {
@@ -258,7 +258,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
   @Override
   @SuppressWarnings("unchecked")
   public boolean remove(Object o) {
-    Node<E> x = findNode((E) o);
+    var x = findNode((E) o);
 
     if (x == null) {
       return false;
@@ -278,13 +278,13 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
   @Override
   public int indexOf(E element) {
-    Node<E> node = root;
+    var node = root;
 
     if (root == null) {
       return -1;
     }
 
-    int rank = root.count;
+    var rank = root.count;
     int cmp;
 
     while (true) {
@@ -340,7 +340,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       return false;
     }
 
-    Set<?> otherSet = (Set<?>) o;
+    var otherSet = (Set<?>) o;
 
     if (size != otherSet.size()) {
       return false;
@@ -350,8 +350,8 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
   @Override
   public int hashCode() {
-    int hash = 0;
-    for (E t : this) {
+    var hash = 0;
+    for (var t : this) {
       hash += t.hashCode();
     }
     return hash;
@@ -368,7 +368,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       return node;
     }
 
-    Node<E> parent = node.parent;
+    var parent = node.parent;
 
     while (parent != null && parent.right == node) {
       node = parent;
@@ -389,7 +389,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       return node;
     }
 
-    Node<E> parent = node.parent;
+    var parent = node.parent;
 
     while (parent != null && parent.left == node) {
       node = parent;
@@ -415,7 +415,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
   private Node<E> deleteNode(Node<E> node) {
     if (node.left == null && node.right == null) {
       // 'node' has no children.
-      Node<E> parent = node.parent;
+      var parent = node.parent;
 
       if (parent == null) {
         // 'node' is the root node of this tree.
@@ -437,11 +437,11 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
     if (node.left != null && node.right != null) {
       // 'node' has both children.
-      E tmpKey = node.key;
-      Node<E> successor = minimumNode(node.right);
+      var tmpKey = node.key;
+      var successor = minimumNode(node.right);
       node.key = successor.key;
-      Node<E> child = successor.right;
-      Node<E> parent = successor.parent;
+      var child = successor.right;
+      var parent = successor.parent;
 
       if (parent.left == successor) {
         parent.left = child;
@@ -468,7 +468,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       child = node.right;
     }
 
-    Node<E> parent = node.parent;
+    var parent = node.parent;
     child.parent = parent;
 
     if (parent == null) {
@@ -520,7 +520,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
   }
 
   private Node<E> leftRotate(Node<E> node1) {
-    Node<E> node2 = node1.right;
+    var node2 = node1.right;
     node2.parent = node1.parent;
     node1.parent = node2;
     node1.right = node2.left;
@@ -537,7 +537,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
   }
 
   private Node<E> rightRotate(Node<E> node1) {
-    Node<E> node2 = node1.left;
+    var node2 = node1.left;
     node2.parent = node1.parent;
     node1.parent = node2;
     node1.left = node2.right;
@@ -554,13 +554,13 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
   }
 
   private Node<E> rightLeftRotate(Node<E> node1) {
-    Node<E> node2 = node1.right;
+    var node2 = node1.right;
     node1.right = rightRotate(node2);
     return leftRotate(node1);
   }
 
   private Node<E> leftRightRotate(Node<E> node1) {
-    Node<E> node2 = node1.left;
+    var node2 = node1.left;
     node1.left = leftRotate(node2);
     return rightRotate(node1);
   }
@@ -568,7 +568,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
   // Fixing an insertion: use insertionMode = true.
   // Fixing a deletion: use insertionMode = false.
   private void fixAfterModification(Node<E> node, boolean insertionMode) {
-    Node<E> parent = node.parent;
+    var parent = node.parent;
     Node<E> grandParent;
     Node<E> subTree;
 
@@ -668,13 +668,13 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       return -1;
     }
 
-    int leftTreeHeight = getHeight(node.left);
+    var leftTreeHeight = getHeight(node.left);
 
     if (leftTreeHeight == Integer.MIN_VALUE) {
       return Integer.MIN_VALUE;
     }
 
-    int rightTreeHeight = getHeight(node.right);
+    var rightTreeHeight = getHeight(node.right);
 
     if (rightTreeHeight == Integer.MIN_VALUE) {
       return Integer.MIN_VALUE;
@@ -704,8 +704,8 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       return false;
     }
 
-    int leftHeight = height(node.left);
-    int rightHeight = height(node.right);
+    var leftHeight = height(node.left);
+    var rightHeight = height(node.right);
 
     return Math.abs(leftHeight - rightHeight) < 2;
   }
@@ -719,7 +719,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       return 0;
     }
 
-    int leftTreeSize = count(node.left);
+    var leftTreeSize = count(node.left);
 
     if (leftTreeSize == Integer.MIN_VALUE) {
       return Integer.MIN_VALUE;
@@ -729,7 +729,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       return Integer.MIN_VALUE;
     }
 
-    int rightTreeSize = count(node.right);
+    var rightTreeSize = count(node.right);
 
     if (rightTreeSize == Integer.MIN_VALUE) {
       return Integer.MIN_VALUE;
@@ -795,7 +795,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
       }
 
       checkConcurrentModification();
-      E datum = nextNode.key;
+      var datum = nextNode.key;
       previousNode = nextNode;
       nextNode = getNext(nextNode);
       indexCount++;
@@ -816,7 +816,7 @@ public class OrderStatisticsTree<E extends Comparable<? super E>>
 
       checkConcurrentModification();
 
-      Node<E> x = deleteNode(previousNode);
+      var x = deleteNode(previousNode);
       fixAfterModification(x, false);
 
       if (x == nextNode) {

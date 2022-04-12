@@ -65,12 +65,12 @@ public class AlertsNotificationMessage extends PooledDistributionMessage {
   protected void process(ClusterDistributionManager dm) {
     // TODO add code to invoke process notification of agrregator
     // TODO: need to check whether it's a valid implimentation
-    AdminDistributedSystemImpl ds = AdminDistributedSystemImpl.getConnectedInstance();
+    var ds = AdminDistributedSystemImpl.getConnectedInstance();
 
     if (ds instanceof StatAlertsAggregator) {
-      StatAlertsAggregator aggregator = (StatAlertsAggregator) ds;
+      var aggregator = (StatAlertsAggregator) ds;
 
-      RemoteGemFireVM remoteVM = dm.getAgent().getMemberById(getSender());
+      var remoteVM = dm.getAgent().getMemberById(getSender());
 
       aggregator.processNotifications(_alerts, remoteVM);
     }
@@ -93,11 +93,11 @@ public class AlertsNotificationMessage extends PooledDistributionMessage {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("AlertsNotification[");
     sb.append("count = " + _alerts.length);
     sb.append(" (");
-    for (int i = 0; i < _alerts.length; i++) {
+    for (var i = 0; i < _alerts.length; i++) {
       sb.append(_alerts[i].toString());
       if (i != _alerts.length - 1) {
         sb.append(", ");

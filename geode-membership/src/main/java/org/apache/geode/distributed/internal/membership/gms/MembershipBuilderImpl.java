@@ -108,10 +108,10 @@ public class MembershipBuilderImpl<ID extends MemberIdentifier> implements Membe
 
   @Override
   public Membership<ID> create() throws MembershipConfigurationException {
-    GMSMembership<ID> gmsMembership =
-        new GMSMembership<>(membershipListener, messageListener, lifecycleListener);
-    final Services<ID> services =
-        new Services<>(gmsMembership.getGMSManager(), statistics, authenticator,
+    var gmsMembership =
+        new GMSMembership<ID>(membershipListener, messageListener, lifecycleListener);
+    final var services =
+        new Services<ID>(gmsMembership.getGMSManager(), statistics, authenticator,
             membershipConfig, serializer, memberFactory, locatorClient, socketCreator);
     if (membershipLocator != null) {
       services.setLocators(membershipLocator.getGMSLocator(), membershipLocator);

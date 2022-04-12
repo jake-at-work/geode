@@ -17,8 +17,6 @@ package org.apache.geode.internal.cache;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
-import java.util.List;
-
 import org.junit.Test;
 
 
@@ -26,14 +24,14 @@ public class TxCommitMessageBCServerToServerTxReplicateTest extends TxCommitMess
 
   @Test
   public void test() throws Exception {
-    String regionName = REPLICATE_REGION_NAME;
+    var regionName = REPLICATE_REGION_NAME;
 
-    List<Integer> beforeValues =
+    var beforeValues =
         server1.invoke(() -> TxCommitMessageBCTestBase.doGets(regionName));
     server1.invoke(() -> TxCommitMessageBCTestBase.doTxPuts(regionName));
-    List<Integer> afterValues1 =
+    var afterValues1 =
         server1.invoke(() -> TxCommitMessageBCTestBase.doGets(regionName));
-    List<Integer> afterValues2 =
+    var afterValues2 =
         server2.invoke(() -> TxCommitMessageBCTestBase.doGets(regionName));
 
     Integer expected1 = beforeValues.get(0) == null ? 1 : beforeValues.get(0) + 1;

@@ -36,7 +36,6 @@ import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.cache30.CacheSerializableRunnable;
@@ -44,7 +43,6 @@ import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -63,9 +61,9 @@ public class PutAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(PutAllDAckDUnitTest::createCacheForVM0);
     vm1.invoke(PutAllDAckDUnitTest::createCacheForVM1);
     LogWriterUtils.getLogWriter().fine("Cache created successfully");
@@ -73,9 +71,9 @@ public class PutAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(PutAllDAckDUnitTest::closeCache);
     vm1.invoke(PutAllDAckDUnitTest::closeCache);
   }
@@ -83,9 +81,9 @@ public class PutAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
   public static void createCacheForVM0() throws Exception {
     ds = (new PutAllDAckDUnitTest()).getSystem(props);
     cache = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
-    RegionAttributes attr = factory.create();
+    var attr = factory.create();
     region = cache.createRegion("map", attr);
   }
 
@@ -93,10 +91,10 @@ public class PutAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
     CacheWriter aWriter = new BeforeCreateCallback();
     ds = (new PutAllDAckDUnitTest()).getSystem(props);
     cache = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setCacheWriter(aWriter);
-    RegionAttributes attr = factory.create();
+    var attr = factory.create();
     region = cache.createRegion("map", attr);
   }
 
@@ -112,12 +110,12 @@ public class PutAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
   @Test
   public void testputAllRemoteVM() {
     // Test PASS.
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    Object[] objArr = new Object[1];
-    for (int i = 0; i < 2; i++) {
+    var objArr = new Object[1];
+    for (var i = 0; i < 2; i++) {
       objArr[0] = "" + i;
       vm0.invoke(PutAllDAckDUnitTest.class, "putMethod", objArr);
     }
@@ -141,7 +139,7 @@ public class PutAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
     Object obj = null;
     try {
       if (ob != null) {
-        String str = "first";
+        var str = "first";
         obj = region.put(ob, str);
       }
     } catch (Exception ex) {
@@ -179,7 +177,7 @@ public class PutAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
   }
 
   public static boolean containsValueMethod(Object ob) {
-    boolean flag = false;
+    var flag = false;
     try {
       flag = region.containsValue(ob);
     } catch (Exception ex) {
@@ -189,7 +187,7 @@ public class PutAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
   }
 
   public static int sizeMethod() {
-    int i = 0;
+    var i = 0;
     try {
       i = region.size();
     } catch (Exception ex) {

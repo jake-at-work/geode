@@ -23,9 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,16 +31,10 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.RebalanceOperation;
-import org.apache.geode.cache.control.ResourceManager;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -181,13 +172,13 @@ public class BucketRebalanceStatRegressionTest implements Serializable {
    * Validate that the overflow stats are as expected on the given member.
    */
   private void validateOverflowStats(final VM vm, final String vmName) {
-    long[] overflowStats = vm.invoke(this::getOverflowStats);
-    long[] overflowEntries = vm.invoke(this::getActualOverflowEntries);
+    var overflowStats = vm.invoke(this::getOverflowStats);
+    var overflowEntries = vm.invoke(this::getActualOverflowEntries);
 
-    long statEntriesInVM = overflowStats[0];
-    long statEntriesOnDisk = overflowStats[1];
-    long actualEntriesInVM = overflowEntries[0];
-    long actualEntriesOnDisk = overflowEntries[1];
+    var statEntriesInVM = overflowStats[0];
+    var statEntriesOnDisk = overflowStats[1];
+    var actualEntriesInVM = overflowEntries[0];
+    var actualEntriesOnDisk = overflowEntries[1];
 
     assertThat(actualEntriesInVM).as("entriesInVM for " + vmName).isEqualTo(statEntriesInVM);
     assertThat(actualEntriesOnDisk).as("entriesOnDisk for " + vmName).isEqualTo(statEntriesOnDisk);
@@ -197,9 +188,9 @@ public class BucketRebalanceStatRegressionTest implements Serializable {
    * Rebalance the region, waiting for the rebalance operation to complete
    */
   private void rebalance() throws Exception {
-    ResourceManager resourceManager = cacheRule.getCache().getResourceManager();
-    RebalanceFactory rebalanceFactory = resourceManager.createRebalanceFactory();
-    RebalanceOperation rebalanceOperation = rebalanceFactory.start();
+    var resourceManager = cacheRule.getCache().getResourceManager();
+    var rebalanceFactory = resourceManager.createRebalanceFactory();
+    var rebalanceOperation = rebalanceFactory.start();
 
     // wait for rebalance to complete
     assertThat(rebalanceOperation.getResults()).isNotNull();
@@ -211,7 +202,7 @@ public class BucketRebalanceStatRegressionTest implements Serializable {
    */
   private void loadRegion() {
     Region<Integer, byte[]> region = cacheRule.getCache().getRegion(REGION_NAME);
-    for (int i = 1; i <= ENTRIES_IN_REGION; i++) {
+    for (var i = 1; i <= ENTRIES_IN_REGION; i++) {
       region.put(i, new byte[BYTES_SIZE]);
     }
   }
@@ -224,10 +215,10 @@ public class BucketRebalanceStatRegressionTest implements Serializable {
    */
   private long[] getOverflowStats() {
     Region<Integer, byte[]> region = cacheRule.getCache().getRegion(REGION_NAME);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
 
-    long numEntriesInVM = partitionedRegion.getDiskRegionStats().getNumEntriesInVM();
-    long numOverflowOnDisk = partitionedRegion.getDiskRegionStats().getNumOverflowOnDisk();
+    var numEntriesInVM = partitionedRegion.getDiskRegionStats().getNumEntriesInVM();
+    var numOverflowOnDisk = partitionedRegion.getDiskRegionStats().getNumOverflowOnDisk();
     return new long[] {numEntriesInVM, numOverflowOnDisk};
   }
 
@@ -239,14 +230,14 @@ public class BucketRebalanceStatRegressionTest implements Serializable {
    */
   private long[] getActualOverflowEntries() {
     Region<Integer, byte[]> region = cacheRule.getCache().getRegion(REGION_NAME);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
 
-    int totalBucketEntriesInVM = 0;
-    int totalBucketEntriesOnDisk = 0;
-    Set<Entry<Integer, BucketRegion>> buckets =
+    var totalBucketEntriesInVM = 0;
+    var totalBucketEntriesOnDisk = 0;
+    var buckets =
         partitionedRegion.getDataStore().getAllLocalBuckets();
-    for (Map.Entry<Integer, BucketRegion> entry : buckets) {
-      BucketRegion bucket = entry.getValue();
+    for (var entry : buckets) {
+      var bucket = entry.getValue();
       if (bucket != null) {
         totalBucketEntriesInVM += bucket.testHookGetValuesInVM();
         totalBucketEntriesOnDisk += bucket.testHookGetValuesOnDisk();
@@ -259,9 +250,9 @@ public class BucketRebalanceStatRegressionTest implements Serializable {
   private void createRegion(final RegionShortcut shortcut, final boolean overflow)
       throws IOException {
     Cache cache = cacheRule.getOrCreateCache();
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(getDiskDirs());
-    DiskStore diskStore = diskStoreFactory.create(testName.getMethodName());
+    var diskStore = diskStoreFactory.create(testName.getMethodName());
 
     RegionFactory<Integer, byte[]> regionFactory = cache.createRegionFactory(shortcut);
     regionFactory.setDiskStoreName(diskStore.getName());
@@ -272,7 +263,7 @@ public class BucketRebalanceStatRegressionTest implements Serializable {
           .setEvictionAttributes(createLRUEntryAttributes(LRU_ENTRY_COUNT, OVERFLOW_TO_DISK));
     }
 
-    PartitionAttributesFactory<Integer, byte[]> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<Integer, byte[]>();
     paf.setRedundantCopies(0);
     paf.setTotalNumBuckets(TOTAL_NUMBER_BUCKETS);
     regionFactory.setPartitionAttributes(paf.create());
@@ -281,7 +272,7 @@ public class BucketRebalanceStatRegressionTest implements Serializable {
   }
 
   private File[] getDiskDirs() throws IOException {
-    File dir = temporaryFolder.newFolder("disk" + VM.getCurrentVMNum()).getAbsoluteFile();
+    var dir = temporaryFolder.newFolder("disk" + VM.getCurrentVMNum()).getAbsoluteFile();
     return new File[] {dir};
   }
 }

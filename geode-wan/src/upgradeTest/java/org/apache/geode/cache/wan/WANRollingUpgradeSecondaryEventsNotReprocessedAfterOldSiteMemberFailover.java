@@ -24,40 +24,39 @@ import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.version.VersionManager;
 
 public class WANRollingUpgradeSecondaryEventsNotReprocessedAfterOldSiteMemberFailover
     extends WANRollingUpgradeDUnitTest {
   @Test
   public void testSecondaryEventsNotReprocessedAfterOldSiteMemberFailover() {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
 
     // Get old site members
-    VM site1Locator = host.getVM(oldVersion, 0);
-    VM site1Server1 = host.getVM(oldVersion, 1);
-    VM site1Server2 = host.getVM(oldVersion, 2);
-    VM site1Client = host.getVM(oldVersion, 3);
+    var site1Locator = host.getVM(oldVersion, 0);
+    var site1Server1 = host.getVM(oldVersion, 1);
+    var site1Server2 = host.getVM(oldVersion, 2);
+    var site1Client = host.getVM(oldVersion, 3);
 
     // Get current site members
-    VM site2Locator = host.getVM(VersionManager.CURRENT_VERSION, 4);
-    VM site2Server1 = host.getVM(VersionManager.CURRENT_VERSION, 5);
-    VM site2Server2 = host.getVM(VersionManager.CURRENT_VERSION, 6);
+    var site2Locator = host.getVM(VersionManager.CURRENT_VERSION, 4);
+    var site2Server1 = host.getVM(VersionManager.CURRENT_VERSION, 5);
+    var site2Server2 = host.getVM(VersionManager.CURRENT_VERSION, 6);
 
-    int[] locatorPorts = getRandomAvailableTCPPorts(2);
+    var locatorPorts = getRandomAvailableTCPPorts(2);
 
     // Get old site locator properties
-    String hostName = NetworkUtils.getServerHostName(host);
-    final int site1LocatorPort = locatorPorts[0];
+    var hostName = NetworkUtils.getServerHostName(host);
+    final var site1LocatorPort = locatorPorts[0];
     site1Locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(site1LocatorPort));
-    final String site1Locators = hostName + "[" + site1LocatorPort + "]";
-    final int site1DistributedSystemId = 0;
+    final var site1Locators = hostName + "[" + site1LocatorPort + "]";
+    final var site1DistributedSystemId = 0;
 
     // Get current site locator properties
-    final int site2LocatorPort = locatorPorts[1];
+    final var site2LocatorPort = locatorPorts[1];
     site2Locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(site2LocatorPort));
-    final String site2Locators = hostName + "[" + site2LocatorPort + "]";
-    final int site2DistributedSystemId = 1;
+    final var site2Locators = hostName + "[" + site2LocatorPort + "]";
+    final var site2DistributedSystemId = 1;
 
     // Start old site locator
     site1Locator.invoke(() -> startLocator(site1LocatorPort, site1DistributedSystemId,
@@ -77,18 +76,18 @@ public class WANRollingUpgradeSecondaryEventsNotReprocessedAfterOldSiteMemberFai
 
     try {
       // Start and configure old site servers with secondary removals prevented
-      String regionName = getName() + "_region";
-      String site1SenderId = getName() + "_gatewaysender_" + site2DistributedSystemId;
+      var regionName = getName() + "_region";
+      var site1SenderId = getName() + "_gatewaysender_" + site2DistributedSystemId;
       startAndConfigureServers(site1Server1, site1Server2, site1Locators, site2DistributedSystemId,
           regionName, site1SenderId, Integer.MAX_VALUE);
 
       // Start and configure current site servers with secondary removals prevented
-      String site2SenderId = getName() + "_gatewaysender_" + site1DistributedSystemId;
+      var site2SenderId = getName() + "_gatewaysender_" + site1DistributedSystemId;
       startAndConfigureServers(site2Server1, site2Server2, site2Locators, site1DistributedSystemId,
           regionName, site2SenderId, Integer.MAX_VALUE);
 
       // Do puts from old site client and verify events on current site
-      int numPuts = 100;
+      var numPuts = 100;
       doClientPutsAndVerifyEvents(site1Client, site1Server1, site1Server2, site2Server1,
           site2Server2, hostName, site1LocatorPort, regionName, numPuts, site1SenderId, true);
 

@@ -26,7 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,17 +65,17 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
     processor =
         new TestSerialGatewaySenderEventProcessor(sender, "ny", null, false);
     cache = Fakes.cache();
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(cache.getDistributedSystem()).thenReturn(ids);
   }
 
   @Test
   public void validateUnprocessedTokensMapUpdated() throws Exception {
-    GatewaySenderStats gss = mock(GatewaySenderStats.class);
+    var gss = mock(GatewaySenderStats.class);
     when(sender.getStatistics()).thenReturn(gss);
 
     // Handle primary event
-    EventID id = handlePrimaryEvent(Operation.CREATE);
+    var id = handlePrimaryEvent(Operation.CREATE);
 
     // Verify the token was added by checking the correct stat methods were called and the size of
     // the unprocessedTokensMap.
@@ -86,7 +85,7 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
 
     // Handle the event from the secondary. The call to enqueueEvent is necessary to synchronize the
     // unprocessedEventsLock and prevent the assertion error in basicHandleSecondaryEvent.
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var event = mock(EntryEventImpl.class);
     when(event.getRegion()).thenReturn(mock(LocalRegion.class));
     when(event.getEventId()).thenReturn(id);
     when(event.getOperation()).thenReturn(Operation.CREATE);
@@ -101,11 +100,11 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
 
   @Test
   public void validateUnprocessedTokensMapNotUpdatedForUpdateVersionOp() throws Exception {
-    GatewaySenderStats gss = mock(GatewaySenderStats.class);
+    var gss = mock(GatewaySenderStats.class);
     when(sender.getStatistics()).thenReturn(gss);
 
     // Handle primary event
-    EventID id = handlePrimaryEvent(Operation.UPDATE_VERSION_STAMP);
+    var id = handlePrimaryEvent(Operation.UPDATE_VERSION_STAMP);
 
     // Verify the token was added by checking the correct stat methods were called and the size of
     // the unprocessedTokensMap.
@@ -115,7 +114,7 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
 
     // Handle the event from the secondary. The call to enqueueEvent is necessary to synchronize the
     // unprocessedEventsLock and prevent the assertion error in basicHandleSecondaryEvent.
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var event = mock(EntryEventImpl.class);
     when(event.getRegion()).thenReturn(mock(LocalRegion.class));
     when(event.getEventId()).thenReturn(id);
     when(event.getOperation()).thenReturn(Operation.UPDATE_VERSION_STAMP);
@@ -145,7 +144,7 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
 
     // Handle the event from the secondary. The call to enqueueEvent is necessary to synchronize the
     // unprocessedEventsLock and prevent the assertion error in basicHandleSecondaryEvent.
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var event = mock(EntryEventImpl.class);
     // when(event.getRegion()).thenReturn(mock(LocalRegion.class));
     // when(event.getEventId()).thenReturn(id);
     when(event.getOperation()).thenReturn(Operation.UPDATE_VERSION_STAMP);
@@ -163,7 +162,7 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
 
   @Test
   public void verifyCMENotOriginRemoteShouldNotBeAddToSecondary() throws Exception {
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var event = mock(EntryEventImpl.class);
     when(event.getOperation()).thenReturn(Operation.CREATE);
     when(event.isConcurrencyConflict()).thenReturn(true);
     when(event.isOriginRemote()).thenReturn(false);
@@ -174,16 +173,16 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
 
   @Test
   public void verifyCMEButOriginRemoteShouldBeAddToSecondary() throws Exception {
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var event = mock(EntryEventImpl.class);
     when(event.getOperation()).thenReturn(Operation.CREATE);
     when(event.isConcurrencyConflict()).thenReturn(true);
     when(event.isOriginRemote()).thenReturn(true);
 
-    LocalRegion region = mock(LocalRegion.class);
+    var region = mock(LocalRegion.class);
     when(event.getRegion()).thenReturn(region);
     when(region.getFullPath()).thenReturn(SEPARATOR + "testRegion");
 
-    EventID id = mock(EventID.class);
+    var id = mock(EventID.class);
     when(event.getEventId()).thenReturn(id);
 
     processor = spy(processor);
@@ -195,15 +194,15 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
 
   @Test
   public void verifyNotCMENotUpdateVersionStampShouldBeAddToSecondary() throws Exception {
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var event = mock(EntryEventImpl.class);
     when(event.getOperation()).thenReturn(Operation.CREATE);
     when(event.isConcurrencyConflict()).thenReturn(false);
 
-    LocalRegion region = mock(LocalRegion.class);
+    var region = mock(LocalRegion.class);
     when(event.getRegion()).thenReturn(region);
     when(region.getFullPath()).thenReturn(SEPARATOR + "testRegion");
 
-    EventID id = mock(EventID.class);
+    var id = mock(EventID.class);
     when(event.getEventId()).thenReturn(id);
 
     processor = spy(processor);
@@ -216,16 +215,16 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
   @Test
   public void validateUnprocessedTokensMapReaping() throws Exception {
     // Set the token timeout low
-    int originalTokenTimeout = AbstractGatewaySender.TOKEN_TIMEOUT;
+    var originalTokenTimeout = AbstractGatewaySender.TOKEN_TIMEOUT;
     AbstractGatewaySender.TOKEN_TIMEOUT = 500;
     try {
-      GatewaySenderStats gss = mock(GatewaySenderStats.class);
+      var gss = mock(GatewaySenderStats.class);
       when(sender.getStatistics()).thenReturn(gss);
 
       // Add REAP_THRESHOLD + 1 events to the unprocessed tokens map. This causes the uncheckedCount
       // in the reaper to be REAP_THRESHOLD. The next event will cause the reaper to run.\
-      int numEvents = SerialGatewaySenderEventProcessor.REAP_THRESHOLD + 1;
-      for (int i = 0; i < numEvents; i++) {
+      var numEvents = SerialGatewaySenderEventProcessor.REAP_THRESHOLD + 1;
+      for (var i = 0; i < numEvents; i++) {
         handlePrimaryEvent(Operation.CREATE);
       }
       assertEquals(numEvents, processor.getUnprocessedTokensSize());
@@ -245,26 +244,26 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
   @Test
   public void validateUnProcessedEventsList() throws NoSuchFieldException, IllegalAccessException {
 
-    Field field = processor.getClass().getSuperclass().getDeclaredField("unprocessedEvents");
+    var field = processor.getClass().getSuperclass().getDeclaredField("unprocessedEvents");
 
     field.setAccessible(true);
 
-    Map<EventID, AbstractGatewaySender.EventWrapper> unprocessedEvents =
+    var unprocessedEvents =
         (Map<EventID, AbstractGatewaySender.EventWrapper>) field.get(processor);
 
-    long complexThreadId1 = ThreadIdentifier.createFakeThreadIDForParallelGSPrimaryBucket(0, 1, 1);
-    long complexThreadId3 = ThreadIdentifier.createFakeThreadIDForParallelGSPrimaryBucket(0, 3, 3);
+    var complexThreadId1 = ThreadIdentifier.createFakeThreadIDForParallelGSPrimaryBucket(0, 1, 1);
+    var complexThreadId3 = ThreadIdentifier.createFakeThreadIDForParallelGSPrimaryBucket(0, 3, 3);
     unprocessedEvents.put(new EventID("mem1".getBytes(), complexThreadId1, 1L), null);
     unprocessedEvents.put(new EventID("mem2".getBytes(), 2L, 2L), null);
 
-    String unProcessedEvents = processor.printUnprocessedEvents();
+    var unProcessedEvents = processor.printUnprocessedEvents();
     logger.info("UnprocessedEvents: " + unProcessedEvents);
     assertThat(unProcessedEvents).contains("threadID=0x1010000|1;sequenceID=1");
     assertThat(unProcessedEvents).contains("threadID=2;sequenceID=2");
 
     processor.unprocessedTokens.put(new EventID("mem3".getBytes(), complexThreadId3, 3L), 3L);
     processor.unprocessedTokens.put(new EventID("mem4".getBytes(), 4L, 4L), 4L);
-    String unProcessedTokens = processor.printUnprocessedTokens();
+    var unProcessedTokens = processor.printUnprocessedTokens();
     logger.info("UnprocessedTokens: " + unProcessedTokens);
     assertThat(unProcessedTokens).contains("threadID=0x3010000|3;sequenceID=3");
     assertThat(unProcessedTokens).contains("threadID=4;sequenceID=4");
@@ -277,7 +276,7 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
 
     // Create mock region
     List<GatewaySenderEventImpl> originalEvents = new ArrayList<>();
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     when(lr.getFullPath()).thenReturn(SEPARATOR + "dataStoreRegion");
     when(lr.getCache()).thenReturn(cache);
 
@@ -302,18 +301,18 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
         "Object_13964", null, 1, 105));
 
     // Conflate the batch of events
-    List<GatewaySenderEventImpl> conflatedEvents = processor.conflate(originalEvents);
+    var conflatedEvents = processor.conflate(originalEvents);
 
     // Verify:
     // - the batch contains 3 events after conflation
     // - they are CREATE, UPDATE, and DESTROY
     // - the UPDATE event is the correct one
     assertThat(conflatedEvents.size()).isEqualTo(3);
-    GatewaySenderEventImpl gsei1 = conflatedEvents.get(0);
+    var gsei1 = conflatedEvents.get(0);
     assertThat(gsei1.getOperation()).isEqualTo(Operation.CREATE);
-    GatewaySenderEventImpl gsei2 = conflatedEvents.get(1);
+    var gsei2 = conflatedEvents.get(1);
     assertThat(gsei2.getOperation()).isEqualTo(Operation.UPDATE);
-    GatewaySenderEventImpl gsei3 = conflatedEvents.get(2);
+    var gsei3 = conflatedEvents.get(2);
     assertThat(gsei3.getOperation()).isEqualTo(Operation.DESTROY);
     assertThat(gsei2.getDeserializedValue()).isEqualTo(lastUpdateValue);
     assertThat(gsei2.getEventId().getSequenceID()).isEqualTo(lastUpdateSequenceId);
@@ -335,7 +334,7 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
     // GatewaySenderEventImpl[id=EventID[id=31bytes;threadID=0x30004|6;sequenceID=6089];operation=DESTROY;region=/SESSIONS;key=1736],
 
     // Create mock region
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     when(lr.getFullPath()).thenReturn(SEPARATOR + "dataStoreRegion");
     when(lr.getCache()).thenReturn(cache);
 
@@ -363,7 +362,7 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
     logEvents("original", originalEvents);
 
     // Conflate the batch of event
-    List<GatewaySenderEventImpl> conflatedEvents = processor.conflate(originalEvents);
+    var conflatedEvents = processor.conflate(originalEvents);
     logEvents("conflated", conflatedEvents);
 
     // Assert no conflation occurs
@@ -372,10 +371,10 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
   }
 
   private void logEvents(String message, List<GatewaySenderEventImpl> events) {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append("The list contains the following ").append(events.size()).append(" ")
         .append(message).append(" events:");
-    for (GatewaySenderEventImpl event : events) {
+    for (var event : events) {
       builder.append("\t\n").append(event.toSmallString());
     }
     System.out.println(builder);
@@ -385,9 +384,9 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
       Object key, Object value, long threadId, long sequenceId)
       throws Exception {
     when(lr.getKeyInfo(key, value, null)).thenReturn(new KeyInfo(key, null, null));
-    EntryEventImpl eei = EntryEventImpl.create(lr, operation, key, value, null, false, null);
+    var eei = EntryEventImpl.create(lr, operation, key, value, null, false, null);
     eei.setEventId(new EventID(new byte[16], threadId, sequenceId));
-    GatewaySenderEventImpl gsei =
+    var gsei =
         new GatewaySenderEventImpl(getEnumListenerEvent(operation), eei, null);
     return gsei;
   }
@@ -405,8 +404,8 @@ public class SerialGatewaySenderEventProcessorJUnitTest {
   }
 
   private EventID handlePrimaryEvent(final Operation operation) {
-    GatewaySenderEventImpl gsei = mock(GatewaySenderEventImpl.class);
-    EventID id = mock(EventID.class);
+    var gsei = mock(GatewaySenderEventImpl.class);
+    var id = mock(EventID.class);
     when(gsei.getEventId()).thenReturn(id);
     when(gsei.getOperation()).thenReturn(operation);
     processor.basicHandlePrimaryEvent(gsei);

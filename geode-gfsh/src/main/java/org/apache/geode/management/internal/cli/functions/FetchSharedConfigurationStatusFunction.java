@@ -17,11 +17,9 @@ package org.apache.geode.management.internal.cli.functions;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
-import org.apache.geode.management.internal.configuration.domain.SharedConfigurationStatus;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 
 public class FetchSharedConfigurationStatusFunction implements InternalFunction<Void> {
@@ -37,17 +35,17 @@ public class FetchSharedConfigurationStatusFunction implements InternalFunction<
 
   @Override
   public void execute(FunctionContext<Void> context) {
-    InternalLocator locator = InternalLocator.getLocator();
-    InternalCache cache = (InternalCache) context.getCache();
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
-    SharedConfigurationStatus status = locator.getSharedConfigurationStatus().getStatus();
+    var locator = InternalLocator.getLocator();
+    var cache = (InternalCache) context.getCache();
+    var member = cache.getDistributedSystem().getDistributedMember();
+    var status = locator.getSharedConfigurationStatus().getStatus();
 
-    String memberId = member.getName();
+    var memberId = member.getName();
     if (StringUtils.isBlank(memberId)) {
       memberId = member.getId();
     }
 
-    CliFunctionResult result = new CliFunctionResult(memberId, status.name(), null);
+    var result = new CliFunctionResult(memberId, status.name(), null);
     context.getResultSender().lastResult(result);
   }
 }

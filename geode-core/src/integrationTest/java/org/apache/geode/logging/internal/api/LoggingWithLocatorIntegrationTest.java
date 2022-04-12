@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,12 +37,10 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import org.apache.geode.distributed.Locator;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.logging.internal.log4j.LogWriterLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogConfig;
 import org.apache.geode.test.assertj.LogFileAssert;
 import org.apache.geode.test.junit.categories.LoggingTest;
 
@@ -71,7 +68,7 @@ public class LoggingWithLocatorIntegrationTest {
   public void setUp() throws Exception {
     name = testName.getMethodName();
 
-    File currentWorkingDir = new File("");
+    var currentWorkingDir = new File("");
     currentWorkingDirPath = currentWorkingDir.getAbsolutePath();
     logFile = new File(temporaryFolder.getRoot(),
         testName.getMethodName() + "-system-" + System.currentTimeMillis() + ".log");
@@ -89,12 +86,12 @@ public class LoggingWithLocatorIntegrationTest {
 
   @Test
   public void startLocatorDefaultLoggingConfig() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
 
     locator = InternalLocator.startLocator(port, null, null, null, null, false, config, null,
         temporaryFolder.getRoot().toPath());
 
-    LogConfig logConfig = locator.getLogConfig();
+    var logConfig = locator.getLogConfig();
 
     assertThat(logConfig.getName()).isEqualTo("");
     assertThat(logConfig.getLogFile().getAbsolutePath()).isEqualTo(currentWorkingDirPath);
@@ -108,12 +105,12 @@ public class LoggingWithLocatorIntegrationTest {
 
   @Test
   public void startLocatorDefaultLoggingConfigWithLogFile() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
 
     locator = InternalLocator.startLocator(port, logFile, null, null, null, false, config, null,
         temporaryFolder.getRoot().toPath());
 
-    LogConfig logConfig = locator.getLogConfig();
+    var logConfig = locator.getLogConfig();
 
     assertThat(logConfig.getName()).isEqualTo("");
     assertThat(logConfig.getLogFile().getAbsolutePath()).isEqualTo(logFile.getAbsolutePath());
@@ -127,7 +124,7 @@ public class LoggingWithLocatorIntegrationTest {
 
   @Test
   public void startLocatorAndDSCreatesLogFile() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "localhost[" + port + "]");
     config.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
 
@@ -136,22 +133,22 @@ public class LoggingWithLocatorIntegrationTest {
     await().untilAsserted(() -> assertThat(logFile).exists());
 
     // assertThat logFile is not empty
-    try (FileInputStream fis = new FileInputStream(logFile)) {
+    try (var fis = new FileInputStream(logFile)) {
       assertThat(fis.available()).isGreaterThan(0);
     }
 
-    InternalDistributedSystem system = (InternalDistributedSystem) locator.getDistributedSystem();
+    var system = (InternalDistributedSystem) locator.getDistributedSystem();
 
     assertThat(system.getLogWriter()).isInstanceOf(LogWriterLogger.class);
     assertThat(system.getSecurityLogWriter()).isInstanceOf(LogWriterLogger.class);
 
-    LogWriterLogger logWriterLogger = (LogWriterLogger) system.getLogWriter();
-    LogWriterLogger securityLogWriterLogger = (LogWriterLogger) system.getSecurityLogWriter();
+    var logWriterLogger = (LogWriterLogger) system.getLogWriter();
+    var securityLogWriterLogger = (LogWriterLogger) system.getSecurityLogWriter();
 
     assertThat(logWriterLogger.getLogWriterLevel()).isEqualTo(INFO.intLevel());
     assertThat(securityLogWriterLogger.getLogWriterLevel()).isEqualTo(INFO.intLevel());
 
-    DistributionConfig distributionConfig = system.getConfig();
+    var distributionConfig = system.getConfig();
 
     assertThat(distributionConfig.getLogFile().getAbsolutePath())
         .isEqualTo(logFile.getAbsolutePath());
@@ -163,17 +160,17 @@ public class LoggingWithLocatorIntegrationTest {
 
   @Test
   public void locatorWithNoDS() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(NAME, name);
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
     config.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
 
     locator = InternalLocator.startLocator(port, null, null, null, null, false, config, null,
         temporaryFolder.getRoot().toPath());
-    Logger logger = LogService.getLogger();
+    var logger = LogService.getLogger();
 
     // assert that logging goes to logFile
-    String logMessageBeforeClose = "Logging before locator is stopped in " + name;
+    var logMessageBeforeClose = "Logging before locator is stopped in " + name;
     logger.info(logMessageBeforeClose);
 
     LogFileAssert.assertThat(logFile).contains(logMessageBeforeClose);
@@ -181,23 +178,23 @@ public class LoggingWithLocatorIntegrationTest {
     locator.stop();
 
     // assert that logging stops going to logFile
-    String logMessageAfterClose = "Logging after locator is stopped in " + name;
+    var logMessageAfterClose = "Logging after locator is stopped in " + name;
     logger.info(logMessageAfterClose);
     LogFileAssert.assertThat(logFile).doesNotContain(logMessageAfterClose);
   }
 
   @Test
   public void locatorWithDS() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(NAME, name);
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
     config.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
 
     locator = (InternalLocator) InternalLocator.startLocatorAndDS(port, null, config);
-    Logger logger = LogService.getLogger();
+    var logger = LogService.getLogger();
 
     // assert that logging goes to logFile
-    String logMessageBeforeClose = "Logging before locator is stopped in " + name;
+    var logMessageBeforeClose = "Logging before locator is stopped in " + name;
     logger.info(logMessageBeforeClose);
 
     LogFileAssert.assertThat(logFile).contains(logMessageBeforeClose);
@@ -205,7 +202,7 @@ public class LoggingWithLocatorIntegrationTest {
     locator.stop();
 
     // assert that logging stops going to logFile
-    String logMessageAfterClose = "Logging after locator is stopped in " + name;
+    var logMessageAfterClose = "Logging after locator is stopped in " + name;
     logger.info(logMessageAfterClose);
     LogFileAssert.assertThat(logFile).doesNotContain(logMessageAfterClose);
   }

@@ -72,11 +72,11 @@ public class DistributedErrorCollector extends AbstractDistributedRule {
 
   @Override
   protected void after() throws Throwable {
-    AccessibleErrorCollector allErrors = errorCollector;
+    var allErrors = errorCollector;
     try {
-      for (VM vm : getAllVMs()) {
+      for (var vm : getAllVMs()) {
         List<Throwable> remoteFailures = new ArrayList<>(vm.invoke(() -> errorCollector.errors()));
-        for (Throwable t : remoteFailures) {
+        for (var t : remoteFailures) {
           allErrors.addError(t);
         }
       }
@@ -98,7 +98,7 @@ public class DistributedErrorCollector extends AbstractDistributedRule {
 
   @Override
   protected void afterBounceVM(VM vm) {
-    List<Throwable> beforeBounceErrorsForVM = beforeBounceErrors.remove(vm.getId());
+    var beforeBounceErrorsForVM = beforeBounceErrors.remove(vm.getId());
     vm.invoke(() -> {
       invokeBefore();
       errorCollector.addErrors(beforeBounceErrorsForVM);

@@ -62,28 +62,28 @@ public class PersistentMembershipView implements DataSerializable {
    */
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-    int offlineSize = in.readInt();
+    var offlineSize = in.readInt();
     offlineMembers = new HashSet<>(offlineSize);
-    for (int i = 0; i < offlineSize; i++) {
-      PersistentMemberID id = new PersistentMemberID();
+    for (var i = 0; i < offlineSize; i++) {
+      var id = new PersistentMemberID();
       InternalDataSerializer.invokeFromData(id, in);
       offlineMembers.add(id);
     }
 
-    int onlineSize = in.readInt();
+    var onlineSize = in.readInt();
     onlineMembers = new HashMap<>(onlineSize);
-    for (int i = 0; i < onlineSize; i++) {
-      InternalDistributedMember member = new InternalDistributedMember();
+    for (var i = 0; i < onlineSize; i++) {
+      var member = new InternalDistributedMember();
       InternalDataSerializer.invokeFromData(member, in);
-      PersistentMemberID id = new PersistentMemberID();
+      var id = new PersistentMemberID();
       InternalDataSerializer.invokeFromData(id, in);
       onlineMembers.put(member, id);
     }
 
-    int revokedSized = in.readInt();
+    var revokedSized = in.readInt();
     revokedMembers = new HashSet<>(revokedSized);
-    for (int i = 0; i < revokedSized; i++) {
-      PersistentMemberPattern pattern = new PersistentMemberPattern();
+    for (var i = 0; i < revokedSized; i++) {
+      var pattern = new PersistentMemberPattern();
       InternalDataSerializer.invokeFromData(pattern, in);
       revokedMembers.add(pattern);
     }
@@ -94,18 +94,18 @@ public class PersistentMembershipView implements DataSerializable {
   @Override
   public void toData(DataOutput out) throws IOException {
     out.writeInt(offlineMembers.size());
-    for (PersistentMemberID member : offlineMembers) {
+    for (var member : offlineMembers) {
       InternalDataSerializer.invokeToData(member, out);
     }
     out.writeInt(onlineMembers.size());
-    for (Map.Entry<InternalDistributedMember, PersistentMemberID> entry : onlineMembers
+    for (var entry : onlineMembers
         .entrySet()) {
       InternalDataSerializer.invokeToData(entry.getKey(), out);
       InternalDataSerializer.invokeToData(entry.getValue(), out);
     }
 
     out.writeInt(revokedMembers.size());
-    for (PersistentMemberPattern revoked : revokedMembers) {
+    for (var revoked : revokedMembers) {
       InternalDataSerializer.invokeToData(revoked, out);
     }
   }

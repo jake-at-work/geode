@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.After;
@@ -33,17 +32,13 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Address;
 import org.apache.geode.cache.query.data.Employee;
 import org.apache.geode.cache.query.data.Manager;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.StructSet;
-import org.apache.geode.cache.query.types.CollectionType;
 import org.apache.geode.cache.query.types.StructType;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 
@@ -53,8 +48,8 @@ public class StructMemberAccessJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
   }
@@ -66,7 +61,7 @@ public class StructMemberAccessJUnitTest {
 
   @Test
   public void testUnsupportedQueries() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM" + " (SELECT DISTINCT * FROM " + SEPARATOR
             + "Portfolios ptf, positions pos)"
             + " WHERE value.secId = 'IBM'",
@@ -79,10 +74,10 @@ public class StructMemberAccessJUnitTest {
         "SELECT DISTINCT * FROM" + " (SELECT DISTINCT * FROM " + SEPARATOR
             + "Portfolios ptf, positions pos) p"
             + " WHERE p.value.secId = 'IBM'"};
-    for (final String query : queries) {
+    for (final var query : queries) {
       try {
-        Query q = CacheUtils.getQueryService().newQuery(query);
-        Object r = q.execute();
+        var q = CacheUtils.getQueryService().newQuery(query);
+        var r = q.execute();
         fail(query);
       } catch (Exception e) {
         // e.printStackTrace();
@@ -92,7 +87,7 @@ public class StructMemberAccessJUnitTest {
 
   @Test
   public void testSupportedQueries() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM" + " (SELECT DISTINCT * FROM " + SEPARATOR
             + "Portfolios ptf, positions pos)"
             + " WHERE pos.value.secId = 'IBM'",
@@ -122,10 +117,10 @@ public class StructMemberAccessJUnitTest {
             + " WHERE p.get('pos').value.secId = 'IBM'",
         "SELECT DISTINCT name FROM" + " " + SEPARATOR
             + "Portfolios , secIds name where length > 0 ",};
-    for (final String query : queries) {
+    for (final var query : queries) {
       try {
-        Query q = CacheUtils.getQueryService().newQuery(query);
-        Object r = q.execute();
+        var q = CacheUtils.getQueryService().newQuery(query);
+        var r = q.execute();
       } catch (Exception e) {
         e.printStackTrace();
         fail(query);
@@ -135,23 +130,24 @@ public class StructMemberAccessJUnitTest {
 
   @Test
   public void testResultComposition() throws Exception {
-    String[] queries = {"select distinct p from " + SEPARATOR + "Portfolios p where p.ID > 0",
-        "select distinct p.getID from " + SEPARATOR + "Portfolios p where p.ID > 0 ",
-        "select distinct p.getID as secID from " + SEPARATOR + "Portfolios p where p.ID > 0 "};
-    for (int i = 0; i < queries.length; i++) {
-      Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-      Object o = q.execute();
+    var queries =
+        new String[] {"select distinct p from " + SEPARATOR + "Portfolios p where p.ID > 0",
+            "select distinct p.getID from " + SEPARATOR + "Portfolios p where p.ID > 0 ",
+            "select distinct p.getID as secID from " + SEPARATOR + "Portfolios p where p.ID > 0 "};
+    for (var i = 0; i < queries.length; i++) {
+      var q = CacheUtils.getQueryService().newQuery(queries[i]);
+      var o = q.execute();
       if (o instanceof SelectResults) {
-        SelectResults sr = (SelectResults) o;
+        var sr = (SelectResults) o;
         if (sr instanceof StructSet && i != 2) {
           fail(
               " StructMemberAccess::testResultComposition: Got StrcutSet when expecting ResultSet");
         }
-        CollectionType ct = sr.getCollectionType();
+        var ct = sr.getCollectionType();
         CacheUtils.log("***Elememt Type of Colelction = " + ct.getElementType());
         CacheUtils.log((sr.getCollectionType()).getElementType().getSimpleClassName());
-        List ls = sr.asList();
-        for (Object l : ls) {
+        var ls = sr.asList();
+        for (var l : ls) {
           CacheUtils.log("Object in the resultset = " + l.getClass());
         }
         switch (i) {
@@ -196,14 +192,14 @@ public class StructMemberAccessJUnitTest {
     add1.add(new Address("Hp4 9yf", "Apsleyss"));
     add2.add(new Address("Hp3 8DZ", "Hemel"));
     add2.add(new Address("Hp4 8DZ", "Hemel"));
-    Region region = CacheUtils.createRegion("employees", Employee.class);
+    var region = CacheUtils.createRegion("employees", Employee.class);
     region.put("1", new Manager("aaa", 27, 270, "QA", 1800, add1, 2701));
     region.put("2", new Manager("bbb", 28, 280, "QA", 1900, add2, 2801));
-    String[] queries = {"SELECT DISTINCT e.manager_id FROM " + SEPARATOR + "employees e"};
-    for (final String query : queries) {
-      Query q = CacheUtils.getQueryService().newQuery(query);
-      Object r = q.execute();
-      String className =
+    var queries = new String[] {"SELECT DISTINCT e.manager_id FROM " + SEPARATOR + "employees e"};
+    for (final var query : queries) {
+      var q = CacheUtils.getQueryService().newQuery(query);
+      var r = q.execute();
+      var className =
           (((SelectResults) r).getCollectionType()).getElementType().getSimpleClassName();
       if (!className.equals("Employee")) {
         fail(
@@ -215,27 +211,27 @@ public class StructMemberAccessJUnitTest {
 
   @Test
   public void testBugNumber_32354() {
-    String[] queries = {"select distinct * from " + SEPARATOR + "root" + SEPARATOR
+    var queries = new String[] {"select distinct * from " + SEPARATOR + "root" + SEPARATOR
         + "portfolios.values, positions.values ",};
-    int i = 0;
+    var i = 0;
     try {
       tearDown();
       CacheUtils.startCache();
-      Region rootRegion = CacheUtils.createRegion("root", null);
-      AttributesFactory attributesFactory = new AttributesFactory();
+      var rootRegion = CacheUtils.createRegion("root", null);
+      var attributesFactory = new AttributesFactory();
       attributesFactory.setValueConstraint(Portfolio.class);
-      RegionAttributes regionAttributes = attributesFactory.create();
-      Region region = rootRegion.createSubregion("portfolios", regionAttributes);
+      var regionAttributes = attributesFactory.create();
+      var region = rootRegion.createSubregion("portfolios", regionAttributes);
       for (i = 0; i < 4; i++) {
         region.put("" + i, new Portfolio(i));
       }
       for (i = 0; i < queries.length; i++) {
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-        Object r = q.execute();
-        StructType type = ((StructType) ((SelectResults) r).getCollectionType().getElementType());
-        String[] fieldNames = type.getFieldNames();
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
+        var r = q.execute();
+        var type = ((StructType) ((SelectResults) r).getCollectionType().getElementType());
+        var fieldNames = type.getFieldNames();
         for (i = 0; i < fieldNames.length; ++i) {
-          String name = fieldNames[i];
+          var name = fieldNames[i];
           if (name.equals(SEPARATOR + "root" + SEPARATOR + "portfolios")
               || name.equals("positions.values")) {
             fail("The field name in struct = " + name);
@@ -250,18 +246,18 @@ public class StructMemberAccessJUnitTest {
 
   @Test
   public void testBugNumber_32355() {
-    String[] queries = {
+    var queries = new String[] {
         "select distinct positions.values.toArray[0], positions.values.toArray[0],status from "
             + SEPARATOR + "Portfolios",};
-    int i = 0;
+    var i = 0;
     try {
       for (i = 0; i < queries.length; i++) {
-        Query q = CacheUtils.getQueryService().newQuery(queries[i]);
-        Object r = q.execute();
-        StructType type = ((StructType) ((SelectResults) r).getCollectionType().getElementType());
-        String[] fieldNames = type.getFieldNames();
+        var q = CacheUtils.getQueryService().newQuery(queries[i]);
+        var r = q.execute();
+        var type = ((StructType) ((SelectResults) r).getCollectionType().getElementType());
+        var fieldNames = type.getFieldNames();
         for (i = 0; i < fieldNames.length; ++i) {
-          String name = fieldNames[i];
+          var name = fieldNames[i];
           CacheUtils.log("Struct Field name = " + name);
         }
       }

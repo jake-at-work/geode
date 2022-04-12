@@ -43,7 +43,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
 import org.apache.geode.codeAnalysis.decode.CompiledClass;
-import org.apache.geode.codeAnalysis.decode.CompiledMethod;
 import org.apache.geode.internal.serialization.BufferDataOutputStream;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.test.junit.categories.SerializationTest;
@@ -143,8 +142,8 @@ public abstract class AnalyzeDataSerializablesTestBase {
   public void findClasses() throws Exception {
     classes = loadClasses();
 
-    List<String> excludedClasses = loadExcludedClasses(getResourceAsFile(EXCLUDED_CLASSES_TXT));
-    List<String> openBugs = loadOpenBugs(getResourceAsFile(OPEN_BUGS_TXT));
+    var excludedClasses = loadExcludedClasses(getResourceAsFile(EXCLUDED_CLASSES_TXT));
+    var openBugs = loadOpenBugs(getResourceAsFile(OPEN_BUGS_TXT));
 
     excludedClasses.addAll(openBugs);
     removeExclusions(classes, excludedClasses);
@@ -158,14 +157,14 @@ public abstract class AnalyzeDataSerializablesTestBase {
     findClasses();
     loadExpectedDataSerializables();
 
-    File actualDataSerializablesFile = createEmptyFile(ACTUAL_DATA_SERIALIZABLES_DAT);
+    var actualDataSerializablesFile = createEmptyFile(ACTUAL_DATA_SERIALIZABLES_DAT);
     System.out.println(testName.getMethodName() + " actualDataSerializablesFile="
         + actualDataSerializablesFile.getAbsolutePath());
 
-    List<ClassAndMethods> actualDataSerializables = findToDatasAndFromDatas();
+    var actualDataSerializables = findToDatasAndFromDatas();
     CompiledClassUtils.storeClassesAndMethods(actualDataSerializables, actualDataSerializablesFile);
 
-    String diff =
+    var diff =
         CompiledClassUtils
             .diffSortedClassesAndMethods(expectedDataSerializables, actualDataSerializables);
     if (!diff.isEmpty()) {
@@ -181,15 +180,15 @@ public abstract class AnalyzeDataSerializablesTestBase {
 
   @Test
   public void testExcludedClassesExistAndDoNotDeserialize() throws Exception {
-    List<String> excludedClasses = loadExcludedClasses(getResourceAsFile(EXCLUDED_CLASSES_TXT));
+    var excludedClasses = loadExcludedClasses(getResourceAsFile(EXCLUDED_CLASSES_TXT));
 
     initializeSerializationService();
 
-    for (String filePath : excludedClasses) {
-      String className = filePath.replaceAll("/", ".");
+    for (var filePath : excludedClasses) {
+      var className = filePath.replaceAll("/", ".");
       System.out.println("testing class " + className);
 
-      Class<?> excludedClass = Class.forName(className);
+      var excludedClass = Class.forName(className);
       if (ignoreClass(excludedClass)) {
         continue;
       }
@@ -222,7 +221,7 @@ public abstract class AnalyzeDataSerializablesTestBase {
   }
 
   private void serializeAndDeserializeObject(Object object) throws Exception {
-    BufferDataOutputStream outputStream = new BufferDataOutputStream(KnownVersion.CURRENT);
+    var outputStream = new BufferDataOutputStream(KnownVersion.CURRENT);
     try {
       serializeObject(object, outputStream);
     } catch (IOException | NullPointerException e) {
@@ -247,7 +246,7 @@ public abstract class AnalyzeDataSerializablesTestBase {
       throw e;
     }
 
-    Throwable thrown = catchThrowable(() -> deserializeObject(outputStream));
+    var thrown = catchThrowable(() -> deserializeObject(outputStream));
 
     assertThat(thrown)
         .withFailMessage("I was able to deserialize " + object.getClass().getName())
@@ -271,8 +270,8 @@ public abstract class AnalyzeDataSerializablesTestBase {
     }
 
     List<String> excludedClasses = new LinkedList<>();
-    FileReader fr = new FileReader(excludedClassesFile);
-    BufferedReader br = new BufferedReader(fr);
+    var fr = new FileReader(excludedClassesFile);
+    var br = new BufferedReader(fr);
     try {
       String line;
       while ((line = br.readLine()) != null) {
@@ -293,15 +292,15 @@ public abstract class AnalyzeDataSerializablesTestBase {
     }
 
     List<String> excludedClasses = new LinkedList<>();
-    FileReader fr = new FileReader(openBugsFile);
-    BufferedReader br = new BufferedReader(fr);
+    var fr = new FileReader(openBugsFile);
+    var br = new BufferedReader(fr);
     try {
       String line;
       // each line should have bug#,full-class-name
       while ((line = br.readLine()) != null) {
         line = line.trim();
         if (!line.isEmpty() && !line.startsWith("#")) {
-          String[] split = line.split(",");
+          var split = line.split(",");
           if (split.length != 2) {
             fail("unable to load classes due to malformed line in openBugs.txt: " + line);
           }
@@ -315,7 +314,7 @@ public abstract class AnalyzeDataSerializablesTestBase {
   }
 
   private void removeExclusions(Map<String, CompiledClass> classes, List<String> exclusions) {
-    for (String exclusion : exclusions) {
+    for (var exclusion : exclusions) {
       exclusion = exclusion.replace('.', '/');
       classes.remove(exclusion);
     }
@@ -323,15 +322,15 @@ public abstract class AnalyzeDataSerializablesTestBase {
 
   private List<ClassAndMethods> findToDatasAndFromDatas() {
     List<ClassAndMethods> result = new ArrayList<>();
-    for (Map.Entry<String, CompiledClass> entry : classes.entrySet()) {
-      CompiledClass compiledClass = entry.getValue();
+    for (var entry : classes.entrySet()) {
+      var compiledClass = entry.getValue();
       ClassAndMethods classAndMethods = null;
 
-      for (int i = 0; i < compiledClass.methods.length; i++) {
-        CompiledMethod method = compiledClass.methods[i];
+      for (var i = 0; i < compiledClass.methods.length; i++) {
+        var method = compiledClass.methods[i];
 
         if (!method.isAbstract() && method.descriptor().equals("void")) {
-          String name = method.name();
+          var name = method.name();
           if (name.startsWith("toData") || name.startsWith("fromData")) {
             if (classAndMethods == null) {
               classAndMethods = new ClassAndMethods(compiledClass);
@@ -349,7 +348,7 @@ public abstract class AnalyzeDataSerializablesTestBase {
   }
 
   File createEmptyFile(String fileName) throws IOException {
-    File file = new File(fileName);
+    var file = new File(fileName);
     if (file.exists()) {
       assertThat(file.delete()).isTrue();
     }
@@ -362,7 +361,7 @@ public abstract class AnalyzeDataSerializablesTestBase {
    * Use this method to get a resource stored in the test's resource directory
    */
   File getResourceAsFile(String resourceName) {
-    URL resource = getResource(getClass(), resourceName);
+    var resource = getResource(getClass(), resourceName);
     if (resource == null) {
       return null;
     }

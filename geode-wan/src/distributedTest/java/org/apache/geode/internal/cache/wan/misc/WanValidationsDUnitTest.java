@@ -23,8 +23,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,8 +31,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.wan.GatewayEventFilter;
-import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache30.MyGatewayTransportFilter1;
@@ -52,7 +48,6 @@ import org.apache.geode.internal.cache.wan.MyGatewayTransportFilter3;
 import org.apache.geode.internal.cache.wan.MyGatewayTransportFilter4;
 import org.apache.geode.internal.cache.wan.WANTestBase;
 import org.apache.geode.test.dunit.IgnoredException;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.WanTest;
 
 @Category({WanTest.class})
@@ -75,8 +70,8 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   private void verifyIdConsistencyWarning(String regionName, boolean expected,
       boolean gatewaySenderId) {
-    Region<Object, Object> r = cache.getRegion(SEPARATOR + regionName);
-    SenderIdMonitor senderIdMonitor = getSenderIdMonitor(r);
+    var r = cache.getRegion(SEPARATOR + regionName);
+    var senderIdMonitor = getSenderIdMonitor(r);
 
     if (gatewaySenderId) {
       assertThat(senderIdMonitor.getGatewaySenderIdsDifferWarningMessage()).isEqualTo(expected);
@@ -87,7 +82,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   private void verifyIdConsistencyWarningOnVms(String regionName, boolean expected,
       boolean gatewaySenderId) {
-    for (VM vm : asList(vm4, vm5, vm6, vm7)) {
+    for (var vm : asList(vm4, vm5, vm6, vm7)) {
       vm.invoke(() -> verifyIdConsistencyWarning(regionName, expected, gatewaySenderId));
     }
   }
@@ -119,7 +114,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void replicateRegionCreationShouldFailWhenSerialGatewaySenderIdsAreDifferentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(lnPort, vm4, vm5);
@@ -146,7 +141,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void replicateRegionCreationShouldFailWhenAsyncEventQueueIdsAreDifferentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4, vm5);
 
     vm4.invoke(() -> createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln1",
@@ -165,7 +160,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void partitionRegionCreationShouldFailWhenSerialGatewaySenderIdsAreDifferentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4, vm5);
 
     vm4.invoke(() -> {
@@ -195,7 +190,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void partitionRegionCreationShouldFailWhenParallelGatewaySenderIdsAreDifferentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4, vm5);
 
     vm4.invoke(() -> {
@@ -223,7 +218,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void sameParallelGatewaySenderCanNotBeAttachedToDifferentPartitionRegionsWhenTheyAreNotCoLocated() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1);
 
     vm1.invoke(() -> {
@@ -240,7 +235,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void sameParallelGatewaySenderCanBeAttachedToDifferentPartitionRegionsWhenTheyAreCoLocated() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1);
 
     vm1.invoke(() -> {
@@ -259,7 +254,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void coLocatedPartitionRegionDoesNotNeedToHaveParallelGatewaySenderUsedByRootPartitionRegion() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1);
 
     vm1.invoke(() -> {
@@ -277,7 +272,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void coLocatedPartitionRegionCanHaveSubSetOfParallelGatewaySendersUsedByRootPartitionRegion() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1);
 
     vm1.invoke(() -> {
@@ -295,7 +290,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void coLocatedPartitionRegionCanHaveSuperSetOfParallelGatewaySendersUsedByRootPartitionRegion() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1);
 
     vm1.invoke(() -> {
@@ -314,7 +309,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void gatewaySenderIdShouldBeUnique() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1);
 
     vm1.invoke(() -> {
@@ -329,7 +324,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
   // sender with same name should be either serial or parallel but not both.
   @Test
   public void canNotCreateParallelGatewaySenderIfAnotherSerialGatewaySenderHasBeenCreatedWithSameId() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, null, null, true,
@@ -346,7 +341,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
   // sender with same name should be either serial or parallel but not both.
   @Test
   public void canNotCreateSerialGatewaySenderIfAnotherParallelGatewaySenderHasBeenCreatedWithSameId() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createSenderForValidations("ln", 2, true, 100, false, false, null, null, true,
@@ -367,7 +362,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void getCacheServersShouldNotReturnGatewayReceivers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4);
 
     vm4.invoke(() -> {
@@ -376,7 +371,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     });
 
     @SuppressWarnings("rawtypes")
-    Map cacheServers = vm4.invoke(WANTestBase::getCacheServers);
+    var cacheServers = vm4.invoke(WANTestBase::getCacheServers);
     assertThat(cacheServers.get("BridgeServer"))
         .as("Cache.getCacheServers returned incorrect BridgeServers")
         .isEqualTo(1);
@@ -391,7 +386,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void getCacheServersShouldNotReturnGatewayReceivers_Scenario2() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4);
     vm4.invoke(WANTestBase::createReceiver);
 
@@ -399,7 +394,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     vm5.invoke(WANTestBase::createCacheServer);
 
     @SuppressWarnings("rawtypes")
-    Map cacheServers_vm4 = vm4.invoke(WANTestBase::getCacheServers);
+    var cacheServers_vm4 = vm4.invoke(WANTestBase::getCacheServers);
     assertThat(cacheServers_vm4.get("BridgeServer"))
         .as("Cache.getCacheServers on vm4 returned incorrect BridgeServers")
         .isEqualTo(0);
@@ -408,7 +403,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
         .isEqualTo(0);
 
     @SuppressWarnings("rawtypes")
-    Map cacheServers_vm5 = vm5.invoke(WANTestBase::getCacheServers);
+    var cacheServers_vm5 = vm5.invoke(WANTestBase::getCacheServers);
     assertThat(cacheServers_vm5.get("BridgeServer"))
         .as("Cache.getCacheServers on vm4 returned incorrect BridgeServers")
         .isEqualTo(1);
@@ -420,7 +415,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
   // isBatchConflation should be same across the same sender
   @Test
   public void batchConflationShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, null, null, true,
@@ -437,7 +432,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
   // remote ds ids should be same
   @Test
   public void distributedSystemIdShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, null, null, true,
@@ -454,7 +449,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
   // isPersistentEnabled should be same across the same sender
   @Test
   public void isPersistentShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, null, null, true,
@@ -470,7 +465,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void alertThresholdShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, null, null, true,
@@ -486,7 +481,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void manualStartShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, null, null, true,
@@ -502,7 +497,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void gatewayEventFiltersShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     List<GatewayEventFilter> eventFilters = new ArrayList<>();
@@ -524,10 +519,10 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void gatewayEventFiltersShouldBeConsistentAcrossMembers_Scenario2() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
-    ArrayList<GatewayEventFilter> eventFilters = new ArrayList<>();
+    var eventFilters = new ArrayList<GatewayEventFilter>();
     eventFilters.add(new MyGatewayEventFilter());
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, eventFilters,
         null, true, false));
@@ -546,10 +541,10 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void gatewayTransportFiltersShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
-    ArrayList<GatewayTransportFilter> transportFilters = new ArrayList<>();
+    var transportFilters = new ArrayList<GatewayTransportFilter>();
     transportFilters.add(new MyGatewayTransportFilter1());
     transportFilters.add(new MyGatewayTransportFilter2());
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, null,
@@ -569,10 +564,10 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void gatewayTransportFilterOrderShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
-    ArrayList<GatewayTransportFilter> transportFilters = new ArrayList<>();
+    var transportFilters = new ArrayList<GatewayTransportFilter>();
     transportFilters.add(new MyGatewayTransportFilter1());
     transportFilters.add(new MyGatewayTransportFilter2());
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, null,
@@ -592,7 +587,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void diskSynchronizationPolicyShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createSenderForValidations("ln", 2, false, 100, false, false, null, null, true,
@@ -614,7 +609,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
   @Test
   @Ignore
   public void dispatcherThreadsForParallelGatewaySenderShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createConcurrentSender("ln", 2, true, 100, 10, false, false, null, true, 5,
@@ -635,7 +630,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
   @Test
   @Ignore
   public void orderPolicyForParallelGatewaySenderShouldBeConsistentAcrossMembers() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1, vm2);
 
     vm1.invoke(() -> createConcurrentSender("ln", 2, true, 100, 10, false, false, null, true, 5,
@@ -651,8 +646,8 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void warningShouldBeLoggedWhenSerialGatewaySenderIsNotConfiguredAcrossAllMembersHostingTheReplicateRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
@@ -669,7 +664,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm
         .invoke(() -> createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap())));
 
-    String regionName = getTestMethodName() + "_RR";
+    var regionName = getTestMethodName() + "_RR";
     vm4.invoke(() -> addSenderThroughAttributesMutator(regionName, "ln"));
     vm5.invoke(() -> addSenderThroughAttributesMutator(regionName, "ln"));
 
@@ -686,7 +681,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void warningShouldBeLoggedWhenSerialAsyncEventQueueIsNotConfiguredAcrossAllMembersHostingTheReplicateRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
@@ -694,7 +689,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
       createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap());
     }));
 
-    String regionName = getTestMethodName() + "_RR";
+    var regionName = getTestMethodName() + "_RR";
     asList(vm4, vm5).forEach(vm -> vm.invoke(() -> {
       addAsyncEventQueueThroughAttributesMutator(regionName, "ln");
     }));
@@ -713,8 +708,8 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void warningShouldBeLoggedWhenSerialGatewaySenderIsNotConfiguredAcrossAllMembersHostingThePartitionRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
@@ -728,7 +723,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     }));
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    String regionName = getTestMethodName() + "_PR";
+    var regionName = getTestMethodName() + "_PR";
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createPartitionedRegion(regionName, null, 3, 100, isOffHeap());
     }));
@@ -751,14 +746,14 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void warningShouldBeLoggedWhenSerialAsyncEventQueueIsNotConfiguredAcrossAllMembersHostingThePartitionRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createAsyncEventQueue("ln", false, 100, 100, false, false, null, false);
     }));
 
-    String regionName = getTestMethodName() + "_PR";
+    var regionName = getTestMethodName() + "_PR";
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createPartitionedRegion(regionName, null, 3, 100, isOffHeap());
     }));
@@ -779,8 +774,8 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void warningShouldBeLoggedWhenParallelGatewaySenderIsNotConfiguredAcrossAllMembersHostingThePartitionRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
@@ -794,7 +789,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     }));
     startSenderInVMs("ln", vm4, vm5);
 
-    String regionName = getTestMethodName() + "_PR";
+    var regionName = getTestMethodName() + "_PR";
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createPartitionedRegion(regionName, null, 3, 10, isOffHeap());
     }));
@@ -818,10 +813,10 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void warningShouldBeLoggedWhenParallelAsyncEventQueueIsNotConfiguredAcrossAllMembersHostingThePartitionRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
-    String regionName = getTestMethodName() + "_PR";
+    var regionName = getTestMethodName() + "_PR";
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createAsyncEventQueue("ln", true, 100, 100, false, false, null, false);
       createPartitionedRegion(regionName, null, 3, 10, isOffHeap());
@@ -838,8 +833,8 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void serialGatewaySenderShouldBeSuccessfullyAttachedToReplicateRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
@@ -871,7 +866,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void serialAsyncEventQueueShouldBeSuccessfullyAttachedToReplicateRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
@@ -899,8 +894,8 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void serialGatewaySenderShouldBeSuccessfullyAttachedToPartitionRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
@@ -932,7 +927,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void serialAsyncEventQueueShouldBeSuccessfullyAttachedToPartitionRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
@@ -956,7 +951,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void parallelAsyncEventQueueShouldBeSuccessfullyAttachedToPartitionRegionTroughAttributesMutator() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
@@ -983,11 +978,11 @@ public class WanValidationsDUnitTest extends WANTestBase {
   @Test
   public void parallelGatewaySenderAssociationToReplicateRegionTroughAttributesMutatorShouldFail() {
     IgnoredException.addIgnoredException("could not get remote locator information");
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
     createCacheInVMs(lnPort, vm1);
-    String regionName = getTestMethodName() + "_RR";
-    String gatewaySenderId = getTestMethodName() + "_gateway";
+    var regionName = getTestMethodName() + "_RR";
+    var gatewaySenderId = getTestMethodName() + "_gateway";
     vm1.invoke(() -> {
       createReplicatedRegion(regionName, null, isOffHeap());
       createSender(gatewaySenderId, 2, true, 100, 10, false, false, null, false);
@@ -1001,11 +996,11 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void parallelAsyncEventQueueAssociationToReplicateRegionTroughAttributesMutatorShouldFail() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
     createCacheInVMs(lnPort, vm1);
-    String regionName = getTestMethodName() + "_RR";
-    String asyncEventQueueId = getTestMethodName() + "_asyncEventQueue";
+    var regionName = getTestMethodName() + "_RR";
+    var asyncEventQueueId = getTestMethodName() + "_asyncEventQueue";
     vm1.invoke(() -> {
       createReplicatedRegion(regionName, null, isOffHeap());
       createAsyncEventQueue(asyncEventQueueId, true, 100, 100, false, false, null, false);
@@ -1020,8 +1015,8 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void whenSendersAreAddedUsingAttributesMutatorThenEventsMustBeSuccessfullyReceivedByRemoteSite() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
@@ -1046,21 +1041,21 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
   @Test
   public void gatewayReceiverCreationFailsAndDoesNotHangWhenConfiguredBindAddressIsNotUsable() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
 
     vm2.invoke(() -> {
-      Properties props = getDistributedSystemProperties();
+      var props = getDistributedSystemProperties();
       props.setProperty(MCAST_PORT, "0");
       props.setProperty(LOCATORS, "localhost[" + lnPort + "]");
       cache = new CacheFactory(props).create();
 
-      GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
-      int port = AvailablePortHelper.getRandomAvailableTCPPort();
+      var fact = cache.createGatewayReceiverFactory();
+      var port = AvailablePortHelper.getRandomAvailableTCPPort();
       fact.setStartPort(port);
       fact.setEndPort(port);
       fact.setManualStart(true);
       fact.setBindAddress("200.112.204.10");
-      GatewayReceiver receiver = fact.create();
+      var receiver = fact.create();
       assertThatThrownBy(receiver::start)
           .isInstanceOf(GatewayReceiverException.class)
           .hasMessageContaining("No available free port found in the given range");
@@ -1070,7 +1065,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
   @Test
   public void testBug50247_NonPersistentSenderWithPersistentRegion() {
     IgnoredException.addIgnoredException("could not get remote locator information");
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4, vm5);
 
     vm4.invoke(() -> createSender("ln1", 2, true, 10, 100, false, false, null, false));
@@ -1101,8 +1096,8 @@ public class WanValidationsDUnitTest extends WANTestBase {
    */
   @Test
   public void testReplicatedSerialAsyncEventQueueWith2WANSites() {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     // ------------ START - CREATE CACHE, REGION ON LOCAL SITE ------------//
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);

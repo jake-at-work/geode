@@ -18,12 +18,9 @@ package org.apache.geode.redis.internal.commands.executor.key;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_INTEGER;
 
-import java.util.List;
-
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -33,9 +30,9 @@ public class ExpireAtExecutor implements CommandExecutor {
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
     try {
-      List<byte[]> commandElems = command.getProcessedCommand();
-      RedisKey wKey = command.getKey();
-      long timestamp = getTimestamp(commandElems.get(2));
+      var commandElems = command.getProcessedCommand();
+      var wKey = command.getKey();
+      var timestamp = getTimestamp(commandElems.get(2));
 
       int result =
           context.dataLockedExecute(wKey, false,
@@ -48,7 +45,7 @@ public class ExpireAtExecutor implements CommandExecutor {
   }
 
   private long getTimestamp(byte[] timestampByteArray) throws NumberFormatException {
-    long result = Coder.bytesToLong(timestampByteArray);
+    var result = Coder.bytesToLong(timestampByteArray);
     if (!timeUnitMillis()) {
       result = SECONDS.toMillis(result);
     }

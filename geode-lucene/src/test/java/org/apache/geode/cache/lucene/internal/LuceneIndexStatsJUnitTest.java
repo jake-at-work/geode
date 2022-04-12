@@ -43,13 +43,12 @@ public class LuceneIndexStatsJUnitTest {
 
   @Before
   public void createStats() {
-    StatisticsFactory statsFactory = mock(StatisticsFactory.class);
+    var statsFactory = mock(StatisticsFactory.class);
     statistics = mock(Statistics.class);
     when(statsFactory.createAtomicStatistics(any(), anyString())).thenReturn(statistics);
     stats = new LuceneIndexStats(statsFactory, "region-index");
 
-
-    ArgumentCaptor<StatisticsType> statsTypeCaptor = ArgumentCaptor.forClass(StatisticsType.class);
+    var statsTypeCaptor = ArgumentCaptor.forClass(StatisticsType.class);
     verify(statsFactory).createAtomicStatistics(statsTypeCaptor.capture(), anyString());
     type = statsTypeCaptor.getValue();
   }
@@ -124,21 +123,21 @@ public class LuceneIndexStatsJUnitTest {
     stats.addDocumentsSupplier(() -> 5);
     stats.addDocumentsSupplier(() -> 3);
 
-    int documentsId = type.nameToId("documents");
-    ArgumentCaptor<IntSupplier> documentsSupplierCaptor =
+    var documentsId = type.nameToId("documents");
+    var documentsSupplierCaptor =
         ArgumentCaptor.forClass(IntSupplier.class);
     verify(statistics).setIntSupplier(eq(documentsId), documentsSupplierCaptor.capture());
-    IntSupplier documentsSuppler = documentsSupplierCaptor.getValue();
+    var documentsSuppler = documentsSupplierCaptor.getValue();
     assertEquals(8, documentsSuppler.getAsInt());
   }
 
   private void verifyIncInt(final String statName, final int value) {
-    final int statId = type.nameToId(statName);
+    final var statId = type.nameToId(statName);
     verify(statistics).incInt(eq(statId), eq(value));
   }
 
   private void verifyIncLong(final String statName, final long value) {
-    final int statId = type.nameToId(statName);
+    final var statId = type.nameToId(statName);
     verify(statistics).incLong(eq(statId), eq(value));
   }
 

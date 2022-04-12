@@ -19,7 +19,6 @@ package org.apache.geode.cache.query.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,7 +29,6 @@ import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
 import org.apache.geode.cache.query.internal.parse.OQLLexerTokenTypes;
 import org.apache.geode.cache.query.internal.types.StructTypeImpl;
-import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.cache.query.types.StructType;
 
 /**
@@ -104,30 +102,30 @@ public class AllGroupJunction extends AbstractCompiledValue implements Filter, O
   private SelectResults evaluateAndJunction(ExecutionContext context)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    int len = abstractGroupOrRangeJunctions.size();
+    var len = abstractGroupOrRangeJunctions.size();
     // Asif : Create an array of SelectResults for each of the GroupJunction
     // For each Group Junction there will be a corresponding array of
     // RuntimeIterators which will map to the fields of the ResultSet obtained
     // from Group Junction.
-    SelectResults[] results = new SelectResults[len];
-    List finalList = context.getCurrentIterators();
+    var results = new SelectResults[len];
+    var finalList = context.getCurrentIterators();
     List expansionList = new LinkedList(finalList);
-    RuntimeIterator[][] itrsForResultFields = new RuntimeIterator[len][];
+    var itrsForResultFields = new RuntimeIterator[len][];
     CompiledValue gj = null;
-    Iterator junctionItr = abstractGroupOrRangeJunctions.iterator();
+    var junctionItr = abstractGroupOrRangeJunctions.iterator();
     List grpItrs = null;
-    int j = 0;
+    var j = 0;
     RuntimeIterator tempItr = null;
     while (junctionItr.hasNext()) {
       gj = (CompiledValue) junctionItr.next();
-      SelectResults filterResults = ((Filter) gj).filterEvaluate(context, null);
+      var filterResults = ((Filter) gj).filterEvaluate(context, null);
       Support.Assert(filterResults != null, "FilterResults cannot be null here");
       if (filterResults.isEmpty()) {
         if (finalList.size() > 1) {
-          StructType type = QueryUtils.createStructTypeForRuntimeIterators(finalList);
+          var type = QueryUtils.createStructTypeForRuntimeIterators(finalList);
           return QueryUtils.createStructCollection(context, type);
         } else {
-          ObjectType type = ((RuntimeIterator) finalList.iterator().next()).getElementType();
+          var type = ((RuntimeIterator) finalList.iterator().next()).getElementType();
           if (type instanceof StructType) {
             return QueryUtils.createStructCollection(context, (StructTypeImpl) type);
           } else {
@@ -142,8 +140,8 @@ public class AllGroupJunction extends AbstractCompiledValue implements Filter, O
             : context.getCurrScopeDpndntItrsBasedOnSingleIndpndntItr(
                 ((AbstractGroupOrRangeJunction) gj).getIndependentIteratorForGroup()[0]);
         itrsForResultFields[j] = new RuntimeIterator[grpItrs.size()];
-        Iterator grpItr = grpItrs.iterator();
-        int k = 0;
+        var grpItr = grpItrs.iterator();
+        var k = 0;
         while (grpItr.hasNext()) {
           tempItr = (RuntimeIterator) grpItr.next();
           itrsForResultFields[j][k++] = tempItr;
@@ -158,9 +156,9 @@ public class AllGroupJunction extends AbstractCompiledValue implements Filter, O
     if (!iterOperands.isEmpty()) {
       // TODO ASIF : Avoid creation of CompiledJunction by providing
       // functionality in AllGroupJunction for evaluating condition
-      int size = iterOperands.size();
-      CompiledValue[] cv = new CompiledValue[size];
-      for (int k = 0; k < size; ++k) {
+      var size = iterOperands.size();
+      var cv = new CompiledValue[size];
+      for (var k = 0; k < size; ++k) {
         cv[k] = (CompiledValue) iterOperands.get(k);
       }
       if (cv.length == 1) {
@@ -169,7 +167,7 @@ public class AllGroupJunction extends AbstractCompiledValue implements Filter, O
         iterOperandsToSend = new CompiledJunction(cv, operator);
       }
     }
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var observer = QueryObserverHolder.getInstance();
     observer.beforeCartesianOfGroupJunctionsInAnAllGroupJunctionOfType_AND(results);
     resultsSet = QueryUtils.cartesian(results, itrsForResultFields, expansionList, finalList,
         context, iterOperandsToSend);
@@ -195,11 +193,11 @@ public class AllGroupJunction extends AbstractCompiledValue implements Filter, O
     // For each Group Junction there will be a corresponding array of
     // RuntimeIterators which will map to the fields of the ResultSet obtained
     // from Group Junction
-    SelectResults[] grpResults = new SelectResults[1];
-    List finalList = context.getCurrentIterators();
-    RuntimeIterator[][] itrsForResultFields = new RuntimeIterator[1][];
+    var grpResults = new SelectResults[1];
+    var finalList = context.getCurrentIterators();
+    var itrsForResultFields = new RuntimeIterator[1][];
     CompiledValue gj = null;
-    Iterator junctionItr = abstractGroupOrRangeJunctions.iterator();
+    var junctionItr = abstractGroupOrRangeJunctions.iterator();
     List grpItrs = null;
     RuntimeIterator tempItr = null;
     SelectResults intermediateResults = null;
@@ -213,14 +211,14 @@ public class AllGroupJunction extends AbstractCompiledValue implements Filter, O
           : context.getCurrScopeDpndntItrsBasedOnSingleIndpndntItr(
               ((AbstractGroupOrRangeJunction) gj).getIndependentIteratorForGroup()[0]);
       itrsForResultFields[0] = new RuntimeIterator[grpItrs.size()];
-      Iterator grpItr = grpItrs.iterator();
-      int k = 0;
+      var grpItr = grpItrs.iterator();
+      var k = 0;
       while (grpItr.hasNext()) {
         tempItr = (RuntimeIterator) grpItr.next();
         itrsForResultFields[0][k++] = tempItr;
         expansionList.remove(tempItr);
       }
-      SelectResults expandedResult =
+      var expandedResult =
           QueryUtils.cartesian(grpResults, itrsForResultFields, expansionList, finalList, context,
               null/*
                    * Iter oprenad for OR Junction evaluation should be null

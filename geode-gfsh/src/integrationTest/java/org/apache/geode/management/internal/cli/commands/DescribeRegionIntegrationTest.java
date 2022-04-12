@@ -50,13 +50,13 @@ public class DescribeRegionIntegrationTest {
 
   @Test
   public void commandFailsWithBadNameOption() throws Exception {
-    String cmd = "describe region --name=invalid-region-name";
+    var cmd = "describe region --name=invalid-region-name";
     gfsh.executeAndAssertThat(cmd).statusIsError().containsOutput("invalid-region-name not found");
   }
 
   @Test
   public void commandSucceedsWithGoodNameOption() throws Exception {
-    String cmd = "describe region --name=" + REGION_NAME;
+    var cmd = "describe region --name=" + REGION_NAME;
     gfsh.executeAndAssertThat(cmd).statusIsSuccess().containsOutput("Name", "Data Policy",
         "Hosting Members");
   }

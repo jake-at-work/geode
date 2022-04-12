@@ -15,7 +15,6 @@
 package org.apache.geode.cache.query.internal.index;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.cache.Region;
@@ -185,7 +184,7 @@ public class MapIndexStore implements IndexStore {
   @Override
   public Object getTargetObject(RegionEntry entry) {
     if (indexOnValues) {
-      Object o = entry.getValue((LocalRegion) region);
+      var o = entry.getValue((LocalRegion) region);
       if (o instanceof CachedDeserializable) {
         return ((CachedDeserializable) o).getDeserializedValue(region, entry);
       }
@@ -199,7 +198,7 @@ public class MapIndexStore implements IndexStore {
   @Override
   public Object getTargetObjectInVM(RegionEntry entry) {
     if (indexOnValues) {
-      Object o = entry.getValueInVM((LocalRegion) region);
+      var o = entry.getValueInVM((LocalRegion) region);
       if (o instanceof CachedDeserializable) {
         return ((CachedDeserializable) o).getDeserializedValue(region, entry);
       }
@@ -237,11 +236,11 @@ public class MapIndexStore implements IndexStore {
     @Override
     public boolean hasNext() {
       if (iterator.hasNext()) {
-        IndexMap.IndexEntry indexEntry = iterator.next();
+        var indexEntry = iterator.next();
         nextEntry.setIndexEntry(indexEntry);
         needToCallHasNext = false;
         if (keysToRemove != null) {
-          Iterator keysToRemoveIterator = keysToRemove.iterator();
+          var keysToRemoveIterator = keysToRemove.iterator();
           while (keysToRemoveIterator.hasNext()) {
             try {
               if (TypeUtils.compare(nextEntry.getDeserializedValue(), keysToRemoveIterator.next(),

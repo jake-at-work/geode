@@ -82,7 +82,7 @@ public class CollectionTypeImpl extends ObjectTypeImpl implements CollectionType
 
   @Override
   public boolean allowsDuplicates() {
-    Class cls = resolveClass();
+    var cls = resolveClass();
     return !Set.class.isAssignableFrom(cls) && !Map.class.isAssignableFrom(cls)
         && !Region.class.isAssignableFrom(cls) && !StructSet.class.isAssignableFrom(cls)
         && !SortedStructSet.class.isAssignableFrom(cls)
@@ -96,7 +96,7 @@ public class CollectionTypeImpl extends ObjectTypeImpl implements CollectionType
 
   @Override
   public boolean isOrdered() {
-    Class cls = resolveClass();
+    var cls = resolveClass();
     return List.class.isAssignableFrom(cls) || cls.isArray() || Ordered.class.isAssignableFrom(cls)
         || TreeSet.class.isAssignableFrom(cls) || TreeMap.class.isAssignableFrom(cls)
         || LinkedHashSet.class.isAssignableFrom(cls) || LinkedHashMap.class.isAssignableFrom(cls);

@@ -37,7 +37,6 @@ import org.apache.geode.DataSerializable;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
 import org.apache.geode.distributed.LockServiceDestroyedException;
@@ -69,7 +68,7 @@ public class GemFireDeadlockDetectorDUnitTest extends JUnit4CacheTestCase {
 
       @Override
       public void run() {
-        for (Thread thread : stuckThreads) {
+        for (var thread : stuckThreads) {
           thread.interrupt();
           disconnectFromDS();
           try {
@@ -89,9 +88,9 @@ public class GemFireDeadlockDetectorDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testNoDeadlock() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     TypeRegistry.init();
 
     // Make sure a deadlock from a previous test is cleared.
@@ -101,7 +100,7 @@ public class GemFireDeadlockDetectorDUnitTest extends JUnit4CacheTestCase {
     createCache(vm1);
     getSystem();
 
-    GemFireDeadlockDetector detect = new GemFireDeadlockDetector();
+    var detect = new GemFireDeadlockDetector();
     assertEquals(null, detect.find().findCycle());
   }
 
@@ -109,36 +108,36 @@ public class GemFireDeadlockDetectorDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testDistributedDeadlockWithFunction() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     TypeRegistry.init();
     getSystem();
-    InternalDistributedMember member1 = createCache(vm0);
-    final InternalDistributedMember member2 = createCache(vm1);
+    var member1 = createCache(vm0);
+    final var member2 = createCache(vm1);
     getBlackboard().initBlackboard();
 
     // Have two threads lock locks on different members in different orders.
 
-    String gateOnMember1 = "gateOnMember1";
-    String gateOnMember2 = "gateOnMember2";
+    var gateOnMember1 = "gateOnMember1";
+    var gateOnMember2 = "gateOnMember2";
 
     // This thread locks the lock member1 first, then member2.
-    AsyncInvocation async1 = lockTheLocks(vm0, member2, gateOnMember1, gateOnMember2);
+    var async1 = lockTheLocks(vm0, member2, gateOnMember1, gateOnMember2);
 
     // This thread locks the lock member2 first, then member1.
-    AsyncInvocation async2 = lockTheLocks(vm1, member1, gateOnMember2, gateOnMember1);
+    var async2 = lockTheLocks(vm1, member1, gateOnMember2, gateOnMember1);
     try {
       final LinkedList<Dependency>[] deadlockHolder = new LinkedList[1];
       await("waiting for deadlock").until(() -> {
-        GemFireDeadlockDetector detect = new GemFireDeadlockDetector();
-        LinkedList<Dependency> deadlock = detect.find().findCycle();
+        var detect = new GemFireDeadlockDetector();
+        var deadlock = detect.find().findCycle();
         if (deadlock != null) {
           deadlockHolder[0] = deadlock;
         }
         return deadlock != null;
       });
-      LinkedList<Dependency> deadlock = deadlockHolder[0];
+      var deadlock = deadlockHolder[0];
       LogWriterUtils.getLogWriter().info("Deadlock=" + DeadlockDetector.prettyFormat(deadlock));
       assertEquals(8, deadlock.size());
       stopStuckThreads();
@@ -167,7 +166,7 @@ public class GemFireDeadlockDetectorDUnitTest extends JUnit4CacheTestCase {
           } catch (TimeoutException | InterruptedException e) {
             throw new RuntimeException("failed", e);
           }
-          ResultCollector collector = FunctionService.onMember(member).execute(new TestFunction());
+          var collector = FunctionService.onMember(member).execute(new TestFunction());
           // wait the function to lock the lock on member.
           collector.getResult();
         } finally {
@@ -179,15 +178,15 @@ public class GemFireDeadlockDetectorDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testDistributedDeadlockWithDLock() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     getBlackboard().initBlackboard();
     TypeRegistry.init();
 
     getSystem();
-    AsyncInvocation async1 = lockTheDLocks(vm0, "one", "two");
-    AsyncInvocation async2 = lockTheDLocks(vm1, "two", "one");
+    var async1 = lockTheDLocks(vm0, "one", "two");
+    var async2 = lockTheDLocks(vm1, "two", "one");
 
     await("waiting for locks to be acquired")
         .untilAsserted(() -> assertTrue(getBlackboard().isGateSignaled("one")));
@@ -195,8 +194,8 @@ public class GemFireDeadlockDetectorDUnitTest extends JUnit4CacheTestCase {
     await("waiting for locks to be acquired")
         .untilAsserted(() -> assertTrue(getBlackboard().isGateSignaled("two")));
 
-    GemFireDeadlockDetector detect = new GemFireDeadlockDetector();
-    LinkedList<Dependency> deadlock = detect.find().findCycle();
+    var detect = new GemFireDeadlockDetector();
+    var deadlock = detect.find().findCycle();
 
     assertTrue(deadlock != null);
 
@@ -228,7 +227,7 @@ public class GemFireDeadlockDetectorDUnitTest extends JUnit4CacheTestCase {
       public void run() {
         try {
           getCache();
-          DistributedLockService dls = DistributedLockService.create("deadlock_test", getSystem());
+          var dls = DistributedLockService.create("deadlock_test", getSystem());
           dls.lock(first, 10 * 1000, -1);
           getBlackboard().signalGate(first);
           getBlackboard().waitForGate(second, 30, TimeUnit.SECONDS);
@@ -272,7 +271,7 @@ public class GemFireDeadlockDetectorDUnitTest extends JUnit4CacheTestCase {
 
     @Override
     public void execute(FunctionContext context) {
-      boolean acquired = false;
+      var acquired = false;
       try {
         stuckThreads.add(Thread.currentThread());
         acquired = lock.tryLock(LOCK_WAIT_TIME, TimeUnit.SECONDS);

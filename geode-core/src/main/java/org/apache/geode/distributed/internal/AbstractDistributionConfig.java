@@ -240,7 +240,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
       throw new UnmodifiableException(_getUnmodifiableMsg(attName));
     }
 
-    ConfigAttribute attribute = attributes.get(attName);
+    var attribute = attributes.get(attName);
     if (attribute == null) {
       // isAttributeModifiable already checks the validity of the attName, if reached here, then
       // they
@@ -250,11 +250,11 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
     }
     // for integer attribute, do the range check.
     if (attribute.type().equals(Integer.class)) {
-      Integer intValue = (Integer) value;
+      var intValue = (Integer) value;
       minMaxCheck(attName, intValue, attribute.min(), attribute.max());
     }
 
-    Method checker = checkers.get(attName);
+    var checker = checkers.get(attName);
     if (checker == null) {
       return value;
     }
@@ -375,7 +375,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
 
   @ConfigAttributeChecker(name = DISTRIBUTED_SYSTEM_ID)
   protected int checkDistributedSystemId(int value) {
-    String distributedSystemListener =
+    var distributedSystemListener =
         System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "DistributedSystemListener");
     // this check is specific for Jayesh's use case of WAN BootStrapping
     if (distributedSystemListener == null) {
@@ -413,18 +413,18 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
   @ConfigAttributeChecker(name = LOCATORS)
   protected String checkLocators(String value) {
     // validate locators value
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
 
     Set<InetSocketAddress> locs = new HashSet<>();
 
-    StringTokenizer st = new StringTokenizer(value, ",");
-    boolean firstUniqueLocator = true;
+    var st = new StringTokenizer(value, ",");
+    var firstUniqueLocator = true;
     while (st.hasMoreTokens()) {
-      String locator = st.nextToken();
+      var locator = st.nextToken();
       // string for this locator is accumulated in this buffer
-      StringBuilder locatorsb = new StringBuilder();
+      var locatorsb = new StringBuilder();
 
-      int portIndex = locator.indexOf('[');
+      var portIndex = locator.indexOf('[');
       if (portIndex < 1) {
         portIndex = locator.lastIndexOf(':');
       }
@@ -436,13 +436,13 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
 
       // starting in 5.1.0.4 we allow '@' as the bind-addr separator
       // to let people use IPv6 numeric addresses (which contain colons)
-      int bindAddrIdx = locator.lastIndexOf('@', portIndex - 1);
+      var bindAddrIdx = locator.lastIndexOf('@', portIndex - 1);
 
       if (bindAddrIdx < 0) {
         bindAddrIdx = locator.lastIndexOf(':', portIndex - 1);
       }
 
-      String host = locator.substring(0, bindAddrIdx > -1 ? bindAddrIdx : portIndex);
+      var host = locator.substring(0, bindAddrIdx > -1 ? bindAddrIdx : portIndex);
 
       if (host.indexOf(':') >= 0) {
         bindAddrIdx = locator.lastIndexOf('@');
@@ -462,7 +462,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
 
       if (bindAddrIdx > -1) {
         // validate the bindAddress... (console needs this)
-        String bindAddr = locator.substring(bindAddrIdx + 1, portIndex);
+        var bindAddr = locator.substring(bindAddrIdx + 1, portIndex);
         try {
           hostAddress = InetAddress.getByName(bindAddr);
 
@@ -480,7 +480,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
         locatorsb.append(bindAddr);
       }
 
-      int lastIndex = locator.lastIndexOf(']');
+      var lastIndex = locator.lastIndexOf(']');
       if (lastIndex == -1) {
         if (locator.indexOf('[') >= 0) {
           throw new IllegalArgumentException(
@@ -493,7 +493,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
         }
       }
 
-      String port = locator.substring(portIndex + 1, lastIndex);
+      var port = locator.substring(portIndex + 1, lastIndex);
       int portVal;
       try {
         portVal = Integer.parseInt(port);
@@ -515,7 +515,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
       locatorsb.append(']');
 
       // if this wasn't a duplicate, add it to the locators string
-      InetSocketAddress sockAddr = new InetSocketAddress(hostAddress, portVal);
+      var sockAddr = new InetSocketAddress(hostAddress, portVal);
       if (!locs.contains(sockAddr)) {
         if (!firstUniqueLocator) {
           sb.append(',');
@@ -535,7 +535,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
    */
   @ConfigAttributeChecker(name = MCAST_FLOW_CONTROL)
   protected FlowControlParams checkMcastFlowControl(FlowControlParams params) {
-    int value = params.getByteAllowance();
+    var value = params.getByteAllowance();
     if (value < MIN_FC_BYTE_ALLOWANCE) {
       throw new IllegalArgumentException(
           String.format(
@@ -543,7 +543,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
               MCAST_FLOW_CONTROL, value,
               MIN_FC_BYTE_ALLOWANCE));
     }
-    float fvalue = params.getRechargeThreshold();
+    var fvalue = params.getRechargeThreshold();
     if (fvalue < MIN_FC_RECHARGE_THRESHOLD) {
       throw new IllegalArgumentException(
           String.format(
@@ -608,7 +608,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
   @ConfigAttributeChecker(name = SECURITY_PEER_AUTH_INIT)
   protected String checkSecurityPeerAuthInit(String value) {
     if (value != null && value.length() > 0 && getMcastPort() != 0) {
-      String mcastInfo = MCAST_PORT + "[" + getMcastPort() + "]";
+      var mcastInfo = MCAST_PORT + "[" + getMcastPort() + "]";
       throw new IllegalArgumentException(
           String.format("Could not set %s to %s because %s must be 0 when security is enabled.",
               SECURITY_PEER_AUTH_INIT, value, mcastInfo));
@@ -619,7 +619,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
   @ConfigAttributeChecker(name = SECURITY_PEER_AUTHENTICATOR)
   protected String checkSecurityPeerAuthenticator(String value) {
     if (value != null && value.length() > 0 && getMcastPort() != 0) {
-      String mcastInfo = MCAST_PORT + "[" + getMcastPort() + "]";
+      var mcastInfo = MCAST_PORT + "[" + getMcastPort() + "]";
       throw new IllegalArgumentException(
           String.format("Could not set %s to %s because %s must be 0 when security is enabled.",
               SECURITY_PEER_AUTHENTICATOR, value, mcastInfo));
@@ -691,7 +691,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
   @ConfigAttributeChecker(name = SSL_ENABLED_COMPONENTS)
   protected SecurableCommunicationChannel[] checkLegacySSLWhenSSLEnabledComponentsSet(
       SecurableCommunicationChannel[] value) {
-    for (SecurableCommunicationChannel component : value) {
+    for (var component : value) {
       switch (component) {
         case ALL:
         case CLUSTER:
@@ -740,7 +740,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
   @Override
   public void setAttributeObject(String attName, Object attValue, ConfigSource source) {
     // TODO: the setters is already checking the parameter type, do we still need to do this?
-    Class validValueClass = getAttributeType(attName);
+    var validValueClass = getAttributeType(attName);
     if (attValue != null) {
       // null is a "valid" value for any class
       if (!validValueClass.isInstance(attValue)) {
@@ -776,7 +776,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
       setSSLProperty(attName, attValue.toString());
     }
 
-    Method setter = setters.get(attName);
+    var setter = setters.get(attName);
     if (setter == null) {
       // if we cann't find the defined setter, but the attributeName starts with these special
       // characters
@@ -829,7 +829,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
       return LogWriterImpl.levelToString(getSecurityLogLevel());
     }
 
-    Method getter = getters.get(attName);
+    var getter = getters.get(attName);
     if (getter == null) {
       if (attName.startsWith(SECURITY_PREFIX)) {
         return getSecurity(attName);
@@ -874,7 +874,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
    * @return an empty list
    */
   public List<String> getModifiableAttributes() {
-    String[] modifiables = {HTTP_SERVICE_PORT, JMX_MANAGER_HTTP_PORT};
+    var modifiables = new String[] {HTTP_SERVICE_PORT, JMX_MANAGER_HTTP_PORT};
     return Arrays.asList(modifiables);
   }
 
@@ -896,7 +896,7 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
   }
 
   static Class _getAttributeType(String attName) {
-    ConfigAttribute ca = attributes.get(attName);
+    var ca = attributes.get(attName);
     if (ca == null) {
       if (attName.startsWith(SECURITY_PREFIX) || attName.startsWith(SSL_SYSTEM_PROPS_NAME)
           || attName.startsWith(SYS_PROP_NAME)) {
@@ -1019,8 +1019,8 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
         "Sets the number of milliseconds to wait for ping responses when determining whether another member is still alive. Defaults to %s.",
         DEFAULT_MEMBER_TIMEOUT));
 
-    String srange = "" + DEFAULT_MEMBERSHIP_PORT_RANGE[0] + "-" + DEFAULT_MEMBERSHIP_PORT_RANGE[1];
-    String msg = String.format(
+    var srange = "" + DEFAULT_MEMBERSHIP_PORT_RANGE[0] + "-" + DEFAULT_MEMBERSHIP_PORT_RANGE[1];
+    var msg = String.format(
         "Sets the range of datagram socket ports that can be used for membership ID purposes and unicast datagram messaging. Defaults to %s.",
         srange);
     m.put(MEMBERSHIP_PORT_RANGE, msg);
@@ -1532,9 +1532,9 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
 
   static {
     Map<String, Method> checkersMap = new HashMap<>();
-    for (Method method : AbstractDistributionConfig.class.getDeclaredMethods()) {
+    for (var method : AbstractDistributionConfig.class.getDeclaredMethods()) {
       if (method.isAnnotationPresent(ConfigAttributeChecker.class)) {
-        ConfigAttributeChecker checker = method.getAnnotation(ConfigAttributeChecker.class);
+        var checker = method.getAnnotation(ConfigAttributeChecker.class);
         checkersMap.put(checker.name(), method);
       }
     }

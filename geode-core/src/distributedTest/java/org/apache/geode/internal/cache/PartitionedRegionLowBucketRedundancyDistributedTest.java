@@ -51,11 +51,11 @@ public class PartitionedRegionLowBucketRedundancyDistributedTest implements Seri
   @Test
   public void testTwoServersWithOneRedundantCopy() throws Exception {
     // Start locator
-    MemberVM locator = startupRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = startupRule.startLocatorVM(0);
+    var locatorPort = locator.getPort();
 
     // Start server1 and create region
-    MemberVM server1 = startServerAndCreateRegion(1, locatorPort, PARTITION, 1);
+    var server1 = startServerAndCreateRegion(1, locatorPort, PARTITION, 1);
 
     // Verify lowBucketRedundancyCount == 0 in server1
     server1.getVM().invoke(() -> waitForLowBucketRedundancyCount(0));
@@ -67,7 +67,7 @@ public class PartitionedRegionLowBucketRedundancyDistributedTest implements Seri
     server1.getVM().invoke(() -> waitForLowBucketRedundancyCount(113));
 
     // Start server2 and create region
-    MemberVM server2 = startServerAndCreateRegion(2, locatorPort, PARTITION, 1);
+    var server2 = startServerAndCreateRegion(2, locatorPort, PARTITION, 1);
 
     // Verify lowBucketRedundancyCount == 0 in both servers
     server1.getVM().invoke(() -> waitForLowBucketRedundancyCount(0));
@@ -83,11 +83,11 @@ public class PartitionedRegionLowBucketRedundancyDistributedTest implements Seri
   @Test
   public void testThreeServersWithTwoRedundantCopies() throws Exception {
     // Start locator
-    MemberVM locator = startupRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = startupRule.startLocatorVM(0);
+    var locatorPort = locator.getPort();
 
     // Start server1 and create region
-    MemberVM server1 = startServerAndCreateRegion(1, locatorPort, PARTITION, 2);
+    var server1 = startServerAndCreateRegion(1, locatorPort, PARTITION, 2);
 
     // Verify lowBucketRedundancyCount == 0 in server1
     server1.getVM().invoke(() -> waitForLowBucketRedundancyCount(0));
@@ -99,14 +99,14 @@ public class PartitionedRegionLowBucketRedundancyDistributedTest implements Seri
     server1.getVM().invoke(() -> waitForLowBucketRedundancyCount(113));
 
     // Start server2 and create region
-    MemberVM server2 = startServerAndCreateRegion(2, locatorPort, PARTITION, 2);
+    var server2 = startServerAndCreateRegion(2, locatorPort, PARTITION, 2);
 
     // Verify lowBucketRedundancyCount == 113 in both servers
     server1.getVM().invoke(() -> waitForLowBucketRedundancyCount(113));
     server2.getVM().invoke(() -> waitForLowBucketRedundancyCount(113));
 
     // Start server2 and create region
-    MemberVM server3 = startServerAndCreateRegion(3, locatorPort, PARTITION, 2);
+    var server3 = startServerAndCreateRegion(3, locatorPort, PARTITION, 2);
 
     // Verify lowBucketRedundancyCount == 113 in server1
     server1.getVM().invoke(() -> waitForLowBucketRedundancyCount(0));
@@ -117,14 +117,14 @@ public class PartitionedRegionLowBucketRedundancyDistributedTest implements Seri
   @Test
   public void testFourServersWithPersistentRegionAndOneRedundantCopy() throws Exception {
     // Start locator
-    MemberVM locator = startupRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = startupRule.startLocatorVM(0);
+    var locatorPort = locator.getPort();
 
     // Start servers and create regions
-    MemberVM server1 = startServerAndCreateRegion(1, locatorPort, PARTITION_PERSISTENT, 1);
-    MemberVM server2 = startServerAndCreateRegion(2, locatorPort, PARTITION_PERSISTENT, 1);
-    MemberVM server3 = startServerAndCreateRegion(3, locatorPort, PARTITION_PERSISTENT, 1);
-    MemberVM server4 = startServerAndCreateRegion(4, locatorPort, PARTITION_PERSISTENT, 1);
+    var server1 = startServerAndCreateRegion(1, locatorPort, PARTITION_PERSISTENT, 1);
+    var server2 = startServerAndCreateRegion(2, locatorPort, PARTITION_PERSISTENT, 1);
+    var server3 = startServerAndCreateRegion(3, locatorPort, PARTITION_PERSISTENT, 1);
+    var server4 = startServerAndCreateRegion(4, locatorPort, PARTITION_PERSISTENT, 1);
 
     // Verify lowBucketRedundancyCount == 0 in all servers
     server1.getVM().invoke(() -> waitForLowBucketRedundancyCount(0));
@@ -171,7 +171,7 @@ public class PartitionedRegionLowBucketRedundancyDistributedTest implements Seri
   private MemberVM startServerAndCreateRegion(int vmId, int locatorPort, RegionShortcut shortcut,
       int redundantCopies) {
     // Start server
-    MemberVM server = startupRule.startServerVM(vmId, locatorPort);
+    var server = startupRule.startServerVM(vmId, locatorPort);
 
     // Create region
     server.getVM().invoke(() -> createRegion(shortcut, redundantCopies));
@@ -188,13 +188,13 @@ public class PartitionedRegionLowBucketRedundancyDistributedTest implements Seri
 
   private void doPuts(int numPuts) {
     Region region = ClusterStartupRule.getCache().getRegion(regionName);
-    for (int i = 0; i < numPuts; i++) {
+    for (var i = 0; i < numPuts; i++) {
       region.put("key" + i, "value" + i);
     }
   }
 
   private void waitForLowBucketRedundancyCount(int count) {
-    PartitionedRegion region =
+    var region =
         (PartitionedRegion) ClusterStartupRule.getCache().getRegion(regionName);
     await().untilAsserted(
         () -> assertThat(region.getPrStats().getLowRedundancyBucketCount()).isEqualTo(count));

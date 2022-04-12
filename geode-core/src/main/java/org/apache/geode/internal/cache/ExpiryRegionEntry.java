@@ -35,8 +35,8 @@ class ExpiryRegionEntry implements Region.Entry {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + (regionEntry == null ? 0 : regionEntry.hashCode());
     result = prime * result + (region == null ? 0 : region.hashCode());
     return result;
@@ -53,7 +53,7 @@ class ExpiryRegionEntry implements Region.Entry {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ExpiryRegionEntry other = (ExpiryRegionEntry) obj;
+    var other = (ExpiryRegionEntry) obj;
     if (regionEntry == null) {
       if (other.regionEntry != null) {
         return false;
@@ -93,7 +93,7 @@ class ExpiryRegionEntry implements Region.Entry {
 
   @Override
   public Object getValue() {
-    Object value =
+    var value =
         region.getDeserialized(getCheckedRegionEntry(), false, false, false, false);
     if (value == null) {
       throw new EntryDestroyedException(getKey().toString());
@@ -111,7 +111,7 @@ class ExpiryRegionEntry implements Region.Entry {
 
   @Override
   public CacheStatistics getStatistics() {
-    LocalRegion lr = region;
+    var lr = region;
     if (!lr.isStatisticsEnabled()) {
       throw new StatisticsDisabledException(
           String.format("Statistics disabled for region '%s'",

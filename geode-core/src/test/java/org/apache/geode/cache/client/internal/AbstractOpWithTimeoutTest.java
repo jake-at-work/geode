@@ -49,10 +49,10 @@ public class AbstractOpWithTimeoutTest {
     final AbstractOpWithTimeout mockOp = mock(AbstractTestOpWithTimeout.class,
         withSettings().useConstructor(0, 0, 123).defaultAnswer(CALLS_REAL_METHODS));
 
-    final Socket socket = mock(Socket.class);
+    final var socket = mock(Socket.class);
     when(socket.getSoTimeout()).thenReturn(456);
 
-    final Connection connection = mock(Connection.class);
+    final var connection = mock(Connection.class);
     when(connection.getSocket()).thenReturn(socket);
 
     mockOp.attempt(connection);
@@ -68,10 +68,10 @@ public class AbstractOpWithTimeoutTest {
     final AbstractOpWithTimeout mockOp = mock(AbstractTestOpWithTimeout.class,
         withSettings().useConstructor(0, 0, 123).defaultAnswer(CALLS_REAL_METHODS));
 
-    final Socket socket = mock(Socket.class);
+    final var socket = mock(Socket.class);
     when(socket.getSoTimeout()).thenReturn(123);
 
-    final Connection connection = mock(Connection.class);
+    final var connection = mock(Connection.class);
     when(connection.getSocket()).thenReturn(socket);
 
     mockOp.attempt(connection);
@@ -82,7 +82,7 @@ public class AbstractOpWithTimeoutTest {
 
   @Test
   public void getTimeoutMs() {
-    final AbstractOpWithTimeout mockOp = mock(AbstractOpWithTimeout.class,
+    final var mockOp = mock(AbstractOpWithTimeout.class,
         withSettings().useConstructor(0, 0, 123).defaultAnswer(CALLS_REAL_METHODS));
 
     assertThat(mockOp.getTimeoutMs()).isEqualTo(123);

@@ -71,7 +71,7 @@ public class StructTypeImpl extends ObjectTypeImpl implements StructType {
     }
     this.fieldNames = fieldNames;
     this.fieldTypes = fieldTypes == null ? new ObjectType[this.fieldNames.length] : fieldTypes;
-    for (int i = 0; i < this.fieldTypes.length; i++) {
+    for (var i = 0; i < this.fieldTypes.length; i++) {
       if (this.fieldTypes[i] == null) {
         this.fieldTypes[i] = TypeUtils.getObjectType(Object.class);
       }
@@ -91,7 +91,7 @@ public class StructTypeImpl extends ObjectTypeImpl implements StructType {
 
   @Override
   public int getFieldIndex(String fieldName) {
-    for (int i = 0; i < fieldNames.length; i++) {
+    for (var i = 0; i < fieldNames.length; i++) {
       if (fieldNames[i].equals(fieldName)) {
         return i;
       }
@@ -105,7 +105,7 @@ public class StructTypeImpl extends ObjectTypeImpl implements StructType {
     if (!(obj instanceof StructTypeImpl)) {
       return false;
     }
-    StructTypeImpl t = (StructTypeImpl) obj;
+    var t = (StructTypeImpl) obj;
     return (Arrays.equals(fieldNames, t.getFieldNames())
         || Arrays.equals(indexAlternativeFieldNames, t.getFieldNames()))
         && Arrays.equals(getFieldTypes(), t.getFieldTypes());
@@ -118,8 +118,8 @@ public class StructTypeImpl extends ObjectTypeImpl implements StructType {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("struct<");
-    for (int i = 0; i < fieldNames.length; i++) {
+    var sb = new StringBuilder("struct<");
+    for (var i = 0; i < fieldNames.length; i++) {
       if (i > 0) {
         sb.append(',');
       }

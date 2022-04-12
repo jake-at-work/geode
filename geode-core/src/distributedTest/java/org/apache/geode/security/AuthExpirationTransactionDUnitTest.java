@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -32,15 +31,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.TransactionDataNotColocatedException;
-import org.apache.geode.cache.TransactionId;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.SecurityTest;
@@ -64,7 +59,7 @@ public class AuthExpirationTransactionDUnitTest {
   public void setup() {
     locator = clusterStartupRule.startLocatorVM(0,
         l -> l.withSecurityManager(ExpirableSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
     server0 = clusterStartupRule.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
         .withSecurityManager(ExpirableSecurityManager.class).withCredential("test", "test"));
@@ -84,12 +79,12 @@ public class AuthExpirationTransactionDUnitTest {
 
   @Test
   public void transactionSucceedsWhenAuthenticationExpires() throws Exception {
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("transaction0");
 
-    Region<Object, Object> region =
+    var region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-    CacheTransactionManager txManager = clientCache.getCacheTransactionManager();
+    var txManager = clientCache.getCacheTransactionManager();
 
     txManager.begin();
     IntStream.range(0, 3).forEach(num -> region.put(num, "value" + num));
@@ -105,16 +100,16 @@ public class AuthExpirationTransactionDUnitTest {
         () -> checkServerState("/region", 7),
         server0, server1, server2);
 
-    ExpirableSecurityManager consolidated = collectSecurityManagers(server0, server1, server2);
+    var consolidated = collectSecurityManagers(server0, server1, server2);
     assertThat(consolidated.getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2");
     assertThat(authorizedOps.get("transaction1")).containsExactly("DATA:WRITE:region:3",
         "DATA:WRITE:region:4", "DATA:WRITE:region:5", "DATA:WRITE:region:6");
 
-    Map<String, List<String>> unAuthorizedOps = consolidated.getUnAuthorizedOps();
+    var unAuthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:3");
   }
 
@@ -124,15 +119,15 @@ public class AuthExpirationTransactionDUnitTest {
         .createRegionFactory(RegionShortcut.PARTITION).create("partitionRegion"), server0, server1,
         server2);
 
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("transaction0");
 
-    Region<Object, Object> partitionRegion =
+    var partitionRegion =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("partitionRegion");
-    CacheTransactionManager txManager = clientCache.getCacheTransactionManager();
+    var txManager = clientCache.getCacheTransactionManager();
 
     txManager.begin();
-    List<Integer> partitionKeys1 = IntStream.range(0, 10)
+    var partitionKeys1 = IntStream.range(0, 10)
         .filter(num -> tryPartitionPut(partitionRegion, num))
         .boxed().collect(Collectors.toList());
 
@@ -140,7 +135,7 @@ public class AuthExpirationTransactionDUnitTest {
     VMProvider.invokeInEveryMember(() -> getSecurityManager().addExpiredUser("transaction0"),
         locator, server0, server1, server2);
 
-    List<Integer> partitionKeys2 = IntStream.range(10, 20)
+    var partitionKeys2 = IntStream.range(10, 20)
         .filter(num -> tryPartitionPut(partitionRegion, num))
         .boxed().collect(Collectors.toList());
     txManager.commit();
@@ -150,10 +145,10 @@ public class AuthExpirationTransactionDUnitTest {
         () -> checkPartitionServerState("/partitionRegion", partitionKeys1),
         server0, server1, server2);
 
-    ExpirableSecurityManager consolidated = collectSecurityManagers(server0, server1, server2);
+    var consolidated = collectSecurityManagers(server0, server1, server2);
     assertThat(consolidated.getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:partitionRegion:0",
         "DATA:WRITE:partitionRegion:1", "DATA:WRITE:partitionRegion:2",
         "DATA:WRITE:partitionRegion:3", "DATA:WRITE:partitionRegion:4",
@@ -167,19 +162,19 @@ public class AuthExpirationTransactionDUnitTest {
         "DATA:WRITE:partitionRegion:17", "DATA:WRITE:partitionRegion:18",
         "DATA:WRITE:partitionRegion:19");
 
-    Map<String, List<String>> unAuthorizedOps = consolidated.getUnAuthorizedOps();
+    var unAuthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0"))
         .containsExactly("DATA:WRITE:partitionRegion:10");
   }
 
   @Test
   public void transactionCanRollbackWhenAuthExpiresAndReAuthenticationFails() throws Exception {
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("transaction0");
 
-    Region<Object, Object> region =
+    var region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-    CacheTransactionManager txManager = clientCache.getCacheTransactionManager();
+    var txManager = clientCache.getCacheTransactionManager();
 
     txManager.begin();
     IntStream.range(0, 3).forEach(num -> region.put(num, "value" + num));
@@ -197,26 +192,26 @@ public class AuthExpirationTransactionDUnitTest {
         () -> checkServerState("/region", 0),
         server0, server1, server2);
 
-    ExpirableSecurityManager consolidated = collectSecurityManagers(server0, server1, server2);
+    var consolidated = collectSecurityManagers(server0, server1, server2);
     assertThat(consolidated.getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2");
 
-    Map<String, List<String>> unAuthorizedOps = consolidated.getUnAuthorizedOps();
+    var unAuthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:3",
         "DATA:WRITE:region:4", "DATA:WRITE:region:5");
   }
 
   @Test
   public void transactionCanCommitWhenAuthExpiresAndReAuthenticationFails() throws Exception {
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("transaction0");
 
-    Region<Object, Object> region =
+    var region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-    CacheTransactionManager txManager = clientCache.getCacheTransactionManager();
+    var txManager = clientCache.getCacheTransactionManager();
 
     txManager.begin();
     IntStream.range(0, 3).forEach(num -> region.put(num, "value" + num));
@@ -234,26 +229,26 @@ public class AuthExpirationTransactionDUnitTest {
         () -> checkServerState("/region", 3),
         server0, server1, server2);
 
-    ExpirableSecurityManager consolidated = collectSecurityManagers(server0, server1, server2);
+    var consolidated = collectSecurityManagers(server0, server1, server2);
     assertThat(consolidated.getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2");
 
-    Map<String, List<String>> unAuthorizedOps = consolidated.getUnAuthorizedOps();
+    var unAuthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:3",
         "DATA:WRITE:region:4", "DATA:WRITE:region:5");
   }
 
   @Test
   public void transactionCanRollbackWhenAuthenticationExpires() throws Exception {
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("transaction0");
 
-    Region<Object, Object> region =
+    var region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-    CacheTransactionManager txManager = clientCache.getCacheTransactionManager();
+    var txManager = clientCache.getCacheTransactionManager();
 
     txManager.begin();
     IntStream.range(0, 4).forEach(num -> region.put(num, "value" + num));
@@ -268,32 +263,32 @@ public class AuthExpirationTransactionDUnitTest {
     VMProvider.invokeInEveryMember(
         () -> checkServerState("/region", 0), server0, server1, server2);
 
-    ExpirableSecurityManager consolidated = collectSecurityManagers(server0, server1, server2);
+    var consolidated = collectSecurityManagers(server0, server1, server2);
     assertThat(consolidated.getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2", "DATA:WRITE:region:3");
     assertThat(authorizedOps.get("transaction1")).containsExactly("DATA:WRITE:region:4",
         "DATA:WRITE:region:5");
 
-    Map<String, List<String>> unAuthorizedOps = consolidated.getUnAuthorizedOps();
+    var unAuthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:4");
   }
 
   @Test
   public void transactionCanResumeWhenAuthenticationExpires() throws Exception {
-    ClientCache clientCache = clientCacheRule.createCache();
+    var clientCache = clientCacheRule.createCache();
     UpdatableUserAuthInitialize.setUser("transaction0");
 
-    Region<Object, Object> region =
+    var region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-    CacheTransactionManager txManager = clientCache.getCacheTransactionManager();
+    var txManager = clientCache.getCacheTransactionManager();
 
     txManager.begin();
     IntStream.range(0, 3).forEach(num -> region.put(num, "value" + num));
 
-    TransactionId transId = txManager.suspend();
+    var transId = txManager.suspend();
 
     UpdatableUserAuthInitialize.setUser("transaction1");
     VMProvider.invokeInEveryMember(() -> getSecurityManager().addExpiredUser("transaction0"),
@@ -307,16 +302,16 @@ public class AuthExpirationTransactionDUnitTest {
     VMProvider.invokeInEveryMember(
         () -> checkServerState("/region", 6), server0, server1, server2);
 
-    ExpirableSecurityManager consolidated = collectSecurityManagers(server0, server1, server2);
+    var consolidated = collectSecurityManagers(server0, server1, server2);
     assertThat(consolidated.getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = consolidated.getAuthorizedOps();
+    var authorizedOps = consolidated.getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2");
     assertThat(authorizedOps.get("transaction1")).containsExactly("DATA:WRITE:region:3",
         "DATA:WRITE:region:4", "DATA:WRITE:region:5");
 
-    Map<String, List<String>> unAuthorizedOps = consolidated.getUnAuthorizedOps();
+    var unAuthorizedOps = consolidated.getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:3");
   }
 
@@ -330,16 +325,16 @@ public class AuthExpirationTransactionDUnitTest {
   }
 
   private static void checkServerState(String regionPath, int numTransactions) {
-    InternalCache cache = ClusterStartupRule.getCache();
-    Region<Object, Object> region = cache.getRegion(regionPath);
+    var cache = ClusterStartupRule.getCache();
+    var region = cache.getRegion(regionPath);
     assertThat(region.keySet()).hasSize(numTransactions);
     IntStream.range(0, numTransactions).forEach(
         transaction -> assertThat(region.get(transaction)).isEqualTo("value" + transaction));
   }
 
   private static void checkPartitionServerState(String regionPath, List<Integer> keys) {
-    InternalCache cache = ClusterStartupRule.getCache();
-    Region<Object, Object> region = cache.getRegion(regionPath);
+    var cache = ClusterStartupRule.getCache();
+    var region = cache.getRegion(regionPath);
     assertThat(region.keySet()).hasSize(keys.size());
     keys.forEach(
         transaction -> assertThat(region.get(transaction)).isEqualTo("value" + transaction));

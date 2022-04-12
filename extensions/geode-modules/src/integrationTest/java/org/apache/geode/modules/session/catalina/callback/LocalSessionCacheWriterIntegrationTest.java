@@ -223,7 +223,7 @@ public class LocalSessionCacheWriterIntegrationTest {
         return false;
       }
 
-      TestDeltaSession that = (TestDeltaSession) o;
+      var that = (TestDeltaSession) o;
 
       if (!getId().equals(that.getId())) {
         return false;
@@ -233,7 +233,7 @@ public class LocalSessionCacheWriterIntegrationTest {
 
     @Override
     public int hashCode() {
-      int result = getId().hashCode();
+      var result = getId().hashCode();
       result = 31 * result + getValue().hashCode();
       return result;
     }

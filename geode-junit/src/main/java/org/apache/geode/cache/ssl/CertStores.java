@@ -28,8 +28,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.SSL_TRUSTSTOR
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -98,11 +96,11 @@ public class CertStores {
   public Properties propertiesWith(String components, String protocols,
       String ciphers, boolean requireAuth, boolean endPointIdentification)
       throws GeneralSecurityException, IOException {
-    File trustStoreFile = File.createTempFile(storePrefix + "-TS-", ".jks");
+    var trustStoreFile = File.createTempFile(storePrefix + "-TS-", ".jks");
     trustStoreFile.deleteOnExit();
     createTrustStore(trustStoreFile.getPath(), trustStorePassword);
 
-    File keyStoreFile = File.createTempFile(storePrefix + "-KS-", ".jks");
+    var keyStoreFile = File.createTempFile(storePrefix + "-KS-", ".jks");
     keyStoreFile.deleteOnExit();
     createKeyStore(keyStoreFile.getPath(), keyStorePassword);
 
@@ -114,7 +112,7 @@ public class CertStores {
       File trustStoreFile, String trustStorePassword, File keyStoreFile, String keyStorePassword,
       boolean requireAuth, boolean endPointVerification) {
 
-    Properties sslConfigs = new Properties();
+    var sslConfigs = new Properties();
     sslConfigs.setProperty(SSL_ENABLED_COMPONENTS, components);
     sslConfigs.setProperty(SSL_KEYSTORE, keyStoreFile.getPath());
     sslConfigs.setProperty(SSL_KEYSTORE_TYPE, "JKS");
@@ -133,27 +131,27 @@ public class CertStores {
 
   public void createTrustStore(String filename, String password)
       throws GeneralSecurityException, IOException {
-    KeyStore ks = KeyStore.getInstance("JKS");
-    try (InputStream in = Files.newInputStream(Paths.get(filename))) {
+    var ks = KeyStore.getInstance("JKS");
+    try (var in = Files.newInputStream(Paths.get(filename))) {
       ks.load(in, password.toCharArray());
     } catch (IOException e) {
       ks = createEmptyKeyStore();
     }
-    for (Map.Entry<String, CertificateMaterial> cert : trustedCerts.entrySet()) {
+    for (var cert : trustedCerts.entrySet()) {
       ks.setCertificateEntry(cert.getKey(), cert.getValue().getCertificate());
     }
 
-    try (OutputStream out = Files.newOutputStream(Paths.get(filename))) {
+    try (var out = Files.newOutputStream(Paths.get(filename))) {
       ks.store(out, password.toCharArray());
     }
   }
 
   public void createKeyStore(String filename, String password)
       throws GeneralSecurityException, IOException {
-    KeyStore ks = createEmptyKeyStore();
+    var ks = createEmptyKeyStore();
 
-    for (Map.Entry<String, CertificateMaterial> entry : keyStoreEntries.entrySet()) {
-      CertificateMaterial cert = entry.getValue();
+    for (var entry : keyStoreEntries.entrySet()) {
+      var cert = entry.getValue();
 
       List<Certificate> chain = new ArrayList<>();
       chain.add(cert.getCertificate());
@@ -163,14 +161,14 @@ public class CertStores {
       ks.setKeyEntry(entry.getKey(), cert.getPrivateKey(), password.toCharArray(),
           chain.toArray(new Certificate[] {}));
     }
-    try (OutputStream out = Files.newOutputStream(Paths.get(filename))) {
+    try (var out = Files.newOutputStream(Paths.get(filename))) {
       ks.store(out, password.toCharArray());
     }
   }
 
 
   private KeyStore createEmptyKeyStore() throws GeneralSecurityException, IOException {
-    KeyStore ks = KeyStore.getInstance("JKS");
+    var ks = KeyStore.getInstance("JKS");
     ks.load(null, null); // initialize
     return ks;
   }

@@ -60,9 +60,9 @@ public class BindDistributedSystemJUnitTest {
 
   @Test
   public void testBindToAddressLoopback() throws Exception {
-    String bindTo = "127.0.0.1";
+    var bindTo = "127.0.0.1";
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(BIND_ADDRESS, bindTo);
     props.setProperty(START_LOCATOR,
         "localhost[" + AvailablePortHelper.getRandomAvailableTCPPort() + "]");

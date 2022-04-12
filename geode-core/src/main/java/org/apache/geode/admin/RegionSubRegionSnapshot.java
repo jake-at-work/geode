@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.Region;
 import org.apache.geode.internal.cache.PartitionedRegion;
 
@@ -51,12 +50,12 @@ public class RegionSubRegionSnapshot implements DataSerializable {
     this();
     name = reg.getName();
     if (reg instanceof PartitionedRegion) {
-      PartitionedRegion p_reg = (PartitionedRegion) reg;
+      var p_reg = (PartitionedRegion) reg;
       entryCount = p_reg.entryCount(true);
     } else {
       entryCount = reg.entrySet().size();
     }
-    final LogWriter logger = reg.getCache().getLogger();
+    final var logger = reg.getCache().getLogger();
     if ((logger != null) && logger.fineEnabled()) {
       logger.fine("RegionSubRegionSnapshot Region entry count =" + entryCount + " for region ="
           + name);
@@ -158,18 +157,18 @@ public class RegionSubRegionSnapshot implements DataSerializable {
     name = DataSerializer.readString(in);
     entryCount = in.readInt();
     subRegionSnapshots = DataSerializer.readHashSet(in);
-    for (final Object subRegionSnapshot : subRegionSnapshots) {
+    for (final var subRegionSnapshot : subRegionSnapshots) {
       ((RegionSubRegionSnapshot) subRegionSnapshot).setParent(this);
     }
   }
 
   @Override
   public String toString() {
-    String toStr = "RegionSnapshot [" + "path=" + getFullPath() + ",parent="
+    var toStr = "RegionSnapshot [" + "path=" + getFullPath() + ",parent="
         + (parent == null ? "null" : parent.name) + ", entryCount=" + entryCount
         + ", subRegionCount=" + subRegionSnapshots.size() + "<<";
 
-    for (final Object subRegionSnapshot : subRegionSnapshots) {
+    for (final var subRegionSnapshot : subRegionSnapshots) {
       toStr = toStr + ((RegionSubRegionSnapshot) subRegionSnapshot).getName() + ", ";
     }
 

@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +55,6 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalDataSet;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -161,11 +159,11 @@ public class DefaultQuery implements Query {
    */
   public DefaultQuery(String queryString, InternalCache cache, boolean isForRemote) {
     this.queryString = queryString;
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     compiledQuery = compiler.compileQuery(queryString);
-    CompiledSelect cs = getSimpleSelect();
+    var cs = getSimpleSelect();
     if (cs != null && !isForRemote && (cs.isGroupBy() || cs.isOrderBy())) {
-      QueryExecutionContext ctx = new QueryExecutionContext(null, cache);
+      var ctx = new QueryExecutionContext(null, cache);
       try {
         cs.computeDependencies(ctx);
       } catch (QueryException qe) {
@@ -215,18 +213,18 @@ public class DefaultQuery implements Query {
       return executeOnServer(params);
     }
 
-    long startTime = 0L;
+    var startTime = 0L;
     if (traceOn && cache != null) {
       startTime = NanoTimer.getTime();
     }
 
     QueryObserver indexObserver = null;
     QueryMonitor queryMonitor = null;
-    QueryExecutor qe = checkQueryOnPR(params);
+    var qe = checkQueryOnPR(params);
 
     Object result = null;
-    Boolean initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
-    final QueryExecutionContext context = new QueryExecutionContext(params, cache, this);
+    var initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
+    final var context = new QueryExecutionContext(params, cache, this);
 
     try {
       // Setting the readSerialized flag for local queries
@@ -277,7 +275,7 @@ public class DefaultQuery implements Query {
       // to true.
       // Due to bug#46970 index usage does not actually copy at the entry level so that is why we
       // have the OR condition
-      boolean needsCopyOnReadWrapper =
+      var needsCopyOnReadWrapper =
           cache.getCopyOnRead() && !DefaultQueryService.COPY_ON_READ_AT_ENTRY_LEVEL
               || (context.isIndexUsed()
                   && DefaultQueryService.COPY_ON_READ_AT_ENTRY_LEVEL);
@@ -315,7 +313,7 @@ public class DefaultQuery implements Query {
   }
 
   private Object executeOnServer(Object[] parameters) {
-    long startTime = statisticsClock.getTime();
+    var startTime = statisticsClock.getTime();
     Object result;
     try {
       if (proxyCache != null) {
@@ -327,7 +325,7 @@ public class DefaultQuery implements Query {
       result = serverProxy.query(queryString, parameters);
     } finally {
       UserAttributes.userAttributes.set(null);
-      long endTime = statisticsClock.getTime();
+      var endTime = statisticsClock.getTime();
       updateStatistics(endTime - startTime);
     }
     return result;
@@ -335,9 +333,9 @@ public class DefaultQuery implements Query {
 
   public Object executeUsingContext(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    QueryObserver observer = QueryObserverHolder.getInstance();
-    long startTime = statisticsClock.getTime();
-    TXStateProxy tx = ((TXManagerImpl) cache.getCacheTransactionManager()).pauseTransaction();
+    var observer = QueryObserverHolder.getInstance();
+    var startTime = statisticsClock.getTime();
+    var tx = ((TXManagerImpl) cache.getCacheTransactionManager()).pauseTransaction();
     try {
       observer.startQuery(this);
       observer.beforeQueryEvaluation(compiledQuery, context);
@@ -363,7 +361,7 @@ public class DefaultQuery implements Query {
       return results;
     } finally {
       observer.endQuery();
-      long endTime = statisticsClock.getTime();
+      var endTime = statisticsClock.getTime();
       updateStatistics(endTime - startTime);
       pdxClassToFieldsMap.remove();
       pdxClassToMethodsMap.remove();
@@ -382,7 +380,7 @@ public class DefaultQuery implements Query {
 
     List<QueryExecutor> prs = new ArrayList<>();
     for (final Object o : getRegionsInQuery(parameters)) {
-      String regionPath = (String) o;
+      var regionPath = (String) o;
       Region rgn = cache.getRegion(regionPath);
       if (rgn == null) {
         cache.getCancelCriterion().checkCancelInProgress(null);
@@ -409,10 +407,10 @@ public class DefaultQuery implements Query {
 
       // If there are more than one PRs they have to be co-located.
       QueryExecutor other = null;
-      for (QueryExecutor eachPR : prs) {
-        boolean colocated = false;
+      for (var eachPR : prs) {
+        var colocated = false;
 
-        for (QueryExecutor allPRs : prs) {
+        for (var allPRs : prs) {
           if (eachPR == allPRs) {
             continue;
           }
@@ -434,7 +432,7 @@ public class DefaultQuery implements Query {
       } // eachPR
 
       // this is a query on a PR, check to make sure it is only a SELECT
-      CompiledSelect select = getSimpleSelect();
+      var select = getSimpleSelect();
       if (select == null) {
         throw new UnsupportedOperationException(
             "query must be a simple select when referencing a Partitioned Region");
@@ -442,7 +440,7 @@ public class DefaultQuery implements Query {
 
       // make sure the where clause references no regions
       Set regions = new HashSet();
-      CompiledValue whereClause = select.getWhereClause();
+      var whereClause = select.getWhereClause();
       if (whereClause != null) {
         whereClause.getRegionsInQuery(regions, parameters);
         if (!regions.isEmpty()) {
@@ -450,11 +448,11 @@ public class DefaultQuery implements Query {
               "The WHERE clause cannot refer to a region when querying on a Partitioned Region");
         }
       }
-      List fromClause = select.getIterators();
+      var fromClause = select.getIterators();
 
       // the first iterator in the FROM clause must be just a reference to the Partitioned Region
-      Iterator fromClauseIterator = fromClause.iterator();
-      CompiledIteratorDef itrDef = (CompiledIteratorDef) fromClauseIterator.next();
+      var fromClauseIterator = fromClause.iterator();
+      var itrDef = (CompiledIteratorDef) fromClauseIterator.next();
 
       // By process of elimination, we know that the first iterator contains a reference
       // to the PR. Check to make sure there are no subqueries in this first iterator
@@ -478,11 +476,11 @@ public class DefaultQuery implements Query {
         }
 
         // check the projections, must not reference any regions
-        List projs = select.getProjectionAttributes();
+        var projs = select.getProjectionAttributes();
         if (projs != null) {
-          for (Object proj1 : projs) {
-            Object[] rawProj = (Object[]) proj1;
-            CompiledValue proj = (CompiledValue) rawProj[1];
+          for (var proj1 : projs) {
+            var rawProj = (Object[]) proj1;
+            var proj = (CompiledValue) rawProj[1];
             proj.getRegionsInQuery(regions, parameters);
             if (!regions.isEmpty()) {
               throw new UnsupportedOperationException(
@@ -491,9 +489,9 @@ public class DefaultQuery implements Query {
           }
         }
         // check the orderByAttrs, must not reference any regions
-        List<CompiledSortCriterion> orderBys = select.getOrderByAttrs();
+        var orderBys = select.getOrderByAttrs();
         if (orderBys != null) {
-          for (CompiledSortCriterion orderBy : orderBys) {
+          for (var orderBy : orderBys) {
             orderBy.getRegionsInQuery(regions, parameters);
             if (!regions.isEmpty()) {
               throw new UnsupportedOperationException(
@@ -638,21 +636,21 @@ public class DefaultQuery implements Query {
 
   private static String getLogMessage(QueryObserver observer, long startTime, int resultSize,
       String query) {
-    float time = (NanoTimer.getTime() - startTime) / 1.0e6f;
+    var time = (NanoTimer.getTime() - startTime) / 1.0e6f;
 
     String usedIndexesString = null;
     if (observer instanceof IndexTrackingQueryObserver) {
-      IndexTrackingQueryObserver indexObserver = (IndexTrackingQueryObserver) observer;
-      Map usedIndexes = indexObserver.getUsedIndexes();
+      var indexObserver = (IndexTrackingQueryObserver) observer;
+      var usedIndexes = indexObserver.getUsedIndexes();
       indexObserver.reset();
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append(" indexesUsed(");
       sb.append(usedIndexes.size());
       sb.append(')');
       if (usedIndexes.size() > 0) {
         sb.append(':');
-        for (Iterator itr = usedIndexes.entrySet().iterator(); itr.hasNext();) {
-          Map.Entry entry = (Map.Entry) itr.next();
+        for (var itr = usedIndexes.entrySet().iterator(); itr.hasNext();) {
+          var entry = (Map.Entry) itr.next();
           sb.append(entry.getKey()).append(entry.getValue());
           if (itr.hasNext()) {
             sb.append(',');
@@ -675,7 +673,7 @@ public class DefaultQuery implements Query {
 
   private static String getLogMessage(IndexTrackingQueryObserver indexObserver, long startTime,
       String otherObserver, int resultSize, String query, BucketRegion bucket) {
-    float time = 0.0f;
+    var time = 0.0f;
 
     if (startTime > 0L) {
       time = (NanoTimer.getTime() - startTime) / 1.0e6f;
@@ -683,15 +681,15 @@ public class DefaultQuery implements Query {
 
     String usedIndexesString = null;
     if (indexObserver != null) {
-      Map usedIndexes = indexObserver.getUsedIndexes(bucket.getFullPath());
-      StringBuilder sb = new StringBuilder();
+      var usedIndexes = indexObserver.getUsedIndexes(bucket.getFullPath());
+      var sb = new StringBuilder();
       sb.append(" indexesUsed(");
       sb.append(usedIndexes.size());
       sb.append(')');
       if (!usedIndexes.isEmpty()) {
         sb.append(':');
-        for (Iterator itr = usedIndexes.entrySet().iterator(); itr.hasNext();) {
-          Map.Entry entry = (Map.Entry) itr.next();
+        for (var itr = usedIndexes.entrySet().iterator(); itr.hasNext();) {
+          var entry = (Map.Entry) itr.next();
           sb.append(entry.getKey()).append("(Results: ").append(entry.getValue())
               .append(", Bucket: ").append(bucket.getId()).append(")");
           if (itr.hasNext()) {
@@ -705,7 +703,7 @@ public class DefaultQuery implements Query {
           " indexesUsed(NA due to other observer in the way: " + otherObserver + ')';
     }
 
-    String rowCountString = " rowCount = " + resultSize + ';';
+    var rowCountString = " rowCount = " + resultSize + ';';
     return "Query Executed" + (startTime > 0L ? " in " + time + " ms;" : ";") + rowCountString
         + (usedIndexesString != null ? usedIndexesString : "") + " \"" + query + '"';
   }
@@ -732,22 +730,22 @@ public class DefaultQuery implements Query {
           "'parameters' cannot be null");
     }
 
-    long startTime = 0L;
+    var startTime = 0L;
     if (traceOn && cache != null) {
       startTime = NanoTimer.getTime();
     }
 
     QueryObserver indexObserver = null;
-    QueryExecutor qe = checkQueryOnPR(params);
+    var qe = checkQueryOnPR(params);
 
     Object result = null;
     try {
       indexObserver = startTrace();
       if (qe != null) {
-        LocalDataSet localDataSet =
+        var localDataSet =
             (LocalDataSet) PartitionRegionHelper.getLocalDataForContext(context);
-        Set<Integer> buckets = localDataSet.getBucketSet();
-        final ExecutionContext executionContext = new ExecutionContext(null, cache);
+        var buckets = localDataSet.getBucketSet();
+        final var executionContext = new ExecutionContext(null, cache);
         result = qe.executeQuery(this, executionContext, params, buckets);
         return result;
       } else {
@@ -774,7 +772,7 @@ public class DefaultQuery implements Query {
     QueryObserver queryObserver = null;
     if (traceOn && cache != null) {
 
-      QueryObserver qo = QueryObserverHolder.getInstance();
+      var qo = QueryObserverHolder.getInstance();
       if (qo instanceof IndexTrackingQueryObserver) {
         queryObserver = qo;
       } else if (!QueryObserverHolder.hasObserver()) {
@@ -790,13 +788,13 @@ public class DefaultQuery implements Query {
 
   public void endTrace(QueryObserver indexObserver, long startTime, Object result) {
     if (traceOn && cache != null) {
-      int resultSize = -1;
+      var resultSize = -1;
 
       if (result instanceof Collection) {
         resultSize = ((Collection) result).size();
       }
 
-      String queryVerboseMsg =
+      var queryVerboseMsg =
           DefaultQuery.getLogMessage(indexObserver, startTime, resultSize, queryString);
       logger.info(queryVerboseMsg);
     }
@@ -804,13 +802,13 @@ public class DefaultQuery implements Query {
 
   public void endTrace(QueryObserver indexObserver, long startTime, Collection<Collection> result) {
     if (logger.isInfoEnabled() && traceOn) {
-      int resultSize = 0;
+      var resultSize = 0;
 
-      for (Collection aResult : result) {
+      for (var aResult : result) {
         resultSize += aResult.size();
       }
 
-      String queryVerboseMsg =
+      var queryVerboseMsg =
           DefaultQuery.getLogMessage(indexObserver, startTime, resultSize, queryString);
       if (logger.isInfoEnabled()) {
         logger.info(queryVerboseMsg);

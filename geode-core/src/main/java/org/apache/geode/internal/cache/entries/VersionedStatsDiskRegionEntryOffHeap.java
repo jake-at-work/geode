@@ -41,14 +41,14 @@ public abstract class VersionedStatsDiskRegionEntryOffHeap extends VersionedStat
     @Override
     public RegionEntry createEntry(RegionEntryContext context, Object key, Object value) {
       if (InlineKeyHelper.INLINE_REGION_KEYS) {
-        Class<?> keyClass = key.getClass();
+        var keyClass = key.getClass();
         if (keyClass == Integer.class) {
           return new VersionedStatsDiskRegionEntryOffHeapIntKey(context, (Integer) key, value);
         } else if (keyClass == Long.class) {
           return new VersionedStatsDiskRegionEntryOffHeapLongKey(context, (Long) key, value);
         } else if (keyClass == String.class) {
-          final String skey = (String) key;
-          final Boolean info = InlineKeyHelper.canStringBeInlineEncoded(skey);
+          final var skey = (String) key;
+          final var info = InlineKeyHelper.canStringBeInlineEncoded(skey);
           if (info != null) {
             final boolean byteEncoded = info;
             if (skey.length() <= InlineKeyHelper.getMaxInlineStringKey(1, byteEncoded)) {

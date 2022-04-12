@@ -53,7 +53,7 @@ public class TemporaryBackupFilesTest {
 
   @Test
   public void factoryMethodCreatesValidInstance() throws IOException {
-    TemporaryBackupFiles backupFiles = TemporaryBackupFiles.create();
+    var backupFiles = TemporaryBackupFiles.create();
     assertThat(backupFiles.getDirectory()).exists();
   }
 
@@ -78,7 +78,7 @@ public class TemporaryBackupFilesTest {
 
   @Test
   public void returnsCreatedDirectoryForADiskStore() throws IOException {
-    Path diskStoreDir = backupFiles.getDiskStoreDirectory(diskStore, directoryHolder);
+    var diskStoreDir = backupFiles.getDiskStoreDirectory(diskStore, directoryHolder);
     assertThat(diskStoreDir)
         .isEqualTo(directoryHolder.getDir().toPath().resolve(DISK_STORE_DIR_NAME));
     assertThat(diskStoreDir).exists();
@@ -86,17 +86,17 @@ public class TemporaryBackupFilesTest {
 
   @Test
   public void returnsTheSameFileEachTimeForADiskStoreAndDirHolder() throws IOException {
-    Path diskStoreDir = backupFiles.getDiskStoreDirectory(diskStore, directoryHolder);
+    var diskStoreDir = backupFiles.getDiskStoreDirectory(diskStore, directoryHolder);
     assertThat(backupFiles.getDiskStoreDirectory(diskStore, directoryHolder))
         .isSameAs(diskStoreDir);
   }
 
   @Test
   public void cleansUpAllTemporaryDirectories() throws IOException {
-    DirectoryHolder directoryHolder2 = mock(DirectoryHolder.class);
+    var directoryHolder2 = mock(DirectoryHolder.class);
     when(directoryHolder2.getDir()).thenReturn(baseTempDirectory.resolve("dir2").toFile());
-    Path diskStoreDir = backupFiles.getDiskStoreDirectory(diskStore, directoryHolder);
-    Path diskStoreDir2 = backupFiles.getDiskStoreDirectory(diskStore, directoryHolder2);
+    var diskStoreDir = backupFiles.getDiskStoreDirectory(diskStore, directoryHolder);
+    var diskStoreDir2 = backupFiles.getDiskStoreDirectory(diskStore, directoryHolder2);
 
     backupFiles.cleanupFiles();
 

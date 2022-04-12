@@ -64,7 +64,7 @@ public class MultipleOplogsRollingFeatureJUnitTest extends DiskRegionTestingBase
     diskProps.setCompactionThreshold(100);
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
     assertNotNull(region);
-    DiskRegion diskRegion = ((LocalRegion) region).getDiskRegion();
+    var diskRegion = ((LocalRegion) region).getDiskRegion();
     assertNotNull(diskRegion);
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
     CacheObserverHolder.setInstance(getCacheObserver());
@@ -151,14 +151,14 @@ public class MultipleOplogsRollingFeatureJUnitTest extends DiskRegionTestingBase
 
   private void addEntries(int opLogNum, int valueSize) {
     assertNotNull(region);
-    byte[] val = new byte[valueSize];
-    for (int i = 0; i < valueSize; ++i) {
+    var val = new byte[valueSize];
+    for (var i = 0; i < valueSize; ++i) {
       val[i] = (byte) i;
     }
 
     // Creating opLog1
     if (opLogNum == 1) {
-      for (int i = 1; i < 4; i++) {
+      for (var i = 1; i < 4; i++) {
         // create 3 entries
         region.create(i, val);
 

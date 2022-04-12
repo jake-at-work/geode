@@ -25,7 +25,7 @@ public class DiskAccessExceptionTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DiskAccessException mockDiskAccessException = mock(DiskAccessException.class);
+    var mockDiskAccessException = mock(DiskAccessException.class);
     when(mockDiskAccessException.isRemote()).thenReturn(true);
     assertThat(mockDiskAccessException.isRemote()).isTrue();
   }

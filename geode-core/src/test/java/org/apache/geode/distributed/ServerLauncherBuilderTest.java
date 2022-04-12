@@ -80,7 +80,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void getHostNameForClientsReturnsNullByDefault() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.getHostNameForClients()).isNull();
   }
@@ -137,112 +137,112 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setCommandReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setCommand(Command.STATUS)).isSameAs(builder);
   }
 
   @Test
   public void setCriticalHeapPercentageReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setCriticalHeapPercentage(55.5f)).isSameAs(builder);
   }
 
   @Test
   public void setEvictionHeapPercentageReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setEvictionHeapPercentage(55.55f)).isSameAs(builder);
   }
 
   @Test
   public void setForceReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setForce(true)).isSameAs(builder);
   }
 
   @Test
   public void setHostNameForClientsReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setHostNameForClients("Pegasus")).isSameAs(builder);
   }
 
   @Test
   public void setMaxConnectionsReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setMaxConnections(1000)).isSameAs(builder);
   }
 
   @Test
   public void setMaxMessageCountReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setMaxMessageCount(50)).isSameAs(builder);
   }
 
   @Test
   public void setMaxThreadsReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setMaxThreads(16)).isSameAs(builder);
   }
 
   @Test
   public void setMemberNameReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setMemberName("serverOne")).isSameAs(builder);
   }
 
   @Test
   public void setPidReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setPid(0)).isSameAs(builder);
   }
 
   @Test
   public void setServerBindAddressReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setServerBindAddress(null)).isSameAs(builder);
   }
 
   @Test
   public void setRedirectOutputReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setRedirectOutput(Boolean.TRUE)).isSameAs(builder);
   }
 
   @Test
   public void setServerPortReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setServerPort(null)).isSameAs(builder);
   }
 
   @Test
   public void setMessageTimeToLiveReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setMessageTimeToLive(30000)).isSameAs(builder);
   }
 
   @Test
   public void setSocketBufferSizeReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setSocketBufferSize(32768)).isSameAs(builder);
   }
 
   @Test
   public void setCommandWithNullResultsInDefaultCommand() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     new Builder().setCommand(null);
 
@@ -251,7 +251,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setCommandToStatusResultsInStatus() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setCommand(Command.STATUS);
 
@@ -260,7 +260,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setCriticalHeapPercentageToPercentileUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setCriticalHeapPercentage(55.5f);
 
@@ -269,7 +269,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setCriticalHeapPercentageToNullResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setCriticalHeapPercentage(null);
 
@@ -290,7 +290,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setEvictionHeapPercentageToPercentileUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setEvictionHeapPercentage(55.55f);
 
@@ -299,7 +299,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setEvictionHeapPercentageToNullResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setEvictionHeapPercentage(null);
 
@@ -320,7 +320,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setForceToTrueUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setForce(true);
 
@@ -329,7 +329,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setHostNameForClientsToStringUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setHostNameForClients("Pegasus");
 
@@ -356,7 +356,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setMaxConnectionsToPositiveIntegerUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMaxConnections(1000);
 
@@ -365,7 +365,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setMaxConnectionsToNullResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMaxConnections(null);
 
@@ -380,7 +380,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setMaxMessageCountToPositiveIntegerUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMaxMessageCount(50);
 
@@ -389,7 +389,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setMaxMessageCountToNullResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMaxMessageCount(null);
 
@@ -404,7 +404,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setMaxThreadsToPositiveIntegerUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMaxThreads(16);
 
@@ -413,7 +413,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setMaxThreadsToNullResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMaxThreads(null);
 
@@ -428,7 +428,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setMemberNameToStringUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMemberName("serverOne");
 
@@ -455,7 +455,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setMessageTimeToLiveToPositiveIntegerUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMessageTimeToLive(30000);
 
@@ -464,7 +464,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setMessageTimeToNullResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMessageTimeToLive(null);
 
@@ -479,7 +479,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setPidToZeroOrGreaterUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setPid(0);
     assertThat(builder.getPid().intValue()).isEqualTo(0);
@@ -496,7 +496,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setPidToNullResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setPid(null);
 
@@ -510,7 +510,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setServerBindAddressToNullResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setServerBindAddress(null);
 
@@ -519,7 +519,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setServerBindAddressToEmptyStringResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setServerBindAddress("");
 
@@ -528,7 +528,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setServerBindAddressToBlankStringResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setServerBindAddress("  ");
 
@@ -537,7 +537,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setServerBindAddressToCanonicalLocalHostUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setServerBindAddress(localHostName);
 
@@ -546,9 +546,9 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setServerBindAddressToLocalHostNameUsesValue() throws UnknownHostException {
-    String host = InetAddress.getLocalHost().getHostName();
+    var host = InetAddress.getLocalHost().getHostName();
 
-    Builder builder = new Builder().setServerBindAddress(host);
+    var builder = new Builder().setServerBindAddress(host);
 
     assertThat(builder.getServerBindAddress()).isEqualTo(localHost);
   }
@@ -568,7 +568,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setServerPortToNullResultsInDefaultPort() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setServerPort(null);
 
@@ -578,7 +578,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setServerPortToZeroOrGreaterUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setServerPort(0);
     assertThat(builder.getServerPort().intValue()).isEqualTo(0);
@@ -619,7 +619,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setSocketBufferSizeToPositiveIntegerUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setSocketBufferSize(32768);
 
@@ -628,7 +628,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setSocketBufferSizeToNullResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setSocketBufferSize(null);
 
@@ -643,7 +643,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseArgumentsWithForceSetsForceToTrue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseArguments("start", "--force");
 
@@ -660,7 +660,7 @@ public class ServerLauncherBuilderTest {
   @Test
   public void parseArgumentsParsesValuesSeparatedWithCommas() throws UnknownHostException {
     // given: fresh builder
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     // when: parsing comma-separated arguments
     builder.parseArguments("start", "serverOne", "--assign-buckets", "--disable-default-server",
@@ -694,7 +694,7 @@ public class ServerLauncherBuilderTest {
   @Test
   public void parseArgumentsParsesValuesSeparatedWithEquals() throws UnknownHostException {
     // given: fresh builder
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     // when: parsing equals-separated arguments
     builder.parseArguments("start", "serverOne", "--assign-buckets", "--disable-default-server",
@@ -727,7 +727,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseCommandWithNullStringArrayResultsInDefaultCommand() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand((String[]) null);
 
@@ -736,7 +736,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseCommandWithEmptyStringArrayResultsInDefaultCommand() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand(); // empty String array
 
@@ -745,7 +745,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseCommandWithStartResultsInStartCommand() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand(Command.START.getName());
 
@@ -754,7 +754,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseCommandWithStatusResultsInStatusCommand() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("Status");
 
@@ -763,7 +763,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseCommandWithMixedCaseResultsInCorrectCase() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("sToP");
 
@@ -772,7 +772,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseCommandWithTwoCommandsWithSwitchesUsesFirstCommand() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("--opt", "START", "-o", Command.STATUS.getName());
 
@@ -781,7 +781,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseCommandWithTwoCommandsWithoutSwitchesUsesFirstCommand() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("START", Command.STATUS.getName());
 
@@ -790,7 +790,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseCommandWithBadInputResultsInDefaultCommand() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("badCommandName", "--start", "stat");
 
@@ -799,7 +799,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseMemberNameWithNullStringArrayResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseMemberName((String[]) null);
 
@@ -808,7 +808,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseMemberNameWithEmptyStringArrayResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseMemberName(); // empty String array
 
@@ -817,7 +817,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseMemberNameWithCommandAndOptionsResultsInNull() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseMemberName(Command.START.getName(), "--opt", "-o");
 
@@ -826,7 +826,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void parseMemberNameWithStringUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseMemberName("memberOne");
 
@@ -835,7 +835,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void buildCreatesServerLauncherWithBuilderValues() throws UnknownHostException {
-    ServerLauncher launcher = new Builder().setCommand(Command.STOP).setAssignBuckets(true)
+    var launcher = new Builder().setCommand(Command.STOP).setAssignBuckets(true)
         .setForce(true).setMemberName("serverOne").setRebalance(true)
         .setServerBindAddress(InetAddress.getLocalHost().getHostAddress()).setServerPort(11235)
         .setCriticalHeapPercentage(90.0f).setEvictionHeapPercentage(75.0f).setMaxConnections(100)
@@ -865,7 +865,7 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void buildUsesMemberNameSetInApiProperties() {
-    ServerLauncher launcher =
+    var launcher =
         new Builder().setCommand(ServerLauncher.Command.START).set(NAME, "serverABC").build();
 
     assertThat(launcher.getMemberName()).isNull();
@@ -876,7 +876,7 @@ public class ServerLauncherBuilderTest {
   public void buildUsesMemberNameSetInSystemProperties() {
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + NAME, "serverXYZ");
 
-    ServerLauncher launcher = new Builder().setCommand(ServerLauncher.Command.START).build();
+    var launcher = new Builder().setCommand(ServerLauncher.Command.START).build();
 
     assertThat(launcher.getMemberName()).isNull();
   }
@@ -888,16 +888,16 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setStartupCompletionActionReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setStartupCompletionAction(null)).isSameAs(builder);
   }
 
   @Test
   public void setStartupCompletionActionUsesValue() {
-    Runnable myRunnable = () -> {
+    var myRunnable = (Runnable) () -> {
     };
-    Builder builder = new Builder();
+    var builder = new Builder();
     builder.setStartupCompletionAction(myRunnable);
     assertThat(builder.getStartupCompletionAction())
         .isSameAs(myRunnable);
@@ -911,16 +911,16 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setStartupExceptionActionReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setStartupExceptionAction(null)).isSameAs(builder);
   }
 
   @Test
   public void setStartupExceptionActionUsesValue() {
-    Consumer<Throwable> myThrowable = (throwable) -> {
+    var myThrowable = (Consumer<Throwable>) (throwable) -> {
     };
-    Builder builder = new Builder();
+    var builder = new Builder();
     builder.setStartupExceptionAction(myThrowable);
     assertThat(builder.getStartupExceptionAction())
         .isSameAs(myThrowable);
@@ -934,16 +934,16 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setServerLauncherCacheProviderReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setServerLauncherCacheProvider(null)).isSameAs(builder);
   }
 
   @Test
   public void setServerLauncherCacheProviderUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
-    ServerLauncherCacheProvider value = mock(ServerLauncherCacheProvider.class);
+    var value = mock(ServerLauncherCacheProvider.class);
     builder.setServerLauncherCacheProvider(value);
 
     assertThat(builder.getServerLauncherCacheProvider()).isSameAs(value);
@@ -956,17 +956,17 @@ public class ServerLauncherBuilderTest {
 
   @Test
   public void setControllableProcessFactoryReturnsBuilderInstance() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setControllableProcessFactory(null)).isSameAs(builder);
   }
 
   @Test
   public void setControllableProcessFactoryUsesValue() {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
-    Supplier<ControllableProcess> controllableProcessFactory =
-        () -> mock(ControllableProcess.class);
+    var controllableProcessFactory =
+        (Supplier<ControllableProcess>) () -> mock(ControllableProcess.class);
     builder.setControllableProcessFactory(controllableProcessFactory);
 
     assertThat(builder.getControllableProcessFactory()).isSameAs(controllableProcessFactory);

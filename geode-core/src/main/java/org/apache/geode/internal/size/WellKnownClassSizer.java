@@ -31,7 +31,7 @@ public class WellKnownClassSizer {
 
   static {
     try {
-      ReflectionSingleObjectSizer objSizer = new ReflectionSingleObjectSizer();
+      var objSizer = new ReflectionSingleObjectSizer();
       BYTE_ARRAY_OVERHEAD = (int) objSizer.sizeof(new byte[0], false);
       STRING_OVERHEAD = (int) (ReflectionSingleObjectSizer.sizeof(String.class)
           + objSizer.sizeof(new char[0], false));

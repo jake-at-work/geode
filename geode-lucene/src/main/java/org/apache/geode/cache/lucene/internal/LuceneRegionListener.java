@@ -79,17 +79,17 @@ public class LuceneRegionListener implements RegionListener {
   @Override
   public RegionAttributes beforeCreate(Region parent, String regionName, RegionAttributes attrs,
       InternalRegionArguments internalRegionArgs) {
-    RegionAttributes updatedRA = attrs;
-    String path =
+    var updatedRA = attrs;
+    var path =
         parent == null ? SEPARATOR + regionName : parent.getFullPath() + SEPARATOR + regionName;
 
     if (path.equals(regionPath) && beforeCreateInvoked.compareAndSet(false, true)) {
 
       LuceneServiceImpl.validateRegionAttributes(attrs);
 
-      String aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
+      var aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
       if (!attrs.getAsyncEventQueueIds().contains(aeqId)) {
-        RegionAttributesCreation regionAttributesCreation =
+        var regionAttributesCreation =
             new RegionAttributesCreation(attrs, false);
         regionAttributesCreation.addAsyncEventQueueId(aeqId);
         updatedRA = regionAttributesCreation;

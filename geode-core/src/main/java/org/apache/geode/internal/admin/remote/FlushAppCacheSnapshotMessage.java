@@ -33,7 +33,7 @@ import org.apache.geode.internal.serialization.SerializationContext;
 public class FlushAppCacheSnapshotMessage extends PooledDistributionMessage {
 
   public static FlushAppCacheSnapshotMessage create() {
-    FlushAppCacheSnapshotMessage m = new FlushAppCacheSnapshotMessage();
+    var m = new FlushAppCacheSnapshotMessage();
     return m;
   }
 

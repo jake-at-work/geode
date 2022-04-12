@@ -42,7 +42,6 @@ import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.internal.cache.BucketRegion.RawValue;
@@ -94,14 +93,14 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DELTA_PROPAGATION, "false");
     return props;
   }
 
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     return factory.create();
   }
@@ -122,32 +121,32 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
     // Put an instance of SerializationCounter to assert copy-on-read behavior
     // when notifyBySubscription is true
     server.invoke("Enable copy on read and assert server copy behavior", () -> {
-      final Region<Object, Object> rootRegion = getRootRegion(rName);
+      final var rootRegion = getRootRegion(rName);
 
       // Using a key that counts serialization, the test captures
       // any serialization of the key when it is a member of another object,
       // specifically in this case ClientUpdateMessageImpl which is assume to be
       // the value of a HARegion
-      SerializationCountingKey key = new SerializationCountingKey(k1);
-      byte[] val = new byte[1];
+      var key = new SerializationCountingKey(k1);
+      var val = new byte[1];
       byte valIsObj = 0x01;
       Integer cb = 0;
       ClientProxyMembershipID cpmi = null;
       EventID eid = null;
-      ClientUpdateMessageImpl cui = new ClientUpdateMessageImpl(
+      var cui = new ClientUpdateMessageImpl(
           EnumListenerEvent.AFTER_CREATE, (LocalRegion) rootRegion, key, val, valIsObj, cb, cpmi,
           eid);
-      ClientUpdateMessageImpl cuiCopy = CopyHelper.copy(cui);
+      var cuiCopy = CopyHelper.copy(cui);
       assertThat(cui.getKeyOfInterest()).isSameAs(key);
       assertThat(key.count.get()).isEqualTo(1);
       key = (SerializationCountingKey) cuiCopy.getKeyOfInterest();
       assertThat(cuiCopy.getKeyOfInterest()).isEqualTo(cui.getKeyOfInterest());
       assertThat(key.count.get()).isEqualTo(1);
 
-      SerializationCountingKey ks1 = new SerializationCountingKey(k1);
+      var ks1 = new SerializationCountingKey(k1);
       // AbstractRegionMap basicPut now serializes newValue in EntryEventImpl
       // which can be used for delivering client update message later
-      SerializationCountingValue sc = new SerializationCountingValue();
+      var sc = new SerializationCountingValue();
       rootRegion.put(ks1, sc);
       assertThat(sc.count.get()).isEqualTo(1);
       assertThat(ks1.count.get()).isEqualTo(0);
@@ -169,7 +168,7 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
       // Put another counter with copy-on-read true
       // AbstractRegionMap basicPut now serializes newValue
       sc = new SerializationCountingValue();
-      SerializationCountingKey ks3 = new SerializationCountingKey(k3);
+      var ks3 = new SerializationCountingKey(k3);
       rootRegion.put(ks3, sc);
       assertThat(sc.count.get()).isEqualTo(1);
       assertThat(ks3.count.get()).isEqualTo(0);
@@ -178,17 +177,17 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
     // Setup a client which subscribes to the server region, registers (aka pulls)
     // interest in keys which creates an assumed HARegionQueue on the server
     // (in the event that the above code didn't already create a HARegion)
-    final String serverHostName = NetworkUtils.getServerHostName();
+    final var serverHostName = NetworkUtils.getServerHostName();
     client.invoke("Assert server copy behavior from client", () -> {
       getCache();
 
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       ClientServerTestCase.configureConnectionPool(factory, serverHostName, ports, true, -1, 1,
           null);
       factory.setScope(Scope.LOCAL);
-      Region<Object, Object> rootRegion = createRootRegion(rName, factory);
-      SerializationCountingKey ks1 = new SerializationCountingKey(k1);
-      SerializationCountingKey ks3 = new SerializationCountingKey(k3);
+      var rootRegion = createRootRegion(rName, factory);
+      var ks1 = new SerializationCountingKey(k1);
+      var ks3 = new SerializationCountingKey(k3);
       // original two serializations on server and one serialization for register interest
       rootRegion.registerInterest(ks1, InterestResultPolicy.KEYS_VALUES);
       // entry shouldn't exist yet
@@ -199,7 +198,7 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
 
       // get from local cache.
       // original two serializations on server and one for previous register interest
-      SerializationCountingValue sc = (SerializationCountingValue) rootRegion.get(ks1);
+      var sc = (SerializationCountingValue) rootRegion.get(ks1);
       assertThat(sc.count.get()).isEqualTo(3);
 
       sc = (SerializationCountingValue) rootRegion.get(ks3);
@@ -209,22 +208,22 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
     // Put an instance of SerializationCounter to assert copy-on-read behavior
     // once a client has registered interest
     server.invoke("Assert copy behavior after client is setup", () -> {
-      Region<Object, Object> rootRegion = getRootRegion(rName);
-      CacheServerImpl bsi = (CacheServerImpl) getCache().getCacheServers().iterator().next();
+      var rootRegion = getRootRegion(rName);
+      var bsi = (CacheServerImpl) getCache().getCacheServers().iterator().next();
       Collection cp = bsi.getAcceptor().getCacheClientNotifier().getClientProxies();
       // Should only be one because only one client is connected
       assertThat(cp.size()).isEqualTo(1);
-      final CacheClientProxy ccp = (CacheClientProxy) cp.iterator().next();
+      final var ccp = (CacheClientProxy) cp.iterator().next();
       // Wait for messages to drain to capture a stable "processed message count"
       await("region queue never became empty")
           .until(() -> ccp.getHARegionQueue().size() == 0);
 
       // Capture the current processed message count to know
       // when the next message has been serialized
-      final int currMesgCount = ccp.getStatistics().getMessagesProcessed();
+      final var currMesgCount = ccp.getStatistics().getMessagesProcessed();
 
-      SerializationCountingKey ks2 = new SerializationCountingKey(k2);
-      SerializationCountingValue sc = new SerializationCountingValue();
+      var ks2 = new SerializationCountingKey(k2);
+      var sc = new SerializationCountingValue();
       // Update a key upon which the client has expressed interest,
       // expect it to send an update message to the client
       rootRegion.put(ks2, sc);
@@ -245,13 +244,13 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
       Region rootRegion = getRootRegion(rName);
       { // Once to send the value to this client via the updater thread
 
-        SerializationCountingKey ks2 = new SerializationCountingKey(k2);
+        var ks2 = new SerializationCountingKey(k2);
         // Wait for the update to arrive on to the Cache Client Updater
-        final int maxSecs = 30;
+        final var maxSecs = 30;
         await("Waited over " + maxSecs + "s").timeout(maxSecs, TimeUnit.SECONDS)
             .until(() -> rootRegion.containsKey(ks2));
 
-        SerializationCountingValue sc =
+        var sc =
             (SerializationCountingValue) rootRegion.getEntry(ks2).getValue();
         assertThat(sc.count.get()).isEqualTo(1);
       }
@@ -264,24 +263,24 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
    */
   @Test
   public void testPartitionedRegionAndCopyOnRead() {
-    final VM accessor = VM.getVM(2);
-    final VM datastore = VM.getVM(3);
-    final String rName = getUniqueName();
-    final String k1 = "k1";
+    final var accessor = VM.getVM(2);
+    final var datastore = VM.getVM(3);
+    final var rName = getUniqueName();
+    final var k1 = "k1";
 
     datastore.invoke("Create PR DataStore", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setPartitionAttributes(
           new PartitionAttributesFactory().setRedundantCopies(0).create());
       createRootRegion(rName, factory);
     });
 
     accessor.invoke("Create PR Accessor and put new value", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setPartitionAttributes(
           new PartitionAttributesFactory().setLocalMaxMemory(0).setRedundantCopies(0).create());
-      Region<Object, Object> rootRegion = createRootRegion(rName, factory);
-      SerializationCountingValue val = new SerializationCountingValue();
+      var rootRegion = createRootRegion(rName, factory);
+      var val = new SerializationCountingValue();
       rootRegion.put(k1, val);
       // First put to a bucket will serialize once to determine the size of the value
       // to know how much extra space the new bucket with the new entry will consume
@@ -294,52 +293,52 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
     });
 
     datastore.invoke("assert datastore entry serialization count", () -> {
-      PartitionedRegion pr = (PartitionedRegion) getRootRegion(rName);
+      var pr = (PartitionedRegion) getRootRegion(rName);
       // Visit the one bucket (since there is only one value in the entire PR)
       // to directly copy the entry bytes and assert the serialization count.
       // All this extra work is to assure the serialization count does not increase
       // (by de-serializing the value stored in the map, which would then have to be
       // re-serialized).
       pr.getDataStore().visitBuckets((bucketId, r) -> {
-        BucketRegion br = (BucketRegion) r;
-        KeyInfo keyInfo = new KeyInfo(k1, null, bucketId);
+        var br = (BucketRegion) r;
+        var keyInfo = new KeyInfo(k1, null, bucketId);
         RawValue rv = null;
         try {
           rv = br.getSerialized(keyInfo, false, false, null, null, false);
         } catch (IOException e) {
           fail("Unexpected IOException", e);
         }
-        Object val = rv.getRawValue();
+        var val = rv.getRawValue();
         assertThat(val).isInstanceOf(CachedDeserializable.class);
-        CachedDeserializable cd = (CachedDeserializable) val;
-        SerializationCountingValue scv =
+        var cd = (CachedDeserializable) val;
+        var scv =
             (SerializationCountingValue) cd.getDeserializedForReading();
         assertThat(scv.count.get()).isEqualTo(1);
       });
     });
 
     accessor.invoke("assert accessor entry serialization count", () -> {
-      Region<Object, Object> rootRegion = getRootRegion(rName);
-      SerializationCountingValue value1 = (SerializationCountingValue) rootRegion.get(k1);
+      var rootRegion = getRootRegion(rName);
+      var value1 = (SerializationCountingValue) rootRegion.get(k1);
       // The counter was incremented once to send the data to the datastore
       assertThat(value1.count.get()).isEqualTo(1);
       getCache().setCopyOnRead(true);
       // Once to send the data to the datastore, no need to do a serialization
       // when we make copy since it is serialized from datastore to us.
-      SerializationCountingValue value2 = (SerializationCountingValue) rootRegion.get(k1);
+      var value2 = (SerializationCountingValue) rootRegion.get(k1);
       assertThat(value2.count.get()).isEqualTo(1);
       assertThat(value2).isNotEqualTo(value1);
     });
 
     datastore.invoke("assert value serialization", () -> {
       Region rootRegion = getRootRegion(rName);
-      SerializationCountingValue value1 = (SerializationCountingValue) rootRegion.get(k1);
+      var value1 = (SerializationCountingValue) rootRegion.get(k1);
       // Once to send the value from the accessor to the data store
       assertThat(value1.count.get()).isEqualTo(1);
       getCache().setCopyOnRead(true);
       // Once to send the value from the accessor to the data store
       // once to make a local copy
-      SerializationCountingValue value2 = (SerializationCountingValue) rootRegion.get(k1);
+      var value2 = (SerializationCountingValue) rootRegion.get(k1);
       assertThat(value2.count.get()).isEqualTo(2);
       assertThat(value2).isNotEqualTo(value1);
     });
@@ -400,7 +399,7 @@ public class ClientDeserializationCopyOnReadRegressionTest extends ClientServerT
         return true;
       }
       if (obj instanceof SerializationCountingKey) {
-        SerializationCountingKey other = (SerializationCountingKey) obj;
+        var other = (SerializationCountingKey) obj;
         return k.equals(other.k);
       }
       return false;

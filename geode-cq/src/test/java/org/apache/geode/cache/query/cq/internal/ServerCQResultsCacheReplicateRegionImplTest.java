@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,11 +40,11 @@ public class ServerCQResultsCacheReplicateRegionImplTest {
 
   @Before
   public void setup() {
-    int index = 122;
-    String prefix = "object_";
+    var index = 122;
+    var prefix = "object_";
     targetKey = prefix + index;
-    int size = 1000;
-    for (int i = 0; i < size; i++) {
+    var size = 1000;
+    for (var i = 0; i < size; i++) {
       if (i != index) {
         objects.add(prefix + i);
       }
@@ -57,16 +56,16 @@ public class ServerCQResultsCacheReplicateRegionImplTest {
     serverCQResultCache.setInitialized();
     serverCQResultCache.add(targetKey);
 
-    Future<Void> future = executorService.submit(this::verifyContains);
+    var future = executorService.submit(this::verifyContains);
 
-    int numberThreads = 10;
-    int numberOfOperations = 1000;
+    var numberThreads = 10;
+    var numberOfOperations = 1000;
     List<CompletableFuture<Void>> futures = new ArrayList<>();
-    for (int i = 0; i < numberThreads; i++) {
+    for (var i = 0; i < numberThreads; i++) {
       futures.add(executorService.runAsync(() -> doOperations(numberOfOperations)));
     }
 
-    for (CompletableFuture<Void> completableFuture : futures) {
+    for (var completableFuture : futures) {
       completableFuture.join();
     }
 
@@ -81,10 +80,10 @@ public class ServerCQResultsCacheReplicateRegionImplTest {
   }
 
   private void doOperations(int numberOfOperations) {
-    int count = 0;
+    var count = 0;
     while (count < numberOfOperations) {
-      int index = random.nextInt(objects.size());
-      String key = objects.get(index);
+      var index = random.nextInt(objects.size());
+      var key = objects.get(index);
       assertThat(serverCQResultCache.contains(targetKey)).isTrue();
 
       if (random.nextBoolean()) {

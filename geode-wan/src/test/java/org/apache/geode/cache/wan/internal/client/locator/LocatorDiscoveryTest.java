@@ -57,7 +57,7 @@ public class LocatorDiscoveryTest {
     discoverer = mock(WanLocatorDiscoverer.class);
     locatorId = mock(DistributionLocatorId.class);
     request = mock(RemoteLocatorJoinRequest.class);
-    LocatorMembershipListener listener = mock(LocatorMembershipListener.class);
+    var listener = mock(LocatorMembershipListener.class);
     locatorClient = mock(TcpClient.class);
     locatorDiscovery =
         Mockito.spy(new LocatorDiscovery(discoverer, locatorId, request, listener, locatorClient));
@@ -69,7 +69,7 @@ public class LocatorDiscoveryTest {
   public void skipFailureLoggingReturnsCorrectly() {
     // First call should always be false
     assertFalse(locatorDiscovery.skipFailureLogging(locatorId));
-    long firstReturnedFalse = System.currentTimeMillis();
+    var firstReturnedFalse = System.currentTimeMillis();
 
     // Next calls should only be false if more than 1000ms has passed since the last call that
     // returned false
@@ -77,7 +77,7 @@ public class LocatorDiscoveryTest {
     assertTrue(locatorDiscovery.skipFailureLogging(locatorId));
     await().until(() -> System.currentTimeMillis() - firstReturnedFalse > 1000);
     assertFalse(locatorDiscovery.skipFailureLogging(locatorId));
-    long secondReturnedFalse = System.currentTimeMillis();
+    var secondReturnedFalse = System.currentTimeMillis();
 
     // Next calls should only be false if more than 2000ms has passed since the last call that
     // returned false
@@ -98,7 +98,7 @@ public class LocatorDiscoveryTest {
       throws IOException, ClassNotFoundException {
     // Only allow two retries before stopping the locator discoverer
     when(discoverer.isStopped()).thenReturn(false).thenReturn(false).thenReturn(true);
-    RemoteLocatorJoinResponse response = mock(RemoteLocatorJoinResponse.class);
+    var response = mock(RemoteLocatorJoinResponse.class);
     when(locatorClient.requestToServer(any(), eq(request), anyInt(), anyBoolean()))
         .thenReturn(response);
     doNothing().when(locatorDiscovery).addExchangedLocators(response);
@@ -181,7 +181,7 @@ public class LocatorDiscoveryTest {
       throws IOException, ClassNotFoundException {
     // Only allow one attempt before stopping the locator discoverer
     when(discoverer.isStopped()).thenReturn(false).thenReturn(true);
-    RemoteLocatorJoinResponse joinResponse = mock(RemoteLocatorJoinResponse.class);
+    var joinResponse = mock(RemoteLocatorJoinResponse.class);
     when(locatorClient.requestToServer(any(), eq(request), anyInt(), anyBoolean()))
         .thenReturn(joinResponse);
     doNothing().when(locatorDiscovery).addExchangedLocators(joinResponse);
@@ -204,12 +204,12 @@ public class LocatorDiscoveryTest {
       throws IOException, ClassNotFoundException {
     // Only allow one attempt before stopping the locator discoverer
     when(discoverer.isStopped()).thenReturn(false).thenReturn(true);
-    RemoteLocatorJoinResponse joinResponse = mock(RemoteLocatorJoinResponse.class);
+    var joinResponse = mock(RemoteLocatorJoinResponse.class);
     when(locatorClient.requestToServer(any(), eq(request), anyInt(), anyBoolean()))
         .thenReturn(joinResponse);
     doNothing().when(locatorDiscovery).addExchangedLocators(joinResponse);
 
-    RemoteLocatorPingResponse pingResponse = mock(RemoteLocatorPingResponse.class);
+    var pingResponse = mock(RemoteLocatorPingResponse.class);
     // Return a non-null RemoteLocatorPingResponse, then return null to prevent the ping loop
     // continuing forever
     when(locatorClient.requestToServer(any(), any(RemoteLocatorPingRequest.class), anyInt(),
@@ -261,7 +261,7 @@ public class LocatorDiscoveryTest {
       throws IOException, ClassNotFoundException {
     // Only allow two retries before stopping the locator discoverer
     when(discoverer.isStopped()).thenReturn(false).thenReturn(false).thenReturn(true);
-    RemoteLocatorJoinResponse joinResponse = mock(RemoteLocatorJoinResponse.class);
+    var joinResponse = mock(RemoteLocatorJoinResponse.class);
     when(locatorClient.requestToServer(any(), eq(request), anyInt(), anyBoolean()))
         .thenReturn(joinResponse);
     doNothing().when(locatorDiscovery).addExchangedLocators(joinResponse);
@@ -300,7 +300,7 @@ public class LocatorDiscoveryTest {
       throws IOException, ClassNotFoundException {
     // Only allow two retries before stopping the locator discoverer
     when(discoverer.isStopped()).thenReturn(false).thenReturn(false).thenReturn(true);
-    RemoteLocatorJoinResponse joinResponse = mock(RemoteLocatorJoinResponse.class);
+    var joinResponse = mock(RemoteLocatorJoinResponse.class);
     when(locatorClient.requestToServer(any(), eq(request), anyInt(), anyBoolean()))
         .thenReturn(joinResponse);
     doNothing().when(locatorDiscovery).addExchangedLocators(joinResponse);
@@ -339,7 +339,7 @@ public class LocatorDiscoveryTest {
       throws IOException, ClassNotFoundException {
     // Only allow two retries before stopping the locator discoverer
     when(discoverer.isStopped()).thenReturn(false).thenReturn(false).thenReturn(true);
-    RemoteLocatorJoinResponse joinResponse = mock(RemoteLocatorJoinResponse.class);
+    var joinResponse = mock(RemoteLocatorJoinResponse.class);
     when(locatorClient.requestToServer(any(), eq(request), anyInt(), anyBoolean()))
         .thenReturn(joinResponse);
     doNothing().when(locatorDiscovery).addExchangedLocators(joinResponse);

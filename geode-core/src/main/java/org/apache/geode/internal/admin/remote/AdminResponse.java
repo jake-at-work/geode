@@ -19,7 +19,6 @@ package org.apache.geode.internal.admin.remote;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.geode.distributed.internal.AdminMessageType;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
@@ -78,8 +77,8 @@ public abstract class AdminResponse extends HighPriorityDistributionMessage
   }
 
   public InternalDistributedMember getRecipient() {
-    List<InternalDistributedMember> recipients = getRecipients();
-    int size = recipients.size();
+    var recipients = getRecipients();
+    var size = recipients.size();
     if (size == 0) {
       return null;
     } else if (size > 1) {

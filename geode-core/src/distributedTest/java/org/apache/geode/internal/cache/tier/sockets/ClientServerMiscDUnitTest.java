@@ -31,8 +31,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
-import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.VM;
 
@@ -45,9 +43,9 @@ public class ClientServerMiscDUnitTest extends ClientServerMiscDUnitTestBase {
    */
   @Test
   public void testInvalidateOnInvalidEntryInServerReachesClient() throws Exception {
-    VM server = VM.getVM(0);
-    String regionPath = SEPARATOR + REGION_NAME2;
-    int serverPort = getRandomAvailableTCPPort();
+    var server = VM.getVM(0);
+    var regionPath = SEPARATOR + REGION_NAME2;
+    var serverPort = getRandomAvailableTCPPort();
     PORT1 = server.invoke(() -> {
       int port = createServerCache(true, -1, false, serverPort);
       getCache().getRegion(regionPath).put(server_k1, "VALUE1");
@@ -61,24 +59,24 @@ public class ClientServerMiscDUnitTest extends ClientServerMiscDUnitTestBase {
     assertThat(region.get(server_k1)).isNull();
 
     System.out.println("do it with a forceEntry==false code path");
-    RegionEntry entry = ((LocalRegion) region).getRegionEntry(server_k1);
-    int entryVersion = entry.getVersionStamp().getEntryVersion();
+    var entry = ((LocalRegion) region).getRegionEntry(server_k1);
+    var entryVersion = entry.getVersionStamp().getEntryVersion();
     server.invoke(() -> {
       // getCache().getRegion(regionPath).invalidate(server_k1);
 
       // create a "remote" invalidateion event and invalidate the already-invalid entry
-      LocalRegion localRegion = (LocalRegion) getCache().getRegion(regionPath);
-      VersionTag tag = localRegion.getRegionEntry(server_k1).getVersionStamp().asVersionTag();
-      InternalDistributedMember id = localRegion.getMyId();
+      var localRegion = (LocalRegion) getCache().getRegion(regionPath);
+      var tag = localRegion.getRegionEntry(server_k1).getVersionStamp().asVersionTag();
+      var id = localRegion.getMyId();
       tag.setMemberID(
           new InternalDistributedMember(id.getInetAddress(), id.getMembershipPort() + 1));
       tag.setEntryVersion(tag.getEntryVersion() + 1);
       tag.setEntryVersion(5);
       tag.setIsRemoteForTesting();
-      EntryEventImpl event =
+      var event =
           EntryEventImpl.create(localRegion, Operation.INVALIDATE, server_k1, null,
               null, false, id);
-      EventID eventID = new EventID(new byte[100], 1, 1);
+      var eventID = new EventID(new byte[100], 1, 1);
       event.setVersionTag(tag);
       event.setEventId(eventID);
       localRegion.getRegionMap().invalidate(event, false, false, false);
@@ -87,22 +85,22 @@ public class ClientServerMiscDUnitTest extends ClientServerMiscDUnitTestBase {
         .until(() -> entry.getVersionStamp().getEntryVersion() > entryVersion);
 
     System.out.println("do it again with a forceEntry==true code path");
-    RegionEntry entry2 = ((LocalRegion) region).getRegionEntry(server_k1);
-    int entryVersion2 = entry.getVersionStamp().getEntryVersion();
+    var entry2 = ((LocalRegion) region).getRegionEntry(server_k1);
+    var entryVersion2 = entry.getVersionStamp().getEntryVersion();
     server.invoke(() -> {
       // create a "remote" invalidation event and invalidate the already-invalid entry
-      LocalRegion localRegion = (LocalRegion) getCache().getRegion(regionPath);
-      VersionTag tag = localRegion.getRegionEntry(server_k1).getVersionStamp().asVersionTag();
-      InternalDistributedMember id = localRegion.getMyId();
+      var localRegion = (LocalRegion) getCache().getRegion(regionPath);
+      var tag = localRegion.getRegionEntry(server_k1).getVersionStamp().asVersionTag();
+      var id = localRegion.getMyId();
       tag.setMemberID(
           new InternalDistributedMember(id.getInetAddress(), id.getMembershipPort() + 1));
       tag.setEntryVersion(tag.getEntryVersion() + 1);
       tag.setEntryVersion(6);
       tag.setIsRemoteForTesting();
-      EntryEventImpl event =
+      var event =
           EntryEventImpl.create(localRegion, Operation.INVALIDATE, server_k1, null,
               null, false, id);
-      EventID eventID = new EventID(new byte[100], 1, 2);
+      var eventID = new EventID(new byte[100], 1, 2);
       event.setVersionTag(tag);
       event.setEventId(eventID);
       localRegion.getRegionMap().invalidate(event, false, true, false);
@@ -115,10 +113,10 @@ public class ClientServerMiscDUnitTest extends ClientServerMiscDUnitTestBase {
   public void testPingWrongServer() {
     PORT1 = initServerCache(true);
     initServerCache2();
-    InternalDistributedMember server2ID = server2.invoke("get ID", () -> cache.getMyId());
+    var server2ID = server2.invoke("get ID", () -> cache.getMyId());
     pool = (PoolImpl) createClientCache(NetworkUtils.getServerHostName(), PORT1);
     // send the ping to server1 but use server2's identifier so the ping will be forwarded
-    ClientProxyMembershipID proxyID = server1.invoke(
+    var proxyID = server1.invoke(
         () -> CacheClientNotifier.getInstance().getClientProxies().iterator().next().getProxyID());
     server2.invoke(() -> {
       assertThat(ClientHealthMonitor.getInstance().getClientHeartbeats().containsKey(proxyID))
@@ -132,7 +130,7 @@ public class ClientServerMiscDUnitTest extends ClientServerMiscDUnitTestBase {
       await("For heartbeat to be received").untilAsserted(() -> assertThat(
           ClientHealthMonitor.getInstance().getClientHeartbeats().keySet().size())
               .isEqualTo(1));
-      ClientProxyMembershipID proxyIDFound =
+      var proxyIDFound =
           ClientHealthMonitor.getInstance().getClientHeartbeats().keySet().iterator().next();
       assertThat(
           ClientHealthMonitor.getInstance().getClientHeartbeats().containsKey(proxyID))

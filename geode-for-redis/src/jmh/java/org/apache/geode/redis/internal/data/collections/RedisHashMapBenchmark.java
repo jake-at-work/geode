@@ -40,10 +40,10 @@ public class RedisHashMapBenchmark {
 
     @Setup
     public void createMap() {
-      Random random = new Random(0);
+      var random = new Random(0);
       map = new RedisHash.Hash(numEntries);
-      for (int i = 0; i < numEntries; i++) {
-        byte[] key = new byte[keySize];
+      for (var i = 0; i < numEntries; i++) {
+        var key = new byte[keySize];
         random.nextBytes(key);
         map.put(key, key);
       }

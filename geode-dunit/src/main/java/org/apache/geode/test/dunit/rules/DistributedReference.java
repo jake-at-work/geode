@@ -21,7 +21,6 @@ import static org.apache.geode.util.internal.CompletionUtils.close;
 import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
@@ -232,12 +231,12 @@ public class DistributedReference<V> extends AbstractDistributedRule {
   }
 
   private void invokeAfter() {
-    Map<Integer, Object> references = REFERENCE.getAndSet(null);
+    var references = REFERENCE.getAndSet(null);
     if (references == null) {
       return;
     }
 
-    for (Object object : references.values()) {
+    for (var object : references.values()) {
       invokeAfter(object);
     }
   }
@@ -275,8 +274,8 @@ public class DistributedReference<V> extends AbstractDistributedRule {
 
   private static boolean hasMethod(Class<?> objectClass, String methodName) {
     try {
-      Method method = objectClass.getMethod(methodName);
-      Class<?> returnType = method.getReturnType();
+      var method = objectClass.getMethod(methodName);
+      var returnType = method.getReturnType();
       // currently only supports public method with zero parameters
       if (method.getParameterCount() == 0 &&
           Modifier.isPublic(method.getModifiers())) {
@@ -290,7 +289,7 @@ public class DistributedReference<V> extends AbstractDistributedRule {
 
   private static void invokeMethod(Object object, String methodName) {
     try {
-      Method method = object.getClass().getMethod(methodName);
+      var method = object.getClass().getMethod(methodName);
       method.invoke(object);
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
       throw new RuntimeException(e);

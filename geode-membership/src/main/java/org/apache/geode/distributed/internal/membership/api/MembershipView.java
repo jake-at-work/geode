@@ -100,7 +100,7 @@ public class MembershipView<ID extends MemberIdentifier> {
   }
 
   public ID getLeadMember() {
-    for (ID mbr : members) {
+    for (var mbr : members) {
       if (mbr.getVmKind() == MemberIdentifier.NORMAL_DM_TYPE) {
         return mbr;
       }
@@ -115,7 +115,7 @@ public class MembershipView<ID extends MemberIdentifier> {
    */
   public ID getCanonicalID(ID id) {
     if (hashedMembers.contains(id)) {
-      for (ID m : members) {
+      for (var m : members) {
         if (id.equals(m)) {
           return m;
         }
@@ -126,7 +126,7 @@ public class MembershipView<ID extends MemberIdentifier> {
 
 
   public ID getCoordinator() {
-    for (ID addr : members) {
+    for (var addr : members) {
       if (addr.preferredForCoordinator()) {
         return addr;
       }
@@ -142,12 +142,12 @@ public class MembershipView<ID extends MemberIdentifier> {
   }
 
   public String toString() {
-    ID lead = getLeadMember();
+    var lead = getLeadMember();
 
-    StringBuilder sb = new StringBuilder(200);
+    var sb = new StringBuilder(200);
     sb.append("View[").append(creator).append('|').append(viewId).append("] members: [");
-    boolean first = true;
-    for (ID mbr : members) {
+    var first = true;
+    for (var mbr : members) {
       if (!first) {
         sb.append(", ");
       }
@@ -160,7 +160,7 @@ public class MembershipView<ID extends MemberIdentifier> {
     if (!shutdownMembers.isEmpty()) {
       sb.append("]  shutdown: [");
       first = true;
-      for (ID mbr : shutdownMembers) {
+      for (var mbr : shutdownMembers) {
         if (!first) {
           sb.append(", ");
         }
@@ -171,7 +171,7 @@ public class MembershipView<ID extends MemberIdentifier> {
     if (!crashedMembers.isEmpty()) {
       sb.append("]  crashed: [");
       first = true;
-      for (ID mbr : crashedMembers) {
+      for (var mbr : crashedMembers) {
         if (!first) {
           sb.append(", ");
         }

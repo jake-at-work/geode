@@ -17,14 +17,12 @@ package org.apache.geode.management.internal.configuration.utils;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.geode.distributed.LocatorLauncher;
 import org.apache.geode.distributed.internal.tcpserver.HostAndPort;
 import org.apache.geode.distributed.internal.tcpserver.TcpClient;
 import org.apache.geode.distributed.internal.tcpserver.TcpSocketFactory;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.persistence.PersistentMemberPattern;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.net.SocketCreator;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
@@ -36,20 +34,20 @@ public class ClusterConfigurationStatusRetriever {
 
   public static String fromLocator(String locatorHostName, int locatorPort, Properties configProps)
       throws ClassNotFoundException, IOException {
-    final StringBuilder buffer = new StringBuilder();
+    final var buffer = new StringBuilder();
 
-    TcpClient client = new TcpClient(
+    var client = new TcpClient(
         new SocketCreator(SSLConfigurationFactory.getSSLConfigForComponent(configProps,
             SecurableCommunicationChannel.LOCATOR)),
         InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
         InternalDataSerializer.getDSFIDSerializer().getObjectDeserializer(),
         TcpSocketFactory.DEFAULT);
-    HostAndPort locatorAddress = new HostAndPort(locatorHostName, locatorPort);
-    SharedConfigurationStatusResponse statusResponse =
+    var locatorAddress = new HostAndPort(locatorHostName, locatorPort);
+    var statusResponse =
         (SharedConfigurationStatusResponse) client.requestToServer(locatorAddress,
             new SharedConfigurationStatusRequest(), 10000, true);
 
-    for (int i = 0; i < NUM_ATTEMPTS_FOR_SHARED_CONFIGURATION_STATUS; i++) {
+    for (var i = 0; i < NUM_ATTEMPTS_FOR_SHARED_CONFIGURATION_STATUS; i++) {
       if (statusResponse.getStatus().equals(
           org.apache.geode.management.internal.configuration.domain.SharedConfigurationStatus.STARTED)
           || statusResponse.getStatus().equals(
@@ -78,13 +76,13 @@ public class ClusterConfigurationStatusRetriever {
       case WAITING:
         buffer.append(
             "\nCluster configuration service is waiting for other locators with newer shared configuration data.");
-        Set<PersistentMemberPattern> pmpSet = statusResponse.getOtherLocatorInformation();
+        var pmpSet = statusResponse.getOtherLocatorInformation();
         if (!pmpSet.isEmpty()) {
           buffer.append("\nThis locator might have stale cluster configuration data.");
           buffer.append(
               "\nFollowing locators contain potentially newer cluster configuration data");
 
-          for (PersistentMemberPattern pmp : pmpSet) {
+          for (var pmp : pmpSet) {
             buffer.append("\nHost : ").append(pmp.getHost());
             buffer.append("\nDirectory : ").append(pmp.getDirectory());
           }

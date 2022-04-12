@@ -42,11 +42,11 @@ public class Student {
     synchronized (Student.class) {
       rollnum = ++counter;
     }
-    int rem = rollnum % names.length;
+    var rem = rollnum % names.length;
     if (rem == 0) {
       rem = 4;
     }
-    for (int j = 0; j < rem; ++j) {
+    for (var j = 0; j < rem; ++j) {
       subjects.add(new Subject(names[j]));
       teachers.add(new Teacher(teacher_names[j]));
     }

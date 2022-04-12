@@ -19,7 +19,6 @@ import static org.apache.geode.test.dunit.LogWriterUtils.getLogWriter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
 import org.junit.Test;
@@ -27,8 +26,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.operations.OperationContext.OperationCode;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.security.generator.AuthzCredentialGenerator;
-import org.apache.geode.security.generator.CredentialGenerator;
 import org.apache.geode.test.junit.categories.SecurityTest;
 
 /**
@@ -42,30 +39,30 @@ public class ClientPostAuthorizationDUnitTest extends ClientAuthorizationTestCas
 
   @Test
   public void testAllPostOps() throws Exception {
-    OperationWithAction[] allOps = allOpsForTestAllPostOps();
+    var allOps = allOpsForTestAllPostOps();
 
-    for (AuthzCredentialGenerator gen : getDummyGeneratorCombos()) {
-      CredentialGenerator cGen = gen.getCredentialGenerator();
-      Properties extraAuthProps = cGen.getSystemProperties();
-      Properties javaProps = cGen.getJavaProperties();
-      Properties extraAuthzProps = gen.getSystemProperties();
-      String authenticator = cGen.getAuthenticator();
-      String authInit = cGen.getAuthInit();
-      String accessor = gen.getAuthorizationCallback();
-      TestAuthzCredentialGenerator tgen = new TestAuthzCredentialGenerator(gen);
+    for (var gen : getDummyGeneratorCombos()) {
+      var cGen = gen.getCredentialGenerator();
+      var extraAuthProps = cGen.getSystemProperties();
+      var javaProps = cGen.getJavaProperties();
+      var extraAuthzProps = gen.getSystemProperties();
+      var authenticator = cGen.getAuthenticator();
+      var authInit = cGen.getAuthInit();
+      var accessor = gen.getAuthorizationCallback();
+      var tgen = new TestAuthzCredentialGenerator(gen);
 
       getLogWriter().info("testAllPostOps: Using authinit: " + authInit);
       getLogWriter().info("testAllPostOps: Using authenticator: " + authenticator);
       getLogWriter().info("testAllPostOps: Using accessor: " + accessor);
 
       // Start servers with all required properties
-      Properties serverProps =
+      var serverProps =
           buildProperties(authenticator, accessor, true, extraAuthProps, extraAuthzProps);
 
       // Get ports for the servers
-      int[] randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-      int port1 = randomAvailableTCPPorts[0];
-      int port2 = randomAvailableTCPPorts[1];
+      var randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+      var port1 = randomAvailableTCPPorts[0];
+      var port2 = randomAvailableTCPPorts[1];
 
       // Close down any running servers
       server1.invoke(() -> closeCache());
@@ -73,11 +70,11 @@ public class ClientPostAuthorizationDUnitTest extends ClientAuthorizationTestCas
 
       // Perform all the ops on the clients
       List<OperationWithAction> opBlock = new ArrayList<>();
-      Random rnd = new Random();
+      var rnd = new Random();
 
-      for (int opNum = 0; opNum < allOps.length; ++opNum) {
+      for (var opNum = 0; opNum < allOps.length; ++opNum) {
         // Start client with valid credentials as specified in OperationWithAction
-        OperationWithAction currentOp = allOps[opNum];
+        var currentOp = allOps[opNum];
         if (currentOp.equals(OperationWithAction.OPBLOCK_END)
             || currentOp.equals(OperationWithAction.OPBLOCK_NO_FAILOVER)) {
           // End of current operation block; execute all the operations on the servers with failover
@@ -109,41 +106,41 @@ public class ClientPostAuthorizationDUnitTest extends ClientAuthorizationTestCas
 
   @Test
   public void testAllOpsNotifications() throws Exception {
-    OperationWithAction[] allOps = allOpsForTestAllOpsNotifications();
+    var allOps = allOpsForTestAllOpsNotifications();
 
-    AuthzCredentialGenerator authzGenerator = getXmlAuthzGenerator();
+    var authzGenerator = getXmlAuthzGenerator();
 
     getLogWriter().info("Executing opblocks with credential generator " + authzGenerator);
 
-    CredentialGenerator credentialGenerator = authzGenerator.getCredentialGenerator();
-    Properties extraAuthProps = credentialGenerator.getSystemProperties();
-    Properties javaProps = credentialGenerator.getJavaProperties();
-    Properties extraAuthzProps = authzGenerator.getSystemProperties();
-    String authenticator = credentialGenerator.getAuthenticator();
-    String authInit = credentialGenerator.getAuthInit();
-    String accessor = authzGenerator.getAuthorizationCallback();
-    TestAuthzCredentialGenerator tgen = new TestAuthzCredentialGenerator(authzGenerator);
+    var credentialGenerator = authzGenerator.getCredentialGenerator();
+    var extraAuthProps = credentialGenerator.getSystemProperties();
+    var javaProps = credentialGenerator.getJavaProperties();
+    var extraAuthzProps = authzGenerator.getSystemProperties();
+    var authenticator = credentialGenerator.getAuthenticator();
+    var authInit = credentialGenerator.getAuthInit();
+    var accessor = authzGenerator.getAuthorizationCallback();
+    var tgen = new TestAuthzCredentialGenerator(authzGenerator);
 
     getLogWriter().info("testAllOpsNotifications: Using authinit: " + authInit);
     getLogWriter().info("testAllOpsNotifications: Using authenticator: " + authenticator);
     getLogWriter().info("testAllOpsNotifications: Using accessor: " + accessor);
 
     // Start servers with all required properties
-    Properties serverProps =
+    var serverProps =
         buildProperties(authenticator, accessor, true, extraAuthProps, extraAuthzProps);
 
     // Get ports for the servers
-    int[] randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int port1 = randomAvailableTCPPorts[0];
-    int port2 = randomAvailableTCPPorts[1];
+    var randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var port1 = randomAvailableTCPPorts[0];
+    var port2 = randomAvailableTCPPorts[1];
 
     // Perform all the ops on the clients
     List opBlock = new ArrayList();
-    Random rnd = new Random();
+    var rnd = new Random();
 
-    for (int opNum = 0; opNum < allOps.length; ++opNum) {
+    for (var opNum = 0; opNum < allOps.length; ++opNum) {
       // Start client with valid credentials as specified in OperationWithAction
-      OperationWithAction currentOp = allOps[opNum];
+      var currentOp = allOps[opNum];
       if (currentOp.equals(OperationWithAction.OPBLOCK_END)
           || currentOp.equals(OperationWithAction.OPBLOCK_NO_FAILOVER)) {
         // End of current operation block; execute all the operations on the servers with failover

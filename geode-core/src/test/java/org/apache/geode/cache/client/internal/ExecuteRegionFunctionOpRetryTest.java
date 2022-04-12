@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.stubbing.OngoingStubbing;
 
 import org.apache.geode.cache.client.NoAvailableServersException;
 import org.apache.geode.cache.client.ServerConnectivityException;
@@ -278,7 +277,7 @@ public class ExecuteRegionFunctionOpRetryTest {
            *
            * keep trying up to retry attempt limit
            */
-          final OngoingStubbing<Object> when = when(pool
+          final var when = when(pool
               .execute(ArgumentMatchers.<AbstractOp>any(), ArgumentMatchers.anyInt()));
           switch (failureMode) {
             case NO_FAILURE:

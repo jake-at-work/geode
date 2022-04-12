@@ -27,7 +27,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.cache.snapshot.SnapshotOptions;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
@@ -60,13 +59,13 @@ public class ClientExporter<K, V> implements Exporter<K, V> {
   public long export(Region<K, V> region, ExportSink sink, SnapshotOptions<K, V> options)
       throws IOException {
     try {
-      ClientArgs<K, V> args =
-          new ClientArgs<>(region.getFullPath(), pool.getPRSingleHopEnabled(), options);
-      ClientExportCollector results = new ClientExportCollector(sink);
+      var args =
+          new ClientArgs<K, V>(region.getFullPath(), pool.getPRSingleHopEnabled(), options);
+      var results = new ClientExportCollector(sink);
 
       // For single hop we rely on tcp queuing to throttle the export; otherwise
       // we allow the WindowedExporter to provide back pressure.
-      Execution exec = pool.getPRSingleHopEnabled() ? FunctionService.onRegion(region)
+      var exec = pool.getPRSingleHopEnabled() ? FunctionService.onRegion(region)
           : FunctionService.onServer(pool);
 
       ResultCollector<?, ?> rc =
@@ -129,17 +128,17 @@ public class ClientExporter<K, V> implements Exporter<K, V> {
 
     @Override
     public void execute(FunctionContext context) {
-      ClientArgs<K, V> args = (ClientArgs<K, V>) context.getArguments();
-      ResultSender rs = context.getResultSender();
+      var args = (ClientArgs<K, V>) context.getArguments();
+      var rs = context.getResultSender();
       ExportSink sink = new ResultSenderSink(rs);
 
       Region<K, V> region = context.getCache().getRegion(args.getRegion());
-      InternalCache cache = (InternalCache) context.getCache();
+      var cache = (InternalCache) context.getCache();
       Exporter<K, V> exp = args.isPRSingleHop() ? new LocalExporter<>()
           : RegionSnapshotServiceImpl.createExporter(cache, region, args.options);
 
       try {
-        long count = exp.export(region, sink, args.getOptions());
+        var count = exp.export(region, sink, args.getOptions());
         rs.lastResult(count);
 
       } catch (IOException e) {

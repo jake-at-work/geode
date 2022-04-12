@@ -18,7 +18,6 @@ import static org.apache.geode.cache.lucene.test.LuceneTestUtilities.INDEX_NAME;
 import static org.apache.geode.cache.lucene.test.LuceneTestUtilities.REGION_NAME;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import junitparams.Parameters;
@@ -30,11 +29,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.control.RebalanceResults;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.lucene.internal.LuceneIndexFactoryImpl;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.partition.PartitionMemberInfo;
@@ -96,7 +91,7 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
   protected SerializableRunnable createIndex = new SerializableRunnable("createIndex") {
     @Override
     public void run() {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       ((LuceneIndexFactoryImpl) luceneService.createIndexFactory()).addField("text")
           .create(INDEX_NAME, REGION_NAME, LuceneServiceImpl.LUCENE_REINDEX);
     }
@@ -108,11 +103,11 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
       Cache cache = getCache();
       cache.getRegion(REGION_NAME);
 
-      ResourceManager resMan = cache.getResourceManager();
-      RebalanceFactory factory = resMan.createRebalanceFactory();
+      var resMan = cache.getResourceManager();
+      var factory = resMan.createRebalanceFactory();
       logger.info("Starting rebalance");
       RebalanceResults rebalanceResults = null;
-      RebalanceOperation rebalanceOp = factory.start();
+      var rebalanceOp = factory.start();
       rebalanceResults = rebalanceOp.getResults();
       await().until(rebalanceOp::isDone);
       logger.info("Rebalance completed: "
@@ -189,7 +184,7 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
   protected void putEntryInEachBucket(int numBuckets) {
     dataStore3.invoke(() -> {
       final Cache cache = getCache();
-      Region<Object, Object> region = cache.getRegion(REGION_NAME);
+      var region = cache.getRegion(REGION_NAME);
       IntStream.range(0, numBuckets).forEach(i -> region.put(i, new TestObject("hello world")));
     });
   }
@@ -198,7 +193,7 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
     if (results == null) {
       return "null";
     }
-    StringBuilder aStr = new StringBuilder();
+    var aStr = new StringBuilder();
     aStr.append("Rebalance results (" + title + ") totalTime: "
         + valueToString(results.getTotalTime()) + "\n");
 
@@ -224,13 +219,13 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
         + "\n");
 
     // PartitionRebalanceDetails (per region)
-    Set<PartitionRebalanceInfo> prdSet = results.getPartitionRebalanceDetails();
-    for (PartitionRebalanceInfo prd : prdSet) {
+    var prdSet = results.getPartitionRebalanceDetails();
+    for (var prd : prdSet) {
       aStr.append(partitionRebalanceDetailsToString(prd));
     }
     aStr.append("total time (ms): " + valueToString(results.getTotalTime()));
 
-    String returnStr = aStr.toString();
+    var returnStr = aStr.toString();
     return returnStr;
   }
 
@@ -239,7 +234,7 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
       return "null\n";
     }
 
-    StringBuilder aStr = new StringBuilder();
+    var aStr = new StringBuilder();
     aStr.append("PartitionedRegionDetails for region named " + getRegionName(details) + " time: "
         + valueToString(details.getTime()) + "\n");
 
@@ -261,15 +256,15 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
 
     // PartitionMemberDetails (before)
     aStr.append("PartitionedMemberDetails (before)\n");
-    Set<PartitionMemberInfo> pmdSet = details.getPartitionMemberDetailsBefore();
-    for (PartitionMemberInfo pmd : pmdSet) {
+    var pmdSet = details.getPartitionMemberDetailsBefore();
+    for (var pmd : pmdSet) {
       aStr.append(partitionMemberDetailsToString(pmd));
     }
 
     // PartitionMemberDetails (after)
     aStr.append("PartitionedMemberDetails (after)\n");
     pmdSet = details.getPartitionMemberDetailsAfter();
-    for (PartitionMemberInfo pmd : pmdSet) {
+    for (var pmd : pmdSet) {
       aStr.append(partitionMemberDetailsToString(pmd));
     }
 
@@ -282,7 +277,7 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
       return "null\n";
     }
 
-    StringBuilder aStr = new StringBuilder();
+    var aStr = new StringBuilder();
 
     aStr.append("PartitionedRegionDetails for region named " + getRegionName(prd) + "\n");
     aStr.append("  configuredBucketCount: " + valueToString(prd.getConfiguredBucketCount()) + "\n");
@@ -294,27 +289,27 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
     aStr.append("  actualRedundantCopies: " + valueToString(prd.getActualRedundantCopies()) + "\n");
 
     // memberDetails
-    Set<PartitionMemberInfo> pmd = prd.getPartitionMemberInfo();
-    for (PartitionMemberInfo memberDetails : pmd) {
+    var pmd = prd.getPartitionMemberInfo();
+    for (var memberDetails : pmd) {
       aStr.append(partitionMemberDetailsToString(memberDetails));
     }
 
     // colocatedWithDetails
-    String colocatedWith = prd.getColocatedWith();
+    var colocatedWith = prd.getColocatedWith();
     aStr.append("  colocatedWith: " + colocatedWith + "\n");
 
-    String returnStr = aStr.toString();
+    var returnStr = aStr.toString();
     return returnStr;
   }
 
   private static String partitionMemberDetailsToString(PartitionMemberInfo pmd) {
-    StringBuilder aStr = new StringBuilder();
-    long localMaxMemory = pmd.getConfiguredMaxMemory();
-    long size = pmd.getSize();
+    var aStr = new StringBuilder();
+    var localMaxMemory = pmd.getConfiguredMaxMemory();
+    var size = pmd.getSize();
     aStr.append("    Member Details for: " + pmd.getDistributedMember() + "\n");
     aStr.append("      configuredMaxMemory: " + valueToString(localMaxMemory));
-    double inUse = (double) size / localMaxMemory;
-    double heapUtilization = inUse * 100;
+    var inUse = (double) size / localMaxMemory;
+    var heapUtilization = inUse * 100;
     aStr.append(" size: " + size + " (" + valueToString(heapUtilization) + "%)");
     aStr.append(" bucketCount: " + valueToString(pmd.getBucketCount()));
     aStr.append(" primaryCount: " + valueToString(pmd.getPrimaryCount()) + "\n");
@@ -325,7 +320,7 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
    * Convert the given long to a String; if it is negative then flag it in the string
    */
   private static String valueToString(long value) {
-    String returnStr = "" + value;
+    var returnStr = "" + value;
     return returnStr;
   }
 
@@ -333,7 +328,7 @@ public class RebalanceWithRedundancyWithRegionCreatedBeforeReindexDUnitTest
    * Convert the given double to a String; if it is negative then flag it in the string
    */
   private static String valueToString(double value) {
-    String returnStr = "" + value;
+    var returnStr = "" + value;
     return returnStr;
   }
 

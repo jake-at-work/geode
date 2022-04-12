@@ -17,7 +17,6 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -34,7 +33,6 @@ import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.compiler.ClassBuilder;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
@@ -64,15 +62,15 @@ public class ClusterConfigurationDUnitTest {
   // TODO mark GEODE-1606 resolved after
   @Test
   public void testStartServerAndExecuteCommands() throws Exception {
-    MemberVM locator = startupRule.startLocatorVM(0, MemberStarterRule::withHttpService);
+    var locator = startupRule.startLocatorVM(0, MemberStarterRule::withHttpService);
     if (connectOverHttp) {
       gfsh.connectAndVerify(locator.getHttpPort(), GfshCommandRule.PortType.http);
     } else {
       gfsh.connectAndVerify(locator);
     }
 
-    MemberVM server1 = startupRule.startServerVM(1, locator.getPort());
-    MemberVM server2 = startupRule.startServerVM(2, locator.getPort());
+    var server1 = startupRule.startServerVM(1, locator.getPort());
+    var server2 = startupRule.startServerVM(2, locator.getPort());
 
     // create regions, index and asyncEventQueue
     gfsh.executeAndAssertThat("create region --name=R1 --type=REPLICATE").statusIsSuccess();
@@ -81,7 +79,7 @@ public class ClusterConfigurationDUnitTest {
         .statusIsSuccess();
     createAsyncEventQueue("Q1");
 
-    MemberVM server3 = startupRule.startServerVM(3, locator.getPort());
+    var server3 = startupRule.startServerVM(3, locator.getPort());
 
     gfsh.executeAndAssertThat("describe region --name=R1").statusIsSuccess();
     verifyContainsAllServerNames(gfsh.getGfshOutput(), server1.getName(), server2.getName(),
@@ -101,16 +99,16 @@ public class ClusterConfigurationDUnitTest {
   }
 
   private void verifyContainsAllServerNames(String result, String... serverNames) {
-    for (String serverName : serverNames) {
+    for (var serverName : serverNames) {
       assertTrue(result.contains(serverName));
     }
   }
 
   private void createAsyncEventQueue(final String queueName) throws Exception {
-    String queueCommandsJarName = "testEndToEndSC-QueueCommands.jar";
-    final File jarFile = temporaryFolder.newFile(queueCommandsJarName);
-    ClassBuilder classBuilder = new ClassBuilder();
-    byte[] jarBytes =
+    var queueCommandsJarName = "testEndToEndSC-QueueCommands.jar";
+    final var jarFile = temporaryFolder.newFile(queueCommandsJarName);
+    var classBuilder = new ClassBuilder();
+    var jarBytes =
         classBuilder.createJarFromClassContent("com/qcdunit/QueueCommandsDUnitTestListener",
             "package com.qcdunit;" + "import java.util.List; import java.util.Properties;"
                 + "import org.apache.geode.internal.cache.xmlcache.Declarable2; import org.apache.geode.cache.asyncqueue.AsyncEvent;"
@@ -123,7 +121,7 @@ public class ClusterConfigurationDUnitTest {
                 + "public Properties getConfig() {return this.props;}}");
 
     FileUtils.writeByteArrayToFile(jarFile, jarBytes);
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DEPLOY);
+    var csb = new CommandStringBuilder(CliStrings.DEPLOY);
     csb.addOption(CliStrings.JAR, jarFile.getAbsolutePath());
     gfsh.executeAndAssertThat(csb.getCommandString()).statusIsSuccess();
 

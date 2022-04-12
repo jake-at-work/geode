@@ -44,7 +44,7 @@ public class URLArgumentHandler implements ArgumentHandler {
   @Override
   public void handleArgument(final Argument arg, final String form, final String[] parameters)
       throws UsageException {
-    final File file = new File(parameters[0]);
+    final var file = new File(parameters[0]);
     URL result = null;
 
     if (file.exists()) {

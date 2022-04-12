@@ -22,7 +22,6 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.getTimeout;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -33,7 +32,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -107,7 +105,7 @@ public class RestRegionAPIIntegrationTest {
     region.put("customer1", new Customer(1L, "jon", "doe", "123-456-789"));
     region.put("customer2", new Customer(2L, "jane", "doe", "123-456-999"));
 
-    JsonNode jsonObject = restClient.doGetAndAssert("/regionA")
+    var jsonObject = restClient.doGetAndAssert("/regionA")
         .statusIsOk()
         .getJsonObject();
 
@@ -119,7 +117,7 @@ public class RestRegionAPIIntegrationTest {
     Region<String, Customer> region = getRegionA();
     region.put("customer1", new Customer(1L, "jon", "doe", "123-456-789"));
 
-    JsonNode jsonObject = restClient.doGetAndAssert("/regionA/customer1")
+    var jsonObject = restClient.doGetAndAssert("/regionA/customer1")
         .statusIsOk()
         .getJsonObject();
 
@@ -129,7 +127,7 @@ public class RestRegionAPIIntegrationTest {
 
   @Test
   public void putIntoRegionA() {
-    for (int key = 0; key < JSON_DOCUMENTS.size(); key++) {
+    for (var key = 0; key < JSON_DOCUMENTS.size(); key++) {
       restClient.doPutAndAssert("/regionA/" + key, JSON_DOCUMENTS.get(key)).statusIsOk();
     }
 
@@ -138,7 +136,7 @@ public class RestRegionAPIIntegrationTest {
 
   @Test
   public void postIntoRegionA() {
-    for (int key = 0; key < JSON_DOCUMENTS.size(); key++) {
+    for (var key = 0; key < JSON_DOCUMENTS.size(); key++) {
       restClient.doPostAndAssert("/regionA?key=" + key, JSON_DOCUMENTS.get(key)).statusIsOk();
     }
 
@@ -273,7 +271,7 @@ public class RestRegionAPIIntegrationTest {
     region.put("customer1", new Customer(1L, "jon", "doe", "123-456-789"));
     region.put("customer2", new Customer(2L, "jane", "doe", "123-456-999"));
 
-    JsonNode jsonObject = restClient.doGetAndAssert("/regionA/keys")
+    var jsonObject = restClient.doGetAndAssert("/regionA/keys")
         .statusIsOk()
         .getJsonObject();
 
@@ -286,7 +284,7 @@ public class RestRegionAPIIntegrationTest {
     restClient.doPutAndAssert("/regionA/2", DOCUMENT2).statusIsOk();
     restClient.doPutAndAssert("/regionA/3", DOCUMENT3).statusIsOk();
 
-    String urlPrefix =
+    var urlPrefix =
         "/queries/adhoc?q=" + URLEncoder.encode(
             "SELECT book.displayprice FROM " + SEPARATOR +
                 "regionA e, e.store.book book WHERE book.displayprice > 5",
@@ -307,8 +305,8 @@ public class RestRegionAPIIntegrationTest {
     restClient.doPutAndAssert("/regionA/3", DOCUMENT3).statusIsOk();
 
     // create 5 prepared statements
-    for (int i = 0; i < 5; i++) {
-      String urlPrefix = "/queries/?id=" + "Query" + i + "&q=" + URLEncoder.encode(
+    for (var i = 0; i < 5; i++) {
+      var urlPrefix = "/queries/?id=" + "Query" + i + "&q=" + URLEncoder.encode(
           "SELECT book.displayprice FROM " + SEPARATOR
               + "regionA e, e.store.book book  WHERE book.displayprice > $1",
           "UTF-8");
@@ -316,14 +314,14 @@ public class RestRegionAPIIntegrationTest {
     }
 
     // get the list of defined queries and verify the size of them
-    JsonNode jsonObject = restClient.doGetAndAssert("/queries")
+    var jsonObject = restClient.doGetAndAssert("/queries")
         .statusIsOk()
         .getJsonObject();
 
     assertThat(jsonObject.get("queries")).hasSize(5);
 
     // execute each defined queries
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       restClient.doPostAndAssert("/queries/Query" + i, "[{\"@type\":\"double\",\"@value\":8.99}]")
           .statusIsOk()
           .hasJsonArrayOfDoubles()
@@ -335,11 +333,11 @@ public class RestRegionAPIIntegrationTest {
   @Test
   public void concurrentRequests()
       throws ExecutionException, InterruptedException, TimeoutException {
-    int entryCount = 20;
+    var entryCount = 20;
     Collection<Future<Void>> futures = new ArrayList<>();
 
     futures.add(pool.submit(() -> {
-      for (int i = 0; i < entryCount; i++) {
+      for (var i = 0; i < entryCount; i++) {
         restClient.doPostAndAssert("/regionA?key=customer" + i,
             "{\"customerId\":" + i
                 + ",\"firstName\":\"jon\",\"lastName\":\"doe\",\"socialSecurityNumber\":\"123-456-789\"}")
@@ -348,7 +346,7 @@ public class RestRegionAPIIntegrationTest {
     }));
 
     futures.add(pool.submit(() -> {
-      for (int i = 0; i < entryCount; i++) {
+      for (var i = 0; i < entryCount; i++) {
         restClient.doPutAndAssert("/regionA/customer" + i,
             "{\"customerId\":" + i
                 + ",\"firstName\":\"jon\",\"lastName\":\"doe\",\"socialSecurityNumber\":\"123-456-789\"}")
@@ -359,7 +357,7 @@ public class RestRegionAPIIntegrationTest {
     }));
 
     futures.add(pool.submit(() -> {
-      for (int i = 0; i < entryCount; i++) {
+      for (var i = 0; i < entryCount; i++) {
         restClient.doPutAndAssert("/regionA/customer" + i + "?op=REPLACE",
             "{\"customerId\":" + i
                 + ",\"firstName\":\"jon\",\"lastName\":\"doe\",\"socialSecurityNumber\":\"123-456-789\"}")
@@ -368,34 +366,34 @@ public class RestRegionAPIIntegrationTest {
     }));
 
     futures.add(pool.submit(() -> {
-      for (int i = 0; i < entryCount; i++) {
+      for (var i = 0; i < entryCount; i++) {
         restClient.doGetAndAssert("/regionA/customer" + i)
             .hasStatusCode(HttpStatus.SC_OK, HttpStatus.SC_NOT_FOUND);
       }
     }));
 
     futures.add(pool.submit(() -> {
-      for (int i = 0; i < entryCount; i++) {
+      for (var i = 0; i < entryCount; i++) {
         restClient.doDeleteAndAssert("/regionA/customer" + i)
             .hasStatusCode(HttpStatus.SC_OK, HttpStatus.SC_NOT_FOUND);
       }
     }));
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get(getTimeout().toMinutes(), MINUTES);
     }
   }
 
   private static void initJsonDocuments() throws URISyntaxException, IOException {
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    URI uri = classLoader.getResource("sampleJson.json").toURI();
+    var classLoader = Thread.currentThread().getContextClassLoader();
+    var uri = classLoader.getResource("sampleJson.json").toURI();
 
-    String rawJson = IOUtils.toString(uri, Charset.defaultCharset());
+    var rawJson = IOUtils.toString(uri, Charset.defaultCharset());
 
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode json = mapper.readTree(rawJson);
+    var mapper = new ObjectMapper();
+    var json = mapper.readTree(rawJson);
 
-    for (int i = 0; i < json.size(); i++) {
+    for (var i = 0; i < json.size(); i++) {
       JSON_DOCUMENTS.add(json.get(i).toString());
     }
   }

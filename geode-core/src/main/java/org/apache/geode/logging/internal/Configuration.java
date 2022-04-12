@@ -19,7 +19,6 @@ import static org.apache.geode.logging.internal.spi.LogLevelUpdateScope.GEODE_LO
 
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.internal.lang.SystemProperty;
-import org.apache.geode.logging.internal.spi.LogConfig;
 import org.apache.geode.logging.internal.spi.LogConfigListener;
 import org.apache.geode.logging.internal.spi.LogConfigSupplier;
 import org.apache.geode.logging.internal.spi.LogLevelUpdateOccurs;
@@ -138,7 +137,7 @@ public class Configuration implements LogConfigListener {
       throw new IllegalStateException("LogConfigSupplier must not be null");
     }
 
-    LogConfig logConfig = logConfigSupplier.getLogConfig();
+    var logConfig = logConfigSupplier.getLogConfig();
 
     loggingProvider.configure(logConfig, logLevelUpdateOccurs, logLevelUpdateScope);
   }
@@ -161,14 +160,14 @@ public class Configuration implements LogConfigListener {
   }
 
   void enableLoggingToStandardOutput() {
-    LogConfig logConfig = logConfigSupplier.getLogConfig();
+    var logConfig = logConfigSupplier.getLogConfig();
     if (logConfig.getLogFile().exists()) {
       loggingProvider.enableLoggingToStandardOutput();
     }
   }
 
   void disableLoggingToStandardOutputIfLoggingToFile() {
-    LogConfig logConfig = logConfigSupplier.getLogConfig();
+    var logConfig = logConfigSupplier.getLogConfig();
     if (logConfig.getLogFile().exists()) {
       loggingProvider.disableLoggingToStandardOutput();
     }

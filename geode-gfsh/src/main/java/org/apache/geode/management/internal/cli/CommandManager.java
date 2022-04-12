@@ -16,7 +16,6 @@ package org.apache.geode.management.internal.cli;
 
 import static org.apache.geode.distributed.ConfigurationProperties.USER_COMMAND_PACKAGES;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -121,13 +120,13 @@ public class CommandManager {
     }
 
     // Find by packages specified in the distribution config
-    String cacheUserCmdPackages =
+    var cacheUserCmdPackages =
         cacheProperties.getProperty(ConfigurationProperties.USER_COMMAND_PACKAGES, "");
     if (!cacheUserCmdPackages.isEmpty()) {
       userCommandSources.add(cacheUserCmdPackages);
     }
 
-    for (String source : userCommandSources) {
+    for (var source : userCommandSources) {
       userCommandPackages.addAll(Arrays.asList(source.split(",")));
     }
 
@@ -135,17 +134,17 @@ public class CommandManager {
   }
 
   private void loadUserDefinedCommands() {
-    String[] userCommandPackages = getUserCommandPackages().toArray(new String[] {});
+    var userCommandPackages = getUserCommandPackages().toArray(new String[] {});
 
     if (userCommandPackages.length == 0) {
       return;
     }
 
     // Load commands found in all of the packages
-    try (ClasspathScanLoadHelper scanner = new ClasspathScanLoadHelper(userCommandPackages)) {
-      Set<Class<?>> foundClasses =
+    try (var scanner = new ClasspathScanLoadHelper(userCommandPackages)) {
+      var foundClasses =
           scanner.scanPackagesForClassesImplementing(CommandMarker.class, userCommandPackages);
-      for (Class<?> klass : foundClasses) {
+      for (var klass : foundClasses) {
         try {
           add((CommandMarker) klass.newInstance());
         } catch (Exception e) {
@@ -166,11 +165,11 @@ public class CommandManager {
    * @since GemFire 8.1
    */
   private void loadGeodeCommands() {
-    ServiceLoader<CommandMarker> commandMarkers =
+    var commandMarkers =
         ServiceLoader.load(CommandMarker.class, ClassPathLoader.getLatest().asClassLoader());
 
-    boolean loadedAtLeastOneCommand = false;
-    for (CommandMarker commandMarker : commandMarkers) {
+    var loadedAtLeastOneCommand = false;
+    for (var commandMarker : commandMarkers) {
       add(commandMarker);
       loadedAtLeastOneCommand = true;
     }
@@ -191,11 +190,11 @@ public class CommandManager {
   }
 
   private void loadSpringDefinedConverters() {
-    try (ClasspathScanLoadHelper scanner = new ClasspathScanLoadHelper(SPRING_CONVERTER_PACKAGE)) {
+    try (var scanner = new ClasspathScanLoadHelper(SPRING_CONVERTER_PACKAGE)) {
       // Spring shell's converters
-      Set<Class<?>> foundClasses =
+      var foundClasses =
           scanner.scanPackagesForClassesImplementing(Converter.class, SPRING_CONVERTER_PACKAGE);
-      for (Class<?> klass : foundClasses) {
+      for (var klass : foundClasses) {
         if (!SPRING_CONVERTERS_TO_SKIP.contains(klass)) {
           try {
             add((Converter<?>) klass.newInstance());
@@ -213,10 +212,10 @@ public class CommandManager {
   }
 
   private void loadGeodeDefinedConverters() {
-    ServiceLoader<Converter> converters =
+    var converters =
         ServiceLoader.load(Converter.class, ClassPathLoader.getLatestAsClassLoader());
 
-    boolean loadedAtLeastOneConverter = false;
+    var loadedAtLeastOneConverter = false;
     for (Converter<?> converter : converters) {
       add(converter);
       loadedAtLeastOneConverter = true;
@@ -249,7 +248,7 @@ public class CommandManager {
    * Method to add new Commands to the parser
    */
   void add(CommandMarker commandMarker) {
-    Disabled classDisabled = commandMarker.getClass().getAnnotation(Disabled.class);
+    var classDisabled = commandMarker.getClass().getAnnotation(Disabled.class);
     if (classDisabled != null && (classDisabled.unlessPropertyIsSet().isEmpty()
         || System.getProperty(classDisabled.unlessPropertyIsSet()) == null)) {
       return;
@@ -265,9 +264,9 @@ public class CommandManager {
       ((CommandManagerAware) commandMarker).setCommandManager(this);
     }
     commandMarkers.add(commandMarker);
-    for (Method method : commandMarker.getClass().getMethods()) {
-      CliCommand cliCommand = method.getAnnotation(CliCommand.class);
-      CliAvailabilityIndicator availability = method.getAnnotation(CliAvailabilityIndicator.class);
+    for (var method : commandMarker.getClass().getMethods()) {
+      var cliCommand = method.getAnnotation(CliCommand.class);
+      var availability = method.getAnnotation(CliAvailabilityIndicator.class);
       if (cliCommand == null && availability == null) {
         continue;
       }
@@ -287,8 +286,8 @@ public class CommandManager {
   }
 
   public String obtainHelp(String buffer) {
-    int terminalWidth = -1;
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var terminalWidth = -1;
+    var gfsh = Gfsh.getCurrentInstance();
     if (gfsh != null) {
       terminalWidth = gfsh.getTerminalWidth();
     }

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
@@ -64,15 +63,15 @@ public class MicrometerBinderTest {
   public void startServer() throws IOException {
     serverFolder = temporaryFolder.getRoot().toPath().toAbsolutePath();
 
-    int[] ports = getRandomAvailableTCPPorts(2);
+    var ports = getRandomAvailableTCPPorts(2);
 
-    int serverPort = ports[0];
-    int jmxRmiPort = ports[1];
+    var serverPort = ports[0];
+    var jmxRmiPort = ports[1];
 
-    Path serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
+    var serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
         MetricsPublishingService.class, SimpleMetricsPublishingService.class);
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=server",
         "--dir=" + serverFolder,
@@ -86,11 +85,11 @@ public class MicrometerBinderTest {
 
     gfshRule.execute(startServerCommand, "sleep --time=1");
 
-    Path functionJarPath = serverFolder.resolve("function.jar").toAbsolutePath();
+    var functionJarPath = serverFolder.resolve("function.jar").toAbsolutePath();
     writeJarFromClasses(functionJarPath.toFile(), CheckIfMeterExistsFunction.class);
 
-    String connectCommand = "connect --jmx-manager=localhost[" + jmxRmiPort + "]";
-    String deployCommand = "deploy --jar=" + functionJarPath.toAbsolutePath();
+    var connectCommand = "connect --jmx-manager=localhost[" + jmxRmiPort + "]";
+    var deployCommand = "deploy --jar=" + functionJarPath.toAbsolutePath();
 
     gfshRule.execute(connectCommand, deployCommand);
 
@@ -101,7 +100,7 @@ public class MicrometerBinderTest {
         .create("server-pool");
 
     @SuppressWarnings("unchecked")
-    Execution<String, Boolean, List<Boolean>> functionExecution =
+    var functionExecution =
         (Execution<String, Boolean, List<Boolean>>) FunctionService.onServer(serverPool);
     this.functionExecution = functionExecution;
   }
@@ -111,15 +110,15 @@ public class MicrometerBinderTest {
     clientCache.close();
     serverPool.destroy();
 
-    String stopServerCommand = "stop server --dir=" + serverFolder;
+    var stopServerCommand = "stop server --dir=" + serverFolder;
     gfshRule.execute(stopServerCommand);
   }
 
   @Test
   public void jvmMemoryMetricsBinderExists() {
-    String meterNameToCheck = "jvm.memory.used";
+    var meterNameToCheck = "jvm.memory.used";
 
-    List<Boolean> results = functionExecution
+    var results = functionExecution
         .setArguments(meterNameToCheck)
         .execute(CheckIfMeterExistsFunction.ID)
         .getResult();
@@ -131,9 +130,9 @@ public class MicrometerBinderTest {
 
   @Test
   public void jvmThreadMetricsBinderExists() {
-    String meterNameToCheck = "jvm.threads.peak";
+    var meterNameToCheck = "jvm.threads.peak";
 
-    List<Boolean> results = functionExecution
+    var results = functionExecution
         .setArguments(meterNameToCheck)
         .execute(CheckIfMeterExistsFunction.ID)
         .getResult();
@@ -145,9 +144,9 @@ public class MicrometerBinderTest {
 
   @Test
   public void processorMetricsBinderExists() {
-    String meterNameToCheck = "system.cpu.count";
+    var meterNameToCheck = "system.cpu.count";
 
-    List<Boolean> results = functionExecution
+    var results = functionExecution
         .setArguments(meterNameToCheck)
         .execute(CheckIfMeterExistsFunction.ID)
         .getResult();
@@ -159,9 +158,9 @@ public class MicrometerBinderTest {
 
   @Test
   public void uptimeMetricsBinderExists() {
-    String meterNameToCheck = "process.uptime";
+    var meterNameToCheck = "process.uptime";
 
-    List<Boolean> results = functionExecution
+    var results = functionExecution
         .setArguments(meterNameToCheck)
         .execute(CheckIfMeterExistsFunction.ID)
         .getResult();
@@ -176,13 +175,13 @@ public class MicrometerBinderTest {
 
     @Override
     public void execute(FunctionContext<String> context) {
-      String meterName = context.getArguments();
+      var meterName = context.getArguments();
 
-      Meter meter = SimpleMetricsPublishingService.getRegistry()
+      var meter = SimpleMetricsPublishingService.getRegistry()
           .find(meterName)
           .meter();
 
-      boolean isMeterFound = meter != null;
+      var isMeterFound = meter != null;
 
       context.<Boolean>getResultSender().lastResult(isMeterFound);
     }

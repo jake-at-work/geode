@@ -41,12 +41,9 @@ import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.VM;
@@ -75,63 +72,63 @@ public class MultiServerPartitionedRegionQueryDUnitTest implements Serializable 
 
   @Test
   public void cumulativeResultsToDataShouldWriteToTheCorrectStreamNotCauseCorruption() {
-    int numPuts = 10;
+    var numPuts = 10;
     int port = server1.invoke(this::createServerAndRegion);
     server2.invoke((SerializableRunnableIF) this::createServerAndRegion);
 
-    String hostname = server1.getHost().getHostName();
+    var hostname = server1.getHost().getHostName();
     client.invoke(() -> {
-      ClientCacheFactory ccf = new ClientCacheFactory();
+      var ccf = new ClientCacheFactory();
       ccf.addPoolServer(hostname, port);
       clientCacheRule.createClientCache(ccf);
       ClientCache clientCache = clientCacheRule.getClientCache();
       Region region =
           clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
       IntStream.range(0, numPuts).forEach(id -> region.put("key-" + id, new TestObject(id)));
-      ArrayList results = (ArrayList) FunctionService.onRegion(region)
+      var results = (ArrayList) FunctionService.onRegion(region)
           .execute(new QueryWithoutTurningIntoListFunction(regionName,
               "select distinct r.id, r.name from " + SEPARATOR + regionName + " r, " + SEPARATOR
                   + regionName
                   + " t where t.id = r.id"))
           .getResult();
-      SelectResults rs = (SelectResults) results.get(0);
+      var rs = (SelectResults) results.get(0);
       assertThat(rs).size().isEqualTo(numPuts);
     });
   }
 
   @Test
   public void nwayMergeResultsToDataShouldWriteToTheCorrectStreamAndNotCauseCorruption() {
-    int numPuts = 10;
+    var numPuts = 10;
     int port = server1.invoke(this::createServerAndRegion);
     server2.invoke((SerializableRunnableIF) this::createServerAndRegion);
 
-    String hostname = server1.getHost().getHostName();
+    var hostname = server1.getHost().getHostName();
     client.invoke(() -> {
-      ClientCacheFactory ccf = new ClientCacheFactory();
+      var ccf = new ClientCacheFactory();
       ccf.addPoolServer(hostname, port);
       clientCacheRule.createClientCache(ccf);
       ClientCache clientCache = clientCacheRule.getClientCache();
       Region region =
           clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
       IntStream.range(0, numPuts).forEach(id -> region.put("key-" + id, new TestObject(id)));
-      ArrayList results = (ArrayList) FunctionService.onRegion(region)
+      var results = (ArrayList) FunctionService.onRegion(region)
           .execute(new QueryWithoutTurningIntoListFunction(regionName,
               "select distinct r.id, r.name from " + SEPARATOR + regionName + " r, " + SEPARATOR
                   + regionName
                   + " t where t.id = r.id order by r.id"))
           .getResult();
-      SelectResults rs = (SelectResults) results.get(0);
+      var rs = (SelectResults) results.get(0);
       assertThat(rs).size().isEqualTo(numPuts);
     });
   }
 
   private int createServerAndRegion() throws IOException {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DistributionConfig.VALIDATE_SERIALIZABLE_OBJECTS_NAME, "true");
     props.setProperty(DistributionConfig.SERIALIZABLE_OBJECT_FILTER_NAME, "*");
     cacheRule.createCache(new CacheFactory(props).setPdxReadSerialized(true));
     Cache cache = cacheRule.getCache();
-    CacheServer cs = cache.addCacheServer();
+    var cs = cache.addCacheServer();
     cs.setPort(0);
     cs.start();
     cache.createRegionFactory(RegionShortcut.PARTITION).create(regionName);
@@ -171,8 +168,8 @@ public class MultiServerPartitionedRegionQueryDUnitTest implements Serializable 
 
     @Override
     public void execute(FunctionContext context) {
-      QueryService queryService = CacheFactory.getAnyInstance().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = CacheFactory.getAnyInstance().getQueryService();
+      var query = queryService.newQuery(queryString);
       SelectResults results = null;
       try {
         results = (SelectResults) query.execute(context);

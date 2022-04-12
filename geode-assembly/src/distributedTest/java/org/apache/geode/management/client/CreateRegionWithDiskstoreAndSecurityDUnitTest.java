@@ -27,7 +27,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.management.api.ClusterManagementResult;
-import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
@@ -54,7 +53,7 @@ public class CreateRegionWithDiskstoreAndSecurityDUnitTest {
   public void before() throws Exception {
     locator = cluster.startLocatorVM(0,
         c -> c.withHttpService().withSecurityManager(SimpleSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     cluster.startServerVM(1,
         s -> s.withConnectionToLocator(locatorPort)
             .withProperty("groups", "group-1")
@@ -73,12 +72,12 @@ public class CreateRegionWithDiskstoreAndSecurityDUnitTest {
         .statusIsSuccess()
         .doesNotContainOutput("Did not complete waiting");
 
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("REGION1");
     regionConfig.setType(RegionType.REPLICATE_PERSISTENT);
     regionConfig.setDiskStoreName("DISKSTORE");
 
-    ClusterManagementService client =
+    var client =
         new ClusterManagementServiceBuilder()
             .setPort(locator.getHttpPort())
             .setUsername("user")
@@ -96,12 +95,12 @@ public class CreateRegionWithDiskstoreAndSecurityDUnitTest {
         .statusIsSuccess()
         .doesNotContainOutput("Did not complete waiting");
 
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("REGION1");
     regionConfig.setType(RegionType.REPLICATE_PERSISTENT);
     regionConfig.setDiskStoreName("DISKSTORE");
 
-    ClusterManagementService client =
+    var client =
         new ClusterManagementServiceBuilder()
             .setPort(locator.getHttpPort())
             .setUsername("data")
@@ -119,13 +118,13 @@ public class CreateRegionWithDiskstoreAndSecurityDUnitTest {
         .statusIsSuccess()
         .doesNotContainOutput("Did not complete waiting");
 
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("REGION1");
     regionConfig.setType(RegionType.REPLICATE_PERSISTENT);
     regionConfig.setGroup("group-1");
     regionConfig.setDiskStoreName("DISKSTORE");
 
-    ClusterManagementService client =
+    var client =
         new ClusterManagementServiceBuilder()
             .setPort(locator.getHttpPort())
             .setUsername("data,cluster")

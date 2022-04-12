@@ -91,7 +91,7 @@ public class EvictionAttributesData {
   @Override
   public String toString() {
 
-    final StringBuilder buffer = new StringBuilder(128);
+    final var buffer = new StringBuilder(128);
     buffer.append("EvictionAttributesData [");
 
     buffer.append("algorithm=").append(getAlgorithm());

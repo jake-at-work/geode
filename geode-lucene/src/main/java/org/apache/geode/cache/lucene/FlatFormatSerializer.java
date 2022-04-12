@@ -15,7 +15,6 @@
 package org.apache.geode.cache.lucene;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -70,11 +69,11 @@ public class FlatFormatSerializer implements LuceneSerializer {
    */
   @Override
   public Collection<Document> toDocuments(LuceneIndex index, Object value) {
-    String[] fields = index.getFieldNames();
+    var fields = index.getFieldNames();
 
-    Document doc = new Document();
-    for (String indexedFieldName : fields) {
-      List<String> tokenizedFields = tokenizeField(indexedFieldName);
+    var doc = new Document();
+    for (var indexedFieldName : fields) {
+      var tokenizedFields = tokenizeField(indexedFieldName);
       addFieldValue(doc, indexedFieldName, value, tokenizedFields);
     }
 
@@ -85,7 +84,7 @@ public class FlatFormatSerializer implements LuceneSerializer {
   }
 
   private List<String> tokenizeField(String indexedFieldName) {
-    List<String> tokenizedFields =
+    var tokenizedFields =
         JavaWorkarounds.computeIfAbsent(tokenizedFieldCache, indexedFieldName,
             field -> Arrays.asList(indexedFieldName.split("\\.")));
     return tokenizedFields;
@@ -93,22 +92,22 @@ public class FlatFormatSerializer implements LuceneSerializer {
 
   private void addFieldValue(Document doc, String indexedFieldName, Object value,
       List<String> tokenizedFields) {
-    String currentLevelField = tokenizedFields.get(0);
+    var currentLevelField = tokenizedFields.get(0);
 
-    Object fieldValue = getFieldValue(value, currentLevelField);
+    var fieldValue = getFieldValue(value, currentLevelField);
 
     if (fieldValue == null) {
       return;
     }
 
     if (fieldValue.getClass().isArray()) {
-      for (int i = 0; i < Array.getLength(fieldValue); i++) {
-        Object item = Array.get(fieldValue, i);
+      for (var i = 0; i < Array.getLength(fieldValue); i++) {
+        var item = Array.get(fieldValue, i);
         addFieldValueForNonCollectionObject(doc, indexedFieldName, item, tokenizedFields);
       }
     } else if (fieldValue instanceof Collection) {
-      Collection collection = (Collection) fieldValue;
-      for (Object item : collection) {
+      var collection = (Collection) fieldValue;
+      for (var item : collection) {
         addFieldValueForNonCollectionObject(doc, indexedFieldName, item, tokenizedFields);
       }
     } else {
@@ -128,14 +127,14 @@ public class FlatFormatSerializer implements LuceneSerializer {
 
   private Object getFieldValue(Object value, String fieldName) {
     if (value instanceof PdxInstance) {
-      PdxInstance pdx = (PdxInstance) value;
+      var pdx = (PdxInstance) value;
       Object fieldValue = null;
       if (pdx.hasField(fieldName)) {
         fieldValue = pdx.getField(fieldName);
       }
       return fieldValue;
     } else {
-      Class<?> clazz = value.getClass();
+      var clazz = value.getClass();
       if (fieldName.equals(LuceneService.REGION_VALUE_FIELD)
           && SerializerUtil.supportedPrimitiveTypes().contains(clazz)) {
         return value;
@@ -143,7 +142,7 @@ public class FlatFormatSerializer implements LuceneSerializer {
 
       do {
         try {
-          Field field = clazz.getDeclaredField(fieldName);
+          var field = clazz.getDeclaredField(fieldName);
           field.setAccessible(true);
           return field.get(value);
         } catch (Exception e) {

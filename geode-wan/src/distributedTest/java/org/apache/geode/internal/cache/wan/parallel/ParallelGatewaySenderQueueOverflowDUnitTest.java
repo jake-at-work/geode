@@ -21,28 +21,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.wan.GatewayEventFilter;
-import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache30.MyGatewayEventFilter1;
 import org.apache.geode.cache30.MyGatewayTransportFilter1;
 import org.apache.geode.cache30.MyGatewayTransportFilter2;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.WANTestBase;
 import org.apache.geode.test.dunit.IgnoredException;
@@ -60,8 +51,8 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelSenderQueueEventsOverflow_NoDiskStoreSpecified() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -94,7 +85,7 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
     vm3.invoke(
         () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100, isOffHeap()));
 
-    int numEventPuts = 50;
+    var numEventPuts = 50;
     vm4.invoke(() -> WANTestBase.doHeavyPuts(getUniqueName(), numEventPuts));
 
 
@@ -115,11 +106,11 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
           + "," + numOvVm6 + "," + numOvVm7);
       LogWriterUtils.getLogWriter().info(
           "Entries in VM: " + numMemVm4 + "," + numMemVm5 + "," + numMemVm6 + "," + numMemVm7);
-      long totalOverflown = numOvVm4 + numOvVm5 + numOvVm6 + numOvVm7;
+      var totalOverflown = numOvVm4 + numOvVm5 + numOvVm6 + numOvVm7;
       assertTrue("Total number of entries overflown to disk should be at least greater than 55",
           (totalOverflown > 55));
 
-      long totalInMemory = numMemVm4 + numMemVm5 + numMemVm6 + numMemVm7;
+      var totalInMemory = numMemVm4 + numMemVm5 + numMemVm6 + numMemVm7;
       // expected is twice the number of events put due to redundancy level of 1
       assertEquals("Total number of entries on disk and in VM is incorrect", (numEventPuts * 2),
           (totalOverflown + totalInMemory));
@@ -141,8 +132,8 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
   @Ignore("TODO: test is disabled")
   @Test
   public void testParallelSenderQueueEventsOverflow() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -178,7 +169,7 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
     vm3.invoke(
         () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100, isOffHeap()));
 
-    int numEventPuts = 50;
+    var numEventPuts = 50;
     vm4.invoke(() -> WANTestBase.doHeavyPuts(getUniqueName(), numEventPuts));
 
     long numOvVm4 = vm4.invoke(() -> WANTestBase.getNumberOfEntriesOverflownToDisk("ln"));
@@ -196,13 +187,13 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
     LogWriterUtils.getLogWriter()
         .info("Entries in VM: " + numMemVm4 + "," + numMemVm5 + "," + numMemVm6 + "," + numMemVm7);
 
-    long totalOverflown = numOvVm4 + numOvVm5 + numOvVm6 + numOvVm7;
+    var totalOverflown = numOvVm4 + numOvVm5 + numOvVm6 + numOvVm7;
     // considering a memory limit of 40 MB, maximum of 40 events can be in memory. Rest should be on
     // disk.
     assertTrue("Total number of entries overflown to disk should be at least greater than 55",
         (totalOverflown > 55));
 
-    long totalInMemory = numMemVm4 + numMemVm5 + numMemVm6 + numMemVm7;
+    var totalInMemory = numMemVm4 + numMemVm5 + numMemVm6 + numMemVm7;
     // expected is twice the number of events put due to redundancy level of 1
     assertEquals("Total number of entries on disk and in VM is incorrect", (numEventPuts * 2),
         (totalOverflown + totalInMemory));
@@ -223,8 +214,8 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
   @Ignore("TODO: test is disabled")
   @Test
   public void testParallelSenderQueueEventsOverflow_2() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -260,7 +251,7 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
     vm3.invoke(
         () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100, isOffHeap()));
 
-    int numEventPuts = 50;
+    var numEventPuts = 50;
     vm4.invoke(() -> WANTestBase.doHeavyPuts(getUniqueName(), numEventPuts));
 
     long numOvVm4 = vm4.invoke(() -> WANTestBase.getNumberOfEntriesOverflownToDisk("ln"));
@@ -278,13 +269,13 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
     LogWriterUtils.getLogWriter()
         .info("Entries in VM: " + numMemVm4 + "," + numMemVm5 + "," + numMemVm6 + "," + numMemVm7);
 
-    long totalOverflown = numOvVm4 + numOvVm5 + numOvVm6 + numOvVm7;
+    var totalOverflown = numOvVm4 + numOvVm5 + numOvVm6 + numOvVm7;
     // considering a memory limit of 40 MB, maximum of 40 events can be in memory. Rest should be on
     // disk.
     assertTrue("Total number of entries overflown to disk should be at least greater than 55",
         (totalOverflown > 55));
 
-    long totalInMemory = numMemVm4 + numMemVm5 + numMemVm6 + numMemVm7;
+    var totalInMemory = numMemVm4 + numMemVm5 + numMemVm6 + numMemVm7;
     // expected is twice the number of events put due to redundancy level of 1
     assertEquals("Total number of entries on disk and in VM is incorrect", (numEventPuts * 2),
         (totalOverflown + totalInMemory));
@@ -311,8 +302,8 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
   @Ignore("TODO: test is disabled")
   @Test
   public void testParallelSenderQueueNoEventsOverflow() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -348,7 +339,7 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
     vm3.invoke(
         () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100, isOffHeap()));
 
-    int numEventPuts = 15;
+    var numEventPuts = 15;
     vm4.invoke(() -> WANTestBase.doHeavyPuts(getUniqueName(), numEventPuts));
 
     long numOvVm4 = vm4.invoke(() -> WANTestBase.getNumberOfEntriesOverflownToDisk("ln"));
@@ -366,12 +357,12 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
     LogWriterUtils.getLogWriter()
         .info("Entries in VM: " + numMemVm4 + "," + numMemVm5 + "," + numMemVm6 + "," + numMemVm7);
 
-    long totalOverflown = numOvVm4 + numOvVm5 + numOvVm6 + numOvVm7;
+    var totalOverflown = numOvVm4 + numOvVm5 + numOvVm6 + numOvVm7;
     // all 30 (considering redundant copies) events should accommodate in 40 MB space given to 4
     // senders
     assertEquals("Total number of entries overflown to disk is incorrect", 0, totalOverflown);
 
-    long totalInMemory = numMemVm4 + numMemVm5 + numMemVm6 + numMemVm7;
+    var totalInMemory = numMemVm4 + numMemVm5 + numMemVm6 + numMemVm7;
     // expected is twice the number of events put due to redundancy level of 1
     assertEquals("Total number of entries on disk and in VM is incorrect", (numEventPuts * 2),
         (totalOverflown + totalInMemory));
@@ -392,27 +383,27 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
   @Ignore("TODO: test is disabled")
   @Test
   public void test_ValidateParallelGatewaySenderQueueAttributes_1() {
-    Integer localLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var localLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-    Integer remoteLocPort =
+    var remoteLocPort =
         vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, localLocPort));
 
-    WANTestBase test = new WANTestBase();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new WANTestBase();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "localhost[" + localLocPort + "]");
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
 
-    File directory =
+    var directory =
         new File("TKSender" + "_disk_" + System.currentTimeMillis() + "_" + VM.getCurrentVMNum());
     directory.mkdir();
-    File[] dirs1 = new File[] {directory};
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dirs1 = new File[] {directory};
+    var dsf = cache.createDiskStoreFactory();
     dsf.setDiskDirs(dirs1);
-    DiskStore diskStore = dsf.create("FORNY");
+    var diskStore = dsf.create("FORNY");
 
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setParallel(true);// set parallel to true
     fact.setBatchConflationEnabled(true);
     fact.setBatchSize(200);
@@ -428,19 +419,19 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
     fact.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     fact.addGatewayTransportFilter(myStreamFilter2);
-    final IgnoredException exTKSender = IgnoredException.addIgnoredException("Could not connect");
+    final var exTKSender = IgnoredException.addIgnoredException("Could not connect");
     try {
-      GatewaySender sender1 = fact.create("TKSender", 2);
+      var sender1 = fact.create("TKSender", 2);
 
       RegionFactory factory = cache.createRegionFactory(RegionShortcut.PARTITION_PERSISTENT);
       factory.addGatewaySenderId(sender1.getId());
-      Region region = factory.create("test_ValidateGatewaySenderAttributes");
-      Set<GatewaySender> senders = cache.getGatewaySenders();
+      var region = factory.create("test_ValidateGatewaySenderAttributes");
+      var senders = cache.getGatewaySenders();
       assertEquals(senders.size(), 1);
-      GatewaySender gatewaySender = senders.iterator().next();
-      Set<RegionQueue> regionQueues = ((AbstractGatewaySender) gatewaySender).getQueues();
+      var gatewaySender = senders.iterator().next();
+      var regionQueues = ((AbstractGatewaySender) gatewaySender).getQueues();
       assertEquals(regionQueues.size(), 1);
-      RegionQueue regionQueue = regionQueues.iterator().next();
+      var regionQueue = regionQueues.iterator().next();
       assertEquals(true, regionQueue.getRegion().getAttributes().isDiskSynchronous());
     } finally {
       exTKSender.remove();
@@ -454,19 +445,19 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
   @Ignore("TODO: test is disabled")
   @Test
   public void test_ValidateParallelGatewaySenderQueueAttributes_2() {
-    Integer localLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var localLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-    Integer remoteLocPort =
+    var remoteLocPort =
         vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, localLocPort));
 
-    WANTestBase test = new WANTestBase();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new WANTestBase();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "localhost[" + localLocPort + "]");
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
 
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setParallel(true);// set parallel to true
     fact.setBatchConflationEnabled(true);
     fact.setBatchSize(200);
@@ -481,18 +472,18 @@ public class ParallelGatewaySenderQueueOverflowDUnitTest extends WANTestBase {
     fact.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     fact.addGatewayTransportFilter(myStreamFilter2);
-    final IgnoredException ex = IgnoredException.addIgnoredException("Could not connect");
+    final var ex = IgnoredException.addIgnoredException("Could not connect");
     try {
-      GatewaySender sender1 = fact.create("TKSender", 2);
+      var sender1 = fact.create("TKSender", 2);
       RegionFactory factory = cache.createRegionFactory(RegionShortcut.PARTITION);
       factory.addGatewaySenderId(sender1.getId());
-      Region region = factory.create("test_ValidateGatewaySenderAttributes");
-      Set<GatewaySender> senders = cache.getGatewaySenders();
+      var region = factory.create("test_ValidateGatewaySenderAttributes");
+      var senders = cache.getGatewaySenders();
       assertEquals(senders.size(), 1);
-      GatewaySender gatewaySender = senders.iterator().next();
-      Set<RegionQueue> regionQueues = ((AbstractGatewaySender) gatewaySender).getQueues();
+      var gatewaySender = senders.iterator().next();
+      var regionQueues = ((AbstractGatewaySender) gatewaySender).getQueues();
       assertEquals(regionQueues.size(), 1);
-      RegionQueue regionQueue = regionQueues.iterator().next();
+      var regionQueue = regionQueues.iterator().next();
       assertEquals(false, regionQueue.getRegion().getAttributes().isDiskSynchronous());
     } finally {
       ex.remove();

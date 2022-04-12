@@ -32,7 +32,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
@@ -47,14 +46,14 @@ import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 public class TXRestrictionsDUnitTest extends JUnit4CacheTestCase {
 
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
     return factory.create();
   }
 
   protected <K, V> RegionAttributes<K, V> getDiskRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>(getRegionAttributes());
-    File[] diskDirs = new File[1];
+    var factory = new AttributesFactory<K, V>(getRegionAttributes());
+    var diskDirs = new File[1];
     diskDirs[0] = new File("diskRegionDirs/" + OSProcess.getId());
     diskDirs[0].mkdirs();
     factory.setDiskStoreName(getCache().createDiskStoreFactory().setDiskDirs(diskDirs)
@@ -68,8 +67,8 @@ public class TXRestrictionsDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testPersistentRestriction() throws Exception {
-    final CacheTransactionManager txMgr = getCache().getCacheTransactionManager();
-    final String misConfigRegionName = getUniqueName();
+    final var txMgr = getCache().getCacheTransactionManager();
+    final var misConfigRegionName = getUniqueName();
     Region misConfigRgn = getCache().createRegion(misConfigRegionName, getDiskRegionAttributes());
     Invoke.invokeInEveryVM(
         new SerializableRunnable("testPersistentRestriction: Illegal Region Configuration") {

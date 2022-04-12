@@ -25,15 +25,12 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.DistributedTestCase;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 
 /**
  * TRAC #33726: afterRegionCreate event delivered before region initialization occurs
@@ -53,9 +50,9 @@ public class AfterRegionCreateBeforeInitializationRegressionTest extends Distrib
 
   @Test
   public void testAfterRegionCreate() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(this::createCacheAndPopulateRegion1);
     vm1.invoke(this::createCacheAndRegion2);
     boolean pass = vm1.invoke(this::testFlag);
@@ -66,13 +63,13 @@ public class AfterRegionCreateBeforeInitializationRegressionTest extends Distrib
   private void createCacheAndPopulateRegion1() {
     ds = getSystem();
     cache = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.GLOBAL);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attr = factory.create();
-    Region region = cache.createRegion("testRegion", attr);
-    Region subRegion = region.createSubregion("testSubRegion", attr);
-    for (int i = 1; i < 100; i++) {
+    var attr = factory.create();
+    var region = cache.createRegion("testRegion", attr);
+    var subRegion = region.createSubregion("testSubRegion", attr);
+    for (var i = 1; i < 100; i++) {
       region.put(i, i);
       subRegion.put(i, i);
     }
@@ -81,12 +78,12 @@ public class AfterRegionCreateBeforeInitializationRegressionTest extends Distrib
   private void createCacheAndRegion2() {
     ds = getSystem();
     cache = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setCacheListener(new TestCacheListener());
     factory.setScope(Scope.GLOBAL);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attr = factory.create();
-    Region region = cache.createRegion("testRegion", attr);
+    var attr = factory.create();
+    var region = cache.createRegion("testRegion", attr);
     region.createSubregion("testSubRegion", attr);
   }
 
@@ -113,9 +110,9 @@ public class AfterRegionCreateBeforeInitializationRegressionTest extends Distrib
 
     @Override
     public void afterRegionCreate(RegionEvent event) {
-      Region region = event.getRegion();
+      var region = event.getRegion();
       if (((LocalRegion) region).isInitialized()) {
-        String regionPath = event.getRegion().getFullPath();
+        var regionPath = event.getRegion().getFullPath();
         if (regionPath.contains(SEPARATOR + "testRegion" + SEPARATOR + "testSubRegion")) {
           flags[1] = true;
         } else if (regionPath.contains(SEPARATOR + "testRegion")) {

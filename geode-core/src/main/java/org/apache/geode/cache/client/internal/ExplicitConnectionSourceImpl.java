@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
-import org.apache.geode.internal.cache.tier.sockets.ServerQueueStatus;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.security.GemFireSecurityException;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -59,8 +58,8 @@ public class ExplicitConnectionSourceImpl implements ConnectionSource {
       Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "bridge.disableShufflingOfEndpoints");
 
   ExplicitConnectionSourceImpl(List<InetSocketAddress> contacts) {
-    ArrayList<ServerLocation> serverList = new ArrayList<>(contacts.size());
-    for (InetSocketAddress addr : contacts) {
+    var serverList = new ArrayList<ServerLocation>(contacts.size());
+    for (var addr : contacts) {
       serverList.add(new ServerLocation(addr.getHostString(), addr.getPort()));
     }
     shuffle(serverList);
@@ -86,7 +85,7 @@ public class ExplicitConnectionSourceImpl implements ConnectionSource {
     // so that clients would attempt to keep the same number of connections
     // to each server but it would be a bit of work.
     // Plus we need to make sure it would work ok for hardware load balancers.
-    HashSet<ServerLocation> excludedPlusCurrent = new HashSet<>(excludedServers);
+    var excludedPlusCurrent = new HashSet<ServerLocation>(excludedServers);
     excludedPlusCurrent.add(currentServer);
     return findServer(excludedPlusCurrent);
   }
@@ -97,7 +96,7 @@ public class ExplicitConnectionSourceImpl implements ConnectionSource {
       return null;
     }
     ServerLocation nextServer;
-    int startIndex = nextServerIndex;
+    var startIndex = nextServerIndex;
     do {
       nextServer = serverList.get(nextServerIndex);
       if (++nextServerIndex >= serverList.size()) {
@@ -140,9 +139,9 @@ public class ExplicitConnectionSourceImpl implements ConnectionSource {
   private List<ServerLocation> pickQueueServers(Set<ServerLocation> excludedServers,
       int numServers) {
 
-    ArrayList<ServerLocation> result = new ArrayList<>();
+    var result = new ArrayList<ServerLocation>();
     ServerLocation nextQueue;
-    int startIndex = nextQueueIndex;
+    var startIndex = nextQueueIndex;
     do {
       nextQueue = serverList.get(nextQueueIndex);
       if (++nextQueueIndex >= serverList.size()) {
@@ -165,19 +164,19 @@ public class ExplicitConnectionSourceImpl implements ConnectionSource {
 
     @Override
     public Object attempt(Connection cnx) throws Exception {
-      ServerQueueStatus status = cnx.getQueueStatus();
+      var status = cnx.getQueueStatus();
       return status.isNonRedundant() ? Boolean.FALSE : Boolean.TRUE;
     }
   }
 
   private List<ServerLocation> findDurableQueues(Set<ServerLocation> excludedServers,
       int numServers) {
-    ArrayList<ServerLocation> durableServers = new ArrayList<>();
-    ArrayList<ServerLocation> otherServers = new ArrayList<>();
+    var durableServers = new ArrayList<ServerLocation>();
+    var otherServers = new ArrayList<ServerLocation>();
 
     logger.debug("ExplicitConnectionSource - looking for durable queue");
 
-    for (ServerLocation server : serverList) {
+    for (var server : serverList) {
       if (excludedServers.contains(server)) {
         continue;
       }
@@ -213,7 +212,7 @@ public class ExplicitConnectionSourceImpl implements ConnectionSource {
       }
     }
 
-    int remainingServers = numServers - durableServers.size();
+    var remainingServers = numServers - durableServers.size();
     if (remainingServers > otherServers.size()) {
       remainingServers = otherServers.size();
     }
@@ -247,12 +246,12 @@ public class ExplicitConnectionSourceImpl implements ConnectionSource {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("EndPoints[");
     synchronized (this) {
       Iterator it = serverList.iterator();
       while (it.hasNext()) {
-        ServerLocation loc = (ServerLocation) it.next();
+        var loc = (ServerLocation) it.next();
         sb.append(loc.getHostName()).append(":").append(loc.getPort());
         if (it.hasNext()) {
           sb.append(",");

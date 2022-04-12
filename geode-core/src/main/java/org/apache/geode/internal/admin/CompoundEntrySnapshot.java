@@ -64,40 +64,40 @@ public class CompoundEntrySnapshot implements EntrySnapshot {
     }
     // individuals.put(systemEntity, snap);
 
-    Object value = snap.getValue();
+    var value = snap.getValue();
     if (value != null) {
       allValues.add(value.toString());
     } else {
       allValues.add("null");
     }
-    Object userAttribute = snap.getUserAttribute();
+    var userAttribute = snap.getUserAttribute();
     if (userAttribute != null) {
       allUserAttributes.add(userAttribute.toString());
     } else {
       allUserAttributes.add("null");
     }
 
-    long modified = snap.getLastModifiedTime();
+    var modified = snap.getLastModifiedTime();
     if (modified > 0 && modified > lastModifiedTime) {
       lastModifiedTime = modified;
     }
 
-    long access = snap.getLastAccessTime();
+    var access = snap.getLastAccessTime();
     if (access > 0 && access > lastAccessTime) {
       lastAccessTime = access;
     }
 
-    long hitCount = snap.getNumberOfHits();
+    var hitCount = snap.getNumberOfHits();
     if (hitCount > 0) {
       numHits += hitCount;
     }
 
-    long missCount = snap.getNumberOfMisses();
+    var missCount = snap.getNumberOfMisses();
     if (missCount > 0) {
       numMisses += missCount;
     }
 
-    float hitRatio = snap.getHitRatio();
+    var hitRatio = snap.getHitRatio();
     if (hitRatio >= 0.00) {
       hitResponders++;
       hitRatioSum += hitRatio;

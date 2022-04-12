@@ -22,7 +22,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
 
 import org.apache.geode.tools.pulse.internal.util.ConnectionUtil;
@@ -101,19 +100,19 @@ public class JmxManagerFinder {
   public static JmxManagerInfo askLocatorForJmxManager(InetAddress addr, int port, int timeout,
       boolean usessl) throws IOException {
     SocketAddress sockaddr = new InetSocketAddress(addr, port);
-    Socket sock = ConnectionUtil.getSocketFactory(usessl).createSocket();
+    var sock = ConnectionUtil.getSocketFactory(usessl).createSocket();
     try {
       sock.connect(sockaddr, timeout);
       sock.setSoTimeout(timeout);
-      DataOutputStream out = new DataOutputStream(sock.getOutputStream());
+      var out = new DataOutputStream(sock.getOutputStream());
 
       out.writeInt(GOSSIPVERSION);
       out.writeByte(DS_FIXED_ID_SHORT);
       out.writeShort(JMX_MANAGER_LOCATOR_REQUEST);
       out.flush();
 
-      DataInputStream in = new DataInputStream(sock.getInputStream());
-      byte header = in.readByte();
+      var in = new DataInputStream(sock.getInputStream());
+      var header = in.readByte();
       if (header != DS_FIXED_ID_SHORT) {
         throw new IllegalStateException("Expected " + DS_FIXED_ID_SHORT + " but found " + header);
       }
@@ -122,23 +121,23 @@ public class JmxManagerFinder {
         throw new IllegalStateException(
             "Expected " + JMX_MANAGER_LOCATOR_RESPONSE + " but found " + msgType);
       }
-      byte hostHeader = in.readByte();
+      var hostHeader = in.readByte();
       String host;
       if (hostHeader == NULL_STRING) {
         host = "";
       } else if (hostHeader == STRING_BYTES) {
-        int len = in.readUnsignedShort();
-        byte[] buf = new byte[len];
+        var len = in.readUnsignedShort();
+        var buf = new byte[len];
         in.readFully(buf, 0, len);
         @SuppressWarnings("deprecation")
-        String str = new String(buf, 0);
+        var str = new String(buf, 0);
         host = str;
       } else {
         throw new IllegalStateException(
             "Expected " + STRING_BYTES + " or " + NULL_STRING + " but found " + hostHeader);
       }
-      int jmport = in.readInt();
-      boolean ssl = in.readBoolean();
+      var jmport = in.readInt();
+      var ssl = in.readBoolean();
       if (host.equals("")) {
         jmport = 0;
       }

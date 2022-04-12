@@ -19,13 +19,11 @@ package org.apache.geode.tools.pulse.internal.data;
 
 import static java.time.Instant.now;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +39,6 @@ import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Component;
@@ -97,7 +94,7 @@ public class Repository {
    * we will need to get the username from the context
    */
   public Cluster getCluster() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null) {
       return null;
     }
@@ -110,13 +107,13 @@ public class Repository {
   }
 
   public Cluster getClusterWithUserNameAndPassword(String userName, String password) {
-    String[] credentials = {userName, password};
+    var credentials = new String[] {userName, password};
     return getClusterWithCredentials(userName, credentials);
   }
 
   public Cluster getClusterWithCredentials(String userName, Object credentials) {
     synchronized (clusterMap) {
-      Cluster cluster = clusterMap.get(userName);
+      var cluster = clusterMap.get(userName);
       if (cluster == null) {
         logger.info(resourceBundle.getString("LOG_MSG_CREATE_NEW_THREAD") + " : " + userName);
         cluster = clusterFactory.create(host, port, userName, resourceBundle, this);
@@ -138,7 +135,7 @@ public class Repository {
    * repository.
    */
   private Cluster getClusterWithAuthenticationToken(OAuth2AuthenticationToken authentication) {
-    OAuth2AuthorizedClient authorizedClient = getAuthorizedClient(authentication);
+    var authorizedClient = getAuthorizedClient(authentication);
     if (isExpired(authorizedClient.getAccessToken())) {
       return reconnectedClusterForExpiredClient(authentication, authorizedClient);
     }
@@ -146,19 +143,19 @@ public class Repository {
     // When the cluster connects to JMX, it will include this access token as the
     // jmx.remote.credentials attribute in the connection environment. The JMX server will then pass
     // the access token to the security manager for authentication.
-    String credentials = authorizedClient.getAccessToken().getTokenValue();
-    String subject = getSubject(authentication);
+    var credentials = authorizedClient.getAccessToken().getTokenValue();
+    var subject = getSubject(authentication);
     return getClusterWithCredentials(subject, credentials);
   }
 
   private static String getSubject(Authentication authentication) {
-    OAuth2AuthenticationToken oauth2Authentication = (OAuth2AuthenticationToken) authentication;
-    OidcUser oidcUser = (OidcUser) oauth2Authentication.getPrincipal();
+    var oauth2Authentication = (OAuth2AuthenticationToken) authentication;
+    var oidcUser = (OidcUser) oauth2Authentication.getPrincipal();
     return oidcUser.getIdToken().getSubject();
   }
 
   public void logoutUser(String userName) {
-    Cluster cluster = clusterMap.remove(userName);
+    var cluster = clusterMap.remove(userName);
     if (cluster != null) {
       try {
         cluster.setStopUpdates(true);
@@ -170,10 +167,10 @@ public class Repository {
   }
 
   public void removeAllClusters() {
-    Set<String> keySet = clusterMap.keySet();
+    var keySet = clusterMap.keySet();
 
-    for (String key : keySet) {
-      Cluster c = clusterMap.get(key);
+    for (var key : keySet) {
+      var c = clusterMap.get(key);
       c.stopThread();
       clusterMap.remove(key);
       logger.info("{} : {}", resourceBundle.getString("LOG_MSG_REMOVE_THREAD"), key);
@@ -244,14 +241,14 @@ public class Repository {
   }
 
   private static boolean isExpired(AbstractOAuth2Token token) {
-    Instant tokenExpiration = token.getExpiresAt();
+    var tokenExpiration = token.getExpiresAt();
     return tokenExpiration != null && tokenExpiration.isBefore(now());
   }
 
   private OAuth2AuthorizedClient refreshExpiredClient(Authentication authentication,
       OAuth2AuthorizedClient expiredClient) {
-    OAuth2RefreshToken refreshToken = expiredClient.getRefreshToken();
-    String subject = getSubject(authentication);
+    var refreshToken = expiredClient.getRefreshToken();
+    var subject = getSubject(authentication);
     if (refreshToken == null) {
       throw new OAuth2AuthenticationException(new OAuth2Error("401"),
           "User " + subject + " has no refresh token.");
@@ -261,9 +258,9 @@ public class Repository {
           "The refresh token for " + subject + " has expired.");
     }
 
-    OAuth2AccessTokenResponse freshToken = getFreshToken(expiredClient);
+    var freshToken = getFreshToken(expiredClient);
 
-    OAuth2AuthorizedClient freshClient = new OAuth2AuthorizedClient(
+    var freshClient = new OAuth2AuthorizedClient(
         expiredClient.getClientRegistration(), expiredClient.getPrincipalName(),
         freshToken.getAccessToken(), freshToken.getRefreshToken());
 
@@ -279,7 +276,7 @@ public class Repository {
    */
   private Cluster reconnectedClusterForExpiredClient(OAuth2AuthenticationToken authentication,
       OAuth2AuthorizedClient expiredClient) {
-    String subject = getSubject(authentication);
+    var subject = getSubject(authentication);
 
     logger.info("Attempting to refresh the expired access token for {}.", subject);
 
@@ -287,7 +284,7 @@ public class Repository {
     try {
       freshClient = refreshExpiredClient(authentication, expiredClient);
     } catch (OAuth2AuthenticationException | OAuth2AuthorizationException authException) {
-      String message = "Failed to refresh the access token for " + subject +
+      var message = "Failed to refresh the access token for " + subject +
           ". Disconnecting and removing the user's cluster.";
       logger.info(message);
       logoutUser(subject);
@@ -296,12 +293,12 @@ public class Repository {
 
     logger.info("Refreshed the access token for {}. Reconnecting the user's cluster.", subject);
     synchronized (clusterMap) {
-      Cluster cluster = clusterMap.get(subject);
+      var cluster = clusterMap.get(subject);
       if (cluster != null) {
         // When the cluster reconnects to JMX, it will include this access token as the
         // jmx.remote.credentials attribute in the connection environment. The JMX server will then
         // pass the access token to the security manager for authentication.
-        String credentials = freshClient.getAccessToken().getTokenValue();
+        var credentials = freshClient.getAccessToken().getTokenValue();
         cluster.reconnectToGemFire(credentials);
       }
       return cluster;
@@ -309,7 +306,7 @@ public class Repository {
   }
 
   private static OAuth2AccessTokenResponse getFreshToken(OAuth2AuthorizedClient expiredClient) {
-    OAuth2RefreshTokenGrantRequest refreshRequest = new OAuth2RefreshTokenGrantRequest(
+    var refreshRequest = new OAuth2RefreshTokenGrantRequest(
         expiredClient.getClientRegistration(),
         expiredClient.getAccessToken(),
         expiredClient.getRefreshToken());

@@ -67,7 +67,7 @@ public class PdxQueryTestObject
   @Override
   public boolean equals(Object o) {
     if (o instanceof PdxQueryTestObject) {
-      PdxQueryTestObject other = (PdxQueryTestObject) o;
+      var other = (PdxQueryTestObject) o;
       return other.id == id && other.name.equals(name);
     }
     return false;

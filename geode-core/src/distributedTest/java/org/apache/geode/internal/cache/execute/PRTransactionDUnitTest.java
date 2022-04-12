@@ -23,8 +23,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -41,7 +39,6 @@ import org.apache.geode.cache.TransactionDataNotColocatedException;
 import org.apache.geode.cache.TransactionDataRebalancedException;
 import org.apache.geode.cache.TransactionException;
 import org.apache.geode.cache.TransactionId;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
@@ -52,7 +49,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.execute.data.CustId;
 import org.apache.geode.internal.cache.execute.data.Customer;
 import org.apache.geode.internal.cache.execute.data.Order;
@@ -162,10 +158,10 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   }
 
   private void runFunction(final Region pr, int cust, boolean isFirstFunc) {
-    CustId custId = new CustId(cust);
-    Customer newCus = new Customer("foo", "bar");
-    ArrayList args = new ArrayList();
-    Execution execution = FunctionService.onRegion(pr);
+    var custId = new CustId(cust);
+    var newCus = new Customer("foo", "bar");
+    var args = new ArrayList();
+    var execution = FunctionService.onRegion(pr);
     Set filter = new HashSet();
 
     args.add(UPDATE_NON_COLOCATION);
@@ -193,9 +189,9 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   }
 
   private void runTXFunctions() {
-    PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+    var pr = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-    CacheTransactionManager mgr = pr.getCache().getCacheTransactionManager();
+    var mgr = pr.getCache().getCacheTransactionManager();
     mgr.begin();
     runFunction(pr, 1, true);
     runFunction(pr, 2, false);
@@ -224,18 +220,18 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
     accessor.invoke(new SerializableCallable("run function") {
       @Override
       public Object call() {
-        PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+        var pr = (PartitionedRegion) basicGetCache()
             .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-        PartitionedRegion orderpr = (PartitionedRegion) basicGetCache()
+        var orderpr = (PartitionedRegion) basicGetCache()
             .getRegion(SEPARATOR + OrderPartitionedRegionName);
-        CustId custId = new CustId(2);
-        Customer newCus = new Customer("foo", "bar");
-        Order order = new Order("fooOrder");
-        OrderId orderId = new OrderId(22, custId);
-        ArrayList args = new ArrayList();
+        var custId = new CustId(2);
+        var newCus = new Customer("foo", "bar");
+        var order = new Order("fooOrder");
+        var orderId = new OrderId(22, custId);
+        var args = new ArrayList();
         Function txFunction = new MyTransactionFunction();
         FunctionService.registerFunction(txFunction);
-        Execution execution = FunctionService.onRegion(pr);
+        var execution = FunctionService.onRegion(pr);
         Set filter = new HashSet();
         // test transaction non-coLocated operations
         filter.clear();
@@ -267,7 +263,7 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
         assertNotNull(orderpr.get(orderId));
         execution.withFilter(filter).setArguments(args).execute(txFunction.getId()).getResult();
         assertTrue("Unexpected customer value after commit", newCus.equals(pr.get(custId)));
-        Order commitedOrder = (Order) orderpr.get(orderId);
+        var commitedOrder = (Order) orderpr.get(orderId);
         assertTrue(
             "Unexpected order value after commit. Expected:" + order + " Found:" + commitedOrder,
             order.equals(commitedOrder));
@@ -343,19 +339,19 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
 
     // for VM0 DataStore check the number of buckets created and the size of
     // bucket for all partitionedRegion
-    Integer totalBucketsInDataStore1 = dataStore1
+    var totalBucketsInDataStore1 = dataStore1
         .invoke(() -> PRColocationDUnitTest.validateDataStore(CustomerPartitionedRegionName,
             OrderPartitionedRegionName, ShipmentPartitionedRegionName));
 
     // for VM1 DataStore check the number of buckets created and the size of
     // bucket for all partitionedRegion
-    Integer totalBucketsInDataStore2 = dataStore2
+    var totalBucketsInDataStore2 = dataStore2
         .invoke(() -> PRColocationDUnitTest.validateDataStore(CustomerPartitionedRegionName,
             OrderPartitionedRegionName, ShipmentPartitionedRegionName));
 
     // for VM3 Datastore check the number of buckets created and the size of
     // bucket for all partitionedRegion
-    Integer totalBucketsInDataStore3 = dataStore3
+    var totalBucketsInDataStore3 = dataStore3
         .invoke(() -> PRColocationDUnitTest.validateDataStore(CustomerPartitionedRegionName,
             OrderPartitionedRegionName, ShipmentPartitionedRegionName));
 
@@ -457,15 +453,15 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
 
   @SuppressWarnings({"rawtypes"})
   private void containsKeyLocally() throws PRLocallyDestroyedException, ForceReattemptException {
-    PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+    var pr = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + CustomerPartitionedRegionName);
 
-    CustId cust1 = new CustId(1);
-    CustId cust2 = new CustId(2);
-    int bucketId1 = pr.getKeyInfo(cust1).getBucketId();
-    int bucketId2 = pr.getKeyInfo(cust2).getBucketId();
+    var cust1 = new CustId(1);
+    var cust2 = new CustId(2);
+    var bucketId1 = pr.getKeyInfo(cust1).getBucketId();
+    var bucketId2 = pr.getKeyInfo(cust2).getBucketId();
 
-    List<Integer> localPrimaryBucketList = pr.getLocalPrimaryBucketsListTestOnly();
+    var localPrimaryBucketList = pr.getLocalPrimaryBucketsListTestOnly();
     Set localBucket1Keys;
     Set localBucket2Keys;
     assertTrue(localPrimaryBucketList.size() == 1);
@@ -473,13 +469,13 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
       if (bucketId == bucketId1) {
         // primary bucket has cust1
         localBucket1Keys = pr.getDataStore().getKeysLocally(bucketId1, false);
-        for (Object key : localBucket1Keys) {
+        for (var key : localBucket1Keys) {
           LogService.getLogger().info("local key set contains " + key);
         }
         assertTrue(localBucket1Keys.size() == 1);
       } else {
         localBucket2Keys = pr.getDataStore().getKeysLocally(bucketId2, false);
-        for (Object key : localBucket2Keys) {
+        for (var key : localBucket2Keys) {
           LogService.getLogger().info("local key set contains " + key);
         }
         assertTrue(localBucket2Keys.size() == 1);
@@ -489,12 +485,12 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
 
 
   private void performGetTx() {
-    PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+    var pr = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-    CacheTransactionManager mgr = pr.getCache().getCacheTransactionManager();
-    CustId cust1 = new CustId(1);
-    CustId cust2 = new CustId(2);
-    boolean isCust1Local = isCust1Local(pr, cust1);
+    var mgr = pr.getCache().getCacheTransactionManager();
+    var cust1 = new CustId(1);
+    var cust2 = new CustId(2);
+    var isCust1Local = isCust1Local(pr, cust1);
 
     // touch first get on remote node -- using TXStateStub
     Assertions.assertThatThrownBy(() -> getTx(!isCust1Local, mgr, pr, cust1, cust2))
@@ -506,19 +502,19 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   }
 
   private boolean isCust1Local(PartitionedRegion pr, CustId cust1) {
-    int bucketId1 = pr.getKeyInfo(cust1).getBucketId();
-    List<Integer> localPrimaryBucketList = pr.getLocalPrimaryBucketsListTestOnly();
+    var bucketId1 = pr.getKeyInfo(cust1).getBucketId();
+    var localPrimaryBucketList = pr.getLocalPrimaryBucketsListTestOnly();
     assertTrue(localPrimaryBucketList.size() == 1);
     return localPrimaryBucketList.get(0) == bucketId1;
   }
 
   private void getTx(boolean doCust1First, CacheTransactionManager mgr, PartitionedRegion pr,
       CustId cust1, CustId cust2) {
-    CustId first = doCust1First ? cust1 : cust2;
-    CustId second = !doCust1First ? cust1 : cust2;
+    var first = doCust1First ? cust1 : cust2;
+    var second = !doCust1First ? cust1 : cust2;
 
     mgr.begin();
-    boolean doRollback = true;
+    var doRollback = true;
     try {
       pr.get(first);
       pr.get(second);
@@ -542,7 +538,7 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   private void basicPRTXWithOpOnMovedBucket(Op op, int bucketRedundancy, DistributedMember dm1,
       DistributedMember dm2) {
     // First transaction.
-    TransactionId txId = dataStore1.invoke(() -> beginTx(false));
+    var txId = dataStore1.invoke(() -> beginTx(false));
     dataStore1.invoke(resumeTx(op, txId, dm1, dm2));
 
     // Second one. Will go through different path (using TXState or TXStateStub)
@@ -561,12 +557,12 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   }
 
   private TransactionId beginTx(boolean doPut) {
-    PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+    var pr = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-    CacheTransactionManager mgr = basicGetCache().getCacheTransactionManager();
-    CustId cust1 = new CustId(1);
+    var mgr = basicGetCache().getCacheTransactionManager();
+    var cust1 = new CustId(1);
     mgr.begin();
-    Object value = pr.get(cust1);
+    var value = pr.get(cust1);
     assertNotNull(value);
     if (doPut) {
       pr.put(cust1, "bar");
@@ -580,9 +576,9 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
     return new SerializableRunnable("resume tx") {
       @Override
       public void run() {
-        PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+        var pr = (PartitionedRegion) basicGetCache()
             .getRegion(SEPARATOR + OrderPartitionedRegionName);
-        CacheTransactionManager mgr = basicGetCache().getCacheTransactionManager();
+        var mgr = basicGetCache().getCacheTransactionManager();
 
         moveBucket(op, dm1, dm2);
 
@@ -594,9 +590,9 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
 
   private void _resumeTx(Op op, TransactionId txId, PartitionedRegion pr,
       CacheTransactionManager mgr) {
-    CustId cust1 = new CustId(1);
-    OrderId order1 = new OrderId(11, cust1);
-    OrderId neworder = new OrderId(111, cust1);
+    var cust1 = new CustId(1);
+    var order1 = new OrderId(11, cust1);
+    var neworder = new OrderId(111, cust1);
     mgr.resume(txId);
     try {
       switch (op) {
@@ -635,14 +631,14 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
 
   @SuppressWarnings("unchecked")
   private void moveBucket(Op op, DistributedMember dm1, DistributedMember dm2) {
-    PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+    var pr = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-    CustId cust1 = new CustId(1);
-    OrderId order1 = new OrderId(11, cust1);
-    boolean isCust1Local = isCust1LocalSingleBucket(pr, cust1);
-    DistributedMember source = isCust1Local ? dm1 : dm2;
-    DistributedMember destination = isCust1Local ? dm2 : dm1;
-    PartitionedRegion prOrder = (PartitionedRegion) basicGetCache()
+    var cust1 = new CustId(1);
+    var order1 = new OrderId(11, cust1);
+    var isCust1Local = isCust1LocalSingleBucket(pr, cust1);
+    var source = isCust1Local ? dm1 : dm2;
+    var destination = isCust1Local ? dm2 : dm1;
+    var prOrder = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + OrderPartitionedRegionName);
 
     LogService.getLogger().info("source ={}, destination ={}", source, destination);
@@ -691,7 +687,7 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   }
 
   private boolean isCust1LocalSingleBucket(PartitionedRegion pr, CustId cust1) {
-    List<Integer> localPrimaryBucketList = pr.getLocalPrimaryBucketsListTestOnly();
+    var localPrimaryBucketList = pr.getLocalPrimaryBucketsListTestOnly();
     return localPrimaryBucketList.size() == 1;
   }
 
@@ -745,22 +741,22 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   }
 
   private void basicDoOp(Op op) {
-    CacheTransactionManager mgr = basicGetCache().getCacheTransactionManager();
+    var mgr = basicGetCache().getCacheTransactionManager();
 
     Assertions.assertThatThrownBy(() -> doOp(op, mgr))
         .isInstanceOf(TransactionDataNotColocatedException.class);
   }
 
   private void doOp(Op op, CacheTransactionManager mgr) {
-    PartitionedRegion cust = (PartitionedRegion) basicGetCache()
+    var cust = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-    PartitionedRegion order = (PartitionedRegion) basicGetCache()
+    var order = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + OrderPartitionedRegionName);
 
-    CustId cust1 = new CustId(1);
-    CustId cust2 = new CustId(2);
-    OrderId order2 = new OrderId(21, cust2);
-    OrderId neworder2 = new OrderId(221, cust2);
+    var cust1 = new CustId(1);
+    var cust2 = new CustId(2);
+    var order2 = new OrderId(21, cust2);
+    var neworder2 = new OrderId(221, cust2);
 
     mgr.begin();
     cust.get(cust1); // touch 1 bucket
@@ -803,7 +799,7 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   public void testTxWithNonColocatedOps() {
     setupColocatedRegions(0);
 
-    for (Op op : Op.values()) {
+    for (var op : Op.values()) {
       LogService.getLogger().info("Testing Operation: " + op.name());
       basicPRTXWithNonColocatedOp(op, 0);
     }
@@ -816,10 +812,10 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   public void testTxWithOpsOnMovedBucket() {
     setupMoveBucket(0);
 
-    DistributedMember dm1 = (DistributedMember) dataStore1.invoke(getDM());
-    DistributedMember dm2 = (DistributedMember) dataStore2.invoke(getDM());
+    var dm1 = (DistributedMember) dataStore1.invoke(getDM());
+    var dm2 = (DistributedMember) dataStore2.invoke(getDM());
 
-    for (Op op : Op.values()) {
+    for (var op : Op.values()) {
       LogService.getLogger().info("Testing Operation: " + op.name());
       basicPRTXWithOpOnMovedBucket(op, 0, dm1, dm2);
     }
@@ -830,10 +826,10 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   public void testTxWithGetOnMovedBucketUsingBucketReadHook() {
     setupMoveBucket(0);
 
-    DistributedMember dm1 = (DistributedMember) dataStore1.invoke(getDM());
-    DistributedMember dm2 = (DistributedMember) dataStore2.invoke(getDM());
+    var dm1 = (DistributedMember) dataStore1.invoke(getDM());
+    var dm2 = (DistributedMember) dataStore2.invoke(getDM());
 
-    Op op = Op.GET;
+    var op = Op.GET;
     useBucketReadHook = true;
     basicPRTXWithOpOnMovedBucket(op, 0, dm1, dm2);
     useBucketReadHook = false;
@@ -868,7 +864,7 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
     createPRWithCoLocation(CustomerPartitionedRegionName, null);
     createPRWithCoLocation(OrderPartitionedRegionName, CustomerPartitionedRegionName);
     // register Cache Listeners
-    SerializableCallable registerListeners = new SerializableCallable() {
+    var registerListeners = new SerializableCallable() {
       @Override
       public Object call() {
         Region custRegion =
@@ -912,25 +908,25 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
 
     customerPartitionedregion.getDataStore().dumpEntries(false);
     orderPartitionedregion.getDataStore().dumpEntries(false);
-    Iterator custIterator = customerPartitionedregion.getDataStore().getEntries().iterator();
+    var custIterator = customerPartitionedregion.getDataStore().getEntries().iterator();
     LogWriterUtils.getLogWriter()
         .info("Found " + customerPartitionedregion.getDataStore().getEntries().size()
             + " Customer entries in the partition");
     Region.Entry custEntry = null;
     while (custIterator.hasNext()) {
       custEntry = (Entry) custIterator.next();
-      CustId custid = (CustId) custEntry.getKey();
-      Customer cust = (Customer) custEntry.getValue();
-      Iterator orderIterator = orderPartitionedregion.getDataStore().getEntries().iterator();
+      var custid = (CustId) custEntry.getKey();
+      var cust = (Customer) custEntry.getValue();
+      var orderIterator = orderPartitionedregion.getDataStore().getEntries().iterator();
       LogWriterUtils.getLogWriter()
           .info("Found " + orderPartitionedregion.getDataStore().getEntries().size()
               + " Order entries in the partition");
-      int orderPerCustomer = 0;
+      var orderPerCustomer = 0;
       Region.Entry orderEntry = null;
       while (orderIterator.hasNext()) {
         orderEntry = (Entry) orderIterator.next();
-        OrderId orderId = (OrderId) orderEntry.getKey();
-        Order order = (Order) orderEntry.getValue();
+        var orderId = (OrderId) orderEntry.getKey();
+        var order = (Order) orderEntry.getValue();
         if (custid.equals(orderId.getCustId())) {
           orderPerCustomer++;
         }
@@ -944,7 +940,7 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   public void testCacheListenerCallbacks() {
     createPopulateAndVerifyCoLocatedPRs(1);
 
-    SerializableCallable registerListeners = new SerializableCallable() {
+    var registerListeners = new SerializableCallable() {
       @Override
       public Object call() {
         Region custRegion =
@@ -962,20 +958,20 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
     accessor.invoke(new SerializableCallable("run function") {
       @Override
       public Object call() {
-        PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+        var pr = (PartitionedRegion) basicGetCache()
             .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-        PartitionedRegion orderpr = (PartitionedRegion) basicGetCache()
+        var orderpr = (PartitionedRegion) basicGetCache()
             .getRegion(SEPARATOR + OrderPartitionedRegionName);
-        CustId custId = new CustId(2);
-        Customer newCus = new Customer("foo", "bar");
-        Order order = new Order("fooOrder");
-        OrderId orderId = new OrderId(22, custId);
-        ArrayList args = new ArrayList();
+        var custId = new CustId(2);
+        var newCus = new Customer("foo", "bar");
+        var order = new Order("fooOrder");
+        var orderId = new OrderId(22, custId);
+        var args = new ArrayList();
         Function txFunction = new MyTransactionFunction();
         FunctionService.registerFunction(txFunction);
-        Execution execution = FunctionService.onRegion(pr);
+        var execution = FunctionService.onRegion(pr);
         Set filter = new HashSet();
-        boolean caughtException = false;
+        var caughtException = false;
         // test transaction non-coLocated operations
         filter.clear();
         args.clear();
@@ -1005,18 +1001,18 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
     accessor.invoke(new SerializableCallable("run function") {
       @Override
       public Object call() {
-        PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+        var pr = (PartitionedRegion) basicGetCache()
             .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-        PartitionedRegion orderpr = (PartitionedRegion) basicGetCache()
+        var orderpr = (PartitionedRegion) basicGetCache()
             .getRegion(SEPARATOR + OrderPartitionedRegionName);
-        CustId custId = new CustId(2);
-        Customer newCus = new Customer("foo", "bar");
-        Order order = new Order("fooOrder");
-        OrderId orderId = new OrderId(22, custId);
-        ArrayList args = new ArrayList();
+        var custId = new CustId(2);
+        var newCus = new Customer("foo", "bar");
+        var order = new Order("fooOrder");
+        var orderId = new OrderId(22, custId);
+        var args = new ArrayList();
         Function txFunction = new MyTransactionFunction();
         FunctionService.registerFunction(txFunction);
-        Execution execution = FunctionService.onRegion(pr);
+        var execution = FunctionService.onRegion(pr);
         Set filter = new HashSet();
         filter.clear();
         args.clear();
@@ -1042,7 +1038,7 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
     createPopulateAndVerifyCoLocatedPRs(1);
 
     // register functions
-    SerializableCallable registerPerfFunctions = new SerializableCallable("register Fn") {
+    var registerPerfFunctions = new SerializableCallable("register Fn") {
       @Override
       public Object call() {
         Function perfFunction = new PerfFunction();
@@ -1058,24 +1054,24 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
     dataStore3.invoke(registerPerfFunctions);
     accessor.invoke(registerPerfFunctions);
 
-    SerializableCallable runPerfFunction = new SerializableCallable("runPerfFunction") {
+    var runPerfFunction = new SerializableCallable("runPerfFunction") {
       @Override
       public Object call() {
         long perfTime = 0;
         Region customerPR = basicGetCache().getRegion(CustomerPartitionedRegionName);
-        Execution execution = FunctionService.onRegion(customerPR);
+        var execution = FunctionService.onRegion(customerPR);
         // for each customer, update order and shipment
-        for (int iterations = 1; iterations <= totalIterations; iterations++) {
+        for (var iterations = 1; iterations <= totalIterations; iterations++) {
           LogWriterUtils.getLogWriter().info("running perfFunction");
           long startTime = 0;
-          ArrayList args = new ArrayList();
-          CustId custId = new CustId(iterations % 10);
-          for (int i = 1; i <= perfOrderShipmentPairs; i++) {
-            OrderId orderId = new OrderId(custId.getCustId() * 10 + i, custId);
-            Order order = new Order("NewOrder" + i + iterations);
-            ShipmentId shipmentId =
+          var args = new ArrayList();
+          var custId = new CustId(iterations % 10);
+          for (var i = 1; i <= perfOrderShipmentPairs; i++) {
+            var orderId = new OrderId(custId.getCustId() * 10 + i, custId);
+            var order = new Order("NewOrder" + i + iterations);
+            var shipmentId =
                 new ShipmentId(orderId.getOrderId() * 10 + i, orderId);
-            Shipment shipment = new Shipment("newShipment" + i + iterations);
+            var shipment = new Shipment("newShipment" + i + iterations);
             args.add(orderId);
             args.add(order);
             args.add(shipmentId);
@@ -1095,26 +1091,26 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
       }
     };
 
-    Long perfTime = (Long) accessor.invoke(runPerfFunction);
+    var perfTime = (Long) accessor.invoke(runPerfFunction);
 
-    SerializableCallable runPerfTxFunction = new SerializableCallable("runPerfTxFunction") {
+    var runPerfTxFunction = new SerializableCallable("runPerfTxFunction") {
       @Override
       public Object call() {
         long perfTime = 0;
         Region customerPR = basicGetCache().getRegion(CustomerPartitionedRegionName);
-        Execution execution = FunctionService.onRegion(customerPR);
+        var execution = FunctionService.onRegion(customerPR);
         // for each customer, update order and shipment
-        for (int iterations = 1; iterations <= totalIterations; iterations++) {
+        for (var iterations = 1; iterations <= totalIterations; iterations++) {
           LogWriterUtils.getLogWriter().info("Running perfFunction");
           long startTime = 0;
-          ArrayList args = new ArrayList();
-          CustId custId = new CustId(iterations % 10);
-          for (int i = 1; i <= perfOrderShipmentPairs; i++) {
-            OrderId orderId = new OrderId(custId.getCustId() * 10 + i, custId);
-            Order order = new Order("NewOrder" + i + iterations);
-            ShipmentId shipmentId =
+          var args = new ArrayList();
+          var custId = new CustId(iterations % 10);
+          for (var i = 1; i <= perfOrderShipmentPairs; i++) {
+            var orderId = new OrderId(custId.getCustId() * 10 + i, custId);
+            var order = new Order("NewOrder" + i + iterations);
+            var shipmentId =
                 new ShipmentId(orderId.getOrderId() * 10 + i, orderId);
-            Shipment shipment = new Shipment("newShipment" + i + iterations);
+            var shipment = new Shipment("newShipment" + i + iterations);
             args.add(orderId);
             args.add(order);
             args.add(shipmentId);
@@ -1134,10 +1130,10 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
       }
     };
 
-    Long perfTxTime = (Long) accessor.invoke(runPerfTxFunction);
+    var perfTxTime = (Long) accessor.invoke(runPerfTxFunction);
 
-    double diff = (perfTime - perfTxTime) * 1.0;
-    double percentDiff = (diff / perfTime) * 100;
+    var diff = (perfTime - perfTxTime) * 1.0;
+    var percentDiff = (diff / perfTime) * 100;
 
     LogWriterUtils.getLogWriter()
         .info((totalIterations - warmupIterations) + " iterations of function took:"
@@ -1161,43 +1157,43 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   private void basicPRTXCommitToFailAfterPrimaryBucketMoved(int redundantBuckets) {
     setupColocatedRegions(redundantBuckets);
 
-    InternalDistributedMember dm1 = (InternalDistributedMember) dataStore1.invoke(getDM());
-    InternalDistributedMember dm2 = (InternalDistributedMember) dataStore2.invoke(getDM());
+    var dm1 = (InternalDistributedMember) dataStore1.invoke(getDM());
+    var dm2 = (InternalDistributedMember) dataStore2.invoke(getDM());
 
-    TransactionId txId = dataStore1.invoke(() -> beginTx(true));
+    var txId = dataStore1.invoke(() -> beginTx(true));
     dataStore1.invoke(() -> movePrimaryBucket(dm1, dm2));
     dataStore1.invoke(() -> resumeTxAfterPrimaryMoved(txId));
 
   }
 
   private void movePrimaryBucket(InternalDistributedMember dm1, InternalDistributedMember dm2) {
-    PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+    var pr = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-    CustId cust1 = new CustId(1);
-    int bucketId = pr.getKeyInfo(cust1).getBucketId();
-    boolean isCust1LocalPrimary = pr.getBucketRegion(cust1).getBucketAdvisor().isPrimary();
-    InternalDistributedMember destination = isCust1LocalPrimary ? dm2 : dm1;
-    InternalDistributedMember source = isCust1LocalPrimary ? dm1 : dm2;
+    var cust1 = new CustId(1);
+    var bucketId = pr.getKeyInfo(cust1).getBucketId();
+    var isCust1LocalPrimary = pr.getBucketRegion(cust1).getBucketAdvisor().isPrimary();
+    var destination = isCust1LocalPrimary ? dm2 : dm1;
+    var source = isCust1LocalPrimary ? dm1 : dm2;
 
-    ExplicitMoveDirector director = new ExplicitMoveDirector(cust1, bucketId, source, destination,
+    var director = new ExplicitMoveDirector(cust1, bucketId, source, destination,
         pr.getCache().getDistributedSystem());
-    PartitionedRegionRebalanceOp rebalanceOp =
+    var rebalanceOp =
         new PartitionedRegionRebalanceOp(pr, false, director, true, true);
-    BucketOperatorImpl operator = new BucketOperatorImpl(rebalanceOp);
-    boolean moved = operator.movePrimary(source, destination, bucketId);
+    var operator = new BucketOperatorImpl(rebalanceOp);
+    var moved = operator.movePrimary(source, destination, bucketId);
     if (!moved) {
       fail("Not able to move primary bucket by invoking BucketOperatorImpl.movePrimary");
     }
   }
 
   private void resumeTxAfterPrimaryMoved(TransactionId txId) {
-    PartitionedRegion pr = (PartitionedRegion) basicGetCache()
+    var pr = (PartitionedRegion) basicGetCache()
         .getRegion(SEPARATOR + CustomerPartitionedRegionName);
-    CacheTransactionManager mgr = basicGetCache().getCacheTransactionManager();
+    var mgr = basicGetCache().getCacheTransactionManager();
 
     mgr.resume(txId);
 
-    Throwable thrown = catchThrowable(mgr::commit);
+    var thrown = catchThrowable(mgr::commit);
     assertTrue(thrown instanceof TransactionDataRebalancedException);
   }
 
@@ -1254,7 +1250,7 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
   private final SerializableCallable verifyNoTxState = new SerializableCallable() {
     @Override
     public Object call() {
-      TXManagerImpl mgr = getGemfireCache().getTxManager();
+      var mgr = getGemfireCache().getTxManager();
       assertEquals(0, mgr.hostedTransactionsInProgressForTest());
       return null;
     }
@@ -1269,15 +1265,15 @@ public class PRTransactionDUnitTest extends PRColocationDUnitTest {
     @Override
     public void afterCreate(EntryEvent event) {
       // for each customer, put 10 orders in a tx.
-      Region custPR = event.getRegion();
+      var custPR = event.getRegion();
       Region orderPR = custPR.getCache().getRegion(SEPARATOR + OrderPartitionedRegionName);
-      CacheTransactionManager mgr = custPR.getCache().getCacheTransactionManager();
+      var mgr = custPR.getCache().getCacheTransactionManager();
       mgr.begin();
-      CustId custId = (CustId) event.getKey();
-      for (int j = 1; j <= 10; j++) {
-        int oid = (custId.getCustId() * 10) + j;
-        OrderId orderId = new OrderId(oid, custId);
-        Order order = new Order("OREDR" + oid);
+      var custId = (CustId) event.getKey();
+      for (var j = 1; j <= 10; j++) {
+        var oid = (custId.getCustId() * 10) + j;
+        var orderId = new OrderId(oid, custId);
+        var order = new Order("OREDR" + oid);
         try {
           assertNotNull(orderPR);
           orderPR.put(orderId, order);

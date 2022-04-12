@@ -41,20 +41,20 @@ public class RetryPutIfAbsentIntegrationTest {
 
   @Test
   public void duplicatePutIfAbsentIsAccepted() {
-    final String key = "mykey";
-    final String value = "myvalue";
+    final var key = "mykey";
+    final var value = "myvalue";
 
-    LocalRegion myregion =
+    var myregion =
         (LocalRegion) CacheUtils.getCache().createRegionFactory(RegionShortcut.REPLICATE)
             .setConcurrencyChecksEnabled(true).create("myregion");
 
-    ClientProxyMembershipID id =
+    var id =
         new ClientProxyMembershipID(new InternalDistributedMember("localhost", 1));
-    EventIDHolder clientEvent = new EventIDHolder(new EventID(new byte[] {1, 2, 3, 4, 5}, 1, 1));
+    var clientEvent = new EventIDHolder(new EventID(new byte[] {1, 2, 3, 4, 5}, 1, 1));
     clientEvent.setRegion(myregion);
-    byte[] valueBytes = new VMCachedDeserializable("myvalue", 7).getSerializedValue();
+    var valueBytes = new VMCachedDeserializable("myvalue", 7).getSerializedValue();
     System.out.println("first putIfAbsent");
-    Object oldValue =
+    var oldValue =
         myregion.basicBridgePutIfAbsent("mykey", valueBytes, true, null, id, true, clientEvent);
     assertEquals(null, oldValue);
     assertTrue(myregion.containsKey(key));

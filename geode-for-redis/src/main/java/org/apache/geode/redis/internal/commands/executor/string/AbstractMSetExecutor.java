@@ -31,15 +31,15 @@ public abstract class AbstractMSetExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
 
-    List<byte[]> commandElems = command.getCommandArguments();
+    var commandElems = command.getCommandArguments();
 
-    int numElements = commandElems.size() / 2;
+    var numElements = commandElems.size() / 2;
     List<RedisKey> keys = new ArrayList<>(numElements);
     List<byte[]> values = new ArrayList<>(numElements);
 
     RedisKey previousKey = null;
-    for (int i = 0; i < commandElems.size(); i += 2) {
-      RedisKey key = new RedisKey(commandElems.get(i));
+    for (var i = 0; i < commandElems.size(); i += 2) {
+      var key = new RedisKey(commandElems.get(i));
 
       if (previousKey != null && key.getSlot() != previousKey.getSlot()) {
         return RedisResponse.crossSlot();
@@ -62,7 +62,7 @@ public abstract class AbstractMSetExecutor implements CommandExecutor {
   protected void mset(ExecutionHandlerContext context, List<RedisKey> keys, List<byte[]> values,
       SetOptions options) {
     List<RedisKey> keysToLock = new ArrayList<>(keys);
-    RegionProvider regionProvider = context.getRegionProvider();
+    var regionProvider = context.getRegionProvider();
 
     context.lockedExecuteInTransaction(keysToLock.get(0), keysToLock,
         () -> mset0(regionProvider, keys, values, options));
@@ -70,7 +70,7 @@ public abstract class AbstractMSetExecutor implements CommandExecutor {
 
   private Void mset0(RegionProvider regionProvider, List<RedisKey> keys, List<byte[]> values,
       SetOptions options) {
-    for (int i = 0; i < keys.size(); i++) {
+    for (var i = 0; i < keys.size(); i++) {
       if (!SetExecutor.set(regionProvider, keys.get(i), values.get(i), options)) {
         // rolls back transaction
         throw new RedisKeyExistsException("at least one key already exists");

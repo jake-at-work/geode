@@ -35,7 +35,7 @@ public class TemporaryResultSetFactoryJUnitTest {
 
   @Test
   public void testSortedResultSet() {
-    ResultSet set = new TemporaryResultSetFactory().getSortedResultSet(null, false);
+    var set = new TemporaryResultSetFactory().getSortedResultSet(null, false);
     set.add(1);
     set.add(2);
     set.add(4);
@@ -47,7 +47,7 @@ public class TemporaryResultSetFactoryJUnitTest {
 
   @Test
   public void testSortedResultBag() {
-    ResultBag set = new TemporaryResultSetFactory().getSortedResultBag(null, false);
+    var set = new TemporaryResultSetFactory().getSortedResultBag(null, false);
     set.add(1);
     set.add(2);
     set.add(4);
@@ -59,7 +59,7 @@ public class TemporaryResultSetFactoryJUnitTest {
 
   @Test
   public void testResultList() {
-    ResultList set = new TemporaryResultSetFactory().getResultList();
+    var set = new TemporaryResultSetFactory().getResultList();
     set.add(1);
     set.add(2);
     set.add(4);
@@ -73,7 +73,7 @@ public class TemporaryResultSetFactoryJUnitTest {
   @Test
   public void testIndexMap() {
     IndexMap map = new IndexMapImpl();
-    TreeMap expected =
+    var expected =
         new TreeMap(new PairComparator(new NaturalComparator(), new NaturalComparator()));
     put("i1", "r1", "v1", map, expected);
     put("i2", "r2", "v4", map, expected);
@@ -95,7 +95,7 @@ public class TemporaryResultSetFactoryJUnitTest {
   }
 
   private void assertItrEquals(CloseableIterator<CachedDeserializable> iterator, Object... values) {
-    ArrayList actual = new ArrayList();
+    var actual = new ArrayList();
 
     while (iterator.hasNext()) {
       actual.add(iterator.next().getDeserializedForReading());
@@ -105,13 +105,13 @@ public class TemporaryResultSetFactoryJUnitTest {
   }
 
   private void assertEntryEquals(CloseableIterator<IndexEntry> closeableIterator, Map expected) {
-    LinkedHashMap actual = new LinkedHashMap();
+    var actual = new LinkedHashMap();
 
     while (closeableIterator.hasNext()) {
-      IndexEntry entry = closeableIterator.next();
-      Object ikey = entry.getKey().getDeserializedForReading();
-      Object rkey = entry.getRegionKey().getDeserializedForReading();
-      Object value = entry.getValue().getDeserializedForReading();
+      var entry = closeableIterator.next();
+      var ikey = entry.getKey().getDeserializedForReading();
+      var rkey = entry.getRegionKey().getDeserializedForReading();
+      var value = entry.getValue().getDeserializedForReading();
       actual.put(new Pair(ikey, rkey), value);
     }
 

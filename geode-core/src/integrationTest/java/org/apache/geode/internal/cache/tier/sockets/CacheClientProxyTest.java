@@ -39,10 +39,8 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.EnumListenerEvent;
 import org.apache.geode.internal.cache.EventID;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.ha.HAContainerMap;
 import org.apache.geode.internal.cache.ha.HAContainerWrapper;
@@ -62,34 +60,34 @@ public class CacheClientProxyTest {
 
   @Test
   public void closeSocketShouldBeAtomic() {
-    final CacheServerStats stats = mock(CacheServerStats.class);
+    final var stats = mock(CacheServerStats.class);
     doNothing().when(stats).incCurrentQueueConnections();
 
-    final InternalCache cache = serverRule.getCache();
+    final var cache = serverRule.getCache();
 
-    final CacheClientNotifier ccn = mock(CacheClientNotifier.class);
-    final SocketCloser sc = mock(SocketCloser.class);
+    final var ccn = mock(CacheClientNotifier.class);
+    final var sc = mock(SocketCloser.class);
     when(ccn.getCache()).thenReturn(cache);
     when(ccn.getAcceptorStats()).thenReturn(stats);
     when(ccn.getSocketCloser()).thenReturn(sc);
 
-    final Socket socket = mock(Socket.class);
-    final InetAddress address = mock(InetAddress.class);
+    final var socket = mock(Socket.class);
+    final var address = mock(InetAddress.class);
     when(socket.getInetAddress()).thenReturn(address);
     when(address.getHostAddress()).thenReturn("localhost");
     doNothing().when(sc).asyncClose(any(), eq("localhost"), any(Runnable.class));
 
-    final ClientProxyMembershipID proxyID = mock(ClientProxyMembershipID.class);
-    final DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+    final var proxyID = mock(ClientProxyMembershipID.class);
+    final var member = cache.getDistributedSystem().getDistributedMember();
     when(proxyID.getDistributedMember()).thenReturn(member);
 
-    CacheClientProxy proxy = new CacheClientProxy(ccn, socket, proxyID, true,
+    var proxy = new CacheClientProxy(ccn, socket, proxyID, true,
         Handshake.CONFLATION_DEFAULT, KnownVersion.CURRENT, 1L, true,
         null, null, mock(StatisticsClock.class));
 
-    CompletableFuture<Void> result1 = executorServiceRule.runAsync(proxy::close);
-    CompletableFuture<Void> result2 = executorServiceRule.runAsync(proxy::close);
-    CompletableFuture<Void> result3 = executorServiceRule.runAsync(proxy::close);
+    var result1 = executorServiceRule.runAsync(proxy::close);
+    var result2 = executorServiceRule.runAsync(proxy::close);
+    var result3 = executorServiceRule.runAsync(proxy::close);
     CompletableFuture.allOf(result1, result2, result3).join();
     assertThatCode(() -> result1.get(60, SECONDS)).doesNotThrowAnyException();
     assertThatCode(() -> result2.get(60, SECONDS)).doesNotThrowAnyException();
@@ -101,15 +99,15 @@ public class CacheClientProxyTest {
   @Test
   public void closeSocket1000Times() throws FileNotFoundException {
     // run it for 1000 times to introduce conflicts between threads
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       closeSocketShouldBeAtomic();
     }
 
     // make sure there is no NPE warning in the log file
-    File logFile = new File(serverRule.getWorkingDir(), "server.log");
-    Scanner scanner = new Scanner(logFile);
+    var logFile = new File(serverRule.getWorkingDir(), "server.log");
+    var scanner = new Scanner(logFile);
     while (scanner.hasNextLine()) {
-      String line = scanner.nextLine();
+      var line = scanner.nextLine();
       assertThat(line).describedAs("File: %s, Line: %s", logFile.getAbsolutePath(), line)
           .doesNotContain("NullPointerException");
     }
@@ -117,36 +115,36 @@ public class CacheClientProxyTest {
 
   @Test
   public void checkQueueingStats() {
-    final CacheServerStats stats = mock(CacheServerStats.class);
+    final var stats = mock(CacheServerStats.class);
     doNothing().when(stats).incCurrentQueueConnections();
 
-    final InternalCache cache = serverRule.getCache();
+    final var cache = serverRule.getCache();
 
-    final CacheClientNotifier ccn = mock(CacheClientNotifier.class);
-    final SocketCloser sc = mock(SocketCloser.class);
+    final var ccn = mock(CacheClientNotifier.class);
+    final var sc = mock(SocketCloser.class);
     when(ccn.getCache()).thenReturn(cache);
     when(ccn.getAcceptorStats()).thenReturn(stats);
     when(ccn.getSocketCloser()).thenReturn(sc);
     final HAContainerWrapper haContainer = new HAContainerMap(new ConcurrentHashMap<>());
     when(ccn.getHaContainer()).thenReturn(haContainer);
 
-    final Socket socket = mock(Socket.class);
-    final InetAddress address = mock(InetAddress.class);
+    final var socket = mock(Socket.class);
+    final var address = mock(InetAddress.class);
     when(socket.getInetAddress()).thenReturn(address);
     when(address.getHostAddress()).thenReturn("localhost");
     doNothing().when(sc).asyncClose(any(), eq("localhost"), any(Runnable.class));
 
-    final ClientProxyMembershipID proxyID = mock(ClientProxyMembershipID.class);
-    final DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+    final var proxyID = mock(ClientProxyMembershipID.class);
+    final var member = cache.getDistributedSystem().getDistributedMember();
     when(proxyID.getDistributedMember()).thenReturn(member);
-    final String regionName = "region/test";
+    final var regionName = "region/test";
     when(proxyID.getHARegionName()).thenReturn(regionName);
 
-    CacheClientProxy proxy = new CacheClientProxy(ccn, socket, proxyID, true,
+    var proxy = new CacheClientProxy(ccn, socket, proxyID, true,
         Handshake.CONFLATION_DEFAULT, KnownVersion.CURRENT, 1L, true,
         null, null, mock(StatisticsClock.class));
 
-    Region dataRegion = createDataRegion();
+    var dataRegion = createDataRegion();
     proxy.initializeMessageDispatcher();
     ClientUpdateMessage clientUpdateMessageImpl1 =
         new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE,

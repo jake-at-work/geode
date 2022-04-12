@@ -26,12 +26,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.geode.DataSerializable;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -57,7 +54,7 @@ public class BootstrappingFunction implements Function, MembershipListener, Data
     // Verify that the cache exists before continuing.
     // When this function is executed by a remote membership listener, it is
     // being invoked before the cache is started.
-    Cache cache = verifyCacheExists();
+    var cache = verifyCacheExists();
 
     // Register as membership listener
     registerAsMembershipListener(cache);
@@ -72,13 +69,13 @@ public class BootstrappingFunction implements Function, MembershipListener, Data
   }
 
   protected boolean isLocator(Cache cache) {
-    DistributedSystem system = cache.getDistributedSystem();
-    InternalDistributedMember member = (InternalDistributedMember) system.getDistributedMember();
+    var system = cache.getDistributedSystem();
+    var member = (InternalDistributedMember) system.getDistributedMember();
     return member.getVmKind() == ClusterDistributionManager.LOCATOR_DM_TYPE;
   }
 
   protected Cache verifyCacheExists() {
-    int timeToWait = 0;
+    var timeToWait = 0;
     Cache cache = null;
     while (timeToWait < TIME_TO_WAIT_FOR_CACHE) {
       try {
@@ -109,7 +106,7 @@ public class BootstrappingFunction implements Function, MembershipListener, Data
   }
 
   private void registerAsMembershipListener(Cache cache) {
-    DistributionManager dm =
+    var dm =
         ((InternalDistributedSystem) cache.getDistributedSystem()).getDistributionManager();
     dm.addMembershipListener(this);
   }
@@ -145,9 +142,9 @@ public class BootstrappingFunction implements Function, MembershipListener, Data
 
   private void bootstrapMember(InternalDistributedMember member) {
     // Create and execute the function
-    Cache cache = CacheFactory.getAnyInstance();
-    Execution execution = FunctionService.onMember(member);
-    ResultCollector collector = execution.execute(this);
+    var cache = CacheFactory.getAnyInstance();
+    var execution = FunctionService.onMember(member);
+    var collector = execution.execute(this);
 
     // Get the result. Nothing is being done with it.
     try {

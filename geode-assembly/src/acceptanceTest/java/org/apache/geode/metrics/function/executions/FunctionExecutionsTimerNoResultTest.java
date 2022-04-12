@@ -69,22 +69,22 @@ public class FunctionExecutionsTimerNoResultTest {
 
   @Before
   public void setUp() throws IOException {
-    int[] availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(3);
 
     locatorPort = availablePorts[0];
-    int locatorJmxPort = availablePorts[1];
-    int serverPort = availablePorts[2];
+    var locatorJmxPort = availablePorts[1];
+    var serverPort = availablePorts[2];
 
-    Path serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
+    var serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
         MetricsPublishingService.class, SimpleMetricsPublishingService.class);
 
-    Path functionsJarPath = temporaryFolder.getRoot().toPath()
+    var functionsJarPath = temporaryFolder.getRoot().toPath()
         .resolve("functions.jar").toAbsolutePath();
     writeJarFromClasses(functionsJarPath.toFile(),
         GetFunctionExecutionTimerValues.class, FunctionToTimeWithoutResult.class,
         ExecutionsTimerValues.class, ThreadSleep.class);
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + "locator",
         "--dir=" + temporaryFolder.newFolder("locator").getAbsolutePath(),
@@ -92,18 +92,18 @@ public class FunctionExecutionsTimerNoResultTest {
         "--http-service-port=0",
         "--J=-Dgemfire.jmx-manager-port=" + locatorJmxPort);
 
-    String serverName = "server1";
-    String startServerCommand =
+    var serverName = "server1";
+    var startServerCommand =
         startServerCommand(serverName, serverPort, serviceJarPath, functionsJarPath);
 
-    String replicateRegionName = "ReplicateRegion";
-    String createReplicateRegionCommand = String.join(" ",
+    var replicateRegionName = "ReplicateRegion";
+    var createReplicateRegionCommand = String.join(" ",
         "create region",
         "--type=REPLICATE",
         "--name=" + replicateRegionName);
 
-    String partitionRegionName = "PartitionRegion";
-    String createPartitionRegionCommand = String.join(" ",
+    var partitionRegionName = "PartitionRegion";
+    var createPartitionRegionCommand = String.join(" ",
         "create region",
         "--type=PARTITION",
         "--name=" + partitionRegionName);
@@ -133,8 +133,8 @@ public class FunctionExecutionsTimerNoResultTest {
     replicateRegion.close();
     clientCache.close();
 
-    String connectToLocatorCommand = "connect --locator=localhost[" + locatorPort + "]";
-    String shutdownCommand = "shutdown --include-locators=true";
+    var connectToLocatorCommand = "connect --locator=localhost[" + locatorPort + "]";
+    var shutdownCommand = "shutdown --include-locators=true";
     gfshRule.execute(connectToLocatorCommand, shutdownCommand);
   }
 
@@ -143,7 +143,7 @@ public class FunctionExecutionsTimerNoResultTest {
     executeFunctionThatSucceeds(onRegion(replicateRegion));
 
     await().untilAsserted(() -> {
-      ExecutionsTimerValues value = successTimerValue();
+      var value = successTimerValue();
 
       assertThat(value.count)
           .as("Number of successful executions")
@@ -160,7 +160,7 @@ public class FunctionExecutionsTimerNoResultTest {
     executeFunctionThatThrows(onRegion(replicateRegion));
 
     await().untilAsserted(() -> {
-      ExecutionsTimerValues value = failureTimerValue();
+      var value = failureTimerValue();
 
       assertThat(value.count)
           .as("Number of failed executions")
@@ -177,7 +177,7 @@ public class FunctionExecutionsTimerNoResultTest {
     executeFunctionThatSucceeds(onRegion(partitionRegion));
 
     await().untilAsserted(() -> {
-      ExecutionsTimerValues value = successTimerValue();
+      var value = successTimerValue();
 
       assertThat(value.count)
           .as("Number of successful executions")
@@ -194,7 +194,7 @@ public class FunctionExecutionsTimerNoResultTest {
     executeFunctionThatThrows(onRegion(partitionRegion));
 
     await().untilAsserted(() -> {
-      ExecutionsTimerValues value = failureTimerValue();
+      var value = failureTimerValue();
 
       Assertions.assertThat(value.count)
           .as("Number of failed executions")
@@ -211,7 +211,7 @@ public class FunctionExecutionsTimerNoResultTest {
     executeFunctionThatSucceeds(onServer(clientCache));
 
     await().untilAsserted(() -> {
-      ExecutionsTimerValues value = successTimerValue();
+      var value = successTimerValue();
 
       assertThat(value.count)
           .as("Number of successful executions")
@@ -228,7 +228,7 @@ public class FunctionExecutionsTimerNoResultTest {
     executeFunctionThatThrows(onServer(clientCache));
 
     await().untilAsserted(() -> {
-      ExecutionsTimerValues value = failureTimerValue();
+      var value = failureTimerValue();
 
       assertThat(value.count)
           .as("Number of failed executions")
@@ -278,13 +278,13 @@ public class FunctionExecutionsTimerNoResultTest {
   }
 
   private ExecutionsTimerValues getExecutionsTimerValuesFromServer(boolean isSuccessful) {
-    List<List<ExecutionsTimerValues>> timerValuesForEachServer =
+    var timerValuesForEachServer =
         FunctionExecutionsTimerNoResultTest
             .<Void, List<ExecutionsTimerValues>>onServer(clientCache)
             .execute(new GetFunctionExecutionTimerValues())
             .getResult();
 
-    List<ExecutionsTimerValues> values = timerValuesForEachServer.stream()
+    var values = timerValuesForEachServer.stream()
         .flatMap(List::stream)
         .filter(v -> v.functionId.equals(FunctionToTimeWithoutResult.ID))
         .filter(v -> v.succeeded == isSuccessful)

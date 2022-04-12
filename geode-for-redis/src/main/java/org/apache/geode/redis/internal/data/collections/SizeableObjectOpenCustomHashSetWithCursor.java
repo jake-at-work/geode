@@ -50,7 +50,7 @@ public abstract class SizeableObjectOpenCustomHashSetWithCursor<E>
 
   @Override
   public boolean add(E e) {
-    boolean added = super.add(e);
+    var added = super.add(e);
     if (added) {
       memberOverhead += sizeElement(e);
     }
@@ -60,7 +60,7 @@ public abstract class SizeableObjectOpenCustomHashSetWithCursor<E>
   @SuppressWarnings("unchecked")
   @Override
   public boolean remove(Object e) {
-    boolean removed = super.remove(e);
+    var removed = super.remove(e);
     if (removed) {
       memberOverhead -= sizeElement((E) e);
     }
@@ -72,9 +72,9 @@ public abstract class SizeableObjectOpenCustomHashSetWithCursor<E>
    * If member does not exist at that index, then goes to closest member that is right of it.
    */
   public E getRandomMemberFromBackingArray(Random rand) {
-    final int backingArrayLength = key.length;
+    final var backingArrayLength = key.length;
     E member;
-    int index = rand.nextInt(backingArrayLength);
+    var index = rand.nextInt(backingArrayLength);
     // ADD CHECK FOR NULLLLL
     while ((member = key[index]) == null) {
       ++index;
@@ -134,9 +134,9 @@ public abstract class SizeableObjectOpenCustomHashSetWithCursor<E>
       // Emit all the entries at the cursor. This means looking forward in the hash
       // table for any non-null entries that might hash to the current cursor and emitting
       // those as well. This may even wrap around to the front of the hashtable.
-      int position = cursor;
+      var position = cursor;
       while (key[position & mask] != null) {
-        E currentElement = key[position & mask];
+        var currentElement = key[position & mask];
         if (elementHashesTo(currentElement, position, cursor & mask)) {
           consumer.consume(privateData, currentElement);
           count--;
@@ -168,8 +168,8 @@ public abstract class SizeableObjectOpenCustomHashSetWithCursor<E>
   static int rev(int value) {
     // This implementation is also based on dict.c from redis, which was originally from
     // http://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel
-    int s = 32;
-    int mask = ~0;
+    var s = 32;
+    var mask = ~0;
     while ((s >>>= 1) > 0) {
       mask ^= (mask << s);
       value = ((value >>> s) & mask) | ((value << s) & ~mask);
@@ -192,7 +192,7 @@ public abstract class SizeableObjectOpenCustomHashSetWithCursor<E>
     // There is a small optimization here. If the previous element
     // is null, we know that the element at position does hash to the expected
     // hash because it is not here as a result of a collision at some previous position.
-    E previousElement = key[(currentPosition - 1) & mask];
+    var previousElement = key[(currentPosition - 1) & mask];
     return previousElement == null || hash(currentElement) == expectedHash;
   }
 

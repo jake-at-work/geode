@@ -88,7 +88,7 @@ public class Part {
       return true;
     }
     if (isObject() && part instanceof byte[]) {
-      byte[] b = (byte[]) part;
+      var b = (byte[]) part;
       return b.length == 1 && b[0] == DSCODE.NULL.toByte();
     }
     return false;
@@ -178,8 +178,8 @@ public class Part {
   private static final Map<ByteArrayKey, String> CACHED_STRINGS = new ConcurrentHashMap<>();
 
   private static String getCachedString(byte[] serializedBytes) {
-    ByteArrayKey key = new ByteArrayKey(serializedBytes);
-    String result = CACHED_STRINGS.get(key);
+    var key = new ByteArrayKey(serializedBytes);
+    var result = CACHED_STRINGS.get(key);
     if (result == null) {
       result = CacheServerHelper.fromUTF(serializedBytes);
       CACHED_STRINGS.put(key, result);
@@ -210,7 +210,7 @@ public class Part {
       if (!(obj instanceof ByteArrayKey)) {
         return false;
       }
-      ByteArrayKey other = (ByteArrayKey) obj;
+      var other = (ByteArrayKey) obj;
       return Arrays.equals(bytes, other.bytes);
     }
   }
@@ -234,7 +234,7 @@ public class Part {
   private static final byte[][] BYTES = new byte[256][1];
   private static final int BYTES_OFFSET = -1 * Byte.MIN_VALUE;
   static {
-    for (byte i = Byte.MIN_VALUE; i < Byte.MAX_VALUE; i++) {
+    for (var i = Byte.MIN_VALUE; i < Byte.MAX_VALUE; i++) {
       BYTES[i + BYTES_OFFSET][0] = i;
     }
   }
@@ -252,7 +252,7 @@ public class Part {
       Assert.assertTrue(false,
           "expected int length to be 1 but it was " + getLength() + "; part = " + this);
     }
-    final byte[] bytes = getSerializedForm();
+    final var bytes = getSerializedForm();
     return bytes[0];
   }
 
@@ -264,7 +264,7 @@ public class Part {
       Assert.assertTrue(false,
           "expected int length to be 4 but it was " + getLength() + "; part = " + this);
     }
-    byte[] bytes = getSerializedForm();
+    var bytes = getSerializedForm();
     return decodeInt(bytes, 0);
   }
 
@@ -277,7 +277,7 @@ public class Part {
   private static final Map<Integer, byte[]> CACHED_INTS = new ConcurrentHashMap<>();
 
   public void setInt(int v) {
-    byte[] bytes = CACHED_INTS.get(v);
+    var bytes = CACHED_INTS.get(v);
     if (bytes == null) {
       bytes = new byte[4];
       encodeInt(v, bytes);
@@ -303,7 +303,7 @@ public class Part {
   }
 
   public void setLong(long v) {
-    byte[] bytes = new byte[8];
+    var bytes = new byte[8];
     bytes[0] = (byte) ((v & 0xFF00000000000000l) >> 56);
     bytes[1] = (byte) ((v & 0x00FF000000000000l) >> 48);
     bytes[2] = (byte) ((v & 0x0000FF0000000000l) >> 40);
@@ -324,7 +324,7 @@ public class Part {
       Assert.assertTrue(false,
           "expected long length to be 8 but it was " + getLength() + "; part = " + this);
     }
-    byte[] bytes = getSerializedForm();
+    var bytes = getSerializedForm();
     return ((((long) bytes[0]) << 56) & 0xFF00000000000000l)
         | ((((long) bytes[1]) << 48) & 0x00FF000000000000l)
         | ((((long) bytes[2]) << 40) & 0x0000FF0000000000l)
@@ -378,16 +378,16 @@ public class Part {
   public void writeTo(OutputStream out, ByteBuffer buf) throws IOException {
     if (getLength() > 0) {
       if (part instanceof byte[]) {
-        byte[] bytes = (byte[]) part;
+        var bytes = (byte[]) part;
         out.write(bytes, 0, bytes.length);
       } else if (part instanceof StoredObject) {
-        StoredObject so = (StoredObject) part;
-        ByteBuffer sobb = so.createDirectByteBuffer();
+        var so = (StoredObject) part;
+        var sobb = so.createDirectByteBuffer();
         if (sobb != null) {
           HeapDataOutputStream.writeByteBufferToStream(out, buf, sobb);
         } else {
-          int bytesToSend = so.getDataSize();
-          long addr = so.getAddressForReadingData(0, bytesToSend);
+          var bytesToSend = so.getDataSize();
+          var addr = so.getAddressForReadingData(0, bytesToSend);
           while (bytesToSend > 0) {
             if (buf.remaining() == 0) {
               HeapDataOutputStream.flushStream(out, buf);
@@ -398,7 +398,7 @@ public class Part {
           }
         }
       } else {
-        HeapDataOutputStream hdos = (HeapDataOutputStream) part;
+        var hdos = (HeapDataOutputStream) part;
         try {
           hdos.sendTo(out, buf);
         } finally {
@@ -417,13 +417,13 @@ public class Part {
       if (part instanceof byte[]) {
         buf.put((byte[]) part);
       } else if (part instanceof StoredObject) {
-        StoredObject c = (StoredObject) part;
-        ByteBuffer bb = c.createDirectByteBuffer();
+        var c = (StoredObject) part;
+        var bb = c.createDirectByteBuffer();
         if (bb != null) {
           buf.put(bb);
         } else {
-          int bytesToSend = c.getDataSize();
-          long addr = c.getAddressForReadingData(0, bytesToSend);
+          var bytesToSend = c.getDataSize();
+          var addr = c.getAddressForReadingData(0, bytesToSend);
           while (bytesToSend > 0) {
             buf.put(AddressableMemoryManager.readByte(addr));
             addr++;
@@ -431,7 +431,7 @@ public class Part {
           }
         }
       } else {
-        HeapDataOutputStream hdos = (HeapDataOutputStream) part;
+        var hdos = (HeapDataOutputStream) part;
         try {
           hdos.sendTo(buf);
         } finally {
@@ -448,14 +448,14 @@ public class Part {
    */
   public void writeTo(SocketChannel sc, ByteBuffer buf) throws IOException {
     if (getLength() > 0) {
-      final int BUF_MAX = buf.capacity();
+      final var BUF_MAX = buf.capacity();
       if (part instanceof byte[]) {
-        final byte[] bytes = (byte[]) part;
-        int off = 0;
-        int len = bytes.length;
+        final var bytes = (byte[]) part;
+        var off = 0;
+        var len = bytes.length;
         buf.clear();
         while (len > 0) {
-          int bytesThisTime = len;
+          var bytesThisTime = len;
           if (bytesThisTime > BUF_MAX) {
             bytesThisTime = BUF_MAX;
           }
@@ -471,18 +471,18 @@ public class Part {
       } else if (part instanceof StoredObject) {
         // instead of copying the StoredObject to buf try to create a direct ByteBuffer and
         // just write it directly to the socket channel.
-        StoredObject c = (StoredObject) part;
-        ByteBuffer bb = c.createDirectByteBuffer();
+        var c = (StoredObject) part;
+        var bb = c.createDirectByteBuffer();
         if (bb != null) {
           while (bb.remaining() > 0) {
             sc.write(bb);
           }
         } else {
-          int len = c.getDataSize();
-          long addr = c.getAddressForReadingData(0, len);
+          var len = c.getDataSize();
+          var addr = c.getAddressForReadingData(0, len);
           buf.clear();
           while (len > 0) {
-            int bytesThisTime = len;
+            var bytesThisTime = len;
             if (bytesThisTime > BUF_MAX) {
               bytesThisTime = BUF_MAX;
             }
@@ -500,7 +500,7 @@ public class Part {
           }
         }
       } else {
-        HeapDataOutputStream hdos = (HeapDataOutputStream) part;
+        var hdos = (HeapDataOutputStream) part;
         try {
           hdos.sendTo(sc, buf);
         } finally {

@@ -30,21 +30,15 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.PortfolioData;
 import org.apache.geode.cache.query.internal.index.IndexManager.TestHook;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.cache.EvictionAttributesImpl;
@@ -54,7 +48,6 @@ import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
@@ -80,7 +73,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.cache.query.data.*");
     return properties;
@@ -88,8 +81,8 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
 
   @Test
   public void testAsyncIndexInitDuringEntryDestroyAndQueryOnRR() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
     name = "PartionedPortfoliosPR";
     // Create Overflow Persistent Partition Region
@@ -101,14 +94,14 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
             Region partitionRegion = null;
             IndexManager.testHook = null;
             try {
-              DiskStore ds = cache.findDiskStore("disk");
+              var ds = cache.findDiskStore("disk");
               if (ds == null) {
                 ds = cache.createDiskStoreFactory().setDiskDirs(getDiskDirs()).create("disk");
               }
-              AttributesFactory attr = new AttributesFactory();
+              var attr = new AttributesFactory();
               attr.setValueConstraint(PortfolioData.class);
               attr.setIndexMaintenanceSynchronous(true);
-              EvictionAttributesImpl evicAttr =
+              var evicAttr =
                   new EvictionAttributesImpl().setAction(EvictionAction.OVERFLOW_TO_DISK);
               evicAttr.setAlgorithm(EvictionAlgorithm.LRU_ENTRY).setMaximum(1);
               attr.setEvictionAttributes(evicAttr);
@@ -116,7 +109,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
               // attr.setPartitionAttributes(new
               // PartitionAttributesFactory().setTotalNumBuckets(1).create());
               attr.setDiskStoreName("disk");
-              RegionFactory regionFactory = cache.createRegionFactory(attr.create());
+              var regionFactory = cache.createRegionFactory(attr.create());
               partitionRegion = regionFactory.create(name);
             } catch (IllegalStateException ex) {
               LogWriterUtils.getLogWriter().warning("Creation caught IllegalStateException", ex);
@@ -126,7 +119,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
             assertTrue("Region ref claims to be destroyed", !partitionRegion.isDestroyed());
             // Create Indexes
             try {
-              Index index =
+              var index =
                   cache.getQueryService().createIndex("statusIndex", "p.status",
                       SEPARATOR + name + " p");
               assertNotNull(index);
@@ -149,7 +142,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
             // Do a put in region.
             Region r = getCache().getRegion(name);
 
-            for (int i = 0; i < 100; i++) {
+            for (var i = 0; i < 100; i++) {
               r.put(i, new PortfolioData(i));
             }
 
@@ -176,7 +169,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
             }
             // Create and hence initialize Index
             try {
-              Index index =
+              var index =
                   cache.getQueryService().createIndex("idIndex", "p.ID", SEPARATOR + name + " p");
               assertNotNull(index);
             } catch (Exception e1) {
@@ -193,9 +186,9 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
 
   @Test
   public void testAsyncIndexInitDuringEntryPutUsingClientOnRR() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     IgnoredException.addIgnoredException("Unexpected IOException:");
     IgnoredException.addIgnoredException("java.net.SocketException");
@@ -211,19 +204,19 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
             Region partitionRegion = null;
             IndexManager.testHook = null;
             try {
-              CacheServer bridge = cache.addCacheServer();
+              var bridge = cache.addCacheServer();
               bridge.setPort(0);
               bridge.start();
               bridgeServerPort = bridge.getPort();
 
-              DiskStore ds = cache.findDiskStore("disk");
+              var ds = cache.findDiskStore("disk");
               if (ds == null) {
                 ds = cache.createDiskStoreFactory().setDiskDirs(getDiskDirs()).create("disk");
               }
-              AttributesFactory attr = new AttributesFactory();
+              var attr = new AttributesFactory();
               attr.setValueConstraint(PortfolioData.class);
               attr.setIndexMaintenanceSynchronous(true);
-              EvictionAttributesImpl evicAttr =
+              var evicAttr =
                   new EvictionAttributesImpl().setAction(EvictionAction.OVERFLOW_TO_DISK);
               evicAttr.setAlgorithm(EvictionAlgorithm.LRU_ENTRY).setMaximum(1);
               attr.setEvictionAttributes(evicAttr);
@@ -231,7 +224,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
               // attr.setPartitionAttributes(new
               // PartitionAttributesFactory().setTotalNumBuckets(1).create());
               attr.setDiskStoreName("disk");
-              RegionFactory regionFactory = cache.createRegionFactory(attr.create());
+              var regionFactory = cache.createRegionFactory(attr.create());
               partitionRegion = regionFactory.create(name);
             } catch (IllegalStateException ex) {
               LogWriterUtils.getLogWriter().warning("Creation caught IllegalStateException", ex);
@@ -243,7 +236,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
             assertTrue("Region ref claims to be destroyed", !partitionRegion.isDestroyed());
             // Create Indexes
             try {
-              Index index =
+              var index =
                   cache.getQueryService().createIndex("idIndex", "p.ID", SEPARATOR + name + " p");
               assertNotNull(index);
             } catch (Exception e1) {
@@ -256,7 +249,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
 
     final int port =
         vm0.invoke(ConcurrentIndexInitOnOverflowRegionDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Start changing the value in Region which should turn into a deadlock if
     // the fix is not there
@@ -265,12 +258,12 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
       @Override
       public void run2() throws CacheException {
         disconnectFromDS();
-        ClientCache clientCache = new ClientCacheFactory().addPoolServer(host0, port).create();
+        var clientCache = new ClientCacheFactory().addPoolServer(host0, port).create();
 
         // Do a put in region.
         Region r = clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(name);
 
-        for (int i = 0; i < 100; i++) {
+        for (var i = 0; i < 100; i++) {
           r.put(i, new PortfolioData(i));
         }
       }
@@ -291,7 +284,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
 
           @Override
           public void run2() throws CacheException {
-            ClientCache clientCache = ClientCacheFactory.getAnyInstance();
+            var clientCache = ClientCacheFactory.getAnyInstance();
 
             // Do a put in region.
             Region r = clientCache.getRegion(name);
@@ -314,7 +307,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
             }
             // Create Indexes
             try {
-              Index index =
+              var index =
                   cache.getQueryService().createIndex("statusIndex", "p.status",
                       SEPARATOR + name + " p");
               assertNotNull(index);
@@ -347,10 +340,10 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
   @Test
   public void testIndexUpdateWithRegionClear() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
-    final String regionName = "portfolio";
+    final var regionName = "portfolio";
 
     hooked = false;
 
@@ -361,7 +354,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
       public void run2() throws CacheException {
         Cache cache = getCache();
         Region region = cache.createRegionFactory(RegionShortcut.LOCAL).create(regionName);
-        QueryService qService = cache.getQueryService();
+        var qService = cache.getQueryService();
 
         try {
           qService.createIndex("idIndex", "ID", SEPARATOR + regionName);
@@ -400,7 +393,7 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
           public void run2() throws CacheException {
 
             Region region = getCache().getRegion(regionName);
-            for (int i = 0; i < 100; i++) {
+            for (var i = 0; i < 100; i++) {
               if (i == 50) {
                 IndexManager.testHook = new LocalTestHook();
               }
@@ -429,8 +422,8 @@ public class ConcurrentIndexInitOnOverflowRegionDUnitTest extends JUnit4CacheTes
         }
 
         try {
-          QueryService qservice = getCache().getQueryService();
-          Index index = qservice.getIndex(region, "idIndex");
+          var qservice = getCache().getQueryService();
+          var index = qservice.getIndex(region, "idIndex");
           if (((CompactRangeIndex) index).getIndexStorage().size() > 1) {
             fail(
                 "After clear region size is supposed to be zero as all index updates are blocked. Current region size is: "

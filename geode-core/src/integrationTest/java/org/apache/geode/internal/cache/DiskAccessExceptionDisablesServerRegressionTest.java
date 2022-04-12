@@ -28,8 +28,6 @@ import org.junit.rules.TestName;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
@@ -95,8 +93,8 @@ public class DiskAccessExceptionDisablesServerRegressionTest {
 
   @Before
   public void setUp() throws Exception {
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
-    File temporaryDirectory = temporaryFolder.newFolder(uniqueName);
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var temporaryDirectory = temporaryFolder.newFolder(uniqueName);
 
     DiskStoreImpl.SET_IGNORE_PREALLOCATE = true;
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
@@ -106,11 +104,11 @@ public class DiskAccessExceptionDisablesServerRegressionTest {
 
     cache = new CacheFactory().set(LOCATORS, "").set(MCAST_PORT, "0").create();
 
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setDiskDirsAndSizes(new File[] {temporaryDirectory}, new int[] {2000});
     ((DiskStoreFactoryImpl) dsf).setMaxOplogSizeInBytes(MAX_OPLOG_SIZE);
     ((DiskStoreFactoryImpl) dsf).setDiskDirSizesUnit((DiskDirSizesUnit.BYTES));
-    DiskStore diskStore = dsf.create(uniqueName);
+    var diskStore = dsf.create(uniqueName);
 
     RegionFactory<String, byte[]> regionFactory =
         cache.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT);

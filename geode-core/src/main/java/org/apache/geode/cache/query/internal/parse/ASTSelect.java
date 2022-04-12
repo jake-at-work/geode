@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import antlr.Token;
-import antlr.collections.AST;
 
 import org.apache.geode.cache.query.internal.QCompiler;
 
@@ -38,7 +37,7 @@ public class ASTSelect extends GemFireAST {
 
   @Override
   public void compile(QCompiler compiler) {
-    AST child = getFirstChild();
+    var child = getFirstChild();
     Map<Integer, Object> queryComponents = new HashMap<>();
     // The query components are :
     // 1) Distinct | All
@@ -51,9 +50,9 @@ public class ASTSelect extends GemFireAST {
     // 8) order by clause
     // 9) limit
     while (child != null) {
-      int clauseType = child.getType();
+      var clauseType = child.getType();
       ((GemFireAST) child).compile(compiler);
-      Object compiledObject = compiler.pop();
+      var compiledObject = compiler.pop();
       queryComponents.put(clauseType, compiledObject);
       child = child.getNextSibling();
     }

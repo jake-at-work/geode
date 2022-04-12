@@ -22,7 +22,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.geode.DataSerializable;
@@ -153,7 +152,7 @@ public class MembershipAttributes implements DataSerializable, Externalizable {
       return Collections.emptySet();
     }
     Set<Role> roleSet = new HashSet<>();
-    for (final String roleName : roleNames) {
+    for (final var roleName : roleNames) {
       roleSet.add(InternalRole.getRole(roleName));
     }
     return roleSet;
@@ -176,7 +175,7 @@ public class MembershipAttributes implements DataSerializable, Externalizable {
     if (!(other instanceof MembershipAttributes)) {
       return false;
     }
-    final MembershipAttributes that = (MembershipAttributes) other;
+    final var that = (MembershipAttributes) other;
 
     if (requiredRoles != that.requiredRoles
         && !(requiredRoles != null && requiredRoles.equals(that.requiredRoles))) {
@@ -199,8 +198,8 @@ public class MembershipAttributes implements DataSerializable, Externalizable {
    */
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + (requiredRoles == null ? 0 : requiredRoles.hashCode());
     result = mult * result + (lossAction == null ? 0 : lossAction.hashCode());
@@ -219,14 +218,14 @@ public class MembershipAttributes implements DataSerializable, Externalizable {
     if (!hasRequiredRoles()) {
       return "RequiredRoles(none)";
     } else {
-      final StringBuilder sb = new StringBuilder();
+      final var sb = new StringBuilder();
       sb.append("RequiredRoles(");
-      boolean comma = false;
-      for (final Role requiredRole : requiredRoles) {
+      var comma = false;
+      for (final var requiredRole : requiredRoles) {
         if (comma) {
           sb.append(",");
         }
-        Role role = requiredRole;
+        var role = requiredRole;
         sb.append(role.getName());
         comma = true;
       }
@@ -240,9 +239,9 @@ public class MembershipAttributes implements DataSerializable, Externalizable {
 
   @Override
   public void toData(DataOutput out) throws IOException {
-    String[] names = new String[requiredRoles.size()];
-    Iterator<Role> iter = requiredRoles.iterator();
-    for (int i = 0; i < names.length; i++) {
+    var names = new String[requiredRoles.size()];
+    var iter = requiredRoles.iterator();
+    for (var i = 0; i < names.length; i++) {
       names[i] = iter.next().getName();
     }
     DataSerializer.writeStringArray(names, out);

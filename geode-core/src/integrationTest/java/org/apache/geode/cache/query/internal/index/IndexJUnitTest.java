@@ -32,7 +32,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 
@@ -46,7 +45,7 @@ public class IndexJUnitTest {
   @BeforeClass
   public static void beforeClass() throws Exception {
     CacheUtils.startCache();
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     region = CacheUtils.createRegion("Portfolios", Portfolio.class);
     index = qs.createIndex(indexName, IndexType.FUNCTIONAL, "p.status", SEPARATOR + "Portfolios p");
   }

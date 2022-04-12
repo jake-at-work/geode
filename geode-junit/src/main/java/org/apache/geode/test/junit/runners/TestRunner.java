@@ -41,18 +41,18 @@ public class TestRunner {
   }
 
   public static Result runTest(Class<?> test) {
-    JUnitCore junitCore = new JUnitCore();
+    var junitCore = new JUnitCore();
     return junitCore.run(Request.aClass(test).getRunner());
   }
 
   public static Result runTestWithValidation(Class<?> test) {
-    JUnitCore junitCore = new JUnitCore();
-    Result result = junitCore.run(Request.aClass(test).getRunner());
+    var junitCore = new JUnitCore();
+    var result = junitCore.run(Request.aClass(test).getRunner());
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     if (!failures.isEmpty()) {
       List<Throwable> errors = new ArrayList<>();
-      for (Failure failure : failures) {
+      for (var failure : failures) {
         errors.add(failure.getException());
       }
       try {
@@ -74,19 +74,19 @@ public class TestRunner {
 
   public static List<Failure> runTestWithExpectedFailures(Class<?> test,
       List<Throwable> expectedThrowables) {
-    List<FailureInfo> expectedFailures = Streams.stream(expectedThrowables)
+    var expectedFailures = Streams.stream(expectedThrowables)
         .map(t -> new FailureInfo(t.getClass(), t.getMessage()))
         .collect(Collectors.toList());
 
-    JUnitCore junitCore = new JUnitCore();
-    Result result = junitCore.run(Request.aClass(test).getRunner());
+    var junitCore = new JUnitCore();
+    var result = junitCore.run(Request.aClass(test).getRunner());
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     assertThat(failures)
         .as("Actual failures")
         .hasSameSizeAs(expectedFailures);
 
-    List<FailureInfo> actualFailures = Streams.stream(failures)
+    var actualFailures = Streams.stream(failures)
         .map(t -> new FailureInfo(t.getException().getClass(), t.getMessage()))
         .collect(Collectors.toList());
 
@@ -105,19 +105,19 @@ public class TestRunner {
 
   public static List<Failure> runTestWithExpectedFailureTypes(Class<?> test,
       List<Class<? extends Throwable>> expectedThrowables) {
-    List<FailureTypeInfo> expectedFailures = Streams.stream(expectedThrowables)
+    var expectedFailures = Streams.stream(expectedThrowables)
         .map(FailureTypeInfo::new)
         .collect(Collectors.toList());
 
-    JUnitCore junitCore = new JUnitCore();
-    Result result = junitCore.run(Request.aClass(test).getRunner());
+    var junitCore = new JUnitCore();
+    var result = junitCore.run(Request.aClass(test).getRunner());
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     assertThat(failures)
         .as("Actual failures")
         .hasSameSizeAs(expectedFailures);
 
-    List<FailureTypeInfo> actualFailures = Streams.stream(failures)
+    var actualFailures = Streams.stream(failures)
         .map(t -> new FailureTypeInfo(t.getException().getClass()))
         .collect(Collectors.toList());
 
@@ -151,7 +151,7 @@ public class TestRunner {
       if (obj == null || getClass() != obj.getClass()) {
         return false;
       }
-      FailureInfo that = (FailureInfo) obj;
+      var that = (FailureInfo) obj;
       return thrownClass.equals(that.thrownClass) &&
           (expectedMessage.contains(that.expectedMessage) ||
               that.expectedMessage.contains(expectedMessage));
@@ -187,7 +187,7 @@ public class TestRunner {
       if (obj == null || getClass() != obj.getClass()) {
         return false;
       }
-      FailureTypeInfo that = (FailureTypeInfo) obj;
+      var that = (FailureTypeInfo) obj;
       return thrownClass.equals(that.thrownClass);
     }
 

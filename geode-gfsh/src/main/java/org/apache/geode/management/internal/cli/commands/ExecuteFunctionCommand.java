@@ -17,12 +17,10 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.apache.geode.internal.security.IntegratedSecurityService.CREDENTIALS_SESSION_ATTRIBUTE;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.apache.shiro.subject.Subject;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
@@ -34,8 +32,6 @@ import org.apache.geode.management.internal.cli.CliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.functions.UserFunctionExecution;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 
 public class ExecuteFunctionCommand extends GfshCommand {
@@ -61,9 +57,9 @@ public class ExecuteFunctionCommand extends GfshCommand {
       @CliOption(key = CliStrings.EXECUTE_FUNCTION__FILTER,
           help = CliStrings.EXECUTE_FUNCTION__FILTER__HELP) String filterString) {
 
-    ResultModel resultModel = new ResultModel();
-    TabularResultModel resultTable = resultModel.addTable("Table1");
-    String headerText = "Execution summary";
+    var resultModel = new ResultModel();
+    var resultTable = resultModel.addTable("Table1");
+    var headerText = "Execution summary";
     resultTable.setHeader(headerText);
 
     // when here, the options are already parsed and validated
@@ -81,7 +77,7 @@ public class ExecuteFunctionCommand extends GfshCommand {
     }
 
     // Build up our argument list
-    Object[] args = new Object[6];
+    var args = new Object[6];
     args[0] = functionId;
     if (filterString != null) {
       args[1] = filterString;
@@ -91,7 +87,7 @@ public class ExecuteFunctionCommand extends GfshCommand {
     }
     if (arguments != null && arguments.length > 0) {
       args[3] = "";
-      for (String str : arguments) {
+      for (var str : arguments) {
         // send via CSV separated value format
         if (str != null) {
           args[3] = args[3] + str + ",";
@@ -100,7 +96,7 @@ public class ExecuteFunctionCommand extends GfshCommand {
     }
     args[4] = onRegion;
 
-    Subject currentUser = getSubject();
+    var currentUser = getSubject();
     if (currentUser != null) {
       args[5] = currentUser.getSession().getAttribute(CREDENTIALS_SESSION_ATTRIBUTE);
     } else {
@@ -108,7 +104,7 @@ public class ExecuteFunctionCommand extends GfshCommand {
     }
 
     // Execute function and aggregate results
-    List<CliFunctionResult> results =
+    var results =
         executeAndGetFunctionResult(new UserFunctionExecution(), args, dsMembers);
 
     return ResultModel.createMemberStatusResult(results, false, false);
@@ -118,15 +114,15 @@ public class ExecuteFunctionCommand extends GfshCommand {
   public static class ExecuteFunctionCommandInterceptor implements CliAroundInterceptor {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      String onRegion = parseResult.getParamValueAsString(CliStrings.EXECUTE_FUNCTION__ONREGION);
-      String onMember = parseResult.getParamValueAsString(CliStrings.MEMBER);
-      String onGroup = parseResult.getParamValueAsString(CliStrings.GROUP);
-      String filter = parseResult.getParamValueAsString(CliStrings.EXECUTE_FUNCTION__FILTER);
+      var onRegion = parseResult.getParamValueAsString(CliStrings.EXECUTE_FUNCTION__ONREGION);
+      var onMember = parseResult.getParamValueAsString(CliStrings.MEMBER);
+      var onGroup = parseResult.getParamValueAsString(CliStrings.GROUP);
+      var filter = parseResult.getParamValueAsString(CliStrings.EXECUTE_FUNCTION__FILTER);
 
-      boolean moreThanOne =
+      var moreThanOne =
           Stream.of(onRegion, onMember, onGroup).filter(Objects::nonNull).count() > 1;
 
-      ResultModel result = new ResultModel();
+      var result = new ResultModel();
       if (moreThanOne) {
         return ResultModel.createError(CliStrings.EXECUTE_FUNCTION__MSG__OPTIONS);
       }

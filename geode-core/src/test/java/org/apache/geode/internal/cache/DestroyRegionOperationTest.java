@@ -31,26 +31,26 @@ public class DestroyRegionOperationTest {
 
   @Test
   public void testGetRecipients() {
-    InternalDistributedMember internalDistributedMember = mock(InternalDistributedMember.class);
-    BucketRegion bucketRegion = mock(BucketRegion.class);
-    InternalCache internalCache = mock(InternalCache.class);
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    var internalDistributedMember = mock(InternalDistributedMember.class);
+    var bucketRegion = mock(BucketRegion.class);
+    var internalCache = mock(InternalCache.class);
+    var distributedSystem = mock(DistributedSystem.class);
     when(bucketRegion.getCache()).thenReturn(internalCache);
     when(internalCache.getDistributedSystem()).thenReturn(distributedSystem);
-    InternalDistributedMember member1 = mock(InternalDistributedMember.class);
-    InternalDistributedMember member2 = mock(InternalDistributedMember.class);
+    var member1 = mock(InternalDistributedMember.class);
+    var member2 = mock(InternalDistributedMember.class);
     Set<InternalDistributedMember> members = new HashSet<>();
     members.add(member1);
     members.add(member2);
     when(bucketRegion.getDestroyRegionRecipients()).thenReturn(members);
 
-    RegionEventImpl event = new RegionEventImpl(bucketRegion, Operation.REGION_LOCAL_DESTROY, null,
+    var event = new RegionEventImpl(bucketRegion, Operation.REGION_LOCAL_DESTROY, null,
         false, internalDistributedMember,
         false);
-    DestroyRegionOperation destroyRegionOperation = new DestroyRegionOperation(event, true);
+    var destroyRegionOperation = new DestroyRegionOperation(event, true);
     assertThat(destroyRegionOperation.getRecipients()).isEqualTo(members);
 
-    DistributedRegion distributedRegion = mock(DistributedRegion.class);
+    var distributedRegion = mock(DistributedRegion.class);
     when(distributedRegion.getCache()).thenReturn(internalCache);
     Set<InternalDistributedMember> member = new HashSet<>();
     member.add(member1);

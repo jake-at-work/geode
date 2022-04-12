@@ -32,7 +32,7 @@ public class FetchHostRequest extends AdminRequest {
    * Returns a <code>FetchHostRequest</code> to be sent to the specified recipient.
    */
   public static FetchHostRequest create() {
-    FetchHostRequest m = new FetchHostRequest();
+    var m = new FetchHostRequest();
     return m;
   }
 

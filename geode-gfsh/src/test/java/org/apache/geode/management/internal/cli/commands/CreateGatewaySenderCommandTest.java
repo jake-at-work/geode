@@ -41,7 +41,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.management.internal.cli.functions.GatewaySenderFunctionArgs;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.junit.rules.GfshParserRule;
@@ -60,7 +59,7 @@ public class CreateGatewaySenderCommandTest {
   @Before
   public void before() {
     command = spy(CreateGatewaySenderCommand.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     doReturn(cache).when(command).getCache();
     doReturn(true).when(command).waitForGatewaySenderMBeanCreation(any(), any());
     functionResults = new ArrayList<>();
@@ -117,9 +116,9 @@ public class CreateGatewaySenderCommandTest {
 
   @Test
   public void orderPolicyAutoComplete() {
-    String command =
+    var command =
         "create gateway-sender --id=ln --remote-distributed-system-id=1 --order-policy";
-    GfshParserRule.CommandCandidate candidate = gfsh.complete(command);
+    var candidate = gfsh.complete(command);
     assertThat(candidate.getCandidates()).hasSize(3);
     assertThat(candidate.getFirstCandidate()).isEqualTo(command + "=KEY");
   }
@@ -224,14 +223,14 @@ public class CreateGatewaySenderCommandTest {
     cliFunctionResult = new CliFunctionResult("member", CliFunctionResult.StatusState.OK,
         "cliFunctionResult");
     functionResults.add(cliFunctionResult);
-    ResultModel resultModel = gfsh.executeAndAssertThat(command,
+    var resultModel = gfsh.executeAndAssertThat(command,
         "create gateway-sender --group=xyz --id=1 --remote-distributed-system-id=1"
             + " --order-policy=thread --dispatcher-threads=2 "
             + "--gateway-event-filter=test1,test2 --gateway-transport-filter=test1,test2")
         .getResultModel();
 
     assertThat(resultModel.getConfigObject()).isNotNull();
-    CacheConfig.GatewaySender sender = (CacheConfig.GatewaySender) resultModel.getConfigObject();
+    var sender = (CacheConfig.GatewaySender) resultModel.getConfigObject();
     assertThat(sender.getId()).isEqualTo("1");
     assertThat(sender.getRemoteDistributedSystemId()).isEqualTo("1");
     assertThat(sender.getOrderPolicy()).isEqualTo("THREAD");
@@ -241,9 +240,9 @@ public class CreateGatewaySenderCommandTest {
   public void whenMembersAreDifferentVersions() {
     // Create a set of mixed version members
     Set<DistributedMember> members = new HashSet<>();
-    InternalDistributedMember currentVersionMember = mock(InternalDistributedMember.class);
+    var currentVersionMember = mock(InternalDistributedMember.class);
     when(currentVersionMember.getVersion()).thenReturn(KnownVersion.CURRENT);
-    InternalDistributedMember oldVersionMember = mock(InternalDistributedMember.class);
+    var oldVersionMember = mock(InternalDistributedMember.class);
     when(oldVersionMember.getVersion()).thenReturn(KnownVersion.GEODE_1_4_0);
     members.add(currentVersionMember);
     members.add(oldVersionMember);

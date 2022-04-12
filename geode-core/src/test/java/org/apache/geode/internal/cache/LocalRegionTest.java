@@ -106,9 +106,9 @@ public class LocalRegionTest {
     };
     serverRegionProxyConstructor = mock(ServerRegionProxyConstructor.class);
 
-    DiskWriteAttributes diskWriteAttributes = mock(DiskWriteAttributes.class);
-    EvictionAttributes evictionAttributes = mock(EvictionAttributes.class);
-    ExpirationAttributes expirationAttributes = mock(ExpirationAttributes.class);
+    var diskWriteAttributes = mock(DiskWriteAttributes.class);
+    var evictionAttributes = mock(EvictionAttributes.class);
+    var expirationAttributes = mock(ExpirationAttributes.class);
 
     when(cache.getInternalDistributedSystem()).thenReturn(internalDistributedSystem);
     when(evictionAttributes.getAction()).thenReturn(EvictionAction.NONE);
@@ -125,7 +125,7 @@ public class LocalRegionTest {
 
   @Test
   public void getLocalSizeDoesNotThrowNullPointerExceptionDuringConstruction() {
-    Function<LocalRegion, RegionPerfStats> regionPerfStatsFactory = localRegion -> {
+    var regionPerfStatsFactory = (Function<LocalRegion, RegionPerfStats>) localRegion -> {
       localRegion.getLocalSize();
       return mock(RegionPerfStats.class);
     };
@@ -139,9 +139,9 @@ public class LocalRegionTest {
 
   @Test
   public void destroyRegionClosesCachePerfStatsIfHasOwnStatsIsTrue() {
-    CachePerfStats cachePerfStats = mock(CachePerfStats.class);
-    HasCachePerfStats hasCachePerfStats = mock(HasCachePerfStats.class);
-    InternalRegionArguments internalRegionArguments = mock(InternalRegionArguments.class);
+    var cachePerfStats = mock(CachePerfStats.class);
+    var hasCachePerfStats = mock(HasCachePerfStats.class);
+    var internalRegionArguments = mock(InternalRegionArguments.class);
 
     when(cache.getCancelCriterion())
         .thenReturn(mock(CancelCriterion.class));
@@ -177,9 +177,9 @@ public class LocalRegionTest {
 
   @Test
   public void destroyRegionDoesNotCloseCachePerfStatsIfHasOwnStatsIsFalse() {
-    CachePerfStats cachePerfStats = mock(CachePerfStats.class);
-    HasCachePerfStats hasCachePerfStats = mock(HasCachePerfStats.class);
-    InternalRegionArguments internalRegionArguments = mock(InternalRegionArguments.class);
+    var cachePerfStats = mock(CachePerfStats.class);
+    var hasCachePerfStats = mock(HasCachePerfStats.class);
+    var internalRegionArguments = mock(InternalRegionArguments.class);
 
     when(cache.getCancelCriterion())
         .thenReturn(mock(CancelCriterion.class));
@@ -216,7 +216,7 @@ public class LocalRegionTest {
   @Test
   public void getAllShouldNotThrowExceptionWhenEntryIsLocallyDeletedBetweenFetches() {
     when(cache.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
-    LocalRegion region =
+    var region =
         spy(new LocalRegion("region", regionAttributes, null, cache, internalRegionArguments,
             internalDataView, regionMapConstructor, serverRegionProxyConstructor, entryEventFactory,
             poolFinder, regionPerfStatsFactory, disabledClock()));
@@ -242,21 +242,21 @@ public class LocalRegionTest {
 
   @Test
   public void initializeStatsInvokesDiskRegionStatsMethods() {
-    LocalRegion region =
+    var region =
         spy(new LocalRegion("region", regionAttributes, null, cache, internalRegionArguments,
             internalDataView, regionMapConstructor, serverRegionProxyConstructor, entryEventFactory,
             poolFinder, regionPerfStatsFactory, disabledClock()));
 
     // Mock DiskRegion and DiskRegionStats
-    DiskRegion dr = mock(DiskRegion.class);
+    var dr = mock(DiskRegion.class);
     when(region.getDiskRegion()).thenReturn(dr);
-    DiskRegionStats drs = mock(DiskRegionStats.class);
+    var drs = mock(DiskRegionStats.class);
     when(dr.getStats()).thenReturn(drs);
 
     // Invoke initializeStats
-    int numEntriesInVM = 100;
-    long numOverflowOnDisk = 200l;
-    long numOverflowBytesOnDisk = 300l;
+    var numEntriesInVM = 100;
+    var numOverflowOnDisk = 200l;
+    var numOverflowBytesOnDisk = 300l;
     region.initializeStats(numEntriesInVM, numOverflowOnDisk, numOverflowBytesOnDisk);
 
     // Verify the DiskRegionStats methods were invoked
@@ -267,19 +267,19 @@ public class LocalRegionTest {
 
   @Test
   public void forPdxInstanceByPassTheFutureInLocalRegionOptimizedGetObject() {
-    LocalRegion region =
+    var region =
         spy(new LocalRegion("region", regionAttributes, null, cache, internalRegionArguments,
             internalDataView, regionMapConstructor, serverRegionProxyConstructor, entryEventFactory,
             poolFinder, regionPerfStatsFactory, disabledClock()));
-    KeyInfo keyInfo = mock(KeyInfo.class);
-    Object key = new Object();
-    Object result = new Object();
+    var keyInfo = mock(KeyInfo.class);
+    var key = new Object();
+    var result = new Object();
     when(keyInfo.getKey()).thenReturn(key);
-    FutureResult thisFuture = new FutureResult(mock(CancelCriterion.class));
+    var thisFuture = new FutureResult(mock(CancelCriterion.class));
     thisFuture.set(new Object[] {result, mock(VersionTag.class)});
     region.getGetFutures().put(key, thisFuture);
     // For non-PdxInstance, use the value in the Future
-    Object object = region.optimizedGetObject(keyInfo, true, true,
+    var object = region.optimizedGetObject(keyInfo, true, true,
         new Object(), true, true,
         mock(ClientProxyMembershipID.class), mock(EntryEventImpl.class),
         true);
@@ -288,10 +288,10 @@ public class LocalRegionTest {
     // For PdxInstance, return a new reference by getObject(), bypassing the Future
     result = mock(PdxInstance.class);
     thisFuture.set(new Object[] {result, mock(VersionTag.class)});
-    Object newResult = new Object();
-    Object localValue = new Object();
-    ClientProxyMembershipID requestingClient = mock(ClientProxyMembershipID.class);
-    EntryEventImpl clientEvent = mock(EntryEventImpl.class);
+    var newResult = new Object();
+    var localValue = new Object();
+    var requestingClient = mock(ClientProxyMembershipID.class);
+    var clientEvent = mock(EntryEventImpl.class);
     when(region.getObject(keyInfo, true, true,
         localValue, true, true,
         requestingClient, clientEvent,
@@ -307,13 +307,13 @@ public class LocalRegionTest {
   @Test
   public void verifyBasicBridgePutSetsVersionTagOnClientEventIfConcurrencyConflictAndPossibleDuplicate() {
     // Create the region
-    LocalRegion region =
+    var region =
         spy(new LocalRegion("region", regionAttributes, null, cache, internalRegionArguments,
             internalDataView, regionMapConstructor, serverRegionProxyConstructor, entryEventFactory,
             poolFinder, regionPerfStatsFactory, disabledClock()));
 
     // Create the client event
-    EventIDHolder clientEvent = new EventIDHolder(new EventID(new byte[] {1}, 1, 1));
+    var clientEvent = new EventIDHolder(new EventID(new byte[] {1}, 1, 1));
     clientEvent.setPossibleDuplicate(true);
 
     // Make assertions of the initial client event
@@ -322,7 +322,7 @@ public class LocalRegionTest {
     assertThat(clientEvent.getVersionTag()).isNull();
 
     // Create the mock EntryEventImpl
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var event = mock(EntryEventImpl.class);
     when(event.isConcurrencyConflict()).thenReturn(true);
     doNothing().when(event).isConcurrencyConflict(true);
     VersionTag<?> tag = mock(VersionTag.class);
@@ -335,7 +335,7 @@ public class LocalRegionTest {
         .thenThrow(ConcurrentCacheModificationException.class);
 
     // Invoke basicBridgePut
-    boolean result = region.basicBridgePut(0, new byte[1], null, true,
+    var result = region.basicBridgePut(0, new byte[1], null, true,
         null, mock(ClientProxyMembershipID.class), clientEvent, true);
 
     // Make assertions of basicBridgePut
@@ -350,19 +350,19 @@ public class LocalRegionTest {
 
   @Test
   public void createOQLIndexOnPartitionedRegionAddsIndexesToSets() throws Exception {
-    LocalRegion region =
+    var region =
         new LocalRegion("region", regionAttributes, null, cache, internalRegionArguments,
             internalDataView, regionMapConstructor, serverRegionProxyConstructor, entryEventFactory,
             poolFinder, regionPerfStatsFactory, disabledClock());
     when(cache.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
     when(cache.getService(any())).thenReturn(mock(QueryConfigurationService.class));
-    IndexManager indexManager = mock(IndexManager.class);
+    var indexManager = mock(IndexManager.class);
     region.setIndexManager(indexManager);
     Set<Index> indexes = new HashSet<>();
     Set<Index> prIndexes = new HashSet<>();
-    Index index = mock(Index.class);
-    PartitionedIndex prIndex = mock(PartitionedIndex.class);
-    IndexCreationData indexCreationData = mock(IndexCreationData.class);
+    var index = mock(Index.class);
+    var prIndex = mock(PartitionedIndex.class);
+    var indexCreationData = mock(IndexCreationData.class);
     when(indexCreationData.getPartitionedIndex()).thenReturn(prIndex);
     when(indexManager.createIndex(eq(null), eq(null), eq(null), eq(null), eq(null), any(),
         eq(prIndex), eq(true))).thenReturn(index);
@@ -376,12 +376,12 @@ public class LocalRegionTest {
 
   @Test
   public void createOQLIndexOnPartitionedRegionThrowsIfIndexManagerIsNullDueToCacheClosed() {
-    LocalRegion region =
+    var region =
         spy(new LocalRegion("region", regionAttributes, null, cache, internalRegionArguments,
             internalDataView, regionMapConstructor, serverRegionProxyConstructor, entryEventFactory,
             poolFinder, regionPerfStatsFactory, disabledClock()));
-    CacheClosedException exception = new CacheClosedException();
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var exception = new CacheClosedException();
+    var cancelCriterion = mock(CancelCriterion.class);
     when(cache.getCancelCriterion()).thenReturn(cancelCriterion);
     doThrow(exception).when(cancelCriterion).checkCancelInProgress(null);
     doReturn(true).when(region).isDestroyed();
@@ -393,7 +393,7 @@ public class LocalRegionTest {
 
   @Test
   public void setIndexManagerChecksReadiness() {
-    LocalRegion region =
+    var region =
         spy(new LocalRegion("region", regionAttributes, null, cache, internalRegionArguments,
             internalDataView, regionMapConstructor, serverRegionProxyConstructor, entryEventFactory,
             poolFinder, regionPerfStatsFactory, disabledClock()));

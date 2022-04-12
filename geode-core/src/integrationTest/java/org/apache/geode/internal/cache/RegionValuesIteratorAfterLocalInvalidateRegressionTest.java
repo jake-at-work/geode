@@ -18,7 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import org.junit.After;
@@ -52,14 +51,14 @@ public class RegionValuesIteratorAfterLocalInvalidateRegressionTest {
 
   @Before
   public void setUp() {
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
 
     cache = new CacheFactory().set(LOCATORS, "").set(MCAST_PORT, "0").create();
 
     RegionFactory<String, String> regionFactory = cache.createRegionFactory(RegionShortcut.LOCAL);
     region = regionFactory.create(uniqueName);
 
-    for (int i = 1; i <= PUT_COUNT; i++) {
+    for (var i = 1; i <= PUT_COUNT; i++) {
       region.put("key" + i, "value" + i);
     }
   }
@@ -72,10 +71,10 @@ public class RegionValuesIteratorAfterLocalInvalidateRegressionTest {
   @Test
   public void testBunchOfInvalidEntries() throws Exception {
     // make sure iterator works while values are valid
-    Collection<String> valuesBefore = region.values();
+    var valuesBefore = region.values();
     assertThat(valuesBefore).hasSize(PUT_COUNT);
 
-    int iteratorCount = 0;
+    var iteratorCount = 0;
     for (Iterator iterator = valuesBefore.iterator(); iterator.hasNext(); iterator.next()) {
       iteratorCount++;
     }
@@ -85,7 +84,7 @@ public class RegionValuesIteratorAfterLocalInvalidateRegressionTest {
     region.localInvalidateRegion();
 
     // now we expect iterator to stackOverflow if bug 34583 exists
-    Collection<String> valuesAfter = region.values();
+    var valuesAfter = region.values();
     assertThat(valuesAfter).isEmpty();
 
     iteratorCount = 0;

@@ -18,22 +18,17 @@ import static java.util.Collections.synchronizedSet;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.CancelException;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.persistence.PersistentID;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.DiskStoreImpl;
-import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.persistence.PersistentMemberID;
-import org.apache.geode.internal.cache.persistence.PersistentMemberManager;
 import org.apache.geode.internal.cache.persistence.PersistentMemberPattern;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -48,11 +43,11 @@ public class MissingPersistentIDsRequest extends CliLegacyMessage {
   public static Set<PersistentID> send(DistributionManager dm) {
     Set recipients = dm.getOtherDistributionManagerIds();
 
-    MissingPersistentIDsRequest request = new MissingPersistentIDsRequest();
+    var request = new MissingPersistentIDsRequest();
 
     request.setRecipients(recipients);
 
-    MissingPersistentIDProcessor replyProcessor = new MissingPersistentIDProcessor(dm, recipients);
+    var replyProcessor = new MissingPersistentIDProcessor(dm, recipients);
     request.msgId = replyProcessor.getProcessorId();
     dm.putOutgoing(request);
     try {
@@ -65,10 +60,10 @@ public class MissingPersistentIDsRequest extends CliLegacyMessage {
       logger.warn(e);
     }
 
-    Set<PersistentID> results = replyProcessor.missing;
-    Set<PersistentID> existing = replyProcessor.existing;
+    var results = replyProcessor.missing;
+    var existing = replyProcessor.existing;
 
-    MissingPersistentIDsResponse localResponse =
+    var localResponse =
         (MissingPersistentIDsResponse) request.createResponse(dm);
     results.addAll(localResponse.getMissingIds());
     existing.addAll(localResponse.getLocalIds());
@@ -81,18 +76,18 @@ public class MissingPersistentIDsRequest extends CliLegacyMessage {
   protected AdminResponse createResponse(DistributionManager dm) {
     Set<PersistentID> missingIds = new HashSet<>();
     Set<PersistentID> localPatterns = new HashSet<>();
-    InternalCache cache = dm.getCache();
+    var cache = dm.getCache();
     if (cache != null && !cache.isClosed()) {
-      PersistentMemberManager mm = cache.getPersistentMemberManager();
-      Map<String, Set<PersistentMemberID>> waitingRegions = mm.getWaitingRegions();
-      for (Map.Entry<String, Set<PersistentMemberID>> entry : waitingRegions.entrySet()) {
-        for (PersistentMemberID id : entry.getValue()) {
+      var mm = cache.getPersistentMemberManager();
+      var waitingRegions = mm.getWaitingRegions();
+      for (var entry : waitingRegions.entrySet()) {
+        for (var id : entry.getValue()) {
           missingIds.add(new PersistentMemberPattern(id));
         }
       }
 
-      for (DiskStore diskStore : cache.listDiskStoresIncludingRegionOwned()) {
-        PersistentMemberID id = ((DiskStoreImpl) diskStore).generatePersistentID();
+      for (var diskStore : cache.listDiskStoresIncludingRegionOwned()) {
+        var id = ((DiskStoreImpl) diskStore).generatePersistentID();
         localPatterns.add(new PersistentMemberPattern(id));
       }
     }

@@ -19,19 +19,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.internal.cli.dto.Key1;
 import org.apache.geode.management.internal.cli.dto.Value2;
@@ -57,7 +54,7 @@ public class RemoveCommandJsonDUnitTest implements Serializable {
 
   @Before
   public void setup() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.management.internal.cli.dto.*");
 
@@ -76,19 +73,19 @@ public class RemoveCommandJsonDUnitTest implements Serializable {
   }
 
   private void populateTestRegions() {
-    Cache cache = CacheFactory.getAnyInstance();
+    var cache = CacheFactory.getAnyInstance();
 
-    Region<Key1, Value2> complexRegion =
+    var complexRegion =
         cache.<Key1, Value2>createRegionFactory(RegionShortcut.REPLICATE).create(JSON_REGION_NAME);
 
-    Value2 value1 = new Value2();
+    var value1 = new Value2();
     value1.setStateName("State1");
     value1.setCapitalCity("capital1");
     value1.setPopulation(100);
     value1.setAreaInSqKm(100.4365);
     complexRegion.put(key(1), value1);
 
-    Value2 value2 = new Value2();
+    var value2 = new Value2();
     value1.setStateName("State2");
     value1.setCapitalCity("capital2");
     value1.setPopulation(200);
@@ -98,9 +95,9 @@ public class RemoveCommandJsonDUnitTest implements Serializable {
 
   @Test
   public void testRemoveJsonCommand() {
-    String keyJson = "('id':'key1','name':'name1')";
+    var keyJson = "('id':'key1','name':'name1')";
 
-    String command = removeCommand(keyJson);
+    var command = removeCommand(keyJson);
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     server1.invoke(() -> verifyKeyIsRemoved(1));
@@ -112,9 +109,9 @@ public class RemoveCommandJsonDUnitTest implements Serializable {
 
   @Test
   public void testRemoveJsonCommandWithOnlyId() {
-    String keyJson = "('id':'key1')";
+    var keyJson = "('id':'key1')";
 
-    String command = removeCommand(keyJson);
+    var command = removeCommand(keyJson);
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     server1.invoke(() -> verifyKeyIsRemoved(1));
@@ -126,9 +123,9 @@ public class RemoveCommandJsonDUnitTest implements Serializable {
 
   @Test
   public void testRemoveJsonCommandWithInvalidJson() {
-    String keyJson = "('foo':'bar')";
+    var keyJson = "('foo':'bar')";
 
-    String command = removeCommand(keyJson);
+    var command = removeCommand(keyJson);
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     server1.invoke(() -> verifyKeyIsPresent(1));
@@ -144,7 +141,7 @@ public class RemoveCommandJsonDUnitTest implements Serializable {
   }
 
   private Key1 key(int n) {
-    Key1 key = new Key1();
+    var key = new Key1();
     key.setId("key" + n);
     key.setName("name" + n);
 
@@ -152,19 +149,19 @@ public class RemoveCommandJsonDUnitTest implements Serializable {
   }
 
   private boolean regionMBeansAreInitialized() {
-    Set<DistributedMember> members = ManagementUtils.getRegionAssociatedMembers(JSON_REGION_NAME,
+    var members = ManagementUtils.getRegionAssociatedMembers(JSON_REGION_NAME,
         (InternalCache) CacheFactory.getAnyInstance(), false);
 
     return CollectionUtils.isNotEmpty(members);
   }
 
   private void verifyKeyIsRemoved(int n) {
-    Region region = getJsonRegion();
+    var region = getJsonRegion();
     assertThat(region.get(key(n))).isNull();
   }
 
   private void verifyKeyIsPresent(int n) {
-    Region region = getJsonRegion();
+    var region = getJsonRegion();
     assertThat(region.get(key(n))).isNotNull();
   }
 

@@ -19,11 +19,9 @@ import java.nio.CharBuffer;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.internal.memcached.Reply;
 import org.apache.geode.internal.memcached.RequestReader;
 import org.apache.geode.internal.memcached.ResponseStatus;
-import org.apache.geode.internal.memcached.ValueWrapper;
 import org.apache.geode.memcached.GemFireMemcachedServer.Protocol;
 
 public class FlushAllCommand extends AbstractCommand {
@@ -37,16 +35,16 @@ public class FlushAllCommand extends AbstractCommand {
   }
 
   private ByteBuffer processAsciiCommand(ByteBuffer buffer, Cache cache) {
-    CharBuffer flb = getFirstLineBuffer();
+    var flb = getFirstLineBuffer();
     getAsciiDecoder().reset();
     getAsciiDecoder().decode(buffer, flb, false);
     flb.flip();
-    String firstLine = getFirstLine();
-    String[] firstLineElements = firstLine.split(" ");
+    var firstLine = getFirstLine();
+    var firstLineElements = firstLine.split(" ");
 
     assert "flush_all".equals(stripNewline(firstLineElements[0]));
-    boolean noReply = false;
-    int delay = 0;
+    var noReply = false;
+    var delay = 0;
     if (firstLineElements.length == 2) {
       if ("noreply".equals(stripNewline(firstLineElements[1]))) {
         noReply = true;
@@ -58,23 +56,23 @@ public class FlushAllCommand extends AbstractCommand {
       noReply = true;
     }
 
-    final Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
+    final var r = getMemcachedRegion(cache);
     if (delay == 0) {
       r.destroyRegion();
     } else {
       StorageCommand.getExpiryExecutor().schedule(() -> r.destroyRegion(), delay, TimeUnit.SECONDS);
     }
 
-    CharBuffer retVal = CharBuffer.wrap(Reply.OK.toString());
+    var retVal = CharBuffer.wrap(Reply.OK.toString());
 
     return noReply ? null : asciiCharset.encode(retVal);
   }
 
   private ByteBuffer processBinaryCommand(RequestReader request, Cache cache) {
-    ByteBuffer buffer = request.getRequest();
-    final Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
+    var buffer = request.getRequest();
+    final var r = getMemcachedRegion(cache);
 
-    int delay = 0;
+    var delay = 0;
     int extraLength = buffer.get(EXTRAS_LENGTH_INDEX);
     buffer.position(HEADER_LENGTH);
     if (extraLength != 0) {
@@ -94,7 +92,7 @@ public class FlushAllCommand extends AbstractCommand {
     } else {
       StorageCommand.getExpiryExecutor().schedule(() -> r.destroyRegion(), delay, TimeUnit.SECONDS);
     }
-    ByteBuffer response = request.getResponse();
+    var response = request.getResponse();
     response.putShort(POSITION_RESPONSE_STATUS, ResponseStatus.NO_ERROR.asShort());
     return isQuiet() ? null : response;
   }

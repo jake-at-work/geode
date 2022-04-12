@@ -17,15 +17,11 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.apache.geode.management.internal.cli.commands.DataCommandsUtils.callFunctionForRegion;
 
-import java.util.Set;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
@@ -53,7 +49,7 @@ public class RemoveCommand extends GfshCommand {
           specifiedDefaultValue = "true", unspecifiedDefaultValue = "false") boolean removeAllKeys,
       @CliOption(key = {CliStrings.REMOVE__KEYCLASS},
           help = CliStrings.REMOVE__KEYCLASS__HELP) String keyClass) {
-    Cache cache = getCache();
+    var cache = getCache();
 
     if (!removeAllKeys && (key == null)) {
       return ResultModel.createError(CliStrings.REMOVE__MSG__KEY_EMPTY);
@@ -68,16 +64,16 @@ public class RemoveCommand extends GfshCommand {
     key = DataCommandsUtils.makeBrokenJsonCompliant(key);
 
     Region region = cache.getRegion(regionPath);
-    DataCommandFunction removefn = new DataCommandFunction();
+    var removefn = new DataCommandFunction();
     DataCommandResult dataResult;
     if (region == null) {
-      Set<DistributedMember> memberList = findAnyMembersForRegion(regionPath);
+      var memberList = findAnyMembersForRegion(regionPath);
 
       if (CollectionUtils.isEmpty(memberList)) {
         return ResultModel.createError(String.format(REGION_NOT_FOUND, regionPath));
       }
 
-      DataCommandRequest request = new DataCommandRequest();
+      var request = new DataCommandRequest();
       request.setCommand(CliStrings.REMOVE);
       request.setKey(key);
       request.setKeyClass(keyClass);

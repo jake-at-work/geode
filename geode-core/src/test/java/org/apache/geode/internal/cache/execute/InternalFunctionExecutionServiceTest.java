@@ -54,9 +54,9 @@ public class InternalFunctionExecutionServiceTest {
 
   @Test
   public void onRegionShouldThrowCancelExceptionWhenCacheIsClosed() {
-    LocalRegion mockRegion = mock(LocalRegion.class);
+    var mockRegion = mock(LocalRegion.class);
     when(mockRegion.isDestroyed()).thenReturn(true);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(mockRegion.getCache()).thenReturn(null);
     when(mockRegion.getCancelCriterion()).thenReturn(cancelCriterion);
     doThrow(new CacheClosedException("Region is destroyed")).when(cancelCriterion)
@@ -69,9 +69,9 @@ public class InternalFunctionExecutionServiceTest {
 
   @Test
   public void onRegionShouldThrowRegionDestroyedExceptionWhenRegionIsPurposelyDestroyed() {
-    LocalRegion mockRegion = mock(LocalRegion.class);
+    var mockRegion = mock(LocalRegion.class);
     when(mockRegion.isDestroyed()).thenReturn(true);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(mockRegion.getCache()).thenReturn(null);
     when(mockRegion.getCancelCriterion()).thenReturn(cancelCriterion);
     doCallRealMethod().when(cancelCriterion).checkCancelInProgress();
@@ -83,8 +83,8 @@ public class InternalFunctionExecutionServiceTest {
   public void onRegionShouldThrowExceptionWhenThePoolAssociatedWithTheRegionCanNotBeFound() {
     when(functionExecutionService.findPool(any())).thenReturn(null);
 
-    Region mockRegion = mock(Region.class);
-    RegionAttributes mockAttributes = mock(RegionAttributes.class);
+    var mockRegion = mock(Region.class);
+    var mockAttributes = mock(RegionAttributes.class);
     when(mockAttributes.getPoolName()).thenReturn("testPool");
     when(mockRegion.getAttributes()).thenReturn(mockAttributes);
 
@@ -96,12 +96,12 @@ public class InternalFunctionExecutionServiceTest {
 
   @Test
   public void onRegionShouldThrowExceptionWhenMultiUserAuthenticationIsSetForNonProxyRegions() {
-    Pool mockPool = mock(Pool.class);
+    var mockPool = mock(Pool.class);
     when(mockPool.getMultiuserAuthentication()).thenReturn(true);
     when(functionExecutionService.findPool(any())).thenReturn(mockPool);
 
-    Region mockRegion = mock(Region.class);
-    RegionAttributes mockAttributes = mock(RegionAttributes.class);
+    var mockRegion = mock(Region.class);
+    var mockAttributes = mock(RegionAttributes.class);
     when(mockAttributes.getPoolName()).thenReturn("testPool");
     when(mockRegion.getAttributes()).thenReturn(mockAttributes);
 
@@ -111,9 +111,9 @@ public class InternalFunctionExecutionServiceTest {
 
   @Test
   public void onRegionShouldReturnClientExecutorImplementationForClientRegions() {
-    LocalRegion mockRegion = mock(LocalRegion.class);
+    var mockRegion = mock(LocalRegion.class);
     when(mockRegion.hasServerProxy()).thenReturn(true);
-    RegionAttributes mockAttributes = mock(RegionAttributes.class);
+    var mockAttributes = mock(RegionAttributes.class);
     when(mockAttributes.getPoolName()).thenReturn(null);
     when(mockRegion.getAttributes()).thenReturn(mockAttributes);
 
@@ -123,8 +123,8 @@ public class InternalFunctionExecutionServiceTest {
 
   @Test
   public void onRegionShouldReturnPartitionExecutorImplementationForPartitionedRegions() {
-    PartitionedRegion mockRegion = mock(PartitionedRegion.class);
-    RegionAttributes mockAttributes = mock(RegionAttributes.class);
+    var mockRegion = mock(PartitionedRegion.class);
+    var mockAttributes = mock(RegionAttributes.class);
     when(mockAttributes.getPoolName()).thenReturn(null);
     when(mockRegion.getAttributes()).thenReturn(mockAttributes);
 

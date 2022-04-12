@@ -18,7 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.DISABLE_JMX;
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.After;
@@ -27,8 +26,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.distributed.internal.ResourceEventsListener;
 import org.apache.geode.internal.cache.InternalCache;
 
 /**
@@ -41,7 +38,7 @@ public class DisableJmxIntegrationTest {
 
   @Before
   public void setUp() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(DISABLE_JMX, "true");
     config.setProperty(LOCATORS, "");
 
@@ -55,18 +52,18 @@ public class DisableJmxIntegrationTest {
 
   @Test
   public void disableJmxPreventsRegistrationOfManagementListener() {
-    InternalDistributedSystem system = cache.getInternalDistributedSystem();
+    var system = cache.getInternalDistributedSystem();
 
-    List<ResourceEventsListener> result = system.getResourceListeners();
+    var result = system.getResourceListeners();
 
     assertThat(result).isEmpty();
   }
 
   @Test
   public void disableJmxPreventsCreationOfMemberMXBean() {
-    ManagementService managementService = ManagementService.getManagementService(cache);
+    var managementService = ManagementService.getManagementService(cache);
 
-    MemberMXBean result = managementService.getMemberMXBean();
+    var result = managementService.getMemberMXBean();
 
     assertThat(result).isNull();
   }

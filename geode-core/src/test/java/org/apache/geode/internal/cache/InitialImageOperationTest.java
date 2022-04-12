@@ -62,7 +62,7 @@ public class InitialImageOperationTest {
 
   @Test
   public void getsRegionFromCacheFromDM() {
-    LocalRegion value = InitialImageOperation.getGIIRegion(dm, path, false);
+    var value = InitialImageOperation.getGIIRegion(dm, path, false);
     assertThat(value).isSameAs(region);
   }
 

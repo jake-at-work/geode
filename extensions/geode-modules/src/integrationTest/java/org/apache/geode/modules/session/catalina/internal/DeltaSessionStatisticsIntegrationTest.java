@@ -98,7 +98,7 @@ public class DeltaSessionStatisticsIntegrationTest extends AbstractDeltaSessionI
         .create(REGION_NAME);
     mockDeltaSessionManager();
     when(deltaSessionManager.getStatistics()).thenReturn(statistics);
-    TestDeltaSession deltaSession = new TestDeltaSession(deltaSessionManager, TEST_SESSION_ID);
+    var deltaSession = new TestDeltaSession(deltaSessionManager, TEST_SESSION_ID);
     httpSessionRegion.put(deltaSession.getId(), deltaSession);
 
     deltaSession.invalidate();

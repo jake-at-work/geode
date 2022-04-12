@@ -70,10 +70,10 @@ public class CacheLoggingBenchmark {
     temporaryFolder = new AccessibleTemporaryFolder();
     temporaryFolder.before();
 
-    String name = getClass().getSimpleName();
-    File logFile = new File(temporaryFolder.getRoot(), name + ".log");
+    var name = getClass().getSimpleName();
+    var logFile = new File(temporaryFolder.getRoot(), name + ".log");
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_LEVEL, "INFO");
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());

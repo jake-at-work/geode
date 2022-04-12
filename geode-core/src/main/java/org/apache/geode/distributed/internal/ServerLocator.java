@@ -176,7 +176,7 @@ public class ServerLocator implements TcpHandler, RestartHandler, DistributionAd
     }
 
     Object response;
-    int id = ((DataSerializableFixedID) request).getDSFID();
+    var id = ((DataSerializableFixedID) request).getDSFID();
     switch (id) {
       case DataSerializableFixedID.LOCATOR_STATUS_REQUEST:
         response = new LocatorStatusResponse().initialize(port, hostName, logFile,
@@ -209,13 +209,13 @@ public class ServerLocator implements TcpHandler, RestartHandler, DistributionAd
   }
 
   private ClientConnectionResponse pickServer(ClientConnectionRequest clientRequest) {
-    ServerLocation location = loadSnapshot.getServerForConnection(clientRequest.getServerGroup(),
+    var location = loadSnapshot.getServerForConnection(clientRequest.getServerGroup(),
         clientRequest.getExcludedServers());
     return new ClientConnectionResponse(location);
   }
 
   private ClientConnectionResponse pickReplacementServer(ClientReplacementRequest clientRequest) {
-    ServerLocation location =
+    var location =
         loadSnapshot.getReplacementServerForConnection(clientRequest.getCurrentServer(),
             clientRequest.getServerGroup(), clientRequest.getExcludedServers());
     return new ClientConnectionResponse(location);
@@ -223,13 +223,13 @@ public class ServerLocator implements TcpHandler, RestartHandler, DistributionAd
 
 
   private GetAllServersResponse pickAllServers(GetAllServersRequest clientRequest) {
-    ArrayList servers = loadSnapshot.getServers(clientRequest.getServerGroup());
+    var servers = loadSnapshot.getServers(clientRequest.getServerGroup());
     return new GetAllServersResponse(servers);
   }
 
   private Object getLocatorListResponse(LocatorListRequest request) {
-    List<ServerLocation> controllers = getLocators();
-    boolean balanced = loadSnapshot.hasBalancedConnections(request.getServerGroup());
+    var controllers = getLocators();
+    var balanced = loadSnapshot.hasBalancedConnections(request.getServerGroup());
     return new LocatorListResponse(controllers, balanced);
   }
 
@@ -238,8 +238,8 @@ public class ServerLocator implements TcpHandler, RestartHandler, DistributionAd
 
     /* If this is a request to find durable queues, lets go find them */
 
-    ArrayList servers = new ArrayList();
-    boolean durableQueueFound = false;
+    var servers = new ArrayList();
+    var durableQueueFound = false;
     if (clientRequest.isFindDurable() && clientRequest.getProxyId().isDurable()) {
       servers = FindDurableQueueProcessor.sendAndFind(this, clientRequest.getProxyId(),
           getDistributionManager());
@@ -255,7 +255,7 @@ public class ServerLocator implements TcpHandler, RestartHandler, DistributionAd
           clientRequest.getServerGroup(), excludedServers, -1);
     } else if (clientRequest.getRedundantCopies() > servers.size()) {
       /* We need more servers. */
-      int count = clientRequest.getRedundantCopies() - servers.size();
+      var count = clientRequest.getRedundantCopies() - servers.size();
       candidates = loadSnapshot.getServersForQueue(clientRequest.getProxyId(),
           clientRequest.getServerGroup(), excludedServers, count);
     } else {
@@ -345,7 +345,7 @@ public class ServerLocator implements TcpHandler, RestartHandler, DistributionAd
   @Override
   public void fillInProfile(Profile profile) {
     assert profile instanceof ControllerProfile;
-    ControllerProfile cp = (ControllerProfile) profile;
+    var cp = (ControllerProfile) profile;
     cp.setHost(hostNameForClients);
     cp.setPort(port);
     cp.serialNumber = getSerialNumber();
@@ -380,7 +380,7 @@ public class ServerLocator implements TcpHandler, RestartHandler, DistributionAd
       synchronized (cachedLocatorsLock) {
         List<ControllerProfile> profiles = advisor.fetchControllers();
         List<ServerLocation> result = new ArrayList<>(profiles.size() + 1);
-        for (ControllerProfile profile : profiles) {
+        for (var profile : profiles) {
           result.add(buildServerLocation(profile));
         }
         result.add(new ServerLocation(hostNameForClients, port));
@@ -396,9 +396,9 @@ public class ServerLocator implements TcpHandler, RestartHandler, DistributionAd
 
   public void profileCreated(Profile profile) {
     if (profile instanceof CacheServerProfile) {
-      CacheServerProfile bp = (CacheServerProfile) profile;
-      ServerLocation location = buildServerLocation(bp);
-      String[] groups = bp.getGroups();
+      var bp = (CacheServerProfile) profile;
+      var location = buildServerLocation(bp);
+      var groups = bp.getGroups();
       loadSnapshot.addServer(
           location, bp.getDistributedMember().getUniqueId(), groups,
           bp.getInitialLoad(), bp.getLoadPollInterval());
@@ -416,9 +416,9 @@ public class ServerLocator implements TcpHandler, RestartHandler, DistributionAd
 
   public void profileRemoved(Profile profile) {
     if (profile instanceof CacheServerProfile) {
-      CacheServerProfile bp = (CacheServerProfile) profile;
+      var bp = (CacheServerProfile) profile;
       // InternalDistributedMember id = bp.getDistributedMember();
-      ServerLocation location = buildServerLocation(bp);
+      var location = buildServerLocation(bp);
       loadSnapshot.removeServer(location, bp.getDistributedMember().getUniqueId());
       if (logger.isDebugEnabled()) {
         logger.debug("ServerLocator: server departed {}", location);

@@ -31,7 +31,7 @@ public class DistributedTXExpirationIntegrationTest extends TXExpirationIntegrat
 
   @Override
   protected Properties getConfig() {
-    Properties config = super.getConfig();
+    var config = super.getConfig();
     config.setProperty(DISTRIBUTED_TRANSACTIONS, "true");
     return config;
   }

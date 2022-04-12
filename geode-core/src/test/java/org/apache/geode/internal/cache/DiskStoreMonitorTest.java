@@ -36,19 +36,19 @@ public class DiskStoreMonitorTest {
 
   @Test
   public void usesCurrentDirWhenLogFileIsNull() {
-    DiskStoreMonitor diskStoreMonitor = new DiskStoreMonitor(null);
+    var diskStoreMonitor = new DiskStoreMonitor(null);
     assertThat(diskStoreMonitor.getLogDisk().dir()).isEqualTo(new File("."));
   }
 
   @Test
   public void usesLogFileParentDir() {
-    DiskStoreMonitor diskStoreMonitor = new DiskStoreMonitor(new File("parent", "child"));
+    var diskStoreMonitor = new DiskStoreMonitor(new File("parent", "child"));
     assertThat(diskStoreMonitor.getLogDisk().dir()).isEqualTo(new File("parent"));
   }
 
   @Test
   public void usesCurrentDirWhenLogFileParentIsNull() {
-    DiskStoreMonitor diskStoreMonitor = new DiskStoreMonitor(new File("child"));
+    var diskStoreMonitor = new DiskStoreMonitor(new File("child"));
     assertThat(diskStoreMonitor.getLogDisk().dir()).isEqualTo(new File("."));
   }
 }

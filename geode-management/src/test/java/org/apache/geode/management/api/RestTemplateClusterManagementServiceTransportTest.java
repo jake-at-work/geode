@@ -27,15 +27,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -61,7 +58,7 @@ public class RestTemplateClusterManagementServiceTransportTest {
     links = mock(Links.class);
     when(configuration.getLinks()).thenReturn(links);
 
-    ClusterManagementRealizationResult realizationSuccess =
+    var realizationSuccess =
         mock(ClusterManagementRealizationResult.class);
     when(realizationSuccess.isSuccessful()).thenReturn(true);
     ClusterManagementListResult<?, ?> listResult = mock(ClusterManagementListResult.class);
@@ -89,7 +86,7 @@ public class RestTemplateClusterManagementServiceTransportTest {
         any(String.class), same(HttpMethod.POST),
         any(HttpEntity.class), same(ClusterManagementRealizationResult.class));
 
-    Throwable throwable =
+    var throwable =
         catchThrowable(() -> restServiceTransport.submitMessage(configuration, CommandType.CREATE));
 
     assertThat(throwable).isInstanceOf(RestClientException.class);
@@ -98,8 +95,8 @@ public class RestTemplateClusterManagementServiceTransportTest {
 
   @Test
   public void submitMessageForListCallsRestTemplateExchange() {
-    String opId = "opId";
-    String groupId = "groupId";
+    var opId = "opId";
+    var groupId = "groupId";
     when(links.getList()).thenReturn("/operations");
     doReturn(responseEntity).when(restTemplate).exchange(any(String.class), same(HttpMethod.GET),
         any(HttpEntity.class), same(ClusterManagementListResult.class), any(String.class),
@@ -116,7 +113,7 @@ public class RestTemplateClusterManagementServiceTransportTest {
 
   @Test
   public void submitMessageForGetOperationCallsRestTemplateExchange() {
-    String opId = "opId";
+    var opId = "opId";
     doReturn(responseEntity).when(restTemplate).exchange(any(String.class), same(HttpMethod.GET),
         any(HttpEntity.class), same(ClusterManagementOperationResult.class));
 
@@ -129,11 +126,11 @@ public class RestTemplateClusterManagementServiceTransportTest {
 
   @Test
   public void configureTemplate() throws Exception {
-    RestTemplate template = new RestTemplate();
-    MappingJackson2HttpMessageConverter converter =
+    var template = new RestTemplate();
+    var converter =
         getMappingJackson2HttpMessageConverter(template);
     assertThat(converter.getDefaultCharset()).isNull();
-    ObjectMapper objectMapper = converter.getObjectMapper();
+    var objectMapper = converter.getObjectMapper();
     new RestTemplateClusterManagementServiceTransport(template);
 
     // after the constructor, the template will be configured with a jackson converter
@@ -142,7 +139,7 @@ public class RestTemplateClusterManagementServiceTransportTest {
 
   private MappingJackson2HttpMessageConverter getMappingJackson2HttpMessageConverter(
       RestTemplate template) {
-    List<HttpMessageConverter<?>> messageConverters = template.getMessageConverters();
+    var messageConverters = template.getMessageConverters();
     return messageConverters.stream()
         .filter(MappingJackson2HttpMessageConverter.class::isInstance)
         .map(MappingJackson2HttpMessageConverter.class::cast)

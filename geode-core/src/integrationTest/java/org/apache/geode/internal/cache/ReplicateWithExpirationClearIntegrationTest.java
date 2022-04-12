@@ -31,7 +31,6 @@ import org.junit.rules.TestName;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.ExpirationAttributes;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 
 public class ReplicateWithExpirationClearIntegrationTest {
@@ -57,9 +56,9 @@ public class ReplicateWithExpirationClearIntegrationTest {
   public void clearDoesNotLeaveEntryExpiryTaskInRegion() {
     RegionFactory<String, String> regionFactory = cache.createRegionFactory(REPLICATE);
     regionFactory.setEntryTimeToLive(new ExpirationAttributes(2000, DESTROY));
-    Region<String, String> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     try {
-      LocalRegion localRegion = (LocalRegion) region;
+      var localRegion = (LocalRegion) region;
       region.put("key", "value");
       assertThat(localRegion.getEntryExpiryTasks()).hasSize(1);
       region.clear();

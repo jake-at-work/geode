@@ -15,7 +15,6 @@
 package org.apache.geode.internal.statistics;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 
@@ -25,7 +24,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
@@ -68,8 +66,8 @@ public class StatisticsTypeXml implements EntityResolver, ErrorHandler {
         || systemId.endsWith(DTD)) {
 
       // Public ID for system config DTD
-      String location = "/org/apache/geode/" + DTD;
-      InputStream stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), location);
+      var location = "/org/apache/geode/" + DTD;
+      var stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), location);
       if (stream != null) {
         return new InputSource(stream);
 
@@ -112,7 +110,7 @@ public class StatisticsTypeXml implements EntityResolver, ErrorHandler {
    * instances.
    */
   public StatisticsType[] read(Reader reader, StatisticsTypeFactory statFactory) {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    var factory = DocumentBuilderFactory.newInstance();
     // factory.setValidating(validate);
 
     DocumentBuilder parser = null;
@@ -141,7 +139,7 @@ public class StatisticsTypeXml implements EntityResolver, ErrorHandler {
       throw new GemFireConfigException(
           "Failed reading XML data; no document");
     }
-    Element root = doc.getDocumentElement();
+    var root = doc.getDocumentElement();
     if (root == null) {
       throw new GemFireConfigException(
           "Failed reading XML data; no root element");
@@ -155,10 +153,10 @@ public class StatisticsTypeXml implements EntityResolver, ErrorHandler {
   private StatisticsType[] extractStatistics(Element root, StatisticsTypeFactory statFactory) {
     Assert.assertTrue(root.getTagName().equals("statistics"));
 
-    ArrayList types = new ArrayList();
-    NodeList typeNodes = root.getElementsByTagName("type");
-    for (int i = 0; i < typeNodes.getLength(); i++) {
-      Element typeNode = (Element) typeNodes.item(i);
+    var types = new ArrayList();
+    var typeNodes = root.getElementsByTagName("type");
+    for (var i = 0; i < typeNodes.getLength(); i++) {
+      var typeNode = (Element) typeNodes.item(i);
       types.add(extractType(typeNode, statFactory));
     }
     return (StatisticsType[]) types.toArray(new StatisticsType[0]);
@@ -171,22 +169,22 @@ public class StatisticsTypeXml implements EntityResolver, ErrorHandler {
     Assert.assertTrue(typeNode.getTagName().equals("type"));
     Assert.assertTrue(typeNode.hasAttribute("name"));
 
-    final String typeName = typeNode.getAttribute("name");
-    ArrayList stats = new ArrayList();
-    NodeList statNodes = typeNode.getElementsByTagName("stat");
-    for (int i = 0; i < statNodes.getLength(); i++) {
-      Element statNode = (Element) statNodes.item(i);
+    final var typeName = typeNode.getAttribute("name");
+    var stats = new ArrayList();
+    var statNodes = typeNode.getElementsByTagName("stat");
+    for (var i = 0; i < statNodes.getLength(); i++) {
+      var statNode = (Element) statNodes.item(i);
       stats.add(extractStat(statNode, statFactory));
     }
-    StatisticDescriptor[] descriptors =
+    var descriptors =
         (StatisticDescriptor[]) stats.toArray(new StatisticDescriptor[0]);
-    String description = "";
+    var description = "";
     {
-      NodeList descriptionNodes = typeNode.getElementsByTagName("description");
+      var descriptionNodes = typeNode.getElementsByTagName("description");
       if (descriptionNodes.getLength() > 0) {
         // descriptionNodes will contain the both our description, if it exists,
         // and any nested stat descriptions. Ours will always be first
-        Element descriptionNode = (Element) descriptionNodes.item(0);
+        var descriptionNode = (Element) descriptionNodes.item(0);
         // but make sure the first one belongs to our node
         if (descriptionNode.getParentNode().getNodeName().equals(typeNode.getNodeName())) {
           description = extractDescription(descriptionNode);
@@ -209,26 +207,26 @@ public class StatisticsTypeXml implements EntityResolver, ErrorHandler {
     Assert.assertTrue(statNode.getTagName().equals("stat"));
     Assert.assertTrue(statNode.hasAttribute("name"));
 
-    final String statName = statNode.getAttribute("name");
-    String description = "";
-    String unit = "";
-    boolean isCounter = true;
+    final var statName = statNode.getAttribute("name");
+    var description = "";
+    var unit = "";
+    var isCounter = true;
     boolean largerBetter;
-    int storage = INT_STORAGE;
+    var storage = INT_STORAGE;
 
     if (statNode.hasAttribute("counter")) {
-      String value = statNode.getAttribute("counter");
+      var value = statNode.getAttribute("counter");
       Assert.assertTrue(value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false"));
       isCounter = Boolean.parseBoolean(value);
     }
     largerBetter = isCounter; // default
     if (statNode.hasAttribute("largerBetter")) {
-      String value = statNode.getAttribute("largerBetter");
+      var value = statNode.getAttribute("largerBetter");
       Assert.assertTrue(value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false"));
       largerBetter = Boolean.parseBoolean(value);
     }
     if (statNode.hasAttribute("storage")) {
-      String value = statNode.getAttribute("storage");
+      var value = statNode.getAttribute("storage");
       if (value.equalsIgnoreCase("int")) {
         storage = INT_STORAGE;
       } else if (value.equalsIgnoreCase("long")) {
@@ -239,19 +237,19 @@ public class StatisticsTypeXml implements EntityResolver, ErrorHandler {
       }
     }
     {
-      NodeList descriptionNodes = statNode.getElementsByTagName("description");
+      var descriptionNodes = statNode.getElementsByTagName("description");
       Assert.assertTrue(descriptionNodes.getLength() <= 1);
       if (descriptionNodes.getLength() == 1) {
-        Element descriptionNode = (Element) descriptionNodes.item(0);
+        var descriptionNode = (Element) descriptionNodes.item(0);
         description = extractDescription(descriptionNode);
       }
     }
 
     {
-      NodeList unitNodes = statNode.getElementsByTagName("unit");
+      var unitNodes = statNode.getElementsByTagName("unit");
       Assert.assertTrue(unitNodes.getLength() <= 1);
       if (unitNodes.getLength() == 1) {
-        Element unitNode = (Element) unitNodes.item(0);
+        var unitNode = (Element) unitNodes.item(0);
         unit = extractUnit(unitNode);
       }
     }
@@ -299,7 +297,7 @@ public class StatisticsTypeXml implements EntityResolver, ErrorHandler {
   }
 
   private String extractText(Element element) {
-    Text text = (Text) element.getFirstChild();
+    var text = (Text) element.getFirstChild();
     return ((text == null ? "" : text.getData()));
   }
 }

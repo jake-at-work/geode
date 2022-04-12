@@ -68,7 +68,7 @@ public class QueryObjectSerializationJUnitTest implements Serializable {
    * Returns a <code>DataInput</code> to read from
    */
   private DataInputStream getDataInput() {
-    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    var bais = new ByteArrayInputStream(baos.toByteArray());
     return new DataInputStream(bais);
   }
 
@@ -77,7 +77,7 @@ public class QueryObjectSerializationJUnitTest implements Serializable {
    * satisfy o1.equals(o2)
    */
   private void checkRoundTrip(Object o1) throws IOException, ClassNotFoundException {
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(o1, out);
     out.flush();
     DataInput in = getDataInput();
@@ -102,10 +102,10 @@ public class QueryObjectSerializationJUnitTest implements Serializable {
     // Undefined
     checkRoundTrip(QueryService.UNDEFINED);
     // ResultsBag
-    ResultsBag rbWithoutData = new ResultsBag();
+    var rbWithoutData = new ResultsBag();
     rbWithoutData.setElementType(elementType); // avoid NPE in equals
     checkRoundTrip(rbWithoutData);
-    ResultsBag rbWithData = new ResultsBag(data, null);
+    var rbWithData = new ResultsBag(data, null);
     rbWithData.setElementType(elementType); // avoid NPE in equals
     checkRoundTrip(rbWithData);
     /*
@@ -116,10 +116,10 @@ public class QueryObjectSerializationJUnitTest implements Serializable {
      * rbWithDataAsSet, -1); checkRoundTrip(rcwWithData);
      */
     // SortedResultSet
-    SortedResultSet srsWithoutData = new SortedResultSet();
+    var srsWithoutData = new SortedResultSet();
     srsWithoutData.setElementType(elementType); // avoid NPE in equals
     checkRoundTrip(srsWithoutData);
-    SortedResultSet srsWithData = new SortedResultSet();
+    var srsWithData = new SortedResultSet();
     srsWithData.setElementType(elementType); // avoid NPE in equals
     checkRoundTrip(srsWithData);
 

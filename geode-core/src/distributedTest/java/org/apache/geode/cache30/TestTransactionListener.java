@@ -43,7 +43,7 @@ public abstract class TestTransactionListener extends TestCacheCallback
   }
 
   public void afterCommit2(TransactionEvent event) {
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
@@ -61,7 +61,7 @@ public abstract class TestTransactionListener extends TestCacheCallback
   }
 
   public void afterFailedCommit2(TransactionEvent event) {
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
@@ -80,7 +80,7 @@ public abstract class TestTransactionListener extends TestCacheCallback
   }
 
   public void afterRollback2(TransactionEvent event) {
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 

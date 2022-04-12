@@ -21,20 +21,17 @@ import java.util.stream.Collectors;
 
 import org.springframework.shell.core.annotation.CliCommand;
 
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.AbstractExecution;
 import org.apache.geode.internal.cache.partitioned.ColocatedRegionDetails;
-import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.PersistentMemberDetails;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.functions.ShowMissingDiskStoresFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -50,7 +47,7 @@ public class ShowMissingDiskStoreCommand extends GfshCommand {
       operation = ResourcePermission.Operation.READ)
   public ResultModel showMissingDiskStore() {
 
-    Set<DistributedMember> dataMembers =
+    var dataMembers =
         DiskStoreCommandsUtils.getNormalMembers((InternalCache) getCache());
 
     List<ColocatedRegionDetails> missingRegions = null;
@@ -59,16 +56,16 @@ public class ShowMissingDiskStoreCommand extends GfshCommand {
       missingRegions = getMissingColocatedRegionList(dataMembers);
     }
 
-    DistributedSystemMXBean dsMXBean =
+    var dsMXBean =
         ManagementService.getManagementService(getCache()).getDistributedSystemMXBean();
-    PersistentMemberDetails[] missingDiskStores = dsMXBean.listMissingDiskStores();
+    var missingDiskStores = dsMXBean.listMissingDiskStores();
 
     return toMissingDiskStoresTabularResult(missingDiskStores, missingRegions);
   }
 
   private List<ColocatedRegionDetails> getMissingColocatedRegionList(
       Set<DistributedMember> members) {
-    final Execution membersFunctionExecutor = getMembersFunctionExecutor(members);
+    final var membersFunctionExecutor = getMembersFunctionExecutor(members);
     if (membersFunctionExecutor instanceof AbstractExecution) {
       ((AbstractExecution) membersFunctionExecutor).setIgnoreDepartedMembers(true);
     }
@@ -76,7 +73,7 @@ public class ShowMissingDiskStoreCommand extends GfshCommand {
     final ResultCollector<?, ?> resultCollector =
         membersFunctionExecutor.execute(new ShowMissingDiskStoresFunction());
 
-    final List<?> results = (List<?>) resultCollector.getResult();
+    final var results = (List<?>) resultCollector.getResult();
 
     // Clean up the data. For backwards compatibility, the ShowMissingDiskStoresFunction
     // sends a List of Sets. Some of the sets are Set<PersistentMemberIds>, some are
@@ -93,14 +90,14 @@ public class ShowMissingDiskStoreCommand extends GfshCommand {
   private ResultModel toMissingDiskStoresTabularResult(
       PersistentMemberDetails[] missingDiskStores,
       final List<ColocatedRegionDetails> missingColocatedRegions) {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
-    TabularResultModel missingDiskStoreSection = result.addTable(MISSING_DISK_STORES_SECTION);
+    var missingDiskStoreSection = result.addTable(MISSING_DISK_STORES_SECTION);
 
     if (missingDiskStores.length != 0) {
       missingDiskStoreSection.setHeader("Missing Disk Stores");
 
-      for (PersistentMemberDetails persistentMemberDetails : missingDiskStores) {
+      for (var persistentMemberDetails : missingDiskStores) {
         missingDiskStoreSection.accumulate("Disk Store ID",
             persistentMemberDetails.getDiskStoreId());
         missingDiskStoreSection.accumulate("Host", persistentMemberDetails.getHost());
@@ -110,13 +107,13 @@ public class ShowMissingDiskStoreCommand extends GfshCommand {
       missingDiskStoreSection.setHeader("No missing disk store found");
     }
 
-    TabularResultModel missingRegionsSection = result.addTable(MISSING_COLOCATED_REGIONS_SECTION);
+    var missingRegionsSection = result.addTable(MISSING_COLOCATED_REGIONS_SECTION);
     if (missingColocatedRegions == null) {
       missingRegionsSection.setHeader("No caching members found.");
     } else if (!missingColocatedRegions.isEmpty()) {
       missingRegionsSection.setHeader("Missing Colocated Regions");
 
-      for (ColocatedRegionDetails colocatedRegionDetails : missingColocatedRegions) {
+      for (var colocatedRegionDetails : missingColocatedRegions) {
         missingRegionsSection.accumulate("Host", colocatedRegionDetails.getHost());
         missingRegionsSection.accumulate("Distributed Member", colocatedRegionDetails.getMember());
         missingRegionsSection.accumulate("Parent Region", colocatedRegionDetails.getParent());

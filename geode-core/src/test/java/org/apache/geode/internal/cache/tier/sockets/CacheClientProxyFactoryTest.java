@@ -61,10 +61,10 @@ public class CacheClientProxyFactoryTest {
     subject = mock(Subject.class);
     statisticsClock = mock(StatisticsClock.class);
 
-    InetAddress inetAddress = mock(InetAddress.class);
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
+    var inetAddress = mock(InetAddress.class);
+    var cache = mock(InternalCache.class);
+    var member = mock(InternalDistributedMember.class);
+    var system = mock(InternalDistributedSystem.class);
 
     when(cache.getInternalDistributedSystem()).thenReturn(system);
     when(inetAddress.getHostAddress()).thenReturn("localhost");
@@ -79,9 +79,9 @@ public class CacheClientProxyFactoryTest {
 
   @Test
   public void createsCacheClientProxyByDefault() {
-    CacheClientProxyFactory factory = new CacheClientProxyFactory();
+    var factory = new CacheClientProxyFactory();
 
-    CacheClientProxy proxy = factory.create(notifier, socket, proxyId, false, CONFLATION_DEFAULT,
+    var proxy = factory.create(notifier, socket, proxyId, false, CONFLATION_DEFAULT,
         clientVersion, 0, false, securityService, subject, statisticsClock);
 
     assertThat(proxy).isExactlyInstanceOf(CacheClientProxy.class);
@@ -91,9 +91,9 @@ public class CacheClientProxyFactoryTest {
   public void usesCustomInternalFactorySpecifiedByProperty() {
     System.setProperty(CacheClientProxyFactory.INTERNAL_FACTORY_PROPERTY,
         SubCacheClientProxyFactory.class.getName());
-    CacheClientProxyFactory factory = new CacheClientProxyFactory();
+    var factory = new CacheClientProxyFactory();
 
-    CacheClientProxy proxy = factory.create(notifier, socket, proxyId, false, CONFLATION_DEFAULT,
+    var proxy = factory.create(notifier, socket, proxyId, false, CONFLATION_DEFAULT,
         clientVersion, 0, false, securityService, subject, statisticsClock);
 
     assertThat(proxy).isExactlyInstanceOf(SubCacheClientProxy.class);

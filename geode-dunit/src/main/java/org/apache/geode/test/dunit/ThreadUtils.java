@@ -49,7 +49,7 @@ public class ThreadUtils {
    * @since GemFire 5.0
    */
   public static void dumpAllStacks() {
-    for (int h = 0; h < Host.getHostCount(); h++) {
+    for (var h = 0; h < Host.getHostCount(); h++) {
       dumpStack(Host.getHost(h));
     }
   }
@@ -76,7 +76,7 @@ public class ThreadUtils {
    * @since GemFire 5.0
    */
   public static void dumpStack(final Host host) {
-    for (int v = 0; v < host.getVMCount(); v++) {
+    for (var v = 0; v < host.getVMCount(); v++) {
       host.getVM(v).invoke(org.apache.geode.test.dunit.ThreadUtils.class, "dumpStack");
     }
   }
@@ -91,9 +91,9 @@ public class ThreadUtils {
   }
 
   public static void dumpStackTrace(final Thread thread, final StackTraceElement[] stackTrace) {
-    StringBuilder msg = new StringBuilder();
+    var msg = new StringBuilder();
     msg.append("Thread=<").append(thread).append("> stackDump:\n");
-    for (final StackTraceElement stackTraceElement : stackTrace) {
+    for (final var stackTraceElement : stackTrace) {
       msg.append("\t").append(stackTraceElement).append("\n");
     }
     logger.info(msg.toString());
@@ -118,9 +118,9 @@ public class ThreadUtils {
    * @throws AssertionError if the thread does not terminate
    */
   public static void join(final Thread thread, final long timeoutMilliseconds) {
-    final long tilt = System.currentTimeMillis() + timeoutMilliseconds;
-    final long incrementalWait = jitterInterval(timeoutMilliseconds);
-    final long start = System.currentTimeMillis();
+    final var tilt = System.currentTimeMillis() + timeoutMilliseconds;
+    final var incrementalWait = jitterInterval(timeoutMilliseconds);
+    final var start = System.currentTimeMillis();
     for (;;) {
       // I really do *not* understand why this check is necessary
       // but it is, at least with JDK 1.6. According to the source code
@@ -146,9 +146,9 @@ public class ThreadUtils {
       thread.interrupt(); // We're in trouble!
       fail("Thread did not terminate after " + timeoutMilliseconds + " ms: " + thread);
     }
-    long elapsedMs = (System.currentTimeMillis() - start);
+    var elapsedMs = (System.currentTimeMillis() - start);
     if (elapsedMs > 0) {
-      String msg = "Thread " + thread + " took " + elapsedMs + " ms to exit.";
+      var msg = "Thread " + thread + " took " + elapsedMs + " ms to exit.";
       logger.info(msg);
     }
   }

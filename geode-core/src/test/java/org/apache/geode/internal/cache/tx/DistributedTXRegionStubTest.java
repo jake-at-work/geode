@@ -72,14 +72,14 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void destroyExistingEntryTranslatesRegionDestroyedException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     when(event.getRegion()).thenReturn(distributedRegion);
 
     doThrow(RegionDestroyedException.class).when(stub).sendRemoteDestroyMessage(event,
         expectedObject);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.destroyExistingEntry(event, true, expectedObject));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
@@ -87,13 +87,13 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void destroyExistingEntryTranslatesRemoteOperationException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
     when(event.getRegion()).thenReturn(distributedRegion);
 
     doThrow(RemoteOperationException.class).when(stub).sendRemoteDestroyMessage(event,
         expectedObject);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.destroyExistingEntry(event, true, expectedObject));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNodeHasDepartedException.class);
@@ -101,7 +101,7 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void getEntryReturnsNullIfEntryNotFoundExceptionIsThrown() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(EntryNotFoundException.class).when(stub).sendRemoteFetchEntryMessage(
         any(InternalDistributedMember.class), any(DistributedRegion.class), any(Object.class));
@@ -113,48 +113,48 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void getEntryTranslatesRegionDestroyedException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RegionDestroyedException.class).when(stub).sendRemoteFetchEntryMessage(
         any(InternalDistributedMember.class), any(DistributedRegion.class), any(Object.class));
 
-    Throwable caughtException = catchThrowable(() -> stub.getEntry(keyInfo, true));
+    var caughtException = catchThrowable(() -> stub.getEntry(keyInfo, true));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
   }
 
   @Test
   public void getEntryTranslatesRemoteOperationException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RemoteOperationException.class).when(stub).sendRemoteFetchEntryMessage(
         any(InternalDistributedMember.class), any(LocalRegion.class), any(Object.class));
 
-    Throwable caughtException = catchThrowable(() -> stub.getEntry(keyInfo, true));
+    var caughtException = catchThrowable(() -> stub.getEntry(keyInfo, true));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNodeHasDepartedException.class);
   }
 
   @Test
   public void getEntryThrowsTransactionException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(TransactionException.class).when(stub).sendRemoteFetchEntryMessage(
         any(InternalDistributedMember.class), any(LocalRegion.class), any(Object.class));
 
-    Throwable caughtException = catchThrowable(() -> stub.getEntry(keyInfo, true));
+    var caughtException = catchThrowable(() -> stub.getEntry(keyInfo, true));
 
     assertThat(caughtException).isInstanceOf(TransactionException.class);
   }
 
   @Test
   public void invalidateExistingEntryTranslatesRegionDestroyedException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RegionDestroyedException.class).when(stub)
         .sendRemoteInvalidateMessage(any(DistributedMember.class), any(EntryEventImpl.class));
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.invalidateExistingEntry(event, false, false));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
@@ -162,12 +162,12 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void invalidateExistingEntryTranslatesRemoteOperationException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RemoteOperationException.class).when(stub)
         .sendRemoteInvalidateMessage(any(DistributedMember.class), any(EntryEventImpl.class));
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.invalidateExistingEntry(event, false, false));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNodeHasDepartedException.class);
@@ -175,26 +175,26 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void containsKeyTranslatesRegionDestroyedException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RegionDestroyedException.class).when(stub)
         .sendRemoteContainsKeyValueMessage(any(InternalDistributedMember.class), any(Object.class),
             any(boolean.class));
 
-    Throwable caughtException = catchThrowable(() -> stub.containsKey(keyInfo));
+    var caughtException = catchThrowable(() -> stub.containsKey(keyInfo));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
   }
 
   @Test
   public void containsKeyTranslatesRemoteOperationException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RemoteOperationException.class).when(stub)
         .sendRemoteContainsKeyValueMessage(any(InternalDistributedMember.class), any(Object.class),
             any(boolean.class));
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.containsKey(keyInfo));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNodeHasDepartedException.class);
@@ -202,43 +202,43 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void containsValueForKeyTranslatesRegionDestroyedException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RegionDestroyedException.class).when(stub)
         .sendRemoteContainsKeyValueMessage(any(InternalDistributedMember.class), any(Object.class),
             any(boolean.class));
 
-    Throwable caughtException = catchThrowable(() -> stub.containsValueForKey(keyInfo));
+    var caughtException = catchThrowable(() -> stub.containsValueForKey(keyInfo));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
   }
 
   @Test
   public void containsValueForKeyTranslatesRemoteOperationException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RemoteOperationException.class).when(stub)
         .sendRemoteContainsKeyValueMessage(any(InternalDistributedMember.class), any(Object.class),
             any(boolean.class));
 
-    Throwable caughtException = catchThrowable(() -> stub.containsValueForKey(keyInfo));
+    var caughtException = catchThrowable(() -> stub.containsValueForKey(keyInfo));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNodeHasDepartedException.class);
   }
 
   @Test
   public void findObjectTranslatesRegionDestroyedException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
-    ClientProxyMembershipID requestingClient = mock(ClientProxyMembershipID.class);
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var requestingClient = mock(ClientProxyMembershipID.class);
 
-    Object callbackArg = new Object();
+    var callbackArg = new Object();
     when(keyInfo.getCallbackArg()).thenReturn(callbackArg);
 
     doThrow(RegionDestroyedException.class).when(stub).sendRemoteGetMessage(
         (InternalDistributedMember) remoteTransactionHost, expectedObject, callbackArg,
         requestingClient);
 
-    Throwable caughtException = catchThrowable(() -> stub.findObject(keyInfo, false, false,
+    var caughtException = catchThrowable(() -> stub.findObject(keyInfo, false, false,
         expectedObject, false, requestingClient, event));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
@@ -246,17 +246,17 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void findObjectTranslatesRemoteOperationException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
-    ClientProxyMembershipID requestingClient = mock(ClientProxyMembershipID.class);
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var requestingClient = mock(ClientProxyMembershipID.class);
 
-    Object callbackArg = new Object();
+    var callbackArg = new Object();
     when(keyInfo.getCallbackArg()).thenReturn(callbackArg);
 
     doThrow(RemoteOperationException.class).when(stub).sendRemoteGetMessage(
         (InternalDistributedMember) remoteTransactionHost, expectedObject, callbackArg,
         requestingClient);
 
-    Throwable caughtException = catchThrowable(() -> stub.findObject(keyInfo, false, false,
+    var caughtException = catchThrowable(() -> stub.findObject(keyInfo, false, false,
         expectedObject, false, requestingClient, event));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNodeHasDepartedException.class);
@@ -264,12 +264,12 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void putEntryTranslatesRegionDestroyedException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RegionDestroyedException.class).when(stub).txSendRemotePutMessage(remoteTransactionHost,
         distributedRegion, event, 0, true, false, expectedObject, true);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.putEntry(event, true, false, expectedObject, true, 0, false));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
@@ -277,12 +277,12 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void putEntryTranslatesRemoteOperationException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
 
     doThrow(RemoteOperationException.class).when(stub).txSendRemotePutMessage(remoteTransactionHost,
         distributedRegion, event, 0, true, false, expectedObject, true);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.putEntry(event, true, false, expectedObject, true, 0, false));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNodeHasDepartedException.class);
@@ -290,10 +290,10 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void postPutAllTranslatesRegionDestroyedException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
-    DistributedPutAllOperation putAllOp = mock(DistributedPutAllOperation.class);
-    VersionedObjectList successfulPuts = mock(VersionedObjectList.class);
-    DistributedPutAllOperation.PutAllEntryData[] entries =
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var putAllOp = mock(DistributedPutAllOperation.class);
+    var successfulPuts = mock(VersionedObjectList.class);
+    var entries =
         new DistributedPutAllOperation.PutAllEntryData[1];
 
     when(putAllOp.getPutAllEntryData()).thenReturn(entries);
@@ -302,7 +302,7 @@ public class DistributedTXRegionStubTest {
     doThrow(RegionDestroyedException.class).when(stub)
         .sendRemotePutAllMessage(remoteTransactionHost, event, entries, entries.length);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.postPutAll(putAllOp, successfulPuts, distributedRegion));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
@@ -310,10 +310,10 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void postPutAllTranslatesRemoteOperationException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
-    DistributedPutAllOperation putAllOp = mock(DistributedPutAllOperation.class);
-    VersionedObjectList successfulPuts = mock(VersionedObjectList.class);
-    DistributedPutAllOperation.PutAllEntryData[] entries =
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var putAllOp = mock(DistributedPutAllOperation.class);
+    var successfulPuts = mock(VersionedObjectList.class);
+    var entries =
         new DistributedPutAllOperation.PutAllEntryData[1];
 
     when(putAllOp.getPutAllEntryData()).thenReturn(entries);
@@ -322,7 +322,7 @@ public class DistributedTXRegionStubTest {
     doThrow(RemoteOperationException.class).when(stub)
         .sendRemotePutAllMessage(remoteTransactionHost, event, entries, entries.length);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.postPutAll(putAllOp, successfulPuts, distributedRegion));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNodeHasDepartedException.class);
@@ -330,10 +330,10 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void postRemoveAllTranslatesRegionDestroyedException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
-    DistributedRemoveAllOperation removeAllOp = mock(DistributedRemoveAllOperation.class);
-    VersionedObjectList successfulPuts = mock(VersionedObjectList.class);
-    DistributedRemoveAllOperation.RemoveAllEntryData[] entries =
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var removeAllOp = mock(DistributedRemoveAllOperation.class);
+    var successfulPuts = mock(VersionedObjectList.class);
+    var entries =
         new DistributedRemoveAllOperation.RemoveAllEntryData[1];
 
     when(removeAllOp.getRemoveAllEntryData()).thenReturn(entries);
@@ -342,7 +342,7 @@ public class DistributedTXRegionStubTest {
     doThrow(RegionDestroyedException.class).when(stub)
         .sendRemoteRemoveAllMessage(remoteTransactionHost, event, entries, entries.length);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.postRemoveAll(removeAllOp, successfulPuts, distributedRegion));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
@@ -350,10 +350,10 @@ public class DistributedTXRegionStubTest {
 
   @Test
   public void postRemoveAllTranslatesRemoteOperationException() throws Exception {
-    DistributedTXRegionStub stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
-    DistributedRemoveAllOperation removeAllOp = mock(DistributedRemoveAllOperation.class);
-    VersionedObjectList successfulPuts = mock(VersionedObjectList.class);
-    DistributedRemoveAllOperation.RemoveAllEntryData[] entries =
+    var stub = spy(new DistributedTXRegionStub(txStateStub, distributedRegion));
+    var removeAllOp = mock(DistributedRemoveAllOperation.class);
+    var successfulPuts = mock(VersionedObjectList.class);
+    var entries =
         new DistributedRemoveAllOperation.RemoveAllEntryData[1];
 
     when(removeAllOp.getRemoveAllEntryData()).thenReturn(entries);
@@ -362,7 +362,7 @@ public class DistributedTXRegionStubTest {
     doThrow(RemoteOperationException.class).when(stub)
         .sendRemoteRemoveAllMessage(remoteTransactionHost, event, entries, entries.length);
 
-    Throwable caughtException =
+    var caughtException =
         catchThrowable(() -> stub.postRemoveAll(removeAllOp, successfulPuts, distributedRegion));
 
     assertThat(caughtException).isInstanceOf(TransactionDataNodeHasDepartedException.class);

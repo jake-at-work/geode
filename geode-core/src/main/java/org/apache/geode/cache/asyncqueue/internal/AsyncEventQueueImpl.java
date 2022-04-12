@@ -21,7 +21,6 @@ import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.wan.InternalGatewaySender;
 
 public class AsyncEventQueueImpl implements InternalAsyncEventQueue {
@@ -141,7 +140,7 @@ public class AsyncEventQueueImpl implements InternalAsyncEventQueue {
     if (!(obj instanceof AsyncEventQueueImpl)) {
       return false;
     }
-    AsyncEventQueueImpl other = (AsyncEventQueueImpl) obj;
+    var other = (AsyncEventQueueImpl) obj;
     return other.getId().equals(getId());
   }
 
@@ -189,7 +188,7 @@ public class AsyncEventQueueImpl implements InternalAsyncEventQueue {
   }
 
   public void destroy(boolean initiator) {
-    InternalCache cache = sender.getCache();
+    var cache = sender.getCache();
     sender.destroy(initiator);
     cache.removeAsyncEventQueue(this);
   }

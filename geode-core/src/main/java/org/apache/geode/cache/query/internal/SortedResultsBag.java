@@ -142,7 +142,7 @@ public class SortedResultsBag<E> extends Bag implements Ordered {
 
   @Override
   protected int mapGet(Object element) {
-    Integer count = sortedMap.get(element);
+    var count = sortedMap.get(element);
     if (count == null) {
       return 0;
     } else {
@@ -167,7 +167,7 @@ public class SortedResultsBag<E> extends Bag implements Ordered {
 
   @Override
   protected int mapRemove(Object element) {
-    Integer count = sortedMap.remove(element);
+    var count = sortedMap.remove(element);
     if (count == null) {
       return 0;
     } else {
@@ -207,13 +207,13 @@ public class SortedResultsBag<E> extends Bag implements Ordered {
 
   @Override
   protected Object keyFromEntry(Object entry) {
-    Map.Entry<E, Integer> mapEntry = (Map.Entry<E, Integer>) entry;
+    var mapEntry = (Map.Entry<E, Integer>) entry;
     return mapEntry.getKey();
   }
 
   @Override
   protected Integer valueFromEntry(Object entry) {
-    Map.Entry<E, Integer> mapEntry = (Map.Entry<E, Integer>) entry;
+    var mapEntry = (Map.Entry<E, Integer>) entry;
     return mapEntry.getValue();
   }
 

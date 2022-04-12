@@ -41,7 +41,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
@@ -93,7 +92,7 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
   /** get the hosts and the VMs * */
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     server1 = host.getVM(0);
     server1.invoke(ConflationDUnitTestHelper::unsetIsSlowStart);
     client1 = host.getVM(2);
@@ -110,7 +109,7 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
   /** stops the server * */
   private CacheSerializableRunnable stopServer() {
 
-    CacheSerializableRunnable stopserver = new CacheSerializableRunnable("stopServer") {
+    var stopserver = new CacheSerializableRunnable("stopServer") {
       @Override
       public void run2() throws CacheException {
         server.stop();
@@ -132,16 +131,16 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
   /** create the server * */
   public static Integer createServerCache() throws Exception {
     new HAEventIdPropagationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     CacheListener clientListener = new HAEventIdPropagationListenerForServer();
     factory.setCacheListener(clientListener);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
     server = (CacheServerImpl) cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();
@@ -163,23 +162,23 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
   /** function to create client cache * */
   public static void createClientCache(String hostName, Integer port1) throws Exception {
     int PORT1 = port1;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAEventIdPropagationDUnitTest().createCache(props);
-    AttributesFactory factory = new AttributesFactory();
-    PoolImpl pi = (PoolImpl) ClientServerTestCase.configureConnectionPool(factory, hostName,
+    var factory = new AttributesFactory();
+    var pi = (PoolImpl) ClientServerTestCase.configureConnectionPool(factory, hostName,
         new int[] {PORT1}, true, -1, 2, null);
     factory.setScope(Scope.DISTRIBUTED_ACK);
     CacheListener clientListener = new HAEventIdPropagationListenerForClient();
     factory.setCacheListener(clientListener);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
     Region region = cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(region);
     region.registerInterest("ALL_KEYS", InterestResultPolicy.NONE);
     System.out.println("KKKKKK:[" + pi.getName() + "]");
-    PoolImpl p2 = (PoolImpl) PoolManager.find("testPool");
+    var p2 = (PoolImpl) PoolManager.find("testPool");
     System.out.println("QQQQ:" + p2);
     pool = pi;
   }
@@ -196,10 +195,10 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
    * function to assert that the ThreadIdtoSequence id Map is not Null but is empty *
    */
   public static void assertThreadIdToSequenceIdMapisNotNullButEmpty() {
-    final Map map = pool.getThreadIdToSequenceIdMap();
+    final var map = pool.getThreadIdToSequenceIdMap();
     assertNotNull(map);
     // changed to check for size 1 due to marker message
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         synchronized (map) {
@@ -224,7 +223,7 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
    * function to assert that the ThreadIdtoSequence id Map is not Null and has only one entry *
    */
   public static Object assertThreadIdToSequenceIdMapHasEntryId() {
-    Map map = pool.getThreadIdToSequenceIdMap();
+    var map = pool.getThreadIdToSequenceIdMap();
     assertNotNull(map);
     // The map size can now be 1 or 2 because of the server thread putting
     // the marker in the queue. If it is 2, the first entry is the server
@@ -234,14 +233,14 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
 
     // Set the entry to the last entry
     Map.Entry entry = null;
-    for (final Object o : map.entrySet()) {
+    for (final var o : map.entrySet()) {
       entry = (Map.Entry) o;
     }
 
-    ThreadIdentifier tid = (ThreadIdentifier) entry.getKey();
-    SequenceIdAndExpirationObject seo = (SequenceIdAndExpirationObject) entry.getValue();
-    long sequenceId = seo.getSequenceId();
-    EventID evId = new EventID(tid.getMembershipID(), tid.getThreadID(), sequenceId);
+    var tid = (ThreadIdentifier) entry.getKey();
+    var seo = (SequenceIdAndExpirationObject) entry.getValue();
+    var sequenceId = seo.getSequenceId();
+    var evId = new EventID(tid.getMembershipID(), tid.getThreadID(), sequenceId);
     synchronized (map) {
       map.clear();
     }
@@ -252,8 +251,8 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
    * function to assert that the ThreadIdtoSequence id Map is not Null and has only one entry *
    */
   public static Object[] assertThreadIdToSequenceIdMapHasEntryIds() {
-    EventID[] evids = new EventID[5];
-    Map map = pool.getThreadIdToSequenceIdMap();
+    var evids = new EventID[5];
+    var map = pool.getThreadIdToSequenceIdMap();
     assertNotNull(map);
 
     evids[0] = putAlleventId1;
@@ -309,12 +308,12 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
       client1.invoke(HAEventIdPropagationDUnitTest::setReceivedOperationToFalse);
       client1.invoke(
           HAEventIdPropagationDUnitTest::assertThreadIdToSequenceIdMapisNotNullButEmpty);
-      Object eventId1 = server1.invoke(HAEventIdPropagationDUnitTest::putKey1Val1);
+      var eventId1 = server1.invoke(HAEventIdPropagationDUnitTest::putKey1Val1);
       assertNotNull(eventId1);
       // wait for key to propagate till client
       // assert map not null on client
       client1.invoke(HAEventIdPropagationDUnitTest::waitTillOperationReceived);
-      Object eventId2 = client1
+      var eventId2 = client1
           .invoke(HAEventIdPropagationDUnitTest::assertThreadIdToSequenceIdMapHasEntryId);
       assertNotNull(eventId2);
       if (!eventId1.equals(eventId2)) {
@@ -348,16 +347,16 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
       }
 
       client1.invoke(HAEventIdPropagationDUnitTest::setReceivedOperationToFalse);
-      EventID[] eventIds1 =
+      var eventIds1 =
           (EventID[]) server1.invoke(HAEventIdPropagationDUnitTest::putAll);
       assertNotNull(eventIds1);
       // wait for key to propagate till client
       // assert map not null on client
       client1.invoke(HAEventIdPropagationDUnitTest::waitTillOperationReceived);
-      EventID[] eventIds2 = (EventID[]) client1
+      var eventIds2 = (EventID[]) client1
           .invoke(HAEventIdPropagationDUnitTest::assertThreadIdToSequenceIdMapHasEntryIds);
       assertNotNull(eventIds2);
-      for (int i = 0; i < 5; i++) {
+      for (var i = 0; i < 5; i++) {
         assertNotNull(eventIds1[i]);
         assertNotNull(eventIds2[i]);
         if (!eventIds1[i].equals(eventIds2[i])) {
@@ -403,12 +402,12 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
     client1.invoke(HAEventIdPropagationDUnitTest::setReceivedOperationToFalse);
     client1.invoke(
         HAEventIdPropagationDUnitTest::assertThreadIdToSequenceIdMapisNotNullButEmpty);
-    Object eventId1 = server1.invoke(HAEventIdPropagationDUnitTest::clearRg);
+    var eventId1 = server1.invoke(HAEventIdPropagationDUnitTest::clearRg);
     assertNotNull(eventId1);
     // wait for key to propagate till client
     // assert map not null on client
     client1.invoke(HAEventIdPropagationDUnitTest::waitTillOperationReceived);
-    Object eventId2 = client1
+    var eventId2 = client1
         .invoke(HAEventIdPropagationDUnitTest::assertThreadIdToSequenceIdMapHasEntryId);
     assertNotNull(eventId2);
     if (!eventId1.equals(eventId2)) {
@@ -421,12 +420,12 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
   public void testEventIDPropagationForDestroyRegion() throws Exception {
     createClientServerConfiguration();
     client1.invoke(HAEventIdPropagationDUnitTest::setReceivedOperationToFalse);
-    Object eventId1 = server1.invoke(HAEventIdPropagationDUnitTest::destroyRegion);
+    var eventId1 = server1.invoke(HAEventIdPropagationDUnitTest::destroyRegion);
     assertNotNull(eventId1);
     // wait for key to propagate till client
     // assert map not null on client
     client1.invoke(HAEventIdPropagationDUnitTest::waitTillOperationReceived);
-    Object eventId2 = client1
+    var eventId2 = client1
         .invoke(HAEventIdPropagationDUnitTest::assertThreadIdToSequenceIdMapHasEntryId);
     assertNotNull(eventId2);
     if (!eventId1.equals(eventId2)) {
@@ -489,7 +488,7 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
       map.put(PUTALL_KEY5, "value1");
       region.putAll(map);
       Thread.sleep(5000);
-      EventID[] evids = new EventID[5];
+      var evids = new EventID[5];
       evids[0] = putAlleventId1;
       evids[1] = putAlleventId2;
       evids[2] = putAlleventId3;
@@ -632,8 +631,8 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
     @Override
     public void afterCreate(EntryEvent event) {
       LogWriterUtils.getLogWriter().fine(" entered after created with " + event.getKey());
-      boolean shouldNotify = false;
-      Object key = event.getKey();
+      var shouldNotify = false;
+      var key = event.getKey();
       if (key.equals(PUTALL_KEY1)) {
         putAllReceivedCount++;
         putAlleventId1 = (EventID) assertThreadIdToSequenceIdMapHasEntryId();
@@ -717,8 +716,8 @@ public class HAEventIdPropagationDUnitTest extends JUnit4DistributedTestCase {
     @Override
     public void afterCreate(EntryEvent event) {
       LogWriterUtils.getLogWriter().fine(" entered after created with " + event.getKey());
-      boolean shouldNotify = false;
-      Object key = event.getKey();
+      var shouldNotify = false;
+      var key = event.getKey();
       if (key.equals(PUTALL_KEY1)) {
         putAllReceivedCount++;
         putAlleventId1 = ((EntryEventImpl) event).getEventId();

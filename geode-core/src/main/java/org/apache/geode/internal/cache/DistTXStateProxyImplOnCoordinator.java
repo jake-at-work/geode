@@ -17,8 +17,6 @@ package org.apache.geode.internal.cache;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -30,11 +28,9 @@ import org.apache.geode.cache.UnsupportedOperationInTransactionException;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.DistTXPrecommitMessage.DistTxPrecommitResponse;
 import org.apache.geode.internal.cache.TXEntryState.DistTxThinEntryState;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.tx.DistClientTXStateStub;
-import org.apache.geode.internal.cache.tx.DistTxEntryEvent;
 import org.apache.geode.internal.statistics.StatisticsClock;
 
 public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
@@ -72,12 +68,12 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
    */
   @Override
   public void commit() throws CommitConflictException {
-    boolean preserveTx = false;
-    boolean precommitResult = false;
+    var preserveTx = false;
+    var precommitResult = false;
     try {
       // create a map of secondary(for PR) / replica(for RR) to stubs to send
       // commit message to those
-      HashMap<DistributedMember, DistTXCoordinatorInterface> otherTargets2realDeals =
+      var otherTargets2realDeals =
           getSecondariesAndReplicasForTxOps();
       // add it to the existing map and then send commit to all copies
       target2realDeals.putAll(otherTargets2realDeals);
@@ -91,7 +87,7 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
         if (logger.isDebugEnabled()) {
           logger.debug("DistTXStateProxyImplOnCoordinator.commit Going for commit ");
         }
-        boolean phase2commitDone = doCommit();
+        var phase2commitDone = doCommit();
         if (logger.isDebugEnabled()) {
           logger.debug("DistTXStateProxyImplOnCoordinator.commit Commit "
               + (phase2commitDone ? "Done" : "Failed"));
@@ -124,23 +120,23 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
    * those
    */
   private HashMap<DistributedMember, DistTXCoordinatorInterface> getSecondariesAndReplicasForTxOps() {
-    InternalDistributedMember currentNode =
+    var currentNode =
         getCache().getInternalDistributedSystem().getDistributedMember();
 
-    HashMap<DistributedMember, DistTXCoordinatorInterface> secondaryTarget2realDeals =
-        new HashMap<>();
-    for (Entry<DistributedMember, DistTXCoordinatorInterface> e : target2realDeals.entrySet()) {
-      DistributedMember originalTarget = e.getKey();
-      DistTXCoordinatorInterface distPeerTxStateStub = e.getValue();
+    var secondaryTarget2realDeals =
+        new HashMap<DistributedMember, DistTXCoordinatorInterface>();
+    for (var e : target2realDeals.entrySet()) {
+      var originalTarget = e.getKey();
+      var distPeerTxStateStub = e.getValue();
 
-      ArrayList<DistTxEntryEvent> primaryTxOps =
+      var primaryTxOps =
           distPeerTxStateStub.getPrimaryTransactionalOperations();
-      for (DistTxEntryEvent dtop : primaryTxOps) {
-        InternalRegion internalRegion = dtop.getRegion();
+      for (var dtop : primaryTxOps) {
+        var internalRegion = dtop.getRegion();
         // replicas or secondaries
         Set<InternalDistributedMember> otherNodes = null;
         if (internalRegion instanceof PartitionedRegion) {
-          Set<InternalDistributedMember> allNodes = ((PartitionedRegion) dtop.getRegion())
+          var allNodes = ((PartitionedRegion) dtop.getRegion())
               .getRegionAdvisor().getBucketOwners(dtop.getKeyInfo().getBucketId());
           allNodes.remove(originalTarget);
           otherNodes = allNodes;
@@ -151,9 +147,9 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
         }
 
         if (otherNodes != null) {
-          for (InternalDistributedMember dm : otherNodes) {
+          for (var dm : otherNodes) {
             // whether the target already exists due to other Tx op on the node
-            DistTXCoordinatorInterface existingDistPeerTXStateStub = target2realDeals.get(dm);
+            var existingDistPeerTXStateStub = target2realDeals.get(dm);
             if (existingDistPeerTXStateStub == null) {
               existingDistPeerTXStateStub = secondaryTarget2realDeals.get(dm);
               if (existingDistPeerTXStateStub == null) {
@@ -185,24 +181,24 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
       logger.debug("DistTXStateProxyImplOnCoordinator.rollback Going for rollback ");
     }
 
-    boolean finalResult = false;
-    final DistributionManager dm = getCache().getDistributionManager();
+    var finalResult = false;
+    final var dm = getCache().getDistributionManager();
     try {
       // Create Tx Participants
-      Set<DistributedMember> txRemoteParticpants = getTxRemoteParticpants(dm);
+      var txRemoteParticpants = getTxRemoteParticpants(dm);
 
       // create processor and rollback message
-      DistTXRollbackMessage.DistTxRollbackReplyProcessor processor =
+      var processor =
           new DistTXRollbackMessage.DistTxRollbackReplyProcessor(getTxId(), dm,
               txRemoteParticpants, target2realDeals);
       // TODO [DISTTX} whats ack threshold?
       processor.enableSevereAlertProcessing();
-      final DistTXRollbackMessage rollbackMsg =
+      final var rollbackMsg =
           new DistTXRollbackMessage(getTxId(), onBehalfOfClientMember, processor);
 
       // send rollback message to remote nodes
-      for (DistributedMember remoteNode : txRemoteParticpants) {
-        DistTXCoordinatorInterface remoteTXStateStub = target2realDeals.get(remoteNode);
+      for (var remoteNode : txRemoteParticpants) {
+        var remoteTXStateStub = target2realDeals.get(remoteNode);
         if (remoteTXStateStub.isTxState()) {
           throw new UnsupportedOperationInTransactionException(
               String.format("Expected %s during a distributed transaction but got %s",
@@ -222,7 +218,7 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
       }
 
       // Do rollback on local node
-      DistTXCoordinatorInterface localTXState = target2realDeals.get(dm.getId());
+      var localTXState = target2realDeals.get(dm.getId());
       if (localTXState != null) {
         if (!localTXState.isTxState()) {
           throw new UnsupportedOperationInTransactionException(
@@ -231,7 +227,7 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
                   localTXState.getClass().getSimpleName()));
         }
         localTXState.rollback();
-        boolean localResult = localTXState.getRollbackResponse();
+        var localResult = localTXState.getRollbackResponse();
         if (logger.isDebugEnabled()) {
           logger.debug("DistTXStateProxyImplOnCoordinator.rollback local = " + dm.getId()
               + " ,result= " + localResult + " ,finalResult-old= " + finalResult);
@@ -265,10 +261,10 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
         // [DISTTX} TODO Handle stats
         // dm.getStats().incCommitWaits();
 
-        Map<DistributedMember, Boolean> remoteResults = processor.getRollbackResponseMap();
-        for (Entry<DistributedMember, Boolean> e : remoteResults.entrySet()) {
-          DistributedMember target = e.getKey();
-          Boolean remoteResult = e.getValue();
+        var remoteResults = processor.getRollbackResponseMap();
+        for (var e : remoteResults.entrySet()) {
+          var target = e.getKey();
+          var remoteResult = e.getValue();
           if (logger.isDebugEnabled()) { // TODO - make this trace level
             logger.debug("DistTXStateProxyImplOnCoordinator.rollback target = " + target
                 + " ,result= " + remoteResult + " ,finalResult-old= " + finalResult);
@@ -403,7 +399,7 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
     if (rrTargets == null) {
       rrTargets = new HashMap();
     }
-    DistributedMember m = rrTargets.get(r);
+    var m = rrTargets.get(r);
     if (m == null) {
       m = getOwnerForKey(r, key);
       rrTargets.put(r, m);
@@ -413,7 +409,7 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
 
   private Set<DistributedMember> getTxRemoteParticpants(final DistributionManager dm) {
     if (txRemoteParticpants == null) {
-      Set<DistributedMember> txParticpants = target2realDeals.keySet();
+      var txParticpants = target2realDeals.keySet();
       txRemoteParticpants = new HashSet<>(txParticpants);
       // Remove local member from remote participant list
       txRemoteParticpants.remove(dm.getId());
@@ -427,22 +423,22 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
   }
 
   private boolean doPrecommit() {
-    boolean finalResult = true;
-    final DistributionManager dm = getCache().getDistributionManager();
-    Set<DistributedMember> txRemoteParticpants = getTxRemoteParticpants(dm);
+    var finalResult = true;
+    final var dm = getCache().getDistributionManager();
+    var txRemoteParticpants = getTxRemoteParticpants(dm);
 
     // create processor and precommit message
-    DistTXPrecommitMessage.DistTxPrecommitReplyProcessor processor =
+    var processor =
         new DistTXPrecommitMessage.DistTxPrecommitReplyProcessor(getTxId(), dm,
             txRemoteParticpants, target2realDeals);
     // TODO [DISTTX} whats ack threshold?
     processor.enableSevereAlertProcessing();
-    final DistTXPrecommitMessage precommitMsg =
+    final var precommitMsg =
         new DistTXPrecommitMessage(getTxId(), onBehalfOfClientMember, processor);
 
     // send precommit message to remote nodes
-    for (DistributedMember remoteNode : txRemoteParticpants) {
-      DistTXCoordinatorInterface remoteTXStateStub = target2realDeals.get(remoteNode);
+    for (var remoteNode : txRemoteParticpants) {
+      var remoteTXStateStub = target2realDeals.get(remoteNode);
       if (remoteTXStateStub.isTxState()) {
         throw new UnsupportedOperationInTransactionException(
             String.format("Expected %s during a distributed transaction but got %s",
@@ -462,8 +458,8 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
     }
 
     // Do precommit on local node
-    TreeSet<String> sortedRegionName = new TreeSet<>();
-    DistTXCoordinatorInterface localTXState = target2realDeals.get(dm.getId());
+    var sortedRegionName = new TreeSet<String>();
+    var localTXState = target2realDeals.get(dm.getId());
     if (localTXState != null) {
       if (!localTXState.isTxState()) {
         throw new UnsupportedOperationInTransactionException(
@@ -472,9 +468,9 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
                 localTXState.getClass().getSimpleName()));
       }
       localTXState.precommit();
-      boolean localResult = localTXState.getPreCommitResponse();
-      TreeMap<String, ArrayList<DistTxThinEntryState>> entryStateSortedMap =
-          new TreeMap<>();
+      var localResult = localTXState.getPreCommitResponse();
+      var entryStateSortedMap =
+          new TreeMap<String, ArrayList<DistTxThinEntryState>>();
       ArrayList<ArrayList<DistTxThinEntryState>> entryEventList = null;
       if (localResult) {
         localResult = ((DistTXStateOnCoordinator) localTXState)
@@ -521,12 +517,12 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
       // [DISTTX} TODO Handle stats
       // dm.getStats().incCommitWaits();
 
-      Map<DistributedMember, DistTxPrecommitResponse> remoteResults =
+      var remoteResults =
           processor.getCommitResponseMap();
-      for (Entry<DistributedMember, DistTxPrecommitResponse> e : remoteResults.entrySet()) {
-        DistributedMember target = e.getKey();
-        DistTxPrecommitResponse remoteResponse = e.getValue();
-        ArrayList<ArrayList<DistTxThinEntryState>> entryEventList =
+      for (var e : remoteResults.entrySet()) {
+        var target = e.getKey();
+        var remoteResponse = e.getValue();
+        var entryEventList =
             remoteResponse.getDistTxEntryEventList();
         populateEntryEventMap(target, entryEventList, sortedRegionName);
         if (logger.isDebugEnabled()) {
@@ -566,7 +562,7 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
       txEntryEventMap = new HashMap<>();
     }
 
-    DistTXCoordinatorInterface distTxIface = target2realDeals.get(target);
+    var distTxIface = target2realDeals.get(target);
     if (distTxIface.getPrimaryTransactionalOperations() != null
         && distTxIface.getPrimaryTransactionalOperations().size() > 0) {
       sortedRegionName.clear();
@@ -580,9 +576,9 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
                 entryEventList.size() + " {" + entryEventList + "}"));
       }
 
-      int index = 0;
+      var index = 0;
       // Get region as per sorted order of region path
-      for (String rName : sortedRegionName) {
+      for (var rName : sortedRegionName) {
         txEntryEventMap.put(rName, entryEventList.get(index++));
       }
     }
@@ -593,14 +589,14 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
    */
   private void populateEntryEventList(DistributedMember target,
       ArrayList<ArrayList<DistTxThinEntryState>> entryEventList, TreeSet<String> sortedRegionMap) {
-    DistTXCoordinatorInterface distTxItem = target2realDeals.get(target);
+    var distTxItem = target2realDeals.get(target);
     sortedRegionMap.clear();
     distTxItem.gatherAffectedRegionsName(sortedRegionMap, false, true);
 
     // Get region as per sorted order of region path
     entryEventList.clear();
-    for (String rName : sortedRegionMap) {
-      ArrayList<DistTxThinEntryState> entryStates = txEntryEventMap.get(rName);
+    for (var rName : sortedRegionMap) {
+      var entryStates = txEntryEventMap.get(rName);
       if (entryStates == null) {
         throw new UnsupportedOperationInTransactionException(
             String.format("Expected %s during a distributed transaction but got %s",
@@ -614,26 +610,26 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
    * [DISTTX] TODO - Handle result TXMessage
    */
   private boolean doCommit() {
-    boolean finalResult = true;
-    final DistributionManager dm = getCache().getDistributionManager();
+    var finalResult = true;
+    final var dm = getCache().getDistributionManager();
 
     // Create Tx Participants
-    Set<DistributedMember> txRemoteParticpants = getTxRemoteParticpants(dm);
+    var txRemoteParticpants = getTxRemoteParticpants(dm);
 
     // create processor and commit message
-    DistTXCommitMessage.DistTxCommitReplyProcessor processor =
+    var processor =
         new DistTXCommitMessage.DistTxCommitReplyProcessor(getTxId(), dm, txRemoteParticpants,
             target2realDeals);
     // TODO [DISTTX} whats ack threshold?
     processor.enableSevereAlertProcessing();
-    final DistTXCommitMessage commitMsg =
+    final var commitMsg =
         new DistTXCommitMessage(getTxId(), onBehalfOfClientMember, processor);
 
     // send commit message to remote nodes
-    ArrayList<ArrayList<DistTxThinEntryState>> entryEventList = new ArrayList<>();
-    TreeSet<String> sortedRegionName = new TreeSet<>();
-    for (DistributedMember remoteNode : txRemoteParticpants) {
-      DistTXCoordinatorInterface remoteTXStateStub = target2realDeals.get(remoteNode);
+    var entryEventList = new ArrayList<ArrayList<DistTxThinEntryState>>();
+    var sortedRegionName = new TreeSet<String>();
+    for (var remoteNode : txRemoteParticpants) {
+      var remoteTXStateStub = target2realDeals.get(remoteNode);
       if (remoteTXStateStub.isTxState()) {
         throw new UnsupportedOperationInTransactionException(
             String.format("Expected %s during a distributed transaction but got %s",
@@ -658,7 +654,7 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
     }
 
     // Do commit on local node
-    DistTXCoordinatorInterface localTXState = target2realDeals.get(dm.getId());
+    var localTXState = target2realDeals.get(dm.getId());
     if (localTXState != null) {
       if (!localTXState.isTxState()) {
         throw new UnsupportedOperationInTransactionException(
@@ -669,7 +665,7 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
       populateEntryEventList(dm.getId(), entryEventList, sortedRegionName);
       ((DistTXStateOnCoordinator) localTXState).setDistTxEntryStates(entryEventList);
       localTXState.commit();
-      TXCommitMessage localResultMsg = localTXState.getCommitMessage();
+      var localResultMsg = localTXState.getCommitMessage();
       if (logger.isDebugEnabled()) {
         logger.debug(
             "DistTXStateProxyImplOnCoordinator.doCommit local = " + dm.getId() + " ,sortedRegions="
@@ -706,10 +702,10 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
       // [DISTTX} TODO Handle stats
       dm.getStats().incCommitWaits();
 
-      Map<DistributedMember, TXCommitMessage> remoteResults = processor.getCommitResponseMap();
-      for (Entry<DistributedMember, TXCommitMessage> e : remoteResults.entrySet()) {
-        DistributedMember target = e.getKey();
-        TXCommitMessage remoteResultMsg = e.getValue();
+      var remoteResults = processor.getCommitResponseMap();
+      for (var e : remoteResults.entrySet()) {
+        var target = e.getKey();
+        var remoteResultMsg = e.getValue();
         if (logger.isDebugEnabled()) { // TODO - make this trace level
           logger.debug(
               "DistTXStateProxyImplOnCoordinator.doCommit got results from target = " + target
@@ -760,22 +756,22 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
 
 
       // map of bucketId to putall op for this bucket
-      HashMap<Integer, DistributedPutAllOperation> bucketToPutallMap =
-          new HashMap<>();
+      var bucketToPutallMap =
+          new HashMap<Integer, DistributedPutAllOperation>();
       // map of bucketId to TXStateStub for target that hosts this bucket
-      HashMap<Integer, DistTXCoordinatorInterface> bucketToTxStateStubMap =
-          new HashMap<>();
+      var bucketToTxStateStubMap =
+          new HashMap<Integer, DistTXCoordinatorInterface>();
 
       // separate the putall op per bucket
-      for (int i = 0; i < putallOp.putAllData.length; i++) {
+      for (var i = 0; i < putallOp.putAllData.length; i++) {
         assert (putallOp.putAllData[i] != null);
-        Object key = putallOp.putAllData[i].key;
+        var key = putallOp.putAllData[i].key;
         int bucketId = putallOp.putAllData[i].getBucketId();
 
-        DistributedPutAllOperation putAllForBucket = bucketToPutallMap.get(bucketId);
+        var putAllForBucket = bucketToPutallMap.get(bucketId);
         if (putAllForBucket == null) {
           // TODO DISTTX: event is never released
-          EntryEventImpl event = EntryEventImpl.createPutAllEvent(null, reg,
+          var event = EntryEventImpl.createPutAllEvent(null, reg,
               Operation.PUTALL_CREATE, key, putallOp.putAllData[i].getValue(reg.getCache()));
           event.setEventId(putallOp.putAllData[i].getEventID());
           putAllForBucket =
@@ -785,8 +781,8 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
         putallOp.putAllData[i].setFakeEventID();
         putAllForBucket.addEntry(putallOp.putAllData[i]);
 
-        KeyInfo ki = new KeyInfo(key, null, null);
-        DistTXCoordinatorInterface tsi = (DistTXCoordinatorInterface) getRealDeal(ki, reg);
+        var ki = new KeyInfo(key, null, null);
+        var tsi = (DistTXCoordinatorInterface) getRealDeal(ki, reg);
         bucketToTxStateStubMap.put(bucketId, tsi);
       }
 
@@ -797,10 +793,10 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
       // This sends putAll in a loop to each target bucket (and waits for ack)
       // one after another.Could we send respective putAll messages to all
       // targets using same reply processor and wait on it?
-      for (Entry<Integer, DistTXCoordinatorInterface> e : bucketToTxStateStubMap.entrySet()) {
-        Integer bucketId = e.getKey();
-        DistTXCoordinatorInterface dtsi = e.getValue();
-        DistributedPutAllOperation putAllForBucket = bucketToPutallMap.get(bucketId);
+      for (var e : bucketToTxStateStubMap.entrySet()) {
+        var bucketId = e.getKey();
+        var dtsi = e.getValue();
+        var putAllForBucket = bucketToPutallMap.get(bucketId);
 
         if (logger.isDebugEnabled()) {
           logger.debug(
@@ -837,22 +833,22 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
       }
 
       // map of bucketId to removeAll op for this bucket
-      HashMap<Integer, DistributedRemoveAllOperation> bucketToRemoveAllMap =
-          new HashMap<>();
+      var bucketToRemoveAllMap =
+          new HashMap<Integer, DistributedRemoveAllOperation>();
       // map of bucketId to TXStateStub for target that hosts this bucket
-      HashMap<Integer, DistTXCoordinatorInterface> bucketToTxStateStubMap =
-          new HashMap<>();
+      var bucketToTxStateStubMap =
+          new HashMap<Integer, DistTXCoordinatorInterface>();
 
       // separate the removeAll op per bucket
-      for (int i = 0; i < op.removeAllData.length; i++) {
+      for (var i = 0; i < op.removeAllData.length; i++) {
         assert (op.removeAllData[i] != null);
-        Object key = op.removeAllData[i].key;
+        var key = op.removeAllData[i].key;
         int bucketId = op.removeAllData[i].getBucketId();
 
-        DistributedRemoveAllOperation removeAllForBucket = bucketToRemoveAllMap.get(bucketId);
+        var removeAllForBucket = bucketToRemoveAllMap.get(bucketId);
         if (removeAllForBucket == null) {
           // TODO DISTTX: event is never released
-          EntryEventImpl event = EntryEventImpl.createRemoveAllEvent(op, reg, key);
+          var event = EntryEventImpl.createRemoveAllEvent(op, reg, key);
           event.setEventId(op.removeAllData[i].getEventID());
           removeAllForBucket =
               new DistributedRemoveAllOperation(event, op.removeAllDataSize, op.isBridgeOp);
@@ -861,8 +857,8 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
         op.removeAllData[i].setFakeEventID();
         removeAllForBucket.addEntry(op.removeAllData[i]);
 
-        KeyInfo ki = new KeyInfo(key, null, null);
-        DistTXCoordinatorInterface tsi = (DistTXCoordinatorInterface) getRealDeal(ki, reg);
+        var ki = new KeyInfo(key, null, null);
+        var tsi = (DistTXCoordinatorInterface) getRealDeal(ki, reg);
         bucketToTxStateStubMap.put(bucketId, tsi);
       }
 
@@ -873,10 +869,10 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
       // This sends putAll in a loop to each target bucket (and waits for ack)
       // one after another.Could we send respective putAll messages to all
       // targets using same reply processor and wait on it?
-      for (Entry<Integer, DistTXCoordinatorInterface> e : bucketToTxStateStubMap.entrySet()) {
-        Integer bucketId = e.getKey();
-        DistTXCoordinatorInterface dtsi = e.getValue();
-        DistributedRemoveAllOperation removeAllForBucket = bucketToRemoveAllMap.get(bucketId);
+      for (var e : bucketToTxStateStubMap.entrySet()) {
+        var bucketId = e.getKey();
+        var dtsi = e.getValue();
+        var removeAllForBucket = bucketToRemoveAllMap.get(bucketId);
 
         if (logger.isDebugEnabled()) {
           logger.debug(
@@ -897,11 +893,11 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
 
   public static String printEntryEventMap(
       HashMap<String, ArrayList<DistTxThinEntryState>> txRegionVersionsMap) {
-    StringBuilder str = new StringBuilder();
+    var str = new StringBuilder();
     str.append(" (");
     str.append(txRegionVersionsMap.size());
     str.append(")=[ ");
-    for (Map.Entry<String, ArrayList<DistTxThinEntryState>> entry : txRegionVersionsMap
+    for (var entry : txRegionVersionsMap
         .entrySet()) {
       str.append(" {").append(entry.getKey());
       str.append(":").append("size(").append(entry.getValue().size()).append(")");
@@ -913,11 +909,11 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
 
   public static String printEntryEventList(
       ArrayList<ArrayList<DistTxThinEntryState>> entryEventList) {
-    StringBuilder str = new StringBuilder();
+    var str = new StringBuilder();
     str.append(" (");
     str.append(entryEventList.size());
     str.append(")=[ ");
-    for (ArrayList<DistTxThinEntryState> entry : entryEventList) {
+    for (var entry : entryEventList) {
       str.append(" ( ");
       str.append(entry.size());
       str.append(" )={").append(entry);
@@ -931,7 +927,7 @@ public class DistTXStateProxyImplOnCoordinator extends DistTXStateProxyImpl {
    * Do not return null
    */
   public DistributedMember getOwnerForKey(InternalRegion r, KeyInfo key) {
-    DistributedMember m = r.getOwnerForKey(key);
+    var m = r.getOwnerForKey(key);
     if (m == null) {
       m = getCache().getDistributedSystem().getDistributedMember();
     }

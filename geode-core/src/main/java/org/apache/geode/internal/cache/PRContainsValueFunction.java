@@ -25,11 +25,11 @@ public class PRContainsValueFunction implements InternalFunction {
   @Override
   public void execute(FunctionContext context) {
 
-    RegionFunctionContext prContext = (RegionFunctionContext) context;
+    var prContext = (RegionFunctionContext) context;
     Region dataSet = prContext.getDataSet();
-    Object values = context.getArguments();
+    var values = context.getArguments();
 
-    for (final Object val : dataSet.values()) {
+    for (final var val : dataSet.values()) {
       if (val.equals(values)) {
         prContext.getResultSender().lastResult(Boolean.TRUE);
         return;

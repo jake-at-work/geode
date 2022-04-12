@@ -19,8 +19,6 @@ package org.apache.geode.redis.internal.commands.executor.server;
 import static org.apache.geode.redis.RedisCommandArgumentsTestHelper.assertExactNumberOfArgs;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +51,7 @@ public abstract class AbstractTimeIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void timeCommandRespondsWithTwoValues() {
-    List<String> timestamp = jedis.time();
+    var timestamp = jedis.time();
 
     assertThat(timestamp).hasSize(2);
     assertThat(Long.parseLong(timestamp.get(0))).isGreaterThan(0);

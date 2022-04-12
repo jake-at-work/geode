@@ -59,7 +59,7 @@ public class PdxIntegrationTest {
 
   @Test
   public void success() throws Exception {
-    Pdx pdx = new Pdx();
+    var pdx = new Pdx();
     pdx.setReadSerialized(true);
     pdx.setIgnoreUnreadFields(true);
     pdx.setDiskStoreName("diskStoreName");
@@ -89,7 +89,7 @@ public class PdxIntegrationTest {
 
   @Test
   public void postPdxWithAutoSerializer() throws Exception {
-    Pdx pdx = new Pdx();
+    var pdx = new Pdx();
     pdx.setReadSerialized(true);
     pdx.setIgnoreUnreadFields(true);
     pdx.setDiskStoreName("diskStoreName");
@@ -119,7 +119,7 @@ public class PdxIntegrationTest {
 
   @Test
   public void invalidClassName() throws Exception {
-    String json = "{\"readSerialized\":true,\"pdxSerializer\":{\"className\":\"class name\"}}";
+    var json = "{\"readSerialized\":true,\"pdxSerializer\":{\"className\":\"class name\"}}";
 
     context.perform(post("/v1/configurations/pdx")
         .with(httpBasic("clusterManage", "clusterManage"))
@@ -131,7 +131,7 @@ public class PdxIntegrationTest {
 
   @Test
   public void pdxDoesNotAllowAutoSerializerWithNoPatterns() throws Exception {
-    String json = "{\"readSerialized\":true,\"autoSerializer\":{\"portable\":true}}";
+    var json = "{\"readSerialized\":true,\"autoSerializer\":{\"portable\":true}}";
 
     context.perform(post("/v1/configurations/pdx")
         .with(httpBasic("clusterManage", "clusterManage"))
@@ -144,7 +144,7 @@ public class PdxIntegrationTest {
 
   @Test
   public void pdxDoesNotAllowBothAutoAndPdxSerializer() throws Exception {
-    String json =
+    var json =
         "{\"readSerialized\":true,\"autoSerializer\":{\"portable\":true,\"patterns\":[\"pat1\"]},\"pdxSerializer\":{\"className\":\"className\"}}";
 
     context.perform(post("/v1/configurations/pdx")

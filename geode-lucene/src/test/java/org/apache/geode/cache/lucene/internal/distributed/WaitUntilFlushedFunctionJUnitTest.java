@@ -68,12 +68,12 @@ public class WaitUntilFlushedFunctionJUnitTest {
     when(mockCache.getAsyncEventQueue(any())).thenReturn(mockAEQ);
     when(mockAEQ.waitUntilFlushed(10000, TimeUnit.MILLISECONDS)).thenReturn(true);
 
-    WaitUntilFlushedFunction function = new WaitUntilFlushedFunction();
+    var function = new WaitUntilFlushedFunction();
     function.execute(mockContext);
 
-    ArgumentCaptor<Boolean> resultCaptor = ArgumentCaptor.forClass(Boolean.class);
+    var resultCaptor = ArgumentCaptor.forClass(Boolean.class);
     verify(mockResultSender).lastResult(resultCaptor.capture());
-    Boolean result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertTrue(result);
   }
@@ -81,7 +81,7 @@ public class WaitUntilFlushedFunctionJUnitTest {
 
   @Test
   public void testQueryFunctionId() {
-    String id = new WaitUntilFlushedFunction().getId();
+    var id = new WaitUntilFlushedFunction().getId();
     assertEquals(WaitUntilFlushedFunction.class.getName(), id);
   }
 

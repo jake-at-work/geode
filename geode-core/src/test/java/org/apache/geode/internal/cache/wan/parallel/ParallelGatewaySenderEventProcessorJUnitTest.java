@@ -52,7 +52,7 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
   private void createCache() {
     // Mock cache
     cache = Fakes.cache();
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(cache.getDistributedSystem()).thenReturn(ids);
   }
 
@@ -74,7 +74,7 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
 
     // Create a batch of conflatable events with duplicates
     List<GatewaySenderEventImpl> originalEvents = new ArrayList<>();
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     when(lr.getFullPath()).thenReturn(SEPARATOR + "dataStoreRegion");
     when(lr.getCache()).thenReturn(cache);
 
@@ -94,18 +94,18 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
         "Object_13964", null, 105, 28274));
 
     // Conflate the batch of events
-    List<GatewaySenderEventImpl> conflatedEvents = processor.conflate(originalEvents);
+    var conflatedEvents = processor.conflate(originalEvents);
 
     // Verify:
     // - the batch contains 3 events after conflation
     // - they are CREATE, UPDATE, and DESTROY
     // - the UPDATE event is the correct one
     assertThat(conflatedEvents.size()).isEqualTo(3);
-    GatewaySenderEventImpl gsei1 = conflatedEvents.get(0);
+    var gsei1 = conflatedEvents.get(0);
     assertThat(gsei1.getOperation()).isEqualTo(Operation.CREATE);
-    GatewaySenderEventImpl gsei2 = conflatedEvents.get(1);
+    var gsei2 = conflatedEvents.get(1);
     assertThat(gsei2.getOperation()).isEqualTo(Operation.UPDATE);
-    GatewaySenderEventImpl gsei3 = conflatedEvents.get(2);
+    var gsei3 = conflatedEvents.get(2);
     assertThat(gsei3.getOperation()).isEqualTo(Operation.DESTROY);
     assertThat(gsei2.getDeserializedValue()).isEqualTo(lastUpdateValue);
     assertThat(gsei2.getEventId().getSequenceID()).isEqualTo(lastUpdateSequenceId);
@@ -122,19 +122,19 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
 
     List<GatewaySenderEventImpl> events = new ArrayList<>();
 
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     when(lr.getFullPath()).thenReturn(SEPARATOR + "dataStoreRegion");
     when(lr.getCache()).thenReturn(cache);
 
     // Create two events for the same key, so that conflation will be needed. Mock the getRegion()
     // value to return as null so we will hit the NPE if
     // it is referenced.
-    GatewaySenderEventImpl gsei1 =
+    var gsei1 =
         spy(ParallelGatewaySenderHelper.createGatewaySenderEvent(lr, Operation.CREATE,
             "Object_13964", "Object_13964_1", 100, 27709));
     doReturn(null).when(gsei1).getRegion();
 
-    GatewaySenderEventImpl gsei2 =
+    var gsei2 =
         spy(ParallelGatewaySenderHelper.createGatewaySenderEvent(lr, Operation.UPDATE,
             "Object_13964", "Object_13964_2", 101, 27822));
     doReturn(null).when(gsei2).getRegion();
@@ -162,7 +162,7 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
 
     // Create a batch of non-conflatable events with one duplicate (not including the shadowKey)
     List<GatewaySenderEventImpl> originalEvents = new ArrayList<>();
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     when(lr.getFullPath()).thenReturn(SEPARATOR + "dataStoreRegion");
     when(lr.getCache()).thenReturn(cache);
 
@@ -176,7 +176,7 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
         "Object_14024", "Object_14024", 104, 28161));
 
     // Conflate the batch of events
-    List<GatewaySenderEventImpl> conflatedEvents = processor.conflate(originalEvents);
+    var conflatedEvents = processor.conflate(originalEvents);
 
     // Assert no events were conflated incorrectly
     assertThat(originalEvents).isEqualTo(conflatedEvents);
@@ -201,7 +201,7 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
         ParallelGatewaySenderHelper.createParallelGatewaySenderEventProcessor(sender);
 
     // Create mock region
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     when(lr.getFullPath()).thenReturn(SEPARATOR + "dataStoreRegion");
     when(lr.getCache()).thenReturn(cache);
 
@@ -226,7 +226,7 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
     logEvents("original", originalEvents);
 
     // Conflate the batch of events
-    List<GatewaySenderEventImpl> conflatedEvents = processor.conflate(originalEvents);
+    var conflatedEvents = processor.conflate(originalEvents);
     logEvents("conflated", conflatedEvents);
     assertThat(conflatedEvents.size()).isEqualTo(4);
     assertThat(originalEvents.get(0)).isEqualTo(conflatedEvents.get(0));
@@ -255,7 +255,7 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
         ParallelGatewaySenderHelper.createParallelGatewaySenderEventProcessor(sender);
 
     // Create mock region
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     when(lr.getFullPath()).thenReturn(SEPARATOR + "dataStoreRegion");
     when(lr.getCache()).thenReturn(cache);
 
@@ -279,7 +279,7 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
     logEvents("original", originalEvents);
 
     // Conflate the batch of events
-    List<GatewaySenderEventImpl> conflatedEvents = processor.conflate(originalEvents);
+    var conflatedEvents = processor.conflate(originalEvents);
     logEvents("conflated", conflatedEvents);
 
     // Assert no conflation occurs
@@ -288,10 +288,10 @@ public class ParallelGatewaySenderEventProcessorJUnitTest {
   }
 
   private void logEvents(String message, List<GatewaySenderEventImpl> events) {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append("The list contains the following ").append(events.size()).append(" ")
         .append(message).append(" events:");
-    for (GatewaySenderEventImpl event : events) {
+    for (var event : events) {
       builder.append("\t\n").append(event.toSmallString());
     }
     System.out.println(builder);

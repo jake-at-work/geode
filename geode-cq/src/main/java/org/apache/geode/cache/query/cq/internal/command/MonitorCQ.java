@@ -19,8 +19,6 @@ import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.cache.query.CqException;
-import org.apache.geode.cache.query.internal.cq.CqService;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
@@ -45,15 +43,15 @@ public class MonitorCQ extends BaseCQCommand {
   public void cmdExecute(final @NotNull Message clientMessage,
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start) throws IOException {
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
+    var crHelper = serverConnection.getCachedRegionHelper();
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE);
 
-    int op = clientMessage.getPart(0).getInt();
+    var op = clientMessage.getPart(0).getInt();
 
     if (op < 1) {
       // This should have been taken care at the client - remove?
-      String err = String.format("%s: The MonitorCq operation is invalid.",
+      var err = String.format("%s: The MonitorCq operation is invalid.",
           serverConnection.getName());
       sendCqResponse(MessageType.CQDATAERROR_MSG_TYPE, err, clientMessage.getTransactionId(), null,
           serverConnection);
@@ -66,7 +64,7 @@ public class MonitorCQ extends BaseCQCommand {
       regionName = clientMessage.getPart(1).getCachedString();
       if (regionName == null) {
         // This should have been taken care at the client - remove?
-        String err =
+        var err =
             String.format("%s: A null Region name was passed for MonitorCq operation.",
                 serverConnection.getName());
         sendCqResponse(MessageType.CQDATAERROR_MSG_TYPE, err, clientMessage.getTransactionId(),
@@ -84,7 +82,7 @@ public class MonitorCQ extends BaseCQCommand {
     securityService.authorize(Resource.CLUSTER, Operation.READ);
 
     try {
-      CqService cqService = crHelper.getCache().getCqService();
+      var cqService = crHelper.getCache().getCqService();
       cqService.start();
       // The implementation of enable/disable cq is changed.
       // Instead calling enable/disable client calls execute/stop methods
@@ -98,7 +96,7 @@ public class MonitorCQ extends BaseCQCommand {
       sendCqResponse(MessageType.CQ_EXCEPTION_TYPE, "", clientMessage.getTransactionId(), cqe,
           serverConnection);
     } catch (Exception e) {
-      String err =
+      var err =
           String.format("Exception while handling the monitor request, the operation is %s",
               op);
       sendCqResponse(MessageType.CQ_EXCEPTION_TYPE, err, clientMessage.getTransactionId(), e,

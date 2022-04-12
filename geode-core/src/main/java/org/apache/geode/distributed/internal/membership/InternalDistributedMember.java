@@ -113,7 +113,7 @@ public class InternalDistributedMember
     memberIdentifier = MEMBER_IDENTIFIER_FACTORY.create(m);
 
     if (getHostName() == null || isPartial()) {
-      String hostName = getHostName(m.getInetAddress());
+      var hostName = getHostName(m.getInetAddress());
       memberIdentifier.setHostName(hostName);
     }
   }
@@ -187,8 +187,8 @@ public class InternalDistributedMember
   private static MemberData createMemberData(String host, int p, String n, int vmKind,
       String[] groups,
       DurableClientAttributes attr, String u) {
-    InetAddress addr = LocalHostUtil.toInetAddress(host);
-    MemberDataBuilder builder = MemberDataBuilder.newBuilder(addr, host)
+    var addr = LocalHostUtil.toInetAddress(host);
+    var builder = MemberDataBuilder.newBuilder(addr, host)
         .setName(n)
         .setMembershipPort(p)
         .setDirectChannelPort(p)
@@ -247,7 +247,7 @@ public class InternalDistributedMember
   /** this reads an ID written with writeEssentialData */
   public static InternalDistributedMember readEssentialData(DataInput in)
       throws IOException, ClassNotFoundException {
-    final InternalDistributedMember mbr = new InternalDistributedMember();
+    final var mbr = new InternalDistributedMember();
     mbr._readEssentialData(in, InternalDistributedMember::getHostName);
     return mbr;
   }
@@ -258,7 +258,7 @@ public class InternalDistributedMember
   @Override
   public DurableClientAttributes getDurableClientAttributes() {
     if (durableClientAttributes == null) {
-      String durableId = memberIdentifier.getDurableId();
+      var durableId = memberIdentifier.getDurableId();
 
       if (durableId == null || durableId.isEmpty()) {
         durableClientAttributes = new DurableClientAttributes("", DEFAULT_DURABLE_CLIENT_TIMEOUT);
@@ -295,7 +295,7 @@ public class InternalDistributedMember
       throw new ClassCastException(
           "InternalDistributedMember.compareTo(): comparison between different classes");
     }
-    InternalDistributedMember other = (InternalDistributedMember) o;
+    var other = (InternalDistributedMember) o;
 
     return compareTo(other.memberIdentifier, compareMemberData, compareViewIds);
   }
@@ -426,7 +426,7 @@ public class InternalDistributedMember
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    InternalDistributedMember that = (InternalDistributedMember) o;
+    var that = (InternalDistributedMember) o;
     return memberIdentifier.equals(that.memberIdentifier);
   }
 

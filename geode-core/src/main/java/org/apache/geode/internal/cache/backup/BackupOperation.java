@@ -66,7 +66,7 @@ public class BackupOperation {
   }
 
   public BackupStatus backupAllMembers(String targetDirPath, String baselineDirPath) {
-    Properties properties = new BackupConfigFactory().withTargetDirPath(targetDirPath)
+    var properties = new BackupConfigFactory().withTargetDirPath(targetDirPath)
         .withBaselineDirPath(baselineDirPath).createBackupProperties();
     return performBackup(properties);
   }
@@ -85,22 +85,22 @@ public class BackupOperation {
   }
 
   private BackupStatus performBackupUnderLock(Properties properties) {
-    Set<PersistentID> missingMembers =
+    var missingMembers =
         missingPersistentMembersProvider.getMissingPersistentMembers(dm);
-    Set<InternalDistributedMember> recipients = dm.getOtherDistributionManagerIds();
+    var recipients = dm.getOtherDistributionManagerIds();
 
-    BackupDataStoreResult result = performBackupSteps(dm.getId(), recipients, properties);
+    var result = performBackupSteps(dm.getId(), recipients, properties);
 
     // It's possible that when calling getMissingPersistentMembers, some members are
     // still creating/recovering regions, and at FinishBackupRequest.send, the
     // regions at the members are ready. Logically, since the members in successfulMembers
     // should override the previous missingMembers
-    for (Set<PersistentID> onlineMembersIds : result.getSuccessfulMembers().values()) {
+    for (var onlineMembersIds : result.getSuccessfulMembers().values()) {
       missingMembers.removeAll(onlineMembersIds);
     }
 
     result.getExistingDataStores().keySet().removeAll(result.getSuccessfulMembers().keySet());
-    for (Set<PersistentID> lostMembersIds : result.getExistingDataStores().values()) {
+    for (var lostMembersIds : result.getExistingDataStores().values()) {
       missingMembers.addAll(lostMembersIds);
     }
     return new BackupStatusImpl(result.getSuccessfulMembers(), missingMembers);
@@ -111,11 +111,11 @@ public class BackupOperation {
     flushToDiskFactory.createFlushToDiskStep(dm, member, cache, recipients, flushToDiskFactory)
         .send();
 
-    boolean abort = true;
+    var abort = true;
     Map<DistributedMember, Set<PersistentID>> successfulMembers;
     Map<DistributedMember, Set<PersistentID>> existingDataStores;
     try {
-      PrepareBackupStep prepareBackupStep =
+      var prepareBackupStep =
           prepareBackupFactory.createPrepareBackupStep(dm, member, cache, recipients,
               prepareBackupFactory, properties);
       existingDataStores = prepareBackupStep.send();

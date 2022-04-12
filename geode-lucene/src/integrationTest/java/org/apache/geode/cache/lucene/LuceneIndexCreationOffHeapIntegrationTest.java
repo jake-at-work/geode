@@ -45,7 +45,7 @@ public class LuceneIndexCreationOffHeapIntegrationTest extends LuceneIntegration
 
   @Override
   protected CacheFactory getCacheFactory() {
-    CacheFactory factory = super.getCacheFactory();
+    var factory = super.getCacheFactory();
     factory.set(ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, "100m");
     return factory;
   }

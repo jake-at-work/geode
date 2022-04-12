@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.examples.snapshot.MyObject;
@@ -51,12 +50,12 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
 
   @Test
   public void testExportAndReadSnapshot() throws Exception {
-    for (final RegionType type : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        String name = "test-" + type.name() + "-" + st.name();
+    for (final var type : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var name = "test-" + type.name() + "-" + st.name();
         Region<Integer, MyObject> region =
             regionGenerator.createRegion(cache, diskStore.getName(), type, name);
-        final Map<Integer, MyObject> expected = createExpected(st);
+        final var expected = createExpected(st);
 
         region.putAll(expected);
         region.getSnapshotService().save(snapshotFile, SnapshotFormat.GEODE);
@@ -64,7 +63,7 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
         final Map<Integer, Object> read = new HashMap<>();
         try (SnapshotIterator<Integer, Object> iter = SnapshotReader.read(snapshotFile)) {
           while (iter.hasNext()) {
-            Entry<Integer, Object> entry = iter.next();
+            var entry = iter.next();
             read.put(entry.getKey(), entry.getValue());
           }
           assertEquals("Comparison failure for " + type.name() + "/" + st.name(), expected, read);
@@ -75,12 +74,12 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
 
   @Test
   public void testExportAndImport() throws Exception {
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        String name = "test-" + rt.name() + "-" + st.name();
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var name = "test-" + rt.name() + "-" + st.name();
         Region<Integer, MyObject> region =
             regionGenerator.createRegion(cache, diskStore.getName(), rt, name);
-        final Map<Integer, MyObject> expected = createExpected(st);
+        final var expected = createExpected(st);
 
         region.putAll(expected);
         region.getSnapshotService().save(snapshotFile, SnapshotFormat.GEODE);
@@ -95,7 +94,7 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
           }
         });
 
-        final AtomicBoolean cltest = new AtomicBoolean(false);
+        final var cltest = new AtomicBoolean(false);
         region.getAttributesMutator()
             .addCacheListener(new CacheListenerAdapter<Integer, MyObject>() {
               @Override
@@ -115,19 +114,19 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
 
   @Test
   public void testFilterOnExport() throws Exception {
-    SnapshotFilter<Integer, MyObject> odd =
-        entry -> entry.getKey() % 2 == 1;
+    var odd =
+        (SnapshotFilter<Integer, MyObject>) entry -> entry.getKey() % 2 == 1;
 
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        String name = "test-" + rt.name() + "-" + st.name();
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var name = "test-" + rt.name() + "-" + st.name();
         Region<Integer, MyObject> region =
             regionGenerator.createRegion(cache, diskStore.getName(), rt, name);
-        final Map<Integer, MyObject> expected = createExpected(st);
+        final var expected = createExpected(st);
 
         region.putAll(expected);
-        RegionSnapshotService<Integer, MyObject> rss = region.getSnapshotService();
-        SnapshotOptions<Integer, MyObject> options = rss.createOptions().setFilter(odd);
+        var rss = region.getSnapshotService();
+        var options = rss.createOptions().setFilter(odd);
         rss.save(snapshotFile, SnapshotFormat.GEODE, options);
 
         region.destroyRegion();
@@ -144,25 +143,25 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
 
   @Test
   public void testFilterOnImport() throws Exception {
-    SnapshotFilter<Integer, MyObject> odd =
-        entry -> entry.getKey() % 2 == 1;
+    var odd =
+        (SnapshotFilter<Integer, MyObject>) entry -> entry.getKey() % 2 == 1;
 
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        String name = "test-" + rt.name() + "-" + st.name();
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var name = "test-" + rt.name() + "-" + st.name();
         Region<Integer, MyObject> region =
             regionGenerator.createRegion(cache, diskStore.getName(), rt, name);
-        final Map<Integer, MyObject> expected = createExpected(st);
+        final var expected = createExpected(st);
 
         region.putAll(expected);
-        RegionSnapshotService<Integer, MyObject> rss = region.getSnapshotService();
+        var rss = region.getSnapshotService();
         rss.save(snapshotFile, SnapshotFormat.GEODE, rss.createOptions());
 
         region.destroyRegion();
         region = regionGenerator.createRegion(cache, diskStore.getName(), rt, name);
 
         rss = region.getSnapshotService();
-        SnapshotOptions<Integer, MyObject> options = rss.createOptions().setFilter(odd);
+        var options = rss.createOptions().setFilter(odd);
         rss.load(snapshotFile, SnapshotFormat.GEODE, options);
 
         region.entrySet().forEach(entry -> assertTrue(odd.accept(entry)));
@@ -173,22 +172,22 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
 
   @Test
   public void testFilterOnExportAndImport() throws Exception {
-    SnapshotFilter<Integer, MyObject> even =
-        entry -> entry.getKey() % 2 == 0;
+    var even =
+        (SnapshotFilter<Integer, MyObject>) entry -> entry.getKey() % 2 == 0;
 
-    SnapshotFilter<Integer, MyObject> odd =
-        entry -> entry.getKey() % 2 == 1;
+    var odd =
+        (SnapshotFilter<Integer, MyObject>) entry -> entry.getKey() % 2 == 1;
 
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        String name = "test-" + rt.name() + "-" + st.name();
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var name = "test-" + rt.name() + "-" + st.name();
         Region<Integer, MyObject> region =
             regionGenerator.createRegion(cache, diskStore.getName(), rt, name);
-        final Map<Integer, MyObject> expected = createExpected(st);
+        final var expected = createExpected(st);
 
         region.putAll(expected);
-        RegionSnapshotService<Integer, MyObject> rss = region.getSnapshotService();
-        SnapshotOptions<Integer, MyObject> options = rss.createOptions().setFilter(even);
+        var rss = region.getSnapshotService();
+        var options = rss.createOptions().setFilter(even);
         rss.save(snapshotFile, SnapshotFormat.GEODE, options);
 
         region.destroyRegion();
@@ -205,22 +204,22 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
 
   @Test
   public void testFilterExportException() throws Exception {
-    SnapshotFilter<Integer, MyObject> oops = entry -> {
+    var oops = (SnapshotFilter<Integer, MyObject>) entry -> {
       throw new RuntimeException();
     };
 
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        String name = "test-" + rt.name() + "-" + st.name();
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var name = "test-" + rt.name() + "-" + st.name();
         Region<Integer, MyObject> region =
             regionGenerator.createRegion(cache, diskStore.getName(), rt, name);
-        final Map<Integer, MyObject> expected = createExpected(st);
+        final var expected = createExpected(st);
 
         region.putAll(expected);
-        RegionSnapshotService<Integer, MyObject> rss = region.getSnapshotService();
-        SnapshotOptions<Integer, MyObject> options = rss.createOptions().setFilter(oops);
+        var rss = region.getSnapshotService();
+        var options = rss.createOptions().setFilter(oops);
 
-        boolean caughtException = false;
+        var caughtException = false;
         try {
           rss.save(snapshotFile, SnapshotFormat.GEODE, options);
         } catch (RuntimeException e) {
@@ -241,28 +240,28 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
 
   @Test
   public void testFilterImportException() throws Exception {
-    SnapshotFilter<Integer, MyObject> oops = entry -> {
+    var oops = (SnapshotFilter<Integer, MyObject>) entry -> {
       throw new RuntimeException();
     };
 
-    for (final RegionType rt : RegionType.values()) {
-      for (final SerializationType st : SerializationType.values()) {
-        String name = "test-" + rt.name() + "-" + st.name();
+    for (final var rt : RegionType.values()) {
+      for (final var st : SerializationType.values()) {
+        var name = "test-" + rt.name() + "-" + st.name();
         Region<Integer, MyObject> region =
             regionGenerator.createRegion(cache, diskStore.getName(), rt, name);
-        final Map<Integer, MyObject> expected = createExpected(st);
+        final var expected = createExpected(st);
 
         region.putAll(expected);
-        RegionSnapshotService<Integer, MyObject> rss = region.getSnapshotService();
+        var rss = region.getSnapshotService();
         rss.save(snapshotFile, SnapshotFormat.GEODE);
 
         region.destroyRegion();
         region = regionGenerator.createRegion(cache, diskStore.getName(), rt, name);
 
         rss = region.getSnapshotService();
-        SnapshotOptions<Integer, MyObject> options = rss.createOptions().setFilter(oops);
+        var options = rss.createOptions().setFilter(oops);
 
-        boolean caughtException = false;
+        var caughtException = false;
         try {
           rss.load(snapshotFile, SnapshotFormat.GEODE, options);
         } catch (RuntimeException e) {
@@ -279,7 +278,7 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
   public void testInvalidate() throws Exception {
     Region<Integer, MyObject> region =
         regionGenerator.createRegion(cache, diskStore.getName(), RegionType.REPLICATE, "test");
-    MyObject obj =
+    var obj =
         regionGenerator.createData(SerializationType.SERIALIZABLE, 1, "invalidated value");
 
     region.put(1, obj);
@@ -297,17 +296,17 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
   public void testDSID() throws Exception {
     cache.close();
 
-    CacheFactory cf = new CacheFactory().set(MCAST_PORT, "0").set(LOG_LEVEL, "error")
+    var cf = new CacheFactory().set(MCAST_PORT, "0").set(LOG_LEVEL, "error")
         .setPdxSerializer(new MyPdxSerializer()).set(DISTRIBUTED_SYSTEM_ID, "1");
     cache = cf.create();
 
-    RegionType rt = RegionType.REPLICATE;
-    SerializationType st = SerializationType.PDX_SERIALIZER;
+    var rt = RegionType.REPLICATE;
+    var st = SerializationType.PDX_SERIALIZER;
 
-    String name = "test-" + rt.name() + "-" + st.name() + "-dsid";
+    var name = "test-" + rt.name() + "-" + st.name() + "-dsid";
     Region<Integer, MyObject> region =
         regionGenerator.createRegion(cache, diskStore.getName(), rt, name);
-    final Map<Integer, MyObject> expected = createExpected(st);
+    final var expected = createExpected(st);
 
     region.putAll(expected);
     region.getSnapshotService().save(snapshotFile, SnapshotFormat.GEODE);
@@ -315,14 +314,14 @@ public class RegionSnapshotJUnitTest extends SnapshotTestCase {
     cache.close();
 
     // change the DSID from 1 -> 100
-    CacheFactory cf2 = new CacheFactory().set(MCAST_PORT, "0").set(LOG_LEVEL, "error")
+    var cf2 = new CacheFactory().set(MCAST_PORT, "0").set(LOG_LEVEL, "error")
         .setPdxSerializer(new MyPdxSerializer()).set(DISTRIBUTED_SYSTEM_ID, "100");
     cache = cf2.create();
 
     final Map<Integer, Object> read = new HashMap<>();
     try (SnapshotIterator<Integer, Object> iter = SnapshotReader.read(snapshotFile)) {
       while (iter.hasNext()) {
-        Entry<Integer, Object> entry = iter.next();
+        var entry = iter.next();
         read.put(entry.getKey(), entry.getValue());
       }
       assertEquals("Comparison failure for " + rt.name() + "/" + st.name(), expected, read);

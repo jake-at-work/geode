@@ -63,7 +63,7 @@ public class MBeanProxyInfoRepository {
    * @param proxyInfo Proxy Info instance
    */
   protected void addProxyToRepository(DistributedMember member, ProxyInfo proxyInfo) {
-    ObjectName objectName = proxyInfo.getObjectName();
+    var objectName = proxyInfo.getObjectName();
     if (logger.isTraceEnabled()) {
       logger.trace("ADDED TO PROXY REPO : {}", proxyInfo.getObjectName());
     }
@@ -90,7 +90,7 @@ public class MBeanProxyInfoRepository {
       logger.debug("findProxyByName Existing ObjectNames  : {}", objectNameIndex.keySet());
     }
 
-    ProxyInfo proxyInfo = objectNameIndex.get(objectName);
+    var proxyInfo = objectNameIndex.get(objectName);
     if (proxyInfo != null) {
       return interfaceClass.cast(proxyInfo.getProxyInstance());
     } else {
@@ -109,7 +109,7 @@ public class MBeanProxyInfoRepository {
     if (logger.isTraceEnabled()) {
       logger.trace("SEARCHING FOR PROXY INFO N REPO FOR MBEAN : {}", objectName);
     }
-    ProxyInfo proxyInfo = objectNameIndex.get(objectName);
+    var proxyInfo = objectNameIndex.get(objectName);
 
     return proxyInfo;
   }
@@ -126,7 +126,7 @@ public class MBeanProxyInfoRepository {
       logger.trace("SEARCHING PROXIES FOR MEMBER : {}", member.getId());
     }
 
-    Set<ObjectName> proxyInfoSet = memberIndex.get(member);
+    var proxyInfoSet = memberIndex.get(member);
     if (proxyInfoSet != null) {
       return Collections.unmodifiableSet(proxyInfoSet);
     } else {
@@ -142,8 +142,8 @@ public class MBeanProxyInfoRepository {
    * @param objectName MBean name
    */
   protected void removeProxy(DistributedMember member, ObjectName objectName) {
-    ProxyInfo info = objectNameIndex.remove(objectName);
-    Set<ObjectName> proxyInfoSet = memberIndex.get(member);
+    var info = objectNameIndex.remove(objectName);
+    var proxyInfoSet = memberIndex.get(member);
     if (proxyInfoSet == null || proxyInfoSet.size() == 0) {
       return;
     }

@@ -63,7 +63,7 @@ public abstract class AbstractSessionCacheTest {
 
   @Test
   public void createRegionConfigurationSetsAppropriateValuesWithDefaultMaxInactiveInterval() {
-    final RegionConfiguration config = spy(new RegionConfiguration());
+    final var config = spy(new RegionConfiguration());
     doReturn(config).when(sessionCache).getNewRegionConfiguration();
 
     when(sessionManager.getRegionName()).thenReturn(sessionRegionName);
@@ -88,12 +88,12 @@ public abstract class AbstractSessionCacheTest {
 
   @Test
   public void createRegionConfigurationSetsAppropriateValuesWithNonDefaultMaxInactiveInterval() {
-    final RegionConfiguration config = spy(new RegionConfiguration());
+    final var config = spy(new RegionConfiguration());
     doReturn(config).when(sessionCache).getNewRegionConfiguration();
 
     when(sessionManager.getRegionName()).thenReturn(sessionRegionName);
     when(sessionManager.getRegionAttributesId()).thenReturn(sessionRegionAttributesId);
-    final int nonDefaultMaxInactiveInterval = RegionConfiguration.DEFAULT_MAX_INACTIVE_INTERVAL + 1;
+    final var nonDefaultMaxInactiveInterval = RegionConfiguration.DEFAULT_MAX_INACTIVE_INTERVAL + 1;
     when(sessionManager.getMaxInactiveInterval()).thenReturn(nonDefaultMaxInactiveInterval);
     when(sessionManager.getEnableGatewayDeltaReplication())
         .thenReturn(gatewayDeltaReplicationEnabled);
@@ -113,8 +113,8 @@ public abstract class AbstractSessionCacheTest {
 
   @Test
   public void destroySessionDoesNotThrowExceptionWhenGetOperatingRegionThrowsEntryNotFoundException() {
-    final EntryNotFoundException exception = new EntryNotFoundException("Entry not found.");
-    final String sessionId = "sessionId";
+    final var exception = new EntryNotFoundException("Entry not found.");
+    final var sessionId = "sessionId";
     // For Client/Server the operating Region is always the session Region, for peer to peer this is
     // only true when
     // local caching is not enabled. For the purposes of this test the behavior is equivalent

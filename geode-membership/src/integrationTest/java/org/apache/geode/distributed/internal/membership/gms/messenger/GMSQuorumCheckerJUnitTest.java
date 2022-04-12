@@ -54,7 +54,7 @@ public class GMSQuorumCheckerJUnitTest {
   @Before
   public void initMocks() {
     mockMembers = new MemberIdentifier[12];
-    for (int i = 0; i < mockMembers.length; i++) {
+    for (var i = 0; i < mockMembers.length; i++) {
       mockMembers[i] = MemberIdentifierUtil.createMemberID(8888 + i);
     }
     channel = mock(JChannel.class);
@@ -68,17 +68,17 @@ public class GMSQuorumCheckerJUnitTest {
 
   @Test
   public void testQuorumCheckerAllRespond() throws Exception {
-    GMSMembershipView view = prepareView();
+    var view = prepareView();
     Set<Integer> pongResponders = new HashSet<>();
-    for (final MemberIdentifier mockMember : mockMembers) {
+    for (final var mockMember : mockMembers) {
       pongResponders.add(mockMember.getMembershipPort());
     }
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertTrue(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
     assertTrue(qc.checkForQuorum(500));
@@ -88,58 +88,58 @@ public class GMSQuorumCheckerJUnitTest {
 
   @Test
   public void testQuorumCheckerMajorityRespond() throws Exception {
-    GMSMembershipView view = prepareView();
+    var view = prepareView();
     Set<Integer> pongResponders = new HashSet<>();
-    for (int i = 0; i < mockMembers.length - 1; i++) {
+    for (var i = 0; i < mockMembers.length - 1; i++) {
       pongResponders.add(mockMembers[i].getMembershipPort());
     }
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertTrue(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
   }
 
   @Test
   public void testQuorumCheckerNotEnoughWeightForQuorum() throws Exception {
-    GMSMembershipView view = prepareView();
+    var view = prepareView();
     Set<Integer> pongResponders = new HashSet<>();
     pongResponders.add(mockMembers[0].getMembershipPort());
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertFalse(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
   }
 
   @Test
   public void testQuorumCheckerNoQuorumNoResponders() throws Exception {
-    GMSMembershipView view = prepareView();
+    var view = prepareView();
     Set<Integer> pongResponders = new HashSet<>();
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertFalse(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
   }
 
   @Test
   public void testQuorumChecker10Servers2Locators4ServersLost() throws Exception {
-    GMSMembershipView view = prepareView();
+    var view = prepareView();
     mockMembers[0].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
     mockMembers[1].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
 
     Set<Integer> pongResponders = new HashSet<>();
-    for (final MemberIdentifier mockMember : mockMembers) {
+    for (final var mockMember : mockMembers) {
       pongResponders.add(mockMember.getMembershipPort());
     }
 
@@ -149,24 +149,24 @@ public class GMSQuorumCheckerJUnitTest {
     pongResponders.remove(mockMembers[10].getMembershipPort());
     pongResponders.remove(mockMembers[11].getMembershipPort());
 
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertTrue(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
   }
 
   @Test
   public void testQuorumChecker10Servers2Locators4ServersAnd1LocatorLost() throws Exception {
-    GMSMembershipView view = prepareView();
+    var view = prepareView();
     mockMembers[0].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
     mockMembers[1].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
 
     Set<Integer> pongResponders = new HashSet<>();
-    for (final MemberIdentifier mockMember : mockMembers) {
+    for (final var mockMember : mockMembers) {
       pongResponders.add(mockMember.getMembershipPort());
     }
 
@@ -179,12 +179,12 @@ public class GMSQuorumCheckerJUnitTest {
     // remove 1 locator
     pongResponders.remove(mockMembers[1].getMembershipPort());
 
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertTrue(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
   }
@@ -192,12 +192,12 @@ public class GMSQuorumCheckerJUnitTest {
   @Test
   public void testQuorumChecker10Servers2Locators5ServersAnd2LocatorsButNotLeadMemberLost()
       throws Exception {
-    GMSMembershipView view = prepareView();
+    var view = prepareView();
     mockMembers[0].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
     mockMembers[1].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
 
     Set<Integer> pongResponders = new HashSet<>();
-    for (final MemberIdentifier mockMember : mockMembers) {
+    for (final var mockMember : mockMembers) {
       pongResponders.add(mockMember.getMembershipPort());
     }
 
@@ -212,12 +212,12 @@ public class GMSQuorumCheckerJUnitTest {
     pongResponders.remove(mockMembers[0].getMembershipPort());
     pongResponders.remove(mockMembers[1].getMembershipPort());
 
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertFalse(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
   }
@@ -225,12 +225,12 @@ public class GMSQuorumCheckerJUnitTest {
   @Test
   public void testQuorumChecker10Servers2Locators5ServerAnd1LocatorWithLeadMemberLost()
       throws Exception {
-    GMSMembershipView view = prepareView();
+    var view = prepareView();
     mockMembers[0].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
     mockMembers[1].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
 
     Set<Integer> pongResponders = new HashSet<>();
-    for (final MemberIdentifier mockMember : mockMembers) {
+    for (final var mockMember : mockMembers) {
       pongResponders.add(mockMember.getMembershipPort());
     }
     // remove 5 servers
@@ -243,61 +243,61 @@ public class GMSQuorumCheckerJUnitTest {
     // remove locator
     pongResponders.remove(mockMembers[0].getMembershipPort());
 
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertFalse(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
   }
 
   @Test
   public void testQuorumChecker2Servers2LocatorsLeadMemberLost() throws Exception {
-    int numMembers = 4;
-    GMSMembershipView view = prepareView(numMembers);
+    var numMembers = 4;
+    var view = prepareView(numMembers);
     mockMembers[0].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
     mockMembers[1].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
 
     Set<Integer> pongResponders = new HashSet<>();
-    for (int i = 0; i < numMembers; i++) {
+    for (var i = 0; i < numMembers; i++) {
       pongResponders.add(mockMembers[i].getMembershipPort());
     }
     // remove lead member
     pongResponders.remove(mockMembers[2].getMembershipPort()); // lead member
 
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertTrue(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
   }
 
   @Test
   public void testQuorumChecker2Servers2LocatorsLeadMemberAnd1LocatorLost() throws Exception {
-    int numMembers = 4;
-    GMSMembershipView view = prepareView(numMembers);
+    var numMembers = 4;
+    var view = prepareView(numMembers);
     mockMembers[0].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
     mockMembers[1].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
 
     Set<Integer> pongResponders = new HashSet<>();
-    for (int i = 0; i < numMembers; i++) {
+    for (var i = 0; i < numMembers; i++) {
       pongResponders.add(mockMembers[i].getMembershipPort());
     }
     // remove members
     pongResponders.remove(mockMembers[2].getMembershipPort()); // lead member
     pongResponders.remove(mockMembers[0].getMembershipPort()); // locator
 
-    PingMessageAnswer answerer = new PingMessageAnswer(channel, pongResponders);
+    var answerer = new PingMessageAnswer(channel, pongResponders);
     Mockito.doAnswer(answerer).when(channel).send(any(Message.class));
 
-    GMSQuorumChecker qc = new GMSQuorumChecker(view, 51, channel, null);
+    var qc = new GMSQuorumChecker(view, 51, channel, null);
     qc.initialize();
-    boolean quorum = qc.checkForQuorum(500);
+    var quorum = qc.checkForQuorum(500);
     assertFalse(quorum);
     assertSame(view.getMembers().size(), answerer.getPingCount());
   }
@@ -307,14 +307,14 @@ public class GMSQuorumCheckerJUnitTest {
   }
 
   private GMSMembershipView prepareView(int numMembers) {
-    int viewId = 1;
+    var viewId = 1;
     List<MemberIdentifier> mbrs = new LinkedList<>();
-    for (int i = 0; i < numMembers; i++) {
+    for (var i = 0; i < numMembers; i++) {
       mbrs.add(mockMembers[i]);
     }
 
     // prepare the view
-    GMSMembershipView netView = new GMSMembershipView(mockMembers[0], viewId, mbrs);
+    var netView = new GMSMembershipView(mockMembers[0], viewId, mbrs);
     return netView;
   }
 
@@ -332,10 +332,10 @@ public class GMSQuorumCheckerJUnitTest {
 
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
-      Object[] args = invocation.getArguments();
-      for (final Object arg : args) {
+      var args = invocation.getArguments();
+      for (final var arg : args) {
         if (arg instanceof Message) {
-          Message msg = (Message) arg;
+          var msg = (Message) arg;
           Object content = null;
           content = msg.getBuffer();
           if (content instanceof byte[]) {

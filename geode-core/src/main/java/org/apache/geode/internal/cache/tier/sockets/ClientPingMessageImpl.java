@@ -43,7 +43,7 @@ public class ClientPingMessageImpl implements ClientMessage {
 
   @Override
   public Message getMessage(CacheClientProxy proxy, boolean notify) throws IOException {
-    Message message = new Message(0, KnownVersion.CURRENT);
+    var message = new Message(0, KnownVersion.CURRENT);
     message.setMessageType(MessageType.SERVER_TO_CLIENT_PING);
     message.setTransactionId(0);
     return message;

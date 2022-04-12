@@ -26,7 +26,6 @@ import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 import org.apache.geode.redis.internal.pubsub.SubscribeResult;
-import org.apache.geode.redis.internal.pubsub.Subscription;
 
 public class SubscribeExecutor implements CommandExecutor {
 
@@ -36,8 +35,8 @@ public class SubscribeExecutor implements CommandExecutor {
     context.checkForLowMemory(command.getCommandType());
 
     Collection<SubscribeResult> results = new ArrayList<>(command.getCommandArguments().size());
-    for (byte[] channelName : command.getCommandArguments()) {
-      SubscribeResult result =
+    for (var channelName : command.getCommandArguments()) {
+      var result =
           context.getPubSub().subscribe(channelName, context.getClient());
       results.add(result);
     }
@@ -48,20 +47,20 @@ public class SubscribeExecutor implements CommandExecutor {
   static RedisResponse createSubscribeResponse(Collection<SubscribeResult> results,
       byte[] messageType) {
     Collection<Collection<?>> items = new ArrayList<>(results.size());
-    for (SubscribeResult result : results) {
+    for (var result : results) {
       items.add(asList(messageType, result.getChannel(), result.getChannelCount()));
     }
 
-    Runnable callback = () -> {
-      for (SubscribeResult result : results) {
-        Subscription subscription = result.getSubscription();
+    var callback = (Runnable) () -> {
+      for (var result : results) {
+        var subscription = result.getSubscription();
         if (subscription != null) {
           subscription.readyToPublish();
         }
       }
     };
 
-    RedisResponse response = RedisResponse.flattenedArray(items);
+    var response = RedisResponse.flattenedArray(items);
     response.setAfterWriteCallback(callback);
 
     return response;

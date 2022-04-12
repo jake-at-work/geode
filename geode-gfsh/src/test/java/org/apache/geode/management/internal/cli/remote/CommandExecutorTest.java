@@ -85,7 +85,7 @@ public class CommandExecutorTest {
 
   @Test
   public void executeWhenGivenDummyParseResult() {
-    Object result = executor.execute(parseResult);
+    var result = executor.execute(parseResult);
     assertThat(result).isInstanceOf(ResultModel.class);
     assertThat(result.toString()).contains("Error while processing command");
   }
@@ -93,7 +93,7 @@ public class CommandExecutorTest {
   @Test
   public void returnsResultAsExpected() {
     doReturn(result).when(executor).invokeCommand(any(), any());
-    Object thisResult = executor.execute(parseResult);
+    var thisResult = executor.execute(parseResult);
     assertThat(thisResult).isSameAs(result);
     verify(executor).lockCMS(any());
     verify(executor).unlockCMS(false);
@@ -102,14 +102,14 @@ public class CommandExecutorTest {
   @Test
   public void testNullResult() {
     doReturn(null).when(executor).invokeCommand(any(), any());
-    Object thisResult = executor.execute(parseResult);
+    var thisResult = executor.execute(parseResult);
     assertThat(thisResult.toString()).contains("Command returned null");
   }
 
   @Test
   public void anyRuntimeExceptionGetsCaught() {
     doThrow(new RuntimeException("my message here")).when(executor).invokeCommand(any(), any());
-    Object thisResult = executor.execute(parseResult);
+    var thisResult = executor.execute(parseResult);
     assertThat(((ResultModel) thisResult).getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(thisResult.toString()).contains("my message here");
     verify(executor).lockCMS(any());
@@ -130,7 +130,7 @@ public class CommandExecutorTest {
   public void anyIllegalArgumentExceptionGetsCaught() {
     doThrow(new IllegalArgumentException("my message here")).when(executor).invokeCommand(any(),
         any());
-    Object thisResult = executor.execute(parseResult);
+    var thisResult = executor.execute(parseResult);
     assertThat(((ResultModel) thisResult).getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(thisResult.toString()).contains("my message here");
     verify(executor).lockCMS(any());
@@ -141,7 +141,7 @@ public class CommandExecutorTest {
   public void anyIllegalStateExceptionGetsCaught() {
     doThrow(new IllegalStateException("my message here")).when(executor).invokeCommand(any(),
         any());
-    Object thisResult = executor.execute(parseResult);
+    var thisResult = executor.execute(parseResult);
     assertThat(((ResultModel) thisResult).getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(thisResult.toString()).contains("my message here");
     verify(executor).lockCMS(any());
@@ -151,7 +151,7 @@ public class CommandExecutorTest {
   @Test
   public void anyUserErrorExceptionGetsCaught() {
     doThrow(new UserErrorException("my message here")).when(executor).invokeCommand(any(), any());
-    Object thisResult = executor.execute(parseResult);
+    var thisResult = executor.execute(parseResult);
     assertThat(((ResultModel) thisResult).getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(thisResult.toString()).contains("my message here");
     verify(executor).lockCMS(any());
@@ -162,7 +162,7 @@ public class CommandExecutorTest {
   public void anyEntityNotFoundException_statusOK() {
     doThrow(new EntityNotFoundException("my message here", true)).when(executor)
         .invokeCommand(any(), any());
-    Object thisResult = executor.execute(parseResult);
+    var thisResult = executor.execute(parseResult);
     assertThat(((ResultModel) thisResult).getStatus()).isEqualTo(Result.Status.OK);
     assertThat(thisResult.toString()).contains("Skipping: my message here");
     verify(executor).lockCMS(any());
@@ -173,7 +173,7 @@ public class CommandExecutorTest {
   public void anyEntityNotFoundException_statusERROR() {
     doThrow(new EntityNotFoundException("my message here")).when(executor).invokeCommand(any(),
         any());
-    Object thisResult = executor.execute(parseResult);
+    var thisResult = executor.execute(parseResult);
     assertThat(((ResultModel) thisResult).getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(thisResult.toString()).contains("my message here");
     verify(executor).lockCMS(any());
@@ -188,7 +188,7 @@ public class CommandExecutorTest {
     doReturn(result).when(executor).callInvokeMethod(any(), any());
     doReturn(configuredGroups).when(ccService).getGroups();
 
-    Object thisResult = executor.invokeCommand(testCommand, parseResult);
+    var thisResult = executor.invokeCommand(testCommand, parseResult);
 
     verify(testCommand, times(1)).updateConfigForGroup(eq("Group1"), any(), any());
     verify(testCommand, times(1)).updateConfigForGroup(eq("Group2"), any(), any());
@@ -203,7 +203,7 @@ public class CommandExecutorTest {
     doReturn(result).when(executor).callInvokeMethod(any(), any());
     doReturn(configuredGroups).when(ccService).getGroups();
 
-    Object thisResult = executor.invokeCommand(testCommand, parseResult);
+    var thisResult = executor.invokeCommand(testCommand, parseResult);
 
     verify(testCommand, times(1)).updateConfigForGroup(eq("group1"), any(), any());
   }
@@ -216,7 +216,7 @@ public class CommandExecutorTest {
     doReturn(result).when(executor).callInvokeMethod(any(), any());
     doReturn(configuredGroups).when(ccService).getGroups();
 
-    Object thisResult = executor.invokeCommand(testCommand, parseResult);
+    var thisResult = executor.invokeCommand(testCommand, parseResult);
 
     verify(testCommand, times(1)).updateConfigForGroup(eq("group1"), any(), any());
   }
@@ -232,14 +232,14 @@ public class CommandExecutorTest {
     doReturn(result).when(executor).callInvokeMethod(any(), any());
     doReturn(configuredGroups).when(ccService).getGroups();
 
-    Object thisResult = executor.invokeCommand(testCommand, parseResult);
+    var thisResult = executor.invokeCommand(testCommand, parseResult);
 
     verify(testCommand, times(1)).updateConfigForGroup(eq("cluster"), any(), any());
   }
 
   @Test
   public void nullDlockServiceWillNotLock() throws Exception {
-    CommandExecutor nullLockServiceExecutor = new CommandExecutor(null);
+    var nullLockServiceExecutor = new CommandExecutor(null);
     assertThat(nullLockServiceExecutor.lockCMS(new Object())).isEqualTo(false);
   }
 
@@ -247,7 +247,7 @@ public class CommandExecutorTest {
   public void lockCms() throws Exception {
     assertThat(executor.lockCMS(null)).isEqualTo(false);
     assertThat(executor.lockCMS(new Object())).isEqualTo(false);
-    GfshCommand gfshCommand = mock(GfshCommand.class);
+    var gfshCommand = mock(GfshCommand.class);
     when(gfshCommand.getConfigurationPersistenceService()).thenReturn(null);
     assertThat(executor.lockCMS(gfshCommand)).isEqualTo(false);
 

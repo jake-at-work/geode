@@ -28,7 +28,6 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.test.dunit.Host;
@@ -50,8 +49,8 @@ public class PDXAsyncEventQueueDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testNonPersistentPDXCreateQueueFirst() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
     createSystem(vm0, false);
     createSerialAsyncEventQueue(vm0, false);
@@ -63,8 +62,8 @@ public class PDXAsyncEventQueueDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testNonPersistentPDXCreatePDXFirst() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(1);
 
     createSystem(vm0, false);
     serializeOnVM(vm0, 1);
@@ -72,7 +71,7 @@ public class PDXAsyncEventQueueDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void createRegion(VM vm, final boolean useQueue) {
-    SerializableCallable createSystem = new SerializableCallable() {
+    var createSystem = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
@@ -80,7 +79,7 @@ public class PDXAsyncEventQueueDUnitTest extends JUnit4CacheTestCase {
         if (useQueue) {
           rf.addAsyncEventQueueId("queue");
         }
-        Region region1 = rf.create("region");
+        var region1 = rf.create("region");
         return null;
       }
     };
@@ -88,13 +87,13 @@ public class PDXAsyncEventQueueDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void createSystem(VM vm, final boolean pdxPersistent) {
-    SerializableCallable createSystem = new SerializableCallable() {
+    var createSystem = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Properties props = new Properties();
+        var props = new Properties();
         // props.setProperty(DistributionConfig.LOCATORS_NAME, "");
         getSystem(props);
-        CacheFactory cf = new CacheFactory();
+        var cf = new CacheFactory();
         cf.setPdxPersistent(pdxPersistent);
         getCache(cf);
         return null;
@@ -104,11 +103,11 @@ public class PDXAsyncEventQueueDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void createSerialAsyncEventQueue(VM vm, final boolean persistent) {
-    SerializableCallable createSystem = new SerializableCallable() {
+    var createSystem = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
-        AsyncEventQueue sender = cache.createAsyncEventQueueFactory().setBatchSize(2)
+        var sender = cache.createAsyncEventQueueFactory().setBatchSize(2)
             .setBatchTimeInterval(1000).setBatchConflationEnabled(false).setPersistent(persistent)
             .create("queue", new AsyncEventListener() {
 
@@ -131,7 +130,7 @@ public class PDXAsyncEventQueueDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void putInRegion(VM vm, final Object key, final int value) {
-    SerializableCallable createSystem = new SerializableCallable() {
+    var createSystem = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
@@ -144,7 +143,7 @@ public class PDXAsyncEventQueueDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void serializeOnVM(VM vm, final int value) {
-    SerializableCallable createSystem = new SerializableCallable() {
+    var createSystem = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         // Make sure the cache exists

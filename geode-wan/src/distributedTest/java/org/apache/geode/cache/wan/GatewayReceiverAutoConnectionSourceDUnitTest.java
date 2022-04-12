@@ -18,8 +18,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -29,7 +27,6 @@ import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.AutoConnectionSourceImpl;
 import org.apache.geode.cache.client.internal.LocatorTestBase;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
@@ -50,37 +47,37 @@ public class GatewayReceiverAutoConnectionSourceDUnitTest extends LocatorTestBas
 
   @Test
   public void testBridgeServerAndGatewayReceiverClientAndServerWithGroup() throws Exception {
-    String groupName = "group1";
+    var groupName = "group1";
     runBridgeServerAndGatewayReceiverTest(new String[] {groupName}, groupName, true);
   }
 
   @Test
   public void testBridgeServerAndGatewayReceiverClientWithoutGroupServerWithGroup()
       throws Exception {
-    String groupName = "group1";
+    var groupName = "group1";
     runBridgeServerAndGatewayReceiverTest(new String[] {groupName}, null, true);
   }
 
   @Test
   public void testBridgeServerAndGatewayReceiverClientWithGroupServerWithoutGroup()
       throws Exception {
-    String groupName = "group1";
+    var groupName = "group1";
     runBridgeServerAndGatewayReceiverTest(null, groupName, false);
   }
 
   private void runBridgeServerAndGatewayReceiverTest(String[] serverGroups, String clientGroup,
       boolean oneServerExpected) throws Exception {
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    String hostName = NetworkUtils.getServerHostName();
-    int locatorPort = startLocatorInVM(vm0, hostName, "");
+    var hostName = NetworkUtils.getServerHostName();
+    var locatorPort = startLocatorInVM(vm0, hostName, "");
 
-    String locators = getLocatorString(hostName, locatorPort);
+    var locators = getLocatorString(hostName, locatorPort);
 
-    int serverPort = startBridgeServerInVM(vm1, serverGroups, locators, true);
+    var serverPort = startBridgeServerInVM(vm1, serverGroups, locators, true);
 
     addGatewayReceiverToVM(vm1);
 
@@ -95,9 +92,9 @@ public class GatewayReceiverAutoConnectionSourceDUnitTest extends LocatorTestBas
     vm.invoke(new SerializableRunnable("add GatewayReceiver") {
       @Override
       public void run() {
-        Cache cache = (Cache) remoteObjects.get(CACHE_KEY);
-        GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
-        GatewayReceiver receiver = fact.create();
+        var cache = (Cache) remoteObjects.get(CACHE_KEY);
+        var fact = cache.createGatewayReceiverFactory();
+        var receiver = fact.create();
         assertTrue(receiver.isRunning());
       }
     });
@@ -108,17 +105,17 @@ public class GatewayReceiverAutoConnectionSourceDUnitTest extends LocatorTestBas
     vm.invoke(new SerializableRunnable("verify getAllServers") {
       @Override
       public void run() {
-        Cache cache = (Cache) remoteObjects.get(CACHE_KEY);
+        var cache = (Cache) remoteObjects.get(CACHE_KEY);
         Region region = cache.getRegion(regionName);
-        PoolImpl pool = (PoolImpl) PoolManager.find(region);
-        AutoConnectionSourceImpl connectionSource =
+        var pool = (PoolImpl) PoolManager.find(region);
+        var connectionSource =
             (AutoConnectionSourceImpl) pool.getConnectionSource();
-        List<ServerLocation> allServers = connectionSource.getAllServers();
+        var allServers = connectionSource.getAllServers();
         if (oneServerExpected) {
           // One server is expected. Assert one was returned, and its port matches the input
           // serverPort.
           assertEquals(1, allServers.size());
-          ServerLocation serverLocation = allServers.get(0);
+          var serverLocation = allServers.get(0);
           assertEquals(serverPort, serverLocation.getPort());
         } else {
           // No servers are expected. Assert none were returned.

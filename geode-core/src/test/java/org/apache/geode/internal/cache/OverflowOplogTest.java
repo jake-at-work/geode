@@ -29,7 +29,7 @@ public class OverflowOplogTest {
 
   @Before
   public void setup() {
-    DiskStoreImpl parentDiskStoreMock = mock(DiskStoreImpl.class);
+    var parentDiskStoreMock = mock(DiskStoreImpl.class);
     when(parentDiskStoreMock.getWriteBufferSize())
         .thenReturn(DiskStoreFactory.DEFAULT_WRITE_BUFFER_SIZE);
 

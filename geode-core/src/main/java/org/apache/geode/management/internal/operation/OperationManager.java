@@ -57,20 +57,20 @@ public class OperationManager implements AutoCloseable {
 
   public <A extends ClusterManagementOperation<V>, V extends OperationResult> OperationState<A, V> submit(
       A op) {
-    OperationPerformer<A, V> performer = getPerformer(op);
+    var performer = getPerformer(op);
     if (performer == null) {
       throw new IllegalArgumentException(String.format("%s is not supported.",
           op.getClass().getSimpleName()));
     }
 
-    String opId = historyManager.recordStart(op, cache.getMyId().toString());
+    var opId = historyManager.recordStart(op, cache.getMyId().toString());
     // get the operationState BEFORE we start the async thread
     // so that start will return a result that is not influenced
     // by how far the async thread gets in its execution.
     OperationState<A, V> operationState = historyManager.get(opId);
     CompletableFuture.supplyAsync(() -> performer.perform(cache, op), executor)
         .whenComplete((result, exception) -> {
-          Throwable cause = exception == null ? null : exception.getCause();
+          var cause = exception == null ? null : exception.getCause();
           historyManager.recordEnd(opId, result, cause);
         });
 

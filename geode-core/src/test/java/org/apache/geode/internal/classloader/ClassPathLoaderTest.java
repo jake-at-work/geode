@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Enumeration;
@@ -32,7 +31,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.bcel.Constants;
-import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.generic.ClassGen;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -41,7 +39,6 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.TemporaryFolder;
 
-import org.apache.geode.internal.deployment.JarDeploymentService;
 import org.apache.geode.management.configuration.Deployment;
 import org.apache.geode.test.compiler.ClassBuilder;
 
@@ -78,21 +75,21 @@ public class ClassPathLoaderTest {
 
   @Test
   public void testZeroLengthFile() throws IOException {
-    File zeroFile = tempFolder.newFile("JarDeployerDUnitZLF.jar");
+    var zeroFile = tempFolder.newFile("JarDeployerDUnitZLF.jar");
     zeroFile.createNewFile();
 
-    JarDeploymentService jarDeploymentService =
+    var jarDeploymentService =
         ClassPathLoader.getLatest().getJarDeploymentService();
     assertThatThrownBy(() -> {
-      Deployment deployment =
+      var deployment =
           new Deployment("JarDeployerDUnitZLF.jar", "test", Instant.now().toString());
       deployment.setFile(zeroFile);
       jarDeploymentService.deploy(
           deployment);
     }).isInstanceOf(IllegalArgumentException.class);
 
-    byte[] validBytes = new ClassBuilder().createJarFromName("JarDeployerDUnitZLF1");
-    File validFile = tempFolder.newFile("JarDeployerDUnitZLF1.jar");
+    var validBytes = new ClassBuilder().createJarFromName("JarDeployerDUnitZLF1");
+    var validFile = tempFolder.newFile("JarDeployerDUnitZLF1.jar");
     IOUtils.copy(new ByteArrayInputStream(validBytes), new FileOutputStream(validFile));
 
     Set<File> files = new HashSet<>();
@@ -100,8 +97,8 @@ public class ClassPathLoaderTest {
     files.add(zeroFile);
 
     assertThatThrownBy(() -> {
-      for (File file : files) {
-        Deployment deployment = new Deployment(file.getName(), "test", Instant.now().toString());
+      for (var file : files) {
+        var deployment = new Deployment(file.getName(), "test", Instant.now().toString());
         deployment.setFile(file);
         jarDeploymentService.deploy(deployment);
       }
@@ -120,7 +117,7 @@ public class ClassPathLoaderTest {
   public void testForNameThrowsClassNotFoundException() {
     System.out.println("\nStarting ClassPathLoaderTest#testForNameThrowsClassNotFoundException");
 
-    String classToLoad = "com.nowhere.DoesNotExist";
+    var classToLoad = "com.nowhere.DoesNotExist";
 
     assertThatThrownBy(() -> ClassPathLoader.getLatest().forName(classToLoad))
         .isInstanceOf(ClassNotFoundException.class);
@@ -134,8 +131,8 @@ public class ClassPathLoaderTest {
   public void testForName() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testForName");
 
-    String classToLoad = "org.apache.geode.internal.classpathloaderjunittest.DoesExist";
-    Class<?> clazz = ClassPathLoader.getLatest().forName(classToLoad);
+    var classToLoad = "org.apache.geode.internal.classpathloaderjunittest.DoesExist";
+    var clazz = ClassPathLoader.getLatest().forName(classToLoad);
     assertThat(clazz).isNotNull();
   }
 
@@ -147,18 +144,18 @@ public class ClassPathLoaderTest {
   public void testGetResource() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testGetResource");
 
-    String resourceToGet = "org/apache/geode/internal/classpathloaderjunittest/DoesExist.class";
-    URL url = ClassPathLoader.getLatest().getResource(resourceToGet);
+    var resourceToGet = "org/apache/geode/internal/classpathloaderjunittest/DoesExist.class";
+    var url = ClassPathLoader.getLatest().getResource(resourceToGet);
     assertThat(url).isNotNull();
 
-    InputStream is = url != null ? url.openStream() : null;
+    var is = url != null ? url.openStream() : null;
     assertThat(is).isNotNull();
 
-    int totalBytesRead = 0;
-    byte[] input = new byte[256];
+    var totalBytesRead = 0;
+    var input = new byte[256];
 
-    BufferedInputStream bis = new BufferedInputStream(is);
-    for (int bytesRead = bis.read(input); bytesRead > -1;) {
+    var bis = new BufferedInputStream(is);
+    for (var bytesRead = bis.read(input); bytesRead > -1;) {
       totalBytesRead += bytesRead;
       bytesRead = bis.read(input);
     }
@@ -177,20 +174,20 @@ public class ClassPathLoaderTest {
   public void testGetResources() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testGetResources");
 
-    String resourceToGet = "org/apache/geode/internal/classpathloaderjunittest/DoesExist.class";
-    Enumeration<URL> urls = ClassPathLoader.getLatest().getResources(resourceToGet);
+    var resourceToGet = "org/apache/geode/internal/classpathloaderjunittest/DoesExist.class";
+    var urls = ClassPathLoader.getLatest().getResources(resourceToGet);
     assertThat(urls).isNotNull();
     assertThat(urls.hasMoreElements()).isTrue();
 
-    URL url = urls.nextElement();
-    InputStream is = url != null ? url.openStream() : null;
+    var url = urls.nextElement();
+    var is = url != null ? url.openStream() : null;
     assertThat(is).isNotNull();
 
-    int totalBytesRead = 0;
-    byte[] input = new byte[256];
+    var totalBytesRead = 0;
+    var input = new byte[256];
 
-    BufferedInputStream bis = new BufferedInputStream(is);
-    for (int bytesRead = bis.read(input); bytesRead > -1;) {
+    var bis = new BufferedInputStream(is);
+    for (var bytesRead = bis.read(input); bytesRead > -1;) {
       totalBytesRead += bytesRead;
       bytesRead = bis.read(input);
     }
@@ -209,15 +206,15 @@ public class ClassPathLoaderTest {
   public void testGetResourceAsStream() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testGetResourceAsStream");
 
-    String resourceToGet = "org/apache/geode/internal/classpathloaderjunittest/DoesExist.class";
-    InputStream is = ClassPathLoader.getLatest().getResourceAsStream(resourceToGet);
+    var resourceToGet = "org/apache/geode/internal/classpathloaderjunittest/DoesExist.class";
+    var is = ClassPathLoader.getLatest().getResourceAsStream(resourceToGet);
     assertThat(is).isNotNull();
 
-    int totalBytesRead = 0;
-    byte[] input = new byte[256];
+    var totalBytesRead = 0;
+    var input = new byte[256];
 
-    BufferedInputStream bis = new BufferedInputStream(is);
-    for (int bytesRead = bis.read(input); bytesRead > -1;) {
+    var bis = new BufferedInputStream(is);
+    for (var bytesRead = bis.read(input); bytesRead > -1;) {
       totalBytesRead += bytesRead;
       bytesRead = bis.read(input);
     }
@@ -238,24 +235,24 @@ public class ClassPathLoaderTest {
     System.out.println("\nStarting ClassPathLoaderTest#testGeneratingClassLoader");
 
     ClassLoader gcl = new GeneratingClassLoader();
-    String classToLoad = "com.nowhere.TestGeneratingClassLoader";
+    var classToLoad = "com.nowhere.TestGeneratingClassLoader";
 
-    Class<?> clazz = gcl.loadClass(classToLoad);
+    var clazz = gcl.loadClass(classToLoad);
     assertThat(clazz).isNotNull();
     assertThat(clazz.getName()).isEqualTo(classToLoad);
 
-    Object obj = clazz.newInstance();
+    var obj = clazz.newInstance();
     assertThat(obj.getClass().getName()).isEqualTo(clazz.getName());
 
     assertThatThrownBy(() -> {
       Class.forName(classToLoad);
     }).isInstanceOf(ClassNotFoundException.class);
 
-    Class<?> clazzForName = Class.forName(classToLoad, true, gcl);
+    var clazzForName = Class.forName(classToLoad, true, gcl);
     assertThat(clazzForName).isNotNull();
     assertThat(clazzForName).isEqualTo(clazz);
 
-    Object objForName = clazzForName.newInstance();
+    var objForName = clazzForName.newInstance();
     assertThat(objForName.getClass().getName()).isEqualTo(classToLoad);
   }
 
@@ -268,9 +265,9 @@ public class ClassPathLoaderTest {
   public void testForNameWithObjectArray() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testForNameWithObjectArray");
 
-    ClassPathLoader dcl = ClassPathLoader.createWithDefaults(false);
+    var dcl = ClassPathLoader.createWithDefaults(false);
 
-    String classToLoad = "[Ljava.lang.String;";
+    var classToLoad = "[Ljava.lang.String;";
     Class<?> clazz = null;
     clazz = dcl.forName(classToLoad);
     assertThat(clazz.getName()).isEqualTo(classToLoad);
@@ -284,21 +281,21 @@ public class ClassPathLoaderTest {
   public void testForNameWithTCCL() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testForNameWithTCCL");
 
-    final ClassPathLoader dcl = ClassPathLoader.createWithDefaults(false);
-    final String classToLoad = "com.nowhere.TestForNameWithTCCL";
+    final var dcl = ClassPathLoader.createWithDefaults(false);
+    final var classToLoad = "com.nowhere.TestForNameWithTCCL";
 
     assertThatThrownBy(() -> {
       dcl.forName(classToLoad);
 
     }).isInstanceOf(ClassNotFoundException.class);
 
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    var cl = Thread.currentThread().getContextClassLoader();
     try {
       // ensure that TCCL is only CL that can find this class
       Thread.currentThread().setContextClassLoader(new GeneratingClassLoader());
-      Class<?> clazz = dcl.forName(classToLoad);
+      var clazz = dcl.forName(classToLoad);
       assertThat(clazz).isNotNull();
-      Object instance = clazz.newInstance();
+      var instance = clazz.newInstance();
       assertThat(instance).isNotNull();
       assertThat(instance.getClass().getName()).isEqualTo(classToLoad);
     } finally {
@@ -319,18 +316,18 @@ public class ClassPathLoaderTest {
     System.out.println("\nStarting ClassPathLoaderTest#testNullClassLoader");
 
     ClassLoader cl = new NullClassLoader();
-    String classToLoad = "java.lang.String";
+    var classToLoad = "java.lang.String";
 
     assertThatThrownBy(() -> {
       Class.forName(classToLoad, true, cl);
     }).isInstanceOf(ClassNotFoundException.class);
 
-    String resourceToGet = "java/lang/String.class";
+    var resourceToGet = "java/lang/String.class";
 
-    URL url = cl.getResource(resourceToGet);
+    var url = cl.getResource(resourceToGet);
     assertThat(url).isNull();
 
-    InputStream is = cl.getResourceAsStream(resourceToGet);
+    var is = cl.getResourceAsStream(resourceToGet);
     assertThat(is).isNull();
   }
 
@@ -343,17 +340,17 @@ public class ClassPathLoaderTest {
     System.out.println("\nStarting ClassPathLoaderTest#testSimpleClassLoader");
 
     ClassLoader cl = new SimpleClassLoader(getClass().getClassLoader());
-    String classToLoad = "java.lang.String";
+    var classToLoad = "java.lang.String";
 
-    Class<?> clazz = Class.forName(classToLoad, true, cl);
+    var clazz = Class.forName(classToLoad, true, cl);
     assertThat(clazz).isNotNull();
 
-    String resourceToGet = "java/lang/String.class";
+    var resourceToGet = "java/lang/String.class";
 
-    URL url = cl.getResource(resourceToGet);
+    var url = cl.getResource(resourceToGet);
     assertThat(url).isNotNull();
 
-    InputStream is = cl.getResourceAsStream(resourceToGet);
+    var is = cl.getResourceAsStream(resourceToGet);
     assertThat(is).isNotNull();
   }
 
@@ -367,13 +364,13 @@ public class ClassPathLoaderTest {
 
     ClassLoader cl = new BrokenClassLoader();
 
-    String classToLoad = "java.lang.String";
+    var classToLoad = "java.lang.String";
 
     assertThatThrownBy(() -> {
       Class.forName(classToLoad, true, cl);
     }).isInstanceOf(BrokenError.class);
 
-    String resourceToGet = "java/lang/String.class";
+    var resourceToGet = "java/lang/String.class";
     assertThatThrownBy(() -> {
       cl.getResource(resourceToGet);
     }).isInstanceOf(BrokenError.class);
@@ -393,19 +390,19 @@ public class ClassPathLoaderTest {
   public void testBrokenTCCLThrowsErrors() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testBrokenTCCLThrowsErrors");
 
-    ClassPathLoader dcl = ClassPathLoader.createWithDefaults(false);
+    var dcl = ClassPathLoader.createWithDefaults(false);
 
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    var cl = Thread.currentThread().getContextClassLoader();
     try {
       // set the TCCL to throw errors
       Thread.currentThread().setContextClassLoader(new BrokenClassLoader());
 
-      String classToLoad = "java.lang.String";
+      var classToLoad = "java.lang.String";
       assertThatThrownBy(() -> {
         dcl.forName(classToLoad);
       }).isInstanceOf(BrokenError.class);
 
-      String resourceToGet = "java/lang/String.class";
+      var resourceToGet = "java/lang/String.class";
       assertThatThrownBy(() -> {
         dcl.getResource(resourceToGet);
       }).isInstanceOf(BrokenError.class);
@@ -427,21 +424,21 @@ public class ClassPathLoaderTest {
     System.out.println("\nStarting ClassPathLoaderTest#testEverythingWithDefaultLoader");
 
     // create DCL such that parent cannot find anything
-    ClassPathLoader dcl = ClassPathLoader.createWithDefaults(true);
+    var dcl = ClassPathLoader.createWithDefaults(true);
 
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    var cl = Thread.currentThread().getContextClassLoader();
     try {
       // set the TCCL to never find anything
       Thread.currentThread().setContextClassLoader(new BrokenClassLoader());
 
-      String classToLoad = "java.lang.String";
-      Class<?> clazz = dcl.forName(classToLoad);
+      var classToLoad = "java.lang.String";
+      var clazz = dcl.forName(classToLoad);
       assertThat(clazz).isNotNull();
 
-      String resourceToGet = "java/lang/String.class";
-      URL url = dcl.getResource(resourceToGet);
+      var resourceToGet = "java/lang/String.class";
+      var url = dcl.getResource(resourceToGet);
       assertThat(url).isNotNull();
-      InputStream is = dcl.getResourceAsStream(resourceToGet);
+      var is = dcl.getResourceAsStream(resourceToGet);
       assertThat(is).isNotNull();
     } finally {
       Thread.currentThread().setContextClassLoader(cl);
@@ -456,16 +453,16 @@ public class ClassPathLoaderTest {
   public void testExcludeTCCL() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testExcludeTCCL");
 
-    ClassPathLoader dcl = ClassPathLoader.createWithDefaults(true);
+    var dcl = ClassPathLoader.createWithDefaults(true);
 
-    String classToLoad = "com.nowhere.TestExcludeTCCL";
+    var classToLoad = "com.nowhere.TestExcludeTCCL";
 
     assertThatThrownBy(() -> {
       dcl.forName(classToLoad);
 
     }).isInstanceOf(ClassNotFoundException.class);
 
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    var cl = Thread.currentThread().getContextClassLoader();
 
     try {
       Thread.currentThread().setContextClassLoader(new GeneratingClassLoader());
@@ -486,12 +483,12 @@ public class ClassPathLoaderTest {
   public void testGetResourceExcludeTCCL() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testGetResourceExcludeTCCL");
 
-    ClassPathLoader dcl = ClassPathLoader.createWithDefaults(true);
+    var dcl = ClassPathLoader.createWithDefaults(true);
 
-    String resourceToGet = "com/nowhere/testGetResourceExcludeTCCL.rsc";
+    var resourceToGet = "com/nowhere/testGetResourceExcludeTCCL.rsc";
     assertThat(dcl.getResource(resourceToGet)).isNull();
 
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    var cl = Thread.currentThread().getContextClassLoader();
     try {
       // ensure that TCCL is only CL that can find this resource
       Thread.currentThread().setContextClassLoader(new GeneratingClassLoader());
@@ -509,12 +506,12 @@ public class ClassPathLoaderTest {
   public void testGetResourceAsStreamExcludeTCCL() throws Exception {
     System.out.println("\nStarting ClassPathLoaderTest#testGetResourceAsStreamExcludeTCCL");
 
-    ClassPathLoader dcl = ClassPathLoader.createWithDefaults(true);
+    var dcl = ClassPathLoader.createWithDefaults(true);
 
-    String resourceToGet = "com/nowhere/testGetResourceAsStreamExcludeTCCL.rsc";
+    var resourceToGet = "com/nowhere/testGetResourceAsStreamExcludeTCCL.rsc";
     assertThat(dcl.getResourceAsStream(resourceToGet)).isNull();
 
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    var cl = Thread.currentThread().getContextClassLoader();
     try {
       // ensure that TCCL is only CL that can find this resource
       Thread.currentThread().setContextClassLoader(new GeneratingClassLoader());
@@ -525,7 +522,7 @@ public class ClassPathLoaderTest {
   }
 
   private static void exploreClassLoaderSuperClass(String prefix, Class<?> clazz) {
-    Class<?> superClazz = clazz.getSuperclass();
+    var superClazz = clazz.getSuperclass();
     if (superClazz != null) {
       System.out.println(
           prefix + "                       getSuperclass().getName() = " + superClazz.getName());
@@ -606,11 +603,11 @@ public class ClassPathLoaderTest {
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-      ClassGen cg = new ClassGen(name, "java.lang.Object", "<generated>",
+      var cg = new ClassGen(name, "java.lang.Object", "<generated>",
           Constants.ACC_PUBLIC | Constants.ACC_SUPER, null);
       cg.addEmptyConstructor(Constants.ACC_PUBLIC);
-      JavaClass jClazz = cg.getJavaClass();
-      byte[] bytes = jClazz.getBytes();
+      var jClazz = cg.getJavaClass();
+      var bytes = jClazz.getBytes();
       return defineClass(jClazz.getClassName(), bytes, 0, bytes.length);
     }
 
@@ -633,7 +630,7 @@ public class ClassPathLoaderTest {
         System.out.println("GeneratingClassLoader#findResources returning " + url);
       } catch (IOException ignored) {
       }
-      Vector<URL> urls = new Vector<>();
+      var urls = new Vector<URL>();
       urls.add(url);
       return urls.elements();
     }

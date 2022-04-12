@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -137,10 +136,10 @@ public class CreateIndexCommandTest {
 
   @Test
   public void defaultIndexType() {
-    DistributedMember member = mock(DistributedMember.class);
+    var member = mock(DistributedMember.class);
     doReturn(Collections.singleton(member)).when(command).findMembers(any(), any());
 
-    ArgumentCaptor<RegionConfig.Index> indexTypeCaptor =
+    var indexTypeCaptor =
         ArgumentCaptor.forClass(RegionConfig.Index.class);
     gfshParser.executeAndAssertThat(command,
         "create index --name=abc --expression=abc --region=abc");
@@ -173,7 +172,7 @@ public class CreateIndexCommandTest {
     doReturn(Collections.singleton(mock(DistributedMember.class))).when(command).findMembers(any(),
         any());
 
-    CliFunctionResult result = new CliFunctionResult("member", true, "reason");
+    var result = new CliFunctionResult("member", true, "reason");
     doReturn(Collections.singletonList(result)).when(command).executeAndGetFunctionResult(any(),
         any(), any());
 
@@ -207,10 +206,10 @@ public class CreateIndexCommandTest {
   @Test
   public void csServiceIsDisabled() {
     doReturn(null).when(command).getConfigurationPersistenceService();
-    Set<DistributedMember> targetMembers = Collections.singleton(mock(DistributedMember.class));
+    var targetMembers = Collections.singleton(mock(DistributedMember.class));
     doReturn(targetMembers).when(command).findMembers(any(),
         any());
-    CliFunctionResult result = new CliFunctionResult("member", true, "result:xyz");
+    var result = new CliFunctionResult("member", true, "result:xyz");
     doReturn(Collections.singletonList(result)).when(command).executeAndGetFunctionResult(any(),
         any(), any());
 
@@ -227,9 +226,9 @@ public class CreateIndexCommandTest {
   @Test
   public void commandWithMember() {
     doReturn(ccService).when(command).getConfigurationPersistenceService();
-    Set<DistributedMember> targetMembers = Collections.singleton(mock(DistributedMember.class));
+    var targetMembers = Collections.singleton(mock(DistributedMember.class));
     doReturn(targetMembers).when(command).findMembers(any(), any());
-    CliFunctionResult result = new CliFunctionResult("member", true, "result:xyz");
+    var result = new CliFunctionResult("member", true, "result:xyz");
     doReturn(Collections.singletonList(result)).when(command).executeAndGetFunctionResult(any(),
         any(), any());
 
@@ -247,7 +246,7 @@ public class CreateIndexCommandTest {
   @Test
   public void regionBelongsToCluster() {
     doReturn(ccService).when(command).getConfigurationPersistenceService();
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     @SuppressWarnings("unchecked")
     ClusterManagementListResult<Region, RuntimeRegionInfo> listResult =
         mock(ClusterManagementListResult.class);
@@ -268,14 +267,14 @@ public class CreateIndexCommandTest {
   @Test
   public void getGroupsContainingRegion() throws Exception {
     when(ccService.getGroups()).thenReturn(new HashSet<>(Arrays.asList("group1", "group2")));
-    CacheConfig cacheConfig1 = new CacheConfig();
-    RegionConfig regionA = new RegionConfig("regionA", "REPLICATE");
-    RegionConfig regionB = new RegionConfig("regionB", "REPLICATE");
-    RegionConfig child = new RegionConfig("child", "REPLICATE");
+    var cacheConfig1 = new CacheConfig();
+    var regionA = new RegionConfig("regionA", "REPLICATE");
+    var regionB = new RegionConfig("regionB", "REPLICATE");
+    var child = new RegionConfig("child", "REPLICATE");
     regionA.getRegions().add(child);
     cacheConfig1.getRegions().add(regionA);
     cacheConfig1.getRegions().add(regionB);
-    CacheConfig cacheConfig2 = new CacheConfig();
+    var cacheConfig2 = new CacheConfig();
     cacheConfig2.getRegions().add(regionB);
 
     when(ccService.getCacheConfig("group1", true)).thenReturn(cacheConfig1);

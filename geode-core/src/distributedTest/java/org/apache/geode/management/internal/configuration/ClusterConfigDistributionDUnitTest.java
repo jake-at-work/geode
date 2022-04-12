@@ -31,8 +31,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.compiler.ClassBuilder;
@@ -72,7 +70,7 @@ public class ClusterConfigDistributionDUnitTest {
 
   @Test
   public void testIndexAndAsyncEventQueueCommands() throws Exception {
-    final String DESTROY_REGION = "regionToBeDestroyed";
+    final var DESTROY_REGION = "regionToBeDestroyed";
 
     gfshConnector
         .executeAndAssertThat("create region --name=" + REPLICATE_REGION + " --type=REPLICATE")
@@ -93,10 +91,10 @@ public class ClusterConfigDistributionDUnitTest {
             "create index --name=" + INDEX2 + " --expression=VMW --region=" + PARTITION_REGION)
         .statusIsSuccess();
 
-    String asyncEventQueueJarPath = createAsyncEventQueueJar();
+    var asyncEventQueueJarPath = createAsyncEventQueueJar();
     gfshConnector.executeAndAssertThat("deploy --jar=" + asyncEventQueueJarPath).statusIsSuccess();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_ASYNC_EVENT_QUEUE);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_ASYNC_EVENT_QUEUE);
     csb.addOptionWithValueCheck(CliStrings.CREATE_ASYNC_EVENT_QUEUE__ID, AsyncEventQueue1);
     csb.addOptionWithValueCheck(CliStrings.CREATE_ASYNC_EVENT_QUEUE__LISTENER,
         "com.qcdunit.QueueCommandsDUnitTestListener");
@@ -117,7 +115,7 @@ public class ClusterConfigDistributionDUnitTest {
     // Start a new member which receives the shared configuration
     // Verify the config creation on this member
 
-    MemberVM server = lsRule.startServerVM(2, new Properties(), locator.getPort());
+    var server = lsRule.startServerVM(2, new Properties(), locator.getPort());
 
     server.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
@@ -133,12 +131,12 @@ public class ClusterConfigDistributionDUnitTest {
       assertNull(region3);
 
       // Index verification
-      Index index1 = cache.getQueryService().getIndex(region1, INDEX1);
+      var index1 = cache.getQueryService().getIndex(region1, INDEX1);
       assertNotNull(index1);
       assertNull(cache.getQueryService().getIndex(region2, INDEX2));
 
       // ASYNC-EVENT-QUEUE verification
-      AsyncEventQueue aeq = cache.getAsyncEventQueue(AsyncEventQueue1);
+      var aeq = cache.getAsyncEventQueue(AsyncEventQueue1);
       assertNotNull(aeq);
       assertFalse(aeq.isPersistent());
       assertTrue(aeq.getBatchSize() == 1000);
@@ -147,12 +145,12 @@ public class ClusterConfigDistributionDUnitTest {
   }
 
   private String createAsyncEventQueueJar() throws IOException {
-    String queueCommandsJarName = temporaryFolder.getRoot().getCanonicalPath() + File.separator
+    var queueCommandsJarName = temporaryFolder.getRoot().getCanonicalPath() + File.separator
         + "testEndToEndSC-QueueCommands.jar";
-    final File jarFile = new File(queueCommandsJarName);
+    final var jarFile = new File(queueCommandsJarName);
 
-    ClassBuilder classBuilder = new ClassBuilder();
-    byte[] jarBytes =
+    var classBuilder = new ClassBuilder();
+    var jarBytes =
         classBuilder.createJarFromClassContent("com/qcdunit/QueueCommandsDUnitTestListener",
             "package com.qcdunit;" + "import java.util.List; import java.util.Properties;"
                 + "import org.apache.geode.internal.cache.xmlcache.Declarable2; import org.apache.geode.cache.asyncqueue.AsyncEvent;"
@@ -170,7 +168,7 @@ public class ClusterConfigDistributionDUnitTest {
 
   @Test
   public void testConfigurePDX() throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CONFIGURE_PDX);
+    var csb = new CommandStringBuilder(CliStrings.CONFIGURE_PDX);
     csb.addOptionWithValueCheck(CliStrings.CONFIGURE_PDX__AUTO__SERIALIZER__CLASSES, "com.foo.*");
     csb.addOptionWithValueCheck(CliStrings.CONFIGURE_PDX__IGNORE__UNREAD_FIELDS, "true");
     csb.addOptionWithValueCheck(CliStrings.CONFIGURE_PDX__READ__SERIALIZED, "true");

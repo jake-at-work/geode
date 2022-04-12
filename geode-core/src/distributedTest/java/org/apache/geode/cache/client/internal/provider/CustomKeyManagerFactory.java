@@ -49,7 +49,7 @@ public abstract class CustomKeyManagerFactory extends KeyManagerFactorySpi {
 
   @Override
   public final KeyManager[] engineGetKeyManagers() {
-    X509ExtendedKeyManager systemKeyManager = getCustomKeyManager();
+    var systemKeyManager = getCustomKeyManager();
     return new KeyManager[] {systemKeyManager};
   }
 
@@ -66,11 +66,11 @@ public abstract class CustomKeyManagerFactory extends KeyManagerFactorySpi {
   }
 
   private void init() {
-    String SSL_KEYSTORE_TYPE = "JKS";
-    String SSL_KEYSTORE_PASSWORD = "password";
+    var SSL_KEYSTORE_TYPE = "JKS";
+    var SSL_KEYSTORE_PASSWORD = "password";
 
-    try (FileInputStream fileInputStream = new FileInputStream(keyStorePath)) {
-      KeyStore keyStore = KeyStore.getInstance(SSL_KEYSTORE_TYPE);
+    try (var fileInputStream = new FileInputStream(keyStorePath)) {
+      var keyStore = KeyStore.getInstance(SSL_KEYSTORE_TYPE);
       keyStore.load(fileInputStream, SSL_KEYSTORE_PASSWORD.toCharArray());
       customKeyManagerFactory = KeyManagerFactory.getInstance(algorithm, "SunJSSE");
       customKeyManagerFactory.init(keyStore, SSL_KEYSTORE_PASSWORD.toCharArray());
@@ -82,7 +82,7 @@ public abstract class CustomKeyManagerFactory extends KeyManagerFactorySpi {
 
   private X509ExtendedKeyManager getCustomKeyManager() {
     if (customKeyManager == null) {
-      for (KeyManager candidate : customKeyManagerFactory.getKeyManagers()) {
+      for (var candidate : customKeyManagerFactory.getKeyManagers()) {
         if (candidate instanceof X509ExtendedKeyManager) {
           logger.info("Adding System Key Manager");
           customKeyManager = (X509ExtendedKeyManager) candidate;

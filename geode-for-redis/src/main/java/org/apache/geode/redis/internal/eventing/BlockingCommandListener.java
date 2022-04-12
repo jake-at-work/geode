@@ -80,8 +80,8 @@ public class BlockingCommandListener implements EventListener {
     // Recalculate the timeout since we've already been waiting
     double adjustedTimeoutSeconds = 0;
     if (timeoutSeconds > 0.0D) {
-      long timeoutNanos = (long) (timeoutSeconds * 1e9);
-      long adjustedTimeoutNanos = timeoutNanos - (System.nanoTime() - timeSubmitted);
+      var timeoutNanos = (long) (timeoutSeconds * 1e9);
+      var adjustedTimeoutNanos = timeoutNanos - (System.nanoTime() - timeSubmitted);
       adjustedTimeoutNanos = Math.max(1, adjustedTimeoutNanos);
       adjustedTimeoutSeconds = ((double) adjustedTimeoutNanos) / 1e9;
     }
@@ -89,7 +89,7 @@ public class BlockingCommandListener implements EventListener {
     // The commands we are currently supporting all have the timeout at the end of the argument
     // list. Some newer Redis 7 commands (BLMPOP and BZMPOP) have the timeout as the first argument
     // after the command. We'll need to adjust this once those commands are supported.
-    List<byte[]> commandArguments = command.getCommandArguments();
+    var commandArguments = command.getCommandArguments();
     commandArguments.set(commandArguments.size() - 1, Coder.doubleToBytes(adjustedTimeoutSeconds));
 
     context.resubmitCommand(command);
@@ -101,7 +101,7 @@ public class BlockingCommandListener implements EventListener {
       return;
     }
 
-    long timeoutNanos = (long) (timeoutSeconds * 1e9);
+    var timeoutNanos = (long) (timeoutSeconds * 1e9);
     executor.schedule(() -> timeout(distributor), timeoutNanos, TimeUnit.NANOSECONDS);
   }
 

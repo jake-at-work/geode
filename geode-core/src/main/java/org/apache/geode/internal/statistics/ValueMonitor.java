@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.internal.CopyOnWriteHashSet;
 
@@ -94,22 +93,22 @@ public class ValueMonitor extends StatisticsMonitor {
       final List<ResourceInstance> resourceInstances) {
     if (!statistics.isEmpty()) {
       Map<StatisticId, Number> stats = new HashMap<>();
-      for (ResourceInstance resource : resourceInstances) {
+      for (var resource : resourceInstances) {
         if (statistics.contains(resource.getStatistics())) {
-          ResourceType resourceType = resource.getResourceType();
-          StatisticDescriptor[] sds = resourceType.getStatisticDescriptors();
+          var resourceType = resource.getResourceType();
+          var sds = resourceType.getStatisticDescriptors();
           resource.setStatValuesNotified(true);
-          int[] updatedStats = resource.getUpdatedStats();
-          for (int idx : updatedStats) {
-            StatisticDescriptorImpl sdi = (StatisticDescriptorImpl) sds[idx];
-            SimpleStatisticId statId = new SimpleStatisticId(sdi, resource.getStatistics());
-            long rawbits = resource.getLatestStatValues()[idx];
+          var updatedStats = resource.getUpdatedStats();
+          for (var idx : updatedStats) {
+            var sdi = (StatisticDescriptorImpl) sds[idx];
+            var statId = new SimpleStatisticId(sdi, resource.getStatistics());
+            var rawbits = resource.getLatestStatValues()[idx];
             stats.put(statId, sdi.getNumberForRawBits(rawbits));
           }
         }
       }
       if (!stats.isEmpty()) {
-        MapBasedStatisticsNotification notification = new MapBasedStatisticsNotification(
+        var notification = new MapBasedStatisticsNotification(
             millisTimeStamp, StatisticsNotification.Type.VALUE_CHANGED, stats);
         notifyListeners(notification);
       }
@@ -118,7 +117,7 @@ public class ValueMonitor extends StatisticsMonitor {
 
   @Override
   protected StringBuilder appendToString() {
-    final StringBuilder sb = new StringBuilder();
+    final var sb = new StringBuilder();
     sb.append("statistics=").append(statistics);
     return sb;
   }

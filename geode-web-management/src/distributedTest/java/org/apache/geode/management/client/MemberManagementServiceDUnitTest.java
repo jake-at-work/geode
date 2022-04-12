@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
@@ -38,7 +37,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
-import org.apache.geode.management.api.ClusterManagementListResult;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.api.RestTemplateClusterManagementServiceTransport;
@@ -79,17 +77,17 @@ public class MemberManagementServiceDUnitTest {
   @Test
   @WithMockUser
   public void listAllMembers() {
-    Member member = new Member();
-    ClusterManagementListResult<Member, MemberInformation> result = client.list(member);
+    var member = new Member();
+    var result = client.list(member);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
 
-    List<MemberInformation> members = result.getRuntimeResult();
+    var members = result.getRuntimeResult();
     assertThat(members.size()).isEqualTo(2);
     assertThat(members.stream().map(MemberInformation::getMemberName).collect(Collectors.toList()))
         .containsExactlyInAnyOrder("locator-0", "server-1");
-    for (MemberInformation oneMember : members) {
+    for (var oneMember : members) {
       if (!oneMember.isServer()) {
         assertThat(oneMember.isCoordinator()).isTrue();
         assertThat(oneMember.getLocatorPort())
@@ -112,30 +110,30 @@ public class MemberManagementServiceDUnitTest {
   @Test
   @WithMockUser
   public void getOneMember() {
-    Member config = new Member();
+    var config = new Member();
     config.setId("server-1");
-    ClusterManagementListResult<Member, MemberInformation> result = client.list(config);
+    var result = client.list(config);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
 
-    List<MemberInformation> memberConfig = result.getRuntimeResult();
+    var memberConfig = result.getRuntimeResult();
     assertThat(memberConfig.size()).isEqualTo(1);
   }
 
   @Test
   @WithMockUser
   public void getMemberStatus() {
-    Member config = new Member();
+    var config = new Member();
     config.setId("locator-0");
-    ClusterManagementListResult<Member, MemberInformation> result = client.list(config);
+    var result = client.list(config);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
 
-    List<MemberInformation> members = result.getRuntimeResult();
+    var members = result.getRuntimeResult();
     assertThat(members.size()).isEqualTo(1);
 
-    MemberInformation memberConfig = members.get(0);
+    var memberConfig = members.get(0);
     assertThat(memberConfig.getInitHeapSize()).isGreaterThan(0);
     assertThat(memberConfig.getMaxHeapSize()).isGreaterThan(0);
     assertThat(memberConfig.getStatus()).isEqualTo("online");
@@ -144,10 +142,10 @@ public class MemberManagementServiceDUnitTest {
   @Test
   @WithMockUser
   public void noMatchWithJavaAPI() {
-    Member config = new Member();
+    var config = new Member();
     // look for a member with a non-existent id
     config.setId("server");
-    ClusterManagementListResult<Member, MemberInformation> result = client.list(config);
+    var result = client.list(config);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode())
         .isEqualTo(ClusterManagementResult.StatusCode.OK);

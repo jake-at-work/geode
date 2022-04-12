@@ -67,7 +67,7 @@ public class GetRegionsFunctionTest {
 
   @Test
   public void lastResultIsNullWhenThereAreNoRegions() {
-    Cache cacheFromFunctionContext = mock(Cache.class);
+    var cacheFromFunctionContext = mock(Cache.class);
     when(cacheFromFunctionContext.rootRegions()).thenReturn(Collections.emptySet());
     when(functionContext.getCache()).thenReturn(cacheFromFunctionContext);
 
@@ -78,8 +78,8 @@ public class GetRegionsFunctionTest {
 
   @Test
   public void lastResultHasRegionInformationForRegion() {
-    String regionNameInCacheFromFunctionContext = "MyRegion";
-    Cache cacheFromFunctionContext = cacheWithOneRootRegion(regionNameInCacheFromFunctionContext);
+    var regionNameInCacheFromFunctionContext = "MyRegion";
+    var cacheFromFunctionContext = cacheWithOneRootRegion(regionNameInCacheFromFunctionContext);
     when(functionContext.getCache()).thenReturn(cacheFromFunctionContext);
 
     getRegionsFunction.execute(functionContext);
@@ -91,7 +91,7 @@ public class GetRegionsFunctionTest {
 
   @Test
   public void getsCacheFromFunctionContext() {
-    Cache cacheFromFunctionContext = mock(Cache.class);
+    var cacheFromFunctionContext = mock(Cache.class);
     when(cacheFromFunctionContext.rootRegions()).thenReturn(Collections.emptySet());
     when(functionContext.getCache()).thenReturn(cacheFromFunctionContext);
 
@@ -101,7 +101,7 @@ public class GetRegionsFunctionTest {
   }
 
   private Cache cacheWithOneRootRegion(String regionName) {
-    Cache cache = mock(Cache.class);
+    var cache = mock(Cache.class);
     when(regionAttributes.getDataPolicy()).thenReturn(mock(DataPolicy.class));
     when(regionAttributes.getScope()).thenReturn(mock(Scope.class));
     when(region.getFullPath()).thenReturn(SEPARATOR + regionName);
@@ -113,7 +113,7 @@ public class GetRegionsFunctionTest {
 
   private ArgumentCaptor<RegionInformation[]> lastResultFrom(
       ResultSender<RegionInformation[]> resultSender) {
-    ArgumentCaptor<RegionInformation[]> lastResult =
+    var lastResult =
         ArgumentCaptor.forClass(RegionInformation[].class);
     verify(resultSender).lastResult(lastResult.capture());
     return lastResult;

@@ -37,8 +37,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import java.util.Properties;
-
 import javax.management.Notification;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
@@ -96,9 +94,9 @@ public class DistributedSystemMXBeanIntegrationTest {
     alertMessage = "Alerting in " + testName.getMethodName();
     name = "Manager in " + testName.getMethodName();
 
-    String startLocator = getServerHostName() + "[" + getRandomAvailableTCPPort() + "]";
+    var startLocator = getServerHostName() + "[" + getRandomAvailableTCPPort() + "]";
 
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, name);
     config.setProperty(START_LOCATOR, startLocator);
     config.setProperty(JMX_MANAGER, "true");
@@ -155,7 +153,7 @@ public class DistributedSystemMXBeanIntegrationTest {
   }
 
   private Notification captureNotification() {
-    ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+    var notificationCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationListener, timeout(TIMEOUT))
         .handleNotification(notificationCaptor.capture(), isNull());
     return notificationCaptor.getValue();

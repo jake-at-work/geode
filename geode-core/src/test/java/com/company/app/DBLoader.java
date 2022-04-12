@@ -53,7 +53,7 @@ public class DBLoader implements CacheLoader, Declarable {
       return false;
     }
 
-    DBLoader other = (DBLoader) obj;
+    var other = (DBLoader) obj;
     return props.equals(other.props);
   }
 

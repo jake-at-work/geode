@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -35,11 +34,9 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.security.NotAuthorizedException;
@@ -70,38 +67,38 @@ public class LuceneClientSecurityDUnitTest extends LuceneQueriesAccessorBase {
 
   protected void createRegionIndexAndData() {
     Cache cache = getCache();
-    LuceneService luceneService = LuceneServiceProvider.get(cache);
+    var luceneService = LuceneServiceProvider.get(cache);
     luceneService.createIndexFactory().addField("field1").create(INDEX_NAME, REGION_NAME);
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create(REGION_NAME);
     region.put("key", new org.apache.geode.cache.lucene.test.TestObject("hello", "world"));
   }
 
   private int startCacheServer() throws IOException {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     final Cache cache = getCache(props);
-    final CacheServer server = cache.addCacheServer();
+    final var server = cache.addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
   }
 
   private void startClient(String userName, int serverPort) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.cache.lucene.test.TestObject");
     props.setProperty("security-username", userName);
     props.setProperty("security-password", userName);
     props.setProperty(SECURITY_CLIENT_AUTH_INIT, UserPasswordAuthInit.class.getName());
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory(props);
+    var clientCacheFactory = new ClientCacheFactory(props);
     clientCacheFactory.addPoolServer("localhost", serverPort);
-    ClientCache clientCache = getClientCache(clientCacheFactory);
+    var clientCache = getClientCache(clientCacheFactory);
     clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(REGION_NAME);
   }
 
   private void executeTextSearch(boolean expectAuthorizationError, String expectedResponse)
       throws LuceneQueryException, InterruptedException {
-    LuceneService service = LuceneServiceProvider.get(getCache());
+    var service = LuceneServiceProvider.get(getCache());
     LuceneQuery<Integer, TestObject> query =
         service.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "hello", "field1");
     try {
@@ -117,7 +114,7 @@ public class LuceneClientSecurityDUnitTest extends LuceneQueriesAccessorBase {
 
 
     try {
-      List<LuceneResultStruct<Integer, TestObject>> results = query.findResults();
+      var results = query.findResults();
       assertEquals(1, results.size());
       assertEquals("key", results.get(0).getKey());
       assertFalse(expectAuthorizationError);

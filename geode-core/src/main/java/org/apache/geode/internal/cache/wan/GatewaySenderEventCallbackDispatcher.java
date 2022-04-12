@@ -70,13 +70,13 @@ public class GatewaySenderEventCallbackDispatcher implements GatewaySenderEventD
    */
   @Override
   public boolean dispatchBatch(List events, boolean removeFromQueueOnException, boolean isRetry) {
-    GatewaySenderStats statistics = eventProcessor.sender.getStatistics();
-    boolean success = false;
+    var statistics = eventProcessor.sender.getStatistics();
+    var success = false;
     try {
       if (logger.isDebugEnabled()) {
         logger.debug("About to dispatch batch");
       }
-      long start = statistics.startTime();
+      var start = statistics.startTime();
       // Send the batch to the corresponding GatewaySender
       success = dispatchBatch(events);
       statistics.endBatch(start, events.size());
@@ -104,7 +104,7 @@ public class GatewaySenderEventCallbackDispatcher implements GatewaySenderEventD
    */
   public void registerAsyncEventListener(AsyncEventListener listener) {
     synchronized (eventLock) {
-      List<AsyncEventListener> oldListeners = eventListeners;
+      var oldListeners = eventListeners;
       if (!oldListeners.contains(listener)) {
         List<AsyncEventListener> newListeners = new ArrayList<>(oldListeners);
         newListeners.add(listener);
@@ -120,7 +120,7 @@ public class GatewaySenderEventCallbackDispatcher implements GatewaySenderEventD
    */
   public void unregisterGatewayEventListener(AsyncEventListener listener) {
     synchronized (eventLock) {
-      List<AsyncEventListener> oldListeners = eventListeners;
+      var oldListeners = eventListeners;
       if (oldListeners.contains(listener)) {
         List<AsyncEventListener> newListeners = new ArrayList<>(oldListeners);
         if (newListeners.remove(listener)) {
@@ -131,7 +131,7 @@ public class GatewaySenderEventCallbackDispatcher implements GatewaySenderEventD
   }
 
   protected void initializeEventListeners() {
-    for (AsyncEventListener listener : eventProcessor.getSender().getAsyncEventListeners()) {
+    for (var listener : eventProcessor.getSender().getAsyncEventListeners()) {
       registerAsyncEventListener(listener);
     }
   }
@@ -146,21 +146,21 @@ public class GatewaySenderEventCallbackDispatcher implements GatewaySenderEventD
     if (events.isEmpty()) {
       return true;
     }
-    int batchId = eventProcessor.getBatchId();
-    boolean successAll = true;
+    var batchId = eventProcessor.getBatchId();
+    var successAll = true;
     try {
-      for (AsyncEventListener listener : eventListeners) {
-        boolean successOne = listener.processEvents(events);
+      for (var listener : eventListeners) {
+        var successOne = listener.processEvents(events);
         if (!successOne) {
           successAll = false;
         }
       }
     } catch (Exception e) {
-      final String alias =
+      final var alias =
           "%s: Exception during processing batch %s";
-      final Object[] aliasArgs = new Object[] {this, batchId};
-      String exMsg = String.format(alias, aliasArgs);
-      GatewaySenderException ge = new GatewaySenderException(exMsg, e);
+      final var aliasArgs = new Object[] {this, batchId};
+      var exMsg = String.format(alias, aliasArgs);
+      var ge = new GatewaySenderException(exMsg, e);
       logger.warn(exMsg, ge);
       throw ge;
     }

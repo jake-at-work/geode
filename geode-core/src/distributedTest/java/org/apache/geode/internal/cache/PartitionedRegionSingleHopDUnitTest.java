@@ -68,27 +68,20 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.client.AllConnectionsInUseException;
 import org.apache.geode.cache.client.ClientCacheFactory;
-import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.ClientMetadataService;
 import org.apache.geode.cache.client.internal.ClientPartitionAdvisor;
 import org.apache.geode.cache.client.internal.InternalClientCache;
 import org.apache.geode.cache.execute.FunctionAdapter;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.LocatorLauncher;
 import org.apache.geode.distributed.ServerLauncher;
-import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.BucketAdvisor.ServerBucketProfile;
 import org.apache.geode.internal.cache.execute.InternalFunctionInvocationTargetException;
 import org.apache.geode.internal.cache.execute.util.TypedFunctionService;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.membership.MembershipEvent;
 import org.apache.geode.management.membership.UniversalMembershipListenerAdapter;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.DUnitEnv;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
@@ -144,7 +137,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     vm2 = getVM(2);
     vm3 = getVM(3);
 
-    for (VM vm : asList(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         CLIENT.set(DUMMY_CLIENT);
         CACHE.set(DUMMY_CACHE);
@@ -156,7 +149,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : asList(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         CLIENT.getAndSet(DUMMY_CLIENT).close();
         CACHE.getAndSet(DUMMY_CACHE).close();
@@ -177,21 +170,21 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     vm3.invoke(() -> createAccessorPeer(1, 4));
     createAccessorServer(1, 4);
 
-    for (VM vm : asList(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(this::clearMetadata);
     }
 
-    for (VM vm : asList(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(this::putIntoPartitionedRegions);
     }
 
-    for (VM vm : asList(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(this::doGets);
     }
 
-    for (VM vm : asList(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
-        ClientMetadataService clientMetadataService =
+        var clientMetadataService =
             getInternalCache(SERVER.get()).getClientMetadataService();
 
         assertThat(clientMetadataService.getClientPRMetadata_TEST_ONLY()).isEmpty();
@@ -215,7 +208,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     putIntoPartitionedRegions();
     doGets();
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
 
     assertThat(clientMetadataService.getClientPRMetadata_TEST_ONLY()).isEmpty();
     assertThat(clientMetadataService.getClientPartitionAttributesMap()).isEmpty();
@@ -236,7 +229,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     putIntoPartitionedRegions();
     doGets();
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
 
     assertThat(clientMetadataService.getClientPRMetadata_TEST_ONLY()).isEmpty();
     assertThat(clientMetadataService.getClientPartitionAttributesMap()).isEmpty();
@@ -258,7 +251,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     putIntoPartitionedRegions();
     doGets();
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
 
     await().untilAsserted(() -> {
       assertThat(clientMetadataService.getRefreshTaskCount_TEST_ONLY()).isZero();
@@ -266,7 +259,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     partitionedRegion.put(0, "update0");
     assertThat(clientMetadataService.isRefreshMetadataTestOnly()).isFalse();
@@ -307,10 +300,10 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     vm2.invoke(() -> doPuts(getRegion(PARTITIONED_REGION_NAME)));
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     partitionedRegion.put(0, "create0");
     partitionedRegion.put(1, "create1");
@@ -347,10 +340,10 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     vm2.invoke(() -> doPuts(getRegion(PARTITIONED_REGION_NAME)));
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     partitionedRegion.destroy(0);
     partitionedRegion.destroy(1);
@@ -371,10 +364,10 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     vm2.invoke(() -> doPuts(getRegion(PARTITIONED_REGION_NAME)));
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     partitionedRegion.get(0);
     partitionedRegion.get(1);
@@ -405,18 +398,18 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     int port3 = vm3.invoke(() -> createServer(-1, 0, 8));
     createClient(100, true, false, true, port0, port1, port2, port3);
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     // put
-    for (int i = 1; i <= 16; i++) {
+    for (var i = 1; i <= 16; i++) {
       partitionedRegion.put(i, i);
     }
 
     // update
-    for (int i = 1; i <= 16; i++) {
+    for (var i = 1; i <= 16; i++) {
       partitionedRegion.put(i, i + 1);
     }
 
@@ -428,7 +421,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     vm0.invoke(this::stopServer);
 
     // again update
-    for (int i = 1; i <= 16; i++) {
+    for (var i = 1; i <= 16; i++) {
       partitionedRegion.put(i, i + 10);
     }
   }
@@ -436,22 +429,22 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   @Test
   public void testSingleHopWithHAWithLocator() {
     int locatorPort = vm3.invoke(this::startLocator);
-    String locators = "localhost[" + locatorPort + "]";
+    var locators = "localhost[" + locatorPort + "]";
 
     vm0.invoke(() -> createServer(locators, null, LOCAL_MAX_MEMORY_DEFAULT, 0, 8));
     vm1.invoke(() -> createServer(locators, null, LOCAL_MAX_MEMORY_DEFAULT, 0, 8));
     vm2.invoke(() -> createServer(locators, null, LOCAL_MAX_MEMORY_DEFAULT, 0, 8));
     createClient(250, true, true, false, locatorPort);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     // put
-    for (int i = 1; i <= 16; i++) {
+    for (var i = 1; i <= 16; i++) {
       partitionedRegion.put(i, i);
     }
 
     // update
-    for (int i = 1; i <= 16; i++) {
+    for (var i = 1; i <= 16; i++) {
       partitionedRegion.put(i, i + 1);
     }
 
@@ -459,7 +452,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     vm0.invoke(this::stopServer);
 
     // again update
-    for (int i = 1; i <= 16; i++) {
+    for (var i = 1; i <= 16; i++) {
       partitionedRegion.put(i, i + 10);
     }
   }
@@ -471,12 +464,12 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     vm2.invoke(() -> createClient(250, false, true, true, port0));
     createClient(250, false, true, true, port1);
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
 
     vm2.invoke(() -> doPuts(getRegion(PARTITIONED_REGION_NAME)));
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     partitionedRegion.get(0);
     partitionedRegion.get(1);
@@ -508,25 +501,25 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     vm2.invoke(() -> doPuts(getRegion(PARTITIONED_REGION_NAME)));
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
     partitionedRegion.put(0, "create0");
-    boolean metadataRefreshed_get1 = clientMetadataService.isRefreshMetadataTestOnly();
+    var metadataRefreshed_get1 = clientMetadataService.isRefreshMetadataTestOnly();
 
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
     partitionedRegion.put(1, "create1");
-    boolean metadataRefreshed_get2 = clientMetadataService.isRefreshMetadataTestOnly();
+    var metadataRefreshed_get2 = clientMetadataService.isRefreshMetadataTestOnly();
 
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
     partitionedRegion.put(2, "create2");
-    boolean metadataRefreshed_get3 = clientMetadataService.isRefreshMetadataTestOnly();
+    var metadataRefreshed_get3 = clientMetadataService.isRefreshMetadataTestOnly();
 
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
     partitionedRegion.put(3, "create3");
-    boolean metadataRefreshed_get4 = clientMetadataService.isRefreshMetadataTestOnly();
+    var metadataRefreshed_get4 = clientMetadataService.isRefreshMetadataTestOnly();
 
     await().untilAsserted(() -> {
       assertThat(metadataRefreshed_get1).isFalse();
@@ -556,10 +549,10 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     vm2.invoke(() -> doPuts(getRegion(PARTITIONED_REGION_NAME)));
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
     clientMetadataService.satisfyRefreshMetadata_TEST_ONLY(false);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     partitionedRegion.destroy(0);
     partitionedRegion.destroy(1);
@@ -575,8 +568,8 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   public void testServerLocationRemovalThroughPing() throws Exception {
     LATCH.set(new CountDownLatch(2));
 
-    int redundantCopies = 3;
-    int totalNumberOfBuckets = 4;
+    var redundantCopies = 3;
+    var totalNumberOfBuckets = 4;
 
     int port0 = vm0.invoke(() -> createServer(-1, redundantCopies, totalNumberOfBuckets));
     int port1 = vm1.invoke(() -> createServer(-1, redundantCopies, totalNumberOfBuckets));
@@ -584,20 +577,20 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     int port3 = vm3.invoke(() -> createServer(-1, redundantCopies, totalNumberOfBuckets));
     createOldClient(100, true, false, true, port0, port1, port2, port3);
 
-    ManagementService managementService = getExistingManagementService(CACHE.get());
+    var managementService = getExistingManagementService(CACHE.get());
     new MemberCrashedListener(LATCH.get()).registerMembershipListener(managementService);
 
     putIntoPartitionedRegions();
     doGets();
 
-    ClientMetadataService clientMetadataService = CACHE.get().getClientMetadataService();
-    Map<String, ClientPartitionAdvisor> clientPRMetadata =
+    var clientMetadataService = CACHE.get().getClientMetadataService();
+    var clientPRMetadata =
         clientMetadataService.getClientPRMetadata_TEST_ONLY();
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
-    Region<Object, Object> customerRegion = getRegion(CUSTOMER_REGION_NAME);
-    Region<Object, Object> orderRegion = getRegion(ORDER_REGION_NAME);
-    Region<Object, Object> shipmentRegion = getRegion(SHIPMENT_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var customerRegion = getRegion(CUSTOMER_REGION_NAME);
+    var orderRegion = getRegion(ORDER_REGION_NAME);
+    var shipmentRegion = getRegion(SHIPMENT_REGION_NAME);
 
     await().untilAsserted(() -> {
       assertThat(clientPRMetadata)
@@ -608,7 +601,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
           .containsKey(shipmentRegion.getFullPath());
     });
 
-    ClientPartitionAdvisor prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
+    var prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
     assertThat(prMetadata.getBucketServerLocationsMap_TEST_ONLY()).hasSize(totalNumberOfBuckets);
 
     for (Entry entry : prMetadata.getBucketServerLocationsMap_TEST_ONLY().entrySet()) {
@@ -631,8 +624,8 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     // Workaround for 52004
     addIgnoredException(InternalFunctionInvocationTargetException.class);
 
-    int redundantCopies = 3;
-    int totalNumberOfBuckets = 4;
+    var redundantCopies = 3;
+    var totalNumberOfBuckets = 4;
 
     int port0 = vm0.invoke(() -> createServer(-1, redundantCopies, totalNumberOfBuckets));
     int port1 = vm1.invoke(() -> createServer(-1, redundantCopies, totalNumberOfBuckets));
@@ -640,12 +633,12 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     int port3 = vm3.invoke(() -> createServer(-1, redundantCopies, totalNumberOfBuckets));
     createClient(100, true, false, true, port0, port1, port2, port3);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     executeFunctions(partitionedRegion);
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
-    Map<String, ClientPartitionAdvisor> clientPRMetadata =
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientPRMetadata =
         clientMetadataService.getClientPRMetadata_TEST_ONLY();
 
     await().untilAsserted(() -> {
@@ -654,7 +647,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
           .containsKey(partitionedRegion.getFullPath());
     });
 
-    ClientPartitionAdvisor prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
+    var prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
 
     await().untilAsserted(() -> {
       clientMetadataService.getClientPRMetadata((InternalRegion) partitionedRegion);
@@ -664,8 +657,8 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
   @Test
   public void testMetadataFetchOnlyThroughputAll() {
-    int redundantCopies = 3;
-    int totalNumberOfBuckets = 4;
+    var redundantCopies = 3;
+    var totalNumberOfBuckets = 4;
 
     int port0 = vm0.invoke(() -> createServer(-1, redundantCopies, totalNumberOfBuckets));
     int port1 = vm1.invoke(() -> createServer(-1, redundantCopies, totalNumberOfBuckets));
@@ -673,14 +666,14 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     int port3 = vm3.invoke(() -> createServer(-1, redundantCopies, totalNumberOfBuckets));
     createClient(100, true, false, true, port0, port1, port2, port3);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     doPutAlls(partitionedRegion);
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
-    Map<String, ClientPartitionAdvisor> clientPRMetadata =
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientPRMetadata =
         clientMetadataService.getClientPRMetadata_TEST_ONLY();
-    ClientPartitionAdvisor prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
+    var prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
 
     await().untilAsserted(() -> {
       assertThat(clientPRMetadata)
@@ -693,11 +686,11 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
   @Test
   public void testMetadataIsSameOnAllServersAndClients() {
-    int locatorPort = DUnitEnv.get().getLocatorPort();
-    String locators = "localhost[" + locatorPort + "]";
+    var locatorPort = DUnitEnv.get().getLocatorPort();
+    var locators = "localhost[" + locatorPort + "]";
 
-    int redundantCopies = 3;
-    int totalNumberOfBuckets = 4;
+    var redundantCopies = 3;
+    var totalNumberOfBuckets = 4;
 
     vm0.invoke(() -> createServer(locators, null, -1, redundantCopies, totalNumberOfBuckets));
     vm1.invoke(() -> createServer(locators, null, -1, redundantCopies, totalNumberOfBuckets));
@@ -705,37 +698,37 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     vm3.invoke(() -> createServer(locators, null, -1, redundantCopies, totalNumberOfBuckets));
     createClient(100, true, false, false, locatorPort);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     doManyPuts(partitionedRegion);
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(this::waitForLocalBucketsCreation);
     }
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
     clientMetadataService.getClientPRMetadata((InternalRegion) partitionedRegion);
 
-    Map<String, ClientPartitionAdvisor> clientPRMetadata =
+    var clientPRMetadata =
         clientMetadataService.getClientPRMetadata_TEST_ONLY();
 
     assertThat(clientPRMetadata)
         .hasSize(1)
         .containsKey(partitionedRegion.getFullPath());
 
-    ClientPartitionAdvisor prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
-    Map<Integer, List<BucketServerLocation66>> clientBucketMap =
+    var prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
+    var clientBucketMap =
         prMetadata.getBucketServerLocationsMap_TEST_ONLY();
 
     await().alias("expected no metadata to be refreshed").untilAsserted(() -> {
       assertThat(clientBucketMap).hasSize(totalNumberOfBuckets);
     });
 
-    for (Entry<Integer, List<BucketServerLocation66>> entry : clientBucketMap.entrySet()) {
+    for (var entry : clientBucketMap.entrySet()) {
       assertThat(entry.getValue()).hasSize(4);
     }
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> verifyMetadata(clientBucketMap));
     }
 
@@ -747,26 +740,26 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     doManyPuts(partitionedRegion);
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(this::waitForLocalBucketsCreation);
     }
 
     await().atMost(2, SECONDS).untilAsserted(() -> {
-      Map<String, ClientPartitionAdvisor> clientPRMetadata_await =
+      var clientPRMetadata_await =
           clientMetadataService.getClientPRMetadata_TEST_ONLY();
 
       assertThat(clientPRMetadata_await)
           .hasSize(1)
           .containsKey(partitionedRegion.getFullPath());
 
-      ClientPartitionAdvisor prMetadata_await =
+      var prMetadata_await =
           clientPRMetadata_await.get(partitionedRegion.getFullPath());
-      Map<Integer, List<BucketServerLocation66>> clientBucketMap_await =
+      var clientBucketMap_await =
           prMetadata_await.getBucketServerLocationsMap_TEST_ONLY();
 
       assertThat(clientBucketMap_await).hasSize(totalNumberOfBuckets);
 
-      for (Entry<Integer, List<BucketServerLocation66>> entry : clientBucketMap_await.entrySet()) {
+      for (var entry : clientBucketMap_await.entrySet()) {
         assertThat(entry.getValue()).hasSize(totalNumberOfBuckets);
       }
     });
@@ -781,22 +774,22 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
 
-    Map<Integer, List<BucketServerLocation66>> clientBucketMap2 =
+    var clientBucketMap2 =
         prMetadata.getBucketServerLocationsMap_TEST_ONLY();
 
     await().untilAsserted(() -> {
       assertThat(clientBucketMap2).hasSize(totalNumberOfBuckets);
     });
 
-    for (Entry<Integer, List<BucketServerLocation66>> entry : clientBucketMap.entrySet()) {
+    for (var entry : clientBucketMap.entrySet()) {
       assertThat(entry.getValue()).hasSize(totalNumberOfBuckets);
     }
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> verifyMetadata(clientBucketMap));
     }
 
-    for (VM vm : asList(vm0, vm1)) {
+    for (var vm : asList(vm0, vm1)) {
       vm.invoke(() -> {
         SERVER.getAndSet(DUMMY_SERVER).stop();
       });
@@ -805,11 +798,11 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     doManyPuts(partitionedRegion);
 
     vm2.invoke(() -> {
-      PartitionedRegion pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
+      var pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
       pr.getRegionAdvisor().getAllClientBucketProfilesTest();
     });
     vm3.invoke(() -> {
-      PartitionedRegion pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
+      var pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
       pr.getRegionAdvisor().getAllClientBucketProfilesTest();
     });
 
@@ -824,14 +817,14 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
         .containsKey(partitionedRegion.getFullPath());
 
     prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
-    Map<Integer, List<BucketServerLocation66>> clientBucketMap3 =
+    var clientBucketMap3 =
         prMetadata.getBucketServerLocationsMap_TEST_ONLY();
 
     await().untilAsserted(() -> {
       assertThat(clientBucketMap3).hasSize(totalNumberOfBuckets);
     });
 
-    for (Entry<Integer, List<BucketServerLocation66>> entry : clientBucketMap.entrySet()) {
+    for (var entry : clientBucketMap.entrySet()) {
       assertThat(entry.getValue()).hasSize(2);
     }
 
@@ -843,19 +836,19 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
   @Test
   public void testMetadataIsSameOnAllServersAndClientsHA() {
-    int totalNumberOfBuckets = 4;
+    var totalNumberOfBuckets = 4;
 
     int port0 = vm0.invoke(() -> createServer(-1, 2, totalNumberOfBuckets));
     int port1 = vm1.invoke(() -> createServer(-1, 2, totalNumberOfBuckets));
     createClient(100, true, false, true, port0, port1, port0, port1);
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     doManyPuts(partitionedRegion);
 
-    ClientMetadataService clientMetadataService = CLIENT.get().getClientMetadataService();
+    var clientMetadataService = CLIENT.get().getClientMetadataService();
     clientMetadataService.getClientPRMetadata((InternalRegion) partitionedRegion);
-    Map<String, ClientPartitionAdvisor> clientPRMetadata =
+    var clientPRMetadata =
         clientMetadataService.getClientPRMetadata_TEST_ONLY();
 
     await().untilAsserted(() -> {
@@ -865,23 +858,23 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     });
 
     vm0.invoke(() -> {
-      PartitionedRegion pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
+      var pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
       pr.getRegionAdvisor().getAllClientBucketProfilesTest();
     });
     vm1.invoke(() -> {
-      PartitionedRegion pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
+      var pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
       pr.getRegionAdvisor().getAllClientBucketProfilesTest();
     });
 
-    ClientPartitionAdvisor prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
-    Map<Integer, List<BucketServerLocation66>> clientBucketMap =
+    var prMetadata = clientPRMetadata.get(partitionedRegion.getFullPath());
+    var clientBucketMap =
         prMetadata.getBucketServerLocationsMap_TEST_ONLY();
 
     await().untilAsserted(() -> {
       assertThat(clientBucketMap).hasSize(totalNumberOfBuckets);
     });
 
-    for (Entry<Integer, List<BucketServerLocation66>> entry : clientBucketMap.entrySet()) {
+    for (var entry : clientBucketMap.entrySet()) {
       assertThat(entry.getValue()).hasSize(2);
     }
 
@@ -896,7 +889,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     assertThat(clientBucketMap).hasSize(totalNumberOfBuckets);
 
-    for (Entry<Integer, List<BucketServerLocation66>> entry : clientBucketMap.entrySet()) {
+    for (var entry : clientBucketMap.entrySet()) {
       assertThat(entry.getValue()).hasSize(1);
     }
 
@@ -907,7 +900,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
         .hasSize(totalNumberOfBuckets);
 
     await().untilAsserted(() -> {
-      for (Entry<Integer, List<BucketServerLocation66>> entry : clientBucketMap.entrySet()) {
+      for (var entry : clientBucketMap.entrySet()) {
         assertThat(entry.getValue()).hasSize(1);
       }
     });
@@ -917,7 +910,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   public void testClientMetadataForPersistentPrs() throws Exception {
     LATCH.set(new CountDownLatch(4));
 
-    int locatorPort = DUnitEnv.get().getLocatorPort();
+    var locatorPort = DUnitEnv.get().getLocatorPort();
 
     vm0.invoke(() -> createServer("disk", -1, 3, 4));
     vm1.invoke(() -> createServer("disk", -1, 3, 4));
@@ -926,17 +919,17 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     vm3.invoke(this::putIntoPartitionedRegions);
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(this::waitForLocalBucketsCreation);
     }
 
     createOldClient(100, true, false, false, locatorPort);
 
-    ManagementService managementService = getExistingManagementService(CACHE.get());
+    var managementService = getExistingManagementService(CACHE.get());
     new MemberCrashedListener(LATCH.get()).registerMembershipListener(managementService);
-    ClientMetadataService clientMetadataService = CACHE.get().getClientMetadataService();
+    var clientMetadataService = CACHE.get().getClientMetadataService();
 
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
 
     await().until(() -> {
       try {
@@ -944,13 +937,13 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
       } catch (AllConnectionsInUseException ignore) {
       }
 
-      Map<ServerLocation, Set<Integer>> serverBucketMap =
+      var serverBucketMap =
           clientMetadataService.groupByServerToAllBuckets(partitionedRegion, true);
 
       return serverBucketMap != null;
     });
 
-    for (VM vm : asList(vm0, vm1, vm2, vm3)) {
+    for (var vm : asList(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         SERVER.getAndSet(DUMMY_SERVER).stop();
       });
@@ -958,13 +951,13 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     LATCH.get().await(getTimeout().toMillis(), MILLISECONDS);
 
-    AsyncInvocation<Integer> createServerOnVM3 =
+    var createServerOnVM3 =
         vm3.invokeAsync(() -> createServer("disk", -1, 3, 4));
-    AsyncInvocation<Integer> createServerOnVM2 =
+    var createServerOnVM2 =
         vm2.invokeAsync(() -> createServer("disk", -1, 3, 4));
-    AsyncInvocation<Integer> createServerOnVM1 =
+    var createServerOnVM1 =
         vm1.invokeAsync(() -> createServer("disk", -1, 3, 4));
-    AsyncInvocation<Integer> createServerOnVM0 =
+    var createServerOnVM0 =
         vm0.invokeAsync(() -> createServer("disk", -1, 3, 4));
 
     createServerOnVM3.await();
@@ -977,7 +970,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
         clientMetadataService.getClientPRMetadata((InternalRegion) partitionedRegion);
       } catch (AllConnectionsInUseException ignore) {
       }
-      Map<ServerLocation, Set<Integer>> serverBucketMap =
+      var serverBucketMap =
           clientMetadataService.groupByServerToAllBuckets(partitionedRegion, true);
 
       assertThat(serverBucketMap).hasSize(4);
@@ -1007,7 +1000,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
   private void createAccessorPeer(int redundantCopies, int totalNumberOfBuckets)
       throws IOException {
-    ServerLauncher serverLauncher = new ServerLauncher.Builder()
+    var serverLauncher = new ServerLauncher.Builder()
         .setDeletePidFileOnStop(true)
         .setDisableDefaultServer(true)
         .setWorkingDirectory(getWorkingDirectory())
@@ -1023,7 +1016,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   private int doCreateServer(String locators, int serverPortInput, String diskStoreName,
       int localMaxMemory, int localMaxMemoryOthers, int redundantCopies, int totalNumberOfBuckets)
       throws IOException {
-    ServerLauncher.Builder serverBuilder = new ServerLauncher.Builder()
+    var serverBuilder = new ServerLauncher.Builder()
         .setDeletePidFileOnStop(true)
         .setDisableDefaultServer(true)
         .setWorkingDirectory(getWorkingDirectory())
@@ -1033,17 +1026,17 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
       serverBuilder.set(LOCATORS, locators);
     }
 
-    ServerLauncher serverLauncher = serverBuilder.build();
+    var serverLauncher = serverBuilder.build();
     serverLauncher.start();
 
     SERVER.set(serverLauncher);
 
-    CacheServer cacheServer = serverLauncher.getCache().addCacheServer();
+    var cacheServer = serverLauncher.getCache().addCacheServer();
     cacheServer.setHostnameForClients("localhost");
     cacheServer.setPort(serverPortInput);
     cacheServer.start();
 
-    int serverPort = cacheServer.getPort();
+    var serverPort = cacheServer.getPort();
 
     createRegions(diskStoreName, localMaxMemory, localMaxMemoryOthers, redundantCopies,
         totalNumberOfBuckets);
@@ -1073,7 +1066,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   private void createClient(int pingInterval, boolean prSingleHopEnabled,
       boolean subscriptionEnabled, boolean useServerPool, int... ports) {
     CLIENT.set((InternalClientCache) new ClientCacheFactory().set(LOCATORS, "").create());
-    String poolName =
+    var poolName =
         createPool(pingInterval, prSingleHopEnabled, subscriptionEnabled, useServerPool, ports);
     createRegionsInClientCache(poolName);
   }
@@ -1081,7 +1074,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   private void createOldClient(int pingInterval, boolean prSingleHopEnabled,
       boolean subscriptionEnabled, boolean useServerPool, int... ports) {
     CACHE.set((InternalCache) new CacheFactory().set(LOCATORS, "").create());
-    String poolName =
+    var poolName =
         createPool(pingInterval, prSingleHopEnabled, subscriptionEnabled, useServerPool, ports);
     createRegionsInOldClient(poolName);
   }
@@ -1089,9 +1082,9 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   private String createPool(long pingInterval, boolean prSingleHopEnabled,
       boolean subscriptionEnabled, boolean useServerPool, int... ports) {
     System.setProperty(GEMFIRE_PREFIX + "bridge.disableShufflingOfEndpoints", "true");
-    String poolName = PARTITIONED_REGION_NAME;
+    var poolName = PARTITIONED_REGION_NAME;
     try {
-      PoolFactory poolFactory = PoolManager.createFactory()
+      var poolFactory = PoolManager.createFactory()
           .setMaxConnections(10)
           .setMinConnections(6)
           .setPingInterval(pingInterval)
@@ -1103,11 +1096,11 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
           .setSubscriptionRedundancy(-1);
 
       if (useServerPool) {
-        for (int port : ports) {
+        for (var port : ports) {
           poolFactory.addServer("localhost", port);
         }
       } else {
-        for (int port : ports) {
+        for (var port : ports) {
           poolFactory.addLocator("localhost", port);
         }
       }
@@ -1123,9 +1116,9 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   private <K, V> Region<K, V> createPartitionedRegion(String regionName, String colocatedRegionName,
       String diskStoreName, int localMaxMemory, PartitionResolver<K, V> partitionResolver,
       int redundantCopies, int totalNumberOfBuckets) throws IOException {
-    InternalCache cache = getCache();
+    var cache = getCache();
 
-    PartitionAttributesFactory<K, V> paf = new PartitionAttributesFactory<K, V>()
+    var paf = new PartitionAttributesFactory<K, V>()
         .setRedundantCopies(redundantCopies)
         .setTotalNumBuckets(totalNumberOfBuckets);
 
@@ -1161,13 +1154,13 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private void createRegionsInClientCache(String poolName) {
-    ClientRegionFactory<Object, Object> proxyRegionFactory =
+    var proxyRegionFactory =
         CLIENT.get().createClientRegionFactory(ClientRegionShortcut.PROXY);
     proxyRegionFactory.setPoolName(poolName);
 
     proxyRegionFactory.create(PARTITIONED_REGION_NAME);
 
-    ClientRegionFactory<Object, Object> localRegionFactory =
+    var localRegionFactory =
         CLIENT.get().createClientRegionFactory(ClientRegionShortcut.LOCAL);
     localRegionFactory.setConcurrencyChecksEnabled(true);
     localRegionFactory.setPoolName(poolName);
@@ -1184,7 +1177,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
         .setPoolName(poolName)
         .create(PARTITIONED_REGION_NAME);
 
-    RegionFactory<Object, Object> localRegionFactory = CACHE.get().createRegionFactory(LOCAL)
+    var localRegionFactory = CACHE.get().createRegionFactory(LOCAL)
         .setConcurrencyChecksEnabled(true)
         .setPoolName(poolName);
 
@@ -1195,7 +1188,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private int startServer() throws IOException {
-    CacheServer cacheServer = SERVER.get().getCache().addCacheServer();
+    var cacheServer = SERVER.get().getCache().addCacheServer();
     cacheServer.setHostnameForClients("localhost");
     cacheServer.setPort(0);
     cacheServer.start();
@@ -1204,7 +1197,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private int startLocator() throws IOException {
-    LocatorLauncher locatorLauncher = new LocatorLauncher.Builder()
+    var locatorLauncher = new LocatorLauncher.Builder()
         .setDeletePidFileOnStop(true)
         .setPort(0)
         .setWorkingDirectory(getWorkingDirectory())
@@ -1218,7 +1211,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private void stopServer() {
-    for (CacheServer cacheServer : SERVER.get().getCache().getCacheServers()) {
+    for (var cacheServer : SERVER.get().getCache().getCacheServers()) {
       cacheServer.stop();
     }
   }
@@ -1235,33 +1228,33 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     region.put(1, "create1");
     region.put(2, "create2");
     region.put(3, "create3");
-    for (int i = 0; i < 40; i++) {
+    for (var i = 0; i < 40; i++) {
       region.put(i, "create" + i);
     }
   }
 
   private void putIntoPartitionedRegions() {
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
-    Region<Object, Object> customerRegion = getRegion(CUSTOMER_REGION_NAME);
-    Region<Object, Object> orderRegion = getRegion(ORDER_REGION_NAME);
-    Region<Object, Object> shipmentRegion = getRegion(SHIPMENT_REGION_NAME);
-    Region<Object, Object> replicateRegion = getRegion(REPLICATE_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var customerRegion = getRegion(CUSTOMER_REGION_NAME);
+    var orderRegion = getRegion(ORDER_REGION_NAME);
+    var shipmentRegion = getRegion(SHIPMENT_REGION_NAME);
+    var replicateRegion = getRegion(REPLICATE_REGION_NAME);
 
-    for (int i = 0; i <= 3; i++) {
-      CustomerId customerId = new CustomerId(i);
-      Customer customer = new Customer("name" + i, "Address" + i);
+    for (var i = 0; i <= 3; i++) {
+      var customerId = new CustomerId(i);
+      var customer = new Customer("name" + i, "Address" + i);
       customerRegion.put(customerId, customer);
 
-      for (int j = 1; j <= 10; j++) {
-        int oid = i * 10 + j;
-        OrderId orderId = new OrderId(oid, customerId);
-        Order order = new Order("Order" + oid);
+      for (var j = 1; j <= 10; j++) {
+        var oid = i * 10 + j;
+        var orderId = new OrderId(oid, customerId);
+        var order = new Order("Order" + oid);
         orderRegion.put(orderId, order);
 
-        for (int k = 1; k <= 10; k++) {
-          int sid = oid * 10 + k;
-          ShipmentId shipmentId = new ShipmentId(sid, orderId);
-          Shipment shipment = new Shipment("Shipment" + sid);
+        for (var k = 1; k <= 10; k++) {
+          var sid = oid * 10 + k;
+          var shipmentId = new ShipmentId(sid, orderId);
+          var shipment = new Shipment("Shipment" + sid);
           shipmentRegion.put(shipmentId, shipment);
         }
       }
@@ -1301,26 +1294,26 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private void doGets() {
-    Region<Object, Object> partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
-    Region<Object, Object> customerRegion = getRegion(CUSTOMER_REGION_NAME);
-    Region<Object, Object> orderRegion = getRegion(ORDER_REGION_NAME);
-    Region<Object, Object> shipmentRegion = getRegion(SHIPMENT_REGION_NAME);
+    var partitionedRegion = getRegion(PARTITIONED_REGION_NAME);
+    var customerRegion = getRegion(CUSTOMER_REGION_NAME);
+    var orderRegion = getRegion(ORDER_REGION_NAME);
+    var shipmentRegion = getRegion(SHIPMENT_REGION_NAME);
 
-    for (int i = 0; i <= 3; i++) {
-      CustomerId customerId = new CustomerId(i);
-      Customer customer = new Customer("name" + i, "Address" + i);
+    for (var i = 0; i <= 3; i++) {
+      var customerId = new CustomerId(i);
+      var customer = new Customer("name" + i, "Address" + i);
       customerRegion.get(customerId, customer);
 
-      for (int j = 1; j <= 10; j++) {
-        int oid = i * 10 + j;
-        OrderId orderId = new OrderId(oid, customerId);
-        Order order = new Order("Order" + oid);
+      for (var j = 1; j <= 10; j++) {
+        var oid = i * 10 + j;
+        var orderId = new OrderId(oid, customerId);
+        var order = new Order("Order" + oid);
         orderRegion.get(orderId, order);
 
-        for (int k = 1; k <= 10; k++) {
-          int sid = oid * 10 + k;
-          ShipmentId shipmentId = new ShipmentId(sid, orderId);
-          Shipment shipment = new Shipment("Shipment" + sid);
+        for (var k = 1; k <= 10; k++) {
+          var sid = oid * 10 + k;
+          var shipmentId = new ShipmentId(sid, orderId);
+          var shipment = new Shipment("Shipment" + sid);
           shipmentRegion.get(shipmentId, shipment);
         }
       }
@@ -1368,15 +1361,15 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private void clearMetadata() {
-    ClientMetadataService clientMetadataService =
+    var clientMetadataService =
         getInternalCache(SERVER.get()).getClientMetadataService();
     clientMetadataService.getClientPartitionAttributesMap().clear();
     clientMetadataService.getClientPRMetadata_TEST_ONLY().clear();
   }
 
   private String getWorkingDirectory() throws IOException {
-    int vmId = getVMId();
-    File directory = new File(temporaryFolder.getRoot(), "VM-" + vmId);
+    var vmId = getVMId();
+    var directory = new File(temporaryFolder.getRoot(), "VM-" + vmId);
     if (!directory.exists()) {
       temporaryFolder.newFolder("VM-" + vmId);
     }
@@ -1384,7 +1377,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private File getDiskDir() throws IOException {
-    File file = new File(temporaryFolder.getRoot(), diskStoreName + getVMId());
+    var file = new File(temporaryFolder.getRoot(), diskStoreName + getVMId());
     if (!file.exists()) {
       temporaryFolder.newFolder(diskStoreName + getVMId());
     }
@@ -1400,19 +1393,19 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private void waitForLocalBucketsCreation() {
-    PartitionedRegion pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
+    var pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
 
     await().untilAsserted(() -> assertThat(pr.getDataStore().getAllLocalBuckets()).hasSize(4));
   }
 
   private void verifyDeadServer(Map<String, ClientPartitionAdvisor> regionMetaData, Region region,
       int port0, int port1) {
-    ClientPartitionAdvisor prMetaData = regionMetaData.get(region.getFullPath());
-    Set<Entry<Integer, List<BucketServerLocation66>>> bucketLocationsMap =
+    var prMetaData = regionMetaData.get(region.getFullPath());
+    var bucketLocationsMap =
         prMetaData.getBucketServerLocationsMap_TEST_ONLY().entrySet();
 
-    for (Entry<Integer, List<BucketServerLocation66>> entry : bucketLocationsMap) {
-      for (BucketServerLocation66 bucketLocation : entry.getValue()) {
+    for (var entry : bucketLocationsMap) {
+      for (var bucketLocation : entry.getValue()) {
         assertThat(bucketLocation.getPort())
             .isNotEqualTo(port0)
             .isNotEqualTo(port1);
@@ -1421,7 +1414,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private void verifyMetadata(Map<Integer, List<BucketServerLocation66>> clientBucketMap) {
-    PartitionedRegion pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
+    var pr = (PartitionedRegion) getRegion(PARTITIONED_REGION_NAME);
     Map<Integer, Set<ServerBucketProfile>> serverBucketMap =
         pr.getRegionAdvisor().getAllClientBucketProfilesTest();
 
@@ -1430,13 +1423,13 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     assertThat(serverBucketMap.keySet())
         .containsAll(clientBucketMap.keySet());
 
-    for (Entry<Integer, List<BucketServerLocation66>> entry : clientBucketMap.entrySet()) {
+    for (var entry : clientBucketMap.entrySet()) {
       int bucketId = entry.getKey();
-      List<BucketServerLocation66> bucketLocations = entry.getValue();
+      var bucketLocations = entry.getValue();
 
       BucketServerLocation66 primaryBucketLocation = null;
-      int countOfPrimaries = 0;
-      for (BucketServerLocation66 bucketLocation : bucketLocations) {
+      var countOfPrimaries = 0;
+      for (var bucketLocation : bucketLocations) {
         if (bucketLocation.isPrimary()) {
           primaryBucketLocation = bucketLocation;
           countOfPrimaries++;
@@ -1445,13 +1438,13 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
       assertThat(countOfPrimaries).isEqualTo(1);
 
-      Set<ServerBucketProfile> bucketProfiles = serverBucketMap.get(bucketId);
+      var bucketProfiles = serverBucketMap.get(bucketId);
 
       assertThat(bucketProfiles).hasSize(bucketLocations.size());
 
       countOfPrimaries = 0;
-      for (ServerBucketProfile bucketProfile : bucketProfiles) {
-        for (BucketServerLocation66 bucketLocation : bucketProfile.getBucketServerLocations()) {
+      for (var bucketProfile : bucketProfiles) {
+        for (var bucketLocation : bucketProfile.getBucketServerLocations()) {
 
           assertThat(bucketLocations).contains(bucketLocation);
 
@@ -1482,7 +1475,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
   }
 
   private Region<Object, Object> getRegion(String name) {
-    InternalCache cache = getCache();
+    var cache = getCache();
     if (cache != null) {
       return cache.getRegion(name);
     }
@@ -1502,15 +1495,15 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
 
     @Override
     public void execute(FunctionContext context) {
-      RegionFunctionContext rc = (RegionFunctionContext) context;
-      Region<Object, Object> r = rc.getDataSet();
+      var rc = (RegionFunctionContext) context;
+      var r = rc.getDataSet();
       Set filter = rc.getFilter();
       if (rc.getFilter() == null) {
-        for (int i = 0; i < 200; i++) {
+        for (var i = 0; i < 200; i++) {
           r.put(i, i);
         }
       } else {
-        for (Object key : filter) {
+        for (var key : filter) {
           r.put(key, key);
         }
       }
@@ -1578,7 +1571,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
       if (!(o instanceof Customer)) {
         return false;
       }
-      Customer other = (Customer) o;
+      var other = (Customer) o;
       return other.name.equals(name) && other.address.equals(address);
     }
 
@@ -1623,7 +1616,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
       if (obj instanceof Order) {
         return false;
       }
-      Order other = (Order) obj;
+      var other = (Order) obj;
       return other.name != null && other.name.equals(name);
     }
 
@@ -1671,7 +1664,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
       if (!(obj instanceof Shipment)) {
         return false;
       }
-      Shipment other = (Shipment) obj;
+      var other = (Shipment) obj;
       return other.name != null && other.name.equals(name);
     }
 
@@ -1742,7 +1735,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
       if (!(o instanceof CustomerId)) {
         return false;
       }
-      CustomerId other = (CustomerId) o;
+      var other = (CustomerId) o;
       return other.id == id;
     }
 
@@ -1795,7 +1788,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
       if (!(o instanceof OrderId)) {
         return false;
       }
-      OrderId other = (OrderId) o;
+      var other = (OrderId) o;
       return other.id == id && other.customerId.equals(customerId);
 
     }
@@ -1849,7 +1842,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
       if (!(obj instanceof ShipmentId)) {
         return false;
       }
-      ShipmentId other = (ShipmentId) obj;
+      var other = (ShipmentId) obj;
       return orderId.equals(other.orderId) && id == other.id;
     }
 
@@ -1872,14 +1865,14 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
     public Serializable getRoutingObject(EntryOperation opDetails) {
       Serializable routingObject = null;
       if (opDetails.getKey() instanceof ShipmentId) {
-        ShipmentId shipmentId = (ShipmentId) opDetails.getKey();
+        var shipmentId = (ShipmentId) opDetails.getKey();
         routingObject = shipmentId.getOrderId().getCustomerId();
       }
       if (opDetails.getKey() instanceof OrderId) {
-        OrderId orderId = (OrderId) opDetails.getKey();
+        var orderId = (OrderId) opDetails.getKey();
         routingObject = orderId.getCustomerId();
       } else if (opDetails.getKey() instanceof CustomerId) {
-        CustomerId customerId = (CustomerId) opDetails.getKey();
+        var customerId = (CustomerId) opDetails.getKey();
         routingObject = customerId.getId();
       }
       return routingObject;
@@ -1898,7 +1891,7 @@ public class PartitionedRegionSingleHopDUnitTest implements Serializable {
       if (!(o instanceof CustomerIdPartitionResolver)) {
         return false;
       }
-      CustomerIdPartitionResolver other = (CustomerIdPartitionResolver) o;
+      var other = (CustomerIdPartitionResolver) o;
       return other.id.equals(id);
     }
 

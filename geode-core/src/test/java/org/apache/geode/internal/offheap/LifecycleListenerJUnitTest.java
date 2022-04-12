@@ -56,8 +56,8 @@ public class LifecycleListenerJUnitTest {
     LifecycleListener.addLifecycleListener(listener);
     LifecycleListener.removeLifecycleListener(listener);
 
-    SlabImpl slab = new SlabImpl(1024); // 1k
-    MemoryAllocatorImpl ma = MemoryAllocatorImpl.createForUnitTest(
+    var slab = new SlabImpl(1024); // 1k
+    var ma = MemoryAllocatorImpl.createForUnitTest(
         new NullOutOfOffHeapMemoryListener(), new NullOffHeapMemoryStats(), new SlabImpl[] {slab});
 
     assertEquals(0, afterCreateCallbacks.size());
@@ -76,8 +76,8 @@ public class LifecycleListenerJUnitTest {
   @Test
   public void testCallbacksAreCalledAfterCreate() {
     LifecycleListener.addLifecycleListener(listener);
-    SlabImpl slab = new SlabImpl(1024); // 1k
-    MemoryAllocatorImpl ma = MemoryAllocatorImpl.createForUnitTest(
+    var slab = new SlabImpl(1024); // 1k
+    var ma = MemoryAllocatorImpl.createForUnitTest(
         new NullOutOfOffHeapMemoryListener(), new NullOffHeapMemoryStats(), new SlabImpl[] {slab});
 
     assertEquals(1, afterCreateCallbacks.size());
@@ -99,8 +99,8 @@ public class LifecycleListenerJUnitTest {
 
     System.setProperty(MemoryAllocatorImpl.FREE_OFF_HEAP_MEMORY_PROPERTY, "false");
 
-    SlabImpl slab = new SlabImpl(1024); // 1k
-    MemoryAllocatorImpl ma = createAllocator(new NullOutOfOffHeapMemoryListener(),
+    var slab = new SlabImpl(1024); // 1k
+    var ma = createAllocator(new NullOutOfOffHeapMemoryListener(),
         new NullOffHeapMemoryStats(), new SlabImpl[] {slab});
 
     assertEquals(1, afterCreateCallbacks.size());
@@ -119,7 +119,7 @@ public class LifecycleListenerJUnitTest {
     assertEquals(1, afterReuseCallbacks.size());
     assertEquals(1, beforeCloseCallbacks.size());
 
-    MemoryAllocatorImpl ma2 = createAllocator(new NullOutOfOffHeapMemoryListener(),
+    var ma2 = createAllocator(new NullOutOfOffHeapMemoryListener(),
         new NullOffHeapMemoryStats(), new SlabImpl[] {slab});
     assertEquals(null, ma2);
 
@@ -156,8 +156,8 @@ public class LifecycleListenerJUnitTest {
   public void testCallbacksAreCalledAfterReuseWithFreeTrue() {
     LifecycleListener.addLifecycleListener(listener);
 
-    SlabImpl slab = new SlabImpl(1024); // 1k
-    MemoryAllocatorImpl ma = MemoryAllocatorImpl.createForUnitTest(
+    var slab = new SlabImpl(1024); // 1k
+    var ma = MemoryAllocatorImpl.createForUnitTest(
         new NullOutOfOffHeapMemoryListener(), new NullOffHeapMemoryStats(), new SlabImpl[] {slab});
 
     assertEquals(1, afterCreateCallbacks.size());
@@ -171,7 +171,7 @@ public class LifecycleListenerJUnitTest {
     assertEquals(1, beforeCloseCallbacks.size());
 
     slab = new SlabImpl(1024); // 1k
-    MemoryAllocatorImpl ma2 = MemoryAllocatorImpl.createForUnitTest(
+    var ma2 = MemoryAllocatorImpl.createForUnitTest(
         new NullOutOfOffHeapMemoryListener(), new NullOffHeapMemoryStats(), new SlabImpl[] {slab});
 
     assertEquals(2, afterCreateCallbacks.size());

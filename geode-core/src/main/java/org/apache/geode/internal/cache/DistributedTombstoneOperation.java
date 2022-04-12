@@ -50,10 +50,10 @@ public class DistributedTombstoneOperation extends DistributedCacheOperation {
   private TOperation op;
 
   public static DistributedTombstoneOperation gc(DistributedRegion region, EventID eventId) {
-    RegionEventImpl rev =
+    var rev =
         new RegionEventImpl(region, Operation.REGION_EXPIRE_DESTROY, null, false, region.getMyId());
     rev.setEventID(eventId);
-    DistributedTombstoneOperation top = new DistributedTombstoneOperation(rev);
+    var top = new DistributedTombstoneOperation(rev);
     top.op = TOperation.GC;
     return top;
   }
@@ -78,7 +78,7 @@ public class DistributedTombstoneOperation extends DistributedCacheOperation {
 
   @Override
   protected CacheOperationMessage createMessage() {
-    TombstoneMessage mssg = new TombstoneMessage();
+    var mssg = new TombstoneMessage();
     // mssg.regionVersion = this.regionVersion;
     mssg.regionGCVersions = regionGCVersions;
     mssg.eventID = event.getEventId();
@@ -104,7 +104,7 @@ public class DistributedTombstoneOperation extends DistributedCacheOperation {
 
   @Override
   protected Set getRecipients() {
-    CacheDistributionAdvisor advisor = getRegion().getCacheDistributionAdvisor();
+    var advisor = getRegion().getCacheDistributionAdvisor();
     return advisor.adviseInvalidateRegion();
   }
 
@@ -144,13 +144,13 @@ public class DistributedTombstoneOperation extends DistributedCacheOperation {
 
     @Override
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
-      RegionEventImpl event = createRegionEvent(rgn);
+      var event = createRegionEvent(rgn);
       event.setEventID(eventID);
       return event;
     }
 
     protected RegionEventImpl createRegionEvent(DistributedRegion rgn) {
-      RegionEventImpl event = new RegionEventImpl(rgn, getOperation(), callbackArg,
+      var event = new RegionEventImpl(rgn, getOperation(), callbackArg,
           true /* originRemote */, getSender());
       event.setEventID(eventID);
       return event;
@@ -159,9 +159,9 @@ public class DistributedTombstoneOperation extends DistributedCacheOperation {
     @Override
     protected boolean operateOnRegion(CacheEvent event, ClusterDistributionManager dm)
         throws EntryNotFoundException {
-      boolean sendReply = true;
+      var sendReply = true;
 
-      DistributedRegion region = (DistributedRegion) event.getRegion();
+      var region = (DistributedRegion) event.getRegion();
       region.getCachePerfStats().incTombstoneGCCount();
       FilterInfo routing = null;
       if (filterRouting != null) {
@@ -189,13 +189,13 @@ public class DistributedTombstoneOperation extends DistributedCacheOperation {
       super.fromData(in, context);
       op = TOperation.values()[in.readByte()];
       // this.regionVersion = in.readLong();
-      int count = in.readInt();
+      var count = in.readInt();
       regionGCVersions = new HashMap<>(count);
-      boolean persistent = in.readBoolean();
-      for (int i = 0; i < count; i++) {
+      var persistent = in.readBoolean();
+      for (var i = 0; i < count; i++) {
         VersionSource mbr;
         if (persistent) {
-          DiskStoreID id = new DiskStoreID();
+          var id = new DiskStoreID();
           InternalDataSerializer.invokeFromData(id, in);
           mbr = id;
         } else {
@@ -213,8 +213,8 @@ public class DistributedTombstoneOperation extends DistributedCacheOperation {
       out.writeByte(op.ordinal());
       // out.writeLong(this.regionVersion);
       out.writeInt(regionGCVersions.size());
-      boolean persistent = false;
-      String msg = "Found mixed membership ids while serializing Tombstone GC message.";
+      var persistent = false;
+      var msg = "Found mixed membership ids while serializing Tombstone GC message.";
       if (!regionGCVersions.isEmpty()) {
         VersionSource firstEntry = regionGCVersions.keySet().iterator().next();
         if (firstEntry instanceof DiskStoreID) {
@@ -222,7 +222,7 @@ public class DistributedTombstoneOperation extends DistributedCacheOperation {
         }
       }
       out.writeBoolean(persistent);
-      for (Map.Entry<VersionSource<?>, Long> entry : regionGCVersions.entrySet()) {
+      for (var entry : regionGCVersions.entrySet()) {
         VersionSource member = entry.getKey();
         if (member instanceof DiskStoreID) {
           if (!persistent) {

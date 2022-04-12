@@ -35,15 +35,15 @@ public class HostUtils {
   }
 
   public static String getLocatorId(final String host, final Integer port) {
-    final String locatorHost = (host != null ? host : getLocalHost());
-    final String locatorPort =
+    final var locatorHost = (host != null ? host : getLocalHost());
+    final var locatorPort =
         StringUtils.defaultString(port, String.valueOf(DistributionLocator.DEFAULT_LOCATOR_PORT));
     return locatorHost.concat("[").concat(locatorPort).concat("]");
   }
 
   public static String getServerId(final String host, final Integer port) {
-    String serverHost = (host != null ? host : getLocalHost());
-    String serverPort = StringUtils.defaultString(port, String.valueOf(CacheServer.DEFAULT_PORT));
+    var serverHost = (host != null ? host : getLocalHost());
+    var serverPort = StringUtils.defaultString(port, String.valueOf(CacheServer.DEFAULT_PORT));
     return serverHost.concat("[").concat(serverPort).concat("]");
   }
 }

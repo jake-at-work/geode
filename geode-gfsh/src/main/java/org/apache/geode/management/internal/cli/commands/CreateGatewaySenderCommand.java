@@ -43,7 +43,6 @@ import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.functions.GatewaySenderCreateFunction;
 import org.apache.geode.management.internal.cli.functions.GatewaySenderFunctionArgs;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -145,7 +144,7 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
           unspecifiedDefaultValue = "false",
           help = CliStrings.CREATE_GATEWAYSENDER__ENFORCE_THREADS_CONNECT_SAME_RECEIVER__HELP) Boolean enforceThreadsConnectSameReceiver) {
 
-    CacheConfig.GatewaySender configuration =
+    var configuration =
         buildConfiguration(id, remoteDistributedSystemId, parallel, manualStart,
             socketBufferSize, socketReadTimeout, enableBatchConflation, batchSize,
             batchTimeInterval, enablePersistence, diskStoreName, diskSynchronous, maxQueueMemory,
@@ -153,9 +152,9 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
             gatewayEventFilters, gatewayTransportFilter, groupTransactionEvents,
             enforceThreadsConnectSameReceiver);
 
-    GatewaySenderFunctionArgs gatewaySenderFunctionArgs =
+    var gatewaySenderFunctionArgs =
         new GatewaySenderFunctionArgs(configuration);
-    Set<DistributedMember> membersToCreateGatewaySenderOn = getMembers(onGroups, onMember);
+    var membersToCreateGatewaySenderOn = getMembers(onGroups, onMember);
 
     // Don't allow sender to be created if all members are not the current version.
     if (!verifyAllCurrentVersion(membersToCreateGatewaySenderOn)) {
@@ -163,11 +162,11 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
           CliStrings.CREATE_GATEWAYSENDER__MSG__CAN_NOT_CREATE_DIFFERENT_VERSIONS);
     }
 
-    List<CliFunctionResult> gatewaySenderCreateResults =
+    var gatewaySenderCreateResults =
         executeAndGetFunctionResult(GatewaySenderCreateFunction.INSTANCE, gatewaySenderFunctionArgs,
             membersToCreateGatewaySenderOn);
 
-    ResultModel resultModel = ResultModel.createMemberStatusResult(gatewaySenderCreateResults);
+    var resultModel = ResultModel.createMemberStatusResult(gatewaySenderCreateResults);
     resultModel.setConfigObject(configuration);
 
     if (!waitForGatewaySenderMBeanCreation(id, membersToCreateGatewaySenderOn)) {
@@ -184,7 +183,7 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
   @VisibleForTesting
   boolean waitForGatewaySenderMBeanCreation(String id,
       Set<DistributedMember> membersToCreateGatewaySenderOn) {
-    DistributedSystemMXBean dsMXBean = getManagementService().getDistributedSystemMXBean();
+    var dsMXBean = getManagementService().getDistributedSystemMXBean();
 
     return poll(MBEAN_CREATION_WAIT_TIME, TimeUnit.MILLISECONDS,
         () -> membersToCreateGatewaySenderOn.stream()
@@ -237,7 +236,7 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
       String[] gatewayTransportFilters,
       Boolean groupTransactionEvents,
       Boolean enforceThreadsConnectSameReceiver) {
-    CacheConfig.GatewaySender sender = new CacheConfig.GatewaySender();
+    var sender = new CacheConfig.GatewaySender();
     sender.setId(id);
     sender.setRemoteDistributedSystemId(int2string(remoteDSId));
     sender.setParallel(parallel);
@@ -267,7 +266,7 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
 
   private List<DeclarableType> stringsToDeclarableTypes(String[] objects) {
     return Arrays.stream(objects).map(fullyQualifiedClassName -> {
-      DeclarableType thisFilter = new DeclarableType();
+      var thisFilter = new DeclarableType();
       thisFilter.setClassName(fullyQualifiedClassName);
       return thisFilter;
     }).collect(Collectors.toList());
@@ -280,19 +279,19 @@ public class CreateGatewaySenderCommand extends SingleGfshCommand {
   public static class Interceptor extends AbstractCliAroundInterceptor {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      Boolean parallel =
+      var parallel =
           (Boolean) parseResult.getParamValue(CliStrings.CREATE_GATEWAYSENDER__PARALLEL);
-      OrderPolicy orderPolicy =
+      var orderPolicy =
           (OrderPolicy) parseResult.getParamValue(CliStrings.CREATE_GATEWAYSENDER__ORDERPOLICY);
-      Integer dispatcherThreads =
+      var dispatcherThreads =
           (Integer) parseResult.getParamValue(CliStrings.CREATE_GATEWAYSENDER__DISPATCHERTHREADS);
-      Boolean groupTransactionEvents =
+      var groupTransactionEvents =
           (Boolean) parseResult
               .getParamValue(CliStrings.CREATE_GATEWAYSENDER__GROUPTRANSACTIONEVENTS);
-      Boolean batchConflationEnabled =
+      var batchConflationEnabled =
           (Boolean) parseResult
               .getParamValue(CliStrings.CREATE_GATEWAYSENDER__ENABLEBATCHCONFLATION);
-      Boolean enforceThreadsConnectSameReceiver =
+      var enforceThreadsConnectSameReceiver =
           (Boolean) parseResult
               .getParamValue(
                   CliStrings.CREATE_GATEWAYSENDER__ENFORCE_THREADS_CONNECT_SAME_RECEIVER);

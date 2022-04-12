@@ -59,7 +59,7 @@ public class LuceneIndexCreationProfileJUnitTest {
   @Test
   @Parameters(method = "getSerializationProfiles")
   public void testSerialization(LuceneIndexCreationProfile profile) {
-    LuceneIndexCreationProfile copy = CopyHelper.deepCopy(profile);
+    var copy = CopyHelper.deepCopy(profile);
     assertEquals(profile.getIndexName(), copy.getIndexName());
     assertEquals(profile.getAnalyzerClass(), copy.getAnalyzerClass());
     assertArrayEquals(profile.getFieldNames(), copy.getFieldNames());
@@ -78,10 +78,10 @@ public class LuceneIndexCreationProfileJUnitTest {
   @Parameters(method = "getProfileWithSerializer")
   public void toDataFromDataShouldContainSerializer(LuceneIndexCreationProfile profile,
       String expectedSerializerCLassName) throws IOException, ClassNotFoundException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(profile, hdos);
-    byte[] outputArray = hdos.toByteArray();
-    ByteArrayInputStream bais = new ByteArrayInputStream(outputArray);
+    var outputArray = hdos.toByteArray();
+    var bais = new ByteArrayInputStream(outputArray);
     LuceneIndexCreationProfile profile2 = DataSerializer.readObject(new DataInputStream(bais));
     assertEquals(expectedSerializerCLassName, profile2.getSerializerClass());
   }

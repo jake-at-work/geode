@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.test.compiler.JarBuilder;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 
@@ -38,7 +37,7 @@ public class ConfigureEvictionThroughGfsh {
   @Test
   public void configureEvictionByEntryCount() throws Exception {
 
-    GfshExecution execution = GfshScript
+    var execution = GfshScript
         .of("start locator --name=locator", "start server --name=server --server-port=0",
             "create region --name=region1 --eviction-action=local-destroy --eviction-entry-count=1000 --type=REPLICATE",
             "create region --name=region2 --eviction-action=overflow-to-disk --eviction-entry-count=1000 --type=REPLICATE",
@@ -99,7 +98,7 @@ public class ConfigureEvictionThroughGfsh {
 
   @Test
   public void configureEvictionByMaxMemory() throws Exception {
-    GfshExecution execution = GfshScript
+    var execution = GfshScript
         .of("start locator --name=locator", "start server --name=server --server-port=0",
             "create region --name=region1 --eviction-action=local-destroy --eviction-max-memory=1000 --type=REPLICATE",
             "create region --name=region2 --eviction-action=overflow-to-disk --eviction-max-memory=1000 --type=REPLICATE",
@@ -157,12 +156,12 @@ public class ConfigureEvictionThroughGfsh {
   }
 
   private File createJar() throws IOException {
-    File jarToDeploy = new File(gfsh.getTemporaryFolder().getRoot(), "ourJar.jar");
+    var jarToDeploy = new File(gfsh.getTemporaryFolder().getRoot(), "ourJar.jar");
 
-    String classContents =
+    var classContents =
         "import org.apache.geode.cache.util.ObjectSizer; import org.apache.geode.cache.Declarable;public class MySizer implements ObjectSizer, Declarable { public int sizeof(Object o) { return 10; } }";
 
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJar(jarToDeploy, classContents);
 
     return jarToDeploy;
@@ -170,7 +169,7 @@ public class ConfigureEvictionThroughGfsh {
 
   @Test
   public void configureEvictionByObjectSizer() throws Exception {
-    GfshExecution execution = GfshScript
+    var execution = GfshScript
         .of("start locator --name=locator", "start server --name=server --server-port=0",
             "sleep --time=1",
             "deploy --jar=" + createJar().getAbsolutePath(),

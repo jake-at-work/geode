@@ -47,13 +47,13 @@ public class AddByteArraysTail extends DeltaInfo {
   public void serializeTo(DataOutput out) throws IOException {
     super.serializeTo(out);
     DataSerializer.writePrimitiveInt(byteArrays.size(), out);
-    for (byte[] bytes : byteArrays) {
+    for (var bytes : byteArrays) {
       DataSerializer.writeByteArray(bytes, out);
     }
   }
 
   public static void deserializeFrom(DataInput in, AbstractRedisData redisData) throws IOException {
-    int size = DataSerializer.readPrimitiveInt(in);
+    var size = DataSerializer.readPrimitiveInt(in);
     while (size > 0) {
       redisData.applyAddByteArrayTailDelta(readByteArray(in));
       size--;

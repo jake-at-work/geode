@@ -50,8 +50,8 @@ public class MailManager {
   }
 
   public MailManager(File mailPropertiesFile) throws IOException {
-    Properties prop = new Properties();
-    FileInputStream fio = new FileInputStream(mailPropertiesFile);
+    var prop = new Properties();
+    var fio = new FileInputStream(mailPropertiesFile);
     try {
       prop.load(fio);
     } finally {
@@ -92,14 +92,14 @@ public class MailManager {
       return;
     }
 
-    Session session = Session.getDefaultInstance(getMailHostConfiguration());
-    MimeMessage mimeMessage = new MimeMessage(session);
-    String subject = emailData.subject;
-    String message = emailData.message;
-    String mailToList = getMailToAddressesAsString();
+    var session = Session.getDefaultInstance(getMailHostConfiguration());
+    var mimeMessage = new MimeMessage(session);
+    var subject = emailData.subject;
+    var message = emailData.message;
+    var mailToList = getMailToAddressesAsString();
 
     try {
-      for (final String mailToAddress : mailToAddresses) {
+      for (final var mailToAddress : mailToAddresses) {
         mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(mailToAddress));
       }
 
@@ -128,7 +128,7 @@ public class MailManager {
       // error condition, so you also need to check to see if the JVM
       // is still usable:
       SystemFailure.checkFailure();
-      final String buf = "An exception occurred while sending email."
+      final var buf = "An exception occurred while sending email."
           + "Unable to send email. Please check your mail settings and the log file."
           + "\n\n"
           + String.format("Exception message: %s", ex.getMessage())
@@ -157,8 +157,8 @@ public class MailManager {
    * @return All the registered email id as string
    */
   private String getMailToAddressesAsString() {
-    StringBuilder mailToList = new StringBuilder();
-    for (final String mailToAddress : mailToAddresses) {
+    var mailToList = new StringBuilder();
+    for (final var mailToAddress : mailToAddresses) {
       mailToList.append(mailToAddress);
       mailToList.append(", ");
     }
@@ -170,7 +170,7 @@ public class MailManager {
    * @return Properties consisting mailHost and mailFrom property
    */
   private Properties getMailHostConfiguration() {
-    Properties result = new Properties();
+    var result = new Properties();
     if (mailHost == null) {
       mailHost = "";
     }
@@ -251,17 +251,17 @@ public class MailManager {
   public void setMailProperties(Properties mailProperties) {
     mailHost = mailProperties.getProperty(PROPERTY_MAIL_HOST);
     mailFrom = mailProperties.getProperty(PROPERTY_MAIL_FROM);
-    String mailList = mailProperties.getProperty(PROPERTY_MAIL_TO_LIST, "");
-    String[] split = mailList.split(",");
+    var mailList = mailProperties.getProperty(PROPERTY_MAIL_TO_LIST, "");
+    var split = mailList.split(",");
     removeAllMailToAddresses();
-    for (final String s : split) {
+    for (final var s : split) {
       addMailToAddress(s.trim());
     }
   }
 
   @Override
   public String toString() {
-    StringBuilder buffer = new StringBuilder(200);
+    var buffer = new StringBuilder(200);
     buffer.append("[Mail Host: ");
     buffer.append(getMailHost());
     buffer.append("]");
@@ -271,7 +271,7 @@ public class MailManager {
     buffer.append(" [Mail To: ");
     if (mailToAddresses.length > 0) {
 
-      for (final String mailToAddress : mailToAddresses) {
+      for (final var mailToAddress : mailToAddresses) {
         buffer.append(mailToAddress);
         buffer.append(", ");
       }
@@ -314,7 +314,7 @@ public class MailManager {
   }
 
   public static void main(String[] args) {
-    MailManager mailManager = new MailManager("mailsrv1.gemstone.com", "hkhanna@gemstone.com");
+    var mailManager = new MailManager("mailsrv1.gemstone.com", "hkhanna@gemstone.com");
     mailManager.sendEmail("Alert!", "Test");
   }
 }

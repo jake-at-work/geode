@@ -92,7 +92,7 @@ public class ElementTypeTest {
 
     ElementType.JDBC_MAPPING.startElement(stack, attributes);
 
-    RegionMapping regionMapping = (RegionMapping) stack.pop();
+    var regionMapping = (RegionMapping) stack.pop();
     assertThat(regionMapping.getRegionName()).isEqualTo("region");
     assertThat(regionMapping.getDataSourceName()).isEqualTo("connectionName");
     assertThat(regionMapping.getTableName()).isEqualTo("table");
@@ -104,7 +104,7 @@ public class ElementTypeTest {
 
   @Test
   public void endElementRegionMapping() {
-    RegionMapping mapping = mock(RegionMapping.class);
+    var mapping = mock(RegionMapping.class);
     stack.push(regionCreation);
     stack.push(mapping);
 
@@ -124,25 +124,25 @@ public class ElementTypeTest {
 
   @Test
   public void startElementFieldMapping() {
-    RegionMapping mapping = new RegionMapping();
+    var mapping = new RegionMapping();
     stack.push(mapping);
     when(attributes.getValue(PDX_NAME)).thenReturn("myPdxName");
     when(attributes.getValue(PDX_TYPE)).thenReturn("myPdxType");
     when(attributes.getValue(JDBC_NAME)).thenReturn("myJdbcName");
     when(attributes.getValue(JDBC_TYPE)).thenReturn("myJdbcType");
     when(attributes.getValue(JDBC_NULLABLE)).thenReturn("true");
-    FieldMapping expected =
+    var expected =
         new FieldMapping("myPdxName", "myPdxType", "myJdbcName", "myJdbcType", true);
 
     ElementType.FIELD_MAPPING.startElement(stack, attributes);
 
-    RegionMapping mapping1 = (RegionMapping) stack.pop();
+    var mapping1 = (RegionMapping) stack.pop();
     assertThat(mapping1.getFieldMappings()).isEqualTo(singletonList(expected));
   }
 
   @Test
   public void endElementFieldMapping() {
-    RegionMapping mapping = mock(RegionMapping.class);
+    var mapping = mock(RegionMapping.class);
     stack.push(mapping);
 
     ElementType.FIELD_MAPPING.endElement(stack);

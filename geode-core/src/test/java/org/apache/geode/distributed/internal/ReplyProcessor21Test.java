@@ -41,22 +41,22 @@ public class ReplyProcessor21Test {
 
   @Test
   public void testReplyProcessorInitiatesSuspicion() throws Exception {
-    DistributionManager dm = mock(DistributionManager.class);
-    DMStats stats = mock(DMStats.class);
+    var dm = mock(DistributionManager.class);
+    var stats = mock(DMStats.class);
 
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
-    DistributionConfig distributionConfig = mock(DistributionConfig.class);
+    var system = mock(InternalDistributedSystem.class);
+    var distributionConfig = mock(DistributionConfig.class);
     when(distributionConfig.getAckWaitThreshold()).thenReturn(1);
     when(distributionConfig.getAckSevereAlertThreshold()).thenReturn(10);
     when(system.getConfig()).thenReturn(distributionConfig);
 
-    Distribution distribution = mock(Distribution.class);
+    var distribution = mock(Distribution.class);
     when(dm.getStats()).thenReturn(stats);
     when(dm.getSystem()).thenReturn(system);
 
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
-    List<InternalDistributedMember> members = Arrays.asList(member);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var member = mock(InternalDistributedMember.class);
+    var members = Arrays.asList(member);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(dm.getCancelCriterion()).thenReturn(cancelCriterion);
     when(dm.getDistribution()).thenReturn(distribution);
     when(dm.getViewMembers()).thenReturn(members);
@@ -68,9 +68,9 @@ public class ReplyProcessor21Test {
     List<InternalDistributedMember> mbrs = new ArrayList<>(1);
 
     mbrs.add(member);
-    ReplyProcessor21 rp = new ReplyProcessor21(dm, mbrs);
+    var rp = new ReplyProcessor21(dm, mbrs);
     rp.enableSevereAlertProcessing();
-    boolean result = rp.waitForReplies(WAIT_FOR_REPLIES_MILLIS);
+    var result = rp.waitForReplies(WAIT_FOR_REPLIES_MILLIS);
     assertFalse(result); // the wait should have timed out
     verify(distribution, atLeastOnce()).suspectMembers(any(), anyString());
   }
@@ -78,7 +78,7 @@ public class ReplyProcessor21Test {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    ReplyProcessor21 mockReplyProcessor21 = mock(ReplyProcessor21.class);
+    var mockReplyProcessor21 = mock(ReplyProcessor21.class);
 
     mockReplyProcessor21.waitForRepliesUninterruptibly();
     mockReplyProcessor21.finished();

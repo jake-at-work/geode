@@ -34,7 +34,7 @@ public class TopEntriesJUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testPopulateTopEntries() {
-    TopEntries<String> hits = new TopEntries<>();
+    var hits = new TopEntries<String>();
     hits.addHit(r1_1);
     hits.addHit(r2_1);
     hits.addHit(r1_2);
@@ -47,9 +47,9 @@ public class TopEntriesJUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void putSameScoreEntries() {
-    TopEntries<String> hits = new TopEntries<>();
-    EntryScore<String> r1 = new EntryScore<>("1", .8f);
-    EntryScore<String> r2 = new EntryScore<>("2", .8f);
+    var hits = new TopEntries<String>();
+    var r1 = new EntryScore<String>("1", .8f);
+    var r2 = new EntryScore<String>("2", .8f);
     hits.addHit(r1);
     hits.addHit(r2);
 
@@ -59,7 +59,7 @@ public class TopEntriesJUnitTest {
 
   @Test
   public void testInitialization() {
-    TopEntries<String> hits = new TopEntries<>();
+    var hits = new TopEntries<String>();
     assertThat(hits.getLimit()).isEqualTo(LuceneQueryFactory.DEFAULT_LIMIT);
 
     hits = new TopEntries<>(123);
@@ -74,7 +74,7 @@ public class TopEntriesJUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void enforceLimit() {
-    TopEntries<String> hits = new TopEntries<>(3);
+    var hits = new TopEntries<String>(3);
     hits.addHit(r1_1);
     hits.addHit(r2_1);
     hits.addHit(r1_2);
@@ -87,9 +87,9 @@ public class TopEntriesJUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testSerialization() {
-    TopEntries<String> hits = new TopEntries<>(3);
+    var hits = new TopEntries<String>(3);
 
-    TopEntries<String> copy = CopyHelper.deepCopy(hits);
+    var copy = CopyHelper.deepCopy(hits);
     assertThat(copy).isNotNull();
     assertThat(copy.getLimit()).isEqualTo(3);
     assertThat(copy.getHits().size()).isEqualTo(0);

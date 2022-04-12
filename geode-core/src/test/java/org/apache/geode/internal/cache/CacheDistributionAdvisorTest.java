@@ -19,8 +19,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,10 +36,10 @@ public class CacheDistributionAdvisorTest {
 
   @Before
   public void setUp() {
-    CacheDistributionAdvisee advisee = mock(CacheDistributionAdvisee.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var advisee = mock(CacheDistributionAdvisee.class);
+    var distributionManager = mock(DistributionManager.class);
     when(advisee.getDistributionManager()).thenReturn(distributionManager);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(advisee.getCancelCriterion()).thenReturn(cancelCriterion);
     advisor =
         CacheDistributionAdvisor.createCacheDistributionAdvisor(advisee);
@@ -51,21 +49,21 @@ public class CacheDistributionAdvisorTest {
 
   @Test
   public void testAdviseAllEventsOrCached() {
-    CacheProfile profile = mock(CacheProfile.class);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var profile = mock(CacheProfile.class);
+    var member = mock(InternalDistributedMember.class);
     when(profile.getId()).thenReturn(member);
     when(profile.getInRecovery()).thenReturn(false);
     when(profile.cachedOrAllEventsWithListener()).thenReturn(true);
     when(profile.getDistributedMember()).thenReturn(member);
 
     advisor.putProfile(profile, true);
-    Set<InternalDistributedMember> targets1 =
+    var targets1 =
         ((CacheDistributionAdvisor) advisor).adviseAllEventsOrCached();
 
-    Set<InternalDistributedMember> targets2 =
+    var targets2 =
         ((CacheDistributionAdvisor) advisor).adviseAllEventsOrCached();
 
-    Set<InternalDistributedMember> targets3 =
+    var targets3 =
         ((CacheDistributionAdvisor) advisor).adviseAllEventsOrCached();
 
     verify(profile, times(1)).getInRecovery();
@@ -75,28 +73,28 @@ public class CacheDistributionAdvisorTest {
 
   @Test
   public void testAdviseAllEventsOrCached2() {
-    CacheProfile profile = mock(CacheProfile.class);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var profile = mock(CacheProfile.class);
+    var member = mock(InternalDistributedMember.class);
     when(profile.getId()).thenReturn(member);
     when(profile.getInRecovery()).thenReturn(false);
     when(profile.cachedOrAllEventsWithListener()).thenReturn(true);
     when(profile.getDistributedMember()).thenReturn(member);
-    CacheProfile profile2 = mock(CacheProfile.class);
-    InternalDistributedMember member2 = mock(InternalDistributedMember.class);
+    var profile2 = mock(CacheProfile.class);
+    var member2 = mock(InternalDistributedMember.class);
     when(profile2.getId()).thenReturn(member2);
     when(profile2.getInRecovery()).thenReturn(false);
     when(profile2.cachedOrAllEventsWithListener()).thenReturn(true);
     when(profile2.getDistributedMember()).thenReturn(member2);
 
     advisor.putProfile(profile, true);
-    Set<InternalDistributedMember> targets1 =
+    var targets1 =
         ((CacheDistributionAdvisor) advisor).adviseAllEventsOrCached();
 
     advisor.putProfile(profile2, true);
-    Set<InternalDistributedMember> targets2 =
+    var targets2 =
         ((CacheDistributionAdvisor) advisor).adviseAllEventsOrCached();
 
-    Set<InternalDistributedMember> targets3 =
+    var targets3 =
         ((CacheDistributionAdvisor) advisor).adviseAllEventsOrCached();
 
     verify(profile, times(2)).getInRecovery();
@@ -109,9 +107,9 @@ public class CacheDistributionAdvisorTest {
 
   @Test
   public void testAdviseUpdate() {
-    CacheProfile profile = mock(CacheProfile.class);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var profile = mock(CacheProfile.class);
+    var member = mock(InternalDistributedMember.class);
+    var event = mock(EntryEventImpl.class);
     when(event.hasNewValue()).thenReturn(false);
     when(event.getOperation()).thenReturn(Operation.CREATE);
 
@@ -121,13 +119,13 @@ public class CacheDistributionAdvisorTest {
     when(profile.getDataPolicy()).thenReturn(DataPolicy.REPLICATE);
 
     advisor.putProfile(profile, true);
-    Set<InternalDistributedMember> targets1 =
+    var targets1 =
         ((CacheDistributionAdvisor) advisor).adviseUpdate(event);
 
-    Set<InternalDistributedMember> targets2 =
+    var targets2 =
         ((CacheDistributionAdvisor) advisor).adviseUpdate(event);
 
-    Set<InternalDistributedMember> targets3 =
+    var targets3 =
         ((CacheDistributionAdvisor) advisor).adviseUpdate(event);
 
     verify(profile, times(1)).getDataPolicy();
@@ -135,9 +133,9 @@ public class CacheDistributionAdvisorTest {
 
   @Test
   public void testAdviseUpdate2() {
-    CacheProfile profile = mock(CacheProfile.class);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var profile = mock(CacheProfile.class);
+    var member = mock(InternalDistributedMember.class);
+    var event = mock(EntryEventImpl.class);
     when(event.hasNewValue()).thenReturn(false);
     when(event.getOperation()).thenReturn(Operation.CREATE);
 
@@ -146,8 +144,8 @@ public class CacheDistributionAdvisorTest {
     when(profile.getDistributedMember()).thenReturn(member);
     when(profile.getDataPolicy()).thenReturn(DataPolicy.REPLICATE);
 
-    CacheProfile profile2 = mock(CacheProfile.class);
-    InternalDistributedMember member2 = mock(InternalDistributedMember.class);
+    var profile2 = mock(CacheProfile.class);
+    var member2 = mock(InternalDistributedMember.class);
     when(profile2.getId()).thenReturn(member2);
     when(profile2.cachedOrAllEventsWithListener()).thenReturn(true);
     when(profile2.getDistributedMember()).thenReturn(member2);
@@ -157,14 +155,14 @@ public class CacheDistributionAdvisorTest {
     when(event.getOperation()).thenReturn(Operation.CREATE);
 
     advisor.putProfile(profile, true);
-    Set<InternalDistributedMember> targets1 =
+    var targets1 =
         ((CacheDistributionAdvisor) advisor).adviseUpdate(event);
 
     advisor.putProfile(profile2, true);
-    Set<InternalDistributedMember> targets2 =
+    var targets2 =
         ((CacheDistributionAdvisor) advisor).adviseUpdate(event);
 
-    Set<InternalDistributedMember> targets3 =
+    var targets3 =
         ((CacheDistributionAdvisor) advisor).adviseUpdate(event);
 
     verify(profile, times(2)).getDataPolicy();

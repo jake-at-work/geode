@@ -35,7 +35,7 @@ public class AtomicLong5 extends java.util.concurrent.atomic.AtomicLong implemen
   @Override
   public boolean setIfGreater(long update) {
     while (true) {
-      long cur = get();
+      var cur = get();
 
       if (update > cur) {
         if (compareAndSet(cur, update)) {

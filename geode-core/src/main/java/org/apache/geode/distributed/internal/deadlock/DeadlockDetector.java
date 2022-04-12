@@ -108,33 +108,33 @@ public class DeadlockDetector {
    * @return All of the dependencies between threads and locks or other resources on this VM.
    */
   public static Set<Dependency> collectAllDependencies(Serializable locality) {
-    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-    ThreadInfo[] infos = bean.dumpAllThreads(true, true);
+    var bean = ManagementFactory.getThreadMXBean();
+    var infos = bean.dumpAllThreads(true, true);
 
     Set<Dependency> results = new HashSet<>();
 
     Map<Long, ThreadInfo> threadInfos = new HashMap<>();
-    for (ThreadInfo info : infos) {
+    for (var info : infos) {
       // This can happen if the thread died.
       if (info == null) {
         continue;
       }
 
       for (LockInfo monitor : info.getLockedMonitors()) {
-        Dependency dependency =
+        var dependency =
             new Dependency(new LocalLockInfo(locality, monitor), new LocalThread(locality, info));
         results.add(dependency);
       }
 
-      for (LockInfo sync : info.getLockedSynchronizers()) {
-        Dependency dependency =
+      for (var sync : info.getLockedSynchronizers()) {
+        var dependency =
             new Dependency(new LocalLockInfo(locality, sync), new LocalThread(locality, info));
         results.add(dependency);
       }
 
-      LockInfo waitingFor = info.getLockInfo();
+      var waitingFor = info.getLockInfo();
       if (waitingFor != null) {
-        Dependency dependency = new Dependency(new LocalThread(locality, info),
+        var dependency = new Dependency(new LocalThread(locality, info),
             new LocalLockInfo(locality, waitingFor));
         results.add(dependency);
       }
@@ -142,7 +142,7 @@ public class DeadlockDetector {
       threadInfos.put(info.getThreadId(), info);
     }
 
-    Set<Dependency> monitoredDependencies =
+    var monitoredDependencies =
         collectFromDependencyMonitor(bean, locality, threadInfos);
     results.addAll(monitoredDependencies);
     return results;
@@ -152,16 +152,16 @@ public class DeadlockDetector {
    * Format deadlock displaying to a user.
    */
   public static String prettyFormat(Collection<Dependency> deadlock) {
-    StringBuilder text = new StringBuilder();
-    LinkedHashSet<LocalThread> threads = new LinkedHashSet<>();
+    var text = new StringBuilder();
+    var threads = new LinkedHashSet<LocalThread>();
 
     Set<Object> seenDependers = new HashSet<>();
     Object lastDependsOn = text;
     Object lastDepender = text;
 
-    for (Dependency dep : deadlock) {
-      Object depender = dep.getDepender();
-      Object dependsOn = dep.getDependsOn();
+    for (var dep : deadlock) {
+      var depender = dep.getDepender();
+      var dependsOn = dep.getDependsOn();
 
       String dependerString;
       if (lastDependsOn.equals(depender)) {
@@ -174,7 +174,7 @@ public class DeadlockDetector {
       lastDepender = depender;
       lastDependsOn = dependsOn;
 
-      String also = seenDependers.contains(depender) ? " also" : "";
+      var also = seenDependers.contains(depender) ? " also" : "";
       seenDependers.add(depender);
 
       if (depender instanceof LocalThread) {
@@ -192,7 +192,7 @@ public class DeadlockDetector {
     }
 
     text.append("\nStack traces for involved threads\n");
-    for (LocalThread threadInfo : threads) {
+    for (var threadInfo : threads) {
       text.append(threadInfo.getLocatility()).append(":").append(threadInfo.getThreadStack())
           .append("\n\n");
     }
@@ -209,10 +209,10 @@ public class DeadlockDetector {
    */
   public static List<Dependency> sortDependencies(Collection<Dependency> dependencies) {
     List<Dependency> result = new LinkedList<>();
-    for (Dependency dep : dependencies) {
-      boolean added = false;
-      for (int i = 0; i < result.size(); i++) {
-        Dependency other = result.get(i);
+    for (var dep : dependencies) {
+      var added = false;
+      for (var i = 0; i < result.size(); i++) {
+        var other = result.get(i);
         if (other.depender.equals(dep.depender)) {
           result.add(i, dep);
           added = true;
@@ -242,22 +242,22 @@ public class DeadlockDetector {
    * Get an object suitable for querying the findDependencies method for a given thread.
    */
   public static ThreadReference getThreadReference(String locality, Thread thread) {
-    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-    ThreadInfo info = bean.getThreadInfo(thread.getId(), Integer.MAX_VALUE);
+    var bean = ManagementFactory.getThreadMXBean();
+    var info = bean.getThreadInfo(thread.getId(), Integer.MAX_VALUE);
     return new LocalThread(locality, info);
   }
 
   private static Set<Dependency> collectFromDependencyMonitor(ThreadMXBean bean,
       Serializable locality, Map<Long, ThreadInfo> threadInfos) {
-    HashSet<Dependency> results = new HashSet<>();
+    var results = new HashSet<Dependency>();
 
     // Convert the held resources into serializable dependencies
-    Set<Dependency<Serializable, Thread>> heldResources =
+    var heldResources =
         DependencyMonitorManager.getHeldResources();
-    for (Dependency<Serializable, Thread> dep : heldResources) {
-      Thread thread = dep.getDependsOn();
-      Serializable resource = dep.getDepender();
-      ThreadInfo info = threadInfos.get(thread.getId());
+    for (var dep : heldResources) {
+      var thread = dep.getDependsOn();
+      var resource = dep.getDepender();
+      var info = threadInfos.get(thread.getId());
       if (info == null) {
         info = bean.getThreadInfo(thread.getId());
       }
@@ -266,17 +266,17 @@ public class DeadlockDetector {
       }
     }
 
-    Set<Dependency<Thread, Serializable>> blockedThreads =
+    var blockedThreads =
         DependencyMonitorManager.getBlockedThreads();
 
     // Convert the blocked threads into serializable dependencies
-    for (Dependency<Thread, Serializable> dep : blockedThreads) {
-      Thread thread = dep.getDepender();
-      ThreadInfo info = threadInfos.get(thread.getId());
+    for (var dep : blockedThreads) {
+      var thread = dep.getDepender();
+      var info = threadInfos.get(thread.getId());
       if (info == null) {
         info = bean.getThreadInfo(thread.getId());
       }
-      final Serializable resource = dep.getDependsOn();
+      final var resource = dep.getDependsOn();
       results.add(new Dependency(new LocalThread(locality, info), resource));
     }
     return results;
@@ -288,11 +288,11 @@ public class DeadlockDetector {
       return loadGraph("thread_dependency_graph.ser");
     }
 
-    DependencyGraph result = new DependencyGraph();
+    var result = new DependencyGraph();
 
-    for (int i = startingAt; i < mainArgs.length; i++) {
+    for (var i = startingAt; i < mainArgs.length; i++) {
       filename = mainArgs[i];
-      DependencyGraph gr = loadGraph(filename);
+      var gr = loadGraph(filename);
       if (gr == null) {
         return null;
       }
@@ -303,14 +303,14 @@ public class DeadlockDetector {
   }
 
   private static DependencyGraph loadGraph(String filename) throws Exception {
-    File file = new File(filename);
+    var file = new File(filename);
     if (!file.exists()) {
       System.err.println("unable to find " + filename);
       ExitCode.DEPENDENCY_GRAPH_FAILURE.doSystemExit();
     }
 
-    try (FileInputStream fileInputStream = new FileInputStream(file);
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+    try (var fileInputStream = new FileInputStream(file);
+        var bufferedInputStream = new BufferedInputStream(fileInputStream);
         ObjectInputStream ois = new DDObjectInputStream(bufferedInputStream)) {
       return (DependencyGraph) ois.readObject();
     }
@@ -330,7 +330,7 @@ public class DeadlockDetector {
     protected Class resolveClass(ObjectStreamClass desc)
         throws IOException, ClassNotFoundException {
 
-      String className = desc.getName();
+      var className = desc.getName();
       if (className.startsWith("com.gemstone.gemfire")) {
         className = "org.apache.geode" + className.substring("com.gemstone.gemfire".length());
       }
@@ -391,15 +391,15 @@ public class DeadlockDetector {
         break;
       case "findObject":
         graph = loadGraphs(2, args);
-        List<DependencyGraph> graphs = graph.findDependenciesWith(args[1]);
+        var graphs = graph.findDependenciesWith(args[1]);
         if (graphs.isEmpty()) {
           System.out.println(
               "thread not found! Try using the print command to see all threads and locate the name of the one you're interested in?");
         } else {
-          int numGraphs = graphs.size();
-          int i = 0;
+          var numGraphs = graphs.size();
+          var i = 0;
           System.out.println("findObject \"" + args[1] + "\"\n\n");
-          for (DependencyGraph g : graphs) {
+          for (var g : graphs) {
             i += 1;
             System.out.println("graph " + i + " of " + numGraphs + ":");
             System.out.println(prettyFormat(sortDependencies(g.getEdges())));

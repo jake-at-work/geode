@@ -31,16 +31,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.concurrent.ConcurrentMap;
-
 import org.junit.Test;
 
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.event.BulkOperationHolder;
-import org.apache.geode.internal.cache.event.EventTracker;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.VMVersionTag;
@@ -57,7 +53,7 @@ public class DistributedRegionJUnitTest
   protected DistributedRegion createAndDefineRegion(boolean isConcurrencyChecksEnabled,
       RegionAttributes ra, InternalRegionArguments ira, GemFireCacheImpl cache,
       StatisticsClock statisticsClock) {
-    DistributedRegion region = new DistributedRegion("testRegion", ra, null,
+    var region = new DistributedRegion("testRegion", ra, null,
         cache, ira, disabledClock());
     if (isConcurrencyChecksEnabled) {
       region.enableConcurrencyChecks();
@@ -132,26 +128,26 @@ public class DistributedRegionJUnitTest
 
   @Test
   public void retriedBulkOpGetsSavedVersionTag() {
-    DistributedRegion region = prepare(true, true);
-    DistributedMember member = mock(DistributedMember.class);
-    ClientProxyMembershipID memberId = mock(ClientProxyMembershipID.class);
+    var region = prepare(true, true);
+    var member = mock(DistributedMember.class);
+    var memberId = mock(ClientProxyMembershipID.class);
 
     byte[] memId = {1, 2, 3};
     long threadId = 1;
     long retrySeqId = 1;
-    ThreadIdentifier tid = new ThreadIdentifier(memId, threadId);
-    EventID retryEventID = new EventID(memId, threadId, retrySeqId);
-    boolean skipCallbacks = true;
-    int size = 2;
+    var tid = new ThreadIdentifier(memId, threadId);
+    var retryEventID = new EventID(memId, threadId, retrySeqId);
+    var skipCallbacks = true;
+    var size = 2;
     recordPutAllEvents(region, memId, threadId, skipCallbacks, member, memberId,
         size);
-    EventTracker eventTracker = region.getEventTracker();
+    var eventTracker = region.getEventTracker();
 
-    ConcurrentMap<ThreadIdentifier, BulkOperationHolder> map =
+    var map =
         eventTracker.getRecordedBulkOpVersionTags();
-    BulkOperationHolder holder = map.get(tid);
+    var holder = map.get(tid);
 
-    EntryEventImpl retryEvent = EntryEventImpl
+    var retryEvent = EntryEventImpl
         .create(region, Operation.PUTALL_CREATE, "key1",
             "value1", null, false, member, !skipCallbacks, retryEventID);
     retryEvent.setContext(memberId);
@@ -166,9 +162,9 @@ public class DistributedRegionJUnitTest
       long threadId,
       boolean skipCallbacks, DistributedMember member,
       ClientProxyMembershipID memberId, int size) {
-    EntryEventImpl[] events = new EntryEventImpl[size];
-    EventTracker eventTracker = region.getEventTracker();
-    for (int i = 0; i < size; i++) {
+    var events = new EntryEventImpl[size];
+    var eventTracker = region.getEventTracker();
+    for (var i = 0; i < size; i++) {
       events[i] = EntryEventImpl
           .create(region, Operation.PUTALL_CREATE, "key" + i, "value" + i,
               null, false, member, !skipCallbacks,
@@ -181,12 +177,12 @@ public class DistributedRegionJUnitTest
 
   @Test
   public void testThatMemoryThresholdInfoRelectsStateOfRegion() {
-    InternalDistributedMember internalDM = mock(
+    var internalDM = mock(
         InternalDistributedMember.class);
-    DistributedRegion distRegion = prepare(true, false);
+    var distRegion = prepare(true, false);
     distRegion.addCriticalMember(internalDM);
 
-    MemoryThresholdInfo info = distRegion.getAtomicThresholdInfo();
+    var info = distRegion.getAtomicThresholdInfo();
 
     assertThat(distRegion.isMemoryThresholdReached()).isTrue();
     assertThat(
@@ -199,11 +195,11 @@ public class DistributedRegionJUnitTest
 
   @Test
   public void testThatMemoryThresholdInfoDoesNotChangeWhenRegionChanges() {
-    InternalDistributedMember internalDM = mock(
+    var internalDM = mock(
         InternalDistributedMember.class);
-    DistributedRegion distRegion = prepare(true, false);
+    var distRegion = prepare(true, false);
 
-    MemoryThresholdInfo info = distRegion.getAtomicThresholdInfo();
+    var info = distRegion.getAtomicThresholdInfo();
     distRegion.addCriticalMember(internalDM);
 
     assertThat(distRegion.isMemoryThresholdReached()).isTrue();
@@ -216,20 +212,20 @@ public class DistributedRegionJUnitTest
 
   @Test
   public void testRetriedBasicBridgeReplaceShouldNotCreateNewVersionTag() {
-    DistributedRegion region = prepare(true, true);
-    DistributedMember member = mock(DistributedMember.class);
-    ClientProxyMembershipID client = mock(ClientProxyMembershipID.class);
+    var region = prepare(true, true);
+    var member = mock(DistributedMember.class);
+    var client = mock(ClientProxyMembershipID.class);
     when(client.getDistributedMember()).thenReturn(member);
 
     byte[] memId = {1, 2, 3};
     long threadId = 1;
     long retrySeqId = 1;
-    EventID retryEventID = new EventID(memId, threadId, retrySeqId);
+    var retryEventID = new EventID(memId, threadId, retrySeqId);
 
-    final EventIDHolder clientEvent = new EventIDHolder(retryEventID);
+    final var clientEvent = new EventIDHolder(retryEventID);
     clientEvent.setOperation(Operation.UPDATE);
     clientEvent.setPossibleDuplicate(true);
-    VMVersionTag tag = new VMVersionTag();
+    var tag = new VMVersionTag();
     tag.setEntryVersion(1);
     tag.setRegionVersion(1);
     clientEvent.setVersionTag(tag);

@@ -25,7 +25,6 @@ import org.apache.geode.internal.cache.TXCommitMessage;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 
 /**
  * TXSynchronizationOp sends JTA beforeCompletion and afterCompletion messages to the server pool.
@@ -46,7 +45,7 @@ public class TXSynchronizationOp {
    */
   public static TXCommitMessage execute(InternalPool pool, int status, int txId,
       CompletionType type) {
-    Impl impl = new Impl(status, txId, type);
+    var impl = new Impl(status, txId, type);
     pool.execute(impl);
     return impl.tXCommitMessageResponse;
   }
@@ -76,13 +75,13 @@ public class TXSynchronizationOp {
 
     @Override
     protected void processAck(Message msg, String opName) throws Exception {
-      final int msgType = msg.getMessageType();
+      final var msgType = msg.getMessageType();
       if (msgType == MessageType.REPLY) {
         return;
       } else {
-        Part part = msg.getPart(0);
+        var part = msg.getPart(0);
         if (msgType == MessageType.EXCEPTION) {
-          Throwable t = (Throwable) part.getObject();
+          var t = (Throwable) part.getObject();
           if (t instanceof CommitConflictException
               || t instanceof SynchronizationCommitConflictException) {
             throw (GemFireException) t;
@@ -112,7 +111,7 @@ public class TXSynchronizationOp {
         }
         return null;
       } else {
-        TXCommitMessage rcs = (TXCommitMessage) processObjResponse(msg, type.toString());
+        var rcs = (TXCommitMessage) processObjResponse(msg, type.toString());
         tXCommitMessageResponse = rcs;
         return rcs;
       }

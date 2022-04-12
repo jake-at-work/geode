@@ -80,7 +80,7 @@ public class SingleThreadColocationLoggerFactoryTest {
 
     factory.startColocationLogger(region);
 
-    long expectedDelayMillis = DEFAULT_LOG_INTERVAL / 2;
+    var expectedDelayMillis = DEFAULT_LOG_INTERVAL / 2;
     verify(constructor).create(any(), eq(expectedDelayMillis), anyLong());
   }
 

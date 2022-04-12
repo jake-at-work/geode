@@ -17,24 +17,18 @@ package org.apache.geode.security.templates;
 import static org.apache.geode.cache.Region.SEPARATOR_CHAR;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -161,9 +155,9 @@ public class XmlAuthorization implements AccessControl {
       return EMPTY_VALUE;
     }
 
-    char[] resultName = new char[regionName.length() + 1];
-    boolean changed = false;
-    boolean isPrevCharSlash = false;
+    var resultName = new char[regionName.length() + 1];
+    var changed = false;
+    var isPrevCharSlash = false;
     int startIndex;
 
     if (regionName.charAt(0) != SEPARATOR_CHAR) {
@@ -175,11 +169,11 @@ public class XmlAuthorization implements AccessControl {
     }
 
     resultName[0] = SEPARATOR_CHAR;
-    int resultLength = 1;
+    var resultLength = 1;
 
     // Replace all more than one '/'s with a single '/'
-    for (int index = startIndex; index < regionName.length(); ++index) {
-      char currChar = regionName.charAt(index);
+    for (var index = startIndex; index < regionName.length(); ++index) {
+      var currChar = regionName.charAt(index);
       if (currChar == SEPARATOR_CHAR) {
         if (isPrevCharSlash) {
           changed = true;
@@ -246,16 +240,16 @@ public class XmlAuthorization implements AccessControl {
       name = EMPTY_VALUE;
     }
 
-    HashSet<String> roles = XmlAuthorization.userRoles.get(name);
+    var roles = XmlAuthorization.userRoles.get(name);
     if (roles != null) {
-      for (String roleName : roles) {
-        Map<String, Map<OperationCode, FunctionSecurityPrmsHolder>> regionOperationMap =
+      for (var roleName : roles) {
+        var regionOperationMap =
             XmlAuthorization.rolePermissions.get(roleName);
         if (regionOperationMap != null) {
-          for (Map.Entry<String, Map<OperationCode, FunctionSecurityPrmsHolder>> regionEntry : regionOperationMap
+          for (var regionEntry : regionOperationMap
               .entrySet()) {
-            String regionName = regionEntry.getKey();
-            Map<OperationCode, FunctionSecurityPrmsHolder> regionOperations =
+            var regionName = regionEntry.getKey();
+            var regionOperations =
                 allowedOps.get(regionName);
             if (regionOperations == null) {
               regionOperations = new HashMap<>();
@@ -297,17 +291,17 @@ public class XmlAuthorization implements AccessControl {
       return false;
     }
 
-    OperationCode opCode = context.getOperationCode();
+    var opCode = context.getOperationCode();
     if (opCode.isQuery() || opCode.isExecuteCQ() || opCode.isCloseCQ() || opCode.isStopCQ()) {
       // First check if cache-level permission has been provided
       operationMap = allowedOps.get(EMPTY_VALUE);
-      boolean globalPermission = (operationMap != null && operationMap.containsKey(opCode));
+      var globalPermission = (operationMap != null && operationMap.containsKey(opCode));
       Set<String> regionNames = ((QueryOperationContext) context).getRegionNames();
       if (regionNames == null || regionNames.size() == 0) {
         return globalPermission;
       }
 
-      for (String r : regionNames) {
+      for (var r : regionNames) {
         regionName = normalizeRegionName(r);
         operationMap = allowedOps.get(regionName);
         if (operationMap == null) {
@@ -321,7 +315,7 @@ public class XmlAuthorization implements AccessControl {
       return true;
     }
 
-    final String normalizedRegionName = normalizeRegionName(regionName);
+    final var normalizedRegionName = normalizeRegionName(regionName);
     operationMap = allowedOps.get(normalizedRegionName);
     if (operationMap == null && normalizedRegionName.length() > 0) {
       operationMap = allowedOps.get(EMPTY_VALUE);
@@ -336,9 +330,9 @@ public class XmlAuthorization implements AccessControl {
 
         } else {
           if (!context.isPostOperation()) {
-            FunctionSecurityPrmsHolder functionParameter =
+            var functionParameter =
                 operationMap.get(context.getOperationCode());
-            ExecuteFunctionOperationContext functionContext =
+            var functionContext =
                 (ExecuteFunctionOperationContext) context;
             // OnRegion execution
             if (functionContext.getRegionName() != null) {
@@ -362,22 +356,22 @@ public class XmlAuthorization implements AccessControl {
             }
 
           } else {
-            ExecuteFunctionOperationContext functionContext =
+            var functionContext =
                 (ExecuteFunctionOperationContext) context;
-            FunctionSecurityPrmsHolder functionParameter =
+            var functionParameter =
                 operationMap.get(context.getOperationCode());
             if (functionContext.getRegionName() != null) {
               if (functionContext.getResult() instanceof ArrayList
                   && functionParameter.getKeySet() != null) {
                 ArrayList<String> resultList = (ArrayList) functionContext.getResult();
-                Set<String> nonAllowedKeys = functionParameter.getKeySet();
+                var nonAllowedKeys = functionParameter.getKeySet();
                 return !resultList.containsAll(nonAllowedKeys);
               }
               return true;
 
             } else {
               ArrayList<String> resultList = (ArrayList) functionContext.getResult();
-              final String inSecureItem = "Insecure item";
+              final var inSecureItem = "Insecure item";
               return !resultList.contains(inSecureItem);
             }
           }
@@ -397,7 +391,7 @@ public class XmlAuthorization implements AccessControl {
 
   /** Get the attribute value for a given attribute name of a node. */
   private static String getAttributeValue(final Node node, final String attrName) {
-    NamedNodeMap attrMap = node.getAttributes();
+    var attrMap = node.getAttributes();
     Node attrNode;
     if (attrMap != null && (attrNode = attrMap.getNamedItem(attrName)) != null) {
       return ((Attr) attrNode).getValue();
@@ -407,9 +401,9 @@ public class XmlAuthorization implements AccessControl {
 
   /** Get the string contained in the first text child of the node. */
   private static String getNodeValue(final Node node) {
-    NodeList childNodes = node.getChildNodes();
-    for (int index = 0; index < childNodes.getLength(); index++) {
-      Node childNode = childNodes.item(index);
+    var childNodes = node.getChildNodes();
+    for (var index = 0; index < childNodes.getLength(); index++) {
+      var childNode = childNodes.item(index);
       if (childNode.getNodeType() == Node.TEXT_NODE) {
         return childNode.getNodeValue();
       }
@@ -424,8 +418,8 @@ public class XmlAuthorization implements AccessControl {
    * @param cache reference to the cache object for the distributed system
    */
   private static void init(final Cache cache) throws NotAuthorizedException {
-    final LogWriter systemLogWriter = cache.getLogger();
-    final String xmlDocumentUri =
+    final var systemLogWriter = cache.getLogger();
+    final var xmlDocumentUri =
         (String) cache.getDistributedSystem().getSecurityProperties().get(DOC_URI_PROP_NAME);
 
     try {
@@ -440,35 +434,35 @@ public class XmlAuthorization implements AccessControl {
         return;
       }
 
-      final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      final var factory = DocumentBuilderFactory.newInstance();
       factory.setIgnoringComments(true);
       factory.setIgnoringElementContentWhitespace(true);
       factory.setValidating(true);
 
-      final DocumentBuilder builder = factory.newDocumentBuilder();
-      final XmlErrorHandler errorHandler = new XmlErrorHandler(systemLogWriter, xmlDocumentUri);
+      final var builder = factory.newDocumentBuilder();
+      final var errorHandler = new XmlErrorHandler(systemLogWriter, xmlDocumentUri);
       builder.setErrorHandler(errorHandler);
       builder.setEntityResolver(new AuthzDtdResolver());
 
-      final Document xmlDocument = builder.parse(xmlDocumentUri);
+      final var xmlDocument = builder.parse(xmlDocumentUri);
 
       XmlAuthorization.userRoles = new HashMap<>();
       XmlAuthorization.rolePermissions =
           new HashMap<>();
 
-      final NodeList roleUserNodes = xmlDocument.getElementsByTagName(TAG_ROLE);
+      final var roleUserNodes = xmlDocument.getElementsByTagName(TAG_ROLE);
 
-      for (int roleIndex = 0; roleIndex < roleUserNodes.getLength(); roleIndex++) {
-        final Node roleUserNode = roleUserNodes.item(roleIndex);
-        final String roleName = getAttributeValue(roleUserNode, ATTR_ROLENAME);
-        final NodeList userNodes = roleUserNode.getChildNodes();
+      for (var roleIndex = 0; roleIndex < roleUserNodes.getLength(); roleIndex++) {
+        final var roleUserNode = roleUserNodes.item(roleIndex);
+        final var roleName = getAttributeValue(roleUserNode, ATTR_ROLENAME);
+        final var userNodes = roleUserNode.getChildNodes();
 
-        for (int userIndex = 0; userIndex < userNodes.getLength(); userIndex++) {
-          final Node userNode = userNodes.item(userIndex);
+        for (var userIndex = 0; userIndex < userNodes.getLength(); userIndex++) {
+          final var userNode = userNodes.item(userIndex);
 
           if (TAG_USER.equals(userNode.getNodeName())) {
-            final String userName = getNodeValue(userNode);
-            HashSet<String> userRoleSet = XmlAuthorization.userRoles.get(userName);
+            final var userName = getNodeValue(userNode);
+            var userRoleSet = XmlAuthorization.userRoles.get(userName);
             if (userRoleSet == null) {
               userRoleSet = new HashSet<>();
               XmlAuthorization.userRoles.put(userName, userRoleSet);
@@ -483,12 +477,12 @@ public class XmlAuthorization implements AccessControl {
         }
       }
 
-      final NodeList rolePermissionNodes = xmlDocument.getElementsByTagName(TAG_PERMS);
+      final var rolePermissionNodes = xmlDocument.getElementsByTagName(TAG_PERMS);
 
-      for (int permIndex = 0; permIndex < rolePermissionNodes.getLength(); permIndex++) {
-        final Node rolePermissionNode = rolePermissionNodes.item(permIndex);
-        final String roleName = getAttributeValue(rolePermissionNode, ATTR_ROLE);
-        Map<String, Map<OperationCode, FunctionSecurityPrmsHolder>> regionOperationMap =
+      for (var permIndex = 0; permIndex < rolePermissionNodes.getLength(); permIndex++) {
+        final var rolePermissionNode = rolePermissionNodes.item(permIndex);
+        final var roleName = getAttributeValue(rolePermissionNode, ATTR_ROLE);
+        var regionOperationMap =
             XmlAuthorization.rolePermissions.get(roleName);
 
         if (regionOperationMap == null) {
@@ -497,16 +491,16 @@ public class XmlAuthorization implements AccessControl {
           XmlAuthorization.rolePermissions.put(roleName, regionOperationMap);
         }
 
-        final NodeList operationNodes = rolePermissionNode.getChildNodes();
-        final HashMap<OperationCode, FunctionSecurityPrmsHolder> operationMap =
-            new HashMap<>();
+        final var operationNodes = rolePermissionNode.getChildNodes();
+        final var operationMap =
+            new HashMap<OperationCode, FunctionSecurityPrmsHolder>();
 
-        for (int opIndex = 0; opIndex < operationNodes.getLength(); opIndex++) {
-          final Node operationNode = operationNodes.item(opIndex);
+        for (var opIndex = 0; opIndex < operationNodes.getLength(); opIndex++) {
+          final var operationNode = operationNodes.item(opIndex);
 
           if (TAG_OP.equals(operationNode.getNodeName())) {
-            final String operationName = getNodeValue(operationNode);
-            final OperationCode code = OperationCode.valueOf(operationName);
+            final var operationName = getNodeValue(operationNode);
+            final var code = OperationCode.valueOf(operationName);
 
             if (code == null) {
               throw new SAXParseException("Unknown operation [" + operationName + ']', null);
@@ -516,10 +510,10 @@ public class XmlAuthorization implements AccessControl {
               operationMap.put(code, null);
 
             } else {
-              final String optimizeForWrite =
+              final var optimizeForWrite =
                   getAttributeValue(operationNode, ATTR_FUNCTION_OPTIMIZE_FOR_WRITE);
-              final String functionAttr = getAttributeValue(operationNode, ATTR_FUNCTION_IDS);
-              final String keysAttr = getAttributeValue(operationNode, ATTR_FUNCTION_KEY_SET);
+              final var functionAttr = getAttributeValue(operationNode, ATTR_FUNCTION_IDS);
+              final var keysAttr = getAttributeValue(operationNode, ATTR_FUNCTION_KEY_SET);
 
               Boolean isOptimizeForWrite;
               HashSet<String> functionIds;
@@ -534,9 +528,9 @@ public class XmlAuthorization implements AccessControl {
               if (functionAttr == null || functionAttr.length() == 0) {
                 functionIds = null;
               } else {
-                final String[] functionArray = functionAttr.split(",");
+                final var functionArray = functionAttr.split(",");
                 functionIds = new HashSet<>();
-                for (final String s : functionArray) {
+                for (final var s : functionArray) {
                   functionIds.add(s);
                 }
               }
@@ -544,14 +538,14 @@ public class XmlAuthorization implements AccessControl {
               if (keysAttr == null || keysAttr.length() == 0) {
                 keySet = null;
               } else {
-                final String[] keySetArray = keysAttr.split(",");
+                final var keySetArray = keysAttr.split(",");
                 keySet = new HashSet<>();
-                for (final String s : keySetArray) {
+                for (final var s : keySetArray) {
                   keySet.add(s);
                 }
               }
 
-              final FunctionSecurityPrmsHolder functionContext =
+              final var functionContext =
                   new FunctionSecurityPrmsHolder(isOptimizeForWrite, functionIds, keySet);
               operationMap.put(code, functionContext);
             }
@@ -562,12 +556,12 @@ public class XmlAuthorization implements AccessControl {
           }
         }
 
-        final String regionNames = getAttributeValue(rolePermissionNode, ATTR_REGIONS);
+        final var regionNames = getAttributeValue(rolePermissionNode, ATTR_REGIONS);
         if (regionNames == null || regionNames.length() == 0) {
           regionOperationMap.put(EMPTY_VALUE, operationMap);
         } else {
-          final String[] regionNamesSplit = regionNames.split(",");
-          for (final String s : regionNamesSplit) {
+          final var regionNamesSplit = regionNames.split(",");
+          for (final var s : regionNamesSplit) {
             regionOperationMap.put(normalizeRegionName(s), operationMap);
           }
         }
@@ -594,10 +588,10 @@ public class XmlAuthorization implements AccessControl {
     public InputSource resolveEntity(final String publicId, final String systemId)
         throws SAXException, IOException {
       try {
-        final Matcher matcher = authzPattern.matcher(systemId);
+        final var matcher = authzPattern.matcher(systemId);
         if (matcher.find()) {
-          final String dtdName = matcher.group(0);
-          final InputStream stream = XmlAuthorization.class.getResourceAsStream(dtdName);
+          final var dtdName = matcher.group(0);
+          final var stream = XmlAuthorization.class.getResourceAsStream(dtdName);
           return new InputSource(stream);
         }
 

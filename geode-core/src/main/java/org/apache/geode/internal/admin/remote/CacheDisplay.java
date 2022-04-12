@@ -26,7 +26,7 @@ public class CacheDisplay {
         if (obj == null) {
           return "null";
         }
-        String toString = obj.toString();
+        var toString = obj.toString();
         Class clazz = obj.getClass();
         String name = null;
         if (clazz.isArray()) {
@@ -53,7 +53,7 @@ public class CacheDisplay {
 
   private static String getArrayDisplayName(Object instance) {
     if (instance instanceof Object[]) {
-      String className = instance.getClass().getName();
+      var className = instance.getClass().getName();
       return "an array of " + getClassName(className.substring(2, className.length() - 1))
           + " with " + ((Object[]) instance).length + " elements";
     } else if (instance instanceof int[]) {

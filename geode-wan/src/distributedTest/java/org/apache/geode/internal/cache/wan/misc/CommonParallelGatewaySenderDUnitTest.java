@@ -18,15 +18,11 @@ import static org.apache.geode.test.dunit.LogWriterUtils.getLogWriter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.Set;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.internal.cache.BucketRegion;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.InternalGatewaySenderFactory;
@@ -46,7 +42,7 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
   @Test
   public void testSameSenderWithNonColocatedRegions() throws Exception {
     IgnoredException.addIgnoredException("cannot have the same parallel");
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     vm4.invoke(() -> WANTestBase.createCache(lnPort));
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
     vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR1", "ln", 1, 100,
@@ -76,8 +72,8 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
   @Test
   @Ignore("TODO")
   public void testParallelPropagation() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -152,8 +148,8 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
   @Test
   @Ignore("TODO")
   public void testParallelPropagationPersistenceEnabled() throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -233,9 +229,9 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
   @Ignore("TODO")
   public void testPRWithGatewaySenderPersistenceEnabled_Restart() {
     // create locator on local site
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     // create locator on remote site
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     // create receiver on remote site
     createCacheInVMs(nyPort, vm2, vm3);
@@ -245,13 +241,13 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
     // create senders with disk store
-    String diskStore1 = vm4.invoke(() -> WANTestBase.createSenderWithDiskStore("ln", 2,
+    var diskStore1 = vm4.invoke(() -> WANTestBase.createSenderWithDiskStore("ln", 2,
         true, 100, 10, false, true, null, null, true));
-    String diskStore2 = vm5.invoke(() -> WANTestBase.createSenderWithDiskStore("ln", 2,
+    var diskStore2 = vm5.invoke(() -> WANTestBase.createSenderWithDiskStore("ln", 2,
         true, 100, 10, false, true, null, null, true));
-    String diskStore3 = vm6.invoke(() -> WANTestBase.createSenderWithDiskStore("ln", 2,
+    var diskStore3 = vm6.invoke(() -> WANTestBase.createSenderWithDiskStore("ln", 2,
         true, 100, 10, false, true, null, null, true));
-    String diskStore4 = vm7.invoke(() -> WANTestBase.createSenderWithDiskStore("ln", 2,
+    var diskStore4 = vm7.invoke(() -> WANTestBase.createSenderWithDiskStore("ln", 2,
         true, 100, 10, false, true, null, null, true));
 
     LogWriterUtils.getLogWriter()
@@ -403,25 +399,25 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
   }
 
   public static void validateParallelSenderQueueAllBucketsDrained(final String senderId) {
-    Set<GatewaySender> senders = cache.getGatewaySenders();
+    var senders = cache.getGatewaySenders();
     GatewaySender sender = null;
-    for (GatewaySender s : senders) {
+    for (var s : senders) {
       if (s.getId().equals(senderId)) {
         sender = s;
         break;
       }
     }
-    ConcurrentParallelGatewaySenderQueue regionQueue =
+    var regionQueue =
         (ConcurrentParallelGatewaySenderQueue) ((AbstractGatewaySender) sender).getQueues()
             .toArray(new RegionQueue[1])[0];
 
-    Set<PartitionedRegion> shadowPRs = regionQueue.getRegions();
+    var shadowPRs = regionQueue.getRegions();
 
-    for (PartitionedRegion shadowPR : shadowPRs) {
-      Set<BucketRegion> buckets = shadowPR.getDataStore().getAllLocalBucketRegions();
+    for (var shadowPR : shadowPRs) {
+      var buckets = shadowPR.getDataStore().getAllLocalBucketRegions();
 
-      for (final BucketRegion bucket : buckets) {
-        WaitCriterion wc = new WaitCriterion() {
+      for (final var bucket : buckets) {
+        var wc = new WaitCriterion() {
           @Override
           public boolean done() {
             if (bucket.keySet().size() == 0) {
@@ -447,9 +443,9 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
 
   @Test
   public void whenBatchBasedOnTimeOnlyThenQueueShouldNotDispatchUntilIntervalIsHit() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-    int batchIntervalTime = 5000;
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var batchIntervalTime = 5000;
 
     // Create receiver and region
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
@@ -461,10 +457,10 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
 
     // Create sender with batchSize disabled
     vm4.invoke(() -> WANTestBase.createCache(lnPort));
-    String senderId = "ln";
-    final String builder = String.valueOf(senderId);
+    var senderId = "ln";
+    final var builder = String.valueOf(senderId);
     vm4.invoke(() -> {
-      InternalGatewaySenderFactory gateway =
+      var gateway =
           (InternalGatewaySenderFactory) cache.createGatewaySenderFactory();
       gateway.setParallel(true);
       gateway.setMaximumQueueMemory(100);
@@ -480,7 +476,7 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
         builder, 0, 10, isOffHeap()));
 
     // Do puts
-    int numPuts = 100;
+    var numPuts = 100;
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_PR", numPuts));
 
     // attempt to prove the absence of a dispatch/ prove a dispatch has not occurred
@@ -488,7 +484,7 @@ public class CommonParallelGatewaySenderDUnitTest extends WANTestBase {
     // more than enough
     // for a regular dispatch to have occurred
     vm2.invoke(() -> {
-      long startTime = System.currentTimeMillis();
+      var startTime = System.currentTimeMillis();
       while (System.currentTimeMillis() - startTime < batchIntervalTime - 1000) {
         assertEquals(0, listener1.getNumEvents());
       }

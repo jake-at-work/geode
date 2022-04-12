@@ -528,7 +528,7 @@ public class RegionFunctionArgs implements Serializable {
         return false;
       }
 
-      ExpirationAttrs that = (ExpirationAttrs) object;
+      var that = (ExpirationAttrs) object;
       if (time == null && that.time == null && action == that.action) {
         return true;
       }
@@ -549,8 +549,8 @@ public class RegionFunctionArgs implements Serializable {
 
     public ExpirationAttributes getExpirationAttributes(ExpirationAttributes existing) {
       // default values
-      int timeToUse = 0;
-      ExpirationAction actionToUse = ExpirationAction.INVALIDATE;
+      var timeToUse = 0;
+      var actionToUse = ExpirationAction.INVALIDATE;
 
       if (existing != null) {
         timeToUse = existing.getTimeout();
@@ -600,12 +600,12 @@ public class RegionFunctionArgs implements Serializable {
     }
 
     public EvictionAttributes convertToEvictionAttributes() {
-      EvictionAction action = EvictionAction.parseAction(evictionAction);
+      var action = EvictionAction.parseAction(evictionAction);
 
       ObjectSizer sizer;
       if (objectSizer != null) {
         try {
-          Class<?> sizerClass = ClassPathLoader.getLatest().forName(objectSizer);
+          var sizerClass = ClassPathLoader.getLatest().forName(objectSizer);
           sizer = (ObjectSizer) sizerClass.newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
           throw new IllegalArgumentException(

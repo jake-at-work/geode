@@ -14,14 +14,12 @@
  */
 package org.apache.geode.management.internal.cli.functions;
 
-import java.util.Collection;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.CliFunction;
@@ -41,16 +39,16 @@ public class DestroyIndexFunction extends CliFunction {
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext context) {
-    RegionConfig.Index indexInfo = (RegionConfig.Index) context.getArguments();
+    var indexInfo = (RegionConfig.Index) context.getArguments();
     String memberId = null;
 
     CliFunctionResult result;
     try {
       Cache cache = ((InternalCache) context.getCache()).getCacheForProcessingClientRequests();
       memberId = cache.getDistributedSystem().getDistributedMember().getId();
-      QueryService queryService = cache.getQueryService();
-      String indexName = indexInfo.getName();
-      String regionPath = indexInfo.getFromClause();
+      var queryService = cache.getQueryService();
+      var indexName = indexInfo.getName();
+      var regionPath = indexInfo.getFromClause();
 
       if (regionPath != null && !regionPath.isEmpty()) {
         Region<?, ?> region = cache.getRegion(regionPath);
@@ -61,7 +59,7 @@ public class DestroyIndexFunction extends CliFunction {
             result = new CliFunctionResult(memberId, CliFunctionResult.StatusState.OK,
                 "Destroyed all indexes on region " + regionPath);
           } else {
-            Index index = queryService.getIndex(region, indexName);
+            var index = queryService.getIndex(region, indexName);
 
             if (index != null) {
               queryService.removeIndex(index);
@@ -82,7 +80,7 @@ public class DestroyIndexFunction extends CliFunction {
           result = new CliFunctionResult(memberId, CliFunctionResult.StatusState.OK,
               "Destroyed all indexes");
         } else {
-          boolean indexRemoved = removeIndexByName(indexName, queryService);
+          var indexRemoved = removeIndexByName(indexName, queryService);
           if (indexRemoved) {
             result = new CliFunctionResult(memberId, CliFunctionResult.StatusState.OK,
                 "Destroyed index " + indexName);
@@ -106,10 +104,10 @@ public class DestroyIndexFunction extends CliFunction {
    * @return true if the index was found and removed/false if the index was not found.
    */
   private boolean removeIndexByName(String name, QueryService queryService) {
-    boolean removed = false;
-    Collection<Index> indexes = queryService.getIndexes();
+    var removed = false;
+    var indexes = queryService.getIndexes();
 
-    for (Index index : indexes) {
+    for (var index : indexes) {
       if (index.getName().equals(name)) {
         queryService.removeIndex(index);
         removed = true;

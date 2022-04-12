@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
@@ -50,7 +49,7 @@ public class MemberValidator {
 
   public void validateCreate(AbstractConfiguration config, CacheConfigurationManager manager) {
 
-    Map<String, AbstractConfiguration> existingElementsAndTheirGroups =
+    var existingElementsAndTheirGroups =
         findCacheElement(config, manager);
     if (existingElementsAndTheirGroups.size() == 0) {
       return;
@@ -64,7 +63,7 @@ public class MemberValidator {
     }
 
     // if configuration is groupable, then check if it's already in the group
-    String configGroup = AbstractConfiguration.getGroupName(config.getGroup());
+    var configGroup = AbstractConfiguration.getGroupName(config.getGroup());
     if (existingElementsAndTheirGroups.containsKey(configGroup)) {
       throw new EntityExistsException(
           config.getClass().getSimpleName() + " '" + config.getId()
@@ -72,13 +71,13 @@ public class MemberValidator {
     }
 
     // if other group and this new group has common members, then throw exception
-    String[] groups = existingElementsAndTheirGroups.keySet().toArray(new String[0]);
-    Set<DistributedMember> membersOfExistingGroups = findServers(groups);
-    Set<DistributedMember> membersOfNewGroup = findServers(config.getGroup());
+    var groups = existingElementsAndTheirGroups.keySet().toArray(new String[0]);
+    var membersOfExistingGroups = findServers(groups);
+    var membersOfNewGroup = findServers(config.getGroup());
     Set<DistributedMember> intersection = new HashSet<>(membersOfExistingGroups);
     intersection.retainAll(membersOfNewGroup);
     if (intersection.size() > 0) {
-      String members =
+      var members =
           intersection.stream().map(DistributedMember::getName).collect(Collectors.joining(", "));
       throw new EntityExistsException(
           config.getClass().getSimpleName() + " '" + config.getId()
@@ -87,7 +86,7 @@ public class MemberValidator {
 
     // if there is no common member, we still need to verify if the new config is compatible with
     // the existing ones.
-    for (Map.Entry<String, AbstractConfiguration> existing : existingElementsAndTheirGroups
+    for (var existing : existingElementsAndTheirGroups
         .entrySet()) {
       manager.checkCompatibility(config, existing.getKey(), existing.getValue());
     }
@@ -104,9 +103,9 @@ public class MemberValidator {
   public Map<String, AbstractConfiguration> findCacheElement(AbstractConfiguration config,
       CacheConfigurationManager manager) {
     Map<String, AbstractConfiguration> results = new HashMap<>();
-    for (String group : persistenceService.getGroups()) {
-      CacheConfig cacheConfig = persistenceService.getCacheConfig(group, true);
-      AbstractConfiguration existing = manager.get(config, cacheConfig);
+    for (var group : persistenceService.getGroups()) {
+      var cacheConfig = persistenceService.getCacheConfig(group, true);
+      var existing = manager.get(config, cacheConfig);
       if (existing != null) {
         results.put(group, existing);
       }
@@ -116,9 +115,9 @@ public class MemberValidator {
 
   public Set<String> findGroups(String regionName) {
     Set<String> results = new HashSet<>();
-    Set<String> groups = persistenceService.getGroups();
-    for (String group : groups) {
-      CacheConfig existing = persistenceService.getCacheConfig(group, false);
+    var groups = persistenceService.getGroups();
+    for (var group : groups) {
+      var existing = persistenceService.getCacheConfig(group, false);
       if (existing != null && existing.findRegionConfiguration(regionName) != null) {
         results.add(group);
       }
@@ -136,7 +135,7 @@ public class MemberValidator {
 
   public Set<DistributedMember> findServers(AbstractConfiguration configuration) {
     if (configuration instanceof RegionScoped) {
-      Set<String> groups = findGroups(((RegionScoped) configuration).getRegionName());
+      var groups = findGroups(((RegionScoped) configuration).getRegionName());
       if (groups.size() == 0) {
         return Collections.emptySet();
       }
@@ -175,14 +174,14 @@ public class MemberValidator {
       groups = new String[] {AbstractConfiguration.CLUSTER};
     }
 
-    Set<DistributedMember> all = includeLocators ? getAllServersAndLocators() : getAllServers();
+    var all = includeLocators ? getAllServersAndLocators() : getAllServers();
 
     if (Arrays.stream(groups).anyMatch(AbstractConfiguration::isCluster)) {
       return all;
     }
 
     Set<DistributedMember> matchingMembers = new HashSet<>();
-    for (String group : groups) {
+    for (var group : groups) {
       matchingMembers.addAll(
           all.stream().filter(m -> m.getGroups() != null && m.getGroups().contains(group))
               .collect(Collectors.toSet()));

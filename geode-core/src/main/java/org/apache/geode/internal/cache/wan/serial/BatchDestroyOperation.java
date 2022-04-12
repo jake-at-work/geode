@@ -25,7 +25,6 @@ import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.TimeoutException;
-import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.ConflationKey;
@@ -66,8 +65,8 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
   @Override
   protected void initMessage(CacheOperationMessage msg, DirectReplyProcessor processor) {
     super.initMessage(msg, processor);
-    DestroyMessage m = (DestroyMessage) msg;
-    EntryEventImpl event = getEvent();
+    var m = (DestroyMessage) msg;
+    var event = getEvent();
     m.key = event.getKey();
     m.eventId = event.getEventId();
   }
@@ -90,10 +89,10 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
     @Override
     protected boolean operateOnRegion(CacheEvent event, ClusterDistributionManager dm)
         throws EntryNotFoundException {
-      EntryEventImpl ev = (EntryEventImpl) event;
-      DistributedRegion rgn = (DistributedRegion) ev.getRegion();
+      var ev = (EntryEventImpl) event;
+      var rgn = (DistributedRegion) ev.getRegion();
 
-      final boolean isDebugEnabled = logger.isDebugEnabled();
+      final var isDebugEnabled = logger.isDebugEnabled();
       try {
         if (isDebugEnabled) {
           logger.debug(
@@ -104,9 +103,9 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
         // Optimized way
         for (long k = (Long) key; k <= tailKey && tailKey != -1; k++) {
           try {
-            for (GatewayEventFilter filter : rgn.getSerialGatewaySender()
+            for (var filter : rgn.getSerialGatewaySender()
                 .getGatewayEventFilters()) {
-              GatewayQueueEvent eventForFilter = (GatewayQueueEvent) rgn.get(k);
+              var eventForFilter = (GatewayQueueEvent) rgn.get(k);
               try {
                 if (eventForFilter != null) {
                   filter.afterAcknowledgement(eventForFilter);
@@ -129,13 +128,13 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
         // destroy dropped event from unprocessedKeys
         if (tailKey == -1) {
           SerialGatewaySenderEventProcessor ep = null;
-          int index = ((Long) key).intValue();
+          var index = ((Long) key).intValue();
           if (index == -1) {
             // this is SerialGatewaySenderEventProcessor
             ep = (SerialGatewaySenderEventProcessor) rgn.getSerialGatewaySender()
                 .getEventProcessor();
           } else {
-            ConcurrentSerialGatewaySenderEventProcessor csgep =
+            var csgep =
                 (ConcurrentSerialGatewaySenderEventProcessor) rgn.getSerialGatewaySender()
                     .getEventProcessor();
             if (csgep != null) {
@@ -144,7 +143,7 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
           }
           if (ep != null) {
             // if sender is being shutdown, the ep could be null
-            boolean removed = ep.basicHandlePrimaryDestroy(ev.getEventId(), true);
+            var removed = ep.basicHandlePrimaryDestroy(ev.getEventId(), true);
             if (removed) {
               if (isDebugEnabled) {
                 logger.debug("Removed a dropped event {} from unprocessedEvents.",
@@ -167,8 +166,8 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
     @Override
     @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
-      EntryEventImpl ev = createEntryEvent(rgn);
-      boolean evReturned = false;
+      var ev = createEntryEvent(rgn);
+      var evReturned = false;
       try {
         ev.setEventId(eventId);
         ev.setOldValueFromRegion();
@@ -188,7 +187,7 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
     @Retained
     EntryEventImpl createEntryEvent(DistributedRegion rgn) {
       @Retained
-      EntryEventImpl event = EntryEventImpl.create(rgn, getOperation(), key, null,
+      var event = EntryEventImpl.create(rgn, getOperation(), key, null,
           callbackArg, true, getSender());
       // event.setNewEventId(); Don't set the event here...
       setOldValueInEvent(event);
@@ -214,7 +213,7 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
       super.fromData(in, context);
       eventId = DataSerializer.readObject(in);
       key = DataSerializer.readObject(in);
-      Boolean hasTailKey = DataSerializer.readBoolean(in);
+      var hasTailKey = DataSerializer.readBoolean(in);
       if (hasTailKey) {
         tailKey = DataSerializer.readLong(in);
       }

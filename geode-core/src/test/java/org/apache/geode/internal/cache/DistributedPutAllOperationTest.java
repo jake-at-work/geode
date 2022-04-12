@@ -39,9 +39,9 @@ public class DistributedPutAllOperationTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DistributedPutAllOperation mockDistributedPutAllOperation =
+    var mockDistributedPutAllOperation =
         mock(DistributedPutAllOperation.class);
-    EntryEventImpl mockEntryEventImpl = mock(EntryEventImpl.class);
+    var mockEntryEventImpl = mock(EntryEventImpl.class);
 
     when(mockDistributedPutAllOperation.getBaseEvent()).thenReturn(mockEntryEventImpl);
 
@@ -50,23 +50,23 @@ public class DistributedPutAllOperationTest {
 
   @Test
   public void testDoRemoveDestroyTokensFromCqResultKeys() {
-    EntryEventImpl baseEvent = mock(EntryEventImpl.class);
-    EntryEventImpl entryEvent = mock(EntryEventImpl.class);
-    BucketRegion bucketRegion = mock(BucketRegion.class);
-    InternalCache internalCache = mock(InternalCache.class);
-    RegionAttributes regionAttributes = mock(RegionAttributes.class);
-    FilterRoutingInfo.FilterInfo filterInfo = mock(FilterRoutingInfo.FilterInfo.class);
-    CqService cqService = mock(CqService.class);
-    InternalDistributedSystem internalDistributedSystem = mock(InternalDistributedSystem.class);
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
-    ServerCQ serverCQ = mock(ServerCQ.class);
-    int putAllPRDataSize = 1;
-    DistributedPutAllOperation distributedPutAllOperation =
+    var baseEvent = mock(EntryEventImpl.class);
+    var entryEvent = mock(EntryEventImpl.class);
+    var bucketRegion = mock(BucketRegion.class);
+    var internalCache = mock(InternalCache.class);
+    var regionAttributes = mock(RegionAttributes.class);
+    var filterInfo = mock(FilterRoutingInfo.FilterInfo.class);
+    var cqService = mock(CqService.class);
+    var internalDistributedSystem = mock(InternalDistributedSystem.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
+    var serverCQ = mock(ServerCQ.class);
+    var putAllPRDataSize = 1;
+    var distributedPutAllOperation =
         new DistributedPutAllOperation(baseEvent, putAllPRDataSize, false);
-    Object key = new Object();
+    var key = new Object();
     when(entryEvent.getKey()).thenReturn(key);
     distributedPutAllOperation.addEntry(entryEvent);
-    HashMap hashMap = new HashMap();
+    var hashMap = new HashMap();
     hashMap.put(1L, MessageType.LOCAL_DESTROY);
     when(filterInfo.getCQs()).thenReturn(hashMap);
     when(baseEvent.getRegion()).thenReturn(bucketRegion);

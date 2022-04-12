@@ -16,8 +16,6 @@ package org.apache.geode.management.internal.beans;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
@@ -25,7 +23,6 @@ import org.apache.geode.distributed.Locator;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.internal.JmxManagerAdvisor.JmxManagerProfile;
 import org.apache.geode.management.internal.ManagementConstants;
 
 public class LocatorMBeanBridge {
@@ -41,7 +38,7 @@ public class LocatorMBeanBridge {
   }
 
   public String getBindAddress() {
-    InetAddress bindAddress = loc.getBindAddress();
+    var bindAddress = loc.getBindAddress();
     return bindAddress != null ? bindAddress.getCanonicalHostName() : null;
   }
 
@@ -67,12 +64,12 @@ public class LocatorMBeanBridge {
 
   public String[] listManagers() {
     if (cache != null) {
-      List<JmxManagerProfile> alreadyManaging =
+      var alreadyManaging =
           cache.getJmxManagerAdvisor().adviseAlreadyManaging();
       if (!alreadyManaging.isEmpty()) {
-        String[] managers = new String[alreadyManaging.size()];
-        int j = 0;
-        for (JmxManagerProfile profile : alreadyManaging) {
+        var managers = new String[alreadyManaging.size()];
+        var j = 0;
+        for (var profile : alreadyManaging) {
           managers[j] = profile.getDistributedMember().getId();
           j++;
         }
@@ -84,12 +81,12 @@ public class LocatorMBeanBridge {
 
   public String[] listPotentialManagers() {
     if (cache != null) {
-      List<JmxManagerProfile> willingToManage =
+      var willingToManage =
           cache.getJmxManagerAdvisor().adviseWillingToManage();
       if (!willingToManage.isEmpty()) {
-        String[] managers = new String[willingToManage.size()];
-        int j = 0;
-        for (JmxManagerProfile profile : willingToManage) {
+        var managers = new String[willingToManage.size()];
+        var j = 0;
+        for (var profile : willingToManage) {
           managers[j] = profile.getDistributedMember().getId();
           j++;
         }
@@ -122,7 +119,7 @@ public class LocatorMBeanBridge {
       mainTail = "";
     }
 
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     if (mainTail != null) {
       result.append(mainTail);
     }

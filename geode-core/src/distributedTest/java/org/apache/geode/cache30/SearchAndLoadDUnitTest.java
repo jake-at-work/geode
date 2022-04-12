@@ -35,10 +35,8 @@ import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.test.dunit.AsyncInvocation;
@@ -83,25 +81,25 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
    * Returns region attributes for a <code>GLOBAL</code> region
    */
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     return factory.create();
   }
 
   @Test
   public void testNetSearch() throws CacheException {
-    final String name = getUniqueName() + "-ACK";
-    final String objectName = "NetSearchKey";
+    final var name = getUniqueName() + "-ACK";
+    final var objectName = "NetSearchKey";
     final Integer value = 440;
 
     vm0.invoke("Create ACK Region", new SerializableRunnable() {
       @Override
       public void run() {
         try {
-          RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+          var factory = getCache().createRegionFactory();
           factory.setScope(Scope.DISTRIBUTED_ACK);
           factory.setStatisticsEnabled(true);
-          Region<Object, Object> region = createRegion(name, factory);
+          var region = createRegion(name, factory);
           region.create(objectName, null);
         } catch (CacheException ex) {
           fail("While creating ACK region", ex);
@@ -114,10 +112,10 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       public void run() {
         try {
 
-          RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+          var factory = getCache().createRegionFactory();
           factory.setScope(Scope.DISTRIBUTED_ACK);
           factory.setStatisticsEnabled(true);
-          Region<Object, Object> region = createRegion(name, factory);
+          var region = createRegion(name, factory);
           region.put(objectName, value);
         } catch (CacheException ex) {
           fail("While creating ACK region", ex);
@@ -129,10 +127,10 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         try {
-          RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+          var factory = getCache().createRegionFactory();
           factory.setScope(Scope.DISTRIBUTED_ACK);
           factory.setStatisticsEnabled(true);
-          Region<Object, Object> region = createRegion(name, factory);
+          var region = createRegion(name, factory);
           region.create(objectName, null);
         } catch (CacheException ex) {
           fail("While creating ACK region", ex);
@@ -144,7 +142,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         try {
-          Object result = getRootRegion().getSubregion(name).get(objectName);
+          var result = getRootRegion().getSubregion(name).get(objectName);
           assertThat(value).isEqualTo(result);
         } catch (CacheLoaderException | TimeoutException cle) {
           fail("While Get a value", cle);
@@ -168,10 +166,10 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testConcurrentLoad() throws Throwable {
-    final String name = getUniqueName() + "Region";
-    final String objectName = "theKey";
+    final var name = getUniqueName() + "Region";
+    final var objectName = "theKey";
     final Integer value = 44;
-    final String exceptionString = "causing first cache-load to fail";
+    final var exceptionString = "causing first cache-load to fail";
 
     remoteLoaderInvoked = false;
     loaderInvoked = false;
@@ -181,7 +179,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       public void run2() {
         remoteLoaderInvoked = false;
         loaderInvoked = false;
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setConcurrencyChecksEnabled(true);
         factory.setCacheLoader(new CacheLoader<Object, Object>() {
@@ -214,7 +212,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
           public void close() {}
         });
 
-        Region<Object, Object> region = createRegion(name, factory);
+        var region = createRegion(name, factory);
         region.create(objectName, null);
         IgnoredException.addIgnoredException(exceptionString);
       }
@@ -226,7 +224,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
           new CacheSerializableRunnable() {
             @Override
             public void run2() {
-              Region<Object, Object> region = getCache().getRegion("root" + SEPARATOR + name);
+              var region = getCache().getRegion("root" + SEPARATOR + name);
 
               logger.info("t1 is invoking get(" + objectName + ")");
               try {
@@ -244,8 +242,8 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
           "Concurrently invoke the loader on the same key - t2", new CacheSerializableRunnable() {
             @Override
             public void run2() {
-              final Region<Object, Object> region = getCache().getRegion("root" + SEPARATOR + name);
-              final Object[] valueHolder = new Object[1];
+              final var region = getCache().getRegion("root" + SEPARATOR + name);
+              final var valueHolder = new Object[1];
 
               // wait for vm1 to cause the loader to be invoked
               logger.info("t2 is waiting for loader to be invoked by t1");
@@ -256,7 +254,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
               }
               await().until(() -> loaderInvoked);
 
-              Thread t = new Thread("invoke get()") {
+              var t = new Thread("invoke get()") {
                 @Override
                 public void run() {
                   try {
@@ -289,7 +287,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
               }
 
               logger.info("t2 is invoking get(" + objectName + ")");
-              Object value = valueHolder[0];
+              var value = valueHolder[0];
               if (value instanceof RuntimeException) {
                 if (((Exception) value).getMessage().contains(exceptionString)) {
                   fail("second load should not have thrown an exception");
@@ -311,12 +309,12 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testNetLoadNoLoaders() throws CacheException {
-    final String name = getUniqueName() + "-ACK";
-    final String objectName = "B";
+    final var name = getUniqueName() + "-ACK";
+    final var objectName = "B";
     SerializableRunnable create = new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         createRegion(name, factory);
       }
@@ -329,7 +327,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         try {
-          Object result = getRootRegion().getSubregion(name).get(objectName);
+          var result = getRootRegion().getSubregion(name).get(objectName);
           assertThat(result).isNull();
         } catch (CacheLoaderException | TimeoutException cle) {
           fail("While getting value for ACK region", cle);
@@ -341,18 +339,18 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testNetLoad() throws CacheException {
     disconnectAllFromDS();
-    final String name = getUniqueName() + "-ACK";
-    final String objectName = "B";
+    final var name = getUniqueName() + "-ACK";
+    final var objectName = "B";
     final Integer value = 43;
     loaderInvoked = false;
     remoteLoaderInvoked = false;
     vm0.invoke("Create ACK Region", () -> {
       try {
         loaderInvoked = false;
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
 
-        Region<Object, Object> region = createRegion(name, factory);
+        var region = createRegion(name, factory);
         region.create(objectName, null);
 
       } catch (CacheException ex) {
@@ -362,7 +360,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
 
     vm1.invoke("Create ACK Region", () -> {
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setCacheLoader(new CacheLoader<Object, Object>() {
           @Override
@@ -383,9 +381,9 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm0.invoke("Get a value from remote loader", () -> {
-      for (int i = 0; i < 1; i++) {
+      for (var i = 0; i < 1; i++) {
         try {
-          Object result = getRootRegion().getSubregion(name).get(objectName);
+          var result = getRootRegion().getSubregion(name).get(objectName);
           assertThat(value).isEqualTo(result);
           assertThat(loaderInvoked).isEqualTo(Boolean.FALSE);
 
@@ -404,8 +402,8 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
   public void testEmptyNetLoad() throws CacheException {
     disconnectAllFromDS();
 
-    final String name = getUniqueName() + "-ACK";
-    final String objectName = "B";
+    final var name = getUniqueName() + "-ACK";
+    final var objectName = "B";
     loaderInvoked = false;
     remoteLoaderInvoked = false;
     remoteLoaderInvokedCount = 0;
@@ -414,24 +412,24 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       remoteLoaderInvoked = false;
       remoteLoaderInvokedCount = 0;
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
 
-        Region<Object, Object> region = createRegion(name, factory);
+        var region = createRegion(name, factory);
         region.create(objectName, null);
       } catch (CacheException ex) {
         fail("While creating ACK region", ex);
       }
     });
 
-    SerializableRunnable installLoader = new SerializableRunnable() {
+    var installLoader = new SerializableRunnable() {
       @Override
       public void run() {
         loaderInvoked = false;
         remoteLoaderInvoked = false;
         remoteLoaderInvokedCount = 0;
         try {
-          RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+          var factory = getCache().createRegionFactory();
           factory.setScope(Scope.DISTRIBUTED_ACK);
           factory.setCacheLoader(new CacheLoader<Object, Object>() {
             @Override
@@ -456,9 +454,9 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke("Create ACK Region", installLoader);
     vm2.invoke("Create ACK Region", installLoader);
     vm0.invoke("Get a value from remote loader", () -> {
-      for (int i = 0; i < 1; i++) {
+      for (var i = 0; i < 1; i++) {
         try {
-          Object result = getRootRegion().getSubregion(name).get(objectName);
+          var result = getRootRegion().getSubregion(name).get(objectName);
           assertThat(result).isNull();
           assertThat(loaderInvoked).isFalse();
 
@@ -469,12 +467,12 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
     });
 
     // we only invoke one netLoad loader even when they return null.
-    boolean xor = vmRemoteLoaderInvoked(vm1) ^ vmRemoteLoaderInvoked(vm2);
+    var xor = vmRemoteLoaderInvoked(vm1) ^ vmRemoteLoaderInvoked(vm2);
     assertThat(xor).describedAs(
         "vm1=" + vmRemoteLoaderInvoked(vm1) + " vm2=" + vmRemoteLoaderInvoked(vm2) + " vm1Count="
             + vmRemoteLoaderInvokedCount(vm1) + " vm2Count=" + vmRemoteLoaderInvokedCount(vm2))
         .isTrue();
-    int total = vmRemoteLoaderInvokedCount(vm1) + vmRemoteLoaderInvokedCount(vm2);
+    var total = vmRemoteLoaderInvokedCount(vm1) + vmRemoteLoaderInvokedCount(vm2);
     assertThat(total)
         .describedAs(
             "vm1=" + vmRemoteLoaderInvokedCount(vm1) + " vm2=" + vmRemoteLoaderInvokedCount(vm2))
@@ -499,8 +497,8 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testLocalLoad() throws CacheException {
-    final String name = getUniqueName() + "-ACK";
-    final String objectName = "C";
+    final var name = getUniqueName() + "-ACK";
+    final var objectName = "C";
     final Integer value = 44;
     remoteLoaderInvoked = false;
     loaderInvoked = false;
@@ -508,7 +506,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       remoteLoaderInvoked = false;
       loaderInvoked = false;
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setCacheLoader(new CacheLoader<Object, Object>() {
           @Override
@@ -521,7 +519,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
           public void close() {}
         });
 
-        Region<Object, Object> region = createRegion(name, factory);
+        var region = createRegion(name, factory);
         region.create(objectName, null);
 
       } catch (CacheException ex) {
@@ -533,7 +531,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       remoteLoaderInvoked = false;
       loaderInvoked = false;
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setCacheLoader(new CacheLoader<Object, Object>() {
           @Override
@@ -554,7 +552,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
 
     vm0.invoke("Get a value from local loader", () -> {
       try {
-        Object result = getRootRegion().getSubregion(name).get(objectName);
+        var result = getRootRegion().getSubregion(name).get(objectName);
         assertThat(value).isEqualTo(result);
         assertThat(loaderInvoked).isEqualTo(Boolean.TRUE);
         assertThat(remoteLoaderInvoked).isEqualTo(Boolean.FALSE);
@@ -566,14 +564,14 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testNetWrite() throws CacheException {
-    final String name = getUniqueName() + "-ACK";
-    final String objectName = "Gemfire7";
+    final var name = getUniqueName() + "-ACK";
+    final var objectName = "Gemfire7";
     final Integer value = 483;
 
     vm0.invoke("Create ACK Region with cacheWriter", () -> {
       netWriteInvoked = false;
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setCacheWriter(new CacheWriter<Object, Object>() {
           @Override
@@ -611,7 +609,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       remoteLoaderInvoked = false;
       netWriteInvoked = false;
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         createRegion(name, factory);
       } catch (CacheException ex) {
@@ -624,7 +622,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
           try {
             getRootRegion().getSubregion(name).put(objectName, value);
             try {
-              Object result = getRootRegion().getSubregion(name).get(objectName);
+              var result = getRootRegion().getSubregion(name).get(objectName);
               assertThat(result).isEqualTo(value);
             } catch (CacheLoaderException | TimeoutException ignored) {
             }
@@ -643,8 +641,8 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testOneHopNetWrite() throws CacheException {
-    final String name = getUniqueName() + "Region";
-    final String objectName = "Object7";
+    final var name = getUniqueName() + "Region";
+    final var objectName = "Object7";
     final Integer value = 483;
     final Integer updateValue = 484;
 
@@ -654,7 +652,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       originWasRemote = false;
       writerInvocationCount = 0;
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
         factory.setCacheWriter(new CacheWriter<Object, Object>() {
@@ -700,7 +698,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
 
     vm1.invoke("Create empty Region", () -> {
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setDataPolicy(DataPolicy.EMPTY);
         createRegion(name, factory);
@@ -753,14 +751,14 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testOneHopNetWriteRemoteWriter() throws CacheException {
-    final String name = getUniqueName() + "Region";
-    final String objectName = "Object7";
+    final var name = getUniqueName() + "Region";
+    final var objectName = "Object7";
     final Integer value = 483;
     final Integer updateValue = 484;
 
     vm0.invoke("Create replicate Region", () -> {
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
         createRegion(name, factory);
@@ -771,7 +769,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
 
     vm1.invoke("Create empty Region", () -> {
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setDataPolicy(DataPolicy.EMPTY);
         createRegion(name, factory);
@@ -786,7 +784,7 @@ public class SearchAndLoadDUnitTest extends JUnit4CacheTestCase {
       originWasRemote = false;
       writerInvocationCount = 0;
       try {
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setDataPolicy(DataPolicy.EMPTY);
         factory.setCacheWriter(new CacheWriter<Object, Object>() {

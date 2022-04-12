@@ -87,9 +87,9 @@ public class AlertingServiceWithClusterIntegrationTest {
     messageListener = spy(AlertListenerMessage.Listener.class);
     addListener(messageListener);
 
-    String startLocator = getServerHostName() + "[" + getRandomAvailableTCPPort() + "]";
+    var startLocator = getServerHostName() + "[" + getRandomAvailableTCPPort() + "]";
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(START_LOCATOR, startLocator);
     config.setProperty(NAME, connectionName);
 
@@ -127,7 +127,7 @@ public class AlertingServiceWithClusterIntegrationTest {
     alertingService.addAlertListener(member, WARNING);
     logger = spy(logger);
 
-    String recursiveAlert = "Recursive Alert";
+    var recursiveAlert = "Recursive Alert";
     doAnswer(invocation -> {
       logger.warn(recursiveAlert);
       return null;
@@ -286,7 +286,7 @@ public class AlertingServiceWithClusterIntegrationTest {
   }
 
   private AlertDetails captureAlertDetails() {
-    ArgumentCaptor<AlertDetails> alertDetailsCaptor = ArgumentCaptor.forClass(AlertDetails.class);
+    var alertDetailsCaptor = ArgumentCaptor.forClass(AlertDetails.class);
     verify(messageListener, timeout(TIMEOUT)).created(alertDetailsCaptor.capture());
     return alertDetailsCaptor.getValue();
   }

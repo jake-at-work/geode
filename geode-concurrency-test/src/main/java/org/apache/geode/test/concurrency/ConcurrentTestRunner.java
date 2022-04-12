@@ -75,7 +75,7 @@ public class ConcurrentTestRunner extends ParentRunner<FrameworkMethod> {
 
   public ConcurrentTestRunner(Class testClass) throws InitializationError {
     super(testClass);
-    ConcurrentTestConfig configuration = getTestClass().getAnnotation(ConcurrentTestConfig.class);
+    var configuration = getTestClass().getAnnotation(ConcurrentTestConfig.class);
     if (configuration == null) {
       runner = new LoopRunner();
       return;
@@ -83,7 +83,8 @@ public class ConcurrentTestRunner extends ParentRunner<FrameworkMethod> {
 
     try {
       runner = configuration.runner().getDeclaredConstructor().newInstance();
-    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
+        | InvocationTargetException e) {
       throw new InitializationError(e);
     }
   }
@@ -100,7 +101,7 @@ public class ConcurrentTestRunner extends ParentRunner<FrameworkMethod> {
   }
 
   private void validateTestMethods(List<FrameworkMethod> methods, List<Throwable> errors) {
-    for (FrameworkMethod method : methods) {
+    for (var method : methods) {
       if (!Arrays.equals(method.getMethod().getParameterTypes(),
           new Class[] {ParallelExecutor.class})) {
         errors.add(new AssertionFailedError("Incorrect signature on method: " + method
@@ -118,7 +119,7 @@ public class ConcurrentTestRunner extends ParentRunner<FrameworkMethod> {
   protected void runChild(FrameworkMethod child, RunNotifier notifier) {
     notifier.fireTestStarted(describeChild(child));
     try {
-      List<Throwable> failures = runner.runTestMethod(child.getMethod());
+      var failures = runner.runTestMethod(child.getMethod());
       failures.stream()
           .forEach(failure -> notifier.fireTestFailure(new Failure(describeChild(child), failure)));
     } finally {

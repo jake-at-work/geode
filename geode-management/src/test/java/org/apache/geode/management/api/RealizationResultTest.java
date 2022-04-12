@@ -51,14 +51,14 @@ public class RealizationResultTest {
   @Test
   public void jsonSerialization() throws Exception {
     result.setMemberName("member1").setMessage("successfully created the region");
-    String json = mapper.writeValueAsString(result);
+    var json = mapper.writeValueAsString(result);
     // make sure the additional info is unwrapped to the same level as the
     // message/membername/success
     assertThat(json).contains("\"memberName\":\"member1\"")
         .contains("\"success\":true")
         .contains("\"message\":\"successfully created the region\"");
 
-    RealizationResult readValue = mapper.readValue(json, RealizationResult.class);
+    var readValue = mapper.readValue(json, RealizationResult.class);
     assertThat(readValue.isSuccess()).isTrue();
     assertThat(readValue.getMemberName()).isEqualTo("member1");
     assertThat(readValue.getMessage()).isEqualTo("successfully created the region");

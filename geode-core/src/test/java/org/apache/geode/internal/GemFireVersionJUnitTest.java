@@ -31,7 +31,7 @@ public class GemFireVersionJUnitTest {
 
   @Test
   public void testPrintInfo() {
-    final String versionOutput = GemFireVersion.asString();
+    final var versionOutput = GemFireVersion.asString();
     System.out.println(versionOutput);
 
     assertTrue(versionOutput.contains(VersionDescription.PRODUCT_NAME));
@@ -46,14 +46,14 @@ public class GemFireVersionJUnitTest {
 
   @Test
   public void testNoFile() {
-    String noFile = "not a property file";
-    VersionDescription noVersion = new VersionDescription(noFile);
+    var noFile = "not a property file";
+    var noVersion = new VersionDescription(noFile);
 
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var pw = new PrintWriter(sw);
     noVersion.print(pw);
 
-    String noFileOutput = sw.toString();
+    var noFileOutput = sw.toString();
     assertTrue(noFileOutput.contains(
         String.format("<Could not find resource org/apache/geode/internal/%s>",
             noFile)));
@@ -61,10 +61,10 @@ public class GemFireVersionJUnitTest {
 
   @Test
   public void testNoFileGetProperty() {
-    String noFile = "not a property file";
-    VersionDescription noVersion = new VersionDescription(noFile);
+    var noFile = "not a property file";
+    var noVersion = new VersionDescription(noFile);
 
-    String err =
+    var err =
         String.format("<Could not find resource org/apache/geode/internal/%s>",
             noFile);
     assertEquals(err, noVersion.getProperty(VersionDescription.PRODUCT_VERSION));

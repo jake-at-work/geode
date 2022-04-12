@@ -59,7 +59,7 @@ public class LocalResultCollectorImpl implements CachedResultCollector, LocalRes
     }
     if (!endResultReceived) {
       if (resultOfSingleExecution instanceof Throwable) {
-        Throwable t = (Throwable) resultOfSingleExecution;
+        var t = (Throwable) resultOfSingleExecution;
         if (execution.isIgnoreDepartedMembers()) {
           if (t.getCause() != null) {
             t = t.getCause();
@@ -143,7 +143,7 @@ public class LocalResultCollectorImpl implements CachedResultCollector, LocalRes
       }
       throw functionException;
     } else {
-      Object result = userRC.getResult();
+      var result = userRC.getResult();
       return result;
     }
   }
@@ -158,7 +158,7 @@ public class LocalResultCollectorImpl implements CachedResultCollector, LocalRes
   public Object getResultInternal(long timeout, TimeUnit unit)
       throws FunctionException, InterruptedException {
 
-    boolean resultReceived = false;
+    var resultReceived = false;
     if (resultCollected) {
       throw new FunctionException(
           "Function results already collected");
@@ -192,7 +192,7 @@ public class LocalResultCollectorImpl implements CachedResultCollector, LocalRes
       }
       throw functionException;
     } else {
-      Object result = userRC.getResult(timeout, unit);
+      var result = userRC.getResult(timeout, unit);
       return result;
     }
   }

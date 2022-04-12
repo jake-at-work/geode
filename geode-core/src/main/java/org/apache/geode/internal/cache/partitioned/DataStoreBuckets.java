@@ -52,7 +52,7 @@ public class DataStoreBuckets {
     if (!(obj instanceof DataStoreBuckets)) {
       return false;
     }
-    DataStoreBuckets other = (DataStoreBuckets) obj;
+    var other = (DataStoreBuckets) obj;
     return numBuckets == other.numBuckets && memberId.equals(other.memberId);
   }
 

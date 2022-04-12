@@ -30,7 +30,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionExistsException;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -75,8 +74,8 @@ public class PartitionedRegionCreationJUnitTest {
   public void tearDown() throws Exception {
     PartitionedRegionTestHelper.closeCache();
     long numThreads = regionCreationThreads.size();
-    int numAlive = 0;
-    for (Thread thread : regionCreationThreads) {
+    var numAlive = 0;
+    for (var thread : regionCreationThreads) {
       thread.interrupt();
       thread.join(GeodeAwaitility.getTimeout().toMillis() / numThreads);
       if (thread.isAlive()) {
@@ -99,15 +98,15 @@ public class PartitionedRegionCreationJUnitTest {
     createMultiplePartitionedRegions();
     verifyCreateResults();
 
-    final String regionname = "testPartionedRegionCreate";
-    int localMaxMemory = 0;
+    final var regionname = "testPartionedRegionCreate";
+    var localMaxMemory = 0;
     PartitionedRegion pr = null;
 
     // Test vanilla creation of a Partitioned Region w/o Scope
     try {
-      AttributesFactory af = new AttributesFactory();
+      var af = new AttributesFactory();
       af.setDataPolicy(DataPolicy.PARTITION);
-      RegionAttributes ra = af.create();
+      var ra = af.create();
       Cache cache = PartitionedRegionTestHelper.createCache();
       pr = (PartitionedRegion) cache.createRegion(regionname, ra);
     } finally {
@@ -115,14 +114,15 @@ public class PartitionedRegionCreationJUnitTest {
     }
 
     // Assert that setting any scope throws IllegalStateException
-    final Scope[] scopes =
-        {Scope.LOCAL, Scope.DISTRIBUTED_ACK, Scope.DISTRIBUTED_NO_ACK, Scope.GLOBAL};
-    for (final Scope scope : scopes) {
+    final var scopes =
+        new Scope[] {Scope.LOCAL, Scope.DISTRIBUTED_ACK, Scope.DISTRIBUTED_NO_ACK,
+            Scope.GLOBAL};
+    for (final var scope : scopes) {
       try {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.PARTITION);
         af.setScope(scope);
-        RegionAttributes ra = af.create();
+        var ra = af.create();
         Cache cache = PartitionedRegionTestHelper.createCache();
         pr = (PartitionedRegion) cache.createRegion(regionname, ra);
         fail("testpartionedRegionCreate() Expected IllegalStateException not thrown for Scope "
@@ -136,7 +136,7 @@ public class PartitionedRegionCreationJUnitTest {
     }
 
     // test for redundancy > 3
-    int redundancy = 10;
+    var redundancy = 10;
     try {
       pr = (PartitionedRegion) PartitionedRegionTestHelper.createPartitionedRegion(regionname,
           String.valueOf(localMaxMemory), redundancy);
@@ -161,14 +161,14 @@ public class PartitionedRegionCreationJUnitTest {
 
   @Test
   public void testPersistentPartitionedRegionCreate() {
-    final String regionname = "testPersistentPartionedRegionCreate";
+    final var regionname = "testPersistentPartionedRegionCreate";
     PartitionedRegion pr = null;
 
     // Test vanilla creation of a Partitioned Region w/o Scope
     try {
-      AttributesFactory af = new AttributesFactory();
+      var af = new AttributesFactory();
       af.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
-      RegionAttributes ra = af.create();
+      var ra = af.create();
       Cache cache = PartitionedRegionTestHelper.createCache();
       pr = (PartitionedRegion) cache.createRegion(regionname, ra);
     } finally {
@@ -179,11 +179,11 @@ public class PartitionedRegionCreationJUnitTest {
 
     // Assert that an accessor (localMaxMem == 0) can't be persistent
     try {
-      AttributesFactory af = new AttributesFactory();
+      var af = new AttributesFactory();
       af.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
       af.setPartitionAttributes(new PartitionAttributesFactory().setLocalMaxMemory(0).create());
 
-      RegionAttributes ra = af.create();
+      var ra = af.create();
       Cache cache = PartitionedRegionTestHelper.createCache();
       pr = (PartitionedRegion) cache.createRegion(regionname, ra);
       fail("testpartionedRegionCreate() Expected IllegalStateException not thrown");
@@ -195,10 +195,10 @@ public class PartitionedRegionCreationJUnitTest {
     // Assert that a region can't be created
     // if configured with a diskStoreName and the disk store has not be created.
     try {
-      AttributesFactory af = new AttributesFactory();
+      var af = new AttributesFactory();
       af.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
       af.setDiskStoreName("nonexistentDiskStore");
-      RegionAttributes ra = af.create();
+      var ra = af.create();
       Cache cache = PartitionedRegionTestHelper.createCache();
       pr = (PartitionedRegion) cache.createRegion(regionname, ra);
       fail("testpartionedRegionCreate() Expected IllegalStateException not thrown");
@@ -211,10 +211,10 @@ public class PartitionedRegionCreationJUnitTest {
     try {
       Cache cache = PartitionedRegionTestHelper.createCache();
       cache.createDiskStoreFactory().create("existentDiskStore");
-      AttributesFactory af = new AttributesFactory();
+      var af = new AttributesFactory();
       af.setDataPolicy(DataPolicy.PARTITION);
       af.setDiskStoreName("existentDiskStore");
-      RegionAttributes ra = af.create();
+      var ra = af.create();
       cache.createRegion(regionname, ra);
       fail("testpartionedRegionCreate() Expected IllegalStateException not thrown");
     } catch (IllegalStateException expected) {
@@ -223,14 +223,15 @@ public class PartitionedRegionCreationJUnitTest {
     }
 
     // Assert that setting any scope throws IllegalStateException
-    final Scope[] scopes =
-        {Scope.LOCAL, Scope.DISTRIBUTED_ACK, Scope.DISTRIBUTED_NO_ACK, Scope.GLOBAL};
-    for (final Scope scope : scopes) {
+    final var scopes =
+        new Scope[] {Scope.LOCAL, Scope.DISTRIBUTED_ACK, Scope.DISTRIBUTED_NO_ACK,
+            Scope.GLOBAL};
+    for (final var scope : scopes) {
       try {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
         af.setScope(scope);
-        RegionAttributes ra = af.create();
+        var ra = af.create();
         Cache cache = PartitionedRegionTestHelper.createCache();
         cache.createRegion(regionname, ra);
         fail("testpartionedRegionCreate() Expected IllegalStateException not thrown for Scope "
@@ -273,17 +274,17 @@ public class PartitionedRegionCreationJUnitTest {
    */
   @Test
   public void testPartionedRegionInitialization() throws RegionExistsException {
-    String PRName = "testpartionedRegionInitialization";
+    var PRName = "testpartionedRegionInitialization";
     PartitionedRegionTestHelper.createPartionedRegion(PRName);
 
-    Region root = (PartitionedRegionTestHelper
+    var root = (PartitionedRegionTestHelper
         .getExistingRegion(PartitionedRegionHelper.PR_ROOT_REGION_NAME));
     if (root == null) {
       fail("testpartionedRegionInitialization() - the "
           + PartitionedRegionHelper.PR_ROOT_REGION_NAME + " do not exists");
     }
-    RegionAttributes regionAttribs = root.getAttributes();
-    Scope scope = regionAttribs.getScope();
+    var regionAttribs = root.getAttributes();
+    var scope = regionAttribs.getScope();
     if (!scope.isDistributedAck()) {
       fail("testpartionedRegionInitialization() - the "
           + PartitionedRegionHelper.PR_ROOT_REGION_NAME + " scope is not distributed_ack");
@@ -301,13 +302,13 @@ public class PartitionedRegionCreationJUnitTest {
   @Test
   public void testPartionedRegionRegistration() {
     createMultiplePartitionedRegions();
-    Region root = (PartitionedRegionTestHelper
+    var root = (PartitionedRegionTestHelper
         .getExistingRegion(PartitionedRegionHelper.PR_ROOT_REGION_NAME));
 
-    for (final Object o : PRRegionList) {
-      Region region = (Region) o;
-      String name = ((PartitionedRegion) region).getRegionIdentifier();
-      PartitionRegionConfig prConfig = (PartitionRegionConfig) root.get(name);
+    for (final var o : PRRegionList) {
+      var region = (Region) o;
+      var name = ((PartitionedRegion) region).getRegionIdentifier();
+      var prConfig = (PartitionRegionConfig) root.get(name);
       if (prConfig == null) {
         fail("testpartionedRegionRegistration() - PartionedRegion - " + name
             + " configs do not exists in  region - " + root.getName());
@@ -324,10 +325,10 @@ public class PartitionedRegionCreationJUnitTest {
     if (PRCreateDone) {
       return;
     }
-    int numthread = 0;
-    long giveupTime = System.currentTimeMillis() + GeodeAwaitility.getTimeout().toMillis();
+    var numthread = 0;
+    var giveupTime = System.currentTimeMillis() + GeodeAwaitility.getTimeout().toMillis();
     while (numthread < TOTAL_THREADS && giveupTime > System.currentTimeMillis()) {
-      PartionedRegionCreateThread pregionThread = new PartionedRegionCreateThread();
+      var pregionThread = new PartionedRegionCreateThread();
       pregionThread.start();
       regionCreationThreads.add(pregionThread);
       numthread++;
@@ -369,9 +370,9 @@ public class PartitionedRegionCreationJUnitTest {
   public class PartionedRegionCreateThread extends Thread {
     @Override
     public void run() {
-      String prName = "PartitionedRegionCreationJUnitTest_" + getPRNumber();
+      var prName = "PartitionedRegionCreationJUnitTest_" + getPRNumber();
       try {
-        Region region = PartitionedRegionTestHelper.createPartionedRegion(prName);
+        var region = PartitionedRegionTestHelper.createPartionedRegion(prName);
         PRRegionList.add(region);
         updatePRCreate();
       } catch (RegionExistsException rex) {
@@ -388,7 +389,7 @@ public class PartitionedRegionCreationJUnitTest {
    * @return the PR number
    */
   protected int getPRNumber() {
-    int retNum = 0;
+    var retNum = 0;
     synchronized (PR_INCREMENT) {
       if (incrementFlag) {
         retNum = PRNumber;

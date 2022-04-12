@@ -61,7 +61,7 @@ public class SqlToPdxInstanceTest {
     when(metaData.getColumnCount()).thenReturn(1);
     when(metaData.getColumnName(1)).thenReturn(COLUMN_NAME_1);
     sqlToPdxInstance = new SqlToPdxInstance();
-    PdxInstance pdxTemplate = mock(PdxInstance.class);
+    var pdxTemplate = mock(PdxInstance.class);
     when(pdxTemplate.createWriter()).thenReturn(writablePdxInstance);
     sqlToPdxInstance.setPdxTemplate(pdxTemplate);
   }
@@ -69,12 +69,12 @@ public class SqlToPdxInstanceTest {
   @Test
   @Parameters(source = FieldType.class)
   public void createPdxInstanceFromSqlDataTest(FieldType fieldType) throws SQLException {
-    int columnIndex = 1;
+    var columnIndex = 1;
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
-    Object columnValue = setupGetFieldValueResultSet(fieldType, columnIndex);
-    Object expectedFieldValue = getFieldValueFromColumnValue(columnValue, fieldType);
+    var columnValue = setupGetFieldValueResultSet(fieldType, columnIndex);
+    var expectedFieldValue = getFieldValueFromColumnValue(columnValue, fieldType);
 
-    PdxInstance result = sqlToPdxInstance.create(resultSet);
+    var result = sqlToPdxInstance.create(resultSet);
 
     assertThat(result).isSameAs(writablePdxInstance);
     verify((WritablePdxInstance) result).setField(PDX_FIELD_NAME_1, expectedFieldValue);
@@ -85,7 +85,7 @@ public class SqlToPdxInstanceTest {
   public void createReturnsNullIfNoResultsReturned() throws Exception {
     when(resultSet.next()).thenReturn(false);
 
-    PdxInstance pdxInstance = createPdxInstance();
+    var pdxInstance = createPdxInstance();
 
     assertThat(pdxInstance).isNull();
   }
@@ -99,7 +99,7 @@ public class SqlToPdxInstanceTest {
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, FieldType.STRING);
     sqlToPdxInstance.addMapping(COLUMN_NAME_2, PDX_FIELD_NAME_2, FieldType.STRING);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     assertThat(result).isSameAs(writablePdxInstance);
     verify((WritablePdxInstance) result).setField(PDX_FIELD_NAME_1, "column1");
@@ -123,11 +123,11 @@ public class SqlToPdxInstanceTest {
 
   @Test
   public void fieldsAreNotWrittenIfNoColumns() throws Exception {
-    FieldType fieldType = FieldType.CHAR;
+    var fieldType = FieldType.CHAR;
     when(metaData.getColumnCount()).thenReturn(0);
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     assertThat(result).isSameAs(writablePdxInstance);
     verifyNoMoreInteractions(result);
@@ -136,54 +136,54 @@ public class SqlToPdxInstanceTest {
   @Test
   public void readOfCharFieldWithEmptyStringWritesCharZero() throws Exception {
     char expectedValue = 0;
-    FieldType fieldType = FieldType.CHAR;
+    var fieldType = FieldType.CHAR;
     when(metaData.getColumnType(1)).thenReturn(Types.CHAR);
     when(resultSet.getString(1)).thenReturn("");
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
 
   @Test
   public void readOfDateFieldWithDateColumnWritesDate() throws Exception {
-    FieldType fieldType = FieldType.DATE;
+    var fieldType = FieldType.DATE;
     when(metaData.getColumnType(1)).thenReturn(Types.DATE);
-    java.sql.Date sqlDate = java.sql.Date.valueOf("1979-09-11");
-    Date expectedValue = new Date(sqlDate.getTime());
+    var sqlDate = java.sql.Date.valueOf("1979-09-11");
+    var expectedValue = new Date(sqlDate.getTime());
     when(resultSet.getDate(1)).thenReturn(sqlDate);
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
 
   @Test
   public void readOfByteArrayFieldWithBlob() throws Exception {
-    FieldType fieldType = FieldType.BYTE_ARRAY;
+    var fieldType = FieldType.BYTE_ARRAY;
     when(metaData.getColumnType(1)).thenReturn(Types.BLOB);
-    byte[] expectedValue = new byte[] {1, 2, 3};
-    Blob blob = mock(Blob.class);
+    var expectedValue = new byte[] {1, 2, 3};
+    var blob = mock(Blob.class);
     when(blob.length()).thenReturn((long) expectedValue.length);
     when(blob.getBytes(1, expectedValue.length)).thenReturn(expectedValue);
     when(resultSet.getBlob(1)).thenReturn(blob);
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
 
   @Test
   public void readOfByteArrayFieldWithNullBlob() throws Exception {
-    FieldType fieldType = FieldType.BYTE_ARRAY;
+    var fieldType = FieldType.BYTE_ARRAY;
     when(metaData.getColumnType(1)).thenReturn(Types.BLOB);
     when(resultSet.getBlob(1)).thenReturn(null);
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(null, result);
     verify(resultSet).getBlob(1);
@@ -191,9 +191,9 @@ public class SqlToPdxInstanceTest {
 
   @Test
   public void readOfByteArrayFieldWithHugeBlobThrows() throws Exception {
-    FieldType fieldType = FieldType.BYTE_ARRAY;
+    var fieldType = FieldType.BYTE_ARRAY;
     when(metaData.getColumnType(1)).thenReturn(Types.BLOB);
-    Blob blob = mock(Blob.class);
+    var blob = mock(Blob.class);
     when(blob.length()).thenReturn((long) Integer.MAX_VALUE + 1);
     when(resultSet.getBlob(1)).thenReturn(blob);
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
@@ -205,95 +205,95 @@ public class SqlToPdxInstanceTest {
 
   @Test
   public void readOfObjectFieldWithBlob() throws Exception {
-    FieldType fieldType = FieldType.OBJECT;
+    var fieldType = FieldType.OBJECT;
     when(metaData.getColumnType(1)).thenReturn(Types.BLOB);
-    byte[] expectedValue = new byte[] {1, 2, 3};
-    Blob blob = mock(Blob.class);
+    var expectedValue = new byte[] {1, 2, 3};
+    var blob = mock(Blob.class);
     when(blob.length()).thenReturn((long) expectedValue.length);
     when(blob.getBytes(1, expectedValue.length)).thenReturn(expectedValue);
     when(resultSet.getBlob(1)).thenReturn(blob);
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
 
   @Test
   public void readOfDateFieldWithTimeColumnWritesDate() throws Exception {
-    FieldType fieldType = FieldType.DATE;
+    var fieldType = FieldType.DATE;
     when(metaData.getColumnType(1)).thenReturn(Types.TIME);
-    java.sql.Time sqlTime = java.sql.Time.valueOf("22:33:44");
-    Date expectedValue = new Date(sqlTime.getTime());
+    var sqlTime = java.sql.Time.valueOf("22:33:44");
+    var expectedValue = new Date(sqlTime.getTime());
     when(resultSet.getTime(1)).thenReturn(sqlTime);
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
 
   @Test
   public void readOfDateFieldWithTimestampColumnWritesDate() throws Exception {
-    FieldType fieldType = FieldType.DATE;
+    var fieldType = FieldType.DATE;
     when(metaData.getColumnType(1)).thenReturn(Types.TIMESTAMP);
-    java.sql.Timestamp sqlTimestamp = java.sql.Timestamp.valueOf("1979-09-11 22:33:44.567");
-    Date expectedValue = new Date(sqlTimestamp.getTime());
+    var sqlTimestamp = java.sql.Timestamp.valueOf("1979-09-11 22:33:44.567");
+    var expectedValue = new Date(sqlTimestamp.getTime());
     when(resultSet.getTimestamp(1)).thenReturn(sqlTimestamp);
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
 
   @Test
   public void readOfObjectFieldWithDateColumnWritesDate() throws Exception {
-    FieldType fieldType = FieldType.OBJECT;
-    java.sql.Date sqlDate = java.sql.Date.valueOf("1979-09-11");
-    Date expectedValue = new Date(sqlDate.getTime());
+    var fieldType = FieldType.OBJECT;
+    var sqlDate = java.sql.Date.valueOf("1979-09-11");
+    var expectedValue = new Date(sqlDate.getTime());
     when(resultSet.getObject(1)).thenReturn(sqlDate);
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
 
   @Test
   public void readOfObjectFieldWithJavaUtilDateWritesDate() throws Exception {
-    FieldType fieldType = FieldType.OBJECT;
+    var fieldType = FieldType.OBJECT;
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
-    Date expectedValue = new Date();
+    var expectedValue = new Date();
     when(resultSet.getObject(1)).thenReturn(expectedValue);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
 
   @Test
   public void readOfObjectFieldWithTimeColumnWritesDate() throws Exception {
-    FieldType fieldType = FieldType.OBJECT;
+    var fieldType = FieldType.OBJECT;
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
-    java.sql.Time sqlTime = java.sql.Time.valueOf("22:33:44");
-    Date expectedValue = new Date(sqlTime.getTime());
+    var sqlTime = java.sql.Time.valueOf("22:33:44");
+    var expectedValue = new Date(sqlTime.getTime());
     when(resultSet.getObject(1)).thenReturn(sqlTime);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
 
   @Test
   public void readOfObjectFieldWithTimestampColumnWritesDate() throws Exception {
-    FieldType fieldType = FieldType.OBJECT;
+    var fieldType = FieldType.OBJECT;
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
-    java.sql.Timestamp sqlTimestamp = java.sql.Timestamp.valueOf("1979-09-11 22:33:44.567");
-    Date expectedValue = new Date(sqlTimestamp.getTime());
+    var sqlTimestamp = java.sql.Timestamp.valueOf("1979-09-11 22:33:44.567");
+    var expectedValue = new Date(sqlTimestamp.getTime());
     when(resultSet.getObject(1)).thenReturn(sqlTimestamp);
 
-    PdxInstance result = createPdxInstance();
+    var result = createPdxInstance();
 
     verifyResult(expectedValue, result);
   }
@@ -303,7 +303,7 @@ public class SqlToPdxInstanceTest {
       "LONG_ARRAY", "FLOAT_ARRAY", "DOUBLE_ARRAY", "STRING_ARRAY", "ARRAY_OF_BYTE_ARRAYS"})
   public void throwsExceptionWhenReadWritesUnsupportedType(FieldType fieldType) throws Exception {
     sqlToPdxInstance.addMapping(COLUMN_NAME_1, PDX_FIELD_NAME_1, fieldType);
-    String returnValue = "ReturnValue";
+    var returnValue = "ReturnValue";
     when(resultSet.getObject(1)).thenReturn(returnValue);
 
     assertThatThrownBy(this::createPdxInstance).isInstanceOf(JdbcConnectorException.class)
@@ -333,12 +333,12 @@ public class SqlToPdxInstanceTest {
   }
 
   private Object getFieldValueFromColumnValue(Object columnValue, FieldType fieldType) {
-    Object result = columnValue;
+    var result = columnValue;
     if (fieldType == FieldType.CHAR) {
-      String columnString = (String) columnValue;
+      var columnString = (String) columnValue;
       result = columnString.charAt(0);
     } else if (fieldType == FieldType.DATE) {
-      java.sql.Timestamp columnTimestamp = (java.sql.Timestamp) columnValue;
+      var columnTimestamp = (java.sql.Timestamp) columnValue;
       result = new java.util.Date(columnTimestamp.getTime());
     }
     return result;
@@ -346,7 +346,7 @@ public class SqlToPdxInstanceTest {
 
   private Object setupGetFieldValueResultSet(FieldType fieldType, int columnIndex)
       throws SQLException {
-    Object value = getValueByFieldType(fieldType);
+    var value = getValueByFieldType(fieldType);
     switch (fieldType) {
       case STRING:
         when(resultSet.getString(columnIndex)).thenReturn(getValueByFieldType(fieldType));

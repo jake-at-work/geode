@@ -24,7 +24,6 @@ import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -44,10 +43,7 @@ import org.apache.geode.cache.query.internal.index.PrimaryKeyIndex;
 import org.apache.geode.cache.query.internal.index.RangeIndex;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.NonTXEntry;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.persistence.query.CloseableIterator;
-import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.pdx.PdxInstanceFactory;
 import org.apache.geode.pdx.internal.PdxInstanceFactoryImpl;
 import org.apache.geode.pdx.internal.PdxInstanceImpl;
 import org.apache.geode.pdx.internal.PdxString;
@@ -95,7 +91,7 @@ public class PdxStringQueryJUnitTest {
 
   @Test
   public void testQueriesWithCompactRangeIndexPdxInstances() throws Exception {
-    Index index = queryService.createIndex("index1", "secId", SEPARATOR + "exampleRegion");
+    var index = queryService.createIndex("index1", "secId", SEPARATOR + "exampleRegion");
     assertTrue(index instanceof CompactRangeIndex);
     putPdxInstances();
     CloseableIterator<IndexStoreEntry> indexIterator = null;
@@ -115,7 +111,7 @@ public class PdxStringQueryJUnitTest {
 
   @Test
   public void testQueriesWithCompactRangeIndexPdxInstancesREUpdateInProgress() throws Exception {
-    Index index = queryService.createIndex("index1", "secId", SEPARATOR + "exampleRegion");
+    var index = queryService.createIndex("index1", "secId", SEPARATOR + "exampleRegion");
     assertTrue(index instanceof CompactRangeIndex);
     putPdxInstancesWithREUpdateInProgress();
     CloseableIterator<IndexStoreEntry> indexIterator = null;
@@ -142,19 +138,19 @@ public class PdxStringQueryJUnitTest {
 
   @Test
   public void testQueriesWithRangeIndex() throws Exception {
-    Index index =
+    var index =
         queryService.createIndex("index2", "p.secId",
             SEPARATOR + "exampleRegion p, p.positions.values");
     assertTrue(index instanceof RangeIndex);
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
+    var pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
     pf.writeInt("ID", 111);
     pf.writeString("secId", "IBM");
     pf.writeString("status", "active");
-    HashMap positions = new HashMap();
+    var positions = new HashMap();
     positions.put("price", "50");
     positions.put("price", "60");
     pf.writeObject("positions", positions);
-    PdxInstance pi = pf.create();
+    var pi = pf.create();
 
     region.put("IBM", pi);
 
@@ -180,8 +176,8 @@ public class PdxStringQueryJUnitTest {
 
     region.put("GOOGL", pi);
 
-    Map map = ((RangeIndex) index).getValueToEntriesMap();
-    for (Object key : map.keySet()) {
+    var map = ((RangeIndex) index).getValueToEntriesMap();
+    for (var key : map.keySet()) {
       assertTrue(key instanceof PdxString);
     }
 
@@ -192,19 +188,19 @@ public class PdxStringQueryJUnitTest {
 
   @Test
   public void testQueriesWithRangeIndexWithREUpdateInProgress() throws Exception {
-    Index index =
+    var index =
         queryService.createIndex("index2", "p.secId",
             SEPARATOR + "exampleRegion p, p.positions.values");
     assertTrue(index instanceof RangeIndex);
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
+    var pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
     pf.writeInt("ID", 111);
     pf.writeString("secId", "IBM");
     pf.writeString("status", "active");
-    HashMap positions = new HashMap();
+    var positions = new HashMap();
     positions.put("price", "50");
     positions.put("price", "60");
     pf.writeObject("positions", positions);
-    PdxInstance pi = pf.create();
+    var pi = pf.create();
 
     region.put("IBM", pi);
 
@@ -231,8 +227,8 @@ public class PdxStringQueryJUnitTest {
     region.put("GOOGL", pi);
     makeREUpdateInProgress();
 
-    Map map = ((RangeIndex) index).getValueToEntriesMap();
-    for (Object key : map.keySet()) {
+    var map = ((RangeIndex) index).getValueToEntriesMap();
+    for (var key : map.keySet()) {
       assertTrue(key instanceof PdxString);
     }
     cache.setPdxReadSerializedOverride(true);
@@ -243,7 +239,7 @@ public class PdxStringQueryJUnitTest {
 
   @Test
   public void testQueriesWithPrimaryKeyIndex() throws Exception {
-    Index index = queryService.createKeyIndex("index3", "secId", SEPARATOR + "exampleRegion");
+    var index = queryService.createKeyIndex("index3", "secId", SEPARATOR + "exampleRegion");
     assertTrue(index instanceof PrimaryKeyIndex);
     putPdxInstances();
     executeQueriesValidateResults(INDEX_TYPE_PRIMARYKEY);
@@ -257,11 +253,12 @@ public class PdxStringQueryJUnitTest {
   @Test
   public void testStringMethods() throws Exception {
     putPdxInstances();
-    String[] queries =
-        {"select secId from " + SEPARATOR + "exampleRegion where secId.toLowerCase()  = 'ibm'",
+    var queries =
+        new String[] {
+            "select secId from " + SEPARATOR + "exampleRegion where secId.toLowerCase()  = 'ibm'",
             "select secId from " + SEPARATOR + "exampleRegion where secId.startsWith('I')"};
-    for (final String query : queries) {
-      SelectResults res = (SelectResults) queryService.newQuery(query).execute();
+    for (final var query : queries) {
+      var res = (SelectResults) queryService.newQuery(query).execute();
       assertEquals("Incorrect result size returned for query. " + query, 1, res.size());
       validateStringResult("IBM", res.iterator().next());
     }
@@ -280,11 +277,11 @@ public class PdxStringQueryJUnitTest {
   }
 
   private void putPdxInstances() throws Exception {
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
+    var pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
     pf.writeInt("ID", 111);
     pf.writeString("status", "active");
     pf.writeString("secId", "IBM");
-    PdxInstance pi = pf.create();
+    var pi = pf.create();
     region.put("IBM", pi);
 
     pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
@@ -310,11 +307,11 @@ public class PdxStringQueryJUnitTest {
   }
 
   private void putPdxInstancesWithREUpdateInProgress() throws Exception {
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
+    var pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
     pf.writeInt("ID", 111);
     pf.writeString("status", "active");
     pf.writeString("secId", "IBM");
-    PdxInstance pi = pf.create();
+    var pi = pf.create();
     region.put("IBM", pi);
 
     pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
@@ -342,20 +339,20 @@ public class PdxStringQueryJUnitTest {
   }
 
   private void makeREUpdateInProgress() {
-    for (final Object o : region.entrySet()) {
-      Region.Entry nonTxEntry = (Region.Entry) o;
-      RegionEntry entry = ((NonTXEntry) nonTxEntry).getRegionEntry();
+    for (final var o : region.entrySet()) {
+      var nonTxEntry = (Region.Entry) o;
+      var entry = ((NonTXEntry) nonTxEntry).getRegionEntry();
       entry.setUpdateInProgress(true);
       assertTrue(entry.isUpdateInProgress());
     }
   }
 
   private void putHeterogeneousObjects() throws Exception {
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
+    var pf = PdxInstanceFactoryImpl.newCreator("Portfolio", false, cache);
     pf.writeInt("ID", 111);
     pf.writeString("secId", "IBM");
     pf.writeString("status", "active");
-    PdxInstance pi = pf.create();
+    var pi = pf.create();
     region.put("IBM", pi);
 
     region.put("YHOO", new TestObject(222, "YHOO", "inactive"));
@@ -372,11 +369,11 @@ public class PdxStringQueryJUnitTest {
   private void executeQueriesValidateResults(int indexType) throws Exception {
     cache.setPdxReadSerializedOverride(true);
 
-    String[] query = {"select count(*) from " + SEPARATOR + "exampleRegion",
+    var query = new String[] {"select count(*) from " + SEPARATOR + "exampleRegion",
         "select count(*) from " + SEPARATOR + "exampleRegion p, p.positions.values v",
         "select count(*) from " + SEPARATOR + "exampleRegion"};
 
-    SelectResults res = (SelectResults) queryService.newQuery(query[indexType]).execute();
+    var res = (SelectResults) queryService.newQuery(query[indexType]).execute();
     assertEquals(4, res.iterator().next());
 
     query = new String[] {"select secId from " + SEPARATOR + "exampleRegion where secId  = 'IBM'",
@@ -428,7 +425,7 @@ public class PdxStringQueryJUnitTest {
     secIdsList.add("VMW");
     secIdsList.add("YHOO");
 
-    Iterator iter = res.iterator();
+    var iter = res.iterator();
     while (iter.hasNext()) {
       validateResult(secIdsList, iter.next());
     }
@@ -464,9 +461,9 @@ public class PdxStringQueryJUnitTest {
     secIdsList = new ArrayList();
     secIdsList.add("active");
     secIdsList.add("IBM");
-    Struct rs = (Struct) res.iterator().next();
-    Object o1 = rs.getFieldValues()[0];
-    Object o2 = rs.getFieldValues()[1];
+    var rs = (Struct) res.iterator().next();
+    var o1 = rs.getFieldValues()[0];
+    var o2 = rs.getFieldValues()[1];
 
     validateResult(secIdsList, o1);
     validateResult(secIdsList, o2);
@@ -583,8 +580,8 @@ public class PdxStringQueryJUnitTest {
     res = (SelectResults) queryService.newQuery(query[indexType]).execute();
     assertEquals(4, res.size());
     iter = res.iterator();
-    String[] secIds = {"GOOGL", "IBM", "VMW", "YHOO"};
-    int i = 0;
+    var secIds = new String[] {"GOOGL", "IBM", "VMW", "YHOO"};
+    var i = 0;
     while (iter.hasNext()) {
       validateStringResult(secIds[i++], iter.next());
     }
@@ -599,7 +596,7 @@ public class PdxStringQueryJUnitTest {
     secIds = new String[] {"GOOGL", "IBM", "VMW", "YHOO"};
     i = 0;
     while (iter.hasNext()) {
-      Object o = iter.next();
+      var o = iter.next();
       if (o instanceof PdxInstanceImpl) {
         validateStringResult(secIds[i++], ((PdxInstanceImpl) o).getField("secId"));
       } else if (o instanceof TestObject) {

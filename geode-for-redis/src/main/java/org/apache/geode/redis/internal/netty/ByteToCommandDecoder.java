@@ -75,7 +75,7 @@ public class ByteToCommandDecoder extends ByteToMessageDecoder {
     Command c;
     long bytesRead = 0;
     do {
-      int startReadIndex = in.readerIndex();
+      var startReadIndex = in.readerIndex();
       c = parse(in);
       if (c == null) {
         in.readerIndex(startReadIndex);
@@ -95,12 +95,12 @@ public class ByteToCommandDecoder extends ByteToMessageDecoder {
       return null;
     }
 
-    byte firstB = buffer.readByte();
+    var firstB = buffer.readByte();
     if (firstB != ARRAY_ID) {
       throw new RedisCommandParserException(
           "Expected: " + (char) ARRAY_ID + " Actual: " + (char) firstB);
     }
-    List<byte[]> commandElems = parseArray(buffer);
+    var commandElems = parseArray(buffer);
 
     if (commandElems == null) {
       return null;
@@ -112,7 +112,7 @@ public class ByteToCommandDecoder extends ByteToMessageDecoder {
   private List<byte[]> parseArray(ByteBuf buffer)
       throws RedisCommandParserException {
     byte currentChar;
-    int arrayLength = parseCurrentNumber(buffer);
+    var arrayLength = parseCurrentNumber(buffer);
     if (arrayLength < 0 || !parseRN(buffer)) {
       return null;
     }
@@ -124,13 +124,13 @@ public class ByteToCommandDecoder extends ByteToMessageDecoder {
 
     List<byte[]> commandElems = new ArrayList<>(arrayLength);
 
-    for (int i = 0; i < arrayLength; i++) {
+    for (var i = 0; i < arrayLength; i++) {
       if (!buffer.isReadable()) {
         return null;
       }
       currentChar = buffer.readByte();
       if (currentChar == BULK_STRING_ID) {
-        byte[] newBulkString = parseBulkString(buffer);
+        var newBulkString = parseBulkString(buffer);
         if (newBulkString == null) {
           return null;
         }
@@ -151,7 +151,7 @@ public class ByteToCommandDecoder extends ByteToMessageDecoder {
    * @throws RedisCommandParserException Thrown when there is illegal syntax
    */
   private byte[] parseBulkString(ByteBuf buffer) throws RedisCommandParserException {
-    int bulkStringLength = parseCurrentNumber(buffer);
+    var bulkStringLength = parseCurrentNumber(buffer);
     if (bulkStringLength < 0) {
       return null;
     }
@@ -173,7 +173,7 @@ public class ByteToCommandDecoder extends ByteToMessageDecoder {
     if (!buffer.isReadable(bulkStringLength)) {
       return null;
     }
-    byte[] bulkString = new byte[bulkStringLength];
+    var bulkString = new byte[bulkStringLength];
     buffer.readBytes(bulkString);
 
     if (!parseRN(buffer)) {
@@ -190,8 +190,8 @@ public class ByteToCommandDecoder extends ByteToMessageDecoder {
    * @return The number found at the beginning of the buffer
    */
   private int parseCurrentNumber(ByteBuf buffer) {
-    int number = 0;
-    int readerIndex = buffer.readerIndex();
+    var number = 0;
+    var readerIndex = buffer.readerIndex();
     byte b = 0;
     while (true) {
       if (!buffer.isReadable()) {
@@ -219,7 +219,7 @@ public class ByteToCommandDecoder extends ByteToMessageDecoder {
     if (!buffer.isReadable(2)) {
       return false;
     }
-    byte[] bytes = {buffer.readByte(), buffer.readByte()};
+    var bytes = new byte[] {buffer.readByte(), buffer.readByte()};
     if (!Arrays.equals(bytes, CRLF)) {
       throw new RedisCommandParserException(
           "expected '\\r\\n' as byte[] of " + Arrays.toString(CRLF) + ", got byte[] of "

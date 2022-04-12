@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.internal.util.DelayedAction;
@@ -166,7 +165,7 @@ public class DiskRecoveryWithVersioningGiiRegressionTest extends CacheTestCase {
   }
 
   private void createCacheWithDisk() {
-    DiskStoreFactory dsf = getCache().createDiskStoreFactory();
+    var dsf = getCache().createDiskStoreFactory();
     dsf.setDiskDirs(new File[] {diskDir});
 
     RegionFactory regionFactory = getCache().createRegionFactory(REPLICATE_PERSISTENT);
@@ -187,7 +186,7 @@ public class DiskRecoveryWithVersioningGiiRegressionTest extends CacheTestCase {
     Region<Integer, Integer> region = getCache().getRegion(uniqueName);
 
     Map<Integer, Integer> values = new HashMap<>();
-    for (int i = 0; i < ENTRY_COUNT; i++) {
+    for (var i = 0; i < ENTRY_COUNT; i++) {
       values.put(i, i);
     }
     region.putAll(values);
@@ -197,7 +196,7 @@ public class DiskRecoveryWithVersioningGiiRegressionTest extends CacheTestCase {
     Region<Integer, Integer> region = getCache().getRegion(uniqueName);
 
     assertThat(region.size()).isEqualTo(ENTRY_COUNT);
-    for (int i = 0; i < ENTRY_COUNT; i++) {
+    for (var i = 0; i < ENTRY_COUNT; i++) {
       assertThat(region.get(i)).isEqualTo(i);
     }
   }

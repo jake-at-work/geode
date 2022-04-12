@@ -19,7 +19,6 @@ package org.apache.geode.internal.admin.remote;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
@@ -73,7 +72,7 @@ public abstract class AdminRequest extends PooledDistributionMessage {
    * Sends this request, waits for the AdminReponse, and returns it
    */
   public AdminResponse sendAndWait(ClusterDistributionManager dm) {
-    InternalDistributedMember recipient = getRecipient();
+    var recipient = getRecipient();
     if (dm.getId().equals(recipient)) {
       // We're sending this message to ourselves, we won't need a
       // reply process. Besides, if we try to create one, we'll get
@@ -102,7 +101,7 @@ public abstract class AdminRequest extends PooledDistributionMessage {
       return processor.waitForReplies(timeout);
 
     } catch (ReplyException ex) {
-      for (Throwable cause = ex.getCause(); cause != null; cause = cause.getCause()) {
+      for (var cause = ex.getCause(); cause != null; cause = cause.getCause()) {
         if (cause instanceof RuntimeAdminException) {
           throw (RuntimeAdminException) cause;
         }
@@ -130,7 +129,7 @@ public abstract class AdminRequest extends PooledDistributionMessage {
   @Override
   protected void process(ClusterDistributionManager dm) {
     AdminResponse response;
-    InspectionClasspathManager cpMgr = InspectionClasspathManager.getInstance();
+    var cpMgr = InspectionClasspathManager.getInstance();
     try {
       cpMgr.jumpToModifiedClassLoader(modifiedClasspath);
       response = createResponse(dm);
@@ -177,8 +176,8 @@ public abstract class AdminRequest extends PooledDistributionMessage {
   }
 
   public InternalDistributedMember getRecipient() {
-    List<InternalDistributedMember> recipients = getRecipients();
-    int size = recipients.size();
+    var recipients = getRecipients();
+    var size = recipients.size();
     if (size == 0) {
       return null;
     } else if (size > 1) {

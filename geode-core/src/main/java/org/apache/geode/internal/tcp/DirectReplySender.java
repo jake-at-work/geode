@@ -65,14 +65,14 @@ class DirectReplySender implements ReplySender {
       logger.trace(LogMarker.DM_VERBOSE, "Sending a direct reply {} to {}", msg,
           connection.getRemoteAddress());
     }
-    final MsgStreamer ms = (MsgStreamer) MsgStreamer.create(getConnections(), msg, false,
+    final var ms = (MsgStreamer) MsgStreamer.create(getConnections(), msg, false,
         DUMMY_STATS, connection.getBufferPool());
     try {
       ms.writeMessage();
-      final ConnectExceptions ce = ms.getConnectExceptions();
+      final var ce = ms.getConnectExceptions();
       if (ce != null && !ce.getMembers().isEmpty()) {
         assertTrue(ce.getMembers().size() == 1);
-        final InternalDistributedMember member = ce.getMembers().get(0);
+        final var member = ce.getMembers().get(0);
         logger.warn("Failed sending a direct reply to {}", member);
         return singleton(member);
       }
@@ -98,7 +98,7 @@ class DirectReplySender implements ReplySender {
    */
   @NotNull
   List<Connection> getConnections() {
-    final ArrayList<Connection> connections = new ArrayList<>(1);
+    final var connections = new ArrayList<Connection>(1);
     connections.add(connection);
     return connections;
   }

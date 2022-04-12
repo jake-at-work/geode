@@ -21,7 +21,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.DistributedSystem;
@@ -49,7 +48,7 @@ public abstract class RegionAdminMessage extends PooledDistributionMessage {
    * @throws org.apache.geode.cache.CacheRuntimeException if no cache created
    */
   protected Region getRegion(DistributedSystem sys) {
-    Cache cache = CacheFactory.getInstance(sys);
+    var cache = CacheFactory.getInstance(sys);
     return cache.getRegion(regionName);
   }
 

@@ -26,7 +26,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.TCP_PORT;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -79,7 +78,7 @@ public class RemoteTransportConfig implements TransportConfig {
     membershipPortRange = getMembershipPortRangeString(config.getMembershipPortRange());
     sslConfig = new SSLConfig.Builder().build();
 
-    String initialHosts = config.getLocators();
+    var initialHosts = config.getLocators();
     if (initialHosts == null) {
       initialHosts = "";
     }
@@ -103,10 +102,10 @@ public class RemoteTransportConfig implements TransportConfig {
       ids = Collections.EMPTY_SET;
       return;
     } else {
-      HashSet locators = new HashSet();
-      StringTokenizer stringTokenizer = new StringTokenizer(initialHosts, ",");
+      var locators = new HashSet();
+      var stringTokenizer = new StringTokenizer(initialHosts, ",");
       while (stringTokenizer.hasMoreTokens()) {
-        String locator = stringTokenizer.nextToken();
+        var locator = stringTokenizer.nextToken();
         if (StringUtils.isNotEmpty(locator)) {
           locators.add(new DistributionLocatorId(locator));
         }
@@ -146,9 +145,9 @@ public class RemoteTransportConfig implements TransportConfig {
         throw new IllegalArgumentException(
             "expected at least one host/port id");
       }
-      Iterator it = ids.iterator();
+      var it = ids.iterator();
       while (it.hasNext() && mid == null) {
-        DistributionLocatorId id = (DistributionLocatorId) it.next();
+        var id = (DistributionLocatorId) it.next();
         if (id.isMcastId()) {
           mid = id;
           // System.out.println("mcast id: " + id);
@@ -169,7 +168,7 @@ public class RemoteTransportConfig implements TransportConfig {
 
 
   private static String getMembershipPortRangeString(int[] membershipPortRange) {
-    String membershipPortRangeString = "";
+    var membershipPortRangeString = "";
     if (membershipPortRange != null && membershipPortRange.length == 2) {
       membershipPortRangeString = membershipPortRange[0] + "-" + membershipPortRange[1];
     }
@@ -248,7 +247,7 @@ public class RemoteTransportConfig implements TransportConfig {
    * @since GemFire 4.0
    */
   Properties toDSProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(BIND_ADDRESS, bindAddress);
     // System.out.println("entering ds port range property of " + this.membershipPortRange);
     if (membershipPortRange != null) {
@@ -266,11 +265,11 @@ public class RemoteTransportConfig implements TransportConfig {
       props.setProperty(MCAST_PORT, String.valueOf(0));
     }
     // Create locator string
-    StringBuilder locators = new StringBuilder();
-    for (Iterator iter = ids.iterator(); iter.hasNext();) {
-      DistributionLocatorId locator = (DistributionLocatorId) iter.next();
+    var locators = new StringBuilder();
+    for (var iter = ids.iterator(); iter.hasNext();) {
+      var locator = (DistributionLocatorId) iter.next();
       if (!locator.isMcastId()) {
-        String baddr = locator.getBindAddress();
+        var baddr = locator.getBindAddress();
         if (baddr != null && baddr.trim().length() > 0) {
           locators.append(baddr);
         } else {
@@ -285,7 +284,7 @@ public class RemoteTransportConfig implements TransportConfig {
         }
       }
     }
-    String tempLocatorString = locators.toString();
+    var tempLocatorString = locators.toString();
     if (tempLocatorString.endsWith(",")) {
       tempLocatorString = tempLocatorString.substring(0, tempLocatorString.length() - 1);
     }
@@ -302,10 +301,10 @@ public class RemoteTransportConfig implements TransportConfig {
   }
 
   private String toString(boolean noMcast) {
-    StringBuilder result = new StringBuilder();
-    boolean first = true;
-    for (final Object id : ids) {
-      DistributionLocatorId dli = (DistributionLocatorId) id;
+    var result = new StringBuilder();
+    var first = true;
+    for (final var id : ids) {
+      var dli = (DistributionLocatorId) id;
       if (noMcast && dli.isMcastId()) {
         continue;
       }
@@ -339,7 +338,7 @@ public class RemoteTransportConfig implements TransportConfig {
   @Override
   public boolean equals(Object o) {
     if (o != null && o instanceof RemoteTransportConfig) {
-      RemoteTransportConfig other = (RemoteTransportConfig) o;
+      var other = (RemoteTransportConfig) o;
       return (mcastEnabled == other.mcastEnabled) && ids.equals(other.ids);
     }
     return false;

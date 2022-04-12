@@ -60,7 +60,7 @@ public class AvailablePortHelperIntegrationTest {
 
   @After
   public void tearDown() {
-    for (ServerSocket serverSocket : serverSockets) {
+    for (var serverSocket : serverSockets) {
       try {
         if (serverSocket != null && !serverSocket.isClosed()) {
           serverSocket.close();
@@ -73,7 +73,7 @@ public class AvailablePortHelperIntegrationTest {
 
   @Test
   public void getRandomAvailableTCPPortRange_returnsUsablePorts() {
-    int[] results = getRandomAvailableTCPPortRange(10);
+    var results = getRandomAvailableTCPPortRange(10);
 
     stream(results).forEach(port -> assertThatPort(port)
         .isUsable());
@@ -81,7 +81,7 @@ public class AvailablePortHelperIntegrationTest {
 
   @Test
   public void getRandomAvailableTCPPortRange_returnsUniquePorts() {
-    int[] results = getRandomAvailableTCPPortRange(10);
+    var results = getRandomAvailableTCPPortRange(10);
 
     assertThat(results)
         .doesNotHaveDuplicates();
@@ -89,7 +89,7 @@ public class AvailablePortHelperIntegrationTest {
 
   @Test
   public void getRandomAvailableTCPPortRange_returnsNaturallyOrderedPorts() {
-    int[] results = getRandomAvailableTCPPortRange(10);
+    var results = getRandomAvailableTCPPortRange(10);
 
     assertThat(results)
         .isSortedAccordingTo(naturalOrder());
@@ -97,7 +97,7 @@ public class AvailablePortHelperIntegrationTest {
 
   @Test
   public void getRandomAvailableTCPPortRange_returnsConsecutivePorts() {
-    int[] results = getRandomAvailableTCPPortRange(10);
+    var results = getRandomAvailableTCPPortRange(10);
 
     assertThatSequence(results)
         .isConsecutive();
@@ -106,7 +106,7 @@ public class AvailablePortHelperIntegrationTest {
   @Test
   public void getRandomAvailableTCPPortRange_returnsPortsInRange() {
 
-    int[] results = getRandomAvailableTCPPortRange(10);
+    var results = getRandomAvailableTCPPortRange(10);
 
     stream(results).forEach(port ->
 
@@ -117,7 +117,7 @@ public class AvailablePortHelperIntegrationTest {
 
   @Test
   public void getRandomAvailableUDPPort_returnsNonZeroUdpPort() {
-    int udpPort = getRandomAvailableUDPPort();
+    var udpPort = getRandomAvailableUDPPort();
 
     assertThat(udpPort)
         .isNotZero();
@@ -125,7 +125,7 @@ public class AvailablePortHelperIntegrationTest {
 
   @Test
   public void getRandomAvailableUDPPort_returnsAvailableUdpPort() {
-    int udpPort = getRandomAvailableUDPPort();
+    var udpPort = getRandomAvailableUDPPort();
 
     assertThat(AvailablePort.isPortAvailable(udpPort, MULTICAST))
         .isTrue();
@@ -134,9 +134,9 @@ public class AvailablePortHelperIntegrationTest {
   @Test
   public void getRandomAvailableTCPPortRange_returnsUniqueRanges() {
     Collection<Integer> previousPorts = new HashSet<>();
-    for (int i = 0; i < 3; ++i) {
+    for (var i = 0; i < 3; ++i) {
 
-      int[] results = getRandomAvailableTCPPortRange(5);
+      var results = getRandomAvailableTCPPortRange(5);
 
       Collection<Integer> ports = toSet(results);
 
@@ -150,9 +150,9 @@ public class AvailablePortHelperIntegrationTest {
   @Test
   public void getRandomAvailableTCPPort_returnsUniqueValues() {
     Collection<Integer> previousPorts = new HashSet<>();
-    for (int i = 0; i < 3; ++i) {
+    for (var i = 0; i < 3; ++i) {
 
-      int port = getRandomAvailableTCPPorts(1)[0];
+      var port = getRandomAvailableTCPPorts(1)[0];
 
       assertThat(previousPorts)
           .doesNotContain(port);
@@ -168,13 +168,13 @@ public class AvailablePortHelperIntegrationTest {
             + "consistently",
         SystemUtils.isWindows());
 
-    for (int i = 0; i < 3; ++i) {
+    for (var i = 0; i < 3; ++i) {
 
       initializeUniquePortRange(i);
-      int[] previousPorts = getRandomAvailableTCPPorts(3);
+      var previousPorts = getRandomAvailableTCPPorts(3);
 
       initializeUniquePortRange(i);
-      int[] ports = getRandomAvailableTCPPorts(3);
+      var ports = getRandomAvailableTCPPorts(3);
 
       assertThat(ports)
           .as("for jvmIndex " + i)
@@ -190,10 +190,10 @@ public class AvailablePortHelperIntegrationTest {
         SystemUtils.isWindows());
 
     Collection<Integer> previousPorts = new HashSet<>();
-    for (int i = 0; i < 3; ++i) {
+    for (var i = 0; i < 3; ++i) {
 
       initializeUniquePortRange(i);
-      int[] results = getRandomAvailableTCPPorts(5);
+      var results = getRandomAvailableTCPPorts(5);
 
       Collection<Integer> ports = toSet(results);
 
@@ -206,7 +206,7 @@ public class AvailablePortHelperIntegrationTest {
 
   private ServerSocket createServerSocket() {
     try {
-      ServerSocket serverSocket = new ServerSocket();
+      var serverSocket = new ServerSocket();
       serverSockets.add(serverSocket);
       return serverSocket;
     } catch (IOException e) {
@@ -244,7 +244,7 @@ public class AvailablePortHelperIntegrationTest {
 
     PortAssertion isUsable() {
       try {
-        ServerSocket serverSocket = createServerSocket();
+        var serverSocket = createServerSocket();
         serverSocket.setReuseAddress(true);
 
         serverSocket.bind(new InetSocketAddress(port));
@@ -274,7 +274,7 @@ public class AvailablePortHelperIntegrationTest {
       int start = actual.get(0);
       int end = actual.get(actual.size() - 1);
 
-      List<Integer> expected = IntStream.rangeClosed(start, end)
+      var expected = IntStream.rangeClosed(start, end)
           .boxed()
           .collect(Collectors.toList());
 

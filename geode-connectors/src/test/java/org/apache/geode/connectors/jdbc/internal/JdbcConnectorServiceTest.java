@@ -85,13 +85,13 @@ public class JdbcConnectorServiceTest {
     when(mapping.getSpecifiedIds()).thenReturn(true);
 
     when(pdxType.getFieldCount()).thenReturn(2);
-    PdxField field1 = mock(PdxField.class);
+    var field1 = mock(PdxField.class);
     when(field1.getFieldName()).thenReturn("id");
     when(field1.getFieldType()).thenReturn(FieldType.INT);
-    PdxField field2 = mock(PdxField.class);
+    var field2 = mock(PdxField.class);
     when(field2.getFieldName()).thenReturn("name");
     when(field2.getFieldType()).thenReturn(FieldType.STRING);
-    List<PdxField> pdxFields = Arrays.asList(field1, field2);
+    var pdxFields = Arrays.asList(field1, field2);
     when(pdxType.getFields()).thenReturn(pdxFields);
 
     when(dataSource.getConnection()).thenReturn(connection);
@@ -153,7 +153,7 @@ public class JdbcConnectorServiceTest {
   @Test
   public void validateMappingThrowsExceptionWhenGetConnectionHasSqlException() throws SQLException {
     when(dataSource.getConnection()).thenThrow(SQLException.class);
-    Throwable throwable = catchThrowable(() -> service.validateMapping(mapping));
+    var throwable = catchThrowable(() -> service.validateMapping(mapping));
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class).hasMessageContaining(
         "Exception thrown while connecting to datasource \"dataSource\": null");
     verify(connection, never()).close();
@@ -162,7 +162,7 @@ public class JdbcConnectorServiceTest {
   @Test
   public void validateMappingClosesConnectionWhenGetTableMetaDataViewThrows() throws SQLException {
     when(manager.getTableMetaDataView(connection, mapping)).thenThrow(JdbcConnectorException.class);
-    Throwable throwable = catchThrowable(() -> service.validateMapping(mapping));
+    var throwable = catchThrowable(() -> service.validateMapping(mapping));
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class);
     verify(connection).close();
   }
@@ -234,7 +234,7 @@ public class JdbcConnectorServiceTest {
 
   @Test
   public void createFieldMappingUsingPdxSucceedsWithExactMatchPdxFields() {
-    List<FieldMapping> fieldsMappings = service.createFieldMappingUsingPdx(pdxType, view);
+    var fieldsMappings = service.createFieldMappingUsingPdx(pdxType, view);
 
     assertThat(fieldsMappings).hasSize(2);
     assertThat(fieldsMappings).contains(
@@ -246,16 +246,16 @@ public class JdbcConnectorServiceTest {
   @Test
   public void createFieldMappingUsingPdxSucceedsWithIgnoreCaseMatchPdxFields() {
     when(pdxType.getFieldCount()).thenReturn(2);
-    PdxField field1 = mock(PdxField.class);
+    var field1 = mock(PdxField.class);
     when(field1.getFieldName()).thenReturn("ID");
     when(field1.getFieldType()).thenReturn(FieldType.INT);
-    PdxField field2 = mock(PdxField.class);
+    var field2 = mock(PdxField.class);
     when(field2.getFieldName()).thenReturn("NAME");
     when(field2.getFieldType()).thenReturn(FieldType.STRING);
-    List<PdxField> pdxFields = Arrays.asList(field1, field2);
+    var pdxFields = Arrays.asList(field1, field2);
     when(pdxType.getFields()).thenReturn(pdxFields);
 
-    List<FieldMapping> fieldsMappings = service.createFieldMappingUsingPdx(pdxType, view);
+    var fieldsMappings = service.createFieldMappingUsingPdx(pdxType, view);
 
     assertThat(fieldsMappings).hasSize(2);
     assertThat(fieldsMappings).contains(
@@ -267,16 +267,16 @@ public class JdbcConnectorServiceTest {
   @Test
   public void createFieldMappingUsingPdxThrowsExceptionWhenGivenUnMatchPdxFieldName() {
     when(pdxType.getFieldCount()).thenReturn(2);
-    PdxField field1 = mock(PdxField.class);
+    var field1 = mock(PdxField.class);
     when(field1.getFieldName()).thenReturn("id");
     when(field1.getFieldType()).thenReturn(FieldType.INT);
-    PdxField field2 = mock(PdxField.class);
+    var field2 = mock(PdxField.class);
     when(field2.getFieldName()).thenReturn("nameString");
     when(field2.getFieldType()).thenReturn(FieldType.STRING);
-    List<PdxField> pdxFields = Arrays.asList(field1, field2);
+    var pdxFields = Arrays.asList(field1, field2);
     when(pdxType.getFields()).thenReturn(pdxFields);
 
-    Throwable throwable = catchThrowable(() -> service.createFieldMappingUsingPdx(pdxType, view));
+    var throwable = catchThrowable(() -> service.createFieldMappingUsingPdx(pdxType, view));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class).hasMessageContaining(
         String.format("No PDX field name matched the column name \"%s\"",
@@ -286,19 +286,19 @@ public class JdbcConnectorServiceTest {
   @Test
   public void createFieldMappingUsingPdxThrowsExceptionWhenGivenDuplicatePdxFieldName() {
     when(pdxType.getFieldCount()).thenReturn(2);
-    PdxField field1 = mock(PdxField.class);
+    var field1 = mock(PdxField.class);
     when(field1.getFieldName()).thenReturn("id");
     when(field1.getFieldType()).thenReturn(FieldType.INT);
-    PdxField field2 = mock(PdxField.class);
+    var field2 = mock(PdxField.class);
     when(field2.getFieldName()).thenReturn("NAME");
     when(field2.getFieldType()).thenReturn(FieldType.STRING);
-    PdxField field3 = mock(PdxField.class);
+    var field3 = mock(PdxField.class);
     when(field3.getFieldName()).thenReturn("Name");
     when(field3.getFieldType()).thenReturn(FieldType.STRING);
-    List<PdxField> pdxFields = Arrays.asList(field2, field3, field1);
+    var pdxFields = Arrays.asList(field2, field3, field1);
     when(pdxType.getFields()).thenReturn(pdxFields);
 
-    Throwable throwable = catchThrowable(() -> service.createFieldMappingUsingPdx(pdxType, view));
+    var throwable = catchThrowable(() -> service.createFieldMappingUsingPdx(pdxType, view));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class).hasMessageContaining(
         String.format("More than one PDX field name matched the column name \"%s\"",
@@ -308,7 +308,7 @@ public class JdbcConnectorServiceTest {
   @Test
   public void createFieldMappingUsingPdxThrowsExceptionWhenGivenExistingPdxTypeWithWrongNumberOfFields() {
     doReturn(3).when(pdxType).getFieldCount();
-    Throwable throwable = catchThrowable(() -> service.createFieldMappingUsingPdx(pdxType, view));
+    var throwable = catchThrowable(() -> service.createFieldMappingUsingPdx(pdxType, view));
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class).hasMessageContaining(
         String.format(
             "The table and pdx class must have the same number of columns/fields. But the table has %d columns and the pdx class has %d fields.",

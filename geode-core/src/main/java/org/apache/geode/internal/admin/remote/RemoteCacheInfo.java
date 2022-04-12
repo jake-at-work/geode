@@ -19,7 +19,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -77,10 +76,10 @@ public class RemoteCacheInfo implements CacheInfo, DataSerializable {
           roots = internalCache.rootRegions(true);
         }
 
-        String[] rootNames = new String[roots.size()];
-        int idx = 0;
-        for (Object root : roots) {
-          Region r = (Region) root;
+        var rootNames = new String[roots.size()];
+        var idx = 0;
+        for (var root : roots) {
+          var r = (Region) root;
           rootNames[idx] = r.getName();
           idx++;
         }
@@ -94,9 +93,9 @@ public class RemoteCacheInfo implements CacheInfo, DataSerializable {
       // on allBridgeServersLock is needed.
       Collection<CacheServer> bridges = internalCache.getCacheServers();
       bridgeServerIds = new int[bridges.size()];
-      Iterator<CacheServer> iter = bridges.iterator();
-      for (int i = 0; iter.hasNext(); i++) {
-        CacheServer bridge = iter.next();
+      var iter = bridges.iterator();
+      for (var i = 0; iter.hasNext(); i++) {
+        var bridge = iter.next();
         bridgeServerIds[i] = System.identityHashCode(bridge);
       }
 

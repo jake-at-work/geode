@@ -63,7 +63,7 @@ public class FileSystemBackupWriterTest {
   @Before
   public void setup() throws IOException {
     backupDefinition = new BackupDefinition();
-    Path backupDirectory = tempDir.newFolder("backups").toPath();
+    var backupDirectory = tempDir.newFolder("backups").toPath();
     targetDir = backupDirectory.resolve("backupTarget");
     sourceDir = backupDirectory.resolve("backupSource");
     restoreScript = mock(RestoreScript.class);
@@ -83,16 +83,16 @@ public class FileSystemBackupWriterTest {
   @Test
   @Parameters({"true", "false"})
   public void userFilesAreBackedUp(boolean useRelativePath) throws Exception {
-    Path userFile = tempDir.newFile("userFile").toPath();
-    Path userSubdir = tempDir.newFolder("userSubDir").toPath();
-    Path userFileInDir = Files.write(userSubdir.resolve("fileInDir"), new byte[] {});
+    var userFile = tempDir.newFile("userFile").toPath();
+    var userSubdir = tempDir.newFolder("userSubDir").toPath();
+    var userFileInDir = Files.write(userSubdir.resolve("fileInDir"), new byte[] {});
     backupDefinition.addUserFilesToBackup(userFile, sourceDir);
     backupDefinition.addUserFilesToBackup(userSubdir, sourceDir);
     backupDefinition.setRestoreScript(restoreScript);
 
     executeBackup(useRelativePath);
 
-    Path userDir = getTargetMemberDir(useRelativePath).resolve(USER_FILES_DIRECTORY);
+    var userDir = getTargetMemberDir(useRelativePath).resolve(USER_FILES_DIRECTORY);
     assertThat(userDir.resolve(userFile.getFileName())).exists();
     assertThat(userDir.resolve(userSubdir.getFileName())).exists();
     assertThat(userDir.resolve(userSubdir.getFileName()).resolve(userFileInDir.getFileName()))
@@ -102,16 +102,16 @@ public class FileSystemBackupWriterTest {
   @Test
   @Parameters({"true", "false"})
   public void deployedJarsAreBackedUp(boolean useRelativePath) throws Exception {
-    Path jarFile = tempDir.newFile("jarFile").toPath();
-    Path jarSubdir = tempDir.newFolder("jarSubdir").toPath();
-    Path jarInSubdir = Files.write(jarSubdir.resolve("jarInSubdir"), new byte[] {});
+    var jarFile = tempDir.newFile("jarFile").toPath();
+    var jarSubdir = tempDir.newFolder("jarSubdir").toPath();
+    var jarInSubdir = Files.write(jarSubdir.resolve("jarInSubdir"), new byte[] {});
     backupDefinition.addDeployedJarToBackup(jarFile, sourceDir);
     backupDefinition.addDeployedJarToBackup(jarSubdir, sourceDir);
     backupDefinition.setRestoreScript(restoreScript);
 
     executeBackup(useRelativePath);
 
-    Path userDir = getTargetMemberDir(useRelativePath).resolve(DEPLOYED_JARS_DIRECTORY);
+    var userDir = getTargetMemberDir(useRelativePath).resolve(DEPLOYED_JARS_DIRECTORY);
     assertThat(userDir.resolve(jarFile.getFileName())).exists();
     assertThat(userDir.resolve(jarSubdir.getFileName())).exists();
     assertThat(userDir.resolve(jarSubdir.getFileName()).resolve(jarInSubdir.getFileName()))
@@ -121,15 +121,15 @@ public class FileSystemBackupWriterTest {
   @Test
   @Parameters({"true", "false"})
   public void configFilesAreBackedUp(boolean useRelativePath) throws Exception {
-    Path cacheXml = tempDir.newFile("cache.xml").toPath();
-    Path propertyFile = tempDir.newFile("properties").toPath();
+    var cacheXml = tempDir.newFile("cache.xml").toPath();
+    var propertyFile = tempDir.newFile("properties").toPath();
     backupDefinition.addConfigFileToBackup(cacheXml);
     backupDefinition.addConfigFileToBackup(propertyFile);
     backupDefinition.setRestoreScript(restoreScript);
 
     executeBackup(useRelativePath);
 
-    Path configDir = getTargetMemberDir(useRelativePath).resolve(CONFIG_DIRECTORY);
+    var configDir = getTargetMemberDir(useRelativePath).resolve(CONFIG_DIRECTORY);
     assertThat(configDir.resolve(cacheXml.getFileName())).exists();
     assertThat(configDir.resolve(propertyFile.getFileName())).exists();
   }
@@ -137,14 +137,14 @@ public class FileSystemBackupWriterTest {
   @Test
   @Parameters({"true", "false"})
   public void oplogFilesAreBackedUp(boolean useRelativePath) throws Exception {
-    DiskStoreImpl diskStore = mock(DiskStoreImpl.class);
+    var diskStore = mock(DiskStoreImpl.class);
     when(diskStore.getDiskStoreID()).thenReturn(new DiskStoreID(1, 2));
-    Oplog oplog = mock(Oplog.class);
+    var oplog = mock(Oplog.class);
     when(oplog.getCrfFile()).thenReturn(tempDir.newFile("crf"));
     when(oplog.getDrfFile()).thenReturn(tempDir.newFile("drf"));
     when(oplog.getKrfFile()).thenReturn(tempDir.newFile("krf"));
     when(diskStore.getInforFileDirIndex()).thenReturn(1);
-    DirectoryHolder[] directoryHolders = new DirectoryHolder[0];
+    var directoryHolders = new DirectoryHolder[0];
     when(diskStore.getDirectoryHolders()).thenReturn(directoryHolders);
 
     backupDefinition.addOplogFileToBackup(diskStore, oplog.getCrfFile().toPath());
@@ -154,7 +154,7 @@ public class FileSystemBackupWriterTest {
 
     executeBackup(useRelativePath);
 
-    Path diskStoreDir = getTargetMemberDir(useRelativePath).resolve(DATA_STORES_DIRECTORY)
+    var diskStoreDir = getTargetMemberDir(useRelativePath).resolve(DATA_STORES_DIRECTORY)
         .resolve(GemFireCacheImpl.getDefaultDiskStoreName() + "_1-2");
     assertThat(diskStoreDir.resolve("dir1").resolve("crf")).exists();
     assertThat(diskStoreDir.resolve("dir1").resolve("drf")).exists();
@@ -164,14 +164,14 @@ public class FileSystemBackupWriterTest {
   @Test
   @Parameters({"true", "false"})
   public void diskInitFilesAreBackedUp(boolean useRelativePath) throws Exception {
-    DiskStoreImpl diskStore1 = mock(DiskStoreImpl.class);
+    var diskStore1 = mock(DiskStoreImpl.class);
     when(diskStore1.getDiskStoreID()).thenReturn(new DiskStoreID(1, 2));
     when(diskStore1.getInforFileDirIndex()).thenReturn(1);
-    DiskStoreImpl diskStore2 = mock(DiskStoreImpl.class);
+    var diskStore2 = mock(DiskStoreImpl.class);
     when(diskStore2.getDiskStoreID()).thenReturn(new DiskStoreID(1, 2));
     when(diskStore2.getInforFileDirIndex()).thenReturn(2);
-    Path initFile1 = tempDir.newFolder("dir1").toPath().resolve("initFile1");
-    Path initFile2 = tempDir.newFolder("dir2").toPath().resolve("initFile2");
+    var initFile1 = tempDir.newFolder("dir1").toPath().resolve("initFile1");
+    var initFile2 = tempDir.newFolder("dir2").toPath().resolve("initFile2");
     Files.createFile(initFile1);
     Files.createFile(initFile2);
     backupDefinition.addDiskInitFile(diskStore1, initFile1);
@@ -180,7 +180,7 @@ public class FileSystemBackupWriterTest {
 
     executeBackup(useRelativePath);
 
-    Path diskStoreDir = getTargetMemberDir(useRelativePath).resolve(DATA_STORES_DIRECTORY)
+    var diskStoreDir = getTargetMemberDir(useRelativePath).resolve(DATA_STORES_DIRECTORY)
         .resolve(GemFireCacheImpl.getDefaultDiskStoreName() + "_1-2");
     assertThat(diskStoreDir.resolve("dir1").resolve("initFile1")).exists();
     assertThat(diskStoreDir.resolve("dir2").resolve("initFile2")).exists();
@@ -189,7 +189,7 @@ public class FileSystemBackupWriterTest {
   @Test
   @Parameters({"true", "false"})
   public void restoreScriptIsBackedUp(boolean useRelativePath) throws Exception {
-    Path restoreScriptPath = tempDir.newFile("restoreScript").toPath();
+    var restoreScriptPath = tempDir.newFile("restoreScript").toPath();
     when(restoreScript.generate(any())).thenReturn(restoreScriptPath.toFile());
     backupDefinition.setRestoreScript(restoreScript);
 
@@ -209,7 +209,7 @@ public class FileSystemBackupWriterTest {
   @Test
   @Parameters({"true", "false"})
   public void leavesBehindIncompleteFileOnFailure(boolean useRelativePath) throws Exception {
-    Path notCreatedFile = tempDir.newFolder("dir1").toPath().resolve("notCreated");
+    var notCreatedFile = tempDir.newFolder("dir1").toPath().resolve("notCreated");
     backupDefinition.addDeployedJarToBackup(notCreatedFile, sourceDir);
 
     try {
@@ -241,7 +241,7 @@ public class FileSystemBackupWriterTest {
   }
 
   private Path getTargetMemberDir(boolean useRelativePath) {
-    Path target = useRelativePath ? RELATIVE_TARGET_DIR : targetDir;
+    var target = useRelativePath ? RELATIVE_TARGET_DIR : targetDir;
     return target.resolve(memberId);
   }
 }

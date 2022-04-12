@@ -37,7 +37,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.PortfolioData;
@@ -76,7 +75,7 @@ public class InitializeIndexEntryDestroyQueryDUnitTest extends JUnit4CacheTestCa
   }
 
   public void setCacheInVMs(VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> PRQueryDUnitHelper.setCache(getCache()));
     }
   }
@@ -87,7 +86,7 @@ public class InitializeIndexEntryDestroyQueryDUnitTest extends JUnit4CacheTestCa
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.cache.query.data.**");
     return properties;
@@ -97,14 +96,14 @@ public class InitializeIndexEntryDestroyQueryDUnitTest extends JUnit4CacheTestCa
   @Test
   @Parameters(method = "getScope")
   public void testAsyncIndexInitDuringEntryDestroyAndQueryOnPR(Scope scope) {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
-    String regionName = "PartionedPortfoliosPR";
-    String query = "select * from " + SEPARATOR + regionName + " p where p.status = 'active'";
+    var regionName = "PartionedPortfoliosPR";
+    var query = "select * from " + SEPARATOR + regionName + " p where p.status = 'active'";
     try {
       vm0.invoke(() -> createRegionInVM(regionName, scope));
-      final PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+      final var portfolio = createPortfolioData(cnt, cntDest);
       vm0.invoke(
           PRQHelp.getCacheSerializableRunnableForPRPuts(regionName, portfolio, cnt, cntDest));
       AsyncInvocation asyInvk0 =
@@ -120,16 +119,16 @@ public class InitializeIndexEntryDestroyQueryDUnitTest extends JUnit4CacheTestCa
 
   @Test
   public void testConcurrentRemoveIndexAndQueryOnPR() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     setCacheInVMs(vm0);
-    String name = "PartionedPortfoliosPR";
-    String query =
+    var name = "PartionedPortfoliosPR";
+    var query =
         "select * from " + SEPARATOR + name
             + " p where p.status = 'active' and p.ID > 0 and p.pk != ' ' ";
     try {
       vm0.invoke(() -> createRegionInVM(name, null));
-      final PortfolioData[] portfolio = createPortfolioData(cnt, cntDest);
+      final var portfolio = createPortfolioData(cnt, cntDest);
       vm0.invoke(PRQHelp.getCacheSerializableRunnableForPRPuts(name, portfolio, cnt, cntDest));
       vm0.invoke(() -> createIndex(name, "statusIndex", "p.status", SEPARATOR + name + " p"));
       vm0.invoke(() -> createIndex(name, "idIndex", "p.ID", SEPARATOR + name + " p"));
@@ -179,7 +178,7 @@ public class InitializeIndexEntryDestroyQueryDUnitTest extends JUnit4CacheTestCa
   }
 
   private void consecutivelyCreateAndDestroyIndex(String regionName) {
-    for (int i = 0; i < cntDest; i++) {
+    for (var i = 0; i < cntDest; i++) {
       // Create Index first to go in hook.
       Cache cache = getCache();
       Index index = null;
@@ -206,10 +205,10 @@ public class InitializeIndexEntryDestroyQueryDUnitTest extends JUnit4CacheTestCa
 
     for (int i = 0, j = 0; i < 500; i++, j++) {
 
-      PortfolioData p = (PortfolioData) r.get(j);
+      var p = (PortfolioData) r.get(j);
       logger.debug("Going to destroy the value" + p);
       r.destroy(j);
-      final int key = j;
+      final var key = j;
       await()
           .untilAsserted(() -> assertEquals(null, r.get(key)));
 
@@ -225,10 +224,10 @@ public class InitializeIndexEntryDestroyQueryDUnitTest extends JUnit4CacheTestCa
   }
 
   private void executeAndValidateQueryResults(String queryString) {
-    Query query = getCache().getQueryService().newQuery(queryString);
+    var query = getCache().getQueryService().newQuery(queryString);
     // Now run the query
     SelectResults results = null;
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       try {
         logger.debug("Querying the region");
         results = (SelectResults) query.execute();
@@ -237,7 +236,7 @@ public class InitializeIndexEntryDestroyQueryDUnitTest extends JUnit4CacheTestCa
         logger.error("Query Execution failed", e);
         fail();
       }
-      for (Object obj : results) {
+      for (var obj : results) {
         if (obj instanceof Undefined) {
           fail("Found an undefined element" + Arrays.toString(results.toArray()));
         }

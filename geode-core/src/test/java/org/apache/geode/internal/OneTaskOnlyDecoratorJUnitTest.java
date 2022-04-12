@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,22 +33,22 @@ public class OneTaskOnlyDecoratorJUnitTest {
    */
   @Test
   public void testExecuteOnlyOnce() throws Exception {
-    ScheduledExecutorService ex = Executors.newScheduledThreadPool(1);
+    var ex = Executors.newScheduledThreadPool(1);
 
-    MyConflationListener listener = new MyConflationListener();
-    OneTaskOnlyExecutor decorator = new OneTaskOnlyExecutor(ex, listener, null);
+    var listener = new MyConflationListener();
+    var decorator = new OneTaskOnlyExecutor(ex, listener, null);
 
-    final CountDownLatch latch = new CountDownLatch(1);
+    final var latch = new CountDownLatch(1);
     ex.submit((Callable) () -> {
       latch.await();
       return null;
     });
 
-    final AtomicInteger counter = new AtomicInteger();
+    final var counter = new AtomicInteger();
 
-    Runnable increment = counter::incrementAndGet;
+    var increment = (Runnable) counter::incrementAndGet;
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       decorator.schedule(increment, 0, TimeUnit.SECONDS);
     }
 
@@ -66,21 +65,21 @@ public class OneTaskOnlyDecoratorJUnitTest {
    */
   @Test
   public void testReschedule() throws Exception {
-    ScheduledExecutorService ex = Executors.newScheduledThreadPool(1);
-    OneTaskOnlyExecutor decorator = new OneTaskOnlyExecutor(ex, null);
+    var ex = Executors.newScheduledThreadPool(1);
+    var decorator = new OneTaskOnlyExecutor(ex, null);
 
-    final CountDownLatch taskRunning = new CountDownLatch(1);
-    final CountDownLatch continueTask = new CountDownLatch(1);
-    final AtomicInteger counter = new AtomicInteger();
+    final var taskRunning = new CountDownLatch(1);
+    final var continueTask = new CountDownLatch(1);
+    final var counter = new AtomicInteger();
 
-    Callable waitForLatch = () -> {
+    var waitForLatch = (Callable) () -> {
       taskRunning.countDown();
       continueTask.await();
       counter.incrementAndGet();
       return null;
     };
 
-    Runnable increment = counter::incrementAndGet;
+    var increment = (Runnable) counter::incrementAndGet;
 
     decorator.schedule(waitForLatch, 0, TimeUnit.SECONDS);
     taskRunning.await();
@@ -100,23 +99,23 @@ public class OneTaskOnlyDecoratorJUnitTest {
    */
   @Test
   public void testRescheduleForEarlierTime() throws Exception {
-    ScheduledExecutorService ex = Executors.newScheduledThreadPool(1);
-    MyConflationListener listener = new MyConflationListener();
-    OneTaskOnlyExecutor decorator = new OneTaskOnlyExecutor(ex, listener, null);
+    var ex = Executors.newScheduledThreadPool(1);
+    var listener = new MyConflationListener();
+    var decorator = new OneTaskOnlyExecutor(ex, listener, null);
 
-    final CountDownLatch latch = new CountDownLatch(1);
-    final AtomicInteger counter = new AtomicInteger();
+    final var latch = new CountDownLatch(1);
+    final var counter = new AtomicInteger();
 
-    Runnable increment = counter::incrementAndGet;
+    var increment = (Runnable) counter::incrementAndGet;
 
     decorator.schedule(increment, 120, TimeUnit.SECONDS);
     decorator.schedule(increment, 10, TimeUnit.MILLISECONDS);
 
-    long start = System.nanoTime();
+    var start = System.nanoTime();
 
     ex.shutdown();
     ex.awaitTermination(60, TimeUnit.SECONDS);
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     assertEquals(1, counter.get());
     assertEquals(1, listener.getDropCount());
     assertTrue(elapsed < TimeUnit.SECONDS.toNanos(120));

@@ -18,7 +18,6 @@ package org.apache.geode.management.internal;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -55,12 +54,12 @@ public class AgentUtil {
    *        geode-web-api
    */
   public URI findWarLocation(String warFilePrefix) {
-    final String versionedWarFileName = warFilePrefix + "-" + gemfireVersion + ".war";
-    final String unversionedWarFileName = warFilePrefix + ".war";
+    final var versionedWarFileName = warFilePrefix + "-" + gemfireVersion + ".war";
+    final var unversionedWarFileName = warFilePrefix + ".war";
 
     // This will attempt to find the war file defined somewhere on the Java classpath,
     // other than the
-    URI possiblePath =
+    var possiblePath =
         lookupWarLocationFromClasspath(versionedWarFileName, unversionedWarFileName);
     if (possiblePath != null) {
       logger.info("Located war: {} at location: {}", warFilePrefix, possiblePath);
@@ -87,7 +86,7 @@ public class AgentUtil {
 
   private URI findPossibleWarLocationFromExtraLocations(String versionedWarFileName,
       String unversionedWarFileName) {
-    final URL url = Arrays.stream(new String[] {versionedWarFileName,
+    final var url = Arrays.stream(new String[] {versionedWarFileName,
         "tools/Pulse/" + versionedWarFileName,
         "tools/Extensions/" + versionedWarFileName,
         "lib/" + versionedWarFileName,
@@ -110,7 +109,7 @@ public class AgentUtil {
   private URI findPossibleWarLocationFromGeodeHome(String versionedWarFileName,
       String unversionedWarFileName) {
     String[] possibleFiles = {};
-    String geodeHome = getGeodeHome();
+    var geodeHome = getGeodeHome();
     if (StringUtils.isNotBlank(geodeHome)) {
       possibleFiles = new String[] {geodeHome + "/tools/Extensions/" + versionedWarFileName,
           geodeHome + "/tools/Pulse/" + versionedWarFileName,
@@ -142,7 +141,7 @@ public class AgentUtil {
 
   private String getGeodeHome() {
 
-    String geodeHome = System.getenv(GEODE_HOME);
+    var geodeHome = System.getenv(GEODE_HOME);
 
     logger.info(GEODE_HOME + ":" + geodeHome);
     // Check for empty variable. if empty, then log message and exit HTTP server
@@ -159,7 +158,7 @@ public class AgentUtil {
   }
 
   public boolean isGemfireHomeDefined() {
-    String gemfireHome = getGeodeHome();
+    var gemfireHome = getGeodeHome();
     return StringUtils.isNotBlank(gemfireHome);
   }
 }

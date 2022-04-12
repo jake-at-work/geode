@@ -18,17 +18,12 @@ package org.apache.geode.management.internal.functions;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryUsage;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.LocatorLauncher;
 import org.apache.geode.distributed.ServerLauncher;
@@ -42,7 +37,6 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.cache.tier.InternalClientMembership;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
-import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.management.internal.util.ManagementUtils;
@@ -84,15 +78,15 @@ public class GetMemberInformationFunction implements InternalFunction {
   @Override
   public void execute(FunctionContext functionContext) {
     try {
-      Cache cache = functionContext.getCache();
+      var cache = functionContext.getCache();
 
-      InternalDistributedSystem system = (InternalDistributedSystem) cache.getDistributedSystem();
-      DistributionConfig config = system.getConfig();
-      DistributedMember member =
+      var system = (InternalDistributedSystem) cache.getDistributedSystem();
+      var config = system.getConfig();
+      var member =
           ManagementUtils.getDistributedMemberByNameOrId(functionContext.getMemberName(),
               (InternalCache) functionContext.getCache());
 
-      MemberInformation memberInfo = getMemberInformation(cache, config, member);
+      var memberInfo = getMemberInformation(cache, config, member);
       functionContext.getResultSender().lastResult(memberInfo);
     } catch (Exception e) {
       functionContext.getResultSender().sendException(e);
@@ -101,14 +95,14 @@ public class GetMemberInformationFunction implements InternalFunction {
 
   public MemberInformation getMemberInformation(Cache cache, DistributionConfig config,
       DistributedMember member) throws IOException {
-    MemberInformation memberInfo = new MemberInformation();
+    var memberInfo = new MemberInformation();
 
     memberInfo.setMemberName(member.getName());
     memberInfo.setId(member.getId());
     memberInfo.setHost(member.getHost());
     memberInfo.setProcessId(member.getProcessId());
 
-    SSLConfig sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(config,
+    var sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(config,
         SecurableCommunicationChannel.WEB);
     memberInfo.setWebSSL(sslConfig.isEnabled());
     memberInfo.setSecured(StringUtils.isNotBlank(config.getSecurityManager()));
@@ -123,31 +117,31 @@ public class GetMemberInformationFunction implements InternalFunction {
     memberInfo.setHttpServicePort(config.getHttpServicePort());
     memberInfo.setHttpServiceBindAddress(config.getHttpServiceBindAddress());
 
-    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-    MemoryUsage memUsage = memoryMXBean.getHeapMemoryUsage();
+    var memoryMXBean = ManagementFactory.getMemoryMXBean();
+    var memUsage = memoryMXBean.getHeapMemoryUsage();
     memberInfo.setHeapUsage(bytesToMeg(memUsage.getUsed()));
     memberInfo.setMaxHeapSize(bytesToMeg(memUsage.getMax()));
     memberInfo.setInitHeapSize(bytesToMeg(memUsage.getInit()));
     memberInfo.setHostedRegions(ManagementUtils.getAllRegionNames(cache));
 
-    List<CacheServer> csList = cache.getCacheServers();
+    var csList = cache.getCacheServers();
 
-    InternalDistributedMember internalMember = (InternalDistributedMember) member;
+    var internalMember = (InternalDistributedMember) member;
     if (internalMember.getVmKind() == MemberIdentifier.LOCATOR_DM_TYPE) {
       memberInfo.setServer(false);
-      InternalLocator locator = InternalLocator.getLocator();
+      var locator = InternalLocator.getLocator();
       if (locator != null) {
         memberInfo.setLocatorPort(locator.getPort());
       }
 
-      LocatorLauncher.LocatorState state = LocatorLauncher.getLocatorState();
+      var state = LocatorLauncher.getLocatorState();
       if (state != null) {
         memberInfo.setStatus(state.getStatus().getDescription());
       }
     } else {
       memberInfo.setServer(true);
-      for (final CacheServer cs : csList) {
-        CacheServerInfo cacheServerInfo = new CacheServerInfo();
+      for (final var cs : csList) {
+        var cacheServerInfo = new CacheServerInfo();
         cacheServerInfo.setBindAddress(cs.getBindAddress());
         cacheServerInfo.setPort(cs.getPort());
         cacheServerInfo.setRunning(cs.isRunning());
@@ -157,16 +151,16 @@ public class GetMemberInformationFunction implements InternalFunction {
       }
       Map<ClientProxyMembershipID, CacheClientStatus> allConnectedClients =
           InternalClientMembership.getStatusForAllClientsIgnoreSubscriptionStatus();
-      Iterator<ClientProxyMembershipID> it = allConnectedClients.keySet().iterator();
-      int numConnections = 0;
+      var it = allConnectedClients.keySet().iterator();
+      var numConnections = 0;
 
       while (it.hasNext()) {
-        CacheClientStatus status = allConnectedClients.get(it.next());
+        var status = allConnectedClients.get(it.next());
         numConnections = numConnections + status.getNumberOfConnections();
       }
       memberInfo.setClientCount(numConnections);
 
-      ServerLauncher.ServerState state = ServerLauncher.getServerState();
+      var state = ServerLauncher.getServerState();
       if (state != null) {
         memberInfo.setStatus(state.getStatus().getDescription());
       }

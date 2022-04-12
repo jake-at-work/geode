@@ -34,16 +34,11 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.QueryService;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -119,7 +114,7 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
     Wait.pause(5000);
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     server = host.getVM(0);
     client = host.getVM(1);
     server2 = host.getVM(2);
@@ -341,12 +336,12 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
 
     // Create CQ Attributes.
     // do not attach any listiner lets see its response
-    CqAttributesFactory cqf = new CqAttributesFactory();
-    CqAttributes cqa = cqf.create();
+    var cqf = new CqAttributesFactory();
+    var cqa = cqf.create();
 
     // Create and Execute CQ.
     try {
-      CqQuery cq1 = cqService.newCq(name, Cquery, cqa);
+      var cq1 = cqService.newCq(name, Cquery, cqa);
       assertTrue("newCq() state mismatch", cq1.getState().isStopped());
       if (cqWithIR) {
         cq1.executeWithInitialResults();
@@ -357,7 +352,7 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
       fail("Failed to create CQ " + cqName1, ex);
     }
 
-    CqQuery cQuery = cqService.getCq(name);
+    var cQuery = cqService.getCq(name);
     if (cQuery == null) {
       fail("Failed to get CqQuery for CQ : " + cqName1);
     }
@@ -378,12 +373,12 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
 
     // Create CQ Attributes.
     // do not attach any listiner lets see its response
-    CqAttributesFactory cqf = new CqAttributesFactory();
-    CqAttributes cqa = cqf.create();
+    var cqf = new CqAttributesFactory();
+    var cqa = cqf.create();
 
     // Create and Execute CQ.
     try {
-      CqQuery cq1 = cqService.newCq(name, Cquery, cqa);
+      var cq1 = cqService.newCq(name, Cquery, cqa);
       assertTrue("newCq() state mismatch", cq1.getState().isStopped());
       if (cqWithIR) {
         cq1.executeWithInitialResults();
@@ -394,7 +389,7 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
       fail("Failed to create CQ " + cqName1, ex);
     }
 
-    CqQuery cQuery = cqService.getCq(name);
+    var cQuery = cqService.getCq(name);
     if (cQuery == null) {
       fail("Failed to get CqQuery for CQ : " + cqName1);
     }
@@ -402,9 +397,9 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
 
   public static void validationOnServer() throws Exception {
     checkNumberOfClientProxies(1);
-    CacheClientProxy proxy = getClientProxy();
+    var proxy = getClientProxy();
     assertNotNull(proxy);
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return getClientProxy()
@@ -436,10 +431,10 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
 
   public static void validationOnServerForCqRegistrationFromPool() throws Exception {
     checkNumberOfClientProxies(1);
-    CacheClientProxy proxy = getClientProxy();
+    var proxy = getClientProxy();
     assertNotNull(proxy);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return getClientProxy()
@@ -470,15 +465,15 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
    */
   public static Integer createServerCache() throws Exception {
     new DeltaToRegionRelationCQRegistrationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
     cache.createRegion(REGION_NAME2, attrs);
 
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     // ensures updates to be sent instead of invalidations
     server.setNotifyBySubscription(true);
@@ -491,24 +486,24 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
    * create client cache
    */
   public static void createClientCache(String host, Integer port) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new DeltaToRegionRelationCQRegistrationDUnitTest().createCache(props);
-    Pool p = PoolManager.createFactory().addServer(host, port)
+    var p = PoolManager.createFactory().addServer(host, port)
         .setMinConnections(3).setSubscriptionEnabled(true)
         .setSubscriptionRedundancy(0).setReadTimeout(10000).setSocketBufferSize(32768)
         // .setRetryInterval(10000)
         // .setRetryAttempts(5)
         .create("DeltaToRegionRelationCQRegistrationTestPool");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.EMPTY);
     factory.setPoolName(p.getName());
     factory.setCloningEnabled(false);
 
     // region with empty data policy
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
 
     assertFalse(cache.getRegion(REGION_NAME1).getAttributes().getCloningEnabled());
@@ -525,7 +520,7 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
    * create client cache
    */
   public static void createClientCacheWithNoRegion(String host, Integer port) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new DeltaToRegionRelationCQRegistrationDUnitTest().createCache(props);
@@ -542,24 +537,24 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
    */
   public static Integer createClientCache2(String host1, String host2, Integer port1, Integer port2)
       throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new DeltaToRegionRelationCQRegistrationDUnitTest().createCache(props);
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(host1, port1)
+    var p = (PoolImpl) PoolManager.createFactory().addServer(host1, port1)
         .addServer(host2, port2).setMinConnections(3)
         .setSubscriptionEnabled(true).setSubscriptionRedundancy(0).setReadTimeout(10000)
         .setSocketBufferSize(32768)
         // .setRetryInterval(10000)
         // .setRetryAttempts(5)
         .create("DeltaToRegionRelationCQRegistrationTestPool");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.EMPTY);
     factory.setPoolName(p.getName());
 
     // region with empty data policy
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
 
     factory.setDataPolicy(DataPolicy.NORMAL);
@@ -576,7 +571,7 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
    */
   public static Integer createClientCache3(String host1, String host2, Integer port1, Integer port2)
       throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new DeltaToRegionRelationCQRegistrationDUnitTest().createCache(props);
@@ -605,7 +600,7 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
    */
   public static CacheClientProxy getClientProxy() {
     // Get the CacheClientNotifier
-    CacheClientNotifier notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
+    var notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
 
     // Get the CacheClientProxy or not (if proxy set is empty)
     CacheClientProxy proxy = null;
@@ -620,7 +615,7 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
    * get cache server / cache server attacted to cache
    */
   private static CacheServerImpl getBridgeServer() {
-    CacheServerImpl bridgeServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bridgeServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertNotNull(bridgeServer);
     return bridgeServer;
   }
@@ -636,8 +631,8 @@ public class DeltaToRegionRelationCQRegistrationDUnitTest extends JUnit4Distribu
    * if expected number of proxies are not present and wait
    */
   private static void checkNumberOfClientProxies(int expected) {
-    int current = getNumberOfClientProxies();
-    int tries = 1;
+    var current = getNumberOfClientProxies();
+    var tries = 1;
     while (expected != current && tries++ < 60) {
       try {
         Thread.sleep(250);

@@ -37,7 +37,7 @@ public class GfshParserParsingTest {
   private GfshParseResult parseParams(String input, String commandMethod) {
     ParseResult parseResult = parser.parse(input);
 
-    GfshParseResult gfshParseResult = (GfshParseResult) parseResult;
+    var gfshParseResult = (GfshParseResult) parseResult;
 
     assertThat(gfshParseResult.getMethod().getName()).isEqualTo(commandMethod);
     assertThat(gfshParseResult.getUserInput()).isEqualTo(input.trim());
@@ -74,12 +74,12 @@ public class GfshParserParsingTest {
   public void testStartLocatorJOptionWithComma() throws Exception {
     buffer =
         "start locator --name=test --J='-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=30000' --J=-Dfoo=bar";
-    GfshParseResult result = parser.parse(buffer);
+    var result = parser.parse(buffer);
     assertThat(result).isNotNull();
-    Object[] arguments = result.getArguments();
-    int indexOfJvmArgumentsParameterInStartLocator = 18;
+    var arguments = result.getArguments();
+    var indexOfJvmArgumentsParameterInStartLocator = 18;
 
-    String[] jvmArgs = (String[]) arguments[indexOfJvmArgumentsParameterInStartLocator];
+    var jvmArgs = (String[]) arguments[indexOfJvmArgumentsParameterInStartLocator];
     assertThat(jvmArgs).hasSize(2);
 
     // make sure the resulting jvm arguments do not have quotes (either single or double) around
@@ -93,11 +93,11 @@ public class GfshParserParsingTest {
   public void testStartServerJOptionWithComma() throws Exception {
     buffer =
         "start server --name=test --J='-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=30000' --J='-Dfoo=bar'";
-    GfshParseResult result = parser.parse(buffer);
+    var result = parser.parse(buffer);
     assertThat(result).isNotNull();
-    Object[] arguments = result.getArguments();
-    int indexOfJvmArgumentsParameterInStartServer = 19;
-    String[] jvmArgs = (String[]) arguments[indexOfJvmArgumentsParameterInStartServer];
+    var arguments = result.getArguments();
+    var indexOfJvmArgumentsParameterInStartServer = 19;
+    var jvmArgs = (String[]) arguments[indexOfJvmArgumentsParameterInStartServer];
     assertThat(jvmArgs).hasSize(2);
 
     // make sure the resulting jvm arguments do not have quotes (either single or double) around
@@ -111,11 +111,11 @@ public class GfshParserParsingTest {
   public void testStartJConsoleJOptionWithComma() throws Exception {
     buffer =
         "start jconsole --J='-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=30000' --J=-Dfoo=bar";
-    GfshParseResult result = parser.parse(buffer);
+    var result = parser.parse(buffer);
     assertThat(result).isNotNull();
-    Object[] arguments = result.getArguments();
+    var arguments = result.getArguments();
     // the 4th argument is the jvmarguments;
-    String[] jvmArgs = (String[]) arguments[4];
+    var jvmArgs = (String[]) arguments[4];
     assertThat(jvmArgs).hasSize(2);
 
     // make sure the resulting jvm arguments do not have quotes (either single or double) around
@@ -129,11 +129,11 @@ public class GfshParserParsingTest {
   public void testStartJvisulvmOptionWithComma() throws Exception {
     buffer =
         "start jvisualvm --J=\"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=30000\" --J=-Dfoo=bar";
-    GfshParseResult result = parser.parse(buffer);
+    var result = parser.parse(buffer);
     assertThat(result).isNotNull();
-    Object[] arguments = result.getArguments();
+    var arguments = result.getArguments();
     // the 1st argument is the jvmarguments;
-    String[] jvmArgs = (String[]) arguments[0];
+    var jvmArgs = (String[]) arguments[0];
     assertThat(jvmArgs).hasSize(2);
 
     // make sure the resulting jvm arguments do not have quotes (either single or double) around
@@ -145,10 +145,10 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseOptionStartsWithHyphenWithoutQuotes() throws Exception {
-    String input =
+    var input =
         "rebalance --exclude-region=" + SEPARATOR
             + "GemfireDataCommandsDUnitTestRegion2 --simulate=true --time-out=-1";
-    GfshParseResult result = parseParams(input, "rebalance");
+    var result = parseParams(input, "rebalance");
     assertThat(result.getParamValueAsString("exclude-region"))
         .isEqualTo(SEPARATOR + "GemfireDataCommandsDUnitTestRegion2");
     assertThat(result.getParamValueAsString("simulate")).isEqualTo("true");
@@ -157,10 +157,10 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseOptionStartsWithHyphenWithQuotes() throws Exception {
-    String input =
+    var input =
         "rebalance --exclude-region=" + SEPARATOR
             + "GemfireDataCommandsDUnitTestRegion2 --simulate=true --time-out=\"-1\"";
-    GfshParseResult result = parseParams(input, "rebalance");
+    var result = parseParams(input, "rebalance");
 
     assertThat(result.getParamValueAsString("exclude-region"))
         .isEqualTo(SEPARATOR + "GemfireDataCommandsDUnitTestRegion2");
@@ -170,8 +170,8 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseOptionContainingHyphen() throws Exception {
-    String input = "rebalance --exclude-region=" + SEPARATOR + "The-Region --simulate=true";
-    GfshParseResult result = parseParams(input, "rebalance");
+    var input = "rebalance --exclude-region=" + SEPARATOR + "The-Region --simulate=true";
+    var result = parseParams(input, "rebalance");
 
     assertThat(result.getParamValueAsString("exclude-region")).isEqualTo(SEPARATOR + "The-Region");
     assertThat(result.getParamValueAsString("simulate")).isEqualTo("true");
@@ -179,8 +179,8 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseOptionContainingUnderscore() throws Exception {
-    String input = "rebalance --exclude-region=" + SEPARATOR + "The_region --simulate=true";
-    GfshParseResult result = parseParams(input, "rebalance");
+    var input = "rebalance --exclude-region=" + SEPARATOR + "The_region --simulate=true";
+    var result = parseParams(input, "rebalance");
 
     assertThat(result.getParamValueAsString("exclude-region")).isEqualTo(SEPARATOR + "The_region");
     assertThat(result.getParamValueAsString("simulate")).isEqualTo("true");
@@ -188,8 +188,8 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseOneJOptionWithQuotes() throws Exception {
-    String input = "start locator  --J=\"-Dgemfire.http-service-port=8080\" --name=loc1";
-    GfshParseResult result = parseParams(input, "startLocator");
+    var input = "start locator  --J=\"-Dgemfire.http-service-port=8080\" --name=loc1";
+    var result = parseParams(input, "startLocator");
 
     assertThat(result.getParamValueAsString("name")).isEqualTo("loc1");
     assertThat(result.getParamValueAsString("J")).isEqualTo("-Dgemfire.http-service-port=8080");
@@ -197,8 +197,8 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseOneJOptionWithSpaceInQuotes() throws Exception {
-    String input = "start locator  --J=\"-Dgemfire.http-service-port= 8080\" --name=loc1";
-    GfshParseResult result = parseParams(input, "startLocator");
+    var input = "start locator  --J=\"-Dgemfire.http-service-port= 8080\" --name=loc1";
+    var result = parseParams(input, "startLocator");
 
     assertThat(result.getParamValueAsString("name")).isEqualTo("loc1");
     assertThat(result.getParamValueAsString("J")).isEqualTo("-Dgemfire.http-service-port= 8080");
@@ -206,8 +206,8 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseOneJOption() throws Exception {
-    String input = "start locator --J=-Dgemfire.http-service-port=8080 --name=loc1";
-    GfshParseResult result = parseParams(input, "startLocator");
+    var input = "start locator --J=-Dgemfire.http-service-port=8080 --name=loc1";
+    var result = parseParams(input, "startLocator");
 
     assertThat(result.getParamValueAsString("name")).isEqualTo("loc1");
     assertThat(result.getParamValueAsString("J")).isEqualTo("-Dgemfire.http-service-port=8080");
@@ -215,9 +215,9 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseTwoJOptions() throws Exception {
-    String input =
+    var input =
         "start locator --J=-Dgemfire.http-service-port=8080 --name=loc1 --J=-Ddummythinghere";
-    GfshParseResult result = parseParams(input, "startLocator");
+    var result = parseParams(input, "startLocator");
 
     assertThat(result.getParamValueAsString("name")).isEqualTo("loc1");
     assertThat(result.getParamValueAsString("J"))
@@ -226,9 +226,9 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseTwoJOptionsOneWithQuotesOneWithout() throws Exception {
-    String input =
+    var input =
         "start locator --J=\"-Dgemfire.http-service-port=8080\" --name=loc1 --J=-Ddummythinghere";
-    GfshParseResult result = parseParams(input, "startLocator");
+    var result = parseParams(input, "startLocator");
 
     assertThat(result.getParamValueAsString("name")).isEqualTo("loc1");
     assertThat(result.getParamValueAsString("J"))
@@ -237,9 +237,9 @@ public class GfshParserParsingTest {
 
   @Test
   public void testParseOneJOptionWithQuotesAndLotsOfSpaces() throws Exception {
-    String input =
+    var input =
         "start locator       --J=\"-Dgemfire.http-service-port=8080\"      --name=loc1         ";
-    GfshParseResult result = parseParams(input, "startLocator");
+    var result = parseParams(input, "startLocator");
 
     assertThat(result.getParamValueAsString("name")).isEqualTo("loc1");
     assertThat(result.getParamValueAsString("J")).isEqualTo("-Dgemfire.http-service-port=8080");
@@ -247,8 +247,8 @@ public class GfshParserParsingTest {
 
   @Test
   public void testObtainHelp() {
-    String command = CliStrings.START_PULSE;
-    String helpString = ("NAME\n" + "start pulse\n" + "IS AVAILABLE\n" + "true\n" + "SYNOPSIS\n"
+    var command = CliStrings.START_PULSE;
+    var helpString = ("NAME\n" + "start pulse\n" + "IS AVAILABLE\n" + "true\n" + "SYNOPSIS\n"
         + "Open a new window in the default Web browser with the URL for the Pulse application.\n"
         + "SYNTAX\n" + "start pulse [--url=value]\n" + "PARAMETERS\n" + "url\n"
         + "URL of the Pulse Web application.\n" + "Required: false\n"
@@ -259,106 +259,106 @@ public class GfshParserParsingTest {
 
   @Test
   public void testDeployCommand() throws Exception {
-    String command = "deploy --jar=/tmp/junit7552412945092669041/jar1.jar";
-    GfshParseResult result = parser.parse(command);
+    var command = "deploy --jar=/tmp/junit7552412945092669041/jar1.jar";
+    var result = parser.parse(command);
     assertThat(result).isNotNull();
   }
 
 
   @Test
   public void testCommandWithBackSlash() throws Exception {
-    String command =
+    var command =
         "describe offline-disk-store --name=testDiskStore --disk-dirs=R:\\regrResults\\test";
-    GfshParseResult result = parser.parse(command);
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("disk-dirs")).isEqualTo("R:\\regrResults\\test");
   }
 
   @Test
   public void testCommandWithBackSlashTwo() throws Exception {
-    String command = "start locator --name=\\test";
-    GfshParseResult result = parser.parse(command);
+    var command = "start locator --name=\\test";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("name")).isEqualTo("\\test");
   }
 
   @Test
   public void testCommandWithBackSlashThree() throws Exception {
-    String command = "start locator --name=\\myName";
-    GfshParseResult result = parser.parse(command);
+    var command = "start locator --name=\\myName";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("name")).isEqualTo("\\myName");
   }
 
   @Test
   public void testCommandWithBackSlashFour() throws Exception {
-    String command = "start locator --name=\\u0005Name";
-    GfshParseResult result = parser.parse(command);
+    var command = "start locator --name=\\u0005Name";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("name")).isEqualTo("\\u0005Name");
   }
 
   @Test
   public void testValueOfJsonWithoutOuterQuoteAndSpace() throws Exception {
-    String command = "put --key=('name':'id') --value=456 --region=" + SEPARATOR + "test";
-    GfshParseResult result = parser.parse(command);
+    var command = "put --key=('name':'id') --value=456 --region=" + SEPARATOR + "test";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("key")).isEqualTo("('name':'id')");
   }
 
   @Test
   public void testValueOfJsonWithSpace() throws Exception {
     // this is considerred an invalid command
-    String command = "put --key=('name' : 'id') --value=456 --region=" + SEPARATOR + "test";
-    GfshParseResult result = parser.parse(command);
+    var command = "put --key=('name' : 'id') --value=456 --region=" + SEPARATOR + "test";
+    var result = parser.parse(command);
     assertThat(result).isNull();
   }
 
   @Test
   public void testValueOfJsonWithSpaceAndOuterQuotes() throws Exception {
-    String command = "put --key=\"('name' : 'id')\" --value=456 --region=" + SEPARATOR + "test";
-    GfshParseResult result = parser.parse(command);
+    var command = "put --key=\"('name' : 'id')\" --value=456 --region=" + SEPARATOR + "test";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("key")).isEqualTo("('name' : 'id')");
   }
 
   @Test
   public void optionValueWillNotBeTrimmedIfInQuotes() throws Exception {
-    String command = "start locator --name=' test '";
-    GfshParseResult result = parser.parse(command);
+    var command = "start locator --name=' test '";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("name")).isEqualTo(" test ");
   }
 
   @Test
   public void optionValueWithExtraSpaceInBetween() throws Exception {
-    String command = "start locator --name= test    --bind-address=123";
-    GfshParseResult result = parser.parse(command);
+    var command = "start locator --name= test    --bind-address=123";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("name")).isEqualTo("test");
     assertThat(result.getParamValueAsString("bind-address")).isEqualTo("123");
   }
 
   @Test
   public void optionValueWithEmptyString() throws Exception {
-    String command = "start locator --name= --bind-address=123";
-    GfshParseResult result = parser.parse(command);
+    var command = "start locator --name= --bind-address=123";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("name")).isNull();
     assertThat(result.getParamValueAsString("bind-address")).isEqualTo("123");
   }
 
   @Test
   public void optionValueWithQuotedEmptyString() throws Exception {
-    String command = "start locator --name='' --bind-address=123";
-    GfshParseResult result = parser.parse(command);
+    var command = "start locator --name='' --bind-address=123";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("name")).isNull();
     assertThat(result.getParamValueAsString("bind-address")).isEqualTo("123");
   }
 
   @Test
   public void testMultiLineCommand() throws Exception {
-    String command = "start server " + GfshParser.LINE_SEPARATOR + "--name=test";
-    GfshParseResult result = parser.parse(command);
+    var command = "start server " + GfshParser.LINE_SEPARATOR + "--name=test";
+    var result = parser.parse(command);
     assertThat(result.getParamValueAsString("name")).isEqualTo("test");
     assertThat(result.getCommandName()).isEqualTo("start server");
   }
 
   @Test
   public void testShutdownWithOptionCommand() throws Exception {
-    String command = "shutdown --include-locators";
-    GfshParseResult result = parser.parse(command);
+    var command = "shutdown --include-locators";
+    var result = parser.parse(command);
     assertThat(result.getParamValue("include-locators")).isEqualTo(true);
   }
 }

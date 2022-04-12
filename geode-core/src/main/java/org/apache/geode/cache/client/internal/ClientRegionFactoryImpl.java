@@ -239,12 +239,12 @@ public class ClientRegionFactoryImpl<K, V> implements ClientRegionFactory<K, V> 
   }
 
   private RegionAttributes<K, V> createRegionAttributes() {
-    RegionAttributes<K, V> ra = attrsFactory.create();
+    var ra = attrsFactory.create();
     if (isEmpty(ra.getPoolName())
         || Objects.equals(GemFireCacheImpl.DEFAULT_POOL_NAME, ra.getPoolName())) {
-      UserSpecifiedRegionAttributes<K, V> ura = (UserSpecifiedRegionAttributes<K, V>) ra;
+      var ura = (UserSpecifiedRegionAttributes<K, V>) ra;
       if (ura.requiresPoolName) {
-        Pool dp = getDefaultPool();
+        var dp = getDefaultPool();
         if (dp != null) {
           attrsFactory.setPoolName(dp.getName());
           ra = attrsFactory.create();

@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testGetField() throws IOException, ClassNotFoundException {
-    PdxInstance instance = getPdx(new TestPdx() {
+    var instance = getPdx(new TestPdx() {
       @Override
       public void toData(PdxWriter out) {
         out.writeBoolean("field1", false);
@@ -83,19 +82,19 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
     assertThat(instance.getFieldNames()).containsExactly("field1", "field2", "field3");
     assertThat(instance.getField("field2")).isEqualTo(53);
     assertThat(instance.getField("field1")).isEqualTo(false);
-    PdxInstance fieldInstance = (PdxInstance) instance.getField("field3");
+    var fieldInstance = (PdxInstance) instance.getField("field3");
     assertThat(fieldInstance.getFieldNames()).containsExactly("afield");
     assertThat(fieldInstance.getField("afield")).isEqualTo("hello");
   }
 
   @Test
   public void testHashCodeAndEqualsSameType() throws IOException, ClassNotFoundException {
-    PdxInstance instance = getAllFields(0);
+    var instance = getAllFields(0);
     assertThat(instance).isEqualTo(getAllFields(0));
     assertThat(instance.hashCode()).isEqualTo(getAllFields(0).hashCode());
 
-    for (int i = 1; i < allFieldCount + 1; i++) {
-      PdxInstance other = getAllFields(i);
+    for (var i = 1; i < allFieldCount + 1; i++) {
+      var other = getAllFields(i);
       assertThat(instance.equals(other))
           .withFailMessage("One field " + i + " hashcode have been unequal but were equal"
               + instance.getField("field" + (i - 1)) + ", " + other.getField("field" + (i - 1))
@@ -111,15 +110,15 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEquals() {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("testEquals", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("testEquals", false, cache);
     c.writeInt("intField", 37);
-    PdxInstance pi = c.create();
+    var pi = c.create();
     assertThat(pi.equals(null)).isFalse();
     assertThat(pi.equals(new Date(37))).isFalse();
     c = PdxInstanceFactoryImpl.newCreator("testEquals", false, cache);
     c.writeInt("intField", 37);
     c.writeInt("intField2", 38);
-    PdxInstance pi2 = c.create();
+    var pi2 = c.create();
     assertThat(pi.hashCode()).isNotEqualTo(pi2.hashCode());
     assertThat(pi.equals(pi2)).isFalse();
     assertThat(pi2.equals(pi)).isFalse();
@@ -216,12 +215,12 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPdxComplexEnum() {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("testPdxEnum", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("testPdxEnum", false, cache);
     c.writeObject("enumField", MyComplexEnum.ONE);
-    PdxInstance pi = c.create();
-    Object f = pi.getField("enumField");
+    var pi = c.create();
+    var f = pi.getField("enumField");
     assertThat(f).isInstanceOf(PdxInstanceEnumInfo.class);
-    PdxInstanceEnumInfo e = (PdxInstanceEnumInfo) f;
+    var e = (PdxInstanceEnumInfo) f;
     assertThat(e.getName()).isEqualTo("ONE");
     cache.getPdxRegistry().flushCache();
     assertThat(e.getObject()).isEqualTo(MyComplexEnum.ONE);
@@ -229,12 +228,12 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPdxSimpleEnum() {
-    PdxInstanceFactory c = PdxInstanceFactoryImpl.newCreator("testPdxEnum", false, cache);
+    var c = PdxInstanceFactoryImpl.newCreator("testPdxEnum", false, cache);
     c.writeObject("enumField", MyEnum.ONE);
-    PdxInstance pi = c.create();
-    Object f = pi.getField("enumField");
+    var pi = c.create();
+    var f = pi.getField("enumField");
     assertThat(f).isInstanceOf(PdxInstanceEnumInfo.class);
-    PdxInstanceEnumInfo e = (PdxInstanceEnumInfo) f;
+    var e = (PdxInstanceEnumInfo) f;
     assertThat(e.getName()).isEqualTo("ONE");
     cache.getPdxRegistry().flushCache();
     assertThat(e.getObject()).isEqualTo(MyEnum.ONE);
@@ -242,14 +241,14 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEqualsDifferentTypes() throws IOException, ClassNotFoundException {
-    PdxInstance instance1 = getPdx(new TestPdx() {
+    var instance1 = getPdx(new TestPdx() {
       @Override
       public void toData(PdxWriter writer) {
         writer.writeBoolean("field1", true);
       }
     });
 
-    PdxInstance instance2 = getPdx(new TestPdx() {
+    var instance2 = getPdx(new TestPdx() {
       @Override
       public void toData(PdxWriter writer) {
         writer.writeBoolean("field1", true);
@@ -265,10 +264,10 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
   public void testHashCodeEqualsOutOfOrderFields()
       throws IOException, ClassNotFoundException, NoSuchMethodException, InstantiationException,
       IllegalAccessException, InvocationTargetException {
-    PdxSerializable serializable1 = getSeparateClassLoadedPdx(true);
-    PdxInstance instance1 = getPdx(serializable1);
-    PdxSerializable serializable2 = getSeparateClassLoadedPdx(false);
-    PdxInstance instance2 = getPdx(serializable2);
+    var serializable1 = getSeparateClassLoadedPdx(true);
+    var instance1 = getPdx(serializable1);
+    var serializable2 = getSeparateClassLoadedPdx(false);
+    var instance2 = getPdx(serializable2);
 
     assertThat(instance2).isEqualTo(instance1);
     assertThat(instance2.hashCode()).isEqualTo(instance1.hashCode());
@@ -276,7 +275,7 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testIdentityFields() throws IOException, ClassNotFoundException {
-    PdxInstance instance1 = getPdx(getPdxSerializable(new TestPdx() {
+    var instance1 = getPdx(getPdxSerializable(new TestPdx() {
       @Override
       public void toData(PdxWriter out) {
         out.writeInt("field2", 53);
@@ -285,7 +284,7 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
       }
     }));
 
-    PdxInstance instance2 = getPdx(getPdxSerializable(new TestPdx() {
+    var instance2 = getPdx(getPdxSerializable(new TestPdx() {
       @Override
       public void toData(PdxWriter out) {
         out.writeInt("field2", 53);
@@ -314,11 +313,11 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
   private PdxSerializable getSeparateClassLoadedPdx(boolean field1First)
       throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
       IllegalAccessException, InvocationTargetException {
-    ClassLoader parent = Thread.currentThread().getContextClassLoader();
+    var parent = Thread.currentThread().getContextClassLoader();
     ClassLoader loader1 = new NonDelegatingLoader(parent);
-    Class<?> clazz1 =
+    var clazz1 =
         loader1.loadClass(getClass().getPackage().getName() + ".SeparateClassloaderPdx");
-    Constructor<?> constructor = clazz1.getConstructor(boolean.class);
+    var constructor = clazz1.getConstructor(boolean.class);
     constructor.setAccessible(true);
     return (PdxSerializable) constructor.newInstance(field1First);
   }
@@ -327,7 +326,7 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
     return getPdx(new TestPdx() {
       @Override
       public void toData(PdxWriter out) {
-        int x = 0;
+        var x = 0;
         Number serializable1 = new BigInteger("1234");
         Number serializable2 = new BigInteger("1235");
         Collection<Number> collection1 = new ArrayList<>();
@@ -336,10 +335,10 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
         Collection<Number> collection2 = new ArrayList<>();
         collection2.add(serializable2);
         collection2.add(serializable1);
-        SimpleClass testPdx1 = new SimpleClass(5, (byte) 5);
-        SimpleClass testPdx2 = new SimpleClass(6, (byte) 6);
-        HashMap<Number, Number> map1 = new HashMap<>();
-        HashMap<Number, Number> map2 = new HashMap<>();
+        var testPdx1 = new SimpleClass(5, (byte) 5);
+        var testPdx2 = new SimpleClass(6, (byte) 6);
+        var map1 = new HashMap<Number, Number>();
+        var map2 = new HashMap<Number, Number>();
         map2.put(serializable1, serializable2);
 
 
@@ -386,7 +385,7 @@ public class PdxInstanceJUnitTest extends JUnit4CacheTestCase {
   }
 
   private PdxInstance getPdx(PdxSerializable toData) throws IOException, ClassNotFoundException {
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(toData, out);
     return DataSerializer
         .readObject(new DataInputStream(new ByteArrayInputStream(out.toByteArray())));

@@ -121,10 +121,10 @@ public class TXLockBatch implements DLockBatch, DataSerializableFixedID {
     txLockId = TXLockIdImpl.createFromData(in);
     participants = InternalDataSerializer.readSet(in);
     {
-      int reqsSize = in.readInt();
+      var reqsSize = in.readInt();
       if (reqsSize >= 0) {
         reqs = new IdentityArrayList(reqsSize);
-        for (int i = 0; i < reqsSize; i++) {
+        for (var i = 0; i < reqsSize; i++) {
           reqs.add(TXRegionLockRequestImpl.createFromData(in));
         }
       }
@@ -140,8 +140,8 @@ public class TXLockBatch implements DLockBatch, DataSerializableFixedID {
       out.writeInt(-1);
     } else {
       out.writeInt(reqs.size());
-      for (final Object req : reqs) {
-        TXRegionLockRequestImpl elem = (TXRegionLockRequestImpl) req;
+      for (final var req : reqs) {
+        var elem = (TXRegionLockRequestImpl) req;
         InternalDataSerializer.invokeToData(elem, out);
       }
     }

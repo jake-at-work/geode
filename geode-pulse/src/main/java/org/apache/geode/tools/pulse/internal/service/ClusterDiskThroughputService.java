@@ -53,16 +53,16 @@ public class ClusterDiskThroughputService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     // cluster's Throughout Writes trend added to json response object
     // CircularFifoBuffer throughoutWritesTrend =
     // cluster.getThroughoutWritesTrend();
-    double currentThroughputWrites = cluster.getDiskWritesRate();
-    double currentThroughputReads = cluster.getDiskReadsRate();
+    var currentThroughputWrites = cluster.getDiskWritesRate();
+    var currentThroughputReads = cluster.getDiskReadsRate();
 
     responseJSON.put("currentThroughputReads", currentThroughputReads);
     responseJSON.set("throughputReads",

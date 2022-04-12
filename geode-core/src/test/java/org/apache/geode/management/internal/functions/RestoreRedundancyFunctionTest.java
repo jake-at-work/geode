@@ -73,8 +73,8 @@ public class RestoreRedundancyFunctionTest {
 
   @Test
   public void executeFunctionSetsFieldsOnRestoreRedundancyOperation() {
-    String[] includeRegions = {"includedRegion1", "includedRegion2"};
-    String[] excludeRegions = {"excludedRegion1", "excludedRegion2"};
+    var includeRegions = new String[] {"includedRegion1", "includedRegion2"};
+    var excludeRegions = new String[] {"excludedRegion1", "excludedRegion2"};
     request.setExcludeRegions(Arrays.asList(excludeRegions));
     request.setIncludeRegions(Arrays.asList(includeRegions));
 
@@ -117,7 +117,7 @@ public class RestoreRedundancyFunctionTest {
     function.execute(mockContext);
     verify(resultSender).lastResult(argumentCaptor.capture());
 
-    SerializableRestoreRedundancyResultsImpl result = argumentCaptor.getValue();
+    var result = argumentCaptor.getValue();
     verify(result).setSuccess(true);
     assertThat(result.getRegionOperationStatus())
         .isEqualTo(RestoreRedundancyResults.Status.FAILURE);
@@ -131,7 +131,7 @@ public class RestoreRedundancyFunctionTest {
     function.execute(mockContext);
     verify(resultSender).lastResult(argumentCaptor.capture());
 
-    SerializableRestoreRedundancyResultsImpl result = argumentCaptor.getValue();
+    var result = argumentCaptor.getValue();
     verify(result).setSuccess(true);
     assertThat(result.getRegionOperationStatus())
         .isEqualTo(RestoreRedundancyResults.Status.SUCCESS);

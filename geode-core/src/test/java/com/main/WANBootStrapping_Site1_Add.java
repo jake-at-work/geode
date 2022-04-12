@@ -20,12 +20,8 @@ import static org.apache.geode.distributed.ConfigurationProperties.LOG_LEVEL;
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.apache.geode.distributed.ConfigurationProperties.START_LOCATOR;
 
-import java.util.Set;
-
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.internal.ExitCode;
 import org.apache.geode.util.internal.GeodeGlossary;
 
@@ -62,7 +58,7 @@ public class WANBootStrapping_Site1_Add {
 
     // Create a locator and a cache
     System.out.println("Creating cache ...It will take some time..");
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").set(DISTRIBUTED_SYSTEM_ID, "" + 1)
+    var cache = new CacheFactory().set(MCAST_PORT, "0").set(DISTRIBUTED_SYSTEM_ID, "" + 1)
         .set(LOCATORS, "localhost[" + 10101 + "]")
         .set(START_LOCATOR,
             "localhost[" + 10101 + "],server=true,peer=true,hostname-for-clients=localhost")
@@ -85,15 +81,15 @@ public class WANBootStrapping_Site1_Add {
     }
 
     // put data in region
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       System.out.println("Create Entry : key_" + i + ", value_" + i);
       region.put("key_" + i, "value_" + i);
     }
 
     System.out.println("Entry Create Operation completed");
 
-    Set<GatewaySender> gatewaySenders = cache.getGatewaySenders();
-    GatewaySender sender = gatewaySenders.iterator().next();
+    var gatewaySenders = cache.getGatewaySenders();
+    var sender = gatewaySenders.iterator().next();
 
     // make sure that gateway sender is running
     if (sender.isRunning()) {

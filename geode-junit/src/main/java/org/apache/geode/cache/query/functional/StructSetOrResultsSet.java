@@ -22,9 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +30,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
@@ -97,7 +94,7 @@ public class StructSetOrResultsSet {
 
     Collection coll1;
     Collection coll2;
-    for (int j = 0; j < len; j++) {
+    for (var j = 0; j < len; j++) {
       checkSelectResultTypes((SelectResults) r[j][0], (SelectResults) r[j][1], queries[j]);
       checkResultSizes((SelectResults) r[j][0], (SelectResults) r[j][1], queries[j]);
 
@@ -114,34 +111,34 @@ public class StructSetOrResultsSet {
 
   public void compareExternallySortedQueriesWithOrderBy(String[] queries, Object[][] baseResults)
       throws Exception {
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q;
       try {
-        String query = queries[i];
-        int indexOfOrderBy = query.indexOf("order ");
+        var query = queries[i];
+        var indexOfOrderBy = query.indexOf("order ");
         query = query.substring(0, indexOfOrderBy);
         q = CacheUtils.getQueryService().newQuery(query);
         CacheUtils.getLogger().info("Executing query: " + query);
         baseResults[i][1] = q.execute();
-        int unorderedResultsSize = ((SelectResults) baseResults[i][1]).size();
+        var unorderedResultsSize = ((SelectResults) baseResults[i][1]).size();
         if (unorderedResultsSize == 0) {
           fail(
               "The test results size is 0. It may not be validating anything. Please rewrite the test.");
         }
-        Wrapper wrapper = getOrderByComparatorAndLimitForQuery(queries[i], unorderedResultsSize);
+        var wrapper = getOrderByComparatorAndLimitForQuery(queries[i], unorderedResultsSize);
         if (wrapper.validationLevel != ValidationLevel.NONE) {
-          Object[] externallySorted = ((SelectResults) baseResults[i][1]).toArray();
+          var externallySorted = ((SelectResults) baseResults[i][1]).toArray();
           if (wrapper.validationLevel != ValidationLevel.MATCH_ONLY) {
             Arrays.sort(externallySorted, wrapper.obc);
           }
           if (wrapper.limit != -1) {
             if (externallySorted.length > wrapper.limit) {
-              Object[] newExternallySorted = new Object[wrapper.limit];
+              var newExternallySorted = new Object[wrapper.limit];
               System.arraycopy(externallySorted, 0, newExternallySorted, 0, wrapper.limit);
               externallySorted = newExternallySorted;
             }
           }
-          StructSetOrResultsSet ssOrrs1 = new StructSetOrResultsSet();
+          var ssOrrs1 = new StructSetOrResultsSet();
           ssOrrs1.compareQueryResultsWithExternallySortedResults((SelectResults) baseResults[i][0],
               externallySorted, queries[i], wrapper);
 
@@ -167,12 +164,12 @@ public class StructSetOrResultsSet {
 
     Collection coll1 = null;
     coll1 = sr.asList();
-    int j = 0;
+    var j = 0;
     if (wrapper.validationLevel != ValidationLevel.ORDER_BY_ONLY) {
-      for (Object o : externallySorted) {
-        boolean removed = coll1.remove(o);
+      for (var o : externallySorted) {
+        var removed = coll1.remove(o);
         if (!removed) {
-          LogWriter logger = CacheUtils.getLogger();
+          var logger = CacheUtils.getLogger();
           logger.error("order by inconsistency at element index = " + j);
           logger.error(" query result =****");
           logger.error(" query result =" + coll1);
@@ -189,12 +186,12 @@ public class StructSetOrResultsSet {
 
     if (wrapper.validationLevel != ValidationLevel.MATCH_ONLY) {
       coll1 = sr.asList();
-      Iterator itert1 = coll1.iterator();
-      int i = 0;
-      for (Object o : externallySorted) {
+      var itert1 = coll1.iterator();
+      var i = 0;
+      for (var o : externallySorted) {
 
         if (wrapper.obc.compare(o, itert1.next()) != 0) {
-          LogWriter logger = CacheUtils.getLogger();
+          var logger = CacheUtils.getLogger();
           logger.error("order by inconsistency at element index = " + i);
           logger.error(" query result =****");
           logger.error(" query result =" + coll1);
@@ -212,54 +209,54 @@ public class StructSetOrResultsSet {
       QueryInvocationTargetException, NoSuchFieldException, SecurityException,
       IllegalArgumentException, IllegalAccessException, NoSuchMethodException,
       InvocationTargetException {
-    DefaultQuery q = (DefaultQuery) CacheUtils.getQueryService().newQuery(orderByQuery);
-    CompiledSelect cs = q.getSimpleSelect();
+    var q = (DefaultQuery) CacheUtils.getQueryService().newQuery(orderByQuery);
+    var cs = q.getSimpleSelect();
     List<CompiledSortCriterion> orderByAttribs = null;
     if (cs.getType() == CompiledValue.GROUP_BY_SELECT) {
-      Field originalOrderByMethod =
+      var originalOrderByMethod =
           CompiledGroupBySelect.class.getDeclaredField("originalOrderByClause");
       originalOrderByMethod.setAccessible(true);
       orderByAttribs = (List<CompiledSortCriterion>) originalOrderByMethod.get(cs);
     } else {
       orderByAttribs = cs.getOrderByAttrs();
     }
-    ObjectType resultType = cs.getElementTypeForOrderByQueries();
-    ExecutionContext context = new ExecutionContext(null, CacheUtils.getCache());
-    final OrderByComparator obc = new OrderByComparator(orderByAttribs, resultType, context);
+    var resultType = cs.getElementTypeForOrderByQueries();
+    var context = new ExecutionContext(null, CacheUtils.getCache());
+    final var obc = new OrderByComparator(orderByAttribs, resultType, context);
     Comparator baseComparator = obc;
     if (resultType.isStructType()) {
       baseComparator =
           (Comparator<Struct>) (o1, o2) -> obc.compare(o1.getFieldValues(), o2.getFieldValues());
     }
-    final Comparator secondLevelComparator = baseComparator;
-    final Comparator finalComparator = (o1, o2) -> {
-      final boolean[] orderByColsEqual = new boolean[] {false};
+    final var secondLevelComparator = baseComparator;
+    final var finalComparator = (Comparator) (o1, o2) -> {
+      final var orderByColsEqual = new boolean[] {false};
       QueryObserverHolder.setInstance(new QueryObserverAdapter() {
         @Override
         public void orderByColumnsEqual() {
           orderByColsEqual[0] = true;
         }
       });
-      int result = secondLevelComparator.compare(o1, o2);
+      var result = secondLevelComparator.compare(o1, o2);
       if (result != 0 && orderByColsEqual[0]) {
         result = 0;
       }
       return result;
     };
 
-    Field hasUnmappedOrderByColsField =
+    var hasUnmappedOrderByColsField =
         CompiledSelect.class.getDeclaredField("hasUnmappedOrderByCols");
     hasUnmappedOrderByColsField.setAccessible(true);
     boolean skip = (Boolean) hasUnmappedOrderByColsField.get(cs);
-    ValidationLevel validationLevel = ValidationLevel.ALL;
+    var validationLevel = ValidationLevel.ALL;
 
     int limit;
 
     if (cs.getType() == CompiledValue.GROUP_BY_SELECT) {
-      Field limitCVField = CompiledGroupBySelect.class.getDeclaredField("limit");
+      var limitCVField = CompiledGroupBySelect.class.getDeclaredField("limit");
       limitCVField.setAccessible(true);
-      CompiledValue limitCV = (CompiledValue) limitCVField.get(cs);
-      Method evaluateLimitMethod = CompiledSelect.class.getDeclaredMethod("evaluateLimitValue",
+      var limitCV = (CompiledValue) limitCVField.get(cs);
+      var evaluateLimitMethod = CompiledSelect.class.getDeclaredMethod("evaluateLimitValue",
           ExecutionContext.class, CompiledValue.class);
       evaluateLimitMethod.setAccessible(true);
       limit = (Integer) evaluateLimitMethod.invoke(null, context, limitCV);
@@ -305,8 +302,8 @@ public class StructSetOrResultsSet {
     Integer count1, count2;
     Iterator<Integer> itert1, itert2;
     SelectResults result1, result2;
-    boolean exactMatch = true;
-    for (int j = 0; j < len; j++) {
+    var exactMatch = true;
+    for (var j = 0; j < len; j++) {
       result1 = ((SelectResults) r[j][0]);
       result2 = ((SelectResults) r[j][1]);
       assertEquals(queries[j], 1, result1.size());
@@ -332,7 +329,7 @@ public class StructSetOrResultsSet {
     Iterator<Integer> itert1, itert2;
     ArrayList result1, result2;
 
-    for (int j = 0; j < len; j++) {
+    for (var j = 0; j < len; j++) {
       result1 = ((ArrayList) r[j][0]);
       result2 = ((ArrayList) r[j][1]);
       result1.trimToSize();
@@ -379,11 +376,11 @@ public class StructSetOrResultsSet {
 
   private void compareResults(Collection result1, Collection result2, String query,
       boolean checkOrder) {
-    Iterator itert1 = result1.iterator();
-    Iterator itert2 = result2.iterator();
-    int currentIndex = 0;
+    var itert1 = result1.iterator();
+    var itert2 = result2.iterator();
+    var currentIndex = 0;
     while (itert1.hasNext()) {
-      Object p1 = itert1.next();
+      var p1 = itert1.next();
       Object p2 = null;
       if (!checkOrder) {
         if (!collectionContains(result2, p1)) {
@@ -393,7 +390,7 @@ public class StructSetOrResultsSet {
               + ";p1 class=" + p1.getClass() + " ; other set has =" + result2);
         }
       } else {
-        boolean matched = false;
+        var matched = false;
         if (itert2.hasNext()) {
           p2 = itert2.next();
           matched = objectsEqual(p1, p2);
@@ -410,7 +407,7 @@ public class StructSetOrResultsSet {
   }
 
   private boolean collectionContains(Collection collection, Object object) {
-    for (final Object o : collection) {
+    for (final var o : collection) {
       if (objectsEqual(object, o)) {
         return true;
       }
@@ -423,11 +420,11 @@ public class StructSetOrResultsSet {
     // executing the same query
     if (o1 instanceof Struct) {
       // if o2 is null, an NPE will be thrown.
-      Object[] values1 = ((Struct) o1).getFieldValues();
-      Object[] values2 = ((Struct) o2).getFieldValues();
+      var values1 = ((Struct) o1).getFieldValues();
+      var values2 = ((Struct) o2).getFieldValues();
       assertEquals(values1.length, values2.length);
-      boolean elementEqual = true;
-      for (int i = 0; i < values1.length; ++i) {
+      var elementEqual = true;
+      for (var i = 0; i < values1.length; ++i) {
         elementEqual =
             elementEqual && ((values1[i] == values2[i]) || values1[i].equals(values2[i]));
       }

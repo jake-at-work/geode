@@ -26,9 +26,7 @@ import java.io.DataOutput;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -47,8 +45,6 @@ import org.apache.geode.DataSerializable;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
@@ -57,24 +53,15 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.control.RebalanceOperation;
-import org.apache.geode.cache.control.RebalanceResults;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexCreationException;
 import org.apache.geode.cache.query.MultiIndexCreationException;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalLocator;
@@ -88,7 +75,6 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.Oplog;
 import org.apache.geode.internal.cache.Oplog.OPLOG_TYPE;
 import org.apache.geode.internal.cache.tier.sockets.AcceptorImpl;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
@@ -122,7 +108,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   @Parameterized.Parameters(name = "from_v{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
     } else {
@@ -145,8 +131,8 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   private void deleteVMFiles() {
     System.out.println("deleting files in vm" + VM.getCurrentVMNum());
-    File pwd = new File(".");
-    for (File entry : pwd.listFiles()) {
+    var pwd = new File(".");
+    for (var entry : pwd.listFiles()) {
       try {
         if (entry.isDirectory()) {
           FileUtils.deleteDirectory(entry);
@@ -169,17 +155,17 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   HashSet<String> verifyOplogHeader(File dir, HashSet<String> oldFiles) throws IOException {
     if (oldFiles != null) {
-      for (String file : oldFiles) {
+      for (var file : oldFiles) {
         System.out.println("Known old format file: " + file);
       }
     }
 
-    File[] files = dir.listFiles();
-    HashSet<String> verified = new HashSet<>();
-    HashSet<String> oldFilesFound = new HashSet<>();
-    for (File file : files) {
-      String name = file.getName();
-      byte[] expect = new byte[Oplog.OPLOG_MAGIC_SEQ_REC_SIZE];
+    var files = dir.listFiles();
+    var verified = new HashSet<String>();
+    var oldFilesFound = new HashSet<String>();
+    for (var file : files) {
+      var name = file.getName();
+      var expect = new byte[Oplog.OPLOG_MAGIC_SEQ_REC_SIZE];
       byte OPLOG_MAGIC_SEQ_ID = 92; // value of Oplog.OPLOG_MAGIC_SEQ_ID
       if (name.endsWith(".crf")) {
         expect[0] = OPLOG_MAGIC_SEQ_ID;
@@ -199,10 +185,10 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
       }
       expect[expect.length - 1] = 21; // EndOfRecord
 
-      byte[] buf = new byte[Oplog.OPLOG_MAGIC_SEQ_REC_SIZE];
+      var buf = new byte[Oplog.OPLOG_MAGIC_SEQ_REC_SIZE];
 
-      FileInputStream fis = new FileInputStream(file);
-      int count = fis.read(buf, 0, 8);
+      var fis = new FileInputStream(file);
+      var count = fis.read(buf, 0, 8);
       fis.close();
 
       assertEquals(8, count);
@@ -233,24 +219,24 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
    */
   void doTestPutAndGetMixedServers(String objectType, boolean partitioned, String oldVersion)
       throws Exception {
-    final Host host = Host.getHost(0);
-    VM currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
-    VM oldServerAndLocator = host.getVM(oldVersion, 1);
-    VM currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
-    VM oldServer2 = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
+    var oldServerAndLocator = host.getVM(oldVersion, 1);
+    var currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    var oldServer2 = host.getVM(oldVersion, 3);
 
-    String regionName = "aRegion";
+    var regionName = "aRegion";
 
-    RegionShortcut shortcut = RegionShortcut.REPLICATE;
+    var shortcut = RegionShortcut.REPLICATE;
     if (partitioned) {
       shortcut = RegionShortcut.PARTITION;
     }
 
-    String serverHostName = NetworkUtils.getServerHostName();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var serverHostName = NetworkUtils.getServerHostName();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     oldServerAndLocator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(port));
     try {
-      Properties props = getSystemProperties();
+      var props = getSystemProperties();
       props.remove(DistributionConfig.LOCATORS_NAME);
       invokeRunnableInVMs(invokeStartLocatorAndServer(serverHostName, port, props),
           oldServerAndLocator);
@@ -296,23 +282,23 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   void doTestQueryMixedServers(boolean partitioned, String oldVersion) throws Exception {
-    final Host host = Host.getHost(0);
-    VM currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
-    VM oldServer = host.getVM(oldVersion, 1);
-    VM currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
-    VM oldServerAndLocator = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
+    var oldServer = host.getVM(oldVersion, 1);
+    var currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    var oldServerAndLocator = host.getVM(oldVersion, 3);
 
-    String regionName = "cqs";
+    var regionName = "cqs";
 
-    RegionShortcut shortcut = RegionShortcut.REPLICATE;
+    var shortcut = RegionShortcut.REPLICATE;
     if (partitioned) {
       shortcut = RegionShortcut.PARTITION;
     }
 
-    String serverHostName = NetworkUtils.getServerHostName();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var serverHostName = NetworkUtils.getServerHostName();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     try {
-      Properties props = getSystemProperties();
+      var props = getSystemProperties();
       props.remove(DistributionConfig.LOCATORS_NAME);
       invokeRunnableInVMs(invokeStartLocatorAndServer(serverHostName, port, props),
           oldServerAndLocator);
@@ -359,23 +345,23 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   void doTestCreateIndexes(boolean createMultiIndexes, boolean partitioned,
       String oldVersion) throws Exception {
-    final Host host = Host.getHost(0);
-    final VM currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
-    final VM oldServer = host.getVM(oldVersion, 1);
-    final VM currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
-    final VM oldServerAndLocator = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    final var currentServer1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
+    final var oldServer = host.getVM(oldVersion, 1);
+    final var currentServer2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    final var oldServerAndLocator = host.getVM(oldVersion, 3);
 
-    String regionName = "cqs";
+    var regionName = "cqs";
 
-    RegionShortcut shortcut = RegionShortcut.REPLICATE;
+    var shortcut = RegionShortcut.REPLICATE;
     if (partitioned) {
       shortcut = RegionShortcut.PARTITION;
     }
 
-    String serverHostName = NetworkUtils.getServerHostName();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var serverHostName = NetworkUtils.getServerHostName();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     try {
-      Properties props = getSystemProperties();
+      var props = getSystemProperties();
       props.remove(DistributionConfig.LOCATORS_NAME);
       invokeRunnableInVMs(invokeStartLocatorAndServer(serverHostName, port, props),
           oldServerAndLocator);
@@ -450,55 +436,55 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   private void putStringsAndVerify(VM putter, String regionName, int start, int end, VM... vms) {
-    for (int i = start; i < end; i++) {
+    for (var i = start; i < end; i++) {
       putter.invoke(invokePut(regionName, "" + i, "VALUE(" + i + ")"));
     }
 
     // verify present in others
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(invokeAssertEntriesCorrect(regionName, start, end));
     }
   }
 
   private void putSerializableAndVerify(VM putter, String regionName, int start, int end,
       VM... vms) {
-    for (int i = start; i < end; i++) {
+    for (var i = start; i < end; i++) {
       putter.invoke(invokePut(regionName, "" + i, new Properties()));
     }
 
     // verify present in others
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(invokeAssertEntriesExist(regionName, start, end));
     }
   }
 
   void putDataSerializableAndVerify(VM putter, String regionName, int start, int end,
       VM... vms) throws Exception {
-    for (int i = start; i < end; i++) {
+    for (var i = start; i < end; i++) {
       Class aClass = Thread.currentThread().getContextClassLoader()
           .loadClass("org.apache.geode.cache.ExpirationAttributes");
-      Constructor constructor = aClass.getConstructor(int.class);
-      Object testDataSerializable = constructor.newInstance(i);
+      var constructor = aClass.getConstructor(int.class);
+      var testDataSerializable = constructor.newInstance(i);
       putter.invoke(invokePut(regionName, "" + i, testDataSerializable));
     }
 
     // verify present in others
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(invokeAssertEntriesExist(regionName, start, end));
     }
   }
 
   void verifyValues(String objectType, String regionName, int start, int end, VM... vms) {
     if (objectType.equals("strings")) {
-      for (VM vm : vms) {
+      for (var vm : vms) {
         vm.invoke(invokeAssertEntriesCorrect(regionName, start, end));
       }
     } else if (objectType.equals("serializable")) {
-      for (VM vm : vms) {
+      for (var vm : vms) {
         vm.invoke(invokeAssertEntriesExist(regionName, start, end));
       }
     } else if (objectType.equals("dataserializable")) {
-      for (VM vm : vms) {
+      for (var vm : vms) {
         vm.invoke(invokeAssertEntriesExist(regionName, start, end));
       }
     }
@@ -509,35 +495,35 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
       DistributedMember... members) {
     Set<DistributedMember> membersSet = new HashSet<>();
     Collections.addAll(membersSet, members);
-    Execution execution = FunctionService.onMembers(membersSet).withArgs(dsClassName);
-    ResultCollector rc = execution.execute(functionId);
-    List result = (List) rc.getResult();
+    var execution = FunctionService.onMembers(membersSet).withArgs(dsClassName);
+    var rc = execution.execute(functionId);
+    var result = (List) rc.getResult();
     assertEquals(membersSet.size(), result.size());
-    for (final Object o : result) {
+    for (final var o : result) {
       assertTrue(o.getClass().getName().equals(dsClassName));
     }
   }
 
   protected void query(String queryString, int numExpectedResults, VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(invokeAssertQueryResults(queryString, numExpectedResults));
     }
   }
 
   private void doCreateIndexes(String regionPath, VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(invokeCreateIndexes(regionPath));
     }
   }
 
   private void doCreateIndex(String regionPath, VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(invokeCreateIndex(regionPath));
     }
   }
 
   void invokeRunnableInVMs(CacheSerializableRunnable runnable, VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(runnable);
     }
   }
@@ -545,7 +531,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   // Used to close cache and make sure we attempt on all vms even if some do not have a cache
   void invokeRunnableInVMs(boolean catchErrors, CacheSerializableRunnable runnable,
       VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       try {
         vm.invoke(runnable);
       } catch (Exception e) {
@@ -559,7 +545,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   private VM rollServerToCurrent(VM oldServer, int[] locatorPorts) {
     // Roll the server
     oldServer.invoke(invokeCloseCache());
-    VM rollServer = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldServer.getId());
+    var rollServer = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldServer.getId());
     rollServer.invoke(invokeCreateCache(locatorPorts == null ? getSystemPropertiesPost71()
         : getSystemPropertiesPost71(locatorPorts)));
     rollServer.invoke(invokeAssertVersion(VersionManager.getInstance().getCurrentVersionOrdinal()));
@@ -569,7 +555,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   private VM rollClientToCurrent(VM oldClient, String[] hostNames, int[] locatorPorts,
       boolean subscriptionEnabled) {
     oldClient.invoke(invokeCloseCache());
-    VM rollClient = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldClient.getId());
+    var rollClient = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldClient.getId());
     rollClient.invoke(invokeCreateClientCache(getClientSystemProperties(), hostNames, locatorPorts,
         subscriptionEnabled));
     rollClient.invoke(invokeAssertVersion(VersionManager.getInstance().getCurrentVersionOrdinal()));
@@ -578,7 +564,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   VM rollServerToCurrentAndCreateRegion(VM oldServer, RegionShortcut shortcut,
       String regionName, int[] locatorPorts) {
-    VM newServer = rollServerToCurrent(oldServer, locatorPorts);
+    var newServer = rollServerToCurrent(oldServer, locatorPorts);
     // recreate region on "rolled" server
     invokeRunnableInVMs(invokeCreateRegion(regionName, shortcut), newServer);
     newServer.invoke(invokeRebalance());
@@ -587,10 +573,10 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   VM rollServerToCurrentAndCreateRegion(VM oldServer, String regionType, File diskdir,
       RegionShortcut shortcut, String regionName, int[] locatorPorts) {
-    VM rollServer = rollServerToCurrent(oldServer, locatorPorts);
+    var rollServer = rollServerToCurrent(oldServer, locatorPorts);
     // recreate region on "rolled" server
     if ((regionType.equals("persistentReplicate"))) {
-      CacheSerializableRunnable runnable =
+      var runnable =
           invokeCreatePersistentReplicateRegion(regionName, diskdir);
       invokeRunnableInVMs(runnable, rollServer);
     } else {
@@ -602,7 +588,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   VM rollClientToCurrentAndCreateRegion(VM oldClient, ClientRegionShortcut shortcut,
       String regionName, String[] hostNames, int[] locatorPorts, boolean subscriptionEnabled) {
-    VM rollClient = rollClientToCurrent(oldClient, hostNames, locatorPorts, subscriptionEnabled);
+    var rollClient = rollClientToCurrent(oldClient, hostNames, locatorPorts, subscriptionEnabled);
     // recreate region on "rolled" client
     invokeRunnableInVMs(invokeCreateClientRegion(regionName, shortcut), rollClient);
     return rollClient;
@@ -612,7 +598,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
       final String testName, final String locatorString) {
     // Roll the locator
     rollLocator.invoke(invokeStopLocator());
-    VM newLocator = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, rollLocator.getId());
+    var newLocator = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, rollLocator.getId());
     newLocator.invoke(invokeStartLocator(serverHostName, port, testName,
         getLocatorProperties(locatorString), false));
     return newLocator;
@@ -620,7 +606,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   // Due to licensing changes
   private Properties getSystemPropertiesPost71() {
-    Properties props = getSystemProperties();
+    var props = getSystemProperties();
     props.put(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, "true");
     props.put(DistributionConfig.USE_CLUSTER_CONFIGURATION_NAME, "false");
     return props;
@@ -628,14 +614,14 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   // Due to licensing changes
   private Properties getSystemPropertiesPost71(int[] locatorPorts) {
-    Properties props = getSystemProperties(locatorPorts);
+    var props = getSystemProperties(locatorPorts);
     props.put(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, "true");
     props.put(DistributionConfig.USE_CLUSTER_CONFIGURATION_NAME, "false");
     return props;
   }
 
   public Properties getSystemProperties() {
-    Properties props = DistributedTestUtils.getAllDistributedSystemProperties(new Properties());
+    var props = DistributedTestUtils.getAllDistributedSystemProperties(new Properties());
     props.remove("disable-auto-reconnect");
     props.put(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, "true");
     props.put(DistributionConfig.USE_CLUSTER_CONFIGURATION_NAME, "false");
@@ -646,8 +632,8 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   public Properties getSystemProperties(int[] locatorPorts) {
-    Properties props = new Properties();
-    String locatorString = getLocatorString(locatorPorts);
+    var props = new Properties();
+    var locatorString = getLocatorString(locatorPorts);
     props.setProperty("locators", locatorString);
     props.setProperty("mcast-port", "0");
     props.put(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, "true");
@@ -658,7 +644,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   Properties getClientSystemProperties() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty("mcast-port", "0");
     p.setProperty(DistributionConfig.LOG_LEVEL_NAME, DUnitLauncher.logLevel);
     return p;
@@ -669,9 +655,9 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   public static String getLocatorString(int[] locatorPorts) {
-    String locatorString = "";
-    int numLocators = locatorPorts.length;
-    for (int i = 0; i < numLocators; i++) {
+    var locatorString = "";
+    var numLocators = locatorPorts.length;
+    for (var i = 0; i < numLocators; i++) {
       locatorString += getLocatorString(locatorPorts[i]);
       if (i + 1 < numLocators) {
         locatorString += ",";
@@ -957,29 +943,29 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
       systemProperties.remove("validate-serializable-objects");
       systemProperties.remove("serializable-object-filter");
     }
-    CacheFactory cf = new CacheFactory(systemProperties);
+    var cf = new CacheFactory(systemProperties);
     return cf.create();
   }
 
   private static void startCacheServer(GemFireCache cache, int port) throws Exception {
-    CacheServer cacheServer = ((GemFireCacheImpl) cache).addCacheServer();
+    var cacheServer = ((GemFireCacheImpl) cache).addCacheServer();
     cacheServer.setPort(port);
     cacheServer.start();
   }
 
   private static ClientCache createClientCache(Properties systemProperties, String[] hosts,
       int[] ports, boolean subscriptionEnabled) {
-    ClientCacheFactory cf = new ClientCacheFactory(systemProperties);
+    var cf = new ClientCacheFactory(systemProperties);
     if (subscriptionEnabled) {
       cf.setPoolSubscriptionEnabled(true);
       cf.setPoolSubscriptionRedundancy(-1);
     }
-    int hostsLength = hosts.length;
-    for (int i = 0; i < hostsLength; i++) {
+    var hostsLength = hosts.length;
+    for (var i = 0; i < hostsLength; i++) {
       cf.addPoolLocator(hosts[i], ports[i]);
     }
 
-    ClientCache clientCache = cf.create();
+    var clientCache = cf.create();
     // the pool is lazily created starting in 1.5.0. Here we ask for the pool so it
     // will be instantiated
     clientCache.getDefaultPool();
@@ -1005,14 +991,14 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   private static boolean assertEntriesCorrect(GemFireCache cache, String regionName, int start,
       int end) {
     assertRegionExists(cache, regionName);
-    Region region = getRegion(cache, regionName);
-    for (int i = start; i < end; i++) {
-      String key = "" + i;
-      Object regionValue = region.get(key);
+    var region = getRegion(cache, regionName);
+    for (var i = start; i < end; i++) {
+      var key = "" + i;
+      var regionValue = region.get(key);
       if (regionValue == null) {
         fail("Region value does not exist for key:" + key);
       }
-      String value = "VALUE(" + i + ")";
+      var value = "VALUE(" + i + ")";
       if (!regionValue.equals(value)) {
         fail("Entry for key:" + key + " does not equal value: " + value);
       }
@@ -1023,10 +1009,10 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   private static boolean assertEntryExists(GemFireCache cache, String regionName, int start,
       int end) {
     assertRegionExists(cache, regionName);
-    Region region = getRegion(cache, regionName);
-    for (int i = start; i < end; i++) {
-      String key = "" + i;
-      Object regionValue = region.get(key);
+    var region = getRegion(cache, regionName);
+    for (var i = start; i < end; i++) {
+      var key = "" + i;
+      var regionValue = region.get(key);
       if (regionValue == null) {
         fail("Entry for key:" + key + " does not exist");
       }
@@ -1035,9 +1021,9 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   public static Object put(GemFireCache cache, String regionName, Object key, Object value) {
-    Region region = getRegion(cache, regionName);
+    var region = getRegion(cache, regionName);
     System.out.println(regionName + ".put(" + key + "," + value + ")");
-    Object result = region.put(key, value);
+    var result = region.put(key, value);
     System.out.println("returned " + result);
     return result;
   }
@@ -1056,9 +1042,9 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   private static void createPersistentReplicateRegion(GemFireCache cache, String regionName,
       File diskStore) {
-    DiskStore store = cache.findDiskStore("store");
+    var store = cache.findDiskStore("store");
     if (store == null) {
-      DiskStoreFactory factory = cache.createDiskStoreFactory();
+      var factory = cache.createDiskStoreFactory();
       factory.setMaxOplogSize(1L);
       factory.setDiskDirs(new File[] {diskStore.getAbsoluteFile()});
       factory.create("store");
@@ -1070,7 +1056,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   private static void assertVersion(GemFireCache cache, short ordinal) {
-    DistributedSystem system = cache.getDistributedSystem();
+    var system = cache.getDistributedSystem();
     int thisOrdinal =
         ((InternalDistributedMember) system.getDistributedMember()).getVersion()
             .ordinal();
@@ -1083,10 +1069,10 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   private static void assertQueryResults(GemFireCache cache, String queryString,
       int numExpectedResults) {
     try {
-      QueryService qs = cache.getQueryService();
-      Query query = qs.newQuery(queryString);
-      SelectResults results = (SelectResults) query.execute();
-      int numResults = results.size();
+      var qs = cache.getQueryService();
+      var query = qs.newQuery(queryString);
+      var results = (SelectResults) query.execute();
+      var numResults = results.size();
       if (numResults != numExpectedResults) {
         System.out.println("Num Results was:" + numResults);
         throw new Error("Num results:" + numResults + " != num expected:" + numExpectedResults);
@@ -1097,7 +1083,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   private static void createIndexes(String regionPath, GemFireCache cache) throws Exception {
-    QueryService service = cache.getQueryService();
+    var service = cache.getQueryService();
     service.defineIndex("statusIndex", "status", regionPath);
     service.defineIndex("IDIndex", "ID", regionPath);
     service.defineIndex("secIdIndex", "pos.secId", regionPath + " p, p.positions.values pos");
@@ -1107,7 +1093,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
     } catch (MultiIndexCreationException e) {
       Assert.assertEquals("3 exceptions should have be present in the exceptionsMap.", 3,
           e.getExceptionsMap().values().size());
-      for (Exception ex : e.getExceptionsMap().values()) {
+      for (var ex : e.getExceptionsMap().values()) {
         Assert.assertTrue("Index creation should have been failed with IndexCreationException ",
             ex instanceof IndexCreationException);
         Assert.assertEquals("Incorrect exception message ",
@@ -1122,13 +1108,13 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
   private static void createIndex(String regionPath, GemFireCache cache) {
     try {
-      QueryService service = cache.getQueryService();
+      var service = cache.getQueryService();
       service.createIndex("statusIndex", "status", regionPath);
       service.createIndex("IDIndex", "ID", regionPath);
       service.createIndex("secIdIndex", "pos.secId", regionPath + " p, p.positions.values pos");
 
-      Collection<Index> indexes = service.getIndexes();
-      int numResults = indexes.size();
+      var indexes = service.getIndexes();
+      var numResults = indexes.size();
 
       if (numResults != 3) {
         System.out.println("Num Results was:" + numResults);
@@ -1145,8 +1131,8 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   private static void stopCacheServers(GemFireCache cache) {
-    List<CacheServer> servers = ((Cache) cache).getCacheServers();
-    for (CacheServer server : servers) {
+    var servers = ((Cache) cache).getCacheServers();
+    for (var server : servers) {
       server.stop();
     }
   }
@@ -1155,7 +1141,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
     if (cache == null) {
       return;
     }
-    boolean cacheClosed = cache.isClosed();
+    var cacheClosed = cache.isClosed();
     if (!cacheClosed) {
       stopCacheServers(cache);
       cache.close();
@@ -1164,12 +1150,12 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   private static void rebalance(Object cache) throws Exception {
-    RebalanceOperation op =
+    var op =
         ((GemFireCache) cache).getResourceManager().createRebalanceFactory().start();
 
     // Wait until the rebalance is complete
-    RebalanceResults results = op.getResults();
-    Method getTotalTimeMethod = results.getClass().getMethod("getTotalTime");
+    var results = op.getResults();
+    var getTotalTimeMethod = results.getClass().getMethod("getTotalTime");
     getTotalTimeMethod.setAccessible(true);
     System.out.println("Took " + results.getTotalTime() + " milliseconds\n");
     System.out.println("Transfered " + results.getTotalBucketTransferBytes() + "bytes\n");
@@ -1180,7 +1166,7 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   Properties getLocatorProperties(String locatorsString, boolean enableCC) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DistributionConfig.MCAST_PORT_NAME, "0");
     props.setProperty(DistributionConfig.LOCATORS_NAME, locatorsString);
     props.setProperty(DistributionConfig.LOG_LEVEL_NAME, DUnitLauncher.logLevel);
@@ -1234,21 +1220,21 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
   }
 
   String getHARegionName() {
-    InternalCache internalCache = (InternalCache) cache;
+    var internalCache = (InternalCache) cache;
     await().untilAsserted(() -> {
       assertEquals(1, internalCache.getCacheServers().size());
-      CacheServerImpl bs = (CacheServerImpl) (internalCache.getCacheServers().iterator().next());
+      var bs = (CacheServerImpl) (internalCache.getCacheServers().iterator().next());
       assertEquals(1, getAcceptorImpl(bs).getCacheClientNotifier().getClientProxies().size());
     });
-    CacheServerImpl bs = (CacheServerImpl) internalCache.getCacheServers().iterator().next();
-    CacheClientProxy ccp =
+    var bs = (CacheServerImpl) internalCache.getCacheServers().iterator().next();
+    var ccp =
         getAcceptorImpl(bs).getCacheClientNotifier().getClientProxies().iterator().next();
     return ccp.getHARegion().getName();
   }
 
   private AcceptorImpl getAcceptorImpl(CacheServerImpl server) {
     try {
-      Method getAcceptor = server.getClass().getMethod("getAcceptor");
+      var getAcceptor = server.getClass().getMethod("getAcceptor");
       return (AcceptorImpl) getAcceptor.invoke(server);
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
       throw new RuntimeException(e);
@@ -1261,10 +1247,10 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
 
     @Override
     public void execute(FunctionContext context) {
-      String dsClassName = (String) context.getArguments();
+      var dsClassName = (String) context.getArguments();
       try {
         Class aClass = Thread.currentThread().getContextClassLoader().loadClass(dsClassName);
-        Constructor constructor = aClass.getConstructor();
+        var constructor = aClass.getConstructor();
         context.getResultSender().lastResult(constructor.newInstance());
       } catch (Exception e) {
         throw new FunctionException(e);

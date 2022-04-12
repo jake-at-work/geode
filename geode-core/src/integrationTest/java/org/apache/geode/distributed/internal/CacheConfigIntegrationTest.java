@@ -40,10 +40,10 @@ public class CacheConfigIntegrationTest {
   @Test
   public void testXmlCreatedByCacheConfigCanBeUsedToStartupServer() throws Exception {
     xmlFile = temporaryFolder.newFile("cache.xml");
-    CacheConfig cacheConfig = new CacheConfig();
+    var cacheConfig = new CacheConfig();
     cacheConfig.setVersion("1.0");
-    JAXBService service = new JAXBService(CacheConfig.class);
-    String xml = service.marshall(cacheConfig);
+    var service = new JAXBService(CacheConfig.class);
+    var xml = service.marshall(cacheConfig);
     FileUtils.writeStringToFile(xmlFile, xml, "UTF-8");
 
     server.withProperty("cache-xml-file", xmlFile.getAbsolutePath());

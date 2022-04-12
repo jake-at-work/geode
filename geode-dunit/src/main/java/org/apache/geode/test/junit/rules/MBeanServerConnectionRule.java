@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.management.JMX;
@@ -76,7 +75,7 @@ public class MBeanServerConnectionRule extends DescribedExternalResource {
     }
 
     // do not auto connect if no ConnectionConfiguration is defined.
-    ConnectionConfiguration config = description.getAnnotation(ConnectionConfiguration.class);
+    var config = description.getAnnotation(ConnectionConfiguration.class);
     if (config == null) {
       return;
     }
@@ -125,7 +124,7 @@ public class MBeanServerConnectionRule extends DescribedExternalResource {
    * should have.
    **/
   public List<ObjectName> getGemfireFederatedBeans() throws IOException {
-    Set<ObjectName> allBeans = con.queryNames(null, null);
+    var allBeans = con.queryNames(null, null);
     // Each locator will have a "Manager" bean that is a part of the above query,
     // representing the ManagementAdapter.
     // This bean is registered (and so included in its own queries),
@@ -159,7 +158,7 @@ public class MBeanServerConnectionRule extends DescribedExternalResource {
       name = ObjectName.getInstance(beanQueryName);
     }
 
-    Set<ObjectInstance> beans = con.queryMBeans(name, query);
+    var beans = con.queryMBeans(name, query);
     assertEquals("failed to find only one instance of type " + proxyClass.getName() + " with name "
         + beanQueryName, 1, beans.size());
 
@@ -200,7 +199,7 @@ public class MBeanServerConnectionRule extends DescribedExternalResource {
     }
 
     // ServiceUrl: service:jmx:rmi:///jndi/rmi://<TARGET_MACHINE>:<RMI_REGISTRY_PORT>/jmxrmi
-    JMXServiceURL url =
+    var url =
         new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + jmxServer + ":" + jmxPort + "/jmxrmi");
 
     // same as GfshShellConnectorRule: if we connect before the RMI server is ready, we get "Failed

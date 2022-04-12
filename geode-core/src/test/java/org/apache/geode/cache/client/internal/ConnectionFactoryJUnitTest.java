@@ -44,18 +44,18 @@ public class ConnectionFactoryJUnitTest {
 
   @Test(expected = CancelException.class)
   public void connectionFactoryThrowsCancelException() throws CancelException, IOException {
-    ServerLocation serverLocation = mock(ServerLocation.class);
+    var serverLocation = mock(ServerLocation.class);
     doReturn(false).when(serverLocation).getRequiresCredentials();
 
-    ConnectionConnector connector = mock(ConnectionConnector.class);
+    var connector = mock(ConnectionConnector.class);
     doReturn(mock(ConnectionImpl.class)).when(connector).connectClientToServer(serverLocation,
         false);
 
-    ConnectionSource connectionSource = mock(ConnectionSource.class);
+    var connectionSource = mock(ConnectionSource.class);
     doReturn(serverLocation).when(connectionSource).findServer(any(Set.class));
 
     // mocks don't seem to work well with CancelCriterion so let's create a real one
-    CancelCriterion cancelCriterion = new CancelCriterion() {
+    var cancelCriterion = new CancelCriterion() {
       @Override
       public String cancelInProgress() {
         return "shutting down for test";
@@ -67,7 +67,7 @@ public class ConnectionFactoryJUnitTest {
       }
     };
 
-    ConnectionFactoryImpl connectionFactory = new ConnectionFactoryImpl(connector, connectionSource,
+    var connectionFactory = new ConnectionFactoryImpl(connector, connectionSource,
         60000, mock(PoolImpl.class), cancelCriterion);
 
     connectionFactory.createClientToServerConnection(Collections.emptySet());

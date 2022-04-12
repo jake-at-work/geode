@@ -21,7 +21,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.GEODE_FOR_RED
 import static org.apache.geode.distributed.ConfigurationProperties.GEODE_FOR_REDIS_PORT;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -30,14 +29,11 @@ import org.apache.logging.log4j.core.config.Configurator;
 import redis.clients.jedis.Jedis;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.logging.internal.log4j.api.FastLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.redis.ClusterNode;
 import org.apache.geode.redis.ClusterNodes;
 import org.apache.geode.redis.internal.GeodeRedisServer;
 import org.apache.geode.redis.internal.GeodeRedisService;
@@ -110,21 +106,21 @@ public class RedisClusterStartupRule extends ClusterStartupRule {
 
   public int getRedisPort(MemberVM vm) {
     return vm.invoke(() -> {
-      GeodeRedisService service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
+      var service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
       return service.getRedisServer().getPort();
     });
   }
 
   public void setEnableUnsupported(MemberVM vm, boolean enableUnsupported) {
     vm.invoke(() -> {
-      GeodeRedisService service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
+      var service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
       service.getRedisServer().setAllowUnsupportedCommands(enableUnsupported);
     });
   }
 
   public Long getDataStoreBytesInUseForDataRegion(MemberVM vm) {
     return vm.invoke(() -> {
-      GeodeRedisService service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
+      var service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
       return service.getRedisServer().getDataStoreBytesInUseForDataRegion();
     });
   }
@@ -139,16 +135,16 @@ public class RedisClusterStartupRule extends ClusterStartupRule {
 
   private void flushAll(int redisPort, String username, String password) {
     ClusterNodes nodes;
-    try (Jedis jedis = new Jedis(BIND_ADDRESS, redisPort, REDIS_CLIENT_TIMEOUT)) {
+    try (var jedis = new Jedis(BIND_ADDRESS, redisPort, REDIS_CLIENT_TIMEOUT)) {
       authenticate(jedis, username, password);
       nodes = ClusterNodes.parseClusterNodes(jedis.clusterNodes());
     }
 
-    for (ClusterNode node : nodes.getNodes()) {
+    for (var node : nodes.getNodes()) {
       if (!node.primary) {
         continue;
       }
-      try (Jedis jedis = new Jedis(node.ipAddress, (int) node.port, REDIS_CLIENT_TIMEOUT)) {
+      try (var jedis = new Jedis(node.ipAddress, (int) node.port, REDIS_CLIENT_TIMEOUT)) {
         authenticate(jedis, username, password);
         jedis.flushAll();
       }
@@ -169,14 +165,14 @@ public class RedisClusterStartupRule extends ClusterStartupRule {
    */
   public RedisMemberInfo getMemberInfo(String key) {
     return getMember(1).invoke(() -> {
-      GeodeRedisService service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
+      var service = ClusterStartupRule.getCache().getService(GeodeRedisService.class);
       return service.getRedisServer().getMemberInfo(key);
     });
   }
 
   public void enableDebugLogging(int vmId) {
     getMember(vmId).invoke("Set logging level to DEBUG", () -> {
-      Logger logger = LogManager.getLogger("org.apache.geode.redis.internal");
+      var logger = LogManager.getLogger("org.apache.geode.redis.internal");
       Configurator.setAllLevels(logger.getName(), Level.getLevel("DEBUG"));
       FastLogger.setDelegating(true);
     });
@@ -199,14 +195,14 @@ public class RedisClusterStartupRule extends ClusterStartupRule {
           Region<RedisKey, RedisData> r = RedisClusterStartupRule.getCache()
               .getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
 
-          RedisKey redisKey = new RedisKey(key.getBytes());
-          DistributedMember primaryMember =
+          var redisKey = new RedisKey(key.getBytes());
+          var primaryMember =
               PartitionRegionHelper.getPrimaryMemberForKey(r, redisKey);
-          Set<DistributedMember> allHosting =
+          var allHosting =
               PartitionRegionHelper.getAllMembersForKey(r, redisKey);
 
           // Returns all members, except the one calling.
-          Set<DistributedMember> allMembers = getCache().getMembers(r);
+          var allMembers = getCache().getMembers(r);
           allMembers.add(getCache().getDistributedSystem().getDistributedMember());
 
           DistributedMember targetMember;
@@ -237,24 +233,24 @@ public class RedisClusterStartupRule extends ClusterStartupRule {
   }
 
   public void switchPrimaryForKey(String key, MemberVM... candidateMembers) {
-    Set<DistributedMember> redundantMembers = getMember(1).invoke(() -> {
-      RedisKey redisKey = new RedisKey(key.getBytes());
+    var redundantMembers = getMember(1).invoke(() -> {
+      var redisKey = new RedisKey(key.getBytes());
       Region<RedisKey, RedisData> r = RedisClusterStartupRule.getCache()
           .getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
 
       return PartitionRegionHelper.getRedundantMembersForKey(r, redisKey);
     });
 
-    DistributedMember targetMember = redundantMembers.iterator().next();
+    var targetMember = redundantMembers.iterator().next();
 
-    for (MemberVM vm : candidateMembers) {
+    for (var vm : candidateMembers) {
       if (targetMember.getName().equals(vm.getName())) {
         boolean bucketMoved = vm.invoke("switchPrimaryForKey " + key + " -> " + vm.getName(),
             () -> {
-              RedisKey redisKey = new RedisKey(key.getBytes());
+              var redisKey = new RedisKey(key.getBytes());
               Region<RedisKey, RedisData> r = RedisClusterStartupRule.getCache()
                   .getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
-              PartitionedRegion pr = (PartitionedRegion) r;
+              var pr = (PartitionedRegion) r;
               return pr.getRegionAdvisor().getBucketAdvisor(redisKey.getBucketId())
                   .becomePrimary(false);
             });
@@ -266,9 +262,9 @@ public class RedisClusterStartupRule extends ClusterStartupRule {
       }
     }
 
-    DistributedMember newMember = getMember(1).invoke("Getting primary for key " + key,
+    var newMember = getMember(1).invoke("Getting primary for key " + key,
         () -> {
-          RedisKey redisKey = new RedisKey(key.getBytes());
+          var redisKey = new RedisKey(key.getBytes());
           Region<RedisKey, RedisData> r = RedisClusterStartupRule.getCache()
               .getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
           return PartitionRegionHelper.getPrimaryMemberForKey(r, redisKey);
@@ -290,12 +286,12 @@ public class RedisClusterStartupRule extends ClusterStartupRule {
       Region<RedisKey, RedisData> r = RedisClusterStartupRule.getCache()
           .getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
 
-      String server = "server-" + vmId;
+      var server = "server-" + vmId;
       String key;
-      int i = 0;
+      var i = 0;
       while (true) {
         key = keyPrefix + i;
-        DistributedMember primaryMember =
+        var primaryMember =
             PartitionRegionHelper.getPrimaryMemberForKey(r, new RedisKey(key.getBytes()));
         if (primaryMember.getName().equals(server)) {
           return key;
@@ -310,8 +306,8 @@ public class RedisClusterStartupRule extends ClusterStartupRule {
    */
   public void rebalanceAllRegions() {
     getMember(1).invoke("Running rebalance", () -> {
-      ResourceManager manager = ClusterStartupRule.getCache().getResourceManager();
-      RebalanceFactory factory = manager.createRebalanceFactory();
+      var manager = ClusterStartupRule.getCache().getResourceManager();
+      var factory = manager.createRebalanceFactory();
       try {
         factory.start().getResults();
       } catch (InterruptedException e) {

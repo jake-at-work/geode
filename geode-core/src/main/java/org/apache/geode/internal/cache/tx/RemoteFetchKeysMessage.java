@@ -94,9 +94,9 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
    * @return the response
    */
   public static FetchKeysResponse send(LocalRegion currRegion, DistributedMember target) {
-    FetchKeysResponse response =
+    var response =
         new FetchKeysResponse(currRegion.getSystem(), (InternalDistributedMember) target);
-    RemoteFetchKeysMessage msg = new RemoteFetchKeysMessage((InternalDistributedMember) target,
+    var msg = new RemoteFetchKeysMessage((InternalDistributedMember) target,
         currRegion.getFullPath(), response);
     currRegion.getSystem().getDistributionManager().putOutgoing(msg);
     return response;
@@ -156,15 +156,15 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
 
       Assert.assertTrue(recipient != null, "FetchKeysReplyMessage NULL reply message");
 
-      final int numSeries = 1;
-      final int seriesNum = 0;
+      final var numSeries = 1;
+      final var seriesNum = 0;
 
       // chunkEntries returns false if didn't finish
       if (logger.isDebugEnabled()) {
         logger.debug("Starting region keys chunking for {} keys to member {}", keys.size(),
             recipient);
       }
-      boolean finished = chunkSet(recipient, keys, InitialImageOperation.CHUNK_SIZE_IN_BYTES, false,
+      var finished = chunkSet(recipient, keys, InitialImageOperation.CHUNK_SIZE_IN_BYTES, false,
           new ObjectIntProcedure() {
             int msgNum = 0;
 
@@ -177,10 +177,10 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
              */
             @Override
             public boolean executeWith(Object a, int b) {
-              HeapDataOutputStream chunk = (HeapDataOutputStream) a;
+              var chunk = (HeapDataOutputStream) a;
               last = b > 0;
               try {
-                boolean okay = sendChunk(recipient, processorId, dm, chunk, seriesNum, msgNum++,
+                var okay = sendChunk(recipient, processorId, dm, chunk, seriesNum, msgNum++,
                     numSeries, last);
                 return okay;
               } catch (CancelException e) {
@@ -198,7 +198,7 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
     static boolean sendChunk(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, HeapDataOutputStream chunk, int seriesNum, int msgNum,
         int numSeries, boolean lastInSeries) {
-      RemoteFetchKeysReplyMessage reply = new RemoteFetchKeysReplyMessage(recipient, processorId,
+      var reply = new RemoteFetchKeysReplyMessage(recipient, processorId,
           chunk, seriesNum, msgNum, numSeries, lastInSeries);
       Set<?> failures = dm.putOutgoing(reply);
       return (failures == null) || (failures.size() == 0);
@@ -218,22 +218,22 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
       @SuppressWarnings("rawtypes")
       Iterator it = set.iterator();
 
-      boolean keepGoing = true;
-      boolean sentLastChunk = false;
+      var keepGoing = true;
+      var sentLastChunk = false;
 
       // always write at least one chunk
-      try (HeapDataOutputStream mos = new HeapDataOutputStream(
+      try (var mos = new HeapDataOutputStream(
           InitialImageOperation.CHUNK_SIZE_IN_BYTES + 2048, Versioning
               .getKnownVersionOrDefault(recipient.getVersion(), KnownVersion.CURRENT))) {
         do {
           mos.reset();
 
-          int avgItemSize = 0;
-          int itemCount = 0;
+          var avgItemSize = 0;
+          var itemCount = 0;
 
           while ((mos.size() + avgItemSize) < InitialImageOperation.CHUNK_SIZE_IN_BYTES
               && it.hasNext()) {
-            Object key = it.next();
+            var key = it.next();
             DataSerializer.writeObject(key, mos);
 
             // Note we track the itemCount so we can compute avgItemSize
@@ -250,7 +250,7 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
           DataSerializer.writeObject(null, mos);
 
           // send 1 for last message if no more data
-          int lastMsg = it.hasNext() ? 0 : 1;
+          var lastMsg = it.hasNext() ? 0 : 1;
           keepGoing = proc.executeWith(mos, lastMsg);
           sentLastChunk = lastMsg == 1 && keepGoing;
 
@@ -268,8 +268,8 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 p) {
-      final long startTime = getTimestamp();
-      FetchKeysResponse processor = (FetchKeysResponse) p;
+      final var startTime = getTimestamp();
+      var processor = (FetchKeysResponse) p;
 
       if (processor == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -316,7 +316,7 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("RemoteFetchKeysReplyMessage ").append("processorid=").append(processorId);
       if (getSender() != null) {
         sb.append(",sender=").append(getSender());
@@ -360,10 +360,10 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
 
     @Override
     public void process(DistributionMessage msg) {
-      boolean doneProcessing = false;
+      var doneProcessing = false;
       try {
         if (msg instanceof RemoteFetchKeysReplyMessage) {
-          RemoteFetchKeysReplyMessage fkrm = (RemoteFetchKeysReplyMessage) msg;
+          var fkrm = (RemoteFetchKeysReplyMessage) msg;
           if (fkrm.getException() != null) {
             doneProcessing = true;
           } else {
@@ -388,13 +388,13 @@ public class RemoteFetchKeysMessage extends RemoteOperationMessage {
       // of this message, we'll need to handle fail over in this processor class and track results
       // differently.
 
-      boolean doneProcessing = false;
+      var doneProcessing = false;
       try {
 
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(msg.chunk);
-        DataInputStream in = new DataInputStream(byteStream);
+        var byteStream = new ByteArrayInputStream(msg.chunk);
+        var in = new DataInputStream(byteStream);
         while (in.available() > 0) {
-          Object key = DataSerializer.readObject(in);
+          var key = DataSerializer.readObject(in);
           if (key != null) {
             synchronized (returnValue) {
               returnValue.add(key);

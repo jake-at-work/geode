@@ -26,32 +26,31 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 
 public class RollingUpgradeClients extends RollingUpgrade2DUnitTestBase {
 
   @Test
   public void testClients() throws Exception {
-    final Host host = Host.getHost(0);
-    VM locator = host.getVM(oldVersion, 0);
-    VM server2 = host.getVM(oldVersion, 1);
-    VM server3 = host.getVM(oldVersion, 2);
-    VM client = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var locator = host.getVM(oldVersion, 0);
+    var server2 = host.getVM(oldVersion, 1);
+    var server3 = host.getVM(oldVersion, 2);
+    var client = host.getVM(oldVersion, 3);
 
-    final String objectType = "strings";
-    final String regionName = "aRegion";
+    final var objectType = "strings";
+    final var regionName = "aRegion";
 
-    RegionShortcut shortcut = RegionShortcut.REPLICATE;
+    var shortcut = RegionShortcut.REPLICATE;
 
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
-    int[] locatorPorts = new int[] {ports[0]};
-    int[] csPorts = new int[] {ports[1], ports[2]};
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var locatorPorts = new int[] {ports[0]};
+    var csPorts = new int[] {ports[1], ports[2]};
 
     locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
-    String hostName = NetworkUtils.getServerHostName();
-    String[] hostNames = new String[] {hostName};
-    String locatorString = getLocatorString(locatorPorts);
+    var hostName = NetworkUtils.getServerHostName();
+    var hostNames = new String[] {hostName};
+    var locatorString = getLocatorString(locatorPorts);
     try {
       locator.invoke(invokeStartLocator(hostName, locatorPorts[0], getTestMethodName(),
           getLocatorProperties(locatorString), true));

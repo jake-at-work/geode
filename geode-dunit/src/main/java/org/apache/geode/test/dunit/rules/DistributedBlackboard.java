@@ -74,8 +74,8 @@ public class DistributedBlackboard extends AbstractDistributedRule implements Bl
 
   @Override
   protected void afterBounceVM(VM vm) {
-    Map<String, Boolean> keepGatesForVM = keepGates.remove(vm.getId());
-    Map<String, Serializable> keepMailboxesForVM = keepMailboxes.remove(vm.getId());
+    var keepGatesForVM = keepGates.remove(vm.getId());
+    var keepMailboxesForVM = keepMailboxes.remove(vm.getId());
 
     vm.invoke(() -> {
       invokeBefore();
@@ -85,7 +85,7 @@ public class DistributedBlackboard extends AbstractDistributedRule implements Bl
   }
 
   private void invokeBefore() {
-    InternalBlackboard internalBlackboard = InternalBlackboardImpl.getInstance();
+    var internalBlackboard = InternalBlackboardImpl.getInstance();
     INTERNAL.set(internalBlackboard);
     BLACKBOARD.set(new DUnitBlackboard(internalBlackboard));
   }

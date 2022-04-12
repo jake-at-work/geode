@@ -14,10 +14,8 @@
  */
 package org.apache.geode.management.internal.cli.functions;
 
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.ResultSender;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.cache.xmlcache.CacheXml;
@@ -46,11 +44,11 @@ public class DestroyDiskStoreFunction implements InternalFunction<DestroyDiskSto
     // Declared here so that it's available when returning a Throwable
     String memberId;
 
-    final DestroyDiskStoreFunctionArgs args = context.getArguments();
+    final var args = context.getArguments();
 
-    InternalCache cache = (InternalCache) context.getCache();
+    var cache = (InternalCache) context.getCache();
 
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+    var member = cache.getDistributedSystem().getDistributedMember();
 
     memberId = member.getId();
     // If they set a name use it instead
@@ -58,12 +56,12 @@ public class DestroyDiskStoreFunction implements InternalFunction<DestroyDiskSto
       memberId = member.getName();
     }
 
-    DiskStore diskStore = cache.findDiskStore(args.getId());
+    var diskStore = cache.findDiskStore(args.getId());
 
     CliFunctionResult result;
     try {
       if (diskStore != null) {
-        XmlEntity xmlEntity = new XmlEntity(CacheXml.DISK_STORE, "name", args.getId());
+        var xmlEntity = new XmlEntity(CacheXml.DISK_STORE, "name", args.getId());
         diskStore.destroy();
         result = new CliFunctionResult(memberId, xmlEntity, "Success");
       } else {

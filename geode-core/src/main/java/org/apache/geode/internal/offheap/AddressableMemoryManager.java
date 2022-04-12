@@ -54,7 +54,7 @@ public class AddressableMemoryManager {
     try {
       return unsafe.allocateMemory(size);
     } catch (OutOfMemoryError err) {
-      String msg = "Failed creating " + size + " bytes of off-heap memory during cache creation.";
+      var msg = "Failed creating " + size + " bytes of off-heap memory during cache creation.";
       if (err.getMessage() != null && !err.getMessage().isEmpty()) {
         msg += " Cause: " + err.getMessage();
       }
@@ -199,9 +199,9 @@ public class AddressableMemoryManager {
     if (dbbAddressFailed) {
       return 0L;
     }
-    Method m = dbbAddressMethod;
+    var m = dbbAddressMethod;
     if (m == null) {
-      Class c = dbbClass;
+      var c = dbbClass;
       if (c == null) {
         try {
           c = Class.forName("java.nio.DirectByteBuffer");
@@ -247,9 +247,9 @@ public class AddressableMemoryManager {
     if (dbbCreateFailed) {
       return null;
     }
-    Constructor ctor = dbbCtor;
+    var ctor = dbbCtor;
     if (ctor == null) {
-      Class c = dbbClass;
+      var c = dbbClass;
       if (c == null) {
         try {
           c = Class.forName("java.nio.DirectByteBuffer");

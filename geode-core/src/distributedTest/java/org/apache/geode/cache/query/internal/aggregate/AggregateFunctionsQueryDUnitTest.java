@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -47,15 +46,12 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.PortfolioPdx;
 import org.apache.geode.cache.query.data.Position;
 import org.apache.geode.cache.query.data.PositionPdx;
-import org.apache.geode.cache.query.internal.CompiledSelect;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -123,15 +119,15 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     Region<Integer, Object> portfolioRegion = ClusterStartupRule.getCache().getRegion(regionName);
     assertThat(portfolioRegion).isNotNull();
 
-    for (int i = 1; i < entriesAmount + 1; ++i) {
+    for (var i = 1; i < entriesAmount + 1; ++i) {
       Object value;
 
       if (usePdx) {
-        PortfolioPdx pfPdx = new PortfolioPdx(i);
+        var pfPdx = new PortfolioPdx(i);
         pfPdx.shortID = (short) ((short) i / 5);
         value = pfPdx;
       } else {
-        Portfolio pf = new Portfolio(i);
+        var pf = new Portfolio(i);
         pf.shortID = (short) ((short) i / 5);
         value = pf;
       }
@@ -329,28 +325,28 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      CompiledSelect cs = ((DefaultQuery) query).getSelect();
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var cs = ((DefaultQuery) query).getSelect();
       assertThat(cs.isDistinct()).isTrue();
       assertThat(cs.isOrderBy()).isTrue();
       assertThat(cs.isGroupBy()).isFalse();
 
       Region<String, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-      Map<Short, List<Object>> temp = region.values().stream().collect(
+      var temp = region.values().stream().collect(
           Collectors.groupingBy(value -> (short) toPortfolioShortID(usePdx).applyAsInt(value)));
-      Set<Short> expectedResults = temp.keySet();
+      var expectedResults = temp.keySet();
 
       @SuppressWarnings("unchecked")
-      SelectResults<Object> results = (SelectResults<Object>) query.execute();
+      var results = (SelectResults<Object>) query.execute();
       assertThat(results.asList().size()).isEqualTo(expectedResults.size());
 
-      for (Object result : results.asList()) {
+      for (var result : results.asList()) {
         if (!useAlias) {
           assertThat(result).isInstanceOf(Short.class);
           assertThat(expectedResults.contains(result)).isTrue();
         } else {
-          Struct struct = (Struct) result;
+          var struct = (Struct) result;
           assertThat(struct.get("short_id")).isInstanceOf(Short.class);
           assertThat(expectedResults.contains(struct.get("short_id"))).isTrue();
         }
@@ -366,23 +362,23 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 150), server1, server2, server3,
         server4);
-    String queryString = "SELECT p.status AS status, p.ID FROM " + SEPARATOR + regionName
+    var queryString = "SELECT p.status AS status, p.ID FROM " + SEPARATOR + regionName
         + " p WHERE p.ID > 0 GROUP BY status, p.ID ";
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      CompiledSelect cs = ((DefaultQuery) query).getSelect();
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var cs = ((DefaultQuery) query).getSelect();
       assertThat(cs.isDistinct()).isTrue();
       assertThat(cs.isOrderBy()).isTrue();
       assertThat(cs.isGroupBy()).isFalse();
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(150);
-      for (Struct struct : results.asList()) {
-        Integer id = (Integer) struct.get("ID");
+      for (var struct : results.asList()) {
+        var id = (Integer) struct.get("ID");
         assertThat(((String) struct.get("status"))).isEqualTo(id % 2 == 0 ? "active" : "inactive");
       }
     }, server1, server2, server3, server4);
@@ -396,7 +392,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 200), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT * FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)" : "*";
     String queryString;
 
@@ -411,21 +407,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
       double activeCount = countByStatus(true, usePdx);
       double inactiveCount = countByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(downCast(activeCount));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(downCast(inactiveCount));
@@ -441,7 +437,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 200), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT * FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)" : "*";
     String queryString;
 
@@ -456,21 +452,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
       double activeCount = countByStatus(true, usePdx);
       double inactiveCount = countByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(downCast(activeCount));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(downCast(inactiveCount));
@@ -485,7 +481,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 200), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.shortID FROM " + SEPARATOR + regionName
             + " iter WHERE iter.ID = p.ID)"
         : "p.shortID";
@@ -503,21 +499,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
       double activeCount = countDistinctShortIDsByStatus(true, usePdx);
       double inactiveCount = countDistinctShortIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(downCast(activeCount));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(downCast(inactiveCount));
@@ -533,7 +529,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 200), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.shortID FROM " + SEPARATOR + regionName
             + " iter WHERE iter.ID = p.ID)"
         : "p.shortID";
@@ -551,21 +547,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
       double activeCount = countDistinctShortIDsByStatus(true, usePdx);
       double inactiveCount = countDistinctShortIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(downCast(activeCount));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(downCast(inactiveCount));
@@ -596,26 +592,26 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
       // Compute Expected Results
       List<Object[]> expectedOrderedResults = new ArrayList<>();
       Region<String, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-      Map<Short, Long> temp = region.values().stream().collect(Collectors.groupingBy(
+      var temp = region.values().stream().collect(Collectors.groupingBy(
           value -> (short) toPortfolioShortID(usePdx).applyAsInt(value), Collectors.counting()));
       temp.entrySet().stream().sorted(Map.Entry.<Short, Long>comparingByValue().reversed())
           .forEachOrdered(e -> expectedOrderedResults
               .add(new Object[] {e.getKey(), e.getValue().doubleValue()}));
 
       // Execute Query
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(expectedOrderedResults.size());
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
       // Assertions
-      List<Struct> queryResults = results.asList();
-      for (int i = 0; i < queryResults.size(); i++) {
-        Struct structResult = queryResults.get(i);
-        Object[] expectedResult = expectedOrderedResults.get(i);
+      var queryResults = results.asList();
+      for (var i = 0; i < queryResults.size(); i++) {
+        var structResult = queryResults.get(i);
+        var expectedResult = expectedOrderedResults.get(i);
         assertThat(structResult.getFieldValues()[0]).isEqualTo(expectedResult[0]);
         assertThat(structResult.getFieldValues()[1])
             .isEqualTo(downCast((double) expectedResult[1]));
@@ -648,26 +644,26 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
       // Compute Expected Results
       List<Object[]> expectedOrderedResults = new ArrayList<>();
       Region<String, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-      Map<Short, Long> temp = region.values().stream().collect(Collectors.groupingBy(
+      var temp = region.values().stream().collect(Collectors.groupingBy(
           value -> (short) toPortfolioShortID(usePdx).applyAsInt(value), Collectors.counting()));
       temp.entrySet().stream().sorted(Map.Entry.<Short, Long>comparingByValue().reversed())
           .forEachOrdered(e -> expectedOrderedResults
               .add(new Object[] {e.getKey(), e.getValue().doubleValue()}));
 
       // Execute Query
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(expectedOrderedResults.size());
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
       // Assertions
-      List<Struct> queryResults = results.asList();
-      for (int i = 0; i < queryResults.size(); i++) {
-        Struct structResult = queryResults.get(i);
-        Object[] expectedResult = expectedOrderedResults.get(i);
+      var queryResults = results.asList();
+      for (var i = 0; i < queryResults.size(); i++) {
+        var structResult = queryResults.get(i);
+        var expectedResult = expectedOrderedResults.get(i);
         assertThat(structResult.getFieldValues()[0]).isEqualTo(expectedResult[0]);
         assertThat(structResult.getFieldValues()[1])
             .isEqualTo(downCast((double) expectedResult[1]));
@@ -683,7 +679,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 600), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -699,21 +695,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeSum = sumIDsByStatus(true, usePdx);
-      double inactiveSum = sumIDsByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeSum = sumIDsByStatus(true, usePdx);
+      var inactiveSum = sumIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(downCast(activeSum));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(downCast(inactiveSum));
@@ -729,7 +725,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 600), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -745,21 +741,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeSum = sumIDsByStatus(true, usePdx);
-      double inactiveSum = sumIDsByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeSum = sumIDsByStatus(true, usePdx);
+      var inactiveSum = sumIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(downCast(activeSum));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(downCast(inactiveSum));
@@ -774,7 +770,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 600), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.shortID FROM " + SEPARATOR + regionName
             + " iter WHERE iter.ID = p.ID)"
         : "p.shortID";
@@ -792,22 +788,22 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeDistinctShortIDsSum = sumDistinctShortIDsByStatus(true, usePdx);
-      double inactiveDistinctShortIDsSum = sumDistinctShortIDsByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeDistinctShortIDsSum = sumDistinctShortIDsByStatus(true, usePdx);
+      var inactiveDistinctShortIDsSum = sumDistinctShortIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1])
           .isEqualTo(downCast(activeDistinctShortIDsSum));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1])
@@ -824,7 +820,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 600), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.shortID FROM " + SEPARATOR + regionName
             + " iter WHERE iter.ID = p.ID)"
         : "p.shortID";
@@ -842,22 +838,22 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeDistinctShortIDsSum = sumDistinctShortIDsByStatus(true, usePdx);
-      double inactiveDistinctShortIDsSum = sumDistinctShortIDsByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeDistinctShortIDsSum = sumDistinctShortIDsByStatus(true, usePdx);
+      var inactiveDistinctShortIDsSum = sumDistinctShortIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1])
           .isEqualTo(downCast(activeDistinctShortIDsSum));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1])
@@ -889,26 +885,26 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
       // Compute Expected Results
       List<Object[]> expectedOrderedResults = new ArrayList<>();
       Region<String, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-      Map<Short, Integer> temp = region.values().stream().collect(
+      var temp = region.values().stream().collect(
           Collectors.groupingBy(value -> (short) toPortfolioShortID(usePdx).applyAsInt(value),
               Collectors.summingInt(toPortfolioID(usePdx))));
       temp.entrySet().stream().sorted(Map.Entry.comparingByValue())
           .forEachOrdered(e -> expectedOrderedResults.add(new Object[] {e.getKey(), e.getValue()}));
 
       // Execute Query
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(expectedOrderedResults.size());
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
       // Assertions
-      List<Struct> queryResults = results.asList();
-      for (int i = 0; i < queryResults.size(); i++) {
-        Struct structResult = queryResults.get(i);
-        Object[] expectedResult = expectedOrderedResults.get(i);
+      var queryResults = results.asList();
+      for (var i = 0; i < queryResults.size(); i++) {
+        var structResult = queryResults.get(i);
+        var expectedResult = expectedOrderedResults.get(i);
         assertThat(structResult.getFieldValues()[0]).isEqualTo(expectedResult[0]);
         assertThat(structResult.getFieldValues()[1]).isEqualTo(expectedResult[1]);
       }
@@ -940,26 +936,26 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
       // Compute Expected Results
       List<Object[]> expectedOrderedResults = new ArrayList<>();
       Region<String, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-      Map<Short, Integer> temp = region.values().stream().collect(
+      var temp = region.values().stream().collect(
           Collectors.groupingBy(value -> (short) toPortfolioShortID(usePdx).applyAsInt(value),
               Collectors.summingInt(toPortfolioID(usePdx))));
       temp.entrySet().stream().sorted(Map.Entry.comparingByValue())
           .forEachOrdered(e -> expectedOrderedResults.add(new Object[] {e.getKey(), e.getValue()}));
 
       // Execute Query
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(expectedOrderedResults.size());
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
       // Assertions
-      List<Struct> queryResults = results.asList();
-      for (int i = 0; i < queryResults.size(); i++) {
-        Struct structResult = queryResults.get(i);
-        Object[] expectedResult = expectedOrderedResults.get(i);
+      var queryResults = results.asList();
+      for (var i = 0; i < queryResults.size(); i++) {
+        var structResult = queryResults.get(i);
+        var expectedResult = expectedOrderedResults.get(i);
         assertThat(structResult.getFieldValues()[0]).isEqualTo(expectedResult[0]);
         assertThat(structResult.getFieldValues()[1]).isEqualTo(expectedResult[1]);
       }
@@ -974,7 +970,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -990,21 +986,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeAvg = sumIDsByStatus(true, usePdx) / countByStatus(true, usePdx);
-      double inactiveAvg = sumIDsByStatus(false, usePdx) / countByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeAvg = sumIDsByStatus(true, usePdx) / countByStatus(true, usePdx);
+      var inactiveAvg = sumIDsByStatus(false, usePdx) / countByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(downCast(activeAvg));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(downCast(inactiveAvg));
@@ -1020,7 +1016,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -1036,21 +1032,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeAvg = sumIDsByStatus(true, usePdx) / countByStatus(true, usePdx);
-      double inactiveAvg = sumIDsByStatus(false, usePdx) / countByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeAvg = sumIDsByStatus(true, usePdx) / countByStatus(true, usePdx);
+      var inactiveAvg = sumIDsByStatus(false, usePdx) / countByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(downCast(activeAvg));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(downCast(inactiveAvg));
@@ -1065,7 +1061,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.shortID FROM " + SEPARATOR + regionName
             + " iter WHERE iter.ID = p.ID)"
         : "p.shortID";
@@ -1083,24 +1079,24 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeDistinctShortIDsAvg =
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeDistinctShortIDsAvg =
           sumDistinctShortIDsByStatus(true, usePdx) / countDistinctShortIDsByStatus(true, usePdx);
-      double inactiveDistinctShortIDsAvg =
+      var inactiveDistinctShortIDsAvg =
           sumDistinctShortIDsByStatus(false, usePdx) / countDistinctShortIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1])
           .isEqualTo(downCast(activeDistinctShortIDsAvg));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1])
@@ -1117,7 +1113,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.shortID FROM " + SEPARATOR + regionName
             + " iter WHERE iter.ID = p.ID)"
         : "p.shortID";
@@ -1135,24 +1131,24 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeDistinctShortIDsAvg =
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeDistinctShortIDsAvg =
           sumDistinctShortIDsByStatus(true, usePdx) / countDistinctShortIDsByStatus(true, usePdx);
-      double inactiveDistinctShortIDsAvg =
+      var inactiveDistinctShortIDsAvg =
           sumDistinctShortIDsByStatus(false, usePdx) / countDistinctShortIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1])
           .isEqualTo(downCast(activeDistinctShortIDsAvg));
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1])
@@ -1184,26 +1180,26 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
       // Compute Expected Results
       List<Object[]> expectedOrderedResults = new ArrayList<>();
       Region<String, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-      Map<Short, Double> temp = region.values().stream().collect(
+      var temp = region.values().stream().collect(
           Collectors.groupingBy(value -> (short) toPortfolioShortID(usePdx).applyAsInt(value),
               Collectors.averagingInt(toPortfolioID(usePdx))));
       temp.entrySet().stream().sorted(Map.Entry.<Short, Double>comparingByValue().reversed())
           .forEachOrdered(e -> expectedOrderedResults.add(new Object[] {e.getKey(), e.getValue()}));
 
       // Execute Query
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(expectedOrderedResults.size());
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
       // Assertions
-      List<Struct> queryResults = results.asList();
-      for (int i = 0; i < queryResults.size(); i++) {
-        Struct structResult = queryResults.get(i);
-        Object[] expectedResult = expectedOrderedResults.get(i);
+      var queryResults = results.asList();
+      for (var i = 0; i < queryResults.size(); i++) {
+        var structResult = queryResults.get(i);
+        var expectedResult = expectedOrderedResults.get(i);
         assertThat(structResult.getFieldValues()[0]).isEqualTo(expectedResult[0]);
         assertThat(structResult.getFieldValues()[1])
             .isEqualTo(downCast((double) expectedResult[1]));
@@ -1236,26 +1232,26 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
       // Compute Expected Results
       List<Object[]> expectedOrderedResults = new ArrayList<>();
       Region<String, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-      Map<Short, Double> temp = region.values().stream().collect(
+      var temp = region.values().stream().collect(
           Collectors.groupingBy(value -> (short) toPortfolioShortID(usePdx).applyAsInt(value),
               Collectors.averagingInt(toPortfolioID(usePdx))));
       temp.entrySet().stream().sorted(Map.Entry.<Short, Double>comparingByValue().reversed())
           .forEachOrdered(e -> expectedOrderedResults.add(new Object[] {e.getKey(), e.getValue()}));
 
       // Execute Query
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(expectedOrderedResults.size());
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
       // Assertions
-      List<Struct> queryResults = results.asList();
-      for (int i = 0; i < queryResults.size(); i++) {
-        Struct structResult = queryResults.get(i);
-        Object[] expectedResult = expectedOrderedResults.get(i);
+      var queryResults = results.asList();
+      for (var i = 0; i < queryResults.size(); i++) {
+        var structResult = queryResults.get(i);
+        var expectedResult = expectedOrderedResults.get(i);
         assertThat(structResult.getFieldValues()[0]).isEqualTo(expectedResult[0]);
         assertThat(structResult.getFieldValues()[1])
             .isEqualTo(downCast((double) expectedResult[1]));
@@ -1271,7 +1267,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -1287,21 +1283,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      int maxActiveID = maxIDByStatus(true, usePdx);
-      int maxInactiveID = maxIDByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var maxActiveID = maxIDByStatus(true, usePdx);
+      var maxInactiveID = maxIDByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(maxActiveID);
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(maxInactiveID);
@@ -1317,7 +1313,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -1333,21 +1329,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      int maxActiveID = maxIDByStatus(true, usePdx);
-      int maxInactiveID = maxIDByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var maxActiveID = maxIDByStatus(true, usePdx);
+      var maxInactiveID = maxIDByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(maxActiveID);
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(maxInactiveID);
@@ -1362,7 +1358,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -1378,21 +1374,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      int minActiveID = minIDByStatus(true, usePdx);
-      int minInactiveID = minIDByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var minActiveID = minIDByStatus(true, usePdx);
+      var minInactiveID = minIDByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(minActiveID);
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(minInactiveID);
@@ -1408,7 +1404,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -1424,21 +1420,21 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      int minActiveID = minIDByStatus(true, usePdx);
-      int minInactiveID = minIDByStatus(false, usePdx);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var minActiveID = minIDByStatus(true, usePdx);
+      var minInactiveID = minIDByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isEqualTo(minActiveID);
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo(minInactiveID);
@@ -1453,7 +1449,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -1471,19 +1467,19 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
       double activeCount = countByStatus(true, usePdx);
       double inactiveCount = countByStatus(false, usePdx);
-      double activeSum = sumIDsByStatus(true, usePdx);
-      double inactiveSum = sumIDsByStatus(false, usePdx);
+      var activeSum = sumIDsByStatus(true, usePdx);
+      var inactiveSum = sumIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isNull();
@@ -1492,7 +1488,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
       assertThat(activeStruct.get().getFieldValues()[4])
           .isEqualTo(downCast(activeSum / activeCount));
 
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo("XXXX");
@@ -1512,7 +1508,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -1530,19 +1526,19 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
       double activeCount = countByStatus(true, usePdx);
       double inactiveCount = countByStatus(false, usePdx);
-      double activeSum = sumIDsByStatus(true, usePdx);
-      double inactiveSum = sumIDsByStatus(false, usePdx);
+      var activeSum = sumIDsByStatus(true, usePdx);
+      var inactiveSum = sumIDsByStatus(false, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(2);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Optional<Struct> activeStruct = results.asList().stream()
+      var activeStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("active")).findAny();
       assertThat(activeStruct.isPresent()).isTrue();
       assertThat(activeStruct.get().getFieldValues()[1]).isNull();
@@ -1551,7 +1547,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
       assertThat(activeStruct.get().getFieldValues()[4])
           .isEqualTo(downCast(activeSum / activeCount));
 
-      Optional<Struct> inactiveStruct = results.asList().stream()
+      var inactiveStruct = results.asList().stream()
           .filter(struct -> struct.getFieldValues()[0].equals("inactive")).findAny();
       assertThat(inactiveStruct.isPresent()).isTrue();
       assertThat(inactiveStruct.get().getFieldValues()[1]).isEqualTo("XXXX");
@@ -1595,28 +1591,28 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
           .forEach(secId -> mktValuesPerSecId.put(secId, new ArrayList<>()));
       region.values().forEach(value -> {
         if (!usePdx) {
-          Portfolio portfolio = ((Portfolio) value);
+          var portfolio = ((Portfolio) value);
           ((Map<String, Position>) portfolio.positions).values()
               .forEach(position -> mktValuesPerSecId.get(position.secId).add(position.mktValue));
         } else {
-          PortfolioPdx portfolioPdx = ((PortfolioPdx) value);
+          var portfolioPdx = ((PortfolioPdx) value);
           ((Map<String, PositionPdx>) portfolioPdx.positions).values().forEach(
               position -> mktValuesPerSecId.get(position.secId).add(position.getMktValue()));
         }
       });
 
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(7);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
       results.forEach(struct -> {
-        String posSecId = (String) struct.getFieldValues()[0];
+        var posSecId = (String) struct.getFieldValues()[0];
         assertThat(mktValuesPerSecId.containsKey(posSecId)).isTrue();
-        List<Double> valuesPerSecId = mktValuesPerSecId.get(posSecId);
+        var valuesPerSecId = mktValuesPerSecId.get(posSecId);
 
         assertThat(struct.getFieldValues()[1]).isEqualTo(valuesPerSecId.size());
         assertThat(struct.getFieldValues()[2]).isEqualTo(Collections.max(valuesPerSecId));
@@ -1663,28 +1659,28 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
           .forEach(secId -> mktValuesPerSecId.put(secId, new ArrayList<>()));
       region.values().forEach(value -> {
         if (!usePdx) {
-          Portfolio portfolio = ((Portfolio) value);
+          var portfolio = ((Portfolio) value);
           ((Map<String, Position>) portfolio.positions).values()
               .forEach(position -> mktValuesPerSecId.get(position.secId).add(position.mktValue));
         } else {
-          PortfolioPdx portfolioPdx = ((PortfolioPdx) value);
+          var portfolioPdx = ((PortfolioPdx) value);
           ((Map<String, PositionPdx>) portfolioPdx.positions).values().forEach(
               position -> mktValuesPerSecId.get(position.secId).add(position.getMktValue()));
         }
       });
 
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(7);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
       results.forEach(struct -> {
-        String posSecId = (String) struct.getFieldValues()[0];
+        var posSecId = (String) struct.getFieldValues()[0];
         assertThat(mktValuesPerSecId.containsKey(posSecId)).isTrue();
-        List<Double> valuesPerSecId = mktValuesPerSecId.get(posSecId);
+        var valuesPerSecId = mktValuesPerSecId.get(posSecId);
 
         assertThat(struct.getFieldValues()[1]).isEqualTo(valuesPerSecId.size());
         assertThat(struct.getFieldValues()[2]).isEqualTo(Collections.max(valuesPerSecId));
@@ -1705,7 +1701,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -1722,19 +1718,19 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
       Region<String, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-      int sumIDs = region.values().stream().mapToInt(toPortfolioID(usePdx)).sum();
-      int minID = region.values().stream().mapToInt(toPortfolioID(usePdx)).min().orElse(-1);
-      int maxID = region.values().stream().mapToInt(toPortfolioID(usePdx)).max().orElse(-1);
+      var sumIDs = region.values().stream().mapToInt(toPortfolioID(usePdx)).sum();
+      var minID = region.values().stream().mapToInt(toPortfolioID(usePdx)).min().orElse(-1);
+      var maxID = region.values().stream().mapToInt(toPortfolioID(usePdx)).max().orElse(-1);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(1);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Struct structResult = results.asList().get(0);
+      var structResult = results.asList().get(0);
       assertThat(structResult).isNotNull();
       assertThat(structResult.getFieldValues()[0])
           .isEqualTo(downCast(((double) sumIDs / region.size())));
@@ -1754,7 +1750,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.ID FROM " + SEPARATOR + regionName + " iter WHERE iter.ID = p.ID)"
         : "p.ID";
     String queryString;
@@ -1771,19 +1767,19 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
       Region<String, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-      int sumIDs = region.values().stream().mapToInt(toPortfolioID(usePdx)).sum();
-      int minID = region.values().stream().mapToInt(toPortfolioID(usePdx)).min().orElse(-1);
-      int maxID = region.values().stream().mapToInt(toPortfolioID(usePdx)).max().orElse(-1);
+      var sumIDs = region.values().stream().mapToInt(toPortfolioID(usePdx)).sum();
+      var minID = region.values().stream().mapToInt(toPortfolioID(usePdx)).min().orElse(-1);
+      var maxID = region.values().stream().mapToInt(toPortfolioID(usePdx)).max().orElse(-1);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(1);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Struct structResult = results.asList().get(0);
+      var structResult = results.asList().get(0);
       assertThat(structResult).isNotNull();
       assertThat(structResult.getFieldValues()[0])
           .isEqualTo(downCast(((double) sumIDs / region.size())));
@@ -1802,7 +1798,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createRegion(regionType);
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.shortID FROM " + SEPARATOR + regionName
             + " iter WHERE iter.ID = p.ID)"
         : "p.shortID";
@@ -1820,19 +1816,19 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeDistinctShortIDsSum = sumDistinctShortIDsByStatus(true, usePdx);
-      double activeDistinctShortIDsAvg =
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeDistinctShortIDsSum = sumDistinctShortIDsByStatus(true, usePdx);
+      var activeDistinctShortIDsAvg =
           activeDistinctShortIDsSum / countDistinctShortIDsByStatus(true, usePdx);
       double activeDistinctShortIDsCount = countDistinctShortIDsByStatus(true, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(1);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Struct structResult = results.asList().get(0);
+      var structResult = results.asList().get(0);
       assertThat(structResult).isNotNull();
       assertThat(structResult.getFieldValues()[0]).isEqualTo(downCast(activeDistinctShortIDsAvg));
       assertThat(structResult.getFieldValues()[1]).isEqualTo(downCast(activeDistinctShortIDsSum));
@@ -1849,7 +1845,7 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
     createIndexes();
     VMProvider.invokeInRandomMember(() -> populateRegion(usePdx, 300), server1, server2, server3,
         server4);
-    String expression = useNestedQuery
+    var expression = useNestedQuery
         ? "ELEMENT(SELECT iter.shortID FROM " + SEPARATOR + regionName
             + " iter WHERE iter.ID = p.ID)"
         : "p.shortID";
@@ -1867,19 +1863,19 @@ public class AggregateFunctionsQueryDUnitTest implements Serializable {
 
     VMProvider.invokeInEveryMember(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString);
-      double activeDistinctShortIDsSum = sumDistinctShortIDsByStatus(true, usePdx);
-      double activeDistinctShortIDsAvg =
+      var queryService = ClusterStartupRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString);
+      var activeDistinctShortIDsSum = sumDistinctShortIDsByStatus(true, usePdx);
+      var activeDistinctShortIDsAvg =
           activeDistinctShortIDsSum / countDistinctShortIDsByStatus(true, usePdx);
       double activeDistinctShortIDsCount = countDistinctShortIDsByStatus(true, usePdx);
 
       @SuppressWarnings("unchecked")
-      SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
+      var results = (SelectResults<Struct>) query.execute();
       assertThat(results.size()).isEqualTo(1);
       assertThat(results.getCollectionType().getElementType().isStructType()).isTrue();
 
-      Struct structResult = results.asList().get(0);
+      var structResult = results.asList().get(0);
       assertThat(structResult).isNotNull();
       assertThat(structResult.getFieldValues()[0]).isEqualTo(downCast(activeDistinctShortIDsAvg));
       assertThat(structResult.getFieldValues()[1]).isEqualTo(downCast(activeDistinctShortIDsSum));

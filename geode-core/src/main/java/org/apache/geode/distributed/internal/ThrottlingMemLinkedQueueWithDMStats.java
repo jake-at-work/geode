@@ -65,12 +65,12 @@ public class ThrottlingMemLinkedQueueWithDMStats<E> extends OverflowQueueWithDMS
   private int calculateThrottleTime() {
     int sleep;
 
-    int myMemSize = memSize.get();
+    var myMemSize = memSize.get();
     if (myMemSize > startThrottleMemSize) {
       sleep = (int) (((float) (myMemSize - startThrottleMemSize)
           / (float) (maxMemSize - startThrottleMemSize)) * 100);
     } else {
-      int qSize = size();
+      var qSize = size();
       if (qSize > startThrottleSize) {
         sleep = (int) (((float) (qSize - startThrottleSize) / (float) (maxSize - startThrottleSize))
             * 100);
@@ -104,10 +104,10 @@ public class ThrottlingMemLinkedQueueWithDMStats<E> extends OverflowQueueWithDMS
     // only block threads reading from tcp stream sockets. blocking udp
     // will cause retransmission storms
     if (!DistributionMessage.isMembershipMessengerThread()) {
-      long startTime = DistributionStats.getStatTime();
+      var startTime = DistributionStats.getStatTime();
       do {
         try {
-          int sleep = calculateThrottleTime();
+          var sleep = calculateThrottleTime();
           if (sleep > 0) {
             Thread.sleep(sleep);
           }
@@ -117,7 +117,7 @@ public class ThrottlingMemLinkedQueueWithDMStats<E> extends OverflowQueueWithDMS
           // returns, which is probably the Right Thing.
         }
         if (DistributionStats.enableClockStats) {
-          final long endTime = DistributionStats.getStatTime();
+          final var endTime = DistributionStats.getStatTime();
           ((ThrottledMemQueueStatHelper) stats).throttleTime(endTime - startTime);
           startTime = endTime;
         }
@@ -127,7 +127,7 @@ public class ThrottlingMemLinkedQueueWithDMStats<E> extends OverflowQueueWithDMS
     }
 
     if (o instanceof Sizeable) {
-      int mem = ((Sizeable) o).getSize();
+      var mem = ((Sizeable) o).getSize();
       ((ThrottledMemQueueStatHelper) stats).addMem(mem);
       memSize.addAndGet(mem);
     }
@@ -136,7 +136,7 @@ public class ThrottlingMemLinkedQueueWithDMStats<E> extends OverflowQueueWithDMS
   @Override
   protected void postRemove(Object o) {
     if (o instanceof Sizeable) {
-      int mem = ((Sizeable) o).getSize();
+      var mem = ((Sizeable) o).getSize();
       memSize.addAndGet(-mem);
       ((ThrottledMemQueueStatHelper) stats).removeMem(mem);
     }

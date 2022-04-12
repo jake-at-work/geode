@@ -41,7 +41,7 @@ public class ConnectionEndpoint {
   }
 
   public String toString(boolean includeClassName) {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
 
     if (includeClassName) {
       builder.append(ConnectionEndpoint.class.getSimpleName());

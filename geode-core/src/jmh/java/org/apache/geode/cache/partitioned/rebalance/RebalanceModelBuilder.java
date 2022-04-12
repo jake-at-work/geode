@@ -60,25 +60,25 @@ class RebalanceModelBuilder {
   }
 
   PartitionedRegionLoadModel createModel() throws UnknownHostException {
-    SimulatedBucketOperator bucketOperator = new SimulatedBucketOperator();
-    PartitionedRegionLoadModel model = new PartitionedRegionLoadModel(bucketOperator, 0, buckets,
+    var bucketOperator = new SimulatedBucketOperator();
+    var model = new PartitionedRegionLoadModel(bucketOperator, 0, buckets,
         comparor, Collections.emptySet(), null);
-    double bucketsPerMember = (double) buckets / members;
-    int bucketOffset = 0;
+    var bucketsPerMember = (double) buckets / members;
+    var bucketOffset = 0;
     List<PartitionMemberInfoImpl> members = new ArrayList<>();
 
-    for (int memberId = 0; memberId < this.members; memberId++) {
-      int bucketsOnMember = getBucketsOnMember(bucketsPerMember, memberId);
-      long[] loads = new long[buckets];
-      long[] primaryLoads = new long[buckets];
-      for (int bucketId = bucketOffset; bucketId < bucketOffset + bucketsOnMember; bucketId++) {
+    for (var memberId = 0; memberId < this.members; memberId++) {
+      var bucketsOnMember = getBucketsOnMember(bucketsPerMember, memberId);
+      var loads = new long[buckets];
+      var primaryLoads = new long[buckets];
+      for (var bucketId = bucketOffset; bucketId < bucketOffset + bucketsOnMember; bucketId++) {
         loads[bucketId] = getBucketSize(memberId);
         primaryLoads[bucketId] = 1;
       }
 
-      InternalDistributedMember member =
+      var member =
           new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), memberId);
-      PartitionMemberInfoImpl memberInfo =
+      var memberInfo =
           buildDetails(member, 500, Integer.MAX_VALUE, loads, primaryLoads);
       members.add(memberInfo);
 
@@ -99,7 +99,7 @@ class RebalanceModelBuilder {
   }
 
   private int getBucketSize(int memberId) {
-    int loadDeviation = (int) (random.nextGaussian() * bucketSizeDeviation);
+    var loadDeviation = (int) (random.nextGaussian() * bucketSizeDeviation);
 
     if (memberId % 2 == 0) {
       return DEFAULT_MEAN_BUCKET_SIZE + Math.abs(loadDeviation);
@@ -110,10 +110,10 @@ class RebalanceModelBuilder {
 
   private List<PartitionMemberInfoImpl> getNewMembers() throws UnknownHostException {
     List<PartitionMemberInfoImpl> members = new ArrayList<>();
-    for (int i = 0; i < newMembers; i++) {
-      InternalDistributedMember newMember =
+    for (var i = 0; i < newMembers; i++) {
+      var newMember =
           new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), this.members + i);
-      PartitionMemberInfoImpl newMemberInfo =
+      var newMemberInfo =
           buildDetails(newMember, 500, Integer.MAX_VALUE, new long[buckets], new long[buckets]);
       members.add(newMemberInfo);
     }
@@ -123,12 +123,12 @@ class RebalanceModelBuilder {
 
   private PartitionMemberInfoImpl buildDetails(InternalDistributedMember id, float weight,
       long localMaxMemory, long[] loads, long[] primaryLoads) {
-    PRLoad prLoad = new PRLoad(loads.length, weight);
-    int size = 0;
-    int primaryCount = 0;
-    int bucketCount = 0;
-    long[] bucketSizes = new long[loads.length];
-    for (int bucketId = 0; bucketId < loads.length; bucketId++) {
+    var prLoad = new PRLoad(loads.length, weight);
+    var size = 0;
+    var primaryCount = 0;
+    var bucketCount = 0;
+    var bucketSizes = new long[loads.length];
+    for (var bucketId = 0; bucketId < loads.length; bucketId++) {
       prLoad.addBucket(bucketId, loads[bucketId], primaryLoads[bucketId]);
       bucketSizes[bucketId] = loads[bucketId];
       size += bucketSizes[bucketId];

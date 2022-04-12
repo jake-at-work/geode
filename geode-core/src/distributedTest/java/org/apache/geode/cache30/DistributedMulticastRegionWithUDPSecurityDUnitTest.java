@@ -28,9 +28,9 @@ public class DistributedMulticastRegionWithUDPSecurityDUnitTest
 
   @Override
   protected void validateUDPEncryptionStats() {
-    long encrptTime =
+    var encrptTime =
         getGemfireCache().getDistributionManager().getStats().getUDPMsgEncryptionTime();
-    long decryptTime =
+    var decryptTime =
         getGemfireCache().getDistributionManager().getStats().getUDPMsgDecryptionTime();
     assertTrue("Should have multicast writes or reads. encrptTime=  " + encrptTime
         + " ,decryptTime= " + decryptTime, encrptTime > 0 && decryptTime > 0);

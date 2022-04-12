@@ -27,9 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -40,8 +38,8 @@ public class LogicalOperatorsJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
-    for (int i = 0; i < 5; i++) {
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    for (var i = 0; i < 5; i++) {
       region.put("" + i, new Portfolio(i));
     }
   }
@@ -58,14 +56,14 @@ public class LogicalOperatorsJUnitTest {
 
   @Test
   public void testAND() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Object[] params = new Object[2];
-    for (final Object operand : validOperands) {
-      for (final Object validOperand : validOperands) {
-        Query query = qs.newQuery("$1 AND $2");
+    var qs = CacheUtils.getQueryService();
+    var params = new Object[2];
+    for (final var operand : validOperands) {
+      for (final var validOperand : validOperands) {
+        var query = qs.newQuery("$1 AND $2");
         params[0] = operand;
         params[1] = validOperand;
-        Object result = query.execute(params);
+        var result = query.execute(params);
         // CacheUtils.log("LogicalTest "+validOperands[i]+" AND "+validOperands[j]+" = "+result+"
         // "+checkResult("AND", result, validOperands[i], validOperands[j]));
         if (!checkResult("AND", result, operand, validOperand)) {
@@ -73,13 +71,13 @@ public class LogicalOperatorsJUnitTest {
         }
       }
     }
-    for (final Object validOperand : validOperands) {
-      for (int j = 0; j < invalidOperands.length; j++) {
-        Query query = qs.newQuery("$1 AND $2");
+    for (final var validOperand : validOperands) {
+      for (var j = 0; j < invalidOperands.length; j++) {
+        var query = qs.newQuery("$1 AND $2");
         params[0] = validOperand;
         params[1] = invalidOperands[j];
         try {
-          Object result = query.execute(params);
+          var result = query.execute(params);
           fail(validOperand + " AND " + validOperands[j] + " returns " + result);
         } catch (Exception ignored) {
 
@@ -90,14 +88,14 @@ public class LogicalOperatorsJUnitTest {
 
   @Test
   public void testOR() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Object[] params = new Object[2];
-    for (final Object operand : validOperands) {
-      for (final Object validOperand : validOperands) {
-        Query query = qs.newQuery("$1 OR $2");
+    var qs = CacheUtils.getQueryService();
+    var params = new Object[2];
+    for (final var operand : validOperands) {
+      for (final var validOperand : validOperands) {
+        var query = qs.newQuery("$1 OR $2");
         params[0] = operand;
         params[1] = validOperand;
-        Object result = query.execute(params);
+        var result = query.execute(params);
         // CacheUtils.log("LogicalTest "+validOperands[i]+" OR "+validOperands[j]+" = "+result+"
         // "+checkResult("OR", result, validOperands[i], validOperands[j]));
         if (!checkResult("OR", result, operand, validOperand)) {
@@ -106,13 +104,13 @@ public class LogicalOperatorsJUnitTest {
       }
     }
 
-    for (final Object validOperand : validOperands) {
-      for (int j = 0; j < invalidOperands.length; j++) {
-        Query query = qs.newQuery("$1 OR $2");
+    for (final var validOperand : validOperands) {
+      for (var j = 0; j < invalidOperands.length; j++) {
+        var query = qs.newQuery("$1 OR $2");
         params[0] = validOperand;
         params[1] = invalidOperands[j];
         try {
-          Object result = query.execute(params);
+          var result = query.execute(params);
           fail(validOperand + " OR " + validOperands[j] + " returns " + result);
         } catch (Exception ignored) {
 
@@ -123,10 +121,10 @@ public class LogicalOperatorsJUnitTest {
 
   @Test
   public void testNOT() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    for (int i = 0; i < validOperands.length; i++) {
-      Query query = qs.newQuery("NOT $" + (i + 1));
-      Object result = query.execute(validOperands);
+    var qs = CacheUtils.getQueryService();
+    for (var i = 0; i < validOperands.length; i++) {
+      var query = qs.newQuery("NOT $" + (i + 1));
+      var result = query.execute(validOperands);
       // CacheUtils.log("LogicalTest "+"NOT "+validOperands[i]+" = "+result+" "+checkResult("NOT",
       // result, validOperands[i], null));
       if (!checkResult("NOT", result, validOperands[i], null)) {
@@ -134,10 +132,10 @@ public class LogicalOperatorsJUnitTest {
       }
     }
 
-    for (int j = 0; j < invalidOperands.length; j++) {
-      Query query = qs.newQuery("NOT $" + (j + 1));
+    for (var j = 0; j < invalidOperands.length; j++) {
+      var query = qs.newQuery("NOT $" + (j + 1));
       try {
-        Object result = query.execute(invalidOperands);
+        var result = query.execute(invalidOperands);
         fail("NOT " + invalidOperands[j] + " returns " + result);
       } catch (Exception ignored) {
 

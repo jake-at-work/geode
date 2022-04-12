@@ -78,7 +78,7 @@ public class RegionDescriptionPerMember implements Serializable {
   }
 
   public Map<String, String> getNonDefaultEvictionAttributes() {
-    EvictionAttributesInfo eaInfo = regionAttributesInfo.getEvictionAttributesInfo();
+    var eaInfo = regionAttributesInfo.getEvictionAttributesInfo();
     if (eaInfo != null) {
       return eaInfo.getNonDefaultAttributes();
     } else {
@@ -87,7 +87,7 @@ public class RegionDescriptionPerMember implements Serializable {
   }
 
   public Map<String, String> getNonDefaultPartitionAttributes() {
-    PartitionAttributesInfo paInfo = regionAttributesInfo.getPartitionAttributesInfo();
+    var paInfo = regionAttributesInfo.getPartitionAttributesInfo();
     if (paInfo != null) {
       return paInfo.getNonDefaultAttributes();
     } else {
@@ -96,7 +96,7 @@ public class RegionDescriptionPerMember implements Serializable {
   }
 
   public List<FixedPartitionAttributesInfo> getFixedPartitionAttributes() {
-    PartitionAttributesInfo paInfo = regionAttributesInfo.getPartitionAttributesInfo();
+    var paInfo = regionAttributesInfo.getPartitionAttributesInfo();
     List<FixedPartitionAttributesInfo> fpa = null;
 
     if (paInfo != null) {

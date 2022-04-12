@@ -62,9 +62,6 @@ import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.EntryExpiryTask;
 import org.apache.geode.internal.cache.InternalCacheServer;
-import org.apache.geode.internal.cache.PoolStats;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifierStats;
 import org.apache.geode.internal.logging.LocalLogWriter;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Invoke;
@@ -130,7 +127,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
   private static PoolImpl getPool(Region r) {
     PoolImpl result = null;
-    String poolName = r.getAttributes().getPoolName();
+    var poolName = r.getAttributes().getPoolName();
     if (poolName != null) {
       result = (PoolImpl) PoolManager.find(poolName);
     }
@@ -145,7 +142,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       throws IOException {
 
     Cache cache = getCache();
-    CacheServer bridge = cache.addCacheServer();
+    var bridge = cache.addCacheServer();
     bridge.setPort(port);
     bridge.setMaxThreads(0);
     bridge.setLoadPollInterval(CacheServer.DEFAULT_LOAD_POLL_INTERVAL);
@@ -159,14 +156,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    * @since GemFire 4.0
    */
   private void stopBridgeServer(Cache cache) {
-    CacheServer bridge = cache.getCacheServers().iterator().next();
+    var bridge = cache.getCacheServers().iterator().next();
     bridge.stop();
     assertThat(bridge.isRunning()).isFalse();
   }
 
   private void createLonerDS() {
     disconnectFromDS();
-    InternalDistributedSystem ds = getLonerSystem();
+    var ds = getLonerSystem();
     assertThat(ds.getDistributionManager().getOtherDistributionManagerIds()).isEmpty();
   }
 
@@ -174,7 +171,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    * Returns region attributes for a <code>LOCAL</code> region
    */
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.LOCAL);
     factory.setConcurrencyChecksEnabled(false); // test validation expects this behavior
     return factory.create();
@@ -205,11 +202,11 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     final Object CONTROL_LOCK = new Object();
 
     void waitWhileNotEnoughEvents(int eventCount) {
-      long maxMillis = System.currentTimeMillis() + (long) 60000;
+      var maxMillis = System.currentTimeMillis() + (long) 60000;
       synchronized (CONTROL_LOCK) {
         try {
           while (events.size() < eventCount) {
-            long waitMillis = maxMillis - System.currentTimeMillis();
+            var waitMillis = maxMillis - System.currentTimeMillis();
             if (waitMillis < 10) {
               break;
             }
@@ -266,7 +263,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test001CallbackArg() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     final Object createCallbackArg = "CREATE CALLBACK ARG";
     final Object updateCallbackArg = "PUT CALLBACK ARG";
@@ -275,17 +272,17 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       CacheWriter<Object, Object> cw = new TestCacheWriter<Object, Object>() {
         @Override
         public final void beforeUpdate2(EntryEvent event) throws CacheWriterException {
-          Object beca = event.getCallbackArgument();
+          var beca = event.getCallbackArgument();
           assertThat(updateCallbackArg).isEqualTo(beca);
         }
 
         @Override
         public void beforeCreate2(EntryEvent event) throws CacheWriterException {
-          Object beca = event.getCallbackArgument();
+          var beca = event.getCallbackArgument();
           assertThat(createCallbackArg).isEqualTo(beca);
         }
       };
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, cw);
+      var factory = getBridgeServerRegionAttributes(null, cw);
       createRegion(name, factory);
       startBridgeServer(0);
     });
@@ -294,7 +291,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
 
@@ -304,23 +301,23 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Add entries", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.create(i, "old" + i, createCallbackArg);
       }
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region.put(i, "new" + i, updateCallbackArg);
       }
     });
 
     vm0.invoke("Check cache writer", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      TestCacheWriter writer = getTestWriter(region);
+      var region = getRootRegion().getSubregion(name);
+      var writer = getTestWriter(region);
       assertThat(writer.wasInvoked()).isTrue();
     });
 
     vm1.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     });
   }
@@ -330,35 +327,35 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test002CallbackArg2() throws CacheException {
-    final String name = getName();
+    final var name = getName();
     final Object createCallbackArg = "CREATE CALLBACK ARG";
 
     vm0.invoke("Create Cache Server", () -> {
       CacheWriter<Object, Object> cacheWriter = new TestCacheWriter<Object, Object>() {
         @Override
         public void beforeCreate2(EntryEvent event) throws CacheWriterException {
-          Integer key = (Integer) event.getKey();
+          var key = (Integer) event.getKey();
           if (key % 2 == 0) {
-            Object callbackArgument = event.getCallbackArgument();
+            var callbackArgument = event.getCallbackArgument();
             assertThat(createCallbackArg).isEqualTo(callbackArgument);
           } else {
-            Object callbackArgument = event.getCallbackArgument();
+            var callbackArgument = event.getCallbackArgument();
             assertThat(callbackArgument).isNull();
           }
         }
       };
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, cacheWriter);
+      var factory = getBridgeServerRegionAttributes(null, cacheWriter);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -366,8 +363,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Add entries", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         if (i % 2 == 0) {
           region.create(i, "old" + i, createCallbackArg);
 
@@ -378,13 +375,13 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     });
 
     vm0.invoke("Check cache writer", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      TestCacheWriter writer = getTestWriter(region);
+      var region = getRootRegion().getSubregion(name);
+      var writer = getTestWriter(region);
       assertThat(writer.wasInvoked()).isTrue();
     });
   }
@@ -396,12 +393,12 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test003Bug36684() throws CacheException, InterruptedException {
-    final String name = getName();
+    final var name = getName();
 
     // Create the cache servers with distributed, mirrored region
     Stream.of(vm0, vm1).forEach(vm -> {
       vm.invoke("Create Cache Server", () -> {
-        CacheLoader<Object, Object> cl = new CacheLoader<Object, Object>() {
+        var cl = new CacheLoader<Object, Object>() {
           @Override
           public Object load(LoaderHelper helper) {
             return helper.getKey();
@@ -412,7 +409,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
           }
         };
-        RegionFactory<Object, Object> factory =
+        var factory =
             getBridgeServerMirroredAckRegionAttributes(cl);
         createRegion(name, factory);
         startBridgeServer(0);
@@ -422,8 +419,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     // Create cache server clients
-    final int numberOfKeys = 1000;
-    final String host0 = NetworkUtils.getServerHostName();
+    final var numberOfKeys = 1000;
+    final var host0 = NetworkUtils.getServerHostName();
     final int vm0Port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
     final int vm1Port = vm1.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
     SerializableRunnable createClient = new CacheSerializableRunnable() {
@@ -435,7 +432,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         numberOfAfterUpdates = 0;
         // create the region
         getLonerSystem();
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.LOCAL);
         factory.setConcurrencyChecksEnabled(false); // test validation expects this behavior
         // create bridge writer
@@ -456,10 +453,10 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         numberOfAfterInvalidates = 0;
         numberOfAfterCreates = 0;
         numberOfAfterUpdates = 0;
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
-        for (int i = 0; i < numberOfKeys; i++) {
-          String expected = "key-" + i;
-          String actual = (String) region.get("key-" + i);
+        var region = getRootRegion().getSubregion(name);
+        for (var i = 0; i < numberOfKeys; i++) {
+          var expected = "key-" + i;
+          var actual = (String) region.get("key-" + i);
           assertThat(expected).isEqualTo(actual);
         }
       }
@@ -478,16 +475,16 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test004ForCacheLoaderException() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
-    VM server = VM.getVM(0);
-    VM client = VM.getVM(1);
+    var server = VM.getVM(0);
+    var client = VM.getVM(1);
 
     // Create the cache servers with distributed, mirrored region
     logger.info("before create server");
 
     server.invoke("Create Cache Server", () -> {
-      CacheLoader<Object, Object> cl = new CacheLoader<Object, Object>() {
+      var cl = new CacheLoader<Object, Object>() {
         @Override
         public Object load(LoaderHelper helper) {
           System.out.println("### CALLING CACHE LOADER....");
@@ -498,23 +495,23 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         @Override
         public void close() {}
       };
-      RegionFactory<Object, Object> factory =
+      var factory =
           getBridgeServerMirroredAckRegionAttributes(cl);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     // Create cache server clients
-    final int numberOfKeys = 10;
-    final String host0 = NetworkUtils.getServerHostName();
-    final int[] port =
+    final var numberOfKeys = 10;
+    final var host0 = NetworkUtils.getServerHostName();
+    final var port =
         new int[] {server.invoke(ConnectionPoolDUnitTest::getCacheServerPort)};
-    final String poolName = "myPool";
+    final var poolName = "myPool";
 
     logger.info("before create client");
     client.invoke("Create Cache Server Client", () -> {
       getLonerSystem();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       // create bridge writer
@@ -527,15 +524,15 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     logger.info("before initialize client");
     AsyncInvocation inv2 = client.invokeAsync("Initialize Client", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      PoolStats stats = ((PoolImpl) PoolManager.find(poolName)).getStats();
-      int oldConnects = stats.getConnects();
-      int oldDisConnects = stats.getDisConnects();
-      for (int i = 0; i < numberOfKeys; i++) {
+      var region = getRootRegion().getSubregion(name);
+      var stats = ((PoolImpl) PoolManager.find(poolName)).getStats();
+      var oldConnects = stats.getConnects();
+      var oldDisConnects = stats.getDisConnects();
+      for (var i = 0; i < numberOfKeys; i++) {
         region.get("key-" + i);
       }
-      int newConnects = stats.getConnects();
-      int newDisConnects = stats.getDisConnects();
+      var newConnects = stats.getConnects();
+      var newDisConnects = stats.getDisConnects();
 
       // newDisConnects);
       if (newConnects != oldConnects && newDisConnects != oldDisConnects) {
@@ -547,7 +544,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void validateDS() {
-    List list = InternalDistributedSystem.getExistingSystems();
+    var list = InternalDistributedSystem.getExistingSystems();
     if (list.size() > 1) {
       logger.info("validateDS: size=" + list.size() + " isDedicatedAdminVM="
           + ClusterDistributionManager.isDedicatedAdminVM() + " l=" + list);
@@ -563,10 +560,10 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test006Pool() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setConcurrencyChecksEnabled(false);
       factory.setCacheLoader(new CacheLoader<Object, Object>() {
@@ -584,12 +581,12 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       startBridgeServer(0);
     });
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
     vm1.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
       validateDS();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -597,17 +594,17 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Get values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        Object value = region.get(i);
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        var value = region.get(i);
         assertThat(String.valueOf(i)).isEqualTo(value);
       }
     });
 
     vm1.invoke("Update values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region.put(i, i);
       }
     });
@@ -616,16 +613,16 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       getLonerSystem();
       getCache();
       validateDS();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
       createRegion(name, factory);
     });
     vm2.invoke("Validate values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        Object value = region.get(i);
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        var value = region.get(i);
         assertThat(value).isNotNull();
         assertThat(value).isInstanceOf(Integer.class);
         assertThat(i).isEqualTo(((Integer) value).intValue());
@@ -633,9 +630,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      String pName = region.getAttributes().getPoolName();
-      PoolImpl p = (PoolImpl) PoolManager.find(pName);
+      var region = getRootRegion().getSubregion(name);
+      var pName = region.getAttributes().getPoolName();
+      var p = (PoolImpl) PoolManager.find(pName);
       assertThat(p.isDestroyed()).isFalse();
       assertThat(1).isEqualTo(p.getAttachCount());
       try {
@@ -667,17 +664,17 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void basicTestBridgeServerFailover(final int cnxCount) throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     // Create two cache servers
     Stream.of(vm0, vm1).forEach(vm -> vm.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
     }));
 
     final int port0 = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     final int port1 = vm1.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
 
@@ -686,14 +683,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       String ServerGroup = null;
       configureConnectionPoolWithNameAndFactory(factory, host0, new int[] {port0, port1}, true,
           -1, cnxCount, ServerGroup, TEST_POOL_NAME, PoolManager.createFactory(), 100, -1, -2,
           -1);
-      Region<Object, Object> region = createRegion(name, factory);
+      var region = createRegion(name, factory);
 
       // force connections to form
       region.put("keyInit", 0);
@@ -701,15 +698,15 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("verify2Servers", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      PoolImpl pool = getPool(region);
+      var region = getRootRegion().getSubregion(name);
+      var pool = getPool(region);
       verifyServerCount(pool, 2);
     });
 
-    final String expected = "java.io.IOException";
-    final String addExpected =
+    final var expected = "java.io.IOException";
+    final var addExpected =
         "<ExpectedException action=add>" + expected + "</ExpectedException>";
-    final String removeExpected =
+    final var removeExpected =
         "<ExpectedException action=remove>" + expected + "</ExpectedException>";
 
     vm2.invoke(() -> {
@@ -724,13 +721,13 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       vm1.invoke(() -> stopBridgeServer(getCache()));
 
       vm2.invoke("verify1Server", () -> {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
-        PoolImpl pool = getPool(region);
+        var region = getRootRegion().getSubregion(name);
+        var pool = getPool(region);
         verifyServerCount(pool, 1);
       });
 
       vm1.invoke("Restart CacheServer", () -> {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
+        var region = getRootRegion().getSubregion(name);
         assertThat(region).isNotNull();
         startBridgeServer(port1);
       });
@@ -738,8 +735,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       // Pause long enough for the monitor to realize the server has been bounced
       // and reconnect to it.
       vm2.invoke("verify2Servers", () -> {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
-        PoolImpl pool = getPool(region);
+        var region = getRootRegion().getSubregion(name);
+        var pool = getPool(region);
         verifyServerCount(pool, 2);
       });
 
@@ -755,14 +752,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Run awhile
     vm2.invoke("verify1Server", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      PoolImpl pool = getPool(region);
+      var region = getRootRegion().getSubregion(name);
+      var pool = getPool(region);
       verifyServerCount(pool, 1);
     });
 
     // Close Pool
     vm2.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     });
   }
@@ -778,7 +775,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void basicTestLifetimeExpire()
       throws CacheException, InterruptedException {
-    final String name = getName();
+    final var name = getName();
 
     AsyncInvocation putAI = null;
     AsyncInvocation putAI2 = null;
@@ -788,7 +785,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       // Create two cache servers
 
       vm0.invoke("Create Cache Server", () -> {
-        RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+        var factory = getBridgeServerRegionAttributes(null, null);
         factory.addCacheListener(new DelayListener());
         createRegion(name, factory);
         startBridgeServer(0);
@@ -796,9 +793,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       });
 
       final int port0 = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-      final String host0 = NetworkUtils.getServerHostName();
+      final var host0 = NetworkUtils.getServerHostName();
       vm1.invoke("Create Cache Server", () -> {
-        RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+        var factory = getBridgeServerRegionAttributes(null, null);
         factory.addCacheListener(new DelayListener());
         createRegion(name, factory);
         startBridgeServer(0);
@@ -813,13 +810,13 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       vm2.invoke("Create region", () -> {
         getLonerSystem();
         getCache();
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.LOCAL);
         factory.setConcurrencyChecksEnabled(false);
         configureConnectionPoolWithNameAndFactory(factory, host0, new int[] {port0, port1},
             false, -1, 0, null, TEST_POOL_NAME, PoolManager.createFactory(), 100, 500, 500, -1);
 
-        Region<Object, Object> region = createRegion(name, factory);
+        var region = createRegion(name, factory);
 
         // force connections to form
         region.put("keyInit", 0);
@@ -829,15 +826,15 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       // Launch async thread that puts objects into cache. This thread will execute until
       // the test has ended.
       putAI = vm2.invokeAsync("Put objects", () -> {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
-        PoolImpl pool = getPool(region);
-        PoolStats stats = pool.getStats();
+        var region = getRootRegion().getSubregion(name);
+        var pool = getPool(region);
+        var stats = pool.getStats();
         baselineLifetimeCheck = stats.getLoadConditioningCheck();
         baselineLifetimeExtensions = stats.getLoadConditioningExtensions();
         baselineLifetimeConnect = stats.getLoadConditioningConnect();
         baselineLifetimeDisconnect = stats.getLoadConditioningDisconnect();
         try {
-          int count = 0;
+          var count = 0;
           while (!stopTestLifetimeExpire) {
             count++;
             region.put("keyAI1", count);
@@ -850,9 +847,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         }
       });
       putAI2 = vm2.invokeAsync("Put objects", () -> {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
+        var region = getRootRegion().getSubregion(name);
         try {
-          int count = 0;
+          var count = 0;
           while (!stopTestLifetimeExpire) {
             count++;
             region.put("keyAI2", count);
@@ -865,9 +862,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       });
 
       vm2.invoke("verify1Server", () -> {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
-        PoolImpl pool = getPool(region);
-        final PoolStats stats = pool.getStats();
+        var region = getRootRegion().getSubregion(name);
+        var pool = getPool(region);
+        final var stats = pool.getStats();
         verifyServerCount(pool, 1);
 
         await().until(() -> stats.getLoadConditioningCheck() >= (10 + baselineLifetimeCheck));
@@ -907,8 +904,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         vm2.invoke("Stop Putters", () -> stopTestLifetimeExpire = false);
         // Close Pool
         vm2.invoke("Close Pool", () -> {
-          Region<Object, Object> region = getRootRegion().getSubregion(name);
-          String poolName = region.getAttributes().getPoolName();
+          var region = getRootRegion().getSubregion(name);
+          var poolName = region.getAttributes().getPoolName();
           region.localDestroyRegion();
           PoolManager.find(poolName).destroy();
         });
@@ -923,28 +920,28 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test011PoolCreate() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, false, -1, -1, null);
       createRegion(name, factory);
     });
     vm1.invoke("Create values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.create(i, i);
       }
     });
@@ -952,16 +949,16 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, false, -1, -1, null);
       createRegion(name, factory);
     });
     vm2.invoke("Validate values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        Object value = region.get(i);
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        var value = region.get(i);
         assertThat(value).isNotNull();
         assertThat(value).isInstanceOf(Integer.class);
         assertThat(i).isEqualTo(((Integer) value).intValue());
@@ -971,7 +968,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     SerializableRunnable close = new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
+        var region = getRootRegion().getSubregion(name);
         region.localDestroyRegion();
       }
     };
@@ -987,26 +984,26 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test012PoolPut() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0 = VM.getVM(0);
     vm1 = VM.getVM(1);
     vm2 = VM.getVM(2);
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
     SerializableRunnable createRegion = new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
         getLonerSystem();
         getCache();
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.LOCAL);
         factory.setConcurrencyChecksEnabled(false);
         // create bridge writer
@@ -1018,13 +1015,13 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke("Create region", createRegion);
 
     vm1.invoke("Put values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         // put string values
         region.put("key-string-" + i, "value-" + i);
 
         // put object values
-        Order order = new Order();
+        var order = new Order();
         order.init(i);
         region.put("key-object-" + i, order);
 
@@ -1036,9 +1033,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke("Create region", createRegion);
 
     vm2.invoke("Get / validate string values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        Object value = region.get("key-string-" + i);
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        var value = region.get("key-string-" + i);
         assertThat(value).isNotNull();
         assertThat(value).isInstanceOf(String.class);
         assertThat("value-" + i).isEqualTo(value);
@@ -1046,9 +1043,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("Get / validate object values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        Object value = region.get("key-object-" + i);
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        var value = region.get("key-object-" + i);
         assertThat(value).isNotNull();
         assertThat(value).isInstanceOf(Order.class);
         assertThat(i).isEqualTo(((Order) value).getIndex());
@@ -1056,9 +1053,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("Get / validate byte[] values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        Object value = region.get("key-bytes-" + i);
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        var value = region.get("key-bytes-" + i);
         assertThat(value).isNotNull();
         assertThat(value).isInstanceOf(byte[].class);
         assertThat("value-" + i).isEqualTo(new String((byte[]) value));
@@ -1068,7 +1065,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     SerializableRunnable closePool = new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
+        var region = getRootRegion().getSubregion(name);
         region.localDestroyRegion();
       }
     };
@@ -1086,23 +1083,23 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test013PoolPutNoDeserialize() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     SerializableRunnable createRegion = new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
         getLonerSystem();
         getCache();
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.LOCAL);
         factory.setConcurrencyChecksEnabled(false);
         configureConnectionPool(factory, host0, new int[] {port}, false, -1, -1, null);
@@ -1113,13 +1110,13 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke("Create Region", createRegion);
 
     vm1.invoke("Put values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         // put string values
         region.put("key-string-" + i, "value-" + i);
 
         // put object values
-        Order order = new Order();
+        var order = new Order();
         order.init(i);
         region.put("key-object-" + i, order);
 
@@ -1131,9 +1128,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke("Create Region", createRegion);
 
     vm2.invoke("Get / validate string values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        Object value = region.get("key-string-" + i);
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        var value = region.get("key-string-" + i);
         assertThat(value).isNotNull();
         assertThat(value).isInstanceOf(String.class);
         assertThat("value-" + i).isEqualTo(value);
@@ -1141,9 +1138,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("Get / validate object values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        Object value = region.get("key-object-" + i);
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        var value = region.get("key-object-" + i);
         assertThat(value).isNotNull();
         assertThat(value).isInstanceOf(Order.class);
         assertThat(i).isEqualTo(((Order) value).getIndex());
@@ -1151,9 +1148,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("Get / validate byte[] values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        Object value = region.get("key-bytes-" + i);
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        var value = region.get("key-bytes-" + i);
         assertThat(value).isNotNull();
         assertThat(value instanceof byte[]).isTrue();
         assertThat("value-" + i).isEqualTo(new String((byte[]) value));
@@ -1163,7 +1160,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     SerializableRunnable closePool = new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
+        var region = getRootRegion().getSubregion(name);
         region.localDestroyRegion();
       }
     };
@@ -1176,7 +1173,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
   private <K, V> List<CacheEvent<K, V>> assertForOpCount(String regionName, Operation operation,
       int count) {
     Region<K, V> region = getRootRegion().getSubregion(regionName);
-    CertifiableTestCacheListener<K, V> ctl =
+    var ctl =
         (CertifiableTestCacheListener<K, V>) region.getAttributes()
             .getCacheListeners()[0];
     List<CacheEvent<K, V>> list = new ArrayList<>(ctl.getEventHistory());
@@ -1185,8 +1182,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       list.addAll(ctl.getEventHistory());
       return list.size() >= count;
     });
-    int countOfOps = 0;
-    for (CacheEvent<K, V> cacheEvent : list) {
+    var countOfOps = 0;
+    for (var cacheEvent : list) {
 
       if (cacheEvent.getOperation() == operation) {
         countOfOps++;
@@ -1209,23 +1206,23 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test014InvalidateAndDestroyPropagation() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
 
     });
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
         getLonerSystem();
         getCache();
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.LOCAL);
         factory.setConcurrencyChecksEnabled(false);
         configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -1235,8 +1232,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       }
     });
     vm1.invoke("Populate region", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.put(i, "old" + i);
       }
     });
@@ -1245,7 +1242,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         getLonerSystem();
         getCache();
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.LOCAL);
         factory.setConcurrencyChecksEnabled(false);
         configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -1257,27 +1254,27 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     vm1.invoke("Turn on history", () -> {
       await().until(() -> getRootRegion().getSubregion(name) != null);
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
       ctl.enableEventHistory();
     });
 
     vm2.invoke("Update region", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.put(i, "new" + i, "callbackArg" + i);
       }
     });
 
     vm1.invoke("Verify invalidates", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         ctl.waitForInvalidated(key);
         Region.Entry entry = region.getEntry(key);
@@ -1285,11 +1282,11 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         assertThat(entry.getValue()).isNull();
       }
 
-      List<CacheEvent<Object, Object>> list = assertForOpCount(name, Operation.INVALIDATE, 10);
+      var list = assertForOpCount(name, Operation.INVALIDATE, 10);
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
-        EntryEvent ee = (EntryEvent) list.get(i);
+        var ee = (EntryEvent) list.get(i);
         assertThat(ee.getKey()).isEqualTo(key);
         assertThat("old" + i).isEqualTo(ee.getOldValue());
         assertThat("callbackArg" + i).isEqualTo(ee.getCallbackArgument());
@@ -1298,8 +1295,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("Validate original and destroy", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         assertThat(region.getEntry(key).getValue()).isEqualTo("new" + i);
         region.destroy(key, "destroyCB" + i);
@@ -1308,23 +1305,23 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Verify destroys", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         ctl.waitForDestroyed(key);
         Region.Entry entry = region.getEntry(key);
         assertThat(entry).isNull();
       }
 
-      List<CacheEvent<Object, Object>> list = assertForOpCount(name, Operation.DESTROY, 10);
+      var list = assertForOpCount(name, Operation.DESTROY, 10);
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
-        EntryEvent ee = (EntryEvent) list.get(i);
+        var ee = (EntryEvent) list.get(i);
         assertThat(ee.getKey()).isEqualTo(key);
         assertThat(ee.getOldValue()).isNull();
         assertThat("destroyCB" + i).isEqualTo(ee.getCallbackArgument());
@@ -1333,34 +1330,34 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("recreate", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         region.create(key, "recreate" + i, "recreateCB" + i);
       }
     });
 
     vm1.invoke("Verify Local Load Creates", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
 
       await().untilAsserted(() -> {
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           Object key = i;
           assertThat(region.containsKeyOnServer(key)).isTrue();
         }
       });
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         region.get(key, "recreateCB");
       }
 
-      List<CacheEvent<Object, Object>> list =
+      var list =
           assertForOpCount(name, Operation.LOCAL_LOAD_CREATE, 10);
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
-        EntryEvent ee = (EntryEvent) list.get(i);
+        var ee = (EntryEvent) list.get(i);
         assertThat(ee.getKey()).isEqualTo(key);
         assertThat(ee.getOldValue()).isNull();
         assertThat(ee.getNewValue()).isEqualTo("recreate" + i);
@@ -1369,11 +1366,11 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     });
     vm2.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     });
   }
@@ -1386,20 +1383,20 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test015InvalidateAndDestroyToEmptyAllPropagation() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -1410,8 +1407,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       rgn.registerInterestRegex(".*", false, false);
     });
     vm1.invoke("Populate region", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.put(i, "old" + i);
       }
     });
@@ -1419,7 +1416,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -1429,37 +1426,37 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Turn on history", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
       ctl.enableEventHistory();
     });
 
     vm2.invoke("Update region", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.put(i, "new" + i, "callbackArg" + i);
       }
     });
 
     vm1.invoke("Verify invalidates", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         ctl.waitForInvalidated(key);
         await().until(() -> region.getEntry(key) == null);
       }
       {
-        List<CacheEvent<Object, Object>> list = ctl.getEventHistory();
+        var list = ctl.getEventHistory();
         assertThat(list.size()).isEqualTo(10);
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           Object key = i;
-          EntryEvent ee = (EntryEvent) list.get(i);
+          var ee = (EntryEvent) list.get(i);
           assertThat(ee.getKey()).isEqualTo(key);
           assertThat(ee.getOldValue()).isNull();
           assertThat(ee.isOldValueAvailable()).isFalse(); // failure
@@ -1471,8 +1468,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("Validate original and destroy", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         assertThat("new" + i).isEqualTo(region.getEntry(key).getValue());
         region.destroy(key, "destroyCB" + i);
@@ -1480,21 +1477,21 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Verify destroys", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         ctl.waitForDestroyed(key);
         await().until(() -> region.getEntry(key) == null);
       }
       {
-        List<CacheEvent<Object, Object>> list = ctl.getEventHistory();
+        var list = ctl.getEventHistory();
         assertThat(10).isEqualTo(list.size());
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           Object key = i;
-          EntryEvent ee = (EntryEvent) list.get(i);
+          var ee = (EntryEvent) list.get(i);
           assertThat(ee.getKey()).isEqualTo(key);
           assertThat(ee.getOldValue()).isNull();
           assertThat(ee.isOldValueAvailable()).isFalse();
@@ -1505,28 +1502,28 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       }
     });
     vm2.invoke("recreate", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         region.create(key, "create" + i, "createCB" + i);
       }
     });
 
     vm1.invoke("Verify creates", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         ctl.waitForInvalidated(key);
         await().until(() -> region.getEntry(key) == null);
       }
-      List<CacheEvent<Object, Object>> list = ctl.getEventHistory();
+      var list = ctl.getEventHistory();
       assertThat(10).isEqualTo(list.size());
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
-        EntryEvent ee = (EntryEvent) list.get(i);
+        var ee = (EntryEvent) list.get(i);
         assertThat(ee.getKey()).isEqualTo(key);
         assertThat(ee.getOldValue()).isNull();
         assertThat(ee.isOldValueAvailable()).isFalse();
@@ -1535,16 +1532,16 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         assertThat(ee.isOriginRemote()).isTrue();
       }
       // now see if we can get it from the server
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         assertThat("create" + i).isEqualTo(region.get(key, "loadCB" + i));
       }
 
       list = ctl.getEventHistory();
       assertThat(10).isEqualTo(list.size());
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
-        EntryEvent ee = (EntryEvent) list.get(i);
+        var ee = (EntryEvent) list.get(i);
         assertThat(ee.getKey()).isEqualTo(key);
         assertThat(ee.getOldValue()).isNull();
         assertThat(ee.getNewValue()).isEqualTo("create" + i);
@@ -1555,7 +1552,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     }));
 
@@ -1570,20 +1567,20 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test016InvalidateAndDestroyToEmptyCCPropagation() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -1596,8 +1593,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Populate region", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.put(i, "old" + i);
       }
     });
@@ -1605,7 +1602,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -1615,31 +1612,31 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Turn on history", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
       ctl.enableEventHistory();
     });
 
     vm2.invoke("Update region", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.put(i, "new" + i, "callbackArg" + i);
       }
     });
 
     vm1.invoke("Verify invalidates", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
       await().until(() -> ctl.getEventHistory().size() == 0);
     });
 
     vm2.invoke("Validate original and destroy", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         assertThat("new" + i).isEqualTo(region.getEntry(key).getValue());
         region.destroy(key, "destroyCB" + i);
@@ -1647,39 +1644,39 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Verify destroys", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
       await().until(() -> ctl.getEventHistory().size() == 0);
     });
     vm2.invoke("recreate", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         region.create(key, "create" + i, "createCB" + i);
       }
     });
 
     vm1.invoke("Verify creates", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
       await().until(() -> ctl.getEventHistory().size() == 0);
 
-      List<CacheEvent<Object, Object>> list = ctl.getEventHistory();
+      var list = ctl.getEventHistory();
       assertThat(list).isEmpty();
       // now see if we can get it from the server
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
         assertThat("create" + i).isEqualTo(region.get(key, "loadCB" + i));
       }
       list = ctl.getEventHistory();
       assertThat(10).isEqualTo(list.size());
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         Object key = i;
-        EntryEvent ee = (EntryEvent) list.get(i);
+        var ee = (EntryEvent) list.get(i);
         assertThat(ee.getKey()).isEqualTo(key);
         assertThat(ee.getOldValue()).isNull();
         assertThat(ee.getNewValue()).isEqualTo("create" + i);
@@ -1690,7 +1687,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     }));
 
@@ -1703,13 +1700,13 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void test017ExpireDestroyHasEntryInCallback() throws CacheException {
     disconnectAllFromDS();
-    final String name = getName();
+    final var name = getName();
 
     // Create cache server
     vm0.invoke("Create Cache Server", () -> {
       // In lieu of System.setProperty("gemfire.EXPIRE_SENDS_ENTRY_AS_CALLBACK", "true");
       EntryExpiryTask.expireSendsEntryAsCallback = true;
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       factory.setEntryTimeToLive(new ExpirationAttributes(1, ExpirationAction.DESTROY));
       createRegion(name, factory);
       startBridgeServer(0);
@@ -1717,12 +1714,12 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Create cache server clients
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setDataPolicy(DataPolicy.EMPTY);
       factory.setSubscriptionAttributes(new SubscriptionAttributes((InterestPolicy.ALL)));
@@ -1731,13 +1728,13 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
       factory.addCacheListener(new CertifiableTestCacheListener<>());
 
-      Region<Object, Object> region = createRegion(name, factory);
+      var region = createRegion(name, factory);
       region.registerInterest("ALL_KEYS");
     });
 
     vm1.invoke("Turn on history", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var region = getRootRegion().getSubregion(name);
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
       ctl.enableEventHistory();
@@ -1745,30 +1742,30 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Create some entries on the client
     vm1.invoke("Create entries", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 5; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 5; i++) {
         region.put("key-client-" + i, "value-client-" + i);
       }
     });
 
     // Create some entries on the server
     vm0.invoke("Create entries", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 5; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 5; i++) {
         region.put("key-server-" + i, "value-server-" + i);
       }
     });
 
     vm1.invoke("Validate listener events", () -> {
 
-      AtomicInteger destroyCallbacks = new AtomicInteger(10);
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      final CertifiableTestCacheListener<Object, Object> ctl =
+      var destroyCallbacks = new AtomicInteger(10);
+      var region = getRootRegion().getSubregion(name);
+      final var ctl =
           (CertifiableTestCacheListener<Object, Object>) region.getAttributes()
               .getCacheListeners()[0];
 
       await().until(() -> {
-        List<CacheEvent<Object, Object>> list = ctl.getEventHistory();
+        var list = ctl.getEventHistory();
         for (CacheEvent ce : list) {
           if (ce.getOperation() == Operation.DESTROY
               && ce.getCallbackArgument() instanceof String) {
@@ -1782,7 +1779,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Close cache server clients
     vm1.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     });
 
@@ -1822,24 +1819,24 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test018OnlyRequestedUpdates() {
-    final String name1 = getName() + "-1";
-    final String name2 = getName() + "-2";
+    final var name1 = getName() + "-1";
+    final var name2 = getName() + "-2";
 
     // Cache server serves up both regions
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name1, factory);
       createRegion(name2, factory);
       startBridgeServer(0);
     });
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     // vm1 sends updates to the server
     vm1.invoke("Create regions", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
 
@@ -1855,7 +1852,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
 
@@ -1869,53 +1866,53 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Populate region", () -> {
-      Region<Object, Object> region1 = getRootRegion().getSubregion(name1);
-      for (int i = 0; i < 10; i++) {
+      var region1 = getRootRegion().getSubregion(name1);
+      for (var i = 0; i < 10; i++) {
         region1.put(i, "Region1Old" + i);
       }
-      Region<Object, Object> region2 = getRootRegion().getSubregion(name2);
-      for (int i = 0; i < 10; i++) {
+      var region2 = getRootRegion().getSubregion(name2);
+      for (var i = 0; i < 10; i++) {
         region2.put(i, "Region2Old" + i);
       }
     }));
 
     vm1.invoke("Update", () -> {
-      Region<Object, Object> region1 = getRootRegion().getSubregion(name1);
-      for (int i = 0; i < 10; i++) {
+      var region1 = getRootRegion().getSubregion(name1);
+      for (var i = 0; i < 10; i++) {
         region1.put(i, "Region1New" + i);
       }
-      Region<Object, Object> region2 = getRootRegion().getSubregion(name2);
-      for (int i = 0; i < 10; i++) {
+      var region2 = getRootRegion().getSubregion(name2);
+      for (var i = 0; i < 10; i++) {
         region2.put(i, "Region2New" + i);
       }
     });
 
     // Wait for updates to be propagated
     vm2.invoke("Validate", () -> {
-      Region<Object, Object> region1 = getRootRegion().getSubregion(name1);
-      for (int i = 0; i < 10; i++) {
-        final int testInt = i;
+      var region1 = getRootRegion().getSubregion(name1);
+      for (var i = 0; i < 10; i++) {
+        final var testInt = i;
         await().until(() -> (region1.get(testInt).equals("Region1New" + testInt)));
       }
-      Region<Object, Object> region2 = getRootRegion().getSubregion(name2);
-      for (int i = 0; i < 10; i++) {
-        final int testInt = i;
+      var region2 = getRootRegion().getSubregion(name2);
+      for (var i = 0; i < 10; i++) {
+        final var testInt = i;
         await().until(() -> region2.get(testInt).equals(("Region2Old" + testInt)));
       }
     });
 
     vm1.invoke("Close Pool", () -> {
       // Terminate region1's Pool
-      Region<Object, Object> region1 = getRootRegion().getSubregion(name1);
+      var region1 = getRootRegion().getSubregion(name1);
       region1.localDestroyRegion();
       // Terminate region2's Pool
-      Region<Object, Object> region2 = getRootRegion().getSubregion(name2);
+      var region2 = getRootRegion().getSubregion(name2);
       region2.localDestroyRegion();
     });
 
     vm2.invoke("Close Pool", () -> {
       // Terminate region1's Pool
-      Region<Object, Object> region1 = getRootRegion().getSubregion(name1);
+      var region1 = getRootRegion().getSubregion(name1);
       region1.localDestroyRegion();
     });
 
@@ -1927,11 +1924,11 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test019InterestKeyRegistration() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     // Create cache server
     vm0.invoke("Create Cache Server", () -> {
-      CacheLoader<Object, Object> cl = new CacheLoader<Object, Object>() {
+      var cl = new CacheLoader<Object, Object>() {
         @Override
         public Object load(LoaderHelper helper) {
           return helper.getKey();
@@ -1942,18 +1939,18 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
         }
       };
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(cl, null);
+      var factory = getBridgeServerRegionAttributes(cl, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     // Create cache server clients
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       // create bridge writer
@@ -1964,14 +1961,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // Get values for key 1 and key 2 so that there are entries in the clients.
     // Register interest in one of the keys.
     vm1.invoke("Create Entries and Register Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       assertThat(region.get("key-1")).isEqualTo("key-1");
       assertThat(region.get("key-2")).isEqualTo("key-2");
       region.registerInterest("key-1");
     });
 
     vm2.invoke("Create Entries and Register Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       assertThat(region.get("key-1")).isEqualTo("key-1");
       assertThat(region.get("key-2")).isEqualTo("key-2");
       region.registerInterest("key-2");
@@ -1979,7 +1976,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Put new values and validate updates (VM1)
     vm1.invoke("Put New Values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.put("key-1", "vm1-key-1");
       region.put("key-2", "vm1-key-2");
       // Verify that no invalidates occurred to this region
@@ -1988,7 +1985,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("Validate Entries", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       // Verify that 'key-2' was updated, but 'key-1' was not
       // and contains the original value
       await().until(() -> region.getEntry("key-1").getValue().equals("key-1"));
@@ -1997,7 +1994,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Put new values and validate updates (VM2)
     vm2.invoke("Put New Values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.put("key-1", "vm2-key-1");
       region.put("key-2", "vm2-key-2");
       // Verify that no updates occurred to this region
@@ -2006,7 +2003,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Validate Entries", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       // Verify that 'key-1' was updated, but 'key-2' was not
       // and contains the original value
       await().until(() -> region.getEntry("key-2").getValue().equals("vm1-key-2"));
@@ -2015,18 +2012,18 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Unregister interest
     vm1.invoke("Unregister Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.unregisterInterest("key-1");
     });
 
     vm2.invoke("Unregister Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.unregisterInterest("key-2");
     });
 
     // Put new values and validate updates (VM1)
     vm1.invoke("Put New Values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.put("key-1", "vm1-key-1-again");
       region.put("key-2", "vm1-key-2-again");
       // Verify that no updates occurred to this region
@@ -2035,7 +2032,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("Validate Entries", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       // Verify that neither 'key-1' 'key-2' was updated
       // and contain the original value
       await().until(() -> region.getEntry("key-1").getValue().equals("vm2-key-1"));
@@ -2044,7 +2041,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Put new values and validate updates (VM2)
     vm2.invoke("Put New Values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.put("key-1", "vm2-key-1-again");
       region.put("key-2", "vm2-key-2-again");
       // Verify that no updates occurred to this region
@@ -2053,7 +2050,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Validate Entries", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       // Verify that neither 'key-1' 'key-2' was updated
       // and contain the original value
       await().until(
@@ -2064,18 +2061,18 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // Unregister interest again (to verify that a client can unregister interest
     // in a key that its not interested in with no problem.
     vm1.invoke("Unregister Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.unregisterInterest("key-1");
     });
 
     vm2.invoke("Unregister Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.unregisterInterest("key-2");
     });
 
     // Close cache server clients
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     }));
 
@@ -2088,28 +2085,28 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test020InterestListRegistration() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     // Create cache server
     vm0.invoke("Create Cache Server", () -> {
 
-      RegionFactory<Object, Object> regionFactory = getCache().createRegionFactory();
+      var regionFactory = getCache().createRegionFactory();
       regionFactory.setScope(Scope.DISTRIBUTED_ACK);
       regionFactory.setConcurrencyChecksEnabled(false);
-      Region<Object, Object> region = createRegion(name, regionFactory);
+      var region = createRegion(name, regionFactory);
       startBridgeServer(0);
-      for (int i = 0; i <= 6; i++) {
+      for (var i = 0; i <= 6; i++) {
         region.put("key-" + i, "key-" + i);
       }
     });
 
     // Create cache server clients
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       // create bridge writer
@@ -2120,7 +2117,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // Get values for key 1 and key 6 so that there are entries in the clients.
     // Register interest in a list of keys.
     vm1.invoke("Create Entries and Register Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       assertThat(region.get("key-1")).isEqualTo("key-1");
       assertThat(region.get("key-6")).isEqualTo("key-6");
 
@@ -2134,14 +2131,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke("Create Entries and Register Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       assertThat(region.get("key-1")).isEqualTo("key-1");
       assertThat(region.get("key-6")).isEqualTo("key-6");
     });
 
     // Put new values and validate updates (VM2)
     vm2.invoke("Put New Values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.put("key-1", "vm2-key-1");
       region.put("key-6", "vm2-key-6");
       // Verify that no updates occurred to this region
@@ -2150,7 +2147,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Validate Entries", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       // Verify that 'key-1' was updated
       await().until(() -> region.getEntry("key-1").getValue().equals("vm2-key-1"));
       // Verify that 'key-6' was not invalidated
@@ -2160,12 +2157,12 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // Close cache server clients
 
     vm1.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     });
 
     vm2.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     });
 
@@ -2237,33 +2234,33 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void test021ClientGetOfInvalidServerEntry() throws CacheException {
-    final String regionName1 = getName() + "-1";
+    final var regionName1 = getName() + "-1";
 
-    VM server1 = VM.getVM(0);
-    VM client = VM.getVM(2);
+    var server1 = VM.getVM(0);
+    var client = VM.getVM(2);
 
     // Create server1.
     server1.invoke("Create Cache Server and values", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.REPLICATE);
       factory.setConcurrencyChecksEnabled(false);
       createRegion(regionName1, factory);
       startBridgeServer(0);
 
-      Region<Object, Object> region1 = getRootRegion().getSubregion(regionName1);
+      var region1 = getRootRegion().getSubregion(regionName1);
       // create it invalid
       region1.create("key-string-1", null);
     });
 
     final int port = server1.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     // now try it with a local scope
 
     client.invoke("Create region 2 and get values on client", () -> {
       getLonerSystem();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, false, -1, -1,
@@ -2271,7 +2268,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
       createRegion(regionName1, factory);
 
-      Region<Object, Object> region1 = getRootRegion().getSubregion(regionName1);
+      var region1 = getRootRegion().getSubregion(regionName1);
       assertThat(region1.getEntry("key-string-1")).isNull();
       assertThat(region1.get("key-string-1")).isNull();
     });
@@ -2279,14 +2276,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void test022ClientRegisterUnregisterRequests() throws CacheException {
-    final String regionName1 = getName() + "-1";
+    final var regionName1 = getName() + "-1";
 
-    VM server1 = vm0;
-    VM client = vm2;
+    var server1 = vm0;
+    var client = vm2;
 
     // Create server1.
     server1.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.REPLICATE);
       factory.setConcurrencyChecksEnabled(false);
@@ -2296,50 +2293,50 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     final int port = server1.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     // Create client.
     client.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
 
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
 
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1,
           null);
 
-      Region<Object, Object> region11 = createRegion(regionName1, factory);
+      var region11 = createRegion(regionName1, factory);
       region11.getAttributesMutator().addCacheListener(new CertifiableTestCacheListener<>());
     });
 
     // Init values at server.
     server1.invoke("Create values", () -> {
-      Region<Object, Object> region1 = getRootRegion().getSubregion(regionName1);
-      for (int i = 0; i < 20; i++) {
+      var region1 = getRootRegion().getSubregion(regionName1);
+      for (var i = 0; i < 20; i++) {
         region1.put("key-string-" + i, "value-" + i);
       }
     });
 
     // Put some values on the client.
     client.invoke("Put values client and close pool", () -> {
-      Region<Object, Object> region1 = getRootRegion().getSubregion(regionName1);
+      var region1 = getRootRegion().getSubregion(regionName1);
 
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region1.put("key-string-" + i, "client-value-" + i);
       }
 
-      String pName = region1.getAttributes().getPoolName();
+      var pName = region1.getAttributes().getPoolName();
       region1.localDestroyRegion();
-      PoolImpl p = (PoolImpl) PoolManager.find(pName);
+      var p = (PoolImpl) PoolManager.find(pName);
       p.destroy();
     });
 
     server1.invoke("validate Client Register UnRegister", () -> {
-      for (CacheServer cacheServer : getCache().getCacheServers()) {
-        InternalCacheServer bsi = (InternalCacheServer) cacheServer;
-        final CacheClientNotifierStats ccnStats =
+      for (var cacheServer : getCache().getCacheServers()) {
+        var bsi = (InternalCacheServer) cacheServer;
+        final var ccnStats =
             bsi.getAcceptor().getCacheClientNotifier().getStats();
 
         await().until(() -> ccnStats.getClientRegisterRequests() == ccnStats
@@ -2358,10 +2355,10 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test023ContainsKeyOnServer() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setConcurrencyChecksEnabled(false);
       createRegion(name, factory);
@@ -2369,12 +2366,12 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, false, -1, -1, null);
@@ -2382,9 +2379,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     }));
 
     final Integer key1 = 0;
-    final String key2 = "0";
+    final var key2 = "0";
     vm2.invoke("Contains key on server", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       boolean containsKey;
       containsKey = region.containsKeyOnServer(key1);
       assertThat(containsKey).isFalse();
@@ -2393,22 +2390,22 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Put values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.put(0, 0);
       region.put("0", "0");
     });
 
     vm2.invoke("Contains key on server", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      boolean containsKey = region.containsKeyOnServer(key1);
+      var region = getRootRegion().getSubregion(name);
+      var containsKey = region.containsKeyOnServer(key1);
       assertThat(containsKey).isTrue();
       containsKey = region.containsKeyOnServer(key2);
       assertThat(containsKey).isTrue();
     });
 
-    for (VM vm : Arrays.asList(vm1, vm2)) {
+    for (var vm : Arrays.asList(vm1, vm2)) {
       vm.invoke("Close Pool", () -> {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
+        var region = getRootRegion().getSubregion(name);
         region.localDestroyRegion();
       });
     }
@@ -2424,23 +2421,23 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test024CreateNullValue() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     final Object createCallbackArg = "CREATE CALLBACK ARG";
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
 
@@ -2449,15 +2446,15 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     }));
 
     vm2.invoke("Create nulls", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.create(i, null, createCallbackArg);
       }
     });
 
     vm2.invoke("Verify invalidates", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         Region.Entry entry = region.getEntry(i);
         await().until(() -> entry != null);
         await().until(() -> entry.getValue() == null);
@@ -2465,15 +2462,15 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Attempt to create values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.create(i, "new" + i);
       }
     });
 
     vm2.invoke("Verify invalidates", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         Region.Entry entry = region.getEntry(i);
         await().until(() -> entry != null);
         await().until(() -> entry.getValue() == null);
@@ -2481,7 +2478,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     }));
   }
@@ -2492,7 +2489,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test025Destroy() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     final Object callbackArg = "DESTROY CALLBACK";
 
@@ -2505,22 +2502,22 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
         @Override
         public void beforeDestroy2(EntryEvent event) throws CacheWriterException {
-          Object beca = event.getCallbackArgument();
+          var beca = event.getCallbackArgument();
           assertThat(callbackArg).isEqualTo(beca);
         }
       };
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, cw);
+      var factory = getBridgeServerRegionAttributes(null, cw);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create and Load region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
 
@@ -2529,8 +2526,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       Region rgn = createRegion(name, factory);
       rgn.registerInterestRegex(".*", false, false);
 
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.put(i, String.valueOf(i));
       }
     });
@@ -2538,7 +2535,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke("Create and Load region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
 
@@ -2547,61 +2544,61 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       Region rgn = createRegion(name, factory);
       rgn.registerInterestRegex(".*", false, false);
 
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         assertThat(String.valueOf(i)).isEqualTo(region.get(i));
       }
     });
 
     vm1.invoke("Local destroy", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.localDestroy(i);
       }
     });
 
     vm2.invoke("No destroy propagate", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         assertThat(String.valueOf(i)).isEqualTo(region.get(i));
       }
     });
 
     vm1.invoke("Fetch from server", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         assertThat(String.valueOf(i)).isEqualTo(region.get(i));
       }
     });
 
     vm0.invoke("Check no server cache writer", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      TestCacheWriter writer = getTestWriter(region);
+      var region = getRootRegion().getSubregion(name);
+      var writer = getTestWriter(region);
       writer.wasInvoked();
     });
 
     vm1.invoke(() -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.destroy(i, callbackArg);
       }
 
-      for (int i = 0; i < 10; i++) {
-        final int testInt = i;
+      for (var i = 0; i < 10; i++) {
+        final var testInt = i;
         await().until(() -> region.getEntry(testInt) == null);
       }
     });
 
     vm2.invoke("Validate destroy propagate", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
-        final int testInt = i;
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
+        final var testInt = i;
         await().until(() -> region.getEntry(testInt) == null);
       }
     });
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     }));
   }
@@ -2613,7 +2610,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
   @Ignore("TODO")
   @Test
   public void testDestroyRegion() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     final Object callbackArg = "DESTROY CALLBACK";
 
@@ -2629,19 +2626,19 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
           assertThat(callbackArg).isEqualTo(event.getCallbackArgument());
         }
       };
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, cw);
+      var factory = getBridgeServerRegionAttributes(null, cw);
       createRegion(name, factory);
       startBridgeServer(0);
     });
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     SerializableRunnable create = new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
         getLonerSystem();
         getCache();
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.LOCAL);
         factory.setConcurrencyChecksEnabled(false);
         configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -2652,7 +2649,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Create region", create));
 
     vm1.invoke("Local destroy region", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
       assertThat(getRootRegion().getSubregion(name)).isNull();
     });
@@ -2662,14 +2659,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm0.invoke("Check no server cache writer", () -> {
-      TestCacheWriter writer = getTestWriter(getRootRegion().getSubregion(name));
+      var writer = getTestWriter(getRootRegion().getSubregion(name));
       writer.wasInvoked();
     });
 
     vm1.invoke(create);
 
     vm1.invoke("Distributed destroy region", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       assertThat(region).isNotNull();
       region.destroyRegion(callbackArg);
       assertThat(getRootRegion().getSubregion(name)).isNull();
@@ -2685,11 +2682,11 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test026DPEmptyInterestListRegistrationWithCallbackArg() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     // Create cache server
     vm0.invoke("Create Cache Server", () -> {
-      CacheLoader<Object, Object> cl = new CacheLoader<Object, Object>() {
+      var cl = new CacheLoader<Object, Object>() {
         @Override
         public Object load(LoaderHelper helper) {
           return helper.getKey();
@@ -2698,18 +2695,18 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         @Override
         public void close() {}
       };
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(cl, null);
+      var factory = getBridgeServerRegionAttributes(cl, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     // Create cache server clients
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", () -> {
       getLonerSystem();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       // create bridge writer
@@ -2722,7 +2719,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     vm2.invoke("Create publisher region", () -> {
       getLonerSystem();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       // create bridge writer
@@ -2739,7 +2736,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // VM2 Put entry (this will cause a create event in both VM1 and VM2)
     vm2.invoke(() -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.create("key-1", "key-1-create", "key-1-create");
 
       region.put("key-1", "key-1-update", "key-1-update");
@@ -2748,14 +2745,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm1.invoke("Verify events", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      ControlListener listener = (ControlListener) region.getAttributes().getCacheListeners()[0];
-      int eventCount = 3;
+      var region = getRootRegion().getSubregion(name);
+      var listener = (ControlListener) region.getAttributes().getCacheListeners()[0];
+      var eventCount = 3;
       listener.waitWhileNotEnoughEvents(eventCount);
       assertThat(eventCount).isEqualTo(listener.events.size());
 
       {
-        EventWrapper ew = listener.events.get(0);
+        var ew = listener.events.get(0);
         assertThat(TYPE_CREATE).isEqualTo(ew.type);
         Object key = "key-1";
         assertThat(key).isEqualTo(ew.event.getKey());
@@ -2792,7 +2789,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     Stream.of(vm1, vm2).forEach(vm -> {
       // Close cache server clients
       vm.invoke("Close Pool", () -> {
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
+        var region = getRootRegion().getSubregion(name);
         region.localDestroyRegion();
       });
     });
@@ -2804,11 +2801,11 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test027DPEmptyCCInterestListRegistrationWithCallbackArg() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     // Create cache server
     vm0.invoke("Create Cache Server", () -> {
-      CacheLoader<Object, Object> cl = new CacheLoader<Object, Object>() {
+      var cl = new CacheLoader<Object, Object>() {
         @Override
         public Object load(LoaderHelper helper) {
           return helper.getKey();
@@ -2819,18 +2816,18 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
         }
       };
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(cl, null);
+      var factory = getBridgeServerRegionAttributes(cl, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     // Create cache server clients
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", () -> {
       getLonerSystem();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -2842,7 +2839,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
     vm2.invoke("Create publisher region", () -> {
       getLonerSystem();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       // create bridge writer
@@ -2855,7 +2852,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // VM1 Register interest
     vm1.invoke("Create Entries and Register Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
 
       // This call will cause no value to be put into the region
       region.registerInterest("key-1", InterestResultPolicy.NONE);
@@ -2863,32 +2860,32 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // VM2 Put entry (this will cause a create event in both VM1 and VM2)
     vm2.invoke("Put Value", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.create("key-1", "key-1-create", "key-1-create");
     });
 
     // VM2 Put entry (this will cause an update event in both VM1 and VM2)
     vm2.invoke("Put Value", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.put("key-1", "key-1-update", "key-1-update");
     });
 
     // VM2 Destroy entry (this will cause a destroy event)
     vm2.invoke("Destroy Entry", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.destroy("key-1", "key-1-destroy");
     });
 
     vm1.invoke("Verify events", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      ControlListener listener = (ControlListener) region.getAttributes().getCacheListeners()[0];
+      var region = getRootRegion().getSubregion(name);
+      var listener = (ControlListener) region.getAttributes().getCacheListeners()[0];
 
       await().until(() -> listener.events.size() == 0);
     });
 
     // Close cache server clients
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     }));
   }
@@ -2905,18 +2902,18 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test028DynamicRegionCreation() {
-    final String name = getName();
+    final var name = getName();
 
-    final VM client1 = vm0;
-    final VM srv1 = vm2;
-    final VM srv2 = vm3;
+    final var client1 = vm0;
+    final var srv1 = vm2;
+    final var srv2 = vm3;
 
-    final String key1 = name + "-key1";
-    final String value1 = name + "-val1";
-    final String key2 = name + "-key2";
-    final String value2 = name + "-val2";
-    final String key3 = name + "-key3";
-    final String value3 = name + "-val3";
+    final var key1 = name + "-key1";
+    final var value1 = name + "-val1";
+    final var key2 = name + "-key2";
+    final var value2 = name + "-val2";
+    final var key3 = name + "-key3";
+    final var value3 = name + "-val3";
 
     // setup servers
     Stream.of(srv1, srv2).forEach(vm -> vm.invoke("Create Cache Server", () -> {
@@ -2924,15 +2921,15 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       assertThat(DynamicRegionFactory.get().isOpen()).isTrue();
       startBridgeServer(0);
 
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.REPLICATE);
       factory.setConcurrencyChecksEnabled(false);
-      Region<Object, Object> region = createRootRegion(name, factory);
+      var region = createRootRegion(name, factory);
       region.put(key1, value1);
       assertThat(region.get(key1)).isEqualTo(value1);
     }));
-    final String srv1Host = NetworkUtils.getServerHostName();
+    final var srv1Host = NetworkUtils.getServerHostName();
     final int srv1Port = srv1.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
 
     final int srv2Port = srv2.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
@@ -2940,14 +2937,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // setup clients, do basic tests to make sure pool with notifier work as advertised
     client1.invoke("Create Cache Client", () -> {
       createLonerDS();
-      AttributesFactory<Object, Object> factory = new AttributesFactory<>();
+      var factory = new AttributesFactory<Object, Object>();
       factory.setConcurrencyChecksEnabled(false);
-      Pool cp = configureConnectionPool(factory, srv1Host, new int[] {srv1Port,
+      var cp = configureConnectionPool(factory, srv1Host, new int[] {srv1Port,
           srv2Port}, true, -1, -1, null);
       assertThat(cp).isNotNull();
 
       {
-        final PoolImpl pool = (PoolImpl) cp;
+        final var pool = (PoolImpl) cp;
 
         await().untilAsserted(() -> {
           assertThat(pool.getPrimary()).isNotNull();
@@ -2964,7 +2961,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       factory.addCacheListener(new CertifiableTestCacheListener<>());
-      Region<Object, Object> region = createRootRegion(name, factory.create());
+      var region = createRootRegion(name, factory.create());
 
       assertThat(region.getEntry(key1)).isNull();
       region.registerInterestRegex(".*", InterestResultPolicy.KEYS_VALUES); // this should match
@@ -2981,10 +2978,10 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     srv1.invoke("Validate Server1 update", () -> {
-      CacheClientNotifier ccn = getInstance();
-      final CacheClientNotifierStats ccnStats = ccn.getStats();
-      final int eventCount = ccnStats.getEvents();
-      Region<Object, Object> region = getRootRegion(name);
+      var ccn = getInstance();
+      final var ccnStats = ccn.getStats();
+      final var eventCount = ccnStats.getEvents();
+      var region = getRootRegion(name);
       assertThat(region).isNotNull();
       assertThat(value2)
           .isEqualTo(region.getEntry(key2).getValue()); // Validate the Pool worked,
@@ -2998,7 +2995,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     srv2.invoke("Validate Server2 update", () -> {
-      Region<Object, Object> rootRegion = getRootRegion(name);
+      var rootRegion = getRootRegion(name);
       assertThat(rootRegion).isNotNull();
       assertThat(value2).isEqualTo(rootRegion.getEntry(key2).getValue()); // Validate the Pool
       // worked, getEntry works because of the mirror
@@ -3006,9 +3003,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     client1.invoke("Validate Client notification", () -> {
-      Region<Object, Object> rootRegion = getRootRegion(name);
+      var rootRegion = getRootRegion(name);
       assertThat(rootRegion).isNotNull();
-      CertifiableTestCacheListener<Object, Object> ctl =
+      var ctl =
           (CertifiableTestCacheListener<Object, Object>) rootRegion.getAttributes()
               .getCacheListeners()[0];
       ctl.waitForUpdated(key3);
@@ -3017,12 +3014,12 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     });
     // Ok, now we are ready to do some dynamic region action!
-    final String v1Dynamic = value1 + "dynamic";
-    final String dynFromClientName = name + "-dynamic-client";
-    final String dynFromServerName = name + "-dynamic-server";
+    final var v1Dynamic = value1 + "dynamic";
+    final var dynFromClientName = name + "-dynamic-client";
+    final var dynFromServerName = name + "-dynamic-server";
     client1.invoke("Client dynamic region creation", () -> {
       assertThat(DynamicRegionFactory.get().isOpen()).isTrue();
-      Region<Object, Object> region = getRootRegion(name);
+      var region = getRootRegion(name);
       assertThat(region).isNotNull();
       Region<Object, Object> dynamicRegion =
           DynamicRegionFactory.get().createDynamicRegion(name, dynFromClientName);
@@ -3036,26 +3033,26 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // Assert the servers have the dynamic region and the new value
     Stream.of(srv1, srv2)
         .forEach(vm -> vm.invoke("Validate dynamic region creation on server", () -> {
-          Region<Object, Object> rootRegion = getRootRegion(name);
+          var rootRegion = getRootRegion(name);
           assertThat(rootRegion).isNotNull();
 
           await().untilAsserted(() -> {
-            Region<Object, Object> region = rootRegion.getSubregion(dynFromClientName);
+            var region = rootRegion.getSubregion(dynFromClientName);
             assertThat(region).isNotNull();
             assertThat(getCache().getRegion(name + SEPARATOR + dynFromClientName))
                 .isNotNull();
           });
 
-          Region<Object, Object> dynamicRegion = rootRegion.getSubregion(dynFromClientName);
+          var dynamicRegion = rootRegion.getSubregion(dynFromClientName);
           assertThat(v1Dynamic).isEqualTo(dynamicRegion.getEntry(key1).getValue());
         }));
 
     // now delete the dynamic region and see if it goes away on servers
     client1.invoke("Client dynamic region destruction", () -> {
       assertThat(DynamicRegionFactory.get().isActive()).isTrue();
-      Region<Object, Object> r = getRootRegion(name);
+      var r = getRootRegion(name);
       assertThat(r).isNotNull();
-      String drName = r.getFullPath() + SEPARATOR + dynFromClientName;
+      var drName = r.getFullPath() + SEPARATOR + dynFromClientName;
 
       assertThat(getCache().getRegion(drName)).isNotNull();
       DynamicRegionFactory.get().destroyDynamicRegion(drName);
@@ -3066,9 +3063,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     Stream.of(srv1, srv2)
         .forEach(vm -> vm.invoke("Validate dynamic region destruction on server", () -> {
-          Region<Object, Object> r = getRootRegion(name);
+          var r = getRootRegion(name);
           assertThat(r).isNotNull();
-          String drName = r.getFullPath() + SEPARATOR + dynFromClientName;
+          var drName = r.getFullPath() + SEPARATOR + dynFromClientName;
           assertThat(getCache().getRegion(drName)).isNull();
           try {
             DynamicRegionFactory.get().destroyDynamicRegion(drName);
@@ -3080,7 +3077,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // Now try the reverse, create a dynamic region on the server and see if the client
     // has it
     srv2.invoke("Server dynamic region creation", () -> {
-      Region<Object, Object> r = getRootRegion(name);
+      var r = getRootRegion(name);
       assertThat(r).isNotNull();
       Region<Object, Object> dr =
           DynamicRegionFactory.get().createDynamicRegion(name, dynFromServerName);
@@ -3091,9 +3088,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Assert the servers have the dynamic region and the new value
     srv1.invoke("Validate dynamic region creation propagation to other server", () -> {
-      Region<Object, Object> r = getRootRegion(name);
+      var r = getRootRegion(name);
       assertThat(r).isNotNull();
-      Region<Object, Object> dr = waitForSubRegion(r, dynFromServerName);
+      var dr = waitForSubRegion(r, dynFromServerName);
       assertThat(dr).isNotNull();
       assertThat(getCache().getRegion(name + SEPARATOR + dynFromServerName))
           .isNotNull();
@@ -3104,7 +3101,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Assert the clients have the dynamic region and the new value
     client1.invoke("Validate dynamic region creation on client", () -> {
-      Region<Object, Object> r = getRootRegion(name);
+      var r = getRootRegion(name);
       assertThat(r).isNotNull();
       Region<Object, Object> dr;
 
@@ -3120,9 +3117,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // now delete the dynamic region on a server and see if it goes away on client
     srv2.invoke("Server dynamic region destruction", () -> {
       assertThat(DynamicRegionFactory.get().isActive()).isTrue();
-      Region<Object, Object> r = getRootRegion(name);
+      var r = getRootRegion(name);
       assertThat(r).isNotNull();
-      String drName = r.getFullPath() + SEPARATOR + dynFromServerName;
+      var drName = r.getFullPath() + SEPARATOR + dynFromServerName;
 
       assertThat(getCache().getRegion(drName)).isNotNull();
       DynamicRegionFactory.get().destroyDynamicRegion(drName);
@@ -3130,9 +3127,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     srv1.invoke("Validate dynamic region destruction on other server", () -> {
-      Region<Object, Object> r = getRootRegion(name);
+      var r = getRootRegion(name);
       assertThat(r).isNotNull();
-      String drName = r.getFullPath() + SEPARATOR + dynFromServerName;
+      var drName = r.getFullPath() + SEPARATOR + dynFromServerName;
 
       await().ignoreException(RegionDestroyedException.class)
           .until(() -> getCache().getRegion(drName) == null);
@@ -3141,13 +3138,13 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Assert the clients no longer have the dynamic region
     client1.invoke("Validate dynamic region destruction on client", () -> {
-      Region<Object, Object> r = getRootRegion(name);
+      var r = getRootRegion(name);
       assertThat(r).isNotNull();
-      String drName = r.getFullPath() + SEPARATOR + dynFromServerName;
+      var drName = r.getFullPath() + SEPARATOR + dynFromServerName;
       await().ignoreException(RegionDestroyedException.class)
           .until(() -> getCache().getRegion(drName) == null);
 
-      Throwable thrown =
+      var thrown =
           catchThrowable(() -> DynamicRegionFactory.get().destroyDynamicRegion(drName));
       assertThat(thrown).isInstanceOf(RegionDestroyedException.class);
     });
@@ -3158,56 +3155,56 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test029EmptyByteArray() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     final Object createCallbackArg = "CREATE CALLBACK ARG";
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
 
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
       createRegion(name, factory);
 
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 1; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 1; i++) {
         region.create(i, new byte[0], createCallbackArg);
       }
 
-      for (int i = 0; i < 1; i++) {
+      for (var i = 0; i < 1; i++) {
         Region.Entry entry = region.getEntry(i);
         assertThat(entry).isNotNull();
-        byte[] value = (byte[]) entry.getValue();
+        var value = (byte[]) entry.getValue();
         assertThat(value).isNotNull();
         assertThat(value).isEmpty();
       }
     });
 
     vm0.invoke("Verify values on server", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 1; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 1; i++) {
         Region.Entry entry = region.getEntry(i);
         assertThat(entry).isNotNull();
-        byte[] value = (byte[]) entry.getValue();
+        var value = (byte[]) entry.getValue();
         assertThat(value).isNotNull();
         assertThat(value).isEmpty();
       }
     });
 
     vm1.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     });
   }
@@ -3217,11 +3214,11 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test030InterestListRegistrationWithCallbackArg() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     // Create cache server
     vm0.invoke("Create Cache Server", () -> {
-      CacheLoader<Object, Object> cl = new CacheLoader<Object, Object>() {
+      var cl = new CacheLoader<Object, Object>() {
         @Override
         public Object load(LoaderHelper helper) {
           return helper.getKey();
@@ -3232,18 +3229,18 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
         }
       };
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(cl, null);
+      var factory = getBridgeServerRegionAttributes(cl, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     // Create cache server clients
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Create region", () -> {
       getLonerSystem();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       // create bridge writer
@@ -3254,7 +3251,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // VM1 Register interest
     vm1.invoke("Create Entries and Register Interest", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
 
       // This call will cause no value to be put into the region
       region.registerInterest("key-1", InterestResultPolicy.NONE);
@@ -3263,31 +3260,31 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // VM2 Put entry (this will cause a create event in both VM1 and VM2)
     vm2.invoke("Put Value", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.create("key-1", "key-1-create", "key-1-create");
     });
 
     // VM2 Put entry (this will cause an update event in both VM1 and VM2)
     vm2.invoke("Put Value", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.put("key-1", "key-1-update", "key-1-update");
     });
 
     // VM2 Destroy entry (this will cause a destroy event)
     vm2.invoke("Destroy Entry", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.destroy("key-1", "key-1-destroy");
     });
 
     vm1.invoke("Verify events", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      ControlListener listener = (ControlListener) region.getAttributes().getCacheListeners()[0];
-      int eventCount = 3;
+      var region = getRootRegion().getSubregion(name);
+      var listener = (ControlListener) region.getAttributes().getCacheListeners()[0];
+      var eventCount = 3;
       listener.waitWhileNotEnoughEvents(eventCount);
       assertThat(eventCount).isEqualTo(listener.events.size());
 
       {
-        EventWrapper ew = listener.events.get(0);
+        var ew = listener.events.get(0);
         assertThat(ew.type).isEqualTo(TYPE_CREATE);
         Object key = "key-1";
         assertThat(key).isEqualTo(ew.event.getKey());
@@ -3320,7 +3317,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Close cache server clients
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     }));
   }
@@ -3332,22 +3329,22 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test031KeySetOnServer() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setConcurrencyChecksEnabled(false);
       createRegion(name, factory);
       startBridgeServer(0);
     });
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
@@ -3355,28 +3352,28 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     }));
 
     vm2.invoke("Get keys on server", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       Set keySet = region.keySetOnServer();
       assertThat(keySet).isNotNull();
       assertThat(keySet).isEmpty();
     });
 
     vm1.invoke("Put values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.put(i, i);
       }
     });
 
     vm2.invoke("Get keys on server", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       Set keySet = region.keySetOnServer();
       assertThat(keySet).isNotNull();
       assertThat(10).isEqualTo(keySet.size());
     });
 
     Stream.of(vm1, vm2).forEach(vm -> vm.invoke("Close Pool", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.localDestroyRegion();
     }));
   }
@@ -3387,39 +3384,39 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test033NotSerializableException() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getBridgeServerRegionAttributes(null, null);
+      var factory = getBridgeServerRegionAttributes(null, null);
       createRegion(name, factory);
       startBridgeServer(0);
     });
 
     final int port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
     vm1.invoke("Create region", () -> {
       getLonerSystem();
       getCache();
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
 
       configureConnectionPool(factory, host0, new int[] {port}, true, -1, -1, null);
       createRegion(name, factory);
 
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
 
-      Throwable thrown =
+      var thrown =
           catchThrowable(() -> region.create(1, new ConnectionPoolTestNonSerializable()));
 
       assertThat(thrown).hasCauseInstanceOf(NotSerializableException.class);
 
-      Throwable thrown2 =
+      var thrown2 =
           catchThrowable(() -> region.put(1, new ConnectionPoolTestNonSerializable()));
       assertThat(thrown2).hasCauseInstanceOf(NotSerializableException.class);
 
-      Throwable thrown3 =
+      var thrown3 =
           catchThrowable(() -> region.get(new ConnectionPoolTestNonSerializable()));
       assertThat(thrown3).hasCauseInstanceOf(NotSerializableException.class);
 
@@ -3439,14 +3436,14 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test034NotifyAllUpdates() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     disconnectAllFromDS();
 
-    for (VM vm : new VM[] {vm0, vm1}) {
+    for (var vm : new VM[] {vm0, vm1}) {
       // Create the cache servers with distributed, mirrored region
       vm.invoke("Create Cache Server", () -> {
-        CacheLoader<Object, Object> cl = new CacheLoader<Object, Object>() {
+        var cl = new CacheLoader<Object, Object>() {
           @Override
           public Object load(LoaderHelper helper) {
             return helper.getKey();
@@ -3457,7 +3454,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
           }
         };
-        RegionFactory<Object, Object> factory =
+        var factory =
             getBridgeServerMirroredAckRegionAttributes(cl);
         createRegion(name, factory);
         startBridgeServer(0);
@@ -3465,8 +3462,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     }
 
     // Create cache server clients
-    final int numberOfKeys = 10;
-    final String host0 = NetworkUtils.getServerHostName();
+    final var numberOfKeys = 10;
+    final var host0 = NetworkUtils.getServerHostName();
     final int vm0Port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
     final int vm1Port = vm1.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
     Stream.of(vm2, vm3).forEach(vm -> {
@@ -3478,7 +3475,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         numberOfAfterUpdates = 0;
         getLonerSystem();
         // create the region
-        RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+        var factory = getCache().createRegionFactory();
         factory.setScope(Scope.LOCAL);
         factory.setConcurrencyChecksEnabled(false);
         // create bridge writer
@@ -3495,8 +3492,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
         numberOfAfterInvalidates = 0;
         numberOfAfterCreates = 0;
         numberOfAfterUpdates = 0;
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
-        for (int i = 0; i < numberOfKeys; i++) {
+        var region = getRootRegion().getSubregion(name);
+        for (var i = 0; i < numberOfKeys; i++) {
           assertThat("key-" + i).isEqualTo(region.get("key-" + i));
         }
       });
@@ -3504,7 +3501,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Add a CacheListener to both vm2 and vm3
     vm2.invoke("Add CacheListener 1", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       CacheListener<Object, Object> listener = new CacheListenerAdapter<Object, Object>() {
         @Override
         public void afterCreate(EntryEvent e) {
@@ -3529,7 +3526,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm3.invoke("Add CacheListener 2", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       CacheListener<Object, Object> listener = new CacheListenerAdapter<Object, Object>() {
         @Override
         public void afterCreate(EntryEvent e) {
@@ -3551,8 +3548,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     vm2.invoke(() -> await().untilAsserted(() -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < numberOfKeys; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < numberOfKeys; i++) {
         assertThat("key-" + i).isEqualTo(region.get("key-" + i));
       }
     }));
@@ -3560,8 +3557,8 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // Use vm2 to put new values
     // This should cause 10 afterUpdates to vm2 and 10 afterInvalidates to vm3
     vm2.invoke("Put New Values", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
-      for (int i = 0; i < 10; i++) {
+      var region = getRootRegion().getSubregion(name);
+      for (var i = 0; i < 10; i++) {
         region.put("key-" + i, "key-" + i);
       }
     });
@@ -3653,12 +3650,12 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void test037Bug39526part1() throws CacheException {
-    final String name = getName();
+    final var name = getName();
 
     // Create the cache servers with distributed, empty region
     logger.info("before create server");
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.EMPTY);
       factory.setConcurrencyChecksEnabled(false);
@@ -3667,29 +3664,29 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     // Create cache server client
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
     final int vm0Port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
     logger.info("before create client");
     vm1.invoke("Create Cache Server Client", () -> {
       getLonerSystem();
       // create the region
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       // create bridge writer
       configureConnectionPool(factory, host0, new int[] {vm0Port}, true, -1, -1,
           null);
       createRegion(name, factory);
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.registerInterestRegex(".*");
     });
 
     // now do a tx in the server
     logger.info("before doServerTx");
     vm0.invoke("doServerTx", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       Cache cache1 = getCache();
-      CacheTransactionManager txMgr = cache1.getCacheTransactionManager();
+      var txMgr = cache1.getCacheTransactionManager();
       txMgr.begin();
       try {
         region.put("k1", "v1");
@@ -3703,7 +3700,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // now verify that the client receives the committed data
     logger.info("before confirmCommitOnClient");
     vm1.invoke("Validate Cache Server Client", () -> {
-      final Region<Object, Object> region = getRootRegion().getSubregion(name);
+      final var region = getRootRegion().getSubregion(name);
       // wait for a while for us to have the correct number of entries
       await().alias("waiting for region to be size 3").until(() -> region.size() == 3);
       assertThat(region.containsKey("k1")).isTrue();
@@ -3722,12 +3719,12 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void test038Bug39526part2() throws CacheException {
     disconnectAllFromDS();
-    final String name = getName();
+    final var name = getName();
 
     // Create the cache servers with distributed, empty region
     logger.info("before create server");
     vm0.invoke("Create Cache Server", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setConcurrencyChecksEnabled(false);
       factory.setDataPolicy(DataPolicy.EMPTY);
@@ -3737,26 +3734,26 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     });
 
     // Create cache server client
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
     final int vm0Port = vm0.invoke(ConnectionPoolDUnitTest::getCacheServerPort);
     logger.info("before create client");
     vm1.invoke("Create Cache Server Client", () -> {
       getLonerSystem();
       // create the region
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.LOCAL);
       factory.setConcurrencyChecksEnabled(false);
       // create bridge writer
       configureConnectionPool(factory, host0, new int[] {vm0Port}, true, -1, -1,
           null);
       createRegion(name, factory);
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.registerInterestRegex(".*");
     });
 
     logger.info("before create server peer");
     vm2.invoke("Create Server Peer", () -> {
-      RegionFactory<Object, Object> factory = getCache().createRegionFactory();
+      var factory = getCache().createRegionFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.EMPTY);
       factory.setConcurrencyChecksEnabled(false);
@@ -3766,9 +3763,9 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // now do a tx in the server
     logger.info("before doServerTx");
     vm2.invoke("doServerTx", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       Cache cache1 = getCache();
-      CacheTransactionManager txmgr = cache1.getCacheTransactionManager();
+      var txmgr = cache1.getCacheTransactionManager();
       txmgr.begin();
       try {
         region.put("k1", "v1");
@@ -3782,7 +3779,7 @@ public class ConnectionPoolDUnitTest extends JUnit4CacheTestCase {
     // now verify that the client receives the committed data
     logger.info("before confirmCommitOnClient");
     vm1.invoke("Validate Cache Server Client", () -> {
-      final Region<Object, Object> region = getRootRegion().getSubregion(name);
+      final var region = getRootRegion().getSubregion(name);
       // wait for a while for us to have the correct number of entries
 
       await().alias("waiting for region to be size 3").until(() -> region.size() == 3);

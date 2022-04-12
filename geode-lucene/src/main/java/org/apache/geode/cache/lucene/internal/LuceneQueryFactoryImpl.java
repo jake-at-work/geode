@@ -63,8 +63,8 @@ public class LuceneQueryFactoryImpl implements LuceneQueryFactory {
     if (region == null) {
       throw new IllegalArgumentException("Region not found: " + regionName);
     }
-    LuceneQueryImpl<K, V> luceneQuery =
-        new LuceneQueryImpl<>(indexName, region, provider, limit, pageSize);
+    var luceneQuery =
+        new LuceneQueryImpl<K, V>(indexName, region, provider, limit, pageSize);
     return luceneQuery;
   }
 

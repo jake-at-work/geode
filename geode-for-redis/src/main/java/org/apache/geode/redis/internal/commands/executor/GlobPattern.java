@@ -60,8 +60,8 @@ public class GlobPattern {
           break;
         }
         case '[': {
-          boolean not = false;
-          boolean match = false;
+          var not = false;
+          var match = false;
 
           patternIdx++;
           if (patternIdx < pattern.length) {
@@ -81,7 +81,7 @@ public class GlobPattern {
               int end = pattern[patternIdx + 2];
               int c = string[stringIdx];
               if (start > end) {
-                int t = start;
+                var t = start;
                 start = end;
                 end = t;
               }

@@ -23,7 +23,6 @@ import org.apache.geode.cache.CacheStatistics;
 import org.apache.geode.cache.EntryDestroyedException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.StatisticsDisabledException;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 
 /**
@@ -88,7 +87,7 @@ public class EntrySnapshot implements Region.Entry, DataSerializable {
   }
 
   public VersionTag getVersionTag() {
-    VersionStamp stamp = regionEntry.getVersionStamp();
+    var stamp = regionEntry.getVersionStamp();
     if (stamp != null) {
       return stamp.asVersionTag();
     }
@@ -100,7 +99,7 @@ public class EntrySnapshot implements Region.Entry, DataSerializable {
   }
 
   public Object getRawValue(boolean forceCopy) {
-    Object v = regionEntry.getValue(null);
+    var v = regionEntry.getValue(null);
     if (v == null) {
       return null;
     }
@@ -129,7 +128,7 @@ public class EntrySnapshot implements Region.Entry, DataSerializable {
    */
   public Object getValuePreferringCachedDeserializable() {
     checkEntryDestroyed();
-    Object value = regionEntry.getValue(null);
+    var value = regionEntry.getValue(null);
     if (value instanceof CachedDeserializable) {
       return value;
     } else {
@@ -200,7 +199,7 @@ public class EntrySnapshot implements Region.Entry, DataSerializable {
     if (!(obj instanceof EntrySnapshot)) {
       return false;
     }
-    EntrySnapshot ent = (EntrySnapshot) obj;
+    var ent = (EntrySnapshot) obj;
     return regionEntry.getKey().equals(ent.getKey());
   }
 
@@ -211,7 +210,7 @@ public class EntrySnapshot implements Region.Entry, DataSerializable {
 
   @Override
   public Object setValue(Object arg) {
-    Object returnValue = region.put(getKey(), arg);
+    var returnValue = region.put(getKey(), arg);
     regionEntry.setCachedValue(arg);
     return returnValue;
   }
@@ -287,7 +286,7 @@ public class EntrySnapshot implements Region.Entry, DataSerializable {
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
     startedLocal = false;
-    boolean hasStats = in.readBoolean();
+    var hasStats = in.readBoolean();
     if (hasStats) {
       regionEntry = new NonLocalRegionEntryWithStats();
     } else {

@@ -84,9 +84,9 @@ public class CacheCollector {
    */
   public synchronized void takeSnapshot(String regionName) {
     flush();
-    ApplicationVM[] apps = systemAgent.listApplications();
+    var apps = systemAgent.listApplications();
 
-    for (final ApplicationVM app : apps) {
+    for (final var app : apps) {
       notHeardFrom.add(app);
       app.takeRegionSnapshot(regionName, snapshotCount);
     }

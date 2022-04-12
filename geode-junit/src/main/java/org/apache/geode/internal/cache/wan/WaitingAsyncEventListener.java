@@ -34,7 +34,7 @@ public class WaitingAsyncEventListener implements AsyncEventListener {
     } catch (InterruptedException e) {
       throw new RuntimeException("WaitingAsyncEventListener processEvents was interrupted");
     }
-    for (AsyncEvent event : events) {
+    for (var event : events) {
       process(event);
     }
     return true;

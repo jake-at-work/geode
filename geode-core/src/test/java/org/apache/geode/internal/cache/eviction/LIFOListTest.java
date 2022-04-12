@@ -40,14 +40,14 @@ public class LIFOListTest {
 
   @Test
   public void evictingFromEmptyListTest() throws Exception {
-    LIFOList list = new LIFOList(controller);
+    var list = new LIFOList(controller);
     assertThat(list.getEvictableEntry()).isNull();
     assertThat(list.size()).isZero();
   }
 
   @Test
   public void evictingFromNonEmptyListTest() throws Exception {
-    LIFOList list = new LIFOList(controller);
+    var list = new LIFOList(controller);
     EvictionNode node = mock(EvictableEntry.class);
     list.appendEntry(node);
     assertThat(list.size()).isEqualTo(1);
@@ -61,7 +61,7 @@ public class LIFOListTest {
 
   @Test
   public void doesNotEvictNodeInTransaction() throws Exception {
-    LIFOList list = new LIFOList(controller);
+    var list = new LIFOList(controller);
     EvictionNode nodeInTransaction = mock(EvictableEntry.class);
     when(nodeInTransaction.isInUseByTransaction()).thenReturn(true);
     EvictionNode nodeNotInTransaction = mock(EvictableEntry.class);
@@ -80,7 +80,7 @@ public class LIFOListTest {
 
   @Test
   public void doesNotEvictNodeThatIsEvicted() throws Exception {
-    LIFOList list = new LIFOList(controller);
+    var list = new LIFOList(controller);
     EvictionNode evictedNode = mock(EvictableEntry.class);
     when(evictedNode.isEvicted()).thenReturn(true);
     EvictionNode node = mock(EvictableEntry.class);

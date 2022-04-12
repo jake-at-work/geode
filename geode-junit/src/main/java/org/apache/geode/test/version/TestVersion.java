@@ -29,7 +29,7 @@ public class TestVersion implements Comparable<TestVersion>, Serializable {
   }
 
   public TestVersion(String versionString) {
-    String[] split = versionString.split("\\.");
+    var split = versionString.split("\\.");
     if (split.length != 3) {
       throw new IllegalArgumentException("Expected a version string but received " + versionString);
     }
@@ -63,7 +63,7 @@ public class TestVersion implements Comparable<TestVersion>, Serializable {
     if (!(o instanceof TestVersion)) {
       return false;
     }
-    TestVersion that = (TestVersion) o;
+    var that = (TestVersion) o;
     return major == that.major &&
         minor == that.minor &&
         release == that.release;
@@ -85,7 +85,7 @@ public class TestVersion implements Comparable<TestVersion>, Serializable {
     if (other == null) {
       throw new NullPointerException("parameter may not be null");
     }
-    int comparison = Integer.compare(major, other.major);
+    var comparison = Integer.compare(major, other.major);
     if (comparison != 0) {
       return comparison;
     }

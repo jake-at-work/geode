@@ -23,7 +23,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import junitparams.Parameters;
@@ -36,10 +35,7 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
-import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
 import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.wan.AsyncEventQueueConfigurationException;
@@ -65,7 +61,7 @@ public class AsyncEventQueueValidationsJUnitTest {
   public void testConcurrentParallelAsyncEventQueueAttributesWrongDispatcherThreads() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
     try {
-      AsyncEventQueueFactory fact = cache.createAsyncEventQueueFactory();
+      var fact = cache.createAsyncEventQueueFactory();
       fact.setParallel(true);
       fact.setDispatcherThreads(-5);
       fact.setOrderPolicy(OrderPolicy.KEY);
@@ -81,11 +77,11 @@ public class AsyncEventQueueValidationsJUnitTest {
   @Parameters({"true", "false"})
   public void whenAEQCreatedInPausedStateThenSenderIsStartedInPausedState(boolean isParallel) {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    AsyncEventQueueFactory fact = cache.createAsyncEventQueueFactory()
+    var fact = cache.createAsyncEventQueueFactory()
         .setParallel(isParallel)
         .pauseEventDispatching()
         .setDispatcherThreads(5);
-    AsyncEventQueue aeq =
+    var aeq =
         fact.create("aeqID", new org.apache.geode.internal.cache.wan.MyAsyncEventListener());
     assertTrue(aeq.isDispatchingPaused());
     assertTrue(((AsyncEventQueueImpl) aeq).getSender().isPaused());
@@ -95,11 +91,11 @@ public class AsyncEventQueueValidationsJUnitTest {
   @Parameters({"true", "false"})
   public void whenAEQCreatedInPausedStateIsUnPausedThenSenderIsResumed(boolean isParallel) {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    AsyncEventQueueFactory fact = cache.createAsyncEventQueueFactory()
+    var fact = cache.createAsyncEventQueueFactory()
         .setParallel(isParallel)
         .pauseEventDispatching()
         .setDispatcherThreads(5);
-    AsyncEventQueue aeq =
+    var aeq =
         fact.create("aeqID", new org.apache.geode.internal.cache.wan.MyAsyncEventListener());
 
     aeq.resumeEventDispatching();
@@ -113,7 +109,7 @@ public class AsyncEventQueueValidationsJUnitTest {
   public void testConcurrentParallelAsyncEventQueueAttributesOrderPolicyThread() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
     try {
-      AsyncEventQueueFactory fact = cache.createAsyncEventQueueFactory();
+      var fact = cache.createAsyncEventQueueFactory();
       fact.setParallel(true);
       fact.setDispatcherThreads(5);
       fact.setOrderPolicy(OrderPolicy.THREAD);
@@ -128,7 +124,7 @@ public class AsyncEventQueueValidationsJUnitTest {
   @Parameters(method = "getCacheXmlFileBaseNames")
   public void testAsyncEventQueueConfiguredFromXmlUsesFilter(String cacheXmlFileBaseName) {
     // Create cache with xml
-    String cacheXmlFileName =
+    var cacheXmlFileName =
         createTempFileFromResource(getClass(),
             getClass().getSimpleName() + "." + cacheXmlFileBaseName + ".cache.xml")
                 .getAbsolutePath();
@@ -136,16 +132,16 @@ public class AsyncEventQueueValidationsJUnitTest {
 
     // Get region and do puts
     Region region = cache.getRegion(cacheXmlFileBaseName);
-    int numPuts = 10;
-    for (int i = 0; i < numPuts; i++) {
+    var numPuts = 10;
+    for (var i = 0; i < numPuts; i++) {
       region.put(i, i);
     }
 
     // Get AsyncEventQueue and GatewayEventFilter
-    AsyncEventQueue aeq = cache.getAsyncEventQueue(cacheXmlFileBaseName);
-    List<GatewayEventFilter> filters = aeq.getGatewayEventFilters();
+    var aeq = cache.getAsyncEventQueue(cacheXmlFileBaseName);
+    var filters = aeq.getGatewayEventFilters();
     assertTrue(filters.size() == 1);
-    MyGatewayEventFilter filter = (MyGatewayEventFilter) filters.get(0);
+    var filter = (MyGatewayEventFilter) filters.get(0);
 
     // Validate filter callbacks were invoked
     await()
@@ -161,23 +157,23 @@ public class AsyncEventQueueValidationsJUnitTest {
   public void whenAsyncQueuesAreStartedInPausedStateShouldNotDispatchEventsTillItIsUnpaused(
       String cacheXmlFileBaseName) {
     // Create cache with xml
-    String cacheXmlFileName =
+    var cacheXmlFileName =
         createTempFileFromResource(getClass(),
             getClass().getSimpleName() + "." + cacheXmlFileBaseName + ".cache.xml")
                 .getAbsolutePath();
     cache = new CacheFactory().set(MCAST_PORT, "0").set(CACHE_XML_FILE, cacheXmlFileName).create();
 
     // Get AsyncEventQueue and GatewayEventFilter
-    AsyncEventQueue aeq = cache.getAsyncEventQueue(cacheXmlFileBaseName);
+    var aeq = cache.getAsyncEventQueue(cacheXmlFileBaseName);
 
     // Get region and do puts
     Region region = cache.getRegion(cacheXmlFileBaseName);
-    int numPuts = 1000;
-    for (int i = 0; i < numPuts; i++) {
+    var numPuts = 1000;
+    for (var i = 0; i < numPuts; i++) {
       region.put(i, i);
     }
 
-    MyAsyncEventListener listener = (MyAsyncEventListener) aeq.getAsyncEventListener();
+    var listener = (MyAsyncEventListener) aeq.getAsyncEventListener();
 
     // Ensure that no listeners are being invoked
     try {

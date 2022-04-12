@@ -102,7 +102,7 @@ public class GemFireSecurityException extends GemFireException {
    *         {@code NamingException}.
    */
   protected Object getResolvedObj() {
-    final Throwable thisCause = cause;
+    final var thisCause = cause;
     if (thisCause != null && thisCause instanceof NamingException) {
       return ((NamingException) thisCause).getResolvedObj();
     }
@@ -110,11 +110,11 @@ public class GemFireSecurityException extends GemFireException {
   }
 
   private synchronized void writeObject(final ObjectOutputStream out) throws IOException {
-    final Object resolvedObj = getResolvedObj();
+    final var resolvedObj = getResolvedObj();
     if (isSerializable(resolvedObj)) {
       out.defaultWriteObject();
     } else {
-      final NamingException namingException = (NamingException) getCause();
+      final var namingException = (NamingException) getCause();
       namingException.setResolvedObj(null);
       try {
         out.defaultWriteObject();

@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.stream.IntStream;
 
 import junitparams.Parameters;
@@ -63,7 +62,7 @@ public class EvictionDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getPartitionRedundantLocalDestroyEvictionRegionType")
   public void regionWithEvictionWithLocalDestroyMustNotbeAbleToCreateLuceneIndexes(
       RegionTestableType regionTestType) {
-    SerializableRunnableIF createIndex = getSerializableRunnableIFCreateIndex();
+    var createIndex = getSerializableRunnableIFCreateIndex();
 
     dataStore1.invoke(() -> {
       try {
@@ -80,7 +79,7 @@ public class EvictionDUnitTest extends LuceneQueriesAccessorBase {
 
   private SerializableRunnableIF getSerializableRunnableIFCreateIndex() {
     return () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
   }
@@ -89,8 +88,8 @@ public class EvictionDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getPartitionRedundantOverflowEvictionRegionType")
   public void regionsWithEvictionWithOverflowMustBeAbleToCreateLuceneIndexes(
       RegionTestableType regionTestType) {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
 
@@ -107,7 +106,7 @@ public class EvictionDUnitTest extends LuceneQueriesAccessorBase {
     dataStore1.invoke(() -> {
       try {
         getCache().getResourceManager().setEvictionHeapPercentage(INITIAL_EVICTION_HEAP_PERCENTAGE);
-        final PartitionedRegion partitionedRegion = (PartitionedRegion) getRootRegion(REGION_NAME);
+        final var partitionedRegion = (PartitionedRegion) getRootRegion(REGION_NAME);
         raiseFakeNotification();
         await().untilAsserted(() -> {
           assertTrue(partitionedRegion.getDiskRegionStats().getNumOverflowOnDisk() > 0);
@@ -118,10 +117,10 @@ public class EvictionDUnitTest extends LuceneQueriesAccessorBase {
     });
 
     accessor.invoke(() -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       LuceneQuery<Integer, TestObject> query = luceneService.createLuceneQueryFactory()
           .setLimit(100).create(INDEX_NAME, REGION_NAME, "world", "text");
-      List<LuceneResultStruct<Integer, TestObject>> resultList = query.findResults();
+      var resultList = query.findResults();
       assertEquals(NUM_BUCKETS, resultList.size());
     });
 
@@ -133,7 +132,7 @@ public class EvictionDUnitTest extends LuceneQueriesAccessorBase {
 
     getCache().getResourceManager()
         .setEvictionHeapPercentage(EVICTION_HEAP_PERCENTAGE_FAKE_NOTIFICATION);
-    HeapMemoryMonitor heapMemoryMonitor =
+    var heapMemoryMonitor =
         getCache().getInternalResourceManager().getHeapMonitor();
     heapMemoryMonitor.setTestMaxMemoryBytes(TEST_MAX_MEMORY);
 

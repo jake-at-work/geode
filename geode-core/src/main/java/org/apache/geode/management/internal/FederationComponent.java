@@ -102,12 +102,12 @@ public class FederationComponent
   // Introspect the mbeanInterface and initialize this object's maps.
   //
   private void initGetters(Class<?> mbeanInterface) {
-    final Method[] methodArray = mbeanInterface.getMethods();
+    final var methodArray = mbeanInterface.getMethods();
 
-    for (Method m : methodArray) {
-      String name = m.getName();
+    for (var m : methodArray) {
+      var name = m.getName();
 
-      String attrName = "";
+      var attrName = "";
       if (name.startsWith("get")) {
         attrName = name.substring(3);
       } else if (name.startsWith("is") && m.getReturnType() == boolean.class) {
@@ -155,22 +155,22 @@ public class FederationComponent
    */
 
   public boolean refreshObjectState(boolean keepOldState) {
-    boolean changeDetected = false;
+    var changeDetected = false;
     Object[] args = null;
     if (keepOldState) {
       oldObjectState.putAll(objectState);
     }
-    for (Map.Entry<String, Method> gettorMethodEntry : getterMethodMap.entrySet()) {
-      String property = gettorMethodEntry.getKey();
+    for (var gettorMethodEntry : getterMethodMap.entrySet()) {
+      var property = gettorMethodEntry.getKey();
       Object propertyValue = null;
 
       try {
-        Method m = gettorMethodEntry.getValue();
+        var m = gettorMethodEntry.getValue();
         propertyValue = m.invoke(mbeanObject, args);
 
 
         // To Handle open types in getter values
-        OpenMethod op = methodHandlerMap.get(m);
+        var op = methodHandlerMap.get(m);
         propertyValue = op.toOpenReturnValue(propertyValue);
 
       } catch (Exception e) {
@@ -181,7 +181,7 @@ public class FederationComponent
 
       }
 
-      Object oldValue = objectState.put(property, propertyValue);
+      var oldValue = objectState.put(property, propertyValue);
       if (!changeDetected) {
         if (propertyValue != null) {
           if (!propertyValue.equals(oldValue)) {
@@ -194,7 +194,7 @@ public class FederationComponent
         }
       }
     }
-    boolean retVal = prevRefreshChangeDetected || changeDetected;
+    var retVal = prevRefreshChangeDetected || changeDetected;
     prevRefreshChangeDetected = changeDetected;
     return retVal;
   }
@@ -206,7 +206,7 @@ public class FederationComponent
       return true;
     }
     if (anObject instanceof FederationComponent) {
-      FederationComponent anotherFedComp = (FederationComponent) anObject;
+      var anotherFedComp = (FederationComponent) anObject;
       return anotherFedComp.interfaceClassName.equals(interfaceClassName)
           && anotherFedComp.notificationEmitter == notificationEmitter
           && anotherFedComp.objectState.equals(objectState)

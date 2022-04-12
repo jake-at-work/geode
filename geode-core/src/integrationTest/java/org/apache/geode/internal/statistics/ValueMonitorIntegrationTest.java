@@ -107,32 +107,32 @@ public class ValueMonitorIntegrationTest {
 
   @Test
   public void testAddRemoveListener() throws Exception {
-    long startTime = System.currentTimeMillis();
-    StatisticsManager mockStatisticsManager =
+    var startTime = System.currentTimeMillis();
+    var mockStatisticsManager =
         mock(StatisticsManager.class, testName.getMethodName() + "$StatisticsManager");
     when(mockStatisticsManager.getName()).thenReturn("mockStatisticsManager");
     when(mockStatisticsManager.getStartTime()).thenReturn(startTime);
     when(mockStatisticsManager.getStatListModCount()).thenReturn(0);
     when(mockStatisticsManager.getStatsList()).thenReturn(new ArrayList<>());
 
-    StatisticsSampler mockStatisticsSampler =
+    var mockStatisticsSampler =
         mock(StatisticsSampler.class, testName.getMethodName() + "$StatisticsSampler");
     when(mockStatisticsSampler.getStatisticsModCount()).thenReturn(0);
     when(mockStatisticsSampler.getStatistics()).thenReturn(new Statistics[] {});
 
     // need a real SampleCollector for this test or the monitor can't get the handler
-    SampleCollector sampleCollector = new SampleCollector(mockStatisticsSampler);
+    var sampleCollector = new SampleCollector(mockStatisticsSampler);
     sampleCollector.initialize(mockStatArchiveHandlerConfig, NanoTimer.getTime(),
         new MainWithChildrenRollingFileHandler());
 
     List<StatisticsNotification> notifications = new ArrayList<>();
-    StatisticsListener listener = notifications::add;
+    var listener = (StatisticsListener) notifications::add;
 
-    ValueMonitor monitor = new ValueMonitor();
+    var monitor = new ValueMonitor();
     Number value = 43;
-    Type type = Type.VALUE_CHANGED;
-    long timeStamp = System.currentTimeMillis();
-    StatisticsNotification notification = createStatisticsNotification(timeStamp, type, value);
+    var type = Type.VALUE_CHANGED;
+    var timeStamp = System.currentTimeMillis();
+    var notification = createStatisticsNotification(timeStamp, type, value);
     monitor.notifyListeners(notification);
     assertThat(notifications.isEmpty()).isTrue();
 
@@ -143,7 +143,7 @@ public class ValueMonitorIntegrationTest {
     assertThat(notification).isNotNull();
     assertThat(notification.getTimeStamp()).isEqualTo(timeStamp);
     assertThat(notification.getType()).isEqualTo(type);
-    StatisticId statId = mock(StatisticId.class);
+    var statId = mock(StatisticId.class);
     assertThat(notification.getValue(statId)).isEqualTo(value);
 
     monitor.removeListener(listener);
@@ -153,9 +153,9 @@ public class ValueMonitorIntegrationTest {
 
   private int assertStatisticsNotification(StatisticsNotification notification,
       Map<String, Number> expectedValues) throws StatisticNotFoundException {
-    int statCount = 0;
-    for (StatisticId statId : notification) {
-      Number value = expectedValues.remove(statId.getStatisticDescriptor().getName());
+    var statCount = 0;
+    for (var statId : notification) {
+      var value = expectedValues.remove(statId.getStatisticDescriptor().getName());
       assertThat(value).isNotNull();
       assertThat(notification.getValue(statId)).isEqualTo(value);
       statCount++;
@@ -166,45 +166,45 @@ public class ValueMonitorIntegrationTest {
 
   @Test
   public void testValueMonitorListener() throws Exception {
-    long startTime = System.currentTimeMillis();
-    TestStatisticsManager manager =
+    var startTime = System.currentTimeMillis();
+    var manager =
         new TestStatisticsManager(1, "ValueMonitorIntegrationTest", startTime);
     StatisticsSampler sampler = new TestStatisticsSampler(manager);
-    SampleCollector sampleCollector = new SampleCollector(sampler);
+    var sampleCollector = new SampleCollector(sampler);
     sampleCollector.initialize(mockStatArchiveHandlerConfig, NanoTimer.getTime(),
         new MainWithChildrenRollingFileHandler());
 
-    StatisticDescriptor[] statsST1 = new StatisticDescriptor[] {
+    var statsST1 = new StatisticDescriptor[] {
         manager.createDoubleCounter("double_counter_1", "double_counter_1_desc",
             "double_counter_1_units"),
         manager.createIntCounter("int_counter_2", "int_counter_2_desc", "int_counter_2_units"),
         manager.createLongCounter("long_counter_3", "long_counter_3_desc", "long_counter_3_units")};
-    StatisticsType ST1 = manager.createType("ST1_name", "ST1_desc", statsST1);
+    var ST1 = manager.createType("ST1_name", "ST1_desc", statsST1);
 
-    Statistics st1_1 = manager.createAtomicStatistics(ST1, "st1_1_text", 1);
+    var st1_1 = manager.createAtomicStatistics(ST1, "st1_1_text", 1);
     st1_1.incDouble("double_counter_1", 1000.0001);
     st1_1.incInt("int_counter_2", 2);
     st1_1.incLong("long_counter_3", 3333333333L);
 
-    Statistics st1_2 = manager.createAtomicStatistics(ST1, "st1_2_text", 2);
+    var st1_2 = manager.createAtomicStatistics(ST1, "st1_2_text", 2);
     st1_2.incDouble("double_counter_1", 2000.0002);
     st1_2.incInt("int_counter_2", 3);
     st1_2.incLong("long_counter_3", 4444444444L);
 
     List<StatisticsNotification> notifications = new ArrayList<>();
-    StatisticsListener listener = notifications::add;
+    var listener = (StatisticsListener) notifications::add;
 
-    ValueMonitor monitor = new ValueMonitor().addStatistics(st1_1);
+    var monitor = new ValueMonitor().addStatistics(st1_1);
     monitor.addListener(listener);
     assertThat(notifications.isEmpty()).isTrue();
 
-    long timeStamp = NanoTimer.getTime();
+    var timeStamp = NanoTimer.getTime();
     sampleCollector.sample(timeStamp);
     await()
         .until(() -> notifications.size() > 0);
     assertThat(notifications.size()).isEqualTo(1);
 
-    StatisticsNotification notification = notifications.remove(0);
+    var notification = notifications.remove(0);
     assertThat(notification.getType()).isEqualTo(StatisticsNotification.Type.VALUE_CHANGED);
 
     // validate 1 notification occurs with all 3 stats of st1_1
@@ -223,7 +223,7 @@ public class ValueMonitorIntegrationTest {
     expectedValues.put("double_counter_1", 1001.1001);
     expectedValues.put("int_counter_2", 4L);
     expectedValues.put("long_counter_3", 3333333336L);
-    int statCount = assertStatisticsNotification(notification, expectedValues);
+    var statCount = assertStatisticsNotification(notification, expectedValues);
     assertThat(statCount).isEqualTo(3);
 
     // validate no notification occurs when no stats are updated

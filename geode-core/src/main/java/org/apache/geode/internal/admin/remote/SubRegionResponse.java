@@ -46,21 +46,21 @@ public class SubRegionResponse extends AdminResponse {
    */
   public static SubRegionResponse create(DistributionManager dm,
       InternalDistributedMember recipient, Region r) {
-    SubRegionResponse m = new SubRegionResponse();
+    var m = new SubRegionResponse();
     m.setRecipient(recipient);
 
-    Set subregions = r.subregions(false);
+    var subregions = r.subregions(false);
 
     List subNames = new ArrayList();
     List userAttrs = new ArrayList();
-    for (final Object subregion : subregions) {
-      Region reg = (Region) subregion;
+    for (final var subregion : subregions) {
+      var reg = (Region) subregion;
       subNames.add(reg.getName());
       userAttrs.add(CacheDisplay.getCachedObjectDisplay(reg.getUserAttribute(),
           GemFireVM.LIGHTWEIGHT_CACHE_VALUE));
     }
 
-    String[] temp = new String[0];
+    var temp = new String[0];
     m.subRegionNames = (String[]) subNames.toArray(temp);
     m.userAttributes = (String[]) userAttrs.toArray(temp);
 
@@ -70,8 +70,8 @@ public class SubRegionResponse extends AdminResponse {
   // instance methods
   public Set getRegionSet(AdminRegion parent) {
     // String globalParentName = parent.getFullPath();
-    HashSet result = new HashSet(subRegionNames.length);
-    for (int i = 0; i < subRegionNames.length; i++) {
+    var result = new HashSet(subRegionNames.length);
+    for (var i = 0; i < subRegionNames.length; i++) {
       result.add(new AdminRegion(subRegionNames[i], parent, userAttributes[i]));
     }
     return new HashSet(result);

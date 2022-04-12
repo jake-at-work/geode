@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,10 +74,10 @@ public class DistTXRollbackMessage extends TXMessage {
       logger.debug("Dist TX: Rollback: {}", txId);
     }
 
-    InternalCache cache = dm.getCache();
-    TXManagerImpl txMgr = cache.getTXMgr();
-    final TXStateProxy txState = txMgr.getTXState();
-    boolean rollbackSuccessful = false;
+    var cache = dm.getCache();
+    var txMgr = cache.getTXMgr();
+    final var txState = txMgr.getTXState();
+    var rollbackSuccessful = false;
     try {
       // do the actual rollback, only if it was not done before
       if (txMgr.isHostedTxRecentlyCompleted(txId)) {
@@ -170,7 +169,7 @@ public class DistTXRollbackMessage extends TXMessage {
     public static void send(InternalDistributedMember recipient, int processorId, Boolean val,
         ReplySender replySender) throws RemoteOperationException {
       Assert.assertTrue(recipient != null, "DistTXRollbackReplyMessage NULL reply message");
-      DistTXRollbackReplyMessage m = new DistTXRollbackReplyMessage(processorId, val);
+      var m = new DistTXRollbackReplyMessage(processorId, val);
       m.setRecipient(recipient);
       replySender.putOutgoing(m);
     }
@@ -182,7 +181,7 @@ public class DistTXRollbackMessage extends TXMessage {
      */
     @Override
     public void process(final DistributionManager dm, ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "DistTXRollbackReplyMessage process invoking reply processor with processorId:{}",
@@ -249,7 +248,7 @@ public class DistTXRollbackMessage extends TXMessage {
         start = DistributionStats.getStatTime();
       }
       if (msg instanceof DistTXRollbackReplyMessage) {
-        DistTXRollbackReplyMessage reply = (DistTXRollbackReplyMessage) msg;
+        var reply = (DistTXRollbackReplyMessage) msg;
         // De-serialization needs to occur in the requesting thread, not a P2P
         // thread
         // (or some other limited resource)
@@ -294,7 +293,7 @@ public class DistTXRollbackMessage extends TXMessage {
     @Override
     public void process(DistributionMessage msg) {
       if (msg instanceof DistTXRollbackReplyMessage) {
-        DistTXRollbackReplyMessage reply = (DistTXRollbackReplyMessage) msg;
+        var reply = (DistTXRollbackReplyMessage) msg;
         rollbackResponseMap.put(reply.getSender(), reply.getRollbackState());
       }
       super.process(msg);
@@ -316,10 +315,10 @@ public class DistTXRollbackMessage extends TXMessage {
             // Exception Container
             exception = new DistTxRollbackExceptionCollectingException(txIdent);
           }
-          DistTxRollbackExceptionCollectingException cce =
+          var cce =
               (DistTxRollbackExceptionCollectingException) exception;
           if (ex instanceof CommitReplyException) {
-            CommitReplyException cre = (CommitReplyException) ex;
+            var cre = (CommitReplyException) ex;
             cce.addExceptionsFromMember(msg.getSender(), cre.getExceptions());
           } else {
             cce.addExceptionsFromMember(msg.getSender(), Collections.singleton(ex));
@@ -335,7 +334,7 @@ public class DistTXRollbackMessage extends TXMessage {
 
     public Set getCacheClosedMembers() {
       if (exception != null) {
-        DistTxRollbackExceptionCollectingException cce =
+        var cce =
             (DistTxRollbackExceptionCollectingException) exception;
         return cce.getCacheClosedMembers();
       } else {
@@ -345,7 +344,7 @@ public class DistTXRollbackMessage extends TXMessage {
 
     public Set getRegionDestroyedMembers(String regionFullPath) {
       if (exception != null) {
-        DistTxRollbackExceptionCollectingException cce =
+        var cce =
             (DistTxRollbackExceptionCollectingException) exception;
         return cce.getRegionDestroyedMembers(regionFullPath);
       } else {
@@ -391,17 +390,17 @@ public class DistTXRollbackMessage extends TXMessage {
     public void handlePotentialCommitFailure(
         HashMap<DistributedMember, DistTXCoordinatorInterface> msgMap) {
       if (fatalExceptions.size() > 0) {
-        StringBuilder errorMessage = new StringBuilder("Incomplete commit of transaction ")
+        var errorMessage = new StringBuilder("Incomplete commit of transaction ")
             .append(id).append(".  Caused by the following exceptions: ");
-        for (final Object o : fatalExceptions.entrySet()) {
-          Map.Entry me = (Map.Entry) o;
-          DistributedMember mem = (DistributedMember) me.getKey();
+        for (final var o : fatalExceptions.entrySet()) {
+          var me = (Map.Entry) o;
+          var mem = (DistributedMember) me.getKey();
           errorMessage.append(" From member: ").append(mem).append(" ");
-          List exceptions = (List) me.getValue();
-          for (Iterator ei = exceptions.iterator(); ei.hasNext();) {
-            Exception e = (Exception) ei.next();
+          var exceptions = (List) me.getValue();
+          for (var ei = exceptions.iterator(); ei.hasNext();) {
+            var e = (Exception) ei.next();
             errorMessage.append(e);
-            for (StackTraceElement ste : e.getStackTrace()) {
+            for (var ste : e.getStackTrace()) {
               errorMessage.append("\n\tat ").append(ste);
             }
             if (ei.hasNext()) {
@@ -435,20 +434,20 @@ public class DistTXRollbackMessage extends TXMessage {
      * Protected by (this)
      */
     public void addExceptionsFromMember(InternalDistributedMember member, Set exceptions) {
-      for (final Object exception : exceptions) {
-        Exception ex = (Exception) exception;
+      for (final var exception : exceptions) {
+        var ex = (Exception) exception;
         if (ex instanceof CancelException) {
           cacheExceptions.add(member);
         } else if (ex instanceof RegionDestroyedException) {
-          String r = ((RegionDestroyedException) ex).getRegionFullPath();
-          Set<InternalDistributedMember> members = regionExceptions.get(r);
+          var r = ((RegionDestroyedException) ex).getRegionFullPath();
+          var members = regionExceptions.get(r);
           if (members == null) {
             members = new HashSet();
             regionExceptions.put(r, members);
           }
           members.add(member);
         } else {
-          List el = (List) fatalExceptions.get(member);
+          var el = (List) fatalExceptions.get(member);
           if (el == null) {
             el = new ArrayList(2);
             fatalExceptions.put(member, el);

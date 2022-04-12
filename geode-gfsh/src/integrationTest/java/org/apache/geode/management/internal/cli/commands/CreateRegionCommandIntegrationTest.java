@@ -29,11 +29,8 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAlgorithm;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.ExpirationAction;
-import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.test.junit.categories.RegionsTest;
@@ -347,11 +344,11 @@ public class CreateRegionCommandIntegrationTest {
         .statusIsSuccess();
 
     Region region = server.getCache().getRegion(SEPARATOR + "A");
-    RegionAttributes attributes = region.getAttributes();
-    ExpirationAttributes entryIdle = attributes.getEntryIdleTimeout();
-    ExpirationAttributes entryTTL = attributes.getEntryTimeToLive();
-    ExpirationAttributes regionIdle = attributes.getRegionIdleTimeout();
-    ExpirationAttributes regionTTL = attributes.getRegionTimeToLive();
+    var attributes = region.getAttributes();
+    var entryIdle = attributes.getEntryIdleTimeout();
+    var entryTTL = attributes.getEntryTimeToLive();
+    var regionIdle = attributes.getRegionIdleTimeout();
+    var regionTTL = attributes.getRegionTimeToLive();
 
     assertThat(entryIdle).isNotNull();
     assertThat(entryIdle.getTimeout()).isEqualTo(0);
@@ -703,7 +700,7 @@ public class CreateRegionCommandIntegrationTest {
         .statusIsSuccess();
 
     Region<?, ?> foo = server.getCache().getRegion(SEPARATOR + "FOO");
-    EvictionAttributes attrs = foo.getAttributes().getEvictionAttributes();
+    var attrs = foo.getAttributes().getEvictionAttributes();
     assertThat(attrs.getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
     assertThat(attrs.getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_MEMORY);
     assertThat(attrs.getMaximum()).isEqualTo(1001);

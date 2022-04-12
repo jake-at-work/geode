@@ -40,7 +40,7 @@ public class GetCurrentVmNumDistributedTest {
   @Test
   public void returnsWhichVmInVm() {
     assertThat(getVMCount()).isGreaterThanOrEqualTo(DEFAULT_VM_COUNT);
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       assertThat(getVM(i).invoke(VM::getCurrentVMNum)).isEqualTo(i).isNotEqualTo(CONTROLLER_VM);
     }
   }

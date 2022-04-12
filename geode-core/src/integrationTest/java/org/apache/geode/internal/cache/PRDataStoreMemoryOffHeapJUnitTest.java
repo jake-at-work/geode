@@ -29,7 +29,7 @@ public class PRDataStoreMemoryOffHeapJUnitTest extends PRDataStoreMemoryJUnitTes
 
   @Override
   protected Properties getDistributedSystemProperties() {
-    Properties dsProps = super.getDistributedSystemProperties();
+    var dsProps = super.getDistributedSystemProperties();
     dsProps.setProperty(OFF_HEAP_MEMORY_SIZE, "1m");
     return dsProps;
   }

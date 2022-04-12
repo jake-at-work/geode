@@ -23,7 +23,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 import org.apache.geode.InternalGemFireError;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
@@ -59,7 +58,7 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
     this.regionPath = regionPath;
     this.cache = cache;
 
-    final String statsName = indexName + "-" + regionPath;
+    final var statsName = indexName + "-" + regionPath;
     indexStats = new LuceneIndexStats(cache.getDistributedSystem(), statsName);
   }
 
@@ -82,9 +81,9 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
   }
 
   protected boolean withPersistence() {
-    RegionAttributes ra = dataRegion.getAttributes();
-    DataPolicy dp = ra.getDataPolicy();
-    final boolean withPersistence = dp.withPersistence();
+    var ra = dataRegion.getAttributes();
+    var dp = ra.getDataPolicy();
+    final var withPersistence = dp.withPersistence();
     return withPersistence;
   }
 
@@ -161,7 +160,7 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
       PartitionedRepositoryManager partitionedRepositoryManager);
 
   protected AsyncEventQueue createAEQ(Region dataRegion) {
-    String aeqId = LuceneServiceImpl.getUniqueIndexName(getName(), regionPath);
+    var aeqId = LuceneServiceImpl.getUniqueIndexName(getName(), regionPath);
     return createAEQ(createAEQFactory(dataRegion.getAttributes()), aeqId);
   }
 
@@ -176,14 +175,14 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
   }
 
   private AsyncEventQueue createAEQ(AsyncEventQueueFactoryImpl factory, String aeqId) {
-    LuceneEventListener listener = new LuceneEventListener(cache, repositoryManager);
+    var listener = new LuceneEventListener(cache, repositoryManager);
     factory.setGatewayEventSubstitutionListener(new LuceneEventSubstitutionFilter());
-    AsyncEventQueue indexQueue = factory.create(aeqId, listener);
+    var indexQueue = factory.create(aeqId, listener);
     return indexQueue;
   }
 
   private AsyncEventQueueFactoryImpl createAEQFactory(final RegionAttributes attributes) {
-    AsyncEventQueueFactoryImpl factory =
+    var factory =
         (AsyncEventQueueFactoryImpl) cache.createAsyncEventQueueFactory();
     // TODO: not sure if serial AEQ working or not
     factory.setParallel(attributes.getPartitionAttributes() != null); // parallel AEQ for PR
@@ -204,7 +203,7 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
    * Register an extension with the region so that xml will be generated for this index.
    */
   protected void addExtension(LocalRegion dataRegion) {
-    LuceneIndexCreation creation = new LuceneIndexCreation();
+    var creation = new LuceneIndexCreation();
     creation.setName(getName());
     creation.addFieldNames(getFieldNames());
     creation.setRegion(dataRegion);
@@ -218,7 +217,7 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
     // Find and delete the appropriate extension
     Extension extensionToDelete = null;
     for (Extension extension : getDataRegion().getExtensionPoint().getExtensions()) {
-      LuceneIndexCreation index = (LuceneIndexCreation) extension;
+      var index = (LuceneIndexCreation) extension;
       if (index.getName().equals(indexName)) {
         extensionToDelete = extension;
         break;
@@ -234,7 +233,7 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
     // Close the repository manager
     repositoryManager.close();
 
-    RegionListener listenerToRemove = getRegionListener();
+    var listenerToRemove = getRegionListener();
     if (listenerToRemove != null) {
       cache.removeRegionListener(listenerToRemove);
     }
@@ -246,9 +245,9 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
 
   private RegionListener getRegionListener() {
     RegionListener rl = null;
-    for (RegionListener listener : cache.getRegionListeners()) {
+    for (var listener : cache.getRegionListeners()) {
       if (listener instanceof LuceneRegionListener) {
-        LuceneRegionListener lrl = (LuceneRegionListener) listener;
+        var lrl = (LuceneRegionListener) listener;
         if (lrl.getRegionPath().equals(regionPath) && lrl.getIndexName().equals(indexName)) {
           rl = lrl;
           break;
@@ -262,7 +261,7 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
       final RegionAttributes<K, V> attributes) {
     // Create InternalRegionArguments to set isUsedForMetaRegion true to suppress xml generation
     // (among other things)
-    InternalRegionArguments ira =
+    var ira =
         new InternalRegionArguments().setDestroyLockFlag(true).setRecreateFlag(false)
             .setSnapshotInputStream(null).setImageTarget(null).setIsUsedForMetaRegion(true);
 
@@ -270,17 +269,17 @@ public abstract class LuceneIndexImpl implements InternalLuceneIndex {
     try {
       return cache.createVMRegion(regionName, attributes, ira);
     } catch (Exception e) {
-      InternalGemFireError ige = new InternalGemFireError(
+      var ige = new InternalGemFireError(
           "unexpected exception", e);
       throw ige;
     }
   }
 
   private void destroyAsyncEventQueue(boolean initiator) {
-    String aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
+    var aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, regionPath);
 
     // Get the AsyncEventQueue
-    AsyncEventQueueImpl aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
+    var aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
 
     // Stop the AsyncEventQueue (this stops the AsyncEventQueue's underlying GatewaySender)
     // The AsyncEventQueue can be null in an accessor member

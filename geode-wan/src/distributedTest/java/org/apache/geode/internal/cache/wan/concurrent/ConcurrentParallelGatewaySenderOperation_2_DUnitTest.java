@@ -58,8 +58,8 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
 
   @Test
   public void shuttingOneSenderInAVMShouldNotAffectOthersBatchRemovalThread() {
-    Integer lnport = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnport));
+    var lnport = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnport));
 
     createCacheInVMs(lnport, vm2, vm3);
     vm2.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, true, null, true));
@@ -126,12 +126,12 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
   @Test
   public void testParallelGatewaySender_SingleNode_UserPR_localDestroy_RecreateRegion()
       throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     try {
-      String regionName = getTestMethodName() + "_PR";
+      var regionName = getTestMethodName() + "_PR";
 
       createCacheInVMs(lnPort, vm4);
       vm4.invoke(() -> AbstractGatewaySender.MAXIMUM_SHUTDOWN_WAIT_TIME = -1);
@@ -170,12 +170,12 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
   @Test
   public void testParallelGatewaySender_SingleNode_UserPR_Destroy_RecreateRegion()
       throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     try {
-      String regionName = getTestMethodName() + "_PR";
+      var regionName = getTestMethodName() + "_PR";
 
       createCacheInVMs(lnPort, vm4);
       vm4.invoke(() -> AbstractGatewaySender.MAXIMUM_SHUTDOWN_WAIT_TIME = -1);
@@ -216,11 +216,11 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
 
   @Test
   public void testParallelGatewaySender_SingleNode_UserPR_Close_RecreateRegion() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
     try {
-      String regionName = getTestMethodName() + "_PR";
+      var regionName = getTestMethodName() + "_PR";
       createCacheInVMs(lnPort, vm4);
       vm4.invoke(() -> AbstractGatewaySender.MAXIMUM_SHUTDOWN_WAIT_TIME = -1);
       vm4.invoke(
@@ -258,9 +258,9 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
   @Test
   public void testParallelGatewaySender_SingleNode_UserPR_Destroy_SimultaneousPut_RecreateRegion()
       throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     try {
       createAndStartSender(vm4, lnPort, 6, false, true);
@@ -318,9 +318,9 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
     IgnoredException.addIgnoredException("Broken pipe");
     IgnoredException.addIgnoredException("Connection reset");
     IgnoredException.addIgnoredException("Unexpected IOException");
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     try {
       createAndStartSender(vm4, lnPort, 5, false, true);
@@ -361,12 +361,12 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
   @Test
   public void testParallelGatewaySender_SingleNode_UserPR_Close_SimultaneousPut_RecreateRegion()
       throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     try {
-      String regionName = getTestMethodName() + "_PR";
+      var regionName = getTestMethodName() + "_PR";
 
       createCacheInVMs(lnPort, vm4);
       vm4.invoke(() -> AbstractGatewaySender.MAXIMUM_SHUTDOWN_WAIT_TIME = -1);
@@ -415,11 +415,11 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
   @Test
   public void testParallelGatewaySenders_SingleNode_UserPR_localDestroy_RecreateRegion()
       throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
-    Integer tkPort = vm2.invoke(() -> createFirstRemoteLocator(3, lnPort));
-    Integer pnPort = vm3.invoke(() -> createFirstRemoteLocator(4, lnPort));
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
+    var tkPort = vm2.invoke(() -> createFirstRemoteLocator(3, lnPort));
+    var pnPort = vm3.invoke(() -> createFirstRemoteLocator(4, lnPort));
 
     createCacheInVMs(nyPort, vm4);
     vm4.invoke(WANTestBase::createReceiver);
@@ -444,7 +444,7 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
       vm7.invoke(() -> startSender("ln2"));
       vm7.invoke(() -> startSender("ln3"));
 
-      String regionName = getTestMethodName() + "_PR";
+      var regionName = getTestMethodName() + "_PR";
       vm7.invoke(() -> createPartitionedRegion(regionName, "ln1,ln2,ln3", 1, 10, isOffHeap()));
 
       LogWriterUtils.getLogWriter().info("Created PRs on local site");
@@ -477,9 +477,9 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
   @Test
   public void testParallelGatewaySender_MultipleNode_UserPR_localDestroy_Recreate()
       throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -488,7 +488,7 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
       createAndStartSender(vm4, lnPort, 5, true, false);
       createAndStartSender(vm5, lnPort, 5, true, false);
 
-      String regionName = getTestMethodName() + "_PR";
+      var regionName = getTestMethodName() + "_PR";
       vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
 
       AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase.doPuts(regionName, 10));
@@ -521,10 +521,10 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
   @Test
   public void testParallelGatewaySenders_MultipleNode_UserPR_localDestroy_Recreate()
       throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
-    Integer tkPort = vm2.invoke(() -> createFirstRemoteLocator(3, lnPort));
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
+    var tkPort = vm2.invoke(() -> createFirstRemoteLocator(3, lnPort));
 
     createCacheInVMs(nyPort, vm6);
     vm6.invoke(WANTestBase::createReceiver);
@@ -535,7 +535,7 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
       createAndStartTwoSenders(vm4, lnPort, 4);
       createAndStartTwoSenders(vm5, lnPort, 4);
 
-      String regionName = getTestMethodName() + "_PR";
+      var regionName = getTestMethodName() + "_PR";
       vm6.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100, isOffHeap()));
       vm7.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100, isOffHeap()));
 
@@ -570,9 +570,9 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
   @Test
   public void testParallelGatewaySender_ColocatedPartitionedRegions_localDestroy()
       throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -611,9 +611,9 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
 
   @Test
   public void testParallelGatewaySender_ColocatedPartitionedRegions_destroy() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -659,7 +659,7 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
       final int max) {
     final Region r = cache.getRegion(SEPARATOR + regionName);
     assertNotNull(r);
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return r.keySet().size() > min && r.keySet().size() <= max;
@@ -693,7 +693,7 @@ public class ConcurrentParallelGatewaySenderOperation_2_DUnitTest extends WANTes
 
   protected void createReceiverAndDoPutsInPausedSender(int port) {
     // Note: This is a test-specific method used by several tests to do puts from vm4 to vm2.
-    String regionName = getTestMethodName() + "_PR";
+    var regionName = getTestMethodName() + "_PR";
     createCacheInVMs(port, vm2);
     vm2.invoke(WANTestBase::createReceiver);
     vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));

@@ -38,10 +38,8 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.test.dunit.DistributedTestUtils;
@@ -118,7 +116,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
   @Ignore("TODO: test is disabled due to #52227")
   @Test
   public void testSinglePoolClientReconnectsBeforeTimeOut() throws Exception {
-    int num = 10;
+    var num = 10;
     vm2.invoke(DurableClientQueueSizeDUnitTest.class, "createClientCache",
         new Object[] {vm2.getHost(), new Integer[] {port0, port1}});
     vm2.invoke(() -> DurableClientQueueSizeDUnitTest
@@ -146,7 +144,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void ackedEventsShouldBeRemovedFromTheQueueEventuallyEvenIfNoNewMessagesAreSent()
       throws Exception {
-    int num = 10;
+    var num = 10;
     CacheListener slowListener = new SlowListener();
 
     vm1.invoke(() -> DurableClientQueueSizeDUnitTest.closeCache());
@@ -160,7 +158,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
     vm0.invoke(() -> DurableClientQueueSizeDUnitTest.doPutsIntoRegion(REGION_NAME, num));
 
     vm0.invoke(() -> await().untilAsserted(() -> {
-      CacheClientProxy ccp = DurableClientQueueSizeDUnitTest.getCacheClientProxy(MY_DURABLE_CLIENT);
+      var ccp = DurableClientQueueSizeDUnitTest.getCacheClientProxy(MY_DURABLE_CLIENT);
       assertEquals(0, ccp.getQueueSize());
       assertEquals(0, ccp.getQueueSizeStat());
     }));
@@ -168,7 +166,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testSinglePoolClientReconnectsAfterTimeOut() throws Exception {
-    int num = 10;
+    var num = 10;
     long timeoutSeconds = 10;
     vm2.invoke(DurableClientQueueSizeDUnitTest.class, "createClientCache", new Object[] {
         vm2.getHost(), new Integer[] {port0, port1}, String.valueOf(timeoutSeconds), true});
@@ -189,7 +187,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testPrimaryServerRebootReturnsCorrectResponse() throws Exception {
-    int num = 10;
+    var num = 10;
     vm2.invoke(DurableClientQueueSizeDUnitTest.class, "createClientCache",
         new Object[] {vm2.getHost(), new Integer[] {port0, port1}});
     vm2.invoke(DurableClientQueueSizeDUnitTest::doRI);
@@ -201,7 +199,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
 
     // Identify primary and restart it
     boolean isVM0Primary = vm0.invoke(DurableClientQueueSizeDUnitTest::isPrimary);
-    int port = 0;
+    var port = 0;
     if (isVM0Primary) {
       vm0.invoke(() -> DurableClientQueueSizeDUnitTest.closeCache());
       vm0.invoke(() -> DurableClientQueueSizeDUnitTest.createCacheServer(port0));
@@ -222,7 +220,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
   @Ignore("TODO: test is disabled due to #51854")
   @Test
   public void testMultiPoolClientReconnectsBeforeTimeOut() throws Exception {
-    int num = 10;
+    var num = 10;
     vm2.invoke(DurableClientQueueSizeDUnitTest.class, "createClientCache",
         new Object[] {vm2.getHost(), new Integer[] {port0, port1}, "300", true/* durable */,
             true /* multiPool */});
@@ -248,7 +246,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
   @Ignore("TODO: test is disabled due to #51854")
   @Test
   public void testMultiPoolClientReconnectsAfterTimeOut() throws Exception {
-    int num = 10;
+    var num = 10;
     long timeout = 10;
     vm2.invoke(DurableClientQueueSizeDUnitTest.class, "createClientCache",
         new Object[] {vm2.getHost(), new Integer[] {port0, port1}, String.valueOf(timeout),
@@ -300,9 +298,9 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
 
   @SuppressWarnings("deprecation")
   public static Integer createCacheServer(Integer serverPort) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
-    DurableClientQueueSizeDUnitTest test = new DurableClientQueueSizeDUnitTest();
+    var test = new DurableClientQueueSizeDUnitTest();
     DistributedSystem ds = test.getSystem(props);
     ds.disconnect();
     cache = (GemFireCacheImpl) CacheFactory.create(test.getSystem());
@@ -312,7 +310,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
     rf.create(REGION_NAME);
     rf.create(NEW_REGION);
 
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     server.setPort(serverPort);
     server.start();
     return server.getPort();
@@ -342,7 +340,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
     if (multiPool) {
       setSpecialDurable(true);
     }
-    Properties props = new Properties();
+    var props = new Properties();
     if (durable) {
       props.setProperty(DURABLE_CLIENT_ID, MY_DURABLE_CLIENT);
       props.setProperty(DURABLE_CLIENT_TIMEOUT, timeoutSeconds);
@@ -350,7 +348,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
 
     DistributedSystem ds = new DurableClientQueueSizeDUnitTest().getSystem(props);
     ds.disconnect();
-    ClientCacheFactory ccf = new ClientCacheFactory(props);
+    var ccf = new ClientCacheFactory(props);
     ccf.setPoolSubscriptionEnabled(true);
     ccf.setPoolSubscriptionAckInterval(50);
     ccf.setPoolSubscriptionRedundancy(1);
@@ -369,8 +367,8 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
     crf.create(REGION_NAME);
 
     if (multiPool) {
-      String poolName = POOL_NAME;
-      PoolFactory pf = PoolManager.createFactory();
+      var poolName = POOL_NAME;
+      var pf = PoolManager.createFactory();
       for (int port : ports) {
         pf.addServer(host.getHostName(), port);
       }
@@ -395,13 +393,13 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
   public static void doPuts(Integer numOfPuts) throws Exception {
     Region<String, String> region = cache.getRegion(REGION_NAME);
 
-    for (int j = 0; j < numOfPuts; j++) {
+    for (var j = 0; j < numOfPuts; j++) {
       region.put("KEY_" + j, "VALUE_" + j);
     }
 
     region = cache.getRegion(NEW_REGION);
 
-    for (int j = 0; j < (numOfPuts * 2); j++) {
+    for (var j = 0; j < (numOfPuts * 2); j++) {
       region.put("KEY_" + j, "VALUE_" + j);
     }
   }
@@ -409,13 +407,13 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
   public static void doPutsIntoRegion(String regionName, Integer numOfPuts) throws Exception {
     Region<String, String> region = cache.getRegion(regionName);
 
-    for (int j = 0; j < numOfPuts; j++) {
+    for (var j = 0; j < numOfPuts; j++) {
       region.put("KEY_" + j, "VALUE_" + j);
     }
   }
 
   public static void verifyQueueSizeAtServer(String poolName, Integer num) {
-    for (final CacheClientProxy ccp : CacheClientNotifier.getInstance().getClientProxies()) {
+    for (final var ccp : CacheClientNotifier.getInstance().getClientProxies()) {
       if (ccp.getDurableId().contains(poolName)) {
         assertEquals(num.intValue(), ccp.getStatistics().getMessagesQueued());
       }
@@ -423,7 +421,7 @@ public class DurableClientQueueSizeDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static CacheClientProxy getCacheClientProxy(String durableClientName) {
-    for (final CacheClientProxy ccp : CacheClientNotifier.getInstance().getClientProxies()) {
+    for (final var ccp : CacheClientNotifier.getInstance().getClientProxies()) {
       if (ccp.getDurableId().contains(durableClientName)) {
         return ccp;
       }

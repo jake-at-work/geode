@@ -55,10 +55,10 @@ public class ServerCQImplTest {
   @SuppressWarnings("unchecked")
   public void invalidateCqResultKeysShouldClearCacheAndDisableInitializedFlag()
       throws QueryException {
-    ClientProxyMembershipID mockClientProxyMembershipID = mock(ClientProxyMembershipID.class);
+    var mockClientProxyMembershipID = mock(ClientProxyMembershipID.class);
     doNothing().when(serverCq).validateCq();
     doReturn(mock(Query.class)).when(serverCq).constructServerSideQuery();
-    LocalRegion mockLocalRegion = mock(LocalRegion.class);
+    var mockLocalRegion = mock(LocalRegion.class);
     when(mockLocalRegion.getDataPolicy()).thenReturn(DataPolicy.PARTITION);
     when(mockCqService.getCache().getRegion(any())).thenReturn(mockLocalRegion);
     doNothing().when(serverCq).updateCqCreateStats();

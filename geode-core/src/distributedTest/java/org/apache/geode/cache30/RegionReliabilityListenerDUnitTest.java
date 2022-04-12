@@ -29,7 +29,6 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.LossAction;
 import org.apache.geode.cache.MembershipAttributes;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionRoleListener;
 import org.apache.geode.cache.ResumptionAction;
 import org.apache.geode.cache.RoleEvent;
@@ -60,26 +59,26 @@ public class RegionReliabilityListenerDUnitTest extends ReliabilityTestCase {
    */
   @Test
   public void testRoleGainAndLoss() throws Exception {
-    final String name = getUniqueName();
-    final int vm0 = 0;
-    final int vm1 = 1;
-    final int vm2 = 2;
-    final int vm3 = 3;
+    final var name = getUniqueName();
+    final var vm0 = 0;
+    final var vm1 = 1;
+    final var vm2 = 2;
+    final var vm3 = 3;
 
-    final String roleA = name + "-A";
-    final String roleC = name + "-C";
-    final String roleD = name + "-D";
+    final var roleA = name + "-A";
+    final var roleC = name + "-C";
+    final var roleD = name + "-D";
 
     // assign names to 4 vms...
-    final String[] requiredRoles = {roleA, roleC, roleD};
-    final String[] rolesProp = {"", roleA, roleA, roleC + "," + roleD};
-    final String[][] vmRoles = new String[][] {{}, {roleA}, {roleA}, {roleC, roleD}};
-    for (int i = 0; i < vmRoles.length; i++) {
-      final int vm = i;
+    final var requiredRoles = new String[] {roleA, roleC, roleD};
+    final var rolesProp = new String[] {"", roleA, roleA, roleC + "," + roleD};
+    final var vmRoles = new String[][] {{}, {roleA}, {roleA}, {roleC, roleD}};
+    for (var i = 0; i < vmRoles.length; i++) {
+      final var vm = i;
       Host.getHost(0).getVM(vm).invoke(new SerializableRunnable() {
         @Override
         public void run() {
-          Properties config = new Properties();
+          var config = new Properties();
           config.setProperty(ROLES, rolesProp[vm]);
           getSystem(config);
         }
@@ -100,20 +99,20 @@ public class RegionReliabilityListenerDUnitTest extends ReliabilityTestCase {
     };
 
     // connect controller to system...
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(ROLES, "");
     getSystem(config);
 
     // create region in controller...
-    MembershipAttributes ra =
+    var ra =
         new MembershipAttributes(requiredRoles, LossAction.FULL_ACCESS, ResumptionAction.NONE);
 
-    AttributesFactory fac = new AttributesFactory();
+    var fac = new AttributesFactory();
     fac.addCacheListener(listener);
     fac.setMembershipAttributes(ra);
     fac.setScope(Scope.DISTRIBUTED_ACK);
 
-    RegionAttributes attr = fac.create();
+    var attr = fac.create();
     createRootRegion(name, attr);
 
     // wait for memberTimeout to expire
@@ -126,9 +125,9 @@ public class RegionReliabilityListenerDUnitTest extends ReliabilityTestCase {
     SerializableRunnable create = new CacheSerializableRunnable("Create Region") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory fac = new AttributesFactory();
+        var fac = new AttributesFactory();
         fac.setScope(Scope.DISTRIBUTED_ACK);
-        RegionAttributes attr = fac.create();
+        var attr = fac.create();
         createRootRegion(name, attr);
       }
     };
@@ -143,7 +142,7 @@ public class RegionReliabilityListenerDUnitTest extends ReliabilityTestCase {
     Host.getHost(0).getVM(vm1).invoke(create);
     assertNotNull(rolesGain);
     assertEquals(vmRoles[vm1].length, rolesGain.size());
-    for (int i = 0; i < vmRoles[vm1].length; i++) {
+    for (var i = 0; i < vmRoles[vm1].length; i++) {
       Role role = InternalRole.getRole(vmRoles[vm1][i]);
       assertEquals(true, rolesGain.contains(role));
     }
@@ -161,7 +160,7 @@ public class RegionReliabilityListenerDUnitTest extends ReliabilityTestCase {
     Host.getHost(0).getVM(vm3).invoke(create);
     assertNotNull(rolesGain);
     assertEquals(vmRoles[vm3].length, rolesGain.size());
-    for (int i = 0; i < vmRoles[vm3].length; i++) {
+    for (var i = 0; i < vmRoles[vm3].length; i++) {
       Role role = InternalRole.getRole(vmRoles[vm3][i]);
       assertEquals(true, rolesGain.contains(role));
     }
@@ -195,7 +194,7 @@ public class RegionReliabilityListenerDUnitTest extends ReliabilityTestCase {
     assertNull(rolesGain);
     assertNotNull(rolesLoss);
     assertEquals(vmRoles[vm2].length, rolesLoss.size());
-    for (int i = 0; i < vmRoles[vm2].length; i++) {
+    for (var i = 0; i < vmRoles[vm2].length; i++) {
       Role role = InternalRole.getRole(vmRoles[vm2][i]);
       assertEquals(true, rolesLoss.contains(role));
     }
@@ -207,7 +206,7 @@ public class RegionReliabilityListenerDUnitTest extends ReliabilityTestCase {
     assertNull(rolesGain);
     assertNotNull(rolesLoss);
     assertEquals(vmRoles[vm3].length, rolesLoss.size());
-    for (int i = 0; i < vmRoles[vm3].length; i++) {
+    for (var i = 0; i < vmRoles[vm3].length; i++) {
       Role role = InternalRole.getRole(vmRoles[vm3][i]);
       assertEquals(true, rolesLoss.contains(role));
     }

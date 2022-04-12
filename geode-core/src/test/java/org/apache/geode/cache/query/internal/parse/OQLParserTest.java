@@ -29,11 +29,11 @@ public class OQLParserTest {
 
   @Test
   public void testToDatePresetQueryFunction() throws Exception {
-    String oqlSource =
+    var oqlSource =
         "SELECT * FROM " + SEPARATOR
             + "Portfolios WHERE createDate >= to_date('01/01/2000', 'MM/dd/yyyy')";
-    OQLLexer lexer = new OQLLexer(new StringReader(oqlSource));
-    OQLParser parser = new OQLParser(lexer);
+    var lexer = new OQLLexer(new StringReader(oqlSource));
+    var parser = new OQLParser(lexer);
 
     parser.queryProgram();
     assertThat(parser.getAST()).isNotNull();
@@ -41,10 +41,10 @@ public class OQLParserTest {
 
   @Test
   public void testToDatePresetQueryFunctionWithQueryParameter() throws Exception {
-    String oqlSource =
+    var oqlSource =
         "SELECT * FROM " + SEPARATOR + "Portfolios WHERE createDate >= to_date($1, 'MM/dd/yyyy')";
-    OQLLexer lexer = new OQLLexer(new StringReader(oqlSource));
-    OQLParser parser = new OQLParser(lexer);
+    var lexer = new OQLLexer(new StringReader(oqlSource));
+    var parser = new OQLParser(lexer);
 
     parser.queryProgram();
     assertThat(parser.getAST()).isNotNull();

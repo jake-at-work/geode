@@ -34,7 +34,7 @@ public class DefaultPropertiesGenerator {
     if (ArrayUtils.isNotEmpty(args)) {
       targetFileName = args[0];
     }
-    DefaultPropertiesGenerator generator = new DefaultPropertiesGenerator();
+    var generator = new DefaultPropertiesGenerator();
     generator.generateDefaultPropertiesFile(targetFileName);
   }
 
@@ -43,12 +43,12 @@ public class DefaultPropertiesGenerator {
   }
 
   void generateDefaultPropertiesFile(final String targetFileName) throws IOException {
-    String fileName = StringUtils.trimToNull(targetFileName);
+    var fileName = StringUtils.trimToNull(targetFileName);
     if (fileName == null) {
       fileName = getDefaultFileName();
     }
 
-    DistributionConfig config = DistributionConfigImpl.createDefaultInstance();
+    var config = DistributionConfigImpl.createDefaultInstance();
     config.toFile(new File(fileName));
   }
 }

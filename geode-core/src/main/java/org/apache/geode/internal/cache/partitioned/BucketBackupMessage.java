@@ -26,7 +26,6 @@ import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.OperationExecutors;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -64,7 +63,7 @@ public class BucketBackupMessage extends PartitionMessage {
    */
   public static void send(Set recipients, PartitionedRegion r, int bucketId) {
     Assert.assertTrue(recipients != null, "BucketBackupMessage NULL sender list");
-    BucketBackupMessage m = new BucketBackupMessage(recipients, r.getPRId(), bucketId);
+    var m = new BucketBackupMessage(recipients, r.getPRId(), bucketId);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     r.getDistributionManager().putOutgoing(m);
   }
@@ -94,7 +93,7 @@ public class BucketBackupMessage extends PartitionMessage {
       logger.trace(LogMarker.DM_VERBOSE, "BucketBackupMessage operateOnRegion: {}",
           pr.getFullPath());
     }
-    PartitionedRegionDataStore ds = pr.getDataStore();
+    var ds = pr.getDataStore();
     if (ds != null) {
       pr.getRedundancyProvider().finishIncompleteBucketCreation(bucketId);
     } else {

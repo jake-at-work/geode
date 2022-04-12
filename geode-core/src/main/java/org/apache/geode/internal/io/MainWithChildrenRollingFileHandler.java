@@ -35,10 +35,10 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
 
   @Override
   public int calcNextChildId(final File file, final int mainId) {
-    int result = 0;
-    File dir = getParentFile(file.getAbsoluteFile());
-    int endIdx1 = file.getName().indexOf('-');
-    int endIdx2 = file.getName().lastIndexOf('.');
+    var result = 0;
+    var dir = getParentFile(file.getAbsoluteFile());
+    var endIdx1 = file.getName().indexOf('-');
+    var endIdx2 = file.getName().lastIndexOf('.');
     String baseName;
     if (endIdx1 != -1) {
       baseName = file.getName().substring(0, endIdx1);
@@ -48,28 +48,28 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
       baseName = file.getName();
     }
 
-    File[] children = findChildren(dir, CHILD_ID_PATTERN);
+    var children = findChildren(dir, CHILD_ID_PATTERN);
 
     /* Search child logs */
 
-    for (File child : children) {
-      String name = child.getName();
+    for (var child : children) {
+      var name = child.getName();
       // only compare the child id among the same set of files.
       if (!name.startsWith(baseName)) {
         continue;
       }
-      int endIdIdx = name.lastIndexOf('-');
-      int startIdIdx = name.lastIndexOf('-', endIdIdx - 1);
-      String id = name.substring(startIdIdx + 1, endIdIdx);
+      var endIdIdx = name.lastIndexOf('-');
+      var startIdIdx = name.lastIndexOf('-', endIdIdx - 1);
+      var id = name.substring(startIdIdx + 1, endIdIdx);
 
-      int startChild = name.lastIndexOf("-");
-      int endChild = name.lastIndexOf(".");
+      var startChild = name.lastIndexOf("-");
+      var endChild = name.lastIndexOf(".");
       if (startChild > 0 && endChild > 0) {
-        String childId = name.substring(startChild + 1, endChild);
+        var childId = name.substring(startChild + 1, endChild);
 
         try {
-          int mainLogId = Integer.parseInt(id);
-          int childLogId = Integer.parseInt(childId);
+          var mainLogId = Integer.parseInt(id);
+          var childLogId = Integer.parseInt(childId);
           if (mainLogId == mainId && childLogId > result) {
             result = childLogId;
           }
@@ -83,17 +83,17 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
 
   @Override
   public int calcNextMainId(final File dir, final boolean toCreateNew) {
-    int result = 0;
-    File[] children = findChildren(dir, MAIN_ID_PATTERN);
+    var result = 0;
+    var children = findChildren(dir, MAIN_ID_PATTERN);
 
     /* Search child logs */
-    for (File child : children) {
-      String name = child.getName();
-      int endIdIdx = name.lastIndexOf('-');
-      int startIdIdx = name.lastIndexOf('-', endIdIdx - 1);
-      String id = name.substring(startIdIdx + 1, endIdIdx);
+    for (var child : children) {
+      var name = child.getName();
+      var endIdIdx = name.lastIndexOf('-');
+      var startIdIdx = name.lastIndexOf('-', endIdIdx - 1);
+      var id = name.substring(startIdIdx + 1, endIdIdx);
       try {
-        int mid = Integer.parseInt(id);
+        var mid = Integer.parseInt(id);
         if (mid > result) {
           result = mid;
         }
@@ -103,14 +103,14 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
 
     /* And search meta logs */
     if (toCreateNew) {
-      File[] metaFiles = findChildren(dir, META_ID_PATTERN);
-      for (File metaFile : metaFiles) {
-        String name = metaFile.getName();
-        int endIdIdx = name.lastIndexOf('.');
-        int startIdIdx = name.lastIndexOf('-', endIdIdx - 1);
-        String id = name.substring(startIdIdx + 1, endIdIdx);
+      var metaFiles = findChildren(dir, META_ID_PATTERN);
+      for (var metaFile : metaFiles) {
+        var name = metaFile.getName();
+        var endIdIdx = name.lastIndexOf('.');
+        var startIdIdx = name.lastIndexOf('-', endIdIdx - 1);
+        var id = name.substring(startIdIdx + 1, endIdIdx);
         try {
-          int mid = Integer.parseInt(id);
+          var mid = Integer.parseInt(id);
           if (mid > result) {
             result = mid;
           }
@@ -134,8 +134,8 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
     if (spaceLimit == 0 || pattern == null) {
       return;
     }
-    File[] children = findChildrenExcept(dir, pattern, newFile);
-    LogWriter logWriter = logger;
+    var children = findChildrenExcept(dir, pattern, newFile);
+    var logWriter = logger;
     if (children == null) {
       if (dir.isDirectory()) {
         logWriter.warning(
@@ -146,9 +146,9 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
       return;
     }
     Arrays.sort(children, (Comparator) (o1, o2) -> {
-      File f1 = (File) o1;
-      File f2 = (File) o2;
-      long diff = f1.lastModified() - f2.lastModified();
+      var f1 = (File) o1;
+      var f2 = (File) o2;
+      var diff = f1.lastModified() - f2.lastModified();
       if (diff < 0) {
         return -1;
       } else if (diff > 0) {
@@ -158,12 +158,12 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
       }
     });
     long spaceUsed = 0;
-    for (File child : children) {
+    for (var child : children) {
       spaceUsed += child.length();
     }
-    int idx = 0;
+    var idx = 0;
     while (spaceUsed >= spaceLimit && idx < children.length) { // check array index to 37388
-      long childSize = children[idx].length();
+      var childSize = children[idx].length();
       if (delete(children[idx])) {
         spaceUsed -= childSize;
         logWriter.info(String.format("Deleted inactive %s %s.",
@@ -188,7 +188,7 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
 
   @Override
   public String formatId(final int id) {
-    StringBuilder result = new StringBuilder(10);
+    var result = new StringBuilder(10);
     result.append('-');
     if (id < 10) {
       result.append('0');
@@ -199,7 +199,7 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
 
   @Override
   public File getParentFile(final File file) {
-    File tmp = file.getAbsoluteFile().getParentFile();
+    var tmp = file.getAbsoluteFile().getParentFile();
     if (tmp == null) {
       tmp = new File("."); // as a fix for bug #41474 we use "." if getParentFile returns null
     }
@@ -211,8 +211,8 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
       throw new IllegalArgumentException("Name must not be empty");
     }
 
-    int extIdx = name.lastIndexOf('.');
-    String ext = "";
+    var extIdx = name.lastIndexOf('.');
+    var ext = "";
     if (extIdx != -1) {
       ext = "\\Q" + name.substring(extIdx) + "\\E";
       name = name.substring(0, extIdx);
@@ -226,7 +226,7 @@ public class MainWithChildrenRollingFileHandler implements RollingFileHandler {
   }
 
   private File[] findChildrenExcept(final File dir, final Pattern pattern, final File exception) {
-    final String exceptionName = (exception == null) ? null : exception.getName();
+    final var exceptionName = (exception == null) ? null : exception.getName();
     if (dir == null) {
       return new File[] {};
     }

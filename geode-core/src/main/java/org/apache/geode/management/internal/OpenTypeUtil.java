@@ -73,7 +73,7 @@ public class OpenTypeUtil {
     if (name == null || name.isEmpty()) {
       return name;
     }
-    int offset1 = Character.offsetByCodePoints(name, 0, 1);
+    var offset1 = Character.offsetByCodePoints(name, 0, 1);
     if (offset1 < name.length() && Character.isUpperCase(name.codePointAt(offset1))) {
       return name;
     }

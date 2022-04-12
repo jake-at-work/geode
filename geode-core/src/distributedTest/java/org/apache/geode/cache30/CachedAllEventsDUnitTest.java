@@ -22,7 +22,6 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.InterestPolicy;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.test.dunit.Host;
@@ -38,18 +37,18 @@ import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 public class CachedAllEventsDUnitTest extends JUnit4CacheTestCase {
 
   private VM getOtherVm() {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     return host.getVM(0);
   }
 
   private void doCreateOtherVm() {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("create root") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
-        Region r1 = createRootRegion("r1", af.create());
+        var r1 = createRootRegion("r1", af.create());
         r1.create("key", "value");
       }
     });
@@ -62,11 +61,11 @@ public class CachedAllEventsDUnitTest extends JUnit4CacheTestCase {
    */
   private void remoteCreate(DataPolicy dp, InterestPolicy ip, boolean rmtCreate)
       throws CacheException {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setDataPolicy(dp);
     af.setSubscriptionAttributes(new SubscriptionAttributes(ip));
     af.setScope(Scope.DISTRIBUTED_ACK);
-    Region r1 = createRootRegion("r1", af.create());
+    var r1 = createRootRegion("r1", af.create());
 
     assertEquals(false, r1.containsKey("key"));
     doCreateOtherVm();

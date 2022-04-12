@@ -19,24 +19,22 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.internal.configuration.messages.ConfigurationResponse;
 
 public class GetClusterConfigurationFunction implements InternalFunction {
   private static final Logger logger = LogService.getLogger();
 
   @Override
   public void execute(FunctionContext context) {
-    Set<String> groups = (Set<String>) context.getArguments();
-    InternalLocator internalLocator = getInternalLocator();
+    var groups = (Set<String>) context.getArguments();
+    var internalLocator = getInternalLocator();
     logger.info("Received request for configuration: {}", groups);
 
     // Return exception to the caller so startup fails fast.
     if (!internalLocator.isSharedConfigurationEnabled()) {
-      String errorMessage = "The cluster configuration service is not enabled on this member.";
+      var errorMessage = "The cluster configuration service is not enabled on this member.";
       logger.warn(errorMessage);
       context.getResultSender().lastResult(new IllegalStateException(errorMessage));
       return;
@@ -45,11 +43,11 @@ public class GetClusterConfigurationFunction implements InternalFunction {
     // Shared configuration enabled.
     if (internalLocator.isSharedConfigurationRunning()) {
       // Cluster configuration is up and running already.
-      InternalConfigurationPersistenceService clusterConfigurationService =
+      var clusterConfigurationService =
           internalLocator.getConfigurationPersistenceService();
 
       try {
-        ConfigurationResponse response =
+        var response =
             clusterConfigurationService.createConfigurationResponse(groups);
         context.getResultSender().lastResult(response);
       } catch (Exception exception) {

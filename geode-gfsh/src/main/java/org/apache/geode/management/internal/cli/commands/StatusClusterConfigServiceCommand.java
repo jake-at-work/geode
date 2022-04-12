@@ -20,7 +20,6 @@ import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.CliMetaData;
@@ -42,7 +41,7 @@ public class StatusClusterConfigServiceCommand extends GfshCommand {
   @CliMetaData(relatedTopic = CliStrings.TOPIC_GEODE_LOCATOR)
   @ResourceOperation(resource = Resource.CLUSTER, operation = Operation.READ)
   public ResultModel statusSharedConfiguration() {
-    final InternalCache cache = (InternalCache) getCache();
+    final var cache = (InternalCache) getCache();
     final Set<DistributedMember> locators = new HashSet<>(
         cache.getDistributionManager().getAllHostedLocatorsWithSharedConfiguration().keySet());
 
@@ -50,8 +49,8 @@ public class StatusClusterConfigServiceCommand extends GfshCommand {
       return ResultModel.createInfo(CliStrings.NO_LOCATORS_WITH_SHARED_CONFIG);
     }
 
-    ResultModel resultModel = new ResultModel();
-    TabularResultModel tabularResultModel =
+    var resultModel = new ResultModel();
+    var tabularResultModel =
         resultModel.addTable("Status of shared configuration on locators");
     if (!populateSharedConfigurationStatus(locators, tabularResultModel)) {
       resultModel.setStatus(Status.ERROR);
@@ -62,17 +61,17 @@ public class StatusClusterConfigServiceCommand extends GfshCommand {
 
   private boolean populateSharedConfigurationStatus(Set<DistributedMember> locators,
       TabularResultModel tabularResultModel) {
-    boolean isSharedConfigRunning = false;
-    ResultCollector<?, ?> rc =
+    var isSharedConfigRunning = false;
+    var rc =
         ManagementUtils.executeFunction(new FetchSharedConfigurationStatusFunction(), null,
             locators);
     @SuppressWarnings("unchecked")
-    List<CliFunctionResult> results = (List<CliFunctionResult>) rc.getResult();
+    var results = (List<CliFunctionResult>) rc.getResult();
 
-    for (CliFunctionResult result : results) {
+    for (var result : results) {
       tabularResultModel.accumulate(CliStrings.STATUS_SHARED_CONFIG_NAME_HEADER,
           result.getMemberIdOrName());
-      String status = (String) result.getResultObject();
+      var status = (String) result.getResultObject();
       tabularResultModel.accumulate(CliStrings.STATUS_SHARED_CONFIG_STATUS, status);
       if (SharedConfigurationStatus.RUNNING.name().equals(status)) {
         isSharedConfigRunning = true;

@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
 
 /**
@@ -47,7 +46,7 @@ public class ClasspathScanLoadHelper implements AutoCloseable {
 
   public Set<Class<?>> scanPackagesForClassesImplementing(Class<?> implementedInterface,
       String... onlyFromPackages) {
-    ClassInfoList classInfoList = scanResult.getClassesImplementing(implementedInterface.getName())
+    var classInfoList = scanResult.getClassesImplementing(implementedInterface.getName())
         .filter(ci -> !ci.isAbstract() && !ci.isInterface() && ci.isPublic());
 
     classInfoList = classInfoList
@@ -58,7 +57,7 @@ public class ClasspathScanLoadHelper implements AutoCloseable {
   }
 
   public Set<Class<?>> scanClasspathForAnnotation(Class<?> annotation, String... onlyFromPackages) {
-    ClassInfoList classInfoList = scanResult.getClassesWithAnnotation(annotation.getName());
+    var classInfoList = scanResult.getClassesWithAnnotation(annotation.getName());
 
     classInfoList = classInfoList
         .filter(ci -> Arrays.stream(onlyFromPackages)

@@ -55,7 +55,7 @@ public class DLockServiceCharacterizationTests {
 
   @Before
   public void setUp() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
 
     cache = new CacheFactory(properties).create();
@@ -76,11 +76,11 @@ public class DLockServiceCharacterizationTests {
 
   @Test
   public void testBasic() {
-    String serviceName = "serviceName";
-    String objectName = "object";
+    var serviceName = "serviceName";
+    var objectName = "object";
 
     // Create service
-    DistributedLockService service = DistributedLockService.create(serviceName, distributedSystem);
+    var service = DistributedLockService.create(serviceName, distributedSystem);
 
     // Not locked initially
     assertThat(service.isHeldByCurrentThread(objectName)).isFalse();
@@ -104,7 +104,7 @@ public class DLockServiceCharacterizationTests {
   @Test
   public void reentrantLockIncreasesReentrancy() {
     assertThat(dLockService.lock("key1", -1, -1)).isTrue();
-    DLockToken key1 = ((DLockService) dLockService).getToken("key1");
+    var key1 = ((DLockService) dLockService).getToken("key1");
 
     assertThat(key1.getRecursion()).isEqualTo(0);
     assertThat(key1.getUsageCount()).isEqualTo(1);
@@ -125,13 +125,13 @@ public class DLockServiceCharacterizationTests {
   @Test
   public void threadWaitingOnLockIncreasesUsageCount() {
     assertThat(dLockService.lock("key1", -1, -1)).isTrue();
-    DLockToken key1 = ((DLockService) dLockService).getToken("key1");
+    var key1 = ((DLockService) dLockService).getToken("key1");
 
     assertThat(key1.getRecursion()).isEqualTo(0);
     assertThat(key1.getUsageCount()).isEqualTo(1);
     assertThat(key1.getThread()).isEqualTo(currentThread());
 
-    Thread otherThread = new Thread(() -> dLockService.lock("key1", -1, -1));
+    var otherThread = new Thread(() -> dLockService.lock("key1", -1, -1));
     otherThread.start();
 
     // otherThread should be waiting for lock.
@@ -157,7 +157,7 @@ public class DLockServiceCharacterizationTests {
 
   @Test
   public void whatHappensAfterDestroyingTheDLockService() throws Exception {
-    final String serviceName = "Somestring";
+    final var serviceName = "Somestring";
 
     DistributedLockService.create(serviceName, distributedSystem);
     DistributedLockService.destroy(serviceName);
@@ -173,7 +173,7 @@ public class DLockServiceCharacterizationTests {
 
   @Test
   public void whatHappensWhenTheDLockServiceWasNeverCreated() throws Exception {
-    final String serviceName =
+    final var serviceName =
         "Please don't use this anywhere else " + getClass().getCanonicalName();
 
     assertThatThrownBy(() -> DistributedLockService.becomeLockGrantor(serviceName))
@@ -187,8 +187,8 @@ public class DLockServiceCharacterizationTests {
 
   @Test
   public void serviceCanBeRecreatedAndUsed() {
-    final String serviceName = "someString";
-    final String lockName = "lock name";
+    final var serviceName = "someString";
+    final var lockName = "lock name";
 
     DistributedLockService.create(serviceName, distributedSystem);
     DistributedLockService.getServiceNamed(serviceName).lock(lockName, 10000, -1);
@@ -204,13 +204,13 @@ public class DLockServiceCharacterizationTests {
 
   @Test
   public void createAndDestroy() throws Exception {
-    final String serviceName = "service name";
+    final var serviceName = "service name";
 
-    final Cache cache = new CacheFactory().create();
-    final DistributedSystem distributedSystem = cache.getDistributedSystem();
+    final var cache = new CacheFactory().create();
+    final var distributedSystem = cache.getDistributedSystem();
 
     assertThat(getServiceNamed(serviceName)).isNull();
-    DistributedLockService service = DistributedLockService.create(serviceName, distributedSystem);
+    var service = DistributedLockService.create(serviceName, distributedSystem);
     assertThat(getServiceNamed(serviceName)).isSameAs(service);
     DistributedLockService.destroy(serviceName);
   }
@@ -220,21 +220,21 @@ public class DLockServiceCharacterizationTests {
    */
   @Test
   public void destroyedLockServiceThrowsLockServiceDestroyedException() throws Exception {
-    final String serviceName = "service name";
-    final String lockName = "abc";
+    final var serviceName = "service name";
+    final var lockName = "abc";
 
-    final Cache cache = new CacheFactory().create();
-    final DistributedSystem distributedSystem = cache.getDistributedSystem();
+    final var cache = new CacheFactory().create();
+    final var distributedSystem = cache.getDistributedSystem();
 
-    final DistributedLockService service =
+    final var service =
         DistributedLockService.create(serviceName, distributedSystem);
     assertThat(((DLockService) service).isDestroyed()).isFalse();
 
-    final AtomicBoolean lockAcquired = new AtomicBoolean(false);
-    final AtomicBoolean serviceDestroyed = new AtomicBoolean(false);
+    final var lockAcquired = new AtomicBoolean(false);
+    final var serviceDestroyed = new AtomicBoolean(false);
 
     // get the same dls from another thread and hold a lock.
-    Callable<Void> getLock = () -> {
+    var getLock = (Callable<Void>) () -> {
       assertThat(catchThrowable(() -> {
         service.lock(lockName, -1, -1);
         lockAcquired.set(true);
@@ -246,14 +246,14 @@ public class DLockServiceCharacterizationTests {
     };
 
     // start a new thread to wait for lock
-    Callable<Void> getBlocked = () -> {
+    var getBlocked = (Callable<Void>) () -> {
       await("wait for lock to be acquired").until(
           lockAcquired::get);
       service.lock(lockName, -1, -1);
       return null;
     };
 
-    Callable<Void> destroyLockService = () -> {
+    var destroyLockService = (Callable<Void>) () -> {
       await("lock acquired; we don't want to break that")
           .until(lockAcquired::get);
       DistributedLockService.destroy(serviceName);

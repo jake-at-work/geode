@@ -26,7 +26,7 @@ public class DependencyGraphJUnitTest {
 
   @Test
   public void testFindCycle() {
-    DependencyGraph graph = new DependencyGraph();
+    var graph = new DependencyGraph();
     graph.addEdge(new Dependency("A", "B"));
     graph.addEdge(new Dependency("A", "F"));
     graph.addEdge(new Dependency("B", "C"));
@@ -43,14 +43,14 @@ public class DependencyGraphJUnitTest {
 
   @Test
   public void testSubGraph() {
-    DependencyGraph graph = new DependencyGraph();
+    var graph = new DependencyGraph();
     graph.addEdge(new Dependency("A", "B"));
     graph.addEdge(new Dependency("B", "C"));
     graph.addEdge(new Dependency("C", "A"));
     graph.addEdge(new Dependency("E", "F"));
     graph.addEdge(new Dependency("F", "G"));
 
-    DependencyGraph sub1 = graph.getSubGraph("B");
+    var sub1 = graph.getSubGraph("B");
     Set expected = new HashSet();
     expected.add(new Dependency("A", "B"));
     expected.add(new Dependency("B", "C"));
@@ -58,13 +58,13 @@ public class DependencyGraphJUnitTest {
     assertEquals(expected, new HashSet(sub1.findCycle()));
     assertEquals(expected, new HashSet(sub1.getEdges()));
 
-    DependencyGraph sub2 = graph.getSubGraph("E");
+    var sub2 = graph.getSubGraph("E");
     assertEquals(null, sub2.findCycle());
   }
 
   @Test
   public void testTwoPaths() {
-    DependencyGraph graph = new DependencyGraph();
+    var graph = new DependencyGraph();
     graph.addEdge(new Dependency("A", "B"));
     graph.addEdge(new Dependency("A", "C"));
     graph.addEdge(new Dependency("B", "D"));
@@ -75,7 +75,7 @@ public class DependencyGraphJUnitTest {
 
   @Test
   public void testEmptySet() {
-    DependencyGraph graph = new DependencyGraph();
+    var graph = new DependencyGraph();
     assertEquals(null, graph.findCycle());
   }
 }

@@ -121,7 +121,7 @@ public abstract class LauncherIntegrationTestCase {
 
   protected File givenControlFile(final String name) {
     try {
-      File file = new File(getWorkingDirectory(), name);
+      var file = new File(getWorkingDirectory(), name);
       assertThat(file.createNewFile()).isTrue();
       assertThat(file).exists();
       return file;
@@ -144,8 +144,8 @@ public abstract class LauncherIntegrationTestCase {
 
   protected File givenPidFile(final Object content) {
     try {
-      File file = new File(getWorkingDirectory(), getProcessType().getPidFileName());
-      FileWriter writer = new FileWriter(file);
+      var file = new File(getWorkingDirectory(), getProcessType().getPidFileName());
+      var writer = new FileWriter(file);
       writer.write(String.valueOf(content));
       writer.write(lineSeparator());
       writer.flush();
@@ -183,7 +183,7 @@ public abstract class LauncherIntegrationTestCase {
   }
 
   protected void disconnectFromDS() {
-    InternalDistributedSystem ids = InternalDistributedSystem.getConnectedInstance();
+    var ids = InternalDistributedSystem.getConnectedInstance();
     if (ids != null) {
       ids.disconnect();
     }
@@ -306,7 +306,7 @@ public abstract class LauncherIntegrationTestCase {
   private int readPidFile(final File pidFile) {
     try {
       assertTrue(pidFile.exists());
-      try (BufferedReader reader = new BufferedReader(new FileReader(pidFile))) {
+      try (var reader = new BufferedReader(new FileReader(pidFile))) {
         return Integer.parseInt(StringUtils.trim(reader.readLine()));
       }
     } catch (IOException e) {
@@ -315,7 +315,7 @@ public abstract class LauncherIntegrationTestCase {
   }
 
   private int readPidFileWithValidation() {
-    int pid = readPidFile(getPidFile());
+    var pid = readPidFile(getPidFile());
     assertThat(pid).isGreaterThan(0);
     assertThat(isProcessAlive(pid)).isTrue();
     return pid;

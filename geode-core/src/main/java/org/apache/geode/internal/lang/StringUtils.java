@@ -57,10 +57,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
    * @see java.lang.Character#isDigit(char)
    */
   public static String getDigitsOnly(final String value) {
-    final StringBuilder buffer = new StringBuilder();
+    final var buffer = new StringBuilder();
 
     if (value != null) {
-      for (final char chr : value.toCharArray()) {
+      for (final var chr : value.toCharArray()) {
         if (Character.isDigit(chr)) {
           buffer.append(chr);
         }
@@ -111,9 +111,9 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
    */
   // Can be removed when commons is updated.
   public static String wrap(String line, final int widthInCharacters, String indent) {
-    final StringBuilder buffer = new StringBuilder();
+    final var buffer = new StringBuilder();
 
-    int lineCount = 1;
+    var lineCount = 1;
     int spaceIndex;
 
     // if indent is null, then do not indent the wrapped lines
@@ -169,10 +169,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (o == null || o == Token.NOT_AVAILABLE) {
       return "null";
     } else if (o instanceof CachedDeserializable) {
-      CachedDeserializable cd = (CachedDeserializable) o;
+      var cd = (CachedDeserializable) o;
       return cd.getStringForm();
     } else if (convertArrayContents && o.getClass().isArray()) {
-      Class<?> eClass = o.getClass();
+      var eClass = o.getClass();
       if (eClass == byte[].class) {
         return arrayToString((byte[]) o, maxArrayElements);
       } else if (eClass == boolean[].class) {
@@ -215,8 +215,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (a == null) {
       return "null";
     }
-    String className = a.getClass().getSimpleName();
-    int iMax = a.length;
+    var className = a.getClass().getSimpleName();
+    var iMax = a.length;
     if (iMax > maxArrayElements) {
       iMax = maxArrayElements;
     }
@@ -225,13 +225,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (iMax == -1) {
       return componentType.getSimpleName() + "[]";
     }
-    StringBuilder b = new StringBuilder();
+    var b = new StringBuilder();
     b.append(componentType.getSimpleName());
     b.append('[');
-    for (int i = 0;; i++) {
+    for (var i = 0;; i++) {
       b.append(a[i]);
       if (i == iMax) {
-        int skipCount = a.length - maxArrayElements;
+        var skipCount = a.length - maxArrayElements;
         if (skipCount > 0) {
           if (i > 0) {
             b.append(", ");
@@ -253,7 +253,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (a == null) {
       return "null";
     }
-    int iMax = a.length;
+    var iMax = a.length;
     if (iMax > maxArrayElements) {
       iMax = maxArrayElements;
     }
@@ -261,12 +261,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (iMax == -1) {
       return "boolean[]";
     }
-    StringBuilder b = new StringBuilder();
+    var b = new StringBuilder();
     b.append("boolean[");
-    for (int i = 0;; i++) {
+    for (var i = 0;; i++) {
       b.append(a[i]);
       if (i == iMax) {
-        int skipCount = a.length - maxArrayElements;
+        var skipCount = a.length - maxArrayElements;
         if (skipCount > 0) {
           if (i > 0) {
             b.append(", ");
@@ -288,7 +288,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (a == null) {
       return "null";
     }
-    int iMax = a.length;
+    var iMax = a.length;
     if (iMax > maxArrayElements) {
       iMax = maxArrayElements;
     }
@@ -296,12 +296,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (iMax == -1) {
       return "byte[]";
     }
-    StringBuilder b = new StringBuilder();
+    var b = new StringBuilder();
     b.append("byte[");
-    for (int i = 0;; i++) {
+    for (var i = 0;; i++) {
       b.append(a[i]);
       if (i == iMax) {
-        int skipCount = a.length - maxArrayElements;
+        var skipCount = a.length - maxArrayElements;
         if (skipCount > 0) {
           if (i > 0) {
             b.append(", ");
@@ -323,7 +323,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (a == null) {
       return "null";
     }
-    int iMax = a.length;
+    var iMax = a.length;
     if (iMax > maxArrayElements) {
       iMax = maxArrayElements;
     }
@@ -331,12 +331,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (iMax == -1) {
       return "char[]";
     }
-    StringBuilder b = new StringBuilder();
+    var b = new StringBuilder();
     b.append("char[");
-    for (int i = 0;; i++) {
+    for (var i = 0;; i++) {
       b.append(a[i]);
       if (i == iMax) {
-        int skipCount = a.length - maxArrayElements;
+        var skipCount = a.length - maxArrayElements;
         if (skipCount > 0) {
           if (i > 0) {
             b.append(", ");
@@ -358,7 +358,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (a == null) {
       return "null";
     }
-    int iMax = a.length;
+    var iMax = a.length;
     if (iMax > maxArrayElements) {
       iMax = maxArrayElements;
     }
@@ -366,12 +366,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (iMax == -1) {
       return "short[]";
     }
-    StringBuilder b = new StringBuilder();
+    var b = new StringBuilder();
     b.append("short[");
-    for (int i = 0;; i++) {
+    for (var i = 0;; i++) {
       b.append(a[i]);
       if (i == iMax) {
-        int skipCount = a.length - maxArrayElements;
+        var skipCount = a.length - maxArrayElements;
         if (skipCount > 0) {
           if (i > 0) {
             b.append(", ");
@@ -393,7 +393,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (a == null) {
       return "null";
     }
-    int iMax = a.length;
+    var iMax = a.length;
     if (iMax > maxArrayElements) {
       iMax = maxArrayElements;
     }
@@ -401,12 +401,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (iMax == -1) {
       return "int[]";
     }
-    StringBuilder b = new StringBuilder();
+    var b = new StringBuilder();
     b.append("int[");
-    for (int i = 0;; i++) {
+    for (var i = 0;; i++) {
       b.append(a[i]);
       if (i == iMax) {
-        int skipCount = a.length - maxArrayElements;
+        var skipCount = a.length - maxArrayElements;
         if (skipCount > 0) {
           if (i > 0) {
             b.append(", ");
@@ -428,7 +428,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (a == null) {
       return "null";
     }
-    int iMax = a.length;
+    var iMax = a.length;
     if (iMax > maxArrayElements) {
       iMax = maxArrayElements;
     }
@@ -436,12 +436,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (iMax == -1) {
       return "long[]";
     }
-    StringBuilder b = new StringBuilder();
+    var b = new StringBuilder();
     b.append("long[");
-    for (int i = 0;; i++) {
+    for (var i = 0;; i++) {
       b.append(a[i]);
       if (i == iMax) {
-        int skipCount = a.length - maxArrayElements;
+        var skipCount = a.length - maxArrayElements;
         if (skipCount > 0) {
           if (i > 0) {
             b.append(", ");
@@ -463,7 +463,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (a == null) {
       return "null";
     }
-    int iMax = a.length;
+    var iMax = a.length;
     if (iMax > maxArrayElements) {
       iMax = maxArrayElements;
     }
@@ -471,12 +471,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (iMax == -1) {
       return "float[]";
     }
-    StringBuilder b = new StringBuilder();
+    var b = new StringBuilder();
     b.append("float[");
-    for (int i = 0;; i++) {
+    for (var i = 0;; i++) {
       b.append(a[i]);
       if (i == iMax) {
-        int skipCount = a.length - maxArrayElements;
+        var skipCount = a.length - maxArrayElements;
         if (skipCount > 0) {
           if (i > 0) {
             b.append(", ");
@@ -498,7 +498,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (a == null) {
       return "null";
     }
-    int iMax = a.length;
+    var iMax = a.length;
     if (iMax > maxArrayElements) {
       iMax = maxArrayElements;
     }
@@ -506,12 +506,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     if (iMax == -1) {
       return "double[]";
     }
-    StringBuilder b = new StringBuilder();
+    var b = new StringBuilder();
     b.append("double[");
-    for (int i = 0;; i++) {
+    for (var i = 0;; i++) {
       b.append(a[i]);
       if (i == iMax) {
-        int skipCount = a.length - maxArrayElements;
+        var skipCount = a.length - maxArrayElements;
         if (skipCount > 0) {
           if (i > 0) {
             b.append(", ");

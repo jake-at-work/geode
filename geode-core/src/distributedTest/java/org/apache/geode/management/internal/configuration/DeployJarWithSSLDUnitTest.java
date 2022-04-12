@@ -80,7 +80,7 @@ public class DeployJarWithSSLDUnitTest {
     locator = lsRule.startLocatorVM(0, sslProperties);
 
     sslConfigFile = temporaryFolder.newFile("ssl.properties");
-    FileOutputStream out = new FileOutputStream(sslConfigFile);
+    var out = new FileOutputStream(sslConfigFile);
     sslProperties.store(out, null);
   }
 
@@ -91,7 +91,7 @@ public class DeployJarWithSSLDUnitTest {
     gfsh.connectAndVerify(locator.getPort(), GfshCommandRule.PortType.locator,
         "security-properties-file", sslConfigFile.getAbsolutePath());
 
-    String clusterJar = createJarFileWithClass("Cluster", "cluster.jar", temporaryFolder.getRoot());
+    var clusterJar = createJarFileWithClass("Cluster", "cluster.jar", temporaryFolder.getRoot());
     gfsh.executeAndAssertThat("deploy --jar=" + clusterJar).statusIsSuccess();
   }
 
@@ -100,7 +100,7 @@ public class DeployJarWithSSLDUnitTest {
     gfsh.connectAndVerify(locator.getPort(), GfshCommandRule.PortType.locator,
         "security-properties-file", sslConfigFile.getAbsolutePath());
 
-    String clusterJar = createJarFileWithClass("Cluster", "cluster.jar", temporaryFolder.getRoot());
+    var clusterJar = createJarFileWithClass("Cluster", "cluster.jar", temporaryFolder.getRoot());
     gfsh.executeAndAssertThat("deploy --jar=" + clusterJar).statusIsSuccess();
 
     lsRule.startServerVM(1, sslProperties, locator.getPort());
@@ -108,19 +108,19 @@ public class DeployJarWithSSLDUnitTest {
 
   @Test
   public void deployJarWithMultipleLocators() throws Exception {
-    MemberVM locator2 = lsRule.startLocatorVM(1, sslProperties, locator.getPort());
+    var locator2 = lsRule.startLocatorVM(1, sslProperties, locator.getPort());
     lsRule.startServerVM(2, sslProperties, locator2.getPort());
 
     gfsh.connectAndVerify(locator.getPort(), GfshCommandRule.PortType.locator,
         "security-properties-file", sslConfigFile.getAbsolutePath());
 
-    String clusterJar = createJarFileWithClass("Cluster", "cluster.jar", temporaryFolder.getRoot());
+    var clusterJar = createJarFileWithClass("Cluster", "cluster.jar", temporaryFolder.getRoot());
     gfsh.executeAndAssertThat("deploy --jar=" + clusterJar).statusIsSuccess();
   }
 
   protected String createJarFileWithClass(String className, String jarName, File dir)
       throws IOException {
-    File jarFile = new File(dir, jarName);
+    var jarFile = new File(dir, jarName);
     new ClassBuilder().writeJarFromName(className, jarFile);
     return jarFile.getCanonicalPath();
   }

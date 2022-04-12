@@ -67,7 +67,7 @@ public class GfshConfig {
       return true;
     }
 
-    File file = new File(historyFileName);
+    var file = new File(historyFileName);
     if (!file.exists()) {
       return true;
     }
@@ -183,10 +183,10 @@ public class GfshConfig {
 
   private static Level getLogLevel(final String logLevelString) {
     try {
-      String logLevelAsString = StringUtils.isBlank(logLevelString) ? "" : logLevelString.trim(); // trim
-                                                                                                  // spaces
-                                                                                                  // if
-                                                                                                  // any
+      var logLevelAsString = StringUtils.isBlank(logLevelString) ? "" : logLevelString.trim(); // trim
+                                                                                               // spaces
+                                                                                               // if
+                                                                                               // any
       // To support level NONE, used by GemFire
       if ("NONE".equalsIgnoreCase(logLevelAsString)) {
         logLevelAsString = Level.OFF.getName();
@@ -203,9 +203,9 @@ public class GfshConfig {
   }
 
   private static String getHomeGemFireDirectory() {
-    String userHome = System.getProperty("user.home");
-    String homeDirPath = userHome + "/.geode";
-    File alternateDir = new File(homeDirPath);
+    var userHome = System.getProperty("user.home");
+    var homeDirPath = userHome + "/.geode";
+    var alternateDir = new File(homeDirPath);
     if (!alternateDir.exists()) {
       if (!alternateDir.mkdirs()) {
         homeDirPath = ".";
@@ -249,16 +249,17 @@ public class GfshConfig {
    * directory. It need not exist at all.
    */
   private String searchForInitFileName() {
-    String homeDirectoryInitFileName =
+    var homeDirectoryInitFileName =
         System.getProperty("user.home") + File.separatorChar + DEFAULT_INIT_FILE_NAME;
-    String currentDirectoryInitFileName =
+    var currentDirectoryInitFileName =
         System.getProperty("user.dir") + File.separatorChar + DEFAULT_INIT_FILE_NAME;
-    String systemPropertyInitFileName = System.getProperty(INIT_FILE_PROPERTY);
+    var systemPropertyInitFileName = System.getProperty(INIT_FILE_PROPERTY);
 
-    String[] initFileNames =
-        {systemPropertyInitFileName, currentDirectoryInitFileName, homeDirectoryInitFileName};
+    var initFileNames =
+        new String[] {systemPropertyInitFileName, currentDirectoryInitFileName,
+            homeDirectoryInitFileName};
 
-    for (String initFileName : initFileNames) {
+    for (var initFileName : initFileNames) {
       if (IOUtils.isExistingPathname(initFileName)) {
         return initFileName;
       }

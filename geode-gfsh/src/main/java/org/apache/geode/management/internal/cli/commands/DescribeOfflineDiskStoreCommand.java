@@ -44,7 +44,7 @@ public class DescribeOfflineDiskStoreCommand extends GfshCommand {
       @CliOption(key = CliStrings.DESCRIBE_OFFLINE_DISK_STORE__REGIONNAME,
           help = CliStrings.DESCRIBE_OFFLINE_DISK_STORE__REGIONNAME__HELP) String regionName) {
 
-    String validatedDirectories = DiskStoreCommandsUtils.validatedDirectories(diskDirs);
+    var validatedDirectories = DiskStoreCommandsUtils.validatedDirectories(diskDirs);
     if (validatedDirectories != null) {
       throw new IllegalArgumentException(
           "Could not find " + CliStrings.DESCRIBE_OFFLINE_DISK_STORE__DISKDIRS + ": \""
@@ -52,8 +52,8 @@ public class DescribeOfflineDiskStoreCommand extends GfshCommand {
     }
 
     try {
-      final File[] dirs = new File[diskDirs.length];
-      for (int i = 0; i < diskDirs.length; i++) {
+      final var dirs = new File[diskDirs.length];
+      for (var i = 0; i < diskDirs.length; i++) {
         dirs[i] = new File((diskDirs[i]));
       }
 
@@ -61,8 +61,8 @@ public class DescribeOfflineDiskStoreCommand extends GfshCommand {
         return ResultModel.createError(CliStrings.INVALID_REGION_NAME);
       }
 
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      PrintStream printStream = new PrintStream(outputStream);
+      var outputStream = new ByteArrayOutputStream();
+      var printStream = new PrintStream(outputStream);
 
       DiskStoreImpl.dumpInfo(printStream, diskStoreName, dirs, regionName, listPdxTypes);
       return ResultModel.createInfo(outputStream.toString());

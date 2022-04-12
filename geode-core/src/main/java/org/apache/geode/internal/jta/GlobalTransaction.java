@@ -17,7 +17,6 @@ package org.apache.geode.internal.jta;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,12 +32,10 @@ import javax.transaction.xa.Xid;
 
 import org.jgroups.annotations.GuardedBy;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 
 /**
@@ -104,7 +101,7 @@ public class GlobalTransaction {
       GTid = generateGTid();
       xid = XidImpl.createXid(GTid);
     } catch (Exception e) {
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (writer.severeEnabled()) {
         writer.severe(
             String.format(
@@ -112,7 +109,7 @@ public class GlobalTransaction {
                 e),
             e);
       }
-      String exception =
+      var exception =
           String.format(
               "GlobalTransaction::Constructor::Error while trying to create Xid due to %s",
               e);
@@ -129,9 +126,9 @@ public class GlobalTransaction {
    */
   public void addTransaction(Transaction txn) throws SystemException {
     if (txn == null) {
-      String exception =
+      var exception =
           "GlobalTransaction::addTransaction::Cannot add a null Transaction";
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (VERBOSE) {
         writer.fine(exception);
       }
@@ -168,15 +165,15 @@ public class GlobalTransaction {
   // encountered during commit
   public void commit() throws RollbackException, HeuristicMixedException,
       HeuristicRollbackException, SecurityException, SystemException {
-    LogWriter writer = TransactionUtils.getLogWriter();
+    var writer = TransactionUtils.getLogWriter();
     try {
       XAResource xar = null;
       XAResource xar1 = null;
-      int loop = 0;
-      Boolean isActive = Boolean.FALSE;
+      var loop = 0;
+      var isActive = Boolean.FALSE;
       synchronized (resourceMap) {
         Map.Entry entry;
-        Iterator iterator = resourceMap.entrySet().iterator();
+        var iterator = resourceMap.entrySet().iterator();
         while (iterator.hasNext()) {
           try {
             entry = (Map.Entry) iterator.next();
@@ -223,18 +220,18 @@ public class GlobalTransaction {
         SystemFailure.checkFailure();
         // we will throw an error later, make sure that the synchronizations rollback
         status = Status.STATUS_ROLLEDBACK;
-        String exception =
+        var exception =
             String.format(
                 "GlobalTransaction::commit::Error in committing, but transaction could not be rolled back due to exception: %s",
                 t);
         if (VERBOSE) {
           writer.fine(exception, t);
         }
-        SystemException sysEx = new SystemException(exception);
+        var sysEx = new SystemException(exception);
         sysEx.initCause(t);
         throw sysEx;
       }
-      String exception =
+      var exception =
           String.format(
               "GlobalTransaction::commit:Error in committing the transaction. Transaction rolled back.Exception, %s %s",
               e, " " + (e instanceof XAException
@@ -242,7 +239,7 @@ public class GlobalTransaction {
       if (VERBOSE) {
         writer.fine(exception, e);
       }
-      RollbackException rbEx = new RollbackException(exception);
+      var rbEx = new RollbackException(exception);
       rbEx.initCause(e);
       throw rbEx;
     } finally {
@@ -271,14 +268,14 @@ public class GlobalTransaction {
    * @see javax.transaction.TransactionManager#rollback()
    */
   public void rollback() throws IllegalStateException, SystemException {
-    LogWriter writer = TransactionUtils.getLogWriter();
+    var writer = TransactionUtils.getLogWriter();
     try {
       XAResource xar = null;
       XAResource xar1 = null;
-      int loop = 0;
+      var loop = 0;
       synchronized (resourceMap) {
-        Iterator iterator = resourceMap.entrySet().iterator();
-        Boolean isActive = Boolean.FALSE;
+        var iterator = resourceMap.entrySet().iterator();
+        var isActive = Boolean.FALSE;
         Map.Entry entry;
         while (iterator.hasNext()) {
           try {
@@ -311,7 +308,7 @@ public class GlobalTransaction {
     } catch (Exception e) {
       // we will throw an error later, make sure that the synchronizations rollback
       status = Status.STATUS_ROLLEDBACK;
-      String exception =
+      var exception =
           String.format(
               "GlobalTransaction::rollback:Rollback not successful due to exception %s %s",
               e, " " + (e instanceof XAException
@@ -319,7 +316,7 @@ public class GlobalTransaction {
       if (VERBOSE) {
         writer.fine(exception);
       }
-      SystemException sysEx = new SystemException(exception);
+      var sysEx = new SystemException(exception);
       sysEx.initCause(e);
       throw sysEx;
     } finally {
@@ -372,17 +369,17 @@ public class GlobalTransaction {
     try {
       synchronized (this) {
         if (status == Status.STATUS_MARKED_ROLLBACK) {
-          String exception =
+          var exception =
               "GlobalTransaction::enlistResource::Cannot enlist resource as the transaction has been marked for rollback";
-          LogWriter writer = TransactionUtils.getLogWriter();
+          var writer = TransactionUtils.getLogWriter();
           if (VERBOSE) {
             writer.fine(exception);
           }
           throw new RollbackException(exception);
         } else if (status != Status.STATUS_ACTIVE) {
-          String exception =
+          var exception =
               "GlobalTransaction::enlistResource::Cannot enlist a resource to a transaction which is not active";
-          LogWriter writer = TransactionUtils.getLogWriter();
+          var writer = TransactionUtils.getLogWriter();
           if (VERBOSE) {
             writer.fine(exception);
           }
@@ -390,17 +387,17 @@ public class GlobalTransaction {
         }
         if (resourceMap.isEmpty()) {
           xaRes.start(xid, XAResource.TMNOFLAGS);
-          int delay = (int) ((expirationTime - System.currentTimeMillis()) / 1000);
+          var delay = (int) ((expirationTime - System.currentTimeMillis()) / 1000);
           try {
             if (!DISABLE_TRANSACTION_TIMEOUT_SETTING) {
               xaRes.setTransactionTimeout(delay);
             }
           } catch (XAException xe) {
-            String exception =
+            var exception =
                 String.format(
                     "GlobalTransaction::enlistResource:Exception occurred in trying to set XAResource timeout due to %s Error Code, %s",
                     xe, xe.errorCode);
-            LogWriter writer = TransactionUtils.getLogWriter();
+            var writer = TransactionUtils.getLogWriter();
             if (VERBOSE) {
               writer.fine(exception);
             }
@@ -409,11 +406,11 @@ public class GlobalTransaction {
           resourceMap.put(xaRes, Boolean.TRUE);
         } else {
           synchronized (resourceMap) {
-            Iterator iterator = resourceMap.keySet().iterator();
+            var iterator = resourceMap.keySet().iterator();
             xar = (XAResource) iterator.next();
           }
           if (!xar.isSameRM(xaRes)) {
-            LogWriter writer = TransactionUtils.getLogWriter();
+            var writer = TransactionUtils.getLogWriter();
             if (writer.severeEnabled()) {
               writer.severe(
                   "GlobalTransaction::enlistResource::Only one Resouce Manager supported");
@@ -427,9 +424,9 @@ public class GlobalTransaction {
         }
       }
     } catch (Exception e) {
-      String addon =
+      var addon =
           (e instanceof XAException ? ("Error Code =" + ((XAException) e).errorCode) : "");
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (VERBOSE) {
         writer.fine(
             String.format(
@@ -437,7 +434,7 @@ public class GlobalTransaction {
                 e, addon),
             e);
       }
-      SystemException sysEx = new SystemException(
+      var sysEx = new SystemException(
           String.format("GlobalTransaction::enlistResource::error while enlisting XAResource %s %s",
               e, addon));
       sysEx.initCause(e);
@@ -465,21 +462,21 @@ public class GlobalTransaction {
       throws IllegalStateException, SystemException {
     try {
       if (resourceMap.containsKey(xaRes)) {
-        Boolean isActive = (Boolean) resourceMap.get(xaRes);
+        var isActive = (Boolean) resourceMap.get(xaRes);
         if (isActive) {
           xaRes.end(xid, flag);
           resourceMap.put(xaRes, Boolean.FALSE);
         }
       }
     } catch (Exception e) {
-      String exception = String.format("error while delisting XAResource %s %s",
+      var exception = String.format("error while delisting XAResource %s %s",
           e, " "
               + (e instanceof XAException ? ("Error Code =" + ((XAException) e).errorCode) : ""));
-      LogWriter writer = TransactionUtils.getLogWriter();
+      var writer = TransactionUtils.getLogWriter();
       if (VERBOSE) {
         writer.fine(exception, e);
       }
-      SystemException se = new SystemException(exception);
+      var se = new SystemException(exception);
       se.initCause(e);
     }
     return true;
@@ -500,9 +497,9 @@ public class GlobalTransaction {
   public void suspend() throws SystemException {
     XAResource xar = null;
     synchronized (resourceMap) {
-      Iterator iterator = resourceMap.entrySet().iterator();
+      var iterator = resourceMap.entrySet().iterator();
       Map.Entry entry;
-      Boolean isActive = Boolean.FALSE;
+      var isActive = Boolean.FALSE;
       while (iterator.hasNext()) {
         entry = (Map.Entry) iterator.next();
         xar = (XAResource) entry.getKey();
@@ -513,11 +510,11 @@ public class GlobalTransaction {
             xar.end(xid, XAResource.TMSUSPEND);
             entry.setValue(Boolean.FALSE);
           } catch (Exception e) {
-            String exception =
+            var exception =
                 String.format("error while delisting XAResource %s %s",
                     e, " " + (e instanceof XAException
                         ? ("Error Code =" + ((XAException) e).errorCode) : ""));
-            LogWriter writer = TransactionUtils.getLogWriter();
+            var writer = TransactionUtils.getLogWriter();
             if (VERBOSE) {
               writer.fine(exception);
             }
@@ -541,9 +538,9 @@ public class GlobalTransaction {
   public void resume() throws SystemException {
     XAResource xar = null;
     synchronized (resourceMap) {
-      Iterator iterator = resourceMap.entrySet().iterator();
+      var iterator = resourceMap.entrySet().iterator();
       Map.Entry entry;
-      Boolean isActive = Boolean.FALSE;
+      var isActive = Boolean.FALSE;
 
       while (iterator.hasNext()) {
         entry = (Map.Entry) iterator.next();
@@ -554,10 +551,10 @@ public class GlobalTransaction {
             xar.start(xid, XAResource.TMRESUME);
             entry.setValue(Boolean.TRUE);
           } catch (Exception e) {
-            String exception =
+            var exception =
                 String.format("GlobaTransaction::resume:Resume not succesful due to %s",
                     e);
-            LogWriter writer = TransactionUtils.getLogWriter();
+            var writer = TransactionUtils.getLogWriter();
             if (VERBOSE) {
               writer.fine(exception, e);
             }
@@ -601,7 +598,7 @@ public class GlobalTransaction {
    */
   private static String getId() {
     synchronized (DmidMutex) {
-      InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+      var ids = InternalDistributedSystem.getAnyInstance();
       if (ids == null) {
         throw new DistributedSystemDisconnectedException("No distributed system");
       }
@@ -609,7 +606,7 @@ public class GlobalTransaction {
         return DMid;
       }
       IdsForId = ids;
-      DistributionManager dm = ids.getDistributionManager();
+      var dm = ids.getDistributionManager();
       DMid = dm.getId().toString();
       return DMid;
     }
@@ -621,7 +618,7 @@ public class GlobalTransaction {
    */
   private static byte[] generateGTid() {
     // Asif: The counter should be attached to the string inside Synch block
-    StringBuilder sbuff = new StringBuilder(getId());
+    var sbuff = new StringBuilder(getId());
     synchronized (GlobalTransaction.class) {
       if (mCounter == 99999) {
         mCounter = 1;
@@ -631,7 +628,7 @@ public class GlobalTransaction {
       sbuff.append(mCounter);
     }
     sbuff.append('_').append(System.currentTimeMillis());
-    byte[] byte_array = sbuff.toString().getBytes();
+    var byte_array = sbuff.toString().getBytes();
     return byte_array;
   }
 
@@ -644,7 +641,7 @@ public class GlobalTransaction {
       return; // this method is only called by a single thread so this is safe
     }
     timedOut = true;
-    LogWriter writer = TransactionUtils.getLogWriter();
+    var writer = TransactionUtils.getLogWriter();
     try {
       if (writer.infoEnabled()) {
         writer.info(String.format("Transaction %s has timed out.", this));
@@ -671,21 +668,21 @@ public class GlobalTransaction {
   long setTransactionTimeoutForXARes(int seconds) throws SystemException {
 
     XAResource xar = null;
-    boolean resetXATimeOut = true;
+    var resetXATimeOut = true;
     Map.Entry entry;
     synchronized (resourceMap) {
-      for (final Object o : resourceMap.entrySet()) {
+      for (final var o : resourceMap.entrySet()) {
         entry = (Map.Entry) o;
         xar = (XAResource) entry.getKey();
         if ((Boolean) entry.getValue()) {
           try {
             resetXATimeOut = xar.setTransactionTimeout(seconds);
           } catch (XAException e) {
-            String exception =
+            var exception =
                 String.format(
                     "Exception occurred while trying to set the XAResource TimeOut due to %s Error code, %s",
                     e, e.errorCode);
-            LogWriter writer = TransactionUtils.getLogWriter();
+            var writer = TransactionUtils.getLogWriter();
             if (VERBOSE) {
               writer.fine(exception);
             }
@@ -695,7 +692,7 @@ public class GlobalTransaction {
         }
       }
     }
-    long newExp = System.currentTimeMillis() + (seconds * 1000L);
+    var newExp = System.currentTimeMillis() + (seconds * 1000L);
     if (!resetXATimeOut) {
       newExp = -1;
     }
@@ -734,7 +731,7 @@ public class GlobalTransaction {
     if (this == other) {
       return 0;
     }
-    long compare = getExpirationTime() - other.getExpirationTime();
+    var compare = getExpirationTime() - other.getExpirationTime();
     if (compare < 0) {
       return -1;
     } else if (compare > 0) {
@@ -747,7 +744,7 @@ public class GlobalTransaction {
       return 1;
     }
     // need to compare the bytes
-    for (int i = 0; i < GTid.length; i++) {
+    for (var i = 0; i < GTid.length; i++) {
       if (GTid[i] < other.GTid[i]) {
         return -1;
       } else if (GTid[i] > other.GTid[i]) {
@@ -755,8 +752,8 @@ public class GlobalTransaction {
       }
     }
     // If we get here the GTids are the same!
-    int myId = System.identityHashCode(this);
-    int otherId = System.identityHashCode(other);
+    var myId = System.identityHashCode(this);
+    var otherId = System.identityHashCode(other);
     if (myId < otherId) {
       return -1;
     } else if (myId > otherId) {

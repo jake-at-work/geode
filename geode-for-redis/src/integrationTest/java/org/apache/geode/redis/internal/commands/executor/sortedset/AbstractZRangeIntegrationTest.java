@@ -60,7 +60,7 @@ public abstract class AbstractZRangeIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldError_givenWrongKeyType() {
-    final String STRING_KEY = "stringKey";
+    final var STRING_KEY = "stringKey";
     jedis.set(STRING_KEY, "value");
     assertThatThrownBy(
         () -> jedis.sendCommand(STRING_KEY, Protocol.Command.ZRANGE, STRING_KEY, "1", "2"))
@@ -70,8 +70,8 @@ public abstract class AbstractZRangeIntegrationTest implements RedisIntegrationT
   @Test
   public void shouldError_givenNonIntegerRangeValues() {
     jedis.zadd(SORTED_SET_KEY, 1.0, "member");
-    String tooSmall = Long.MIN_VALUE + "0";
-    String tooBig = Long.MAX_VALUE + "0";
+    var tooSmall = Long.MIN_VALUE + "0";
+    var tooBig = Long.MAX_VALUE + "0";
     assertThatThrownBy(
         () -> jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZRANGE, SORTED_SET_KEY,
             "NOT_AN_INT", "2")).hasMessage(ERROR_NOT_INTEGER);
@@ -133,7 +133,7 @@ public abstract class AbstractZRangeIntegrationTest implements RedisIntegrationT
   @Test
   public void shouldAlsoReturnScores_whenWithScoresSpecified() {
     final List<Tuple> expected = new ArrayList<>();
-    for (int i = 0; i < members.size(); i++) {
+    for (var i = 0; i < members.size(); i++) {
       expected.add(new Tuple(members.get(i), scores.get(i)));
     }
     assertThat(jedis.zrangeWithScores(SORTED_SET_KEY, 0, 5)).isEqualTo(expected);
@@ -150,7 +150,7 @@ public abstract class AbstractZRangeIntegrationTest implements RedisIntegrationT
 
   private void createRedisSortedSet(String setName, List<String> members, List<Double> scores) {
     Map<String, Double> scoreMembers = new HashMap<>();
-    for (int i = 0; i < members.size(); i++) {
+    for (var i = 0; i < members.size(); i++) {
       scoreMembers.put(members.get(i), scores.get(i));
     }
     jedis.zadd(setName, scoreMembers);

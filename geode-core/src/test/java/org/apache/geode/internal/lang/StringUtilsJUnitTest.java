@@ -26,7 +26,6 @@ import java.io.IOException;
 import org.junit.Test;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.internal.cache.CachedDeserializable;
 import org.apache.geode.internal.cache.CachedDeserializableFactory;
 
 /**
@@ -46,9 +45,9 @@ public class StringUtilsJUnitTest {
   @Test
   public void arrayToString() {
     assertThat(StringUtils.arrayToString(null)).isEqualTo("null");
-    String[] array1 = {"one", "two", "three"};
+    var array1 = new String[] {"one", "two", "three"};
     assertThat(StringUtils.arrayToString(array1)).isEqualTo("one, two, three");
-    String[] array2 = {"one", null, "three"};
+    var array2 = new String[] {"one", null, "three"};
     assertThat(StringUtils.arrayToString(array2)).isEqualTo("one, null, three");
     String[] array3 = {null};
     assertThat(StringUtils.arrayToString(array3)).isEqualTo("null");
@@ -73,13 +72,13 @@ public class StringUtilsJUnitTest {
 
   @Test
   public void testWrap() {
-    final String line = "The line of text to split for testing purposes!";
+    final var line = "The line of text to split for testing purposes!";
 
-    final String expectedLine = "The line of".concat(StringUtils.LINE_SEPARATOR)
+    final var expectedLine = "The line of".concat(StringUtils.LINE_SEPARATOR)
         .concat("text to split").concat(StringUtils.LINE_SEPARATOR).concat("for testing")
         .concat(StringUtils.LINE_SEPARATOR).concat("purposes!");
 
-    final String actualLine = StringUtils.wrap(line, 15, null);
+    final var actualLine = StringUtils.wrap(line, 15, null);
 
     assertNotNull(actualLine);
     assertEquals(expectedLine, actualLine);
@@ -87,13 +86,13 @@ public class StringUtilsJUnitTest {
 
   @Test
   public void testWrapWithIndent() {
-    final String line = "The line of text to split for testing purposes!";
+    final var line = "The line of text to split for testing purposes!";
 
-    final String expectedLine = "The line of".concat(StringUtils.LINE_SEPARATOR).concat("\t")
+    final var expectedLine = "The line of".concat(StringUtils.LINE_SEPARATOR).concat("\t")
         .concat("text to split").concat(StringUtils.LINE_SEPARATOR).concat("\t")
         .concat("for testing").concat(StringUtils.LINE_SEPARATOR).concat("\t").concat("purposes!");
 
-    final String actualLine = StringUtils.wrap(line, 15, "\t");
+    final var actualLine = StringUtils.wrap(line, 15, "\t");
 
     assertNotNull(actualLine);
     assertEquals(expectedLine, actualLine);
@@ -120,12 +119,12 @@ public class StringUtilsJUnitTest {
         StringUtils.forceToString(new String[] {"start", "middle", "end"}));
     // make sure CacheDeserializables do not get deserialized when getting their string form
     Object v = "value";
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
+    var baos = new ByteArrayOutputStream();
+    var dos = new DataOutputStream(baos);
     DataSerializer.writeObject(v, dos);
     dos.flush();
-    byte[] valueBytes = baos.toByteArray();
-    CachedDeserializable cd = CachedDeserializableFactory.create(valueBytes, null);
+    var valueBytes = baos.toByteArray();
+    var cd = CachedDeserializableFactory.create(valueBytes, null);
     assertSame(valueBytes, cd.getValue());
     assertEquals("value", StringUtils.forceToString(cd));
     assertSame(valueBytes, cd.getValue());

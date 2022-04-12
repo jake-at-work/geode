@@ -89,7 +89,7 @@ public class StatAlertsManagerAssignMessage extends PooledDistributionMessage {
    * @param dm DistributionManager instance
    */
   private void setManager(ClusterDistributionManager dm) {
-    StatAlertsManager manager = StatAlertsManager.getInstance(dm);
+    var manager = StatAlertsManager.getInstance(dm);
     manager.updateAlertDefinition(alertDefs, UpdateAlertDefinitionMessage.ADD_ALERT_DEFINITION);
     manager.setRefreshTimeInterval(refreshInterval);
   }

@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.operations.RegionDestroyOperationContext;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.EventID;
@@ -29,11 +28,9 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.ResourcePermission.Operation;
 import org.apache.geode.security.ResourcePermission.Resource;
@@ -56,12 +53,12 @@ public class DestroyRegion extends BaseCommand {
     String regionName = null;
     Object callbackArg = null;
     Part eventPart = null;
-    StringBuilder errMessage = new StringBuilder();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var errMessage = new StringBuilder();
+    var stats = serverConnection.getCacheServerStats();
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
 
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadDestroyRegionRequestTime(start - oldStart);
     }
@@ -111,9 +108,9 @@ public class DestroyRegion extends BaseCommand {
       return;
     }
 
-    LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+    var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
     if (region == null) {
-      String reason =
+      var reason =
           " was not found during destroy region request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
@@ -121,19 +118,19 @@ public class DestroyRegion extends BaseCommand {
     }
 
     // Destroy the region
-    ByteBuffer eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
-    long threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    long sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    EventID eventId =
+    var eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
+    var threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var eventId =
         new EventID(serverConnection.getEventMemberIDByteArray(), threadId, sequenceId);
 
     try {
       // user needs to have data:manage on all regions in order to destory a particular region
       securityService.authorize(Resource.DATA, Operation.MANAGE);
 
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       if (authzRequest != null) {
-        RegionDestroyOperationContext destroyContext =
+        var destroyContext =
             authzRequest.destroyRegionAuthorize(regionName, callbackArg);
         callbackArg = destroyContext.getCallbackArg();
       }
@@ -169,7 +166,7 @@ public class DestroyRegion extends BaseCommand {
 
     // Update the statistics and write the reply
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessDestroyRegionTime(start - oldStart);
     }

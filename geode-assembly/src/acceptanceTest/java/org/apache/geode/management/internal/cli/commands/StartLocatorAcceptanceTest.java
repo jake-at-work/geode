@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 
@@ -30,7 +29,7 @@ public class StartLocatorAcceptanceTest {
   @Test
   public void startLocatorWithAutoConnectShouldBeConnectedAndRetrieveClusterConfigurationStatus()
       throws Exception {
-    GfshExecution execution = GfshScript.of("start locator --name=locator1").execute(gfshRule);
+    var execution = GfshScript.of("start locator --name=locator1").execute(gfshRule);
     assertThat(execution.getOutputText()).contains("Successfully connected to: JMX Manager");
     assertThat(execution.getOutputText())
         .contains("Cluster configuration service is up and running.");
@@ -39,7 +38,7 @@ public class StartLocatorAcceptanceTest {
   @Test
   public void startLocatorWithConnectFalseShouldNotBeConnectedAndNotRetrieveClusterConfigurationStatus()
       throws Exception {
-    GfshExecution execution =
+    var execution =
         GfshScript.of("start locator --name=locator1 --connect=false").execute(gfshRule);
     assertThat(execution.getOutputText()).doesNotContain("Successfully connected to: JMX Manager");
     assertThat(execution.getOutputText())
@@ -48,7 +47,7 @@ public class StartLocatorAcceptanceTest {
 
   @Test
   public void startLocatorWithSecurityManagerShouldNotBeConnected() throws Exception {
-    GfshExecution execution = GfshScript
+    var execution = GfshScript
         .of("start locator --name=locator1 --J=-Dgemfire.security-manager=org.apache.geode.examples.SimpleSecurityManager")
         .execute(gfshRule);
     assertThat(execution.getOutputText())

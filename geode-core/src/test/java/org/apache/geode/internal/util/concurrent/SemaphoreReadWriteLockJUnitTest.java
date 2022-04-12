@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,12 +53,12 @@ public class SemaphoreReadWriteLockJUnitTest {
 
   @Test
   public void testReaderWaitsForWriter() throws Exception {
-    SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
-    final Lock rl = rwl.readLock();
-    final Lock wl = rwl.writeLock();
+    var rwl = new SemaphoreReadWriteLock();
+    final var rl = rwl.readLock();
+    final var wl = rwl.writeLock();
     wl.lock();
 
-    Thread writer = new Thread(() -> {
+    var writer = new Thread(() -> {
       waitToLock.countDown();
       rl.lock();
       latch.countDown();
@@ -76,12 +75,12 @@ public class SemaphoreReadWriteLockJUnitTest {
 
   @Test
   public void testWriterWaitsForReader() throws Exception {
-    SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
-    final Lock rl = rwl.readLock();
-    final Lock wl = rwl.writeLock();
+    var rwl = new SemaphoreReadWriteLock();
+    final var rl = rwl.readLock();
+    final var wl = rwl.writeLock();
     rl.lock();
 
-    Thread writer = new Thread(() -> {
+    var writer = new Thread(() -> {
       waitToLock.countDown();
       wl.lock();
       latch.countDown();
@@ -98,12 +97,12 @@ public class SemaphoreReadWriteLockJUnitTest {
 
   @Test
   public void testReadersNotBlockedByReaders() throws Exception {
-    SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
-    final Lock rl = rwl.readLock();
-    final Lock wl = rwl.writeLock();
+    var rwl = new SemaphoreReadWriteLock();
+    final var rl = rwl.readLock();
+    final var wl = rwl.writeLock();
     rl.lock();
 
-    Thread reader = new Thread(() -> {
+    var reader = new Thread(() -> {
       waitToLock.countDown();
       rl.lock();
       latch.countDown();
@@ -116,12 +115,12 @@ public class SemaphoreReadWriteLockJUnitTest {
 
   @Test
   public void testWritersBlockedByWriters() throws Exception {
-    SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
-    final Lock rl = rwl.readLock();
-    final Lock wl = rwl.writeLock();
+    var rwl = new SemaphoreReadWriteLock();
+    final var rl = rwl.readLock();
+    final var wl = rwl.writeLock();
     wl.lock();
 
-    Thread writer = new Thread(() -> {
+    var writer = new Thread(() -> {
       waitToLock.countDown();
       wl.lock();
       latch.countDown();
@@ -138,14 +137,14 @@ public class SemaphoreReadWriteLockJUnitTest {
 
   @Test
   public void testTryLock() throws Exception {
-    SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
-    final Lock rl = rwl.readLock();
-    final Lock wl = rwl.writeLock();
+    var rwl = new SemaphoreReadWriteLock();
+    final var rl = rwl.readLock();
+    final var wl = rwl.writeLock();
     assertTrue(wl.tryLock());
 
-    final AtomicBoolean failed = new AtomicBoolean(false);
+    final var failed = new AtomicBoolean(false);
 
-    Thread reader = new Thread(() -> {
+    var reader = new Thread(() -> {
       waitToLock.countDown();
       if (rl.tryLock()) {
         failed.set(true);
@@ -161,12 +160,12 @@ public class SemaphoreReadWriteLockJUnitTest {
 
   @Test
   public void testLockAndReleaseByDifferentThreads() throws Exception {
-    SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
-    final Lock rl = rwl.readLock();
-    final Lock wl = rwl.writeLock();
+    var rwl = new SemaphoreReadWriteLock();
+    final var rl = rwl.readLock();
+    final var wl = rwl.writeLock();
     rl.lock();
 
-    Thread writer = new Thread(() -> {
+    var writer = new Thread(() -> {
       waitToLock.countDown();
       try {
         assertTrue(wl.tryLock(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
@@ -177,7 +176,7 @@ public class SemaphoreReadWriteLockJUnitTest {
     });
     writer.start();
 
-    Thread reader2 = new Thread(() -> {
+    var reader2 = new Thread(() -> {
       try {
         assertTrue(waitToLock.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
       } catch (InterruptedException e) {

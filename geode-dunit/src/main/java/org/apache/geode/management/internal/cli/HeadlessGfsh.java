@@ -70,7 +70,7 @@ public class HeadlessGfsh implements ResultHandler {
     shell.setEnvProperty(Gfsh.ENV_APP_RESULT_VIEWER, "non-basic");
 
     if (envProps != null) {
-      for (String key : envProps.stringPropertyNames()) {
+      for (var key : envProps.stringPropertyNames()) {
         shell.setEnvProperty(key, envProps.getProperty(key));
       }
     }
@@ -78,7 +78,7 @@ public class HeadlessGfsh implements ResultHandler {
     // This allows us to avoid race conditions during startup - in particular a NPE on the
     // ConsoleReader which is
     // created in a separate thread during start()
-    CountDownLatch shellStarted = new CountDownLatch(1);
+    var shellStarted = new CountDownLatch(1);
     shell.addShellStatusListener((oldStatus, newStatus) -> {
       if (newStatus.getStatus() == Status.STARTED) {
         shellStarted.countDown();
@@ -96,7 +96,7 @@ public class HeadlessGfsh implements ResultHandler {
 
   // TODO : Have non-blocking method also where we move executeCommand call to separate thread-pool
   public boolean executeCommand(String command) {
-    boolean success = false;
+    var success = false;
     try {
       outputString = null;
       success = shell.executeScriptLine(command);
@@ -126,7 +126,7 @@ public class HeadlessGfsh implements ResultHandler {
       return null;
     }
     try {
-      Object result = queue.poll(timeout, TimeUnit.SECONDS);
+      var result = queue.poll(timeout, TimeUnit.SECONDS);
       queue.clear();
       if (result instanceof CommandResult) {
         return (CommandResult) result;
@@ -311,7 +311,7 @@ public class HeadlessGfsh implements ResultHandler {
     protected ConsoleReader createConsoleReader() {
       try {
         output = new ByteArrayOutputStream(1024 * 10);
-        PrintStream sysout = new PrintStream(output);
+        var sysout = new PrintStream(output);
         setGfshOutErr(sysout);
         return new ConsoleReader(new FileInputStream(FileDescriptor.in), sysout);
       } catch (IOException e) {
@@ -341,9 +341,9 @@ public class HeadlessGfsh implements ResultHandler {
     }
 
     private static boolean isDUnitTest(String name) {
-      boolean isDUnitTest = false;
+      var isDUnitTest = false;
       if (name != null) {
-        String[] split = name.split("_");
+        var split = name.split("_");
         if (split.length != 0 && split[0].endsWith("DUnitTest")) {
           isDUnitTest = true;
         }
@@ -357,7 +357,7 @@ public class HeadlessGfsh implements ResultHandler {
     }
 
     private String getFileNamePrefix() {
-      String timeStamp = new java.sql.Time(System.currentTimeMillis()).toString();
+      var timeStamp = new java.sql.Time(System.currentTimeMillis()).toString();
       timeStamp = timeStamp.replace(':', '_');
       return fileNamePrefix + "-" + timeStamp;
     }
@@ -365,7 +365,7 @@ public class HeadlessGfsh implements ResultHandler {
     @Override
     public String getHistoryFileName() {
       if (generatedHistoryFileName == null) {
-        String fileName =
+        var fileName =
             new File(parentDir, (getFileNamePrefix() + "-gfsh.history")).getAbsolutePath();
         generatedHistoryFileName = fileName;
         return fileName;

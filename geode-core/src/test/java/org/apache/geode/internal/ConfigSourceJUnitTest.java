@@ -25,7 +25,7 @@ public class ConfigSourceJUnitTest {
 
   @Test
   public void testDescriptions() {
-    ConfigSource cs = ConfigSource.api();
+    var cs = ConfigSource.api();
     assertEquals(cs.getDescription(), "api");
 
     cs = ConfigSource.file("test", true);
@@ -58,8 +58,8 @@ public class ConfigSourceJUnitTest {
 
   @Test
   public void testEquals() {
-    ConfigSource cs1 = ConfigSource.file("name", true);
-    ConfigSource cs2 = ConfigSource.file("name", false);
+    var cs1 = ConfigSource.file("name", true);
+    var cs2 = ConfigSource.file("name", false);
     assertFalse(cs1.equals(cs2));
 
     cs1 = ConfigSource.file("name", true);

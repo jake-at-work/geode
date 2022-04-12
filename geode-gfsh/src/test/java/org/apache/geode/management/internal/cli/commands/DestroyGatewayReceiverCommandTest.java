@@ -36,7 +36,6 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.internal.exceptions.UserErrorException;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.rules.GfshParserRule;
 
 public class DestroyGatewayReceiverCommandTest {
@@ -51,9 +50,9 @@ public class DestroyGatewayReceiverCommandTest {
   @SuppressWarnings("unchecked")
   public void setUp() throws Exception {
     command = spy(DestroyGatewayReceiverCommand.class);
-    InternalConfigurationPersistenceService ccService =
+    var ccService =
         mock(InternalConfigurationPersistenceService.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     doReturn(cache).when(command).getCache();
     doReturn(ccService).when(command).getConfigurationPersistenceService();
     functionResults = new ArrayList<>();
@@ -78,7 +77,7 @@ public class DestroyGatewayReceiverCommandTest {
     membersSet.add(new InternalDistributedMember("member1", 0));
     doReturn(membersSet).when(command).findMembers(null, new String[] {"member1"});
 
-    CommandResultAssert resultAssert =
+    var resultAssert =
         gfsh.executeAndAssertThat(command, "destroy gateway-receiver --member=\"member1\"");
     resultAssert.statusIsSuccess().tableHasColumnWithValuesContaining("Message", "result1");
   }
@@ -92,7 +91,7 @@ public class DestroyGatewayReceiverCommandTest {
     membersSet.add(new InternalDistributedMember("member1", 0));
     doReturn(membersSet).when(command).findMembers(new String[] {"group1"}, null);
 
-    CommandResultAssert resultAssert =
+    var resultAssert =
         gfsh.executeAndAssertThat(command, "destroy gateway-receiver --group=\"group1\"");
     resultAssert.statusIsSuccess().tableHasColumnWithValuesContaining("Message", "result1");
   }

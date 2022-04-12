@@ -57,14 +57,14 @@ public class IndexElemArray implements Iterable, Collection {
     if (minCapacity > 255) {
       throw new IllegalStateException("attempt to increase the size beyond 255 elements");
     }
-    int oldCapacity = elementData.length;
+    var oldCapacity = elementData.length;
     if (minCapacity > oldCapacity) {
-      int newCapacity = oldCapacity + 5;
+      var newCapacity = oldCapacity + 5;
       if (newCapacity < minCapacity || 255 < newCapacity) {
         newCapacity = minCapacity;
       }
       // minCapacity is usually close to size, so this is a win:
-      Object[] newElementData = new Object[newCapacity];
+      var newElementData = new Object[newCapacity];
       System.arraycopy(elementData, 0, newElementData, 0, elementData.length);
       elementData = newElementData;
     }
@@ -112,15 +112,15 @@ public class IndexElemArray implements Iterable, Collection {
    */
   public int indexOf(Object o) {
     synchronized (lock) {
-      int currentSize = size();
+      var currentSize = size();
       if (o == null) {
-        for (int i = 0; i < currentSize; i++) {
+        for (var i = 0; i < currentSize; i++) {
           if (elementData[i] == null) {
             return i;
           }
         }
       } else {
-        for (int i = 0; i < currentSize; i++) {
+        for (var i = 0; i < currentSize; i++) {
           if (o.equals(elementData[i])) {
             return i;
           }
@@ -156,7 +156,7 @@ public class IndexElemArray implements Iterable, Collection {
     synchronized (lock) {
       rangeCheck(index);
 
-      Object oldValue = elementData[index];
+      var oldValue = elementData[index];
       elementData[index] = element;
       return oldValue;
     }
@@ -172,7 +172,7 @@ public class IndexElemArray implements Iterable, Collection {
   @Override
   public boolean add(Object e) {
     synchronized (lock) {
-      int currentSize = size(); // byte to int
+      var currentSize = size(); // byte to int
       ensureCapacity(currentSize + 1);
       elementData[currentSize] = e;
       currentSize++;
@@ -199,16 +199,16 @@ public class IndexElemArray implements Iterable, Collection {
   @Override
   public boolean remove(Object o) {
     synchronized (lock) {
-      int currentSize = size(); // byte to int
+      var currentSize = size(); // byte to int
       if (o == null) {
-        for (int index = 0; index < currentSize; index++) {
+        for (var index = 0; index < currentSize; index++) {
           if (elementData[index] == null) {
             fastRemove(index);
             return true;
           }
         }
       } else {
-        for (int index = 0; index < currentSize; index++) {
+        for (var index = 0; index < currentSize; index++) {
           if (o.equals(elementData[index])) {
             fastRemove(index);
             return true;
@@ -223,10 +223,10 @@ public class IndexElemArray implements Iterable, Collection {
    * Private remove method that skips bounds checking and does not return the value removed.
    */
   private void fastRemove(int index) {
-    int len = elementData.length;
-    Object[] newArray = new Object[len - 1];
+    var len = elementData.length;
+    var newArray = new Object[len - 1];
     System.arraycopy(elementData, 0, newArray, 0, index);
-    int numMoved = len - index - 1;
+    var numMoved = len - index - 1;
     if (numMoved > 0) {
       System.arraycopy(elementData, index + 1, newArray, index, numMoved);
     }
@@ -251,7 +251,7 @@ public class IndexElemArray implements Iterable, Collection {
    * array access, which throws an ArrayIndexOutOfBoundsException if index is negative.
    */
   private void rangeCheck(int index) {
-    int currentSize = size(); // byte to int
+    var currentSize = size(); // byte to int
     if (index >= currentSize) {
       throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + currentSize);
     }
@@ -259,10 +259,10 @@ public class IndexElemArray implements Iterable, Collection {
 
   @Override
   public boolean addAll(Collection c) {
-    Object[] a = c.toArray();
-    int numNew = a.length;
+    var a = c.toArray();
+    var numNew = a.length;
     synchronized (lock) {
-      int currentSize = size(); // byte to int
+      var currentSize = size(); // byte to int
       ensureCapacity(currentSize + numNew);
       System.arraycopy(a, 0, elementData, currentSize, numNew);
       setSize(currentSize + numNew);

@@ -22,11 +22,9 @@ import static org.apache.geode.internal.cache.control.SerializableRestoreRedunda
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.operation.RestoreRedundancyPerformer;
 import org.apache.geode.management.operation.RestoreRedundancyRequest;
@@ -60,8 +58,8 @@ public class RedundancyCommand extends GfshCommand {
 
   ResultModel execute(String[] includeRegions, String[] excludeRegions, boolean reassignPrimaries,
       boolean isStatusCommand) {
-    RestoreRedundancyPerformer performer = new RestoreRedundancyPerformer();
-    RestoreRedundancyRequest request = new RestoreRedundancyRequest();
+    var performer = new RestoreRedundancyPerformer();
+    var request = new RestoreRedundancyRequest();
     if (includeRegions != null) {
       request.setIncludeRegions(Arrays.asList(includeRegions));
     }
@@ -71,7 +69,7 @@ public class RedundancyCommand extends GfshCommand {
     request.setReassignPrimaries(reassignPrimaries);
 
     // build this list
-    RestoreRedundancyResults results = performer.perform(getCache(), request, isStatusCommand);
+    var results = performer.perform(getCache(), request, isStatusCommand);
     return buildResultModelFromFunctionResults(results, isStatusCommand);
 
   }
@@ -89,7 +87,7 @@ public class RedundancyCommand extends GfshCommand {
       return createErrorResultModel(results.getStatusMessage());
     }
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     // At least one explicitly included region was not found, so return error status along with the
     // results for the regions that were found
     if (!results.getIncludedRegionsWithNoMembers().isEmpty()) {
@@ -114,15 +112,15 @@ public class RedundancyCommand extends GfshCommand {
   }
 
   private ResultModel createNoMembersResultModel() {
-    ResultModel result = new ResultModel();
-    InfoResultModel noMembersSection = result.addInfo(NO_MEMBERS_SECTION);
+    var result = new ResultModel();
+    var noMembersSection = result.addInfo(NO_MEMBERS_SECTION);
     noMembersSection.setHeader(NO_MEMBERS_HEADER);
     return result;
   }
 
   private ResultModel createErrorResultModel(String errorString) {
-    ResultModel result = new ResultModel();
-    InfoResultModel errorSection = result.addInfo(ERROR_SECTION);
+    var result = new ResultModel();
+    var errorSection = result.addInfo(ERROR_SECTION);
     errorSection.setHeader(ERROR_SECTION_HEADER);
     errorSection.addLine(errorString);
     result.setStatus(Result.Status.ERROR);
@@ -131,17 +129,17 @@ public class RedundancyCommand extends GfshCommand {
 
   private void addRegionsWithNoMembersSection(List<String> regionsWithNoMembers,
       ResultModel result) {
-    InfoResultModel noMembersSection = result.addInfo(NO_MEMBERS_FOR_REGION_SECTION);
+    var noMembersSection = result.addInfo(NO_MEMBERS_FOR_REGION_SECTION);
     noMembersSection.setHeader(NO_MEMBERS_FOR_REGION_HEADER);
     regionsWithNoMembers.forEach(noMembersSection::addLine);
     result.setStatus(Result.Status.ERROR);
   }
 
   private void addSummarySection(ResultModel result, RestoreRedundancyResults resultCollector) {
-    InfoResultModel summary = result.addInfo(SUMMARY_SECTION);
-    int satisfied = resultCollector.getSatisfiedRedundancyRegionResults().size();
-    int notSatisfied = resultCollector.getUnderRedundancyRegionResults().size();
-    int zeroRedundancy = resultCollector.getZeroRedundancyRegionResults().size();
+    var summary = result.addInfo(SUMMARY_SECTION);
+    var satisfied = resultCollector.getSatisfiedRedundancyRegionResults().size();
+    var notSatisfied = resultCollector.getUnderRedundancyRegionResults().size();
+    var zeroRedundancy = resultCollector.getZeroRedundancyRegionResults().size();
     summary.addLine(ZERO_REDUNDANT_COPIES + zeroRedundancy);
     summary.addLine(PARTIALLY_SATISFIED_REDUNDANCY + notSatisfied);
     summary.addLine(FULLY_SATISFIED_REDUNDANCY + satisfied);
@@ -149,10 +147,10 @@ public class RedundancyCommand extends GfshCommand {
 
   private void addZeroRedundancySection(ResultModel result,
       RestoreRedundancyResults resultCollector) {
-    Map<String, RegionRedundancyStatus> zeroRedundancyResults =
+    var zeroRedundancyResults =
         resultCollector.getZeroRedundancyRegionResults();
     if (!zeroRedundancyResults.isEmpty()) {
-      InfoResultModel zeroRedundancy = result.addInfo(ZERO_REDUNDANCY_SECTION);
+      var zeroRedundancy = result.addInfo(ZERO_REDUNDANCY_SECTION);
       zeroRedundancy.setHeader(NO_REDUNDANT_COPIES_FOR_REGIONS);
       zeroRedundancyResults.values().stream().map(RegionRedundancyStatus::toString)
           .forEach(string -> zeroRedundancy.addLine(INDENT + string));
@@ -161,10 +159,10 @@ public class RedundancyCommand extends GfshCommand {
 
   private void addUnderRedundancySection(ResultModel result,
       RestoreRedundancyResults resultCollector) {
-    Map<String, RegionRedundancyStatus> underRedundancyResults =
+    var underRedundancyResults =
         resultCollector.getUnderRedundancyRegionResults();
     if (!underRedundancyResults.isEmpty()) {
-      InfoResultModel underRedundancy = result.addInfo(UNDER_REDUNDANCY_SECTION);
+      var underRedundancy = result.addInfo(UNDER_REDUNDANCY_SECTION);
       underRedundancy.setHeader(REDUNDANCY_NOT_SATISFIED_FOR_REGIONS);
       underRedundancyResults.values().stream().map(RegionRedundancyStatus::toString)
           .forEach(string -> underRedundancy.addLine(INDENT + string));
@@ -173,10 +171,10 @@ public class RedundancyCommand extends GfshCommand {
 
   private void addSatisfiedRedundancySection(ResultModel result,
       RestoreRedundancyResults resultCollector) {
-    Map<String, RegionRedundancyStatus> satisfiedRedundancyResults =
+    var satisfiedRedundancyResults =
         resultCollector.getSatisfiedRedundancyRegionResults();
     if (!satisfiedRedundancyResults.isEmpty()) {
-      InfoResultModel satisfiedRedundancy = result.addInfo(SATISFIED_REDUNDANCY_SECTION);
+      var satisfiedRedundancy = result.addInfo(SATISFIED_REDUNDANCY_SECTION);
       satisfiedRedundancy.setHeader(REDUNDANCY_SATISFIED_FOR_REGIONS);
       satisfiedRedundancyResults.values().stream().map(RegionRedundancyStatus::toString)
           .forEach(string -> satisfiedRedundancy.addLine(INDENT + string));
@@ -185,7 +183,7 @@ public class RedundancyCommand extends GfshCommand {
 
   private void addPrimariesSection(ResultModel result,
       RestoreRedundancyResults resultCollector) {
-    InfoResultModel primaries = result.addInfo(PRIMARIES_INFO_SECTION);
+    var primaries = result.addInfo(PRIMARIES_INFO_SECTION);
     primaries
         .addLine(PRIMARY_TRANSFERS_COMPLETED + resultCollector.getTotalPrimaryTransfersCompleted());
     primaries

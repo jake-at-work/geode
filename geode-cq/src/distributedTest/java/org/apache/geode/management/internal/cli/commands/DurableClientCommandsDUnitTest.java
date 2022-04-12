@@ -31,19 +31,14 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCacheFactory;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqExistsException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.Host;
@@ -80,7 +75,7 @@ public class DurableClientCommandsDUnitTest {
   public void setup() throws Exception {
     locator = lsRule.startLocatorVM(0);
 
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     lsRule.startServerVM(1,
         thisServer -> thisServer.withRegion(RegionShortcut.REPLICATE, STOCKS_REGION)
             .withProperty("groups", CQ_GROUP)
@@ -103,10 +98,10 @@ public class DurableClientCommandsDUnitTest {
   public void testListDurableClientCqsForOneGroup() {
     setupCqs();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.LIST_DURABLE_CQS);
+    var csb = new CommandStringBuilder(CliStrings.LIST_DURABLE_CQS);
     csb.addOption(CliStrings.LIST_DURABLE_CQS__DURABLECLIENTID, CLIENT_NAME);
     csb.addOption(CliStrings.GROUP, CQ_GROUP);
-    String commandString = csb.toString();
+    var commandString = csb.toString();
 
     gfsh.executeAndAssertThat(commandString).statusIsSuccess()
         .hasTableSection()
@@ -132,9 +127,9 @@ public class DurableClientCommandsDUnitTest {
 
   @Test
   public void testListDurableClientCqsWhenNoneExist() {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.LIST_DURABLE_CQS);
+    var csb = new CommandStringBuilder(CliStrings.LIST_DURABLE_CQS);
     csb.addOption(CliStrings.LIST_DURABLE_CQS__DURABLECLIENTID, CLIENT_NAME);
-    String commandString = csb.toString();
+    var commandString = csb.toString();
 
     gfsh.executeAndAssertThat(commandString).statusIsSuccess()
         .hasTableSection()
@@ -148,9 +143,9 @@ public class DurableClientCommandsDUnitTest {
   public void testListDurableClientCqsWithMixedResults() {
     setupCqs();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.LIST_DURABLE_CQS);
+    var csb = new CommandStringBuilder(CliStrings.LIST_DURABLE_CQS);
     csb.addOption(CliStrings.LIST_DURABLE_CQS__DURABLECLIENTID, CLIENT_NAME);
-    String commandString = csb.toString();
+    var commandString = csb.toString();
 
     gfsh.executeAndAssertThat(commandString).statusIsSuccess()
         .hasTableSection()
@@ -168,10 +163,10 @@ public class DurableClientCommandsDUnitTest {
     setupCqs();
     closeDurableClient();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CLOSE_DURABLE_CLIENTS);
+    var csb = new CommandStringBuilder(CliStrings.CLOSE_DURABLE_CLIENTS);
     csb.addOption(CliStrings.CLOSE_DURABLE_CLIENTS__CLIENT__ID, CLIENT_NAME);
     csb.addOption(CliStrings.GROUP, CQ_GROUP);
-    String commandString = csb.toString();
+    var commandString = csb.toString();
 
     await().untilAsserted(() -> {
       gfsh.executeAndAssertThat(commandString).statusIsSuccess()
@@ -180,7 +175,7 @@ public class DurableClientCommandsDUnitTest {
           .containsExactlyInAnyOrder("Closed the durable client : \"dc1\".");
     });
 
-    String errorMessage = CliStrings.format(CliStrings.NO_CLIENT_FOUND_WITH_CLIENT_ID, CLIENT_NAME);
+    var errorMessage = CliStrings.format(CliStrings.NO_CLIENT_FOUND_WITH_CLIENT_ID, CLIENT_NAME);
     gfsh.executeAndAssertThat(commandString).statusIsError().containsOutput(errorMessage);
   }
 
@@ -189,12 +184,12 @@ public class DurableClientCommandsDUnitTest {
     setupCqs();
     closeDurableClient();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CLOSE_DURABLE_CQS);
+    var csb = new CommandStringBuilder(CliStrings.CLOSE_DURABLE_CQS);
     csb.addOption(CliStrings.CLOSE_DURABLE_CQS__DURABLE__CLIENT__ID, CLIENT_NAME);
     csb.addOption(CliStrings.CLOSE_DURABLE_CQS__NAME, CQ1);
-    String commandString = csb.toString();
+    var commandString = csb.toString();
 
-    CommandResult result = gfsh.executeCommand(commandString);
+    var result = gfsh.executeCommand(commandString);
     assertThat(result.getStatus()).isEqualTo(Result.Status.OK);
     assertThat(result.getResultData().getTableSections().get(0).getValuesInColumn("Message"))
         .containsExactlyInAnyOrder(
@@ -211,10 +206,10 @@ public class DurableClientCommandsDUnitTest {
 
     doPuts(STOCKS_REGION, Host.getHost(0).getVM(1));
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.COUNT_DURABLE_CQ_EVENTS);
+    var csb = new CommandStringBuilder(CliStrings.COUNT_DURABLE_CQ_EVENTS);
     csb.addOption(CliStrings.COUNT_DURABLE_CQ_EVENTS__DURABLE__CLIENT__ID, CLIENT_NAME);
     csb.addOption(CliStrings.GROUP, CQ_GROUP);
-    String commandString = csb.toString();
+    var commandString = csb.toString();
 
     gfsh.executeAndAssertThat(commandString).statusIsSuccess()
         .hasTableSection()
@@ -243,7 +238,7 @@ public class DurableClientCommandsDUnitTest {
     csb.addOption(CliStrings.COUNT_DURABLE_CQ_EVENTS__DURABLE__CQ__NAME, CQ1);
     commandString = csb.toString();
 
-    String errorMessage = CliStrings
+    var errorMessage = CliStrings
         .format(CliStrings.COUNT_DURABLE_CQ_EVENTS__DURABLE_CQ_NOT_FOUND, CLIENT_NAME, CQ1);
     gfsh.executeAndAssertThat(commandString).statusIsError().containsOutput(errorMessage);
 
@@ -259,7 +254,7 @@ public class DurableClientCommandsDUnitTest {
     // Close the client
     csb = new CommandStringBuilder(CliStrings.CLOSE_DURABLE_CLIENTS);
     csb.addOption(CliStrings.CLOSE_DURABLE_CLIENTS__CLIENT__ID, CLIENT_NAME);
-    String commandString1 = csb.toString();
+    var commandString1 = csb.toString();
 
     await().untilAsserted(() -> {
       gfsh.executeAndAssertThat(commandString1).statusIsSuccess();
@@ -281,7 +276,7 @@ public class DurableClientCommandsDUnitTest {
    */
   private void closeCq(final String cqName) {
     client.invoke(() -> {
-      QueryService qs =
+      var qs =
           InternalDistributedSystem.getConnectedInstance().getCache().getQueryService();
 
       try {
@@ -293,15 +288,15 @@ public class DurableClientCommandsDUnitTest {
   }
 
   private void setupCqs() {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     client.invoke(() -> {
-      PoolFactory poolFactory = PoolManager.createFactory().setServerGroup(CQ_GROUP);
+      var poolFactory = PoolManager.createFactory().setServerGroup(CQ_GROUP);
       poolFactory.addLocator("localhost", locatorPort);
       poolFactory.setSubscriptionEnabled(true);
-      Pool pool = poolFactory.create("DEFAULT");
+      var pool = poolFactory.create("DEFAULT");
 
-      QueryService qs = pool.getQueryService();
-      CqAttributesFactory cqAf = new CqAttributesFactory();
+      var qs = pool.getQueryService();
+      var cqAf = new CqAttributesFactory();
 
       try {
         qs.newCq(CQ1, "select * from " + SEPARATOR + STOCKS_REGION, cqAf.create(), true).execute();
@@ -322,22 +317,22 @@ public class DurableClientCommandsDUnitTest {
    */
   private void doPuts(final String regionName, final VM serverVM) {
     serverVM.invoke(() -> {
-      InternalCache cache = InternalDistributedSystem.getConnectedInstance().getCache();
+      var cache = InternalDistributedSystem.getConnectedInstance().getCache();
       Region region = cache.getRegion(regionName);
 
-      Portfolio p1 = new Portfolio();
+      var p1 = new Portfolio();
       p1.ID = 1;
       p1.names = new String[] {"AAPL", "VMW"};
 
-      Portfolio p2 = new Portfolio();
+      var p2 = new Portfolio();
       p2.ID = 2;
       p2.names = new String[] {"EMC", "IBM"};
 
-      Portfolio p3 = new Portfolio();
+      var p3 = new Portfolio();
       p3.ID = 5;
       p3.names = new String[] {"DOW", "TON"};
 
-      Portfolio p4 = new Portfolio();
+      var p4 = new Portfolio();
       p4.ID = 5;
       p4.names = new String[] {"ABC", "EBAY"};
 
@@ -353,7 +348,7 @@ public class DurableClientCommandsDUnitTest {
   }
 
   protected Properties getClientProps(String durableClientId, String durableClientTimeout) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(DURABLE_CLIENT_ID, durableClientId);
     config.setProperty(DURABLE_CLIENT_TIMEOUT, String.valueOf(durableClientTimeout));

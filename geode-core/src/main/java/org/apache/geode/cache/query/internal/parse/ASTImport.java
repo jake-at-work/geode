@@ -17,7 +17,6 @@
 package org.apache.geode.cache.query.internal.parse;
 
 import antlr.Token;
-import antlr.collections.AST;
 
 import org.apache.geode.cache.query.internal.QCompiler;
 
@@ -34,9 +33,9 @@ public class ASTImport extends GemFireAST {
 
   @Override
   public void compile(QCompiler compiler) {
-    StringBuilder nameBuf = new StringBuilder();
+    var nameBuf = new StringBuilder();
     String asName = null;
-    AST child = getFirstChild();
+    var child = getFirstChild();
     while (child != null) {
       if (child.getType() == OQLLexerTokenTypes.LITERAL_as) {
         child = child.getNextSibling();

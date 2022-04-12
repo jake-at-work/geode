@@ -31,7 +31,6 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.Index;
@@ -86,7 +85,7 @@ public class EquiJoinIntegrationTest {
   public void testSingleFilterWithSingleEquijoinOneToOneMapping() throws Exception {
     createRegions();
 
-    String[] queries = new String[] {
+    var queries = new String[] {
         "<trace>select * from " + SEPARATOR + "region1 c, " + SEPARATOR
             + "region2 s where c.pkid=1 and c.pkid = s.pkid",
         "<trace>select * from " + SEPARATOR + "region1 c, " + SEPARATOR
@@ -96,7 +95,7 @@ public class EquiJoinIntegrationTest {
         "<trace>select * from " + SEPARATOR + "region1 c, " + SEPARATOR
             + "region2 s where s.pkid = c.pkid and c.pkid=1",};
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region1.put(i, new Customer(i, i));
       region2.put(i, new Customer(i, i));
     }
@@ -111,7 +110,7 @@ public class EquiJoinIntegrationTest {
     try {
       createAdditionalRegions();
 
-      String[] queries = new String[] {
+      var queries = new String[] {
           "<trace>select * from " + SEPARATOR + "region1 c, " + SEPARATOR + "region2 s, "
               + SEPARATOR + "region3 d where c.pkid=1 and c.pkid = s.pkid and d.pkid = s.pkid", // this
           // should
@@ -161,7 +160,7 @@ public class EquiJoinIntegrationTest {
           // query)
       };
 
-      for (int i = 0; i < 30; i++) {
+      for (var i = 0; i < 30; i++) {
         region1.put(i, new Customer(i, i));
         region2.put(i, new Customer(i, i));
         region3.put(i, new Customer(i, i));
@@ -183,7 +182,7 @@ public class EquiJoinIntegrationTest {
   public void testSingleFilterWithSingleEquijoinOneToManyMapping() throws Exception {
     createRegions();
 
-    String[] queries =
+    var queries =
         new String[] {"select * from " + SEPARATOR + "region1 c, " + SEPARATOR
             + "region2 s where c.pkid=1 and c.pkid = s.pkid",
             "select * from " + SEPARATOR + "region1 c, " + SEPARATOR
@@ -195,7 +194,7 @@ public class EquiJoinIntegrationTest {
             "select distinct * from " + SEPARATOR + "region1 c, " + SEPARATOR
                 + "region2 s where s.pkid = c.pkid and c.pkid=1"};
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region1.put(i, new Customer(i, i));
       region2.put(i, new Customer(i % 100, i));
     }
@@ -213,7 +212,7 @@ public class EquiJoinIntegrationTest {
       throws Exception {
     createRegions();
 
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select * from " + SEPARATOR + "region1 c, " + SEPARATOR
             + "region2 s where c.pkid=1 and c.pkid = s.pkid and c.id = 1",
         "select * from " + SEPARATOR + "region1 c, " + SEPARATOR
@@ -221,7 +220,7 @@ public class EquiJoinIntegrationTest {
 
     };
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region1.put(i, new Customer(i, i % 10));
       region2.put(i, new Customer(i, i));
     }
@@ -249,14 +248,14 @@ public class EquiJoinIntegrationTest {
   public void testSingleFilterWithSingleEquijoinWithRangeFilters() throws Exception {
     createRegions();
 
-    String[] queries = new String[] {
+    var queries = new String[] {
         "<trace>select * from " + SEPARATOR + "region1 c, " + SEPARATOR
             + "region2 s where c.pkid = 1 and c.id > 1 and c.id < 10 and c.pkid = s.pkid",
         "<trace>select * from " + SEPARATOR + "region1 c, " + SEPARATOR
             + "region2 s where c.pkid >= 0 and c.pkid < 10 and c.id < 10 and c.pkid = s.pkid"};
 
     // just need enough so that there are 1-10 ids per pkid
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region1.put(i, new Customer(i % 5, i % 10));
       region2.put(i, new Customer(i, i));
     }
@@ -277,11 +276,11 @@ public class EquiJoinIntegrationTest {
     // into consideration until later stages, it will lead to incorrect results (0)
     createRegions();
 
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select * from " + SEPARATOR + "region1 c, " + SEPARATOR
             + "region2 s where c.id = 3 and c.pkid > 2  and c.pkid = s.pkid limit 1",};
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region1.put(i, new Customer(i, i % 10));
       region2.put(i, new Customer(i, i));
     }
@@ -309,7 +308,7 @@ public class EquiJoinIntegrationTest {
   public void testSingleFilterWithSingleEquijoinNestedQuery() throws Exception {
     createRegions();
 
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select * from " + SEPARATOR + "region1 c, " + SEPARATOR
             + "region2 s where c.pkid=1 and c.pkid = s.pkid and c.pkid in (select t.pkid from "
             + SEPARATOR + "region1 t," + SEPARATOR
@@ -317,7 +316,7 @@ public class EquiJoinIntegrationTest {
         "select * from " + SEPARATOR + "region1 c, " + SEPARATOR
             + "region2 s where c.pkid=1 and c.pkid = s.pkid or c.pkid in set (1,2,3,4)",};
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region1.put(i, new Customer(i, i));
       region2.put(i, new Customer(i, i));
     }
@@ -344,9 +343,9 @@ public class EquiJoinIntegrationTest {
 
   private Region createReplicatedRegion(String regionName) throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     return cache.createRegion(regionName, regionAttributes);
   }
 
@@ -361,13 +360,13 @@ public class EquiJoinIntegrationTest {
       IndexCreatorCallback indexCreator, boolean sizeOnly)
       throws IndexExistsException, IndexNameConflictException, QueryInvocationTargetException,
       NameResolutionException, TypeMismatchException, FunctionDomainException {
-    Object[] nonIndexedResults = executeQueries(queries);
+    var nonIndexedResults = executeQueries(queries);
 
-    for (int r1Index = 0; r1Index < indexCreator.getNumIndexTypesForRegion1(); r1Index++) {
+    for (var r1Index = 0; r1Index < indexCreator.getNumIndexTypesForRegion1(); r1Index++) {
       indexCreator.createIndexForRegion1(r1Index);
-      for (int r2Index = 0; r2Index < indexCreator.getNumIndexTypesForRegion2(); r2Index++) {
+      for (var r2Index = 0; r2Index < indexCreator.getNumIndexTypesForRegion2(); r2Index++) {
         indexCreator.createIndexForRegion2(r2Index);
-        Object[] indexedResults = executeQueries(queries);
+        var indexedResults = executeQueries(queries);
         compareResults(nonIndexedResults, indexedResults, queries, sizeOnly);
         indexCreator.destroyIndexForRegion2(r2Index);
       }
@@ -378,7 +377,7 @@ public class EquiJoinIntegrationTest {
   protected Object[] executeQueries(String[] queries) throws QueryInvocationTargetException,
       NameResolutionException, TypeMismatchException, FunctionDomainException {
     Object[] results = new SelectResults[queries.length];
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       results[i] = qs.newQuery(queries[i]).execute();
     }
     return results;
@@ -476,40 +475,40 @@ public class EquiJoinIntegrationTest {
 
     private Index createCompactRangeIndex(String regionName, String fieldName)
         throws RegionNotFoundException, IndexExistsException, IndexNameConflictException {
-      String fromClause = SEPARATOR + regionName + " r";
-      String indexedExpression = "r." + fieldName;
+      var fromClause = SEPARATOR + regionName + " r";
+      var indexedExpression = "r." + fieldName;
       return qs.createIndex("Compact " + fromClause + ":" + indexedExpression, indexedExpression,
           fromClause);
     }
 
     private Index createHashIndex(String regionName, String fieldName)
         throws RegionNotFoundException, IndexExistsException, IndexNameConflictException {
-      String fromClause = SEPARATOR + regionName + " r";
-      String indexedExpression = "r." + fieldName;
+      var fromClause = SEPARATOR + regionName + " r";
+      var indexedExpression = "r." + fieldName;
       return qs.createHashIndex("Hash " + fromClause + ":" + indexedExpression, indexedExpression,
           fromClause);
     }
 
     private Index createPrimaryKeyIndex(String regionName, String fieldName)
         throws RegionNotFoundException, IndexExistsException, IndexNameConflictException {
-      String fromClause = SEPARATOR + regionName + " r";
-      String indexedExpression = "r." + fieldName;
+      var fromClause = SEPARATOR + regionName + " r";
+      var indexedExpression = "r." + fieldName;
       return qs.createKeyIndex("PrimaryKey " + fromClause + ":" + indexedExpression,
           indexedExpression, fromClause);
     }
 
     private Index createRangeIndexOnFirstIterator(String regionName, String fieldName)
         throws RegionNotFoundException, IndexExistsException, IndexNameConflictException {
-      String fromClause = SEPARATOR + regionName + " r, r.nested.values v";
-      String indexedExpression = "r." + fieldName;
+      var fromClause = SEPARATOR + regionName + " r, r.nested.values v";
+      var indexedExpression = "r." + fieldName;
       return qs.createIndex("Range " + fromClause + ":" + indexedExpression, indexedExpression,
           fromClause);
     }
 
     private Index createRangeIndexOnSecondIterator(String regionName, String fieldName)
         throws RegionNotFoundException, IndexExistsException, IndexNameConflictException {
-      String fromClause = SEPARATOR + regionName + " r, r.nested.values v";
-      String indexedExpression = "v." + fieldName;
+      var fromClause = SEPARATOR + regionName + " r, r.nested.values v";
+      var indexedExpression = "v." + fieldName;
       return qs.createIndex("Range " + fromClause + ":" + indexedExpression, indexedExpression,
           fromClause);
     }
@@ -518,15 +517,15 @@ public class EquiJoinIntegrationTest {
   private void compareResults(Object[] nonIndexedResults, Object[] indexedResults, String[] queries,
       boolean sizeOnly) {
     if (sizeOnly) {
-      for (int i = 0; i < queries.length; i++) {
+      for (var i = 0; i < queries.length; i++) {
         assertTrue(((SelectResults) nonIndexedResults[i])
             .size() == ((SelectResults) indexedResults[i]).size());
         assertTrue(((SelectResults) nonIndexedResults[i]).size() > 0);
       }
     } else {
-      StructSetOrResultsSet util = new StructSetOrResultsSet();
-      for (int i = 0; i < queries.length; i++) {
-        Object[][] resultsToCompare = new Object[1][2];
+      var util = new StructSetOrResultsSet();
+      for (var i = 0; i < queries.length; i++) {
+        var resultsToCompare = new Object[1][2];
         resultsToCompare[0][0] = nonIndexedResults[i];
         resultsToCompare[0][1] = indexedResults[i];
         util.CompareQueryResultsWithoutAndWithIndexes(resultsToCompare, 1,

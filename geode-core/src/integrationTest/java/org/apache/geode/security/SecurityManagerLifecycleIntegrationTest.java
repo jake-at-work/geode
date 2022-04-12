@@ -39,7 +39,7 @@ public class SecurityManagerLifecycleIntegrationTest {
 
   @Before
   public void before() {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(SECURITY_MANAGER, SpySecurityManager.class.getName());
     configProperties.setProperty(MCAST_PORT, "0");
     configProperties.setProperty(LOCATORS, "");
@@ -58,7 +58,7 @@ public class SecurityManagerLifecycleIntegrationTest {
 
   @Test
   public void initAndCloseTest() {
-    SpySecurityManager ssm = (SpySecurityManager) securityService.getSecurityManager();
+    var ssm = (SpySecurityManager) securityService.getSecurityManager();
     assertThat(ssm.getInitInvocationCount()).isEqualTo(1);
     cache.close();
     assertThat(ssm.getCloseInvocationCount()).isEqualTo(1);

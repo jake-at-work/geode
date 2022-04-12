@@ -66,33 +66,33 @@ public class ClusterSlotsResponseProcessor implements RedisResponseProcessor {
       return message;
     }
 
-    ArrayRedisMessage input = (ArrayRedisMessage) message;
+    var input = (ArrayRedisMessage) message;
     List<RedisMessage> response = new ArrayList<>();
 
-    for (RedisMessage entry : input.children()) {
+    for (var entry : input.children()) {
       List<RedisMessage> newInner = new ArrayList<>();
-      ArrayRedisMessage inner = (ArrayRedisMessage) entry;
+      var inner = (ArrayRedisMessage) entry;
 
       // slot start
       newInner.add(inner.children().get(0));
       // slot end
       newInner.add(inner.children().get(1));
 
-      for (int i = 2; i < inner.children().size(); i++) {
-        ArrayRedisMessage hostPortArray = (ArrayRedisMessage) inner.children().get(i);
-        RedisMessage hostMessagePart = hostPortArray.children().get(0);
-        String host = ((FullBulkStringRedisMessage) hostMessagePart)
+      for (var i = 2; i < inner.children().size(); i++) {
+        var hostPortArray = (ArrayRedisMessage) inner.children().get(i);
+        var hostMessagePart = hostPortArray.children().get(0);
+        var host = ((FullBulkStringRedisMessage) hostMessagePart)
             .content().toString(CharsetUtil.UTF_8);
 
-        RedisMessage portMessagePart = hostPortArray.children().get(1);
+        var portMessagePart = hostPortArray.children().get(1);
         Integer port = (int) ((IntegerRedisMessage) portMessagePart).value();
 
-        Pair<String, Integer> newMapping = getMapping(host, port);
+        var newMapping = getMapping(host, port);
 
         List<RedisMessage> newHostPortArray = new ArrayList<>();
         newHostPortArray.add(new SimpleStringRedisMessage(newMapping.getLeft()));
         newHostPortArray.add(new IntegerRedisMessage(newMapping.getRight()));
-        for (int j = 2; j < hostPortArray.children().size(); j++) {
+        for (var j = 2; j < hostPortArray.children().size(); j++) {
           newHostPortArray.add(hostPortArray.children().get(j));
         }
 
@@ -110,8 +110,8 @@ public class ClusterSlotsResponseProcessor implements RedisResponseProcessor {
   }
 
   private Pair<String, Integer> getMapping(String host, Integer port) {
-    for (Map.Entry<HostPort, HostPort> entry : mappings.entrySet()) {
-      HostPort from = entry.getKey();
+    for (var entry : mappings.entrySet()) {
+      var from = entry.getKey();
       if (from.getHost().equals(host) && from.getPort().equals(port)) {
         return Pair.of(entry.getValue().getHost(), entry.getValue().getPort());
       }

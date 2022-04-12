@@ -40,14 +40,13 @@ public class JmxMultipleConnectionsTest {
 
   @Test
   public void testMultipleJMXConnection() throws Exception {
-    MBeanServerConnectionRule con1 = new MBeanServerConnectionRule();
+    var con1 = new MBeanServerConnectionRule();
     con1.connect(server.getJmxPort(), "dataReadRegion1", "dataReadRegion1");
-    MemberMXBean bean1 = con1.getProxyMXBean(MemberMXBean.class);
+    var bean1 = con1.getProxyMXBean(MemberMXBean.class);
 
-
-    MBeanServerConnectionRule con2 = new MBeanServerConnectionRule();
+    var con2 = new MBeanServerConnectionRule();
     con2.connect(server.getJmxPort(), "dataReadRegion2", "dataReadRegion2");
-    MemberMXBean bean2 = con2.getProxyMBean(MemberMXBean.class);
+    var bean2 = con2.getProxyMBean(MemberMXBean.class);
 
     System.out.println("using con2");
     assertThatThrownBy(() -> bean2.processCommand("locate entry --key=k1 --region=region1"))

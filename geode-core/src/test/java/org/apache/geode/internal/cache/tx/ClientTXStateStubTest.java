@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.CancelException;
@@ -76,7 +75,7 @@ public class ClientTXStateStubTest {
 
   @Test
   public void commitThrowsCancelExceptionIfCacheIsClosed() {
-    ClientTXStateStub stub = spy(new ClientTXStateStub(cache, dm, stateProxy, target, region));
+    var stub = spy(new ClientTXStateStub(cache, dm, stateProxy, target, region));
 
     when(stub.createTXLockRequest()).thenReturn(mock(TXLockRequest.class));
     when(stub.createTXRegionLockRequestImpl(any(), any()))
@@ -87,16 +86,16 @@ public class ClientTXStateStubTest {
 
   @Test
   public void commitReleasesServerAffinityAfterCommit() {
-    TXCommitMessage txCommitMessage = mock(TXCommitMessage.class);
-    TXManagerImpl txManager = mock(TXManagerImpl.class);
+    var txCommitMessage = mock(TXCommitMessage.class);
+    var txManager = mock(TXManagerImpl.class);
     when(cache.getTxManager()).thenReturn(txManager);
     when(serverRegionProxy.commit(anyInt())).thenReturn(txCommitMessage);
 
     doNothing().when(cancelCriterion).checkCancelInProgress(null);
     doNothing().when(txManager).setTXState(null);
-    ClientTXStateStub stub = spy(new ClientTXStateStub(cache, dm, stateProxy, target, region));
+    var stub = spy(new ClientTXStateStub(cache, dm, stateProxy, target, region));
 
-    InOrder order = inOrder(serverRegionProxy, internalPool, cancelCriterion);
+    var order = inOrder(serverRegionProxy, internalPool, cancelCriterion);
     stub.commit();
 
     order.verify(serverRegionProxy).commit(anyInt());
@@ -106,15 +105,15 @@ public class ClientTXStateStubTest {
 
   @Test
   public void commitReleasesServerAffinity_whenCommitThrowsAnException() {
-    TXManagerImpl txManager = mock(TXManagerImpl.class);
+    var txManager = mock(TXManagerImpl.class);
     when(cache.getTxManager()).thenReturn(txManager);
     when(serverRegionProxy.commit(anyInt())).thenThrow(new InternalGemFireError());
 
     doNothing().when(cancelCriterion).checkCancelInProgress(null);
     doNothing().when(txManager).setTXState(null);
-    ClientTXStateStub stub = spy(new ClientTXStateStub(cache, dm, stateProxy, target, region));
+    var stub = spy(new ClientTXStateStub(cache, dm, stateProxy, target, region));
 
-    InOrder order = inOrder(serverRegionProxy, internalPool);
+    var order = inOrder(serverRegionProxy, internalPool);
     assertThatThrownBy(stub::commit).isInstanceOf(InternalGemFireError.class);
 
     order.verify(serverRegionProxy).commit(anyInt());

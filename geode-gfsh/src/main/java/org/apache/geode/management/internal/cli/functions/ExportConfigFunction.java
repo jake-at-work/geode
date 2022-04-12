@@ -23,10 +23,8 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionConfigImpl;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.ConfigSource;
@@ -52,11 +50,11 @@ public class ExportConfigFunction implements InternalFunction<Object> {
   @SuppressWarnings("deprecation")
   public void execute(FunctionContext<Object> context) {
     // Declared here so that it's available when returning a Throwable
-    String memberId = "";
+    var memberId = "";
 
     try {
-      Cache cache = context.getCache();
-      DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+      var cache = context.getCache();
+      var member = cache.getDistributedSystem().getDistributedMember();
 
       memberId = member.getId();
       // If they set a name use it instead
@@ -65,17 +63,17 @@ public class ExportConfigFunction implements InternalFunction<Object> {
       }
 
       // Generate the cache XML
-      StringWriter xmlWriter = new StringWriter();
-      PrintWriter printWriter = new PrintWriter(xmlWriter);
+      var xmlWriter = new StringWriter();
+      var printWriter = new PrintWriter(xmlWriter);
       CacheXmlGenerator.generate(cache, printWriter, false, false);
       printWriter.close();
 
       // Generate the properties file
-      DistributionConfigImpl config =
+      var config =
           (DistributionConfigImpl) ((InternalDistributedSystem) cache.getDistributedSystem())
               .getConfig();
-      StringBuilder propStringBuf = new StringBuilder();
-      String lineSeparator = lineSeparator();
+      var propStringBuf = new StringBuilder();
+      var lineSeparator = lineSeparator();
       for (Map.Entry entry : config.getConfigPropsFromSource(ConfigSource.runtime()).entrySet()) {
         if (entry.getValue() != null && !entry.getValue().equals("")) {
           propStringBuf.append(entry.getKey()).append("=").append(entry.getValue())
@@ -102,13 +100,13 @@ public class ExportConfigFunction implements InternalFunction<Object> {
         }
       }
 
-      CliFunctionResult result = new CliFunctionResult(memberId,
+      var result = new CliFunctionResult(memberId,
           new String[] {xmlWriter.toString(), propStringBuf.toString()});
 
       context.getResultSender().lastResult(result);
 
     } catch (CacheClosedException cce) {
-      CliFunctionResult result = new CliFunctionResult(memberId, false, null);
+      var result = new CliFunctionResult(memberId, false, null);
       context.getResultSender().lastResult(result);
 
     } catch (VirtualMachineError e) {
@@ -118,7 +116,7 @@ public class ExportConfigFunction implements InternalFunction<Object> {
     } catch (Throwable th) {
       org.apache.geode.SystemFailure.checkFailure();
       logger.error("Could not export config {}", th.getMessage(), th);
-      CliFunctionResult result = new CliFunctionResult(memberId, th, null);
+      var result = new CliFunctionResult(memberId, th, null);
       context.getResultSender().lastResult(result);
     }
   }

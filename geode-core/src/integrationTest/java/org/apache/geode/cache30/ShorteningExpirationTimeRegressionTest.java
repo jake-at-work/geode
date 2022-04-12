@@ -25,7 +25,6 @@ import org.junit.rules.TestName;
 
 import org.apache.geode.cache.CustomExpiry;
 import org.apache.geode.cache.ExpirationAttributes;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
@@ -68,7 +67,7 @@ public class ShorteningExpirationTimeRegressionTest {
     rf.setCustomEntryTimeToLive(new CustomExpiryTestClass<>());
     rf.setStatisticsEnabled(true);
 
-    Region<String, String> region = rf.create(testName.getMethodName());
+    var region = rf.create(testName.getMethodName());
 
     // this sets the expiration timeout to LONG_WAIT_MS
     region.put(KEY, "longExpire");
@@ -85,7 +84,7 @@ public class ShorteningExpirationTimeRegressionTest {
     rf.setCustomEntryIdleTimeout(new CustomExpiryTestClass<>());
     rf.setStatisticsEnabled(true);
 
-    Region<String, String> region = rf.create(testName.getMethodName());
+    var region = rf.create(testName.getMethodName());
 
     // this sets the expiration timeout to LONG_WAIT_MS
     region.put(KEY, "longExpire");

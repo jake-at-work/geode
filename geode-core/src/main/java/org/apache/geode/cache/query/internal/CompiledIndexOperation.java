@@ -75,8 +75,8 @@ public class CompiledIndexOperation extends AbstractCompiledValue implements Map
   @Override
   public Object evaluate(ExecutionContext context) throws TypeMismatchException,
       FunctionDomainException, NameResolutionException, QueryInvocationTargetException {
-    Object rcvr = receiver.evaluate(context);
-    Object index = indexExpr.evaluate(context);
+    var rcvr = receiver.evaluate(context);
+    var index = indexExpr.evaluate(context);
 
     if (rcvr == null || rcvr == QueryService.UNDEFINED) {
       return QueryService.UNDEFINED;
@@ -86,13 +86,13 @@ public class CompiledIndexOperation extends AbstractCompiledValue implements Map
     if (context.isCqQueryContext() && (rcvr instanceof Region.Entry || rcvr instanceof CqEntry)) {
       try {
         if (rcvr instanceof Region.Entry) {
-          Region.Entry re = (Region.Entry) rcvr;
+          var re = (Region.Entry) rcvr;
           if (re.isDestroyed()) {
             return QueryService.UNDEFINED;
           }
           rcvr = re.getValue();
         } else if (rcvr instanceof CqEntry) {
-          CqEntry re = (CqEntry) rcvr;
+          var re = (CqEntry) rcvr;
           rcvr = re.getValue();
         }
       } catch (EntryDestroyedException ede) {
@@ -132,7 +132,7 @@ public class CompiledIndexOperation extends AbstractCompiledValue implements Map
     // trunk)
     // it is an instance of QRegion only
     if (rcvr instanceof QRegion) {
-      Region.Entry entry = ((QRegion) rcvr).getEntry(index);
+      var entry = ((QRegion) rcvr).getEntry(index);
       if (entry == null) {
         return null;
       }

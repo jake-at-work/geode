@@ -34,7 +34,7 @@ public class PartitionedRegionCacheLoaderForSubRegion implements CacheLoader, De
   public Object load(LoaderHelper helper) throws CacheLoaderException {
 
     /* checking the attributes set in xml file */
-    PartitionedRegion pr = (PartitionedRegion) helper.getRegion();
+    var pr = (PartitionedRegion) helper.getRegion();
     if (pr.getAttributes().getPartitionAttributes().getRedundantCopies() != 1) {
       fail("Redundancy of the partition region is not 1");
     }

@@ -26,7 +26,6 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.ResourceException;
 import org.apache.geode.cache.client.internal.PutOp;
-import org.apache.geode.cache.operations.PutOperationContext;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.CachedDeserializable;
 import org.apache.geode.internal.cache.EventID;
@@ -37,9 +36,7 @@ import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.security.AuthorizeRequest;
@@ -64,27 +61,27 @@ public class Put70 extends BaseCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long p_start)
       throws IOException, InterruptedException {
-    long start = p_start;
-    final CacheServerStats stats = serverConnection.getCacheServerStats();
+    var start = p_start;
+    final var stats = serverConnection.getCacheServerStats();
 
     // requiresResponse = true;
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadPutRequestTime(start - oldStart);
     }
     // Retrieve the data from the message parts
-    int idx = 0;
+    var idx = 0;
 
-    final Part regionNamePart = clientMessage.getPart(idx++);
+    final var regionNamePart = clientMessage.getPart(idx++);
 
     final Operation operation;
     try {
-      final Part operationPart = clientMessage.getPart(idx++);
+      final var operationPart = clientMessage.getPart(idx++);
 
       if (operationPart.isBytes()) {
-        final byte[] bytes = operationPart.getSerializedForm();
+        final var bytes = operationPart.getSerializedForm();
         if (null == bytes || 0 == bytes.length) {
           // older clients can send empty bytes for default operation.
           operation = Operation.UPDATE;
@@ -107,9 +104,9 @@ public class Put70 extends BaseCommand {
       return;
     }
 
-    final int flags = clientMessage.getPart(idx++).getInt();
-    final boolean requireOldValue = ((flags & 0x01) == 0x01);
-    final boolean haveExpectedOldValue = ((flags & 0x02) == 0x02);
+    final var flags = clientMessage.getPart(idx++).getInt();
+    final var requireOldValue = ((flags & 0x01) == 0x01);
+    final var haveExpectedOldValue = ((flags & 0x02) == 0x02);
     final Object expectedOldValue;
     if (haveExpectedOldValue) {
       try {
@@ -123,7 +120,7 @@ public class Put70 extends BaseCommand {
       expectedOldValue = null;
     }
 
-    final Part keyPart = clientMessage.getPart(idx++);
+    final var keyPart = clientMessage.getPart(idx++);
 
     final boolean isDelta;
     try {
@@ -136,12 +133,12 @@ public class Put70 extends BaseCommand {
       return;
     }
 
-    final Part valuePart = clientMessage.getPart(idx++);
-    final Part eventPart = clientMessage.getPart(idx++);
+    final var valuePart = clientMessage.getPart(idx++);
+    final var eventPart = clientMessage.getPart(idx++);
 
     Object callbackArg = null;
     if (clientMessage.getNumberOfParts() > idx) {
-      final Part callbackArgPart = clientMessage.getPart(idx++);
+      final var callbackArgPart = clientMessage.getPart(idx++);
       try {
         callbackArg = callbackArgPart.getObject();
       } catch (Exception e) {
@@ -160,9 +157,9 @@ public class Put70 extends BaseCommand {
       return;
     }
 
-    final String regionName = regionNamePart.getCachedString();
+    final var regionName = regionNamePart.getCachedString();
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug(
           "{}: Received {}put request ({} bytes) from {} for region {} key {} txId {} posdup: {}",
@@ -173,16 +170,16 @@ public class Put70 extends BaseCommand {
 
     // Process the put request
     if (key == null || regionName == null) {
-      final StringBuilder errMessage = new StringBuilder();
+      final var errMessage = new StringBuilder();
       if (key == null) {
-        final String putMsg = " The input key for the put request is null";
+        final var putMsg = " The input key for the put request is null";
         if (isDebugEnabled) {
           logger.debug("{}:{}", serverConnection.getName(), putMsg);
         }
         errMessage.append(putMsg);
       }
       if (regionName == null) {
-        final String putMsg = " The input region name for the put request is null";
+        final var putMsg = " The input region name for the put request is null";
         if (isDebugEnabled) {
           logger.debug("{}:{}", serverConnection.getName(), putMsg);
         }
@@ -194,9 +191,9 @@ public class Put70 extends BaseCommand {
       return;
     }
 
-    final LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+    final var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
     if (region == null) {
-      final String reason = " was not found during put request";
+      final var reason = " was not found during put request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
@@ -204,7 +201,7 @@ public class Put70 extends BaseCommand {
 
     if (valuePart.isNull() && operation != Operation.PUT_IF_ABSENT && region.containsKey(key)) {
       // Invalid to 'put' a null value in an existing key
-      final String putMsg = " Attempted to put a null value for existing key " + key;
+      final var putMsg = " Attempted to put a null value for existing key " + key;
       if (isDebugEnabled) {
         logger.debug("{}:{}", serverConnection.getName(), putMsg);
       }
@@ -214,11 +211,11 @@ public class Put70 extends BaseCommand {
       return;
     }
 
-    final ByteBuffer eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
-    final long threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    final long sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    final var eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
+    final var threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    final var sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
 
-    final EventIDHolder clientEvent = new EventIDHolder(
+    final var clientEvent = new EventIDHolder(
         new EventID(serverConnection.getEventMemberIDByteArray(), threadId, sequenceId));
 
     Breadcrumbs.setEventId(clientEvent.getEventId());
@@ -230,8 +227,8 @@ public class Put70 extends BaseCommand {
       }
     }
 
-    boolean sendOldValue = false;
-    boolean oldValueIsObject = true;
+    var sendOldValue = false;
+    var oldValueIsObject = true;
     Object oldValue = null;
 
     try {
@@ -239,8 +236,8 @@ public class Put70 extends BaseCommand {
       if (!isDelta) {
         value = valuePart.getSerializedForm();
       }
-      boolean isObject = valuePart.isObject();
-      boolean isMetaRegion = region.isUsedForMetaRegion();
+      var isObject = valuePart.isObject();
+      var isMetaRegion = region.isUsedForMetaRegion();
       clientMessage.setMetaRegion(isMetaRegion);
 
       securityService.authorize(ResourcePermission.Resource.DATA,
@@ -257,7 +254,7 @@ public class Put70 extends BaseCommand {
         }
         // Allow PUT operations on meta regions (bug #38961)
         else {
-          PutOperationContext putContext =
+          var putContext =
               authzRequest.putAuthorize(regionName, key, value, isObject, callbackArg);
           value = putContext.getValue();
           isObject = putContext.isObject();
@@ -374,7 +371,7 @@ public class Put70 extends BaseCommand {
         if (isDelta) {
           delta = valuePart.getSerializedForm();
         }
-        TXManagerImpl txMgr =
+        var txMgr =
             (TXManagerImpl) serverConnection.getCache().getCacheTransactionManager();
         // bug 43068 - use create() if in a transaction and op is CREATE
         if (txMgr.getTXState() != null && operation.isCreate()) {
@@ -396,7 +393,7 @@ public class Put70 extends BaseCommand {
       if (result) {
         serverConnection.setModificationInfo(true, regionName, key);
       } else {
-        String message = serverConnection.getName() + ": Failed to put entry for region "
+        var message = serverConnection.getName() + ": Failed to put entry for region "
             + regionName + " key " + key + " value " + valuePart;
         if (isDebugEnabled) {
           logger.debug(message);
@@ -432,14 +429,14 @@ public class Put70 extends BaseCommand {
       }
       return;
     } finally {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessPutTime(start - oldStart);
     }
 
     // Increment statistics and write the reply
     if (region instanceof PartitionedRegion) {
-      PartitionedRegion pr = (PartitionedRegion) region;
+      var pr = (PartitionedRegion) region;
       if (pr.getNetworkHopType() != PartitionedRegion.NETWORK_HOP_NONE) {
         writeReplyWithRefreshMetadata(clientMessage, serverConnection, pr, sendOldValue,
             oldValueIsObject, oldValue, pr.getNetworkHopType(), clientEvent.getVersionTag());
@@ -464,11 +461,11 @@ public class Put70 extends BaseCommand {
   }
 
   boolean shouldSetPossibleDuplicate(LocalRegion region, EventIDHolder clientEvent) {
-    boolean shouldSetPossibleDuplicate = true;
+    var shouldSetPossibleDuplicate = true;
     if (region.getAttributes().getConcurrencyChecksEnabled()) {
       // recover the version tag from other servers
       clientEvent.setRegion(region);
-      boolean withPersistence = region.getAttributes().getDataPolicy().withPersistence();
+      var withPersistence = region.getAttributes().getDataPolicy().withPersistence();
       if (!recoverVersionTagForRetriedOperation(clientEvent) && !withPersistence) {
         // For persistent region, it is possible that all persistent copies went offline.
         // Do not reset possible duplicate in this case, as persistent data
@@ -481,11 +478,11 @@ public class Put70 extends BaseCommand {
 
   protected void writeReply(Message origMsg, ServerConnection servConn, boolean sendOldValue,
       boolean oldValueIsObject, Object oldValue, VersionTag<?> versionTag) throws IOException {
-    Message replyMsg = servConn.getReplyMessage();
+    var replyMsg = servConn.getReplyMessage();
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
     replyMsg.setMessageType(MessageType.REPLY);
-    int flags = 0;
-    int parts = 2;
+    var flags = 0;
+    var parts = 2;
     if (sendOldValue) {
       flags |= PutOp.HAS_OLD_VALUE_FLAG;
       if (oldValueIsObject) {
@@ -517,11 +514,11 @@ public class Put70 extends BaseCommand {
   protected void writeReplyWithRefreshMetadata(Message origMsg, ServerConnection servConn,
       PartitionedRegion pr, boolean sendOldValue, boolean oldValueIsObject, Object oldValue,
       byte nwHopType, VersionTag<?> versionTag) throws IOException {
-    Message replyMsg = servConn.getReplyMessage();
+    var replyMsg = servConn.getReplyMessage();
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
     replyMsg.setMessageType(MessageType.REPLY);
-    int flags = 0;
-    int parts = 1;
+    var flags = 0;
+    var parts = 1;
     parts++; // flags
     if (sendOldValue) {
       flags |= PutOp.HAS_OLD_VALUE_FLAG;

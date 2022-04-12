@@ -97,8 +97,8 @@ public class PartitionedRegionCacheXMLExampleDUnitTest extends CacheTestCase {
   }
 
   private void createCache(String cacheXmlFileName) {
-    Properties config = new Properties();
-    String cacheXmlPath =
+    var config = new Properties();
+    var cacheXmlPath =
         createTempFileFromResource(getClass(), cacheXmlFileName).getAbsolutePath();
     config.setProperty(CACHE_XML_FILE, cacheXmlPath);
 

@@ -156,8 +156,8 @@ public class GemFireParameterizedMessage implements Message {
     if (arguments == null) {
       return null;
     }
-    final int argsCount = countArgumentPlaceholders(messagePattern);
-    int resultArgCount = arguments.length;
+    final var argsCount = countArgumentPlaceholders(messagePattern);
+    var resultArgCount = arguments.length;
     if (argsCount < arguments.length && throwable == null
         && arguments[arguments.length - 1] instanceof Throwable) {
       throwable = (Throwable) arguments[arguments.length - 1];
@@ -173,7 +173,7 @@ public class GemFireParameterizedMessage implements Message {
       strArgs[0] = deepToString(arguments);
     } else {
       strArgs = new String[resultArgCount];
-      for (int i = 0; i < strArgs.length; i++) {
+      for (var i = 0; i < strArgs.length; i++) {
         strArgs[i] = deepToString(arguments[i]);
       }
     }
@@ -242,7 +242,7 @@ public class GemFireParameterizedMessage implements Message {
       return false;
     }
 
-    final GemFireParameterizedMessage that = (GemFireParameterizedMessage) o;
+    final var that = (GemFireParameterizedMessage) o;
 
     if (messagePattern != null ? !messagePattern.equals(that.messagePattern)
         : that.messagePattern != null) {
@@ -255,7 +255,7 @@ public class GemFireParameterizedMessage implements Message {
 
   @Override
   public int hashCode() {
-    int result = messagePattern != null ? messagePattern.hashCode() : 0;
+    var result = messagePattern != null ? messagePattern.hashCode() : 0;
     result = HASHVAL * result + (stringArgs != null ? Arrays.hashCode(stringArgs) : 0);
     return result;
   }
@@ -272,19 +272,19 @@ public class GemFireParameterizedMessage implements Message {
       return messagePattern;
     }
 
-    final StringBuilder result = new StringBuilder();
-    int escapeCounter = 0;
-    int currentArgument = 0;
-    for (int i = 0; i < messagePattern.length(); i++) {
-      final char curChar = messagePattern.charAt(i);
+    final var result = new StringBuilder();
+    var escapeCounter = 0;
+    var currentArgument = 0;
+    for (var i = 0; i < messagePattern.length(); i++) {
+      final var curChar = messagePattern.charAt(i);
       if (curChar == ESCAPE_CHAR) {
         escapeCounter++;
       } else {
         if (curChar == DELIM_START && i < messagePattern.length() - 1
             && messagePattern.charAt(i + 1) == DELIM_STOP) {
           // write escaped escape chars
-          final int escapedEscapes = escapeCounter / 2;
-          for (int j = 0; j < escapedEscapes; j++) {
+          final var escapedEscapes = escapeCounter / 2;
+          for (var j = 0; j < escapedEscapes; j++) {
             result.append(ESCAPE_CHAR);
           }
 
@@ -309,7 +309,7 @@ public class GemFireParameterizedMessage implements Message {
         // any other char beside ESCAPE or DELIM_START/STOP-combo
         // write unescaped escape chars
         if (escapeCounter > 0) {
-          for (int j = 0; j < escapeCounter; j++) {
+          for (var j = 0; j < escapeCounter; j++) {
             result.append(ESCAPE_CHAR);
           }
           escapeCounter = 0;
@@ -331,16 +331,16 @@ public class GemFireParameterizedMessage implements Message {
       return 0;
     }
 
-    final int delim = messagePattern.indexOf(DELIM_START);
+    final var delim = messagePattern.indexOf(DELIM_START);
 
     if (delim == -1) {
       // special case, no placeholders at all.
       return 0;
     }
-    int result = 0;
-    boolean isEscaped = false;
-    for (int i = 0; i < messagePattern.length(); i++) {
-      final char curChar = messagePattern.charAt(i);
+    var result = 0;
+    var isEscaped = false;
+    for (var i = 0; i < messagePattern.length(); i++) {
+      final var curChar = messagePattern.charAt(i);
       if (curChar == ESCAPE_CHAR) {
         isEscaped = !isEscaped;
       } else if (curChar == DELIM_START) {
@@ -383,7 +383,7 @@ public class GemFireParameterizedMessage implements Message {
     if (o instanceof String) {
       return (String) o;
     }
-    final StringBuilder str = new StringBuilder();
+    final var str = new StringBuilder();
     final Set<String> dejaVu = new HashSet<>(); // that's actually a neat name ;)
     recursiveDeepToString(o, str, dejaVu);
     return str.toString();
@@ -423,7 +423,7 @@ public class GemFireParameterizedMessage implements Message {
       return;
     }
 
-    final Class<?> oClass = o.getClass();
+    final var oClass = o.getClass();
     if (oClass.isArray()) {
       if (oClass == byte[].class) {
         str.append(Arrays.toString((byte[]) o));
@@ -443,15 +443,15 @@ public class GemFireParameterizedMessage implements Message {
         str.append(Arrays.toString((char[]) o));
       } else {
         // special handling of container Object[]
-        final String id = identityToString(o);
+        final var id = identityToString(o);
         if (dejaVu.contains(id)) {
           str.append(RECURSION_PREFIX).append(id).append(RECURSION_SUFFIX);
         } else {
           dejaVu.add(id);
-          final Object[] oArray = (Object[]) o;
+          final var oArray = (Object[]) o;
           str.append('[');
-          boolean first = true;
-          for (final Object current : oArray) {
+          var first = true;
+          for (final var current : oArray) {
             if (first) {
               first = false;
             } else {
@@ -466,23 +466,23 @@ public class GemFireParameterizedMessage implements Message {
     } else if (o instanceof Map && !(o instanceof LogWithToString)) {
       // GEODE: do NOT use Map handling if instanceof Geode Region
       // special handling of container Map
-      final String id = identityToString(o);
+      final var id = identityToString(o);
       if (dejaVu.contains(id)) {
         str.append(RECURSION_PREFIX).append(id).append(RECURSION_SUFFIX);
       } else {
         dejaVu.add(id);
-        final Map<?, ?> oMap = (Map<?, ?>) o;
+        final var oMap = (Map<?, ?>) o;
         str.append('{');
-        boolean isFirst = true;
+        var isFirst = true;
         for (final Object o1 : oMap.entrySet()) {
-          final Map.Entry<?, ?> current = (Map.Entry<?, ?>) o1;
+          final var current = (Map.Entry<?, ?>) o1;
           if (isFirst) {
             isFirst = false;
           } else {
             str.append(", ");
           }
-          final Object key = current.getKey();
-          final Object value = current.getValue();
+          final var key = current.getKey();
+          final var value = current.getValue();
           recursiveDeepToString(key, str, new HashSet<>(dejaVu));
           str.append('=');
           recursiveDeepToString(value, str, new HashSet<>(dejaVu));
@@ -492,14 +492,14 @@ public class GemFireParameterizedMessage implements Message {
     } else if (o instanceof Collection && !(o instanceof LogWithToString)) {
       // GEODE: do NOT use Collection handling if instanceof Geode EntriesSet
       // special handling of container Collection
-      final String id = identityToString(o);
+      final var id = identityToString(o);
       if (dejaVu.contains(id)) {
         str.append(RECURSION_PREFIX).append(id).append(RECURSION_SUFFIX);
       } else {
         dejaVu.add(id);
-        final Collection<?> oCol = (Collection<?>) o;
+        final var oCol = (Collection<?>) o;
         str.append('[');
-        boolean isFirst = true;
+        var isFirst = true;
         for (final Object anOCol : oCol) {
           if (isFirst) {
             isFirst = false;
@@ -511,8 +511,8 @@ public class GemFireParameterizedMessage implements Message {
         str.append(']');
       }
     } else if (o instanceof Date) {
-      final Date date = (Date) o;
-      final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+      final var date = (Date) o;
+      final var format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
       // I'll leave it like this for the moment... this could probably be optimized using
       // ThreadLocal...
       str.append(format.format(date));
@@ -524,8 +524,8 @@ public class GemFireParameterizedMessage implements Message {
         str.append(ERROR_PREFIX);
         str.append(identityToString(o));
         str.append(ERROR_SEPARATOR);
-        final String msg = t.getMessage();
-        final String className = t.getClass().getName();
+        final var msg = t.getMessage();
+        final var className = t.getClass().getName();
         str.append(className);
         if (!className.equals(msg)) {
           str.append(ERROR_MSG_SEPARATOR);

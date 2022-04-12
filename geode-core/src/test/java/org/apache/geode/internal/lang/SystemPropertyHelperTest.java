@@ -40,22 +40,22 @@ public class SystemPropertyHelperTest {
 
   @Test
   public void testRestoreSetOperationTransactionBehaviorGemfireSystemProperty() {
-    String gemfirePrefixProperty = "gemfire." + restoreSetOperationTransactionBehavior;
+    var gemfirePrefixProperty = "gemfire." + restoreSetOperationTransactionBehavior;
     System.setProperty(gemfirePrefixProperty, "true");
     assertThat(restoreSetOperationTransactionBehavior()).isTrue();
   }
 
   @Test
   public void testRestoreSetOperationTransactionBehaviorGeodeSystemProperty() {
-    String geodePrefixProperty = "geode." + restoreSetOperationTransactionBehavior;
+    var geodePrefixProperty = "geode." + restoreSetOperationTransactionBehavior;
     System.setProperty(geodePrefixProperty, "true");
     assertThat(restoreSetOperationTransactionBehavior()).isTrue();
   }
 
   @Test
   public void testRestoreSetOperationTransactionBehaviorGeodePreference() {
-    String gemfirePrefixProperty = "gemfire." + restoreSetOperationTransactionBehavior;
-    String geodePrefixProperty = "geode." + restoreSetOperationTransactionBehavior;
+    var gemfirePrefixProperty = "gemfire." + restoreSetOperationTransactionBehavior;
+    var geodePrefixProperty = "geode." + restoreSetOperationTransactionBehavior;
 
     System.setProperty(geodePrefixProperty, "false");
     System.setProperty(gemfirePrefixProperty, "true");
@@ -65,8 +65,8 @@ public class SystemPropertyHelperTest {
 
   @Test
   public void getBooleanPropertyReturnsEnableRetryOnPdxSerializationException() {
-    String testProperty = "enableQueryRetryOnPdxSerializationException";
-    String gemfirePrefixProperty = "gemfire." + testProperty;
+    var testProperty = "enableQueryRetryOnPdxSerializationException";
+    var gemfirePrefixProperty = "gemfire." + testProperty;
 
     System.setProperty(gemfirePrefixProperty, "true");
     assertThat(getProductBooleanProperty(testProperty).get()).isTrue();

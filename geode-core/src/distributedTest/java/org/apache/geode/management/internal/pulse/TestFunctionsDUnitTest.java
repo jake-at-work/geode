@@ -23,15 +23,11 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.management.DistributedSystemMXBean;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.ManagementTestBase;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 
 /**
  * This is for testing running functions
@@ -72,15 +68,15 @@ public class TestFunctionsDUnitTest extends ManagementTestBase {
   private static Integer getNumOfRunningFunction() {
 
     await().until(() -> {
-      final ManagementService service = getManagementService();
-      final DistributedSystemMXBean bean = service.getDistributedSystemMXBean();
+      final var service = getManagementService();
+      final var bean = service.getDistributedSystemMXBean();
       if (bean != null) {
         return bean.getNumRunningFunctions() > 0;
       }
       return false;
     });
 
-    final DistributedSystemMXBean bean = getManagementService().getDistributedSystemMXBean();
+    final var bean = getManagementService().getDistributedSystemMXBean();
     assertNotNull(bean);
 
     return bean.getNumRunningFunctions();
@@ -89,20 +85,20 @@ public class TestFunctionsDUnitTest extends ManagementTestBase {
   @Test
   public void testNumOfRunningFunctions() {
     initManagement(false);
-    VM client = managedNodeList.get(2);
+    var client = managedNodeList.get(2);
     client.invokeAsync(new SerializableRunnable() {
       @Override
       public void run() {
         Cache cache = getCache();
         SimpleWaitFunction<Boolean> simpleWaitFunction = new SimpleWaitFunction();
         SimpleWaitFunction.setLatch();
-        Execution execution =
+        var execution =
             FunctionService.onMember(cache.getDistributedSystem().getDistributedMember());
         execution.setArguments(Boolean.TRUE).execute(simpleWaitFunction);
       }
     });
 
-    Integer numOfRunningFunctions =
+    var numOfRunningFunctions =
         managingNode.invoke(TestFunctionsDUnitTest::getNumOfRunningFunction);
 
     assertTrue(numOfRunningFunctions > 0);

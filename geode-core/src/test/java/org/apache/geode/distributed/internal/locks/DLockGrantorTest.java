@@ -53,12 +53,12 @@ public class DLockGrantorTest {
 
   @Test
   public void handleLockBatchThrowsIfRequesterHasDeparted() {
-    DLockLessorDepartureHandler handler = mock(DLockLessorDepartureHandler.class);
-    InternalDistributedMember requester = mock(InternalDistributedMember.class);
-    DLockRequestProcessor.DLockRequestMessage requestMessage =
+    var handler = mock(DLockLessorDepartureHandler.class);
+    var requester = mock(InternalDistributedMember.class);
+    var requestMessage =
         mock(DLockRequestProcessor.DLockRequestMessage.class);
     when(dLockService.getDLockLessorDepartureHandler()).thenReturn(handler);
-    DLockBatch lockBatch = mock(DLockBatch.class);
+    var lockBatch = mock(DLockBatch.class);
     when(requestMessage.getObjectName()).thenReturn(lockBatch);
     when(lockBatch.getOwner()).thenReturn(requester);
 
@@ -78,11 +78,11 @@ public class DLockGrantorTest {
 
   @Test
   public void recordMemberDepartedTimeRemovesExpiredMembers() {
-    long currentTime = System.currentTimeMillis();
+    var currentTime = System.currentTimeMillis();
     doReturn(currentTime).doReturn(currentTime).doReturn(currentTime + 1 + DAYS.toMillis(1))
         .when(grantor).getCurrentTime();
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       grantor.recordMemberDepartedTime(mock(InternalDistributedMember.class));
     }
     assertThat(grantor.getMembersDepartedTimeRecords().size()).isEqualTo(2);
@@ -143,7 +143,7 @@ public class DLockGrantorTest {
     when(request.getObjectName()).thenReturn(batch);
     when(batch.getOwner()).thenReturn(owner);
     when(batch.getBatchId()).thenReturn(batchId);
-    String exceptionMessage = "failed";
+    var exceptionMessage = "failed";
     doThrow(new CommitConflictException(exceptionMessage)).when(grantor).makeReservation(batch);
 
     grantor.handleLockBatch(request);
@@ -198,7 +198,7 @@ public class DLockGrantorTest {
   public void updateLockBatchUpdates() throws Exception {
     grantor.makeReady(true);
     grantor.batchLocks.put(batchId, batch);
-    DLockBatch newBatch = mock(DLockBatch.class);
+    var newBatch = mock(DLockBatch.class);
 
     grantor.updateLockBatch(batchId, newBatch);
 
@@ -210,7 +210,7 @@ public class DLockGrantorTest {
   @Test
   public void updateLockBatchDoesNotUpdateIfNoExistingBatch() throws Exception {
     grantor.makeReady(true);
-    DLockBatch newBatch = mock(DLockBatch.class);
+    var newBatch = mock(DLockBatch.class);
 
     grantor.updateLockBatch(batchId, newBatch);
 

@@ -24,7 +24,6 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.distributed.AbstractLauncher;
 import org.apache.geode.distributed.ServerLauncher;
-import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.cli.commands.OfflineGfshCommand;
@@ -47,7 +46,7 @@ public class StatusServerCommand extends OfflineGfshCommand {
 
     if (StringUtils.isNotBlank(member)) {
       if (isConnectedAndReady()) {
-        final MemberMXBean serverProxy = getMemberMXBean(member);
+        final var serverProxy = getMemberMXBean(member);
 
         if (serverProxy != null) {
           return ResultModel.createInfo(
@@ -61,7 +60,7 @@ public class StatusServerCommand extends OfflineGfshCommand {
             .format(CliStrings.STATUS_SERVICE__GFSH_NOT_CONNECTED_ERROR_MESSAGE, "Cache Server"));
       }
     } else {
-      final ServerLauncher serverLauncher = new ServerLauncher.Builder()
+      final var serverLauncher = new ServerLauncher.Builder()
           .setCommand(ServerLauncher.Command.STATUS)
           // NOTE since we do not know whether the "CacheServer" was enabled or not on the GemFire
           // server when it was started,
@@ -70,7 +69,7 @@ public class StatusServerCommand extends OfflineGfshCommand {
           // TODO fix this hack! (how, the 'start server' loop needs it)
           .setDisableDefaultServer(true).setPid(pid).setWorkingDirectory(workingDirectory).build();
 
-      final ServerLauncher.ServerState status = serverLauncher.status();
+      final var status = serverLauncher.status();
 
       if (status.getStatus().equals(AbstractLauncher.Status.NOT_RESPONDING)
           || status.getStatus().equals(AbstractLauncher.Status.STOPPED)) {

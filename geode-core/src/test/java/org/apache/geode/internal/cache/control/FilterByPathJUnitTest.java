@@ -31,7 +31,7 @@ public class FilterByPathJUnitTest {
 
   @Test
   public void testDefault() {
-    FilterByPath filter = new FilterByPath(null, null);
+    var filter = new FilterByPath(null, null);
     assertTrue(filter.include(createRegion("a")));
     assertTrue(filter.include(createRegion("b")));
     assertTrue(filter.include(createRegion("c")));
@@ -39,10 +39,10 @@ public class FilterByPathJUnitTest {
 
   @Test
   public void testInclude() {
-    HashSet<String> included = new HashSet<>();
+    var included = new HashSet<String>();
     included.add("a");
     included.add("b");
-    FilterByPath filter = new FilterByPath(included, null);
+    var filter = new FilterByPath(included, null);
     assertTrue(filter.include(createRegion("a")));
     assertTrue(filter.include(createRegion("b")));
     assertFalse(filter.include(createRegion("c")));
@@ -50,10 +50,10 @@ public class FilterByPathJUnitTest {
 
   @Test
   public void testExclude() {
-    HashSet<String> excluded = new HashSet<>();
+    var excluded = new HashSet<String>();
     excluded.add("a");
     excluded.add("b");
-    FilterByPath filter = new FilterByPath(null, excluded);
+    var filter = new FilterByPath(null, excluded);
     assertFalse(filter.include(createRegion("a")));
     assertFalse(filter.include(createRegion("b")));
     assertTrue(filter.include(createRegion("c")));
@@ -61,21 +61,21 @@ public class FilterByPathJUnitTest {
 
   @Test
   public void testBoth() {
-    HashSet<String> included = new HashSet<>();
+    var included = new HashSet<String>();
     included.add("a");
     included.add("b");
-    HashSet<String> excluded = new HashSet<>();
+    var excluded = new HashSet<String>();
     excluded.add("a");
     excluded.add("b");
-    FilterByPath filter = new FilterByPath(included, excluded);
+    var filter = new FilterByPath(included, excluded);
     assertTrue(filter.include(createRegion("a")));
     assertTrue(filter.include(createRegion("b")));
     assertFalse(filter.include(createRegion("c")));
   }
 
   private Region<?, ?> createRegion(String name) {
-    RegionHandler handler = new RegionHandler(name);
-    final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+    var handler = new RegionHandler(name);
+    final var contextClassLoader = Thread.currentThread().getContextClassLoader();
     return (Region<?, ?>) Proxy.newProxyInstance(contextClassLoader, new Class[] {Region.class},
         handler);
   }

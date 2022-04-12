@@ -33,15 +33,15 @@ public class ObjectTraverserJUnitTest {
   @Test
   public void testBasic() throws Exception {
     Set testData = new HashSet();
-    Object one = new Object();
+    var one = new Object();
     testData.add(one);
-    Object[] two = new Object[2];
+    var two = new Object[2];
     testData.add(two);
-    ArrayList three = new ArrayList();
+    var three = new ArrayList();
     two[0] = three;
     three.add(testData);
 
-    TestVisitor visitor = new TestVisitor();
+    var visitor = new TestVisitor();
     ObjectTraverser.breadthFirstSearch(testData, visitor, false);
 
     assertNotNull(visitor.visited.remove(testData));
@@ -52,11 +52,11 @@ public class ObjectTraverserJUnitTest {
 
   @Test
   public void testStatics() throws Exception {
-    final Object staticObject = new Object();
+    final var staticObject = new Object();
     TestObject1.test2 = staticObject;
-    TestObject1 test1 = new TestObject1();
+    var test1 = new TestObject1();
 
-    TestVisitor visitor = new TestVisitor();
+    var visitor = new TestVisitor();
     ObjectTraverser.breadthFirstSearch(test1, visitor, false);
     assertNull(visitor.visited.get(staticObject));
 
@@ -69,11 +69,11 @@ public class ObjectTraverserJUnitTest {
   public void testStop() throws Exception {
     Set set1 = new HashSet();
     final Set set2 = new HashSet();
-    Object object3 = new Object();
+    var object3 = new Object();
     set1.add(set2);
     set2.add(object3);
 
-    TestVisitor visitor = new TestVisitor();
+    var visitor = new TestVisitor();
     visitor = new TestVisitor() {
       @Override
       public boolean visit(Object parent, Object object) {
@@ -95,7 +95,7 @@ public class ObjectTraverserJUnitTest {
   public void testHistogram() throws Exception {
     Set set1 = new HashSet();
     final Set set2 = new HashSet();
-    Object object3 = new Object();
+    var object3 = new Object();
     set1.add(set2);
     set2.add(object3);
 

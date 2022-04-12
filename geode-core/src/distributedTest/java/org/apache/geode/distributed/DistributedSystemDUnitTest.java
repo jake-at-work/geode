@@ -43,10 +43,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 import java.util.Properties;
 
 import org.junit.After;
@@ -62,12 +60,9 @@ import org.apache.geode.GemFireConfigException;
 import org.apache.geode.SerializationException;
 import org.apache.geode.SystemConnectException;
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.Distribution;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.MembershipListener;
@@ -101,7 +96,7 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
     locatorPort = getRandomAvailableTCPPort();
     tcpPort = getRandomAvailableTCPPort();
 
-    int[] portRange = getRandomAvailableTCPPortRange(3);
+    var portRange = getRandomAvailableTCPPortRange(3);
     lowerBoundOfPortRange = portRange[0];
     upperBoundOfPortRange = portRange[portRange.length - 1];
   }
@@ -117,22 +112,22 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testWaitForDeparture() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(LOCATORS, "");
     config.put(START_LOCATOR, "localhost[" + locatorPort + "]");
     config.put(DISABLE_TCP, "true");
 
-    InternalDistributedSystem system =
+    var system =
         (InternalDistributedSystem) DistributedSystem.connect(config);
 
     // construct a member ID that will represent a departed member
-    InternalDistributedMember member =
+    var member =
         new InternalDistributedMember("localhost", 12345);
 
     // schedule a message in order to create a queue for the fake member
-    ClusterDistributionManager distributionManager =
+    var distributionManager =
         (ClusterDistributionManager) system.getDistributionManager();
-    final FakeMessage message = new FakeMessage(null);
+    final var message = new FakeMessage(null);
 
     distributionManager.getExecutors().getExecutor(SERIAL_EXECUTOR, member)
         .execute(new SizeableRunnable(100) {
@@ -158,13 +153,13 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testGetSameSystemTwice() {
-    Properties config = createLonerConfig();
+    var config = createLonerConfig();
 
     // set a flow-control property for the test (bug 37562)
     config.setProperty(MCAST_FLOW_CONTROL, "3000000,0.20,3000");
 
-    DistributedSystem system1 = DistributedSystem.connect(config);
-    DistributedSystem system2 = DistributedSystem.connect(config);
+    var system1 = DistributedSystem.connect(config);
+    var system2 = DistributedSystem.connect(config);
 
     assertThat(system2).isSameAs(system1);
   }
@@ -175,7 +170,7 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testGetDifferentSystem() {
-    Properties config = createLonerConfig();
+    var config = createLonerConfig();
     config.setProperty(MCAST_FLOW_CONTROL, "3000000,0.20,3000");
 
     DistributedSystem.connect(config);
@@ -191,24 +186,24 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testGetDifferentSystemAfterClose() {
-    Properties config = createLonerConfig();
+    var config = createLonerConfig();
 
-    DistributedSystem system1 = DistributedSystem.connect(config);
+    var system1 = DistributedSystem.connect(config);
     system1.disconnect();
 
-    int time = DEFAULT_ACK_WAIT_THRESHOLD + 17;
+    var time = DEFAULT_ACK_WAIT_THRESHOLD + 17;
     config.put(ACK_WAIT_THRESHOLD, String.valueOf(time));
 
-    DistributedSystem system2 = DistributedSystem.connect(config);
+    var system2 = DistributedSystem.connect(config);
     system2.disconnect();
   }
 
   @Test
   public void testGetProperties() {
-    int unusedPort = 0;
+    var unusedPort = 0;
 
-    Properties config = createLonerConfig();
-    DistributedSystem system = DistributedSystem.connect(config);
+    var config = createLonerConfig();
+    var system = DistributedSystem.connect(config);
 
     assertThat(system.getProperties()).isNotSameAs(config);
     assertThat(parseInt(system.getProperties().getProperty(MCAST_PORT))).isEqualTo(unusedPort);
@@ -221,12 +216,12 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testIsolatedDistributedSystem() throws Exception {
-    Properties config = createLonerConfig();
-    InternalDistributedSystem system = getSystem(config);
+    var config = createLonerConfig();
+    var system = getSystem(config);
 
     // make sure isolated distributed system can still create a cache and region
-    Cache cache = CacheFactory.create(system);
-    Region region = cache.createRegion(getUniqueName(), new AttributesFactory().create());
+    var cache = CacheFactory.create(system);
+    var region = cache.createRegion(getUniqueName(), new AttributesFactory().create());
     region.put("test", "value");
 
     assertThat(region.get("test")).isEqualTo("value");
@@ -237,14 +232,14 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testSpecificTcpPort() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(LOCATORS, "localhost[" + getDUnitLocatorPort() + "]");
     config.setProperty(TCP_PORT, String.valueOf(tcpPort));
 
-    InternalDistributedSystem system = getSystem(config);
+    var system = getSystem(config);
 
-    ClusterDistributionManager dm = (ClusterDistributionManager) system.getDistributionManager();
-    Distribution mgr = dm.getDistribution();
+    var dm = (ClusterDistributionManager) system.getDistributionManager();
+    var mgr = dm.getDistribution();
     assertThat(mgr.getLocalMember().getDirectChannelPort()).isEqualTo(tcpPort);
   }
 
@@ -255,12 +250,12 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testLoopbackNotAllowed() throws Exception {
     // assert or assume that loopback is not null
-    InetAddress loopback = getLoopback();
+    var loopback = getLoopback();
     assertThat(loopback).isNotNull();
 
-    String locators = getLocalHost().getHostName() + "[" + getDUnitLocatorPort() + "]";
+    var locators = getLocalHost().getHostName() + "[" + getDUnitLocatorPort() + "]";
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(LOCATORS, locators);
     config.setProperty(BIND_ADDRESS, loopback.getHostAddress());
 
@@ -271,22 +266,22 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testPortRange() throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(LOCATORS, "localhost[" + getDUnitLocatorPort() + "]");
     System.clearProperty(GEMFIRE_PREFIX + MEMBERSHIP_PORT_RANGE);
     config.setProperty(MEMBERSHIP_PORT_RANGE,
         lowerBoundOfPortRange + "-" + upperBoundOfPortRange);
 
-    InternalDistributedSystem system = getSystem(config);
-    ClusterDistributionManager dm = (ClusterDistributionManager) system.getDistributionManager();
-    InternalDistributedMember member = dm.getDistributionManagerId();
+    var system = getSystem(config);
+    var dm = (ClusterDistributionManager) system.getDistributionManager();
+    var member = dm.getDistributionManagerId();
 
     verifyMembershipPortsInRange(member, lowerBoundOfPortRange, upperBoundOfPortRange);
   }
 
   @Test
   public void testConflictingUDPPort() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, String.valueOf(mcastPort));
     config.setProperty(START_LOCATOR, "localhost[" + locatorPort + "]");
     System.clearProperty(GEMFIRE_PREFIX + MEMBERSHIP_PORT_RANGE);
@@ -297,8 +292,8 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
 
     IgnoredException.addIgnoredException("SystemConnectException", VM.getVM(1));
     VM.getVM(1).invoke(() -> {
-      String oldMembershipPortRange = System.clearProperty(GEMFIRE_PREFIX + MEMBERSHIP_PORT_RANGE);
-      String locators = (String) config.remove(START_LOCATOR);
+      var oldMembershipPortRange = System.clearProperty(GEMFIRE_PREFIX + MEMBERSHIP_PORT_RANGE);
+      var locators = (String) config.remove(START_LOCATOR);
 
       config.put(LOCATORS, locators);
 
@@ -316,10 +311,10 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void memberShouldWaitUntilAStartupResponseIsReceived() {
 
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(REDUNDANCY_ZONE, "testzone");
 
     vm0.invoke(() -> {
@@ -327,7 +322,7 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
     });
 
     vm1.invoke(() -> {
-      InternalDistributedSystem system = getSystem(properties);
+      var system = getSystem(properties);
 
       // Redundancy zone is part of the data that is sent with the startup response
       // If we receive a startup response, we should see that vm0 is in the same
@@ -341,15 +336,15 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
   @Test(timeout = 600_000)
   public void failedMessageReceivedBeforeStartupShouldNotDeadlock() {
 
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
 
     // Install a membership listener which will send a message to
     // any new member that joins. The message will fail to deserialize, triggering
     // a failure reply
     vm0.invoke(() -> {
-      InternalDistributedSystem system = getSystem();
-      DistributionManager dm = system.getDM();
+      var system = getSystem();
+      var dm = system.getDM();
       dm.addMembershipListener(new MembershipListener() {
         @Override
         public void memberJoined(DistributionManager distributionManager,
@@ -378,22 +373,22 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testEmptyCacheXmlFile() throws Exception {
-    Properties config = createLonerConfig();
+    var config = createLonerConfig();
     config.setProperty(CACHE_XML_FILE, "");
 
-    DistributedSystem system = DistributedSystem.connect(config);
+    var system = DistributedSystem.connect(config);
 
     assertThatThrownBy(() -> CacheFactory.getInstance(system)).isInstanceOf(CancelException.class);
 
     // now make sure we can create the cache
-    Cache cache = CacheFactory.create(system);
+    var cache = CacheFactory.create(system);
 
     assertThat(cache).isNotNull();
     assertThat(cache.isClosed()).isFalse();
   }
 
   private Properties createLonerConfig() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     return config;
@@ -410,15 +405,15 @@ public class DistributedSystemDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private InetAddress getLoopback() throws SocketException, UnknownHostException {
-    for (Enumeration<NetworkInterface> networkInterfaceEnumeration =
+    for (var networkInterfaceEnumeration =
         getNetworkInterfaces(); networkInterfaceEnumeration.hasMoreElements();) {
 
-      NetworkInterface networkInterface = networkInterfaceEnumeration.nextElement();
+      var networkInterface = networkInterfaceEnumeration.nextElement();
 
-      for (Enumeration<InetAddress> addressEnum = networkInterface.getInetAddresses(); addressEnum
+      for (var addressEnum = networkInterface.getInetAddresses(); addressEnum
           .hasMoreElements();) {
 
-        InetAddress address = addressEnum.nextElement();
+        var address = addressEnum.nextElement();
         Class theClass =
             getLocalHost() instanceof Inet4Address ? Inet4Address.class : Inet6Address.class;
 

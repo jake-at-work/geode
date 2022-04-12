@@ -43,17 +43,14 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.CacheLifecycleListener;
-import org.apache.geode.internal.cache.DiskRegion;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -93,20 +90,20 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testShutdownAll2Servers() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    int numBuckets = 50;
+    var numBuckets = 50;
 
     createRegion(vm0, "region", "disk", true, 1);
     createRegion(vm1, "region", "disk", true, 1);
 
     createData(vm0, 0, numBuckets, "a", "region");
 
-    Set<Integer> vm0Buckets = getBucketList(vm0, "region");
-    Set<Integer> vm1Buckets = getBucketList(vm1, "region");
+    var vm0Buckets = getBucketList(vm0, "region");
+    var vm1Buckets = getBucketList(vm1, "region");
     assertEquals(vm0Buckets, vm1Buckets);
 
     shutDownAllMembers(vm2, 2);
@@ -114,10 +111,10 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
     assertTrue(InternalDistributedSystem.getExistingSystems().isEmpty());
 
     // restart vm0
-    AsyncInvocation a0 = createRegionAsync(vm0, "region", "disk", true, 1);
+    var a0 = createRegionAsync(vm0, "region", "disk", true, 1);
 
     // restart vm1
-    AsyncInvocation a1 = createRegionAsync(vm1, "region", "disk", true, 1);
+    var a1 = createRegionAsync(vm1, "region", "disk", true, 1);
 
     a0.getResult(MAX_WAIT);
     a1.getResult(MAX_WAIT);
@@ -136,9 +133,9 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testShutdownAllWithEncounterIGE1() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    int numBuckets = 50;
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var numBuckets = 50;
     createRegion(vm0, "region", "disk", true, 1);
     createData(vm0, 0, numBuckets, "a", "region");
 
@@ -164,20 +161,20 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testShutdownAllWithEncounterIGE2() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    int numBuckets = 50;
+    var numBuckets = 50;
 
     createRegion(vm0, "region", "disk", true, 1);
     createRegion(vm1, "region", "disk", true, 1);
 
     createData(vm0, 0, numBuckets, "a", "region");
 
-    Set<Integer> vm0Buckets = getBucketList(vm0, "region");
-    Set<Integer> vm1Buckets = getBucketList(vm1, "region");
+    var vm0Buckets = getBucketList(vm0, "region");
+    var vm1Buckets = getBucketList(vm1, "region");
     assertEquals(vm0Buckets, vm1Buckets);
 
     vm0.invoke(addExceptionTag1(expectedExceptions));
@@ -209,9 +206,9 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testShutdownAllInterruptsCacheCreation()
       throws ExecutionException, InterruptedException, TimeoutException {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm2 = host.getVM(2);
     closeAllCache();
     // in vm0 create the cache in a way that hangs until
     // it sees that a shutDownAll is in progress
@@ -255,9 +252,9 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testShutdownAllOneServerAndRecover() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm2 = host.getVM(2);
 
     createRegion(vm0, "region", "disk", true, 0);
 
@@ -277,9 +274,9 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPRWithDR() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm2 = host.getVM(2);
 
     createRegion(vm0, "region_pr", "disk", true, 0);
     createRegion(vm0, "region_dr", "disk", false, 0);
@@ -303,12 +300,12 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testShutdownAllFromServer() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    int numBuckets = 50;
+    var numBuckets = 50;
 
     createRegion(vm0, "region", "disk", true, 1);
     createRegion(vm1, "region", "disk", true, 1);
@@ -321,11 +318,11 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
     assertTrue(InternalDistributedSystem.getExistingSystems().isEmpty());
 
     // restart vm0, vm1, vm2
-    AsyncInvocation a0 = createRegionAsync(vm0, "region", "disk", true, 1);
+    var a0 = createRegionAsync(vm0, "region", "disk", true, 1);
 
-    AsyncInvocation a1 = createRegionAsync(vm1, "region", "disk", true, 1);
+    var a1 = createRegionAsync(vm1, "region", "disk", true, 1);
 
-    AsyncInvocation a2 = createRegionAsync(vm2, "region", "disk", true, 1);
+    var a2 = createRegionAsync(vm2, "region", "disk", true, 1);
 
     a0.getResult(MAX_WAIT);
     a1.getResult(MAX_WAIT);
@@ -342,10 +339,10 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
   // shutdownAll, then restart to verify
   @Test
   public void testCleanStop() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
     createRegion(vm0, "region", "disk", true, 1);
     createRegion(vm1, "region", "disk", true, 1);
 
@@ -353,13 +350,13 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
     shutDownAllMembers(vm2, 2);
 
-    AsyncInvocation a0 = createRegionAsync(vm0, "region", "disk", true, 1);
+    var a0 = createRegionAsync(vm0, "region", "disk", true, 1);
     // [dsmith] Make sure that vm0 is waiting for vm1 to recover
     // If VM(0) recovers early, that is a problem, because we
     // are no longer doing a clean recovery.
     Thread.sleep(500);
     assertTrue(a0.isAlive());
-    AsyncInvocation a1 = createRegionAsync(vm1, "region", "disk", true, 1);
+    var a1 = createRegionAsync(vm1, "region", "disk", true, 1);
     a0.getResult(MAX_WAIT);
     a1.getResult(MAX_WAIT);
 
@@ -387,10 +384,10 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
   // shutdownAll, then restart to verify
   @Test
   public void testCleanStopWithConflictCachePort() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     createRegion(vm0, "region", "disk", true, 1);
     createRegion(vm1, "region", "disk", true, 1);
@@ -403,13 +400,13 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
     shutDownAllMembers(vm2, 2);
 
-    AsyncInvocation a0 = createRegionAsync(vm0, "region", "disk", true, 1);
+    var a0 = createRegionAsync(vm0, "region", "disk", true, 1);
     // [dsmith] Make sure that vm0 is waiting for vm1 to recover
     // If VM(0) recovers early, that is a problem, because we
     // are no longer doing a clean recovery.
     Thread.sleep(500);
     assertTrue(a0.isAlive());
-    AsyncInvocation a1 = createRegionAsync(vm1, "region", "disk", true, 1);
+    var a1 = createRegionAsync(vm1, "region", "disk", true, 1);
     a0.getResult(MAX_WAIT);
     a1.getResult(MAX_WAIT);
 
@@ -425,9 +422,9 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testMultiPRDR() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm2 = host.getVM(2);
 
     createRegion(vm0, "region_pr1", "disk1", true, 0);
     createRegion(vm0, "region_pr2", "disk1", true, 0);
@@ -466,20 +463,20 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testShutdownAllTimeout() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    final int numBuckets = 50;
+    final var numBuckets = 50;
 
     createRegion(vm0, "region", "disk", true, 1);
     createRegion(vm1, "region", "disk", true, 1);
 
     createData(vm0, 0, numBuckets, "a", "region");
 
-    Set<Integer> vm0Buckets = getBucketList(vm0, "region");
-    Set<Integer> vm1Buckets = getBucketList(vm1, "region");
+    var vm0Buckets = getBucketList(vm0, "region");
+    var vm1Buckets = getBucketList(vm1, "region");
     assertEquals(vm0Buckets, vm1Buckets);
 
     // Add a cache listener that will cause the system to hang up.
@@ -487,12 +484,12 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
     AsyncInvocation async1 = vm0.invokeAsync(new SerializableRunnable() {
       @Override
       public void run() {
-        Region<Object, Object> region = getCache().getRegion("region");
+        var region = getCache().getRegion("region");
         listener = new HangingCacheListener();
         region.getAttributesMutator().addCacheListener(listener);
 
         // get us stuck doing a put.
-        for (int i = 0; i < numBuckets; i++) {
+        for (var i = 0; i < numBuckets; i++) {
           region.put(i, "a");
         }
       }
@@ -506,9 +503,9 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
     // Do a shutdownall with a timeout.
     // This will hit the timeout, because the in progress put will
     // prevent us from gracefully shutting down.
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     shutDownAllMembers(vm2, 0, 2000);
-    long end = System.nanoTime();
+    var end = System.nanoTime();
 
     // Make sure we waited for the timeout.
     assertTrue(end - start > TimeUnit.MILLISECONDS.toNanos(1500));
@@ -527,10 +524,10 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
     Wait.pause(10000);
 
     // restart vm0
-    AsyncInvocation a0 = createRegionAsync(vm0, "region", "disk", true, 1);
+    var a0 = createRegionAsync(vm0, "region", "disk", true, 1);
 
     // restart vm1
-    AsyncInvocation a1 = createRegionAsync(vm1, "region", "disk", true, 1);
+    var a1 = createRegionAsync(vm1, "region", "disk", true, 1);
 
     a0.getResult(MAX_WAIT);
     a1.getResult(MAX_WAIT);
@@ -551,20 +548,20 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
   public void testShutdownAllWithMembersWaiting() throws Throwable {
     addIgnoredException(AlertingIOException.class);
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    final int numBuckets = 5;
+    final var numBuckets = 5;
 
     createRegion(vm0, "region", "disk", true, 1);
     createRegion(vm1, "region", "disk", true, 1);
 
     createData(vm0, 0, numBuckets, "a", "region");
 
-    Set<Integer> vm0Buckets = getBucketList(vm0, "region");
-    Set<Integer> vm1Buckets = getBucketList(vm1, "region");
+    var vm0Buckets = getBucketList(vm0, "region");
+    var vm1Buckets = getBucketList(vm1, "region");
 
 
     // shutdown all the members
@@ -572,7 +569,7 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
     // restart one of the members (this will hang, waiting for the other members)
     // restart vm0
-    AsyncInvocation a0 = createRegionAsync(vm0, "region", "disk", true, 1);
+    var a0 = createRegionAsync(vm0, "region", "disk", true, 1);
 
     // Wait a bit for the initialization to get stuck
     Wait.pause(20000);
@@ -594,7 +591,7 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
     // now restart both members. This should work, but
     // no guarantee they'll do a clean recovery
     a0 = createRegionAsync(vm0, "region", "disk", true, 1);
-    AsyncInvocation a1 = createRegionAsync(vm1, "region", "disk", true, 1);
+    var a1 = createRegionAsync(vm1, "region", "disk", true, 1);
 
     a0.getResult(MAX_WAIT);
     a1.getResult(MAX_WAIT);
@@ -626,8 +623,8 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
           adminDS = (AdminDistributedSystemImpl) AdminDistributedSystemFactory
               .getDistributedSystem(config);
           adminDS.connect();
-          Set members = adminDS.shutDownAllMembers();
-          int num = members == null ? 0 : members.size();
+          var members = adminDS.shutDownAllMembers();
+          var num = members == null ? 0 : members.size();
           assertEquals(expnum, num);
         } catch (AdminException e) {
           throw new RuntimeException(e);
@@ -650,11 +647,11 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
       public void run() {
         Cache cache = getCache();
 
-        DiskStore ds = cache.findDiskStore(diskStoreName);
+        var ds = cache.findDiskStore(diskStoreName);
         if (ds == null) {
           ds = cache.createDiskStoreFactory().setDiskDirs(getDiskDirs()).create(diskStoreName);
         }
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
 
         af.setDiskStoreName(diskStoreName);
@@ -668,7 +665,7 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         Cache cache = getCache();
-        CacheServer cs = cache.addCacheServer();
+        var cs = cache.addCacheServer();
         cs.setPort(port);
         try {
           cs.start();
@@ -682,10 +679,10 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
   protected void createRegion(VM vm, final String regionName, final String diskStoreName,
       final boolean isPR, final int redundancy) {
     if (isPR) {
-      SerializableRunnable createPR = getCreatePRRunnable(regionName, diskStoreName, redundancy);
+      var createPR = getCreatePRRunnable(regionName, diskStoreName, redundancy);
       vm.invoke(createPR);
     } else {
-      SerializableRunnable createPR = getCreateDRRunnable(regionName, diskStoreName);
+      var createPR = getCreateDRRunnable(regionName, diskStoreName);
       vm.invoke(createPR);
     }
   }
@@ -693,10 +690,10 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
   protected AsyncInvocation createRegionAsync(VM vm, final String regionName,
       final String diskStoreName, final boolean isPR, final int redundancy) {
     if (isPR) {
-      SerializableRunnable createPR = getCreatePRRunnable(regionName, diskStoreName, redundancy);
+      var createPR = getCreatePRRunnable(regionName, diskStoreName, redundancy);
       return vm.invokeAsync(createPR);
     } else {
-      SerializableRunnable createDR = getCreateDRRunnable(regionName, diskStoreName);
+      var createDR = getCreateDRRunnable(regionName, diskStoreName);
       return vm.invokeAsync(createDR);
     }
   }
@@ -724,16 +721,16 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
         Cache cache = getCache();
 
         if (diskStoreName != null) {
-          DiskStore ds = cache.findDiskStore(diskStoreName);
+          var ds = cache.findDiskStore(diskStoreName);
           if (ds == null) {
             ds = cache.createDiskStoreFactory().setDiskDirs(getDiskDirs()).create(diskStoreName);
           }
         }
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDiskSynchronous(false); // use async to trigger flush
         af.setEvictionAttributes(
             EvictionAttributes.createLRUEntryAttributes(100, EvictionAction.OVERFLOW_TO_DISK));
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(redundancy);
         af.setPartitionAttributes(paf.create());
         if (diskStoreName != null) {
@@ -756,14 +753,14 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   protected void createData(VM vm, final int startKey, final int endKey, final String value,
       final String regionName) {
-    SerializableRunnable createData = new SerializableRunnable() {
+    var createData = new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(regionName);
 
-        for (int i = startKey; i < endKey; i++) {
+        for (var i = startKey; i < endKey; i++) {
           region.put(i, value);
         }
       }
@@ -772,14 +769,14 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected Set<Integer> getBucketList(VM vm, final String regionName) {
-    SerializableCallable getBuckets = new SerializableCallable("get buckets") {
+    var getBuckets = new SerializableCallable("get buckets") {
 
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
         Region region = cache.getRegion(regionName);
         if (region instanceof PartitionedRegion) {
-          PartitionedRegion pr = (PartitionedRegion) region;
+          var pr = (PartitionedRegion) region;
           return new TreeSet<>(pr.getDataStore().getAllLocalBucketIds());
         } else {
           return null;
@@ -792,14 +789,14 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
 
   protected void checkData(VM vm, final int startKey, final int endKey, final String value,
       final String regionName) {
-    SerializableRunnable checkData = new SerializableRunnable() {
+    var checkData = new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(regionName);
 
-        for (int i = startKey; i < endKey; i++) {
+        for (var i = startKey; i < endKey; i++) {
           assertEquals(value, region.get(i));
         }
       }
@@ -814,8 +811,8 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         Cache cache = getCache();
-        PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
-        DiskRegion disk = region.getRegionAdvisor().getBucket(bucketId).getDiskRegion();
+        var region = (PartitionedRegion) cache.getRegion(regionName);
+        var disk = region.getRegionAdvisor().getBucket(bucketId).getDiskRegion();
         if (recoveredLocally) {
           assertEquals(0, disk.getStats().getRemoteInitializations());
           assertEquals(1, disk.getStats().getLocalInitializations());
@@ -828,7 +825,7 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void closeRegion(VM vm, final String regionName) {
-    SerializableRunnable close = new SerializableRunnable() {
+    var close = new SerializableRunnable() {
       @Override
       public void run() {
         Cache cache = getCache();
@@ -852,8 +849,8 @@ public class ShutdownAllDUnitTest extends JUnit4CacheTestCase {
           adminDS = (AdminDistributedSystemImpl) AdminDistributedSystemFactory
               .getDistributedSystem(config);
           adminDS.connect();
-          Set members = adminDS.shutDownAllMembers(timeout);
-          int num = members == null ? 0 : members.size();
+          var members = adminDS.shutDownAllMembers(timeout);
+          var num = members == null ? 0 : members.size();
           assertEquals(expnum, num);
         } catch (AdminException e) {
           throw new RuntimeException(e);

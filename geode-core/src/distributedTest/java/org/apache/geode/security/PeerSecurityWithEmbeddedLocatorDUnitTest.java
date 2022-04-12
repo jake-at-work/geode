@@ -29,7 +29,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.security.templates.DummyAuthenticator;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
@@ -43,26 +42,25 @@ public class PeerSecurityWithEmbeddedLocatorDUnitTest {
 
   @Test
   public void testPeerSecurityManager() throws Exception {
-    int locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    Properties server0Props = new Properties();
+    var server0Props = new Properties();
     server0Props.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     server0Props.setProperty("start-locator", "localhost[" + locatorPort + "]");
     lsRule.startServerVM(0, server0Props);
 
-
-    Properties server1Props = new Properties();
+    var server1Props = new Properties();
     server1Props.setProperty("security-username", "cluster");
     server1Props.setProperty("security-password", "cluster");
     lsRule.startServerVM(1, server1Props, locatorPort);
 
-    Properties server2Props = new Properties();
+    var server2Props = new Properties();
     server2Props.setProperty("security-username", "user");
     server2Props.setProperty("security-password", "wrongPwd");
 
-    VM server2 = getHost(0).getVM(2);
+    var server2 = getHost(0).getVM(2);
     server2.invoke(() -> {
-      ServerStarterRule serverStarter = new ServerStarterRule();
+      var serverStarter = new ServerStarterRule();
       ClusterStartupRule.memberStarter = serverStarter;
       assertThatThrownBy(() -> serverStarter.startServer(server2Props, locatorPort))
           .isInstanceOf(GemFireSecurityException.class)
@@ -74,26 +72,25 @@ public class PeerSecurityWithEmbeddedLocatorDUnitTest {
 
   @Test
   public void testPeerAuthenticator() throws Exception {
-    int locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    Properties server0Props = new Properties();
+    var server0Props = new Properties();
     server0Props.setProperty(SECURITY_PEER_AUTHENTICATOR, DummyAuthenticator.class.getName());
     server0Props.setProperty("start-locator", "localhost[" + locatorPort + "]");
     lsRule.startServerVM(0, server0Props);
 
-
-    Properties server1Props = new Properties();
+    var server1Props = new Properties();
     server1Props.setProperty("security-username", "user");
     server1Props.setProperty("security-password", "user");
     lsRule.startServerVM(1, server1Props, locatorPort);
 
-    Properties server2Props = new Properties();
+    var server2Props = new Properties();
     server2Props.setProperty("security-username", "bogus");
     server2Props.setProperty("security-password", "user");
 
-    VM server2 = getHost(0).getVM(2);
+    var server2 = getHost(0).getVM(2);
     server2.invoke(() -> {
-      ServerStarterRule serverStarter = new ServerStarterRule();
+      var serverStarter = new ServerStarterRule();
       ClusterStartupRule.memberStarter = serverStarter;
       assertThatThrownBy(() -> serverStarter.startServer(server2Props, locatorPort))
           .isInstanceOf(GemFireSecurityException.class).hasMessageContaining("Invalid user name");

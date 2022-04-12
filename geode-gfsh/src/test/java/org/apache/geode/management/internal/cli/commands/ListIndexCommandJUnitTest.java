@@ -88,16 +88,16 @@ public class ListIndexCommandJUnitTest {
 
   @Test
   public void getIndexListingShouldReturnTheIndexesOrdered() {
-    final IndexDetails indexDetails1 = createIndexDetails("memberOne", "empIdIdx");
-    final IndexDetails indexDetails2 = createIndexDetails("memberOne", "empLastNameIdx");
-    final IndexDetails indexDetails3 = createIndexDetails("memberTwo", "empDobIdx");
+    final var indexDetails1 = createIndexDetails("memberOne", "empIdIdx");
+    final var indexDetails2 = createIndexDetails("memberOne", "empLastNameIdx");
+    final var indexDetails3 = createIndexDetails("memberTwo", "empDobIdx");
     final List<Set<IndexDetails>> results = new ArrayList<>();
     results.add(CollectionUtils.asSet(indexDetails2, indexDetails1, indexDetails3));
     when(mockResultCollector.getResult()).thenReturn(results);
-    final List<IndexDetails> expectedIndexDetails =
+    final var expectedIndexDetails =
         Arrays.asList(indexDetails1, indexDetails2, indexDetails3);
 
-    final List<IndexDetails> actualIndexDetails = listIndexCommand.getIndexListing();
+    final var actualIndexDetails = listIndexCommand.getIndexListing();
     assertThat(actualIndexDetails).isNotNull();
     assertThat(actualIndexDetails).isEqualTo(expectedIndexDetails);
     verify(mockFunctionExecutor, times(1)).setIgnoreDepartedMembers(true);
@@ -106,14 +106,14 @@ public class ListIndexCommandJUnitTest {
 
   @Test
   public void getIndexListingShouldIgnoreExceptionsReturnedAsResultsFromTheInternalFunctionExecution() {
-    final IndexDetails indexDetails = createIndexDetails("memberOne", "empIdIdx");
+    final var indexDetails = createIndexDetails("memberOne", "empIdIdx");
     final List<Object> results = new ArrayList<>(2);
     results.add(CollectionUtils.asSet(indexDetails));
     results.add(new FunctionInvocationTargetException("Mock FunctionInvocationTargetException"));
     when(mockResultCollector.getResult()).thenReturn(results);
-    final List<IndexDetails> expectedIndexDetails = Collections.singletonList(indexDetails);
+    final var expectedIndexDetails = Collections.singletonList(indexDetails);
 
-    final List<IndexDetails> actualIndexDetails = listIndexCommand.getIndexListing();
+    final var actualIndexDetails = listIndexCommand.getIndexListing();
     assertThat(actualIndexDetails).isNotNull();
     assertThat(actualIndexDetails).isEqualTo(expectedIndexDetails);
     verify(mockFunctionExecutor, times(1)).setIgnoreDepartedMembers(true);

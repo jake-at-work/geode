@@ -20,7 +20,6 @@ import org.apache.geode.InternalGemFireError;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.pdx.internal.EnumInfo;
 
 /**
@@ -55,13 +54,13 @@ public class GetPDXIdForEnumOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      Part part = msg.getPart(0);
-      final int msgType = msg.getMessageType();
+      var part = msg.getPart(0);
+      final var msgType = msg.getMessageType();
       if (msgType == MessageType.RESPONSE) {
         return part.getInt();
       } else {
         if (msgType == MessageType.EXCEPTION) {
-          String s = "While performing a remote " + "getPdxIdForEnum";
+          var s = "While performing a remote " + "getPdxIdForEnum";
           throw new ServerOperationException(s, (Throwable) part.getObject());
           // Get the exception toString part.
           // This was added for c++ thin client and not used in java

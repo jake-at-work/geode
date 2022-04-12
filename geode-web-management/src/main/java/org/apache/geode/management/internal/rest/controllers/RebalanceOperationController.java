@@ -48,7 +48,7 @@ public class RebalanceOperationController extends AbstractManagementController {
     operation.setOperator(
         Optional.ofNullable(securityService).map(SecurityService::getSubject).map(Object::toString)
             .orElse(null));
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> result =
+    var result =
         clusterManagementService
             .start(operation);
     return new ResponseEntity<>(result, HttpStatus.ACCEPTED);

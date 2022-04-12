@@ -136,7 +136,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
      */
 
     // get txLock and hold it
-    final Set participants = Collections.EMPTY_SET;
+    final var participants = Collections.EMPTY_SET;
     final List regionLockReqs = new ArrayList();
 
     Map<Object, Boolean> keymap = new HashMap<>();
@@ -148,23 +148,23 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
         .add(new TXRegionLockRequestImpl(SEPARATOR + "testTXRecoverGrantorMessageProcessor",
             keymap));
 
-    TXLockService dtls = TXLockService.getDTLS();
-    TXLockId txLockId = dtls.txLock(regionLockReqs, participants);
+    var dtls = TXLockService.getDTLS();
+    var txLockId = dtls.txLock(regionLockReqs, participants);
 
     // async call TXRecoverGrantorMessageProcessor.process
-    final DLockService dlock = ((TXLockServiceImpl) dtls).getInternalDistributedLockService();
-    final TestDLockRecoverGrantorProcessor testProc =
+    final var dlock = ((TXLockServiceImpl) dtls).getInternalDistributedLockService();
+    final var testProc =
         new TestDLockRecoverGrantorProcessor(dlock.getDistributionManager(), Collections.EMPTY_SET);
     assertEquals("No valid processorId", true, testProc.getProcessorId() > -1);
 
-    final DLockRecoverGrantorProcessor.DLockRecoverGrantorMessage msg =
+    final var msg =
         new DLockRecoverGrantorProcessor.DLockRecoverGrantorMessage();
     msg.setServiceName(dlock.getName());
     msg.setProcessorId(testProc.getProcessorId());
     msg.setSender(dlock.getDistributionManager().getId());
 
-    Thread thread = new Thread(() -> {
-      TXRecoverGrantorMessageProcessor proc =
+    var thread = new Thread(() -> {
+      var proc =
           (TXRecoverGrantorMessageProcessor) dlock.getDLockRecoverGrantorMessageProcessor();
       proc.processDLockRecoverGrantorMessage(dlock.getDistributionManager(), msg);
     });
@@ -197,8 +197,8 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
     // first make sure some other VM is the grantor
     Host.getHost(0).getVM(0).invoke("become lock grantor", () -> {
       TXLockService.createDTLS(system);
-      TXLockService vm0dtls = TXLockService.getDTLS();
-      DLockService vm0dlock = ((TXLockServiceImpl) vm0dtls).getInternalDistributedLockService();
+      var vm0dtls = TXLockService.getDTLS();
+      var vm0dlock = ((TXLockServiceImpl) vm0dtls).getInternalDistributedLockService();
       vm0dlock.becomeLockGrantor();
     });
 
@@ -222,10 +222,10 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
         .add(new TXRegionLockRequestImpl(SEPARATOR + "testTXRecoverGrantorMessageProcessor2",
             keymap));
 
-    TXLockService dtls = TXLockService.getDTLS();
-    TXLockId txLockId = dtls.txLock(regionLockReqs, Collections.EMPTY_SET);
+    var dtls = TXLockService.getDTLS();
+    var txLockId = dtls.txLock(regionLockReqs, Collections.EMPTY_SET);
 
-    final DLockService dlock = ((TXLockServiceImpl) dtls).getInternalDistributedLockService();
+    final var dlock = ((TXLockServiceImpl) dtls).getInternalDistributedLockService();
 
     // GEODE-2024: now cause grantor migration while holding the recoveryReadLock.
     // It will lock up in TXRecoverGrantorMessageProcessor until the recoveryReadLock
@@ -234,7 +234,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
     // allowing grantor migration to finish
 
     // create an observer that will block recovery messages from being processed
-    MessageObserver observer = new MessageObserver();
+    var observer = new MessageObserver();
     DistributionMessageObserver.setInstance(observer);
 
     try {
@@ -242,7 +242,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
 
       // become the grantor - this will block waiting for a reply to the message blocked by the
       // observer
-      Thread thread = new Thread(dlock::becomeLockGrantor);
+      var thread = new Thread(dlock::becomeLockGrantor);
       thread.setName("TXLockServiceDUnitTest thread2");
       thread.setDaemon(true);
       thread.start();
@@ -253,7 +253,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
       // spawn a thread that will unblock message processing
       // so that TXLockServiceImpl's "recovering" variable will be set
       System.out.println("starting a thread to unblock recovery in 5 seconds");
-      Thread unblockThread = new Thread(() -> {
+      var unblockThread = new Thread(() -> {
         try {
           Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -324,10 +324,10 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testTXLock() {
     LogWriterUtils.getLogWriter().info("[testTXLock]");
-    final int grantorVM = 0;
-    final int clientA = 1;
-    final int clientB = 2;
-    final Set participants = Collections.EMPTY_SET;
+    final var grantorVM = 0;
+    final var clientA = 1;
+    final var clientB = 2;
+    final var participants = Collections.EMPTY_SET;
     final List regionLockReqs = new ArrayList();
 
     Map<Object, Boolean> keymap1 = new HashMap<>();
@@ -369,7 +369,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
         .invoke(new SerializableRunnable("[testTXLock] create clientA and request txLock") {
           @Override
           public void run() {
-            TXLockService dtls = TXLockService.getDTLS();
+            var dtls = TXLockService.getDTLS();
             testTXLock_TXLockId = dtls.txLock(regionLockReqs, participants);
             assertNotNull("testTXLock_TXLockId is null", testTXLock_TXLockId);
           }
@@ -389,7 +389,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
       @Override
       public void run() {
         try {
-          TXLockService dtls = TXLockService.getDTLS();
+          var dtls = TXLockService.getDTLS();
           dtls.txLock(regionLockReqs, participants);
           fail("expected CommitConflictException");
         } catch (CommitConflictException ignored) {
@@ -411,7 +411,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
         .invoke(new SerializableRunnable("[testTXLock] clientA releases txLock") {
           @Override
           public void run() {
-            TXLockService dtls = TXLockService.getDTLS();
+            var dtls = TXLockService.getDTLS();
             dtls.release(testTXLock_TXLockId);
           }
         });
@@ -424,7 +424,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
         .invoke(new SerializableRunnable("[testTXLock] clientB requests txLock") {
           @Override
           public void run() {
-            TXLockService dtls = TXLockService.getDTLS();
+            var dtls = TXLockService.getDTLS();
             testTXLock_TXLockId = dtls.txLock(regionLockReqs, participants);
             assertNotNull("testTXLock_TXLockId is null", testTXLock_TXLockId);
           }
@@ -437,7 +437,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
         .invoke(new SerializableRunnable("[testTXLock] clientB releases txLock") {
           @Override
           public void run() {
-            TXLockService dtls = TXLockService.getDTLS();
+            var dtls = TXLockService.getDTLS();
             dtls.release(testTXLock_TXLockId);
           }
         });
@@ -448,10 +448,10 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testTXOriginatorRecoveryProcessor() {
     LogWriterUtils.getLogWriter().info("[testTXOriginatorRecoveryProcessor]");
-    final int originatorVM = 0;
-    final int grantorVM = 1;
-    final int particpantA = 2;
-    final int particpantB = 3;
+    final var originatorVM = 0;
+    final var grantorVM = 1;
+    final var particpantA = 2;
+    final var particpantB = 3;
 
     final List regionLockReqs = new ArrayList();
 
@@ -467,8 +467,8 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
     // build participants set...
     InternalDistributedMember dmId = null;
     final Set participants = new HashSet();
-    for (int i = 1; i <= particpantB; i++) {
-      final int finalvm = i;
+    for (var i = 1; i <= particpantB; i++) {
+      final var finalvm = i;
       dmId = Host.getHost(0).getVM(finalvm)
           .invoke(TXLockServiceDUnitTest::fetchDistributionManagerId);
       assertEquals("dmId should not be null for vm " + finalvm, false, dmId == null);
@@ -489,7 +489,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
     Host.getHost(0).getVM(grantorVM)
         .invoke(TXLockServiceDUnitTest::identifyLockGrantor_DTLS);
 
-    Boolean isGrantor = Host.getHost(0).getVM(grantorVM)
+    var isGrantor = Host.getHost(0).getVM(grantorVM)
         .invoke(TXLockServiceDUnitTest::isLockGrantor_DTLS);
     assertEquals("isLockGrantor should not be false for DTLS", Boolean.TRUE, isGrantor);
 
@@ -507,7 +507,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
         "[testTXOriginatorRecoveryProcessor] originatorVM requests txLock") {
       @Override
       public void run() {
-        TXLockService dtls = TXLockService.getDTLS();
+        var dtls = TXLockService.getDTLS();
         testTXOriginatorRecoveryProcessor_TXLockId = dtls.txLock(regionLockReqs, participants);
         assertNotNull("testTXOriginatorRecoveryProcessor_TXLockId is null",
             testTXOriginatorRecoveryProcessor_TXLockId);
@@ -558,7 +558,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
         new SerializableRunnable("[testTXOriginatorRecoveryProcessor] verify txLock is released") {
           @Override
           public void run() {
-            TXLockService dtls = TXLockService.getDTLS();
+            var dtls = TXLockService.getDTLS();
             testTXOriginatorRecoveryProcessor_TXLockId = dtls.txLock(regionLockReqs, participants);
             assertNotNull("testTXOriginatorRecoveryProcessor_TXLockId is null",
                 testTXOriginatorRecoveryProcessor_TXLockId);
@@ -569,7 +569,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
         "[testTXOriginatorRecoveryProcessor] particpantA releases txLock") {
       @Override
       public void run() {
-        TXLockService dtls = TXLockService.getDTLS();
+        var dtls = TXLockService.getDTLS();
         dtls.release(testTXOriginatorRecoveryProcessor_TXLockId);
       }
     });
@@ -580,10 +580,10 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
     LogWriterUtils.getLogWriter().info("[testDTLSIsDistributed]");
 
     // have all vms lock and hold the same LTLS lock simultaneously
-    final Host host = Host.getHost(0);
-    int vmCount = host.getVMCount();
-    for (int vm = 0; vm < vmCount; vm++) {
-      final int finalvm = vm;
+    final var host = Host.getHost(0);
+    var vmCount = host.getVMCount();
+    for (var vm = 0; vm < vmCount; vm++) {
+      final var finalvm = vm;
       LogWriterUtils.getLogWriter().info("[testDTLSIsDistributed] testing vm " + finalvm);
 
       Host.getHost(0).getVM(finalvm).invoke(new SerializableRunnable() {
@@ -594,19 +594,19 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
       });
 
       // assert that isDistributed returns false
-      Boolean isDistributed =
+      var isDistributed =
           host.getVM(finalvm).invoke(TXLockServiceDUnitTest::isDistributed_DTLS);
       assertEquals("isDistributed should be true for DTLS", Boolean.TRUE, isDistributed);
       LogWriterUtils.getLogWriter().info("[testDTLSIsDistributed] isDistributed=" + isDistributed);
 
       // lock a key...
-      Boolean gotLock =
+      var gotLock =
           host.getVM(finalvm).invoke(() -> TXLockServiceDUnitTest.lock_DTLS("KEY"));
       assertEquals("gotLock is false after calling lock_DTLS", Boolean.TRUE, gotLock);
       LogWriterUtils.getLogWriter().info("[testDTLSIsDistributed] gotLock=" + gotLock);
 
       // unlock it...
-      Boolean unlock =
+      var unlock =
           host.getVM(finalvm).invoke(() -> TXLockServiceDUnitTest.unlock_DTLS("KEY"));
       assertEquals("unlock is false after calling unlock_DTLS", Boolean.TRUE, unlock);
       LogWriterUtils.getLogWriter().info("[testDTLSIsDistributed] unlock=" + unlock);
@@ -629,7 +629,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
    *        it.
    */
   protected static void remoteCreateService(String name) {
-    DistributedLockService newService = DistributedLockService.create(name, system);
+    var newService = DistributedLockService.create(name, system);
     logInfo("Created " + newService);
   }
 
@@ -653,10 +653,10 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static InternalDistributedMember identifyLockGrantor(String serviceName) {
-    DLockService service = (DLockService) DistributedLockService.getServiceNamed(serviceName);
+    var service = (DLockService) DistributedLockService.getServiceNamed(serviceName);
     assertNotNull(service);
 
-    InternalDistributedMember grantor = service.getLockGrantorId().getLockGrantorMember();
+    var grantor = service.getLockGrantorId().getLockGrantorMember();
     assertNotNull(grantor);
     logInfo("In identifyLockGrantor - grantor is " + grantor);
     return grantor;
@@ -666,8 +666,8 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
    * Accessed via reflection. DO NOT REMOVE
    */
   protected static InternalDistributedMember identifyLockGrantor_DTLS() {
-    TXLockService dtls = TXLockService.getDTLS();
-    String serviceName = ((TXLockServiceImpl) dtls).getInternalDistributedLockService().getName();
+    var dtls = TXLockService.getDTLS();
+    var serviceName = ((TXLockServiceImpl) dtls).getInternalDistributedLockService().getName();
     return identifyLockGrantor(serviceName);
   }
 
@@ -675,8 +675,8 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
    * Accessed via reflection. DO NOT REMOVE
    */
   protected static Boolean lock_DTLS(Object key) {
-    TXLockService dtls = TXLockService.getDTLS();
-    boolean gotLock =
+    var dtls = TXLockService.getDTLS();
+    var gotLock =
         ((TXLockServiceImpl) dtls).getInternalDistributedLockService().lock(key, -1, -1);
     logInfo("lock_LTLS gotLock (hopefully true): " + gotLock);
     return gotLock;
@@ -686,10 +686,10 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
    * Accessed via reflection. DO NOT REMOVE.
    */
   protected static Boolean isLockGrantor_DTLS() {
-    TXLockService dtls = TXLockService.getDTLS();
+    var dtls = TXLockService.getDTLS();
 
     if (true) {
-      DLockService service = DLockService.getInternalServiceNamed(
+      var service = DLockService.getInternalServiceNamed(
           ((TXLockServiceImpl) dtls).getInternalDistributedLockService().getName());
       assertNotNull(service);
 
@@ -706,11 +706,11 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
    * Accessed via reflection. DO NOT REMOVE
    */
   protected static Boolean isDistributed_DTLS() {
-    TXLockService dtls = TXLockService.getDTLS();
-    boolean isDistributed =
+    var dtls = TXLockService.getDTLS();
+    var isDistributed =
         ((TXLockServiceImpl) dtls).getInternalDistributedLockService().isDistributed();
 
-    DLockService svc = ((TXLockServiceImpl) dtls).getInternalDistributedLockService();
+    var svc = ((TXLockServiceImpl) dtls).getInternalDistributedLockService();
     assertNotNull(svc);
     assertEquals("DTLS InternalDistributedLockService should not be destroyed", false,
         svc.isDestroyed());
@@ -718,7 +718,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
     // sleep(50);
 
     if (true) {
-      DLockService service = DLockService.getInternalServiceNamed(svc.getName());
+      var service = DLockService.getInternalServiceNamed(svc.getName());
       assertNotNull(service);
 
       assertEquals("DTLS and DLock should both report same isDistributed result", true,
@@ -744,7 +744,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
   protected static void checkGetAndDestroy() {
     assertNull(TXLockService.getDTLS());
 
-    TXLockService dtls = TXLockService.createDTLS(system);
+    var dtls = TXLockService.createDTLS(system);
     assertNotNull(dtls);
     assertEquals(true, dtls == TXLockService.getDTLS());
     assertEquals(false, dtls.isDestroyed());
@@ -763,7 +763,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
    * Accessed via reflection. DO NOT REMOVE
    */
   protected static Boolean unlock_DTLS(Object key) {
-    TXLockService dtls = TXLockService.getDTLS();
+    var dtls = TXLockService.getDTLS();
     try {
       ((TXLockServiceImpl) dtls).getInternalDistributedLockService().unlock(key);
       return Boolean.TRUE;
@@ -777,7 +777,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
    * Accessed via reflection. DO NOT REMOVE.
    */
   protected static InternalDistributedMember fetchDistributionManagerId() {
-    InternalDistributedSystem sys = InternalDistributedSystem.getAnyInstance();
+    var sys = InternalDistributedSystem.getAnyInstance();
     if (sys != null) {
       return sys.getDistributionManager().getId();
     } else {
@@ -798,17 +798,17 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
    * knows about.
    */
   public void forNumVMsInvoke(int numVMs, String methodName, Object[] args) {
-    Host host = Host.getHost(0);
-    for (int i = 0; i < numVMs; i++) {
+    var host = Host.getHost(0);
+    for (var i = 0; i < numVMs; i++) {
       logInfo("Invoking " + methodName + "on VM#" + i);
       host.getVM(i).invoke(getClass(), methodName, args);
     }
   }
 
   public void forEachVMInvoke(String methodName, Object[] args) {
-    Host host = Host.getHost(0);
-    int vmCount = host.getVMCount();
-    for (int i = 0; i < vmCount; i++) {
+    var host = Host.getHost(0);
+    var vmCount = host.getVMCount();
+    for (var i = 0; i < vmCount; i++) {
       LogWriterUtils.getLogWriter().info("Invoking " + methodName + "on VM#" + i);
       host.getVM(i).invoke(getClass(), methodName, args);
     }
@@ -816,7 +816,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.setProperty(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
     return props;
   }
@@ -844,7 +844,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
      */
     DLockService dlock = null;
 
-    TXLockServiceImpl dtls = (TXLockServiceImpl) TXLockService.getDTLS();
+    var dtls = (TXLockServiceImpl) TXLockService.getDTLS();
     assertNotNull("DTLS should not be null", dtls);
     dlock = dtls.getInternalDistributedLockService();
     assertEquals("DTLS should use TXRecoverGrantorMessageProcessor", true,
@@ -867,7 +867,7 @@ public class TXLockServiceDUnitTest extends JUnit4DistributedTestCase {
 
     @Override
     public void process(DistributionMessage msg) {
-      DLockRecoverGrantorProcessor.DLockRecoverGrantorReplyMessage reply =
+      var reply =
           (DLockRecoverGrantorProcessor.DLockRecoverGrantorReplyMessage) msg;
       testTXRecoverGrantor_replyCode_PASS =
           (reply.getReplyCode() == DLockRecoverGrantorProcessor.DLockRecoverGrantorReplyMessage.OK);

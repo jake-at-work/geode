@@ -31,7 +31,6 @@ import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.TypeMismatchException;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.PdxSerializationException;
 import org.apache.geode.pdx.internal.InternalPdxInstance;
@@ -108,14 +107,14 @@ public class CompiledOperation extends AbstractCompiledValue {
   @Override
   public Object evaluate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    CompiledValue rcvr = getReceiver(context);
+    var rcvr = getReceiver(context);
 
     Object result;
     Object evalRcvr;
 
     if (rcvr == null) { // must be intended as implicit iterator operation
       // see if it's an implicit operation name
-      RuntimeIterator rcvrItr =
+      var rcvrItr =
           context.resolveImplicitOperationName(methodName, args.size(), true);
       evalRcvr = rcvrItr.evaluate(context);
       /*
@@ -136,7 +135,7 @@ public class CompiledOperation extends AbstractCompiledValue {
     }
 
     if (context.isCqQueryContext() && evalRcvr instanceof Region.Entry) {
-      Region.Entry re = (Region.Entry) evalRcvr;
+      var re = (Region.Entry) evalRcvr;
       if (re.isDestroyed()) {
         return QueryService.UNDEFINED;
       }
@@ -167,7 +166,7 @@ public class CompiledOperation extends AbstractCompiledValue {
     // }
     // if (resolveClass == null)
     if (evalRcvr instanceof PdxInstance) {
-      String className = ((PdxInstance) evalRcvr).getClassName();
+      var className = ((PdxInstance) evalRcvr).getClassName();
       try {
         resolveClass = InternalDataSerializer.getCachedClass(className);
       } catch (ClassNotFoundException cnfe) {
@@ -183,7 +182,7 @@ public class CompiledOperation extends AbstractCompiledValue {
     // }
     // check for PR substitution
     // check for BucketRegion substitution
-    PartitionedRegion pr = context.getPartitionedRegion();
+    var pr = context.getPartitionedRegion();
     if (pr != null && (result instanceof Region)) {
       if (pr.getFullPath().equals(((Region) result).getFullPath())) {
         result = context.getBucketRegion();
@@ -197,16 +196,16 @@ public class CompiledOperation extends AbstractCompiledValue {
   @Override
   public Set computeDependencies(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    List args = this.args;
-    for (final Object arg : args) {
+    var args = this.args;
+    for (final var arg : args) {
       context.addDependencies(this, ((CompiledValue) arg).computeDependencies(context));
     }
 
-    CompiledValue rcvr = getReceiver(context);
+    var rcvr = getReceiver(context);
     if (rcvr == null) // implicit iterator operation
     {
       // see if it's an implicit operation name
-      RuntimeIterator rcvrItr =
+      var rcvrItr =
           context.resolveImplicitOperationName(methodName, this.args.size(), true);
       if (rcvrItr == null) { // no receiver resolved
         // function call: no functions implemented except keywords in the grammar
@@ -235,9 +234,9 @@ public class CompiledOperation extends AbstractCompiledValue {
 
     List args = new ArrayList();
     List argTypes = new ArrayList();
-    for (final Object value : this.args) {
-      CompiledValue arg = (CompiledValue) value;
-      Object o = arg.evaluate(context);
+    for (final var value : this.args) {
+      var arg = (CompiledValue) value;
+      var o = arg.evaluate(context);
 
       // undefined arg produces undefines method result
       if (o == QueryService.UNDEFINED) {
@@ -312,7 +311,7 @@ public class CompiledOperation extends AbstractCompiledValue {
       // The method contains arguments which need to be canonicalized
       clauseBuffer.insert(0, ')');
       CompiledValue cv = null;
-      for (int j = args.size(); j > 0;) {
+      for (var j = args.size(); j > 0;) {
         cv = (CompiledValue) args.get(--j);
         cv.generateCanonicalizedExpression(clauseBuffer, context);
         clauseBuffer.insert(0, ',');
@@ -321,7 +320,7 @@ public class CompiledOperation extends AbstractCompiledValue {
 
     }
     clauseBuffer.insert(0, '.');
-    CompiledValue rcvr = receiver;
+    var rcvr = receiver;
     if (rcvr == null) {
       // must be intended as implicit iterator operation
       // see if it's an implicit operation name. The receiver will now be RuntimeIterator

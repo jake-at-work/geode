@@ -73,7 +73,7 @@ public class AlterGatewaySenderFunctionTest {
     function.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getThrowable()).isInstanceOf(EntityNotFoundException.class);
     assertThat(result.getMessage()).isNull();
@@ -92,7 +92,7 @@ public class AlterGatewaySenderFunctionTest {
     function.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getThrowable()).isNull();
     assertThat(result.getMessage()).isEqualTo("GatewaySender id is updated on member member");
@@ -114,7 +114,7 @@ public class AlterGatewaySenderFunctionTest {
     verify(sender).setBatchTimeInterval(150);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getThrowable()).isNull();
     assertThat(result.getMessage()).isEqualTo("GatewaySender id is updated on member member");

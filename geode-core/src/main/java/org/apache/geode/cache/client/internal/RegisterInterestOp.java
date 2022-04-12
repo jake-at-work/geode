@@ -32,7 +32,6 @@ import org.apache.geode.internal.cache.tier.InterestType;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.serialization.KnownVersion;
 
@@ -136,11 +135,11 @@ public class RegisterInterestOp {
       getMessage().addIntPart(interestType.ordinal());
       getMessage().addObjPart(policy);
       {
-        byte durableByte = (byte) (isDurable ? 0x01 : 0x00);
+        var durableByte = (byte) (isDurable ? 0x01 : 0x00);
         getMessage().addBytesPart(new byte[] {durableByte});
       }
       getMessage().addStringOrObjPart(key);
-      byte notifyByte = (byte) (receiveUpdatesAsInvalidates ? 0x01 : 0x00);
+      var notifyByte = (byte) (receiveUpdatesAsInvalidates ? 0x01 : 0x00);
       getMessage().addBytesPart(new byte[] {notifyByte});
 
       // The second byte '1' below tells server to serialize values in VersionObjectList.
@@ -172,7 +171,7 @@ public class RegisterInterestOp {
 
     @Override
     protected List<List<Object>> processResponse(Message m, Connection con) throws Exception {
-      ChunkedMessage chunkedMessage = (ChunkedMessage) m;
+      var chunkedMessage = (ChunkedMessage) m;
       chunkedMessage.readHeader();
       switch (chunkedMessage.getMessageType()) {
         case MessageType.RESPONSE_FROM_PRIMARY: {
@@ -195,11 +194,11 @@ public class RegisterInterestOp {
             chunkedMessage.receiveChunk();
 
             // Deserialize the result
-            Part part = chunkedMessage.getPart(0);
+            var part = chunkedMessage.getPart(0);
 
-            Object partObj = part.getObject();
+            var partObj = part.getObject();
             if (partObj instanceof Throwable) {
-              String s = "While performing a remote " + getOpName();
+              var s = "While performing a remote " + getOpName();
               throw new ServerOperationException(s, (Throwable) partObj);
               // Get the exception toString part.
               // This was added for c++ thin client and not used in java
@@ -241,11 +240,11 @@ public class RegisterInterestOp {
           // Read the chunk
           chunkedMessage.receiveChunk();
           // Deserialize the result
-          Part part = chunkedMessage.getPart(0);
+          var part = chunkedMessage.getPart(0);
           // Get the exception toString part.
           // This was added for c++ thin client and not used in java
-          Object obj = part.getObject(); {
-          String s = this + ": While performing a remote " + getOpName();
+          var obj = part.getObject(); {
+          var s = this + ": While performing a remote " + getOpName();
           throw new ServerOperationException(s, (Throwable) obj);
         }
         case MessageType.REGISTER_INTEREST_DATA_ERROR:
@@ -253,8 +252,8 @@ public class RegisterInterestOp {
           chunkedMessage.receiveChunk();
 
           // Deserialize the result
-          String errorMessage = chunkedMessage.getPart(0).getString();
-          String s = this + ": While performing a remote " + getOpName() + ": ";
+          var errorMessage = chunkedMessage.getPart(0).getString();
+          var s = this + ": While performing a remote " + getOpName() + ": ";
           throw new ServerOperationException(s + errorMessage);
         default:
           throw new InternalGemFireError("Unknown message type " + chunkedMessage.getMessageType());

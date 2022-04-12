@@ -44,8 +44,8 @@ public class GraphID implements Comparable<GraphID>, Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((graphName == null) ? 0 : graphName.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     return result;
@@ -62,7 +62,7 @@ public class GraphID implements Comparable<GraphID>, Serializable {
     if (!(obj instanceof GraphID)) {
       return false;
     }
-    GraphID other = (GraphID) obj;
+    var other = (GraphID) obj;
     if (graphName == null) {
       if (other.graphName != null) {
         return false;
@@ -81,7 +81,7 @@ public class GraphID implements Comparable<GraphID>, Serializable {
     if (o == null) {
       return -1;
     }
-    int result = type.compareTo(o.getType());
+    var result = type.compareTo(o.getType());
     if (result != 0) {
       return result;
     }

@@ -17,7 +17,6 @@ package org.apache.geode.distributed.internal.membership.gms.locator;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -76,10 +75,10 @@ public class MembershipLocatorImpl<ID extends MemberIdentifier> implements Membe
     handler =
         new PrimaryHandler(fallbackHandler, config.getLocatorWaitTime(),
             System::currentTimeMillis, Thread::sleep);
-    String host = bindAddress == null ? LocalHostUtil.getLocalHostName()
+    var host = bindAddress == null ? LocalHostUtil.getLocalHostName()
         : bindAddress.getHostName();
-    InetAddress inetAddress = bindAddress == null ? null : bindAddress.getAddress();
-    String threadName = "Distribution Locator on " + host + ": " + port;
+    var inetAddress = bindAddress == null ? null : bindAddress.getAddress();
+    var threadName = "Distribution Locator on " + host + ": " + port;
 
     server = new TcpServer(port, inetAddress, handler,
         threadName, protocolChecker,
@@ -151,7 +150,7 @@ public class MembershipLocatorImpl<ID extends MemberIdentifier> implements Membe
 
   @Override
   public void setMembership(final Membership<ID> membership) {
-    final GMSMembership<ID> gmsMembership = (GMSMembership<ID>) membership;
+    final var gmsMembership = (GMSMembership<ID>) membership;
     setServices(gmsMembership.getServices());
   }
 
@@ -190,8 +189,8 @@ public class MembershipLocatorImpl<ID extends MemberIdentifier> implements Membe
         // must not be running
       }
 
-      boolean interrupted = Thread.interrupted();
-      long waitTimeMillis = TcpServer.SHUTDOWN_WAIT_TIME * 2;
+      var interrupted = Thread.interrupted();
+      var waitTimeMillis = TcpServer.SHUTDOWN_WAIT_TIME * 2;
       try {
         // TcpServer up to SHUTDOWN_WAIT_TIME for its executor pool to shut down.
         // We wait 2 * SHUTDOWN_WAIT_TIME here to account for that shutdown, and then our own.

@@ -32,7 +32,7 @@ public class PairComparator implements Comparator<Pair> {
 
   @Override
   public int compare(Pair o1, Pair o2) {
-    int result = xComparator.compare(o1.getX(), o2.getX());
+    var result = xComparator.compare(o1.getX(), o2.getX());
     if (result == 0) {
       result = yComparator.compare(o1.getY(), o2.getY());
     }

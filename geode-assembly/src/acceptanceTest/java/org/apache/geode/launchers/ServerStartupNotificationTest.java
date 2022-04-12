@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
 
@@ -62,13 +61,13 @@ public class ServerStartupNotificationTest {
 
   @After
   public void stopServer() {
-    String stopServerCommand = "stop server --dir=" + serverFolder.getAbsolutePath();
+    var stopServerCommand = "stop server --dir=" + serverFolder.getAbsolutePath();
     gfshRule.execute(stopServerCommand);
   }
 
   @Test
   public void startupWithNoAsyncTasks() {
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + serverFolder.getAbsolutePath(),
@@ -76,9 +75,9 @@ public class ServerStartupNotificationTest {
 
     gfshRule.execute(startServerCommand);
 
-    Path logFile = serverFolder.toPath().resolve(serverName + ".log");
+    var logFile = serverFolder.toPath().resolve(serverName + ".log");
 
-    Pattern expectedLogLine =
+    var expectedLogLine =
         Pattern.compile("^\\[info .*].*Server " + serverName + " startup completed in \\d+ ms");
     await().untilAsserted(() -> assertThat(Files.lines(logFile))
         .as("Log file " + logFile + " includes line matching " + expectedLogLine)
@@ -87,10 +86,10 @@ public class ServerStartupNotificationTest {
 
   @Test
   public void startupWithFailingAsyncTask() {
-    Path serviceJarPath = serviceJarRule.createJarFor("ServerLauncherCacheProvider.jar",
+    var serviceJarPath = serviceJarRule.createJarFor("ServerLauncherCacheProvider.jar",
         ServerLauncherCacheProvider.class, Failing.class);
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + serverFolder.getAbsolutePath(),
@@ -99,13 +98,13 @@ public class ServerStartupNotificationTest {
 
     gfshRule.execute(startServerCommand);
 
-    Path logFile = serverFolder.toPath().resolve(serverName + ".log");
+    var logFile = serverFolder.toPath().resolve(serverName + ".log");
 
-    Exception exception = Failing.EXCEPTION;
-    String errorDetail = CompletionException.class.getName() + ": " +
+    var exception = Failing.EXCEPTION;
+    var errorDetail = CompletionException.class.getName() + ": " +
         exception.getClass().getName() + ": " + exception.getMessage();
 
-    Pattern expectedLogLine = Pattern.compile("^\\[error .*].*Server " + serverName +
+    var expectedLogLine = Pattern.compile("^\\[error .*].*Server " + serverName +
         " startup completed in \\d+ ms with error: " + errorDetail);
 
     await().untilAsserted(() -> assertThat(Files.lines(logFile))
@@ -115,10 +114,10 @@ public class ServerStartupNotificationTest {
 
   @Test
   public void startupWithMultipleFailingAsyncTasks() {
-    Path serviceJarPath = serviceJarRule.createJarFor("ServerLauncherCacheProvider.jar",
+    var serviceJarPath = serviceJarRule.createJarFor("ServerLauncherCacheProvider.jar",
         ServerLauncherCacheProvider.class, MultipleFailing.class);
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + serverFolder.getAbsolutePath(),
@@ -127,13 +126,13 @@ public class ServerStartupNotificationTest {
 
     gfshRule.execute(startServerCommand);
 
-    Path logFile = serverFolder.toPath().resolve(serverName + ".log");
+    var logFile = serverFolder.toPath().resolve(serverName + ".log");
 
-    Exception exception = MultipleFailing.EXCEPTION;
-    String errorDetail = CompletionException.class.getName() + ": " +
+    var exception = MultipleFailing.EXCEPTION;
+    var errorDetail = CompletionException.class.getName() + ": " +
         exception.getClass().getName() + ": " + exception.getMessage();
 
-    Pattern expectedLogLine = Pattern.compile("^\\[error .*].*Server " + serverName +
+    var expectedLogLine = Pattern.compile("^\\[error .*].*Server " + serverName +
         " startup completed in \\d+ ms with error: " + errorDetail);
 
     await().untilAsserted(() -> assertThat(Files.lines(logFile))
@@ -143,10 +142,10 @@ public class ServerStartupNotificationTest {
 
   @Test
   public void startupWithCompletingAndFailingAsyncTasks() {
-    Path serviceJarPath = serviceJarRule.createJarFor("ServerLauncherCacheProvider.jar",
+    var serviceJarPath = serviceJarRule.createJarFor("ServerLauncherCacheProvider.jar",
         ServerLauncherCacheProvider.class, CompletingAndFailing.class);
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + serverFolder.getAbsolutePath(),
@@ -155,13 +154,13 @@ public class ServerStartupNotificationTest {
 
     gfshRule.execute(startServerCommand);
 
-    Path logFile = serverFolder.toPath().resolve(serverName + ".log");
+    var logFile = serverFolder.toPath().resolve(serverName + ".log");
 
-    Exception exception = CompletingAndFailing.EXCEPTION;
-    String errorDetail = CompletionException.class.getName() + ": " +
+    var exception = CompletingAndFailing.EXCEPTION;
+    var errorDetail = CompletionException.class.getName() + ": " +
         exception.getClass().getName() + ": " + exception.getMessage();
 
-    Pattern expectedLogLine = Pattern.compile("^\\[error .*].*Server " + serverName +
+    var expectedLogLine = Pattern.compile("^\\[error .*].*Server " + serverName +
         " startup completed in \\d+ ms with error: " + errorDetail);
 
     await().untilAsserted(() -> assertThat(Files.lines(logFile))

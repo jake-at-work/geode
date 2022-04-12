@@ -42,7 +42,7 @@ public class ExpirableSecurityManager extends SimpleSecurityManager implements S
 
   @Override
   public Object authenticate(final Properties credentials) throws AuthenticationFailedException {
-    Object user = super.authenticate(credentials);
+    var user = super.authenticate(credentials);
     if (expired_users.contains((String) user)) {
       throw new AuthenticationExpiredException("User already expired.");
     }
@@ -79,7 +79,7 @@ public class ExpirableSecurityManager extends SimpleSecurityManager implements S
 
   private void addToMap(Map<String, List<String>> maps, Object user,
       ResourcePermission permission) {
-    List<String> list = maps.get(user);
+    var list = maps.get(user);
     if (list == null) {
       list = new ArrayList<>();
     }

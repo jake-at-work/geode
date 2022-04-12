@@ -69,7 +69,7 @@ public class AcceptorImplIntegrationTest {
   public void constructorThrowsBindExceptionIfPortIsInUse() throws Exception {
     acceptor1 = createAcceptor();
 
-    Throwable thrown = catchThrowable(() -> acceptor2 = createAcceptor(acceptor1.getPort()));
+    var thrown = catchThrowable(() -> acceptor2 = createAcceptor(acceptor1.getPort()));
 
     assertThat(thrown).isInstanceOf(BindException.class);
   }

@@ -30,11 +30,11 @@ public class FetchEntryMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    FetchEntryMessage mockFetchEntryMessage = mock(FetchEntryMessage.class);
-    ClusterDistributionManager mockDistributionManager = mock(ClusterDistributionManager.class);
-    PartitionedRegion mockPartitionedRegion = mock(PartitionedRegion.class);
-    long startTime = System.currentTimeMillis();
-    Object key = new Object();
+    var mockFetchEntryMessage = mock(FetchEntryMessage.class);
+    var mockDistributionManager = mock(ClusterDistributionManager.class);
+    var mockPartitionedRegion = mock(PartitionedRegion.class);
+    var startTime = System.currentTimeMillis();
+    var key = new Object();
 
     when(mockFetchEntryMessage.operateOnPartitionedRegion(eq(mockDistributionManager),
         eq(mockPartitionedRegion), eq(startTime))).thenReturn(true);

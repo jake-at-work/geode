@@ -37,9 +37,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
-import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache30.MyGatewayEventFilter1;
 import org.apache.geode.cache30.MyGatewayTransportFilter1;
@@ -68,9 +65,9 @@ public class WANConfigurationJUnitTest {
     try {
       cache = new CacheFactory().set(MCAST_PORT, "0").create();
 
-      GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+      var fact = cache.createGatewaySenderFactory();
       fact.setParallel(true);
-      GatewaySender sender1 = fact.create("NYSender", 2);
+      var sender1 = fact.create("NYSender", 2);
       sender1.start();
       fail("Expected IllegalStateException but not thrown");
     } catch (Exception e) {
@@ -85,7 +82,7 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_create_SerialGatewaySender_ThrowsException_when_GroupTransactionEvents_isTrue_and_DispatcherThreads_is_greaterThanOne() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setParallel(false);
     fact.setDispatcherThreads(2);
     fact.setGroupTransactionEvents(true);
@@ -98,7 +95,7 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_create_GatewaySender_ThrowsException_when_GroupTransactionEvents_isTrue_and_BatchConflation_is_enabled() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setBatchConflationEnabled(true);
     fact.setGroupTransactionEvents(true);
     assertThatThrownBy(() -> fact.create("NYSender", 2))
@@ -114,7 +111,7 @@ public class WANConfigurationJUnitTest {
   public void test_SameGatewaySenderCreatedTwice() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
     try {
-      GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+      var fact = cache.createGatewaySenderFactory();
       fact.setParallel(true);
       fact.setManualStart(true);
       fact.create("NYSender", 2);
@@ -137,10 +134,10 @@ public class WANConfigurationJUnitTest {
   public void test_SameGatewaySenderIdAddedTwice() {
     try {
       cache = new CacheFactory().set(MCAST_PORT, "0").create();
-      GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+      var fact = cache.createGatewaySenderFactory();
       fact.setParallel(true);
       fact.setManualStart(true);
-      GatewaySender sender1 = fact.create("NYSender", 2);
+      var sender1 = fact.create("NYSender", 2);
       RegionFactory factory = cache.createRegionFactory();
       factory.addGatewaySenderId(sender1.getId());
       factory.addGatewaySenderId(sender1.getId());
@@ -166,7 +163,7 @@ public class WANConfigurationJUnitTest {
     senderIds.add("ln");
     senderIds.add("ny");
 
-    Region r = factory.create("Customer");
+    var r = factory.create("Customer");
     assertEquals(senderIds, ((LocalRegion) r).getGatewaySenderIds());
   }
 
@@ -178,10 +175,10 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_GatewaySender_Parallel_DistributedRegion() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setParallel(true);
     fact.setManualStart(true);
-    GatewaySender sender1 = fact.create("NYSender", 2);
+    var sender1 = fact.create("NYSender", 2);
 
     RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.REPLICATE);
     regionFactory.addGatewaySenderId(sender1.getId());
@@ -195,12 +192,12 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_GatewaySender_Parallel_MultipleDispatcherThread() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setParallel(true);
     fact.setManualStart(true);
     fact.setDispatcherThreads(4);
     try {
-      GatewaySender sender1 = fact.create("NYSender", 2);
+      var sender1 = fact.create("NYSender", 2);
     } catch (GatewaySenderException e) {
       fail("UnExpected Exception " + e);
     }
@@ -209,11 +206,11 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_GatewaySender_Serial_ZERO_DispatcherThread() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setManualStart(true);
     fact.setDispatcherThreads(0);
     try {
-      GatewaySender sender1 = fact.create("NYSender", 2);
+      var sender1 = fact.create("NYSender", 2);
       fail("Expected GatewaySenderException but not thrown");
     } catch (GatewaySenderException e) {
       if (e.getMessage().contains("can not be created with dispatcher threads less than 1")) {
@@ -229,11 +226,11 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_ValidateGatewayReceiverAttributes() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    int[] randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int port1 = randomAvailableTCPPorts[0];
-    int port2 = randomAvailableTCPPorts[1];
+    var randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var port1 = randomAvailableTCPPorts[0];
+    var port2 = randomAvailableTCPPorts[1];
 
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
+    var fact = cache.createGatewayReceiverFactory();
     if (port1 < port2) {
       fact.setStartPort(port1);
       fact.setEndPort(port2);
@@ -248,12 +245,12 @@ public class WANConfigurationJUnitTest {
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     fact.addGatewayTransportFilter(myStreamFilter2);
     fact.addGatewayTransportFilter(myStreamFilter1);
-    GatewayReceiver receiver1 = fact.create();
+    var receiver1 = fact.create();
 
 
     Region region = cache.createRegionFactory().create("test_ValidateGatewayReceiverAttributes");
-    Set<GatewayReceiver> receivers = cache.getGatewayReceivers();
-    GatewayReceiver rec = receivers.iterator().next();
+    var receivers = cache.getGatewayReceivers();
+    var rec = receivers.iterator().next();
     assertEquals(receiver1.getHostnameForSenders(), rec.getHostnameForSenders());
     assertEquals(receiver1.getStartPort(), rec.getStartPort());
     assertEquals(receiver1.getEndPort(), rec.getEndPort());
@@ -268,11 +265,11 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_ValidateGatewayReceiverStatus() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    int[] randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int port1 = randomAvailableTCPPorts[0];
-    int port2 = randomAvailableTCPPorts[1];
+    var randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var port1 = randomAvailableTCPPorts[0];
+    var port2 = randomAvailableTCPPorts[1];
 
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
+    var fact = cache.createGatewayReceiverFactory();
     if (port1 < port2) {
       fact.setStartPort(port1);
       fact.setEndPort(port2);
@@ -287,7 +284,7 @@ public class WANConfigurationJUnitTest {
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     fact.addGatewayTransportFilter(myStreamFilter2);
     fact.addGatewayTransportFilter(myStreamFilter1);
-    GatewayReceiver receiver1 = fact.create();
+    var receiver1 = fact.create();
     assertTrue(receiver1.isRunning());
   }
 
@@ -297,7 +294,7 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_ValidateSerialGatewaySenderAttributes() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setManualStart(true);
     fact.setBatchConflationEnabled(true);
     fact.setBatchSize(200);
@@ -312,15 +309,15 @@ public class WANConfigurationJUnitTest {
     fact.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     fact.addGatewayTransportFilter(myStreamFilter2);
-    boolean groupTransactionEvents = false;
+    var groupTransactionEvents = false;
     fact.setGroupTransactionEvents(groupTransactionEvents);
-    GatewaySender sender1 = fact.create("TKSender", 2);
+    var sender1 = fact.create("TKSender", 2);
     RegionFactory factory = cache.createRegionFactory(RegionShortcut.PARTITION);
     factory.addGatewaySenderId(sender1.getId());
-    Region region = factory.create("test_ValidateGatewaySenderAttributes");
-    Set<GatewaySender> senders = cache.getGatewaySenders();
+    var region = factory.create("test_ValidateGatewaySenderAttributes");
+    var senders = cache.getGatewaySenders();
     assertEquals(senders.size(), 1);
-    GatewaySender gatewaySender = senders.iterator().next();
+    var gatewaySender = senders.iterator().next();
     assertEquals(sender1.getRemoteDSId(), gatewaySender.getRemoteDSId());
     assertEquals(sender1.isManualStart(), gatewaySender.isManualStart());
     assertEquals(sender1.isBatchConflationEnabled(), gatewaySender.isBatchConflationEnabled());
@@ -343,7 +340,7 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_ValidateParallelGatewaySenderAttributes() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     fact.setParallel(true);
     fact.setManualStart(true);
     fact.setBatchConflationEnabled(true);
@@ -359,15 +356,15 @@ public class WANConfigurationJUnitTest {
     fact.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     fact.addGatewayTransportFilter(myStreamFilter2);
-    GatewaySender sender1 = fact.create("TKSender", 2);
+    var sender1 = fact.create("TKSender", 2);
 
     RegionFactory factory = cache.createRegionFactory(RegionShortcut.PARTITION);
     factory.addGatewaySenderId(sender1.getId());
 
-    Region region = factory.create("test_ValidateGatewaySenderAttributes");
-    Set<GatewaySender> senders = cache.getGatewaySenders();
+    var region = factory.create("test_ValidateGatewaySenderAttributes");
+    var senders = cache.getGatewaySenders();
     assertEquals(1, senders.size());
-    GatewaySender gatewaySender = senders.iterator().next();
+    var gatewaySender = senders.iterator().next();
     assertEquals(sender1.getRemoteDSId(), gatewaySender.getRemoteDSId());
     assertEquals(sender1.isManualStart(), gatewaySender.isManualStart());
     assertEquals(sender1.isBatchConflationEnabled(), gatewaySender.isBatchConflationEnabled());
@@ -386,7 +383,7 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_GatewaySenderWithGatewaySenderEventListener1() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    InternalGatewaySenderFactory fact =
+    var fact =
         (InternalGatewaySenderFactory) cache.createGatewaySenderFactory();
     AsyncEventListener listener = new MyGatewaySenderEventListener();
     fact.addAsyncEventListener(listener);
@@ -407,7 +404,7 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_GatewaySenderWithGatewaySenderEventListener2() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewaySenderFactory fact = cache.createGatewaySenderFactory();
+    var fact = cache.createGatewaySenderFactory();
     AsyncEventListener listener = new MyGatewaySenderEventListener();
     ((InternalGatewaySenderFactory) fact).addAsyncEventListener(listener);
     try {
@@ -420,7 +417,7 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_ValidateGatewayReceiverAttributes_2() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
+    var fact = cache.createGatewayReceiverFactory();
     fact.setStartPort(50504);
     fact.setMaximumTimeBetweenPings(1000);
     fact.setSocketBufferSize(4000);
@@ -429,7 +426,7 @@ public class WANConfigurationJUnitTest {
     GatewayTransportFilter myStreamFilter1 = new MyGatewayTransportFilter1();
     fact.addGatewayTransportFilter(myStreamFilter1);
 
-    GatewayReceiver receiver = fact.create();
+    var receiver = fact.create();
     try {
       receiver.start();
     } catch (IOException e) {
@@ -450,7 +447,7 @@ public class WANConfigurationJUnitTest {
   @Test(timeout = 150000)
   public void test_ValidateGatewayReceiverAttributes_WrongBindAddress() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
+    var fact = cache.createGatewayReceiverFactory();
     fact.setStartPort(50505);
     fact.setMaximumTimeBetweenPings(1000);
     fact.setSocketBufferSize(4000);
@@ -460,8 +457,8 @@ public class WANConfigurationJUnitTest {
     GatewayTransportFilter myStreamFilter1 = new MyGatewayTransportFilter1();
     fact.addGatewayTransportFilter(myStreamFilter1);
 
-    long then = System.currentTimeMillis();
-    GatewayReceiver receiver = fact.create();
+    var then = System.currentTimeMillis();
+    var receiver = fact.create();
     assertThatThrownBy(receiver::start).isInstanceOf(GatewayReceiverException.class)
         .hasMessageContaining("No available free port found in the given range");
   }
@@ -469,20 +466,20 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_ValidateGatewayReceiverDefaultStartPortAndDefaultEndPort() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
+    var fact = cache.createGatewayReceiverFactory();
     fact.setMaximumTimeBetweenPings(1000);
     fact.setSocketBufferSize(4000);
     fact.setManualStart(true);
     GatewayTransportFilter myStreamFilter1 = new MyGatewayTransportFilter1();
     fact.addGatewayTransportFilter(myStreamFilter1);
 
-    GatewayReceiver receiver = fact.create();
+    var receiver = fact.create();
     try {
       receiver.start();
     } catch (IOException e) {
       fail("The test failed with IOException");
     }
-    int port = receiver.getPort();
+    var port = receiver.getPort();
     if ((port < 5000) || (port > 5500)) {
       fail("GatewayReceiver started on out of range port");
     }
@@ -491,7 +488,7 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_ValidateGatewayReceiverDefaultStartPortAndEndPortProvided() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
+    var fact = cache.createGatewayReceiverFactory();
     fact.setMaximumTimeBetweenPings(1000);
     fact.setSocketBufferSize(4000);
     fact.setEndPort(50707);
@@ -499,13 +496,13 @@ public class WANConfigurationJUnitTest {
     GatewayTransportFilter myStreamFilter1 = new MyGatewayTransportFilter1();
     fact.addGatewayTransportFilter(myStreamFilter1);
 
-    GatewayReceiver receiver = fact.create();
+    var receiver = fact.create();
     try {
       receiver.start();
     } catch (IOException e) {
       fail("The test failed with IOException");
     }
-    int port = receiver.getPort();
+    var port = receiver.getPort();
     if ((port < GatewayReceiver.DEFAULT_START_PORT) || (port > 50707)) {
       fail("GatewayReceiver started on out of range port");
     }
@@ -514,15 +511,15 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_ValidateGatewayReceiverWithManualStartFALSE() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
+    var fact = cache.createGatewayReceiverFactory();
     fact.setMaximumTimeBetweenPings(1000);
     fact.setSocketBufferSize(4000);
     fact.setStartPort(5303);
     fact.setManualStart(false);
     GatewayTransportFilter myStreamFilter1 = new MyGatewayTransportFilter1();
     fact.addGatewayTransportFilter(myStreamFilter1);
-    GatewayReceiver receiver = fact.create();
-    int port = receiver.getPort();
+    var receiver = fact.create();
+    var port = receiver.getPort();
     if ((port < 5303) || (port > GatewayReceiver.DEFAULT_END_PORT)) {
       fail("GatewayReceiver started on out of range port");
     }
@@ -531,7 +528,7 @@ public class WANConfigurationJUnitTest {
   @Test
   public void test_ValidateGatewayReceiverWithStartPortAndDefaultEndPort() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
+    var fact = cache.createGatewayReceiverFactory();
     fact.setMaximumTimeBetweenPings(1000);
     fact.setSocketBufferSize(4000);
     fact.setStartPort(5303);
@@ -539,13 +536,13 @@ public class WANConfigurationJUnitTest {
     GatewayTransportFilter myStreamFilter1 = new MyGatewayTransportFilter1();
     fact.addGatewayTransportFilter(myStreamFilter1);
 
-    GatewayReceiver receiver = fact.create();
+    var receiver = fact.create();
     try {
       receiver.start();
     } catch (IOException e) {
       fail("The test failed with IOException");
     }
-    int port = receiver.getPort();
+    var port = receiver.getPort();
     if ((port < 5303) || (port > GatewayReceiver.DEFAULT_END_PORT)) {
       fail("GatewayReceiver started on out of range port");
     }
@@ -555,11 +552,11 @@ public class WANConfigurationJUnitTest {
   public void test_ValidateGatewayReceiverWithWrongEndPortProvided() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
     try {
-      GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
+      var fact = cache.createGatewayReceiverFactory();
       fact.setMaximumTimeBetweenPings(1000);
       fact.setSocketBufferSize(4000);
       fact.setEndPort(4999);
-      GatewayReceiver receiver = fact.create();
+      var receiver = fact.create();
       fail("wrong end port set in the GatewayReceiver");
     } catch (IllegalStateException expected) {
       if (!expected.getMessage()

@@ -101,7 +101,7 @@ public abstract class StatisticsMonitor {
   }
 
   protected void notifyListeners(final StatisticsNotification notification) {
-    for (StatisticsListener listener : listeners) {
+    for (var listener : listeners) {
       listener.handleNotification(notification);
     }
   }
@@ -124,11 +124,11 @@ public abstract class StatisticsMonitor {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder(getClass().getName());
+    final var sb = new StringBuilder(getClass().getName());
     sb.append("@").append(System.identityHashCode(this)).append("{");
     sb.append("statisticIds=").append(statisticIds);
     sb.append(", listeners=").append(listeners);
-    final StringBuilder toAppend = appendToString();
+    final var toAppend = appendToString();
     if (toAppend == null) {
       sb.append(", ").append(toAppend);
     }

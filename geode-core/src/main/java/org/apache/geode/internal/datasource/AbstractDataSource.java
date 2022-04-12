@@ -205,7 +205,7 @@ public abstract class AbstractDataSource implements Serializable, DataSource, Au
    */
   public void checkCredentials(String clUser, String clPass) throws SQLException {
     if (clUser == null || !clUser.equals(user) || clPass == null || !clPass.equals(password)) {
-      String error =
+      var error =
           String.format(
               "Cannot create a connection with the user, %s, as it doesnt match the existing user named %s, or the password was incorrect.",
               clUser, clPass);

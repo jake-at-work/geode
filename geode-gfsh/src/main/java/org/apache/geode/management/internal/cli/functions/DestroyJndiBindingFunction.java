@@ -34,10 +34,10 @@ public class DestroyJndiBindingFunction extends CliFunction<Object[]> {
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext<Object[]> context) {
-    String jndiName = (String) context.getArguments()[0];
-    boolean destroyingDataSource = (boolean) context.getArguments()[1];
+    var jndiName = (String) context.getArguments()[0];
+    var destroyingDataSource = (boolean) context.getArguments()[1];
 
-    String typeName = "Jndi binding";
+    var typeName = "Jndi binding";
 
     if (destroyingDataSource) {
       typeName = "Data source";
@@ -49,8 +49,8 @@ public class DestroyJndiBindingFunction extends CliFunction<Object[]> {
       }
     }
 
-    final String RESULT_MESSAGE = "{0} \"{1}\" destroyed on \"{2}\"";
-    final String EXCEPTION_RESULT_MESSAGE = "{0} \"{1}\" not found on \"{2}\"";
+    final var RESULT_MESSAGE = "{0} \"{1}\" destroyed on \"{2}\"";
+    final var EXCEPTION_RESULT_MESSAGE = "{0} \"{1}\" not found on \"{2}\"";
 
     try {
       JNDIInvoker.unMapDatasource(jndiName);

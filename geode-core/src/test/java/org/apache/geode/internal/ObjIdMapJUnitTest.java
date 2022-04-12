@@ -25,7 +25,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -39,8 +38,8 @@ public class ObjIdMapJUnitTest {
 
   @Test
   public void testSimplePut() {
-    ObjIdMap map = new ObjIdMap();
-    int key = 4;
+    var map = new ObjIdMap();
+    var key = 4;
     Object value = key;
     map.put(key, value);
     assertSame(value, map.get(key));
@@ -48,15 +47,15 @@ public class ObjIdMapJUnitTest {
 
   @Test
   public void testGetNotThere() {
-    ObjIdMap map = new ObjIdMap();
-    int key = 4;
+    var map = new ObjIdMap();
+    var key = 4;
     assertSame(null, map.get(key));
   }
 
   @Test
   public void testSimpleContainsKey() {
-    ObjIdMap map = new ObjIdMap();
-    int key = 4;
+    var map = new ObjIdMap();
+    var key = 4;
     Object value = key;
     map.put(key, value);
     assertTrue(map.containsKey(key));
@@ -64,8 +63,8 @@ public class ObjIdMapJUnitTest {
 
   @Test
   public void testSimpleRemove() {
-    ObjIdMap map = new ObjIdMap();
-    int key = 4;
+    var map = new ObjIdMap();
+    var key = 4;
     Object value = key;
     map.put(key, value);
     assertSame(value, map.remove(key));
@@ -73,16 +72,16 @@ public class ObjIdMapJUnitTest {
 
   @Test
   public void testSimpleValues() {
-    ObjIdMap map = new ObjIdMap();
-    for (int i = 0; i < 20; i++) {
+    var map = new ObjIdMap();
+    for (var i = 0; i < 20; i++) {
       map.put(i, i);
     }
 
-    Object[] values = map.values();
+    var values = map.values();
     assertEquals(20, values.length);
-    for (int i = 0; i < 20; i++) {
-      boolean found = false;
-      for (final Object value : values) {
+    for (var i = 0; i < 20; i++) {
+      var found = false;
+      for (final var value : values) {
         if (value.equals(i)) {
           found = true;
           break;
@@ -95,36 +94,36 @@ public class ObjIdMapJUnitTest {
 
   @Test
   public void testRandomMap() {
-    final ObjIdMap map = new ObjIdMap();
-    final int size = 1000;
+    final var map = new ObjIdMap();
+    final var size = 1000;
 
     // ----------------------
     // This test naively assumed that a list of 1000 ints or 1000 longs would
     // yield 1000 distinct values. This has been rewritten to ensure
     // this invariant...
     // ----------------------
-    Random random = new Random();
+    var random = new Random();
 
     // Loop until we have 1000 keys. This addresses the slight
     // possibility of duplicates...
-    HashSet<Integer> keySet = new HashSet<>();
+    var keySet = new HashSet<Integer>();
     while (keySet.size() != size) {
-      int key = Math.abs(random.nextInt());
+      var key = Math.abs(random.nextInt());
       keySet.add(key);
     }
 
     // Loop until we have 1000 values
-    HashSet<Long> valueSet = new HashSet<>();
+    var valueSet = new HashSet<Long>();
     while (valueSet.size() != size) {
-      long value = Math.abs(random.nextLong());
+      var value = Math.abs(random.nextLong());
       valueSet.add(value);
     }
 
-    Iterator<Integer> keyIt = keySet.iterator();
-    Iterator<Long> valueIt = valueSet.iterator();
-    int[] keys = new int[size];
-    Long[] values = new Long[size];
-    for (int i = 0; i < size; i++) {
+    var keyIt = keySet.iterator();
+    var valueIt = valueSet.iterator();
+    var keys = new int[size];
+    var values = new Long[size];
+    for (var i = 0; i < size; i++) {
       keys[i] = keyIt.next();
       values[i] = valueIt.next();
     }
@@ -134,25 +133,25 @@ public class ObjIdMapJUnitTest {
     // ----------------------
 
     // Now populate the map...
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       map.put(keys[i], values[i]);
     }
     assertEquals("Map is not correct size", size, map.size());
 
-    for (int i = 0; i < size; i++) {
-      int key = keys[i];
+    for (var i = 0; i < size; i++) {
+      var key = keys[i];
       assertTrue("Map does not contain key", map.containsKey(key));
       assertEquals("Map has wrong value for key", values[i], map.get(key));
     }
 
-    Object[] valueArray = map.values();
+    var valueArray = map.values();
     assertEquals("Value array for map is wrong size", size, valueArray.length);
 
-    for (int i = 0; i < size; i++) {
-      boolean found = false;
-      int key = keys[i];
+    for (var i = 0; i < size; i++) {
+      var found = false;
+      var key = keys[i];
       Object value = values[i];
-      for (final Object o : valueArray) {
+      for (final var o : valueArray) {
         if (o.equals(value)) {
           found = true;
           break;
@@ -165,19 +164,19 @@ public class ObjIdMapJUnitTest {
 
   @Test
   public void testRandomGrowRemoveRelease() {
-    ObjIdMap map = new ObjIdMap();
-    Random random = new Random(System.currentTimeMillis());
+    var map = new ObjIdMap();
+    var random = new Random(System.currentTimeMillis());
     List saver = new ArrayList();
-    BitSet bits = new BitSet();
-    int maxSize = 10000;
-    boolean growing = true;
-    int numAdds = 0;
-    int numRemoves = 0;
-    int numReleases = 0;
-    int numChecks = 0;
+    var bits = new BitSet();
+    var maxSize = 10000;
+    var growing = true;
+    var numAdds = 0;
+    var numRemoves = 0;
+    var numReleases = 0;
+    var numChecks = 0;
 
     while (growing || saver.size() > 0) {
-      int op = random.nextInt(8);
+      var op = random.nextInt(8);
       // System.out.println("saver size: " + saver.size() + ", map size: " + map.size());
       switch (op) {
         case 0: // Add new value - more likely to occur than removes
@@ -186,7 +185,7 @@ public class ObjIdMapJUnitTest {
           if (!growing) {
             break;
           }
-          int key = Math.abs(random.nextInt(10 * maxSize));
+          var key = Math.abs(random.nextInt(10 * maxSize));
           if (bits.get(key)) {
             // We don't want the newValue in the saver List twice
             // because it is only in the map once.
@@ -207,7 +206,7 @@ public class ObjIdMapJUnitTest {
           }
           numRemoves++;
           key = random.nextInt(saver.size());
-          Integer value = (Integer) saver.remove(key);
+          var value = (Integer) saver.remove(key);
           bits.clear(value);
           assertNotNull(map.remove(value));
           break;
@@ -227,8 +226,8 @@ public class ObjIdMapJUnitTest {
             break;
           }
           numChecks++;
-          Integer valueToCheck = (Integer) saver.get(random.nextInt(saver.size()));
-          WeakReference ref = (WeakReference) map.get(valueToCheck);
+          var valueToCheck = (Integer) saver.get(random.nextInt(saver.size()));
+          var ref = (WeakReference) map.get(valueToCheck);
           assertTrue(ref != null);
           assertEquals(valueToCheck, ref.get());
           break;
@@ -242,24 +241,24 @@ public class ObjIdMapJUnitTest {
 
   @Test
   public void testIterator() {
-    int size = 10;
-    ObjIdMap map = new ObjIdMap();
-    for (int i = 0; i < size; i++) {
+    var size = 10;
+    var map = new ObjIdMap();
+    for (var i = 0; i < size; i++) {
       map.put(i, i);
     }
     assertEquals(size, map.size());
 
-    boolean[] found = new boolean[size];
+    var found = new boolean[size];
 
-    ObjIdMap.EntryIterator iter = map.iterator();
-    for (ObjIdMap.Entry e = iter.next(); e != null; e = iter.next()) {
-      int key = e.key;
+    var iter = map.iterator();
+    for (var e = iter.next(); e != null; e = iter.next()) {
+      var key = e.key;
       // System.out.println(key);
       assertFalse("Already saw " + key, found[key]);
       found[key] = true;
     }
 
-    for (int i = 0; i < found.length; i++) {
+    for (var i = 0; i < found.length; i++) {
       assertTrue(i + " not found", found[i]);
     }
 

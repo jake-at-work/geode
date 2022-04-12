@@ -45,7 +45,7 @@ public class ClientDenylistProcessor extends ReplyProcessor21 {
 
   public static void sendDenylistedClient(ClientProxyMembershipID proxyId, DistributionManager dm,
       Set members) {
-    ClientDenylistProcessor processor = new ClientDenylistProcessor(dm, members);
+    var processor = new ClientDenylistProcessor(dm, members);
     ClientDenylistMessage.send(proxyId, dm, processor, members);
     try {
       processor.waitForRepliesUninterruptibly();
@@ -79,7 +79,7 @@ public class ClientDenylistProcessor extends ReplyProcessor21 {
 
     protected static void send(ClientProxyMembershipID proxyId, DistributionManager dm,
         ClientDenylistProcessor proc, Set members) {
-      ClientDenylistMessage msg = new ClientDenylistMessage();
+      var msg = new ClientDenylistMessage();
       msg.processorId = proc.getProcessorId();
       msg.proxyId = proxyId;
       msg.setRecipients(members);
@@ -102,12 +102,12 @@ public class ClientDenylistProcessor extends ReplyProcessor21 {
         if (c != null) {
           List l = c.getCacheServers();
           if (l != null) {
-            for (final Object o : l) {
-              CacheServerImpl bs = (CacheServerImpl) o;
-              CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+            for (final var o : l) {
+              var bs = (CacheServerImpl) o;
+              var ccn = bs.getAcceptor().getCacheClientNotifier();
               // add client to the deny list.
               ccn.addToDenylistedClient(proxyId);
-              CacheClientProxy proxy = ccn.getClientProxy(proxyId);
+              var proxy = ccn.getClientProxy(proxyId);
               if (proxy != null) {
                 // close the proxy and remove from client proxy list.
                 proxy.close(false, false);
@@ -117,7 +117,7 @@ public class ClientDenylistProcessor extends ReplyProcessor21 {
           }
         }
       } finally {
-        ClientDenylistReply reply = new ClientDenylistReply();
+        var reply = new ClientDenylistReply();
         reply.setProcessorId(getProcessorId());
         reply.setRecipient(getSender());
         if (dm.getId().equals(getSender())) {

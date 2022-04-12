@@ -42,15 +42,15 @@ public class ConnectionEndpointConverter implements Converter<ConnectionEndpoint
   public ConnectionEndpoint convertFromText(String value, Class<?> targetType,
       String optionContext) {
     // expected format host[port], port is optional
-    String endpointStr = value.trim();
+    var endpointStr = value.trim();
 
-    String hostStr = DEFAULT_JMX_HOST;
-    String portStr = "";
-    int port = DEFAULT_JMX_PORT;
+    var hostStr = DEFAULT_JMX_HOST;
+    var portStr = "";
+    var port = DEFAULT_JMX_PORT;
 
     if (!endpointStr.isEmpty()) {
-      int openIndex = endpointStr.indexOf("[");
-      int closeIndex = endpointStr.indexOf("]");
+      var openIndex = endpointStr.indexOf("[");
+      var closeIndex = endpointStr.indexOf("]");
 
       if (openIndex != -1) {// might have a port
         if (closeIndex == -1) {

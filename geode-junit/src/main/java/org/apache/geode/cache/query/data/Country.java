@@ -38,8 +38,8 @@ public class Country implements Serializable {
   }// end of constructor 1
 
   public Country(int i, Set states) {
-    String[] arr1 = {"USA", "INDIA", "ISRAEL", "CANADA", "AUSTRALIA"};
-    String[] arr2 = {"AMERICA", "ASIA", "AFRICA", "AMERICA", "AUSTRALIA"};
+    var arr1 = new String[] {"USA", "INDIA", "ISRAEL", "CANADA", "AUSTRALIA"};
+    var arr2 = new String[] {"AMERICA", "ASIA", "AFRICA", "AMERICA", "AUSTRALIA"};
     /* this is for the test to have 20% of the objects belonging to one country */
     name = arr1[i % 5];
     continent = arr2[i % 5];
@@ -47,33 +47,33 @@ public class Country implements Serializable {
   }// end of constructor 2
 
   public Country(int i, int numStates, int numDistricts, int numCities, int numVillages) {
-    String[] arr1 = {"USA", "INDIA", "ISRAEL", "CANADA", "AUSTRALIA"};
-    String[] arr2 = {"AMERICA", "ASIA", "AFRICA", "AMERICA", "AUSTRALIA"};
+    var arr1 = new String[] {"USA", "INDIA", "ISRAEL", "CANADA", "AUSTRALIA"};
+    var arr2 = new String[] {"AMERICA", "ASIA", "AFRICA", "AMERICA", "AUSTRALIA"};
     /* this is for the test to have 20% of the objects belonging to one country */
     name = arr1[i % 5];
     continent = arr2[i % 5];
 
     //////// create villages
     Set villages = new HashSet();
-    for (int j = 0; j < numVillages; j++) {
+    for (var j = 0; j < numVillages; j++) {
       villages.add(new Village(j));
     }
 
     //////// create cities
     Set cities = new HashSet();
-    for (int j = 0; j < numCities; j++) {
+    for (var j = 0; j < numCities; j++) {
       cities.add(new City(j));
     }
 
     //////// create districts
     Set districts = new HashSet();
-    for (int j = 0; j < numDistricts; j++) {
+    for (var j = 0; j < numDistricts; j++) {
       districts.add(new District(j, cities, villages));
     }
 
     //////// create states
     Set states = new HashSet();
-    for (int j = 0; j < numStates; j++) {
+    for (var j = 0; j < numStates; j++) {
       states.add(new State(j, districts));
     }
 

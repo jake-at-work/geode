@@ -65,7 +65,7 @@ public class Customer implements DataSerializable {
       return false;
     }
 
-    Customer cust = (Customer) o;
+    var cust = (Customer) o;
     return (cust.name.equals(name) && cust.address.equals(address));
   }
 

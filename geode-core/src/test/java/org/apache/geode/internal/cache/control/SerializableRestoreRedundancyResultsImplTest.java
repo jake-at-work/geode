@@ -30,8 +30,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -111,8 +109,8 @@ public class SerializableRestoreRedundancyResultsImplTest {
     results.addRegionResult(zeroRedundancyRegionResult);
     results.addPrimaryReassignmentDetails(details);
 
-    String message = results.getRegionOperationMessage();
-    List<String> messageLines = Arrays.asList(message.split(System.lineSeparator()));
+    var message = results.getRegionOperationMessage();
+    var messageLines = Arrays.asList(message.split(System.lineSeparator()));
 
     assertThat(messageLines).contains(NO_REDUNDANT_COPIES_FOR_REGIONS,
         zeroRedundancyRegionResult.toString(),
@@ -130,19 +128,19 @@ public class SerializableRestoreRedundancyResultsImplTest {
     results.addRegionResult(underRedundancyRegionResult);
     results.addRegionResult(successfulRegionResult);
 
-    Map<String, RegionRedundancyStatus> zeroRedundancyResults =
+    var zeroRedundancyResults =
         results.getZeroRedundancyRegionResults();
     assertThat(zeroRedundancyResults.size()).isEqualTo(1);
     assertThat(zeroRedundancyResults.get(zeroRedundancyRegionName))
         .isEqualTo(zeroRedundancyRegionResult);
 
-    Map<String, RegionRedundancyStatus> underRedundancyResults =
+    var underRedundancyResults =
         results.getUnderRedundancyRegionResults();
     assertThat(underRedundancyResults.size()).isEqualTo(1);
     assertThat(underRedundancyResults.get(underRedundancyRegionName))
         .isEqualTo(underRedundancyRegionResult);
 
-    Map<String, RegionRedundancyStatus> successfulRegionResults =
+    var successfulRegionResults =
         results.getSatisfiedRedundancyRegionResults();
     assertThat(successfulRegionResults.size()).isEqualTo(1);
     assertThat(successfulRegionResults.get(successfulRegionName)).isEqualTo(successfulRegionResult);
@@ -150,7 +148,7 @@ public class SerializableRestoreRedundancyResultsImplTest {
 
   @Test
   public void addRegionResultsAddsToCorrectInternalMapAndAddsPrimaryReassignmentDetails() {
-    RestoreRedundancyResults regionResults = mock(RestoreRedundancyResults.class);
+    var regionResults = mock(RestoreRedundancyResults.class);
     when(regionResults.getZeroRedundancyRegionResults())
         .thenReturn(Collections.singletonMap(zeroRedundancyRegionName, zeroRedundancyRegionResult));
     when(regionResults.getUnderRedundancyRegionResults()).thenReturn(
@@ -162,19 +160,19 @@ public class SerializableRestoreRedundancyResultsImplTest {
 
     results.addRegionResults(regionResults);
 
-    Map<String, RegionRedundancyStatus> zeroRedundancyResults =
+    var zeroRedundancyResults =
         results.getZeroRedundancyRegionResults();
     assertThat(zeroRedundancyResults.size()).isEqualTo(1);
     assertThat(zeroRedundancyResults.get(zeroRedundancyRegionName))
         .isEqualTo(zeroRedundancyRegionResult);
 
-    Map<String, RegionRedundancyStatus> underRedundancyResults =
+    var underRedundancyResults =
         results.getUnderRedundancyRegionResults();
     assertThat(underRedundancyResults.size()).isEqualTo(1);
     assertThat(underRedundancyResults.get(underRedundancyRegionName))
         .isEqualTo(underRedundancyRegionResult);
 
-    Map<String, RegionRedundancyStatus> successfulRegionResults =
+    var successfulRegionResults =
         results.getSatisfiedRedundancyRegionResults();
     assertThat(successfulRegionResults.size()).isEqualTo(1);
     assertThat(successfulRegionResults.get(successfulRegionName)).isEqualTo(successfulRegionResult);
@@ -198,21 +196,21 @@ public class SerializableRestoreRedundancyResultsImplTest {
   @Test
   public void testSerializable() throws JsonProcessingException {
 
-    RestoreRedundancyResultsImpl restoreRedundancyResults = new RestoreRedundancyResultsImpl();
+    var restoreRedundancyResults = new RestoreRedundancyResultsImpl();
     restoreRedundancyResults.setStatusMessage(TEST_STRING);
     restoreRedundancyResults.setSuccess(true);
     restoreRedundancyResults.setTotalPrimaryTransfersCompleted(150);
     restoreRedundancyResults.setTotalPrimaryTransferTime(250);
-    RegionRedundancyStatusImpl regionRedundancyStatus = new RegionRedundancyStatusImpl();
+    var regionRedundancyStatus = new RegionRedundancyStatusImpl();
     regionRedundancyStatus.setActualRedundancy(1);
     regionRedundancyStatus.setConfiguredRedundancy(1);
     regionRedundancyStatus.setRegionName("/foo");
     regionRedundancyStatus.setStatus(SATISFIED);
     restoreRedundancyResults.addRegionResult(regionRedundancyStatus);
-    String jsonString = geodeMapper.writeValueAsString(restoreRedundancyResults);
+    var jsonString = geodeMapper.writeValueAsString(restoreRedundancyResults);
 
     // deserialize the class
-    RestoreRedundancyResultsImpl value =
+    var value =
         geodeMapper.readValue(jsonString, RestoreRedundancyResultsImpl.class);
 
     assertThat(value).usingRecursiveComparison().isEqualTo(restoreRedundancyResults);

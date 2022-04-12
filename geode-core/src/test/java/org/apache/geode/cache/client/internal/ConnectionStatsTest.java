@@ -336,7 +336,7 @@ public class ConnectionStatsTest {
       ConnectionStats.getSendType().nameToId("unregisterInterestSendsInProgress");
 
   private StatisticsFactory createStatisticsFactory(Statistics sendStats) {
-    StatisticsFactory statisticsFactory = mock(StatisticsFactory.class);
+    var statisticsFactory = mock(StatisticsFactory.class);
     when(statisticsFactory.createAtomicStatistics(any(), eq("ClientStats-name")))
         .thenReturn(stats);
     when(statisticsFactory.createAtomicStatistics(any(), eq("ClientSendStats-name")))
@@ -353,8 +353,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void incMessagesBeingReceived() {
-    int messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
-    int messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
+    var messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
+    var messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
     connectionStats.incMessagesBeingReceived(10);
     verify(stats).incInt(messagesStatId, 1);
     verify(stats).incLong(messagesBytesStatId, 10);
@@ -362,8 +362,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void incMessagesBeingReceived_messageSizeIsZero() {
-    int messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
-    int messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
+    var messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
+    var messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
     connectionStats.incMessagesBeingReceived(0);
     verify(stats).incInt(messagesStatId, 1);
     verify(stats, never()).incLong(eq(messagesBytesStatId), anyInt());
@@ -371,8 +371,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void decMessagesBeingReceived() {
-    int messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
-    int messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
+    var messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
+    var messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
     connectionStats.decMessagesBeingReceived(10);
     verify(stats).incInt(messagesStatId, -1);
     verify(stats).incLong(messagesBytesStatId, -10);
@@ -380,8 +380,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void decMessagesBeingReceived_messageSizeIsZero() {
-    int messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
-    int messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
+    var messagesStatId = ConnectionStats.getType().nameToId("messagesBeingReceived");
+    var messagesBytesStatId = ConnectionStats.getType().nameToId("messageBytesBeingReceived");
     connectionStats.decMessagesBeingReceived(0);
     verify(stats).incInt(messagesStatId, -1);
     verify(stats, never()).incLong(eq(messagesBytesStatId), anyInt());
@@ -389,7 +389,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endAddPdxType_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("addPdxTypeTimeouts");
+    var statId = ConnectionStats.getType().nameToId("addPdxTypeTimeouts");
 
     connectionStats.endAddPdxType(1, true, true);
 
@@ -400,7 +400,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endAddPdxType_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("addPdxTypeTimeouts");
+    var statId = ConnectionStats.getType().nameToId("addPdxTypeTimeouts");
 
     connectionStats.endAddPdxType(1, true, false);
 
@@ -411,7 +411,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endAddPdxType_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("addPdxTypeFailures");
+    var statId = ConnectionStats.getType().nameToId("addPdxTypeFailures");
 
     connectionStats.endAddPdxType(1, false, true);
 
@@ -422,7 +422,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endAddPdxType_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("addPdxTypeSuccessful");
+    var statId = ConnectionStats.getType().nameToId("addPdxTypeSuccessful");
 
     connectionStats.endAddPdxType(1, false, false);
 
@@ -433,7 +433,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endAddPdxTypeSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("addPdxTypeSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("addPdxTypeSendFailures");
 
     connectionStats.endAddPdxTypeSend(1, true);
 
@@ -444,7 +444,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endAddPdxTypeSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("addPdxTypeSendsSuccessful");
+    var statId = ConnectionStats.getSendType().nameToId("addPdxTypeSendsSuccessful");
 
     connectionStats.endAddPdxTypeSend(1, false);
 
@@ -455,8 +455,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startAddPdx() {
-    int statId = ConnectionStats.getType().nameToId("addPdxTypeInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("addPdxTypeSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("addPdxTypeInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("addPdxTypeSendsInProgress");
 
     connectionStats.startAddPdxType();
 
@@ -466,7 +466,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endClearSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("clearSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("clearSendFailures");
 
     connectionStats.endClearSend(1, true);
 
@@ -477,7 +477,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endClearSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("clearSends");
+    var statId = ConnectionStats.getSendType().nameToId("clearSends");
 
     connectionStats.endClearSend(1, false);
 
@@ -488,7 +488,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endClear_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("clearTimeouts");
+    var statId = ConnectionStats.getType().nameToId("clearTimeouts");
 
     connectionStats.endClear(1, true, true);
 
@@ -499,7 +499,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endClear_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("clearTimeouts");
+    var statId = ConnectionStats.getType().nameToId("clearTimeouts");
 
     connectionStats.endClear(1, true, false);
 
@@ -510,7 +510,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endClear_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("clearFailures");
+    var statId = ConnectionStats.getType().nameToId("clearFailures");
 
     connectionStats.endClear(1, false, true);
 
@@ -521,7 +521,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endClear_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("clears");
+    var statId = ConnectionStats.getType().nameToId("clears");
 
     connectionStats.endClear(1, false, false);
 
@@ -532,8 +532,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startClear() {
-    int statId = ConnectionStats.getType().nameToId("clearsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("clearSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("clearsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("clearSendsInProgress");
 
     connectionStats.startClear();
 
@@ -543,7 +543,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseConSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("closeConSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("closeConSendFailures");
 
     connectionStats.endCloseConSend(1, true);
 
@@ -554,7 +554,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseConSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("closeConSends");
+    var statId = ConnectionStats.getSendType().nameToId("closeConSends");
 
     connectionStats.endCloseConSend(1, false);
 
@@ -565,7 +565,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCon_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("closeConTimeouts");
+    var statId = ConnectionStats.getType().nameToId("closeConTimeouts");
 
     connectionStats.endCloseCon(1, true, true);
 
@@ -576,7 +576,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCon_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("closeConTimeouts");
+    var statId = ConnectionStats.getType().nameToId("closeConTimeouts");
 
     connectionStats.endCloseCon(1, true, false);
 
@@ -587,7 +587,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCon_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("closeConFailures");
+    var statId = ConnectionStats.getType().nameToId("closeConFailures");
 
     connectionStats.endCloseCon(1, false, true);
 
@@ -598,7 +598,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCon_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("closeCons");
+    var statId = ConnectionStats.getType().nameToId("closeCons");
 
     connectionStats.endCloseCon(1, false, false);
 
@@ -609,8 +609,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startCloseCon() {
-    int statId = ConnectionStats.getType().nameToId("closeConsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("closeConSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("closeConsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("closeConSendsInProgress");
 
     connectionStats.startCloseCon();
 
@@ -620,7 +620,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCQSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("closeCQSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("closeCQSendFailures");
 
     connectionStats.endCloseCQSend(1, true);
 
@@ -631,7 +631,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCQSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("closeCQSends");
+    var statId = ConnectionStats.getSendType().nameToId("closeCQSends");
 
     connectionStats.endCloseCQSend(1, false);
 
@@ -642,7 +642,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCQ_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("closeCQTimeouts");
+    var statId = ConnectionStats.getType().nameToId("closeCQTimeouts");
 
     connectionStats.endCloseCQ(1, true, true);
 
@@ -653,7 +653,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCQ_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("closeCQTimeouts");
+    var statId = ConnectionStats.getType().nameToId("closeCQTimeouts");
 
     connectionStats.endCloseCQ(1, true, false);
 
@@ -664,7 +664,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCQ_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("closeCQFailures");
+    var statId = ConnectionStats.getType().nameToId("closeCQFailures");
 
     connectionStats.endCloseCQ(1, false, true);
 
@@ -675,7 +675,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCloseCQ_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("closeCQs");
+    var statId = ConnectionStats.getType().nameToId("closeCQs");
 
     connectionStats.endCloseCQ(1, false, false);
 
@@ -686,8 +686,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startCloseCQ() {
-    int statId = ConnectionStats.getType().nameToId("closeCQsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("closeCQSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("closeCQsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("closeCQSendsInProgress");
 
     connectionStats.startCloseCQ();
 
@@ -697,7 +697,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCreateCQSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("createCQSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("createCQSendFailures");
 
     connectionStats.endCreateCQSend(1, true);
 
@@ -708,7 +708,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCreateCQSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("createCQSends");
+    var statId = ConnectionStats.getSendType().nameToId("createCQSends");
 
     connectionStats.endCreateCQSend(1, false);
 
@@ -719,7 +719,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCreateCQ_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("createCQTimeouts");
+    var statId = ConnectionStats.getType().nameToId("createCQTimeouts");
 
     connectionStats.endCreateCQ(1, true, true);
 
@@ -730,7 +730,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCreateCQ_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("createCQTimeouts");
+    var statId = ConnectionStats.getType().nameToId("createCQTimeouts");
 
     connectionStats.endCreateCQ(1, true, false);
 
@@ -741,7 +741,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCreateCQ_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("createCQFailures");
+    var statId = ConnectionStats.getType().nameToId("createCQFailures");
 
     connectionStats.endCreateCQ(1, false, true);
 
@@ -752,7 +752,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCreateCQ_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("createCQs");
+    var statId = ConnectionStats.getType().nameToId("createCQs");
 
     connectionStats.endCreateCQ(1, false, false);
 
@@ -763,8 +763,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startCreateCQ() {
-    int statId = ConnectionStats.getType().nameToId("createCQsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("createCQSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("createCQsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("createCQSendsInProgress");
 
     connectionStats.startCreateCQ();
 
@@ -774,7 +774,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCommitSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("commitSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("commitSendFailures");
 
     connectionStats.endCommitSend(1, true);
 
@@ -785,7 +785,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCommitSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("commitSends");
+    var statId = ConnectionStats.getSendType().nameToId("commitSends");
 
     connectionStats.endCommitSend(1, false);
 
@@ -796,7 +796,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCommit_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("commitTimeouts");
+    var statId = ConnectionStats.getType().nameToId("commitTimeouts");
 
     connectionStats.endCommit(1, true, true);
 
@@ -807,7 +807,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCommit_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("commitTimeouts");
+    var statId = ConnectionStats.getType().nameToId("commitTimeouts");
 
     connectionStats.endCommit(1, true, false);
 
@@ -818,7 +818,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCommit_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("commitFailures");
+    var statId = ConnectionStats.getType().nameToId("commitFailures");
 
     connectionStats.endCommit(1, false, true);
 
@@ -829,7 +829,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endCommit_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("commits");
+    var statId = ConnectionStats.getType().nameToId("commits");
 
     connectionStats.endCommit(1, false, false);
 
@@ -840,8 +840,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startCommit() {
-    int statId = ConnectionStats.getType().nameToId("commitsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("commitSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("commitsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("commitSendsInProgress");
 
     connectionStats.startCommit();
 
@@ -851,7 +851,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endContainsKeySend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("containsKeySendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("containsKeySendFailures");
 
     connectionStats.endContainsKeySend(1, true);
 
@@ -862,7 +862,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endContainsKeySend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("containsKeySends");
+    var statId = ConnectionStats.getSendType().nameToId("containsKeySends");
 
     connectionStats.endContainsKeySend(1, false);
 
@@ -873,7 +873,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endContainsKey_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("containsKeyTimeouts");
+    var statId = ConnectionStats.getType().nameToId("containsKeyTimeouts");
 
     connectionStats.endContainsKey(1, true, true);
 
@@ -884,7 +884,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endContainsKey_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("containsKeyTimeouts");
+    var statId = ConnectionStats.getType().nameToId("containsKeyTimeouts");
 
     connectionStats.endContainsKey(1, true, false);
 
@@ -895,7 +895,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endContainsKey_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("containsKeyFailures");
+    var statId = ConnectionStats.getType().nameToId("containsKeyFailures");
 
     connectionStats.endContainsKey(1, false, true);
 
@@ -906,7 +906,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endContainsKey_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("containsKeys");
+    var statId = ConnectionStats.getType().nameToId("containsKeys");
 
     connectionStats.endContainsKey(1, false, false);
 
@@ -917,8 +917,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startContainsKey() {
-    int statId = ConnectionStats.getType().nameToId("containsKeysInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("containsKeySendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("containsKeysInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("containsKeySendsInProgress");
 
     connectionStats.startContainsKey();
 
@@ -928,7 +928,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroyRegionSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("destroyRegionSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("destroyRegionSendFailures");
 
     connectionStats.endDestroyRegionSend(1, true);
 
@@ -939,7 +939,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroyRegionSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("destroyRegionSends");
+    var statId = ConnectionStats.getSendType().nameToId("destroyRegionSends");
 
     connectionStats.endDestroyRegionSend(1, false);
 
@@ -950,7 +950,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroyRegion_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("destroyRegionTimeouts");
+    var statId = ConnectionStats.getType().nameToId("destroyRegionTimeouts");
 
     connectionStats.endDestroyRegion(1, true, true);
 
@@ -961,7 +961,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroyRegion_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("destroyRegionTimeouts");
+    var statId = ConnectionStats.getType().nameToId("destroyRegionTimeouts");
 
     connectionStats.endDestroyRegion(1, true, false);
 
@@ -972,7 +972,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroyRegion_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("destroyRegionFailures");
+    var statId = ConnectionStats.getType().nameToId("destroyRegionFailures");
 
     connectionStats.endDestroyRegion(1, false, true);
 
@@ -983,7 +983,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroyRegion_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("destroyRegions");
+    var statId = ConnectionStats.getType().nameToId("destroyRegions");
 
     connectionStats.endDestroyRegion(1, false, false);
 
@@ -994,8 +994,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startDestroyRegion() {
-    int statId = ConnectionStats.getType().nameToId("destroyRegionsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("destroyRegionSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("destroyRegionsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("destroyRegionSendsInProgress");
 
     connectionStats.startDestroyRegion();
 
@@ -1005,7 +1005,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroySend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("destroySendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("destroySendFailures");
 
     connectionStats.endDestroySend(1, true);
 
@@ -1016,7 +1016,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroySend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("destroySends");
+    var statId = ConnectionStats.getSendType().nameToId("destroySends");
 
     connectionStats.endDestroySend(1, false);
 
@@ -1027,7 +1027,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroy_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("destroyTimeouts");
+    var statId = ConnectionStats.getType().nameToId("destroyTimeouts");
 
     connectionStats.endDestroy(1, true, true);
 
@@ -1038,7 +1038,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endDestroy_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("destroyTimeouts");
+    var statId = ConnectionStats.getType().nameToId("destroyTimeouts");
 
     connectionStats.endDestroy(1, true, false);
 
@@ -1049,7 +1049,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endExecuteFunctionSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("executeFunctionSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("executeFunctionSendFailures");
 
     connectionStats.endExecuteFunctionSend(1, true);
 
@@ -1060,7 +1060,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endExecuteFunctionSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("executeFunctionSends");
+    var statId = ConnectionStats.getSendType().nameToId("executeFunctionSends");
 
     connectionStats.endExecuteFunctionSend(1, false);
 
@@ -1071,7 +1071,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endExecuteFunction_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("executeFunctionTimeouts");
+    var statId = ConnectionStats.getType().nameToId("executeFunctionTimeouts");
 
     connectionStats.endExecuteFunction(1, true, true);
 
@@ -1082,7 +1082,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endExecuteFunction_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("executeFunctionTimeouts");
+    var statId = ConnectionStats.getType().nameToId("executeFunctionTimeouts");
 
     connectionStats.endExecuteFunction(1, true, false);
 
@@ -1093,7 +1093,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endExecuteFunction_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("executeFunctionFailures");
+    var statId = ConnectionStats.getType().nameToId("executeFunctionFailures");
 
     connectionStats.endExecuteFunction(1, false, true);
 
@@ -1104,7 +1104,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endExecuteFunction_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("executeFunctions");
+    var statId = ConnectionStats.getType().nameToId("executeFunctions");
 
     connectionStats.endExecuteFunction(1, false, false);
 
@@ -1115,8 +1115,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startExecuteFunction() {
-    int statId = ConnectionStats.getType().nameToId("executeFunctionsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("executeFunctionSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("executeFunctionsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("executeFunctionSendsInProgress");
 
     connectionStats.startExecuteFunction();
 
@@ -1126,7 +1126,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGatewayBatchSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("gatewayBatchSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("gatewayBatchSendFailures");
 
     connectionStats.endGatewayBatchSend(1, true);
 
@@ -1137,7 +1137,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGatewayBatchSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("gatewayBatchSends");
+    var statId = ConnectionStats.getSendType().nameToId("gatewayBatchSends");
 
     connectionStats.endGatewayBatchSend(1, false);
 
@@ -1148,7 +1148,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGatewayBatch_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("gatewayBatchTimeouts");
+    var statId = ConnectionStats.getType().nameToId("gatewayBatchTimeouts");
 
     connectionStats.endGatewayBatch(1, true, true);
 
@@ -1159,7 +1159,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGatewayBatch_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("gatewayBatchTimeouts");
+    var statId = ConnectionStats.getType().nameToId("gatewayBatchTimeouts");
 
     connectionStats.endGatewayBatch(1, true, false);
 
@@ -1170,7 +1170,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGatewayBatch_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("gatewayBatchFailures");
+    var statId = ConnectionStats.getType().nameToId("gatewayBatchFailures");
 
     connectionStats.endGatewayBatch(1, false, true);
 
@@ -1181,7 +1181,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGatewayBatch_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("gatewayBatchs");
+    var statId = ConnectionStats.getType().nameToId("gatewayBatchs");
 
     connectionStats.endGatewayBatch(1, false, false);
 
@@ -1192,8 +1192,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startGatewayBatch() {
-    int statId = ConnectionStats.getType().nameToId("gatewayBatchsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("gatewayBatchSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("gatewayBatchsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("gatewayBatchSendsInProgress");
 
     connectionStats.startGatewayBatch();
 
@@ -1203,7 +1203,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetAllSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getAllSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("getAllSendFailures");
 
     connectionStats.endGetAllSend(1, true);
 
@@ -1214,7 +1214,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetAllSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getAllSends");
+    var statId = ConnectionStats.getSendType().nameToId("getAllSends");
 
     connectionStats.endGetAllSend(1, false);
 
@@ -1225,7 +1225,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetAll_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("getAllTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getAllTimeouts");
 
     connectionStats.endGetAll(1, true, true);
 
@@ -1236,7 +1236,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetAll_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("getAllTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getAllTimeouts");
 
     connectionStats.endGetAll(1, true, false);
 
@@ -1247,7 +1247,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetAll_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("getAllFailures");
+    var statId = ConnectionStats.getType().nameToId("getAllFailures");
 
     connectionStats.endGetAll(1, false, true);
 
@@ -1258,7 +1258,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetAll_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("getAlls");
+    var statId = ConnectionStats.getType().nameToId("getAlls");
 
     connectionStats.endGetAll(1, false, false);
 
@@ -1269,8 +1269,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startGetAll() {
-    int statId = ConnectionStats.getType().nameToId("getAllsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("getAllSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("getAllsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("getAllSendsInProgress");
 
     connectionStats.startGetAll();
 
@@ -1280,7 +1280,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPartitionAttributesSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getClientPartitionAttributesSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("getClientPartitionAttributesSendFailures");
 
     connectionStats.endGetClientPartitionAttributesSend(1, true);
 
@@ -1291,7 +1291,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPartitionAttributesSend_SuccessfulOperation() {
-    int statId =
+    var statId =
         ConnectionStats.getSendType().nameToId("getClientPartitionAttributesSendsSuccessful");
 
     connectionStats.endGetClientPartitionAttributesSend(1, false);
@@ -1303,7 +1303,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPartitionAttributes_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesTimeouts");
 
     connectionStats.endGetClientPartitionAttributes(1, true, true);
 
@@ -1314,7 +1314,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPartitionAttributes_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesTimeouts");
 
     connectionStats.endGetClientPartitionAttributes(1, true, false);
 
@@ -1325,7 +1325,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPartitionAttributes_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesFailures");
+    var statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesFailures");
 
     connectionStats.endGetClientPartitionAttributes(1, false, true);
 
@@ -1336,7 +1336,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPartitionAttributes_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesSuccessful");
+    var statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesSuccessful");
 
     connectionStats.endGetClientPartitionAttributes(1, false, false);
 
@@ -1347,8 +1347,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startGetClientPartitionAttributes() {
-    int statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesInProgress");
-    int sendStatId =
+    var statId = ConnectionStats.getType().nameToId("getClientPartitionAttributesInProgress");
+    var sendStatId =
         ConnectionStats.getSendType().nameToId("getClientPartitionAttributesSendsInProgress");
 
     connectionStats.startGetClientPartitionAttributes();
@@ -1359,7 +1359,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPRMetadataSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getClientPRMetadataSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("getClientPRMetadataSendFailures");
 
     connectionStats.endGetClientPRMetadataSend(1, true);
 
@@ -1370,7 +1370,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPRMetadataSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getClientPRMetadataSendsSuccessful");
+    var statId = ConnectionStats.getSendType().nameToId("getClientPRMetadataSendsSuccessful");
 
     connectionStats.endGetClientPRMetadataSend(1, false);
 
@@ -1381,7 +1381,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPRMetadata_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("getClientPRMetadataTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getClientPRMetadataTimeouts");
 
     connectionStats.endGetClientPRMetadata(1, true, true);
 
@@ -1392,7 +1392,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPRMetadata_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("getClientPRMetadataTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getClientPRMetadataTimeouts");
 
     connectionStats.endGetClientPRMetadata(1, true, false);
 
@@ -1403,7 +1403,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPRMetadata_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("getClientPRMetadataFailures");
+    var statId = ConnectionStats.getType().nameToId("getClientPRMetadataFailures");
 
     connectionStats.endGetClientPRMetadata(1, false, true);
 
@@ -1414,7 +1414,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetClientPRMetadata_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("getClientPRMetadataSuccessful");
+    var statId = ConnectionStats.getType().nameToId("getClientPRMetadataSuccessful");
 
     connectionStats.endGetClientPRMetadata(1, false, false);
 
@@ -1425,8 +1425,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startGetClientPRMetadata() {
-    int statId = ConnectionStats.getType().nameToId("getClientPRMetadataInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("getClientPRMetadataSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("getClientPRMetadataInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("getClientPRMetadataSendsInProgress");
 
     connectionStats.startGetClientPRMetadata();
 
@@ -1436,7 +1436,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXIdForTypeSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getPDXIdForTypeSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("getPDXIdForTypeSendFailures");
 
     connectionStats.endGetPDXIdForTypeSend(1, true);
 
@@ -1447,7 +1447,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXIdForTypeSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getPDXIdForTypeSendsSuccessful");
+    var statId = ConnectionStats.getSendType().nameToId("getPDXIdForTypeSendsSuccessful");
 
     connectionStats.endGetPDXIdForTypeSend(1, false);
 
@@ -1458,7 +1458,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXIdForType_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("getPDXIdForTypeTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getPDXIdForTypeTimeouts");
 
     connectionStats.endGetPDXIdForType(1, true, true);
 
@@ -1469,7 +1469,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXIdForType_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("getPDXIdForTypeTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getPDXIdForTypeTimeouts");
 
     connectionStats.endGetPDXIdForType(1, true, false);
 
@@ -1480,7 +1480,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXIdForType_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("getPDXIdForTypeFailures");
+    var statId = ConnectionStats.getType().nameToId("getPDXIdForTypeFailures");
 
     connectionStats.endGetPDXIdForType(1, false, true);
 
@@ -1491,7 +1491,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXIdForType_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("getPDXIdForTypeSuccessful");
+    var statId = ConnectionStats.getType().nameToId("getPDXIdForTypeSuccessful");
 
     connectionStats.endGetPDXIdForType(1, false, false);
 
@@ -1502,8 +1502,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startGetPDXIdForType() {
-    int statId = ConnectionStats.getType().nameToId("getPDXIdForTypeInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("getPDXIdForTypeSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("getPDXIdForTypeInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("getPDXIdForTypeSendsInProgress");
 
     connectionStats.startGetPDXIdForType();
 
@@ -1513,7 +1513,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXTypeByIdSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getPDXTypeByIdSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("getPDXTypeByIdSendFailures");
 
     connectionStats.endGetPDXTypeByIdSend(1, true);
 
@@ -1524,7 +1524,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXTypeByIdSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getPDXTypeByIdSendsSuccessful");
+    var statId = ConnectionStats.getSendType().nameToId("getPDXTypeByIdSendsSuccessful");
 
     connectionStats.endGetPDXTypeByIdSend(1, false);
 
@@ -1535,7 +1535,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXTypeById_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("getPDXTypeByIdTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getPDXTypeByIdTimeouts");
 
     connectionStats.endGetPDXTypeById(1, true, true);
 
@@ -1546,7 +1546,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXTypeById_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("getPDXTypeByIdTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getPDXTypeByIdTimeouts");
 
     connectionStats.endGetPDXTypeById(1, true, false);
 
@@ -1557,7 +1557,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXTypeById_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("getPDXTypeByIdFailures");
+    var statId = ConnectionStats.getType().nameToId("getPDXTypeByIdFailures");
 
     connectionStats.endGetPDXTypeById(1, false, true);
 
@@ -1568,7 +1568,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetPDXTypeById_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("getPDXTypeByIdSuccessful");
+    var statId = ConnectionStats.getType().nameToId("getPDXTypeByIdSuccessful");
 
     connectionStats.endGetPDXTypeById(1, false, false);
 
@@ -1579,8 +1579,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startGetPDXTypeById() {
-    int statId = ConnectionStats.getType().nameToId("getPDXTypeByIdInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("getPDXTypeByIdSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("getPDXTypeByIdInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("getPDXTypeByIdSendsInProgress");
 
     connectionStats.startGetPDXTypeById();
 
@@ -1590,7 +1590,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetEntrySend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getEntrySendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("getEntrySendFailures");
 
     connectionStats.endGetEntrySend(1, true);
 
@@ -1601,7 +1601,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetEntrySend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getEntrySends");
+    var statId = ConnectionStats.getSendType().nameToId("getEntrySends");
 
     connectionStats.endGetEntrySend(1, false);
 
@@ -1612,7 +1612,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetEntry_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("getEntryTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getEntryTimeouts");
 
     connectionStats.endGetEntry(1, true, true);
 
@@ -1623,7 +1623,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetEntry_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("getEntryTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getEntryTimeouts");
 
     connectionStats.endGetEntry(1, true, false);
 
@@ -1634,7 +1634,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetEntry_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("getEntryFailures");
+    var statId = ConnectionStats.getType().nameToId("getEntryFailures");
 
     connectionStats.endGetEntry(1, false, true);
 
@@ -1645,7 +1645,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetEntry_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("getEntrys");
+    var statId = ConnectionStats.getType().nameToId("getEntrys");
 
     connectionStats.endGetEntry(1, false, false);
 
@@ -1656,8 +1656,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startGetEntry() {
-    int statId = ConnectionStats.getType().nameToId("getEntrysInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("getEntrySendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("getEntrysInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("getEntrySendsInProgress");
 
     connectionStats.startGetEntry();
 
@@ -1667,7 +1667,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetDurableCQsSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getDurableCQsSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("getDurableCQsSendFailures");
 
     connectionStats.endGetDurableCQsSend(1, true);
 
@@ -1678,7 +1678,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetDurableCQsSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getDurableCQsSends");
+    var statId = ConnectionStats.getSendType().nameToId("getDurableCQsSends");
 
     connectionStats.endGetDurableCQsSend(1, false);
 
@@ -1689,7 +1689,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetDurableCQs_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("getDurableCQsTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getDurableCQsTimeouts");
 
     connectionStats.endGetDurableCQs(1, true, true);
 
@@ -1700,7 +1700,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetDurableCQs_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("getDurableCQsTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getDurableCQsTimeouts");
 
     connectionStats.endGetDurableCQs(1, true, false);
 
@@ -1711,7 +1711,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetDurableCQs_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("getDurableCQsFailures");
+    var statId = ConnectionStats.getType().nameToId("getDurableCQsFailures");
 
     connectionStats.endGetDurableCQs(1, false, true);
 
@@ -1722,7 +1722,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetDurableCQs_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("getDurableCQs");
+    var statId = ConnectionStats.getType().nameToId("getDurableCQs");
 
     connectionStats.endGetDurableCQs(1, false, false);
 
@@ -1733,8 +1733,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startGetDurableCQs() {
-    int statId = ConnectionStats.getType().nameToId("getDurableCQsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("getDurableCQsSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("getDurableCQsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("getDurableCQsSendsInProgress");
 
     connectionStats.startGetDurableCQs();
 
@@ -1744,7 +1744,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("getSendFailures");
 
     connectionStats.endGetSend(1, true);
 
@@ -1755,7 +1755,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGetSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("getSends");
+    var statId = ConnectionStats.getSendType().nameToId("getSends");
 
     connectionStats.endGetSend(1, false);
 
@@ -1766,7 +1766,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGet_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("getTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getTimeouts");
 
     connectionStats.endGet(1, true, true);
 
@@ -1777,7 +1777,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGet_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("getTimeouts");
+    var statId = ConnectionStats.getType().nameToId("getTimeouts");
 
     connectionStats.endGet(1, true, false);
 
@@ -1788,7 +1788,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGet_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("getFailures");
+    var statId = ConnectionStats.getType().nameToId("getFailures");
 
     connectionStats.endGet(1, false, true);
 
@@ -1799,7 +1799,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endGet_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("gets");
+    var statId = ConnectionStats.getType().nameToId("gets");
 
     connectionStats.endGet(1, false, false);
 
@@ -1810,8 +1810,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startGet() {
-    int statId = ConnectionStats.getType().nameToId("getsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("getSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("getsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("getSendsInProgress");
 
     connectionStats.startGet();
 
@@ -1821,7 +1821,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endInvalidateSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("invalidateSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("invalidateSendFailures");
 
     connectionStats.endInvalidateSend(1, true);
 
@@ -1832,7 +1832,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endInvalidateSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("invalidateSends");
+    var statId = ConnectionStats.getSendType().nameToId("invalidateSends");
 
     connectionStats.endInvalidateSend(1, false);
 
@@ -1843,7 +1843,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endInvalidate_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("invalidateTimeouts");
+    var statId = ConnectionStats.getType().nameToId("invalidateTimeouts");
 
     connectionStats.endInvalidate(1, true, true);
 
@@ -1854,7 +1854,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endInvalidate_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("invalidateTimeouts");
+    var statId = ConnectionStats.getType().nameToId("invalidateTimeouts");
 
     connectionStats.endInvalidate(1, true, false);
 
@@ -1865,7 +1865,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endInvalidate_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("invalidateFailures");
+    var statId = ConnectionStats.getType().nameToId("invalidateFailures");
 
     connectionStats.endInvalidate(1, false, true);
 
@@ -1876,7 +1876,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endInvalidate_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("invalidates");
+    var statId = ConnectionStats.getType().nameToId("invalidates");
 
     connectionStats.endInvalidate(1, false, false);
 
@@ -1887,8 +1887,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startInvalidate() {
-    int statId = ConnectionStats.getType().nameToId("invalidatesInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("invalidateSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("invalidatesInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("invalidateSendsInProgress");
 
     connectionStats.startInvalidate();
 
@@ -1898,7 +1898,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxSynchronizationSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("jtaSynchronizationSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("jtaSynchronizationSendFailures");
 
     connectionStats.endTxSynchronizationSend(1, true);
 
@@ -1909,7 +1909,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxSynchronizationSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("jtaSynchronizationSends");
+    var statId = ConnectionStats.getSendType().nameToId("jtaSynchronizationSends");
 
     connectionStats.endTxSynchronizationSend(1, false);
 
@@ -1920,7 +1920,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxSynchronization_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("jtaSynchronizationTimeouts");
+    var statId = ConnectionStats.getType().nameToId("jtaSynchronizationTimeouts");
 
     connectionStats.endTxSynchronization(1, true, true);
 
@@ -1931,7 +1931,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxSynchronization_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("jtaSynchronizationTimeouts");
+    var statId = ConnectionStats.getType().nameToId("jtaSynchronizationTimeouts");
 
     connectionStats.endTxSynchronization(1, true, false);
 
@@ -1942,7 +1942,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxSynchronization_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("jtaSynchronizationFailures");
+    var statId = ConnectionStats.getType().nameToId("jtaSynchronizationFailures");
 
     connectionStats.endTxSynchronization(1, false, true);
 
@@ -1953,7 +1953,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxSynchronization_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("jtaSynchronizations");
+    var statId = ConnectionStats.getType().nameToId("jtaSynchronizations");
 
     connectionStats.endTxSynchronization(1, false, false);
 
@@ -1964,8 +1964,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startTxSynchronization() {
-    int statId = ConnectionStats.getType().nameToId("jtaSynchronizationsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("jtaSynchronizationSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("jtaSynchronizationsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("jtaSynchronizationSendsInProgress");
 
     connectionStats.startTxSynchronization();
 
@@ -1975,7 +1975,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endKeySetSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("keySetSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("keySetSendFailures");
 
     connectionStats.endKeySetSend(1, true);
 
@@ -1986,7 +1986,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endKeySetSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("keySetSends");
+    var statId = ConnectionStats.getSendType().nameToId("keySetSends");
 
     connectionStats.endKeySetSend(1, false);
 
@@ -1997,7 +1997,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endKeySet_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("keySetTimeouts");
+    var statId = ConnectionStats.getType().nameToId("keySetTimeouts");
 
     connectionStats.endKeySet(1, true, true);
 
@@ -2008,7 +2008,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endKeySet_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("keySetTimeouts");
+    var statId = ConnectionStats.getType().nameToId("keySetTimeouts");
 
     connectionStats.endKeySet(1, true, false);
 
@@ -2019,7 +2019,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endKeySet_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("keySetFailures");
+    var statId = ConnectionStats.getType().nameToId("keySetFailures");
 
     connectionStats.endKeySet(1, false, true);
 
@@ -2030,7 +2030,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endKeySet_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("keySets");
+    var statId = ConnectionStats.getType().nameToId("keySets");
 
     connectionStats.endKeySet(1, false, false);
 
@@ -2041,8 +2041,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startKeySet() {
-    int statId = ConnectionStats.getType().nameToId("keySetsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("keySetSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("keySetsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("keySetSendsInProgress");
 
     connectionStats.startKeySet();
 
@@ -2052,7 +2052,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endMakePrimarySend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("makePrimarySendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("makePrimarySendFailures");
 
     connectionStats.endMakePrimarySend(1, true);
 
@@ -2063,7 +2063,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endMakePrimarySend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("makePrimarySends");
+    var statId = ConnectionStats.getSendType().nameToId("makePrimarySends");
 
     connectionStats.endMakePrimarySend(1, false);
 
@@ -2074,7 +2074,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endMakePrimary_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("makePrimaryTimeouts");
+    var statId = ConnectionStats.getType().nameToId("makePrimaryTimeouts");
 
     connectionStats.endMakePrimary(1, true, true);
 
@@ -2085,7 +2085,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endMakePrimary_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("makePrimaryTimeouts");
+    var statId = ConnectionStats.getType().nameToId("makePrimaryTimeouts");
 
     connectionStats.endMakePrimary(1, true, false);
 
@@ -2096,7 +2096,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endMakePrimary_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("makePrimaryFailures");
+    var statId = ConnectionStats.getType().nameToId("makePrimaryFailures");
 
     connectionStats.endMakePrimary(1, false, true);
 
@@ -2107,7 +2107,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endMakePrimary_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("makePrimarys");
+    var statId = ConnectionStats.getType().nameToId("makePrimarys");
 
     connectionStats.endMakePrimary(1, false, false);
 
@@ -2118,8 +2118,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startMakePrimary() {
-    int statId = ConnectionStats.getType().nameToId("makePrimarysInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("makePrimarySendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("makePrimarysInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("makePrimarySendsInProgress");
 
     connectionStats.startMakePrimary();
 
@@ -2129,7 +2129,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPingSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("pingSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("pingSendFailures");
 
     connectionStats.endPingSend(1, true);
 
@@ -2140,7 +2140,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPingSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("pingSends");
+    var statId = ConnectionStats.getSendType().nameToId("pingSends");
 
     connectionStats.endPingSend(1, false);
 
@@ -2151,7 +2151,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPing_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("pingTimeouts");
+    var statId = ConnectionStats.getType().nameToId("pingTimeouts");
 
     connectionStats.endPing(1, true, true);
 
@@ -2162,7 +2162,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPing_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("pingTimeouts");
+    var statId = ConnectionStats.getType().nameToId("pingTimeouts");
 
     connectionStats.endPing(1, true, false);
 
@@ -2173,7 +2173,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPing_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("pingFailures");
+    var statId = ConnectionStats.getType().nameToId("pingFailures");
 
     connectionStats.endPing(1, false, true);
 
@@ -2184,7 +2184,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPing_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("pings");
+    var statId = ConnectionStats.getType().nameToId("pings");
 
     connectionStats.endPing(1, false, false);
 
@@ -2195,8 +2195,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startPing() {
-    int statId = ConnectionStats.getType().nameToId("pingsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("pingSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("pingsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("pingSendsInProgress");
 
     connectionStats.startPing();
 
@@ -2206,7 +2206,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPrimaryAckSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("primaryAckSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("primaryAckSendFailures");
 
     connectionStats.endPrimaryAckSend(1, true);
 
@@ -2217,7 +2217,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPrimaryAckSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("primaryAckSends");
+    var statId = ConnectionStats.getSendType().nameToId("primaryAckSends");
 
     connectionStats.endPrimaryAckSend(1, false);
 
@@ -2228,7 +2228,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPrimaryAck_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("primaryAckTimeouts");
+    var statId = ConnectionStats.getType().nameToId("primaryAckTimeouts");
 
     connectionStats.endPrimaryAck(1, true, true);
 
@@ -2239,7 +2239,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPrimaryAck_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("primaryAckTimeouts");
+    var statId = ConnectionStats.getType().nameToId("primaryAckTimeouts");
 
     connectionStats.endPrimaryAck(1, true, false);
 
@@ -2250,7 +2250,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPrimaryAck_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("primaryAckFailures");
+    var statId = ConnectionStats.getType().nameToId("primaryAckFailures");
 
     connectionStats.endPrimaryAck(1, false, true);
 
@@ -2261,7 +2261,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPrimaryAck_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("primaryAcks");
+    var statId = ConnectionStats.getType().nameToId("primaryAcks");
 
     connectionStats.endPrimaryAck(1, false, false);
 
@@ -2272,8 +2272,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startPrimaryAck() {
-    int statId = ConnectionStats.getType().nameToId("primaryAcksInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("primaryAckSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("primaryAcksInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("primaryAckSendsInProgress");
 
     connectionStats.startPrimaryAck();
 
@@ -2283,7 +2283,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPutAllSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("putAllSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("putAllSendFailures");
 
     connectionStats.endPutAllSend(1, true);
 
@@ -2294,7 +2294,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPutAllSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("putAllSends");
+    var statId = ConnectionStats.getSendType().nameToId("putAllSends");
 
     connectionStats.endPutAllSend(1, false);
 
@@ -2305,7 +2305,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPutAll_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("putAllTimeouts");
+    var statId = ConnectionStats.getType().nameToId("putAllTimeouts");
 
     connectionStats.endPutAll(1, true, true);
 
@@ -2316,7 +2316,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPutAll_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("putAllTimeouts");
+    var statId = ConnectionStats.getType().nameToId("putAllTimeouts");
 
     connectionStats.endPutAll(1, true, false);
 
@@ -2327,7 +2327,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPutAll_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("putAllFailures");
+    var statId = ConnectionStats.getType().nameToId("putAllFailures");
 
     connectionStats.endPutAll(1, false, true);
 
@@ -2338,7 +2338,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPutAll_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("putAlls");
+    var statId = ConnectionStats.getType().nameToId("putAlls");
 
     connectionStats.endPutAll(1, false, false);
 
@@ -2349,8 +2349,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startPutAll() {
-    int statId = ConnectionStats.getType().nameToId("putAllsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("putAllSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("putAllsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("putAllSendsInProgress");
 
     connectionStats.startPutAll();
 
@@ -2360,7 +2360,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPutSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("putSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("putSendFailures");
 
     connectionStats.endPutSend(1, true);
 
@@ -2371,7 +2371,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPutSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("putSends");
+    var statId = ConnectionStats.getSendType().nameToId("putSends");
 
     connectionStats.endPutSend(1, false);
 
@@ -2382,7 +2382,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPut_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("putTimeouts");
+    var statId = ConnectionStats.getType().nameToId("putTimeouts");
 
     connectionStats.endPut(1, true, true);
 
@@ -2393,7 +2393,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPut_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("putTimeouts");
+    var statId = ConnectionStats.getType().nameToId("putTimeouts");
 
     connectionStats.endPut(1, true, false);
 
@@ -2404,7 +2404,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPut_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("putFailures");
+    var statId = ConnectionStats.getType().nameToId("putFailures");
 
     connectionStats.endPut(1, false, true);
 
@@ -2415,7 +2415,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endPut_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("puts");
+    var statId = ConnectionStats.getType().nameToId("puts");
 
     connectionStats.endPut(1, false, false);
 
@@ -2426,8 +2426,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startPut() {
-    int statId = ConnectionStats.getType().nameToId("putsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("putSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("putsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("putSendsInProgress");
 
     connectionStats.startPut();
 
@@ -2437,7 +2437,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endQuerySend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("querySendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("querySendFailures");
 
     connectionStats.endQuerySend(1, true);
 
@@ -2448,7 +2448,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endQuerySend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("querySends");
+    var statId = ConnectionStats.getSendType().nameToId("querySends");
 
     connectionStats.endQuerySend(1, false);
 
@@ -2459,7 +2459,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endQuery_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("queryTimeouts");
+    var statId = ConnectionStats.getType().nameToId("queryTimeouts");
 
     connectionStats.endQuery(1, true, true);
 
@@ -2470,7 +2470,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endQuery_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("queryTimeouts");
+    var statId = ConnectionStats.getType().nameToId("queryTimeouts");
 
     connectionStats.endQuery(1, true, false);
 
@@ -2481,7 +2481,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endQuery_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("queryFailures");
+    var statId = ConnectionStats.getType().nameToId("queryFailures");
 
     connectionStats.endQuery(1, false, true);
 
@@ -2492,7 +2492,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endQuery_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("querys");
+    var statId = ConnectionStats.getType().nameToId("querys");
 
     connectionStats.endQuery(1, false, false);
 
@@ -2503,8 +2503,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startQuery() {
-    int statId = ConnectionStats.getType().nameToId("querysInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("querySendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("querysInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("querySendsInProgress");
 
     connectionStats.startQuery();
 
@@ -2514,7 +2514,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endReadyForEventsSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("readyForEventsSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("readyForEventsSendFailures");
 
     connectionStats.endReadyForEventsSend(1, true);
 
@@ -2525,7 +2525,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endReadyForEventsSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("readyForEventsSends");
+    var statId = ConnectionStats.getSendType().nameToId("readyForEventsSends");
 
     connectionStats.endReadyForEventsSend(1, false);
 
@@ -2536,7 +2536,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endReadyForEvents_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("readyForEventsTimeouts");
+    var statId = ConnectionStats.getType().nameToId("readyForEventsTimeouts");
 
     connectionStats.endReadyForEvents(1, true, true);
 
@@ -2547,7 +2547,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endReadyForEvents_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("readyForEventsTimeouts");
+    var statId = ConnectionStats.getType().nameToId("readyForEventsTimeouts");
 
     connectionStats.endReadyForEvents(1, true, false);
 
@@ -2558,7 +2558,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endReadyForEvents_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("readyForEventsFailures");
+    var statId = ConnectionStats.getType().nameToId("readyForEventsFailures");
 
     connectionStats.endReadyForEvents(1, false, true);
 
@@ -2569,7 +2569,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endReadyForEvents_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("readyForEvents");
+    var statId = ConnectionStats.getType().nameToId("readyForEvents");
 
     connectionStats.endReadyForEvents(1, false, false);
 
@@ -2580,8 +2580,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startReadyForEvents() {
-    int statId = ConnectionStats.getType().nameToId("readyForEventsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("readyForEventsSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("readyForEventsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("readyForEventsSendsInProgress");
 
     connectionStats.startReadyForEvents();
 
@@ -2591,7 +2591,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterDataSerializersSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("registerDataSerializersSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("registerDataSerializersSendFailures");
 
     connectionStats.endRegisterDataSerializersSend(1, true);
 
@@ -2602,7 +2602,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterDataSerializersSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("registerDataSerializersSends");
+    var statId = ConnectionStats.getSendType().nameToId("registerDataSerializersSends");
 
     connectionStats.endRegisterDataSerializersSend(1, false);
 
@@ -2613,7 +2613,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterDataSerializers_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("registerDataSerializersTimeouts");
+    var statId = ConnectionStats.getType().nameToId("registerDataSerializersTimeouts");
 
     connectionStats.endRegisterDataSerializers(1, true, true);
 
@@ -2624,7 +2624,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterDataSerializers_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("registerDataSerializersTimeouts");
+    var statId = ConnectionStats.getType().nameToId("registerDataSerializersTimeouts");
 
     connectionStats.endRegisterDataSerializers(1, true, false);
 
@@ -2635,7 +2635,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterDataSerializers_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("registerDataSerializersFailures");
+    var statId = ConnectionStats.getType().nameToId("registerDataSerializersFailures");
 
     connectionStats.endRegisterDataSerializers(1, false, true);
 
@@ -2646,7 +2646,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterDataSerializers_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("registerDataSerializers");
+    var statId = ConnectionStats.getType().nameToId("registerDataSerializers");
 
     connectionStats.endRegisterDataSerializers(1, false, false);
 
@@ -2657,8 +2657,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startRegisterDataSerializers() {
-    int statId = ConnectionStats.getType().nameToId("registerDataSerializersInProgress");
-    int sendStatId =
+    var statId = ConnectionStats.getType().nameToId("registerDataSerializersInProgress");
+    var sendStatId =
         ConnectionStats.getSendType().nameToId("registerDataSerializersSendInProgress");
 
     connectionStats.startRegisterDataSerializers();
@@ -2669,7 +2669,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInstantiatorsSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("registerInstantiatorsSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("registerInstantiatorsSendFailures");
 
     connectionStats.endRegisterInstantiatorsSend(1, true);
 
@@ -2680,7 +2680,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInstantiatorsSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("registerInstantiatorsSends");
+    var statId = ConnectionStats.getSendType().nameToId("registerInstantiatorsSends");
 
     connectionStats.endRegisterInstantiatorsSend(1, false);
 
@@ -2691,7 +2691,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInstantiators_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("registerInstantiatorsTimeouts");
+    var statId = ConnectionStats.getType().nameToId("registerInstantiatorsTimeouts");
 
     connectionStats.endRegisterInstantiators(1, true, true);
 
@@ -2702,7 +2702,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInstantiators_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("registerInstantiatorsTimeouts");
+    var statId = ConnectionStats.getType().nameToId("registerInstantiatorsTimeouts");
 
     connectionStats.endRegisterInstantiators(1, true, false);
 
@@ -2713,7 +2713,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInstantiators_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("registerInstantiatorsFailures");
+    var statId = ConnectionStats.getType().nameToId("registerInstantiatorsFailures");
 
     connectionStats.endRegisterInstantiators(1, false, true);
 
@@ -2724,7 +2724,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInstantiators_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("registerInstantiators");
+    var statId = ConnectionStats.getType().nameToId("registerInstantiators");
 
     connectionStats.endRegisterInstantiators(1, false, false);
 
@@ -2735,8 +2735,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startRegisterInstantiators() {
-    int statId = ConnectionStats.getType().nameToId("registerInstantiatorsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("registerInstantiatorsSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("registerInstantiatorsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("registerInstantiatorsSendsInProgress");
 
     connectionStats.startRegisterInstantiators();
 
@@ -2746,7 +2746,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInterestSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("registerInterestSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("registerInterestSendFailures");
 
     connectionStats.endRegisterInterestSend(1, true);
 
@@ -2757,7 +2757,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInterestSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("registerInterestSends");
+    var statId = ConnectionStats.getSendType().nameToId("registerInterestSends");
 
     connectionStats.endRegisterInterestSend(1, false);
 
@@ -2768,7 +2768,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInterest_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("registerInterestTimeouts");
+    var statId = ConnectionStats.getType().nameToId("registerInterestTimeouts");
 
     connectionStats.endRegisterInterest(1, true, true);
 
@@ -2779,7 +2779,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInterest_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("registerInterestTimeouts");
+    var statId = ConnectionStats.getType().nameToId("registerInterestTimeouts");
 
     connectionStats.endRegisterInterest(1, true, false);
 
@@ -2790,7 +2790,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInterest_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("registerInterestFailures");
+    var statId = ConnectionStats.getType().nameToId("registerInterestFailures");
 
     connectionStats.endRegisterInterest(1, false, true);
 
@@ -2801,7 +2801,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRegisterInterest_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("registerInterests");
+    var statId = ConnectionStats.getType().nameToId("registerInterests");
 
     connectionStats.endRegisterInterest(1, false, false);
 
@@ -2812,8 +2812,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startRegisterInterest() {
-    int statId = ConnectionStats.getType().nameToId("registerInterestsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("registerInterestSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("registerInterestsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("registerInterestSendsInProgress");
 
     connectionStats.startRegisterInterest();
 
@@ -2823,7 +2823,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRemoveAllSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("removeAllSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("removeAllSendFailures");
 
     connectionStats.endRemoveAllSend(1, true);
 
@@ -2834,7 +2834,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRemoveAllSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("removeAllSends");
+    var statId = ConnectionStats.getSendType().nameToId("removeAllSends");
 
     connectionStats.endRemoveAllSend(1, false);
 
@@ -2845,7 +2845,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRemoveAll_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("removeAllTimeouts");
+    var statId = ConnectionStats.getType().nameToId("removeAllTimeouts");
 
     connectionStats.endRemoveAll(1, true, true);
 
@@ -2856,7 +2856,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRemoveAll_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("removeAllTimeouts");
+    var statId = ConnectionStats.getType().nameToId("removeAllTimeouts");
 
     connectionStats.endRemoveAll(1, true, false);
 
@@ -2867,7 +2867,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRemoveAll_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("removeAllFailures");
+    var statId = ConnectionStats.getType().nameToId("removeAllFailures");
 
     connectionStats.endRemoveAll(1, false, true);
 
@@ -2878,7 +2878,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRemoveAll_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("removeAlls");
+    var statId = ConnectionStats.getType().nameToId("removeAlls");
 
     connectionStats.endRemoveAll(1, false, false);
 
@@ -2889,8 +2889,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startRemoveAll() {
-    int statId = ConnectionStats.getType().nameToId("removeAllsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("removeAllSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("removeAllsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("removeAllSendsInProgress");
 
     connectionStats.startRemoveAll();
 
@@ -2900,7 +2900,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRollbackSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("rollbackSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("rollbackSendFailures");
 
     connectionStats.endRollbackSend(1, true);
 
@@ -2911,7 +2911,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRollbackSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("rollbackSends");
+    var statId = ConnectionStats.getSendType().nameToId("rollbackSends");
 
     connectionStats.endRollbackSend(1, false);
 
@@ -2922,7 +2922,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRollback_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("rollbackTimeouts");
+    var statId = ConnectionStats.getType().nameToId("rollbackTimeouts");
 
     connectionStats.endRollback(1, true, true);
 
@@ -2933,7 +2933,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRollback_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("rollbackTimeouts");
+    var statId = ConnectionStats.getType().nameToId("rollbackTimeouts");
 
     connectionStats.endRollback(1, true, false);
 
@@ -2944,7 +2944,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRollback_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("rollbackFailures");
+    var statId = ConnectionStats.getType().nameToId("rollbackFailures");
 
     connectionStats.endRollback(1, false, true);
 
@@ -2955,7 +2955,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endRollback_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("rollbacks");
+    var statId = ConnectionStats.getType().nameToId("rollbacks");
 
     connectionStats.endRollback(1, false, false);
 
@@ -2966,8 +2966,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startRollback() {
-    int statId = ConnectionStats.getType().nameToId("rollbacksInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("rollbackSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("rollbacksInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("rollbackSendsInProgress");
 
     connectionStats.startRollback();
 
@@ -2977,7 +2977,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endSizeSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("sizeSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("sizeSendFailures");
 
     connectionStats.endSizeSend(1, true);
 
@@ -2988,7 +2988,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endSizeSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("sizeSends");
+    var statId = ConnectionStats.getSendType().nameToId("sizeSends");
 
     connectionStats.endSizeSend(1, false);
 
@@ -2999,7 +2999,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endSize_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("sizeTimeouts");
+    var statId = ConnectionStats.getType().nameToId("sizeTimeouts");
 
     connectionStats.endSize(1, true, true);
 
@@ -3010,7 +3010,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endSize_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("sizeTimeouts");
+    var statId = ConnectionStats.getType().nameToId("sizeTimeouts");
 
     connectionStats.endSize(1, true, false);
 
@@ -3021,7 +3021,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endSize_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("sizeFailures");
+    var statId = ConnectionStats.getType().nameToId("sizeFailures");
 
     connectionStats.endSize(1, false, true);
 
@@ -3032,7 +3032,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endSize_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("sizes");
+    var statId = ConnectionStats.getType().nameToId("sizes");
 
     connectionStats.endSize(1, false, false);
 
@@ -3043,8 +3043,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startSize() {
-    int statId = ConnectionStats.getType().nameToId("sizesInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("sizeSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("sizesInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("sizeSendsInProgress");
 
     connectionStats.startSize();
 
@@ -3054,7 +3054,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endStopCQSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("stopCQSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("stopCQSendFailures");
 
     connectionStats.endStopCQSend(1, true);
 
@@ -3065,7 +3065,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endStopCQSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("stopCQSends");
+    var statId = ConnectionStats.getSendType().nameToId("stopCQSends");
 
     connectionStats.endStopCQSend(1, false);
 
@@ -3076,7 +3076,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endStopCQ_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("stopCQTimeouts");
+    var statId = ConnectionStats.getType().nameToId("stopCQTimeouts");
 
     connectionStats.endStopCQ(1, true, true);
 
@@ -3087,7 +3087,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endStopCQ_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("stopCQTimeouts");
+    var statId = ConnectionStats.getType().nameToId("stopCQTimeouts");
 
     connectionStats.endStopCQ(1, true, false);
 
@@ -3098,7 +3098,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endStopCQ_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("stopCQFailures");
+    var statId = ConnectionStats.getType().nameToId("stopCQFailures");
 
     connectionStats.endStopCQ(1, false, true);
 
@@ -3109,7 +3109,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endStopCQ_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("stopCQs");
+    var statId = ConnectionStats.getType().nameToId("stopCQs");
 
     connectionStats.endStopCQ(1, false, false);
 
@@ -3120,8 +3120,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startStopCQ() {
-    int statId = ConnectionStats.getType().nameToId("stopCQsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("stopCQSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("stopCQsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("stopCQSendsInProgress");
 
     connectionStats.startStopCQ();
 
@@ -3131,7 +3131,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxFailoverSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("txFailoverSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("txFailoverSendFailures");
 
     connectionStats.endTxFailoverSend(1, true);
 
@@ -3142,7 +3142,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxFailoverSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("txFailoverSends");
+    var statId = ConnectionStats.getSendType().nameToId("txFailoverSends");
 
     connectionStats.endTxFailoverSend(1, false);
 
@@ -3153,7 +3153,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxFailover_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("txFailoverTimeouts");
+    var statId = ConnectionStats.getType().nameToId("txFailoverTimeouts");
 
     connectionStats.endTxFailover(1, true, true);
 
@@ -3164,7 +3164,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxFailover_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("txFailoverTimeouts");
+    var statId = ConnectionStats.getType().nameToId("txFailoverTimeouts");
 
     connectionStats.endTxFailover(1, true, false);
 
@@ -3175,7 +3175,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxFailover_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("txFailoverFailures");
+    var statId = ConnectionStats.getType().nameToId("txFailoverFailures");
 
     connectionStats.endTxFailover(1, false, true);
 
@@ -3186,7 +3186,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endTxFailover_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("txFailovers");
+    var statId = ConnectionStats.getType().nameToId("txFailovers");
 
     connectionStats.endTxFailover(1, false, false);
 
@@ -3197,8 +3197,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startTxFailover() {
-    int statId = ConnectionStats.getType().nameToId("txFailoversInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("txFailoverSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("txFailoversInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("txFailoverSendsInProgress");
 
     connectionStats.startTxFailover();
 
@@ -3208,7 +3208,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endUnregisterInterestSend_FailedOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("unregisterInterestSendFailures");
+    var statId = ConnectionStats.getSendType().nameToId("unregisterInterestSendFailures");
 
     connectionStats.endUnregisterInterestSend(1, true);
 
@@ -3219,7 +3219,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endUnregisterInterestSend_SuccessfulOperation() {
-    int statId = ConnectionStats.getSendType().nameToId("unregisterInterestSends");
+    var statId = ConnectionStats.getSendType().nameToId("unregisterInterestSends");
 
     connectionStats.endUnregisterInterestSend(1, false);
 
@@ -3230,7 +3230,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endUnregisterInterest_TimeoutOperation() {
-    int statId = ConnectionStats.getType().nameToId("unregisterInterestTimeouts");
+    var statId = ConnectionStats.getType().nameToId("unregisterInterestTimeouts");
 
     connectionStats.endUnregisterInterest(1, true, true);
 
@@ -3241,7 +3241,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endUnregisterInterest_TimeoutOperationAndNotFailed() {
-    int statId = ConnectionStats.getType().nameToId("unregisterInterestTimeouts");
+    var statId = ConnectionStats.getType().nameToId("unregisterInterestTimeouts");
 
     connectionStats.endUnregisterInterest(1, true, false);
 
@@ -3252,7 +3252,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endUnregisterInterest_FailedOperation() {
-    int statId = ConnectionStats.getType().nameToId("unregisterInterestFailures");
+    var statId = ConnectionStats.getType().nameToId("unregisterInterestFailures");
 
     connectionStats.endUnregisterInterest(1, false, true);
 
@@ -3263,7 +3263,7 @@ public class ConnectionStatsTest {
 
   @Test
   public void endUnregisterInterest_SuccessfulOperation() {
-    int statId = ConnectionStats.getType().nameToId("unregisterInterests");
+    var statId = ConnectionStats.getType().nameToId("unregisterInterests");
 
     connectionStats.endUnregisterInterest(1, false, false);
 
@@ -3274,8 +3274,8 @@ public class ConnectionStatsTest {
 
   @Test
   public void startUnregisterInterest() {
-    int statId = ConnectionStats.getType().nameToId("unregisterInterestsInProgress");
-    int sendStatId = ConnectionStats.getSendType().nameToId("unregisterInterestSendsInProgress");
+    var statId = ConnectionStats.getType().nameToId("unregisterInterestsInProgress");
+    var sendStatId = ConnectionStats.getSendType().nameToId("unregisterInterestSendsInProgress");
 
     connectionStats.startUnregisterInterest();
 

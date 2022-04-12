@@ -113,7 +113,7 @@ public class FunctionHelper {
    *
    */
   public static Number[] applyFunction(short functorId, Number[] vals) {
-    Number[] res = new Number[1];
+    var res = new Number[1];
     switch (functorId) {
       case FUN_SUM:
         res[0] = SUM(vals);
@@ -139,8 +139,8 @@ public class FunctionHelper {
    */
   public static Number SUM(Number[] vals) {
     try {
-      double sum = 0.0;
-      for (final Number val : vals) {
+      var sum = 0.0;
+      for (final var val : vals) {
         sum = sum + val.doubleValue();
       }
       return sum;
@@ -192,7 +192,7 @@ public class FunctionHelper {
   public static Number MIN(Number[] vals) {
     try {
       Collection col = Arrays.asList(vals);
-      Number min = (Number) Collections.max(col);
+      var min = (Number) Collections.max(col);
 
       return min;
     } catch (VirtualMachineError err) {
@@ -219,7 +219,7 @@ public class FunctionHelper {
   public static Number MAX(Number[] vals) {
     try {
       Collection col = Arrays.asList(vals);
-      Number max = (Number) Collections.max(col);
+      var max = (Number) Collections.max(col);
 
       return max;
     } catch (VirtualMachineError err) {

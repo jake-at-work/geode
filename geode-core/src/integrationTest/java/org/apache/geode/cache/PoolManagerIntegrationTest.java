@@ -28,10 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.PoolFactoryImpl;
@@ -49,7 +46,7 @@ public class PoolManagerIntegrationTest {
 
   @Before
   public void setUp() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     ds = DistributedSystem.connect(props);
@@ -72,14 +69,14 @@ public class PoolManagerIntegrationTest {
   public void testGetMap() {
     assertThat(PoolManager.getAll().size()).isEqualTo(0);
     {
-      PoolFactory cpf = PoolManager.createFactory();
+      var cpf = PoolManager.createFactory();
       ((PoolFactoryImpl) cpf).setStartDisabled(true);
       cpf.addLocator("localhost", 12345).create("mypool");
     }
 
     assertThat(PoolManager.getAll().size()).isEqualTo(1);
     {
-      PoolFactory cpf = PoolManager.createFactory();
+      var cpf = PoolManager.createFactory();
       ((PoolFactoryImpl) cpf).setStartDisabled(true);
       cpf.addLocator("localhost", 12345).create("mypool2");
     }
@@ -94,7 +91,7 @@ public class PoolManagerIntegrationTest {
   @Test
   public void testFind() {
     {
-      PoolFactory cpf = PoolManager.createFactory();
+      var cpf = PoolManager.createFactory();
       ((PoolFactoryImpl) cpf).setStartDisabled(true);
       cpf.addLocator("localhost", 12345).create("mypool");
     }
@@ -105,11 +102,11 @@ public class PoolManagerIntegrationTest {
 
   @Test
   public void testRegionFind() {
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     ((PoolFactoryImpl) cpf).setStartDisabled(true);
-    Pool pool = cpf.addLocator("localhost", 12345).create("mypool");
-    Cache cache = CacheFactory.create(ds);
-    AttributesFactory<Object, Object> fact = new AttributesFactory<>();
+    var pool = cpf.addLocator("localhost", 12345).create("mypool");
+    var cache = CacheFactory.create(ds);
+    var fact = new AttributesFactory<Object, Object>();
     fact.setPoolName(pool.getName());
     Region region = cache.createRegion("myRegion", fact.create());
     assertThat(PoolManager.find(region)).isEqualTo(pool);
@@ -120,7 +117,7 @@ public class PoolManagerIntegrationTest {
     PoolManager.close();
     assertThat(PoolManager.getAll().size()).isEqualTo(0);
     {
-      PoolFactory cpf = PoolManager.createFactory();
+      var cpf = PoolManager.createFactory();
       ((PoolFactoryImpl) cpf).setStartDisabled(true);
       cpf.addLocator("localhost", 12345).create("mypool");
     }
@@ -129,7 +126,7 @@ public class PoolManagerIntegrationTest {
     PoolManager.close();
     assertThat(PoolManager.getAll().size()).isEqualTo(0);
     {
-      PoolFactory cpf = PoolManager.createFactory();
+      var cpf = PoolManager.createFactory();
       ((PoolFactoryImpl) cpf).setStartDisabled(true);
       cpf.addLocator("localhost", 12345).create("mypool");
     }
@@ -145,7 +142,7 @@ public class PoolManagerIntegrationTest {
   @Test
   public void unregisterShouldThrowExceptionWhenThePoolHasRegionsStillAssociated() {
     PoolManager.createFactory().addLocator("localhost", 12345).create("poolOne");
-    ClientCache clientCache = new ClientCacheFactory().create();
+    var clientCache = new ClientCacheFactory().create();
     assertThat(
         clientCache.createClientRegionFactory(PROXY).setPoolName("poolOne").create("regionOne"))
             .isNotNull();
@@ -157,12 +154,12 @@ public class PoolManagerIntegrationTest {
   @Test
   public void unregisterShouldCompleteSuccessfullyWhenThePoolDoesNotHaveRegionsAssociated() {
     PoolManager.createFactory().addLocator("localhost", 12345).create("poolOne");
-    ClientCache clientCache = new ClientCacheFactory().create();
+    var clientCache = new ClientCacheFactory().create();
     assertThat(
         clientCache.createClientRegionFactory(PROXY).setPoolName("poolOne").create("regionOne"))
             .isNotNull();
 
-    Pool poolOne = PoolManager.find("poolOne");
+    var poolOne = PoolManager.find("poolOne");
     clientCache.getRegion("regionOne").localDestroyRegion();
     assertThatCode(() -> PoolManagerImpl.getPMI().unregister(poolOne)).doesNotThrowAnyException();
     assertThat(PoolManager.find("poolOne")).isNull();

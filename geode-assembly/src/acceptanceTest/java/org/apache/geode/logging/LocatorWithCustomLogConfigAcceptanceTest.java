@@ -87,7 +87,7 @@ public class LocatorWithCustomLogConfigAcceptanceTest {
 
   @Before
   public void setUpRandomPorts() {
-    int[] ports = getRandomAvailableTCPPorts(3);
+    var ports = getRandomAvailableTCPPorts(3);
 
     locatorPort = ports[0];
     httpPort = ports[1];
@@ -96,7 +96,7 @@ public class LocatorWithCustomLogConfigAcceptanceTest {
 
   @Test
   public void locatorLauncherUsesDefaultLoggingConfig() {
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + locatorName,
         "--dir=" + workingDir,
@@ -130,7 +130,7 @@ public class LocatorWithCustomLogConfigAcceptanceTest {
 
   @Test
   public void locatorLauncherUsesSpecifiedConfigFileWithoutGeodePlugins() {
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + locatorName,
         "--dir=" + workingDir,
@@ -167,9 +167,9 @@ public class LocatorWithCustomLogConfigAcceptanceTest {
   public void locatorLauncherUsesConfigFileInClasspathWithoutGeodePlugins() throws Exception {
     copy(configWithoutGeodePluginsFile, workingDir.resolve("log4j2.xml"));
 
-    String classpath = workingDir.toFile().getAbsolutePath();
+    var classpath = workingDir.toFile().getAbsolutePath();
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + locatorName,
         "--dir=" + workingDir,
@@ -204,7 +204,7 @@ public class LocatorWithCustomLogConfigAcceptanceTest {
 
   @Test
   public void locatorLauncherUsesSpecifiedConfigFileWithGeodePlugins() {
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + locatorName,
         "--dir=" + workingDir,
@@ -246,9 +246,9 @@ public class LocatorWithCustomLogConfigAcceptanceTest {
   public void locatorLauncherUsesConfigFileInClasspathWithGeodePlugins() throws Exception {
     copy(configWithGeodePluginsFile, workingDir.resolve("log4j2.xml"));
 
-    String classpath = workingDir.toFile().getAbsolutePath();
+    var classpath = workingDir.toFile().getAbsolutePath();
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + locatorName,
         "--dir=" + workingDir,

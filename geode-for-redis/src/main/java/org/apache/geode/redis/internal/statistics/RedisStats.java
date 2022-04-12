@@ -118,7 +118,7 @@ public class RedisStats {
   }
 
   public long getUptimeInMilliseconds() {
-    long uptimeInNanos = getCurrentTimeNanos() - startTimeInNanos;
+    var uptimeInNanos = getCurrentTimeNanos() - startTimeInNanos;
     return TimeUnit.NANOSECONDS.toMillis(uptimeInNanos);
   }
 
@@ -202,9 +202,9 @@ public class RedisStats {
 
   private ScheduledExecutorService startRollingAverageUpdater() {
     long microsPerSecond = 1_000_000;
-    final long delayMicros = microsPerSecond / ROLLING_AVERAGE_SAMPLES_PER_SECOND;
+    final var delayMicros = microsPerSecond / ROLLING_AVERAGE_SAMPLES_PER_SECOND;
 
-    ScheduledExecutorService rollingAverageExecutor =
+    var rollingAverageExecutor =
         newSingleThreadScheduledExecutor("GemFireRedis-RollingAverageStatUpdater-");
 
     rollingAverageExecutor.scheduleWithFixedDelay(this::doRollingAverageUpdates, delayMicros,
@@ -241,7 +241,7 @@ public class RedisStats {
       } catch (Exception e) {
         throw new RedisException("Error while calculating RollingAverage stats", e);
       }
-      long delta = currentValue - valueReadLastTick;
+      var delta = currentValue - valueReadLastTick;
       valueReadLastTick = currentValue;
 
       currentTotal = currentTotal + delta - valuesReadOverLastNSamples[tickNumber];

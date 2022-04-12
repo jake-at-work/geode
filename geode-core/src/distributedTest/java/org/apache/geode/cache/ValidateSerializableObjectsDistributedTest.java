@@ -98,7 +98,7 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
   @Test
   public void stringIsAllowed() {
     server1.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
       Object key = "key";
       Object value = "value";
@@ -112,7 +112,7 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
     });
 
     server2.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
       Object key = "key";
       Object value = "value";
@@ -126,7 +126,7 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
   @Test
   public void primitiveIsAllowed() {
     server1.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
       Object key = 1;
       Object value = 1;
@@ -140,7 +140,7 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
     });
 
     server2.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
       Object key = 1;
       Object value = 1;
@@ -154,13 +154,13 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
   @Test
   public void nonSerializableThrowsNotSerializableException() {
     server1.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
-      Object key = new Object();
-      Object value = new Object();
+      var key = new Object();
+      var value = new Object();
 
       // put stores entry locally and then tries to propagate to server2
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         region.put(key, value);
       });
 
@@ -173,9 +173,9 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
     });
 
     server2.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
-      Object key = new Object();
+      var key = new Object();
 
       // entry does NOT exist in server2 at all
       assertThat(region.containsKey(key)).isFalse();
@@ -189,7 +189,7 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
     addIgnoredException(SerializationException.class);
 
     server1.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
       Object key = "key";
       Object value = new SerializableClass();
@@ -202,7 +202,7 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
     });
 
     server2.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
       Object key = "key";
 
@@ -210,7 +210,7 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
       assertThat(region.containsKey(key)).isTrue();
 
       // get tries to fetch value from server1 if it's missing in server2
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         region.get(key);
       });
 
@@ -227,13 +227,13 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
     addIgnoredException(IOException.class);
 
     server1.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
       Object key = new SerializableClass();
       Object value = "value";
 
       // put stores entry locally and ails to serialize for propagation to server2
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         region.put(key, value);
       });
 
@@ -249,9 +249,9 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
     });
 
     server2.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
-      Object key = new Object();
+      var key = new Object();
 
       // entry does NOT exist in server2
       assertThat(region.containsKey(key)).isFalse();
@@ -265,13 +265,13 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
     addIgnoredException(IOException.class);
 
     server1.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
       Object key = new SerializableClass();
       Object value = new SerializableClass();
 
       // put stores entry locally tries sending to server/key to server2
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         region.put(key, value);
       });
 
@@ -283,7 +283,7 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
     });
 
     server2.invoke(() -> {
-      Region<Object, Object> region = server.get().getCache().getRegion("region");
+      var region = server.get().getCache().getRegion("region");
 
       Object key = new SerializableClass();
 
@@ -294,7 +294,7 @@ public class ValidateSerializableObjectsDistributedTest implements Serializable 
   }
 
   private ServerLauncher startServer(String serverName, File serverDir) {
-    ServerLauncher serverLauncher = new ServerLauncher.Builder()
+    var serverLauncher = new ServerLauncher.Builder()
         .setDisableDefaultServer(true)
         .setDeletePidFileOnStop(true)
         .setMemberName(serverName)

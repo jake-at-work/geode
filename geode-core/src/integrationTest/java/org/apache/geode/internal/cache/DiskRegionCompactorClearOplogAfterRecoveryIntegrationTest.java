@@ -36,7 +36,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 
 /**
@@ -63,7 +62,7 @@ public class DiskRegionCompactorClearOplogAfterRecoveryIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
     regionName = uniqueName + "_region";
     diskStoreName = uniqueName + "_diskStore";
 
@@ -96,14 +95,14 @@ public class DiskRegionCompactorClearOplogAfterRecoveryIntegrationTest {
       throws InterruptedException {
 
     createDiskStore(30, 10000);
-    Region<Object, Object> region = createRegion();
-    DiskStoreImpl diskStore = ((InternalRegion) region).getDiskStore();
+    var region = createRegion();
+    var diskStore = ((InternalRegion) region).getDiskStore();
 
     // Create several oplog files (.crf and .drf) by executing put operations in defined range
     executePutOperations(region);
     await().untilAsserted(() -> assertThat(getCurrentNumberOfOplogs(diskStore)).isEqualTo(5));
 
-    Set<Long> oplogIds = getAllOplogIds(diskStore);
+    var oplogIds = getAllOplogIds(diskStore);
 
     region.close();
     region = createRegion();
@@ -117,13 +116,13 @@ public class DiskRegionCompactorClearOplogAfterRecoveryIntegrationTest {
   }
 
   boolean areOplogsCompacted(Set<Long> oplogIds, DiskStoreImpl diskStore) {
-    Set<Long> currentOplogId = getAllOplogIds(diskStore);
+    var currentOplogId = getAllOplogIds(diskStore);
     return currentOplogId.stream().noneMatch(oplogIds::contains);
   }
 
   Set<Long> getAllOplogIds(DiskStoreImpl diskStore) {
     Set<Long> oplogIds = new HashSet<>();
-    for (Oplog oplog : diskStore.getAllOplogsForBackup()) {
+    for (var oplog : diskStore.getAllOplogsForBackup()) {
       oplogIds.add(oplog.getOplogId());
     }
     return oplogIds;
@@ -131,21 +130,21 @@ public class DiskRegionCompactorClearOplogAfterRecoveryIntegrationTest {
 
 
   void executePutOperations(Region<Object, Object> region) {
-    for (int i = 0; i < ENTRY_RANGE; i++) {
+    for (var i = 0; i < ENTRY_RANGE; i++) {
       region.put(i, new byte[100]);
     }
   }
 
   void executeDestroyOperations(Region<Object, Object> region) throws InterruptedException {
-    TombstoneService tombstoneService = ((InternalCache) cache).getTombstoneService();
-    for (int i = 0; i < ENTRY_RANGE; i++) {
+    var tombstoneService = ((InternalCache) cache).getTombstoneService();
+    for (var i = 0; i < ENTRY_RANGE; i++) {
       region.destroy(i);
       assertThat(tombstoneService.forceBatchExpirationForTests(1)).isTrue();
     }
   }
 
   void createDiskStore(int compactionThreshold, int maxOplogSizeInBytes) {
-    DiskStoreFactoryImpl diskStoreFactory = (DiskStoreFactoryImpl) cache.createDiskStoreFactory();
+    var diskStoreFactory = (DiskStoreFactoryImpl) cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(true);
     diskStoreFactory.setCompactionThreshold(compactionThreshold);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
@@ -154,7 +153,7 @@ public class DiskRegionCompactorClearOplogAfterRecoveryIntegrationTest {
   }
 
   Region<Object, Object> createRegion() {
-    RegionFactory<Object, Object> regionFactory =
+    var regionFactory =
         cache.createRegionFactory(RegionShortcut.PARTITION_PERSISTENT);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
     regionFactory.setDiskStoreName(diskStoreName);
@@ -167,7 +166,7 @@ public class DiskRegionCompactorClearOplogAfterRecoveryIntegrationTest {
   }
 
   private File createDirectory(File parentDirectory, String name) {
-    File file = new File(parentDirectory, name);
+    var file = new File(parentDirectory, name);
     assertThat(file.mkdir()).isTrue();
     return file;
   }

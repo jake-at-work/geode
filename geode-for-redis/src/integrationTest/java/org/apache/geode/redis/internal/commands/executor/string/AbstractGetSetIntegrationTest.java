@@ -56,12 +56,12 @@ public abstract class AbstractGetSetIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testGetSet_updatesKeyWithNewValue_returnsOldValue() {
-    String key = randString();
-    String contents = randString();
+    var key = randString();
+    var contents = randString();
     jedis.set(key, contents);
 
-    String newContents = randString();
-    String oldContents = jedis.getSet(key, newContents);
+    var newContents = randString();
+    var oldContents = jedis.getSet(key, newContents);
     assertThat(oldContents).isEqualTo(contents);
 
     contents = newContents;
@@ -71,19 +71,19 @@ public abstract class AbstractGetSetIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testGetSet_setsNonexistentKeyToNewValue_returnsNull() {
-    String key = randString();
-    String newContents = randString();
+    var key = randString();
+    var newContents = randString();
 
-    String oldContents = jedis.getSet(key, newContents);
+    var oldContents = jedis.getSet(key, newContents);
     assertThat(oldContents).isNull();
 
-    String contents = jedis.get(key);
+    var contents = jedis.get(key);
     assertThat(newContents).isEqualTo(contents);
   }
 
   @Test
   public void testGetSet_shouldWorkWith_INCR_Command() {
-    String key = "key";
+    var key = "key";
     Long resultLong;
     String resultString;
 
@@ -104,7 +104,7 @@ public abstract class AbstractGetSetIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testGetSet_whenWrongType_shouldReturnError() {
-    String key = "key";
+    var key = "key";
     jedis.hset(key, "field", "some hash value");
 
     assertThatThrownBy(() -> jedis.getSet(key, "this value doesn't matter"))
@@ -113,11 +113,11 @@ public abstract class AbstractGetSetIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testGetSet_shouldBeAtomic() {
-    String contestedKey = "contestedKey";
+    var contestedKey = "contestedKey";
     jedis.set(contestedKey, "0");
     assertThat(jedis.get(contestedKey)).isEqualTo("0");
 
-    final AtomicInteger sumHolder = new AtomicInteger(0);
+    final var sumHolder = new AtomicInteger(0);
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (ignored) -> jedis.incr(contestedKey),
         (i) -> {

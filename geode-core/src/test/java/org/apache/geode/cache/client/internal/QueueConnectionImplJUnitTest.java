@@ -29,11 +29,11 @@ public class QueueConnectionImplJUnitTest {
   @Test
   public void testInternalDestroyFollowedByInternalClose() {
     // Mock ClientUpdater and Connection
-    ClientUpdater updater = mock(ClientUpdater.class);
-    Connection connection = mock(Connection.class);
+    var updater = mock(ClientUpdater.class);
+    var connection = mock(Connection.class);
 
     // Create a QueueConnectionImpl on the mocks
-    QueueConnectionImpl qci = new QueueConnectionImpl(null, connection, updater, null);
+    var qci = new QueueConnectionImpl(null, connection, updater, null);
 
     // Invoke internalDestroy (which sets the updater to null)
     qci.internalDestroy();

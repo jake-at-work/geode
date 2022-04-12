@@ -23,8 +23,6 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
-import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.i18n.CliStrings;
 
 public class EchoCommand extends OfflineGfshCommand {
@@ -34,9 +32,9 @@ public class EchoCommand extends OfflineGfshCommand {
       mandatory = true, help = CliStrings.ECHO__STR__HELP) String stringToEcho) {
 
     if (stringToEcho.equals("$*")) {
-      Gfsh gfshInstance = getGfsh();
-      Map<String, String> envMap = gfshInstance.getEnv();
-      Set<Map.Entry<String, String>> setEnvMap = envMap.entrySet();
+      var gfshInstance = getGfsh();
+      var envMap = gfshInstance.getEnv();
+      var setEnvMap = envMap.entrySet();
       return buildResultForEcho(setEnvMap);
     } else {
       return ResultModel.createInfo(stringToEcho);
@@ -44,11 +42,11 @@ public class EchoCommand extends OfflineGfshCommand {
   }
 
   private ResultModel buildResultForEcho(Set<Map.Entry<String, String>> propertyMap) {
-    ResultModel result = new ResultModel();
-    TabularResultModel echoResult = result.addTable("echoResult");
+    var result = new ResultModel();
+    var echoResult = result.addTable("echoResult");
 
     echoResult.setColumnHeader("Property", "Value");
-    for (Map.Entry<String, String> setEntry : propertyMap) {
+    for (var setEntry : propertyMap) {
       echoResult.addRow(setEntry.getKey(), String.valueOf(setEntry.getValue()));
     }
     return result;

@@ -19,10 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.assertj.core.api.AbstractAssert;
 
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 
 public class ResultModelAssert extends AbstractAssert<ResultModelAssert, ResultModel> {
 
@@ -31,19 +28,19 @@ public class ResultModelAssert extends AbstractAssert<ResultModelAssert, ResultM
   }
 
   public InfoResultModelAssert hasInfoResultModel(String name) {
-    InfoResultModel infoSection = actual.getInfoSection(name);
+    var infoSection = actual.getInfoSection(name);
     assertThat(infoSection).isNotNull();
     return new InfoResultModelAssert(infoSection);
   }
 
   public DataResultModelAssert hasDateResultModel(String name) {
-    DataResultModel dataSection = actual.getDataSection(name);
+    var dataSection = actual.getDataSection(name);
     assertThat(dataSection).isNotNull();
     return new DataResultModelAssert(dataSection);
   }
 
   public TabularResultModelAssert hasTabularResultModel(String name) {
-    TabularResultModel dataSection = actual.getTableSection(name);
+    var dataSection = actual.getTableSection(name);
     assertThat(dataSection).isNotNull();
     return new TabularResultModelAssert(dataSection);
   }

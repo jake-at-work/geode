@@ -38,7 +38,7 @@ public class AddStatListenerRequest extends AdminRequest {
    * Returns a <code>AddStatListenerRequest</code> to be sent to the specified recipient.
    */
   public static AddStatListenerRequest create(StatResource observedResource, Stat observedStat) {
-    AddStatListenerRequest m = new AddStatListenerRequest();
+    var m = new AddStatListenerRequest();
     m.resourceId = observedResource.getResourceUniqueID();
     m.statName = observedStat.getName();
     return m;

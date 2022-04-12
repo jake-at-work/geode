@@ -36,8 +36,8 @@ public class ClassNameTest {
 
   @Test
   public void constructWithoutProps() {
-    ClassName klass = new ClassName("someClassName");
-    Properties emptyProps = klass.getInitProperties();
+    var klass = new ClassName("someClassName");
+    var emptyProps = klass.getInitProperties();
     assertThat(klass.getClassName()).isEqualTo("someClassName");
     assertThat(emptyProps).isEmpty();
   }
@@ -52,33 +52,33 @@ public class ClassNameTest {
 
   @Test
   public void constructWithProperties() {
-    ClassName klass = new ClassName("someClassName", "{\"key\" : \"value\"}");
-    Properties keyValueProps = klass.getInitProperties();
+    var klass = new ClassName("someClassName", "{\"key\" : \"value\"}");
+    var keyValueProps = klass.getInitProperties();
     assertThat(klass.getClassName()).isEqualTo("someClassName");
     assertThat(keyValueProps).containsOnlyKeys("key").containsEntry("key", "value");
   }
 
   @Test
   public void constructWithPropertiesWithSpace() {
-    String json = "{'k1' : 'v   1', 'k2' : 'v2'}";
-    ClassName klass = new ClassName("someClassName", json);
-    Properties keyValueProps = klass.getInitProperties();
+    var json = "{'k1' : 'v   1', 'k2' : 'v2'}";
+    var klass = new ClassName("someClassName", json);
+    var keyValueProps = klass.getInitProperties();
     assertThat(klass.getClassName()).isEqualTo("someClassName");
     assertThat(keyValueProps).containsOnlyKeys("k1", "k2").containsEntry("k1", "v   1");
   }
 
   @Test
   public void constructWithSingleQuotes() {
-    ClassName klass = new ClassName("someClassName", "{'key' : 'value'}");
-    Properties keyValueProps = klass.getInitProperties();
+    var klass = new ClassName("someClassName", "{'key' : 'value'}");
+    var keyValueProps = klass.getInitProperties();
     assertThat(klass.getClassName()).isEqualTo("someClassName");
     assertThat(keyValueProps).containsOnlyKeys("key").containsEntry("key", "value");
   }
 
   @Test
   public void constructWithEscapedComma() {
-    ClassName klass = new ClassName("someClassName", "{'key':'value','key2':'value2'}");
-    Properties keyValueProps = klass.getInitProperties();
+    var klass = new ClassName("someClassName", "{'key':'value','key2':'value2'}");
+    var keyValueProps = klass.getInitProperties();
     assertThat(klass.getClassName()).isEqualTo("someClassName");
     assertThat(keyValueProps).containsOnlyKeys("key", "key2").containsEntry("key", "value");
   }
@@ -99,40 +99,40 @@ public class ClassNameTest {
 
   @Test
   public void jsonMapper() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put("key1", "value1");
-    ClassName className = new ClassName("abc", properties);
-    ClassName className1 = new ClassName("abc", mapper.writeValueAsString(properties));
+    var className = new ClassName("abc", properties);
+    var className1 = new ClassName("abc", mapper.writeValueAsString(properties));
     assertThat(className).usingRecursiveComparison().isEqualTo(className1);
-    String json = mapper.writeValueAsString(className);
-    String json1 = mapper.writeValueAsString(className1);
+    var json = mapper.writeValueAsString(className);
+    var json1 = mapper.writeValueAsString(className1);
     assertThat(json).isEqualTo(json1);
 
-    ClassName className2 = mapper.readValue(json, ClassName.class);
+    var className2 = mapper.readValue(json, ClassName.class);
     assertThat(className2).usingRecursiveComparison().isEqualTo(className);
   }
 
   @Test
   public void deserializeIllegalClassName() throws Exception {
     assertThatThrownBy(() -> new ClassName("a b")).isInstanceOf(IllegalArgumentException.class);
-    String json = "{\"className\":\"a b\"}";
+    var json = "{\"className\":\"a b\"}";
     assertThatThrownBy(() -> mapper.readValue(json, ClassName.class))
         .hasCauseInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void serializable() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put("key1", "value1");
-    ClassName className = new ClassName("java.lang.String", properties);
-    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    ObjectOutputStream outputStream = new ObjectOutputStream(stream);
+    var className = new ClassName("java.lang.String", properties);
+    var stream = new ByteArrayOutputStream();
+    var outputStream = new ObjectOutputStream(stream);
     outputStream.writeObject(className);
     outputStream.close();
 
-    ObjectInputStream inputStream =
+    var inputStream =
         new ObjectInputStream(new ByteArrayInputStream(stream.toByteArray()));
-    Object object = inputStream.readObject();
+    var object = inputStream.readObject();
     assertThat(object).isEqualTo(className);
   }
 

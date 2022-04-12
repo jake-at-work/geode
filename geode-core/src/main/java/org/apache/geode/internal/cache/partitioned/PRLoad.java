@@ -45,9 +45,9 @@ public class PRLoad implements DataSerializable {
    */
   public static PRLoad createFromDataInput(DataInput in)
       throws IOException, ClassNotFoundException {
-    float weight = in.readFloat();
-    float[] bucketReadLoads = DataSerializer.readFloatArray(in);
-    float[] bucketWriteLoads = DataSerializer.readFloatArray(in);
+    var weight = in.readFloat();
+    var bucketReadLoads = DataSerializer.readFloatArray(in);
+    var bucketWriteLoads = DataSerializer.readFloatArray(in);
     return new PRLoad(weight, bucketReadLoads, bucketWriteLoads);
   }
 

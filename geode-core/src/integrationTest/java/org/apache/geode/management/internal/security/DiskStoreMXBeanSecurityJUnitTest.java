@@ -108,7 +108,7 @@ public class DiskStoreMXBeanSecurityJUnitTest {
   @Test
   @ConnectionConfiguration(user = "noAccess", password = "noAccess")
   public void testNoAccess() throws Exception {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
 
     softly.assertThatThrownBy(() -> bean.flush())
         .hasMessageContaining(TestCommand.clusterManageDisk.toString());

@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.cache.tier.sockets;
 
-import static org.apache.geode.cache.Region.Entry;
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.distributed.ConfigurationProperties.DURABLE_CLIENT_ID;
 import static org.apache.geode.distributed.ConfigurationProperties.DURABLE_CLIENT_TIMEOUT;
@@ -37,12 +36,9 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.ClientServerObserverAdapter;
 import org.apache.geode.internal.cache.ClientServerObserverHolder;
@@ -76,7 +72,7 @@ public class DurableResponseMatrixDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     server1 = host.getVM(0);
     // start servers first
     PORT1 = server1.invoke(DurableResponseMatrixDUnitTest::createServerCache);
@@ -182,10 +178,10 @@ public class DurableResponseMatrixDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void waitForValue(final Region r, final Object key, final Object expected) {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
-        Entry entry = r.getEntry(KEY);
+        var entry = r.getEntry(KEY);
         if (expected == null) {
           return !r.containsValueForKey(key); // success!
         } else {
@@ -417,23 +413,23 @@ public class DurableResponseMatrixDUnitTest extends JUnit4DistributedTestCase {
 
   private void createCacheClient(String host) {
     try {
-      final String durableClientId = "DurableResponseMatrixDUnitTest_client";
-      final int durableClientTimeout = 60; // keep the client alive for 60 s
-      Properties props =
+      final var durableClientId = "DurableResponseMatrixDUnitTest_client";
+      final var durableClientTimeout = 60; // keep the client alive for 60 s
+      var props =
           getClientDistributedSystemProperties(durableClientId, durableClientTimeout);
       new DurableResponseMatrixDUnitTest().createCache(props);
-      Pool p =
+      var p =
           PoolManager.createFactory().addServer(host, PORT1).setSubscriptionEnabled(true)
               .setSubscriptionRedundancy(1).setReadTimeout(10000).setMinConnections(2)
               // .setRetryInterval(2000)
               .create("DurableResponseMatrixDUnitTestPool");
 
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.LOCAL);
       factory.setPoolName(p.getName());
 
-      RegionAttributes attrs = factory.create();
-      Region r = cache.createRegion(REGION_NAME, attrs);
+      var attrs = factory.create();
+      var r = cache.createRegion(REGION_NAME, attrs);
       assertNotNull(r);
 
       cache.readyForEvents();
@@ -445,16 +441,16 @@ public class DurableResponseMatrixDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static Integer createServerCache() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     new DurableResponseMatrixDUnitTest().createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
-    Region r = cache.createRegion(REGION_NAME, attrs);
+    var attrs = factory.create();
+    var r = cache.createRegion(REGION_NAME, attrs);
     assertNotNull(r);
-    CacheServer server1 = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
     server1.start();
@@ -463,7 +459,7 @@ public class DurableResponseMatrixDUnitTest extends JUnit4DistributedTestCase {
 
   private Properties getClientDistributedSystemProperties(String durableClientId,
       int durableClientTimeout) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     properties.setProperty(DURABLE_CLIENT_ID, durableClientId);

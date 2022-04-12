@@ -30,17 +30,17 @@ public class DeltaClassesJUnitTest {
 
   @Test
   public void testReplaceByteArrayAtOffsetForRedisString() throws Exception {
-    String original = "0123456789";
-    String payload = "something amazing I guess";
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
-    ReplaceByteArrayAtOffset source = new ReplaceByteArrayAtOffset(3, payload.getBytes());
+    var original = "0123456789";
+    var payload = "something amazing I guess";
+    var baos = new ByteArrayOutputStream();
+    var dos = new DataOutputStream(baos);
+    var source = new ReplaceByteArrayAtOffset(3, payload.getBytes());
 
     source.serializeTo(dos);
 
-    RedisString redisString = new RedisString(original.getBytes());
+    var redisString = new RedisString(original.getBytes());
 
-    DataInputStream dis = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
+    var dis = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
     redisString.fromDelta(dis);
 
     assertThat(new String(redisString.get())).isEqualTo(original.substring(0, 3) + payload);
@@ -48,19 +48,19 @@ public class DeltaClassesJUnitTest {
 
   @Test
   public void testReplaceByteArrayAtOffsetForRedisList() throws Exception {
-    String payload = "something amazing I guess";
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
-    ReplaceByteArrayAtOffset source = new ReplaceByteArrayAtOffset(1, payload.getBytes());
+    var payload = "something amazing I guess";
+    var baos = new ByteArrayOutputStream();
+    var dos = new DataOutputStream(baos);
+    var source = new ReplaceByteArrayAtOffset(1, payload.getBytes());
 
     source.serializeTo(dos);
 
-    RedisList redisList = new RedisList();
+    var redisList = new RedisList();
     redisList.applyAddByteArrayTailDelta("zero".getBytes());
     redisList.applyAddByteArrayTailDelta("one".getBytes());
     redisList.applyAddByteArrayTailDelta("two".getBytes());
 
-    DataInputStream dis = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
+    var dis = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
     redisList.fromDelta(dis);
 
     assertThat(redisList.llen()).isEqualTo(3);

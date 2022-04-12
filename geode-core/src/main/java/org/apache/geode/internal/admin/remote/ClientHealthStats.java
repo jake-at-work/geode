@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.annotations.Immutable;
@@ -283,7 +281,7 @@ public class ClientHealthStats implements DataSerializableFixedID, Serializable 
   @Override
   public String toString() {
 
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append("ClientHealthStats [");
     buf.append("\n numOfGets=").append(numOfGets);
     buf.append("\n numOfPuts=").append(numOfPuts);
@@ -293,10 +291,10 @@ public class ClientHealthStats implements DataSerializableFixedID, Serializable 
     buf.append("\n cpus=").append(cpus);
     buf.append("\n processCpuTime=").append(processCpuTime);
     buf.append("\n updateTime=").append(updateTime);
-    Iterator<Entry<String, String>> it = poolStats.entrySet().iterator();
-    StringBuilder tempBuffer = new StringBuilder();
+    var it = poolStats.entrySet().iterator();
+    var tempBuffer = new StringBuilder();
     while (it.hasNext()) {
-      Entry<String, String> entry = it.next();
+      var entry = it.next();
       tempBuffer.append(entry.getKey()).append(" = ").append(entry.getValue());
     }
     buf.append("\n poolStats ").append(tempBuffer);

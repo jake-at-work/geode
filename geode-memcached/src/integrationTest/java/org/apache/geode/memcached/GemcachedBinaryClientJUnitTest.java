@@ -52,17 +52,17 @@ public class GemcachedBinaryClientJUnitTest extends GemcachedDevelopmentJUnitTes
   protected MemcachedClient createMemcachedClient() throws IOException {
     List<InetSocketAddress> addrs = new ArrayList<>();
     addrs.add(new InetSocketAddress(InetAddress.getLocalHost(), PORT));
-    MemcachedClient client = new MemcachedClient(new BinaryConnectionFactory(), addrs);
+    var client = new MemcachedClient(new BinaryConnectionFactory(), addrs);
     return client;
   }
 
   @SuppressWarnings("unchecked")
   public void testCacheWriterException() throws Exception {
-    MemcachedClient client = createMemcachedClient();
+    var client = createMemcachedClient();
     assertTrue(client.set("key", 0, "value".getBytes()).get());
     client.set("exceptionkey", 0, "exceptionvalue").get();
 
-    GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+    var cache = GemFireCacheImpl.getInstance();
     Region region = cache.getRegion(GemFireMemcachedServer.REGION_NAME);
     region.getAttributesMutator().setCacheWriter(new CacheWriterAdapter() {
       @Override
@@ -79,7 +79,7 @@ public class GemcachedBinaryClientJUnitTest extends GemcachedDevelopmentJUnitTes
         }
       }
     });
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     try {
       client.set("exceptionkey", 0, "exceptionvalue").get();
       throw new RuntimeException("expected exception not thrown");
@@ -91,10 +91,10 @@ public class GemcachedBinaryClientJUnitTest extends GemcachedDevelopmentJUnitTes
 
   @SuppressWarnings("unchecked")
   public void testCacheLoaderException() throws Exception {
-    MemcachedClient client = createMemcachedClient();
+    var client = createMemcachedClient();
     assertTrue(client.set("key", 0, "value").get());
 
-    GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+    var cache = GemFireCacheImpl.getInstance();
     Region region = cache.getRegion(GemFireMemcachedServer.REGION_NAME);
     region.getAttributesMutator().setCacheLoader(new CacheLoader() {
       @Override
@@ -108,7 +108,7 @@ public class GemcachedBinaryClientJUnitTest extends GemcachedDevelopmentJUnitTes
         return null;
       }
     });
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     try {
       client.get("exceptionkey");
       throw new RuntimeException("expected exception not thrown");
@@ -121,7 +121,7 @@ public class GemcachedBinaryClientJUnitTest extends GemcachedDevelopmentJUnitTes
   @Override
   public void testDecr() throws Exception {
     super.testDecr();
-    MemcachedClient client = createMemcachedClient();
+    var client = createMemcachedClient();
     assertEquals(0, client.decr("decrkey", 999));
   }
 

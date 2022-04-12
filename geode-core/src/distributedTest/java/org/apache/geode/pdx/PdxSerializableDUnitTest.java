@@ -19,8 +19,6 @@ import static org.apache.geode.internal.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -29,7 +27,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
@@ -49,10 +46,8 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.pdx.internal.EnumInfo;
 import org.apache.geode.pdx.internal.PeerTypeRegistration;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.DUnitBlackboard;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableCallable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.SerializationTest;
 
@@ -64,15 +59,15 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSimplePut() {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(1);
-    VM vm3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(1);
+    var vm3 = host.getVM(2);
 
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.REPLICATE);
         createRootRegion(TEST_REGION_NAME, af.create());
@@ -105,10 +100,10 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSimplePutOnPRWithTx() {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(1);
-    VM vm3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(1);
+    var vm3 = host.getVM(2);
 
     vm1.invoke(this::createPR);
     vm2.invoke(this::createPR);
@@ -124,14 +119,14 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTransactionCallbacksNotInvoked() {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(1);
 
-    SerializableCallable createRegionAndAddPoisonedListener = new SerializableCallable() {
+    var createRegionAndAddPoisonedListener = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.REPLICATE);
         createRootRegion(TEST_REGION_NAME, af.create());
@@ -149,14 +144,14 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testPersistenceDefaultDiskStore() throws Throwable {
 
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         // Make sure the type registry is persistent
-        CacheFactory cf = new CacheFactory();
+        var cf = new CacheFactory();
         cf.setPdxPersistent(true);
         getCache(cf);
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
         createRootRegion(TEST_REGION_NAME, af.create());
@@ -169,17 +164,17 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPersistenceExplicitDiskStore() throws Throwable {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         // Make sure the type registry is persistent
-        CacheFactory cf = new CacheFactory();
+        var cf = new CacheFactory();
         cf.setPdxPersistent(true);
         cf.setPdxDiskStore("store1");
         Cache cache = getCache(cf);
         cache.createDiskStoreFactory().setMaxOplogSize(1).setDiskDirs(getDiskDirs())
             .create("store1");
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
         af.setDiskStoreName("store1");
@@ -192,16 +187,16 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
 
 
   private void persistenceTest(SerializableCallable createRegion) throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(1);
-    VM vm3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(1);
+    var vm3 = host.getVM(2);
     vm1.invoke(createRegion);
     vm2.invoke(createRegion);
 
     vm1.invoke(() -> doSimplePut(false));
 
-    final SerializableCallable checkForObject = new SerializableCallable() {
+    final var checkForObject = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getRootRegion(TEST_REGION_NAME);
@@ -214,7 +209,7 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
 
     vm2.invoke(checkForObject);
 
-    SerializableCallable closeCache = new SerializableCallable() {
+    var closeCache = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         closeCache();
@@ -229,8 +224,8 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
 
 
     // Now recreate the region, recoverying from disk
-    AsyncInvocation future1 = vm1.invokeAsync(createRegion);
-    AsyncInvocation future2 = vm2.invokeAsync(createRegion);
+    var future1 = vm1.invokeAsync(createRegion);
+    var future2 = vm2.invokeAsync(createRegion);
 
     future1.getResult();
     future2.getResult();
@@ -248,10 +243,10 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testVmWaitsForPdxType() throws Throwable {
-    VM vm0 = Host.getHost(0).getVM(0);
-    VM vm1 = Host.getHost(0).getVM(1);
+    var vm0 = Host.getHost(0).getVM(0);
+    var vm1 = Host.getHost(0).getVM(1);
     getBlackboard().initBlackboard();
-    final Properties properties = getDistributedSystemProperties();
+    final var properties = getDistributedSystemProperties();
     properties.put("conserve-sockets", "false");
 
     // steps:
@@ -275,15 +270,15 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
       cache.createRegionFactory(RegionShortcut.REPLICATE).create("testRegion");
 
       // this message observer will ensure that a new PDX registration doesn't occur
-      final DUnitBlackboard bb = getBlackboard();
+      final var bb = getBlackboard();
       DistributionMessageObserver.setInstance(new DistributionMessageObserver() {
         @Override
         public void beforeProcessMessage(ClusterDistributionManager dm, DistributionMessage msg) {
           if (msg instanceof DistributedCacheOperation.CacheOperationMessage) {
             try {
-              DistributedCacheOperation.CacheOperationMessage cmsg =
+              var cmsg =
                   (DistributedCacheOperation.CacheOperationMessage) msg;
-              String path = cmsg.getRegionPath();
+              var path = cmsg.getRegionPath();
               if (path.equals(PeerTypeRegistration.REGION_FULL_PATH)) {
                 System.out
                     .println("message observer found a PDX update message and is stalling: " + msg);
@@ -314,10 +309,10 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
     AsyncInvocation async0 = vm0.invokeAsync("propagate value with new pdx enum type", () -> {
       Cache cache = getCache(properties);
       final Region pdxRegion = cache.getRegion(PeerTypeRegistration.REGION_FULL_PATH);
-      final DUnitBlackboard bb = getBlackboard();
+      final var bb = getBlackboard();
       // now we register a new Id for our enum in a different thread. This will
       // block in vm1 due to its message observer
-      Thread t = new Thread("PdxSerializableDUnitTest async thread") {
+      var t = new Thread("PdxSerializableDUnitTest async thread") {
         @Override
         public void run() {
           bb.signalGate("asyncThreadReady");
@@ -344,16 +339,15 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
     // vm0 has sent a new TestObject but vm1 does not have the enum type needed to
     // deserialize it.
     AsyncInvocation async1 = vm1.invokeAsync("try to read object w/o enum type", () -> {
-      DUnitBlackboard bb = getBlackboard();
+      var bb = getBlackboard();
       bb.waitForGate("pdxObjectPut", 10, TimeUnit.SECONDS);
       Region region = getCache(properties).getRegion("testRegion");
       bb.signalGate("pdxObjectGetStarting");
-      Object testObject = region.get("TestObject");
+      var testObject = region.get("TestObject");
       System.out.println("found " + testObject);
     });
 
-
-    DUnitBlackboard bb = getBlackboard();
+    var bb = getBlackboard();
 
     try {
       async0.join(20000);
@@ -424,7 +418,7 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
    * regions
    */
   public void addPoisonedTransactionListeners() {
-    MyTestTransactionListener listener = new MyTestTransactionListener();
+    var listener = new MyTestTransactionListener();
     getCache().getCacheTransactionManager().addListener(listener);
     getCache().getCacheTransactionManager().setWriter(listener);
   }
@@ -460,9 +454,9 @@ public class PdxSerializableDUnitTest extends JUnit4CacheTestCase {
     }
 
     private void checkEvent(TransactionEvent event) {
-      List<CacheEvent<?, ?>> events = event.getEvents();
+      var events = event.getEvents();
       System.out.println("MyTestTransactionListener.checkEvent: events are " + events);
-      for (CacheEvent<?, ?> cacheEvent : events) {
+      for (var cacheEvent : events) {
         if (((LocalRegion) cacheEvent.getRegion()).isPdxTypesRegion()) {
           throw new UnsupportedOperationException("found internal event: " + cacheEvent + " region="
               + cacheEvent.getRegion().getName());

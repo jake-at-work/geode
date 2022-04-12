@@ -31,8 +31,8 @@ public enum ElementType {
         throw new CacheXmlException(
             "<jdbc:mapping> elements must occur within <region> elements");
       }
-      RegionCreation regionCreation = (RegionCreation) stack.peek();
-      RegionMapping mapping = new RegionMapping();
+      var regionCreation = (RegionCreation) stack.peek();
+      var mapping = new RegionMapping();
       mapping.setRegionName(regionCreation.getFullPath().substring(1));
       mapping.setDataSourceName(
           attributes.getValue(JdbcConnectorServiceXmlParser.DATA_SOURCE));
@@ -46,8 +46,8 @@ public enum ElementType {
 
     @Override
     void endElement(Stack<Object> stack) {
-      RegionMapping mapping = (RegionMapping) stack.pop();
-      RegionCreation regionCreation = (RegionCreation) stack.peek();
+      var mapping = (RegionMapping) stack.pop();
+      var regionCreation = (RegionCreation) stack.peek();
       regionCreation.getExtensionPoint().addExtension(new RegionMappingConfiguration(mapping));
     }
   },
@@ -59,13 +59,13 @@ public enum ElementType {
         throw new CacheXmlException(
             "<jdbc:field-mapping> elements must occur within <jdbc:mapping> elements");
       }
-      RegionMapping mapping = (RegionMapping) stack.peek();
-      String pdxName = attributes.getValue(JdbcConnectorServiceXmlParser.PDX_NAME);
-      String pdxType = attributes.getValue(JdbcConnectorServiceXmlParser.PDX_TYPE);
-      String jdbcName = attributes.getValue(JdbcConnectorServiceXmlParser.JDBC_NAME);
-      String jdbcType = attributes.getValue(JdbcConnectorServiceXmlParser.JDBC_TYPE);
-      String jdbcNullable = attributes.getValue(JdbcConnectorServiceXmlParser.JDBC_NULLABLE);
-      FieldMapping fieldMapping = new FieldMapping(pdxName, pdxType, jdbcName, jdbcType,
+      var mapping = (RegionMapping) stack.peek();
+      var pdxName = attributes.getValue(JdbcConnectorServiceXmlParser.PDX_NAME);
+      var pdxType = attributes.getValue(JdbcConnectorServiceXmlParser.PDX_TYPE);
+      var jdbcName = attributes.getValue(JdbcConnectorServiceXmlParser.JDBC_NAME);
+      var jdbcType = attributes.getValue(JdbcConnectorServiceXmlParser.JDBC_TYPE);
+      var jdbcNullable = attributes.getValue(JdbcConnectorServiceXmlParser.JDBC_NULLABLE);
+      var fieldMapping = new FieldMapping(pdxName, pdxType, jdbcName, jdbcType,
           Boolean.parseBoolean(jdbcNullable));
       mapping.addFieldMapping(fieldMapping);
     }
@@ -81,7 +81,7 @@ public enum ElementType {
   }
 
   static ElementType getTypeFromName(String typeName) {
-    for (ElementType type : ElementType.values()) {
+    for (var type : ElementType.values()) {
       if (type.typeName.equals(typeName)) {
         return type;
       }

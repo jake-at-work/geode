@@ -16,8 +16,6 @@ package org.apache.geode.logging.internal.log4j.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.message.MessageFactory;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -47,9 +45,9 @@ public class LogServiceTest {
 
   @Test
   public void getLoggerReturnsLoggerWithGeodeMessageFactory() {
-    Logger logger = LogService.getLogger();
+    var logger = LogService.getLogger();
 
-    MessageFactory messageFactory = logger.getMessageFactory();
+    var messageFactory = logger.getMessageFactory();
     assertThat(messageFactory).isInstanceOf(GemFireParameterizedMessageFactory.class);
   }
 
@@ -61,9 +59,9 @@ public class LogServiceTest {
 
   @Test
   public void getLoggerNameReturnsLoggerWithGeodeMessageFactory() {
-    Logger logger = LogService.getLogger(APPLICATION_LOGGER_NAME);
+    var logger = LogService.getLogger(APPLICATION_LOGGER_NAME);
 
-    MessageFactory messageFactory = logger.getMessageFactory();
+    var messageFactory = logger.getMessageFactory();
     assertThat(messageFactory).isInstanceOf(GemFireParameterizedMessageFactory.class);
   }
 }

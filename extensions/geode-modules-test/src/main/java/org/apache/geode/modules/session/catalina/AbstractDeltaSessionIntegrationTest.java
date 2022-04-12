@@ -39,7 +39,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import org.apache.geode.cache.Region;
@@ -78,7 +77,7 @@ public abstract class AbstractDeltaSessionIntegrationTest<DeltaSessionManagerT e
     when(manager.getSessionCache().getOperatingRegion()).thenReturn(region);
     whenGetPreferDeserializedForm(manager);
 
-    final DeltaSessionStatistics stats = mock(DeltaSessionStatistics.class);
+    final var stats = mock(DeltaSessionStatistics.class);
     when(manager.getStatistics()).thenReturn(stats);
   }
 
@@ -91,17 +90,17 @@ public abstract class AbstractDeltaSessionIntegrationTest<DeltaSessionManagerT e
 
   @Test
   public void serializedAttributesNotLeakedWhenSessionInvalidated() throws IOException {
-    final HttpSessionAttributeListener listener = mock(HttpSessionAttributeListener.class);
+    final var listener = mock(HttpSessionAttributeListener.class);
     when(context.getApplicationEventListeners()).thenReturn(new Object[] {listener});
 
-    final DeltaSessionT session = spy(newSession(manager));
+    final var session = spy(newSession(manager));
     session.setId(KEY, false);
     session.setValid(true);
     session.setOwner(manager);
 
-    final String name = "attribute";
+    final var name = "attribute";
     final Object value1 = "value1";
-    final byte[] serializedValue1 = BlobHelper.serializeToBlob(value1);
+    final var serializedValue1 = BlobHelper.serializeToBlob(value1);
     // simulates initial deserialized state with serialized attribute values.
     session.getAttributes().put(name, serializedValue1);
 
@@ -109,7 +108,7 @@ public abstract class AbstractDeltaSessionIntegrationTest<DeltaSessionManagerT e
 
     session.invalidate();
 
-    final ArgumentCaptor<HttpSessionBindingEvent> event =
+    final var event =
         ArgumentCaptor.forClass(HttpSessionBindingEvent.class);
     verify(listener).attributeRemoved(event.capture());
     verifyNoMoreInteractions(listener);
@@ -118,16 +117,16 @@ public abstract class AbstractDeltaSessionIntegrationTest<DeltaSessionManagerT e
 
   @Test
   public void setNewAttributeWithNullValueInvokesRemove() {
-    final HttpSessionAttributeListener listener = mock(HttpSessionAttributeListener.class);
+    final var listener = mock(HttpSessionAttributeListener.class);
     when(context.getApplicationEventListeners()).thenReturn(new Object[] {listener});
     when(manager.isBackingCacheAvailable()).thenReturn(true);
 
-    final DeltaSessionT session = spy(newSession(manager));
+    final var session = spy(newSession(manager));
     session.setId(KEY, false);
     session.setValid(true);
     session.setOwner(manager);
 
-    final String name = "attribute";
+    final var name = "attribute";
     final Object nullValue = null;
 
     session.setAttribute(name, nullValue);
@@ -141,16 +140,16 @@ public abstract class AbstractDeltaSessionIntegrationTest<DeltaSessionManagerT e
 
   @Test
   public void setExistingAttributeWithNullValueInvokesRemove() {
-    final HttpSessionAttributeListener listener = mock(HttpSessionAttributeListener.class);
+    final var listener = mock(HttpSessionAttributeListener.class);
     when(context.getApplicationEventListeners()).thenReturn(new Object[] {listener});
     when(manager.isBackingCacheAvailable()).thenReturn(true);
 
-    final DeltaSessionT session = spy(newSession(manager));
+    final var session = spy(newSession(manager));
     session.setId(KEY, false);
     session.setValid(true);
     session.setOwner(manager);
 
-    final String name = "attribute";
+    final var name = "attribute";
     final Object value = "value";
     final Object nullValue = null;
 
@@ -160,8 +159,7 @@ public abstract class AbstractDeltaSessionIntegrationTest<DeltaSessionManagerT e
     session.setAttribute(name, nullValue);
     assertThat(session.getAttributes().size()).isEqualTo(0);
 
-
-    InOrder inOrder = Mockito.inOrder(session);
+    var inOrder = Mockito.inOrder(session);
     inOrder.verify(session).queueAttributeEvent(any(DeltaSessionUpdateAttributeEvent.class),
         anyBoolean());
     inOrder.verify(session).removeAttribute(eq(name));
@@ -171,19 +169,19 @@ public abstract class AbstractDeltaSessionIntegrationTest<DeltaSessionManagerT e
 
   @Test
   public void getAttributeWithNullValueReturnsNull() throws IOException, ClassNotFoundException {
-    final HttpSessionAttributeListener listener = mock(HttpSessionAttributeListener.class);
+    final var listener = mock(HttpSessionAttributeListener.class);
     when(context.getApplicationEventListeners()).thenReturn(new Object[] {listener});
     when(manager.isBackingCacheAvailable()).thenReturn(true);
 
-    final DeltaSessionT session = spy(newSession(manager));
+    final var session = spy(newSession(manager));
     session.setId(KEY, false);
     session.setValid(true);
     session.setOwner(manager);
 
-    final String name = "attribute";
+    final var name = "attribute";
     final Object value = null;
 
-    final byte[] serializedValue1 = BlobHelper.serializeToBlob(value);
+    final var serializedValue1 = BlobHelper.serializeToBlob(value);
     // simulates initial deserialized state with serialized attribute values.
     session.getAttributes().put(name, serializedValue1);
 
@@ -192,11 +190,11 @@ public abstract class AbstractDeltaSessionIntegrationTest<DeltaSessionManagerT e
 
   @Test
   public void getAttributeWithNullNameReturnsNull() throws IOException, ClassNotFoundException {
-    final HttpSessionAttributeListener listener = mock(HttpSessionAttributeListener.class);
+    final var listener = mock(HttpSessionAttributeListener.class);
     when(context.getApplicationEventListeners()).thenReturn(new Object[] {listener});
     when(manager.isBackingCacheAvailable()).thenReturn(true);
 
-    final DeltaSessionT session = spy(newSession(manager));
+    final var session = spy(newSession(manager));
     session.setId(KEY, false);
     session.setValid(true);
     session.setOwner(manager);

@@ -117,9 +117,9 @@ public class PublisherTest {
 
   @Test
   public void doingPublishAddsOneClient() {
-    Client client = mock(Client.class);
-    byte[] channel = stringToBytes("channel");
-    byte[] message = stringToBytes("message");
+    var client = mock(Client.class);
+    var channel = stringToBytes("channel");
+    var message = stringToBytes("message");
 
     publisher.publish(client, channel, message);
 
@@ -128,9 +128,9 @@ public class PublisherTest {
 
   @Test
   public void doingTwoPublishesFromSameClientAddsOne() {
-    Client client = mock(Client.class);
-    byte[] channel = stringToBytes("channel");
-    byte[] message = stringToBytes("message");
+    var client = mock(Client.class);
+    var channel = stringToBytes("channel");
+    var message = stringToBytes("message");
 
     publisher.publish(client, channel, message);
     publisher.publish(client, channel, message);
@@ -140,10 +140,10 @@ public class PublisherTest {
 
   @Test
   public void doingTwoPublishesFromDifferentClientsAddsBoth() {
-    Client client1 = mock(Client.class);
-    Client client2 = mock(Client.class);
-    byte[] channel = stringToBytes("channel");
-    byte[] message = stringToBytes("message");
+    var client1 = mock(Client.class);
+    var client2 = mock(Client.class);
+    var channel = stringToBytes("channel");
+    var message = stringToBytes("message");
 
     publisher.publish(client1, channel, message);
     publisher.publish(client2, channel, message);
@@ -153,10 +153,10 @@ public class PublisherTest {
 
   @Test
   public void disconnectingClientsThatPublishedSetCountToZero() {
-    Client client1 = mock(Client.class);
-    Client client2 = mock(Client.class);
-    byte[] channel = stringToBytes("channel");
-    byte[] message = stringToBytes("message");
+    var client1 = mock(Client.class);
+    var client2 = mock(Client.class);
+    var channel = stringToBytes("channel");
+    var message = stringToBytes("message");
 
     publisher.publish(client1, channel, message);
     publisher.publish(client2, channel, message);
@@ -168,10 +168,10 @@ public class PublisherTest {
 
   @Test
   public void closingPublisherDoesNotFail() {
-    Client client1 = mock(Client.class);
-    Client client2 = mock(Client.class);
-    byte[] channel = stringToBytes("channel");
-    byte[] message = stringToBytes("message");
+    var client1 = mock(Client.class);
+    var client2 = mock(Client.class);
+    var channel = stringToBytes("channel");
+    var message = stringToBytes("message");
 
     publisher.publish(client1, channel, message);
     publisher.publish(client2, channel, message);
@@ -181,11 +181,11 @@ public class PublisherTest {
 
   @Test
   public void publishesCallSubscriptionsInCorrectOrder() {
-    Client client = mock(Client.class);
-    byte[] channel1 = stringToBytes("channel1");
-    byte[] message = stringToBytes("message");
-    byte[] channel2 = stringToBytes("channel2");
-    byte[] channel3 = stringToBytes("channel3");
+    var client = mock(Client.class);
+    var channel1 = stringToBytes("channel1");
+    var message = stringToBytes("message");
+    var channel2 = stringToBytes("channel2");
+    var channel3 = stringToBytes("channel3");
 
     publisher.publish(client, channel1, message);
     publisher.publish(client, channel2, message);

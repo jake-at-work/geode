@@ -47,49 +47,49 @@ public class NioPlainEngineTest {
 
   @Test
   public void unwrap() {
-    ByteBuffer buffer = ByteBuffer.allocate(100);
+    var buffer = ByteBuffer.allocate(100);
     buffer.position(0).limit(buffer.capacity());
-    try (final ByteBufferSharing unused = nioEngine.unwrap(buffer)) {
+    try (final var unused = nioEngine.unwrap(buffer)) {
     }
     assertThat(buffer.position()).isEqualTo(buffer.limit());
   }
 
   @Test
   public void ensureWrappedCapacity() {
-    ByteBuffer wrappedBuffer = bufferPool.acquireDirectReceiveBuffer(100);
+    var wrappedBuffer = bufferPool.acquireDirectReceiveBuffer(100);
     wrappedBuffer.put(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
     nioEngine.lastReadPosition = 10;
-    int requestedCapacity = 210;
-    ByteBuffer result = nioEngine.ensureWrappedCapacity(requestedCapacity, wrappedBuffer,
+    var requestedCapacity = 210;
+    var result = nioEngine.ensureWrappedCapacity(requestedCapacity, wrappedBuffer,
         BufferPool.BufferType.TRACKED_RECEIVER);
     verify(mockStats, times(2)).incReceiverBufferSize(any(Long.class), any(Boolean.class));
     assertThat(result.capacity()).isGreaterThanOrEqualTo(requestedCapacity);
     assertThat(result).isGreaterThanOrEqualTo(wrappedBuffer);
     // make sure that data was transferred to the new buffer
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       assertThat(result.get(i)).isEqualTo(wrappedBuffer.get(i));
     }
   }
 
   @Test
   public void ensureWrappedCapacityWithEnoughExistingCapacityAndConsumedDataPresent() {
-    int requestedCapacity = 210;
-    final int consumedDataPresentInBuffer = 100;
-    final int unconsumedDataPresentInBuffer = 10;
+    var requestedCapacity = 210;
+    final var consumedDataPresentInBuffer = 100;
+    final var unconsumedDataPresentInBuffer = 10;
     // the buffer will have enough capacity but will need to be compacted
-    ByteBuffer wrappedBuffer =
+    var wrappedBuffer =
         ByteBuffer.allocate(requestedCapacity + unconsumedDataPresentInBuffer);
     wrappedBuffer.put(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
     nioEngine.lastProcessedPosition = consumedDataPresentInBuffer;
     // previous read left 10 bytes
     nioEngine.lastReadPosition = consumedDataPresentInBuffer + unconsumedDataPresentInBuffer;
-    ByteBuffer result =
+    var result =
         wrappedBuffer = nioEngine.ensureWrappedCapacity(requestedCapacity, wrappedBuffer,
             BufferPool.BufferType.UNTRACKED);
     assertThat(result.capacity()).isEqualTo(requestedCapacity + unconsumedDataPresentInBuffer);
     assertThat(result).isSameAs(wrappedBuffer);
     // make sure that data was transferred to the new buffer
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       assertThat(result.get(i)).isEqualTo(wrappedBuffer.get(i));
     }
     assertThat(nioEngine.lastProcessedPosition).isEqualTo(0);
@@ -98,11 +98,11 @@ public class NioPlainEngineTest {
 
   @Test
   public void readAtLeast() throws Exception {
-    final int amountToRead = 150;
-    final int individualRead = 60;
-    final int preexistingBytes = 10;
-    ByteBuffer wrappedBuffer = ByteBuffer.allocate(1000);
-    SocketChannel mockChannel = mock(SocketChannel.class);
+    final var amountToRead = 150;
+    final var individualRead = 60;
+    final var preexistingBytes = 10;
+    var wrappedBuffer = ByteBuffer.allocate(1000);
+    var mockChannel = mock(SocketChannel.class);
 
     // simulate some socket reads
     when(mockChannel.read(any(ByteBuffer.class))).thenAnswer((Answer<Integer>) invocation -> {
@@ -113,9 +113,9 @@ public class NioPlainEngineTest {
 
     nioEngine.lastReadPosition = 10;
 
-    try (final ByteBufferSharing sharedBuffer =
+    try (final var sharedBuffer =
         nioEngine.readAtLeast(mockChannel, amountToRead, wrappedBuffer)) {
-      ByteBuffer data = sharedBuffer.getBuffer();
+      var data = sharedBuffer.getBuffer();
       verify(mockChannel, times(3)).read(isA(ByteBuffer.class));
       assertThat(data.position()).isEqualTo(0);
       assertThat(data.limit()).isEqualTo(amountToRead);
@@ -123,9 +123,9 @@ public class NioPlainEngineTest {
       assertThat(nioEngine.lastProcessedPosition).isEqualTo(amountToRead);
     }
 
-    try (final ByteBufferSharing sharedBuffer =
+    try (final var sharedBuffer =
         nioEngine.readAtLeast(mockChannel, amountToRead, wrappedBuffer)) {
-      final ByteBuffer data = sharedBuffer.getBuffer();
+      final var data = sharedBuffer.getBuffer();
       verify(mockChannel, times(5)).read(any(ByteBuffer.class));
       // at end of last readAtLeast data
       assertThat(data.position()).isEqualTo(amountToRead);
@@ -141,16 +141,16 @@ public class NioPlainEngineTest {
 
   @Test(expected = EOFException.class)
   public void readAtLeastThrowsEOFException() throws Exception {
-    final int amountToRead = 150;
-    ByteBuffer wrappedBuffer = ByteBuffer.allocate(1000);
-    SocketChannel mockChannel = mock(SocketChannel.class);
+    final var amountToRead = 150;
+    var wrappedBuffer = ByteBuffer.allocate(1000);
+    var mockChannel = mock(SocketChannel.class);
 
     // simulate some socket reads
     when(mockChannel.read(any(ByteBuffer.class))).thenReturn(-1);
 
     nioEngine.lastReadPosition = 10;
 
-    try (final ByteBufferSharing unused =
+    try (final var unused =
         nioEngine.readAtLeast(mockChannel, amountToRead, wrappedBuffer)) {
     }
   }

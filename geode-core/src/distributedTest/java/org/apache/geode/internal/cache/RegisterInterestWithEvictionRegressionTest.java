@@ -36,7 +36,6 @@ import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.test.dunit.NetworkUtils;
@@ -92,7 +91,7 @@ public class RegisterInterestWithEvictionRegressionTest extends ClientServerTest
 
     client.invoke(() -> {
       Region region = getRootRegion(uniqueName);
-      for (int i = 1; i <= ENTRIES_ON_SERVER; i++) {
+      for (var i = 1; i <= ENTRIES_ON_SERVER; i++) {
         region.registerInterest("k" + i, InterestResultPolicy.KEYS_VALUES);
       }
       assertThat(region.size()).isEqualTo(2);
@@ -102,14 +101,14 @@ public class RegisterInterestWithEvictionRegressionTest extends ClientServerTest
   }
 
   private int createServer() throws IOException {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setCacheLoader(new CacheServerCacheLoader());
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setScope(Scope.DISTRIBUTED_ACK);
 
-    Region region = createRootRegion(uniqueName, factory.create());
+    var region = createRootRegion(uniqueName, factory.create());
 
-    for (int i = 1; i <= ENTRIES_ON_SERVER; i++) {
+    for (var i = 1; i <= ENTRIES_ON_SERVER; i++) {
       region.create("k" + i, "v" + i);
     }
 
@@ -117,18 +116,18 @@ public class RegisterInterestWithEvictionRegressionTest extends ClientServerTest
   }
 
   private void createClient() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     getCache(config);
 
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     pf.setSubscriptionEnabled(true);
     pf.addServer(hostName, serverPort);
     pf.create(uniqueName);
 
     // Create Region
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
 
     factory.setPoolName(uniqueName);

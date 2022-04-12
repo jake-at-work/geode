@@ -152,10 +152,10 @@ class ExecuteFunctionTestSupport {
       final FailureMode failureMode,
       final BiConsumer<PoolImpl, FailureMode> addPoolMockBehavior, Integer retryAttempts) {
 
-    final List<ServerLocation> servers = (List<ServerLocation>) mock(List.class);
+    final var servers = (List<ServerLocation>) mock(List.class);
     when(servers.size()).thenReturn(ExecuteFunctionTestSupport.NUMBER_OF_SERVERS);
 
-    final ConnectionSource connectionSource = mock(ConnectionSource.class);
+    final var connectionSource = mock(ConnectionSource.class);
     when(connectionSource.getAllServers()).thenReturn(servers);
 
     function = (Function<Integer>) mock(Function.class);

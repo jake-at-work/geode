@@ -57,8 +57,8 @@ class NullRedisList extends RedisList {
       return 0;
     }
 
-    RedisList newList = new RedisList();
-    for (byte[] element : elementsToAdd) {
+    var newList = new RedisList();
+    for (var element : elementsToAdd) {
       newList.elementPushHead(element);
     }
     context.getRegion().create(key, newList);
@@ -74,8 +74,8 @@ class NullRedisList extends RedisList {
       return 0;
     }
 
-    RedisList newList = new RedisList();
-    for (byte[] element : elementsToAdd) {
+    var newList = new RedisList();
+    for (var element : elementsToAdd) {
       newList.elementPushTail(element);
     }
     context.getRegion().create(key, newList);

@@ -43,7 +43,7 @@ public class UseJacksonForJsonPathRuleTest {
 
   @Before
   public void setUp() {
-    Configuration configuration = Configuration.defaultConfiguration();
+    var configuration = Configuration.defaultConfiguration();
     defaultJsonProvider = configuration.jsonProvider();
     defaultMappingProvider = configuration.mappingProvider();
   }
@@ -72,7 +72,7 @@ public class UseJacksonForJsonPathRuleTest {
   public void restoresJsonProviderToDefaultAfterTest() {
     runTestWithValidation(HasUseJacksonForJsonPathRule.class);
 
-    Configuration configuration = Configuration.defaultConfiguration();
+    var configuration = Configuration.defaultConfiguration();
     assertThat(configuration.jsonProvider()).isSameAs(defaultJsonProvider);
   }
 
@@ -80,8 +80,7 @@ public class UseJacksonForJsonPathRuleTest {
   public void restoresMappingProviderToDefaultAfterTest() {
     runTestWithValidation(HasUseJacksonForJsonPathRule.class);
 
-
-    Configuration configuration = Configuration.defaultConfiguration();
+    var configuration = Configuration.defaultConfiguration();
     assertThat(configuration.mappingProvider()).isSameAs(defaultMappingProvider);
   }
 
@@ -103,7 +102,7 @@ public class UseJacksonForJsonPathRuleTest {
 
     @Test
     public void captureJsonProvider() {
-      Configuration configuration = Configuration.defaultConfiguration();
+      var configuration = Configuration.defaultConfiguration();
       jsonProviderRef.set(configuration.jsonProvider());
       assertThat(jsonProviderRef.get()).isNotNull();
     }
@@ -116,7 +115,7 @@ public class UseJacksonForJsonPathRuleTest {
 
     @Test
     public void captureMappingProvider() {
-      Configuration configuration = Configuration.defaultConfiguration();
+      var configuration = Configuration.defaultConfiguration();
       mappingProviderRef.set(configuration.mappingProvider());
       assertThat(mappingProviderRef.get()).isNotNull();
     }

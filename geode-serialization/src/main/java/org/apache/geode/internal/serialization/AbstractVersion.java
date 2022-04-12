@@ -60,8 +60,8 @@ abstract class AbstractVersion implements Version {
 
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
     result = mult * result + ordinal();
     return result;
   }

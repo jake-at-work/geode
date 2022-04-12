@@ -18,8 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.List;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,11 +25,9 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.internal.cli.domain.DataCommandResult;
 import org.apache.geode.test.junit.categories.GfshTest;
 
 /**
@@ -83,7 +79,7 @@ public class DataCommandFunctionJUnitTest {
   public static void setUp() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
     RegionFactory<Object, String> factory = cache.createRegionFactory(RegionShortcut.PARTITION);
-    Region<Object, String> region1 = factory.create(PARTITIONED_REGION);
+    var region1 = factory.create(PARTITIONED_REGION);
 
     region1.put(new StringCheese("key_1"), "value_1");
     region1.put("key_2", "value_2");
@@ -100,28 +96,28 @@ public class DataCommandFunctionJUnitTest {
    */
   @Test
   public void testLocateKeyIsObject() {
-    DataCommandFunction dataCmdFn = new DataCommandFunction();
+    var dataCmdFn = new DataCommandFunction();
 
-    DataCommandResult result =
+    var result =
         dataCmdFn.locateEntry("{'cheese': 'key_1'}", StringCheese.class.getName(),
             String.class.getName(), PARTITIONED_REGION, false, (InternalCache) cache);
 
     assertNotNull(result);
     result.aggregate(null);
-    List<DataCommandResult.KeyInfo> keyInfos = result.getLocateEntryLocations();
+    var keyInfos = result.getLocateEntryLocations();
     assertEquals(1, keyInfos.size());
   }
 
   @Test
   public void testLocateKeyIsString() {
-    DataCommandFunction dataCmdFn = new DataCommandFunction();
+    var dataCmdFn = new DataCommandFunction();
 
-    DataCommandResult result = dataCmdFn.locateEntry("key_2", String.class.getName(),
+    var result = dataCmdFn.locateEntry("key_2", String.class.getName(),
         String.class.getName(), PARTITIONED_REGION, false, (InternalCache) cache);
 
     assertNotNull(result);
     result.aggregate(null);
-    List<DataCommandResult.KeyInfo> keyInfos = result.getLocateEntryLocations();
+    var keyInfos = result.getLocateEntryLocations();
     assertEquals(1, keyInfos.size());
   }
 }

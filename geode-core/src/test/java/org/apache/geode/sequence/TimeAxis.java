@@ -18,7 +18,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -55,12 +54,12 @@ public class TimeAxis extends JComponent {
 
   @Override
   protected void paintComponent(Graphics g) {
-    Rectangle drawHere = g.getClipBounds();
+    var drawHere = g.getClipBounds();
 
-    int height = getHeight();
+    var height = getHeight();
 
     double scale = (maxTime - minTime) / height;
-    int increment = 30;
+    var increment = 30;
     // Fill clipping area with dirty brown/orange.
     g.setColor(new Color(230, 163, 4));
     g.fillRect(drawHere.x, drawHere.y, drawHere.width, drawHere.height);
@@ -70,9 +69,9 @@ public class TimeAxis extends JComponent {
     g.setColor(Color.black);
 
     // Some vars we need.
-    int end = 0;
-    int start = 0;
-    int tickLength = 0;
+    var end = 0;
+    var start = 0;
+    var tickLength = 0;
     String text = null;
 
     // Use clipping bounds to calculate first and last tick locations.
@@ -101,7 +100,7 @@ public class TimeAxis extends JComponent {
     }
 
     // ticks and labels
-    for (int i = start; i < end; i += increment) {
+    for (var i = start; i < end; i += increment) {
       tickLength = 10;
       text = DATE_FORMAT.format(new Date((long) (minTime + i * scale)));
 

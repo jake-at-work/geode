@@ -52,15 +52,15 @@ public abstract class AbstractLPushxIntegrationTest implements RedisIntegrationT
 
   @Test
   public void lpushx_withExistingKey_ofWrongType_returnsWrongTypeError_shouldNotOverWriteExistingKey() {
-    String elementValue = "list element value that should never get added";
-    String errorMessage = "WRONGTYPE Operation against a key holding the wrong kind of value";
+    var elementValue = "list element value that should never get added";
+    var errorMessage = "WRONGTYPE Operation against a key holding the wrong kind of value";
 
     jedis.set(KEY, PREEXISTING_VALUE);
 
     assertThatThrownBy(() -> jedis.lpushx(KEY, elementValue))
         .hasMessage(errorMessage);
 
-    String result = jedis.get(KEY);
+    var result = jedis.get(KEY);
 
     assertThat(result).isEqualTo(PREEXISTING_VALUE);
   }
@@ -95,7 +95,7 @@ public abstract class AbstractLPushxIntegrationTest implements RedisIntegrationT
     jedis.lpushx(KEY, "e2");
     jedis.lpushx(KEY, "e3");
 
-    String result = jedis.lpop(KEY);
+    var result = jedis.lpop(KEY);
     assertThat(result).isEqualTo("e3");
 
     result = jedis.lpop(KEY);
@@ -111,7 +111,7 @@ public abstract class AbstractLPushxIntegrationTest implements RedisIntegrationT
     jedis.lpushx(KEY, "e1", "e2", "e3");
     jedis.lpushx(KEY, "e4", "e5", "e6");
 
-    String result = jedis.lpop(KEY);
+    var result = jedis.lpop(KEY);
     assertThat(result).isEqualTo("e6");
 
     result = jedis.lpop(KEY);

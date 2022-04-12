@@ -19,10 +19,8 @@ import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.apache.geode.test.util.ResourceUtils.createTempFileFromResource;
 import static org.junit.Assert.fail;
 
-import java.sql.Connection;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.sql.DataSource;
 
 import org.junit.After;
@@ -43,7 +41,7 @@ public class DataSourceFactoryJUnitTest {
   public void setUp() {
     props = new Properties();
     props.setProperty(MCAST_PORT, "0");
-    String path =
+    var path =
         createTempFileFromResource(DataSourceFactoryJUnitTest.class, "/jta/cachejta.xml")
             .getAbsolutePath();
     props.setProperty(CACHE_XML_FILE, path);
@@ -58,9 +56,9 @@ public class DataSourceFactoryJUnitTest {
 
   @Test
   public void testGetSimpleDataSource() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    GemFireBasicDataSource ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
-    Connection conn = ds.getConnection();
+    var ctx = cache.getJNDIContext();
+    var ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
+    var conn = ds.getConnection();
     if (conn == null) {
       fail(
           "DataSourceFactoryJUnitTest-testGetSimpleDataSource() Error in creating the GemFireBasicDataSource");
@@ -69,10 +67,10 @@ public class DataSourceFactoryJUnitTest {
 
   @Test
   public void testGetPooledDataSource() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds =
+    var ctx = cache.getJNDIContext();
+    var ds =
         (DataSource) ctx.lookup("java:/PooledDataSource");
-    Connection conn = ds.getConnection();
+    var conn = ds.getConnection();
     if (conn == null) {
       fail(
           "DataSourceFactoryJUnitTest-testGetPooledDataSource() Error in creating the PooledDataSource");
@@ -81,13 +79,13 @@ public class DataSourceFactoryJUnitTest {
 
   @Test
   public void testGetTranxDataSource() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    GemFireTransactionDataSource ds =
+    var ctx = cache.getJNDIContext();
+    var ds =
         (GemFireTransactionDataSource) ctx.lookup("java:/XAPooledDataSource");
     // DataSourceFactory dsf = new DataSourceFactory();
     // GemFireTransactionDataSource ds =
     // (GemFireTransactionDataSource)dsf.getTranxDataSource(map);
-    Connection conn = ds.getConnection();
+    var conn = ds.getConnection();
     if (conn == null) {
       fail(
           "DataSourceFactoryJUnitTest-testGetTranxDataSource() Error in creating the getTranxDataSource");

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import joptsimple.internal.Strings;
@@ -36,7 +35,6 @@ import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.CacheElement;
 import org.apache.geode.cache.configuration.ClassNameType;
 import org.apache.geode.cache.configuration.DeclarableType;
 import org.apache.geode.cache.configuration.EnumActionDestroyOverflow;
@@ -48,7 +46,6 @@ import org.apache.geode.distributed.internal.InternalConfigurationPersistenceSer
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.config.JAXBService;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.DistributedRegionMXBean;
 import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.cli.CliMetaData;
@@ -211,17 +208,17 @@ public class CreateRegionCommand extends SingleGfshCommand {
           : ResultModel.createError(e.getMessage());
     }
 
-    InternalCache cache = (InternalCache) getCache();
+    var cache = (InternalCache) getCache();
 
     // validate the parent region
-    RegionPath regionPathData = new RegionPath(regionPath);
+    var regionPathData = new RegionPath(regionPath);
     if (!regionPathData.isRoot() && !regionExists(regionPathData.getParent())) {
       return ResultModel.createError(
           CliStrings.format(CliStrings.CREATE_REGION__MSG__PARENT_REGION_FOR_0_DOES_NOT_EXIST,
               new Object[] {regionPath}));
     }
 
-    RegionConfig regionConfig = new RegionConfig();
+    var regionConfig = new RegionConfig();
 
     // get the initial set of attributes either from shortcut or from the template region
     InternalConfigurationPersistenceService persistenceService =
@@ -230,7 +227,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
       regionConfig.setType(regionShortcut.name());
       regionConfig.setRegionAttributes(
           new RegionConverter().createRegionAttributesByType(regionShortcut.name()));
-      RegionAttributesType regionAttributesType = regionConfig.getRegionAttributes();
+      var regionAttributesType = regionConfig.getRegionAttributes();
       if (scope != null && regionShortcut.isReplicate()) {
         regionAttributesType.setScope(scope);
       }
@@ -252,13 +249,13 @@ public class CreateRegionCommand extends SingleGfshCommand {
         // region xml. cluster configuration isn't always enabled, so we cannot guarantee that we
         // can
         // get the template region configuration from the cluster configuration.
-        Set<DistributedMember> regionAssociatedMembers = findMembersForRegion(templateRegion);
+        var regionAssociatedMembers = findMembersForRegion(templateRegion);
 
         if (!regionAssociatedMembers.isEmpty()) {
-          List<CliFunctionResult> regionXmlResults = executeAndGetFunctionResult(
+          var regionXmlResults = executeAndGetFunctionResult(
               FetchRegionAttributesFunction.INSTANCE, templateRegion, regionAssociatedMembers);
 
-          JAXBService jaxbService = new JAXBService(CacheConfig.class);
+          var jaxbService = new JAXBService(CacheConfig.class);
           templateRegionConfigs = regionXmlResults.stream().filter(CliFunctionResult::isSuccessful)
               .map(CliFunctionResult::getResultObject).map(String.class::cast)
               .map(s -> jaxbService.unMarshall(s, RegionConfig.class))
@@ -274,8 +271,8 @@ public class CreateRegionCommand extends SingleGfshCommand {
       }
       // found more than one configuration with this name. fail if they have different attributes.
       else {
-        RegionConfig first = templateRegionConfigs.get(0);
-        for (int i = 1; i < templateRegionConfigs.size(); i++) {
+        var first = templateRegionConfigs.get(0);
+        for (var i = 1; i < templateRegionConfigs.size(); i++) {
           if (!EqualsBuilder.reflectionEquals(first, templateRegionConfigs.get(i), false, null,
               true)) {
             return ResultModel.createError("Multiple types of template region " + templateRegion
@@ -289,13 +286,13 @@ public class CreateRegionCommand extends SingleGfshCommand {
     regionConfig.setName(regionPathData.getName());
 
     // set partition attributes
-    RegionAttributesType regionAttributes = regionConfig.getRegionAttributes();
-    RegionAttributesType.PartitionAttributes delta =
+    var regionAttributes = regionConfig.getRegionAttributes();
+    var delta =
         RegionAttributesType.PartitionAttributes.generate(partitionResolver, null, prLocalMaxMemory,
             prRecoveryDelay, prRedundantCopies, prStartupRecoveryDelay, prTotalMaxMemory,
             prTotalNumBuckets, prColocatedWith);
 
-    RegionAttributesType.PartitionAttributes partitionAttributes =
+    var partitionAttributes =
         RegionAttributesType.PartitionAttributes.combine(
             regionAttributes.getPartitionAttributes(), delta);
     regionAttributes.setPartitionAttributes(partitionAttributes);
@@ -309,7 +306,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
 
     // validate colocation for partitioned regions
     if (prColocatedWith != null) {
-      DistributedRegionMXBean colocatedRegionBean =
+      var colocatedRegionBean =
           getManagementService().getDistributedRegionMXBean(prColocatedWith);
 
       if (colocatedRegionBean == null) {
@@ -328,7 +325,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
 
     // validate and set gateway senders
     if (gatewaySenderIds != null) {
-      Set<String> existingGatewaySenders =
+      var existingGatewaySenders =
           Arrays.stream(getDSMBean().listGatewaySenders()).collect(Collectors.toSet());
       if (existingGatewaySenders.isEmpty()) {
         return ResultModel
@@ -346,7 +343,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
     // if any single eviction attributes is set, we will replace
     // the template eviction attributes with this new eviction attributes. we do not combine
     // the old and new.
-    RegionAttributesType.EvictionAttributes evictionAttributes =
+    var evictionAttributes =
         RegionAttributesType.EvictionAttributes
             .generate(evictionAction, evictionMaxMemory, evictionEntryCount, evictionObjectSizer);
     if (evictionAttributes != null) {
@@ -357,16 +354,16 @@ public class CreateRegionCommand extends SingleGfshCommand {
     if (diskStore != null) {
       if (regionShortcut != null) {
         if (!regionShortcut.isPersistent() && !regionShortcut.isOverflow()) {
-          String subMessage =
+          var subMessage =
               "Only regions with persistence or overflow to disk can specify DiskStore";
-          String message = subMessage + ". "
+          var message = subMessage + ". "
               + CliStrings.format(CliStrings.CREATE_REGION__MSG__USE_ONE_OF_THESE_SHORTCUTS_0,
                   new Object[] {String.valueOf(RegionCommandsUtils.PERSISTENT_OVERFLOW_SHORTCUTS)});
           return ResultModel.createError(message);
         }
       } else {
-        EnumActionDestroyOverflow tempEvictionAction = EnumActionDestroyOverflow.LOCAL_DESTROY;
-        RegionAttributesType.EvictionAttributes tempEvictionAttributes =
+        var tempEvictionAction = EnumActionDestroyOverflow.LOCAL_DESTROY;
+        var tempEvictionAttributes =
             regionAttributes.getEvictionAttributes();
         if (tempEvictionAttributes != null) {
           if (tempEvictionAttributes.getLruMemorySize() != null) {
@@ -380,9 +377,9 @@ public class CreateRegionCommand extends SingleGfshCommand {
 
         if (!regionAttributes.getDataPolicy().isPersistent()
             && tempEvictionAction != EnumActionDestroyOverflow.OVERFLOW_TO_DISK) {
-          String subMessage =
+          var subMessage =
               "Only regions with persistence or overflow to disk can specify DiskStore";
-          String message = subMessage + ". "
+          var message = subMessage + ". "
               + CliStrings.format(
                   CliStrings.CREATE_REGION__MSG__USE_ATTRIBUTES_FROM_REGION_0_IS_NOT_WITH_PERSISTENCE_OR_OVERFLOW,
                   new Object[] {templateRegion});
@@ -406,7 +403,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
     }
 
     // validating the groups
-    Set<DistributedMember> membersToCreateRegionOn = findMembers(groups, null);
+    var membersToCreateRegionOn = findMembers(groups, null);
     if (membersToCreateRegionOn.isEmpty()) {
       if (groups == null || groups.length == 0) {
         return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
@@ -495,13 +492,13 @@ public class CreateRegionCommand extends SingleGfshCommand {
 
 
     // creating the RegionFunctionArgs
-    CreateRegionFunctionArgs functionArgs =
+    var functionArgs =
         new CreateRegionFunctionArgs(regionPath, regionConfig, ifNotExists);
 
-    List<CliFunctionResult> regionCreateResults = executeAndGetFunctionResult(
+    var regionCreateResults = executeAndGetFunctionResult(
         RegionCreateFunction.INSTANCE, functionArgs, membersToCreateRegionOn);
 
-    ResultModel resultModel = ResultModel.createMemberStatusResult(regionCreateResults);
+    var resultModel = ResultModel.createMemberStatusResult(regionCreateResults);
     InternalConfigurationPersistenceService service = getConfigurationPersistenceService();
     if (service == null) {
       return resultModel;
@@ -522,12 +519,12 @@ public class CreateRegionCommand extends SingleGfshCommand {
       // GEODE-3924
       // we will need to get the xml returned from the server to find out any custom xml nested
       // inside the region
-      String regionXml = (String) regionCreateResults.stream()
+      var regionXml = (String) regionCreateResults.stream()
           .filter(CliFunctionResult::isSuccessful)
           .findFirst().get().getResultObject();
-      RegionConfig regionConfigFromServer =
+      var regionConfigFromServer =
           service.getJaxbService().unMarshall(regionXml, RegionConfig.class);
-      List<CacheElement> extensions = regionConfigFromServer.getCustomRegionElements();
+      var extensions = regionConfigFromServer.getCustomRegionElements();
       regionConfig.getCustomRegionElements().addAll(extensions);
 
       resultModel.setConfigObject(new CreateRegionResult(regionConfig, regionPath));
@@ -560,25 +557,25 @@ public class CreateRegionCommand extends SingleGfshCommand {
       return false;
     }
 
-    CreateRegionResult regionResultConfigObject = (CreateRegionResult) configObject;
-    RegionConfig regionConfig = regionResultConfigObject.getRegionConfig();
-    String regionPath = regionResultConfigObject.getFullRegionPath();
+    var regionResultConfigObject = (CreateRegionResult) configObject;
+    var regionConfig = regionResultConfigObject.getRegionConfig();
+    var regionPath = regionResultConfigObject.getFullRegionPath();
 
-    RegionPath regionPathData = new RegionPath(regionPath);
+    var regionPathData = new RegionPath(regionPath);
     if (regionPathData.getParent() == null) {
       config.getRegions().add(regionConfig);
       return true;
     }
 
-    String[] regionsOnPath = regionPathData.getRegionsOnParentPath();
+    var regionsOnPath = regionPathData.getRegionsOnParentPath();
 
-    RegionConfig currentConfig = config.getRegions().stream()
+    var currentConfig = config.getRegions().stream()
         .filter(r1 -> r1.getName().equals(regionsOnPath[0]))
         .findFirst()
         .get();
 
-    for (int i = 1; i < regionsOnPath.length; i++) {
-      final String curRegionName = regionsOnPath[i];
+    for (var i = 1; i < regionsOnPath.length; i++) {
+      final var curRegionName = regionsOnPath[i];
       currentConfig = currentConfig.getRegions()
           .stream()
           .filter(r -> r.getName().equals(curRegionName))
@@ -592,13 +589,13 @@ public class CreateRegionCommand extends SingleGfshCommand {
   }
 
   boolean verifyDistributedRegionMbean(InternalCache cache, String regionName) {
-    int federationInterval =
+    var federationInterval =
         cache.getInternalDistributedSystem().getConfig().getJmxManagerUpdateRate();
-    long timeEnd = System.currentTimeMillis() + federationInterval + 50;
+    var timeEnd = System.currentTimeMillis() + federationInterval + 50;
 
     for (; System.currentTimeMillis() <= timeEnd;) {
       try {
-        DistributedRegionMXBean bean =
+        var bean =
             ManagementService.getManagementService(cache).getDistributedRegionMXBean(regionName);
         if (bean == null) {
           bean = ManagementService.getManagementService(cache)
@@ -618,8 +615,8 @@ public class CreateRegionCommand extends SingleGfshCommand {
   RegionConfig findNonProxyRegionsInClusterConfigurationByName(String regionName,
       InternalConfigurationPersistenceService persistenceService) {
     RegionConfig regionConfig;
-    for (String group : persistenceService.getGroups()) {
-      CacheConfig config = persistenceService.getCacheConfig(group);
+    for (var group : persistenceService.getGroups()) {
+      var config = persistenceService.getCacheConfig(group);
       if (config != null) {
         regionConfig =
             config.getRegions().stream().filter(
@@ -636,7 +633,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
 
   boolean isRegionExistsInGroup(String regionName, String group,
       InternalConfigurationPersistenceService persistenceService) {
-    CacheConfig config = persistenceService.getCacheConfig(group);
+    var config = persistenceService.getCacheConfig(group);
     RegionConfig regionConfig = null;
     if (config != null) {
       regionConfig =
@@ -654,15 +651,15 @@ public class CreateRegionCommand extends SingleGfshCommand {
       return;
     }
 
-    RegionPath regionPath = new RegionPath(regionPathFull);
-    RegionConfig regionConfig =
+    var regionPath = new RegionPath(regionPathFull);
+    var regionConfig =
         findNonProxyRegionsInClusterConfigurationByName(regionPath.getName(), persistenceService);
     if (regionConfig == null) {
       return;
     }
 
-    String existingDataPolicy = regionConfig.getType();
-    boolean existingRegionIsNotProxy = !existingDataPolicy.contains("PROXY");
+    var existingDataPolicy = regionConfig.getType();
+    var existingRegionIsNotProxy = !existingDataPolicy.contains("PROXY");
     if (regionShortcut.isLocal() || existingDataPolicy.equals("NORMAL")
         || (!regionShortcut.isProxy() && existingRegionIsNotProxy)) {
       throw new EntityExistsException(
@@ -686,7 +683,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
       }
     } else {
       List<String> groupsExists = new ArrayList<>();
-      for (String group : groups) {
+      for (var group : groups) {
         if (isRegionExistsInGroup(regionPath.getName(), group, persistenceService)) {
           groupsExists.add(group);
         }
@@ -708,17 +705,17 @@ public class CreateRegionCommand extends SingleGfshCommand {
      * Regions can be categories as Proxy(replicate/partition), replicate/partition, and local
      * For concise purpose: we call existing region (E) and region to be created (C)
      */
-    DistributedRegionMXBean regionBean =
+    var regionBean =
         getManagementService().getDistributedRegionMXBean(regionPath);
     if (regionBean == null || regionShortcut == null) {
       return;
     }
 
-    String existingDataPolicy = regionBean.getRegionType();
+    var existingDataPolicy = regionBean.getRegionType();
     // fail if either C is local, or E is local or E and C are both non-proxy regions. this is to
     // make sure local, replicate or partition regions have unique names across the entire cluster
-    boolean existingRegionIsNotProxy = regionBean.getMemberCount() > regionBean.getEmptyNodes();
-    boolean toBeCreatedIsNotProxy = !regionShortcut.isProxy();
+    var existingRegionIsNotProxy = regionBean.getMemberCount() > regionBean.getEmptyNodes();
+    var toBeCreatedIsNotProxy = !regionShortcut.isProxy();
     if (regionShortcut.isLocal() || existingDataPolicy.equals("NORMAL") || (toBeCreatedIsNotProxy
         && existingRegionIsNotProxy)) {
       throw new EntityExistsException(
@@ -739,9 +736,9 @@ public class CreateRegionCommand extends SingleGfshCommand {
     }
 
     // then we make sure E and C are on different members
-    Set<String> membersWithThisRegion =
+    var membersWithThisRegion =
         Arrays.stream(regionBean.getMembers()).collect(Collectors.toSet());
-    Set<String> membersWithinGroup = findMembers(groups, null).stream()
+    var membersWithinGroup = findMembers(groups, null).stream()
         .map(DistributedMember::getName).collect(Collectors.toSet());
     if (!Collections.disjoint(membersWithinGroup, membersWithThisRegion)) {
       throw new EntityExistsException(
@@ -755,16 +752,16 @@ public class CreateRegionCommand extends SingleGfshCommand {
       return false;
     }
 
-    ManagementService managementService = getManagementService();
-    DistributedSystemMXBean dsMBean = managementService.getDistributedSystemMXBean();
+    var managementService = getManagementService();
+    var dsMBean = managementService.getDistributedSystemMXBean();
 
-    String[] allRegionPaths = dsMBean.listAllRegionPaths();
+    var allRegionPaths = dsMBean.listAllRegionPaths();
     return Arrays.asList(allRegionPaths).contains(regionPath);
   }
 
   private boolean diskStoreExists(String diskStoreName) {
-    ManagementService managementService = getManagementService();
-    DistributedSystemMXBean dsMXBean = managementService.getDistributedSystemMXBean();
+    var managementService = getManagementService();
+    var dsMXBean = managementService.getDistributedSystemMXBean();
 
     return Arrays.stream(dsMXBean.listMembers()).anyMatch(
         member -> DiskStoreCommandsUtils.diskStoreBeanAndMemberBeanDiskStoreExists(dsMXBean, member,
@@ -772,14 +769,14 @@ public class CreateRegionCommand extends SingleGfshCommand {
   }
 
   DistributedSystemMXBean getDSMBean() {
-    ManagementService managementService = getManagementService();
+    var managementService = getManagementService();
     return managementService.getDistributedSystemMXBean();
   }
 
   public static class Interceptor extends AbstractCliAroundInterceptor {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      Integer localMaxMemory =
+      var localMaxMemory =
           (Integer) parseResult.getParamValue(CliStrings.CREATE_REGION__LOCALMAXMEMORY);
       if (localMaxMemory != null) {
         if (localMaxMemory < 0) {
@@ -788,7 +785,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
         }
       }
 
-      Long totalMaxMemory =
+      var totalMaxMemory =
           (Long) parseResult.getParamValue(CliStrings.CREATE_REGION__TOTALMAXMEMORY);
       if (totalMaxMemory != null) {
         if (totalMaxMemory <= 0) {
@@ -796,7 +793,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
               "Total size of partition region must be > 0.");
         }
       }
-      Integer redundantCopies =
+      var redundantCopies =
           (Integer) parseResult.getParamValue(CliStrings.CREATE_REGION__REDUNDANTCOPIES);
       if (redundantCopies != null) {
         if (redundantCopies < 0 || redundantCopies > 3) {
@@ -806,7 +803,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
         }
       }
 
-      Integer concurrencyLevel =
+      var concurrencyLevel =
           (Integer) parseResult.getParamValue(CliStrings.CREATE_REGION__CONCURRENCYLEVEL);
       if (concurrencyLevel != null) {
         if (concurrencyLevel < 0) {
@@ -816,7 +813,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
         }
       }
 
-      String keyConstraint =
+      var keyConstraint =
           parseResult.getParamValueAsString(CliStrings.CREATE_REGION__KEYCONSTRAINT);
       if (keyConstraint != null && !isClassNameValid(keyConstraint)) {
         return ResultModel.createError(CliStrings.format(
@@ -824,7 +821,7 @@ public class CreateRegionCommand extends SingleGfshCommand {
             new Object[] {keyConstraint}));
       }
 
-      String valueConstraint =
+      var valueConstraint =
           parseResult.getParamValueAsString(CliStrings.CREATE_REGION__VALUECONSTRAINT);
       if (valueConstraint != null && !isClassNameValid(valueConstraint)) {
         return ResultModel.createError(CliStrings.format(
@@ -832,13 +829,13 @@ public class CreateRegionCommand extends SingleGfshCommand {
             new Object[] {valueConstraint}));
       }
 
-      String compressor = parseResult.getParamValueAsString(CliStrings.CREATE_REGION__COMPRESSOR);
+      var compressor = parseResult.getParamValueAsString(CliStrings.CREATE_REGION__COMPRESSOR);
       if (compressor != null && !isClassNameValid(compressor)) {
         return ResultModel.createError(CliStrings
             .format(CliStrings.CREATE_REGION__MSG__INVALID_COMPRESSOR, new Object[] {compressor}));
       }
 
-      Boolean cloningEnabled =
+      var cloningEnabled =
           (Boolean) parseResult.getParamValue(CliStrings.CREATE_REGION__CLONINGENABLED);
       if (compressor != null && cloningEnabled != null && !cloningEnabled) {
         return ResultModel.createError(CliStrings
@@ -846,15 +843,15 @@ public class CreateRegionCommand extends SingleGfshCommand {
                 new Object[] {compressor}));
       }
 
-      String diskStore = parseResult.getParamValueAsString(CliStrings.CREATE_REGION__DISKSTORE);
+      var diskStore = parseResult.getParamValueAsString(CliStrings.CREATE_REGION__DISKSTORE);
       if (diskStore != null) {
-        String regionShortcut =
+        var regionShortcut =
             parseResult.getParamValueAsString(CliStrings.CREATE_REGION__REGIONSHORTCUT);
         if (regionShortcut != null && !RegionCommandsUtils.PERSISTENT_OVERFLOW_SHORTCUTS
             .contains(RegionShortcut.valueOf(regionShortcut))) {
-          String subMessage =
+          var subMessage =
               "Only regions with persistence or overflow to disk can specify DiskStore";
-          String message = subMessage + ". "
+          var message = subMessage + ". "
               + CliStrings.format(CliStrings.CREATE_REGION__MSG__USE_ONE_OF_THESE_SHORTCUTS_0,
                   new Object[] {String.valueOf(RegionCommandsUtils.PERSISTENT_OVERFLOW_SHORTCUTS)});
 
@@ -863,46 +860,45 @@ public class CreateRegionCommand extends SingleGfshCommand {
       }
 
       // if any expiration value is set, statistics must be enabled
-      Boolean statisticsEnabled =
+      var statisticsEnabled =
           (Boolean) parseResult.getParamValue(CliStrings.CREATE_REGION__STATISTICSENABLED);
-      Integer entryIdle =
+      var entryIdle =
           (Integer) parseResult.getParamValue(CliStrings.CREATE_REGION__ENTRYEXPIRATIONIDLETIME);
-      Integer entryTtl =
+      var entryTtl =
           (Integer) parseResult.getParamValue(CliStrings.CREATE_REGION__ENTRYEXPIRATIONTIMETOLIVE);
-      Integer regionIdle =
+      var regionIdle =
           (Integer) parseResult.getParamValue(CliStrings.CREATE_REGION__REGIONEXPIRATIONIDLETIME);
-      Integer regionTtl =
+      var regionTtl =
           (Integer) parseResult.getParamValue(CliStrings.CREATE_REGION__REGIONEXPIRATIONTTL);
-      ExpirationAction entryIdleAction = (ExpirationAction) parseResult
+      var entryIdleAction = (ExpirationAction) parseResult
           .getParamValue(CliStrings.CREATE_REGION__ENTRYEXPIRATIONIDLETIMEACTION);
-      ExpirationAction entryTtlAction = (ExpirationAction) parseResult
+      var entryTtlAction = (ExpirationAction) parseResult
           .getParamValue(CliStrings.CREATE_REGION__ENTRYEXPIRATIONTTLACTION);
-      ExpirationAction regionIdleAction = (ExpirationAction) parseResult
+      var regionIdleAction = (ExpirationAction) parseResult
           .getParamValue(CliStrings.CREATE_REGION__REGIONEXPIRATIONIDLETIMEACTION);
-      ExpirationAction regionTtlAction = (ExpirationAction) parseResult
+      var regionTtlAction = (ExpirationAction) parseResult
           .getParamValue(CliStrings.CREATE_REGION__REGIONEXPIRATIONTTLACTION);
-      ClassName entryIdleExpiry =
+      var entryIdleExpiry =
           (ClassName) parseResult.getParamValue(CliStrings.ENTRY_IDLE_TIME_CUSTOM_EXPIRY);
-      ClassName entryTTTLExpiry =
+      var entryTTTLExpiry =
           (ClassName) parseResult.getParamValue(CliStrings.ENTRY_TTL_CUSTOM_EXPIRY);
 
       if ((entryIdle != null || entryTtl != null || regionIdle != null || regionTtl != null
           || entryIdleAction != null || entryTtlAction != null || regionIdleAction != null
           || regionTtlAction != null || entryIdleExpiry != null || entryTTTLExpiry != null)
           && (statisticsEnabled == null || !statisticsEnabled)) {
-        String message =
+        var message =
             "Statistics must be enabled for expiration";
         return ResultModel.createError(message + ".");
       }
 
-
-      String maxMemory =
+      var maxMemory =
           parseResult.getParamValueAsString(CliStrings.CREATE_REGION__EVICTION_MAX_MEMORY);
-      String maxEntry =
+      var maxEntry =
           parseResult.getParamValueAsString(CliStrings.CREATE_REGION__EVICTION_ENTRY_COUNT);
-      String evictionAction =
+      var evictionAction =
           parseResult.getParamValueAsString(CliStrings.CREATE_REGION__EVICTION_ACTION);
-      String evictionSizer =
+      var evictionSizer =
           parseResult.getParamValueAsString(CliStrings.CREATE_REGION__EVICTION_OBJECT_SIZER);
       if (maxEntry != null && maxMemory != null) {
         return ResultModel.createError(CliStrings.CREATE_REGION__MSG__BOTH_EVICTION_VALUES);
@@ -921,9 +917,9 @@ public class CreateRegionCommand extends SingleGfshCommand {
           && EvictionAction.parseAction(evictionAction) == EvictionAction.NONE) {
         return ResultModel.createError(CliStrings.CREATE_REGION__MSG__INVALID_EVICTION_ACTION);
       }
-      RegionAttributesScope scope =
+      var scope =
           (RegionAttributesScope) parseResult.getParamValue(CliStrings.CREATE_REGION__SCOPE);
-      RegionShortcut regionShortcut =
+      var regionShortcut =
           (RegionShortcut) parseResult.getParamValue(CliStrings.CREATE_REGION__REGIONSHORTCUT);
       if (scope != null && regionShortcut == null) {
         return ResultModel

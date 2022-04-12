@@ -124,14 +124,14 @@ public class GetAllWithCallbackTest {
 
     getAll70.cmdExecute(message, serverConnection, securityService, 0);
 
-    ArgumentCaptor<ObjectPartList> argument = ArgumentCaptor.forClass(ObjectPartList.class);
+    var argument = ArgumentCaptor.forClass(ObjectPartList.class);
     verify(chunkedResponseMessage).addObjPartNoCopying(argument.capture());
 
     assertThat(argument.getValue().getObjects()).hasSize(KEYS.length);
-    for (Object key : argument.getValue().getKeys()) {
+    for (var key : argument.getValue().getKeys()) {
       assertThat(key).isIn(KEYS);
     }
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       verify(securityService).authorize(Resource.DATA, Operation.READ, REGION_NAME,
           key.toString());
     }
@@ -144,23 +144,23 @@ public class GetAllWithCallbackTest {
     when(securityService.isClientSecurityRequired()).thenReturn(true);
     when(securityService.isIntegratedSecurity()).thenReturn(true);
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       doThrow(new NotAuthorizedException("")).when(securityService).authorize(Resource.DATA,
           Operation.READ, REGION_NAME, key.toString());
     }
 
     getAll70.cmdExecute(message, serverConnection, securityService, 0);
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       verify(securityService).authorize(Resource.DATA, Operation.READ, REGION_NAME,
           key.toString());
     }
 
-    ArgumentCaptor<ObjectPartList> argument = ArgumentCaptor.forClass(ObjectPartList.class);
+    var argument = ArgumentCaptor.forClass(ObjectPartList.class);
     verify(chunkedResponseMessage).addObjPartNoCopying(argument.capture());
 
     assertThat(argument.getValue().getObjects()).hasSize(KEYS.length);
-    for (Object key : argument.getValue().getObjects()) {
+    for (var key : argument.getValue().getObjects()) {
       assertThat(key).isExactlyInstanceOf(NotAuthorizedException.class);
     }
 
@@ -174,15 +174,15 @@ public class GetAllWithCallbackTest {
 
     getAll70.cmdExecute(message, serverConnection, securityService, 0);
 
-    ArgumentCaptor<ObjectPartList> argument = ArgumentCaptor.forClass(ObjectPartList.class);
+    var argument = ArgumentCaptor.forClass(ObjectPartList.class);
     verify(chunkedResponseMessage).addObjPartNoCopying(argument.capture());
 
     assertThat(argument.getValue().getObjects()).hasSize(KEYS.length);
-    for (Object key : argument.getValue().getKeys()) {
+    for (var key : argument.getValue().getKeys()) {
       assertThat(key).isIn(KEYS);
     }
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       verify(authzRequest).getAuthorize(eq(REGION_NAME), eq(key.toString()), eq(null));
     }
 
@@ -194,22 +194,22 @@ public class GetAllWithCallbackTest {
     when(securityService.isClientSecurityRequired()).thenReturn(true);
     when(securityService.isIntegratedSecurity()).thenReturn(false);
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       doThrow(new NotAuthorizedException("")).when(authzRequest).getAuthorize(eq(REGION_NAME),
           eq(key.toString()), eq(null));
     }
 
     getAll70.cmdExecute(message, serverConnection, securityService, 0);
 
-    ArgumentCaptor<ObjectPartList> argument = ArgumentCaptor.forClass(ObjectPartList.class);
+    var argument = ArgumentCaptor.forClass(ObjectPartList.class);
     verify(chunkedResponseMessage).addObjPartNoCopying(argument.capture());
 
     assertThat(argument.getValue().getObjects()).hasSize(KEYS.length);
-    for (Object o : argument.getValue().getObjects()) {
+    for (var o : argument.getValue().getObjects()) {
       assertThat(o).isExactlyInstanceOf(NotAuthorizedException.class);
     }
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       verify(authzRequest).getAuthorize(eq(REGION_NAME), eq(key.toString()), eq(null));
     }
 

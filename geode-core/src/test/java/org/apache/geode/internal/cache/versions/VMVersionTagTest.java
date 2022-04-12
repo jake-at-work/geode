@@ -27,7 +27,7 @@ public class VMVersionTagTest extends AbstractVersionTagTestBase {
 
   @Override
   protected VersionSource createMemberID() {
-    int port = getRandomUnusedInt();
+    var port = getRandomUnusedInt();
     return new InternalDistributedMember("localhost", port);
   }
 }

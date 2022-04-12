@@ -88,7 +88,7 @@ public class LonerDistributionManager implements DistributionManager {
     viewMembers = new ArrayList<>(allIds);
     DistributionStats.enableClockStats = this.system.getConfig().getEnableTimeStatistics();
 
-    DistributionConfig config = system.getConfig();
+    var config = system.getConfig();
 
     if (config.getThreadMonitorEnabled()) {
       threadMonitor = new ThreadsMonitoringImpl(system, config.getThreadMonitorInterval(),
@@ -147,8 +147,8 @@ public class LonerDistributionManager implements DistributionManager {
 
   @Override
   public InternalDistributedMember getCanonicalId(DistributedMember dmid) {
-    InternalDistributedMember iid = (InternalDistributedMember) dmid;
-    InternalDistributedMember result = canonicalIds.putIfAbsent(iid, iid);
+    var iid = (InternalDistributedMember) dmid;
+    var result = canonicalIds.putIfAbsent(iid, iid);
     if (result != null) {
       return result;
     }
@@ -1047,23 +1047,23 @@ public class LonerDistributionManager implements DistributionManager {
     String host;
     try {
       // create string of the current millisecond clock time
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       // use low four bytes for backward compatibility
-      long time = System.currentTimeMillis() & 0xffffffffL;
+      var time = System.currentTimeMillis() & 0xffffffffL;
       for (long i = 0; i < 4; i++) {
-        String hex = Integer.toHexString((int) (time & 0xff));
+        var hex = Integer.toHexString((int) (time & 0xff));
         if (hex.length() < 2) {
           sb.append('0');
         }
         sb.append(hex);
         time = time / 0x100;
       }
-      String uniqueString = sb.toString();
+      var uniqueString = sb.toString();
 
-      String name = system.getName();
+      var name = system.getName();
 
       host = SocketCreator.getClientHostName();
-      DistributionConfig config = system.getConfig();
+      var config = system.getConfig();
       DurableClientAttributes dac = null;
       if (config.getDurableClientId() != null) {
         dac = new DurableClientAttributes(config.getDurableClientId(),
@@ -1287,7 +1287,7 @@ public class LonerDistributionManager implements DistributionManager {
 
   @Override
   public InternalCache getExistingCache() {
-    InternalCache result = cache;
+    var result = cache;
     if (result == null) {
       throw new CacheClosedException(
           "A cache has not yet been created.");

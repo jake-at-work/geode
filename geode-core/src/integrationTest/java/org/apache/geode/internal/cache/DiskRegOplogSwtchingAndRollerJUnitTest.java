@@ -25,7 +25,6 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import org.apache.geode.cache.DiskAccessException;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
@@ -57,10 +56,10 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
    */
   @Test
   public void testSyncPersistRegionDAExp() {
-    File testingDirectory1 = new File("testingDirectory1");
+    var testingDirectory1 = new File("testingDirectory1");
     testingDirectory1.mkdir();
     testingDirectory1.deleteOnExit();
-    File file1 = new File("testingDirectory1/" + "testSyncPersistRegionDAExp" + "1");
+    var file1 = new File("testingDirectory1/" + "testSyncPersistRegionDAExp" + "1");
     file1.mkdir();
     file1.deleteOnExit();
     dirs1 = new File[1];
@@ -75,7 +74,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
     diskProps.setRegionName("region_SyncPersistRegionDAExp");
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
-    DiskStore ds = cache.findDiskStore(((LocalRegion) region).getDiskStoreName());
+    var ds = cache.findDiskStore(((LocalRegion) region).getDiskStoreName());
     // int[] diskSizes1 = ((LocalRegion)region).getDiskDirSizes();
     assertTrue(ds != null);
     int[] diskSizes1 = null;
@@ -94,10 +93,10 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
 
   @Test
   public void testAsyncPersistRegionDAExp() {
-    File testingDirectory1 = new File("testingDirectory1");
+    var testingDirectory1 = new File("testingDirectory1");
     testingDirectory1.mkdir();
     testingDirectory1.deleteOnExit();
-    File file1 = new File("testingDirectory1/" + "testAsyncPersistRegionDAExp" + "1");
+    var file1 = new File("testingDirectory1/" + "testAsyncPersistRegionDAExp" + "1");
     file1.mkdir();
     file1.deleteOnExit();
     dirs1 = new File[1];
@@ -112,7 +111,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
     diskProps.setRegionName("region_AsyncPersistRegionDAExp");
     region = DiskRegionHelperFactory.getAsyncPersistOnlyRegion(cache, diskProps);
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
-    DiskStore ds = cache.findDiskStore(((LocalRegion) region).getDiskStoreName());
+    var ds = cache.findDiskStore(((LocalRegion) region).getDiskStoreName());
     // int[] diskSizes1 = ((LocalRegion)region).getDiskDirSizes();
     assertTrue(ds != null);
     int[] diskSizes1 = null;
@@ -128,10 +127,10 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
   }// end of testAsyncPersistRegionDAExp
 
   private void diskAccessExpHelpermethod(final Region region) {
-    final byte[] value = new byte[990];
+    final var value = new byte[990];
     Arrays.fill(value, (byte) 77);
     try {
-      for (int i = 0; i < 2; i++) {
+      for (var i = 0; i < 2; i++) {
         region.put("" + i, value);
       }
     } catch (DiskAccessException e) {
@@ -151,7 +150,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
   @Test
   public void testSyncRollingHappening() {
     try {
-      DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+      var diskRegionProperties = new DiskRegionProperties();
       diskRegionProperties.setDiskDirs(dirs);
       diskRegionProperties.setMaxOplogSize(512);
       diskRegionProperties.setRolling(true);
@@ -202,7 +201,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
   @Test
   public void testSyncRollingNotHappening() {
     try {
-      DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+      var diskRegionProperties = new DiskRegionProperties();
       diskRegionProperties.setDiskDirs(dirs);
       diskRegionProperties.setMaxOplogSize(512);
       diskRegionProperties.setRolling(false);
@@ -242,7 +241,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
   @Test
   public void testAsyncRollingHappening() {
     try {
-      DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+      var diskRegionProperties = new DiskRegionProperties();
       diskRegionProperties.setDiskDirs(dirs);
       diskRegionProperties.setMaxOplogSize(512);
       diskRegionProperties.setRolling(true);
@@ -297,7 +296,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
   @Test
   public void testAsyncRollingNotHappening() {
     try {
-      DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+      var diskRegionProperties = new DiskRegionProperties();
       diskRegionProperties.setDiskDirs(dirs);
       diskRegionProperties.setMaxOplogSize(512);
       diskRegionProperties.setRolling(false);
@@ -369,7 +368,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
               fail("FAILED::" + e);
             }
 
-            Thread th = new Thread(new DoesFlush(region));
+            var th = new Thread(new DoesFlush(region));
             th.setName("TestingThread");
             th.start();
             Thread.yield();
@@ -458,7 +457,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
         synchronized (this) {
           if (!callOnce) {
             try {
-              for (int i = 0; i < 100; i++) {
+              for (var i = 0; i < 100; i++) {
                 region.put(i, "newVal" + i);
               }
             } catch (Exception e) {
@@ -483,7 +482,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
     });
 
     try {
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         region.put(i, i);
       }
     } catch (Exception e) {
@@ -491,7 +490,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
       fail("FAILED::" + e);
     }
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       assertTrue(region.get(i).equals(i));
     }
     region.forceRolling();
@@ -508,7 +507,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
       }
     }
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       assertEquals("newVal" + i, region.get(i));
     }
 
@@ -516,7 +515,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
 
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       assertTrue(region.containsKey(i));
       assertEquals("newVal" + i, region.get(i));
     }
@@ -579,7 +578,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
     });
 
     try {
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         region.put(i, i);
       }
     } catch (Exception e) {
@@ -587,7 +586,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
       fail("FAILED::" + e);
     }
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       assertTrue(region.get(i).equals(i));
     }
     region.forceRolling();
@@ -604,8 +603,8 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
       }
     }
 
-    DiskRegion dr = ((LocalRegion) region).getDiskRegion();
-    Oplog oplog = dr.testHook_getChild();
+    var dr = ((LocalRegion) region).getDiskRegion();
+    var oplog = dr.testHook_getChild();
 
     // Set set = oplog.getEntriesDeletedInThisOplog();
 
@@ -615,7 +614,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
 
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       if (i == 10 || i == 20 || i == 30 || i == 40 || i == 50) {
         assertTrue(" failed on key " + i, !region.containsKey(i));
       } else {
@@ -635,7 +634,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
    */
   private boolean getByteArrVal(Long key, Region region) {
     Object val = null;
-    byte[] val2 = new byte[1024];
+    var val2 = new byte[1024];
     Arrays.fill(val2, (byte) 77);
     try {
       // val = region.get(key);
@@ -645,11 +644,11 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
       fail("Failed to get the value on disk");
     }
     // verify that the retrieved byte[] equals to the value put initially.
-    boolean result = false;
+    var result = false;
     byte[] x = null;
     x = (byte[]) val;
     Arrays.fill(x, (byte) 77);
-    for (int i = 0; i < x.length; i++) {
+    for (var i = 0; i < x.length; i++) {
       result = (x[i] == val2[i]);
     }
     if (!result) {
@@ -695,7 +694,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
               testFailed = true;
             }
 
-            Thread th = new Thread(new DoesFlush1(region));
+            var th = new Thread(new DoesFlush1(region));
             th.setName("TestingThread");
             th.start();
             Thread.yield();
@@ -787,7 +786,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
     diskProps.setOverFlowCapacity(1);
     diskProps.setRegionName("region_testGetEvictedEntry");
     region = DiskRegionHelperFactory.getSyncOverFlowOnlyRegion(cache, diskProps);
-    DiskRegionStats stats = ((LocalRegion) region).getDiskRegion().getStats();
+    var stats = ((LocalRegion) region).getDiskRegion().getStats();
     // LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
     // CacheObserverHolder.setInstance(new CacheObserverAdapter() {
     // boolean callOnce = false;
@@ -810,7 +809,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
     // });
 
     try {
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         region.put("key" + i, "val" + i);
       }
     } catch (Exception e) {
@@ -846,19 +845,19 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
     // assertTrue("after ForcRolling getNumOverflowOnDisk != 99", stats
     // .getNumOverflowOnDisk() == 99);
 
-    for (int i = 0; i < 99; i++) {
+    for (var i = 0; i < 99; i++) {
       assertTrue(((LocalRegion) region).getValueOnDisk("key" + i).equals("val" + i));
     }
 
     ((LocalRegion) region).getDiskRegion().flushForTesting();
 
     // Values in VM for entries 0 to 98 must be null
-    for (int i = 0; i < 99; i++) {
+    for (var i = 0; i < 99; i++) {
       assertTrue(((LocalRegion) region).getValueInVM("key" + i) == null);
     }
     assertTrue(((LocalRegion) region).getValueInVM("key99").equals("val99"));
     // Values on disk for entries 0 to 98 must have their values
-    for (int i = 0; i < 99; i++) {
+    for (var i = 0; i < 99; i++) {
       assertTrue(((LocalRegion) region).getValueOnDisk("key" + i).equals("val" + i));
     }
     assertTrue(((LocalRegion) region).getValueOnDisk("key99") == null);
@@ -872,8 +871,8 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
    */
   @Test
   public void testDiskFullExcep() {
-    boolean exceptionOccurred = false;
-    int[] diskDirSize1 = new int[4];
+    var exceptionOccurred = false;
+    var diskDirSize1 = new int[4];
     diskDirSize1[0] = 1048576;
     diskDirSize1[1] = 1048576;
     diskDirSize1[2] = 1048576;
@@ -886,7 +885,7 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
     diskProps.setBytesThreshold(1000000);
     diskProps.setTimeInterval(1500000);
     region = DiskRegionHelperFactory.getAsyncPersistOnlyRegion(cache, diskProps);
-    DiskStore ds = cache.findDiskStore(((LocalRegion) region).getDiskStoreName());
+    var ds = cache.findDiskStore(((LocalRegion) region).getDiskStoreName());
     // int[] diskSizes1 = ((LocalRegion)region).getDiskDirSizes();
     assertTrue(ds != null);
     int[] diskSizes1 = null;
@@ -897,10 +896,10 @@ public class DiskRegOplogSwtchingAndRollerJUnitTest extends DiskRegionTestingBas
     assertTrue("diskSizes != 1048576 ", diskSizes1[2] == 1048576);
     assertTrue("diskSizes != 1048576 ", diskSizes1[3] == 1048576);
 
-    final byte[] value = new byte[1024];
+    final var value = new byte[1024];
     Arrays.fill(value, (byte) 77);
     try {
-      for (int i = 0; i < 7000; i++) {
+      for (var i = 0; i < 7000; i++) {
         region.put("" + i, value);
       }
     } catch (DiskAccessException e) {

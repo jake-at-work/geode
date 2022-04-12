@@ -19,7 +19,6 @@ package org.apache.geode.internal.admin.remote;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.internal.DistributionManager;
@@ -41,7 +40,7 @@ public class RegionSizeResponse extends AdminResponse implements Cancellable {
    */
   public static RegionSizeResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    RegionSizeResponse m = new RegionSizeResponse();
+    var m = new RegionSizeResponse();
     m.setRecipient(recipient);
     return m;
   }
@@ -51,12 +50,12 @@ public class RegionSizeResponse extends AdminResponse implements Cancellable {
       return;
     }
 
-    Set nameSet = r.keySet();
+    var nameSet = r.keySet();
     if (cancelled) {
       return;
     }
     entryCount = nameSet.size();
-    Set subRegions = r.subregions(false);
+    var subRegions = r.subregions(false);
     if (cancelled) {
       return;
     }

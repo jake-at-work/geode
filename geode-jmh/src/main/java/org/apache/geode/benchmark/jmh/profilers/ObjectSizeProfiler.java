@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.IterationParams;
@@ -65,7 +64,7 @@ public class ObjectSizeProfiler implements InternalProfiler {
       final IterationParams iterationParams,
       final IterationResult result) {
     final List<Result<?>> results = new ArrayList<>();
-    for (Map.Entry<String, Object> entry : objects.entrySet()) {
+    for (var entry : objects.entrySet()) {
       result.addResult(new ScalarResult("objectSize." + entry.getKey(),
           sizeOfDeep(entry.getValue()), "bytes", AggregationPolicy.AVG));
     }

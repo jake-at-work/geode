@@ -55,10 +55,10 @@ public class ClusterConfigImportDUnitTest extends ClusterConfigTestBase {
 
   @Test
   public void testImportWithRunningServerWithRegion() throws Exception {
-    MemberVM server1 = lsRule.startServerVM(1, serverProps, locatorVM.getPort());
+    var server1 = lsRule.startServerVM(1, serverProps, locatorVM.getPort());
     // create another server as well
-    MemberVM server2 = lsRule.startServerVM(2, serverProps, locatorVM.getPort());
-    String regionName = "regionA";
+    var server2 = lsRule.startServerVM(2, serverProps, locatorVM.getPort());
+    var regionName = "regionA";
     server1.invoke(() -> {
       // this region will be created on both servers, but we should only be getting the name once.
       Cache cache = ClusterStartupRule.getCache();
@@ -74,10 +74,10 @@ public class ClusterConfigImportDUnitTest extends ClusterConfigTestBase {
 
   @Test
   public void testImportWithRunningServer() throws Exception {
-    MemberVM server1 = lsRule.startServerVM(1, serverProps, locatorVM.getPort());
+    var server1 = lsRule.startServerVM(1, serverProps, locatorVM.getPort());
 
     serverProps.setProperty("groups", "group2");
-    MemberVM server2 = lsRule.startServerVM(2, serverProps, locatorVM.getPort());
+    var server2 = lsRule.startServerVM(2, serverProps, locatorVM.getPort());
 
     gfshConnector
         .executeAndAssertThat(
@@ -130,28 +130,28 @@ public class ClusterConfigImportDUnitTest extends ClusterConfigTestBase {
     CONFIG_FROM_ZIP.verify(locatorVM);
 
     // start server1 with no group
-    MemberVM server1 = lsRule.startServerVM(1, serverProps, locatorVM.getPort());
+    var server1 = lsRule.startServerVM(1, serverProps, locatorVM.getPort());
     new ClusterConfig(CLUSTER).verify(server1);
 
     // start server2 in group1
     serverProps.setProperty(GROUPS, "group1");
-    MemberVM server2 = lsRule.startServerVM(2, serverProps, locatorVM.getPort());
+    var server2 = lsRule.startServerVM(2, serverProps, locatorVM.getPort());
     new ClusterConfig(CLUSTER, GROUP1).verify(server2);
 
     // start server3 in group1 and group2
     serverProps.setProperty(GROUPS, "group1,group2");
-    MemberVM server3 = lsRule.startServerVM(3, serverProps, locatorVM.getPort());
+    var server3 = lsRule.startServerVM(3, serverProps, locatorVM.getPort());
     new ClusterConfig(CLUSTER, GROUP1, GROUP2).verify(server3);
   }
 
   @Test
   public void testImportWithMultipleLocators() throws Exception {
     locatorProps.setProperty(LOCATORS, "localhost[" + locatorVM.getPort() + "]");
-    MemberVM locator1 = lsRule.startLocatorVM(1, locatorProps);
+    var locator1 = lsRule.startLocatorVM(1, locatorProps);
 
     locatorProps.setProperty(LOCATORS,
         "localhost[" + locatorVM.getPort() + "],localhost[" + locator1.getPort() + "]");
-    MemberVM locator2 = lsRule.startLocatorVM(2, locatorProps);
+    var locator2 = lsRule.startLocatorVM(2, locatorProps);
 
     gfshConnector
         .executeAndAssertThat(

@@ -131,7 +131,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
   }
 
   String getShortClassName() {
-    String cname = getClass().getName();
+    var cname = getClass().getName();
     return cname.substring(getClass().getPackage().getName().length() + 1);
   }
 
@@ -143,21 +143,21 @@ public class OffHeapStoredObject extends AbstractStoredObject
     if (isSerialized() != so.isSerialized()) {
       return false;
     }
-    int mySize = getValueSizeInBytes();
+    var mySize = getValueSizeInBytes();
     if (mySize != so.getValueSizeInBytes()) {
       return false;
     }
     if (!(so instanceof OffHeapStoredObject)) {
       return false;
     }
-    OffHeapStoredObject other = (OffHeapStoredObject) so;
+    var other = (OffHeapStoredObject) so;
     if (getAddress() == other.getAddress()) {
       return true;
     }
     // We want to be able to do this operation without copying any of the data into the heap.
     // Hopefully the jvm is smart enough to use our stack for this short lived array.
-    final byte[] dataCache1 = new byte[1024];
-    final byte[] dataCache2 = new byte[dataCache1.length];
+    final var dataCache1 = new byte[1024];
+    final var dataCache2 = new byte[dataCache1.length];
     int i;
     // inc it twice since we are reading two different objects
     MemoryAllocatorImpl.getAllocator().getStats().incReads();
@@ -165,18 +165,18 @@ public class OffHeapStoredObject extends AbstractStoredObject
     for (i = 0; i < mySize - (dataCache1.length - 1); i += dataCache1.length) {
       readDataBytes(i, dataCache1);
       other.readDataBytes(i, dataCache2);
-      for (int j = 0; j < dataCache1.length; j++) {
+      for (var j = 0; j < dataCache1.length; j++) {
         if (dataCache1[j] != dataCache2[j]) {
           return false;
         }
       }
     }
-    int bytesToRead = mySize - i;
+    var bytesToRead = mySize - i;
     if (bytesToRead > 0) {
       // need to do one more read which will be less than dataCache.length
       readDataBytes(i, dataCache1, 0, bytesToRead);
       other.readDataBytes(i, dataCache2, 0, bytesToRead);
-      for (int j = 0; j < bytesToRead; j++) {
+      for (var j = 0; j < bytesToRead; j++) {
         if (dataCache1[j] != dataCache2[j]) {
           return false;
         }
@@ -188,29 +188,29 @@ public class OffHeapStoredObject extends AbstractStoredObject
   @Override
   public boolean checkDataEquals(byte[] serializedObj) {
     // caller was responsible for checking isSerialized
-    int mySize = getValueSizeInBytes();
+    var mySize = getValueSizeInBytes();
     if (mySize != serializedObj.length) {
       return false;
     }
     // We want to be able to do this operation without copying any of the data into the heap.
     // Hopefully the jvm is smart enough to use our stack for this short lived array.
-    final byte[] dataCache = new byte[1024];
-    int idx = 0;
+    final var dataCache = new byte[1024];
+    var idx = 0;
     int i;
     MemoryAllocatorImpl.getAllocator().getStats().incReads();
     for (i = 0; i < mySize - (dataCache.length - 1); i += dataCache.length) {
       readDataBytes(i, dataCache);
-      for (final byte b : dataCache) {
+      for (final var b : dataCache) {
         if (b != serializedObj[idx++]) {
           return false;
         }
       }
     }
-    int bytesToRead = mySize - i;
+    var bytesToRead = mySize - i;
     if (bytesToRead > 0) {
       // need to do one more read which will be less than dataCache.length
       readDataBytes(i, dataCache, 0, bytesToRead);
-      for (int j = 0; j < bytesToRead; j++) {
+      for (var j = 0; j < bytesToRead; j++) {
         if (dataCache[j] != serializedObj[idx++]) {
           return false;
         }
@@ -224,7 +224,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
    * Throw an exception if this chunk is not allocated
    */
   public void checkIsAllocated() {
-    int originalBits =
+    var originalBits =
         AddressableMemoryManager.readIntVolatile(memoryAddress + REF_COUNT_OFFSET);
     if ((originalBits & MAGIC_MASK) != MAGIC_NUMBER) {
       throw new IllegalStateException(
@@ -277,9 +277,9 @@ public class OffHeapStoredObject extends AbstractStoredObject
   @Override
   public void sendTo(DataOutput out) throws IOException {
     if (!isCompressed() && out instanceof HeapDataOutputStream) {
-      ByteBuffer bb = createDirectByteBuffer();
+      var bb = createDirectByteBuffer();
       if (bb != null) {
-        HeapDataOutputStream hdos = (HeapDataOutputStream) out;
+        var hdos = (HeapDataOutputStream) out;
         if (isSerialized()) {
           hdos.write(bb);
         } else {
@@ -296,9 +296,9 @@ public class OffHeapStoredObject extends AbstractStoredObject
   @Override
   public void sendAsByteArray(DataOutput out) throws IOException {
     if (!isCompressed() && out instanceof HeapDataOutputStream) {
-      ByteBuffer bb = createDirectByteBuffer();
+      var bb = createDirectByteBuffer();
       if (bb != null) {
-        HeapDataOutputStream hdos = (HeapDataOutputStream) out;
+        var hdos = (HeapDataOutputStream) out;
         InternalDataSerializer.writeArrayLength(bb.remaining(), hdos);
         hdos.write(bb);
         return;
@@ -322,7 +322,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
         + ",dataSize=" + getDataSize() + ", chunkSize=" + getSize()
         + ", but offset + size must be <= " + getDataSize();
     assert size > 0;
-    long result = getBaseDataAddress() + offset;
+    var result = getBaseDataAddress() + offset;
     // validateAddressAndSizeWithinSlab(result, size);
     return result;
   }
@@ -368,7 +368,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
 
   @Override
   public int compareTo(OffHeapStoredObject o) {
-    int result = Integer.signum(getSize() - o.getSize());
+    var result = Integer.signum(getSize() - o.getSize());
     if (result == 0) {
       // For the same sized chunks we really don't care about their order
       // but we need compareTo to only return 0 if the two chunks are identical
@@ -387,7 +387,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
 
   @Override
   public int hashCode() {
-    long value = getAddress();
+    var value = getAddress();
     return (int) (value ^ (value >>> 32));
   }
 
@@ -396,8 +396,8 @@ public class OffHeapStoredObject extends AbstractStoredObject
   }
 
   public byte[] getDecompressedBytes(RegionEntryContext context) {
-    byte[] result = getCompressedBytes();
-    long time = context.getCachePerfStats().startDecompression();
+    var result = getCompressedBytes();
+    var time = context.getCachePerfStats().startDecompression();
     result = context.getCompressor().decompress(result);
     context.getCachePerfStats().endDecompression(time);
     return result;
@@ -407,7 +407,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
    * Returns the raw possibly compressed bytes of this chunk
    */
   public byte[] getCompressedBytes() {
-    byte[] result = new byte[getDataSize()];
+    var result = new byte[getDataSize()];
     readDataBytes(0, result);
     // debugLog("reading", true);
     MemoryAllocatorImpl.getAllocator().getStats().incReads();
@@ -426,7 +426,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
 
   @Override
   public byte[] getSerializedValue() {
-    byte[] result = getRawBytes();
+    var result = getRawBytes();
     if (!isSerialized()) {
       // The object is a byte[]. So we need to make it look like a serialized byte[] in our result
       result = EntryEventImpl.serialize(result);
@@ -491,10 +491,10 @@ public class OffHeapStoredObject extends AbstractStoredObject
   public void validateFill() {
     assert FreeListManager.TINY_MULTIPLE == 8;
 
-    long startAddress = getAddress() + MIN_CHUNK_SIZE;
-    int size = getSize() - MIN_CHUNK_SIZE;
+    var startAddress = getAddress() + MIN_CHUNK_SIZE;
+    var size = getSize() - MIN_CHUNK_SIZE;
 
-    for (int i = 0; i < size; i += FreeListManager.TINY_MULTIPLE) {
+    for (var i = 0; i < size; i += FreeListManager.TINY_MULTIPLE) {
       if (AddressableMemoryManager.readLong(startAddress + i) != FILL_PATTERN) {
         throw new IllegalStateException(
             "Fill pattern violated for chunk " + getAddress() + " with size " + getSize());
@@ -540,7 +540,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
 
   public void setDataSize(int dataSize) {
     assert dataSize <= getSize();
-    int delta = getSize() - dataSize;
+    var delta = getSize() - dataSize;
     assert delta <= (DATA_SIZE_DELTA_MASK >> DATA_SIZE_SHIFT);
     delta <<= DATA_SIZE_SHIFT;
     int bits;
@@ -569,7 +569,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
             "It looks like this off heap memory was already freed. rawBits="
                 + Integer.toHexString(rawBits));
       }
-      int uc = rawBits & REF_COUNT_MASK;
+      var uc = rawBits & REF_COUNT_MASK;
       if (uc != 0) {
         throw new IllegalStateException("Expected use count to be zero but it was: " + uc
             + " rawBits=0x" + Integer.toHexString(rawBits));
@@ -636,7 +636,7 @@ public class OffHeapStoredObject extends AbstractStoredObject
   // ---------------------------------- STATICS --------------------------------------
 
   protected static int getDataSize(long memoryAdress) {
-    int dataSizeDelta = AddressableMemoryManager.readInt(memoryAdress + REF_COUNT_OFFSET);
+    var dataSizeDelta = AddressableMemoryManager.readInt(memoryAdress + REF_COUNT_OFFSET);
     dataSizeDelta &= DATA_SIZE_DELTA_MASK;
     dataSizeDelta >>= DATA_SIZE_SHIFT;
     return getSize(memoryAdress) - dataSizeDelta;
@@ -668,8 +668,8 @@ public class OffHeapStoredObject extends AbstractStoredObject
    * @param baseAddress the starting address for a {@link OffHeapStoredObject}.
    */
   public static void fill(long baseAddress) {
-    long startAddress = baseAddress + MIN_CHUNK_SIZE;
-    int size = getSize(baseAddress) - MIN_CHUNK_SIZE;
+    var startAddress = baseAddress + MIN_CHUNK_SIZE;
+    var size = getSize(baseAddress) - MIN_CHUNK_SIZE;
 
     AddressableMemoryManager.fill(startAddress, size, FILL_BYTE);
   }

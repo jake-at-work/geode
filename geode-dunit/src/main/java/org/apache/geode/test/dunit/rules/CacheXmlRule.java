@@ -22,7 +22,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -86,14 +85,14 @@ public class CacheXmlRule extends AbstractDistributedRule {
   }
 
   public InternalCache getCache() {
-    InternalCache cache = DELEGATE.get().getCache();
+    var cache = DELEGATE.get().getCache();
     assertThat(cache).isInstanceOf(CacheXmlCreation.class);
     return cache;
   }
 
   @Override
   public void before() throws Exception {
-    Method method = TemporaryFolder.class.getDeclaredMethod(BEFORE);
+    var method = TemporaryFolder.class.getDeclaredMethod(BEFORE);
     method.setAccessible(true);
     method.invoke(temporaryFolder);
 
@@ -105,7 +104,7 @@ public class CacheXmlRule extends AbstractDistributedRule {
     invoker().invokeInEveryVMAndController(this::invokeAfter);
 
     try {
-      Method method = TemporaryFolder.class.getDeclaredMethod(AFTER);
+      var method = TemporaryFolder.class.getDeclaredMethod(AFTER);
       method.setAccessible(true);
       method.invoke(temporaryFolder);
     } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -173,8 +172,8 @@ public class CacheXmlRule extends AbstractDistributedRule {
     @Override
     public void finishCacheXml(String name) {
       try {
-        File file = temporaryFolder.newFile(name + "-cache.xml");
-        PrintWriter printWriter = new PrintWriter(new FileWriter(file), true);
+        var file = temporaryFolder.newFile(name + "-cache.xml");
+        var printWriter = new PrintWriter(new FileWriter(file), true);
         CacheXmlGenerator.generate(getCache(), printWriter);
         printWriter.close();
         close();
@@ -194,10 +193,10 @@ public class CacheXmlRule extends AbstractDistributedRule {
     @Override
     public void finishCacheXml(File root, String name, boolean useSchema, String xmlVersion)
         throws IOException {
-      File dir = new File(root, "XML_" + xmlVersion);
+      var dir = new File(root, "XML_" + xmlVersion);
       dir.mkdirs();
-      File file = new File(dir, name + ".xml");
-      PrintWriter printWriter = new PrintWriter(new FileWriter(file), true);
+      var file = new File(dir, name + ".xml");
+      var printWriter = new PrintWriter(new FileWriter(file), true);
       CacheXmlGenerator.generate(getCache(), printWriter, useSchema, xmlVersion);
       printWriter.close();
       close();

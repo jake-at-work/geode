@@ -15,8 +15,6 @@
 package org.apache.geode.test.junit.rules;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
@@ -261,7 +259,7 @@ public class ExecutorServiceRule extends SerializableExternalResource {
    * @throws NullPointerException if the task is null
    */
   public <T> Future<T> submit(ThrowingRunnable task, T result) {
-    FutureTask<T> futureTask = new FutureTask<>(() -> {
+    var futureTask = new FutureTask<T>(() -> {
       task.run();
       return result;
     });
@@ -279,7 +277,7 @@ public class ExecutorServiceRule extends SerializableExternalResource {
    * @throws NullPointerException if the task is null
    */
   public Future<Void> submit(ThrowingRunnable task) {
-    FutureTask<Void> futureTask = new FutureTask<>(() -> {
+    var futureTask = new FutureTask<Void>(() -> {
       task.run();
       return null;
     });
@@ -325,11 +323,11 @@ public class ExecutorServiceRule extends SerializableExternalResource {
    * APIs such as {@code ThreadMXBean#getThreadInfo(long[], int)}.
    */
   public long[] getThreadIds() {
-    Set<Thread> threads = getThreads();
-    long[] threadIds = new long[threads.size()];
+    var threads = getThreads();
+    var threadIds = new long[threads.size()];
 
-    int i = 0;
-    for (Thread thread : threads) {
+    var i = 0;
+    for (var thread : threads) {
       threadIds[i++] = thread.getId();
     }
 
@@ -341,12 +339,12 @@ public class ExecutorServiceRule extends SerializableExternalResource {
    * {@code ThreadGroup} excluding subgroups.
    */
   public String dumpThreads() {
-    StringBuilder dumpWriter = new StringBuilder();
+    var dumpWriter = new StringBuilder();
 
-    ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-    ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(getThreadIds(), true, true);
+    var threadMXBean = ManagementFactory.getThreadMXBean();
+    var threadInfos = threadMXBean.getThreadInfo(getThreadIds(), true, true);
 
-    for (ThreadInfo threadInfo : threadInfos) {
+    for (var threadInfo : threadInfos) {
       if (threadInfo == null) {
         // sometimes ThreadMXBean.getThreadInfo returns array with one or more null elements
         continue;
@@ -396,9 +394,9 @@ public class ExecutorServiceRule extends SerializableExternalResource {
 
     @Override
     public Thread newThread(Runnable r) {
-      String threadName =
+      var threadName =
           threadNameFunction.apply(POOL_NUMBER.get(), threadNumber.getAndIncrement());
-      Thread t = new Thread(group, r, threadName, 0);
+      var t = new Thread(group, r, threadName, 0);
       if (t.isDaemon()) {
         t.setDaemon(false);
       }
@@ -411,8 +409,8 @@ public class ExecutorServiceRule extends SerializableExternalResource {
 
     protected Set<Thread> getThreads() {
       Set<Thread> value = new HashSet<>();
-      for (WeakReference<Thread> reference : directThreads) {
-        Thread thread = reference.get();
+      for (var reference : directThreads) {
+        var thread = reference.get();
         if (thread != null) {
           value.add(thread);
         }

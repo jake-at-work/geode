@@ -36,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
@@ -46,23 +45,19 @@ import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexNameConflictException;
-import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.functional.StructSetOrResultsSet;
 import org.apache.geode.cache.query.internal.DefaultQueryService;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.cache.query.internal.index.AbstractIndex.RegionEntryToValuesMap;
 import org.apache.geode.cache.query.internal.index.IndexStore.IndexStoreEntry;
 import org.apache.geode.cache.query.internal.index.MemoryIndexStore.MemoryIndexStoreEntry;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.persistence.query.CloseableIterator;
 import org.apache.geode.test.dunit.ThreadUtils;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
@@ -88,7 +83,7 @@ public class IndexMaintenanceJUnitTest {
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
-    for (int j = 0; j < 6; ++j) {
+    for (var j = 0; j < 6; ++j) {
       idSet.add(j + "");
     }
     qs = cache.getQueryService();
@@ -116,29 +111,29 @@ public class IndexMaintenanceJUnitTest {
     qs = cache.getQueryService();
     region = CacheUtils.createRegion("portfolio1", null);
     idSet.clear();
-    Portfolio p = new Portfolio(4);
+    var p = new Portfolio(4);
     region.put("4", p);
     idSet.add("" + p.getID());
     p = new Portfolio(5);
     region.put("5", p);
     idSet.add("" + p.getID());
     region.put("6", 6);
-    Index i1 =
+    var i1 =
         qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID()", SEPARATOR + "portfolio1 pf");
-    RangeIndex ri = (RangeIndex) i1;
+    var ri = (RangeIndex) i1;
     assertEquals(2, ri.valueToEntriesMap.size());
-    Iterator itr = ri.valueToEntriesMap.values().iterator();
+    var itr = ri.valueToEntriesMap.values().iterator();
     while (itr.hasNext()) {
-      RangeIndex.RegionEntryToValuesMap re2ValMap = (RangeIndex.RegionEntryToValuesMap) itr.next();
+      var re2ValMap = (RangeIndex.RegionEntryToValuesMap) itr.next();
       assertEquals(1, re2ValMap.map.size());
-      Object obj = re2ValMap.map.values().iterator().next();
+      var obj = re2ValMap.map.values().iterator().next();
       assertFalse(obj instanceof Collection);
       assertTrue(obj instanceof Portfolio);
-      Portfolio pf = (Portfolio) obj;
+      var pf = (Portfolio) obj;
       assertTrue(idSet.contains(String.valueOf(pf.getID())));
     }
     assertEquals(1, ri.undefinedMappedEntries.map.size());
-    Map.Entry entry = (Map.Entry) ri.undefinedMappedEntries.map.entrySet().iterator().next();
+    var entry = (Map.Entry) ri.undefinedMappedEntries.map.entrySet().iterator().next();
     assertFalse(entry.getValue() instanceof Collection);
     assertTrue(entry.getValue() instanceof Integer);
     assertTrue(entry.getValue().equals(6));
@@ -156,18 +151,18 @@ public class IndexMaintenanceJUnitTest {
 
     region.remove("7");
     idSet.remove(7);
-    Index i2 =
+    var i2 =
         qs.createIndex("indx2", IndexType.FUNCTIONAL, "pf.pkid", SEPARATOR + "portfolio1 pf");
     ri = (RangeIndex) i2;
     assertEquals(2, ri.valueToEntriesMap.size());
     itr = ri.valueToEntriesMap.values().iterator();
     while (itr.hasNext()) {
-      RangeIndex.RegionEntryToValuesMap re2ValMap = (RangeIndex.RegionEntryToValuesMap) itr.next();
+      var re2ValMap = (RangeIndex.RegionEntryToValuesMap) itr.next();
       assertEquals(1, re2ValMap.map.size());
-      Object obj = re2ValMap.map.values().iterator().next();
+      var obj = re2ValMap.map.values().iterator().next();
       assertFalse(obj instanceof Collection);
       assertTrue(obj instanceof Portfolio);
-      Portfolio pf = (Portfolio) obj;
+      var pf = (Portfolio) obj;
       assertTrue(idSet.contains(String.valueOf(pf.getID())));
     }
     assertEquals(1, ri.undefinedMappedEntries.map.size());
@@ -196,28 +191,28 @@ public class IndexMaintenanceJUnitTest {
     DefaultQueryService.TEST_QUERY_HETEROGENEOUS_OBJECTS = true;
     Cache cache = CacheUtils.getCache();
     region = CacheUtils.createRegion("portfolio1", null);
-    for (int i = 0; i < 5; ++i) {
-      Portfolio p = new Portfolio(i + 1);
+    for (var i = 0; i < 5; ++i) {
+      var p = new Portfolio(i + 1);
       region.put(i + 1, p);
     }
 
-    for (int i = 5; i < 10; ++i) {
+    for (var i = 5; i < 10; ++i) {
       region.put(i + 1, i + 1);
     }
-    String queryStr =
+    var queryStr =
         "Select distinct * from " + SEPARATOR + "portfolio1 pf1 where pf1.getID() > 3";
-    Query q = qs.newQuery(queryStr);
-    SelectResults rs = (SelectResults) q.execute();
+    var q = qs.newQuery(queryStr);
+    var rs = (SelectResults) q.execute();
     assertEquals(2, rs.size());
-    Iterator itr = rs.iterator();
+    var itr = rs.iterator();
     while (itr.hasNext()) {
-      Portfolio p = (Portfolio) itr.next();
+      var p = (Portfolio) itr.next();
       assertTrue(p == region.get(4) || p == region.get(5));
     }
 
-    Index i1 =
+    var i1 =
         qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID()", SEPARATOR + "portfolio1 pf");
-    QueryObserver old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
+    var old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private boolean indexUsed = false;
 
       @Override
@@ -235,7 +230,7 @@ public class IndexMaintenanceJUnitTest {
     assertEquals(2, rs.size());
     itr = rs.iterator();
     while (itr.hasNext()) {
-      Portfolio p = (Portfolio) itr.next();
+      var p = (Portfolio) itr.next();
       assertTrue(p == region.get(4) || p == region.get(5));
     }
     qs.removeIndex(i1);
@@ -246,7 +241,7 @@ public class IndexMaintenanceJUnitTest {
     assertEquals(2, rs.size());
     itr = rs.iterator();
     while (itr.hasNext()) {
-      Portfolio p = (Portfolio) itr.next();
+      var p = (Portfolio) itr.next();
       assertTrue(p == region.get(4) || p == region.get(5));
     }
 
@@ -269,7 +264,7 @@ public class IndexMaintenanceJUnitTest {
     assertEquals(2, rs.size());
     itr = rs.iterator();
     while (itr.hasNext()) {
-      Portfolio p = (Portfolio) itr.next();
+      var p = (Portfolio) itr.next();
       assertTrue(p == region.get(4) || p == region.get(5));
     }
   }
@@ -280,13 +275,13 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodKeys() throws Exception {
-    Index i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "ks.toString",
+    var i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "ks.toString",
         SEPARATOR + "portfolio.keys() ks");
     CacheUtils.getCache();
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForKeys(ri);
   }
 
@@ -296,13 +291,13 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodAsList() throws Exception {
-    Index i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID",
+    var i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID",
         SEPARATOR + "portfolio.asList() pf");
     CacheUtils.getCache();
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForValues(ri);
   }
 
@@ -312,14 +307,14 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodValues() throws Exception {
-    Index i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID",
+    var i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID",
         SEPARATOR + "portfolio.values() pf");
     assertTrue(i1 instanceof CompactRangeIndex);
     Cache cache = CacheUtils.getCache();
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForValues(ri);
   }
 
@@ -329,7 +324,7 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodGetValues() throws Exception {
-    Index i1 =
+    var i1 =
         qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID",
             SEPARATOR + "portfolio.getValues() pf");
     assertTrue(i1 instanceof CompactRangeIndex);
@@ -337,7 +332,7 @@ public class IndexMaintenanceJUnitTest {
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForValues(ri);
   }
 
@@ -347,14 +342,14 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodtoArray() throws Exception {
-    Index i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID",
+    var i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID",
         SEPARATOR + "portfolio.toArray() pf");
     assertTrue(i1 instanceof CompactRangeIndex);
     Cache cache = CacheUtils.getCache();
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForValues(ri);
   }
 
@@ -364,13 +359,13 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodAsSet() throws Exception {
-    Index i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID",
+    var i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID",
         SEPARATOR + "portfolio.asSet() pf");
     CacheUtils.getCache();
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForValues(ri);
   }
 
@@ -380,14 +375,14 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodKeySet() throws Exception {
-    Index i1 =
+    var i1 =
         qs.createIndex("indx1", IndexType.FUNCTIONAL, "ks.toString",
             SEPARATOR + "portfolio.keySet() ks");
     CacheUtils.getCache();
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForKeys(ri);
   }
 
@@ -397,14 +392,14 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodGetKeys() throws Exception {
-    Index i1 =
+    var i1 =
         qs.createIndex("indx1", IndexType.FUNCTIONAL, "ks.toString",
             SEPARATOR + "portfolio.getKeys() ks");
     CacheUtils.getCache();
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForKeys(ri);
   }
 
@@ -414,13 +409,13 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodEntrySet() throws Exception {
-    Index i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "entries.value.getID",
+    var i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "entries.value.getID",
         SEPARATOR + "portfolio.entrySet() entries");
     CacheUtils.getCache();
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForEntries(ri);
   }
 
@@ -430,13 +425,13 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void testIndexMaintenanceWithIndexOnMethodGetEntries() throws Exception {
-    Index i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "entries.value.getID",
+    var i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "entries.value.getID",
         SEPARATOR + "portfolio.getEntries() entries");
     CacheUtils.getCache();
     region = CacheUtils.getRegion(SEPARATOR + "portfolio");
     region.put("4", new Portfolio(4));
     region.put("5", new Portfolio(5));
-    CompactRangeIndex ri = (CompactRangeIndex) i1;
+    var ri = (CompactRangeIndex) i1;
     validateIndexForEntries(ri);
   }
 
@@ -445,43 +440,43 @@ public class IndexMaintenanceJUnitTest {
     IndexManager.TEST_RANGEINDEX_ONLY = true;
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    LocalRegion testRgn = (LocalRegion) CacheUtils.createRegion("testRgn", null);
-    int ID = 1;
+    var testRgn = (LocalRegion) CacheUtils.createRegion("testRgn", null);
+    var ID = 1;
     // Add some test data now
     // Add 5 main objects. 1 will contain key1, 2 will contain key1 & key2
     // and so on
     for (; ID <= 5; ++ID) {
-      MapKeyIndexData mkid = new MapKeyIndexData(ID);
-      for (int j = 1; j <= ID; ++j) {
+      var mkid = new MapKeyIndexData(ID);
+      for (var j = 1; j <= ID; ++j) {
         mkid.maap.put("key" + j, "val" + j);
       }
       testRgn.put(ID, mkid);
     }
     --ID;
-    Index i1 =
+    var i1 =
         qs.createIndex("Index1", IndexType.FUNCTIONAL, "objs.maap[*]", SEPARATOR + "testRgn objs");
     assertEquals(i1.getCanonicalizedIndexedExpression(), "index_iter1.maap[*]");
     assertTrue(i1 instanceof MapRangeIndex);
-    MapRangeIndex mri = (MapRangeIndex) i1;
+    var mri = (MapRangeIndex) i1;
     // Test index maintenance
     // addition of new Portfolio object
-    Map<Object, AbstractIndex> indxMap = mri.getRangeIndexHolderForTesting();
+    var indxMap = mri.getRangeIndexHolderForTesting();
     assertEquals(indxMap.size(), ID);
-    for (int j = 1; j <= ID; ++j) {
+    for (var j = 1; j <= ID; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
-      RangeIndex rng = (RangeIndex) indxMap.get("key" + j);
-      Iterator itr = rng.valueToEntriesMap.values().iterator();
+      var rng = (RangeIndex) indxMap.get("key" + j);
+      var itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
-        RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+        var entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
-          RegionEntry re = testRgn.basicGetEntry(elem);
+        for (var elem : expectedElements) {
+          var re = testRgn.basicGetEntry(elem);
 
           assertTrue(entryMap.containsEntry(re));
         }
@@ -489,27 +484,27 @@ public class IndexMaintenanceJUnitTest {
     }
     // addition of new Portfolio in the Map
     ++ID;// ID = 6;
-    MapKeyIndexData mkid = new MapKeyIndexData(ID);
-    for (int j = 1; j <= ID; ++j) {
+    var mkid = new MapKeyIndexData(ID);
+    for (var j = 1; j <= ID; ++j) {
       mkid.maap.put("key" + j, "val" + j);
     }
     testRgn.put(ID, mkid);
     assertEquals(indxMap.size(), ID);
-    for (int j = 1; j <= ID; ++j) {
+    for (var j = 1; j <= ID; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
-      RangeIndex rng = (RangeIndex) indxMap.get("key" + j);
-      Iterator itr = rng.valueToEntriesMap.values().iterator();
+      var rng = (RangeIndex) indxMap.get("key" + j);
+      var itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
-        RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+        var entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
-          RegionEntry re = testRgn.basicGetEntry(elem);
+        for (var elem : expectedElements) {
+          var re = testRgn.basicGetEntry(elem);
 
           assertTrue(entryMap.containsEntry(re));
         }
@@ -520,52 +515,52 @@ public class IndexMaintenanceJUnitTest {
     testRgn.put(ID, mkid);
     assertEquals(indxMap.size(), 7);
 
-    for (int j = 1; j <= ID; ++j) {
+    for (var j = 1; j <= ID; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
-      RangeIndex rng = (RangeIndex) indxMap.get("key" + j);
-      Iterator itr = rng.valueToEntriesMap.values().iterator();
+      var rng = (RangeIndex) indxMap.get("key" + j);
+      var itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
-        RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+        var entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
-          RegionEntry re = testRgn.basicGetEntry(elem);
+        for (var elem : expectedElements) {
+          var re = testRgn.basicGetEntry(elem);
           assertTrue(entryMap.containsEntry(re));
         }
       }
     }
     assertTrue(indxMap.containsKey("key7"));
-    RangeIndex rng = (RangeIndex) indxMap.get("key7");
-    Iterator itr = rng.valueToEntriesMap.values().iterator();
+    var rng = (RangeIndex) indxMap.get("key7");
+    var itr = rng.valueToEntriesMap.values().iterator();
     assertEquals(rng.valueToEntriesMap.size(), 1);
     assertTrue(rng.valueToEntriesMap.containsKey("val7"));
-    RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+    var entryMap = (RegionEntryToValuesMap) itr.next();
     assertEquals(1, entryMap.getNumEntries());
-    RegionEntry re = testRgn.basicGetEntry(6);
+    var re = testRgn.basicGetEntry(6);
     entryMap.containsEntry(re);
     // deletion of key in the positions map
     mkid.maap.remove("key7");
     testRgn.put(ID, mkid);
     assertEquals(indxMap.size(), ID + 1);
-    for (int j = 1; j <= ID; ++j) {
+    for (var j = 1; j <= ID; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
       rng = (RangeIndex) indxMap.get("key" + j);
       itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
         entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
+        for (var elem : expectedElements) {
           re = testRgn.basicGetEntry(elem);
           assertTrue(entryMap.containsEntry(re));
         }
@@ -576,8 +571,8 @@ public class IndexMaintenanceJUnitTest {
     mkid.maap.put("key1", "val2");
     testRgn.put(1, mkid);
     assertEquals(indxMap.size(), ID + 1);
-    for (int j = 1; j <= ID; ++j) {
-      String keey = "key" + j;
+    for (var j = 1; j <= ID; ++j) {
+      var keey = "key" + j;
       assertTrue(indxMap.containsKey(keey));
       rng = (RangeIndex) indxMap.get(keey);
       itr = rng.valueToEntriesMap.values().iterator();
@@ -591,7 +586,7 @@ public class IndexMaintenanceJUnitTest {
       }
 
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       if (keey.equals("key1")) {
@@ -599,7 +594,7 @@ public class IndexMaintenanceJUnitTest {
         entryMap = (RegionEntryToValuesMap) rng.valueToEntriesMap.get("val1");
         assertEquals(5, entryMap.getNumEntries());
         expectedElements.remove(1);
-        for (Integer elem : expectedElements) {
+        for (var elem : expectedElements) {
           re = testRgn.basicGetEntry(elem);
 
           assertTrue(entryMap.containsEntry(re));
@@ -613,7 +608,7 @@ public class IndexMaintenanceJUnitTest {
         while (itr.hasNext()) {
           entryMap = (RegionEntryToValuesMap) itr.next();
           assertEquals(ID + 1 - j, entryMap.getNumEntries());
-          for (Integer elem : expectedElements) {
+          for (var elem : expectedElements) {
             re = testRgn.basicGetEntry(elem);
 
             assertTrue(entryMap.containsEntry(re));
@@ -626,8 +621,8 @@ public class IndexMaintenanceJUnitTest {
     --ID;// ID = 5;
     // No Key Indexes are removed from a MapRangeIndex even if they are empty.
     assertEquals(indxMap.size(), ID + 2);
-    for (int j = 1; j <= ID; ++j) {
-      String keey = "key" + j;
+    for (var j = 1; j <= ID; ++j) {
+      var keey = "key" + j;
       assertTrue(indxMap.containsKey(keey));
       rng = (RangeIndex) indxMap.get(keey);
       itr = rng.valueToEntriesMap.values().iterator();
@@ -641,7 +636,7 @@ public class IndexMaintenanceJUnitTest {
       }
 
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       if (keey.equals("key1")) {
@@ -649,7 +644,7 @@ public class IndexMaintenanceJUnitTest {
         entryMap = (RegionEntryToValuesMap) rng.valueToEntriesMap.get("val1");
         assertEquals(4, entryMap.getNumEntries());
         expectedElements.remove(1);
-        for (Integer elem : expectedElements) {
+        for (var elem : expectedElements) {
           re = testRgn.basicGetEntry(elem);
 
           assertTrue(entryMap.containsEntry(re));
@@ -663,7 +658,7 @@ public class IndexMaintenanceJUnitTest {
         while (itr.hasNext()) {
           entryMap = (RegionEntryToValuesMap) itr.next();
           assertEquals(ID + 1 - j, entryMap.getNumEntries());
-          for (Integer elem : expectedElements) {
+          for (var elem : expectedElements) {
             re = testRgn.basicGetEntry(elem);
 
             assertTrue(entryMap.containsEntry(re));
@@ -678,80 +673,80 @@ public class IndexMaintenanceJUnitTest {
     IndexManager.TEST_RANGEINDEX_ONLY = true;
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    LocalRegion testRgn = (LocalRegion) CacheUtils.createRegion("testRgn", null);
-    int ID = 1;
+    var testRgn = (LocalRegion) CacheUtils.createRegion("testRgn", null);
+    var ID = 1;
     // Add some test data now
     // Add 5 main objects. 1 will contain key1, 2 will contain key1 & key2
     // and so on
     for (; ID <= 5; ++ID) {
-      MapKeyIndexData mkid = new MapKeyIndexData(ID);
-      for (int j = 1; j <= ID; ++j) {
+      var mkid = new MapKeyIndexData(ID);
+      for (var j = 1; j <= ID; ++j) {
         mkid.maap.put("key" + j, "val" + j);
       }
       testRgn.put(ID, mkid);
     }
     --ID;// ID = 5;
-    Index i1 = qs.createIndex("Index1", IndexType.FUNCTIONAL,
+    var i1 = qs.createIndex("Index1", IndexType.FUNCTIONAL,
         "objs.maap['key1','key2','key3','key7']", SEPARATOR + "testRgn objs");
     assertEquals(i1.getCanonicalizedIndexedExpression(),
         "index_iter1.maap['key1','key2','key3','key7']");
     assertTrue(i1 instanceof MapRangeIndex);
-    MapRangeIndex mri = (MapRangeIndex) i1;
+    var mri = (MapRangeIndex) i1;
     // Test index maintenance
     // addition of new Portfolio object
-    Map<Object, AbstractIndex> indxMap = mri.getRangeIndexHolderForTesting();
+    var indxMap = mri.getRangeIndexHolderForTesting();
     assertEquals(indxMap.size(), 4);
-    for (int j = 1; j <= 3; ++j) {
+    for (var j = 1; j <= 3; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
-      RangeIndex rng = (RangeIndex) indxMap.get("key" + j);
-      Iterator itr = rng.valueToEntriesMap.values().iterator();
+      var rng = (RangeIndex) indxMap.get("key" + j);
+      var itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
-        RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+        var entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
-          RegionEntry re = testRgn.basicGetEntry(elem);
+        for (var elem : expectedElements) {
+          var re = testRgn.basicGetEntry(elem);
 
           assertTrue(entryMap.containsEntry(re));
         }
       }
     }
-    for (int j = 4; j <= ID; ++j) {
+    for (var j = 4; j <= ID; ++j) {
       assertFalse(indxMap.containsKey("key" + j));
     }
     // addition of new Portfolio in the Map
     ++ID; // ID = 6
-    MapKeyIndexData mkid = new MapKeyIndexData(ID);
-    for (int j = 1; j <= ID; ++j) {
+    var mkid = new MapKeyIndexData(ID);
+    for (var j = 1; j <= ID; ++j) {
       mkid.maap.put("key" + j, "val" + j);
     }
     testRgn.put(ID, mkid);
     assertEquals(indxMap.size(), 4);
-    for (int j = 1; j <= 3; ++j) {
+    for (var j = 1; j <= 3; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
-      RangeIndex rng = (RangeIndex) indxMap.get("key" + j);
-      Iterator itr = rng.valueToEntriesMap.values().iterator();
+      var rng = (RangeIndex) indxMap.get("key" + j);
+      var itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
-        RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+        var entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
-          RegionEntry re = testRgn.basicGetEntry(elem);
+        for (var elem : expectedElements) {
+          var re = testRgn.basicGetEntry(elem);
           assertTrue(entryMap.containsEntry(re));
         }
       }
     }
-    for (int j = 4; j <= ID; ++j) {
+    for (var j = 4; j <= ID; ++j) {
       assertFalse(indxMap.containsKey("key" + j));
     }
     // addition of new key in the positions map
@@ -759,34 +754,34 @@ public class IndexMaintenanceJUnitTest {
     testRgn.put(ID, mkid);
     assertEquals(indxMap.size(), 4);
 
-    for (int j = 1; j <= 3; ++j) {
+    for (var j = 1; j <= 3; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
-      RangeIndex rng = (RangeIndex) indxMap.get("key" + j);
-      Iterator itr = rng.valueToEntriesMap.values().iterator();
+      var rng = (RangeIndex) indxMap.get("key" + j);
+      var itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
-        RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+        var entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
-          RegionEntry re = testRgn.basicGetEntry(elem);
+        for (var elem : expectedElements) {
+          var re = testRgn.basicGetEntry(elem);
 
           assertTrue(entryMap.containsEntry(re));
         }
       }
     }
     assertTrue(indxMap.containsKey("key7"));
-    RangeIndex rng = (RangeIndex) indxMap.get("key7");
-    Iterator itr = rng.valueToEntriesMap.values().iterator();
+    var rng = (RangeIndex) indxMap.get("key7");
+    var itr = rng.valueToEntriesMap.values().iterator();
     assertEquals(rng.valueToEntriesMap.size(), 1);
     assertTrue(rng.valueToEntriesMap.containsKey("val7"));
-    RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+    var entryMap = (RegionEntryToValuesMap) itr.next();
     assertEquals(1, entryMap.getNumEntries());
-    RegionEntry re = testRgn.basicGetEntry(6);
+    var re = testRgn.basicGetEntry(6);
     entryMap.containsEntry(re);
 
     // deletion of key in the positions map
@@ -794,20 +789,20 @@ public class IndexMaintenanceJUnitTest {
     testRgn.put(ID, mkid);
     // No Key Indexes are removed from a MapRangeIndex even if they are empty.
     assertEquals(indxMap.size(), 4);
-    for (int j = 1; j <= 3; ++j) {
+    for (var j = 1; j <= 3; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
       rng = (RangeIndex) indxMap.get("key" + j);
       itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
         entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
+        for (var elem : expectedElements) {
           re = testRgn.basicGetEntry(elem);
 
           assertTrue(entryMap.containsEntry(re));
@@ -819,8 +814,8 @@ public class IndexMaintenanceJUnitTest {
     mkid.maap.put("key1", "val2");
     testRgn.put(1, mkid);
     assertEquals(indxMap.size(), 4);
-    for (int j = 1; j <= 3; ++j) {
-      String keey = "key" + j;
+    for (var j = 1; j <= 3; ++j) {
+      var keey = "key" + j;
       assertTrue(indxMap.containsKey(keey));
       rng = (RangeIndex) indxMap.get(keey);
       itr = rng.valueToEntriesMap.values().iterator();
@@ -834,7 +829,7 @@ public class IndexMaintenanceJUnitTest {
       }
 
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       if (keey.equals("key1")) {
@@ -842,7 +837,7 @@ public class IndexMaintenanceJUnitTest {
         entryMap = (RegionEntryToValuesMap) rng.valueToEntriesMap.get("val1");
         assertEquals(5, entryMap.getNumEntries());
         expectedElements.remove(1);
-        for (Integer elem : expectedElements) {
+        for (var elem : expectedElements) {
           re = testRgn.basicGetEntry(elem);
           assertTrue(entryMap.containsEntry(re));
         }
@@ -855,7 +850,7 @@ public class IndexMaintenanceJUnitTest {
         while (itr.hasNext()) {
           entryMap = (RegionEntryToValuesMap) itr.next();
           assertEquals(ID + 1 - j, entryMap.getNumEntries());
-          for (Integer elem : expectedElements) {
+          for (var elem : expectedElements) {
             re = testRgn.basicGetEntry(elem);
             assertTrue(entryMap.containsEntry(re));
           }
@@ -866,8 +861,8 @@ public class IndexMaintenanceJUnitTest {
     testRgn.remove(3);
 
     assertEquals(indxMap.size(), 4);
-    for (int j = 1; j <= 3; ++j) {
-      String keey = "key" + j;
+    for (var j = 1; j <= 3; ++j) {
+      var keey = "key" + j;
       assertTrue(indxMap.containsKey(keey));
       rng = (RangeIndex) indxMap.get(keey);
       itr = rng.valueToEntriesMap.values().iterator();
@@ -884,7 +879,7 @@ public class IndexMaintenanceJUnitTest {
         entryMap = (RegionEntryToValuesMap) rng.valueToEntriesMap.get("val1");
         assertEquals(4, entryMap.getNumEntries());
 
-        for (int k = 2; k <= 6; ++k) {
+        for (var k = 2; k <= 6; ++k) {
           if (k == 3) {
             continue;
           } else {
@@ -901,7 +896,7 @@ public class IndexMaintenanceJUnitTest {
         while (itr.hasNext()) {
           entryMap = (RegionEntryToValuesMap) itr.next();
           assertEquals(ID - j, entryMap.getNumEntries());
-          for (int p = j; p <= ID; ++p) {
+          for (var p = j; p <= ID; ++p) {
             re = testRgn.basicGetEntry(p);
             if (p == 3) {
               assertNull(re);
@@ -919,48 +914,48 @@ public class IndexMaintenanceJUnitTest {
     IndexManager.TEST_RANGEINDEX_ONLY = true;
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    LocalRegion testRgn = (LocalRegion) CacheUtils.createRegion("testRgn", null);
-    int ID = 1;
+    var testRgn = (LocalRegion) CacheUtils.createRegion("testRgn", null);
+    var ID = 1;
     // Add some test data now
     // Add 5 main objects. 1 will contain key1, 2 will contain key1 & key2
     // and so on
     for (; ID <= 5; ++ID) {
-      MapKeyIndexData mkid = new MapKeyIndexData(ID);
-      for (int j = 1; j <= ID; ++j) {
+      var mkid = new MapKeyIndexData(ID);
+      for (var j = 1; j <= ID; ++j) {
         mkid.maap.put("key" + j, "val" + j);
       }
       testRgn.put(ID, mkid);
     }
     --ID;
-    Index i1 =
+    var i1 =
         qs.createIndex("Index1", IndexType.FUNCTIONAL, "objs.maap[*]", SEPARATOR + "testRgn objs");
     assertEquals(i1.getCanonicalizedIndexedExpression(), "index_iter1.maap[*]");
     assertTrue(i1 instanceof MapRangeIndex);
-    MapRangeIndex mri = (MapRangeIndex) i1;
+    var mri = (MapRangeIndex) i1;
     // Test index maintenance
     // addition of new Portfolio object
-    Map<Object, AbstractIndex> indxMap = mri.getRangeIndexHolderForTesting();
+    var indxMap = mri.getRangeIndexHolderForTesting();
     assertEquals(indxMap.size(), ID);
-    for (int j = 1; j <= ID; ++j) {
+    for (var j = 1; j <= ID; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
-      RangeIndex rng = (RangeIndex) indxMap.get("key" + j);
-      Iterator itr = rng.valueToEntriesMap.values().iterator();
+      var rng = (RangeIndex) indxMap.get("key" + j);
+      var itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
-        RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+        var entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
-          RegionEntry re = testRgn.basicGetEntry(elem);
+        for (var elem : expectedElements) {
+          var re = testRgn.basicGetEntry(elem);
           assertTrue(entryMap.containsEntry(re));
         }
       }
     }
-    IndexManager im = testRgn.getIndexManager();
+    var im = testRgn.getIndexManager();
     im.rerunIndexCreationQuery();
     ID = 5;
     i1 = im.getIndex("Index1");
@@ -971,21 +966,21 @@ public class IndexMaintenanceJUnitTest {
     // addition of new Portfolio object
     indxMap = mri.getRangeIndexHolderForTesting();
     assertEquals(indxMap.size(), ID);
-    for (int j = 1; j <= ID; ++j) {
+    for (var j = 1; j <= ID; ++j) {
       assertTrue(indxMap.containsKey("key" + j));
-      RangeIndex rng = (RangeIndex) indxMap.get("key" + j);
-      Iterator itr = rng.valueToEntriesMap.values().iterator();
+      var rng = (RangeIndex) indxMap.get("key" + j);
+      var itr = rng.valueToEntriesMap.values().iterator();
       assertEquals(rng.valueToEntriesMap.size(), 1);
       assertTrue(rng.valueToEntriesMap.containsKey("val" + j));
       Set<Integer> expectedElements = new HashSet<>();
-      for (int k = j; k <= ID; ++k) {
+      for (var k = j; k <= ID; ++k) {
         expectedElements.add(k);
       }
       while (itr.hasNext()) {
-        RegionEntryToValuesMap entryMap = (RegionEntryToValuesMap) itr.next();
+        var entryMap = (RegionEntryToValuesMap) itr.next();
         assertEquals(ID + 1 - j, entryMap.getNumEntries());
-        for (Integer elem : expectedElements) {
-          RegionEntry re = testRgn.basicGetEntry(elem);
+        for (var elem : expectedElements) {
+          var re = testRgn.basicGetEntry(elem);
           assertTrue(entryMap.containsEntry(re));
         }
       }
@@ -1001,13 +996,13 @@ public class IndexMaintenanceJUnitTest {
     Cache cache = CacheUtils.getCache();
     qs = cache.getQueryService();
     region = CacheUtils.createRegion("portfolio1", null);
-    AttributesMutator am = region.getAttributesMutator();
+    var am = region.getAttributesMutator();
     am.setCacheLoader(new CacheLoader() {
 
       @Override
       public Object load(LoaderHelper helper) throws CacheLoaderException {
-        String key = (String) helper.getKey();
-        Portfolio p = new Portfolio(Integer.parseInt(key));
+        var key = (String) helper.getKey();
+        var p = new Portfolio(Integer.parseInt(key));
         return p;
       }
 
@@ -1017,7 +1012,7 @@ public class IndexMaintenanceJUnitTest {
       }
     });
 
-    Index i1 =
+    var i1 =
         qs.createIndex("indx1", IndexType.FUNCTIONAL, "pf.getID()", SEPARATOR + "portfolio1 pf");
     List keys = new ArrayList();
     keys.add("1");
@@ -1038,10 +1033,10 @@ public class IndexMaintenanceJUnitTest {
     qs = cache.getQueryService();
     region = CacheUtils.createRegion("portfolio1", null);
     region.put("1", new Portfolio(1));
-    Index i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "posvals.secId",
+    var i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "posvals.secId",
         SEPARATOR + "portfolio1 pf, pf.positions.values posvals ");
     Map data = new HashMap();
-    for (int i = 1; i < 11; ++i) {
+    for (var i = 1; i < 11; ++i) {
       data.put("" + i, new Portfolio(i + 2));
     }
 
@@ -1054,9 +1049,9 @@ public class IndexMaintenanceJUnitTest {
     Cache cache = CacheUtils.getCache();
     qs = cache.getQueryService();
     region = CacheUtils.createRegion("portfolio1", null);
-    Index i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "posvals",
+    var i1 = qs.createIndex("indx1", IndexType.FUNCTIONAL, "posvals",
         SEPARATOR + "portfolio1 pf, pf.getCollectionHolderMap.values posvals ");
-    Portfolio pf1 = new Portfolio(1);
+    var pf1 = new Portfolio(1);
     Map collHolderMap = pf1.getCollectionHolderMap();
     collHolderMap.clear();
     collHolderMap.put(1, 1);
@@ -1079,20 +1074,20 @@ public class IndexMaintenanceJUnitTest {
   @Test
   public void fromClausesAndIndexedExpressionsMatchExpectedValues()
       throws IndexNameConflictException, IndexExistsException, RegionNotFoundException {
-    Index i1 = qs.createIndex("tIndex", IndexType.FUNCTIONAL, "vals.secId",
+    var i1 = qs.createIndex("tIndex", IndexType.FUNCTIONAL, "vals.secId",
         SEPARATOR + "portfolio pf, pf.positions.values vals");
-    Index i2 = qs.createIndex("dIndex", IndexType.FUNCTIONAL, "pf.getCW(pf.ID)",
+    var i2 = qs.createIndex("dIndex", IndexType.FUNCTIONAL, "pf.getCW(pf.ID)",
         SEPARATOR + "portfolio pf");
-    Index i3 = qs.createIndex("fIndex", IndexType.FUNCTIONAL, "sIter",
+    var i3 = qs.createIndex("fIndex", IndexType.FUNCTIONAL, "sIter",
         SEPARATOR + "portfolio pf, pf.collectionHolderMap[(pf.ID).toString()].arr sIter");
-    Index i4 = qs.createIndex("cIndex", IndexType.FUNCTIONAL,
+    var i4 = qs.createIndex("cIndex", IndexType.FUNCTIONAL,
         "pf.collectionHolderMap[(pf.ID).toString()].arr[pf.ID]", SEPARATOR + "portfolio pf");
-    Index i5 = qs.createIndex("inIndex", IndexType.FUNCTIONAL, "kIter.secId",
+    var i5 = qs.createIndex("inIndex", IndexType.FUNCTIONAL, "kIter.secId",
         SEPARATOR + "portfolio['0'].positions.values kIter");
-    Index i6 = qs.createIndex("sIndex", IndexType.FUNCTIONAL, "pos.secId",
+    var i6 = qs.createIndex("sIndex", IndexType.FUNCTIONAL, "pos.secId",
         SEPARATOR + "portfolio.values val, val.positions.values pos");
-    Index i7 = qs.createIndex("p1Index", IndexType.PRIMARY_KEY, "pkid", SEPARATOR + "portfolio pf");
-    Index i8 = qs.createIndex("p2Index", IndexType.PRIMARY_KEY, "pk", SEPARATOR + "portfolio pf");
+    var i7 = qs.createIndex("p1Index", IndexType.PRIMARY_KEY, "pkid", SEPARATOR + "portfolio pf");
+    var i8 = qs.createIndex("p2Index", IndexType.PRIMARY_KEY, "pk", SEPARATOR + "portfolio pf");
     if (!i1.getCanonicalizedFromClause()
         .equals(SEPARATOR + "portfolio index_iter1, index_iter1.positions.values index_iter2")
         || !i1.getCanonicalizedIndexedExpression().equals("index_iter2.secId")
@@ -1158,7 +1153,7 @@ public class IndexMaintenanceJUnitTest {
     qs.removeIndex(i6);
     qs.removeIndex(i7);
     qs.removeIndex(i8);
-    Index i9 =
+    var i9 =
         qs.createIndex("p3Index", IndexType.PRIMARY_KEY, "getPk", SEPARATOR + "portfolio pf");
     if (!i9.getCanonicalizedFromClause().equals(SEPARATOR + "portfolio index_iter1")
         || !i9.getCanonicalizedIndexedExpression().equals("index_iter1.pk")
@@ -1172,13 +1167,13 @@ public class IndexMaintenanceJUnitTest {
   @Test
   public void numberOfIndexValuesStatIsUpdatedWhenEntryAdded() throws Exception {
     CacheUtils.log(((CompactRangeIndex) index).dump());
-    IndexStatistics stats = index.getStatistics();
+    var stats = index.getStatistics();
     assertEquals(4, stats.getNumberOfValues());
     region.put("4", new Portfolio(4));
     CacheUtils.log(((CompactRangeIndex) index).dump());
     stats = index.getStatistics();
     assertEquals(5, stats.getNumberOfValues());
-    SelectResults results = region.query("status = 'active'");
+    var results = region.query("status = 'active'");
     assertEquals(3, results.size());
   }
 
@@ -1188,20 +1183,20 @@ public class IndexMaintenanceJUnitTest {
    */
   @Test
   public void numberOfIndexValuesStatIsUpdatedWhenEntryInvalidated() throws Exception {
-    IndexStatistics stats = index.getStatistics();
+    var stats = index.getStatistics();
     region.invalidate("3");
     assertEquals(3, stats.getNumberOfValues());
-    SelectResults results = region.query("status = 'active'");
+    var results = region.query("status = 'active'");
     assertEquals(2, results.size());
   }
 
   @Test
   public void numberOfIndexValuesStatIsUpdatedWhenEntryDestroyed() throws Exception {
-    IndexStatistics stats = index.getStatistics();
+    var stats = index.getStatistics();
     region.put("4", new Portfolio(4));
     region.destroy("4");
     assertEquals(4, stats.getNumberOfValues());
-    SelectResults results = region.query("status = 'active'");
+    var results = region.query("status = 'active'");
     assertEquals(2, results.size());
   }
 
@@ -1212,7 +1207,7 @@ public class IndexMaintenanceJUnitTest {
     try {
       CacheUtils.getCache();
       isInitDone = false;
-      Query q =
+      var q =
           qs.newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "portfolio where status = 'active'");
       QueryObserverHolder.setInstance(new QueryObserverAdapter() {
 
@@ -1221,7 +1216,7 @@ public class IndexMaintenanceJUnitTest {
           indexUsed = true;
         }
       });
-      SelectResults set = (SelectResults) q.execute();
+      var set = (SelectResults) q.execute();
       if (set.size() == 0 || !indexUsed) {
         fail("Either Size of the result set is zero or Index is not used ");
       }
@@ -1249,7 +1244,7 @@ public class IndexMaintenanceJUnitTest {
     try {
       CacheUtils.getCache();
       isInitDone = false;
-      Query q =
+      var q =
           qs.newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "portfolio where status = 'active'");
       QueryObserverHolder.setInstance(new QueryObserverAdapter() {
 
@@ -1261,7 +1256,7 @@ public class IndexMaintenanceJUnitTest {
         @Override
         public void beforeRerunningIndexCreationQuery() {
           // Spawn a separate thread here which does a put opertion on region
-          Thread th = new Thread(() -> {
+          var th = new Thread(() -> {
             // Assert that the size of region is now 0
             assertTrue(region.size() == 0);
             region.put("" + 8, new Portfolio(8));
@@ -1271,7 +1266,7 @@ public class IndexMaintenanceJUnitTest {
           assertTrue(region.size() == 1);
         }
       });
-      SelectResults set = (SelectResults) q.execute();
+      var set = (SelectResults) q.execute();
       if (set.size() == 0 || !indexUsed) {
         fail("Either Size of the result set is zero or Index is not used ");
       }
@@ -1302,26 +1297,26 @@ public class IndexMaintenanceJUnitTest {
       }
       qs.removeIndexes();
 
-      String[] queryStr =
+      var queryStr =
           new String[] {"Select status from " + SEPARATOR + "portfolio pf where status='active'",
               "Select pf.ID from " + SEPARATOR + "portfolio pf where pf.ID > 2 and pf.ID < 100",
               "Select * from " + SEPARATOR + "portfolio pf where pf.position1.secId > '2'",};
 
-      String[] queryFields = new String[] {"status", "ID", "position1.secId",};
+      var queryFields = new String[] {"status", "ID", "position1.secId",};
 
-      for (int i = 0; i < queryStr.length; i++) {
+      for (var i = 0; i < queryStr.length; i++) {
         // Clear indexes if any.
         qs.removeIndexes();
 
         // initialize region.
         region.clear();
-        for (int k = 0; k < 10; k++) {
+        for (var k = 0; k < 10; k++) {
           region.put("" + k, new Portfolio(k));
         }
 
-        for (int j = 0; j < 1; j++) { // With different region size.
+        for (var j = 0; j < 1; j++) { // With different region size.
           // Update Region.
-          for (int k = 0; k < (j * 100); k++) {
+          for (var k = 0; k < (j * 100); k++) {
             region.put("" + k, new Portfolio(k));
           }
 
@@ -1331,8 +1326,8 @@ public class IndexMaintenanceJUnitTest {
               queryFields[i], SEPARATOR + "portfolio");
 
           // Execute Query.
-          SelectResults[][] rs = new SelectResults[1][2];
-          Query query = qs.newQuery(queryStr[i]);
+          var rs = new SelectResults[1][2];
+          var query = qs.newQuery(queryStr[i]);
           rs[0][0] = (SelectResults) query.execute();
 
           // remove compact index.
@@ -1348,7 +1343,7 @@ public class IndexMaintenanceJUnitTest {
 
           CacheUtils.log(
               "#### rs1 size is : " + (rs[0][0]).size() + " rs2 size is : " + (rs[0][1]).size());
-          StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+          var ssORrs = new StructSetOrResultsSet();
           ssORrs.CompareQueryResultsWithoutAndWithIndexes(rs, 1, queryStr);
         }
       }
@@ -1372,8 +1367,8 @@ public class IndexMaintenanceJUnitTest {
     try {
       itr = ri.getIndexStorage().iterator(null);
       while (itr.hasNext()) {
-        IndexStoreEntry reEntry = itr.next();
-        Object obj = reEntry.getDeserializedRegionKey();
+        var reEntry = itr.next();
+        var obj = reEntry.getDeserializedRegionKey();
         assertTrue(obj instanceof String);
         assertTrue(idSet.contains(obj));
       }
@@ -1388,10 +1383,10 @@ public class IndexMaintenanceJUnitTest {
     assertEquals(6, ri.getIndexStorage().size());
     Iterator itr = ri.getIndexStorage().iterator(null);
     while (itr.hasNext()) {
-      Object obj = itr.next();
+      var obj = itr.next();
       assertFalse(obj instanceof Collection);
-      MemoryIndexStoreEntry re = (MemoryIndexStoreEntry) obj;
-      Portfolio pf = (Portfolio) re.getRegionEntry().getValueInVM((LocalRegion) ri.getRegion());
+      var re = (MemoryIndexStoreEntry) obj;
+      var pf = (Portfolio) re.getRegionEntry().getValueInVM((LocalRegion) ri.getRegion());
       assertTrue(idSet.contains(String.valueOf(pf.getID())));
     }
   }

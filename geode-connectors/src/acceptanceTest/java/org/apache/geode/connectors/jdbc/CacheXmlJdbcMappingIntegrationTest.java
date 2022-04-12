@@ -35,7 +35,6 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.connectors.jdbc.internal.JdbcConnectorService;
 import org.apache.geode.connectors.jdbc.internal.configuration.FieldMapping;
-import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.connectors.jdbc.test.junit.rules.DatabaseConnectionRule;
 import org.apache.geode.connectors.jdbc.test.junit.rules.MySqlConnectionRule;
 import org.apache.geode.internal.cache.InternalCache;
@@ -91,9 +90,9 @@ public class CacheXmlJdbcMappingIntegrationTest {
   }
 
   private InternalCache createCacheAndCreateJdbcMapping(String cacheXmlTestName) {
-    String url = dbRule.getConnectionUrl().replaceAll("&", "&amp;");
+    var url = dbRule.getConnectionUrl().replaceAll("&", "&amp;");
     System.setProperty("TestDataSourceUrl", url);
-    InternalCache cache =
+    var cache =
         (InternalCache) new CacheFactory().set("locators", "").set("mcast-port", "0")
             .set("cache-xml-file", getXmlFileForTest(cacheXmlTestName))
             .create();
@@ -103,7 +102,7 @@ public class CacheXmlJdbcMappingIntegrationTest {
   private InternalCache createCacheAndCreateJdbcMappingWithWrongDataSource(
       String cacheXmlTestName) {
     System.setProperty("TestDataSourceUrl", "jdbc:mysql://localhost/test");
-    InternalCache cache =
+    var cache =
         (InternalCache) new CacheFactory().set("locators", "").set("mcast-port", "0")
             .set("cache-xml-file", getXmlFileForTest(cacheXmlTestName))
             .create();
@@ -130,7 +129,7 @@ public class CacheXmlJdbcMappingIntegrationTest {
   }
 
   private List<FieldMapping> getEmployeeTableFieldMappings() {
-    List<FieldMapping> fieldMappings = Arrays.asList(
+    var fieldMappings = Arrays.asList(
         new FieldMapping("id", FieldType.STRING.name(), "id", JDBCType.VARCHAR.name(), false),
         new FieldMapping("name", FieldType.STRING.name(), "name", JDBCType.VARCHAR.name(), true),
         new FieldMapping("age", FieldType.INT.name(), "age", JDBCType.INTEGER.name(), true));
@@ -138,7 +137,7 @@ public class CacheXmlJdbcMappingIntegrationTest {
   }
 
   private List<FieldMapping> getEmployeeTableColumnNameWithUnderscoresFieldMappings() {
-    List<FieldMapping> fieldMappings = Arrays.asList(
+    var fieldMappings = Arrays.asList(
         new FieldMapping("id", FieldType.STRING.name(), "id", JDBCType.VARCHAR.name(), false),
         new FieldMapping("name", FieldType.STRING.name(), "_name", JDBCType.VARCHAR.name(), true),
         new FieldMapping("age", FieldType.INT.name(), "_age", JDBCType.INTEGER.name(), true));
@@ -150,9 +149,9 @@ public class CacheXmlJdbcMappingIntegrationTest {
     createEmployeeTable();
 
     cache = createCacheAndCreateJdbcMapping("FieldMappings");
-    JdbcConnectorService service = cache.getService(JdbcConnectorService.class);
+    var service = cache.getService(JdbcConnectorService.class);
 
-    RegionMapping mapping = service.getMappingForRegion(REGION_NAME);
+    var mapping = service.getMappingForRegion(REGION_NAME);
     assertThat(mapping.getDataSourceName()).isEqualTo(DATA_SOURCE_NAME);
     assertThat(mapping.getTableName()).isEqualTo(REGION_TABLE_NAME);
     assertThat(mapping.getRegionName()).isEqualTo(REGION_NAME);
@@ -167,9 +166,9 @@ public class CacheXmlJdbcMappingIntegrationTest {
     createEmployeeTable();
 
     cache = createCacheAndCreateJdbcMapping("NoFieldMappings");
-    JdbcConnectorService service = cache.getService(JdbcConnectorService.class);
+    var service = cache.getService(JdbcConnectorService.class);
 
-    RegionMapping mapping = service.getMappingForRegion(REGION_NAME);
+    var mapping = service.getMappingForRegion(REGION_NAME);
     assertThat(mapping.getDataSourceName()).isEqualTo(DATA_SOURCE_NAME);
     assertThat(mapping.getTableName()).isEqualTo(REGION_TABLE_NAME);
     assertThat(mapping.getRegionName()).isEqualTo(REGION_NAME);
@@ -184,9 +183,9 @@ public class CacheXmlJdbcMappingIntegrationTest {
     createEmployeeTable();
 
     cache = createCacheAndCreateJdbcMapping("NoFieldMappingsWithNonSerializedClass");
-    JdbcConnectorService service = cache.getService(JdbcConnectorService.class);
+    var service = cache.getService(JdbcConnectorService.class);
 
-    RegionMapping mapping = service.getMappingForRegion(REGION_NAME);
+    var mapping = service.getMappingForRegion(REGION_NAME);
     assertThat(mapping.getDataSourceName()).isEqualTo(DATA_SOURCE_NAME);
     assertThat(mapping.getTableName()).isEqualTo(REGION_TABLE_NAME);
     assertThat(mapping.getRegionName()).isEqualTo(REGION_NAME);
@@ -198,7 +197,7 @@ public class CacheXmlJdbcMappingIntegrationTest {
 
   @Test
   public void mappingFailureWhenConnectWrongDataSource() {
-    Throwable throwable =
+    var throwable =
         catchThrowable(() -> createCacheAndCreateJdbcMappingWithWrongDataSource("NoFieldMappings"));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
@@ -208,7 +207,7 @@ public class CacheXmlJdbcMappingIntegrationTest {
 
   @Test
   public void mappingFailureWhenTableNotExists() {
-    Throwable throwable = catchThrowable(() -> createCacheAndCreateJdbcMapping("NoFieldMappings"));
+    var throwable = catchThrowable(() -> createCacheAndCreateJdbcMapping("NoFieldMappings"));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessage(String.format("No table was found that matches \"%s\"", REGION_TABLE_NAME));
@@ -218,7 +217,7 @@ public class CacheXmlJdbcMappingIntegrationTest {
   public void mappingFailureWhenPdxNotExists() throws Exception {
     createEmployeeTable();
 
-    Throwable throwable =
+    var throwable =
         catchThrowable(() -> createCacheAndCreateJdbcMapping("WrongPdxName"));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
@@ -230,7 +229,7 @@ public class CacheXmlJdbcMappingIntegrationTest {
   public void mappingFailureWhenPdxFieldAndTableMetaDataUnMatch() throws Exception {
     createEmployeeTableWithColumnNamesWithUnderscores();
 
-    Throwable throwable = catchThrowable(() -> createCacheAndCreateJdbcMapping("NoFieldMappings"));
+    var throwable = catchThrowable(() -> createCacheAndCreateJdbcMapping("NoFieldMappings"));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessage("No PDX field name matched the column name \"_name\"");
@@ -240,7 +239,7 @@ public class CacheXmlJdbcMappingIntegrationTest {
   public void mappingFailureWhenFieldMappingAndTableMetaDataUnMatch() throws Exception {
     createEmployeeTableWithColumnNamesWithUnderscores();
 
-    Throwable throwable = catchThrowable(() -> createCacheAndCreateJdbcMapping("FieldMappings"));
+    var throwable = catchThrowable(() -> createCacheAndCreateJdbcMapping("FieldMappings"));
 
     assertThat(throwable).isInstanceOf(JdbcConnectorException.class)
         .hasMessageContaining(
@@ -253,9 +252,9 @@ public class CacheXmlJdbcMappingIntegrationTest {
     createEmployeeTableWithColumnNamesWithUnderscores();
 
     cache = createCacheAndCreateJdbcMapping("FieldMappingsColumnNamesWithUnderscores");
-    JdbcConnectorService service = cache.getService(JdbcConnectorService.class);
+    var service = cache.getService(JdbcConnectorService.class);
 
-    RegionMapping mapping = service.getMappingForRegion(REGION_NAME);
+    var mapping = service.getMappingForRegion(REGION_NAME);
     assertThat(mapping.getDataSourceName()).isEqualTo(DATA_SOURCE_NAME);
     assertThat(mapping.getTableName()).isEqualTo(REGION_TABLE_NAME);
     assertThat(mapping.getRegionName()).isEqualTo(REGION_NAME);

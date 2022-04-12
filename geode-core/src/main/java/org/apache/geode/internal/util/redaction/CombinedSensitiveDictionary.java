@@ -31,7 +31,7 @@ class CombinedSensitiveDictionary implements SensitiveDataDictionary {
 
   @Override
   public boolean isSensitive(String string) {
-    for (SensitiveDataDictionary dictionary : dictionaries) {
+    for (var dictionary : dictionaries) {
       if (dictionary.isSensitive(string)) {
         return true;
       }

@@ -79,7 +79,7 @@ public class ImportClusterConfigurationCommandDUnitTest {
     gfsh.executeAndAssertThat(commandWithFile).statusIsSuccess()
         .containsOutput("Successfully set the 'cluster' configuration to the content of");
 
-    MemberVM server1 = cluster.startServerVM(1, locator.getPort());
+    var server1 = cluster.startServerVM(1, locator.getPort());
     server1.invoke(() -> {
       Region<?, ?> region = ClusterStartupRule.getCache().getRegion("regionForCluster");
       assertThat(region).isNotNull();
@@ -100,9 +100,9 @@ public class ImportClusterConfigurationCommandDUnitTest {
         .containsOutput("Successfully set the 'groupA' configuration to the content of");
 
     // when start up another server in groupA, it should get both regions
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(GROUPS_NAME, "groupA");
-    MemberVM server2 = cluster.startServerVM(2, properties, locator.getPort());
+    var server2 = cluster.startServerVM(2, properties, locator.getPort());
     server2.invoke(() -> {
       Region<?, ?> region1 = ClusterStartupRule.getCache().getRegion("regionForCluster");
       Region<?, ?> region2 = ClusterStartupRule.getCache().getRegion("regionForGroupA");
@@ -122,7 +122,7 @@ public class ImportClusterConfigurationCommandDUnitTest {
   @Test
   public void canNotConfigureIfServersAreNotEmpty() {
     // start a server, and create a standalone region on that server
-    MemberVM server = cluster.startServerVM(1, locator.getPort());
+    var server = cluster.startServerVM(1, locator.getPort());
     server.invoke(() -> {
       ClusterStartupRule.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("regionA");
     });
@@ -133,10 +133,10 @@ public class ImportClusterConfigurationCommandDUnitTest {
 
   @Test
   public void configureVanillaServers() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(GROUPS_NAME, "groupA");
     @SuppressWarnings("unused")
-    MemberVM serverA = cluster.startServerVM(1, properties, locator.getPort());
+    var serverA = cluster.startServerVM(1, properties, locator.getPort());
     gfsh.executeAndAssertThat(commandWithFile + " --group=groupA").statusIsSuccess()
         .containsOutput("Successfully set the 'groupA' configuration to the content of")
         .containsOutput("Configure the servers in 'groupA' group").containsOutput("server-1")
@@ -145,7 +145,7 @@ public class ImportClusterConfigurationCommandDUnitTest {
     // start another server that belongs to both groupA and groupB
     properties.setProperty(GROUPS_NAME, "groupA,groupB");
     @SuppressWarnings("unused")
-    MemberVM serverB = cluster.startServerVM(2, properties, locator.getPort());
+    var serverB = cluster.startServerVM(2, properties, locator.getPort());
 
     // try to set the cluster configuration of groupB, in this case, we can't bounce serverB because
     // it's already configured by groupA

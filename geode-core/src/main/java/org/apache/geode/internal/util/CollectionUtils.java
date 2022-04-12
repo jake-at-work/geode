@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -88,10 +87,10 @@ public abstract class CollectionUtils {
    * @see java.util.Properties
    */
   public static Properties createProperties(final Map<String, String> map) {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     if (!(map == null || map.isEmpty())) {
-      for (Entry<String, String> entry : map.entrySet()) {
+      for (var entry : map.entrySet()) {
         properties.setProperty(entry.getKey(), entry.getValue());
       }
     }
@@ -140,7 +139,7 @@ public abstract class CollectionUtils {
   public static <T> List<T> findAll(final Collection<T> collection, final Filter<T> filter) {
     final List<T> matches = new ArrayList<>(collection.size());
 
-    for (final T element : collection) {
+    for (final var element : collection) {
       if (filter.accept(element)) {
         matches.add(element);
       }
@@ -163,7 +162,7 @@ public abstract class CollectionUtils {
    *         null.
    */
   public static <T> T findBy(final Collection<T> collection, final Filter<T> filter) {
-    for (T element : collection) {
+    for (var element : collection) {
       if (filter.accept(element)) {
         return element;
       }
@@ -187,7 +186,7 @@ public abstract class CollectionUtils {
    */
   public static <K, V> Map<K, V> removeKeys(final Map<K, V> map,
       final Filter<Map.Entry<K, V>> filter) {
-    for (final Iterator<Map.Entry<K, V>> mapEntries = map.entrySet().iterator(); mapEntries
+    for (final var mapEntries = map.entrySet().iterator(); mapEntries
         .hasNext();) {
       if (!filter.accept(mapEntries.next())) {
         mapEntries.remove();
@@ -225,7 +224,7 @@ public abstract class CollectionUtils {
       return false;
     }
 
-    boolean modified = false;
+    var modified = false;
     while (enumeration.hasMoreElements()) {
       modified |= collection.add(enumeration.nextElement());
     }

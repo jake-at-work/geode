@@ -113,7 +113,7 @@ public class GfshCommandRule extends DescribedExternalResource {
       return;
     }
 
-    ConnectionConfiguration config = description.getAnnotation(ConnectionConfiguration.class);
+    var config = description.getAnnotation(ConnectionConfiguration.class);
     if (config == null) {
       connectAndVerify(portSupplier.get(), portType);
     } else {
@@ -185,8 +185,8 @@ public class GfshCommandRule extends DescribedExternalResource {
   }
 
   public void connect(int port, PortType type, Properties properties) throws Exception {
-    File propertyFile = temporaryFolder.newFile();
-    FileOutputStream out = new FileOutputStream(propertyFile);
+    var propertyFile = temporaryFolder.newFile();
+    var out = new FileOutputStream(propertyFile);
     properties.store(out, null);
     connect(port, type, "security-properties-file", propertyFile.getAbsolutePath());
   }
@@ -202,7 +202,7 @@ public class GfshCommandRule extends DescribedExternalResource {
 
       gfsh = new HeadlessGfsh(getClass().getName(), 30, absolutePath);
     }
-    final CommandStringBuilder connectCommand = new CommandStringBuilder(CliStrings.CONNECT);
+    final var connectCommand = new CommandStringBuilder(CliStrings.CONNECT);
     String endpoint;
     if (type == PortType.locator) {
       // port is the locator port
@@ -219,7 +219,7 @@ public class GfshCommandRule extends DescribedExternalResource {
 
     // add the extra options
     if (options != null) {
-      for (int i = 0; i < options.length; i += 2) {
+      for (var i = 0; i < options.length; i += 2) {
         connectCommand.addOption(options[i], options[i + 1]);
       }
     }
@@ -230,7 +230,7 @@ public class GfshCommandRule extends DescribedExternalResource {
     // can not use Awaitility here because it starts another thread, but the Gfsh instance is in a
     // threadLocal variable, See Gfsh.getExistingInstance()
     CommandResult result = null;
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       result = executeCommand(connectCommand.toString());
       if (!gfsh.outputString.contains("no such object in table")) {
         break;
@@ -270,7 +270,7 @@ public class GfshCommandRule extends DescribedExternalResource {
    *             after that method call.
    */
   public CommandResult executeCommand(String command) {
-    String moduleArgs = "";
+    var moduleArgs = "";
     if (command.matches("^start +server.*") || command.matches("^start +locator.*")) {
       moduleArgs = getJvmModuleOptions().stream()
           .map(s -> "--J=" + s)

@@ -18,8 +18,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.distributed.ConfigurationProperties.GROUPS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collection;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -33,7 +31,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.internal.cli.domain.Stock;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
@@ -60,7 +57,7 @@ public class IndexCommandsIntegrationTestBase {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    InternalCache cache = server.getCache();
+    var cache = server.getCache();
     Region region = createPartitionedRegion(regionName, cache, String.class, Stock.class);
     region.put("VMW", new Stock("VMW", 98));
     region.put("APPL", new Stock("APPL", 600));
@@ -77,7 +74,7 @@ public class IndexCommandsIntegrationTestBase {
   @After
   public void after() throws Exception {
     // destroy all existing indexes
-    Collection<Index> indices = server.getCache().getQueryService().getIndexes();
+    var indices = server.getCache().getQueryService().getIndexes();
     indices.stream().map(Index::getName).forEach(indexName -> {
       gfsh.executeAndAssertThat("destroy index --name=" + indexName).statusIsSuccess();
     });
@@ -97,7 +94,7 @@ public class IndexCommandsIntegrationTestBase {
 
   @Test
   public void testCreateIndexWithMultipleIterators() throws Exception {
-    CommandStringBuilder createStringBuilder = new CommandStringBuilder(CliStrings.CREATE_INDEX);
+    var createStringBuilder = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     createStringBuilder.addOption(CliStrings.CREATE_INDEX__NAME, "indexA");
     createStringBuilder.addOption(CliStrings.CREATE_INDEX__EXPRESSION, "\"h.low\"");
     createStringBuilder.addOption(CliStrings.CREATE_INDEX__REGION,
@@ -112,7 +109,7 @@ public class IndexCommandsIntegrationTestBase {
 
   @Test
   public void testListIndexValidField() throws Exception {
-    CommandStringBuilder createStringBuilder = new CommandStringBuilder(CliStrings.CREATE_INDEX);
+    var createStringBuilder = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     createStringBuilder.addOption(CliStrings.CREATE_INDEX__NAME, indexName);
     createStringBuilder.addOption(CliStrings.CREATE_INDEX__EXPRESSION, "\"h.low\"");
     createStringBuilder.addOption(CliStrings.CREATE_INDEX__REGION,
@@ -130,7 +127,7 @@ public class IndexCommandsIntegrationTestBase {
     createSimpleIndexA();
 
     // CREATE the same index
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     csb.addOption(CliStrings.CREATE_INDEX__NAME, indexName);
     csb.addOption(CliStrings.CREATE_INDEX__EXPRESSION, "key");
     csb.addOption(CliStrings.CREATE_INDEX__REGION, SEPARATOR + regionName);
@@ -141,7 +138,7 @@ public class IndexCommandsIntegrationTestBase {
 
   @Test
   public void creatIndexWithNoBeginningSlash() throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     csb.addOption(CliStrings.CREATE_INDEX__NAME, indexName);
     csb.addOption(CliStrings.CREATE_INDEX__EXPRESSION, "key");
     csb.addOption(CliStrings.CREATE_INDEX__REGION, regionName);
@@ -155,7 +152,7 @@ public class IndexCommandsIntegrationTestBase {
   @Test
   public void testCannotCreateIndexInIncorrectRegion() throws Exception {
     // Create index on a wrong regionPath
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     csb.addOption(CliStrings.CREATE_INDEX__NAME, indexName);
     csb.addOption(CliStrings.CREATE_INDEX__EXPRESSION, "key");
     csb.addOption(CliStrings.CREATE_INDEX__REGION, SEPARATOR + "InvalidRegionName");
@@ -177,7 +174,7 @@ public class IndexCommandsIntegrationTestBase {
   @Test
   public void testCannotCreateIndexWithInvalidIndexExpression() throws Exception {
     // Create index with wrong expression
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     csb.addOption(CliStrings.CREATE_INDEX__NAME, indexName);
     csb.addOption(CliStrings.CREATE_INDEX__EXPRESSION, "InvalidExpressionOption");
     csb.addOption(CliStrings.CREATE_INDEX__REGION, SEPARATOR + regionName);
@@ -189,7 +186,7 @@ public class IndexCommandsIntegrationTestBase {
   @Test
   public void testCannotDestroyIndexWithInvalidIndexName() throws Exception {
     // Destroy index with incorrect indexName
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
     csb.addOption(CliStrings.DESTROY_INDEX__NAME, "IncorrectIndexName");
     gfsh.executeAndAssertThat(csb.toString()).statusIsError().containsOutput(
         CliStrings.format(CliStrings.DESTROY_INDEX__INDEX__NOT__FOUND, "IncorrectIndexName"));
@@ -198,7 +195,7 @@ public class IndexCommandsIntegrationTestBase {
   @Test
   public void testCannotDestroyIndexWithInvalidRegion() throws Exception {
     // Destroy index with incorrect region
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
     csb.addOption(CliStrings.DESTROY_INDEX__NAME, indexName);
     csb.addOption(CliStrings.DESTROY_INDEX__REGION, "IncorrectRegion");
     gfsh.executeAndAssertThat(csb.toString()).statusIsError().containsOutput("ERROR",
@@ -208,7 +205,7 @@ public class IndexCommandsIntegrationTestBase {
   @Test
   public void testCannotDestroyIndexWithInvalidMember() throws Exception {
     // Destroy index with incorrect member name
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
     csb.addOption(CliStrings.DESTROY_INDEX__NAME, indexName);
     csb.addOption(CliStrings.DESTROY_INDEX__REGION, "Region");
     csb.addOption(CliStrings.MEMBER, "InvalidMemberName");
@@ -218,7 +215,7 @@ public class IndexCommandsIntegrationTestBase {
   @Test
   public void testCannotDestroyIndexWithNoOptions() throws Exception {
     // Destroy index with no option
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
     gfsh.executeAndAssertThat(csb.toString()).statusIsError()
         .containsOutput("requires that one or more parameters be provided.");
   }
@@ -227,7 +224,7 @@ public class IndexCommandsIntegrationTestBase {
   public void testDestroyIndexViaRegion() throws Exception {
     createSimpleIndexA();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
     csb.addOption(CliStrings.DESTROY_INDEX__REGION, regionName);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .containsOutput("Destroyed all indexes on region regionA");
@@ -237,7 +234,7 @@ public class IndexCommandsIntegrationTestBase {
   public void testDestroyIndexViaGroup() throws Exception {
     createSimpleIndexA();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
     csb.addOption(CliStrings.GROUP, groupName);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .containsOutput("Destroyed all indexes");
@@ -247,7 +244,7 @@ public class IndexCommandsIntegrationTestBase {
   public void testFailWhenDestroyIndexIsNotIdempotent() throws Exception {
     createSimpleIndexA();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
     csb.addOption(CliStrings.DESTROY_INDEX__NAME, indexName);
     csb.addOption(CliStrings.IFEXISTS, "false");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -260,7 +257,7 @@ public class IndexCommandsIntegrationTestBase {
   public void testDestroyIndexOnRegionIsIdempotent() throws Exception {
     createSimpleIndexA();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
     csb.addOption(CliStrings.DESTROY_INDEX__REGION, regionName);
     csb.addOption(CliStrings.IFEXISTS, "true");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -273,7 +270,7 @@ public class IndexCommandsIntegrationTestBase {
   public void testDestroyIndexByNameIsIdempotent() throws Exception {
     createSimpleIndexA();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
     csb.addOption(CliStrings.DESTROY_INDEX__NAME, indexName);
     csb.addOption(CliStrings.IFEXISTS);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -285,7 +282,7 @@ public class IndexCommandsIntegrationTestBase {
   }
 
   private void createSimpleIndexA() throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     csb.addOption(CliStrings.CREATE_INDEX__NAME, indexName);
     csb.addOption(CliStrings.CREATE_INDEX__EXPRESSION, "key");
     csb.addOption(CliStrings.CREATE_INDEX__REGION, SEPARATOR + regionName);

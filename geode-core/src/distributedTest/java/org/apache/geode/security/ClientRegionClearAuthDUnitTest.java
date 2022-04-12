@@ -23,9 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.VM;
@@ -52,22 +50,22 @@ public class ClientRegionClearAuthDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testRegionClear() throws InterruptedException {
     // Verify that an unauthorized user can't clear the region
-    SerializableRunnable clearUnauthorized = new SerializableRunnable() {
+    var clearUnauthorized = new SerializableRunnable() {
       @Override
       public void run() {
-        ClientCache cache = createClientCache("stranger", "1234567", server.getPort());
-        Region region = createProxyRegion(cache, REGION_NAME);
+        var cache = createClientCache("stranger", "1234567", server.getPort());
+        var region = createProxyRegion(cache, REGION_NAME);
         assertNotAuthorized(region::clear, "DATA:WRITE:AuthRegion");
       }
     };
     client1.invoke(clearUnauthorized);
 
     // Verify that an authorized user can clear the region
-    SerializableRunnable clearAuthorized = new SerializableRunnable() {
+    var clearAuthorized = new SerializableRunnable() {
       @Override
       public void run() {
-        ClientCache cache = createClientCache("authRegionUser", "1234567", server.getPort());
-        Region region = createProxyRegion(cache, REGION_NAME);
+        var cache = createClientCache("authRegionUser", "1234567", server.getPort());
+        var region = createProxyRegion(cache, REGION_NAME);
         region.clear();
       }
     };

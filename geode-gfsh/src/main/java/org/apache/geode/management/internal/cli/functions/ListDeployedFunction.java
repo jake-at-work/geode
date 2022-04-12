@@ -20,13 +20,10 @@ import java.util.List;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.classloader.ClassPathLoader;
-import org.apache.geode.internal.deployment.JarDeploymentService;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.configuration.Deployment;
 import org.apache.geode.management.internal.cli.domain.DeploymentInfo;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 
@@ -46,14 +43,14 @@ public class ListDeployedFunction implements InternalFunction<Void> {
   @Override
   public void execute(FunctionContext<Void> context) {
     // Declared here so that it's available when returning a Throwable
-    String memberId = "";
+    var memberId = "";
 
     try {
-      InternalCache cache = (InternalCache) context.getCache();
-      final JarDeploymentService jarDeploymentService =
+      var cache = (InternalCache) context.getCache();
+      final var jarDeploymentService =
           ClassPathLoader.getLatest().getJarDeploymentService();
 
-      DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+      var member = cache.getDistributedSystem().getDistributedMember();
 
       memberId = member.getId();
       // If they set a name use it instead
@@ -61,18 +58,18 @@ public class ListDeployedFunction implements InternalFunction<Void> {
         memberId = member.getName();
       }
 
-      final List<Deployment> deployments = jarDeploymentService.listDeployed();
+      final var deployments = jarDeploymentService.listDeployed();
       final List<DeploymentInfo> jars = new LinkedList<>();
-      for (Deployment deployment : deployments) {
+      for (var deployment : deployments) {
         jars.add(new DeploymentInfo(memberId, deployment));
       }
 
-      CliFunctionResult result = new CliFunctionResult(memberId, jars, null);
+      var result = new CliFunctionResult(memberId, jars, null);
       context.getResultSender().lastResult(result);
 
     } catch (Exception cce) {
       logger.error(cce.getMessage(), cce);
-      CliFunctionResult result = new CliFunctionResult(memberId, false, cce.getMessage());
+      var result = new CliFunctionResult(memberId, false, cce.getMessage());
       context.getResultSender().lastResult(result);
     }
   }

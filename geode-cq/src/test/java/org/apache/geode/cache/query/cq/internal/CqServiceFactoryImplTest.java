@@ -41,16 +41,16 @@ public class CqServiceFactoryImplTest {
 
   @Test
   public void registersCommandsOnCreate() {
-    final InternalCache internalCache = mock(InternalCache.class);
-    final CancelCriterion cancelCriterion = mock(CancelCriterion.class);
-    final DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    final var internalCache = mock(InternalCache.class);
+    final var cancelCriterion = mock(CancelCriterion.class);
+    final var distributedSystem = mock(DistributedSystem.class);
     doNothing().when(cancelCriterion).checkCancelInProgress(null);
     when(internalCache.getCancelCriterion()).thenReturn(cancelCriterion);
     when(internalCache.getDistributedSystem()).thenReturn(distributedSystem);
 
-    final CommandRegistry commandRegistry = mock(CommandRegistry.class);
+    final var commandRegistry = mock(CommandRegistry.class);
 
-    final CqServiceFactoryImpl cqServiceFactory = new CqServiceFactoryImpl();
+    final var cqServiceFactory = new CqServiceFactoryImpl();
     cqServiceFactory.initialize();
     cqServiceFactory.create(internalCache, commandRegistry);
 

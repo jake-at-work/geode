@@ -54,8 +54,8 @@ public class DurableClientReconnectAutoDUnitTest extends DurableClientReconnectD
   }
 
   protected PoolFactory getPoolFactory() {
-    Host host = Host.getHost(0);
-    PoolFactory factory = PoolManager.createFactory().addLocator(
+    var host = Host.getHost(0);
+    var factory = PoolManager.createFactory().addLocator(
         NetworkUtils.getServerHostName(host), DistributedTestUtils.getDUnitLocatorPort());
     return factory;
   }

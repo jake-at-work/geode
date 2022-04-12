@@ -25,9 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
-import org.apache.geode.management.api.ClusterManagementRealizationResult;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.api.RealizationResult;
@@ -64,11 +61,11 @@ public class ClientClusterManagementServiceDunitTest {
 
   @Test
   public void createRegion() {
-    Region region = new Region();
+    var region = new Region();
     region.setName("customer");
     region.setType(RegionType.PARTITION);
 
-    ClusterManagementRealizationResult result = cmsClient.create(region);
+    var result = cmsClient.create(region);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
@@ -80,11 +77,11 @@ public class ClientClusterManagementServiceDunitTest {
 
   @Test
   public void createRegionWithNullGroup() {
-    Region region = new Region();
+    var region = new Region();
     region.setName("orders");
     region.setType(RegionType.PARTITION);
 
-    ClusterManagementRealizationResult result = cmsClient.create(region);
+    var result = cmsClient.create(region);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
@@ -95,7 +92,7 @@ public class ClientClusterManagementServiceDunitTest {
 
   @Test
   public void createRegionWithInvalidName() {
-    Region region = new Region();
+    var region = new Region();
     region.setName("__test");
 
     assertThatThrownBy(() -> cmsClient.create(region)).hasMessageContaining("ILLEGAL_ARGUMENT");
@@ -103,12 +100,12 @@ public class ClientClusterManagementServiceDunitTest {
 
   @Test
   public void createRegionWithGroup() {
-    Region region = new Region();
+    var region = new Region();
     region.setName("company");
     region.setType(RegionType.PARTITION);
     region.setGroup(groupA);
 
-    ClusterManagementRealizationResult result = cmsClient.create(region);
+    var result = cmsClient.create(region);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
@@ -118,11 +115,11 @@ public class ClientClusterManagementServiceDunitTest {
         .containsExactlyInAnyOrder("server-2");
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService persistenceService =
+      var persistenceService =
           Objects.requireNonNull(ClusterStartupRule.getLocator())
               .getConfigurationPersistenceService();
-      CacheConfig clusterCacheConfig = persistenceService.getCacheConfig("cluster", true);
-      CacheConfig groupACacheConfig = persistenceService.getCacheConfig("group-a");
+      var clusterCacheConfig = persistenceService.getCacheConfig("cluster", true);
+      var groupACacheConfig = persistenceService.getCacheConfig("group-a");
       assertThat(find(clusterCacheConfig.getRegions(), "company")).isNull();
       assertThat(find(groupACacheConfig.getRegions(), "company")).isNotNull();
     });
@@ -130,11 +127,11 @@ public class ClientClusterManagementServiceDunitTest {
 
   @Test
   public void invokeFromClientCacheWithLocatorPool() throws Exception {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     client = cluster.startClientVM(3, c -> c.withLocatorConnection(locatorPort));
 
     client.invoke(() -> {
-      ClusterManagementService service =
+      var service =
           new GeodeClusterManagementServiceBuilder()
               .setCache(ClusterStartupRule.getClientCache())
               .build();
@@ -145,7 +142,7 @@ public class ClientClusterManagementServiceDunitTest {
 
   @Test
   public void invokeFromClientCacheWithServerPool() throws Exception {
-    int serverPort = server.getPort();
+    var serverPort = server.getPort();
     client = cluster.startClientVM(3, c -> c.withServerConnection(serverPort));
 
     client.invoke(() -> {

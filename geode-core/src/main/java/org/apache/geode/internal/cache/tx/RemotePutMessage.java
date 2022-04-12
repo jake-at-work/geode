@@ -266,8 +266,8 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
   @SuppressWarnings("unchecked")
   public static boolean distribute(EntryEventImpl event, long lastModified, boolean ifNew,
       boolean ifOld, Object expectedOldValue, boolean requireOldValue, boolean onlyPersistent) {
-    boolean successful = false;
-    DistributedRegion r = (DistributedRegion) event.getRegion();
+    var successful = false;
+    var r = (DistributedRegion) event.getRegion();
     Collection<InternalDistributedMember> replicates = onlyPersistent
         ? r.getCacheDistributionAdvisor().adviseInitializedPersistentMembers().keySet()
         : r.getCacheDistributionAdvisor().adviseInitializedReplicates();
@@ -275,21 +275,21 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
       return false;
     }
     if (replicates.size() > 1) {
-      ArrayList<InternalDistributedMember> l = new ArrayList<>(replicates);
+      var l = new ArrayList<InternalDistributedMember>(replicates);
       Collections.shuffle(l);
       replicates = l;
     }
-    int attempts = 0;
+    var attempts = 0;
     if (logger.isDebugEnabled()) {
       logger.debug("performing remote put messaging for {}", event);
     }
-    for (InternalDistributedMember replicate : replicates) {
+    for (var replicate : replicates) {
       try {
         attempts++;
-        final boolean posDup = (attempts > 1);
-        RemotePutResponse response = send(replicate, event.getRegion(), event, lastModified, ifNew,
+        final var posDup = (attempts > 1);
+        var response = send(replicate, event.getRegion(), event, lastModified, ifNew,
             ifOld, expectedOldValue, requireOldValue, false, posDup);
-        PutResult result = response.waitForResult();
+        var result = response.waitForResult();
         event.setOldValue(result.oldValue, true/* force */);
         event.setOperation(result.op);
         if (result.versionTag != null) {
@@ -369,9 +369,9 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
       Object expectedOldValue, boolean requireOldValue, boolean useOriginRemote,
       boolean possibleDuplicate) throws RemoteOperationException {
 
-    RemotePutResponse processor = new RemotePutResponse(r.getSystem(), recipient, false);
+    var processor = new RemotePutResponse(r.getSystem(), recipient, false);
 
-    RemotePutMessage m =
+    var m =
         new RemotePutMessage(recipient, r.getFullPath(), processor, event, lastModified, ifNew,
             ifOld, expectedOldValue, requireOldValue, useOriginRemote, possibleDuplicate);
     m.setInternalDs(r.getSystem());
@@ -456,7 +456,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     super.fromData(in, context);
     setKey(DataSerializer.readObject(in));
 
-    final int extraFlags = in.readUnsignedByte();
+    final var extraFlags = in.readUnsignedByte();
     deserializationPolicy =
         (byte) (extraFlags & DistributedCacheOperation.DESERIALIZATION_POLICY_MASK);
     cbArg = DataSerializer.readObject(in);
@@ -541,7 +541,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     // this will be on wire for cqs old value generations.
     if (hasOldValue) {
       out.writeByte(oldValueIsSerialized ? 1 : 0);
-      byte policy = DistributedCacheOperation.valueIsToDeserializationPolicy(oldValueIsSerialized);
+      var policy = DistributedCacheOperation.valueIsToDeserializationPolicy(oldValueIsSerialized);
       DistributedCacheOperation.writeValue(policy, getOldValObj(), getOldValueBytes(), out);
     }
     DistributedCacheOperation.writeValue(deserializationPolicy, valObj, getValBytes(),
@@ -556,7 +556,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
 
   @Override
   protected short computeCompressedShort() {
-    short s = super.computeCompressedShort();
+    var s = super.computeCompressedShort();
     if (ifNew) {
       s |= IF_NEW;
     }
@@ -595,14 +595,14 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     setInternalDs(r.getSystem());// set the internal DS. Required to
                                  // checked DS level delta-enabled property
                                  // while sending delta
-    boolean sendReply = true;
+    var sendReply = true;
 
-    InternalDistributedMember eventSender = originalSender;
+    var eventSender = originalSender;
     if (eventSender == null) {
       eventSender = getSender();
     }
     @Released
-    EntryEventImpl eei = EntryEventImpl.create(r, getOperation(), getKey(), null, /* newValue */
+    var eei = EntryEventImpl.create(r, getOperation(), getKey(), null, /* newValue */
         getCallbackArg(),
         useOriginRemote, /* originRemote - false to force distribution in buckets */
         eventSender, true/* generateCallbacks */, false/* initializeId */);
@@ -655,7 +655,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
           r.checkReadiness();
           if (!ifNew && !ifOld) {
             // no reason to be throwing an exception, so let's retry
-            RemoteOperationException ex = new RemoteOperationException(
+            var ex = new RemoteOperationException(
                 "unable to perform put, but operation should not fail");
             sendReply(getSender(), getProcessorId(), dm, new ReplyException(ex), r, startTime);
             return false;
@@ -711,7 +711,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
         .append(getOperation());
     buff.append("; hadOldValue=").append(hasOldValue);
     if (hasOldValue) {
-      byte[] ov = getOldValueBytes();
+      var ov = getOldValueBytes();
       if (ov != null) {
         buff.append("; oldValueLength=").append(ov.length);
       }
@@ -791,7 +791,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
         boolean result, Operation op, ReplyException ex, RemotePutMessage sourceMessage,
         EntryEventImpl event) {
       Assert.assertTrue(recipient != null, "PutReplyMessage NULL recipient");
-      PutReplyMessage m = new PutReplyMessage(processorId, result, op, ex, null,
+      var m = new PutReplyMessage(processorId, result, op, ex, null,
           event != null ? event.getVersionTag() : null);
 
       if (sourceMessage.requireOldValue && event != null) {
@@ -809,7 +809,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 rp) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isDebugEnabled()) {
         logger.debug("Processing {}", this);
       }
@@ -823,7 +823,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
         versionTag.replaceNullIDs(getSender());
       }
       if (rp instanceof RemotePutResponse) {
-        RemotePutResponse processor = (RemotePutResponse) rp;
+        var processor = (RemotePutResponse) rp;
         processor.setResponse(this);
       }
       rp.process(this);
@@ -855,12 +855,12 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      byte flags = (byte) (in.readByte() & 0xff);
+      var flags = (byte) (in.readByte() & 0xff);
       result = (flags & FLAG_RESULT) != 0;
       op = Operation.fromOrdinal(in.readByte());
       oldValue = DataSerializer.readObject(in);
       if ((flags & FLAG_HASVERSION) != 0) {
-        boolean persistentTag = (flags & FLAG_PERSISTENT) != 0;
+        var persistentTag = (flags & FLAG_PERSISTENT) != 0;
         versionTag = VersionTag.create(persistentTag, in);
       }
     }
@@ -912,7 +912,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("PutReplyMessage ").append("processorid=").append(processorId)
           .append(" returning ").append(result).append(" op=").append(op).append(" exception=")
           .append(getException());

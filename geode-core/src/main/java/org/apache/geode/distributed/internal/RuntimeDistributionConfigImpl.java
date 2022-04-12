@@ -133,9 +133,10 @@ public class RuntimeDistributionConfigImpl extends DistributionConfigImpl {
 
   @Override
   public List<String> getModifiableAttributes() {
-    String[] modifiables = {HTTP_SERVICE_PORT, JMX_MANAGER_HTTP_PORT, ARCHIVE_DISK_SPACE_LIMIT,
-        ARCHIVE_FILE_SIZE_LIMIT, LOG_DISK_SPACE_LIMIT, LOG_FILE_SIZE_LIMIT, LOG_LEVEL,
-        STATISTIC_ARCHIVE_FILE, STATISTIC_SAMPLE_RATE, STATISTIC_SAMPLING_ENABLED};
+    var modifiables =
+        new String[] {HTTP_SERVICE_PORT, JMX_MANAGER_HTTP_PORT, ARCHIVE_DISK_SPACE_LIMIT,
+            ARCHIVE_FILE_SIZE_LIMIT, LOG_DISK_SPACE_LIMIT, LOG_FILE_SIZE_LIMIT, LOG_LEVEL,
+            STATISTIC_ARCHIVE_FILE, STATISTIC_SAMPLE_RATE, STATISTIC_SAMPLING_ENABLED};
     return Arrays.asList(modifiables);
   }
 

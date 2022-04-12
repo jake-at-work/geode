@@ -53,7 +53,7 @@ public class StatMonitorHandler implements SampleHandler {
   /** Adds a monitor which will be notified of samples */
   public boolean addMonitor(StatisticsMonitor monitor) {
     synchronized (this) {
-      boolean added = false;
+      var added = false;
       if (!monitors.contains(monitor)) {
         added = monitors.add(monitor);
       }
@@ -67,7 +67,7 @@ public class StatMonitorHandler implements SampleHandler {
   /** Removes a monitor that will no longer be used */
   public boolean removeMonitor(StatisticsMonitor monitor) {
     synchronized (this) {
-      boolean removed = false;
+      var removed = false;
       if (monitors.contains(monitor)) {
         removed = monitors.remove(monitor);
       }
@@ -91,7 +91,7 @@ public class StatMonitorHandler implements SampleHandler {
   public void sampled(long nanosTimeStamp, List<ResourceInstance> resourceInstances) {
     synchronized (this) {
       if (enableMonitorThread) {
-        final StatMonitorNotifier thread = notifier;
+        final var thread = notifier;
         if (thread != null) {
           try {
             thread.monitor(new MonitorTask(System.currentTimeMillis(), resourceInstances));
@@ -106,7 +106,7 @@ public class StatMonitorHandler implements SampleHandler {
   }
 
   private void monitor(final long sampleTimeMillis, final List<ResourceInstance> resourceInstance) {
-    for (StatisticsMonitor monitor : monitors) {
+    for (var monitor : monitors) {
       try {
         monitor.monitor(sampleTimeMillis, resourceInstance);
       } catch (VirtualMachineError e) {
@@ -183,7 +183,7 @@ public class StatMonitorHandler implements SampleHandler {
 
     @Override
     public void run() {
-      final boolean isDebugEnabled_STATISTICS = logger.isTraceEnabled(LogMarker.STATISTICS_VERBOSE);
+      final var isDebugEnabled_STATISTICS = logger.isTraceEnabled(LogMarker.STATISTICS_VERBOSE);
       if (isDebugEnabled_STATISTICS) {
         logger.trace(LogMarker.STATISTICS_VERBOSE, "StatMonitorNotifier is starting {}", this);
       }
@@ -203,7 +203,7 @@ public class StatMonitorHandler implements SampleHandler {
     }
 
     private void work() {
-      boolean working = true;
+      var working = true;
       while (working) {
         try {
           MonitorTask latestTask = null;
@@ -224,7 +224,7 @@ public class StatMonitorHandler implements SampleHandler {
             }
           }
           if (working && latestTask != null) {
-            for (StatisticsMonitor monitor : monitors) {
+            for (var monitor : monitors) {
               try {
                 monitor.monitor(latestTask.getSampleTimeMillis(),
                     latestTask.getResourceInstances());
@@ -270,7 +270,7 @@ public class StatMonitorHandler implements SampleHandler {
     }
 
     void monitor(MonitorTask task) throws InterruptedException {
-      boolean isAlive = false;
+      var isAlive = false;
       synchronized (this) {
         if (alive) {
           isAlive = true;

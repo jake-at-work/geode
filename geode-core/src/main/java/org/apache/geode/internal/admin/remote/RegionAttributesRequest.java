@@ -34,7 +34,7 @@ public class RegionAttributesRequest extends RegionAdminRequest {
    * Returns a <code>RegionAttributesRequest</code> to be sent to the specified recipient.
    */
   public static RegionAttributesRequest create() {
-    RegionAttributesRequest m = new RegionAttributesRequest();
+    var m = new RegionAttributesRequest();
     return m;
   }
 

@@ -45,11 +45,11 @@ public class MemberTest {
         ArgumentMatchers.any(InternalDistributedMember.class),
         ArgumentMatchers.any(InternalDistributedMember.class));
     Set<Member> membersHostingBucket = new HashSet<>();
-    Bucket bucket = mock(Bucket.class);
-    ClusterDistributionManager clusterDistributionManager = mock(ClusterDistributionManager.class);
+    var bucket = mock(Bucket.class);
+    var clusterDistributionManager = mock(ClusterDistributionManager.class);
 
-    Member memberUnderTest = new Member(addressComparor, memberId, false, false);
-    Member otherMember = new Member(addressComparor, otherMemberId, false, false);
+    var memberUnderTest = new Member(addressComparor, memberId, false, false);
+    var otherMember = new Member(addressComparor, otherMemberId, false, false);
     membersHostingBucket.add(memberUnderTest);
     membersHostingBucket.add(otherMember);
     when(bucket.getMembersHosting()).thenReturn(membersHostingBucket);
@@ -68,10 +68,10 @@ public class MemberTest {
         ArgumentMatchers.any(InternalDistributedMember.class),
         ArgumentMatchers.any(InternalDistributedMember.class));
     Set<Member> membersHostingBucket = new HashSet<>();
-    Bucket bucket = mock(Bucket.class);
-    ClusterDistributionManager clusterDistributionManager = mock(ClusterDistributionManager.class);
+    var bucket = mock(Bucket.class);
+    var clusterDistributionManager = mock(ClusterDistributionManager.class);
 
-    Member memberUnderTest = new Member(addressComparor, memberId, false, false);
+    var memberUnderTest = new Member(addressComparor, memberId, false, false);
     membersHostingBucket.add(memberUnderTest);
     when(bucket.getMembersHosting()).thenReturn(membersHostingBucket);
 
@@ -89,10 +89,10 @@ public class MemberTest {
         ArgumentMatchers.any(InternalDistributedMember.class),
         ArgumentMatchers.any(InternalDistributedMember.class));
     Set<Member> membersHostingBucket = new HashSet<>();
-    Bucket bucket = mock(Bucket.class);
-    ClusterDistributionManager clusterDistributionManager = mock(ClusterDistributionManager.class);
-    Member memberUnderTest = new Member(addressComparor, memberId, false, false);
-    Member otherMember = new Member(addressComparor, otherMemberId, false, false);
+    var bucket = mock(Bucket.class);
+    var clusterDistributionManager = mock(ClusterDistributionManager.class);
+    var memberUnderTest = new Member(addressComparor, memberId, false, false);
+    var otherMember = new Member(addressComparor, otherMemberId, false, false);
     membersHostingBucket.add(memberUnderTest);
     membersHostingBucket.add(otherMember);
     when(bucket.getMembersHosting()).thenReturn(membersHostingBucket);

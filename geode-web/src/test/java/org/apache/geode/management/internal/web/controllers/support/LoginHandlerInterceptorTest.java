@@ -72,9 +72,9 @@ public class LoginHandlerInterceptorTest {
 
   @Test
   public void preHandle_createsNewEnvironmentInstance() throws Exception {
-    HttpServletRequest request = request().build();
+    var request = request().build();
 
-    Map<String, String> environmentBeforePreHandle = LoginHandlerInterceptor.getEnvironment();
+    var environmentBeforePreHandle = LoginHandlerInterceptor.getEnvironment();
 
     interceptor.preHandle(request, null, null);
 
@@ -84,7 +84,7 @@ public class LoginHandlerInterceptorTest {
 
   @Test
   public void preHandle_copiesPrefixedRequestParametersIntoEnvironment() throws Exception {
-    HttpServletRequest request = request()
+    var request = request()
         .withParameter(ENVIRONMENT_VARIABLE_REQUEST_PARAMETER_PREFIX + "prefixed", "prefixed value")
         .withParameter("not-prefixed", "not-prefixed value")
         .build();
@@ -98,7 +98,7 @@ public class LoginHandlerInterceptorTest {
 
   @Test
   public void preHandle_returnsTrue() throws Exception {
-    HttpServletRequest request = request().build();
+    var request = request().build();
 
     assertThat(interceptor.preHandle(request, null, null))
         .isTrue();
@@ -106,14 +106,14 @@ public class LoginHandlerInterceptorTest {
 
   @Test
   public void preHandle_logsInWithUserNameAndPasswordFromRequestHeaders() throws Exception {
-    HttpServletRequest request = request()
+    var request = request()
         .withHeader(USER_NAME, "expected user-name")
         .withHeader(PASSWORD, "expected password")
         .build();
 
     interceptor.preHandle(request, null, null);
 
-    Properties expectedLoginProperties = new Properties();
+    var expectedLoginProperties = new Properties();
     expectedLoginProperties.setProperty(USER_NAME, "expected user-name");
     expectedLoginProperties.setProperty(PASSWORD, "expected password");
 
@@ -122,7 +122,7 @@ public class LoginHandlerInterceptorTest {
 
   @Test
   public void afterCompletion_clearsTheEnvironment() throws Exception {
-    HttpServletRequest request = request()
+    var request = request()
         .withParameter(ENVIRONMENT_VARIABLE_REQUEST_PARAMETER_PREFIX + "variable", "value")
         .build();
 
@@ -137,7 +137,7 @@ public class LoginHandlerInterceptorTest {
 
   @Test
   public void afterCompletion_logsOut() throws Exception {
-    HttpServletRequest request = request().build();
+    var request = request().build();
 
     interceptor.afterCompletion(request, null, null, null);
 
@@ -146,11 +146,13 @@ public class LoginHandlerInterceptorTest {
 
   @Test
   public void eachRequestThreadEnvironmentIsConfinedToItsThread() {
-    Semaphore thread1Permit = new Semaphore(0);
-    Semaphore thread2Permit = new Semaphore(0);
+    var thread1Permit = new Semaphore(0);
+    var thread2Permit = new Semaphore(0);
 
-    Callable<Void> request1Task = () -> processRequest("thread 1", thread1Permit, thread2Permit);
-    Callable<Void> request2Task = () -> processRequest("thread 2", thread2Permit, thread1Permit);
+    var request1Task =
+        (Callable<Void>) () -> processRequest("thread 1", thread1Permit, thread2Permit);
+    var request2Task =
+        (Callable<Void>) () -> processRequest("thread 2", thread2Permit, thread1Permit);
 
     runConcurrently.setTimeout(Duration.ofMinutes(1));
     runConcurrently.add(request1Task);
@@ -174,17 +176,17 @@ public class LoginHandlerInterceptorTest {
 
     // Each task has a unique value for this common parameter. If the interceptor is threadsafe,
     // neither task's unique value will appear in the other task's environment.
-    String commonParameterName = ENVIRONMENT_VARIABLE_REQUEST_PARAMETER_PREFIX + "COMMON-PARAMETER";
-    String commonParameterValue = "COMMON-PARAMETER value for " + taskName;
+    var commonParameterName = ENVIRONMENT_VARIABLE_REQUEST_PARAMETER_PREFIX + "COMMON-PARAMETER";
+    var commonParameterValue = "COMMON-PARAMETER value for " + taskName;
 
     // Each task has a parameter with a name and value unique to the task. If the interceptor is
     // threadsafe, neither task's unique parameter name or value will appear in the other task's
     // environment.
-    String uniqueParameterName = ENVIRONMENT_VARIABLE_REQUEST_PARAMETER_PREFIX
+    var uniqueParameterName = ENVIRONMENT_VARIABLE_REQUEST_PARAMETER_PREFIX
         + "REQUEST-SPECIFIC-PARAMETER " + taskName;
-    String uniqueParameterValue = "REQUEST-SPECIFIC-PARAMETER value for " + taskName;
+    var uniqueParameterValue = "REQUEST-SPECIFIC-PARAMETER value for " + taskName;
 
-    HttpServletRequest request = request()
+    var request = request()
         .named(taskName + " request")
         .withParameter(commonParameterName, commonParameterValue)
         .withParameter(uniqueParameterName, uniqueParameterValue)
@@ -196,7 +198,7 @@ public class LoginHandlerInterceptorTest {
 
     interceptor.preHandle(request, null, null);
 
-    Map<String, String> requestEnvironment = LoginHandlerInterceptor.getEnvironment();
+    var requestEnvironment = LoginHandlerInterceptor.getEnvironment();
 
     System.out.println(taskName + " handing off");
     otherTaskPermit.release();
@@ -242,7 +244,7 @@ public class LoginHandlerInterceptorTest {
     }
 
     HttpServletRequest build() {
-      HttpServletRequest request = mock(HttpServletRequest.class, name);
+      var request = mock(HttpServletRequest.class, name);
 
       headers.keySet().forEach(k -> when(request.getHeader(k)).thenReturn(headers.get(k)));
 

@@ -98,7 +98,7 @@ public abstract class AbstractSMoveIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void smove_withNonExistentMemberInSource_returnsZero_memberNotAddedToDest() {
-    String nonExistentMember = "foo";
+    var nonExistentMember = "foo";
     jedis.sadd(SOURCE_KEY, SOURCE_MEMBERS);
     jedis.sadd(DESTINATION_KEY, DESTINATION_MEMBERS);
 
@@ -111,8 +111,8 @@ public abstract class AbstractSMoveIntegrationTest implements RedisIntegrationTe
   public void smove_withExistentSourceAndNonExistentDest_returnsOne_memberMovedFromSourceToCreatedDest() {
     jedis.sadd(SOURCE_KEY, SOURCE_MEMBERS);
 
-    String[] sourceResult = ArrayUtils.remove(SOURCE_MEMBERS, 0);
-    String[] destResult = new String[] {MOVED_MEMBER};
+    var sourceResult = ArrayUtils.remove(SOURCE_MEMBERS, 0);
+    var destResult = new String[] {MOVED_MEMBER};
 
     assertThat(jedis.smove(SOURCE_KEY, DESTINATION_KEY, MOVED_MEMBER))
         .isEqualTo(1);
@@ -126,8 +126,8 @@ public abstract class AbstractSMoveIntegrationTest implements RedisIntegrationTe
     jedis.sadd(SOURCE_KEY, SOURCE_MEMBERS);
     jedis.sadd(DESTINATION_KEY, DESTINATION_MEMBERS);
 
-    String[] sourceResult = ArrayUtils.remove(SOURCE_MEMBERS, 0);
-    String[] destResult = ArrayUtils.add(DESTINATION_MEMBERS, MOVED_MEMBER);
+    var sourceResult = ArrayUtils.remove(SOURCE_MEMBERS, 0);
+    var destResult = ArrayUtils.add(DESTINATION_MEMBERS, MOVED_MEMBER);
 
     assertThat(jedis.smove(SOURCE_KEY, DESTINATION_KEY, MOVED_MEMBER))
         .isEqualTo(1);
@@ -148,10 +148,10 @@ public abstract class AbstractSMoveIntegrationTest implements RedisIntegrationTe
   @Test
   public void smove_withExistentSourceAndDest_withMemberInDest_returnsOne_memberRemovedFromSource() {
     jedis.sadd(SOURCE_KEY, SOURCE_MEMBERS);
-    String[] newDestMembers = ArrayUtils.add(DESTINATION_MEMBERS, MOVED_MEMBER);
+    var newDestMembers = ArrayUtils.add(DESTINATION_MEMBERS, MOVED_MEMBER);
     jedis.sadd(DESTINATION_KEY, newDestMembers);
 
-    String[] sourceResult = ArrayUtils.remove(SOURCE_MEMBERS, 0);
+    var sourceResult = ArrayUtils.remove(SOURCE_MEMBERS, 0);
 
     assertThat(jedis.smove(SOURCE_KEY, DESTINATION_KEY, MOVED_MEMBER))
         .isEqualTo(1);
@@ -162,7 +162,7 @@ public abstract class AbstractSMoveIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void smoveWithSetsFromDifferentSlots_returnsCrossSlotError() {
-    String setKeyDifferentSlot = "{tag2}setKey2";
+    var setKeyDifferentSlot = "{tag2}setKey2";
     jedis.sadd(SOURCE_KEY, setKeyDifferentSlot);
     jedis.sadd(SOURCE_KEY, SOURCE_MEMBERS);
     jedis.sadd(setKeyDifferentSlot, DESTINATION_MEMBERS);
@@ -174,13 +174,13 @@ public abstract class AbstractSMoveIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void ensureSetConsistency_whenRunningConcurrently_withSRemAndSMove() {
-    String[] sourceMemberRemoved = ArrayUtils.remove(SOURCE_MEMBERS, 0);
-    String[] destMemberAdded = ArrayUtils.add(DESTINATION_MEMBERS, MOVED_MEMBER);
+    var sourceMemberRemoved = ArrayUtils.remove(SOURCE_MEMBERS, 0);
+    var destMemberAdded = ArrayUtils.add(DESTINATION_MEMBERS, MOVED_MEMBER);
 
     jedis.sadd(SOURCE_KEY, SOURCE_MEMBERS);
     jedis.sadd(DESTINATION_KEY, DESTINATION_MEMBERS);
 
-    final AtomicLong moved = new AtomicLong(0);
+    final var moved = new AtomicLong(0);
     new ConcurrentLoopingThreads(1000,
         i -> jedis.srem(SOURCE_KEY, MOVED_MEMBER),
         i -> moved.set(jedis.smove(SOURCE_KEY, DESTINATION_KEY, MOVED_MEMBER)))
@@ -203,15 +203,15 @@ public abstract class AbstractSMoveIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void ensureSetConsistency_whenRunningConcurrently_withSMovesFromSameSourceAndDifferentDestination() {
-    String[] sourceMemberRemoved = ArrayUtils.remove(SOURCE_MEMBERS, 0);
-    String[] destMemberAdded = ArrayUtils.add(DESTINATION_MEMBERS, MOVED_MEMBER);
-    String[] nonExisistentMemberAdded = {MOVED_MEMBER};
+    var sourceMemberRemoved = ArrayUtils.remove(SOURCE_MEMBERS, 0);
+    var destMemberAdded = ArrayUtils.add(DESTINATION_MEMBERS, MOVED_MEMBER);
+    var nonExisistentMemberAdded = new String[] {MOVED_MEMBER};
 
     jedis.sadd(SOURCE_KEY, SOURCE_MEMBERS);
     jedis.sadd(DESTINATION_KEY, DESTINATION_MEMBERS);
 
-    final AtomicLong movedToNonExistent = new AtomicLong(0);
-    final AtomicLong movedToDest = new AtomicLong(0);
+    final var movedToNonExistent = new AtomicLong(0);
+    final var movedToDest = new AtomicLong(0);
     new ConcurrentLoopingThreads(1000,
         i -> movedToNonExistent.set(jedis.smove(SOURCE_KEY, NON_EXISTENT_SET_KEY, MOVED_MEMBER)),
         i -> movedToDest.set(jedis.smove(SOURCE_KEY, DESTINATION_KEY, MOVED_MEMBER)))

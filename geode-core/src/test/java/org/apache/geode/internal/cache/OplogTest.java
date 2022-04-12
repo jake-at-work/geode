@@ -39,7 +39,7 @@ public class OplogTest {
 
   @Before
   public void setup() {
-    DiskStoreImpl parentDiskStore = mock(DiskStoreImpl.class);
+    var parentDiskStore = mock(DiskStoreImpl.class);
     when(parentDiskStore.getWriteBufferSize())
         .thenReturn(DiskStoreFactory.DEFAULT_WRITE_BUFFER_SIZE);
     when(parent.getParent()).thenReturn(parentDiskStore);

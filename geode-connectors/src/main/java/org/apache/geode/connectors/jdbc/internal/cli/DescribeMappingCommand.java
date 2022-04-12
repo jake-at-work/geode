@@ -42,7 +42,6 @@ import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.exceptions.EntityNotFoundException;
@@ -76,18 +75,18 @@ public class DescribeMappingCommand extends GfshCommand {
       regionName = regionName.substring(1);
     }
 
-    ArrayList<DescribeMappingResult> describeMappingResults = new ArrayList<>();
+    var describeMappingResults = new ArrayList<DescribeMappingResult>();
 
     try {
-      ConfigurationPersistenceService configService = checkForClusterConfiguration();
+      var configService = checkForClusterConfiguration();
       if (groups == null) {
         groups = new String[] {ConfigurationPersistenceService.CLUSTER_CONFIG};
       }
-      ArrayList<String> groupsArray = new ArrayList<>();
-      boolean isProxyRegion = false;
-      for (String group : groups) {
-        CacheConfig cacheConfig = getCacheConfig(configService, group);
-        RegionConfig regionConfig = checkForRegion(regionName, cacheConfig, group);
+      var groupsArray = new ArrayList<String>();
+      var isProxyRegion = false;
+      for (var group : groups) {
+        var cacheConfig = getCacheConfig(configService, group);
+        var regionConfig = checkForRegion(regionName, cacheConfig, group);
         if (MappingCommandUtils.isAccessor(regionConfig.getRegionAttributes())) {
           isProxyRegion = true;
           continue;
@@ -108,7 +107,7 @@ public class DescribeMappingCommand extends GfshCommand {
           EXPERIMENTAL + "\n" + "JDBC mapping for region '" + regionName + "' not found");
     }
 
-    ResultModel resultModel = buildResultModel(describeMappingResults);
+    var resultModel = buildResultModel(describeMappingResults);
     resultModel.setHeader(EXPERIMENTAL);
     return resultModel;
   }
@@ -121,7 +120,7 @@ public class DescribeMappingCommand extends GfshCommand {
   private DescribeMappingResult buildDescribeMappingResult(RegionMapping regionMapping,
       String regionName, boolean synchronous,
       String group) {
-    LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+    var attributes = new LinkedHashMap<String, String>();
     attributes.put(REGION_NAME, regionName);
     attributes.put(PDX_NAME, regionMapping.getPdxName());
     attributes.put(TABLE_NAME, regionMapping.getTableName());
@@ -135,25 +134,25 @@ public class DescribeMappingCommand extends GfshCommand {
     if (regionMapping.getSchema() != null) {
       attributes.put(SCHEMA_NAME, regionMapping.getSchema());
     }
-    DescribeMappingResult result = new DescribeMappingResult(attributes);
+    var result = new DescribeMappingResult(attributes);
     result.setGroupName(group);
     result.setFieldMappings(regionMapping.getFieldMappings());
     return result;
   }
 
   private ResultModel buildResultModel(ArrayList<DescribeMappingResult> describeMappingResult) {
-    ResultModel resultModel = new ResultModel();
-    for (int i = 0; i < describeMappingResult.size(); i++) {
-      DataResultModel sectionModel = resultModel.addData(RESULT_SECTION_NAME + i);
-      DescribeMappingResult result = describeMappingResult.get(i);
+    var resultModel = new ResultModel();
+    for (var i = 0; i < describeMappingResult.size(); i++) {
+      var sectionModel = resultModel.addData(RESULT_SECTION_NAME + i);
+      var result = describeMappingResult.get(i);
       if (!result.getGroupName().equals(ConfigurationPersistenceService.CLUSTER_CONFIG)) {
         sectionModel.addData("Mapping for group", result.getGroupName());
       }
       result.getAttributeMap().forEach(sectionModel::addData);
 
-      TabularResultModel fieldMappingTable =
+      var fieldMappingTable =
           resultModel.addTable(RESULT_SECTION_NAME + "Field Mappings" + i);
-      List<FieldMapping> fieldMappings = result.getFieldMappings();
+      var fieldMappings = result.getFieldMappings();
 
       fieldMappingTable.setHeader("PDX Field to JDBC Column Mappings");
       buildFieldMappingTable(fieldMappingTable, fieldMappings);
@@ -165,7 +164,7 @@ public class DescribeMappingCommand extends GfshCommand {
       List<FieldMapping> fieldMappings) {
     fieldMappingTable.setColumnHeader("PDX Field", "PDX Type", "JDBC Column", "JDBC Type",
         "Nullable");
-    for (FieldMapping fieldMapping : fieldMappings) {
+    for (var fieldMapping : fieldMappings) {
       fieldMappingTable.addRow(fieldMapping.getPdxName(), fieldMapping.getPdxType(),
           fieldMapping.getJdbcName(), fieldMapping.getJdbcType(),
           Boolean.toString(fieldMapping.isJdbcNullable()));
@@ -175,8 +174,8 @@ public class DescribeMappingCommand extends GfshCommand {
   private ArrayList<DescribeMappingResult> getMappingsFromRegionConfig(CacheConfig cacheConfig,
       RegionConfig regionConfig,
       String group) {
-    ArrayList<DescribeMappingResult> results = new ArrayList<>();
-    for (RegionMapping mapping : MappingCommandUtils.getMappingsFromRegionConfig(cacheConfig,
+    var results = new ArrayList<DescribeMappingResult>();
+    for (var mapping : MappingCommandUtils.getMappingsFromRegionConfig(cacheConfig,
         regionConfig,
         group)) {
       results.add(buildDescribeMappingResult(mapping, regionConfig.getName(),
@@ -187,7 +186,7 @@ public class DescribeMappingCommand extends GfshCommand {
 
   private ConfigurationPersistenceService checkForClusterConfiguration()
       throws PreconditionException {
-    ConfigurationPersistenceService result = getConfigurationPersistenceService();
+    var result = getConfigurationPersistenceService();
     if (result == null) {
       throw new PreconditionException("Cluster Configuration must be enabled.");
     }

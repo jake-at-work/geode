@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
@@ -42,12 +41,12 @@ public class TouchReplicatedRegionEntriesFunction
   @Override
   @SuppressWarnings("unchecked")
   public void execute(FunctionContext context) {
-    Object[] arguments = (Object[]) context.getArguments();
-    Cache cache = context.getCache();
-    String regionName = (String) arguments[0];
-    Set<String> keys = (Set<String>) arguments[1];
+    var arguments = (Object[]) context.getArguments();
+    var cache = context.getCache();
+    var regionName = (String) arguments[0];
+    var keys = (Set<String>) arguments[1];
     if (cache.getLogger().fineEnabled()) {
-      String builder = "Function " + ID + " received request to touch " + regionName + "->" + keys;
+      var builder = "Function " + ID + " received request to touch " + regionName + "->" + keys;
       cache.getLogger().fine(builder);
     }
 

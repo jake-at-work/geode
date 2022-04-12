@@ -41,11 +41,11 @@ public class ExpireDisconnectedClientTransactionsMessage
   // assuming these servers will be rolled to new version soon.
   static void send(DistributionManager dm, Set<InternalDistributedMember> recipients,
       Set<TXId> txIds) {
-    ExpireDisconnectedClientTransactionsMessage msg =
+    var msg =
         new ExpireDisconnectedClientTransactionsMessage();
     msg.txIds = txIds;
     Set newVersionRecipients = new HashSet();
-    for (InternalDistributedMember recipient : recipients) {
+    for (var recipient : recipients) {
       // to geode 1.7.0 and later version servers
       if (recipient.getVersion().isNotOlderThan(KnownVersion.GEODE_1_7_0)) {
         newVersionRecipients.add(recipient);
@@ -74,10 +74,10 @@ public class ExpireDisconnectedClientTransactionsMessage
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    InternalCache cache = dm.getCache();
-    InternalDistributedMember sender = getSender();
+    var cache = dm.getCache();
+    var sender = getSender();
     if (cache != null) {
-      TXManagerImpl mgr = cache.getTXMgr();
+      var mgr = cache.getTXMgr();
       if (sender.getVersion().isNotOlderThan(KnownVersion.GEODE_1_7_0)) {
         // schedule to expire disconnected client transaction.
         mgr.expireDisconnectedClientTransactions(txIds, false);

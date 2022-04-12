@@ -31,7 +31,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,14 +65,14 @@ public class RedisHash extends AbstractRedisData {
 
   @VisibleForTesting
   public RedisHash(List<byte[]> fieldsToSet) {
-    final int numKeysAndValues = fieldsToSet.size();
+    final var numKeysAndValues = fieldsToSet.size();
     if (numKeysAndValues % 2 != 0) {
       throw new IllegalStateException(
           "fieldsToSet should have an even number of elements but was size " + numKeysAndValues);
     }
 
     hash = new Hash(numKeysAndValues / 2);
-    Iterator<byte[]> iterator = fieldsToSet.iterator();
+    var iterator = fieldsToSet.iterator();
     while (iterator.hasNext()) {
       hashPut(iterator.next(), iterator.next());
     }
@@ -100,7 +99,7 @@ public class RedisHash extends AbstractRedisData {
     super.fromData(in);
     int size = DataSerializer.readInteger(in);
     hash = new Hash(size);
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       hash.put(DataSerializer.readByteArray(in), DataSerializer.readByteArray(in));
     }
   }
@@ -129,12 +128,12 @@ public class RedisHash extends AbstractRedisData {
 
   public int hset(Region<RedisKey, RedisData> region, RedisKey key,
       List<byte[]> fieldsToSet, boolean nx) {
-    int fieldsAdded = 0;
+    var fieldsAdded = 0;
     AddByteArrayPairs deltaInfo = null;
-    Iterator<byte[]> iterator = fieldsToSet.iterator();
+    var iterator = fieldsToSet.iterator();
     while (iterator.hasNext()) {
-      byte[] field = iterator.next();
-      byte[] value = iterator.next();
+      var field = iterator.next();
+      var value = iterator.next();
       boolean newField;
       boolean addedOrUpdated;
       if (nx) {
@@ -162,9 +161,9 @@ public class RedisHash extends AbstractRedisData {
   }
 
   public int hdel(Region<RedisKey, RedisData> region, RedisKey key, List<byte[]> fieldsToRemove) {
-    int fieldsRemoved = 0;
+    var fieldsRemoved = 0;
     RemoveByteArrays deltaInfo = null;
-    for (byte[] fieldToRemove : fieldsToRemove) {
+    for (var fieldToRemove : fieldsToRemove) {
       if (hashRemove(fieldToRemove) != null) {
         if (deltaInfo == null) {
           deltaInfo = new RemoveByteArrays();
@@ -178,7 +177,7 @@ public class RedisHash extends AbstractRedisData {
   }
 
   public Collection<byte[]> hgetall() {
-    ArrayList<byte[]> result = new ArrayList<>(hash.size() * 2);
+    var result = new ArrayList<byte[]>(hash.size() * 2);
     hash.fastForEach(entry -> {
       result.add(entry.getKey());
       result.add(entry.getValue());
@@ -203,26 +202,26 @@ public class RedisHash extends AbstractRedisData {
   }
 
   public int hstrlen(byte[] field) {
-    byte[] entry = hget(field);
+    var entry = hget(field);
     return entry != null ? entry.length : 0;
   }
 
   public List<byte[]> hmget(List<byte[]> fields) {
-    ArrayList<byte[]> results = new ArrayList<>(fields.size());
-    for (byte[] field : fields) {
+    var results = new ArrayList<byte[]>(fields.size());
+    for (var field : fields) {
       results.add(hash.get(field));
     }
     return results;
   }
 
   public Collection<byte[]> hvals() {
-    ArrayList<byte[]> result = new ArrayList<>(hlen());
+    var result = new ArrayList<byte[]>(hlen());
     hash.fastForEachValue(result::add);
     return result;
   }
 
   public Collection<byte[]> hkeys() {
-    ArrayList<byte[]> result = new ArrayList<>(hlen());
+    var result = new ArrayList<byte[]>(hlen());
     hash.fastForEachKey(result::add);
     return result;
   }
@@ -231,7 +230,7 @@ public class RedisHash extends AbstractRedisData {
       int cursor) {
     // No need to allocate more space than it's possible to use given the size of the hash. We need
     // to add 1 to hlen() to ensure that if count > hash.size(), we return a cursor of 0
-    long maximumCapacity = 2L * Math.min(count, hlen() + 1);
+    var maximumCapacity = 2L * Math.min(count, hlen() + 1);
     if (maximumCapacity > Integer.MAX_VALUE) {
       LogService.getLogger().info(
           "The size of the data to be returned by hscan, {}, exceeds the maximum capacity of an array. A value for the HSCAN COUNT argument less than {} should be used",
@@ -261,9 +260,9 @@ public class RedisHash extends AbstractRedisData {
 
   public byte[] hincrby(Region<RedisKey, RedisData> region, RedisKey key, byte[] field,
       long increment) throws NumberFormatException, ArithmeticException {
-    byte[] oldValue = hash.get(field);
+    var oldValue = hash.get(field);
     if (oldValue == null) {
-      byte[] newValue = Coder.longToBytes(increment);
+      var newValue = Coder.longToBytes(increment);
       hashPut(field, newValue);
       storeChanges(region, key, new AddByteArrayPairs(field, newValue));
       return newValue;
@@ -282,7 +281,7 @@ public class RedisHash extends AbstractRedisData {
 
     value += increment;
 
-    byte[] modifiedValue = Coder.longToBytes(value);
+    var modifiedValue = Coder.longToBytes(value);
     hashPut(field, modifiedValue);
     storeChanges(region, key, new AddByteArrayPairs(field, modifiedValue));
     return modifiedValue;
@@ -290,15 +289,15 @@ public class RedisHash extends AbstractRedisData {
 
   public BigDecimal hincrbyfloat(Region<RedisKey, RedisData> region, RedisKey key,
       byte[] field, BigDecimal increment) throws NumberFormatException {
-    byte[] oldValue = hash.get(field);
+    var oldValue = hash.get(field);
     if (oldValue == null) {
-      byte[] newValue = Coder.bigDecimalToBytes(increment);
+      var newValue = Coder.bigDecimalToBytes(increment);
       hashPut(field, newValue);
       storeChanges(region, key, new AddByteArrayPairs(field, newValue));
       return increment.stripTrailingZeros();
     }
 
-    String valueS = bytesToString(oldValue);
+    var valueS = bytesToString(oldValue);
     if (valueS.contains(" ")) {
       throw new NumberFormatException(HASH_VALUE_NOT_FLOAT);
     }
@@ -312,7 +311,7 @@ public class RedisHash extends AbstractRedisData {
 
     value = value.add(increment);
 
-    byte[] modifiedValue = Coder.bigDecimalToBytes(value);
+    var modifiedValue = Coder.bigDecimalToBytes(value);
     hashPut(field, modifiedValue);
     storeChanges(region, key, new AddByteArrayPairs(field, modifiedValue));
     return value.stripTrailingZeros();
@@ -339,7 +338,7 @@ public class RedisHash extends AbstractRedisData {
     if (!super.equals(o)) {
       return false;
     }
-    RedisHash redisHash = (RedisHash) o;
+    var redisHash = (RedisHash) o;
     if (hash.size() != redisHash.hash.size()) {
       return false;
     }
@@ -385,9 +384,9 @@ public class RedisHash extends AbstractRedisData {
 
     public void toData(DataOutput out) throws IOException {
       DataSerializer.writePrimitiveInt(size(), out);
-      final int maxIndex = getMaxIndex();
-      for (int pos = 0; pos < maxIndex; ++pos) {
-        byte[] key = getKeyAtIndex(pos);
+      final var maxIndex = getMaxIndex();
+      for (var pos = 0; pos < maxIndex; ++pos) {
+        var key = getKeyAtIndex(pos);
         if (key != null) {
           DataSerializer.writeByteArray(key, out);
           DataSerializer.writeByteArray(getValueAtIndex(pos), out);

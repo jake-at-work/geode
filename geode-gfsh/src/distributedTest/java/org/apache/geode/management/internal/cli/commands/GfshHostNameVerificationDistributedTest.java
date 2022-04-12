@@ -34,7 +34,6 @@ import org.apache.geode.cache.ssl.CertificateBuilder;
 import org.apache.geode.cache.ssl.CertificateMaterial;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.test.dunit.IgnoredException;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.GfshTest;
@@ -61,8 +60,8 @@ public class GfshHostNameVerificationDistributedTest {
         .isCA()
         .generate();
 
-    String hostname = LocalHostUtil.getCanonicalLocalHostName();
-    final CertificateBuilder builder = new CertificateBuilder()
+    var hostname = LocalHostUtil.getCanonicalLocalHostName();
+    final var builder = new CertificateBuilder()
         .commonName("locator")
         .issuedBy(ca)
         .sanDnsName(InetAddress.getLoopbackAddress().getHostName())
@@ -72,9 +71,9 @@ public class GfshHostNameVerificationDistributedTest {
     // causes it to use a non-loopback IP literal address instead of the
     // host's name on CI Windows runs
     builder.sanIpAddress(LocalHostUtil.getLocalHost());
-    CertificateMaterial locatorCertificate = builder.generate();
+    var locatorCertificate = builder.generate();
 
-    CertificateMaterial gfshCertificate = new CertificateBuilder()
+    var gfshCertificate = new CertificateBuilder()
         .commonName("gfsh")
         .issuedBy(ca)
         .generate();
@@ -89,23 +88,23 @@ public class GfshHostNameVerificationDistributedTest {
   }
 
   private File gfshSecurityProperties(Properties clientSSLProps) throws IOException {
-    File sslConfigFile = File.createTempFile("gfsh-ssl", "properties");
-    FileOutputStream out = new FileOutputStream(sslConfigFile);
+    var sslConfigFile = File.createTempFile("gfsh-ssl", "properties");
+    var out = new FileOutputStream(sslConfigFile);
     clientSSLProps.store(out, null);
     return sslConfigFile;
   }
 
   @Test
   public void gfshConnectsToLocator() throws Exception {
-    Properties locatorSSLProps = locatorStore.propertiesWith(LOCATOR);
+    var locatorSSLProps = locatorStore.propertiesWith(LOCATOR);
 
-    Properties gfshSSLProps = gfshStore.propertiesWith(LOCATOR);
+    var gfshSSLProps = gfshStore.propertiesWith(LOCATOR);
 
     // create a cluster
     locator = cluster.startLocatorVM(0, locatorSSLProps);
 
     // connect gfsh
-    File sslConfigFile = gfshSecurityProperties(gfshSSLProps);
+    var sslConfigFile = gfshSecurityProperties(gfshSSLProps);
     gfsh.connectAndVerify(locator.getPort(), GfshCommandRule.PortType.locator,
         "security-properties-file", sslConfigFile.getAbsolutePath());
 
@@ -114,7 +113,7 @@ public class GfshHostNameVerificationDistributedTest {
 
   @Test
   public void expectConnectionFailureWhenNoHostNameInLocatorKey() throws Exception {
-    CertificateMaterial locatorCertificate = new CertificateBuilder()
+    var locatorCertificate = new CertificateBuilder()
         .commonName("locator")
         .issuedBy(ca)
         .generate();
@@ -124,7 +123,7 @@ public class GfshHostNameVerificationDistributedTest {
 
   @Test
   public void expectConnectionFailureWhenWrongHostNameInLocatorKey() throws Exception {
-    CertificateMaterial locatorCertificate = new CertificateBuilder()
+    var locatorCertificate = new CertificateBuilder()
         .commonName("locator")
         .issuedBy(ca)
         .sanDnsName("example.com")
@@ -136,33 +135,33 @@ public class GfshHostNameVerificationDistributedTest {
   private void validateGfshConnectionFailure(final CertificateMaterial locatorCertificate,
       final String failure)
       throws Exception {
-    CertificateMaterial gfshCertificate = new CertificateBuilder()
+    var gfshCertificate = new CertificateBuilder()
         .commonName("gfsh")
         .issuedBy(ca)
         .generate();
 
-    CertStores lstore = CertStores.locatorStore();
+    var lstore = CertStores.locatorStore();
     lstore.withCertificate("locator", locatorCertificate);
     lstore.trust("ca", ca);
 
-    CertStores gstore = CertStores.clientStore();
+    var gstore = CertStores.clientStore();
     gstore.withCertificate("gfsh", gfshCertificate);
     gstore.trust("ca", ca);
 
-    Properties locatorSSLProps = lstore.propertiesWith(ALL, false, false);
+    var locatorSSLProps = lstore.propertiesWith(ALL, false, false);
 
-    Properties gfshSSLProps = gstore.propertiesWith(ALL, false, true);
+    var gfshSSLProps = gstore.propertiesWith(ALL, false, true);
 
     // create a cluster
     locator = cluster.startLocatorVM(0, locatorSSLProps);
 
     // connect gfsh
-    File sslConfigFile = gfshSecurityProperties(gfshSSLProps);
+    var sslConfigFile = gfshSecurityProperties(gfshSSLProps);
 
     IgnoredException.addIgnoredException("javax.net.ssl.SSLHandshakeException");
     IgnoredException.addIgnoredException("java.net.SocketException");
 
-    String connectCommand =
+    var connectCommand =
         "connect --locator=" + locator.getVM().getHost().getHostName() + "[" + locator.getPort()
             + "] --security-properties-file=" + sslConfigFile.getAbsolutePath();
     gfsh.executeAndAssertThat(connectCommand).statusIsError()
@@ -172,15 +171,15 @@ public class GfshHostNameVerificationDistributedTest {
 
   @Test
   public void gfshConnectsToLocatorOnJMX() throws Exception {
-    Properties locatorSSLProps = locatorStore.propertiesWith(JMX);
-    Properties gfshSSLProps = gfshStore.propertiesWith(JMX);
+    var locatorSSLProps = locatorStore.propertiesWith(JMX);
+    var gfshSSLProps = gfshStore.propertiesWith(JMX);
     validateGfshConnectOnJMX(locatorSSLProps, gfshSSLProps);
   }
 
   @Test
   public void gfshConnectsToLocatorOnJMXWhenALL() throws Exception {
-    Properties locatorSSLProps = locatorStore.propertiesWith(ALL);
-    Properties gfshSSLProps = gfshStore.propertiesWith(ALL);
+    var locatorSSLProps = locatorStore.propertiesWith(ALL);
+    var gfshSSLProps = gfshStore.propertiesWith(ALL);
     validateGfshConnectOnJMX(locatorSSLProps, gfshSSLProps);
   }
 
@@ -190,13 +189,13 @@ public class GfshHostNameVerificationDistributedTest {
     locator = cluster.startLocatorVM(0, locatorSSLProps);
 
     // connect gfsh on jmx
-    File sslConfigFile = gfshSecurityProperties(gfshSSLProps);
-    final int jmxPort = locator.getJmxPort();
-    final String sslConfigFilePath = sslConfigFile.getAbsolutePath();
+    var sslConfigFile = gfshSecurityProperties(gfshSSLProps);
+    final var jmxPort = locator.getJmxPort();
+    final var sslConfigFilePath = sslConfigFile.getAbsolutePath();
 
-    VM vm = cluster.getVM(1);
+    var vm = cluster.getVM(1);
     vm.invoke(() -> {
-      GfshCommandRule rule = new GfshCommandRule();
+      var rule = new GfshCommandRule();
       rule.connectAndVerify(jmxPort, GfshCommandRule.PortType.jmxManager,
           "security-properties-file", sslConfigFilePath);
 

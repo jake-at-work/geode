@@ -36,9 +36,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
 import org.apache.geode.pdx.PdxReader;
@@ -85,20 +82,20 @@ public class PRQueryWithIndexAndPdxDistributedTest implements Serializable {
   @TestCaseName("{method}({params})")
   public void createIndexDoesNotDeserializePdxObjects(IndexCreation indexCreation) {
     // the 3 parameters from IndexCreation enum:
-    SerializableRunnableIF createIndex = () -> {
+    var createIndex = (SerializableRunnableIF) () -> {
       indexCreation.createIndex(cacheRule.getCache());
     };
-    PdxAssetFactory valueSupplier = indexCreation.valueSupplier();
-    String queryString = indexCreation.queryString();
+    var valueSupplier = indexCreation.valueSupplier();
+    var queryString = indexCreation.queryString();
 
     // the test:
     vm0.invoke(() -> {
-      PartitionAttributesFactory paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
+      var paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
       cacheRule.getCache().createRegionFactory(RegionShortcut.PARTITION)
           .setPartitionAttributes(paf.create()).create(REGION_NAME);
     });
     vm1.invoke(() -> {
-      PartitionAttributesFactory paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
+      var paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
       cacheRule.getCache().createRegionFactory(RegionShortcut.PARTITION)
           .setPartitionAttributes(paf.create()).create(REGION_NAME);
     });
@@ -116,13 +113,13 @@ public class PRQueryWithIndexAndPdxDistributedTest implements Serializable {
     vm0.invoke(createIndex);
 
     vm0.invoke(() -> {
-      QueryService queryService = cacheRule.getCache().getQueryService();
-      Query query = queryService.newQuery(queryString); // enum
+      var queryService = cacheRule.getCache().getQueryService();
+      var query = queryService.newQuery(queryString); // enum
       SelectResults<Struct> results = (SelectResults) query.execute();
 
       assertThat(results).hasSize(3);
 
-      Index index = queryService.getIndex(cacheRule.getCache().getRegion(REGION_NAME),
+      var index = queryService.getIndex(cacheRule.getCache().getRegion(REGION_NAME),
           "ContractDocumentIndex");
 
       assertThat(index.getStatistics().getTotalUses()).isEqualTo(1);

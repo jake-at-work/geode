@@ -64,7 +64,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void getBindAddressReturnsNullByDefault() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.getBindAddress()).isNull();
   }
@@ -96,49 +96,49 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setCommandReturnsBuilderInstance() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setCommand(Command.STATUS)).isSameAs(builder);
   }
 
   @Test
   public void setForceReturnsBuilderInstance() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setForce(true)).isSameAs(builder);
   }
 
   @Test
   public void setHostNameForClientsReturnsBuilderInstance() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setHostnameForClients("Pegasus")).isSameAs(builder);
   }
 
   @Test
   public void setMemberNameReturnsBuilderInstance() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setMemberName("serverOne")).isSameAs(builder);
   }
 
   @Test
   public void setBindAddressReturnsBuilderInstance() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setBindAddress(null)).isSameAs(builder);
   }
 
   @Test
   public void setPortReturnsBuilderInstance() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setPort(null)).isSameAs(builder);
   }
 
   @Test
   public void setCommandWithNullResultsInDefaultCommand() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     new Builder().setCommand(null);
 
@@ -147,7 +147,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setCommandToStatusResultsInStatus() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setCommand(Command.STATUS);
 
@@ -156,7 +156,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setBindAddressToNullResultsInNull() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setBindAddress(null);
 
@@ -165,7 +165,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setBindAddressToEmptyStringResultsInNull() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setBindAddress("");
 
@@ -174,7 +174,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setBindAddressToBlankStringResultsInNull() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setBindAddress("  ");
 
@@ -183,16 +183,16 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setBindAddressToCanonicalLocalHostUsesValue() throws Exception {
-    Builder builder = new Builder().setBindAddress(InetAddress.getLocalHost().getHostName());
+    var builder = new Builder().setBindAddress(InetAddress.getLocalHost().getHostName());
 
     assertThat(builder.getBindAddress()).isEqualTo(localHost);
   }
 
   @Test
   public void setBindAddressToLocalHostNameUsesValue() throws Exception {
-    String host = InetAddress.getLocalHost().getHostName();
+    var host = InetAddress.getLocalHost().getHostName();
 
-    Builder builder = new Builder().setBindAddress(host);
+    var builder = new Builder().setBindAddress(host);
 
     assertThat(builder.getBindAddress()).isEqualTo(localHost);
   }
@@ -212,7 +212,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setForceToTrueUsesValue() throws Exception {
-    ServerLauncher.Builder builder = new ServerLauncher.Builder();
+    var builder = new ServerLauncher.Builder();
 
     builder.setForce(true);
 
@@ -221,7 +221,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setHostnameForClientsToStringUsesValue() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setHostnameForClients("Pegasus");
 
@@ -249,7 +249,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setMemberNameToStringUsesValue() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setMemberName("locatorOne");
 
@@ -276,7 +276,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setPidToZeroOrGreaterUsesValue() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setPid(0);
     assertThat(builder.getPid().intValue()).isEqualTo(0);
@@ -293,7 +293,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setPidToNullResultsInNull() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setPid(null);
 
@@ -307,14 +307,14 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setPortToNullUsesDefaultLocatorPort() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     assertThat(builder.setPort(null).getPort()).isEqualTo(Integer.valueOf(DEFAULT_LOCATOR_PORT));
   }
 
   @Test
   public void setPortToZeroOrGreaterUsesValue() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.setPort(0);
     assertThat(builder.getPort().intValue()).isEqualTo(0);
@@ -346,14 +346,14 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void setRedirectOutputReturnsBuilderInstance() throws Exception {
-    LocatorLauncher.Builder builder = new LocatorLauncher.Builder();
+    var builder = new LocatorLauncher.Builder();
 
     assertThat(builder.setRedirectOutput(Boolean.TRUE)).isSameAs(builder);
   }
 
   @Test
   public void parseArgumentsWithForceSetsForceToTrue() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseArguments("start", "--force");
 
@@ -369,7 +369,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseCommandWithNullStringArrayResultsInDefaultCommand() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand((String[]) null);
 
@@ -378,7 +378,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseCommandWithEmptyStringArrayResultsInDefaultCommand() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand(); // empty String array
 
@@ -387,7 +387,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseCommandWithStartResultsInStartCommand() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand(Command.START.getName());
 
@@ -396,7 +396,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseCommandWithStatusResultsInStatusCommand() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("Status");
 
@@ -405,7 +405,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseCommandWithMixedCaseResultsInCorrectCase() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("sToP");
 
@@ -414,7 +414,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseCommandWithTwoCommandsWithSwitchesUsesFirstCommand() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("--opt", "START", "-o", Command.STATUS.getName());
 
@@ -423,7 +423,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseCommandWithTwoCommandsWithoutSwitchesUsesFirstCommand() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("START", Command.STATUS.getName());
 
@@ -432,7 +432,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseCommandWithBadInputResultsInDefaultCommand() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseCommand("badCommandName", "--start", "stat");
 
@@ -441,7 +441,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseMemberNameWithNullStringArrayResultsInNull() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseMemberName((String[]) null);
 
@@ -450,7 +450,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseMemberNameWithEmptyStringArrayResultsInNull() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseMemberName(); // empty String array
 
@@ -459,7 +459,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseMemberNameWithCommandAndOptionsResultsInNull() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseMemberName(Command.START.getName(), "--opt", "-o");
 
@@ -468,7 +468,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void parseMemberNameWithStringUsesValue() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     builder.parseMemberName("memberOne");
 
@@ -478,9 +478,9 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void buildCreatesLocatorLauncherWithBuilderValues() throws Exception {
-    Builder builder = new Builder();
+    var builder = new Builder();
 
-    LocatorLauncher launcher = builder.setCommand(Command.START).setDebug(true)
+    var launcher = builder.setCommand(Command.START).setDebug(true)
         .setHostnameForClients("beanstock.vmware.com").setMemberName("Beanstock").setPort(8192)
         .setRedirectOutput(Boolean.TRUE).build();
 
@@ -498,7 +498,7 @@ public class LocatorLauncherBuilderTest {
 
   @Test
   public void buildUsesMemberNameSetInApiProperties() {
-    LocatorLauncher launcher =
+    var launcher =
         new Builder().setCommand(LocatorLauncher.Command.START).set(NAME, "locatorABC").build();
 
     assertThat(launcher.getMemberName()).isNull();
@@ -509,7 +509,7 @@ public class LocatorLauncherBuilderTest {
   public void buildUsesMemberNameSetInSystemPropertiesOnStart() {
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + NAME, "locatorXYZ");
 
-    LocatorLauncher launcher = new Builder().setCommand(LocatorLauncher.Command.START).build();
+    var launcher = new Builder().setCommand(LocatorLauncher.Command.START).build();
 
     assertThat(launcher.getCommand()).isEqualTo(LocatorLauncher.Command.START);
     assertThat(launcher.getMemberName()).isNull();

@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.junit.Test;
 
@@ -34,7 +33,7 @@ import org.junit.Test;
 public class GemfireCoreClasspathTest {
   @Test
   public void testGemFireCoreClasspath() throws IOException {
-    File coreDependenciesJar = new File(StartMemberUtils.CORE_DEPENDENCIES_JAR_PATHNAME);
+    var coreDependenciesJar = new File(StartMemberUtils.CORE_DEPENDENCIES_JAR_PATHNAME);
     assertNotNull(coreDependenciesJar);
     assertTrue(coreDependenciesJar + " is not a file", coreDependenciesJar.isFile());
     Collection<String> expectedJarDependencies =
@@ -47,17 +46,17 @@ public class GemfireCoreClasspathTest {
 
   private void assertJarFileManifestClassPath(final File dependenciesJar,
       final Collection<String> expectedJarDependencies) throws IOException {
-    JarFile dependenciesJarFile = new JarFile(dependenciesJar);
-    Manifest manifest = dependenciesJarFile.getManifest();
+    var dependenciesJarFile = new JarFile(dependenciesJar);
+    var manifest = dependenciesJarFile.getManifest();
 
     assertNotNull(manifest);
 
-    Attributes attributes = manifest.getMainAttributes();
+    var attributes = manifest.getMainAttributes();
 
     assertNotNull(attributes);
     assertTrue(attributes.containsKey(Attributes.Name.CLASS_PATH));
 
-    String[] actualJarDependencies = attributes.getValue(Attributes.Name.CLASS_PATH).split(" ");
+    var actualJarDependencies = attributes.getValue(Attributes.Name.CLASS_PATH).split(" ");
 
     assertNotNull(actualJarDependencies);
     assertTrue(
@@ -71,8 +70,8 @@ public class GemfireCoreClasspathTest {
     List<String> missingExpectedJarDependenciesList =
         new ArrayList<>(expectedJarDependencies.size());
 
-    for (String expectedJarDependency : expectedJarDependencies) {
-      boolean containsExpectedJar = false;
+    for (var expectedJarDependency : expectedJarDependencies) {
+      var containsExpectedJar = false;
 
       for (int index = 0, size = actualJarDependenciesList.size(); index < size; index++) {
         if (actualJarDependenciesList.get(index).toLowerCase()

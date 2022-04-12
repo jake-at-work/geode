@@ -30,12 +30,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.lang.SystemProperty;
 import org.apache.geode.internal.offheap.annotations.OffHeapIdentifier;
 import org.apache.geode.internal.offheap.annotations.Unretained;
@@ -86,7 +83,7 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   private static MemoryAllocatorImpl singleton = null;
 
   public static MemoryAllocatorImpl getAllocator() {
-    MemoryAllocatorImpl result = singleton;
+    var result = singleton;
     if (result == null) {
       throw new CacheClosedException("Off Heap memory allocator does not exist.");
     }
@@ -112,8 +109,8 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   private static MemoryAllocatorImpl create(OutOfOffHeapMemoryListener ooohml,
       OffHeapMemoryStats stats, int slabCount, long offHeapMemorySize, long maxSlabSize,
       Slab[] slabs, SlabFactory slabFactory, int updateOffHeapStatsFrequencyMs) {
-    MemoryAllocatorImpl result = singleton;
-    boolean created = false;
+    var result = singleton;
+    var created = false;
     try {
       if (result != null) {
         result.reuse(ooohml, stats, offHeapMemorySize, slabs);
@@ -129,8 +126,8 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
               "Allocating {} bytes of off-heap memory. The maximum size of a single off-heap object is {} bytes.",
               offHeapMemorySize, maxSlabSize);
           slabs = new SlabImpl[slabCount];
-          long uncreatedMemory = offHeapMemorySize;
-          for (int i = 0; i < slabCount; i++) {
+          var uncreatedMemory = offHeapMemorySize;
+          for (var i = 0; i < slabCount; i++) {
             try {
               if (uncreatedMemory >= maxSlabSize) {
                 slabs[i] = slabFactory.create((int) maxSlabSize);
@@ -145,7 +142,7 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
                     "Off-heap memory creation failed after successfully allocating {} bytes of off-heap memory.",
                     (i * maxSlabSize));
               }
-              for (int j = 0; j < i; j++) {
+              for (var j = 0; j < i; j++) {
                 if (slabs[j] != null) {
                   slabs[j].free();
                 }
@@ -182,13 +179,13 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
 
   public static MemoryAllocatorImpl createForUnitTest(OutOfOffHeapMemoryListener oooml,
       OffHeapMemoryStats stats, Slab[] slabs) {
-    int slabCount = 0;
+    var slabCount = 0;
     long offHeapMemorySize = 0;
     long maxSlabSize = 0;
     if (slabs != null) {
       slabCount = slabs.length;
-      for (int i = 0; i < slabCount; i++) {
-        int slabSize = slabs[i].getSize();
+      for (var i = 0; i < slabCount; i++) {
+        var slabSize = slabs[i].getSize();
         offHeapMemorySize += slabSize;
         if (slabSize > maxSlabSize) {
           maxSlabSize = slabSize;
@@ -247,8 +244,8 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   }
 
   public List<OffHeapStoredObject> getLostChunks(InternalCache cache) {
-    List<OffHeapStoredObject> liveChunks = freeList.getLiveChunks();
-    List<OffHeapStoredObject> regionChunks = getRegionLiveChunks(cache);
+    var liveChunks = freeList.getLiveChunks();
+    var regionChunks = getRegionLiveChunks(cache);
     Set<OffHeapStoredObject> liveChunksSet = new HashSet<>(liveChunks);
     Set<OffHeapStoredObject> regionChunksSet = new HashSet<>(regionChunks);
     liveChunksSet.removeAll(regionChunksSet);
@@ -259,11 +256,11 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
    * Returns a possibly empty list that contains all the Chunks used by regions.
    */
   private List<OffHeapStoredObject> getRegionLiveChunks(InternalCache cache) {
-    ArrayList<OffHeapStoredObject> result = new ArrayList<>();
+    var result = new ArrayList<OffHeapStoredObject>();
     if (cache != null) {
-      for (final Region<?, ?> rr : cache.rootRegions()) {
+      for (final var rr : cache.rootRegions()) {
         getRegionLiveChunks(rr, result);
-        for (final Region<?, ?> region : rr.subregions(true)) {
+        for (final var region : rr.subregions(true)) {
           getRegionLiveChunks(region, result);
         }
       }
@@ -275,11 +272,11 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
     if (r.getAttributes().getOffHeap()) {
 
       if (r instanceof PartitionedRegion) {
-        PartitionedRegionDataStore prs = ((PartitionedRegion) r).getDataStore();
+        var prs = ((PartitionedRegion) r).getDataStore();
         if (prs != null) {
-          Set<BucketRegion> brs = prs.getAllLocalBucketRegions();
+          var brs = prs.getAllLocalBucketRegions();
           if (brs != null) {
-            for (BucketRegion br : brs) {
+            for (var br : brs) {
               if (br != null && !br.isDestroyed()) {
                 basicGetRegionLiveChunks(br, result);
               }
@@ -296,14 +293,14 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   }
 
   private void basicGetRegionLiveChunks(InternalRegion r, List<OffHeapStoredObject> result) {
-    for (Object key : r.keySet()) {
-      RegionEntry re = r.getRegionEntry(key);
+    for (var key : r.keySet()) {
+      var re = r.getRegionEntry(key);
       if (re != null) {
         /*
          * value could be GATEWAY_SENDER_EVENT_IMPL_VALUE or region entry value.
          */
         @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-        Object value = re.getValue();
+        var value = re.getValue();
         if (value instanceof OffHeapStoredObject) {
           result.add((OffHeapStoredObject) value);
         }
@@ -312,8 +309,8 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   }
 
   private OffHeapStoredObject allocateOffHeapStoredObject(int size) {
-    OffHeapStoredObject result = freeList.allocate(size);
-    int resultSize = result.getSize();
+    var result = freeList.allocate(size);
+    var resultSize = result.getSize();
     stats.incObjects(1);
     stats.incUsedMemory(resultSize);
     stats.incFreeMemory(-resultSize);
@@ -327,7 +324,7 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   @Override
   public StoredObject allocate(int size) {
     // System.out.println("allocating " + size);
-    OffHeapStoredObject result = allocateOffHeapStoredObject(size);
+    var result = allocateOffHeapStoredObject(size);
     // ("allocated off heap object of size " + size + " @" +
     // Long.toHexString(result.getMemoryAddress()), true);
     return result;
@@ -349,11 +346,11 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   @Override
   public StoredObject allocateAndInitialize(byte[] v, boolean isSerialized, boolean isCompressed,
       byte[] originalHeapData) {
-    long addr = OffHeapRegionEntryHelper.encodeDataAsAddress(v, isSerialized, isCompressed);
+    var addr = OffHeapRegionEntryHelper.encodeDataAsAddress(v, isSerialized, isCompressed);
     if (addr != 0L) {
       return new TinyStoredObject(addr);
     }
-    OffHeapStoredObject result = allocateOffHeapStoredObject(v.length);
+    var result = allocateOffHeapStoredObject(v.length);
     // debugLog("allocated off heap object of size " + v.length + " @" +
     // Long.toHexString(result.getMemoryAddress()), true);
     // debugLog("allocated off heap object of size " + v.length + " @" +
@@ -396,7 +393,7 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   }
 
   public static void freeOffHeapMemory() {
-    MemoryAllocatorImpl ma = singleton;
+    var ma = singleton;
     if (ma != null) {
       ma.realClose();
     }
@@ -447,7 +444,7 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   @Override
   public void addMemoryUsageListener(final MemoryUsageListener listener) {
     synchronized (memoryUsageListeners) {
-      final MemoryUsageListener[] newMemoryUsageListeners =
+      final var newMemoryUsageListeners =
           Arrays.copyOf(memoryUsageListeners, memoryUsageListeners.length + 1);
       newMemoryUsageListeners[memoryUsageListeners.length] = listener;
       memoryUsageListeners = newMemoryUsageListeners;
@@ -457,8 +454,8 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   @Override
   public void removeMemoryUsageListener(final MemoryUsageListener listener) {
     synchronized (memoryUsageListeners) {
-      int listenerIndex = -1;
-      for (int i = 0; i < memoryUsageListeners.length; i++) {
+      var listenerIndex = -1;
+      for (var i = 0; i < memoryUsageListeners.length; i++) {
         if (memoryUsageListeners[i] == listener) {
           listenerIndex = i;
           break;
@@ -466,7 +463,7 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
       }
 
       if (listenerIndex != -1) {
-        final MemoryUsageListener[] newMemoryUsageListeners =
+        final var newMemoryUsageListeners =
             new MemoryUsageListener[memoryUsageListeners.length - 1];
         System.arraycopy(memoryUsageListeners, 0, newMemoryUsageListeners, 0, listenerIndex);
         System.arraycopy(memoryUsageListeners, listenerIndex + 1, newMemoryUsageListeners,
@@ -477,14 +474,14 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   }
 
   void notifyListeners() {
-    final MemoryUsageListener[] savedListeners = memoryUsageListeners;
+    final var savedListeners = memoryUsageListeners;
 
     if (savedListeners.length == 0) {
       return;
     }
 
-    final long bytesUsed = getUsedMemory();
-    for (final MemoryUsageListener savedListener : savedListeners) {
+    final var bytesUsed = getUsedMemory();
+    for (final var savedListener : savedListeners) {
       savedListener.updateMemoryUsed(bytesUsed);
     }
   }
@@ -496,9 +493,9 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   static void validateAddressAndSize(long addr, int size) {
     // if the caller does not have a "size" to provide then use -1
     if ((addr & 7) != 0) {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("address was not 8 byte aligned: 0x").append(Long.toString(addr, 16));
-      MemoryAllocatorImpl ma = MemoryAllocatorImpl.singleton;
+      var ma = MemoryAllocatorImpl.singleton;
       if (ma != null) {
         sb.append(". Valid addresses must be in one of the following ranges: ");
         ma.freeList.getSlabDescriptions(sb);
@@ -513,7 +510,7 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
 
   static void validateAddressAndSizeWithinSlab(long addr, int size, boolean doExpensiveValidation) {
     if (doExpensiveValidation) {
-      MemoryAllocatorImpl ma = MemoryAllocatorImpl.singleton;
+      var ma = MemoryAllocatorImpl.singleton;
       if (ma != null) {
         if (!ma.freeList.validateAddressAndSizeWithinSlab(addr, size)) {
           throw new IllegalStateException(" address 0x" + Long.toString(addr, 16)
@@ -524,11 +521,11 @@ public class MemoryAllocatorImpl implements MemoryAllocator {
   }
 
   public synchronized List<MemoryBlock> getOrphans(InternalCache cache) {
-    List<OffHeapStoredObject> liveChunks = freeList.getLiveChunks();
-    List<OffHeapStoredObject> regionChunks = getRegionLiveChunks(cache);
+    var liveChunks = freeList.getLiveChunks();
+    var regionChunks = getRegionLiveChunks(cache);
     liveChunks.removeAll(regionChunks);
     List<MemoryBlock> orphans = new ArrayList<>();
-    for (OffHeapStoredObject chunk : liveChunks) {
+    for (var chunk : liveChunks) {
       orphans.add(new MemoryBlockNode(this, chunk));
     }
     Collections.sort(orphans, (o1, o2) -> Long.compare(o1.getAddress(), o2.getAddress()));

@@ -88,7 +88,7 @@ public class StatArchiveWithConsecutiveResourceInstGenerator {
         new File(ARCHIVE_FILE_NAME).getAbsolutePath();
 
     manager = new TestStatisticsManager(1, getUniqueName(), WRITER_INITIAL_DATE_MILLIS);
-    StatArchiveDescriptor archiveDescriptor =
+    var archiveDescriptor =
         new StatArchiveDescriptor.Builder().setArchiveName(archiveFileName).setSystemId(1)
             .setSystemStartTime(WRITER_INITIAL_DATE_MILLIS - 2000).setSystemDirectoryPath(TEST_NAME)
             .setProductDescription(TEST_NAME).build();
@@ -106,17 +106,17 @@ public class StatArchiveWithConsecutiveResourceInstGenerator {
   @Test
   public void generateStatArchiveFile() throws Exception {
 
-    long sampleTimeNanos = WRITER_PREVIOUS_TIMESTAMP_NANOS + NANOS_PER_MILLI * 1000;
+    var sampleTimeNanos = WRITER_PREVIOUS_TIMESTAMP_NANOS + NANOS_PER_MILLI * 1000;
 
     // 1) create statistics
 
-    StatisticsType type =
+    var type =
         createStatisticsType(STATS_TYPE_NAME, "description of " + STATS_TYPE_NAME);
-    Statistics statistics1 = createStatistics(type, STATS_TYPE_NAME + "1", 1);
+    var statistics1 = createStatistics(type, STATS_TYPE_NAME + "1", 1);
 
     // 2) sample changing stat
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       incInt(statistics1, "stat", 1);
       sampleCollector.sample(sampleTimeNanos += (1000 * NANOS_PER_MILLI));
     }
@@ -127,11 +127,11 @@ public class StatArchiveWithConsecutiveResourceInstGenerator {
 
     // 4) recreate statistics
 
-    Statistics statistics2 = createStatistics(type, STATS_TYPE_NAME + "1", 1);
+    var statistics2 = createStatistics(type, STATS_TYPE_NAME + "1", 1);
 
     // 5) sample changing stat again
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       incInt(statistics2, "stat", 1);
       sampleCollector.sample(sampleTimeNanos += (1000 * NANOS_PER_MILLI));
     }
@@ -142,37 +142,37 @@ public class StatArchiveWithConsecutiveResourceInstGenerator {
 
     // validate that stat archive file exists
 
-    File actual = new File(archiveFileName);
+    var actual = new File(archiveFileName);
     assertTrue(actual.exists());
 
     // validate content of stat archive file using StatArchiveReader
 
-    StatArchiveReader reader = new StatArchiveReader(new File[] {actual}, null, false);
+    var reader = new StatArchiveReader(new File[] {actual}, null, false);
 
     // compare all resourceInst values against what was printed above
 
-    for (final Object o : reader.getResourceInstList()) {
-      ResourceInst ri = (ResourceInst) o;
-      String resourceName = ri.getName();
+    for (final var o : reader.getResourceInstList()) {
+      var ri = (ResourceInst) o;
+      var resourceName = ri.getName();
       assertNotNull(resourceName);
 
-      String expectedStatsType = statisticTypes.get(resourceName);
+      var expectedStatsType = statisticTypes.get(resourceName);
       assertNotNull(expectedStatsType);
       assertEquals(expectedStatsType, ri.getType().getName());
 
-      Map<String, Number> expectedStatValues = allStatistics.get(resourceName);
+      var expectedStatValues = allStatistics.get(resourceName);
       assertNotNull(expectedStatValues);
 
-      StatValue[] statValues = ri.getStatValues();
-      for (int i = 0; i < statValues.length; i++) {
-        final String statName = ri.getType().getStats()[i].getName();
+      var statValues = ri.getStatValues();
+      for (var i = 0; i < statValues.length; i++) {
+        final var statName = ri.getType().getStats()[i].getName();
         assertNotNull(statName);
         assertNotNull(expectedStatValues.get(statName));
 
         assertEquals(statName, statValues[i].getDescriptor().getName());
 
         statValues[i].setFilter(StatValue.FILTER_NONE);
-        double[] rawSnapshots = statValues[i].getRawSnapshots();
+        var rawSnapshots = statValues[i].getRawSnapshots();
         assertEquals("Value " + i + " for " + statName + " is wrong: " + expectedStatValues,
             expectedStatValues.get(statName).doubleValue(), statValues[i].getSnapshotsMostRecent(),
             0.01);
@@ -183,13 +183,13 @@ public class StatArchiveWithConsecutiveResourceInstGenerator {
   }
 
   protected void validateArchiveFile() throws IOException {
-    final File archiveFile = new File(archiveFileName);
+    final var archiveFile = new File(archiveFileName);
     assertTrue(archiveFile.exists());
 
     logger.info("ArchiveFile: {}", archiveFile.getAbsolutePath());
     logger.info("ArchiveFile length: {}", archiveFile.length());
 
-    for (ResourceInst resourceInst : findResourceInsts(archiveFile, STATS_SPEC_STRING)) {
+    for (var resourceInst : findResourceInsts(archiveFile, STATS_SPEC_STRING)) {
       logger.info("ResourceInst: {}", resourceInst);
     }
   }
@@ -200,7 +200,7 @@ public class StatArchiveWithConsecutiveResourceInstGenerator {
   }
 
   private StatisticsType createStatisticsType(final String name, final String description) {
-    StatisticDescriptor[] descriptors = new StatisticDescriptor[] {
+    var descriptors = new StatisticDescriptor[] {
         manager.createIntCounter("stat", "description of stat", "units"),};
     return manager.createType(name, description, descriptors);
   }
@@ -212,7 +212,7 @@ public class StatArchiveWithConsecutiveResourceInstGenerator {
 
   private void incInt(Statistics statistics, String stat, int value) {
     assertFalse(statistics.isClosed());
-    Map<String, Number> statValues = allStatistics.get(statistics.getTextId());
+    var statValues = allStatistics.get(statistics.getTextId());
     if (statValues == null) {
       statValues = new HashMap<>();
       allStatistics.put(statistics.getTextId(), statValues);

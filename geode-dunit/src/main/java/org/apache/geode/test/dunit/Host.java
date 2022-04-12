@@ -71,9 +71,9 @@ public abstract class Host implements Serializable {
    * @throws IllegalArgumentException {@code n} is more than the number of hosts
    */
   public static Host getHost(int whichHost) {
-    int size = hosts.size();
+    var size = hosts.size();
     if (whichHost >= size) {
-      String message = "Cannot request host " + whichHost + ".  There are only " + size + " hosts.";
+      var message = "Cannot request host " + whichHost + ".  There are only " + size + " hosts.";
       throw new IllegalArgumentException(message);
 
     } else {
@@ -86,11 +86,11 @@ public abstract class Host implements Serializable {
    * set a VM to a different version. This will ensure that all are using the current build.
    */
   public static void setAllVMsToCurrentVersion() {
-    int numHosts = getHostCount();
-    for (int hostIndex = 0; hostIndex < numHosts; hostIndex++) {
-      Host host = Host.getHost(hostIndex);
-      int numVMs = host.getVMCount();
-      for (int i = 0; i < numVMs; i++) {
+    var numHosts = getHostCount();
+    for (var hostIndex = 0; hostIndex < numHosts; hostIndex++) {
+      var host = Host.getHost(hostIndex);
+      var numVMs = host.getVMCount();
+      for (var i = 0; i < numVMs; i++) {
         try {
           host.getVM(VersionManager.CURRENT_VERSION, i);
         } catch (UnsupportedOperationException e) {
@@ -105,7 +105,7 @@ public abstract class Host implements Serializable {
    */
   protected Host(String hostName, VMEventNotifier vmEventNotifier) {
     if (hostName == null) {
-      String message = "Cannot create a Host with a null name";
+      var message = "Cannot create a Host with a null name";
       throw new NullPointerException(message);
     }
 
@@ -137,13 +137,13 @@ public abstract class Host implements Serializable {
    * @deprecated use the static methods in VM instead
    */
   public VM getVM(int n) {
-    int size = vms.size();
+    var size = vms.size();
     if (n >= size) {
-      String s = "Cannot request VM " + n + ".  There are only " + size + " VMs on " + this;
+      var s = "Cannot request VM " + n + ".  There are only " + size + " VMs on " + this;
       throw new IllegalArgumentException(s);
 
     } else {
-      VM vm = vms.get(n);
+      var vm = vms.get(n);
       vm.makeAvailable();
       return vm;
     }
@@ -170,7 +170,7 @@ public abstract class Host implements Serializable {
   protected void addVM(int vmid, final String version, RemoteDUnitVMIF client,
       ProcessHolder processHolder,
       ChildVMLauncher childVMLauncher) {
-    VM vm = new VM(this, version, vmid, client, processHolder,
+    var vm = new VM(this, version, vmid, client, processHolder,
         childVMLauncher);
     vms.add(vm);
     vmEventNotifier.notifyAfterCreateVM(vm);

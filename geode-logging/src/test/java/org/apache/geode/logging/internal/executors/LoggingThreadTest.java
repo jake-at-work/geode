@@ -18,8 +18,6 @@ package org.apache.geode.logging.internal.executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -45,7 +43,7 @@ public class LoggingThreadTest {
 
   @Test
   public void verifyCreateSetExpectedHandler() {
-    UncaughtExceptionHandler handler = LoggingUncaughtExceptionHandler.getInstance();
+    var handler = LoggingUncaughtExceptionHandler.getInstance();
 
     Thread thread = new LoggingThread("loggingThreadName", false, null);
 
@@ -68,7 +66,7 @@ public class LoggingThreadTest {
 
   @Test
   public void verifyCreateDaemonSetExpectedHandler() {
-    UncaughtExceptionHandler handler = LoggingUncaughtExceptionHandler.getInstance();
+    var handler = LoggingUncaughtExceptionHandler.getInstance();
 
     Thread thread = new LoggingThread("loggingThreadName", null);
 

@@ -20,10 +20,8 @@
 package org.apache.geode.management.internal.configuration.realizers;
 
 import java.io.File;
-import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.internal.cache.DiskStoreAttributes;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.api.RealizationResult;
@@ -33,7 +31,7 @@ import org.apache.geode.management.runtime.DiskStoreInfo;
 public class DiskStoreRealizer implements ConfigurationRealizer<DiskStore, DiskStoreInfo> {
   @Override
   public RealizationResult create(DiskStore config, InternalCache cache) throws Exception {
-    DiskStoreAttributes diskStoreAttributes = new DiskStoreAttributes();
+    var diskStoreAttributes = new DiskStoreAttributes();
 
     if (config.isAllowForceCompaction() != null) {
       diskStoreAttributes.allowForceCompaction = config.isAllowForceCompaction();
@@ -63,7 +61,7 @@ public class DiskStoreRealizer implements ConfigurationRealizer<DiskStore, DiskS
       diskStoreAttributes.writeBufferSize = config.getWriteBufferSize();
     }
 
-    List<File> fileList =
+    var fileList =
         config.getDirectories().stream().map(diskDir -> new File(diskDir.getName()))
             .collect(Collectors.toList());
     diskStoreAttributes.diskDirs = fileList.toArray(diskStoreAttributes.diskDirs);
@@ -75,7 +73,7 @@ public class DiskStoreRealizer implements ConfigurationRealizer<DiskStore, DiskS
       }
     }).toArray();
 
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory(diskStoreAttributes);
+    var diskStoreFactory = cache.createDiskStoreFactory(diskStoreAttributes);
     diskStoreFactory.create(config.getName());
 
     return new RealizationResult()
@@ -100,7 +98,7 @@ public class DiskStoreRealizer implements ConfigurationRealizer<DiskStore, DiskS
 
   @Override
   public RealizationResult delete(DiskStore config, InternalCache cache) throws Exception {
-    org.apache.geode.cache.DiskStore diskStore = cache.findDiskStore(config.getName());
+    var diskStore = cache.findDiskStore(config.getName());
     if (diskStore != null) {
       diskStore.destroy();
       return new RealizationResult()

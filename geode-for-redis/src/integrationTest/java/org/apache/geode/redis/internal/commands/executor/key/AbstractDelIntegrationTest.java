@@ -55,7 +55,7 @@ public abstract class AbstractDelIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testDel_deletingOneKey_removesKeyAndReturnsOne() {
-    String key1 = "firstKey";
+    var key1 = "firstKey";
     jedis.set(key1, "value1");
 
     Long deletedCount = jedis.del(key1);
@@ -71,9 +71,9 @@ public abstract class AbstractDelIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testDel_deletingMultipleKeys_returnsCountOfOnlyDeletedKeys() {
-    String key1 = "{tag1}firstKey";
-    String key2 = "{tag1}secondKey";
-    String key3 = "{tag1}thirdKey";
+    var key1 = "{tag1}firstKey";
+    var key2 = "{tag1}secondKey";
+    var key3 = "{tag1}thirdKey";
 
     jedis.set(key1, "value1");
     jedis.set(key2, "value2");
@@ -85,14 +85,14 @@ public abstract class AbstractDelIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testConcurrentDel_differentClients() {
-    String keyBaseName = "DELBASE";
+    var keyBaseName = "DELBASE";
 
-    int ITERATION_COUNT = 4000;
+    var ITERATION_COUNT = 4000;
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> jedis.set(keyBaseName + i, "value" + i))
             .run();
 
-    AtomicLong deletedCount = new AtomicLong();
+    var deletedCount = new AtomicLong();
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> deletedCount.addAndGet(jedis.del(keyBaseName + i)),
         (i) -> deletedCount.addAndGet(jedis.del(keyBaseName + i)))
@@ -100,14 +100,14 @@ public abstract class AbstractDelIntegrationTest implements RedisIntegrationTest
 
     assertThat(deletedCount.get()).isEqualTo(ITERATION_COUNT);
 
-    for (int i = 0; i < ITERATION_COUNT; i++) {
+    for (var i = 0; i < ITERATION_COUNT; i++) {
       assertThat(jedis.get(keyBaseName + i)).isNull();
     }
   }
 
   @Test
   public void testDel_withBinaryKey() {
-    byte[] key = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    var key = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
     jedis.set(key, "foo".getBytes());
     jedis.del(key);

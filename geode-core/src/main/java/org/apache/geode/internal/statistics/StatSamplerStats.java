@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 
 /**
@@ -45,7 +44,7 @@ public class StatSamplerStats {
   private static final int sampleCallbackErrorsId;
   private static final int sampleCallbackDurationId;
   static {
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     samplerType = f.createType("StatSampler", "Stats on the statistic sampler.",
         new StatisticDescriptor[] {
             f.createIntCounter(SAMPLE_COUNT, "Total number of samples taken by this sampler.",

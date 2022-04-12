@@ -42,11 +42,11 @@ public class JtaBeforeCompletionMessage extends TXMessage {
 
   public static ReliableReplyProcessor21 send(Cache cache, int txUniqId,
       InternalDistributedMember onBehalfOfClientMember, DistributedMember recipient) {
-    final InternalDistributedSystem system =
+    final var system =
         (InternalDistributedSystem) cache.getDistributedSystem();
     final Set recipients = Collections.singleton(recipient);
-    ReliableReplyProcessor21 response = new ReliableReplyProcessor21(system, recipients);
-    JtaBeforeCompletionMessage msg =
+    var response = new ReliableReplyProcessor21(system, recipients);
+    var msg =
         new JtaBeforeCompletionMessage(txUniqId, onBehalfOfClientMember, response);
     msg.setRecipients(recipients);
     system.getDistributionManager().putOutgoing(msg);
@@ -56,8 +56,8 @@ public class JtaBeforeCompletionMessage extends TXMessage {
 
   @Override
   protected boolean operateOnTx(TXId txId, ClusterDistributionManager dm) {
-    InternalCache cache = dm.getCache();
-    TXManagerImpl txMgr = cache.getTXMgr();
+    var cache = dm.getCache();
+    var txMgr = cache.getTXMgr();
     if (logger.isDebugEnabled()) {
       logger.debug("JTA: Calling beforeCompletion for :{}", txId);
     }

@@ -78,10 +78,10 @@ public class OldClientSupportProvider implements OldClientSupportService {
   @Override
   public String processIncomingClassName(String name) {
     // tcpserver was moved to a different package in Geode.
-    String oldPackage = "com.gemstone.org.jgroups.stack.tcpserver";
-    String newPackage = "org.apache.geode.distributed.internal.tcpserver";
+    var oldPackage = "com.gemstone.org.jgroups.stack.tcpserver";
+    var newPackage = "org.apache.geode.distributed.internal.tcpserver";
     if (name.startsWith(oldPackage)) {
-      String cached = oldClassNamesToNew.get(name);
+      var cached = oldClassNamesToNew.get(name);
       if (cached == null) {
         cached = newPackage + name.substring(oldPackage.length());
         oldClassNamesToNew.put(name, cached);
@@ -101,8 +101,8 @@ public class OldClientSupportProvider implements OldClientSupportService {
   @Override
   public String processOutgoingClassName(String name, DataOutput out) {
     // tcpserver was moved to a different package
-    String oldPackage = "com.gemstone.org.jgroups.stack.tcpserver";
-    String newPackage = "org.apache.geode.distributed.internal.tcpserver";
+    var oldPackage = "com.gemstone.org.jgroups.stack.tcpserver";
+    var newPackage = "org.apache.geode.distributed.internal.tcpserver";
     if (name.startsWith(newPackage)) {
       return oldPackage + name.substring(newPackage.length());
     }
@@ -111,8 +111,8 @@ public class OldClientSupportProvider implements OldClientSupportService {
     }
     // if the client is old then it needs com.gemstone.gemfire package names
     if (out instanceof VersionedDataOutputStream) {
-      VersionedDataOutputStream vout = (VersionedDataOutputStream) out;
-      KnownVersion version = vout.getVersion();
+      var vout = (VersionedDataOutputStream) out;
+      var version = vout.getVersion();
       if (version != null && version.isOlderThan(KnownVersion.GFE_90)) {
         return processClassName(name, GEODE, GEMFIRE, newClassNamesToOld);
       }
@@ -132,7 +132,7 @@ public class OldClientSupportProvider implements OldClientSupportService {
       if (theThrowable instanceof AuthenticationExpiredException) {
         return new AuthenticationRequiredException(USER_NOT_FOUND);
       }
-      Throwable cause = theThrowable.getCause();
+      var cause = theThrowable.getCause();
       if (cause instanceof AuthenticationExpiredException) {
         return new AuthenticationRequiredException(USER_NOT_FOUND);
       }
@@ -142,7 +142,7 @@ public class OldClientSupportProvider implements OldClientSupportService {
       return theThrowable;
     }
 
-    String className = theThrowable.getClass().getName();
+    var className = theThrowable.getClass().getName();
     // this class has been renamed, so it cannot be automatically translated
     // during java deserialization
     if (className.equals("org.apache.geode.cache.execute.EmptyRegionFunctionException")) {
@@ -156,18 +156,18 @@ public class OldClientSupportProvider implements OldClientSupportService {
 
   private String processClassName(String p_className, String oldPackage, String newPackage,
       Map<String, String> cache) {
-    String cached = cache.get(p_className);
+    var cached = cache.get(p_className);
     if (cached != null) {
       return cached;
     }
 
-    String className = p_className;
+    var className = p_className;
 
     if (className.startsWith(oldPackage)) {
       className = newPackage + className.substring(oldPackage.length());
 
     } else if (className.startsWith("[") && className.contains("[L" + oldPackage)) {
-      int idx = className.indexOf("[L") + 2;
+      var idx = className.indexOf("[L") + 2;
       className =
           className.substring(0, idx) + newPackage + className.substring(idx, oldPackage.length());
     }

@@ -176,7 +176,7 @@ public class ClientHealthMonitor {
     }
     instance.shutdown();
 
-    boolean interrupted = false; // Don't clear, let join fail if already interrupted
+    var interrupted = false; // Don't clear, let join fail if already interrupted
     try {
       if (instance.clientMonitor != null) {
         instance.clientMonitor.join();
@@ -262,7 +262,7 @@ public class ClientHealthMonitor {
     // if this method was invoked from a ServerConnection and the client did
     // not disconnect cleanly.
     if (acceptor != null) {
-      CacheClientNotifier ccn = acceptor.getCacheClientNotifier();
+      var ccn = acceptor.getCacheClientNotifier();
       if (ccn != null) {
         try {
           ccn.unregisterClient(proxyID, clientDisconnectedCleanly);
@@ -277,7 +277,7 @@ public class ClientHealthMonitor {
    */
   @SuppressWarnings("unused") // do not delete
   public Set<TXId> getScheduledToBeRemovedTx() {
-    final TXManagerImpl txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
+    final var txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
     return txMgr.getScheduledToBeRemovedTx();
   }
 
@@ -292,12 +292,12 @@ public class ClientHealthMonitor {
       return;
     }
 
-    final TXManagerImpl txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
+    final var txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
     if (null == txMgr) {
       return;
     }
 
-    final Set<TXId> txIds =
+    final var txIds =
         txMgr.getTransactionsForClient((InternalDistributedMember) proxyID.getDistributedMember());
     if (!txIds.isEmpty()) {
       txMgr.expireDisconnectedClientTransactions(txIds, true);
@@ -321,7 +321,7 @@ public class ClientHealthMonitor {
   public ServerConnectionCollection addConnection(ClientProxyMembershipID proxyID,
       ServerConnection connection) {
     synchronized (proxyIdConnections) {
-      ServerConnectionCollection collection = getProxyIdCollection(proxyID);
+      var collection = getProxyIdCollection(proxyID);
       collection.addConnection(connection);
       return collection;
     }
@@ -335,7 +335,7 @@ public class ClientHealthMonitor {
    */
   void removeConnection(ClientProxyMembershipID proxyID, ServerConnection connection) {
     synchronized (proxyIdConnections) {
-      ServerConnectionCollection collection = proxyIdConnections.get(proxyID);
+      var collection = proxyIdConnections.get(proxyID);
       if (collection != null) {
         collection.removeConnection(connection);
         if (collection.getConnections().isEmpty()) {
@@ -359,7 +359,7 @@ public class ClientHealthMonitor {
       logger.trace("ClientHealthMonitor: Received ping from client with member id {}", proxyID);
     }
 
-    AtomicLong heartbeat = clientHeartbeats.get(proxyID);
+    var heartbeat = clientHeartbeats.get(proxyID);
     if (null == heartbeat) {
       registerClient(proxyID, getMaximumTimeBetweenPings(proxyID));
     } else {
@@ -380,23 +380,23 @@ public class ClientHealthMonitor {
   public Map<String, Object[]> getConnectedClients(Set<ClientProxyMembershipID> filterProxies) {
     Map<String, Object[]> map = new HashMap<>(); // KEY=proxyID, VALUE=connectionCount (Integer)
     synchronized (proxyIdConnections) {
-      for (Map.Entry<ClientProxyMembershipID, ServerConnectionCollection> entry : proxyIdConnections
+      for (var entry : proxyIdConnections
           .entrySet()) {
         // proxyID includes FQDN
-        ClientProxyMembershipID proxyID = entry.getKey();
+        var proxyID = entry.getKey();
         if (filterProxies == null || filterProxies.contains(proxyID)) {
           String membershipID = null;
-          Set<ServerConnection> connections = entry.getValue().getConnections();
-          int socketPort = 0;
+          var connections = entry.getValue().getConnections();
+          var socketPort = 0;
           InetAddress socketAddress = null;
           // Get data from one.
-          for (ServerConnection sc : connections) {
+          for (var sc : connections) {
             socketPort = sc.getSocketPort();
             socketAddress = sc.getSocketAddress();
             membershipID = sc.getMembershipID();
             break;
           }
-          int connectionCount = connections.size();
+          var connectionCount = connections.size();
           String clientString;
           if (socketAddress == null) {
             clientString = "client member id=" + membershipID;
@@ -405,7 +405,7 @@ public class ClientHealthMonitor {
                 + socketAddress.getHostAddress() + " client port=" + socketPort
                 + " client member id=" + membershipID;
           }
-          Object[] data = map.get(membershipID);
+          var data = map.get(membershipID);
           if (data == null) {
             map.put(membershipID, new Object[] {clientString, connectionCount});
           } else {
@@ -427,14 +427,14 @@ public class ClientHealthMonitor {
   public Map<ClientProxyMembershipID, CacheClientStatus> getStatusForAllClients() {
     Map<ClientProxyMembershipID, CacheClientStatus> result = new HashMap<>();
     synchronized (proxyIdConnections) {
-      for (Map.Entry<ClientProxyMembershipID, ServerConnectionCollection> entry : proxyIdConnections
+      for (var entry : proxyIdConnections
           .entrySet()) {
-        ClientProxyMembershipID proxyID = entry.getKey();
-        CacheClientStatus cci = new CacheClientStatus(proxyID);
-        Set<ServerConnection> connections = entry.getValue().getConnections();
+        var proxyID = entry.getKey();
+        var cci = new CacheClientStatus(proxyID);
+        var connections = entry.getValue().getConnections();
         if (connections != null) {
           String memberId;
-          for (ServerConnection sc : connections) {
+          for (var sc : connections) {
             if (sc.isClientServerConnection()) {
               // each ServerConnection has the same member id
               memberId = sc.getMembershipID();
@@ -455,18 +455,18 @@ public class ClientHealthMonitor {
     // gateways). This monitor will include remote gateway connections,
     // so weed those out.
     synchronized (proxyIdConnections) {
-      for (Map.Entry<ClientProxyMembershipID, CacheClientStatus> entry : allClients.entrySet()) {
+      for (var entry : allClients.entrySet()) {
         // proxyID includes FQDN
-        ClientProxyMembershipID proxyID = entry.getKey();
-        CacheClientStatus cci = entry.getValue();
-        ServerConnectionCollection collection = proxyIdConnections.get(proxyID);
-        Set<ServerConnection> connections = collection != null ? collection.getConnections() : null;
+        var proxyID = entry.getKey();
+        var cci = entry.getValue();
+        var collection = proxyIdConnections.get(proxyID);
+        var connections = collection != null ? collection.getConnections() : null;
         if (connections != null) {
           String memberId = null;
           cci.setNumberOfConnections(connections.size());
           List<Integer> socketPorts = new ArrayList<>();
           List<InetAddress> socketAddresses = new ArrayList<>();
-          for (ServerConnection sc : connections) {
+          for (var sc : connections) {
             socketPorts.add(sc.getSocketPort());
             socketAddresses.add(sc.getSocketAddress());
             // each ServerConnection has the same member id
@@ -483,13 +483,13 @@ public class ClientHealthMonitor {
   public Map<String, IncomingGatewayStatus> getConnectedIncomingGateways() {
     Map<String, IncomingGatewayStatus> connectedIncomingGateways = new HashMap<>();
     synchronized (proxyIdConnections) {
-      for (Map.Entry<ClientProxyMembershipID, ServerConnectionCollection> entry : proxyIdConnections
+      for (var entry : proxyIdConnections
           .entrySet()) {
-        ClientProxyMembershipID proxyID = entry.getKey();
-        Set<ServerConnection> connections = entry.getValue().getConnections();
-        for (ServerConnection sc : connections) {
+        var proxyID = entry.getKey();
+        var connections = entry.getValue().getConnections();
+        for (var sc : connections) {
           if (sc.getCommunicationMode().isWAN()) {
-            IncomingGatewayStatus status = new IncomingGatewayStatus(proxyID.getDSMembership(),
+            var status = new IncomingGatewayStatus(proxyID.getDSMembership(),
                 sc.getSocketAddress(), sc.getSocketPort());
             connectedIncomingGateways.put(proxyID.getDSMembership(), status);
           }
@@ -501,10 +501,10 @@ public class ClientHealthMonitor {
 
   private boolean cleanupClientThreads(ClientProxyMembershipID proxyID, boolean timedOut,
       Throwable reason) {
-    boolean result = false;
+    var result = false;
     Set<ServerConnection> serverConnections = null;
     synchronized (proxyIdConnections) {
-      ServerConnectionCollection collection = proxyIdConnections.remove(proxyID);
+      var collection = proxyIdConnections.remove(proxyID);
       if (collection != null) {
         serverConnections = collection.getConnections();
       }
@@ -512,7 +512,7 @@ public class ClientHealthMonitor {
     {
       if (serverConnections != null) {
         result = true;
-        for (ServerConnection serverConnection : serverConnections) {
+        for (var serverConnection : serverConnections) {
           if (reason != null) {
             serverConnection.setClientDisconnectedException(reason);
           }
@@ -527,7 +527,7 @@ public class ClientHealthMonitor {
   // if there was a active connection.
   private boolean prepareToTerminateIfNoConnectionIsProcessing(ClientProxyMembershipID proxyID) {
     synchronized (proxyIdConnections) {
-      ServerConnectionCollection collection = proxyIdConnections.get(proxyID);
+      var collection = proxyIdConnections.get(proxyID);
       if (collection == null) {
         return true;
       }
@@ -543,12 +543,12 @@ public class ClientHealthMonitor {
   private void validateThreads(ClientProxyMembershipID proxyID) {
     Set<ServerConnection> serverConnections;
     synchronized (proxyIdConnections) {
-      ServerConnectionCollection collection = proxyIdConnections.get(proxyID);
+      var collection = proxyIdConnections.get(proxyID);
       serverConnections =
           collection != null ? new HashSet<>(collection.getConnections()) : Collections.emptySet();
     }
     // release sync and operation on copy
-    for (ServerConnection serverConnection : serverConnections) {
+    for (var serverConnection : serverConnections) {
       if (serverConnection.hasBeenTimedOutOnClient()) {
         logger.warn("{} is being terminated because its client timeout of {} has expired.",
             serverConnection, serverConnection.getClientReadTimeout());
@@ -774,21 +774,21 @@ public class ClientHealthMonitor {
           }
 
           // Get the current time
-          long currentTime = System.currentTimeMillis();
+          var currentTime = System.currentTimeMillis();
           if (logger.isTraceEnabled()) {
             logger.trace("{} starting sweep at {}", ClientHealthMonitor.this, currentTime);
           }
 
           // Iterate through the clients and verify that they are all still
           // alive
-          for (Map.Entry<ClientProxyMembershipID, Long> entry : getClientHeartbeats().entrySet()) {
-            ClientProxyMembershipID proxyID = entry.getKey();
+          for (var entry : getClientHeartbeats().entrySet()) {
+            var proxyID = entry.getKey();
             // Validate all ServerConnection threads. If a thread has been
             // processing a message for more than the socket timeout time,
             // close it it since the client will have timed out and resent.
             validateThreads(proxyID);
 
-            Long latestHeartbeatValue = entry.getValue();
+            var latestHeartbeatValue = entry.getValue();
             // Compare the current value with the current time if it is not null
             // If it is null, that means that the client was just registered
             // and has not done a heartbeat yet.
@@ -800,7 +800,7 @@ public class ClientHealthMonitor {
                     (currentTime - latestHeartbeat), proxyID);
               }
 
-              int maximumTimeBetweenPingsForClient = getMaximumTimeBetweenPings(proxyID);
+              var maximumTimeBetweenPingsForClient = getMaximumTimeBetweenPings(proxyID);
               if (checkHeartbeat.timedOut(currentTime, latestHeartbeat,
                   maximumTimeBetweenPingsForClient)) {
                 // This client has been idle for too long. Determine whether

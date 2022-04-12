@@ -29,8 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 
 import org.apache.geode.test.junit.runners.TestRunner;
 
@@ -66,28 +64,28 @@ public class ExecutorServiceRuleTest {
 
   @Test
   public void providesExecutorService() {
-    Result result = TestRunner.runTest(HasExecutorService.class);
+    var result = TestRunner.runTest(HasExecutorService.class);
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(executorService).isInstanceOf(ExecutorService.class);
   }
 
   @Test
   public void shutsDownAfterTest() {
-    Result result = TestRunner.runTest(HasExecutorService.class);
+    var result = TestRunner.runTest(HasExecutorService.class);
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(executorService.isShutdown()).isTrue();
   }
 
   @Test
   public void terminatesAfterTest() {
-    Result result = TestRunner.runTest(HasExecutorService.class);
+    var result = TestRunner.runTest(HasExecutorService.class);
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(executorService.isTerminated()).isTrue();
   }
 
   @Test
   public void shutsDownHungThread() {
-    Result result = TestRunner.runTest(Hangs.class);
+    var result = TestRunner.runTest(Hangs.class);
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(isTestHung()).isTrue();
     assertThat(executorService.isShutdown()).isTrue();
@@ -96,7 +94,7 @@ public class ExecutorServiceRuleTest {
 
   @Test
   public void terminatesHungThread() {
-    Result result = TestRunner.runTest(Hangs.class);
+    var result = TestRunner.runTest(Hangs.class);
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(isTestHung()).isTrue();
     await().untilAsserted(() -> assertThat(executorService.isTerminated()).isTrue());
@@ -105,19 +103,19 @@ public class ExecutorServiceRuleTest {
 
   @Test
   public void futureTimesOut() {
-    Result result = TestRunner.runTest(TimesOut.class);
+    var result = TestRunner.runTest(TimesOut.class);
     assertThat(result.wasSuccessful()).isFalse();
     assertThat(result.getFailures()).hasSize(1);
-    Failure failure = result.getFailures().get(0);
+    var failure = result.getFailures().get(0);
     assertThat(failure.getException()).isInstanceOf(TimeoutException.class);
   }
 
   @Test
   public void futureRethrowsFailureWrappedInExecutionException() {
-    Result result = TestRunner.runTest(FutureRethrows.class);
+    var result = TestRunner.runTest(FutureRethrows.class);
     assertThat(result.wasSuccessful()).isFalse();
     assertThat(result.getFailures()).hasSize(1);
-    Failure failure = result.getFailures().get(0);
+    var failure = result.getFailures().get(0);
     assertThat(failure.getException())
         .isInstanceOf(ExecutionException.class)
         .hasRootCauseInstanceOf(AssertionError.class);

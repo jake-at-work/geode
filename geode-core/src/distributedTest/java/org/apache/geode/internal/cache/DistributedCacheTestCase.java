@@ -35,7 +35,6 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -65,18 +64,18 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
         assertTrue(cache != null);
 
       } catch (Exception ex) {
-        String s = "While creating cache in this VM";
+        var s = "While creating cache in this VM";
         throw new InternalGemFireException(s, ex);
       }
     } else {
       getSystem(); // make sure we have a connected DistributedSystem
     }
 
-    for (int h = 0; h < Host.getHostCount(); h++) {
-      Host host = Host.getHost(h);
+    for (var h = 0; h < Host.getHostCount(); h++) {
+      var host = Host.getHost(h);
 
-      for (int v = 0; v < host.getVMCount(); v++) {
-        VM vm = host.getVM(v);
+      for (var v = 0; v < host.getVMCount(); v++) {
+        var vm = host.getVM(v);
         vm.invoke(DistributedCacheTestCase::remoteCreateCache);
       }
     }
@@ -89,10 +88,10 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
 
     Assert.assertTrue(cache == null, "cache should be null");
 
-    DistributedCacheTestCase x = new DistributedCacheTestCase() {};
+    var x = new DistributedCacheTestCase() {};
     cache = CacheFactory.create(x.getSystem());
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
     cache.createRegion("root", factory.create());
   }
@@ -102,7 +101,7 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
    */
   @Override
   public final void preTearDown() throws Exception {
-    StringBuilder problems = new StringBuilder();
+    var problems = new StringBuilder();
 
     if (cache != null) {
       try {
@@ -113,19 +112,19 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
         assertTrue(cache == null);
 
       } catch (Exception ex) {
-        String s = "While closing the cache in this VM";
+        var s = "While closing the cache in this VM";
         throw new InternalGemFireException(s, ex);
       }
     }
 
-    for (int h = 0; h < Host.getHostCount(); h++) {
-      Host host = Host.getHost(h);
+    for (var h = 0; h < Host.getHostCount(); h++) {
+      var host = Host.getHost(h);
 
-      for (int v = 0; v < host.getVMCount(); v++) {
-        VM vm = host.getVM(v);
+      for (var v = 0; v < host.getVMCount(); v++) {
+        var vm = host.getVM(v);
         boolean exceptionInThreads = vm.invoke(DistributedCacheTestCase::remoteCloseCache);
         if (exceptionInThreads) {
-          String s = "An exception occurred in GemFire system";
+          var s = "An exception occurred in GemFire system";
           problems.append(s);
         }
       }
@@ -145,9 +144,9 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
     Assert.assertTrue(cache != null, "No cache on this VM?");
     Assert.assertTrue(!cache.isClosed(), "Who closed my cache?");
 
-    InternalDistributedSystem system = (InternalDistributedSystem) cache.getDistributedSystem();
-    ClusterDistributionManager dm = (ClusterDistributionManager) system.getDistributionManager();
-    boolean exceptionInThreads = dm.exceptionInThreads();
+    var system = (InternalDistributedSystem) cache.getDistributedSystem();
+    var dm = (ClusterDistributionManager) system.getDistributionManager();
+    var exceptionInThreads = dm.exceptionInThreads();
     dm.clearExceptionInThreads();
 
     cache.close();
@@ -162,7 +161,7 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
    */
   protected static Region getRootRegion() throws CacheException {
     if (cache == null) {
-      String s = "Cache not created yet!";
+      var s = "Cache not created yet!";
       throw new IllegalStateException(s);
     }
 
@@ -176,11 +175,11 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
    */
   protected static ClusterDistributionManager getDistributionManager() {
     if (cache == null) {
-      String s = "Cache not created yet!";
+      var s = "Cache not created yet!";
       throw new IllegalStateException(s);
     }
 
-    InternalDistributedSystem system =
+    var system =
         (InternalDistributedSystem) cache.getDistributedSystem();
     return (ClusterDistributionManager) system.getDistributionManager();
   }
@@ -205,11 +204,11 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
    */
   protected static void remoteCreateRegion(String name, Scope scope) throws CacheException {
 
-    Region root = getRootRegion();
-    AttributesFactory factory = new AttributesFactory();
+    var root = getRootRegion();
+    var factory = new AttributesFactory();
     factory.setScope(scope);
 
-    Region newRegion = root.createSubregion(name, factory.create());
+    var newRegion = root.createSubregion(name, factory.create());
     LogWriterUtils.getLogWriter().info("Created Region '" + newRegion.getFullPath() + "'");
   }
 
@@ -241,17 +240,17 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
   protected static void remoteDefineEntry(String regionName, String entryName, Scope scope,
       boolean doNetSearch) throws CacheException {
 
-    Region root = getRootRegion();
-    Region region = root.getSubregion(regionName);
+    var root = getRootRegion();
+    var region = root.getSubregion(regionName);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(scope);
 
     if (!doNetSearch) {
       factory.setCacheLoader(new CacheLoader() {
         @Override
         public Object load(LoaderHelper helper) throws CacheLoaderException {
-          String s = "Should not be loading \"" + helper.getKey() + "\" in \""
+          var s = "Should not be loading \"" + helper.getKey() + "\" in \""
               + helper.getRegion().getFullPath() + "\"";
           throw new CacheLoaderException(s);
         }
@@ -261,7 +260,7 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
       });
     }
 
-    Region sub = region.createSubregion(entryName, factory.create());
+    var sub = region.createSubregion(entryName, factory.create());
     sub.create(entryName, null);
 
     LogWriterUtils.getLogWriter()
@@ -274,11 +273,11 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
   protected static void remotePut(String regionName, String entryName, Object value, Scope scope)
       throws CacheException {
 
-    Region root = getRootRegion();
-    Region region = root.getSubregion(regionName);
-    Region sub = region.getSubregion(entryName);
+    var root = getRootRegion();
+    var region = root.getSubregion(regionName);
+    var sub = region.getSubregion(entryName);
     if (sub == null) {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(scope);
       sub = region.createSubregion(entryName, factory.create());
     }
@@ -312,11 +311,11 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
   protected static void remoteReplace(String regionName, String entryName, Object value)
       throws CacheException {
 
-    Region root = getRootRegion();
-    Region region = root.getSubregion(regionName);
-    Region sub = region.getSubregion(entryName);
+    var root = getRootRegion();
+    var region = root.getSubregion(regionName);
+    var sub = region.getSubregion(entryName);
     if (sub == null) {
-      String s = "Entry \"" + entryName + "\" does not exist";
+      var s = "Entry \"" + entryName + "\" does not exist";
       throw new EntryNotFoundException(s);
     }
 
@@ -335,11 +334,11 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
   protected static void remoteInvalidate(String regionName, String entryName)
       throws CacheException {
 
-    Region root = getRootRegion();
-    Region region = root.getSubregion(regionName);
-    Region sub = region.getSubregion(entryName);
+    var root = getRootRegion();
+    var region = root.getSubregion(regionName);
+    var sub = region.getSubregion(entryName);
     if (sub == null) {
-      String s = "Entry \"" + entryName + "\" does not exist";
+      var s = "Entry \"" + entryName + "\" does not exist";
       throw new EntryNotFoundException(s);
     }
 
@@ -354,11 +353,11 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
    */
   protected static void remoteDestroy(String regionName, String entryName) throws CacheException {
 
-    Region root = getRootRegion();
-    Region region = root.getSubregion(regionName);
-    Region sub = region.getSubregion(entryName);
+    var root = getRootRegion();
+    var region = root.getSubregion(regionName);
+    var sub = region.getSubregion(entryName);
     if (sub == null) {
-      String s = "Entry \"" + entryName + "\" does not exist";
+      var s = "Entry \"" + entryName + "\" does not exist";
       throw new EntryNotFoundException(s);
     }
 
@@ -376,11 +375,11 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
   protected static void remoteAssertEntryValue(String regionName, String entryName, Object expected)
       throws CacheException {
 
-    Region root = getRootRegion();
-    Region region = root.getSubregion(regionName);
-    Region sub = region.getSubregion(entryName);
+    var root = getRootRegion();
+    var region = root.getSubregion(regionName);
+    var sub = region.getSubregion(entryName);
     if (sub == null) {
-      String s = "Entry \"" + entryName + "\" does not exist";
+      var s = "Entry \"" + entryName + "\" does not exist";
       throw new EntryNotFoundException(s);
     }
 
@@ -398,9 +397,9 @@ public abstract class DistributedCacheTestCase extends JUnit4DistributedTestCase
    * Assumes there is only one host, and invokes the given method in every VM that host knows about.
    */
   public void forEachVMInvoke(Class<?> targetClass, String methodName, Object[] args) {
-    Host host = Host.getHost(0);
-    int vmCount = host.getVMCount();
-    for (int i = 0; i < vmCount; i++) {
+    var host = Host.getHost(0);
+    var vmCount = host.getVMCount();
+    for (var i = 0; i < vmCount; i++) {
       LogWriterUtils.getLogWriter().info("Invoking " + methodName + "on VM#" + i);
       host.getVM(i).invoke(targetClass, methodName, args);
     }

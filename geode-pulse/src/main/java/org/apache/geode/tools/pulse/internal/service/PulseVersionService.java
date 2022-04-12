@@ -54,7 +54,7 @@ public class PulseVersionService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     // Response
     responseJSON.put("pulseVersion", pulseController.getPulseVersion().getPulseVersion());

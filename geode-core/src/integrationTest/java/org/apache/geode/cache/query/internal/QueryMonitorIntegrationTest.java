@@ -70,7 +70,7 @@ public class QueryMonitorIntegrationTest {
 
     QueryMonitor queryMonitor = null;
 
-    ScheduledThreadPoolExecutor scheduledThreadPoolExecutor =
+    var scheduledThreadPoolExecutor =
         new ScheduledThreadPoolExecutor(1);
 
     try {
@@ -106,13 +106,13 @@ public class QueryMonitorIntegrationTest {
   @Test
   public void monitorQueryExecutionCancelsLongRunningQueriesAndSetsExceptionAndThrowsException() {
 
-    QueryMonitor queryMonitor = new QueryMonitor(
+    var queryMonitor = new QueryMonitor(
         new ScheduledThreadPoolExecutor(1),
         cache,
         EXPIRE_QUICK_MILLIS);
 
-    final Answer<Void> processSetQueryCanceledException = invocation -> {
-      final Object[] args = invocation.getArguments();
+    final var processSetQueryCanceledException = (Answer<Void>) invocation -> {
+      final var args = invocation.getArguments();
       if (args[0] instanceof CacheRuntimeException) {
         cacheRuntimeException = (CacheRuntimeException) args[0];
       } else {
@@ -138,15 +138,15 @@ public class QueryMonitorIntegrationTest {
   @Test
   public void monitorMultipleQueryExecutionsThenStopMonitoringNoRemainingCancellationTasksRunning() {
     cache = (InternalCache) new CacheFactory().set(LOCATORS, "").set(MCAST_PORT, "0").create();
-    final DefaultQuery query =
+    final var query =
         (DefaultQuery) cache.getQueryService()
             .newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "exampleRegion");
     executionContext = new QueryExecutionContext(null, cache, query);
     final ExecutionContext executionContext2 = new QueryExecutionContext(null, cache, query);
 
-    final ScheduledThreadPoolExecutor queryMonitorExecutor = new ScheduledThreadPoolExecutor(1);
+    final var queryMonitorExecutor = new ScheduledThreadPoolExecutor(1);
 
-    final QueryMonitor queryMonitor = new QueryMonitor(
+    final var queryMonitor = new QueryMonitor(
         queryMonitorExecutor,
         cache,
         NEVER_EXPIRE_MILLIS);
@@ -154,10 +154,10 @@ public class QueryMonitorIntegrationTest {
     // We want to ensure isolation of cancellation tasks for different query threads/executions.
     // Here we ensure that if we monitor/unmonitor two executions in different threads that
     // both cancellation tasks are removed from the executor queue.
-    final Thread firstClientQueryThread = new Thread(() -> {
+    final var firstClientQueryThread = new Thread(() -> {
       queryMonitor.monitorQueryExecution(executionContext);
 
-      final Thread secondClientQueryThread = new Thread(() -> {
+      final var secondClientQueryThread = new Thread(() -> {
         queryMonitor.monitorQueryExecution(executionContext2);
         queryMonitor.stopMonitoringQueryExecution(executionContext2);
       });
@@ -183,7 +183,7 @@ public class QueryMonitorIntegrationTest {
   private void startQueryThread(final QueryMonitor queryMonitor,
       final ExecutionContext executionContext) {
 
-    final Thread queryThread = new Thread(() -> {
+    final var queryThread = new Thread(() -> {
       queryMonitor.monitorQueryExecution(executionContext);
 
       while (true) {

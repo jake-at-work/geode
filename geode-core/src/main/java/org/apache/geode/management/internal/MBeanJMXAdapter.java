@@ -15,10 +15,8 @@
 package org.apache.geode.management.internal;
 
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.AttributeNotFoundException;
@@ -31,7 +29,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationEmitter;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
@@ -93,11 +90,11 @@ public class MBeanJMXAdapter implements ManagementConstants {
    * @return modified ObjectName
    */
   public ObjectName registerMBean(Object object, ObjectName objectName, boolean isGemFireMBean) {
-    ObjectName newObjectName = objectName;
+    var newObjectName = objectName;
     try {
       if (!isGemFireMBean) {
-        String member = getMemberNameOrUniqueId(distMember);
-        String objectKeyProperty = objectName.getKeyPropertyListString();
+        var member = getMemberNameOrUniqueId(distMember);
+        var objectKeyProperty = objectName.getKeyPropertyListString();
 
         newObjectName = ObjectName.getInstance(
             OBJECTNAME__PREFIX + objectKeyProperty + KEYVAL_SEPARATOR + "member=" + member);
@@ -127,17 +124,17 @@ public class MBeanJMXAdapter implements ManagementConstants {
       if (!isRegistered(objectName)) {
         return false;
       }
-      ObjectInstance instance = mbeanServer.getObjectInstance(objectName);
-      String className = instance.getClassName();
-      Class cls = ClassLoadUtils.classFromName(className);
-      Type[] intfTyps = cls.getGenericInterfaces();
-      for (Type intfTyp1 : intfTyps) {
-        Class intfTyp = (Class) intfTyp1;
+      var instance = mbeanServer.getObjectInstance(objectName);
+      var className = instance.getClassName();
+      var cls = ClassLoadUtils.classFromName(className);
+      var intfTyps = cls.getGenericInterfaces();
+      for (var intfTyp1 : intfTyps) {
+        var intfTyp = (Class) intfTyp1;
         if (intfTyp.equals(NotificationEmitter.class)) {
           return true;
         }
       }
-      Class superClassType = (Class) cls.getGenericSuperclass();
+      var superClassType = (Class) cls.getGenericSuperclass();
       if (superClassType != null && superClassType.equals(NotificationBroadcasterSupport.class)) {
         return true;
       }
@@ -212,7 +209,7 @@ public class MBeanJMXAdapter implements ManagementConstants {
    */
   public <T> T findMBeanByName(ObjectName objectName, Class<T> interfaceClass) {
 
-    Object mbeanInstance = localGemFireMBean.get(objectName);
+    var mbeanInstance = localGemFireMBean.get(objectName);
     if (mbeanInstance != null) {
       return interfaceClass.cast(mbeanInstance);
     } else {
@@ -231,10 +228,10 @@ public class MBeanJMXAdapter implements ManagementConstants {
 
   public void unregisterAll() {
     try {
-      ObjectName name = new ObjectName(OBJECTNAME__PREFIX + "*");
-      Set<ObjectName> gemFireObjects = mbeanServer.queryNames(name, null);
+      var name = new ObjectName(OBJECTNAME__PREFIX + "*");
+      var gemFireObjects = mbeanServer.queryNames(name, null);
 
-      for (ObjectName objectName : gemFireObjects) {
+      for (var objectName : gemFireObjects) {
         unregisterMBean(objectName);
       }
     } catch (MalformedObjectNameException | NullPointerException e) {
@@ -311,7 +308,7 @@ public class MBeanJMXAdapter implements ManagementConstants {
   }
 
   private static boolean isQuoted(String value) {
-    final int len = value.length();
+    final var len = value.length();
     return len >= 2 && value.charAt(0) == '"' && value.charAt(len - 1) == '"';
   }
 
@@ -326,72 +323,72 @@ public class MBeanJMXAdapter implements ManagementConstants {
    *
    */
   public MemberMXBean getMemberMXBean() {
-    ObjectName objName = getMemberMBeanName(distMember);
+    var objName = getMemberMBeanName(distMember);
     return (MemberMXBean) localGemFireMBean.get(objName);
 
   }
 
   public RegionMXBean getLocalRegionMXBean(String regionPath) {
-    ObjectName objName = getRegionMBeanName(distMember, regionPath);
+    var objName = getRegionMBeanName(distMember, regionPath);
     return (RegionMXBean) localGemFireMBean.get(objName);
 
   }
 
   public LockServiceMXBean getLocalLockServiceMXBean(String lockServiceName) {
-    ObjectName objName = getLockServiceMBeanName(distMember, lockServiceName);
+    var objName = getLockServiceMBeanName(distMember, lockServiceName);
     return (LockServiceMXBean) localGemFireMBean.get(objName);
   }
 
   public DiskStoreMXBean getLocalDiskStoreMXBean(String disStoreName) {
-    ObjectName objName = getDiskStoreMBeanName(distMember, disStoreName);
+    var objName = getDiskStoreMBeanName(distMember, disStoreName);
     return (DiskStoreMXBean) localGemFireMBean.get(objName);
 
   }
 
   public CacheServerMXBean getClientServiceMXBean(int serverPort) {
-    ObjectName objName = getClientServiceMBeanName(serverPort, distMember);
+    var objName = getClientServiceMBeanName(serverPort, distMember);
     return (CacheServerMXBean) localGemFireMBean.get(objName);
 
   }
 
   public DistributedLockServiceMXBean getDistributedLockServiceMXBean(String lockServiceName) {
-    ObjectName objName = getDistributedLockServiceName(lockServiceName);
+    var objName = getDistributedLockServiceName(lockServiceName);
     return (DistributedLockServiceMXBean) localGemFireMBean.get(objName);
   }
 
   public DistributedRegionMXBean getDistributedRegionMXBean(String regionPath) {
-    ObjectName objName = getDistributedRegionMbeanName(regionPath);
+    var objName = getDistributedRegionMbeanName(regionPath);
     return (DistributedRegionMXBean) localGemFireMBean.get(objName);
   }
 
   public ManagerMXBean getManagerMXBean() {
-    ObjectName objName = getManagerName();
+    var objName = getManagerName();
     return (ManagerMXBean) localGemFireMBean.get(objName);
   }
 
   public DistributedSystemMXBean getDistributedSystemMXBean() {
-    ObjectName objName = getDistributedSystemName();
+    var objName = getDistributedSystemName();
     return (DistributedSystemMXBean) localGemFireMBean.get(objName);
   }
 
   public GatewayReceiverMXBean getGatewayReceiverMXBean() {
-    ObjectName objName = getGatewayReceiverMBeanName(distMember);
+    var objName = getGatewayReceiverMBeanName(distMember);
     return (GatewayReceiverMXBean) localGemFireMBean.get(objName);
   }
 
   public GatewaySenderMXBean getGatewaySenderMXBean(String senderId) {
-    ObjectName objName = getGatewaySenderMBeanName(distMember, senderId);
+    var objName = getGatewaySenderMBeanName(distMember, senderId);
     return (GatewaySenderMXBean) localGemFireMBean.get(objName);
   }
 
   public AsyncEventQueueMXBean getAsyncEventQueueMXBean(String queueId) {
-    ObjectName objName = getAsyncEventQueueMBeanName(distMember, queueId);
+    var objName = getAsyncEventQueueMBeanName(distMember, queueId);
     return (AsyncEventQueueMXBean) localGemFireMBean.get(objName);
   }
 
 
   public LocatorMXBean getLocatorMXBean() {
-    ObjectName objName = getLocatorMBeanName(distMember);
+    var objName = getLocatorMBeanName(distMember);
     return (LocatorMXBean) localGemFireMBean.get(objName);
   }
 
@@ -514,7 +511,7 @@ public class MBeanJMXAdapter implements ManagementConstants {
   }
 
   public static ObjectName getManagerName() {
-    String member =
+    var member =
         getMemberNameOrUniqueId(
             InternalDistributedSystem.getConnectedInstance().getDistributedMember());
     return getObjectName((MessageFormat.format(OBJECTNAME__MANAGER_MXBEAN, member)));
@@ -541,7 +538,7 @@ public class MBeanJMXAdapter implements ManagementConstants {
   }
 
   public static String getUniqueIDForMember(InternalDistributedMember member) {
-    final String sb = member.getInetAddress().getHostAddress()
+    final var sb = member.getInetAddress().getHostAddress()
         // View ID will be 0 for Loner, but in that case no federation as well
         + "<v" + member.getVmViewId() + ">"
         + member.getMembershipPort();
@@ -552,7 +549,7 @@ public class MBeanJMXAdapter implements ManagementConstants {
   public static boolean isAttributeAvailable(String attributeName, String objectName) {
 
     try {
-      ObjectName objName = new ObjectName(objectName);
+      var objName = new ObjectName(objectName);
       mbeanServer.getAttribute(objName, attributeName);
     } catch (MalformedObjectNameException | ReflectionException | MBeanException
         | InstanceNotFoundException | AttributeNotFoundException | NullPointerException e) {

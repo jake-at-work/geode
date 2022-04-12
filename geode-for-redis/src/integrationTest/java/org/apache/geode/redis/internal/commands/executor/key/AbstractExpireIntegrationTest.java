@@ -59,8 +59,8 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
   @Test
   public void Should_SetExpiration_givenKeyTo_StringValue() {
 
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
     jedis.set(key, value);
 
     Long timeToLive = jedis.ttl(key);
@@ -76,8 +76,8 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
   @Test
   public void should_setExpiration_givenKeyTo_SetValue() {
 
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
 
     jedis.sadd(key, value);
     Long timeToLive = jedis.ttl(key);
@@ -93,9 +93,9 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
   @Test
   public void should_setExpiration_givenKeyTo_HashValue() {
 
-    String key = "key";
-    String field = "field";
-    String value = "value";
+    var key = "key";
+    var field = "field";
+    var value = "value";
 
     jedis.hset(key, field, value);
     Long timeToLive = jedis.ttl(key);
@@ -111,8 +111,8 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
   @Test
   public void should_setExpiration_givenKeyTo_BitMapValue() {
 
-    String key = "key";
-    long offset = 1L;
+    var key = "key";
+    var offset = 1L;
 
     jedis.setbit(key, offset, false);
 
@@ -128,9 +128,9 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
   @Test
   public void settingAnExistingKeyToANewValue_ShouldClearExpirationTime() {
 
-    String key = "key";
-    String value = "value";
-    String anotherValue = "anotherValue";
+    var key = "key";
+    var value = "value";
+    var anotherValue = "anotherValue";
     jedis.set(key, value);
 
     jedis.expire(key, 20L);
@@ -144,9 +144,9 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
 
   @Test
   public void callingGETSETonExistingKey_ShouldClearExpirationTime() {
-    String key = "key";
-    String value = "value";
-    String anotherValue = "anotherValue";
+    var key = "key";
+    var value = "value";
+    var anotherValue = "anotherValue";
 
     jedis.set(key, value);
     jedis.expire(key, 20L);
@@ -160,8 +160,8 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
   @Test
   public void deletingAnExistingKeyAndRecreatingTheSameKey_ShouldClearExistingExpirationTime() {
 
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
 
     jedis.set(key, value);
     jedis.expire(key, 20L);
@@ -176,12 +176,12 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
   @Test
   public void callingSDIFFSTOREonExistingKey_ShouldClearExpirationTime() {
 
-    String key1 = "{tag1}key1";
-    String key2 = "{tag1}key2";
-    String key3 = "{tag1}key3";
-    String value1 = "value1";
-    String value2 = "value2";
-    String value3 = "value3";
+    var key1 = "{tag1}key1";
+    var key2 = "{tag1}key2";
+    var key3 = "{tag1}key3";
+    var value1 = "value1";
+    var value2 = "value2";
+    var value3 = "value3";
 
     jedis.sadd(key1, value1);
     jedis.sadd(key1, value2);
@@ -199,12 +199,12 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
 
   @Test
   public void callingSINTERSTOREonExistingKey_ShouldClearExpirationTime() {
-    String key1 = "{tag1}key1";
-    String key2 = "{tag1}key2";
-    String key3 = "{tag1}key3";
-    String value1 = "value1";
-    String value2 = "value2";
-    String value3 = "value3";
+    var key1 = "{tag1}key1";
+    var key2 = "{tag1}key2";
+    var key3 = "{tag1}key3";
+    var value1 = "value1";
+    var value2 = "value2";
+    var value3 = "value3";
 
     jedis.sadd(key1, value1);
     jedis.sadd(key1, value2);
@@ -222,12 +222,12 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
 
   @Test
   public void callingSUNIONSTOREonExistingKey_ShouldClearExpirationTime() {
-    String key1 = "{tag1}key1";
-    String key2 = "{tag1}key2";
-    String key3 = "{tag1}key3";
-    String value1 = "value1";
-    String value2 = "value2";
-    String value3 = "value3";
+    var key1 = "{tag1}key1";
+    var key2 = "{tag1}key2";
+    var key3 = "{tag1}key3";
+    var value1 = "value1";
+    var value2 = "value2";
+    var value3 = "value3";
 
     jedis.sadd(key1, value1);
     jedis.sadd(key1, value2);
@@ -245,8 +245,8 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
 
   @Test
   public void callingINCRonExistingKey_should_NOT_ClearExpirationTime() {
-    String key = "key";
-    String value = "0";
+    var key = "key";
+    var value = "0";
 
     jedis.set(key, value);
     jedis.expire(key, 20L);
@@ -259,10 +259,10 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
 
   @Test
   public void usingHSETCommandToAlterAFieldValue_should_NOT_ClearExpirationTimeOnKey() {
-    String key = "key";
-    String field = "field";
-    String value = "value";
-    String value2 = "value2";
+    var key = "key";
+    var field = "field";
+    var value = "value";
+    var value2 = "value2";
 
     jedis.hset(key, field, value);
 
@@ -277,9 +277,9 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
 
   @Test
   public void callingRENAMEonExistingKey_shouldTransferExpirationTimeToNewKeyName_GivenNewName_Not_InUse() {
-    String key = "{tag1}key";
-    String newKeyName = "{tag1}new key name";
-    String value = "value";
+    var key = "{tag1}key";
+    var newKeyName = "{tag1}new key name";
+    var value = "value";
     jedis.set(key, value);
     jedis.expire(key, 20L);
 
@@ -291,9 +291,9 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
 
   @Test
   public void callingRENAMEonExistingKey_shouldTransferExpirationTimeToNewKeyName_GivenNewName_is_InUse_ButNo_ExpirationSet() {
-    String key = "{tag1}key";
-    String key2 = "{tag1}key2";
-    String value = "value";
+    var key = "{tag1}key";
+    var key2 = "{tag1}key2";
+    var value = "value";
 
     jedis.set(key, value);
     jedis.expire(key, 20L);
@@ -308,9 +308,9 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
 
   @Test
   public void callingRENAMEonExistingKey_shouldTransferExpirationTimeToNewKeyName_GivenNewName_is_InUse_AndHas_ExpirationSet() {
-    String key = "{tag1}key";
-    String key2 = "{tag1}key2";
-    String value = "value";
+    var key = "{tag1}key";
+    var key2 = "{tag1}key2";
+    var value = "value";
 
     jedis.set(key, value);
     jedis.expire(key, 20L);
@@ -327,8 +327,8 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
   @Test
   public void SettingExpirationToNegativeValue_ShouldDeleteKey() {
 
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
     jedis.set(key, value);
 
     Long expirationWasSet = jedis.expire(key, -5L);
@@ -341,8 +341,8 @@ public abstract class AbstractExpireIntegrationTest implements RedisIntegrationT
 
   @Test
   public void CallingExpireOnAKeyThatAlreadyHasAnExpirationTime_ShouldUpdateTheExpirationTime() {
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
     jedis.set(key, value);
 
     jedis.expire(key, 20L);

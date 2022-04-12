@@ -82,7 +82,7 @@ public class SessionExpirationCacheListenerIntegrationTest {
         .addCacheListener(new SessionExpirationCacheListener())
         .create(REGION_NAME);
 
-    DeltaSessionManager manager = mock(DeltaSessionManager.class);
+    var manager = mock(DeltaSessionManager.class);
     when(manager.getLogger()).thenReturn(mock(Log.class));
     when(manager.getRegionName()).thenReturn(REGION_NAME);
     when(manager.getSessionCache()).thenReturn(mock(SessionCache.class));

@@ -274,7 +274,7 @@ public class HAEventWrapper implements Conflatable, DataSerializableFixedID, Siz
   @Override
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
-    ClientUpdateMessageImpl cum = (ClientUpdateMessageImpl) haContainer.get(this);
+    var cum = (ClientUpdateMessageImpl) haContainer.get(this);
 
     // If the dispatcher sends the cum object to the client and removes it from
     // the haContainer before we do haContainer.get() (above), we indicate that
@@ -313,32 +313,32 @@ public class HAEventWrapper implements Conflatable, DataSerializableFixedID, Siz
       if (clientUpdateMessage.hasCqs()) {
         {
           ClientCqConcurrentMap cqMap;
-          int size = InternalDataSerializer.readArrayLength(in);
+          var size = InternalDataSerializer.readArrayLength(in);
           if (size == -1) {
             cqMap = null;
           } else {
             cqMap = new ClientCqConcurrentMap(size, 1.0f, 1);
-            for (int i = 0; i < size; i++) {
+            for (var i = 0; i < size; i++) {
               ClientProxyMembershipID key = DataSerializer.readObject(in);
               CqNameToOp value;
               {
-                byte typeByte = in.readByte();
+                var typeByte = in.readByte();
                 if (typeByte == DSCODE.HASH_MAP.toByte()) {
-                  int cqNamesSize = InternalDataSerializer.readArrayLength(in);
+                  var cqNamesSize = InternalDataSerializer.readArrayLength(in);
                   if (cqNamesSize == -1) {
                     throw new IllegalStateException(
                         "The value of a ConcurrentHashMap is not allowed to be null.");
                   } else if (cqNamesSize == 1) {
                     String cqNamesKey = DataSerializer.readObject(in);
-                    Integer cqNamesValue = DataSerializer.<Integer>readObject(in);
+                    var cqNamesValue = DataSerializer.<Integer>readObject(in);
                     value = new CqNameToOpSingleEntry(cqNamesKey, cqNamesValue);
                   } else if (cqNamesSize == 0) {
                     value = new CqNameToOpSingleEntry(null, 0);
                   } else {
                     value = new CqNameToOpHashMap(cqNamesSize);
-                    for (int j = 0; j < cqNamesSize; j++) {
+                    for (var j = 0; j < cqNamesSize; j++) {
                       String cqNamesKey = DataSerializer.readObject(in);
-                      Integer cqNamesValue = DataSerializer.<Integer>readObject(in);
+                      var cqNamesValue = DataSerializer.<Integer>readObject(in);
                       value.add(cqNamesKey, cqNamesValue);
                     }
                   }
@@ -410,7 +410,7 @@ public class HAEventWrapper implements Conflatable, DataSerializableFixedID, Siz
   }
 
   public long incrementPutInProgressCounter(String location) {
-    long putInProgressCounter = putInProgressCountUpdater.incrementAndGet(this);
+    var putInProgressCounter = putInProgressCountUpdater.incrementAndGet(this);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Incremented PutInProgressCounter from " + location
@@ -423,7 +423,7 @@ public class HAEventWrapper implements Conflatable, DataSerializableFixedID, Siz
 
   public long decrementPutInProgressCounter() {
     synchronized (this) {
-      long putInProgressCounter = putInProgressCountUpdater.decrementAndGet(this);
+      var putInProgressCounter = putInProgressCountUpdater.decrementAndGet(this);
 
       if (logger.isDebugEnabled()) {
         logger.debug("Decremented PutInProgressCounter on HAEventWrapper with Event ID hash code: "

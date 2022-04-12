@@ -87,7 +87,7 @@ abstract class RVVException
     // arbitrary cutoff of 100 bytes to use a treeSet instead of bitSet
     // But if we are deserializing an exception too many received versions use a
     // bitset anyway.
-    long delta = nextVersion - previousVersion;
+    var delta = nextVersion - previousVersion;
     if (UseTreeSetsForTesting
         || (delta > RVV_MAX_BITSET_SPAN && initialExceptionCount * 512 < delta)) {
       return new RVVExceptionT(previousVersion, nextVersion);
@@ -106,21 +106,21 @@ abstract class RVVException
    * RegionVersionHolder.fromData() calls this to create an exception
    */
   static RVVException createException(DataInput in) throws IOException {
-    long previousVersion = InternalDataSerializer.readUnsignedVL(in);
-    int size = (int) InternalDataSerializer.readUnsignedVL(in);
-    long last = previousVersion;
-    long[] versions = new long[(int) size];
-    for (int i = 0; i < size; i++) {
-      long delta = InternalDataSerializer.readUnsignedVL(in);
-      long value = delta + last;
+    var previousVersion = InternalDataSerializer.readUnsignedVL(in);
+    var size = (int) InternalDataSerializer.readUnsignedVL(in);
+    var last = previousVersion;
+    var versions = new long[(int) size];
+    for (var i = 0; i < size; i++) {
+      var delta = InternalDataSerializer.readUnsignedVL(in);
+      var value = delta + last;
       versions[i] = value;
       last = value;
     }
-    long delta = InternalDataSerializer.readUnsignedVL(in);
-    long nextVersion = last + delta;
-    RVVException result = createException(previousVersion, nextVersion, size);
+    var delta = InternalDataSerializer.readUnsignedVL(in);
+    var nextVersion = last + delta;
+    var result = createException(previousVersion, nextVersion, size);
 
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       result.addReceived(versions[i]);
     }
     return result;
@@ -164,8 +164,8 @@ abstract class RVVException
    */
   @Override
   public int compareTo(RVVException o) {
-    long thisVal = previousVersion;
-    long anotherVal = o.previousVersion;
+    var thisVal = previousVersion;
+    var anotherVal = o.previousVersion;
     return (thisVal < anotherVal ? -1 : (thisVal == anotherVal ? 0 : 1));
   }
 

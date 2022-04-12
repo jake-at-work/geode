@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -40,12 +39,10 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.NoSubscriptionServersAvailableException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.CacheServerImpl;
@@ -89,7 +86,7 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     server1 = host.getVM(0);
     server2 = host.getVM(1);
     server3 = host.getVM(2);
@@ -356,7 +353,7 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
   public static void stopServer() {
     try {
       assertEquals("Expected exactly one BridgeServer", 1, cache.getCacheServers().size());
-      CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+      var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
       assertNotNull(bs);
       bs.stop();
     } catch (Exception ex) {
@@ -389,9 +386,9 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
 
   public static void startServer() {
     try {
-      Cache c = CacheFactory.getAnyInstance();
+      var c = CacheFactory.getAnyInstance();
       assertEquals("Expected exactly one BridgeServer", 1, c.getCacheServers().size());
-      CacheServerImpl bs = (CacheServerImpl) c.getCacheServers().iterator().next();
+      var bs = (CacheServerImpl) c.getCacheServers().iterator().next();
       assertNotNull(bs);
       bs.start();
     } catch (Exception ex) {
@@ -404,7 +401,7 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
     if (!identifiedPrimary) {
       synchronized (HAStartupAndFailoverDUnitTest.class) {
         if (!identifiedPrimary) {
-          final int MAX_WAIT = 60 * 1000;
+          final var MAX_WAIT = 60 * 1000;
           try {
             HAStartupAndFailoverDUnitTest.class.wait(MAX_WAIT);
           } catch (InterruptedException e) {
@@ -421,7 +418,7 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
 
   public static void verifyDispatcherIsAlive() {
     try {
-      WaitCriterion wc = new WaitCriterion() {
+      var wc = new WaitCriterion() {
         String excuse;
 
         @Override
@@ -436,11 +433,11 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
       };
       GeodeAwaitility.await().untilAsserted(wc);
 
-      CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+      var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
       assertNotNull(bs);
       assertNotNull(bs.getAcceptor());
       assertNotNull(bs.getAcceptor().getCacheClientNotifier());
-      final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+      final var ccn = bs.getAcceptor().getCacheClientNotifier();
       wc = new WaitCriterion() {
         String excuse;
 
@@ -456,11 +453,11 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
       };
       GeodeAwaitility.await().untilAsserted(wc);
 
-      Collection<CacheClientProxy> proxies = ccn.getClientProxies();
-      Iterator<CacheClientProxy> iter_prox = proxies.iterator();
+      var proxies = ccn.getClientProxies();
+      var iter_prox = proxies.iterator();
 
       if (iter_prox.hasNext()) {
-        final CacheClientProxy proxy = iter_prox.next();
+        final var proxy = iter_prox.next();
         wc = new WaitCriterion() {
           String excuse;
 
@@ -484,10 +481,10 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
 
   public static void verifyDispatcherIsNotAlive() {
     try {
-      Cache c = getAnyInstance();
+      var c = getAnyInstance();
       // assertIndexDetailsEquals("More than one BridgeServer", 1,
       // c.getCacheServers().size());
-      WaitCriterion wc = new WaitCriterion() {
+      var wc = new WaitCriterion() {
         String excuse;
 
         @Override
@@ -502,11 +499,11 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
       };
       GeodeAwaitility.await().untilAsserted(wc);
 
-      CacheServerImpl bs = (CacheServerImpl) c.getCacheServers().iterator().next();
+      var bs = (CacheServerImpl) c.getCacheServers().iterator().next();
       assertNotNull(bs);
       assertNotNull(bs.getAcceptor());
       assertNotNull(bs.getAcceptor().getCacheClientNotifier());
-      final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+      final var ccn = bs.getAcceptor().getCacheClientNotifier();
       wc = new WaitCriterion() {
         String excuse;
 
@@ -524,7 +521,7 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
 
       Iterator iter_prox = ccn.getClientProxies().iterator();
       if (iter_prox.hasNext()) {
-        CacheClientProxy proxy = (CacheClientProxy) iter_prox.next();
+        var proxy = (CacheClientProxy) iter_prox.next();
         assertFalse("Dispatcher on secondary should not be alive",
             proxy._messageDispatcher.isAlive());
       }
@@ -543,21 +540,21 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void createClientCache(String testName, String host) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAStartupAndFailoverDUnitTest().createCache(props);
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(host, PORT1)
+    var p = (PoolImpl) PoolManager.createFactory().addServer(host, PORT1)
         .addServer(host, PORT2).addServer(host, PORT3)
         .setSubscriptionEnabled(true).setSubscriptionRedundancy(-1).setReadTimeout(10000)
         // .setRetryInterval(2000)
         .create("HAStartupAndFailoverDUnitTestPool");
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(p.getName());
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
     pool = p;
@@ -567,21 +564,21 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
 
   public static void createClientCacheWithLargeRetryInterval(String testName, String host)
       throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAStartupAndFailoverDUnitTest().createCache(props);
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(host, PORT1)
+    var p = (PoolImpl) PoolManager.createFactory().addServer(host, PORT1)
         .addServer(host, PORT2).addServer(host, PORT3)
         .setSubscriptionEnabled(true).setSubscriptionRedundancy(-1).setReadTimeout(10000)
         // .setRetryInterval(2000000)
         .create("HAStartupAndFailoverDUnitTestPool");
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(p.getName());
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
     pool = p;
@@ -591,7 +588,7 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
 
   public static void createClientCacheWithLargeRetryIntervalAndWithoutCallbackConnection(
       String testName, String host) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAStartupAndFailoverDUnitTest().createCache(props);
@@ -607,11 +604,11 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
       CacheServerTestUtil.enableShufflingOfEndpoints();
     }
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(p.getName());
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
     pool = p;
@@ -626,22 +623,22 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
 
   public static void createClientCacheWithIncorrectPrimary(String testName, String host)
       throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAStartupAndFailoverDUnitTest().createCache(props);
-    final int INCORRECT_PORT = 1;
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(host, INCORRECT_PORT)
+    final var INCORRECT_PORT = 1;
+    var p = (PoolImpl) PoolManager.createFactory().addServer(host, INCORRECT_PORT)
         .addServer(host, PORT2).addServer(host, PORT3)
         .setSubscriptionEnabled(true).setSubscriptionRedundancy(-1).setReadTimeout(10000)
         // .setRetryInterval(10000)
         .create("HAStartupAndFailoverDUnitTestPool");
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(p.getName());
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
     pool = p;
@@ -651,15 +648,15 @@ public class HAStartupAndFailoverDUnitTest extends JUnit4DistributedTestCase {
 
   public static Integer createServerCache() throws Exception {
     new HAStartupAndFailoverDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEnableBridgeConflation(true);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
-    CacheServer server1 = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server1.setPort(port);
     // ensures updates to be sent instead of invalidations
     server1.setNotifyBySubscription(true);

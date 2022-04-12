@@ -22,9 +22,7 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -44,9 +42,9 @@ public class CloseConnection extends BaseCommand {
   public void cmdExecute(final @NotNull Message clientMessage,
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start) throws IOException {
-    CacheServerStats stats = serverConnection.getCacheServerStats();
-    long oldStart = start;
-    boolean respondToClient =
+    var stats = serverConnection.getCacheServerStats();
+    var oldStart = start;
+    var respondToClient =
         serverConnection.getClientVersion().isNotOlderThan(KnownVersion.GFE_90);
     start = DistributionStats.getStatTime();
     stats.incReadCloseConnectionRequestTime(start - oldStart);
@@ -58,16 +56,16 @@ public class CloseConnection extends BaseCommand {
 
     try {
       serverConnection.setClientDisconnectCleanly();
-      String clientHost = serverConnection.getSocketHost();
-      int clientPort = serverConnection.getSocketPort();
+      var clientHost = serverConnection.getSocketHost();
+      var clientPort = serverConnection.getSocketPort();
       if (logger.isDebugEnabled()) {
         logger.debug("{}: Received close request ({} bytes) from {}:{}", serverConnection.getName(),
             clientMessage.getPayloadLength(), clientHost, clientPort);
       }
 
-      Part keepalivePart = clientMessage.getPart(0);
-      byte[] keepaliveByte = keepalivePart.getSerializedForm();
-      boolean keepalive = keepaliveByte != null && keepaliveByte[0] != 0;
+      var keepalivePart = clientMessage.getPart(0);
+      var keepaliveByte = keepalivePart.getSerializedForm();
+      var keepalive = keepaliveByte != null && keepaliveByte[0] != 0;
 
       serverConnection.getAcceptor().getCacheClientNotifier()
           .setKeepAlive(serverConnection.getProxyID(), keepalive);

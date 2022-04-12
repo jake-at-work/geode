@@ -19,7 +19,6 @@ import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
@@ -27,7 +26,6 @@ import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.pdx.internal.PdxType;
-import org.apache.geode.pdx.internal.TypeRegistry;
 
 public class GetPDXTypeById extends BaseCommand {
 
@@ -56,12 +54,12 @@ public class GetPDXTypeById extends BaseCommand {
       serverConnection.getAuthzRequest();
     }
 
-    int pdxId = clientMessage.getPart(0).getInt();
+    var pdxId = clientMessage.getPart(0).getInt();
 
     PdxType type;
     try {
-      InternalCache cache = serverConnection.getCache();
-      TypeRegistry registry = cache.getPdxRegistry();
+      var cache = serverConnection.getCache();
+      var registry = cache.getPdxRegistry();
       type = registry.getType(pdxId);
     } catch (Exception e) {
       writeException(clientMessage, e, false, serverConnection);
@@ -69,7 +67,7 @@ public class GetPDXTypeById extends BaseCommand {
       return;
     }
 
-    Message responseMsg = serverConnection.getResponseMessage();
+    var responseMsg = serverConnection.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setNumberOfParts(1);
     responseMsg.setTransactionId(clientMessage.getTransactionId());

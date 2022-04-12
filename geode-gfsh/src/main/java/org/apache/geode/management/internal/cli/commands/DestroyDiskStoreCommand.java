@@ -15,14 +15,11 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.lang.Identifiable;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
@@ -30,7 +27,6 @@ import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.functions.DestroyDiskStoreFunction;
 import org.apache.geode.management.internal.cli.functions.DestroyDiskStoreFunctionArgs;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -49,18 +45,18 @@ public class DestroyDiskStoreCommand extends SingleGfshCommand {
       @CliOption(key = CliStrings.IFEXISTS, help = CliStrings.IFEXISTS_HELP,
           specifiedDefaultValue = "true", unspecifiedDefaultValue = "false") boolean ifExist) {
 
-    Set<DistributedMember> targetMembers = findMembers(groups, null);
+    var targetMembers = findMembers(groups, null);
 
     if (targetMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    DestroyDiskStoreFunctionArgs functionArgs = new DestroyDiskStoreFunctionArgs(name, ifExist);
+    var functionArgs = new DestroyDiskStoreFunctionArgs(name, ifExist);
 
-    List<CliFunctionResult> results =
+    var results =
         executeAndGetFunctionResult(new DestroyDiskStoreFunction(), functionArgs, targetMembers);
 
-    ResultModel result = ResultModel.createMemberStatusResult(results, ifExist);
+    var result = ResultModel.createMemberStatusResult(results, ifExist);
     result.setConfigObject(name);
 
     return result;
@@ -68,7 +64,7 @@ public class DestroyDiskStoreCommand extends SingleGfshCommand {
 
   @Override
   public boolean updateConfigForGroup(String group, CacheConfig config, Object configObject) {
-    String diskStoreName = (String) configObject;
+    var diskStoreName = (String) configObject;
     Identifiable.remove(config.getDiskStores(), diskStoreName);
     return true;
   }

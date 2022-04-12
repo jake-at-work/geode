@@ -51,7 +51,7 @@ public class GetEntryOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      EntrySnapshot snap = (EntrySnapshot) processObjResponse(msg, "getEntry");
+      var snap = (EntrySnapshot) processObjResponse(msg, "getEntry");
       if (snap != null) {
         snap.setRegion(region);
       }

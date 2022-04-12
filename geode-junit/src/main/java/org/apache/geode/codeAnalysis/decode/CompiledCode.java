@@ -31,8 +31,8 @@ public class CompiledCode {
   CompiledCode(byte[] code_block) throws IOException {
     int idx;
 
-    ByteArrayInputStream bis = new ByteArrayInputStream(code_block);
-    DataInputStream source = new DataInputStream(bis);
+    var bis = new ByteArrayInputStream(code_block);
+    var source = new DataInputStream(bis);
 
     max_stack = source.readUnsignedShort();
     max_locals = source.readUnsignedShort();
@@ -41,7 +41,7 @@ public class CompiledCode {
     source.read(code);
     exception_table_length = source.readUnsignedShort();
     exceptionTable = new ExceptionTableEntry[exception_table_length];
-    for (int i = 0; i < exception_table_length; i++) {
+    for (var i = 0; i < exception_table_length; i++) {
       exceptionTable[i] = new ExceptionTableEntry(source);
     }
     attributes_count = source.readUnsignedShort();

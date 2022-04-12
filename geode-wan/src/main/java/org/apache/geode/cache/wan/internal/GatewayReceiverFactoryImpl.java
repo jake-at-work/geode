@@ -132,7 +132,7 @@ public class GatewayReceiverFactoryImpl implements GatewayReceiverFactory {
           timeBetPings, socketBuffSize, bindAdd, filters,
           hostnameForSenders, manualStart);
       cache.addGatewayReceiver(recv);
-      InternalDistributedSystem system =
+      var system =
           (InternalDistributedSystem) cache.getDistributedSystem();
       system.handleResourceEvent(ResourceEvent.GATEWAYRECEIVER_CREATE, recv);
       if (!manualStart) {

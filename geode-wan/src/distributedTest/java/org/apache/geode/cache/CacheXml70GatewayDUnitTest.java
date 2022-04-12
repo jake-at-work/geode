@@ -19,20 +19,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache30.CacheXml70DUnitTestHelper;
 import org.apache.geode.cache30.CacheXmlTestCase;
@@ -60,10 +55,10 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
   @Test
   public void testAsyncEventQueueWithGatewayEventFilter() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    String id = "WBCLChannel";
-    AsyncEventQueueFactory factory = cache.createAsyncEventQueueFactory();
+    var id = "WBCLChannel";
+    var factory = cache.createAsyncEventQueueFactory();
     factory.setBatchSize(100);
     factory.setBatchTimeInterval(500);
     factory.setBatchConflationEnabled(true);
@@ -74,9 +69,9 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
     factory.addGatewayEventFilter(new MyGatewayEventFilter());
 
     AsyncEventListener eventListener = new CacheXml70DUnitTestHelper.MyAsyncEventListener();
-    AsyncEventQueue asyncEventQueue = factory.create(id, eventListener);
+    var asyncEventQueue = factory.create(id, eventListener);
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation();
+    var attrs = new RegionAttributesCreation();
     attrs.addAsyncEventQueueId(asyncEventQueue.getId());
     cache.createRegion("UserRegion", attrs);
 
@@ -84,11 +79,11 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
     Cache c = getCache();
     assertNotNull(c);
 
-    Set<AsyncEventQueue> asyncEventQueuesOnCache = c.getAsyncEventQueues();
+    var asyncEventQueuesOnCache = c.getAsyncEventQueues();
     assertTrue("Size of asyncEventQueues should be greater than 0",
         asyncEventQueuesOnCache.size() > 0);
 
-    for (AsyncEventQueue asyncEventQueueOnCache : asyncEventQueuesOnCache) {
+    for (var asyncEventQueueOnCache : asyncEventQueuesOnCache) {
       CacheXml70DUnitTestHelper.validateAsyncEventQueue(asyncEventQueue, asyncEventQueueOnCache);
     }
   }
@@ -96,9 +91,9 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
   @Test
   public void testGatewayReceiver() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    GatewayReceiverFactory gatewayReceiverFactory = cache.createGatewayReceiverFactory();
+    var gatewayReceiverFactory = cache.createGatewayReceiverFactory();
     gatewayReceiverFactory.setBindAddress("");
     gatewayReceiverFactory.setStartPort(20000);
     gatewayReceiverFactory.setEndPort(29999);
@@ -108,15 +103,15 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
     gatewayReceiverFactory.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     gatewayReceiverFactory.addGatewayTransportFilter(myStreamFilter2);
-    GatewayReceiver receiver1 = gatewayReceiverFactory.create();
+    var receiver1 = gatewayReceiverFactory.create();
 
     receiver1.start();
 
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    Set<GatewayReceiver> receivers = c.getGatewayReceivers();
-    for (GatewayReceiver receiver : receivers) {
+    var receivers = c.getGatewayReceivers();
+    for (var receiver : receivers) {
       validateGatewayReceiver(receiver1, receiver);
     }
   }
@@ -124,9 +119,9 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
   @Test
   public void testParallelGatewaySender() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    GatewaySenderFactory gatewaySenderFactory = cache.createGatewaySenderFactory();
+    var gatewaySenderFactory = cache.createGatewaySenderFactory();
     gatewaySenderFactory.setParallel(true);
     gatewaySenderFactory.setDispatcherThreads(13);
     gatewaySenderFactory.setManualStart(true);
@@ -147,13 +142,13 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
     gatewaySenderFactory.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     gatewaySenderFactory.addGatewayTransportFilter(myStreamFilter2);
-    GatewaySender parallelGatewaySender = gatewaySenderFactory.create("LN", 2);
+    var parallelGatewaySender = gatewaySenderFactory.create("LN", 2);
 
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    Set<GatewaySender> sendersOnCache = c.getGatewaySenders();
-    for (GatewaySender sender : sendersOnCache) {
+    var sendersOnCache = c.getGatewaySenders();
+    for (var sender : sendersOnCache) {
       assertEquals(true, sender.isParallel());
       validateGatewaySender(parallelGatewaySender, sender);
     }
@@ -162,8 +157,8 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
   @Test
   public void testSerialGatewaySender() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
-    GatewaySenderFactory gatewaySenderFactory = cache.createGatewaySenderFactory();
+    var cache = new CacheCreation();
+    var gatewaySenderFactory = cache.createGatewaySenderFactory();
     gatewaySenderFactory.setParallel(false);
     gatewaySenderFactory.setManualStart(true);
     gatewaySenderFactory.setSocketBufferSize(124);
@@ -183,17 +178,17 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
     gatewaySenderFactory.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     gatewaySenderFactory.addGatewayTransportFilter(myStreamFilter2);
-    GatewaySender serialGatewaySender = gatewaySenderFactory.create("LN", 2);
+    var serialGatewaySender = gatewaySenderFactory.create("LN", 2);
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation();
+    var attrs = new RegionAttributesCreation();
     attrs.addGatewaySenderId(serialGatewaySender.getId());
     cache.createRegion("UserRegion", attrs);
 
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    Set<GatewaySender> sendersOnCache = c.getGatewaySenders();
-    for (GatewaySender sender : sendersOnCache) {
+    var sendersOnCache = c.getGatewaySenders();
+    for (var sender : sendersOnCache) {
       assertEquals(false, sender.isParallel());
       validateGatewaySender(serialGatewaySender, sender);
     }
@@ -248,7 +243,7 @@ public class CacheXml70GatewayDUnitTest extends CacheXmlTestCase {
     assertEquals(sender1.getGatewayTransportFilters().size(),
         gatewaySender.getGatewayTransportFilters().size());
 
-    boolean isParallel = sender1.isParallel();
+    var isParallel = sender1.isParallel();
     if (isParallel) {
       assertTrue("sender should be instanceof Creation",
           sender1 instanceof ParallelGatewaySenderCreation);

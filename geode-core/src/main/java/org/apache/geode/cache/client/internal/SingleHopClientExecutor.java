@@ -15,7 +15,6 @@
 package org.apache.geode.cache.client.internal;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,9 +61,9 @@ public class SingleHopClientExecutor {
       } catch (InterruptedException e) {
         throw new InternalGemFireException(e.getMessage());
       }
-      Iterator itr = futures.iterator();
+      var itr = futures.iterator();
       while (itr.hasNext() && !execService.isShutdown() && !execService.isTerminated()) {
-        Future fut = (Future) itr.next();
+        var fut = (Future) itr.next();
         try {
           fut.get();
         } catch (InterruptedException e) {
@@ -90,7 +89,7 @@ public class SingleHopClientExecutor {
       final PoolImpl pool) {
 
     ClientMetadataService cms;
-    int maxRetryAttempts = MAX_RETRY_INITIAL_VALUE;
+    var maxRetryAttempts = MAX_RETRY_INITIAL_VALUE;
 
     if (callableTasks != null && !callableTasks.isEmpty()) {
       List futures;
@@ -100,13 +99,13 @@ public class SingleHopClientExecutor {
         throw new InternalGemFireException(e.getMessage());
       }
       GemFireException functionExecutionException = null;
-      Iterator futureItr = futures.iterator();
-      Iterator taskItr = callableTasks.iterator();
-      final boolean isDebugEnabled = logger.isDebugEnabled();
+      var futureItr = futures.iterator();
+      var taskItr = callableTasks.iterator();
+      final var isDebugEnabled = logger.isDebugEnabled();
       while (futureItr.hasNext() && !execService.isShutdown() && !execService.isTerminated()) {
-        Future fut = (Future) futureItr.next();
-        SingleHopOperationCallable task = (SingleHopOperationCallable) taskItr.next();
-        ServerLocation server = task.getServer();
+        var fut = (Future) futureItr.next();
+        var task = (SingleHopOperationCallable) taskItr.next();
+        var server = task.getServer();
         try {
           fut.get();
           if (isDebugEnabled) {
@@ -155,7 +154,7 @@ public class SingleHopClientExecutor {
                   "ExecuteRegionFunctionSingleHopOp#ExecutionException.FunctionException : Caused by :{}",
                   ee.getCause());
             }
-            FunctionException fe = (FunctionException) ee.getCause();
+            var fe = (FunctionException) ee.getCause();
             if (isHA) {
               throw fe;
             } else {
@@ -167,7 +166,7 @@ public class SingleHopClientExecutor {
                   "ExecuteRegionFunctionSingleHopOp#ExecutionException.ServerOperationException : Caused by :{}",
                   ee.getCause());
             }
-            ServerOperationException soe = (ServerOperationException) ee.getCause();
+            var soe = (ServerOperationException) ee.getCause();
             if (isHA) {
               throw soe;
             } else {
@@ -216,28 +215,28 @@ public class SingleHopClientExecutor {
       Map<ServerLocation, RuntimeException> failedServers) {
     if (callableTasks != null && !callableTasks.isEmpty()) {
       Map<ServerLocation, Object> resultMap = new HashMap<>();
-      boolean anyPartialResults = false;
+      var anyPartialResults = false;
       List futures;
       try {
         futures = execService.invokeAll(callableTasks);
       } catch (InterruptedException e) {
         throw new InternalGemFireException(e.getMessage());
       }
-      Iterator futureItr = futures.iterator();
-      Iterator taskItr = callableTasks.iterator();
+      var futureItr = futures.iterator();
+      var taskItr = callableTasks.iterator();
       RuntimeException rte = null;
       while (futureItr.hasNext() && !execService.isShutdown() && !execService.isTerminated()) {
-        Future fut = (Future) futureItr.next();
-        SingleHopOperationCallable task = (SingleHopOperationCallable) taskItr.next();
-        ServerLocation server = task.getServer();
+        var fut = (Future) futureItr.next();
+        var task = (SingleHopOperationCallable) taskItr.next();
+        var server = task.getServer();
         try {
-          VersionedObjectList versions = (VersionedObjectList) fut.get();
+          var versions = (VersionedObjectList) fut.get();
           if (logger.isDebugEnabled()) {
             logger.debug("submitBulkOp#got result from {}:{}", server, versions);
           }
           resultMap.put(server, versions);
         } catch (InterruptedException e) {
-          InternalGemFireException ige = new InternalGemFireException(e);
+          var ige = new InternalGemFireException(e);
           // only to make this server as failed server, not to throw right now
           failedServers.put(server, ige);
           if (rte == null) {
@@ -248,7 +247,7 @@ public class SingleHopClientExecutor {
             if (logger.isDebugEnabled()) {
               logger.debug("submitBulkOp#ExecutionException from server {}", server, ee);
             }
-            ServerOperationException soe = (ServerOperationException) ee.getCause();
+            var soe = (ServerOperationException) ee.getCause();
             // only to make this server as failed server, not to throw right now
             failedServers.put(server, soe);
             if (rte == null) {
@@ -263,13 +262,13 @@ public class SingleHopClientExecutor {
             cms.scheduleGetPRMetaData(region, false);
             failedServers.put(server, (ServerConnectivityException) ee.getCause());
           } else {
-            Throwable t = ee.getCause();
+            var t = ee.getCause();
             if (t instanceof PutAllPartialResultException) {
               resultMap.put(server, t);
               anyPartialResults = true;
               failedServers.put(server, (PutAllPartialResultException) t);
             } else {
-              RuntimeException other_rte = executionThrowable(ee.getCause());
+              var other_rte = executionThrowable(ee.getCause());
               failedServers.put(server, other_rte);
               if (rte == null) {
                 rte = other_rte;
@@ -301,22 +300,22 @@ public class SingleHopClientExecutor {
       } catch (InterruptedException e) {
         throw new InternalGemFireException(e.getMessage());
       }
-      Iterator futureItr = futures.iterator();
-      Iterator taskItr = callableTasks.iterator();
+      var futureItr = futures.iterator();
+      var taskItr = callableTasks.iterator();
       while (futureItr.hasNext() && !execService.isShutdown() && !execService.isTerminated()) {
-        Future fut = (Future) futureItr.next();
-        SingleHopOperationCallable task = (SingleHopOperationCallable) taskItr.next();
-        List keys = ((GetAllOpImpl) task.getOperation()).getKeyList();
-        ServerLocation server = task.getServer();
+        var fut = (Future) futureItr.next();
+        var task = (SingleHopOperationCallable) taskItr.next();
+        var keys = ((GetAllOpImpl) task.getOperation()).getKeyList();
+        var server = task.getServer();
         try {
 
-          VersionedObjectList valuesFromServer = (VersionedObjectList) fut.get();
+          var valuesFromServer = (VersionedObjectList) fut.get();
           valuesFromServer.setKeys(keys);
 
-          for (VersionedObjectList.Iterator it = valuesFromServer.iterator(); it.hasNext();) {
-            VersionedObjectList.Entry entry = it.next();
-            Object key = entry.getKey();
-            Object value = entry.getValue();
+          for (var it = valuesFromServer.iterator(); it.hasNext();) {
+            var entry = it.next();
+            var key = entry.getKey();
+            var value = entry.getValue();
             if (!entry.isKeyNotOnServer()) {
               if (value instanceof Throwable) {
                 logger.warn(String.format(

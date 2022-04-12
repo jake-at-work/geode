@@ -42,17 +42,17 @@ public class ClassAndVariableDetails implements Comparable {
   }
 
   public ClassAndVariableDetails(String storedValues) throws IOException {
-    String[] fields = storedValues.split(",");
+    var fields = storedValues.split(",");
     try {
-      int fieldIndex = 2;
+      var fieldIndex = 2;
       className = fields[0];
       hasSerialVersionUID = Boolean.parseBoolean(fields[1]);
       if (hasSerialVersionUID) {
         serialVersionUID = fields[2];
         fieldIndex++;
       }
-      for (int i = fieldIndex; i < fields.length; i++) {
-        String[] nameAndType = fields[i].split(":");
+      for (var i = fieldIndex; i < fields.length; i++) {
+        var nameAndType = fields[i].split(":");
         variables.put(nameAndType[0], nameAndType[1]);
       }
     } catch (Exception e) {
@@ -64,9 +64,9 @@ public class ClassAndVariableDetails implements Comparable {
    * returns a string that can be parsed by ClassAndVariableDetails(String)
    */
   public String valuesAsString() {
-    StringBuilder sb = new StringBuilder(80);
+    var sb = new StringBuilder(80);
     sb.append(className);
-    for (Map.Entry<String, String> entry : variables.entrySet()) {
+    for (var entry : variables.entrySet()) {
       sb.append(',').append(entry.getKey()).append(':').append(entry.getValue());
     }
     return sb.toString();
@@ -77,7 +77,7 @@ public class ClassAndVariableDetails implements Comparable {
    * ClassAndVariableDetails
    */
   public static String convertForStoring(ClassAndVariables cam) {
-    StringBuilder sb = new StringBuilder(150);
+    var sb = new StringBuilder(150);
     sb.append(cam.dclass.fullyQualifiedName());
     sb.append(',').append(cam.hasSerialVersionUID);
     if (cam.hasSerialVersionUID) {
@@ -86,7 +86,7 @@ public class ClassAndVariableDetails implements Comparable {
 
     List<CompiledField> fields = new ArrayList<>(cam.variables.values());
     Collections.sort(fields);
-    for (CompiledField field : fields) {
+    for (var field : fields) {
       sb.append(',').append(field.name()).append(':').append(field.descriptor());
     }
     return sb.toString();

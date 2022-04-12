@@ -51,14 +51,14 @@ public class RebalanceGrowingClusterBenchmark {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public int doubleMembersAndRebalancedRegion() throws UnknownHostException {
-    int totalBuckets = startingMembers * 31;
-    RebalanceModelBuilder modelBuilder = new RebalanceModelBuilder(startingMembers, totalBuckets);
-    PartitionedRegionLoadModel model = modelBuilder.withNewMembers(startingMembers).createModel();
+    var totalBuckets = startingMembers * 31;
+    var modelBuilder = new RebalanceModelBuilder(startingMembers, totalBuckets);
+    var model = modelBuilder.withNewMembers(startingMembers).createModel();
     return doMoves(new MoveBuckets(), model);
   }
 
   private int doMoves(RebalanceDirector director, PartitionedRegionLoadModel model) {
-    int moveCount = 0;
+    var moveCount = 0;
 
     model.initialize();
     director.initialize(model);

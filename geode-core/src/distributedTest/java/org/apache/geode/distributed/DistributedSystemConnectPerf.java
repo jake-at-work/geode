@@ -48,11 +48,11 @@ public class DistributedSystemConnectPerf {
   }
 
   public static void main(String[] args) throws Exception {
-    int port = -1;
-    int iterations = -1;
-    int wait = 0;
+    var port = -1;
+    var iterations = -1;
+    var wait = 0;
 
-    for (int i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; i++) {
       if (args[i].equals("-wait")) {
         if (++i >= args.length) {
           usage("Missing wait time");
@@ -94,7 +94,7 @@ public class DistributedSystemConnectPerf {
       usage("Missing iterations");
     }
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOG_LEVEL, "info");
     props.setProperty(LOCATORS, "localhost[" + port + "]");
@@ -102,10 +102,10 @@ public class DistributedSystemConnectPerf {
     long totalConnect = 0;
     long totalDisconnect = 0;
 
-    for (int i = 0; i < iterations; i++) {
-      long start = System.currentTimeMillis();
-      DistributedSystem system = DistributedSystem.connect(props);
-      long delta = System.currentTimeMillis() - start;
+    for (var i = 0; i < iterations; i++) {
+      var start = System.currentTimeMillis();
+      var system = DistributedSystem.connect(props);
+      var delta = System.currentTimeMillis() - start;
       totalConnect += delta;
       out.println("** Connected to DistributedSystem " + "(took " + delta + " ms)");
 

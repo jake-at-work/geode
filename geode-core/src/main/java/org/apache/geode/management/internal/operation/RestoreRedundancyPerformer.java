@@ -27,7 +27,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.Function;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
@@ -61,15 +60,15 @@ public class RestoreRedundancyPerformer
     populateLists(membersForEachRegion, includedRegionsWithNoMembers, operation.getIncludeRegions(),
         operation.getExcludeRegions(), (InternalCache) cache);
 
-    for (RebalanceOperationPerformer.MemberPRInfo prInfo : membersForEachRegion) {
+    for (var prInfo : membersForEachRegion) {
       // Filter out any members using older versions of Geode
-      List<DistributedMember> viableMembers = filterViableMembers(prInfo);
+      var viableMembers = filterViableMembers(prInfo);
 
       if (!viableMembers.isEmpty()) {
         // Update the MemberPRInfo with the viable members
         prInfo.dsMemberList = viableMembers;
       } else {
-        RestoreRedundancyResultsImpl results = new RestoreRedundancyResultsImpl();
+        var results = new RestoreRedundancyResultsImpl();
         results.setStatusMessage(String.format(NO_MEMBERS_WITH_VERSION_FOR_REGION,
             ADDED_VERSION.getName(), prInfo.region));
         results.setSuccess(false);
@@ -80,7 +79,7 @@ public class RestoreRedundancyPerformer
     List<RestoreRedundancyResults> functionResults = new ArrayList<>();
     Object[] functionArgs = {operation, isStatusCommand};
     List<DistributedMember> completedMembers = new ArrayList<>();
-    for (RebalanceOperationPerformer.MemberPRInfo memberPRInfo : membersForEachRegion) {
+    for (var memberPRInfo : membersForEachRegion) {
       // Check to see if an earlier function execution has already targeted a member hosting this
       // region. If one has, there is no point sending a function for this region as it has already
       // had redundancy restored
@@ -88,13 +87,13 @@ public class RestoreRedundancyPerformer
         continue;
       }
       // Try the function on the first member for this region
-      DistributedMember targetMember = memberPRInfo.dsMemberList.get(0);
-      RestoreRedundancyResults functionResult = executeFunctionAndGetFunctionResult(
+      var targetMember = memberPRInfo.dsMemberList.get(0);
+      var functionResult = executeFunctionAndGetFunctionResult(
           new RestoreRedundancyFunction(), functionArgs, targetMember);
       if (!functionResult.getSuccess()) {
         // Record the error and then give up
-        RestoreRedundancyResultsImpl results = new RestoreRedundancyResultsImpl();
-        String errorString =
+        var results = new RestoreRedundancyResultsImpl();
+        var errorString =
             String.format(EXCEPTION_MEMBER_MESSAGE, targetMember.getName(),
                 functionResult.getStatusMessage());
         results.setStatusMessage(errorString);
@@ -105,9 +104,9 @@ public class RestoreRedundancyPerformer
       completedMembers.add(targetMember);
     }
 
-    RestoreRedundancyResultsImpl finalResult = new RestoreRedundancyResultsImpl();
+    var finalResult = new RestoreRedundancyResultsImpl();
     finalResult.addIncludedRegionsWithNoMembers(includedRegionsWithNoMembers);
-    for (RestoreRedundancyResults functionResult : functionResults) {
+    for (var functionResult : functionResults) {
       finalResult.addRegionResults(functionResult);
     }
     finalResult.setSuccess(true);
@@ -118,7 +117,7 @@ public class RestoreRedundancyPerformer
   public RestoreRedundancyResults executeFunctionAndGetFunctionResult(Function<?> function,
       Object args,
       DistributedMember targetMember) {
-    ResultCollector<?, ?> rc =
+    var rc =
         ManagementUtils.executeFunction(function, args, Collections.singleton(targetMember));
     List<RestoreRedundancyResults> results = uncheckedCast(rc.getResult());
     return results.isEmpty() ? null : results.get(0);
@@ -139,19 +138,19 @@ public class RestoreRedundancyPerformer
     // Include all regions
     if (includeRegions == null) {
       // Exclude these regions
-      List<RebalanceOperationPerformer.MemberPRInfo> memberRegionList =
+      var memberRegionList =
           getMembersForEachRegion(cache, excludeRegions);
       membersForEachRegion.addAll(memberRegionList);
     } else {
-      for (String regionName : includeRegions) {
-        DistributedMember memberForRegion = getOneMemberForRegion(cache, regionName);
+      for (var regionName : includeRegions) {
+        var memberForRegion = getOneMemberForRegion(cache, regionName);
 
         // If we did not find a member for this region name, add it to the list of regions with no
         // members
         if (memberForRegion == null) {
           noMemberRegions.add(regionName);
         } else {
-          RebalanceOperationPerformer.MemberPRInfo memberPRInfo =
+          var memberPRInfo =
               new RebalanceOperationPerformer.MemberPRInfo();
           memberPRInfo.region = regionName;
           memberPRInfo.dsMemberList.add(memberForRegion);
@@ -171,7 +170,7 @@ public class RestoreRedundancyPerformer
 
   // Extracted for testing
   private DistributedMember getOneMemberForRegion(InternalCache cache, String regionName) {
-    String regionNameWithSeparator = regionName;
+    var regionNameWithSeparator = regionName;
     // The getAssociatedMembers method requires region names start with '/'
     if (!regionName.startsWith(SEPARATOR)) {
       regionNameWithSeparator = SEPARATOR + regionName;

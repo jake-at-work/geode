@@ -21,10 +21,8 @@ import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.apache.geode.distributed.ConfigurationProperties.REMOTE_LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.START_LOCATOR;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.internal.ExitCode;
 import org.apache.geode.util.internal.GeodeGlossary;
 
@@ -61,7 +59,7 @@ public class WANBootStrapping_Site2_Add {
 
     // create a locator and a cache
     System.out.println("Creating cache ...It will take some time..");
-    Cache cache = new CacheFactory().set(MCAST_PORT, "0").set(DISTRIBUTED_SYSTEM_ID, "" + 2)
+    var cache = new CacheFactory().set(MCAST_PORT, "0").set(DISTRIBUTED_SYSTEM_ID, "" + 2)
         .set(LOCATORS, "localhost[" + 20202 + "]")
         .set(START_LOCATOR,
             "localhost[" + 20202 + "],server=true,peer=true,hostname-for-clients=localhost")
@@ -85,7 +83,7 @@ public class WANBootStrapping_Site2_Add {
     }
     System.out.println("Checked region size : " + region.size());
 
-    GatewayReceiver receiver = cache.getGatewayReceivers().iterator().next();
+    var receiver = cache.getGatewayReceivers().iterator().next();
 
     // to stop gateway receiver ask to run WANBootStrapping_Site1_Remove program
     while (receiver.isRunning()) {

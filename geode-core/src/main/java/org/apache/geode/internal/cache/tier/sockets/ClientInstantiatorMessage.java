@@ -95,12 +95,12 @@ public class ClientInstantiatorMessage extends ClientUpdateMessageImpl {
 
   @Override
   protected Message getMessage(CacheClientProxy proxy, byte[] latestValue) throws IOException {
-    final int instantiatorsLength = serializedInstantiators.length;
+    final var instantiatorsLength = serializedInstantiators.length;
     // one for eventID
-    final Message message = new Message(instantiatorsLength + 1, proxy.getVersion());
+    final var message = new Message(instantiatorsLength + 1, proxy.getVersion());
     // Set message type
     message.setMessageType(MessageType.REGISTER_INSTANTIATORS);
-    for (int i = 0; i < instantiatorsLength - 2; i += 3) {
+    for (var i = 0; i < instantiatorsLength - 2; i += 3) {
       message.addBytesPart(serializedInstantiators[i]);
       message.addBytesPart(serializedInstantiators[i + 1]);
       message.addBytesPart(serializedInstantiators[i + 2]);
@@ -126,9 +126,9 @@ public class ClientInstantiatorMessage extends ClientUpdateMessageImpl {
       SerializationContext context) throws IOException {
     // Note: does not call super.toData what a HACK
     out.writeByte(_operation.getEventCode());
-    int instantiatorCount = serializedInstantiators.length;
+    var instantiatorCount = serializedInstantiators.length;
     out.writeInt(instantiatorCount);
-    for (final byte[] serializedInstantiator : serializedInstantiators) {
+    for (final var serializedInstantiator : serializedInstantiators) {
       DataSerializer.writeByteArray(serializedInstantiator, out);
     }
     context.getSerializer().writeObject(_membershipId, out);
@@ -147,9 +147,9 @@ public class ClientInstantiatorMessage extends ClientUpdateMessageImpl {
       DeserializationContext context) throws IOException, ClassNotFoundException {
     // Note: does not call super.fromData what a HACK
     _operation = EnumListenerEvent.getEnumListenerEvent(in.readByte());
-    int instantiatorCount = in.readInt(); // is byte suficient for this ?
+    var instantiatorCount = in.readInt(); // is byte suficient for this ?
     serializedInstantiators = new byte[instantiatorCount][];
-    for (int i = 0; i < instantiatorCount; i++) {
+    for (var i = 0; i < instantiatorCount; i++) {
       serializedInstantiators[i] = DataSerializer.readByteArray(in);
     }
     _membershipId = ClientProxyMembershipID.readCanonicalized(in);

@@ -34,7 +34,7 @@ public class RegionStatisticsRequest extends RegionAdminRequest {
    * Returns a <code>RegionStatisticsRequest</code> to be sent to the specified recipient.
    */
   public static RegionStatisticsRequest create() {
-    RegionStatisticsRequest m = new RegionStatisticsRequest();
+    var m = new RegionStatisticsRequest();
     return m;
   }
 

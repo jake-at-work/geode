@@ -29,14 +29,14 @@ public class DeploymentInfoTableUtil {
   public static List<DeploymentInfo> getDeploymentInfoFromFunctionResults(
       List<CliFunctionResult> functionResults) {
     List<DeploymentInfo> deployedJarInfo = new LinkedList<>();
-    for (CliFunctionResult cliResult : functionResults) {
+    for (var cliResult : functionResults) {
       if (cliResult.getResultObject() instanceof Map) {
 
         // This is for backwards compatibility during rolling upgrades. Ths branch can be removed
         // when versions prior to 1.14 are retired.
-        Map<String, String> infoMap = (Map<String, String>) cliResult.getResultObject();
+        var infoMap = (Map<String, String>) cliResult.getResultObject();
         if (infoMap != null) {
-          for (Map.Entry<String, String> deploymentInfoEntry : infoMap.entrySet()) {
+          for (var deploymentInfoEntry : infoMap.entrySet()) {
             deployedJarInfo.add(new DeploymentInfo(cliResult.getMemberIdOrName(),
                 deploymentInfoEntry.getKey(), deploymentInfoEntry.getValue()));
           }
@@ -51,7 +51,7 @@ public class DeploymentInfoTableUtil {
   public static void writeDeploymentInfoToTable(String[] columnHeaders,
       TabularResultModel tabularData,
       List<DeploymentInfo> deployedJarInfo) {
-    for (DeploymentInfo deploymentInfo : deployedJarInfo) {
+    for (var deploymentInfo : deployedJarInfo) {
       tabularData.accumulate(columnHeaders[0], deploymentInfo.getMemberName());
       tabularData.accumulate(columnHeaders[1], deploymentInfo.getFileName());
       tabularData.accumulate(columnHeaders[2], deploymentInfo.getAdditionalDeploymentInfo());

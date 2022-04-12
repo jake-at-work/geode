@@ -39,9 +39,9 @@ public class GfshSignalHandlerTest {
   @Test
   public void signalHandlerRespondsToSIGINTByClearingPrompt() throws IOException {
     // Interactive attention (CTRL-C). JVM exits normally
-    GfshSignalHandler signalHandler = new GfshSignalHandler();
+    var signalHandler = new GfshSignalHandler();
 
-    ConsoleReader consoleReader = mock(ConsoleReader.class);
+    var consoleReader = mock(ConsoleReader.class);
     when(consoleReader.getPrompt()).thenReturn(PROMPT);
 
     signalHandler.handleDefault(SIGINT, consoleReader);

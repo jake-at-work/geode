@@ -33,7 +33,6 @@ import java.nio.channels.SocketChannel;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
 
 import org.junit.After;
@@ -51,7 +50,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
-import org.apache.geode.cache.ssl.CertificateMaterial;
 import org.apache.geode.distributed.internal.DMStats;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.DistributionConfigImpl;
@@ -110,15 +108,15 @@ public class SSLSocketHostNameVerificationIntegrationTest {
 
     localHost = InetAddress.getLoopbackAddress();
 
-    CertificateMaterial ca = new CertificateBuilder()
+    var ca = new CertificateBuilder()
         .commonName("Test CA")
         .isCA()
         .generate();
 
-    CertStores certStores = CertStores.locatorStore();
+    var certStores = CertStores.locatorStore();
     certStores.trust("ca", ca);
 
-    CertificateBuilder certBuilder = new CertificateBuilder()
+    var certBuilder = new CertificateBuilder()
         .commonName("iAmTheServer")
         .issuedBy(ca);
 
@@ -126,7 +124,7 @@ public class SSLSocketHostNameVerificationIntegrationTest {
       certBuilder.sanDnsName(localHost.getHostName());
     }
 
-    CertificateMaterial locatorCert = certBuilder.generate();
+    var locatorCert = certBuilder.generate();
     certStores.withCertificate("locator", locatorCert);
 
     DistributionConfig distributionConfig = new DistributionConfigImpl(
@@ -153,24 +151,24 @@ public class SSLSocketHostNameVerificationIntegrationTest {
 
   @Test
   public void nioHandshakeValidatesHostName() throws Exception {
-    ServerSocketChannel serverChannel = ServerSocketChannel.open();
+    var serverChannel = ServerSocketChannel.open();
     serverSocket = serverChannel.socket();
 
-    InetSocketAddress addr = new InetSocketAddress(localHost, 0);
+    var addr = new InetSocketAddress(localHost, 0);
     serverSocket.bind(addr, 10);
-    int serverPort = serverSocket.getLocalPort();
+    var serverPort = serverSocket.getLocalPort();
 
     serverThread = startServerNIO(serverSocket, 15000);
 
     await().until(() -> serverThread.isAlive());
 
-    SocketChannel clientChannel = SocketChannel.open();
+    var clientChannel = SocketChannel.open();
     await().until(
         () -> clientChannel.connect(new InetSocketAddress(localHost, serverPort)));
 
     clientSocket = clientChannel.socket();
 
-    SSLEngine sslEngine =
+    var sslEngine =
         socketCreator.createSSLEngine(localHost.getHostName(), 1234, true);
 
     try {
@@ -197,13 +195,13 @@ public class SSLSocketHostNameVerificationIntegrationTest {
   }
 
   private Thread startServerNIO(final ServerSocket serverSocket, int timeoutMillis) {
-    Thread serverThread = new Thread(new MyThreadGroup(testName.getMethodName()), () -> {
+    var serverThread = new Thread(new MyThreadGroup(testName.getMethodName()), () -> {
       NioSslEngine engine = null;
       Socket socket = null;
       try {
         socket = serverSocket.accept();
-        SocketCreator sc = SocketCreatorFactory.getSocketCreatorForComponent(CLUSTER);
-        final SSLEngine sslEngine = sc.createSSLEngine(localHost.getHostName(), 1234, false);
+        var sc = SocketCreatorFactory.getSocketCreatorForComponent(CLUSTER);
+        final var sslEngine = sc.createSSLEngine(localHost.getHostName(), 1234, false);
         engine =
             sc.handshakeSSLSocketChannel(socket.getChannel(),
                 sslEngine,
@@ -214,10 +212,10 @@ public class SSLSocketHostNameVerificationIntegrationTest {
         serverException = throwable;
       } finally {
         if (engine != null) {
-          final NioSslEngine nioSslEngine = engine;
+          final var nioSslEngine = engine;
           engine.close(socket.getChannel());
           assertThatThrownBy(() -> {
-            try (final ByteBufferSharing unused =
+            try (final var unused =
                 nioSslEngine.unwrap(ByteBuffer.wrap(new byte[0]))) {
             }
           }).isInstanceOf(IOException.class);

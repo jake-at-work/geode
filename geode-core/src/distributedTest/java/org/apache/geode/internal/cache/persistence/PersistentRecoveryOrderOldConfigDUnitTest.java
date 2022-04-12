@@ -38,11 +38,11 @@ public class PersistentRecoveryOrderOldConfigDUnitTest extends PersistentRecover
       boolean diskSynchronous) {
     getCache();
 
-    DiskWriteAttributesFactory diskWriteAttributesFactory = new DiskWriteAttributesFactory();
+    var diskWriteAttributesFactory = new DiskWriteAttributesFactory();
     diskWriteAttributesFactory.setMaxOplogSize(1);
     diskWriteAttributesFactory.setSynchronous(diskSynchronous);
 
-    RegionFactory regionFactory = new RegionFactory();
+    var regionFactory = new RegionFactory();
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     regionFactory.setScope(Scope.DISTRIBUTED_ACK);
     regionFactory.setDiskDirs(diskDirs);

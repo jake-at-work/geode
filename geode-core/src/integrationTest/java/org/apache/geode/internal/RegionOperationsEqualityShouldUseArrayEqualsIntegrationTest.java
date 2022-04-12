@@ -33,10 +33,10 @@ import org.apache.geode.internal.cache.GemFireCacheImpl;
 public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
 
   private GemFireCacheImpl createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
-    GemFireCacheImpl result = (GemFireCacheImpl) new CacheFactory(props).create();
+    var result = (GemFireCacheImpl) new CacheFactory(props).create();
     return result;
   }
 
@@ -46,7 +46,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
 
   private void doOps(Region r) {
     {
-      byte[] bytesValue = new byte[] {1, 2, 3, 4};
+      var bytesValue = new byte[] {1, 2, 3, 4};
       r.put("bytesValue", bytesValue.clone());
       if (r.replace("bytesValue", "", "")) {
         fail("expected replace to fail");
@@ -63,7 +63,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
       }
     }
     {
-      boolean[] booleanValue = new boolean[] {true, false, true, false};
+      var booleanValue = new boolean[] {true, false, true, false};
       r.put("booleanValue", booleanValue.clone());
       if (r.replace("booleanValue", "", "")) {
         fail("expected replace to fail");
@@ -80,7 +80,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
       }
     }
     {
-      short[] shortValue = new short[] {1, 2, 3, 4};
+      var shortValue = new short[] {1, 2, 3, 4};
       r.put("shortValue", shortValue.clone());
       if (r.replace("shortValue", "", "")) {
         fail("expected replace to fail");
@@ -97,7 +97,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
       }
     }
     {
-      char[] charValue = new char[] {1, 2, 3, 4};
+      var charValue = new char[] {1, 2, 3, 4};
       r.put("charValue", charValue.clone());
       if (r.replace("charValue", "", "")) {
         fail("expected replace to fail");
@@ -114,7 +114,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
       }
     }
     {
-      int[] intValue = new int[] {1, 2, 3, 4};
+      var intValue = new int[] {1, 2, 3, 4};
       r.put("intValue", intValue.clone());
       if (r.replace("intValue", "", "")) {
         fail("expected replace to fail");
@@ -131,7 +131,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
       }
     }
     {
-      long[] longValue = new long[] {1, 2, 3, 4};
+      var longValue = new long[] {1, 2, 3, 4};
       r.put("longValue", longValue.clone());
       if (r.replace("longValue", "", "")) {
         fail("expected replace to fail");
@@ -148,7 +148,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
       }
     }
     {
-      float[] floatValue = new float[] {1, 2, 3, 4};
+      var floatValue = new float[] {1, 2, 3, 4};
       r.put("floatValue", floatValue.clone());
       if (r.replace("floatValue", "", "")) {
         fail("expected replace to fail");
@@ -165,7 +165,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
       }
     }
     {
-      double[] doubleValue = new double[] {1, 2, 3, 4};
+      var doubleValue = new double[] {1, 2, 3, 4};
       r.put("doubleValue", doubleValue.clone());
       if (r.replace("doubleValue", "", "")) {
         fail("expected replace to fail");
@@ -182,10 +182,10 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
       }
     }
     {
-      Object[] oaValue = new Object[] {new byte[] {1, 2, 3, 4}, new short[] {1, 2, 3, 4},
+      var oaValue = new Object[] {new byte[] {1, 2, 3, 4}, new short[] {1, 2, 3, 4},
           new int[] {1, 2, 3, 4}, "hello sweet world!"};
       r.put("oaValue", oaValue);
-      Object[] deepCloneOaValue = new Object[] {new byte[] {1, 2, 3, 4}, new short[] {1, 2, 3, 4},
+      var deepCloneOaValue = new Object[] {new byte[] {1, 2, 3, 4}, new short[] {1, 2, 3, 4},
           new int[] {1, 2, 3, 4}, "hello sweet world!"};
       if (r.replace("oaValue", "", "")) {
         fail("expected replace to fail");
@@ -205,7 +205,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
 
   @Test
   public void testPartition() {
-    GemFireCacheImpl gfc = createCache();
+    var gfc = createCache();
     try {
       Region r = gfc.createRegionFactory(RegionShortcut.PARTITION)
           .create("ArrayEqualsJUnitTestPartitionRegion");
@@ -217,7 +217,7 @@ public class RegionOperationsEqualityShouldUseArrayEqualsIntegrationTest {
 
   @Test
   public void testLocal() {
-    GemFireCacheImpl gfc = createCache();
+    var gfc = createCache();
     try {
       Region r =
           gfc.createRegionFactory(RegionShortcut.LOCAL).create("ArrayEqualsJUnitTestLocalRegion");

@@ -18,23 +18,17 @@ package org.apache.geode.rest.internal.web.controllers;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +42,6 @@ import org.apache.geode.management.configuration.DiskStore;
 import org.apache.geode.management.operation.RebalanceOperation;
 import org.apache.geode.management.operation.RestoreRedundancyRequest;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.BackwardCompatibilityTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
@@ -64,7 +57,7 @@ public class RestAPICompatibilityTest {
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(s -> TestVersion.compare(s, "1.11.0") < 0);
     return result;
   }
@@ -77,7 +70,7 @@ public class RestAPICompatibilityTest {
 
   public RestAPICompatibilityTest(String oldVersion) throws JsonProcessingException {
     this.oldVersion = oldVersion;
-    DiskStore diskStore = new DiskStore();
+    var diskStore = new DiskStore();
     diskStore.setName("diskStore");
     postRESTAPICalls = new HashMap<>();
     // {REST endpoint,{Body, Successful Status Message, Introduced in version}}
@@ -99,9 +92,9 @@ public class RestAPICompatibilityTest {
 
   @Test
   public void restCommandExecutedOnLatestLocatorShouldBeBackwardsCompatible() throws Exception {
-    int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int locatorPort1 = locatorPorts[0];
-    int locatorPort2 = locatorPorts[1];
+    var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var locatorPort1 = locatorPorts[0];
+    var locatorPort2 = locatorPorts[1];
 
     // Initialize all cluster members with old versions
     cluster.startLocatorVM(0, locatorPort1, oldVersion, MemberStarterRule::withHttpService);
@@ -117,8 +110,8 @@ public class RestAPICompatibilityTest {
     // Roll locators to the current version
     cluster.stop(0);
     // gradle sets a property telling us where the build is located
-    final String buildDir = System.getProperty("geode.build.dir", System.getProperty("user.dir"));
-    MemberVM locator1 = cluster.startLocatorVM(0, l -> l.withHttpService().withPort(locatorPort1)
+    final var buildDir = System.getProperty("geode.build.dir", System.getProperty("user.dir"));
+    var locator1 = cluster.startLocatorVM(0, l -> l.withHttpService().withPort(locatorPort1)
         .withConnectionToLocator(locatorPort2)
         .withSystemProperty("geode.build.dir", buildDir));
     cluster.stop(1);
@@ -140,36 +133,36 @@ public class RestAPICompatibilityTest {
 
   void executeAndValidatePOSTRESTCalls(int locator) throws Exception {
 
-    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-      for (Map.Entry<String, String[]> entry : postRESTAPICalls.entrySet()) {
+    try (var httpClient = HttpClients.createDefault()) {
+      for (var entry : postRESTAPICalls.entrySet()) {
         // Skip the test is the version is before the REST api was introduced.
         if (TestVersion.compare(oldVersion, entry.getValue()[2]) < 0) {
           continue;
         }
-        HttpPost post =
+        var post =
             new HttpPost("http://localhost:" + locator + entry.getKey());
         post.addHeader("Content-Type", "application/json");
         post.addHeader("Accept", "application/json");
-        StringEntity jsonStringEntity =
+        var jsonStringEntity =
             new StringEntity(entry.getValue()[0], ContentType.DEFAULT_TEXT);
         post.setEntity(jsonStringEntity);
-        CloseableHttpResponse response = httpClient.execute(post);
+        var response = httpClient.execute(post);
 
-        HttpEntity entity = response.getEntity();
-        InputStream content = entity.getContent();
+        var entity = response.getEntity();
+        var content = entity.getContent();
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(content))) {
+        try (var reader = new BufferedReader(new InputStreamReader(content))) {
           String line;
-          StringBuilder sb = new StringBuilder();
+          var sb = new StringBuilder();
           while ((line = reader.readLine()) != null) {
             sb.append(line);
           }
-          JsonNode jsonObject = mapper.readTree(sb.toString());
-          String statusCode = jsonObject.findValue("statusCode").textValue();
+          var jsonObject = mapper.readTree(sb.toString());
+          var statusCode = jsonObject.findValue("statusCode").textValue();
           assertThat(statusCode).satisfiesAnyOf(
               value -> assertThat(value).isEqualTo("ACCEPTED"),
               value -> assertThat(value).contains("OK"));
-          String statusMessage = jsonObject.findValue("statusMessage").textValue();
+          var statusMessage = jsonObject.findValue("statusMessage").textValue();
           assertThat(statusMessage).contains(entry.getValue()[1]);
         }
       }
@@ -178,22 +171,22 @@ public class RestAPICompatibilityTest {
 
   public static void executeAndValidateGETRESTCalls(int locator) throws Exception {
 
-    try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-      for (String[] commandExpectedResponsePair : getRESTAPICalls) {
-        HttpGet get =
+    try (var httpclient = HttpClients.createDefault()) {
+      for (var commandExpectedResponsePair : getRESTAPICalls) {
+        var get =
             new HttpGet("http://localhost:" + locator +
                 commandExpectedResponsePair[0]);
-        CloseableHttpResponse response = httpclient.execute(get);
-        HttpEntity entity = response.getEntity();
-        InputStream content = entity.getContent();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(content))) {
+        var response = httpclient.execute(get);
+        var entity = response.getEntity();
+        var content = entity.getContent();
+        try (var reader = new BufferedReader(new InputStreamReader(content))) {
           String line;
-          StringBuilder sb = new StringBuilder();
+          var sb = new StringBuilder();
           while ((line = reader.readLine()) != null) {
             sb.append(line);
           }
-          JsonNode jsonObject = mapper.readTree(sb.toString());
-          String statusCode = jsonObject.findValue("status").textValue();
+          var jsonObject = mapper.readTree(sb.toString());
+          var statusCode = jsonObject.findValue("status").textValue();
           assertThat(statusCode).contains(commandExpectedResponsePair[1]);
         }
       }

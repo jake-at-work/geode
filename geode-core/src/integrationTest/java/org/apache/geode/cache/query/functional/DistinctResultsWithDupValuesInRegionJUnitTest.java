@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,11 +28,8 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -88,13 +83,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
-      for (String queryStr : queries) {
+      for (var queryStr : queries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
 
         assertEquals(queryStr, numElem * 2, result1.size());
         verifyDistinctResults(result1);
@@ -118,13 +113,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
-      for (String queryStr : queries) {
+      for (var queryStr : queries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
 
         assertEquals(queryStr, numElem * 2, result1.size());
         verifyDistinctResults(result1);
@@ -149,13 +144,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
-      for (String queryStr : queries) {
+      for (var queryStr : queries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
 
         assertEquals(queryStr, numElem * 2, result1.size());
         verifyDistinctResults(result1);
@@ -180,13 +175,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
-      for (String queryStr : moreQueries) {
+      for (var queryStr : moreQueries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
 
         assertEquals(queryStr, numElem, result1.size());
         verifyDistinctResults(result1);
@@ -211,13 +206,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
-      for (String queryStr : moreQueries) {
+      for (var queryStr : moreQueries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
 
         assertEquals(queryStr, numElem, result1.size());
         verifyDistinctResults(result1);
@@ -242,13 +237,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
-      for (String queryStr : moreQueries) {
+      for (var queryStr : moreQueries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
         cache.getLogger().fine(result1.asList().toString());
         assertEquals(queryStr, numElem, result1.size());
         verifyDistinctResults(result1);
@@ -273,13 +268,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
-      for (String queryStr : moreQueries) {
+      for (var queryStr : moreQueries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
         cache.getLogger().fine(result1.asList().toString());
         assertEquals(queryStr, numElem + 5 /* Check createPartitionedRegionWithNullValues() */,
             result1.size());
@@ -305,14 +300,14 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
       queryService.createIndex("idIndex", "p.ID", SEPARATOR + regionName + " p");
-      for (String queryStr : queries) {
+      for (var queryStr : queries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
 
         assertEquals(queryStr, numElem * 2, result1.size());
         verifyDistinctResults(result1);
@@ -336,14 +331,14 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
       queryService.createIndex("idIndex", "p.ID", SEPARATOR + regionName + " p");
-      for (String queryStr : queries) {
+      for (var queryStr : queries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
 
         assertEquals(queryStr, numElem * 2, result1.size());
         verifyDistinctResults(result1);
@@ -368,14 +363,14 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
     assertNotNull(cache.getRegion(regionName));
     assertEquals(numElem * 2, cache.getRegion(regionName).size());
 
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query1 = null;
     try {
       queryService.createIndex("idIndex", "p.ID", SEPARATOR + regionName + " p");
-      for (String queryStr : queries) {
+      for (var queryStr : queries) {
         query1 = queryService.newQuery(queryStr);
 
-        SelectResults result1 = (SelectResults) query1.execute();
+        var result1 = (SelectResults) query1.execute();
 
         assertEquals(queryStr, numElem * 2, result1.size());
         verifyDistinctResults(result1);
@@ -390,10 +385,10 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
   }
 
   private void verifyDistinctResults(SelectResults result1) {
-    List results = result1.asList();
-    int size = results.size();
-    for (int i = 0; i < size; i++) {
-      Object obj = results.remove(0);
+    var results = result1.asList();
+    var size = results.size();
+    for (var i = 0; i < size; i++) {
+      var obj = results.remove(0);
       if (results.contains(obj)) {
         fail("Non-distinct values found in the resultset for object: " + obj);
       }
@@ -402,13 +397,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
 
   private void createLocalRegion() {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.NORMAL);
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion(regionName, regionAttributes);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion(regionName, regionAttributes);
 
-    for (int i = 1; i <= numElem; i++) {
-      Portfolio obj = new Portfolio(i);
+    for (var i = 1; i <= numElem; i++) {
+      var obj = new Portfolio(i);
       region.put(i, obj);
       region.put(i + numElem, obj);
       CacheUtils.log(obj);
@@ -417,14 +412,14 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
 
   private void createPartitionedRegion() {
     Cache cache = CacheUtils.getCache();
-    PartitionAttributesFactory prAttFactory = new PartitionAttributesFactory();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var prAttFactory = new PartitionAttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setPartitionAttributes(prAttFactory.create());
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion(regionName, regionAttributes);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion(regionName, regionAttributes);
 
-    for (int i = 1; i <= numElem; i++) {
-      Portfolio obj = new Portfolio(i);
+    for (var i = 1; i <= numElem; i++) {
+      var obj = new Portfolio(i);
       region.put(i, obj);
       region.put(i + numElem, obj);
       CacheUtils.log(obj);
@@ -433,13 +428,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
 
   private void createLocalRegionWithNullValues() {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.NORMAL);
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion(regionName, regionAttributes);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion(regionName, regionAttributes);
 
-    for (int i = 1; i <= numElem; i++) {
-      Portfolio obj = new Portfolio(i);
+    for (var i = 1; i <= numElem; i++) {
+      var obj = new Portfolio(i);
       region.put(i, obj);
       if (i % (numElem / 5) == 0) {
         obj.status = null;
@@ -451,14 +446,14 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
 
   private void createPartitionedRegionWithNullValues() {
     Cache cache = CacheUtils.getCache();
-    PartitionAttributesFactory prAttFactory = new PartitionAttributesFactory();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var prAttFactory = new PartitionAttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setPartitionAttributes(prAttFactory.create());
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion(regionName, regionAttributes);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion(regionName, regionAttributes);
 
-    for (int i = 1; i <= numElem; i++) {
-      Portfolio obj = new Portfolio(i);
+    for (var i = 1; i <= numElem; i++) {
+      var obj = new Portfolio(i);
       region.put(i, obj);
       if (i % (numElem / 5) == 0) {
         obj.status = null;
@@ -470,13 +465,13 @@ public class DistinctResultsWithDupValuesInRegionJUnitTest {
 
   private void createReplicatedRegion() {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion(regionName, regionAttributes);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion(regionName, regionAttributes);
 
-    for (int i = 1; i <= numElem; i++) {
-      Portfolio obj = new Portfolio(i);
+    for (var i = 1; i <= numElem; i++) {
+      var obj = new Portfolio(i);
       region.put(i, obj);
       region.put(i + numElem, obj);
       CacheUtils.log(obj);

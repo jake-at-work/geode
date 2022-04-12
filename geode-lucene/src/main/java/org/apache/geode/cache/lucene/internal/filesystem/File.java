@@ -145,8 +145,8 @@ public class File implements DataSerializableFixedID {
     chunks = in.readInt();
     created = in.readLong();
     modified = in.readLong();
-    long high = in.readLong();
-    long low = in.readLong();
+    var high = in.readLong();
+    var low = in.readLong();
     id = new UUID(high, low);
     possiblyRenamed = in.readBoolean();
   }
@@ -156,7 +156,7 @@ public class File implements DataSerializableFixedID {
    * Export this to a {@link java.io.File}
    */
   public void export(final java.io.File exportLocation) {
-    java.io.File targetFile = new java.io.File(exportLocation, getName());
+    var targetFile = new java.io.File(exportLocation, getName());
     try {
       Files.copy(getInputStream(), targetFile.toPath());
     } catch (IOException e) {

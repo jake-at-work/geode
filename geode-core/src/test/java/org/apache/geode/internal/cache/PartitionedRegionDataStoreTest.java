@@ -78,7 +78,7 @@ public class PartitionedRegionDataStoreTest {
 
   @Test
   public void initializedPartitionedRegionWithoutColocationReturnsRegionReady() {
-    PartitionedRegionDataStore partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
+    var partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
     List<PartitionedRegion> colocatedChildRegions = new ArrayList<>();
 
     doReturn(colocatedChildRegions).when(partitionedRegionDataStore)
@@ -90,7 +90,7 @@ public class PartitionedRegionDataStoreTest {
 
   @Test
   public void notInitializedPartitionedRegionWithoutColocationReturnsRegionNotReady() {
-    PartitionedRegionDataStore partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
+    var partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
     List<PartitionedRegion> colocatedChildRegions = new ArrayList<>();
 
     doReturn(colocatedChildRegions).when(partitionedRegionDataStore)
@@ -103,7 +103,7 @@ public class PartitionedRegionDataStoreTest {
 
   @Test
   public void returnRegionReadyIfAllColocatedRegionsAreReady() {
-    PartitionedRegionDataStore partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
+    var partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
 
     setupColocatedRegions(partitionedRegionDataStore);
 
@@ -146,7 +146,7 @@ public class PartitionedRegionDataStoreTest {
 
   @Test
   public void returnRegionNotReadyIfColocationNotCompletedForAColocatedRegion() {
-    PartitionedRegionDataStore partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
+    var partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
 
     setupColocatedRegions(partitionedRegionDataStore);
     when(grandChildRegionDateStore2_3.isColocationComplete(bucketId)).thenReturn(false);
@@ -157,7 +157,7 @@ public class PartitionedRegionDataStoreTest {
 
   @Test
   public void returnRegionNotReadyIfAColocatedRegionIsNotInitialized() {
-    PartitionedRegionDataStore partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
+    var partitionedRegionDataStore = spy(new PartitionedRegionDataStore());
 
     setupColocatedRegions(partitionedRegionDataStore);
     when(grandChildRegion2_2.isInitialized()).thenReturn(false);

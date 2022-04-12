@@ -35,18 +35,18 @@ public class PubSubExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> args = command.getCommandArguments();
-    byte[] subCommand = args.get(0);
+    var args = command.getCommandArguments();
+    var subCommand = args.get(0);
 
     if (equalsIgnoreCaseBytes(subCommand, CHANNELS)) {
       if (args.size() > 2) {
         return RedisResponse
             .error(String.format(ERROR_UNKNOWN_PUBSUB_SUBCOMMAND, new String(subCommand)));
       }
-      List<byte[]> channelsResponse = doChannels(args, context);
+      var channelsResponse = doChannels(args, context);
       return RedisResponse.array(channelsResponse, true);
     } else if (equalsIgnoreCaseBytes(subCommand, NUMSUB)) {
-      List<Object> numSubresponse = context.getPubSub()
+      var numSubresponse = context.getPubSub()
           .findNumberOfSubscribersPerChannel(args.subList(1, args.size()));
       return RedisResponse.array(numSubresponse, true);
     } else if (equalsIgnoreCaseBytes(subCommand, NUMPAT)) {
@@ -54,7 +54,7 @@ public class PubSubExecutor implements CommandExecutor {
         return RedisResponse
             .error(String.format(ERROR_UNKNOWN_PUBSUB_SUBCOMMAND, new String(subCommand)));
       }
-      long numPatResponse = context.getPubSub().findNumberOfUniqueSubscribedPatterns();
+      var numPatResponse = context.getPubSub().findNumberOfUniqueSubscribedPatterns();
       return RedisResponse.integer(numPatResponse);
     }
 

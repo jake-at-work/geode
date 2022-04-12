@@ -37,9 +37,7 @@ import org.apache.geode.cache.query.internal.IndexTrackingQueryObserver;
 import org.apache.geode.cache.query.internal.PRQueryTraceInfo;
 import org.apache.geode.cache.query.internal.QueryExecutionContext;
 import org.apache.geode.cache.query.internal.QueryMonitor;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.types.ObjectTypeImpl;
-import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.ReplyException;
@@ -96,10 +94,10 @@ public class QueryMessage extends StreamingPartitionOperation.StreamingPartition
   @Override
   protected Object getNextReplyObject(PartitionedRegion pr)
       throws CacheException, ForceReattemptException, InterruptedException {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
     if (QueryMonitor.isLowMemory()) {
-      String reason = String.format(
+      var reason = String.format(
           "Query execution canceled due to memory threshold crossed in system, memory used: %s bytes.",
           QueryMonitor.getMemoryUsedBytes());
       throw new QueryExecutionLowMemoryException(reason);
@@ -113,7 +111,7 @@ public class QueryMessage extends StreamingPartitionOperation.StreamingPartition
         if (isTraceInfoIteration && currentResultIterator != null) {
           isTraceInfoIteration = false;
         }
-        Collection results = currentSelectResultIterator.next();
+        var results = currentSelectResultIterator.next();
         if (isDebugEnabled) {
           logger.debug("Query result size: {}", results.size());
         }
@@ -122,8 +120,8 @@ public class QueryMessage extends StreamingPartitionOperation.StreamingPartition
         return Token.END_OF_STREAM;
       }
     }
-    Object data = currentResultIterator.next();
-    boolean isPostGFE_8_1 =
+    var data = currentResultIterator.next();
+    var isPostGFE_8_1 =
         getSender().getVersion().isNewerThan(KnownVersion.GFE_81);
 
     // There is a bug in older versions of GFE such that the query node expects the structs to have
@@ -132,9 +130,9 @@ public class QueryMessage extends StreamingPartitionOperation.StreamingPartition
     if (isStructType && !isTraceInfoIteration && isPostGFE_8_1) {
       return ((Struct) data).getFieldValues();
     } else if (isStructType && !isTraceInfoIteration) {
-      Struct struct = (Struct) data;
-      ObjectType[] fieldTypes = struct.getStructType().getFieldTypes();
-      for (int i = 0; i < fieldTypes.length; ++i) {
+      var struct = (Struct) data;
+      var fieldTypes = struct.getStructType().getFieldTypes();
+      for (var i = 0; i < fieldTypes.length; ++i) {
         fieldTypes[i] = new ObjectTypeImpl(Object.class);
       }
       return data;
@@ -165,7 +163,7 @@ public class QueryMessage extends StreamingPartitionOperation.StreamingPartition
     pr.waitOnInitialization();
 
     if (QueryMonitor.isLowMemory()) {
-      String reason = String.format(
+      var reason = String.format(
           "Query execution canceled due to memory threshold crossed in system, memory used: %s bytes.",
           QueryMonitor.getMemoryUsedBytes());
       // throw query exception to piggyback on existing error handling as qp.executeQuery also
@@ -173,20 +171,20 @@ public class QueryMessage extends StreamingPartitionOperation.StreamingPartition
       throw new QueryExecutionLowMemoryException(reason);
     }
 
-    DefaultQuery query = new DefaultQuery(queryString, pr.getCache(), false);
+    var query = new DefaultQuery(queryString, pr.getCache(), false);
     final ExecutionContext executionContext = new QueryExecutionContext(null, pr.getCache(), query);
     // Remote query, use the PDX types in serialized form.
-    Boolean initialPdxReadSerialized = pr.getCache().getPdxReadSerializedOverride();
+    var initialPdxReadSerialized = pr.getCache().getPdxReadSerializedOverride();
     pr.getCache().setPdxReadSerializedOverride(true);
     // In case of "select *" queries we can keep the results in serialized form and send
     query.setRemoteQuery(true);
-    QueryObserver indexObserver = query.startTrace();
-    boolean isQueryTraced = false;
+    var indexObserver = query.startTrace();
+    var isQueryTraced = false;
     List queryTraceList = null;
 
     try {
       query.setIsCqQuery(cqQuery);
-      PRQueryProcessor qp = new PRQueryProcessor(pr, query, parameters, buckets);
+      var qp = new PRQueryProcessor(pr, query, parameters, buckets);
       if (logger.isDebugEnabled()) {
         logger.debug("Started executing query from remote node: {}", query.getQueryString());
       }
@@ -226,7 +224,7 @@ public class QueryMessage extends StreamingPartitionOperation.StreamingPartition
         }
 
         // calculate the number of rows being sent
-        int traceSize = queryTraceInfo.calculateNumberOfResults(resultCollector);
+        var traceSize = queryTraceInfo.calculateNumberOfResults(resultCollector);
         // subtract the query trace info object
         traceSize -= 1;
         queryTraceInfo.setTimeInMillis((NanoTimer.getTime() - traceStartTime) / 1.0e6f);
@@ -234,13 +232,13 @@ public class QueryMessage extends StreamingPartitionOperation.StreamingPartition
 
         // created the indexes used string
         if (indexObserver instanceof IndexTrackingQueryObserver) {
-          Map indexesUsed = ((IndexTrackingQueryObserver) indexObserver).getUsedIndexes();
-          StringBuilder sb = new StringBuilder();
+          var indexesUsed = ((IndexTrackingQueryObserver) indexObserver).getUsedIndexes();
+          var sb = new StringBuilder();
           sb.append(" indexesUsed(").append(indexesUsed.size()).append(")");
           if (indexesUsed.size() > 0) {
             sb.append(":");
-            for (Iterator itr = indexesUsed.entrySet().iterator(); itr.hasNext();) {
-              Map.Entry entry = (Map.Entry) itr.next();
+            for (var itr = indexesUsed.entrySet().iterator(); itr.hasNext();) {
+              var entry = (Map.Entry) itr.next();
               sb.append(entry.getKey()).append(entry.getValue());
               if (itr.hasNext()) {
                 sb.append(",");
@@ -252,7 +250,7 @@ public class QueryMessage extends StreamingPartitionOperation.StreamingPartition
       }
 
       if (QueryMonitor.isLowMemory()) {
-        String reason = String.format(
+        var reason = String.format(
             "Query execution canceled due to memory threshold crossed in system, memory used: %s bytes.",
             QueryMonitor.getMemoryUsedBytes());
         throw new QueryExecutionLowMemoryException(reason);

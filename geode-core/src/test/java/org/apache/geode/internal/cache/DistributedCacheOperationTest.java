@@ -40,9 +40,9 @@ public class DistributedCacheOperationTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DistributedCacheOperation mockDistributedCacheOperation = mock(DistributedCacheOperation.class);
+    var mockDistributedCacheOperation = mock(DistributedCacheOperation.class);
     @SuppressWarnings("unused") // forces CacheOperationMessage to be mockable
-    CacheOperationMessage mockCacheOperationMessage = mock(CacheOperationMessage.class);
+    var mockCacheOperationMessage = mock(CacheOperationMessage.class);
     Map<InternalDistributedMember, PersistentMemberID> persistentIds = new HashMap<>();
     when(mockDistributedCacheOperation.supportsDirectAck()).thenReturn(false);
 
@@ -64,10 +64,10 @@ public class DistributedCacheOperationTest {
    */
   @Test
   public void endOperationIsInvokedOnDistributionError() {
-    DistributedRegion region = mock(DistributedRegion.class);
-    CacheDistributionAdvisor advisor = mock(CacheDistributionAdvisor.class);
+    var region = mock(DistributedRegion.class);
+    var advisor = mock(CacheDistributionAdvisor.class);
     when(region.getDistributionAdvisor()).thenReturn(advisor);
-    TestOperation operation = new TestOperation(null);
+    var operation = new TestOperation(null);
     operation.region = region;
     try {
       operation.startOperation();
@@ -114,12 +114,12 @@ public class DistributedCacheOperationTest {
 
   @Test
   public void testDoRemoveDestroyTokensFromCqResultKeys() {
-    Object key = new Object();
-    HashMap<Long, Integer> hashMap = new HashMap<>();
+    var key = new Object();
+    var hashMap = new HashMap<Long, Integer>();
     hashMap.put(1L, MessageType.LOCAL_DESTROY);
-    EntryEventImpl baseEvent = mock(EntryEventImpl.class);
-    ServerCQ serverCQ = mock(ServerCQ.class);
-    FilterRoutingInfo.FilterInfo filterInfo = mock(FilterRoutingInfo.FilterInfo.class);
+    var baseEvent = mock(EntryEventImpl.class);
+    var serverCQ = mock(ServerCQ.class);
+    var filterInfo = mock(FilterRoutingInfo.FilterInfo.class);
     DistributedCacheOperation distributedCacheOperation =
         new DestroyOperation(baseEvent);
     when(baseEvent.getKey()).thenReturn(key);

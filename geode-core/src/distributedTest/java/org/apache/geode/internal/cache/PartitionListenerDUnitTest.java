@@ -31,10 +31,8 @@ import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.partition.PartitionListenerAdapter;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.test.dunit.Host;
@@ -53,14 +51,14 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testAfterBucketRemovedCreated() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
     // Create the PR in 2 JVMs
-    String regionName = getName() + "_region";
+    var regionName = getName() + "_region";
     createPR(vm1, regionName, false);
     createPR(vm2, regionName, false);
 
@@ -69,10 +67,10 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
     createData(vm0, 0, 1000, "A", regionName);
 
     // Assert that afterPrimary is invoked for every primary created on the vm
-    List<Integer> vm1PrimariesCreated = getPrimariesCreated(vm1, regionName);
-    List<Integer> vm2PrimariesCreated = getPrimariesCreated(vm2, regionName);
-    List<Integer> vm1ActualPrimaries = getPrimariesOn(vm1, regionName);
-    List<Integer> vm2ActualPrimaries = getPrimariesOn(vm2, regionName);
+    var vm1PrimariesCreated = getPrimariesCreated(vm1, regionName);
+    var vm2PrimariesCreated = getPrimariesCreated(vm2, regionName);
+    var vm1ActualPrimaries = getPrimariesOn(vm1, regionName);
+    var vm2ActualPrimaries = getPrimariesOn(vm2, regionName);
 
     vm1PrimariesCreated.removeAll(vm1ActualPrimaries);
     vm2PrimariesCreated.removeAll(vm2ActualPrimaries);
@@ -97,14 +95,14 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
     allBucketsAndKeysRemoved.putAll(getBucketsAndKeysRemoved(vm2, regionName));
 
     // Get all buckets and keys added to VM3
-    Map<Integer, List<Integer>> vm3BucketsAndKeysAdded = getBucketsAndKeysAdded(vm3, regionName);
+    var vm3BucketsAndKeysAdded = getBucketsAndKeysAdded(vm3, regionName);
 
     // Verify that they are equal
     assertEquals(allBucketsAndKeysRemoved, vm3BucketsAndKeysAdded);
 
     // Verify afterPrimary is invoked after rebalance.
-    List<Integer> vm3PrimariesCreated = getPrimariesCreated(vm3, regionName);
-    List<Integer> vm3ActualPrimaries = getPrimariesOn(vm3, regionName);
+    var vm3PrimariesCreated = getPrimariesCreated(vm3, regionName);
+    var vm3ActualPrimaries = getPrimariesOn(vm3, regionName);
 
     vm3ActualPrimaries.removeAll(vm3PrimariesCreated);
     assertThat(vm3ActualPrimaries).isEmpty();
@@ -112,14 +110,14 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testAfterSecondaryIsCalledAfterLosingPrimary() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
     // Create the PR in 2 JVMs
-    String regionName = getName() + "_region";
+    var regionName = getName() + "_region";
     createPR(vm1, regionName, false);
     createPR(vm2, regionName, false);
 
@@ -128,16 +126,16 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
     createData(vm0, 0, 1000, "A", regionName);
 
     // record the bucket ids for each vm
-    List<Integer> vm1ActualPrimaries = getPrimariesOn(vm1, regionName);
-    List<Integer> vm2ActualPrimaries = getPrimariesOn(vm2, regionName);
+    var vm1ActualPrimaries = getPrimariesOn(vm1, regionName);
+    var vm2ActualPrimaries = getPrimariesOn(vm2, regionName);
 
     // Create the PR in a third JVM and rebalance
     createPR(vm3, regionName, false);
     rebalance(vm3);
 
     // Verify listener invocations
-    List<Integer> afterSecondaryCalledForVM1 = getAfterSecondaryCallbackBucketIds(vm1, regionName);
-    List<Integer> afterSecondaryCalledForVM2 = getAfterSecondaryCallbackBucketIds(vm2, regionName);
+    var afterSecondaryCalledForVM1 = getAfterSecondaryCallbackBucketIds(vm1, regionName);
+    var afterSecondaryCalledForVM2 = getAfterSecondaryCallbackBucketIds(vm2, regionName);
 
     // Eliminate the duplicate, prevent afterSecondary being called multiple times on the same
     // bucket
@@ -155,8 +153,8 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
             + (afterSecondaryCalledForVM2.isEmpty() ? " " : afterSecondaryCalledForVM2.get(0)),
         afterSecondaryCalledForVM2.isEmpty());
 
-    List<Integer> newVm1ActualPrimaries = getPrimariesOn(vm1, regionName);
-    List<Integer> newVM2ActualPrimaries = getPrimariesOn(vm2, regionName);
+    var newVm1ActualPrimaries = getPrimariesOn(vm1, regionName);
+    var newVM2ActualPrimaries = getPrimariesOn(vm2, regionName);
 
     // calculate and verify expected afterSecondary calls
     List<Integer> bucketsNoLongerPrimaryInVM1 = new ArrayList(vm1ActualPrimaries);
@@ -173,19 +171,19 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
 
   protected DistributedMember createPR(VM vm, final String regionName, final boolean isAccessor)
       throws Throwable {
-    SerializableCallable createPrRegion = new SerializableCallable("createRegion") {
+    var createPrRegion = new SerializableCallable("createRegion") {
 
       @Override
       public Object call() {
         Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(1);
         if (isAccessor) {
           paf.setLocalMaxMemory(0);
         }
         paf.addPartitionListener(new TestPartitionListener());
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion(regionName, attr.create());
         return cache.getDistributedSystem().getDistributedMember();
@@ -196,14 +194,14 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
 
   protected void createData(VM vm, final int startKey, final int endKey, final String value,
       final String regionName) {
-    SerializableRunnable createData = new SerializableRunnable("createData") {
+    var createData = new SerializableRunnable("createData") {
 
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion(regionName);
 
-        for (int i = startKey; i < endKey; i++) {
+        for (var i = startKey; i < endKey; i++) {
           region.put(i, value);
         }
       }
@@ -212,7 +210,7 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected List<Integer> getPrimariesOn(VM vm, final String regionName) {
-    SerializableCallable getPrimariesOn = new SerializableCallable("getPrimariesOn") {
+    var getPrimariesOn = new SerializableCallable("getPrimariesOn") {
 
       @Override
       public Object call() {
@@ -226,13 +224,13 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected List<Integer> getPrimariesCreated(VM vm, final String regionName) {
-    SerializableCallable getPrimariesCreated = new SerializableCallable("getPrimariesCreated") {
+    var getPrimariesCreated = new SerializableCallable("getPrimariesCreated") {
 
       @Override
       public Object call() {
         Cache cache = getCache();
         Region region = cache.getRegion(regionName);
-        TestPartitionListener listener = (TestPartitionListener) region.getAttributes()
+        var listener = (TestPartitionListener) region.getAttributes()
             .getPartitionAttributes().getPartitionListeners()[0];
         return listener.getPrimariesCreated();
       }
@@ -241,13 +239,13 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected String getRegionNameFromListener(VM vm, final String regionName) {
-    SerializableCallable getRegionName = new SerializableCallable("getRegionName") {
+    var getRegionName = new SerializableCallable("getRegionName") {
 
       @Override
       public Object call() {
         Cache cache = getCache();
         Region region = cache.getRegion(regionName);
-        TestPartitionListener listener = (TestPartitionListener) region.getAttributes()
+        var listener = (TestPartitionListener) region.getAttributes()
             .getPartitionAttributes().getPartitionListeners()[0];
         return listener.getRegionName();
       }
@@ -256,14 +254,14 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected Map<Integer, List<Integer>> getBucketsAndKeysRemoved(VM vm, final String regionName) {
-    SerializableCallable getBucketsAndKeysRemoved =
+    var getBucketsAndKeysRemoved =
         new SerializableCallable("getBucketsAndKeysRemoved") {
 
           @Override
           public Object call() {
             Cache cache = getCache();
             Region region = cache.getRegion(regionName);
-            TestPartitionListener listener = (TestPartitionListener) region.getAttributes()
+            var listener = (TestPartitionListener) region.getAttributes()
                 .getPartitionAttributes().getPartitionListeners()[0];
             return listener.getBucketsAndKeysRemoved();
           }
@@ -272,14 +270,14 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected Map<Integer, List<Integer>> getBucketsAndKeysAdded(VM vm, final String regionName) {
-    SerializableCallable getBucketsAndKeysAdded =
+    var getBucketsAndKeysAdded =
         new SerializableCallable("getBucketsAndKeysAdded") {
 
           @Override
           public Object call() {
             Cache cache = getCache();
             Region region = cache.getRegion(regionName);
-            TestPartitionListener listener = (TestPartitionListener) region.getAttributes()
+            var listener = (TestPartitionListener) region.getAttributes()
                 .getPartitionAttributes().getPartitionListeners()[0];
             return listener.getBucketsAndKeysAdded();
           }
@@ -288,14 +286,14 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected List<Integer> getAfterSecondaryCallbackBucketIds(VM vm, final String regionName) {
-    SerializableCallable getAfterSecondaryCallbackBucketIds =
+    var getAfterSecondaryCallbackBucketIds =
         new SerializableCallable("getAfterSecondaryCallbackBucketIds") {
 
           @Override
           public Object call() {
             Cache cache = getCache();
             Region region = cache.getRegion(regionName);
-            TestPartitionListener listener = (TestPartitionListener) region.getAttributes()
+            var listener = (TestPartitionListener) region.getAttributes()
                 .getPartitionAttributes().getPartitionListeners()[0];
             return listener.getAfterSecondaryCallbackBucketIds();
           }
@@ -308,7 +306,7 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
 
       @Override
       public Object call() throws Exception {
-        RebalanceOperation rebalance =
+        var rebalance =
             getCache().getResourceManager().createRebalanceFactory().start();
         rebalance.getResults();
         return null;
@@ -377,7 +375,7 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
       // them and add them to the keys removed.
       if (!keysCol.isEmpty()) {
         List<Integer> keysList = new ArrayList<>();
-        for (Integer key : keysCol) {
+        for (var key : keysCol) {
           keysList.add(key);
         }
         Collections.sort(keysList);
@@ -392,7 +390,7 @@ public class PartitionListenerDUnitTest extends JUnit4CacheTestCase {
       // them and add them to the keys added.
       if (!keysCol.isEmpty()) {
         List<Integer> keysList = new ArrayList<>();
-        for (Integer key : keysCol) {
+        for (var key : keysCol) {
           keysList.add(key);
         }
         Collections.sort(keysList);

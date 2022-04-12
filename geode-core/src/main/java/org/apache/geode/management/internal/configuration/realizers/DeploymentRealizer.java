@@ -38,13 +38,13 @@ public class DeploymentRealizer
 
   @Override
   public RealizationResult create(Deployment config, InternalCache cache) throws Exception {
-    ServiceResult<Deployment> deploy = deploy(config);
-    RealizationResult result = new RealizationResult();
+    var deploy = deploy(config);
+    var result = new RealizationResult();
     if (deploy.isFailure()) {
       result.setSuccess(false);
       result.setMessage(deploy.getErrorMessage());
     } else {
-      Deployment deployment = deploy.getMessage();
+      var deployment = deploy.getMessage();
       if (deployment == null) {
         result.setMessage("Already deployed");
       } else {
@@ -56,8 +56,8 @@ public class DeploymentRealizer
 
   @Override
   public DeploymentInfo get(Deployment config, InternalCache cache) {
-    DeploymentInfo info = new DeploymentInfo();
-    ServiceResult<Deployment> deployed = getDeployed(config.getFileName());
+    var info = new DeploymentInfo();
+    var deployed = getDeployed(config.getFileName());
     if (deployed.isSuccessful()) {
       info.setLastModified(deployed.getMessage().getDeployedTime());
       info.setJarLocation(deployed.getMessage().getFile().getAbsolutePath());

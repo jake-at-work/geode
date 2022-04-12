@@ -29,8 +29,6 @@ import org.apache.geode.cache.query.CqStatistics;
 import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.internal.CompiledIteratorDef;
 import org.apache.geode.cache.query.internal.CompiledRegion;
-import org.apache.geode.cache.query.internal.CompiledSelect;
-import org.apache.geode.cache.query.internal.CompiledValue;
 import org.apache.geode.cache.query.internal.CqQueryVsdStats;
 import org.apache.geode.cache.query.internal.CqStateImpl;
 import org.apache.geode.cache.query.internal.DefaultQuery;
@@ -135,16 +133,16 @@ public abstract class CqQueryImpl implements InternalCqQuery {
    * Validates the CQ. Checks for cq constraints. Also sets the base region name.
    */
   void validateCq() {
-    InternalCache cache = cqService.getInternalCache();
-    DefaultQuery locQuery = (DefaultQuery) cache.getLocalQueryService().newQuery(queryString);
+    var cache = cqService.getInternalCache();
+    var locQuery = (DefaultQuery) cache.getLocalQueryService().newQuery(queryString);
     query = locQuery;
     // assert locQuery != null;
 
     // validate Query.
-    Object[] parameters = new Object[0]; // parameters are not permitted
+    var parameters = new Object[0]; // parameters are not permitted
 
     // check that it is only a SELECT statement (possibly with IMPORTs)
-    CompiledSelect select = locQuery.getSimpleSelect();
+    var select = locQuery.getSimpleSelect();
     if (select == null) {
       throw new UnsupportedOperationException(
           "CQ queries must be a select statement only");
@@ -168,7 +166,7 @@ public abstract class CqQueryImpl implements InternalCqQuery {
 
     // make sure the where clause references no regions
     Set regions = new HashSet();
-    CompiledValue whereClause = select.getWhereClause();
+    var whereClause = select.getWhereClause();
     if (whereClause != null) {
       whereClause.getRegionsInQuery(regions, parameters);
       if (!regions.isEmpty()) {
@@ -176,7 +174,7 @@ public abstract class CqQueryImpl implements InternalCqQuery {
             "The WHERE clause in CQ queries cannot refer to a region");
       }
     }
-    List fromClause = select.getIterators();
+    var fromClause = select.getIterators();
     // cannot have more than one iterator in FROM clause
     if (fromClause.size() > 1) {
       throw new UnsupportedOperationException(
@@ -184,7 +182,7 @@ public abstract class CqQueryImpl implements InternalCqQuery {
     }
 
     // the first iterator in the FROM clause must be just a CompiledRegion
-    CompiledIteratorDef itrDef = (CompiledIteratorDef) fromClause.get(0);
+    var itrDef = (CompiledIteratorDef) fromClause.get(0);
     // By process of elimination, we know that the first iterator contains a reference
     // to the region. Check to make sure it is only a CompiledRegion
     if (!(itrDef.getCollectionExpr() instanceof CompiledRegion)) {
@@ -193,7 +191,7 @@ public abstract class CqQueryImpl implements InternalCqQuery {
     }
 
     // must not have any projections
-    List projs = select.getProjectionAttributes();
+    var projs = select.getProjectionAttributes();
     if (projs != null) {
       throw new UnsupportedOperationException(
           "CQ queries do not support projections");
@@ -218,10 +216,10 @@ public abstract class CqQueryImpl implements InternalCqQuery {
     try {
       cqService.removeCq(getServerCqName());
     } catch (Exception ex) {
-      String errMsg =
+      var errMsg =
           "Failed to remove Continuous Query From the repository. CqName: %s Error : %s";
-      Object[] errMsgArgs = new Object[] {cqName, ex.getLocalizedMessage()};
-      String msg = String.format(errMsg, errMsgArgs);
+      var errMsgArgs = new Object[] {cqName, ex.getLocalizedMessage()};
+      var msg = String.format(errMsg, errMsgArgs);
       logger.error(msg);
       throw new CqException(msg, ex);
     }

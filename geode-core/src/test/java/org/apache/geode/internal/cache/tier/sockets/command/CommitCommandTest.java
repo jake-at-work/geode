@@ -57,9 +57,9 @@ public class CommitCommandTest {
    */
   @Test
   public void testWriteNullResponse() throws Exception {
-    InternalCache cache = mock(InternalCache.class);
-    Message origMsg = mock(Message.class);
-    ServerConnection servConn = mock(ServerConnection.class);
+    var cache = mock(InternalCache.class);
+    var origMsg = mock(Message.class);
+    var servConn = mock(ServerConnection.class);
     when(servConn.getResponseMessage()).thenReturn(mock(Message.class));
     when(servConn.getCache()).thenReturn(cache);
     when(cache.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
@@ -75,16 +75,16 @@ public class CommitCommandTest {
    */
   @Test
   public void testTransactionInDoubtWaitsForTargetDeparture() throws Exception {
-    CommitCommand command = (CommitCommand) CommitCommand.getCommand();
-    Message clientMessage = mock(Message.class);
-    ServerConnection serverConnection = mock(ServerConnection.class);
-    TXManagerImpl txMgr = mock(TXManagerImpl.class);
-    TXStateProxy txProxy = mock(TXStateProxy.class);
-    InternalCache cache = mock(InternalCache.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
-    Distribution distribution = mock(Distribution.class);
-    ServerSideHandshake handshake = mock(ServerSideHandshake.class);
-    boolean wasInProgress = false;
+    var command = (CommitCommand) CommitCommand.getCommand();
+    var clientMessage = mock(Message.class);
+    var serverConnection = mock(ServerConnection.class);
+    var txMgr = mock(TXManagerImpl.class);
+    var txProxy = mock(TXStateProxy.class);
+    var cache = mock(InternalCache.class);
+    var distributionManager = mock(DistributionManager.class);
+    var distribution = mock(Distribution.class);
+    var handshake = mock(ServerSideHandshake.class);
+    var wasInProgress = false;
 
     doReturn(cache).when(serverConnection).getCache();
     doReturn(distributionManager).when(cache).getDistributionManager();
@@ -99,7 +99,7 @@ public class CommitCommandTest {
     doReturn(new InternalDistributedMember(InetAddress.getLocalHost(), 1234)).when(txProxy)
         .getTarget();
 
-    TransactionInDoubtException transactionInDoubtException =
+    var transactionInDoubtException =
         new TransactionInDoubtException("tx in doubt", new CacheClosedException("testing"));
     doThrow(transactionInDoubtException).when(txMgr).commit();
 

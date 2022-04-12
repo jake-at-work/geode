@@ -37,10 +37,8 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.MirrorType;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.cache30.ClientServerTestCase;
@@ -92,7 +90,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
 
@@ -111,7 +109,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testEventIDOnServer() {
     createEntry();
-    Boolean pass = vm0.invoke(EventIDVerificationDUnitTest::verifyResult);
+    var pass = vm0.invoke(EventIDVerificationDUnitTest::verifyResult);
     assertTrue(pass);
     put();
     pass = vm0.invoke(EventIDVerificationDUnitTest::verifyResult);
@@ -136,7 +134,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testEventIDPrapogationOnServerDuringRegionDestroy() {
     destroyRegion();
-    Boolean pass = vm0.invoke(EventIDVerificationDUnitTest::verifyResult);
+    var pass = vm0.invoke(EventIDVerificationDUnitTest::verifyResult);
     assertTrue(pass);
     pass = vm1.invoke(EventIDVerificationDUnitTest::verifyResult);
     assertTrue(pass);
@@ -150,7 +148,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testEventIDPrapogationOnServerDuringRegionClear() {
     clearRegion();
-    Boolean pass = vm0.invoke(EventIDVerificationDUnitTest::verifyResult);
+    var pass = vm0.invoke(EventIDVerificationDUnitTest::verifyResult);
     assertTrue(pass);
     pass = vm1.invoke(EventIDVerificationDUnitTest::verifyResult);
     assertTrue(pass);
@@ -169,11 +167,11 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
   public static void createClientCache(String host, Integer port1, Integer port2) throws Exception {
     PORT1 = port1;
     PORT2 = port2;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new EventIDVerificationDUnitTest().createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setMirrorType(MirrorType.NONE);
 
@@ -184,7 +182,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
     CacheWriter writer = new CacheWriterAdapter() {
       @Override
       public void beforeCreate(EntryEvent event) {
-        EventID eventId = ((EntryEventImpl) event).getEventId();
+        var eventId = ((EntryEventImpl) event).getEventId();
         vm0.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         vm1.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         try {
@@ -199,7 +197,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
       @Override
       public void beforeUpdate(EntryEvent event) {
 
-        EventID eventId = ((EntryEventImpl) event).getEventId();
+        var eventId = ((EntryEventImpl) event).getEventId();
         vm0.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         vm1.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         try {
@@ -213,7 +211,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
 
       @Override
       public void beforeDestroy(EntryEvent event) {
-        EventID eventId = ((EntryEventImpl) event).getEventId();
+        var eventId = ((EntryEventImpl) event).getEventId();
         vm0.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         vm1.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         try {
@@ -227,7 +225,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
 
       @Override
       public void beforeRegionDestroy(RegionEvent event) {
-        EventID eventId = ((RegionEventImpl) event).getEventId();
+        var eventId = ((RegionEventImpl) event).getEventId();
         vm0.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         vm1.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         try {
@@ -241,7 +239,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
 
       @Override
       public void beforeRegionClear(RegionEvent event) {
-        EventID eventId = ((RegionEventImpl) event).getEventId();
+        var eventId = ((RegionEventImpl) event).getEventId();
         vm0.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         vm1.invoke(() -> EventIDVerificationDUnitTest.setEventIDData(eventId));
         try {
@@ -266,8 +264,8 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
      * ((RegionEventImpl)event).getEventId().getMembershipID(); } } });
      */
 
-    RegionAttributes attrs = factory.create();
-    Region r = cache.createRegion(REGION_NAME, attrs);
+    var attrs = factory.create();
+    var r = cache.createRegion(REGION_NAME, attrs);
     r.registerInterest("ALL_KEYS");
   }
 
@@ -278,7 +276,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
 
   public static Integer createServerCache() throws Exception {
     new EventIDVerificationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
@@ -343,10 +341,10 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
 
     });
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    int port = getRandomAvailableTCPPort();
-    CacheServer server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
     server1.start();
@@ -439,7 +437,7 @@ public class EventIDVerificationDUnitTest extends JUnit4DistributedTestCase {
       }
       gotCallback = false;
     }
-    boolean temp = testEventIDResult;
+    var temp = testEventIDResult;
     testEventIDResult = false;
     return temp;
 

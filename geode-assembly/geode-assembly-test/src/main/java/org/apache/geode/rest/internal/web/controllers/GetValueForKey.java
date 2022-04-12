@@ -25,7 +25,7 @@ public class GetValueForKey implements Function {
 
   @Override
   public void execute(FunctionContext context) {
-    Object args = context.getArguments();
+    var args = context.getArguments();
 
     Cache cache = null;
 
@@ -34,16 +34,16 @@ public class GetValueForKey implements Function {
 
       if (args.toString().equalsIgnoreCase("1")) {
         Region<String, Object> r = cache.getRegion("Products");
-        Object result = r.get("1");
+        var result = r.get("1");
         context.getResultSender().lastResult(result);
 
       } else if (args.toString().equalsIgnoreCase("2")) {
         Region<String, Object> r = cache.getRegion("People");
-        Object result = r.get("2");
+        var result = r.get("2");
         context.getResultSender().lastResult(result);
       } else {
         // Default case
-        int i = 10;
+        var i = 10;
         context.getResultSender().lastResult(i);
       }
     } catch (CacheClosedException e) {

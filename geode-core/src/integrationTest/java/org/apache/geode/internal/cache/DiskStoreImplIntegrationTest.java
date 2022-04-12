@@ -33,8 +33,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
@@ -70,13 +68,13 @@ public class DiskStoreImplIntegrationTest {
 
   @Test
   public void cleansUpOrphanedBackupFilesOnDiskStoreCreation() throws Exception {
-    File baseDir = temporaryDirectory.newFolder();
+    var baseDir = temporaryDirectory.newFolder();
     createRegionWithDiskStore(baseDir);
-    DiskStore diskStore = cache.findDiskStore(DISK_STORE_NAME);
+    var diskStore = cache.findDiskStore(DISK_STORE_NAME);
 
     List<Path> tempDirs = new ArrayList<>();
-    for (File diskDir : diskStore.getDiskDirs()) {
-      Path tempDir =
+    for (var diskDir : diskStore.getDiskDirs()) {
+      var tempDir =
           diskDir.toPath().resolve(BackupService.TEMPORARY_DIRECTORY_FOR_BACKUPS + "testing");
       Files.createDirectories(tempDir);
       tempDirs.add(tempDir);
@@ -91,8 +89,8 @@ public class DiskStoreImplIntegrationTest {
 
   @Test
   public void queueSizeStatIncrementedAfterAsyncFlush() throws Exception {
-    File baseDir = temporaryDirectory.newFolder();
-    final int QUEUE_SIZE = 50;
+    var baseDir = temporaryDirectory.newFolder();
+    final var QUEUE_SIZE = 50;
     createRegionWithDiskStoreAndAsyncQueue(baseDir, QUEUE_SIZE);
     await().until(() -> diskStoreStats.getQueueSize() == 0);
 
@@ -108,18 +106,18 @@ public class DiskStoreImplIntegrationTest {
   public void givenDiskStoreIsCreatedWithMaxSizeThenDiskUsagePercentagesShouldBeZeroAndDiskFreePercentagesShouldBe100()
       throws Exception {
 
-    final int ALLOWED_MARGIN = 1;
-    File[] diskDirs = new File[2];
+    final var ALLOWED_MARGIN = 1;
+    var diskDirs = new File[2];
     diskDirs[0] = temporaryDirectory.newFolder("dir1");
     diskDirs[1] = temporaryDirectory.newFolder("dir2");
 
-    int[] diskDirSizes = new int[2];
+    var diskDirSizes = new int[2];
     diskDirSizes[0] = 20;
     diskDirSizes[1] = 20;
 
     cache.createDiskStoreFactory().setMaxOplogSize(2).setDiskDirsAndSizes(diskDirs, diskDirSizes)
         .create(DISK_STORE_NAME);
-    DiskStore diskStore = cache.findDiskStore(DISK_STORE_NAME);
+    var diskStore = cache.findDiskStore(DISK_STORE_NAME);
 
     assertEquals(0, ((DiskStoreImpl) diskStore).getDiskUsagePercentage(), 0);
     assertEquals(100, ((DiskStoreImpl) diskStore).getDiskFreePercentage(),
@@ -130,15 +128,15 @@ public class DiskStoreImplIntegrationTest {
   public void givenDiskStoreIsCreatedWithMaxSizeWhenDataIsStoredThenDiskPercentagesShouldBeModified()
       throws Exception {
 
-    final int ESTIMATED_USAGE_PERCENTAGE = 7; // Estimated disk percentage for NUM_ENTRIES
-    final int ESTIMATED_FREE_PERCENTAGE = 100 - ESTIMATED_USAGE_PERCENTAGE;
-    final int ALLOWED_MARGIN = 2;
+    final var ESTIMATED_USAGE_PERCENTAGE = 7; // Estimated disk percentage for NUM_ENTRIES
+    final var ESTIMATED_FREE_PERCENTAGE = 100 - ESTIMATED_USAGE_PERCENTAGE;
+    final var ALLOWED_MARGIN = 2;
 
-    File[] diskDirs = new File[2];
+    var diskDirs = new File[2];
     diskDirs[0] = temporaryDirectory.newFolder("dir1");
     diskDirs[1] = temporaryDirectory.newFolder("dir2");
 
-    int[] diskDirSizes = new int[2];
+    var diskDirSizes = new int[2];
     diskDirSizes[0] = 20;
     diskDirSizes[1] = 20;
 
@@ -146,7 +144,7 @@ public class DiskStoreImplIntegrationTest {
         .create(DISK_STORE_NAME);
     Region region = cache.<String, String>createRegionFactory(RegionShortcut.PARTITION_PERSISTENT)
         .setDiskStoreName(DISK_STORE_NAME).create(REGION_NAME);
-    DiskStore diskStore = cache.findDiskStore(DISK_STORE_NAME);
+    var diskStore = cache.findDiskStore(DISK_STORE_NAME);
 
     putEntries(region, NUM_ENTRIES);
 
@@ -162,13 +160,13 @@ public class DiskStoreImplIntegrationTest {
   public void givenDiskStoreIsCreatedWithDefaultSizeThenDiskPercentagesShouldNotBeAvailable()
       throws Exception {
 
-    File[] diskDirs = new File[2];
+    var diskDirs = new File[2];
     diskDirs[0] = temporaryDirectory.newFolder("dir1");
     diskDirs[1] = temporaryDirectory.newFolder("dir2");
 
     cache.createDiskStoreFactory().setDiskDirs(diskDirs)
         .create(DISK_STORE_NAME);
-    DiskStore diskStore = cache.findDiskStore(DISK_STORE_NAME);
+    var diskStore = cache.findDiskStore(DISK_STORE_NAME);
 
     assertEquals(ManagementConstants.NOT_AVAILABLE_FLOAT,
         ((DiskStoreImpl) diskStore).getDiskUsagePercentage(), 0);
@@ -180,13 +178,13 @@ public class DiskStoreImplIntegrationTest {
   public void givenDiskStoreIsCreatedWithDefaultSizeWhenDataIsStoredThenDiskPercentagesShouldNotBeAvailable()
       throws Exception {
 
-    File[] diskDirs = new File[2];
+    var diskDirs = new File[2];
     diskDirs[0] = temporaryDirectory.newFolder("dir1");
     diskDirs[1] = temporaryDirectory.newFolder("dir2");
 
     cache.createDiskStoreFactory().setDiskDirs(diskDirs)
         .create(DISK_STORE_NAME);
-    DiskStore diskStore = cache.findDiskStore(DISK_STORE_NAME);
+    var diskStore = cache.findDiskStore(DISK_STORE_NAME);
     Region region = cache.<String, String>createRegionFactory(RegionShortcut.PARTITION_PERSISTENT)
         .setDiskStoreName(DISK_STORE_NAME).create(REGION_NAME);
 
@@ -202,21 +200,21 @@ public class DiskStoreImplIntegrationTest {
   public void givenDiskStoreIsCreatedWithAtLeastOneDefaultSizeThenDiskPercentagesShouldNotBeAvailable()
       throws Exception {
 
-    File[] diskDirs = new File[3];
+    var diskDirs = new File[3];
     diskDirs[0] = temporaryDirectory.newFolder("dir1");
     diskDirs[1] = temporaryDirectory.newFolder("dir2");
     diskDirs[2] = temporaryDirectory.newFolder("dir3");
 
     int[] diskDirSizes;
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       cache = createCache();
       diskDirSizes = new int[] {10, 10, 10};
       diskDirSizes[i] = Integer.MAX_VALUE;
 
       cache.createDiskStoreFactory().setDiskDirsAndSizes(diskDirs, diskDirSizes)
           .create(DISK_STORE_NAME);
-      DiskStore diskStore = cache.findDiskStore(DISK_STORE_NAME);
+      var diskStore = cache.findDiskStore(DISK_STORE_NAME);
 
       assertEquals(ManagementConstants.NOT_AVAILABLE_FLOAT,
           ((DiskStoreImpl) diskStore).getDiskUsagePercentage(), 0);
@@ -230,17 +228,17 @@ public class DiskStoreImplIntegrationTest {
   public void givenDiskStoreIsCreatedWithAtLeastOneDefaultSizeWhenDataIsStoredThenDiskPercentagesShouldNotBeAvailable()
       throws Exception {
 
-    File[] diskDirs = new File[2];
+    var diskDirs = new File[2];
     diskDirs[0] = temporaryDirectory.newFolder("dir1");
     diskDirs[1] = temporaryDirectory.newFolder("dir2");
 
-    int[] diskDirSizes = new int[2];
+    var diskDirSizes = new int[2];
     diskDirSizes[0] = 10;
     diskDirSizes[1] = Integer.MAX_VALUE;
 
     cache.createDiskStoreFactory().setDiskDirsAndSizes(diskDirs, diskDirSizes)
         .create(DISK_STORE_NAME);
-    DiskStore diskStore = cache.findDiskStore(DISK_STORE_NAME);
+    var diskStore = cache.findDiskStore(DISK_STORE_NAME);
     Region region = cache.<String, String>createRegionFactory(RegionShortcut.PARTITION_PERSISTENT)
         .setDiskStoreName(DISK_STORE_NAME).create(REGION_NAME);
 
@@ -255,11 +253,11 @@ public class DiskStoreImplIntegrationTest {
   @Test
   public void whenMaxOplogFileDoesNotFitInDirThenNextDirIsSelected() throws Exception {
 
-    File[] diskDirs = new File[3];
+    var diskDirs = new File[3];
     diskDirs[0] = temporaryDirectory.newFolder("dir1");
     diskDirs[1] = temporaryDirectory.newFolder("dir2");
     diskDirs[2] = temporaryDirectory.newFolder("dir3");
-    final int NUM_ENTRIES = 450000;
+    final var NUM_ENTRIES = 450000;
     int[] diskDirSizes;
 
     cache = createCache();
@@ -269,11 +267,11 @@ public class DiskStoreImplIntegrationTest {
         .create(DISK_STORE_NAME);
     Region region = cache.<String, String>createRegionFactory(RegionShortcut.PARTITION_PERSISTENT)
         .setDiskStoreName(DISK_STORE_NAME).create(REGION_NAME);
-    DiskStore diskStore = cache.findDiskStore(DISK_STORE_NAME);
+    var diskStore = cache.findDiskStore(DISK_STORE_NAME);
 
     putEntries(region, NUM_ENTRIES);
 
-    File[] dirs = diskStore.getDiskDirs();
+    var dirs = diskStore.getDiskDirs();
 
     /**
      * 8 oplog files should be created.
@@ -297,8 +295,8 @@ public class DiskStoreImplIntegrationTest {
 
   @Test
   public void oplogWriteBufferSizeIsEqualsToDiskStoreWriteBufferSize() throws Exception {
-    File[] diskDirs = new File[1];
-    int expectedWriteBufferSize = 12345;
+    var diskDirs = new File[1];
+    var expectedWriteBufferSize = 12345;
     diskDirs[0] = temporaryDirectory.newFolder("dir1");
     cache = createCache();
     cache.createDiskStoreFactory().setWriteBufferSize(expectedWriteBufferSize).setDiskDirs(diskDirs)
@@ -306,9 +304,9 @@ public class DiskStoreImplIntegrationTest {
     Region region = cache.<String, String>createRegionFactory(RegionShortcut.PARTITION_PERSISTENT)
         .setDiskStoreName(DISK_STORE_NAME).create(REGION_NAME);
     putEntries(region, 1);
-    DiskStore diskStore = cache.findDiskStore(DISK_STORE_NAME);
+    var diskStore = cache.findDiskStore(DISK_STORE_NAME);
     assertThat(diskStore.getWriteBufferSize()).isEqualTo(expectedWriteBufferSize);
-    Oplog oplog = ((DiskStoreImpl) diskStore).getPersistentOplogs().getChild();
+    var oplog = ((DiskStoreImpl) diskStore).getPersistentOplogs().getChild();
     assertThat(oplog.getWriteBuf().capacity()).isEqualTo(expectedWriteBufferSize);
   }
 
@@ -317,9 +315,9 @@ public class DiskStoreImplIntegrationTest {
    * given directory.
    */
   private boolean oplogFileIsInDir(int oplogFileIndex, File dir) {
-    String[] files = dir.list();
-    String pattern = "BACKUP" + DISK_STORE_NAME + "_" + oplogFileIndex;
-    for (String file : files) {
+    var files = dir.list();
+    var pattern = "BACKUP" + DISK_STORE_NAME + "_" + oplogFileIndex;
+    for (var file : files) {
       if (file.contains(pattern)) {
         return true;
       }
@@ -332,7 +330,7 @@ public class DiskStoreImplIntegrationTest {
   }
 
   private void putEntries(Region region, int numToPut) {
-    for (int i = 1; i <= numToPut; i++) {
+    for (var i = 1; i <= numToPut; i++) {
       region.put(i, i);
     }
   }
@@ -354,11 +352,11 @@ public class DiskStoreImplIntegrationTest {
   }
 
   private void createDiskStoreWithQueue(File baseDir, int queueSize, long timeInterval) {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(new File[] {baseDir});
     diskStoreFactory.setQueueSize(queueSize);
     diskStoreFactory.setTimeInterval(timeInterval);
-    DiskStore diskStore = diskStoreFactory.create(DISK_STORE_NAME);
+    var diskStore = diskStoreFactory.create(DISK_STORE_NAME);
     diskStoreStats = ((DiskStoreImpl) diskStore).getStats();
   }
 

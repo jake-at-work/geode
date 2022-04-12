@@ -30,8 +30,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -43,12 +41,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.DiskInitFile;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -74,7 +70,7 @@ public class OfflineDiskStoreCommandsDUnitTest implements Serializable {
 
 
   private Properties createLocatorConfiguration(int localLocatorPort) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "localhost[" + localLocatorPort + ']');
     config.setProperty(START_LOCATOR,
@@ -84,7 +80,7 @@ public class OfflineDiskStoreCommandsDUnitTest implements Serializable {
   }
 
   private Properties createServerConfiguration(int localLocatorPort) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "localhost[" + localLocatorPort + ']');
 
@@ -92,7 +88,7 @@ public class OfflineDiskStoreCommandsDUnitTest implements Serializable {
   }
 
   private void createDiskStore(File[] diskStoreDirectories) {
-    DiskStoreFactory diskStoreFactory = cacheRule.getCache().createDiskStoreFactory();
+    var diskStoreFactory = cacheRule.getCache().createDiskStoreFactory();
     diskStoreFactory.setMaxOplogSize(1);
     diskStoreFactory.setAutoCompact(true);
     diskStoreFactory.setAllowForceCompaction(true);
@@ -127,17 +123,17 @@ public class OfflineDiskStoreCommandsDUnitTest implements Serializable {
       "alter disk-store --region=testRegion --enable-statistics=true"})
   public void offlineDiskStoreCommandsSupportDiskStoresWithMultipleDirectories(String baseCommand)
       throws IOException {
-    VM locator = getVM(0);
-    VM server = getVM(1);
-    final int ENTRIES = 100000;
-    int site1Port = getRandomAvailableTCPPort();
+    var locator = getVM(0);
+    var server = getVM(1);
+    final var ENTRIES = 100000;
+    var site1Port = getRandomAvailableTCPPort();
 
-    File diskStoreDirectory1 = temporaryFolder.newFolder("diskDir1");
-    File diskStoreDirectory2 = temporaryFolder.newFolder("diskDir2");
-    File diskStoreDirectory3 = temporaryFolder.newFolder("diskDir3");
-    File[] diskStoreDirectories =
+    var diskStoreDirectory1 = temporaryFolder.newFolder("diskDir1");
+    var diskStoreDirectory2 = temporaryFolder.newFolder("diskDir2");
+    var diskStoreDirectory3 = temporaryFolder.newFolder("diskDir3");
+    var diskStoreDirectories =
         new File[] {diskStoreDirectory1, diskStoreDirectory2, diskStoreDirectory3};
-    String diskDirs = Arrays.stream(diskStoreDirectories).map(File::getAbsolutePath)
+    var diskDirs = Arrays.stream(diskStoreDirectories).map(File::getAbsolutePath)
         .collect(Collectors.joining(","));
 
     locator.invoke(() -> cacheRule.createCache(createLocatorConfiguration(site1Port)));
@@ -160,18 +156,18 @@ public class OfflineDiskStoreCommandsDUnitTest implements Serializable {
       "alter disk-store --region=testRegion --enable-statistics=true"})
   public void offlineDiskStoreCommandsDoNotLeaveLingeringThreadsRunning(String baseCommand)
       throws IOException {
-    VM locator = getVM(0);
-    VM server = getVM(1);
-    final int ENTRIES = 100000;
-    int site1Port = getRandomAvailableTCPPort();
-    String threadName = "Asynchronous disk writer for region";
-    int counter = 0;
+    var locator = getVM(0);
+    var server = getVM(1);
+    final var ENTRIES = 100000;
+    var site1Port = getRandomAvailableTCPPort();
+    var threadName = "Asynchronous disk writer for region";
+    var counter = 0;
 
-    File diskStoreDirectory1 = temporaryFolder.newFolder("diskDir1");
+    var diskStoreDirectory1 = temporaryFolder.newFolder("diskDir1");
 
-    File[] diskStoreDirectories =
+    var diskStoreDirectories =
         new File[] {diskStoreDirectory1};
-    String diskDirs = Arrays.stream(diskStoreDirectories).map(File::getAbsolutePath)
+    var diskDirs = Arrays.stream(diskStoreDirectories).map(File::getAbsolutePath)
         .collect(Collectors.joining(","));
 
     locator.invoke(() -> cacheRule.createCache(createLocatorConfiguration(site1Port)));
@@ -188,11 +184,11 @@ public class OfflineDiskStoreCommandsDUnitTest implements Serializable {
         baseCommand + " --name=" + DISK_STORE_ID + " --disk-dirs=" + diskDirs)
         .statusIsSuccess();
 
-    File tempFile = temporaryFolder.newFile("dumpFile.txt");
-    BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-    ThreadInfo[] infos = bean.dumpAllThreads(true, true);
-    for (ThreadInfo info : infos) {
+    var tempFile = temporaryFolder.newFile("dumpFile.txt");
+    var writer = new BufferedWriter(new FileWriter(tempFile));
+    var bean = ManagementFactory.getThreadMXBean();
+    var infos = bean.dumpAllThreads(true, true);
+    for (var info : infos) {
       if (info.toString().contains(threadName)) {
         writer.append(info.toString());
       }
@@ -200,7 +196,7 @@ public class OfflineDiskStoreCommandsDUnitTest implements Serializable {
 
     writer.close();
 
-    try (BufferedReader br = new BufferedReader(new FileReader(tempFile))) {
+    try (var br = new BufferedReader(new FileReader(tempFile))) {
       String line;
       while ((line = br.readLine()) != null) {
         if (line.contains(threadName)) {
@@ -217,17 +213,17 @@ public class OfflineDiskStoreCommandsDUnitTest implements Serializable {
       "alter disk-store --region=testRegion --enable-statistics=true"})
   public void offlineDiskStoreCommandShouldFailWhenDiskStoreFileDoesNotExist(String baseCommand)
       throws IOException {
-    VM locator = getVM(0);
-    VM server = getVM(1);
-    final int ENTRIES = 100000;
-    int site1Port = getRandomAvailableTCPPort();
+    var locator = getVM(0);
+    var server = getVM(1);
+    final var ENTRIES = 100000;
+    var site1Port = getRandomAvailableTCPPort();
 
-    File diskStoreDirectory1 = temporaryFolder.newFolder("diskDir1");
-    File diskStoreDirectory2 = temporaryFolder.newFolder("diskDir2");
-    File diskStoreDirectory3 = temporaryFolder.newFolder("diskDir3");
-    File[] diskStoreDirectories =
+    var diskStoreDirectory1 = temporaryFolder.newFolder("diskDir1");
+    var diskStoreDirectory2 = temporaryFolder.newFolder("diskDir2");
+    var diskStoreDirectory3 = temporaryFolder.newFolder("diskDir3");
+    var diskStoreDirectories =
         new File[] {diskStoreDirectory1, diskStoreDirectory2, diskStoreDirectory3};
-    String diskDirs = Arrays.stream(diskStoreDirectories).map(File::getAbsolutePath)
+    var diskDirs = Arrays.stream(diskStoreDirectories).map(File::getAbsolutePath)
         .collect(Collectors.joining(","));
 
     locator.invoke(() -> cacheRule.createCache(createLocatorConfiguration(site1Port)));

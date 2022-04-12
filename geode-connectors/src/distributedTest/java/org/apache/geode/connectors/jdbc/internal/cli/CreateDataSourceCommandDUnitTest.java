@@ -18,16 +18,12 @@ package org.apache.geode.connectors.jdbc.internal.cli;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import java.io.File;
-import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.JndiBindingsType.JndiBinding;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.jndi.JNDIInvoker;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.dunit.IgnoredException;
@@ -63,17 +59,17 @@ public class CreateDataSourceCommandDUnitTest {
     VMProvider.invokeInEveryMember(
         () -> assertThat(JNDIInvoker.getNoOfAvailableDataSources()).isEqualTo(0), server1, server2);
 
-    String URL = "jdbc:derby:memory:newDB;create=true";
+    var URL = "jdbc:derby:memory:newDB;create=true";
     createDataSource(URL);
 
     // verify cluster config is updated
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService ccService =
+      var ccService =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig cacheConfig = ccService.getCacheConfig("cluster");
-      List<JndiBinding> jndiBindings = cacheConfig.getJndiBindings();
+      var cacheConfig = ccService.getCacheConfig("cluster");
+      var jndiBindings = cacheConfig.getJndiBindings();
       assertThat(jndiBindings.size()).isEqualTo(1);
-      JndiBinding jndiBinding = jndiBindings.get(0);
+      var jndiBinding = jndiBindings.get(0);
       assertThat(jndiBinding.getJndiName()).isEqualTo("jndi1");
       assertThat(jndiBinding.getUserName()).isEqualTo("myuser");
       assertThat(jndiBinding.getPassword()).isEqualTo("mypass");
@@ -109,7 +105,7 @@ public class CreateDataSourceCommandDUnitTest {
 
   @Test
   public void testCreateDataSourceWithJarOptionDoesNotThrowDriverError() {
-    String URL = "jdbc:mysql://localhost/";
+    var URL = "jdbc:mysql://localhost/";
     IgnoredException.addIgnoredException(
         "No suitable driver");
     IgnoredException.addIgnoredException(
@@ -118,11 +114,11 @@ public class CreateDataSourceCommandDUnitTest {
         "Failed to connect to \"mySqlDataSource\"");
 
     // aquire the jar to be used
-    final String jdbcJarName = "mysql-connector-java-8.0.28.jar";
-    final String jdbcDriverClassName = "com.mysql.cj.jdbc.Driver";
-    File mySqlDriverFile = loadTestResource("/" + jdbcJarName);
+    final var jdbcJarName = "mysql-connector-java-8.0.28.jar";
+    final var jdbcDriverClassName = "com.mysql.cj.jdbc.Driver";
+    var mySqlDriverFile = loadTestResource("/" + jdbcJarName);
     assertThat(mySqlDriverFile).exists();
-    String jarFile = mySqlDriverFile.getAbsolutePath();
+    var jarFile = mySqlDriverFile.getAbsolutePath();
 
     // attempt to create the data source without a deployed jar or a --driver-jar
     gfsh.executeAndAssertThat(
@@ -149,8 +145,8 @@ public class CreateDataSourceCommandDUnitTest {
   }
 
   private void verifyThatNonExistentClassCausesGfshToError() {
-    SerializableRunnableIF IgnoreClassNotFound = () -> {
-      IgnoredException ex =
+    var IgnoreClassNotFound = (SerializableRunnableIF) () -> {
+      var ex =
           new IgnoredException("non_existent_class_name");
       LogService.getLogger().info(ex.getAddMessage());
     };
@@ -165,7 +161,7 @@ public class CreateDataSourceCommandDUnitTest {
   }
 
   private File loadTestResource(String fileName) {
-    String filePath = ResourceUtils.getResource(getClass(), fileName).getPath();
+    var filePath = ResourceUtils.getResource(getClass(), fileName).getPath();
     Assertions.assertThat(filePath).isNotNull();
 
     return new File(filePath);

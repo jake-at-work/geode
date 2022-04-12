@@ -22,16 +22,13 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.lang.utils.ClassUtils;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.domain.DiskStoreDetails;
 import org.apache.geode.management.internal.cli.functions.DescribeDiskStoreFunction;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.exceptions.EntityNotFoundException;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -62,21 +59,21 @@ public class DescribeDiskStoreCommand extends GfshCommand {
   }
 
   DiskStoreDetails getDiskStoreDescription(final String memberName, final String diskStoreName) {
-    final DistributedMember member = getMember(memberName);
+    final var member = getMember(memberName);
 
     @SuppressWarnings("unchecked")
     final ResultCollector<?, ?> resultCollector =
         getMembersFunctionExecutor(Collections.singleton(member)).setArguments(diskStoreName)
             .execute(new DescribeDiskStoreFunction());
 
-    final Object result = ((List<?>) resultCollector.getResult()).get(0);
+    final var result = ((List<?>) resultCollector.getResult()).get(0);
 
     if (result instanceof DiskStoreDetails) { // disk store details in hand...
       return (DiskStoreDetails) result;
     } else if (result instanceof EntityNotFoundException) { // bad disk store name...
       throw (EntityNotFoundException) result;
     } else { // unknown and unexpected return type...
-      final Throwable cause = (result instanceof Throwable ? (Throwable) result : null);
+      final var cause = (result instanceof Throwable ? (Throwable) result : null);
 
       throw new RuntimeException(
           CliStrings.format(CliStrings.UNEXPECTED_RETURN_TYPE_EXECUTING_COMMAND_ERROR_MESSAGE,
@@ -86,9 +83,9 @@ public class DescribeDiskStoreCommand extends GfshCommand {
   }
 
   private ResultModel toResultModel(final DiskStoreDetails diskStoreDetails) {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
-    DataResultModel diskStoreSection = result.addData(DISK_STORE_SECTION);
+    var diskStoreSection = result.addData(DISK_STORE_SECTION);
 
     diskStoreSection.addData("Disk Store ID", diskStoreDetails.getId());
     diskStoreSection.addData("Disk Store Name", diskStoreDetails.getName());
@@ -109,41 +106,41 @@ public class DescribeDiskStoreCommand extends GfshCommand {
     diskStoreSection.addData("PDX Serialization Meta-Data Stored",
         diskStoreDetails.isPdxSerializationMetaDataStored() ? "Yes" : "No");
 
-    final TabularResultModel diskDirTable = result.addTable(DISK_DIR_SECTION);
+    final var diskDirTable = result.addTable(DISK_DIR_SECTION);
 
-    for (DiskStoreDetails.DiskDirDetails diskDirDetails : diskStoreDetails) {
+    for (var diskDirDetails : diskStoreDetails) {
       diskDirTable.accumulate("Disk Directory", diskDirDetails.getAbsolutePath());
       diskDirTable.accumulate("Size", Integer.toString(diskDirDetails.getSize()));
     }
 
-    final TabularResultModel regionTable = result.addTable(REGION_SECTION);
+    final var regionTable = result.addTable(REGION_SECTION);
 
-    for (DiskStoreDetails.RegionDetails regionDetails : diskStoreDetails.iterateRegions()) {
+    for (var regionDetails : diskStoreDetails.iterateRegions()) {
       regionTable.accumulate("Region Path", regionDetails.getFullPath());
       regionTable.accumulate("Region Name", regionDetails.getName());
       regionTable.accumulate("Persistent", regionDetails.isPersistent() ? "Yes" : "No");
       regionTable.accumulate("Overflow To Disk", regionDetails.isOverflowToDisk() ? "Yes" : "No");
     }
 
-    final TabularResultModel cacheServerTable = result.addTable(CACHE_SERVER_SECTION);
+    final var cacheServerTable = result.addTable(CACHE_SERVER_SECTION);
 
-    for (DiskStoreDetails.CacheServerDetails cacheServerDetails : diskStoreDetails
+    for (var cacheServerDetails : diskStoreDetails
         .iterateCacheServers()) {
       cacheServerTable.accumulate("Bind Address", cacheServerDetails.getBindAddress());
       cacheServerTable.accumulate("Hostname for Clients", cacheServerDetails.getHostName());
       cacheServerTable.accumulate("Port", Integer.toString(cacheServerDetails.getPort()));
     }
 
-    final TabularResultModel gatewayTable = result.addTable(GATEWAY_SECTION);
+    final var gatewayTable = result.addTable(GATEWAY_SECTION);
 
-    for (DiskStoreDetails.GatewayDetails gatewayDetails : diskStoreDetails.iterateGateways()) {
+    for (var gatewayDetails : diskStoreDetails.iterateGateways()) {
       gatewayTable.accumulate("Gateway ID", gatewayDetails.getId());
       gatewayTable.accumulate("Persistent", gatewayDetails.isPersistent() ? "Yes" : "No");
     }
 
-    final TabularResultModel asyncEventQueueTable = result.addTable(ASYNC_EVENT_QUEUE_SECTION);
+    final var asyncEventQueueTable = result.addTable(ASYNC_EVENT_QUEUE_SECTION);
 
-    for (DiskStoreDetails.AsyncEventQueueDetails asyncEventQueueDetails : diskStoreDetails
+    for (var asyncEventQueueDetails : diskStoreDetails
         .iterateAsyncEventQueues()) {
       asyncEventQueueTable.accumulate("Async Event Queue ID", asyncEventQueueDetails.getId());
     }

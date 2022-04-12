@@ -33,7 +33,6 @@ import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
@@ -101,7 +100,7 @@ public abstract class AbstractOp implements Op {
 
   /** returns the class name w/o package information. useful in logging */
   public String getShortClassName() {
-    String cname = getClass().getName();
+    var cname = getClass().getName();
     return cname.substring(getClass().getPackage().getName().length() + 1);
   }
 
@@ -126,7 +125,7 @@ public abstract class AbstractOp implements Op {
               "Invalid userId. Connection error while authenticating user");
         }
       } else { // multi user mode
-        Long id = UserAttributes.userAttributes.get().getServerToId().get(cnx.getServer());
+        var id = UserAttributes.userAttributes.get().getServerToId().get(cnx.getServer());
         if (id == null) {
           // This will ensure that this op is retried on another server, unless
           // the retryCount is exhausted. Fix for Bug 41501
@@ -136,7 +135,7 @@ public abstract class AbstractOp implements Op {
       }
       secureLogger.debug("{} Using userId {}: ",
           MessageType.getString(getMessage().getMessageType()), userId);
-      try (HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+      try (var hdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
         hdos.writeLong(cnx.getConnectionID());
         hdos.writeLong(userId);
         getMessage().setSecurePart(((ConnectionImpl) cnx).encryptBytes(hdos.toByteArray()));
@@ -161,15 +160,15 @@ public abstract class AbstractOp implements Op {
         }
         return;
       }
-      byte[] partBytes = message.getSecureBytes();
+      var partBytes = message.getSecureBytes();
       if (partBytes == null) {
         if (logger.isDebugEnabled()) {
           logger.debug("Response message for {} has no bytes in secure part.", this);
         }
         return;
       }
-      byte[] bytes = ((ConnectionImpl) cnx).decryptBytes(partBytes);
-      try (ByteArrayDataInput dis = new ByteArrayDataInput(bytes)) {
+      var bytes = ((ConnectionImpl) cnx).decryptBytes(partBytes);
+      try (var dis = new ByteArrayDataInput(bytes)) {
         cnx.setConnectionID(dis.readLong());
       }
     }
@@ -201,7 +200,7 @@ public abstract class AbstractOp implements Op {
    * @throws Exception if the execute failed
    */
   protected Object attemptReadResponse(final @NotNull Connection cnx) throws Exception {
-    final Message msg = createResponseMessage();
+    final var msg = createResponseMessage();
     msg.setComms(cnx.getSocket(), cnx.getInputStream(), cnx.getOutputStream(),
         cnx.getCommBuffer(), cnx.getStats());
     if (msg instanceof ChunkedMessage) {
@@ -257,12 +256,12 @@ public abstract class AbstractOp implements Op {
    *         exception.
    */
   protected void processAck(Message msg, String opName) throws Exception {
-    final int msgType = msg.getMessageType();
+    final var msgType = msg.getMessageType();
     if (msgType != MessageType.REPLY) {
-      Part part = msg.getPart(0);
+      var part = msg.getPart(0);
       if (msgType == MessageType.EXCEPTION) {
-        String s = ": While performing a remote " + opName;
-        Throwable t = (Throwable) part.getObject();
+        var s = ": While performing a remote " + opName;
+        var t = (Throwable) part.getObject();
         if (t instanceof PutAllPartialResultException) {
           throw (PutAllPartialResultException) t;
         } else {
@@ -288,13 +287,13 @@ public abstract class AbstractOp implements Op {
    *         exception.
    */
   protected Object processObjResponse(Message msg, String opName) throws Exception {
-    Part part = msg.getPart(0);
-    final int msgType = msg.getMessageType();
+    var part = msg.getPart(0);
+    final var msgType = msg.getMessageType();
     if (msgType == MessageType.RESPONSE) {
       return part.getObject();
     } else {
       if (msgType == MessageType.EXCEPTION) {
-        String s = "While performing a remote " + opName;
+        var s = "While performing a remote " + opName;
         throw new ServerOperationException(s, (Throwable) part.getObject());
         // Get the exception toString part.
         // This was added for c++ thin client and not used in java
@@ -338,7 +337,7 @@ public abstract class AbstractOp implements Op {
   void processChunkedResponse(ChunkedMessage msg, String opName, ChunkHandler callback)
       throws Exception {
     msg.readHeader();
-    final int msgType = msg.getMessageType();
+    final var msgType = msg.getMessageType();
     if (msgType == MessageType.RESPONSE) {
       do {
         msg.receiveChunk();
@@ -347,14 +346,14 @@ public abstract class AbstractOp implements Op {
     } else {
       if (msgType == MessageType.EXCEPTION) {
         msg.receiveChunk();
-        Part part = msg.getPart(0);
-        String s = "While performing a remote " + opName;
+        var part = msg.getPart(0);
+        var s = "While performing a remote " + opName;
         throw new ServerOperationException(s, (Throwable) part.getObject());
         // Get the exception toString part.
         // This was added for c++ thin client and not used in java
       } else if (isErrorResponse(msgType)) {
         msg.receiveChunk();
-        Part part = msg.getPart(0);
+        var part = msg.getPart(0);
         throw new ServerOperationException(part.getString());
       } else {
         throw new IOException("Unexpected message type " + MessageType.getString(msgType));
@@ -381,7 +380,7 @@ public abstract class AbstractOp implements Op {
   public Object attempt(Connection connection) throws Exception {
     failed = true;
     timedOut = false;
-    long start = startAttempt(connection.getStats());
+    var start = startAttempt(connection.getStats());
     try {
       try {
         attemptSend(connection);
@@ -391,7 +390,7 @@ public abstract class AbstractOp implements Op {
       }
       failed = true;
       try {
-        Object result = attemptReadResponse(connection);
+        var result = attemptReadResponse(connection);
         failed = false;
         return result;
       } catch (SocketTimeoutException ste) {

@@ -17,8 +17,6 @@ package org.apache.geode.internal.statistics;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import java.lang.reflect.Field;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -55,10 +53,10 @@ public class ResourceInstTest {
 
   @Test
   public void sameFirstTSidxEquals() throws Exception {
-    ResourceInst resourceInst1 =
+    var resourceInst1 =
         new ResourceInst(archive1, 0, "name", 0, resourceType, false);
     setFirstTSidx(resourceInst1, 1);
-    ResourceInst resourceInst2 =
+    var resourceInst2 =
         new ResourceInst(archive1, 0, "name", 0, resourceType, false);
     setFirstTSidx(resourceInst2, 1);
 
@@ -67,10 +65,10 @@ public class ResourceInstTest {
 
   @Test
   public void differentFirstTSidxIsNotEqual() throws Exception {
-    ResourceInst resourceInst1 =
+    var resourceInst1 =
         new ResourceInst(archive1, 0, "name", 0, resourceType, false);
     setFirstTSidx(resourceInst1, 1);
-    ResourceInst resourceInst2 =
+    var resourceInst2 =
         new ResourceInst(archive1, 0, "name", 0, resourceType, false);
     setFirstTSidx(resourceInst2, 2);
 
@@ -79,7 +77,7 @@ public class ResourceInstTest {
 
   private void setFirstTSidx(ResourceInst resourceInst, int value)
       throws IllegalAccessException, NoSuchFieldException {
-    Field field = ResourceInst.class.getDeclaredField("firstTSidx");
+    var field = ResourceInst.class.getDeclaredField("firstTSidx");
     field.setAccessible(true);
     field.setInt(resourceInst, value);
   }

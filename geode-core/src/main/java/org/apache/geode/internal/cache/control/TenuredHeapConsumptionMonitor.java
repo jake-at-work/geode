@@ -16,7 +16,6 @@
 package org.apache.geode.internal.cache.control;
 
 import java.lang.management.MemoryNotificationInfo;
-import java.lang.management.MemoryUsage;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -48,14 +47,14 @@ class TenuredHeapConsumptionMonitor {
 
   void checkTenuredHeapConsumption(Notification notification) {
     try {
-      String type = notification.getType();
+      var type = notification.getType();
       if (type.equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED) ||
           type.equals(MemoryNotificationInfo.MEMORY_COLLECTION_THRESHOLD_EXCEEDED)) {
         // retrieve the memory notification information
-        CompositeData compositeData = (CompositeData) notification.getUserData();
-        MemoryNotificationInfo info = memoryNotificationInfoFactory.apply(compositeData);
-        MemoryUsage usage = info.getUsage();
-        long usedBytes = usage.getUsed();
+        var compositeData = (CompositeData) notification.getUserData();
+        var info = memoryNotificationInfoFactory.apply(compositeData);
+        var usage = info.getUsage();
+        var usedBytes = usage.getUsed();
         infoLogger.accept(
             "A tenured heap garbage collection has occurred.  New tenured heap consumption: "
                 +

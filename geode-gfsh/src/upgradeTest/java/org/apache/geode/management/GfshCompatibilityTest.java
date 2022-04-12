@@ -18,7 +18,6 @@ package org.apache.geode.management;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,7 +41,7 @@ public class GfshCompatibilityTest {
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     return result;
   }
 
@@ -61,7 +60,7 @@ public class GfshCompatibilityTest {
   @Test
   public void currentGfshConnectToOlderVersionsOfLocator() throws Exception {
     oldLocator = cluster.startLocatorVM(0, oldVersion);
-    int locatorPort = oldLocator.getPort();
+    var locatorPort = oldLocator.getPort();
     cluster.startServerVM(1, oldVersion,
         s -> s.withConnectionToLocator(locatorPort));
     // pre 1.10, it should not be able to connect

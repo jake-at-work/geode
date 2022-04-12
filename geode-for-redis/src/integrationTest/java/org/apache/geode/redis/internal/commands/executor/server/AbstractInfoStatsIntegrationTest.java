@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.offset;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -90,7 +89,7 @@ public abstract class AbstractInfoStatsIntegrationTest implements RedisIntegrati
     jedis = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
     numInfoCalled.set(0);
 
-    long preSetupCommandsProcessed = Long.parseLong(getInfo(jedis).get(COMMANDS_PROCESSED));
+    var preSetupCommandsProcessed = Long.parseLong(getInfo(jedis).get(COMMANDS_PROCESSED));
 
     jedis.set(EXISTING_STRING_KEY, "A_Value");
     jedis.hset(EXISTING_HASH_KEY, "Field1", "Value1");
@@ -150,7 +149,7 @@ public abstract class AbstractInfoStatsIntegrationTest implements RedisIntegrati
 
   @Test
   public void memFragmentation_shouldBeGreaterThanOne() {
-    for (int i = 0; i < 10000; i++) {
+    for (var i = 0; i < 10000; i++) {
       jedis.set("key" + i, "value");
     }
 
@@ -159,7 +158,7 @@ public abstract class AbstractInfoStatsIntegrationTest implements RedisIntegrati
 
   @Test
   public void commandsProcessed_shouldIncrement_givenSuccessfulCommand() {
-    long initialCommandsProcessed = Long.parseLong(getInfo(jedis).get(COMMANDS_PROCESSED));
+    var initialCommandsProcessed = Long.parseLong(getInfo(jedis).get(COMMANDS_PROCESSED));
     jedis.ttl("key");
 
     validateCommandsProcessed(jedis, initialCommandsProcessed, 1);
@@ -175,15 +174,15 @@ public abstract class AbstractInfoStatsIntegrationTest implements RedisIntegrati
 
     final long numberSecondsToRun = 4;
 
-    final long startTime = System.currentTimeMillis();
-    final long endTime = startTime + Duration.ofSeconds(numberSecondsToRun).toMillis();
+    final var startTime = System.currentTimeMillis();
+    final var endTime = startTime + Duration.ofSeconds(numberSecondsToRun).toMillis();
 
     // Take a sample in the middle of performing operations
-    final long timeToSampleAt = startTime + Duration.ofSeconds(numberSecondsToRun / 2).toMillis();
+    final var timeToSampleAt = startTime + Duration.ofSeconds(numberSecondsToRun / 2).toMillis();
 
     // Execute commands in the background
-    Future<Void> executeCommands = executor.submit(() -> {
-      Jedis jedis2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
+    var executeCommands = executor.submit(() -> {
+      var jedis2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
       while (System.currentTimeMillis() < endTime) {
         jedis2.set("key", "value");
       }
@@ -207,9 +206,9 @@ public abstract class AbstractInfoStatsIntegrationTest implements RedisIntegrati
 
   @Test
   public void networkBytesRead_shouldIncrementBySizeOfCommandSent() {
-    long initialNetworkBytesRead = Long.parseLong(getInfo(jedis).get(TOTAL_NETWORK_BYTES_READ));
-    String infoCommandString = "*3\r\n$3\r\ninfo\r\n";
-    String respCommandString = "*3\r\n$3\r\nset\r\n$3\r\nkey\r\n$5\r\nvalue\r\n";
+    var initialNetworkBytesRead = Long.parseLong(getInfo(jedis).get(TOTAL_NETWORK_BYTES_READ));
+    var infoCommandString = "*3\r\n$3\r\ninfo\r\n";
+    var respCommandString = "*3\r\n$3\r\nset\r\n$3\r\nkey\r\n$5\r\nvalue\r\n";
 
     jedis.set("key", "value");
 
@@ -228,19 +227,19 @@ public abstract class AbstractInfoStatsIntegrationTest implements RedisIntegrati
     assertThat(Double.parseDouble(getInfo(jedis).get(NETWORK_KB_READ_OVER_LAST_SECOND)))
         .isCloseTo(0, offset(0.02));
 
-    final int numberSecondsToRun = 4;
-    final String key = "key";
-    final String value = "value";
+    final var numberSecondsToRun = 4;
+    final var key = "key";
+    final var value = "value";
 
-    final long startTime = System.currentTimeMillis();
-    final long endTime = startTime + Duration.ofSeconds(numberSecondsToRun).toMillis();
+    final var startTime = System.currentTimeMillis();
+    final var endTime = startTime + Duration.ofSeconds(numberSecondsToRun).toMillis();
 
     // Take a sample in the middle of performing operations
-    final long timeToSampleAt = startTime + Duration.ofSeconds(numberSecondsToRun / 2).toMillis();
+    final var timeToSampleAt = startTime + Duration.ofSeconds(numberSecondsToRun / 2).toMillis();
 
     // Execute commands in the background
-    Future<Void> executeCommands = executor.submit(() -> {
-      Jedis jedis2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
+    var executeCommands = executor.submit(() -> {
+      var jedis2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
       while (System.currentTimeMillis() < endTime) {
         jedis2.set(key, value);
       }
@@ -268,7 +267,7 @@ public abstract class AbstractInfoStatsIntegrationTest implements RedisIntegrati
 
   @Test
   public void connectedClients_incrAndDecrWhenClientConnectsAndDisconnects() {
-    Jedis jedis2 = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
+    var jedis2 = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
     jedis2.ping();
 
     await().untilAsserted(() -> assertThat(Long.valueOf(getInfo(jedis).get(CONNECTED_CLIENTS)))
@@ -282,7 +281,7 @@ public abstract class AbstractInfoStatsIntegrationTest implements RedisIntegrati
 
   @Test
   public void totalConnectionsReceivedStat_shouldIncrement_whenNewConnectionOccurs() {
-    Jedis jedis2 = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
+    var jedis2 = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
     jedis2.ping();
 
     assertThat(Long.valueOf(getInfo(jedis).get(TOTAL_CONNECTIONS_RECEIVED)))
@@ -295,24 +294,24 @@ public abstract class AbstractInfoStatsIntegrationTest implements RedisIntegrati
 
   @Test
   public void upTimeInDays_shouldBeEqualToTimeSinceStartInDays() {
-    long startTimeInNanos = getStartTime();
-    long currentTimeInNanos = getCurrentTime();
+    var startTimeInNanos = getStartTime();
+    var currentTimeInNanos = getCurrentTime();
 
-    long expectedNanos = currentTimeInNanos - startTimeInNanos;
-    long expectedDays = TimeUnit.NANOSECONDS.toDays(expectedNanos);
+    var expectedNanos = currentTimeInNanos - startTimeInNanos;
+    var expectedDays = TimeUnit.NANOSECONDS.toDays(expectedNanos);
 
     assertThat(Long.valueOf(getInfo(jedis).get(UPTIME_IN_DAYS))).isEqualTo(expectedDays);
   }
 
   @Test
   public void uptimeInSeconds_shouldReturnTimeSinceStartInSeconds() {
-    long serverUptimeAtStartOfTestInNanos = getCurrentTime();
-    long statsUpTimeAtStartOfTest = Long.parseLong(getInfo(jedis).get(UPTIME_IN_SECONDS));
+    var serverUptimeAtStartOfTestInNanos = getCurrentTime();
+    var statsUpTimeAtStartOfTest = Long.parseLong(getInfo(jedis).get(UPTIME_IN_SECONDS));
 
     await().during(Duration.ofSeconds(3)).until(() -> true);
 
-    long expectedNanos = getCurrentTime() - serverUptimeAtStartOfTestInNanos;
-    long expectedSeconds = TimeUnit.NANOSECONDS.toSeconds(expectedNanos);
+    var expectedNanos = getCurrentTime() - serverUptimeAtStartOfTestInNanos;
+    var expectedSeconds = TimeUnit.NANOSECONDS.toSeconds(expectedNanos);
 
     assertThat(Long.parseLong(getInfo(jedis).get(UPTIME_IN_SECONDS)) - statsUpTimeAtStartOfTest)
         .isCloseTo(expectedSeconds, Offset.offset(1L));

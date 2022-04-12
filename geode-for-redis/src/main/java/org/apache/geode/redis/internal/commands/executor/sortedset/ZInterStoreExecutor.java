@@ -22,17 +22,15 @@ import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
-import org.apache.geode.redis.internal.services.RegionProvider;
 
 public class ZInterStoreExecutor extends ZStoreExecutor {
   @Override
   public long getResult(ExecutionHandlerContext context, Command command,
       List<ZKeyWeight> keyWeights, ZAggregator aggregator) {
-    RegionProvider regionProvider = context.getRegionProvider();
-    RedisKey key = command.getKey();
-    List<RedisKey> keysToLock = getKeysToLock(key, keyWeights);
+    var regionProvider = context.getRegionProvider();
+    var key = command.getKey();
+    var keysToLock = getKeysToLock(key, keyWeights);
 
     return context.lockedExecute(key, keysToLock,
         () -> zinterstore(regionProvider, key, keyWeights, aggregator));

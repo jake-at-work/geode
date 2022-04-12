@@ -82,11 +82,11 @@ public abstract class AbstractLLenIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void llen_withConcurrentLPush_returnsCorrectValue() {
-    String[] valuesInitial = new String[] {"one", "two", "three"};
-    String[] valuesToAdd = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var valuesInitial = new String[] {"one", "two", "three"};
+    var valuesToAdd = new String[] {"pear", "apple", "plum", "orange", "peach"};
     jedis.lpush(KEY, valuesInitial);
 
-    final AtomicLong llenReference = new AtomicLong();
+    final var llenReference = new AtomicLong();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.lpush(KEY, valuesToAdd),
         i -> llenReference.set(jedis.llen(KEY)))
@@ -96,7 +96,7 @@ public abstract class AbstractLLenIntegrationTest implements RedisIntegrationTes
                       .isEqualTo(valuesInitial.length),
                   llenResult -> assertThat(llenResult.get())
                       .isEqualTo(valuesInitial.length + valuesToAdd.length));
-              for (int i = 0; i < valuesToAdd.length; i++) {
+              for (var i = 0; i < valuesToAdd.length; i++) {
                 jedis.lpop(KEY);
               }
             });

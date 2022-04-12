@@ -36,22 +36,22 @@ public class PartitionedIndexJUnitTest {
   @Test
   public void mapIndexKeysMustContainTheCorrectNumberOfKeysWhenThereIsConcurrentAccess() {
 
-    final int DATA_SIZE_TO_BE_POPULATED = 10000;
-    final int THREAD_POOL_SIZE = 20;
+    final var DATA_SIZE_TO_BE_POPULATED = 10000;
+    final var THREAD_POOL_SIZE = 20;
 
-    PartitionedIndex partitionedIndex = createPartitionedIndex();
-    Runnable populateSetTask = () -> {
-      for (int i = 0; i < DATA_SIZE_TO_BE_POPULATED; i++) {
+    var partitionedIndex = createPartitionedIndex();
+    var populateSetTask = (Runnable) () -> {
+      for (var i = 0; i < DATA_SIZE_TO_BE_POPULATED; i++) {
         partitionedIndex.mapIndexKeys.add("" + i);
       }
     };
-    Thread[] threads = new Thread[THREAD_POOL_SIZE];
-    for (int i = 0; i < threads.length; i++) {
+    var threads = new Thread[THREAD_POOL_SIZE];
+    for (var i = 0; i < threads.length; i++) {
       threads[i] = new Thread(populateSetTask);
       threads[i].start();
     }
     try {
-      for (final Thread thread : threads) {
+      for (final var thread : threads) {
         thread.join();
       }
     } catch (InterruptedException e) {
@@ -65,11 +65,11 @@ public class PartitionedIndexJUnitTest {
   @Test
   public void verifyAddToAndRemoveFromBucketIndexesUpdatesArbitraryBucketIndexOneIndexCase() {
     // Create the PartitionedIndex
-    PartitionedIndex partitionedIndex = createPartitionedIndex();
+    var partitionedIndex = createPartitionedIndex();
 
     // Create the mock Region and Index
-    Region region = mock(Region.class);
-    Index index = mock(Index.class);
+    var region = mock(Region.class);
+    var index = mock(Index.class);
 
     // Add the index to the bucket indexes
     partitionedIndex.addToBucketIndexes(region, index);
@@ -87,12 +87,12 @@ public class PartitionedIndexJUnitTest {
   @Test
   public void verifyAddToAndRemoveFromBucketIndexesUpdatesArbitraryBucketIndexTwoIndexesCase() {
     // Create the PartitionedIndex
-    PartitionedIndex partitionedIndex = createPartitionedIndex();
+    var partitionedIndex = createPartitionedIndex();
 
     // Create the mock Region and Indexes
-    Region region = mock(Region.class);
-    Index index1 = mock(Index.class);
-    Index index2 = mock(Index.class);
+    var region = mock(Region.class);
+    var index1 = mock(Index.class);
+    var index2 = mock(Index.class);
 
     // Add the mock indexes to the bucket indexes
     partitionedIndex.addToBucketIndexes(region, index1);
@@ -109,10 +109,10 @@ public class PartitionedIndexJUnitTest {
   }
 
   private PartitionedIndex createPartitionedIndex() {
-    Region region = mock(Region.class);
-    InternalCache cache = mock(InternalCache.class);
+    var region = mock(Region.class);
+    var cache = mock(InternalCache.class);
     when(region.getCache()).thenReturn(cache);
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    var distributedSystem = mock(DistributedSystem.class);
     when(cache.getDistributedSystem()).thenReturn(distributedSystem);
     return new PartitionedIndex(cache, IndexType.FUNCTIONAL,
         "dummyString", region, "dummyString", "dummyString", "dummyString");

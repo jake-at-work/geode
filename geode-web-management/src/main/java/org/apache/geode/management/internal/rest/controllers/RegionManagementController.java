@@ -75,7 +75,7 @@ public class RegionManagementController extends AbstractManagementController {
   public ClusterManagementListResult<Region, RuntimeRegionInfo> listRegion(
       @RequestParam(required = false) String id,
       @RequestParam(required = false) String group) {
-    Region filter = new Region();
+    var filter = new Region();
     if (StringUtils.isNotBlank(id)) {
       filter.setName(id);
     }
@@ -93,7 +93,7 @@ public class RegionManagementController extends AbstractManagementController {
   public ClusterManagementGetResult<Region, RuntimeRegionInfo> getRegion(
       @PathVariable(name = "id") String id) {
     securityService.authorize(Resource.CLUSTER, Operation.READ, id);
-    Region config = new Region();
+    var config = new Region();
     config.setName(id);
     return clusterManagementService.get(config);
   }
@@ -104,7 +104,7 @@ public class RegionManagementController extends AbstractManagementController {
   public ClusterManagementResult deleteRegion(
       @PathVariable(name = "id") String id,
       @RequestParam(required = false) String group) {
-    Region config = new Region();
+    var config = new Region();
     config.setName(id);
     if (StringUtils.isNotBlank(group)) {
       config.setGroup(group);
@@ -122,7 +122,7 @@ public class RegionManagementController extends AbstractManagementController {
       @PathVariable String regionName,
       @RequestParam(required = false, name = "id") String indexName) {
 
-    Index filter = new Index();
+    var filter = new Index();
     filter.setRegionPath(regionName);
     if (StringUtils.isNotBlank(indexName)) {
       filter.setName(indexName);
@@ -138,7 +138,7 @@ public class RegionManagementController extends AbstractManagementController {
   @PreAuthorize("@securityService.authorize('CLUSTER', 'READ', 'QUERY')")
   public ClusterManagementListResult<Index, IndexInfo> listAllIndex(
       @RequestParam(required = false, name = "id") String indexName) {
-    Index filter = new Index();
+    var filter = new Index();
     if (StringUtils.isNotBlank(indexName)) {
       filter.setName(indexName);
     }
@@ -155,7 +155,7 @@ public class RegionManagementController extends AbstractManagementController {
       @PathVariable String regionName,
       @PathVariable String id) {
 
-    Index filter = new Index();
+    var filter = new Index();
     filter.setRegionPath(regionName);
     filter.setName(id);
     return clusterManagementService.get(filter);
@@ -203,7 +203,7 @@ public class RegionManagementController extends AbstractManagementController {
   public ClusterManagementResult deleteIndex(
       @PathVariable String regionName,
       @PathVariable String indexName) {
-    Index config = new Index();
+    var config = new Index();
     config.setName(indexName);
     config.setRegionPath(regionName);
     return clusterManagementService.delete(config);

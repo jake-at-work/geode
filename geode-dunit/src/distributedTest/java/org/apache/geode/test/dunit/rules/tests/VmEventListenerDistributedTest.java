@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.VMEventListener;
@@ -87,7 +86,7 @@ public class VmEventListenerDistributedTest {
   public void beforeAndAfterBounceVmAreInvokedInOrderWhenInvokingBounce() {
     vm.bounce();
 
-    InOrder inOrder = inOrder(distributedRule);
+    var inOrder = inOrder(distributedRule);
     inOrder.verify(distributedRule).beforeBounceVM(eq(vm));
     inOrder.verify(distributedRule).afterBounceVM(eq(vm));
   }
@@ -110,7 +109,7 @@ public class VmEventListenerDistributedTest {
   public void beforeAndAfterBounceVmAreInvokedInOrderWhenInvokingBounceForcibly() {
     vm.bounceForcibly();
 
-    InOrder inOrder = inOrder(distributedRule);
+    var inOrder = inOrder(distributedRule);
     inOrder.verify(distributedRule).beforeBounceVM(eq(vm));
     inOrder.verify(distributedRule).afterBounceVM(eq(vm));
   }

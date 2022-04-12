@@ -148,20 +148,20 @@ public class RegionCreation implements Region, Extensible<Region<?, ?>> {
   private void fillIn(Region region)
       throws TimeoutException, CacheWriterException, RegionExistsException {
 
-    for (final Object value : values.entrySet()) {
-      Map.Entry entry = (Map.Entry) value;
+    for (final var value : values.entrySet()) {
+      var entry = (Map.Entry) value;
       region.put(entry.getKey(), entry.getValue());
     }
 
     if (region instanceof Extensible) {
       // UnitTest CacheXml81Test.testRegionExtension
       @SuppressWarnings("unchecked")
-      final Extensible<Region<?, ?>> extensible = (Extensible<Region<?, ?>>) region;
+      final var extensible = (Extensible<Region<?, ?>>) region;
       extensionPoint.fireCreate(extensible);
     }
 
-    for (final Object o : subregions.values()) {
-      RegionCreation sub = (RegionCreation) o;
+    for (final var o : subregions.values()) {
+      var sub = (RegionCreation) o;
       sub.create(region);
     }
   }
@@ -174,9 +174,9 @@ public class RegionCreation implements Region, Extensible<Region<?, ?>> {
    * @see AttributesMutator
    */
   private void setMutableAttributes(Region region) {
-    AttributesMutator mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
 
-    RegionAttributesCreation attrs = this.attrs;
+    var attrs = this.attrs;
 
     if (attrs.hasCacheListeners()) {
       mutator.initCacheListeners(attrs.getCacheListeners());
@@ -288,9 +288,9 @@ public class RegionCreation implements Region, Extensible<Region<?, ?>> {
 
     if (me != null) {
       // Register named region attributes
-      String id = attrs.getId();
+      var id = attrs.getId();
       if (id != null) {
-        RegionAttributes realAttrs = me.getAttributes();
+        var realAttrs = me.getAttributes();
         me.getCache().setRegionAttributes(id, realAttrs);
       }
 
@@ -324,9 +324,9 @@ public class RegionCreation implements Region, Extensible<Region<?, ?>> {
       return false;
     }
 
-    for (final Object entry : myEntries) {
-      Region.Entry myEntry = (Region.Entry) entry;
-      Region.Entry otherEntry = other.getEntry(myEntry.getKey());
+    for (final var entry : myEntries) {
+      var myEntry = (Region.Entry) entry;
+      var otherEntry = other.getEntry(myEntry.getKey());
       if (otherEntry == null) {
         return false;
 
@@ -399,7 +399,7 @@ public class RegionCreation implements Region, Extensible<Region<?, ?>> {
   void addSubregion(String name, RegionCreation region) throws RegionExistsException {
 
     if (subregions.containsKey(name)) {
-      RegionCreation existing = (RegionCreation) subregions.get(name);
+      var existing = (RegionCreation) subregions.get(name);
       throw new RegionExistsException(existing);
 
     } else {
@@ -625,7 +625,7 @@ public class RegionCreation implements Region, Extensible<Region<?, ?>> {
 
   @Override
   public Region.Entry getEntry(Object key) {
-    Object value = values.get(key);
+    var value = values.get(key);
     if (value == null) {
       return null;
 
@@ -645,8 +645,8 @@ public class RegionCreation implements Region, Extensible<Region<?, ?>> {
     }
 
     Set set = new HashSet();
-    for (final Object o : values.entrySet()) {
-      final Map.Entry entry = (Map.Entry) o;
+    for (final var o : values.entrySet()) {
+      final var entry = (Map.Entry) o;
       set.add(new Entry(entry.getKey(), entry.getValue()));
     }
 
@@ -722,7 +722,7 @@ public class RegionCreation implements Region, Extensible<Region<?, ?>> {
   @Override
   public Region createSubregion(String subregionName, RegionAttributes attrs)
       throws RegionExistsException, TimeoutException {
-    RegionCreation subregion = new RegionCreation(cache, this, subregionName, null);
+    var subregion = new RegionCreation(cache, this, subregionName, null);
     subregion.setAttributes(attrs);
     addSubregion(subregionName, subregion);
     return subregion;
@@ -948,8 +948,8 @@ public class RegionCreation implements Region, Extensible<Region<?, ?>> {
     }
 
     Set set = new HashSet();
-    for (final Object o : values.entrySet()) {
-      final Map.Entry entry = (Map.Entry) o;
+    for (final var o : values.entrySet()) {
+      final var entry = (Map.Entry) o;
       set.add(new Entry(entry.getKey(), entry.getValue()));
     }
 

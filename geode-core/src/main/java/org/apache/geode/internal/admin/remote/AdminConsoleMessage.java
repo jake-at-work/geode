@@ -34,7 +34,7 @@ public class AdminConsoleMessage extends PooledDistributionMessage {
   private int level;
 
   public static AdminConsoleMessage create(int level) {
-    AdminConsoleMessage m = new AdminConsoleMessage();
+    var m = new AdminConsoleMessage();
     m.setLevel(level);
     return m;
   }

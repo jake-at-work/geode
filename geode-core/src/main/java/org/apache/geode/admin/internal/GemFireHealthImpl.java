@@ -106,7 +106,7 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
     isClosed = false;
 
     GemFireVM[] apps = this.agent.listApplications();
-    for (GemFireVM member : apps) {
+    for (var member : apps) {
       noteNewMember(member);
     }
 
@@ -192,10 +192,10 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
     poorHealth.clear();
 
     synchronized (this) {
-      for (final Object value : hostMembers.values()) {
-        List members = (List) value;
-        for (final Object o : members) {
-          GemFireVM member = (GemFireVM) o;
+      for (final var value : hostMembers.values()) {
+        var members = (List) value;
+        for (final var o : members) {
+          var member = (GemFireVM) o;
           member.resetHealthStatus();
         }
       }
@@ -209,15 +209,15 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
   public String getDiagnosis() {
     checkClosed();
 
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
 
     synchronized (this) {
-      for (final Object value : hostMembers.values()) {
-        List members = (List) value;
-        for (final Object o : members) {
-          GemFireVM member = (GemFireVM) o;
-          String[] diagnoses = member.getHealthDiagnosis(overallHealth);
-          for (final String diagnosis : diagnoses) {
+      for (final var value : hostMembers.values()) {
+        var members = (List) value;
+        for (final var o : members) {
+          var member = (GemFireVM) o;
+          var diagnoses = member.getHealthDiagnosis(overallHealth);
+          for (final var diagnosis : diagnoses) {
             sb.append(diagnosis).append("\n");
           }
         }
@@ -243,9 +243,9 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
 
       dsHealthConfig = config;
 
-      DistributedSystemHealthEvaluator eval =
+      var eval =
           new DistributedSystemHealthEvaluator(config, agent.getDM());
-      int interval = getDefaultGemFireHealthConfig().getHealthEvaluationInterval();
+      var interval = getDefaultGemFireHealthConfig().getHealthEvaluationInterval();
       dsHealthMonitor = new DistributedSystemHealthMonitor(eval, this, interval);
       dsHealthMonitor.start();
     }
@@ -277,18 +277,18 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
     defaultConfig = config;
 
     synchronized (this) {
-      for (final Object value : hostMembers.entrySet()) {
-        Map.Entry entry = (Map.Entry) value;
-        InetAddress hostIpAddress = (InetAddress) entry.getKey();
-        List members = (List) entry.getValue();
+      for (final var value : hostMembers.entrySet()) {
+        var entry = (Map.Entry) value;
+        var hostIpAddress = (InetAddress) entry.getKey();
+        var members = (List) entry.getValue();
 
-        GemFireHealthConfig hostConfig = (GemFireHealthConfig) hostConfigs.get(hostIpAddress);
+        var hostConfig = (GemFireHealthConfig) hostConfigs.get(hostIpAddress);
         if (hostConfig == null) {
           hostConfig = config;
         }
 
-        for (final Object o : members) {
-          GemFireVM member = (GemFireVM) o;
+        for (final var o : members) {
+          var member = (GemFireVM) o;
           Assert.assertTrue(member.getHost().equals(hostIpAddress));
           member.addHealthListener(this, hostConfig);
         }
@@ -325,7 +325,7 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
           e);
     }
 
-    GemFireHealthConfig config = (GemFireHealthConfig) hostConfigs.get(hostIpAddress);
+    var config = (GemFireHealthConfig) hostConfigs.get(hostIpAddress);
     if (config == null) {
       config = createGemFireHealthConfig(hostName);
       hostConfigs.put(hostIpAddress, config);
@@ -349,9 +349,9 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
     checkClosed();
 
     synchronized (this) {
-      String configHost = config.getHostName();
+      var configHost = config.getHostName();
       if (configHost == null || !configHost.equals(hostName)) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("The GemFireHealthConfig configures ");
         if (configHost == null) {
           sb.append("the default host ");
@@ -374,15 +374,15 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
             e);
       }
 
-      List members = (List) hostMembers.get(hostIpAddress);
+      var members = (List) hostMembers.get(hostIpAddress);
       if (members == null || members.isEmpty()) {
         throw new IllegalArgumentException(
             String.format("There are no GemFire components on host %s.",
                 hostName));
       }
 
-      for (final Object o : members) {
-        GemFireVM member = (GemFireVM) o;
+      for (final var o : members) {
+        var member = (GemFireVM) o;
         member.addHealthListener(this, config);
       }
     }
@@ -411,10 +411,10 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
       }
 
       try {
-        for (final Object value : hostMembers.values()) {
-          List members = (List) value;
-          for (final Object o : members) {
-            GemFireVM member = (GemFireVM) o;
+        for (final var value : hostMembers.values()) {
+          var members = (List) value;
+          for (final var o : members) {
+            var member = (GemFireVM) o;
             member.removeHealthListener();
           }
         }
@@ -438,8 +438,8 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
    * Makes note of the newly-joined member
    */
   private void noteNewMember(GemFireVM member) {
-    InetAddress hostIpAddress = member.getHost();
-    List members = (List) hostMembers.get(hostIpAddress);
+    var hostIpAddress = member.getHost();
+    var members = (List) hostMembers.get(hostIpAddress);
     if (members == null) {
       members = new ArrayList();
       hostMembers.put(hostIpAddress, members);
@@ -452,9 +452,9 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
   public synchronized void nodeJoined(GfManagerAgent source, GemFireVM joined) {
     noteNewMember(joined);
 
-    InetAddress hostIpAddress = joined.getHost();
+    var hostIpAddress = joined.getHost();
 
-    GemFireHealthConfig config = (GemFireHealthConfig) hostConfigs.get(hostIpAddress);
+    var config = (GemFireHealthConfig) hostConfigs.get(hostIpAddress);
     if (config == null) {
       config = getDefaultGemFireHealthConfig();
     }
@@ -466,8 +466,8 @@ public class GemFireHealthImpl implements GemFireHealth, JoinLeaveListener, Heal
    */
   @Override
   public synchronized void nodeLeft(GfManagerAgent source, GemFireVM left) {
-    InetAddress hostIpAddress = left.getHost();
-    List members = (List) hostMembers.get(hostIpAddress);
+    var hostIpAddress = left.getHost();
+    var members = (List) hostMembers.get(hostIpAddress);
     if (members != null) {
       members.remove(left);
       if (members.isEmpty()) {

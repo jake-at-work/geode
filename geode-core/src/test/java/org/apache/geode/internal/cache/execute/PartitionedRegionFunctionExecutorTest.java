@@ -32,18 +32,18 @@ public class PartitionedRegionFunctionExecutorTest {
 
   @Test
   public void executeThatSetsNetworkHopClearsItAtExit() {
-    PartitionedRegion region = mock(PartitionedRegion.class);
+    var region = mock(PartitionedRegion.class);
     when(region.getNetworkHopType()).thenReturn((byte) 1);
-    PartitionedRegionFunctionExecutor executor = new PartitionedRegionFunctionExecutor(region);
+    var executor = new PartitionedRegionFunctionExecutor(region);
     executor.execute(new TestFunction());
     verify(region, times(1)).clearNetworkHopData();
   }
 
   @Test
   public void executeThatDoesNotSetNetworkHopDoesNotClearItAtExit() {
-    PartitionedRegion region = mock(PartitionedRegion.class);
+    var region = mock(PartitionedRegion.class);
     when(region.getNetworkHopType()).thenReturn((byte) 0);
-    PartitionedRegionFunctionExecutor executor = new PartitionedRegionFunctionExecutor(region);
+    var executor = new PartitionedRegionFunctionExecutor(region);
     executor.execute(new TestFunction());
     verify(region, never()).clearNetworkHopData();
   }

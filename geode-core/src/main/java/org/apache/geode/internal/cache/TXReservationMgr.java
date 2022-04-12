@@ -48,10 +48,10 @@ public class TXReservationMgr {
   }
 
   public void makeReservation(IdentityArrayList localLocks) throws CommitConflictException {
-    final int llSize = localLocks.size();
-    final Object[] llArray = localLocks.getArrayRef();
+    final var llSize = localLocks.size();
+    final var llArray = localLocks.getArrayRef();
     synchronized (regionLocks) {
-      for (int i = 0; i < llSize; i++) {
+      for (var i = 0; i < llSize; i++) {
         checkForConflict((TXRegionLockRequestImpl) llArray[i], localLocks);
       }
     }
@@ -65,25 +65,25 @@ public class TXReservationMgr {
 
   private void checkForConflict(TXRegionLockRequestImpl rr, IdentityArrayList localLocks)
       throws CommitConflictException {
-    Object r = getRegionObject(rr);
+    var r = getRegionObject(rr);
     Map keys = rr.getKeys();
 
-    Object oldValue = regionLocks.put(r, keys);
+    var oldValue = regionLocks.put(r, keys);
     if (oldValue != null) {
       try {
         // we may have a conflict
         if (oldValue instanceof Map) {
 
           checkSetForConflict(rr, (Map) oldValue, keys, localLocks);
-          IdentityArrayList newValue = new IdentityArrayList(2);
+          var newValue = new IdentityArrayList(2);
           newValue.add(oldValue);
           newValue.add(keys);
           regionLocks.put(r, newValue);
         } else {
-          IdentityArrayList al = (IdentityArrayList) oldValue;
-          int alSize = al.size();
-          Object[] alArray = al.getArrayRef();
-          for (int i = 0; i < alSize; i++) {
+          var al = (IdentityArrayList) oldValue;
+          var alSize = al.size();
+          var alArray = al.getArrayRef();
+          for (var i = 0; i < alSize; i++) {
             checkSetForConflict(rr, (Map) alArray[i], keys, localLocks);
           }
           al.add(keys);
@@ -99,7 +99,7 @@ public class TXReservationMgr {
 
   private void checkSetForConflict(TXRegionLockRequestImpl rr, Map<Object, Boolean> oldValue,
       Map<Object, Boolean> keys, IdentityArrayList localLocks) throws CommitConflictException {
-    for (Map.Entry<Object, Boolean> e : keys.entrySet()) {
+    for (var e : keys.entrySet()) {
       if (oldValue.containsKey(e.getKey())) {
         if (oldValue.get(e.getKey()) || e.getValue()) {
           release(localLocks, true);
@@ -121,16 +121,16 @@ public class TXReservationMgr {
   }
 
   private void release(IdentityArrayList localLocks, boolean conflictDetected) {
-    final int llSize = localLocks.size();
-    final Object[] llArray = localLocks.getArrayRef();
+    final var llSize = localLocks.size();
+    final var llArray = localLocks.getArrayRef();
 
-    for (int i = 0; i < llSize; i++) {
-      TXRegionLockRequestImpl rr = (TXRegionLockRequestImpl) llArray[i];
-      Object r = getRegionObject(rr);
-      Map<Object, Boolean> keys = rr.getKeys();
+    for (var i = 0; i < llSize; i++) {
+      var rr = (TXRegionLockRequestImpl) llArray[i];
+      var r = getRegionObject(rr);
+      var keys = rr.getKeys();
 
-      Object curValue = regionLocks.get(r);
-      boolean foundIt = false;
+      var curValue = regionLocks.get(r);
+      var foundIt = false;
       if (curValue != null) {
         if (curValue == keys) {
           foundIt = true;
@@ -138,8 +138,8 @@ public class TXReservationMgr {
 
         } else if (curValue instanceof IdentityArrayList) {
 
-          IdentityArrayList al = (IdentityArrayList) curValue;
-          int idx = al.indexOf(keys);
+          var al = (IdentityArrayList) curValue;
+          var idx = al.indexOf(keys);
           if (idx != -1) {
             foundIt = true;
             al.remove(idx);

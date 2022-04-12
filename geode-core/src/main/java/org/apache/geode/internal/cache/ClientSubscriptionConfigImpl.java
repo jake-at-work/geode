@@ -135,7 +135,7 @@ public class ClientSubscriptionConfigImpl implements ClientSubscriptionConfig {
 
   @Override
   public String toString() {
-    String str = " Eviction policy " + getEvictionPolicy() + " capacity " + getCapacity();
+    var str = " Eviction policy " + getEvictionPolicy() + " capacity " + getCapacity();
     if (diskStoreName == null) {
       str += " Overflow Directory " + getOverflowDirectory();
     } else {

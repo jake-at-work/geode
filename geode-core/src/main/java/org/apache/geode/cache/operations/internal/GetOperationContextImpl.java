@@ -43,7 +43,7 @@ public class GetOperationContextImpl extends GetOperationContext implements Rele
 
   @Override
   public Object getObject() {
-    Object result = super.getObject();
+    var result = super.getObject();
     if (result instanceof StoredObject) {
       // For off-heap object act as if they are serialized forcing them to call getSerializedValue
       // or getValue
@@ -74,11 +74,11 @@ public class GetOperationContextImpl extends GetOperationContext implements Rele
 
   @Override
   public byte[] getSerializedValue() {
-    byte[] result = super.getSerializedValue();
+    var result = super.getSerializedValue();
     if (result == null) {
-      Object v = super.getValue();
+      var v = super.getValue();
       if (v instanceof StoredObject) {
-        StoredObject so = (StoredObject) v;
+        var so = (StoredObject) v;
         checkForReleasedOffHeapValue(so);
         result = so.getValueAsHeapByteArray();
       }
@@ -88,9 +88,9 @@ public class GetOperationContextImpl extends GetOperationContext implements Rele
 
   @Override
   public Object getDeserializedValue() throws SerializationException {
-    Object result = super.getDeserializedValue();
+    var result = super.getDeserializedValue();
     if (result instanceof StoredObject) {
-      StoredObject so = (StoredObject) result;
+      var so = (StoredObject) result;
       checkForReleasedOffHeapValue(so);
       result = so.getValueAsDeserializedHeapObject();
     }
@@ -99,9 +99,9 @@ public class GetOperationContextImpl extends GetOperationContext implements Rele
 
   @Override
   public Object getValue() {
-    Object result = super.getValue();
+    var result = super.getValue();
     if (result instanceof StoredObject) {
-      StoredObject so = (StoredObject) result;
+      var so = (StoredObject) result;
       checkForReleasedOffHeapValue(so);
       // since they called getValue they don't care if it is serialized or deserialized so return it
       // as serialized

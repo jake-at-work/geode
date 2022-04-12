@@ -32,7 +32,6 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.util.JedisClusterCRC16;
 
-import org.apache.geode.redis.ClusterNode;
 import org.apache.geode.redis.ClusterNodes;
 import org.apache.geode.redis.RedisIntegrationTest;
 import org.apache.geode.redis.internal.RedisConstants;
@@ -59,8 +58,8 @@ public abstract class AbstractRenameRedirectionsDUnitTest implements RedisIntegr
 
   @Test
   public void renameReturnCrossslotsError_whenSlotsNotOnSameServer() {
-    String oldKey = "key-0";
-    String newKey = getKeyOnDifferentServerAs(oldKey, "key-");
+    var oldKey = "key-0";
+    var newKey = getKeyOnDifferentServerAs(oldKey, "key-");
 
     jedis.set(oldKey, "value");
     assertThatThrownBy(() -> jedis.sendCommand(oldKey, Protocol.Command.RENAME, oldKey, newKey))
@@ -69,14 +68,14 @@ public abstract class AbstractRenameRedirectionsDUnitTest implements RedisIntegr
 
   private String getKeyOnDifferentServerAs(String antiKey, String prefix) {
     ClusterNodes clusterNodes;
-    try (final Jedis j = new Jedis(jedis.getConnectionFromSlot(0))) {
+    try (final var j = new Jedis(jedis.getConnectionFromSlot(0))) {
       clusterNodes = ClusterNodes.parseClusterNodes(j.clusterNodes());
     }
-    int antiSlot = JedisClusterCRC16.getCRC16(antiKey) % RegionProvider.REDIS_SLOTS;
+    var antiSlot = JedisClusterCRC16.getCRC16(antiKey) % RegionProvider.REDIS_SLOTS;
 
     // First find any node not hosting the antiKey
     List<Pair<Long, Long>> possibleSlots = null;
-    for (ClusterNode node : clusterNodes.getNodes()) {
+    for (var node : clusterNodes.getNodes()) {
       if (!node.primary) {
         continue;
       }
@@ -89,10 +88,10 @@ public abstract class AbstractRenameRedirectionsDUnitTest implements RedisIntegr
     assertThat(possibleSlots).as("Could not find node NOT hosting slot " + antiSlot)
         .isNotNull();
 
-    int x = 0;
+    var x = 0;
     do {
-      String newKey = prefix + x++;
-      int newSlot = JedisClusterCRC16.getCRC16(newKey) % RegionProvider.REDIS_SLOTS;
+      var newKey = prefix + x++;
+      var newSlot = JedisClusterCRC16.getCRC16(newKey) % RegionProvider.REDIS_SLOTS;
       if (isSlotInSlots(newSlot, possibleSlots)) {
         return newKey;
       }
@@ -100,7 +99,7 @@ public abstract class AbstractRenameRedirectionsDUnitTest implements RedisIntegr
   }
 
   private boolean isSlotInSlots(long candidate, List<Pair<Long, Long>> slots) {
-    for (Pair<Long, Long> slot : slots) {
+    for (var slot : slots) {
       if (candidate >= slot.getLeft() && candidate <= slot.getRight()) {
         return true;
       }

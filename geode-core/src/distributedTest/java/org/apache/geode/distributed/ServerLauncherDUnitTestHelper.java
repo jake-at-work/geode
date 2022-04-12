@@ -18,11 +18,11 @@ package org.apache.geode.distributed;
 public class ServerLauncherDUnitTestHelper {
   public static void main(String[] args) {
 
-    int locatorPort = Integer.parseInt(args[0]);
+    var locatorPort = Integer.parseInt(args[0]);
 
     System.setProperty("gemfire.disableShutdownHook", "true");
 
-    final ServerLauncher serverLauncher =
+    final var serverLauncher =
         new ServerLauncher.Builder().setCommand(ServerLauncher.Command.START)
             .setMemberName("server1")
             .set("locators", "localhost[" + locatorPort + "]")
@@ -34,7 +34,7 @@ public class ServerLauncherDUnitTestHelper {
 
     serverLauncher.start();
 
-    Thread t = new Thread(serverLauncher::stop);
+    var t = new Thread(serverLauncher::stop);
 
     t.setDaemon(true);
     t.start();

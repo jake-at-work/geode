@@ -40,12 +40,12 @@ public class ClusterNodesResponseProcessor implements RedisResponseProcessor {
       return message;
     }
 
-    ByteBuf buf = ((FullBulkStringRedisMessage) message).content();
-    String input = buf.toString(CharsetUtil.UTF_8);
+    var buf = ((FullBulkStringRedisMessage) message).content();
+    var input = buf.toString(CharsetUtil.UTF_8);
 
-    for (Map.Entry<HostPort, HostPort> entry : mappings.entrySet()) {
-      String findHostPort = entry.getKey().getHost() + ":" + entry.getKey().getPort();
-      String replaceHostPort = entry.getValue().getHost() + ":" + entry.getValue().getPort();
+    for (var entry : mappings.entrySet()) {
+      var findHostPort = entry.getKey().getHost() + ":" + entry.getKey().getPort();
+      var replaceHostPort = entry.getValue().getHost() + ":" + entry.getValue().getPort();
 
       input = input.replace(findHostPort, replaceHostPort);
     }

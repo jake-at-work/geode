@@ -22,7 +22,6 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,12 +34,9 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.CqAttributesFactory;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.internal.ExecutionContext;
 import org.apache.geode.cache.query.internal.ExecutionContextTamperer;
 import org.apache.geode.examples.SimpleSecurityManager;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.security.query.TestCqListener;
 import org.apache.geode.security.query.data.QueryTestObject;
 import org.apache.geode.test.dunit.rules.ClientVM;
@@ -103,28 +99,28 @@ public class CqSecurityExecutionContextTamperingDistributedTest implements Seria
 
   @Test
   public void executionContextShouldNotBeModifiableForCqQueriesWithMethodInvocations() {
-    String query =
+    var query =
         "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r." + attributeAccessor + " = 'Beth'";
 
     client.invoke(() -> {
-      TestCqListener cqListener = new TestCqListener();
+      var cqListener = new TestCqListener();
       assertThat(ClusterStartupRule.getClientCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getClientCache().getQueryService();
+      var queryService = ClusterStartupRule.getClientCache().getQueryService();
       CqSecurityExecutionContextTamperingDistributedTest.cqListener = cqListener;
-      CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+      var cqAttributesFactory = new CqAttributesFactory();
       cqAttributesFactory.addCqListener(cqListener);
 
-      CqQuery cq = queryService.newCq(query, cqAttributesFactory.create());
+      var cq = queryService.newCq(query, cqAttributesFactory.create());
       cq.execute();
     });
 
     server.invoke(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache.getCqService().getAllCqs().size()).isEqualTo(1);
-      CqQueryImpl cqQueryImpl =
+      var cqQueryImpl =
           (CqQueryImpl) internalCache.getCqService().getAllCqs().iterator().next();
-      Method method = QueryTestObject.class.getMethod("getName");
+      var method = QueryTestObject.class.getMethod("getName");
       ExecutionContextTamperer.tamperContextCache(cqQueryImpl.getQueryExecutionContext(), method,
           true);
 

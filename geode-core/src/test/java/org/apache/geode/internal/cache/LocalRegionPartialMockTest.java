@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -89,7 +88,7 @@ public class LocalRegionPartialMockTest {
 
   @Test
   public void serverPutWillCheckPutIfAbsentResult() {
-    Object result = new Object();
+    var result = new Object();
     operation = Operation.PUT_IF_ABSENT;
     when(event.getOperation()).thenReturn(operation);
     when(event.isCreate()).thenReturn(true);
@@ -114,7 +113,7 @@ public class LocalRegionPartialMockTest {
 
   @Test(expected = EntryNotFoundException.class)
   public void checkPutIfAbsentResultThrowsIfResultNotNullAndEventHasNotRetried() {
-    Object result = new Object();
+    var result = new Object();
     when(event.hasRetried()).thenReturn(false);
     doCallRealMethod().when(region).checkPutIfAbsentResult(event, value, result);
 
@@ -150,7 +149,7 @@ public class LocalRegionPartialMockTest {
 
   @Test
   public void testInitializationThreadInitValue() throws InterruptedException, ExecutionException {
-    ExecutorService executionService = Executors.newFixedThreadPool(1);
+    var executionService = Executors.newFixedThreadPool(1);
     Future future =
         executionService.submit(() -> assertThat(LocalRegion.getThreadInitLevelRequirement())
             .isEqualTo(AFTER_INITIAL_IMAGE));
@@ -159,7 +158,7 @@ public class LocalRegionPartialMockTest {
 
   @Test
   public void testSetThreadInitLevelRequirement() throws InterruptedException, ExecutionException {
-    ExecutorService executionService = Executors.newFixedThreadPool(1);
+    var executionService = Executors.newFixedThreadPool(1);
     Future future = executionService.submit(() -> {
       assertThat(LocalRegion.setThreadInitLevelRequirement(ANY_INIT))
           .isEqualTo(AFTER_INITIAL_IMAGE);
@@ -177,14 +176,14 @@ public class LocalRegionPartialMockTest {
   @Test
   public void testSetThreadInitLevelRequirementDoesNotAffectOtherThreads()
       throws InterruptedException, ExecutionException {
-    ExecutorService executionService1 = Executors.newFixedThreadPool(1);
+    var executionService1 = Executors.newFixedThreadPool(1);
     Future future1 = executionService1.submit(() -> {
       assertThat(LocalRegion.setThreadInitLevelRequirement(ANY_INIT))
           .isEqualTo(AFTER_INITIAL_IMAGE);
       assertThat(LocalRegion.getThreadInitLevelRequirement()).isEqualTo(ANY_INIT);
     });
     future1.get();
-    ExecutorService executionService2 = Executors.newFixedThreadPool(1);
+    var executionService2 = Executors.newFixedThreadPool(1);
     Future future2 =
         executionService2.submit(() -> assertThat(LocalRegion.getThreadInitLevelRequirement())
             .isEqualTo(AFTER_INITIAL_IMAGE));
@@ -193,14 +192,14 @@ public class LocalRegionPartialMockTest {
 
   private void createGatewaySender(String senderId, boolean isParallel) {
     // Create set of sender ids
-    Set<String> allGatewaySenderIds = Stream.of(senderId).collect(Collectors.toSet());
+    var allGatewaySenderIds = Stream.of(senderId).collect(Collectors.toSet());
     when(region.getAllGatewaySenderIds()).thenReturn(allGatewaySenderIds);
 
     // Create set of senders
-    GatewaySender sender = mock(GatewaySender.class);
+    var sender = mock(GatewaySender.class);
     when(sender.getId()).thenReturn(senderId);
     when(sender.isParallel()).thenReturn(isParallel);
-    Set<GatewaySender> allGatewaySenders = Stream.of(sender).collect(Collectors.toSet());
+    var allGatewaySenders = Stream.of(sender).collect(Collectors.toSet());
     when(cache.getAllGatewaySenders()).thenReturn(allGatewaySenders);
   }
 
@@ -209,8 +208,8 @@ public class LocalRegionPartialMockTest {
 
     Map regionGCVersions = new HashMap();
     Set keysRemoved = new HashSet();
-    EventID eventID = new EventID();
-    FilterInfo routing = new FilterInfo();
+    var eventID = new EventID();
+    var routing = new FilterInfo();
 
     doCallRealMethod().when(region).notifyClientsOfTombstoneGC(regionGCVersions, keysRemoved,
         eventID, routing);
@@ -223,11 +222,11 @@ public class LocalRegionPartialMockTest {
 
     Map regionGCVersions = new HashMap();
     Set keysRemoved = new HashSet();
-    EventID eventID = new EventID();
+    var eventID = new EventID();
     FilterInfo routing = null;
     when(cache.getCCPTimer()).thenReturn(mock(SystemTimer.class));
 
-    CacheClientNotifier ccn =
+    var ccn =
         CacheClientNotifier.getInstance(cache, mock(ClientRegistrationEventQueueManager.class),
             disabledClock(), mock(CacheServerStats.class), 10,
             10, mock(ConnectionListener.class), null, true);
@@ -246,11 +245,11 @@ public class LocalRegionPartialMockTest {
 
     Map regionGCVersions = new HashMap();
     Set keysRemoved = new HashSet();
-    EventID eventID = new EventID();
+    var eventID = new EventID();
     FilterInfo routing = null;
     when(cache.getCCPTimer()).thenReturn(mock(SystemTimer.class));
 
-    CacheClientNotifier ccn =
+    var ccn =
         CacheClientNotifier.getInstance(cache, mock(ClientRegistrationEventQueueManager.class),
             disabledClock(), mock(CacheServerStats.class), 10,
             10, mock(ConnectionListener.class), null, true);

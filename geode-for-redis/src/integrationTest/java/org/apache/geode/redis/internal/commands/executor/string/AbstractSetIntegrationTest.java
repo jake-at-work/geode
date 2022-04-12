@@ -133,7 +133,7 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testSET_shouldSetStringValueToKey_givenEmptyKey() {
-    String result = jedis.get(key);
+    var result = jedis.get(key);
     assertThat(result).isNull();
 
     jedis.set(key, value);
@@ -146,7 +146,7 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
     jedis.sadd(key, "member1", "member2");
 
     jedis.set(key, value);
-    String result = jedis.get(key);
+    var result = jedis.get(key);
 
     assertThat(result).isEqualTo(value);
   }
@@ -155,7 +155,7 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
   public void testSET_shouldSetStringValueToKey_givenKeyIsOfDataTypeHash() {
     jedis.hset(key, "field", "something else");
 
-    String result = jedis.set(key, value);
+    var result = jedis.set(key, value);
     assertThat(result).isEqualTo("OK");
 
     assertThat(value).isEqualTo(jedis.get(key));
@@ -164,28 +164,28 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
   @Test
   public void testSET_shouldSetNX_evenIfKeyContainsOtherDataType() {
     jedis.sadd(key, "member1", "member2");
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.nx();
 
-    String result = jedis.set(key, value, setParams);
+    var result = jedis.set(key, value, setParams);
     assertThat(result).isNull();
   }
 
   @Test
   public void testSET_shouldSetXX_evenIfKeyContainsOtherDataType() {
     jedis.sadd(key, "member1", "member2");
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.xx();
 
     jedis.set(key, value, setParams);
-    String result = jedis.get(key);
+    var result = jedis.get(key);
 
     assertThat(result).isEqualTo(value);
   }
 
   @Test
   public void testSET_withNXAndExArguments() {
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.nx();
     setParams.ex(20L);
 
@@ -198,7 +198,7 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
   public void testSET_withXXAndExArguments() {
     jedis.set(key, "differentValue");
 
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.xx();
     setParams.ex(20L);
 
@@ -209,7 +209,7 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testSET_withNXAndPxArguments() {
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.nx();
     setParams.px(2000);
 
@@ -222,7 +222,7 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
   public void testSET_withXXAndPxArguments() {
     jedis.set(key, "differentValue");
 
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.xx();
     setParams.px(2000);
 
@@ -235,18 +235,18 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
   public void setNX_shouldNotConflictWithRegularSet() {
     List<String> keys = new ArrayList<>();
     List<String> values = new ArrayList<>();
-    for (int i = 0; i < ITERATION_COUNT; i++) {
+    for (var i = 0; i < ITERATION_COUNT; i++) {
       keys.add("key-" + i);
       values.add("value-" + i);
     }
 
-    AtomicInteger counter = new AtomicInteger(0);
-    SetParams setParams = new SetParams();
+    var counter = new AtomicInteger(0);
+    var setParams = new SetParams();
     setParams.nx();
 
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> {
-          String ok = jedis.set(keys.get(i), values.get(i));
+          var ok = jedis.set(keys.get(i), values.get(i));
           if ("OK".equals(ok)) {
             counter.addAndGet(1);
           }
@@ -261,7 +261,7 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
   public void testSET_withEXArgument_shouldSetExpireTime() {
     long secondsUntilExpiration = 20;
 
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.ex(secondsUntilExpiration);
 
     jedis.set(key, value, setParams);
@@ -275,7 +275,7 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
   public void testSET_withNegativeEXTime_shouldReturnError() {
     long millisecondsUntilExpiration = -1;
 
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.ex(millisecondsUntilExpiration);
 
     assertThatThrownBy(() -> jedis.set(key, value, setParams))
@@ -290,9 +290,9 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testSET_withPXArgument_shouldSetExpireTime() {
-    int millisecondsUntilExpiration = 20000;
+    var millisecondsUntilExpiration = 20000;
 
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.px(millisecondsUntilExpiration);
 
     jedis.set(key, value, setParams);
@@ -304,9 +304,9 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testSET_withNegativePXTime_shouldReturnError() {
-    int millisecondsUntilExpiration = -1;
+    var millisecondsUntilExpiration = -1;
 
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.px(millisecondsUntilExpiration);
 
     assertThatThrownBy(() -> jedis.set(key, value, setParams))
@@ -323,7 +323,7 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
   public void testSET_shouldClearPreviousTTL() {
     long secondsUntilExpiration = 20;
 
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.ex(secondsUntilExpiration);
 
     jedis.set(key, value, setParams);
@@ -337,17 +337,17 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testSET_withXXArgument_shouldClearPreviousTTL() {
-    String value = "did exist";
+    var value = "did exist";
     long secondsUntilExpiration = 20;
-    SetParams setParamsXX = new SetParams();
+    var setParamsXX = new SetParams();
     setParamsXX.xx();
-    SetParams setParamsEX = new SetParams();
+    var setParamsEX = new SetParams();
     setParamsEX.ex(secondsUntilExpiration);
-    String result_EX = jedis.set(key, value, setParamsEX);
+    var result_EX = jedis.set(key, value, setParamsEX);
     assertThat(result_EX).isEqualTo("OK");
     assertThat(jedis.ttl(key)).isGreaterThan(15L);
 
-    String result_XX = jedis.set(key, value, setParamsXX);
+    var result_XX = jedis.set(key, value, setParamsXX);
 
     assertThat(result_XX).isEqualTo("OK");
     Long result = jedis.ttl(key);
@@ -356,18 +356,18 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testSET_shouldNotClearPreviousTTL_onFailure() {
-    String key_NX = "nx_key";
-    String value_NX = "set only if key did not exist";
+    var key_NX = "nx_key";
+    var value_NX = "set only if key did not exist";
     long secondsUntilExpiration = 20;
 
-    SetParams setParamsEX = new SetParams();
+    var setParamsEX = new SetParams();
     setParamsEX.ex(secondsUntilExpiration);
 
-    SetParams setParamsNX = new SetParams();
+    var setParamsNX = new SetParams();
     setParamsNX.nx();
 
     jedis.set(key_NX, value_NX, setParamsEX);
-    String result_NX = jedis.set(key_NX, value_NX, setParamsNX);
+    var result_NX = jedis.set(key_NX, value_NX, setParamsNX);
     assertThat(result_NX).isNull();
 
     Long result = jedis.ttl(key_NX);
@@ -379,12 +379,12 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
   public void testSET_withKEEPTTL_shouldRetainPreviousTTL_onSuccess() {
     long secondsToExpire = 30;
 
-    SetParams setParamsEx = new SetParams();
+    var setParamsEx = new SetParams();
     setParamsEx.ex(secondsToExpire);
 
     jedis.set(key, value, setParamsEx);
 
-    SetParams setParamsKeepTTL = new SetParams();
+    var setParamsKeepTTL = new SetParams();
     // setParamsKeepTTL.keepTtl();
     // Jedis Doesn't support KEEPTTL yet.
 
@@ -396,95 +396,95 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testSET_withNXArgument_shouldOnlySetKeyIfKeyDoesNotExist() {
-    String key1 = "key_1";
-    String key2 = "key_2";
-    String value1 = "value_1";
-    String value2 = "value_2";
+    var key1 = "key_1";
+    var key2 = "key_2";
+    var value1 = "value_1";
+    var value2 = "value_2";
 
     jedis.set(key1, value1);
 
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.nx();
 
     jedis.set(key1, value2, setParams);
-    String result1 = jedis.get(key1);
+    var result1 = jedis.get(key1);
 
     assertThat(result1).isEqualTo(value1);
 
     jedis.set(key2, value2, setParams);
-    String result2 = jedis.get(key2);
+    var result2 = jedis.get(key2);
 
     assertThat(result2).isEqualTo(value2);
   }
 
   @Test
   public void testSET_withXXArgument_shouldOnlySetKeyIfKeyExists() {
-    String key1 = "key_1";
-    String key2 = "key_2";
-    String value1 = "value_1";
-    String value2 = "value_2";
+    var key1 = "key_1";
+    var key2 = "key_2";
+    var value1 = "value_1";
+    var value2 = "value_2";
 
     jedis.set(key1, value1);
 
-    SetParams setParams = new SetParams();
+    var setParams = new SetParams();
     setParams.xx();
 
     jedis.set(key1, value2, setParams);
-    String result1 = jedis.get(key1);
+    var result1 = jedis.get(key1);
 
     assertThat(result1).isEqualTo(value2);
 
     jedis.set(key2, value2, setParams);
-    String result2 = jedis.get(key2);
+    var result2 = jedis.get(key2);
 
     assertThat(result2).isNull();
   }
 
   @Test
   public void testSET_XX_NX_arguments_shouldReturnOK_if_Successful() {
-    String key_NX = "nx_key";
-    String key_XX = "xx_key";
-    String value_NX = "did not exist";
-    String value_XX = "did exist";
+    var key_NX = "nx_key";
+    var key_XX = "xx_key";
+    var value_NX = "did not exist";
+    var value_XX = "did exist";
 
-    SetParams setParamsXX = new SetParams();
+    var setParamsXX = new SetParams();
     setParamsXX.xx();
 
-    SetParams setParamsNX = new SetParams();
+    var setParamsNX = new SetParams();
     setParamsNX.nx();
 
-    String result_NX = jedis.set(key_NX, value_NX, setParamsNX);
+    var result_NX = jedis.set(key_NX, value_NX, setParamsNX);
     assertThat(result_NX).isEqualTo("OK");
 
     jedis.set(key_XX, value_XX);
-    String result_XX = jedis.set(key_NX, value_NX, setParamsXX);
+    var result_XX = jedis.set(key_NX, value_NX, setParamsXX);
     assertThat(result_XX).isEqualTo("OK");
   }
 
   @Test
   public void testSET_XX_NX_arguments_should_return_NULL_if_Not_Successful() {
-    String key_NX = "nx_key";
-    String key_XX = "xx_key";
-    String value_NX = "set only if key did not exist";
-    String value_XX = "set only if key did exist";
+    var key_NX = "nx_key";
+    var key_XX = "xx_key";
+    var value_NX = "set only if key did not exist";
+    var value_XX = "set only if key did exist";
 
-    SetParams setParamsXX = new SetParams();
+    var setParamsXX = new SetParams();
     setParamsXX.xx();
 
-    SetParams setParamsNX = new SetParams();
+    var setParamsNX = new SetParams();
     setParamsNX.nx();
 
     jedis.set(key_NX, value_NX);
-    String result_NX = jedis.set(key_NX, value_NX, setParamsNX);
+    var result_NX = jedis.set(key_NX, value_NX, setParamsNX);
     assertThat(result_NX).isNull();
 
-    String result_XX = jedis.set(key_XX, value_XX, setParamsXX);
+    var result_XX = jedis.set(key_XX, value_XX, setParamsXX);
     assertThat(result_XX).isNull();
   }
 
   @Test
   public void testSET_withInvalidOptions() {
-    SoftAssertions soft = new SoftAssertions();
+    var soft = new SoftAssertions();
 
     soft.assertThatThrownBy(() -> jedis.sendCommand(key, SET))
         .as("no key")
@@ -531,13 +531,13 @@ public abstract class AbstractSetIntegrationTest implements RedisIntegrationTest
 
   @Test
   public void testSET_withBinaryKeyAndValue() {
-    byte[] blob = new byte[256];
-    for (int i = 0; i < 256; i++) {
+    var blob = new byte[256];
+    for (var i = 0; i < 256; i++) {
       blob[i] = (byte) i;
     }
 
     jedis.set(blob, blob);
-    byte[] result = jedis.get(blob);
+    var result = jedis.get(blob);
 
     assertThat(result).isEqualTo(blob);
   }

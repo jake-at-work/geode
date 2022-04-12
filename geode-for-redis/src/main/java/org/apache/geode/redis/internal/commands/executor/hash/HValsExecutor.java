@@ -15,13 +15,11 @@
 package org.apache.geode.redis.internal.commands.executor.hash;
 
 
-import java.util.Collection;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.data.RedisHash;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 /**
@@ -53,9 +51,9 @@ public class HValsExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    RedisKey key = command.getKey();
+    var key = command.getKey();
 
-    Collection<byte[]> values = context.hashLockedExecute(key, true, RedisHash::hvals);
+    var values = context.hashLockedExecute(key, true, RedisHash::hvals);
 
     return RedisResponse.array(values, true);
   }

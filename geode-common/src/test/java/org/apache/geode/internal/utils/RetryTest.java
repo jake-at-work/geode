@@ -40,7 +40,7 @@ public class RetryTest {
 
   @Before
   public void before() throws Exception {
-    AtomicLong atomicLong = new AtomicLong();
+    var atomicLong = new AtomicLong();
     timer = mock(Retry.Timer.class);
     when(timer.nanoTime()).thenReturn(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L);
   }
@@ -48,7 +48,7 @@ public class RetryTest {
   @Test
   public void tryForReturnsImmediatelyOnPredicateMatch()
       throws TimeoutException, InterruptedException {
-    final Integer value =
+    final var value =
         Retry.tryFor(1, NANOSECONDS, 1, NANOSECONDS, () -> 10, (v) -> v == 10, timer);
     assertThat(value).isEqualTo(10);
     // nanoTime is only called one time if predicate match immediately
@@ -59,8 +59,8 @@ public class RetryTest {
 
   @Test
   public void tryForReturnsAfterRetries() throws TimeoutException, InterruptedException {
-    final AtomicInteger shared = new AtomicInteger();
-    final Integer value =
+    final var shared = new AtomicInteger();
+    final var value =
         Retry.tryFor(10, NANOSECONDS, 1, NANOSECONDS, shared::getAndIncrement, (v) -> v == 3,
             timer);
     assertThat(value).isEqualTo(3);
@@ -79,7 +79,7 @@ public class RetryTest {
 
   @Test
   public void timerSleepCanTakeNegativeArgument() throws Exception {
-    Retry.SteadyTimer steadyTimer = new Retry.SteadyTimer();
+    var steadyTimer = new Retry.SteadyTimer();
     assertThatNoException().isThrownBy(() -> steadyTimer.sleep(-2));
   }
 

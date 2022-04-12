@@ -67,8 +67,8 @@ public class PRQueryTraceInfo implements DataSerializableFixedID {
   }
 
   public int calculateNumberOfResults(Collection resultCollector) {
-    int traceSize = 0;
-    for (final Collection collection : (Iterable<Collection>) resultCollector) {
+    var traceSize = 0;
+    for (final var collection : (Iterable<Collection>) resultCollector) {
       traceSize += collection.size();
     }
     return traceSize;

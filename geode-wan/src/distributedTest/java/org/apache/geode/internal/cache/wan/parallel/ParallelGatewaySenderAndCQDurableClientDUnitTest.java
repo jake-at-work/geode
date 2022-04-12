@@ -30,28 +30,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
-import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.cache.InitialImageOperation;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClientVM;
@@ -115,7 +107,7 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
     verifyGatewaySenderIsRunningAndNotPaused();
 
     // Do some puts and check that data has been enqueued
-    Set<String> keysQueue =
+    var keysQueue =
         clientSite2.invoke(() -> doPutsInRangeTransactionSingleKey(0, 30, REGION_NAME));
     server1Site2.invoke(() -> checkQueueSize("ln", keysQueue.size()));
 
@@ -136,7 +128,7 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
     verifyGatewaySenderIsRunningAndNotPaused();
 
     // Do some puts and check that data has been enqueued
-    Set<String> keysQueue =
+    var keysQueue =
         clientSite2.invoke(() -> doPutsInRangeTransactionWithTwoPutOperation(0, 30));
     server1Site2.invoke(() -> checkQueueSize("ln", keysQueue.size() * 2));
 
@@ -167,12 +159,12 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
         Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(REGION_NAME)));
 
     // check that bucketToTempQueueMap is empty on all members
-    for (MemberVM member : allMembers) {
+    for (var member : allMembers) {
       member.invoke(() -> validateBucketToTempQueueMapIsEmpty("ln"));
     }
 
     // Choose server with bucket to be stopped
-    MemberVM serverToStop = getServerToStop(allMembers);
+    var serverToStop = getServerToStop(allMembers);
     int bucketId = serverToStop.invoke(this::getPrimaryBucketList).iterator().next();
     serverToStop.stop(true);
 
@@ -183,16 +175,16 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
     createDurableCQs(REGION_CQ);
 
     // configure hook on running members
-    for (MemberVM member : allMembers) {
+    for (var member : allMembers) {
       configureHooksOnRunningMember(member, bucketId);
     }
 
     // perform rebalance operation to trigger bucket redundancy recovery on running servers
-    String command = new CommandStringBuilder(CliStrings.REBALANCE)
+    var command = new CommandStringBuilder(CliStrings.REBALANCE)
         .getCommandString();
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
-    for (MemberVM member : allMembers) {
+    for (var member : allMembers) {
       // All members after redundancy is recovered should have empty temporary queue
       member.invoke(() -> validateBucketToTempQueueMapIsEmpty("ln"));
       // If hook has been triggered on member, then check if member temporarily queued
@@ -204,7 +196,7 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
     }
 
     // reset all hooks
-    for (MemberVM member : allMembers) {
+    for (var member : allMembers) {
       resetHooks(member);
     }
   }
@@ -247,7 +239,7 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
   }
 
   MemberVM getServerToStop(List<MemberVM> list) {
-    for (MemberVM member : list) {
+    for (var member : list) {
       if (!member.invoke(this::getPrimaryBucketList).isEmpty()) {
         return member;
       }
@@ -257,7 +249,7 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
 
   private void startDurableClient()
       throws Exception {
-    int locatorPort = locatorSite2.getPort();
+    var locatorPort = locatorSite2.getPort();
     clientSite2DurableSubscription = clusterStartupRule.startClientVM(7, ccf -> ccf
         .withPoolSubscription(true).withLocatorConnection(locatorPort).withCacheSetup(c -> c
             .set(ConfigurationProperties.DURABLE_CLIENT_ID, DURABLE_CLIENT_ID)));
@@ -266,14 +258,14 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
   private void createDurableCQs(String... queries) {
     clientSite2DurableSubscription.invoke(() -> {
       assertThat(ClusterStartupRule.getClientCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getClientCache().getQueryService();
-      CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+      var queryService = ClusterStartupRule.getClientCache().getQueryService();
+      var cqAttributesFactory = new CqAttributesFactory();
       ParallelGatewaySenderAndCQDurableClientDUnitTest.cqListener =
           new CqListenerTestReceivedEvents();
       cqAttributesFactory.addCqListener(cqListener);
 
-      for (String query : queries) {
-        CqQuery cq = queryService.newCq(query, cqAttributesFactory.create(), true);
+      for (var query : queries) {
+        var cq = queryService.newCq(query, cqAttributesFactory.create(), true);
         cq.execute();
       }
       ClusterStartupRule.getClientCache().readyForEvents();
@@ -281,7 +273,7 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
   }
 
   private Set<Integer> getPrimaryBucketList() {
-    PartitionedRegion region = (PartitionedRegion) Objects
+    var region = (PartitionedRegion) Objects
         .requireNonNull(ClusterStartupRule.getCache()).getRegion(REGION_NAME);
     return new HashSet<>(region.getDataStore().getAllLocalPrimaryBucketIds());
   }
@@ -301,21 +293,21 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
    * that holds events for buckets that are not available locally, is empty.
    */
   public static void validateBucketToTempQueueMapIsEmpty(String senderId) {
-    final int finalSize = sizeOfBucketToTempQueueMap(senderId);
+    final var finalSize = sizeOfBucketToTempQueueMap(senderId);
     assertThat(finalSize).isEqualTo(0);
   }
 
   public static int sizeOfBucketToTempQueueMap(String senderId) {
-    GatewaySender sender =
+    var sender =
         Objects.requireNonNull(ClusterStartupRule.getCache()).getGatewaySender(senderId);
-    int size = 0;
-    Set<RegionQueue> queues = ((AbstractGatewaySender) sender).getQueues();
-    for (RegionQueue queue : queues) {
-      PartitionedRegion region =
+    var size = 0;
+    var queues = ((AbstractGatewaySender) sender).getQueues();
+    for (var queue : queues) {
+      var region =
           (PartitionedRegion) queue.getRegion();
-      int buckets = region.getTotalNumberOfBuckets();
-      for (int bucket = 0; bucket < buckets; bucket++) {
-        BlockingQueue<GatewaySenderEventImpl> newQueue =
+      var buckets = region.getTotalNumberOfBuckets();
+      for (var bucket = 0; bucket < buckets; bucket++) {
+        var newQueue =
             ((ConcurrentParallelGatewaySenderQueue) queue).getBucketTmpQueue(bucket);
         if (newQueue != null) {
           size += newQueue.size();
@@ -328,9 +320,9 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
   void configureSites(String totalBucketNum, boolean addColocatedRegion)
       throws Exception {
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, DISTRIBUTED_SYSTEM_ID_SITE1);
-    MemberVM locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
+    var locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
 
     props.setProperty(DISTRIBUTED_SYSTEM_ID, DISTRIBUTED_SYSTEM_ID_SITE2);
     props.setProperty(REMOTE_LOCATORS, "localhost[" + locatorSite1.getPort() + "]");
@@ -343,7 +335,7 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
 
     // create parallel gateway-sender on site #2
     connectGfshToSite(locatorSite2);
-    String command = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER)
+    var command = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER)
         .addOption(CliStrings.CREATE_GATEWAYSENDER__ID, "ln")
         .addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID, "1")
         .addOption(CliStrings.CREATE_GATEWAYSENDER__PARALLEL, "true")
@@ -362,7 +354,7 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
         () -> validateGatewaySenderMXBeanProxy(getMember(server3Site2.getVM()), "ln", true, false));
 
     // create partition region on site #2
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
     csb.addOption(CliStrings.CREATE_REGION__REGION, REGION_NAME);
     csb.addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT, "PARTITION");
     csb.addOption(CliStrings.CREATE_REGION__GATEWAYSENDERID, "ln");
@@ -416,9 +408,9 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
         ClusterStartupRule.clientCacheRule.getCache().getRegion(regionName);
     Set<String> keys = new HashSet<>();
 
-    CacheTransactionManager transactionManager =
+    var transactionManager =
         Objects.requireNonNull(ClusterStartupRule.getClientCache()).getCacheTransactionManager();
-    for (int i = start; i < stop; i++) {
+    for (var i = start; i < stop; i++) {
       transactionManager.begin();
       region.put(i + "key", i + "value");
       transactionManager.commit();
@@ -435,10 +427,10 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
         ClusterStartupRule.clientCacheRule.getCache().getRegion(REGION_COLOCATED);
 
     Set<String> keys = new HashSet<>();
-    CacheTransactionManager transactionManager =
+    var transactionManager =
         Objects.requireNonNull(ClusterStartupRule.getClientCache()).getCacheTransactionManager();
 
-    for (int i = start; i < stop; i++) {
+    for (var i = start; i < stop; i++) {
       transactionManager.begin();
       region.put(i + "key", i + "value");
       regionC.put(i + "key", i + "value");
@@ -452,9 +444,9 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
     Region<String, String> region =
         Objects.requireNonNull(ClusterStartupRule.getCache()).getRegion(REGION_NAME);
 
-    CacheTransactionManager transactionManager =
+    var transactionManager =
         ClusterStartupRule.getCache().getCacheTransactionManager();
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       transactionManager.begin();
       region.put(i + "key", i + "value");
       transactionManager.commit();
@@ -468,14 +460,14 @@ public class ParallelGatewaySenderAndCQDurableClientDUnitTest implements Seriali
 
   public static void testQueueSize(String senderId, int numQueueEntries) {
     assertThat(ClusterStartupRule.getCache()).isNotNull();
-    InternalCache internalCache = ClusterStartupRule.getCache();
-    GatewaySender sender = internalCache.getGatewaySender(senderId);
+    var internalCache = ClusterStartupRule.getCache();
+    var sender = internalCache.getGatewaySender(senderId);
     assertThat(sender.isParallel()).isTrue();
-    int totalSize = 0;
-    Set<RegionQueue> queues = ((AbstractGatewaySender) sender).getQueues();
+    var totalSize = 0;
+    var queues = ((AbstractGatewaySender) sender).getQueues();
     if (queues != null) {
-      for (RegionQueue q : queues) {
-        ConcurrentParallelGatewaySenderQueue prQ = (ConcurrentParallelGatewaySenderQueue) q;
+      for (var q : queues) {
+        var prQ = (ConcurrentParallelGatewaySenderQueue) q;
         totalSize += prQ.size();
       }
     }

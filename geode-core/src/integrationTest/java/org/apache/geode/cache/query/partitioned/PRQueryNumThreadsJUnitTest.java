@@ -25,7 +25,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.LogWriter;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.PortfolioData;
 import org.apache.geode.internal.Assert;
@@ -60,17 +59,17 @@ public class PRQueryNumThreadsJUnitTest {
    */
   @Test
   public void testQueryOnSingleDataStore() throws Exception {
-    Region region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
-    PortfolioData[] portfolios = new PortfolioData[100];
-    for (int j = 0; j < 100; j++) {
+    var region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
+    var portfolios = new PortfolioData[100];
+    for (var j = 0; j < 100; j++) {
       portfolios[j] = new PortfolioData(j);
     }
     PRQueryProcessor.TEST_NUM_THREADS = 10;
     try {
       populateData(region, portfolios);
 
-      String queryString = "ID < 5";
-      SelectResults resSet = region.query(queryString);
+      var queryString = "ID < 5";
+      var resSet = region.query(queryString);
       Assert.assertTrue(resSet.size() == 5);
 
       queryString = "ID > 5 and ID <=15";
@@ -84,18 +83,18 @@ public class PRQueryNumThreadsJUnitTest {
 
   @Test
   public void testQueryWithNullProjectionValue() throws Exception {
-    Region region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
-    int size = 10;
+    var region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
+    var size = 10;
     HashMap value = null;
-    for (int j = 0; j < size; j++) {
+    for (var j = 0; j < size; j++) {
       value = new HashMap();
       value.put("account" + j, "account" + j);
       region.put("" + j, value);
     }
 
-    String queryString = "Select p.get('account') from " + SEPARATOR + region.getName() + " p ";
-    Query query = region.getCache().getQueryService().newQuery(queryString);
-    SelectResults sr = (SelectResults) query.execute();
+    var queryString = "Select p.get('account') from " + SEPARATOR + region.getName() + " p ";
+    var query = region.getCache().getQueryService().newQuery(queryString);
+    var sr = (SelectResults) query.execute();
     Assert.assertTrue(sr.size() == size);
 
     PRQueryProcessor.TEST_NUM_THREADS = 10;
@@ -104,7 +103,7 @@ public class PRQueryNumThreadsJUnitTest {
       query = region.getCache().getQueryService().newQuery(queryString);
       sr = (SelectResults) query.execute();
       Assert.assertTrue(sr.size() == 10);
-      for (Object r : sr.asList()) {
+      for (var r : sr.asList()) {
         if (r != null) {
           fail("Expected null value, but found " + r);
         }
@@ -117,19 +116,19 @@ public class PRQueryNumThreadsJUnitTest {
 
   @Test
   public void testOrderByQuery() throws Exception {
-    Region region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
-    String[] values = new String[100];
-    for (int j = 0; j < 100; j++) {
+    var region = PartitionedRegionTestHelper.createPartitionedRegion(regionName, "100", 0);
+    var values = new String[100];
+    for (var j = 0; j < 100; j++) {
       values[j] = "" + j;
     }
     PRQueryProcessor.TEST_NUM_THREADS = 10;
     try {
       populateData(region, values);
 
-      String queryString =
+      var queryString =
           "Select distinct p from " + SEPARATOR + region.getName() + " p order by p";
-      Query query = region.getCache().getQueryService().newQuery(queryString);
-      SelectResults sr = (SelectResults) query.execute();
+      var query = region.getCache().getQueryService().newQuery(queryString);
+      var sr = (SelectResults) query.execute();
 
       Assert.assertTrue(sr.size() == 100);
     } finally {
@@ -143,7 +142,7 @@ public class PRQueryNumThreadsJUnitTest {
    *
    */
   private void populateData(Region region, Object[] data) {
-    for (int j = 0; j < data.length; j++) {
+    for (var j = 0; j < data.length; j++) {
       region.put(j, data[j]);
     }
   }

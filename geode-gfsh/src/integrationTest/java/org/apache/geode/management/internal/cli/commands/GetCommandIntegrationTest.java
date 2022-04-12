@@ -32,13 +32,11 @@ import org.junit.rules.RuleChain;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.internal.cli.domain.DataCommandResult;
 import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.pdx.PdxInstanceFactory;
 import org.apache.geode.pdx.internal.PdxInstanceFactoryImpl;
 import org.apache.geode.pdx.internal.PdxInstanceImpl;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -68,13 +66,13 @@ public class GetCommandIntegrationTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    InternalCache cache = server.getCache();
+    var cache = server.getCache();
 
     // Region containing POJOs
     RegionFactory<String, User> userRegionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
     userRegionFactory.setCacheLoader(new UserDataStoreCacheLoader());
-    Region<String, User> users = userRegionFactory.create("Users");
+    var users = userRegionFactory.create("Users");
 
     users.put("jonbloom", new User("jonbloom"));
     assertFalse(users.isEmpty());
@@ -84,14 +82,14 @@ public class GetCommandIntegrationTest {
     RegionFactory<String, PdxInstance> userPdxRegionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
     userPdxRegionFactory.setCacheLoader(new UserPdxDataStoreCacheLoader(cache));
-    Region<String, PdxInstance> pdxRegion = userPdxRegionFactory.create("UsersPdx");
+    var pdxRegion = userPdxRegionFactory.create("UsersPdx");
     pdxRegion.put("jonbloom", makePdxInstance(new User("jonbloom"), cache));
 
     // Region containing primitives
     RegionFactory<String, String> userStringRegionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
     userStringRegionFactory.setCacheLoader(new UserStringDataStoreCacheLoader());
-    Region<String, String> usersString = userStringRegionFactory.create("UsersString");
+    var usersString = userStringRegionFactory.create("UsersString");
 
     usersString.put("jonbloom", "6a6f6e626c6f6f6d");
     assertFalse(usersString.isEmpty());
@@ -216,10 +214,10 @@ public class GetCommandIntegrationTest {
     }
 
     public String getHashcode() {
-      StringBuilder sb = new StringBuilder(username.getBytes().length * 2);
+      var sb = new StringBuilder(username.getBytes().length * 2);
 
-      Formatter formatter = new Formatter(sb);
-      for (byte b : username.getBytes()) {
+      var formatter = new Formatter(sb);
+      for (var b : username.getBytes()) {
         formatter.format("%02x", b);
       }
 
@@ -236,7 +234,7 @@ public class GetCommandIntegrationTest {
         return false;
       }
 
-      User that = (User) obj;
+      var that = (User) obj;
 
       return getUsername().equals(that.getUsername());
     }
@@ -264,7 +262,7 @@ public class GetCommandIntegrationTest {
     @Override
     public PdxInstance load(final LoaderHelper<String, PdxInstance> helper)
         throws CacheLoaderException {
-      User user = userDataStore.get(helper.getKey());
+      var user = userDataStore.get(helper.getKey());
       if (user == null) {
         return null;
       }
@@ -281,7 +279,7 @@ public class GetCommandIntegrationTest {
 
     @Override
     public String load(final LoaderHelper<String, String> helper) throws CacheLoaderException {
-      User user = userDataStore.get(helper.getKey());
+      var user = userDataStore.get(helper.getKey());
       if (user == null) {
         return null;
       }
@@ -294,7 +292,7 @@ public class GetCommandIntegrationTest {
   }
 
   private static PdxInstance makePdxInstance(User user, InternalCache cache) {
-    PdxInstanceFactory pf = PdxInstanceFactoryImpl.newCreator("User", false, cache);
+    var pf = PdxInstanceFactoryImpl.newCreator("User", false, cache);
     pf.writeString("username", user.getUsername());
     pf.writeString("hashcode", user.getHashcode());
     return pf.create();

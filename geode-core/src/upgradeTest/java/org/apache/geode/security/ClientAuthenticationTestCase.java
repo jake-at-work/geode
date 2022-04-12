@@ -52,14 +52,12 @@ import javax.net.ssl.SSLHandshakeException;
 import org.junit.Assert;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.cache.client.internal.ExecutablePool;
 import org.apache.geode.cache.client.internal.RegisterDataSerializersOp;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.security.generator.CredentialGenerator;
 import org.apache.geode.security.generator.DummyCredentialGenerator;
@@ -119,7 +117,7 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     server1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
     server2 = host.getVM(VersionManager.CURRENT_VERSION, 1);
     server1.invoke(() -> ServerConnection.allowInternalMessagesWithoutCredentials = false);
@@ -150,10 +148,10 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   protected void doTestValidCredentials(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    Properties javaProps = gen.getJavaProperties();
-    String authenticator = gen.getAuthenticator();
-    String authInit = gen.getAuthInit();
+    var extraProps = gen.getSystemProperties();
+    var javaProps = gen.getJavaProperties();
+    var authenticator = gen.getAuthenticator();
+    var authInit = gen.getAuthInit();
 
     getLogWriter().info("testValidCredentials: Using scheme: " + gen.classCode());
     getLogWriter().info("testValidCredentials: Using authenticator: " + authenticator);
@@ -166,14 +164,14 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
         .invoke(() -> createCacheServer(authenticator, extraProps, javaProps));
 
     // Start the clients with valid credentials
-    Properties credentials1 = gen.getValidCredentials(1);
-    Properties javaProps1 = gen.getJavaProperties();
+    var credentials1 = gen.getValidCredentials(1);
+    var javaProps1 = gen.getJavaProperties();
 
     getLogWriter().info(
         "testValidCredentials: For first client credentials: " + credentials1 + " : " + javaProps1);
 
-    Properties credentials2 = gen.getValidCredentials(2);
-    Properties javaProps2 = gen.getJavaProperties();
+    var credentials2 = gen.getValidCredentials(2);
+    var javaProps2 = gen.getJavaProperties();
 
     getLogWriter().info("testValidCredentials: For second client credentials: " + credentials2
         + " : " + javaProps2);
@@ -203,23 +201,23 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   protected void doTestNoCredentials(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    Properties javaProps = gen.getJavaProperties();
-    String authenticator = gen.getAuthenticator();
-    String authInit = gen.getAuthInit();
+    var extraProps = gen.getSystemProperties();
+    var javaProps = gen.getJavaProperties();
+    var authenticator = gen.getAuthenticator();
+    var authInit = gen.getAuthInit();
 
     getLogWriter().info("testNoCredentials: Using scheme: " + gen.classCode());
     getLogWriter().info("testNoCredentials: Using authenticator: " + authenticator);
     getLogWriter().info("testNoCredentials: Using authinit: " + authInit);
 
     // Start the servers
-    int port1 = createServer1(extraProps, javaProps, authenticator);
+    var port1 = createServer1(extraProps, javaProps, authenticator);
     int port2 = server2
         .invoke(() -> createCacheServer(authenticator, extraProps, javaProps));
 
     // Start first client with valid credentials
-    Properties credentials1 = gen.getValidCredentials(1);
-    Properties javaProps1 = gen.getJavaProperties();
+    var credentials1 = gen.getValidCredentials(1);
+    var javaProps1 = gen.getJavaProperties();
 
     getLogWriter().info(
         "testNoCredentials: For first client credentials: " + credentials1 + " : " + javaProps1);
@@ -246,19 +244,19 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   protected void doTestNoCredentialsCantRegisterMetadata(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    Properties javaProps = gen.getJavaProperties();
-    String authenticator = gen.getAuthenticator();
-    String authInit = gen.getAuthInit();
+    var extraProps = gen.getSystemProperties();
+    var javaProps = gen.getJavaProperties();
+    var authenticator = gen.getAuthenticator();
+    var authInit = gen.getAuthInit();
 
     // Start the servers
-    int port1 = createServer1(extraProps, javaProps, authenticator);
+    var port1 = createServer1(extraProps, javaProps, authenticator);
     int port2 = server2
         .invoke(() -> createCacheServer(authenticator, extraProps, javaProps));
 
     // Start first client with valid credentials
-    Properties credentials1 = gen.getValidCredentials(1);
-    Properties javaProps1 = gen.getJavaProperties();
+    var credentials1 = gen.getValidCredentials(1);
+    var javaProps1 = gen.getJavaProperties();
 
     createClient1NoException(multiUser, authInit, port1, port2, credentials1, javaProps1);
 
@@ -277,7 +275,7 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
       // Try to register a PDX type with the server
       client1.invoke("register a PDX type", () -> {
-        HeapDataOutputStream outputStream = new HeapDataOutputStream(new byte[100]);
+        var outputStream = new HeapDataOutputStream(new byte[100]);
         try {
           DataSerializer.writeObject(new Employee(106l, "David", "Copperfield"), outputStream);
           throw new Error("operation should have been rejected");
@@ -293,8 +291,8 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
       // Try to register a DataSerializer with the server
       client2.invoke("register a data serializer", () -> {
-        EventID eventId = InternalDataSerializer.generateEventId();
-        Pool pool = PoolManager.getAll().values().iterator().next();
+        var eventId = InternalDataSerializer.generateEventId();
+        var pool = PoolManager.getAll().values().iterator().next();
         try {
           RegisterDataSerializersOp.execute((ExecutablePool) pool,
               new DataSerializer[] {new MyDataSerializer()}, eventId);
@@ -311,23 +309,23 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   protected void doTestInvalidCredentials(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    Properties javaProps = gen.getJavaProperties();
-    String authenticator = gen.getAuthenticator();
-    String authInit = gen.getAuthInit();
+    var extraProps = gen.getSystemProperties();
+    var javaProps = gen.getJavaProperties();
+    var authenticator = gen.getAuthenticator();
+    var authInit = gen.getAuthInit();
 
     getLogWriter().info("testInvalidCredentials: Using scheme: " + gen.classCode());
     getLogWriter().info("testInvalidCredentials: Using authenticator: " + authenticator);
     getLogWriter().info("testInvalidCredentials: Using authinit: " + authInit);
 
     // Start the servers
-    int port1 = createServer1(extraProps, javaProps, authenticator);
+    var port1 = createServer1(extraProps, javaProps, authenticator);
     int port2 = server2
         .invoke(() -> createCacheServer(authenticator, extraProps, javaProps));
 
     // Start first client with valid credentials
-    Properties credentials1 = gen.getValidCredentials(1);
-    Properties javaProps1 = gen.getJavaProperties();
+    var credentials1 = gen.getValidCredentials(1);
+    var javaProps1 = gen.getJavaProperties();
     getLogWriter().info("testInvalidCredentials: For first client credentials: " + credentials1
         + " : " + javaProps1);
 
@@ -341,8 +339,8 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
     // Start second client with invalid credentials
     // Trying to create the region on client2 should throw a security
     // exception
-    Properties credentials2 = gen.getInvalidCredentials(1);
-    Properties javaProps2 = gen.getJavaProperties();
+    var credentials2 = gen.getInvalidCredentials(1);
+    var javaProps2 = gen.getJavaProperties();
     getLogWriter().info("testInvalidCredentials: For second client credentials: " + credentials2
         + " : " + javaProps2);
 
@@ -352,16 +350,16 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   protected void doTestInvalidAuthInit(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    final Properties javaProps = gen.getJavaProperties();
-    String authenticator = gen.getAuthenticator();
+    var extraProps = gen.getSystemProperties();
+    final var javaProps = gen.getJavaProperties();
+    var authenticator = gen.getAuthenticator();
 
     getLogWriter().info("testInvalidAuthInit: Using scheme: " + gen.classCode());
     getLogWriter().info("testInvalidAuthInit: Using authenticator: " + authenticator);
 
     // Start the server
-    int port1 = createServer1(extraProps, javaProps, authenticator);
-    Properties credentials = gen.getValidCredentials(1);
+    var port1 = createServer1(extraProps, javaProps, authenticator);
+    var credentials = gen.getValidCredentials(1);
     getLogWriter().info(
         "testInvalidAuthInit: For first client credentials: " + credentials + " : " + javaProps);
 
@@ -371,26 +369,26 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   protected void doTestNoAuthInitWithCredentials(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    Properties javaProps = gen.getJavaProperties();
-    String authenticator = gen.getAuthenticator();
+    var extraProps = gen.getSystemProperties();
+    var javaProps = gen.getJavaProperties();
+    var authenticator = gen.getAuthenticator();
 
     getLogWriter().info("testNoAuthInitWithCredentials: Using scheme: " + gen.classCode());
     getLogWriter().info("testNoAuthInitWithCredentials: Using authenticator: " + authenticator);
 
     // Start the servers
-    int port1 = createServer1(extraProps, javaProps, authenticator);
+    var port1 = createServer1(extraProps, javaProps, authenticator);
     int port2 = server2
         .invoke(() -> createCacheServer(authenticator, extraProps, javaProps));
 
     // Start the clients with valid credentials
-    Properties credentials1 = gen.getValidCredentials(1);
-    Properties javaProps1 = gen.getJavaProperties();
+    var credentials1 = gen.getValidCredentials(1);
+    var javaProps1 = gen.getJavaProperties();
     getLogWriter().info("testNoAuthInitWithCredentials: For first client credentials: "
         + credentials1 + " : " + javaProps1);
 
-    Properties credentials2 = gen.getValidCredentials(2);
-    Properties javaProps2 = gen.getJavaProperties();
+    var credentials2 = gen.getValidCredentials(2);
+    var javaProps2 = gen.getJavaProperties();
     getLogWriter().info("testNoAuthInitWithCredentials: For second client credentials: "
         + credentials2 + " : " + javaProps2);
 
@@ -401,8 +399,8 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
     client2.invoke(() -> closeCache());
 
     // Now also try with invalid credentials
-    Properties credentials3 = gen.getInvalidCredentials(5);
-    Properties javaProps3 = gen.getJavaProperties();
+    var credentials3 = gen.getInvalidCredentials(5);
+    var javaProps3 = gen.getJavaProperties();
 
     client2.invoke(() -> createCacheClient(null, credentials3, javaProps3, port1, port2, 0,
         multiUser, AUTHREQ_EXCEPTION));
@@ -413,9 +411,9 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
    */
   protected void doTestInvalidAuthenticator(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    Properties javaProps = gen.getJavaProperties();
-    String authInit = gen.getAuthInit();
+    var extraProps = gen.getSystemProperties();
+    var javaProps = gen.getJavaProperties();
+    var authInit = gen.getAuthInit();
 
     getLogWriter().info("testInvalidAuthenticator: Using scheme: " + gen.classCode());
     getLogWriter().info("testInvalidAuthenticator: Using authinit: " + authInit);
@@ -427,10 +425,10 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   protected void doTestNoAuthenticatorWithCredentials(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    Properties javaProps = gen.getJavaProperties();
-    String authenticator = gen.getAuthenticator();
-    String authInit = gen.getAuthInit();
+    var extraProps = gen.getSystemProperties();
+    var javaProps = gen.getJavaProperties();
+    var authenticator = gen.getAuthenticator();
+    var authInit = gen.getAuthInit();
 
     getLogWriter().info("testNoAuthenticatorWithCredentials: Using scheme: " + gen.classCode());
     getLogWriter().info("testNoAuthenticatorWithCredentials: Using authinit: " + authInit);
@@ -443,13 +441,13 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
     // Clients should connect successfully and work properly with
     // valid/invalid credentials when none are required on the server side
-    Properties credentials1 = gen.getValidCredentials(3);
-    Properties javaProps1 = gen.getJavaProperties();
+    var credentials1 = gen.getValidCredentials(3);
+    var javaProps1 = gen.getJavaProperties();
     getLogWriter().info("testNoAuthenticatorWithCredentials: For first client credentials: "
         + credentials1 + " : " + javaProps1);
 
-    Properties credentials2 = gen.getInvalidCredentials(5);
-    Properties javaProps2 = gen.getJavaProperties();
+    var credentials2 = gen.getInvalidCredentials(5);
+    var javaProps2 = gen.getJavaProperties();
     getLogWriter().info("testNoAuthenticatorWithCredentials: For second client credentials: "
         + credentials2 + " : " + javaProps2);
 
@@ -465,10 +463,10 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   protected void doTestCredentialsWithFailover(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    Properties javaProps = gen.getJavaProperties();
-    String authenticator = gen.getAuthenticator();
-    String authInit = gen.getAuthInit();
+    var extraProps = gen.getSystemProperties();
+    var javaProps = gen.getJavaProperties();
+    var authenticator = gen.getAuthenticator();
+    var authInit = gen.getAuthInit();
 
     getLogWriter().info("testCredentialsWithFailover: Using scheme: " + gen.classCode());
     getLogWriter().info("testCredentialsWithFailover: Using authenticator: " + authenticator);
@@ -480,16 +478,16 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
     // Get a port for second server but do not start it
     // This forces the clients to connect to the first server
-    int port2 = getRandomAvailableTCPPort();
+    var port2 = getRandomAvailableTCPPort();
 
     // Start the clients with valid credentials
-    Properties credentials1 = gen.getValidCredentials(5);
-    Properties javaProps1 = gen.getJavaProperties();
+    var credentials1 = gen.getValidCredentials(5);
+    var javaProps1 = gen.getJavaProperties();
     getLogWriter().info("testCredentialsWithFailover: For first client credentials: " + credentials1
         + " : " + javaProps1);
 
-    Properties credentials2 = gen.getValidCredentials(6);
-    Properties javaProps2 = gen.getJavaProperties();
+    var credentials2 = gen.getValidCredentials(6);
+    var javaProps2 = gen.getJavaProperties();
     getLogWriter().info("testCredentialsWithFailover: For second client credentials: "
         + credentials2 + " : " + javaProps2);
 
@@ -528,8 +526,8 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
     // Now try to connect client1 with invalid credentials
     // Verify that the creation of region throws security exception
-    Properties credentials3 = gen.getInvalidCredentials(7);
-    Properties javaProps3 = gen.getJavaProperties();
+    var credentials3 = gen.getInvalidCredentials(7);
+    var javaProps3 = gen.getJavaProperties();
     getLogWriter().info("testCredentialsWithFailover: For first client invalid credentials: "
         + credentials3 + " : " + javaProps3);
 
@@ -546,10 +544,10 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
   protected void doTestCredentialsForNotifications(final boolean multiUser) throws Exception {
     CredentialGenerator gen = new DummyCredentialGenerator();
-    Properties extraProps = gen.getSystemProperties();
-    Properties javaProps = gen.getJavaProperties();
-    String authenticator = gen.getAuthenticator();
-    String authInit = gen.getAuthInit();
+    var extraProps = gen.getSystemProperties();
+    var javaProps = gen.getJavaProperties();
+    var authenticator = gen.getAuthenticator();
+    var authInit = gen.getAuthInit();
 
     getLogWriter().info("testCredentialsForNotifications: Using scheme: " + gen.classCode());
     getLogWriter().info("testCredentialsForNotifications: Using authenticator: " + authenticator);
@@ -561,23 +559,23 @@ public abstract class ClientAuthenticationTestCase extends JUnit4DistributedTest
 
     // Get a port for second server but do not start it
     // This forces the clients to connect to the first server
-    int port2 = getRandomAvailableTCPPort();
+    var port2 = getRandomAvailableTCPPort();
 
     // Start the clients with valid credentials
-    Properties credentials1 = gen.getValidCredentials(3);
-    Properties javaProps1 = gen.getJavaProperties();
+    var credentials1 = gen.getValidCredentials(3);
+    var javaProps1 = gen.getJavaProperties();
     getLogWriter().info("testCredentialsForNotifications: For first client credentials: "
         + credentials1 + " : " + javaProps1);
 
-    Properties credentials2 = gen.getValidCredentials(4);
-    Properties javaProps2 = gen.getJavaProperties();
+    var credentials2 = gen.getValidCredentials(4);
+    var javaProps2 = gen.getJavaProperties();
     getLogWriter().info("testCredentialsForNotifications: For second client credentials: "
         + credentials2 + " : " + javaProps2);
 
     createClient1NoException(multiUser, authInit, port1, port2, credentials1, javaProps1);
 
     // Set up zero forward connections to check notification handshake only
-    int zeroConns = 0;
+    var zeroConns = 0;
     createClient2NoException(multiUser, authInit, port1, port2, credentials2, javaProps2,
         zeroConns);
 

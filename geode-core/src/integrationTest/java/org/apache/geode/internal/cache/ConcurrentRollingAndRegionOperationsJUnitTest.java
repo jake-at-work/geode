@@ -153,7 +153,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
       logWriter.error("Exception occurred", e);
       throw new AssertionError("failed while trying to destroy due to ", e);
     }
-    boolean entryNotFound = false;
+    var entryNotFound = false;
     try {
       getValueOnDisk(region);
     } catch (EntryNotFoundException e) {
@@ -197,7 +197,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
       }
     }
     region.clear();
-    boolean entryNotFound = false;
+    var entryNotFound = false;
     try {
       getValueOnDisk(region);
     } catch (EntryNotFoundException e) {
@@ -315,7 +315,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
       logWriter.error("Exception occurred", e1);
       throw new AssertionError("encounter exception when not expected ", e1);
     }
-    boolean entryNotFound = false;
+    var entryNotFound = false;
     try {
       getValueOnDisk(region);
     } catch (EntryNotFoundException e) {
@@ -358,7 +358,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
       }
     }
     region.clear();
-    boolean entryNotFound = false;
+    var entryNotFound = false;
     try {
       getValueOnDisk(region);
     } catch (EntryNotFoundException e) {
@@ -388,14 +388,14 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   }
 
   Object getValueInHTree(Region region) {
-    RegionEntry re = ((LocalRegion) region).basicGetEntry("Key");
+    var re = ((LocalRegion) region).basicGetEntry("Key");
     return ((LocalRegion) region).getDiskRegion().getNoBuffer(((DiskEntry) re).getDiskId());
   }
 
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testSyncPutBeforeRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -409,7 +409,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testAsyncPutBeforeRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -422,7 +422,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testSyncPutAfterRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -436,7 +436,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testAsyncPutAfterRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -449,7 +449,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testSyncGetBeforeRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -463,7 +463,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testAsyncGetBeforeRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -476,7 +476,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testSyncGetAfterRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -490,7 +490,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testAsyncGetAfterRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -503,7 +503,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testSyncClearBeforeRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -517,7 +517,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testAsyncClearBeforeRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -530,7 +530,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testSyncClearAfterRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -544,7 +544,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testAsyncClearAfterRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -557,7 +557,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testSyncDelBeforeRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -571,7 +571,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testAsyncDelBeforeRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -584,7 +584,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testSyncDelAfterRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -598,7 +598,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testAsyncDelAfterRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -611,7 +611,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testCloseBeforeRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -624,7 +624,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testCloseAfterRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -640,7 +640,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
   @Ignore("TODO:DARREL_DISABLE: test is disabled")
   @Test
   public void testconcurrentPutAndRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -661,12 +661,12 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
 
       @Override
       public void beforeGoingToCompact() {
-        final Object obj = new Object();
-        Thread thread1 = new Thread() {
+        final var obj = new Object();
+        var thread1 = new Thread() {
 
           @Override
           public void run() {
-            RegionEntry re = ((LocalRegion) region).basicGetEntry("Key");
+            var re = ((LocalRegion) region).basicGetEntry("Key");
 
             synchronized (re) {
               synchronized (obj) {
@@ -738,28 +738,28 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
    */
   @Test
   public void testConcurrentRollingAndGet() {
-    final int MAX_OPLOG_SIZE = 1000 * 2;
-    DiskRegionProperties diskProps = new DiskRegionProperties();
+    final var MAX_OPLOG_SIZE = 1000 * 2;
+    var diskProps = new DiskRegionProperties();
     diskProps.setMaxOplogSize(MAX_OPLOG_SIZE);
     diskProps.setPersistBackup(true);
     diskProps.setRolling(true);
     diskProps.setCompactionThreshold(100);
     diskProps.setSynchronous(true);
     diskProps.setOverflow(false);
-    final int TOTAL_SWITCHING = 200;
-    final int TOTAL_KEYS = 20;
+    final var TOTAL_SWITCHING = 200;
+    final var TOTAL_KEYS = 20;
 
     final List threads = new ArrayList();
-    final byte[] val = new byte[100];
+    final var val = new byte[100];
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, diskProps, Scope.LOCAL);
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = false;
 
-    CacheObserver old = CacheObserverHolder.setInstance(new CacheObserverAdapter() {
+    var old = CacheObserverHolder.setInstance(new CacheObserverAdapter() {
       @Override
       public void beforeGoingToCompact() {
-        for (int k = 0; k < TOTAL_KEYS; ++k) {
-          final int num = k;
-          Thread th = new Thread(() -> {
+        for (var k = 0; k < TOTAL_KEYS; ++k) {
+          final var num = k;
+          var th = new Thread(() -> {
 
             byte[] val_on_disk = null;
             try {
@@ -778,7 +778,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
           });
           threads.add(th);
         }
-        for (int j = 0; j < TOTAL_KEYS; ++j) {
+        for (var j = 0; j < TOTAL_KEYS; ++j) {
           ((Thread) threads.get(rollingCount++)).start();
         }
 
@@ -786,8 +786,8 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
 
     });
 
-    for (int i = 0; i < TOTAL_SWITCHING; ++i) {
-      for (int j = 0; j < TOTAL_KEYS; ++j) {
+    for (var i = 0; i < TOTAL_SWITCHING; ++i) {
+      for (var j = 0; j < TOTAL_KEYS; ++j) {
         region.put("key" + (j + 1), val);
 
       }
@@ -801,8 +801,8 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
     }
 
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = false;
-    for (Object thread : threads) {
-      Thread th = (Thread) thread;
+    for (var thread : threads) {
+      var th = (Thread) thread;
       if (th != null) {
         ThreadUtils.join(th, 30 * 1000);
       }
@@ -823,7 +823,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
 
   void closeAfterRoll(final Region region) {
     hasBeenNotified = false;
-    final Close th = new Close(region);
+    final var th = new Close(region);
     CacheObserverHolder.setInstance(new CacheObserverAdapter() {
 
       @Override
@@ -861,7 +861,7 @@ public class ConcurrentRollingAndRegionOperationsJUnitTest extends DiskRegionTes
 
   void closeBeforeRoll(final Region region) {
     hasBeenNotified = false;
-    final Close th = new Close(region);
+    final var th = new Close(region);
     CacheObserverHolder.setInstance(new CacheObserverAdapter() {
 
       @Override

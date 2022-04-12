@@ -36,21 +36,18 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.proxy.ProxySocketFactories;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqExistsException;
 import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.rules.DockerComposeRule;
 
@@ -77,7 +74,7 @@ public class ClientSNICQAcceptanceTest {
 
     @Override
     public void onEvent(CqEvent cqEvent) {
-      Operation queryOperation = cqEvent.getQueryOperation();
+      var queryOperation = cqEvent.getQueryOperation();
       if (queryOperation.isUpdate()) {
         eventUpdateCounter.incrementAndGet();
       } else if (queryOperation.isCreate()) {
@@ -108,13 +105,13 @@ public class ClientSNICQAcceptanceTest {
   }
 
   private static void printlog(String name) {
-    String output = docker.execForService("geode", "cat", name + "/" + name + ".log");
+    var output = docker.execForService("geode", "cat", name + "/" + name + ".log");
     System.out.println(name + " log file--------------------------------\n" + output);
   }
 
   @Before
   public void before() throws Exception {
-    Properties gemFireProps = new Properties();
+    var gemFireProps = new Properties();
     gemFireProps.setProperty(SSL_ENABLED_COMPONENTS, "all");
     gemFireProps.setProperty(SSL_KEYSTORE_TYPE, "jks");
     gemFireProps.setProperty(SSL_REQUIRE_AUTHENTICATION, "false");
@@ -166,7 +163,7 @@ public class ClientSNICQAcceptanceTest {
     // the CQ has been closed. StatArchiveReader has a main() that we can use to get a printout
     // of stat values
     await().untilAsserted(() -> {
-      String stats = docker.execForService("geode",
+      var stats = docker.execForService("geode",
           "java", "-cp", "/geode/lib/geode-dependencies.jar",
           "org.apache.geode.internal.statistics.StatArchiveReader",
           "stat", "server-dolores/statArchive.gfs", "CqServiceStats.numCqsClosed");
@@ -178,29 +175,29 @@ public class ClientSNICQAcceptanceTest {
 
   public void updateRegion(Region<String, Integer> region) {
     for (Integer i = 0; i < 100; ++i) {
-      String key = "key" + i;
+      var key = "key" + i;
       region.put(key, (i + 10));
     }
   }
 
   public void populateRegion(Region<String, Integer> region) {
     for (Integer i = 0; i < 100; ++i) {
-      String key = "key" + i;
+      var key = "key" + i;
       region.put(key, i);
     }
   }
 
   public void startCQ(Region<String, Integer> region)
       throws CqExistsException, CqException, RegionNotFoundException {
-    CqAttributesFactory cqf = new CqAttributesFactory();
+    var cqf = new CqAttributesFactory();
     cqf.addCqListener(new SNICQListener());
-    CqAttributes cqa = cqf.create();
+    var cqa = cqf.create();
 
-    String cqName = "jellyTracker";
+    var cqName = "jellyTracker";
 
-    String queryStr = "SELECT * FROM " + SEPARATOR + "jellyfish i where i > 37";
+    var queryStr = "SELECT * FROM " + SEPARATOR + "jellyfish i where i > 37";
 
-    QueryService queryService = region.getRegionService().getQueryService();
+    var queryService = region.getRegionService().getQueryService();
     cqTracker = queryService.newCq(cqName, queryStr, cqa);
     cqTracker.execute();
   }

@@ -24,13 +24,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.Locator;
-import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.admin.ClientHealthMonitoringRegion;
@@ -285,7 +282,7 @@ public class GemFireMemberStatus implements Serializable {
   }
 
   public int getClientQueueSize(String clientMemberId) {
-    Integer clientQueueSize = (Integer) getClientQueueSizes().get(clientMemberId);
+    var clientQueueSize = (Integer) getClientQueueSizes().get(clientMemberId);
     return clientQueueSize == null ? 0 : clientQueueSize;
   }
 
@@ -510,31 +507,31 @@ public class GemFireMemberStatus implements Serializable {
       // The following method returns a map of client member id to a cache
       // client info. For now, keep track of the member ids in the set of
       // _connectedClients.
-      Map allConnectedClients =
+      var allConnectedClients =
           InternalClientMembership.getStatusForAllClientsIgnoreSubscriptionStatus();
-      for (final Object o : allConnectedClients.values()) {
-        CacheClientStatus ccs = (CacheClientStatus) o;
+      for (final var o : allConnectedClients.values()) {
+        var ccs = (CacheClientStatus) o;
         addConnectedClient(ccs.getMemberId());
         // host address is available directly by id, hence CacheClientStatus need not be populated
         putClientHostName(ccs.getMemberId(), ccs.getHostAddress());
       }
 
       // Get client queue sizes
-      Map clientQueueSize =
+      var clientQueueSize =
           getClientIDMap(InternalClientMembership.getClientQueueSizes((InternalCache) cache));
       setClientQueueSizes(clientQueueSize);
 
       // Set server acceptor port (set it based on the first CacheServer)
-      CacheServer server = (CacheServer) servers.toArray()[0];
+      var server = (CacheServer) servers.toArray()[0];
       setServerPort(server.getPort());
 
       // Get Client Health Stats
-      Region clientHealthMonitoringRegion =
+      var clientHealthMonitoringRegion =
           ClientHealthMonitoringRegion.getInstance((InternalCache) cache);
       if (clientHealthMonitoringRegion != null) {
-        String[] clients = (String[]) clientHealthMonitoringRegion.keySet().toArray(new String[0]);
-        for (String clientId : clients) {
-          ClientHealthStats stats = (ClientHealthStats) clientHealthMonitoringRegion.get(clientId);
+        var clients = (String[]) clientHealthMonitoringRegion.keySet().toArray(new String[0]);
+        for (var clientId : clients) {
+          var stats = (ClientHealthStats) clientHealthMonitoringRegion.get(clientId);
           setClientHealthStats(clientId, stats);
         }
       }
@@ -548,11 +545,11 @@ public class GemFireMemberStatus implements Serializable {
    */
   private Map getClientIDMap(Map ClientProxyMembershipIDMap) {
     Map clientIdMap = new HashMap();
-    Set entrySet = ClientProxyMembershipIDMap.entrySet();
-    for (final Object o : entrySet) {
-      Map.Entry entry = (Map.Entry) o;
-      ClientProxyMembershipID key = (ClientProxyMembershipID) entry.getKey();
-      Integer size = (Integer) entry.getValue();
+    var entrySet = ClientProxyMembershipIDMap.entrySet();
+    for (final var o : entrySet) {
+      var entry = (Map.Entry) o;
+      var key = (ClientProxyMembershipID) entry.getKey();
+      var size = (Integer) entry.getValue();
       clientIdMap.put(key.getDSMembership(), size);
     }
     return clientIdMap;
@@ -572,11 +569,11 @@ public class GemFireMemberStatus implements Serializable {
       // the logical connections for that server will be 0. For now, keep track
       // of the keys (server names) of this map in the sets of _connectedServers
       // and _unconnectedServers.
-      Map connectedServers = InternalClientMembership.getConnectedServers();
+      var connectedServers = InternalClientMembership.getConnectedServers();
       if (!connectedServers.isEmpty()) {
-        for (final Object o : connectedServers.entrySet()) {
-          Map.Entry entry = (Map.Entry) o;
-          String server = (String) entry.getKey();
+        for (final var o : connectedServers.entrySet()) {
+          var entry = (Map.Entry) o;
+          var server = (String) entry.getKey();
           addConnectedServer(server);
         }
       }
@@ -598,13 +595,13 @@ public class GemFireMemberStatus implements Serializable {
   }
 
   protected void initializeDistributedSystem(DistributedSystem distributedSystem) {
-    InternalDistributedSystem ids = (InternalDistributedSystem) distributedSystem;
+    var ids = (InternalDistributedSystem) distributedSystem;
     setMemberId(ids.getMemberId());
-    DistributionConfig config = ids.getConfig();
+    var config = ids.getConfig();
     setMemberName(config.getName());
     setMcastPort(config.getMcastPort());
     setMcastAddress(config.getMcastAddress());
-    String bindAddress = config.getBindAddress();
+    var bindAddress = config.getBindAddress();
     setBindAddress(bindAddress);
     setLocators(config.getLocators());
     setUpTime(System.currentTimeMillis() - ids.getStartTime());
@@ -616,35 +613,35 @@ public class GemFireMemberStatus implements Serializable {
   }
 
   protected void initializePeers(DistributedSystem distributedSystem) {
-    InternalDistributedSystem ids = (InternalDistributedSystem) distributedSystem;
-    DistributionManager dm = ids.getDistributionManager();
+    var ids = (InternalDistributedSystem) distributedSystem;
+    var dm = ids.getDistributionManager();
     Set connections = dm.getOtherNormalDistributionManagerIds();
     Set connectionsIDs = new HashSet(connections.size());
-    for (final Object connection : connections) {
-      InternalDistributedMember idm = (InternalDistributedMember) connection;
+    for (final var connection : connections) {
+      var idm = (InternalDistributedMember) connection;
       connectionsIDs.add(idm.getId());
     }
     setConnectedPeers(connectionsIDs);
   }
 
   protected void initializeMemory() {
-    Runtime rt = Runtime.getRuntime();
+    var rt = Runtime.getRuntime();
     setMaximumHeapSize(rt.maxMemory());
     setFreeHeapSize(rt.freeMemory());
   }
 
   protected void initializeRegionSizes() {
 
-    for (final Region<?, ?> region : cache.rootRegions()) {
-      LocalRegion rootRegion = (LocalRegion) region;
+    for (final var region : cache.rootRegions()) {
+      var rootRegion = (LocalRegion) region;
       if (!(rootRegion instanceof HARegion)) {
-        RegionStatus rootRegionStatus = rootRegion instanceof PartitionedRegion
+        var rootRegionStatus = rootRegion instanceof PartitionedRegion
             ? new PartitionedRegionStatus((PartitionedRegion) rootRegion)
             : new RegionStatus(rootRegion);
         putRegionStatus(rootRegion.getFullPath(), rootRegionStatus);
-        for (final Object o : rootRegion.subregions(true)) {
-          LocalRegion subRegion = (LocalRegion) o;
-          RegionStatus subRegionStatus = subRegion instanceof PartitionedRegion
+        for (final var o : rootRegion.subregions(true)) {
+          var subRegion = (LocalRegion) o;
+          var subRegionStatus = subRegion instanceof PartitionedRegion
               ? new PartitionedRegionStatus((PartitionedRegion) subRegion)
               : new RegionStatus(subRegion);
           putRegionStatus(subRegion.getFullPath(), subRegionStatus);

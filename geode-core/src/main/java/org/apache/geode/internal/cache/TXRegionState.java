@@ -98,15 +98,15 @@ public class TXRegionState {
 
   public TXEntryState createReadEntry(LocalRegion r, Object entryKey, RegionEntry re, Object vId,
       Object pendingValue) {
-    InternalCache cache = r.getCache();
-    boolean isDistributed = false;
+    var cache = r.getCache();
+    var isDistributed = false;
     if (cache.getTxManager().getTXState() != null) {
       isDistributed = cache.getTxManager().getTXState().isDistTx();
     } else {
       // TXCoordinator and datanode are same
       isDistributed = cache.getTxManager().isDistributed();
     }
-    TXEntryState result = cache.getTXEntryStateFactory().createEntry(re, vId, pendingValue,
+    var result = cache.getTXEntryStateFactory().createEntry(re, vId, pendingValue,
         entryKey, this, isDistributed);
     entryMods.put(entryKey, result);
     return result;
@@ -135,7 +135,7 @@ public class TXRegionState {
     if (uaMods == null) {
       uaMods = new HashMap();
     }
-    TXEntryUserAttrState result = (TXEntryUserAttrState) uaMods.get(entryKey);
+    var result = (TXEntryUserAttrState) uaMods.get(entryKey);
     if (result == null) {
       result = new TXEntryUserAttrState(r.basicGetEntryUserAttribute(entryKey));
       uaMods.put(entryKey, result);
@@ -158,8 +158,8 @@ public class TXRegionState {
    * count. The result will have a +1 for every create and a -1 for every destroy.
    */
   int entryCountMod() {
-    int result = 0;
-    for (final TXEntryState es : entryMods.values()) {
+    var result = 0;
+    for (final var es : entryMods.values()) {
       result += es.entryCountMod();
     }
     return result;
@@ -175,8 +175,8 @@ public class TXRegionState {
    * @param ret the HashSet to fill in with key objects
    */
   void fillInCreatedEntryKeys(HashSet ret) {
-    for (final Entry<Object, TXEntryState> me : entryMods.entrySet()) {
-      TXEntryState txes = me.getValue();
+    for (final var me : entryMods.entrySet()) {
+      var txes = me.getValue();
       if (txes.wasCreatedByTX()) {
         ret.add(me.getKey());
       }
@@ -199,8 +199,8 @@ public class TXRegionState {
       if (isCreatedDuringCommit()) {
         return;
       }
-      DistributedRegion dr = (DistributedRegion) r;
-      Set<InternalDistributedMember> advice = dr.getCacheDistributionAdvisor().adviseTX();
+      var dr = (DistributedRegion) r;
+      var advice = dr.getCacheDistributionAdvisor().adviseTX();
       if (!advice.isEmpty()) {
         otherMembers = advice; // remember for when it is time to distribute
       }
@@ -209,16 +209,16 @@ public class TXRegionState {
       TXState.logger.debug("TXRegionState.createLockRequest 2");
     }
     // Bypass D-lock for Pr TX
-    boolean byPassDLock = r instanceof BucketRegion;
+    var byPassDLock = r instanceof BucketRegion;
     // BucketRegion br = (BucketRegion)r;
     // if (br.getRedundancyLevel() < 2) {
     // }
-    final boolean distributedTX = !byPassDLock && r.getScope().isDistributedAck();
+    final var distributedTX = !byPassDLock && r.getScope().isDistributedAck();
     if (uaMods != null || (!distributedTX && entryMods.size() > 0)) {
       // need some local locks
-      TXRegionLockRequestImpl rlr = new TXRegionLockRequestImpl(r.getCache(), r);
+      var rlr = new TXRegionLockRequestImpl(r.getCache(), r);
       if (uaMods != null) {
-        for (final Object o : uaMods.keySet()) {
+        for (final var o : uaMods.keySet()) {
           // add key with isEvent set to TRUE, for keep BC
           rlr.addEntryKey(o, Boolean.TRUE);
         }
@@ -233,7 +233,7 @@ public class TXRegionState {
     }
     if (distributedTX && entryMods.size() > 0) {
       // need some distributed locks
-      TXRegionLockRequestImpl rlr = new TXRegionLockRequestImpl(r.getCache(), r);
+      var rlr = new TXRegionLockRequestImpl(r.getCache(), r);
       rlr.addEntryKeys(getLockRequestEntryKeys());
       if (!rlr.isEmpty()) {
         req.setOtherMembers(otherMembers);
@@ -249,8 +249,8 @@ public class TXRegionState {
    */
   private Map getLockRequestEntryKeys() {
     HashMap<Object, Boolean> result = null;
-    for (final Entry<Object, TXEntryState> objectTXEntryStateEntry : entryMods.entrySet()) {
-      TXEntryState txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
+    for (final var objectTXEntryStateEntry : entryMods.entrySet()) {
+      var txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
       if (txes.isDirty() && !txes.isOpSearch()) {
         if (result == null) {
           result = new HashMap();
@@ -266,18 +266,18 @@ public class TXRegionState {
       return;
     }
     {
-      for (final Entry<Object, TXEntryState> objectTXEntryStateEntry : entryMods.entrySet()) {
-        Object eKey = ((Entry) objectTXEntryStateEntry).getKey();
-        TXEntryState txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
+      for (final var objectTXEntryStateEntry : entryMods.entrySet()) {
+        var eKey = ((Entry) objectTXEntryStateEntry).getKey();
+        var txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
         txes.checkForConflict(r, eKey);
       }
     }
     if (uaMods != null) {
       r.checkReadiness();
-      for (final Object o : uaMods.entrySet()) {
-        Entry me = (Entry) o;
-        Object eKey = me.getKey();
-        TXEntryUserAttrState txes = (TXEntryUserAttrState) me.getValue();
+      for (final var o : uaMods.entrySet()) {
+        var me = (Entry) o;
+        var eKey = me.getKey();
+        var txes = (TXEntryUserAttrState) me.getValue();
         txes.checkForConflict(r, eKey);
       }
     }
@@ -292,9 +292,9 @@ public class TXRegionState {
     if (!entryMods.isEmpty()) {
       Iterator it = entryMods.entrySet().iterator();
       while (it.hasNext()) {
-        Map.Entry me = (Map.Entry) it.next();
+        var me = (Map.Entry) it.next();
         // Object eKey = me.getKey();
-        TXEntryState txes = (TXEntryState) me.getValue();
+        var txes = (TXEntryState) me.getValue();
         if (txes.cleanupNonDirty(r)) {
           it.remove();
         }
@@ -311,15 +311,15 @@ public class TXRegionState {
         Set<InternalDistributedMember> newMemberSet = new HashSet<>();
 
         if (r.getScope().isDistributed()) {
-          DistributedRegion dr = (DistributedRegion) r;
+          var dr = (DistributedRegion) r;
           msg.addViewVersion(dr, dr.getDistributionAdvisor().startOperation());
           newMemberSet.addAll(dr.getCacheDistributionAdvisor().adviseTX());
         }
 
         while (it.hasNext()) {
-          Map.Entry me = (Map.Entry) it.next();
-          Object eKey = me.getKey();
-          TXEntryState txes = (TXEntryState) me.getValue();
+          var me = (Map.Entry) it.next();
+          var eKey = me.getKey();
+          var txes = (TXEntryState) me.getValue();
           txes.buildMessage(r, eKey, msg);
           if (txes.getFilterRoutingInfo() != null) {
             newMemberSet.addAll(txes.getFilterRoutingInfo().getMembers());
@@ -361,9 +361,9 @@ public class TXRegionState {
         Set<InternalDistributedMember> newMemberSet = new HashSet<>();
 
         while (it.hasNext()) {
-          Map.Entry me = (Map.Entry) it.next();
-          Object eKey = me.getKey();
-          TXEntryState txes = (TXEntryState) me.getValue();
+          var me = (Map.Entry) it.next();
+          var eKey = me.getKey();
+          var txes = (TXEntryState) me.getValue();
           txes.buildMessage(r, eKey, msg);
           if (txes.getFilterRoutingInfo() != null) {
             newMemberSet.addAll(txes.getFilterRoutingInfo().getMembers());
@@ -401,9 +401,9 @@ public class TXRegionState {
     try {
       if (!entryMods.isEmpty()) {
         msg.startRegion(r, entryMods.size());
-        for (final Entry<Object, TXEntryState> objectTXEntryStateEntry : entryMods.entrySet()) {
-          Object eKey = ((Entry) objectTXEntryStateEntry).getKey();
-          TXEntryState txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
+        for (final var objectTXEntryStateEntry : entryMods.entrySet()) {
+          var eKey = ((Entry) objectTXEntryStateEntry).getKey();
+          var txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
           txes.buildCompleteMessage(r, eKey, msg);
         }
         msg.finishRegionComplete();
@@ -439,10 +439,10 @@ public class TXRegionState {
     try {
       try {
         if (uaMods != null) {
-          for (final Object o : uaMods.entrySet()) {
-            Entry me = (Entry) o;
-            Object eKey = me.getKey();
-            TXEntryUserAttrState txes = (TXEntryUserAttrState) me.getValue();
+          for (final var o : uaMods.entrySet()) {
+            var me = (Entry) o;
+            var eKey = me.getKey();
+            var txes = (TXEntryUserAttrState) me.getValue();
             txes.applyChanges(r, eKey);
           }
         }
@@ -462,9 +462,9 @@ public class TXRegionState {
 
   void getEvents(InternalRegion r, ArrayList events, TXState txs) {
     {
-      for (final Entry<Object, TXEntryState> objectTXEntryStateEntry : entryMods.entrySet()) {
-        Object eKey = ((Entry) objectTXEntryStateEntry).getKey();
-        TXEntryState txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
+      for (final var objectTXEntryStateEntry : entryMods.entrySet()) {
+        var eKey = ((Entry) objectTXEntryStateEntry).getKey();
+        var txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
         if (txes.isDirty() && txes.isOpAnyEvent(r)) {
           // OFFHEAP: these events are released when TXEvent.release is called
           events.add(txes.getEvent(r, eKey, txs));
@@ -478,9 +478,9 @@ public class TXRegionState {
    * TXEntryStateWithRegionAndKey.
    */
   void getEntries(ArrayList/* <TXEntryStateWithRegionAndKey> */ entries, InternalRegion r) {
-    for (final Entry<Object, TXEntryState> objectTXEntryStateEntry : entryMods.entrySet()) {
-      Object eKey = ((Entry) objectTXEntryStateEntry).getKey();
-      TXEntryState txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
+    for (final var objectTXEntryStateEntry : entryMods.entrySet()) {
+      var eKey = ((Entry) objectTXEntryStateEntry).getKey();
+      var txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
       entries.add(new TXState.TXEntryStateWithRegionAndKey(txes, r, eKey));
     }
   }
@@ -490,16 +490,16 @@ public class TXRegionState {
       return;
     }
     cleanedUp = true;
-    for (final TXEntryState es : entryMods.values()) {
+    for (final var es : entryMods.values()) {
       es.cleanup(r);
     }
     region.setInUseByTransaction(false);
   }
 
   int getChanges() {
-    int changes = 0;
-    for (final Entry<Object, TXEntryState> objectTXEntryStateEntry : entryMods.entrySet()) {
-      TXEntryState txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
+    var changes = 0;
+    for (final var objectTXEntryStateEntry : entryMods.entrySet()) {
+      var txes = (TXEntryState) ((Entry) objectTXEntryStateEntry).getValue();
       if (txes.isDirty()) {
         changes++;
       }
@@ -515,7 +515,7 @@ public class TXRegionState {
   }
 
   public void close() {
-    for (TXEntryState e : entryMods.values()) {
+    for (var e : entryMods.values()) {
       e.close();
     }
   }
@@ -543,14 +543,14 @@ public class TXRegionState {
   }
 
   public boolean populateDistTxEntryStateList(ArrayList<DistTxThinEntryState> entryStateList) {
-    String regionFullPath = getRegion().getFullPath();
+    var regionFullPath = getRegion().getFullPath();
     try {
       if (!entryMods.isEmpty()) {
         // [DISTTX] TODO Sort this first
-        for (Entry<Object, TXEntryState> em : entryMods.entrySet()) {
-          Object mKey = em.getKey();
-          TXEntryState txes = em.getValue();
-          DistTxThinEntryState thinEntryState = txes.getDistTxEntryStates();
+        for (var em : entryMods.entrySet()) {
+          var mKey = em.getKey();
+          var txes = em.getValue();
+          var thinEntryState = txes.getDistTxEntryStates();
           entryStateList.add(thinEntryState);
           if (logger.isDebugEnabled()) {
             logger.debug("TXRegionState.populateDistTxEntryStateList Added " + thinEntryState
@@ -576,9 +576,9 @@ public class TXRegionState {
   }
 
   public void setDistTxEntryStates(ArrayList<DistTxThinEntryState> entryEventList) {
-    String regionFullPath = getRegion().getFullPath();
-    int entryModsSize = entryMods.size();
-    int entryEventListSize = entryEventList.size();
+    var regionFullPath = getRegion().getFullPath();
+    var entryModsSize = entryMods.size();
+    var entryEventListSize = entryEventList.size();
     if (entryModsSize != entryEventListSize) {
       throw new UnsupportedOperationInTransactionException(
           String.format("Expected %s during a distributed transaction but got %s",
@@ -586,12 +586,12 @@ public class TXRegionState {
               entryEventListSize));
     }
 
-    int index = 0;
+    var index = 0;
     // [DISTTX] TODO Sort this first
-    for (Entry<Object, TXEntryState> em : entryMods.entrySet()) {
-      Object mKey = em.getKey();
-      TXEntryState txes = em.getValue();
-      DistTxThinEntryState thinEntryState = entryEventList.get(index++);
+    for (var em : entryMods.entrySet()) {
+      var mKey = em.getKey();
+      var txes = em.getValue();
+      var thinEntryState = entryEventList.get(index++);
       txes.setDistTxEntryStates(thinEntryState);
       if (logger.isDebugEnabled()) {
         logger.debug("TxRegionState.setDistTxEntryStates Added " + thinEntryState + " for key="

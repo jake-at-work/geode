@@ -31,9 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Rule;
@@ -45,11 +43,9 @@ import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.internal.InternalLocator;
@@ -78,7 +74,7 @@ import org.apache.geode.test.version.VersionManager;
 public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
   @Parameterized.Parameters(name = "from_v{0}")
   public static Collection data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
     } else {
@@ -102,7 +98,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
 
   void startLocator(int port, int distributedSystemId, String locators,
       String remoteLocators, boolean enableClusterConfiguration) throws IOException {
-    Properties props = getLocatorProperties(distributedSystemId, locators, remoteLocators,
+    var props = getLocatorProperties(distributedSystemId, locators, remoteLocators,
         enableClusterConfiguration);
     Locator.startLocatorAndDS(port, null, props);
   }
@@ -112,7 +108,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
     return new SerializableRunnable() {
       @Override
       public void run() throws Exception {
-        Properties props = getLocatorProperties(distributedSystemId, locators, remoteLocators);
+        var props = getLocatorProperties(distributedSystemId, locators, remoteLocators);
         props.put(JMX_MANAGER_PORT, String.valueOf(jmxManagerPort));
         props.put(JMX_MANAGER, "true");
         props.put(JMX_MANAGER_START, "true");
@@ -130,7 +126,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
 
   private Properties getLocatorProperties(int distributedSystemId, String locators,
       String remoteLocators, boolean enableClusterConfiguration) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(DISTRIBUTED_SYSTEM_ID, String.valueOf(distributedSystemId));
     props.setProperty(LOCATORS, locators);
@@ -157,7 +153,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
   VM rollLocatorToCurrent(VM rollLocator, int port, int distributedSystemId,
       String locators, String remoteLocators, boolean enableClusterConfiguration) {
     rollLocator.invoke(this::stopLocator);
-    VM newLocator = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, rollLocator.getId());
+    var newLocator = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, rollLocator.getId());
     newLocator.invoke(() -> startLocator(port, distributedSystemId, locators, remoteLocators,
         enableClusterConfiguration));
     return newLocator;
@@ -166,7 +162,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
   VM rollStartAndConfigureServerToCurrent(VM oldServer, String locators,
       int distributedSystem, String regionName, String senderId, int messageSyncInterval) {
     oldServer.invoke(JUnit4CacheTestCase::closeCache);
-    VM rollServer = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldServer.getId());
+    var rollServer = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldServer.getId());
     startAndConfigureServers(rollServer, null, locators, distributedSystem, regionName, senderId,
         messageSyncInterval);
     return rollServer;
@@ -183,7 +179,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
 
     // Start and configure server 1
     server1.invoke(() -> createCache(locators));
-    int server1Port = getRandomAvailableTCPPort();
+    var server1Port = getRandomAvailableTCPPort();
     server1.invoke(addCacheServer(server1Port));
     server1.invoke(() -> createGatewaySender(senderId, distributedSystem, messageSyncInterval));
     server1.invoke(this::createGatewayReceiver);
@@ -191,7 +187,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
 
     // Start and configure server 2 if necessary
     if (server2 != null) {
-      int server2Port = getRandomAvailableTCPPort();
+      var server2Port = getRandomAvailableTCPPort();
       server2.invoke(() -> createCache(locators));
       server2.invoke(addCacheServer(server2Port));
       server2.invoke(() -> createGatewaySender(senderId, distributedSystem, messageSyncInterval));
@@ -248,7 +244,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
   }
 
   String getCreateGatewaySenderCommand(String id, int remoteDsId) {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__ID, id);
     csb.addOption(CliStrings.CREATE_GATEWAYSENDER__REMOTEDISTRIBUTEDSYSTEMID,
         String.valueOf(remoteDsId));
@@ -261,7 +257,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
 
   public void createCache(String locators, boolean enableClusterConfiguration,
       boolean useClusterConfiguration) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ENABLE_CLUSTER_CONFIGURATION, String.valueOf(enableClusterConfiguration));
     props.setProperty(USE_CLUSTER_CONFIGURATION, String.valueOf(useClusterConfiguration));
     props.setProperty(MCAST_PORT, "0");
@@ -274,7 +270,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
     return new SerializableRunnable() {
       @Override
       public void run() throws Exception {
-        CacheServer server = getCache().addCacheServer();
+        var server = getCache().addCacheServer();
         server.setPort(port);
         server.start();
       }
@@ -282,8 +278,8 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void startClient(String hostName, int locatorPort, String regionName) {
-    ClientCacheFactory ccf = new ClientCacheFactory().addPoolLocator(hostName, locatorPort);
-    ClientCache cache = getClientCache(ccf);
+    var ccf = new ClientCacheFactory().addPoolLocator(hostName, locatorPort);
+    var cache = getClientCache(ccf);
     cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
   }
 
@@ -293,7 +289,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
     // events from the primary to the secondary. Setting it high prevents the events from being
     // removed from the secondary.
     BatchRemovalThreadHelper.setMessageSyncInterval(messageSyncInterval);
-    GatewaySenderFactory gsf = getCache().createGatewaySenderFactory();
+    var gsf = getCache().createGatewaySenderFactory();
     gsf.setParallel(true);
     gsf.create(id, remoteDistributedSystemId);
   }
@@ -316,7 +312,7 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createPartitionedRegion(String regionName, String gatewaySenderId) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(1);
     paf.setTotalNumBuckets(10);
     getCache().createRegionFactory(RegionShortcut.PARTITION_REDUNDANT)
@@ -326,19 +322,19 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
 
   protected void doPuts(String regionName, int numPuts) {
     Region region = getCache().getRegion(regionName);
-    for (int i = 0; i < numPuts; i++) {
+    for (var i = 0; i < numPuts; i++) {
       region.put(i, i);
     }
   }
 
   protected void pauseSender(String senderId) {
-    final IgnoredException exln = IgnoredException.addIgnoredException("Could not connect");
-    IgnoredException exp =
+    final var exln = IgnoredException.addIgnoredException("Could not connect");
+    var exp =
         IgnoredException.addIgnoredException(ForceReattemptException.class.getName());
     try {
-      Set<GatewaySender> senders = cache.getGatewaySenders();
+      var senders = cache.getGatewaySenders();
       GatewaySender sender = null;
-      for (GatewaySender s : senders) {
+      for (var s : senders) {
         if (s.getId().equals(senderId)) {
           sender = s;
           break;
@@ -354,13 +350,13 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void resumeSender(String senderId) {
-    final IgnoredException exln = IgnoredException.addIgnoredException("Could not connect");
-    IgnoredException exp =
+    final var exln = IgnoredException.addIgnoredException("Could not connect");
+    var exp =
         IgnoredException.addIgnoredException(ForceReattemptException.class.getName());
     try {
-      Set<GatewaySender> senders = cache.getGatewaySenders();
+      var senders = cache.getGatewaySenders();
       GatewaySender sender = null;
-      for (GatewaySender s : senders) {
+      for (var s : senders) {
         if (s.getId().equals(senderId)) {
           sender = s;
           break;
@@ -385,26 +381,26 @@ public abstract class WANRollingUpgradeDUnitTest extends JUnit4CacheTestCase {
     // underlying co-located region. Depending on the value of primaryOnly, it gets either the local
     // primary data set (just primary buckets) or all local data set (primary and secondary
     // buckets).
-    AbstractGatewaySender ags =
+    var ags =
         (AbstractGatewaySender) getCache().getGatewaySender(gatewaySenderId);
-    ConcurrentParallelGatewaySenderQueue prq =
+    var prq =
         (ConcurrentParallelGatewaySenderQueue) ags.getQueues().iterator().next();
-    Region region = prq.getRegion();
-    Region localDataSet = primaryOnly ? PartitionRegionHelper.getLocalPrimaryData(region)
+    var region = prq.getRegion();
+    var localDataSet = primaryOnly ? PartitionRegionHelper.getLocalPrimaryData(region)
         : PartitionRegionHelper.getLocalData(region);
     return localDataSet.size();
   }
 
   protected Integer getEventsReceived(String regionName) {
     Region region = getCache().getRegion(regionName);
-    EventCountCacheListener cl =
+    var cl =
         (EventCountCacheListener) region.getAttributes().getCacheListener();
     return cl.getEventsReceived();
   }
 
   protected void clearEventsReceived(String regionName) {
     Region region = getCache().getRegion(regionName);
-    EventCountCacheListener cl =
+    var cl =
         (EventCountCacheListener) region.getAttributes().getCacheListener();
     cl.clearEventsReceived();
   }

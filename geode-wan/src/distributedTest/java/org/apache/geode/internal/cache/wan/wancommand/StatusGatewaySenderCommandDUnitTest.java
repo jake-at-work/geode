@@ -25,7 +25,6 @@ import static org.apache.geode.internal.cache.wan.wancommand.WANCommandUtils.val
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -35,8 +34,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -63,7 +60,7 @@ public class StatusGatewaySenderCommandDUnitTest implements Serializable {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
 
@@ -114,15 +111,15 @@ public class StatusGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(() -> validateGatewaySenderMXBeanProxy(getMember(server3.getVM()),
         "ln_Parallel", false, false));
 
-    String command = CliStrings.STATUS_GATEWAYSENDER + " --" + CliStrings.STATUS_GATEWAYSENDER__ID
+    var command = CliStrings.STATUS_GATEWAYSENDER + " --" + CliStrings.STATUS_GATEWAYSENDER__ID
         + "=ln_Serial";
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
 
-    TabularResultModel tableResultData = cmdResult.getResultData()
+    var tableResultData = cmdResult.getResultData()
         .getTableSection(CliStrings.SECTION_GATEWAY_SENDER_AVAILABLE);
 
-    List<String> resultStatus = tableResultData.getValuesInColumn(CliStrings.RESULT_STATUS);
+    var resultStatus = tableResultData.getValuesInColumn(CliStrings.RESULT_STATUS);
     assertThat(resultStatus).hasSize(3);
     assertThat(resultStatus).doesNotContain(CliStrings.GATEWAY_RUNNING);
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
@@ -204,14 +201,14 @@ public class StatusGatewaySenderCommandDUnitTest implements Serializable {
         "ln_Parallel", false, false));
 
     DistributedMember server1DM = getMember(server1.getVM());
-    String command = CliStrings.STATUS_GATEWAYSENDER + " --" + CliStrings.STATUS_GATEWAYSENDER__ID
+    var command = CliStrings.STATUS_GATEWAYSENDER + " --" + CliStrings.STATUS_GATEWAYSENDER__ID
         + "=ln_Serial --" + CliStrings.MEMBER + "=" + server1DM.getId();
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
 
-    TabularResultModel tableResultData = cmdResult.getResultData()
+    var tableResultData = cmdResult.getResultData()
         .getTableSection(CliStrings.SECTION_GATEWAY_SENDER_AVAILABLE);
-    List<String> resultStatus = tableResultData.getValuesInColumn(CliStrings.RESULT_STATUS);
+    var resultStatus = tableResultData.getValuesInColumn(CliStrings.RESULT_STATUS);
     assertThat(resultStatus).hasSize(1);
     assertThat(resultStatus).doesNotContain(CliStrings.GATEWAY_RUNNING);
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
@@ -296,20 +293,20 @@ public class StatusGatewaySenderCommandDUnitTest implements Serializable {
     locatorSite1.invoke(() -> validateGatewaySenderMXBeanProxy(getMember(server3.getVM()),
         "ln_Parallel", false, false));
 
-    String command = CliStrings.STATUS_GATEWAYSENDER + " --" + CliStrings.STATUS_GATEWAYSENDER__ID
+    var command = CliStrings.STATUS_GATEWAYSENDER + " --" + CliStrings.STATUS_GATEWAYSENDER__ID
         + "=ln_Serial --" + CliStrings.GROUP + "=Serial_Sender";
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
 
-    TabularResultModel tableResultData = cmdResult.getResultData()
+    var tableResultData = cmdResult.getResultData()
         .getTableSection(CliStrings.SECTION_GATEWAY_SENDER_AVAILABLE);
-    List<String> resultStatus = tableResultData.getValuesInColumn(CliStrings.RESULT_STATUS);
+    var resultStatus = tableResultData.getValuesInColumn(CliStrings.RESULT_STATUS);
     assertThat(resultStatus).hasSize(2);
     assertThat(resultStatus).doesNotContain(CliStrings.GATEWAY_RUNNING);
 
     tableResultData = cmdResult.getResultData()
         .getTableSection(CliStrings.SECTION_GATEWAY_SENDER_NOT_AVAILABLE);
-    List<String> resultHosts = tableResultData.getValuesInColumn(CliStrings.RESULT_HOST_MEMBER);
+    var resultHosts = tableResultData.getValuesInColumn(CliStrings.RESULT_HOST_MEMBER);
     assertThat(resultHosts).hasSize(1);
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
@@ -353,7 +350,7 @@ public class StatusGatewaySenderCommandDUnitTest implements Serializable {
   }
 
   private MemberVM startServerWithGroups(int index, String groups, int locPort) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, groups);
     return clusterStartupRule.startServerVM(index, props, locPort);
   }

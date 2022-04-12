@@ -126,9 +126,9 @@ public class CommandManagerJUnitTest {
 
   @Test
   public void testCommandManagerLoadsUserCommand() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.USER_COMMAND_PACKAGES, "com.examples");
-    CommandManager commandManager = new CommandManager(props, null);
+    var commandManager = new CommandManager(props, null);
 
     assertThat(
         commandManager.getCommandMarkers().stream().anyMatch(c -> c instanceof UserGfshCommand));

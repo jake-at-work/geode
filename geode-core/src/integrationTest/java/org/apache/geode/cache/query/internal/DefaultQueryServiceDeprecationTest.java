@@ -17,7 +17,6 @@ package org.apache.geode.cache.query.internal;
 import static org.apache.geode.cache.query.internal.QueryConfigurationServiceImpl.ALLOW_UNTRUSTED_METHOD_INVOCATION_SYSTEM_PROPERTY;
 import static org.apache.geode.distributed.internal.DistributionConfig.LOG_FILE_NAME;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -40,7 +39,7 @@ public class DefaultQueryServiceDeprecationTest implements Serializable {
   @Test
   @SuppressWarnings("deprecation")
   public void warningMessageIsOnlyLoggedOnceWhenDeprecatedPropertyUsed() throws IOException {
-    File logFile = folderRule.newFile("customLog1.log");
+    var logFile = folderRule.newFile("customLog1.log");
     System.setProperty(ALLOW_UNTRUSTED_METHOD_INVOCATION_SYSTEM_PROPERTY, "true");
     server.withProperty(LOG_FILE_NAME, logFile.getAbsolutePath()).startServer();
     server.getCache().getQueryService();
@@ -51,7 +50,7 @@ public class DefaultQueryServiceDeprecationTest implements Serializable {
 
   @Test
   public void warningMessageIsNotLoggedWhenDeprecatedPropertyIsNotUsed() throws IOException {
-    File logFile = folderRule.newFile("customLog2.log");
+    var logFile = folderRule.newFile("customLog2.log");
     server.withProperty(LOG_FILE_NAME, logFile.getAbsolutePath()).startServer();
     server.getCache().getQueryService();
     LogFileAssert.assertThat(logFile)

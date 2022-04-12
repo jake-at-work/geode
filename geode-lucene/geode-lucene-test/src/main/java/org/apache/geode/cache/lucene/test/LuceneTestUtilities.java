@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -46,13 +45,11 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
 import org.apache.geode.cache.lucene.LuceneIndex;
-import org.apache.geode.cache.lucene.LuceneIndexFactory;
 import org.apache.geode.cache.lucene.LuceneQuery;
 import org.apache.geode.cache.lucene.LuceneQueryException;
 import org.apache.geode.cache.lucene.LuceneQueryProvider;
 import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
-import org.apache.geode.cache.lucene.PageableLuceneQueryResults;
 import org.apache.geode.cache.lucene.internal.LuceneIndexForPartitionedRegion;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.internal.distributed.EntryScore;
@@ -105,7 +102,7 @@ public class LuceneTestUtilities {
 
   public static void verifyResultOrder(Collection<EntryScore<String>> list,
       EntryScore<String>... expectedEntries) {
-    Iterator<EntryScore<String>> iter = list.iterator();
+    var iter = list.iterator();
     for (EntryScore expectedEntry : expectedEntries) {
       if (!iter.hasNext()) {
         fail();
@@ -167,7 +164,7 @@ public class LuceneTestUtilities {
       List<FixedPartitionAttributes> fpaList, int localMaxMemory) {
     List<String> allPartitions = new ArrayList();
     if (fpaList != null) {
-      for (FixedPartitionAttributes fpa : fpaList) {
+      for (var fpa : fpaList) {
         allPartitions.add(fpa.getPartitionName());
       }
     } else {
@@ -177,18 +174,18 @@ public class LuceneTestUtilities {
 
     RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
 
-    PartitionAttributesFactory pfact = new PartitionAttributesFactory();
+    var pfact = new PartitionAttributesFactory();
     pfact.setTotalNumBuckets(16);
     pfact.setRedundantCopies(1);
     pfact.setLocalMaxMemory(localMaxMemory);
     if (fpaList != null) {
-      for (FixedPartitionAttributes fpa : fpaList) {
+      for (var fpa : fpaList) {
         pfact.addFixedPartitionAttributes(fpa);
       }
     }
     pfact.setPartitionResolver(new MyFixedPartitionResolver(allPartitions));
     regionFactory.setPartitionAttributes(pfact.create());
-    Region r = regionFactory.create(regionName);
+    var r = regionFactory.create(regionName);
     assertNotNull(r);
     return r;
   }
@@ -204,7 +201,7 @@ public class LuceneTestUtilities {
     @Override
     public String getPartitionName(final EntryOperation opDetails,
         @Deprecated final Set targetPartitions) {
-      int hash = Math.abs(opDetails.getKey().hashCode() % allPartitions.size());
+      var hash = Math.abs(opDetails.getKey().hashCode() % allPartitions.size());
       return allPartitions.get(hash);
     }
 
@@ -228,28 +225,28 @@ public class LuceneTestUtilities {
   public static void verifyInternalRegions(LuceneService luceneService, Cache cache,
       Consumer<LocalRegion> verify) {
     // Get index
-    LuceneIndexForPartitionedRegion index =
+    var index =
         (LuceneIndexForPartitionedRegion) luceneService.getIndex(INDEX_NAME, REGION_NAME);
 
-    LocalRegion fileRegion = (LocalRegion) cache.getRegion(index.createFileRegionName());
+    var fileRegion = (LocalRegion) cache.getRegion(index.createFileRegionName());
     verify.accept(fileRegion);
   }
 
   public static AsyncEventQueue getIndexQueue(Cache cache) {
-    String aeqId = LuceneServiceImpl.getUniqueIndexName(INDEX_NAME, REGION_NAME);
+    var aeqId = LuceneServiceImpl.getUniqueIndexName(INDEX_NAME, REGION_NAME);
     return cache.getAsyncEventQueue(aeqId);
   }
 
   public static void createIndex(Cache cache, String... fieldNames) {
-    final LuceneIndexFactory indexFactory = LuceneServiceProvider.get(cache).createIndexFactory();
+    final var indexFactory = LuceneServiceProvider.get(cache).createIndexFactory();
     indexFactory.setFields(fieldNames).create(INDEX_NAME, REGION_NAME);
   }
 
   public static void verifyIndexFinishFlushing(Cache cache, String indexName, String regionName)
       throws InterruptedException {
-    LuceneService luceneService = LuceneServiceProvider.get(cache);
-    LuceneIndex index = luceneService.getIndex(indexName, regionName);
-    boolean flushed =
+    var luceneService = LuceneServiceProvider.get(cache);
+    var index = luceneService.getIndex(indexName, regionName);
+    var flushed =
         luceneService.waitUntilFlushed(indexName, regionName, 60000, TimeUnit.MILLISECONDS);
     assertTrue(flushed);
   }
@@ -270,10 +267,10 @@ public class LuceneTestUtilities {
   public static <K> void verifyQueryKeyAndValues(LuceneQuery<K, Object> query,
       HashMap expectedResults) throws LuceneQueryException {
     HashMap actualResults = new HashMap<>();
-    final PageableLuceneQueryResults<K, Object> results = query.findPages();
+    final var results = query.findPages();
     while (results.hasNext()) {
       results.next().stream().forEach(struct -> {
-        Object value = struct.getValue();
+        var value = struct.getValue();
         actualResults.put(struct.getKey(), value);
       });
     }
@@ -281,18 +278,18 @@ public class LuceneTestUtilities {
   }
 
   public static void pauseSender(final Cache cache) {
-    final AsyncEventQueueImpl queue = (AsyncEventQueueImpl) getIndexQueue(cache);
+    final var queue = (AsyncEventQueueImpl) getIndexQueue(cache);
     if (queue == null) {
       return;
     }
     queue.getSender().pause();
 
-    AbstractGatewaySender sender = (AbstractGatewaySender) queue.getSender();
+    var sender = (AbstractGatewaySender) queue.getSender();
     sender.getEventProcessor().waitForDispatcherToPause();
   }
 
   public static void resumeSender(final Cache cache) {
-    final AsyncEventQueueImpl queue = (AsyncEventQueueImpl) getIndexQueue(cache);
+    final var queue = (AsyncEventQueueImpl) getIndexQueue(cache);
     if (queue == null) {
       return;
     }

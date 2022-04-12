@@ -44,7 +44,7 @@ public class AbortBackupRequestTest {
     // mocks here
     dm = mock(DistributionManager.class);
     cache = mock(InternalCache.class);
-    BackupService backupService = mock(BackupService.class);
+    var backupService = mock(BackupService.class);
 
     when(dm.getCache()).thenReturn(cache);
     when(dm.getDistributionManagerId()).thenReturn(sender);
@@ -54,14 +54,14 @@ public class AbortBackupRequestTest {
 
     Set<InternalDistributedMember> recipients = new HashSet<>();
 
-    AbortBackup abortBackup = mock(AbortBackup.class);
+    var abortBackup = mock(AbortBackup.class);
 
     abortBackupFactory = mock(AbortBackupFactory.class);
     when(abortBackupFactory.createAbortBackup(eq(cache))).thenReturn(abortBackup);
     when(abortBackupFactory.createBackupResponse(eq(sender), eq(new HashSet<>())))
         .thenReturn(mock(BackupResponse.class));
 
-    int processorId = 79;
+    var processorId = 79;
     abortBackupRequest =
         new AbortBackupRequest(sender, recipients, processorId, abortBackupFactory);
   }

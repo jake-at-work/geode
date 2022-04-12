@@ -91,7 +91,7 @@ public class RedisString extends AbstractRedisData {
 
   public byte[] incr(Region<RedisKey, RedisData> region, RedisKey key)
       throws NumberFormatException, ArithmeticException {
-    long longValue = parseValueAsLong();
+    var longValue = parseValueAsLong();
     if (longValue == Long.MAX_VALUE) {
       throw new ArithmeticException(RedisConstants.ERROR_OVERFLOW);
     }
@@ -103,7 +103,7 @@ public class RedisString extends AbstractRedisData {
 
   public byte[] incrby(Region<RedisKey, RedisData> region, RedisKey key, long increment)
       throws NumberFormatException, ArithmeticException {
-    long longValue = parseValueAsLong();
+    var longValue = parseValueAsLong();
     if (longValue >= 0 && increment > (Long.MAX_VALUE - longValue)) {
       throw new ArithmeticException(RedisConstants.ERROR_OVERFLOW);
     }
@@ -116,7 +116,7 @@ public class RedisString extends AbstractRedisData {
   public BigDecimal incrbyfloat(Region<RedisKey, RedisData> region, RedisKey key,
       BigDecimal increment)
       throws NumberFormatException, ArithmeticException {
-    BigDecimal bigDecimalValue = parseValueAsBigDecimal();
+    var bigDecimalValue = parseValueAsBigDecimal();
     bigDecimalValue = bigDecimalValue.add(increment);
     value = Coder.bigDecimalToBytes(bigDecimalValue);
     storeChanges(region, key, new SetByteArray(value));
@@ -124,7 +124,7 @@ public class RedisString extends AbstractRedisData {
   }
 
   public byte[] decrby(Region<RedisKey, RedisData> region, RedisKey key, long decrement) {
-    long longValue = parseValueAsLong();
+    var longValue = parseValueAsLong();
     if (longValue <= 0 && -decrement < (Long.MIN_VALUE - longValue)) {
       throw new ArithmeticException(RedisConstants.ERROR_OVERFLOW);
     }
@@ -136,7 +136,7 @@ public class RedisString extends AbstractRedisData {
 
   public byte[] decr(Region<RedisKey, RedisData> region, RedisKey key)
       throws NumberFormatException, ArithmeticException {
-    long longValue = parseValueAsLong();
+    var longValue = parseValueAsLong();
     if (longValue == Long.MIN_VALUE) {
       throw new ArithmeticException(RedisConstants.ERROR_OVERFLOW);
     }
@@ -155,7 +155,7 @@ public class RedisString extends AbstractRedisData {
   }
 
   private BigDecimal parseValueAsBigDecimal() {
-    String valueString = bytesToString(value);
+    var valueString = bytesToString(value);
     if (valueString.contains(" ")) {
       throw new NumberFormatException(RedisConstants.ERROR_NOT_A_VALID_FLOAT);
     }
@@ -167,9 +167,9 @@ public class RedisString extends AbstractRedisData {
   }
 
   public byte[] getrange(long start, long end) {
-    int length = value.length;
-    int boundedStart = getBoundedStartIndex(start, length);
-    int boundedEnd = getBoundedEndIndex(end, length);
+    var length = value.length;
+    var boundedStart = getBoundedStartIndex(start, length);
+    var boundedEnd = getBoundedEndIndex(end, length);
 
     // Can't 'start' at end of value
     if (boundedStart > boundedEnd || boundedStart == length) {
@@ -193,13 +193,13 @@ public class RedisString extends AbstractRedisData {
 
   @Override
   public void applyReplaceByteArrayAtOffsetDelta(int offset, byte[] valueToAdd) {
-    int totalLength = offset + valueToAdd.length;
+    var totalLength = offset + valueToAdd.length;
     if (totalLength < value.length) {
       synchronized (this) {
         System.arraycopy(valueToAdd, 0, value, offset, valueToAdd.length);
       }
     } else {
-      byte[] newBytes = Arrays.copyOf(value, totalLength);
+      var newBytes = Arrays.copyOf(value, totalLength);
       System.arraycopy(valueToAdd, 0, newBytes, offset, valueToAdd.length);
       value = newBytes;
     }
@@ -227,11 +227,11 @@ public class RedisString extends AbstractRedisData {
   }
 
   public int bitpos(int bit, int start, Integer end) {
-    int length = value.length;
+    var length = value.length;
     if (length == 0) {
       return -1;
     }
-    boolean endSet = end != null;
+    var endSet = end != null;
     if (!endSet) {
       end = length - 1;
     }
@@ -262,10 +262,10 @@ public class RedisString extends AbstractRedisData {
       return -1;
     }
 
-    for (int i = start; i <= end; i++) {
+    for (var i = start; i <= end; i++) {
       int cBit;
-      byte cByte = value[i];
-      for (int j = 0; j < 8; j++) {
+      var cByte = value[i];
+      for (var j = 0; j < 8; j++) {
         cBit = (cByte & (0x80 >> j)) >> (7 - j);
         if (cBit == bit) {
           return 8 * i + j;
@@ -304,7 +304,7 @@ public class RedisString extends AbstractRedisData {
     }
 
     long setBits = 0;
-    for (int j = start; j <= end; j++) {
+    for (var j = start; j <= end; j++) {
       setBits += bitCountTable[0xFF & value[j]];
     }
     return setBits;
@@ -327,7 +327,7 @@ public class RedisString extends AbstractRedisData {
       return 0;
     }
 
-    int byteIndex = offset / 8;
+    var byteIndex = offset / 8;
     offset %= 8;
 
     if (byteIndex >= value.length) {
@@ -339,11 +339,11 @@ public class RedisString extends AbstractRedisData {
 
   public int setbit(Region<RedisKey, RedisData> region, RedisKey key,
       int bitValue, int byteIndex, byte bitIndex) {
-    final int bitIndexMask = 0x80 >> bitIndex;
+    final var bitIndexMask = 0x80 >> bitIndex;
     int returnBit;
     byte newByte;
     if (byteIndex < value.length) {
-      final byte oldByte = value[byteIndex];
+      final var oldByte = value[byteIndex];
       returnBit = (oldByte & bitIndexMask) >> (7 - bitIndex);
       if (bitValue == 1) {
         newByte = (byte) (oldByte | bitIndexMask);
@@ -352,7 +352,7 @@ public class RedisString extends AbstractRedisData {
       }
     } else {
       returnBit = 0;
-      byte[] newBytes = new byte[byteIndex + 1];
+      var newBytes = new byte[byteIndex + 1];
       System.arraycopy(value, 0, newBytes, 0, value.length);
       value = newBytes;
       if (bitValue == 1) {
@@ -413,7 +413,7 @@ public class RedisString extends AbstractRedisData {
   public byte[] getset(Region<RedisKey, RedisData> region, RedisKey key, byte[] newValue) {
     // No need to copy "value" since we are locked and will be calling set which replaces
     // "value" with a new instance.
-    byte[] result = value;
+    var result = value;
     set(region, key, newValue, null);
     return result;
   }
@@ -434,13 +434,13 @@ public class RedisString extends AbstractRedisData {
     if (!super.equals(o)) {
       return false;
     }
-    RedisString that = (RedisString) o;
+    var that = (RedisString) o;
     return Arrays.equals(value, that.value);
   }
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    var result = super.hashCode();
     result = 31 * result + Arrays.hashCode(value);
     return result;
   }
@@ -458,10 +458,10 @@ public class RedisString extends AbstractRedisData {
   }
 
   public void handleSetExpiration(SetOptions options) {
-    long setExpiration = options == null ? 0L : options.getExpiration();
+    var setExpiration = options == null ? 0L : options.getExpiration();
     if (setExpiration != 0) {
-      long now = System.currentTimeMillis();
-      long timestamp = now + setExpiration;
+      var now = System.currentTimeMillis();
+      var timestamp = now + setExpiration;
       setExpirationTimestampNoDelta(timestamp);
     } else if (options == null || !options.isKeepTTL()) {
       persistNoDelta();
@@ -471,9 +471,9 @@ public class RedisString extends AbstractRedisData {
   ////// methods that modify the "value" field ////////////
 
   protected void valueAppend(byte[] bytes) {
-    int initialLength = value.length;
-    int additionalLength = bytes.length;
-    byte[] combined = new byte[initialLength + additionalLength];
+    var initialLength = value.length;
+    var additionalLength = bytes.length;
+    var combined = new byte[initialLength + additionalLength];
     System.arraycopy(value, 0, combined, 0, initialLength);
     System.arraycopy(bytes, 0, combined, initialLength, additionalLength);
     value = combined;
@@ -485,8 +485,8 @@ public class RedisString extends AbstractRedisData {
   }
 
   private static byte[] getBitCountTable() {
-    byte[] table = new byte[256];
-    for (int i = 0; i < table.length; ++i) {
+    var table = new byte[256];
+    for (var i = 0; i < table.length; ++i) {
       table[i] = (byte) Integer.bitCount(i);
     }
     return table;

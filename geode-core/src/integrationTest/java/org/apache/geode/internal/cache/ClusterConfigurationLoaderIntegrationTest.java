@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -31,8 +30,6 @@ import org.mockito.stubbing.Answer;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.config.ClusterConfigurationNotAvailableException;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
-import org.apache.geode.management.internal.configuration.messages.ConfigurationResponse;
 import org.apache.geode.test.junit.rules.LocatorStarterRule;
 
 
@@ -62,7 +59,7 @@ public class ClusterConfigurationLoaderIntegrationTest {
 
   @Test
   public void requestConfigurationFromLocatorsShouldThrowExceptionAfterTheSixthNullConfigurationResponse() {
-    CustomAnswer customAnswer = new CustomAnswer(10);
+    var customAnswer = new CustomAnswer(10);
     Mockito.doAnswer(customAnswer).when(loader).requestConfigurationFromOneLocator(Mockito.any(),
         Mockito.anySet());
 
@@ -88,8 +85,8 @@ public class ClusterConfigurationLoaderIntegrationTest {
     locators.add((InternalDistributedMember) locator.getLocator().getDistributedSystem()
         .getDistributedMember());
 
-    ConfigurationResponse response = loader.requestConfigurationFromLocators("", locators);
-    Map<String, Configuration> configurationMap = response.getRequestedConfiguration();
+    var response = loader.requestConfigurationFromLocators("", locators);
+    var configurationMap = response.getRequestedConfiguration();
     assertThat(configurationMap.size()).isEqualTo(1);
     assertThat(configurationMap.get("cluster")).isNotNull();
   }
@@ -97,8 +94,8 @@ public class ClusterConfigurationLoaderIntegrationTest {
   @Test
   public void requestConfigurationFromLocatorsShouldCorrectlyLoadTheClusterConfigurationEvenAfterSeveralRetries()
       throws Exception {
-    int mockLimit = 6;
-    CustomAnswer customAnswer = new CustomAnswer(mockLimit);
+    var mockLimit = 6;
+    var customAnswer = new CustomAnswer(mockLimit);
     Mockito.doAnswer(customAnswer).when(loader).requestConfigurationFromOneLocator(Mockito.any(),
         Mockito.anySet());
 
@@ -107,8 +104,8 @@ public class ClusterConfigurationLoaderIntegrationTest {
     locators.add((InternalDistributedMember) locator.getLocator().getDistributedSystem()
         .getDistributedMember());
 
-    ConfigurationResponse response = loader.requestConfigurationFromLocators("", locators);
-    Map<String, Configuration> configurationMap = response.getRequestedConfiguration();
+    var response = loader.requestConfigurationFromLocators("", locators);
+    var configurationMap = response.getRequestedConfiguration();
     assertThat(configurationMap.size()).isEqualTo(1);
     assertThat(configurationMap.get("cluster")).isNotNull();
     assertThat(customAnswer.calls).isEqualTo(mockLimit);

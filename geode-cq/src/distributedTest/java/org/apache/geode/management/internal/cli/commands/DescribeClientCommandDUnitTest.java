@@ -19,8 +19,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -31,23 +29,18 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.CqAttributesFactory;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.SerializableConsumerIF;
 import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
@@ -91,7 +84,7 @@ public class DescribeClientCommandDUnitTest {
 
   @Test
   public void describeClient() throws Exception {
-    boolean subscriptionEnabled = true;
+    var subscriptionEnabled = true;
     client1Vm3 = createClient(3, subscriptionEnabled);
     setupCqsOnVM(client1Vm3, STOCKS_REGION, "cq1", "cq2", "cq3");
 
@@ -105,7 +98,7 @@ public class DescribeClientCommandDUnitTest {
 
   @Test
   public void describeClientWithoutSubscription() throws Exception {
-    boolean subscriptionEnabled = false;
+    var subscriptionEnabled = false;
     client1Vm3 = createClient(3, subscriptionEnabled);
     setupCqsOnVM(client1Vm3, STOCKS_REGION, "cq1", "cq2", "cq3");
 
@@ -118,28 +111,28 @@ public class DescribeClientCommandDUnitTest {
   }
 
   private void validateResults(boolean subscriptionEnabled) {
-    TabularResultModel listMemberTable = gfsh.executeAndAssertThat("list members")
+    var listMemberTable = gfsh.executeAndAssertThat("list members")
         .statusIsSuccess()
         .hasTableSection()
         .hasRowSize(3).getActual();
 
     // get the list of server ids (member ids without the locator id)
-    List<String> serverIds = listMemberTable.getValuesInColumn("Id")
+    var serverIds = listMemberTable.getValuesInColumn("Id")
         .stream().filter(x -> !x.contains("Coordinator"))
         .collect(Collectors.toList());
 
-    TabularResultModel listClientsTable = gfsh.executeAndAssertThat("list clients")
+    var listClientsTable = gfsh.executeAndAssertThat("list clients")
         .statusIsSuccess()
         .hasTableSection()
         .hasRowSize(2)
         .getActual();
-    String clientId = listClientsTable.getValue("Client Name / ID", 0);
+    var clientId = listClientsTable.getValue("Client Name / ID", 0);
 
-    CommandResultAssert describeAssert =
+    var describeAssert =
         gfsh.executeAndAssertThat("describe client --clientID=" + clientId)
             .statusIsSuccess();
-    TabularResultModel describeClientTable = describeAssert.hasTableSection("DEFAULT").getActual();
-    Map<String, String> dataResult =
+    var describeClientTable = describeAssert.hasTableSection("DEFAULT").getActual();
+    var dataResult =
         describeAssert.hasDataSection("infoSection").getActual().getContent();
 
     assertThat(describeClientTable.getHeader()).isEqualTo("Pool Stats For Pool Name = DEFAULT");
@@ -188,8 +181,8 @@ public class DescribeClientCommandDUnitTest {
   }
 
   private ClientVM createClient(int vmId, boolean subscriptionEnabled) throws Exception {
-    int server1Port = server1Vm1.getPort();
-    SerializableConsumerIF<ClientCacheFactory> cacheSetup = cf -> {
+    var server1Port = server1Vm1.getPort();
+    var cacheSetup = (SerializableConsumerIF<ClientCacheFactory>) cf -> {
       cf.addPoolServer("localhost", server1Port);
       cf.setPoolSubscriptionEnabled(subscriptionEnabled);
       cf.setPoolPingInterval(100);
@@ -198,17 +191,17 @@ public class DescribeClientCommandDUnitTest {
       cf.setPoolMinConnections(1);
     };
 
-    Properties clientProps = new Properties();
+    var clientProps = new Properties();
     clientProps.setProperty("statistic-archive-file", "client.gfs");
     clientProps.setProperty("statistic-sampling-enabled", "true");
-    ClientVM vm = rule.startClientVM(vmId, clientProps, cacheSetup);
+    var vm = rule.startClientVM(vmId, clientProps, cacheSetup);
 
     vm.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       ClientRegionFactory crf = cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
       crf.setPoolName(cache.getDefaultPool().getName());
 
-      Region region = crf.create(STOCKS_REGION);
+      var region = crf.create(STOCKS_REGION);
       region.put("k1", "v1");
       region.put("k2", "v2");
     });
@@ -219,8 +212,8 @@ public class DescribeClientCommandDUnitTest {
   private void setupCqsOnVM(ClientVM vm, String regionName, String cq1, String cq2, String cq3) {
     vm.invoke(() -> {
       Cache cache = GemFireCacheImpl.getInstance();
-      QueryService qs = cache.getQueryService();
-      CqAttributesFactory cqAf = new CqAttributesFactory();
+      var qs = cache.getQueryService();
+      var cqAf = new CqAttributesFactory();
       try {
         qs.newCq(cq1, "select * from " + SEPARATOR + regionName, cqAf.create(), true).execute();
         qs.newCq(cq2, "select * from " + SEPARATOR + regionName + " where id = 1", cqAf.create(),

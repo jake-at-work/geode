@@ -32,7 +32,6 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.RedisPubSubListener;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -64,10 +63,10 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
 
   @Test
   public void multiSubscribeSameClient() {
-    StatefulRedisPubSubConnection<String, String> subscriber = client.connectPubSub();
-    StatefulRedisPubSubConnection<String, String> publisher = client.connectPubSub();
+    var subscriber = client.connectPubSub();
+    var publisher = client.connectPubSub();
     List<Map> messages = Collections.synchronizedList(new ArrayList<>());
-    AtomicLong subscriptionCount = new AtomicLong(0);
+    var subscriptionCount = new AtomicLong(0);
 
     RedisPubSubListener<String, String> listener = new RedisPubSubAdapter<String, String>() {
       @Override
@@ -108,10 +107,10 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
 
   @Test
   public void multiPsubscribeSameClient() {
-    StatefulRedisPubSubConnection<String, String> subscriber = client.connectPubSub();
-    StatefulRedisPubSubConnection<String, String> publisher = client.connectPubSub();
+    var subscriber = client.connectPubSub();
+    var publisher = client.connectPubSub();
     List<Map> messages = Collections.synchronizedList(new ArrayList<>());
-    AtomicLong psubscriptionCount = new AtomicLong(0);
+    var psubscriptionCount = new AtomicLong(0);
 
     RedisPubSubListener<String, String> listener = new RedisPubSubAdapter<String, String>() {
       @Override
@@ -152,11 +151,11 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
 
   @Test
   public void subscribePsubscribeSameClient() throws InterruptedException {
-    StatefulRedisPubSubConnection<String, String> subscriber = client.connectPubSub();
-    StatefulRedisPubSubConnection<String, String> publisher = client.connectPubSub();
+    var subscriber = client.connectPubSub();
+    var publisher = client.connectPubSub();
     List<String> messages = Collections.synchronizedList(new ArrayList<>());
-    CountDownLatch subscriberLatch = new CountDownLatch(1);
-    CountDownLatch psubscriberLatch = new CountDownLatch(1);
+    var subscriberLatch = new CountDownLatch(1);
+    var psubscriberLatch = new CountDownLatch(1);
 
     RedisPubSubListener<String, String> listener = new RedisPubSubAdapter<String, String>() {
       @Override
@@ -196,9 +195,9 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
 
   @Test
   public void multiUnsubscribe() throws InterruptedException {
-    StatefulRedisPubSubConnection<String, String> subscriber = client.connectPubSub();
+    var subscriber = client.connectPubSub();
     List<Map> counts = Collections.synchronizedList(new ArrayList<>());
-    CountDownLatch subscriberLatch = new CountDownLatch(2);
+    var subscriberLatch = new CountDownLatch(2);
 
     RedisPubSubListener<String, String> listener = new RedisPubSubAdapter<String, String>() {
       @Override
@@ -234,9 +233,9 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
 
   @Test
   public void multiPunsubscribe() throws InterruptedException {
-    StatefulRedisPubSubConnection<String, String> subscriber = client.connectPubSub();
+    var subscriber = client.connectPubSub();
     List<Map> counts = Collections.synchronizedList(new ArrayList<>());
-    CountDownLatch psubscriberLatch = new CountDownLatch(2);
+    var psubscriberLatch = new CountDownLatch(2);
     RedisPubSubListener<String, String> listener = new RedisPubSubAdapter<String, String>() {
       @Override
       public void psubscribed(String pattern, long count) {
@@ -272,10 +271,10 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
 
   @Test
   public void unsubscribePunsubscribe() throws InterruptedException {
-    StatefulRedisPubSubConnection<String, String> subscriber = client.connectPubSub();
+    var subscriber = client.connectPubSub();
     List<String> counts = Collections.synchronizedList(new ArrayList<>());
-    CountDownLatch subscriberLatch = new CountDownLatch(1);
-    CountDownLatch psubscriberLatch = new CountDownLatch(1);
+    var subscriberLatch = new CountDownLatch(1);
+    var psubscriberLatch = new CountDownLatch(1);
     RedisPubSubListener<String, String> listener = new RedisPubSubAdapter<String, String>() {
 
       @Override
@@ -313,9 +312,9 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
 
   @Test
   public void quitWhileSubscribe() throws InterruptedException {
-    StatefulRedisPubSubConnection<String, String> subscriber = client.connectPubSub();
-    StatefulRedisPubSubConnection<String, String> publisher = client.connectPubSub();
-    CountDownLatch subscriberLatch = new CountDownLatch(1);
+    var subscriber = client.connectPubSub();
+    var publisher = client.connectPubSub();
+    var subscriberLatch = new CountDownLatch(1);
     RedisPubSubListener<String, String> listener = new RedisPubSubAdapter<String, String>() {
       @Override
       public void subscribed(String channel, long count) {
@@ -326,7 +325,7 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
     subscriber.sync().subscribe(CHANNEL);
     subscriberLatch.await();
 
-    String quitResponse = subscriber.sync().quit();
+    var quitResponse = subscriber.sync().quit();
     assertThat(quitResponse).isEqualTo("OK");
 
     // Shutting down the subscriber is asynchronous so we need to wait a moment here
@@ -342,24 +341,24 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
     // same jvm as the geode redis server it can easily run out of memory on
     // some platforms.
     // For a flavor of this test that does more concurrency see PubSubConcurrentDUnitTest.java.
-    int subscriberCount = 5;
-    int publisherCount = 5;
-    int publishIterations = 1000;
+    var subscriberCount = 5;
+    var publisherCount = 5;
+    var publishIterations = 1000;
 
-    for (int i = 0; i < subscriberCount; i++) {
-      StatefulRedisPubSubConnection<String, String> subscriber = client.connectPubSub();
+    for (var i = 0; i < subscriberCount; i++) {
+      var subscriber = client.connectPubSub();
       subscriber.sync().subscribe(CHANNEL);
     }
 
     List<Future<Long>> results = new ArrayList<>();
-    for (int i = 0; i < publisherCount; i++) {
-      int localI = i;
+    for (var i = 0; i < publisherCount; i++) {
+      var localI = i;
       results.add(executor.submit(() -> publish(localI, publishIterations)));
     }
 
     long publishCount = 0;
 
-    for (Future<Long> r : results) {
+    for (var r : results) {
       publishCount += r.get();
     }
 
@@ -367,15 +366,15 @@ public abstract class AbstractLettucePubSubIntegrationTest implements RedisInteg
   }
 
   private Long publish(int index, int iterationCount) throws Exception {
-    StatefulRedisPubSubConnection<String, String> publisher = client.connectPubSub();
+    var publisher = client.connectPubSub();
     long publishCount = 0;
 
     List<RedisFuture<Long>> results = new ArrayList<>();
-    for (int i = 0; i < iterationCount; i++) {
+    for (var i = 0; i < iterationCount; i++) {
       results.add(publisher.async().publish(CHANNEL, "message-" + index + "-" + i));
     }
 
-    for (RedisFuture<Long> r : results) {
+    for (var r : results) {
       publishCount += r.get();
     }
 

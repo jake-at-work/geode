@@ -15,7 +15,6 @@
 package org.apache.geode.management.internal;
 
 import java.io.PrintWriter;
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
@@ -51,7 +50,7 @@ public class AlertDetails {
     this.sender = sender;
 
     {
-      StringBuilder tmpSourceId = new StringBuilder();
+      var tmpSourceId = new StringBuilder();
 
       tmpSourceId.append(threadName);
       if (tmpSourceId.length() > 0) {
@@ -62,7 +61,7 @@ public class AlertDetails {
       sourceId = tmpSourceId.toString();
     }
     {
-      StringBuilder tmpMessage = new StringBuilder();
+      var tmpMessage = new StringBuilder();
       tmpMessage.append(msg);
       if (tmpMessage.length() > 0) {
         tmpMessage.append('\n');
@@ -113,9 +112,9 @@ public class AlertDetails {
   }
 
   public String toString() {
-    final DateFormat timeFormatter = DateFormatter.createDateFormat();
-    java.io.StringWriter sw = new java.io.StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
+    final var timeFormatter = DateFormatter.createDateFormat();
+    var sw = new java.io.StringWriter();
+    var pw = new PrintWriter(sw);
 
     pw.print('[');
     pw.print(LogWriterImpl.levelToString(alertLevel));

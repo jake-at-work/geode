@@ -31,8 +31,6 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
@@ -167,7 +165,7 @@ public class JoinQueriesIntegrationTest {
 
   private void populateCustomerRegionsWithData(Region<Integer, Customer> region1,
       Region<Integer, Customer> region2) {
-    for (int i = 1; i < 11; i++) {
+    for (var i = 1; i < 11; i++) {
       if (i == 1 || i == 3 || i == 8 || i == 2 || i == 5) {
         region1.put(i, new Customer(1, 1, 1));
       } else {
@@ -184,16 +182,16 @@ public class JoinQueriesIntegrationTest {
   @Test
   @Parameters(method = "getQueryStrings")
   public void testJoinTwoRegions(String queryString, int expectedResultSize) throws Exception {
-    InternalCache cache = serverRule.getCache();
-    QueryService queryService = cache.getQueryService();
-    Region<Integer, Customer> region1 = cache.<Integer, Customer>createRegionFactory()
+    var cache = serverRule.getCache();
+    var queryService = cache.getQueryService();
+    var region1 = cache.<Integer, Customer>createRegionFactory()
         .setDataPolicy(DataPolicy.REPLICATE).create("region1");
-    Region<Integer, Customer> region2 = cache.<Integer, Customer>createRegionFactory()
+    var region2 = cache.<Integer, Customer>createRegionFactory()
         .setDataPolicy(DataPolicy.REPLICATE).create("region2");
     populateCustomerRegionsWithData(region1, region2);
 
-    SelectResults results = (SelectResults) queryService.newQuery(queryString).execute();
-    int resultsWithoutIndex = results.size();
+    var results = (SelectResults) queryService.newQuery(queryString).execute();
+    var resultsWithoutIndex = results.size();
     assertThat(resultsWithoutIndex).isEqualTo(expectedResultSize);
 
     queryService.createIndex("pkidregion1", "p.pkid", SEPARATOR + "region1 p");
@@ -205,7 +203,7 @@ public class JoinQueriesIntegrationTest {
     queryService.createIndex("nameIndex", "p.name", SEPARATOR + "region2 p");
 
     results = (SelectResults) queryService.newQuery(queryString).execute();
-    int resultsSizeWithIndex = results.size();
+    var resultsSizeWithIndex = results.size();
     assertThat(resultsWithoutIndex).isEqualTo(expectedResultSize);
     assertThat(resultsWithoutIndex).isEqualTo(resultsSizeWithIndex);
   }
@@ -214,7 +212,7 @@ public class JoinQueriesIntegrationTest {
       int expectedMatches, int extraEntitiesPerRegion,
       Region<String, Object> orderRegion, Region<String, Object> validationIssueRegion,
       Region<String, Object> validationIssueXRefRegion) {
-    for (int i = 0; i < expectedMatches; i++) {
+    for (var i = 0; i < expectedMatches; i++) {
       orderRegion.put("orderId_" + i, new Order("orderId_" + i, i));
       validationIssueRegion.put("validationIssueID_" + i,
           new ValidationIssue("issueId_" + i, Calendar.getInstance().getTime()));
@@ -222,7 +220,7 @@ public class JoinQueriesIntegrationTest {
           "validationIssueXRefID_" + i, "issueId_" + i, "orderId_" + i, i));
     }
 
-    for (int i = 0; i < extraEntitiesPerRegion; i++) {
+    for (var i = 0; i < extraEntitiesPerRegion; i++) {
       orderRegion.put("orderId#" + i, new Order("orderId#" + i, i));
       validationIssueRegion.put("referenceIssueId#" + i,
           new ValidationIssue("referenceIssueId#" + i, Calendar.getInstance().getTime()));
@@ -235,18 +233,18 @@ public class JoinQueriesIntegrationTest {
       int expectedMatches, int extraEntitiesPerRegion,
       Cache cache, Region<String, Object> orderRegion, Region<String, Object> validationIssueRegion,
       Region<String, Object> validationIssueXRefRegion) {
-    for (int i = 0; i < expectedMatches; i++) {
-      PdxInstance orderPdx = cache
+    for (var i = 0; i < expectedMatches; i++) {
+      var orderPdx = cache
           .createPdxInstanceFactory("org.apache.geode.test.Order")
           .writeString("orderId", "orderId_" + i)
           .writeInt("version", i)
           .create();
-      PdxInstance validationIssuePdx = cache
+      var validationIssuePdx = cache
           .createPdxInstanceFactory("org.apache.geode.test.ValidationIssue")
           .writeString("issueId", "issueId_" + i)
           .writeDate("createdTime", Calendar.getInstance().getTime())
           .create();
-      PdxInstance validationIssueXRefPdx = cache
+      var validationIssueXRefPdx = cache
           .createPdxInstanceFactory("org.apache.geode.test.OrderValidationIssueXRef")
           .writeString("validationIssueXRefID", "validationIssueXRefID_" + i)
           .writeString("referenceIssueId", "issueId_" + i)
@@ -259,18 +257,18 @@ public class JoinQueriesIntegrationTest {
       validationIssueXRefRegion.put("validationIssueXRefID_" + i, validationIssueXRefPdx);
     }
 
-    for (int i = 0; i < extraEntitiesPerRegion; i++) {
-      PdxInstance orderPdx = cache
+    for (var i = 0; i < extraEntitiesPerRegion; i++) {
+      var orderPdx = cache
           .createPdxInstanceFactory("org.apache.geode.test.Order")
           .writeString("orderId", "orderId#" + i)
           .writeInt("version", i)
           .create();
-      PdxInstance validationIssuePdx = cache
+      var validationIssuePdx = cache
           .createPdxInstanceFactory("org.apache.geode.test.ValidationIssue")
           .writeString("referenceIssueId", "referenceIssueId#" + i)
           .writeDate("createdTime", Calendar.getInstance().getTime())
           .create();
-      PdxInstance validationIssueXRefPdx = cache
+      var validationIssueXRefPdx = cache
           .createPdxInstanceFactory("org.apache.geode.test.OrderValidationIssueXRef")
           .writeString("validationIssueXRefID", "validationIssueXRefID#" + i)
           .writeString("referenceIssueId", "validationIssueID2#" + i)
@@ -289,11 +287,11 @@ public class JoinQueriesIntegrationTest {
   @TestCaseName("{method} - Using PDX: {params}")
   public void joiningThreeRegionsWhenIntermediateResultSizeIsHigherThanLimitClauseShouldNotTrimResults(
       boolean usePdx) throws Exception {
-    int matches = 10;
-    int extraEntitiesPerRegion = 25;
-    InternalCache cache = serverRule.getCache();
-    QueryService queryService = cache.getQueryService();
-    String queryString = "SELECT issue.issueId, issue.createdTime, o.orderId, o.version "
+    var matches = 10;
+    var extraEntitiesPerRegion = 25;
+    var cache = serverRule.getCache();
+    var queryService = cache.getQueryService();
+    var queryString = "SELECT issue.issueId, issue.createdTime, o.orderId, o.version "
         + "FROM " + SEPARATOR + "ValidationIssue issue, " + SEPARATOR
         + "OrderValidationIssueXRef xRef, " + SEPARATOR + "Order o "
         + "WHERE "
@@ -304,11 +302,11 @@ public class JoinQueriesIntegrationTest {
         + "xRef.referenceOrderVersion = o.version ";
 
     // Create Regions
-    Region<String, Object> orderRegion = cache.<String, Object>createRegionFactory()
+    var orderRegion = cache.<String, Object>createRegionFactory()
         .setDataPolicy(DataPolicy.REPLICATE).create("Order");
-    Region<String, Object> validationIssueRegion = cache.<String, Object>createRegionFactory()
+    var validationIssueRegion = cache.<String, Object>createRegionFactory()
         .setDataPolicy(DataPolicy.REPLICATE).create("ValidationIssue");
-    Region<String, Object> validationIssueXRefRegion = cache.<String, Object>createRegionFactory()
+    var validationIssueXRefRegion = cache.<String, Object>createRegionFactory()
         .setDataPolicy(DataPolicy.REPLICATE).create("OrderValidationIssueXRef");
 
     if (!usePdx) {
@@ -320,10 +318,10 @@ public class JoinQueriesIntegrationTest {
           validationIssueRegion, validationIssueXRefRegion);
     }
 
-    SelectResults baseResults = (SelectResults) queryService.newQuery(queryString).execute();
-    SelectResults resultsWithLimitOne =
+    var baseResults = (SelectResults) queryService.newQuery(queryString).execute();
+    var resultsWithLimitOne =
         (SelectResults) queryService.newQuery(queryString + "LIMIT 2").execute();
-    SelectResults resultsWithLimitTwo =
+    var resultsWithLimitTwo =
         (SelectResults) queryService.newQuery(queryString + "LIMIT 5").execute();
     assertThat(baseResults.size()).isEqualTo(matches);
     assertThat(resultsWithLimitOne.size()).isEqualTo(2);
@@ -336,11 +334,11 @@ public class JoinQueriesIntegrationTest {
   @TestCaseName("{method} - Using PDX: {params}")
   public void joiningThreeRegionsWithIndexesWhenIntermediateResultSizeIsHigherThanLimitClauseShouldNotTrimResults(
       boolean usePdx) throws Exception {
-    int matches = 10;
-    int extraEntitiesPerRegion = 25;
-    InternalCache cache = serverRule.getCache();
-    QueryService queryService = cache.getQueryService();
-    String queryString = "SELECT issue.issueId, issue.createdTime, o.orderId, o.version "
+    var matches = 10;
+    var extraEntitiesPerRegion = 25;
+    var cache = serverRule.getCache();
+    var queryService = cache.getQueryService();
+    var queryString = "SELECT issue.issueId, issue.createdTime, o.orderId, o.version "
         + "FROM " + SEPARATOR + "ValidationIssue issue, " + SEPARATOR
         + "OrderValidationIssueXRef xRef, " + SEPARATOR + "Order o "
         + "WHERE "
@@ -351,11 +349,11 @@ public class JoinQueriesIntegrationTest {
         + "xRef.referenceOrderVersion = o.version ";
 
     // Create Regions
-    Region<String, Object> orderRegion = cache.<String, Object>createRegionFactory()
+    var orderRegion = cache.<String, Object>createRegionFactory()
         .setDataPolicy(DataPolicy.REPLICATE).create("Order");
-    Region<String, Object> validationIssueRegion = cache.<String, Object>createRegionFactory()
+    var validationIssueRegion = cache.<String, Object>createRegionFactory()
         .setDataPolicy(DataPolicy.REPLICATE).create("ValidationIssue");
-    Region<String, Object> validationIssueXRefRegion = cache.<String, Object>createRegionFactory()
+    var validationIssueXRefRegion = cache.<String, Object>createRegionFactory()
         .setDataPolicy(DataPolicy.REPLICATE).create("OrderValidationIssueXRef");
 
     // Populate Regions
@@ -378,11 +376,11 @@ public class JoinQueriesIntegrationTest {
     cache.getQueryService().createIndex("orderValidationIssueXRef_referenceIssueId",
         "referenceIssueId", SEPARATOR + "OrderValidationIssueXRef", null);
 
-    SelectResults baseResultsWithIndexes =
+    var baseResultsWithIndexes =
         (SelectResults) queryService.newQuery(queryString).execute();
-    SelectResults resultsWithLimitOneWithIndexes =
+    var resultsWithLimitOneWithIndexes =
         (SelectResults) queryService.newQuery(queryString + "LIMIT 2").execute();
-    SelectResults resultsWithLimitTwoWithIndexes =
+    var resultsWithLimitTwoWithIndexes =
         (SelectResults) queryService.newQuery(queryString + "LIMIT 5").execute();
     assertThat(baseResultsWithIndexes.size()).isEqualTo(matches);
     assertThat(resultsWithLimitOneWithIndexes.size()).isEqualTo(2);

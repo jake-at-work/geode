@@ -33,10 +33,8 @@ import org.junit.Rule;
 import util.TestException;
 
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.ServerConnectivityException;
-import org.apache.geode.cache.client.internal.ClientMetadataService;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
@@ -45,11 +43,9 @@ import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegion;
-import org.apache.geode.internal.cache.execute.metrics.FunctionStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -131,7 +127,7 @@ public class FunctionRetryTestBase implements Serializable {
       client = startClient(4, retryAttempts);
     }
 
-    TheFunction function = new TheFunction(haStatus);
+    var function = new TheFunction(haStatus);
 
     createServerRegionAndRegisterFunction(functionIdentifierType, function);
 
@@ -141,7 +137,7 @@ public class FunctionRetryTestBase implements Serializable {
 
     IgnoredException.addIgnoredException(FunctionException.class.getName());
 
-    AsyncInvocation clientExecuteAsync = client.invokeAsync(() -> {
+    var clientExecuteAsync = client.invokeAsync(() -> {
 
       assertThat(executionTarget).isNotNull();
 
@@ -185,11 +181,11 @@ public class FunctionRetryTestBase implements Serializable {
 
   private void setClientMetaDataStatus(final ClientMetadataStatus clientMetadataStatus) {
     client.invoke(() -> {
-      ClientMetadataService cms = ((InternalCache) ClusterStartupRule.getClientCache())
+      var cms = ((InternalCache) ClusterStartupRule.getClientCache())
           .getClientMetadataService();
 
       if (clientMetadataStatus.equals(ClientMetadataStatus.CLIENT_HAS_METADATA)) {
-        final Region<Object, Object> region =
+        final var region =
             ClusterStartupRule.getClientCache().getRegion(regionName);
         cms.scheduleGetPRMetaData((InternalRegion) region, true);
         GeodeAwaitility.await("Awaiting ClientMetadataService.isMetadataStable()")
@@ -204,14 +200,14 @@ public class FunctionRetryTestBase implements Serializable {
     client.invoke(() -> {
       createClientRegion();
       // registerFunctionIfNeeded(functionIdentifierType, function);
-      ClientMetadataService cms =
+      var cms =
           ((InternalCache) ClusterStartupRule.getClientCache()).getClientMetadataService();
       cms.setMetadataStable(false);
 
-      final Region<Object, Object> region =
+      final var region =
           ClusterStartupRule.getClientCache().getRegion(regionName);
 
-      for (int i = 0; i < 3 /* numberOfEntries */; i++) {
+      for (var i = 0; i < 3 /* numberOfEntries */; i++) {
         region.put("k" + i, "v" + i);
       }
     });
@@ -246,7 +242,7 @@ public class FunctionRetryTestBase implements Serializable {
                 .setArguments(200);
         break;
       case REGION_WITH_FILTER_1_KEY:
-        final HashSet<String> filter = new HashSet<>(Arrays.asList("k0"));
+        final var filter = new HashSet<String>(Arrays.asList("k0"));
         execution =
             FunctionService.onRegion(ClusterStartupRule.getClientCache().getRegion(regionName))
                 .setArguments(200).withFilter(filter);
@@ -299,7 +295,7 @@ public class FunctionRetryTestBase implements Serializable {
   private int getNumberOfFunctionCalls(final MemberVM vm, final String functionId) {
     return vm.invoke(() -> {
       final int numExecutions;
-      final FunctionStats functionStats = FunctionStatsManager.getFunctionStats(functionId);
+      final var functionStats = FunctionStatsManager.getFunctionStats(functionId);
       if (functionStats == null) {
         numExecutions = 0;
       } else {
@@ -347,7 +343,7 @@ public class FunctionRetryTestBase implements Serializable {
   }
 
   private void createServerRegion() {
-    final PartitionAttributesFactory<String, String> paf = new PartitionAttributesFactory<>();
+    final var paf = new PartitionAttributesFactory<String, String>();
     paf.setRedundantCopies(REDUNDANT_COPIES);
     paf.setTotalNumBuckets(TOTAL_NUM_BUCKETS);
     ClusterStartupRule.getCache().createRegionFactory(PARTITION)

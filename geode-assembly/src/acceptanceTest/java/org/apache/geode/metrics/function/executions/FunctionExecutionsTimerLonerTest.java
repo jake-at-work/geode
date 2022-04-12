@@ -76,7 +76,7 @@ public class FunctionExecutionsTimerLonerTest {
 
   @Before
   public void setUp() throws IOException {
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
 
     serverPort = ports[0];
     jmxRmiPort = ports[1];
@@ -120,7 +120,7 @@ public class FunctionExecutionsTimerLonerTest {
     startServerWithStatsEnabled();
     deployFunction(FunctionToTimeWithResult.class);
 
-    Duration functionDuration = Duration.ofSeconds(1);
+    var functionDuration = Duration.ofSeconds(1);
     executeFunctionById(FunctionToTimeWithResult.ID, functionDuration);
 
     assertThat(getExecutionsTimerValuesFor(FunctionToTimeWithResult.ID))
@@ -154,11 +154,11 @@ public class FunctionExecutionsTimerLonerTest {
   @Test
   public void successTimerRecordsCountAndTotalTimeIfFunctionSucceeds() {
     startServerWithStatsEnabled();
-    FunctionToTimeWithResult function = new FunctionToTimeWithResult();
-    Duration functionDuration = Duration.ofSeconds(1);
+    var function = new FunctionToTimeWithResult();
+    var functionDuration = Duration.ofSeconds(1);
     executeFunctionThatSucceeds(function, functionDuration);
 
-    ExecutionsTimerValues successTimerValues = getSuccessTimerValues(function.getId());
+    var successTimerValues = getSuccessTimerValues(function.getId());
 
     assertThat(successTimerValues.count)
         .as("Successful function executions count")
@@ -172,11 +172,11 @@ public class FunctionExecutionsTimerLonerTest {
   @Test
   public void successTimerRecordsCountAndTotalTimeIfTimeStatsDisabled() {
     startServerWithTimeStatsDisabled();
-    FunctionToTimeWithResult function = new FunctionToTimeWithResult();
-    Duration functionDuration = Duration.ofSeconds(1);
+    var function = new FunctionToTimeWithResult();
+    var functionDuration = Duration.ofSeconds(1);
     executeFunctionThatSucceeds(function, functionDuration);
 
-    ExecutionsTimerValues successTimerValues = getSuccessTimerValues(function.getId());
+    var successTimerValues = getSuccessTimerValues(function.getId());
 
     assertThat(successTimerValues.count)
         .as("Successful function executions count")
@@ -190,11 +190,11 @@ public class FunctionExecutionsTimerLonerTest {
   @Test
   public void failureTimerRecordsCountAndTotalTimeIfFunctionThrows() {
     startServerWithStatsEnabled();
-    FunctionToTimeWithResult function = new FunctionToTimeWithResult();
-    Duration functionDuration = Duration.ofSeconds(1);
+    var function = new FunctionToTimeWithResult();
+    var functionDuration = Duration.ofSeconds(1);
     executeFunctionThatThrows(function, functionDuration);
 
-    ExecutionsTimerValues failureTimerValues = getFailureTimerValues(function.getId());
+    var failureTimerValues = getFailureTimerValues(function.getId());
 
     assertThat(failureTimerValues.count)
         .as("Failed function executions count")
@@ -270,22 +270,22 @@ public class FunctionExecutionsTimerLonerTest {
 
   @SuppressWarnings("SameParameterValue")
   private <T> void deployFunction(Class<? extends Function<T>> functionClass) {
-    Path functionJarPath = temporaryFolder.getRoot().toPath()
+    var functionJarPath = temporaryFolder.getRoot().toPath()
         .resolve(functionClass.getSimpleName() + ".jar").toAbsolutePath();
 
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> writeJarFromClasses(functionJarPath.toFile(), functionClass));
 
     assertThat(thrown)
         .as("Exception from writing function JAR")
         .isNull();
 
-    String deployFunctionCommand = "deploy --jar=" + functionJarPath;
+    var deployFunctionCommand = "deploy --jar=" + functionJarPath;
     gfshRule.execute(connectCommand, deployFunctionCommand);
   }
 
   private void executeFunctionThatSucceeds(Function<? super String[]> function, Duration duration) {
-    Throwable thrown = catchThrowable(() -> executeFunction(function, duration, true));
+    var thrown = catchThrowable(() -> executeFunction(function, duration, true));
 
     assertThat(thrown)
         .as("Exception from function expected to succeed")
@@ -293,7 +293,7 @@ public class FunctionExecutionsTimerLonerTest {
   }
 
   private void executeFunctionThatThrows(Function<? super String[]> function, Duration duration) {
-    Throwable thrown = catchThrowable(() -> executeFunction(function, duration, false));
+    var thrown = catchThrowable(() -> executeFunction(function, duration, false));
 
     assertThat(thrown)
         .withFailMessage("Expected function to throw but it did not")
@@ -303,7 +303,7 @@ public class FunctionExecutionsTimerLonerTest {
   private void executeFunction(Function<? super String[]> function, Duration duration,
       boolean successful) {
     @SuppressWarnings("unchecked")
-    Execution<String[], Object, List<Object>> execution =
+    var execution =
         (Execution<String[], Object, List<Object>>) FunctionService.onServer(serverPool);
 
     execution
@@ -315,10 +315,10 @@ public class FunctionExecutionsTimerLonerTest {
   @SuppressWarnings("SameParameterValue")
   private void executeFunctionById(String functionId, Duration duration) {
     @SuppressWarnings("unchecked")
-    Execution<String[], Object, List<Object>> execution =
+    var execution =
         (Execution<String[], Object, List<Object>>) FunctionService.onServer(serverPool);
 
-    Throwable thrown = catchThrowable(() -> execution
+    var thrown = catchThrowable(() -> execution
         .setArguments(new String[] {valueOf(duration.toMillis()), TRUE.toString()})
         .execute(functionId)
         .getResult());
@@ -338,7 +338,7 @@ public class FunctionExecutionsTimerLonerTest {
 
   private ExecutionsTimerValues getExecutionsTimerValues(String functionId,
       boolean succeededTagValue) {
-    List<ExecutionsTimerValues> executionsTimerValues = getExecutionsTimerValuesFor(functionId)
+    var executionsTimerValues = getExecutionsTimerValuesFor(functionId)
         .stream()
         .filter(v -> v.succeeded == succeededTagValue)
         .collect(toList());
@@ -351,11 +351,11 @@ public class FunctionExecutionsTimerLonerTest {
 
   private List<ExecutionsTimerValues> getExecutionsTimerValuesFor(String functionId) {
     @SuppressWarnings("unchecked")
-    Execution<Void, List<ExecutionsTimerValues>, List<List<ExecutionsTimerValues>>> functionExecution =
+    var functionExecution =
         (Execution<Void, List<ExecutionsTimerValues>, List<List<ExecutionsTimerValues>>>) FunctionService
             .onServer(serverPool);
 
-    List<List<ExecutionsTimerValues>> results = functionExecution
+    var results = functionExecution
         .execute(new GetFunctionExecutionTimerValues())
         .getResult();
 

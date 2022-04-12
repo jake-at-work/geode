@@ -51,7 +51,7 @@ public class CacheListenerJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(LOCATORS, "");
     ds = DistributedSystem.connect(p);
@@ -96,11 +96,11 @@ public class CacheListenerJUnitTest {
         assertEquals(3, invokeCount);
       }
     };
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.addCacheListener(cl1);
     af.addCacheListener(cl2);
     af.addCacheListener(cl3);
-    Region r = c.createRegion("r", af.create());
+    var r = c.createRegion("r", af.create());
 
     clearListener();
     r.create("key1", "value1");
@@ -127,10 +127,10 @@ public class CacheListenerJUnitTest {
     CacheListener cl1 = new CacheListenerAdapter() {};
     CacheListener cl2 = new CacheListenerAdapter() {};
     // CacheListener cl3 = new CacheListenerAdapter() {};
-    AttributesFactory af = new AttributesFactory();
-    Region r = c.createRegion("r", af.create());
-    RegionAttributes ra = r.getAttributes();
-    AttributesMutator am = r.getAttributesMutator();
+    var af = new AttributesFactory();
+    var r = c.createRegion("r", af.create());
+    var ra = r.getAttributes();
+    var am = r.getAttributesMutator();
     assertEquals(null, ra.getCacheListener());
     assertEquals(Collections.EMPTY_LIST, Arrays.asList(ra.getCacheListeners()));
     try {
@@ -193,13 +193,13 @@ public class CacheListenerJUnitTest {
         lastEvent = event;
       }
     };
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.addCacheListener(cl1);
     clearListener();
-    Region r = c.createRegion("r", af.create());
+    var r = c.createRegion("r", af.create());
     assertEquals(1, invokeCount);
     assertTrue(lastEvent instanceof RegionEvent);
-    CacheEvent e = lastEvent;
+    var e = lastEvent;
     assertEquals(r, e.getRegion());
     assertEquals(ds.getDistributedMember(), e.getDistributedMember());
     assertEquals(null, e.getCallbackArgument());
@@ -225,10 +225,10 @@ public class CacheListenerJUnitTest {
         lastEvent = e;
       }
     };
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.addCacheListener(cl1);
     clearListener();
-    Region r = c.createRegion("r", af.create());
+    var r = c.createRegion("r", af.create());
     r.put("key1", "value1-0");
     assertEquals(1, invokeCount);
     assertEquals(Operation.CREATE, lastEvent.getOperation());
@@ -249,7 +249,7 @@ public class CacheListenerJUnitTest {
         lastEvent = e.getEvents().get(0);
       }
     };
-    CacheTransactionManager ctm = c.getCacheTransactionManager();
+    var ctm = c.getCacheTransactionManager();
     ctm.addListener(tl1);
 
     ctm.begin();
@@ -286,22 +286,22 @@ public class CacheListenerJUnitTest {
 
   @Test
   public void testTxOpOrder() throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     clearListener();
-    Region r = c.createRegion("r", af.create());
+    var r = c.createRegion("r", af.create());
 
     TransactionListener tl1 = new TransactionListenerAdapter() {
       @Override
       public void afterRollback(TransactionEvent e) {
         assertEquals(3, e.getEvents().size());
-        String[] keys = new String[] {(String) ((EntryEvent) e.getEvents().get(0)).getKey(),
+        var keys = new String[] {(String) ((EntryEvent) e.getEvents().get(0)).getKey(),
             (String) ((EntryEvent) e.getEvents().get(1)).getKey(),
             (String) ((EntryEvent) e.getEvents().get(2)).getKey()};
         assertEquals(Arrays.asList("b", "c", "a"), Arrays.asList(keys));
         invokeCount = 1;
       }
     };
-    CacheTransactionManager ctm = c.getCacheTransactionManager();
+    var ctm = c.getCacheTransactionManager();
     ctm.addListener(tl1);
 
     ctm.begin();
@@ -315,24 +315,24 @@ public class CacheListenerJUnitTest {
 
   @Test
   public void testMultiRegionTxOpOrder() throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     clearListener();
-    Region r1 = c.createRegion("r1", af.create());
-    Region r2 = r1.createSubregion("r2", af.create());
-    Region r3 = r2.createSubregion("r3", af.create());
+    var r1 = c.createRegion("r1", af.create());
+    var r2 = r1.createSubregion("r2", af.create());
+    var r3 = r2.createSubregion("r3", af.create());
 
     TransactionListener tl1 = new TransactionListenerAdapter() {
       @Override
       public void afterCommit(TransactionEvent e) {
         assertEquals(3, e.getEvents().size());
-        String[] keys = new String[] {(String) ((EntryEvent) e.getEvents().get(0)).getKey(),
+        var keys = new String[] {(String) ((EntryEvent) e.getEvents().get(0)).getKey(),
             (String) ((EntryEvent) e.getEvents().get(1)).getKey(),
             (String) ((EntryEvent) e.getEvents().get(2)).getKey()};
         assertEquals(Arrays.asList("b", "c", "a"), Arrays.asList(keys));
         invokeCount = 1;
       }
     };
-    CacheTransactionManager ctm = c.getCacheTransactionManager();
+    var ctm = c.getCacheTransactionManager();
     ctm.addListener(tl1);
 
     ctm.begin();

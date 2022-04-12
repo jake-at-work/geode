@@ -68,10 +68,10 @@ public class ConnectionConnector {
   public ConnectionImpl connectClientToServer(ServerLocation location, boolean forQueue)
       throws IOException {
     ConnectionImpl connection = null;
-    boolean initialized = false;
+    var initialized = false;
     try {
       connection = getConnection(distributedSystem);
-      ClientSideHandshake connHandShake = getClientSideHandshake(handshake);
+      var connHandShake = getClientSideHandshake(handshake);
       connection.connect(endpointManager, location, connHandShake, socketBufferSize,
           handshakeTimeout, readTimeout, getCommMode(forQueue), gatewaySender, socketCreator,
           socketFactory);
@@ -102,7 +102,7 @@ public class ConnectionConnector {
 
   CacheClientUpdater connectServerToClient(Endpoint endpoint, QueueManager qManager,
       boolean isPrimary, ClientUpdater failedUpdater, String clientUpdateName) {
-    CacheClientUpdater updater = new CacheClientUpdater(clientUpdateName, endpoint.getLocation(),
+    var updater = new CacheClientUpdater(clientUpdateName, endpoint.getLocation(),
         isPrimary, distributedSystem, new ClientSideHandshakeImpl(handshake), qManager,
         endpointManager,
         endpoint, handshakeTimeout, socketCreator, socketFactory);

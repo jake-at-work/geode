@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.admin.GemFireHealth;
 import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.HealthMonitor;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -43,10 +42,10 @@ public class FetchHealthDiagnosisResponse extends AdminResponse {
    */
   public static FetchHealthDiagnosisResponse create(DistributionManager dm,
       InternalDistributedMember recipient, int id, GemFireHealth.Health healthCode) {
-    FetchHealthDiagnosisResponse m = new FetchHealthDiagnosisResponse();
+    var m = new FetchHealthDiagnosisResponse();
     m.setRecipient(recipient);
     {
-      HealthMonitor hm = dm.getHealthMonitor(recipient);
+      var hm = dm.getHealthMonitor(recipient);
       if (hm.getId() == id) {
         m.diagnosis = hm.getDiagnosis(healthCode);
       }
@@ -80,11 +79,11 @@ public class FetchHealthDiagnosisResponse extends AdminResponse {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("FetchHealthDiagnosisResponse from ");
     sb.append(getRecipient());
     sb.append(" diagnosis=\"");
-    for (int i = 0; i < diagnosis.length; i++) {
+    for (var i = 0; i < diagnosis.length; i++) {
       sb.append(diagnosis[i]);
       if (i < diagnosis.length - 1) {
         sb.append(" ");

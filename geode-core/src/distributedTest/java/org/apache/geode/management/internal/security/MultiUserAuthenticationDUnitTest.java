@@ -31,8 +31,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionService;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.cache.query.CqAttributesFactory;
@@ -40,7 +38,6 @@ import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqExistsException;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.examples.SimpleSecurityManager;
@@ -74,7 +71,7 @@ public class MultiUserAuthenticationDUnitTest {
 
     locator = lsRule.startLocatorVM(0, l -> l.withSecurityManager(SimpleSecurityManager.class));
 
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty("security-username", "cluster");
     serverProps.setProperty("security-password", "cluster");
     lsRule.startServerVM(1, serverProps, locator.getPort());
@@ -87,22 +84,22 @@ public class MultiUserAuthenticationDUnitTest {
 
   @Test
   public void multiAuthenticatedView() throws Exception {
-    int locatorPort = locator.getPort();
-    for (int i = 0; i < SESSION_COUNT; i++) {
-      ClientCache cache = client.withCacheSetup(f -> f.setPoolSubscriptionEnabled(true)
+    var locatorPort = locator.getPort();
+    for (var i = 0; i < SESSION_COUNT; i++) {
+      var cache = client.withCacheSetup(f -> f.setPoolSubscriptionEnabled(true)
           .setPoolMultiuserAuthentication(true)
           .addPoolLocator("localhost", locatorPort))
           .createCache();
 
-      RegionService regionService1 = client.createAuthenticatedView("data", "data");
-      RegionService regionService2 = client.createAuthenticatedView("cluster", "cluster");
+      var regionService1 = client.createAuthenticatedView("data", "data");
+      var regionService2 = client.createAuthenticatedView("cluster", "cluster");
 
       cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
 
       Region region = regionService1.getRegion(SEPARATOR + "region");
       Region region2 = regionService2.getRegion(SEPARATOR + "region");
-      for (int j = 0; j < KEY_COUNT; j++) {
-        String value = i + "" + j;
+      for (var j = 0; j < KEY_COUNT; j++) {
+        var value = i + "" + j;
         region.put(value, value);
         assertThatThrownBy(() -> region2.put(value, value))
             .isInstanceOf(ServerOperationException.class);
@@ -115,19 +112,19 @@ public class MultiUserAuthenticationDUnitTest {
 
   @Test
   public void multiUserCQ() throws Exception {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     client.withCacheSetup(f -> f.setPoolSubscriptionEnabled(true)
         .setPoolMultiuserAuthentication(true)
         .addPoolLocator("localhost", locatorPort))
         .createCache();
 
     // both are able to read data
-    RegionService regionService1 = client.createAuthenticatedView("data", "data");
-    RegionService regionService2 = client.createAuthenticatedView("dataRead", "dataRead");
+    var regionService1 = client.createAuthenticatedView("data", "data");
+    var regionService2 = client.createAuthenticatedView("dataRead", "dataRead");
 
-    EventsCqListner listener1 = createAndExecuteCQ(regionService1.getQueryService(), "cq1",
+    var listener1 = createAndExecuteCQ(regionService1.getQueryService(), "cq1",
         "select * from /region r where r.length<=2");
-    EventsCqListner listener2 = createAndExecuteCQ(regionService2.getQueryService(), "cq2",
+    var listener2 = createAndExecuteCQ(regionService2.getQueryService(), "cq2",
         "select * from /region r where r.length>=2");
 
     // put 3 data in the region
@@ -148,11 +145,11 @@ public class MultiUserAuthenticationDUnitTest {
   private static EventsCqListner createAndExecuteCQ(QueryService queryService, String cqName,
       String query)
       throws CqExistsException, CqException, RegionNotFoundException {
-    CqAttributesFactory cqaf = new CqAttributesFactory();
-    EventsCqListner listener = new EventsCqListner();
+    var cqaf = new CqAttributesFactory();
+    var listener = new EventsCqListner();
     cqaf.addCqListener(listener);
 
-    CqQuery cq = queryService.newCq(cqName, query, cqaf.create());
+    var cq = queryService.newCq(cqName, query, cqaf.create());
     cq.execute();
     return listener;
   }

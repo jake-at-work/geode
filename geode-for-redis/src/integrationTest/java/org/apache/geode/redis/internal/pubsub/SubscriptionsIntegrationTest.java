@@ -45,12 +45,12 @@ public class SubscriptionsIntegrationTest {
   private final AtomicInteger channelCount = new AtomicInteger();
 
   private byte[] createChannel() {
-    int myChannelCount = channelCount.incrementAndGet();
+    var myChannelCount = channelCount.incrementAndGet();
     return stringToBytes("channel-" + myChannelCount);
   }
 
   private Client createClient() {
-    Client client = mock(Client.class);
+    var client = mock(Client.class);
     when(client.addChannelSubscription(any())).thenReturn(true);
     return client;
   }
@@ -98,13 +98,13 @@ public class SubscriptionsIntegrationTest {
 
   @Test
   public void removeByClient_doesNotThrowException_whenListIsConcurrentlyModified() {
-    final Subscriptions subscriptions = new Subscriptions(mock(RedisStats.class));
+    final var subscriptions = new Subscriptions(mock(RedisStats.class));
 
     List<Client> clients = new LinkedList<>();
-    for (int i = 0; i < ITERATIONS; i++) {
-      Channel channel = mock(Channel.class);
+    for (var i = 0; i < ITERATIONS; i++) {
+      var channel = mock(Channel.class);
       when(channel.closeFuture()).thenReturn(mock(ChannelFuture.class));
-      Client client = new Client(channel, mock(PubSub.class));
+      var client = new Client(channel, mock(PubSub.class));
       clients.add(client);
       subscriptions.addChannel(stringToBytes("channel"), client);
     }
@@ -120,10 +120,10 @@ public class SubscriptionsIntegrationTest {
   @Test
   public void unsubscribeByChannelAndClient_doesNotThrowException_whenListIsConcurrentlyModified() {
     List<Client> clients = new LinkedList<>();
-    for (int i = 0; i < ITERATIONS; i++) {
-      Channel channel = mock(Channel.class);
+    for (var i = 0; i < ITERATIONS; i++) {
+      var channel = mock(Channel.class);
       when(channel.closeFuture()).thenReturn(mock(ChannelFuture.class));
-      Client client = new Client(channel, mock(PubSub.class));
+      var client = new Client(channel, mock(PubSub.class));
       clients.add(client);
       subscriptions.addChannel(stringToBytes("channel"), client);
     }

@@ -34,8 +34,8 @@ import org.apache.geode.internal.serialization.KnownVersion;
 public class FilterInfoTest {
   @Test
   public void validateSerialization() throws IOException, ClassNotFoundException {
-    FilterInfo serialized = new FilterInfo();
-    HashMap<Long, Integer> cqs = new HashMap<>();
+    var serialized = new FilterInfo();
+    var cqs = new HashMap<Long, Integer>();
     cqs.put(1L, 1);
     cqs.put(2L, 2);
     serialized.setCQs(cqs);
@@ -47,11 +47,11 @@ public class FilterInfoTest {
     clientsInv.add(3L);
     clientsInv.add(4L);
     serialized.setInterestedClientsInv(clientsInv);
-    HeapDataOutputStream dataOut = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var dataOut = new HeapDataOutputStream(KnownVersion.CURRENT);
     serialized.toData(dataOut);
-    byte[] outputBytes = dataOut.toByteArray();
-    FilterInfo deserialized = new FilterInfo();
-    ByteArrayDataInput dataInput = new ByteArrayDataInput();
+    var outputBytes = dataOut.toByteArray();
+    var deserialized = new FilterInfo();
+    var dataInput = new ByteArrayDataInput();
     dataInput.initialize(outputBytes, KnownVersion.CURRENT);
     deserialized.fromData(dataInput);
     assertThat(deserialized.getCQs()).isEqualTo(cqs);

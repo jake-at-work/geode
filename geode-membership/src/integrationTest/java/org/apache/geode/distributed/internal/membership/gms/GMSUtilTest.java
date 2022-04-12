@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.net.InetAddress;
-import java.util.List;
 
 import junitparams.Parameters;
 import org.junit.Test;
@@ -71,7 +70,7 @@ public class GMSUtilTest {
 
   @Test
   public void unresolveableAddressNotChecked() throws MembershipConfigurationException {
-    final List<HostAndPort> HostAndPortes =
+    final var HostAndPortes =
         parseLocators(UNRESOLVEABLE_HOST + "[" + PORT + "]", (InetAddress) null);
     assertThat(HostAndPortes)
         .contains(new HostAndPort(UNRESOLVEABLE_HOST, PORT));
@@ -80,7 +79,7 @@ public class GMSUtilTest {
   @Test
   @Parameters({"1234", "0"})
   public void validPortSpecified(final int validPort) throws MembershipConfigurationException {
-    final String locatorsString = RESOLVEABLE_LOOPBACK_HOST + "[" + validPort + "]";
+    final var locatorsString = RESOLVEABLE_LOOPBACK_HOST + "[" + validPort + "]";
     assertThat(parseLocators(locatorsString, InetAddress.getLoopbackAddress()))
         .contains(
             new HostAndPort(RESOLVEABLE_LOOPBACK_HOST, validPort));
@@ -89,7 +88,7 @@ public class GMSUtilTest {
   @Test
   @Parameters({"[]", "1234]", "[1234", ":1234", ""})
   public void malformedPortSpecification(final String portSpecification) {
-    final String locatorsString = RESOLVEABLE_LOOPBACK_HOST + portSpecification;
+    final var locatorsString = RESOLVEABLE_LOOPBACK_HOST + portSpecification;
     assertThatThrownBy(
         () -> parseLocators(locatorsString, InetAddress.getLoopbackAddress()))
             .isInstanceOf(MembershipConfigurationException.class)
@@ -116,7 +115,7 @@ public class GMSUtilTest {
 
   @Test
   public void multipleHosts() throws MembershipConfigurationException {
-    final List<HostAndPort> addys =
+    final var addys =
         parseLocators(
             "geodecluster-sample-locator-0.geodecluster-sample-locator[10334],"
                 + "geodecluster-sample-locator-1.geodecluster-sample-locator[10334],"
@@ -142,7 +141,7 @@ public class GMSUtilTest {
   @Test
   public void nonLoopbackBindAddressDoesNotResolveLocatorAddress()
       throws MembershipConfigurationException {
-    final List<HostAndPort> hostAndPorts =
+    final var hostAndPorts =
         parseLocators(UNRESOLVEABLE_HOST + "[" + PORT + "]",
             RESOLVEABLE_NON_LOOPBACK_HOST);
     assertThat(hostAndPorts)

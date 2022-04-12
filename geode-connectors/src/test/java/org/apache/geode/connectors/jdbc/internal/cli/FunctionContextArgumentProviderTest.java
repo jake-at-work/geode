@@ -39,10 +39,10 @@ public class FunctionContextArgumentProviderTest {
   public void setUp() {
     context = mock(FunctionContext.class);
     ResultSender<Object> resultSender = mock(ResultSender.class);
-    InternalCache cache = mock(InternalCache.class);
-    DistributedSystem system = mock(DistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var system = mock(DistributedSystem.class);
     distributedMember = mock(DistributedMember.class);
-    JdbcConnectorService service = mock(JdbcConnectorService.class);
+    var service = mock(JdbcConnectorService.class);
 
     when(context.getResultSender()).thenReturn(resultSender);
     when(context.getCache()).thenReturn(cache);
@@ -57,7 +57,7 @@ public class FunctionContextArgumentProviderTest {
     when(distributedMember.getId()).thenReturn("myId");
     when(distributedMember.getName()).thenReturn("myName");
 
-    String member = FunctionContextArgumentProvider.getMember(context);
+    var member = FunctionContextArgumentProvider.getMember(context);
 
     assertThat(member).isEqualTo("myName");
   }
@@ -66,7 +66,7 @@ public class FunctionContextArgumentProviderTest {
   public void getMemberReturnsMemberIdIfNameIsMissing() {
     when(distributedMember.getId()).thenReturn("myId");
 
-    String member = FunctionContextArgumentProvider.getMember(context);
+    var member = FunctionContextArgumentProvider.getMember(context);
 
     assertThat(member).isEqualTo("myId");
   }

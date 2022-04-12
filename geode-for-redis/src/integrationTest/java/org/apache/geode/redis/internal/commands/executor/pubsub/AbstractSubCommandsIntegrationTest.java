@@ -33,7 +33,6 @@ import static redis.clients.jedis.Protocol.Keyword.NUMSUB;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.junit.Before;
@@ -69,7 +68,7 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
 
   @Test
   public void pubsub_shouldReturnError_givenUnknownSubcommand() {
-    String expected = String.format(ERROR_UNKNOWN_PUBSUB_SUBCOMMAND, "nonesuch");
+    var expected = String.format(ERROR_UNKNOWN_PUBSUB_SUBCOMMAND, "nonesuch");
 
     assertThatThrownBy(() -> introspector.sendCommand(PUBSUB, "nonesuch"))
         .hasMessageContaining(expected);
@@ -124,7 +123,7 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
     executor.submit(() -> subscriber.psubscribe(mockSubscriber, "f*"));
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
-    final List<String> result = introspector.pubsubChannels("f*");
+    final var result = introspector.pubsubChannels("f*");
 
     assertThat(result).isEmpty();
 
@@ -140,7 +139,7 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
     executor.submit(() -> subscriber.subscribe(mockSubscriber, "foo", "bar"));
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 2);
 
-    final List<String> result = introspector.pubsubChannels("fo*");
+    final var result = introspector.pubsubChannels("fo*");
 
     assertThat(result).containsExactlyInAnyOrderElementsOf(expectedChannels);
 
@@ -149,7 +148,7 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
 
   @Test
   public void channels_should_returnEmptyArray_givenPatternWithNoMatches() {
-    final List<String> result = introspector.pubsubChannels("fo*");
+    final var result = introspector.pubsubChannels("fo*");
 
     assertThat(result).isEmpty();
   }
@@ -174,9 +173,9 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
 
   @Test
   public void channels_shouldNotReturnDuplicates_givenMultipleSubscribersToSameChannel_whenCalledWithoutPattern() {
-    Jedis subscriber2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
+    var subscriber2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
 
-    MockSubscriber mockSubscriber2 = new MockSubscriber();
+    var mockSubscriber2 = new MockSubscriber();
     List<byte[]> expectedChannels = new ArrayList<>();
     expectedChannels.add("foo".getBytes());
 
@@ -214,15 +213,15 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
 
   @Test
   public void numsub_shouldReturnListOfChannelsWithSubscriberCount_whenCalledWithActiveChannels() {
-    Jedis subscriber2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
-    MockSubscriber fooAndBarSubscriber = new MockSubscriber();
+    var subscriber2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
+    var fooAndBarSubscriber = new MockSubscriber();
 
     executor.submit(() -> subscriber.subscribe(mockSubscriber, "foo"));
     executor.submit(() -> subscriber2.subscribe(fooAndBarSubscriber, "foo", "bar"));
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1
         && fooAndBarSubscriber.getSubscribedChannels() == 2);
 
-    final Map<String, Long> result = introspector.pubsubNumSub("foo", "bar");
+    final var result = introspector.pubsubNumSub("foo", "bar");
 
     assertThat(result.containsKey("foo")).isTrue();
     assertThat(result.containsKey("bar")).isTrue();
@@ -239,7 +238,7 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
     executor.submit(() -> subscriber.subscribe(mockSubscriber, "foo"));
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
-    final Map<String, Long> result = introspector.pubsubNumSub("bar");
+    final var result = introspector.pubsubNumSub("bar");
 
     assertThat(result.containsKey("bar")).isTrue();
     assertThat(result.get("bar")).isEqualTo(0L);
@@ -252,7 +251,7 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
     executor.submit(() -> subscriber.psubscribe(mockSubscriber, "f*"));
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
-    final Map<String, Long> result = introspector.pubsubNumSub("f*");
+    final var result = introspector.pubsubNumSub("f*");
 
     assertThat(result.containsKey("f*")).isTrue();
     assertThat(result.get("f*")).isEqualTo(0L);
@@ -262,15 +261,15 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
 
   @Test
   public void numsub_shouldReturnSubscriberCount_whenCalledWithPatternAndSubscribersExist() {
-    Jedis subscriber2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
-    MockSubscriber fooSubscriber = new MockSubscriber();
+    var subscriber2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
+    var fooSubscriber = new MockSubscriber();
 
     executor.submit(() -> subscriber.psubscribe(mockSubscriber, "f*"));
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
     executor.submit(() -> subscriber2.subscribe(fooSubscriber, "foo"));
     waitFor(() -> fooSubscriber.getSubscribedChannels() == 1);
 
-    Map<String, Long> result = introspector.pubsubNumSub("f*");
+    var result = introspector.pubsubNumSub("f*");
 
     assertThat(result.containsKey("foo")).isFalse();
     assertThat(result.containsKey("f*")).isTrue();
@@ -300,8 +299,8 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
 
   @Test
   public void numpat_shouldReturnCountOfAllPatternSubscriptions_ignoringDuplicates() {
-    Jedis subscriber2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
-    MockSubscriber mockSubscriber2 = new MockSubscriber();
+    var subscriber2 = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
+    var mockSubscriber2 = new MockSubscriber();
 
     executor.submit(() -> subscriber.psubscribe(mockSubscriber, "f*"));
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -311,7 +310,7 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
     executor.submit(() -> subscriber2.psubscribe(mockSubscriber2, "f*"));
     waitFor(() -> mockSubscriber2.getSubscribedChannels() == 1);
 
-    Long result = introspector.pubsubNumPat();
+    var result = introspector.pubsubNumPat();
 
     assertThat(result).isEqualTo(2);
 
@@ -324,8 +323,8 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
 
   @Test
   public void numpat_shouldNotIncludeChannelSubscriptions_forDifferentClient() {
-    Jedis patternSubscriberJedis = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
-    MockSubscriber patternSubscriber = new MockSubscriber();
+    var patternSubscriberJedis = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT);
+    var patternSubscriber = new MockSubscriber();
 
     executor.submit(() -> patternSubscriberJedis.psubscribe(patternSubscriber, "f*"));
     executor.submit(() -> subscriber.psubscribe(mockSubscriber, "b*", "f*"));
@@ -333,7 +332,7 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 2
         && patternSubscriber.getSubscribedChannels() == 1);
 
-    Long result = introspector.pubsubNumPat();
+    var result = introspector.pubsubNumPat();
 
     assertThat(result).isEqualTo(2);
 
@@ -350,7 +349,7 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
     mockSubscriber.subscribe("foo");
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 2);
 
-    Long result = introspector.pubsubNumPat();
+    var result = introspector.pubsubNumPat();
 
     assertThat(result).isEqualTo(1);
 
@@ -359,13 +358,13 @@ public abstract class AbstractSubCommandsIntegrationTest implements RedisIntegra
   }
 
   private void unsubscribeWithSuccess(MockSubscriber subscriber) {
-    int initialSubscription = subscriber.getSubscribedChannels();
+    var initialSubscription = subscriber.getSubscribedChannels();
     subscriber.unsubscribe();
     waitFor(() -> subscriber.getSubscribedChannels() < initialSubscription);
   }
 
   private void punsubscribeWithSuccess(MockSubscriber subscriber) {
-    int initialSubscription = subscriber.getSubscribedChannels();
+    var initialSubscription = subscriber.getSubscribedChannels();
     subscriber.punsubscribe();
     waitFor(() -> subscriber.getSubscribedChannels() < initialSubscription);
   }

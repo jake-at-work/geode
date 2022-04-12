@@ -14,13 +14,11 @@
  */
 package org.apache.geode.internal.cache.rollingupgrade;
 
-import java.util.Properties;
 
 import org.junit.Test;
 
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.RMIException;
-import org.apache.geode.test.dunit.VM;
 
 public class RollingUpgradeOldMemberCantJoinRolledLocators extends RollingUpgrade2DUnitTestBase {
 
@@ -31,12 +29,12 @@ public class RollingUpgradeOldMemberCantJoinRolledLocators extends RollingUpgrad
    */
   @Test
   public void testOldMemberCantJoinRolledLocators() {
-    VM oldServer = Host.getHost(0).getVM(oldVersion, 1);
-    Properties props = getSystemProperties(); // uses the DUnit locator
+    var oldServer = Host.getHost(0).getVM(oldVersion, 1);
+    var props = getSystemProperties(); // uses the DUnit locator
     try {
       oldServer.invoke(invokeCreateCache(props));
     } catch (RMIException e) {
-      Throwable cause = e.getCause();
+      var cause = e.getCause();
       if ((cause instanceof AssertionError)) {
         cause = cause.getCause();
         if (cause != null && cause.getMessage() != null && !cause.getMessage().startsWith(

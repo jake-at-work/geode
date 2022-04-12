@@ -44,10 +44,10 @@ public class StatisticsMonitorTest {
 
   @Before
   public void setUp() throws Exception {
-    final long startTime = System.currentTimeMillis();
+    final var startTime = System.currentTimeMillis();
     manager = new TestStatisticsManager(1, getClass().getSimpleName(), startTime);
 
-    final StatArchiveHandlerConfig mockStatArchiveHandlerConfig =
+    final var mockStatArchiveHandlerConfig =
         mock(StatArchiveHandlerConfig.class,
             getClass().getSimpleName() + "$" + StatArchiveHandlerConfig.class.getSimpleName());
     when(mockStatArchiveHandlerConfig.getArchiveFileName()).thenReturn(new File(""));
@@ -76,9 +76,9 @@ public class StatisticsMonitorTest {
 
   @Test
   public void testAddListener() {
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    var monitor = new TestStatisticsMonitor();
     assertTrue(monitor.getStatisticsListenersSnapshot().isEmpty());
-    StatisticsListener listener = notification -> {
+    var listener = (StatisticsListener) notification -> {
     };
 
     assertNull(sampleCollector.getStatMonitorHandlerSnapshot());
@@ -96,9 +96,9 @@ public class StatisticsMonitorTest {
 
   @Test
   public void testAddExistingListener() {
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    var monitor = new TestStatisticsMonitor();
     assertTrue(monitor.getStatisticsListenersSnapshot().isEmpty());
-    StatisticsListener listener = notification -> {
+    var listener = (StatisticsListener) notification -> {
     };
 
     monitor.addListener(listener);
@@ -114,9 +114,9 @@ public class StatisticsMonitorTest {
 
   @Test
   public void testRemoveListener() {
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    var monitor = new TestStatisticsMonitor();
     assertTrue(monitor.getStatisticsListenersSnapshot().isEmpty());
-    StatisticsListener listener = notification -> {
+    var listener = (StatisticsListener) notification -> {
     };
 
     assertNull(sampleCollector.getStatMonitorHandlerSnapshot());
@@ -141,9 +141,9 @@ public class StatisticsMonitorTest {
 
   @Test
   public void testRemoveMissingListener() {
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    var monitor = new TestStatisticsMonitor();
     assertTrue(monitor.getStatisticsListenersSnapshot().isEmpty());
-    StatisticsListener listener = notification -> {
+    var listener = (StatisticsListener) notification -> {
     };
 
     assertTrue(monitor.getStatisticsListenersSnapshot().isEmpty());

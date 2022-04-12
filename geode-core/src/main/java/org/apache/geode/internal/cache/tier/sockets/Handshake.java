@@ -20,7 +20,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.SECURITY_CLIE
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -174,15 +173,15 @@ public abstract class Handshake {
   }
 
   protected void setOverrides(byte[] values) {
-    byte override = values[0];
+    var override = values[0];
     setClientConflation(((byte) (override & 0x03)));
   }
 
   // used by CacheClientNotifier's handshake reading code
   public static byte[] extractOverrides(byte[] values) {
-    byte override = values[0];
-    byte[] overrides = new byte[1];
-    for (int item = 0; item < overrides.length; item++) {
+    var override = values[0];
+    var overrides = new byte[1];
+    for (var item = 0; item < overrides.length; item++) {
       overrides[item] = (byte) (override & 0x03);
       override = (byte) (override >>> 2);
     }
@@ -226,7 +225,7 @@ public abstract class Handshake {
   public void writeCredentials(DataOutputStream dos, DataInputStream dis, Properties p_credentials,
       boolean isNotification, DistributedMember member)
       throws IOException, GemFireSecurityException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT);
     try {
       writeCredentials(dos, dis, p_credentials, isNotification, member, hdos);
     } finally {
@@ -260,7 +259,7 @@ public abstract class Handshake {
       return;
     }
 
-    byte acceptanceCode = encryptor.writeEncryptedCredentials(dos, dis, p_credentials, heapdos);
+    var acceptanceCode = encryptor.writeEncryptedCredentials(dos, dis, p_credentials, heapdos);
     if (acceptanceCode != REPLY_OK && acceptanceCode != REPLY_AUTH_NOT_REQUIRED) {
       // Ignore the useless data
       dis.readByte();
@@ -290,9 +289,9 @@ public abstract class Handshake {
       throws GemFireSecurityException, IOException {
 
     Properties credentials = null;
-    boolean requireAuthentication = securityService.isClientSecurityRequired();
+    var requireAuthentication = securityService.isClientSecurityRequired();
     try {
-      byte secureMode = dis.readByte();
+      var secureMode = dis.readByte();
       throwIfMissingRequiredCredentials(requireAuthentication, secureMode != CREDENTIALS_NONE);
       if (secureMode == CREDENTIALS_NORMAL) {
         encryptor.setAppSecureMode(CREDENTIALS_NORMAL);
@@ -315,7 +314,7 @@ public abstract class Handshake {
       DistributedMember member) throws IOException, AuthenticationRequiredException,
       AuthenticationFailedException, ServerRefusedConnectionException {
 
-    String message = dis.readUTF();
+    var message = dis.readUTF();
     if (message.length() == 0 && acceptanceCode != REPLY_WAN_CREDENTIALS) {
       return; // success
     }
@@ -361,16 +360,16 @@ public abstract class Handshake {
     if (!(other instanceof Handshake)) {
       return false;
     }
-    final Handshake that = (Handshake) other;
+    final var that = (Handshake) other;
 
     return id.isSameDSMember(that.id) && getReplyCode() == that.getReplyCode();
   }
 
   @Override
   public int hashCode() {
-    final int mult = 37;
+    final var mult = 37;
 
-    int result = id.hashCode();
+    var result = id.hashCode();
     result = mult * result + getReplyCode();
 
     return result;
@@ -378,7 +377,7 @@ public abstract class Handshake {
 
   @Override
   public String toString() {
-    StringBuilder buf =
+    var buf =
         new StringBuilder().append("HandShake@").append(System.identityHashCode(this))
             .append(" code: ").append(getReplyCode());
     if (id != null) {
@@ -404,7 +403,7 @@ public abstract class Handshake {
 
     // if authInit exists
     try {
-      AuthInitialize auth =
+      var auth =
           CallbackInstantiator.getObjectOfType(authInitMethod, AuthInitialize.class);
       auth.init(logWriter, securityLogWriter);
       try {
@@ -424,7 +423,7 @@ public abstract class Handshake {
   }
 
   protected Properties getCredentials(DistributedMember member) {
-    String authInitMethod = system.getProperties().getProperty(SECURITY_CLIENT_AUTH_INIT);
+    var authInitMethod = system.getProperties().getProperty(SECURITY_CLIENT_AUTH_INIT);
     return getCredentials(authInitMethod, system.getSecurityProperties(), member, false,
         system.getLogWriter(),
         system.getSecurityLogWriter());
@@ -438,10 +437,10 @@ public abstract class Handshake {
       DistributedSystem system, SecurityService securityService)
       throws GemFireSecurityException, IOException {
 
-    boolean requireAuthentication = securityService.isClientSecurityRequired();
+    var requireAuthentication = securityService.isClientSecurityRequired();
     Properties credentials = null;
     try {
-      byte secureMode = dis.readByte();
+      var secureMode = dis.readByte();
       throwIfMissingRequiredCredentials(requireAuthentication, secureMode != CREDENTIALS_NONE);
       if (secureMode == CREDENTIALS_NORMAL) {
         if (requireAuthentication) {
@@ -496,7 +495,7 @@ public abstract class Handshake {
       if (securityService.isIntegratedSecurity()) {
         return securityService.login(credentials);
       } else {
-        Method instanceGetter = ClassLoadUtils.methodFromName(authenticatorMethod);
+        var instanceGetter = ClassLoadUtils.methodFromName(authenticatorMethod);
         auth = (Authenticator) instanceGetter.invoke(null, (Object[]) null);
         auth.init(securityProperties, logWriter, securityLogWriter);
         return auth.authenticate(credentials, member);
@@ -516,7 +515,7 @@ public abstract class Handshake {
   public Object verifyCredentials()
       throws AuthenticationRequiredException, AuthenticationFailedException {
 
-    String methodName = system.getProperties().getProperty(SECURITY_CLIENT_AUTHENTICATOR);
+    var methodName = system.getProperties().getProperty(SECURITY_CLIENT_AUTHENTICATOR);
     return verifyCredentials(methodName, credentials, system.getSecurityProperties(),
         (InternalLogWriter) system.getLogWriter(),
         (InternalLogWriter) system.getSecurityLogWriter(), id.getDistributedMember(),
@@ -529,8 +528,8 @@ public abstract class Handshake {
     if (credentials == null) {
       return;
     }
-    String authenticator = system.getProperties().getProperty(SECURITY_CLIENT_AUTHENTICATOR);
-    Properties peerWanProps = readCredentials(dis, dos, system, securityService);
+    var authenticator = system.getProperties().getProperty(SECURITY_CLIENT_AUTHENTICATOR);
+    var peerWanProps = readCredentials(dis, dos, system, securityService);
     verifyCredentials(authenticator, peerWanProps, system.getSecurityProperties(),
         (InternalLogWriter) system.getLogWriter(),
         (InternalLogWriter) system.getSecurityLogWriter(), member, securityService);

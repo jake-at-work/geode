@@ -51,7 +51,7 @@ public class PartitionedRegionRedundancyTrackerTest {
   @Test
   public void willNotIncrementLowRedundancyBucketCountBeyondTotalsBuckets() {
 
-    for (int i = 0; i < TOTAL_BUCKETS; i++) {
+    for (var i = 0; i < TOTAL_BUCKETS; i++) {
       redundancyTracker.incrementLowRedundancyBucketCount();
     }
     verify(stats, times(TOTAL_BUCKETS)).incLowRedundancyBucketCount(1);
@@ -76,7 +76,7 @@ public class PartitionedRegionRedundancyTrackerTest {
   @Test
   public void willNotIncrementNoCopiesBucketCountBeyondTotalsBuckets() {
 
-    for (int i = 0; i < TOTAL_BUCKETS; i++) {
+    for (var i = 0; i < TOTAL_BUCKETS; i++) {
       redundancyTracker.incrementNoCopiesBucketCount();
     }
     verify(stats, times(TOTAL_BUCKETS)).incNoCopiesBucketCount(1);

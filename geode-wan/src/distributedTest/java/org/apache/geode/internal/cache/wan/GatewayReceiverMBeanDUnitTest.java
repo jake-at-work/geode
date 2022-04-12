@@ -21,19 +21,15 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Set;
 
-import javax.management.ObjectName;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.GatewayReceiverMXBean;
 import org.apache.geode.management.ManagementTestBase;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.management.internal.SystemManagementService;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.WanTest;
 
 @Category({WanTest.class})
@@ -44,7 +40,7 @@ public class GatewayReceiverMBeanDUnitTest extends ManagementTestBase {
     initManagement(true);
 
     // Verify MBean is created in each managed node
-    for (VM vm : getManagedNodeList()) {
+    for (var vm : getManagedNodeList()) {
       vm.invoke(() -> {
         getCache().createGatewayReceiverFactory().create();
       });
@@ -60,9 +56,9 @@ public class GatewayReceiverMBeanDUnitTest extends ManagementTestBase {
     initManagement(true);
 
     // Create a GatewayReceiver and verify an MBean is created in each managed node
-    for (VM vm : getManagedNodeList()) {
+    for (var vm : getManagedNodeList()) {
       vm.invoke(() -> {
-        GatewayReceiver receiver = getCache().createGatewayReceiverFactory().create();
+        var receiver = getCache().createGatewayReceiverFactory().create();
         receiver.start();
       });
       vm.invoke(this::verifyMBean);
@@ -72,9 +68,9 @@ public class GatewayReceiverMBeanDUnitTest extends ManagementTestBase {
     getManagingNode().invoke(() -> verifyMBeanProxies(getCache()));
 
     // Destroy the GatewayReceiver and verify its MBean is destroyed in each managed node
-    for (VM vm : getManagedNodeList()) {
+    for (var vm : getManagedNodeList()) {
       vm.invoke(() -> {
-        GatewayReceiver receiver = getCache().getGatewayReceivers().iterator().next();
+        var receiver = getCache().getGatewayReceivers().iterator().next();
         receiver.stop();
         receiver.destroy();
       });
@@ -95,7 +91,7 @@ public class GatewayReceiverMBeanDUnitTest extends ManagementTestBase {
   }
 
   private GatewayReceiverMXBean getMBean() {
-    ObjectName objectName =
+    var objectName =
         MBeanJMXAdapter.getGatewayReceiverMBeanName(getSystem().getDistributedMember());
     return getManagementService().getMBeanInstance(objectName, GatewayReceiverMXBean.class);
   }
@@ -117,8 +113,8 @@ public class GatewayReceiverMBeanDUnitTest extends ManagementTestBase {
   }
 
   private static GatewayReceiverMXBean getMBeanProxy(DistributedMember member) {
-    SystemManagementService service = (SystemManagementService) getManagementService();
-    ObjectName objectName = MBeanJMXAdapter.getGatewayReceiverMBeanName(member);
+    var service = (SystemManagementService) getManagementService();
+    var objectName = MBeanJMXAdapter.getGatewayReceiverMBeanName(member);
     return service.getMBeanProxy(objectName, GatewayReceiverMXBean.class);
   }
 }

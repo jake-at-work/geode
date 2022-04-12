@@ -36,17 +36,17 @@ public class RegionPath {
 
   public RegionPath(String pathName) {
     regionPath = pathName;
-    String[] regions = pathName.split(SEPARATOR);
+    var regions = pathName.split(SEPARATOR);
 
-    LinkedList<String> regionsNames = new LinkedList<>();
-    for (String region : regions) {
+    var regionsNames = new LinkedList<String>();
+    for (var region : regions) {
       if (!region.isEmpty()) {
         regionsNames.add(region);
       }
     }
 
     regionName = regionsNames.removeLast();
-    StringBuilder parentPathBuilder = new StringBuilder();
+    var parentPathBuilder = new StringBuilder();
     while (!regionsNames.isEmpty()) {
       parentPathBuilder.append(SEPARATOR).append(regionsNames.removeFirst());
     }
@@ -78,13 +78,13 @@ public class RegionPath {
       return new String[] {};
     }
 
-    String[] regionsOnPath = getParent().split(SEPARATOR);
+    var regionsOnPath = getParent().split(SEPARATOR);
 
     // Ignore preceding separator if there is one
-    int start = regionsOnPath[0] == null || regionsOnPath[0].isEmpty() ? 1 : 0;
+    var start = regionsOnPath[0] == null || regionsOnPath[0].isEmpty() ? 1 : 0;
 
     List<String> regions = new ArrayList<>();
-    for (int i = start; i < regionsOnPath.length; i++) {
+    for (var i = start; i < regionsOnPath.length; i++) {
       regions.add(regionsOnPath[i]);
     }
 
@@ -119,7 +119,7 @@ public class RegionPath {
   }
 
   public static void main(String[] args) {
-    RegionPath rp = new RegionPath(SEPARATOR + "region1" + SEPARATOR + "region11" + SEPARATOR
+    var rp = new RegionPath(SEPARATOR + "region1" + SEPARATOR + "region11" + SEPARATOR
         + "region111" + SEPARATOR + "region1112");
 
     System.out.println("name :: " + rp.getName());

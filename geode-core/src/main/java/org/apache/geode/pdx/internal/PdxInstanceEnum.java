@@ -101,7 +101,7 @@ public class PdxInstanceEnum implements InternalPdxInstance, ComparableEnum {
   @Immutable
   private static final List<String> fieldNames;
   static {
-    ArrayList<String> tmp = new ArrayList<>(2);
+    var tmp = new ArrayList<String>(2);
     tmp.add("name");
     tmp.add("ordinal");
     fieldNames = Collections.unmodifiableList(tmp);
@@ -143,8 +143,8 @@ public class PdxInstanceEnum implements InternalPdxInstance, ComparableEnum {
   @Override
   public int hashCode() {
     // this hashCode needs to be kept consistent with EnumInfo.PdxInstanceEnumInfo
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((className == null) ? 0 : className.hashCode());
     result = prime * result + ((enumName == null) ? 0 : enumName.hashCode());
     return result;
@@ -161,7 +161,7 @@ public class PdxInstanceEnum implements InternalPdxInstance, ComparableEnum {
     if (!(obj instanceof ComparableEnum)) {
       return false;
     }
-    ComparableEnum other = (ComparableEnum) obj;
+    var other = (ComparableEnum) obj;
     if (className == null) {
       if (other.getClassName() != null) {
         return false;
@@ -182,7 +182,7 @@ public class PdxInstanceEnum implements InternalPdxInstance, ComparableEnum {
 
   @Override
   public byte[] toBytes() throws IOException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     sendTo(hdos);
     return hdos.toByteArray();
   }
@@ -190,7 +190,7 @@ public class PdxInstanceEnum implements InternalPdxInstance, ComparableEnum {
   @Override
   public int compareTo(Object o) {
     if (o instanceof ComparableEnum) {
-      ComparableEnum other = (ComparableEnum) o;
+      var other = (ComparableEnum) o;
       if (!getClassName().equals(other.getClassName())) {
         throw new ClassCastException(
             "Can not compare a " + getClassName() + " to a " + other.getClassName());

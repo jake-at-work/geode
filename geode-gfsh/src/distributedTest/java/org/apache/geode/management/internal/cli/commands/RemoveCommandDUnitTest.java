@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -47,7 +46,7 @@ public class RemoveCommandDUnitTest {
 
   @Before
   public void setup() throws Exception {
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
+    var locator = clusterStartupRule.startLocatorVM(0);
     server1 = clusterStartupRule.startServerVM(1, locator.getPort());
     server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
@@ -64,7 +63,7 @@ public class RemoveCommandDUnitTest {
   }
 
   private static void populateTestRegions() {
-    Cache cache = CacheFactory.getAnyInstance();
+    var cache = CacheFactory.getAnyInstance();
 
     Region<String, String> replicateRegion = cache.getRegion(REPLICATE_REGION_NAME);
     replicateRegion.put(EMPTY_STRING, "valueForEmptyKey");
@@ -78,7 +77,7 @@ public class RemoveCommandDUnitTest {
 
   @Test
   public void removeFromInvalidRegion() {
-    String command = "remove --all --region=NotAValidRegion";
+    var command = "remove --all --region=NotAValidRegion";
 
     gfsh.executeAndAssertThat(command).statusIsError()
         .containsOutput(String.format(REGION_NOT_FOUND, SEPARATOR + "NotAValidRegion"));
@@ -86,7 +85,7 @@ public class RemoveCommandDUnitTest {
 
   @Test
   public void removeWithNoKeyOrAllSpecified() {
-    String command = "remove --region=" + REPLICATE_REGION_NAME;
+    var command = "remove --region=" + REPLICATE_REGION_NAME;
 
     gfsh.executeAndAssertThat(command).statusIsError().containsOutput("Key is Null");
   }
@@ -94,7 +93,7 @@ public class RemoveCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void removeKeyFromReplicateRegion() {
-    String command = "remove --key=key1 --region=" + REPLICATE_REGION_NAME;
+    var command = "remove --key=key1 --region=" + REPLICATE_REGION_NAME;
 
     gfsh.executeAndAssertThat(command).statusIsSuccess().containsKeyValuePair("Result", "true")
         .containsKeyValuePair("Key Class", "java.lang.String").containsKeyValuePair("Key", "key1");
@@ -109,7 +108,7 @@ public class RemoveCommandDUnitTest {
   @Test
   @SuppressWarnings("deprecation")
   public void removeKeyFromPartitionedRegion() {
-    String command = "remove --key=key1 --region=" + PARTITIONED_REGION_NAME;
+    var command = "remove --key=key1 --region=" + PARTITIONED_REGION_NAME;
 
     gfsh.executeAndAssertThat(command).statusIsSuccess().containsKeyValuePair("Result", "true")
         .containsKeyValuePair("Key Class", "java.lang.String").containsKeyValuePair("Key", "key1");
@@ -123,7 +122,7 @@ public class RemoveCommandDUnitTest {
 
   @Test
   public void removeAllFromReplicateRegion() {
-    String command = "remove --all --region=" + REPLICATE_REGION_NAME;
+    var command = "remove --all --region=" + REPLICATE_REGION_NAME;
 
     gfsh.executeAndAssertThat("list regions").statusIsSuccess();
     gfsh.executeAndAssertThat(command).statusIsSuccess();
@@ -137,7 +136,7 @@ public class RemoveCommandDUnitTest {
 
   @Test
   public void removeAllFromPartitionedRegion() {
-    String command = "remove --all --region=" + PARTITIONED_REGION_NAME;
+    var command = "remove --all --region=" + PARTITIONED_REGION_NAME;
 
     // Maybe this should return an "error" status, but the current behavior is status "OK"
     gfsh.executeAndAssertThat(command).statusIsSuccess();
@@ -154,7 +153,7 @@ public class RemoveCommandDUnitTest {
     server1.invoke(() -> verifyKeyIsPresent(REPLICATE_REGION_NAME, EMPTY_STRING));
     server2.invoke(() -> verifyKeyIsPresent(REPLICATE_REGION_NAME, EMPTY_STRING));
 
-    String command = "remove --key=\"\" --region=" + REPLICATE_REGION_NAME;
+    var command = "remove --key=\"\" --region=" + REPLICATE_REGION_NAME;
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     server1.invoke(() -> verifyKeyIsRemoved(REPLICATE_REGION_NAME, EMPTY_STRING));
@@ -162,17 +161,17 @@ public class RemoveCommandDUnitTest {
   }
 
   private static void verifyAllKeysAreRemoved(String regionName) {
-    Region<?, ?> region = getRegion(regionName);
+    var region = getRegion(regionName);
     assertThat(region.size()).isEqualTo(0);
   }
 
   private static void verifyKeyIsRemoved(String regionName, String key) {
-    Region<?, ?> region = getRegion(regionName);
+    var region = getRegion(regionName);
     assertThat(region.get(key)).isNull();
   }
 
   private static void verifyKeyIsPresent(String regionName, String key) {
-    Region<?, ?> region = getRegion(regionName);
+    var region = getRegion(regionName);
     assertThat(region.get(key)).isNotNull();
   }
 

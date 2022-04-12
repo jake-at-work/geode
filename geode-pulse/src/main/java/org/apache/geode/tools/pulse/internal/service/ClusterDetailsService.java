@@ -55,21 +55,21 @@ public class ClusterDetailsService implements PulseService {
   @Override
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
-    String userName = request.getUserPrincipal().getName();
+    var userName = request.getUserPrincipal().getName();
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    Cluster.Alert[] alertsList = cluster.getAlertsList();
-    int severeAlertCount = 0;
-    int errorAlertCount = 0;
-    int warningAlertCount = 0;
-    int infoAlertCount = 0;
+    var alertsList = cluster.getAlertsList();
+    var severeAlertCount = 0;
+    var errorAlertCount = 0;
+    var warningAlertCount = 0;
+    var infoAlertCount = 0;
 
-    for (Cluster.Alert alertObj : alertsList) {
+    for (var alertObj : alertsList) {
       if (alertObj.getSeverity() == Cluster.Alert.SEVERE) {
         severeAlertCount++;
       } else if (alertObj.getSeverity() == Cluster.Alert.ERROR) {
@@ -92,7 +92,7 @@ public class ClusterDetailsService implements PulseService {
     responseJSON.put("clients", cluster.getClientConnectionCount());
     responseJSON.put("locators", cluster.getLocatorCount());
     responseJSON.put("totalRegions", cluster.getTotalRegionCount());
-    long heapSize = cluster.getTotalHeapSize();
+    var heapSize = cluster.getTotalHeapSize();
 
     Double heapS = heapSize / 1024D;
     responseJSON.put("totalHeap", TWO_PLACE_DECIMAL_FORMAT.format(heapS));

@@ -55,7 +55,7 @@ public class Endpoint {
   }
 
   public boolean timeToPing(long pingIntervalNanos) {
-    long now = System.nanoTime();
+    var now = System.nanoTime();
     return getLastExecute() <= (now - pingIntervalNanos);
   }
 
@@ -81,7 +81,7 @@ public class Endpoint {
    * @return true if this was the last reference to the endpoint
    */
   public boolean removeReference() {
-    boolean lastReference = (references.decrementAndGet() <= 0);
+    var lastReference = (references.decrementAndGet() <= 0);
     if (lastReference) {
       manager.endpointNotInUse(this);
     }
@@ -115,7 +115,7 @@ public class Endpoint {
     if (!(obj instanceof Endpoint)) {
       return false;
     }
-    final Endpoint other = (Endpoint) obj;
+    final var other = (Endpoint) obj;
 
     if (!location.equals(other.getLocation())) {
       return false;
@@ -126,8 +126,8 @@ public class Endpoint {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result =
         prime * result + location.hashCode() + memberId.hashCode();
     return result;

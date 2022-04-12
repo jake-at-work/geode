@@ -37,10 +37,10 @@ public class ClusterMemberIdNameConverter extends BaseStringConverter {
   public Set<String> getCompletionValues() {
     final Set<String> memberIdsAndNames = new TreeSet<>();
 
-    final Gfsh gfsh = Gfsh.getCurrentInstance();
+    final var gfsh = Gfsh.getCurrentInstance();
 
     if (gfsh != null && gfsh.isConnectedAndReady()) {
-      final String[] memberIds =
+      final var memberIds =
           gfsh.getOperationInvoker().getDistributedSystemMXBean().listMembers();
 
       if (memberIds != null && memberIds.length != 0) {

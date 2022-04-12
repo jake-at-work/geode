@@ -23,7 +23,7 @@ public class TestCompressor1 implements Compressor {
 
   @Override
   public byte[] compress(byte[] input) {
-    byte[] returnBytes = new byte[prefixBytes.length + input.length];
+    var returnBytes = new byte[prefixBytes.length + input.length];
     System.arraycopy(prefixBytes, 0, returnBytes, 0, prefixBytes.length);
     System.arraycopy(input, 0, returnBytes, prefixBytes.length, input.length);
     return returnBytes;
@@ -31,8 +31,8 @@ public class TestCompressor1 implements Compressor {
 
   @Override
   public byte[] decompress(byte[] input) {
-    int numReturnBytes = input.length - prefixBytes.length;
-    byte[] returnBytes = new byte[numReturnBytes];
+    var numReturnBytes = input.length - prefixBytes.length;
+    var returnBytes = new byte[numReturnBytes];
     System.arraycopy(input, prefixBytes.length, returnBytes, 0, numReturnBytes);
     return returnBytes;
   }

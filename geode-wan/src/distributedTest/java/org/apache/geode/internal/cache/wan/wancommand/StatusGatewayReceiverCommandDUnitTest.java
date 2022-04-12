@@ -23,7 +23,6 @@ import static org.apache.geode.internal.cache.wan.wancommand.WANCommandUtils.val
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -33,8 +32,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -61,7 +58,7 @@ public class StatusGatewayReceiverCommandDUnitTest implements Serializable {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
 
@@ -75,8 +72,8 @@ public class StatusGatewayReceiverCommandDUnitTest implements Serializable {
 
   @Test
   public void testGatewayReceiverStatus() {
-    int lnPort = locatorSite1.getPort();
-    int nyPort = locatorSite2.getPort();
+    var lnPort = locatorSite1.getPort();
+    var nyPort = locatorSite2.getPort();
 
     // setup servers in Site #1 (London)
     server1 = clusterStartupRule.startServerVM(3, lnPort);
@@ -98,14 +95,14 @@ public class StatusGatewayReceiverCommandDUnitTest implements Serializable {
 
     locatorSite2.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server4.getVM()), true));
 
-    String command = CliStrings.STATUS_GATEWAYRECEIVER;
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var command = CliStrings.STATUS_GATEWAYRECEIVER;
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.SECTION_GATEWAY_RECEIVER_AVAILABLE);
-    List<String> status = resultData.getValuesInColumn(CliStrings.RESULT_STATUS);
+    var status = resultData.getValuesInColumn(CliStrings.RESULT_STATUS);
     assertThat(status).hasSize(3);
     assertThat(status).doesNotContain(CliStrings.GATEWAY_NOT_RUNNING);
 
@@ -134,8 +131,8 @@ public class StatusGatewayReceiverCommandDUnitTest implements Serializable {
 
   @Test
   public void testGatewayReceiverStatus_OnMember() {
-    int lnPort = locatorSite1.getPort();
-    int nyPort = locatorSite2.getPort();
+    var lnPort = locatorSite1.getPort();
+    var nyPort = locatorSite2.getPort();
 
     // setup servers in Site #1 (London)
     server1 = clusterStartupRule.startServerVM(3, lnPort);
@@ -158,15 +155,15 @@ public class StatusGatewayReceiverCommandDUnitTest implements Serializable {
     locatorSite2.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server4.getVM()), true));
 
     DistributedMember vm3Member = getMember(server1.getVM());
-    String command =
+    var command =
         CliStrings.STATUS_GATEWAYRECEIVER + " --" + CliStrings.MEMBER + "=" + vm3Member.getId();
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.SECTION_GATEWAY_RECEIVER_AVAILABLE);
-    List<String> status = resultData.getValuesInColumn(CliStrings.RESULT_STATUS);
+    var status = resultData.getValuesInColumn(CliStrings.RESULT_STATUS);
     assertThat(status).hasSize(1);
     assertThat(status).doesNotContain(CliStrings.GATEWAY_NOT_RUNNING);
 
@@ -195,8 +192,8 @@ public class StatusGatewayReceiverCommandDUnitTest implements Serializable {
 
   @Test
   public void testGatewayReceiverStatus_OnGroups() {
-    int lnPort = locatorSite1.getPort();
-    int nyPort = locatorSite2.getPort();
+    var lnPort = locatorSite1.getPort();
+    var nyPort = locatorSite2.getPort();
 
     // setup servers in Site #1 (London)
     server1 = startServerWithGroups(3, "RG1, RG2", lnPort);
@@ -221,14 +218,14 @@ public class StatusGatewayReceiverCommandDUnitTest implements Serializable {
 
     locatorSite2.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server5.getVM()), true));
 
-    String command = CliStrings.STATUS_GATEWAYRECEIVER + " --" + CliStrings.GROUP + "=RG1";
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var command = CliStrings.STATUS_GATEWAYRECEIVER + " --" + CliStrings.GROUP + "=RG1";
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.SECTION_GATEWAY_RECEIVER_AVAILABLE);
-    List<String> status = resultData.getValuesInColumn(CliStrings.RESULT_STATUS);
+    var status = resultData.getValuesInColumn(CliStrings.RESULT_STATUS);
     assertThat(status).hasSize(3);
     assertThat(status).doesNotContain(CliStrings.GATEWAY_NOT_RUNNING);
 
@@ -256,7 +253,7 @@ public class StatusGatewayReceiverCommandDUnitTest implements Serializable {
   }
 
   private MemberVM startServerWithGroups(int index, String groups, int locPort) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, groups);
     return clusterStartupRule.startServerVM(index, props, locPort);
   }

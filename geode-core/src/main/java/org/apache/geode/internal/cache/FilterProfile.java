@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,6 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.EntryEvent;
-import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.SerializedCacheValue;
 import org.apache.geode.cache.query.internal.CqStateImpl;
@@ -65,10 +63,8 @@ import org.apache.geode.internal.ClassLoadUtils;
 import org.apache.geode.internal.CopyOnWriteHashSet;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.CacheDistributionAdvisor.CacheProfile;
-import org.apache.geode.internal.cache.DistributedPutAllOperation.PutAllEntryData;
 import org.apache.geode.internal.cache.DistributedRemoveAllOperation.RemoveAllEntryData;
 import org.apache.geode.internal.cache.FilterRoutingInfo.FilterInfo;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.tier.InterestType;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
@@ -267,12 +263,12 @@ public class FilterProfile implements DataSerializableFixedID {
     Set keysRegistered = new HashSet();
     operationType opType = null;
 
-    Long clientID = getClientIDForMaps(inputClientID);
+    var clientID = getClientIDForMaps(inputClientID);
     synchronized (interestListLock) {
       switch (typeOfInterest) {
         case KEY:
           opType = operationType.REGISTER_KEY;
-          Map<Object, Set> koi =
+          var koi =
               updatesAsInvalidates ? getKeysOfInterestInv() : getKeysOfInterest();
           registerKeyInMap(interest, keysRegistered, clientID, koi);
           break;
@@ -284,14 +280,14 @@ public class FilterProfile implements DataSerializableFixedID {
               keysRegistered.add(interest);
             }
           } else {
-            Map<Object, Map<Object, Pattern>> pats =
+            var pats =
                 updatesAsInvalidates ? getPatternsOfInterestInv() : getPatternsOfInterest();
             registerPatternInMap(interest, keysRegistered, clientID, pats);
           }
           break;
         case FILTER_CLASS: {
           opType = operationType.REGISTER_FILTER;
-          Map<Object, Map> filts =
+          var filts =
               updatesAsInvalidates ? getFiltersOfInterestInv() : getFiltersOfInterest();
           registerFilterClassInMap(interest, clientID, filts);
           break;
@@ -322,7 +318,7 @@ public class FilterProfile implements DataSerializableFixedID {
       throw new RuntimeException(String.format("Class %s could not be instantiated.",
           interest), e);
     }
-    Map interestMap = filts.get(clientID);
+    var interestMap = filts.get(clientID);
     if (interestMap == null) {
       interestMap = new CopyOnWriteHashMap();
       filts.put(clientID, interestMap);
@@ -332,13 +328,13 @@ public class FilterProfile implements DataSerializableFixedID {
 
   private void registerPatternInMap(Object interest, Set keysRegistered, Long clientID,
       Map<Object, Map<Object, Pattern>> pats) {
-    Pattern pattern = Pattern.compile((String) interest);
-    Map<Object, Pattern> interestMap = pats.get(clientID);
+    var pattern = Pattern.compile((String) interest);
+    var interestMap = pats.get(clientID);
     if (interestMap == null) {
       interestMap = new CopyOnWriteHashMap<>();
       pats.put(clientID, interestMap);
     }
-    Pattern oldPattern = interestMap.put(interest, pattern);
+    var oldPattern = interestMap.put(interest, pattern);
     if (oldPattern == null) {
       // If the pattern didn't exist, add it to the set of keys to pass to any listeners.
       keysRegistered.add(interest);
@@ -347,7 +343,7 @@ public class FilterProfile implements DataSerializableFixedID {
 
   private void registerKeyInMap(Object interest, Set keysRegistered, Long clientID,
       Map<Object, Set> koi) {
-    Set interestList = koi.get(clientID);
+    var interestList = koi.get(clientID);
     if (interestList == null) {
       interestList = new CopyOnWriteHashSet();
       koi.put(clientID, interestList);
@@ -370,7 +366,7 @@ public class FilterProfile implements DataSerializableFixedID {
     if (inputClientID instanceof Long) {
       clientID = (Long) inputClientID;
     } else {
-      Map<Object, Long> cids = clientMap.realIDs; // read
+      var cids = clientMap.realIDs; // read
       clientID = cids.get(inputClientID);
       if (clientID == null) {
         if (logger.isDebugEnabled()) {
@@ -421,7 +417,7 @@ public class FilterProfile implements DataSerializableFixedID {
       }
       return;
     }
-    Map interestMap = getFiltersOfInterest().get(clientID);
+    var interestMap = getFiltersOfInterest().get(clientID);
     if (interestMap != null) {
       interestMap.remove(interest);
       if (interestMap.isEmpty()) {
@@ -461,7 +457,7 @@ public class FilterProfile implements DataSerializableFixedID {
       Long clientID, Set keysUnregistered) {
     Map interestMap = map.get(clientID);
     if (interestMap != null) {
-      Object obj = interestMap.remove(interest);
+      var obj = interestMap.remove(interest);
       if (obj != null) {
         keysUnregistered.add(interest);
       }
@@ -473,7 +469,7 @@ public class FilterProfile implements DataSerializableFixedID {
 
   private void unregisterClientIDFromMap(Long clientID, Map interestMap, Set keysUnregistered) {
     if (interestMap.get(clientID) != null) {
-      Map removed = (Map) interestMap.remove(clientID);
+      var removed = (Map) interestMap.remove(clientID);
       if (removed != null) {
         keysUnregistered.addAll(removed.keySet());
       }
@@ -502,9 +498,9 @@ public class FilterProfile implements DataSerializableFixedID {
 
   private void unregisterKeyFromMap(Map<Object, Set> map, Object interest, Long clientID,
       Set keysUnregistered) {
-    Set interestList = map.get(clientID);
+    var interestList = map.get(clientID);
     if (interestList != null) {
-      boolean removed = interestList.remove(interest);
+      var removed = interestList.remove(interest);
       if (removed) {
         keysUnregistered.add(interest);
       }
@@ -523,11 +519,11 @@ public class FilterProfile implements DataSerializableFixedID {
    */
   public Set registerClientInterestList(Object inputClientID, List keys,
       boolean updatesAsInvalidates) {
-    Long clientID = getClientIDForMaps(inputClientID);
+    var clientID = getClientIDForMaps(inputClientID);
     Set keysRegistered = new HashSet(keys);
     synchronized (interestListLock) {
-      Map<Object, Set> koi = updatesAsInvalidates ? getKeysOfInterestInv() : getKeysOfInterest();
-      CopyOnWriteHashSet interestList = (CopyOnWriteHashSet) koi.get(clientID);
+      var koi = updatesAsInvalidates ? getKeysOfInterestInv() : getKeysOfInterest();
+      var interestList = (CopyOnWriteHashSet) koi.get(clientID);
       if (interestList == null) {
         interestList = new CopyOnWriteHashSet();
         koi.put(clientID, interestList);
@@ -552,11 +548,11 @@ public class FilterProfile implements DataSerializableFixedID {
    * @return the unregistered keys
    */
   public Set unregisterClientInterestList(Object inputClientID, List keys) {
-    Long clientID = getClientIDForMaps(inputClientID);
+    var clientID = getClientIDForMaps(inputClientID);
     Set keysUnregistered = new HashSet(keys);
     Set keysNotUnregistered = new HashSet(keys);
     synchronized (interestListLock) {
-      CopyOnWriteHashSet interestList = (CopyOnWriteHashSet) getKeysOfInterest().get(clientID);
+      var interestList = (CopyOnWriteHashSet) getKeysOfInterest().get(clientID);
       if (interestList != null) {
         // Get the list of keys that are not registered but in unregister set.
         keysNotUnregistered.removeAll(interestList.getSnapshot());
@@ -586,9 +582,9 @@ public class FilterProfile implements DataSerializableFixedID {
   }
 
   public Set getKeysOfInterestFor(Object inputClientID) {
-    Long clientID = getClientIDForMaps(inputClientID);
-    Set keys1 = getKeysOfInterest().get(clientID);
-    Set keys2 = getKeysOfInterestInv().get(clientID);
+    var clientID = getClientIDForMaps(inputClientID);
+    var keys1 = getKeysOfInterest().get(clientID);
+    var keys2 = getKeysOfInterestInv().get(clientID);
     if (keys1 == null) {
       if (keys2 == null) {
         return null;
@@ -604,7 +600,7 @@ public class FilterProfile implements DataSerializableFixedID {
   }
 
   public Map<String, Pattern> getPatternsOfInterestFor(Object inputClientID) {
-    Long clientID = getClientIDForMaps(inputClientID);
+    var clientID = getClientIDForMaps(inputClientID);
     Map patterns1 = getPatternsOfInterest().get(clientID);
     Map patterns2 = getPatternsOfInterestInv().get(clientID);
     if (patterns1 == null) {
@@ -622,7 +618,7 @@ public class FilterProfile implements DataSerializableFixedID {
   }
 
   public boolean hasKeysOfInterestFor(Object inputClientID, boolean wantInvalidations) {
-    Long clientID = getClientIDForMaps(inputClientID);
+    var clientID = getClientIDForMaps(inputClientID);
     if (wantInvalidations) {
       return getKeysOfInterestInv().containsKey(clientID);
     }
@@ -630,12 +626,12 @@ public class FilterProfile implements DataSerializableFixedID {
   }
 
   public boolean hasAllKeysInterestFor(Object inputClientID) {
-    Long clientID = getClientIDForMaps(inputClientID);
+    var clientID = getClientIDForMaps(inputClientID);
     return hasAllKeysInterestFor(clientID, false) || hasAllKeysInterestFor(clientID, true);
   }
 
   public boolean hasAllKeysInterestFor(Object inputClientID, boolean wantInvalidations) {
-    Long clientID = getClientIDForMaps(inputClientID);
+    var clientID = getClientIDForMaps(inputClientID);
     if (wantInvalidations) {
       return getAllKeyClientsInv().contains(clientID);
     }
@@ -643,7 +639,7 @@ public class FilterProfile implements DataSerializableFixedID {
   }
 
   public boolean hasRegexInterestFor(Object inputClientID, boolean wantInvalidations) {
-    Long clientID = getClientIDForMaps(inputClientID);
+    var clientID = getClientIDForMaps(inputClientID);
     if (wantInvalidations) {
       return (getPatternsOfInterestInv().containsKey(clientID));
     }
@@ -651,7 +647,7 @@ public class FilterProfile implements DataSerializableFixedID {
   }
 
   public boolean hasFilterInterestFor(Object inputClientID, boolean wantInvalidations) {
-    Long clientID = getClientIDForMaps(inputClientID);
+    var clientID = getClientIDForMaps(inputClientID);
     if (wantInvalidations) {
       return getFiltersOfInterestInv().containsKey(clientID);
     }
@@ -665,7 +661,7 @@ public class FilterProfile implements DataSerializableFixedID {
     if (inputClientID instanceof Long) {
       clientID = (Long) inputClientID;
     } else {
-      Map<Object, Long> cids = clientMap.realIDs; // read
+      var cids = clientMap.realIDs; // read
       clientID = cids.get(inputClientID);
       if (clientID == null) {
         return false;
@@ -697,7 +693,7 @@ public class FilterProfile implements DataSerializableFixedID {
     if (inputClientID instanceof Long) {
       clientID = (Long) inputClientID;
     } else {
-      Map<Object, Long> cids = clientMap.realIDs;
+      var cids = clientMap.realIDs;
       clientID = cids.get(inputClientID);
       if (clientID == null) {
         // haven't seen this client yet
@@ -714,27 +710,27 @@ public class FilterProfile implements DataSerializableFixedID {
         akci.remove(clientID);
       }
       {
-        Map<Object, Set> keys = getKeysOfInterest();
+        var keys = getKeysOfInterest();
         keys.remove(clientID);
       }
       {
-        Map<Object, Set> keys = getKeysOfInterestInv();
+        var keys = getKeysOfInterestInv();
         keys.remove(clientID);
       }
       {
-        Map<Object, Map<Object, Pattern>> pats = getPatternsOfInterest();
+        var pats = getPatternsOfInterest();
         pats.remove(clientID);
       }
       {
-        Map<Object, Map<Object, Pattern>> pats = getPatternsOfInterestInv();
+        var pats = getPatternsOfInterestInv();
         pats.remove(clientID);
       }
       {
-        Map<Object, Map> filters = getFiltersOfInterest();
+        var filters = getFiltersOfInterest();
         filters.remove(clientID);
       }
       {
-        Map<Object, Map> filters = getFiltersOfInterestInv();
+        var filters = getFiltersOfInterestInv();
         filters.remove(clientID);
       }
       if (clientMap != null) {
@@ -830,12 +826,12 @@ public class FilterProfile implements DataSerializableFixedID {
           + ", Error : Cache has been closed.");
       return;
     }
-    ServerCQ cq = ServerCQ;
+    var cq = ServerCQ;
     try {
-      CqService cqService = cache.getCqService();
+      var cqService = cache.getCqService();
       cqService.start();
       cq.setCqService(cqService);
-      CqStateImpl cqState = (CqStateImpl) cq.getState();
+      var cqState = (CqStateImpl) cq.getState();
       cq.setName(generateCqName(serverCqName));
       cq.registerCq(null, null, cqState.getState());
     } catch (Exception ex) {
@@ -854,7 +850,7 @@ public class FilterProfile implements DataSerializableFixedID {
         cqs.put(serverCqName, cq);
       }
 
-      FilterProfile pf = cq.getCqBaseRegion().getFilterProfile();
+      var pf = cq.getCqBaseRegion().getFilterProfile();
       if (pf != null) {
         pf.incCqCount();
       }
@@ -862,7 +858,7 @@ public class FilterProfile implements DataSerializableFixedID {
   }
 
   public void processCloseCq(String serverCqName) {
-    ServerCQ cq = cqs.get(serverCqName);
+    var cq = cqs.get(serverCqName);
     if (cq != null) {
       try {
         cq.close(false);
@@ -879,15 +875,15 @@ public class FilterProfile implements DataSerializableFixedID {
   }
 
   public void processSetCqState(String serverCqName, ServerCQ ServerCQ) {
-    ServerCQ cq = cqs.get(serverCqName);
+    var cq = cqs.get(serverCqName);
     if (cq != null) {
-      CqStateImpl cqState = (CqStateImpl) ServerCQ.getState();
+      var cqState = (CqStateImpl) ServerCQ.getState();
       cq.setCqState(cqState.getState());
     }
   }
 
   public void processStopCq(String serverCqName) {
-    ServerCQ cq = cqs.get(serverCqName);
+    var cq = cqs.get(serverCqName);
     if (cq != null) {
       try {
         cq.stop();
@@ -912,7 +908,7 @@ public class FilterProfile implements DataSerializableFixedID {
 
   public void closeCq(ServerCQ cq) {
     ensureCqID(cq);
-    String serverCqName = cq.getServerCqName();
+    var serverCqName = cq.getServerCqName();
     cqs.remove(serverCqName);
     if (cqMap != null) {
       cqMap.removeIDMapping(cq.getFilterID());
@@ -922,10 +918,10 @@ public class FilterProfile implements DataSerializableFixedID {
   }
 
   void cleanupForClient(CacheClientNotifier ccn, ClientProxyMembershipID client) {
-    for (final Map.Entry<String, ServerCQ> stringServerCQEntry : cqs.entrySet()) {
-      Map.Entry cqEntry = (Map.Entry) stringServerCQEntry;
-      ServerCQ cq = (ServerCQ) cqEntry.getValue();
-      ClientProxyMembershipID clientId = cq.getClientProxyId();
+    for (final var stringServerCQEntry : cqs.entrySet()) {
+      var cqEntry = (Map.Entry) stringServerCQEntry;
+      var cq = (ServerCQ) cqEntry.getValue();
+      var clientId = cq.getClientProxyId();
       if (clientId.equals(client)) {
         try {
           cq.close(false);
@@ -949,7 +945,7 @@ public class FilterProfile implements DataSerializableFixedID {
     Map tmpCq = cqs;
 
     if (tmpCq.size() > 0) {
-      for (Object serverCqName : tmpCq.keySet()) {
+      for (var serverCqName : tmpCq.keySet()) {
         processCloseCq((String) serverCqName);
       }
     }
@@ -965,7 +961,7 @@ public class FilterProfile implements DataSerializableFixedID {
       if (!CqServiceProvider.MAINTAIN_KEYS) {
         return true;
       }
-      for (final ServerCQ cq : cqs.values()) {
+      for (final var cq : cqs.values()) {
         if (cq.isOldValueRequiredForQueryProcessing(key)) {
           return true;
         }
@@ -979,7 +975,7 @@ public class FilterProfile implements DataSerializableFixedID {
     if (!(region instanceof PartitionedRegion)) {
       return;
     }
-    OperationMessage msg = new OperationMessage();
+    var msg = new OperationMessage();
     msg.regionName = region.getFullPath();
     msg.clientID = clientID;
     msg.opType = opType;
@@ -993,7 +989,7 @@ public class FilterProfile implements DataSerializableFixedID {
     Set recipients =
         ((DistributionAdvisee) region).getDistributionAdvisor().adviseProfileUpdate();
     msg.setRecipients(recipients);
-    ReplyProcessor21 rp = new ReplyProcessor21(region.getDistributionManager(), recipients);
+    var rp = new ReplyProcessor21(region.getDistributionManager(), recipients);
     msg.processorId = rp.getProcessorId();
     region.getDistributionManager().putOutgoing(msg);
     try {
@@ -1011,7 +1007,7 @@ public class FilterProfile implements DataSerializableFixedID {
       // would need to
       return;
     }
-    OperationMessage msg = new OperationMessage();
+    var msg = new OperationMessage();
     msg.regionName = region.getFullPath();
     msg.opType = opType;
     msg.cq = cq;
@@ -1033,7 +1029,7 @@ public class FilterProfile implements DataSerializableFixedID {
 
   /** compute local routing information */
   public FilterInfo getLocalFilterRouting(CacheEvent event) {
-    FilterRoutingInfo fri = getFilterRoutingInfoPart2(null, event);
+    var fri = getFilterRoutingInfoPart2(null, event);
     if (fri != null) {
       return fri.getLocalFilterInfo();
     } else {
@@ -1055,8 +1051,8 @@ public class FilterProfile implements DataSerializableFixedID {
   public FilterRoutingInfo getFilterRoutingInfoPart1(CacheEvent event, Profile[] peerProfiles,
       Set cacheOpRecipients) {
     // early out if there are no cache servers in the system
-    boolean anyServers = false;
-    for (final Profile peerProfile : peerProfiles) {
+    var anyServers = false;
+    for (final var peerProfile : peerProfiles) {
       if (((CacheProfile) peerProfile).hasCacheServer) {
         anyServers = true;
         break;
@@ -1070,20 +1066,20 @@ public class FilterProfile implements DataSerializableFixedID {
     // bug #50809 - local routing for transactional ops must be done here
     // because the event isn't available later and we lose the old value for the entry
 
-    boolean processLocalProfile =
+    var processLocalProfile =
         event.getOperation().isEntry() && ((EntryEvent) event).getTransactionId() != null;
 
-    CqService cqService = getCqService(event.getRegion());
+    var cqService = getCqService(event.getRegion());
     if (cqService.isRunning()) {
       frInfo = new FilterRoutingInfo();
       fillInCQRoutingInfo(event, processLocalProfile, peerProfiles, frInfo);
     }
 
-    Profile[] tempProfiles = peerProfiles;
+    var tempProfiles = peerProfiles;
 
     if (processLocalProfile) {
       tempProfiles = new Profile[peerProfiles.length + 1];
-      for (int i = 0; i < peerProfiles.length; i++) {
+      for (var i = 0; i < peerProfiles.length; i++) {
         tempProfiles[i] = peerProfiles[i];
       }
       tempProfiles[peerProfiles.length] = localProfile;
@@ -1110,13 +1106,13 @@ public class FilterProfile implements DataSerializableFixedID {
    */
   public FilterRoutingInfo getFilterRoutingInfoPart2(FilterRoutingInfo part1Info,
       CacheEvent event) {
-    FilterRoutingInfo result = part1Info;
+    var result = part1Info;
     if (localProfile.hasCacheServer) {
       // bug #45520 - CQ events arriving out of order causes result set
       // inconsistency, so don't compute routings for events in conflict
-      boolean isInConflict =
+      var isInConflict =
           event.getOperation().isEntry() && ((EntryEventImpl) event).isConcurrencyConflict();
-      CqService cqService = getCqService(event.getRegion());
+      var cqService = getCqService(event.getRegion());
       if (!isInConflict && cqService.isRunning()
           && region != null /*
                              * && !( this.region.isUsedForPartitionedRegionBucket() || //
@@ -1144,7 +1140,7 @@ public class FilterProfile implements DataSerializableFixedID {
    */
   private void fillInCQRoutingInfo(CacheEvent event, boolean processLocalProfile,
       Profile[] peerProfiles, FilterRoutingInfo frInfo) {
-    CqService cqService = getCqService(event.getRegion());
+    var cqService = getCqService(event.getRegion());
     if (cqService != null) {
       try {
         Profile local = processLocalProfile ? localProfile : null;
@@ -1170,20 +1166,20 @@ public class FilterProfile implements DataSerializableFixedID {
    */
   public void getLocalFilterRoutingForPutAllOp(DistributedPutAllOperation dpao,
       DistributedPutAllOperation.PutAllEntryData[] putAllData) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
     if (region != null && localProfile.hasCacheServer) {
       Set clientsInv = null;
       Set clients = null;
-      int size = putAllData.length;
-      CqService cqService = getCqService(dpao.getRegion());
-      boolean doCQs = cqService.isRunning();
-      for (int idx = 0; idx < size; idx++) {
-        PutAllEntryData pEntry = putAllData[idx];
+      var size = putAllData.length;
+      var cqService = getCqService(dpao.getRegion());
+      var doCQs = cqService.isRunning();
+      for (var idx = 0; idx < size; idx++) {
+        var pEntry = putAllData[idx];
         if (pEntry != null) {
           @Unretained
-          final EntryEventImpl ev = dpao.getEventForPosition(idx);
-          FilterRoutingInfo fri = pEntry.filterRouting;
+          final var ev = dpao.getEventForPosition(idx);
+          var fri = pEntry.filterRouting;
           FilterInfo fi = null;
           if (fri != null) {
             fi = fri.getLocalFilterInfo();
@@ -1224,15 +1220,15 @@ public class FilterProfile implements DataSerializableFixedID {
     if (region != null && localProfile.hasCacheServer) {
       Set clientsInv = null;
       Set clients = null;
-      int size = removeAllData.length;
-      CqService cqService = getCqService(op.getRegion());
-      boolean doCQs = cqService.isRunning();
-      for (int idx = 0; idx < size; idx++) {
-        RemoveAllEntryData pEntry = removeAllData[idx];
+      var size = removeAllData.length;
+      var cqService = getCqService(op.getRegion());
+      var doCQs = cqService.isRunning();
+      for (var idx = 0; idx < size; idx++) {
+        var pEntry = removeAllData[idx];
         if (pEntry != null) {
           @Unretained
-          final EntryEventImpl ev = op.getEventForPosition(idx);
-          FilterRoutingInfo fri = pEntry.filterRouting;
+          final var ev = op.getEventForPosition(idx);
+          var fri = pEntry.filterRouting;
           FilterInfo fi = null;
           if (fri != null) {
             fi = fri.getLocalFilterInfo();
@@ -1288,16 +1284,16 @@ public class FilterProfile implements DataSerializableFixedID {
       logger.trace(LogMarker.BRIDGE_SERVER_VERBOSE, "finding interested clients for {}", event);
     }
 
-    FilterRoutingInfo frInfo = filterRoutingInfo;
+    var frInfo = filterRoutingInfo;
 
-    for (final Profile profile : profiles) {
-      CacheProfile cf = (CacheProfile) profile;
+    for (final var profile : profiles) {
+      var cf = (CacheProfile) profile;
 
       if (!cf.hasCacheServer) {
         continue;
       }
 
-      FilterProfile pf = cf.filterProfile;
+      var pf = cf.filterProfile;
 
       if (pf == null) {
         continue;
@@ -1324,7 +1320,7 @@ public class FilterProfile implements DataSerializableFixedID {
       }
 
       if (event.getOperation().isEntry()) {
-        EntryEvent entryEvent = (EntryEvent) event;
+        var entryEvent = (EntryEvent) event;
         clientsInv = pf.getInterestedClients(entryEvent, pf.allKeyClientsInv,
             pf.keysOfInterestInv, pf.patternsOfInterestInv, pf.filtersOfInterestInv);
         clients = pf.getInterestedClients(entryEvent, pf.allKeyClients, pf.keysOfInterest,
@@ -1387,11 +1383,11 @@ public class FilterProfile implements DataSerializableFixedID {
       }
     }
     if (koi != null) {
-      for (final Map.Entry<Object, Set> objectSetEntry : koi.entrySet()) {
-        Map.Entry entry = (Map.Entry) objectSetEntry;
-        Set keys = (Set) entry.getValue();
+      for (final var objectSetEntry : koi.entrySet()) {
+        var entry = (Map.Entry) objectSetEntry;
+        var keys = (Set) entry.getValue();
         if (keys.contains(event.getKey())) {
-          Object clientID = entry.getKey();
+          var clientID = entry.getKey();
           if (result == null) {
             result = new HashSet();
           }
@@ -1404,13 +1400,13 @@ public class FilterProfile implements DataSerializableFixedID {
       }
     }
     if (pats != null && (event.getKey() instanceof String)) {
-      for (final Map.Entry<Object, Map<Object, Pattern>> objectMapEntry : pats.entrySet()) {
-        Map.Entry entry = (Map.Entry) objectMapEntry;
-        String stringKey = (String) event.getKey();
-        Map<Object, Pattern> interestList = (Map<Object, Pattern>) entry.getValue();
-        for (Pattern keyPattern : interestList.values()) {
+      for (final var objectMapEntry : pats.entrySet()) {
+        var entry = (Map.Entry) objectMapEntry;
+        var stringKey = (String) event.getKey();
+        var interestList = (Map<Object, Pattern>) entry.getValue();
+        for (var keyPattern : interestList.values()) {
           if (keyPattern.matcher(stringKey).matches()) {
-            Object clientID = entry.getKey();
+            var clientID = entry.getKey();
             if (result == null) {
               result = new HashSet();
             }
@@ -1435,17 +1431,17 @@ public class FilterProfile implements DataSerializableFixedID {
           value = serValue.getSerializedValue();
         }
       }
-      InterestEvent iev = new InterestEvent(event.getKey(), value, !serialized);
-      Operation op = event.getOperation();
-      for (final Map.Entry<Object, Map> objectMapEntry : foi.entrySet()) {
-        Map.Entry entry = (Map.Entry) objectMapEntry;
-        Map<String, InterestFilter> interestList = (Map<String, InterestFilter>) entry.getValue();
-        for (InterestFilter filter : interestList.values()) {
+      var iev = new InterestEvent(event.getKey(), value, !serialized);
+      var op = event.getOperation();
+      for (final var objectMapEntry : foi.entrySet()) {
+        var entry = (Map.Entry) objectMapEntry;
+        var interestList = (Map<String, InterestFilter>) entry.getValue();
+        for (var filter : interestList.values()) {
           if ((op.isCreate() && filter.notifyOnCreate(iev))
               || (op.isUpdate() && filter.notifyOnUpdate(iev))
               || (op.isDestroy() && filter.notifyOnDestroy(iev))
               || (op.isInvalidate() && filter.notifyOnInvalidate(iev))) {
-            Object clientID = entry.getKey();
+            var clientID = entry.getKey();
             if (result == null) {
               result = new HashSet();
             }
@@ -1466,7 +1462,7 @@ public class FilterProfile implements DataSerializableFixedID {
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    InternalDistributedMember id = new InternalDistributedMember();
+    var id = new InternalDistributedMember();
     InternalDataSerializer.invokeFromData(id, in);
     memberID = id;
 
@@ -1481,13 +1477,13 @@ public class FilterProfile implements DataSerializableFixedID {
     filtersOfInterestInv.putAll(DataSerializer.readHashMap(in));
 
     // Read CQ Info.
-    int numCQs = InternalDataSerializer.readArrayLength(in);
+    var numCQs = InternalDataSerializer.readArrayLength(in);
     if (numCQs > 0) {
-      final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+      final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
       try {
-        for (int i = 0; i < numCQs; i++) {
-          String serverCqName = DataSerializer.readString(in);
-          ServerCQ cq = CqServiceProvider.readCq(in);
+        for (var i = 0; i < numCQs; i++) {
+          var serverCqName = DataSerializer.readString(in);
+          var cq = CqServiceProvider.readCq(in);
           processRegisterCq(serverCqName, cq, false);
           cqs.put(serverCqName, cq);
         }
@@ -1520,12 +1516,12 @@ public class FilterProfile implements DataSerializableFixedID {
     DataSerializer.writeHashMap(filtersOfInterestInv.getSnapshot(), out);
 
     // Write CQ info.
-    Map<String, ServerCQ> theCQs = cqs.getSnapshot();
-    int size = theCQs.size();
+    var theCQs = cqs.getSnapshot();
+    var size = theCQs.size();
     InternalDataSerializer.writeArrayLength(size, out);
-    for (Map.Entry<String, ServerCQ> entry : theCQs.entrySet()) {
-      String name = entry.getKey();
-      ServerCQ cq = entry.getValue();
+    for (var entry : theCQs.entrySet()) {
+      var name = entry.getKey();
+      var cq = entry.getValue();
       DataSerializer.writeString(name, out);
       InternalDataSerializer.invokeToData(cq, out);
     }
@@ -1608,7 +1604,7 @@ public class FilterProfile implements DataSerializableFixedID {
 
   @Override
   public String toString() {
-    final boolean isDebugEnabled = logger.isTraceEnabled(LogMarker.BRIDGE_SERVER_VERBOSE);
+    final var isDebugEnabled = logger.isTraceEnabled(LogMarker.BRIDGE_SERVER_VERBOSE);
     return "FilterProfile(id=" + (isLocalProfile ? "local" : memberID) + ";  numCQs: "
         + ((cqCount == null) ? 0 : cqCount.get())
         + (isDebugEnabled ? (";  " + getClientMappingString()) : "")
@@ -1625,11 +1621,11 @@ public class FilterProfile implements DataSerializableFixedID {
       return "clients[]";
     }
     Set<Long> sorted = new TreeSet(wids.keySet());
-    StringBuilder result = new StringBuilder(sorted.size() * 70);
+    var result = new StringBuilder(sorted.size() * 70);
     result.append("clients[");
-    Iterator<Long> it = sorted.iterator();
-    for (int i = 1; it.hasNext(); i++) {
-      Long wireID = it.next();
+    var it = sorted.iterator();
+    for (var i = 1; it.hasNext(); i++) {
+      var wireID = it.next();
       result.append(wireID).append("={").append(wids.get(wireID)).append('}');
       if (it.hasNext()) {
         result.append(", ");
@@ -1650,11 +1646,11 @@ public class FilterProfile implements DataSerializableFixedID {
       return "cqs[]";
     }
     Set<Long> sorted = new TreeSet(wids.keySet());
-    StringBuilder result = new StringBuilder(sorted.size() * 70);
+    var result = new StringBuilder(sorted.size() * 70);
     result.append("cqs[");
-    Iterator<Long> it = sorted.iterator();
-    for (int i = 1; it.hasNext(); i++) {
-      Long wireID = it.next();
+    var it = sorted.iterator();
+    for (var i = 1; it.hasNext(); i++) {
+      var wireID = it.next();
       result.append(wireID).append("={").append(wids.get(wireID)).append('}');
       if (it.hasNext()) {
         result.append(", ");
@@ -1789,13 +1785,13 @@ public class FilterProfile implements DataSerializableFixedID {
    * Process the filter profile messages.
    */
   public void processQueuedFilterProfileMsgs(List msgs) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
     if (msgs != null) {
-      Iterator iter = msgs.iterator();
+      var iter = msgs.iterator();
       while (iter.hasNext()) {
         try {
-          OperationMessage msg = (OperationMessage) iter.next();
+          var msg = (OperationMessage) iter.next();
           if (isDebugEnabled) {
             logger.debug("Processing the queued filter profile message :{}", msg);
           }
@@ -1833,7 +1829,7 @@ public class FilterProfile implements DataSerializableFixedID {
     @Override
     protected void process(ClusterDistributionManager dm) {
       try {
-        CacheDistributionAdvisee r = findRegion(dm);
+        var r = findRegion(dm);
         if (r == null) {
           if (logger.isDebugEnabled()) {
             logger.debug("Region not found, so ignoring filter profile update: {}", this);
@@ -1845,8 +1841,8 @@ public class FilterProfile implements DataSerializableFixedID {
           return;
         }
 
-        CacheDistributionAdvisor cda = (CacheDistributionAdvisor) r.getDistributionAdvisor();
-        CacheDistributionAdvisor.CacheProfile cp =
+        var cda = (CacheDistributionAdvisor) r.getDistributionAdvisor();
+        var cp =
             (CacheDistributionAdvisor.CacheProfile) cda.getProfile(getSender());
         if (cp == null) { // PR accessors do not keep filter profiles around
           if (logger.isDebugEnabled()) {
@@ -1854,12 +1850,12 @@ public class FilterProfile implements DataSerializableFixedID {
                 "No cache profile to update, adding filter profile message to queue. Message :{}",
                 this);
           }
-          FilterProfile localFP = ((LocalRegion) r).getFilterProfile();
+          var localFP = ((LocalRegion) r).getFilterProfile();
           localFP.addToFilterProfileQueue(getSender(), this);
           dm.getCancelCriterion().checkCancelInProgress(null);
         } else {
           cp.hasCacheServer = true;
-          FilterProfile fp = cp.filterProfile;
+          var fp = cp.filterProfile;
           if (fp == null) { // PR accessors do not keep filter profiles around
             if (logger.isDebugEnabled()) {
               logger.debug("No filter profile to update: {}", this);
@@ -1875,7 +1871,7 @@ public class FilterProfile implements DataSerializableFixedID {
       } catch (RuntimeException e) {
         logger.warn("Exception thrown while processing profile update", e);
       } finally {
-        ReplyMessage reply = new ReplyMessage();
+        var reply = new ReplyMessage();
         reply.setProcessorId(processorId);
         reply.setRecipient(getSender());
         try {
@@ -1943,9 +1939,9 @@ public class FilterProfile implements DataSerializableFixedID {
     private CacheDistributionAdvisee findRegion(ClusterDistributionManager dm) {
       CacheDistributionAdvisee result = null;
       try {
-        InternalCache cache = dm.getCache();
+        var cache = dm.getCache();
         if (cache != null) {
-          LocalRegion lr = (LocalRegion) cache.getRegionByPathForProcessing(regionName);
+          var lr = (LocalRegion) cache.getRegionByPathForProcessing(regionName);
           if (lr instanceof CacheDistributionAdvisee) {
             result = (CacheDistributionAdvisee) lr;
           }
@@ -2032,7 +2028,7 @@ public class FilterProfile implements DataSerializableFixedID {
 
     /** return the on-wire routing identifier for the given ID */
     Long getWireID(Object realId) {
-      Long result = realIDs.get(realId);
+      var result = realIDs.get(realId);
       if (result == null) {
         synchronized (this) {
           result = realIDs.get(realId);
@@ -2071,9 +2067,9 @@ public class FilterProfile implements DataSerializableFixedID {
         return Collections.emptySet();
       }
       Set result = new HashSet(integerIDs.size());
-      Map<Long, Object> wids = wireIDs;
-      for (Object id : integerIDs) {
-        Object realID = wids.get(id);
+      var wids = wireIDs;
+      for (var id : integerIDs) {
+        var realID = wids.get(id);
         if (realID != null) {
           result.add(realID);
         }
@@ -2085,7 +2081,7 @@ public class FilterProfile implements DataSerializableFixedID {
      * remove the mapping for the given internal ID
      */
     void removeIDMapping(Long mappedId) {
-      Object clientId = wireIDs.remove(mappedId);
+      var clientId = wireIDs.remove(mappedId);
       if (clientId != null) {
         realIDs.remove(clientId);
       }
@@ -2095,7 +2091,7 @@ public class FilterProfile implements DataSerializableFixedID {
      * remove the mapping for the given proxy ID
      */
     void removeIDMapping(Object clientId) {
-      Long mappedId = realIDs.remove(clientId);
+      var mappedId = realIDs.remove(clientId);
       if (mappedId != null) {
         wireIDs.remove(mappedId);
       }
@@ -2225,7 +2221,7 @@ public class FilterProfile implements DataSerializableFixedID {
     if (!clientMap.hasWireID(id)) {
       return null;
     }
-    Map interests = getFiltersOfInterest().get(clientMap.getWireID(id));
+    var interests = getFiltersOfInterest().get(clientMap.getWireID(id));
     if (interests != null) {
       return new HashSet(interests.keySet());
     }
@@ -2242,7 +2238,7 @@ public class FilterProfile implements DataSerializableFixedID {
     if (!clientMap.hasWireID(id)) {
       return null;
     }
-    Map interests = getFiltersOfInterestInv().get(clientMap.getWireID(id));
+    var interests = getFiltersOfInterestInv().get(clientMap.getWireID(id));
     if (interests != null) {
       return new HashSet(interests.keySet());
     }

@@ -20,16 +20,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -45,7 +42,7 @@ public class JtaIntegrationJUnitTest {
 
   @After
   public void tearDown() {
-    InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+    var ids = InternalDistributedSystem.getAnyInstance();
     if (ids != null) {
       ids.disconnect();
     }
@@ -55,32 +52,32 @@ public class JtaIntegrationJUnitTest {
   public void testBug43987() {
     // InternalDistributedSystem ds = getSystem(); // ties us in to the DS owned by
     // DistributedTestCase.
-    CacheFactory cf = new CacheFactory().set(MCAST_PORT, "0");// (ds.getProperties());
-    Cache cache = cf.create(); // should just reuse the singleton DS owned by DistributedTestCase.
+    var cf = new CacheFactory().set(MCAST_PORT, "0");// (ds.getProperties());
+    var cache = cf.create(); // should just reuse the singleton DS owned by DistributedTestCase.
     RegionFactory<String, String> rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    Region<String, String> r = rf.create("JTA_reg");
+    var r = rf.create("JTA_reg");
     r.put("key", "value");
     cache.close();
     cache = cf.create();
     RegionFactory<String, String> rf1 = cache.createRegionFactory(RegionShortcut.REPLICATE);
-    Region<String, String> r1 = rf1.create("JTA_reg");
+    var r1 = rf1.create("JTA_reg");
     r1.put("key1", "value");
   }
 
   @Test
   public void testBug46169() throws Exception {
-    String tableName = CacheUtils.init("CacheTest");
+    var tableName = CacheUtils.init("CacheTest");
     assertFalse(tableName == null || tableName.equals(""));
     logger.debug("Table name: " + tableName);
 
     logger.debug("init for bug46169 Successful!");
-    Cache cache = CacheUtils.getCache();
+    var cache = CacheUtils.getCache();
 
-    TransactionManager xmanager =
+    var xmanager =
         (TransactionManager) cache.getJNDIContext().lookup("java:/TransactionManager");
     assertNotNull(xmanager);
 
-    Transaction trans = xmanager.suspend();
+    var trans = xmanager.suspend();
     assertNull(trans);
 
     try {
@@ -95,14 +92,14 @@ public class JtaIntegrationJUnitTest {
 
   @Test
   public void testBug46192() throws Exception {
-    String tableName = CacheUtils.init("CacheTest");
+    var tableName = CacheUtils.init("CacheTest");
     assertFalse(tableName == null || tableName.equals(""));
     logger.debug("Table name: " + tableName);
 
     logger.debug("init for bug46192 Successful!");
-    Cache cache = CacheUtils.getCache();
+    var cache = CacheUtils.getCache();
 
-    TransactionManager xmanager =
+    var xmanager =
         (TransactionManager) cache.getJNDIContext().lookup("java:/TransactionManager");
     assertNotNull(xmanager);
 

@@ -25,18 +25,14 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.DynamicRegionFactory;
 import org.apache.geode.cache.InterestResultPolicy;
-import org.apache.geode.cache.operations.RegisterInterestOperationContext;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.InterestType;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
-import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.ResourcePermission.Operation;
 import org.apache.geode.security.ResourcePermission.Resource;
@@ -71,7 +67,7 @@ public class RegisterInterestList66 extends BaseCommand {
     int numberOfKeys, partNumber;
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE);
-    ChunkedMessage chunkedResponseMsg = serverConnection.getRegisterInterestResponseMessage();
+    var chunkedResponseMsg = serverConnection.getRegisterInterestResponseMessage();
 
     regionNamePart = clientMessage.getPart(0);
     regionName = regionNamePart.getCachedString();
@@ -88,8 +84,8 @@ public class RegisterInterestList66 extends BaseCommand {
 
     boolean isDurable;
     try {
-      Part durablePart = clientMessage.getPart(2);
-      byte[] durablePartBytes = (byte[]) durablePart.getObject();
+      var durablePart = clientMessage.getPart(2);
+      var durablePartBytes = (byte[]) durablePart.getObject();
       isDurable = durablePartBytes[0] == 0x01;
     } catch (Exception e) {
       writeChunkedException(clientMessage, e, serverConnection);
@@ -100,8 +96,8 @@ public class RegisterInterestList66 extends BaseCommand {
     final DataPolicy regionDataPolicy;
     final boolean serializeValues;
     try {
-      final Part regionDataPolicyPart = clientMessage.getPart(clientMessage.getNumberOfParts() - 1);
-      final byte[] regionDataPolicyPartBytes = (byte[]) regionDataPolicyPart.getObject();
+      final var regionDataPolicyPart = clientMessage.getPart(clientMessage.getNumberOfParts() - 1);
+      final var regionDataPolicyPartBytes = (byte[]) regionDataPolicyPart.getObject();
       regionDataPolicy = DataPolicy.fromOrdinal(regionDataPolicyPartBytes[0]);
       serializeValues = regionDataPolicyPartBytes[1] == (byte) 0x01;
     } catch (Exception e) {
@@ -111,7 +107,7 @@ public class RegisterInterestList66 extends BaseCommand {
     }
 
     partNumber = 3;
-    Part list = clientMessage.getPart(partNumber);
+    var list = clientMessage.getPart(partNumber);
     try {
       keys = uncheckedCast(list.getObject());
       numberOfKeys = keys.size();
@@ -123,8 +119,8 @@ public class RegisterInterestList66 extends BaseCommand {
 
     boolean sendUpdatesAsInvalidates;
     try {
-      Part notifyPart = clientMessage.getPart(partNumber + 1);
-      byte[] notifyPartBytes = (byte[]) notifyPart.getObject();
+      var notifyPart = clientMessage.getPart(partNumber + 1);
+      var notifyPartBytes = (byte[]) notifyPart.getObject();
       sendUpdatesAsInvalidates = notifyPartBytes[0] == 0x01;
     } catch (Exception e) {
       writeChunkedException(clientMessage, e, serverConnection);
@@ -159,17 +155,17 @@ public class RegisterInterestList66 extends BaseCommand {
       return;
     }
 
-    LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+    var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
     if (region == null) {
       logger.info("{}: Region named {} was not found during register interest list request.",
           new Object[] {serverConnection.getName(), regionName});
     }
     try {
       securityService.authorize(Resource.DATA, Operation.READ, regionName);
-      AuthorizeRequest authorizeRequest = serverConnection.getAuthzRequest();
+      var authorizeRequest = serverConnection.getAuthzRequest();
       if (authorizeRequest != null) {
         if (!DynamicRegionFactory.regionIsDynamicRegionList(regionName)) {
-          RegisterInterestOperationContext registerContext =
+          var registerContext =
               authorizeRequest.registerInterestListAuthorize(regionName, keys, policy);
           keys = uncheckedCast(registerContext.getKey());
         }
@@ -187,18 +183,18 @@ public class RegisterInterestList66 extends BaseCommand {
       return;
     }
 
-    CacheClientProxy ccp = serverConnection.getAcceptor().getCacheClientNotifier()
+    var ccp = serverConnection.getAcceptor().getCacheClientNotifier()
         .getClientProxy(serverConnection.getProxyID());
 
     if (ccp == null) {
-      IOException ioException = new IOException(
+      var ioException = new IOException(
           "CacheClientProxy for this client is no longer on the server");
       writeChunkedException(clientMessage, ioException, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
     }
 
-    boolean isPrimary = ccp.isPrimary();
+    var isPrimary = ccp.isPrimary();
 
     if (!isPrimary) {
       chunkedResponseMsg.setMessageType(MessageType.RESPONSE_FROM_SECONDARY);

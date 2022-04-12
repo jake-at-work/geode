@@ -24,7 +24,6 @@ import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.TypeMismatchException;
-import org.apache.geode.internal.cache.PartitionedRegion;
 
 
 /**
@@ -46,7 +45,7 @@ public class CompiledID extends AbstractCompiledValue {
   @Override
   public List getPathOnIterator(RuntimeIterator itr, ExecutionContext context)
       throws TypeMismatchException, AmbiguousNameException {
-    CompiledValue val = context.resolve(getId());
+    var val = context.resolve(getId());
     if (val == itr) {
       return new ArrayList(); // empty path
     }
@@ -75,17 +74,17 @@ public class CompiledID extends AbstractCompiledValue {
   @Override
   public Set computeDependencies(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    CompiledValue v = context.resolve(getId());
+    var v = context.resolve(getId());
     return context.addDependencies(this, v.computeDependencies(context));
   }
 
   @Override
   public Object evaluate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    CompiledValue v = context.resolve(getId());
-    Object obj = v.evaluate(context);
+    var v = context.resolve(getId());
+    var obj = v.evaluate(context);
     // check for BucketRegion substitution
-    PartitionedRegion pr = context.getPartitionedRegion();
+    var pr = context.getPartitionedRegion();
     if (pr != null && (obj instanceof Region)) {
       if (pr.getFullPath().equals(((Region) obj).getFullPath())) {
         obj = context.getBucketRegion();

@@ -52,40 +52,40 @@ public class StartServerCommandIntegrationTest {
   public void startServerWorksWithNoOptions() throws Exception {
     commandRule.executeAndAssertThat(spy, "start server");
 
-    ArgumentCaptor<Properties> gemfirePropertiesCaptor = ArgumentCaptor.forClass(Properties.class);
+    var gemfirePropertiesCaptor = ArgumentCaptor.forClass(Properties.class);
     verify(spy).createStartServerCommandLine(any(), any(), any(), gemfirePropertiesCaptor.capture(),
         any(), any(), any(), any(), any(), any());
 
-    Properties gemfireProperties = gemfirePropertiesCaptor.getValue();
+    var gemfireProperties = gemfirePropertiesCaptor.getValue();
     assertThat(gemfireProperties).containsKey(USE_CLUSTER_CONFIGURATION);
     assertThat(gemfireProperties.get(USE_CLUSTER_CONFIGURATION)).isEqualTo("true");
   }
 
   @Test
   public void startServerRespectsJmxManagerHostnameForClients() throws Exception {
-    String startServerCommand = new CommandStringBuilder("start server")
+    var startServerCommand = new CommandStringBuilder("start server")
         .addOption(JMX_MANAGER_HOSTNAME_FOR_CLIENTS, FAKE_HOSTNAME).toString();
 
     commandRule.executeAndAssertThat(spy, startServerCommand);
 
-    ArgumentCaptor<Properties> gemfirePropertiesCaptor = ArgumentCaptor.forClass(Properties.class);
+    var gemfirePropertiesCaptor = ArgumentCaptor.forClass(Properties.class);
     verify(spy).createStartServerCommandLine(any(), any(), any(), gemfirePropertiesCaptor.capture(),
         any(), any(), any(), any(), any(), any());
 
-    Properties gemfireProperties = gemfirePropertiesCaptor.getValue();
+    var gemfireProperties = gemfirePropertiesCaptor.getValue();
     assertThat(gemfireProperties).containsKey(JMX_MANAGER_HOSTNAME_FOR_CLIENTS);
     assertThat(gemfireProperties.get(JMX_MANAGER_HOSTNAME_FOR_CLIENTS)).isEqualTo(FAKE_HOSTNAME);
   }
 
   @Test
   public void startServerRespectsHostnameForClients() throws Exception {
-    String startServerCommand = new CommandStringBuilder("start server")
+    var startServerCommand = new CommandStringBuilder("start server")
         .addOption("hostname-for-clients", FAKE_HOSTNAME).toString();
 
     commandRule.executeAndAssertThat(spy, startServerCommand);
-    ArgumentCaptor<String[]> commandLines = ArgumentCaptor.forClass(String[].class);
+    var commandLines = ArgumentCaptor.forClass(String[].class);
     verify(spy).getProcess(any(), commandLines.capture());
-    String[] lines = commandLines.getValue();
+    var lines = commandLines.getValue();
     assertThat(lines).containsOnlyOnce("--hostname-for-clients=" + FAKE_HOSTNAME);
   }
 }

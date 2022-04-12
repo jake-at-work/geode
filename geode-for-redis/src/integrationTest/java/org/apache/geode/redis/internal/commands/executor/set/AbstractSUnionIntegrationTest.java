@@ -92,22 +92,23 @@ public abstract class AbstractSUnionIntegrationTest implements RedisIntegrationT
 
   @Test
   public void sunion_withNonOverlappingSets_returnsUnionOfSets() {
-    String[] secondSetMembers = new String[] {"apple", "microsoft", "linux", "peach"};
+    var secondSetMembers = new String[] {"apple", "microsoft", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String[] result =
-        {"one", "two", "three", "four", "five", "apple", "microsoft", "linux", "peach"};
+    var result =
+        new String[] {"one", "two", "three", "four", "five", "apple", "microsoft", "linux",
+            "peach"};
     assertThat(jedis.sunion(SET_KEY_1, SET_KEY_2)).containsExactlyInAnyOrder(result);
   }
 
   @Test
   public void sunion_withSetsWithSomeSharedValues_returnsUnionOfSets() {
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String[] result = {"one", "two", "three", "four", "five", "linux", "peach"};
+    var result = new String[] {"one", "two", "three", "four", "five", "linux", "peach"};
     assertThat(jedis.sunion(SET_KEY_1, SET_KEY_2)).containsExactlyInAnyOrder(result);
   }
 
@@ -121,8 +122,8 @@ public abstract class AbstractSUnionIntegrationTest implements RedisIntegrationT
 
   @Test
   public void sunion_withSetsFromDifferentSlots_returnsCrossSlotError() {
-    String setKeyDifferentSlot = "{tag2}setKey2";
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var setKeyDifferentSlot = "{tag2}setKey2";
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(setKeyDifferentSlot, secondSetMembers);
 
@@ -133,11 +134,11 @@ public abstract class AbstractSUnionIntegrationTest implements RedisIntegrationT
 
   @Test
   public void sunion_withDifferentKeyTypeAndTwoSetKeys_returnsWrongTypeError() {
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String diffKey = "{tag1}diffKey";
+    var diffKey = "{tag1}diffKey";
     jedis.set(diffKey, "dong");
     assertThatThrownBy(() -> jedis.sunion(diffKey, SET_KEY_1, SET_KEY_2))
         .hasMessage(ERROR_WRONG_TYPE);
@@ -145,11 +146,11 @@ public abstract class AbstractSUnionIntegrationTest implements RedisIntegrationT
 
   @Test
   public void sunion_withTwoSetKeysAndDifferentKeyType_returnsWrongTypeError() {
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String diffKey = "{tag1}diffKey";
+    var diffKey = "{tag1}diffKey";
     jedis.set(diffKey, "dong");
     assertThatThrownBy(() -> jedis.sunion(SET_KEY_1, SET_KEY_2, diffKey))
         .hasMessage(ERROR_WRONG_TYPE);
@@ -157,7 +158,7 @@ public abstract class AbstractSUnionIntegrationTest implements RedisIntegrationT
 
   @Test
   public void sunion_withNonSetKeyAsThirdKeyAndNonExistentSetAsFirstKey_returnsWrongTypeError() {
-    String stringKey = "{tag1}ding";
+    var stringKey = "{tag1}ding";
     jedis.set(stringKey, "dong");
 
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
@@ -167,13 +168,13 @@ public abstract class AbstractSUnionIntegrationTest implements RedisIntegrationT
 
   @Test
   public void ensureSetConsistency_whenRunningConcurrently() {
-    String[] secondSetMembers = new String[] {"one", "two", "linux", "peach"};
+    var secondSetMembers = new String[] {"one", "two", "linux", "peach"};
     jedis.sadd(SET_KEY_1, SET_MEMBERS_1);
     jedis.sadd(SET_KEY_2, secondSetMembers);
 
-    String[] unionMembers = {"one", "two", "three", "four", "five", "linux", "peach"};
+    var unionMembers = new String[] {"one", "two", "three", "four", "five", "linux", "peach"};
 
-    final AtomicReference<Set<String>> sunionResultReference = new AtomicReference<>();
+    final var sunionResultReference = new AtomicReference<Set<String>>();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.srem(SET_KEY_2, secondSetMembers),
         i -> sunionResultReference.set(jedis.sunion(SET_KEY_1, SET_KEY_2)))

@@ -15,14 +15,11 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.Set;
 
-import javax.management.ObjectName;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.GatewayReceiverMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
@@ -51,22 +48,22 @@ public class StatusGatewayReceiverCommand extends GfshCommand {
 
     SystemManagementService service = getManagementService();
 
-    Set<DistributedMember> dsMembers = findMembers(onGroup, onMember);
+    var dsMembers = findMembers(onGroup, onMember);
     if (dsMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    ResultModel crd = new ResultModel();
-    TabularResultModel availableReceiverData =
+    var crd = new ResultModel();
+    var availableReceiverData =
         crd.addTable(CliStrings.SECTION_GATEWAY_RECEIVER_AVAILABLE);
 
-    TabularResultModel notAvailableReceiverData =
+    var notAvailableReceiverData =
         crd.addTable(CliStrings.SECTION_GATEWAY_RECEIVER_NOT_AVAILABLE);
 
-    for (DistributedMember member : dsMembers) {
-      ObjectName gatewayReceiverObjectName = MBeanJMXAdapter.getGatewayReceiverMBeanName(member);
+    for (var member : dsMembers) {
+      var gatewayReceiverObjectName = MBeanJMXAdapter.getGatewayReceiverMBeanName(member);
       if (gatewayReceiverObjectName != null) {
-        GatewayReceiverMXBean receiverBean =
+        var receiverBean =
             service.getMBeanProxy(gatewayReceiverObjectName, GatewayReceiverMXBean.class);
         if (receiverBean != null) {
           buildReceiverStatus(member.getId(), receiverBean, availableReceiverData);

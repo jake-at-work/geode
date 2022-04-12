@@ -34,7 +34,6 @@ import java.io.InvalidObjectException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -178,13 +177,13 @@ public abstract class OpenTypeConverter {
   private static synchronized OpenTypeConverter getConverter(Type type) {
 
     if (type instanceof GenericArrayType) {
-      Type component = ((GenericArrayType) type).getGenericComponentType();
+      var component = ((GenericArrayType) type).getGenericComponentType();
       if (component instanceof Class) {
         type = Array.newInstance((Class<?>) component, 0).getClass();
       }
     }
 
-    WeakReference<OpenTypeConverter> wr = converterMap.get(type);
+    var wr = converterMap.get(type);
     return (wr == null) ? null : wr.get();
   }
 
@@ -192,7 +191,7 @@ public abstract class OpenTypeConverter {
    * Put the converter in the map to avoid future creation
    */
   private static synchronized void putConverter(Type type, OpenTypeConverter conv) {
-    WeakReference<OpenTypeConverter> wr = new WeakReference<>(conv);
+    var wr = new WeakReference<OpenTypeConverter>(conv);
     converterMap.put(type, wr);
   }
 
@@ -209,7 +208,7 @@ public abstract class OpenTypeConverter {
     final OpenType[] simpleTypes = {BIGDECIMAL, BIGINTEGER, BOOLEAN, BYTE, CHARACTER, DATE, DOUBLE,
         FLOAT, INTEGER, LONG, OBJECTNAME, SHORT, STRING, VOID,};
 
-    for (final OpenType t : simpleTypes) {
+    for (final var t : simpleTypes) {
       Class c;
       try {
         c = Class.forName(t.getClassName(), false, ObjectName.class.getClassLoader());
@@ -221,8 +220,8 @@ public abstract class OpenTypeConverter {
 
       if (c.getName().startsWith("java.lang.")) {
         try {
-          final Field typeField = c.getField("TYPE");
-          final Class primitiveType = (Class) typeField.get(null);
+          final var typeField = c.getField("TYPE");
+          final var primitiveType = (Class) typeField.get(null);
           final OpenTypeConverter primitiveConv =
               new IdentityConverter(primitiveType, t, primitiveType);
           putPreDefinedConverter(primitiveType, primitiveConv);
@@ -278,7 +277,7 @@ public abstract class OpenTypeConverter {
   private static OpenTypeConverter makeConverter(Type objType) throws OpenDataException {
 
     if (objType instanceof GenericArrayType) {
-      Type componentType = ((GenericArrayType) objType).getGenericComponentType();
+      var componentType = ((GenericArrayType) objType).getGenericComponentType();
       return makeArrayOrCollectionConverter(objType, componentType);
     } else if (objType instanceof Class) {
       Class objClass = (Class<?>) objType;
@@ -307,10 +306,10 @@ public abstract class OpenTypeConverter {
   private static OpenTypeConverter makeArrayOrCollectionConverter(Type collectionType,
       Type elementType) throws OpenDataException {
 
-    final OpenTypeConverter elementConverter = toConverter(elementType);
-    final OpenType elementOpenType = elementConverter.getOpenType();
-    final ArrayType openType = new ArrayType(1, elementOpenType);
-    final Class elementOpenClass = elementConverter.getOpenClass();
+    final var elementConverter = toConverter(elementType);
+    final var elementOpenType = elementConverter.getOpenType();
+    final var openType = new ArrayType(1, elementOpenType);
+    final var elementOpenClass = elementConverter.getOpenClass();
 
     final Class openArrayClass;
     final String openArrayClassName;
@@ -345,14 +344,14 @@ public abstract class OpenTypeConverter {
   private static OpenTypeConverter makeTabularConverter(Type objType, boolean sortedMap,
       Type keyType, Type valueType) throws OpenDataException {
 
-    final String objTypeName = objType.toString();
-    final OpenTypeConverter keyConverter = toConverter(keyType);
-    final OpenTypeConverter valueConverter = toConverter(valueType);
-    final OpenType keyOpenType = keyConverter.getOpenType();
-    final OpenType valueOpenType = valueConverter.getOpenType();
-    final CompositeType rowType = new CompositeType(objTypeName, objTypeName, keyValueArray,
+    final var objTypeName = objType.toString();
+    final var keyConverter = toConverter(keyType);
+    final var valueConverter = toConverter(valueType);
+    final var keyOpenType = keyConverter.getOpenType();
+    final var valueOpenType = valueConverter.getOpenType();
+    final var rowType = new CompositeType(objTypeName, objTypeName, keyValueArray,
         keyValueArray, new OpenType[] {keyOpenType, valueOpenType});
-    final TabularType tabularType = new TabularType(objTypeName, objTypeName, rowType, keyArray);
+    final var tabularType = new TabularType(objTypeName, objTypeName, rowType, keyArray);
     return new TableConverter(objType, sortedMap, tabularType, keyConverter, valueConverter);
   }
 
@@ -369,21 +368,21 @@ public abstract class OpenTypeConverter {
   private static OpenTypeConverter makeParameterizedConverter(ParameterizedType objType)
       throws OpenDataException {
 
-    final Type rawType = objType.getRawType();
+    final var rawType = objType.getRawType();
 
     if (rawType instanceof Class) {
       Class c = (Class<?>) rawType;
       if (c == List.class || c == Set.class || c == SortedSet.class) {
-        Type[] actuals = objType.getActualTypeArguments();
+        var actuals = objType.getActualTypeArguments();
         assert (actuals.length == 1);
         if (c == SortedSet.class) {
           mustBeComparable(c, actuals[0]);
         }
         return makeArrayOrCollectionConverter(objType, actuals[0]);
       } else {
-        boolean sortedMap = (c == SortedMap.class);
+        var sortedMap = (c == SortedMap.class);
         if (c == Map.class || sortedMap) {
-          Type[] actuals = objType.getActualTypeArguments();
+          var actuals = objType.getActualTypeArguments();
           assert (actuals.length == 2);
           if (sortedMap) {
             mustBeComparable(c, actuals[0]);
@@ -400,45 +399,45 @@ public abstract class OpenTypeConverter {
    */
   private static OpenTypeConverter makeCompositeConverter(Class c) throws OpenDataException {
 
-    final Method[] methods = c.getMethods();
+    final var methods = c.getMethods();
     final SortedMap<String, Method> getterMap = OpenTypeUtil.newSortedMap();
 
-    for (Method method : methods) {
-      final String propertyName = propertyName(method);
+    for (var method : methods) {
+      final var propertyName = propertyName(method);
 
       if (propertyName == null) {
         continue;
       }
 
-      Method old = getterMap.put(OpenTypeUtil.toCamelCase(propertyName), method);
+      var old = getterMap.put(OpenTypeUtil.toCamelCase(propertyName), method);
       if (old != null) {
-        final String msg = "Class " + c.getName() + " has method name clash: " + old.getName()
+        final var msg = "Class " + c.getName() + " has method name clash: " + old.getName()
             + ", " + method.getName();
         throw new OpenDataException(msg);
       }
     }
 
-    final int nitems = getterMap.size();
+    final var nitems = getterMap.size();
 
     if (nitems == 0) {
       throw new OpenDataException("Can't map " + c.getName() + " to an open data type");
     }
 
-    final Method[] getters = new Method[nitems];
-    final String[] itemNames = new String[nitems];
-    final OpenType[] openTypes = new OpenType[nitems];
-    int i = 0;
-    for (Map.Entry<String, Method> entry : getterMap.entrySet()) {
+    final var getters = new Method[nitems];
+    final var itemNames = new String[nitems];
+    final var openTypes = new OpenType[nitems];
+    var i = 0;
+    for (var entry : getterMap.entrySet()) {
       itemNames[i] = entry.getKey();
-      final Method getter = entry.getValue();
+      final var getter = entry.getValue();
       getters[i] = getter;
-      final Type retType = getter.getGenericReturnType();
+      final var retType = getter.getGenericReturnType();
       openTypes[i] = toConverter(retType).getOpenType();
       i++;
     }
 
-    CompositeType compositeType = new CompositeType(c.getName(), c.getName(), itemNames, // field
-                                                                                         // names
+    var compositeType = new CompositeType(c.getName(), c.getName(), itemNames, // field
+                                                                               // names
         itemNames, // field descriptions
         openTypes);
 
@@ -503,17 +502,17 @@ public abstract class OpenTypeConverter {
     String applicable(Method[] getters) throws InvalidObjectException {
       // See if it has a method "T from(CompositeData)"
       // as is conventional for a CompositeDataView
-      Class targetClass = getTargetClass();
+      var targetClass = getTargetClass();
       try {
-        Method fromMethod = targetClass.getMethod("from", CompositeData.class);
+        var fromMethod = targetClass.getMethod("from", CompositeData.class);
 
         if (!Modifier.isStatic(fromMethod.getModifiers())) {
-          final String msg = "Method from(CompositeData) is not static";
+          final var msg = "Method from(CompositeData) is not static";
           throw new InvalidObjectException(msg);
         }
 
         if (fromMethod.getReturnType() != getTargetClass()) {
-          final String msg = "Method from(CompositeData) returns "
+          final var msg = "Method from(CompositeData) returns "
               + typeName(fromMethod.getReturnType()) + " not " + typeName(targetClass);
           throw new InvalidObjectException(msg);
         }
@@ -533,7 +532,7 @@ public abstract class OpenTypeConverter {
       try {
         return fromMethod.invoke(null, cd);
       } catch (Exception e) {
-        final String msg = "Failed to invoke from(CompositeData)";
+        final var msg = "Failed to invoke from(CompositeData)";
         throw invalidObjectException(msg, e);
       }
     }
@@ -559,7 +558,7 @@ public abstract class OpenTypeConverter {
 
     @Override
     String applicable(Method[] getters) {
-      for (int i = 0; i < getters.length; i++) {
+      for (var i = 0; i < getters.length; i++) {
         try {
           getterConverters[i].checkReconstructible();
         } catch (InvalidObjectException e) {
@@ -597,17 +596,17 @@ public abstract class OpenTypeConverter {
     @Override
     String applicable(Method[] getters) {
       try {
-        Constructor c = getTargetClass().getConstructor((Class[]) null);
+        var c = getTargetClass().getConstructor((Class[]) null);
       } catch (Exception e) {
         return "does not have a public no-arg constructor";
       }
 
-      Method[] setters = new Method[getters.length];
-      for (int i = 0; i < getters.length; i++) {
-        Method getter = getters[i];
+      var setters = new Method[getters.length];
+      for (var i = 0; i < getters.length; i++) {
+        var getter = getters[i];
         Class returnType = getter.getReturnType();
-        String name = propertyName(getter);
-        String setterName = "set" + name;
+        var name = propertyName(getter);
+        var setterName = "set" + name;
         Method setter;
         try {
           setter = getTargetClass().getMethod(setterName, returnType);
@@ -629,10 +628,10 @@ public abstract class OpenTypeConverter {
       Object o;
       try {
         o = getTargetClass().newInstance();
-        for (int i = 0; i < itemNames.length; i++) {
+        for (var i = 0; i < itemNames.length; i++) {
           if (cd.containsKey(itemNames[i])) {
-            Object openItem = cd.get(itemNames[i]);
-            Object javaItem = converters[i].fromOpenValue(openItem);
+            var openItem = cd.get(itemNames[i]);
+            var javaItem = converters[i].fromOpenValue(openItem);
             setters[i].invoke(o, javaItem);
           }
         }
@@ -658,13 +657,13 @@ public abstract class OpenTypeConverter {
     @Override
     String applicable(Method[] getters) throws InvalidObjectException {
 
-      final Class<ConstructorProperties> propertyNamesClass = ConstructorProperties.class;
+      final var propertyNamesClass = ConstructorProperties.class;
 
-      Class targetClass = getTargetClass();
-      Constructor[] constrs = targetClass.getConstructors();
+      var targetClass = getTargetClass();
+      var constrs = targetClass.getConstructors();
 
       List<Constructor> annotatedConstrList = OpenTypeUtil.newList();
-      for (Constructor constr : constrs) {
+      for (var constr : constrs) {
         if (Modifier.isPublic(constr.getModifiers())
             && constr.getAnnotation(propertyNamesClass) != null) {
           annotatedConstrList.add(constr);
@@ -678,39 +677,39 @@ public abstract class OpenTypeConverter {
       annotatedConstructors = OpenTypeUtil.newList();
 
       Map<String, Integer> getterMap = OpenTypeUtil.newMap();
-      String[] itemNames = getItemNames();
-      for (int i = 0; i < itemNames.length; i++) {
+      var itemNames = getItemNames();
+      for (var i = 0; i < itemNames.length; i++) {
         getterMap.put(itemNames[i], i);
       }
 
       Set<BitSet> getterIndexSets = OpenTypeUtil.newSet();
-      for (Constructor constr : annotatedConstrList) {
-        String[] propertyNames =
+      for (var constr : annotatedConstrList) {
+        var propertyNames =
             ((ConstructorProperties) constr.getAnnotation(propertyNamesClass)).value();
 
-        Type[] paramTypes = constr.getGenericParameterTypes();
+        var paramTypes = constr.getGenericParameterTypes();
         if (paramTypes.length != propertyNames.length) {
-          final String msg = "Number of constructor params does not match "
+          final var msg = "Number of constructor params does not match "
               + "@ConstructorProperties annotation: " + constr;
           throw new InvalidObjectException(msg);
         }
 
-        for (int i = 0; i < paramTypes.length; i++) {
+        for (var i = 0; i < paramTypes.length; i++) {
           paramTypes[i] = fixType(paramTypes[i]);
         }
 
-        int[] paramIndexes = new int[getters.length];
-        for (int i = 0; i < getters.length; i++) {
+        var paramIndexes = new int[getters.length];
+        for (var i = 0; i < getters.length; i++) {
           paramIndexes[i] = -1;
         }
-        BitSet present = new BitSet();
+        var present = new BitSet();
 
-        for (int i = 0; i < propertyNames.length; i++) {
-          String propertyName = propertyNames[i];
+        for (var i = 0; i < propertyNames.length; i++) {
+          var propertyName = propertyNames[i];
           if (!getterMap.containsKey(propertyName)) {
-            String msg = "@ConstructorProperties includes name " + propertyName
+            var msg = "@ConstructorProperties includes name " + propertyName
                 + " which does not correspond to a property";
-            for (String getterName : getterMap.keySet()) {
+            for (var getterName : getterMap.keySet()) {
               if (getterName.equalsIgnoreCase(propertyName)) {
                 msg += " (differs only in case from property " + getterName + ")";
               }
@@ -721,45 +720,45 @@ public abstract class OpenTypeConverter {
           int getterIndex = getterMap.get(propertyName);
           paramIndexes[getterIndex] = i;
           if (present.get(getterIndex)) {
-            final String msg = "@ConstructorProperties contains property " + propertyName
+            final var msg = "@ConstructorProperties contains property " + propertyName
                 + " more than once: " + constr;
             throw new InvalidObjectException(msg);
           }
           present.set(getterIndex);
-          Method getter = getters[getterIndex];
-          Type propertyType = getter.getGenericReturnType();
+          var getter = getters[getterIndex];
+          var propertyType = getter.getGenericReturnType();
           if (!propertyType.equals(paramTypes[i])) {
-            final String msg = "@ConstructorProperties gives property " + propertyName + " of type "
+            final var msg = "@ConstructorProperties gives property " + propertyName + " of type "
                 + propertyType + " for parameter " + " of type " + paramTypes[i] + ": " + constr;
             throw new InvalidObjectException(msg);
           }
         }
 
         if (!getterIndexSets.add(present)) {
-          final String msg = "More than one constructor has a @ConstructorProperties "
+          final var msg = "More than one constructor has a @ConstructorProperties "
               + "annotation with this set of names: " + Arrays.toString(propertyNames);
           throw new InvalidObjectException(msg);
         }
 
-        Constr c = new Constr(constr, paramIndexes, present);
+        var c = new Constr(constr, paramIndexes, present);
         annotatedConstructors.add(c);
       }
 
-      for (BitSet a : getterIndexSets) {
-        boolean seen = false;
-        for (BitSet b : getterIndexSets) {
+      for (var a : getterIndexSets) {
+        var seen = false;
+        for (var b : getterIndexSets) {
           if (a == b) {
             seen = true;
           } else if (seen) {
-            BitSet u = new BitSet();
+            var u = new BitSet();
             u.or(a);
             u.or(b);
             if (!getterIndexSets.contains(u)) {
               Set<String> names = new TreeSet<>();
-              for (int i = u.nextSetBit(0); i >= 0; i = u.nextSetBit(i + 1)) {
+              for (var i = u.nextSetBit(0); i >= 0; i = u.nextSetBit(i + 1)) {
                 names.add(itemNames[i]);
               }
-              final String msg = "Constructors with @ConstructorProperties annotation "
+              final var msg = "Constructors with @ConstructorProperties annotation "
                   + " would be ambiguous for these items: " + names;
               throw new InvalidObjectException(msg);
             }
@@ -774,16 +773,16 @@ public abstract class OpenTypeConverter {
     Object fromCompositeData(CompositeData cd, String[] itemNames, OpenTypeConverter[] converters)
         throws InvalidObjectException {
 
-      CompositeType ct = cd.getCompositeType();
-      BitSet present = new BitSet();
-      for (int i = 0; i < itemNames.length; i++) {
+      var ct = cd.getCompositeType();
+      var present = new BitSet();
+      for (var i = 0; i < itemNames.length; i++) {
         if (ct.getType(itemNames[i]) != null) {
           present.set(i);
         }
       }
 
       Constr max = null;
-      for (Constr constr : annotatedConstructors) {
+      for (var constr : annotatedConstructors) {
         if (subset(constr.presentParams, present)
             && (max == null || subset(max.presentParams, constr.presentParams))) {
           max = constr;
@@ -791,19 +790,19 @@ public abstract class OpenTypeConverter {
       }
 
       if (max == null) {
-        final String msg = "No constructor has a @ConstructorProperties for this set of "
+        final var msg = "No constructor has a @ConstructorProperties for this set of "
             + "items: " + ct.keySet();
         throw new InvalidObjectException(msg);
       }
 
-      Object[] params = new Object[max.presentParams.cardinality()];
-      for (int i = 0; i < itemNames.length; i++) {
+      var params = new Object[max.presentParams.cardinality()];
+      for (var i = 0; i < itemNames.length; i++) {
         if (!max.presentParams.get(i)) {
           continue;
         }
-        Object openItem = cd.get(itemNames[i]);
-        Object javaItem = converters[i].fromOpenValue(openItem);
-        int index = max.paramIndexes[i];
+        var openItem = cd.get(itemNames[i]);
+        var javaItem = converters[i].fromOpenValue(openItem);
+        var index = max.paramIndexes[i];
         if (index >= 0) {
           params[index] = javaItem;
         }
@@ -812,13 +811,13 @@ public abstract class OpenTypeConverter {
       try {
         return max.constructor.newInstance(params);
       } catch (Exception e) {
-        final String msg = "Exception constructing " + getTargetClass().getName();
+        final var msg = "Exception constructing " + getTargetClass().getName();
         throw invalidObjectException(msg, e);
       }
     }
 
     private static boolean subset(BitSet sub, BitSet sup) {
-      BitSet subcopy = (BitSet) sub.clone();
+      var subcopy = (BitSet) sub.clone();
       subcopy.andNot(sup);
       return subcopy.isEmpty();
     }
@@ -851,19 +850,19 @@ public abstract class OpenTypeConverter {
 
     @Override
     String applicable(Method[] getters) {
-      Class targetClass = getTargetClass();
+      var targetClass = getTargetClass();
       if (!targetClass.isInterface()) {
         return "not an interface";
       }
-      Set<Method> methods = OpenTypeUtil.newSet(Arrays.asList(targetClass.getMethods()));
+      var methods = OpenTypeUtil.newSet(Arrays.asList(targetClass.getMethods()));
       methods.removeAll(Arrays.asList(getters));
 
       String bad = null;
-      for (Method m : methods) {
-        String mname = m.getName();
+      for (var m : methods) {
+        var mname = m.getName();
         Class[] mparams = m.getParameterTypes();
         try {
-          Method om = Object.class.getMethod(mname, mparams);
+          var om = Object.class.getMethod(mname, mparams);
           if (!Modifier.isPublic(om.getModifiers())) {
             bad = mname;
           }
@@ -880,7 +879,7 @@ public abstract class OpenTypeConverter {
 
     @Override
     Object fromCompositeData(CompositeData cd, String[] itemNames, OpenTypeConverter[] converters) {
-      final Class targetClass = getTargetClass();
+      final var targetClass = getTargetClass();
       return Proxy.newProxyInstance(targetClass.getClassLoader(), new Class[] {targetClass},
           new CompositeDataInvocationHandler(cd));
     }
@@ -904,7 +903,7 @@ public abstract class OpenTypeConverter {
 
   static void mustBeComparable(Class collection, Type element) throws OpenDataException {
     if (!(element instanceof Class) || !Comparable.class.isAssignableFrom((Class<?>) element)) {
-      final String msg = "Parameter class " + element + " of " + collection.getName()
+      final var msg = "Parameter class " + element + " of " + collection.getName()
           + " does not implement " + Comparable.class.getName();
       throw new OpenDataException(msg);
     }
@@ -912,7 +911,7 @@ public abstract class OpenTypeConverter {
 
   public static String propertyName(Method m) {
     String rest = null;
-    String name = m.getName();
+    var name = m.getName();
     if (name.startsWith("get")) {
       rest = name.substring(3);
     } else if (name.startsWith("is") && m.getReturnType() == boolean.class) {
@@ -927,7 +926,7 @@ public abstract class OpenTypeConverter {
 
   protected static String typeName(Type t) {
     if (t instanceof Class<?>) {
-      Class<?> c = (Class<?>) t;
+      var c = (Class<?>) t;
       if (c.isArray()) {
         return typeName(c.getComponentType()) + "[]";
       } else {
@@ -941,17 +940,17 @@ public abstract class OpenTypeConverter {
     if (!(t instanceof GenericArrayType)) {
       return t;
     }
-    GenericArrayType gat = (GenericArrayType) t;
-    Type ultimate = ultimateComponentType(gat);
+    var gat = (GenericArrayType) t;
+    var ultimate = ultimateComponentType(gat);
     if (!(ultimate instanceof Class<?>)) {
       return t;
     }
-    Class<?> component = (Class<?>) fixType(gat.getGenericComponentType());
+    var component = (Class<?>) fixType(gat.getGenericComponentType());
     return Array.newInstance(component, 0).getClass();
   }
 
   private static Type ultimateComponentType(GenericArrayType gat) {
-    Type component = gat.getGenericComponentType();
+    var component = gat.getGenericComponentType();
     if (component instanceof GenericArrayType) {
       return ultimateComponentType((GenericArrayType) component);
     } else {

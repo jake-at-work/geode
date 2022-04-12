@@ -17,7 +17,6 @@ package org.apache.geode.tools.pulse;
 
 import static org.apache.geode.test.junit.rules.HttpResponseAssert.assertResponse;
 
-import java.io.File;
 import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
@@ -46,7 +45,7 @@ public class PulseJmxPasswordFileTest {
 
   @Before
   public void setUp() throws Exception {
-    File passwordFile = temporaryFolder.newFile("password.properties");
+    var passwordFile = temporaryFolder.newFile("password.properties");
     FileUtils.writeLines(passwordFile, Collections.singleton("user user"));
     locator.withProperty("jmx-manager-password-file", passwordFile.getAbsolutePath());
     locator.startLocator();

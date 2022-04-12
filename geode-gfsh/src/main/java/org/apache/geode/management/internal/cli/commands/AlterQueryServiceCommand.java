@@ -27,10 +27,7 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.CacheElement;
 import org.apache.geode.cache.query.management.configuration.QueryConfigService;
-import org.apache.geode.distributed.ConfigurationPersistenceService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.functions.AlterQueryServiceFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
@@ -71,19 +68,19 @@ public class AlterQueryServiceCommand extends SingleGfshCommand {
 
     ResultModel result;
     Set<String> parametersSet = new HashSet<>();
-    QueryConfigService queryConfigService = getQueryConfigService();
+    var queryConfigService = getQueryConfigService();
     if (authorizerParameters != null) {
       parametersSet.addAll(Arrays.asList(authorizerParameters));
     }
     populateMethodAuthorizer(methodAuthorizerName, parametersSet, queryConfigService);
 
-    Set<DistributedMember> targetMembers = findMembers(null, null);
+    var targetMembers = findMembers(null, null);
     if (targetMembers.isEmpty()) {
       result = ResultModel.createInfo(NO_MEMBERS_FOUND_MESSAGE);
     } else {
       String footer = null;
-      Object[] args = new Object[] {forceUpdate, methodAuthorizerName, parametersSet};
-      List<CliFunctionResult> functionResults =
+      var args = new Object[] {forceUpdate, methodAuthorizerName, parametersSet};
+      var functionResults =
           executeAndGetFunctionResult(alterQueryServiceFunction, args, targetMembers);
 
       if (functionResults.stream().anyMatch(CliFunctionResult::isSuccessful)
@@ -101,15 +98,15 @@ public class AlterQueryServiceCommand extends SingleGfshCommand {
 
   void populateMethodAuthorizer(String methodAuthorizerName, Set<String> parameterSet,
       QueryConfigService queryConfigService) {
-    QueryConfigService.MethodAuthorizer methodAuthorizer =
+    var methodAuthorizer =
         new QueryConfigService.MethodAuthorizer();
     methodAuthorizer.setClassName(methodAuthorizerName);
 
     if (!parameterSet.isEmpty()) {
       List<QueryConfigService.MethodAuthorizer.Parameter> parameterList = new ArrayList<>();
 
-      for (String value : parameterSet) {
-        QueryConfigService.MethodAuthorizer.Parameter parameter =
+      for (var value : parameterSet) {
+        var parameter =
             new QueryConfigService.MethodAuthorizer.Parameter();
         parameter.setParameterValue(value);
         parameterList.add(parameter);
@@ -122,13 +119,13 @@ public class AlterQueryServiceCommand extends SingleGfshCommand {
   }
 
   QueryConfigService getQueryConfigService() {
-    ConfigurationPersistenceService configService = getConfigurationPersistenceService();
+    var configService = getConfigurationPersistenceService();
 
     if (configService != null) {
-      CacheConfig cacheConfig = configService.getCacheConfig(null);
+      var cacheConfig = configService.getCacheConfig(null);
 
       if (cacheConfig != null) {
-        QueryConfigService queryConfigService = cacheConfig
+        var queryConfigService = cacheConfig
             .findCustomCacheElement(QueryConfigService.ELEMENT_ID, QueryConfigService.class);
 
         if (queryConfigService != null) {
@@ -143,7 +140,7 @@ public class AlterQueryServiceCommand extends SingleGfshCommand {
   @Override
   public boolean updateConfigForGroup(String group, CacheConfig config, Object configObject) {
     if (configObject instanceof QueryConfigService) {
-      List<CacheElement> elements = config.getCustomCacheElements();
+      var elements = config.getCustomCacheElements();
       elements.removeIf(e -> e instanceof QueryConfigService);
       elements.add((QueryConfigService) configObject);
 

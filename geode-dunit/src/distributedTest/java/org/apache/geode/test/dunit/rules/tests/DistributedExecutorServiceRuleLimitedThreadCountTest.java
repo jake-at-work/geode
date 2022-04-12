@@ -61,7 +61,7 @@ public class DistributedExecutorServiceRuleLimitedThreadCountTest implements Ser
   public void limitsRunningTasksToThreadCount() {
     // start THREAD_COUNT threads to use up the executor's thread pool
     Stream.of(getController(), getVM(0)).forEach(vm -> vm.invoke(() -> {
-      for (int i = 1; i <= THREAD_COUNT; i++) {
+      for (var i = 1; i <= THREAD_COUNT; i++) {
         executorServiceRule.submit(() -> {
           // increment count of started tasks and use a LATCH to keep it running
           STARTED_TASKS.incrementAndGet();

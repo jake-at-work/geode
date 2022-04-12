@@ -33,8 +33,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.PortfolioPdx;
@@ -46,19 +44,21 @@ public class MinIntegrationTest extends AggregateFunctionQueryBaseIntegrationTes
   private final Map<String, Comparable> equiJoinQueries = new HashMap<>();
 
   public void prepareStructures() {
-    Supplier<Stream<Portfolio>> supplierOne =
-        () -> regionOneLocalCopy.values().stream().map(Portfolio.class::cast);
-    Supplier<Stream<Portfolio>> supplierTwo =
-        () -> regionTwoLocalCopy.values().stream().map(Portfolio.class::cast);
+    var supplierOne =
+        (Supplier<Stream<Portfolio>>) () -> regionOneLocalCopy.values().stream()
+            .map(Portfolio.class::cast);
+    var supplierTwo =
+        (Supplier<Stream<Portfolio>>) () -> regionTwoLocalCopy.values().stream()
+            .map(Portfolio.class::cast);
 
-    for (int i = 1; i <= 100; i++) {
-      Portfolio portfolio = new Portfolio(i);
+    for (var i = 1; i <= 100; i++) {
+      var portfolio = new Portfolio(i);
       portfolio.shortID = (short) ((short) i / 5);
       regionOneLocalCopy.put(i, portfolio);
     }
 
-    for (int i = 50; i <= 150; i++) {
-      Portfolio portfolio = new Portfolio(i);
+    for (var i = 50; i <= 150; i++) {
+      var portfolio = new Portfolio(i);
       portfolio.shortID = (short) ((short) i / 5);
       regionTwoLocalCopy.put(i, portfolio);
     }
@@ -151,19 +151,21 @@ public class MinIntegrationTest extends AggregateFunctionQueryBaseIntegrationTes
   }
 
   public void prepareStructuresWithPdx() {
-    Supplier<Stream<PortfolioPdx>> supplierOne =
-        () -> regionOneLocalCopy.values().stream().map(PortfolioPdx.class::cast);
-    Supplier<Stream<PortfolioPdx>> supplierTwo =
-        () -> regionTwoLocalCopy.values().stream().map(PortfolioPdx.class::cast);
+    var supplierOne =
+        (Supplier<Stream<PortfolioPdx>>) () -> regionOneLocalCopy.values().stream()
+            .map(PortfolioPdx.class::cast);
+    var supplierTwo =
+        (Supplier<Stream<PortfolioPdx>>) () -> regionTwoLocalCopy.values().stream()
+            .map(PortfolioPdx.class::cast);
 
-    for (int i = 1; i <= 100; i++) {
-      PortfolioPdx portfolio = new PortfolioPdx(i);
+    for (var i = 1; i <= 100; i++) {
+      var portfolio = new PortfolioPdx(i);
       portfolio.shortID = (short) ((short) i / 5);
       regionOneLocalCopy.put(i, portfolio);
     }
 
-    for (int i = 50; i <= 150; i++) {
-      PortfolioPdx portfolio = new PortfolioPdx(i);
+    for (var i = 50; i <= 150; i++) {
+      var portfolio = new PortfolioPdx(i);
       portfolio.shortID = (short) ((short) i / 5);
       regionTwoLocalCopy.put(i, portfolio);
     }
@@ -281,11 +283,11 @@ public class MinIntegrationTest extends AggregateFunctionQueryBaseIntegrationTes
       boolean usePdx) throws Exception {
     parameterizedSetUp(usePdx);
     createAndPopulateRegion(firstRegionName, regionShortcut, regionOneLocalCopy);
-    QueryService queryService = server.getCache().getQueryService();
+    var queryService = server.getCache().getQueryService();
 
-    for (String queryStr : queries.keySet()) {
-      Query query = queryService.newQuery(queryStr);
-      SelectResults result = (SelectResults) query.execute();
+    for (var queryStr : queries.keySet()) {
+      var query = queryService.newQuery(queryStr);
+      var result = (SelectResults) query.execute();
       assertThat(result.size()).isEqualTo(1);
       assertThat(result.asList().get(0)).isInstanceOf(Comparable.class);
       assertThat(result.asList().get(0))
@@ -304,7 +306,7 @@ public class MinIntegrationTest extends AggregateFunctionQueryBaseIntegrationTes
       boolean usePdx) throws Exception {
     parameterizedSetUp(usePdx);
     createRegion(firstRegionName, regionShortcut);
-    QueryService queryService = server.getCache().getQueryService();
+    var queryService = server.getCache().getQueryService();
     queryService.createIndex("sampleIndex-1", "p.ID", SEPARATOR + firstRegionName + " p");
     queryService.createIndex("sampleIndex-2", "p.status", SEPARATOR + firstRegionName + " p");
     queryService.createIndex("sampleIndex-3", "pos.secId",
@@ -312,9 +314,9 @@ public class MinIntegrationTest extends AggregateFunctionQueryBaseIntegrationTes
     await().untilAsserted(() -> assertThat(queryService.getIndexes().size()).isEqualTo(3));
     populateRegion(firstRegionName, regionOneLocalCopy);
 
-    for (String queryStr : queries.keySet()) {
-      Query query = queryService.newQuery(queryStr);
-      SelectResults result = (SelectResults) query.execute();
+    for (var queryStr : queries.keySet()) {
+      var query = queryService.newQuery(queryStr);
+      var result = (SelectResults) query.execute();
       assertThat(result.size()).isEqualTo(1);
       assertThat(result.asList().get(0)).isInstanceOf(Comparable.class);
       assertThat(result.asList().get(0))
@@ -331,11 +333,11 @@ public class MinIntegrationTest extends AggregateFunctionQueryBaseIntegrationTes
     parameterizedSetUp(usePdx);
     createAndPopulateRegion(firstRegionName, regionShortcut, regionOneLocalCopy);
     createAndPopulateRegion(secondRegionName, regionShortcut, regionTwoLocalCopy);
-    QueryService queryService = server.getCache().getQueryService();
+    var queryService = server.getCache().getQueryService();
 
-    for (String queryStr : equiJoinQueries.keySet()) {
-      Query query = queryService.newQuery(queryStr);
-      SelectResults result = (SelectResults) query.execute();
+    for (var queryStr : equiJoinQueries.keySet()) {
+      var query = queryService.newQuery(queryStr);
+      var result = (SelectResults) query.execute();
       assertThat(result.size()).isEqualTo(1);
       assertThat(result.asList().get(0)).isInstanceOf(Comparable.class);
       assertThat(result.asList().get(0))
@@ -352,7 +354,7 @@ public class MinIntegrationTest extends AggregateFunctionQueryBaseIntegrationTes
     parameterizedSetUp(usePdx);
     createRegion(firstRegionName, regionShortcut);
     createRegion(secondRegionName, regionShortcut);
-    QueryService queryService = server.getCache().getQueryService();
+    var queryService = server.getCache().getQueryService();
     queryService.createIndex("sampleIndex-1", "p.ID", SEPARATOR + firstRegionName + " p");
     queryService.createIndex("sampleIndex-2", "p.status", SEPARATOR + firstRegionName + " p");
     queryService.createIndex("sampleIndex-3", "e.ID", SEPARATOR + secondRegionName + " e");
@@ -361,9 +363,9 @@ public class MinIntegrationTest extends AggregateFunctionQueryBaseIntegrationTes
     populateRegion(firstRegionName, regionOneLocalCopy);
     populateRegion(secondRegionName, regionTwoLocalCopy);
 
-    for (String queryStr : equiJoinQueries.keySet()) {
-      Query query = queryService.newQuery(queryStr);
-      SelectResults result = (SelectResults) query.execute();
+    for (var queryStr : equiJoinQueries.keySet()) {
+      var query = queryService.newQuery(queryStr);
+      var result = (SelectResults) query.execute();
       assertThat(result.size()).isEqualTo(1);
       assertThat(result.asList().get(0)).isInstanceOf(Comparable.class);
       assertThat(result.asList().get(0))

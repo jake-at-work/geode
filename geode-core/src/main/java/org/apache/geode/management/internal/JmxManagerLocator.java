@@ -83,10 +83,10 @@ public class JmxManagerLocator implements TcpHandler, RestartHandler {
     if (logger.isDebugEnabled()) {
       logger.debug("Locator requested to find or start jmx manager");
     }
-    List<JmxManagerProfile> alreadyManaging =
+    var alreadyManaging =
         cache.getJmxManagerAdvisor().adviseAlreadyManaging();
     if (alreadyManaging.isEmpty()) {
-      List<JmxManagerProfile> willingToManage =
+      var willingToManage =
           cache.getJmxManagerAdvisor().adviseWillingToManage();
       if (!willingToManage.isEmpty()) {
         synchronized (this) {
@@ -94,7 +94,7 @@ public class JmxManagerLocator implements TcpHandler, RestartHandler {
           if (alreadyManaging.isEmpty()) {
             willingToManage = cache.getJmxManagerAdvisor().adviseWillingToManage();
             if (!willingToManage.isEmpty()) {
-              JmxManagerProfile p = willingToManage.get(0);
+              var p = willingToManage.get(0);
               if (p.getDistributedMember().equals(cache.getMyId())) {
                 if (logger.isDebugEnabled()) {
                   logger.debug("Locator starting jmx manager in its JVM");
@@ -124,7 +124,7 @@ public class JmxManagerLocator implements TcpHandler, RestartHandler {
                 // if our advisor still does not know about a manager and the member
                 // we asked to start one is still in the ds.
                 alreadyManaging = cache.getJmxManagerAdvisor().adviseAlreadyManaging();
-                int sleepCount = 0;
+                var sleepCount = 0;
                 while (sleepCount < 20 && alreadyManaging.isEmpty()
                     && cache.getDistributionManager().getDistributionManagerIds()
                         .contains(p.getDistributedMember())) {
@@ -148,7 +148,7 @@ public class JmxManagerLocator implements TcpHandler, RestartHandler {
     }
     JmxManagerLocatorResponse result = null;
     if (!alreadyManaging.isEmpty()) {
-      JmxManagerProfile p = alreadyManaging.get(0);
+      var p = alreadyManaging.get(0);
       result = new JmxManagerLocatorResponse(p.getHost(), p.getPort(), p.getSsl(), null);
       if (logger.isDebugEnabled()) {
         logger.debug("Found jmx manager: " + p);
@@ -163,7 +163,7 @@ public class JmxManagerLocator implements TcpHandler, RestartHandler {
   }
 
   private JmxManagerProfile startJmxManager(List<JmxManagerProfile> willingToManage) {
-    for (JmxManagerProfile p : willingToManage) {
+    for (var p : willingToManage) {
       if (sendStartJmxManager(p.getDistributedMember())) {
         return p;
       }
@@ -173,9 +173,9 @@ public class JmxManagerLocator implements TcpHandler, RestartHandler {
 
   private boolean sendStartJmxManager(InternalDistributedMember distributedMember) {
     try {
-      List<Object> resultContainer = (List<Object>) FunctionService.onMember(distributedMember)
+      var resultContainer = (List<Object>) FunctionService.onMember(distributedMember)
           .execute(new StartJmxManagerFunction()).getResult();
-      Object result = resultContainer.get(0);
+      var result = resultContainer.get(0);
       if (result instanceof Boolean) {
         return (Boolean) result;
       } else {
@@ -206,7 +206,7 @@ public class JmxManagerLocator implements TcpHandler, RestartHandler {
         InternalCache cache =
             ((InternalCache) context.getCache()).getCacheForProcessingClientRequests();
         if (cache != null) {
-          ManagementService ms = ManagementService.getExistingManagementService(cache);
+          var ms = ManagementService.getExistingManagementService(cache);
           if (ms != null) {
             if (!ms.isManager()) { // see bug 45922
               ms.startManager();

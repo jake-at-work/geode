@@ -32,7 +32,7 @@ public class SlowlogParameterRequirements {
 
   public static Consumer<Command> checkParameters() {
     return command -> {
-      int numberOfArguments = command.getProcessedCommand().size();
+      var numberOfArguments = command.getProcessedCommand().size();
 
       if (numberOfArguments < 2) {
         throw new RedisParametersMismatchException(command.wrongNumberOfArgumentsErrorMessage());
@@ -48,7 +48,7 @@ public class SlowlogParameterRequirements {
   }
 
   private static void confirmKnownSubcommands(Command command) {
-    byte[] bytes = command.getBytesKey();
+    var bytes = command.getBytesKey();
     if (!equalsIgnoreCaseBytes(bytes, RESET) &&
         !equalsIgnoreCaseBytes(bytes, LEN) &&
         !equalsIgnoreCaseBytes(bytes, GET)) {
@@ -58,7 +58,7 @@ public class SlowlogParameterRequirements {
   }
 
   private static void confirmArgumentsToGetSubcommand(Command command) {
-    byte[] bytes = command.getBytesKey();
+    var bytes = command.getBytesKey();
     if (!equalsIgnoreCaseBytes(bytes, GET)) {
       throw new RedisParametersMismatchException(
           String.format(ERROR_UNKNOWN_SLOWLOG_SUBCOMMAND, bytesToString(bytes)));

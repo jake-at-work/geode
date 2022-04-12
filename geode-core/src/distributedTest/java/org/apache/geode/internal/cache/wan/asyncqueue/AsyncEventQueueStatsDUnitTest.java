@@ -29,7 +29,6 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.SenderIdMonitor;
@@ -53,7 +52,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
    */
   @Test
   public void testReplicatedSerialPropagation() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -98,7 +97,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
   @Category(WanTest.class)
   @Test
   public void testAsyncStatsTwoListeners() throws Exception {
-    Integer lnPort = createFirstLocatorWithDSId(1);
+    var lnPort = createFirstLocatorWithDSId(1);
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
     vm2.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -185,7 +184,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
    */
   @Test
   public void testReplicatedSerialPropagationHA() throws Exception {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -211,7 +210,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
         vm2.invokeAsync(() -> AsyncEventQueueTestBase.doPuts(getTestMethodName() + "_RR", 10000));
     Wait.pause(2000);
     AsyncInvocation inv2 = vm1.invokeAsync(() -> AsyncEventQueueTestBase.killAsyncEventQueue("ln"));
-    Boolean isKilled = Boolean.FALSE;
+    var isKilled = Boolean.FALSE;
     try {
       isKilled = (Boolean) inv2.getResult();
     } catch (Throwable e) {
@@ -233,7 +232,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
    */
   @Test
   public void testReplicatedSerialPropagationUnprocessedEvents() throws Exception {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -288,7 +287,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
    */
   @Test
   public void testSerialPropagationConflation() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -315,7 +314,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
 
     final Map keyValues = new HashMap();
     final Map updateKeyValues = new HashMap();
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       keyValues.put(i, i);
     }
 
@@ -323,7 +322,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
         () -> AsyncEventQueueTestBase.putGivenKeyValue(getTestMethodName() + "_RR", keyValues));
     vm1.invoke(() -> AsyncEventQueueTestBase.checkAsyncEventQueueSize("ln", keyValues.size()));
 
-    for (int i = 0; i < 500; i++) {
+    for (var i = 0; i < 500; i++) {
       updateKeyValues.put(i, i + "_updated");
     }
 
@@ -354,7 +353,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
 
   @Test
   public void testPartitionedProxyShouldHaveSameAEQId() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -374,7 +373,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
 
   @Test
   public void testPartitionedProxyWithoutSameAEQIdShouldLogWarning() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -383,16 +382,16 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
     vm1.invoke(() -> AsyncEventQueueTestBase.createAsyncEventQueue("ln", false, 100, 100, false,
         true, null, false));
 
-    String regionName = getTestMethodName() + "_PR";
+    var regionName = getTestMethodName() + "_PR";
     vm1.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
         regionName, "ln", isOffHeap()));
     vm2.invoke(() -> {
-      AttributesFactory fact = new AttributesFactory();
-      PartitionAttributesFactory pfact = new PartitionAttributesFactory();
+      var fact = new AttributesFactory();
+      var pfact = new PartitionAttributesFactory();
       pfact.setTotalNumBuckets(16);
       pfact.setLocalMaxMemory(0);
       fact.setPartitionAttributes(pfact.create());
-      Region r = cache.createRegionFactory(fact.create()).create(regionName);
+      var r = cache.createRegionFactory(fact.create()).create(regionName);
       assertNotNull(r);
     });
 
@@ -405,7 +404,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
 
   @Test
   public void testReplicatedProxyShouldHaveSameAEQId() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -417,12 +416,12 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
     vm1.invoke(() -> AsyncEventQueueTestBase
         .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln", isOffHeap()));
     vm2.invoke(() -> {
-      AttributesFactory fact = new AttributesFactory();
+      var fact = new AttributesFactory();
       fact.addAsyncEventQueueId("ln");
       fact.setDataPolicy(DataPolicy.EMPTY);
       fact.setOffHeap(isOffHeap());
-      RegionFactory regionFactory = cache.createRegionFactory(fact.create());
-      Region r = regionFactory.create(getTestMethodName() + "_RR");
+      var regionFactory = cache.createRegionFactory(fact.create());
+      var r = regionFactory.create(getTestMethodName() + "_RR");
       assertNotNull(r);
     });
 
@@ -432,7 +431,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
 
   @Test
   public void testReplicatedProxyWithoutSameAEQIdToLogWarning() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -441,15 +440,15 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
     vm1.invoke(() -> AsyncEventQueueTestBase.createAsyncEventQueue("ln", false, 100, 100, false,
         false, null, false));
 
-    String regionName = getTestMethodName() + "_RR";
+    var regionName = getTestMethodName() + "_RR";
     vm1.invoke(() -> AsyncEventQueueTestBase
         .createReplicatedRegionWithAsyncEventQueue(regionName, "ln", isOffHeap()));
     vm2.invoke(() -> {
-      AttributesFactory fact = new AttributesFactory();
+      var fact = new AttributesFactory();
       fact.setDataPolicy(DataPolicy.EMPTY);
       fact.setOffHeap(isOffHeap());
-      RegionFactory regionFactory = cache.createRegionFactory(fact.create());
-      Region r = regionFactory.create(regionName);
+      var regionFactory = cache.createRegionFactory(fact.create());
+      var r = regionFactory.create(regionName);
       assertNotNull(r);
     });
 
@@ -463,7 +462,7 @@ public class AsyncEventQueueStatsDUnitTest extends AsyncEventQueueTestBase {
   private void verifyIdConsistencyWarning(String regionName, boolean expected,
       boolean gatewaySenderId) {
     Region r = cache.getRegion(SEPARATOR + regionName);
-    SenderIdMonitor senderIdMonitor = getSenderIdMonitor(r);
+    var senderIdMonitor = getSenderIdMonitor(r);
     if (gatewaySenderId) {
       assertThat(senderIdMonitor.getGatewaySenderIdsDifferWarningMessage()).isEqualTo(expected);
     } else {

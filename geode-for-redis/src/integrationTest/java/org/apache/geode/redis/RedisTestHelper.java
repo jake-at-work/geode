@@ -28,13 +28,13 @@ public class RedisTestHelper {
     // as accurate as possible.
     System.gc();
     Map<String, String> results = new HashMap<>();
-    String rawInfo = jedis.info();
+    var rawInfo = jedis.info();
 
-    for (String line : rawInfo.split("\r\n")) {
-      int colonIndex = line.indexOf(":");
+    for (var line : rawInfo.split("\r\n")) {
+      var colonIndex = line.indexOf(":");
       if (colonIndex > 0) {
-        String key = line.substring(0, colonIndex);
-        String value = line.substring(colonIndex + 1);
+        var key = line.substring(0, colonIndex);
+        var value = line.substring(colonIndex + 1);
         results.put(key, value);
       }
     }

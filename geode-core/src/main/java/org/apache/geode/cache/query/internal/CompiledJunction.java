@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,6 @@ import org.apache.geode.cache.query.internal.index.IndexManager;
 import org.apache.geode.cache.query.internal.index.IndexProtocol;
 import org.apache.geode.cache.query.internal.parse.OQLLexerTokenTypes;
 import org.apache.geode.cache.query.internal.types.StructTypeImpl;
-import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.internal.Assert;
 
 /**
@@ -121,7 +119,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
   @Override
   public Object evaluate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    Object r = _operands[0].evaluate(context); // UNDEFINED, null, or a Boolean
+    var r = _operands[0].evaluate(context); // UNDEFINED, null, or a Boolean
     // if it's true, and op is or then return true immediately
     // if it's false and the op is and then return false immediately
     if (r instanceof Boolean) {
@@ -141,7 +139,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
               "LITERAL_and/LITERAL_or operands must be of type boolean, not type ' %s '",
               r.getClass().getName()));
     }
-    for (int i = 1; i < _operands.length; i++) {
+    for (var i = 1; i < _operands.length; i++) {
       Object ri = null;
       try {
         ri = _operands[i].evaluate(context); // UNDEFINED, null, or
@@ -180,7 +178,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
   @Override
   public Set computeDependencies(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    for (final CompiledValue operand : _operands) {
+    for (final var operand : _operands) {
       context.addDependencies(this, operand.computeDependencies(context));
     }
     return context.getDependencySet(this, true);
@@ -190,24 +188,24 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
   public SelectResults filterEvaluate(ExecutionContext context, SelectResults intermediateResults)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    OrganizedOperands newOperands = organizeOperands(context);
-    SelectResults result = intermediateResults;
+    var newOperands = organizeOperands(context);
+    var result = intermediateResults;
     Support.Assert(newOperands.filterOperand != null);
     // evaluate directly on the operand
     result =
         newOperands.isSingleFilter ? (newOperands.filterOperand).filterEvaluate(context, result)
             : (newOperands.filterOperand).auxFilterEvaluate(context, result);
     if (!newOperands.isSingleFilter) {
-      List unevaluatedOps =
+      var unevaluatedOps =
           ((CompiledJunction) newOperands.filterOperand).unevaluatedFilterOperands;
       if (unevaluatedOps != null) {
         if (newOperands.iterateOperand == null) {
           if (unevaluatedOps.size() == 1) {
             newOperands.iterateOperand = (CompiledValue) unevaluatedOps.get(0);
           } else {
-            int len = unevaluatedOps.size();
-            CompiledValue[] iterOps = new CompiledValue[len];
-            for (int i = 0; i < len; i++) {
+            var len = unevaluatedOps.size();
+            var iterOps = new CompiledValue[len];
+            for (var i = 0; i < len; i++) {
               iterOps[i] = (CompiledValue) unevaluatedOps.get(i);
             }
             newOperands.iterateOperand = new CompiledJunction(iterOps, getOperator());
@@ -215,16 +213,16 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
         } else {
           // You cannot have two CompiledJunctions a the same level
           if (newOperands.iterateOperand instanceof CompiledJunction) {
-            CompiledJunction temp = (CompiledJunction) newOperands.iterateOperand;
+            var temp = (CompiledJunction) newOperands.iterateOperand;
             List prevOps = temp.getOperands();
             unevaluatedOps.addAll(prevOps);
           } else {
             unevaluatedOps.add(newOperands.iterateOperand);
           }
-          int totalLen = unevaluatedOps.size();
-          CompiledValue[] combinedOps = new CompiledValue[totalLen];
-          Iterator itr = unevaluatedOps.iterator();
-          int j = 0;
+          var totalLen = unevaluatedOps.size();
+          var combinedOps = new CompiledValue[totalLen];
+          var itr = unevaluatedOps.iterator();
+          var j = 0;
           while (itr.hasNext()) {
             combinedOps[j++] = (CompiledValue) itr.next();
           }
@@ -246,15 +244,15 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
     // The checks invoked before this function have ensured that all the
     // operands are of type ComparisonQueryInfo and of the form 'var = constant'.
     // Also need for sorting will not arise if there are only two operands
-    int len = _operands.length;
+    var len = _operands.length;
     List sortedList = new ArrayList(len);
-    for (final CompiledValue operand : _operands) {
-      Filter toSort = (Filter) operand;
-      int indxRsltToSort = toSort.getSizeEstimate(context);
-      int sortedListLen = sortedList.size();
-      int j = 0;
+    for (final var operand : _operands) {
+      var toSort = (Filter) operand;
+      var indxRsltToSort = toSort.getSizeEstimate(context);
+      var sortedListLen = sortedList.size();
+      var j = 0;
       for (; j < sortedListLen; ++j) {
-        Filter currSorted = (Filter) sortedList.get(j);
+        var currSorted = (Filter) sortedList.get(j);
         if (currSorted.getSizeEstimate(context) > indxRsltToSort) {
           break;
         }
@@ -275,11 +273,11 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
     // evaluate the result set from the indexed values
     // using the intermediate results so far (passed in)
     // put results into new intermediate results
-    List sortedConditionsList =
+    var sortedConditionsList =
         getCondtionsSortedOnIncreasingEstimatedIndexResultSize(context);
 
     // Sort the operands in increasing order of resultset size
-    Iterator sortedConditionsItr = sortedConditionsList.iterator();
+    var sortedConditionsItr = sortedConditionsList.iterator();
     while (sortedConditionsItr.hasNext()) {
       // Asif:TODO The intermediate ResultSet should be passed as null when invoking
       // filterEvaluate. Just because filterEvaluate is being called, itself
@@ -293,7 +291,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       // recursion being ended by evaluating auxIterEvaluate if any. The passing
       // of IntermediateResult in filterEvalaute causes AND junction evaluation
       // to be corrupted , if the intermediateResultset contains some value.
-      SelectResults filterResults =
+      var filterResults =
           ((Filter) sortedConditionsItr.next()).filterEvaluate(context, null);
       if (_operator == LITERAL_and) {
         if (filterResults != null && filterResults.isEmpty()) {
@@ -355,10 +353,10 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
     {
       return intermediateResults;
     }
-    List currentIters = context.getCurrentIterators();
-    RuntimeIterator[] rIters = new RuntimeIterator[currentIters.size()];
+    var currentIters = context.getCurrentIterators();
+    var rIters = new RuntimeIterator[currentIters.size()];
     currentIters.toArray(rIters);
-    ObjectType elementType = intermediateResults.getCollectionType().getElementType();
+    var elementType = intermediateResults.getCollectionType().getElementType();
     SelectResults resultSet;
     if (elementType.isStructType()) {
       resultSet = QueryUtils.createStructCollection(context, (StructTypeImpl) elementType);
@@ -366,14 +364,13 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       resultSet = QueryUtils.createResultCollection(context, elementType);
     }
 
-
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var observer = QueryObserverHolder.getInstance();
     try {
       observer.startIteration(intermediateResults, operand);
-      for (final Object tuple : intermediateResults) {
+      for (final var tuple : intermediateResults) {
         if (tuple instanceof Struct) {
-          Object[] values = ((Struct) tuple).getFieldValues();
-          for (int i = 0; i < values.length; i++) {
+          var values = ((Struct) tuple).getFieldValues();
+          for (var i = 0; i < values.length; i++) {
             rIters[i].setCurrent(values[i]);
           }
         } else {
@@ -408,7 +405,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
   @Override
   public void negate() {
     _operator = inverseOperator(_operator);
-    for (int i = 0; i < _operands.length; i++) {
+    for (var i = 0; i < _operands.length; i++) {
       if (_operands[i] instanceof Negatable) {
         ((Negatable) _operands[i]).negate();
       } else {
@@ -421,16 +418,16 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
   protected PlanInfo protGetPlanInfo(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
     Support.Assert(_operator == LITERAL_or || _operator == LITERAL_and);
-    PlanInfo resultPlanInfo = new PlanInfo();
+    var resultPlanInfo = new PlanInfo();
     // set default evalAsFilter depending on operator
-    boolean isOr = (_operator == LITERAL_or);
+    var isOr = (_operator == LITERAL_or);
     resultPlanInfo.evalAsFilter = isOr;
     // collect indexes
     // for LITERAL_and operator, if any say yes to filter,
     // then change default evalAsFilter from false to true
     // of LITERAL_or operator, if any say no to filter, change to false
-    for (final CompiledValue operand : _operands) {
-      PlanInfo opPlanInfo = operand.getPlanInfo(context);
+    for (final var operand : _operands) {
+      var opPlanInfo = operand.getPlanInfo(context);
       resultPlanInfo.indexes.addAll(opPlanInfo.indexes);
       if (!isOr && opPlanInfo.evalAsFilter) {
         resultPlanInfo.evalAsFilter = true;
@@ -469,7 +466,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
     // get the list of operands to evaluate, and evaluate operands that can use
     // indexes first.
     List evalOperands = new ArrayList(_operands.length);
-    int indexCount = 0;
+    var indexCount = 0;
     // TODO: Check if we can defer the creation of this array list only
     // if there exists an eval operand
     List compositeIterOperands = new ArrayList(_operands.length);
@@ -479,10 +476,10 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
     Map compositeFilterOpsMap = new LinkedHashMap();
     Map iterToOperands = new HashMap();
     CompiledValue operand = null;
-    boolean isJunctionNeeded = false;
-    boolean indexExistsOnNonJoinOp = false;
+    var isJunctionNeeded = false;
+    var indexExistsOnNonJoinOp = false;
 
-    for (final CompiledValue compiledValue : _operands) {
+    for (final var compiledValue : _operands) {
       // Asif : If we are inside this function this itself indicates
       // that there exists at least on operand which can be evaluated
       // as an auxFilterEvaluate. If any operand even if its flag of
@@ -528,10 +525,10 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
           expandedOperands = new CompiledValue[] {operand};
         }
 
-        for (CompiledValue expndOperand : expandedOperands) {
-          boolean operandEvalAsFilter = expndOperand.getPlanInfo(context).evalAsFilter;
+        for (var expndOperand : expandedOperands) {
+          var operandEvalAsFilter = expndOperand.getPlanInfo(context).evalAsFilter;
           isJunctionNeeded = isJunctionNeeded || operandEvalAsFilter;
-          Set set = QueryUtils.getCurrentScopeUltimateRuntimeIteratorsIfAny(expndOperand, context);
+          var set = QueryUtils.getCurrentScopeUltimateRuntimeIteratorsIfAny(expndOperand, context);
           if (set.size() != 1) {
             // Asif: A set of size not equal to 1 ( which can mean anything more
             // than 1, will mean a composite condition. For a Composite
@@ -547,8 +544,8 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
           } else {
             Support.Assert(set.size() == 1,
                 "The size has to be 1 & cannot be zero as that would mean it is independent");
-            RuntimeIterator rIter = (RuntimeIterator) set.iterator().next();
-            List operandsList = (List) iterToOperands.get(rIter);
+            var rIter = (RuntimeIterator) set.iterator().next();
+            var operandsList = (List) iterToOperands.get(rIter);
             if (operandsList == null) {
               operandsList = new ArrayList();
               iterToOperands.put(rIter, operandsList);
@@ -575,7 +572,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
      */
     if (isJunctionNeeded) {
       // There exists at least one condition which must have an index available.
-      Filter junction = createJunction(compositeIterOperands, compositeFilterOpsMap, iterToOperands,
+      var junction = createJunction(compositeIterOperands, compositeFilterOpsMap, iterToOperands,
           context, indexCount, evalOperands, indexExistsOnNonJoinOp);
       // Asif Ensure that independent operands are always at the start
       evalOperands.add(indexCount++, junction);
@@ -584,11 +581,11 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       if (!compositeIterOperands.isEmpty()) {
         evalOperands.addAll(compositeIterOperands);
       }
-      for (final Object o : iterToOperands.values()) {
+      for (final var o : iterToOperands.values()) {
         evalOperands.addAll((List) o);
       }
     }
-    OrganizedOperands result = new OrganizedOperands();
+    var result = new OrganizedOperands();
     // Group the operands into those that use indexes and those that don't,
     // so we can evaluate all the operands that don't use indexes together in
     // one iteration first get filter operands
@@ -599,8 +596,8 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       filterOperands = (Filter) evalOperands.get(0);
       result.isSingleFilter = true;
     } else {
-      CompiledValue[] newOperands = new CompiledValue[indexCount];
-      for (int i = 0; i < indexCount; i++) {
+      var newOperands = new CompiledValue[indexCount];
+      for (var i = 0; i < indexCount; i++) {
         newOperands[i] = (CompiledValue) evalOperands.get(i);
       }
       filterOperands = new CompiledJunction(newOperands, _operator);
@@ -610,14 +607,14 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
     // LITERAL_or must be zero. This is an invariant on filter evaluation
     CompiledValue iterateOperands = null;
     // int numIterating = _operands.length - indexCount;
-    int numIterating = evalOperands.size() - indexCount;
+    var numIterating = evalOperands.size() - indexCount;
     Support.Assert(_operator == LITERAL_and || numIterating == 0);
     if (numIterating > 0) {
       if (numIterating == 1) {
         iterateOperands = (CompiledValue) evalOperands.get(indexCount);
       } else {
-        CompiledValue[] newOperands = new CompiledValue[numIterating];
-        for (int i = 0; i < numIterating; i++) {
+        var newOperands = new CompiledValue[numIterating];
+        for (var i = 0; i < numIterating; i++) {
           newOperands[i] = (CompiledValue) evalOperands.get(i + indexCount);
         }
         iterateOperands = new CompiledJunction(newOperands, _operator);
@@ -658,45 +655,45 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       Map sameIndexOperands) {
     AbstractGroupOrRangeJunction junction;
     if (needsCompacting) {
-      Iterator itr = sameIndexOperands.values().iterator();
+      var itr = sameIndexOperands.values().iterator();
       if (sameIndexOperands.size() == 1) {
         // This means that there exists only one type of Index for the whole
         // Group. Thus overall we should just create a RangeJunction. It also
         // means that the rest of the operands are the Iter Operands ( they may
         // contain those operands which are not index evaluable but evaluate to
         // true/false ( not dependent on current scope)
-        List sameIndexOps = (List) itr.next();
-        Iterator sameIndexOpsItr = sameIndexOps.iterator();
-        for (int i = 0; i < cv.length; ++i) {
+        var sameIndexOps = (List) itr.next();
+        var sameIndexOpsItr = sameIndexOps.iterator();
+        for (var i = 0; i < cv.length; ++i) {
           if (cv[i] == null) {
             cv[i] = (CompiledValue) sameIndexOpsItr.next();
           }
         }
         junction = new RangeJunction(_operator, grpIndpndntItr, completeExpnsn, cv);
       } else {
-        int numRangeJunctions = 0;
-        CompiledValue[] rangeJunctions = new CompiledValue[sameIndexOperands.size()];
-        int nullifiedFields = 0;
+        var numRangeJunctions = 0;
+        var rangeJunctions = new CompiledValue[sameIndexOperands.size()];
+        var nullifiedFields = 0;
         while (itr.hasNext()) {
-          Object listOrPosition = itr.next();
+          var listOrPosition = itr.next();
           if (listOrPosition instanceof List) {
-            List ops = (List) listOrPosition;
+            var ops = (List) listOrPosition;
             nullifiedFields += ops.size();
-            CompiledValue[] operands = (CompiledValue[]) ops.toArray(new CompiledValue[0]);
+            var operands = (CompiledValue[]) ops.toArray(new CompiledValue[0]);
             rangeJunctions[numRangeJunctions++] =
                 new RangeJunction(_operator, grpIndpndntItr, completeExpnsn, operands);
           }
         }
-        int totalOperands = cv.length - nullifiedFields + numRangeJunctions;
-        CompiledValue[] allOperands = new CompiledValue[totalOperands];
+        var totalOperands = cv.length - nullifiedFields + numRangeJunctions;
+        var allOperands = new CompiledValue[totalOperands];
         // Fill the Non RangeJunction operands first
-        int k = 0;
-        for (CompiledValue tempCV : cv) {
+        var k = 0;
+        for (var tempCV : cv) {
           if (tempCV != null) {
             allOperands[k++] = tempCV;
           }
         }
-        for (int i = 0; i < numRangeJunctions; ++i) {
+        for (var i = 0; i < numRangeJunctions; ++i) {
           allOperands[k++] = rangeJunctions[i];
         }
         junction = new GroupJunction(_operator, grpIndpndntItr, completeExpnsn, allOperands);
@@ -711,14 +708,14 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       Map sameIndexOperands, ExecutionContext context)
       throws TypeMismatchException, NameResolutionException,
       FunctionDomainException, QueryInvocationTargetException {
-    int size = operandsList.size();
+    var size = operandsList.size();
     CompiledValue tempOp = null;
-    boolean needsCompacting = false;
-    for (int i = 0; i < size; ++i) {
+    var needsCompacting = false;
+    for (var i = 0; i < size; ++i) {
       tempOp = (CompiledValue) operandsList.get(i);
       IndexInfo[] indx = null;
       Object listOrPosition = null;
-      boolean evalAsFilter = tempOp.getPlanInfo(context).evalAsFilter;
+      var evalAsFilter = tempOp.getPlanInfo(context).evalAsFilter;
       // TODO:Do not club Like predicate in an existing range
       if (evalAsFilter) {
         indx = ((Indexable) tempOp).getIndexInfo(context);
@@ -740,7 +737,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
           sameIndexOperands.put(indx[0]._index, operands);
           needsCompacting = true;
         } else if (listOrPosition instanceof List) {
-          List operands = (List) listOrPosition;
+          var operands = (List) listOrPosition;
           operands.add(tempOp);
         } else {
           // a join was present here, let's now occupy that spot and remove the placeholder
@@ -801,8 +798,8 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       }
       // Asif :Create only a GroupJunction. The composite conditions can be
       // evaluated as iter operands inside GroupJunction.
-      Map.Entry entry = (Map.Entry) iterToOperands.entrySet().iterator().next();
-      List operandsList = (List) entry.getValue();
+      var entry = (Map.Entry) iterToOperands.entrySet().iterator().next();
+      var operandsList = (List) entry.getValue();
       // Asif: If there exists no other filter operand, transfer all the
       // remaining iter operands to the Group Junction. Else transfer all the
       // remaining operands to eval operands of CompiledJunctio. This means that
@@ -827,9 +824,9 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
         if (!compositeIterOperands.isEmpty()) {
           evalOperands.addAll(compositeIterOperands);
         }
-        Iterator itr = operandsList.iterator();
+        var itr = operandsList.iterator();
         while (itr.hasNext()) {
-          CompiledValue cv = (CompiledValue) itr.next();
+          var cv = (CompiledValue) itr.next();
           // Asif : Those conditions not filter evaluable are transferred to
           // eval operand of CompiledJunction.
           if (!cv.getPlanInfo(context).evalAsFilter) {
@@ -840,9 +837,9 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       }
       size = operandsList.size();
       Map sameIndexOperands = new HashMap(size);
-      CompiledValue[] cv = new CompiledValue[size];
+      var cv = new CompiledValue[size];
       // Enable only for AND junction
-      boolean needsCompacting =
+      var needsCompacting =
           sortSameIndexOperandsForGroupJunction(cv, operandsList, sameIndexOperands, context);
       junction = createGroupJunctionOrRangeJunction(needsCompacting,
           new RuntimeIterator[] {(RuntimeIterator) entry.getKey()},
@@ -864,19 +861,19 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       // same CompositeGroupJunction. The integer count will keep track of
       // number of different CompositeGroupJunctions which got created.
       Map tempMap = new HashMap();
-      Set entries = compositeFilterOpsMap.entrySet();
+      var entries = compositeFilterOpsMap.entrySet();
       Set cgjs = new HashSet(compositeFilterOpsMap.size());
-      for (final Object o : entries) {
-        Map.Entry entry = (Map.Entry) o;
-        CompiledValue op = (CompiledValue) entry.getKey();
-        Set indpndtItrSet = (Set) entry.getValue();
-        Iterator itr = indpndtItrSet.iterator();
+      for (final var o : entries) {
+        var entry = (Map.Entry) o;
+        var op = (CompiledValue) entry.getKey();
+        var indpndtItrSet = (Set) entry.getValue();
+        var itr = indpndtItrSet.iterator();
         CompositeGroupJunction cgj = null;
-        RuntimeIterator[] absentItrs = new RuntimeIterator[2];
-        int k = 0;
+        var absentItrs = new RuntimeIterator[2];
+        var k = 0;
         while (itr.hasNext()) {
-          RuntimeIterator ritr = (RuntimeIterator) itr.next();
-          CompositeGroupJunction temp = (CompositeGroupJunction) tempMap.get(ritr);
+          var ritr = (RuntimeIterator) itr.next();
+          var temp = (CompositeGroupJunction) tempMap.get(ritr);
           if (temp == null) {
             absentItrs[k++] = ritr;
           }
@@ -893,7 +890,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
             // Also we will remove the entry of temp from CompositeGroupJunctions.
             cgj.mergeFilterableCCsAndIndependentItrs(temp);
             cgjs.remove(temp);
-            Iterator entriesItr = tempMap.entrySet().iterator();
+            var entriesItr = tempMap.entrySet().iterator();
             Map.Entry tempEntry = null;
             while (entriesItr.hasNext()) {
               tempEntry = (Map.Entry) entriesItr.next();
@@ -908,7 +905,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
           cgj = new CompositeGroupJunction(_operator, op /* CompositeFilterOperand */);
           cgjs.add(cgj);
         }
-        for (int i = 0; i < k; ++i) {
+        for (var i = 0; i < k; ++i) {
           tempMap.put(absentItrs[i], cgj);
           cgj.addIndependentIterators(absentItrs[i]);
         }
@@ -926,23 +923,23 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       // filter evaluable & will not try to place it in various
       // ComspoiteGroupJunctions to which they belong.
       List gjs = new ArrayList(iterToOperands.size());
-      Iterator itr = iterToOperands.entrySet().iterator();
+      var itr = iterToOperands.entrySet().iterator();
       Map.Entry entry;
       while (itr.hasNext()) {
         entry = (Map.Entry) itr.next();
-        List operandsList = (List) entry.getValue();
-        CompiledValue[] cv = new CompiledValue[size = operandsList.size()];
-        int j = 0;
+        var operandsList = (List) entry.getValue();
+        var cv = new CompiledValue[size = operandsList.size()];
+        var j = 0;
         // Asif:An individual GroupJunction is Filter evaluable if at least one
         // operand is filter evaluable.
-        boolean evalAsFilter = false;
-        boolean needsCompacting = false;
+        var evalAsFilter = false;
+        var needsCompacting = false;
         CompiledValue tempOp = null;
         Map sameIndexOperands = new HashMap(size);
 
         for (; j < size; ++j) {
           tempOp = (CompiledValue) operandsList.get(j);
-          boolean isFilterevaluable = tempOp.getPlanInfo(context).evalAsFilter;
+          var isFilterevaluable = tempOp.getPlanInfo(context).evalAsFilter;
           evalAsFilter = evalAsFilter || isFilterevaluable;
           IndexInfo[] indx = null;
           Object listOrPosition = null;
@@ -962,7 +959,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
               sameIndexOperands.put(indx[0]._index, operands);
               needsCompacting = true;
             } else {
-              List operands = (List) listOrPosition;
+              var operands = (List) listOrPosition;
               operands.add(tempOp);
             }
           } else {
@@ -983,12 +980,12 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
           } else {
             toAddTo = compositeIterOperands;
           }
-          for (int i = 0; i < size; ++i) {
+          for (var i = 0; i < size; ++i) {
             toAddTo.add(cv[i]);
           }
         } else {
-          RuntimeIterator grpIndpndtItr = (RuntimeIterator) entry.getKey();
-          AbstractGroupOrRangeJunction gj = createGroupJunctionOrRangeJunction(needsCompacting,
+          var grpIndpndtItr = (RuntimeIterator) entry.getKey();
+          var gj = createGroupJunctionOrRangeJunction(needsCompacting,
               new RuntimeIterator[] {(RuntimeIterator) entry.getKey()},
               false/* Expand only to Group Level */, cv, sameIndexOperands);
           CompositeGroupJunction cgj = null;
@@ -1016,12 +1013,12 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       // CompositeGroupJunctions Else a CompositeGroupJunction will be created
       // Convert the List of Indpendent Runtime Iterators of
       // CompositeGroupJunction into Array of Indpendent RuntimeIterators
-      for (final Object cgj : cgjs) {
+      for (final var cgj : cgjs) {
         ((CompositeGroupJunction) cgj).setArrayOfIndependentItrs();
       }
-      int cgjSize = cgjs.size();
+      var cgjSize = cgjs.size();
       if (gjs.isEmpty() && cgjSize == 1) {
-        CompositeGroupJunction compGrpJnc = (CompositeGroupJunction) cgjs.iterator().next();
+        var compGrpJnc = (CompositeGroupJunction) cgjs.iterator().next();
         compGrpJnc.addIterOperands(compositeIterOperands);
         compGrpJnc.setCompleteExpansionOn();
         junction = compGrpJnc;
@@ -1035,9 +1032,9 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
         // contains the iter operands, should be added to the operands of
         // GroupJunction where they will get orgainzed as iter operands during
         // the call of organizeOperands in GroupJunction
-        AbstractGroupOrRangeJunction gjTemp = (AbstractGroupOrRangeJunction) gjs.get(0);
+        var gjTemp = (AbstractGroupOrRangeJunction) gjs.get(0);
         compositeIterOperands.addAll(gjTemp.getOperands());
-        CompiledValue[] newOps = new CompiledValue[compositeIterOperands.size()];
+        var newOps = new CompiledValue[compositeIterOperands.size()];
         compositeIterOperands.toArray(newOps);
         // Asif : If gjTemp is a RangeJunction, we will get an instance of
         // RangeJunction else we will get an instance of GroupJunction.
@@ -1064,7 +1061,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
   public boolean isProjectionEvaluationAPossibility(ExecutionContext context)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    for (final CompiledValue operand : _operands) {
+    for (final var operand : _operands) {
       // LIKE gives rise to a JUNCTION in CompiledLike whether wildcard is present or not
       if ((operand.getType() == JUNCTION || operand.getType() == LIKE)
           && operand.getPlanInfo(context).evalAsFilter) {
@@ -1101,7 +1098,7 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       // flag
       // governing the behaviour of applying limit at index level, we cannot make it true for
       // specific clauses
-      for (final CompiledValue operand : _operands) {
+      for (final var operand : _operands) {
         if (!operand.getPlanInfo(context).evalAsFilter
             || ((Filter) operand).isLimitApplicableAtIndexLevel(context)) {
           return false;
@@ -1118,8 +1115,8 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       // in case we want to support multi index usage again at some point. Till then since it is
       // hard coded to use 1 index
       // we can for the time being return true if there exists atleast one indexable condition
-      boolean foundIndex = false;
-      for (final CompiledValue operand : _operands) {
+      var foundIndex = false;
+      for (final var operand : _operands) {
         if (operand.getPlanInfo(context).evalAsFilter
             && operand.getType() == JUNCTION) {
           return false;
@@ -1137,14 +1134,14 @@ public class CompiledJunction extends AbstractCompiledValue implements Negatable
       NameResolutionException, QueryInvocationTargetException {
     if (_operator == LITERAL_and) {
       // Set<IndexProtocol> usedIndex = new HashSet<>();
-      boolean foundRightIndex = false;
-      for (final CompiledValue operand : _operands) {
-        PlanInfo pi = operand.getPlanInfo(context);
+      var foundRightIndex = false;
+      for (final var operand : _operands) {
+        var pi = operand.getPlanInfo(context);
         if (pi.evalAsFilter && operand.getType() == JUNCTION) {
           return false;
         } else if (pi.evalAsFilter) {
           if (!foundRightIndex) {
-            IndexProtocol ip =
+            var ip =
                 (IndexProtocol) operand.getPlanInfo(context).indexes.get(0);
             if (ip.getCanonicalizedIndexedExpression().equals(canonicalizedOrderByClause)
                 && pi.isPreferred) {

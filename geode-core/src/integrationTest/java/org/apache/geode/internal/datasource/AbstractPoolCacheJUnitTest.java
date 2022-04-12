@@ -27,16 +27,13 @@ import static org.apache.geode.test.util.ResourceUtils.createTempFileFromResourc
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.sql.XAConnection;
-import javax.transaction.xa.XAResource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +56,7 @@ public class AbstractPoolCacheJUnitTest {
     props.setProperty(LOG_LEVEL, "info");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    String path =
+    var path =
         createTempFileFromResource(AbstractPoolCacheJUnitTest.class, "/jta/cachejta.xml")
             .getAbsolutePath();
     props.setProperty(CACHE_XML_FILE, path);
@@ -74,9 +71,9 @@ public class AbstractPoolCacheJUnitTest {
 
   @Test
   public void testGetSimpleDataSource() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    GemFireBasicDataSource ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
-    Connection conn = ds.getConnection();
+    var ctx = cache.getJNDIContext();
+    var ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
+    var conn = ds.getConnection();
     if (conn == null) {
       fail(
           "DataSourceFactoryTest-testGetSimpleDataSource() Error in creating the GemFireBasicDataSource");
@@ -111,23 +108,23 @@ public class AbstractPoolCacheJUnitTest {
     List props = new ArrayList();
     props.add(new ConfigProperty("databaseName", "newDB", "java.lang.String"));
 
-    GemFireBasicDataSource gbds =
+    var gbds =
         (GemFireBasicDataSource) new DataSourceFactory().getSimpleDataSource(map);
     map.put("xa-datasource-class", "org.apache.derby.jdbc.EmbeddedXADataSource");
 
     map.put("connection-url", "jdbc:derby:newDB;create=true");
 
-    GemFireTransactionDataSource gtds =
+    var gtds =
         (GemFireTransactionDataSource) new DataSourceFactory().getTranxDataSource(map, props);
 
-    XAConnection xaconn = (XAConnection) gtds.provider.borrowConnection();
+    var xaconn = (XAConnection) gtds.provider.borrowConnection();
     try {
       Thread.sleep(4);
     } catch (InterruptedException e) {
       fail("interrupted");
     }
-    for (int i = 0; i < 1000; ++i) {
-      XAResource xar = xaconn.getXAResource();
+    for (var i = 0; i < 1000; ++i) {
+      var xar = xaconn.getXAResource();
       System.out.println("XAResource=" + xar);
       assertNotNull(xar);
     }

@@ -88,7 +88,7 @@ public class FunctionStatsImplTest {
 
   @Test
   public void constructor_throws_ifMeterRegistryIsNull() {
-    Throwable thrown = catchThrowable(
+    var thrown = catchThrowable(
         () -> new FunctionStatsImpl(FUNCTION_ID, null, statistics, functionServiceStats));
 
     assertThat(thrown)
@@ -117,7 +117,7 @@ public class FunctionStatsImplTest {
     long startTime = 0;
     functionStats.endFunctionExecution(startTime, false);
 
-    long elapsedNanos = endTime - startTime;
+    var elapsedNanos = endTime - startTime;
     assertThat(successTimer().totalTime(NANOSECONDS))
         .as("Success timer total time")
         .isEqualTo(elapsedNanos);
@@ -173,7 +173,7 @@ public class FunctionStatsImplTest {
     long startTime = 0;
     functionStats.endFunctionExecution(startTime, false);
 
-    long elapsedNanos = endTime - startTime;
+    var elapsedNanos = endTime - startTime;
     verify(statistics)
         .incInt(functionExecutionsCompletedId(), 1);
     verify(statistics)
@@ -196,7 +196,7 @@ public class FunctionStatsImplTest {
     long startTime = 0;
     functionStats.endFunctionExecution(startTime, true);
 
-    long elapsedNanos = endTime - startTime;
+    var elapsedNanos = endTime - startTime;
     verify(statistics)
         .incInt(functionExecutionsCompletedId(), 1);
     verify(statistics)
@@ -217,10 +217,10 @@ public class FunctionStatsImplTest {
             false);
 
     long startTime = 0;
-    boolean haveResult = true;
+    var haveResult = true;
     functionStats.endFunctionExecution(startTime, haveResult);
 
-    long elapsedNanos = endTime - startTime;
+    var elapsedNanos = endTime - startTime;
     verify(functionServiceStats)
         .endFunctionExecutionWithElapsedTime(elapsedNanos, haveResult);
   }
@@ -247,7 +247,7 @@ public class FunctionStatsImplTest {
     long startTime = 0;
     functionStats.endFunctionExecutionWithException(startTime, false);
 
-    long elapsedNanos = endTime - startTime;
+    var elapsedNanos = endTime - startTime;
     assertThat(failureTimer().totalTime(NANOSECONDS))
         .as("Failure timer total time")
         .isEqualTo(elapsedNanos);
@@ -288,7 +288,7 @@ public class FunctionStatsImplTest {
     FunctionStats functionStats =
         new FunctionStatsImpl(FUNCTION_ID, meterRegistry, statistics, functionServiceStats);
 
-    boolean haveResult = true;
+    var haveResult = true;
     functionStats.endFunctionExecutionWithException(0, haveResult);
 
     verify(functionServiceStats)
@@ -321,8 +321,8 @@ public class FunctionStatsImplTest {
 
   @Test
   public void close_closesTimers() {
-    Timer successTimer = mock(Timer.class);
-    Timer failureTimer = mock(Timer.class);
+    var successTimer = mock(Timer.class);
+    var failureTimer = mock(Timer.class);
     FunctionStats functionStats =
         new FunctionStatsImpl(FUNCTION_ID, mock(MeterRegistry.class), statistics,
             functionServiceStats, 0L, false, successTimer, failureTimer);
@@ -365,7 +365,7 @@ public class FunctionStatsImplTest {
 
   @Test
   public void getStatistics_returnsGivenStatistics() {
-    Statistics statisticsPassedToConstructor = mock(Statistics.class);
+    var statisticsPassedToConstructor = mock(Statistics.class);
 
     FunctionStats functionStats =
         new FunctionStatsImpl(FUNCTION_ID, meterRegistry, statisticsPassedToConstructor,

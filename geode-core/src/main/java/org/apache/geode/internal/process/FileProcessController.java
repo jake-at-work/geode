@@ -105,7 +105,7 @@ class FileProcessController implements ProcessController {
   }
 
   private void stop(final File workingDir, final String stopRequestFileName) throws IOException {
-    File stopRequestFile = new File(workingDir, stopRequestFileName);
+    var stopRequestFile = new File(workingDir, stopRequestFileName);
     if (!stopRequestFile.exists()) {
       stopRequestFile.createNewFile();
     }
@@ -114,30 +114,30 @@ class FileProcessController implements ProcessController {
   private String status(final File workingDir, final String statusRequestFileName,
       final String statusFileName) throws IOException, InterruptedException, TimeoutException {
     // monitor for statusFile
-    File statusFile = new File(workingDir, statusFileName);
-    AtomicReference<String> statusRef = new AtomicReference<>();
+    var statusFile = new File(workingDir, statusFileName);
+    var statusRef = new AtomicReference<String>();
 
-    ControlRequestHandler statusHandler = () -> {
+    var statusHandler = (ControlRequestHandler) () -> {
       // read the statusFile
-      StringBuilder lines = new StringBuilder();
-      try (BufferedReader reader = new BufferedReader(new FileReader(statusFile))) {
+      var lines = new StringBuilder();
+      try (var reader = new BufferedReader(new FileReader(statusFile))) {
         reader.lines().forEach(lines::append);
       } finally {
         statusRef.set(lines.toString());
       }
     };
 
-    ControlFileWatchdog statusFileWatchdog =
+    var statusFileWatchdog =
         new ControlFileWatchdog(workingDir, statusFileName, statusHandler, true);
     statusFileWatchdog.start();
 
-    File statusRequestFile = new File(workingDir, statusRequestFileName);
+    var statusRequestFile = new File(workingDir, statusRequestFileName);
     if (!statusRequestFile.exists()) {
       statusRequestFile.createNewFile();
     }
 
     // if timeout invoke stop and then throw TimeoutException
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     while (statusFileWatchdog.isAlive()) {
       Thread.sleep(10);
       if (System.currentTimeMillis() >= start + statusTimeoutMillis) {
@@ -146,7 +146,7 @@ class FileProcessController implements ProcessController {
       }
     }
 
-    String lines = statusRef.get();
+    var lines = statusRef.get();
     if (isBlank(lines)) {
       throw new IllegalStateException("Status file '" + statusFile + "' is blank");
     }

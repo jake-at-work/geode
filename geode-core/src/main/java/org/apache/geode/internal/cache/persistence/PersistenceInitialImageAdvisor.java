@@ -23,9 +23,7 @@ import java.util.function.Function;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.CancelCriterion;
 import org.apache.geode.annotations.VisibleForTesting;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.CacheDistributionAdvisor;
@@ -50,10 +48,10 @@ class PersistenceInitialImageAdvisor {
     this(persistenceAdvisor, shortDiskStoreID, regionPath, cacheDistributionAdvisor,
         hasDiskImageToRecoverFrom,
         internalPersistenceAdvisor -> {
-          CacheDistributionAdvisor advisor =
+          var advisor =
               internalPersistenceAdvisor.getCacheDistributionAdvisor();
-          DistributionConfig config = advisor.getDistributionManager().getConfig();
-          CancelCriterion stopper = advisor.getAdvisee().getCancelCriterion();
+          var config = advisor.getDistributionManager().getConfig();
+          var stopper = advisor.getAdvisee().getCancelCriterion();
 
           return new MembershipChangeListenerFactory()
               .setWarningDelay(ofSeconds(config.getAckWaitThreshold() / 2))
@@ -79,10 +77,10 @@ class PersistenceInitialImageAdvisor {
 
   @VisibleForTesting
   InitialImageAdvice getAdvice(InitialImageAdvice previousAdvice) {
-    final boolean isPersistAdvisorDebugEnabled =
+    final var isPersistAdvisorDebugEnabled =
         logger.isDebugEnabled(LogMarker.PERSIST_ADVISOR_VERBOSE);
 
-    MembershipChangeListener listener = membershipChangeListenerProvider.apply(persistenceAdvisor);
+    var listener = membershipChangeListenerProvider.apply(persistenceAdvisor);
     cacheDistributionAdvisor.addMembershipAndProxyListener(listener);
     persistenceAdvisor.addListener(listener);
     try {
@@ -91,7 +89,7 @@ class PersistenceInitialImageAdvisor {
         try {
           // On first pass, previous advice is null. On subsequent passes, it's the advice
           // from the previous iteration.
-          InitialImageAdvice advice =
+          var advice =
               cacheDistributionAdvisor.adviseInitialImage(previousAdvice, true);
 
           if (hasReplicates(advice)) {
@@ -128,7 +126,7 @@ class PersistenceInitialImageAdvisor {
           }
 
           Set<PersistentMemberID> offlineMembers = new HashSet<>();
-          Set<PersistentMemberID> membersToWaitFor =
+          var membersToWaitFor =
               persistenceAdvisor.getMembersToWaitFor(previouslyOnlineMembers, offlineMembers);
 
           if (membersToWaitFor.isEmpty()) {
@@ -162,7 +160,7 @@ class PersistenceInitialImageAdvisor {
 
   private void updateMembershipViewFromAnyPeer(Set<InternalDistributedMember> peers,
       boolean recoverFromDisk) {
-    for (InternalDistributedMember peer : peers) {
+    for (var peer : peers) {
       try {
         persistenceAdvisor.updateMembershipView(peer, recoverFromDisk);
         return;
@@ -180,7 +178,7 @@ class PersistenceInitialImageAdvisor {
       logger.debug(LogMarker.PERSIST_ADVISOR_VERBOSE,
           "{}-{}: Acquired the lock. This member will initialize", shortDiskStoreID, regionPath);
     }
-    InitialImageAdvice advice = cacheDistributionAdvisor.adviseInitialImage(previousAdvice, true);
+    var advice = cacheDistributionAdvisor.adviseInitialImage(previousAdvice, true);
     if (hasReplicates(advice)) {
       if (isPersistAdvisorDebugEnabled()) {
         logger.debug(LogMarker.PERSIST_ADVISOR_VERBOSE,
@@ -209,7 +207,7 @@ class PersistenceInitialImageAdvisor {
     }
     // Check with these members to make sure that they have heard of us. If any of them
     // say we have the same data on disk, we don't need to do a GII.
-    boolean weAreEqualToAReplicate = persistenceAdvisor.checkMyStateOnMembers(replicates);
+    var weAreEqualToAReplicate = persistenceAdvisor.checkMyStateOnMembers(replicates);
     if (weAreEqualToAReplicate) {
       // prevent GII by removing all replicates
       removeReplicates(replicates);

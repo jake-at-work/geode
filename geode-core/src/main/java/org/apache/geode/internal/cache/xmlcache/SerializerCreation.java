@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache.xmlcache;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 
 import org.apache.logging.log4j.Logger;
@@ -68,16 +67,16 @@ public class SerializerCreation {
   }
 
   public void create() {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
-    for (Class c : serializerReg) {
+    final var isDebugEnabled = logger.isDebugEnabled();
+    for (var c : serializerReg) {
       if (isDebugEnabled) {
         logger.debug("Registering serializer: {}", c.getName());
       }
       DataSerializer.register(c);
     }
 
-    for (Map.Entry<Class, Integer> e : instantiatorReg.entrySet()) {
-      final Class k = e.getKey();
+    for (var e : instantiatorReg.entrySet()) {
+      final var k = e.getKey();
       if (isDebugEnabled) {
         logger.debug("Registering instantiator: {}", k.getName());
       }

@@ -61,7 +61,7 @@ public class GeodeParamsRunner extends JUnitParamsRunner {
    */
   @Override
   public Description describeMethod(FrameworkMethod method) {
-    Description description = super.describeMethod(method);
+    var description = super.describeMethod(method);
     if (description.isTest()) {
       return description;
     }
@@ -100,13 +100,13 @@ public class GeodeParamsRunner extends JUnitParamsRunner {
    */
   public Filter vintageCompatibleFilter(
       Filter originalFilter, Map<String, FrameworkMethod> parameterizedTestMap) {
-    String filterDescription = originalFilter.describe();
+    var filterDescription = originalFilter.describe();
     if (!filterDescription.startsWith(EXCLUDE_FILTER_PREFIX)) {
       // The filter is not an exclude filter. JUnitParamsRunner applies it correctly.
       return originalFilter;
     }
-    String excludedTestName = filterDescription.substring(EXCLUDE_FILTER_PREFIX.length());
-    FrameworkMethod parameterizedMethod = parameterizedTestMap.get(excludedTestName);
+    var excludedTestName = filterDescription.substring(EXCLUDE_FILTER_PREFIX.length());
+    var parameterizedMethod = parameterizedTestMap.get(excludedTestName);
     if (isNull(parameterizedMethod)) {
       // The filter excludes a non-parameterized test. JUnitParamsRunner applies it correctly.
       return originalFilter;
@@ -120,11 +120,11 @@ public class GeodeParamsRunner extends JUnitParamsRunner {
    */
   private static Description vintageCompatibleSuiteDescription(
       Description originalDescription, Method method) {
-    Category categories = method.getAnnotation(Category.class);
+    var categories = method.getAnnotation(Category.class);
     if (isNull(categories)) {
       return originalDescription;
     }
-    Description compatibleDescription = originalDescription.childlessCopy();
+    var compatibleDescription = originalDescription.childlessCopy();
     originalDescription.getChildren().stream()
         .map(testDescription -> vintageCompatibleTestDescription(testDescription, categories))
         .forEach(compatibleDescription::addChild);
@@ -136,8 +136,8 @@ public class GeodeParamsRunner extends JUnitParamsRunner {
    */
   private static Description vintageCompatibleTestDescription(
       Description originalDescription, Category categories) {
-    Class<?> testClass = originalDescription.getTestClass();
-    String displayName = originalDescription.getMethodName();
+    var testClass = originalDescription.getTestClass();
+    var displayName = originalDescription.getMethodName();
     return createTestDescription(testClass, displayName, categories);
   }
 

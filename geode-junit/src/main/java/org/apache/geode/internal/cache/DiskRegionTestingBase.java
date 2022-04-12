@@ -40,8 +40,6 @@ import org.junit.rules.TestName;
 import org.apache.geode.LogWriter;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
@@ -101,13 +99,13 @@ public abstract class DiskRegionTestingBase {
     testFailed = false;
     cache = createCache();
 
-    File file1 = new File(testingDirectory, name.getMethodName() + "1");
+    var file1 = new File(testingDirectory, name.getMethodName() + "1");
     file1.mkdir();
-    File file2 = new File(testingDirectory, name.getMethodName() + "2");
+    var file2 = new File(testingDirectory, name.getMethodName() + "2");
     file2.mkdir();
-    File file3 = new File(testingDirectory, name.getMethodName() + "3");
+    var file3 = new File(testingDirectory, name.getMethodName() + "3");
     file3.mkdir();
-    File file4 = new File(testingDirectory, name.getMethodName() + "4");
+    var file4 = new File(testingDirectory, name.getMethodName() + "4");
     file4.mkdir();
     dirs = new File[4];
     dirs[0] = file1;
@@ -152,7 +150,7 @@ public abstract class DiskRegionTestingBase {
         }
       }
 
-      for (DiskStore dstore : ((InternalCache) cache).listDiskStoresIncludingRegionOwned()) {
+      for (var dstore : ((InternalCache) cache).listDiskStoresIncludingRegionOwned()) {
         ((DiskStoreImpl) dstore).waitForClose();
       }
     } finally {
@@ -181,7 +179,7 @@ public abstract class DiskRegionTestingBase {
     if (cache != null) {
       try {
         if (!cache.isClosed()) {
-          CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+          var txMgr = cache.getCacheTransactionManager();
           if (txMgr != null) {
             if (txMgr.exists()) {
               // make sure we cleanup this threads txid stored in a thread local
@@ -206,9 +204,9 @@ public abstract class DiskRegionTestingBase {
 
   protected void forceDeleteFiles() {
     closeDiskStores();
-    File file = tempDir.getRoot();
-    File[] files = file.listFiles();
-    for (File each : files) {
+    var file = tempDir.getRoot();
+    var files = file.listFiles();
+    for (var each : files) {
       try {
         if (!each.getName().contains(".gfs")) {
           FileUtils.forceDelete(each);
@@ -249,7 +247,7 @@ public abstract class DiskRegionTestingBase {
    * puts a 100 integers into the region
    */
   protected void put100Int() {
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(i, i);
     }
   }
@@ -258,7 +256,7 @@ public abstract class DiskRegionTestingBase {
     if (verifySize) {
       assertEquals(100, region.size());
     }
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       Integer key = i;
       assertTrue(region.containsKey(key));
       assertEquals(key, region.get(key));
@@ -269,7 +267,7 @@ public abstract class DiskRegionTestingBase {
    * will keep on putting till region overflows
    */
   protected void putTillOverFlow(Region<Object, Object> region) {
-    for (int i = 0; i < 1010; i++) {
+    for (var i = 0; i < 1010; i++) {
       region.put(i + 200, i + 200);
     }
   }
@@ -278,7 +276,7 @@ public abstract class DiskRegionTestingBase {
    * put an entry
    */
   protected void putForValidation(Region<Object, Object> region) {
-    final byte[] value = new byte[1024];
+    final var value = new byte[1024];
     region.put("testKey", value);
   }
 
@@ -297,11 +295,11 @@ public abstract class DiskRegionTestingBase {
   }
 
   protected HashMap<String, VersionTag> saveVersionTags(LocalRegion region) {
-    HashMap<String, VersionTag> tagmap = new HashMap<>();
-    for (final Object o : region.entrySet()) {
-      RegionEntry entry = ((NonTXEntry) o).getRegionEntry();
-      String key = (String) entry.getKey();
-      VersionTag tag = entry.getVersionStamp().asVersionTag();
+    var tagmap = new HashMap<String, VersionTag>();
+    for (final var o : region.entrySet()) {
+      var entry = ((NonTXEntry) o).getRegionEntry();
+      var key = (String) entry.getKey();
+      var tag = entry.getVersionStamp().asVersionTag();
       tagmap.put(key, tag);
     }
     return tagmap;
@@ -311,9 +309,9 @@ public abstract class DiskRegionTestingBase {
       HashMap<String, VersionTag> map2) {
     assertEquals(map1.size(), map2.size());
 
-    for (String key : map1.keySet()) {
-      VersionTag tag1 = map1.get(key);
-      VersionTag tag2 = map2.get(key);
+    for (var key : map1.keySet()) {
+      var tag1 = map1.get(key);
+      var tag2 = map2.get(key);
       assertEquals(tag1.getEntryVersion(), tag2.getEntryVersion());
       assertEquals(tag1.getRegionVersion(), tag2.getRegionVersion());
       assertEquals(tag1.getMemberID(), tag2.getMemberID());
@@ -333,7 +331,7 @@ public abstract class DiskRegionTestingBase {
   }
 
   protected void verify(LocalRegion lr, DiskRegionProperties drp) {
-    DiskStore ds = cache.findDiskStore(lr.getDiskStoreName());
+    var ds = cache.findDiskStore(lr.getDiskStoreName());
     assertTrue(ds != null);
     assertTrue(lr.getAttributes().isDiskSynchronous() == drp.isSynchronous());
     assertTrue(ds.getAutoCompact() == drp.isRolling());
@@ -344,16 +342,16 @@ public abstract class DiskRegionTestingBase {
       assertEquals(DiskStoreFactory.DEFAULT_TIME_INTERVAL, ds.getTimeInterval());
     }
     assertEquals((int) drp.getBytesThreshold(), ds.getQueueSize());
-    int dirnum = drp.getDiskDirs().length;
-    int dirnum2 = ds.getDiskDirs().length;
-    int[] diskSizes = drp.getDiskDirSizes();
-    int[] ds_diskSizes = ds.getDiskDirSizes();
+    var dirnum = drp.getDiskDirs().length;
+    var dirnum2 = ds.getDiskDirs().length;
+    var diskSizes = drp.getDiskDirSizes();
+    var ds_diskSizes = ds.getDiskDirSizes();
     assertEquals(dirnum, dirnum2);
     if (diskSizes == null) {
       diskSizes = new int[dirnum];
       java.util.Arrays.fill(diskSizes, Integer.MAX_VALUE);
     }
-    for (int i = 0; i < dirnum; i++) {
+    for (var i = 0; i < dirnum; i++) {
       assertTrue("diskSizes not matching", diskSizes[i] == ds_diskSizes[i]);
     }
 

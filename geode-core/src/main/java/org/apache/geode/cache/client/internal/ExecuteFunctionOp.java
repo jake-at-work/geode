@@ -32,7 +32,6 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.execute.AbstractExecution;
 import org.apache.geode.internal.cache.execute.InternalFunctionException;
 import org.apache.geode.internal.cache.execute.InternalFunctionInvocationTargetException;
@@ -78,15 +77,15 @@ public class ExecuteFunctionOp {
 
     if (allServers && groups.length == 0) {
 
-      List callableTasks = constructAndGetFunctionTasks(pool,
+      var callableTasks = constructAndGetFunctionTasks(pool,
           attributes, executeFunctionOpSupplier);
 
       SingleHopClientExecutor.submitAll(callableTasks);
 
     } else {
 
-      boolean reexecute = false;
-      int maxRetryAttempts = MAX_RETRY_INITIAL_VALUE;
+      var reexecute = false;
+      var maxRetryAttempts = MAX_RETRY_INITIAL_VALUE;
 
       if (!isHA) {
         maxRetryAttempts = 0;
@@ -129,13 +128,13 @@ public class ExecuteFunctionOp {
       UserAttributes attributes,
       final Supplier<ExecuteFunctionOpImpl> executeFunctionOpSupplier) {
     final List<SingleHopOperationCallable> tasks = new ArrayList<>();
-    List<ServerLocation> servers = pool.getConnectionSource().getAllServers();
+    var servers = pool.getConnectionSource().getAllServers();
     if (servers == null) {
       throw new NoAvailableServersException();
     }
-    for (ServerLocation server : servers) {
+    for (var server : servers) {
       final AbstractOp op = executeFunctionOpSupplier.get();
-      SingleHopOperationCallable task =
+      var task =
           new SingleHopOperationCallable(server, pool, op, attributes);
       tasks.add(task);
     }
@@ -146,7 +145,7 @@ public class ExecuteFunctionOp {
     byte[] retVal = null;
     if (flags.length > 0) {
       retVal = new byte[flags.length];
-      for (int i = 0; i < flags.length; i++) {
+      for (var i = 0; i < flags.length; i++) {
         if (flags[i]) {
           retVal[i] = 1;
         } else {
@@ -196,7 +195,7 @@ public class ExecuteFunctionOp {
         String[] groups, boolean allMembers, boolean ignoreFailedMembers,
         final int timeoutMs) {
       super(MessageType.EXECUTE_FUNCTION, MSG_PARTS, timeoutMs);
-      byte fnState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
+      var fnState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
           function.optimizeForWrite());
 
       addBytes(isReexecute, fnState);
@@ -228,7 +227,7 @@ public class ExecuteFunctionOp {
         boolean isFnSerializationReqd, boolean isHA, boolean optimizeForWrite, byte isReexecute,
         String[] groups, boolean allMembers, boolean ignoreFailedMembers, final int timeoutMs) {
       super(MessageType.EXECUTE_FUNCTION, MSG_PARTS, timeoutMs);
-      byte fnState = AbstractExecution.getFunctionState(isHA, hasResult == (byte) 1,
+      var fnState = AbstractExecution.getFunctionState(isHA, hasResult == (byte) 1,
           optimizeForWrite);
 
       addBytes(isReexecute, fnState);
@@ -287,7 +286,7 @@ public class ExecuteFunctionOp {
           getMessage().addBytesPart(new byte[] {fnStateOrHasResult});
         }
       } else {
-        byte[] bytes = new byte[5];
+        var bytes = new byte[5];
         if (isReexecute == 1) {
           bytes[0] = AbstractExecution.getReexecuteFunctionState(fnStateOrHasResult);
         } else {
@@ -302,7 +301,7 @@ public class ExecuteFunctionOp {
      * ignoreFaileMember flag is at index 1
      */
     private boolean getIgnoreFailedMembers() {
-      boolean ignoreFailedMembers = false;
+      var ignoreFailedMembers = false;
       if (flags != null && flags.length > 1) {
         if (flags[IGNORE_FAILED_MEMBERS_INDEX] == 1) {
           ignoreFailedMembers = true;
@@ -313,7 +312,7 @@ public class ExecuteFunctionOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      ChunkedMessage executeFunctionResponseMsg = (ChunkedMessage) msg;
+      var executeFunctionResponseMsg = (ChunkedMessage) msg;
       try {
         // Read the header which describes the type of message following
         executeFunctionResponseMsg.readHeader();
@@ -327,7 +326,7 @@ public class ExecuteFunctionOp {
             // Read the chunk
             do {
               executeFunctionResponseMsg.receiveChunk();
-              Object resultResponse = executeFunctionResponseMsg.getPart(0).getObject();
+              var resultResponse = executeFunctionResponseMsg.getPart(0).getObject();
               Object result;
               if (resultResponse instanceof ArrayList) {
                 result = ((ArrayList) resultResponse).get(0);
@@ -335,10 +334,10 @@ public class ExecuteFunctionOp {
                 result = resultResponse;
               }
               if (result instanceof FunctionException) {
-                FunctionException ex = ((FunctionException) result);
+                var ex = ((FunctionException) result);
                 if (ex instanceof InternalFunctionException || getIgnoreFailedMembers()) {
-                  Throwable cause = ex.getCause() == null ? ex : ex.getCause();
-                  DistributedMember memberID =
+                  var cause = ex.getCause() == null ? ex : ex.getCause();
+                  var memberID =
                       (DistributedMember) ((ArrayList) resultResponse).get(1);
                   resultCollector.addResult(memberID, cause);
                   FunctionStatsManager.getFunctionStats(functionId).incResultsReceived();
@@ -346,12 +345,12 @@ public class ExecuteFunctionOp {
                   exception = ex;
                 }
               } else if (result instanceof Throwable) {
-                String s = "While performing a remote " + getOpName();
+                var s = "While performing a remote " + getOpName();
                 exception = new ServerOperationException(s, (Throwable) result);
                 // Get the exception toString part.
                 // This was added for c++ thin client and not used in java
               } else {
-                DistributedMember memberID =
+                var memberID =
                     (DistributedMember) ((ArrayList) resultResponse).get(1);
                 resultCollector.addResult(memberID, result);
                 FunctionStatsManager.getFunctionStats(functionId).incResultsReceived();
@@ -374,12 +373,12 @@ public class ExecuteFunctionOp {
             }
             // Read the chunk
             executeFunctionResponseMsg.receiveChunk();
-            Part part0 = executeFunctionResponseMsg.getPart(0);
-            Object obj = part0.getObject();
+            var part0 = executeFunctionResponseMsg.getPart(0);
+            var obj = part0.getObject();
             if (obj instanceof FunctionException) {
               throw ((FunctionException) obj);
             } else {
-              final Throwable t = (Throwable) obj;
+              final var t = (Throwable) obj;
               throw new ServerOperationException(
                   ": While performing a remote execute Function" + t.getMessage(), t);
             }
@@ -390,7 +389,7 @@ public class ExecuteFunctionOp {
             }
             // Read the chunk
             executeFunctionResponseMsg.receiveChunk();
-            String errorMessage = executeFunctionResponseMsg.getPart(0).getString();
+            var errorMessage = executeFunctionResponseMsg.getPart(0).getString();
             throw new ServerOperationException(errorMessage);
           default:
             throw new InternalGemFireError(String.format("Unknown message type %s",

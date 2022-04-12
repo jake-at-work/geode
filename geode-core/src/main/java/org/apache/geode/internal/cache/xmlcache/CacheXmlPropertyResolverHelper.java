@@ -62,7 +62,7 @@ public class CacheXmlPropertyResolverHelper {
 
   public CacheXmlPropertyResolverHelper(String propPrefix, String propSuffix) {
     if (propPrefix != null && propSuffix != null) {
-      String validPrefix = validSuffixAndPrefixes.get(propSuffix);
+      var validPrefix = validSuffixAndPrefixes.get(propSuffix);
       if (validPrefix != null && propPrefix.endsWith(validPrefix)) {
         prefixForSuffix = validPrefix;
       } else {
@@ -81,13 +81,13 @@ public class CacheXmlPropertyResolverHelper {
    */
   protected String parseResolvablePropString(String unparsedString, PropertyResolver resolver,
       Set<String> visitedReplaceableStrings) {
-    StringBuilder buf = new StringBuilder(unparsedString);
-    int prefixIndex = buf.indexOf(propertyPrefix);
+    var buf = new StringBuilder(unparsedString);
+    var prefixIndex = buf.indexOf(propertyPrefix);
 
     while (prefixIndex != -1) {
-      int suffixIndex = findSuffixIndex(buf, prefixIndex + propertyPrefix.length());
+      var suffixIndex = findSuffixIndex(buf, prefixIndex + propertyPrefix.length());
       if (suffixIndex != -1) {
-        String replaceableString =
+        var replaceableString =
             buf.substring(prefixIndex + propertyPrefix.length(), suffixIndex);
         // Check for circular references
         if (!visitedReplaceableStrings.add(replaceableString)) {
@@ -100,7 +100,7 @@ public class CacheXmlPropertyResolverHelper {
         /* Find the replacement using given <code>resolver</code> */
         replaceableString =
             parseResolvablePropString(replaceableString, resolver, visitedReplaceableStrings);
-        String replacement = resolver.resolveReplaceString(replaceableString);
+        var replacement = resolver.resolveReplaceString(replaceableString);
 
         if (replacement != null) {
           /*
@@ -135,7 +135,7 @@ public class CacheXmlPropertyResolverHelper {
    *
    */
   private int findSuffixIndex(StringBuilder buf, int index) {
-    int inNestedProperty = 0;
+    var inNestedProperty = 0;
     while (index < buf.length()) {
       if (buf.substring(index, index + propertySuffix.length())
           .equalsIgnoreCase(propertySuffix)) {

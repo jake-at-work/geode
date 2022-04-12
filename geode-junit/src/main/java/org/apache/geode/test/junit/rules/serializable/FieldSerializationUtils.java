@@ -14,7 +14,6 @@
  */
 package org.apache.geode.test.junit.rules.serializable;
 
-import java.lang.reflect.Field;
 
 /**
  * Provides support for serialization of private fields by reflection.
@@ -28,7 +27,7 @@ class FieldSerializationUtils {
   static Object readField(final Class targetClass, final Object targetInstance,
       final String fieldName) {
     try {
-      Field field = targetClass.getDeclaredField(fieldName);
+      var field = targetClass.getDeclaredField(fieldName);
       field.setAccessible(true);
       return field.get(targetInstance);
     } catch (IllegalAccessException | NoSuchFieldException e) {
@@ -39,7 +38,7 @@ class FieldSerializationUtils {
   static void writeField(final Class targetClass, final Object targetInstance,
       final String fieldName, final Object value) {
     try {
-      Field field = targetClass.getDeclaredField(fieldName);
+      var field = targetClass.getDeclaredField(fieldName);
       field.setAccessible(true);
       field.set(targetInstance, value);
     } catch (IllegalAccessException | NoSuchFieldException e) {

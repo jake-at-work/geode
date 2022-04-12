@@ -32,7 +32,6 @@ import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
@@ -57,16 +56,16 @@ public class LPushDUnitTest {
 
   @Before
   public void testSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     clusterStartUp.startRedisVM(1, locator.getPort());
     clusterStartUp.startRedisVM(2, locator.getPort());
     clusterStartUp.startRedisVM(3, locator.getPort());
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort), 10_000);
     listHashtags = makeListHashtags();
     keys = makeListKeys(listHashtags);
     keyToElementListMap = new HashMap<>();
-    for (String key : keys) {
+    for (var key : keys) {
       keyToElementListMap.put(key, makeElementList(PUSH_LIST_SIZE, key));
     }
 
@@ -98,11 +97,11 @@ public class LPushDUnitTest {
       throws ExecutionException, InterruptedException {
 
     List<Future<Void>> futureList = new ArrayList<>();
-    for (Runnable task : taskList) {
+    for (var task : taskList) {
       futureList.add(executor.runAsync(task));
     }
 
-    for (int i = 0; i < 50 && runningCount.get() > 0; i++) {
+    for (var i = 0; i < 50 && runningCount.get() > 0; i++) {
       clusterStartUp.moveBucketForKey(listHashtags.get(i % listHashtags.size()));
       Thread.sleep(500);
     }
@@ -111,8 +110,8 @@ public class LPushDUnitTest {
       future.get();
     }
 
-    for (String key : keys) {
-      long length = jedis.llen(key);
+    for (var key : keys) {
+      var length = jedis.llen(key);
       assertThat(length).isGreaterThanOrEqualTo(MINIMUM_ITERATIONS * 2 * PUSH_LIST_SIZE);
       validateListContents(key, length, keyToElementListMap);
     }
@@ -122,7 +121,7 @@ public class LPushDUnitTest {
   public void shouldNotLoseData_givenPrimaryServerCrashesDuringOperations()
       throws ExecutionException, InterruptedException {
     List<Future<Void>> futureList = new ArrayList<>();
-    for (Runnable task : taskList) {
+    for (var task : taskList) {
       futureList.add(executor.runAsync(task));
     }
 
@@ -134,7 +133,7 @@ public class LPushDUnitTest {
     }
 
     long length;
-    for (String key : keys) {
+    for (var key : keys) {
       length = jedis.llen(key);
       assertThat(length).isGreaterThanOrEqualTo(MINIMUM_ITERATIONS * 2 * PUSH_LIST_SIZE);
       assertThat(length % 3).isEqualTo(0);
@@ -144,9 +143,9 @@ public class LPushDUnitTest {
 
   private void lpushPerformAndVerify(String key, List<String> elementList,
       AtomicLong runningCount) {
-    for (int i = 0; i < MINIMUM_ITERATIONS; i++) {
-      long listLength = jedis.llen(key);
-      long newLength = jedis.lpush(key, elementList.toArray(new String[] {}));
+    for (var i = 0; i < MINIMUM_ITERATIONS; i++) {
+      var listLength = jedis.llen(key);
+      var newLength = jedis.lpush(key, elementList.toArray(new String[] {}));
       assertThat((newLength - listLength) % 3).as("LPUSH, list length %s not multiple of 3",
           newLength).isEqualTo(0);
     }
@@ -156,7 +155,7 @@ public class LPushDUnitTest {
   private void validateListContents(String key, long length,
       HashMap<String, List<String>> keyToElementListMap) {
     while (jedis.llen(key) > 0) {
-      List<String> elementList = keyToElementListMap.get(key);
+      var elementList = keyToElementListMap.get(key);
       assertThat(jedis.lpop(key)).isEqualTo(elementList.get(2));
       assertThat(jedis.lpop(key)).isEqualTo(elementList.get(1));
       assertThat(jedis.lpop(key)).isEqualTo(elementList.get(0));
@@ -193,7 +192,7 @@ public class LPushDUnitTest {
 
   private List<String> makeElementList(int listSize, String baseString) {
     List<String> elements = new ArrayList<>();
-    for (int i = 0; i < listSize; i++) {
+    for (var i = 0; i < listSize; i++) {
       elements.add(baseString + i);
     }
     return elements;

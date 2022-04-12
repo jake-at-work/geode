@@ -59,7 +59,7 @@ public class RegisterInterestDistributedTest {
 
   @Test
   public void registerInterestAllKeysShouldRegisterForAllKeys() throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort);
+    var clientCache = createClientCache(locatorPort);
 
     Region region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("region");
@@ -77,7 +77,7 @@ public class RegisterInterestDistributedTest {
 
   @Test
   public void registerInterestAllKeysWithInterestPolicyShouldRegisterForAllKeys() throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort);
+    var clientCache = createClientCache(locatorPort);
 
     Region region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("region");
@@ -96,7 +96,7 @@ public class RegisterInterestDistributedTest {
   @Test
   public void nonDurableClientRegisterInterestForAllKeysWithDurableFlagShouldThrowException()
       throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort);
+    var clientCache = createClientCache(locatorPort);
 
     Region region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("region");
@@ -109,7 +109,7 @@ public class RegisterInterestDistributedTest {
   @Test
   public void durableClientRegisterInterestAllKeysWithDurableFlagShouldRegisterInterest()
       throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort, true);
+    var clientCache = createClientCache(locatorPort, true);
 
     Region region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("region");
@@ -129,7 +129,7 @@ public class RegisterInterestDistributedTest {
   @Test
   public void durableClientRegisterInterestAllKeysAndReceiveValuesFalseShouldRegisterForAllKeys()
       throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort, true);
+    var clientCache = createClientCache(locatorPort, true);
 
     Region region =
         clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("region");
@@ -149,7 +149,7 @@ public class RegisterInterestDistributedTest {
   @Test
   public void registerInterestForKeysShouldRegisterInterestForEachObjectInTheIterable()
       throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort);
+    var clientCache = createClientCache(locatorPort);
 
     Set keysList = new HashSet();
     keysList.add("some key");
@@ -172,7 +172,7 @@ public class RegisterInterestDistributedTest {
   @Test
   public void registerInterestForKeysWithInterestPolicyShouldRegisterInterestForEachObjectInTheIterable()
       throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort);
+    var clientCache = createClientCache(locatorPort);
 
     Set keysList = new HashSet();
     keysList.add("some key");
@@ -195,13 +195,13 @@ public class RegisterInterestDistributedTest {
   @Test
   public void registerInterestForKeysOnTypedRegionShouldRegisterInterestForEachObjectInIterable()
       throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort);
+    var clientCache = createClientCache(locatorPort);
 
     Set<String> keysList = new HashSet<>();
     keysList.add("some key");
     keysList.add("other key");
 
-    Region<String, String> region =
+    var region =
         clientCache.<String, String>createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
             .create("region");
     region.registerInterestForKeys(keysList);
@@ -218,7 +218,7 @@ public class RegisterInterestDistributedTest {
 
   @Test
   public void nonDurableClientWhenRegisterInterestForKeysShouldThrowException() throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort);
+    var clientCache = createClientCache(locatorPort);
 
     Set keysList = new HashSet();
     keysList.add("some key");
@@ -236,7 +236,7 @@ public class RegisterInterestDistributedTest {
   @Test
   public void durableClientWhenRegisterInterestForKeyShouldCorrectlyRegisterInterest()
       throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort, true);
+    var clientCache = createClientCache(locatorPort, true);
 
     Set keysList = new HashSet();
     keysList.add("some key");
@@ -260,7 +260,7 @@ public class RegisterInterestDistributedTest {
   @Test
   public void durableClientWhenRegisterInterestForKeysAndReturnValueFalseShouldCorrectlyRegisterInterest()
       throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort, true);
+    var clientCache = createClientCache(locatorPort, true);
 
     Set keysList = new HashSet();
     keysList.add("some key");
@@ -284,7 +284,7 @@ public class RegisterInterestDistributedTest {
   @Test
   public void readyForEventsBeforeAnyPoolsAreCreatedShouldNotResultInIllegalStateException()
       throws Exception {
-    ClientCache clientCache = createClientCache(locatorPort, true);
+    var clientCache = createClientCache(locatorPort, true);
 
     assertThatCode(clientCache::readyForEvents).doesNotThrowAnyException();
   }
@@ -296,7 +296,7 @@ public class RegisterInterestDistributedTest {
   private ClientCache createClientCache(Integer locatorPort, boolean isDurable) {
     ClientCacheFactory ccf;
     if (isDurable) {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty("durable-client-id", "31");
       props.setProperty("durable-client-timeout", "" + 200);
       ccf = new ClientCacheFactory(props);
@@ -306,7 +306,7 @@ public class RegisterInterestDistributedTest {
 
     ccf.addPoolLocator("localhost", locatorPort);
     ccf.setPoolSubscriptionEnabled(true);
-    ClientCache cache = ccf.create();
+    var cache = ccf.create();
     return cache;
   }
 

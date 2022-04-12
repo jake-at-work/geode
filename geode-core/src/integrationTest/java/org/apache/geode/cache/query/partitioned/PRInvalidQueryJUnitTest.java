@@ -50,7 +50,7 @@ public class PRInvalidQueryJUnitTest {
   private void populateData(Region region, Object[] data) {
     logger.info("PRInvalidQueryJUnitTest#populateData: Populating Data to the region");
 
-    for (int j = 0; j < data.length; j++) {
+    for (var j = 0; j < data.length; j++) {
       region.put(j, data[j]);
     }
   }

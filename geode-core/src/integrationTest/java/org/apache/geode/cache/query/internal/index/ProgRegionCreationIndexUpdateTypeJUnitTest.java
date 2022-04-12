@@ -32,8 +32,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
@@ -58,17 +56,17 @@ public class ProgRegionCreationIndexUpdateTypeJUnitTest {
 
   @Test
   public void testProgrammaticIndexUpdateType() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOG_LEVEL, "config");
-    DistributedSystem ds = DistributedSystem.connect(props);
+    var ds = DistributedSystem.connect(props);
     cache = CacheFactory.create(ds);
     // Create a Region with index maintenance type as explicit synchronous
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setIndexMaintenanceSynchronous(true);
-    RegionAttributes regionAttributes = attributesFactory.create();
-    Region region = cache.createRegion("region1", regionAttributes);
-    IndexManager im = IndexUtils.getIndexManager((InternalCache) cache, region, true);
+    var regionAttributes = attributesFactory.create();
+    var region = cache.createRegion("region1", regionAttributes);
+    var im = IndexUtils.getIndexManager((InternalCache) cache, region, true);
 
     if (!im.isIndexMaintenanceTypeSynchronous()) {
       fail(

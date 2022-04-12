@@ -16,9 +16,6 @@ package org.apache.geode.internal.cache.functions;
 
 import static org.apache.geode.cache.Region.SEPARATOR;
 
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionAdapter;
 import org.apache.geode.cache.execute.FunctionContext;
@@ -37,26 +34,26 @@ public class LocalDataSetFunction extends FunctionAdapter {
 
   @Override
   public void execute(FunctionContext context) {
-    RegionFunctionContext rContext = (RegionFunctionContext) context;
+    var rContext = (RegionFunctionContext) context;
     Region cust = rContext.getDataSet();
-    LocalDataSet localCust = (LocalDataSet) PartitionRegionHelper.getLocalDataForContext(rContext);
-    Map<String, Region<?, ?>> colocatedRegions = PartitionRegionHelper.getColocatedRegions(cust);
-    Map<String, Region<?, ?>> localColocatedRegions =
+    var localCust = (LocalDataSet) PartitionRegionHelper.getLocalDataForContext(rContext);
+    var colocatedRegions = PartitionRegionHelper.getColocatedRegions(cust);
+    var localColocatedRegions =
         PartitionRegionHelper.getLocalColocatedRegions(rContext);
 
     Assert.assertTrue(colocatedRegions.size() == 2);
-    Set custKeySet = cust.keySet();
-    Set localCustKeySet = localCust.keySet();
+    var custKeySet = cust.keySet();
+    var localCustKeySet = localCust.keySet();
 
     Region ord = colocatedRegions.get(SEPARATOR + "OrderPR");
-    LocalDataSet localOrd = (LocalDataSet) localColocatedRegions.get(SEPARATOR + "OrderPR");
-    Set ordKeySet = ord.keySet();
-    Set localOrdKeySet = localOrd.keySet();
+    var localOrd = (LocalDataSet) localColocatedRegions.get(SEPARATOR + "OrderPR");
+    var ordKeySet = ord.keySet();
+    var localOrdKeySet = localOrd.keySet();
 
     Region ship = colocatedRegions.get(SEPARATOR + "ShipmentPR");
-    LocalDataSet localShip = (LocalDataSet) localColocatedRegions.get(SEPARATOR + "ShipmentPR");
-    Set shipKeySet = ship.keySet();
-    Set localShipKeySet = localShip.keySet();
+    var localShip = (LocalDataSet) localColocatedRegions.get(SEPARATOR + "ShipmentPR");
+    var shipKeySet = ship.keySet();
+    var localShipKeySet = localShip.keySet();
 
     Assert.assertTrue(localCust.getBucketSet().size() == localOrd.getBucketSet().size());
     Assert.assertTrue(localCust.getBucketSet().size() == localShip.getBucketSet().size());

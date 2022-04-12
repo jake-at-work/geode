@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.cache.eviction;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -70,14 +69,14 @@ public class RegionEvictorTask implements Runnable {
     try {
       long totalBytesEvicted = 0;
       while (true) {
-        final long start = statisticsClock.getTime();
+        final var start = statisticsClock.getTime();
         synchronized (regions) {
           if (regions.isEmpty()) {
             return;
           }
           // consider trying Fisher-Yates shuffle algorithm
-          for (Iterator<LocalRegion> iterator = regions.iterator(); iterator.hasNext();) {
-            LocalRegion region = iterator.next();
+          for (var iterator = regions.iterator(); iterator.hasNext();) {
+            var region = iterator.next();
             try {
               long bytesEvicted = region.getRegionMap().centralizedLruUpdateCallback();
               if (bytesEvicted == 0) {
@@ -95,7 +94,7 @@ public class RegionEvictorTask implements Runnable {
               logger.warn(String.format("Exception: %s occurred during eviction ",
                   e.getMessage()), e);
             } finally {
-              long end = statisticsClock.getTime();
+              var end = statisticsClock.getTime();
               stats.incEvictWorkTime(end - start);
             }
           }

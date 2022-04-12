@@ -21,7 +21,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
-import org.junit.runner.Result;
 import org.junit.runners.model.Statement;
 
 import org.apache.geode.test.junit.runners.TestRunner;
@@ -33,7 +32,7 @@ public class RuleAndClassRuleTest {
 
   @Test
   public void usingRuleAsRuleAndClassRuleShouldInvokeBeforeClass() {
-    Result result = TestRunner.runTest(UsingRuleAsRuleAndClassRule.class);
+    var result = TestRunner.runTest(UsingRuleAsRuleAndClassRule.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(UsingRuleAsRuleAndClassRule.staticRule.beforeClassInvoked).isEqualTo(true);
@@ -41,7 +40,7 @@ public class RuleAndClassRuleTest {
 
   @Test
   public void usingRuleAsRuleAndClassRuleShouldInvokeAfterClass() {
-    Result result = TestRunner.runTest(UsingRuleAsRuleAndClassRule.class);
+    var result = TestRunner.runTest(UsingRuleAsRuleAndClassRule.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(UsingRuleAsRuleAndClassRule.staticRule.afterClassInvoked).isEqualTo(true);
@@ -49,7 +48,7 @@ public class RuleAndClassRuleTest {
 
   @Test
   public void usingRuleAsRuleAndClassRuleShouldInvokeBefore() {
-    Result result = TestRunner.runTest(UsingRuleAsRuleAndClassRule.class);
+    var result = TestRunner.runTest(UsingRuleAsRuleAndClassRule.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(UsingRuleAsRuleAndClassRule.staticRule.beforeInvoked).isEqualTo(true);
@@ -57,7 +56,7 @@ public class RuleAndClassRuleTest {
 
   @Test
   public void usingRuleAsRuleAndClassRuleShouldInvokeAfter() {
-    Result result = TestRunner.runTest(UsingRuleAsRuleAndClassRule.class);
+    var result = TestRunner.runTest(UsingRuleAsRuleAndClassRule.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(UsingRuleAsRuleAndClassRule.staticRule.afterInvoked).isEqualTo(true);

@@ -32,7 +32,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.security.query.data.QueryTestObject;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -77,10 +76,10 @@ public class CqSecurityForbiddenUsersDistributedTest extends AbstractQuerySecuri
   }
 
   private CqQuery createCq(String query) throws CqException {
-    TestCqListener cqListener = new TestCqListener();
-    QueryService queryService = getClientCache().getQueryService();
+    var cqListener = new TestCqListener();
+    var queryService = getClientCache().getQueryService();
     CqSecurityForbiddenUsersDistributedTest.cqListener = cqListener;
-    CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+    var cqAttributesFactory = new CqAttributesFactory();
     cqAttributesFactory.addCqListener(cqListener);
 
     return queryService.newCq(query, cqAttributesFactory.create());
@@ -105,50 +104,50 @@ public class CqSecurityForbiddenUsersDistributedTest extends AbstractQuerySecuri
   @Test
   public void cqQueryWithPublicFieldOnNonEmptyRegionShouldThrowExceptionDuringExecute() {
     putIntoRegion(superUserClient, keys, values, regionName);
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 0";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 0";
 
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       executeCqAndAssertException(cq, user, regexForExpectedExceptions);
     });
   }
 
   @Test
   public void cqQueryWithImplicitMethodInvocationOnNonEmptyRegionShouldThrowExceptionDuringExecute() {
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
 
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       executeCqAndAssertException(cq, user, regexForExpectedExceptions);
     });
   }
 
   @Test
   public void cqQueryWithExplicitMethodInvocationOnNonEmptyRegionShouldThrowExceptionDuringExecute() {
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
 
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       executeCqAndAssertException(cq, user, regexForExpectedExceptions);
     });
   }
 
   @Test
   public void cqQueryWithImplicitMethodInvocationOnNonEmptyRegionShouldThrowExceptionDuringExecuteWithInitialResults() {
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
 
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       executeCqWithInitialResultsAndAssertException(cq, user, regexForExpectedExceptions);
     });
   }
 
   @Test
   public void cqQueryWithExplicitMethodInvocationOnNonEmptyRegionShouldThrowExceptionDuringExecuteWithInitialResults() {
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
 
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       executeCqWithInitialResultsAndAssertException(cq, user, regexForExpectedExceptions);
     });
   }
@@ -156,10 +155,10 @@ public class CqSecurityForbiddenUsersDistributedTest extends AbstractQuerySecuri
   @Test
   public void cqCreatedByAllowedUserButPutDoneByForbiddenReaderShouldStillInvokeListener() {
     assumeTrue(user.equals("dataWriter"));
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 1";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 1";
 
     superUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       cq.execute();
     });
 

@@ -50,7 +50,6 @@ import java.net.SocketException;
 import javax.net.ssl.SSLHandshakeException;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -68,13 +67,13 @@ class TcpClientTest {
 
   @Test
   void resetSocketAndLogExceptionsIgnoresExceptionsOnSetSoLinger() throws IOException {
-    final Socket socket = mock(Socket.class);
+    final var socket = mock(Socket.class);
     when(socket.isClosed()).thenReturn(false);
     doThrow(new SocketException()).when(socket).setSoLinger(eq(true), eq(0));
 
     assertDoesNotThrow(() -> resetSocketAndLogExceptions(socket));
 
-    final InOrder order = inOrder(socket);
+    final var order = inOrder(socket);
     order.verify(socket).isClosed();
     order.verify(socket).setSoLinger(eq(true), eq(0));
     order.verify(socket).close();
@@ -83,13 +82,13 @@ class TcpClientTest {
 
   @Test
   void resetSocketAndLogExceptionsIgnoresExceptionsOnClose() throws IOException {
-    final Socket socket = mock(Socket.class);
+    final var socket = mock(Socket.class);
     when(socket.isClosed()).thenReturn(false);
     doThrow(new IOException()).when(socket).close();
 
     assertDoesNotThrow(() -> resetSocketAndLogExceptions(socket));
 
-    final InOrder order = inOrder(socket);
+    final var order = inOrder(socket);
     order.verify(socket).isClosed();
     order.verify(socket).setSoLinger(eq(true), eq(0));
     order.verify(socket).close();
@@ -98,7 +97,7 @@ class TcpClientTest {
 
   @Test
   void resetSocketAndLogExceptionsDoesNothingWhenSocketIsClosed() {
-    final Socket socket = mock(Socket.class);
+    final var socket = mock(Socket.class);
     when(socket.isClosed()).thenReturn(true);
 
     assertDoesNotThrow(() -> resetSocketAndLogExceptions(socket));
@@ -109,17 +108,17 @@ class TcpClientTest {
 
   @Test
   void sendRequestWritesHeaderRequestAndFlushes() throws IOException {
-    final DataOutputStream out = mock(DataOutputStream.class);
+    final var out = mock(DataOutputStream.class);
 
     final short ordinalVersion = 42;
     final Object request = new Serializable() {};
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertDoesNotThrow(() -> client.sendRequest(out, ordinalVersion, request));
 
-    final InOrder order = inOrder(out, objectSerializer);
+    final var order = inOrder(out, objectSerializer);
     order.verify(out).writeInt(eq(TcpServer.GOSSIPVERSION));
     order.verify(out).writeShort(eq((int) ordinalVersion));
     order.verify(objectSerializer).writeObject(same(request), same(out));
@@ -130,21 +129,21 @@ class TcpClientTest {
 
   @Test
   void getServerVersionReturnsVersionOrdinal() throws IOException, ClassNotFoundException {
-    final DataInputStream in = mock(DataInputStream.class);
-    final DataOutputStream out = mock(DataOutputStream.class);
-    final short versionOrdinal = (short) 42;
-    final VersionResponse versionResponse = new VersionResponse();
+    final var in = mock(DataInputStream.class);
+    final var out = mock(DataOutputStream.class);
+    final var versionOrdinal = (short) 42;
+    final var versionResponse = new VersionResponse();
     versionResponse.setVersionOrdinal(versionOrdinal);
 
     when(objectDeserializer.readObject(same(in))).thenReturn(versionResponse);
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThat(client.getServerVersion(in, out))
         .isEqualTo(versionOrdinal);
 
-    final InOrder order = inOrder(objectSerializer, objectDeserializer);
+    final var order = inOrder(objectSerializer, objectDeserializer);
     order.verify(objectSerializer).writeObject(any(VersionRequest.class), same(out));
     order.verify(objectDeserializer).readObject(same(in));
 
@@ -154,18 +153,18 @@ class TcpClientTest {
   @Test
   void getServerVersionThrowsIOExceptionWhenReadingWrongResponse()
       throws IOException, ClassNotFoundException {
-    final DataInputStream in = mock(DataInputStream.class);
-    final DataOutputStream out = mock(DataOutputStream.class);
+    final var in = mock(DataInputStream.class);
+    final var out = mock(DataOutputStream.class);
 
     when(objectDeserializer.readObject(same(in))).thenReturn(new Object());
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThatThrownBy(() -> client.getServerVersion(in, out))
         .isInstanceOf(IOException.class).hasCauseInstanceOf(ClassCastException.class);
 
-    final InOrder order = inOrder(objectSerializer, objectDeserializer);
+    final var order = inOrder(objectSerializer, objectDeserializer);
     order.verify(objectSerializer).writeObject(any(VersionRequest.class), same(out));
     order.verify(objectDeserializer).readObject(same(in));
 
@@ -175,18 +174,18 @@ class TcpClientTest {
   @Test
   void getServerVersionThrowsIOExceptionWhenClassNotFoundException()
       throws IOException, ClassNotFoundException {
-    final DataInputStream in = mock(DataInputStream.class);
-    final DataOutputStream out = mock(DataOutputStream.class);
+    final var in = mock(DataInputStream.class);
+    final var out = mock(DataOutputStream.class);
 
     when(objectDeserializer.readObject(same(in))).thenThrow(new ClassNotFoundException());
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThatThrownBy(() -> client.getServerVersion(in, out))
         .isInstanceOf(IOException.class).hasCauseInstanceOf(ClassNotFoundException.class);
 
-    final InOrder order = inOrder(objectSerializer, objectDeserializer);
+    final var order = inOrder(objectSerializer, objectDeserializer);
     order.verify(objectSerializer).writeObject(any(VersionRequest.class), same(out));
     order.verify(objectDeserializer).readObject(same(in));
 
@@ -195,17 +194,17 @@ class TcpClientTest {
 
   @Test
   void getServerVersionReturnOldestVersionOnEndOfFile() throws IOException, ClassNotFoundException {
-    final DataInputStream in = mock(DataInputStream.class);
-    final DataOutputStream out = mock(DataOutputStream.class);
+    final var in = mock(DataInputStream.class);
+    final var out = mock(DataOutputStream.class);
 
     when(objectDeserializer.readObject(same(in))).thenThrow(new EOFException());
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThat(client.getServerVersion(in, out)).isEqualTo(KnownVersion.OLDEST.ordinal());
 
-    final InOrder order = inOrder(objectSerializer, objectDeserializer);
+    final var order = inOrder(objectSerializer, objectDeserializer);
     order.verify(objectSerializer).writeObject(any(VersionRequest.class), same(out));
     order.verify(objectDeserializer).readObject(same(in));
 
@@ -214,24 +213,24 @@ class TcpClientTest {
 
   @Test
   void getServerVersionResetsSocketOnSetSoTimeoutException() throws IOException {
-    final int timeout = 42;
+    final var timeout = 42;
 
-    final ClusterSocketCreator clusterSocketCreator = mock(ClusterSocketCreator.class);
-    final HostAndPort address = mock(HostAndPort.class);
-    final Socket socket = mock(Socket.class);
+    final var clusterSocketCreator = mock(ClusterSocketCreator.class);
+    final var address = mock(HostAndPort.class);
+    final var socket = mock(Socket.class);
 
     when(socketCreator.forCluster()).thenReturn(clusterSocketCreator);
     when(clusterSocketCreator.connect(eq(address), eq(timeout), any(), same(socketFactory)))
         .thenReturn(socket);
     doThrow(new SocketException()).when(socket).setSoTimeout(eq(timeout));
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThatThrownBy(() -> client.getServerVersion(address, timeout))
         .isInstanceOf(IOException.class);
 
-    final InOrder order = inOrder(socket);
+    final var order = inOrder(socket);
     order.verify(socket).setSoTimeout(eq(timeout));
     order.verify(socket).isClosed();
     order.verify(socket).setSoLinger(eq(true), eq(0));
@@ -243,17 +242,17 @@ class TcpClientTest {
 
   @Test
   void getServerVersionDoesNotCatchSSLHandshakeException() throws IOException {
-    final int timeout = 42;
-    final SSLHandshakeException sslHandshakeException = new SSLHandshakeException("");
+    final var timeout = 42;
+    final var sslHandshakeException = new SSLHandshakeException("");
 
-    final ClusterSocketCreator clusterSocketCreator = mock(ClusterSocketCreator.class);
-    final HostAndPort address = mock(HostAndPort.class);
+    final var clusterSocketCreator = mock(ClusterSocketCreator.class);
+    final var address = mock(HostAndPort.class);
 
     when(socketCreator.forCluster()).thenReturn(clusterSocketCreator);
     when(clusterSocketCreator.connect(eq(address), eq(timeout), any(), same(socketFactory)))
         .thenThrow(sslHandshakeException);
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThatThrownBy(() -> client.getServerVersion(address, timeout))
@@ -264,24 +263,24 @@ class TcpClientTest {
 
   @Test
   void getServerVersionResetsSocketOnIOException() throws IOException {
-    final int timeout = 42;
+    final var timeout = 42;
 
-    final ClusterSocketCreator clusterSocketCreator = mock(ClusterSocketCreator.class);
-    final HostAndPort address = mock(HostAndPort.class);
-    final Socket socket = mock(Socket.class);
+    final var clusterSocketCreator = mock(ClusterSocketCreator.class);
+    final var address = mock(HostAndPort.class);
+    final var socket = mock(Socket.class);
 
     when(socketCreator.forCluster()).thenReturn(clusterSocketCreator);
     when(clusterSocketCreator.connect(eq(address), eq(timeout), any(), same(socketFactory)))
         .thenReturn(socket);
     doThrow(new IOException()).when(objectSerializer).writeObject(any(), any());
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThatThrownBy(() -> client.getServerVersion(address, timeout))
         .isInstanceOf(IOException.class);
 
-    final InOrder order = inOrder(objectSerializer, socket);
+    final var order = inOrder(objectSerializer, socket);
     order.verify(socket).setSoTimeout(eq(timeout));
     verify(socket).getInputStream();
     verify(socket).getOutputStream();
@@ -296,13 +295,13 @@ class TcpClientTest {
 
   @Test
   void getServerVersionResetsSocketOnReturn() throws IOException, ClassNotFoundException {
-    final int timeout = 42;
+    final var timeout = 42;
 
-    final ClusterSocketCreator clusterSocketCreator = mock(ClusterSocketCreator.class);
-    final HostAndPort address = mock(HostAndPort.class);
-    final Socket socket = mock(Socket.class);
-    final InputStream in = mock(InputStream.class);
-    final OutputStream out = mock(OutputStream.class);
+    final var clusterSocketCreator = mock(ClusterSocketCreator.class);
+    final var address = mock(HostAndPort.class);
+    final var socket = mock(Socket.class);
+    final var in = mock(InputStream.class);
+    final var out = mock(OutputStream.class);
 
     when(socketCreator.forCluster()).thenReturn(clusterSocketCreator);
     when(clusterSocketCreator.connect(eq(address), eq(timeout), any(), same(socketFactory)))
@@ -311,12 +310,12 @@ class TcpClientTest {
     when(socket.getOutputStream()).thenReturn(out);
     when(objectDeserializer.readObject(any())).thenReturn(new VersionResponse());
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertDoesNotThrow(() -> client.getServerVersion(address, timeout));
 
-    final InOrder order = inOrder(objectSerializer, objectDeserializer, socket);
+    final var order = inOrder(objectSerializer, objectDeserializer, socket);
     order.verify(socket).setSoTimeout(eq(timeout));
     verify(socket).getInputStream();
     verify(socket).getOutputStream();
@@ -331,14 +330,14 @@ class TcpClientTest {
 
   @Test
   void getServerVersionReturnsCachedVersion() throws IOException, ClassNotFoundException {
-    final int timeout = 0;
+    final var timeout = 0;
     final short ordinalVersion = 42;
-    final VersionResponse versionResponse = new VersionResponse();
+    final var versionResponse = new VersionResponse();
     versionResponse.setVersionOrdinal(ordinalVersion);
 
-    final ClusterSocketCreator clusterSocketCreator = mock(ClusterSocketCreator.class);
-    final HostAndPort address = mock(HostAndPort.class);
-    final Socket socket = mock(Socket.class);
+    final var clusterSocketCreator = mock(ClusterSocketCreator.class);
+    final var address = mock(HostAndPort.class);
+    final var socket = mock(Socket.class);
 
     when(socketCreator.forCluster()).thenReturn(clusterSocketCreator);
     when(clusterSocketCreator.connect(eq(address), eq(timeout), any(), same(socketFactory)))
@@ -347,7 +346,7 @@ class TcpClientTest {
     when(socket.getOutputStream()).thenReturn(mock(OutputStream.class));
     when(objectDeserializer.readObject(any())).thenReturn(versionResponse);
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThat(client.getServerVersion(address, timeout)).isEqualTo(ordinalVersion);
@@ -365,8 +364,8 @@ class TcpClientTest {
 
   @Test
   void createDataOutputStreamIsVersionedWhenVersionOlderThanCurrent() throws IOException {
-    final Socket socket = mock(Socket.class);
-    final KnownVersion version = KnownVersion.GEODE_1_1_0;
+    final var socket = mock(Socket.class);
+    final var version = KnownVersion.GEODE_1_1_0;
 
     assertThat(createDataOutputStream(socket, version))
         .isInstanceOf(VersionedDataOutputStream.class)
@@ -376,8 +375,8 @@ class TcpClientTest {
 
   @Test
   void createDataOutputStreamIsNotVersionedWhenVersionIsCurrent() throws IOException {
-    final Socket socket = mock(Socket.class);
-    final KnownVersion version = KnownVersion.CURRENT;
+    final var socket = mock(Socket.class);
+    final var version = KnownVersion.CURRENT;
 
     assertThat(createDataOutputStream(socket, version))
         .isNotInstanceOf(VersionedDataOutputStream.class);
@@ -385,8 +384,8 @@ class TcpClientTest {
 
   @Test
   void createDataInputStreamIsVersionedWhenVersionOlderThanCurrent() throws IOException {
-    final Socket socket = mock(Socket.class);
-    final KnownVersion version = KnownVersion.GEODE_1_1_0;
+    final var socket = mock(Socket.class);
+    final var version = KnownVersion.GEODE_1_1_0;
 
     assertThat(createDataInputStream(socket, version))
         .isInstanceOf(VersionedDataInputStream.class)
@@ -395,8 +394,8 @@ class TcpClientTest {
 
   @Test
   void createDataInputStreamIsNotVersionedWhenVersionIsCurrent() throws IOException {
-    final Socket socket = mock(Socket.class);
-    final KnownVersion version = KnownVersion.CURRENT;
+    final var socket = mock(Socket.class);
+    final var version = KnownVersion.CURRENT;
 
     assertThat(createDataInputStream(socket, version))
         .isNotInstanceOf(VersionedDataInputStream.class);
@@ -405,8 +404,8 @@ class TcpClientTest {
 
   @Test
   void createEOFExceptionAddsCause() {
-    final HostAndPort address = new HostAndPort("localhost", 1234);
-    final Exception cause = new Exception("ouch");
+    final var address = new HostAndPort("localhost", 1234);
+    final var cause = new Exception("ouch");
 
     assertThat(createEOFException(address, cause))
         .isInstanceOf(EOFException.class)
@@ -415,12 +414,12 @@ class TcpClientTest {
 
   @Test
   void receiveResponseThrowsEOFException() throws IOException, ClassNotFoundException {
-    final DataInputStream in = mock(DataInputStream.class);
+    final var in = mock(DataInputStream.class);
 
-    final HostAndPort address = new HostAndPort("localhost", 1234);
-    final EOFException exception = new EOFException("ouch");
+    final var address = new HostAndPort("localhost", 1234);
+    final var exception = new EOFException("ouch");
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     when(objectDeserializer.readObject(same(in))).thenThrow(exception);
@@ -437,27 +436,27 @@ class TcpClientTest {
 
   @Test
   void requestToServerReturnsNullIfNoReplyExpected() throws IOException, ClassNotFoundException {
-    final Object request = new Object();
-    final int timeout = 42;
-    final short serverVersionOrdinal = KnownVersion.CURRENT.ordinal();
-    final KnownVersion serverVersion = KnownVersion.CURRENT;
+    final var request = new Object();
+    final var timeout = 42;
+    final var serverVersionOrdinal = KnownVersion.CURRENT.ordinal();
+    final var serverVersion = KnownVersion.CURRENT;
 
-    final ClusterSocketCreator clusterSocketCreator = mock(ClusterSocketCreator.class);
-    final HostAndPort address = mock(HostAndPort.class);
-    final Socket socket = mock(Socket.class);
+    final var clusterSocketCreator = mock(ClusterSocketCreator.class);
+    final var address = mock(HostAndPort.class);
+    final var socket = mock(Socket.class);
 
     when(socketCreator.forCluster()).thenReturn(clusterSocketCreator);
     when(clusterSocketCreator.connect(eq(address), eq(timeout), any(), same(socketFactory)))
         .thenReturn(socket);
     when(socket.getOutputStream()).thenReturn(mock(OutputStream.class));
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThat(client.requestToServer(address, request, timeout, false, serverVersionOrdinal,
         serverVersion, null)).isNull();
 
-    final InOrder order = inOrder(socketCreator, clusterSocketCreator, socket, objectSerializer);
+    final var order = inOrder(socketCreator, clusterSocketCreator, socket, objectSerializer);
     order.verify(socketCreator).forCluster();
     order.verify(clusterSocketCreator).connect(eq(address), eq(timeout), any(),
         same(socketFactory));
@@ -472,15 +471,15 @@ class TcpClientTest {
 
   @Test
   void requestToServerReturnsResponseIfReplyExpected() throws IOException, ClassNotFoundException {
-    final Object request = new Object();
-    final Object response = new Object();
-    final int timeout = 42;
-    final short serverVersionOrdinal = KnownVersion.CURRENT.ordinal();
-    final KnownVersion serverVersion = KnownVersion.CURRENT;
+    final var request = new Object();
+    final var response = new Object();
+    final var timeout = 42;
+    final var serverVersionOrdinal = KnownVersion.CURRENT.ordinal();
+    final var serverVersion = KnownVersion.CURRENT;
 
-    final ClusterSocketCreator clusterSocketCreator = mock(ClusterSocketCreator.class);
-    final HostAndPort address = mock(HostAndPort.class);
-    final Socket socket = mock(Socket.class);
+    final var clusterSocketCreator = mock(ClusterSocketCreator.class);
+    final var address = mock(HostAndPort.class);
+    final var socket = mock(Socket.class);
 
     when(socketCreator.forCluster()).thenReturn(clusterSocketCreator);
     when(clusterSocketCreator.connect(eq(address), eq(timeout), any(), same(socketFactory)))
@@ -489,13 +488,13 @@ class TcpClientTest {
     when(socket.getOutputStream()).thenReturn(mock(OutputStream.class));
     when(objectDeserializer.readObject(any())).thenReturn(response);
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThat(client.requestToServer(address, request, timeout, true, serverVersionOrdinal,
         serverVersion, null)).isSameAs(response);
 
-    final InOrder order =
+    final var order =
         inOrder(socketCreator, clusterSocketCreator, socket, objectSerializer, objectDeserializer);
     order.verify(socketCreator).forCluster();
     order.verify(clusterSocketCreator).connect(eq(address), eq(timeout), any(),
@@ -518,15 +517,15 @@ class TcpClientTest {
 
   @Test
   void requestToServerDoesNotSetSoLingerWhenUsingSsl() throws IOException, ClassNotFoundException {
-    final Object request = new Object();
-    final Object response = new Object();
-    final int timeout = 42;
-    final short serverVersionOrdinal = KnownVersion.CURRENT.ordinal();
-    final KnownVersion serverVersion = KnownVersion.CURRENT;
+    final var request = new Object();
+    final var response = new Object();
+    final var timeout = 42;
+    final var serverVersionOrdinal = KnownVersion.CURRENT.ordinal();
+    final var serverVersion = KnownVersion.CURRENT;
 
-    final ClusterSocketCreator clusterSocketCreator = mock(ClusterSocketCreator.class);
-    final HostAndPort address = mock(HostAndPort.class);
-    final Socket socket = mock(Socket.class);
+    final var clusterSocketCreator = mock(ClusterSocketCreator.class);
+    final var address = mock(HostAndPort.class);
+    final var socket = mock(Socket.class);
 
     when(socketCreator.forCluster()).thenReturn(clusterSocketCreator);
     when(clusterSocketCreator.connect(eq(address), eq(timeout), any(), same(socketFactory)))
@@ -536,13 +535,13 @@ class TcpClientTest {
     when(socket.getOutputStream()).thenReturn(mock(OutputStream.class));
     when(objectDeserializer.readObject(any())).thenReturn(response);
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThat(client.requestToServer(address, request, timeout, true, serverVersionOrdinal,
         serverVersion, null)).isSameAs(response);
 
-    final InOrder order =
+    final var order =
         inOrder(socketCreator, clusterSocketCreator, socket, objectSerializer, objectDeserializer);
     order.verify(socketCreator).forCluster();
     order.verify(clusterSocketCreator).connect(eq(address), eq(timeout), any(),
@@ -564,10 +563,10 @@ class TcpClientTest {
 
   @Test
   void requestToServerPassesSSLHandshakeExceptionCausedByEOFException() throws Exception {
-    final ClusterSocketCreator clusterSocketCreator = Mockito.mock(ClusterSocketCreator.class);
-    final HostAndPort address = mock(HostAndPort.class);
+    final var clusterSocketCreator = Mockito.mock(ClusterSocketCreator.class);
+    final var address = mock(HostAndPort.class);
 
-    final SSLHandshakeException sslHandshakeException =
+    final var sslHandshakeException =
         new SSLHandshakeException("Remote host terminated the handshake");
     sslHandshakeException.initCause(new EOFException("SSL peer shut down incorrectly"));
 
@@ -575,7 +574,7 @@ class TcpClientTest {
     when(clusterSocketCreator.connect(any(), anyInt(), any(), any()))
         .thenThrow(sslHandshakeException);
 
-    final TcpClient client =
+    final var client =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     assertThatExceptionOfType(SSLHandshakeException.class)
@@ -585,14 +584,14 @@ class TcpClientTest {
 
   @Test
   void assertNotSslAlertThrowSSLHandshakeExceptionWhenAlertIsDetected() throws IOException {
-    final DataInputStream in = mock(DataInputStream.class);
+    final var in = mock(DataInputStream.class);
     when(in.read()).thenReturn(0x15);
 
     assertThatThrownBy(() -> assertNotSslAlert(in))
         .isInstanceOf(SSLHandshakeException.class)
         .hasMessage("Server expecting SSL handshake.");
 
-    final InOrder order = inOrder(in);
+    final var order = inOrder(in);
     order.verify(in).mark(eq(1));
     // noinspection ResultOfMethodCallIgnored
     order.verify(in).read();
@@ -603,12 +602,12 @@ class TcpClientTest {
 
   @Test
   void assertNotSslAlertDoesNotThrowWhenAlertIsNotDetectedAndStreamIsReset() throws IOException {
-    final DataInputStream in = mock(DataInputStream.class);
+    final var in = mock(DataInputStream.class);
     when(in.read()).thenReturn(0);
 
     assertDoesNotThrow(() -> assertNotSslAlert(in));
 
-    final InOrder order = inOrder(in);
+    final var order = inOrder(in);
     order.verify(in).mark(eq(1));
     // noinspection ResultOfMethodCallIgnored
     order.verify(in).read();
@@ -619,12 +618,12 @@ class TcpClientTest {
 
   @Test
   void assertNotSslAlertDoesNotThrowOnIOExceptionAndStreamIsReset() throws IOException {
-    final DataInputStream in = mock(DataInputStream.class);
+    final var in = mock(DataInputStream.class);
     when(in.read()).thenReturn(-1);
 
     assertDoesNotThrow(() -> assertNotSslAlert(in));
 
-    final InOrder order = inOrder(in);
+    final var order = inOrder(in);
     order.verify(in).mark(eq(1));
     // noinspection ResultOfMethodCallIgnored
     order.verify(in).read();

@@ -41,7 +41,7 @@ public class CountPRQueryNodeTest {
     countPRQueryNode.accumulate(50);
     countPRQueryNode.accumulate(23);
 
-    Object result = countPRQueryNode.terminate();
+    var result = countPRQueryNode.terminate();
     assertThat(result).isInstanceOf(Number.class);
     assertThat(((Number) result).intValue()).isEqualTo(123);
   }

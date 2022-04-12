@@ -24,8 +24,8 @@ import org.junit.Test;
 public class PartitionRegionConfigJUnitTest {
   @Test
   public void whenSetColocationCompleteThenAllColocationListenersMustBeExecuted() {
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
-    PartitionRegionConfig partitionRegionConfig = new PartitionRegionConfig();
+    var partitionedRegion = mock(PartitionedRegion.class);
+    var partitionRegionConfig = new PartitionRegionConfig();
     partitionRegionConfig.setColocationComplete(partitionedRegion);
     verify(partitionedRegion, times(1)).executeColocationCallbacks();
   }

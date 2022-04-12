@@ -22,12 +22,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -91,27 +87,27 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
         "MemberGatewayHubServiceTest ::  ------TESTCASE BEGIN : NULL RESPONSE CHECK FOR MEMBER GATEWAY HUB SERVICE --------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_5_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println(
               "MemberGatewayHubServiceTest :: HTTP request status : " + response.getStatusLine());
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out.println("MemberGatewayHubServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
+          var jsonObj = new JSONObject(jsonResp);
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for MemberGatewayHub",
               jsonObj.getJSONObject("MemberGatewayHub"));
@@ -143,29 +139,29 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
         "MemberGatewayHubServiceTest ::  ------TESTCASE BEGIN : IS GATEWAY SENDER IN RESPONSE CHECK FOR MEMBER GATEWAY HUB SERVICE------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_5_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println(
               "MemberGatewayHubServiceTest :: HTTP request status : " + response.getStatusLine());
 
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out.println("MemberGatewayHubServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
-          JSONObject memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
+          var jsonObj = new JSONObject(jsonResp);
+          var memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for MemberGatewayHub",
               memberGatewayHubObj);
@@ -206,29 +202,29 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
         "MemberGatewayHubServiceTest ::  ------TESTCASE BEGIN : GATEWAY SENDER COUNT IN RESPONSE CHECK FOR MEMBER GATEWAY HUB SERVICE------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_5_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println(
               "MemberGatewayHubServiceTest :: HTTP request status : " + response.getStatusLine());
 
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out.println("MemberGatewayHubServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
-          JSONObject memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
+          var jsonObj = new JSONObject(jsonResp);
+          var memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for MemberGatewayHub",
               memberGatewayHubObj);
@@ -240,7 +236,7 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
           Assert.assertTrue(
               "MemberGatewayHubServiceTest :: Server did not return 'gatewaySenders' for member",
               memberGatewayHubObj.has("gatewaySenders"));
-          JSONArray arrGatewaySender = memberGatewayHubObj.getJSONArray("gatewaySenders");
+          var arrGatewaySender = memberGatewayHubObj.getJSONArray("gatewaySenders");
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for 'gatewaySenders'",
               arrGatewaySender);
@@ -276,29 +272,29 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
         "MemberGatewayHubServiceTest ::  ------TESTCASE BEGIN : GATEWAY SENDER PROPERTIES IN RESPONSE CHECK FOR MEMBER GATEWAY HUB SERVICE------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_5_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println(
               "MemberGatewayHubServiceTest :: HTTP request status : " + response.getStatusLine());
 
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out.println("MemberGatewayHubServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
-          JSONObject memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
+          var jsonObj = new JSONObject(jsonResp);
+          var memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for MemberGatewayHub",
               memberGatewayHubObj);
@@ -310,7 +306,7 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
           Assert.assertTrue(
               "MemberGatewayHubServiceTest :: Server did not return 'gatewaySenders' for member",
               memberGatewayHubObj.has("gatewaySenders"));
-          JSONArray arrGatewaySender = memberGatewayHubObj.getJSONArray("gatewaySenders");
+          var arrGatewaySender = memberGatewayHubObj.getJSONArray("gatewaySenders");
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for 'gatewaySenders'",
               arrGatewaySender);
@@ -353,29 +349,29 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
         "MemberGatewayHubServiceTest ::  ------TESTCASE BEGIN : ASYNC EVENT QUEUE PROPERTIES IN RESPONSE CHECK FOR MEMBER GATEWAY HUB SERVICE------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_5_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println(
               "MemberGatewayHubServiceTest :: HTTP request status : " + response.getStatusLine());
 
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out.println("MemberGatewayHubServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
-          JSONObject memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
+          var jsonObj = new JSONObject(jsonResp);
+          var memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for MemberGatewayHub",
               memberGatewayHubObj);
@@ -383,7 +379,7 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
           Assert.assertTrue(
               "MemberGatewayHubServiceTest :: Server did not return 'asyncEventQueues' for member",
               memberGatewayHubObj.has("asyncEventQueues"));
-          JSONArray arrAsyncEventQueues = memberGatewayHubObj.getJSONArray("asyncEventQueues");
+          var arrAsyncEventQueues = memberGatewayHubObj.getJSONArray("asyncEventQueues");
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for 'asyncEventQueues'",
               arrAsyncEventQueues);
@@ -439,29 +435,29 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
         "MemberGatewayHubServiceTest ::  ------TESTCASE BEGIN : NO ASYNC EVENT QUEUES IN RESPONSE CHECK FOR MEMBER GATEWAY HUB SERVICE------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_6_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println(
               "MemberGatewayHubServiceTest :: HTTP request status : " + response.getStatusLine());
 
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out.println("MemberGatewayHubServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
-          JSONObject memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
+          var jsonObj = new JSONObject(jsonResp);
+          var memberGatewayHubObj = jsonObj.getJSONObject("MemberGatewayHub");
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for MemberGatewayHub",
               memberGatewayHubObj);
@@ -469,7 +465,7 @@ public class MemberGatewayHubServiceTest extends BaseServiceTest {
           Assert.assertTrue(
               "MemberGatewayHubServiceTest :: Server did not return 'asyncEventQueues' for member",
               memberGatewayHubObj.has("asyncEventQueues"));
-          JSONArray arrAsyncEventQueues = memberGatewayHubObj.getJSONArray("asyncEventQueues");
+          var arrAsyncEventQueues = memberGatewayHubObj.getJSONArray("asyncEventQueues");
           Assert.assertNotNull(
               "MemberGatewayHubServiceTest :: Server returned null response for 'asyncEventQueues'",
               arrAsyncEventQueues);

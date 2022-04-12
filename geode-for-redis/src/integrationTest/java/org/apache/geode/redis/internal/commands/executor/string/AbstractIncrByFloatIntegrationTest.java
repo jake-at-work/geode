@@ -61,10 +61,10 @@ public abstract class AbstractIncrByFloatIntegrationTest implements RedisIntegra
 
   @Test
   public void testIncrByFloat() {
-    String key1 = "key1";
-    String key2 = "key2";
-    double incr1 = 23.5;
-    double incr2 = -14.78;
+    var key1 = "key1";
+    var key2 = "key2";
+    var incr1 = 23.5;
+    var incr2 = -14.78;
     double num1 = 100;
     double num2 = -100;
     jedis.set(key1, "" + num1);
@@ -79,11 +79,11 @@ public abstract class AbstractIncrByFloatIntegrationTest implements RedisIntegra
 
   @Test
   public void testIncrByFloat_whenUsingExponents() {
-    String key1 = "key1";
-    double num1 = 5e2;
+    var key1 = "key1";
+    var num1 = 5e2;
     jedis.set(key1, "5e2");
 
-    double incr1 = 2.0e4;
+    var incr1 = 2.0e4;
     jedis.sendCommand(key1, Protocol.Command.INCRBYFLOAT, key1, "2.0e4");
     assertThat(Double.valueOf(jedis.get(key1))).isEqualTo(num1 + incr1);
   }
@@ -104,8 +104,8 @@ public abstract class AbstractIncrByFloatIntegrationTest implements RedisIntegra
 
   @Test
   public void testCorrectErrorIsReturned_whenIncrByIsInvalid() {
-    String key = "number";
-    double number1 = 1.4;
+    var key = "number";
+    var number1 = 1.4;
     jedis.set(key, "" + number1);
 
     assertThatThrownBy(() -> jedis.sendCommand(key, Protocol.Command.INCRBYFLOAT, key, " a b c"))
@@ -114,7 +114,7 @@ public abstract class AbstractIncrByFloatIntegrationTest implements RedisIntegra
 
   @Test
   public void testIncrByFloat_withInfinityAndVariants() {
-    String key = "number";
+    var key = "number";
     jedis.set(key, "1.4");
 
     assertThatThrownBy(() -> jedis.sendCommand(key, Protocol.Command.INCRBYFLOAT, key, "+inf"))
@@ -144,36 +144,36 @@ public abstract class AbstractIncrByFloatIntegrationTest implements RedisIntegra
 
   @Test
   public void testIncrByFloat_withReallyBigNumbers() {
-    String key = "number";
+    var key = "number";
     // max unsigned long long - 1
-    BigDecimal biggy = new BigDecimal("18446744073709551614");
+    var biggy = new BigDecimal("18446744073709551614");
     jedis.set(key, biggy.toPlainString());
 
     // Beyond this, native redis produces inconsistent results.
-    Object rawResult = jedis.sendCommand(key, Protocol.Command.INCRBYFLOAT, key, "1");
-    BigDecimal result = new BigDecimal(new String((byte[]) rawResult));
+    var rawResult = jedis.sendCommand(key, Protocol.Command.INCRBYFLOAT, key, "1");
+    var result = new BigDecimal(new String((byte[]) rawResult));
 
     assertThat(result.toPlainString()).isEqualTo(biggy.add(BigDecimal.ONE).toPlainString());
   }
 
   @Test
   public void testConcurrentIncrByFloat_performsAllIncrByFloats() {
-    String key = "key";
-    Random random = new Random();
+    var key = "key";
+    var random = new Random();
 
-    AtomicReference<BigDecimal> expectedValue = new AtomicReference<>();
+    var expectedValue = new AtomicReference<BigDecimal>();
     expectedValue.set(new BigDecimal(0));
 
     jedis.set(key, "0");
 
     new ConcurrentLoopingThreads(1000,
         (i) -> {
-          BigDecimal increment = BigDecimal.valueOf(random.nextInt(37));
+          var increment = BigDecimal.valueOf(random.nextInt(37));
           expectedValue.getAndUpdate(x -> x.add(increment));
           jedis.sendCommand(key, Protocol.Command.INCRBYFLOAT, key, increment.toPlainString());
         },
         (i) -> {
-          BigDecimal increment = BigDecimal.valueOf(random.nextInt(37));
+          var increment = BigDecimal.valueOf(random.nextInt(37));
           expectedValue.getAndUpdate(x -> x.add(increment));
           jedis.sendCommand(key, Protocol.Command.INCRBYFLOAT, key, increment.toPlainString());
         }).run();

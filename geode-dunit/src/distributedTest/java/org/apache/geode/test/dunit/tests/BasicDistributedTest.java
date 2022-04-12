@@ -119,7 +119,7 @@ public class BasicDistributedTest extends DistributedTestCase {
 
   @Test
   public void testRemoteInvocationWithException() {
-    Throwable thrown = catchThrowable(() -> vm0.invoke(BasicDistributedTest::remoteThrowException));
+    var thrown = catchThrowable(() -> vm0.invoke(BasicDistributedTest::remoteThrowException));
 
     assertThat(thrown, instanceOf(RMIException.class));
     assertThat(thrown.getCause(), notNullValue());
@@ -151,8 +151,8 @@ public class BasicDistributedTest extends DistributedTestCase {
 
   @Test
   public void testRemoteInvokeAsync() throws Exception {
-    String name = getUniqueName();
-    String value = "Hello";
+    var name = getUniqueName();
+    var value = "Hello";
 
     AsyncInvocation async1 = vm0.invokeAsync(() -> remoteBind(name, value)).join().checkException();
     AsyncInvocation async2 =
@@ -168,7 +168,7 @@ public class BasicDistributedTest extends DistributedTestCase {
     assertThat(async.exceptionOccurred(), is(true));
     assertThat(async.getException(), instanceOf(BasicTestException.class));
 
-    Throwable thrown = catchThrowable(async::checkException);
+    var thrown = catchThrowable(async::checkException);
 
     assertThat(thrown, instanceOf(AssertionError.class));
     assertThat(thrown.getCause(), notNullValue());
@@ -178,7 +178,7 @@ public class BasicDistributedTest extends DistributedTestCase {
 
   @Test
   public void testInvokeNamedRunnableLambdaAsync() throws Exception {
-    Throwable thrown =
+    var thrown =
         catchThrowable(
             () -> vm0.invokeAsync("throwSomething", BasicDistributedTest::throwException).join()
                 .checkException());
@@ -190,7 +190,7 @@ public class BasicDistributedTest extends DistributedTestCase {
 
   @Test
   public void testInvokeNamedRunnableLambda() {
-    Throwable thrown = catchThrowable(() -> vm0.invoke("throwSomething",
+    var thrown = catchThrowable(() -> vm0.invoke("throwSomething",
         BasicDistributedTest::throwException));
 
     assertThat(thrown, notNullValue());

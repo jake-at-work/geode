@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -60,7 +59,7 @@ public class ShowMetricsCommandIntegrationTest {
     categoriesUsed.addAll(ShowMetricsCommand.SYSTEM_METRIC_CATEGORIES);
     categoriesUsed.addAll(ShowMetricsCommand.SYSTEM_REGION_METRIC_CATEGORIES);
 
-    Set<ShowMetricsCommand.Category> categoriesSpecified =
+    var categoriesSpecified =
         Arrays.stream(ShowMetricsCommand.Category.values()).collect(Collectors.toSet());
 
     assertThat(categoriesSpecified)
@@ -78,8 +77,8 @@ public class ShowMetricsCommandIntegrationTest {
   @Test
   public void getRegionMetricsShowsExactlyDefaultCategories() {
     // Use --region and --member to get RegionMetricsFromMember
-    String cmd = "show metrics --region=" + SEPARATOR + REGION_NAME + " --member=" + MEMBER_NAME;
-    List<String> expectedCategories =
+    var cmd = "show metrics --region=" + SEPARATOR + REGION_NAME + " --member=" + MEMBER_NAME;
+    var expectedCategories =
         ShowMetricsInterceptor.getValidCategoriesAsStrings(true, true, false);
     // Blank lines are permitted for grouping.
     expectedCategories.add("");
@@ -92,8 +91,8 @@ public class ShowMetricsCommandIntegrationTest {
   @Test
   public void getSystemRegionMetricsShowsExactlyDefaultCategories() {
     // Use --region alone to get SystemRegionMetrics
-    String cmd = "show metrics --region=" + SEPARATOR + REGION_NAME;
-    List<String> expectedCategories =
+    var cmd = "show metrics --region=" + SEPARATOR + REGION_NAME;
+    var expectedCategories =
         ShowMetricsInterceptor.getValidCategoriesAsStrings(true, false, false);
     // Blank lines are permitted for grouping.
     expectedCategories.add("");
@@ -107,8 +106,8 @@ public class ShowMetricsCommandIntegrationTest {
   @Test
   public void getMemberMetricsShowsExactlyDefaultCategories() {
     // Use --member to get member metrics
-    String cmd = "show metrics --member=" + MEMBER_NAME;
-    List<String> expectedCategories =
+    var cmd = "show metrics --member=" + MEMBER_NAME;
+    var expectedCategories =
         ShowMetricsInterceptor.getValidCategoriesAsStrings(false, true, false);
     // Blank lines are permitted for grouping.
     expectedCategories.add("");
@@ -122,8 +121,8 @@ public class ShowMetricsCommandIntegrationTest {
   @Test
   public void getMemberWithPortMetricsShowsExactlyDefaultCategories() {
     // Use --member and --port to get member metrics with port info
-    String cmd = "show metrics --member=" + MEMBER_NAME + " --port=" + server.getPort();
-    List<String> expectedCategories =
+    var cmd = "show metrics --member=" + MEMBER_NAME + " --port=" + server.getPort();
+    var expectedCategories =
         ShowMetricsInterceptor.getValidCategoriesAsStrings(false, true, true);
     // Blank lines are permitted for grouping.
     expectedCategories.add("");
@@ -137,8 +136,8 @@ public class ShowMetricsCommandIntegrationTest {
   @Test
   public void getSystemMetricsShowsExactlyDefaultCategories() {
     // No specified options yield system-wide metrics
-    String cmd = "show metrics";
-    List<String> expectedCategories =
+    var cmd = "show metrics";
+    var expectedCategories =
         ShowMetricsInterceptor.getValidCategoriesAsStrings(false, false, false);
     // Blank lines are permitted for grouping.
     expectedCategories.add("");
@@ -150,7 +149,7 @@ public class ShowMetricsCommandIntegrationTest {
 
   @Test
   public void invalidCategoryGetsReported() {
-    String cmd =
+    var cmd =
         "show metrics --categories=\"cluster,cache,some_invalid_category,another_invalid_category\"";
 
     gfsh.executeAndAssertThat(cmd).containsOutput("Invalid Categories")
@@ -161,8 +160,8 @@ public class ShowMetricsCommandIntegrationTest {
   @SuppressWarnings("deprecation")
   @Test
   public void categoryOptionAbridgesOutput() {
-    String cmd = "show metrics --categories=\"cluster,cache\"";
-    List<String> expectedCategories = Arrays.asList("cluster", "cache", "");
+    var cmd = "show metrics --categories=\"cluster,cache\"";
+    var expectedCategories = Arrays.asList("cluster", "cache", "");
     logger.info("Expecting categories: " + String.join(", ", expectedCategories));
 
     gfsh.executeAndAssertThat(cmd).tableHasColumnOnlyWithValues("Category",
@@ -172,9 +171,9 @@ public class ShowMetricsCommandIntegrationTest {
   @Test
   @SuppressWarnings("deprecation")
   public void getRegionMetricsForPartitionedRegionWithStatistics() {
-    String cmd = "create region --name=region2 --type=PARTITION --enable-statistics";
+    var cmd = "create region --name=region2 --type=PARTITION --enable-statistics";
     gfsh.executeAndAssertThat(cmd).statusIsSuccess();
-    String cmd2 = "show metrics --member=" + MEMBER_NAME + " --region=region2";
+    var cmd2 = "show metrics --member=" + MEMBER_NAME + " --region=region2";
     gfsh.executeAndAssertThat(cmd2).statusIsSuccess().tableHasRowWithValues("Category", "Metric",
         "Value", "", "missCount", "0");
   }

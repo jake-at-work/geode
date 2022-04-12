@@ -25,7 +25,6 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.apache.geode.distributed.AbstractLauncher;
 import org.apache.geode.distributed.ServerLauncher;
 import org.apache.geode.internal.util.StopWatch;
-import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.cli.commands.OfflineGfshCommand;
@@ -55,7 +54,7 @@ public class StopServerCommand extends OfflineGfshCommand {
             .format(CliStrings.STOP_SERVICE__GFSH_NOT_CONNECTED_ERROR_MESSAGE, "Cache Server"));
       }
 
-      final MemberMXBean serverProxy = getMemberMXBean(member);
+      final var serverProxy = getMemberMXBean(member);
 
       if (serverProxy != null) {
         if (!serverProxy.isServer()) {
@@ -71,7 +70,7 @@ public class StopServerCommand extends OfflineGfshCommand {
       }
 
     } else {
-      final ServerLauncher serverLauncher =
+      final var serverLauncher =
           new ServerLauncher.Builder().setCommand(ServerLauncher.Command.STOP)
               .setPid(pid).setWorkingDirectory(workingDirectory).build();
 
@@ -86,7 +85,7 @@ public class StopServerCommand extends OfflineGfshCommand {
               serverState.getMemberName(), serverState.getPid(), serverState.getLogFile()),
           null);
 
-      StopWatch stopWatch = new StopWatch(true);
+      var stopWatch = new StopWatch(true);
       while (serverState.isVmWithProcessIdRunning()) {
         Gfsh.print(".");
         if (stopWatch.elapsedTimeMillis() > WAITING_FOR_STOP_TO_MAKE_PID_GO_AWAY_TIMEOUT_MILLIS) {

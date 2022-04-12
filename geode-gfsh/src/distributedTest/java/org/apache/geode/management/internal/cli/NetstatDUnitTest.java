@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -60,9 +59,9 @@ public class NetstatDUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    MemberVM locator0 = lsRule.startLocatorVM(0);
+    var locator0 = lsRule.startLocatorVM(0);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("groups", GROUP_1);
     server0 = lsRule.startServerVM(1, props, locator0.getPort());
     props.setProperty("groups", GROUP_2);
@@ -79,8 +78,8 @@ public class NetstatDUnitTest {
     gfsh.executeAndAssertThat("netstat").statusIsSuccess()
         .doesNotContainOutput("Could not execute");
 
-    String rawOutput = gfsh.getGfshOutput();
-    String[] lines = rawOutput.split("\n");
+    var rawOutput = gfsh.getGfshOutput();
+    var lines = rawOutput.split("\n");
 
     assertThat(lines.length).isGreaterThan(5);
     assertThat(lines[4].trim().split("[,\\s]+")).containsExactlyInAnyOrder("locator-0",
@@ -94,8 +93,8 @@ public class NetstatDUnitTest {
         .statusIsSuccess()
         .doesNotContainOutput("Could not execute");
 
-    String rawOutput = gfsh.getGfshOutput();
-    String[] lines = rawOutput.split("\n");
+    var rawOutput = gfsh.getGfshOutput();
+    var lines = rawOutput.split("\n");
 
     assertThat(lines.length).isGreaterThan(5);
     assertThat(lines[4].trim().split("[,\\s]+")).containsExactlyInAnyOrder("server-1");
@@ -107,8 +106,8 @@ public class NetstatDUnitTest {
     gfsh.executeAndAssertThat("netstat --member=server-1 --with-lsof")
         .statusIsSuccess().doesNotContainOutput("Could not execute");
 
-    String rawOutput = gfsh.getGfshOutput();
-    String[] lines = rawOutput.split("\n");
+    var rawOutput = gfsh.getGfshOutput();
+    var lines = rawOutput.split("\n");
 
     assertThat(lines.length).isGreaterThan(5);
     assertThat(lines[4].trim().split("[,\\s]+")).containsExactlyInAnyOrder("server-1");
@@ -117,12 +116,12 @@ public class NetstatDUnitTest {
 
   @Test
   public void testOutputToFile() throws Exception {
-    File outputFile = new File(temp.newFolder(), "command.log.txt");
+    var outputFile = new File(temp.newFolder(), "command.log.txt");
 
     gfsh.executeAndAssertThat("netstat --file=" + outputFile.getAbsolutePath()).statusIsSuccess();
 
     List<String> lines = new ArrayList<>();
-    Scanner scanner = new Scanner(outputFile);
+    var scanner = new Scanner(outputFile);
     while (scanner.hasNextLine()) {
       lines.add(scanner.nextLine());
     }
@@ -137,14 +136,14 @@ public class NetstatDUnitTest {
 
   @Test
   public void testOutputToFileForOneGroup() throws Exception {
-    File outputFile = new File(temp.newFolder(), "command.log.txt");
+    var outputFile = new File(temp.newFolder(), "command.log.txt");
 
     gfsh.executeAndAssertThat(
         String.format("netstat --file=%s --group=%s", outputFile.getAbsolutePath(), GROUP_1))
         .statusIsSuccess();
 
     List<String> lines = new ArrayList<>();
-    Scanner scanner = new Scanner(outputFile);
+    var scanner = new Scanner(outputFile);
     while (scanner.hasNextLine()) {
       lines.add(scanner.nextLine());
     }
@@ -163,15 +162,15 @@ public class NetstatDUnitTest {
     assumeThat(isJavaVersionAtLeast(JavaVersion.JAVA_11))
         .as("Skipping test due to excessive run time when running lsof on JDK 8").isTrue();
 
-    File outputFile = new File(temp.newFolder(), "command.log.txt");
+    var outputFile = new File(temp.newFolder(), "command.log.txt");
 
     @SuppressWarnings("deprecation")
-    CommandResult result =
+    var result =
         gfsh.executeCommand("netstat --with-lsof=true --file=" + outputFile.getAbsolutePath());
     assertThat(result.getStatus()).isEqualTo(Result.Status.OK);
 
     List<String> lines = new ArrayList<>();
-    Scanner scanner = new Scanner(outputFile);
+    var scanner = new Scanner(outputFile);
     while (scanner.hasNextLine()) {
       lines.add(scanner.nextLine());
     }

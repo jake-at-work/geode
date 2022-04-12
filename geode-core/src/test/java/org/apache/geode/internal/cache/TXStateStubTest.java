@@ -27,9 +27,9 @@ public class TXStateStubTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    TXStateStub mockTXStateStub = mock(TXStateStub.class);
-    TXRegionStub mockTXRegionStub = mock(TXRegionStub.class);
-    LocalRegion mockLocalRegion = mock(LocalRegion.class);
+    var mockTXStateStub = mock(TXStateStub.class);
+    var mockTXRegionStub = mock(TXRegionStub.class);
+    var mockLocalRegion = mock(LocalRegion.class);
     when(mockTXStateStub.getTXRegionStub(eq(mockLocalRegion))).thenReturn(mockTXRegionStub);
     assertThat(mockTXStateStub.getTXRegionStub(mockLocalRegion)).isSameAs(mockTXRegionStub);
   }

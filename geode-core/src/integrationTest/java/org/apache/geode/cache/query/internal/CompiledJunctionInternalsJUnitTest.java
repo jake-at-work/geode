@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +38,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.IndexType;
@@ -47,7 +45,6 @@ import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Address;
 import org.apache.geode.cache.query.data.Employee;
 import org.apache.geode.cache.query.data.Portfolio;
-import org.apache.geode.cache.query.internal.index.IndexManager;
 import org.apache.geode.cache.query.internal.parse.OQLLexerTokenTypes;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -78,23 +75,23 @@ public class CompiledJunctionInternalsJUnitTest {
   // RangeJunctionEvaluators for AND
   @Test
   public void testMultipleRangeJunctionsInAGroupJunction() {
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "portfolio p, p.positions");
     ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
     context.newScope(context.associateScopeID());
     try {
       qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
 
       // case id > 7 and id < 10 and status > abc and status < xyz
-      CompiledComparison[] cv = new CompiledComparison[4];
+      var cv = new CompiledComparison[4];
 
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_GT);
@@ -104,24 +101,24 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(10), OQLLexerTokenTypes.TOK_LT);
       cv[3] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
           new CompiledLiteral("xyz"), OQLLexerTokenTypes.TOK_LT);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("The Organized operand object is null", oo);
       assertTrue("Filter Operand  did not happen to be an instance of GroupJunction",
           oo.filterOperand instanceof GroupJunction);
       assertNull("Iterate Operand  not coming out to be null", oo.iterateOperand);
       assertTrue("The Conditions in GroupJunction not equal to 2",
           ((GroupJunction) oo.filterOperand).getOperands().size() == 2);
-      GroupJunction gj = (GroupJunction) oo.filterOperand;
+      var gj = (GroupJunction) oo.filterOperand;
       assertTrue(gj.getOperands().get(0) instanceof RangeJunction);
       assertTrue(gj.getOperands().get(1) instanceof RangeJunction);
-      RangeJunction r1 = (RangeJunction) gj.getOperands().get(0);
-      RangeJunction r2 = (RangeJunction) gj.getOperands().get(1);
+      var r1 = (RangeJunction) gj.getOperands().get(0);
+      var r2 = (RangeJunction) gj.getOperands().get(1);
       assertEquals(2, r1._operands.length);
       assertEquals(2, r2._operands.length);
-      OrganizedOperands oo2 = r1.organizeOperands(context);
+      var oo2 = r1.organizeOperands(context);
       assertTrue(RangeJunction.isInstanceOfDoubleCondnRangeJunctionEvaluator(oo2.filterOperand));
       oo2 = r2.organizeOperands(context);
       assertTrue(RangeJunction.isInstanceOfDoubleCondnRangeJunctionEvaluator(oo2.filterOperand));
@@ -137,7 +134,7 @@ public class CompiledJunctionInternalsJUnitTest {
   // RangeJunctions and a sinlge indexable compiledcomparison for AND
   @Test
   public void testMultipleRangeJunctionsAndAnIndexableConditionInAGroupJunction() {
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "portfolio p, p.positions");
     ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
     context.newScope(context.associateScopeID());
@@ -145,17 +142,17 @@ public class CompiledJunctionInternalsJUnitTest {
       qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
       qs.createIndex("createTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "portfolio");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
 
       // case id > 7 and id < 10 and status > abc and status < xyz and
       // createTime >7
-      CompiledComparison[] cv = new CompiledComparison[5];
+      var cv = new CompiledComparison[5];
 
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_GT);
@@ -167,21 +164,21 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral("xyz"), OQLLexerTokenTypes.TOK_LT);
       cv[4] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "createTime"),
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_GT);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("The Organized operand object is null", oo);
       assertTrue("Filter Operand  did not happen to be an instance of GroupJunction",
           oo.filterOperand instanceof GroupJunction);
       assertNull("Iterate Operand  not coming out to be null", oo.iterateOperand);
       assertTrue("The Conditions in GroupJunction not equal to 3",
           ((GroupJunction) oo.filterOperand).getOperands().size() == 3);
-      GroupJunction gj = (GroupJunction) oo.filterOperand;
-      CompiledValue[] ops = gj._operands;
-      int index = -1;
-      int one = -1;
-      int two = -1;
+      var gj = (GroupJunction) oo.filterOperand;
+      var ops = gj._operands;
+      var index = -1;
+      var one = -1;
+      var two = -1;
       if (ops[0] == cv[4]) {
         index = 0;
         one = 1;
@@ -201,11 +198,11 @@ public class CompiledJunctionInternalsJUnitTest {
       assertTrue(ops[one] instanceof RangeJunction);
       assertTrue(ops[two] instanceof RangeJunction);
 
-      RangeJunction r1 = (RangeJunction) gj._operands[one];
-      RangeJunction r2 = (RangeJunction) gj._operands[two];
+      var r1 = (RangeJunction) gj._operands[one];
+      var r2 = (RangeJunction) gj._operands[two];
       assertEquals(2, r1._operands.length);
       assertEquals(2, r2._operands.length);
-      OrganizedOperands oo2 = r1.organizeOperands(context);
+      var oo2 = r1.organizeOperands(context);
       assertTrue(RangeJunction.isInstanceOfDoubleCondnRangeJunctionEvaluator(oo2.filterOperand));
       oo2 = r2.organizeOperands(context);
       assertTrue(RangeJunction.isInstanceOfDoubleCondnRangeJunctionEvaluator(oo2.filterOperand));
@@ -226,15 +223,15 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testSingleRangeJunctionInACompositeGroupJunction() {
     try {
-      Region r3 = CacheUtils.createRegion("employees", Employee.class);
+      var r3 = CacheUtils.createRegion("employees", Employee.class);
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
       // compileFromClause returns a List<CompiledIteratorDef>
-      QCompiler compiler = new QCompiler();
+      var compiler = new QCompiler();
       List list = compiler
           .compileFromClause(SEPARATOR + "portfolio p, p.positions," + SEPARATOR + "employees e");
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -244,14 +241,14 @@ public class CompiledJunctionInternalsJUnitTest {
       // IndexType.FUNCTIONAL,"status","/portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
       qs.createIndex("empid", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employees");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[6];
+      var cv = new CompiledComparison[6];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
           new CompiledLiteral("active"), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "type"),
@@ -264,26 +261,26 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(3), OQLLexerTokenTypes.TOK_GT);
       cv[5] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(10), OQLLexerTokenTypes.TOK_LT);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OO is null", oo);
       assertTrue("Filter operand of OO not CompositeGroupJunction",
           oo.filterOperand instanceof CompositeGroupJunction);
-      CompositeGroupJunction cgj = (CompositeGroupJunction) oo.filterOperand;
-      List filterableCC = cgj.getFilterableCCList();
+      var cgj = (CompositeGroupJunction) oo.filterOperand;
+      var filterableCC = cgj.getFilterableCCList();
       assertTrue("No. of filterable CC  not equal to 1", filterableCC.size() == 1);
       assertNotNull("1 RangeJunction inside CompositeGroupJunction should have existed",
           cgj.getGroupJunctionList());
       assertTrue(" Complete expansion flag should have been true", cgj.getExpansionFlag());
       assertNotNull("Iter operands list in CGJ should  be not null", cgj.getIterOperands());
-      List ietrOps = cgj.getIterOperands();
+      var ietrOps = cgj.getIterOperands();
       assertTrue(ietrOps.contains(cv[2]));
       assertTrue(cgj.getGroupJunctionList().size() == 1);
       assertTrue(cgj.getGroupJunctionList().get(0) instanceof RangeJunction);
-      RangeJunction rg = (RangeJunction) cgj.getGroupJunctionList().get(0);
-      OrganizedOperands oo1 = rg.organizeOperands(context);
+      var rg = (RangeJunction) cgj.getGroupJunctionList().get(0);
+      var oo1 = rg.organizeOperands(context);
       assertTrue(((CompiledJunction) oo1.iterateOperand).getOperands().contains(cv[0]));
       assertTrue(((CompiledJunction) oo1.iterateOperand).getOperands().contains(cv[1]));
       assertTrue(RangeJunction.isInstanceOfDoubleCondnRangeJunctionEvaluator(oo1.filterOperand));
@@ -315,28 +312,28 @@ public class CompiledJunctionInternalsJUnitTest {
     // conditions of the other
     // independent iterator becoming the part of this single RangeJunction
     try {
-      Region r3 = CacheUtils.createRegion("employees", Employee.class);
+      var r3 = CacheUtils.createRegion("employees", Employee.class);
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
       // compileFromClause returns a List<CompiledIteratorDef>
-      QCompiler compiler = new QCompiler();
+      var compiler = new QCompiler();
       List list = compiler
           .compileFromClause(SEPARATOR + "portfolio p, p.positions," + SEPARATOR + "employees e");
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
       context.newScope(context.associateScopeID());
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio p");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[5];
+      var cv = new CompiledComparison[5];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
           new CompiledLiteral("active"), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "type"),
@@ -348,15 +345,15 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(10), OQLLexerTokenTypes.TOK_GT);
       cv[4] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(15), OQLLexerTokenTypes.TOK_GT);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OO is null", oo);
       assertTrue("Filter operand of OO not a RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var rj = (RangeJunction) oo.filterOperand;
+      var oo1 = rj.organizeOperands(context);
       assertTrue(((CompiledJunction) oo1.iterateOperand).getOperands().contains(cv[0]));
       assertTrue(((CompiledJunction) oo1.iterateOperand).getOperands().contains(cv[1]));
       assertTrue(((CompiledJunction) oo1.iterateOperand).getOperands().contains(cv[2]));
@@ -379,15 +376,15 @@ public class CompiledJunctionInternalsJUnitTest {
   public void testMultipleIndependentRegionsWithRangeJunction() {
 
     try {
-      Region r3 = CacheUtils.createRegion("employees", Employee.class);
+      var r3 = CacheUtils.createRegion("employees", Employee.class);
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
       // compileFromClause returns a List<CompiledIteratorDef>
-      QCompiler compiler = new QCompiler();
+      var compiler = new QCompiler();
       List list = compiler
           .compileFromClause(SEPARATOR + "portfolio p, p.positions," + SEPARATOR + "employees e");
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -397,14 +394,14 @@ public class CompiledJunctionInternalsJUnitTest {
       // IndexType.FUNCTIONAL,"status","/portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio p");
       qs.createIndex("empid", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employees e");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[5];
+      var cv = new CompiledComparison[5];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
           new CompiledLiteral("active"), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "type"),
@@ -416,15 +413,15 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(10), OQLLexerTokenTypes.TOK_GT);
       cv[4] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(15), OQLLexerTokenTypes.TOK_GT);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OO is null", oo);
       assertTrue("Filter operand of OO not AllGroupJunction",
           oo.filterOperand instanceof AllGroupJunction);
-      AllGroupJunction agj = (AllGroupJunction) oo.filterOperand;
-      List filterableCC = agj.getGroupOperands();
+      var agj = (AllGroupJunction) oo.filterOperand;
+      var filterableCC = agj.getGroupOperands();
       assertTrue(agj.getIterOperands().isEmpty());
       assertTrue(agj.getGroupOperands().size() == 2);
       assertTrue(agj.getGroupOperands().get(0) instanceof GroupJunction
@@ -438,7 +435,7 @@ public class CompiledJunctionInternalsJUnitTest {
         rj = (RangeJunction) agj.getGroupOperands().get(1);
       }
 
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var oo1 = rj.organizeOperands(context);
       assertTrue(oo1.filterOperand == cv[4]);
       assertNotNull(oo1.iterateOperand);
       assertTrue(((CompiledJunction) oo1.iterateOperand).getOperands().contains(cv[0]));
@@ -458,31 +455,31 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testOrganizedOperandsSingleGroupJunctionSingleFilter() {
     // compileFromClause returns a List<CompiledIteratorDef>
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "portfolio p, p.positions");
     ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
     context.newScope(context.associateScopeID());
     try {
       qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[3];
+      var cv = new CompiledComparison[3];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(2), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
           new CompiledLiteral("active"), OQLLexerTokenTypes.TOK_EQ);
       cv[2] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "type"),
           new CompiledLiteral("type1"), OQLLexerTokenTypes.TOK_EQ);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("The Organized operand object is null", oo);
       assertTrue("Filter Operand  did not happen to be an instance of GroupJunction",
           oo.filterOperand instanceof GroupJunction);
@@ -503,21 +500,21 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testOrganizedOperandsSingleGroupJunctionMultipleFilter() {
     // compileFromClause returns a List<CompiledIteratorDef>
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "portfolio p, p.positions");
     ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
     context.newScope(context.associateScopeID());
     try {
       qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[4];
+      var cv = new CompiledComparison[4];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(2), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
@@ -526,21 +523,21 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral("type1"), OQLLexerTokenTypes.TOK_EQ);
       cv[3] = new CompiledComparison(new CompiledLiteral(Boolean.TRUE),
           new CompiledLiteral(Boolean.TRUE), OQLLexerTokenTypes.TOK_EQ);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type CompiledJunction",
           oo.filterOperand instanceof CompiledJunction);
-      CompiledJunction temp = (CompiledJunction) oo.filterOperand;
+      var temp = (CompiledJunction) oo.filterOperand;
       List operands = temp.getOperands();
       assertTrue("The number of Filter operands not coming to be 2", operands.size() == 2);
       assertTrue(
           "The independent operand shoudl be the first operand of the set of Filter Operands",
           operands.get(0) == cv[3]);
       assertTrue(operands.get(1) instanceof GroupJunction);
-      List temp1 = ((GroupJunction) operands.get(1)).getOperands();
+      var temp1 = ((GroupJunction) operands.get(1)).getOperands();
       assertTrue("The number & nature of CompiledComparison of Group Junction not as expected",
           temp1.get(0) == cv[0]);
       assertTrue("The number & nature of CompiledComparison of Group Junction not as expected",
@@ -562,15 +559,15 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testOrganizedOperandsGroupJunctionSingleFilterDoubleRegion() {
     try {
-      Region r3 = CacheUtils.createRegion("employees", Employee.class);
+      var r3 = CacheUtils.createRegion("employees", Employee.class);
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
       // compileFromClause returns a List<CompiledIteratorDef>
-      QCompiler compiler = new QCompiler();
+      var compiler = new QCompiler();
       List list = compiler
           .compileFromClause(SEPARATOR + "portfolio p, p.positions," + SEPARATOR + "employees e");
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -578,29 +575,29 @@ public class CompiledJunctionInternalsJUnitTest {
 
       qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[3];
+      var cv = new CompiledComparison[3];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(2), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
           new CompiledLiteral("active"), OQLLexerTokenTypes.TOK_EQ);
       cv[2] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "type"),
           new CompiledLiteral("type1"), OQLLexerTokenTypes.TOK_EQ);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OO turning out to be null", oo);
       assertTrue("Filter operand of OO not a GroupJunction",
           oo.filterOperand instanceof GroupJunction);
-      GroupJunction temp = (GroupJunction) oo.filterOperand;
-      List operands = temp.getOperands();
+      var temp = (GroupJunction) oo.filterOperand;
+      var operands = temp.getOperands();
       assertTrue("No. of conditions in Group Junction not as expected of size 3",
           operands.size() == 3);
       assertNull("The iter operand of OO should have bee null", oo.iterateOperand);
@@ -618,15 +615,15 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testOrganizedOperandsSingleCompositeGroupJunctionSingleFilterDoubleRegionWithNoGroupJunction() {
     try {
-      Region r3 = CacheUtils.createRegion("employees", Employee.class);
+      var r3 = CacheUtils.createRegion("employees", Employee.class);
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
       // compileFromClause returns a List<CompiledIteratorDef>
-      QCompiler compiler = new QCompiler();
+      var compiler = new QCompiler();
       List list = compiler
           .compileFromClause(SEPARATOR + "portfolio p, p.positions," + SEPARATOR + "employees e");
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -636,14 +633,14 @@ public class CompiledJunctionInternalsJUnitTest {
       // IndexType.FUNCTIONAL,"status","/portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
       qs.createIndex("empid", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employees");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[4];
+      var cv = new CompiledComparison[4];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
           new CompiledLiteral("active"), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "type"),
@@ -652,15 +649,15 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(1), OQLLexerTokenTypes.TOK_EQ);
       cv[3] = new CompiledComparison(new CompiledPath(new CompiledID("e"), "empId"),
           new CompiledPath(new CompiledID("p"), "ID"), OQLLexerTokenTypes.TOK_EQ);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OO is null", oo);
       assertTrue("Filter operand of OO not CompositeGroupJunction",
           oo.filterOperand instanceof CompositeGroupJunction);
-      CompositeGroupJunction cgj = (CompositeGroupJunction) oo.filterOperand;
-      List filterableCC = cgj.getFilterableCCList();
+      var cgj = (CompositeGroupJunction) oo.filterOperand;
+      var filterableCC = cgj.getFilterableCCList();
       assertTrue("No. of filterable CC  not equal to 1", filterableCC.size() == 1);
       assertNull("No GroupJunction inside CompositeGroupJunction should have existed",
           cgj.getGroupJunctionList());
@@ -687,15 +684,15 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testOrganizedOperandsGroupJunctionDoubleFilterDoubleRegion() {
     try {
-      Region r3 = CacheUtils.createRegion("employees", Employee.class);
+      var r3 = CacheUtils.createRegion("employees", Employee.class);
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
       // compileFromClause returns a List<CompiledIteratorDef>
-      QCompiler compiler = new QCompiler();
+      var compiler = new QCompiler();
       List list = compiler
           .compileFromClause(SEPARATOR + "portfolio p, p.positions," + SEPARATOR + "employees e");
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -703,14 +700,14 @@ public class CompiledJunctionInternalsJUnitTest {
 
       qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[5];
+      var cv = new CompiledComparison[5];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(2), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
@@ -721,21 +718,21 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(1), OQLLexerTokenTypes.TOK_EQ);
       cv[4] = new CompiledComparison(new CompiledLiteral(Boolean.TRUE),
           new CompiledLiteral(Boolean.TRUE), OQLLexerTokenTypes.TOK_EQ);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OO is null", oo);
       assertTrue("Filter Operand of OO is not CompiledJunction",
           oo.filterOperand instanceof CompiledJunction);
-      CompiledJunction cj1 = ((CompiledJunction) oo.filterOperand);
+      var cj1 = ((CompiledJunction) oo.filterOperand);
       assertTrue("Filter opreands of OO not of size 2", cj1.getOperands().size() == 2);
       assertTrue("Indpenednet operand is not the first operand of OO filter",
           cj1.getOperands().get(0) == cv[4]);
       assertTrue("Second Operand of OO Filter not a GroupJunction ",
           cj1.getOperands().get(1) instanceof GroupJunction);
-      GroupJunction gj = ((GroupJunction) cj1.getOperands().get(1));
-      List opsGJ = gj.getOperands();
+      var gj = ((GroupJunction) cj1.getOperands().get(1));
+      var opsGJ = gj.getOperands();
       // List its = agj.getIterOperands();
       assertTrue("Operands in GroupJunction not of size 3", opsGJ.size() == 3);
       assertTrue("Complete expansion flag of GroupJunction should be true", gj.getExpansionFlag());
@@ -756,15 +753,15 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testOrganizedOperandsAllGroupJunctionWithTwoGroupJunctions() {
     try {
-      Region r3 = CacheUtils.createRegion("employees", Employee.class);
+      var r3 = CacheUtils.createRegion("employees", Employee.class);
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
       // compileFromClause returns a List<CompiledIteratorDef>
-      QCompiler compiler = new QCompiler();
+      var compiler = new QCompiler();
       List list = compiler
           .compileFromClause(SEPARATOR + "portfolio p, p.positions," + SEPARATOR + "employees e");
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -773,14 +770,14 @@ public class CompiledJunctionInternalsJUnitTest {
       qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolio");
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
       qs.createIndex("empidIndex", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employees");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[5];
+      var cv = new CompiledComparison[5];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(2), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
@@ -791,14 +788,14 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(1), OQLLexerTokenTypes.TOK_EQ);
       cv[4] = new CompiledComparison(new CompiledPath(new CompiledID("e"), "empId"),
           new CompiledLiteral(1), OQLLexerTokenTypes.TOK_EQ);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OO is null", oo);
       assertTrue("Filter Operand of OO is not AllGroupJunction",
           oo.filterOperand instanceof AllGroupJunction);
-      AllGroupJunction agj = ((AllGroupJunction) oo.filterOperand);
+      var agj = ((AllGroupJunction) oo.filterOperand);
       assertTrue("No of GroupJunctions should be2", agj.getGroupOperands().size() == 2);
       assertNull("Iter operand of OO is not null", oo.iterateOperand);
     } catch (Exception e) {
@@ -821,19 +818,19 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testOrganizedOperandsAllGroupJunctionWithOneGroupJunctionAndOneCompositeGroupJunction() {
     try {
-      Region r3 = CacheUtils.createRegion("employees", Employee.class);
+      var r3 = CacheUtils.createRegion("employees", Employee.class);
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
-      Region r4 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-      for (int i = 0; i < 4; i++) {
+      var r4 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+      for (var i = 0; i < 4; i++) {
         r4.put(i + "", new Portfolio(i));
       }
       // compileFromClause returns a List<CompiledIteratorDef>
-      QCompiler compiler = new QCompiler();
+      var compiler = new QCompiler();
       List list =
           compiler.compileFromClause(SEPARATOR + "portfolio p, p.positions," + SEPARATOR
               + "employees e, " + SEPARATOR + "portfolio1 p1");
@@ -844,14 +841,14 @@ public class CompiledJunctionInternalsJUnitTest {
       qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
       qs.createIndex("idIndex1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
       qs.createIndex("empidIndex", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employees");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[5];
+      var cv = new CompiledComparison[5];
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"),
           new CompiledLiteral("active"), OQLLexerTokenTypes.TOK_EQ);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "type"),
@@ -862,14 +859,14 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledPath(new CompiledID("p"), "ID"), OQLLexerTokenTypes.TOK_EQ);
       cv[4] = new CompiledComparison(new CompiledPath(new CompiledID("p1"), "ID"),
           new CompiledLiteral(2), OQLLexerTokenTypes.TOK_EQ);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OO is null", oo);
       assertTrue("Filter Operand of OO is not AllGroupJunction",
           oo.filterOperand instanceof AllGroupJunction);
-      AllGroupJunction agj = ((AllGroupJunction) oo.filterOperand);
+      var agj = ((AllGroupJunction) oo.filterOperand);
       assertTrue("No of GroupJunctions should be 2", agj.getGroupOperands().size() == 2);
       assertNotNull("The Iter operand should be not null", agj.getIterOperands());
       assertTrue("The Iter operand should be of size = 1", agj.getIterOperands().size() == 1);
@@ -877,12 +874,12 @@ public class CompiledJunctionInternalsJUnitTest {
           agj.getIterOperands().get(0) == cv[2]);
       // The List below should have two elements . One a GroupJunction & another
       // a CompositeGroupJunction
-      List groupOps = agj.getGroupOperands();
-      Iterator itr = groupOps.iterator();
+      var groupOps = agj.getGroupOperands();
+      var itr = groupOps.iterator();
       CompositeGroupJunction cgj = null;
       GroupJunction gj = null;
       while (itr.hasNext()) {
-        Object temp = itr.next();
+        var temp = itr.next();
         if (temp instanceof CompositeGroupJunction) {
           cgj = (CompositeGroupJunction) temp;
         } else if (temp instanceof GroupJunction) {
@@ -915,26 +912,26 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testOrganizedOperandsSingleCompositeGroupJunctionSingleFilterFourRegionsWithNoGroupJunction() {
     try {
-      Region r3 = CacheUtils.createRegion("employees", Employee.class);
+      var r3 = CacheUtils.createRegion("employees", Employee.class);
       Set add1 = new HashSet();
       add1.add(new Address("411045", "Baner"));
       add1.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r3.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
-      Region r2 = CacheUtils.createRegion("employees1", Employee.class);
+      var r2 = CacheUtils.createRegion("employees1", Employee.class);
       Set add2 = new HashSet();
       add2.add(new Address("411045", "Baner"));
       add2.add(new Address("411001", "DholePatilRd"));
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         r2.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
       }
-      Region r4 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-      for (int i = 0; i < 4; i++) {
+      var r4 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+      for (var i = 0; i < 4; i++) {
         r4.put(i + "", new Portfolio(i));
       }
       // compileFromClause returns a List<CompiledIteratorDef>
-      QCompiler compiler = new QCompiler();
+      var compiler = new QCompiler();
       List list = compiler.compileFromClause(
           SEPARATOR + "portfolio p, p.positions," + SEPARATOR + "employees e, " + SEPARATOR
               + "employees1 e1, " + SEPARATOR + "portfolio p1");
@@ -947,14 +944,14 @@ public class CompiledJunctionInternalsJUnitTest {
       qs.createIndex("empid", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employees");
       qs.createIndex("empid1", IndexType.FUNCTIONAL, "empId", SEPARATOR + "employees1");
       qs.createIndex("idIndex1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
-      for (final Object o : list) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+      for (final var o : list) {
+        var iterDef = (CompiledIteratorDef) o;
         context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         context.addToIndependentRuntimeItrMap(iterDef);
       }
-      CompiledComparison[] cv = new CompiledComparison[3];
+      var cv = new CompiledComparison[3];
       /*
        * cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "status"), new
        * CompiledLiteral(new String("active")), OQLLexerTokenTypes.TOK_EQ); cv[1] = new
@@ -969,15 +966,15 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledPath(new CompiledID("p1"), "ID"), OQLLexerTokenTypes.TOK_EQ);
       cv[2] = new CompiledComparison(new CompiledPath(new CompiledID("e1"), "empId"),
           new CompiledPath(new CompiledID("p"), "ID"), OQLLexerTokenTypes.TOK_EQ);
-      CompiledJunction cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
+      var cj = new CompiledJunction(cv, OQLLexerTokenTypes.LITERAL_and);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
-      OrganizedOperands oo = cj.testOrganizedOperands(context);
+      var oo = cj.testOrganizedOperands(context);
       assertNotNull("OO is null", oo);
       assertTrue("Filter operand of OO not CompositeGroupJunction",
           oo.filterOperand instanceof CompositeGroupJunction);
-      CompositeGroupJunction cgj = (CompositeGroupJunction) oo.filterOperand;
-      List filterableCC = cgj.getFilterableCCList();
+      var cgj = (CompositeGroupJunction) oo.filterOperand;
+      var filterableCC = cgj.getFilterableCCList();
       assertTrue("No. of filterable CC  not equal to 3", filterableCC.size() == 3);
       assertNull("No GroupJunction inside CompositeGroupJunction should have existed",
           cgj.getGroupJunctionList());
@@ -1004,7 +1001,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsSingleRangeJunctionCreationWithNoIterOperandForAND() {
-    LogWriter logger = CacheUtils.getLogger();
+    var logger = CacheUtils.getLogger();
     try {
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
       bindIteratorsAndCreateIndex(context);
@@ -1034,12 +1031,12 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_GE);
       cv[11] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_NE);
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
+      var rj = (RangeJunction) oo.filterOperand;
       assertEquals(cv.length, rj.getOperands().size());
     } catch (Exception e) {
       logger.error(e);
@@ -1053,7 +1050,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsSingleRangeJunctionCreationWithIterOperandForAND() {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1086,12 +1083,12 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[12] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "createTime"),
           new CompiledLiteral(7L), OQLLexerTokenTypes.TOK_NE);
 
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
+      var rj = (RangeJunction) oo.filterOperand;
       assertEquals(cv.length, rj.getOperands().size());
     } catch (Exception e) {
       logger.error(e);
@@ -1106,7 +1103,7 @@ public class CompiledJunctionInternalsJUnitTest {
   @Ignore
   @Test
   public void testOrganizedOperandsSingleRangeJunctionCreationWithNoIterOperandForOR() {
-    LogWriter logger = CacheUtils.getLogger();
+    var logger = CacheUtils.getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1136,12 +1133,12 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_GE);
       cv[11] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_NE);
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_or, cv, context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type CompiledJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
+      var rj = (RangeJunction) oo.filterOperand;
       assertEquals(cv.length, rj.getOperands().size());
     } catch (Exception e) {
       logger.error(e);
@@ -1162,7 +1159,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsOfSingleRangeJunctionWithNoIterOperandForAND_1() {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1175,14 +1172,14 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[2] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(2), OQLLexerTokenTypes.TOK_LT);
 
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
+      var rj = (RangeJunction) oo.filterOperand;
       assertEquals(cv.length, rj.getOperands().size());
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var oo1 = rj.organizeOperands(context);
       assertNotNull(oo1);
       assertNull(oo1.iterateOperand);
       assertNotNull(oo1.filterOperand);
@@ -1203,7 +1200,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsOfSingleRangeJunctionWithNoIterOperandForAND_2() {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1216,14 +1213,14 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[2] = new CompiledComparison(new CompiledLiteral(2),
           new CompiledPath(new CompiledID("p"), "ID"), OQLLexerTokenTypes.TOK_GT);
 
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
+      var rj = (RangeJunction) oo.filterOperand;
       assertEquals(cv.length, rj.getOperands().size());
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var oo1 = rj.organizeOperands(context);
       assertNotNull(oo1);
       assertNull(oo1.iterateOperand);
       assertNotNull(oo1.filterOperand);
@@ -1248,7 +1245,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsOfSingleRangeJunctionWithIterOperandForAND_1() {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1262,14 +1259,14 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledPath(new CompiledID("p"), "ID"), OQLLexerTokenTypes.TOK_GT);
       cv[3] = new CompiledComparison(new CompiledLiteral(2),
           new CompiledPath(new CompiledID("p"), "createTime"), OQLLexerTokenTypes.TOK_GT);
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
+      var rj = (RangeJunction) oo.filterOperand;
       assertEquals(cv.length, rj.getOperands().size());
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var oo1 = rj.organizeOperands(context);
       assertNotNull(oo1);
       assertEquals(cv[3], oo1.iterateOperand);
       assertEquals(oo1.filterOperand, cv[2]);
@@ -1292,7 +1289,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsOfSingleRangeJunctionWithTwoIterOperandsForAND_2() {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1308,14 +1305,14 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledPath(new CompiledID("p"), "createTime"), OQLLexerTokenTypes.TOK_GT);
       cv[4] = new CompiledComparison(new CompiledLiteral("xyz"),
           new CompiledPath(new CompiledID("p"), "getPk"), OQLLexerTokenTypes.TOK_GT);
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
+      var rj = (RangeJunction) oo.filterOperand;
       assertEquals(cv.length, rj.getOperands().size());
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var oo1 = rj.organizeOperands(context);
       assertNotNull(oo1);
       assertTrue(oo1.iterateOperand instanceof CompiledJunction);
       assertTrue(oo1.iterateOperand.getChildren().size() == 2);
@@ -1339,7 +1336,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsOfSingleRangeJunctionWithTwoIterOperandsForAND_3() {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1365,21 +1362,21 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[7] = new CompiledComparison(new CompiledLiteral(1),
           new CompiledPath(new CompiledID("p"), "ID"), OQLLexerTokenTypes.TOK_NE);
 
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
+      var rj = (RangeJunction) oo.filterOperand;
       assertEquals(cv.length, rj.getOperands().size());
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var oo1 = rj.organizeOperands(context);
       assertNotNull(oo1);
       assertTrue(oo1.iterateOperand instanceof CompiledJunction);
       assertTrue(oo1.iterateOperand.getChildren().size() == 2);
       assertTrue(oo1.iterateOperand.getChildren().get(0) == cv[3]);
       assertTrue(oo1.iterateOperand.getChildren().get(1) == cv[4]);
       assertTrue(RangeJunction.isInstanceOfSingleCondnEvaluator(oo1.filterOperand));
-      Set keysToRemove = RangeJunction.getKeysToBeRemoved(oo1.filterOperand);
+      var keysToRemove = RangeJunction.getKeysToBeRemoved(oo1.filterOperand);
       assertEquals(1, keysToRemove.size());
       assertTrue(keysToRemove.contains(1));
 
@@ -1400,7 +1397,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsOfSingleRangeJunctionWithTwoIterOperandsForAND_4() {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1421,21 +1418,21 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[6] = new CompiledComparison(new CompiledLiteral(200),
           new CompiledPath(new CompiledID("p"), "ID"), OQLLexerTokenTypes.TOK_NE);
 
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertNotNull("OrganizedOperand object is null", oo);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
+      var rj = (RangeJunction) oo.filterOperand;
       assertEquals(cv.length, rj.getOperands().size());
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var oo1 = rj.organizeOperands(context);
       assertNotNull(oo1);
       assertTrue(oo1.iterateOperand instanceof CompiledJunction);
       assertTrue(oo1.iterateOperand.getChildren().size() == 2);
       assertTrue(oo1.iterateOperand.getChildren().get(0) == cv[3]);
       assertTrue(oo1.iterateOperand.getChildren().get(1) == cv[4]);
       assertTrue(RangeJunction.isInstanceOfSingleCondnEvaluator(oo1.filterOperand));
-      Set keysToRemove = RangeJunction.getKeysToBeRemoved(oo1.filterOperand);
+      var keysToRemove = RangeJunction.getKeysToBeRemoved(oo1.filterOperand);
       assertEquals(2, keysToRemove.size());
       assertTrue(keysToRemove.contains(100));
       assertTrue(keysToRemove.contains(200));
@@ -1455,7 +1452,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsSingleCondnEvalMultipleGreaterThanInEqualities_AND() {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1472,12 +1469,12 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[3] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_GT);
 
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var rj = (RangeJunction) oo.filterOperand;
+      var oo1 = rj.organizeOperands(context);
       assertTrue(oo1.filterOperand == cv[0] || oo1.filterOperand == cv[3]);
       // Case2: a>=8 and a >4 and a>=6 and a>=8
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
@@ -1769,7 +1766,7 @@ public class CompiledJunctionInternalsJUnitTest {
           RangeJunction.getSingleCondnEvaluatorKey(oo1.filterOperand).equals(8));
       assertTrue(RangeJunction
           .getSingleCondnEvaluatorOperator(oo1.filterOperand) == OQLLexerTokenTypes.TOK_GE);
-      Iterator itr = RangeJunction.getKeysToBeRemoved((oo1.filterOperand)).iterator();
+      var itr = RangeJunction.getKeysToBeRemoved((oo1.filterOperand)).iterator();
       Object temp;
       assertTrue((temp = itr.next()).equals(8) || temp.equals(20));
       assertTrue((temp = itr.next()).equals(8) || temp.equals(20));
@@ -1791,7 +1788,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testOrganizedOperandsSingleCondnEvalMultipleLessThanInEqualities_AND() {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -1810,12 +1807,12 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[3] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(4), OQLLexerTokenTypes.TOK_LE);
 
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var rj = (RangeJunction) oo.filterOperand;
+      var oo1 = rj.organizeOperands(context);
       assertTrue(oo1.filterOperand == cv[1] || oo1.filterOperand == cv[3]);
       // Case2: a<=8 and a < 12 and a <=10 and a<=8
       cv[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
@@ -2115,7 +2112,7 @@ public class CompiledJunctionInternalsJUnitTest {
           RangeJunction.getSingleCondnEvaluatorKey(oo1.filterOperand).equals(6));
       assertTrue(RangeJunction
           .getSingleCondnEvaluatorOperator(oo1.filterOperand) == OQLLexerTokenTypes.TOK_LE);
-      Iterator itr = RangeJunction.getKeysToBeRemoved((oo1.filterOperand)).iterator();
+      var itr = RangeJunction.getKeysToBeRemoved((oo1.filterOperand)).iterator();
       Object temp;
       assertTrue((temp = itr.next()).equals(2) || temp.equals(6));
       assertTrue((temp = itr.next()).equals(2) || temp.equals(6));
@@ -2133,7 +2130,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testNotEqualConditionEvaluator_AND() {
-    LogWriter logger = CacheUtils.getLogger();
+    var logger = CacheUtils.getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -2152,20 +2149,20 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[3] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(5), OQLLexerTokenTypes.TOK_NE);
 
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var rj = (RangeJunction) oo.filterOperand;
+      var oo1 = rj.organizeOperands(context);
       assertTrue(RangeJunction.isInstanceOfNotEqualConditionEvaluator(oo1.filterOperand));
-      Set keysRemove = RangeJunction.getKeysToBeRemoved(oo1.filterOperand);
+      var keysRemove = RangeJunction.getKeysToBeRemoved(oo1.filterOperand);
       assertTrue(keysRemove.size() == 3);
       assertTrue(keysRemove.contains(5));
       assertTrue(keysRemove.contains(7));
       assertTrue(keysRemove.contains(4));
       // Case 2 : a != 7 and a != null and a != undefined
-      CompiledValue[] cv1 = new CompiledValue[3];
+      var cv1 = new CompiledValue[3];
       cv1[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_NE);
       cv1[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
@@ -2179,7 +2176,7 @@ public class CompiledJunctionInternalsJUnitTest {
       rj = (RangeJunction) oo.filterOperand;
       oo1 = rj.organizeOperands(context);
       assertTrue(oo1.filterOperand instanceof GroupJunction);
-      CompiledValue[] ops = ((GroupJunction) oo1.filterOperand)._operands;
+      var ops = ((GroupJunction) oo1.filterOperand)._operands;
       // assertTrue(cv1[0] == ops[0] || cv1[0] == ops[1] || cv1[0] == ops[2]);
       if (RangeJunction.isInstanceOfNotEqualConditionEvaluator(ops[0])) {
         assertTrue(
@@ -2213,26 +2210,26 @@ public class CompiledJunctionInternalsJUnitTest {
   @Ignore
   @Test
   public void testNotEqualCoupledWithUndefinedAndNotNull() {
-    LogWriter logger = CacheUtils.getLogger();
+    var logger = CacheUtils.getLogger();
     try {
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
       bindIteratorsAndCreateIndex(context);
       // Case 2 : a != 7 and a != null and a != undefined
-      CompiledValue[] cv1 = new CompiledValue[3];
+      var cv1 = new CompiledValue[3];
       cv1[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_NE);
       cv1[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(null), OQLLexerTokenTypes.TOK_NE);
       cv1[2] = new CompiledUndefined(new CompiledPath(new CompiledID("p"), "ID"), false);
 
-      OrganizedOperands oo = oganizedOperandsSingleRangeJunctionCreation(
+      var oo = oganizedOperandsSingleRangeJunctionCreation(
           OQLLexerTokenTypes.LITERAL_and, cv1, context);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var rj = (RangeJunction) oo.filterOperand;
+      var oo1 = rj.organizeOperands(context);
       assertTrue(oo1.filterOperand instanceof GroupJunction);
-      CompiledValue[] ops = ((GroupJunction) oo1.filterOperand)._operands;
+      var ops = ((GroupJunction) oo1.filterOperand)._operands;
       assertTrue(cv1[0] == ops[0] || cv1[0] == ops[1] || cv1[0] == ops[2]);
       assertTrue(cv1[1] == ops[0] || cv1[1] == ops[1] || cv1[1] == ops[2]);
       assertTrue(cv1[2] == ops[0] || cv1[2] == ops[1] || cv1[2] == ops[2]);
@@ -2249,7 +2246,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testEqualConditionInRangeJunction_AND() {
-    LogWriter logger = CacheUtils.getLogger();
+    var logger = CacheUtils.getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -2268,12 +2265,12 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[3] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(8), OQLLexerTokenTypes.TOK_NE);
 
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var rj = (RangeJunction) oo.filterOperand;
+      var oo1 = rj.organizeOperands(context);
       assertEquals(oo1.filterOperand, cv[0]);
       // Case 2 : a > 7 and a !=4 and a != 5 and a = 8
       cv = new CompiledComparison[4];
@@ -2445,7 +2442,7 @@ public class CompiledJunctionInternalsJUnitTest {
   @Test
   public void testOrganizeOpsOfRangeJunctionForNonRangeEvaluatableOperand() {
 
-    LogWriter logger = CacheUtils.getLogger();
+    var logger = CacheUtils.getLogger();
     try {
       CompiledValue[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -2457,14 +2454,14 @@ public class CompiledJunctionInternalsJUnitTest {
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(null), OQLLexerTokenTypes.TOK_NE);
       cv[2] = new CompiledUndefined(new CompiledPath(new CompiledID("p"), "ID"), false);
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var rj = (RangeJunction) oo.filterOperand;
+      var oo1 = rj.organizeOperands(context);
       assertTrue(oo1.filterOperand instanceof GroupJunction);
-      CompiledValue[] ops = ((GroupJunction) oo1.filterOperand)._operands;
+      var ops = ((GroupJunction) oo1.filterOperand)._operands;
       assertTrue(ops[0] == cv[0] || ops[0] == cv[1] || ops[0] == cv[2]);
       assertTrue(ops[1] == cv[0] || ops[1] == cv[1] || ops[1] == cv[2]);
       assertTrue(ops[2] == cv[0] || ops[2] == cv[1] || ops[2] == cv[2]);
@@ -2481,7 +2478,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testDoubleCondnRangeJunctionEvaluator_AND() {
-    LogWriter logger = CacheUtils.getLogger();
+    var logger = CacheUtils.getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -2492,12 +2489,12 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_GE);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(10), OQLLexerTokenTypes.TOK_LE);
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var rj = (RangeJunction) oo.filterOperand;
+      var oo1 = rj.organizeOperands(context);
       assertTrue(RangeJunction.isInstanceOfDoubleCondnRangeJunctionEvaluator((oo1.filterOperand)));
       assertTrue(RangeJunction.getDoubleCondnEvaluatorGreaterKey((oo1.filterOperand))
           .equals(7));
@@ -2536,7 +2533,7 @@ public class CompiledJunctionInternalsJUnitTest {
           .equals(10));
       assertTrue(RangeJunction.getDoubleCondnEvaluatorOperatorOfLessType(
           (oo1.filterOperand)) == OQLLexerTokenTypes.TOK_LE);
-      Set keysToRemove = RangeJunction.getKeysToBeRemoved((oo1.filterOperand));
+      var keysToRemove = RangeJunction.getKeysToBeRemoved((oo1.filterOperand));
       assertTrue(keysToRemove.size() == 1);
       assertTrue(keysToRemove.iterator().next().equals(7));
 
@@ -2681,7 +2678,7 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   @Test
   public void testNullorNotNullorUndefinedBehaviour() {
-    LogWriter logger = CacheUtils.getLogger();
+    var logger = CacheUtils.getLogger();
     try {
       CompiledComparison[] cv = null;
       ExecutionContext context = new QueryExecutionContext(null, CacheUtils.getCache());
@@ -2692,14 +2689,14 @@ public class CompiledJunctionInternalsJUnitTest {
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_GE);
       cv[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(null), OQLLexerTokenTypes.TOK_EQ);
-      OrganizedOperands oo =
+      var oo =
           oganizedOperandsSingleRangeJunctionCreation(OQLLexerTokenTypes.LITERAL_and, cv, context);
       assertTrue("Filter Openad of OrganizedOperand is not of type RangeJunction",
           oo.filterOperand instanceof RangeJunction);
-      RangeJunction rj = (RangeJunction) oo.filterOperand;
-      OrganizedOperands oo1 = rj.organizeOperands(context);
+      var rj = (RangeJunction) oo.filterOperand;
+      var oo1 = rj.organizeOperands(context);
       assertTrue(oo1.filterOperand instanceof GroupJunction);
-      CompiledValue[] operands = ((GroupJunction) oo1.filterOperand)._operands;
+      var operands = ((GroupJunction) oo1.filterOperand)._operands;
       assertEquals(2, operands.length);
       assertTrue(operands[0] == cv[0] || operands[0] == cv[1]);
       assertTrue(operands[1] == cv[0] || operands[1] == cv[1]);
@@ -2743,14 +2740,14 @@ public class CompiledJunctionInternalsJUnitTest {
       assertTrue(cv[1] == operands[0] || cv[1] == operands[1]);
       assertTrue(RangeJunction.isInstanceOfSingleCondnEvaluator(operands[0])
           || RangeJunction.isInstanceOfSingleCondnEvaluator(operands[1]));
-      int x = -1;
+      var x = -1;
       if (RangeJunction.isInstanceOfSingleCondnEvaluator(operands[0])) {
         x = 0;
       } else if (RangeJunction.isInstanceOfSingleCondnEvaluator(operands[1])) {
         x = 1;
       }
 
-      Object key = RangeJunction.getSingleCondnEvaluatorKey(operands[x]);
+      var key = RangeJunction.getSingleCondnEvaluatorKey(operands[x]);
       assertTrue(key.equals(7));
       assertTrue(
           RangeJunction.getSingleCondnEvaluatorOperator(operands[x]) == OQLLexerTokenTypes.TOK_GE);
@@ -2759,7 +2756,7 @@ public class CompiledJunctionInternalsJUnitTest {
           RangeJunction.getKeysToBeRemoved(operands[x]).iterator().next().equals(7));
 
       // Case 4 : a >= 7 and a == null and a!=7 and a = undefined
-      CompiledValue[] cv1 = new CompiledValue[4];
+      var cv1 = new CompiledValue[4];
       cv1[0] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
           new CompiledLiteral(7), OQLLexerTokenTypes.TOK_GE);
       cv1[1] = new CompiledComparison(new CompiledPath(new CompiledID("p"), "ID"),
@@ -2775,7 +2772,7 @@ public class CompiledJunctionInternalsJUnitTest {
       oo1 = rj.organizeOperands(context);
       assertTrue(oo1.filterOperand instanceof GroupJunction);
       assertEquals(((GroupJunction) oo1.filterOperand)._operands.length, 3);
-      CompiledValue[] ops = ((GroupJunction) oo1.filterOperand)._operands;
+      var ops = ((GroupJunction) oo1.filterOperand)._operands;
       assertTrue(ops[0] == cv1[1] || ops[1] == cv1[1] || ops[2] == cv1[1]);
       assertTrue(ops[0] == cv1[3] || ops[1] == cv1[3] || ops[2] == cv1[3]);
       assertTrue(RangeJunction.isInstanceOfSingleCondnEvaluator(ops[0])
@@ -2852,14 +2849,14 @@ public class CompiledJunctionInternalsJUnitTest {
   }
 
   private void bindIteratorsAndCreateIndex(ExecutionContext context) throws Exception {
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "portfolio p, p.positions");
     context.newScope(context.associateScopeID());
     qs.createIndex("idIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio");
-    for (final Object o : list) {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+    for (final var o : list) {
+      var iterDef = (CompiledIteratorDef) o;
       context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-      RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+      var rIter = iterDef.getRuntimeIterator(context);
       context.bindIterator(rIter);
       context.addToIndependentRuntimeItrMap(iterDef);
     }
@@ -2871,10 +2868,10 @@ public class CompiledJunctionInternalsJUnitTest {
    */
   private OrganizedOperands oganizedOperandsSingleRangeJunctionCreation(int junctionType,
       CompiledValue[] operandsForCJ, ExecutionContext context) {
-    LogWriter logger = CacheUtils.getCache().getLogger();
+    var logger = CacheUtils.getCache().getLogger();
     OrganizedOperands oo = null;
     try {
-      CompiledJunction cj = new CompiledJunction(operandsForCJ, junctionType);
+      var cj = new CompiledJunction(operandsForCJ, junctionType);
       context.addDependencies(new CompiledID("dummy"), cj.computeDependencies(context));
       cj.getPlanInfo(context);
       oo = cj.testOrganizedOperands(context);
@@ -2889,7 +2886,7 @@ public class CompiledJunctionInternalsJUnitTest {
   @After
   public void tearDown() throws Exception {
     CacheUtils.closeCache();
-    IndexManager indexManager = ((LocalRegion) region).getIndexManager();
+    var indexManager = ((LocalRegion) region).getIndexManager();
     if (indexManager != null) {
       indexManager.destroy();
     }

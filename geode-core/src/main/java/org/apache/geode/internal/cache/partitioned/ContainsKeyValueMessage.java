@@ -37,7 +37,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.PrimaryBucketException;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
@@ -85,9 +84,9 @@ public class ContainsKeyValueMessage extends PartitionMessageWithDirectReply {
       throws ForceReattemptException {
     Assert.assertTrue(recipient != null, "PRDistribuedContainsKeyValueMessage NULL reply message");
 
-    ContainsKeyValueResponse p =
+    var p =
         new ContainsKeyValueResponse(r.getSystem(), Collections.singleton(recipient), key);
-    ContainsKeyValueMessage m =
+    var m =
         new ContainsKeyValueMessage(recipient, r.getPRId(), p, key, bucketId, valueCheck);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
 
@@ -108,7 +107,7 @@ public class ContainsKeyValueMessage extends PartitionMessageWithDirectReply {
   @Override
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm, PartitionedRegion r,
       long startTime) throws CacheException, ForceReattemptException {
-    PartitionedRegionDataStore ds = r.getDataStore();
+    var ds = r.getDataStore();
     final boolean replyVal;
     if (ds != null) {
       try {
@@ -129,7 +128,7 @@ public class ContainsKeyValueMessage extends PartitionMessageWithDirectReply {
     } else {
       logger.fatal("Partitioned Region <> is not configured to store data",
           r.getFullPath());
-      ForceReattemptException fre = new ForceReattemptException(
+      var fre = new ForceReattemptException(
           String.format("Partitioned Region %s on %s is not configured to store data",
               r.getFullPath(), dm.getId()));
       fre.setHash(key.hashCode());
@@ -190,7 +189,7 @@ public class ContainsKeyValueMessage extends PartitionMessageWithDirectReply {
     public static void send(InternalDistributedMember recipient, int processorId,
         ReplySender replySender, boolean containsKeyValue) {
       Assert.assertTrue(recipient != null, "ContainsKeyValueReplyMessage NULL reply message");
-      ContainsKeyValueReplyMessage m =
+      var m =
           new ContainsKeyValueReplyMessage(processorId, containsKeyValue);
       m.setRecipient(recipient);
       replySender.putOutgoing(m);
@@ -203,7 +202,7 @@ public class ContainsKeyValueMessage extends PartitionMessageWithDirectReply {
      */
     @Override
     public void process(final DistributionManager dm, ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
 
       if (processor == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -269,7 +268,7 @@ public class ContainsKeyValueMessage extends PartitionMessageWithDirectReply {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof ContainsKeyValueReplyMessage) {
-          ContainsKeyValueReplyMessage reply = (ContainsKeyValueReplyMessage) msg;
+          var reply = (ContainsKeyValueReplyMessage) msg;
           returnValue = reply.doesItContainKeyValue();
           returnValueReceived = true;
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {

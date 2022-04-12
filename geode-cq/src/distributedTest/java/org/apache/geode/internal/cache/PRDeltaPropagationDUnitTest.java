@@ -38,7 +38,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.Delta;
 import org.apache.geode.DeltaTestImpl;
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
@@ -46,25 +45,19 @@ import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.InterestPolicy;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CqListenerAdapter;
 import org.apache.geode.compression.Compressor;
 import org.apache.geode.compression.SnappyCompressor;
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.internal.cache.tier.sockets.ConflationDUnitTestHelper;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -203,7 +196,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
 
     verifyNoCopy();
 
-    PRDeltaTestImpl myDTI = putInitial(); // Does multiple puts
+    var myDTI = putInitial(); // Does multiple puts
 
     // With cloning disabled only single instance
     verifyConstructorCount(1);
@@ -235,7 +228,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     createClientCache(port1, port2);
     client1.invoke(() -> createClientCache(port1, port2));
 
-    int deltaSent = putsWhichReturnsDeltaSent();
+    var deltaSent = putsWhichReturnsDeltaSent();
 
     VM primary;
     VM secondary;
@@ -274,7 +267,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     createClientCache(port1, port2);
     client1.invoke(() -> createClientCache(port1, port2));
 
-    int deltaSent = putsWhichReturnsDeltaSent();
+    var deltaSent = putsWhichReturnsDeltaSent();
 
     VM primary;
     VM secondary;
@@ -321,7 +314,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
 
     createClientCache(port1, true, false, false);
     client1.invoke(() -> createClientCache(port2, true, false, false));
-    int deltaSent = putsWhichReturnsDeltaSent();
+    var deltaSent = putsWhichReturnsDeltaSent();
 
     client1.invoke(this::waitForLastKey);
     client1.invoke(() -> checkDeltaInvoked(deltaSent));
@@ -343,7 +336,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     client1.invoke(() -> createClientCache(port2, true, false, false));
 
     // feed delta
-    DeltaTestImpl test = new DeltaTestImpl();
+    var test = new DeltaTestImpl();
     deltaPR.put(DELTA_KEY, test);
 
     test.setIntVar(10);
@@ -378,7 +371,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     client1.invoke(() -> createClientCache(port2, true, false, false));
 
     // feed delta
-    DeltaTestImpl test = new DeltaTestImpl();
+    var test = new DeltaTestImpl();
     deltaPR.put(DELTA_KEY, test);
 
     test.setIntVar(10);
@@ -416,7 +409,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     createClientCache(port1, false, false, false);
 
     // feed delta
-    DeltaTestImpl test = new DeltaTestImpl();
+    var test = new DeltaTestImpl();
     deltaPR.put(DELTA_KEY, test);
 
     test.setIntVar(10);
@@ -464,7 +457,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     checkCloning();
 
     // feed delta
-    DeltaTestImpl test = new DeltaTestImpl(8, "");
+    var test = new DeltaTestImpl(8, "");
     deltaPR.put(DELTA_KEY, test);
 
     test.setIntVar(10);
@@ -491,8 +484,8 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
    */
   @Test
   public void testClientOnAccessorReceivesCqEvents() throws Exception {
-    Object[] args1 = new Object[] {REGION_NAME, 1, 0, 8, false, null};
-    Object[] args2 = new Object[] {REGION_NAME, 1, 50, 8, false, null};
+    var args1 = new Object[] {REGION_NAME, 1, 0, 8, false, null};
+    var args2 = new Object[] {REGION_NAME, 1, 50, 8, false, null};
 
     dataStore2.invoke(() -> createCacheServerWithPR(REGION_NAME, 1, 50, 8, false, null));
     int port1 = dataStore1.invoke(() -> createCacheServerWithPR(REGION_NAME, 1, 0, 8, false, null));
@@ -504,7 +497,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
 
     // feed delta
     // This delta obj satisfies CQ
-    DeltaTestImpl test = new DeltaTestImpl(8, "");
+    var test = new DeltaTestImpl(8, "");
     deltaPR.put(DELTA_KEY, test);
 
     // newValue does not satisfy CQ while oldValue does
@@ -548,7 +541,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     client1.invoke(() -> createClientCache(port3, false, false, true));
 
     // create delta keys (1 primary 1 redundant bucket on each dataStore)
-    DeltaTestImpl test = new DeltaTestImpl(8, "");
+    var test = new DeltaTestImpl(8, "");
     deltaPR.put(DELTA_KEY, test);
 
     test.setIntVar(10);
@@ -594,7 +587,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     client1.invoke(() -> createClientCache(port3, true, false, true));
 
     // create delta keys (1 primary 1 redundant bucket on each dataStore)
-    DeltaTestImpl test = new DeltaTestImpl(8, "");
+    var test = new DeltaTestImpl(8, "");
     deltaPR.put(DELTA_KEY, test);
 
     test.setIntVar(10);
@@ -624,7 +617,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
 
     createClientCache(port1, true, false, false);
     client1.invoke(() -> createClientCache(port1, true, false, false));
-    int deltaSent = putsWhichReturnsDeltaSent();
+    var deltaSent = putsWhichReturnsDeltaSent();
 
     client1.invoke(this::waitForLastKey);
     client1.invoke(() -> checkDeltaInvoked(deltaSent));
@@ -641,7 +634,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
   public void testDeltaPropagationWithAdjunctMessagingForEmptyClient() throws Exception {
     dataStore2.invoke(() -> createCacheServerWithPR(REGION_NAME, 0, 50, 8, false, null));
 
-    Integer port1 =
+    var port1 =
         dataStore1.invoke(() -> createCacheServerWithPR(REGION_NAME, 0, 0, 8, false, null));
 
     // Empty data policy on client
@@ -673,13 +666,13 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
 
     createClientCache(port1, true, false, false);
 
-    PRDeltaTestImpl val1 = new PRDeltaTestImpl();
+    var val1 = new PRDeltaTestImpl();
     val1.setIntVar(11);
     dataStore2.invoke(() -> put(val1));
 
     dataStore2.invoke(() -> setBadToDelta(true));
     try {
-      PRDeltaTestImpl val2 = new PRDeltaTestImpl();
+      var val2 = new PRDeltaTestImpl();
       val2.setIntVar(22);
       dataStore2.invoke(() -> put(val2));
       fail("Did not expect successful delta put.");
@@ -754,10 +747,10 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
 
   private void createPR(String partitionedRegionName, int redundancy, int localMaxMemory,
       int totalNumBuckets, boolean expiry, boolean withCloning, Compressor compressor) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    PartitionAttributes prAttr = paf.setRedundantCopies(redundancy)
+    var paf = new PartitionAttributesFactory();
+    var prAttr = paf.setRedundantCopies(redundancy)
         .setLocalMaxMemory(localMaxMemory).setTotalNumBuckets(totalNumBuckets).create();
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setPartitionAttributes(prAttr);
     attr.setDataPolicy(DataPolicy.PARTITION);
     attr.setConcurrencyChecksEnabled(true);
@@ -784,10 +777,10 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
         compressor);
     deltaPR.put(DELTA_KEY, new PRDeltaTestImpl());
 
-    CacheServer server1 = cache.addCacheServer();
+    var server1 = cache.addCacheServer();
     assertNotNull(server1);
 
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server1.setPort(port);
     server1.start();
     assertTrue(server1.isRunning());
@@ -795,9 +788,9 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
   }
 
   private int createServerCache(Boolean isListAttach, Boolean isEmpty) throws IOException {
-    Properties props = new Properties();
+    var props = new Properties();
     createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setConcurrencyChecksEnabled(true);
     if (isEmpty) {
@@ -807,9 +800,9 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     }
 
     lastKeyReceived = false;
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     deltaPR = cache.createRegion(REGION_NAME, attrs);
-    AttributesMutator am = deltaPR.getAttributesMutator();
+    var am = deltaPR.getAttributesMutator();
     if (isListAttach) {
       am.addCacheListener(new CacheListenerAdapter() {
         @Override
@@ -832,8 +825,8 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
       });
     }
 
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     // ensures updates to be sent instead of invalidations
     server.setNotifyBySubscription(true);
@@ -843,7 +836,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
 
   public void createClientCache(int port1, boolean subscriptionEnable, boolean isEmpty,
       boolean isCq) throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     createCache(config);
@@ -856,12 +849,12 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
     procced = false;
     numValidCqEvents = 0;
 
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer("localhost", port1)
+    var p = (PoolImpl) PoolManager.createFactory().addServer("localhost", port1)
         .setSubscriptionEnabled(true).setSubscriptionRedundancy(0)
         .setMinConnections(6).setReadTimeout(20000).setPingInterval(10000).setRetryAttempts(5)
         .create("PRDeltaPropagationDUnitTestPool");
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setConcurrencyChecksEnabled(true);
 
@@ -881,15 +874,15 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
       }
     });
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     deltaPR = cache.createRegion(REGION_NAME, attrs);
     if (subscriptionEnable) {
       deltaPR.registerInterest("ALL_KEYS");
     }
     pool = p;
     if (isCq) {
-      CqAttributesFactory cqf = new CqAttributesFactory();
-      CqListenerAdapter cqlist = new CqListenerAdapter() {
+      var cqf = new CqAttributesFactory();
+      var cqlist = new CqListenerAdapter() {
         @Override
         public void onEvent(CqEvent cqEvent) {
           if (LAST_KEY.equals(cqEvent.getKey().toString())) {
@@ -922,26 +915,26 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
         }
       };
       cqf.addCqListener(cqlist);
-      CqAttributes cqa = cqf.create();
-      CqQuery cq = cache.getQueryService().newCq("CQ_Delta", CQ, cqa);
+      var cqa = cqf.create();
+      var cq = cache.getQueryService().newCq("CQ_Delta", CQ, cqa);
       cq.execute();
     }
   }
 
   public void createClientCache(Integer port1, Integer port2) throws Exception {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     createCache(config);
 
     lastKeyReceived = false;
 
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer("localhost", port1)
+    var p = (PoolImpl) PoolManager.createFactory().addServer("localhost", port1)
         .addServer("localhost", port2).setSubscriptionEnabled(true).setSubscriptionRedundancy(1)
         .setMinConnections(6).setReadTimeout(20000)
         .setPingInterval(10000).setRetryAttempts(5).create("PRDeltaPropagationDUnitTestPool");
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(p.getName());
     factory.setCloningEnabled(false);
@@ -956,7 +949,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
       }
     });
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     deltaPR = cache.createRegion(REGION_NAME, attrs);
     deltaPR.registerInterest("ALL_KEYS");
     pool = p;
@@ -969,7 +962,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
   }
 
   public void put() throws Exception {
-    PRDeltaTestImpl test = new PRDeltaTestImpl();
+    var test = new PRDeltaTestImpl();
     deltaPR.put(DELTA_KEY, test);
 
     test.setIntVar(10);
@@ -982,7 +975,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
   }
 
   private PRDeltaTestImpl putInitial() throws Exception {
-    PRDeltaTestImpl test = new PRDeltaTestImpl();
+    var test = new PRDeltaTestImpl();
     deltaPR.put(DELTA_KEY, test);
 
     test.setIntVar(10);
@@ -1007,12 +1000,12 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
   }
 
   private void checkVal(PRDeltaTestImpl val) throws Exception {
-    PRDeltaTestImpl localVal = (PRDeltaTestImpl) deltaPR.get(DELTA_KEY);
+    var localVal = (PRDeltaTestImpl) deltaPR.get(DELTA_KEY);
     assertEquals(val, localVal);
   }
 
   private void putWithExpiry() throws Exception {
-    DeltaTestImpl test = new DeltaTestImpl();
+    var test = new DeltaTestImpl();
     deltaPR.put(DELTA_KEY, test);
 
     test.setIntVar(10);
@@ -1027,7 +1020,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
 
   private int putsWhichReturnsDeltaSent() throws Exception {
     prDelta = new PRDeltaTestImpl();
-    for (int i = 0; i < NO_PUTS; i++) {
+    for (var i = 0; i < NO_PUTS; i++) {
       prDelta.setIntVar(i);
       deltaPR.put(DELTA_KEY, prDelta);
     }
@@ -1060,7 +1053,7 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
   }
 
   private void waitForLastKey() {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return isLastKeyReceived();
@@ -1091,10 +1084,10 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
   }
 
   private void verifyDeltaSent(int deltas) {
-    CacheClientNotifier ccn = ((CacheServerImpl) cache.getCacheServers().toArray()[0]).getAcceptor()
+    var ccn = ((CacheServerImpl) cache.getCacheServers().toArray()[0]).getAcceptor()
         .getCacheClientNotifier();
 
-    int numOfDeltasSent = ((CacheClientProxy) ccn.getClientProxies().toArray()[0]).getStatistics()
+    var numOfDeltasSent = ((CacheClientProxy) ccn.getClientProxies().toArray()[0]).getStatistics()
         .getDeltaMessagesSent();
     assertTrue("Expected " + deltas + " deltas to be sent but " + numOfDeltasSent + " were sent.",
         numOfDeltasSent == deltas);
@@ -1118,11 +1111,11 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
   }
 
   private void verifyConstructorCount(int timesConstructed) throws Exception {
-    long buildCount0 = getBuildCount();
+    var buildCount0 = getBuildCount();
     long buildCount1 = dataStore1.invoke(this::getBuildCount);
     long buildCount2 = dataStore2.invoke(this::getBuildCount);
 
-    for (Exception exception : DeltaTestImpl.getInstantiations()) {
+    for (var exception : DeltaTestImpl.getInstantiations()) {
       exception.printStackTrace();
     }
 
@@ -1143,8 +1136,8 @@ public class PRDeltaPropagationDUnitTest extends DistributedTestCase {
 
   private void verifyNoCopy() {
     // Ensure not some other reason to make a copy
-    FilterProfile fp = ((LocalRegion) deltaPR).getFilterProfile();
-    boolean copy = ((LocalRegion) deltaPR).getCompressor() == null
+    var fp = ((LocalRegion) deltaPR).getFilterProfile();
+    var copy = ((LocalRegion) deltaPR).getCompressor() == null
         && (((LocalRegion) deltaPR).isCopyOnRead() || (fp != null && fp.getCqCount() > 0));
     assertFalse(copy);
   }

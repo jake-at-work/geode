@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -68,8 +67,8 @@ public class EvictionIntegrationTest {
 
   @Test
   public void testEntryLruEvictions() {
-    int maxEntry = 3;
-    PartitionedRegion pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
+    var maxEntry = 3;
+    var pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
         f -> f.setOffHeap(offHeap)
             .setEvictionAttributes(
                 EvictionAttributes.createLRUEntryAttributes(maxEntry,
@@ -77,7 +76,7 @@ public class EvictionIntegrationTest {
         f -> f.setRedundantCopies(0).setTotalNumBuckets(4));
 
     // put in one extra entry after maxEntry
-    for (int counter = 1; counter <= maxEntry + 1; counter++) {
+    for (var counter = 1; counter <= maxEntry + 1; counter++) {
       pr1.put(counter, new byte[1024 * 1024]);
     }
 
@@ -86,15 +85,15 @@ public class EvictionIntegrationTest {
 
   @Test
   public void testEntryLru() {
-    int maxEntry = 12;
-    PartitionedRegion pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
+    var maxEntry = 12;
+    var pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
         f -> f.setOffHeap(offHeap)
             .setEvictionAttributes(
                 EvictionAttributes.createLRUEntryAttributes(maxEntry,
                     EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(0).setTotalNumBuckets(4));
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       // assume mod-based hashing for bucket creation
       pr1.put(i, "value0");
       pr1.put(i + pr1.getPartitionAttributes().getTotalNumBuckets(), "value1");
@@ -102,7 +101,7 @@ public class EvictionIntegrationTest {
     }
     pr1.put(3, "value0");
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       pr1.put(i + pr1.getPartitionAttributes().getTotalNumBuckets() * 3, "value1");
     }
     assertThat(pr1.getTotalEvictions()).isEqualTo(0);
@@ -110,24 +109,24 @@ public class EvictionIntegrationTest {
 
   @Test
   public void testCheckEntryLruEvictionsIn1DataStore() {
-    int extraEntries = 10;
-    int maxEntries = 20;
-    PartitionedRegion pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
+    var extraEntries = 10;
+    var maxEntries = 20;
+    var pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
         f -> f.setOffHeap(offHeap)
             .setEvictionAttributes(
                 EvictionAttributes.createLRUEntryAttributes(maxEntries,
                     EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(1).setTotalNumBuckets(5));
 
-    for (int counter = 1; counter <= maxEntries + extraEntries; counter++) {
+    for (var counter = 1; counter <= maxEntries + extraEntries; counter++) {
       pr1.put(counter, new byte[1024 * 1024]);
     }
 
     assertThat(pr1.getTotalEvictions()).isEqualTo(extraEntries);
 
-    for (Map.Entry<Integer, BucketRegion> integerBucketRegionEntry : pr1.getDataStore()
+    for (var integerBucketRegionEntry : pr1.getDataStore()
         .getAllLocalBuckets()) {
-      final BucketRegion bucketRegion =
+      final var bucketRegion =
           (BucketRegion) ((Map.Entry) integerBucketRegionEntry).getValue();
       if (bucketRegion == null) {
         continue;
@@ -138,15 +137,15 @@ public class EvictionIntegrationTest {
 
   @Test
   public void testMemLruForPRAndDR() {
-    int maxEntries = 40;
-    PartitionedRegion pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
+    var maxEntries = 40;
+    var pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
         f -> f.setOffHeap(offHeap)
             .setEvictionAttributes(EvictionAttributes.createLRUMemoryAttributes(
                 ObjectSizer.DEFAULT,
                 EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(0).setTotalNumBuckets(4).setLocalMaxMemory(maxEntries));
 
-    LocalRegion dr1 =
+    var dr1 =
         (LocalRegion) server.createRegion(RegionShortcut.LOCAL, "DR1",
             f -> f.setOffHeap(offHeap).setDataPolicy(DataPolicy.NORMAL).setEvictionAttributes(
                 EvictionAttributes.createLRUMemoryAttributes(ObjectSizer.DEFAULT,
@@ -156,12 +155,12 @@ public class EvictionIntegrationTest {
     assertThat(dr1.getEvictionAttributes().getMaximum())
         .isEqualTo(EvictionAttributes.DEFAULT_MEMORY_MAXIMUM);
 
-    for (int i = 0; i < 41; i++) {
+    for (var i = 0; i < 41; i++) {
       pr1.put(i, new byte[1024 * 1024]);
     }
 
     assertThat(pr1.getTotalEvictions()).isGreaterThanOrEqualTo(1).isLessThanOrEqualTo(2);
-    for (int i = 0; i < 11; i++) {
+    for (var i = 0; i < 11; i++) {
       dr1.put(i, new byte[1024 * 1024]);
     }
 
@@ -192,10 +191,10 @@ public class EvictionIntegrationTest {
         f -> f.setOffHeap(offHeap).setDataPolicy(DataPolicy.NORMAL).setEvictionAttributes(
             EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.LOCAL_DESTROY)));
 
-    HeapEvictor evictor = server.getCache().getHeapEvictor();
-    List<Integer> taskSetSizes = evictor.testOnlyGetSizeOfTasks();
+    var evictor = server.getCache().getHeapEvictor();
+    var taskSetSizes = evictor.testOnlyGetSizeOfTasks();
 
-    for (Integer size : taskSetSizes) {
+    for (var size : taskSetSizes) {
       assertThat(size.intValue()).isEqualTo(8);
     }
   }

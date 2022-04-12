@@ -148,7 +148,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
 
   @Override
   public List<String> getGroups() {
-    String[] groups = memberData.getGroups();
+    var groups = memberData.getGroups();
     return groups == null ? Collections.emptyList()
         : Collections.unmodifiableList(Arrays.asList(groups));
   }
@@ -187,7 +187,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
    * specified.
    */
   public String getName() {
-    String result = memberData.getName();
+    var result = memberData.getName();
     if (result == null) {
       result = "";
     }
@@ -238,13 +238,13 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
   @Override
   public int compareTo(final @NotNull MemberIdentifier other, final boolean compareMemberData,
       final boolean compareViewIds) {
-    int c = Integer.compare(getMembershipPort(), other.getMembershipPort());
+    var c = Integer.compare(getMembershipPort(), other.getMembershipPort());
     if (c != 0) {
       return c;
     }
 
-    final InetAddress myAddr = getInetAddress();
-    final InetAddress otherAddr = other.getInetAddress();
+    final var myAddr = getInetAddress();
+    final var otherAddr = other.getInetAddress();
 
     // Discard null cases
     if (myAddr == null && otherAddr == null) {
@@ -255,11 +255,11 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
       return 1;
     }
 
-    final byte[] myBytes = myAddr.getAddress();
-    final byte[] otherBytes = otherAddr.getAddress();
+    final var myBytes = myAddr.getAddress();
+    final var otherBytes = otherAddr.getAddress();
 
     if (myBytes != otherBytes) {
-      for (int i = 0; i < myBytes.length; i++) {
+      for (var i = 0; i < myBytes.length; i++) {
         if (i >= otherBytes.length) {
           return -1; // same as far as they go, but shorter...
         }
@@ -282,13 +282,13 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
       }
     }
 
-    final String uniqueTag = getUniqueTag();
-    final String otherUniqueTag = other.getUniqueTag();
+    final var uniqueTag = getUniqueTag();
+    final var otherUniqueTag = other.getUniqueTag();
     if (uniqueTag == null && otherUniqueTag == null) {
       if (compareViewIds) {
         // not loners, so look at P2P view ID
-        final int thisViewId = getVmViewId();
-        final int otherViewId = other.getVmViewId();
+        final var thisViewId = getVmViewId();
+        final var otherViewId = other.getVmViewId();
         if (thisViewId >= 0 && otherViewId >= 0) {
           c = Integer.compare(thisViewId, otherViewId);
           if (c != 0) {
@@ -329,16 +329,16 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
     if (!(obj instanceof MemberIdentifierImpl)) {
       return false;
     }
-    MemberIdentifierImpl other = (MemberIdentifierImpl) obj;
+    var other = (MemberIdentifierImpl) obj;
 
-    int myPort = getMembershipPort();
-    int otherPort = other.getMembershipPort();
+    var myPort = getMembershipPort();
+    var otherPort = other.getMembershipPort();
     if (myPort != otherPort) {
       return false;
     }
 
-    InetAddress myAddr = getInetAddress();
-    InetAddress otherAddr = other.getInetAddress();
+    var myAddr = getInetAddress();
+    var otherAddr = other.getInetAddress();
     if (myAddr == null && otherAddr == null) {
       return true;
     } else if (!Objects.equals(myAddr, otherAddr)) {
@@ -353,8 +353,8 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
 
     if (getUniqueTag() == null && other.getUniqueTag() == null) {
       // not loners, so look at P2P view ID
-      int thisViewId = getVmViewId();
-      int otherViewId = other.getVmViewId();
+      var thisViewId = getVmViewId();
+      var otherViewId = other.getVmViewId();
       if (thisViewId >= 0 && otherViewId >= 0) {
         if (thisViewId != otherViewId) {
           return false;
@@ -376,7 +376,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
 
   @Override
   public int hashCode() {
-    int result = 0;
+    var result = 0;
     result = result + memberData.getInetAddress().hashCode();
     result = result + getMembershipPort();
     return result;
@@ -386,7 +386,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
     if (hostname == null) {
       return "<null inet_addr hostname>";
     }
-    int index = hostname.indexOf('.');
+    var index = hostname.indexOf('.');
 
     if (index > 0 && !Character.isDigit(hostname.charAt(0))) {
       return hostname.substring(0, index);
@@ -401,13 +401,13 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
 
   @Override
   public String toString() {
-    String result = cachedToString;
+    var result = cachedToString;
     if (result == null) {
-      final StringBuilder sb = new StringBuilder();
+      final var sb = new StringBuilder();
       addFixedToString(sb, false);
 
       // add version if not current
-      short version = memberData.getVersionOrdinal();
+      var version = memberData.getVersionOrdinal();
       if (version != KnownVersion.CURRENT.ordinal()) {
         sb.append("(version:").append(Versioning.getVersion(version)).append(')');
       }
@@ -425,20 +425,20 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
     // issues will occur in the case of clients with subscriptions during rolling upgrade.
     String host;
 
-    InetAddress inetAddress = getInetAddress();
+    var inetAddress = getInetAddress();
     if ((inetAddress != null) && (inetAddress.isMulticastAddress() || useIpAddress)) {
       host = inetAddress.getHostAddress();
     } else {
-      String hostName = memberData.getHostName();
-      InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
-      boolean isIpAddress = inetAddressValidator.isValid(hostName);
+      var hostName = memberData.getHostName();
+      var inetAddressValidator = InetAddressValidator.getInstance();
+      var isIpAddress = inetAddressValidator.isValid(hostName);
       host = isIpAddress ? hostName : shortName(hostName);
     }
 
     sb.append(host);
 
-    String myName = getName();
-    int vmPid = memberData.getProcessId();
+    var myName = getName();
+    var vmPid = memberData.getProcessId();
     int vmKind = memberData.getVmKind();
     if (vmPid > 0 || vmKind != MemberIdentifier.NORMAL_DM_TYPE || !"".equals(myName)) {
       sb.append("(");
@@ -454,7 +454,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
         sb.append(vmPid);
       }
 
-      String vmStr = "";
+      var vmStr = "";
       switch (vmKind) {
         case MemberIdentifier.NORMAL_DM_TYPE:
           // vmStr = ":local"; // let this be silent
@@ -479,7 +479,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
         && memberData.isPreferredForCoordinator()) {
       sb.append("<ec>");
     }
-    int vmViewId = getVmViewId();
+    var vmViewId = getVmViewId();
     if (vmViewId >= 0) {
       sb.append("<v").append(vmViewId).append(">");
     }
@@ -492,7 +492,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
       if (getUniqueTag() != null && getUniqueTag().length() != 0) {
         sb.append(":").append(getUniqueTag());
       }
-      String name = getName();
+      var name = getName();
       if (name.length() != 0) {
         sb.append(":").append(name);
       }
@@ -504,7 +504,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
       return VersioningIO.readOrdinal(in);
     } else {
       // prior to 7.1 member IDs did not serialize their version information
-      KnownVersion v = StaticSerialization.getVersionForDataStreamOrNull(in);
+      var v = StaticSerialization.getVersionForDataStreamOrNull(in);
       if (v != null) {
         return v.ordinal();
       }
@@ -521,7 +521,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
     assert memberData.getVmKind() > 0;
 
     // do it the way we like
-    byte[] address = getInetAddress().getAddress();
+    var address = getInetAddress().getAddress();
 
     out.writeInt(address.length); // IPv6 compatible
     out.write(address);
@@ -529,7 +529,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
 
     StaticSerialization.writeString(memberData.getHostName(), out);
 
-    int flags = 0;
+    var flags = 0;
     if (memberData.isNetworkPartitionDetectionEnabled()) {
       flags |= NPD_ENABLED_BIT;
     }
@@ -552,7 +552,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
 
     StaticSerialization.writeString(memberData.getName(), out);
     StaticSerialization.writeString(memberData.getUniqueTag(), out);
-    String durableId = memberData.getDurableId();
+    var durableId = memberData.getDurableId();
     StaticSerialization.writeString(durableId == null ? "" : durableId, out);
     StaticSerialization.writeInteger(durableId == null ? 300 : memberData.getDurableTimeout(), out);
     VersioningIO.writeOrdinal(out, memberData.getVersionOrdinal(), true);
@@ -565,31 +565,31 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
    * @see Externalizable
    */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    int len = in.readInt(); // IPv6 compatible
-    byte[] addr = new byte[len];
+    var len = in.readInt(); // IPv6 compatible
+    var addr = new byte[len];
     in.readFully(addr);
-    InetAddress inetAddr = InetAddress.getByAddress(addr);
-    int port = in.readInt();
+    var inetAddr = InetAddress.getByAddress(addr);
+    var port = in.readInt();
 
-    String hostName = StaticSerialization.readString(in);
+    var hostName = StaticSerialization.readString(in);
 
-    int flags = in.readUnsignedByte();
-    boolean sbEnabled = (flags & NPD_ENABLED_BIT) != 0;
-    boolean elCoord = (flags & COORD_ENABLED_BIT) != 0;
-    boolean isPartial = (flags & PARTIAL_ID_BIT) != 0;
+    var flags = in.readUnsignedByte();
+    var sbEnabled = (flags & NPD_ENABLED_BIT) != 0;
+    var elCoord = (flags & COORD_ENABLED_BIT) != 0;
+    var isPartial = (flags & PARTIAL_ID_BIT) != 0;
 
-    int dcPort = in.readInt();
-    int vmPid = in.readInt();
-    int vmKind = in.readInt();
-    int vmViewId = in.readInt();
-    String[] groups = StaticSerialization.readStringArray(in);
+    var dcPort = in.readInt();
+    var vmPid = in.readInt();
+    var vmKind = in.readInt();
+    var vmViewId = in.readInt();
+    var groups = StaticSerialization.readStringArray(in);
 
-    String name = StaticSerialization.readString(in);
-    String uniqueTag = StaticSerialization.readString(in);
-    String durableId = StaticSerialization.readString(in);
-    int durableTimeout = in.readInt();
+    var name = StaticSerialization.readString(in);
+    var uniqueTag = StaticSerialization.readString(in);
+    var durableId = StaticSerialization.readString(in);
+    var durableTimeout = in.readInt();
 
-    short version = readVersion(flags, in);
+    var version = readVersion(flags, in);
 
     memberData = MemberDataBuilder.newBuilder(inetAddr, hostName)
         .setMembershipPort(port)
@@ -642,7 +642,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
 
     StaticSerialization.writeString(memberData.getHostName(), out);
 
-    int flags = 0;
+    var flags = 0;
     if (memberData.isNetworkPartitionDetectionEnabled()) {
       flags |= NPD_ENABLED_BIT;
     }
@@ -670,13 +670,13 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
     } else { // added in 6.5 for unique identifiers in P2P
       StaticSerialization.writeString(String.valueOf(memberData.getVmViewId()), out);
     }
-    String durableId = memberData.getDurableId();
+    var durableId = memberData.getDurableId();
     StaticSerialization.writeString(durableId == null ? "" : durableId, out);
     StaticSerialization.writeInteger(
         durableId == null ? 300 : memberData.getDurableTimeout(),
         out);
 
-    short version = memberData.getVersionOrdinal();
+    var version = memberData.getVersionOrdinal();
     VersioningIO.writeOrdinal(out, version, true);
   }
 
@@ -697,37 +697,37 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
 
   public void fromDataPre_GFE_9_0_0_0(DataInput in, DeserializationContext context)
       throws IOException {
-    InetAddress inetAddr = StaticSerialization.readInetAddress(in);
-    int port = in.readInt();
+    var inetAddr = StaticSerialization.readInetAddress(in);
+    var port = in.readInt();
 
-    String hostName = StaticSerialization.readString(in);
+    var hostName = StaticSerialization.readString(in);
 
-    int flags = in.readUnsignedByte();
-    boolean sbEnabled = (flags & NPD_ENABLED_BIT) != 0;
-    boolean elCoord = (flags & COORD_ENABLED_BIT) != 0;
-    boolean isPartial = (flags & PARTIAL_ID_BIT) != 0;
+    var flags = in.readUnsignedByte();
+    var sbEnabled = (flags & NPD_ENABLED_BIT) != 0;
+    var elCoord = (flags & COORD_ENABLED_BIT) != 0;
+    var isPartial = (flags & PARTIAL_ID_BIT) != 0;
 
-    int dcPort = in.readInt();
-    int vmPid = in.readInt();
-    int vmKind = in.readUnsignedByte();
-    String[] groups = StaticSerialization.readStringArray(in);
-    int vmViewId = -1;
+    var dcPort = in.readInt();
+    var vmPid = in.readInt();
+    var vmKind = in.readUnsignedByte();
+    var groups = StaticSerialization.readStringArray(in);
+    var vmViewId = -1;
 
-    String name = StaticSerialization.readString(in);
+    var name = StaticSerialization.readString(in);
     String uniqueTag = null;
     if (vmKind == MemberIdentifier.LONER_DM_TYPE) {
       uniqueTag = StaticSerialization.readString(in);
     } else {
-      String str = StaticSerialization.readString(in);
+      var str = StaticSerialization.readString(in);
       if (str != null) { // backward compatibility from earlier than 6.5
         vmViewId = Integer.parseInt(str);
       }
     }
 
-    String durableId = StaticSerialization.readString(in);
-    int durableTimeout = in.readInt();
+    var durableId = StaticSerialization.readString(in);
+    var durableTimeout = in.readInt();
 
-    short version = readVersion(flags, in);
+    var version = readVersion(flags, in);
 
     memberData = MemberDataBuilder.newBuilder(inetAddr, hostName)
         .setMembershipPort(port)
@@ -751,29 +751,29 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
 
   public void _readEssentialData(DataInput in, Function<InetAddress, String> hostnameResolver)
       throws IOException, ClassNotFoundException {
-    InetAddress inetAddr = StaticSerialization.readInetAddress(in);
-    int port = in.readInt();
+    var inetAddr = StaticSerialization.readInetAddress(in);
+    var port = in.readInt();
 
-    String hostName = hostnameResolver.apply(inetAddr);
+    var hostName = hostnameResolver.apply(inetAddr);
 
-    int flags = in.readUnsignedByte();
-    boolean sbEnabled = (flags & NPD_ENABLED_BIT) != 0;
-    boolean elCoord = (flags & COORD_ENABLED_BIT) != 0;
+    var flags = in.readUnsignedByte();
+    var sbEnabled = (flags & NPD_ENABLED_BIT) != 0;
+    var elCoord = (flags & COORD_ENABLED_BIT) != 0;
 
-    int vmKind = in.readUnsignedByte();
-    int vmViewId = -1;
+    var vmKind = in.readUnsignedByte();
+    var vmViewId = -1;
 
     String uniqueTag = null;
     if (vmKind == MemberIdentifier.LONER_DM_TYPE) {
       uniqueTag = StaticSerialization.readString(in);
     } else {
-      String str = StaticSerialization.readString(in);
+      var str = StaticSerialization.readString(in);
       if (str != null) { // backward compatibility from earlier than 6.5
         vmViewId = Integer.parseInt(str);
       }
     }
 
-    String name = StaticSerialization.readString(in);
+    var name = StaticSerialization.readString(in);
 
     memberData = MemberDataBuilder.newBuilder(inetAddr, hostName)
         .setMembershipPort(port)
@@ -797,7 +797,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
     StaticSerialization.writeInetAddress(getInetAddress(), out);
     out.writeInt(getMembershipPort());
 
-    int flags = 0;
+    var flags = 0;
     if (memberData.isNetworkPartitionDetectionEnabled()) {
       flags |= NPD_ENABLED_BIT;
     }
@@ -808,7 +808,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
     out.writeByte((byte) (flags & 0xff));
 
     // out.writeInt(dcPort);
-    byte vmKind = memberData.getVmKind();
+    var vmKind = memberData.getVmKind();
     out.writeByte(vmKind);
 
     if (vmKind == MemberIdentifier.LONER_DM_TYPE) {
@@ -819,7 +819,7 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
     // write name last to fix bug 45160
     StaticSerialization.writeString(memberData.getName(), out);
 
-    KnownVersion outputVersion = StaticSerialization.getVersionForDataStream(out);
+    var outputVersion = StaticSerialization.getVersionForDataStream(out);
     if (outputVersion.isOlderThan(KnownVersion.GEODE_1_1_0)
         && outputVersion.isNotOlderThan(KnownVersion.GFE_90)) {
       memberData.writeAdditionalData(out);
@@ -861,11 +861,11 @@ public class MemberIdentifierImpl implements MemberIdentifier, DataSerializableF
   }
 
   public String getUniqueId() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     addFixedToString(sb, false);
 
     // add version if not current
-    short version = memberData.getVersionOrdinal();
+    var version = memberData.getVersionOrdinal();
     if (version != KnownVersion.CURRENT.ordinal()) {
       sb.append("(version:").append(Versioning.getVersion(version)).append(')');
     }

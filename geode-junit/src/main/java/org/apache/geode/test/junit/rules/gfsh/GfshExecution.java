@@ -91,7 +91,7 @@ public class GfshExecution {
 
   void awaitTermination(GfshScript script)
       throws InterruptedException, TimeoutException, ExecutionException {
-    boolean exited = process.waitFor(script.getTimeout(), script.getTimeoutTimeUnit());
+    var exited = process.waitFor(script.getTimeout(), script.getTimeoutTimeUnit());
 
     try {
       assertThat(exited)
@@ -131,10 +131,10 @@ public class GfshExecution {
   }
 
   String[] getStopMemberCommands() {
-    Stream<String> stopServers = getServerDirs(true)
+    var stopServers = getServerDirs(true)
         .stream()
         .map(f -> "stop server --dir=" + quoteArgument(f.toString()));
-    Stream<String> stopLocators = getLocatorDirs(true)
+    var stopLocators = getLocatorDirs(true)
         .stream()
         .map(f -> "stop locator --dir=" + quoteArgument(f.toString()));
     return concat(stopServers, stopLocators)
@@ -144,11 +144,11 @@ public class GfshExecution {
   private void printLogFiles() {
     System.out.println(
         "Printing contents of all log files found in " + workingDir.getAbsolutePath());
-    List<File> logFiles = findLogFiles();
+    var logFiles = findLogFiles();
 
-    for (File logFile : logFiles) {
+    for (var logFile : logFiles) {
       System.out.println("Contents of " + logFile.getAbsolutePath());
-      try (BufferedReader br = new BufferedReader(new InputStreamReader(
+      try (var br = new BufferedReader(new InputStreamReader(
           new FileInputStream(logFile), Charset.defaultCharset()))) {
         String line;
         while ((line = br.readLine()) != null) {
@@ -161,7 +161,7 @@ public class GfshExecution {
   }
 
   private List<File> getServerDirs(boolean isRunning) {
-    Predicate<File> predicate = isRunning ? IS_RUNNING_SERVER_DIRECTORY : IS_SERVER_DIRECTORY;
+    var predicate = isRunning ? IS_RUNNING_SERVER_DIRECTORY : IS_SERVER_DIRECTORY;
     return findPotentialMemberDirectories()
         .stream()
         .filter(predicate)
@@ -169,7 +169,7 @@ public class GfshExecution {
   }
 
   private List<File> getLocatorDirs(boolean isRunning) {
-    Predicate<File> predicate = isRunning ? IS_RUNNING_LOCATOR_DIRECTORY : IS_LOCATOR_DIRECTORY;
+    var predicate = isRunning ? IS_RUNNING_LOCATOR_DIRECTORY : IS_LOCATOR_DIRECTORY;
     return findPotentialMemberDirectories()
         .stream()
         .filter(predicate)
@@ -177,7 +177,7 @@ public class GfshExecution {
   }
 
   private List<File> findPotentialMemberDirectories() {
-    File[] directories = workingDir.listFiles(File::isDirectory);
+    var directories = workingDir.listFiles(File::isDirectory);
 
     assertThat(directories)
         .as("List of directories under " + workingDir.getAbsolutePath())
@@ -190,8 +190,8 @@ public class GfshExecution {
   }
 
   private List<File> findLogFiles() {
-    List<File> servers = getServerDirs(false);
-    List<File> locators = getLocatorDirs(false);
+    var servers = getServerDirs(false);
+    var locators = getLocatorDirs(false);
 
     return concat(servers.stream(), locators.stream())
         .flatMap(GfshExecution::findLogFiles)

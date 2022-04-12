@@ -39,7 +39,7 @@ public class RegionVersionHolderRandomJUnitTest extends RegionVersionHolderSmall
 
   @Override
   protected final void postSetUpRegionVersionHolderSmallBitSetJUnitTest() throws Exception {
-    long seed = System.nanoTime();
+    var seed = System.nanoTime();
     random = new Random();
     random.setSeed(seed); // 1194319178069961L;
     System.out.println("RegionVersionHolderJUnitTest using random seed " + seed);
@@ -53,7 +53,7 @@ public class RegionVersionHolderRandomJUnitTest extends RegionVersionHolderSmall
   protected void recordVersions(RegionVersionHolder vh, BitSet bs) {
     List<Integer> list = new ArrayList<>();
     // Build a list of the versions to record
-    for (int i = 1; i < bs.length(); i++) {
+    for (var i = 1; i < bs.length(); i++) {
       if (bs.get(i)) {
         list.add(i);
       }
@@ -61,7 +61,7 @@ public class RegionVersionHolderRandomJUnitTest extends RegionVersionHolderSmall
 
     // randomize the list
     Collections.shuffle(list, random);
-    for (Integer version : list) {
+    for (var version : list) {
       vh.recordVersion(version);
     }
   }
@@ -72,35 +72,34 @@ public class RegionVersionHolderRandomJUnitTest extends RegionVersionHolderSmall
    */
   @Test
   public void testParallelThreads() throws InterruptedException {
-    RegionVersionHolder vh1 = new RegionVersionHolder(member());
-    RegionVersionHolder vh2 = new RegionVersionHolder(member());
+    var vh1 = new RegionVersionHolder(member());
+    var vh2 = new RegionVersionHolder(member());
 
-    int UPDATES = 50000;
-    int NUM_UPDATERS = 20;
-    int NUM_EXCEPTIONS = 500;
+    var UPDATES = 50000;
+    var NUM_UPDATERS = 20;
+    var NUM_EXCEPTIONS = 500;
 
-    Random random = new Random();
-    IntOpenHashSet exceptions = new IntOpenHashSet();
-    for (int i = 0; i < NUM_EXCEPTIONS; i++) {
+    var random = new Random();
+    var exceptions = new IntOpenHashSet();
+    for (var i = 0; i < NUM_EXCEPTIONS; i++) {
       exceptions.add(i);
     }
 
-
-    HolderUpdater[] updaters = new HolderUpdater[NUM_UPDATERS];
-    for (int i = 0; i < updaters.length; i++) {
+    var updaters = new HolderUpdater[NUM_UPDATERS];
+    for (var i = 0; i < updaters.length; i++) {
       updaters[i] = new HolderUpdater(UPDATES, i, NUM_UPDATERS, exceptions, vh1, vh2);
     }
 
-    for (final HolderUpdater holderUpdater : updaters) {
+    for (final var holderUpdater : updaters) {
       holderUpdater.start();
     }
 
-    for (final HolderUpdater updater : updaters) {
+    for (final var updater : updaters) {
       updater.join();
     }
 
     // System.out.println("testing vh1="+vh1);
-    for (int i = 1; i < UPDATES; i++) {
+    for (var i = 1; i < UPDATES; i++) {
       assertEquals("vector is incorrect on item " + i, !exceptions.contains(i), vh1.contains(i));
     }
 
@@ -108,7 +107,7 @@ public class RegionVersionHolderRandomJUnitTest extends RegionVersionHolderSmall
     vh2.initializeFrom(vh1);
 
     // System.out.println("testing vh2="+vh2);
-    for (int i = 1; i < UPDATES; i++) {
+    for (var i = 1; i < UPDATES; i++) {
       assertEquals("vector is incorrect on item " + i, !exceptions.contains(i), vh2.contains(i));
     }
   }
@@ -137,7 +136,7 @@ public class RegionVersionHolderRandomJUnitTest extends RegionVersionHolderSmall
 
       // This thread will record updates for this single thread. The
       // update is the thread id * the update number
-      for (int i = myNumber; i < updates; i += numUpdaters) {
+      for (var i = myNumber; i < updates; i += numUpdaters) {
 
         // Only apply the update if it is not an intended exception
         if (!exceptions.contains(i)) {

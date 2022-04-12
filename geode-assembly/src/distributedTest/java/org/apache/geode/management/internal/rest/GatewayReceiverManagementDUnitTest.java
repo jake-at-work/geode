@@ -21,23 +21,15 @@ import static org.apache.geode.test.junit.assertions.ClusterManagementRealizatio
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.management.api.ClusterManagementService;
-import org.apache.geode.management.api.EntityGroupInfo;
-import org.apache.geode.management.api.RealizationResult;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.GatewayReceiver;
-import org.apache.geode.management.runtime.GatewayReceiverInfo;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.ClusterManagementGetResultAssert;
-import org.apache.geode.test.junit.assertions.ClusterManagementListResultAssert;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
 
 public class GatewayReceiverManagementDUnitTest {
@@ -50,7 +42,7 @@ public class GatewayReceiverManagementDUnitTest {
   @BeforeClass
   public static void beforeClass() {
     locator = cluster.startLocatorVM(0, MemberStarterRule::withHttpService);
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
         .withProperty("groups", "group1"));
   }
@@ -62,7 +54,7 @@ public class GatewayReceiverManagementDUnitTest {
 
   @Test
   public void createGWRAndList() {
-    ClusterManagementService cms = new ClusterManagementServiceBuilder()
+    var cms = new ClusterManagementServiceBuilder()
         .setPort(locator.getHttpPort())
         .setUsername("cluster")
         .setPassword("cluster")
@@ -70,7 +62,7 @@ public class GatewayReceiverManagementDUnitTest {
 
     receiver.setStartPort(5000);
     receiver.setGroup("group1");
-    List<RealizationResult> results =
+    var results =
         assertManagementResult(cms.create(receiver)).isSuccessful()
             .containsStatusMessage("Successfully updated configuration for group1.")
             .getMemberStatus();
@@ -99,15 +91,15 @@ public class GatewayReceiverManagementDUnitTest {
         .hasMessageContaining(
             "ENTITY_EXISTS: GatewayReceiver 'cluster' already exists on member(s) server-1.");
 
-    ClusterManagementListResultAssert<GatewayReceiver, GatewayReceiverInfo> listAssert =
+    var listAssert =
         assertManagementListResult(cms.list(new GatewayReceiver())).isSuccessful();
-    List<EntityGroupInfo<GatewayReceiver, GatewayReceiverInfo>> listResult =
+    var listResult =
         listAssert.getResult();
 
     assertThat(listResult).hasSize(2);
 
     // verify that we have two configurations, but only group1 config has a running gwr
-    for (EntityGroupInfo<GatewayReceiver, GatewayReceiverInfo> result : listResult) {
+    for (var result : listResult) {
       if (result.getConfiguration().getGroup().equals("group1")) {
         assertThat(result.getRuntimeInfo()).hasSize(1);
         assertThat(result.getRuntimeInfo().get(0).getPort()).isGreaterThanOrEqualTo(5000);
@@ -121,32 +113,32 @@ public class GatewayReceiverManagementDUnitTest {
       }
     }
 
-    GatewayReceiver filter1 = new GatewayReceiver();
+    var filter1 = new GatewayReceiver();
     filter1.setGroup("group2");
     listAssert = assertManagementListResult(cms.list(filter1)).isSuccessful();
     listResult = listAssert.getResult();
     assertThat(listResult).hasSize(1);
     assertThat(listResult.get(0).getConfiguration().getGroup()).isEqualTo("group2");
 
-    GatewayReceiver filter2 = new GatewayReceiver();
+    var filter2 = new GatewayReceiver();
     filter2.setGroup("group3");
     listAssert = assertManagementListResult(cms.list(filter2)).isSuccessful();
     listResult = listAssert.getResult();
     assertThat(listResult).hasSize(0);
 
-    GatewayReceiver filter = new GatewayReceiver();
+    var filter = new GatewayReceiver();
     filter.setGroup("group2");
-    ClusterManagementGetResultAssert<GatewayReceiver, GatewayReceiverInfo> getAssert =
+    var getAssert =
         assertManagementGetResult(cms.get(filter)).isSuccessful();
-    EntityGroupInfo<GatewayReceiver, GatewayReceiverInfo> getResult = getAssert.getResult();
+    var getResult = getAssert.getResult();
     assertThat(getResult.getConfiguration().getId()).isEqualTo("group2");
 
-    GatewayReceiver clusterFilter = new GatewayReceiver();
+    var clusterFilter = new GatewayReceiver();
     assertThatThrownBy(() -> cms.get(clusterFilter))
         .hasMessageContaining(
             "ENTITY_NOT_FOUND: GatewayReceiver 'cluster' does not exist.");
 
-    GatewayReceiver noMatchesFilter = new GatewayReceiver();
+    var noMatchesFilter = new GatewayReceiver();
     noMatchesFilter.setGroup("groupNotFound");
     assertThatThrownBy(() -> cms.get(noMatchesFilter))
         .hasMessageContaining(

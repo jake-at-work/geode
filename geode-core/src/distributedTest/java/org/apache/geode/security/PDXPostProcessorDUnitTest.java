@@ -33,12 +33,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.EntryEvent;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.pdx.SimpleClass;
@@ -66,7 +63,7 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
 
   @Parameterized.Parameters
   public static Collection<Object[]> parameters() {
-    Object[][] params = {{true}, {false}};
+    var params = new Object[][] {{true}, {false}};
     return Arrays.asList(params);
   }
 
@@ -76,7 +73,7 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
 
   @Before
   public void before() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     client1 = host.getVM(1);
     client2 = host.getVM(2);
   }
@@ -93,8 +90,8 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testRegionGet() {
     client2.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
       // put in a value that's a domain object
       region.put("key1", new SimpleClass(1, (byte) 1));
       // put in a byte value
@@ -102,11 +99,11 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
     });
 
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
 
       // post process for get the client domain object
-      Object value = region.get("key1");
+      var value = region.get("key1");
       assertThat(value).isInstanceOf(SimpleClass.class);
 
       // post process for get the raw byte value
@@ -115,7 +112,7 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
     });
 
     // this makes sure PostProcessor is getting called
-    PDXPostProcessor pp =
+    var pp =
         (PDXPostProcessor) server.getCache().getSecurityService().getPostProcessor();
     assertThat(pp.getCount()).isEqualTo(2);
   }
@@ -123,22 +120,22 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testQuery() {
     client2.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
       // put in a value that's a domain object
       region.put("key1", new SimpleClass(1, (byte) 1));
       region.put("key2", BYTES);
     });
 
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
 
       // post process for query
-      String query = "select * from " + SEPARATOR + "AuthRegion";
-      SelectResults result = region.query(query);
+      var query = "select * from " + SEPARATOR + "AuthRegion";
+      var result = region.query(query);
 
-      for (final Object obj : result) {
+      for (final var obj : result) {
         if (obj instanceof byte[]) {
           assertThat(Arrays.equals(BYTES, (byte[]) obj)).isTrue();
         } else {
@@ -148,7 +145,7 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
     });
 
     // this makes sure PostProcessor is getting called
-    PDXPostProcessor pp =
+    var pp =
         (PDXPostProcessor) server.getCache().getSecurityService().getPostProcessor();
     assertThat(pp.getCount()).isEqualTo(2);
   }
@@ -158,14 +155,14 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
     IgnoredException.addIgnoredException("NoAvailableServersException");
 
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
+      var cache = createClientCache("super-user", "1234567", server.getPort());
 
       ClientRegionFactory factory = cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
       factory.addCacheListener(new CacheListenerAdapter() {
         @Override
         public void afterUpdate(EntryEvent event) {
-          Object key = event.getKey();
-          Object value = ((EntryEventImpl) event).getDeserializedValue();
+          var key = event.getKey();
+          var value = ((EntryEventImpl) event).getDeserializedValue();
           if (key.equals("key1")) {
             assertThat(value).isInstanceOf(SimpleClass.class);
           } else if (key.equals("key2")) {
@@ -174,21 +171,21 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
         }
       });
 
-      Region region = factory.create(REGION_NAME);
+      var region = factory.create(REGION_NAME);
       region.put("key1", "value1");
       region.registerInterest("key1");
       region.registerInterest("key2");
     });
 
     client2.invoke(() -> {
-      ClientCache cache = createClientCache("dataUser", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("dataUser", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
       // put in a value that's a domain object
       region.put("key1", new SimpleClass(1, (byte) 1));
       region.put("key2", BYTES);
     });
 
-    PDXPostProcessor pp =
+    var pp =
         (PDXPostProcessor) server.getCache().getSecurityService().getPostProcessor();
     await()
         .untilAsserted(() -> assertThat(pp.getCount()).isEqualTo(2));
@@ -198,8 +195,8 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
   public void testGfshCommand() {
     // have client2 input some domain data into the region
     client2.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
       // put in a value that's a domain object
       region.put("key1", new SimpleClass(1, (byte) 1));
       // put in a byte value
@@ -207,7 +204,7 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
     });
 
     client1.invoke(() -> {
-      GfshCommandRule gfsh = new GfshCommandRule();
+      var gfsh = new GfshCommandRule();
       gfsh.secureConnectAndVerify(server.getJmxPort(), GfshCommandRule.PortType.jmxManager,
           "dataUser", "1234567");
 
@@ -227,7 +224,7 @@ public class PDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
       gfsh.close();
     });
 
-    PDXPostProcessor pp =
+    var pp =
         (PDXPostProcessor) server.getCache().getSecurityService().getPostProcessor();
     assertThat(pp).isNotNull(); // TODO: what else to check here?
   }

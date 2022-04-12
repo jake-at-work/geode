@@ -25,7 +25,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 
 public class RollingUpgradeQueryReturnsCorrectResultAfterTwoLocatorsWithTwoServersAreRolled
     extends LuceneSearchWithRollingUpgradeDUnit {
@@ -34,22 +33,22 @@ public class RollingUpgradeQueryReturnsCorrectResultAfterTwoLocatorsWithTwoServe
   @Test
   public void luceneQueryReturnsCorrectResultAfterTwoLocatorsWithTwoServersAreRolled()
       throws Exception {
-    final Host host = Host.getHost(0);
-    VM locator1 = host.getVM(oldVersion, 0);
-    VM locator2 = host.getVM(oldVersion, 1);
-    VM server1 = host.getVM(oldVersion, 2);
-    VM server2 = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var locator1 = host.getVM(oldVersion, 0);
+    var locator2 = host.getVM(oldVersion, 1);
+    var server1 = host.getVM(oldVersion, 2);
+    var server2 = host.getVM(oldVersion, 3);
 
-    final String regionName = "aRegion";
-    RegionShortcut shortcut = RegionShortcut.PARTITION_REDUNDANT;
-    String regionType = "partitionedRedundant";
+    final var regionName = "aRegion";
+    var shortcut = RegionShortcut.PARTITION_REDUNDANT;
+    var regionType = "partitionedRedundant";
 
-    int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
     locator1.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
     locator2.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
-    String hostName = NetworkUtils.getServerHostName(host);
-    String locatorString = getLocatorString(locatorPorts);
+    var hostName = NetworkUtils.getServerHostName(host);
+    var locatorString = getLocatorString(locatorPorts);
     try {
       locator1.invoke(
           invokeStartLocator(hostName, locatorPorts[0], getLocatorPropertiesPre91(locatorString)));
@@ -74,7 +73,7 @@ public class RollingUpgradeQueryReturnsCorrectResultAfterTwoLocatorsWithTwoServe
       server2.invoke(() -> createLuceneIndex(cache, regionName, INDEX_NAME));
 
       invokeRunnableInVMs(invokeCreateRegion(regionName, shortcut.name()), server1, server2);
-      int expectedRegionSize = 10;
+      var expectedRegionSize = 10;
       putSerializableObjectAndVerifyLuceneQueryResult(server1, regionName, expectedRegionSize, 0,
           10, server1, server2);
       locator1 = rollLocatorToCurrent(locator1, hostName, locatorPorts[0], getTestMethodName(),

@@ -31,7 +31,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
@@ -81,7 +80,7 @@ public class PRSetOperationTXDUnitTest extends JUnit4CacheTestCase {
   @Override
   public final void postSetUp() throws Exception {
     disconnectAllFromDS(); // isolate this test from others to avoid periodic CacheExistsExceptions
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     dataStore1 = host.getVM(0);
     dataStore2 = host.getVM(1);
     dataStore3 = host.getVM(2);
@@ -158,7 +157,7 @@ public class PRSetOperationTXDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void verifyRegionKeysetWithTx(boolean disableSetOpToStartTx, boolean isAccessor) {
-    CacheTransactionManager txMgr = basicGetCache().getCacheTransactionManager();
+    var txMgr = basicGetCache().getCacheTransactionManager();
     Region<Long, String> region = basicGetCache().getRegion(SEPARATOR + REGION_NAME);
     try {
       txMgr.begin();
@@ -171,11 +170,11 @@ public class PRSetOperationTXDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void verifyRegionValuesWithTx(boolean disableSetOpToStartTx, boolean isAccessor) {
-    CacheTransactionManager txMgr = basicGetCache().getCacheTransactionManager();
+    var txMgr = basicGetCache().getCacheTransactionManager();
     Region<Long, String> region = basicGetCache().getRegion(SEPARATOR + REGION_NAME);
     try {
       txMgr.begin();
-      Collection<String> set = region.values();
+      var set = region.values();
       set.forEach((value) -> assertTrue(testData.containsValue(value)));
     } finally {
       validateTXManager(disableSetOpToStartTx, isAccessor);
@@ -184,7 +183,7 @@ public class PRSetOperationTXDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void verifyRegionEntriesWithTx(boolean disableSetOpToStartTx, boolean isAccessor) {
-    CacheTransactionManager txMgr = basicGetCache().getCacheTransactionManager();
+    var txMgr = basicGetCache().getCacheTransactionManager();
     Region<Long, String> region = basicGetCache().getRegion(SEPARATOR + REGION_NAME);
     try {
       txMgr.begin();
@@ -209,7 +208,7 @@ public class PRSetOperationTXDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void verifyNoTxState() {
-    TXManagerImpl mgr = getCache().getTxManager();
+    var mgr = getCache().getTxManager();
     assertEquals(0, mgr.hostedTransactionsInProgressForTest());
   }
 

@@ -36,12 +36,10 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.CacheServerImpl;
@@ -50,7 +48,6 @@ import org.apache.geode.internal.cache.ClientServerObserverHolder;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.HARegion;
 import org.apache.geode.internal.cache.ha.HAHelper;
-import org.apache.geode.internal.cache.ha.HARegionQueue;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
@@ -87,7 +84,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm2 = host.getVM(2);
     PORT = vm0.invoke(ConflationDUnitTest::createServerCache);
@@ -95,7 +92,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
 
   private Cache createCache(Properties props) throws Exception {
     DistributedSystem ds = getSystem(props);
-    Cache cache = CacheFactory.create(ds);
+    var cache = CacheFactory.create(ds);
     if (cache == null) {
       throw new Exception("CacheFactory.create() returned null ");
     }
@@ -109,7 +106,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testNotMoreMessagesSent() throws Exception {
     vm0.invoke(() -> ConflationDUnitTestHelper.setIsSlowStart());
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     createClientCache1CommonWriterTest3(NetworkUtils.getServerHostName(host), PORT);
     vm2.invoke(() -> ConflationDUnitTest.createClientCache2CommonWriterTest3(
         NetworkUtils.getServerHostName(host), PORT));
@@ -135,7 +132,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
    * create properties for a loner VM
    */
   private static Properties createProperties1() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     return props;
@@ -161,12 +158,12 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
    */
 
   public static void createClientCache1CommonWriter(String host, Integer port) throws Exception {
-    ConflationDUnitTest test = new ConflationDUnitTest();
+    var test = new ConflationDUnitTest();
     cache = test.createCache(createProperties1());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(createPool(host, "p1", port, true).getName());
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
     cache.createRegion(REGION_NAME2, attrs);
   }
@@ -179,12 +176,12 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
 
   public static void createClientCache1CommonWriterTest3(String host, Integer port)
       throws Exception {
-    ConflationDUnitTest test = new ConflationDUnitTest();
+    var test = new ConflationDUnitTest();
     cache = test.createCache(createProperties1());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(createPool(host, "p1", port, false).getName());
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
     cache.createRegion(REGION_NAME2, attrs);
   }
@@ -194,16 +191,16 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
    *
    */
   public static void createClientCache2CommonWriter(String host, Integer port) throws Exception {
-    ConflationDUnitTest test = new ConflationDUnitTest();
+    var test = new ConflationDUnitTest();
     cache = test.createCache(createProperties1());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(createPool(host, "p1", port, true).getName());
     factory.addCacheListener(new CacheListenerAdapter() {
       @Override
       public void afterCreate(EntryEvent event) {
         LogWriterUtils.getLogWriter().info("Listener received event " + event);
-        String val = (String) event.getNewValue();
+        var val = (String) event.getNewValue();
         synchronized (ConflationDUnitTest.class) {
           if (val.equals(MARKER)) {
             count++;
@@ -234,23 +231,23 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
         }
       }
     });
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
     cache.createRegion(REGION_NAME2, attrs);
   }
 
   public static void createClientCache2CommonWriterTest3(String host, Integer port)
       throws Exception {
-    ConflationDUnitTest test = new ConflationDUnitTest();
+    var test = new ConflationDUnitTest();
     cache = test.createCache(createProperties1());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(createPool(host, "p1", port, true).getName());
     factory.addCacheListener(new CacheListenerAdapter() {
       @Override
       public void afterCreate(EntryEvent event) {
         LogWriterUtils.getLogWriter().info("Listener received event " + event);
-        String val = (String) event.getNewValue();
+        var val = (String) event.getNewValue();
         synchronized (ConflationDUnitTest.class) {
           if (val.equals(MARKER)) {
             count++;
@@ -281,7 +278,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
         }
       }
     });
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
     cache.createRegion(REGION_NAME2, attrs);
   }
@@ -293,12 +290,12 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
    */
 
   public static void createClientCache1UniqueWriter(String host, Integer port) throws Exception {
-    ConflationDUnitTest test = new ConflationDUnitTest();
+    var test = new ConflationDUnitTest();
     cache = test.createCache(createProperties1());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(createPool(host, "p1", port, true).getName());
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
     factory.setPoolName(createPool(host, "p2", port, true).getName());
     attrs = factory.create();
@@ -310,15 +307,15 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
    *
    */
   public static void createClientCache2UniqueWriter(String host, Integer port) throws Exception {
-    ConflationDUnitTest test = new ConflationDUnitTest();
+    var test = new ConflationDUnitTest();
     cache = test.createCache(createProperties1());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(createPool(host, "p1", port, true).getName());
     factory.addCacheListener(new CacheListenerAdapter() {
       @Override
       public void afterCreate(EntryEvent event) {
-        String val = (String) event.getNewValue();
+        var val = (String) event.getNewValue();
         LogWriterUtils.getLogWriter().info("Listener received event " + event);
         synchronized (ConflationDUnitTest.class) {
           if (val.equals(MARKER)) {
@@ -348,7 +345,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
         }
       }
     });
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
     factory.setPoolName(createPool(host, "p2", port, true).getName());
     attrs = factory.create();
@@ -404,7 +401,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
    *
    */
   public static void assertCounterSizes() {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return counterCreate == 2;
@@ -450,7 +447,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
    *
    */
   public static void assertCounterSizesLessThan200() {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         Thread.yield(); // TODO is this necessary?
@@ -497,7 +494,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
   public static void waitForMarker() {
     cache.getRegion(SEPARATOR + REGION_NAME1);
     cache.getRegion(SEPARATOR + REGION_NAME2);
-    long giveUpTime = System.currentTimeMillis() + 30000;
+    var giveUpTime = System.currentTimeMillis() + 30000;
     synchronized (ConflationDUnitTest.class) {
       while (count != 2) {
         if (System.currentTimeMillis() > giveUpTime) {
@@ -535,7 +532,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void assertConflationStatus() {
     assertNotNull(statMap);
-    Long confCount = (Long) statMap.get("eventsConflated");
+    var confCount = (Long) statMap.get("eventsConflated");
     assertTrue("No Conflation found: eventsConflated value is " + confCount,
         confCount > (0));
     assertTrue("Error in Conflation found: eventsConflated value is " + confCount,
@@ -548,16 +545,16 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
    *
    */
   public static Integer createServerCache() throws Exception {
-    ConflationDUnitTest test = new ConflationDUnitTest();
+    var test = new ConflationDUnitTest();
     cache = test.createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEnableConflation(true);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME1, attrs);
     cache.createRegion(REGION_NAME2, attrs);
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.setSocketBufferSize(32768);
@@ -666,7 +663,7 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
     try {
       Region r1 = cache.getRegion(SEPARATOR + REGION_NAME1);
       Region r2 = cache.getRegion(SEPARATOR + REGION_NAME2);
-      for (int i = 1; i < 100; i++) {
+      for (var i = 1; i < 100; i++) {
         r1.put("key-1", "11");
         r2.put("key-1", "11");
 
@@ -688,17 +685,17 @@ public class ConflationDUnitTest extends JUnit4DistributedTestCase {
   public static void getStatsOnServer() {
     Cache cache = GemFireCacheImpl.getInstance();
     Iterator itr = cache.getCacheServers().iterator();
-    CacheServerImpl server = (CacheServerImpl) itr.next();
+    var server = (CacheServerImpl) itr.next();
     Iterator iter_prox =
         server.getAcceptor().getCacheClientNotifier().getClientProxies().iterator();
-    int ccpCount = 0;
+    var ccpCount = 0;
     while (iter_prox.hasNext()) {
       ccpCount++;
-      CacheClientProxy proxy = (CacheClientProxy) iter_prox.next();
+      var proxy = (CacheClientProxy) iter_prox.next();
       if (HaHelper.checkPrimary(proxy)) {
-        HARegion region = (HARegion) proxy.getHARegion();
+        var region = (HARegion) proxy.getHARegion();
         assertNotNull(region);
-        HARegionQueue haRegionQueue = HAHelper.getRegionQueue(region);
+        var haRegionQueue = HAHelper.getRegionQueue(region);
         statMap.put("eventsConflated",
             HAHelper.getRegionQueueStats(haRegionQueue).getEventsConflated());
         LogWriterUtils.getLogWriter().info("new Stats Map  : " + statMap);

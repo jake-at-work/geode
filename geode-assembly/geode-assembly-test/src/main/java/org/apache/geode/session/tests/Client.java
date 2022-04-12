@@ -20,8 +20,6 @@ import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.http.Header;
-import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -212,10 +210,10 @@ public class Client {
   private Response doRequest(HttpGet req, boolean storeRespCookie) throws IOException {
     addCookieHeader(req);
 
-    CloseableHttpResponse resp = httpclient.execute(req, context);
+    var resp = httpclient.execute(req, context);
 
-    boolean isNew = true;
-    String reqCookie = getCookieHeader(resp);
+    var isNew = true;
+    var reqCookie = getCookieHeader(resp);
     if (reqCookie == null) {
       isNew = false;
       reqCookie = cookie;
@@ -223,13 +221,13 @@ public class Client {
       cookie = reqCookie;
     }
 
-    StatusLine status = resp.getStatusLine();
+    var status = resp.getStatusLine();
     if (status.getStatusCode() != 200) {
       throw new IOException("Http request to " + req.getURI().getHost() + "["
           + req.getURI().getPort() + "] failed. " + status);
     }
 
-    Response response = new Response(reqCookie, EntityUtils.toString(resp.getEntity()), isNew);
+    var response = new Response(reqCookie, EntityUtils.toString(resp.getEntity()), isNew);
     resp.close();
     return response;
   }
@@ -237,11 +235,11 @@ public class Client {
   private void addCookieHeader(HttpGet req) {
     // Set the cookie header
     if (cookie != null) {
-      BasicClientCookie cookie = new BasicClientCookie("JSESSIONID", this.cookie);
+      var cookie = new BasicClientCookie("JSESSIONID", this.cookie);
       cookie.setDomain(req.getURI().getHost());
       cookie.setPath("/");
 
-      BasicCookieStore cookieStore = new BasicCookieStore();
+      var cookieStore = new BasicCookieStore();
       cookieStore.addCookie(cookie);
 
       context.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
@@ -249,7 +247,7 @@ public class Client {
   }
 
   private String getCookieHeader(CloseableHttpResponse resp) {
-    Header lastHeader = resp.getLastHeader("Set-Cookie");
+    var lastHeader = resp.getLastHeader("Set-Cookie");
 
     if (lastHeader == null) {
       return null;

@@ -18,7 +18,6 @@ import static java.lang.System.lineSeparator;
 
 import java.io.PrintStream;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,7 +43,6 @@ import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.util.concurrent.ConcurrentMapWithReusableEntries;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -105,7 +103,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
   private volatile boolean rvvTrusted = true;
 
   protected AbstractDiskRegion(DiskStoreImpl ds, String name) {
-    DiskRegionView drv = ds.getDiskInitFile().takeDiskRegionByName(name);
+    var drv = ds.getDiskInitFile().takeDiskRegionByName(name);
     if (drv != null) {
       // if we found one in the initFile then we take it out of it and this
       // one we are constructing will replace it in the diskStore drMap.
@@ -306,7 +304,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
     } else {
       try {
         @SuppressWarnings("unchecked")
-        Class<Compressor> compressorClass =
+        var compressorClass =
             (Class<Compressor>) ClassPathLoader.getLatest().forName(compressorClassName);
         compressor = compressorClass.newInstance();
       } catch (ClassNotFoundException e) {
@@ -399,7 +397,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
 
   public String getPrName() {
     assert isBucket();
-    String bn = PartitionedRegionHelper.getBucketName(getName());
+    var bn = PartitionedRegionHelper.getBucketName(getName());
     return PartitionedRegionHelper.getPRPath(bn);
   }
 
@@ -411,7 +409,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
 
   @Override
   public PersistentMemberID addMyInitializingPMID(PersistentMemberID pmid) {
-    PersistentMemberID result = myInitializingId;
+    var result = myInitializingId;
     myInitializingId = pmid;
     if (result != null) {
       myInitializedId = result;
@@ -487,7 +485,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
   // PersistentMemberView methods
   @Override
   public PersistentMemberID getMyInitializingID() {
-    DiskInitFile dif = ds.getDiskInitFile();
+    var dif = ds.getDiskInitFile();
     if (dif == null) {
       return myInitializingId;
     }
@@ -498,7 +496,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
 
   @Override
   public PersistentMemberID getMyPersistentID() {
-    DiskInitFile dif = ds.getDiskInitFile();
+    var dif = ds.getDiskInitFile();
     if (dif == null) {
       return myInitializedId;
     }
@@ -509,7 +507,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
 
   @Override
   public Set<PersistentMemberID> getOnlineMembers() {
-    DiskInitFile dif = ds.getDiskInitFile();
+    var dif = ds.getDiskInitFile();
     if (dif == null) {
       return onlineMembers.getSnapshot();
     }
@@ -520,7 +518,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
 
   @Override
   public Set<PersistentMemberID> getOfflineMembers() {
-    DiskInitFile dif = ds.getDiskInitFile();
+    var dif = ds.getDiskInitFile();
     if (dif == null) {
       return offlineMembers.getSnapshot();
     }
@@ -531,7 +529,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
 
   @Override
   public Set<PersistentMemberID> getOfflineAndEqualMembers() {
-    DiskInitFile dif = ds.getDiskInitFile();
+    var dif = ds.getDiskInitFile();
     if (dif == null) {
       return equalMembers.getSnapshot();
     }
@@ -542,7 +540,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
 
   @Override
   public Set<PersistentMemberPattern> getRevokedMembers() {
-    DiskInitFile dif = ds.getDiskInitFile();
+    var dif = ds.getDiskInitFile();
     return ds.getRevokedMembers();
   }
 
@@ -637,10 +635,10 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
       ds.updateDiskRegion(this);
       entriesMapIncompatible = false;
       if (entries != null) {
-        ConcurrentMapWithReusableEntries<Object, Object> other =
+        var other =
             entries.getCustomEntryConcurrentHashMap();
-        for (Map.Entry<Object, Object> me : other.entrySetWithReusableEntries()) {
-          RegionEntry oldRe = (RegionEntry) me.getValue();
+        for (var me : other.entrySetWithReusableEntries()) {
+          var oldRe = (RegionEntry) me.getValue();
           if (oldRe instanceof OffHeapRegionEntry) {
             ((OffHeapRegionEntry) oldRe).release();
           } else {
@@ -745,7 +743,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
   }
 
   private void waitForRecoveryCompletion() {
-    boolean interrupted = Thread.interrupted();
+    var interrupted = Thread.interrupted();
     synchronized (recoveryCompleted) {
       try {
         // @todo also check for shutdown of diskstore?
@@ -890,11 +888,11 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
   }
 
   public void dump(PrintStream printStream) {
-    String name = getName();
+    var name = getName();
     if (isBucket() && !logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
       name = getPrName();
     }
-    String msg = name + ":" + " -lru=" + getEvictionAttributes().getAlgorithm();
+    var msg = name + ":" + " -lru=" + getEvictionAttributes().getAlgorithm();
     if (!getEvictionAttributes().getAlgorithm().isNone()) {
       msg += " -lruAction=" + getEvictionAttributes().getAction();
       if (!getEvictionAttributes().getAlgorithm().isLRUHeap()) {
@@ -916,13 +914,13 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
   }
 
   public String dump2() {
-    final String lineSeparator = lineSeparator();
-    StringBuilder sb = new StringBuilder();
-    String name = getName();
+    final var lineSeparator = lineSeparator();
+    var sb = new StringBuilder();
+    var name = getName();
     if (isBucket() && logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
       name = getPrName();
     }
-    String msg = name + ":" + " -lru=" + getEvictionAttributes().getAlgorithm();
+    var msg = name + ":" + " -lru=" + getEvictionAttributes().getAlgorithm();
 
     sb.append(name);
     sb.append(lineSeparator);
@@ -977,9 +975,9 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
   }
 
   public void dumpMetadata() {
-    String name = getName();
+    var name = getName();
 
-    StringBuilder msg = new StringBuilder(name);
+    var msg = new StringBuilder(name);
 
     dumpCommonAttributes(msg);
 
@@ -996,17 +994,17 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
     msg.append("\n\tMyPersistentID=<").append(getMyPersistentID()).append(">");
 
     msg.append("\n\tonlineMembers:");
-    for (PersistentMemberID id : getOnlineMembers()) {
+    for (var id : getOnlineMembers()) {
       msg.append("\n\t\t").append(id);
     }
 
     msg.append("\n\tofflineMembers:");
-    for (PersistentMemberID id : getOfflineMembers()) {
+    for (var id : getOfflineMembers()) {
       msg.append("\n\t\t").append(id);
     }
 
     msg.append("\n\tequalsMembers:");
-    for (PersistentMemberID id : getOfflineAndEqualMembers()) {
+    for (var id : getOfflineAndEqualMembers()) {
       msg.append("\n\t\t").append(id);
     }
   }

@@ -48,7 +48,7 @@ public class RLJBarJUnitTest extends JSR166TestCase { // TODO: reformat
   }
 
   public static void main(String[] args) {
-    int argix = 0;
+    var argix = 0;
     if (argix < args.length && args[argix].equals("-o")) {
       ++argix;
       OneKey = true;
@@ -66,7 +66,7 @@ public class RLJBarJUnitTest extends JSR166TestCase { // TODO: reformat
         System.out.println("Quiesce " + quiesce + " msecs");
       }
     }
-    for (int k = 0; k < ITERS; ++k) {
+    for (var k = 0; k < ITERS; ++k) {
       oneRun();
     }
   }
@@ -77,10 +77,10 @@ public class RLJBarJUnitTest extends JSR166TestCase { // TODO: reformat
     EndCondition = End.newCondition();
 
     nDead = nUp = 0;
-    long cyBase = System.currentTimeMillis();
+    var cyBase = System.currentTimeMillis();
     DeathRow.lock();
     try {
-      for (int i = 1; i <= nThreads; i++) {
+      for (var i = 1; i <= nThreads; i++) {
         new Producer("Producer" + i).start();
       }
       try {
@@ -128,10 +128,10 @@ class Producer extends Thread {
   @Override
   public void run() {
     Object key = null;
-    final ReentrantLock dr = RLJBarJUnitTest.DeathRow;
-    final ReentrantLock bar = RLJBarJUnitTest.bar;
-    final ReentrantLock end = RLJBarJUnitTest.End;
-    final Condition endCondition = RLJBarJUnitTest.EndCondition;
+    final var dr = RLJBarJUnitTest.DeathRow;
+    final var bar = RLJBarJUnitTest.bar;
+    final var end = RLJBarJUnitTest.End;
+    final var endCondition = RLJBarJUnitTest.EndCondition;
     if (RLJBarJUnitTest.OneKey) {
       key = 0; // per-thread v. per iteration
     }
@@ -171,7 +171,7 @@ class Producer extends Thread {
 
     // Main execution time ... the code being timed ...
     // HashTable.get() is highly contended (serial).
-    for (int loop = 1; loop < 100000; loop++) {
+    for (var loop = 1; loop < 100000; loop++) {
       if (!RLJBarJUnitTest.OneKey) {
         key = 0;
       }

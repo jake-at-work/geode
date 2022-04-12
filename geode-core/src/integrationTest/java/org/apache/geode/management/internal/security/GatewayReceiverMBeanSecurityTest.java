@@ -86,7 +86,7 @@ public class GatewayReceiverMBeanSecurityTest {
   @Test
   @ConnectionConfiguration(user = "user", password = "user")
   public void testNoAccess() throws Exception {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
     softly.assertThatThrownBy(() -> bean.getTotalConnectionsTimedOut())
         .hasMessageContaining(ResourcePermissions.CLUSTER_READ.toString());
     softly.assertThatThrownBy(() -> bean.start())

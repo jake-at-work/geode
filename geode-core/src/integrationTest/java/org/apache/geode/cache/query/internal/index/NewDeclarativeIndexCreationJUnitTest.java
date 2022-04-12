@@ -36,7 +36,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheXmlException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
@@ -61,10 +60,10 @@ public class NewDeclarativeIndexCreationJUnitTest {
     FileUtils.copyURLToFile(getClass().getResource(CACHE_XML_FILE_NAME), cacheXmlFile);
     assertThat(cacheXmlFile).exists(); // precondition
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(CACHE_XML_FILE, cacheXmlFile.getAbsolutePath());
     props.setProperty(MCAST_PORT, "0");
-    DistributedSystem ds = DistributedSystem.connect(props);
+    var ds = DistributedSystem.connect(props);
     cache = CacheFactory.create(ds);
   }
 
@@ -78,20 +77,20 @@ public class NewDeclarativeIndexCreationJUnitTest {
   @Test
   public void testAsynchronousIndexCreatedOnRoot_PortfoliosRegion() {
     Region root = cache.getRegion(SEPARATOR + "root" + SEPARATOR + "portfolios");
-    IndexManager im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
+    var im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
     assertThat(im.getIndexes()).isNotEmpty();
 
-    RegionAttributes ra = root.getAttributes();
+    var ra = root.getAttributes();
     assertThat(ra.getIndexMaintenanceSynchronous()).isFalse();
   }
 
   @Test
   public void testSynchronousIndexCreatedOnRoot_StringRegion() {
     Region root = cache.getRegion(SEPARATOR + "root" + SEPARATOR + "string");
-    IndexManager im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
+    var im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
     assertThat(im.getIndexes()).isNotEmpty();
 
-    RegionAttributes ra = root.getAttributes();
+    var ra = root.getAttributes();
     assertThat(ra.getIndexMaintenanceSynchronous()).isTrue();
 
     root = cache.getRegion(SEPARATOR + "root" + SEPARATOR + "string1");
@@ -102,10 +101,10 @@ public class NewDeclarativeIndexCreationJUnitTest {
   @Test
   public void testSynchronousIndexCreatedOnRootRegion() {
     Region root = cache.getRegion(SEPARATOR + "root");
-    IndexManager im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
+    var im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
     assertThat(im.getIndexes()).isNotEmpty();
 
-    RegionAttributes ra = root.getAttributes();
+    var ra = root.getAttributes();
     assertThat(ra.getIndexMaintenanceSynchronous()).isTrue();
   }
 
@@ -117,20 +116,20 @@ public class NewDeclarativeIndexCreationJUnitTest {
   @Test
   public void testAsynchronousIndexCreatedOnPortfoliosRegionWithNewDTD() {
     Region root = cache.getRegion(SEPARATOR + "root" + SEPARATOR + "portfolios2");
-    IndexManager im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
+    var im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
     assertThat(im.getIndexes()).isNotEmpty();
 
-    RegionAttributes ra = root.getAttributes();
+    var ra = root.getAttributes();
     assertThat(ra.getIndexMaintenanceSynchronous()).isFalse();
   }
 
   @Test
   public void testSynchronousIndexCreatedOnStringRegionWithNewDTD() {
     Region root = cache.getRegion(SEPARATOR + "root" + SEPARATOR + "string2");
-    IndexManager im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
+    var im = IndexUtils.getIndexManager((InternalCache) cache, root, true);
     assertThat(im.getIndexes()).isNotEmpty();
 
-    RegionAttributes ra = root.getAttributes();
+    var ra = root.getAttributes();
     assertThat(ra.getIndexMaintenanceSynchronous()).isTrue();
 
     root = cache.getRegion(SEPARATOR + "root" + SEPARATOR + "string1");
@@ -152,11 +151,11 @@ public class NewDeclarativeIndexCreationJUnitTest {
         cacheXmlFile);
     assertThat(cacheXmlFile).exists(); // precondition
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(CACHE_XML_FILE, cacheXmlFile.getAbsolutePath());
     props.setProperty(MCAST_PORT, "0");
 
-    DistributedSystem ds = DistributedSystem.connect(props);
+    var ds = DistributedSystem.connect(props);
 
     // TODO: refactoring GemFireCacheImpl.initializeDeclarativeCache requires change here
     assertThatThrownBy(() -> CacheFactory.create(ds)).isExactlyInstanceOf(CacheXmlException.class)

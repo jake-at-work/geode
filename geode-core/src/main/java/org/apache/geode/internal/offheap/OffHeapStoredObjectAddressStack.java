@@ -97,17 +97,17 @@ public class OffHeapStoredObjectAddressStack implements LongStack {
   }
 
   public void logSizes(Logger logger, String msg) {
-    long headAddr = topAddr;
+    var headAddr = topAddr;
     long addr;
     boolean concurrentModDetected;
     do {
       concurrentModDetected = false;
       addr = headAddr;
       while (addr != 0L) {
-        int curSize = OffHeapStoredObject.getSize(addr);
+        var curSize = OffHeapStoredObject.getSize(addr);
         addr = OffHeapStoredObject.getNext(addr);
         testHookDoConcurrentModification();
-        long curHead = topAddr;
+        var curHead = topAddr;
         if (curHead != headAddr) {
           headAddr = curHead;
           concurrentModDetected = true;
@@ -125,7 +125,7 @@ public class OffHeapStoredObjectAddressStack implements LongStack {
 
   public long computeTotalSize() {
     long result;
-    long headAddr = topAddr;
+    var headAddr = topAddr;
     long addr;
     boolean concurrentModDetected;
     do {
@@ -136,7 +136,7 @@ public class OffHeapStoredObjectAddressStack implements LongStack {
         result += OffHeapStoredObject.getSize(addr);
         addr = OffHeapStoredObject.getNext(addr);
         testHookDoConcurrentModification();
-        long curHead = topAddr;
+        var curHead = topAddr;
         if (curHead != headAddr) {
           headAddr = curHead;
           concurrentModDetected = true;

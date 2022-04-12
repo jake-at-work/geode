@@ -86,7 +86,7 @@ public abstract class AbstractSessionAttributes implements SessionAttributes {
    */
   @Override
   public Object getAttribute(String name) {
-    Object value = attributes.get(name);
+    var value = attributes.get(name);
 
     // If the value is a byte[] (meaning it came from the server),
     // deserialize it and re-add it to attributes map before returning it.
@@ -169,8 +169,8 @@ public abstract class AbstractSessionAttributes implements SessionAttributes {
 
     synchronized (attributes) {
       out.writeInt(attributes.size());
-      for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-        DeltaEvent delta = new DeltaEvent(true, entry.getKey(), entry.getValue());
+      for (var entry : attributes.entrySet()) {
+        var delta = new DeltaEvent(true, entry.getKey(), entry.getValue());
         DataSerializer.writeObject(delta, out);
       }
     }
@@ -187,7 +187,7 @@ public abstract class AbstractSessionAttributes implements SessionAttributes {
   private void fromDataPre_GEODE_1_3_0_0(DataInput in) throws IOException, ClassNotFoundException {
     maxInactiveInterval = in.readInt();
     lastAccessedTime = in.readLong();
-    int size = in.readInt();
+    var size = in.readInt();
     while (size-- > 0) {
       DeltaEvent event = DataSerializer.readObject(in);
       attributes.put(event.getName(), event.getValue());

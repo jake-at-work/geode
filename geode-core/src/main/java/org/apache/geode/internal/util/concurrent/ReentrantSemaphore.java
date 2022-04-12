@@ -62,7 +62,7 @@ public class ReentrantSemaphore extends Semaphore {
   @Override
   public boolean tryAcquire() {
     if (incHoldCount()) {
-      boolean result = super.tryAcquire();
+      var result = super.tryAcquire();
       if (!result) {
         decHoldCount();
       }
@@ -75,7 +75,7 @@ public class ReentrantSemaphore extends Semaphore {
   @Override
   public boolean tryAcquire(long timeout, TimeUnit unit) throws InterruptedException {
     if (incHoldCount()) {
-      boolean result = super.tryAcquire();
+      var result = super.tryAcquire();
       if (!result) {
         decHoldCount();
       }
@@ -123,7 +123,7 @@ public class ReentrantSemaphore extends Semaphore {
   }
 
   private boolean incHoldCount() {
-    Integer count = holdCount.get();
+    var count = holdCount.get();
     if (count != null) {
       holdCount.set(count + 1);
       return false;
@@ -135,7 +135,7 @@ public class ReentrantSemaphore extends Semaphore {
   }
 
   private boolean decHoldCount() {
-    Integer count = holdCount.get();
+    var count = holdCount.get();
     if (count == null) {
       return true;
     }

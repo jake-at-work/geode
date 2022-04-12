@@ -16,7 +16,6 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,6 @@ import org.apache.geode.management.internal.cli.functions.AlterGatewaySenderFunc
 import org.apache.geode.management.internal.cli.functions.GatewaySenderFunctionArgs;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.exceptions.EntityNotFoundException;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -89,12 +87,12 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
           + "Please connect to a locator with running Cluster Configuration Service.");
     }
 
-    final String id = senderId.trim();
+    final var id = senderId.trim();
 
-    CacheConfig.GatewaySender oldConfiguration = findGatewaySenderConfiguration(id);
+    var oldConfiguration = findGatewaySenderConfiguration(id);
 
     if (oldConfiguration == null) {
-      String message = String.format("Cannot find a gateway sender with id '%s'.", id);
+      var message = String.format("Cannot find a gateway sender with id '%s'.", id);
       throw new EntityNotFoundException(message);
     }
 
@@ -127,7 +125,7 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
       }
     }
 
-    Set<DistributedMember> dsMembers = findMembers(onGroup, onMember);
+    var dsMembers = findMembers(onGroup, onMember);
 
     if (dsMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
@@ -140,10 +138,10 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
           CliStrings.ALTER_GATEWAYSENDER__MSG__CAN_NOT_CREATE_DIFFERENT_VERSIONS);
     }
 
-    CacheConfig.GatewaySender gwConfiguration = new CacheConfig.GatewaySender();
+    var gwConfiguration = new CacheConfig.GatewaySender();
     gwConfiguration.setId(id);
 
-    boolean modify = false;
+    var modify = false;
 
     if (alertThreshold != null) {
       modify = true;
@@ -183,14 +181,14 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
       return ResultModel.createError(CliStrings.ALTER_GATEWAYSENDER__RELEVANT__OPTION__MESSAGE);
     }
 
-    GatewaySenderFunctionArgs gatewaySenderFunctionArgs =
+    var gatewaySenderFunctionArgs =
         new GatewaySenderFunctionArgs(gwConfiguration);
 
-    List<CliFunctionResult> gatewaySenderAlterResults =
+    var gatewaySenderAlterResults =
         executeAndGetFunctionResult(alterGatewaySenderFunction, gatewaySenderFunctionArgs,
             dsMembers);
 
-    ResultModel resultModel = ResultModel.createMemberStatusResult(gatewaySenderAlterResults);
+    var resultModel = ResultModel.createMemberStatusResult(gatewaySenderAlterResults);
 
     resultModel.setConfigObject(gwConfiguration);
 
@@ -199,18 +197,18 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
 
   @Override
   public boolean updateConfigForGroup(String group, CacheConfig config, Object configObject) {
-    List<CacheConfig.GatewaySender> gwSenders = config.getGatewaySenders();
+    var gwSenders = config.getGatewaySenders();
     if (gwSenders.isEmpty()) {
       return false;
     }
 
-    boolean gwConfigsHaveBeenUpdated = false;
-    CacheConfig.GatewaySender gwConfiguration =
+    var gwConfigsHaveBeenUpdated = false;
+    var gwConfiguration =
         ((CacheConfig.GatewaySender) configObject);
 
-    String gwId = gwConfiguration.getId();
+    var gwId = gwConfiguration.getId();
 
-    for (CacheConfig.GatewaySender sender : gwSenders) {
+    for (var sender : gwSenders) {
       if (gwId.equals(sender.getId())) {
         gwConfigsHaveBeenUpdated = true;
         if (StringUtils.isNotBlank(gwConfiguration.getBatchSize())) {
@@ -250,16 +248,16 @@ public class AlterGatewaySenderCommand extends SingleGfshCommand {
       return null;
     }
 
-    Set<String> groups = ccService.getGroups();
+    var groups = ccService.getGroups();
 
-    for (String group : groups) {
-      List<CacheConfig.GatewaySender> gwSendersList =
+    for (var group : groups) {
+      var gwSendersList =
           ccService.getCacheConfig(group).getGatewaySenders();
       if (gwSendersList.isEmpty()) {
         continue;
       }
 
-      for (CacheConfig.GatewaySender sender : gwSendersList) {
+      for (var sender : gwSendersList) {
         if (sender.getId().equals(gwId)) {
           return sender;
         }

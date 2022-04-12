@@ -15,7 +15,6 @@
 package org.apache.geode.internal.admin.remote;
 
 import java.io.PrintWriter;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.StringTokenizer;
@@ -48,7 +47,7 @@ public class RemoteAlert implements Alert {
     this.date = date;
     this.connectionName = connectionName;
     {
-      StringBuilder tmpSourceId = new StringBuilder();
+      var tmpSourceId = new StringBuilder();
 
       tmpSourceId.append(threadName);
       if (tmpSourceId.length() > 0) {
@@ -59,7 +58,7 @@ public class RemoteAlert implements Alert {
       sourceId = tmpSourceId.toString();
     }
     {
-      StringBuilder tmpMessage = new StringBuilder();
+      var tmpMessage = new StringBuilder();
       tmpMessage.append(msg);
       if (tmpMessage.length() > 0) {
         tmpMessage.append('\n');
@@ -118,24 +117,24 @@ public class RemoteAlert implements Alert {
    * Converts the String return by an invocation of {@link #toString} into an <code>Alert</code>.
    */
   public static Alert fromString(String s) {
-    int firstBracket = s.indexOf('[');
-    int lastBracket = s.indexOf(']');
+    var firstBracket = s.indexOf('[');
+    var lastBracket = s.indexOf(']');
 
-    final String message = s.substring(lastBracket + 1).trim();
+    final var message = s.substring(lastBracket + 1).trim();
 
-    String stamp = s.substring(firstBracket, lastBracket);
-    StringTokenizer st = new StringTokenizer(stamp, "[ ");
+    var stamp = s.substring(firstBracket, lastBracket);
+    var st = new StringTokenizer(stamp, "[ ");
 
-    final int level = LogLevel.getLogWriterLevel(st.nextToken());
+    final var level = LogLevel.getLogWriterLevel(st.nextToken());
 
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append(st.nextToken());
     sb.append(" ");
     sb.append(st.nextToken());
     sb.append(" ");
     sb.append(st.nextToken());
 
-    final DateFormat timeFormatter = DateFormatter.createDateFormat();
+    final var timeFormatter = DateFormatter.createDateFormat();
     final Date date;
     try {
       date = timeFormatter.parse(sb.toString());
@@ -146,14 +145,14 @@ public class RemoteAlert implements Alert {
     }
 
     // Assume that the connection name is only one token...
-    final String connectionName = st.nextToken();
+    final var connectionName = st.nextToken();
 
     sb = new StringBuilder();
     while (st.hasMoreTokens()) {
       sb.append(st.nextToken());
       sb.append(" ");
     }
-    final String sourceId = sb.toString().trim();
+    final var sourceId = sb.toString().trim();
 
     Assert.assertTrue(!st.hasMoreTokens());
 
@@ -198,9 +197,9 @@ public class RemoteAlert implements Alert {
 
   @Override
   public String toString() {
-    final DateFormat timeFormatter = DateFormatter.createDateFormat();
-    java.io.StringWriter sw = new java.io.StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
+    final var timeFormatter = DateFormatter.createDateFormat();
+    var sw = new java.io.StringWriter();
+    var pw = new PrintWriter(sw);
 
 
     pw.print('[');

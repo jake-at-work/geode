@@ -29,11 +29,11 @@ public class CompositeBuilderViaProxyTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    CompositeBuilderViaProxy mockCompositeBuilderViaProxy = mock(CompositeBuilderViaProxy.class);
+    var mockCompositeBuilderViaProxy = mock(CompositeBuilderViaProxy.class);
     CompositeData compositeData = null;
-    String[] itemNames = new String[1];
-    OpenTypeConverter[] converters = new OpenTypeConverter[1];
-    Object result = new Object();
+    var itemNames = new String[1];
+    var converters = new OpenTypeConverter[1];
+    var result = new Object();
 
     when(mockCompositeBuilderViaProxy.fromCompositeData(eq(compositeData), eq(itemNames),
         eq(converters))).thenReturn(result);

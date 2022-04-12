@@ -55,8 +55,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.InternalClientCache;
 import org.apache.geode.cache.execute.Function;
@@ -65,15 +63,12 @@ import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionInvocationTargetException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.util.TypedFunctionService;
 import org.apache.geode.security.templates.DummyAuthenticator;
 import org.apache.geode.security.templates.UserPasswordAuthInit;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.ClientCacheRule;
@@ -117,7 +112,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
     replicate3 = getVM(2);
     normal = getVM(3);
 
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       // zero is no-op unless test replaces the reference
       vm.invoke(() -> LATCH.set(new CountDownLatch(0)));
     }
@@ -125,27 +120,27 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
     regionName = getClass().getSimpleName() + "_region";
     poolName = getClass().getSimpleName() + "_pool";
 
-    for (int i = 100; i < 120; i++) {
+    for (var i = 100; i < 120; i++) {
       filter.add("execKey-" + i);
     }
   }
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> LATCH.get().countDown());
     }
   }
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyEmpty() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -158,13 +153,13 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyEmpty_SendException() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -177,13 +172,13 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyEmpty_NoLastResult() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -196,20 +191,20 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyNormal() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
     empty.invoke(() -> populateRegion(200));
 
     normal.invoke(() -> {
-      Throwable thrown = catchThrowable(this::executeDistributedRegionFunction);
+      var thrown = catchThrowable(this::executeDistributedRegionFunction);
 
       assertThat(thrown)
           .isInstanceOf(FunctionException.class)
@@ -219,13 +214,13 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyReplicate() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -237,7 +232,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyReplicateNotTimedOut()
       throws Exception {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> {
         createCache(getDistributedSystemProperties());
 
@@ -250,14 +245,14 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
     empty.invoke(() -> populateRegion(200));
 
     AsyncInvocation executeFunctionInReplicate1 = replicate1.invokeAsync(() -> {
-      ResultCollector<String, List<String>> resultCollector = TypedFunctionService
+      var resultCollector = TypedFunctionService
           .<Void, String, List<String>>onRegion(getRegion())
           .withFilter(filter)
           .execute(LongRunningFunction.class.getSimpleName(), getTimeout().toMillis(),
@@ -270,7 +265,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
     // how long LongRunningFunction runs for is now controlled here:
     Thread.sleep(2000);
 
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> {
         LATCH.get().countDown();
       });
@@ -281,7 +276,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyReplicateTimedOut() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> {
         createCache(getDistributedSystemProperties());
 
@@ -294,14 +289,14 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
     empty.invoke(() -> populateRegion(200));
 
     replicate1.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         TypedFunctionService
             .<Void, String, List<String>>onRegion(getRegion())
             .withFilter(filter)
@@ -316,13 +311,13 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyReplicate_SendException() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -333,13 +328,13 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyReplicate_NoLastResult() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -350,24 +345,24 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionWithFunctionInvocationTargetException() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> registerThrowsFunctionInvocationTargetExceptionFunction(true, 5));
     }
 
     empty.invoke(() -> populateRegion(200));
 
     replicate1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException("I have been thrown")) {
+      try (var ie = addIgnoredException("I have been thrown")) {
         executeFunctionFunctionInvocationTargetException();
       }
     });
@@ -375,24 +370,24 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionWithFunctionInvocationTargetException_WithoutHA() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> registerThrowsFunctionInvocationTargetExceptionFunction(false, 0));
     }
 
     empty.invoke(() -> populateRegion(200));
 
     replicate1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException("I have been thrown")) {
+      try (var ie = addIgnoredException("I have been thrown")) {
         executeFunctionFunctionInvocationTargetExceptionWithoutHA();
       }
     });
@@ -400,24 +395,24 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionWithFunctionInvocationTargetExceptionForEmptyDataPolicy() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> registerThrowsFunctionInvocationTargetExceptionFunction(true, 5));
     }
 
     empty.invoke(() -> populateRegion(200));
 
     empty.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException("I have been thrown")) {
+      try (var ie = addIgnoredException("I have been thrown")) {
         executeFunctionFunctionInvocationTargetException();
       }
     });
@@ -425,24 +420,24 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionWithFunctionInvocationTargetExceptionForEmptyDataPolicy_WithoutHA() {
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
-    for (VM vm : toArray(replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(replicate1, replicate2, replicate3)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
-    for (VM vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
+    for (var vm : toArray(empty, normal, replicate1, replicate2, replicate3)) {
       vm.invoke(() -> registerThrowsFunctionInvocationTargetExceptionFunction(false, 0));
     }
 
     empty.invoke(() -> populateRegion(200));
 
     empty.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException("I have been thrown")) {
+      try (var ie = addIgnoredException("I have been thrown")) {
         executeFunctionFunctionInvocationTargetExceptionWithoutHA();
       }
     });
@@ -450,7 +445,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionHACacheClosedException() {
-    for (VM vm : toArray(empty, replicate1)) {
+    for (var vm : toArray(empty, replicate1)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -465,7 +460,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
     });
 
     empty.invoke(() -> {
-      List<Boolean> result = executeDistributedRegionFunction();
+      var result = executeDistributedRegionFunction();
 
       assertThat(result)
           .hasSize(5001)
@@ -475,7 +470,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionHANodeFailure() throws Exception {
-    for (VM vm : toArray(empty, replicate1)) {
+    for (var vm : toArray(empty, replicate1)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -484,7 +479,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
     empty.invoke(() -> populateRegion(200));
 
-    AsyncInvocation<List<Boolean>> executeFunctionHaInEmptyVM =
+    var executeFunctionHaInEmptyVM =
         empty.invokeAsync(this::executeDistributedRegionFunction);
 
     replicate2.invoke(() -> {
@@ -494,7 +489,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
     replicate1.invoke(() -> getCache().close());
 
-    List<Boolean> result = executeFunctionHaInEmptyVM.get();
+    var result = executeFunctionHaInEmptyVM.get();
 
     assertThat(result)
         .hasSize(5001)
@@ -503,11 +498,11 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyEmpty_ClientServer() {
-    VM empty1 = replicate3;
-    VM empty2 = normal;
-    VM client = empty;
+    var empty1 = replicate3;
+    var empty2 = normal;
+    var client = empty;
 
-    for (VM vm : toArray(empty2, replicate1, replicate2, empty1)) {
+    for (var vm : toArray(empty2, replicate1, replicate2, empty1)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -522,7 +517,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       return createCacheServer();
     });
 
-    for (VM vm : toArray(replicate1, replicate2)) {
+    for (var vm : toArray(replicate1, replicate2)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -536,11 +531,11 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyEmpty_ClientServer_SendException() {
-    VM empty1 = replicate3;
-    VM empty2 = normal;
-    VM client = empty;
+    var empty1 = replicate3;
+    var empty2 = normal;
+    var client = empty;
 
-    for (VM vm : toArray(empty2, replicate1, replicate2, empty1)) {
+    for (var vm : toArray(empty2, replicate1, replicate2, empty1)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -555,7 +550,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       return createCacheServer();
     });
 
-    for (VM vm : toArray(replicate1, replicate2)) {
+    for (var vm : toArray(replicate1, replicate2)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -569,11 +564,11 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyEmpty_ClientServer_NoLastResult() {
-    VM empty1 = replicate3;
-    VM empty2 = normal;
-    VM client = empty;
+    var empty1 = replicate3;
+    var empty2 = normal;
+    var client = empty;
 
-    for (VM vm : toArray(empty2, replicate1, replicate2, empty1)) {
+    for (var vm : toArray(empty2, replicate1, replicate2, empty1)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -588,7 +583,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       return createCacheServer();
     });
 
-    for (VM vm : toArray(replicate1, replicate2)) {
+    for (var vm : toArray(replicate1, replicate2)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -596,8 +591,8 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       createClientRegion(port1, port2);
       populateClientRegion(200);
 
-      try (IgnoredException ie1 = addIgnoredException("did not send last result", empty1);
-          IgnoredException ie2 = addIgnoredException("did not send last result", empty2)) {
+      try (var ie1 = addIgnoredException("did not send last result", empty1);
+          var ie2 = addIgnoredException("did not send last result", empty2)) {
         executeNoLastResultFunction();
       }
     });
@@ -609,10 +604,10 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
    */
   @Test
   public void testServerFailoverWithTwoServerAliveHA() throws InterruptedException {
-    VM emptyServer1 = replicate1;
-    VM client = normal;
+    var emptyServer1 = replicate1;
+    var client = normal;
 
-    for (VM vm : toArray(emptyServer1, replicate2, replicate3)) {
+    for (var vm : toArray(emptyServer1, replicate2, replicate3)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -636,7 +631,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
     replicate2.invoke(this::stopServerHA);
 
-    AsyncInvocation<List<Boolean>> executeFunctionHaInClientVm =
+    var executeFunctionHaInClientVm =
         client.invokeAsync(this::executeDistributedRegionFunction);
 
     replicate2.invoke(() -> {
@@ -650,7 +645,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
     emptyServer1.invoke(this::closeCacheHA);
 
-    List<Boolean> result = executeFunctionHaInClientVm.get();
+    var result = executeFunctionHaInClientVm.get();
 
     assertThat(result)
         .hasSize(5001)
@@ -659,12 +654,12 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyNormal_ClientServer() {
-    VM client = empty;
-    VM normal1 = normal;
-    VM normal2 = replicate3;
-    VM empty = replicate2;
+    var client = empty;
+    var normal1 = normal;
+    var normal2 = replicate3;
+    var empty = replicate2;
 
-    for (VM vm : toArray(normal1, replicate1, empty, normal2)) {
+    for (var vm : toArray(normal1, replicate1, empty, normal2)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -679,7 +674,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       return createCacheServer();
     });
 
-    for (VM vm : toArray(empty, replicate1)) {
+    for (var vm : toArray(empty, replicate1)) {
       vm.invoke(() -> createRegion(DataPolicy.EMPTY));
     }
 
@@ -688,8 +683,8 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       populateClientRegion(200);
 
       // add expected exception
-      try (IgnoredException ie = addIgnoredException(FunctionException.class)) {
-        Throwable thrown = catchThrowable(this::executeDistributedRegionFunction);
+      try (var ie = addIgnoredException(FunctionException.class)) {
+        var thrown = catchThrowable(this::executeDistributedRegionFunction);
 
         assertThat(thrown)
             .isInstanceOf(FunctionException.class)
@@ -701,10 +696,10 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyReplicate_ClientServer() {
-    VM client = empty;
-    VM empty = replicate3;
+    var client = empty;
+    var empty = replicate3;
 
-    for (VM vm : toArray(normal, replicate1, replicate2, empty)) {
+    for (var vm : toArray(normal, replicate1, replicate2, empty)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -732,10 +727,10 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyReplicate_ClientServer_WithoutRegister() {
-    VM client = empty;
-    VM empty = replicate3;
+    var client = empty;
+    var empty = replicate3;
 
-    for (VM vm : toArray(normal, replicate1, replicate2, empty)) {
+    for (var vm : toArray(normal, replicate1, replicate2, empty)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -763,10 +758,10 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyReplicate_ClientServer_FunctionInvocationTargetException() {
-    VM client = empty;
-    VM empty = replicate3;
+    var client = empty;
+    var empty = replicate3;
 
-    for (VM vm : toArray(normal, replicate1, replicate2, empty)) {
+    for (var vm : toArray(normal, replicate1, replicate2, empty)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -783,7 +778,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
 
-    for (VM vm : toArray(client, replicate1, replicate2, normal, empty)) {
+    for (var vm : toArray(client, replicate1, replicate2, normal, empty)) {
       vm.invoke(() -> registerThrowsFunctionInvocationTargetExceptionFunction(true, 5));
     }
 
@@ -792,7 +787,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       populateClientRegion(200);
 
       // add expected exception to avoid suspect strings
-      try (IgnoredException ie = addIgnoredException("I have been thrown")) {
+      try (var ie = addIgnoredException("I have been thrown")) {
         executeFunctionFunctionInvocationTargetException_ClientServer();
       }
     });
@@ -800,10 +795,10 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyReplicate_ClientServer_FunctionInvocationTargetException_WithoutHA() {
-    VM client = empty;
-    VM empty = replicate3;
+    var client = empty;
+    var empty = replicate3;
 
-    for (VM vm : toArray(normal, replicate1, replicate2, empty)) {
+    for (var vm : toArray(normal, replicate1, replicate2, empty)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -820,7 +815,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
     normal.invoke(() -> createRegion(DataPolicy.NORMAL));
     empty.invoke(() -> createRegion(DataPolicy.EMPTY));
 
-    for (VM vm : toArray(client, replicate1, replicate2, normal, empty)) {
+    for (var vm : toArray(client, replicate1, replicate2, normal, empty)) {
       vm.invoke(() -> registerThrowsFunctionInvocationTargetExceptionFunction(false, 0));
     }
 
@@ -829,7 +824,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       populateClientRegion(200);
 
       // add expected exception to avoid suspect strings
-      try (IgnoredException ie = addIgnoredException("I have been thrown")) {
+      try (var ie = addIgnoredException("I have been thrown")) {
         executeFunctionFunctionInvocationTargetException_ClientServer_WithoutHA();
       }
     });
@@ -837,11 +832,11 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyEmpty_ClientServer_FunctionInvocationTargetException() {
-    VM client = empty;
-    VM empty1 = replicate3;
-    VM empty2 = normal;
+    var client = empty;
+    var empty1 = replicate3;
+    var empty2 = normal;
 
-    for (VM vm : toArray(empty2, replicate1, replicate2, empty1)) {
+    for (var vm : toArray(empty2, replicate1, replicate2, empty1)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -855,7 +850,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
     });
 
     client.invoke(() -> createClientCache());
-    for (VM vm : toArray(replicate1, replicate2)) {
+    for (var vm : toArray(replicate1, replicate2)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -864,13 +859,13 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       populateClientRegion(200);
     });
 
-    for (VM vm : toArray(client, empty1, empty2, replicate1, replicate2)) {
+    for (var vm : toArray(client, empty1, empty2, replicate1, replicate2)) {
       vm.invoke(() -> registerThrowsFunctionInvocationTargetExceptionFunction(true, 5));
     }
 
     client.invoke(() -> {
       // add expected exception to avoid suspect strings
-      try (IgnoredException ie = addIgnoredException("I have been thrown")) {
+      try (var ie = addIgnoredException("I have been thrown")) {
         executeFunctionFunctionInvocationTargetException_ClientServer();
       }
     });
@@ -878,11 +873,11 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testDistributedRegionFunctionExecutionOnDataPolicyEmpty_ClientServer_FunctionInvocationTargetException_WithoutHA() {
-    VM client = empty;
-    VM empty1 = replicate3;
-    VM empty2 = normal;
+    var client = empty;
+    var empty1 = replicate3;
+    var empty2 = normal;
 
-    for (VM vm : toArray(empty2, replicate1, replicate2, empty1)) {
+    for (var vm : toArray(empty2, replicate1, replicate2, empty1)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
 
@@ -897,7 +892,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       return createCacheServer();
     });
 
-    for (VM vm : toArray(replicate1, replicate2)) {
+    for (var vm : toArray(replicate1, replicate2)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
 
@@ -906,13 +901,13 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       populateClientRegion(200);
     });
 
-    for (VM vm : toArray(client, empty1, empty2, replicate1, replicate2)) {
+    for (var vm : toArray(client, empty1, empty2, replicate1, replicate2)) {
       vm.invoke(() -> registerThrowsFunctionInvocationTargetExceptionFunction(false, 0));
     }
 
     client.invoke(() -> {
       // add expected exception to avoid suspect strings
-      try (IgnoredException ie = addIgnoredException("I have been thrown")) {
+      try (var ie = addIgnoredException("I have been thrown")) {
         executeFunctionFunctionInvocationTargetException_ClientServer_WithoutHA();
       }
     });
@@ -920,10 +915,10 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void inlineFunctionIsUsedOnClientInsteadOfLookingUpFunctionById() {
-    VM client = empty;
-    VM empty = replicate3;
+    var client = empty;
+    var empty = replicate3;
 
-    for (VM vm : toArray(normal, empty, replicate1, replicate2)) {
+    for (var vm : toArray(normal, empty, replicate1, replicate2)) {
       vm.invoke(() -> createCache(getDistributedSystemProperties()));
     }
     client.invoke(() -> createClientCache(getClientProperties()));
@@ -937,7 +932,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       return createCacheServer();
     });
 
-    for (VM vm : toArray(normal, empty)) {
+    for (var vm : toArray(normal, empty)) {
       vm.invoke(() -> createRegion(DataPolicy.REPLICATE));
     }
     client.invoke(() -> {
@@ -945,12 +940,12 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       populateClientRegion(200);
     });
 
-    for (VM vm : toArray(normal, empty, replicate1, replicate2, client)) {
+    for (var vm : toArray(normal, empty, replicate1, replicate2, client)) {
       vm.invoke(() -> FunctionService.registerFunction(inlineFunction("Failure", false)));
     }
 
     client.invoke(() -> {
-      ResultCollector<Boolean, List<Boolean>> resultCollector = TypedFunctionService
+      var resultCollector = TypedFunctionService
           .<Boolean, Boolean, List<Boolean>>onRegion(getRegion())
           .setArguments(true)
           .execute(inlineFunction("Success", true));
@@ -967,8 +962,8 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
    */
   @Test
   public void authenticationRequiredExceptionIsNotThrownWhenSecurityIsNotConfigured() {
-    VM client = replicate1;
-    VM server = replicate2;
+    var client = replicate1;
+    var server = replicate2;
 
     int port = server.invoke(() -> {
       createCacheWithSecurity();
@@ -987,7 +982,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   @Test
   public void testFunctionWithNoResultThrowsException() {
-    VM client = empty;
+    var client = empty;
 
     int port1 = replicate1.invoke(() -> {
       createCache(getDistributedSystemProperties());
@@ -1005,21 +1000,21 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       createClientRegion(port1, port2);
       populateClientRegion(200);
 
-      try (IgnoredException ie = addIgnoredException(RuntimeException.class)) {
+      try (var ie = addIgnoredException(RuntimeException.class)) {
         executeThrowsRuntimeExceptionFunction();
       }
     });
   }
 
   private Properties getDistributedSystemProperties() {
-    Properties props = DistributedRule.getDistributedSystemProperties();
+    var props = DistributedRule.getDistributedSystemProperties();
     props.setProperty(SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.functions.**;org.apache.geode.internal.cache.execute.**;org.apache.geode.test.dunit.**");
     return props;
   }
 
   private Properties getClientProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.functions.**;org.apache.geode.internal.cache.execute.**;org.apache.geode.test.dunit.**");
     return props;
@@ -1042,7 +1037,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   }
 
   private void createCacheWithSecurity() {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.setProperty(NAME, "SecurityServer");
     props.setProperty(SECURITY_CLIENT_AUTHENTICATOR,
         DummyAuthenticator.class.getName() + ".create");
@@ -1051,7 +1046,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   }
 
   private void createClientCache() {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
 
@@ -1059,7 +1054,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   }
 
   private void createClientCacheWithSecurity() {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(NAME, "SecurityClient");
@@ -1073,11 +1068,11 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   private void createClientRegion(int... ports) {
     System.setProperty(GEMFIRE_PREFIX + "bridge.disableShufflingOfEndpoints", "true");
 
-    PoolFactory poolFactory = PoolManager.createFactory();
-    for (int port : ports) {
+    var poolFactory = PoolManager.createFactory();
+    for (var port : ports) {
       poolFactory.addServer("localhost", port);
     }
-    Pool pool = poolFactory
+    var pool = poolFactory
         .setMaxConnections(10)
         .setMinConnections(6)
         .setPingInterval(3000)
@@ -1106,7 +1101,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   }
 
   private int createCacheServer() throws IOException {
-    CacheServer cacheServer = getCache().addCacheServer();
+    var cacheServer = getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
@@ -1119,32 +1114,32 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
   private void populateRegion(int count) {
     Region<String, Integer> region = getRegion();
-    for (int i = 1; i <= count; i++) {
+    for (var i = 1; i <= count; i++) {
       region.put("execKey-" + i, i);
     }
   }
 
   private void populateClientRegion(int count) {
     Region<String, Integer> region = getRegion();
-    for (int i = 1; i <= count; i++) {
+    for (var i = 1; i <= count; i++) {
       region.put("execKey-" + i, i);
     }
   }
 
   private void startServerHA() throws IOException {
-    for (CacheServer cacheServer : getCache().getCacheServers()) {
+    for (var cacheServer : getCache().getCacheServers()) {
       cacheServer.start();
     }
   }
 
   private void stopServerHA() {
-    for (CacheServer cacheServer : getCache().getCacheServers()) {
+    for (var cacheServer : getCache().getCacheServers()) {
       cacheServer.stop();
     }
   }
 
   private void closeCacheHA() {
-    for (CacheServer cacheServer : getCache().getCacheServers()) {
+    for (var cacheServer : getCache().getCacheServers()) {
       cacheServer.stop();
     }
 
@@ -1183,17 +1178,17 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
     Function function = new ResultWithExceptionFunction();
 
     Set<String> filter = new HashSet<>();
-    for (int i = 0; i <= 19; i++) {
+    for (var i = 0; i <= 19; i++) {
       filter.add("execKey-" + 100 + i);
     }
 
-    ResultCollector<Object, List<Object>> resultCollector = TypedFunctionService
+    var resultCollector = TypedFunctionService
         .<Boolean, Object, List<Object>>onRegion(getRegion())
         .withFilter(filter)
         .setArguments(true)
         .execute(function);
 
-    List<Object> result = resultCollector.getResult();
+    var result = resultCollector.getResult();
     result.sort(new NumericComparator());
 
     assertThat(result.get(0))
@@ -1219,7 +1214,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   }
 
   private void executeNoLastResultFunction() {
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       TypedFunctionService
           .onRegion(getRegion())
           .withFilter(filter)
@@ -1242,7 +1237,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   }
 
   private void executeFunctionFunctionInvocationTargetException() {
-    ResultCollector<Integer, List<Integer>> resultCollector = TypedFunctionService
+    var resultCollector = TypedFunctionService
         .<Boolean, Integer, List<Integer>>onRegion(getRegion())
         .setArguments(true)
         .execute(ThrowsFunctionInvocationTargetExceptionFunction.class.getSimpleName());
@@ -1252,7 +1247,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   }
 
   private void executeFunctionFunctionInvocationTargetExceptionWithoutHA() {
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       TypedFunctionService
           .<Boolean, Integer, List<Integer>>onRegion(getRegion())
           .setArguments(true)
@@ -1268,7 +1263,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   }
 
   private void executeFunctionFunctionInvocationTargetException_ClientServer() {
-    ResultCollector<Integer, List<Integer>> resultCollector = TypedFunctionService
+    var resultCollector = TypedFunctionService
         .<Boolean, Integer, List<Integer>>onRegion(getRegion())
         .setArguments(true)
         .execute(ThrowsFunctionInvocationTargetExceptionFunction.class.getSimpleName());
@@ -1278,7 +1273,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
   }
 
   private void executeFunctionFunctionInvocationTargetException_ClientServer_WithoutHA() {
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       TypedFunctionService
           .<Boolean, Integer, List<Integer>>onRegion(getRegion())
           .setArguments(true)
@@ -1329,7 +1324,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
       if (context.getArguments() instanceof Set) {
         Set<Integer> arguments =
             uncheckedCast(context.getArguments());
-        for (int i = 0; i < arguments.size(); i++) {
+        for (var i = 0; i < arguments.size(); i++) {
           context.getResultSender().sendResult(i);
         }
       }
@@ -1417,9 +1412,9 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
 
     @Override
     public void execute(FunctionContext<Boolean> context) {
-      RegionFunctionContext regionFunctionContext = (RegionFunctionContext) context;
-      Region<Object, Object> region = regionFunctionContext.getDataSet();
-      InternalDistributedSystem sys = InternalDistributedSystem.getConnectedInstance();
+      var regionFunctionContext = (RegionFunctionContext) context;
+      var region = regionFunctionContext.getDataSet();
+      var sys = InternalDistributedSystem.getConnectedInstance();
 
       assertThat(region.getAttributes().getDataPolicy().withStorage()).isTrue();
       assertThat(region.getAttributes().getDataPolicy()).isNotEqualTo(DataPolicy.NORMAL);
@@ -1444,7 +1439,7 @@ public class DistributedRegionFunctionExecutionDUnitTest implements Serializable
         region.put("execKey-203", 203);
       }
 
-      for (int i = 0; i < 5000; i++) {
+      for (var i = 0; i < 5000; i++) {
         context.getResultSender().sendResult(true);
       }
       context.getResultSender().lastResult(true);

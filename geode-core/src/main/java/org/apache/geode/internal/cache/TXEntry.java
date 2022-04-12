@@ -101,7 +101,7 @@ public class TXEntry implements Region.Entry {
     // Object value = this.localRegion.getDeserialized(this.key, false, this.myTX,
     // this.rememberReads);
     @Unretained
-    Object value = myTX.getDeserializedValue(keyInfo, localRegion, false, false, false,
+    var value = myTX.getDeserializedValue(keyInfo, localRegion, false, false, false,
         null, false, false, createIfAbsent);
     if (value == null) {
       throw new EntryDestroyedException(keyInfo.getKey().toString());
@@ -166,7 +166,7 @@ public class TXEntry implements Region.Entry {
   public Object getUserAttribute() {
     checkTX();
     throwIfUAOperationForPR();
-    TXEntryUserAttrState tx = txReadUA(keyInfo);
+    var tx = txReadUA(keyInfo);
     if (tx != null) {
       return tx.getPendingValue();
     } else {
@@ -179,7 +179,7 @@ public class TXEntry implements Region.Entry {
   public Object setUserAttribute(Object value) {
     checkTX();
     throwIfUAOperationForPR();
-    TXEntryUserAttrState tx = txWriteUA(keyInfo);
+    var tx = txWriteUA(keyInfo);
     if (tx != null) {
       return tx.setPendingValue(value);
     } else {
@@ -200,7 +200,7 @@ public class TXEntry implements Region.Entry {
     if (!(obj instanceof TXEntry)) {
       return false;
     }
-    TXEntry lre = (TXEntry) obj;
+    var lre = (TXEntry) obj;
     return keyInfo.getKey().equals(lre.keyInfo.getKey())
         && getRegion() == lre.getRegion();
   }
@@ -223,7 +223,7 @@ public class TXEntry implements Region.Entry {
   }
 
   private TXEntryUserAttrState txReadUA(KeyInfo ki) {
-    TXRegionState txr = myTX.txReadRegion(localRegion);
+    var txr = myTX.txReadRegion(localRegion);
     if (txr != null) {
       return txr.readEntryUserAttr(ki.getKey());
     } else {
@@ -232,7 +232,7 @@ public class TXEntry implements Region.Entry {
   }
 
   protected TXEntryUserAttrState txWriteUA(KeyInfo ki) {
-    TXRegionState txr = myTX.txWriteRegion(localRegion, ki);
+    var txr = myTX.txWriteRegion(localRegion, ki);
     if (txr != null) {
       return txr.writeEntryUserAttr(ki.getKey(), localRegion);
     } else {

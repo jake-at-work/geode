@@ -17,7 +17,6 @@ package org.apache.geode.management.internal.configuration.validators;
 
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -67,7 +66,7 @@ public class RegionConfigValidator implements ConfigurationValidator<Region> {
       throw new IllegalArgumentException(("Region type is unsupported."));
     }
 
-    Integer redundantCopies = config.getRedundantCopies();
+    var redundantCopies = config.getRedundantCopies();
     if (redundantCopies != null && (redundantCopies < 0 || redundantCopies > 3)) {
       throw new IllegalArgumentException(
           "redundantCopies cannot be less than 0 or greater than 3.");
@@ -87,10 +86,10 @@ public class RegionConfigValidator implements ConfigurationValidator<Region> {
     }
 
     // validate expirations
-    List<Region.Expiration> expirations = config.getExpirations();
+    var expirations = config.getExpirations();
     if (expirations != null) {
       Set<Region.ExpirationType> existingTypes = new HashSet<>();
-      for (Region.Expiration expiration : expirations) {
+      for (var expiration : expirations) {
         validate(expiration);
         if (existingTypes.contains(expiration.getType())) {
           throw new IllegalArgumentException("Can not have multiple " + expiration.getType() + ".");
@@ -108,7 +107,7 @@ public class RegionConfigValidator implements ConfigurationValidator<Region> {
       return;
     }
 
-    Region.EvictionType type = eviction.getType();
+    var type = eviction.getType();
     if (type == null) {
       throw new IllegalArgumentException("Eviction type must be set.");
     }

@@ -85,7 +85,7 @@ public class AlterQueryServiceFunctionTest {
 
   @Test
   public void executeFunctionUpdatesMethodAuthorizerAndReturnsMessageWhenAuthorizerNameIsNotNull() {
-    CliFunctionResult result = function.executeFunction(mockContext);
+    var result = function.executeFunction(mockContext);
     assertThat(result.getStatus()).isEqualTo(CliFunctionResult.StatusState.OK.toString());
     assertThat(result.getStatusMessage())
         .contains(AUTHORIZER_UPDATED_MESSAGE + AUTHORIZER_NAME + AUTHORIZER_PARAMETERS_MESSAGE)
@@ -98,7 +98,7 @@ public class AlterQueryServiceFunctionTest {
   public void executeFunctionUpdatesMethodAuthorizerAndReturnsMessageWhenAuthorizerNameIsNotNullAndThereAreNoParameters() {
     when(mockContext.getArguments()).thenReturn(new Object[] {false, AUTHORIZER_NAME, null});
 
-    CliFunctionResult result = function.executeFunction(mockContext);
+    var result = function.executeFunction(mockContext);
     assertThat(result.getStatus()).isEqualTo(CliFunctionResult.StatusState.OK.toString());
     assertThat(result.getStatusMessage()).isEqualTo(AUTHORIZER_UPDATED_MESSAGE + AUTHORIZER_NAME);
     verify(mockQueryConfigService).updateMethodAuthorizer(mockCache, false, AUTHORIZER_NAME,
@@ -109,7 +109,7 @@ public class AlterQueryServiceFunctionTest {
   public void executeFunctionReturnsErrorWhenAuthorizerNameIsNull() {
     when(mockContext.getArguments()).thenReturn(new Object[] {false, null, Collections.emptySet()});
 
-    CliFunctionResult result = function.executeFunction(mockContext);
+    var result = function.executeFunction(mockContext);
     verifyNoMoreInteractions(mockQueryConfigService);
     assertThat(result.getStatus()).isEqualTo(CliFunctionResult.StatusState.ERROR.toString());
     assertThat(result.getStatusMessage()).isEqualTo(EMPTY_AUTHORIZER_ERROR);
@@ -119,7 +119,7 @@ public class AlterQueryServiceFunctionTest {
   public void executeFunctionReturnsErrorWhenSecurityIsNotEnabled() {
     doReturn(false).when(function).isSecurityEnabled();
 
-    CliFunctionResult result = function.executeFunction(mockContext);
+    var result = function.executeFunction(mockContext);
     verifyNoMoreInteractions(mockQueryConfigService);
     assertThat(result.getStatus()).isEqualTo(CliFunctionResult.StatusState.ERROR.toString());
     assertThat(result.getStatusMessage()).isEqualTo(SECURITY_NOT_ENABLED_MESSAGE);
@@ -129,7 +129,7 @@ public class AlterQueryServiceFunctionTest {
   public void executeFunctionReturnsErrorWhenDeprecatedSystemPropertyIsSet() {
     setAllowUntrustedMethodInvocationSystemProperty();
 
-    CliFunctionResult result = function.executeFunction(mockContext);
+    var result = function.executeFunction(mockContext);
     verifyNoMoreInteractions(mockQueryConfigService);
     assertThat(result.getStatus()).isEqualTo(CliFunctionResult.StatusState.ERROR.toString());
     assertThat(result.getStatusMessage()).isEqualTo(DEPRECATED_PROPERTY_ERROR);
@@ -139,7 +139,7 @@ public class AlterQueryServiceFunctionTest {
   public void executeFunctionReturnsErrorWhenCacheIsNull() {
     when(mockContext.getCache()).thenReturn(null);
 
-    CliFunctionResult result = function.executeFunction(mockContext);
+    var result = function.executeFunction(mockContext);
     assertThat(result.getStatus()).isEqualTo(CliFunctionResult.StatusState.ERROR.toString());
   }
 
@@ -148,7 +148,7 @@ public class AlterQueryServiceFunctionTest {
     doThrow(new RuntimeException()).when(mockQueryConfigService).updateMethodAuthorizer(any(),
         anyBoolean(), any(), any());
 
-    CliFunctionResult result = function.executeFunction(mockContext);
+    var result = function.executeFunction(mockContext);
     assertThat(result.getStatus()).isEqualTo(CliFunctionResult.StatusState.ERROR.toString());
   }
 }

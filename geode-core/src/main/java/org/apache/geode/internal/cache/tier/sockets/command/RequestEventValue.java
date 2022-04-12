@@ -22,11 +22,9 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.cache.CachedDeserializable;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.ha.HAContainerWrapper;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.CacheServerHelper;
 import org.apache.geode.internal.cache.tier.sockets.ClientUpdateMessageImpl;
 import org.apache.geode.internal.cache.tier.sockets.HAEventWrapper;
@@ -59,13 +57,13 @@ public class RequestEventValue extends BaseCommand {
     Part eventIDPart = null, valuePart = null;
     EventID event = null;
     Object callbackArg = null;
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    StringBuilder errMessage = new StringBuilder();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var errMessage = new StringBuilder();
 
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
 
     // Retrieve the data from the message parts
-    int parts = clientMessage.getNumberOfParts();
+    var parts = clientMessage.getNumberOfParts();
     eventIDPart = clientMessage.getPart(0);
 
     if (eventIDPart == null) {
@@ -100,22 +98,22 @@ public class RequestEventValue extends BaseCommand {
             serverConnection.getName(), clientMessage.getPayloadLength(),
             serverConnection.getSocketString());
       }
-      CacheClientNotifier ccn = serverConnection.getAcceptor().getCacheClientNotifier();
+      var ccn = serverConnection.getAcceptor().getCacheClientNotifier();
       // Get the ha container.
-      HAContainerWrapper haContainer = (HAContainerWrapper) ccn.getHaContainer();
+      var haContainer = (HAContainerWrapper) ccn.getHaContainer();
       if (haContainer == null) {
-        String reason = " was not found during get event value request";
+        var reason = " was not found during get event value request";
         writeRegionDestroyedEx(clientMessage, "ha container", reason, serverConnection);
         serverConnection.setAsTrue(RESPONDED);
       } else {
-        Object[] valueAndIsObject = new Object[2];
+        var valueAndIsObject = new Object[2];
         try {
-          Object data = haContainer.get(new HAEventWrapper(event));
+          var data = haContainer.get(new HAEventWrapper(event));
 
           if (data == null) {
             logger.warn("Unable to find a client update message for {}",
                 event);
-            String msgStr = "No value found for " + event + " in " + haContainer.getName();
+            var msgStr = "No value found for " + event + " in " + haContainer.getName();
             writeErrorResponse(clientMessage, MessageType.REQUEST_EVENT_VALUE_ERROR, msgStr,
                 serverConnection);
             serverConnection.setAsTrue(RESPONDED);
@@ -124,7 +122,7 @@ public class RequestEventValue extends BaseCommand {
             if (logger.isDebugEnabled()) {
               logger.debug("Value retrieved for event {}", event);
             }
-            Object val = ((ClientUpdateMessageImpl) data).getValueToConflate();
+            var val = ((ClientUpdateMessageImpl) data).getValueToConflate();
             if (!(val instanceof byte[])) {
               if (val instanceof CachedDeserializable) {
                 val = ((CachedDeserializable) val).getSerializedValue();
@@ -142,7 +140,7 @@ public class RequestEventValue extends BaseCommand {
           return;
         }
 
-        Object data = valueAndIsObject[0];
+        var data = valueAndIsObject[0];
         boolean isObject = (Boolean) valueAndIsObject[1];
 
         writeResponse(data, callbackArg, clientMessage, isObject, serverConnection);

@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
-import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -55,7 +54,7 @@ public class StatArchiveWithMissingResourceTypeRegressionTest {
 
   @Before
   public void setUp() throws Exception {
-    URL url = getClass().getResource(ARCHIVE_FILE_NAME);
+    var url = getClass().getResource(ARCHIVE_FILE_NAME);
     assertThat(url).isNotNull(); // precondition
 
     archiveFile = temporaryFolder.newFile(ARCHIVE_FILE_NAME);

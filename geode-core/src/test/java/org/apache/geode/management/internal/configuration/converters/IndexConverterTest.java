@@ -31,12 +31,12 @@ public class IndexConverterTest {
 
   @Test
   public void fromNonNullConfigObject_copiesSimpleProperties() {
-    Index index = new Index();
+    var index = new Index();
     index.setExpression("index expression");
     index.setName("index name");
     index.setRegionPath("index region path");
 
-    RegionConfig.Index regionConfigIndex = indexConverter.fromNonNullConfigObject(index);
+    var regionConfigIndex = indexConverter.fromNonNullConfigObject(index);
 
     assertSoftly(softly -> {
       softly.assertThat(regionConfigIndex.getExpression())
@@ -50,10 +50,10 @@ public class IndexConverterTest {
 
   @Test
   public void fromNonNullConfigObject_mapsFunctionalIndexTypeToRangeIndexType() {
-    Index index = new Index();
+    var index = new Index();
     index.setIndexType(RANGE);
 
-    RegionConfig.Index regionConfigIndex = indexConverter.fromNonNullConfigObject(index);
+    var regionConfigIndex = indexConverter.fromNonNullConfigObject(index);
 
     assertSoftly(softly -> {
       softly.assertThat(regionConfigIndex.getType())
@@ -67,10 +67,10 @@ public class IndexConverterTest {
 
   @Test
   public void fromNonNullConfigObject_mapsPrimaryKeyIndexTypeToKeyIndexType() {
-    Index index = new Index();
+    var index = new Index();
     index.setIndexType(KEY);
 
-    RegionConfig.Index regionConfigIndex = indexConverter.fromNonNullConfigObject(index);
+    var regionConfigIndex = indexConverter.fromNonNullConfigObject(index);
 
     assertSoftly(softly -> {
       softly.assertThat(regionConfigIndex.getType())
@@ -85,10 +85,10 @@ public class IndexConverterTest {
 
   @Test
   public void fromNonNullConfigObject_mapsHashDeprecatedIndexTypeToHashIndexType() {
-    Index index = new Index();
+    var index = new Index();
     index.setIndexType(HASH_DEPRECATED);
 
-    RegionConfig.Index regionConfigIndex = indexConverter.fromNonNullConfigObject(index);
+    var regionConfigIndex = indexConverter.fromNonNullConfigObject(index);
 
     assertSoftly(softly -> {
       softly.assertThat(regionConfigIndex.getType())
@@ -102,12 +102,12 @@ public class IndexConverterTest {
 
   @Test
   public void fromNonNullXmlObject_copiesSimpleProperties() {
-    RegionConfig.Index regionConfigIndex = new RegionConfig.Index();
+    var regionConfigIndex = new RegionConfig.Index();
     regionConfigIndex.setName("region config index name");
     regionConfigIndex.setExpression("region config index expression");
     regionConfigIndex.setFromClause("region config index from clause");
 
-    Index index = indexConverter.fromNonNullXmlObject(regionConfigIndex);
+    var index = indexConverter.fromNonNullXmlObject(regionConfigIndex);
 
     assertSoftly(softly -> {
       softly.assertThat(index.getExpression())
@@ -121,10 +121,10 @@ public class IndexConverterTest {
 
   @Test
   public void fromNonNullXmlObject_mapsHashIndexTypeToHashDeprecatedIndexType() {
-    RegionConfig.Index regionConfigIndex = new RegionConfig.Index();
+    var regionConfigIndex = new RegionConfig.Index();
     regionConfigIndex.setType("hash");
 
-    Index index = indexConverter.fromNonNullXmlObject(regionConfigIndex);
+    var index = indexConverter.fromNonNullXmlObject(regionConfigIndex);
 
     assertThat(index.getIndexType())
         .as("type")
@@ -133,10 +133,10 @@ public class IndexConverterTest {
 
   @Test
   public void fromNonNullXmlObject_mapsRangeIndexTypeToFunctionalIndexType() {
-    RegionConfig.Index regionConfigIndex = new RegionConfig.Index();
+    var regionConfigIndex = new RegionConfig.Index();
     regionConfigIndex.setType("range");
 
-    Index index = indexConverter.fromNonNullXmlObject(regionConfigIndex);
+    var index = indexConverter.fromNonNullXmlObject(regionConfigIndex);
 
     assertThat(index.getIndexType())
         .as("type")
@@ -145,10 +145,10 @@ public class IndexConverterTest {
 
   @Test
   public void fromNonNullXmlObject_mapsKeyIndexTypeToPrimaryKeyIndexType() {
-    RegionConfig.Index regionConfigIndex = new RegionConfig.Index();
+    var regionConfigIndex = new RegionConfig.Index();
     regionConfigIndex.setType("key");
 
-    Index index = indexConverter.fromNonNullXmlObject(regionConfigIndex);
+    var index = indexConverter.fromNonNullXmlObject(regionConfigIndex);
 
     assertThat(index.getIndexType())
         .as("type")

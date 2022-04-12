@@ -48,7 +48,7 @@ public class OperationHistoryManagerTest {
   @Before
   public void setUp() throws Exception {
     operationStateStore = mock(OperationStateStore.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     history = new OperationHistoryManager(Duration.ofHours(2), operationStateStore, cache);
     when(cache.getMyId()).thenReturn(mock(InternalDistributedMember.class));
     when(cache.getDistributedSystem()).thenReturn(mock(DistributedSystem.class));
@@ -62,18 +62,18 @@ public class OperationHistoryManagerTest {
   @Test
   public void recordStartReturnsExpectedOpId() {
     ClusterManagementOperation<?> op = mock(ClusterManagementOperation.class);
-    String expectedOpId = "12345";
-    String locator = "locator";
+    var expectedOpId = "12345";
+    var locator = "locator";
     when(operationStateStore.recordStart(same(op), same(locator))).thenReturn(expectedOpId);
 
-    String opId = history.recordStart(op, locator);
+    var opId = history.recordStart(op, locator);
     assertThat(opId).isSameAs(expectedOpId);
   }
 
   @Test
   public void recordStartDelegatesToPersistenceService() {
     ClusterManagementOperation<?> op = mock(ClusterManagementOperation.class);
-    String locator = "locator";
+    var locator = "locator";
 
     history.recordStart(op, locator);
     verify(operationStateStore).recordStart(same(op), same(locator));
@@ -81,9 +81,9 @@ public class OperationHistoryManagerTest {
 
   @Test
   public void recordEndDelegatesToPersistenceService() {
-    String opId = "opId";
-    OperationResult result = mock(OperationResult.class);
-    Throwable cause = new Throwable();
+    var opId = "opId";
+    var result = mock(OperationResult.class);
+    var cause = new Throwable();
 
     history.recordEnd(opId, result, cause);
     verify(operationStateStore).recordEnd(same(opId), same(result), same(cause));
@@ -93,9 +93,10 @@ public class OperationHistoryManagerTest {
   public void expireHistoryRetainsHistoryInProgressOperations() {
     List<OperationState<ClusterManagementOperation<OperationResult>, OperationResult>> sampleOps =
         new ArrayList<>();
-    for (int i = 0; i < 3; i++) {
-      OperationState<ClusterManagementOperation<OperationResult>, OperationResult> operationInstance =
-          new OperationState<>("op-" + i, null, new Date());
+    for (var i = 0; i < 3; i++) {
+      var operationInstance =
+          new OperationState<ClusterManagementOperation<OperationResult>, OperationResult>(
+              "op-" + i, null, new Date());
       // Have not called operation end, so operation is still in progress.
       sampleOps.add(operationInstance);
     }
@@ -128,7 +129,7 @@ public class OperationHistoryManagerTest {
   public void expireHistoryRetainsUnexpiredCompletedOperations() {
     List<OperationState<ClusterManagementOperation<OperationResult>, OperationResult>> sampleOps =
         new ArrayList<>();
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       sampleOps.add(new OperationState<>("op-" + i, null, new Date()));
       sampleOps.get(i).setOperationEnd(new Date(), null, null);
     }
@@ -142,11 +143,11 @@ public class OperationHistoryManagerTest {
 
   @Test
   public void expireHistoryRemovesExpiredCompletedOperations() {
-    long now = System.currentTimeMillis();
-    long twoAndAHalfHoursAgo = now - Duration.ofHours(2).plusMinutes(30).toMillis();
+    var now = System.currentTimeMillis();
+    var twoAndAHalfHoursAgo = now - Duration.ofHours(2).plusMinutes(30).toMillis();
 
     List<OperationState<?, ?>> sampleOps = new ArrayList<>();
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       sampleOps.add(new OperationState<>("op-" + i, null, new Date()));
       sampleOps.get(i).setOperationEnd(new Date(twoAndAHalfHoursAgo), null, null);
     }
@@ -164,7 +165,7 @@ public class OperationHistoryManagerTest {
     ClusterManagementOperation<OperationResult> opType2 = new CmOperation();
 
     List<OperationState<?, ?>> sampleOps = new ArrayList<>();
-    for (int i = 0; i < 9; i++) {
+    for (var i = 0; i < 9; i++) {
       if (i % 2 == 0) {
         sampleOps.add(new OperationState<>("op-" + i, opType1, new Date()));
       } else {
@@ -174,9 +175,9 @@ public class OperationHistoryManagerTest {
 
     doReturn(sampleOps).when(operationStateStore).list();
 
-    List<OperationState<ClusterManagementOperation<OperationResult>, OperationResult>> opList1 =
+    var opList1 =
         history.list(opType1);
-    List<OperationState<ClusterManagementOperation<OperationResult>, OperationResult>> opList2 =
+    var opList2 =
         history.list(opType2);
 
     assertThat(opList1.size()).isEqualTo(5);
@@ -195,7 +196,7 @@ public class OperationHistoryManagerTest {
 
   @Test
   public void recordStartCallsExpireHistory() {
-    OperationHistoryManager historySpy = spy(history);
+    var historySpy = spy(history);
 
     historySpy.recordStart(null, null);
     verify(historySpy).expireHistory();
@@ -203,7 +204,7 @@ public class OperationHistoryManagerTest {
 
   @Test
   public void listCallsExpireHistory() {
-    OperationHistoryManager historySpy = spy(history);
+    var historySpy = spy(history);
 
     historySpy.list(null);
     verify(historySpy).expireHistory();
@@ -211,7 +212,7 @@ public class OperationHistoryManagerTest {
 
   @Test
   public void getCallsExpireHistory() {
-    OperationHistoryManager historySpy = spy(history);
+    var historySpy = spy(history);
 
     historySpy.get(null);
     verify(historySpy).expireHistory();

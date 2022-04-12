@@ -50,7 +50,7 @@ public class PersistentMemberManager {
       if (revokedMembers.put(pattern, TOKEN) == null) {
         logger.info("The following persistent member has been revoked: {}",
             pattern);
-        for (MemberRevocationListener listener : revocationListeners) {
+        for (var listener : revocationListeners) {
           listener.revoked(pattern);
         }
       }
@@ -68,7 +68,7 @@ public class PersistentMemberManager {
     synchronized (this) {
       // Fix for 42607, don't allow us to start up a member if we're in the
       // process of revoking that member.
-      for (PersistentMemberPattern pattern : pendingRevokes.keySet()) {
+      for (var pattern : pendingRevokes.keySet()) {
         if (listener.matches(pattern)) {
           throw new RevokedPersistentDataException(
               String.format(
@@ -76,7 +76,7 @@ public class PersistentMemberManager {
                   pattern));
         }
       }
-      for (PersistentMemberPattern pattern : revokedMembers.keySet()) {
+      for (var pattern : revokedMembers.keySet()) {
         if (listener.matches(pattern)) {
           throw new RevokedPersistentDataException(
               String.format(
@@ -84,7 +84,7 @@ public class PersistentMemberManager {
                   pattern));
         }
       }
-      for (PersistentMemberPattern pattern : recoveredRevokedMembers) {
+      for (var pattern : recoveredRevokedMembers) {
         revokedMembers.put(pattern, TOKEN);
       }
       revocationListeners.add(listener);
@@ -112,10 +112,10 @@ public class PersistentMemberManager {
     synchronized (this) {
       Map<String, Set<PersistentMemberID>> missingMemberIds =
           new HashMap<>();
-      for (MemberRevocationListener listener : revocationListeners) {
-        String regionPath = listener.getRegionPath();
-        Set<PersistentMemberID> ids = listener.getMissingMemberIds();
-        Set<PersistentMemberID> allIds = missingMemberIds.get(regionPath);
+      for (var listener : revocationListeners) {
+        var regionPath = listener.getRegionPath();
+        var ids = listener.getMissingMemberIds();
+        var allIds = missingMemberIds.get(regionPath);
         if (ids != null) {
           if (allIds != null) {
             allIds.addAll(ids);
@@ -130,7 +130,7 @@ public class PersistentMemberManager {
   }
 
   public boolean isRevoked(String regionPath, PersistentMemberID id) {
-    for (PersistentMemberPattern member : revokedMembers.keySet()) {
+    for (var member : revokedMembers.keySet()) {
       if (member.matches(id)) {
         return true;
       }
@@ -153,10 +153,9 @@ public class PersistentMemberManager {
       logger.debug("Preparing revoke if pattern {}", pattern);
     }
 
-
-    PendingRevokeListener membershipListener = new PendingRevokeListener(pattern, sender, dm);
+    var membershipListener = new PendingRevokeListener(pattern, sender, dm);
     synchronized (this) {
-      for (MemberRevocationListener listener : revocationListeners) {
+      for (var listener : revocationListeners) {
         if (listener.matches(pattern)) {
           return false;
         }

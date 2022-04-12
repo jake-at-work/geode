@@ -16,7 +16,6 @@ package org.apache.geode.pdx;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -33,17 +32,17 @@ class NonDelegatingLoader extends ClassLoader {
     if (!name.contains("SeparateClassloaderPdx")) {
       return super.loadClass(name, resolve);
     }
-    URL url = super.getResource(name.replace('.', '/') + ".class");
+    var url = super.getResource(name.replace('.', '/') + ".class");
     if (url == null) {
       throw new ClassNotFoundException();
     }
-    try (HeapDataOutputStream hoas = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+    try (var hoas = new HeapDataOutputStream(KnownVersion.CURRENT)) {
       InputStream classStream;
       try {
         classStream = url.openStream();
         while (true) {
-          byte[] chunk = new byte[1024];
-          int read = classStream.read(chunk);
+          var chunk = new byte[1024];
+          var read = classStream.read(chunk);
           if (read < 0) {
             break;
           }

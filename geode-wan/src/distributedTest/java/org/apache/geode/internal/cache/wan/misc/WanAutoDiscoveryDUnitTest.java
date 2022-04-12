@@ -52,7 +52,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
 
   @Override
   protected void postSetUpWANTestBase() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
   }
 
   /**
@@ -62,7 +62,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
   @Test
   public void test_GatewaySender_Started_Before_Locator() {
     try {
-      int port = AvailablePortHelper.getRandomAvailableTCPPort();
+      var port = AvailablePortHelper.getRandomAvailableTCPPort();
       vm0.invoke(() -> WANTestBase.createCache(port));
       vm0.invoke(
           () -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, false));
@@ -85,9 +85,9 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
   @Test
   public void test_AllLocatorsInDSShouldHaveDistributedSystemId() throws Exception {
     try {
-      Integer lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+      var lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-      Integer lnLocPort2 =
+      var lnLocPort2 =
           vm1.invoke(() -> WANTestBase.createSecondLocator(2, lnLocPort1));
       fail("Expected IncompatibleSystemException but not thrown");
     } catch (Exception e) {
@@ -108,23 +108,23 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     Map<Integer, Set<InetSocketAddress>> dsVsPort = new HashMap<>();
     dsVsPort.put(1, locatorPorts);
 
-    Integer lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort1));
 
-    Integer lnLocPort2 = vm1.invoke(() -> WANTestBase.createSecondLocator(1, lnLocPort1));
+    var lnLocPort2 = vm1.invoke(() -> WANTestBase.createSecondLocator(1, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort2));
 
     locatorPorts = new HashSet<>();
     dsVsPort.put(2, locatorPorts);
-    Integer nyLocPort1 =
+    var nyLocPort1 =
         vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", nyLocPort1));
 
-    Integer nyLocPort2 = vm3
+    var nyLocPort2 = vm3
         .invoke(() -> WANTestBase.createSecondRemoteLocator(2, nyLocPort1, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", nyLocPort2));
 
-    final int siteSizeToCheck = dsVsPort.size();
+    final var siteSizeToCheck = dsVsPort.size();
     vm0.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm1.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm2.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
@@ -141,23 +141,23 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     Map<Integer, Set<InetSocketAddress>> dsVsPort = new HashMap<>();
     dsVsPort.put(1, locatorPorts);
 
-    Integer lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort1));
 
-    Integer lnLocPort2 = vm1.invoke(() -> WANTestBase.createSecondLocator(1, lnLocPort1));
+    var lnLocPort2 = vm1.invoke(() -> WANTestBase.createSecondLocator(1, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort2));
 
     locatorPorts = new HashSet<>();
     dsVsPort.put(2, locatorPorts);
-    Integer nyLocPort1 =
+    var nyLocPort1 =
         vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", nyLocPort1));
 
-    Integer nyLocPort2 = vm3.invoke(
+    var nyLocPort2 = vm3.invoke(
         () -> WANTestBase.createSecondRemoteLocatorWithAPI(2, nyLocPort1, lnLocPort1, "localhost"));
     locatorPorts.add(new InetSocketAddress("localhost", nyLocPort2));
 
-    final int siteSizeToCheck = dsVsPort.size();
+    final var siteSizeToCheck = dsVsPort.size();
     vm0.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm1.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm2.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
@@ -176,28 +176,28 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     Set<InetSocketAddress> locatorPorts = new HashSet<>();
     dsVsPort.put(1, locatorPorts);
 
-    Integer lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort1));
 
     locatorPorts = new HashSet<>();
     dsVsPort.put(2, locatorPorts);
-    Integer nyLocPort1 =
+    var nyLocPort1 =
         vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", nyLocPort1));
 
     locatorPorts = new HashSet<>();
     dsVsPort.put(3, locatorPorts);
-    Integer tkLocPort =
+    var tkLocPort =
         vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", tkLocPort));
 
     locatorPorts = new HashSet<>();
     dsVsPort.put(4, locatorPorts);
-    Integer hkLocPort =
+    var hkLocPort =
         vm3.invoke(() -> WANTestBase.createFirstRemoteLocator(4, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", hkLocPort));
 
-    final int siteSizeToCheck = dsVsPort.size();
+    final var siteSizeToCheck = dsVsPort.size();
     vm0.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm1.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm2.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
@@ -212,22 +212,22 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     Set<InetSocketAddress> locatorPorts = new HashSet<>();
     dsVsPort.put(1, locatorPorts);
 
-    Integer lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort1));
 
     locatorPorts = new HashSet<>();
     dsVsPort.put(2, locatorPorts);
-    Integer nyLocPort1 =
+    var nyLocPort1 =
         vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", nyLocPort1));
 
     locatorPorts = new HashSet<>();
     dsVsPort.put(3, locatorPorts);
-    Integer tkLocPort =
+    var tkLocPort =
         vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, nyLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", tkLocPort));
 
-    final int siteSizeToCheck = dsVsPort.size();
+    final var siteSizeToCheck = dsVsPort.size();
     vm0.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm1.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm2.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
@@ -240,17 +240,17 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
 
     Set<InetSocketAddress> locatorPortsln = new HashSet<>();
     dsVsPort.put(1, locatorPortsln);
-    Integer lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     locatorPortsln.add(new InetSocketAddress("localhost", lnLocPort1));
 
     Set<InetSocketAddress> locatorPortsny = new HashSet<>();
     dsVsPort.put(2, locatorPortsny);
-    Integer nyLocPort1 =
+    var nyLocPort1 =
         vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnLocPort1));
     locatorPortsny.add(new InetSocketAddress("localhost", nyLocPort1));
 
-    int AsyncInvocationArrSize = 4;
-    AsyncInvocation[] async = new AsyncInvocation[AsyncInvocationArrSize];
+    var AsyncInvocationArrSize = 4;
+    var async = new AsyncInvocation[AsyncInvocationArrSize];
 
     Set<InetSocketAddress> locatorPortstk = new HashSet<>();
     dsVsPort.put(3, locatorPortstk);
@@ -260,10 +260,10 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     dsVsPort.put(4, locatorPortshk);
     async[1] = vm3.invokeAsync(() -> WANTestBase.createFirstRemoteLocator(4, nyLocPort1));
 
-    ArrayList<Integer> locatorPortsln2 = new ArrayList<>();
+    var locatorPortsln2 = new ArrayList<Integer>();
     async[2] = vm4.invokeAsync(() -> WANTestBase.createSecondLocator(1, lnLocPort1));
 
-    ArrayList<Integer> locatorPortsny2 = new ArrayList<>();
+    var locatorPortsny2 = new ArrayList<Integer>();
     async[3] = vm5.invokeAsync(() -> WANTestBase.createSecondLocator(2, nyLocPort1));
 
 
@@ -282,7 +282,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     locatorPortsln.add(new InetSocketAddress("localhost", (Integer) async[2].getReturnValue()));
     locatorPortsny.add(new InetSocketAddress("localhost", (Integer) async[3].getReturnValue()));
 
-    final int siteSizeToCheck = dsVsPort.size();
+    final var siteSizeToCheck = dsVsPort.size();
     vm0.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm1.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm2.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
@@ -292,19 +292,19 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
 
   @Test
   public void test_LN_Sender_recognises_ALL_NY_Locators() {
-    IgnoredException ie = IgnoredException
+    var ie = IgnoredException
         .addIgnoredException("could not get remote locator information for remote site");
     try {
-      Integer lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+      var lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-      Integer lnLocPort2 =
+      var lnLocPort2 =
           vm5.invoke(() -> WANTestBase.createSecondLocator(1, lnLocPort1));
 
       vm2.invoke(() -> WANTestBase.createCache(lnLocPort1, lnLocPort2));
 
       vm2.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
-      Integer nyLocPort1 =
+      var nyLocPort1 =
           vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnLocPort1));
 
       vm2.invoke(() -> WANTestBase.startSender("ln"));
@@ -320,17 +320,17 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
 
       vm2.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", 10));
 
-      Integer nyLocPort2 = vm3
+      var nyLocPort2 = vm3
           .invoke(() -> WANTestBase.createSecondRemoteLocator(2, nyLocPort1, lnLocPort1));
 
-      InetSocketAddress locatorToWaitFor = new InetSocketAddress("localhost", nyLocPort2);
+      var locatorToWaitFor = new InetSocketAddress("localhost", nyLocPort2);
 
       vm2.invoke(() -> WANTestBase.checkLocatorsinSender("ln", locatorToWaitFor));
 
-      Integer nyLocPort3 = vm4
+      var nyLocPort3 = vm4
           .invoke(() -> WANTestBase.createSecondRemoteLocator(2, nyLocPort1, lnLocPort1));
 
-      InetSocketAddress locatorToWaitFor2 = new InetSocketAddress("localhost", nyLocPort3);
+      var locatorToWaitFor2 = new InetSocketAddress("localhost", nyLocPort3);
 
       vm2.invoke(() -> WANTestBase.checkLocatorsinSender("ln", locatorToWaitFor2));
     } finally {
@@ -341,7 +341,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
   @Test
   public void test_RingTopology() {
 
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(4);
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(4);
 
     final Set<String> site1LocatorsPort = new HashSet<>();
     final Set<String> site11LocatorsPort = new HashSet<>();
@@ -377,8 +377,8 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     dsVsPort.put(3, site33LocatorsPort);
     dsVsPort.put(4, site44LocatorsPort);
 
-    int AsyncInvocationArrSize = 9;
-    AsyncInvocation[] async = new AsyncInvocation[AsyncInvocationArrSize];
+    var AsyncInvocationArrSize = 9;
+    var async = new AsyncInvocation[AsyncInvocationArrSize];
 
     async[0] = vm0.invokeAsync(
         () -> WANTestBase.createLocator(1, ports[0], site1LocatorsPort, site2LocatorsPort));
@@ -413,27 +413,27 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
   @Test
   public void test_3Sites3Locators() {
     final Set<String> site1LocatorsPort = new HashSet<>();
-    int site1Port1 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var site1Port1 = AvailablePortHelper.getRandomAvailableTCPPort();
     site1LocatorsPort.add("localhost[" + site1Port1 + "]");
-    int site1Port2 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var site1Port2 = AvailablePortHelper.getRandomAvailableTCPPort();
     site1LocatorsPort.add("localhost[" + site1Port2 + "]");
-    int site1Port3 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var site1Port3 = AvailablePortHelper.getRandomAvailableTCPPort();
     site1LocatorsPort.add("localhost[" + site1Port3 + "]");
 
     final Set<String> site2LocatorsPort = new HashSet<>();
-    int site2Port1 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var site2Port1 = AvailablePortHelper.getRandomAvailableTCPPort();
     site2LocatorsPort.add("localhost[" + site2Port1 + "]");
-    int site2Port2 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var site2Port2 = AvailablePortHelper.getRandomAvailableTCPPort();
     site2LocatorsPort.add("localhost[" + site2Port2 + "]");
-    int site2Port3 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var site2Port3 = AvailablePortHelper.getRandomAvailableTCPPort();
     site2LocatorsPort.add("localhost[" + site2Port3 + "]");
 
     final Set<String> site3LocatorsPort = new HashSet<>();
-    int site3Port1 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var site3Port1 = AvailablePortHelper.getRandomAvailableTCPPort();
     site3LocatorsPort.add("localhost[" + site3Port1 + "]");
-    final int site3Port2 = AvailablePortHelper.getRandomAvailableTCPPort();
+    final var site3Port2 = AvailablePortHelper.getRandomAvailableTCPPort();
     site3LocatorsPort.add("localhost[" + site3Port2 + "]");
-    int site3Port3 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var site3Port3 = AvailablePortHelper.getRandomAvailableTCPPort();
     site3LocatorsPort.add("localhost[" + site3Port3 + "]");
 
     Map<Integer, Set<String>> dsVsPort = new HashMap<>();
@@ -441,8 +441,8 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     dsVsPort.put(2, site2LocatorsPort);
     dsVsPort.put(3, site3LocatorsPort);
 
-    int AsyncInvocationArrSize = 9;
-    AsyncInvocation[] async = new AsyncInvocation[AsyncInvocationArrSize];
+    var AsyncInvocationArrSize = 9;
+    var async = new AsyncInvocation[AsyncInvocationArrSize];
 
     async[0] = vm0.invokeAsync(
         () -> WANTestBase.createLocator(1, site1Port1, site1LocatorsPort, site2LocatorsPort));
@@ -467,7 +467,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
         () -> WANTestBase.createLocator(3, site3Port2, site3LocatorsPort, site1LocatorsPort));
 
     WANTestBase.createLocator(3, site3Port3, site3LocatorsPort, site1LocatorsPort);
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
 
     try {
       async[0].join();
@@ -512,14 +512,14 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     Map<Integer, Set<InetSocketAddress>> dsVsPort = new HashMap<>();
     dsVsPort.put(1, locatorPorts);
 
-    Integer lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstPeerLocator(1));
+    var lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstPeerLocator(1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort1));
 
-    Integer lnLocPort2 =
+    var lnLocPort2 =
         vm1.invoke(() -> WANTestBase.createSecondPeerLocator(1, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort2));
 
-    final int siteSizeToCheck = dsVsPort.size();
+    final var siteSizeToCheck = dsVsPort.size();
     vm0.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm1.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
   }
@@ -531,36 +531,36 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
 
     Set<InetSocketAddress> locatorPorts = new HashSet<>();
     dsVsPort.put(1, locatorPorts);
-    Integer lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstPeerLocator(1));
+    var lnLocPort1 = vm0.invoke(() -> WANTestBase.createFirstPeerLocator(1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort1));
-    Integer lnLocPort2 =
+    var lnLocPort2 =
         vm1.invoke(() -> WANTestBase.createSecondPeerLocator(1, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", lnLocPort2));
 
     locatorPorts = new HashSet<>();
     dsVsPort.put(2, locatorPorts);
-    Integer nyLocPort1 =
+    var nyLocPort1 =
         vm2.invoke(() -> WANTestBase.createFirstRemotePeerLocator(2, lnLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", nyLocPort1));
-    Integer nyLocPort2 = vm3
+    var nyLocPort2 = vm3
         .invoke(() -> WANTestBase.createSecondRemotePeerLocator(2, nyLocPort1, lnLocPort2));
     locatorPorts.add(new InetSocketAddress("localhost", nyLocPort2));
 
     locatorPorts = new HashSet<>();
     dsVsPort.put(3, locatorPorts);
-    Integer tkLocPort1 =
+    var tkLocPort1 =
         vm4.invoke(() -> WANTestBase.createFirstRemotePeerLocator(3, nyLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", tkLocPort1));
-    Integer tkLocPort2 = vm5
+    var tkLocPort2 = vm5
         .invoke(() -> WANTestBase.createSecondRemotePeerLocator(3, tkLocPort1, nyLocPort1));
     locatorPorts.add(new InetSocketAddress("localhost", tkLocPort2));
-    Integer tkLocPort3 = vm6
+    var tkLocPort3 = vm6
         .invoke(() -> WANTestBase.createSecondRemoteLocator(3, tkLocPort1, nyLocPort2));
     locatorPorts.add(new InetSocketAddress("localhost", tkLocPort3));
 
     // pause(5000);
 
-    final int siteSizeToCheck = dsVsPort.size();
+    final var siteSizeToCheck = dsVsPort.size();
     vm0.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm1.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
     vm2.invoke(() -> WANTestBase.checkAllSiteMetaData(dsVsPort, siteSizeToCheck));
@@ -573,10 +573,10 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
   @Test
   public void testNoThreadLeftBehind() {
     // Get active thread count before test
-    int activeThreadCountBefore = Thread.activeCount();
+    var activeThreadCountBefore = Thread.activeCount();
 
     // Start / stop locator
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     WANTestBase.createFirstRemoteLocator(2, port);
     disconnectFromDS();
 
@@ -585,7 +585,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     // Wait up to 60 seconds for all threads started during the test
     // (including the 'WAN Locator Discovery Thread') to stop
     // Note: Awaitility is not being used since it adds threads
-    for (int i = 0; i < 60; i++) {
+    for (var i = 0; i < 60; i++) {
       if (Thread.activeCount() > activeThreadCountBefore) {
         try {
           Thread.sleep(1000);
@@ -601,7 +601,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
     // the test
     if (Thread.activeCount() > activeThreadCountBefore) {
       OSProcess.printStacks(0);
-      final String builder = "Expected " + activeThreadCountBefore + " threads but found "
+      final var builder = "Expected " + activeThreadCountBefore + " threads but found "
           + Thread.activeCount() + ". Check log file for a thread dump.";
       fail(builder);
     }
@@ -609,7 +609,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
 
   @Test
   public void testNoRemoteLocators() {
-    IgnoredException ie = IgnoredException
+    var ie = IgnoredException
         .addIgnoredException("could not get remote locator information for remote site");
     try {
       testRemoteLocators(null, false, 0);
@@ -628,7 +628,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
   // pool has been created even though locator address is not valid
   @Test
   public void testInvalidHostRemoteLocators() {
-    IgnoredException ie = IgnoredException
+    var ie = IgnoredException
         .addIgnoredException("could not get remote locator information for remote site");
     try {
       Set<String> remoteLocators = new HashSet();
@@ -650,10 +650,10 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
   }
 
   private void addUnknownHost(Set<String> remoteLocators) {
-    String unknownHostName = "unknownGeodeHostWanAutoDiscoveryDUnitTest";
-    boolean unknownHostFound = false;
-    int numTries = 10;
-    for (int i = 0; i < numTries; i++) {
+    var unknownHostName = "unknownGeodeHostWanAutoDiscoveryDUnitTest";
+    var unknownHostFound = false;
+    var numTries = 10;
+    for (var i = 0; i < numTries; i++) {
       try {
         InetAddress.getByName(unknownHostName);
       } catch (UnknownHostException e) {
@@ -671,10 +671,10 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
   private void testRemoteLocators(Set<String> remoteLocators, boolean poolShouldExist,
       int expectedPoolLocatorsSize) {
     // Start locator
-    Integer lnLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnLocPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
     // Add remote locators
-    int remoteDsId = 2;
+    var remoteDsId = 2;
     vm0.invoke(() -> WANTestBase.putRemoteSiteLocators(remoteDsId, remoteLocators));
 
     // Create cache

@@ -18,11 +18,9 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
@@ -39,7 +37,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.management.internal.cli.domain.DataCommandResult;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.Server;
@@ -71,8 +68,8 @@ public class QueryCommandIntegrationTestBase {
     Region<String, Customer> complexRegion = cache.getRegion("complexRegion");
     Region<Integer, Integer> intRegion = cache.getRegion("intRegion");
 
-    for (int i = 0; i < Gfsh.DEFAULT_APP_FETCH_SIZE + 1; i++) {
-      String key = "key" + i;
+    for (var i = 0; i < Gfsh.DEFAULT_APP_FETCH_SIZE + 1; i++) {
+      var key = "key" + i;
 
       simpleRegion.put(key, "value" + i);
       complexRegion.put(key, new Customer("name" + i, "Main Street " + i, "Hometown"));
@@ -98,9 +95,9 @@ public class QueryCommandIntegrationTestBase {
 
   @Test
   public void queryWithAndWithoutEqualsReturnSameResult() throws Exception {
-    String resultWithEquals =
+    var resultWithEquals =
         gfsh.execute("query --query='select * from " + SEPARATOR + "intRegion i where i <= 3'");
-    String resultWithoutEquals =
+    var resultWithoutEquals =
         gfsh.execute("query --query 'select * from " + SEPARATOR + "intRegion i where i <= 3'");
     assertEquals(resultWithEquals, resultWithoutEquals);
   }
@@ -114,7 +111,7 @@ public class QueryCommandIntegrationTestBase {
 
   @Test
   public void invalidQueryShouldNotCreateFile() throws Exception {
-    File outputFile = temporaryFolder.newFile("queryOutput.txt");
+    var outputFile = temporaryFolder.newFile("queryOutput.txt");
     FileUtils.deleteQuietly(outputFile);
 
     gfsh.executeAndAssertThat(
@@ -126,7 +123,7 @@ public class QueryCommandIntegrationTestBase {
 
   @Test
   public void queryWithInvalidRegionNameDoesNotCreateFile() throws Exception {
-    File outputFile = temporaryFolder.newFile("queryOutput.txt");
+    var outputFile = temporaryFolder.newFile("queryOutput.txt");
     FileUtils.deleteQuietly(outputFile);
 
     gfsh.executeAndAssertThat(
@@ -139,7 +136,7 @@ public class QueryCommandIntegrationTestBase {
 
   @Test
   public void outputToFileStillDisplaysResultMetaData() throws Exception {
-    File outputFile = temporaryFolder.newFile("queryOutput.txt");
+    var outputFile = temporaryFolder.newFile("queryOutput.txt");
     FileUtils.deleteQuietly(outputFile);
 
     gfsh.executeAndAssertThat(
@@ -151,7 +148,7 @@ public class QueryCommandIntegrationTestBase {
 
   @Test
   public void doesNotOverwriteExistingFile() throws Exception {
-    File outputFile = temporaryFolder.newFile("queryOutput.txt");
+    var outputFile = temporaryFolder.newFile("queryOutput.txt");
     assertThat(outputFile).exists();
 
     gfsh.executeAndAssertThat(
@@ -162,7 +159,7 @@ public class QueryCommandIntegrationTestBase {
 
   @Test
   public void canOutputSimpleRegionToFile() throws Exception {
-    File outputFile = temporaryFolder.newFile("queryOutput.txt");
+    var outputFile = temporaryFolder.newFile("queryOutput.txt");
     FileUtils.deleteQuietly(outputFile);
 
     gfsh.executeAndAssertThat(
@@ -172,7 +169,7 @@ public class QueryCommandIntegrationTestBase {
 
     assertThat(outputFile).exists();
 
-    List<String> lines = Files.readLines(outputFile, StandardCharsets.UTF_8);
+    var lines = Files.readLines(outputFile, StandardCharsets.UTF_8);
 
     assertThat(lines.get(3)).isEqualTo("Result");
     assertThat(lines.get(4)).isEqualTo("--------");
@@ -181,7 +178,7 @@ public class QueryCommandIntegrationTestBase {
 
   @Test
   public void canOutputComplexRegionToFile() throws Exception {
-    File outputFile = temporaryFolder.newFile("queryOutput.txt");
+    var outputFile = temporaryFolder.newFile("queryOutput.txt");
     FileUtils.deleteQuietly(outputFile);
 
     gfsh.executeAndAssertThat(
@@ -190,7 +187,7 @@ public class QueryCommandIntegrationTestBase {
         .statusIsSuccess().containsOutput(outputFile.getAbsolutePath());
 
     assertThat(outputFile).exists();
-    List<String> lines = Files.readLines(outputFile, StandardCharsets.UTF_8);
+    var lines = Files.readLines(outputFile, StandardCharsets.UTF_8);
 
     assertThat(lines.get(3)).containsPattern("name\\s+\\|\\s+address");
     lines.subList(5, lines.size())
@@ -199,10 +196,10 @@ public class QueryCommandIntegrationTestBase {
 
   @Test
   public void outputDisplaysResultsFromComplexRegion() throws Exception {
-    String result = gfsh
+    var result = gfsh
         .execute("query --query='select c.name, c.address from " + SEPARATOR + "complexRegion c'");
 
-    String[] resultLines = splitOnLineBreaks(result);
+    var resultLines = splitOnLineBreaks(result);
 
     assertThat(resultLines[0]).containsPattern("Result\\s+:\\s+true");
     assertThat(resultLines[1]).containsPattern("Limit\\s+:\\s+100");
@@ -259,7 +256,7 @@ public class QueryCommandIntegrationTestBase {
 
   @Test
   public void queryReturnsNonSelectResult() {
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(
+    var commandResultAssert = gfsh.executeAndAssertThat(
         "query --query=\"(select c.address from " + SEPARATOR
             + "complexRegion c where c.name = 'name1' limit 1).size\"");
     commandResultAssert.hasDataSection(DataCommandResult.DATA_INFO_SECTION).hasContent()

@@ -44,13 +44,13 @@ public class DurableClientInfoResponse extends AdminResponse {
    */
   public static DurableClientInfoResponse create(DistributionManager dm,
       InternalDistributedMember recipient, DurableClientInfoRequest request) {
-    DurableClientInfoResponse m = new DurableClientInfoResponse();
+    var m = new DurableClientInfoResponse();
     m.setRecipient(recipient);
     try {
-      InternalCache c = (InternalCache) CacheFactory.getInstanceCloseOk(dm.getSystem());
+      var c = (InternalCache) CacheFactory.getInstanceCloseOk(dm.getSystem());
       if (!c.getCacheServers().isEmpty()) {
 
-        CacheServerImpl server = (CacheServerImpl) c.getCacheServers().iterator().next();
+        var server = (CacheServerImpl) c.getCacheServers().iterator().next();
         switch (request.action) {
           case DurableClientInfoRequest.HAS_DURABLE_CLIENT_REQUEST: {
             m.returnVal =

@@ -30,7 +30,7 @@ public class FetchResourceAttributesRequest extends AdminRequest {
   private long resourceUniqueId;
 
   public static FetchResourceAttributesRequest create(long id) {
-    FetchResourceAttributesRequest m = new FetchResourceAttributesRequest();
+    var m = new FetchResourceAttributesRequest();
     m.resourceUniqueId = id;
     return m;
   }

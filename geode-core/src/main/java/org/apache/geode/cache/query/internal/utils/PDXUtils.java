@@ -28,7 +28,7 @@ public class PDXUtils {
       boolean isDistinct) {
     objectChangedMarker[0] = false;
     if (isStruct) {
-      StructImpl simpl = (StructImpl) obj;
+      var simpl = (StructImpl) obj;
       if (getDomainObjectForPdx) {
         try {
           if (simpl.isHasPdx()) {
@@ -43,9 +43,9 @@ public class PDXUtils {
                   + ex.getMessage()) {};
         }
       } else {
-        Object[] values = simpl.getFieldValues();
+        var values = simpl.getFieldValues();
         if (getDeserializedObject) {
-          for (int i = 0; i < values.length; i++) {
+          for (var i = 0; i < values.length; i++) {
             if (values[i] instanceof VMCachedDeserializable) {
               values[i] = ((VMCachedDeserializable) values[i]).getDeserializedForReading();
             }
@@ -53,7 +53,7 @@ public class PDXUtils {
         }
         /* This is to convert PdxString to String */
         if (simpl.isHasPdx() && isDistinct && localResults) {
-          for (int i = 0; i < values.length; i++) {
+          for (var i = 0; i < values.length; i++) {
             if (values[i] instanceof PdxString) {
               values[i] = values[i].toString();
             }

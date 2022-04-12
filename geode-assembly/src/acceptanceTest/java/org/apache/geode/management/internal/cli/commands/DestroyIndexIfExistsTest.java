@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 
@@ -32,7 +31,7 @@ public class DestroyIndexIfExistsTest {
 
   @Test
   public void destroyIndexIfExists() throws Exception {
-    GfshExecution execution =
+    var execution =
         GfshScript.of("start locator --name=locator", "start server --name=server --server-port=0",
             "sleep --time=1", "destroy index --name=i1 --if-exists=true").execute(gfsh);
 

@@ -28,10 +28,10 @@ public class FlushAllExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    LocalDataSet local = (LocalDataSet) PartitionRegionHelper
+    var local = (LocalDataSet) PartitionRegionHelper
         .getLocalPrimaryData(context.getRegionProvider().getLocalDataRegion());
 
-    for (Object skey : local.keySet()) {
+    for (var skey : local.keySet()) {
       DelExecutor.del(context, (RedisKey) skey);
     }
 

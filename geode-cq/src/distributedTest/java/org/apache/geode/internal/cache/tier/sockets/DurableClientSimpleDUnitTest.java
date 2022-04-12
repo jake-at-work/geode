@@ -39,18 +39,14 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.ClientSession;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerRefusedConnectionException;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.cache.PoolFactoryImpl;
-import org.apache.geode.internal.cache.ha.HARegionQueue;
-import org.apache.geode.internal.cache.ha.HARegionQueueStats;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
@@ -69,7 +65,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is not kept alive on the server when it stops
     // normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClient(
         getClientPool(getServerHostName(), server1Port, true), regionName,
         getClientDistributedSystemProperties(durableClientId), Boolean.TRUE));
@@ -85,7 +81,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
         regionName));
 
     // Publish some entries
-    final int numberOfEntries = 10;
+    final var numberOfEntries = 10;
     publishEntries(0, 10);
 
     // Verify the durable client received the updates
@@ -112,9 +108,9 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start a durable client with 2 regions (and 2 BridgeClients) that is not
     // kept alive on the server when it stops normally
-    final String durableClientId = getName() + "_client";
-    final String regionName1 = regionName + "1";
-    final String regionName2 = regionName + "2";
+    final var durableClientId = getName() + "_client";
+    final var regionName1 = regionName + "1";
+    final var regionName2 = regionName + "2";
     durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClients(
         getClientPool(getServerHostName(), server1Port, true), regionName1,
         regionName2, getClientDistributedSystemProperties(durableClientId)));
@@ -133,12 +129,12 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
         // Get the CacheClientNotifier
-        CacheClientNotifier notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
+        var notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
 
         // Iterate the CacheClientProxies
         checkNumberOfClientProxies(2);
         String firstProxyRegionName = null;
-        for (CacheClientProxy proxy : notifier.getClientProxies()) {
+        for (var proxy : notifier.getClientProxies()) {
           assertTrue(proxy.isDurable());
           assertEquals(durableClientId, proxy.getDurableId());
           assertEquals(DistributionConfig.DEFAULT_DURABLE_CLIENT_TIMEOUT,
@@ -184,7 +180,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is not kept alive on the server when it
     // stops normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     durableClientVM.invoke(() -> createCacheClient(
         getClientPool(getServerHostName(), server1Port, true), regionName,
         getClientDistributedSystemProperties(durableClientId), TRUE));
@@ -199,7 +195,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
         getSystem(getClientDistributedSystemProperties(durableClientId));
-        PoolFactoryImpl pf = (PoolFactoryImpl) createFactory();
+        var pf = (PoolFactoryImpl) createFactory();
         pf.init(getClientPool(getServerHostName(), server1Port, true));
         try {
           pf.create("uncreatablePool");
@@ -223,7 +219,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
         regionName));
 
     // Publish some entries
-    final int numberOfEntries = 10;
+    final var numberOfEntries = 10;
     publishEntries(0, numberOfEntries);
 
     // Verify the durable client received the updates
@@ -250,7 +246,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is not kept alive on the server when it
     // stops normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClient(
         getClientPool(getServerHostName(), server1Port, true), regionName,
         getClientDistributedSystemProperties(durableClientId)));
@@ -260,8 +256,8 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start another durable client that is not kept alive on the server when
     // it stops normally. Use the 'publisherClientVM' as a durable client.
-    VM durableClient2VM = publisherClientVM;
-    final String durableClientId2 = getName() + "_client2";
+    var durableClient2VM = publisherClientVM;
+    final var durableClientId2 = getName() + "_client2";
     durableClient2VM.invoke(() -> CacheServerTestUtil.createCacheClient(
         getClientPool(getServerHostName(), server1Port, true), regionName,
         getClientDistributedSystemProperties(durableClientId2)));
@@ -274,12 +270,12 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
         // Get the CacheClientNotifier
-        CacheClientNotifier notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
+        var notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
 
         // Iterate the CacheClientProxies and verify they are correct
         checkNumberOfClientProxies(2);
         boolean durableClient1Found = false, durableClient2Found = false;
-        for (CacheClientProxy proxy : notifier.getClientProxies()) {
+        for (var proxy : notifier.getClientProxies()) {
           assertTrue(proxy.isDurable());
           if (proxy.getDurableId().equals(durableClientId)) {
             durableClient1Found = true;
@@ -323,8 +319,8 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is kept alive on the server when it stops
     // normally
-    final String durableClientId = getName() + "_client";
-    final int durableClientTimeout = 60; // keep the client alive for 60 seconds
+    final var durableClientId = getName() + "_client";
+    final var durableClientTimeout = 60; // keep the client alive for 60 seconds
     // final boolean durableClientKeepAlive = true; // keep the client alive when it stops normally
     durableClientVM.invoke(() -> createCacheClient(
         getClientPool(getServerHostName(), server1Port, server2Port, true),
@@ -343,7 +339,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
         server1Port, server2Port, false), regionName));
 
     // Publish some entries
-    final int numberOfEntries = 10;
+    final var numberOfEntries = 10;
     publishEntries(0, numberOfEntries);
 
     // Verify the durable client received the updates
@@ -359,7 +355,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
         // Find the proxy
-        CacheClientProxy proxy = getClientProxy();
+        var proxy = getClientProxy();
         assertNotNull(proxy);
       }
     });
@@ -402,8 +398,8 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is kept alive on the server when it stops
     // normally
-    final String durableClientId = getName() + "_client";
-    final int durableClientTimeout = 60; // keep the client alive for 60 seconds
+    final var durableClientId = getName() + "_client";
+    final var durableClientTimeout = 60; // keep the client alive for 60 seconds
     // final boolean durableClientKeepAlive = true; // keep the client alive when it stops normally
     durableClientVM.invoke(() -> createCacheClient(
         getClientPool(getServerHostName(), server1Port, true), regionName,
@@ -417,8 +413,8 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start another durable client that is not kept alive on the server when
     // it stops normally. Use the 'server2VM' as the second durable client.
-    VM durableClient2VM = server2VM;
-    final String durableClientId2 = getName() + "_client2";
+    var durableClient2VM = server2VM;
+    final var durableClientId2 = getName() + "_client2";
     durableClient2VM.invoke(() -> createCacheClient(
         getClientPool(getServerHostName(), server1Port, true), regionName,
         getClientDistributedSystemProperties(durableClientId2, durableClientTimeout),
@@ -438,7 +434,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
         regionName));
 
     // Publish some entries
-    final int numberOfEntries = 10;
+    final var numberOfEntries = 10;
     publishEntries(0, numberOfEntries);
 
     // Verify durable client 1 received the updates
@@ -467,11 +463,11 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
         // Get the CacheClientNotifier
-        CacheClientNotifier notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
+        var notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
 
         // Iterate the CacheClientProxies and verify the queue sizes
         checkNumberOfClientProxies(2);
-        for (CacheClientProxy proxy : notifier.getClientProxies()) {
+        for (var proxy : notifier.getClientProxies()) {
           assertEquals(numberOfEntries, proxy.getQueueSize());
         }
       }
@@ -518,12 +514,12 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
         // Get the CacheClientNotifier
-        CacheClientNotifier notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
+        var notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
 
         // Iterate the CacheClientProxies and verify they are correct
         checkNumberOfClientProxies(2);
         boolean durableClient1Found = false, durableClient2Found = false;
-        for (CacheClientProxy proxy : notifier.getClientProxies()) {
+        for (var proxy : notifier.getClientProxies()) {
           assertTrue(proxy.isDurable());
           if (proxy.getDurableId().equals(durableClientId)) {
             durableClient1Found = true;
@@ -562,8 +558,8 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is kept alive on the server when it stops
     // normally
-    final String durableClientId = getName() + "_client";
-    final int durableClientTimeout = 60; // keep the client alive for 60 seconds
+    final var durableClientId = getName() + "_client";
+    final var durableClientTimeout = 60; // keep the client alive for 60 seconds
     // final boolean durableClientKeepAlive = true; // keep the client alive when it stops normally
     durableClientVM.invoke(() -> createCacheClient(
         getClientPool(getServerHostName(), server1Port, server2Port, true),
@@ -581,7 +577,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       public void run2() throws CacheException {
         // Find the proxy
         checkNumberOfClientProxies(1);
-        CacheClientProxy proxy = getClientProxy();
+        var proxy = getClientProxy();
         assertNotNull(proxy);
 
         // Verify that it is durable and its properties are correct
@@ -604,7 +600,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       public void run2() throws CacheException {
         // Find the proxy
         checkNumberOfClientProxies(1);
-        CacheClientProxy proxy = getClientProxy();
+        var proxy = getClientProxy();
         assertNotNull(proxy);
       }
     });
@@ -618,7 +614,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
         server1Port, server2Port, false), regionName));
 
     // Publish some entries
-    final int numberOfEntries = 10;
+    final var numberOfEntries = 10;
     publishEntries(0, numberOfEntries);
 
     sleep(1000);
@@ -628,7 +624,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
         // Find the proxy
-        CacheClientProxy proxy = getClientProxy();
+        var proxy = getClientProxy();
         assertNotNull(proxy);
 
         // Verify the queue size
@@ -653,9 +649,9 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
     verifyDurableClientPresence(durableClientTimeout, durableClientId, server2VM, 1);
 
     // Verify the HA region names are the same on both servers
-    String server1HARegionQueueName =
+    var server1HARegionQueueName =
         server1VM.invoke(DurableClientTestBase::getHARegionQueueName);
-    String server2HARegionQueueName =
+    var server2HARegionQueueName =
         server2VM.invoke(DurableClientTestBase::getHARegionQueueName);
     assertEquals(server1HARegionQueueName, server2HARegionQueueName);
 
@@ -687,7 +683,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is not kept alive on the server when it
     // stops normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     // make the client use ClientCacheFactory so it will have a default pool
     durableClientVM.invoke(() -> CacheServerTestUtil.createClientCache(
         getClientPool(getServerHostName(), server1Port, true), regionName,
@@ -697,7 +693,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
     durableClientVM.invoke(new CacheSerializableRunnable("check readyForEvents not called") {
       @Override
       public void run2() throws CacheException {
-        for (Pool p : PoolManager.getAll().values()) {
+        for (var p : PoolManager.getAll().values()) {
           assertFalse(((PoolImpl) p).getReadyForEventsCalled());
         }
       }
@@ -711,12 +707,12 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
       @Override
       public void run2() throws CacheException {
         // Get the CacheClientNotifier
-        CacheClientNotifier notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
+        var notifier = getBridgeServer().getAcceptor().getCacheClientNotifier();
 
         // Iterate the CacheClientProxies and verify they are correct
         checkNumberOfClientProxies(1);
-        boolean durableClient1Found = false;
-        for (CacheClientProxy proxy : notifier.getClientProxies()) {
+        var durableClient1Found = false;
+        for (var proxy : notifier.getClientProxies()) {
           assertTrue(proxy.isDurable());
           if (proxy.getDurableId().equals(durableClientId)) {
             durableClient1Found = true;
@@ -747,7 +743,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
     // Start a durable client that is not kept alive on the server when it
     // stops normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
     // create client cache from xml
     durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClientFromXmlN(
@@ -758,7 +754,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
     durableClientVM.invoke(new CacheSerializableRunnable("check readyForEvents not called") {
       @Override
       public void run2() throws CacheException {
-        for (Pool p : PoolManager.getAll().values()) {
+        for (var p : PoolManager.getAll().values()) {
           assertFalse(((PoolImpl) p).getReadyForEventsCalled());
         }
       }
@@ -780,7 +776,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
         regionName));
 
     // Publish some entries
-    final int numberOfEntries = 10;
+    final var numberOfEntries = 10;
     publishEntries(0, numberOfEntries);
 
     // Verify the durable client received the updates
@@ -802,8 +798,8 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
         assertNotNull(region);
 
         // Publish some entries
-        for (int i = 0; i < numberOfEntries; i++) {
-          String keyAndValue = String.valueOf(i);
+        for (var i = 0; i < numberOfEntries; i++) {
+          var keyAndValue = String.valueOf(i);
           region.put(keyAndValue, keyAndValue + "lkj");
         }
       }
@@ -844,9 +840,9 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
    */
   @Test
   public void testCloseCacheProxy() {
-    String greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
-    String allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
-    String lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
+    var greaterThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID > 5";
+    var allQuery = "select * from " + SEPARATOR + regionName + " p where p.ID > -1";
+    var lessThan5Query = "select * from " + SEPARATOR + regionName + " p where p.ID < 5";
 
     // Start a server
     server1Port = server1VM
@@ -888,7 +884,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
           @Override
           public void run2() throws CacheException {
 
-            final CacheClientNotifier ccnInstance = CacheClientNotifier.getInstance();
+            final var ccnInstance = CacheClientNotifier.getInstance();
 
             ccnInstance.closeDurableClientProxy(durableClientId);
           }
@@ -1036,7 +1032,7 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
         Boolean.TRUE);
 
     // Use ClientSession on the server to ` in entry key on behalf of durable client
-    boolean server1IsPrimary = false;
+    var server1IsPrimary = false;
     boolean registered = server1VM.invoke(() -> DurableClientSimpleDUnitTest
         .registerInterestWithClientSession(durableClientId, regionName, String.valueOf(0)));
     if (registered) {
@@ -1079,8 +1075,8 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
   private static boolean registerInterestWithClientSession(String durableClientId,
       String regionName,
       Object keyOfInterest) {
-    ClientSession session = getBridgeServer().getClientSession(durableClientId);
-    boolean registered = false;
+    var session = getBridgeServer().getClientSession(durableClientId);
+    var registered = false;
     if (session.isPrimary()) {
       session.registerInterest(regionName, keyOfInterest, InterestResultPolicy.KEYS_VALUES, true,
           true);
@@ -1099,10 +1095,10 @@ public class DurableClientSimpleDUnitTest extends DurableClientTestBase {
 
   private static void waitForEventsRemovedByQueueRemovalMessage(String durableClientId,
       final int numEvents) {
-    CacheClientNotifier ccn = CacheClientNotifier.getInstance();
-    CacheClientProxy ccp = ccn.getClientProxy(durableClientId);
-    HARegionQueue haRegionQueue = ccp.getHARegionQueue();
-    HARegionQueueStats haRegionQueueStats = haRegionQueue.getStatistics();
+    var ccn = CacheClientNotifier.getInstance();
+    var ccp = ccn.getClientProxy(durableClientId);
+    var haRegionQueue = ccp.getHARegionQueue();
+    var haRegionQueueStats = haRegionQueue.getStatistics();
     await()
         .untilAsserted(
             () -> assertEquals(

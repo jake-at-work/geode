@@ -62,8 +62,8 @@ public class CacheXml81DUnitTest extends CacheXml80DUnitTest {
    */
   @Test
   public void testCacheExtension() throws Exception {
-    final CacheCreation cache = new CacheCreation();
-    final MockCacheExtension extension = new MockCacheExtension("testCacheExtension");
+    final var cache = new CacheCreation();
+    final var extension = new MockCacheExtension("testCacheExtension");
     cache.getExtensionPoint().addExtension(extension);
 
     assertEquals(0, extension.beforeCreateCounter.get());
@@ -78,7 +78,7 @@ public class CacheXml81DUnitTest extends CacheXml80DUnitTest {
 
     final Extensible<Cache> c = getCache();
     assertNotNull(c);
-    final MockCacheExtension m =
+    final var m =
         (MockCacheExtension) c.getExtensionPoint().getExtensions().iterator().next();
     assertNotNull(m);
 
@@ -94,13 +94,13 @@ public class CacheXml81DUnitTest extends CacheXml80DUnitTest {
    */
   @Test
   public void testRegionExtension() throws Exception {
-    final String regionName = "testRegionExtension";
-    final CacheCreation cache = new CacheCreation();
-    final RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
-    Extensible<Region<?, ?>> region =
+    final var regionName = "testRegionExtension";
+    final var cache = new CacheCreation();
+    final var attrs = new RegionAttributesCreation(cache);
+    var region =
         (Extensible<Region<?, ?>>) cache.createRegion(regionName, attrs);
 
-    final MockRegionExtension extension = new MockRegionExtension("test");
+    final var extension = new MockRegionExtension("test");
     region.getExtensionPoint().addExtension(extension);
 
     assertEquals(0, extension.beforeCreateCounter.get());
@@ -113,9 +113,9 @@ public class CacheXml81DUnitTest extends CacheXml80DUnitTest {
     assertEquals(0, extension.onCreateCounter.get());
     assertEquals(1, extension.getXmlGeneratorCounter.get());
 
-    final Extensible<Region<?, ?>> r = (Extensible<Region<?, ?>>) getCache().getRegion(regionName);
+    final var r = (Extensible<Region<?, ?>>) getCache().getRegion(regionName);
     assertNotNull(r);
-    final MockRegionExtension m =
+    final var m =
         (MockRegionExtension) r.getExtensionPoint().getExtensions().iterator().next();
     assertNotNull(m);
 
@@ -132,13 +132,13 @@ public class CacheXml81DUnitTest extends CacheXml80DUnitTest {
    */
   @Test
   public void testLocatorInException() throws Exception {
-    final String regionName = "testRegionExtension";
-    final CacheCreation cache = new CacheCreation();
-    final RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
-    Extensible<Region<?, ?>> region =
+    final var regionName = "testRegionExtension";
+    final var cache = new CacheCreation();
+    final var attrs = new RegionAttributesCreation(cache);
+    var region =
         (Extensible<Region<?, ?>>) cache.createRegion(regionName, attrs);
 
-    final MockRegionExtension extension = new MockRegionExtension("exception");
+    final var extension = new MockRegionExtension("exception");
     region.getExtensionPoint().addExtension(extension);
 
     assertEquals(0, extension.beforeCreateCounter.get());

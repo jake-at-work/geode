@@ -68,15 +68,15 @@ public class MemberManagementControllerSpringTest {
 
   @Test
   public void getMemberMappingRecognizesMemberIdWithDot() throws Exception {
-    String memberIdWithDot = "member.id";
-    String requestPath = URI_VERSION + MEMBER_ENDPOINT + "/" + memberIdWithDot;
+    var memberIdWithDot = "member.id";
+    var requestPath = URI_VERSION + MEMBER_ENDPOINT + "/" + memberIdWithDot;
 
     when(cms.get(any())).thenReturn(new ClusterManagementGetResult<>());
 
     context.perform(get(requestPath))
         .andExpect(status().is2xxSuccessful());
 
-    ArgumentCaptor<Member> memberCaptor =
+    var memberCaptor =
         ArgumentCaptor.forClass(Member.class);
     verify(cms).get(memberCaptor.capture());
 

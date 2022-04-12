@@ -14,18 +14,12 @@
  */
 package org.apache.geode.management.internal.beans;
 
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.geode.Statistics;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.internal.cache.CachePerfStats;
-import org.apache.geode.internal.cache.DirectoryHolder;
-import org.apache.geode.internal.cache.DiskRegionStats;
-import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.LocalRegion;
@@ -100,15 +94,15 @@ public class RegionMBeanBridge<K, V> {
   public static <K, V> RegionMBeanBridge<K, V> getInstance(Region<K, V> region) {
     if (region.getAttributes().getPartitionAttributes() != null) {
       RegionMBeanBridge<K, V> bridge = PartitionedRegionBridge.getInstance(region);
-      PartitionedRegion parRegion = ((PartitionedRegion) region);
-      DiskStoreImpl dsi = parRegion.getDiskStore();
+      var parRegion = ((PartitionedRegion) region);
+      var dsi = parRegion.getDiskStore();
       if (dsi != null) {
-        DiskRegionStats stats = parRegion.getDiskRegionStats();
+        var stats = parRegion.getDiskRegionStats();
 
-        DiskRegionBridge diskRegionBridge = new DiskRegionBridge(stats);
+        var diskRegionBridge = new DiskRegionBridge(stats);
         bridge.addDiskRegionBridge(diskRegionBridge);
 
-        for (DirectoryHolder dh : dsi.getDirectoryHolders()) {
+        for (var dh : dsi.getDirectoryHolders()) {
           diskRegionBridge.addDirectoryStats(dh.getDiskDirectoryStats());
         }
 
@@ -117,16 +111,16 @@ public class RegionMBeanBridge<K, V> {
       return bridge;
 
     } else {
-      RegionMBeanBridge<K, V> bridge = new RegionMBeanBridge<>(region);
+      var bridge = new RegionMBeanBridge<K, V>(region);
 
-      LocalRegion localRegion = ((LocalRegion) region);
-      DiskStoreImpl dsi = localRegion.getDiskStore();
+      var localRegion = ((LocalRegion) region);
+      var dsi = localRegion.getDiskStore();
       if (dsi != null) {
-        DiskRegionBridge diskRegionBridge =
+        var diskRegionBridge =
             new DiskRegionBridge(localRegion.getDiskRegion().getStats());
         bridge.addDiskRegionBridge(diskRegionBridge);
 
-        for (DirectoryHolder dh : dsi.getDirectoryHolders()) {
+        for (var dh : dsi.getDirectoryHolders()) {
           diskRegionBridge.addDirectoryStats(dh.getDiskDirectoryStats());
         }
       }
@@ -179,8 +173,8 @@ public class RegionMBeanBridge<K, V> {
   }
 
   private boolean isMemoryEvictionConfigured() {
-    boolean result = false;
-    EvictionAttributes ea = region.getAttributes().getEvictionAttributes();
+    var result = false;
+    var ea = region.getAttributes().getEvictionAttributes();
     if (ea != null && ea.getAlgorithm().isLRUMemory()) {
       result = true;
     }
@@ -188,8 +182,8 @@ public class RegionMBeanBridge<K, V> {
   }
 
   private void monitorLRUStatistics() {
-    InternalRegion internalRegion = (InternalRegion) region;
-    Statistics lruStats = internalRegion.getEvictionStatistics();
+    var internalRegion = (InternalRegion) region;
+    var lruStats = internalRegion.getEvictionStatistics();
     if (lruStats != null) {
       regionMonitor.addStatisticsToMonitor(lruStats);
     }
@@ -228,9 +222,9 @@ public class RegionMBeanBridge<K, V> {
 
   public String[] listSubRegionPaths(boolean recursive) {
     SortedSet<String> subregionPaths = new TreeSet<>();
-    Set<Region<?, ?>> subregions = region.subregions(recursive);
+    var subregions = region.subregions(recursive);
 
-    for (Region<?, ?> region : subregions) {
+    for (var region : subregions) {
       subregionPaths.add(region.getFullPath());
     }
     return subregionPaths.toArray(new String[0]);
@@ -275,7 +269,7 @@ public class RegionMBeanBridge<K, V> {
 
     lruEvictionRate = new StatsRate(StatsKey.LRU_EVICTIONS, StatType.LONG_TYPE, regionMonitor);
 
-    String[] writesRates = new String[] {StatsKey.PUT_ALLS, StatsKey.PUTS, StatsKey.CREATES};
+    var writesRates = new String[] {StatsKey.PUT_ALLS, StatsKey.PUTS, StatsKey.CREATES};
     averageWritesRate = new StatsRate(writesRates, StatType.INT_TYPE, regionMonitor);
     averageReadsRate = new StatsRate(StatsKey.GETS, StatType.INT_TYPE, regionMonitor);
   }

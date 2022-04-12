@@ -49,7 +49,7 @@ public class QueryTestObject implements Serializable {
 
   public void setDateField(String dateString) {
     try {
-      SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+      var sdf = new SimpleDateFormat("MM/dd/yyyy");
       dateField = sdf.parse(dateString);
     } catch (ParseException ignored) {
 
@@ -66,7 +66,7 @@ public class QueryTestObject implements Serializable {
     if (!(obj instanceof QueryTestObject)) {
       return false;
     }
-    QueryTestObject qto = (QueryTestObject) obj;
+    var qto = (QueryTestObject) obj;
     return (id == qto.id && name.equals(qto.getName()));
   }
 

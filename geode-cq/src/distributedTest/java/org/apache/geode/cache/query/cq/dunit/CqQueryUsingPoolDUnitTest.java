@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -42,21 +41,16 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.MirrorType;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
-import org.apache.geode.cache.query.CqAttributesMutator;
 import org.apache.geode.cache.query.CqExistsException;
 import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
@@ -72,8 +66,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.InitialImageOperation;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
-import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
@@ -204,7 +196,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void createServer(VM server, final int thePort, final boolean eviction) {
-    MirrorType mirrorType = MirrorType.KEYS_VALUES;
+    var mirrorType = MirrorType.KEYS_VALUES;
     createServer(server, thePort, eviction, mirrorType);
   }
 
@@ -215,24 +207,24 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     // AvailablePort.lowerBound and AvailablePort.upperBound. Usually that's OK unless the server
     // intends to be restarted using the same port as originally assigned ephemerally. There's
     // always a race when restarting servers, but this should reduce the problem just a bit.
-    int actualPort = port == 0 ? AvailablePortHelper.getRandomAvailableTCPPort() : port;
+    var actualPort = port == 0 ? AvailablePortHelper.getRandomAvailableTCPPort() : port;
 
     SerializableRunnable createServer = new CacheSerializableRunnable("Create Cache Server") {
       @Override
       public void run2() throws CacheException {
         LogWriterUtils.getLogWriter().info("### Create Cache Server. ###");
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setMirrorType(mirrorType);
 
         // setting the eviction attributes.
         if (eviction) {
-          EvictionAttributes evictAttrs =
+          var evictAttrs =
               EvictionAttributes.createLRUEntryAttributes(100000, EvictionAction.OVERFLOW_TO_DISK);
           factory.setEvictionAttributes(evictAttrs);
         }
 
-        for (final String region : regions) {
+        for (final var region : regions) {
           createRegion(region, factory.createRegionAttributes());
         }
 
@@ -264,18 +256,18 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         LogWriterUtils.getLogWriter().info("### Create Cache Server. ###");
 
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         if (isAccessor) {
           paf.setLocalMaxMemory(0);
         }
-        PartitionAttributes prAttr =
+        var prAttr =
             paf.setTotalNumBuckets(197).setRedundantCopies(redundantCopies).create();
         attr.setPartitionAttributes(prAttr);
 
         assertFalse(getSystem().isLoner());
-        for (final String region : regions) {
-          Region r = createRegion(region, attr.create());
+        for (final var region : regions) {
+          var r = createRegion(region, attr.create());
           LogWriterUtils.getLogWriter().info("Server created the region: " + r);
         }
         try {
@@ -302,7 +294,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
   /* Create Client */
   public void createClient(VM client, final int serverPort, final String serverHost) {
-    int[] serverPorts = new int[] {serverPort};
+    var serverPorts = new int[] {serverPort};
     createClient(client, serverPorts, serverHost, null, null);
   }
 
@@ -322,7 +314,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        AttributesFactory regionFactory = new AttributesFactory();
+        var regionFactory = new AttributesFactory();
         regionFactory.setScope(Scope.LOCAL);
 
         if (poolName != null) {
@@ -336,7 +328,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
                 true, -1, -1, null);
           }
         }
-        for (final String region : regions) {
+        for (final var region : regions) {
           createRegion(region, regionFactory.createRegionAttributes());
           LogWriterUtils.getLogWriter()
               .info("### Successfully Created Region on Client :" + region);
@@ -397,7 +389,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regionName);
-        for (int i = 1; i <= size; i++) {
+        for (var i = 1; i <= size; i++) {
           region1.put(KEY + i, new Portfolio(i, i));
         }
         LogWriterUtils.getLogWriter()
@@ -412,8 +404,8 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regionName);
-        for (int i = 1; i <= size; i++) {
-          Portfolio portfolio = new Portfolio(i);
+        for (var i = 1; i <= size; i++) {
+          var portfolio = new Portfolio(i);
           portfolio.createTime = System.currentTimeMillis();
           region1.put(KEY + i, portfolio);
         }
@@ -429,7 +421,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regionName);
-        for (int i = 1; i <= size; i++) {
+        for (var i = 1; i <= size; i++) {
           region1.destroy(KEY + i);
         }
         LogWriterUtils.getLogWriter()
@@ -447,7 +439,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regionName);
-        for (int i = 1; i <= size; i++) {
+        for (var i = 1; i <= size; i++) {
           region1.invalidate(KEY + i);
         }
         LogWriterUtils.getLogWriter()
@@ -474,15 +466,15 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         getCache();
         IgnoredException.addIgnoredException("java.net.ConnectException");
 
-        PoolFactory cpf = PoolManager.createFactory();
+        var cpf = PoolManager.createFactory();
         cpf.setSubscriptionEnabled(true);
 
         if (redundancyLevel != null) {
-          int redundancy = Integer.parseInt(redundancyLevel);
+          var redundancy = Integer.parseInt(redundancyLevel);
           cpf.setSubscriptionRedundancy(redundancy);
         }
 
-        for (int i = 0; i < servers.length; i++) {
+        for (var i = 0; i < servers.length; i++) {
           LogWriterUtils.getLogWriter()
               .info("### Adding to Pool. ### Server : " + servers[i] + " Port : " + ports[i]);
           cpf.addServer(servers[i], ports[i]);
@@ -507,16 +499,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
         // Create CQ Attributes.
-        CqAttributesFactory cqf = new CqAttributesFactory();
+        var cqf = new CqAttributesFactory();
         CqListener[] cqListeners = {new CqQueryTestListener(LogWriterUtils.getLogWriter())};
         ((CqQueryTestListener) cqListeners[0]).cqName = cqName;
 
         cqf.initCqListeners(cqListeners);
-        CqAttributes cqa = cqf.create();
+        var cqa = cqf.create();
 
         // Create CQ.
         try {
-          CqQuery cq1 = qService.newCq(cqName, queryStr, cqa);
+          var cq1 = qService.newCq(cqName, queryStr, cqa);
           assertTrue("newCq() state mismatch", cq1.getState().isStopped());
         } catch (Exception ex) {
           LogWriterUtils.getLogWriter().info("QueryService is :" + qService, ex);
@@ -544,16 +536,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
         // Create CQ Attributes.
-        CqAttributesFactory cqf = new CqAttributesFactory();
+        var cqf = new CqAttributesFactory();
         CqListener[] cqListeners = {new CqQueryTestListener(LogWriterUtils.getLogWriter())};
         ((CqQueryTestListener) cqListeners[0]).cqName = cqName;
 
         cqf.initCqListeners(cqListeners);
-        CqAttributes cqa = cqf.create();
+        var cqa = cqf.create();
 
         // Create CQ.
         try {
-          CqQuery cq1 = qService.newCq(cqName, queryStr, cqa);
+          var cq1 = qService.newCq(cqName, queryStr, cqa);
           assertTrue("newCq() state mismatch", cq1.getState().isStopped());
         } catch (Exception ex) {
           LogWriterUtils.getLogWriter().info("QueryService is :" + qService, ex);
@@ -585,13 +577,13 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         }
 
         SelectResults cqResults = null;
-        for (int i = 0; i < 20; ++i) {
+        for (var i = 0; i < 20; ++i) {
           // Create CQ Attributes.
-          CqAttributesFactory cqf = new CqAttributesFactory();
+          var cqf = new CqAttributesFactory();
           CqListener[] cqListeners = {new CqQueryTestListener(LogWriterUtils.getLogWriter())};
 
           cqf.initCqListeners(cqListeners);
-          CqAttributes cqa = cqf.create();
+          var cqa = cqf.create();
 
           // Create CQ with no name and execute with initial results.
           try {
@@ -705,12 +697,12 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           }
 
           if (expectedKeys != null) {
-            HashSet resultKeys = new HashSet();
-            for (Object o : cqResults.asList()) {
-              Struct s = (Struct) o;
+            var resultKeys = new HashSet();
+            for (var o : cqResults.asList()) {
+              var s = (Struct) o;
               resultKeys.add(s.get("key"));
             }
-            for (final String expectedKey : expectedKeys) {
+            for (final var expectedKey : expectedKeys) {
               assertTrue(
                   "Expected key :" + expectedKey + " Not found in CqResults for CQ: " + cqName
                       + " CQ Query :" + cq1.getQueryString() + " Keys in CqResults :" + resultKeys,
@@ -798,7 +790,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to get CQ " + cqName + " . ", ex);
         }
 
-        for (int i = 0; i < count; ++i) {
+        for (var i = 0; i < count; ++i) {
           // Stop CQ.
           try {
             cq1.stop();
@@ -874,7 +866,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
             region.registerInterest("ALL_KEYS");
           } else {
             List list = new ArrayList();
-            for (int i = 1; i <= keySize; i++) {
+            for (var i = 1; i <= keySize; i++) {
               list.add(KEY + i);
             }
             region.registerInterest(list);
@@ -900,7 +892,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        int numCqs = 0;
+        var numCqs = 0;
         try {
           numCqs = cqService.getCqs().length;
         } catch (Exception ex) {
@@ -927,7 +919,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        CqQuery cQuery = cqService.getCq(cqName);
+        var cQuery = cqService.getCq(cqName);
         if (cQuery != null) {
           fail("Unexpectedly found CqQuery for CQ : " + cqName);
         }
@@ -949,14 +941,14 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        CqQuery cQuery = cqService.getCq(cqName);
+        var cQuery = cqService.getCq(cqName);
         if (cQuery == null) {
           fail("Failed to get CqQuery for CQ : " + cqName);
         }
 
-        CqAttributes cqAttr = cQuery.getCqAttributes();
-        CqListener cqListener = cqAttr.getCqListener();
-        CqQueryTestListener listener = (CqQueryTestListener) cqListener;
+        var cqAttr = cQuery.getCqAttributes();
+        var cqListener = cqAttr.getCqListener();
+        var listener = (CqQueryTestListener) cqListener;
         listener.printInfo(false);
 
         // Check for totalEvents count.
@@ -989,14 +981,14 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        CqQuery cQuery = cqService.getCq(cqName);
+        var cQuery = cqService.getCq(cqName);
         if (cQuery == null) {
           fail("Failed to get CqQuery for CQ : " + cqName);
         }
 
-        CqAttributes cqAttr = cQuery.getCqAttributes();
-        CqListener[] cqListeners = cqAttr.getCqListeners();
-        CqQueryTestListener listener = (CqQueryTestListener) cqListeners[0];
+        var cqAttr = cQuery.getCqAttributes();
+        var cqListeners = cqAttr.getCqListeners();
+        var listener = (CqQueryTestListener) cqListeners[0];
         listener.printInfo(false);
 
         // Wait for expected events to arrive at Listener.
@@ -1108,14 +1100,14 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        CqQuery cQuery = cqService.getCq(cqName);
+        var cQuery = cqService.getCq(cqName);
         if (cQuery == null) {
           fail("Failed to get CqQuery for CQ : " + cqName);
         }
 
-        CqAttributes cqAttr = cQuery.getCqAttributes();
-        CqListener[] cqListener = cqAttr.getCqListeners();
-        CqQueryTestListener listener = (CqQueryTestListener) cqListener[0];
+        var cqAttr = cQuery.getCqAttributes();
+        var cqListener = cqAttr.getCqListeners();
+        var listener = (CqQueryTestListener) cqListener[0];
 
         switch (event) {
           case CREATE:
@@ -1166,15 +1158,15 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        CqQuery cQuery = cqService.getCq(cqName);
+        var cQuery = cqService.getCq(cqName);
         if (cQuery == null) {
           fail("Failed to get CqQuery for CQ : " + cqName);
         }
 
         // Get CQ State.
-        CqStateImpl cqState = (CqStateImpl) cQuery.getState();
+        var cqState = (CqStateImpl) cQuery.getState();
         // Wait max time, till the CQ state is as expected.
-        final long start = System.currentTimeMillis();
+        final var start = System.currentTimeMillis();
         while (cqState.getState() != state) {
           assertTrue(
               "Waited over " + MAX_TIME + "ms for Cq State to be changed to " + state
@@ -1199,14 +1191,14 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        CqQuery cQuery = cqService.getCq(cqName);
+        var cQuery = cqService.getCq(cqName);
         if (cQuery == null) {
           fail("Failed to get CqQuery for CQ : " + cqName);
         }
 
-        CqAttributes cqAttr = cQuery.getCqAttributes();
-        CqListener cqListener = cqAttr.getCqListener();
-        CqQueryTestListener listener = (CqQueryTestListener) cqListener;
+        var cqAttr = cQuery.getCqAttributes();
+        var cqListener = cqAttr.getCqListener();
+        var listener = (CqQueryTestListener) cqListener;
         listener.getEventHistory();
       }
     });
@@ -1217,13 +1209,13 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         LogWriterUtils.getLogWriter().info("### Validating Query. ###");
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
 
-        Query q = qs.newQuery(query);
+        var q = qs.newQuery(query);
         try {
-          Object r = q.execute();
+          var r = q.execute();
           if (r instanceof Collection) {
-            int rSize = ((Collection) r).size();
+            var rSize = ((Collection) r).size();
             LogWriterUtils.getLogWriter().info("### Result Size is :" + rSize);
             assertEquals(rSize, resultSize);
           }
@@ -1236,10 +1228,10 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
   private Properties getConnectionProps(String[] hosts, int[] ports, Properties newProps) {
 
-    Properties props = new Properties();
-    String endPoints = "";
-    String host = hosts[0];
-    for (int i = 0; i < ports.length; i++) {
+    var props = new Properties();
+    var endPoints = "";
+    var host = hosts[0];
+    for (var i = 0; i < ports.length; i++) {
       if (hosts.length > 1) {
         host = hosts[i];
       }
@@ -1256,7 +1248,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     if (newProps != null) {
       Enumeration e = newProps.keys();
       while (e.hasMoreElements()) {
-        String key = (String) e.nextElement();
+        var key = (String) e.nextElement();
         props.setProperty(key, newProps.getProperty(key));
       }
     }
@@ -1285,8 +1277,8 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         } catch (Exception ex) {
           Assert.fail("Failed to get CQ " + cqName + " . ", ex);
         }
-        CqAttributesMutator cqAttrMutator = cq1.getCqAttributesMutator();
-        CqAttributes cqAttr = cq1.getCqAttributes();
+        var cqAttrMutator = cq1.getCqAttributesMutator();
+        var cqAttr = cq1.getCqAttributes();
         CqListener[] cqListeners;
         switch (mutator_function) {
           case CREATE:
@@ -1330,16 +1322,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testInterestListAndCQs() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     /* Init Server and Client */
     createServer(server);
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testInterestListAndCQs";
+    var poolName = "testInterestListAndCQs";
     createPool(client, poolName, host0, thePort);
 
     createClient(client, thePort, host0);
@@ -1349,7 +1341,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     validateCQCount(client, 1);
 
     /* Init values at server. */
-    final int size = 10;
+    final var size = 10;
 
     executeCQ(client, "testInterestListAndCQs_0", false, null);
     registerInterestListCQ(client, regions[0], size, false);
@@ -1357,7 +1349,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     createValues(server, regions[0], size);
     // Wait for client to Synch.
 
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       waitForCreated(client, "testInterestListAndCQs_0", KEY + i);
     }
     Wait.pause(5 * 1000);
@@ -1376,12 +1368,12 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         assertNotNull(region);
 
         // TODO does this WaitCriterion actually help?
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           String excuse;
 
           @Override
           public boolean done() {
-            int sz = region.entrySet().size();
+            var sz = region.entrySet().size();
             if (sz == size) {
               return true;
             }
@@ -1397,9 +1389,9 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         };
         GeodeAwaitility.await().untilAsserted(wc);
 
-        CertifiableTestCacheListener ctl =
+        var ctl =
             (CertifiableTestCacheListener) region.getAttributes().getCacheListener();
-        for (int i = 1; i <= 10; i++) {
+        for (var i = 1; i <= 10; i++) {
           ctl.waitForCreated(KEY + i);
           assertNotNull(region.getEntry(KEY + i));
         }
@@ -1409,7 +1401,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     // UPDATE
     createValues(server, regions[0], size);
     // Wait for client to Synch.
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       waitForUpdated(client, "testInterestListAndCQs_0", KEY + i);
     }
 
@@ -1419,14 +1411,14 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regions[0]);
         assertNotNull(region);
 
-        Set keys = region.entrySet();
+        var keys = region.entrySet();
         assertEquals(
             "Mismatch, number of keys in local region is not equal to the interest list size", size,
             keys.size());
 
-        CertifiableTestCacheListener ctl =
+        var ctl =
             (CertifiableTestCacheListener) region.getAttributes().getCacheListener();
-        for (int i = 1; i <= 10; i++) {
+        for (var i = 1; i <= 10; i++) {
           ctl.waitForUpdated(KEY + i);
           assertNotNull(region.getEntry(KEY + i));
         }
@@ -1438,7 +1430,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
-        for (int i = 1; i <= size; i++) {
+        for (var i = 1; i <= size; i++) {
           region1.invalidate(KEY + i);
         }
       }
@@ -1452,14 +1444,14 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regions[0]);
         assertNotNull(region);
 
-        Set keys = region.entrySet();
+        var keys = region.entrySet();
         assertEquals(
             "Mismatch, number of keys in local region is not equal to the interest list size", size,
             keys.size());
 
-        CertifiableTestCacheListener ctl =
+        var ctl =
             (CertifiableTestCacheListener) region.getAttributes().getCacheListener();
-        for (int i = 1; i <= 10; i++) {
+        for (var i = 1; i <= 10; i++) {
           ctl.waitForInvalidated(KEY + i);
           assertNotNull(region.getEntry(KEY + i));
         }
@@ -1476,7 +1468,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
-        for (int i = 1; i <= size; i++) {
+        for (var i = 1; i <= size; i++) {
           region1.destroy(KEY + i);
         }
       }
@@ -1489,9 +1481,9 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regions[0]);
         assertNotNull(region);
 
-        CertifiableTestCacheListener ctl =
+        var ctl =
             (CertifiableTestCacheListener) region.getAttributes().getCacheListener();
-        for (int i = 1; i <= 10; i++) {
+        for (var i = 1; i <= 10; i++) {
           ctl.waitForDestroyed(KEY + i);
         }
       }
@@ -1510,16 +1502,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCQStopExecute() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     /* Init Server and Client */
     createServer(server);
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testCQStopExecute";
+    var poolName = "testCQStopExecute";
     createPool(client, poolName, host0, thePort);
 
     /* Create CQs. */
@@ -1529,7 +1521,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     executeCQ(client, "testCQStopExecute_0", false, null);
 
     /* Init values at server. */
-    int size = 10;
+    var size = 10;
     createValues(server, regions[0], size);
     // Wait for client to Synch.
 
@@ -1577,26 +1569,26 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCQAttributesMutator() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     /* Init Server and Client */
     createServer(server);
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testCQAttributesMutator";
+    var poolName = "testCQAttributesMutator";
     createPool(client, poolName, host0, thePort);
 
     /* Create CQs. */
-    String cqName = "testCQAttributesMutator_0";
+    var cqName = "testCQAttributesMutator_0";
     createCQ(client, poolName, cqName, cqs[0]);
     validateCQCount(client, 1);
     executeCQ(client, cqName, false, null);
 
     /* Init values at server. */
-    int size = 10;
+    var size = 10;
     createValues(server, regions[0], size);
     // Wait for client to Synch.
     waitForCreated(client, cqName, KEY + size);
@@ -1649,16 +1641,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCQCreateClose() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     /* Init Server and Client */
     createServer(server);
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testCQCreateClose";
+    var poolName = "testCQCreateClose";
     System.out.println("##### Pool Name :" + poolName + " host :" + host0 + " port :" + thePort);
     createPool(client, poolName, host0, thePort);
 
@@ -1669,7 +1661,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     executeCQ(client, "testCQCreateClose_0", false, null);
 
     /* Init values at server. */
-    int size = 10;
+    var size = 10;
     createValues(server, regions[0], size);
     // Wait for client to Synch.
     waitForCreated(client, "testCQCreateClose_0", KEY + size);
@@ -1709,10 +1701,10 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       createCQ(client, poolName, "testCQCreateClose_0", cqs[0]);
       fail("Trying to create CQ with same name. Should have thrown CQExistsException");
     } catch (RMIException rmiExc) {
-      Throwable cause = rmiExc.getCause();
+      var cause = rmiExc.getCause();
       assertTrue("unexpected cause: " + cause.getClass().getName(),
           cause instanceof AssertionError);
-      Throwable causeCause = cause.getCause(); // should be a CQExistsException
+      var causeCause = cause.getCause(); // should be a CQExistsException
       assertTrue("Got wrong exception: " + causeCause.getClass().getName(),
           causeCause instanceof CqExistsException);
     }
@@ -1725,10 +1717,10 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       createCQ(server, "testCQCreateClose_1", cqs[0]);
       fail("Trying to create CQ on Cache Server. Should have thrown Exception.");
     } catch (RMIException rmiExc) {
-      Throwable cause = rmiExc.getCause();
+      var cause = rmiExc.getCause();
       assertTrue("unexpected cause: " + cause.getClass().getName(),
           cause instanceof AssertionError);
-      Throwable causeCause = cause.getCause(); // should be a IllegalStateException
+      var causeCause = cause.getCause(); // should be a IllegalStateException
       assertTrue("Got wrong exception: " + causeCause.getClass().getName(),
           causeCause instanceof IllegalStateException);
     }
@@ -1808,16 +1800,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testRegionDestroy() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     /* Init Server and Client */
     createServer(server);
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testRegionDestroy";
+    var poolName = "testRegionDestroy";
     createPool(client, poolName, host0, thePort);
 
     createClient(client, thePort, host0);
@@ -1832,7 +1824,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     executeCQ(client, "testRegionDestroy_2", false, null);
 
     /* Init values at server. */
-    final int size = 10;
+    final var size = 10;
     registerInterestListCQ(client, regions[0], size, false);
     createValues(server, regions[0], size);
 
@@ -1851,7 +1843,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         // Wait for the region to become the correct size
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           String excuse;
 
           @Override
@@ -1861,7 +1853,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
               excuse = "Can't find region";
               return false;
             }
-            int sz = region.entrySet().size();
+            var sz = region.entrySet().size();
             if (sz != size) {
               excuse = "Region is of size " + sz + ", expected " + size;
               return false;
@@ -1879,9 +1871,9 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         Region region = getRootRegion().getSubregion(regions[0]);
         assertNotNull(region);
 
-        CertifiableTestCacheListener ctl =
+        var ctl =
             (CertifiableTestCacheListener) region.getAttributes().getCacheListener();
-        for (int i = 1; i <= 10; i++) {
+        for (var i = 1; i <= 10; i++) {
           ctl.waitForCreated(KEY + i);
           assertNotNull(region.getEntry(KEY + i));
         }
@@ -1909,20 +1901,20 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCQWithMultipleClients() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client1 = host.getVM(1);
-    VM client2 = host.getVM(2);
-    VM client3 = host.getVM(3);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client1 = host.getVM(1);
+    var client2 = host.getVM(2);
+    var client3 = host.getVM(3);
 
     /* Create Server and Client */
     createServer(server);
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName1 = "testCQWithMultipleClients1";
-    String poolName2 = "testCQWithMultipleClients2";
-    String poolName3 = "testCQWithMultipleClients3";
+    var poolName1 = "testCQWithMultipleClients1";
+    var poolName2 = "testCQWithMultipleClients2";
+    var poolName3 = "testCQWithMultipleClients3";
 
     createPool(client1, poolName1, host0, thePort);
     createPool(client2, poolName2, host0, thePort);
@@ -1934,7 +1926,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     createCQ(client2, poolName2, "testCQWithMultipleClients_0", cqs[0]);
     executeCQ(client2, "testCQWithMultipleClients_0", false, null);
 
-    int size = 10;
+    var size = 10;
 
     // Create Values on Server.
     createValues(server, regions[0], size);
@@ -2017,20 +2009,20 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCQResultSet() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     createServer(server);
 
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testCQResultSet";
+    var poolName = "testCQResultSet";
     createPool(client, poolName, host0, thePort);
 
     /* CQ Test with initial Values. */
-    int size = 10;
+    var size = 10;
     createValues(server, regions[0], size);
     Wait.pause(1 * 500);
 
@@ -2062,16 +2054,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCQEvents() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     createServer(server);
 
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testCQEvents";
+    var poolName = "testCQEvents";
     createPool(client, poolName, host0, thePort);
 
     // Create client.
@@ -2083,7 +2075,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     executeCQ(client, "testCQEvents_0", false, null);
 
     // Init values at server.
-    int size = 10;
+    var size = 10;
     createValues(server, regions[0], size);
 
     waitForCreated(client, "testCQEvents_0", KEY + size);
@@ -2118,7 +2110,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
-        for (int i = -1; i >= -5; i--) {
+        for (var i = -1; i >= -5; i--) {
           // change : new Portfolio(i) rdubey ( for Suspect strings problem).
           // region1.put(KEY+i, new Portfolio(i) );
           region1.put(KEY + i, KEY + i);
@@ -2142,16 +2134,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCqEventsWithoutAlias() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     createServer(server);
 
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testCQEvents";
+    var poolName = "testCQEvents";
     createPool(client, poolName, host0, thePort);
 
     // Create CQs.
@@ -2160,7 +2152,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     executeCQ(client, "testCQEvents_0", false, null);
 
     // Init values at server.
-    int size = 10;
+    var size = 10;
     createValues(server, regions[0], size);
 
     waitForCreated(client, "testCQEvents_0", KEY + size);
@@ -2195,7 +2187,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
-        for (int i = -1; i >= -5; i--) {
+        for (var i = -1; i >= -5; i--) {
           // change : new Portfolio(i) rdubey ( for Suspect strings problem).
           // region1.put(KEY+i, new Portfolio(i) );
           region1.put(KEY + i, KEY + i);
@@ -2219,16 +2211,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testEnableDisableCQ() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     createServer(server);
 
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testEnableDisableCQ";
+    var poolName = "testEnableDisableCQ";
     createPool(client, poolName, host0, thePort);
 
     // Create client.
@@ -2255,7 +2247,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
     Wait.pause(1 * 1000);
     // Init values at server.
-    int size = 10;
+    var size = 10;
     createValues(server, regions[0], size);
     Wait.pause(1 * 500);
     // There should not be any creates.
@@ -2340,16 +2332,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testQuery() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     createServer(server);
 
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testQuery";
+    var poolName = "testQuery";
     createPool(client, poolName, host0, thePort);
 
     // Create client.
@@ -2384,25 +2376,25 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCQFailOver() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM client = host.getVM(2);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var client = host.getVM(2);
 
     createServer(server1);
 
     final int port1 = server1.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server1.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server1.getHost());
 
-    final int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    final var ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
 
     // createClient(client, new int[] {port1, ports[0]}, host0, "-1");
 
-    String poolName = "testCQFailOver";
+    var poolName = "testCQFailOver";
     createPool(client, poolName, new String[] {host0, host0}, new int[] {port1, ports[0]});
 
-    int numCQs = 1;
-    for (int i = 0; i < numCQs; i++) {
+    var numCQs = 1;
+    for (var i = 0; i < numCQs; i++) {
       // Create CQs.
       createCQ(client, poolName, "testCQFailOver_" + i, cqs[i]);
       executeCQ(client, "testCQFailOver_" + i, false, null);
@@ -2431,9 +2423,9 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
     waitForUpdated(client, "testCQFailOver_0", KEY + 10);
 
-    int[] resultsCnt = new int[] {10, 1, 2};
+    var resultsCnt = new int[] {10, 1, 2};
 
-    for (int i = 0; i < numCQs; i++) {
+    for (var i = 0; i < numCQs; i++) {
       validateCQ(client, "testCQFailOver_" + i, noTest, resultsCnt[i], resultsCnt[i], noTest);
     }
 
@@ -2443,7 +2435,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     // Fail over should happen.
     Wait.pause(3 * 1000);
 
-    for (int i = 0; i < numCQs; i++) {
+    for (var i = 0; i < numCQs; i++) {
       validateCQ(client, "testCQFailOver_" + i, noTest, resultsCnt[i], resultsCnt[i], noTest);
     }
 
@@ -2452,11 +2444,11 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     createValues(server2, regions[0], 10);
     createValues(server2, regions[1], 10);
 
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       waitForUpdated(client, "testCQFailOver_0", KEY + i);
     }
 
-    for (int i = 0; i < numCQs; i++) {
+    for (var i = 0; i < numCQs; i++) {
       validateCQ(client, "testCQFailOver_" + i, noTest, resultsCnt[i], resultsCnt[i] * 2, noTest);
     }
 
@@ -2470,12 +2462,12 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCQHA() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
 
-    VM client = host.getVM(3);
+    var client = host.getVM(3);
 
     // Killing servers can cause this message on the client side.
     IgnoredException.addIgnoredException("Could not find any server");
@@ -2483,9 +2475,9 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     createServer(server1);
 
     final int port1 = server1.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server1.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server1.getHost());
 
-    final int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    final var ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
 
     createServer(server2, ports[0]);
     final int thePort2 = server2.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
@@ -2497,7 +2489,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
     // Create client - With 3 server endpoints and redundancy level set to 2.
 
-    String poolName = "testCQStopExecute";
+    var poolName = "testCQStopExecute";
     createPool(client, poolName, new String[] {host0, host0, host0},
         new int[] {port1, thePort2, port3});
 
@@ -2505,8 +2497,8 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     // createClient(client, new int[] {port1, thePort2, port3}, host0, "1");
 
     // Create CQs.
-    int numCQs = 1;
-    for (int i = 0; i < numCQs; i++) {
+    var numCQs = 1;
+    for (var i = 0; i < numCQs; i++) {
       // Create CQs.
       createCQ(client, poolName, "testCQHA_" + i, cqs[i]);
       executeCQ(client, "testCQHA_" + i, false, null);
@@ -2521,7 +2513,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     waitForCreated(client, "testCQHA_0", KEY + 10);
 
     // Clients expected initial result.
-    int[] resultsCnt = new int[] {10, 1, 2};
+    var resultsCnt = new int[] {10, 1, 2};
 
     // Close server1.
     // To maintain the redundancy; it will make connection to endpoint-3.
@@ -2535,7 +2527,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     waitForUpdated(client, "testCQHA_0", KEY + 10);
 
     // Validate CQ.
-    for (int i = 0; i < numCQs; i++) {
+    for (var i = 0; i < numCQs; i++) {
       validateCQ(client, "testCQHA_" + i, noTest, resultsCnt[i], resultsCnt[i], noTest);
     }
 
@@ -2553,7 +2545,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
     waitForUpdated(client, "testCQHA_0", KEY + 10);
 
-    for (int i = 0; i < numCQs; i++) {
+    for (var i = 0; i < numCQs; i++) {
       validateCQ(client, "testCQHA_" + i, noTest, resultsCnt[i], resultsCnt[i] * 2, noTest);
     }
 
@@ -2567,22 +2559,22 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testFilterRegistrationDuringGII() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM client1 = host.getVM(2);
-    VM client2 = host.getVM(3);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var client1 = host.getVM(2);
+    var client2 = host.getVM(3);
 
     Wait.pause(3 * 1000);
 
     createServer(server1);
 
     final int port1 = server1.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server1.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server1.getHost());
 
-    final int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    final var ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
 
-    String poolName = "testFilterRegistrationDuringGII";
+    var poolName = "testFilterRegistrationDuringGII";
     createPool(client1, poolName, new String[] {host0, host0}, new int[] {port1, ports[0]}, "-1");
     createPool(client2, poolName, new String[] {host0, host0}, new int[] {port1, ports[0]}, "-1");
 
@@ -2590,8 +2582,8 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     createClient(client2, new int[] {port1, ports[0]}, host0, "-1", poolName);
 
     // Create CQs.
-    final int numCQs = 2;
-    for (int i = 0; i < numCQs; i++) {
+    final var numCQs = 2;
+    for (var i = 0; i < numCQs; i++) {
       // Create CQs.
       createCQ(client1, poolName, "client1_" + i, cqs[i]);
       executeCQ(client1, "client1_" + i, false, null);
@@ -2599,7 +2591,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       executeCQ(client2, "client2_" + i, false, null);
     }
 
-    final int interestSize = 20;
+    final var interestSize = 20;
     registerInterestListCQ(client1, regions[0], interestSize, false);
     registerInterestListCQ(client2, regions[0], 0, true);
 
@@ -2616,11 +2608,11 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         LogWriterUtils.getLogWriter().info("### Create Cache Server. ###");
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setMirrorType(MirrorType.KEYS_VALUES);
 
-        for (final String region : regions) {
+        for (final var region : regions) {
           createRegion(region, factory.createRegionAttributes());
         }
 
@@ -2635,8 +2627,8 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
           while (true) {
             if (InitialImageOperation.slowImageSleeps.get() > 0) {
               // Create events while GII for HARegion is in progress.
-              LocalRegion region1 = (LocalRegion) getRootRegion().getSubregion(regions[0]);
-              for (int i = 90; i <= 120; i++) {
+              var region1 = (LocalRegion) getRootRegion().getSubregion(regions[0]);
+              for (var i = 90; i <= 120; i++) {
                 region1.put(KEY + i, new Portfolio(i, i));
               }
               break;
@@ -2655,12 +2647,12 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     server2.invoke(new CacheSerializableRunnable("Create values") {
       @Override
       public void run2() throws CacheException {
-        DefaultQueryService qs = (DefaultQueryService) getCache().getQueryService();
-        Collection<CacheClientProxy> proxies = CacheClientNotifier.getInstance().getClientProxies();
+        var qs = (DefaultQueryService) getCache().getQueryService();
+        var proxies = CacheClientNotifier.getInstance().getClientProxies();
         Iterator iter = proxies.iterator();
         try {
-          for (CacheClientProxy p : proxies) {
-            ClientProxyMembershipID clientId = p.getProxyID();
+          for (var p : proxies) {
+            var clientId = p.getProxyID();
             List cqs = qs.getCqService().getAllClientCqs(clientId);
             getCache().getLogger()
                 .fine("Number of CQs found for client :" + clientId + " are :" + cqs.size());
@@ -2668,8 +2660,8 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
               fail("Number of CQs registerted by the client is :" + cqs.size()
                   + " less than expected : " + numCQs);
             }
-            CqQuery cq = (CqQuery) cqs.get(0);
-            LocalRegion region1 = (LocalRegion) getRootRegion().getSubregion(regions[0]);
+            var cq = (CqQuery) cqs.get(0);
+            var region1 = (LocalRegion) getRootRegion().getSubregion(regions[0]);
             if (cq.getName().startsWith("client1_")) {
               if (region1.getFilterProfile().getKeysOfInterest(clientId) == null || region1
                   .getFilterProfile().getKeysOfInterest(clientId).size() != interestSize) {
@@ -2700,16 +2692,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testWithoutCQs() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM client = host.getVM(2);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var client = host.getVM(2);
 
     createServer(server1);
     createServer(server2);
 
     final int port1 = server1.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server1.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server1.getHost());
 
     final int thePort2 = server2.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
 
@@ -2718,7 +2710,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         getCache();
         IgnoredException.addIgnoredException("java.net.ConnectException||java.net.SocketException");
-        AttributesFactory regionFactory = new AttributesFactory();
+        var regionFactory = new AttributesFactory();
         regionFactory.setScope(Scope.LOCAL);
 
         ClientServerTestCase.configureConnectionPool(regionFactory, host0, port1, thePort2, true,
@@ -2735,7 +2727,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
-        for (int i = 0; i < 20; i++) {
+        for (var i = 0; i < 20; i++) {
           region1.put("key-string-" + i, "value-" + i);
         }
       }
@@ -2747,7 +2739,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
 
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           region1.put("key-string-" + i, "client-value-" + i);
         }
       }
@@ -2763,16 +2755,16 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testGetCQsForARegionName() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
     createServer(server);
 
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testGetCQsForARegionName";
+    var poolName = "testGetCQsForARegionName";
     createPool(client, poolName, host0, thePort);
 
     // Create CQs.
@@ -2801,7 +2793,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         QueryService cqService = null;
         try {
           cqService = getCache().getQueryService();
-          CqQuery[] cq = cqService.getCqs(SEPARATOR + "root" + SEPARATOR + regions[0]);
+          var cq = cqService.getCqs(SEPARATOR + "root" + SEPARATOR + regions[0]);
           assertNotNull(
               "CQservice should not return null for cqs on this region : " + SEPARATOR + "root"
                   + SEPARATOR + regions[0],
@@ -2843,17 +2835,17 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testQueryWithNULLInWhereClause() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
-    VM producer = host.getVM(2);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
+    var producer = host.getVM(2);
 
     createServer(server);
 
     final int thePort = server.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
-    String poolName = "testQueryWithNULLInWhereClause";
+    var poolName = "testQueryWithNULLInWhereClause";
     createPool(client, poolName, host0, thePort);
 
     // Create client.
@@ -2862,7 +2854,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
     // producer is not doing any thing.
     createClient(producer, thePort, host0);
 
-    final int size = 50;
+    final var size = 50;
     createValues(producer, regions[0], size);
 
     createCQ(client, poolName, "testQuery_9", cqs[9]);
@@ -2870,13 +2862,13 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
     createValues(producer, regions[0], (2 * size));
 
-    for (int i = 1; i <= size; i++) {
+    for (var i = 1; i <= size; i++) {
       if (i % 2 == 0) {
         waitForUpdated(client, "testQuery_9", KEY + i);
       }
     }
 
-    for (int i = (size + 1); i <= 2 * size; i++) {
+    for (var i = (size + 1); i <= 2 * size; i++) {
       if (i % 2 == 0) {
         waitForCreated(client, "testQuery_9", KEY + i);
       }
@@ -2894,10 +2886,10 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testForSupportedRegionAttributes() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM client = host.getVM(2);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var client = host.getVM(2);
 
     // Create server with Global scope.
     SerializableRunnable createServer = new CacheSerializableRunnable("Create Cache Server") {
@@ -2906,13 +2898,13 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
         LogWriterUtils.getLogWriter().info("### Create Cache Server. ###");
 
         // Create region with Global scope
-        AttributesFactory factory1 = new AttributesFactory();
+        var factory1 = new AttributesFactory();
         factory1.setScope(Scope.GLOBAL);
         factory1.setMirrorType(MirrorType.KEYS_VALUES);
         createRegion(regions[0], factory1.createRegionAttributes());
 
         // Create region with non Global, distributed_ack scope
-        AttributesFactory factory2 = new AttributesFactory();
+        var factory2 = new AttributesFactory();
         factory2.setScope(Scope.DISTRIBUTED_NO_ACK);
         factory2.setMirrorType(MirrorType.KEYS_VALUES);
         createRegion(regions[1], factory2.createRegionAttributes());
@@ -2936,32 +2928,32 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
     final int port1 = server1.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(server1.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server1.getHost());
 
     final int thePort2 = server2.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
 
-    String poolName = "testForSupportedRegionAttributes";
+    var poolName = "testForSupportedRegionAttributes";
     createPool(client, poolName, new String[] {host0, host0}, new int[] {port1, thePort2});
 
     // Create CQ on region with GLOBAL SCOPE.
     createCQ(client, poolName, "testForSupportedRegionAttributes_0", cqs[0]);
     executeCQ(client, "testForSupportedRegionAttributes_0", false, null);
 
-    int size = 5;
+    var size = 5;
 
     createValues(server1, regions[0], size);
 
-    for (int i = 1; i <= size; i++) {
+    for (var i = 1; i <= size; i++) {
       waitForCreated(client, "testForSupportedRegionAttributes_0", KEY + i);
     }
 
     // Create CQ on region with non GLOBAL, DISTRIBUTED_ACK SCOPE.
     createCQ(client, poolName, "testForSupportedRegionAttributes_1", cqs[2]);
 
-    String errMsg =
+    var errMsg =
         "The replicated region " + " specified in CQ creation does not have scope supported by CQ."
             + " The CQ supported scopes are DISTRIBUTED_ACK and GLOBAL.";
-    final String expectedErr = "Cq not registered on primary";
+    final var expectedErr = "Cq not registered on primary";
     client.invoke(new CacheSerializableRunnable("Set expect") {
       @Override
       public void run2() {
@@ -3028,7 +3020,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
   public void startBridgeServer(int port, boolean notifyBySubscription) throws IOException {
 
     Cache cache = getCache();
-    CacheServer bridge = cache.addCacheServer();
+    var bridge = cache.addCacheServer();
     bridge.setPort(port);
     bridge.setNotifyBySubscription(notifyBySubscription);
     bridge.start();
@@ -3041,14 +3033,14 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    * @since GemFire 4.0
    */
   protected void stopBridgeServer(Cache cache) {
-    CacheServer bridge = cache.getCacheServers().iterator().next();
+    var bridge = cache.getCacheServers().iterator().next();
     bridge.stop();
     assertFalse(bridge.isRunning());
   }
 
   private void stopBridgeServers(Cache cache) {
     CacheServer bridge = null;
-    for (final CacheServer cacheServer : cache.getCacheServers()) {
+    for (final var cacheServer : cache.getCacheServers()) {
       bridge = cacheServer;
       bridge.stop();
       assertFalse(bridge.isRunning());
@@ -3057,7 +3049,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
   private void restartBridgeServers(Cache cache) throws IOException {
     CacheServer bridge = null;
-    for (final CacheServer cacheServer : cache.getCacheServers()) {
+    for (final var cacheServer : cache.getCacheServers()) {
       bridge = cacheServer;
       bridge.start();
       assertTrue(bridge.isRunning());
@@ -3066,10 +3058,10 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
 
   private InternalDistributedSystem createLonerDS() {
     disconnectFromDS();
-    Properties lonerProps = new Properties();
+    var lonerProps = new Properties();
     lonerProps.setProperty(MCAST_PORT, "0");
     lonerProps.setProperty(LOCATORS, "");
-    InternalDistributedSystem ds = getSystem(lonerProps);
+    var ds = getSystem(lonerProps);
     assertEquals(0, ds.getDistributionManager().getOtherDistributionManagerIds().size());
     return ds;
   }
@@ -3078,7 +3070,7 @@ public class CqQueryUsingPoolDUnitTest extends JUnit4CacheTestCase {
    * Returns region attributes for a <code>LOCAL</code> region
    */
   protected RegionAttributes getRegionAttributes() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     return factory.createRegionAttributes();
   }

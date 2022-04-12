@@ -21,12 +21,10 @@ import static org.mockito.Mockito.mock;
 
 import java.net.BindException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
 
 import org.junit.jupiter.api.Test;
 
@@ -45,10 +43,10 @@ public class SocketCreatorIntegrationTest {
   }
 
   private void testBindExceptionMessageFormatting(InetAddress inetAddress) throws Exception {
-    final SocketCreator socketCreator = new SocketCreator(mock(SSLConfig.class));
+    final var socketCreator = new SocketCreator(mock(SSLConfig.class));
 
-    final int port = AvailablePortHelper.getRandomAvailableTCPPort();
-    try (ServerSocket ignored = socketCreator.forCluster()
+    final var port = AvailablePortHelper.getRandomAvailableTCPPort();
+    try (var ignored = socketCreator.forCluster()
         .createServerSocket(port, 10, inetAddress)) {
       assertThatExceptionOfType(BindException.class).isThrownBy(() -> {
         // call twice on the same port to trigger exception
@@ -61,15 +59,15 @@ public class SocketCreatorIntegrationTest {
   @Test
   public void createSSLEngineReturnsConfiguredWithAnyProtocolForClientWhenEndpointIdentificationEnabled()
       throws NoSuchAlgorithmException {
-    final SSLConfig config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true).build();
-    final SSLContext context = SSLContext.getDefault();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true).build();
+    final var context = SSLContext.getDefault();
+    final var socketCreator = new SocketCreator(config, context);
 
-    final SSLEngine expectedEngine = context.createSSLEngine("localhost", 1234);
+    final var expectedEngine = context.createSSLEngine("localhost", 1234);
     expectedEngine.setUseClientMode(true);
-    final String[] enabledProtocols = expectedEngine.getEnabledProtocols();
+    final var enabledProtocols = expectedEngine.getEnabledProtocols();
 
-    final SSLEngine engine = socketCreator.createSSLEngine("localhost", 1234, true);
+    final var engine = socketCreator.createSSLEngine("localhost", 1234, true);
 
     assertThat(engine.getEnabledProtocols()).containsExactly(enabledProtocols);
     assertThat(engine.getNeedClientAuth()).isFalse();
@@ -81,12 +79,12 @@ public class SocketCreatorIntegrationTest {
   @Test
   public void createSSLEngineReturnsConfiguredWithSpecificProtocolForClientWhenEndpointIdentificationEnabled()
       throws NoSuchAlgorithmException {
-    final SSLConfig config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true)
+    final var config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true)
         .setProtocols("TLSv1.2").build();
-    final SSLContext context = SSLContext.getDefault();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var context = SSLContext.getDefault();
+    final var socketCreator = new SocketCreator(config, context);
 
-    final SSLEngine engine = socketCreator.createSSLEngine("localhost", 1234, true);
+    final var engine = socketCreator.createSSLEngine("localhost", 1234, true);
 
     assertThat(engine.getEnabledProtocols()).containsExactly("TLSv1.2");
     assertThat(engine.getNeedClientAuth()).isFalse();
@@ -98,12 +96,12 @@ public class SocketCreatorIntegrationTest {
   @Test
   public void createSSLEngineReturnsConfiguredWithSpecificProtocolsForClientWhenEndpointIdentificationEnabled()
       throws NoSuchAlgorithmException {
-    final SSLConfig config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true)
+    final var config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true)
         .setProtocols("TLSv1.2,SSLv2Hello").build();
-    final SSLContext context = SSLContext.getDefault();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var context = SSLContext.getDefault();
+    final var socketCreator = new SocketCreator(config, context);
 
-    final SSLEngine engine = socketCreator.createSSLEngine("localhost", 1234, true);
+    final var engine = socketCreator.createSSLEngine("localhost", 1234, true);
 
     assertThat(engine.getEnabledProtocols()).containsExactly("TLSv1.2", "SSLv2Hello");
     assertThat(engine.getNeedClientAuth()).isFalse();
@@ -115,15 +113,15 @@ public class SocketCreatorIntegrationTest {
   @Test
   public void createSSLEngineReturnsConfiguredWithAnyProtocolForServerWhenEndpointIdentificationEnabled()
       throws NoSuchAlgorithmException {
-    final SSLConfig config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true).build();
-    final SSLContext context = SSLContext.getDefault();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true).build();
+    final var context = SSLContext.getDefault();
+    final var socketCreator = new SocketCreator(config, context);
 
-    final SSLEngine expectedEngine = context.createSSLEngine("localhost", 1234);
+    final var expectedEngine = context.createSSLEngine("localhost", 1234);
     expectedEngine.setUseClientMode(false);
-    final String[] enabledProtocols = expectedEngine.getEnabledProtocols();
+    final var enabledProtocols = expectedEngine.getEnabledProtocols();
 
-    final SSLEngine engine = socketCreator.createSSLEngine("localhost", 1234, false);
+    final var engine = socketCreator.createSSLEngine("localhost", 1234, false);
 
     assertThat(engine.getEnabledProtocols()).containsExactly(enabledProtocols);
     assertThat(engine.getNeedClientAuth()).isTrue();
@@ -134,12 +132,12 @@ public class SocketCreatorIntegrationTest {
   @Test
   public void createSSLEngineReturnsConfiguredWithSpecificProtocolForServerWhenEndpointIdentificationEnabled()
       throws NoSuchAlgorithmException {
-    final SSLConfig config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true)
+    final var config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true)
         .setProtocols("TLSv1.2").build();
-    final SSLContext context = SSLContext.getDefault();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var context = SSLContext.getDefault();
+    final var socketCreator = new SocketCreator(config, context);
 
-    final SSLEngine engine = socketCreator.createSSLEngine("localhost", 1234, false);
+    final var engine = socketCreator.createSSLEngine("localhost", 1234, false);
 
     assertThat(engine.getEnabledProtocols()).containsExactly("TLSv1.2");
     assertThat(engine.getNeedClientAuth()).isTrue();
@@ -150,12 +148,12 @@ public class SocketCreatorIntegrationTest {
   @Test
   public void createSSLEngineReturnsConfiguredWithSpecificProtocolsForServerWhenEndpointIdentificationEnabled()
       throws NoSuchAlgorithmException {
-    final SSLConfig config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true)
+    final var config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true)
         .setProtocols("TLSv1.2,SSLv2Hello").build();
-    final SSLContext context = SSLContext.getDefault();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var context = SSLContext.getDefault();
+    final var socketCreator = new SocketCreator(config, context);
 
-    final SSLEngine engine = socketCreator.createSSLEngine("localhost", 1234, false);
+    final var engine = socketCreator.createSSLEngine("localhost", 1234, false);
 
     assertThat(engine.getEnabledProtocols()).containsExactly("TLSv1.2", "SSLv2Hello");
     assertThat(engine.getNeedClientAuth()).isTrue();

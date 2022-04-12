@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 public class QueueManagerImplTest {
   private final InternalPool pool = mock(InternalPool.class, RETURNS_DEEP_STUBS);
@@ -58,7 +57,7 @@ public class QueueManagerImplTest {
     when(primary.getUpdater()).thenReturn(null);
 
     assertThat(queueManager.addToConnectionList(primary, true)).isFalse();
-    QueueManager.QueueConnections connectionList = queueManager.getAllConnectionsNoWait();
+    var connectionList = queueManager.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isNull();
   }
 
@@ -67,7 +66,7 @@ public class QueueManagerImplTest {
     when(clientUpdater.isAlive()).thenReturn(false);
 
     assertThat(queueManager.addToConnectionList(primary, true)).isFalse();
-    QueueManager.QueueConnections connectionList = queueManager.getAllConnectionsNoWait();
+    var connectionList = queueManager.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isNull();
   }
 
@@ -76,7 +75,7 @@ public class QueueManagerImplTest {
     when(clientUpdater.isProcessing()).thenReturn(false);
 
     assertThat(queueManager.addToConnectionList(primary, true)).isFalse();
-    QueueManager.QueueConnections connectionList = queueManager.getAllConnectionsNoWait();
+    var connectionList = queueManager.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isNull();
   }
 
@@ -85,7 +84,7 @@ public class QueueManagerImplTest {
     when(endpoint.isClosed()).thenReturn(true);
 
     assertThat(queueManager.addToConnectionList(primary, true)).isFalse();
-    QueueManager.QueueConnections connectionList = queueManager.getAllConnectionsNoWait();
+    var connectionList = queueManager.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isNull();
     verify(primary).internalClose(true);
   }
@@ -95,7 +94,7 @@ public class QueueManagerImplTest {
     when(primary.isDestroyed()).thenReturn(true);
 
     assertThat(queueManager.addToConnectionList(primary, true)).isFalse();
-    QueueManager.QueueConnections connectionList = queueManager.getAllConnectionsNoWait();
+    var connectionList = queueManager.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isNull();
     verify(primary).internalClose(true);
   }
@@ -105,7 +104,7 @@ public class QueueManagerImplTest {
     when(pool.getPoolOrCacheCancelInProgress()).thenReturn("cache closed");
 
     assertThat(queueManager.addToConnectionList(primary, true)).isFalse();
-    QueueManager.QueueConnections connectionList = queueManager.getAllConnectionsNoWait();
+    var connectionList = queueManager.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isNull();
     verify(primary).internalClose(true);
   }
@@ -113,7 +112,7 @@ public class QueueManagerImplTest {
   @Test
   public void addConnectionToConnectionListCanSetPrimary() throws Exception {
     assertThat(queueManager.addToConnectionList(primary, true)).isTrue();
-    QueueManager.QueueConnections connectionList = queueManager.getAllConnectionsNoWait();
+    var connectionList = queueManager.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isEqualTo(primary);
     verify(primary, never()).internalClose(true);
   }
@@ -123,7 +122,7 @@ public class QueueManagerImplTest {
     queueManager.addToConnectionList(primary, true);
 
     assertThat(queueManager.addToConnectionList(backup, false)).isTrue();
-    QueueManager.QueueConnections connectionList = queueManager.getAllConnectionsNoWait();
+    var connectionList = queueManager.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isEqualTo(primary);
     assertThat(connectionList.getBackups()).contains(backup);
     verify(backup, never()).internalClose(true);
@@ -132,15 +131,15 @@ public class QueueManagerImplTest {
   @Test
   public void endpointCrashedScheduleRedundancySatisfierAfterConnectionDestroyed() {
     addConnections();
-    QueueManagerImpl spy = spy(queueManager);
-    InOrder inOrder = inOrder(primary, spy);
+    var spy = spy(queueManager);
+    var inOrder = inOrder(primary, spy);
     doNothing().when(spy).scheduleRedundancySatisfierIfNeeded(0);
 
     spy.endpointCrashed(endpoint);
 
     inOrder.verify(primary).internalDestroy();
     inOrder.verify(spy).scheduleRedundancySatisfierIfNeeded(0);
-    QueueManager.QueueConnections connectionList = spy.getAllConnectionsNoWait();
+    var connectionList = spy.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isNull();
   }
 
@@ -152,7 +151,7 @@ public class QueueManagerImplTest {
   @Test
   public void recoverPrimaryDoesNotPromoteBackupToPrimaryIfPrimaryExists() {
     addConnections();
-    QueueManagerImpl spy = spy(queueManager);
+    var spy = spy(queueManager);
 
     spy.recoverPrimary(null);
 
@@ -161,7 +160,7 @@ public class QueueManagerImplTest {
 
   @Test
   public void recoverPrimaryPromoteBackupToPrimaryIfNoPrimary() {
-    QueueManagerImpl spy = spy(queueManager);
+    var spy = spy(queueManager);
     spy.addToConnectionList(backup, false);
     doReturn(backup).when(spy).promoteBackupToPrimary(anyList());
 
@@ -172,7 +171,7 @@ public class QueueManagerImplTest {
   }
 
   private void verifyQueueConnectionsAfterRecoverPrimary(QueueManagerImpl spy) {
-    QueueManager.QueueConnections connectionList = spy.getAllConnectionsNoWait();
+    var connectionList = spy.getAllConnectionsNoWait();
     assertThat(connectionList.getPrimary()).isEqualTo(backup);
     assertThat(connectionList.getBackups()).isEmpty();
   }
@@ -180,7 +179,7 @@ public class QueueManagerImplTest {
   @Test
   public void recoverPrimaryPromoteBackupToPrimaryIfPrimaryConnectionIsDestroyed() {
     addConnections();
-    QueueManagerImpl spy = spy(queueManager);
+    var spy = spy(queueManager);
     doReturn(backup).when(spy).promoteBackupToPrimary(anyList());
     when(primary.isDestroyed()).thenReturn(true);
 

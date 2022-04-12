@@ -21,7 +21,6 @@ import org.junit.Assume;
 
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -33,14 +32,14 @@ import org.apache.geode.test.dunit.VM;
 public abstract class FunctionServiceClientBase extends FunctionServiceBase {
 
   public ClientCache createServersAndClient(int numberOfServers) {
-    int[] ports = new int[numberOfServers];
-    Host host = Host.getHost(0);
-    for (int i = 0; i < numberOfServers; i++) {
-      VM vm = host.getVM(i);
+    var ports = new int[numberOfServers];
+    var host = Host.getHost(0);
+    for (var i = 0; i < numberOfServers; i++) {
+      var vm = host.getVM(i);
       ports[i] = createServer(vm);
     }
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+    var clientCacheFactory = new ClientCacheFactory();
     Arrays.stream(ports).forEach(port -> {
       clientCacheFactory.addPoolServer("localhost", port);
     });
@@ -50,7 +49,7 @@ public abstract class FunctionServiceClientBase extends FunctionServiceBase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
+    var result = super.getDistributedSystemProperties();
     result.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.execute.**;org.apache.geode.test.dunit.**;org.apache.geode.test.junit.rules.**");
     return result;
@@ -58,7 +57,7 @@ public abstract class FunctionServiceClientBase extends FunctionServiceBase {
 
   protected Integer createServer(final VM vm) {
     return vm.invoke(() -> {
-      CacheServer server = getCache().addCacheServer();
+      var server = getCache().addCacheServer();
       server.setPort(0);
       server.start();
       return server.getPort();

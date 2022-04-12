@@ -45,7 +45,7 @@ public class DestroyOperation extends DistributedCacheOperation {
   @Override
   protected CacheOperationMessage createMessage() {
     if (event.hasClientOrigin()) {
-      DestroyWithContextMessage msgwithContxt = new DestroyWithContextMessage(event);
+      var msgwithContxt = new DestroyWithContextMessage(event);
       msgwithContxt.context = event.getContext();
       return msgwithContxt;
     } else {
@@ -56,8 +56,8 @@ public class DestroyOperation extends DistributedCacheOperation {
   @Override
   protected void initMessage(CacheOperationMessage msg, DirectReplyProcessor processor) {
     super.initMessage(msg, processor);
-    DestroyMessage m = (DestroyMessage) msg;
-    EntryEventImpl event = getEvent();
+    var m = (DestroyMessage) msg;
+    var event = getEvent();
     m.key = event.getKey();
     m.eventId = event.getEventId();
   }
@@ -80,8 +80,8 @@ public class DestroyOperation extends DistributedCacheOperation {
     @Override
     protected boolean operateOnRegion(CacheEvent event, ClusterDistributionManager dm)
         throws EntryNotFoundException {
-      EntryEventImpl ev = (EntryEventImpl) event;
-      DistributedRegion rgn = (DistributedRegion) ev.getRegion();
+      var ev = (EntryEventImpl) event;
+      var rgn = (DistributedRegion) ev.getRegion();
 
       try {
         if (!rgn.isCacheContentProxy()) {
@@ -113,8 +113,8 @@ public class DestroyOperation extends DistributedCacheOperation {
     @Override
     @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
-      EntryEventImpl ev = createEntryEvent(rgn);
-      boolean evReturned = false;
+      var ev = createEntryEvent(rgn);
+      var evReturned = false;
       try {
         ev.setEventId(eventId);
         ev.setOldValueFromRegion();
@@ -136,7 +136,7 @@ public class DestroyOperation extends DistributedCacheOperation {
     @Retained
     EntryEventImpl createEntryEvent(DistributedRegion rgn) {
       @Retained
-      EntryEventImpl event = EntryEventImpl.create(rgn, getOperation(), key, null,
+      var event = EntryEventImpl.create(rgn, getOperation(), key, null,
           callbackArg, true, getSender());
       // event.setNewEventId(); Don't set the event here...
       setOldValueInEvent(event);
@@ -161,7 +161,7 @@ public class DestroyOperation extends DistributedCacheOperation {
       super.fromData(in, context);
       eventId = DataSerializer.readObject(in);
       key = DataSerializer.readObject(in);
-      Boolean hasTailKey = DataSerializer.readBoolean(in);
+      var hasTailKey = DataSerializer.readBoolean(in);
       if (hasTailKey) {
         tailKey = DataSerializer.readLong(in);
       }
@@ -174,9 +174,9 @@ public class DestroyOperation extends DistributedCacheOperation {
       DataSerializer.writeObject(eventId, out);
       DataSerializer.writeObject(key, out);
 
-      DistributedRegion region = (DistributedRegion) event.getRegion();
+      var region = (DistributedRegion) event.getRegion();
       if (region instanceof BucketRegion) {
-        PartitionedRegion pr = region.getPartitionedRegion();
+        var pr = region.getPartitionedRegion();
         if (pr.isParallelWanEnabled()) {
           DataSerializer.writeBoolean(Boolean.TRUE, out);
           DataSerializer.writeLong(event.getTailKey(), out);
@@ -227,7 +227,7 @@ public class DestroyOperation extends DistributedCacheOperation {
     @Override
     @Retained
     EntryEventImpl createEntryEvent(DistributedRegion rgn) {
-      EntryEventImpl event =
+      var event =
           EntryEventImpl.create(rgn, getOperation(), key, null, /* newvalue */
               callbackArg, true /* originRemote */, getSender(), true/* generateCallbacks */
           );

@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.extension.mock.MockCacheExtension;
 import org.apache.geode.internal.cache.extension.mock.MockExtensionCommands;
 import org.apache.geode.internal.cache.extension.mock.MockRegionExtension;
@@ -81,9 +80,9 @@ public class ExtensionClusterConfigurationDUnitTest {
 
     // Start a new member which receives the shared configuration
     // Verify the config creation on this member
-    MemberVM newMember = clusterStartupRule.startServerVM(2, locator.getPort());
+    var newMember = clusterStartupRule.startServerVM(2, locator.getPort());
     newMember.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertNotNull(cache);
 
       Region<?, ?> region1 = cache.getRegion(REPLICATE_REGION);
@@ -92,7 +91,7 @@ public class ExtensionClusterConfigurationDUnitTest {
       // MockRegionExtension verification
       @SuppressWarnings("unchecked")
       // should only be one region extension
-      final MockRegionExtension mockRegionExtension =
+      final var mockRegionExtension =
           (MockRegionExtension) ((Extensible<Region<?, ?>>) region1).getExtensionPoint()
               .getExtensions().iterator().next();
       assertNotNull(mockRegionExtension);
@@ -102,7 +101,7 @@ public class ExtensionClusterConfigurationDUnitTest {
 
       // MockCacheExtension verification
       // should only be one cache extension
-      final MockCacheExtension mockCacheExtension =
+      final var mockCacheExtension =
           (MockCacheExtension) cache.getExtensionPoint().getExtensions().iterator().next();
       assertNotNull(mockCacheExtension);
       assertEquals(1, mockCacheExtension.beforeCreateCounter.get());
@@ -135,9 +134,9 @@ public class ExtensionClusterConfigurationDUnitTest {
 
     // Start a new member which receives the shared configuration
     // Verify the config creation on this member
-    MemberVM newMember = clusterStartupRule.startServerVM(2, locator.getPort());
+    var newMember = clusterStartupRule.startServerVM(2, locator.getPort());
     newMember.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertNotNull(cache);
 
       Region<?, ?> region1 = cache.getRegion(REPLICATE_REGION);
@@ -145,7 +144,7 @@ public class ExtensionClusterConfigurationDUnitTest {
 
       // MockRegionExtension verification
       @SuppressWarnings("unchecked")
-      final Extensible<Region<?, ?>> extensibleRegion = (Extensible<Region<?, ?>>) region1;
+      final var extensibleRegion = (Extensible<Region<?, ?>>) region1;
       // Should not be any region extensions
       assertTrue(!extensibleRegion.getExtensionPoint().getExtensions().iterator().hasNext());
 
@@ -157,7 +156,7 @@ public class ExtensionClusterConfigurationDUnitTest {
   }
 
   private void createRegion(String regionName, RegionShortcut regionShortCut, String group) {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
+    var csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
     csb.addOption(CliStrings.CREATE_REGION__REGION, regionName);
     csb.addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT, regionShortCut.name());
     csb.addOptionWithValueCheck(CliStrings.GROUP, group);
@@ -165,7 +164,7 @@ public class ExtensionClusterConfigurationDUnitTest {
   }
 
   private void createMockRegionExtension(final String regionName, final String value) {
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(MockExtensionCommands.CREATE_MOCK_REGION_EXTENSION);
     csb.addOption(MockExtensionCommands.OPTION_REGION_NAME, regionName);
     csb.addOption(MockExtensionCommands.OPTION_VALUE, value);
@@ -173,7 +172,7 @@ public class ExtensionClusterConfigurationDUnitTest {
   }
 
   private void alterMockRegionExtension(final String regionName, final String value) {
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(MockExtensionCommands.ALTER_MOCK_REGION_EXTENSION);
     csb.addOption(MockExtensionCommands.OPTION_REGION_NAME, regionName);
     csb.addOption(MockExtensionCommands.OPTION_VALUE, value);
@@ -181,28 +180,28 @@ public class ExtensionClusterConfigurationDUnitTest {
   }
 
   private void destroyMockRegionExtension(final String regionName) {
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(MockExtensionCommands.DESTROY_MOCK_REGION_EXTENSION);
     csb.addOption(MockExtensionCommands.OPTION_REGION_NAME, regionName);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
   }
 
   private void createMockCacheExtension(final String value) {
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(MockExtensionCommands.CREATE_MOCK_CACHE_EXTENSION);
     csb.addOption(MockExtensionCommands.OPTION_VALUE, value);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
   }
 
   private void alterMockCacheExtension(final String value) {
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(MockExtensionCommands.ALTER_MOCK_CACHE_EXTENSION);
     csb.addOption(MockExtensionCommands.OPTION_VALUE, value);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
   }
 
   private void destroyMockCacheExtension() {
-    CommandStringBuilder csb =
+    var csb =
         new CommandStringBuilder(MockExtensionCommands.DESTROY_MOCK_CACHE_EXTENSION);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
   }

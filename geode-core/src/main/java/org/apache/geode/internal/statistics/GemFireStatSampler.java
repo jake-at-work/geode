@@ -17,7 +17,6 @@ package org.apache.geode.internal.statistics;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,16 +114,16 @@ public class GemFireStatSampler extends HostStatSampler {
   }
 
   public int addListener(InternalDistributedMember recipient, long resourceId, String statName) {
-    int result = getNextListenerId();
+    var result = getNextListenerId();
     synchronized (listeners) {
       while (listeners.get(result) != null) {
         // previous one was still being used
         result = getNextListenerId();
       }
-      RemoteStatListenerImpl remoteStatListener =
+      var remoteStatListener =
           RemoteStatListenerImpl.create(result, recipient, resourceId, statName, this);
       listeners.put(result, remoteStatListener);
-      List<RemoteStatListenerImpl> remoteStatListenerList =
+      var remoteStatListenerList =
           recipientToListeners.computeIfAbsent(recipient, k -> new ArrayList<>());
       remoteStatListenerList.add(remoteStatListener);
     }
@@ -133,10 +132,10 @@ public class GemFireStatSampler extends HostStatSampler {
 
   public boolean removeListener(int listenerId) {
     synchronized (listeners) {
-      RemoteStatListenerImpl remoteStatListener =
+      var remoteStatListener =
           (RemoteStatListenerImpl) listeners.remove(listenerId);
       if (remoteStatListener != null) {
-        List<RemoteStatListenerImpl> remoteStatListenerList =
+        var remoteStatListenerList =
             recipientToListeners.get(remoteStatListener.getRecipient());
         remoteStatListenerList.remove(remoteStatListener);
       }
@@ -146,9 +145,9 @@ public class GemFireStatSampler extends HostStatSampler {
 
   public void removeListenersByRecipient(InternalDistributedMember recipient) {
     synchronized (listeners) {
-      List<RemoteStatListenerImpl> remoteStatListenerList = recipientToListeners.get(recipient);
+      var remoteStatListenerList = recipientToListeners.get(recipient);
       if (remoteStatListenerList != null && remoteStatListenerList.size() != 0) {
-        for (RemoteStatListenerImpl sl : remoteStatListenerList) {
+        for (var sl : remoteStatListenerList) {
           listeners.remove(sl.getListenerId());
         }
         recipientToListeners.remove(recipient);
@@ -165,10 +164,10 @@ public class GemFireStatSampler extends HostStatSampler {
   }
 
   public boolean removeLocalStatListener(LocalStatListener listener) {
-    Iterator<Map.Entry<LocalStatListenerImpl, Boolean>> iterator =
+    var iterator =
         localListeners.entrySet().iterator();
     while (iterator.hasNext()) {
-      Map.Entry<LocalStatListenerImpl, Boolean> entry = iterator.next();
+      var entry = iterator.next();
       if (listener.equals(entry.getKey().getListener())) {
         iterator.remove();
         return true;
@@ -218,21 +217,21 @@ public class GemFireStatSampler extends HostStatSampler {
       if (listeners.size() == 0) {
         return;
       }
-      long timeStamp = System.currentTimeMillis();
-      for (Map.Entry<InternalDistributedMember, List<RemoteStatListenerImpl>> internalDistributedMemberListEntry : recipientToListeners
+      var timeStamp = System.currentTimeMillis();
+      for (var internalDistributedMemberListEntry : recipientToListeners
           .entrySet()) {
         if (stopRequested()) {
           return;
         }
-        Map.Entry<InternalDistributedMember, List<RemoteStatListenerImpl>> entry =
+        var entry =
             internalDistributedMemberListEntry;
-        List<RemoteStatListenerImpl> remoteStatListenerList = entry.getValue();
+        var remoteStatListenerList = entry.getValue();
         if (remoteStatListenerList.size() > 0) {
-          InternalDistributedMember recipient = entry.getKey();
-          StatListenerMessage statListenerMessage =
+          var recipient = entry.getKey();
+          var statListenerMessage =
               StatListenerMessage.create(timeStamp, remoteStatListenerList.size());
           statListenerMessage.setRecipient(recipient);
-          for (RemoteStatListenerImpl statListener : remoteStatListenerList) {
+          for (var statListener : remoteStatListenerList) {
             if (getStatisticsManager().statisticsExists(statListener.getStatId())) {
               statListener.checkForChange(statListenerMessage);
             } else {
@@ -274,17 +273,17 @@ public class GemFireStatSampler extends HostStatSampler {
         logger.info(LogMarker.STATISTICS_MARKER,
             "OS statistic collection disabled by setting the osStatsDisabled system property to true.");
       } else {
-        int retVal = osStatisticsProvider.initOSStats();
+        var retVal = osStatisticsProvider.initOSStats();
         if (retVal != 0) {
           logger.error(LogMarker.STATISTICS_MARKER,
               "OS statistics failed to initialize properly, some stats may be missing. See bugnote #37160.");
         }
         osStatisticsProvider.newSystem(getOsStatisticsFactory(), id);
-        String statName = getStatisticsManager().getName();
+        var statName = getStatisticsManager().getName();
         if (statName == null || statName.length() == 0) {
           statName = "javaApp" + getSystemId();
         }
-        Statistics stats =
+        var stats =
             osStatisticsProvider.newProcess(getOsStatisticsFactory(), id, statName + "-proc");
         processStats = osStatisticsProvider.newProcessStats(stats);
       }
@@ -296,7 +295,7 @@ public class GemFireStatSampler extends HostStatSampler {
     if (prepareOnly || osStatsDisabled() || !osStatisticsProvider.osStatsSupported()) {
       return;
     }
-    List<Statistics> statisticsList = getStatisticsManager().getStatsList();
+    var statisticsList = getStatisticsManager().getStatsList();
     if (statisticsList == null) {
       return;
     }
@@ -304,11 +303,11 @@ public class GemFireStatSampler extends HostStatSampler {
       return;
     }
     osStatisticsProvider.readyRefreshOSStats();
-    for (Statistics statistics : statisticsList) {
+    for (var statistics : statisticsList) {
       if (stopRequested()) {
         return;
       }
-      StatisticsImpl statisticsImpl = (StatisticsImpl) statistics;
+      var statisticsImpl = (StatisticsImpl) statistics;
       if (statisticsImpl.usesSystemCalls()) {
         osStatisticsProvider.refresh((LocalStatisticsImpl) statisticsImpl);
       }
@@ -328,7 +327,7 @@ public class GemFireStatSampler extends HostStatSampler {
   }
 
   private void checkLocalListeners() {
-    for (LocalStatListenerImpl localStatListener : localListeners.keySet()) {
+    for (var localStatListener : localListeners.keySet()) {
       if (getStatisticsManager().statisticsExists(localStatListener.getStatId())) {
         localStatListener.checkForChange();
       }
@@ -336,7 +335,7 @@ public class GemFireStatSampler extends HostStatSampler {
   }
 
   private int getNextListenerId() {
-    int result = nextListenerId++;
+    var result = nextListenerId++;
     if (nextListenerId < 0) {
       nextListenerId = 1;
     }
@@ -369,7 +368,7 @@ public class GemFireStatSampler extends HostStatSampler {
 
     static LocalStatListenerImpl create(LocalStatListener l, Statistics stats, String statName) {
       LocalStatListenerImpl result = null;
-      StatisticDescriptorImpl stat = (StatisticDescriptorImpl) stats.nameToDescriptor(statName);
+      var stat = (StatisticDescriptorImpl) stats.nameToDescriptor(statName);
       switch (stat.getTypeCode()) {
         case StatisticDescriptorImpl.LONG:
           result = new LocalLongStatListenerImpl();
@@ -391,7 +390,7 @@ public class GemFireStatSampler extends HostStatSampler {
      * fired
      */
     public void checkForChange() {
-      long currentValue = stats.getRawBits(stat);
+      var currentValue = stats.getRawBits(stat);
       if (oldValueInitialized) {
         if (currentValue == oldValue) {
           return;
@@ -453,12 +452,12 @@ public class GemFireStatSampler extends HostStatSampler {
     static RemoteStatListenerImpl create(int listenerId, InternalDistributedMember recipient,
         long resourceId, String statName, HostStatSampler sampler) {
       RemoteStatListenerImpl result = null;
-      Statistics stats = sampler.getStatisticsManager().findStatisticsByUniqueId(resourceId);
+      var stats = sampler.getStatisticsManager().findStatisticsByUniqueId(resourceId);
       if (stats == null) {
         throw new RuntimeException(
             "Could not find statistics instance with unique id " + resourceId);
       }
-      StatisticDescriptorImpl stat = (StatisticDescriptorImpl) stats.nameToDescriptor(statName);
+      var stat = (StatisticDescriptorImpl) stats.nameToDescriptor(statName);
       switch (stat.getTypeCode()) {
         case StatisticDescriptorImpl.LONG:
           result = new LongStatListenerImpl();
@@ -483,7 +482,7 @@ public class GemFireStatSampler extends HostStatSampler {
      * specified message.
      */
     public void checkForChange(StatListenerMessage msg) {
-      long currentValue = stats.getRawBits(stat);
+      var currentValue = stats.getRawBits(stat);
       if (oldValueInitialized) {
         if (currentValue == oldValue) {
           return;

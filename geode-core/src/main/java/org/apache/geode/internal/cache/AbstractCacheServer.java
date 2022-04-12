@@ -23,8 +23,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.server.ClientSubscriptionConfig;
 import org.apache.geode.cache.server.ServerLoadProbe;
-import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.admin.ClientMembershipMessage;
 import org.apache.geode.internal.cache.xmlcache.CacheCreation;
@@ -199,14 +197,14 @@ public abstract class AbstractCacheServer implements InternalCacheServer {
 
         // ds could be null
         if (ds != null && ds.isConnected()) {
-          DistributionManager dm = ds.getDistributionManager();
+          var dm = ds.getDistributionManager();
           Set adminMemberSet = dm.getAdminMemberSet();
 
           /* check if there are any admin members at all */
           if (!adminMemberSet.isEmpty()) {
-            DistributedMember member = event.getMember();
+            var member = event.getMember();
 
-            ClientMembershipMessage msg = new ClientMembershipMessage(event.getMemberId(),
+            var msg = new ClientMembershipMessage(event.getMemberId(),
                 member == null ? null : member.getHost(), type);
 
             msg.setRecipients(adminMemberSet);
@@ -333,7 +331,7 @@ public abstract class AbstractCacheServer implements InternalCacheServer {
       this.groups = CacheServer.DEFAULT_GROUPS;
     } else if (groups.length > 0) {
       // copy it for isolation
-      String[] copy = new String[groups.length];
+      var copy = new String[groups.length];
       System.arraycopy(groups, 0, copy, 0, groups.length);
       this.groups = copy;
     } else {
@@ -343,10 +341,10 @@ public abstract class AbstractCacheServer implements InternalCacheServer {
 
   @Override
   public String[] getGroups() {
-    String[] result = groups;
+    var result = groups;
     if (result.length > 0) {
       // copy it for isolation
-      String[] copy = new String[result.length];
+      var copy = new String[result.length];
       System.arraycopy(result, 0, copy, 0, result.length);
       result = copy;
     }

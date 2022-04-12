@@ -20,7 +20,6 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -29,13 +28,9 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -43,7 +38,6 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalCacheServer;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 import org.apache.geode.test.junit.categories.ClientServerTest;
 
@@ -136,21 +130,21 @@ public class AcceptorImplDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testAcceptorImplCloseCleansUpWithHangingConnection() throws Exception {
-    final String hostname = Host.getHost(0).getHostName();
-    final VM clientVM = Host.getHost(0).getVM(0);
+    final var hostname = Host.getHost(0).getHostName();
+    final var clientVM = Host.getHost(0).getVM(0);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
 
-    try (InternalCache cache = (InternalCache) new CacheFactory(props).create()) {
-      RegionFactory<Object, Object> regionFactory =
+    try (var cache = (InternalCache) new CacheFactory(props).create()) {
+      var regionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
 
-      SleepyCacheWriter<Object, Object> sleepyCacheWriter = new SleepyCacheWriter<>();
+      var sleepyCacheWriter = new SleepyCacheWriter<Object, Object>();
       regionFactory.setCacheWriter(sleepyCacheWriter);
 
-      final CacheServer server = cache.addCacheServer();
-      final int port = AvailablePortHelper.getRandomAvailableTCPPort();
+      final var server = cache.addCacheServer();
+      final var port = AvailablePortHelper.getRandomAvailableTCPPort();
       server.setPort(port);
       server.start();
 
@@ -161,20 +155,20 @@ public class AcceptorImplDUnitTest extends JUnit4DistributedTestCase {
 
       await("Acceptor is up and running")
           .until(() -> getAcceptorImplFromCache(cache) != null);
-      AcceptorImpl acceptorImpl = getAcceptorImplFromCache(cache);
+      var acceptorImpl = getAcceptorImplFromCache(cache);
 
 
       clientVM.invokeAsync(() -> {
         // System.setProperty("gemfire.PoolImpl.TRY_SERVERS_ONCE", "true");
-        ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+        var clientCacheFactory = new ClientCacheFactory();
         clientCacheFactory.addPoolServer(hostname, port);
         clientCacheFactory.setPoolReadTimeout(5000);
         clientCacheFactory.setPoolRetryAttempts(1);
         clientCacheFactory.setPoolMaxConnections(1);
         clientCacheFactory.setPoolFreeConnectionTimeout(1000);
         clientCacheFactory.setPoolServerConnectionTimeout(1000);
-        ClientCache clientCache = clientCacheFactory.create();
-        Region<Object, Object> clientRegion1 =
+        var clientCache = clientCacheFactory.create();
+        var clientRegion1 =
             clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region1");
         clientRegion1.put("foo", "bar");
       });
@@ -201,15 +195,15 @@ public class AcceptorImplDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testAcceptorImplCloseCleansUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
 
-    try (InternalCache cache = (InternalCache) new CacheFactory(props).create()) {
-      RegionFactory<Object, Object> regionFactory =
+    try (var cache = (InternalCache) new CacheFactory(props).create()) {
+      var regionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
 
-      final CacheServer server = cache.addCacheServer();
-      final int port = AvailablePortHelper.getRandomAvailableTCPPort();
+      final var server = cache.addCacheServer();
+      final var port = AvailablePortHelper.getRandomAvailableTCPPort();
       server.setPort(port);
       server.start();
 
@@ -220,7 +214,7 @@ public class AcceptorImplDUnitTest extends JUnit4DistributedTestCase {
       await("Acceptor is up and running")
           .until(() -> getAcceptorImplFromCache(cache) != null);
 
-      AcceptorImpl acceptorImpl = getAcceptorImplFromCache(cache);
+      var acceptorImpl = getAcceptorImplFromCache(cache);
 
       cache.close();
       await("Acceptor shuts down properly")
@@ -236,13 +230,13 @@ public class AcceptorImplDUnitTest extends JUnit4DistributedTestCase {
    * @return the cache's Acceptor, if there is exactly one CacheServer. Otherwise null.
    */
   public AcceptorImpl getAcceptorImplFromCache(GemFireCache cache) {
-    GemFireCacheImpl gemFireCache = (GemFireCacheImpl) cache;
-    List<CacheServer> cacheServers = gemFireCache.getCacheServers();
+    var gemFireCache = (GemFireCacheImpl) cache;
+    var cacheServers = gemFireCache.getCacheServers();
     if (cacheServers.size() != 1) {
       return null;
     }
 
-    InternalCacheServer cacheServer = (InternalCacheServer) cacheServers.get(0);
+    var cacheServer = (InternalCacheServer) cacheServers.get(0);
     return (AcceptorImpl) cacheServer.getAcceptor();
   }
 }

@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.FixedPartitionAttributes;
-import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.internal.GetClientPartitionAttributesOp;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -58,7 +57,7 @@ public class GetClientPartitionAttributesCommand66 extends BaseCommand {
       throws IOException, ClassNotFoundException, InterruptedException {
     String regionFullPath = null;
     regionFullPath = clientMessage.getPart(0).getCachedString();
-    String errMessage = "";
+    var errMessage = "";
     if (regionFullPath == null) {
       logger.warn("The input region path for the GetClientPartitionAttributes request is null");
       errMessage = "The input region path for the GetClientPartitionAttributes request is null";
@@ -82,7 +81,7 @@ public class GetClientPartitionAttributesCommand66 extends BaseCommand {
     }
 
     try {
-      Message responseMsg = serverConnection.getResponseMessage();
+      var responseMsg = serverConnection.getResponseMessage();
       responseMsg.setTransactionId(clientMessage.getTransactionId());
       responseMsg.setMessageType(MessageType.RESPONSE_CLIENT_PARTITION_ATTRIBUTES);
 
@@ -92,10 +91,10 @@ public class GetClientPartitionAttributesCommand66 extends BaseCommand {
         responseMsg.addObjPart(region.getFullPath());
       } else {
 
-        PartitionedRegion prRgion = (PartitionedRegion) region;
+        var prRgion = (PartitionedRegion) region;
 
-        PartitionResolver partitionResolver = prRgion.getPartitionResolver();
-        int numParts = 2; // MINUMUM PARTS
+        var partitionResolver = prRgion.getPartitionResolver();
+        var numParts = 2; // MINUMUM PARTS
         if (partitionResolver != null) {
           numParts++;
         }
@@ -109,7 +108,7 @@ public class GetClientPartitionAttributesCommand66 extends BaseCommand {
         // PART 2
         String leaderRegionPath = null;
         PartitionedRegion leaderRegion = null;
-        String leaderRegionName = prRgion.getColocatedWith();
+        var leaderRegionName = prRgion.getColocatedWith();
         if (leaderRegionName != null) {
           Cache cache = prRgion.getCache();
           while (leaderRegionName != null) {

@@ -37,8 +37,8 @@ public class CommandResultExceptionTest {
    */
   @Test
   public void serializesWithoutThrowingNotSerializableException() {
-    Result result = mock(Result.class);
-    CommandResultException instance = new CommandResultException(result);
+    var result = mock(Result.class);
+    var instance = new CommandResultException(result);
 
     assertThatCode(() -> SerializationUtils.clone(instance))
         .doesNotThrowAnyException();
@@ -49,10 +49,10 @@ public class CommandResultExceptionTest {
    */
   @Test
   public void serializesWithoutResult() {
-    Result result = mock(Result.class);
-    CommandResultException instance = new CommandResultException(result);
+    var result = mock(Result.class);
+    var instance = new CommandResultException(result);
 
-    CommandResultException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned.getResult()).isNull();
   }

@@ -21,16 +21,13 @@ import static org.apache.geode.tools.pulse.internal.util.NameUtil.makeCompliantN
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import org.apache.geode.tools.pulse.internal.data.Cluster;
 import org.apache.geode.tools.pulse.internal.data.Repository;
 
 /**
@@ -58,27 +55,27 @@ public class MemberAsynchEventQueuesService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    JsonNode requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
-    String memberName =
+    var requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
+    var memberName =
         requestDataJSON.get("MemberAsynchEventQueues").get("memberName").textValue();
 
-    Cluster.Member clusterMember = cluster.getMember(makeCompliantName(memberName));
+    var clusterMember = cluster.getMember(makeCompliantName(memberName));
 
     if (clusterMember != null) {
       // response
-      Cluster.AsyncEventQueue[] asyncEventQueues = clusterMember.getMemberAsyncEventQueueList();
-      ArrayNode asyncEventQueueJsonList = mapper.createArrayNode();
+      var asyncEventQueues = clusterMember.getMemberAsyncEventQueueList();
+      var asyncEventQueueJsonList = mapper.createArrayNode();
 
       if (asyncEventQueues != null && asyncEventQueues.length > 0) {
         responseJSON.put("isAsyncEventQueuesPresent", true);
 
-        for (Cluster.AsyncEventQueue asyncEventQueue : asyncEventQueues) {
-          ObjectNode asyncEventQueueJSON = mapper.createObjectNode();
+        for (var asyncEventQueue : asyncEventQueues) {
+          var asyncEventQueueJSON = mapper.createObjectNode();
           asyncEventQueueJSON.put("id", asyncEventQueue.getId());
           asyncEventQueueJSON.put("primary", asyncEventQueue.getPrimary());
           asyncEventQueueJSON.put("senderType", asyncEventQueue.isParallel());

@@ -35,11 +35,11 @@ public abstract class FailWithProblemInOutputTestCase extends FailOutputTestCase
 
   @Test
   public void testFailWithProblemLogMessageInOutput() throws Exception {
-    final String goldenString = "Begin " + name() + ".main" + "\n" + "Press Enter to continue."
+    final var goldenString = "Begin " + name() + ".main" + "\n" + "Press Enter to continue."
         + "\n" + "End " + name() + ".main" + "\n";
     debug(goldenString, "GOLDEN");
 
-    final ProcessWrapper process = createProcessWrapper(new ProcessWrapper.Builder(), getClass());
+    final var process = createProcessWrapper(new ProcessWrapper.Builder(), getClass());
     process.execute(createProperties());
     process.waitForOutputToMatch("Begin " + name() + "\\.main");
     process.waitForOutputToMatch("Press Enter to continue\\.");

@@ -50,7 +50,7 @@ public class LocalSessionCacheLoaderIntegrationTest {
   }
 
   public void parameterizedSetUp(RegionShortcut regionShortcut) {
-    Region<String, HttpSession> backingHttpSessionRegion = server.getCache()
+    var backingHttpSessionRegion = server.getCache()
         .<String, HttpSession>createRegionFactory(regionShortcut)
         .create(REGION_NAME);
     backingHttpSessionRegion.put(SESSION_ID, mockSession);
@@ -66,7 +66,7 @@ public class LocalSessionCacheLoaderIntegrationTest {
   public void getShouldReturnEntryFromTheBackingRegion(RegionShortcut regionShortcut) {
     parameterizedSetUp(regionShortcut);
 
-    HttpSession session = localHttpSessionRegion.get(SESSION_ID);
+    var session = localHttpSessionRegion.get(SESSION_ID);
     assertThat(session).isEqualTo(mockSession);
   }
 
@@ -101,7 +101,7 @@ public class LocalSessionCacheLoaderIntegrationTest {
         return false;
       }
 
-      TestDeltaSession that = (TestDeltaSession) o;
+      var that = (TestDeltaSession) o;
 
       if (!getId().equals(that.getId())) {
         return false;
@@ -111,7 +111,7 @@ public class LocalSessionCacheLoaderIntegrationTest {
 
     @Override
     public int hashCode() {
-      int result = getId().hashCode();
+      var result = getId().hashCode();
       result = 31 * result + getValue().hashCode();
       return result;
     }

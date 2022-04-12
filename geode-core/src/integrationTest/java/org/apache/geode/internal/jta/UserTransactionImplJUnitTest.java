@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 
 import javax.transaction.Status;
-import javax.transaction.Transaction;
 import javax.transaction.UserTransaction;
 
 import org.junit.After;
@@ -42,7 +41,7 @@ public class UserTransactionImplJUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     ds = DistributedSystem.connect(props);
     tm = TransactionManagerImpl.getTransactionManager();
@@ -65,12 +64,12 @@ public class UserTransactionImplJUnitTest {
   @Test
   public void testBegin() throws Exception {
     utx.begin();
-    Transaction txn = tm.getTransaction();
+    var txn = tm.getTransaction();
     assertNotNull("transaction not registered in the transaction map", txn);
-    GlobalTransaction gtx = tm.getGlobalTransaction();
+    var gtx = tm.getGlobalTransaction();
     assertNotNull("Global transaction not registered with the transaction manager", gtx);
     assertTrue("Transaction not added to the list", gtx.getTransactions().contains(txn));
-    int status = gtx.getStatus();
+    var status = gtx.getStatus();
     assertEquals("Transaction status not set to be active", Status.STATUS_ACTIVE, status);
     utx.commit();
   }
@@ -79,7 +78,7 @@ public class UserTransactionImplJUnitTest {
   public void testCommit() throws Exception {
     utx.begin();
     utx.commit();
-    Transaction txn = tm.getTransaction();
+    var txn = tm.getTransaction();
     assertNull("transaction not removed from map after commit", txn);
   }
 
@@ -88,7 +87,7 @@ public class UserTransactionImplJUnitTest {
     utx.begin();
     utx.rollback();
 
-    Transaction txn = tm.getTransaction();
+    var txn = tm.getTransaction();
     assertNull("transaction not removed from map after rollback", txn);
   }
 
@@ -96,7 +95,7 @@ public class UserTransactionImplJUnitTest {
   public void testSetRollbackOnly() throws Exception {
     utx.begin();
     utx.setRollbackOnly();
-    GlobalTransaction gtx = tm.getGlobalTransaction();
+    var gtx = tm.getGlobalTransaction();
     assertEquals("Status not marked for rollback", Status.STATUS_MARKED_ROLLBACK, gtx.getStatus());
     utx.rollback();
   }
@@ -105,7 +104,7 @@ public class UserTransactionImplJUnitTest {
   public void testGetStatus() throws Exception {
     utx.begin();
     tm.setRollbackOnly();
-    int status = utx.getStatus();
+    var status = utx.getStatus();
     assertEquals("Get status failed to get correct status", Status.STATUS_MARKED_ROLLBACK, status);
     utx.rollback();
   }

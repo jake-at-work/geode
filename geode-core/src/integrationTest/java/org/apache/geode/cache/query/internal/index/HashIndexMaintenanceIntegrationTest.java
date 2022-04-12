@@ -17,15 +17,12 @@ package org.apache.geode.cache.query.internal.index;
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Iterator;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexNameConflictException;
 import org.apache.geode.cache.query.QueryService;
@@ -47,12 +44,12 @@ public class HashIndexMaintenanceIntegrationTest extends AbstractIndexMaintenanc
   @Test
   public void testInvalidTokensForHash() throws Exception {
     CacheUtils.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("exampleRegion");
-    QueryService qs = CacheUtils.getCache().getQueryService();
+    var qs = CacheUtils.getCache().getQueryService();
     Region region = CacheUtils.getCache().getRegion(SEPARATOR + "exampleRegion");
     region.put("0", new Portfolio(0));
     region.invalidate("0");
-    Index index = qs.createHashIndex("hash index index", "p.status", SEPARATOR + "exampleRegion p");
-    SelectResults results = (SelectResults) qs
+    var index = qs.createHashIndex("hash index index", "p.status", SEPARATOR + "exampleRegion p");
+    var results = (SelectResults) qs
         .newQuery("Select * from " + SEPARATOR + "exampleRegion r where r.status='active'")
         .execute();
     // the remove should have happened
@@ -63,9 +60,9 @@ public class HashIndexMaintenanceIntegrationTest extends AbstractIndexMaintenanc
         .execute();
     assertEquals(0, results.size());
 
-    HashIndex cindex = (HashIndex) index;
-    Iterator iterator = cindex.entriesSet.iterator();
-    int count = 0;
+    var cindex = (HashIndex) index;
+    var iterator = cindex.entriesSet.iterator();
+    var count = 0;
     while (iterator.hasNext()) {
       count++;
       iterator.next();

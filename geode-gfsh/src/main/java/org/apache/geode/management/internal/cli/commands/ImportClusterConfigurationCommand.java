@@ -19,7 +19,6 @@ import static java.util.stream.Collectors.toSet;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -35,7 +34,6 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.xml.sax.SAXException;
 
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
@@ -46,14 +44,11 @@ import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.remote.CommandExecutionContext;
 import org.apache.geode.management.internal.cli.result.model.FileResultModel;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.management.internal.configuration.functions.GetRegionNamesFunction;
 import org.apache.geode.management.internal.configuration.functions.RecreateCacheFunction;
 import org.apache.geode.management.internal.configuration.utils.ZipUtils;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -95,11 +90,11 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
     }
 
     InternalConfigurationPersistenceService ccService = getConfigurationPersistenceService();
-    Set<DistributedMember> servers = findMembers(group);
-    File file = getUploadedFile();
+    var servers = findMembers(group);
+    var file = getUploadedFile();
 
-    ResultModel result = new ResultModel();
-    InfoResultModel infoSection = result.addInfo(ResultModel.INFO_SECTION);
+    var result = new ResultModel();
+    var infoSection = result.addInfo(ResultModel.INFO_SECTION);
     ccService.lockSharedConfiguration();
     try {
       if (action == Action.APPLY && servers.size() > 0) {
@@ -112,7 +107,7 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
         }
         // if no existing cluster configuration, to be safe, further check to see if running
         // servers has regions already defined
-        Set<String> regionsOnServers = servers.stream().map(this::getRegionNamesOnServer)
+        var regionsOnServers = servers.stream().map(this::getRegionNamesOnServer)
             .flatMap(Collection::stream).collect(toSet());
 
         if (!regionsOnServers.isEmpty()) {
@@ -125,7 +120,7 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
       backupTheOldConfig(ccService);
 
       if (zip != null) {
-        Path tempDir = Files.createTempDirectory("config");
+        var tempDir = Files.createTempDirectory("config");
         ZipUtils.unzip(file.getAbsolutePath(), tempDir.toAbsolutePath().toString());
         // load it from the disk
         ccService.loadSharedConfigurationFromDir(tempDir.toFile());
@@ -133,7 +128,7 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
         infoSection.addLine("Cluster configuration successfully imported.");
       } else {
         // update the xml in the cluster configuration service
-        Configuration configuration = ccService.getConfiguration(group);
+        var configuration = ccService.getConfiguration(group);
         if (configuration == null) {
           configuration = new Configuration(group);
         }
@@ -151,9 +146,9 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
 
     if (servers.size() > 0) {
       if (action == Action.APPLY) {
-        List<CliFunctionResult> functionResults =
+        var functionResults =
             executeAndGetFunctionResult(new RecreateCacheFunction(), null, servers);
-        TabularResultModel tableSection =
+        var tableSection =
             result.addTableAndSetStatus(ResultModel.MEMBER_STATUS_SECTION, functionResults, false,
                 true);
         tableSection.setHeader("Configure the servers in '" + group + "' group: ");
@@ -165,16 +160,16 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
   }
 
   void backupTheOldConfig(InternalConfigurationPersistenceService ccService) throws IOException {
-    String backupDir = "cluster_config_" + new SimpleDateFormat("yyyyMMddhhmm").format(new Date())
+    var backupDir = "cluster_config_" + new SimpleDateFormat("yyyyMMddhhmm").format(new Date())
         + '.' + System.nanoTime();
-    File backDirFile = ccService.getClusterConfigDirPath().getParent().resolve(backupDir).toFile();
-    for (Configuration config : ccService.getEntireConfiguration().values()) {
+    var backDirFile = ccService.getClusterConfigDirPath().getParent().resolve(backupDir).toFile();
+    for (var config : ccService.getEntireConfiguration().values()) {
       ccService.writeConfigToFile(config, backDirFile);
     }
   }
 
   File getUploadedFile() {
-    List<String> filePathFromShell = CommandExecutionContext.getFilePathFromShell();
+    var filePathFromShell = CommandExecutionContext.getFilePathFromShell();
     return new File(filePathFromShell.get(0));
   }
 
@@ -189,9 +184,9 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
   }
 
   private Set<String> getRegionNamesOnServer(DistributedMember server) {
-    ResultCollector<?, ?> rc = executeFunction(new GetRegionNamesFunction(), null, server);
+    var rc = executeFunction(new GetRegionNamesFunction(), null, server);
     @SuppressWarnings("unchecked")
-    List<Set<String>> results = (List<Set<String>>) rc.getResult();
+    var results = (List<Set<String>>) rc.getResult();
 
     return results.get(0);
   }
@@ -199,9 +194,9 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
   public static class ImportInterceptor extends AbstractCliAroundInterceptor {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      String zip = parseResult.getParamValueAsString(CliStrings.IMPORT_SHARED_CONFIG__ZIP);
-      String xmlFile = parseResult.getParamValueAsString(XML_FILE);
-      String group = parseResult.getParamValueAsString(CliStrings.GROUP);
+      var zip = parseResult.getParamValueAsString(CliStrings.IMPORT_SHARED_CONFIG__ZIP);
+      var xmlFile = parseResult.getParamValueAsString(XML_FILE);
+      var group = parseResult.getParamValueAsString(CliStrings.GROUP);
 
       if (group != null && group.contains(",")) {
         return ResultModel.createError("Only a single group name is supported.");
@@ -232,20 +227,20 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
         }
       }
 
-      String file = (zip != null) ? zip : xmlFile;
-      File importedFile = new File(file).getAbsoluteFile();
+      var file = (zip != null) ? zip : xmlFile;
+      var importedFile = new File(file).getAbsoluteFile();
       if (!importedFile.exists()) {
         return ResultModel.createError("'" + file + "' not found.");
       }
 
-      String message = "This command will replace the existing cluster configuration, if any, "
+      var message = "This command will replace the existing cluster configuration, if any, "
           + "The old configuration will be backed up in the working directory.\n\n" + "Continue? ";
 
       if (readYesNo(message, Response.YES) == Response.NO) {
         return ResultModel.createError("Aborted import of " + file + ".");
       }
 
-      Action action = (Action) parseResult.getParamValue(ACTION);
+      var action = (Action) parseResult.getParamValue(ACTION);
       if (action == Action.STAGE) {
         message =
             "The configuration you are trying to import should NOT have any conflict with the configuration"
@@ -257,7 +252,7 @@ public class ImportClusterConfigurationCommand extends GfshCommand {
         }
       }
 
-      ResultModel result = new ResultModel();
+      var result = new ResultModel();
       result.addFile(importedFile, FileResultModel.FILE_TYPE_FILE);
       return result;
     }

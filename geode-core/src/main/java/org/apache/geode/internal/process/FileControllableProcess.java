@@ -23,7 +23,6 @@ import java.io.UncheckedIOException;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.distributed.AbstractLauncher.ServiceState;
 import org.apache.geode.internal.process.ControlFileWatchdog.ControlRequestHandler;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -105,7 +104,7 @@ public class FileControllableProcess implements ControllableProcess {
 
   @Override
   public void stop() {
-    boolean interrupted = false;
+    var interrupted = false;
     try {
       interrupted = stop(statusRequestFileWatchdog);
       interrupted = stop(stopRequestFileWatchdog) || interrupted;
@@ -119,7 +118,7 @@ public class FileControllableProcess implements ControllableProcess {
 
   @Override
   public void stop(final boolean deletePidFileOnStop) {
-    boolean interrupted = false;
+    var interrupted = false;
     try {
       interrupted = stop(statusRequestFileWatchdog);
       interrupted = stop(stopRequestFileWatchdog) || interrupted;
@@ -132,7 +131,7 @@ public class FileControllableProcess implements ControllableProcess {
   }
 
   private boolean stop(final ControlFileWatchdog fileWatchdog) {
-    boolean interrupted = false;
+    var interrupted = false;
     try {
       fileWatchdog.stop();
     } catch (InterruptedException e) {
@@ -187,12 +186,12 @@ public class FileControllableProcess implements ControllableProcess {
   }
 
   static String fetchStatusWithValidation(final ControlNotificationHandler handler) {
-    ServiceState<?> state = handler.handleStatus();
+    var state = handler.handleStatus();
     if (state == null) {
       throw new IllegalStateException("Null ServiceState is invalid");
     }
 
-    String jsonContent = state.toJson();
+    var jsonContent = state.toJson();
     if (jsonContent == null) {
       throw new IllegalStateException("Null JSON for status is invalid");
     } else if (jsonContent.trim().isEmpty()) {
@@ -214,8 +213,8 @@ public class FileControllableProcess implements ControllableProcess {
 
   private static void writeStatusToFile(final String jsonContent, final File directory,
       final ProcessType processType) throws IOException {
-    File statusFile = new File(directory, processType.getStatusFileName());
-    File statusFileTmp = new File(directory, processType.getStatusFileName() + ".tmp");
+    var statusFile = new File(directory, processType.getStatusFileName());
+    var statusFileTmp = new File(directory, processType.getStatusFileName() + ".tmp");
 
     deleteFileWithValidation(statusFile, "statusFile");
     deleteFileWithValidation(statusFileTmp, "statusFileTmp");
@@ -225,7 +224,7 @@ public class FileControllableProcess implements ControllableProcess {
           "Unable to create statusFileTmp '" + statusFileTmp.getCanonicalPath() + "'");
     }
 
-    FileWriter writer = new FileWriter(statusFileTmp);
+    var writer = new FileWriter(statusFileTmp);
     writer.write(jsonContent);
     writer.flush();
     writer.close();

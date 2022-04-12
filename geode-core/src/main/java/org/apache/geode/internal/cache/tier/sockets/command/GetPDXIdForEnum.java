@@ -19,7 +19,6 @@ import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
@@ -27,7 +26,6 @@ import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.pdx.internal.EnumInfo;
-import org.apache.geode.pdx.internal.TypeRegistry;
 
 public class GetPDXIdForEnum extends BaseCommand {
 
@@ -52,12 +50,12 @@ public class GetPDXIdForEnum extends BaseCommand {
           serverConnection.getSocketString());
     }
 
-    EnumInfo enumInfo = (EnumInfo) clientMessage.getPart(0).getObject();
+    var enumInfo = (EnumInfo) clientMessage.getPart(0).getObject();
 
     int enumId;
     try {
-      InternalCache cache = serverConnection.getCache();
-      TypeRegistry registry = cache.getPdxRegistry();
+      var cache = serverConnection.getCache();
+      var registry = cache.getPdxRegistry();
       enumId = registry.defineEnum(enumInfo);
     } catch (Exception e) {
       writeException(clientMessage, e, false, serverConnection);
@@ -65,7 +63,7 @@ public class GetPDXIdForEnum extends BaseCommand {
       return;
     }
 
-    Message responseMsg = serverConnection.getResponseMessage();
+    var responseMsg = serverConnection.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setNumberOfParts(1);
     responseMsg.setTransactionId(clientMessage.getTransactionId());

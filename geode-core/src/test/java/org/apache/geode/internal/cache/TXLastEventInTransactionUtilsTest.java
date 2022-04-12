@@ -119,13 +119,13 @@ public class TXLastEventInTransactionUtilsTest {
   @Test
   public void getLastTransactionEventReturnsNullWhenGroupTransactionEventsIsFalseForAllSenders() {
     List<EntryEventImpl> events = new ArrayList();
-    EntryEventImpl event1 = createMockEntryEventImpl(region1);
-    EntryEventImpl event2 = createMockEntryEventImpl(region2);
+    var event1 = createMockEntryEventImpl(region1);
+    var event2 = createMockEntryEventImpl(region2);
 
     events.add(event1);
     events.add(event2);
 
-    EntryEventImpl lastTransactionEvent =
+    var lastTransactionEvent =
         TXLastEventInTransactionUtils.getLastTransactionEventInGroupedTxForWANSender(events, cache);
 
     assertEquals(null, lastTransactionEvent);
@@ -134,13 +134,13 @@ public class TXLastEventInTransactionUtilsTest {
   @Test
   public void getLastTransactionEventReturnsEventWhenAllSendersGroupTransactionEvents() {
     List<EntryEventImpl> events = new ArrayList();
-    EntryEventImpl event1 = createMockEntryEventImpl(region3);
-    EntryEventImpl event2 = createMockEntryEventImpl(region4);
+    var event1 = createMockEntryEventImpl(region3);
+    var event2 = createMockEntryEventImpl(region4);
 
     events.add(event1);
     events.add(event2);
 
-    EntryEventImpl lastTransactionEvent =
+    var lastTransactionEvent =
         TXLastEventInTransactionUtils.getLastTransactionEventInGroupedTxForWANSender(events, cache);
 
     assertEquals(event2, lastTransactionEvent);
@@ -149,13 +149,13 @@ public class TXLastEventInTransactionUtilsTest {
   @Test
   public void getLastTransactionEventReturnsWhenNotAllSendersGroupTransactionEvents() {
     List<EntryEventImpl> events = new ArrayList();
-    EntryEventImpl event1 = createMockEntryEventImpl(region5);
-    EntryEventImpl event2 = createMockEntryEventImpl(region6);
+    var event1 = createMockEntryEventImpl(region5);
+    var event2 = createMockEntryEventImpl(region6);
 
     events.add(event1);
     events.add(event2);
 
-    EntryEventImpl lastTransactionEvent =
+    var lastTransactionEvent =
         TXLastEventInTransactionUtils.getLastTransactionEventInGroupedTxForWANSender(events, cache);
 
     assertEquals(event2, lastTransactionEvent);
@@ -164,8 +164,8 @@ public class TXLastEventInTransactionUtilsTest {
   @Test
   public void getLastTransactionEventThrowsExceptionWhenNotAllEventsToSameGroupingSenders() {
     List<EntryEventImpl> events = new ArrayList();
-    EntryEventImpl event1 = createMockEntryEventImpl(region3);
-    EntryEventImpl event2 = createMockEntryEventImpl(region7);
+    var event1 = createMockEntryEventImpl(region3);
+    var event2 = createMockEntryEventImpl(region7);
 
     events.add(event1);
     events.add(event2);
@@ -179,8 +179,8 @@ public class TXLastEventInTransactionUtilsTest {
   @Test
   public void getLastTransactionEventReturnsNullWhenSenderNotFound() {
     List<EntryEventImpl> events = new ArrayList();
-    EntryEventImpl event1 = createMockEntryEventImpl(region8);
-    EntryEventImpl event2 = createMockEntryEventImpl(region8);
+    var event1 = createMockEntryEventImpl(region8);
+    var event2 = createMockEntryEventImpl(region8);
 
     events.add(event1);
     events.add(event2);
@@ -191,7 +191,7 @@ public class TXLastEventInTransactionUtilsTest {
   }
 
   private EntryEventImpl createMockEntryEventImpl(InternalRegion region) {
-    EntryEventImpl event = mock(EntryEventImpl.class);
+    var event = mock(EntryEventImpl.class);
     when(event.getRegion()).thenReturn(region);
     return event;
   }

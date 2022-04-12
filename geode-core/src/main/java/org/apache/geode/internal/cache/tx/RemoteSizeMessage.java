@@ -80,8 +80,8 @@ public class RemoteSizeMessage extends RemoteOperationMessage {
    */
   public static SizeResponse send(DistributedMember distributedMember, InternalRegion r) {
     Assert.assertTrue(distributedMember != null, "RemoteSizeMessage NULL recipients set");
-    SizeResponse p = new SizeResponse(r.getSystem(), distributedMember);
-    RemoteSizeMessage m = new RemoteSizeMessage(distributedMember, r.getFullPath(), p);
+    var p = new SizeResponse(r.getSystem(), distributedMember);
+    var m = new RemoteSizeMessage(distributedMember, r.getFullPath(), p);
     r.getDistributionManager().putOutgoing(m);
     return p;
   }
@@ -94,7 +94,7 @@ public class RemoteSizeMessage extends RemoteOperationMessage {
   @Override
   protected boolean operateOnRegion(ClusterDistributionManager dm, LocalRegion r, long startTime)
       throws RemoteOperationException {
-    int size = r.size();
+    var size = r.size();
     SizeReplyMessage.send(getSender(), getProcessorId(), dm, size);
     return false;
   }
@@ -146,7 +146,7 @@ public class RemoteSizeMessage extends RemoteOperationMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, int size) {
       Assert.assertTrue(recipient != null, "SizeReplyMessage NULL reply message");
-      SizeReplyMessage m = new SizeReplyMessage(processorId, size);
+      var m = new SizeReplyMessage(processorId, size);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -158,7 +158,7 @@ public class RemoteSizeMessage extends RemoteOperationMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "{}: process invoking reply processor with processorId: {}", processorId);
@@ -231,7 +231,7 @@ public class RemoteSizeMessage extends RemoteOperationMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof SizeReplyMessage) {
-          SizeReplyMessage reply = (SizeReplyMessage) msg;
+          var reply = (SizeReplyMessage) msg;
           returnValue = reply.getSize();
         }
       } finally {
@@ -246,7 +246,7 @@ public class RemoteSizeMessage extends RemoteOperationMessage {
       try {
         waitForRepliesUninterruptibly();
       } catch (ReplyException e) {
-        Throwable cause = e.getCause();
+        var cause = e.getCause();
         if (cause instanceof RegionDestroyedException) {
           throw (RegionDestroyedException) cause;
         }

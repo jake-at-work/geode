@@ -26,7 +26,6 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
@@ -44,7 +43,7 @@ public class GetDeliveredOrders implements Function {
   public void execute(FunctionContext context) {
 
     Cache c = null;
-    ArrayList<Object> vals = new ArrayList<>();
+    var vals = new ArrayList<Object>();
     try {
       c = CacheFactory.getAnyInstance();
     } catch (CacheClosedException ex) {
@@ -52,18 +51,18 @@ public class GetDeliveredOrders implements Function {
       context.getResultSender().lastResult(vals);
     }
 
-    String oql =
+    var oql =
         "SELECT o.purchaseOrderNo, o.deliveryDate  FROM " + SEPARATOR
             + "orders o WHERE o.deliveryDate != NULL";
-    final Query query = c.getQueryService().newQuery(oql);
+    final var query = c.getQueryService().newQuery(oql);
 
     SelectResults result = null;
     try {
       result = (SelectResults) query.execute();
-      int resultSize = result.size();
+      var resultSize = result.size();
 
       if (result instanceof Collection<?>) {
-        for (Object item : result) {
+        for (var item : result) {
           vals.add(item);
         }
       }

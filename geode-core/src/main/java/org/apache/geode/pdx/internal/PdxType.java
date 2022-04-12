@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.tier.sockets.OldClientSupportService;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.StaticSerialization;
 import org.apache.geode.pdx.PdxFieldAlreadyExistsException;
@@ -78,7 +77,7 @@ public class PdxType implements DataSerializable {
     className = copy.className;
     noDomainClass = copy.noDomainClass;
     vlfCount = copy.vlfCount;
-    for (PdxField ft : copy.fields) {
+    for (var ft : copy.fields) {
       addField(ft);
     }
   }
@@ -87,7 +86,7 @@ public class PdxType implements DataSerializable {
   private static final byte HAS_DELETED_FIELD_BIT = 2;
 
   private void swizzleGemFireClassNames() {
-    OldClientSupportService svc = InternalDataSerializer.getOldClientSupportService();
+    var svc = InternalDataSerializer.getOldClientSupportService();
     if (svc != null) {
       className = svc.processIncomingClassName(className);
     }
@@ -98,7 +97,7 @@ public class PdxType implements DataSerializable {
     className = DataSerializer.readString(in);
     swizzleGemFireClassNames();
     {
-      byte bits = in.readByte();
+      var bits = in.readByte();
       noDomainClass = (bits & NO_DOMAIN_CLASS_BIT) != 0;
       hasDeletedField = (bits & HAS_DELETED_FIELD_BIT) != 0;
     }
@@ -106,10 +105,10 @@ public class PdxType implements DataSerializable {
     typeId = in.readInt();
     vlfCount = in.readInt();
 
-    int arrayLen = InternalDataSerializer.readArrayLength(in);
+    var arrayLen = InternalDataSerializer.readArrayLength(in);
 
-    for (int i = 0; i < arrayLen; i++) {
-      PdxField vft = new PdxField();
+    for (var i = 0; i < arrayLen; i++) {
+      var vft = new PdxField();
       vft.fromData(in);
       addField(vft);
     }
@@ -134,7 +133,7 @@ public class PdxType implements DataSerializable {
       // to set noDomainClass to true.
       // For this reason the pdx delete-field command should only be used after
       // all member have been upgraded to 8.1 or later.
-      KnownVersion sourceVersion = StaticSerialization.getVersionForDataStream(out);
+      var sourceVersion = StaticSerialization.getVersionForDataStream(out);
       if (sourceVersion.isNotOlderThan(KnownVersion.GFE_81)) {
         if (hasDeletedField) {
           bits |= HAS_DELETED_FIELD_BIT;
@@ -148,7 +147,7 @@ public class PdxType implements DataSerializable {
 
     InternalDataSerializer.writeArrayLength(fields.size(), out);
 
-    for (PdxField vft : fields) {
+    for (var vft : fields) {
 
       vft.toData(out);
     }
@@ -156,11 +155,11 @@ public class PdxType implements DataSerializable {
 
   @Override
   public int hashCode() {
-    int hash = cachedHash;
+    var hash = cachedHash;
     if (hash == 0) {
       hash = 1;
       hash = hash * 31 + className.hashCode();
-      for (PdxField field : fields) {
+      for (var field : fields) {
         hash = hash * 31 + field.hashCode();
       }
       if (hash == 0) {
@@ -180,7 +179,7 @@ public class PdxType implements DataSerializable {
       return false;
     }
     // Note: do not compare type id in equals
-    PdxType otherVT = (PdxType) other;
+    var otherVT = (PdxType) other;
     if (!(className.equals(otherVT.className))) {
       return false;
     }
@@ -190,7 +189,7 @@ public class PdxType implements DataSerializable {
     if (otherVT.fields.size() != fields.size() || otherVT.vlfCount != vlfCount) {
       return false;
     }
-    for (int i = 0; i < fields.size(); i++) {
+    for (var i = 0; i < fields.size(); i++) {
       if (!fields.get(i).equals(otherVT.fields.get(i))) {
         return false;
       }
@@ -214,8 +213,8 @@ public class PdxType implements DataSerializable {
       return false;
     }
 
-    Collection<PdxField> myFields = getSortedFields();
-    Collection<PdxField> otherFields = other.getSortedFields();
+    var myFields = getSortedFields();
+    var otherFields = other.getSortedFields();
 
     return myFields.equals(otherFields);
   }
@@ -270,11 +269,11 @@ public class PdxType implements DataSerializable {
 
   public void initialize(PdxWriterImpl writer) {
     vlfCount = writer.getVlfCount();
-    int size = fields.size();
-    int fixedLenFieldOffset = 0;
-    boolean seenVariableLenType = false;
-    for (int i = 0; i < size; i++) {
-      PdxField vft = fields.get(i);
+    var size = fields.size();
+    var fixedLenFieldOffset = 0;
+    var seenVariableLenType = false;
+    for (var i = 0; i < size; i++) {
+      var vft = fields.get(i);
       // System.out.println(i + ": " + vft);
       if (vft.isVariableLengthType()) {
         if (seenVariableLenType) {
@@ -286,8 +285,8 @@ public class PdxType implements DataSerializable {
         seenVariableLenType = true;
       } else if (seenVariableLenType) {
         PdxField tmp = null;
-        int minusOffset = vft.getFieldType().getWidth();
-        for (int j = (i + 1); j < size; j++) {
+        var minusOffset = vft.getFieldType().getWidth();
+        for (var j = (i + 1); j < size; j++) {
           tmp = fields.get(j);
           if (tmp.isVariableLengthType()) {
             break;
@@ -317,7 +316,7 @@ public class PdxType implements DataSerializable {
   }
 
   public PdxField getPdxField(String fieldName) {
-    PdxField result = fieldsMap.get(fieldName);
+    var result = fieldsMap.get(fieldName);
     if (result != null && result.isDeleted()) {
       result = null;
     }
@@ -340,8 +339,8 @@ public class PdxType implements DataSerializable {
     if (!getHasDeletedField()) {
       return 0;
     }
-    int result = fields.size();
-    for (PdxField f : fields) {
+    var result = fields.size();
+    for (var f : fields) {
       if (f.isDeleted()) {
         result--;
       }
@@ -350,12 +349,12 @@ public class PdxType implements DataSerializable {
   }
 
   public String toFormattedString() {
-    StringBuilder sb = new StringBuilder("PdxType[");
+    var sb = new StringBuilder("PdxType[");
     sb.append("dsid=").append(getDSId());
     sb.append(", typenum=").append(getTypeNum());
     sb.append("\n        name=").append(className);
     sb.append("\n        fields=[");
-    for (PdxField vft : fields) {
+    for (var vft : fields) {
       sb.append("\n        ");
       sb.append(/* vft.getFieldName() + ":" + vft.getTypeId() */ vft.toString());
     }
@@ -364,12 +363,12 @@ public class PdxType implements DataSerializable {
   }
 
   public String toString() {
-    StringBuilder sb = new StringBuilder("PdxType[");
+    var sb = new StringBuilder("PdxType[");
     sb.append("dsid=").append(getDSId());
     sb.append(",typenum=").append(getTypeNum());
     sb.append(",name=").append(className);
     sb.append(",fields=[");
-    for (PdxField vft : fields) {
+    for (var vft : fields) {
       sb.append(/* vft.getFieldName() + ":" + vft.getTypeId() */ vft.toString()).append(", ");
     }
     sb.append("]]");
@@ -382,8 +381,8 @@ public class PdxType implements DataSerializable {
    * @return a List of fields that have not been read (may be empty).
    */
   public List<Integer> getUnreadFieldIndexes(List<String> readFields) {
-    ArrayList<Integer> result = new ArrayList<>();
-    for (PdxField ft : fields) {
+    var result = new ArrayList<Integer>();
+    for (var ft : fields) {
       if (!ft.isDeleted() && !readFields.contains(ft.getFieldName())) {
         result.add(ft.getFieldIndex());
       }
@@ -398,7 +397,7 @@ public class PdxType implements DataSerializable {
    * @return true if the this type has a field that the other type does not have.
    */
   public boolean hasExtraFields(PdxType other) {
-    for (PdxField ft : fields) {
+    for (var ft : fields) {
       if (!ft.isDeleted() && other.getPdxField(ft.getFieldName()) == null) {
         return true;
       }
@@ -409,15 +408,15 @@ public class PdxType implements DataSerializable {
   // Result does not include deleted fields
   public SortedSet<PdxField> getSortedIdentityFields() {
     if (sortedIdentityFields == null) {
-      TreeSet<PdxField> sortedSet = new TreeSet<>();
-      for (PdxField field : fields) {
+      var sortedSet = new TreeSet<PdxField>();
+      for (var field : fields) {
         if (field.isIdentityField() && !field.isDeleted()) {
           sortedSet.add(field);
         }
       }
       // If we don't find any marked identity fields, use all of the fields.
       if (sortedSet.isEmpty()) {
-        for (PdxField field : fields) {
+        for (var field : fields) {
           if (!field.isDeleted()) {
             sortedSet.add(field);
           }
@@ -430,8 +429,8 @@ public class PdxType implements DataSerializable {
 
   // Result does not include deleted fields
   public Collection<PdxField> getSortedFields() {
-    TreeSet<PdxField> sortedSet = new TreeSet<>();
-    for (PdxField pf : fields) {
+    var sortedSet = new TreeSet<PdxField>();
+    for (var pf : fields) {
       if (!pf.isDeleted()) {
         sortedSet.add(pf);
       }
@@ -441,8 +440,8 @@ public class PdxType implements DataSerializable {
 
   // Result does not include deleted fields
   public List<String> getFieldNames() {
-    ArrayList<String> result = new ArrayList<>(fields.size());
-    for (PdxField f : fields) {
+    var result = new ArrayList<String>(fields.size());
+    for (var f : fields) {
       if (!f.isDeleted()) {
         result.add(f.getFieldName());
       }
@@ -461,9 +460,9 @@ public class PdxType implements DataSerializable {
   }
 
   public AutoClassInfo getAutoInfo(Class<?> c) {
-    AutoClassInfo ci = autoClassInfo.get();
+    var ci = autoClassInfo.get();
     if (ci != null) {
-      Class<?> lastClassAutoSerialized = ci.getInfoClass();
+      var lastClassAutoSerialized = ci.getInfoClass();
       if (c.equals(lastClassAutoSerialized)) {
         return ci;
       } else {
@@ -487,7 +486,7 @@ public class PdxType implements DataSerializable {
     }
     printStream.println();
     if (printFields) {
-      for (PdxField field : fields) {
+      for (var field : fields) {
         field.toStream(printStream);
       }
     }

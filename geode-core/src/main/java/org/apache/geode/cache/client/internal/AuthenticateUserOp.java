@@ -33,7 +33,6 @@ import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Handshake;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.command.PutUserCredentials;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -129,12 +128,12 @@ public class AuthenticateUserOp {
       if (securityProperties == null) {
         securityProperties = getConnectedSystem().getSecurityProperties();
       }
-      byte[] credentialBytes = getCredentialBytes(connection, securityProperties);
+      var credentialBytes = getCredentialBytes(connection, securityProperties);
       getMessage().addBytesPart(credentialBytes);
 
-      try (HeapDataOutputStream hdos = new HeapDataOutputStream(16, KnownVersion.CURRENT)) {
+      try (var hdos = new HeapDataOutputStream(16, KnownVersion.CURRENT)) {
         hdos.writeLong(connection.getConnectionID());
-        long userId = getUserId(connection);
+        var userId = getUserId(connection);
         secureLogger.debug("AuthenticateUserOp with uniqueId {}", userId);
         hdos.writeLong(userId);
         getMessage().setSecurePart(((ConnectionImpl) connection).encryptBytes(hdos.toByteArray()));
@@ -148,7 +147,7 @@ public class AuthenticateUserOp {
         return connection.getServer().getUserId();
       }
       // multi user mode
-      Long id = UserAttributes.userAttributes.get().getServerToId().get(connection.getServer());
+      var id = UserAttributes.userAttributes.get().getServerToId().get(connection.getServer());
       if (id == null) {
         return NOT_A_USER_ID;
       }
@@ -161,18 +160,18 @@ public class AuthenticateUserOp {
 
     protected byte[] getCredentialBytes(Connection connection, Properties securityProperties)
         throws Exception {
-      InternalDistributedSystem distributedSystem = getConnectedSystem();
+      var distributedSystem = getConnectedSystem();
       DistributedMember server =
           new InternalDistributedMember(connection.getSocket().getInetAddress(),
               connection.getSocket().getPort(), false);
-      String authInitMethod =
+      var authInitMethod =
           distributedSystem.getProperties().getProperty(SECURITY_CLIENT_AUTH_INIT);
 
-      Properties credentials = Handshake.getCredentials(authInitMethod, securityProperties,
+      var credentials = Handshake.getCredentials(authInitMethod, securityProperties,
           server, false, distributedSystem.getLogWriter(),
           distributedSystem.getSecurityLogWriter());
       byte[] credentialBytes;
-      try (HeapDataOutputStream heapdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+      try (var heapdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
         DataSerializer.writeProperties(credentials, heapdos);
         credentialBytes = ((ConnectionImpl) connection).encryptBytes(heapdos.toByteArray());
       }
@@ -210,8 +209,8 @@ public class AuthenticateUserOp {
     protected Object processResponse(final @NotNull Message msg,
         final @NotNull Connection connection) throws Exception {
       byte[] bytes;
-      Part part = msg.getPart(0);
-      final int msgType = msg.getMessageType();
+      var part = msg.getPart(0);
+      final var msgType = msg.getMessageType();
       long userId = -1;
       if (msgType == MessageType.RESPONSE) {
         bytes = (byte[]) part.getObject();
@@ -219,8 +218,8 @@ public class AuthenticateUserOp {
           connection.getServer().setRequiresCredentials(false);
         } else {
           connection.getServer().setRequiresCredentials(true);
-          byte[] decrypted = ((ConnectionImpl) connection).decryptBytes(bytes);
-          try (ByteArrayDataInput dis = new ByteArrayDataInput(decrypted)) {
+          var decrypted = ((ConnectionImpl) connection).decryptBytes(bytes);
+          try (var dis = new ByteArrayDataInput(decrypted)) {
             userId = dis.readLong();
           }
         }
@@ -230,10 +229,10 @@ public class AuthenticateUserOp {
           return userId;
         }
       } else if (msgType == MessageType.EXCEPTION) {
-        Object result = part.getObject();
-        String s = "While performing a remote authenticate";
+        var result = part.getObject();
+        var s = "While performing a remote authenticate";
         if (result instanceof AuthenticationFailedException) {
-          final AuthenticationFailedException afe = (AuthenticationFailedException) result;
+          final var afe = (AuthenticationFailedException) result;
           if ("REPLY_REFUSED".equals(afe.getMessage())) {
             throw new AuthenticationFailedException(s, afe.getCause());
           } else {

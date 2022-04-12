@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.URLEncoder;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -77,7 +76,7 @@ public class RestSecurityPostProcessorTest {
   @Test
   public void getRegionKey() throws Exception {
     // Test a single key
-    JsonNode jsonNode =
+    var jsonNode =
         assertResponse(restClient.doGet("/customers/1", "dataReader", "1234567"))
             .hasStatusCode(200)
             .hasContentType(APPLICATION_JSON_UTF8_VALUE)
@@ -99,16 +98,16 @@ public class RestSecurityPostProcessorTest {
   // Test multiple keys
   @Test
   public void getMultipleRegionKeys() throws Exception {
-    JsonNode jsonNode =
+    var jsonNode =
         assertResponse(restClient.doGet("/customers/1,3", "dataReader", "1234567"))
             .hasStatusCode(200)
             .hasContentType(APPLICATION_JSON_UTF8_VALUE)
             .getJsonObject();
 
-    JsonNode customers = jsonNode.get("customers");
-    final int length = customers.size();
+    var customers = jsonNode.get("customers");
+    final var length = customers.size();
     assertEquals(2, length);
-    JsonNode customer = customers.get(0);
+    var customer = customers.get(0);
     assertEquals("*********", customer.get("ssn").asText());
     assertEquals(1, customer.get("id").asLong());
     customer = customers.get(1);
@@ -118,15 +117,15 @@ public class RestSecurityPostProcessorTest {
 
   @Test
   public void getRegion() throws Exception {
-    JsonNode jsonNode = assertResponse(restClient.doGet("/customers", "dataReader", "1234567"))
+    var jsonNode = assertResponse(restClient.doGet("/customers", "dataReader", "1234567"))
         .hasStatusCode(200)
         .hasContentType(APPLICATION_JSON_UTF8_VALUE)
         .getJsonObject();
 
-    JsonNode customers = jsonNode.get("customers");
-    final int length = customers.size();
-    for (int index = 0; index < length; ++index) {
-      JsonNode customer = customers.get(index);
+    var customers = jsonNode.get("customers");
+    final var length = customers.size();
+    for (var index = 0; index < length; ++index) {
+      var customer = customers.get(index);
       assertEquals("*********", customer.get("ssn").asText());
       assertEquals((long) index + 1, customer.get("id").asLong());
     }
@@ -134,17 +133,17 @@ public class RestSecurityPostProcessorTest {
 
   @Test
   public void adhocQuery() throws Exception {
-    String query = "/queries/adhoc?q="
+    var query = "/queries/adhoc?q="
         + URLEncoder.encode("SELECT * FROM " + SEPARATOR + "customers order by customerId",
             "UTF-8");
-    JsonNode jsonArray = assertResponse(restClient.doGet(query, "dataReader", "1234567"))
+    var jsonArray = assertResponse(restClient.doGet(query, "dataReader", "1234567"))
         .hasStatusCode(200)
         .hasContentType(APPLICATION_JSON_UTF8_VALUE)
         .getJsonObject();
 
-    final int length = jsonArray.size();
-    for (int index = 0; index < length; ++index) {
-      JsonNode customer = jsonArray.get(index);
+    final var length = jsonArray.size();
+    for (var index = 0; index < length; ++index) {
+      var customer = jsonArray.get(index);
       assertEquals("*********", customer.get("ssn").asText());
       assertEquals((long) index + 1, customer.get("id").asLong());
     }
@@ -153,7 +152,7 @@ public class RestSecurityPostProcessorTest {
   @Test
   public void namedQuery() throws Exception {
     // Declare the named query
-    String namedQuery = "SELECT c FROM " + SEPARATOR + "customers c WHERE c.customerId = $1";
+    var namedQuery = "SELECT c FROM " + SEPARATOR + "customers c WHERE c.customerId = $1";
 
     // Install the named query
     assertResponse(
@@ -162,20 +161,20 @@ public class RestSecurityPostProcessorTest {
                 .hasStatusCode(201);
 
     // Verify the query has been installed
-    String query = "/queries";
+    var query = "/queries";
     assertResponse(restClient.doGet(query, "dataReader", "1234567"))
         .hasStatusCode(200)
         .hasContentType(APPLICATION_JSON_UTF8_VALUE);
 
     // Execute the query
-    JsonNode jsonArray =
+    var jsonArray =
         assertResponse(restClient.doPost("/queries/selectCustomer", "dataReader", "1234567",
             "{" + "\"@type\": \"int\"," + "\"@value\": 1" + "}"))
                 .hasStatusCode(200)
                 .getJsonObject();
 
     assertEquals(1, jsonArray.size());
-    JsonNode customer = jsonArray.get(0);
+    var customer = jsonArray.get(0);
     assertEquals("*********", customer.get("ssn").asText());
     assertEquals(1L, customer.get("id").asLong());
   }

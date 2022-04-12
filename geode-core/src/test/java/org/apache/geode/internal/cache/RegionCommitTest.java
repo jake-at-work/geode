@@ -36,7 +36,7 @@ public class RegionCommitTest {
   public void setUp() {
     path = "path";
 
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
 
     dm = mock(ClusterDistributionManager.class);
     region = mock(LocalRegion.class);
@@ -49,7 +49,7 @@ public class RegionCommitTest {
 
   @Test
   public void getsRegionFromCacheFromDM() {
-    RegionCommit regionCommit = new RegionCommit(txCommitMessage);
+    var regionCommit = new RegionCommit(txCommitMessage);
     assertThat(regionCommit.getRegionByPath(dm, path)).isEqualTo(region);
   }
 }

@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,8 +30,6 @@ import org.junit.Test;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionInvocationTargetException;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.compiler.JarBuilder;
@@ -62,17 +59,17 @@ public class ClusterConfigServerRestartWithJarDeployDUnitTest {
         .addIgnoredException("member unexpectedly shut down shared, unordered connection");
     IgnoredException.addIgnoredException("Connection refused");
 
-    MemberVM locator0 = rule.startLocatorVM(0);
+    var locator0 = rule.startLocatorVM(0);
     gfsh.connectAndVerify(locator0);
 
     gfsh.executeAndAssertThat(
         "configure pdx --read-serialized=true --auto-serializable-classes=ClusterConfigServerRestartWithJarDeployFunction.*");
 
-    Properties props = new Properties();
-    MemberVM server1 = rule.startServerVM(1, props, locator0.getPort());
-    MemberVM server2 = rule.startServerVM(2, props, locator0.getPort());
+    var props = new Properties();
+    var server1 = rule.startServerVM(1, props, locator0.getPort());
+    var server2 = rule.startServerVM(2, props, locator0.getPort());
 
-    File functionJar = getFunctionJar();
+    var functionJar = getFunctionJar();
     gfsh.executeAndAssertThat("deploy --jar=" + functionJar.getAbsolutePath()).statusIsSuccess();
 
     callFunction(server1);
@@ -85,13 +82,13 @@ public class ClusterConfigServerRestartWithJarDeployDUnitTest {
   }
 
   private File getFunctionJar() throws IOException {
-    JarBuilder jarBuilder = new JarBuilder();
-    String filePath =
+    var jarBuilder = new JarBuilder();
+    var filePath =
         createTempFileFromResource(getClass(),
             "/ClusterConfigServerRestartWithJarDeployFunction.java").getAbsolutePath();
     assertThat(filePath).as("java file resource not found").isNotBlank();
 
-    File functionJar = new File(temporaryFolder.newFolder(), "output.jar");
+    var functionJar = new File(temporaryFolder.newFolder(), "output.jar");
     jarBuilder.buildJar(functionJar, new File(filePath));
 
     return functionJar;
@@ -101,21 +98,21 @@ public class ClusterConfigServerRestartWithJarDeployDUnitTest {
     member.invoke(() -> {
       while (true) {
         try {
-          Set<InternalDistributedMember> others =
+          var others =
               ClusterStartupRule.getCache().getDistributionManager()
                   .getOtherNormalDistributionManagerIds();
-          InternalDistributedMember otherMember = others.stream().findFirst().get();
+          var otherMember = others.stream().findFirst().get();
 
-          Class<?> studentClass = ClassPathLoader.getLatest()
+          var studentClass = ClassPathLoader.getLatest()
               .forName("ClusterConfigServerRestartWithJarDeployFunction$Student");
 
-          Object student = studentClass.getConstructor().newInstance();
+          var student = studentClass.getConstructor().newInstance();
 
-          ResultCollector collector = FunctionService.onMember(otherMember)
+          var collector = FunctionService.onMember(otherMember)
               .setArguments(student)
               .execute("student-function");
 
-          List<Object> results = (List<Object>) collector.getResult();
+          var results = (List<Object>) collector.getResult();
           break;
         } catch (FunctionException fex) {
           if (fex.getCause() instanceof FunctionInvocationTargetException) {

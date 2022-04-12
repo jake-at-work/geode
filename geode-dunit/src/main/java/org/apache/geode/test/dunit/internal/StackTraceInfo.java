@@ -18,8 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 
 class StackTraceInfo implements Serializable {
 
@@ -27,14 +25,14 @@ class StackTraceInfo implements Serializable {
   private final StackTraceElement[] stackTraceElements;
 
   static StackTraceInfo create(int vmId, long threadId) {
-    long[] threadIds = new long[] {threadId};
+    var threadIds = new long[] {threadId};
 
-    ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-    ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadIds, true, true);
+    var threadMXBean = ManagementFactory.getThreadMXBean();
+    var threadInfos = threadMXBean.getThreadInfo(threadIds, true, true);
 
     assertThat(threadInfos).hasSize(1);
 
-    String message = "Stack trace for vm-" + vmId + " thread-" + threadId;
+    var message = "Stack trace for vm-" + vmId + " thread-" + threadId;
     return new StackTraceInfo(message, threadInfos[0].getStackTrace());
   }
 

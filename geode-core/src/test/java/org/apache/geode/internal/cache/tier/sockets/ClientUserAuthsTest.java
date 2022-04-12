@@ -44,17 +44,17 @@ class ClientUserAuthsTest {
 
     @Test
     void associatesUserAuthWithGeneratedId() {
-      ClientUserAuths auths = new ClientUserAuths(idGenerator);
+      var auths = new ClientUserAuths(idGenerator);
 
-      long idFromGenerator = -234950983L;
+      var idFromGenerator = -234950983L;
       when(idGenerator.generateId())
           .thenReturn(OptionalLong.of(idFromGenerator));
 
-      UserAuthAttributes userAuth = mock(UserAuthAttributes.class);
+      var userAuth = mock(UserAuthAttributes.class);
 
       long returnedId = auths.putUserAuth(userAuth);
 
-      UserAuthAttributes userAuthWithGeneratedId = auths.getUserAuthAttributes(idFromGenerator);
+      var userAuthWithGeneratedId = auths.getUserAuthAttributes(idFromGenerator);
       assertThat(userAuthWithGeneratedId)
           .as("user auth with generated ID")
           .isSameAs(userAuth);
@@ -66,9 +66,9 @@ class ClientUserAuthsTest {
 
     @Test
     void associatesUserAuthWithFirstAssignableGeneratedIdIfInitialIdsNotAssignable() {
-      ClientUserAuths auths = new ClientUserAuths(idGenerator);
+      var auths = new ClientUserAuths(idGenerator);
 
-      long nextAssignableIdFromGenerator = -9341L;
+      var nextAssignableIdFromGenerator = -9341L;
       when(idGenerator.generateId())
           .thenReturn(OptionalLong.of(0L)) // 0 requests a generated ID, so we must not assign it.
           .thenReturn(OptionalLong.of(0L))
@@ -77,11 +77,11 @@ class ClientUserAuthsTest {
           .thenReturn(OptionalLong.of(0L))
           .thenReturn(OptionalLong.of(nextAssignableIdFromGenerator));
 
-      UserAuthAttributes userAuth = mock(UserAuthAttributes.class);
+      var userAuth = mock(UserAuthAttributes.class);
 
       long returnedId = auths.putUserAuth(userAuth);
 
-      UserAuthAttributes userAuthWithGeneratedId =
+      var userAuthWithGeneratedId =
           auths.getUserAuthAttributes(nextAssignableIdFromGenerator);
       assertThat(userAuthWithGeneratedId)
           .as("user auth with generated ID")
@@ -94,12 +94,12 @@ class ClientUserAuthsTest {
 
     @Test
     void associatesUserAuthWithFirstAssignableGeneratedIdIfGeneratorExhausted() {
-      ClientUserAuths auths = new ClientUserAuths(idGenerator);
+      var auths = new ClientUserAuths(idGenerator);
 
       // The generator returns an empty optional to indicate that it has run out of unique IDs,
       // and that subsequent IDs will include previously-generated values.
-      OptionalLong uniqueIdsExhausted = OptionalLong.empty();
-      long nextAssignableIdFromGenerator = -9341L;
+      var uniqueIdsExhausted = OptionalLong.empty();
+      var nextAssignableIdFromGenerator = -9341L;
       when(idGenerator.generateId())
           .thenReturn(uniqueIdsExhausted)
           .thenReturn(OptionalLong.of(0)) // Non-assignable
@@ -108,11 +108,11 @@ class ClientUserAuthsTest {
           .thenReturn(OptionalLong.of(0)) // Non-assignable
           .thenReturn(OptionalLong.of(nextAssignableIdFromGenerator));
 
-      UserAuthAttributes userAuth = mock(UserAuthAttributes.class);
+      var userAuth = mock(UserAuthAttributes.class);
 
       long returnedId = auths.putUserAuth(userAuth);
 
-      UserAuthAttributes userAuthWithGeneratedId =
+      var userAuthWithGeneratedId =
           auths.getUserAuthAttributes(nextAssignableIdFromGenerator);
       assertThat(userAuthWithGeneratedId)
           .as("user auth with generated ID")
@@ -125,15 +125,15 @@ class ClientUserAuthsTest {
 
     @Test
     void removesExistingUserAuthsIfGeneratorExhausted() {
-      ClientUserAuths auths = new ClientUserAuths(idGenerator);
+      var auths = new ClientUserAuths(idGenerator);
 
       // The generator returns an empty optional to indicate that it has run out of unique IDs,
       // and that subsequent IDs will include previously-generated values.
-      OptionalLong uniqueIdsExhausted = OptionalLong.empty();
-      long userAuthId1 = 34L;
-      long userAuthId2 = -563L;
-      long userAuthId3 = 777L;
-      long firstPostExhaustionIdFromGenerator = -9341L;
+      var uniqueIdsExhausted = OptionalLong.empty();
+      var userAuthId1 = 34L;
+      var userAuthId2 = -563L;
+      var userAuthId3 = 777L;
+      var firstPostExhaustionIdFromGenerator = -9341L;
       when(idGenerator.generateId())
           .thenReturn(OptionalLong.of(userAuthId1))
           .thenReturn(OptionalLong.of(userAuthId2))
@@ -142,14 +142,14 @@ class ClientUserAuthsTest {
           .thenReturn(OptionalLong.of(firstPostExhaustionIdFromGenerator));
 
       // Given some existing user auths
-      UserAuthAttributes existingUserAuth1 = mock(UserAuthAttributes.class, "existing auth 1");
+      var existingUserAuth1 = mock(UserAuthAttributes.class, "existing auth 1");
       auths.putUserAuth(existingUserAuth1); // Gets userAuthId1
-      UserAuthAttributes existingUserAuth2 = mock(UserAuthAttributes.class, "existing auth 2");
+      var existingUserAuth2 = mock(UserAuthAttributes.class, "existing auth 2");
       auths.putUserAuth(existingUserAuth2); // Gets userAuthId2
-      UserAuthAttributes existingUserAuth3 = mock(UserAuthAttributes.class, "existing auth 3");
+      var existingUserAuth3 = mock(UserAuthAttributes.class, "existing auth 3");
       auths.putUserAuth(existingUserAuth3); // Gets userAuthId3
 
-      UserAuthAttributes newAuth = mock(UserAuthAttributes.class);
+      var newAuth = mock(UserAuthAttributes.class);
 
       long returnedId = auths.putUserAuth(newAuth);
 
@@ -163,7 +163,7 @@ class ClientUserAuthsTest {
           .as("user auth with ID %d", userAuthId3)
           .isNull();
 
-      UserAuthAttributes userAuthWithGeneratedId =
+      var userAuthWithGeneratedId =
           auths.getUserAuthAttributes(firstPostExhaustionIdFromGenerator);
       assertThat(userAuthWithGeneratedId)
           .as("user auth with generated ID")
@@ -185,17 +185,17 @@ class ClientUserAuthsTest {
     @ParameterizedTest(name = "{displayName} givenId={0}")
     @ValueSource(longs = {0L, -1L})
     void associatesSubjectWithGeneratedId(long givenId) {
-      ClientUserAuths auths = new ClientUserAuths(idGenerator);
+      var auths = new ClientUserAuths(idGenerator);
 
-      long idFromGenerator = -234950983L;
+      var idFromGenerator = -234950983L;
       when(idGenerator.generateId())
           .thenReturn(OptionalLong.of(idFromGenerator));
 
-      Subject subject = mock(Subject.class);
+      var subject = mock(Subject.class);
 
-      long returnedId = auths.putSubject(subject, givenId);
+      var returnedId = auths.putSubject(subject, givenId);
 
-      Subject subjectWithGeneratedId = auths.getSubject(idFromGenerator);
+      var subjectWithGeneratedId = auths.getSubject(idFromGenerator);
       assertThat(subjectWithGeneratedId)
           .as("subject with generated ID")
           .isSameAs(subject);
@@ -204,7 +204,7 @@ class ClientUserAuthsTest {
           .as("returned ID")
           .isEqualTo(idFromGenerator);
 
-      Subject subjectWithGivenId = auths.getSubject(givenId);
+      var subjectWithGivenId = auths.getSubject(givenId);
       assertThat(subjectWithGivenId)
           .as("subject with given ID")
           .isNull();
@@ -215,9 +215,9 @@ class ClientUserAuthsTest {
     @ParameterizedTest(name = "{displayName} givenId={0}")
     @ValueSource(longs = {0L, -1L})
     void associatesSubjectWithFirstAssignableGeneratedIdIfInitialIdsNotAssignable(long givenId) {
-      ClientUserAuths auths = new ClientUserAuths(idGenerator);
+      var auths = new ClientUserAuths(idGenerator);
 
-      long nextAssignableIdFromGenerator = -9341L;
+      var nextAssignableIdFromGenerator = -9341L;
       when(idGenerator.generateId())
           .thenReturn(OptionalLong.of(0L)) // 0 requests a generated ID, so we must not assign it.
           .thenReturn(OptionalLong.of(0L))
@@ -226,11 +226,11 @@ class ClientUserAuthsTest {
           .thenReturn(OptionalLong.of(0L))
           .thenReturn(OptionalLong.of(nextAssignableIdFromGenerator));
 
-      Subject subject = mock(Subject.class);
+      var subject = mock(Subject.class);
 
-      long returnedId = auths.putSubject(subject, givenId);
+      var returnedId = auths.putSubject(subject, givenId);
 
-      Subject subjectWithSecondGeneratedId = auths.getSubject(nextAssignableIdFromGenerator);
+      var subjectWithSecondGeneratedId = auths.getSubject(nextAssignableIdFromGenerator);
       assertThat(subjectWithSecondGeneratedId)
           .as("subject with second generated ID")
           .isSameAs(subject);
@@ -239,7 +239,7 @@ class ClientUserAuthsTest {
           .as("returned ID")
           .isEqualTo(nextAssignableIdFromGenerator);
 
-      Subject subjectWithGivenId = auths.getSubject(givenId);
+      var subjectWithGivenId = auths.getSubject(givenId);
       assertThat(subjectWithGivenId)
           .as("subject with given ID")
           .isNull();
@@ -250,12 +250,12 @@ class ClientUserAuthsTest {
     @ParameterizedTest(name = "{displayName} givenId={0}")
     @ValueSource(longs = {0L, -1L})
     void associatesSubjectWithFirstAssignableGeneratedIdIfGeneratorExhausted(long givenId) {
-      ClientUserAuths auths = new ClientUserAuths(idGenerator);
+      var auths = new ClientUserAuths(idGenerator);
 
       // The generator returns an empty optional to indicate that it has run out of unique IDs,
       // and that subsequent IDs will include previously-generated values.
-      OptionalLong uniqueIdsExhausted = OptionalLong.empty();
-      long nextAssignableIdFromGenerator = -9341L;
+      var uniqueIdsExhausted = OptionalLong.empty();
+      var nextAssignableIdFromGenerator = -9341L;
       when(idGenerator.generateId())
           .thenReturn(uniqueIdsExhausted)
           .thenReturn(OptionalLong.of(0)) // Non-assignable
@@ -264,10 +264,10 @@ class ClientUserAuthsTest {
           .thenReturn(OptionalLong.of(0)) // Non-assignable
           .thenReturn(OptionalLong.of(nextAssignableIdFromGenerator));
 
-      Subject subject = mock(Subject.class);
-      long returnedId = auths.putSubject(subject, givenId);
+      var subject = mock(Subject.class);
+      var returnedId = auths.putSubject(subject, givenId);
 
-      Subject subjectWithGeneratedId = auths.getSubject(nextAssignableIdFromGenerator);
+      var subjectWithGeneratedId = auths.getSubject(nextAssignableIdFromGenerator);
       assertThat(subjectWithGeneratedId)
           .as("subject with generated ID")
           .isSameAs(subject);
@@ -276,7 +276,7 @@ class ClientUserAuthsTest {
           .as("returned ID")
           .isEqualTo(nextAssignableIdFromGenerator);
 
-      Subject subjectWithGivenId = auths.getSubject(givenId);
+      var subjectWithGivenId = auths.getSubject(givenId);
       assertThat(subjectWithGivenId)
           .as("subject with given ID")
           .isNull();
@@ -287,15 +287,15 @@ class ClientUserAuthsTest {
     @ParameterizedTest(name = "{displayName} givenId={0}")
     @ValueSource(longs = {0L, -1L})
     void removesExistingUserAuthorizationsIfGeneratorExhausted(long givenId) {
-      ClientUserAuths auths = new ClientUserAuths(idGenerator);
+      var auths = new ClientUserAuths(idGenerator);
 
       // The generator returns an empty optional to indicate that it has run out of unique IDs,
       // and that subsequent IDs will include previously-generated values.
-      OptionalLong uniqueIdsExhausted = OptionalLong.empty();
-      long userAuthId1 = 34L;
-      long userAuthId2 = -563L;
-      long userAuthId3 = 777L;
-      long firstPostExhaustionIdFromGenerator = -9341L;
+      var uniqueIdsExhausted = OptionalLong.empty();
+      var userAuthId1 = 34L;
+      var userAuthId2 = -563L;
+      var userAuthId3 = 777L;
+      var firstPostExhaustionIdFromGenerator = -9341L;
       when(idGenerator.generateId())
           .thenReturn(OptionalLong.of(userAuthId1))
           .thenReturn(OptionalLong.of(userAuthId2))
@@ -304,11 +304,11 @@ class ClientUserAuthsTest {
           .thenReturn(OptionalLong.of(firstPostExhaustionIdFromGenerator));
 
       // Given some existing user auths
-      UserAuthAttributes userAuth1 = mock(UserAuthAttributes.class, "user auth 1");
+      var userAuth1 = mock(UserAuthAttributes.class, "user auth 1");
       auths.putUserAuth(userAuth1); // Gets userAuthId1
-      UserAuthAttributes userAuth2 = mock(UserAuthAttributes.class, "user auth 2");
+      var userAuth2 = mock(UserAuthAttributes.class, "user auth 2");
       auths.putUserAuth(userAuth2); // Gets userAuthId2
-      UserAuthAttributes userAuth3 = mock(UserAuthAttributes.class, "user auth 3");
+      var userAuth3 = mock(UserAuthAttributes.class, "user auth 3");
       auths.putUserAuth(userAuth3); // Gets userAuthId3
 
       auths.putSubject(mock(Subject.class), givenId);
@@ -329,15 +329,15 @@ class ClientUserAuthsTest {
   class PutSubjectWithAssignableId {
     @Test
     void associatesSubjectWithGivenId() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
       // Neither 0 nor -1, and so gives the ID to associate with this subject
-      long givenId = 3L;
-      Subject subject = mock(Subject.class);
+      var givenId = 3L;
+      var subject = mock(Subject.class);
 
-      long returnedId = auths.putSubject(subject, givenId);
+      var returnedId = auths.putSubject(subject, givenId);
 
-      Subject subjectWithGivenId = auths.getSubject(givenId);
+      var subjectWithGivenId = auths.getSubject(givenId);
       assertThat(subjectWithGivenId)
           .as("subject with given ID")
           .isSameAs(subject);
@@ -349,9 +349,9 @@ class ClientUserAuthsTest {
 
     @Test
     void doesNotInteractWithAddedSubject() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      Subject subject = mock(Subject.class);
+      var subject = mock(Subject.class);
 
       auths.putSubject(subject, 674928374L);
 
@@ -360,15 +360,15 @@ class ClientUserAuthsTest {
 
     @Test
     void doesNotInteractWithCurrentlyTrackedSubjects() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      Subject firstSubjectWithGivenId = mock(Subject.class);
-      Subject secondSubjectWithGivenId = mock(Subject.class);
-      Subject thirdSubjectWithGivenId = mock(Subject.class);
-      Subject subjectWithOtherId1 = mock(Subject.class);
-      Subject subjectWithOtherId2 = mock(Subject.class);
+      var firstSubjectWithGivenId = mock(Subject.class);
+      var secondSubjectWithGivenId = mock(Subject.class);
+      var thirdSubjectWithGivenId = mock(Subject.class);
+      var subjectWithOtherId1 = mock(Subject.class);
+      var subjectWithOtherId2 = mock(Subject.class);
 
-      long givenId = 34149L;
+      var givenId = 34149L;
       auths.putSubject(firstSubjectWithGivenId, givenId);
       auths.putSubject(secondSubjectWithGivenId, givenId);
       auths.putSubject(thirdSubjectWithGivenId, givenId);
@@ -387,8 +387,8 @@ class ClientUserAuthsTest {
 
     @Test
     void doesNotConsumeAnId() {
-      SubjectIdGenerator idGenerator = mock(SubjectIdGenerator.class);
-      ClientUserAuths auths = new ClientUserAuths(idGenerator);
+      var idGenerator = mock(SubjectIdGenerator.class);
+      var auths = new ClientUserAuths(idGenerator);
 
       auths.putSubject(mock(Subject.class), 98374L);
 
@@ -400,9 +400,9 @@ class ClientUserAuthsTest {
   class GetSubjectById {
     @Test
     void returnsNullIfNoSubjectIsAssociatedWithId() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long subjectId = 9234L;
+      var subjectId = 9234L;
 
       auths.putSubject(mock(Subject.class), 92L); // Different ID #1
       auths.putSubject(mock(Subject.class), 923L); // Different ID #2
@@ -415,14 +415,14 @@ class ClientUserAuthsTest {
 
     @Test
     void returnsTheSubjectAssociatedWithId() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long subjectId = 238947L;
-      long differentId1 = 23894L;
-      long differentId2 = 2389L;
-      long differentId3 = 238L;
+      var subjectId = 238947L;
+      var differentId1 = 23894L;
+      var differentId2 = 2389L;
+      var differentId3 = 238L;
 
-      Subject subjectAssociatedWithId = mock(Subject.class);
+      var subjectAssociatedWithId = mock(Subject.class);
       auths.putSubject(subjectAssociatedWithId, subjectId);
 
       auths.putSubject(mock(Subject.class), differentId1);
@@ -435,9 +435,9 @@ class ClientUserAuthsTest {
 
     @Test
     void returnsTheSubjectMostRecentlyAssociatedWithId() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long subjectId = 927834L;
+      var subjectId = 927834L;
       auths.putSubject(mock(Subject.class), subjectId);
       auths.putSubject(mock(Subject.class), subjectId);
       auths.putSubject(mock(Subject.class), subjectId);
@@ -445,7 +445,7 @@ class ClientUserAuthsTest {
       auths.putSubject(mock(Subject.class), subjectId);
       auths.putSubject(mock(Subject.class), subjectId);
 
-      Subject mostRecentlyAddedWithSpecifiedId = mock(Subject.class);
+      var mostRecentlyAddedWithSpecifiedId = mock(Subject.class);
       auths.putSubject(mostRecentlyAddedWithSpecifiedId, subjectId);
 
       assertThat(auths.getSubject(subjectId))
@@ -457,9 +457,9 @@ class ClientUserAuthsTest {
   class RemoveSubject {
     @Test
     void removesAssociationOfAllSubjectsWithId() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long givenId = -487023L;
+      var givenId = -487023L;
       auths.putSubject(mock(Subject.class), givenId);
       auths.putSubject(mock(Subject.class), givenId);
       auths.putSubject(mock(Subject.class), givenId);
@@ -474,14 +474,14 @@ class ClientUserAuthsTest {
 
     @Test
     void logsOutAllSubjectsAssociatedWithId() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long givenId = 8963947L;
-      Subject subject1 = mock(Subject.class);
-      Subject subject2 = mock(Subject.class);
-      Subject subject3 = mock(Subject.class);
-      Subject subject4 = mock(Subject.class);
-      Subject subject5 = mock(Subject.class);
+      var givenId = 8963947L;
+      var subject1 = mock(Subject.class);
+      var subject2 = mock(Subject.class);
+      var subject3 = mock(Subject.class);
+      var subject4 = mock(Subject.class);
+      var subject5 = mock(Subject.class);
 
       auths.putSubject(subject1, givenId);
       auths.putSubject(subject2, givenId);
@@ -500,16 +500,16 @@ class ClientUserAuthsTest {
 
     @Test
     void retainsAssociationsOfAllSubjectsWithOtherIds() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long doomedSubjectId = 98347L;
-      long retainedSubject1Id = doomedSubjectId + 1;
-      long retainedSubject2Id = doomedSubjectId + 2;
-      long retainedSubject3Id = doomedSubjectId + 3;
+      var doomedSubjectId = 98347L;
+      var retainedSubject1Id = doomedSubjectId + 1;
+      var retainedSubject2Id = doomedSubjectId + 2;
+      var retainedSubject3Id = doomedSubjectId + 3;
 
-      Subject retainedSubject1 = mock(Subject.class);
-      Subject retainedSubject2 = mock(Subject.class);
-      Subject retainedSubject3 = mock(Subject.class);
+      var retainedSubject1 = mock(Subject.class);
+      var retainedSubject2 = mock(Subject.class);
+      var retainedSubject3 = mock(Subject.class);
 
       auths.putSubject(retainedSubject1, retainedSubject1Id);
       auths.putSubject(retainedSubject2, retainedSubject2Id);
@@ -529,22 +529,22 @@ class ClientUserAuthsTest {
 
     @Test
     void doesNotInteractWithSubjectsAssociatedWithOtherIds() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long doomedSubjectId = 78974L;
+      var doomedSubjectId = 78974L;
 
-      long retainedSubjectId1 = doomedSubjectId + 1;
-      long retainedSubjectId2 = doomedSubjectId + 2;
-      long retainedSubjectId3 = doomedSubjectId + 3;
-      Subject retainedSubject1a = mock(Subject.class);
-      Subject retainedSubject1b = mock(Subject.class);
-      Subject retainedSubject1c = mock(Subject.class);
-      Subject retainedSubject2a = mock(Subject.class);
-      Subject retainedSubject2b = mock(Subject.class);
-      Subject retainedSubject2c = mock(Subject.class);
-      Subject retainedSubject3a = mock(Subject.class);
-      Subject retainedSubject3b = mock(Subject.class);
-      Subject retainedSubject3c = mock(Subject.class);
+      var retainedSubjectId1 = doomedSubjectId + 1;
+      var retainedSubjectId2 = doomedSubjectId + 2;
+      var retainedSubjectId3 = doomedSubjectId + 3;
+      var retainedSubject1a = mock(Subject.class);
+      var retainedSubject1b = mock(Subject.class);
+      var retainedSubject1c = mock(Subject.class);
+      var retainedSubject2a = mock(Subject.class);
+      var retainedSubject2b = mock(Subject.class);
+      var retainedSubject2c = mock(Subject.class);
+      var retainedSubject3a = mock(Subject.class);
+      var retainedSubject3b = mock(Subject.class);
+      var retainedSubject3c = mock(Subject.class);
 
       auths.putSubject(retainedSubject1a, retainedSubjectId1);
       auths.putSubject(retainedSubject1b, retainedSubjectId1);
@@ -574,7 +574,7 @@ class ClientUserAuthsTest {
 
     @Test
     void returnsWithoutThrowingIfNoSubjectsAssociatedWithId() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
       assertThatNoException().isThrownBy(() -> auths.removeSubject(5678L));
     }
@@ -584,11 +584,11 @@ class ClientUserAuthsTest {
   class ContinuousQueryAuths {
     @Test
     void setUserAttributesForCqAssociatesIdentifiedSubjectWithCqName() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long id = 39874L;
-      String cqName = "cq4132";
-      Subject subject = mock(Subject.class);
+      var id = 39874L;
+      var cqName = "cq4132";
+      var subject = mock(Subject.class);
       auths.putSubject(subject, id);
 
       auths.setUserAuthAttributesForCq(cqName, id, true);
@@ -599,10 +599,10 @@ class ClientUserAuthsTest {
 
     @Test
     void removeSubjectRemovesAssociationWithCqName() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long id = 33L;
-      String cqName = "cq23497" + id;
+      var id = 33L;
+      var cqName = "cq23497" + id;
       auths.putSubject(mock(Subject.class), id);
       auths.setUserAuthAttributesForCq(cqName, id, true);
 
@@ -614,10 +614,10 @@ class ClientUserAuthsTest {
 
     @Test
     void removeUserAuthAttributesForCqRemovesAssociationOfSubjectToCqName() {
-      ClientUserAuths auths = new ClientUserAuths(null);
+      var auths = new ClientUserAuths(null);
 
-      long id = -43780L;
-      String cqName = "cq98740";
+      var id = -43780L;
+      var cqName = "cq98740";
       auths.putSubject(mock(Subject.class), id);
       auths.setUserAuthAttributesForCq(cqName, id, true);
 

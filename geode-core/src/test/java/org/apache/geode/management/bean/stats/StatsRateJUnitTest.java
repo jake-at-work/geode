@@ -47,11 +47,11 @@ public class StatsRateJUnitTest {
 
   @Test
   public void testSingleStatLongRate() throws Exception {
-    StatsRate singleStatsRate =
+    var singleStatsRate =
         new StatsRate("SINGLE_STATS_LONG_COUNTER", StatType.LONG_TYPE, statsMonitor);
 
     SINGLE_STATS_LONG_COUNTER = 5000L;
-    float actualRate = singleStatsRate.getRate();
+    var actualRate = singleStatsRate.getRate();
 
     SINGLE_STATS_LONG_COUNTER = 10000L;
 
@@ -64,14 +64,14 @@ public class StatsRateJUnitTest {
 
   @Test
   public void testSingleStatIntRate() throws Exception {
-    StatsRate singleStatsRate =
+    var singleStatsRate =
         new StatsRate("SINGLE_STATS_INT_COUNTER", StatType.INT_TYPE, statsMonitor);
 
     SINGLE_STATS_INT_COUNTER = 5000;
-    float actualRate = singleStatsRate.getRate();
+    var actualRate = singleStatsRate.getRate();
 
     SINGLE_STATS_INT_COUNTER = 10000;
-    long poll2 = System.currentTimeMillis();
+    var poll2 = System.currentTimeMillis();
 
     actualRate = singleStatsRate.getRate();
 
@@ -82,12 +82,12 @@ public class StatsRateJUnitTest {
 
   @Test
   public void testMultiStatLongRate() throws Exception {
-    String[] counters = new String[] {"MULTI_STATS_LONG_COUNTER_1", "MULTI_STATS_LONG_COUNTER_2"};
-    StatsRate multiStatsRate = new StatsRate(counters, StatType.LONG_TYPE, statsMonitor);
+    var counters = new String[] {"MULTI_STATS_LONG_COUNTER_1", "MULTI_STATS_LONG_COUNTER_2"};
+    var multiStatsRate = new StatsRate(counters, StatType.LONG_TYPE, statsMonitor);
 
     MULTI_STATS_LONG_COUNTER_1 = 5000L;
     MULTI_STATS_LONG_COUNTER_2 = 4000L;
-    float actualRate = multiStatsRate.getRate();
+    var actualRate = multiStatsRate.getRate();
 
     MULTI_STATS_LONG_COUNTER_1 = 10000L;
     MULTI_STATS_LONG_COUNTER_2 = 8000L;
@@ -101,12 +101,12 @@ public class StatsRateJUnitTest {
 
   @Test
   public void testMultiStatIntRate() throws Exception {
-    String[] counters = new String[] {"MULTI_STATS_INT_COUNTER_1", "MULTI_STATS_INT_COUNTER_2"};
-    StatsRate multiStatsRate = new StatsRate(counters, StatType.INT_TYPE, statsMonitor);
+    var counters = new String[] {"MULTI_STATS_INT_COUNTER_1", "MULTI_STATS_INT_COUNTER_2"};
+    var multiStatsRate = new StatsRate(counters, StatType.INT_TYPE, statsMonitor);
 
     MULTI_STATS_INT_COUNTER_1 = 5000;
     MULTI_STATS_INT_COUNTER_2 = 4000;
-    float actualRate = multiStatsRate.getRate();
+    var actualRate = multiStatsRate.getRate();
 
     MULTI_STATS_INT_COUNTER_1 = 10000;
     MULTI_STATS_INT_COUNTER_2 = 8000;

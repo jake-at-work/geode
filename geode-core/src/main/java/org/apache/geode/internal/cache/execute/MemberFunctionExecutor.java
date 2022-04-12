@@ -29,7 +29,6 @@ import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Assert;
@@ -97,7 +96,7 @@ public class MemberFunctionExecutor extends AbstractExecution {
 
   private ResultCollector executeFunction(final Function function,
       ResultCollector resultCollector) {
-    final DistributionManager dm = distributedSystem.getDistributionManager();
+    final var dm = distributedSystem.getDistributionManager();
     final Set<InternalDistributedMember> dest = new HashSet<>(members);
     if (dest.isEmpty()) {
       throw new FunctionException(
@@ -107,11 +106,11 @@ public class MemberFunctionExecutor extends AbstractExecution {
     validateExecution(function, dest);
     setExecutionNodes(dest);
 
-    final InternalDistributedMember localVM =
+    final var localVM =
         distributedSystem.getDistributionManager().getDistributionManagerId();
-    final LocalResultCollector<?, ?> localRC = getLocalResultCollector(function, resultCollector);
-    boolean remoteOnly = false;
-    boolean localOnly = false;
+    final var localRC = getLocalResultCollector(function, resultCollector);
+    var remoteOnly = false;
+    var localOnly = false;
     if (!dest.contains(localVM)) {
       remoteOnly = true;
     }
@@ -120,13 +119,13 @@ public class MemberFunctionExecutor extends AbstractExecution {
     }
 
 
-    final MemberFunctionResultSender resultSender =
+    final var resultSender =
         new MemberFunctionResultSender(dm, localRC, function, localOnly, remoteOnly, sender);
     if (dest.contains(localVM)) {
       // if member is local VM
       dest.remove(localVM);
 
-      boolean isTx = false;
+      var isTx = false;
       InternalCache cache = GemFireCacheImpl.getInstance();
       if (cache != null) {
         isTx = cache.getTxManager().getTXState() != null;
@@ -137,12 +136,12 @@ public class MemberFunctionExecutor extends AbstractExecution {
     }
 
     if (!dest.isEmpty()) {
-      HashMap<InternalDistributedMember, Object> memberArgs = new HashMap<>();
-      for (InternalDistributedMember distributedMember : dest) {
+      var memberArgs = new HashMap<InternalDistributedMember, Object>();
+      for (var distributedMember : dest) {
         memberArgs.put(distributedMember, getArgumentsForMember(distributedMember.getId()));
       }
       Assert.assertTrue(memberArgs.size() == dest.size());
-      MemberFunctionResultWaiter resultReceiver =
+      var resultReceiver =
           new MemberFunctionResultWaiter(distributedSystem, localRC,
               function, memberArgs, dest, resultSender);
 
@@ -168,8 +167,8 @@ public class MemberFunctionExecutor extends AbstractExecution {
           throw new UnsupportedOperationException(
               "Client function execution on members is not supported with transaction");
         }
-        DistributedMember funcTarget = dest.iterator().next();
-        DistributedMember target = cache.getTxManager().getTXState().getTarget();
+        var funcTarget = dest.iterator().next();
+        var target = cache.getTxManager().getTXState().getTarget();
         if (target == null) {
           cache.getTxManager().getTXState().setTarget(funcTarget);
         } else if (!target.equals(funcTarget)) {
@@ -187,8 +186,8 @@ public class MemberFunctionExecutor extends AbstractExecution {
       executeFunction(function, null);
       return new NoResult();
     }
-    ResultCollector inRc = (rc == null) ? new DefaultResultCollector() : rc;
-    ResultCollector rcToReturn = executeFunction(function, inRc);
+    var inRc = (rc == null) ? new DefaultResultCollector() : rc;
+    var rcToReturn = executeFunction(function, inRc);
     if (timeout > 0) {
       try {
         rcToReturn.getResult(timeout, unit);

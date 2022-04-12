@@ -70,7 +70,7 @@ public abstract class AbstractLIndexIntegrationTest implements RedisIntegrationT
   @Test
   public void lindex_withPositiveIndexes_returnsElement() {
     jedis.lpush(LIST_KEY, LIST_ELEMENTS);
-    for (int i = 0; i < LIST_ELEMENTS.length; i++) {
+    for (var i = 0; i < LIST_ELEMENTS.length; i++) {
       // LIST_ELEMENTS[LIST_ELEMENTS.length - 1 - i] iterates LIST_ELEMENTS backwards
       assertThat(jedis.lindex(LIST_KEY, i)).isEqualTo(LIST_ELEMENTS[LIST_ELEMENTS.length - 1 - i]);
     }
@@ -79,7 +79,7 @@ public abstract class AbstractLIndexIntegrationTest implements RedisIntegrationT
   @Test
   public void lindex_withNegativeIndexes_returnsElement() {
     jedis.lpush(LIST_KEY, LIST_ELEMENTS);
-    for (int i = 0; i < LIST_ELEMENTS.length; i++) {
+    for (var i = 0; i < LIST_ELEMENTS.length; i++) {
       assertThat(jedis.lindex(LIST_KEY, -(i + 1))).isEqualTo(LIST_ELEMENTS[i]);
 
     }
@@ -112,14 +112,14 @@ public abstract class AbstractLIndexIntegrationTest implements RedisIntegrationT
 
   @Test
   public void lindex_withWrongKeyType_returnsWrongTypeError() {
-    String key = "{tag1}ding";
+    var key = "{tag1}ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.lindex(key, 2)).hasMessage(ERROR_WRONG_TYPE);
   }
 
   @Test
   public void lindex_withWrongKeyType_withInvalidIndex_returnsWrongTypeError() {
-    String key = "{tag1}ding";
+    var key = "{tag1}ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.sendCommand(LIST_KEY, Protocol.Command.LINDEX, key, "b"))
         .hasMessage(ERROR_WRONG_TYPE);
@@ -129,8 +129,8 @@ public abstract class AbstractLIndexIntegrationTest implements RedisIntegrationT
   public void ensureListConsistency_whenRunningConcurrently() {
     jedis.lpush(LIST_KEY, LIST_ELEMENTS);
 
-    String[] elementsToAdd = {"vulture", "walrus", "xouba fish", "yak", "zebra"};
-    final AtomicReference<String> lindexResultReference = new AtomicReference<>();
+    var elementsToAdd = new String[] {"vulture", "walrus", "xouba fish", "yak", "zebra"};
+    final var lindexResultReference = new AtomicReference<String>();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.lpush(LIST_KEY, elementsToAdd),
         i -> lindexResultReference.set(jedis.lindex(LIST_KEY, 0)))

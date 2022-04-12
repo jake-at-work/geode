@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,10 +36,8 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
@@ -50,10 +47,8 @@ import org.apache.geode.internal.cache.InitialImageOperation;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.TombstoneService;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -70,7 +65,7 @@ public class TombstoneDUnitTest implements Serializable {
 
   @After
   public void close() {
-    for (VM vm : Arrays.asList(VM.getVM(0), VM.getVM(1))) {
+    for (var vm : Arrays.asList(VM.getVM(0), VM.getVM(1))) {
       vm.invoke(() -> {
         resetAllGIITestHooks();
         if (region != null && !region.isDestroyed()) {
@@ -86,8 +81,8 @@ public class TombstoneDUnitTest implements Serializable {
 
   @Test
   public void testTombstoneGcMessagesBetweenPersistentAndNonPersistentRegion() {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
 
     vm0.invoke(() -> {
       createCacheAndRegion(REPLICATE_PERSISTENT);
@@ -124,15 +119,15 @@ public class TombstoneDUnitTest implements Serializable {
 
   @Test
   public void testWhenAnOutOfRangeTimeStampIsSeenWeExpireItInReplicateTombstoneSweeper() {
-    VM server1 = VM.getVM(0);
-    VM server2 = VM.getVM(1);
-    final int FAR_INTO_THE_FUTURE = 1000000; // 1 million millis into the future
-    final int count = 10;
+    var server1 = VM.getVM(0);
+    var server2 = VM.getVM(1);
+    final var FAR_INTO_THE_FUTURE = 1000000; // 1 million millis into the future
+    final var count = 10;
 
     // Create a cache and load some boiler plate entries
     server1.invoke(() -> {
       createCacheAndRegion(RegionShortcut.REPLICATE);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         region.put("K" + i, "V" + i);
       }
     });
@@ -142,11 +137,11 @@ public class TombstoneDUnitTest implements Serializable {
     server1.invoke(() -> {
 
       // Now that we have a cache and a region specifically with data, we can start the real work
-      TombstoneService.TombstoneSweeper tombstoneSweeper =
+      var tombstoneSweeper =
           ((InternalCache) cache).getTombstoneService().getSweeper((LocalRegion) region);
 
       // Get one of the entries
-      RegionEntry regionEntry = ((LocalRegion) region).getRegionEntry("K0");
+      var regionEntry = ((LocalRegion) region).getRegionEntry("K0");
 
       /*
        * Create a version tag with a timestamp far off in the future...
@@ -156,7 +151,7 @@ public class TombstoneDUnitTest implements Serializable {
       versionTag.setVersionTimeStamp(System.currentTimeMillis() + FAR_INTO_THE_FUTURE);
 
       // Create the forged tombstone with the versionTag from the future
-      TombstoneService.Tombstone modifiedTombstone =
+      var modifiedTombstone =
           new TombstoneService.Tombstone(regionEntry, (LocalRegion) region,
               versionTag);
 
@@ -171,15 +166,15 @@ public class TombstoneDUnitTest implements Serializable {
 
   @Test
   public void testWhenAnOutOfRangeTimeStampIsSeenWeExpireItInNonReplicateTombstoneSweeper() {
-    VM server1 = VM.getVM(0);
-    VM server2 = VM.getVM(1);
-    final int FAR_INTO_THE_FUTURE = 1000000; // 1 million millis into the future
-    final int count = 2000;
-    Logger logger = LogService.getLogger();
+    var server1 = VM.getVM(0);
+    var server2 = VM.getVM(1);
+    final var FAR_INTO_THE_FUTURE = 1000000; // 1 million millis into the future
+    final var count = 2000;
+    var logger = LogService.getLogger();
     // Create a cache and load some boiler plate entries
     server1.invoke(() -> {
       createCacheAndRegion(RegionShortcut.PARTITION);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         region.put("K" + i, "V" + i);
       }
     });
@@ -189,13 +184,13 @@ public class TombstoneDUnitTest implements Serializable {
     server1.invoke(() -> {
 
       // Now that we have a cache and a region specifically with data, we can start the real work
-      TombstoneService.TombstoneSweeper tombstoneSweeper =
+      var tombstoneSweeper =
           ((InternalCache) cache).getTombstoneService().getSweeper((LocalRegion) region);
 
       // Get one of the entries
 
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-      RegionEntry regionEntry = partitionedRegion.getBucketRegion("K0").getRegionEntry("K0");
+      var partitionedRegion = (PartitionedRegion) region;
+      var regionEntry = partitionedRegion.getBucketRegion("K0").getRegionEntry("K0");
 
       /*
        * Create a version tag with a timestamp far off in the future...
@@ -206,7 +201,7 @@ public class TombstoneDUnitTest implements Serializable {
       versionTag.setVersionTimeStamp(System.currentTimeMillis() + FAR_INTO_THE_FUTURE);
 
       // Create the forged tombstone with the versionTag from the future
-      TombstoneService.Tombstone modifiedTombstone =
+      var modifiedTombstone =
           new TombstoneService.Tombstone(regionEntry, (LocalRegion) region,
               versionTag);
 
@@ -223,12 +218,12 @@ public class TombstoneDUnitTest implements Serializable {
 
   @Test
   public void testGetOldestTombstoneTimeForReplicateTombstoneSweeper() {
-    VM server1 = VM.getVM(0);
-    VM server2 = VM.getVM(1);
-    final int count = 10;
+    var server1 = VM.getVM(0);
+    var server2 = VM.getVM(1);
+    final var count = 10;
     server1.invoke(() -> {
       createCacheAndRegion(RegionShortcut.REPLICATE);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         region.put("K" + i, "V" + i);
       }
     });
@@ -236,10 +231,10 @@ public class TombstoneDUnitTest implements Serializable {
     server2.invoke(() -> createCacheAndRegion(RegionShortcut.REPLICATE));
 
     server1.invoke(() -> {
-      TombstoneService.TombstoneSweeper tombstoneSweeper =
+      var tombstoneSweeper =
           ((InternalCache) cache).getTombstoneService().getSweeper((LocalRegion) region);
       // Send tombstone gc message to vm1.
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         region.destroy("K" + i);
       }
       await().untilAsserted(() -> assertThat(
@@ -254,24 +249,24 @@ public class TombstoneDUnitTest implements Serializable {
 
   @Test
   public void testGetOldestTombstoneTimeForNonReplicateTombstoneSweeper() {
-    VM client = VM.getVM(0);
-    VM server = VM.getVM(1);
+    var client = VM.getVM(0);
+    var server = VM.getVM(1);
 
 
     // Fire up the server and put in some data that is deletable
     server.invoke(() -> {
       createCacheAndRegion(REPLICATE);
-      int serverPort = getRandomAvailableTCPPort();
-      CacheServer cacheServer = cache.addCacheServer();
+      var serverPort = getRandomAvailableTCPPort();
+      var cacheServer = cache.addCacheServer();
       cacheServer.setPort(serverPort);
       cacheServer.start();
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         region.put("K" + i, "V" + i);
       }
     });
 
-    String locatorHost = NetworkUtils.getServerHostName();
-    int locatorPort = DistributedRule.getLocatorPort();
+    var locatorHost = NetworkUtils.getServerHostName();
+    var locatorPort = DistributedRule.getLocatorPort();
     // Use the client to remove and entry, thus creating a tombstone
     client.invoke(() -> {
       createClientCacheAndRegion(locatorHost, locatorPort);
@@ -281,7 +276,7 @@ public class TombstoneDUnitTest implements Serializable {
     // Validate that a tombstone was created and that it has a timestamp that is valid,
     // Then GC and validate there is no oldest tombstone.
     server.invoke(() -> {
-      TombstoneService.TombstoneSweeper tombstoneSweeper =
+      var tombstoneSweeper =
           ((InternalCache) cache).getTombstoneService().getSweeper((LocalRegion) region);
 
       assertThat(tombstoneSweeper.getOldestTombstoneTime()).isGreaterThan(0)
@@ -297,8 +292,8 @@ public class TombstoneDUnitTest implements Serializable {
    */
   @Test
   public void testGetOldestTombstoneForReplicateTombstoneSweeper() {
-    VM server1 = VM.getVM(0);
-    VM server2 = VM.getVM(1);
+    var server1 = VM.getVM(0);
+    var server2 = VM.getVM(1);
 
     server1.invoke(() -> {
       createCacheAndRegion(REPLICATE);
@@ -312,7 +307,7 @@ public class TombstoneDUnitTest implements Serializable {
       // Send tombstone gc message to vm1.
       region.destroy("K1");
 
-      TombstoneService.TombstoneSweeper tombstoneSweeper =
+      var tombstoneSweeper =
           ((InternalCache) cache).getTombstoneService().getSweeper((LocalRegion) region);
 
       assertThat(tombstoneSweeper.getOldestTombstone()).contains("K1");
@@ -330,23 +325,23 @@ public class TombstoneDUnitTest implements Serializable {
    */
   @Test
   public void testGetOldestTombstoneForNonReplicateTombstoneSweeper() {
-    VM client = VM.getVM(0);
-    VM server = VM.getVM(1);
+    var client = VM.getVM(0);
+    var server = VM.getVM(1);
 
     // Fire up the server and put in some data that is deletable
     server.invoke(() -> {
       createCacheAndRegion(REPLICATE);
-      int serverPort = getRandomAvailableTCPPort();
-      CacheServer cacheServer = cache.addCacheServer();
+      var serverPort = getRandomAvailableTCPPort();
+      var cacheServer = cache.addCacheServer();
       cacheServer.setPort(serverPort);
       cacheServer.start();
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         region.put("K" + i, "V" + i);
       }
     });
 
-    String locatorHost = NetworkUtils.getServerHostName();
-    int locatorPort = DistributedRule.getLocatorPort();
+    var locatorHost = NetworkUtils.getServerHostName();
+    var locatorPort = DistributedRule.getLocatorPort();
     // Use the client to remove and entry, thus creating a tombstone
     client.invoke(() -> {
       createClientCacheAndRegion(locatorHost, locatorPort);
@@ -356,7 +351,7 @@ public class TombstoneDUnitTest implements Serializable {
     // Validate that a tombstone was created and that it has a timestamp that is valid,
     // Then GC and validate there is no oldest tombstone.
     server.invoke(() -> {
-      TombstoneService.TombstoneSweeper tombstoneSweeper =
+      var tombstoneSweeper =
           ((InternalCache) cache).getTombstoneService().getSweeper((LocalRegion) region);
       assertThat(tombstoneSweeper.getOldestTombstone()).contains("K3");
       performGC(1);
@@ -367,9 +362,9 @@ public class TombstoneDUnitTest implements Serializable {
   @Test
   public void testTombstonesWithLowerVersionThanTheRecordedVersionGetsGCedAfterDestroy()
       throws Exception {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
-    Properties props = DistributedRule.getDistributedSystemProperties();
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
+    var props = DistributedRule.getDistributedSystemProperties();
     props.setProperty("conserve-sockets", "false");
 
     vm0.invoke(() -> {
@@ -383,15 +378,15 @@ public class TombstoneDUnitTest implements Serializable {
       DistributionMessageObserver.setInstance(new RegionObserver());
     });
 
-    AsyncInvocation<Object> vm0Async1 = vm0.invokeAsync(() -> {
+    var vm0Async1 = vm0.invokeAsync(() -> {
       region.destroy("K1");
     });
 
-    AsyncInvocation<Object> vm0Async2 = vm0.invokeAsync(() -> {
+    var vm0Async2 = vm0.invokeAsync(() -> {
       region.destroy("K2");
     });
 
-    AsyncInvocation<Object> vm0Async3 = vm0.invokeAsync(() -> {
+    var vm0Async3 = vm0.invokeAsync(() -> {
       waitForTombstoneCount(2);
       performGC(2);
     });
@@ -411,9 +406,9 @@ public class TombstoneDUnitTest implements Serializable {
 
   @Test
   public void tombstoneGCDuringGIICorrectlySchedulesTombstonesForCollection() {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
-    Properties props = DistributedRule.getDistributedSystemProperties();
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
+    var props = DistributedRule.getDistributedSystemProperties();
     props.setProperty("conserve-sockets", "false");
 
     vm0.invoke(() -> {
@@ -491,7 +486,7 @@ public class TombstoneDUnitTest implements Serializable {
 
   // Client Cache
   private void createClientCacheAndRegion(String locatorHost, int locatorPort) {
-    ClientCache clientcache =
+    var clientcache =
         new ClientCacheFactory().addPoolLocator(locatorHost, locatorPort).create();
     region = clientcache.<String, String>createClientRegionFactory(
         ClientRegionShortcut.PROXY).create(REGION_NAME);
@@ -520,7 +515,7 @@ public class TombstoneDUnitTest implements Serializable {
         try {
           tombstoneGcLatch.await();
           synchronized (this) {
-            DestroyOperation.DestroyMessage destroyMessage =
+            var destroyMessage =
                 (DestroyOperation.DestroyMessage) message;
             if (versionTag == null) {
               // First destroy

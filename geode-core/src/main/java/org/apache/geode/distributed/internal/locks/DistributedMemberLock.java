@@ -75,7 +75,7 @@ public class DistributedMemberLock implements Lock {
 
     @Override
     public String toString() {
-      String myToString = "Unknown";
+      var myToString = "Unknown";
       switch (this) {
         case ALLOW:
           myToString = "ALLOW";
@@ -137,7 +137,7 @@ public class DistributedMemberLock implements Lock {
     this.key = key;
     this.leaseTimeout = leaseTimeout;
     this.reentryPolicy = reentryPolicy;
-    RemoteThread rThread = new RemoteThread(getDM().getId(), this.dls.incThreadSequence());
+    var rThread = new RemoteThread(getDM().getId(), this.dls.incThreadSequence());
     threadState = new ThreadRequestState(rThread.getThreadId(), true);
   }
 
@@ -149,7 +149,7 @@ public class DistributedMemberLock implements Lock {
         if (holdsLock() && reentryPolicy.preventReentry(DistributedMemberLock.this)) {
           return true;
         }
-        boolean locked = dls.lock(key, -1, leaseTimeout);
+        var locked = dls.lock(key, -1, leaseTimeout);
         Assert.assertTrue(locked, "Failed to lock " + this);
         return locked;
       }
@@ -164,7 +164,7 @@ public class DistributedMemberLock implements Lock {
         if (holdsLock() && reentryPolicy.preventReentry(DistributedMemberLock.this)) {
           return true;
         }
-        boolean locked = dls.lockInterruptibly(key, -1, leaseTimeout);
+        var locked = dls.lockInterruptibly(key, -1, leaseTimeout);
         Assert.assertTrue(locked, "Failed to lockInterruptibly " + this);
         return locked;
       }
@@ -211,7 +211,7 @@ public class DistributedMemberLock implements Lock {
   private boolean executeOperation(Operation lockOp) {
     for (;;) {
       dls.getCancelCriterion().checkCancelInProgress(null);
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         return doExecuteOperation(lockOp, false);
       } catch (InterruptedException e) {
@@ -228,7 +228,7 @@ public class DistributedMemberLock implements Lock {
   private boolean doExecuteOperation(Operation lockOp, boolean interruptible)
       throws InterruptedException {
 
-    ThreadRequestState oldThreadState = dls.getThreadRequestState().get();
+    var oldThreadState = dls.getThreadRequestState().get();
 
     try {
       threadState.interruptible = interruptible;
@@ -253,7 +253,7 @@ public class DistributedMemberLock implements Lock {
 
   @Override
   public String toString() {
-    String identity = super.toString();
+    var identity = super.toString();
     identity = identity.substring(identity.lastIndexOf(".") + 1);
     return "[" + identity + ": " + "dls=" + dls.getName()
         + "key=" + key

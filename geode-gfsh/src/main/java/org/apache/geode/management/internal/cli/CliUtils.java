@@ -25,7 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,7 +62,7 @@ public class CliUtils {
       classLibraryMap.put("jline.console.ConsoleReader", "JLine");
     }
 
-    List<String> unloadableJars =
+    var unloadableJars =
         classLibraryMap.entrySet().stream().filter(entry -> !canLoadClass(entry.getKey()))
             .map(Map.Entry::getValue).collect(Collectors.toList());
     return unloadableJars.isEmpty() ? null : String.join(",", unloadableJars);
@@ -89,13 +88,13 @@ public class CliUtils {
 
   public static Set<DistributedMember> getMembersWithAsyncEventQueue(InternalCache cache,
       String queueId) {
-    Set<DistributedMember> members = ManagementUtils.findMembers(null, null, cache);
+    var members = ManagementUtils.findMembers(null, null, cache);
     return members.stream().filter(m -> getAsyncEventQueueIds(cache, m).contains(queueId))
         .collect(Collectors.toSet());
   }
 
   public static Set<String> getAsyncEventQueueIds(InternalCache cache, DistributedMember member) {
-    SystemManagementService managementService =
+    var managementService =
         (SystemManagementService) ManagementService.getExistingManagementService(cache);
     return managementService.getAsyncEventQueueMBeanNames(member).stream()
         .map(x -> x.getKeyProperty("queue")).collect(Collectors.toSet());
@@ -103,15 +102,15 @@ public class CliUtils {
 
 
   public static DeflaterInflaterData compressBytes(byte[] input) {
-    Deflater compresser = new Deflater();
+    var compresser = new Deflater();
     compresser.setInput(input);
     compresser.finish();
-    byte[] buffer = new byte[100];
-    byte[] result = new byte[0];
+    var buffer = new byte[100];
+    var result = new byte[0];
     int compressedDataLength;
-    int totalCompressedDataLength = 0;
+    var totalCompressedDataLength = 0;
     do {
-      byte[] newResult = new byte[result.length + buffer.length];
+      var newResult = new byte[result.length + buffer.length];
       System.arraycopy(result, 0, newResult, 0, result.length);
 
       compressedDataLength = compresser.deflate(buffer);
@@ -124,14 +123,14 @@ public class CliUtils {
 
   public static DeflaterInflaterData uncompressBytes(byte[] output, int compressedDataLength)
       throws DataFormatException {
-    Inflater decompresser = new Inflater();
+    var decompresser = new Inflater();
     decompresser.setInput(output, 0, compressedDataLength);
-    byte[] buffer = new byte[512];
-    byte[] result = new byte[0];
+    var buffer = new byte[512];
+    var result = new byte[0];
     int bytesRead;
     while (!decompresser.needsInput()) {
       bytesRead = decompresser.inflate(buffer);
-      byte[] newResult = new byte[result.length + bytesRead];
+      var newResult = new byte[result.length + bytesRead];
       System.arraycopy(result, 0, newResult, 0, result.length);
       System.arraycopy(buffer, 0, newResult, result.length, bytesRead);
       result = newResult;
@@ -185,8 +184,8 @@ public class CliUtils {
 
 
   public static void runLessCommandAsExternalViewer(Result commandResult) {
-    StringBuilder sb = new StringBuilder();
-    String NEW_LINE = lineSeparator();
+    var sb = new StringBuilder();
+    var NEW_LINE = lineSeparator();
 
     while (commandResult.hasNextLine()) {
       sb.append(commandResult.nextLine()).append(NEW_LINE);
@@ -200,8 +199,8 @@ public class CliUtils {
       fw = new FileWriter(file);
       fw.append(sb.toString());
       fw.close();
-      File workingDir = file.getParentFile();
-      Process p = Runtime.getRuntime().exec(
+      var workingDir = file.getParentFile();
+      var p = Runtime.getRuntime().exec(
           new String[] {"sh", "-c",
               "LESSOPEN=\"|color %s\" less -SR " + file.getName() + " < /dev/tty > /dev/tty "},
           null, workingDir);

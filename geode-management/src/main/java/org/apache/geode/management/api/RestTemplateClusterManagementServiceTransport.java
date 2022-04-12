@@ -19,7 +19,6 @@ package org.apache.geode.management.api;
 import static org.apache.geode.management.configuration.Links.URI_VERSION;
 import static org.apache.geode.management.rest.internal.Constants.INCLUDE_CLASS_HEADER;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +38,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -77,8 +75,8 @@ public class RestTemplateClusterManagementServiceTransport
     this.restTemplate.setErrorHandler(DEFAULT_ERROR_HANDLER);
 
     // configur the rest template to use a speciic jackson converter
-    List<HttpMessageConverter<?>> messageConverters = restTemplate.getMessageConverters();
-    MappingJackson2HttpMessageConverter jackson2HttpMessageConverter = messageConverters.stream()
+    var messageConverters = restTemplate.getMessageConverters();
+    var jackson2HttpMessageConverter = messageConverters.stream()
         .filter(MappingJackson2HttpMessageConverter.class::isInstance)
         .map(MappingJackson2HttpMessageConverter.class::cast)
         .findFirst().orElse(null);
@@ -120,9 +118,9 @@ public class RestTemplateClusterManagementServiceTransport
           "host and port needs to be specified in order to build the service.");
     }
 
-    String schema = (connectionConfig.getSslContext() == null) ? "http" : "https";
+    var schema = (connectionConfig.getSslContext() == null) ? "http" : "https";
 
-    DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory(
+    var uriBuilderFactory = new DefaultUriBuilderFactory(
         schema + "://" + connectionConfig.getHost() + ":" + connectionConfig.getPort()
             + "/management");
 
@@ -130,10 +128,10 @@ public class RestTemplateClusterManagementServiceTransport
 
     // HttpComponentsClientHttpRequestFactory allows use to preconfigure httpClient for
     // authentication and ssl context
-    HttpComponentsClientHttpRequestFactory requestFactory =
+    var requestFactory =
         new HttpComponentsClientHttpRequestFactory();
 
-    HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+    var clientBuilder = HttpClientBuilder.create();
 
     if (connectionConfig.getFollowRedirects()) {
       clientBuilder.setRedirectStrategy(new LaxRedirectStrategy());
@@ -187,7 +185,7 @@ public class RestTemplateClusterManagementServiceTransport
   @SuppressWarnings("unchecked")
   public <T extends AbstractConfiguration<R>, R extends RuntimeInfo> ClusterManagementListResult<T, R> submitMessageForList(
       T config) {
-    String endPoint = URI_VERSION + config.getLinks().getList();
+    var endPoint = URI_VERSION + config.getLinks().getList();
     return restTemplate
         .exchange(endPoint + "?id={id}&group={group}", HttpMethod.GET, makeEntity(config),
             ClusterManagementListResult.class, config.getId(), config.getGroup())
@@ -206,7 +204,7 @@ public class RestTemplateClusterManagementServiceTransport
   @SuppressWarnings("unchecked")
   public <A extends ClusterManagementOperation<V>, V extends OperationResult> ClusterManagementOperationResult<A, V> submitMessageForGetOperation(
       A op, String operationId) {
-    String uri = URI_VERSION + op.getEndpoint() + "/" + operationId;
+    var uri = URI_VERSION + op.getEndpoint() + "/" + operationId;
     return restTemplate
         .exchange(uri, HttpMethod.GET, makeEntity(null), ClusterManagementOperationResult.class)
         .getBody();
@@ -237,7 +235,7 @@ public class RestTemplateClusterManagementServiceTransport
 
   private <T extends AbstractConfiguration<?>> ClusterManagementRealizationResult create(T config,
       HttpMethod method) {
-    String endPoint = URI_VERSION + config.getLinks().getList();
+    var endPoint = URI_VERSION + config.getLinks().getList();
     // the response status code info is represented by the ClusterManagementResult.errorCode already
     return restTemplate.exchange(endPoint, method, makeEntity(config),
         ClusterManagementRealizationResult.class)
@@ -245,7 +243,7 @@ public class RestTemplateClusterManagementServiceTransport
   }
 
   private <T extends AbstractConfiguration<?>> ClusterManagementRealizationResult delete(T config) {
-    String uri = getIdentityEndpoint(config);
+    var uri = getIdentityEndpoint(config);
     return restTemplate.exchange(uri + "?group={group}",
         HttpMethod.DELETE,
         makeEntity(null),
@@ -255,11 +253,11 @@ public class RestTemplateClusterManagementServiceTransport
   }
 
   private static <T> HttpEntity<?> makeEntity(T config) {
-    HttpHeaders headers = new HttpHeaders();
+    var headers = new HttpHeaders();
     headers.add(INCLUDE_CLASS_HEADER, "true");
     if (config instanceof HasFile) {
       MultiValueMap<String, Object> content = new LinkedMultiValueMap<>();
-      File file = ((HasFile) config).getFile();
+      var file = ((HasFile) config).getFile();
       if (file != null) {
         content.add(HasFile.FILE_PARAM, new FileSystemResource(file));
         content.add(HasFile.CONFIG_PARAM, config);
@@ -270,7 +268,7 @@ public class RestTemplateClusterManagementServiceTransport
   }
 
   private static String getIdentityEndpoint(AbstractConfiguration<?> config) {
-    String uri = config.getLinks().getSelf();
+    var uri = config.getLinks().getSelf();
     if (uri == null) {
       throw new IllegalArgumentException(
           "Unable to construct the URI with the current configuration.");

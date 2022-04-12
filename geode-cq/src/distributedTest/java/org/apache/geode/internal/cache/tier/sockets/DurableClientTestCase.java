@@ -28,9 +28,7 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.InterestResultPolicy;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.cache.InternalCacheServer;
@@ -72,7 +70,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
    */
   @Test
   public void testSpecialDurableProperty() throws InterruptedException {
-    final Properties jp = new Properties();
+    final var jp = new Properties();
     jp.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "SPECIAL_DURABLE", "true");
 
     try {
@@ -81,7 +79,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
           .invoke(() -> CacheServerTestUtil.createCacheServer(regionName, Boolean.TRUE));
 
       durableClientId = getName() + "_client";
-      final String dId = durableClientId + "_gem_" + "CacheServerTestUtil";
+      final var dId = durableClientId + "_gem_" + "CacheServerTestUtil";
 
       durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClient(
           getClientPool(NetworkUtils.getServerHostName(), server1Port, Boolean.TRUE),
@@ -102,7 +100,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
       server1VM.invoke(() -> {
         // Find the proxy
         checkNumberOfClientProxies(1);
-        CacheClientProxy proxy = getClientProxy();
+        var proxy = getClientProxy();
         assertThat(proxy).isNotNull();
 
         // Verify that it is durable and its properties are correct
@@ -177,7 +175,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
     // Verify the durable client still exists on the server, and the socket is closed
     server1VM.invoke(() -> {
       // Find the proxy
-      CacheClientProxy proxy = getClientProxy();
+      var proxy = getClientProxy();
       assertThat(proxy).isNotNull();
       assertThat(proxy._socket).isNotNull();
 
@@ -203,7 +201,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
   @Test
   public void testStartStopTimeoutDurableClient() {
 
-    final int durableClientTimeout = 5;
+    final var durableClientTimeout = 5;
     startupDurableClientAndServer(durableClientTimeout);
 
     // Stop the durable client
@@ -215,7 +213,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
       public void run2() throws CacheException {
         // Find the proxy
         checkNumberOfClientProxies(0);
-        CacheClientProxy proxy = getClientProxy();
+        var proxy = getClientProxy();
         assertThat(proxy).isNull();
       }
     });
@@ -311,7 +309,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
     checkListenerEvents(1, 1, -1, durableClientVM);
 
     server1VM.invoke("wait for client acknowledgement", () -> {
-      CacheClientProxy proxy = getClientProxy();
+      var proxy = getClientProxy();
       await().untilAsserted(
           () -> assertThat(proxy._messageDispatcher._messageQueue.stats.getEventsRemoved())
               .isGreaterThan(0));
@@ -330,7 +328,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
     server1VM.invoke(new CacheSerializableRunnable("Verify durable client") {
       @Override
       public void run2() throws CacheException {
-        CacheClientProxy proxy = getClientProxy();
+        var proxy = getClientProxy();
         assertThat(proxy).isNotNull();
         // Verify the queue size
         assertThat(proxy.getQueueSize()).isEqualTo(1);
@@ -367,13 +365,13 @@ public class DurableClientTestCase extends DurableClientTestBase {
   public void testDurableClientConnectServerStopStart() {
     // Start a server
     // Start server 1
-    Integer[] ports = server1VM.invoke(
+    var ports = server1VM.invoke(
         () -> CacheServerTestUtil.createCacheServerReturnPorts(regionName, Boolean.TRUE));
     final int serverPort = ports[0];
 
     // Start a durable client that is not kept alive on the server when it
     // stops normally
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
     durableClientVM.invoke(() -> CacheServerTestUtil.createCacheClient(
         getClientPool(NetworkUtils.getServerHostName(), serverPort, true),
         regionName, getClientDistributedSystemProperties(durableClientId), Boolean.TRUE));
@@ -519,7 +517,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
 
     durableClientVM.invoke("Get", () -> {
       await().untilAsserted(() -> {
-        Region<Object, Object> region = getCache().getRegion(regionName);
+        var region = getCache().getRegion(regionName);
         assertThat(region).isNotNull();
 
         assertThat(region.getEntry("0")).isNull();
@@ -557,12 +555,12 @@ public class DurableClientTestCase extends DurableClientTestBase {
       public void run2() throws CacheException {
 
         await().until(() -> {
-          CacheClientProxy proxy = getClientProxy();
+          var proxy = getClientProxy();
           if (proxy == null) {
             return false;
           }
           // Verify the queue size
-          int sz = proxy.getQueueSize();
+          var sz = proxy.getQueueSize();
           return requiredEntryCount == sz;
         });
       }
@@ -643,7 +641,7 @@ public class DurableClientTestCase extends DurableClientTestBase {
 
     durableClientVM.invoke("Get", () -> {
       await().untilAsserted(() -> {
-        Region<Object, Object> region = getCache().getRegion(regionName);
+        var region = getCache().getRegion(regionName);
         assertThat(region).isNotNull();
         // Register interest in all keys
         assertThat(region.getEntry("0")).isNull();
@@ -670,8 +668,8 @@ public class DurableClientTestCase extends DurableClientTestBase {
   }
 
   private void verifyClientHasConnected() {
-    CacheServer cacheServer = CacheServerTestUtil.getCache().getCacheServers().get(0);
-    CacheClientNotifier ccn =
+    var cacheServer = CacheServerTestUtil.getCache().getCacheServers().get(0);
+    var ccn =
         ((InternalCacheServer) cacheServer).getAcceptor().getCacheClientNotifier();
     await().until(() -> ccn.getClientProxies().size() == 1);
   }

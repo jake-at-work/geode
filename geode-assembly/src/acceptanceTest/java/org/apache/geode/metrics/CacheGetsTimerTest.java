@@ -28,8 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -75,8 +73,8 @@ public class CacheGetsTimerTest {
     }
 
     if (locatorPort != 0) {
-      String connectToLocatorCommand = "connect --locator=localhost[" + locatorPort + "]";
-      String shutdownCommand = "shutdown --include-locators";
+      var connectToLocatorCommand = "connect --locator=localhost[" + locatorPort + "]";
+      var shutdownCommand = "shutdown --include-locators";
       gfshRule.execute(connectToLocatorCommand, shutdownCommand);
     }
   }
@@ -86,12 +84,12 @@ public class CacheGetsTimerTest {
       throws IOException {
     givenClusterWithTimeStatisticsEnabled();
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       replicateRegion.put(i, i);
       replicateRegion.get(i);
     }
 
-    TimerValue hitTimerValue = hitTimerValueForRegion(replicateRegion);
+    var hitTimerValue = hitTimerValueForRegion(replicateRegion);
 
     assertThat(hitTimerValue.region)
         .as("Cache gets hit timer region tag value")
@@ -115,11 +113,11 @@ public class CacheGetsTimerTest {
       throws IOException {
     givenClusterWithTimeStatisticsEnabled();
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       replicateRegion.get(i);
     }
 
-    TimerValue missTimerValue = missTimerValueForRegion(replicateRegion);
+    var missTimerValue = missTimerValueForRegion(replicateRegion);
 
     assertThat(missTimerValue.region)
         .as("Cache gets miss timer region tag value")
@@ -143,12 +141,12 @@ public class CacheGetsTimerTest {
       throws IOException {
     givenClusterWithTimeStatisticsEnabled();
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       partitionRegion.put(i, i);
       partitionRegion.get(i);
     }
 
-    TimerValue hitTimerValue = hitTimerValueForRegion(partitionRegion);
+    var hitTimerValue = hitTimerValueForRegion(partitionRegion);
 
     assertThat(hitTimerValue.region)
         .as("Cache gets hit timer region tag value")
@@ -172,11 +170,11 @@ public class CacheGetsTimerTest {
       throws IOException {
     givenClusterWithTimeStatisticsEnabled();
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       partitionRegion.get(i);
     }
 
-    TimerValue missTimerValue = missTimerValueForRegion(partitionRegion);
+    var missTimerValue = missTimerValueForRegion(partitionRegion);
 
     assertThat(missTimerValue.region)
         .as("Cache gets miss timer region tag value")
@@ -289,7 +287,7 @@ public class CacheGetsTimerTest {
   public void timersDoNotRecord_ifGetThrows() throws IOException {
     givenClusterWithSecurityThatDeniesAllGetOperations();
 
-    Throwable thrown = catchThrowable(() -> replicateRegion.get("key"));
+    var thrown = catchThrowable(() -> replicateRegion.get("key"));
 
     assertThat(thrown)
         .as("Exception from get operation")
@@ -315,21 +313,21 @@ public class CacheGetsTimerTest {
 
   private void startCluster(boolean enableTimeStatistics, boolean enableSecurity)
       throws IOException {
-    int[] availablePorts = getRandomAvailableTCPPorts(3);
+    var availablePorts = getRandomAvailableTCPPorts(3);
 
     locatorPort = availablePorts[0];
-    int locatorJmxPort = availablePorts[1];
-    int serverPort = availablePorts[2];
+    var locatorJmxPort = availablePorts[1];
+    var serverPort = availablePorts[2];
 
-    Path serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
+    var serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
         MetricsPublishingService.class, SimpleMetricsPublishingService.class);
 
-    Path helpersJarPath = temporaryFolder.getRoot().toPath()
+    var helpersJarPath = temporaryFolder.getRoot().toPath()
         .resolve("helpers.jar").toAbsolutePath();
     writeJarFromClasses(helpersJarPath.toFile(), TimerValue.class,
         FetchCacheGetsTimerValues.class, DenyAllDataRead.class, ClientSecurityConfig.class);
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + "locator",
         "--dir=" + temporaryFolder.newFolder("locator").getAbsolutePath(),
@@ -338,8 +336,8 @@ public class CacheGetsTimerTest {
         "--J=-Dgemfire.jmx-manager-port=" + locatorJmxPort,
         "--classpath=" + helpersJarPath);
 
-    String serverName = "server";
-    String startServerCommand = String.join(" ",
+    var serverName = "server";
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + serverName,
         "--dir=" + temporaryFolder.newFolder(serverName).getAbsolutePath(),
@@ -352,21 +350,21 @@ public class CacheGetsTimerTest {
     }
 
     if (enableSecurity) {
-      File securityPropertiesFile = createSecurityPropertiesFile();
-      String securityPropertiesFileOption =
+      var securityPropertiesFile = createSecurityPropertiesFile();
+      var securityPropertiesFileOption =
           " --security-properties-file=" + securityPropertiesFile.getAbsolutePath();
       startLocatorCommand += securityPropertiesFileOption;
       startServerCommand += securityPropertiesFileOption;
     }
 
-    String replicateRegionName = "ReplicateRegion";
-    String createReplicateRegionCommand = String.join(" ",
+    var replicateRegionName = "ReplicateRegion";
+    var createReplicateRegionCommand = String.join(" ",
         "create region",
         "--type=REPLICATE",
         "--name=" + replicateRegionName);
 
-    String partitionRegionName = "PartitionRegion";
-    String createPartitionRegionCommand = String.join(" ",
+    var partitionRegionName = "PartitionRegion";
+    var createPartitionRegionCommand = String.join(" ",
         "create region",
         "--type=PARTITION",
         "--name=" + partitionRegionName);
@@ -374,7 +372,7 @@ public class CacheGetsTimerTest {
     gfshRule.execute(startLocatorCommand, startServerCommand, createReplicateRegionCommand,
         createPartitionRegionCommand);
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+    var clientCacheFactory = new ClientCacheFactory();
     if (enableSecurity) {
       clientCacheFactory.set("security-client-auth-init", ClientSecurityConfig.class.getName());
     }
@@ -393,8 +391,8 @@ public class CacheGetsTimerTest {
   }
 
   private File createSecurityPropertiesFile() throws IOException {
-    Properties securityProperties = ClientSecurityConfig.securityProperties();
-    File securityPropertiesFile = gfshRule.getTemporaryFolder().newFile("security.properties");
+    var securityProperties = ClientSecurityConfig.securityProperties();
+    var securityPropertiesFile = gfshRule.getTemporaryFolder().newFile("security.properties");
     securityProperties.store(new FileOutputStream(securityPropertiesFile), null);
     return securityPropertiesFile;
   }
@@ -408,7 +406,7 @@ public class CacheGetsTimerTest {
   }
 
   private TimerValue timerValueForRegionAndResult(Region<?, ?> region, String resultTagValue) {
-    List<TimerValue> cacheGetsTimerValues = allTimerValuesForRegion(region).stream()
+    var cacheGetsTimerValues = allTimerValuesForRegion(region).stream()
         .filter(tv -> tv.result.equals(resultTagValue))
         .collect(toList());
 
@@ -421,7 +419,7 @@ public class CacheGetsTimerTest {
 
   private List<TimerValue> allTimerValuesForRegion(Region<?, ?> region) {
     @SuppressWarnings("unchecked")
-    List<List<TimerValue>> timerValuesFromAllServers =
+    var timerValuesFromAllServers =
         (List<List<TimerValue>>) onServer(clientCache)
             .execute(new FetchCacheGetsTimerValues())
             .getResult();
@@ -463,11 +461,11 @@ public class CacheGetsTimerTest {
 
     @Override
     public void execute(FunctionContext<Void> context) {
-      Collection<Timer> timers = SimpleMetricsPublishingService.getRegistry()
+      var timers = SimpleMetricsPublishingService.getRegistry()
           .find("geode.cache.gets")
           .timers();
 
-      List<TimerValue> result = timers.stream()
+      var result = timers.stream()
           .map(FetchCacheGetsTimerValues::toTimerValues)
           .collect(toList());
 
@@ -480,8 +478,8 @@ public class CacheGetsTimerTest {
     }
 
     private static TimerValue toTimerValues(Timer t) {
-      String region = t.getId().getTag("region");
-      String result = t.getId().getTag("result");
+      var region = t.getId().getTag("region");
+      var result = t.getId().getTag("result");
 
       return new TimerValue(
           t.count(),
@@ -494,7 +492,7 @@ public class CacheGetsTimerTest {
   public static class DenyAllDataRead implements org.apache.geode.security.SecurityManager {
     @Override
     public Object authenticate(Properties credentials) throws AuthenticationFailedException {
-      String userName = credentials.getProperty(USER_NAME);
+      var userName = credentials.getProperty(USER_NAME);
       if (userName == null) {
         throw new AuthenticationFailedException("No user name provided");
       }
@@ -520,7 +518,7 @@ public class CacheGetsTimerTest {
     }
 
     static Properties securityProperties() {
-      Properties securityProperties = new Properties();
+      var securityProperties = new Properties();
       securityProperties.setProperty(SECURITY_MANAGER, DenyAllDataRead.class.getName());
       securityProperties.setProperty("security-username", "user");
       securityProperties.setProperty("security-password", "pass");

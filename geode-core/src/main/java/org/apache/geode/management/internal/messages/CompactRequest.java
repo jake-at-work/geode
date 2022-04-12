@@ -64,10 +64,10 @@ public class CompactRequest extends AdminRequest {
     Map<DistributedMember, PersistentID> results = Collections.emptyMap();
 
     if (recipients != null && !recipients.isEmpty()) {
-      CompactRequest request = new CompactRequest();
+      var request = new CompactRequest();
       request.setRecipients(recipients);
 
-      CompactReplyProcessor replyProcessor = new CompactReplyProcessor(dm, recipients);
+      var replyProcessor = new CompactReplyProcessor(dm, recipients);
       request.msgId = replyProcessor.getProcessorId();
       request.diskStoreName = diskStoreName;
       request.setSender(dm.getDistributionManagerId());
@@ -99,7 +99,7 @@ public class CompactRequest extends AdminRequest {
 
   @Override
   protected AdminResponse createResponse(DistributionManager dm) {
-    PersistentID compactedDiskStore = compactDiskStore(diskStoreName);
+    var compactedDiskStore = compactDiskStore(diskStoreName);
 
     return new CompactResponse(getSender(), compactedDiskStore);
   }
@@ -108,7 +108,7 @@ public class CompactRequest extends AdminRequest {
     PersistentID persistentID = null;
     InternalCache cache = GemFireCacheImpl.getInstance();
     if (cache != null && !cache.isClosed()) {
-      DiskStoreImpl diskStore = (DiskStoreImpl) cache.findDiskStore(diskStoreName);
+      var diskStore = (DiskStoreImpl) cache.findDiskStore(diskStoreName);
       if (diskStore != null && diskStore.forceCompaction()) {
         persistentID = diskStore.getPersistentID();
       }
@@ -167,7 +167,7 @@ public class CompactRequest extends AdminRequest {
     @Override
     protected void process(DistributionMessage message, boolean warn) {
       if (message instanceof CompactResponse) {
-        final PersistentID persistentId = ((CompactResponse) message).getPersistentId();
+        final var persistentId = ((CompactResponse) message).getPersistentId();
         if (persistentId != null) {
           results.put(message.getSender(), persistentId);
         }

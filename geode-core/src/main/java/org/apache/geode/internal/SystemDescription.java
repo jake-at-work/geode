@@ -38,7 +38,7 @@ public class SystemDescription {
    * @return "Running on" info.
    */
   public static @NotNull String getRunningOnInfo() {
-    String line = getLocalHost() + ", " + Runtime.getRuntime().availableProcessors() + " cpu(s), "
+    var line = getLocalHost() + ", " + Runtime.getRuntime().availableProcessors() + " cpu(s), "
         + getOsArchitecture() + ' ' + getOsName() + ' ' + getOsVersion() + ' ';
     return String.format(RUNNING_ON + ": %s", line);
   }

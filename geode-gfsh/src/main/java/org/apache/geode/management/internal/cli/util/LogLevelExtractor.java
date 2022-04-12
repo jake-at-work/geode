@@ -18,7 +18,6 @@ package org.apache.geode.management.internal.cli.util;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Level;
@@ -39,15 +38,15 @@ public class LogLevelExtractor {
   private static final String SPACE = " ";
 
   public static Result extract(String logLine) {
-    Matcher m = LOG_PATTERN.matcher(logLine);
+    var m = LOG_PATTERN.matcher(logLine);
     if (!m.find()) {
       return null;
     }
 
-    String logLevel = m.group(1);
-    String logTimestamp = m.group(2) + SPACE + m.group(3) + SPACE + m.group(4);
+    var logLevel = m.group(1);
+    var logTimestamp = m.group(2) + SPACE + m.group(3) + SPACE + m.group(4);
 
-    LocalDateTime timestamp = LocalDateTime.parse(logTimestamp, LOG_TIMESTAMP_FORMATTER);
+    var timestamp = LocalDateTime.parse(logTimestamp, LOG_TIMESTAMP_FORMATTER);
 
     return new Result(logLevel, timestamp);
   }

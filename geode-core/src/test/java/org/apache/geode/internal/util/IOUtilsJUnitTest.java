@@ -34,7 +34,6 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 
@@ -56,8 +55,8 @@ public class IOUtilsJUnitTest {
    */
   private String toPathname(final String... pathElements) {
     if (pathElements != null) {
-      final StringBuilder buffer = new StringBuilder();
-      for (String pathElement : pathElements) {
+      final var buffer = new StringBuilder();
+      for (var pathElement : pathElements) {
         buffer.append(File.separator);
         buffer.append(pathElement);
       }
@@ -83,14 +82,14 @@ public class IOUtilsJUnitTest {
 
   @Test
   public void testClose() throws IOException {
-    final Closeable mockCloseable = spy(Closeable.class);
+    final var mockCloseable = spy(Closeable.class);
     IOUtils.close(mockCloseable);
     verify(mockCloseable, times(1)).close();
   }
 
   @Test
   public void testCloseIgnoresIOException() throws IOException {
-    final Closeable mockCloseable = mock(Closeable.class);
+    final var mockCloseable = mock(Closeable.class);
     doThrow(new IOException("Mock Exception")).when(mockCloseable).close();
     IOUtils.close(mockCloseable);
   }
@@ -138,27 +137,27 @@ public class IOUtilsJUnitTest {
 
   @Test
   public void testObjectSerialization() throws IOException, ClassNotFoundException {
-    final Calendar now = Calendar.getInstance();
+    final var now = Calendar.getInstance();
     assertThat(now).isNotNull();
 
-    final byte[] nowBytes = IOUtils.serializeObject(now);
+    final var nowBytes = IOUtils.serializeObject(now);
     assertThat(nowBytes).isNotNull();
     assertThat(nowBytes.length != 0).isTrue();
 
-    final Object nowObj = IOUtils.deserializeObject(nowBytes);
+    final var nowObj = IOUtils.deserializeObject(nowBytes);
     assertThat(nowObj).isInstanceOf(Calendar.class);
     assertThat(((Calendar) nowObj).getTimeInMillis()).isEqualTo(now.getTimeInMillis());
   }
 
   @Test
   public void testObjectSerializationWithClassLoader() throws IOException, ClassNotFoundException {
-    final BigDecimal pi = new BigDecimal(Math.PI);
-    final byte[] piBytes = IOUtils.serializeObject(pi);
+    final var pi = new BigDecimal(Math.PI);
+    final var piBytes = IOUtils.serializeObject(pi);
 
     assertThat(piBytes).isNotNull();
     assertThat(piBytes.length != 0).isTrue();
 
-    final Object piObj =
+    final var piObj =
         IOUtils.deserializeObject(piBytes, IOUtilsJUnitTest.class.getClassLoader());
     assertThat(piObj).isInstanceOf(BigDecimal.class);
     assertThat(piObj).isEqualTo(pi);
@@ -166,8 +165,8 @@ public class IOUtilsJUnitTest {
 
   @Test
   public void testToByteArray() throws IOException {
-    final byte[] expected = new byte[] {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE};
-    final byte[] actual = IOUtils.toByteArray(new ByteArrayInputStream(expected));
+    final var expected = new byte[] {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE};
+    final var actual = IOUtils.toByteArray(new ByteArrayInputStream(expected));
 
     assertThat(actual).isNotNull();
     assertThat(actual.length).isEqualTo(expected.length);
@@ -176,7 +175,7 @@ public class IOUtilsJUnitTest {
 
   @Test
   public void testToByteArrayThrowsIOException() throws IOException {
-    final InputStream mockIn = mock(InputStream.class, "testToByteArrayThrowsIOException");
+    final var mockIn = mock(InputStream.class, "testToByteArrayThrowsIOException");
     when(mockIn.read(any())).thenThrow(new IOException("Mock IOException"));
     assertThatThrownBy(() -> IOUtils.toByteArray(mockIn)).isInstanceOf(IOException.class)
         .hasMessage("Mock IOException");
@@ -190,9 +189,9 @@ public class IOUtilsJUnitTest {
 
   @Test
   public void testTryGetCanonicalFileElseGetAbsoluteFile() throws IOException {
-    final File mockFile = mock(File.class);
+    final var mockFile = mock(File.class);
     when(mockFile.getCanonicalFile()).thenReturn(mock(File.class));
-    final File file = IOUtils.tryGetCanonicalFileElseGetAbsoluteFile(mockFile);
+    final var file = IOUtils.tryGetCanonicalFileElseGetAbsoluteFile(mockFile);
 
     assertThat(file).isNotNull();
     assertThat(file.exists()).isFalse();
@@ -202,14 +201,14 @@ public class IOUtilsJUnitTest {
 
   @Test
   public void testTryGetCanonicalFileElseGetAbsoluteFileHandlesIOException() throws IOException {
-    final File mockFile = mock(File.class);
+    final var mockFile = mock(File.class);
     when(mockFile.getAbsoluteFile()).thenReturn(mock(File.class));
     when(mockFile.getCanonicalFile()).thenThrow(new IOException("Mock Exception"));
-    final File file = IOUtils.tryGetCanonicalFileElseGetAbsoluteFile(mockFile);
+    final var file = IOUtils.tryGetCanonicalFileElseGetAbsoluteFile(mockFile);
 
     assertThat(file).isNotNull();
     assertThat(file.exists()).isFalse();
-    InOrder inOrder = Mockito.inOrder(mockFile);
+    var inOrder = Mockito.inOrder(mockFile);
     inOrder.verify(mockFile).getCanonicalFile();
     inOrder.verify(mockFile).getAbsoluteFile();
   }

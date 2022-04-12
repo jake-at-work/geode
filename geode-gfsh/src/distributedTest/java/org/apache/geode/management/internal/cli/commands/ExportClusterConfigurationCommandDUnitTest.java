@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -59,7 +58,7 @@ public class ExportClusterConfigurationCommandDUnitTest {
   public static void beforeClass() throws Exception {
     xmlFile = tempFolder.newFile("my.xml");
     locator = cluster.startLocatorVM(0);
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(GROUPS_NAME, "groupB");
     server = cluster.startServerVM(1, properties, locator.getPort());
     gfsh.connectAndVerify(locator);
@@ -90,14 +89,14 @@ public class ExportClusterConfigurationCommandDUnitTest {
         .containsOutput("xml content exported to " + xmlFile.getAbsolutePath());
 
     assertThat(xmlFile).exists();
-    String content = FileUtils.readFileToString(xmlFile, Charset.defaultCharset());
+    var content = FileUtils.readFileToString(xmlFile, Charset.defaultCharset());
     assertThat(content).startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>")
         .contains("<region name=\"regionA\"");
   }
 
   @Test
   public void testExportWithAbsolutePath() throws Exception {
-    Path exportedZipPath =
+    var exportedZipPath =
         tempFolder.getRoot().toPath().resolve("exportedCC.zip").toAbsolutePath();
 
     testExportClusterConfig(exportedZipPath.toString());
@@ -116,33 +115,33 @@ public class ExportClusterConfigurationCommandDUnitTest {
   }
 
   public void testExportClusterConfig(String zipFilePath) throws Exception {
-    ConfigGroup cluster = new ConfigGroup("cluster").regions("regionA");
-    ConfigGroup groupB = new ConfigGroup("groupB").regions("regionB");
-    ClusterConfig expectedClusterConfig = new ClusterConfig(cluster, groupB);
+    var cluster = new ConfigGroup("cluster").regions("regionA");
+    var groupB = new ConfigGroup("groupB").regions("regionB");
+    var expectedClusterConfig = new ClusterConfig(cluster, groupB);
     expectedClusterConfig.verify(locator);
     expectedClusterConfig.verify(server);
 
-    String expectedFilePath = new File(zipFilePath).getAbsolutePath();
+    var expectedFilePath = new File(zipFilePath).getAbsolutePath();
     gfsh.executeAndAssertThat("export cluster-configuration --zip-file-name=" + zipFilePath)
         .statusIsSuccess()
         .containsOutput("File saved to " + expectedFilePath);
 
-    File exportedZip = new File(zipFilePath);
+    var exportedZip = new File(zipFilePath);
     assertThat(exportedZip).exists();
 
-    Set<String> actualZipEnries =
+    var actualZipEnries =
         new ZipFile(exportedZip).stream().map(ZipEntry::getName).collect(Collectors.toSet());
 
-    ConfigGroup exportedClusterGroup = cluster.configFiles("cluster.xml", "cluster.properties");
-    ConfigGroup exportedGroupB = groupB.configFiles("groupB.xml", "groupB.properties");
-    ClusterConfig expectedExportedClusterConfig =
+    var exportedClusterGroup = cluster.configFiles("cluster.xml", "cluster.properties");
+    var exportedGroupB = groupB.configFiles("groupB.xml", "groupB.properties");
+    var expectedExportedClusterConfig =
         new ClusterConfig(exportedClusterGroup, exportedGroupB);
 
     Set<String> expectedZipEntries = new HashSet<>();
-    for (ConfigGroup group : expectedExportedClusterConfig.getGroups()) {
-      String groupDir = group.getName() + File.separator;
+    for (var group : expectedExportedClusterConfig.getGroups()) {
+      var groupDir = group.getName() + File.separator;
 
-      for (String jarOrXmlOrPropFile : group.getAllFiles()) {
+      for (var jarOrXmlOrPropFile : group.getAllFiles()) {
         expectedZipEntries.add(groupDir + jarOrXmlOrPropFile);
       }
     }

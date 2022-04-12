@@ -17,7 +17,6 @@ package org.apache.geode.cache.lucene.internal.management;
 import static org.apache.geode.cache.Region.SEPARATOR;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,17 +38,17 @@ public class LuceneServiceBridge {
 
   public void addIndex(LuceneIndex index) {
     // Create monitor on the index
-    LuceneIndexStatsMonitor monitor = new LuceneIndexStatsMonitor(index);
+    var monitor = new LuceneIndexStatsMonitor(index);
 
     // Register the monitor
     monitors.put(getMonitorKey(index), monitor);
   }
 
   public LuceneIndexMetrics[] listIndexMetrics() {
-    Collection<LuceneIndex> indexes = service.getAllIndexes();
-    LuceneIndexMetrics[] indexMetrics = new LuceneIndexMetrics[indexes.size()];
-    int i = 0;
-    for (LuceneIndex index : service.getAllIndexes()) {
+    var indexes = service.getAllIndexes();
+    var indexMetrics = new LuceneIndexMetrics[indexes.size()];
+    var i = 0;
+    for (var index : service.getAllIndexes()) {
       indexMetrics[i++] = getIndexMetrics(index);
     }
     return indexMetrics;
@@ -60,7 +59,7 @@ public class LuceneServiceBridge {
       regionPath = SEPARATOR + regionPath;
     }
     List<LuceneIndexMetrics> indexMetrics = new ArrayList();
-    for (LuceneIndex index : service.getAllIndexes()) {
+    for (var index : service.getAllIndexes()) {
       if (index.getRegionPath().equals(regionPath)) {
         indexMetrics.add(getIndexMetrics(index));
       }
@@ -69,7 +68,7 @@ public class LuceneServiceBridge {
   }
 
   public LuceneIndexMetrics listIndexMetrics(String regionPath, String indexName) {
-    LuceneIndex index = service.getIndex(indexName, regionPath);
+    var index = service.getIndex(indexName, regionPath);
     return index == null ? null : getIndexMetrics(index);
   }
 
@@ -78,7 +77,7 @@ public class LuceneServiceBridge {
   }
 
   private LuceneIndexMetrics getIndexMetrics(LuceneIndex index) {
-    LuceneIndexStatsMonitor monitor = monitors.get(getMonitorKey(index));
+    var monitor = monitors.get(getMonitorKey(index));
     return monitor.getIndexMetrics(index);
   }
 }

@@ -79,23 +79,23 @@ public class JarBuilder {
    * Builds a jar file containing empty classes with the given classNames.
    */
   public void buildJarFromClassNames(File outputJarFile, String... classNames) throws IOException {
-    List<InMemorySourceFile> sourceFiles = Arrays.stream(classNames)
+    var sourceFiles = Arrays.stream(classNames)
         .map(InMemorySourceFile::fromClassName)
         .collect(toList());
 
-    List<InMemoryClassFile> compiledSourceCodes = javaCompiler.compile(sourceFiles);
+    var compiledSourceCodes = javaCompiler.compile(sourceFiles);
 
     buildJar(outputJarFile, compiledSourceCodes);
   }
 
   public void buildJar(File outputJarFile, String... sourceFileContents) throws IOException {
-    List<InMemoryClassFile> compiledSourceCodes = javaCompiler.compile(sourceFileContents);
+    var compiledSourceCodes = javaCompiler.compile(sourceFileContents);
 
     buildJar(outputJarFile, compiledSourceCodes);
   }
 
   public void buildJar(File outputJarFile, File... sourceFiles) throws IOException {
-    List<InMemoryClassFile> compiledSourceCodes = javaCompiler.compile(sourceFiles);
+    var compiledSourceCodes = javaCompiler.compile(sourceFiles);
 
     buildJar(outputJarFile, compiledSourceCodes);
   }
@@ -104,16 +104,16 @@ public class JarBuilder {
       throws IOException {
     assertThat(outputJarFile).doesNotExist();
 
-    try (FileOutputStream outputStream = new FileOutputStream(outputJarFile)) {
-      JarOutputStream jarOutputStream = new JarOutputStream(outputStream);
-      for (InMemoryClassFile compiledSource : compiledSourceCodes) {
+    try (var outputStream = new FileOutputStream(outputJarFile)) {
+      var jarOutputStream = new JarOutputStream(outputStream);
+      for (var compiledSource : compiledSourceCodes) {
 
-        String formattedName = compiledSource.getName().replace(".", "/");
+        var formattedName = compiledSource.getName().replace(".", "/");
         if (!formattedName.endsWith(".class")) {
           formattedName = formattedName.concat(".class");
         }
 
-        JarEntry entry = new JarEntry(formattedName);
+        var entry = new JarEntry(formattedName);
         entry.setTime(System.currentTimeMillis());
         jarOutputStream.putNextEntry(entry);
         jarOutputStream.write(compiledSource.getByteContent());
@@ -121,8 +121,8 @@ public class JarBuilder {
       }
 
       // Add timestamp so that the jar file itself has a new MD5 signature
-      JarEntry timestampEntry = new JarEntry("timestamp");
-      long now = System.currentTimeMillis();
+      var timestampEntry = new JarEntry("timestamp");
+      var now = System.currentTimeMillis();
       timestampEntry.setTime(now);
       jarOutputStream.putNextEntry(timestampEntry);
       jarOutputStream.write(Long.toString(now).getBytes());

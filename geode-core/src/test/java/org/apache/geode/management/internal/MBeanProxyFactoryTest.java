@@ -55,7 +55,7 @@ public class MBeanProxyFactoryTest {
     when(regionEntry.getKey())
         .thenThrow(new EntryNotFoundException("test"));
 
-    MBeanProxyFactory mBeanProxyFactory = spy(new MBeanProxyFactory(jmxAdapter, managementService));
+    var mBeanProxyFactory = spy(new MBeanProxyFactory(jmxAdapter, managementService));
 
     mBeanProxyFactory.removeAllProxies(mock(DistributedMember.class), region);
 

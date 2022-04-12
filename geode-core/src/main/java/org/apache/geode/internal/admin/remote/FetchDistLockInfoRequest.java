@@ -29,7 +29,7 @@ public class FetchDistLockInfoRequest extends AdminRequest {
    * Returns a <code>FetchDistLockInfoRequest</code> to be sent to the specified recipient.
    */
   public static FetchDistLockInfoRequest create() {
-    FetchDistLockInfoRequest m = new FetchDistLockInfoRequest();
+    var m = new FetchDistLockInfoRequest();
     return m;
   }
 

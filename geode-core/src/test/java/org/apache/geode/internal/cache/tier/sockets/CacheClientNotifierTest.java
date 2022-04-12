@@ -103,7 +103,7 @@ public class CacheClientNotifierTest {
   public static void clearStatics() {
     // Perform cleanup on any singletons received from previous test runs, since the
     // CacheClientNotifier is a static and previous tests may not have cleaned up properly.
-    CacheClientNotifier cacheClientNotifier = CacheClientNotifier.getInstance();
+    var cacheClientNotifier = CacheClientNotifier.getInstance();
     if (cacheClientNotifier != null) {
       cacheClientNotifier.shutdown(0);
     }
@@ -191,8 +191,8 @@ public class CacheClientNotifierTest {
     tasks.add(() -> {
       beforeLatch.get().await();
 
-      InternalCacheEvent internalCacheEvent = internalCacheEvent(clientProxyMembershipId);
-      ClientUpdateMessageImpl clientUpdateMessageImpl = mock(ClientUpdateMessageImpl.class);
+      var internalCacheEvent = internalCacheEvent(clientProxyMembershipId);
+      var clientUpdateMessageImpl = mock(ClientUpdateMessageImpl.class);
       CacheClientNotifier.notifyClients(internalCacheEvent, clientUpdateMessageImpl);
 
       afterLatch.get().countDown();
@@ -209,7 +209,7 @@ public class CacheClientNotifierTest {
   @Test
   public void initializingMessageDoesNotSerializeValuePrematurely() {
     // this test requires mock of EntryEventImpl instead of InternalCacheEvent
-    EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
+    var entryEventImpl = mock(EntryEventImpl.class);
 
     when(entryEventImpl.getEventType())
         .thenReturn(EnumListenerEvent.AFTER_CREATE);
@@ -237,7 +237,7 @@ public class CacheClientNotifierTest {
 
   @Test
   public void clientRegistrationFailsQueueStillDrained() throws Exception {
-    ClientRegistrationEventQueue clientRegistrationEventQueue =
+    var clientRegistrationEventQueue =
         mock(ClientRegistrationEventQueue.class);
 
     when(clientRegistrationEventQueueManager.create(eq(clientProxyMembershipId), any(), any()))
@@ -261,7 +261,7 @@ public class CacheClientNotifierTest {
         .when(cacheClientNotifier)
         .registerClientInternal(clientRegistrationMetadata, socket, false, 0, true);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       cacheClientNotifier.registerClient(clientRegistrationMetadata, socket, false, 0, true);
     });
     assertThat(thrown).isInstanceOf(IOException.class);
@@ -334,13 +334,13 @@ public class CacheClientNotifierTest {
   }
 
   private InternalCacheEvent internalCacheEvent(ClientProxyMembershipID clientProxyMembershipID) {
-    FilterInfo filterInfo = mock(FilterInfo.class);
-    FilterProfile filterProfile = mock(FilterProfile.class);
-    FilterRoutingInfo filterRoutingInfo = mock(FilterRoutingInfo.class);
-    InternalCacheEvent internalCacheEvent = mock(InternalCacheEvent.class);
-    ServerCQ serverCQ = mock(ServerCQ.class);
+    var filterInfo = mock(FilterInfo.class);
+    var filterProfile = mock(FilterProfile.class);
+    var filterRoutingInfo = mock(FilterRoutingInfo.class);
+    var internalCacheEvent = mock(InternalCacheEvent.class);
+    var serverCQ = mock(ServerCQ.class);
 
-    HashMap<Long, Integer> cqs = new HashMap<>();
+    var cqs = new HashMap<Long, Integer>();
     cqs.put(CQ_ID, 123);
 
     when(filterInfo.getCQs())
@@ -383,9 +383,9 @@ public class CacheClientNotifierTest {
         mock(ClientRegistrationEventQueueManager.class), mock(StatisticsClock.class),
         mock(CacheServerStats.class), 10, 10, mock(ConnectionListener.class), null, false,
         mock(SocketMessageWriter.class));
-    ClientRegistrationMetadata metadata = mock(ClientRegistrationMetadata.class);
-    ClientProxyMembershipID id = mock(ClientProxyMembershipID.class);
-    CacheClientProxy proxy = mock(CacheClientProxy.class);
+    var metadata = mock(ClientRegistrationMetadata.class);
+    var id = mock(ClientProxyMembershipID.class);
+    var proxy = mock(CacheClientProxy.class);
     when(proxy.getProxyID()).thenReturn(id);
     when(metadata.getClientProxyMembershipID()).thenReturn(id);
     when(id.getDistributedMember()).thenReturn(mock(DistributedMember.class));

@@ -27,7 +27,6 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.apache.geode.distributed.AbstractLauncher;
 import org.apache.geode.distributed.LocatorLauncher;
 import org.apache.geode.internal.util.StopWatch;
-import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.cli.commands.OfflineGfshCommand;
@@ -54,7 +53,7 @@ public class StopLocatorCommand extends OfflineGfshCommand {
     LocatorLauncher.LocatorState locatorState;
     if (isNotBlank(member)) {
       if (isConnectedAndReady()) {
-        final MemberMXBean locatorProxy = getMemberMXBean(member);
+        final var locatorProxy = getMemberMXBean(member);
 
         if (locatorProxy != null) {
           if (!locatorProxy.isLocator()) {
@@ -78,7 +77,7 @@ public class StopLocatorCommand extends OfflineGfshCommand {
             .format(CliStrings.STOP_SERVICE__GFSH_NOT_CONNECTED_ERROR_MESSAGE, LOCATOR_TERM_NAME));
       }
     } else {
-      final LocatorLauncher locatorLauncher =
+      final var locatorLauncher =
           new LocatorLauncher.Builder().setCommand(LocatorLauncher.Command.STOP)
               .setDebug(isDebugging()).setPid(pid).setWorkingDirectory(workingDirectory).build();
 
@@ -93,7 +92,7 @@ public class StopLocatorCommand extends OfflineGfshCommand {
               locatorState.getMemberName(), locatorState.getPid(), locatorState.getLogFile()),
           null);
 
-      StopWatch stopWatch = new StopWatch(true);
+      var stopWatch = new StopWatch(true);
       while (locatorState.isVmWithProcessIdRunning()) {
         Gfsh.print(".");
         if (stopWatch.elapsedTimeMillis() > WAITING_FOR_STOP_TO_MAKE_PID_GO_AWAY_TIMEOUT_MILLIS) {

@@ -30,7 +30,7 @@ class FunctionContextArgumentProvider {
   }
 
   static String getMemberFromContext(FunctionContext<?> context) {
-    InternalCache cache = getCacheFromContext(context);
+    var cache = getCacheFromContext(context);
     return CliUtils.getMemberNameOrId(cache.getDistributedSystem().getDistributedMember());
   }
 

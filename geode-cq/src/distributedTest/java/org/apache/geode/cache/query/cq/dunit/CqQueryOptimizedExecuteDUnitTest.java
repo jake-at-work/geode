@@ -32,7 +32,6 @@ import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -71,18 +70,18 @@ public class CqQueryOptimizedExecuteDUnitTest extends CqQueryDUnitTest {
 
   @Test
   public void testCqExecuteWithoutQueryExecution() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final int numOfEntries = 10;
-    final String cqName = "testCqExecuteWithoutQueryExecution_1";
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var numOfEntries = 10;
+    final var cqName = "testCqExecuteWithoutQueryExecution_1";
 
     createServer(server);
     // Create values.
     createValues(server, regions[0], numOfEntries);
 
     final int thePort = server.invoke(CqQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
     // Create client.
     createClient(client, thePort, host0);
@@ -111,7 +110,7 @@ public class CqQueryOptimizedExecuteDUnitTest extends CqQueryDUnitTest {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
-        for (int i = numOfEntries + 1; i <= numOfEntries * 2; i++) {
+        for (var i = numOfEntries + 1; i <= numOfEntries * 2; i++) {
           region1.put(KEY + i, new Portfolio(i));
         }
         LogWriterUtils.getLogWriter()
@@ -152,11 +151,11 @@ public class CqQueryOptimizedExecuteDUnitTest extends CqQueryDUnitTest {
 
   @Test
   public void testCqExecuteWithoutQueryExecutionAndNoRSCaching() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final int numOfEntries = 10;
-    final String cqName = "testCqExecuteWithoutQueryExecution_1";
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
+    final var numOfEntries = 10;
+    final var cqName = "testCqExecuteWithoutQueryExecution_1";
 
     server.invoke(new CacheSerializableRunnable("execute cq") {
       @Override
@@ -170,7 +169,7 @@ public class CqQueryOptimizedExecuteDUnitTest extends CqQueryDUnitTest {
     createValues(server, regions[0], numOfEntries);
 
     final int thePort = server.invoke(CqQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
     // Create client.
     createClient(client, thePort, host0);
@@ -201,7 +200,7 @@ public class CqQueryOptimizedExecuteDUnitTest extends CqQueryDUnitTest {
       @Override
       public void run2() throws CacheException {
         Region region1 = getRootRegion().getSubregion(regions[0]);
-        for (int i = numOfEntries + 1; i <= numOfEntries * 2; i++) {
+        for (var i = numOfEntries + 1; i <= numOfEntries * 2; i++) {
           region1.put(KEY + i, new Portfolio(i));
         }
         LogWriterUtils.getLogWriter()
@@ -247,16 +246,16 @@ public class CqQueryOptimizedExecuteDUnitTest extends CqQueryDUnitTest {
   @Override
   @Test
   public void testCQAllServersLeaveMultiplePool() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(1);
-    VM server2 = host.getVM(2);
-    VM client = host.getVM(3);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(1);
+    var server2 = host.getVM(2);
+    var client = host.getVM(3);
 
     createServer(server1);
 
     final int port1 = server1.invoke(CqQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server1.getHost());
-    final int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    final var host0 = NetworkUtils.getServerHostName(server1.getHost());
+    final var ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
 
     createServer(server2, ports[0]);
     final int thePort2 = server2.invoke(CqQueryDUnitTest::getCacheServerPort);

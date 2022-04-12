@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
 import org.junit.Test;
 
@@ -54,7 +53,7 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
    */
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.GLOBAL);
     factory.setConcurrencyChecksEnabled(false);
     factory.setDataPolicy(DataPolicy.PRELOADED);
@@ -74,7 +73,7 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
     // in the distributed system that has the same region with
     // Scope.GLOBAL
 
-    final String name = getUniqueName() + "-GLOBAL";
+    final var name = getUniqueName() + "-GLOBAL";
     vm0.invoke("Create GLOBAL Region", () -> {
       createRegion(name, "INCOMPATIBLE_ROOT", getRegionAttributes());
       assertThat(getRootRegion("INCOMPATIBLE_ROOT").getAttributes().getScope().isGlobal())
@@ -82,7 +81,7 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
     });
 
     vm1.invoke("Create NO ACK Region", () -> {
-      RegionFactory<Object, Object> factory =
+      var factory =
           getCache().createRegionFactory(getRegionAttributes());
       factory.setScope(Scope.DISTRIBUTED_NO_ACK);
       try {
@@ -96,11 +95,11 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
     });
 
     vm1.invoke("Create ACK Region", () -> {
-      RegionFactory<Object, Object> factory =
+      var factory =
           getCache().createRegionFactory(getRegionAttributes());
       factory.setScope(Scope.DISTRIBUTED_ACK);
       try {
-        Region<Object, Object> rootRegion = factory.create("INCOMPATIBLE_ROOT");
+        var rootRegion = factory.create("INCOMPATIBLE_ROOT");
         fail("Should have thrown an IllegalStateException");
       } catch (IllegalStateException ex) {
         // pass...
@@ -117,14 +116,14 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
   public void testRemoteFetch() throws CacheException {
     assertThat(getRegionAttributes().getScope().isDistributed()).isTrue();
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = "KEY";
     final Object value = "VALUE";
 
     SerializableRunnable create = new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
-        Region<Object, Object> region = createRegion(name);
+        var region = createRegion(name);
         setLoader(new TestCacheLoader<Object, Object>() {
           @Override
           public Object load2(LoaderHelper<Object, Object> helper) throws CacheLoaderException {
@@ -139,7 +138,7 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
 
     vm0.invoke("Create Region", create);
     vm0.invoke("Put", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       region.put(key, value);
       assertThat(loader().wasInvoked()).isFalse();
     });
@@ -147,7 +146,7 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
     vm1.invoke("Create Region", create);
 
     vm1.invoke("Get", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
       assertThat(value).isEqualTo(region.get(key));
       assertThat(loader().wasInvoked()).isFalse();
     });
@@ -160,52 +159,52 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
   @Test
   public void testSynchronousIncrements() throws InterruptedException {
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = "KEY";
 
-    final int vmCount = VM.getVMCount();
-    final int threadsPerVM = 3;
-    final int incrementsPerThread = 10;
+    final var vmCount = VM.getVMCount();
+    final var threadsPerVM = 3;
+    final var incrementsPerThread = 10;
 
-    for (int i = 0; i < vmCount; i++) {
-      VM vm = VM.getVM(i);
+    for (var i = 0; i < vmCount; i++) {
+      var vm = VM.getVM(i);
       vm.invoke("Create Region", () -> {
         createRegion(name);
-        Region<Object, Object> region = getRootRegion().getSubregion(name);
+        var region = getRootRegion().getSubregion(name);
         region.put(key, 0);
       });
     }
 
-    AsyncInvocation[] invokes = new AsyncInvocation[vmCount];
-    for (int i = 0; i < vmCount; i++) {
+    var invokes = new AsyncInvocation[vmCount];
+    for (var i = 0; i < vmCount; i++) {
       invokes[i] = VM.getVM(i).invokeAsync("Start Threads and increment", () -> {
-        final ThreadGroup group = new ThreadGroup("Incrementors") {
+        final var group = new ThreadGroup("Incrementors") {
           @Override
           public void uncaughtException(Thread t, Throwable e) {
-            String s = "Uncaught exception in thread " + t;
+            var s = "Uncaught exception in thread " + t;
             fail(s, e);
           }
         };
 
-        Thread[] threads = new Thread[threadsPerVM];
-        for (int i1 = 0; i1 < threadsPerVM; i1++) {
-          Thread thread = new Thread(group, () -> {
+        var threads = new Thread[threadsPerVM];
+        for (var i1 = 0; i1 < threadsPerVM; i1++) {
+          var thread = new Thread(group, () -> {
             try {
-              final Random rand = new Random(System.identityHashCode(this));
+              final var rand = new Random(System.identityHashCode(this));
               Region<Object, Integer> region = getRootRegion().getSubregion(name);
-              for (int j = 0; j < incrementsPerThread; j++) {
+              for (var j = 0; j < incrementsPerThread; j++) {
                 Thread.sleep(rand.nextInt(30) + 30);
 
-                Lock lock = region.getDistributedLock(key);
+                var lock = region.getDistributedLock(key);
                 assertThat(lock.tryLock(-1, TimeUnit.MILLISECONDS)).isTrue();
 
-                Integer value = region.get(key);
-                Integer oldValue = value;
+                var value = region.get(key);
+                var oldValue = value;
                 if (value == null) {
                   value = 1;
 
                 } else {
-                  Integer v = value;
+                  var v = value;
                   value = v + 1;
                 }
 
@@ -224,21 +223,21 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
           thread.start();
         }
 
-        for (Thread thread : threads) {
+        for (var thread : threads) {
           ThreadUtils.join(thread, 30 * 1000);
         }
       });
     }
 
-    for (int i = 0; i < vmCount; i++) {
+    for (var i = 0; i < vmCount; i++) {
       invokes[i].get();
     }
 
     vm0.invoke("Verify final value", () -> {
       Region region = getRootRegion().getSubregion(name);
-      Integer value = (Integer) region.get(key);
+      var value = (Integer) region.get(key);
       assertThat(value).isNotNull();
-      int expected = vmCount * threadsPerVM * incrementsPerThread;
+      var expected = vmCount * threadsPerVM * incrementsPerThread;
       assertThat(expected).isEqualTo(value.intValue());
     });
   }
@@ -251,7 +250,7 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
   public void testPutGetTimeout() {
     assertThat(Scope.GLOBAL).isEqualTo(getRegionAttributes().getScope());
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = "KEY";
     final Object value = "VALUE";
 
@@ -265,7 +264,7 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
 
     vm0.invoke("Lock entry", () -> {
       Region region = getRootRegion().getSubregion(name);
-      Lock lock = region.getDistributedLock(key);
+      var lock = region.getDistributedLock(key);
       lock.lock();
     });
 
@@ -273,7 +272,7 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
       Cache cache = getCache();
       cache.setLockTimeout(1);
       cache.setSearchTimeout(1);
-      Region<Object, Object> region = getRootRegion().getSubregion(name);
+      var region = getRootRegion().getSubregion(name);
 
       try {
         region.put(key, value);
@@ -305,7 +304,7 @@ public class GlobalRegionDUnitTest extends MultiVMRegionTestCase {
 
     vm0.invoke("Unlock entry", () -> {
       Region region = getRootRegion().getSubregion(name);
-      Lock lock = region.getDistributedLock(key);
+      var lock = region.getDistributedLock(key);
       lock.unlock();
     });
   }

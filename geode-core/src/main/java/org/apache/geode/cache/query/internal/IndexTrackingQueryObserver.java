@@ -52,7 +52,7 @@ public class IndexTrackingQueryObserver extends QueryObserverAdapter {
       indexInfo.set(indexMap);
     }
     IndexInfo iInfo;
-    String indexName = getIndexName(index, key);
+    var indexName = getIndexName(index, key);
     if (indexMap.containsKey(indexName)) {
       iInfo = indexMap.get(indexName);
     } else {
@@ -104,10 +104,10 @@ public class IndexTrackingQueryObserver extends QueryObserverAdapter {
 
     // append the size of the lookup results (and bucket id if its an Index on bucket)
     // to IndexInfo results Map.
-    Map indexMap = (Map) indexInfo.get();
-    Index index = (Index) lastIndexUsed.get();
+    var indexMap = (Map) indexInfo.get();
+    var index = (Index) lastIndexUsed.get();
     if (index != null) {
-      IndexInfo indexInfo = (IndexInfo) indexMap.get(getIndexName(index, lastKeyUsed.get()));
+      var indexInfo = (IndexInfo) indexMap.get(getIndexName(index, lastKeyUsed.get()));
       if (indexInfo != null) {
         indexInfo.getResults().put(index.getRegion().getFullPath(), results.size());
       }
@@ -147,7 +147,7 @@ public class IndexTrackingQueryObserver extends QueryObserverAdapter {
   }
 
   public Map getUsedIndexes() {
-    Map map = (Map) indexInfo.get();
+    var map = (Map) indexInfo.get();
     if (map == null) {
       return Collections.EMPTY_MAP;
     }
@@ -176,7 +176,7 @@ public class IndexTrackingQueryObserver extends QueryObserverAdapter {
      *
      */
     public void addResults(Map rslts) {
-      for (Object obj : rslts.entrySet()) {
+      for (var obj : rslts.entrySet()) {
         Entry<String, Integer> ent = (Entry) obj;
         results.put(ent.getKey(), ent.getValue());
       }
@@ -193,8 +193,8 @@ public class IndexTrackingQueryObserver extends QueryObserverAdapter {
 
     @Override
     public String toString() {
-      int total = 0;
-      for (Integer i : results.values()) {
+      var total = 0;
+      for (var i : results.values()) {
         total += i;
       }
       return "(Results: " + total + ")";
@@ -206,13 +206,13 @@ public class IndexTrackingQueryObserver extends QueryObserverAdapter {
   }
 
   public Map getUsedIndexes(String fullPath) {
-    Map map = (Map) indexInfo.get();
+    var map = (Map) indexInfo.get();
     if (map == null) {
       return Collections.EMPTY_MAP;
     }
     Map newMap = new HashMap();
-    for (Object obj : map.entrySet()) {
-      Map.Entry<String, IndexInfo> entry = (Map.Entry<String, IndexInfo>) obj;
+    for (var obj : map.entrySet()) {
+      var entry = (Map.Entry<String, IndexInfo>) obj;
       if (entry != null && entry.getValue().getRegionIds().contains(fullPath)) {
         newMap.put(entry.getKey(), entry.getValue().getResults().get(fullPath));
       }

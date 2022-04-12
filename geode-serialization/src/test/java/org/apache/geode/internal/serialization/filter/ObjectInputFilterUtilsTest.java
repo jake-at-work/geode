@@ -78,7 +78,7 @@ public class ObjectInputFilterUtilsTest {
   public void supportsObjectInputFilter_returnsTrue_onJava8() {
     assumeThat(isJavaVersionAtMost(JAVA_1_8)).isTrue();
 
-    boolean result = supportsObjectInputFilter();
+    var result = supportsObjectInputFilter();
 
     assertThat(result).isTrue();
   }
@@ -87,7 +87,7 @@ public class ObjectInputFilterUtilsTest {
   public void supportsObjectInputFilter_returnsTrue_onJava9orGreater() {
     assumeThat(isJavaVersionAtLeast(JAVA_9)).isTrue();
 
-    boolean result = supportsObjectInputFilter();
+    var result = supportsObjectInputFilter();
 
     assertThat(result).isTrue();
   }

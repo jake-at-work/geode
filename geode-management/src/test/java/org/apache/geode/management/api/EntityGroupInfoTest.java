@@ -29,13 +29,13 @@ public class EntityGroupInfoTest {
 
   @Test
   public void jsonTest() throws Exception {
-    EntityGroupInfo<Region, RuntimeRegionInfo> result = new EntityGroupInfo<>();
-    Region region = new Region();
+    var result = new EntityGroupInfo<Region, RuntimeRegionInfo>();
+    var region = new Region();
     region.setName("test");
     result.setConfiguration(region);
 
-    String regionJson = mapper.writeValueAsString(region);
-    String json = mapper.writeValueAsString(result);
+    var regionJson = mapper.writeValueAsString(region);
+    var json = mapper.writeValueAsString(result);
     assertThat(regionJson).doesNotContain("links");
     System.out.println(json);
     assertThat(json).doesNotContain("links");

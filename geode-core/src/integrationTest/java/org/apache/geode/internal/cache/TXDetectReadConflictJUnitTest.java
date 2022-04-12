@@ -73,7 +73,7 @@ public class TXDetectReadConflictJUnitTest {
   }
 
   protected void createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     cache = new CacheFactory(props).create();
@@ -81,7 +81,7 @@ public class TXDetectReadConflictJUnitTest {
   }
 
   protected void createCachePR() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     cache = new CacheFactory(props).create();
@@ -99,7 +99,7 @@ public class TXDetectReadConflictJUnitTest {
     createCache();
     region.put(key, value);
     region.put(key1, value1);
-    TXManagerImpl mgr = (TXManagerImpl) cache.getCacheTransactionManager();
+    var mgr = (TXManagerImpl) cache.getCacheTransactionManager();
     mgr.begin();
     assertEquals(value, region.get(key));
     assertEquals(value1, region.get(key1));
@@ -112,7 +112,7 @@ public class TXDetectReadConflictJUnitTest {
     createCachePR();
     regionPR.put(key, value);
     regionPR.put(key1, value1);
-    TXManagerImpl mgr = (TXManagerImpl) cache.getCacheTransactionManager();
+    var mgr = (TXManagerImpl) cache.getCacheTransactionManager();
     mgr.begin();
     assertEquals(value, regionPR.get(key));
     assertEquals(value1, regionPR.get(key1));
@@ -131,11 +131,11 @@ public class TXDetectReadConflictJUnitTest {
 
     region.put(key, value);
     region.put(key1, value1);
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     assertThat(region.get(key)).isSameAs(value);
     region.put(key1, newValue1);
-    TXState txState =
+    var txState =
         (TXState) ((TXStateProxyImpl) TXManagerImpl.getCurrentTXState()).getRealDeal(null, null);
     txState.setAfterReservation(this::readTransactionAfterReservation);
     executorServiceRule.submit(this::doPutOnReadKeyTransaction);
@@ -155,7 +155,7 @@ public class TXDetectReadConflictJUnitTest {
   }
 
   private void doPutOnReadKeyTransaction() throws Exception {
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     region.put(key, newValue); // expect commit conflict
     allowWriteTransactionToCommitLatch.await(GeodeAwaitility.getTimeout().toMillis(),
@@ -171,7 +171,7 @@ public class TXDetectReadConflictJUnitTest {
 
     region.put(key, value);
     region.put(key1, value1);
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     assertThat(region.get(key)).isSameAs(value);
     region.put(key1, newValue1);
@@ -184,7 +184,7 @@ public class TXDetectReadConflictJUnitTest {
   }
 
   private void doPutTransaction() {
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     region.put(key, newValue);
     txManager.commit();
@@ -198,11 +198,11 @@ public class TXDetectReadConflictJUnitTest {
 
     regionPR.put(key, value);
     regionPR.put(key1, value1);
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     assertEquals(regionPR.get(key), value);
     regionPR.put(key1, newValue1);
-    TXState txState =
+    var txState =
         (TXState) ((TXStateProxyImpl) TXManagerImpl.getCurrentTXState()).getRealDeal(null, null);
     txState.setAfterReservation(this::putTransactionAfterReservation);
     executorServiceRule.submit(this::doReadonPutKeyTransaction);
@@ -222,7 +222,7 @@ public class TXDetectReadConflictJUnitTest {
   }
 
   private void doReadonPutKeyTransaction() {
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     assertEquals(regionPR.get(key1), value1);
     try {
@@ -246,7 +246,7 @@ public class TXDetectReadConflictJUnitTest {
 
     regionPR.put(key, value);
     regionPR.put(key1, value1);
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     assertEquals(regionPR.get(key), value);
     assertEquals(regionPR.get(key1), value1);
@@ -258,7 +258,7 @@ public class TXDetectReadConflictJUnitTest {
   }
 
   private void doGetTransaction() {
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     assertEquals(regionPR.get(key), value);
     assertEquals(regionPR.get(key1), value1);

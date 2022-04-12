@@ -26,13 +26,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.OutputStreamWriter;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 import java.util.Random;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
@@ -58,9 +55,9 @@ public class BlockingTimeOutJUnitTest {
   private static String tblName;
 
   private static String readFile(String filename) throws Exception {
-    BufferedReader br = new BufferedReader(new FileReader(filename));
-    String nextLine = "";
-    StringBuilder sb = new StringBuilder();
+    var br = new BufferedReader(new FileReader(filename));
+    var nextLine = "";
+    var sb = new StringBuilder();
     while ((nextLine = br.readLine()) != null) {
       sb.append(nextLine);
       //
@@ -74,15 +71,15 @@ public class BlockingTimeOutJUnitTest {
   }
 
   private static String modifyFile(String str) throws Exception {
-    String search = "<jndi-binding type=\"XAPooledDataSource\"";
-    String last_search = "</jndi-binding>";
-    String newDB = "newDB_" + RANDOM;
-    String jndi_str =
+    var search = "<jndi-binding type=\"XAPooledDataSource\"";
+    var last_search = "</jndi-binding>";
+    var newDB = "newDB_" + RANDOM;
+    var jndi_str =
         "<jndi-binding type=\"XAPooledDataSource\" jndi-name=\"XAPooledDataSource\"		              jdbc-driver-class=\"org.apache.derby.jdbc.EmbeddedDriver\" init-pool-size=\"1\" max-pool-size=\"2\" idle-timeout-seconds=\"600\" blocking-timeout-seconds=\""
             + BLOCKING_TIMEOUT
             + "\" login-timeout-seconds=\"25\" conn-pooled-datasource-class=\"org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource\" xa-datasource-class=\"org.apache.derby.jdbc.EmbeddedXADataSource\" user-name=\"mitul\" password=\"83f0069202c571faf1ae6c42b4ad46030e4e31c17409e19a\" connection-url=\"jdbc:derby:"
             + newDB + ";create=true\" >";
-    String config_prop = "<config-property>"
+    var config_prop = "<config-property>"
         + "<config-property-name>description</config-property-name>"
         + "<config-property-type>java.lang.String</config-property-type>"
         + "<config-property-value>hi</config-property-value>" + "</config-property>"
@@ -96,7 +93,7 @@ public class BlockingTimeOutJUnitTest {
         + "<config-property-name>databaseName</config-property-name>"
         + "<config-property-type>java.lang.String</config-property-type>"
         + "<config-property-value>" + newDB + "</config-property-value>" + "</config-property>\n";
-    String new_str = jndi_str + config_prop;
+    var new_str = jndi_str + config_prop;
     /*
      * String new_str = " <jndi-binding type=\"XAPooledDataSource\" jndi-name=\"XAPooledDataSource\"
      * jdbc-driver-class=\"org.apache.derby.jdbc.EmbeddedDriver\"
@@ -110,12 +107,12 @@ public class BlockingTimeOutJUnitTest {
      * value=\""+newDB+"\"/> <property key=\"user\" value=\"mitul\"/> <property key=\"password\"
      * value=\"83f0069202c571faf1ae6c42b4ad46030e4e31c17409e19a\"/>";
      */
-    int n1 = str.indexOf(search);
+    var n1 = str.indexOf(search);
     logger.debug("Start Index = " + n1);
-    int n2 = str.indexOf(last_search, n1);
-    StringBuilder sbuff = new StringBuilder(str);
+    var n2 = str.indexOf(last_search, n1);
+    var sbuff = new StringBuilder(str);
     logger.debug("END Index = " + n2);
-    String modified_str = sbuff.replace(n1, n2, new_str).toString();
+    var modified_str = sbuff.replace(n1, n2, new_str).toString();
     return modified_str;
   }
 
@@ -126,30 +123,30 @@ public class BlockingTimeOutJUnitTest {
       ds.disconnect();
     }
     logger.debug("PATH11 ");
-    Properties props = new Properties();
-    String path = System.getProperty("CACHEXMLFILE");
+    var props = new Properties();
+    var path = System.getProperty("CACHEXMLFILE");
     logger.debug("PATH2 " + path);
-    int pid = RANDOM;
+    var pid = RANDOM;
     path = File.createTempFile("dunit-cachejta_", ".xml").getAbsolutePath();
     logger.debug("PATH " + path);
     /** * Return file as string and then modify the string accordingly ** */
-    String file_as_str = readFile(
+    var file_as_str = readFile(
         createTempFileFromResource(CacheUtils.class, "cachejta.xml")
             .getAbsolutePath());
     file_as_str = file_as_str.replaceAll("newDB", "newDB_" + pid);
-    String modified_file_str = modifyFile(file_as_str);
-    FileOutputStream fos = new FileOutputStream(path);
-    BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(fos));
+    var modified_file_str = modifyFile(file_as_str);
+    var fos = new FileOutputStream(path);
+    var wr = new BufferedWriter(new OutputStreamWriter(fos));
     wr.write(modified_file_str);
     wr.flush();
     wr.close();
     props.setProperty(CACHE_XML_FILE, path);
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    String tableName = "";
+    var tableName = "";
     cache = new CacheFactory(props).create();
     if (className != null && !className.equals("")) {
-      String time = new Long(System.currentTimeMillis()).toString();
+      var time = new Long(System.currentTimeMillis()).toString();
       tableName = className + time;
       createTable(tableName);
     }
@@ -158,17 +155,17 @@ public class BlockingTimeOutJUnitTest {
   }
 
   private static void createTable(String tableName) throws Exception {
-    Context ctx = cache.getJNDIContext();
-    DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
-    String sql = "create table " + tableName
+    var ctx = cache.getJNDIContext();
+    var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+    var sql = "create table " + tableName
         + " (id integer NOT NULL, name varchar(50), CONSTRAINT the_key PRIMARY KEY(id))";
     logger.debug(sql);
-    Connection conn = ds.getConnection();
-    Statement sm = conn.createStatement();
+    var conn = ds.getConnection();
+    var sm = conn.createStatement();
     sm.execute(sql);
     sm.close();
     sm = conn.createStatement();
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       sql = "insert into " + tableName + " values (" + i + ",'name" + i + "')";
       sm.addBatch(sql);
       logger.debug(sql);
@@ -179,13 +176,13 @@ public class BlockingTimeOutJUnitTest {
 
   private static void destroyTable() throws Exception {
     try {
-      String tableName = tblName;
-      Context ctx = cache.getJNDIContext();
-      DataSource ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
-      Connection conn = ds.getConnection();
+      var tableName = tblName;
+      var ctx = cache.getJNDIContext();
+      var ds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var conn = ds.getConnection();
       logger.debug(" trying to drop table: " + tableName);
-      String sql = "drop table " + tableName;
-      Statement sm = conn.createStatement();
+      var sql = "drop table " + tableName;
+      var sm = conn.createStatement();
       sm.execute(sql);
       conn.close();
     } catch (NamingException ne) {
@@ -205,7 +202,7 @@ public class BlockingTimeOutJUnitTest {
         cache.close();
       }
     } finally {
-      InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+      var ids = InternalDistributedSystem.getAnyInstance();
       if (ids != null) {
         ids.disconnect();
       }
@@ -235,10 +232,10 @@ public class BlockingTimeOutJUnitTest {
   }
 
   private void runTest1() throws Exception {
-    final int MAX_CONNECTIONS = 2;
+    final var MAX_CONNECTIONS = 2;
     DataSource ds = null;
     try {
-      Context ctx = cache.getJNDIContext();
+      var ctx = cache.getJNDIContext();
       ds = (DataSource) ctx.lookup("java:/XAPooledDataSource");
     } catch (NamingException e) {
       logger.debug("Naming Exception caught in lookup: " + e);
@@ -250,7 +247,7 @@ public class BlockingTimeOutJUnitTest {
       return;
     }
     try {
-      for (int count = 0; count < MAX_CONNECTIONS; count++) {
+      for (var count = 0; count < MAX_CONNECTIONS; count++) {
         ds.getConnection();
       }
     } catch (SQLException e) {
@@ -264,12 +261,12 @@ public class BlockingTimeOutJUnitTest {
   }
 
   private void runTest2() throws Exception {
-    final int MAX_CONNECTIONS = 2;
+    final var MAX_CONNECTIONS = 2;
     logger.debug("runTest2 sleeping");
     Thread.sleep((BLOCKING_TIMEOUT + 2) * 1000);
     DataSource ds = null;
     try {
-      Context ctx = cache.getJNDIContext();
+      var ctx = cache.getJNDIContext();
       ds = (DataSource) ctx.lookup("java:/XAPooledDataSource");
     } catch (NamingException e) {
       logger.debug("Exception caught during naming lookup: " + e);
@@ -279,8 +276,8 @@ public class BlockingTimeOutJUnitTest {
       fail("failed in because of unhandled excpetion: ", e);
     }
     try {
-      for (int count = 0; count < MAX_CONNECTIONS; count++) {
-        Connection con = ds.getConnection();
+      for (var count = 0; count < MAX_CONNECTIONS; count++) {
+        var con = ds.getConnection();
         assertNotNull("Connection object is null", con);
 
         logger.debug("runTest2 :acquired connection #" + count);

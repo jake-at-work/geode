@@ -34,7 +34,6 @@ import org.apache.geode.modules.session.catalina.ClientServerCacheLifecycleListe
 import org.apache.geode.modules.session.catalina.DeltaSessionManager;
 import org.apache.geode.modules.session.catalina.Tomcat8DeltaSessionManager;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.SessionTest;
 
 
@@ -49,14 +48,14 @@ public class Tomcat8SessionsClientServerDUnitTest extends TestSessionsTomcat8Bas
 
   @Before
   public void setUp() throws Exception {
-    int locatorPortSuggestion = AvailablePortHelper.getRandomAvailableTCPPort();
-    MemberVM locatorVM = clusterStartupRule.startLocatorVM(0, locatorPortSuggestion);
+    var locatorPortSuggestion = AvailablePortHelper.getRandomAvailableTCPPort();
+    var locatorVM = clusterStartupRule.startLocatorVM(0, locatorPortSuggestion);
     assertThat(locatorVM).isNotNull();
 
     Integer locatorPort = locatorVM.getPort();
     assertThat(locatorPort).isGreaterThan(0);
 
-    MemberVM serverVM = clusterStartupRule.startServerVM(1, locatorPort);
+    var serverVM = clusterStartupRule.startServerVM(1, locatorPort);
     assertThat(serverVM).isNotNull();
 
     port = AvailablePortHelper.getRandomAvailableTCPPort();
@@ -65,7 +64,7 @@ public class Tomcat8SessionsClientServerDUnitTest extends TestSessionsTomcat8Bas
     server = new EmbeddedTomcat8(port, "JVM-1");
     assertThat(server).isNotNull();
 
-    ClientCacheFactory cacheFactory = new ClientCacheFactory();
+    var cacheFactory = new ClientCacheFactory();
     assertThat(cacheFactory).isNotNull();
 
     cacheFactory.addPoolServer("localhost", serverVM.getPort()).setPoolSubscriptionEnabled(true);
@@ -75,7 +74,7 @@ public class Tomcat8SessionsClientServerDUnitTest extends TestSessionsTomcat8Bas
     DeltaSessionManager manager = new Tomcat8DeltaSessionManager();
     assertThat(manager).isNotNull();
 
-    ClientServerCacheLifecycleListener listener = new ClientServerCacheLifecycleListener();
+    var listener = new ClientServerCacheLifecycleListener();
     assertThat(listener).isNotNull();
 
     listener.setProperty(MCAST_PORT, "0");

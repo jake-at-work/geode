@@ -273,12 +273,12 @@ public class DLockToken {
    * @return true if the current lease has been marked as expired
    */
   boolean checkForExpiration() {
-    boolean expired = false;
+    var expired = false;
 
     // check if lease exists and lease expire is not MAX_VALUE
     if (leaseId > -1 && leaseExpireTime < Long.MAX_VALUE) {
 
-      long currentTime = getCurrentTime();
+      var currentTime = getCurrentTime();
       if (currentTime > leaseExpireTime) {
         if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
           logger.trace(LogMarker.DLS_VERBOSE, "[checkForExpiration] Expiring token at {}: {}",
@@ -500,7 +500,7 @@ public class DLockToken {
    */
   private void checkDestroyed() {
     if (destroyed) {
-      IllegalStateException e = new IllegalStateException(
+      var e = new IllegalStateException(
           String.format("Attempting to use destroyed token: %s", this));
       throw e;
     }

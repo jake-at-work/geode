@@ -22,10 +22,8 @@ import java.net.InetAddress;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 
 
 public class MainWithChildrenRollingFileHandlerDUnitTest {
@@ -35,14 +33,14 @@ public class MainWithChildrenRollingFileHandlerDUnitTest {
 
   @Test
   public void testGeode2874_nameWithoutExtensionDoesNotThrowOnMemberRestart() throws Exception {
-    MemberVM locatorVM = clusterStartupRule.startLocatorVM(0);
+    var locatorVM = clusterStartupRule.startLocatorVM(0);
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+    var clientCacheFactory = new ClientCacheFactory();
     clientCacheFactory.addPoolLocator(InetAddress.getLocalHost().toString(), locatorVM.getPort());
     clientCacheFactory.set(LOG_FILE, "nameWithoutExtension");
-    ClientCache clientCache = clientCacheFactory.create();
+    var clientCache = clientCacheFactory.create();
 
     clientCache.close();
-    ClientCache clientCache2 = clientCacheFactory.create();
+    var clientCache2 = clientCacheFactory.create();
   }
 }

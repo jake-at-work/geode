@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.ServerLauncherParameters;
@@ -68,7 +67,7 @@ public class ReconnectWithCacheXMLDUnitTest extends JUnit4CacheTestCase {
     // stress testing needs this so that join attempts don't give up too soon
     Invoke.invokeInEveryVM(() -> System.setProperty("p2p.joinTimeout", "120000"));
     // reconnect tests should create their own locator so as to not impact other tests
-    VM locatorVM = VM.getVM(0);
+    var locatorVM = VM.getVM(0);
     final int port = locatorVM.invoke(() -> {
       System.setProperty(BYPASS_DISCOVERY_PROPERTY, "true");
       System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "member-weight", "100");
@@ -90,8 +89,8 @@ public class ReconnectWithCacheXMLDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
-    String fileName =
+    var result = super.getDistributedSystemProperties();
+    var fileName =
         createTempFileFromResource(getClass(), "ReconnectWithCacheXMLDUnitTest.xml")
             .getAbsolutePath();
     result.setProperty(ConfigurationProperties.CACHE_XML_FILE, fileName);
@@ -109,7 +108,7 @@ public class ReconnectWithCacheXMLDUnitTest extends JUnit4CacheTestCase {
         .withDisableDefaultServer(true);
     Cache cache = getCache();
 
-    AtomicBoolean membershipFailed = new AtomicBoolean();
+    var membershipFailed = new AtomicBoolean();
     MembershipManagerHelper.addTestHook(cache.getDistributedSystem(), new MembershipTestHook() {
       @Override
       public void beforeMembershipFailure(String reason, Throwable cause) {
@@ -121,9 +120,9 @@ public class ReconnectWithCacheXMLDUnitTest extends JUnit4CacheTestCase {
     await()
         .until(() -> cache.getReconnectedCache() != null);
 
-    Cache newCache = cache.getReconnectedCache();
+    var newCache = cache.getReconnectedCache();
     system = (InternalDistributedSystem) cache.getDistributedSystem();
-    CacheServer server = newCache.getCacheServers().iterator().next();
+    var server = newCache.getCacheServers().iterator().next();
     assertEquals(ServerLauncherParameters.INSTANCE.getPort().intValue(), server.getPort());
     assertEquals(20, server.getMaxConnections()); // this setting is in the XML file
   }

@@ -77,7 +77,7 @@ public class ClientCacheRule extends SerializableExternalResource {
 
   public ClientCacheRule withServerConnection(int... serverPorts) {
     withCacheSetup(cf -> {
-      for (int serverPort : serverPorts) {
+      for (var serverPort : serverPorts) {
         cf.addPoolServer("localhost", serverPort);
       }
     });
@@ -86,7 +86,7 @@ public class ClientCacheRule extends SerializableExternalResource {
 
   public ClientCacheRule withLocatorConnection(int... serverPorts) {
     withCacheSetup(cf -> {
-      for (int serverPort : serverPorts) {
+      for (var serverPort : serverPorts) {
         cf.addPoolLocator("localhost", serverPort);
       }
     });
@@ -117,7 +117,7 @@ public class ClientCacheRule extends SerializableExternalResource {
   }
 
   public RegionService createAuthenticatedView(String username, String password) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(UserPasswordAuthInit.USER_NAME, username);
     properties.setProperty(UserPasswordAuthInit.PASSWORD, password);
     properties.setProperty(SECURITY_CLIENT_AUTH_INIT, UserPasswordAuthInit.class.getName());

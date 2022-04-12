@@ -24,17 +24,13 @@ import java.util.TreeMap;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.management.internal.cli.commands.Product;
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.version.VersionManager;
 
@@ -44,33 +40,33 @@ public class NestedQueryClassCastExceptionFailureDistributedTest {
 
   @Test
   public void classCastExceptionShouldNotBeThrownWhileExecutionNestedQueries() {
-    Host host = Host.getHost(0);
-    VM server = host.getVM(VersionManager.CURRENT_VERSION, 0);
+    var host = Host.getHost(0);
+    var server = host.getVM(VersionManager.CURRENT_VERSION, 0);
     server.invoke(() -> {
-      Properties properties = new Properties();
+      var properties = new Properties();
       properties.put(SERIALIZABLE_OBJECT_FILTER,
           "org.apache.geode.management.internal.cli.commands.*");
-      Cache cache = new CacheFactory(properties)
+      var cache = new CacheFactory(properties)
           .setPdxSerializer(new ReflectionBasedAutoSerializer(
               "org.apache.geode.management.internal.cli.commands.*"))
           .create();
 
-      CacheServer cacheServer = cache.addCacheServer();
+      var cacheServer = cache.addCacheServer();
       cacheServer.setPort(0);
       cacheServer.start();
       Region region = cache.createRegionFactory(RegionShortcut.REPLICATE).create("product");
-      QueryService queryService = cache.getQueryService();
+      var queryService = cache.getQueryService();
       queryService.createKeyIndex("productIDPKIndex", "productID", SEPARATOR + "product");
       queryService.createIndex("productIdIndex", "productId", SEPARATOR + "product");
       queryService
           .createIndex("productCodesGMIIndex", "productCodes['GMI']", SEPARATOR + "product");
-      TreeMap<String, String> tempMap = new TreeMap<>();
+      var tempMap = new TreeMap<String, String>();
       tempMap.put("GMI", "GMI");
       region.put(1, new Product(1L, tempMap, "2L", "ACTIVE"));
       region.put(2, new Product(2L, tempMap, null, "ACTIVE"));
       region.put(3, new Product(3L, tempMap, "2L", "ACTIVE"));
       region.put(4, new Product(4L, tempMap, null, "ACTIVE"));
-      SelectResults results =
+      var results =
           (SelectResults) cache.getQueryService()
               .newQuery(
                   "select  productId, productCodes['GMI'], contractSize from " + SEPARATOR

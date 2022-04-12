@@ -59,7 +59,7 @@ public class ClientMarkerMessageImpl implements ClientMessage {
 
   @Override
   public Message getMessage(CacheClientProxy proxy, boolean notify) throws IOException {
-    Message message = new Message(1, KnownVersion.CURRENT);
+    var message = new Message(1, KnownVersion.CURRENT);
     message.setMessageType(MessageType.CLIENT_MARKER);
     message.setTransactionId(0);
     message.addObjPart(eventId);

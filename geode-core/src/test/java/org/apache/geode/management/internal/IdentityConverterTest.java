@@ -25,9 +25,9 @@ public class IdentityConverterTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    IdentityConverter mockIdentityConverter = mock(IdentityConverter.class);
-    Object value = new Object();
-    Object result = new Object();
+    var mockIdentityConverter = mock(IdentityConverter.class);
+    var value = new Object();
+    var result = new Object();
 
     when(mockIdentityConverter.toNonNullOpenValue(value)).thenReturn(result);
     assertThat(mockIdentityConverter.toNonNullOpenValue(value)).isSameAs(result);

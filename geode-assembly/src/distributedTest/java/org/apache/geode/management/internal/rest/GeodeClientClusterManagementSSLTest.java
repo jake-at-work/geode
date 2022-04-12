@@ -31,7 +31,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
-import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.builder.GeodeClusterManagementServiceBuilder;
 import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -47,9 +46,9 @@ public class GeodeClientClusterManagementSSLTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    File keyFile = new File(ClientClusterManagementSSLTest.class.getClassLoader()
+    var keyFile = new File(ClientClusterManagementSSLTest.class.getClassLoader()
         .getResource("ssl/trusted.keystore").getFile());
-    Properties sslProps = new Properties();
+    var sslProps = new Properties();
     sslProps.setProperty(SSL_KEYSTORE, keyFile.getCanonicalPath());
     sslProps.setProperty(SSL_TRUSTSTORE, keyFile.getCanonicalPath());
     sslProps.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -58,7 +57,7 @@ public class GeodeClientClusterManagementSSLTest {
 
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withProperties(sslProps));
 
-    int port = locator.getPort();
+    var port = locator.getPort();
     client = cluster.startClientVM(1, cf -> cf.withLocatorConnection(port)
         .withProperties(sslProps));
   }
@@ -68,7 +67,7 @@ public class GeodeClientClusterManagementSSLTest {
     client.invoke(() -> {
       await().untilAsserted(() -> {
         try {
-          ClusterManagementService service =
+          var service =
               new GeodeClusterManagementServiceBuilder()
                   .setCache(ClusterStartupRule.getClientCache())
                   .build();

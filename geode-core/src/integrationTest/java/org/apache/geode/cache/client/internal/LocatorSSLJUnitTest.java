@@ -44,7 +44,7 @@ public class LocatorSSLJUnitTest {
 
   @Test
   public void canStopLocatorWithSSL() throws IOException {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.put(SSL_ENABLED_COMPONENTS, "all");
     properties.put(SSL_KEYSTORE_TYPE, "jks");
@@ -53,7 +53,7 @@ public class LocatorSSLJUnitTest {
     properties.put(SSL_TRUSTSTORE, KEY_STORE);
     properties.put(SSL_TRUSTSTORE_PASSWORD, "password");
 
-    Locator locator = Locator.startLocatorAndDS(0, null, properties);
+    var locator = Locator.startLocatorAndDS(0, null, properties);
     locator.stop();
   }
 }

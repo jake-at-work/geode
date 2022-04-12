@@ -19,7 +19,6 @@ import static org.apache.geode.internal.cache.DiskStoreAttributes.verifyNonNegat
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -421,7 +420,7 @@ public class AttributesFactory<K, V> {
     if (regionAttributes instanceof UserSpecifiedRegionAttributes) {
       // Selectively set has* fields to true, propigating those non-default
       // (aka user specified) fields as such
-      UserSpecifiedRegionAttributes<K, V> nonDefault =
+      var nonDefault =
           (UserSpecifiedRegionAttributes<K, V>) regionAttributes;
       this.regionAttributes.initHasFields(nonDefault);
       this.regionAttributes.requiresPoolName = nonDefault.requiresPoolName;
@@ -509,7 +508,7 @@ public class AttributesFactory<K, V> {
       if (newListeners == null || newListeners.length == 0) {
         regionAttributes.cacheListeners = null;
       } else {
-        List<CacheListener<K, V>> nl = Arrays.asList(newListeners);
+        var nl = Arrays.asList(newListeners);
         if (nl.contains(null)) {
           throw new IllegalArgumentException(
               "initCacheListeners parameter had a null element");
@@ -662,7 +661,7 @@ public class AttributesFactory<K, V> {
       throw new IllegalArgumentException(
           "mirrorType must not be null");
     }
-    DataPolicy dp = mirrorType.getDataPolicy();
+    var dp = mirrorType.getDataPolicy();
     if (dp.withReplication()) {
       // requested a mirror type that has replication
       // if current data policy is not replicated change it
@@ -970,7 +969,7 @@ public class AttributesFactory<K, V> {
     DiskStoreFactoryImpl.checkIfDirectoriesExist(diskDirs);
     regionAttributes.diskDirs = diskDirs;
     regionAttributes.diskSizes = new int[diskDirs.length];
-    for (int i = 0; i < diskDirs.length; i++) {
+    for (var i = 0; i < diskDirs.length; i++) {
       regionAttributes.diskSizes[i] = DiskStoreFactory.DEFAULT_DISK_DIR_SIZE;
     }
     if (!regionAttributes.hasDiskWriteAttributes()
@@ -1008,7 +1007,7 @@ public class AttributesFactory<K, V> {
     regionAttributes.diskSynchronous = isSynchronous;
     regionAttributes.setHasDiskSynchronous(true);
     if (regionAttributes.hasDiskWriteAttributes()) {
-      DiskWriteAttributesFactory dwaf =
+      var dwaf =
           new DiskWriteAttributesFactory(regionAttributes.diskWriteAttributes);
       dwaf.setSynchronous(isSynchronous);
       regionAttributes.diskWriteAttributes = dwaf.create();
@@ -1084,7 +1083,7 @@ public class AttributesFactory<K, V> {
           && regionAttributes.partitionAttributes instanceof PartitionAttributesImpl
           && partition instanceof PartitionAttributesImpl) {
         // Make a copy and call merge on it to prevent bug 51616
-        PartitionAttributesImpl copy =
+        var copy =
             ((PartitionAttributesImpl) regionAttributes.partitionAttributes).copy();
         copy.merge((PartitionAttributesImpl) partition);
         regionAttributes.partitionAttributes = copy;
@@ -1209,7 +1208,7 @@ public class AttributesFactory<K, V> {
    * @since GemFire 5.7
    */
   public void setPoolName(String name) {
-    String nm = name;
+    var nm = name;
     if ("".equals(nm)) {
       nm = null;
     }
@@ -1348,16 +1347,16 @@ public class AttributesFactory<K, V> {
     // enforce the creation constraints
 
     if (attrs.getDataPolicy().withReplication() && attrs.getScope().isDistributed()) {
-      boolean isForBucketRegion = false;
+      var isForBucketRegion = false;
       if (attrs instanceof RegionAttributesImpl) {
-        RegionAttributesImpl<?, ?> regionAttributes = (RegionAttributesImpl<?, ?>) attrs;
+        var regionAttributes = (RegionAttributesImpl<?, ?>) attrs;
         if (regionAttributes.isForBucketRegion()) {
           isForBucketRegion = true;
         }
       }
       if (!isForBucketRegion) {
-        ExpirationAction idleAction = attrs.getEntryIdleTimeout().getAction();
-        ExpirationAction ttlAction = attrs.getEntryTimeToLive().getAction();
+        var idleAction = attrs.getEntryIdleTimeout().getAction();
+        var ttlAction = attrs.getEntryTimeToLive().getAction();
 
         if (idleAction == ExpirationAction.LOCAL_DESTROY
             || ttlAction == ExpirationAction.LOCAL_DESTROY) {
@@ -1385,7 +1384,7 @@ public class AttributesFactory<K, V> {
     }
 
     if (attrs.getDiskStoreName() != null) {
-      EvictionAttributes ea = attrs.getEvictionAttributes();
+      var ea = attrs.getEvictionAttributes();
       if (!attrs.getDataPolicy().withPersistence()
           && (ea != null && ea.getAction() != EvictionAction.OVERFLOW_TO_DISK)) {
         throw new IllegalStateException(
@@ -1424,18 +1423,18 @@ public class AttributesFactory<K, V> {
       }
     }
 
-    final PartitionAttributes pa = attrs.getPartitionAttributes();
+    final var pa = attrs.getPartitionAttributes();
     // Validations for PartitionRegion Attributes
     if (pa != null) {
       ((PartitionAttributesImpl) pa)
           .validateWhenAllAttributesAreSet(attrs instanceof RegionAttributesCreation);
-      ExpirationAttributes regionIdleTimeout = attrs.getRegionIdleTimeout();
-      ExpirationAttributes regionTimeToLive = attrs.getRegionTimeToLive();
+      var regionIdleTimeout = attrs.getRegionIdleTimeout();
+      var regionTimeToLive = attrs.getRegionTimeToLive();
       AbstractRegion.validatePRRegionExpirationAttributes(regionIdleTimeout);
       AbstractRegion.validatePRRegionExpirationAttributes(regionTimeToLive);
 
-      ExpirationAttributes entryIdleTimeout = attrs.getEntryIdleTimeout();
-      ExpirationAttributes entryTimeToLive = attrs.getEntryTimeToLive();
+      var entryIdleTimeout = attrs.getEntryIdleTimeout();
+      var entryTimeToLive = attrs.getEntryTimeToLive();
       if ((entryIdleTimeout.getAction().isLocalDestroy() && entryIdleTimeout.getTimeout() > 0)
           || (entryTimeToLive.getAction().isLocalDestroy() && entryTimeToLive.getTimeout() > 0)) {
         throw new IllegalStateException(
@@ -1449,7 +1448,7 @@ public class AttributesFactory<K, V> {
       }
 
       if (attrs instanceof UserSpecifiedRegionAttributes<?, ?>) {
-        UserSpecifiedRegionAttributes<?, ?> rac = (UserSpecifiedRegionAttributes<?, ?>) attrs;
+        var rac = (UserSpecifiedRegionAttributes<?, ?>) attrs;
         if (rac.hasScope()) {
           throw new IllegalStateException(
               "Setting Scope on a Partitioned Regions is not allowed.");
@@ -1555,7 +1554,7 @@ public class AttributesFactory<K, V> {
 
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(1000);
+      var buf = new StringBuilder(1000);
       buf.append("RegionAttributes@").append(System.identityHashCode(this)).append(": ")
           .append("scope=").append(scope).append("; earlyAck=").append(earlyAck)
           .append("; publisher=").append(publisher).append("; partitionAttrs=")
@@ -1803,7 +1802,7 @@ public class AttributesFactory<K, V> {
     @Override
     public Object clone() {
       try {
-        RegionAttributesImpl<K, V> copy = (RegionAttributesImpl<K, V>) super.clone();
+        var copy = (RegionAttributesImpl<K, V>) super.clone();
         if (copy.getIndexes() != null) {
           copy.setIndexes(new ArrayList(copy.getIndexes()));
         }

@@ -68,7 +68,7 @@ public class RVVExceptionT extends RVVException {
    */
   private void consumeReceivedVersions() {
     // Iterate in forward order
-    for (Iterator<Long> it = received.iterator(); it.hasNext();) {
+    for (var it = received.iterator(); it.hasNext();) {
       long v = it.next();
       if (v <= previousVersion + 1) {
         // if the received version is less than the previous + 1, remove it.
@@ -84,7 +84,7 @@ public class RVVExceptionT extends RVVException {
     }
 
     // Iterate in reverse order
-    for (Iterator<Long> it = received.descendingIterator(); it.hasNext();) {
+    for (var it = received.descendingIterator(); it.hasNext();) {
       long v = it.next();
       if (v >= nextVersion - 1) {
         // if the received version is greater than the next - 1, remove it.
@@ -101,7 +101,7 @@ public class RVVExceptionT extends RVVException {
 
   @Override
   public RVVException clone() {
-    RVVExceptionT clone = new RVVExceptionT(previousVersion, nextVersion);
+    var clone = new RVVExceptionT(previousVersion, nextVersion);
     if (received != null) {
       clone.received = new TreeSet<>(received);
     }
@@ -112,21 +112,21 @@ public class RVVExceptionT extends RVVException {
   @Override
   public void writeReceived(DataOutput out) throws IOException {
 
-    int size = received == null ? 0 : received.size();
+    var size = received == null ? 0 : received.size();
     InternalDataSerializer.writeUnsignedVL(size, out);
 
     // Write each version in the exception as a delta from the previous version
     // this will likely be smaller than the absolute value, so it will
     // be more likely to fit into a byte or a short.
-    long last = previousVersion;
+    var last = previousVersion;
     if (received != null) {
-      for (Long version : received) {
-        long delta = version - last;
+      for (var version : received) {
+        var delta = version - last;
         InternalDataSerializer.writeUnsignedVL(delta, out);
         last = version;
       }
     }
-    long delta = nextVersion - last;
+    var delta = nextVersion - last;
     InternalDataSerializer.writeUnsignedVL(delta, out);
   }
 
@@ -160,7 +160,7 @@ public class RVVExceptionT extends RVVException {
     if (!super.sameAs(ex)) {
       return false;
     }
-    RVVExceptionT other = (RVVExceptionT) ex;
+    var other = (RVVExceptionT) ex;
     if (received == null) {
       return other.received == null || other.received.isEmpty();
     } else
@@ -171,12 +171,12 @@ public class RVVExceptionT extends RVVException {
     if (!super.sameAs(ex)) {
       return false;
     }
-    for (ReceivedVersionsReverseIterator it = receivedVersionsReverseIterator(); it.hasNext();) {
+    for (var it = receivedVersionsReverseIterator(); it.hasNext();) {
       if (!ex.contains(it.next())) {
         return false;
       }
     }
-    for (ReceivedVersionsReverseIterator it = ex.receivedVersionsReverseIterator(); it.hasNext();) {
+    for (var it = ex.receivedVersionsReverseIterator(); it.hasNext();) {
       if (!contains(it.next())) {
         return false;
       }
@@ -226,10 +226,10 @@ public class RVVExceptionT extends RVVException {
   @Override
   public RVVException changeForm() {
     // Convert the exception to a bitset exception
-    RVVExceptionB ex = new RVVExceptionB(previousVersion, nextVersion);
-    for (ReceivedVersionsReverseIterator it = receivedVersionsReverseIterator(); it
+    var ex = new RVVExceptionB(previousVersion, nextVersion);
+    for (var it = receivedVersionsReverseIterator(); it
         .hasNext();) {
-      long next = it.next();
+      var next = it.next();
       ex.add(next);
     }
     return ex;

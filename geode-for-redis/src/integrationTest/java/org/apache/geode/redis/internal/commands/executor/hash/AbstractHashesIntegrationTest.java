@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -99,13 +98,13 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHMSet() {
-    int num = 10;
-    String key = "key";
+    var num = 10;
+    var key = "key";
     Map<String, String> hash = new HashMap<>();
-    for (int i = 0; i < num; i++) {
+    for (var i = 0; i < num; i++) {
       hash.put("field_" + i, "member_" + i);
     }
-    String response = jedis.hmset(key, hash);
+    var response = jedis.hmset(key, hash);
     assertThat(response).isEqualTo("OK");
     assertThat(jedis.hlen(key)).isEqualTo(hash.size());
   }
@@ -126,17 +125,17 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHSet() {
-    String key = "key";
+    var key = "key";
     Map<String, String> hash = new HashMap<>();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       hash.put("field_" + i, "member_" + i);
     }
 
-    Set<String> keys = hash.keySet();
+    var keys = hash.keySet();
     Long count = 1L;
 
-    for (String field : keys) {
+    for (var field : keys) {
       Long res = jedis.hset(key, field, hash.get(field));
       assertThat(res).isEqualTo(1);
       assertThat(jedis.hlen(key)).isEqualTo(count);
@@ -147,35 +146,35 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHMGet() {
-    String key = "key";
-    Map<String, String> hash = setupHash(10);
+    var key = "key";
+    var hash = setupHash(10);
     jedis.hmset(key, hash);
 
-    Set<String> keys = hash.keySet();
-    String[] keyArray = keys.toArray(new String[0]);
-    List<String> retList = jedis.hmget(key, keyArray);
+    var keys = hash.keySet();
+    var keyArray = keys.toArray(new String[0]);
+    var retList = jedis.hmget(key, keyArray);
 
     assertThat(retList).containsExactlyInAnyOrderElementsOf(hash.values());
   }
 
   @Test
   public void testHgetall() {
-    String key = "key";
-    Map<String, String> hash = setupHash(10);
+    var key = "key";
+    var hash = setupHash(10);
     jedis.hmset(key, hash);
 
-    Map<String, String> retMap = jedis.hgetAll(key);
+    var retMap = jedis.hgetAll(key);
 
     assertThat(retMap).containsExactlyInAnyOrderEntriesOf(hash);
   }
 
   @Test
   public void testHvals() {
-    String key = "key";
-    Map<String, String> hash = setupHash(10);
+    var key = "key";
+    var hash = setupHash(10);
     jedis.hmset(key, hash);
 
-    List<String> retVals = jedis.hvals(key);
+    var retVals = jedis.hvals(key);
     Set<String> retSet = new HashSet<>(retVals);
 
     assertThat(retSet.containsAll(hash.values())).isTrue();
@@ -183,8 +182,8 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHdel_allFields() {
-    String key = "key";
-    Map<String, String> hash = setupHash(10);
+    var key = "key";
+    var hash = setupHash(10);
     jedis.hmset(key, hash);
 
     jedis.hdel(key, hash.keySet().toArray(new String[0]));
@@ -193,7 +192,7 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   private Map<String, String> setupHash(int entries) {
     Map<String, String> hash = new HashMap<>();
-    for (int i = 0; i < entries; i++) {
+    for (var i = 0; i < entries; i++) {
       hash.put("field-" + i, "member-" + i);
     }
     return hash;
@@ -201,11 +200,11 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHMGet_returnNull_forUnknownFields() {
-    String key = "key";
+    var key = "key";
     jedis.hset(key, "rooster", "crows");
     jedis.hset(key, "duck", "quacks");
 
-    List<String> result =
+    var result =
         jedis.hmget(key, "unknown-1", "rooster", "unknown-2", "duck", "unknown-3");
     assertThat(result).containsExactly(null, "crows", null, "quacks", null);
   }
@@ -286,24 +285,24 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHkeys_returnsAllValuesForGivenField() {
-    String key = "key";
+    var key = "key";
     Map<String, String> hash = new HashMap<>();
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       hash.put("field_" + i, "member_" + i);
     }
     jedis.hmset(key, hash);
 
-    Set<String> keys = hash.keySet();
-    Set<String> retSet = jedis.hkeys(key);
+    var keys = hash.keySet();
+    var retSet = jedis.hkeys(key);
 
     assertThat(retSet.containsAll(keys)).isTrue();
   }
 
   @Test
   public void testHkeys_returnsEmptyForNonExistentField() {
-    String key = "nonexistent";
+    var key = "nonexistent";
 
-    Set<String> retSet = jedis.hkeys(key);
+    var retSet = jedis.hkeys(key);
     assertThat(retSet).isEmpty();
   }
 
@@ -334,8 +333,8 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHIncrBy_incrementsValueByGivenIncrementAtGivenKeyAndField() {
-    String key = "key";
-    String field = "field";
+    var key = "key";
+    var field = "field";
     jedis.hset(key, field, "10");
 
     hincrbyAndAssertValueEqualToPreviousValuePlusIncrement(key, field, 10);
@@ -347,20 +346,20 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testConcurrentHIncrBy_performsAllIncrBys() {
-    String key = "key";
-    String field = "field";
-    AtomicInteger expectedValue = new AtomicInteger(0);
+    var key = "key";
+    var field = "field";
+    var expectedValue = new AtomicInteger(0);
 
     jedis.hset(key, field, "0");
 
     new ConcurrentLoopingThreads(1000,
         (i) -> {
-          int increment = ThreadLocalRandom.current().nextInt(-50, 50);
+          var increment = ThreadLocalRandom.current().nextInt(-50, 50);
           expectedValue.addAndGet(increment);
           jedis.hincrBy(key, field, increment);
         },
         (i) -> {
-          int increment = ThreadLocalRandom.current().nextInt(-50, 50);
+          var increment = ThreadLocalRandom.current().nextInt(-50, 50);
           expectedValue.addAndGet(increment);
           jedis.hincrBy(key, field, increment);
         }).run();
@@ -378,9 +377,9 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHExists_isTrueWhenKeyExists_AndFalseWhenKeyIsDeleted() {
-    String key = "key";
-    String field = "field";
-    String value = "value";
+    var key = "key";
+    var field = "field";
+    var value = "value";
 
     jedis.hset(key, field, value);
     assertThat(jedis.hexists(key, field)).isTrue();
@@ -406,9 +405,9 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
   @Test
   public void testHScan() {
 
-    String key = Double.valueOf(rand.nextDouble()).toString();
-    String field = Double.valueOf(rand.nextInt(50)).toString() + ".field";
-    String value = Double.valueOf(rand.nextInt(50)).toString() + ".value";
+    var key = Double.valueOf(rand.nextDouble()).toString();
+    var field = Double.valueOf(rand.nextInt(50)).toString() + ".field";
+    var value = Double.valueOf(rand.nextInt(50)).toString() + ".value";
 
     ScanResult<Entry<String, String>> results = null;
 
@@ -435,9 +434,9 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
    */
   @Test
   public void testHSetNXExecutor() {
-    String key = "HSetNX_Key";
-    String field = "field";
-    String value = "value";
+    var key = "HSetNX_Key";
+    var field = "field";
+    var value = "value";
 
     // 1 if field is a new field in the hash and value was set.
     Long result = jedis.hsetnx(key, field, value);
@@ -454,10 +453,10 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void hsetNX_shouldThrowErrorIfKeyIsWrongType() {
-    String string_key = "String_Key";
-    String set_key = "Set_Key";
-    String field = "field";
-    String value = "value";
+    var string_key = "String_Key";
+    var set_key = "Set_Key";
+    var field = "field";
+    var value = "value";
 
     jedis.set(string_key, value);
     jedis.sadd(set_key, field);
@@ -483,13 +482,13 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
    */
   @Test
   public void testHVals() {
-    String key = "HVals_key";
-    String field1 = "field_1";
-    String field2 = "field_2";
-    String value1 = "value_1";
-    String value2 = "value_2";
+    var key = "HVals_key";
+    var field1 = "field_1";
+    var field2 = "field_2";
+    var value1 = "value_1";
+    var value2 = "value_2";
 
-    List<String> list = jedis.hvals("non-existent-key");
+    var list = jedis.hvals("non-existent-key");
     assertThat(list).isEmpty();
 
     Long result = jedis.hset(key, field1, value1);
@@ -533,9 +532,9 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void hgetReturnsExpectedValue() {
-    String key = "key";
-    String field = "field";
-    String value = "value";
+    var key = "key";
+    var field = "field";
+    var value = "value";
 
     jedis.hset(key, field, value);
 
@@ -544,8 +543,8 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void hgetReturnsNewValue_whenValueIsUpdated() {
-    String key = "key";
-    String field = "field";
+    var key = "key";
+    var field = "field";
 
     jedis.hset(key, field, "value");
     assertThat(jedis.hget(key, field)).isEqualTo("value");
@@ -572,10 +571,10 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
   @Test
   public void testHLen() {
 
-    String key = "HLen_key";
-    String field1 = "field_1";
-    String field2 = "field_2";
-    String value = "value";
+    var key = "HLen_key";
+    var field1 = "field_1";
+    var field2 = "field_2";
+    var value = "value";
 
     assertThat(jedis.hlen(key)).isEqualTo(0);
 
@@ -618,13 +617,13 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
    */
   @Test
   public void testHKeys_returnsFieldsForGivenKey() {
-    String key = "HKeys_key";
-    String field1 = "field_1";
-    String field2 = "field_2";
-    String field1Value = "field1Value";
-    String field2Value = "field2Value";
+    var key = "HKeys_key";
+    var field1 = "field_1";
+    var field2 = "field_2";
+    var field1Value = "field1Value";
+    var field2Value = "field2Value";
 
-    Set<String> set = jedis.hkeys(key);
+    var set = jedis.hkeys(key);
     assertThat(set == null || set.isEmpty()).isTrue();
 
     Long result = jedis.hset(key, field1, field1Value);
@@ -654,15 +653,15 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
   @Test
   public void testHGETALL() {
 
-    String key = "HGETALL_key";
+    var key = "HGETALL_key";
 
-    Map<String, String> map = jedis.hgetAll(key);
+    var map = jedis.hgetAll(key);
     assertThat(map == null || map.isEmpty()).isTrue();
 
-    String field1 = "field_1";
-    String field2 = "field_2";
-    String field1Value = "field1Value";
-    String field2Value = "field2Value";
+    var field1 = "field_1";
+    var field2 = "field_2";
+    var field1Value = "field1Value";
+    var field2Value = "field2Value";
 
     Long result = jedis.hset(key, field1, field1Value);
     assertThat(result).isEqualTo(1);
@@ -680,7 +679,7 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHsetHandlesMultipleFields() {
-    String key = "key";
+    var key = "key";
 
     Long fieldsAdded;
 
@@ -690,7 +689,7 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
     fieldsAdded = jedis.hset(key, hsetMap);
 
-    Map<String, String> result = jedis.hgetAll(key);
+    var result = jedis.hgetAll(key);
 
     assertThat(result).isEqualTo(hsetMap);
     assertThat(fieldsAdded).isEqualTo(2);
@@ -701,10 +700,10 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testConcurrentHMSet_differentKeyPerClient() {
-    String key1 = "HMSET1";
-    String key2 = "HMSET2";
+    var key1 = "HMSET1";
+    var key2 = "HMSET2";
     Map<String, String> expectedMap = new HashMap<>();
-    for (int i = 0; i < ITERATION_COUNT; i++) {
+    for (var i = 0; i < ITERATION_COUNT; i++) {
       expectedMap.put("field" + i, "value" + i);
     }
 
@@ -719,22 +718,22 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testConcurrentHMSet_sameKeyPerClient() {
-    String key = "HMSET1";
+    var key = "HMSET1";
 
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> jedis.hmset(key, Maps.newHashMap("fieldA" + i, "valueA" + i)),
         (i) -> jedis.hmset(key, Maps.newHashMap("fieldB" + i, "valueB" + i)))
             .run();
 
-    Map<String, String> result = jedis.hgetAll(key);
+    var result = jedis.hgetAll(key);
     assertThat(result).hasSize(ITERATION_COUNT * 2);
   }
 
   @Test
   public void testConcurrentHSetNX() {
-    String key = "HSETNX_key";
+    var key = "HSETNX_key";
 
-    AtomicLong successCount = new AtomicLong();
+    var successCount = new AtomicLong();
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> successCount.addAndGet(jedis.hsetnx(key, "field" + i, "A")),
         (i) -> successCount.addAndGet(jedis.hsetnx(key, "field" + i, "B")))
@@ -745,10 +744,10 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testConcurrentHSet_differentKeyPerClient() {
-    String key1 = "HSET1";
-    String key2 = "HSET2";
+    var key1 = "HSET1";
+    var key2 = "HSET2";
     Map<String, String> expectedMap = new HashMap<>();
-    for (int i = 0; i < ITERATION_COUNT; i++) {
+    for (var i = 0; i < ITERATION_COUNT; i++) {
       expectedMap.put("field" + i, "value" + i);
     }
 
@@ -763,21 +762,21 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testConcurrentHSet_sameKeyPerClient() {
-    String key1 = "HSET1";
+    var key1 = "HSET1";
 
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> jedis.hset(key1, "fieldA" + i, "value" + i),
         (i) -> jedis.hset(key1, "fieldB" + i, "value" + i))
             .run();
-    Map<String, String> result = jedis.hgetAll(key1);
+    var result = jedis.hgetAll(key1);
 
     assertThat(result).hasSize(ITERATION_COUNT * 2);
   }
 
   @Test
   public void testConcurrentHIncr_sameKeyPerClient() {
-    String key = "KEY";
-    String field = "FIELD";
+    var key = "KEY";
+    var field = "FIELD";
 
     jedis.hset(key, field, "0");
 
@@ -786,14 +785,14 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
         (i) -> jedis.hincrBy(key, field, 1))
             .run();
 
-    String value = jedis.hget(key, field);
+    var value = jedis.hget(key, field);
     assertThat(value).isEqualTo(Integer.toString(ITERATION_COUNT * 2));
   }
 
   @Test
   public void testConcurrentHIncrByFloat_sameKeyPerClient() {
-    String key = "HSET_KEY";
-    String field = "HSET_FIELD";
+    var key = "HSET_KEY";
+    var field = "HSET_FIELD";
 
     jedis.hset(key, field, "0");
 
@@ -801,7 +800,7 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
         (i) -> jedis.hincrByFloat(key, field, 0.5),
         (i) -> jedis.hincrByFloat(key, field, 1.0)).run();
 
-    String value = jedis.hget(key, field);
+    var value = jedis.hget(key, field);
     assertThat(Double.valueOf(value)).isEqualTo(ITERATION_COUNT * 1.5);
   }
 
@@ -816,9 +815,9 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testConcurrentHSetHDel_sameKeyPerClient() {
-    String key = "HSET1";
+    var key = "HSET1";
 
-    ArrayBlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(ITERATION_COUNT);
+    var blockingQueue = new ArrayBlockingQueue<String>(ITERATION_COUNT);
 
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> {
@@ -827,7 +826,7 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
         },
         (i) -> {
           try {
-            String fieldToDelete = blockingQueue.take();
+            var fieldToDelete = blockingQueue.take();
             jedis.hdel(key, fieldToDelete);
           } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -835,19 +834,19 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
         })
             .run();
 
-    Map<String, String> result = jedis.hgetAll(key);
+    var result = jedis.hgetAll(key);
 
     assertThat(result).isEmpty();
   }
 
   @Test
   public void testConcurrentHGetAll() {
-    String key = "HSET1";
-    HashMap<String, String> record = new HashMap<>();
+    var key = "HSET1";
+    var record = new HashMap<String, String>();
 
     doABunchOfHSets(key, record, jedis);
 
-    AtomicLong successCount = new AtomicLong();
+    var successCount = new AtomicLong();
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> {
           if (jedis.hgetAll(key).size() == ITERATION_COUNT) {
@@ -866,7 +865,7 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testHstrlen_withBinaryData() {
-    byte[] zero = new byte[] {0};
+    var zero = new byte[] {0};
     jedis.hset(zero, zero, zero);
 
     assertThat(jedis.hstrlen(zero, zero)).isEqualTo(1);
@@ -876,7 +875,7 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
     String field;
     String fieldValue;
 
-    for (int i = 0; i < ITERATION_COUNT; i++) {
+    for (var i = 0; i < ITERATION_COUNT; i++) {
       field = "key_" + i;
       fieldValue = "value_" + i;
 
@@ -887,7 +886,7 @@ public abstract class AbstractHashesIntegrationTest implements RedisIntegrationT
 
   private void hincrbyAndAssertValueEqualToPreviousValuePlusIncrement(String key, String field,
       int increment) {
-    int expectedValue = Integer.parseInt(jedis.hget(key, field)) + increment;
+    var expectedValue = Integer.parseInt(jedis.hget(key, field)) + increment;
     assertThat(jedis.hincrBy(key, field, increment)).isEqualTo(expectedValue);
   }
 }

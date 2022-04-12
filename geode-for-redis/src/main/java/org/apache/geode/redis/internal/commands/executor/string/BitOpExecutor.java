@@ -36,11 +36,11 @@ public class BitOpExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
     // TODO: When BitOp becomes a supported command, replace this String conversion with byte[]
     // comparison and a class similar to ZAddOptions which should be passed into the bitop() methods
-    String operation = command.getStringKey().toUpperCase();
+    var operation = command.getStringKey().toUpperCase();
     if (!operation.equals("AND")
         && !operation.equals("OR")
         && !operation.equals("XOR")
@@ -48,18 +48,18 @@ public class BitOpExecutor implements CommandExecutor {
       return RedisResponse.error(ERROR_SYNTAX);
     }
 
-    RedisKey destKey = new RedisKey(commandElems.get(2));
+    var destKey = new RedisKey(commandElems.get(2));
 
     List<RedisKey> values = new ArrayList<>();
-    for (int i = 3; i < commandElems.size(); i++) {
-      RedisKey key = new RedisKey(commandElems.get(i));
+    for (var i = 3; i < commandElems.size(); i++) {
+      var key = new RedisKey(commandElems.get(i));
       values.add(key);
     }
     if (operation.equals("NOT") && values.size() != 1) {
       return RedisResponse.error(RedisConstants.ERROR_BITOP_NOT_MUST_USE_SINGLE_KEY);
     }
 
-    int result = bitop(context, operation, destKey, values);
+    var result = bitop(context, operation, destKey, values);
 
     return RedisResponse.integer(result);
   }
@@ -68,9 +68,9 @@ public class BitOpExecutor implements CommandExecutor {
   private int bitop(ExecutionHandlerContext context, String operation, RedisKey key,
       List<RedisKey> sources) {
     List<byte[]> sourceValues = new ArrayList<>();
-    int selfIndex = -1;
+    var selfIndex = -1;
     // Read all the source values, except for self, before locking the stripe.
-    for (RedisKey sourceKey : sources) {
+    for (var sourceKey : sources) {
       if (sourceKey.equals(key)) {
         // get self later after the stripe is locked
         selfIndex = sourceValues.size();
@@ -79,8 +79,8 @@ public class BitOpExecutor implements CommandExecutor {
         sourceValues.add(context.stringLockedExecute(sourceKey, true, RedisString::get));
       }
     }
-    int indexOfSelf = selfIndex;
-    RegionProvider regionProvider = context.getRegionProvider();
+    var indexOfSelf = selfIndex;
+    var regionProvider = context.getRegionProvider();
     return context.lockedExecute(key,
         () -> doBitOp(regionProvider, operation, key, indexOfSelf, sourceValues));
   }
@@ -102,8 +102,8 @@ public class BitOpExecutor implements CommandExecutor {
         sourceValues.set(selfIndex, redisString.getValue());
       }
     }
-    int maxLength = 0;
-    for (byte[] sourceValue : sourceValues) {
+    var maxLength = 0;
+    for (var sourceValue : sourceValues) {
       if (sourceValue != null && maxLength < sourceValue.length) {
         maxLength = sourceValue.length;
       }
@@ -132,11 +132,11 @@ public class BitOpExecutor implements CommandExecutor {
   }
 
   private static byte[] doBitOp(BitOp bitOp, List<byte[]> sourceValues, int max) {
-    byte[] dest = new byte[max];
-    for (int i = 0; i < max; i++) {
+    var dest = new byte[max];
+    for (var i = 0; i < max; i++) {
       byte b = 0;
-      boolean firstByte = true;
-      for (byte[] sourceValue : sourceValues) {
+      var firstByte = true;
+      for (var sourceValue : sourceValues) {
         byte sourceByte = 0;
         if (sourceValue != null && i < sourceValue.length) {
           sourceByte = sourceValue[i];
@@ -164,13 +164,13 @@ public class BitOpExecutor implements CommandExecutor {
   }
 
   private static byte[] not(byte[] sourceValue, int max) {
-    byte[] dest = new byte[max];
+    var dest = new byte[max];
     if (sourceValue == null) {
-      for (int i = 0; i < max; i++) {
+      for (var i = 0; i < max; i++) {
         dest[i] = ~0;
       }
     } else {
-      for (int i = 0; i < max; i++) {
+      for (var i = 0; i < max; i++) {
         dest[i] = (byte) (~sourceValue[i] & 0xFF);
       }
     }

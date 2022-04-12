@@ -56,18 +56,18 @@ public class DeploymentManagerTest {
         new Deployment("jar2.jar", "deployedBy2", "deployedTime2"),
         new Deployment("jar3.jar", "deployedBy3", "deployedTime3")));
 
-    Configuration configuration = mock(Configuration.class);
+    var configuration = mock(Configuration.class);
     when(configuration.getDeployments()).thenReturn(configuredDeployments);
 
-    InternalConfigurationPersistenceService persistenceService =
+    var persistenceService =
         mock(InternalConfigurationPersistenceService.class);
     when(persistenceService.getConfiguration(any())).thenReturn(configuration);
 
-    DeploymentManager manager = new DeploymentManager(persistenceService);
+    var manager = new DeploymentManager(persistenceService);
 
-    Deployment filter = function.apply(null);
+    var filter = function.apply(null);
 
-    List<Deployment> result = manager.list(filter, "some-group");
+    var result = manager.list(filter, "some-group");
 
     assertThat(result)
         .containsExactlyInAnyOrderElementsOf(configuredDeployments);
@@ -75,8 +75,8 @@ public class DeploymentManagerTest {
 
   @Test
   public void listWithJarNameReturnsSingletonListConfiguredDeploymentForThatJar() {
-    String requestedJarFile = "jar2.jar";
-    Deployment expectedDeployment =
+    var requestedJarFile = "jar2.jar";
+    var expectedDeployment =
         new Deployment(requestedJarFile, "deployedBy2", "deployedTime2");
 
     Set<Deployment> configuredJarNames = new HashSet<>(asList(
@@ -84,51 +84,51 @@ public class DeploymentManagerTest {
         expectedDeployment,
         new Deployment("jar3.jar", "deployedBy3", "deployedTime3")));
 
-    Configuration configuration = mock(Configuration.class);
+    var configuration = mock(Configuration.class);
     when(configuration.getDeployments()).thenReturn(configuredJarNames);
 
-    InternalConfigurationPersistenceService persistenceService =
+    var persistenceService =
         mock(InternalConfigurationPersistenceService.class);
     when(persistenceService.getConfiguration(any())).thenReturn(configuration);
 
-    DeploymentManager manager = new DeploymentManager(persistenceService);
+    var manager = new DeploymentManager(persistenceService);
 
-    Deployment filter = function.apply(requestedJarFile);
+    var filter = function.apply(requestedJarFile);
 
-    List<Deployment> result = manager.list(filter, "some-group");
+    var result = manager.list(filter, "some-group");
 
     assertThat(result).containsExactly(expectedDeployment);
   }
 
   @Test
   public void listWithJarNameReturnsEmptyListIfRequestedJarNotDeployed() {
-    Configuration configuration = mock(Configuration.class);
+    var configuration = mock(Configuration.class);
     when(configuration.getDeployments()).thenReturn(emptySet());
 
-    InternalConfigurationPersistenceService persistenceService =
+    var persistenceService =
         mock(InternalConfigurationPersistenceService.class);
     when(persistenceService.getConfiguration(any())).thenReturn(configuration);
 
-    DeploymentManager manager = new DeploymentManager(persistenceService);
+    var manager = new DeploymentManager(persistenceService);
 
-    Deployment filter = function.apply("jarFileThatHasNotBeenDeployed.jar");
+    var filter = function.apply("jarFileThatHasNotBeenDeployed.jar");
 
-    List<Deployment> result = manager.list(filter, "some-group");
+    var result = manager.list(filter, "some-group");
 
     assertThat(result).isEmpty();
   }
 
   @Test
   public void listNonExistentGroup() {
-    InternalConfigurationPersistenceService persistenceService =
+    var persistenceService =
         mock(InternalConfigurationPersistenceService.class);
     when(persistenceService.getConfiguration("some-group")).thenReturn(null);
 
-    DeploymentManager manager = new DeploymentManager(persistenceService);
+    var manager = new DeploymentManager(persistenceService);
 
-    Deployment filter = function.apply(null);
+    var filter = function.apply(null);
 
-    List<Deployment> result = manager.list(filter, "some-group");
+    var result = manager.list(filter, "some-group");
 
     assertThat(result).isEmpty();
   }
@@ -136,11 +136,11 @@ public class DeploymentManagerTest {
   @Parameters
   public static List<Function<String, Deployment>> consumers() {
     return Arrays.asList(name -> {
-      Deployment deployment = new Deployment();
+      var deployment = new Deployment();
       deployment.setFileName(name);
       return deployment;
     }, name -> {
-      Deployment deployment = new Deployment();
+      var deployment = new Deployment();
       deployment.setFileName(name);
       return deployment;
     });

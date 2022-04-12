@@ -40,12 +40,12 @@ public class PasswordUtil {
       return password;
     }
 
-    String toDecrypt = password.substring(10, password.length() - 1);
-    SecretKeySpec key = new SecretKeySpec(init, "Blowfish");
+    var toDecrypt = password.substring(10, password.length() - 1);
+    var key = new SecretKeySpec(init, "Blowfish");
     try {
-      Cipher cipher = Cipher.getInstance("Blowfish");
+      var cipher = Cipher.getInstance("Blowfish");
       cipher.init(Cipher.DECRYPT_MODE, key);
-      byte[] decrypted = cipher.doFinal(hexStringToByteArray(toDecrypt));
+      var decrypted = cipher.doFinal(hexStringToByteArray(toDecrypt));
 
       return new String(decrypted);
 
@@ -62,10 +62,10 @@ public class PasswordUtil {
   }
 
   private static byte[] hexStringToByteArray(String s) {
-    byte[] b = new byte[s.length() / 2];
-    for (int i = 0; i < b.length; i++) {
-      int index = i * 2;
-      int v = Integer.parseInt(s.substring(index, index + 2), 16);
+    var b = new byte[s.length() / 2];
+    for (var i = 0; i < b.length; i++) {
+      var index = i * 2;
+      var v = Integer.parseInt(s.substring(index, index + 2), 16);
       b[i] = (byte) (v & 0xff);
     }
     return b;

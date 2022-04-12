@@ -16,10 +16,8 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +26,6 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
@@ -37,7 +34,6 @@ import org.apache.geode.management.internal.cli.domain.FixedPartitionAttributesI
 import org.apache.geode.management.internal.cli.domain.RegionDescription;
 import org.apache.geode.management.internal.cli.domain.RegionDescriptionPerMember;
 import org.apache.geode.management.internal.cli.functions.GetRegionDescriptionFunction;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.cli.util.RegionAttributesNames;
@@ -60,7 +56,7 @@ public class DescribeRegionCommand extends GfshCommand {
       @CliOption(key = CliStrings.DESCRIBE_REGION__NAME, optionContext = ConverterHint.REGION_PATH,
           help = CliStrings.DESCRIBE_REGION__NAME__HELP, mandatory = true) String regionName) {
 
-    List<?> resultList = getFunctionResultFromMembers(regionName);
+    var resultList = getFunctionResultFromMembers(regionName);
 
     // Log any errors received.
     resultList.stream().filter(Throwable.class::isInstance).map(Throwable.class::cast)
@@ -68,23 +64,23 @@ public class DescribeRegionCommand extends GfshCommand {
 
     // Region descriptions are grouped on name, scope, data-policy and member-type (accessor vs
     // hosting member).
-    Map<String, List<RegionDescriptionPerMember>> perTypeDescriptions =
+    var perTypeDescriptions =
         resultList.stream().filter(RegionDescriptionPerMember.class::isInstance)
             .map(RegionDescriptionPerMember.class::cast)
             .collect(Collectors.groupingBy(this::descriptionGrouper));
 
     List<RegionDescription> regionDescriptions = new ArrayList<>();
 
-    for (List<RegionDescriptionPerMember> regionDescPerMemberType : perTypeDescriptions.values()) {
-      RegionDescription regionDescription = new RegionDescription();
-      for (RegionDescriptionPerMember regionDescPerMember : regionDescPerMemberType) {
+    for (var regionDescPerMemberType : perTypeDescriptions.values()) {
+      var regionDescription = new RegionDescription();
+      for (var regionDescPerMember : regionDescPerMemberType) {
         regionDescription.add(regionDescPerMember);
       }
       // No point in displaying the scope for PR's
       if (regionDescription.isPartition()) {
         regionDescription.getCndRegionAttributes().remove(RegionAttributesNames.SCOPE);
       } else {
-        String scope = regionDescription.getScope().toString();
+        var scope = regionDescription.getScope().toString();
         if (scope != null) {
           scope = scope.toLowerCase().replace('_', '-');
           regionDescription.getCndRegionAttributes().put(RegionAttributesNames.SCOPE, scope);
@@ -102,7 +98,7 @@ public class DescribeRegionCommand extends GfshCommand {
   }
 
   List<?> getFunctionResultFromMembers(String regionName) {
-    ResultCollector<?, ?> rc =
+    var rc =
         executeFunction(getRegionDescription, regionName, getAllNormalMembers());
 
     return (List<?>) rc.getResult();
@@ -115,15 +111,15 @@ public class DescribeRegionCommand extends GfshCommand {
           .createError(CliStrings.format(CliStrings.REGION_NOT_FOUND, regionName));
     }
 
-    ResultModel result = new ResultModel();
-    int sectionId = 0;
-    for (RegionDescription regionDescription : regionDescriptions) {
+    var result = new ResultModel();
+    var sectionId = 0;
+    for (var regionDescription : regionDescriptions) {
       sectionId++;
 
-      DataResultModel regionSection = result.addData("region-" + sectionId);
+      var regionSection = result.addData("region-" + sectionId);
       regionSection.addData("Name", regionDescription.getName());
 
-      String dataPolicy =
+      var dataPolicy =
           regionDescription.getDataPolicy().toString().toLowerCase().replace('_', ' ');
       regionSection.addData("Data Policy", dataPolicy);
 
@@ -137,18 +133,18 @@ public class DescribeRegionCommand extends GfshCommand {
       regionSection.addData(memberType,
           StringUtils.join(regionDescription.getHostingMembers(), '\n'));
 
-      TabularResultModel commonNonDefaultAttrTable = result.addTable("non-default-" + sectionId);
+      var commonNonDefaultAttrTable = result.addTable("non-default-" + sectionId);
 
       commonNonDefaultAttrTable.setHeader(CliStrings
           .format(CliStrings.DESCRIBE_REGION__NONDEFAULT__COMMONATTRIBUTES__HEADER, memberType));
       // Common Non Default Region Attributes
-      Map<String, String> cndRegionAttrsMap = regionDescription.getCndRegionAttributes();
+      var cndRegionAttrsMap = regionDescription.getCndRegionAttributes();
 
       // Common Non Default Eviction Attributes
-      Map<String, String> cndEvictionAttrsMap = regionDescription.getCndEvictionAttributes();
+      var cndEvictionAttrsMap = regionDescription.getCndEvictionAttributes();
 
       // Common Non Default Partition Attributes
-      Map<String, String> cndPartitionAttrsMap = regionDescription.getCndPartitionAttributes();
+      var cndPartitionAttrsMap = regionDescription.getCndPartitionAttributes();
 
       writeCommonAttributesToTable(commonNonDefaultAttrTable,
           CliStrings.DESCRIBE_REGION__ATTRIBUTE__TYPE__REGION, cndRegionAttrsMap);
@@ -158,18 +154,18 @@ public class DescribeRegionCommand extends GfshCommand {
           CliStrings.DESCRIBE_REGION__ATTRIBUTE__TYPE__PARTITION, cndPartitionAttrsMap);
 
       // Member-wise non default Attributes
-      Map<String, RegionDescriptionPerMember> regDescPerMemberMap =
+      var regDescPerMemberMap =
           regionDescription.getRegionDescriptionPerMemberMap();
-      Set<String> members = regDescPerMemberMap.keySet();
+      var members = regDescPerMemberMap.keySet();
 
-      TabularResultModel table = result.addTable("member-non-default-" + sectionId);
+      var table = result.addTable("member-non-default-" + sectionId);
 
-      boolean setHeader = false;
-      for (String member : members) {
-        RegionDescriptionPerMember regDescPerMem = regDescPerMemberMap.get(member);
-        Map<String, String> ndRa = regDescPerMem.getNonDefaultRegionAttributes();
-        Map<String, String> ndEa = regDescPerMem.getNonDefaultEvictionAttributes();
-        Map<String, String> ndPa = regDescPerMem.getNonDefaultPartitionAttributes();
+      var setHeader = false;
+      for (var member : members) {
+        var regDescPerMem = regDescPerMemberMap.get(member);
+        var ndRa = regDescPerMem.getNonDefaultRegionAttributes();
+        var ndEa = regDescPerMem.getNonDefaultEvictionAttributes();
+        var ndPa = regDescPerMem.getNonDefaultPartitionAttributes();
 
         // Get all the member-specific non-default attributes by removing the common keys
         ndRa.keySet().removeAll(cndRegionAttrsMap.keySet());
@@ -183,7 +179,7 @@ public class DescribeRegionCommand extends GfshCommand {
           }
         }
 
-        List<FixedPartitionAttributesInfo> fpaList = regDescPerMem.getFixedPartitionAttributes();
+        var fpaList = regDescPerMem.getFixedPartitionAttributes();
 
         if (!ndRa.isEmpty() || !ndEa.isEmpty() || !ndPa.isEmpty()
             || (fpaList != null && !fpaList.isEmpty())) {
@@ -213,12 +209,12 @@ public class DescribeRegionCommand extends GfshCommand {
   private void writeCommonAttributesToTable(TabularResultModel table, String attributeType,
       Map<String, String> attributesMap) {
     if (!attributesMap.isEmpty()) {
-      Set<String> attributes = attributesMap.keySet();
-      boolean isTypeAdded = false;
-      final String blank = "";
+      var attributes = attributesMap.keySet();
+      var isTypeAdded = false;
+      final var blank = "";
 
-      for (String attributeName : attributes) {
-        String attributeValue = attributesMap.get(attributeName);
+      for (var attributeName : attributes) {
+        var attributeValue = attributesMap.get(attributeName);
         String type;
 
         if (!isTypeAdded) {
@@ -236,15 +232,15 @@ public class DescribeRegionCommand extends GfshCommand {
       List<FixedPartitionAttributesInfo> fpaList, String member, boolean isMemberNameAdded) {
 
     if (fpaList != null) {
-      boolean isTypeAdded = false;
-      final String blank = "";
+      var isTypeAdded = false;
+      final var blank = "";
 
-      Iterator<FixedPartitionAttributesInfo> fpaIter = fpaList.iterator();
+      var fpaIter = fpaList.iterator();
       String type, memName;
 
       while (fpaIter.hasNext()) {
-        FixedPartitionAttributesInfo fpa = fpaIter.next();
-        StringBuilder fpaBuilder = new StringBuilder();
+        var fpa = fpaIter.next();
+        var fpaBuilder = new StringBuilder();
         fpaBuilder.append(fpa.getPartitionName());
         fpaBuilder.append(',');
 
@@ -279,12 +275,12 @@ public class DescribeRegionCommand extends GfshCommand {
   private boolean writeAttributesToTable(TabularResultModel table, String attributeType,
       Map<String, String> attributesMap, String member, boolean isMemberNameAdded) {
     if (!attributesMap.isEmpty()) {
-      Set<String> attributes = attributesMap.keySet();
-      boolean isTypeAdded = false;
-      final String blank = "";
+      var attributes = attributesMap.keySet();
+      var isTypeAdded = false;
+      final var blank = "";
 
-      for (String attributeName : attributes) {
-        String attributeValue = attributesMap.get(attributeName);
+      for (var attributeName : attributes) {
+        var attributeValue = attributesMap.get(attributeName);
         String type, memName;
 
         if (!isTypeAdded) {
@@ -311,13 +307,13 @@ public class DescribeRegionCommand extends GfshCommand {
   private void writeAttributeToTable(TabularResultModel table, String member, String attributeType,
       String attributeName, String attributeValue) {
 
-    final String blank = "";
+    final var blank = "";
     if (attributeValue != null) {
       // Tokenize the attributeValue
-      String[] attributeValues = attributeValue.split(",");
-      boolean isFirstValue = true;
+      var attributeValues = attributeValue.split(",");
+      var isFirstValue = true;
 
-      for (String value : attributeValues) {
+      for (var value : attributeValues) {
         if (isFirstValue) {
           table.accumulate(CliStrings.DESCRIBE_REGION__MEMBER, member);
           table.accumulate(CliStrings.DESCRIBE_REGION__ATTRIBUTE__TYPE, attributeType);
@@ -336,11 +332,11 @@ public class DescribeRegionCommand extends GfshCommand {
 
   private void writeCommonAttributeToTable(TabularResultModel table, String attributeType,
       String attributeName, String attributeValue) {
-    final String blank = "";
+    final var blank = "";
     if (attributeValue != null) {
-      String[] attributeValues = attributeValue.split(",");
-      boolean isFirstValue = true;
-      for (String value : attributeValues) {
+      var attributeValues = attributeValue.split(",");
+      var isFirstValue = true;
+      for (var value : attributeValues) {
         if (isFirstValue) {
           isFirstValue = false;
           table.accumulate(CliStrings.DESCRIBE_REGION__ATTRIBUTE__TYPE, attributeType);

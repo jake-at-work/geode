@@ -34,9 +34,9 @@ public class MemberCommandServiceTest {
   @Before
   public void init() {
     cache = mock(InternalCache.class);
-    SecurityService securityService = mock(SecurityService.class);
-    GfshParser gfshParser = mock(GfshParser.class);
-    CommandExecutor executor = mock(CommandExecutor.class);
+    var securityService = mock(SecurityService.class);
+    var gfshParser = mock(GfshParser.class);
+    var executor = mock(CommandExecutor.class);
     commandProcessor = new OnlineCommandProcessor(gfshParser,
         securityService, executor);
   }
@@ -44,9 +44,9 @@ public class MemberCommandServiceTest {
   @Test
   public void processCommandError() throws Exception {
     @SuppressWarnings("deprecation")
-    MemberCommandService memberCommandService = new MemberCommandService(cache, commandProcessor);
+    var memberCommandService = new MemberCommandService(cache, commandProcessor);
 
-    Result result = memberCommandService.processCommand("fake command");
+    var result = memberCommandService.processCommand("fake command");
 
     assertThat(result.getStatus()).isEqualTo(Result.Status.ERROR);
   }

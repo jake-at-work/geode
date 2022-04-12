@@ -45,7 +45,6 @@ import java.util.Properties;
 
 import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -72,7 +71,7 @@ public class PulseSecurityWithSSLTest {
 
   @Test
   public void loginWithIncorrectAndThenCorrectPassword() throws Exception {
-    Properties securityProps = new Properties();
+    var securityProps = new Properties();
     securityProps.setProperty(SSL_ENABLED_COMPONENTS, SecurableCommunicationChannels.ALL);
     securityProps.setProperty(SSL_KEYSTORE, jks.getCanonicalPath());
     securityProps.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -84,7 +83,7 @@ public class PulseSecurityWithSSLTest {
     locator.withSecurityManager(SimpleSecurityManager.class).withProperties(securityProps)
         .startLocator();
 
-    HttpResponse response = client.loginToPulse("data", "wrongPassword");
+    var response = client.loginToPulse("data", "wrongPassword");
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(302);
     assertThat(response.getFirstHeader("Location").getValue())
         .contains("/pulse/login.html?error=BAD_CREDS");
@@ -94,7 +93,7 @@ public class PulseSecurityWithSSLTest {
     // Ensure that the backend JMX connection is working too
     response = client.post("/pulse/pulseUpdate", "pulseData",
         "{\"SystemAlerts\": {\"pageNumber\":\"1\"},\"ClusterDetails\":{}}");
-    String body = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+    var body = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 
     assertThat(JsonPath.parse(body).read("$.SystemAlerts.connectedFlag", Boolean.class)).isTrue();
   }
@@ -102,7 +101,7 @@ public class PulseSecurityWithSSLTest {
   @SuppressWarnings("deprecation")
   @Test
   public void loginWithDeprecatedSSLOptions() throws Exception {
-    Properties securityProps = new Properties();
+    var securityProps = new Properties();
     securityProps.setProperty(CLUSTER_SSL_ENABLED, "true");
     securityProps.setProperty(CLUSTER_SSL_KEYSTORE, jks.getCanonicalPath());
     securityProps.setProperty(CLUSTER_SSL_KEYSTORE_PASSWORD, "password");
@@ -127,9 +126,9 @@ public class PulseSecurityWithSSLTest {
     client.loginToPulseAndVerify("cluster", "cluster");
 
     // Ensure that the backend JMX connection is working too
-    HttpResponse response = client.post("/pulse/pulseUpdate", "pulseData",
+    var response = client.post("/pulse/pulseUpdate", "pulseData",
         "{\"SystemAlerts\": {\"pageNumber\":\"1\"},\"ClusterDetails\":{}}");
-    String body = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+    var body = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 
     assertThat(JsonPath.parse(body).read("$.SystemAlerts.connectedFlag", Boolean.class)).isTrue();
   }

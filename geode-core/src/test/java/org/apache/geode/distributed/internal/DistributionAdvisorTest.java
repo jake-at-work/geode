@@ -61,7 +61,7 @@ public class DistributionAdvisorTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DistributionAdvisor mockDistributionAdvisor = mock(DistributionAdvisor.class);
+    var mockDistributionAdvisor = mock(DistributionAdvisor.class);
     mockDistributionAdvisor.initialize();
     verify(mockDistributionAdvisor, times(1)).initialize();
   }

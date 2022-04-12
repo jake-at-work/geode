@@ -27,12 +27,10 @@ import org.apache.geode.cache.query.internal.StructImpl;
 import org.apache.geode.cache.query.internal.types.StructTypeImpl;
 import org.apache.geode.cache.query.internal.types.TypeUtils;
 import org.apache.geode.cache.query.types.CollectionType;
-import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.ObjectPartList;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.lang.SystemProperty;
 import org.apache.geode.internal.lang.SystemPropertyHelper;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -89,7 +87,7 @@ public class QueryOp {
       super(MessageType.QUERY_WITH_PARAMETERS, 2 + queryParams.length);
       getMessage().addStringPart(queryPredicate);
       getMessage().addIntPart(queryParams.length);
-      for (Object param : queryParams) {
+      for (var param : queryParams) {
         getMessage().addObjPart(param);
       }
     }
@@ -110,23 +108,23 @@ public class QueryOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      final SelectResults[] resultRef = new SelectResults[1];
-      final Exception[] exceptionRef = new Exception[1];
-      ChunkHandler ch = cm -> {
-        Part collectionTypePart = cm.getPart(0);
-        Object o = collectionTypePart.getObject();
+      final var resultRef = new SelectResults[1];
+      final var exceptionRef = new Exception[1];
+      var ch = (ChunkHandler) cm -> {
+        var collectionTypePart = cm.getPart(0);
+        var o = collectionTypePart.getObject();
         if (o instanceof Throwable) {
-          String s = "While performing a remote " + getOpName();
+          var s = "While performing a remote " + getOpName();
           exceptionRef[0] = new ServerOperationException(s, (Throwable) o);
           return;
         }
-        CollectionType collectionType = (CollectionType) o;
-        Part resultPart = cm.getPart(1);
+        var collectionType = (CollectionType) o;
+        var resultPart = cm.getPart(1);
         Object queryResult;
         try {
           queryResult = resultPart.getObject();
         } catch (Exception e) {
-          String s = "While deserializing " + getOpName() + " result";
+          var s = "While deserializing " + getOpName() + " result";
 
           // Enable the workaround to convert PdxSerializationException into IOException to retry.
           // It only worked when the client is configured to connect to more than one cache server
@@ -155,7 +153,7 @@ public class QueryOp {
           return;
         }
         if (queryResult instanceof Throwable) {
-          String s = "While performing a remote " + getOpName();
+          var s = "While performing a remote " + getOpName();
           exceptionRef[0] = new ServerOperationException(s, (Throwable) queryResult);
         } else if (queryResult instanceof Integer) {
           // Create the appropriate SelectResults instance if necessary
@@ -168,12 +166,12 @@ public class QueryOp {
           if (resultRef[0] == null) {
             resultRef[0] = QueryUtils.getEmptySelectResults(collectionType, null);
           }
-          SelectResults selectResults = resultRef[0];
-          ObjectType objectType = collectionType.getElementType();
+          var selectResults = resultRef[0];
+          var objectType = collectionType.getElementType();
           Object[] resultArray;
           // for select * queries, the serialized object byte arrays are
           // returned as part of ObjectPartList
-          boolean isObjectPartList = false;
+          var isObjectPartList = false;
           if (queryResult instanceof ObjectPartList) {
             isObjectPartList = true;
             resultArray = ((ObjectPartList) queryResult).getObjects().toArray();
@@ -182,7 +180,7 @@ public class QueryOp {
             resultArray = (Object[]) queryResult;
           }
           if (objectType.isStructType()) {
-            for (Object value : resultArray) {
+            for (var value : resultArray) {
               if (isObjectPartList) {
                 selectResults.add(new StructImpl((StructTypeImpl) objectType,
                     ((ObjectPartList) value).getObjects().toArray()));

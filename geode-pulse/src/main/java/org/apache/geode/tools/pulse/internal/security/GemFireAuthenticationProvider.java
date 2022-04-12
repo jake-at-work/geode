@@ -16,8 +16,6 @@ package org.apache.geode.tools.pulse.internal.security;
 
 import java.util.Collection;
 
-import javax.management.remote.JMXConnector;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,24 +51,24 @@ public class GemFireAuthenticationProvider implements AuthenticationProvider {
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     if (authentication instanceof GemFireAuthentication) {
-      GemFireAuthentication gemAuth = (GemFireAuthentication) authentication;
+      var gemAuth = (GemFireAuthentication) authentication;
       if (gemAuth.isAuthenticated()) {
         return gemAuth;
       }
     }
 
-    String name = authentication.getName();
-    String password = authentication.getCredentials().toString();
+    var name = authentication.getName();
+    var password = authentication.getCredentials().toString();
 
     logger.debug("Connecting to GemFire with user=" + name);
-    JMXConnector jmxc =
+    var jmxc =
         repository.getClusterWithUserNameAndPassword(name, password).getJMXConnector();
     if (jmxc == null) {
       throw new BadCredentialsException("Error connecting to GemFire JMX Server");
     }
 
     Collection<GrantedAuthority> list = GemFireAuthentication.populateAuthorities(jmxc);
-    GemFireAuthentication auth = new GemFireAuthentication(authentication.getPrincipal(),
+    var auth = new GemFireAuthentication(authentication.getPrincipal(),
         authentication.getCredentials(), list);
     logger.debug("For user " + name + " authList=" + list);
     return auth;

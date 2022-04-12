@@ -21,10 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -48,10 +45,10 @@ public class PartitionedRegionStatsTest extends JUnit4DistributedTestCase {
 
     client1.invoke(() -> {
 
-      ClientCache clientCache = createClientCache("superUser", "123", server.getPort());
-      Region region = createProxyRegion(clientCache, REGION_NAME);
+      var clientCache = createClientCache("superUser", "123", server.getPort());
+      var region = createProxyRegion(clientCache, REGION_NAME);
 
-      for (int i = 1; i < numOfEntries; i++) {
+      for (var i = 1; i < numOfEntries; i++) {
         region.put("key" + i, "value" + i);
         region.get("key" + i);
       }
@@ -61,10 +58,10 @@ public class PartitionedRegionStatsTest extends JUnit4DistributedTestCase {
 
     assertThat(server.getCache()).isNotNull();
 
-    CachePerfStats regionStats =
+    var regionStats =
         ((PartitionedRegion) server.getCache().getRegion(REGION_NAME)).getCachePerfStats();
 
-    CachePerfStats cacheStats = server.getCache().getCachePerfStats();
+    var cacheStats = server.getCache().getCachePerfStats();
 
     assertThat(regionStats.getGets()).isEqualTo(numOfEntries);
     assertThat(regionStats.getMisses()).isEqualTo(1);

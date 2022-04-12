@@ -34,7 +34,7 @@ public class ManageIndexDefinitionFunction extends CliFunction<RegionConfig.Inde
   @Override
   public CliFunctionResult executeFunction(FunctionContext<RegionConfig.Index> context)
       throws Exception {
-    RegionConfig.Index definedIndex = context.getArguments();
+    var definedIndex = context.getArguments();
     // this is called by the ClearDefinedIndexCommand
     if (definedIndex == null) {
       IndexDefinition.indexDefinitions.clear();

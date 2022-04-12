@@ -74,7 +74,7 @@ public final class TestFunctions implements Serializable {
   }
 
   private static void verifyPrincipal(FunctionContext<Object> context) {
-    String principal = (String) context.getPrincipal();
+    var principal = (String) context.getPrincipal();
     assertThat(principal).as("Principal cannot be null").isNotNull();
     assertThat(principal).startsWith("data");
 

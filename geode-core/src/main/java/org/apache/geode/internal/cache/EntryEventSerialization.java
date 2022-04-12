@@ -48,7 +48,7 @@ public class EntryEventSerialization {
       return;
     }
 
-    Object newValue = event.basicGetNewValue();
+    var newValue = event.basicGetNewValue();
     if (newValue == null) {
       return;
     }

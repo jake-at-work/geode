@@ -81,7 +81,7 @@ public abstract class AbstractStatisticsFactory implements StatisticsFactory, St
 
   @Override
   public int getStatisticsCount() {
-    int result = 0;
+    var result = 0;
     List<Statistics> statsList = this.statsList;
     if (statsList != null) {
       result = statsList.size();
@@ -92,7 +92,7 @@ public abstract class AbstractStatisticsFactory implements StatisticsFactory, St
   @Override
   public boolean statisticsExists(long id) {
     List<Statistics> statsList = this.statsList;
-    for (Statistics s : statsList) {
+    for (var s : statsList) {
       if (s.getUniqueId() == id) {
         return true;
       }
@@ -142,42 +142,42 @@ public abstract class AbstractStatisticsFactory implements StatisticsFactory, St
   @Override
   public Statistics[] findStatisticsByType(StatisticsType type) {
     List<Statistics> hits = new ArrayList<>();
-    for (final Statistics s : statsList) {
+    for (final var s : statsList) {
       if (type == s.getType()) {
         hits.add(s);
       }
     }
-    Statistics[] result = new Statistics[hits.size()];
+    var result = new Statistics[hits.size()];
     return hits.toArray(result);
   }
 
   @Override
   public Statistics[] findStatisticsByTextId(String textId) {
     List<Statistics> hits = new ArrayList<>();
-    for (final Statistics s : statsList) {
+    for (final var s : statsList) {
       if (s.getTextId().equals(textId)) {
         hits.add(s);
       }
     }
-    Statistics[] result = new Statistics[hits.size()];
+    var result = new Statistics[hits.size()];
     return hits.toArray(result);
   }
 
   @Override
   public Statistics[] findStatisticsByNumericId(long numericId) {
     List<Statistics> hits = new ArrayList<>();
-    for (final Statistics s : statsList) {
+    for (final var s : statsList) {
       if (numericId == s.getNumericId()) {
         hits.add(s);
       }
     }
-    Statistics[] result = new Statistics[hits.size()];
+    var result = new Statistics[hits.size()];
     return hits.toArray(result);
   }
 
   @Override
   public Statistics findStatisticsByUniqueId(long uniqueId) {
-    for (final Statistics s : statsList) {
+    for (final var s : statsList) {
       if (uniqueId == s.getUniqueId()) {
         return s;
       }
@@ -211,7 +211,7 @@ public abstract class AbstractStatisticsFactory implements StatisticsFactory, St
     synchronized (statsListUniqueIdLock) {
       myUniqueId = statsListUniqueId++; // fix for bug 30597
     }
-    Statistics result = StatisticsImpl.createAtomicNoOS(type, textId, numericId, myUniqueId, this);
+    var result = StatisticsImpl.createAtomicNoOS(type, textId, numericId, myUniqueId, this);
     synchronized (statsList) {
       statsList.add(result);
       statsListModCount++;

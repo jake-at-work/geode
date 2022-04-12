@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.entries;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.internal.cache.DiskId;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.EntryBits;
 import org.apache.geode.internal.cache.InitialImageOperation.Entry;
@@ -151,10 +150,10 @@ public abstract class AbstractOplogDiskRegionEntry extends AbstractDiskRegionEnt
    */
   @Override
   public void processVersionTag(EntryEvent cacheEvent) {
-    DiskId did = getDiskId();
-    boolean checkConflicts = true;
+    var did = getDiskId();
+    var checkConflicts = true;
     if (did != null) {
-      InternalRegion lr = (InternalRegion) cacheEvent.getRegion();
+      var lr = (InternalRegion) cacheEvent.getRegion();
       if (lr != null && lr.getDiskRegion().isReadyForRecovery()) {
         synchronized (did) {
           checkConflicts = !EntryBits.isRecoveredFromDisk(did.getUserBits());

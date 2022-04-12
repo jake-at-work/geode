@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Properties;
-import java.util.concurrent.Future;
 
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -29,18 +28,12 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionService;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.query.CqAttributesFactory;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.pdx.JSONFormatter;
-import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.security.templates.CountableUserPasswordAuthInit;
 import org.apache.geode.security.templates.UserPasswordAuthInit;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -62,7 +55,7 @@ public class MultiUserAPIDUnitTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    MemberVM locator =
+    var locator =
         cluster.startLocatorVM(0, c -> c.withSecurityManager(SimpleSecurityManager.class));
     server = cluster.startServerVM(1, s -> s.withCredential("cluster", "cluster")
         .withConnectionToLocator(locator.getPort()));
@@ -76,7 +69,7 @@ public class MultiUserAPIDUnitTest {
   public void testSingleUserUnsupportedAPIs() throws Exception {
     client.withCredential("stranger", "stranger").withMultiUser(false)
         .withServerConnection(server.getPort());
-    ClientCache clientCache = client.createCache();
+    var clientCache = client.createCache();
 
     assertThatThrownBy(() -> clientCache.createAuthenticatedView(new Properties()))
         .isInstanceOf(IllegalStateException.class)
@@ -91,9 +84,9 @@ public class MultiUserAPIDUnitTest {
         .withServerConnection(server.getPort());
     client.createCache();
     Region region = client.createProxyRegion("region");
-    Pool pool = client.getCache().getDefaultPool();
+    var pool = client.getCache().getDefaultPool();
 
-    RegionService regionService = client.createAuthenticatedView("data", "data");
+    var regionService = client.createAuthenticatedView("data", "data");
     Region regionView = regionService.getRegion("region");
 
     assertThatThrownBy(() -> region.create("key", "value"))
@@ -145,11 +138,11 @@ public class MultiUserAPIDUnitTest {
 
 
     assertThatThrownBy(() -> {
-      Query query = pool.getQueryService().newQuery("SELECT * FROM " + SEPARATOR + "region");
+      var query = pool.getQueryService().newQuery("SELECT * FROM " + SEPARATOR + "region");
       query.execute();
     }).isInstanceOf(UnsupportedOperationException.class);
 
-    CqQuery cqQuery =
+    var cqQuery =
         pool.getQueryService().newCq("SELECT * FROM " + SEPARATOR + "region",
             new CqAttributesFactory().create());
     assertThatThrownBy(cqQuery::execute)
@@ -169,7 +162,7 @@ public class MultiUserAPIDUnitTest {
 
   @Test
   public void singleUserSubscriptionEnabled() throws Exception {
-    ClientCache clientCache = client.withPoolSubscription(true)
+    var clientCache = client.withPoolSubscription(true)
         .withServerConnection(server.getPort())
         .createCache();
     assertThat(clientCache).isNotNull();
@@ -179,7 +172,7 @@ public class MultiUserAPIDUnitTest {
 
   @Test
   public void singleUserSubscriptionNotEnabled() throws Exception {
-    ClientCache clientCache = client.withPoolSubscription(false)
+    var clientCache = client.withPoolSubscription(false)
         .withServerConnection(server.getPort())
         .createCache();
     assertThat(clientCache).isNotNull();
@@ -191,7 +184,7 @@ public class MultiUserAPIDUnitTest {
 
   @Test
   public void noCredentialCanCreateCacheWithMultiUser() throws Exception {
-    ClientCache clientCache = client.withServerConnection(server.getPort()).withMultiUser(true)
+    var clientCache = client.withServerConnection(server.getPort()).withMultiUser(true)
         .createCache();
 
     // with multiuser, client cache can be created without credential and proxy region can be
@@ -202,16 +195,16 @@ public class MultiUserAPIDUnitTest {
     assertThatThrownBy(() -> region.put("key", "value"))
         .isInstanceOf(UnsupportedOperationException.class);
 
-    RegionService validView = client.createAuthenticatedView("data", "data");
+    var validView = client.createAuthenticatedView("data", "data");
     Region<String, Object> validRegion = validView.getRegion("region");
     validRegion.put("key", "value");
 
-    RegionService notAuthenticatedView = client.createAuthenticatedView("test", "invalid");
+    var notAuthenticatedView = client.createAuthenticatedView("test", "invalid");
     Region<String, Object> notAuthenticatedRegion = notAuthenticatedView.getRegion("region");
     assertThatThrownBy(() -> notAuthenticatedRegion.put("key", "value"))
         .hasCauseInstanceOf(AuthenticationFailedException.class);
 
-    RegionService notAuthorizedView = client.createAuthenticatedView("test", "test");
+    var notAuthorizedView = client.createAuthenticatedView("test", "test");
     Region<String, Object> notAuthorizedRegion = notAuthorizedView.getRegion("region");
     assertThatThrownBy(() -> notAuthorizedRegion.put("key", "value"))
         .hasCauseInstanceOf(NotAuthorizedException.class);
@@ -227,8 +220,8 @@ public class MultiUserAPIDUnitTest {
     Region region = client.createProxyRegion("region");
 
     // with single user, the static method in JSONFormatter can be used
-    String json = "{\"key\" : \"value\"}";
-    PdxInstance value = JSONFormatter.fromJSON(json);
+    var json = "{\"key\" : \"value\"}";
+    var value = JSONFormatter.fromJSON(json);
     region.put("key", value);
 
     // make sure the client only needs to authenticate once
@@ -237,20 +230,20 @@ public class MultiUserAPIDUnitTest {
 
   @Test
   public void multiUser_OneUserShouldOnlyAuthenticateOnceByDifferentThread() throws Exception {
-    ClientCache cache = client.withServerConnection(server.getPort())
+    var cache = client.withServerConnection(server.getPort())
         .withProperty(SECURITY_CLIENT_AUTH_INIT, CountableUserPasswordAuthInit.class.getName())
         .withMultiUser(true)
         .createCache();
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(UserPasswordAuthInit.USER_NAME, "data");
     properties.setProperty(UserPasswordAuthInit.PASSWORD, "data");
-    RegionService regionService = cache.createAuthenticatedView(properties);
+    var regionService = cache.createAuthenticatedView(properties);
 
     cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
     Region region = regionService.getRegion(SEPARATOR + "region");
 
-    Future<Object> put1 = executor.submit(() -> region.put("key", "value"));
-    Future<Object> put2 = executor.submit(() -> region.put("key", "value"));
+    var put1 = executor.submit(() -> region.put("key", "value"));
+    var put2 = executor.submit(() -> region.put("key", "value"));
 
     put1.get();
     put2.get();
@@ -268,34 +261,34 @@ public class MultiUserAPIDUnitTest {
     client.withMultiUser(true).withServerConnection(server.getPort()).createCache();
     client.createProxyRegion("region");
 
-    RegionService regionService = client.createAuthenticatedView("data", "data");
+    var regionService = client.createAuthenticatedView("data", "data");
     Region<String, Object> regionView = regionService.getRegion("region");
 
-    String json = "{\"key\" : \"value\"}";
+    var json = "{\"key\" : \"value\"}";
 
     // in multiUser view, can not use the static methods in JSONFormatter directly
     assertThatThrownBy(() -> JSONFormatter.fromJSON(json))
         .hasCauseInstanceOf(UnsupportedOperationException.class);
 
     // need to get the jsonFormatter from the proxy cache
-    PdxInstance value = regionService.getJsonFormatter().toPdxInstance(json);
+    var value = regionService.getJsonFormatter().toPdxInstance(json);
     regionView.put("key", value);
   }
 
   @Test
   public void multiUserWithCQ_Should_Authentiate() throws Exception {
-    ClientCache cache = client.withServerConnection(server.getPort())
+    var cache = client.withServerConnection(server.getPort())
         .withPoolSubscription(true)
         .withProperty(SECURITY_CLIENT_AUTH_INIT, CountableUserPasswordAuthInit.class.getName())
         .withMultiUser(true)
         .createCache();
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(UserPasswordAuthInit.USER_NAME, "data");
     properties.setProperty(UserPasswordAuthInit.PASSWORD, "wrongPassword");
-    RegionService regionService = cache.createAuthenticatedView(properties);
+    var regionService = cache.createAuthenticatedView(properties);
 
     cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-    CqQuery cqQuery =
+    var cqQuery =
         regionService.getQueryService()
             .newCq("select * from /region", new CqAttributesFactory().create());
     assertThatThrownBy(cqQuery::execute)

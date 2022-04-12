@@ -94,20 +94,20 @@ public abstract class AbstractMSetIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testMSet_setsKeysAndReturnsCorrectValues() {
-    int keyCount = 5;
-    String[] keyvals = new String[(keyCount * 2)];
-    String[] keys = new String[keyCount];
-    String[] vals = new String[keyCount];
-    for (int i = 0; i < keyCount; i++) {
-      String key = randString() + HASHTAG;
-      String val = randString();
+    var keyCount = 5;
+    var keyvals = new String[(keyCount * 2)];
+    var keys = new String[keyCount];
+    var vals = new String[keyCount];
+    for (var i = 0; i < keyCount; i++) {
+      var key = randString() + HASHTAG;
+      var val = randString();
       keyvals[2 * i] = key;
       keyvals[2 * i + 1] = val;
       keys[i] = key;
       vals[i] = val;
     }
 
-    String resultString = jedis.mset(keyvals);
+    var resultString = jedis.mset(keyvals);
     assertThat(resultString).isEqualTo("OK");
 
     assertThat(jedis.mget(keys)).containsExactly(vals);
@@ -115,7 +115,7 @@ public abstract class AbstractMSetIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void txBehaviorDoesNotCauseBucketSizeToBecomeNegative() {
-    String key = "key";
+    var key = "key";
 
     jedis.mset(key, "value");
     assertThatNoException().isThrownBy(() -> jedis.set(key, "much larger value"));
@@ -124,14 +124,14 @@ public abstract class AbstractMSetIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testMSet_concurrentInstances_mustBeAtomic() {
-    int KEY_COUNT = 500;
-    String[] keys = new String[KEY_COUNT];
+    var KEY_COUNT = 500;
+    var keys = new String[KEY_COUNT];
 
-    for (int i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       keys[i] = HASHTAG + "key" + i;
     }
-    String[] keysAndValues1 = makeKeysAndValues(keys, "valueOne");
-    String[] keysAndValues2 = makeKeysAndValues(keys, "valueTwo");
+    var keysAndValues1 = makeKeysAndValues(keys, "valueOne");
+    var keysAndValues2 = makeKeysAndValues(keys, "valueTwo");
 
     new ConcurrentLoopingThreads(1000,
         i -> jedis.mset(keysAndValues1),
@@ -144,8 +144,8 @@ public abstract class AbstractMSetIntegrationTest implements RedisIntegrationTes
   }
 
   private String[] makeKeysAndValues(String[] keys, String valueBase) {
-    String[] keysValues = new String[keys.length * 2];
-    for (int i = 0; i < keys.length * 2; i += 2) {
+    var keysValues = new String[keys.length * 2];
+    for (var i = 0; i < keys.length * 2; i += 2) {
       keysValues[i] = keys[i / 2];
       keysValues[i + 1] = valueBase + i;
     }

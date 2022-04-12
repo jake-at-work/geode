@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -63,7 +62,6 @@ import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.DeserializationContext;
-import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.internal.serialization.StaticSerialization;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -108,35 +106,35 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
    * message
    */
   public static boolean distribute(EntryEventImpl event, RemoveAllEntryData[] data, int dataCount) {
-    boolean successful = false;
-    DistributedRegion r = (DistributedRegion) event.getRegion();
+    var successful = false;
+    var r = (DistributedRegion) event.getRegion();
     Collection<InternalDistributedMember> replicates =
         r.getCacheDistributionAdvisor().adviseInitializedReplicates();
     if (replicates.isEmpty()) {
       return false;
     }
     if (replicates.size() > 1) {
-      ArrayList<InternalDistributedMember> l = new ArrayList<>(replicates);
+      var l = new ArrayList<InternalDistributedMember>(replicates);
       Collections.shuffle(l);
       replicates = l;
     }
-    int attempts = 0;
-    for (InternalDistributedMember replicate : replicates) {
+    var attempts = 0;
+    for (var replicate : replicates) {
       try {
         attempts++;
-        final boolean posDup = (attempts > 1);
-        RemoveAllResponse response = send(replicate, event, data, dataCount, false, posDup);
+        final var posDup = (attempts > 1);
+        var response = send(replicate, event, data, dataCount, false, posDup);
         response.waitForRemoteResponse();
-        VersionedObjectList result = response.getResponse();
+        var result = response.getResponse();
 
         // Set successful version tags in RemoveAllEntryData.
-        List<Object> successfulKeys = result.getKeys();
+        var successfulKeys = result.getKeys();
         @SuppressWarnings("rawtypes")
-        List<VersionTag> versions = result.getVersionTags();
-        for (RemoveAllEntryData removeAllEntry : data) {
-          Object key = removeAllEntry.getKey();
+        var versions = result.getVersionTags();
+        for (var removeAllEntry : data) {
+          var key = removeAllEntry.getKey();
           if (successfulKeys.contains(key)) {
-            int index = successfulKeys.indexOf(key);
+            var index = successfulKeys.indexOf(key);
             removeAllEntry.versionTag = versions.get(index);
           }
         }
@@ -198,8 +196,8 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
   public static RemoveAllResponse send(DistributedMember recipient, EntryEventImpl event,
       RemoveAllEntryData[] removeAllData, int removeAllDataCount, boolean useOriginRemote,
       boolean possibleDuplicate) throws RemoteOperationException {
-    RemoveAllResponse p = new RemoveAllResponse(event.getRegion().getSystem(), recipient);
-    RemoteRemoveAllMessage msg = new RemoteRemoveAllMessage(event, recipient, p, removeAllData,
+    var p = new RemoveAllResponse(event.getRegion().getSystem(), recipient);
+    var msg = new RemoteRemoveAllMessage(event, recipient, p, removeAllData,
         removeAllDataCount, useOriginRemote, possibleDuplicate);
     Set<?> failures = event.getRegion().getDistributionManager().putOutgoing(msg);
     if (failures != null && failures.size() > 0) {
@@ -232,17 +230,17 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
     removeAllDataCount = (int) InternalDataSerializer.readUnsignedVL(in);
     removeAllData = new RemoveAllEntryData[removeAllDataCount];
     if (removeAllDataCount > 0) {
-      final KnownVersion version = StaticSerialization.getVersionForDataStreamOrNull(in);
-      final ByteArrayDataInput bytesIn = new ByteArrayDataInput();
-      for (int i = 0; i < removeAllDataCount; i++) {
+      final var version = StaticSerialization.getVersionForDataStreamOrNull(in);
+      final var bytesIn = new ByteArrayDataInput();
+      for (var i = 0; i < removeAllDataCount; i++) {
         removeAllData[i] = new RemoveAllEntryData(in, eventId, i,
             context);
       }
 
-      boolean hasTags = in.readBoolean();
+      var hasTags = in.readBoolean();
       if (hasTags) {
-        EntryVersionsList versionTags = EntryVersionsList.create(in);
-        for (int i = 0; i < removeAllDataCount; i++) {
+        var versionTags = EntryVersionsList.create(in);
+        for (var i = 0; i < removeAllDataCount; i++) {
           removeAllData[i].versionTag = versionTags.get(i);
         }
       }
@@ -263,10 +261,10 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
 
     if (removeAllDataCount > 0) {
 
-      EntryVersionsList versionTags = new EntryVersionsList(removeAllDataCount);
+      var versionTags = new EntryVersionsList(removeAllDataCount);
 
-      boolean hasTags = false;
-      for (int i = 0; i < removeAllDataCount; i++) {
+      var hasTags = false;
+      for (var i = 0; i < removeAllDataCount; i++) {
         if (!hasTags && removeAllData[i].versionTag != null) {
           hasTags = true;
         }
@@ -286,7 +284,7 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
 
   @Override
   protected short computeCompressedShort() {
-    short flags = super.computeCompressedShort();
+    var flags = super.computeCompressedShort();
     if (posDup) {
       flags |= POS_DUP;
     }
@@ -307,7 +305,7 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
 
     final boolean sendReply;
 
-    InternalDistributedMember eventSender = getSender();
+    var eventSender = getSender();
 
     try {
       sendReply = doLocalRemoveAll(r, eventSender);
@@ -334,10 +332,10 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
    */
   public boolean doLocalRemoveAll(final LocalRegion r, final InternalDistributedMember eventSender)
       throws EntryExistsException, RemoteOperationException {
-    final DistributedRegion dr = (DistributedRegion) r;
+    final var dr = (DistributedRegion) r;
 
     @Released
-    EntryEventImpl baseEvent = EntryEventImpl.create(r, Operation.REMOVEALL_DESTROY, null, null,
+    var baseEvent = EntryEventImpl.create(r, Operation.REMOVEALL_DESTROY, null, null,
         callbackArg, false, eventSender, true);
     try {
 
@@ -354,17 +352,17 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
             "RemoteRemoveAllMessage.doLocalRemoveAll: eventSender is {}, baseEvent is {}, msg is {}",
             eventSender, baseEvent, this);
       }
-      final DistributedRemoveAllOperation op =
+      final var op =
           new DistributedRemoveAllOperation(baseEvent, removeAllDataCount, false);
       try {
         r.lockRVVForBulkOp();
-        final VersionedObjectList versions =
+        final var versions =
             new VersionedObjectList(removeAllDataCount, true, dr.getConcurrencyChecksEnabled());
         dr.syncBulkOp(() -> {
-          InternalDistributedMember myId = r.getDistributionManager().getDistributionManagerId();
-          for (int i = 0; i < removeAllDataCount; ++i) {
+          var myId = r.getDistributionManager().getDistributionManagerId();
+          for (var i = 0; i < removeAllDataCount; ++i) {
             @Released
-            EntryEventImpl ev = RemoveAllPRMessage.getEventFromEntry(r, myId, eventSender, i,
+            var ev = RemoveAllPRMessage.getEventFromEntry(r, myId, eventSender, i,
                 removeAllData, false, bridgeContext, posDup, false);
             try {
               ev.setRemoveAllOperation(op);
@@ -405,7 +403,7 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
     if (bridgeContext != null) {
       buff.append("; bridgeContext=").append(bridgeContext);
     }
-    for (int i = 0; i < removeAllDataCount; i++) {
+    for (var i = 0; i < removeAllDataCount; i++) {
       buff.append("; entry" + i + ":")
           .append(removeAllData[i] == null ? "null" : removeAllData[i].getKey());
     }
@@ -430,7 +428,7 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
     public static void send(InternalDistributedMember recipient, int processorId, ReplySender dm,
         VersionedObjectList versions, RemoveAllEntryData[] removeAllData, int removeAllDataCount) {
       Assert.assertTrue(recipient != null, "RemoveAllReplyMessage NULL reply message");
-      RemoveAllReplyMessage m =
+      var m =
           new RemoveAllReplyMessage(processorId, versions, removeAllData, removeAllDataCount);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
@@ -443,7 +441,7 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 rp) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
 
       if (rp == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -452,7 +450,7 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
         return;
       }
       if (rp instanceof RemoveAllResponse) {
-        RemoveAllResponse processor = (RemoveAllResponse) rp;
+        var processor = (RemoveAllResponse) rp;
         processor.setResponse(this);
       }
       rp.process(this);

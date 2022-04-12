@@ -155,7 +155,7 @@ public abstract class Token {
         DeserializationContext context) throws IOException, ClassNotFoundException {}
 
     public boolean isSerializedValue(byte[] value) {
-      ByteBuffer buf = ByteBuffer.wrap(value);
+      var buf = ByteBuffer.wrap(value);
       return buf.capacity() == 3 && buf.get() == DSCODE.DS_FIXED_ID_SHORT.toByte()
           && buf.getShort() == getDSFID();
     }

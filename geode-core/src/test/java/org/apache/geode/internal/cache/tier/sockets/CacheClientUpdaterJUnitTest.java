@@ -44,37 +44,37 @@ public class CacheClientUpdaterJUnitTest {
   @Test
   public void failureToConnectClosesStatistics() throws Exception {
     // CacheClientUpdater's constructor takes a lot of parameters that we need to mock
-    ServerLocation location = new ServerLocation("localhost", 1234);
-    ClientSideHandshake handshake = mock(ClientSideHandshake.class);
+    var location = new ServerLocation("localhost", 1234);
+    var handshake = mock(ClientSideHandshake.class);
     when(handshake.isDurable()).thenReturn(Boolean.FALSE);
     QueueManager queueManager = null;
     mock(QueueManager.class);
-    EndpointManager endpointManager = mock(EndpointManager.class);
-    Endpoint endpoint = mock(Endpoint.class);
+    var endpointManager = mock(EndpointManager.class);
+    var endpoint = mock(Endpoint.class);
 
     // shutdown checks
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var distributedSystem = mock(DistributedSystem.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(distributedSystem.getCancelCriterion()).thenReturn(cancelCriterion);
     when(cancelCriterion.isCancelInProgress()).thenReturn(Boolean.FALSE);
 
     // engineer a failure to connect via SocketCreator
-    SocketCreator socketCreator = mock(SocketCreator.class);
-    ClientSocketCreator csc = mock(ClientSocketCreator.class);
+    var socketCreator = mock(SocketCreator.class);
+    var csc = mock(ClientSocketCreator.class);
     when(socketCreator.forClient()).thenReturn(csc);
     when(csc.connect(any(HostAndPort.class),
         any(Integer.class), any(Integer.class), any())).thenThrow(new SocketException("ouch"));
 
     // mock some stats that we can then use to ensure that they're closed when the problem occurs
-    CacheClientUpdater.StatisticsProvider statisticsProvider = mock(
+    var statisticsProvider = mock(
         CacheClientUpdater.StatisticsProvider.class);
-    CacheClientUpdater.CCUStats ccuStats = mock(CacheClientUpdater.CCUStats.class);
+    var ccuStats = mock(CacheClientUpdater.CCUStats.class);
     when(statisticsProvider
         .createStatistics(distributedSystem, location))
             .thenReturn(ccuStats);
 
     // CCU's constructor fails to connect
-    CacheClientUpdater clientUpdater =
+    var clientUpdater =
         new CacheClientUpdater("testUpdater", location, false, distributedSystem, handshake,
             queueManager, endpointManager, endpoint, 10000, socketCreator, statisticsProvider,
             SocketFactory.DEFAULT);

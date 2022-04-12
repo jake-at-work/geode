@@ -38,30 +38,30 @@ public class MaxLongGaugeConcurrentTest {
   @Test
   public void recordMax(ParallelExecutor executor)
       throws Exception {
-    StatisticDescriptor descriptor =
+    var descriptor =
         createLongGauge("1", "", "", true);
-    StatisticDescriptor[] descriptors = {descriptor};
-    StatisticsTypeImpl statisticsType = new StatisticsTypeImpl("abc", "test",
+    var descriptors = new StatisticDescriptor[] {descriptor};
+    var statisticsType = new StatisticsTypeImpl("abc", "test",
         descriptors);
-    StripedStatisticsImpl fakeStatistics = new StripedStatisticsImpl(
+    var fakeStatistics = new StripedStatisticsImpl(
         statisticsType,
         "def", 12, 10,
         null);
 
-    MaxLongGauge maxLongGauge = new MaxLongGauge(descriptor.getId(), fakeStatistics);
-    ConcurrentLinkedQueue<Long> longs = new ConcurrentLinkedQueue<>();
+    var maxLongGauge = new MaxLongGauge(descriptor.getId(), fakeStatistics);
+    var longs = new ConcurrentLinkedQueue<Long>();
 
     executor.inParallel(() -> {
-      for (int i = 0; i < RECORDS_PER_TASK; i++) {
-        long value = ThreadLocalRandom.current().nextLong();
+      for (var i = 0; i < RECORDS_PER_TASK; i++) {
+        var value = ThreadLocalRandom.current().nextLong();
         maxLongGauge.recordMax(value);
         longs.add(value);
       }
     }, PARALLEL_COUNT);
     executor.execute();
 
-    long actualMax = fakeStatistics.getLong(descriptor.getId());
-    long expectedMax = getMax(longs);
+    var actualMax = fakeStatistics.getLong(descriptor.getId());
+    var expectedMax = getMax(longs);
 
     assertThat(longs).hasSize(RECORDS_PER_TASK * PARALLEL_COUNT);
     assertThat(actualMax).isEqualTo(expectedMax);

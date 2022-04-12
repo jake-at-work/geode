@@ -70,7 +70,6 @@ import org.apache.geode.distributed.internal.ConflationKey;
 import org.apache.geode.distributed.internal.DMStats;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.distributed.internal.OperationExecutors;
@@ -89,7 +88,6 @@ import org.apache.geode.internal.SystemTimer.SystemTimerTask;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
 import org.apache.geode.internal.monitoring.executor.AbstractExecutor;
 import org.apache.geode.internal.net.BufferPool;
-import org.apache.geode.internal.net.ByteBufferSharing;
 import org.apache.geode.internal.net.ByteBufferVendor;
 import org.apache.geode.internal.net.NioFilter;
 import org.apache.geode.internal.net.NioPlainEngine;
@@ -98,7 +96,6 @@ import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.Version;
 import org.apache.geode.internal.serialization.Versioning;
 import org.apache.geode.internal.serialization.VersioningIO;
-import org.apache.geode.internal.tcp.MsgReader.Header;
 import org.apache.geode.logging.internal.executors.LoggingThread;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -384,8 +381,8 @@ public class Connection implements Runnable {
   @MakeNotStatic
   private static final ByteBuffer okHandshakeBuf;
   static {
-    int msglen = 1; // one byte for reply code
-    byte[] bytes = new byte[MSG_HEADER_BYTES + msglen];
+    var msglen = 1; // one byte for reply code
+    var bytes = new byte[MSG_HEADER_BYTES + msglen];
     msglen = calcHdrSize(msglen);
     bytes[MSG_HEADER_SIZE_OFFSET] = (byte) (msglen / 0x1000000 & 0xff);
     bytes[MSG_HEADER_SIZE_OFFSET + 1] = (byte) (msglen / 0x10000 & 0xff);
@@ -395,7 +392,7 @@ public class Connection implements Runnable {
     bytes[MSG_HEADER_ID_OFFSET] = (byte) (MsgIdGenerator.NO_MSG_ID >> 8 & 0xff);
     bytes[MSG_HEADER_ID_OFFSET + 1] = (byte) (MsgIdGenerator.NO_MSG_ID & 0xff);
     bytes[MSG_HEADER_BYTES] = REPLY_CODE_OK;
-    int allocSize = bytes.length;
+    var allocSize = bytes.length;
     ByteBuffer bb;
     if (BufferPool.useDirectBuffers) {
       bb = ByteBuffer.allocateDirect(allocSize);
@@ -509,7 +506,7 @@ public class Connection implements Runnable {
     isReceiver = true;
     owner = connectionTable;
     this.socket = socket;
-    InetSocketAddress conduitSocketId = conduit.getSocketId();
+    var conduitSocketId = conduit.getSocketId();
     conduitIdStr = conduitSocketId.toString();
     handshakeRead = false;
     handshakeCancelled = false;
@@ -542,7 +539,7 @@ public class Connection implements Runnable {
     if (IS_P2P_CONNECT_TIMEOUT_INITIALIZED) {
       return P2P_CONNECT_TIMEOUT;
     }
-    String connectTimeoutStr = System.getProperty("p2p.connectTimeout");
+    var connectTimeoutStr = System.getProperty("p2p.connectTimeout");
     if (connectTimeoutStr != null) {
       P2P_CONNECT_TIMEOUT = Integer.parseInt(connectTimeoutStr);
     } else {
@@ -588,7 +585,7 @@ public class Connection implements Runnable {
   private void setSocketBufferSize(Socket sock, boolean send, int requestedSize) {
     if (requestedSize > 0) {
       try {
-        int currentSize = send ? sock.getSendBufferSize() : sock.getReceiveBufferSize();
+        var currentSize = send ? sock.getSendBufferSize() : sock.getReceiveBufferSize();
         if (currentSize == requestedSize) {
           if (send) {
             sendBufferSize = currentSize;
@@ -603,7 +600,7 @@ public class Connection implements Runnable {
       } catch (SocketException ignore) {
       }
       try {
-        int actualSize = send ? sock.getSendBufferSize() : sock.getReceiveBufferSize();
+        var actualSize = send ? sock.getSendBufferSize() : sock.getReceiveBufferSize();
         if (send) {
           sendBufferSize = actualSize;
         } else {
@@ -640,7 +637,7 @@ public class Connection implements Runnable {
    * Returns the size of the send buffer on this connection's socket.
    */
   int getSendBufferSize() {
-    int result = sendBufferSize;
+    var result = sendBufferSize;
     if (result != -1) {
       return result;
     }
@@ -674,7 +671,7 @@ public class Connection implements Runnable {
       // and are not subject to idle-timeout
       return false;
     }
-    boolean isIdle = !accessed;
+    var isIdle = !accessed;
     accessed = false;
     if (isIdle) {
       timedOut = true;
@@ -700,7 +697,7 @@ public class Connection implements Runnable {
       throw new IllegalStateException(format("tcp message exceeded max size of %s",
           MAX_MSG_SIZE));
     }
-    int hdrSize = byteSize;
+    var hdrSize = byteSize;
     hdrSize |= HANDSHAKE_VERSION << 24;
     return hdrSize;
   }
@@ -710,7 +707,7 @@ public class Connection implements Runnable {
   }
 
   static void calcHdrVersion(int hdrSize) throws IOException {
-    byte ver = (byte) (hdrSize >> 24);
+    var ver = (byte) (hdrSize >> 24);
     if (ver != HANDSHAKE_VERSION) {
       throw new IOException(
           format(
@@ -722,7 +719,7 @@ public class Connection implements Runnable {
   private void sendOKHandshakeReply() throws IOException, ConnectionException {
     ByteBuffer my_okHandshakeBuf;
     if (isReceiver) {
-      DistributionConfig cfg = owner.getConduit().getConfig();
+      var cfg = owner.getConduit().getConfig();
       ByteBuffer bb;
       if (BufferPool.useDirectBuffers) {
         bb = ByteBuffer.allocateDirect(128);
@@ -753,16 +750,16 @@ public class Connection implements Runnable {
    * @throws ConnectionException if the conduit has stopped
    */
   private void waitForHandshake() throws ConnectionException {
-    boolean needToClose = false;
+    var needToClose = false;
     String reason = null;
     try {
       synchronized (handshakeSync) {
         if (!handshakeRead && !handshakeCancelled) {
           reason = "unknown";
-          boolean interrupted = Thread.interrupted();
-          boolean success = false;
+          var interrupted = Thread.interrupted();
+          var success = false;
           try {
-            final long endTime = System.currentTimeMillis() + HANDSHAKE_TIMEOUT_MS;
+            final var endTime = System.currentTimeMillis() + HANDSHAKE_TIMEOUT_MS;
             long msToWait = HANDSHAKE_TIMEOUT_MS;
             while (!handshakeRead && !handshakeCancelled && msToWait > 0) {
               handshakeSync.wait(msToWait); // spurious wakeup ok
@@ -828,7 +825,7 @@ public class Connection implements Runnable {
   @VisibleForTesting
   void clearSSLInputBuffer() {
     if (getConduit().useSSL() && ioFilter != null) {
-      try (final ByteBufferSharing sharedBuffer = ioFilter.getUnwrappedBuffer()) {
+      try (final var sharedBuffer = ioFilter.getUnwrappedBuffer()) {
         // clear out any remaining handshake bytes
         sharedBuffer.getBuffer().position(0).limit(0);
       } catch (IOException e) {
@@ -873,7 +870,7 @@ public class Connection implements Runnable {
       prepareForAsyncClose();
     } else {
       if (asyncCloseCalled.compareAndSet(false, true)) {
-        Socket s = socket;
+        var s = socket;
         if (s != null && !s.isClosed()) {
           prepareForAsyncClose();
           owner.getSocketCloser().asyncClose(s, String.valueOf(remoteMember),
@@ -896,7 +893,7 @@ public class Connection implements Runnable {
    * waits until we've joined the distributed system before returning
    */
   private void waitForAddressCompletion() {
-    InternalDistributedMember myAddr = owner.getConduit().getMemberId();
+    var myAddr = owner.getConduit().getMemberId();
     synchronized (myAddr) {
       while (!owner.getConduit().getCancelCriterion().isCancelInProgress()
           && myAddr.getInetAddress() == null && myAddr.getVmViewId() < 0) {
@@ -914,8 +911,8 @@ public class Connection implements Runnable {
   private void handshakeFromNewSender() throws IOException {
     waitForAddressCompletion();
 
-    InternalDistributedMember myAddr = owner.getConduit().getMemberId();
-    try (final MsgOutputStream connectHandshake = new MsgOutputStream(CONNECT_HANDSHAKE_SIZE)) {
+    var myAddr = owner.getConduit().getMemberId();
+    try (final var connectHandshake = new MsgOutputStream(CONNECT_HANDSHAKE_SIZE)) {
       /*
        * Note a byte of zero is always written because old products serialized a member id with
        * always sends an ip address. My reading of the ip-address specs indicated that the first
@@ -963,24 +960,24 @@ public class Connection implements Runnable {
       final boolean sharedResource,
       final long startTime, final long ackTimeout, final long ackSATimeout)
       throws IOException, DistributedSystemDisconnectedException {
-    boolean success = false;
+    var success = false;
     Connection conn = null;
     // keep trying. Note that this may be executing during the shutdown window
     // where a cancel criterion has not been established, but threads are being
     // interrupted. In this case we must allow the connection to succeed even
     // though subsequent messaging using the socket may fail
-    boolean interrupted = Thread.interrupted();
+    var interrupted = Thread.interrupted();
     try {
-      boolean connectionErrorLogged = false;
+      var connectionErrorLogged = false;
       long reconnectWaitTime = RECONNECT_WAIT_TIME;
-      boolean suspected = false;
-      boolean severeAlertIssued = false;
-      boolean firstTime = true;
-      boolean warningPrinted = false;
+      var suspected = false;
+      var severeAlertIssued = false;
+      var firstTime = true;
+      var warningPrinted = false;
       while (!success) { // keep trying
         // Quit if DM has stopped distribution
         t.getConduit().getCancelCriterion().checkCancelInProgress(null);
-        long now = System.currentTimeMillis();
+        var now = System.currentTimeMillis();
         if (!severeAlertIssued && ackSATimeout > 0 && startTime + ackTimeout < now) {
           if (startTime + ackTimeout + ackSATimeout < now) {
             if (remoteAddr != null) {
@@ -1151,7 +1148,7 @@ public class Connection implements Runnable {
 
   private void setRemoteMember(InternalDistributedMember m) {
     remoteMember = owner.getDM().getCanonicalId(m);
-    Membership<InternalDistributedMember> mgr = conduit.getMembership();
+    var mgr = conduit.getMembership();
     mgr.addSurpriseMember(m);
   }
 
@@ -1181,9 +1178,9 @@ public class Connection implements Runnable {
 
     // connect to listening socket
 
-    InetSocketAddress addr =
+    var addr =
         new InetSocketAddress(remoteID.getInetAddress(), remoteID.getDirectChannelPort());
-    SocketChannel channel = SocketChannel.open();
+    var channel = SocketChannel.open();
     owner.addConnectingSocket(channel.socket(), addr.getAddress());
 
     try {
@@ -1201,7 +1198,7 @@ public class Connection implements Runnable {
       setSendBufferSize(channel.socket());
       channel.configureBlocking(true);
 
-      int connectTime = getP2PConnectTimeout(conduit.getDM().getConfig());
+      var connectTime = getP2PConnectTimeout(conduit.getDM().getConfig());
 
       try {
 
@@ -1211,7 +1208,7 @@ public class Connection implements Runnable {
 
       } catch (NullPointerException e) {
         // jdk 1.7 sometimes throws an NPE here
-        ConnectException c = new ConnectException("Encountered bug #45044 - retrying");
+        var c = new ConnectException("Encountered bug #45044 - retrying");
         c.initCause(e);
         // prevent a hot loop by sleeping a little bit
         try {
@@ -1221,12 +1218,12 @@ public class Connection implements Runnable {
         }
         throw c;
       } catch (SSLException e) {
-        ConnectException c = new ConnectException("Problem connecting to peer " + addr);
+        var c = new ConnectException("Problem connecting to peer " + addr);
         c.initCause(e);
         throw c;
       } catch (CancelledKeyException | ClosedSelectorException e) {
         // for some reason NIO throws this runtime exception instead of an IOException on timeouts
-        ConnectException c = new ConnectException(
+        var c = new ConnectException(
             format("Attempt timed out after %s milliseconds", connectTime));
         c.initCause(e);
         throw c;
@@ -1275,7 +1272,7 @@ public class Connection implements Runnable {
     if (SOCKET_WRITE_DISABLED) {
       return;
     }
-    final long start = DistributionStats.getStatTime();
+    final var start = DistributionStats.getStatTime();
     try {
       Assert.assertTrue(src.remaining() <= BATCH_BUFFER_SIZE, "Message size(" + src.remaining()
           + ") exceeded BATCH_BUFFER_SIZE(" + BATCH_BUFFER_SIZE + ")");
@@ -1284,7 +1281,7 @@ public class Connection implements Runnable {
         synchronized (batchLock) {
           dst = fillBatchBuffer;
           if (src.remaining() <= dst.remaining()) {
-            final long copyStart = DistributionStats.getStatTime();
+            final var copyStart = DistributionStats.getStatTime();
             dst.put(src);
             owner.getConduit().getStats().incBatchCopyTime(copyStart);
             return;
@@ -1332,11 +1329,11 @@ public class Connection implements Runnable {
   private void close(String reason, boolean cleanupEndpoint, boolean p_removeEndpoint,
       boolean beingSick, boolean forceRemoval) {
     // use getAndSet outside sync on this
-    boolean onlyCleanup = closing.getAndSet(true);
+    var onlyCleanup = closing.getAndSet(true);
     if (onlyCleanup && !forceRemoval) {
       return;
     }
-    boolean removeEndpoint = p_removeEndpoint;
+    var removeEndpoint = p_removeEndpoint;
     if (!onlyCleanup) {
       synchronized (this) {
         stopped = true;
@@ -1347,7 +1344,7 @@ public class Connection implements Runnable {
             synchronized (outgoingQueue) {
               // wait for the flusher to complete (it may timeout)
               while (asyncQueuingInProgress) {
-                boolean interrupted = Thread.interrupted();
+                var interrupted = Thread.interrupted();
                 try {
                   outgoingQueue.wait(); // spurious wakeup ok
                 } catch (InterruptedException ie) {
@@ -1362,7 +1359,7 @@ public class Connection implements Runnable {
           }
           connected = false;
 
-          final DMStats stats = owner.getConduit().getStats();
+          final var stats = owner.getConduit().getStats();
           if (finishedConnecting) {
             if (isReceiver) {
               stats.decReceivers();
@@ -1387,7 +1384,7 @@ public class Connection implements Runnable {
       // Make sure anyone waiting for a handshake stops waiting
       notifyHandshakeWaiter(false);
       // wait a bit for the our reader thread to exit don't wait if we are the reader thread
-      boolean isIBM = false;
+      var isIBM = false;
       // if network partition detection is enabled or this is an admin vm
       // we can't wait for the reader thread when running in an IBM JRE
       if (conduit.getConfig().getEnableNetworkPartitionDetection()
@@ -1399,7 +1396,7 @@ public class Connection implements Runnable {
       // Now that readerThread is returned to a pool after we close
       // we need to be more careful not to join on a thread that belongs
       // to someone else.
-      Thread readerThreadSnapshot = readerThread;
+      var readerThreadSnapshot = readerThread;
       if (!beingSick && readerThreadSnapshot != null && !isIBM && isRunning
           && !readerShuttingDown && readerThreadSnapshot != Thread.currentThread()) {
         try {
@@ -1537,7 +1534,7 @@ public class Connection implements Runnable {
   }
 
   private String p2pReaderName() {
-    StringBuilder sb = new StringBuilder(64);
+    var sb = new StringBuilder(64);
     if (isReceiver) {
       sb.append(THREAD_KIND_IDENTIFIER + "@");
     } else if (handshakeRead) {
@@ -1598,14 +1595,14 @@ public class Connection implements Runnable {
 
     // we should not change the state of the connection if we are a handshake reader thread
     // as there is a race between this thread and the application thread doing direct ack
-    boolean handshakeHasBeenRead = false;
-    final ThreadsMonitoring threadMonitoring = getThreadMonitoring();
-    final AbstractExecutor threadMonitorExecutor =
+    var handshakeHasBeenRead = false;
+    final var threadMonitoring = getThreadMonitoring();
+    final var threadMonitorExecutor =
         threadMonitoring.createAbstractExecutor(P2PReaderExecutor);
     threadMonitorExecutor.suspendMonitoring();
     threadMonitoring.register(threadMonitorExecutor);
     try {
-      for (boolean isInitialRead = true;;) {
+      for (var isInitialRead = true;;) {
         if (stopped) {
           break;
         }
@@ -1623,8 +1620,8 @@ public class Connection implements Runnable {
           break;
         }
 
-        try (final ByteBufferSharing inputSharing = inputBufferVendor.open()) {
-          ByteBuffer buff = inputSharing.getBuffer();
+        try (final var inputSharing = inputBufferVendor.open()) {
+          var buff = inputSharing.getBuffer();
 
           synchronized (stateLock) {
             connectionState = STATE_READING;
@@ -1635,7 +1632,7 @@ public class Connection implements Runnable {
           } else {
             isInitialRead = false;
             // if we're using SSL/TLS the input buffer may already have data to process
-            final boolean skipInitialRead = buff.position() > 0;
+            final var skipInitialRead = buff.position() > 0;
             if (!skipInitialRead) {
               amountRead = channel.read(buff);
             } else {
@@ -1748,10 +1745,10 @@ public class Connection implements Runnable {
 
   private void createIoFilter(SocketChannel channel) throws IOException {
     if (getConduit().useSSL() && channel != null) {
-      final InetSocketAddress remoteAddress = (InetSocketAddress) channel.getRemoteAddress();
-      final SSLEngine engine = createSslEngine(remoteAddress);
+      final var remoteAddress = (InetSocketAddress) channel.getRemoteAddress();
+      final var engine = createSslEngine(remoteAddress);
 
-      final int packetBufferSize = engine.getSession().getPacketBufferSize();
+      final var packetBufferSize = engine.getSession().getPacketBufferSize();
 
       inputBufferVendor =
           new ByteBufferVendor(
@@ -1765,8 +1762,8 @@ public class Connection implements Runnable {
       if (channel.socket().getSendBufferSize() < packetBufferSize) {
         channel.socket().setSendBufferSize(packetBufferSize);
       }
-      try (final ByteBufferSharing inputSharing = inputBufferVendor.open()) {
-        final ByteBuffer inputBuffer = inputSharing.getBuffer();
+      try (final var inputSharing = inputBufferVendor.open()) {
+        final var inputBuffer = inputSharing.getBuffer();
         /*
          * It's ok to share the inputBuffer with handshakeSSLSocketChannel() since that method
          * accesses the referenced buffer for the handshake which completes before returning
@@ -1796,7 +1793,7 @@ public class Connection implements Runnable {
 
   private SSLEngine createSslEngine(final InetSocketAddress remoteAddress) {
     final String hostName;
-    final boolean isSender = remoteMember != null;
+    final var isSender = remoteMember != null;
     if (isSender) {
       hostName = convertToFqdnIfNeeded(remoteMember.getHostName(), remoteMember.getVersion());
     } else {
@@ -1855,7 +1852,7 @@ public class Connection implements Runnable {
       return true;
     }
 
-    String msg = e.getMessage();
+    var msg = e.getMessage();
     if (msg == null) {
       msg = e.toString();
     }
@@ -1883,7 +1880,7 @@ public class Connection implements Runnable {
         idleMsgDestreamer = null;
       }
       if (destreamerMap != null) {
-        for (MsgDestreamer msgDestreamer : destreamerMap.values()) {
+        for (var msgDestreamer : destreamerMap.values()) {
           msgDestreamer.close();
         }
         destreamerMap = null;
@@ -1897,7 +1894,7 @@ public class Connection implements Runnable {
         destreamerMap = new HashMap<>();
       }
       Short key = msgId;
-      MsgDestreamer result = destreamerMap.get(key);
+      var result = destreamerMap.get(key);
       if (result == null) {
         result = idleMsgDestreamer;
         if (result != null) {
@@ -1926,12 +1923,12 @@ public class Connection implements Runnable {
   }
 
   private void sendFailureReply(int rpId, String exMsg, Throwable ex, boolean directAck) {
-    ReplyException exception = new ReplyException(exMsg, ex);
+    var exception = new ReplyException(exMsg, ex);
     if (directAck) {
       ReplySender dm = new DirectReplySender(this);
       ReplyMessage.send(getRemoteAddress(), rpId, exception, dm);
     } else if (rpId != 0) {
-      DistributionManager dm = owner.getDM();
+      var dm = owner.getDM();
       dm.getExecutors().getWaitingThreadPool()
           .execute(() -> ReplyMessage.send(getRemoteAddress(), rpId, exception, dm));
     }
@@ -1952,7 +1949,7 @@ public class Connection implements Runnable {
       batchSend(buffer);
       return;
     }
-    final boolean origSocketInUse = socketInUse;
+    final var origSocketInUse = socketInUse;
     byte originalState;
     synchronized (stateLock) {
       originalState = connectionState;
@@ -1960,7 +1957,7 @@ public class Connection implements Runnable {
     }
     socketInUse = true;
     try {
-      SocketChannel channel = getSocket().getChannel();
+      var channel = getSocket().getChannel();
       writeFully(channel, buffer, false, msg);
       if (cacheContentChanges) {
         messagesSent++;
@@ -2020,8 +2017,8 @@ public class Connection implements Runnable {
    */
   synchronized void scheduleAckTimeouts() {
     if (ackTimeoutTask == null) {
-      final long msAW = SECONDS.toMillis(owner.getDM().getConfig().getAckWaitThreshold());
-      final long msSA = SECONDS.toMillis(owner.getDM().getConfig().getAckSevereAlertThreshold());
+      final var msAW = SECONDS.toMillis(owner.getDM().getConfig().getAckWaitThreshold());
+      final var msSA = SECONDS.toMillis(owner.getDM().getConfig().getAckSevereAlertThreshold());
       ackTimeoutTask = new SystemTimer.SystemTimerTask() {
         @Override
         public void run2() {
@@ -2038,7 +2035,7 @@ public class Connection implements Runnable {
           synchronized (stateLock) {
             connState = connectionState;
           }
-          boolean sentAlert = false;
+          var sentAlert = false;
           synchronized (Connection.this) {
             if (socketInUse) {
               switch (connState) {
@@ -2054,12 +2051,12 @@ public class Connection implements Runnable {
               }
             }
           }
-          List<Connection> group = ackConnectionGroup;
+          var group = ackConnectionGroup;
           if (sentAlert && group != null) {
             // since transmission and ack-receipt are performed serially, we don't want to complain
             // about all receivers out just because one was slow. We therefore reset the time stamps
             // and give others more time
-            for (Connection connection : group) {
+            for (var connection : group) {
               if (connection != Connection.this) {
                 connection.transmissionStartTime += connection.ackSATimeout;
               }
@@ -2069,7 +2066,7 @@ public class Connection implements Runnable {
       };
 
       synchronized (owner) {
-        final SystemTimer timer = owner.getIdleConnTimer();
+        final var timer = owner.getIdleConnTimer();
         if (timer != null) {
           synchronized (ackTimeoutTask) {
             if (!ackTimeoutTask.isCancelled()) {
@@ -2089,7 +2086,7 @@ public class Connection implements Runnable {
    * ack-wait-threshold and ack-severe-alert-threshold processing
    */
   private boolean doSevereAlertProcessing() {
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     if (ackSATimeout > 0 && transmissionStartTime + ackWaitTimeout + ackSATimeout <= now) {
       logger.fatal("{} seconds have elapsed waiting for a response from {} for thread {}",
           (ackWaitTimeout + ackSATimeout) / 1000L,
@@ -2105,7 +2102,7 @@ public class Connection implements Runnable {
           ackWaitTimeout / 1000L, getRemoteAddress(), ackThreadName);
       ackTimedOut = true;
 
-      final String state = connectionState == Connection.STATE_SENDING
+      final var state = connectionState == Connection.STATE_SENDING
           ? "Sender has been unable to transmit a message within ack-wait-threshold seconds"
           : "Sender has been unable to receive a response to a message within ack-wait-threshold seconds";
       if (ackSATimeout > 0) {
@@ -2118,8 +2115,8 @@ public class Connection implements Runnable {
 
   private boolean addToQueue(ByteBuffer buffer, DistributionMessage msg, boolean force)
       throws ConnectionException {
-    final DMStats stats = owner.getConduit().getStats();
-    long start = DistributionStats.getStatTime();
+    final var stats = owner.getConduit().getStats();
+    var start = DistributionStats.getStatTime();
     try {
       ConflationKey ck = null;
       if (msg != null) {
@@ -2127,11 +2124,11 @@ public class Connection implements Runnable {
       }
       Object objToQueue = null;
       // if we can conflate delay the copy to see if we can reuse an already allocated buffer.
-      final int newBytes = buffer.remaining();
-      final int origBufferPos = buffer.position();
+      final var newBytes = buffer.remaining();
+      final var origBufferPos = buffer.position();
       if (ck == null || !ck.allowsConflation()) {
         // do this outside of sync for multi thread perf
-        ByteBuffer newbb = ByteBuffer.allocate(newBytes);
+        var newbb = ByteBuffer.allocate(newBytes);
         newbb.put(buffer);
         newbb.flip();
         objToQueue = newbb;
@@ -2148,13 +2145,13 @@ public class Connection implements Runnable {
           // the pusher emptied the queue so don't add since we are not forced to.
           return false;
         }
-        boolean didConflation = false;
+        var didConflation = false;
         if (ck != null) {
           if (ck.allowsConflation()) {
             objToQueue = ck;
-            ConflationKey oldValue = conflatedKeys.put(ck, ck);
+            var oldValue = conflatedKeys.put(ck, ck);
             if (oldValue != null) {
-              ByteBuffer oldBuffer = oldValue.getBuffer();
+              var oldBuffer = oldValue.getBuffer();
               // need to always do this to allow old buffer to be gc'd
               oldValue.setBuffer(null);
 
@@ -2172,7 +2169,7 @@ public class Connection implements Runnable {
               if (outgoingQueue.getLast() == oldValue) {
                 outgoingQueue.removeLast();
               }
-              int oldBytes = oldBuffer.remaining();
+              var oldBytes = oldBuffer.remaining();
               queuedBytes -= oldBytes;
               stats.incAsyncQueueSize(-oldBytes);
               stats.incAsyncConflatedMsgs();
@@ -2185,14 +2182,14 @@ public class Connection implements Runnable {
                 ck.setBuffer(oldBuffer);
               } else {
                 // old buffer was not large enough
-                ByteBuffer newbb = ByteBuffer.allocate(newBytes);
+                var newbb = ByteBuffer.allocate(newBytes);
                 newbb.put(buffer);
                 newbb.flip();
                 ck.setBuffer(newbb);
               }
             } else {
               // no old buffer so need to allocate one
-              ByteBuffer newbb = ByteBuffer.allocate(newBytes);
+              var newbb = ByteBuffer.allocate(newBytes);
               newbb.put(buffer);
               newbb.flip();
               ck.setBuffer(newbb);
@@ -2203,7 +2200,7 @@ public class Connection implements Runnable {
           }
         }
 
-        long newQueueSize = newBytes + queuedBytes;
+        var newQueueSize = newBytes + queuedBytes;
         if (newQueueSize > asyncMaxQueueSize) {
           logger.warn("Queued bytes {} exceeds max of {}, asking slow receiver {} to disconnect.",
               newQueueSize, asyncMaxQueueSize, remoteMember);
@@ -2248,7 +2245,7 @@ public class Connection implements Runnable {
     synchronized (pusherSync) {
       while (pusherThread != null) {
         // wait for previous pusher thread to exit
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           pusherSync.wait(); // spurious wakeup ok
         } catch (InterruptedException ex) {
@@ -2268,8 +2265,8 @@ public class Connection implements Runnable {
   }
 
   private ByteBuffer takeFromOutgoingQueue() {
-    final DMStats stats = owner.getConduit().getStats();
-    long start = DistributionStats.getStatTime();
+    final var stats = owner.getConduit().getStats();
+    var start = DistributionStats.getStatTime();
     try {
       ByteBuffer result = null;
       synchronized (outgoingQueue) {
@@ -2283,7 +2280,7 @@ public class Connection implements Runnable {
           if (outgoingQueue.isEmpty()) {
             break;
           }
-          Object o = outgoingQueue.removeFirst();
+          var o = outgoingQueue.removeFirst();
           if (o == null) {
             break;
           }
@@ -2299,7 +2296,7 @@ public class Connection implements Runnable {
           } else {
             result = (ByteBuffer) o;
           }
-          int newBytes = result.remaining();
+          var newBytes = result.remaining();
           queuedBytes -= newBytes;
           stats.incAsyncQueueSize(-newBytes);
           stats.incAsyncDequeuedMsgs();
@@ -2328,7 +2325,7 @@ public class Connection implements Runnable {
       }
       disconnectRequested = true;
     }
-    DistributionManager dm = owner.getDM();
+    var dm = owner.getDM();
     if (dm == null) {
       owner.removeEndpoint(remoteMember, "no distribution manager");
       return;
@@ -2351,7 +2348,7 @@ public class Connection implements Runnable {
         "Force disconnect timed out");
     if (dm.getOtherDistributionManagerIds().contains(remoteMember)) {
       if (logger.isDebugEnabled()) {
-        final int FORCE_TIMEOUT = 3000;
+        final var FORCE_TIMEOUT = 3000;
         logger.debug("Force disconnect timed out after waiting {} seconds", FORCE_TIMEOUT / 1000);
       }
     }
@@ -2362,18 +2359,18 @@ public class Connection implements Runnable {
    */
   private void runMessagePusher() {
     try {
-      final DMStats stats = owner.getConduit().getStats();
-      final long threadStart = stats.startAsyncThread();
+      final var stats = owner.getConduit().getStats();
+      final var threadStart = stats.startAsyncThread();
       try {
         stats.incAsyncQueues(1);
         stats.incAsyncThreads(1);
 
         try {
-          int flushId = 0;
+          var flushId = 0;
           while (asyncQueuingInProgress && connected) {
             if (SystemFailure.getFailure() != null) {
               // Allocate no objects here!
-              Socket s = socket;
+              var s = socket;
               if (s != null) {
                 try {
                   logger.debug("closing socket", new Exception("closing socket"));
@@ -2389,9 +2386,9 @@ public class Connection implements Runnable {
               break;
             }
             flushId++;
-            long flushStart = stats.startAsyncQueueFlush();
+            var flushStart = stats.startAsyncQueueFlush();
             try {
-              long curQueuedBytes = queuedBytes;
+              var curQueuedBytes = queuedBytes;
               if (curQueuedBytes > asyncMaxQueueSize) {
                 logger.warn(
                     "Queued bytes {} exceeds max of {}, asking slow receiver {} to disconnect.",
@@ -2400,8 +2397,8 @@ public class Connection implements Runnable {
                 disconnectSlowReceiver();
                 return;
               }
-              SocketChannel channel = getSocket().getChannel();
-              ByteBuffer bb = takeFromOutgoingQueue();
+              var channel = getSocket().getChannel();
+              var bb = takeFromOutgoingQueue();
               if (bb == null) {
                 if (logger.isDebugEnabled() && flushId == 1) {
                   logger.debug("P2P pusher found empty queue");
@@ -2423,7 +2420,7 @@ public class Connection implements Runnable {
           }
         }
       } catch (IOException ex) {
-        String err = format("P2P pusher io exception for %s", this);
+        var err = format("P2P pusher io exception for %s", this);
         if (!isSocketClosed()) {
           if (logger.isDebugEnabled() && !isIgnorableIOException(ex)) {
             logger.debug(err, ex);
@@ -2434,7 +2431,7 @@ public class Connection implements Runnable {
         } catch (Exception ignore) {
         }
       } catch (CancelException ex) {
-        String err = format("P2P pusher %s caught CacheClosedException: %s", this, ex);
+        var err = format("P2P pusher %s caught CacheClosedException: %s", this, ex);
         logger.debug(err);
         try {
           requestClose(err);
@@ -2498,12 +2495,12 @@ public class Connection implements Runnable {
 
   private void writeAsync(SocketChannel channel, ByteBuffer buffer, boolean forceAsync,
       DistributionMessage p_msg, final DMStats stats) throws IOException {
-    DistributionMessage msg = p_msg;
+    var msg = p_msg;
     // async/non-blocking
-    boolean socketWriteStarted = false;
+    var socketWriteStarted = false;
     long startSocketWrite = 0;
-    int retries = 0;
-    int totalAmtWritten = 0;
+    var retries = 0;
+    var totalAmtWritten = 0;
     try {
       synchronized (outLock) {
         if (!forceAsync) {
@@ -2517,20 +2514,20 @@ public class Connection implements Runnable {
         }
         socketWriteStarted = true;
         startSocketWrite = stats.startSocketWrite(false);
-        long now = System.currentTimeMillis();
+        var now = System.currentTimeMillis();
         long distributionTimeoutTarget = 0;
         // if asyncDistributionTimeout == 1 then we want to start queuing
         // as soon as we do a non blocking socket write that returns 0
         if (asyncDistributionTimeout != 1) {
           distributionTimeoutTarget = now + asyncDistributionTimeout;
         }
-        long queueTimeoutTarget = now + asyncQueueTimeout;
+        var queueTimeoutTarget = now + asyncQueueTimeout;
         channel.configureBlocking(false);
         try {
-          try (final ByteBufferSharing outputSharing = ioFilter.wrap(buffer)) {
-            final ByteBuffer wrappedBuffer = outputSharing.getBuffer();
+          try (final var outputSharing = ioFilter.wrap(buffer)) {
+            final var wrappedBuffer = outputSharing.getBuffer();
 
-            int waitTime = 1;
+            var waitTime = 1;
             do {
               owner.getConduit().getCancelCriterion().checkCancelInProgress(null);
               retries++;
@@ -2550,7 +2547,7 @@ public class Connection implements Runnable {
                         logger.debug(
                             "Starting async pusher to handle async queue because distribution-timeout is 1 and the last socket write would have blocked.");
                       } else {
-                        long blockedMs = now - distributionTimeoutTarget;
+                        var blockedMs = now - distributionTimeoutTarget;
                         blockedMs += asyncDistributionTimeout;
                         logger.debug(
                             "Blocked for {}ms which is longer than the max of {}ms so starting async pusher to handle async queue.",
@@ -2571,8 +2568,8 @@ public class Connection implements Runnable {
                   }
                   timeoutTarget = distributionTimeoutTarget;
                 } else {
-                  boolean disconnectNeeded = false;
-                  long curQueuedBytes = queuedBytes;
+                  var disconnectNeeded = false;
+                  var curQueuedBytes = queuedBytes;
                   if (curQueuedBytes > asyncMaxQueueSize) {
                     logger.warn(
                         "Queued bytes {} exceeds max of {}, asking slow receiver {} to disconnect.",
@@ -2582,7 +2579,7 @@ public class Connection implements Runnable {
                   }
                   if (now > queueTimeoutTarget) {
                     // we have waited long enough the pusher has been idle too long!
-                    long blockedMs = now - queueTimeoutTarget;
+                    var blockedMs = now - queueTimeoutTarget;
                     blockedMs += asyncQueueTimeout;
                     logger.warn(
                         "Blocked for {}ms which is longer than the max of {}ms, asking slow receiver {} to disconnect.",
@@ -2603,7 +2600,7 @@ public class Connection implements Runnable {
                 }
                 {
                   long msToWait = waitTime;
-                  long msRemaining = timeoutTarget - now;
+                  var msRemaining = timeoutTarget - now;
                   if (msRemaining > 0) {
                     msRemaining /= 2;
                   }
@@ -2613,7 +2610,7 @@ public class Connection implements Runnable {
                   if (msToWait <= 0) {
                     Thread.yield();
                   } else {
-                    boolean interrupted = Thread.interrupted();
+                    var interrupted = Thread.interrupted();
                     try {
                       Thread.sleep(msToWait);
                     } catch (InterruptedException ex) {
@@ -2662,7 +2659,7 @@ public class Connection implements Runnable {
   @VisibleForTesting
   void writeFully(SocketChannel channel, ByteBuffer buffer, boolean forceAsync,
       DistributionMessage msg) throws IOException, ConnectionException {
-    final DMStats stats = owner.getConduit().getStats();
+    final var stats = owner.getConduit().getStats();
     if (!sharedResource) {
       stats.incTOSentMsg();
     }
@@ -2673,7 +2670,7 @@ public class Connection implements Runnable {
         }
         // fall through
       }
-      long startLock = stats.startSocketLock();
+      var startLock = stats.startSocketLock();
       synchronized (outLock) {
         stats.endSocketLock(startLock);
         if (asyncQueuingInProgress) {
@@ -2682,12 +2679,12 @@ public class Connection implements Runnable {
           }
           // fall through
         }
-        try (final ByteBufferSharing outputSharing = ioFilter.wrap(buffer)) {
-          final ByteBuffer wrappedBuffer = outputSharing.getBuffer();
+        try (final var outputSharing = ioFilter.wrap(buffer)) {
+          final var wrappedBuffer = outputSharing.getBuffer();
 
           while (wrappedBuffer.remaining() > 0) {
-            int amtWritten = 0;
-            long start = stats.startSocketWrite(true);
+            var amtWritten = 0;
+            var start = stats.startSocketWrite(true);
             try {
               amtWritten = channel.write(wrappedBuffer);
             } finally {
@@ -2715,11 +2712,11 @@ public class Connection implements Runnable {
       connectionState = STATE_READING_ACK;
     }
 
-    boolean origSocketInUse = socketInUse;
+    var origSocketInUse = socketInUse;
     socketInUse = true;
     MsgReader msgReader = null;
-    DMStats stats = owner.getConduit().getStats();
-    final KnownVersion version = getRemoteVersion();
+    var stats = owner.getConduit().getStats();
+    final var version = getRemoteVersion();
     try {
       msgReader = new MsgReader(this, ioFilter, version);
 
@@ -2727,14 +2724,14 @@ public class Connection implements Runnable {
       int len;
 
       // (we have to lock here to protect between reading header and message body)
-      try (final ByteBufferSharing ignored = ioFilter.getUnwrappedBuffer()) {
-        Header header = msgReader.readHeader();
+      try (final var ignored = ioFilter.getUnwrappedBuffer()) {
+        var header = msgReader.readHeader();
 
         if (header.getMessageType() == NORMAL_MSG_TYPE) {
           msg = (ReplyMessage) msgReader.readMessage(header);
           len = header.getMessageLength();
         } else {
-          MsgDestreamer destreamer = obtainMsgDestreamer(header.getMessageId(), version);
+          var destreamer = obtainMsgDestreamer(header.getMessageId(), version);
           while (header.getMessageType() == CHUNKED_MSG_TYPE) {
             msgReader.readChunk(header, destreamer);
             header = msgReader.readHeader();
@@ -2751,7 +2748,7 @@ public class Connection implements Runnable {
       // about performance, we'll skip those checks. Skipping them
       // should be legit, because we just sent a message so we know
       // the member is already in our view, etc.
-      DistributionManager dm = owner.getDM();
+      var dm = owner.getDM();
       msg.setBytesRead(len);
       msg.setSender(remoteMember);
       stats.incReceivedMessages(1L);
@@ -2762,7 +2759,7 @@ public class Connection implements Runnable {
     } catch (SocketTimeoutException timeout) {
       throw timeout;
     } catch (IOException e) {
-      final String err =
+      final var err =
           format("ack read io exception for %s", this);
       if (!isSocketClosed()) {
         if (logger.isDebugEnabled() && !isIgnorableIOException(e)) {
@@ -2813,21 +2810,21 @@ public class Connection implements Runnable {
    */
   private void processInputBuffer(AbstractExecutor threadMonitorExecutor)
       throws ConnectionException, IOException {
-    try (final ByteBufferSharing inputSharing = inputBufferVendor.open()) {
+    try (final var inputSharing = inputBufferVendor.open()) {
       // can't be final because in some cases we expand the buffer (resulting in a new object)
-      ByteBuffer inputBuffer = inputSharing.getBuffer();
+      var inputBuffer = inputSharing.getBuffer();
       inputBuffer.flip();
 
-      try (final ByteBufferSharing sharedBuffer = ioFilter.unwrap(inputBuffer)) {
-        final ByteBuffer peerDataBuffer = sharedBuffer.getBuffer();
+      try (final var sharedBuffer = ioFilter.unwrap(inputBuffer)) {
+        final var peerDataBuffer = sharedBuffer.getBuffer();
 
         peerDataBuffer.flip();
 
-        boolean done = false;
+        var done = false;
 
         while (!done && connected) {
           owner.getConduit().getCancelCriterion().checkCancelInProgress(null);
-          int remaining = peerDataBuffer.remaining();
+          var remaining = peerDataBuffer.remaining();
           if (lengthSet || remaining >= MSG_HEADER_BYTES) {
             if (!lengthSet) {
               if (readMessageHeader(peerDataBuffer)) {
@@ -2840,8 +2837,8 @@ public class Connection implements Runnable {
               // don't trust the message deserialization to leave the position in
               // the correct spot. Some of the serialization uses buffered
               // streams that can leave the position at the wrong spot
-              int startPos = peerDataBuffer.position();
-              int oldLimit = peerDataBuffer.limit();
+              var startPos = peerDataBuffer.position();
+              var oldLimit = peerDataBuffer.limit();
               peerDataBuffer.limit(startPos + messageLength);
 
               if (handshakeRead) {
@@ -2852,8 +2849,8 @@ public class Connection implements Runnable {
                   throw e;
                 }
               } else {
-                try (ByteBufferInputStream bbis = new ByteBufferInputStream(peerDataBuffer);
-                    DataInputStream dis = new DataInputStream(bbis)) {
+                try (var bbis = new ByteBufferInputStream(peerDataBuffer);
+                    var dis = new DataInputStream(bbis)) {
                   if (!isReceiver) {
                     // we read the handshake and then stop processing since we don't want
                     // to process the input buffer anymore in a handshake thread
@@ -2878,8 +2875,8 @@ public class Connection implements Runnable {
                 ioFilter.doneReading(peerDataBuffer);
               } else {
                 // compact or resize the buffer
-                final int oldBufferSize = inputBuffer.capacity();
-                final int allocSize = messageLength + MSG_HEADER_BYTES;
+                final var oldBufferSize = inputBuffer.capacity();
+                final var allocSize = messageLength + MSG_HEADER_BYTES;
                 if (oldBufferSize < allocSize) {
                   // need a bigger buffer
                   logger.info(
@@ -2923,7 +2920,7 @@ public class Connection implements Runnable {
       remoteVersion = Versioning.getKnownVersionOrDefault(
           Versioning.getVersion(VersioningIO.readOrdinal(dis)),
           null);
-      final int dominoNumber = readDominoNumber(dis, sharedResource);
+      final var dominoNumber = readDominoNumber(dis, sharedResource);
       dominoCount.set(dominoNumber);
       if (!sharedResource) {
         if (tipDomino()) {
@@ -2956,8 +2953,8 @@ public class Connection implements Runnable {
           remoteVersion != null ? " (" + remoteVersion + ')' : "");
     }
     try {
-      final String authInit = System.getProperty(SECURITY_SYSTEM_PREFIX + SECURITY_PEER_AUTH_INIT);
-      final boolean isSecure = authInit != null && !authInit.isEmpty();
+      final var authInit = System.getProperty(SECURITY_SYSTEM_PREFIX + SECURITY_PEER_AUTH_INIT);
+      final var isSecure = authInit != null && !authInit.isEmpty();
 
       if (isSecure) {
         if (owner.getConduit().waitForMembershipCheck(remoteMember)) {
@@ -2980,7 +2977,7 @@ public class Connection implements Runnable {
       }
       finishedConnecting = true;
     } catch (IOException ex) {
-      final String err = "Failed sending handshake reply";
+      final var err = "Failed sending handshake reply";
       if (logger.isDebugEnabled()) {
         logger.debug(err, ex);
       }
@@ -2993,7 +2990,7 @@ public class Connection implements Runnable {
 
   static int readDominoNumber(final DataInput dis, final boolean sharedResource)
       throws IOException {
-    final int dominoNumber = dis.readInt();
+    final var dominoNumber = dis.readInt();
     if (sharedResource) {
       return 0;
     }
@@ -3001,7 +2998,7 @@ public class Connection implements Runnable {
   }
 
   static void checkHandshakeInitialByte(@NotNull final DataInput dis) throws IOException {
-    final byte initialByte = dis.readByte();
+    final var initialByte = dis.readByte();
     if (initialByte != 0) {
       throw new IllegalStateException(
           format("Detected non Geode peer during handshake due to initial byte being %s",
@@ -3010,7 +3007,7 @@ public class Connection implements Runnable {
   }
 
   static void checkHandshakeVersion(@NotNull final DataInput dis) throws IOException {
-    final byte version = dis.readByte();
+    final var version = dis.readByte();
     if (version != HANDSHAKE_VERSION) {
       throw new IllegalStateException(
           format(
@@ -3020,7 +3017,7 @@ public class Connection implements Runnable {
   }
 
   private boolean readMessageHeader(ByteBuffer peerDataBuffer) throws IOException {
-    int headerStartPos = peerDataBuffer.position();
+    var headerStartPos = peerDataBuffer.position();
     messageLength = peerDataBuffer.getInt();
     /* nioMessageVersion = */
     calcHdrVersion(messageLength);
@@ -3050,13 +3047,13 @@ public class Connection implements Runnable {
   private void readMessage(ByteBuffer peerDataBuffer, AbstractExecutor threadMonitorExecutor) {
     if (messageType == NORMAL_MSG_TYPE) {
       owner.getConduit().getStats().incMessagesBeingReceived(true, messageLength);
-      try (ByteBufferInputStream bbis =
+      try (var bbis =
           remoteVersion == null ? new ByteBufferInputStream(peerDataBuffer)
               : new VersionedByteBufferInputStream(peerDataBuffer, remoteVersion)) {
         ReplyProcessor21.initMessageRPId();
         // add serialization stats
-        long startSer = owner.getConduit().getStats().startMsgDeserialization();
-        int startingPosition = peerDataBuffer.position();
+        var startSer = owner.getConduit().getStats().startMsgDeserialization();
+        var startingPosition = peerDataBuffer.position();
         DistributionMessage msg;
         try {
           msg = (DistributionMessage) InternalDataSerializer.readDSFID(bbis);
@@ -3126,7 +3123,7 @@ public class Connection implements Runnable {
         ReplyProcessor21.clearMessageRPId();
       }
     } else if (messageType == CHUNKED_MSG_TYPE) {
-      MsgDestreamer md = obtainMsgDestreamer(messageId, remoteVersion);
+      var md = obtainMsgDestreamer(messageId, remoteVersion);
       owner.getConduit().getStats().incMessagesBeingReceived(md.size() == 0,
           messageLength);
       try {
@@ -3135,7 +3132,7 @@ public class Connection implements Runnable {
         // ignored
       }
     } else /* (nioMessageType == END_CHUNKED_MSG_TYPE) */ {
-      MsgDestreamer md = obtainMsgDestreamer(messageId, remoteVersion);
+      var md = obtainMsgDestreamer(messageId, remoteVersion);
       owner.getConduit().getStats().incMessagesBeingReceived(md.size() == 0,
           messageLength);
       try {
@@ -3147,8 +3144,8 @@ public class Connection implements Runnable {
       int msgLength;
       String failureMsg = null;
       Throwable failureEx = null;
-      int rpId = 0;
-      boolean interrupted = false;
+      var rpId = 0;
+      var interrupted = false;
       try {
         msg = md.getMessage();
       } catch (ClassNotFoundException ex) {
@@ -3240,7 +3237,7 @@ public class Connection implements Runnable {
 
   void readHandshakeForSender(DataInputStream dis, ByteBuffer peerDataBuffer) {
     try {
-      int replyCode = dis.readUnsignedByte();
+      var replyCode = dis.readUnsignedByte();
       switch (replyCode) {
         case REPLY_CODE_OK:
           ioFilter.doneReading(peerDataBuffer);
@@ -3269,7 +3266,7 @@ public class Connection implements Runnable {
 
           return;
         default:
-          String err =
+          var err =
               "Unknown handshake reply code: " + replyCode + " messageLength: " + messageLength;
           if (replyCode == 0 && logger.isDebugEnabled()) {
             logger.debug(err + " (peer probably departed ungracefully)");
@@ -3347,7 +3344,7 @@ public class Connection implements Runnable {
   }
 
   protected Socket getSocket() throws SocketException {
-    Socket result = socket;
+    var result = socket;
     if (result == null) {
       throw new SocketException("socket has been closed");
     }
@@ -3454,7 +3451,7 @@ public class Connection implements Runnable {
      * Called when a message writer needs the current fillBatchBuffer flushed
      */
     void flushBuffer(ByteBuffer bb) {
-      final long start = DistributionStats.getStatTime();
+      final var start = DistributionStats.getStatTime();
       try {
         synchronized (this) {
           synchronized (batchLock) {
@@ -3470,7 +3467,7 @@ public class Connection implements Runnable {
           // Wait for the flusher thread
           while (bb == fillBatchBuffer) {
             owner.getConduit().getCancelCriterion().checkCancelInProgress(null);
-            boolean interrupted = Thread.interrupted();
+            var interrupted = Thread.interrupted();
             try {
               batchLock.wait(); // spurious wakeup ok
             } catch (InterruptedException ex) {
@@ -3504,22 +3501,22 @@ public class Connection implements Runnable {
               wait(BATCH_FLUSH_MS); // spurious wakeup ok
             }
             if (flushNeeded || fillBatchBuffer.position() > BATCH_BUFFER_SIZE / 2) {
-              final long start = DistributionStats.getStatTime();
+              final var start = DistributionStats.getStatTime();
               synchronized (batchLock) {
                 // This is the only block of code that will swap the buffer references
                 flushNeeded = false;
-                ByteBuffer tmp = fillBatchBuffer;
+                var tmp = fillBatchBuffer;
                 fillBatchBuffer = sendBatchBuffer;
                 sendBatchBuffer = tmp;
                 batchLock.notifyAll();
               }
               // We now own the sendBatchBuffer
               if (sendBatchBuffer.position() > 0) {
-                final boolean origSocketInUse = socketInUse;
+                final var origSocketInUse = socketInUse;
                 socketInUse = true;
                 try {
                   sendBatchBuffer.flip();
-                  SocketChannel channel = getSocket().getChannel();
+                  var channel = getSocket().getChannel();
                   writeFully(channel, sendBatchBuffer, false, null);
                   sendBatchBuffer.clear();
                 } catch (IOException | ConnectionException ex) {

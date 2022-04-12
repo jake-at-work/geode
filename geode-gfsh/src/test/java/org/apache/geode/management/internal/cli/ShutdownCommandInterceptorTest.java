@@ -25,7 +25,6 @@ import org.junit.Test;
 
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.commands.ShutdownCommand;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 
 public class ShutdownCommandInterceptorTest {
 
@@ -39,7 +38,7 @@ public class ShutdownCommandInterceptorTest {
   @Test
   public void whenRespondNo() {
     doReturn(AbstractCliAroundInterceptor.Response.NO).when(interceptor).readYesNo(any(), any());
-    ResultModel resultModel = interceptor.preExecution(null);
+    var resultModel = interceptor.preExecution(null);
     assertThat(resultModel.getStatus()).isEqualTo(Result.Status.ERROR);
   }
 }

@@ -104,7 +104,7 @@ public class JdbcAsyncWriterTest {
   }
 
   private AsyncEvent createMockEvent(Operation op) {
-    AsyncEvent event = mock(AsyncEvent.class);
+    var event = mock(AsyncEvent.class);
     when(event.getOperation()).thenReturn(op);
     when(event.getRegion()).thenReturn(region);
     return event;

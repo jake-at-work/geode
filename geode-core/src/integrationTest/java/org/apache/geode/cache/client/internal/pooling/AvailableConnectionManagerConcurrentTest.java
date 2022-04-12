@@ -52,7 +52,7 @@ public class AvailableConnectionManagerConcurrentTest {
 
     executor.inParallel(() -> {
       repeat(() -> {
-        Connection used = instance.useFirst();
+        var used = instance.useFirst();
         instance.addFirst(used, true);
       }, iterationCount);
     }, parallelCount);
@@ -68,7 +68,7 @@ public class AvailableConnectionManagerConcurrentTest {
 
     executor.inParallel(() -> {
       repeat(() -> {
-        Connection used = instance.useFirst(c -> true);
+        var used = instance.useFirst(c -> true);
         instance.addFirst(used, true);
       }, iterationCount);
     }, parallelCount);
@@ -84,7 +84,7 @@ public class AvailableConnectionManagerConcurrentTest {
 
     executor.inParallel(() -> {
       repeat(() -> {
-        Connection used = instance.useFirst();
+        var used = instance.useFirst();
         instance.addLast(used, true);
       }, iterationCount);
     }, parallelCount);
@@ -97,13 +97,13 @@ public class AvailableConnectionManagerConcurrentTest {
   public void useFirstAddFirstDoesNotLoseConnectionsEvenWhenUseFirstReturnsNull(
       ParallelExecutor executor)
       throws ExecutionException, InterruptedException {
-    int connectionCount = 2;
-    int threadCount = connectionCount * 5;
+    var connectionCount = 2;
+    var threadCount = connectionCount * 5;
     repeat(() -> instance.addFirst(createConnection(), false), connectionCount);
 
     executor.inParallel(() -> {
       repeat(() -> {
-        Connection used = instance.useFirst();
+        var used = instance.useFirst();
         if (used != null) {
           Thread.yield();
           instance.addFirst(used, true);
@@ -119,13 +119,13 @@ public class AvailableConnectionManagerConcurrentTest {
   public void useFirstWithPredicateAddFirstDoesNotLoseConnectionsEvenWhenUseFirstReturnsNull(
       ParallelExecutor executor)
       throws ExecutionException, InterruptedException {
-    int connectionCount = 2;
-    int threadCount = connectionCount * 5;
+    var connectionCount = 2;
+    var threadCount = connectionCount * 5;
     repeat(() -> instance.addFirst(createConnection(), false), connectionCount);
 
     executor.inParallel(() -> {
       repeat(() -> {
-        Connection used = instance.useFirst(c -> true);
+        var used = instance.useFirst(c -> true);
         if (used != null) {
           Thread.yield();
           instance.addFirst(used, true);
@@ -141,18 +141,18 @@ public class AvailableConnectionManagerConcurrentTest {
   public void useFirstAddLastWithPredicateThatDoesNotAlwaysMatchDoesNotLoseConnectionsEvenWhenUseFirstReturnsNull(
       ParallelExecutor executor)
       throws ExecutionException, InterruptedException {
-    int connectionCount = 2;
-    int threadCount = connectionCount * 5;
+    var connectionCount = 2;
+    var threadCount = connectionCount * 5;
     repeat(() -> instance.addFirst(createConnection(), false), connectionCount);
     // now add a bunch of connections that will not match the predicate
     repeat(() -> {
-      Connection nonMatchingConnection = createConnection(1);
+      var nonMatchingConnection = createConnection(1);
       instance.addFirst(nonMatchingConnection, false);
     }, connectionCount);
 
     executor.inParallel(() -> {
       repeat(() -> {
-        Connection used = instance.useFirst(c -> c.getBirthDate() == 0L);
+        var used = instance.useFirst(c -> c.getBirthDate() == 0L);
         if (used != null) {
           Thread.yield();
           assertThat(used.getBirthDate()).isEqualTo(0L);
@@ -168,17 +168,17 @@ public class AvailableConnectionManagerConcurrentTest {
   @Test
   public void addLastRemoveDoesNotRemoveOtherConnections(ParallelExecutor executor)
       throws ExecutionException, InterruptedException {
-    int originalCount = 7;
+    var originalCount = 7;
     Collection<Connection> originalConnections = new ArrayList<>();
     repeat(() -> {
-      Connection original = createConnection();
+      var original = createConnection();
       originalConnections.add(original);
       instance.addFirst(original, false);
     }, originalCount);
 
     executor.inParallel(() -> {
       repeat(() -> {
-        Connection removed = createConnection();
+        var removed = createConnection();
         instance.addLast(removed, true);
         assertThat(instance.remove(removed)).isTrue();
       }, iterationCount);

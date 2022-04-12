@@ -41,11 +41,11 @@ public abstract class ArrayUtils {
   }
 
   public static String toString(final Object... array) {
-    final StringBuilder buffer = new StringBuilder("[");
-    int count = 0;
+    final var buffer = new StringBuilder("[");
+    var count = 0;
 
     if (array != null) {
-      for (Object element : array) {
+      for (var element : array) {
         buffer.append(count++ > 0 ? ", " : "").append(element);
       }
     }
@@ -60,7 +60,7 @@ public abstract class ArrayUtils {
   }
 
   public static Set<String> asSet(String[] filter) {
-    LinkedHashSet<String> linkedHashSet = new LinkedHashSet<>(filter.length);
+    var linkedHashSet = new LinkedHashSet<String>(filter.length);
     Collections.addAll(linkedHashSet, filter);
     return linkedHashSet;
   }

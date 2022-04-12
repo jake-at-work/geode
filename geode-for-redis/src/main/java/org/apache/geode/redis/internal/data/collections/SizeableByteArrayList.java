@@ -22,7 +22,6 @@ import static org.apache.geode.internal.JvmSizeUtils.roundUpSize;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.apache.geode.internal.size.Sizeable;
 
@@ -48,12 +47,12 @@ public class SizeableByteArrayList extends LinkedList<byte[]> implements Sizeabl
   }
 
   private List<Integer> removeObjectsStartingAtHead(byte[] elementToRemove, int count) {
-    int index = 0;
-    ListIterator<byte[]> iterator = listIterator(index);
+    var index = 0;
+    var iterator = listIterator(index);
     List<Integer> indexesRemoved = new LinkedList<>();
 
     while (iterator.hasNext() && count != indexesRemoved.size()) {
-      byte[] element = iterator.next();
+      var element = iterator.next();
       if (Arrays.equals(element, elementToRemove)) {
         iterator.remove();
         memberOverhead -= calculateByteArrayOverhead(element);
@@ -66,12 +65,12 @@ public class SizeableByteArrayList extends LinkedList<byte[]> implements Sizeabl
   }
 
   private List<Integer> removeObjectsStartingAtTail(byte[] elementToRemove, int count) {
-    int index = size() - 1;
-    ListIterator<byte[]> descendingIterator = listIterator(size());
+    var index = size() - 1;
+    var descendingIterator = listIterator(size());
     List<Integer> indexesRemoved = new LinkedList<>();
 
     while (descendingIterator.hasPrevious() && indexesRemoved.size() != count) {
-      byte[] element = descendingIterator.previous();
+      var element = descendingIterator.previous();
       if (Arrays.equals(element, elementToRemove)) {
         descendingIterator.remove();
         memberOverhead -= calculateByteArrayOverhead(element);
@@ -85,10 +84,10 @@ public class SizeableByteArrayList extends LinkedList<byte[]> implements Sizeabl
 
   @Override
   public int indexOf(Object o) {
-    ListIterator<byte[]> iterator = this.listIterator();
+    var iterator = this.listIterator();
     while (iterator.hasNext()) {
-      int index = iterator.nextIndex();
-      byte[] element = iterator.next();
+      var index = iterator.nextIndex();
+      var element = iterator.next();
       if (Arrays.equals(element, (byte[]) o)) {
         return index;
       }
@@ -105,13 +104,13 @@ public class SizeableByteArrayList extends LinkedList<byte[]> implements Sizeabl
    * @param remove in order (smallest to largest) list of indexes to remove
    */
   public void removeIndexes(List<Integer> remove) {
-    int removeIndex = 0;
+    var removeIndex = 0;
     int firstIndexToRemove = remove.get(0);
-    ListIterator<byte[]> iterator = listIterator(firstIndexToRemove);
+    var iterator = listIterator(firstIndexToRemove);
 
     // Iterates only through the indexes to remove
-    for (int i = firstIndexToRemove; i <= remove.get(remove.size() - 1); i++) {
-      byte[] element = iterator.next();
+    for (var i = firstIndexToRemove; i <= remove.get(remove.size() - 1); i++) {
+      var element = iterator.next();
       if (i == remove.get(removeIndex)) {
         iterator.remove();
         memberOverhead -= calculateByteArrayOverhead(element);
@@ -122,9 +121,9 @@ public class SizeableByteArrayList extends LinkedList<byte[]> implements Sizeabl
 
   @Override
   public boolean remove(Object o) {
-    ListIterator<byte[]> iterator = this.listIterator();
+    var iterator = this.listIterator();
     while (iterator.hasNext()) {
-      byte[] element = iterator.next();
+      var element = iterator.next();
       if (Arrays.equals(element, (byte[]) o)) {
         iterator.remove();
         memberOverhead -= calculateByteArrayOverhead(element);
@@ -136,7 +135,7 @@ public class SizeableByteArrayList extends LinkedList<byte[]> implements Sizeabl
 
   @Override
   public byte[] remove(int index) {
-    byte[] element = super.remove(index);
+    var element = super.remove(index);
     memberOverhead -= calculateByteArrayOverhead(element);
     return element;
   }
@@ -168,9 +167,9 @@ public class SizeableByteArrayList extends LinkedList<byte[]> implements Sizeabl
 
   @Override
   public int hashCode() {
-    final int primeNumber = 31;
-    int hashCode = 1;
-    for (byte[] element : this) {
+    final var primeNumber = 31;
+    var hashCode = 1;
+    for (var element : this) {
       hashCode = hashCode * primeNumber + Arrays.hashCode(element);
     }
     return hashCode;
@@ -184,12 +183,12 @@ public class SizeableByteArrayList extends LinkedList<byte[]> implements Sizeabl
     if (!(o instanceof SizeableByteArrayList)) {
       return false;
     }
-    SizeableByteArrayList sizeableByteArrayList = (SizeableByteArrayList) o;
+    var sizeableByteArrayList = (SizeableByteArrayList) o;
     if (sizeableByteArrayList.size() != this.size()) {
       return false;
     }
-    ListIterator<byte[]> otherListIterator = ((SizeableByteArrayList) o).listIterator();
-    ListIterator<byte[]> thisListIterator = (this.listIterator());
+    var otherListIterator = ((SizeableByteArrayList) o).listIterator();
+    var thisListIterator = (this.listIterator());
     while (thisListIterator.hasNext()) {
       if (!Arrays.equals(thisListIterator.next(), otherListIterator.next())) {
         return false;

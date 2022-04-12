@@ -105,7 +105,7 @@ public class BeforeCompletionTest {
 
   @Test
   public void executeWaitsUntilDoOpFinish() {
-    Thread thread = new Thread(() -> beforeCompletion.execute(cancelCriterion));
+    var thread = new Thread(() -> beforeCompletion.execute(cancelCriterion));
     thread.start();
     // give the thread a chance to get past the "finished" check by waiting until
     // checkCancelInProgress is called

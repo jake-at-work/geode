@@ -27,7 +27,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testCREATE() {
-    Operation op = Operation.CREATE;
+    var op = Operation.CREATE;
     assertTrue(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -53,7 +53,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testPUTALL_CREATE() {
-    Operation op = Operation.PUTALL_CREATE;
+    var op = Operation.PUTALL_CREATE;
     assertTrue(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -79,7 +79,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testSEARCH_CREATE() {
-    Operation op = Operation.SEARCH_CREATE;
+    var op = Operation.SEARCH_CREATE;
     assertTrue(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -105,7 +105,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testLOCAL_LOAD_CREATE() {
-    Operation op = Operation.LOCAL_LOAD_CREATE;
+    var op = Operation.LOCAL_LOAD_CREATE;
     assertTrue(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -131,7 +131,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testNET_LOAD_CREATE() {
-    Operation op = Operation.NET_LOAD_CREATE;
+    var op = Operation.NET_LOAD_CREATE;
     assertTrue(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -157,7 +157,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testUPDATE() {
-    Operation op = Operation.UPDATE;
+    var op = Operation.UPDATE;
     assertFalse(op.isCreate());
     assertTrue(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -183,7 +183,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testPUTALL_UPDATE() {
-    Operation op = Operation.PUTALL_UPDATE;
+    var op = Operation.PUTALL_UPDATE;
     assertFalse(op.isCreate());
     assertTrue(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -209,7 +209,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testSEARCH_UPDATE() {
-    Operation op = Operation.SEARCH_UPDATE;
+    var op = Operation.SEARCH_UPDATE;
     assertFalse(op.isCreate());
     assertTrue(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -235,7 +235,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testLOCAL_LOAD_UPDATE() {
-    Operation op = Operation.LOCAL_LOAD_UPDATE;
+    var op = Operation.LOCAL_LOAD_UPDATE;
     assertFalse(op.isCreate());
     assertTrue(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -261,7 +261,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testNET_LOAD_UPDATE() {
-    Operation op = Operation.NET_LOAD_UPDATE;
+    var op = Operation.NET_LOAD_UPDATE;
     assertFalse(op.isCreate());
     assertTrue(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -287,7 +287,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testINVALIDATE() {
-    Operation op = Operation.INVALIDATE;
+    var op = Operation.INVALIDATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertTrue(op.isInvalidate());
@@ -313,7 +313,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testLOCAL_INVALIDATE() {
-    Operation op = Operation.LOCAL_INVALIDATE;
+    var op = Operation.LOCAL_INVALIDATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertTrue(op.isInvalidate());
@@ -339,7 +339,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testDESTROY() {
-    Operation op = Operation.DESTROY;
+    var op = Operation.DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -365,7 +365,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREMOVEALL() {
-    Operation op = Operation.REMOVEALL_DESTROY;
+    var op = Operation.REMOVEALL_DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -392,7 +392,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testLOCAL_DESTROY() {
-    Operation op = Operation.LOCAL_DESTROY;
+    var op = Operation.LOCAL_DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -418,7 +418,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testEVICT_DESTROY() {
-    Operation op = Operation.EVICT_DESTROY;
+    var op = Operation.EVICT_DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -444,7 +444,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_LOAD_SNAPSHOT() {
-    Operation op = Operation.REGION_LOAD_SNAPSHOT;
+    var op = Operation.REGION_LOAD_SNAPSHOT;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -470,7 +470,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_LOCAL_DESTROY() {
-    Operation op = Operation.REGION_LOCAL_DESTROY;
+    var op = Operation.REGION_LOCAL_DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -496,7 +496,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_CREATE() {
-    Operation op = Operation.REGION_CREATE;
+    var op = Operation.REGION_CREATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -522,7 +522,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_CLOSE() {
-    Operation op = Operation.REGION_CLOSE;
+    var op = Operation.REGION_CLOSE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -548,7 +548,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_DESTROY() {
-    Operation op = Operation.REGION_DESTROY;
+    var op = Operation.REGION_DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -574,7 +574,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testEXPIRE_DESTROY() {
-    Operation op = Operation.EXPIRE_DESTROY;
+    var op = Operation.EXPIRE_DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -600,7 +600,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testEXPIRE_LOCAL_DESTROY() {
-    Operation op = Operation.EXPIRE_LOCAL_DESTROY;
+    var op = Operation.EXPIRE_LOCAL_DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -626,7 +626,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testEXPIRE_INVALIDATE() {
-    Operation op = Operation.EXPIRE_INVALIDATE;
+    var op = Operation.EXPIRE_INVALIDATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertTrue(op.isInvalidate());
@@ -652,7 +652,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testEXPIRE_LOCAL_INVALIDATE() {
-    Operation op = Operation.EXPIRE_LOCAL_INVALIDATE;
+    var op = Operation.EXPIRE_LOCAL_INVALIDATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertTrue(op.isInvalidate());
@@ -678,7 +678,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_EXPIRE_DESTROY() {
-    Operation op = Operation.REGION_EXPIRE_DESTROY;
+    var op = Operation.REGION_EXPIRE_DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -704,7 +704,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_EXPIRE_LOCAL_DESTROY() {
-    Operation op = Operation.REGION_EXPIRE_LOCAL_DESTROY;
+    var op = Operation.REGION_EXPIRE_LOCAL_DESTROY;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -730,7 +730,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_EXPIRE_INVALIDATE() {
-    Operation op = Operation.REGION_EXPIRE_INVALIDATE;
+    var op = Operation.REGION_EXPIRE_INVALIDATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -756,7 +756,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_EXPIRE_LOCAL_INVALIDATE() {
-    Operation op = Operation.REGION_EXPIRE_LOCAL_INVALIDATE;
+    var op = Operation.REGION_EXPIRE_LOCAL_INVALIDATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -782,7 +782,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_LOCAL_INVALIDATE() {
-    Operation op = Operation.REGION_LOCAL_INVALIDATE;
+    var op = Operation.REGION_LOCAL_INVALIDATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -808,7 +808,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_INVALIDATE() {
-    Operation op = Operation.REGION_INVALIDATE;
+    var op = Operation.REGION_INVALIDATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -834,7 +834,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_CLEAR() {
-    Operation op = Operation.REGION_CLEAR;
+    var op = Operation.REGION_CLEAR;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -860,7 +860,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_LOCAL_CLEAR() {
-    Operation op = Operation.REGION_LOCAL_CLEAR;
+    var op = Operation.REGION_LOCAL_CLEAR;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -886,7 +886,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testCACHE_CREATE() {
-    Operation op = Operation.CACHE_CREATE;
+    var op = Operation.CACHE_CREATE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -912,7 +912,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testCACHE_CLOSE() {
-    Operation op = Operation.CACHE_CLOSE;
+    var op = Operation.CACHE_CLOSE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -938,7 +938,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testREGION_REINITIALIZE() {
-    Operation op = Operation.REGION_REINITIALIZE;
+    var op = Operation.REGION_REINITIALIZE;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());
@@ -964,7 +964,7 @@ public class OperationJUnitTest {
    */
   @Test
   public void testUPDATE_VERSION() {
-    Operation op = Operation.UPDATE_VERSION_STAMP;
+    var op = Operation.UPDATE_VERSION_STAMP;
     assertFalse(op.isCreate());
     assertFalse(op.isUpdate());
     assertFalse(op.isInvalidate());

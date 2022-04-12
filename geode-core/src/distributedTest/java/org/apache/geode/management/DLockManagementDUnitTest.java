@@ -20,8 +20,6 @@ import static org.apache.geode.management.internal.MBeanJMXAdapter.getLockServic
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
 
 import javax.management.ObjectName;
 
@@ -60,12 +58,12 @@ public class DLockManagementDUnitTest implements Serializable {
     createLockService(memberVMs[1]);
     createLockService(memberVMs[2]);
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       verifyLockServiceMXBeanInMember(memberVM);
     }
     verifyLockServiceMXBeanInManager(managerVM);
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       closeLockService(memberVM);
     }
   }
@@ -78,13 +76,13 @@ public class DLockManagementDUnitTest implements Serializable {
 
     verifyDistributedLockServiceMXBean(managerVM, 3);
 
-    DistributedMember member = managementTestRule.getDistributedMember(memberVMs[2]);
+    var member = managementTestRule.getDistributedMember(memberVMs[2]);
     verifyFetchOperations(managerVM, member);
 
     createLockService(managerVM);
     verifyDistributedLockServiceMXBean(managerVM, 4);
 
-    for (VM memberVM : memberVMs) {
+    for (var memberVM : memberVMs) {
       closeLockService(memberVM);
     }
     verifyProxyCleanupInManager(managerVM);
@@ -96,11 +94,11 @@ public class DLockManagementDUnitTest implements Serializable {
 
   private void verifyProxyCleanupInManager(final VM managerVM) {
     managerVM.invoke("verifyProxyCleanupInManager", () -> {
-      Set<DistributedMember> otherMembers = managementTestRule.getOtherNormalMembers();
-      SystemManagementService service = managementTestRule.getSystemManagementService();
+      var otherMembers = managementTestRule.getOtherNormalMembers();
+      var service = managementTestRule.getSystemManagementService();
 
-      for (final DistributedMember member : otherMembers) {
-        ObjectName objectName = service.getRegionMBeanName(member, LOCK_SERVICE_NAME);
+      for (final var member : otherMembers) {
+        var objectName = service.getRegionMBeanName(member, LOCK_SERVICE_NAME);
         GeodeAwaitility.await()
             .untilAsserted(() -> assertThat(lockServiceMXBeanIsGone(service, objectName)).isTrue());
       }
@@ -116,12 +114,12 @@ public class DLockManagementDUnitTest implements Serializable {
     memberVM.invoke("createLockServiceGrantor", () -> {
       assertThat(DistributedLockService.getServiceNamed(LOCK_SERVICE_NAME)).isNull();
 
-      DLockService lockService = (DLockService) DistributedLockService.create(LOCK_SERVICE_NAME,
+      var lockService = (DLockService) DistributedLockService.create(LOCK_SERVICE_NAME,
           managementTestRule.getCache().getDistributedSystem());
       DistributedMember grantor = lockService.getLockGrantorId().getLockGrantorMember();
       assertThat(grantor).isNotNull();
 
-      LockServiceMXBean lockServiceMXBean = awaitLockServiceMXBean(LOCK_SERVICE_NAME);
+      var lockServiceMXBean = awaitLockServiceMXBean(LOCK_SERVICE_NAME);
 
       assertThat(lockServiceMXBean).isNotNull();
       assertThat(lockServiceMXBean.isDistributed()).isTrue();
@@ -139,7 +137,7 @@ public class DLockManagementDUnitTest implements Serializable {
       DistributedLockService.create(LOCK_SERVICE_NAME,
           managementTestRule.getCache().getDistributedSystem());
 
-      LockServiceMXBean lockServiceMXBean = awaitLockServiceMXBean(LOCK_SERVICE_NAME);
+      var lockServiceMXBean = awaitLockServiceMXBean(LOCK_SERVICE_NAME);
 
       assertThat(lockServiceMXBean).isNotNull();
       assertThat(lockServiceMXBean.isDistributed()).isTrue();
@@ -154,26 +152,26 @@ public class DLockManagementDUnitTest implements Serializable {
 
       awaitLockServiceMXBeanIsNull(LOCK_SERVICE_NAME);
 
-      ManagementService service = managementTestRule.getManagementService();
-      LockServiceMXBean lockServiceMXBean = service.getLocalLockServiceMBean(LOCK_SERVICE_NAME);
+      var service = managementTestRule.getManagementService();
+      var lockServiceMXBean = service.getLocalLockServiceMBean(LOCK_SERVICE_NAME);
       assertThat(lockServiceMXBean).isNull();
     });
   }
 
   private void verifyLockServiceMXBeanInMember(final VM memberVM) {
     memberVM.invoke("verifyLockServiceMXBeanInManager", () -> {
-      DistributedLockService lockService =
+      var lockService =
           DistributedLockService.getServiceNamed(LOCK_SERVICE_NAME);
       lockService.lock("lockObject_" + identifyPid(), MAX_WAIT_MILLIS, -1);
 
-      ManagementService service = managementTestRule.getManagementService();
-      LockServiceMXBean lockServiceMXBean = service.getLocalLockServiceMBean(LOCK_SERVICE_NAME);
+      var service = managementTestRule.getManagementService();
+      var lockServiceMXBean = service.getLocalLockServiceMBean(LOCK_SERVICE_NAME);
       assertThat(lockServiceMXBean).isNotNull();
 
-      String[] listHeldLock = lockServiceMXBean.listHeldLocks();
+      var listHeldLock = lockServiceMXBean.listHeldLocks();
       assertThat(listHeldLock).hasSize(1);
 
-      Map<String, String> lockThreadMap = lockServiceMXBean.listThreadsHoldingLock();
+      var lockThreadMap = lockServiceMXBean.listThreadsHoldingLock();
       assertThat(lockThreadMap).hasSize(1);
     });
   }
@@ -183,17 +181,17 @@ public class DLockManagementDUnitTest implements Serializable {
    */
   private void verifyLockServiceMXBeanInManager(final VM managerVM) throws Exception {
     managerVM.invoke("verifyLockServiceMXBeanInManager", () -> {
-      Set<DistributedMember> otherMembers = managementTestRule.getOtherNormalMembers();
+      var otherMembers = managementTestRule.getOtherNormalMembers();
 
-      for (DistributedMember member : otherMembers) {
-        LockServiceMXBean lockServiceMXBean =
+      for (var member : otherMembers) {
+        var lockServiceMXBean =
             awaitLockServiceMXBeanProxy(member, LOCK_SERVICE_NAME);
         assertThat(lockServiceMXBean).isNotNull();
 
-        String[] listHeldLock = lockServiceMXBean.listHeldLocks();
+        var listHeldLock = lockServiceMXBean.listHeldLocks();
         assertThat(listHeldLock).hasSize(1);
 
-        Map<String, String> lockThreadMap = lockServiceMXBean.listThreadsHoldingLock();
+        var lockThreadMap = lockServiceMXBean.listThreadsHoldingLock();
         assertThat(lockThreadMap).hasSize(1);
       }
     });
@@ -201,15 +199,15 @@ public class DLockManagementDUnitTest implements Serializable {
 
   private void verifyFetchOperations(final VM memberVM, final DistributedMember member) {
     memberVM.invoke("verifyFetchOperations", () -> {
-      ManagementService service = managementTestRule.getManagementService();
+      var service = managementTestRule.getManagementService();
 
-      DistributedSystemMXBean distributedSystemMXBean = awaitDistributedSystemMXBean();
-      ObjectName distributedLockServiceMXBeanName =
+      var distributedSystemMXBean = awaitDistributedSystemMXBean();
+      var distributedLockServiceMXBeanName =
           getDistributedLockServiceName(LOCK_SERVICE_NAME);
       assertThat(distributedSystemMXBean.fetchDistributedLockServiceObjectName(LOCK_SERVICE_NAME))
           .isEqualTo(distributedLockServiceMXBeanName);
 
-      ObjectName lockServiceMXBeanName = getLockServiceMBeanName(member.getId(), LOCK_SERVICE_NAME);
+      var lockServiceMXBeanName = getLockServiceMBeanName(member.getId(), LOCK_SERVICE_NAME);
       assertThat(
           distributedSystemMXBean.fetchLockServiceObjectName(member.getId(), LOCK_SERVICE_NAME))
               .isEqualTo(lockServiceMXBeanName);
@@ -221,7 +219,7 @@ public class DLockManagementDUnitTest implements Serializable {
    */
   private void verifyDistributedLockServiceMXBean(final VM managerVM, final int memberCount) {
     managerVM.invoke("verifyDistributedLockServiceMXBean", () -> {
-      ManagementService service = managementTestRule.getManagementService();
+      var service = managementTestRule.getManagementService();
 
       if (memberCount == 0) {
         GeodeAwaitility.await().untilAsserted(
@@ -229,7 +227,7 @@ public class DLockManagementDUnitTest implements Serializable {
         return;
       }
 
-      DistributedLockServiceMXBean distributedLockServiceMXBean =
+      var distributedLockServiceMXBean =
           awaitDistributedLockServiceMXBean(LOCK_SERVICE_NAME, memberCount);
       assertThat(distributedLockServiceMXBean).isNotNull();
       assertThat(distributedLockServiceMXBean.getName()).isEqualTo(LOCK_SERVICE_NAME);
@@ -237,7 +235,7 @@ public class DLockManagementDUnitTest implements Serializable {
   }
 
   private DistributedSystemMXBean awaitDistributedSystemMXBean() {
-    ManagementService service = managementTestRule.getManagementService();
+    var service = managementTestRule.getManagementService();
 
     GeodeAwaitility.await()
         .untilAsserted(() -> assertThat(service.getDistributedSystemMXBean()).isNotNull());
@@ -250,7 +248,7 @@ public class DLockManagementDUnitTest implements Serializable {
    */
   private DistributedLockServiceMXBean awaitDistributedLockServiceMXBean(
       final String lockServiceName, final int memberCount) {
-    ManagementService service = managementTestRule.getManagementService();
+    var service = managementTestRule.getManagementService();
 
     GeodeAwaitility.await().untilAsserted(() -> {
       assertThat(service.getDistributedLockServiceMXBean(lockServiceName)).isNotNull();
@@ -266,8 +264,8 @@ public class DLockManagementDUnitTest implements Serializable {
    */
   private LockServiceMXBean awaitLockServiceMXBeanProxy(final DistributedMember member,
       final String lockServiceName) {
-    SystemManagementService service = managementTestRule.getSystemManagementService();
-    ObjectName lockServiceMXBeanName = service.getLockServiceMBeanName(member, lockServiceName);
+    var service = managementTestRule.getSystemManagementService();
+    var lockServiceMXBeanName = service.getLockServiceMBeanName(member, lockServiceName);
 
     GeodeAwaitility.await().untilAsserted(
         () -> assertThat(service.getMBeanProxy(lockServiceMXBeanName, LockServiceMXBean.class))
@@ -280,7 +278,7 @@ public class DLockManagementDUnitTest implements Serializable {
    * Await creation of local LockServiceMXBean for specified lockServiceName.
    */
   private LockServiceMXBean awaitLockServiceMXBean(final String lockServiceName) {
-    SystemManagementService service = managementTestRule.getSystemManagementService();
+    var service = managementTestRule.getSystemManagementService();
 
     GeodeAwaitility.await().untilAsserted(
         () -> assertThat(service.getLocalLockServiceMBean(lockServiceName)).isNotNull());
@@ -292,7 +290,7 @@ public class DLockManagementDUnitTest implements Serializable {
    * Await destruction of local LockServiceMXBean for specified lockServiceName.
    */
   private void awaitLockServiceMXBeanIsNull(final String lockServiceName) {
-    SystemManagementService service = managementTestRule.getSystemManagementService();
+    var service = managementTestRule.getSystemManagementService();
 
     GeodeAwaitility.await().untilAsserted(
         () -> assertThat(service.getLocalLockServiceMBean(lockServiceName)).isNull());

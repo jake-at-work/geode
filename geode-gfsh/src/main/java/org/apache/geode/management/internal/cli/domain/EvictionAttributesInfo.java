@@ -18,8 +18,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geode.cache.EvictionAction;
-import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.management.internal.cli.util.RegionAttributesDefault;
 import org.apache.geode.management.internal.cli.util.RegionAttributesNames;
@@ -33,12 +31,12 @@ public class EvictionAttributesInfo implements Serializable {
   private Map<String, String> nonDefaultAttributes;
 
   public EvictionAttributesInfo(EvictionAttributes ea) {
-    EvictionAction evictAction = ea.getAction();
+    var evictAction = ea.getAction();
 
     if (evictAction != null) {
       evictionAction = evictAction.toString();
     }
-    EvictionAlgorithm evictionAlgo = ea.getAlgorithm();
+    var evictionAlgo = ea.getAlgorithm();
     if (evictionAlgo != null) {
       evictionAlgorithm = evictionAlgo.toString();
     }
@@ -59,7 +57,7 @@ public class EvictionAttributesInfo implements Serializable {
 
   public boolean equals(Object obj) {
     if (obj instanceof EvictionAttributesInfo) {
-      EvictionAttributesInfo their = (EvictionAttributesInfo) obj;
+      var their = (EvictionAttributesInfo) obj;
       return evictionAction.equals(their.getEvictionAction())
           && evictionAlgorithm.equals(their.getEvictionAlgorithm())
           && evictionMaxValue == their.getEvictionMaxValue();

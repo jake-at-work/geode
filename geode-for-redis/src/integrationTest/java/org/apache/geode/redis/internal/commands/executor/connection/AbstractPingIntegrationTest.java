@@ -46,24 +46,24 @@ public abstract class AbstractPingIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void ping_withNoArgs_returnsPong() {
-    String result = jedis.ping();
+    var result = jedis.ping();
     assertThat(result).isEqualTo("PONG");
   }
 
   @Test
   public void ping_withArg_returnsArg() {
-    String result = jedis.ping("hello world");
+    var result = jedis.ping("hello world");
     assertThat(result).isEqualTo("hello world");
   }
 
   @Test
   public void ping_withBinaryArg_returnsBinaryArg() {
-    byte[] binaryArg = new byte[256];
-    byte byteValue = Byte.MIN_VALUE;
-    for (int i = 0; i < binaryArg.length; i++) {
+    var binaryArg = new byte[256];
+    var byteValue = Byte.MIN_VALUE;
+    for (var i = 0; i < binaryArg.length; i++) {
       binaryArg[i] = byteValue++;
     }
-    byte[] result = jedis.ping(binaryArg);
+    var result = jedis.ping(binaryArg);
     assertThat(result).isEqualTo(binaryArg);
   }
 

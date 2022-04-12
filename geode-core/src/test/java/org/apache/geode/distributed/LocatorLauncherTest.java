@@ -31,8 +31,8 @@ public class LocatorLauncherTest {
 
   @Test
   public void canBeMocked() {
-    LocatorLauncher mockLocatorLauncher = mock(LocatorLauncher.class);
-    InternalLocator mockInternalLocator = mock(InternalLocator.class);
+    var mockLocatorLauncher = mock(LocatorLauncher.class);
+    var mockInternalLocator = mock(InternalLocator.class);
 
     when(mockLocatorLauncher.getLocator()).thenReturn(mockInternalLocator);
     when(mockLocatorLauncher.getId()).thenReturn("ID");

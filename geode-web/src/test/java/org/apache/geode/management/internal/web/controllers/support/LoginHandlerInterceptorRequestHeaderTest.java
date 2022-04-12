@@ -17,7 +17,6 @@ package org.apache.geode.management.internal.web.controllers.support;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
-import java.util.Map;
 import java.util.Properties;
 
 import org.junit.After;
@@ -53,7 +52,7 @@ public class LoginHandlerInterceptorRequestHeaderTest {
 
   @Test
   public void testCaseInsensitive() throws Exception {
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest();
+    var mockRequest = new MockHttpServletRequest();
     mockRequest.addHeader("Security-Username", "John");
     mockRequest.addHeader("Security-Password", "Password");
     mockRequest.addHeader("security-something", "anything");
@@ -61,12 +60,12 @@ public class LoginHandlerInterceptorRequestHeaderTest {
 
     interceptor.preHandle(mockRequest, null, null);
 
-    ArgumentCaptor<Properties> props = ArgumentCaptor.forClass(Properties.class);
+    var props = ArgumentCaptor.forClass(Properties.class);
     verify(securityService).login(props.capture());
     assertThat(props.getValue().getProperty("security-username")).isEqualTo("John");
     assertThat(props.getValue().getProperty("security-password")).isEqualTo("Password");
 
-    Map<String, String> env = LoginHandlerInterceptor.getEnvironment();
+    var env = LoginHandlerInterceptor.getEnvironment();
     // make sure security-* are not put in the environment variable
     assertThat(env).hasSize(0);
   }

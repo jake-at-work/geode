@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache;
 
 import org.apache.geode.cache.CacheRuntimeException;
 import org.apache.geode.cache.CommitConflictException;
-import org.apache.geode.cache.Region;
 
 /**
  * TXEntryUserAttrState is the entity that tracks transactional changes to an entry user attribute.
@@ -44,13 +43,13 @@ public class TXEntryUserAttrState {
   }
 
   public Object setPendingValue(Object pv) {
-    Object result = pendingValue;
+    var result = pendingValue;
     pendingValue = pv;
     return result;
   }
 
   void checkForConflict(InternalRegion r, Object key) throws CommitConflictException {
-    Object curCmtValue = r.basicGetEntryUserAttribute(key);
+    var curCmtValue = r.basicGetEntryUserAttribute(key);
     if (originalValue != curCmtValue) {
       throw new CommitConflictException(
           String.format(
@@ -61,7 +60,7 @@ public class TXEntryUserAttrState {
 
   void applyChanges(InternalRegion r, Object key) {
     try {
-      Region.Entry re = r.getEntry(key);
+      var re = r.getEntry(key);
       re.setUserAttribute(pendingValue);
     } catch (CacheRuntimeException ignore) {
       // ignore any exceptions since we have already locked and

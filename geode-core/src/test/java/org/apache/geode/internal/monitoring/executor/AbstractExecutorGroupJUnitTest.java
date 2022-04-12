@@ -63,11 +63,11 @@ public class AbstractExecutorGroupJUnitTest {
    */
   @Test
   public void lockOwnerThreadStackIsReported() throws InterruptedException {
-    final Object syncObject = new Object();
-    final Object releaseObject = new Object();
-    final boolean[] blockingThreadWaiting = new boolean[1];
-    final boolean[] blockedThreadWaiting = new boolean[1];
-    Thread blockingThread = new Thread("blocking thread") {
+    final var syncObject = new Object();
+    final var releaseObject = new Object();
+    final var blockingThreadWaiting = new boolean[1];
+    final var blockedThreadWaiting = new boolean[1];
+    var blockingThread = new Thread("blocking thread") {
       public void run() {
         synchronized (syncObject) {
           synchronized (releaseObject) {
@@ -81,7 +81,7 @@ public class AbstractExecutorGroupJUnitTest {
         }
       }
     };
-    Thread blockedThread = new Thread("blocked thread") {
+    var blockedThread = new Thread("blocked thread") {
       public void run() {
         blockedThreadWaiting[0] = true;
         synchronized (syncObject) {
@@ -93,7 +93,7 @@ public class AbstractExecutorGroupJUnitTest {
     blockedThread.start();
     await().until(() -> blockedThreadWaiting[0]);
     try {
-      AbstractExecutor executor = new AbstractExecutor("testGroup", blockedThread.getId()) {
+      var executor = new AbstractExecutor("testGroup", blockedThread.getId()) {
         @Override
         public void handleExpiry(long stuckTime, Map<Long, ThreadInfo> map) {
           // no-op
@@ -103,7 +103,7 @@ public class AbstractExecutorGroupJUnitTest {
         Set<Long> threadIds = new HashSet<>();
         threadIds.add(blockedThread.getId());
         threadIds.add(blockingThread.getId());
-        String threadReport = executor.createThreadReport(60000,
+        var threadReport = executor.createThreadReport(60000,
             ThreadsMonitoringProcess.createThreadInfoMap(threadIds));
         assertThat(threadReport)
             .contains(AbstractExecutor.LOCK_OWNER_THREAD_STACK + " for \"blocking thread\"");

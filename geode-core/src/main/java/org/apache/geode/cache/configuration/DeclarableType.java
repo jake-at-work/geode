@@ -132,7 +132,7 @@ public class DeclarableType extends ClassNameType implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    DeclarableType that = (DeclarableType) o;
+    var that = (DeclarableType) o;
     return Objects.equals(className, that.className) && Objects.equals(parameters, that.parameters);
   }
 

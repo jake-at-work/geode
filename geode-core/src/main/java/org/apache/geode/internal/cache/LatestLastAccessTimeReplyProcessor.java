@@ -45,8 +45,8 @@ public class LatestLastAccessTimeReplyProcessor extends ReplyProcessor21 {
   @Override
   public void process(DistributionMessage msg) {
     try {
-      ReplyMessage reply = (ReplyMessage) msg;
-      long replyTime = (long) reply.getReturnValue();
+      var reply = (ReplyMessage) msg;
+      var replyTime = (long) reply.getReturnValue();
       updateLatestLastAccessTime(replyTime);
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE, "LatestLastAccessTimeReplyMessage return value is {}",

@@ -46,7 +46,7 @@ public class Disconnect {
       }
     }
 
-    AdminDistributedSystemImpl ads = AdminDistributedSystemImpl.getConnectedInstance();
+    var ads = AdminDistributedSystemImpl.getConnectedInstance();
     if (ads != null) {
       ads.disconnect();
     }

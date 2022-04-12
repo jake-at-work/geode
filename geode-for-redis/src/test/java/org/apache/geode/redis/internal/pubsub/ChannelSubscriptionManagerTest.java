@@ -22,8 +22,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
-
 import org.junit.Test;
 
 import org.apache.geode.redis.internal.netty.Client;
@@ -37,24 +35,24 @@ public class ChannelSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void emptyManagerReturnsEmptyChannelSubscriptions() {
-    ChannelSubscriptionManager manager = createManager();
-    byte[] channel = stringToBytes("channel");
+    var manager = createManager();
+    var channel = stringToBytes("channel");
 
-    Collection<Subscription> subscriptions = manager.getChannelSubscriptions(channel);
+    var subscriptions = manager.getChannelSubscriptions(channel);
 
     assertThat(subscriptions).isEmpty();
   }
 
   @Test
   public void managerWithOneSubscriptionReturnsIt() {
-    byte[] channel = stringToBytes("channel");
-    byte[] otherChannel = stringToBytes("otherChannel");
-    Client client = mock(Client.class);
+    var channel = stringToBytes("channel");
+    var otherChannel = stringToBytes("otherChannel");
+    var client = mock(Client.class);
     when(client.addChannelSubscription(eq(channel))).thenReturn(true);
-    ChannelSubscriptionManager manager = createManager();
-    Subscription addedSubscription = manager.add(channel, client);
+    var manager = createManager();
+    var addedSubscription = manager.add(channel, client);
 
-    Collection<Subscription> subscriptions = manager.getChannelSubscriptions(channel);
+    var subscriptions = manager.getChannelSubscriptions(channel);
 
     assertThat(subscriptions).containsExactly(addedSubscription);
     assertThat(manager.getChannelSubscriptions(otherChannel)).isEmpty();
@@ -64,17 +62,17 @@ public class ChannelSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void clientsSubscribedToSameChannel() {
-    byte[] channel = stringToBytes("channel");
-    byte[] otherChannel = stringToBytes("otherChannel");
-    Client client = mock(Client.class);
+    var channel = stringToBytes("channel");
+    var otherChannel = stringToBytes("otherChannel");
+    var client = mock(Client.class);
     when(client.addChannelSubscription(eq(channel))).thenReturn(true);
-    Client client2 = mock(Client.class);
+    var client2 = mock(Client.class);
     when(client2.addChannelSubscription(eq(channel))).thenReturn(true);
-    ChannelSubscriptionManager manager = createManager();
-    Subscription addedSubscription = manager.add(channel, client);
-    Subscription addedSubscription2 = manager.add(channel, client2);
+    var manager = createManager();
+    var addedSubscription = manager.add(channel, client);
+    var addedSubscription2 = manager.add(channel, client2);
 
-    Collection<Subscription> subscriptions = manager.getChannelSubscriptions(channel);
+    var subscriptions = manager.getChannelSubscriptions(channel);
 
     assertThat(subscriptions).containsExactlyInAnyOrder(addedSubscription, addedSubscription2);
     assertThat(manager.getChannelSubscriptions(otherChannel)).isEmpty();
@@ -84,17 +82,17 @@ public class ChannelSubscriptionManagerTest extends SubscriptionManagerTestBase 
 
   @Test
   public void clientSubscribedToTwoChannels() {
-    byte[] channel = stringToBytes("channel");
-    byte[] channel2 = stringToBytes("channel2");
-    Client client = mock(Client.class);
+    var channel = stringToBytes("channel");
+    var channel2 = stringToBytes("channel2");
+    var client = mock(Client.class);
     when(client.addChannelSubscription(eq(channel))).thenReturn(true);
     when(client.addChannelSubscription(eq(channel2))).thenReturn(true);
-    ChannelSubscriptionManager manager = createManager();
-    Subscription addedSubscription = manager.add(channel, client);
-    Subscription addedSubscription2 = manager.add(channel2, client);
+    var manager = createManager();
+    var addedSubscription = manager.add(channel, client);
+    var addedSubscription2 = manager.add(channel2, client);
 
-    Collection<Subscription> subscriptions = manager.getChannelSubscriptions(channel);
-    Collection<Subscription> subscriptions2 = manager.getChannelSubscriptions(channel2);
+    var subscriptions = manager.getChannelSubscriptions(channel);
+    var subscriptions2 = manager.getChannelSubscriptions(channel2);
 
     assertThat(subscriptions).containsExactly(addedSubscription);
     assertThat(subscriptions2).containsExactly(addedSubscription2);

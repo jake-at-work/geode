@@ -60,11 +60,11 @@ public class StartServerCommandTest {
 
   @Test
   public void testServerClasspathOrder() {
-    String userClasspath = "/path/to/user/lib/app.jar:/path/to/user/classes";
-    String expectedClasspath =
+    var userClasspath = "/path/to/user/lib/app.jar:/path/to/user/classes";
+    var expectedClasspath =
         StartMemberUtils.getGemFireJarPath().concat(File.pathSeparator).concat(userClasspath)
             .concat(File.pathSeparator).concat(StartMemberUtils.CORE_DEPENDENCIES_JAR_PATHNAME);
-    String actualClasspath = serverCommands.getServerClasspath(false, userClasspath);
+    var actualClasspath = serverCommands.getServerClasspath(false, userClasspath);
     assertEquals(expectedClasspath, actualClasspath);
   }
 
@@ -93,13 +93,13 @@ public class StartServerCommandTest {
 
   @Test
   public void testCreateServerCommandLine() throws Exception {
-    ServerLauncher serverLauncher = new ServerLauncher.Builder()
+    var serverLauncher = new ServerLauncher.Builder()
         .setCommand(ServerLauncher.Command.START).setDisableDefaultServer(true)
         .setMemberName("testCreateServerCommandLine").setRebalance(true).setServerPort(41214)
         .setCriticalHeapPercentage(95.5f).setEvictionHeapPercentage(85.0f)
         .setSocketBufferSize(1024 * 1024).setMessageTimeToLive(93).build();
 
-    String[] commandLineElements = serverCommands.createStartServerCommandLine(serverLauncher, null,
+    var commandLineElements = serverCommands.createStartServerCommandLine(serverLauncher, null,
         null, new Properties(), null, false, new String[0], false, null, null);
 
     assertNotNull(commandLineElements);
@@ -121,7 +121,7 @@ public class StartServerCommandTest {
     expectedCommandLineElements
         .add(String.format("--message-time-to-live=%1$d", serverLauncher.getMessageTimeToLive()));
 
-    for (String commandLineElement : commandLineElements) {
+    for (var commandLineElement : commandLineElements) {
       expectedCommandLineElements.remove(commandLineElement.toLowerCase());
     }
     assertTrue(String.format("Expected ([]); but was (%1$s)", expectedCommandLineElements),
@@ -130,17 +130,17 @@ public class StartServerCommandTest {
 
   @Test
   public void testCreateServerCommandLineWithRestAPI() throws Exception {
-    ServerLauncher serverLauncher = new ServerLauncher.Builder()
+    var serverLauncher = new ServerLauncher.Builder()
         .setCommand(ServerLauncher.Command.START).setDisableDefaultServer(true)
         .setMemberName("testCreateServerCommandLine").setRebalance(true).setServerPort(41214)
         .setCriticalHeapPercentage(95.5f).setEvictionHeapPercentage(85.0f).build();
 
-    Properties gemfireProperties = new Properties();
+    var gemfireProperties = new Properties();
     gemfireProperties.setProperty(START_DEV_REST_API, "true");
     gemfireProperties.setProperty(HTTP_SERVICE_PORT, "8080");
     gemfireProperties.setProperty(HTTP_SERVICE_BIND_ADDRESS, "localhost");
 
-    String[] commandLineElements = serverCommands.createStartServerCommandLine(serverLauncher, null,
+    var commandLineElements = serverCommands.createStartServerCommandLine(serverLauncher, null,
         null, gemfireProperties, null, false, new String[0], false, null, null);
 
     assertNotNull(commandLineElements);
@@ -166,7 +166,7 @@ public class StartServerCommandTest {
     expectedCommandLineElements.add("-d" + GeodeGlossary.GEMFIRE_PREFIX + ""
         + HTTP_SERVICE_BIND_ADDRESS + "=" + "localhost");
 
-    for (String commandLineElement : commandLineElements) {
+    for (var commandLineElement : commandLineElements) {
       expectedCommandLineElements.remove(commandLineElement.toLowerCase());
     }
     assertTrue(String.format("Expected ([]); but was (%1$s)", expectedCommandLineElements),
@@ -175,7 +175,7 @@ public class StartServerCommandTest {
 
   @Test
   public void testCreateStartServerCommandLineWithAllOptions() throws Exception {
-    ServerLauncher serverLauncher = new ServerLauncher.Builder().setAssignBuckets(Boolean.TRUE)
+    var serverLauncher = new ServerLauncher.Builder().setAssignBuckets(Boolean.TRUE)
         .setCommand(ServerLauncher.Command.START).setCriticalHeapPercentage(95.5f)
         .setCriticalOffHeapPercentage(95.5f).setDebug(Boolean.TRUE)
         .setDisableDefaultServer(Boolean.TRUE).setDeletePidFileOnStop(Boolean.TRUE)
@@ -188,23 +188,23 @@ public class StartServerCommandTest {
         .setRedirectOutput(Boolean.TRUE).setRebalance(true).setServerPort(41214)
         .setSocketBufferSize(1024 * 1024).setSpringXmlLocation("/config/spring-server.xml").build();
 
-    File gemfirePropertiesFile = spy(mock(File.class));
+    var gemfirePropertiesFile = spy(mock(File.class));
     when(gemfirePropertiesFile.getAbsolutePath()).thenReturn("/config/customGemfire.properties");
 
-    File gemfireSecurityPropertiesFile = spy(mock(File.class));
+    var gemfireSecurityPropertiesFile = spy(mock(File.class));
     when(gemfireSecurityPropertiesFile.getAbsolutePath())
         .thenReturn("/config/customGemfireSecurity.properties");
 
-    Properties gemfireProperties = new Properties();
+    var gemfireProperties = new Properties();
     gemfireProperties.setProperty(ConfigurationProperties.STATISTIC_SAMPLE_RATE, "1500");
     gemfireProperties.setProperty(ConfigurationProperties.DISABLE_AUTO_RECONNECT, "true");
 
-    String heapSize = "1024m";
-    String customClasspath = "/temp/domain-1.0.0.jar";
-    String[] jvmArguments = new String[] {"-verbose:gc", "-Xloggc:member-gc.log",
+    var heapSize = "1024m";
+    var customClasspath = "/temp/domain-1.0.0.jar";
+    var jvmArguments = new String[] {"-verbose:gc", "-Xloggc:member-gc.log",
         "-XX:+PrintGCDateStamps", "-XX:+PrintGCDetails"};
 
-    String[] commandLineElements = serverCommands.createStartServerCommandLine(serverLauncher,
+    var commandLineElements = serverCommands.createStartServerCommandLine(serverLauncher,
         gemfirePropertiesFile, gemfireSecurityPropertiesFile, gemfireProperties, customClasspath,
         Boolean.FALSE, jvmArguments, Boolean.FALSE, heapSize, heapSize);
 

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -66,17 +65,17 @@ public class ZRemRangeByLexDUnitTest {
 
   @Before
   public void setup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
-    int locatorPort = locator.getPort();
-    MemberVM server1 = clusterStartUp.startRedisVM(1, locatorPort);
-    MemberVM server2 = clusterStartUp.startRedisVM(2, locatorPort);
-    MemberVM server3 = clusterStartUp.startRedisVM(3, locatorPort);
+    var locator = clusterStartUp.startLocatorVM(0);
+    var locatorPort = locator.getPort();
+    var server1 = clusterStartUp.startRedisVM(1, locatorPort);
+    var server2 = clusterStartUp.startRedisVM(2, locatorPort);
+    var server3 = clusterStartUp.startRedisVM(3, locatorPort);
     servers = new ArrayList<>();
     servers.add(server1);
     servers.add(server2);
     servers.add(server3);
 
-    int redisServerPort1 = clusterStartUp.getRedisPort(1);
+    var redisServerPort1 = clusterStartUp.getRedisPort(1);
 
     jedis =
         new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort1), REDIS_CLIENT_TIMEOUT);
@@ -89,11 +88,11 @@ public class ZRemRangeByLexDUnitTest {
 
   @Test
   public void ZRemRangeByLex_removesMembersInRange() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap(SET_SIZE);
+    var memberScoreMap = makeMemberScoreMap(SET_SIZE);
     jedis.zadd(KEY, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
-    List<String> expected = new ArrayList<>(memberScoreMap.keySet().stream().sorted()
+    var expected = new ArrayList<>(memberScoreMap.keySet().stream().sorted()
         .collect(Collectors.toList())).subList(4, SET_SIZE);
 
     assertThat(jedis.zrank(KEY, "vvvvv")).isEqualTo(4L);
@@ -107,13 +106,13 @@ public class ZRemRangeByLexDUnitTest {
 
   @Test
   public void ZRemRangeByLex_concurrentlyRemovesMembersInRange() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap(SET_SIZE);
+    var memberScoreMap = makeMemberScoreMap(SET_SIZE);
     jedis.zadd(KEY, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
     assertThat(jedis.zrank(KEY, "vvvvv")).isEqualTo(4L);
 
-    AtomicInteger totalRemoved = new AtomicInteger();
+    var totalRemoved = new AtomicInteger();
     new ConcurrentLoopingThreads(SET_SIZE,
         (i) -> doZRemRangeByLexOnMembers(i, totalRemoved),
         (i) -> doZRemRangeByLexOnMembersInDifferentOrder(i, totalRemoved)).run();
@@ -125,7 +124,7 @@ public class ZRemRangeByLexDUnitTest {
 
   @Test
   public void zRemRangeByLexRemovesMembersFromSortedSetAfterPrimaryShutsDown() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap(SET_SIZE);
+    var memberScoreMap = makeMemberScoreMap(SET_SIZE);
     jedis.zadd(KEY, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
@@ -139,15 +138,15 @@ public class ZRemRangeByLexDUnitTest {
 
   @Test
   public void zRemRangeByLexCanRemoveMembersFromSortedSetWhenPrimaryIsCrashed() throws Exception {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap(SET_SIZE);
+    var memberScoreMap = makeMemberScoreMap(SET_SIZE);
 
     jedis.zadd(KEY, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
     memberScoreMap.remove(MEMBER_BASE_STRING);
 
-    Future<Void> future1 = executor.submit(() -> stopNodeWithPrimaryBucketOfTheKey(true));
-    Future<Void> future2 = executor.submit(this::removeAllButFirstEntry);
+    var future1 = executor.submit(() -> stopNodeWithPrimaryBucketOfTheKey(true));
+    var future2 = executor.submit(this::removeAllButFirstEntry);
 
     future1.get();
     future2.get();
@@ -159,9 +158,9 @@ public class ZRemRangeByLexDUnitTest {
 
   private void removeAllButFirstEntry() {
     long removed = 0;
-    int rangeSize = 5;
+    var rangeSize = 5;
     await().until(isCrashing::get);
-    for (int i = 2; i < SET_SIZE; i += rangeSize) {
+    for (var i = 2; i < SET_SIZE; i += rangeSize) {
       removed +=
           jedis.zremrangeByLex(KEY, "[" + buildMemberName(i), "(" + buildMemberName(i + rangeSize));
     }
@@ -170,7 +169,7 @@ public class ZRemRangeByLexDUnitTest {
 
   private void stopNodeWithPrimaryBucketOfTheKey(boolean isCrash) {
     boolean isPrimary;
-    for (MemberVM server : servers) {
+    for (var server : servers) {
       isPrimary = server.invoke(ZRemRangeByLexDUnitTest::isPrimaryForKey);
       if (isPrimary) {
         if (isCrash) {
@@ -185,7 +184,7 @@ public class ZRemRangeByLexDUnitTest {
   }
 
   private static boolean isPrimaryForKey() {
-    int bucketId = getBucketId(new RedisKey(KEY.getBytes()));
+    var bucketId = getBucketId(new RedisKey(KEY.getBytes()));
     return isPrimaryForBucket(bucketId);
   }
 
@@ -205,8 +204,8 @@ public class ZRemRangeByLexDUnitTest {
 
   private Map<String, Double> makeMemberScoreMap(int setSize) {
     Map<String, Double> scoreMemberPairs = new HashMap<>();
-    String memberName = "";
-    for (int i = 0; i < setSize; i++) {
+    var memberName = "";
+    for (var i = 0; i < setSize; i++) {
       memberName = memberName.concat(MEMBER_BASE_STRING);
       scoreMemberPairs.put(memberName, 5.0);
     }
@@ -214,8 +213,8 @@ public class ZRemRangeByLexDUnitTest {
   }
 
   private void doZRemRangeByLexWithRetries(Map<String, Double> map) {
-    int maxRetryAttempts = 10;
-    int retryAttempts = 0;
+    var maxRetryAttempts = 10;
+    var retryAttempts = 0;
     while (!zRemRangeByLexWithRetries(map, retryAttempts, maxRetryAttempts)) {
       retryAttempts++;
     }
@@ -236,20 +235,20 @@ public class ZRemRangeByLexDUnitTest {
   }
 
   private void doZRemRangeByLexOnMembers(int i, AtomicInteger total) {
-    String memberName = buildMemberName(i);
-    long count = jedis.zremrangeByLex(KEY, "[" + memberName, "[" + memberName);
+    var memberName = buildMemberName(i);
+    var count = jedis.zremrangeByLex(KEY, "[" + memberName, "[" + memberName);
     total.addAndGet((int) count);
   }
 
   private void doZRemRangeByLexOnMembersInDifferentOrder(int i, AtomicInteger total) {
-    String memberName = buildMemberName(SET_SIZE - i);
-    long count = jedis.zremrangeByLex(KEY, "[" + memberName, "[" + memberName);
+    var memberName = buildMemberName(SET_SIZE - i);
+    var count = jedis.zremrangeByLex(KEY, "[" + memberName, "[" + memberName);
     total.addAndGet((int) count);
   }
 
   private String buildMemberName(int iteration) {
-    String memberName = "";
-    for (int i = 0; i < iteration; i++) {
+    var memberName = "";
+    for (var i = 0; i < iteration; i++) {
       memberName = memberName.concat("v");
     }
 
@@ -257,16 +256,16 @@ public class ZRemRangeByLexDUnitTest {
   }
 
   private void verifyDataExists(Map<String, Double> memberScoreMap) {
-    for (String member : memberScoreMap.keySet()) {
-      Double score = jedis.zscore(KEY, member);
+    for (var member : memberScoreMap.keySet()) {
+      var score = jedis.zscore(KEY, member);
       assertThat(score).isEqualTo(memberScoreMap.get(member));
     }
   }
 
   private boolean verifyDataDoesNotExist(Map<String, Double> memberScoreMap) {
     try {
-      for (String member : memberScoreMap.keySet()) {
-        Double score = jedis.zscore(KEY, member);
+      for (var member : memberScoreMap.keySet()) {
+        var score = jedis.zscore(KEY, member);
         assertThat(score).isNull();
       }
     } catch (JedisClusterOperationException e) {

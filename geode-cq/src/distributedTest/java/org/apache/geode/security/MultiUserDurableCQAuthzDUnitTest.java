@@ -36,13 +36,11 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.operations.OperationContext.OperationCode;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqExistsException;
 import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.cq.dunit.CqQueryTestListener;
@@ -50,7 +48,6 @@ import org.apache.geode.cache.query.cq.internal.ClientCQImpl;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.security.generator.AuthzCredentialGenerator;
-import org.apache.geode.security.generator.CredentialGenerator;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.junit.categories.SecurityTest;
 
@@ -90,9 +87,9 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
      * that the users receive the events which were enqueued at server while they were away. 8. Same
      * for ProxyCache.close()
      */
-    int numOfUsers = 2;
-    int numOfPuts = 5;
-    boolean[] postAuthzAllowed = new boolean[] {true, true};
+    var numOfUsers = 2;
+    var numOfPuts = 5;
+    var postAuthzAllowed = new boolean[] {true, true};
 
     doTest(numOfUsers, numOfPuts, postAuthzAllowed, getXmlAuthzGenerator(), null);
   }
@@ -105,9 +102,9 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
      * Put some events on server satisfying both the CQs. 6. Up the client and the two users. 7.
      * Observer the behaviour. 8. Same for ProxyCache.close(false)
      */
-    int numOfUsers = 2;
-    int numOfPuts = 5;
-    boolean[] postAuthzAllowed = new boolean[] {true, true};
+    var numOfUsers = 2;
+    var numOfPuts = 5;
+    var postAuthzAllowed = new boolean[] {true, true};
 
     doTest(numOfUsers, numOfPuts, postAuthzAllowed, getXmlAuthzGenerator(), true);
   }
@@ -120,9 +117,9 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
      * Put some events on server satisfying both the CQs. 6. Up the client and the two users. 7.
      * Observer the behaviour. 8. Same for ProxyCache.close(true)
      */
-    int numOfUsers = 2;
-    int numOfPuts = 5;
-    boolean[] postAuthzAllowed = new boolean[] {true, true};
+    var numOfUsers = 2;
+    var numOfPuts = 5;
+    var postAuthzAllowed = new boolean[] {true, true};
 
     doTest(numOfUsers, numOfPuts, postAuthzAllowed, getXmlAuthzGenerator(), false);
   }
@@ -132,36 +129,36 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
    */
   private void doTest(int numOfUsers, int numOfPuts, boolean[] postAuthzAllowed,
       final AuthzCredentialGenerator authzGenerator, final Boolean keepAlive) throws Exception {
-    CredentialGenerator credentialGenerator = authzGenerator.getCredentialGenerator();
-    Properties extraAuthProps = credentialGenerator.getSystemProperties();
-    Properties javaProps = credentialGenerator.getJavaProperties();
-    Properties extraAuthzProps = authzGenerator.getSystemProperties();
-    String authenticator = credentialGenerator.getAuthenticator();
-    String accessor = authzGenerator.getAuthorizationCallback();
-    String authInit = credentialGenerator.getAuthInit();
-    TestAuthzCredentialGenerator tgen = new TestAuthzCredentialGenerator(authzGenerator);
+    var credentialGenerator = authzGenerator.getCredentialGenerator();
+    var extraAuthProps = credentialGenerator.getSystemProperties();
+    var javaProps = credentialGenerator.getJavaProperties();
+    var extraAuthzProps = authzGenerator.getSystemProperties();
+    var authenticator = credentialGenerator.getAuthenticator();
+    var accessor = authzGenerator.getAuthorizationCallback();
+    var authInit = credentialGenerator.getAuthInit();
+    var tgen = new TestAuthzCredentialGenerator(authzGenerator);
 
-    Properties serverProps =
+    var serverProps =
         buildProperties(authenticator, accessor, true, extraAuthProps, extraAuthzProps);
 
     Properties opCredentials;
     credentialGenerator = tgen.getCredentialGenerator();
-    final Properties javaProps2 =
+    final var javaProps2 =
         credentialGenerator != null ? credentialGenerator.getJavaProperties() : null;
 
-    int[] indices = new int[numOfPuts];
-    for (int index = 0; index < numOfPuts; ++index) {
+    var indices = new int[numOfPuts];
+    for (var index = 0; index < numOfPuts; ++index) {
       indices[index] = index;
     }
 
-    Random random = new Random();
-    Properties[] authProps = new Properties[numOfUsers];
-    String durableClientId = "multiuser_durable_client_1";
+    var random = new Random();
+    var authProps = new Properties[numOfUsers];
+    var durableClientId = "multiuser_durable_client_1";
 
     Properties client2Credentials = null;
 
-    for (int i = 0; i < numOfUsers; i++) {
-      int rand = random.nextInt(100) + 1;
+    for (var i = 0; i < numOfUsers; i++) {
+      var rand = random.nextInt(100) + 1;
       if (postAuthzAllowed[i]) {
         opCredentials = tgen.getAllowedCredentials(
             new OperationCode[] {OperationCode.EXECUTE_CQ, OperationCode.GET}, // For callback, GET
@@ -188,9 +185,9 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
     }
 
     // Get ports for the servers
-    int[] randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int port1 = randomAvailableTCPPorts[0];
-    int port2 = randomAvailableTCPPorts[1];
+    var randomAvailableTCPPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var port1 = randomAvailableTCPPorts[0];
+    var port2 = randomAvailableTCPPorts[1];
 
     // Close down any running servers
     server1.invoke(() -> closeCache());
@@ -227,7 +224,7 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
       client1.invoke(() -> waitForLastKey(0, true));
     }
 
-    int numOfCreates = keepAlive == null ? 0 : (keepAlive ? numOfPuts + 1/* last key */ : 0);
+    var numOfCreates = keepAlive == null ? 0 : (keepAlive ? numOfPuts + 1/* last key */ : 0);
     client1.invoke(() -> checkCQListeners(numOfUsers, postAuthzAllowed, numOfCreates, 0));
     client1.invoke(() -> proxyCacheClose(new int[] {0, 1}, keepAlive));
     client1.invoke(() -> createProxyCache(new int[] {0, 1}, authProps));
@@ -244,7 +241,7 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
       client1.invoke(() -> waitForLastKey(0, false));
     }
 
-    int numOfUpdates = numOfPuts + 1;
+    var numOfUpdates = numOfPuts + 1;
     client1.invoke(() -> checkCQListeners(numOfUsers, postAuthzAllowed, 0, numOfUpdates));
   }
 
@@ -270,22 +267,22 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
 
   private void createCQ(final int num, final boolean isDurable)
       throws CqException, CqExistsException {
-    for (int i = 0; i < num; i++) {
-      QueryService cqService = getProxyCaches(i).getQueryService();
-      String cqName = "CQ_" + i;
-      String queryStr =
+    for (var i = 0; i < num; i++) {
+      var cqService = getProxyCaches(i).getQueryService();
+      var cqName = "CQ_" + i;
+      var queryStr =
           cqNameToQueryStrings.get(cqName) + getProxyCaches(i).getRegion(regionName).getFullPath();
 
       // Create CQ Attributes.
-      CqAttributesFactory cqf = new CqAttributesFactory();
+      var cqf = new CqAttributesFactory();
       CqListener[] cqListeners = {new CqQueryTestListener(getLogWriter())};
       ((CqQueryTestListener) cqListeners[0]).cqName = cqName;
 
       cqf.initCqListeners(cqListeners);
-      CqAttributes cqa = cqf.create();
+      var cqa = cqf.create();
 
       // Create CQ.
-      CqQuery cq1 = cqService.newCq(cqName, queryStr, cqa, isDurable);
+      var cq1 = cqService.newCq(cqName, queryStr, cqa, isDurable);
       assertTrue("newCq() state mismatch", cq1.getState().isStopped());
     }
   }
@@ -293,7 +290,7 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
   private void executeCQ(final int num, final boolean[] initialResults,
       final int expectedResultsSize, final String[] expectedErr)
       throws CqException, RegionNotFoundException {
-    for (int i = 0; i < num; i++) {
+    for (var i = 0; i < num; i++) {
       try {
         if (expectedErr[i] != null) {
           getLogWriter()
@@ -301,10 +298,10 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
         }
 
         CqQuery cq1 = null;
-        String cqName = "CQ_" + i;
-        String queryStr = cqNameToQueryStrings.get(cqName)
+        var cqName = "CQ_" + i;
+        var queryStr = cqNameToQueryStrings.get(cqName)
             + getProxyCaches(i).getRegion(regionName).getFullPath();
-        QueryService cqService = getProxyCaches(i).getQueryService();
+        var cqService = getProxyCaches(i).getQueryService();
 
         // Get CqQuery object.
         cq1 = cqService.getCq(cqName);
@@ -344,7 +341,7 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
 
   private void doPuts(final int num, final boolean putLastKey) {
     Region region = GemFireCacheImpl.getInstance().getRegion(regionName);
-    for (int i = 0; i < num; i++) {
+    for (var i = 0; i < num; i++) {
       region.put("CQ_key" + i, "CQ_value" + i);
     }
     if (putLastKey) {
@@ -353,9 +350,9 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
   }
 
   private void waitForLastKey(final int cqIndex, final boolean isCreate) {
-    String cqName = "CQ_" + cqIndex;
-    QueryService qService = getProxyCaches(cqIndex).getQueryService();
-    ClientCQImpl cqQuery = (ClientCQImpl) qService.getCq(cqName);
+    var cqName = "CQ_" + cqIndex;
+    var qService = getProxyCaches(cqIndex).getQueryService();
+    var cqQuery = (ClientCQImpl) qService.getCq(cqName);
     if (isCreate) {
       ((CqQueryTestListener) cqQuery.getCqListeners()[cqIndex]).waitForCreated("LAST_KEY");
     } else {
@@ -365,19 +362,19 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
 
   private void checkCQListeners(final int numOfUsers, final boolean[] expectedListenerInvocation,
       final int createEventsSize, final int updateEventsSize) {
-    for (int i = 0; i < numOfUsers; i++) {
-      String cqName = "CQ_" + i;
-      QueryService qService = getProxyCaches(i).getQueryService();
-      ClientCQImpl cqQuery = (ClientCQImpl) qService.getCq(cqName);
+    for (var i = 0; i < numOfUsers; i++) {
+      var cqName = "CQ_" + i;
+      var qService = getProxyCaches(i).getQueryService();
+      var cqQuery = (ClientCQImpl) qService.getCq(cqName);
 
       if (expectedListenerInvocation[i]) {
-        for (CqListener listener : cqQuery.getCqListeners()) {
+        for (var listener : cqQuery.getCqListeners()) {
           assertEquals(createEventsSize, ((CqQueryTestListener) listener).getCreateEventCount());
           assertEquals(updateEventsSize, ((CqQueryTestListener) listener).getUpdateEventCount());
         }
 
       } else {
-        for (CqListener listener : cqQuery.getCqListeners()) {
+        for (var listener : cqQuery.getCqListeners()) {
           assertEquals(0, ((CqQueryTestListener) listener).getTotalEventCount());
         }
       }
@@ -389,12 +386,12 @@ public class MultiUserDurableCQAuthzDUnitTest extends ClientAuthorizationTestCas
    */
   private void proxyCacheClose(final int[] userIndices, final Boolean keepAliveFlags) {
     if (keepAliveFlags != null) {
-      for (int i : userIndices) {
+      for (var i : userIndices) {
         getProxyCaches(i).close(keepAliveFlags);
       }
 
     } else {
-      for (int i : userIndices) {
+      for (var i : userIndices) {
         getProxyCaches(i).close();
       }
     }

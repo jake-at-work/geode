@@ -60,7 +60,7 @@ public class CreateRegionCommandWithNoClusterConfigDUnitTest {
 
   @Test
   public void multipleTemplateRegionTypes() throws Exception {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName + " --type=REPLICATE --group=group1")
         .statusIsSuccess();
@@ -79,7 +79,7 @@ public class CreateRegionCommandWithNoClusterConfigDUnitTest {
 
   @Test
   public void multipleTemplateRegionWithSameType() throws Exception {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=REPLICATE")
         .statusIsSuccess();
 

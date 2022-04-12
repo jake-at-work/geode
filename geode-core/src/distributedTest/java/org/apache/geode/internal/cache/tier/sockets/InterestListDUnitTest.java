@@ -37,7 +37,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
-import org.apache.geode.cache.ClientSession;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.InterestRegistrationEvent;
@@ -46,11 +45,8 @@ import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.NoSubscriptionServersAvailableException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
@@ -125,7 +121,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
 
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     vm2 = host.getVM(2);
@@ -213,7 +209,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testValueRefresh() throws Exception {
     // Initialization
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     vm1.invoke(() -> InterestListDUnitTest.createClientCache(NetworkUtils.getServerHostName(host),
         PORT1));
     vm2.invoke(() -> InterestListDUnitTest.createClientCache(NetworkUtils.getServerHostName(host),
@@ -312,9 +308,9 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testInterestListRegistrationOnServer() throws Exception {
-    DistributedMember c1 = vm1.invoke(() -> InterestListDUnitTest
+    var c1 = vm1.invoke(() -> InterestListDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(vm0.getHost()), PORT1));
-    DistributedMember c2 = vm2.invoke(() -> InterestListDUnitTest
+    var c2 = vm2.invoke(() -> InterestListDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(vm0.getHost()), PORT1));
 
     vm1.invoke(InterestListDUnitTest::createEntriesK1andK2);
@@ -367,9 +363,9 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
     vm0.invoke(InterestListDUnitTest::addRegisterInterestListener);
 
     // servers are set up, now do the clients
-    DistributedMember c1 = vm1.invoke(() -> InterestListDUnitTest
+    var c1 = vm1.invoke(() -> InterestListDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(vm0.getHost()), PORT1, port2));
-    DistributedMember c2 = vm2.invoke(() -> InterestListDUnitTest
+    var c2 = vm2.invoke(() -> InterestListDUnitTest
         .createClientCache(NetworkUtils.getServerHostName(vm0.getHost()), PORT1, port2));
 
     vm1.invoke(InterestListDUnitTest::createEntriesK1andK2);
@@ -452,7 +448,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
     // Start two servers with the appropriate region
     int port1 =
         vm0.invoke(() -> InterestListDUnitTest.createServerCache(addReplicatedRegion));
-    VM server2VM = Host.getHost(0).getVM(3);
+    var server2VM = Host.getHost(0).getVM(3);
     int port2 = server2VM
         .invoke(() -> InterestListDUnitTest.createServerCache(addReplicatedRegion));
 
@@ -468,7 +464,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
     vm1.invoke(InterestListDUnitTest::registerALL_KEYS);
 
     // Add CacheListener
-    int numEvents = 100;
+    var numEvents = 100;
     vm1.invoke(() -> InterestListDUnitTest.addCacheListener(numEvents));
 
     // Do gets on the client
@@ -501,7 +497,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testRegisterInterestListOfKeysWithDestroyOnReplicatedRegionWithCacheLoader() {
     List keysToDestroy = new ArrayList();
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       keysToDestroy.add(String.valueOf(i));
     }
     runRegisterInterestWithDestroyAndCacheLoaderTest(true, keysToDestroy, keysToDestroy);
@@ -510,7 +506,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testRegisterInterestListOfKeysWithDestroyOnPartitionedRegionWithCacheLoader() {
     List keysToDestroy = new ArrayList();
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       keysToDestroy.add(String.valueOf(i));
     }
     runRegisterInterestWithDestroyAndCacheLoaderTest(false, keysToDestroy, keysToDestroy);
@@ -533,13 +529,13 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
   private void runRegisterInterestWithDestroyAndCacheLoaderTest(boolean addReplicatedRegion,
       List keysToDestroy, Object keyToRegister) {
     // The server was already started with a replicated region. Bounce it if necessary
-    int port1 = PORT1;
+    var port1 = PORT1;
     if (!addReplicatedRegion) {
       vm0.invoke(InterestListDUnitTest::closeCache);
       port1 =
           vm0.invoke(() -> InterestListDUnitTest.createServerCache(addReplicatedRegion));
     }
-    final int port = port1;
+    final var port = port1;
 
     // Add a cache loader to the region
     vm0.invoke(InterestListDUnitTest::addCacheLoader);
@@ -569,13 +565,13 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
 
   private static DistributedMember createClientCache(String host, int port, int port2)
       throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(DELTA_PROPAGATION, "false");
 
     new InterestListDUnitTest().createCache(props);
-    PoolFactory pfactory = PoolManager.createFactory().addServer(host, port)
+    var pfactory = PoolManager.createFactory().addServer(host, port)
         .setMinConnections(3).setSubscriptionEnabled(true)
         .setSubscriptionRedundancy(-1).setReadTimeout(10000).setSocketBufferSize(32768);
     // .setRetryInterval(10000)
@@ -583,12 +579,12 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
     if (port2 > 0) {
       pfactory.addServer(host, port2);
     }
-    Pool p = pfactory.create("InterestListDUnitTestPool");
-    AttributesFactory factory = new AttributesFactory();
+    var p = pfactory.create("InterestListDUnitTestPool");
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
     return cache.getDistributedSystem().getDistributedMember();
@@ -599,7 +595,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static void createCache(boolean addReplicatedRegion) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DELTA_PROPAGATION, "false");
     new InterestListDUnitTest().createCache(props);
     if (addReplicatedRegion) {
@@ -610,11 +606,11 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static void addReplicatedRegion() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEnableSubscriptionConflation(true);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
   }
 
@@ -623,8 +619,8 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static CacheServer addCacheServer() throws Exception {
-    CacheServer s = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var s = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     s.setPort(port);
     s.start();
     return s;
@@ -645,10 +641,10 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
 
   /** wait for queues to drain in the server */
   private static void flushQueues() throws Exception {
-    CacheServerImpl impl = (CacheServerImpl) server;
-    for (CacheClientProxy proxy : (Set<CacheClientProxy>) impl.getAllClientSessions()) {
-      final CacheClientProxy fproxy = proxy;
-      WaitCriterion ev = new WaitCriterion() {
+    var impl = (CacheServerImpl) server;
+    for (var proxy : (Set<CacheClientProxy>) impl.getAllClientSessions()) {
+      final var fproxy = proxy;
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           return fproxy.getHARegionQueue().size() == 0;
@@ -665,8 +661,8 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
 
   private static void addRegisterInterestListener() {
     interestListener = new InterestListener();
-    List<CacheServer> servers = cache.getCacheServers();
-    for (CacheServer s : servers) {
+    var servers = cache.getCacheServers();
+    for (var s : servers) {
       s.registerInterestRegistrationListener(interestListener);
     }
   }
@@ -687,7 +683,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
     // Do gets.
     // These gets cause the CacheLoader to be invoked on the server
     Region region = cache.getRegion(REGION_NAME);
-    for (int i = 0; i < numGets; i++) {
+    for (var i = 0; i < numGets; i++) {
       region.get(i);
     }
   }
@@ -695,10 +691,10 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
   private static void waitForCacheListenerCreates() throws Exception {
     // Wait for the EventCountingCacheListener to receive all of its create events
     Region region = cache.getRegion(REGION_NAME);
-    final EventCountingCacheListener fCacheListener =
+    final var fCacheListener =
         (EventCountingCacheListener) region.getAttributes().getCacheListener();
 
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return fCacheListener.hasReceivedAllCreateEvents();
@@ -716,7 +712,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
     // Confirm there are no EventCountingCacheListener update events.
     // These would be coming from the subscription channel.
     Region region = cache.getRegion(REGION_NAME);
-    EventCountingCacheListener cacheListener =
+    var cacheListener =
         (EventCountingCacheListener) region.getAttributes().getCacheListener();
     assertEquals(0/* expected */, cacheListener.getUpdates()/* actual */);
   }
@@ -725,7 +721,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
     // Confirm there are no EventCountingCacheListener invalidate events.
     // These would be coming from the subscription channel.
     Region region = cache.getRegion(REGION_NAME);
-    EventCountingCacheListener cacheListener =
+    var cacheListener =
         (EventCountingCacheListener) region.getAttributes().getCacheListener();
     assertEquals(0/* expected */, cacheListener.getInvalidates()/* actual */);
   }
@@ -774,7 +770,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
    */
   private static void registerKeyForClient(DistributedMember clientId, Object key) {
     try {
-      ClientSession cs = server.getClientSession(clientId);
+      var cs = server.getClientSession(clientId);
       if (cs.isPrimary()) {
         cs.registerInterest(SEPARATOR + REGION_NAME, key, InterestResultPolicy.KEYS_VALUES,
             false);
@@ -877,7 +873,7 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
    */
   private static void unregisterKeyForClient(DistributedMember clientId, Object key) {
     try {
-      ClientSession cs = server.getClientSession(clientId);
+      var cs = server.getClientSession(clientId);
       if (cs.isPrimary()) {
         cs.unregisterInterest(SEPARATOR + REGION_NAME, key, false);
       }
@@ -985,20 +981,20 @@ public class InterestListDUnitTest extends JUnit4DistributedTestCase {
 
   private static void destroyKeys(List keys) {
     Region r = cache.getRegion(REGION_NAME);
-    for (Object key : keys) {
+    for (var key : keys) {
       r.destroy(key);
     }
   }
 
   private static void verifyNoCacheLoaderLoads() throws Exception {
     Region region = cache.getRegion(REGION_NAME);
-    ReturnKeyCacheLoader cacheLoader =
+    var cacheLoader =
         (ReturnKeyCacheLoader) region.getAttributes().getCacheLoader();
     assertEquals(0/* expected */, cacheLoader.getLoads()/* actual */);
   }
 
   private static void validateEntriesK1andK2(final String vm) {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         try {

@@ -50,7 +50,7 @@ public class ServerLauncherRemoteWithCustomLoggingIntegrationTest
 
   @Before
   public void setUpServerLauncherRemoteWithCustomLoggingIntegrationTest() {
-    String configFileName = getClass().getSimpleName() + "_log4j2.xml";
+    var configFileName = getClass().getSimpleName() + "_log4j2.xml";
     customLoggingConfigFile = createFileFromResource(
         getResource(configFileName),
         getWorkingDirectory(),

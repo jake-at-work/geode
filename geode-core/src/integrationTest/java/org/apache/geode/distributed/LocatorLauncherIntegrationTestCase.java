@@ -34,7 +34,6 @@ import org.junit.rules.ErrorCollector;
 
 import org.apache.geode.distributed.AbstractLauncher.Status;
 import org.apache.geode.distributed.LocatorLauncher.Builder;
-import org.apache.geode.distributed.LocatorLauncher.LocatorState;
 import org.apache.geode.internal.process.ProcessType;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 
@@ -61,7 +60,7 @@ public abstract class LocatorLauncherIntegrationTestCase extends LauncherIntegra
     clusterConfigDirectory =
         temporaryFolder.newFolder(CLUSTER_CONFIG_DISK_DIR_PREFIX + getUniqueName());
 
-    int[] ports = getRandomAvailableTCPPorts(2);
+    var ports = getRandomAvailableTCPPorts(2);
     defaultLocatorPort = ports[0];
     nonDefaultLocatorPort = ports[1];
     System.setProperty(TEST_OVERRIDE_DEFAULT_PORT_PROPERTY, String.valueOf(defaultLocatorPort));
@@ -81,7 +80,7 @@ public abstract class LocatorLauncherIntegrationTestCase extends LauncherIntegra
 
   @Override
   protected void givenEmptyWorkingDirectory() {
-    File[] files = getWorkingDirectory().listFiles();
+    var files = getWorkingDirectory().listFiles();
     assertThat(files).hasSize(1);
     assertThat(files[0]).isDirectory().isEqualTo(getClusterConfigDirectory());
   }
@@ -153,7 +152,7 @@ public abstract class LocatorLauncherIntegrationTestCase extends LauncherIntegra
   }
 
   private boolean isLauncherOnline() {
-    LocatorState locatorState = launcher.status();
+    var locatorState = launcher.status();
     assertThat(locatorState).isNotNull();
     return Status.ONLINE.equals(locatorState.getStatus());
   }

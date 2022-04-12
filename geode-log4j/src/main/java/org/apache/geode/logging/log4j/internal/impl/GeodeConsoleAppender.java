@@ -184,7 +184,7 @@ public class GeodeConsoleAppender extends AbstractOutputStreamAppender<OutputStr
       delegate.setFollow(follow);
       delegate.setDirect(direct);
 
-      Layout<? extends Serializable> layout = getOrCreateLayout(target.getDefaultCharset());
+      var layout = getOrCreateLayout(target.getDefaultCharset());
       return new GeodeConsoleAppender(getName(), layout,
           getFilter(), getManager(target, follow, direct, layout),
           isIgnoreExceptions(), startPaused, debug, delegate.build());
@@ -258,7 +258,7 @@ public class GeodeConsoleAppender extends AbstractOutputStreamAppender<OutputStr
       final boolean direct, final Layout<? extends Serializable> layout) {
 
     OutputStream os = NullOutputStream.getInstance();
-    String managerName = target.name() + '.' + follow + '.' + direct + "-" + COUNT.get();
+    var managerName = target.name() + '.' + follow + '.' + direct + "-" + COUNT.get();
     return OutputStreamManager.getManager(managerName, new FactoryData(os, managerName, layout),
         MANAGER_FACTORY);
   }
@@ -266,7 +266,7 @@ public class GeodeConsoleAppender extends AbstractOutputStreamAppender<OutputStr
   private static OutputStreamManager getManager(final Target target, final boolean follow,
       final boolean direct, final Layout<? extends Serializable> layout) {
     OutputStream os = NullOutputStream.getInstance();
-    String managerName = "null." + target.name() + '.' + follow + '.' + direct;
+    var managerName = "null." + target.name() + '.' + follow + '.' + direct;
     return OutputStreamManager.getManager(managerName, new FactoryData(os, managerName, layout),
         MANAGER_FACTORY);
   }

@@ -41,7 +41,7 @@ public abstract class RuntimeInfo implements Serializable, JsonSerializable {
     if (!(o instanceof RuntimeInfo)) {
       return false;
     }
-    RuntimeInfo that = (RuntimeInfo) o;
+    var that = (RuntimeInfo) o;
     return Objects.equals(getMemberName(), that.getMemberName());
   }
 

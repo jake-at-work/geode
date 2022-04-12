@@ -103,7 +103,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
     if (initialBuffer.position() != 0) {
       initialBuffer = initialBuffer.slice();
     }
-    int allocSize = initialBuffer.capacity();
+    var allocSize = initialBuffer.capacity();
     MIN_CHUNK_SIZE = Math.max(allocSize, 32);
     buffer = initialBuffer;
     this.version = version;
@@ -116,7 +116,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
    *
    */
   public BufferDataOutputStream(byte[] bytes) {
-    int len = bytes.length;
+    var len = bytes.length;
     if (len <= 0) {
       throw new IllegalArgumentException("The byte array must not be empty");
     }
@@ -141,7 +141,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
    * copying a reference is kept to the original array/buffer.
    */
   public boolean setDoNotCopy(boolean v) {
-    boolean result = doNotCopy;
+    var result = doNotCopy;
     if (result != v) {
       doNotCopy = v;
     }
@@ -189,7 +189,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
   }
 
   protected void ensureCapacity(int amount) {
-    int remainingSpace = buffer.capacity() - buffer.position();
+    var remainingSpace = buffer.capacity() - buffer.position();
     if (amount > remainingSpace) {
       expand(amount);
     }
@@ -206,7 +206,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
       }
     }
 
-    final ByteBuffer oldBuffer = buffer;
+    final var oldBuffer = buffer;
     if (chunks == null) {
       chunks = new LinkedList<>();
     }
@@ -240,7 +240,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
       moveBufferToChunks();
       addToChunks(source, offset, len);
     } else {
-      int remainingSpace = buffer.capacity() - buffer.position();
+      var remainingSpace = buffer.capacity() - buffer.position();
       if (remainingSpace < len) {
         buffer.put(source, offset, remainingSpace);
         offset += remainingSpace;
@@ -252,14 +252,14 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
   }
 
   private void addToChunks(byte[] source, int offset, int len) {
-    ByteBuffer bb = ByteBuffer.wrap(source, offset, len).slice();
+    var bb = ByteBuffer.wrap(source, offset, len).slice();
     bb = bb.slice();
     size += bb.remaining();
     chunks.add(bb);
   }
 
   private void addToChunks(ByteBuffer bb) {
-    int remaining = bb.remaining();
+    var remaining = bb.remaining();
     if (remaining > 0) {
       size += remaining;
       if (bb.position() != 0) {
@@ -270,7 +270,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
   }
 
   public int getByteBufferCount() {
-    int result = 0;
+    var result = 0;
     if (chunks != null) {
       result += chunks.size();
     }
@@ -282,7 +282,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
 
   public void fillByteBufferArray(ByteBuffer[] bbArray, int offset) {
     if (chunks != null) {
-      for (ByteBuffer bb : chunks) {
+      for (var bb : chunks) {
         bbArray[offset++] = bb;
       }
     }
@@ -292,7 +292,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
   }
 
   private void moveBufferToChunks() {
-    final ByteBuffer oldBuffer = buffer;
+    final var oldBuffer = buffer;
     if (chunks == null) {
       chunks = new LinkedList<>();
     }
@@ -303,9 +303,9 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
     }
     oldBuffer.flip();
     size += oldBuffer.remaining();
-    ByteBuffer bufToAdd = oldBuffer.slice();
+    var bufToAdd = oldBuffer.slice();
     chunks.add(bufToAdd);
-    int newPos = oldBuffer.limit();
+    var newPos = oldBuffer.limit();
     if ((oldBuffer.capacity() - newPos) <= 0) {
       buffer = ByteBuffer.allocate(MIN_CHUNK_SIZE);
     } else {
@@ -325,9 +325,9 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
 
   private void consolidateChunks() {
     if (chunks != null) {
-      final int size = size();
-      ByteBuffer newBuffer = ByteBuffer.allocate(size);
-      for (ByteBuffer bb : chunks) {
+      final var size = size();
+      var newBuffer = ByteBuffer.allocate(size);
+      for (var bb : chunks) {
         newBuffer.put(bb);
       }
       chunks = null;
@@ -339,11 +339,11 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
 
   private void consolidateChunks(int startPosition) {
     assert startPosition < SMALLEST_CHUNK_SIZE;
-    final int size = size() - startPosition;
-    ByteBuffer newBuffer = ByteBuffer.allocate(size);
+    final var size = size() - startPosition;
+    var newBuffer = ByteBuffer.allocate(size);
     if (chunks != null) {
       chunks.getFirst().position(startPosition);
-      for (ByteBuffer bb : chunks) {
+      for (var bb : chunks) {
         newBuffer.put(bb);
       }
       chunks = null;
@@ -362,7 +362,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
     finishWriting();
     size = 0;
     if (chunks != null) {
-      for (ByteBuffer bb : chunks) {
+      for (var bb : chunks) {
         bb.rewind();
         size += bb.remaining();
       }
@@ -403,13 +403,13 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
    */
   public ByteBuffer finishWritingAndReturnUnusedBuffer() {
     finishWriting();
-    ByteBuffer result = buffer.duplicate();
+    var result = buffer.duplicate();
     if (result.remaining() == 0) {
       // buffer was never used.
       result.limit(result.capacity());
       return result;
     }
-    int newPos = result.limit();
+    var newPos = result.limit();
     if ((result.capacity() - newPos) > 0) {
       result.limit(result.capacity());
       result.position(newPos);
@@ -451,12 +451,12 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
    * point until it has been reset.
    */
   public byte[] toByteArray() {
-    ByteBuffer bb = toByteBuffer();
+    var bb = toByteBuffer();
     if (bb.hasArray() && bb.arrayOffset() == 0 && bb.limit() == bb.capacity()) {
       return bb.array();
     } else {
       // create a new buffer of just the right size and copy the old buffer into it
-      ByteBuffer tmp = ByteBuffer.allocate(bb.remaining());
+      var tmp = ByteBuffer.allocate(bb.remaining());
       tmp.put(bb);
       tmp.flip();
       buffer = tmp;
@@ -635,7 +635,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
     }
     checkIfWritable();
     ensureCapacity(8);
-    LongUpdater result = new LongUpdater(buffer);
+    var result = new LongUpdater(buffer);
     buffer.putLong(0L);
     return result;
   }
@@ -697,17 +697,17 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
       return;
     }
     checkIfWritable();
-    int strlen = str.length();
+    var strlen = str.length();
     if (strlen > 0) {
       ensureCapacity(strlen);
       // I know this is a deprecated method but it is PERFECT for this impl.
       if (buffer.hasArray()) {
         // I know this is a deprecated method but it is PERFECT for this impl.
-        int pos = buffer.position();
+        var pos = buffer.position();
         str.getBytes(0, strlen, buffer.array(), buffer.arrayOffset() + pos);
         buffer.position(pos + strlen);
       } else {
-        byte[] bytes = new byte[strlen];
+        var bytes = new byte[strlen];
         str.getBytes(0, strlen, bytes, 0);
         buffer.put(bytes);
       }
@@ -732,10 +732,10 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
       return;
     }
     checkIfWritable();
-    int len = s.length();
+    var len = s.length();
     if (len > 0) {
       ensureCapacity(len * 2);
-      for (int i = 0; i < len; i++) {
+      for (var i = 0; i < len; i++) {
         buffer.putChar(s.charAt(i));
       }
     }
@@ -805,12 +805,12 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
 
   @SuppressWarnings("deprecation")
   private void writeAsciiUTF(String str, boolean encodeLength) throws UTFDataFormatException {
-    int strlen = str.length();
+    var strlen = str.length();
     if (encodeLength && strlen > 65535) {
       throw new UTFDataFormatException();
     }
 
-    int maxLen = strlen;
+    var maxLen = strlen;
     if (encodeLength) {
       maxLen += 2;
     }
@@ -821,11 +821,11 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
     }
     if (buffer.hasArray()) {
       // I know this is a deprecated method but it is PERFECT for this impl.
-      int pos = buffer.position();
+      var pos = buffer.position();
       str.getBytes(0, strlen, buffer.array(), buffer.arrayOffset() + pos);
       buffer.position(pos + strlen);
     } else {
-      for (int i = 0; i < strlen; i++) {
+      for (var i = 0; i < strlen; i++) {
         buffer.put((byte) str.charAt(i));
       }
     }
@@ -837,24 +837,24 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
    * 1.6.0_10 to decode this properly.
    */
   private void writeFullUTF(String str, boolean encodeLength) throws UTFDataFormatException {
-    int strlen = str.length();
+    var strlen = str.length();
     if (encodeLength && strlen > 65535) {
       throw new UTFDataFormatException();
     }
     // make room for worst case space 3 bytes for each char and 2 for len
     {
-      int maxLen = (strlen * 3);
+      var maxLen = (strlen * 3);
       if (encodeLength) {
         maxLen += 2;
       }
       ensureCapacity(maxLen);
     }
-    int utfSizeIdx = buffer.position();
+    var utfSizeIdx = buffer.position();
     if (encodeLength) {
       // skip bytes reserved for length
       buffer.position(utfSizeIdx + 2);
     }
-    for (int i = 0; i < strlen; i++) {
+    for (var i = 0; i < strlen; i++) {
       int c = str.charAt(i);
       if ((c >= 0x0001) && (c <= 0x007F)) {
         buffer.put((byte) c);
@@ -867,7 +867,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
         buffer.put((byte) (0x80 | ((c >> 0) & 0x3F)));
       }
     }
-    int utflen = buffer.position() - utfSizeIdx;
+    var utflen = buffer.position() - utfSizeIdx;
     if (encodeLength) {
       utflen -= 2;
       if (utflen > 65535) {
@@ -911,7 +911,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
       return;
     }
     checkIfWritable();
-    int remaining = bb.remaining();
+    var remaining = bb.remaining();
     if (remaining == 0) {
       return;
     }
@@ -919,9 +919,9 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
       moveBufferToChunks();
       addToChunks(bb);
     } else {
-      int remainingSpace = buffer.remaining();
+      var remainingSpace = buffer.remaining();
       if (remainingSpace < remaining) {
-        int oldLimit = bb.limit();
+        var oldLimit = bb.limit();
         bb.limit(bb.position() + remainingSpace);
         buffer.put(bb);
         bb.limit(oldLimit);
@@ -983,7 +983,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
       if (available() <= 0) {
         return -1;
       } else {
-        int remaining = bb.limit() - bb.position();
+        var remaining = bb.limit() - bb.position();
         while (remaining == 0) {
           nextChunk();
           remaining = bb.limit() - bb.position();
@@ -998,13 +998,13 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
       if (available() <= 0) {
         return -1;
       } else {
-        int readCount = 0;
+        var readCount = 0;
         while (len > 0 && bb != null) {
           if (bb.limit() == bb.position()) {
             nextChunk();
           } else {
-            int remaining = bb.limit() - bb.position();
-            int bytesToRead = len;
+            var remaining = bb.limit() - bb.position();
+            var bytesToRead = len;
             if (len > remaining) {
               bytesToRead = remaining;
             }
@@ -1021,7 +1021,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
 
     @Override
     public long skip(long n) {
-      int remaining = size();
+      var remaining = size();
       if (remaining <= n) {
         // just skip over bytes remaining
         chunkIt = null;
@@ -1031,7 +1031,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
       } else {
         long skipped = 0;
         do {
-          long skipsRemaining = n - skipped;
+          var skipsRemaining = n - skipped;
           skipped += chunkSkip(skipsRemaining);
         } while (skipped != n);
         return n;
@@ -1039,7 +1039,7 @@ public class BufferDataOutputStream extends OutputStream implements VersionedDat
     }
 
     private long chunkSkip(long n) {
-      int remaining = bb.limit() - bb.position();
+      var remaining = bb.limit() - bb.position();
       if (remaining <= n) {
         // skip this whole chunk
         bb.position(bb.limit());

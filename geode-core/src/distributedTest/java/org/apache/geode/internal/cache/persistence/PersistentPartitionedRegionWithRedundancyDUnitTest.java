@@ -93,7 +93,7 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
     vm2 = getVM(2);
     vm3 = getVM(3);
 
-    String uniqueName = getClass().getSimpleName() + "-" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "-" + testName.getMethodName();
     partitionedRegionName = uniqueName + "-partitionedRegion";
     parentRegion1Name = "parent1";
     parentRegion2Name = "parent2";
@@ -108,7 +108,7 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
   }
 
   private Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(SERIALIZABLE_OBJECT_FILTER, TestFunction.class.getName());
     return config;
   }
@@ -122,7 +122,7 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
 
     createData(0, 1);
 
-    Set<Integer> vm0Buckets = getBucketList();
+    var vm0Buckets = getBucketList();
 
     getCache().close();
 
@@ -140,7 +140,7 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
    */
   @Test
   public void testGetDataDelayDueToRecoveryAfterServerShutdown() throws Exception {
-    int numEntries = 10000;
+    var numEntries = 10000;
 
     vm0.invoke(() -> createPartitionedRegion(1, -1, 113, true));
     vm1.invoke(() -> createPartitionedRegion(1, -1, 113, true));
@@ -149,10 +149,10 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
 
     vm0.invoke(() -> createData(0, numEntries));
 
-    Set<Integer> bucketsOnVM0 = vm0.invoke(this::getBucketList);
-    Set<Integer> bucketsOnVM1 = vm1.invoke(this::getBucketList);
-    Set<Integer> bucketsOnVM2 = vm2.invoke(this::getBucketList);
-    Set<Integer> bucketsOnVM3 = vm3.invoke(this::getBucketList);
+    var bucketsOnVM0 = vm0.invoke(this::getBucketList);
+    var bucketsOnVM1 = vm1.invoke(this::getBucketList);
+    var bucketsOnVM2 = vm2.invoke(this::getBucketList);
+    var bucketsOnVM3 = vm3.invoke(this::getBucketList);
 
     vm1.invoke(() -> getCache().close());
 
@@ -163,7 +163,7 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
       long timeElapsed;
       int key;
       Region<?, ?> region = getCache().getRegion(partitionedRegionName);
-      for (int i = 0; i < numEntries; i++) {
+      for (var i = 0; i < numEntries; i++) {
         key = getRandomNumberInRange(0, numEntries - 1);
         assertThat(region.get(key)).isEqualTo(key);
       }
@@ -179,7 +179,7 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
 
   private void createPartitionedRegion(final int redundancy, final int recoveryDelay,
       final int numBuckets, final boolean synchronous) throws InterruptedException {
-    CountDownLatch recoveryDone = new CountDownLatch(1);
+    var recoveryDone = new CountDownLatch(1);
 
     if (redundancy > 0) {
       ResourceObserver observer = new ResourceObserverAdapter() {
@@ -217,7 +217,7 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
   private void createDataFor(final int startKey, final int endKey,
       final String regionName) {
     Region<Integer, Integer> region = getCache().getRegion(regionName);
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       region.put(i, i);
     }
   }
@@ -227,7 +227,7 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
   }
 
   private Set<Integer> getBucketListFor(final String regionName) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
     return new TreeSet<>(region.getDataStore().getAllLocalBucketIds());
   }
 
@@ -238,7 +238,7 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
   private void checkDataFor(final int startKey, final int endKey,
       final String regionName) {
     Region<?, ?> region = getCache().getRegion(regionName);
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       assertThat(region.get(i)).isEqualTo(i);
     }
   }
@@ -249,12 +249,12 @@ public class PersistentPartitionedRegionWithRedundancyDUnitTest implements Seria
   }
 
   private PartitionedRegionStats getRegionStats() {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
+    var region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
     return region.getPrStats();
   }
 
   int getRandomNumberInRange(int min, int max) {
-    Random r = new Random();
+    var r = new Random();
     return r.nextInt((max - min) + 1) + min;
   }
 

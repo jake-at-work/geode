@@ -61,7 +61,7 @@ public class RestSecurityWithSSLTest {
 
   @Test
   public void testRestSecurityWithSSL() {
-    GeodeDevRestClient restClient =
+    var restClient =
         new GeodeDevRestClient("localhost", serverStarter.getHttpPort(), true);
     assertResponse(restClient.doGet("/servers", "cluster", "cluster"))
         .hasStatusCode(200);

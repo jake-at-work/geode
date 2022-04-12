@@ -29,7 +29,6 @@ import redis.clients.jedis.JedisCluster;
 
 import org.apache.geode.redis.ConcurrentLoopingThreads;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 
 public class HstrlenDUnitTest {
@@ -44,11 +43,11 @@ public class HstrlenDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     clusterStartUp.startRedisVM(1, locator.getPort());
     clusterStartUp.startRedisVM(2, locator.getPort());
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(LOCAL_HOST, redisServerPort), JEDIS_TIMEOUT);
   }
 
@@ -64,32 +63,32 @@ public class HstrlenDUnitTest {
 
   @Test
   public void hstrlenDoesNotCorruptData_whileHashIsConcurrentlyUpdated() {
-    String key = "key";
-    String field = "field";
-    int iterations = 10000;
-    Random rand = new Random();
+    var key = "key";
+    var field = "field";
+    var iterations = 10000;
+    var rand = new Random();
 
     jedis.hset(key, field, "22");
 
     new ConcurrentLoopingThreads(iterations,
         (i) -> {
-          int newLength = rand.nextInt(9) + 1;
-          String newVal = makeStringOfRepeatedDigits(newLength);
+          var newLength = rand.nextInt(9) + 1;
+          var newVal = makeStringOfRepeatedDigits(newLength);
           jedis.hset(key, field, newVal);
         },
         (i) -> assertThat(jedis.hstrlen(key, field)).isBetween(1L, 9L),
         (i) -> assertThat(jedis.hstrlen(key, field)).isBetween(1L, 9L))
             .run();
 
-    String value = jedis.hget(key, field);
-    String encodedStringLength = Character.toString(value.charAt(0));
-    int expectedLength = Integer.parseInt(encodedStringLength);
+    var value = jedis.hget(key, field);
+    var encodedStringLength = Character.toString(value.charAt(0));
+    var expectedLength = Integer.parseInt(encodedStringLength);
     assertThat(jedis.hstrlen(key, field)).isEqualTo(expectedLength);
   }
 
   private String makeStringOfRepeatedDigits(int newLength) {
-    StringBuilder stringOfRepeatedDigits = new StringBuilder();
-    for (int i = 0; i < newLength; i++) {
+    var stringOfRepeatedDigits = new StringBuilder();
+    for (var i = 0; i < newLength; i++) {
       stringOfRepeatedDigits.append(newLength);
     }
     return stringOfRepeatedDigits.toString();

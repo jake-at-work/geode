@@ -38,12 +38,12 @@ public class DiskStoreValidatorTest {
   @Before
   public void init() {
     diskStore = new DiskStore();
-    String storeName = "diskstore";
+    var storeName = "diskstore";
     diskStore.setName(storeName);
     diskDir = new DiskDir();
-    String dirName = "diskdir";
+    var dirName = "diskdir";
     diskDir.setName(dirName);
-    int dirSizeInteger = 1024;
+    var dirSizeInteger = 1024;
     diskDir.setDirSize(dirSizeInteger);
     diskStore.setDirectories(Collections.singletonList(diskDir));
   }

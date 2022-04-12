@@ -121,7 +121,7 @@ public class DiskRegionBridge {
   }
 
   public long getDiskUsage() {
-    long diskSpaceUsage = aggregateRegionMonitor.getDiskSpace();
+    var diskSpaceUsage = aggregateRegionMonitor.getDiskSpace();
     return diskSpaceUsage;
   }
 

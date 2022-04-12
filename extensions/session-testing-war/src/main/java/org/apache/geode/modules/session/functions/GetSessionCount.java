@@ -24,7 +24,7 @@ import org.apache.geode.modules.session.SessionCountingListener;
 public class GetSessionCount implements Function<HttpServletRequest, String> {
   @Override
   public String apply(final HttpServletRequest request) {
-    SessionCountingListener listener = (SessionCountingListener) request.getSession()
+    var listener = (SessionCountingListener) request.getSession()
         .getServletContext().getAttribute(SessionCountingListener.class.getName());
     return String.valueOf(listener.getSessionCreates() - listener.getSessionDestroys());
   }

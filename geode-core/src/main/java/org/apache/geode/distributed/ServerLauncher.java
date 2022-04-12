@@ -42,7 +42,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.TreeMap;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -52,11 +51,9 @@ import java.util.function.Supplier;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -77,7 +74,6 @@ import org.apache.geode.internal.cache.AbstractCacheServer;
 import org.apache.geode.internal.cache.CacheConfig;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.tier.sockets.CacheServerHelper;
 import org.apache.geode.internal.inet.LocalHostUtil;
@@ -89,7 +85,6 @@ import org.apache.geode.internal.process.FileAlreadyExistsException;
 import org.apache.geode.internal.process.FileControllableProcess;
 import org.apache.geode.internal.process.MBeanInvocationFailedException;
 import org.apache.geode.internal.process.PidUnavailableException;
-import org.apache.geode.internal.process.ProcessController;
 import org.apache.geode.internal.process.ProcessControllerFactory;
 import org.apache.geode.internal.process.ProcessControllerParameters;
 import org.apache.geode.internal.process.ProcessLauncherContext;
@@ -346,9 +341,9 @@ public class ServerLauncher extends AbstractLauncher<String> {
     serverLauncherCacheProvider = builder.getServerLauncherCacheProvider();
     controllableProcessFactory = builder.getControllableProcessFactory();
 
-    Integer serverPort =
+    var serverPort =
         builder.isServerPortSetByUser() && this.serverPort != null ? this.serverPort : null;
-    String serverBindAddress =
+    var serverBindAddress =
         builder.isServerBindAddressSetByUser() && this.serverBindAddress != null
             ? this.serverBindAddress.getHostAddress() : null;
 
@@ -372,9 +367,9 @@ public class ServerLauncher extends AbstractLauncher<String> {
    */
   public Cache getCache() {
     if (cache != null) {
-      boolean isReconnecting = cache.isReconnecting();
+      var isReconnecting = cache.isReconnecting();
       if (isReconnecting) {
-        Cache newCache = cache.getReconnectedCache();
+        var newCache = cache.getReconnectedCache();
         if (newCache != null) {
           cache = newCache;
         }
@@ -391,7 +386,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
    *         startup to configure the Cache.
    */
   public CacheConfig getCacheConfig() {
-    final CacheConfig copy = new CacheConfig();
+    final var copy = new CacheConfig();
     copy.setDeclarativeConfig(cacheConfig);
     return copy;
   }
@@ -405,8 +400,8 @@ public class ServerLauncher extends AbstractLauncher<String> {
    * @see #getServerPortAsString()
    */
   public String getId() {
-    final StringBuilder buffer = new StringBuilder(ServerState.getServerBindAddressAsString(this));
-    final String serverPort = ServerState.getServerPortAsString(this);
+    final var buffer = new StringBuilder(ServerState.getServerBindAddressAsString(this));
+    final var serverPort = ServerState.getServerPortAsString(this);
 
     if (isNotBlank(serverPort)) {
       buffer.append("[").append(serverPort).append("]");
@@ -595,7 +590,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
    * @see #getServerPort()
    */
   public String getServerPortAsString() {
-    Integer v1 = getServerPort();
+    var v1 = getServerPort();
     return (v1 != null ? v1 : getDefaultServerPort()).toString();
   }
 
@@ -701,7 +696,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
       info(wrap("> java ... " + getClass().getName() + ' ' + usageMap.get(command), 80, "\t\t"));
       info(TWO_NEW_LINES + "options: " + TWO_NEW_LINES);
 
-      for (final String option : command.getOptions()) {
+      for (final var option : command.getOptions()) {
         info(wrap("--" + option + ": " + helpMap.get(option) + lineSeparator(), 80, "\t"));
       }
 
@@ -786,11 +781,11 @@ public class ServerLauncher extends AbstractLauncher<String> {
    * @see #run()
    */
   public ServerState start() {
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
     if (isStartable()) {
       INSTANCE.compareAndSet(null, this);
 
-      boolean serializationFilterConfigured = configureGlobalSerialFilterIfEnabled();
+      var serializationFilterConfigured = configureGlobalSerialFilterIfEnabled();
 
       try {
         process = getControllableProcess();
@@ -808,7 +803,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
             });
 
         try {
-          final Properties gemfireProperties = getDistributedSystemProperties(getProperties());
+          final var gemfireProperties = getDistributedSystemProperties(getProperties());
           cache = createCache(gemfireProperties);
 
           if (serializationFilterConfigured) {
@@ -900,9 +895,9 @@ public class ServerLauncher extends AbstractLauncher<String> {
   }
 
   Cache createCache(Properties gemfireProperties) {
-    Iterable<ServerLauncherCacheProvider> loader = getServerLauncherCacheProviders();
-    for (ServerLauncherCacheProvider provider : loader) {
-      Cache cache = provider.createCache(gemfireProperties, this);
+    var loader = getServerLauncherCacheProviders();
+    for (var provider : loader) {
+      var cache = provider.createCache(gemfireProperties, this);
       if (cache != null) {
         return cache;
       }
@@ -1011,10 +1006,10 @@ public class ServerLauncher extends AbstractLauncher<String> {
    */
   private void startCacheServer(final Cache cache) throws IOException {
     if (isDefaultServerEnabled(cache)) {
-      final String serverBindAddress =
+      final var serverBindAddress =
           getServerBindAddress() == null ? null : getServerBindAddress().getHostAddress();
-      final Integer serverPort = getServerPort();
-      final CacheServer cacheServer = cache.addCacheServer();
+      final var serverPort = getServerPort();
+      final var cacheServer = cache.addCacheServer();
       cacheServer.setBindAddress(serverBindAddress);
       cacheServer.setPort(serverPort);
 
@@ -1049,13 +1044,13 @@ public class ServerLauncher extends AbstractLauncher<String> {
   }
 
   private void awaitStartupTasks(Cache cache, long startTime) {
-    Runnable afterStartup = startupCompletionAction == null
+    var afterStartup = startupCompletionAction == null
         ? () -> logStartCompleted(startTime) : startupCompletionAction;
 
-    Consumer<Throwable> exceptionAction = startupExceptionAction == null
+    var exceptionAction = startupExceptionAction == null
         ? (throwable) -> logStartCompletedWithError(startTime, throwable) : startupExceptionAction;
 
-    CompletableFuture<Void> startupTasks =
+    var startupTasks =
         ((InternalResourceManager) cache.getResourceManager())
             .allOfStartupTasks();
 
@@ -1069,12 +1064,12 @@ public class ServerLauncher extends AbstractLauncher<String> {
   }
 
   private void logStartCompleted(long startTime) {
-    long startupDuration = System.currentTimeMillis() - startTime;
+    var startupDuration = System.currentTimeMillis() - startTime;
     log.info("Server {} startup completed in {} ms", memberName, startupDuration);
   }
 
   private void logStartCompletedWithError(long startTime, Throwable throwable) {
-    long startupDuration = System.currentTimeMillis() - startTime;
+    var startupDuration = System.currentTimeMillis() - startTime;
     log.error("Server {} startup completed in {} ms with error: {}", memberName, startupDuration,
         throwable, throwable);
   }
@@ -1113,7 +1108,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
    */
   private void assignBuckets(final Cache cache) {
     if (isAssignBucketsAllowed(cache)) {
-      for (PartitionedRegion region : ((InternalCache) cache).getPartitionedRegions()) {
+      for (var region : ((InternalCache) cache).getPartitionedRegions()) {
         PartitionRegionHelper.assignBucketsToPartitions(region);
       }
     }
@@ -1133,7 +1128,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
    * server).
    */
   public ServerState status() {
-    final ServerLauncher launcher = getInstance();
+    final var launcher = getInstance();
     // if this instance is running then return local status
     if (isStartingOrRunning()) {
       debug(
@@ -1169,10 +1164,10 @@ public class ServerLauncher extends AbstractLauncher<String> {
 
   private ServerState statusWithPid() {
     try {
-      final ProcessController controller = new ProcessControllerFactory()
+      final var controller = new ProcessControllerFactory()
           .createProcessController(controllerParameters, getPid());
       controller.checkPidSupport();
-      final String statusJson = controller.status();
+      final var statusJson = controller.status();
       return ServerState.fromJson(statusJson);
     } catch (ConnectionFailedException handled) {
       // failed to attach to server JVM
@@ -1186,22 +1181,22 @@ public class ServerLauncher extends AbstractLauncher<String> {
   }
 
   private ServerState statusWithWorkingDirectory() {
-    int parsedPid = 0;
+    var parsedPid = 0;
     try {
-      final ProcessController controller =
+      final var controller =
           new ProcessControllerFactory().createProcessController(controllerParameters,
               new File(getWorkingDirectory()), ProcessType.SERVER.getPidFileName());
       parsedPid = controller.getProcessId();
 
       // note: in-process request will go infinite loop unless we do the following
       if (parsedPid == identifyPid()) {
-        final ServerLauncher runningLauncher = getInstance();
+        final var runningLauncher = getInstance();
         if (runningLauncher != null) {
           return runningLauncher.statusInProcess();
         }
       }
 
-      final String statusJson = controller.status();
+      final var statusJson = controller.status();
       return ServerState.fromJson(statusJson);
     } catch (ConnectionFailedException handled) {
       // failed to attach to server JVM
@@ -1241,7 +1236,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
    * Invokes the 'stop' command and operation to stop a Geode server (a cache server).
    */
   public ServerState stop() {
-    final ServerLauncher launcher = getInstance();
+    final var launcher = getInstance();
     // if this instance is running then stop it
     if (isStoppable()) {
       return stopInProcess();
@@ -1299,7 +1294,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
 
   private ServerState stopWithPid() {
     try {
-      final ProcessController controller = new ProcessControllerFactory()
+      final var controller = new ProcessControllerFactory()
           .createProcessController(controllerParameters, getPid());
       controller.checkPidSupport();
       controller.stop();
@@ -1316,16 +1311,16 @@ public class ServerLauncher extends AbstractLauncher<String> {
   }
 
   private ServerState stopWithWorkingDirectory() {
-    int parsedPid = 0;
+    var parsedPid = 0;
     try {
-      final ProcessController controller =
+      final var controller =
           new ProcessControllerFactory().createProcessController(controllerParameters,
               new File(getWorkingDirectory()), ProcessType.SERVER.getPidFileName());
       parsedPid = controller.getProcessId();
 
       // NOTE in-process request will go infinite loop unless we do the following
       if (parsedPid == identifyPid()) {
-        final ServerLauncher runningLauncher = getInstance();
+        final var runningLauncher = getInstance();
         if (runningLauncher != null) {
           return runningLauncher.stopInProcess();
         }
@@ -1366,12 +1361,12 @@ public class ServerLauncher extends AbstractLauncher<String> {
   }
 
   private Properties getOverriddenDefaults() throws IOException {
-    final Properties overriddenDefaults = new Properties();
+    final var overriddenDefaults = new Properties();
 
     overriddenDefaults.setProperty(OVERRIDDEN_DEFAULTS_PREFIX.concat(LOG_FILE),
         getLogFile().getCanonicalPath());
 
-    for (String key : System.getProperties().stringPropertyNames()) {
+    for (var key : System.getProperties().stringPropertyNames()) {
       if (key.startsWith(OVERRIDDEN_DEFAULTS_PREFIX)) {
         overriddenDefaults.setProperty(key, System.getProperty(key));
       }
@@ -1529,7 +1524,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
      *         used by the Server.
      */
     private OptionParser getParser() {
-      OptionParser parser = new OptionParser(true);
+      var parser = new OptionParser(true);
 
       parser.accepts("assign-buckets");
       parser.accepts("debug");
@@ -1578,7 +1573,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
      */
     void parseArguments(final String... args) {
       try {
-        OptionSet options = getParser().parse(args);
+        var options = getParser().parse(args);
 
         parseCommand(args);
         parseMemberName(args);
@@ -1724,8 +1719,8 @@ public class ServerLauncher extends AbstractLauncher<String> {
      */
     protected void parseCommand(final String... args) {
       if (args != null) {
-        for (String arg : args) {
-          Command command = Command.valueOfName(arg);
+        for (var arg : args) {
+          var command = Command.valueOfName(arg);
           if (command != null) {
             setCommand(command);
             break;
@@ -1746,7 +1741,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
      */
     protected void parseMemberName(final String... args) {
       if (args != null) {
-        for (String arg : args) {
+        for (var arg : args) {
           if (!(arg.startsWith(OPTION_PREFIX) || Command.isCommand(arg))) {
             setMemberName(arg);
             break;
@@ -2121,7 +2116,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
 
       // NOTE only set the 'bind address' if the user specified a value
       try {
-        InetAddress bindAddress = InetAddress.getByName(serverBindAddress);
+        var bindAddress = InetAddress.getByName(serverBindAddress);
         if (LocalHostUtil.isLocalHost(bindAddress)) {
           this.serverBindAddress = bindAddress;
           serverBindAddressSetByUser = true;
@@ -2698,7 +2693,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
      *         the specified name exists.
      */
     public static Command valueOfName(final String name) {
-      for (final Command command : values()) {
+      for (final var command : values()) {
         if (command.getName().equalsIgnoreCase(name)) {
           return command;
         }
@@ -2775,10 +2770,10 @@ public class ServerLauncher extends AbstractLauncher<String> {
      */
     public static ServerState fromJson(final String json) {
       try {
-        final JsonNode jsonObject = new ObjectMapper().readTree(json);
+        final var jsonObject = new ObjectMapper().readTree(json);
 
-        final Status status = Status.valueOfDescription(jsonObject.get(JSON_STATUS).asText());
-        final List<String> jvmArguments = JsonUtil.toStringList(jsonObject.get(JSON_JVMARGUMENTS));
+        final var status = Status.valueOfDescription(jsonObject.get(JSON_STATUS).asText());
+        final var jvmArguments = JsonUtil.toStringList(jsonObject.get(JSON_JVMARGUMENTS));
 
         return new ServerState(status, jsonObject.get(JSON_STATUSMESSAGE).asText(),
             jsonObject.get(JSON_TIMESTAMP).asLong(), jsonObject.get(JSON_LOCATION).asText(),
@@ -2795,7 +2790,7 @@ public class ServerLauncher extends AbstractLauncher<String> {
 
     public static ServerState fromDirectory(final String workingDirectory,
         final String memberName) {
-      ServerState serverState = new ServerLauncher.Builder().setWorkingDirectory(workingDirectory)
+      var serverState = new ServerLauncher.Builder().setWorkingDirectory(workingDirectory)
           .setDisableDefaultServer(true).build().status();
 
       if (ObjectUtils.equals(serverState.getMemberName(), memberName)) {
@@ -2867,12 +2862,12 @@ public class ServerLauncher extends AbstractLauncher<String> {
     }
 
     private static String getServerLogFileCanonicalPath(final ServerLauncher launcher) {
-      final InternalDistributedSystem system = InternalDistributedSystem.getAnyInstance();
+      final var system = InternalDistributedSystem.getAnyInstance();
 
       if (system != null) {
-        final File logFile = system.getConfig().getLogFile();
+        final var logFile = system.getConfig().getLogFile();
         if (logFile != null && logFile.isFile()) {
-          final String logFileCanonicalPath = tryGetCanonicalPathElseGetAbsolutePath(logFile);
+          final var logFileCanonicalPath = tryGetCanonicalPathElseGetAbsolutePath(logFile);
           if (isNotBlank(logFileCanonicalPath)) {
             return logFileCanonicalPath;
           }
@@ -2885,10 +2880,10 @@ public class ServerLauncher extends AbstractLauncher<String> {
       final InternalCache internalCache = GemFireCacheImpl.getInstance();
 
       if (internalCache != null) {
-        final List<CacheServer> csList = internalCache.getCacheServers();
+        final var csList = internalCache.getCacheServers();
         if (csList != null && !csList.isEmpty()) {
-          final CacheServer cs = csList.get(0);
-          final String serverBindAddressAsString = cs.getBindAddress();
+          final var cs = csList.get(0);
+          final var serverBindAddressAsString = cs.getBindAddress();
           if (isNotBlank(serverBindAddressAsString)) {
             return serverBindAddressAsString;
           }
@@ -2901,10 +2896,10 @@ public class ServerLauncher extends AbstractLauncher<String> {
       final InternalCache internalCache = GemFireCacheImpl.getInstance();
 
       if (internalCache != null) {
-        final List<CacheServer> csList = internalCache.getCacheServers();
+        final var csList = internalCache.getCacheServers();
         if (csList != null && !csList.isEmpty()) {
-          final CacheServer cs = csList.get(0);
-          final String portAsString = String.valueOf(cs.getPort());
+          final var cs = csList.get(0);
+          final var portAsString = String.valueOf(cs.getPort());
           if (isNotBlank(portAsString)) {
             return portAsString;
           }

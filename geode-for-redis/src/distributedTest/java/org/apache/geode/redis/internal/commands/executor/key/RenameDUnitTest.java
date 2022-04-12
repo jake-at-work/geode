@@ -72,19 +72,19 @@ public class RenameDUnitTest {
 
   @BeforeClass
   public static void setup() {
-    final MemberVM locator = clusterStartUp.startLocatorVM(0);
+    final var locator = clusterStartUp.startLocatorVM(0);
     locatorPort = locator.getPort();
     server1 = clusterStartUp.startRedisVM(1, locatorPort);
     clusterStartUp.startRedisVM(2, locatorPort);
 
     server3Port = AvailablePortHelper.getRandomAvailableTCPPort();
-    final String finalRedisPort = Integer.toString(server3Port);
-    final int finalLocatorPort = locatorPort;
+    final var finalRedisPort = Integer.toString(server3Port);
+    final var finalLocatorPort = locatorPort;
     clusterStartUp.startRedisVM(3, x -> x
         .withProperty(GEODE_FOR_REDIS_PORT, finalRedisPort)
         .withConnectionToLocator(finalLocatorPort));
 
-    int redisServerPort1 = clusterStartUp.getRedisPort(1);
+    var redisServerPort1 = clusterStartUp.getRedisPort(1);
     jedisCluster =
         new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort1), REDIS_CLIENT_TIMEOUT, 20);
   }
@@ -102,14 +102,14 @@ public class RenameDUnitTest {
   @Test
   public void testRenameWithKeysOnAnyStripeOrServer()
       throws ExecutionException, InterruptedException {
-    int numRenames = 10000;
+    var numRenames = 10000;
 
     List<String> listOfKeys = new ArrayList<>(getKeysOnAnyStripe(numRenames * 8));
 
     listOfKeys.forEach(key -> jedisCluster.sadd(key, "value"));
 
-    for (int i = 0; i < numRenames; i++) {
-      int index = i * 8;
+    for (var i = 0; i < numRenames; i++) {
+      var index = i * 8;
       doConcurrentRenames(listOfKeys.subList(index, index + 2),
           listOfKeys.subList(index + 2, index + 4),
           listOfKeys.subList(index + 4, index + 6),
@@ -120,14 +120,14 @@ public class RenameDUnitTest {
   @Test
   public void testRenameWithKeysOnSameStripeDifferentServers()
       throws ExecutionException, InterruptedException {
-    int numRenames = 10000;
+    var numRenames = 10000;
 
     List<String> listOfKeys = new ArrayList<>(getKeysOnSameRandomStripe(numRenames * 8));
 
     listOfKeys.forEach(key -> jedisCluster.sadd(key, "value"));
 
-    for (int i = 0; i < numRenames; i++) {
-      int index = i * 8;
+    for (var i = 0; i < numRenames; i++) {
+      var index = i * 8;
       doConcurrentRenames(listOfKeys.subList(index, index + 2),
           listOfKeys.subList(index + 2, index + 4), listOfKeys.subList(index + 4, index + 6),
           listOfKeys.subList(index + 6, index + 8));
@@ -136,11 +136,11 @@ public class RenameDUnitTest {
 
   @Test
   public void testRenameWithKeysOnDifferentServers_shouldReturnCrossSlotError() {
-    int port1 = clusterStartUp.getRedisPort(1);
-    Jedis jedis = new Jedis(BIND_ADDRESS, port1, REDIS_CLIENT_TIMEOUT);
+    var port1 = clusterStartUp.getRedisPort(1);
+    var jedis = new Jedis(BIND_ADDRESS, port1, REDIS_CLIENT_TIMEOUT);
 
-    String srcKey = clusterStartUp.getKeyOnServer("key-", 1);
-    String dstKey = clusterStartUp.getKeyOnServer("key-", 2);
+    var srcKey = clusterStartUp.getKeyOnServer("key-", 1);
+    var dstKey = clusterStartUp.getKeyOnServer("key-", 2);
 
     jedis.set(srcKey, "Fancy that");
 
@@ -149,15 +149,15 @@ public class RenameDUnitTest {
   }
 
   private Set<String> getKeysOnSameRandomStripe(int numKeysNeeded) {
-    Random random = new Random();
-    String key1 = "{rename}keyz" + random.nextInt();
-    RedisKey key1RedisKey = new RedisKey(key1.getBytes());
+    var random = new Random();
+    var key1 = "{rename}keyz" + random.nextInt();
+    var key1RedisKey = new RedisKey(key1.getBytes());
     StripedCoordinator stripedCoordinator = new LockingStripedCoordinator();
     Set<String> keys = new HashSet<>();
     keys.add(key1);
 
     do {
-      String key2 = "{rename}key" + random.nextInt();
+      var key2 = "{rename}key" + random.nextInt();
       if (stripedCoordinator.compareStripes(key1RedisKey,
           new RedisKey(key2.getBytes())) == 0) {
         keys.add(key2);
@@ -168,11 +168,11 @@ public class RenameDUnitTest {
   }
 
   private Set<String> getKeysOnAnyStripe(int numKeysNeeded) {
-    Random random = new Random();
+    var random = new Random();
     Set<String> keys = new HashSet<>();
 
     do {
-      String key = "{rename}key" + random.nextInt();
+      var key = "{rename}key" + random.nextInt();
       keys.add(key);
     } while (keys.size() < numKeysNeeded);
 
@@ -182,33 +182,33 @@ public class RenameDUnitTest {
   private void doConcurrentRenames(List<String> listOfKeys1, List<String> listOfKeys2,
       List<String> listOfKeys3, List<String> listOfKeys4)
       throws ExecutionException, InterruptedException {
-    CyclicBarrier startCyclicBarrier = new CyclicBarrier(4);
+    var startCyclicBarrier = new CyclicBarrier(4);
 
-    String oldKey1 = listOfKeys1.get(0);
-    String newKey1 = listOfKeys1.get(1);
-    String oldKey2 = listOfKeys2.get(0);
-    String newKey2 = listOfKeys2.get(1);
-    String oldKey3 = listOfKeys3.get(0);
-    String newKey3 = listOfKeys3.get(1);
-    String oldKey4 = listOfKeys4.get(0);
-    String newKey4 = listOfKeys4.get(1);
+    var oldKey1 = listOfKeys1.get(0);
+    var newKey1 = listOfKeys1.get(1);
+    var oldKey2 = listOfKeys2.get(0);
+    var newKey2 = listOfKeys2.get(1);
+    var oldKey3 = listOfKeys3.get(0);
+    var newKey3 = listOfKeys3.get(1);
+    var oldKey4 = listOfKeys4.get(0);
+    var newKey4 = listOfKeys4.get(1);
 
-    Callable<String> renameOldKey1ToNewKey1 = () -> {
+    var renameOldKey1ToNewKey1 = (Callable<String>) () -> {
       cyclicBarrierAwait(startCyclicBarrier);
       return jedisCluster.rename(oldKey1, newKey1);
     };
 
-    Callable<String> renameOldKey2ToNewKey2 = () -> {
+    var renameOldKey2ToNewKey2 = (Callable<String>) () -> {
       cyclicBarrierAwait(startCyclicBarrier);
       return jedisCluster.rename(oldKey2, newKey2);
     };
 
-    Callable<String> renameOldKey3ToNewKey3 = () -> {
+    var renameOldKey3ToNewKey3 = (Callable<String>) () -> {
       cyclicBarrierAwait(startCyclicBarrier);
       return jedisCluster.rename(oldKey3, newKey3);
     };
 
-    Callable<String> renameOldKey4ToNewKey4 = () -> {
+    var renameOldKey4ToNewKey4 = (Callable<String>) () -> {
       cyclicBarrierAwait(startCyclicBarrier);
       return jedisCluster.rename(oldKey4, newKey4);
     };
@@ -226,26 +226,29 @@ public class RenameDUnitTest {
 
   @Test
   public void givenCrashDuringRename_thenDoesNotLeaveInconsistencies() throws Exception {
-    final AtomicBoolean running = new AtomicBoolean(true);
+    final var running = new AtomicBoolean(true);
 
     final List<String> hashtags = new ArrayList<>();
     hashtags.add(clusterStartUp.getKeyOnServer("rename", 1));
     hashtags.add(clusterStartUp.getKeyOnServer("rename", 2));
     hashtags.add(clusterStartUp.getKeyOnServer("rename", 3));
 
-    final Runnable task1 = () -> renamePerformAndVerify(1, 10000, hashtags.get(0), running, true);
-    final Runnable task2 = () -> renamePerformAndVerify(2, 10000, hashtags.get(1), running, true);
-    final Runnable task3 = () -> renamePerformAndVerify(3, 10000, hashtags.get(2), running, true);
+    final var task1 =
+        (Runnable) () -> renamePerformAndVerify(1, 10000, hashtags.get(0), running, true);
+    final var task2 =
+        (Runnable) () -> renamePerformAndVerify(2, 10000, hashtags.get(1), running, true);
+    final var task3 =
+        (Runnable) () -> renamePerformAndVerify(3, 10000, hashtags.get(2), running, true);
 
     final Future<Void> future1 = executor.runAsync(task1);
     final Future<Void> future2 = executor.runAsync(task2);
     final Future<Void> future3 = executor.runAsync(task3);
 
-    final String finalRedisPort = Integer.toString(server3Port);
-    final int finalLocatorPort = locatorPort;
+    final var finalRedisPort = Integer.toString(server3Port);
+    final var finalLocatorPort = locatorPort;
     final Future<?> crasherFuture = executor.submit(() -> {
       try {
-        for (int i = 0; i < 20 && running.get(); i++) {
+        for (var i = 0; i < 20 && running.get(); i++) {
           clusterStartUp.moveBucketForKey(hashtags.get(0), "server-3");
           // Sleep for a bit so that rename can execute
           GeodeAwaitility.await().during(Duration.ofMillis(2000)).until(() -> true);
@@ -268,22 +271,22 @@ public class RenameDUnitTest {
 
   @Test
   public void givenBucketsMoveDuringRename_thenDataIsNotLost() throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
+    var running = new AtomicBoolean(true);
 
     List<String> hashtags = new ArrayList<>();
     hashtags.add(clusterStartUp.getKeyOnServer("rename", 1));
     hashtags.add(clusterStartUp.getKeyOnServer("rename", 2));
     hashtags.add(clusterStartUp.getKeyOnServer("rename", 3));
 
-    Runnable task1 = () -> renamePerformAndVerify(1, 10000, hashtags.get(0), running, false);
-    Runnable task2 = () -> renamePerformAndVerify(2, 10000, hashtags.get(1), running, false);
-    Runnable task3 = () -> renamePerformAndVerify(3, 10000, hashtags.get(2), running, false);
+    var task1 = (Runnable) () -> renamePerformAndVerify(1, 10000, hashtags.get(0), running, false);
+    var task2 = (Runnable) () -> renamePerformAndVerify(2, 10000, hashtags.get(1), running, false);
+    var task3 = (Runnable) () -> renamePerformAndVerify(3, 10000, hashtags.get(2), running, false);
 
     Future<Void> future1 = executor.runAsync(task1);
     Future<Void> future2 = executor.runAsync(task2);
     Future<Void> future3 = executor.runAsync(task3);
 
-    for (int i = 0; i < 100 && running.get(); i++) {
+    for (var i = 0; i < 100 && running.get(); i++) {
       clusterStartUp.moveBucketForKey(hashtags.get(i % hashtags.size()));
       GeodeAwaitility.await().during(Duration.ofMillis(200)).until(() -> true);
     }
@@ -297,13 +300,13 @@ public class RenameDUnitTest {
 
   private void renamePerformAndVerify(final int index, final int minimumIterations,
       final String hashtag, final AtomicBoolean isRunning, final boolean continueOnError) {
-    final String baseKey = "{" + hashtag + "}-key-" + index;
+    final var baseKey = "{" + hashtag + "}-key-" + index;
     jedisCluster.set(baseKey + "-0", "value");
-    int iterationCount = 0;
+    var iterationCount = 0;
 
     while (iterationCount < minimumIterations || isRunning.get()) {
-      final String oldKey = baseKey + "-" + iterationCount;
-      final String newKey = baseKey + "-" + (iterationCount + 1);
+      final var oldKey = baseKey + "-" + iterationCount;
+      final var newKey = baseKey + "-" + (iterationCount + 1);
 
       // it's possible previous rename failed, so make sure oldKey exists
       jedisCluster.setnx(oldKey, "value");

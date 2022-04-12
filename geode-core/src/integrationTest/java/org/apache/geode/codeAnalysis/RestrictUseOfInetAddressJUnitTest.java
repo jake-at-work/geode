@@ -63,15 +63,15 @@ public class RestrictUseOfInetAddressJUnitTest {
 
   @Test
   public void restrictUseOfInetAddressMethods() {
-    Map<String, CompiledClass> classes = classProvider.getClasses();
+    var classes = classProvider.getClasses();
     Set<String> exclusions = getSanctionedReferencersOfInetAddress();
 
     assertExcludedClassesExist(classes, exclusions);
 
-    StringWriter writer = new StringWriter();
+    var writer = new StringWriter();
 
-    final String className = "java/net/InetAddress";
-    List<String> methodNames = Arrays.asList(
+    final var className = "java/net/InetAddress";
+    var methodNames = Arrays.asList(
         "getByName",
         "getAllByName");
 
@@ -80,8 +80,8 @@ public class RestrictUseOfInetAddressJUnitTest {
 
     // use an assertion on the StringWriter rather than the failure count so folks can
     // tell what failed
-    String actual = writer.toString();
-    String expected = "";
+    var actual = writer.toString();
+    var expected = "";
     assertThat(actual)
         .withFailMessage(
             "Unexpected use of restricted InetAddress methods need to be sanctioned by this test.\n"
@@ -96,7 +96,7 @@ public class RestrictUseOfInetAddressJUnitTest {
    */
   @Test
   public void restrictUseOfDeprecatedAdminInetAddressUtils() {
-    Map<String, CompiledClass> classes = classProvider.getClasses();
+    var classes = classProvider.getClasses();
     Set<String> exclusions = new HashSet<>(Arrays.asList(
         "org/apache/geode/admin/internal/AdminDistributedSystemImpl",
         "org/apache/geode/admin/internal/ConfigurationParameterImpl",
@@ -109,13 +109,13 @@ public class RestrictUseOfInetAddressJUnitTest {
 
     assertExcludedClassesExist(classes, exclusions);
 
-    StringWriter writer = new StringWriter();
+    var writer = new StringWriter();
 
-    final List<String> classNames = Arrays.asList(
+    final var classNames = Arrays.asList(
         "org/apache/geode/admin/internal/InetAddressUtils",
         "org/apache/geode/admin/internal/InetAddressUtilsWithLogging");
 
-    for (String className : classNames) {
+    for (var className : classNames) {
       classes.remove(className);
     }
 
@@ -124,8 +124,8 @@ public class RestrictUseOfInetAddressJUnitTest {
 
     // use an assertion on the StringWriter rather than the failure count so folks can
     // tell what failed
-    String actual = writer.toString();
-    String expected = "";
+    var actual = writer.toString();
+    var expected = "";
     assertThat(actual)
         .withFailMessage(
             "Unexpected use of restricted InetAddress utility methods need to be sanctioned by this test.\n"
@@ -141,12 +141,12 @@ public class RestrictUseOfInetAddressJUnitTest {
       List<String> referencedClasses, StringWriter writer) {
     final List<String> keys = new ArrayList<>(classes.keySet());
     Collections.sort(keys);
-    for (String className : keys) {
+    for (var className : keys) {
       if (exclusions.contains(className)) {
         continue;
       }
-      CompiledClass compiledClass = classes.get(className);
-      for (String referencedClass : referencedClasses) {
+      var compiledClass = classes.get(className);
+      for (var referencedClass : referencedClasses) {
         if (compiledClass.refersToClass(referencedClass)) {
           writer.append(className).append(" uses ").append(referencedClass).append("\n");
         }
@@ -159,10 +159,10 @@ public class RestrictUseOfInetAddressJUnitTest {
    */
   private void assertExclusionsUseClasses(Map<String, CompiledClass> classes,
       Set<String> exclusions, List<String> referencedClasses) {
-    for (String className : exclusions) {
-      boolean foundOne = false;
-      CompiledClass excludedClass = classes.get(className);
-      for (String referencedClass : referencedClasses) {
+    for (var className : exclusions) {
+      var foundOne = false;
+      var excludedClass = classes.get(className);
+      for (var referencedClass : referencedClasses) {
         if (excludedClass.refersToClass(referencedClass)) {
           foundOne = true;
           break;
@@ -215,8 +215,8 @@ public class RestrictUseOfInetAddressJUnitTest {
    */
   private void assertExcludedClassesExist(Map<String, CompiledClass> classes,
       Set<String> exclusions) {
-    for (String exclusion : exclusions) {
-      CompiledClass excludedClass = classes.get(exclusion);
+    for (var exclusion : exclusions) {
+      var excludedClass = classes.get(exclusion);
       assertThat(excludedClass)
           .withFailMessage("test needs to be updated as " + exclusion + " could not be found")
           .isNotNull();
@@ -230,10 +230,10 @@ public class RestrictUseOfInetAddressJUnitTest {
       Set<String> exclusions,
       String classOrInterface,
       List<String> methods) {
-    for (String className : exclusions) {
-      CompiledClass compiledClass = classes.get(className);
-      boolean foundOne = false;
-      for (String methodName : methods) {
+    for (var className : exclusions) {
+      var compiledClass = classes.get(className);
+      var foundOne = false;
+      for (var methodName : methods) {
         if (compiledClass.refersToMethod(classOrInterface, methodName)) {
           foundOne = true;
           break;
@@ -257,12 +257,12 @@ public class RestrictUseOfInetAddressJUnitTest {
         .println("Looking for unsanctioned uses of " + classOrInterface + " in " + getModuleName());
     final List<String> keys = new ArrayList<>(classes.keySet());
     Collections.sort(keys);
-    for (String className : keys) {
+    for (var className : keys) {
       if (exclusions.contains(className)) {
         continue;
       }
-      CompiledClass compiledClass = classes.get(className);
-      for (String methodName : methods) {
+      var compiledClass = classes.get(className);
+      for (var methodName : methods) {
         if (compiledClass.refersToMethod(classOrInterface, methodName)) {
           writer.append(className).append(" uses ").append(methodName).append("\n");
         }

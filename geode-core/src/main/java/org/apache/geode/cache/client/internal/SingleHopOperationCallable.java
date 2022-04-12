@@ -40,7 +40,7 @@ public class SingleHopOperationCallable implements Callable {
   public Object call() throws Exception {
     op.initMessagePart();
     Object result = null;
-    boolean onlyUseExistingCnx =
+    var onlyUseExistingCnx =
         (pool.getMaxConnections() != -1 && pool.getConnectionCount() >= pool.getMaxConnections());
     op.setAllowDuplicateMetadataRefresh(!onlyUseExistingCnx);
     try {
@@ -52,7 +52,7 @@ public class SingleHopOperationCallable implements Callable {
       // from other servers instead of creating new connection to the original
       // server
       if (op instanceof ExecuteRegionFunctionSingleHopOpImpl) {
-        ExecuteRegionFunctionSingleHopOpImpl newop = (ExecuteRegionFunctionSingleHopOpImpl) op;
+        var newop = (ExecuteRegionFunctionSingleHopOpImpl) op;
         result = pool.execute(new ExecuteRegionFunctionOpImpl(newop));
       } else {
         result = pool.execute(op);

@@ -48,7 +48,7 @@ public abstract class MBeanStatsTestCase {
   public void setUp() throws Exception {
     // System.setProperty("gemfire.stats.debug.debugSampleCollector", "true");
 
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(ENABLE_TIME_STATISTICS, "true");
     props.setProperty(STATISTIC_SAMPLING_ENABLED, "false");

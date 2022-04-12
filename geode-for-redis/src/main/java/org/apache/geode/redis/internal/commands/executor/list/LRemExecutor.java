@@ -18,22 +18,17 @@ import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_INTEGER;
 import static org.apache.geode.redis.internal.netty.Coder.bytesToLong;
 import static org.apache.geode.redis.internal.netty.Coder.narrowLongToInt;
 
-import java.util.List;
-
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class LRemExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    Region<RedisKey, RedisData> region = context.getRegion();
+    var commandElems = command.getProcessedCommand();
+    var region = context.getRegion();
 
     int count;
     try {
@@ -42,7 +37,7 @@ public class LRemExecutor implements CommandExecutor {
       return RedisResponse.error(ERROR_NOT_INTEGER);
     }
 
-    RedisKey key = command.getKey();
+    var key = command.getKey();
     int result = context.listLockedExecute(key, false,
         list -> list.lrem(count, commandElems.get(3), region, key));
 

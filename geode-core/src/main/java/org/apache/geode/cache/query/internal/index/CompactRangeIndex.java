@@ -50,7 +50,6 @@ import org.apache.geode.cache.query.internal.ExecutionContext;
 import org.apache.geode.cache.query.internal.IndexInfo;
 import org.apache.geode.cache.query.internal.QRegion;
 import org.apache.geode.cache.query.internal.QueryMonitor;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.cache.query.internal.QueryUtils;
 import org.apache.geode.cache.query.internal.RuntimeIterator;
@@ -134,10 +133,10 @@ public class CompactRangeIndex extends AbstractIndex {
 
   @Override
   public void initializeIndex(boolean loadEntries) throws IMQException {
-    long startTime = System.nanoTime();
+    var startTime = System.nanoTime();
     evaluator.initializeIndex(loadEntries);
     internalIndexStats.incNumUpdates(((IMQEvaluator) evaluator).getTotalEntriesUpdated());
-    long endTime = System.nanoTime();
+    var endTime = System.nanoTime();
     internalIndexStats.incUpdateTime(endTime - startTime);
   }
 
@@ -205,7 +204,7 @@ public class CompactRangeIndex extends AbstractIndex {
       throws TypeMismatchException, FunctionDomainException, NameResolutionException,
       QueryInvocationTargetException {
     // get a read lock when doing a lookup
-    long start = updateIndexUseStats();
+    var start = updateIndexUseStats();
     ((AbstractIndex) indx).updateIndexUseStats();
     List data = new ArrayList();
     Iterator<IndexStoreEntry> outer = null;
@@ -215,7 +214,7 @@ public class CompactRangeIndex extends AbstractIndex {
       outer = ((MemoryIndexStore) indexStore).getKeysIterator();
 
       if (indx instanceof CompactRangeIndex) {
-        IndexStore indexStore = ((CompactRangeIndex) indx).getIndexStorage();
+        var indexStore = ((CompactRangeIndex) indx).getIndexStorage();
         inner = ((MemoryIndexStore) indexStore).getKeysIterator();
 
       } else {
@@ -225,7 +224,7 @@ public class CompactRangeIndex extends AbstractIndex {
       Object innerEntry = null;
       Object outerKey = null;
       Object innerKey = null;
-      boolean incrementInner = true;
+      var incrementInner = true;
       outer: while (outer.hasNext()) {
         outerEntry = outer.next();
         outerKey = outerEntry.getDeserializedKey();
@@ -239,7 +238,7 @@ public class CompactRangeIndex extends AbstractIndex {
               innerKey = ((Map.Entry) innerEntry).getKey();
             }
           }
-          int compare = ((Comparable) outerKey).compareTo(innerKey);
+          var compare = ((Comparable) outerKey).compareTo(innerKey);
           if (compare == 0) {
             Object innerValue = null;
             CloseableIterator<IndexStoreEntry> iter = null;
@@ -302,8 +301,8 @@ public class CompactRangeIndex extends AbstractIndex {
       IndexInfo indexInfo, Object keyVal) throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
     // Verify index key in value only for memory index store
-    CompactRangeIndex index = (CompactRangeIndex) indexInfo._getIndex();
-    RuntimeIterator runtimeItr = index.getRuntimeIteratorForThisIndex(context, indexInfo);
+    var index = (CompactRangeIndex) indexInfo._getIndex();
+    var runtimeItr = index.getRuntimeIteratorForThisIndex(context, indexInfo);
     if (runtimeItr != null) {
       runtimeItr.setCurrent(entry.getDeserializedValue());
     }
@@ -314,11 +313,11 @@ public class CompactRangeIndex extends AbstractIndex {
   public int getSizeEstimate(Object key, int operator, int matchLevel)
       throws TypeMismatchException {
     // Get approx size;
-    int size = 0;
+    var size = 0;
     if (key == null) {
       key = IndexManager.NULL;
     }
-    long start = updateIndexUseStats(false);
+    var start = updateIndexUseStats(false);
     try {
       switch (operator) {
         case OQLLexerTokenTypes.TOK_EQ: {
@@ -338,13 +337,13 @@ public class CompactRangeIndex extends AbstractIndex {
         case OQLLexerTokenTypes.TOK_LT:
           if (matchLevel <= 0 && (key instanceof Number)) {
 
-            int totalSize = indexStore.size();
+            var totalSize = indexStore.size();
             if (CompactRangeIndex.testHook != null) {
               CompactRangeIndex.testHook.hook(1);
             }
             if (totalSize > 1) {
-              Number keyAsNum = (Number) key;
-              int x = 0;
+              var keyAsNum = (Number) key;
+              var x = 0;
               IndexStoreEntry firstEntry = null;
               CloseableIterator<IndexStoreEntry> iter1 = null;
               CloseableIterator<IndexStoreEntry> iter2 = null;
@@ -362,8 +361,8 @@ public class CompactRangeIndex extends AbstractIndex {
                   }
 
                   if (firstEntry != null && lastEntry != null) {
-                    Number first = (Number) firstEntry.getDeserializedKey();
-                    Number last = (Number) lastEntry.getDeserializedKey();
+                    var first = (Number) firstEntry.getDeserializedKey();
+                    var last = (Number) lastEntry.getDeserializedKey();
                     if (first.doubleValue() != last.doubleValue()) {
                       // Shobhit: Now without ReadLoack on index we can end up with 0
                       // in denominator if the numbers are floating-point and
@@ -401,13 +400,13 @@ public class CompactRangeIndex extends AbstractIndex {
         case OQLLexerTokenTypes.TOK_GE:
         case OQLLexerTokenTypes.TOK_GT:
           if (matchLevel <= 0 && (key instanceof Number)) {
-            int totalSize = indexStore.size();
+            var totalSize = indexStore.size();
             if (CompactRangeIndex.testHook != null) {
               CompactRangeIndex.testHook.hook(2);
             }
             if (totalSize > 1) {
-              Number keyAsNum = (Number) key;
-              int x = 0;
+              var keyAsNum = (Number) key;
+              var x = 0;
               IndexStoreEntry firstEntry = null;
               CloseableIterator<IndexStoreEntry> iter1 = null;
               CloseableIterator<IndexStoreEntry> iter2 = null;
@@ -427,8 +426,8 @@ public class CompactRangeIndex extends AbstractIndex {
 
 
                 if (firstEntry != null && lastEntry != null) {
-                  Number first = (Number) firstEntry.getDeserializedKey();
-                  Number last = (Number) lastEntry.getDeserializedKey();
+                  var first = (Number) firstEntry.getDeserializedKey();
+                  var last = (Number) lastEntry.getDeserializedKey();
                   if (first.doubleValue() != last.doubleValue()) {
                     // Shobhit: Now without ReadLoack on index we can end up with 0
                     // in denominator if the numbers are floating-point and
@@ -479,9 +478,9 @@ public class CompactRangeIndex extends AbstractIndex {
     if (keysToRemove == null) {
       keysToRemove = new HashSet(0);
     }
-    int limit = -1;
+    var limit = -1;
 
-    Boolean applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
+    var applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
     if (applyLimit != null && applyLimit) {
       limit = (Integer) context.cacheGet(CompiledValue.RESULT_LIMIT);
       if (limit < indexThresholdSize) {
@@ -489,12 +488,12 @@ public class CompactRangeIndex extends AbstractIndex {
       }
     }
 
-    Boolean orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
-    boolean applyOrderBy = false;
+    var orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
+    var applyOrderBy = false;
     List orderByAttrs = null;
     if (orderByClause != null && orderByClause) {
       orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
-      CompiledSortCriterion csc = (CompiledSortCriterion) orderByAttrs.get(0);
+      var csc = (CompiledSortCriterion) orderByAttrs.get(0);
       applyOrderBy = true;
     }
     if (isEmpty()) {
@@ -513,26 +512,26 @@ public class CompactRangeIndex extends AbstractIndex {
       QueryInvocationTargetException {
     lowerBoundKey = TypeUtils.indexKeyFor(lowerBoundKey);
     upperBoundKey = TypeUtils.indexKeyFor(upperBoundKey);
-    boolean lowerBoundInclusive = lowerBoundOperator == OQLLexerTokenTypes.TOK_GE;
-    boolean upperBoundInclusive = upperBoundOperator == OQLLexerTokenTypes.TOK_LE;
+    var lowerBoundInclusive = lowerBoundOperator == OQLLexerTokenTypes.TOK_GE;
+    var upperBoundInclusive = upperBoundOperator == OQLLexerTokenTypes.TOK_LE;
     // LowerBound Key inclusive , Upper bound key exclusive
 
-    int limit = -1;
-    Boolean applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
+    var limit = -1;
+    var applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
     if (applyLimit != null && applyLimit) {
       limit = (Integer) context.cacheGet(CompiledValue.RESULT_LIMIT);
       if (limit != -1 && limit < indexThresholdSize) {
         limit = indexThresholdSize;
       }
     }
-    Boolean orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
+    var orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
 
     List orderByAttrs;
-    boolean asc = true;
-    boolean multiColOrderBy = false;
+    var asc = true;
+    var multiColOrderBy = false;
     if (orderByClause != null && orderByClause) {
       orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
-      CompiledSortCriterion csc = (CompiledSortCriterion) orderByAttrs.get(0);
+      var csc = (CompiledSortCriterion) orderByAttrs.get(0);
       asc = !csc.getCriterion();
       multiColOrderBy = orderByAttrs.size() > 1;
     }
@@ -569,7 +568,7 @@ public class CompactRangeIndex extends AbstractIndex {
       SelectResults intermediateResults, boolean isIntersection, int limit, boolean applyOrderBy,
       List orderByAttribs) throws TypeMismatchException, FunctionDomainException,
       NameResolutionException, QueryInvocationTargetException {
-    boolean multiColOrderBy = false;
+    var multiColOrderBy = false;
     if (keysToRemove == null) {
       keysToRemove = new HashSet(0);
     }
@@ -577,9 +576,9 @@ public class CompactRangeIndex extends AbstractIndex {
     if (key == null) {
       key = IndexManager.NULL;
     }
-    boolean asc = true;
+    var asc = true;
     if (applyOrderBy) {
-      CompiledSortCriterion csc = (CompiledSortCriterion) orderByAttribs.get(0);
+      var csc = (CompiledSortCriterion) orderByAttribs.get(0);
       asc = !csc.getCriterion();
       multiColOrderBy = orderByAttribs.size() > 1;
     }
@@ -753,8 +752,8 @@ public class CompactRangeIndex extends AbstractIndex {
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
 
-    QueryObserver observer = QueryObserverHolder.getInstance();
-    boolean limitApplied = false;
+    var observer = QueryObserverHolder.getInstance();
+    var limitApplied = false;
     if (entriesIter == null || (limitApplied = verifyLimit(result, limit))) {
       if (limitApplied) {
         if (observer != null) {
@@ -790,21 +789,21 @@ public class CompactRangeIndex extends AbstractIndex {
           continue;
         }
 
-        Object value = indexEntry.getDeserializedValue();
+        var value = indexEntry.getDeserializedValue();
 
         if (IndexManager.IS_TEST_EXPANSION) {
-          Object rk = indexEntry.getDeserializedRegionKey();
+          var rk = indexEntry.getDeserializedRegionKey();
           if (seenKey.contains(rk)) {
             continue;
           }
           seenKey.add(rk);
 
-          List expandedResults = expandValue(context, lowerBoundKey, upperBoundKey,
+          var expandedResults = expandValue(context, lowerBoundKey, upperBoundKey,
               lowerBoundOperator, upperBoundOperator, value);
-          for (final Object o : (Collection) expandedResults) {
+          for (final var o : (Collection) expandedResults) {
             value = o;
             if (value != null) {
-              boolean ok = true;
+              var ok = true;
 
               if (runtimeItr != null) {
                 runtimeItr.setCurrent(value);
@@ -824,9 +823,9 @@ public class CompactRangeIndex extends AbstractIndex {
           }
         } else {
           if (value != null) {
-            boolean ok = true;
+            var ok = true;
             if (indexEntry.isUpdateInProgress() || TEST_ALWAYS_UPDATE_IN_PROGRESS) {
-              IndexInfo indexInfo = (IndexInfo) context.cacheGet(CompiledValue.INDEX_INFO);
+              var indexInfo = (IndexInfo) context.cacheGet(CompiledValue.INDEX_INFO);
               if (runtimeItr == null) {
                 runtimeItr = getRuntimeIteratorForThisIndex(context, indexInfo);
                 if (runtimeItr == null) {
@@ -895,9 +894,9 @@ public class CompactRangeIndex extends AbstractIndex {
   protected boolean evaluateEntry(IndexInfo indexInfo, ExecutionContext context, Object keyVal)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    CompiledValue path = indexInfo._path();
-    Object left = path.evaluate(context);
-    CompiledValue key = indexInfo._key();
+    var path = indexInfo._path();
+    var left = path.evaluate(context);
+    var key = indexInfo._key();
     Object right = null;
 
     // For CompiledUndefined indexInfo has null key.
@@ -917,7 +916,7 @@ public class CompactRangeIndex extends AbstractIndex {
       right = keyVal;
     }
 
-    int operator = indexInfo._operator();
+    var operator = indexInfo._operator();
     if (left == null && right == null) {
       return Boolean.TRUE;
     } else {
@@ -936,7 +935,7 @@ public class CompactRangeIndex extends AbstractIndex {
           }
         }
       }
-      Object result = TypeUtils.compare(left, right, operator);
+      var result = TypeUtils.compare(left, right, operator);
       // result is Undefined if either left or right is Undefined or
       // either of them is null and operator is other than == or !=
       if (result == QueryService.UNDEFINED) {
@@ -955,15 +954,15 @@ public class CompactRangeIndex extends AbstractIndex {
   @Override
   void recreateIndexData() throws IMQException {
     indexStore.clear();
-    int numKeys = (int) internalIndexStats.getNumberOfKeys();
+    var numKeys = (int) internalIndexStats.getNumberOfKeys();
     if (numKeys > 0) {
       internalIndexStats.incNumKeys(-numKeys);
     }
-    int numValues = (int) internalIndexStats.getNumberOfValues();
+    var numValues = (int) internalIndexStats.getNumberOfValues();
     if (numValues > 0) {
       internalIndexStats.incNumValues(-numValues);
     }
-    int updates = (int) internalIndexStats.getNumUpdates();
+    var updates = (int) internalIndexStats.getNumUpdates();
     if (updates > 0) {
       internalIndexStats.incNumUpdates(updates);
     }
@@ -1156,7 +1155,7 @@ public class CompactRangeIndex extends AbstractIndex {
       }
       iteratorSize = indexInitIterators.size();
       if (additionalProj instanceof CompiledPath) {
-        String tailId = ((CompiledPath) additionalProj).getTailID();
+        var tailId = ((CompiledPath) additionalProj).getTailID();
         if (tailId.equals("key")) {
           // index on keys
           indexOnRegionKeys = true;
@@ -1188,9 +1187,9 @@ public class CompactRangeIndex extends AbstractIndex {
     public void expansion(List expandedResults, Object lowerBoundKey, Object upperBoundKey,
         int lowerBoundOperator, int upperBoundOperator, Object value) throws IMQException {
       try {
-        ExecutionContext expansionContext = createExecutionContext(value);
-        List iterators = expansionContext.getCurrentIterators();
-        RuntimeIterator iter = (RuntimeIterator) iterators.get(0);
+        var expansionContext = createExecutionContext(value);
+        var iterators = expansionContext.getCurrentIterators();
+        var iter = (RuntimeIterator) iterators.get(0);
         iter.setCurrent(value);
 
         // first iter level is region entries, we can ignore as we already broke it down in the
@@ -1207,18 +1206,18 @@ public class CompactRangeIndex extends AbstractIndex {
         int upperBoundOperator, Object value)
         throws TypeMismatchException, FunctionDomainException,
         NameResolutionException, QueryInvocationTargetException, IMQException {
-      List iterList = expansionContext.getCurrentIterators();
-      int iteratorSize = iterList.size();
+      var iterList = expansionContext.getCurrentIterators();
+      var iteratorSize = iterList.size();
       if (level == iteratorSize) {
         expand(expansionContext, expandedResults, lowerBoundKey, upperBoundKey, lowerBoundOperator,
             upperBoundOperator, value);
       } else {
-        RuntimeIterator rIter = (RuntimeIterator) iterList.get(level);
+        var rIter = (RuntimeIterator) iterList.get(level);
         Collection c = rIter.evaluateCollection(expansionContext);
         if (c == null) {
           return;
         }
-        for (final Object o : c) {
+        for (final var o : c) {
           rIter.setCurrent(o);
           doNestedExpansion(level + 1, expansionContext, expandedResults, lowerBoundKey,
               upperBoundKey, lowerBoundOperator, upperBoundOperator, value);
@@ -1234,12 +1233,12 @@ public class CompactRangeIndex extends AbstractIndex {
         Object lowerBoundKey, Object upperBoundKey, int lowerBoundOperator, int upperBoundOperator,
         Object value) throws IMQException {
       try {
-        RuntimeIterator runtimeItr = getRuntimeIteratorForThisIndex(expansionContext);
+        var runtimeItr = getRuntimeIteratorForThisIndex(expansionContext);
         if (runtimeItr != null) {
           runtimeItr.setCurrent(value);
         }
 
-        Object tupleIndexKey = indexedExpr.evaluate(expansionContext);
+        var tupleIndexKey = indexedExpr.evaluate(expansionContext);
         tupleIndexKey = getPdxStringForIndexedPdxKeys(tupleIndexKey);
 
         Object compResult;
@@ -1247,7 +1246,7 @@ public class CompactRangeIndex extends AbstractIndex {
         if (upperBoundKey != null) {
           compResult = TypeUtils.compare(tupleIndexKey, upperBoundKey, upperBoundOperator);
           if (compResult instanceof Boolean) {
-            Boolean ok = (Boolean) compResult;
+            var ok = (Boolean) compResult;
             if (!ok) {
               return;
             }
@@ -1268,31 +1267,31 @@ public class CompactRangeIndex extends AbstractIndex {
           // Check lower bound
           compResult = TypeUtils.compare(tupleIndexKey, lowerBoundKey, lowerBoundOperator);
           if (compResult instanceof Boolean) {
-            Boolean ok = (Boolean) compResult;
+            var ok = (Boolean) compResult;
             if (!ok) {
               return;
             }
           }
         }
 
-        List currentRuntimeIters = expansionContext.getCurrentIterators();
-        int iteratorSize = currentRuntimeIters.size();
+        var currentRuntimeIters = expansionContext.getCurrentIterators();
+        var iteratorSize = currentRuntimeIters.size();
         Object indxResultSet = null;
 
         // if the resultSetType is of structType, we need to create tuples
         // this is due to the way the resultsSets are being created
-        boolean structType = (indexResultSetType instanceof StructType);
+        var structType = (indexResultSetType instanceof StructType);
         if (iteratorSize == 1 && !structType) {
-          RuntimeIterator iter = (RuntimeIterator) currentRuntimeIters.get(0);
+          var iter = (RuntimeIterator) currentRuntimeIters.get(0);
           iter.setCurrent(value);
           indxResultSet = iter.evaluate(expansionContext);
           indxResultSet = value;
         } else {
-          Object[] tuple = new Object[iteratorSize];
+          var tuple = new Object[iteratorSize];
           tuple[0] = value;
           if (iteratorSize > 1) {
-            for (int i = 1; i < iteratorSize; i++) {
-              RuntimeIterator iter = (RuntimeIterator) currentRuntimeIters.get(i);
+            for (var i = 1; i < iteratorSize; i++) {
+              var iter = (RuntimeIterator) currentRuntimeIters.get(i);
               tuple[i] = iter.evaluate(expansionContext);
             }
             Support.Assert(indexResultSetType instanceof StructTypeImpl,
@@ -1309,22 +1308,22 @@ public class CompactRangeIndex extends AbstractIndex {
     }
 
     private ExecutionContext createExecutionContext(Object value) {
-      DummyQRegion dQRegion = new DummyQRegion(rgn);
+      var dQRegion = new DummyQRegion(rgn);
       dQRegion.setEntry(
           VMThinRegionEntryHeap.getEntryFactory().createEntry((RegionEntryContext) rgn, 0, value));
       Object[] params = {dQRegion};
-      ExecutionContext context = new ExecutionContext(params, cache);
+      var context = new ExecutionContext(params, cache);
       context.newScope(IndexCreationHelper.INDEX_QUERY_SCOPE_ID);
       try {
         if (dependencyGraph != null) {
           context.setDependencyGraph(dependencyGraph);
         }
-        for (int i = 0; i < iteratorSize; i++) {
-          CompiledIteratorDef iterDef = (CompiledIteratorDef) fromIterators.get(i);
+        for (var i = 0; i < iteratorSize; i++) {
+          var iterDef = (CompiledIteratorDef) fromIterators.get(i);
           if (dependencyGraph == null) {
             iterDef.computeDependencies(context);
           }
-          RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+          var rIter = iterDef.getRuntimeIterator(context);
           context.addToIndependentRuntimeItrMapForIndexCreation(iterDef);
           context.bindIterator(rIter);
         }
@@ -1348,17 +1347,17 @@ public class CompactRangeIndex extends AbstractIndex {
     @Override
     public void evaluate(RegionEntry target, boolean add) throws IMQException {
       assert !target.isInvalid() : "value in RegionEntry should not be INVALID";
-      DummyQRegion dQRegion = new DummyQRegion(rgn);
+      var dQRegion = new DummyQRegion(rgn);
       dQRegion.setEntry(target);
       Object[] params = {dQRegion};
-      ExecutionContext context = new ExecutionContext(params, cache);
+      var context = new ExecutionContext(params, cache);
       context.newScope(IndexCreationHelper.INDEX_QUERY_SCOPE_ID);
       try {
         if (dependencyGraph != null) {
           context.setDependencyGraph(dependencyGraph);
         }
-        for (int i = 0; i < iteratorSize; i++) {
-          CompiledIteratorDef iterDef = (CompiledIteratorDef) fromIterators.get(i);
+        for (var i = 0; i < iteratorSize; i++) {
+          var iterDef = (CompiledIteratorDef) fromIterators.get(i);
           // We are re-using the same ExecutionContext on every evaluate -- this
           // is not how ExecutionContext was intended to be used.
           // Compute the dependency only once. The call to methods of this
@@ -1366,7 +1365,7 @@ public class CompactRangeIndex extends AbstractIndex {
           if (dependencyGraph == null) {
             iterDef.computeDependencies(context);
           }
-          RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+          var rIter = iterDef.getRuntimeIterator(context);
           context.addToIndependentRuntimeItrMapForIndexCreation(iterDef);
           context.bindIterator(rIter);
         }
@@ -1411,8 +1410,8 @@ public class CompactRangeIndex extends AbstractIndex {
         // scope ID of 1 , as otherwise if obtained from ExecutionContext
         // object, it will get incremented on very index initialization
         initContext.newScope(1);
-        for (int i = 0; i < iteratorSize; i++) {
-          CompiledIteratorDef iterDef = (CompiledIteratorDef) indexInitIterators.get(i);
+        for (var i = 0; i < iteratorSize; i++) {
+          var iterDef = (CompiledIteratorDef) indexInitIterators.get(i);
           RuntimeIterator rIter = null;
           if (!hasInitOccurredOnce) {
             iterDef.computeDependencies(initContext);
@@ -1449,12 +1448,12 @@ public class CompactRangeIndex extends AbstractIndex {
       if (level == iteratorSize) {
         applyProjectionForIndexInit(runtimeIterators);
       } else {
-        RuntimeIterator rIter = (RuntimeIterator) runtimeIterators.get(level);
+        var rIter = (RuntimeIterator) runtimeIterators.get(level);
         Collection c = rIter.evaluateCollection(initContext);
         if (c == null) {
           return;
         }
-        for (final Object o : c) {
+        for (final var o : c) {
           rIter.setCurrent(o);
           doNestedIterationsForIndexInit(level + 1, runtimeIterators);
         }
@@ -1484,7 +1483,7 @@ public class CompactRangeIndex extends AbstractIndex {
             "Index creation canceled due to low memory");
       }
 
-      Object indexKey = isFirstItrOnEntry ? indexedExpr.evaluate(initContext)
+      var indexKey = isFirstItrOnEntry ? indexedExpr.evaluate(initContext)
           : modifiedIndexExpr.evaluate(initContext);
 
       if (indexKey == null) {
@@ -1503,7 +1502,7 @@ public class CompactRangeIndex extends AbstractIndex {
         temp = (NonTXEntry) (((RuntimeIterator) currentRuntimeIters.get(0))
             .evaluate(initContext));
       }
-      RegionEntry re = temp.getRegionEntry();
+      var re = temp.getRegionEntry();
       indexStore.addMapping(indexKey, re);
     }
 
@@ -1513,17 +1512,17 @@ public class CompactRangeIndex extends AbstractIndex {
     private void doNestedIterations(int level, boolean add, ExecutionContext context)
         throws TypeMismatchException, FunctionDomainException,
         NameResolutionException, QueryInvocationTargetException, IMQException {
-      List iterList = context.getCurrentIterators();
+      var iterList = context.getCurrentIterators();
       if (level == iteratorSize) {
         applyProjection(add, context);
       } else {
-        RuntimeIterator rIter = (RuntimeIterator) iterList.get(level);
+        var rIter = (RuntimeIterator) iterList.get(level);
         // System.out.println("Level = "+level+" Iter = "+rIter.getDef());
         Collection c = rIter.evaluateCollection(context);
         if (c == null) {
           return;
         }
-        for (final Object o : c) {
+        for (final var o : c) {
           rIter.setCurrent(o);
           doNestedIterations(level + 1, add, context);
         }
@@ -1536,7 +1535,7 @@ public class CompactRangeIndex extends AbstractIndex {
     private void applyProjection(boolean add, ExecutionContext context)
         throws FunctionDomainException, TypeMismatchException, NameResolutionException,
         QueryInvocationTargetException, IMQException {
-      Object indexKey = indexedExpr.evaluate(context);
+      var indexKey = indexedExpr.evaluate(context);
       if (indexKey == null) {
         indexKey = IndexManager.NULL;
       }
@@ -1546,7 +1545,7 @@ public class CompactRangeIndex extends AbstractIndex {
         setPdxStringFlag(indexKey);
       }
       indexKey = getPdxStringForIndexedPdxKeys(indexKey);
-      RegionEntry entry = ((DummyQRegion) context.getBindArgument(1)).getEntry();
+      var entry = ((DummyQRegion) context.getBindArgument(1)).getEntry();
       // Get thread local reverse map if available.
       OldKeyValuePair oldKeyValuePair = null;
       if (oldKeyValue != null) {
@@ -1588,13 +1587,13 @@ public class CompactRangeIndex extends AbstractIndex {
     // The struct type calculation is modified if the
     // 0th iterator is modified to make it dependent on Entry
     private ObjectType createIndexResultSetType() {
-      List currentIterators = initContext.getCurrentIterators();
-      int len = currentIterators.size();
+      var currentIterators = initContext.getCurrentIterators();
+      var len = currentIterators.size();
       ObjectType type = null;
-      ObjectType[] fieldTypes = new ObjectType[len];
-      int start = isFirstItrOnEntry ? 0 : 1;
+      var fieldTypes = new ObjectType[len];
+      var start = isFirstItrOnEntry ? 0 : 1;
       for (; start < len; start++) {
-        RuntimeIterator iter = (RuntimeIterator) currentIterators.get(start);
+        var iter = (RuntimeIterator) currentIterators.get(start);
         fieldTypes[start] = iter.getElementType();
       }
       if (!isFirstItrOnEntry) {

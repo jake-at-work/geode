@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -32,10 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStoreFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.DiskStoreImpl;
@@ -43,12 +39,10 @@ import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.PdxReader;
 import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
-import org.apache.geode.pdx.internal.PdxType;
 import org.apache.geode.pdx.internal.PdxUnreadData;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableCallable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.SerializationTest;
 
@@ -59,41 +53,41 @@ public class PdxDeleteFieldDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPdxDeleteFieldVersioning() throws Exception {
-    final String DS_NAME = "PdxDeleteFieldDUnitTestDiskStore";
-    final String DS_NAME2 = "PdxDeleteFieldDUnitTestDiskStore2";
+    final var DS_NAME = "PdxDeleteFieldDUnitTestDiskStore";
+    final var DS_NAME2 = "PdxDeleteFieldDUnitTestDiskStore2";
 
-    final Properties props = new Properties();
-    final int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    final var props = new Properties();
+    final var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS,
         "localhost[" + locatorPorts[0] + "],localhost[" + locatorPorts[1] + "]");
     props.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
 
-    final File f = new File(DS_NAME);
+    final var f = new File(DS_NAME);
     f.mkdir();
-    final File f2 = new File(DS_NAME2);
+    final var f2 = new File(DS_NAME2);
     f2.mkdir();
     filesToBeDeleted.add(DS_NAME);
     filesToBeDeleted.add(DS_NAME2);
 
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(1);
 
     vm1.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         disconnectFromDS();
         props.setProperty(START_LOCATOR, "localhost[" + locatorPorts[0] + "]");
-        final Cache cache =
+        final var cache =
             (new CacheFactory(props)).setPdxPersistent(true).setPdxDiskStore(DS_NAME).create();
-        DiskStoreFactory dsf = cache.createDiskStoreFactory();
+        var dsf = cache.createDiskStoreFactory();
         dsf.setDiskDirs(new File[] {f});
         dsf.create(DS_NAME);
         RegionFactory<String, PdxValue> rf1 =
             cache.createRegionFactory(RegionShortcut.REPLICATE_PERSISTENT);
         rf1.setDiskStoreName(DS_NAME);
-        Region<String, PdxValue> region1 = rf1.create("region1");
+        var region1 = rf1.create("region1");
         region1.put("key1", new PdxValue(1, 2L));
         return null;
       }
@@ -104,15 +98,15 @@ public class PdxDeleteFieldDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         disconnectFromDS();
         props.setProperty(START_LOCATOR, "localhost[" + locatorPorts[1] + "]");
-        final Cache cache = (new CacheFactory(props)).setPdxReadSerialized(true)
+        final var cache = (new CacheFactory(props)).setPdxReadSerialized(true)
             .setPdxPersistent(true).setPdxDiskStore(DS_NAME2).create();
-        DiskStoreFactory dsf = cache.createDiskStoreFactory();
+        var dsf = cache.createDiskStoreFactory();
         dsf.setDiskDirs(new File[] {f2});
         dsf.create(DS_NAME2);
         RegionFactory rf1 = cache.createRegionFactory(RegionShortcut.REPLICATE_PERSISTENT);
         rf1.setDiskStoreName(DS_NAME2);
-        Region region1 = rf1.create("region1");
-        Object v = region1.get("key1");
+        var region1 = rf1.create("region1");
+        var v = region1.get("key1");
         assertNotNull(v);
         cache.close();
         return null;
@@ -122,7 +116,7 @@ public class PdxDeleteFieldDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Cache cache = CacheFactory.getAnyInstance();
+        var cache = CacheFactory.getAnyInstance();
         if (cache != null && !cache.isClosed()) {
           cache.close();
         }
@@ -133,10 +127,10 @@ public class PdxDeleteFieldDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Collection<PdxType> types = DiskStoreImpl.pdxDeleteField(DS_NAME, new File[] {f},
+        var types = DiskStoreImpl.pdxDeleteField(DS_NAME, new File[] {f},
             PdxValue.class.getName(), "fieldToDelete");
         assertEquals(1, types.size());
-        PdxType pt = types.iterator().next();
+        var pt = types.iterator().next();
         assertEquals(PdxValue.class.getName(), pt.getClassName());
         assertEquals(null, pt.getPdxField("fieldToDelete"));
         return null;
@@ -147,15 +141,15 @@ public class PdxDeleteFieldDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         props.setProperty(START_LOCATOR, "localhost[" + locatorPorts[0] + "]");
-        final Cache cache =
+        final var cache =
             (new CacheFactory(props)).setPdxPersistent(true).setPdxDiskStore(DS_NAME).create();
-        DiskStoreFactory dsf = cache.createDiskStoreFactory();
+        var dsf = cache.createDiskStoreFactory();
         dsf.setDiskDirs(new File[] {f});
         dsf.create(DS_NAME);
         RegionFactory<String, PdxValue> rf1 =
             cache.createRegionFactory(RegionShortcut.REPLICATE_PERSISTENT);
         rf1.setDiskStoreName(DS_NAME);
-        Region<String, PdxValue> region1 = rf1.create("region1");
+        var region1 = rf1.create("region1");
         return null;
       }
     });
@@ -164,16 +158,16 @@ public class PdxDeleteFieldDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         props.setProperty(START_LOCATOR, "localhost[" + locatorPorts[1] + "]");
-        final Cache cache = (new CacheFactory(props)).setPdxReadSerialized(true)
+        final var cache = (new CacheFactory(props)).setPdxReadSerialized(true)
             .setPdxPersistent(true).setPdxDiskStore(DS_NAME2).create();
 
-        DiskStoreFactory dsf = cache.createDiskStoreFactory();
+        var dsf = cache.createDiskStoreFactory();
         dsf.setDiskDirs(new File[] {f2});
         dsf.create(DS_NAME2);
         RegionFactory rf1 = cache.createRegionFactory(RegionShortcut.REPLICATE_PERSISTENT);
         rf1.setDiskStoreName(DS_NAME2);
-        Region region1 = rf1.create("region1");
-        PdxInstance v = (PdxInstance) region1.get("key1");
+        var region1 = rf1.create("region1");
+        var v = (PdxInstance) region1.get("key1");
         assertNotNull(v);
         assertEquals(1, v.getField("value"));
         assertEquals(null, v.getField("fieldToDelete"));
@@ -185,7 +179,7 @@ public class PdxDeleteFieldDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Cache cache = CacheFactory.getAnyInstance();
+        var cache = CacheFactory.getAnyInstance();
         if (cache != null && !cache.isClosed()) {
           cache.close();
         }
@@ -196,7 +190,7 @@ public class PdxDeleteFieldDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public void preTearDownCacheTestCase() throws Exception {
-    for (String path : filesToBeDeleted) {
+    for (var path : filesToBeDeleted) {
       try {
         Files.delete(new File(path).toPath());
       } catch (IOException e) {
@@ -231,7 +225,7 @@ public class PdxDeleteFieldDUnitTest extends JUnit4CacheTestCase {
         fieldToDelete = reader.readLong("fieldToDelete");
       } else {
         fieldToDelete = 0L;
-        PdxUnreadData unread = (PdxUnreadData) reader.readUnreadFields();
+        var unread = (PdxUnreadData) reader.readUnreadFields();
         assertEquals(true, unread.isEmpty());
       }
     }

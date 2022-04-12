@@ -30,7 +30,7 @@ import org.apache.geode.cache.query.data.Position;
 
 public class Utils {
   public static String printResult(Object r) {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("Search Results\n");
     if (r == null) {
       sb.append("Result is NULL");
@@ -42,8 +42,8 @@ public class Utils {
     sb.append("Type = " + r.getClass().getName()).append("\n");
     if (r instanceof Collection) {
       sb.append("Size = " + ((Collection) r).size() + "\n");
-      int cnt = 1;
-      for (final Object value : (Collection) r) {
+      var cnt = 1;
+      for (final var value : (Collection) r) {
         sb.append((cnt++) + " type = " + value.getClass().getName()).append("\n");
         sb.append("  " + value + "\n");
       }
@@ -61,8 +61,8 @@ public class Utils {
    */
 
   public static PortfolioData[] createPortfolioData(final int cnt, final int cntDest) {
-    PortfolioData[] portfolio = new PortfolioData[cntDest];
-    for (int k = cnt; k < cntDest; k++) {
+    var portfolio = new PortfolioData[cntDest];
+    for (var k = cnt; k < cntDest; k++) {
       portfolio[k] = new PortfolioData(k);
     }
     return portfolio;
@@ -70,8 +70,8 @@ public class Utils {
 
   public static Portfolio[] createPortfoliosAndPositions(int count) {
     Position.cnt = 0; // reset Portfolio counter
-    Portfolio[] portfolios = new Portfolio[count];
-    for (int i = 0; i < count; i++) {
+    var portfolios = new Portfolio[count];
+    for (var i = 0; i < count; i++) {
       portfolios[i] = new Portfolio(i);
     }
     return portfolios;
@@ -79,8 +79,8 @@ public class Utils {
 
   public static NewPortfolio[] createNewPortfoliosAndPositions(int count) {
     Position.cnt = 0; // reset Portfolio counter
-    NewPortfolio[] portfolios = new NewPortfolio[count];
-    for (int i = 0; i < count; i++) {
+    var portfolios = new NewPortfolio[count];
+    for (var i = 0; i < count; i++) {
       portfolios[i] = new NewPortfolio("" + i, i);
     }
     return portfolios;

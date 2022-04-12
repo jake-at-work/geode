@@ -17,10 +17,7 @@ package org.apache.geode.management.internal.cli.functions;
 import java.io.File;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.snapshot.RegionSnapshotService;
-import org.apache.geode.cache.snapshot.SnapshotOptions;
 import org.apache.geode.cache.snapshot.SnapshotOptions.SnapshotFormat;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.CliFunction;
@@ -45,29 +42,29 @@ public class ImportDataFunction extends CliFunction<Object[]> {
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext<Object[]> context) throws Exception {
-    final Object[] args = context.getArguments();
+    final var args = context.getArguments();
     if (args.length < 4) {
       throw new IllegalStateException(
           "Arguments length does not match required length. Import command may have been sent from incompatible older version");
     }
-    final String regionName = (String) args[0];
-    final String importFileName = (String) args[1];
-    final boolean invokeCallbacks = (boolean) args[2];
-    final boolean parallel = (boolean) args[3];
+    final var regionName = (String) args[0];
+    final var importFileName = (String) args[1];
+    final var invokeCallbacks = (boolean) args[2];
+    final var parallel = (boolean) args[3];
 
     CliFunctionResult result;
     final Cache cache =
         ((InternalCache) context.getCache()).getCacheForProcessingClientRequests();
-    final Region<Object, Object> region = cache.getRegion(regionName);
-    final String hostName = cache.getDistributedSystem().getDistributedMember().getHost();
+    final var region = cache.getRegion(regionName);
+    final var hostName = cache.getDistributedSystem().getDistributedMember().getHost();
     if (region != null) {
-      RegionSnapshotService<Object, Object> snapshotService = region.getSnapshotService();
-      SnapshotOptions<Object, Object> options = snapshotService.createOptions();
+      var snapshotService = region.getSnapshotService();
+      var options = snapshotService.createOptions();
       options.invokeCallbacks(invokeCallbacks);
       options.setParallelMode(parallel);
-      File importFile = new File(importFileName);
+      var importFile = new File(importFileName);
       snapshotService.load(new File(importFileName), SnapshotFormat.GEODE, options);
-      String successMessage = CliStrings.format(CliStrings.IMPORT_DATA__SUCCESS__MESSAGE,
+      var successMessage = CliStrings.format(CliStrings.IMPORT_DATA__SUCCESS__MESSAGE,
           importFile.getCanonicalPath(), hostName, regionName);
       result = new CliFunctionResult(context.getMemberName(), CliFunctionResult.StatusState.OK,
           successMessage);

@@ -24,9 +24,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -67,12 +64,12 @@ public class FastLoggerParameterTypeBenchmark {
 
     FastLogger.setDelegating(false);
 
-    org.apache.logging.log4j.core.Logger coreLogger =
+    var coreLogger =
         (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
-    LoggerContext context = coreLogger.getContext();
+    var context = coreLogger.getContext();
 
-    Configuration configuration = context.getConfiguration();
-    LoggerConfig loggerConfig = configuration.getLoggerConfig(coreLogger.getName());
+    var configuration = context.getConfiguration();
+    var loggerConfig = configuration.getLoggerConfig(coreLogger.getName());
 
     loggerConfig.removeAppender("STDOUT");
     loggerConfig.setLevel(INFO);
@@ -87,10 +84,10 @@ public class FastLoggerParameterTypeBenchmark {
     string2 = "string2";
     map1 = new HashMap<>();
     map2 = new HashMap<>();
-    for (int i = 1; i <= 100; i++) {
+    for (var i = 1; i <= 100; i++) {
       map1.put("key" + i, "value" + i);
     }
-    for (int i = 1; i <= 100; i++) {
+    for (var i = 1; i <= 100; i++) {
       map2.put("key" + i, "value" + i);
     }
   }

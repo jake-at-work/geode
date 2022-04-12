@@ -28,7 +28,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.security.NotAuthorizedException;
 
@@ -76,10 +75,10 @@ public class InternalCacheForClientAccessTest {
   @Test
   public void getFilterProfileWithApplicationWorks() {
     when(delegate.getRegion("application", true)).thenReturn(applicationRegion);
-    FilterProfile filterProfile = mock(FilterProfile.class);
+    var filterProfile = mock(FilterProfile.class);
     when(applicationRegion.getFilterProfile()).thenReturn(filterProfile);
 
-    FilterProfile result = cache.getFilterProfile("application");
+    var result = cache.getFilterProfile("application");
 
     assertThat(result).isSameAs(filterProfile);
   }
@@ -315,7 +314,7 @@ public class InternalCacheForClientAccessTest {
   public void getReconnectedCacheReturnsNull() throws Exception {
     when(delegate.getReconnectedCache()).thenReturn(null);
 
-    Cache result = cache.getReconnectedCache();
+    var result = cache.getReconnectedCache();
 
     assertThat(result).isNull();
   }
@@ -324,7 +323,7 @@ public class InternalCacheForClientAccessTest {
   public void getReconnectedCacheReturnsWrappedCache() throws Exception {
     when(delegate.getReconnectedCache()).thenReturn(delegate);
 
-    Cache result = cache.getReconnectedCache();
+    var result = cache.getReconnectedCache();
 
     assertThat(result).isInstanceOf(InternalCacheForClientAccess.class);
   }

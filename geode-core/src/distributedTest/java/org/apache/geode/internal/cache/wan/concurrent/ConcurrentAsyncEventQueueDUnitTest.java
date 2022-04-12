@@ -37,7 +37,7 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
 
   @Test
   public void testConcurrentSerialAsyncEventQueueAttributes() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -53,7 +53,7 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
 
   @Test
   public void testConcurrentParallelAsyncEventQueueAttributesOrderPolicyKey() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -68,7 +68,7 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
 
   @Test
   public void testConcurrentParallelAsyncEventQueueAttributesOrderPolicyPartition() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -89,7 +89,7 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
 
   @Test
   public void testReplicatedSerialAsyncEventQueueWithMultipleDispatcherThreadsOrderPolicyKey() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -137,7 +137,7 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
 
   @Test
   public void testReplicatedSerialAsyncEventQueueWithMultipleDispatcherThreadsOrderPolicyThread() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -199,7 +199,7 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
   // Disabling test for bug #48323
   @Test
   public void testPartitionedParallelAsyncEventQueueWithMultipleDispatcherThreadsOrderPolicyKey() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
@@ -255,7 +255,7 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
   // Disabled test for bug #48323
   @Test
   public void testPartitionedParallelAsyncEventQueueWithMultipleDispatcherThreadsOrderPolicyPartition() {
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));

@@ -72,7 +72,7 @@ public abstract class AbstractGMSMessage<ID extends MemberIdentifier> implements
     if (getMulticast()) {
       return true;
     }
-    List<ID> recipients = getRecipients();
+    var recipients = getRecipients();
     return recipients == ALL_RECIPIENTS ||
         (recipients.size() == 1 && recipients.get(0) == ALL_RECIPIENTS);
   }

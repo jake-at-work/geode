@@ -40,7 +40,7 @@ public class GetTestMethodNameDistributedTest extends DistributedTestCase {
   public void testGetTestMethodNameInAllVMs() {
     assertGetTestMethodName("testGetTestMethodNameInAllVMs");
 
-    for (int vmIndex = 0; vmIndex < getVMCount(); vmIndex++) {
+    for (var vmIndex = 0; vmIndex < getVMCount(); vmIndex++) {
       getVM(vmIndex).invoke(() -> assertGetTestMethodName("testGetTestMethodNameInAllVMs"));
     }
   }

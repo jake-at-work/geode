@@ -62,18 +62,18 @@ public class NonDistinctOrderByPartitionedJUnitTest extends NonDistinctOrderByTe
 
   @Override
   public Region createRegion(String regionName, Class valueConstraint) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    AttributesFactory af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
     af.setValueConstraint(valueConstraint);
-    Region r1 = CacheUtils.createRegion(regionName, af.create(), false);
+    var r1 = CacheUtils.createRegion(regionName, af.create(), false);
     return r1;
 
   }
 
   @Test
   public void testOrderedResultsPartitionedRegion_Bug43514_1() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "select  * from " + SEPARATOR + "portfolio1 p order by status, ID desc",
         "select  * from " + SEPARATOR
@@ -124,22 +124,22 @@ public class NonDistinctOrderByPartitionedJUnitTest extends NonDistinctOrderByTe
             + "portfolio1 p, p.positions.values pos order by p.ID desc, pos.secId",
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    AttributesFactory af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
-    Region r1 = CacheUtils.createRegion("portfolio1", af.create(), false);
+    var r1 = CacheUtils.createRegion("portfolio1", af.create(), false);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(new Portfolio(i), new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
@@ -158,12 +158,12 @@ public class NonDistinctOrderByPartitionedJUnitTest extends NonDistinctOrderByTe
     qs.createIndex("i4", IndexType.FUNCTIONAL, "key.ID", SEPARATOR + "portfolio1.keys key");
     qs.createIndex("i5", IndexType.FUNCTIONAL, "key.status", SEPARATOR + "portfolio1.keys key");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
 
@@ -172,14 +172,14 @@ public class NonDistinctOrderByPartitionedJUnitTest extends NonDistinctOrderByTe
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
 
   @Test
   public void testOrderedResultsPartitionedRegion_Bug43514_2() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "select  status as st from " + SEPARATOR + "portfolio1 where ID > 0 order by status",
         "select  p.status as st from " + SEPARATOR
@@ -216,22 +216,22 @@ public class NonDistinctOrderByPartitionedJUnitTest extends NonDistinctOrderByTe
             + "portfolio1 p where p.ID > 0 and p.position1.secId != 'IBM' order by p.position1.secId"
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    AttributesFactory af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
-    Region r1 = CacheUtils.createRegion("portfolio1", af.create(), false);
+    var r1 = CacheUtils.createRegion("portfolio1", af.create(), false);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -248,12 +248,12 @@ public class NonDistinctOrderByPartitionedJUnitTest extends NonDistinctOrderByTe
     qs.createIndex("i3", IndexType.FUNCTIONAL, "p.position1.secId", SEPARATOR + "portfolio1 p");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
 
@@ -262,7 +262,7 @@ public class NonDistinctOrderByPartitionedJUnitTest extends NonDistinctOrderByTe
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }

@@ -25,9 +25,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.internal.GemFireVersion;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
 import org.apache.geode.test.version.VersionManager;
 
@@ -48,38 +46,38 @@ public class ClusterStartupRuleCanSpecifyOlderVersionsDUnitTest {
 
   @Test
   public void locatorVersioningTest() throws Exception {
-    MemberVM locator = csRule.startLocatorVM(0, version);
-    String locatorVMVersion = locator.getVM().getVersion();
-    String locatorActualVersion = locator.invoke(GemFireVersion::getGemFireVersion);
+    var locator = csRule.startLocatorVM(0, version);
+    var locatorVMVersion = locator.getVM().getVersion();
+    var locatorActualVersion = locator.invoke(GemFireVersion::getGemFireVersion);
     assertThat(locatorVMVersion).isEqualTo(version);
     assertThat(locatorActualVersion).isEqualTo(getDottedVersionString(version));
   }
 
   @Test
   public void serverVersioningTest() throws Exception {
-    MemberVM locator = csRule.startLocatorVM(0, version);
-    String locatorVMVersion = locator.getVM().getVersion();
-    String locatorActualVersion = locator.invoke(GemFireVersion::getGemFireVersion);
+    var locator = csRule.startLocatorVM(0, version);
+    var locatorVMVersion = locator.getVM().getVersion();
+    var locatorActualVersion = locator.invoke(GemFireVersion::getGemFireVersion);
     assertThat(locatorVMVersion).isEqualTo(version);
     assertThat(locatorActualVersion).isEqualTo(getDottedVersionString(version));
   }
 
   @Test
   public void serverWithEmbeddedLocatorVersioningTest() throws Exception {
-    MemberVM locator =
+    var locator =
         csRule.startServerVM(0, version, x -> x.withEmbeddedLocator().withJMXManager());
-    String locatorVMVersion = locator.getVM().getVersion();
-    String locatorActualVersion = locator.invoke(GemFireVersion::getGemFireVersion);
+    var locatorVMVersion = locator.getVM().getVersion();
+    var locatorActualVersion = locator.invoke(GemFireVersion::getGemFireVersion);
     assertThat(locatorVMVersion).isEqualTo(version);
     assertThat(locatorActualVersion).isEqualTo(getDottedVersionString(version));
   }
 
   @Test
   public void clientVersioningTest() throws Exception {
-    ClientVM locator = csRule.startClientVM(0, version, c -> {
+    var locator = csRule.startClientVM(0, version, c -> {
     });
-    String locatorVMVersion = locator.getVM().getVersion();
-    String locatorActualVersion = locator.invoke(GemFireVersion::getGemFireVersion);
+    var locatorVMVersion = locator.getVM().getVersion();
+    var locatorActualVersion = locator.invoke(GemFireVersion::getGemFireVersion);
     assertThat(locatorVMVersion).isEqualTo(version);
     assertThat(locatorActualVersion).isEqualTo(getDottedVersionString(version));
   }

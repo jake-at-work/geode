@@ -33,10 +33,7 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.TemporaryFolder;
 import org.xml.sax.Attributes;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 
@@ -74,10 +71,10 @@ public class CacheXmlParserJUnitTest {
    */
   @Test
   public void testGetDelegate() {
-    final TestCacheXmlParser cacheXmlParser = new TestCacheXmlParser();
+    final var cacheXmlParser = new TestCacheXmlParser();
     assertThat(cacheXmlParser.getDelegates()).as("delegates should be empty.").isEmpty();
 
-    final MockXmlParser delegate = (MockXmlParser) cacheXmlParser.getDelegate(NAMESPACE_URI);
+    final var delegate = (MockXmlParser) cacheXmlParser.getDelegate(NAMESPACE_URI);
     assertThat(delegate).as("Delegate should be found in classpath.").isNotNull();
     assertThat(cacheXmlParser.stack).as("Should have same stack as cacheXmlParser.")
         .isSameAs(delegate.stack);
@@ -90,7 +87,7 @@ public class CacheXmlParserJUnitTest {
     assertThat(cacheXmlParser.getDelegates().get(NAMESPACE_URI))
         .as("Cached delegate should match the one from get.").isSameAs(delegate);
 
-    final MockXmlParser delegate2 = (MockXmlParser) cacheXmlParser.getDelegate(NAMESPACE_URI);
+    final var delegate2 = (MockXmlParser) cacheXmlParser.getDelegate(NAMESPACE_URI);
     assertThat(delegate2).as("Delegate should be the same between gets.").isSameAs(delegate);
     assertThat(cacheXmlParser.getDelegates().size()).as("Should still be exactly 1 delegate.")
         .isEqualTo(1);
@@ -104,11 +101,11 @@ public class CacheXmlParserJUnitTest {
    */
   @Test
   public void testCacheXmlParserWithSimplePool() {
-    Properties nonDefault = new Properties();
+    var nonDefault = new Properties();
     nonDefault.setProperty(MCAST_PORT, "0"); // loner
 
     assertThatCode(() -> {
-      ClientCache cache = new ClientCacheFactory(nonDefault).set("cache-xml-file",
+      var cache = new ClientCacheFactory(nonDefault).set("cache-xml-file",
           "xmlcache/CacheXmlParserJUnitTest.testSimpleClientCacheXml.cache.xml").create();
       cache.close();
     }).doesNotThrowAnyException();
@@ -130,11 +127,10 @@ public class CacheXmlParserJUnitTest {
 
   @Test
   public void cacheXmlParserShouldCorrectlyHandleWithMultiplePools() {
-    Properties nonDefault = new Properties();
+    var nonDefault = new Properties();
     nonDefault.setProperty(MCAST_PORT, "0"); // loner
 
-
-    ClientCache cache = new ClientCacheFactory(nonDefault).set("cache-xml-file",
+    var cache = new ClientCacheFactory(nonDefault).set("cache-xml-file",
         "xmlcache/CacheXmlParserJUnitTest.testMultiplePools.cache.xml").create();
     assertThat(cache.getRegion("regionOne").getAttributes().getPoolName()).isEqualTo("poolOne");
     assertThat(cache.getRegion("regionTwo").getAttributes().getPoolName()).isEqualTo("poolTwo");
@@ -143,7 +139,7 @@ public class CacheXmlParserJUnitTest {
 
   @Test
   public void cacheXmlParserShouldThrowExceptionWhenPoolDoesNotExist() {
-    Properties nonDefault = new Properties();
+    var nonDefault = new Properties();
     nonDefault.setProperty(MCAST_PORT, "0"); // loner
 
     assertThatThrownBy(() -> new ClientCacheFactory(nonDefault).set("cache-xml-file",
@@ -154,16 +150,16 @@ public class CacheXmlParserJUnitTest {
 
   @Test
   public void cacheXmlParserShouldCorrectlyHandleDiskUsageWarningPercentage() {
-    String diskStoreName = "myDiskStore";
+    var diskStoreName = "myDiskStore";
     System.setProperty("DISK_STORE_NAME", diskStoreName);
     System.setProperty("DISK_STORE_DIRECTORY", temporaryFolderRule.getRoot().getAbsolutePath());
 
-    Cache cache =
+    var cache =
         new CacheFactory()
             .set("cache-xml-file",
                 "xmlcache/CacheXmlParserJUnitTest.testDiskUsageWarningPercentage.cache.xml")
             .create();
-    DiskStore diskStore = cache.findDiskStore(diskStoreName);
+    var diskStore = cache.findDiskStore(diskStoreName);
     assertThat(diskStore).isNotNull();
     assertThat(diskStore.getDiskUsageWarningPercentage()).isEqualTo(70);
     cache.close();
@@ -179,7 +175,7 @@ public class CacheXmlParserJUnitTest {
     CacheXmlParser.parse(getClass().getResourceAsStream(
         "CacheXmlParserJUnitTest.testDTDFallbackWithNonEnglishLocal.cache.xml"));
 
-    final Locale previousLocale = Locale.getDefault();
+    final var previousLocale = Locale.getDefault();
     try {
       Locale.setDefault(Locale.JAPAN);
       CacheXmlParser.parse(getClass().getResourceAsStream(

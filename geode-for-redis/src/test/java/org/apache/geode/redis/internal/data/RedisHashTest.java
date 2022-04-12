@@ -37,7 +37,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -66,45 +65,45 @@ public class RedisHashTest {
 
   @Test
   public void confirmSerializationIsStable() throws IOException, ClassNotFoundException {
-    RedisHash o1 = createRedisHash("k1", "v1", "k2", "v2");
+    var o1 = createRedisHash("k1", "v1", "k2", "v2");
     o1.setExpirationTimestampNoDelta(1000);
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     DataSerializer.writeObject(o1, out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
+    var in = new ByteArrayDataInput(out.toByteArray());
     RedisHash o2 = DataSerializer.readObject(in);
     assertThat(o2).isEqualTo(o1);
   }
 
   @Test
   public void equals_returnsFalse_givenDifferentExpirationTimes() {
-    RedisHash o1 = createRedisHash("k1", "v1", "k2", "v2");
+    var o1 = createRedisHash("k1", "v1", "k2", "v2");
     o1.setExpirationTimestampNoDelta(1000);
-    RedisHash o2 = createRedisHash("k1", "v1", "k2", "v2");
+    var o2 = createRedisHash("k1", "v1", "k2", "v2");
     o2.setExpirationTimestampNoDelta(999);
     assertThat(o1).isNotEqualTo(o2);
   }
 
   @Test
   public void equals_returnsFalse_givenDifferentValueBytes() {
-    RedisHash o1 = createRedisHash("k1", "v1", "k2", "v2");
+    var o1 = createRedisHash("k1", "v1", "k2", "v2");
     o1.setExpirationTimestampNoDelta(1000);
-    RedisHash o2 = createRedisHash("k1", "v1", "k2", "v3");
+    var o2 = createRedisHash("k1", "v1", "k2", "v3");
     o2.setExpirationTimestampNoDelta(1000);
     assertThat(o1).isNotEqualTo(o2);
   }
 
   @Test
   public void equals_returnsTrue_givenEqualValueBytesAndExpiration() {
-    RedisHash o1 = createRedisHash("k1", "v1", "k2", "v2");
+    var o1 = createRedisHash("k1", "v1", "k2", "v2");
     o1.setExpirationTimestampNoDelta(1000);
-    RedisHash o2 = createRedisHash("k1", "v1", "k2", "v2");
+    var o2 = createRedisHash("k1", "v1", "k2", "v2");
     o2.setExpirationTimestampNoDelta(1000);
     assertThat(o1).isEqualTo(o2);
   }
 
   @Test
   public void equals_returnsTrue_givenDifferentEmptyHashes() {
-    RedisHash o1 = new RedisHash(Collections.emptyList());
+    var o1 = new RedisHash(Collections.emptyList());
     RedisHash o2 = NullRedisDataStructures.NULL_REDIS_HASH;
     assertThat(o1).isEqualTo(o2);
     assertThat(o2).isEqualTo(o1);
@@ -117,10 +116,10 @@ public class RedisHashTest {
     Region<RedisKey, RedisData> region = Mockito.mock(PartitionedRegion.class);
     when(region.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
-    RedisHash o1 = createRedisHash("k1", "v1", "k2", "v2");
-    byte[] k3 = stringToBytes("k3");
-    byte[] v3 = stringToBytes("v3");
-    ArrayList<byte[]> adds = new ArrayList<>();
+    var o1 = createRedisHash("k1", "v1", "k2", "v2");
+    var k3 = stringToBytes("k3");
+    var v3 = stringToBytes("v3");
+    var adds = new ArrayList<byte[]>();
     adds.add(k3);
     adds.add(v3);
 
@@ -131,12 +130,12 @@ public class RedisHashTest {
   }
 
   private Object validateDeltaSerialization(InvocationOnMock invocation) throws IOException {
-    RedisHash value = invocation.getArgument(1, RedisHash.class);
+    var value = invocation.getArgument(1, RedisHash.class);
     assertThat(value.hasDelta()).isTrue();
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     value.toDelta(out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
-    RedisHash o2 = createRedisHash("k1", "v1", "k2", "v2");
+    var in = new ByteArrayDataInput(out.toByteArray());
+    var o2 = createRedisHash("k1", "v1", "k2", "v2");
     assertThat(o2).isNotEqualTo(value);
     o2.fromDelta(in);
     assertThat(o2).isEqualTo(value);
@@ -149,9 +148,9 @@ public class RedisHashTest {
     Region<RedisKey, RedisData> region = mock(PartitionedRegion.class);
     when(region.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
-    RedisHash o1 = createRedisHash("k1", "v1", "k2", "v2");
-    byte[] k1 = stringToBytes("k1");
-    ArrayList<byte[]> removes = new ArrayList<>();
+    var o1 = createRedisHash("k1", "v1", "k2", "v2");
+    var k1 = stringToBytes("k1");
+    var removes = new ArrayList<byte[]>();
     removes.add(k1);
 
     o1.hdel(region, null, removes);
@@ -167,7 +166,7 @@ public class RedisHashTest {
     Region<RedisKey, RedisData> region = mock(PartitionedRegion.class);
     when(region.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
-    RedisHash o1 = createRedisHash("k1", "v1", "k2", "v2");
+    var o1 = createRedisHash("k1", "v1", "k2", "v2");
 
     o1.setExpirationTimestamp(region, null, 999);
 
@@ -178,8 +177,8 @@ public class RedisHashTest {
   /************* HSCAN *************/
   @Test
   public void hscanReturnsCorrectNumberOfElements() {
-    RedisHash hash = createRedisHash("k1", "v1", "k2", "v2", "k3", "v3", "k4", "v4");
-    ImmutablePair<Integer, List<byte[]>> result = hash.hscan(null, 2, 0);
+    var hash = createRedisHash("k1", "v1", "k2", "v2", "k3", "v3", "k4", "v4");
+    var result = hash.hscan(null, 2, 0);
 
     assertThat(result.left).isNotEqualTo(0);
     assertThat(result.right).hasSize(4);
@@ -190,11 +189,11 @@ public class RedisHashTest {
 
   @Test
   public void hscanOnlyReturnsElementsMatchingPattern() {
-    RedisHash hash = createRedisHash("ak1", "v1", "k2", "v2", "ak3", "v3", "k4", "v4");
-    ImmutablePair<Integer, List<byte[]>> result =
+    var hash = createRedisHash("ak1", "v1", "k2", "v2", "ak3", "v3", "k4", "v4");
+    var result =
         hash.hscan(new GlobPattern(stringToBytes("a*")), 3, 0);
 
-    List<String> fieldsAndValues =
+    var fieldsAndValues =
         result.right.stream().map(Coder::bytesToString).collect(Collectors.toList());
 
     assertThat(fieldsAndValues).containsExactly("ak1", "v1", "ak3", "v3");
@@ -202,7 +201,7 @@ public class RedisHashTest {
 
   @Test
   public void hscanThrowsWhenReturnedArrayListLengthWouldExceedVMLimit() {
-    RedisHash hash = spy(new RedisHash());
+    var hash = spy(new RedisHash());
     doReturn(Integer.MAX_VALUE - 10).when(hash).hlen();
 
     assertThatThrownBy(() -> hash.hscan(null, Integer.MAX_VALUE - 10, 0))
@@ -217,8 +216,8 @@ public class RedisHashTest {
   // consider that increase before changing the constant.
   @Test
   public void constantBaseRedisHashOverhead_shouldEqualCalculatedOverhead() {
-    RedisHash hash = new RedisHash(Collections.emptyList());
-    RedisHash.Hash backingHash = new RedisHash.Hash(0);
+    var hash = new RedisHash(Collections.emptyList());
+    var backingHash = new RedisHash.Hash(0);
 
     assertThat(sizer.sizeof(hash) - sizer.sizeof(backingHash)).isEqualTo(REDIS_HASH_OVERHEAD);
   }
@@ -227,25 +226,25 @@ public class RedisHashTest {
 
   @Test
   public void should_calculateSize_equalToROSSize_ofIndividualInstanceWithSingleValue() {
-    ArrayList<byte[]> data = new ArrayList<>();
+    var data = new ArrayList<byte[]>();
     data.add(stringToBytes("field"));
     data.add(stringToBytes("valuethatisverylonggggggggg"));
 
-    RedisHash redisHash = new RedisHash(data);
+    var redisHash = new RedisHash(data);
 
-    final int expected = expectedSize(redisHash);
-    final int actual = redisHash.getSizeInBytes();
+    final var expected = expectedSize(redisHash);
+    final var actual = redisHash.getSizeInBytes();
 
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   public void should_calculateSize_equalToROSSize_ofIndividualInstanceWithMultipleValues() {
-    RedisHash redisHash =
+    var redisHash =
         createRedisHash("aSuperLongField", "value", "field", "aSuperLongValue");
 
-    final int expected = expectedSize(redisHash);
-    final int actual = redisHash.getSizeInBytes();
+    final var expected = expectedSize(redisHash);
+    final var actual = redisHash.getSizeInBytes();
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -256,18 +255,18 @@ public class RedisHashTest {
 
   @Test
   public void should_calculateSize_equalToROSSize_withManyEntries() {
-    final String baseField = "longerbase";
-    final String baseValue = "base";
+    final var baseField = "longerbase";
+    final var baseValue = "base";
 
-    ArrayList<byte[]> elements = new ArrayList<>();
-    for (int i = 0; i < 10_000; i++) {
+    var elements = new ArrayList<byte[]>();
+    for (var i = 0; i < 10_000; i++) {
       elements.add(stringToBytes(baseField + i));
       elements.add(stringToBytes(baseValue + i));
     }
-    RedisHash hash = new RedisHash(elements);
+    var hash = new RedisHash(elements);
 
     Integer actual = hash.getSizeInBytes();
-    int expected = expectedSize(hash);
+    var expected = expectedSize(hash);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -275,53 +274,53 @@ public class RedisHashTest {
   /******* put *******/
   @Test
   public void hsetShould_calculateSize_equalToSizeCalculatedInConstructor_forMultipleEntries() {
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    final String baseField = "field";
-    final String baseValue = "value";
+    final var key = new RedisKey(stringToBytes("key"));
+    final var baseField = "field";
+    final var baseValue = "value";
 
     final Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    final RedisData returnData = mock(RedisData.class);
+    final var returnData = mock(RedisData.class);
     when(region.put(any(), any())).thenReturn(returnData);
 
-    RedisHash hash = new RedisHash(Collections.emptyList());
+    var hash = new RedisHash(Collections.emptyList());
     List<byte[]> data = new ArrayList<>();
-    for (int i = 0; i < 10_000; i++) {
+    for (var i = 0; i < 10_000; i++) {
       data.add(stringToBytes((baseField + i)));
       data.add(stringToBytes((baseValue + i)));
     }
 
     hash.hset(region, key, data, false);
-    RedisHash expectedRedisHash = new RedisHash(new ArrayList<>(data));
+    var expectedRedisHash = new RedisHash(new ArrayList<>(data));
 
     assertThat(hash.getSizeInBytes()).isEqualTo(expectedRedisHash.getSizeInBytes());
   }
 
   @Test
   public void hsetShould_calculateSizeDifference_whenUpdatingExistingEntry_newIsShorterThanOld() {
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    final String field = "field";
-    final String initialValue = "initialValueThatIsMuchLongerThanFinalValue";
-    final String finalValue = "finalValue";
+    final var key = new RedisKey(stringToBytes("key"));
+    final var field = "field";
+    final var initialValue = "initialValueThatIsMuchLongerThanFinalValue";
+    final var finalValue = "finalValue";
 
     testThatSizeIsUpdatedWhenUpdatingValue(key, field, initialValue, finalValue);
   }
 
   @Test
   public void hsetShould_calculateSizeDifference_whenUpdatingExistingEntry_oldIsShorterThanNew() {
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    final String field = "field";
-    final String initialValue = "initialValue";
-    final String finalValue = "finalValueThatIsMuchLongerThanInitialValue";
+    final var key = new RedisKey(stringToBytes("key"));
+    final var field = "field";
+    final var initialValue = "initialValue";
+    final var finalValue = "finalValueThatIsMuchLongerThanInitialValue";
 
     testThatSizeIsUpdatedWhenUpdatingValue(key, field, initialValue, finalValue);
   }
 
   @Test
   public void hsetShould_calculateSizeDifference_whenUpdatingExistingEntry_valuesAreSameLength() {
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    final String field = "field";
-    final String initialValue = "initialValue";
-    final String finalValue = "finalValueee";
+    final var key = new RedisKey(stringToBytes("key"));
+    final var field = "field";
+    final var initialValue = "initialValue";
+    final var finalValue = "finalValueee";
 
     testThatSizeIsUpdatedWhenUpdatingValue(key, field, initialValue, finalValue);
   }
@@ -329,10 +328,10 @@ public class RedisHashTest {
   public void testThatSizeIsUpdatedWhenUpdatingValue(final RedisKey key, final String field,
       final String initialValue, final String finalValue) {
     final Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    final RedisData returnData = mock(RedisData.class);
+    final var returnData = mock(RedisData.class);
     when(region.put(any(RedisKey.class), any(RedisData.class))).thenReturn(returnData);
 
-    RedisHash hash = new RedisHash(Collections.emptyList());
+    var hash = new RedisHash(Collections.emptyList());
     List<byte[]> initialData = new ArrayList<>();
     initialData.add(stringToBytes(field));
     initialData.add(stringToBytes(initialValue));
@@ -349,9 +348,9 @@ public class RedisHashTest {
 
     assertThat(hash.getSizeInBytes()).isEqualTo(expectedSize(hash));
 
-    long expectedSizeChange = elementSizer.sizeof(Coder.stringToBytes(finalValue))
+    var expectedSizeChange = elementSizer.sizeof(Coder.stringToBytes(finalValue))
         - elementSizer.sizeof(Coder.stringToBytes(initialValue));
-    long actualSizeChange = hash.getSizeInBytes() - initialSize;
+    var actualSizeChange = hash.getSizeInBytes() - initialSize;
 
     assertThat(actualSizeChange).isEqualTo(expectedSizeChange);
   }
@@ -359,47 +358,47 @@ public class RedisHashTest {
   /******* put if absent *******/
   @Test
   public void putIfAbsentShould_calculateSizeEqualToSizeCalculatedInConstructor_forMultipleUniqueEntries() {
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    final String baseField = "field";
-    final String baseValue = "value";
+    final var key = new RedisKey(stringToBytes("key"));
+    final var baseField = "field";
+    final var baseValue = "value";
 
     final Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    final RedisData returnData = mock(RedisData.class);
+    final var returnData = mock(RedisData.class);
     when(region.put(any(RedisKey.class), any(RedisData.class))).thenReturn(returnData);
 
-    RedisHash hash = new RedisHash(Collections.emptyList());
+    var hash = new RedisHash(Collections.emptyList());
     List<byte[]> data = new ArrayList<>();
-    for (int i = 0; i < 10_000; i++) {
+    for (var i = 0; i < 10_000; i++) {
       data.add(stringToBytes((baseField + i)));
       data.add(stringToBytes((baseValue + i)));
     }
 
     hash.hset(region, key, data, true);
-    RedisHash expectedRedisHash = new RedisHash(new ArrayList<>(data));
+    var expectedRedisHash = new RedisHash(new ArrayList<>(data));
 
     assertThat(hash.getSizeInBytes()).isEqualTo(expectedRedisHash.getSizeInBytes());
   }
 
   @Test
   public void putIfAbsentShould_notChangeSize_whenSameDataIsSetTwice() {
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    final String baseField = "field";
-    final String baseValue = "value";
+    final var key = new RedisKey(stringToBytes("key"));
+    final var baseField = "field";
+    final var baseValue = "value";
 
     final Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    final RedisData returnData = mock(RedisData.class);
+    final var returnData = mock(RedisData.class);
     when(region.put(any(RedisKey.class), any(RedisData.class))).thenReturn(returnData);
 
-    RedisHash hash = new RedisHash(Collections.emptyList());
+    var hash = new RedisHash(Collections.emptyList());
     List<byte[]> data = new ArrayList<>();
-    for (int i = 0; i < 10_000; i++) {
+    for (var i = 0; i < 10_000; i++) {
       data.add(stringToBytes((baseField + i)));
       data.add(stringToBytes((baseValue + i)));
     }
 
     hash.hset(region, key, data, true);
 
-    int expectedSize = hash.getSizeInBytes();
+    var expectedSize = hash.getSizeInBytes();
 
     hash.hset(region, key, data, true);
 
@@ -408,28 +407,28 @@ public class RedisHashTest {
 
   @Test
   public void putIfAbsent_shouldNotChangeSize_whenPuttingToExistingFields() {
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    final String baseField = "field";
-    final String initialBaseValue = "value";
-    final String finalBaseValue = "longerValue";
+    final var key = new RedisKey(stringToBytes("key"));
+    final var baseField = "field";
+    final var initialBaseValue = "value";
+    final var finalBaseValue = "longerValue";
 
     final Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    final RedisData returnData = mock(RedisData.class);
+    final var returnData = mock(RedisData.class);
     when(region.put(any(RedisKey.class), any(RedisData.class))).thenReturn(returnData);
 
-    RedisHash hash = new RedisHash(Collections.emptyList());
+    var hash = new RedisHash(Collections.emptyList());
     List<byte[]> initialData = new ArrayList<>();
-    for (int i = 0; i < 10_000; i++) {
+    for (var i = 0; i < 10_000; i++) {
       initialData.add(stringToBytes((baseField + i)));
       initialData.add(stringToBytes((initialBaseValue + i)));
     }
 
     hash.hset(region, key, initialData, true);
 
-    int expectedSize = hash.getSizeInBytes();
+    var expectedSize = hash.getSizeInBytes();
 
     List<byte[]> finalData = new ArrayList<>();
-    for (int i = 0; i < 10_000; i++) {
+    for (var i = 0; i < 10_000; i++) {
       finalData.add(stringToBytes((baseField + i)));
       finalData.add(stringToBytes((finalBaseValue + i)));
     }
@@ -442,39 +441,39 @@ public class RedisHashTest {
   /******* remove *******/
   @Test
   public void sizeShouldDecrease_whenValueIsRemoved() {
-    final RedisKey key = new RedisKey(stringToBytes("key"));
-    final String baseField = "field";
-    final String baseValue = "value";
+    final var key = new RedisKey(stringToBytes("key"));
+    final var baseField = "field";
+    final var baseValue = "value";
     final Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    final RedisData returnData = mock(RedisData.class);
+    final var returnData = mock(RedisData.class);
     when(region.put(any(RedisKey.class), any(RedisData.class))).thenReturn(returnData);
 
     List<byte[]> data = new ArrayList<>();
     List<byte[]> dataToRemove = new ArrayList<>();
-    byte[] field1 = stringToBytes((baseField + 1));
-    byte[] value1 = stringToBytes((baseValue + 1));
-    byte[] field2 = stringToBytes((baseField + 2));
-    byte[] value2 = stringToBytes((baseValue + 2));
+    var field1 = stringToBytes((baseField + 1));
+    var value1 = stringToBytes((baseValue + 1));
+    var field2 = stringToBytes((baseField + 2));
+    var value2 = stringToBytes((baseValue + 2));
     data.add(field1);
     data.add(value1);
     data.add(field2);
     data.add(value2);
     dataToRemove.add(field1);
 
-    RedisHash redisHash = new RedisHash(data);
+    var redisHash = new RedisHash(data);
 
-    int initialSize = redisHash.getSizeInBytes();
+    var initialSize = redisHash.getSizeInBytes();
 
     redisHash.hdel(region, key, dataToRemove);
 
-    int finalSize = redisHash.getSizeInBytes();
+    var finalSize = redisHash.getSizeInBytes();
     assertThat(finalSize).isLessThan(initialSize);
 
     assertThat(finalSize).isEqualTo(expectedSize(redisHash));
   }
 
   private RedisHash createRedisHash(String... keysAndValues) {
-    final List<byte[]> keysAndValuesList = Arrays
+    final var keysAndValuesList = Arrays
         .stream(keysAndValues)
         .map(Coder::stringToBytes)
         .collect(Collectors.toList());

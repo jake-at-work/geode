@@ -30,7 +30,6 @@ import io.micrometer.core.instrument.Timer;
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.distributed.internal.DistributionStats;
@@ -105,9 +104,9 @@ public class FunctionStatsImpl implements FunctionStats {
   private static final int functionExecutionExceptionsId;
 
   static {
-    String statDescription = "This is the stats for the individual Function's Execution";
+    var statDescription = "This is the stats for the individual Function's Execution";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     STATISTICS_TYPE = f.createType(STATISTICS_NAME, statDescription, new StatisticDescriptor[] {
         f.createIntCounter(FUNCTION_EXECUTIONS_COMPLETED,
@@ -267,7 +266,7 @@ public class FunctionStatsImpl implements FunctionStats {
 
   @Override
   public void endFunctionExecution(long startTime, boolean haveResult) {
-    long elapsedNanos = clock.getAsLong() - startTime;
+    var elapsedNanos = clock.getAsLong() - startTime;
 
     successTimer.record(elapsedNanos, NANOSECONDS);
 
@@ -291,7 +290,7 @@ public class FunctionStatsImpl implements FunctionStats {
 
   @Override
   public void endFunctionExecutionWithException(long startTime, boolean haveResult) {
-    long elapsedNanos = clock.getAsLong() - startTime;
+    var elapsedNanos = clock.getAsLong() - startTime;
 
     failureTimer.record(elapsedNanos, NANOSECONDS);
 

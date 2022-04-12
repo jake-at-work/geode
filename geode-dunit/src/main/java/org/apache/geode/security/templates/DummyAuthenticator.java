@@ -47,13 +47,13 @@ public class DummyAuthenticator implements Authenticator {
   @Override
   public Principal authenticate(final Properties credentials, final DistributedMember member)
       throws AuthenticationFailedException {
-    final String userName = credentials.getProperty(UserPasswordAuthInit.USER_NAME);
+    final var userName = credentials.getProperty(UserPasswordAuthInit.USER_NAME);
     if (userName == null) {
       throw new AuthenticationFailedException("DummyAuthenticator: user name property ["
           + UserPasswordAuthInit.USER_NAME + "] not provided");
     }
 
-    final String password = credentials.getProperty(UserPasswordAuthInit.PASSWORD);
+    final var password = credentials.getProperty(UserPasswordAuthInit.PASSWORD);
     if (password == null) {
       throw new AuthenticationFailedException("DummyAuthenticator: password property ["
           + UserPasswordAuthInit.PASSWORD + "] not provided");

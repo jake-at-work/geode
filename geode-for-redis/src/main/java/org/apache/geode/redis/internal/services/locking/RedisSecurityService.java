@@ -49,13 +49,13 @@ public class RedisSecurityService {
   }
 
   public Subject login(ChannelId channelId, Properties properties) {
-    Subject subject = securityService.login(properties);
+    var subject = securityService.login(properties);
     subjects.put(channelId.asShortText(), subject);
     return subject;
   }
 
   public void logout(ChannelId channelId) {
-    Subject subject = subjects.remove(channelId.asShortText());
+    var subject = subjects.remove(channelId.asShortText());
     if (subject != null) {
       subject.logout();
     }

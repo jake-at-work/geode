@@ -55,10 +55,10 @@ public class SerialAsyncEventQueueImplJUnitTest {
   @Test
   public void testStopClearsStats() {
 
-    GatewaySenderAttributes attrs = new GatewaySenderAttributes();
-    String tempId = AsyncEventQueueImpl.ASYNC_EVENT_QUEUE_PREFIX + "id";
+    var attrs = new GatewaySenderAttributes();
+    var tempId = AsyncEventQueueImpl.ASYNC_EVENT_QUEUE_PREFIX + "id";
     attrs.setId(tempId);
-    SerialAsyncEventQueueImpl queue = new SerialAsyncEventQueueImpl(cache,
+    var queue = new SerialAsyncEventQueueImpl(cache,
         cache.getInternalDistributedSystem().getStatisticsManager(), cache.getStatisticsClock(),
         attrs);
     queue.getStatistics().incQueueSize(5);
@@ -81,10 +81,10 @@ public class SerialAsyncEventQueueImplJUnitTest {
 
   @Test
   public void testStopStart() {
-    GatewaySenderAttributes attrs = new GatewaySenderAttributes();
-    String tempId = AsyncEventQueueImpl.ASYNC_EVENT_QUEUE_PREFIX + "id";
+    var attrs = new GatewaySenderAttributes();
+    var tempId = AsyncEventQueueImpl.ASYNC_EVENT_QUEUE_PREFIX + "id";
     attrs.setId(tempId);
-    SerialAsyncEventQueueImpl queue = new SerialAsyncEventQueueImpl(cache,
+    var queue = new SerialAsyncEventQueueImpl(cache,
         cache.getInternalDistributedSystem().getStatisticsManager(), cache.getStatisticsClock(),
         attrs);
     queue.getStatistics().incQueueSize(5);

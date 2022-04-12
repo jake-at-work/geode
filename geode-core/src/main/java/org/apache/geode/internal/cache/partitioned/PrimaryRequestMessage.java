@@ -69,8 +69,8 @@ public class PrimaryRequestMessage extends PartitionMessage {
   public static PrimaryResponse send(Set recipients, PartitionedRegion r, int bucketId)
       throws ForceReattemptException {
     Assert.assertTrue(recipients != null, "PrimaryRequestMessage NULL recipient");
-    PrimaryResponse p = new PrimaryResponse(r.getSystem(), recipients);
-    PrimaryRequestMessage m = new PrimaryRequestMessage(recipients, r.getPRId(), p, bucketId);
+    var p = new PrimaryResponse(r.getSystem(), recipients);
+    var m = new PrimaryRequestMessage(recipients, r.getPRId(), p, bucketId);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
 
     Set failures = r.getDistributionManager().putOutgoing(m);
@@ -194,7 +194,7 @@ public class PrimaryRequestMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof PrimaryRequestReplyMessage) {
-          PrimaryRequestReplyMessage reply = (PrimaryRequestReplyMessage) msg;
+          var reply = (PrimaryRequestReplyMessage) msg;
           if (reply.isPrimary) {
             this.msg = reply;
             if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -218,7 +218,7 @@ public class PrimaryRequestMessage extends PartitionMessage {
       try {
         waitForRepliesUninterruptibly();
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof CancelException) {
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
             logger.trace(LogMarker.DM_VERBOSE,

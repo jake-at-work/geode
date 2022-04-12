@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -66,14 +65,14 @@ public class PutAllPRMessageTest {
 
   @Test
   public void doPostPutAllCallsCheckReadinessBeforeAndAfter() throws Exception {
-    DistributedPutAllOperation distributedPutAllOperation = mock(DistributedPutAllOperation.class);
-    InternalDataView internalDataView = mock(InternalDataView.class);
+    var distributedPutAllOperation = mock(DistributedPutAllOperation.class);
+    var internalDataView = mock(InternalDataView.class);
     when(bucketRegion.getDataView()).thenReturn(internalDataView);
-    PutAllPRMessage putAllPRMessage = new PutAllPRMessage();
+    var putAllPRMessage = new PutAllPRMessage();
 
     putAllPRMessage.doPostPutAll(partitionedRegion, distributedPutAllOperation, bucketRegion, true);
 
-    InOrder inOrder = inOrder(partitionedRegion, internalDataView);
+    var inOrder = inOrder(partitionedRegion, internalDataView);
     inOrder.verify(partitionedRegion).checkReadiness();
     inOrder.verify(internalDataView).postPutAll(any(), any(), any());
     inOrder.verify(partitionedRegion).checkReadiness();
@@ -81,14 +80,14 @@ public class PutAllPRMessageTest {
 
   @Test(expected = PrimaryBucketException.class)
   public void lockedKeysAreRemoved() throws Exception {
-    PutAllPRMessage message = spy(new PutAllPRMessage(bucketId, 1, false, false, false, null));
+    var message = spy(new PutAllPRMessage(bucketId, 1, false, false, false, null));
     message.addEntry(entryData);
     doReturn(keys).when(message).getKeysToBeLocked();
     when(bucketRegion.waitUntilLocked(keys)).thenReturn(true);
     when(bucketRegion.doLockForPrimary(false)).thenThrow(new PrimaryBucketException());
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(bucketRegion.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
     when(ids.getOffHeapStore()).thenReturn(null);
@@ -100,14 +99,14 @@ public class PutAllPRMessageTest {
 
   @Test
   public void removeAndNotifyKeysIsNotInvokedIfKeysNotLocked() throws Exception {
-    PutAllPRMessage message = spy(new PutAllPRMessage(bucketId, 1, false, false, false, null));
-    RegionDestroyedException regionDestroyedException = new RegionDestroyedException("", "");
+    var message = spy(new PutAllPRMessage(bucketId, 1, false, false, false, null));
+    var regionDestroyedException = new RegionDestroyedException("", "");
     message.addEntry(entryData);
     doReturn(keys).when(message).getKeysToBeLocked();
     when(bucketRegion.waitUntilLocked(keys)).thenThrow(regionDestroyedException);
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(bucketRegion.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
     when(ids.getOffHeapStore()).thenReturn(null);

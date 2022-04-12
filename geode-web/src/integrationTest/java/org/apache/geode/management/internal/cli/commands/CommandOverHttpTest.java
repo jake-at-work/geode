@@ -18,7 +18,6 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 import org.junit.Before;
@@ -28,7 +27,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.test.compiler.ClassBuilder;
 import org.apache.geode.test.junit.categories.GfshTest;
@@ -79,16 +77,16 @@ public class CommandOverHttpTest {
 
   @Test
   public void deployJar() throws Exception {
-    String className = "DeployCommandFunction";
-    String jarName = "deployCommand.jar";
-    File jar = temporaryFolder.newFile(jarName);
+    var className = "DeployCommandFunction";
+    var jarName = "deployCommand.jar";
+    var jar = temporaryFolder.newFile(jarName);
     new ClassBuilder().writeJarFromName(className, jar);
     gfshRule.executeAndAssertThat("deploy --jar=" + jar).statusIsSuccess();
   }
 
   @Test
   public void exportConfig() throws Exception {
-    String dir = temporaryFolder.getRoot().getAbsolutePath();
+    var dir = temporaryFolder.getRoot().getAbsolutePath();
     gfshRule.executeAndAssertThat("export config --dir=" + dir).statusIsSuccess()
         .containsOutput("File saved to " + Paths.get(dir, "server-cache.xml"))
         .containsOutput("File saved to " + Paths.get(dir, "server-gf.properties"));
@@ -96,7 +94,7 @@ public class CommandOverHttpTest {
 
   @Test
   public void commandEncodeDecodeProperly() throws Exception {
-    Region<Object, Object> testRegion =
+    var testRegion =
         server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("test");
     // this command would not fail because of parameter url encoding/decoding
     gfshRule.executeAndAssertThat("put --region=test --key='k 1' --value=#abdf%dgadf")

@@ -31,8 +31,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.SerializationException;
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.PoolManager;
@@ -40,9 +38,7 @@ import org.apache.geode.cache.client.ServerConnectivityException;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -79,7 +75,7 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
 
   @Before
   public void startUpServersAndClient() {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
 
     server0 = host.getVM(VersionManager.CURRENT_VERSION, 0);
     server1 = host.getVM(VersionManager.CURRENT_VERSION, 1);
@@ -87,7 +83,7 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
     client = host.getVM(VersionManager.CURRENT_VERSION, 3);
 
     // Start servers
-    for (VM vm : Arrays.asList(server0, server1, server2)) {
+    for (var vm : Arrays.asList(server0, server1, server2)) {
       vm.invoke((SerializableRunnableIF) this::configAndStartBridgeServer);
     }
 
@@ -108,26 +104,26 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
   public void testClientServerQuery() throws CacheException {
     // create pdx instance at servers
     server0.invoke(() -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < numberOfEntries; i++) {
+      var region = getRootRegion().getSubregion(regionName);
+      for (var i = 0; i < numberOfEntries; i++) {
         region.put("key-" + i, new TestObject(i, "vmware"));
       }
     });
 
     // Create client region
     client.invoke(() -> {
-      ClientCacheFactory cf = new ClientCacheFactory();
+      var cf = new ClientCacheFactory();
       cf.addPoolServer(hostName, port1);
       cf.addPoolServer(hostName, port2);
       cf.addPoolServer(hostName, port0);
       cf.setPdxReadSerialized(false);
-      ClientCache clientCache = getClientCache(cf);
-      Region<Object, Object> region =
+      var clientCache = getClientCache(cf);
+      var region =
           clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
 
       logger.info("### Executing Query on server: " + queryString[1] + ": from client region: "
           + region.getFullPath());
-      final int size = 100;
+      final var size = 100;
       IntStream.range(0, size).parallel().forEach(a -> {
         try {
           SelectResults<TestObjectThrowsPdxSerializationException> selectResults =
@@ -147,8 +143,8 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
       throws CacheException, InterruptedException {
     // create pdx instance at servers
     server0.invoke(() -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < numberOfEntries; i++) {
+      var region = getRootRegion().getSubregion(regionName);
+      for (var i = 0; i < numberOfEntries; i++) {
         region.put("key-" + i, new TestObject(i, "vmware"));
       }
     });
@@ -157,21 +153,21 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
     createPool(client, poolName, new String[] {hostName, hostName, hostName},
         new int[] {port0, port1, port2}, true);
 
-    final int size = 100;
-    AsyncInvocation[] asyncInvocationArray = new AsyncInvocation[size];
-    for (int i = 0; i < size; i++) {
+    final var size = 100;
+    var asyncInvocationArray = new AsyncInvocation[size];
+    for (var i = 0; i < size; i++) {
       asyncInvocationArray[i] =
           client.invokeAsync(() -> {
-            QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+            var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
             logger.info("### Executing Query on server: " + queryString[1]);
-            Query query = remoteQueryService.newQuery(queryString[1]);
+            var query = remoteQueryService.newQuery(queryString[1]);
             SelectResults<TestObjectThrowsPdxSerializationException> selectResults =
                 (SelectResults) query.execute();
             assertThat(selectResults.size()).isEqualTo(numberOfEntries);
           });
     }
 
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       asyncInvocationArray[i].await();
     }
     client
@@ -182,8 +178,8 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
   public void testRetrySucceedWithPdxSerializationException() throws CacheException {
     // create pdx instance at servers
     server0.invoke(() -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < numberOfEntries; i++) {
+      var region = getRootRegion().getSubregion(regionName);
+      for (var i = 0; i < numberOfEntries; i++) {
         region.put("key-" + i, new TestObjectThrowsPdxSerializationException());
       }
     });
@@ -197,9 +193,9 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
           GeodeGlossary.GEMFIRE_PREFIX + "enableQueryRetryOnPdxSerializationException", "true");
       try {
         TestObjectThrowsPdxSerializationException.throwExceptionOnDeserialization = true;
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
         logger.info("### Executing Query on server: " + queryString[1]);
-        Query query = remoteQueryService.newQuery(queryString[1]);
+        var query = remoteQueryService.newQuery(queryString[1]);
         SelectResults<TestObjectThrowsPdxSerializationException> selectResults =
             (SelectResults) query.execute();
         assertThat(selectResults.size()).isEqualTo(numberOfEntries);
@@ -220,8 +216,8 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
   public void testRetryNotEnabledBySystemProperty() throws CacheException {
     // create pdx instance at servers
     server0.invoke(() -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < numberOfEntries; i++) {
+      var region = getRootRegion().getSubregion(regionName);
+      for (var i = 0; i < numberOfEntries; i++) {
         region.put("key-" + i, new TestObjectThrowsPdxSerializationException());
       }
     });
@@ -235,9 +231,9 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
         // If the client did not explicitly specify GeodeGlossary.GEMFIRE_PREFIX +
         // "enableQueryRetryOnPdxSerializationException" to true, retry will not be enabled
         TestObjectThrowsPdxSerializationException.throwExceptionOnDeserialization = true;
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
         logger.info("### Executing Query on server: " + queryString[1]);
-        Query query = remoteQueryService.newQuery(queryString[1]);
+        var query = remoteQueryService.newQuery(queryString[1]);
         assertThatThrownBy(query::execute).isInstanceOf(ServerOperationException.class)
             .hasCauseInstanceOf(SerializationException.class);
         assertThat(TestObjectThrowsPdxSerializationException.numInstance.get()).isEqualTo(1);
@@ -254,8 +250,8 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
   public void testNotToRetryOnRegularSerializationException() throws CacheException {
     // create pdx instance at servers
     server0.invoke(() -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < numberOfEntries; i++) {
+      var region = getRootRegion().getSubregion(regionName);
+      for (var i = 0; i < numberOfEntries; i++) {
         region.put("key-" + i, new TestObjectThrowsSerializationException());
       }
     });
@@ -269,9 +265,9 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
         System.setProperty(
             GeodeGlossary.GEMFIRE_PREFIX + "enableQueryRetryOnPdxSerializationException", "true");
         TestObjectThrowsSerializationException.throwExceptionOnDeserialization = true;
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
         logger.info("### Executing Query on server: " + queryString[1]);
-        Query query = remoteQueryService.newQuery(queryString[1]);
+        var query = remoteQueryService.newQuery(queryString[1]);
         assertThatThrownBy(query::execute).isInstanceOf(ServerOperationException.class)
             .hasCauseInstanceOf(SerializationException.class);
         assertThat(TestObjectThrowsSerializationException.numInstance.get()).isEqualTo(1);
@@ -290,8 +286,8 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
   public void testRetryFailedWithServerConnectivityException() throws CacheException {
     // create pdx instance at servers
     server0.invoke(() -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < numberOfEntries; i++) {
+      var region = getRootRegion().getSubregion(regionName);
+      for (var i = 0; i < numberOfEntries; i++) {
         region.put("key-" + i, new TestObjectThrowsPdxSerializationException());
       }
     });
@@ -305,9 +301,9 @@ public class PdxMultiThreadQueryDUnitTest extends PDXQueryTestBase {
         System.setProperty(
             GeodeGlossary.GEMFIRE_PREFIX + "enableQueryRetryOnPdxSerializationException", "true");
         TestObjectThrowsPdxSerializationException.throwExceptionOnDeserialization = true;
-        QueryService remoteQueryService = (PoolManager.find(poolName)).getQueryService();
+        var remoteQueryService = (PoolManager.find(poolName)).getQueryService();
         logger.info("### Executing Query on server: " + queryString[1]);
-        Query query = remoteQueryService.newQuery(queryString[1]);
+        var query = remoteQueryService.newQuery(queryString[1]);
         assertThatThrownBy(query::execute).isInstanceOf(ServerConnectivityException.class);
         assertThat(TestObjectThrowsPdxSerializationException.numInstance.get()).isEqualTo(2);
         assertThat(TestObjectThrowsPdxSerializationException.throwExceptionOnDeserialization)

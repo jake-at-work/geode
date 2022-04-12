@@ -16,8 +16,6 @@ package org.apache.geode.management.internal.beans;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -143,7 +141,7 @@ public class DistributedRegionBridge {
   public EvictionAttributesData getEvictionAttributes() {
 
     if (evictionAttributesData == null) {
-      Iterator<RegionMXBean> it = mapOfProxy.values().iterator();
+      var it = mapOfProxy.values().iterator();
       if (it != null) {
         while (it.hasNext()) {
           try {
@@ -168,7 +166,7 @@ public class DistributedRegionBridge {
   public FixedPartitionAttributesData[] getFixedPartitionAttributesData() {
 
     if (fixedPartitionAttributesTable == null) {
-      Iterator<RegionMXBean> it = mapOfProxy.values().iterator();
+      var it = mapOfProxy.values().iterator();
       if (it != null) {
         while (it.hasNext()) {
           try {
@@ -197,15 +195,15 @@ public class DistributedRegionBridge {
    * @return set of member ids on which this region is present.
    */
   public String[] getMembers() {
-    Iterator<ObjectName> it = mapOfProxy.keySet().iterator();
+    var it = mapOfProxy.keySet().iterator();
     if (it != null) {
       List<String> memberList = new ArrayList<>();
       while (it.hasNext()) {
-        ObjectName tempObjName = it.next();
-        String formatedMemberId = tempObjName.getKeyProperty("member");
+        var tempObjName = it.next();
+        var formatedMemberId = tempObjName.getKeyProperty("member");
         memberList.add(formatedMemberId);
       }
-      String[] members = new String[memberList.size()];
+      var members = new String[memberList.size()];
       return memberList.toArray(members);
     }
     return ManagementConstants.NO_DATA_STRING;
@@ -217,7 +215,7 @@ public class DistributedRegionBridge {
    */
   public MembershipAttributesData getMembershipAttributes() {
     if (membershipAttributesData == null) {
-      Iterator<RegionMXBean> it = mapOfProxy.values().iterator();
+      var it = mapOfProxy.values().iterator();
       if (it != null) {
         while (it.hasNext()) {
           try {
@@ -260,14 +258,14 @@ public class DistributedRegionBridge {
    * @return String array of sub region paths
    */
   public String[] listSubRegionPaths(boolean recursive) {
-    String[] subRegionPathsArr = new String[0];
+    var subRegionPathsArr = new String[0];
 
-    Collection<RegionMXBean> proxies = mapOfProxy.values();
+    var proxies = mapOfProxy.values();
     // Need to go through all proxies as different proxies could have different sub-regions
     if (proxies != null && !proxies.isEmpty()) {
       SortedSet<String> subRegionPaths = new TreeSet<>();
-      for (RegionMXBean regionMXBean : proxies) {
-        String[] listSubRegionPaths = regionMXBean.listSubregionPaths(recursive);
+      for (var regionMXBean : proxies) {
+        var listSubRegionPaths = regionMXBean.listSubregionPaths(recursive);
         subRegionPaths.addAll(Arrays.asList(listSubRegionPaths)); // Little cosly, but how can it be
                                                                   // avoided?
       }
@@ -285,7 +283,7 @@ public class DistributedRegionBridge {
   public PartitionAttributesData getPartitionAttributes() {
 
     if (partitionAttributesData == null) {
-      Iterator<RegionMXBean> it = mapOfProxy.values().iterator();
+      var it = mapOfProxy.values().iterator();
       if (it != null) {
         while (it.hasNext()) {
           try {
@@ -310,7 +308,7 @@ public class DistributedRegionBridge {
    */
   public RegionAttributesData getRegionAttributes() {
     if (regionAttributesData == null) {
-      Iterator<RegionMXBean> it = mapOfProxy.values().iterator();
+      var it = mapOfProxy.values().iterator();
       if (it != null) {
         while (it.hasNext()) {
           try {
@@ -634,12 +632,12 @@ public class DistributedRegionBridge {
   }
 
   public int getEmptyNodes() {
-    Iterator<RegionMXBean> it = mapOfProxy.values().iterator();
+    var it = mapOfProxy.values().iterator();
 
-    int emptyNodes = 0;
+    var emptyNodes = 0;
     if (it != null) {
       while (it.hasNext()) {
-        RegionMXBean bean = it.next();
+        var bean = it.next();
         if (bean.getRegionType().equals(DataPolicy.EMPTY.toString())) {
           emptyNodes++;
         }

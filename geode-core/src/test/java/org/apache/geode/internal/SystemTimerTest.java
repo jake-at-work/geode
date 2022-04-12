@@ -50,7 +50,7 @@ public class SystemTimerTest {
   @Test
   public void cancelTimer() {
     assertThat(systemTimer.isCancelled()).isFalse();
-    int initialSystemCount = SystemTimer.distributedSystemCount();
+    var initialSystemCount = SystemTimer.distributedSystemCount();
     SystemTimer.cancelTimers(distributedSystem);
     assertThat(systemTimer.isCancelled()).isTrue();
     assertThat(SystemTimer.distributedSystemCount()).isEqualTo(initialSystemCount - 1);
@@ -65,8 +65,8 @@ public class SystemTimerTest {
 
   @Test
   public void scheduleNow() {
-    AtomicBoolean hasRun = new AtomicBoolean(false);
-    SystemTimer.SystemTimerTask task = new SystemTimer.SystemTimerTask() {
+    var hasRun = new AtomicBoolean(false);
+    var task = new SystemTimer.SystemTimerTask() {
       @Override
       public void run2() {
         hasRun.set(true);
@@ -78,15 +78,15 @@ public class SystemTimerTest {
 
   @Test
   public void scheduleWithDelay() {
-    AtomicBoolean hasRun = new AtomicBoolean(false);
-    SystemTimer.SystemTimerTask task = new SystemTimer.SystemTimerTask() {
+    var hasRun = new AtomicBoolean(false);
+    var task = new SystemTimer.SystemTimerTask() {
       @Override
       public void run2() {
         hasRun.set(true);
       }
     };
-    final long millis = System.currentTimeMillis();
-    final int delay = 1000;
+    final var millis = System.currentTimeMillis();
+    final var delay = 1000;
     systemTimer.schedule(task, delay);
     await().until(hasRun::get);
     assertThat(System.currentTimeMillis()).isGreaterThanOrEqualTo(millis + delay);
@@ -94,16 +94,16 @@ public class SystemTimerTest {
 
   @Test
   public void scheduleWithDate() {
-    AtomicBoolean hasRun = new AtomicBoolean(false);
-    SystemTimer.SystemTimerTask task = new SystemTimer.SystemTimerTask() {
+    var hasRun = new AtomicBoolean(false);
+    var task = new SystemTimer.SystemTimerTask() {
       @Override
       public void run2() {
         hasRun.set(true);
       }
     };
-    final long millis = System.currentTimeMillis();
+    final var millis = System.currentTimeMillis();
     final long delay = 1000;
-    final Date scheduleTime = new Date(System.currentTimeMillis() + delay);
+    final var scheduleTime = new Date(System.currentTimeMillis() + delay);
     systemTimer.schedule(task, scheduleTime);
     await().until(hasRun::get);
     assertThat(System.currentTimeMillis()).isGreaterThanOrEqualTo(millis + delay);
@@ -111,16 +111,16 @@ public class SystemTimerTest {
 
   @Test
   public void scheduleRepeatedWithDelay() {
-    AtomicInteger invocations = new AtomicInteger(0);
-    SystemTimer.SystemTimerTask task = new SystemTimer.SystemTimerTask() {
+    var invocations = new AtomicInteger(0);
+    var task = new SystemTimer.SystemTimerTask() {
       @Override
       public void run2() {
         invocations.incrementAndGet();
       }
     };
-    final long millis = System.currentTimeMillis();
-    final int delay = 1000;
-    final int period = 500;
+    final var millis = System.currentTimeMillis();
+    final var delay = 1000;
+    final var period = 500;
     systemTimer.schedule(task, delay, period);
     await().untilAsserted(() -> assertThat(invocations.get()).isGreaterThanOrEqualTo(2));
     assertThat(System.currentTimeMillis()).isGreaterThanOrEqualTo(millis + delay + period);
@@ -128,16 +128,16 @@ public class SystemTimerTest {
 
   @Test
   public void scheduleAtFixedRate() {
-    AtomicInteger invocations = new AtomicInteger(0);
-    SystemTimer.SystemTimerTask task = new SystemTimer.SystemTimerTask() {
+    var invocations = new AtomicInteger(0);
+    var task = new SystemTimer.SystemTimerTask() {
       @Override
       public void run2() {
         invocations.incrementAndGet();
       }
     };
-    final long millis = System.currentTimeMillis();
-    final int delay = 1000;
-    final int period = 500;
+    final var millis = System.currentTimeMillis();
+    final var delay = 1000;
+    final var period = 500;
     systemTimer.scheduleAtFixedRate(task, delay, period);
     await().untilAsserted(() -> assertThat(invocations.get()).isGreaterThanOrEqualTo(2));
     assertThat(System.currentTimeMillis()).isGreaterThanOrEqualTo(millis + delay + period);
@@ -145,8 +145,8 @@ public class SystemTimerTest {
 
   @Test
   public void cancelTask() {
-    AtomicInteger invocations = new AtomicInteger(0);
-    SystemTimer.SystemTimerTask task = new SystemTimer.SystemTimerTask() {
+    var invocations = new AtomicInteger(0);
+    var task = new SystemTimer.SystemTimerTask() {
       @Override
       public void run2() {
         invocations.incrementAndGet();

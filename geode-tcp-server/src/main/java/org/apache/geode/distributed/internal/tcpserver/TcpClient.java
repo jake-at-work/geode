@@ -87,7 +87,7 @@ public class TcpClient {
    */
   public void stop(HostAndPort hostAndPort) throws java.net.ConnectException {
     try {
-      ShutdownRequest request = new ShutdownRequest();
+      var request = new ShutdownRequest();
       requestToServer(hostAndPort, request, DEFAULT_REQUEST_TIMEOUT, true);
     } catch (java.net.ConnectException ce) {
       // must not be running, rethrow so the caller can handle.
@@ -109,8 +109,8 @@ public class TcpClient {
   @Deprecated
   public String[] getInfo(HostAndPort hostAndPort) {
     try {
-      InfoRequest request = new InfoRequest();
-      InfoResponse response =
+      var request = new InfoRequest();
+      var response =
           (InfoResponse) requireNonNull(
               requestToServer(hostAndPort, request, DEFAULT_REQUEST_TIMEOUT, true));
       return response.getInfo();
@@ -138,11 +138,11 @@ public class TcpClient {
   public @Nullable Object requestToServer(final @NotNull HostAndPort address,
       @NotNull Object request, final int timeout, final boolean replyExpected)
       throws IOException, ClassNotFoundException {
-    final long expirationTime = System.currentTimeMillis() + timeout;
+    final var expirationTime = System.currentTimeMillis() + timeout;
 
     // Get the GemFire version of the TcpServer first, before sending any other request.
-    final short serverVersionShort = getServerVersion(address, timeout);
-    KnownVersion serverVersion = getKnownVersionOrDefault(getVersion(serverVersionShort), null);
+    final var serverVersionShort = getServerVersion(address, timeout);
+    var serverVersion = getKnownVersionOrDefault(getVersion(serverVersionShort), null);
     final String debugVersionMessage;
     if (serverVersion == null) {
       serverVersion = KnownVersion.CURRENT;
@@ -153,7 +153,7 @@ public class TcpClient {
       debugVersionMessage = null;
     }
 
-    final int newTimeout = (int) (expirationTime - System.currentTimeMillis());
+    final var newTimeout = (int) (expirationTime - System.currentTimeMillis());
     if (newTimeout <= 0) {
       return null;
     }
@@ -168,13 +168,13 @@ public class TcpClient {
       throws IOException, ClassNotFoundException {
     logger.debug("TcpClient sending {} to {}", request, address);
 
-    final Socket sock = socketCreator.forCluster().connect(address, timeout, null, socketFactory);
+    final var sock = socketCreator.forCluster().connect(address, timeout, null, socketFactory);
     try {
       sock.setSoTimeout(timeout);
-      try (final DataOutputStream out = createDataOutputStream(sock, serverVersion)) {
+      try (final var out = createDataOutputStream(sock, serverVersion)) {
         sendRequest(out, serverVersionOrdinal, request);
         if (replyExpected) {
-          try (final DataInputStream in = createDataInputStream(sock, serverVersion)) {
+          try (final var in = createDataInputStream(sock, serverVersion)) {
             if (debugVersionMessage != null && logger.isDebugEnabled()) {
               logger.debug(debugVersionMessage);
             }
@@ -206,7 +206,7 @@ public class TcpClient {
   Object receiveResponse(final @NotNull DataInputStream in, final @NotNull HostAndPort address)
       throws IOException, ClassNotFoundException {
     try {
-      final Object response = objectDeserializer.readObject(in);
+      final var response = objectDeserializer.readObject(in);
       logger.debug("received response: {}", response);
       return response;
     } catch (EOFException ex) {
@@ -217,7 +217,7 @@ public class TcpClient {
 
   static @NotNull EOFException createEOFException(final @NotNull HostAndPort address,
       final @NotNull Exception cause) {
-    final EOFException exception = new EOFException("Locator at " + address
+    final var exception = new EOFException("Locator at " + address
         + " did not respond. This is normal if the locator was shutdown. If it wasn't check its log for exceptions.");
     exception.initCause(cause);
     return exception;
@@ -226,7 +226,7 @@ public class TcpClient {
   static @NotNull DataInputStream createDataInputStream(final @NotNull Socket sock,
       final @NotNull KnownVersion version)
       throws IOException {
-    DataInputStream in = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
+    var in = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
     if (version.isOlderThan(KnownVersion.CURRENT)) {
       in = new VersionedDataInputStream(in, version);
     }
@@ -235,7 +235,7 @@ public class TcpClient {
 
   static @NotNull DataOutputStream createDataOutputStream(final @NotNull Socket socket,
       final @NotNull KnownVersion version) throws IOException {
-    DataOutputStream out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+    var out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
     if (version.isOlderThan(KnownVersion.CURRENT)) {
       out = new VersionedDataOutputStream(out, version);
     }
@@ -245,7 +245,7 @@ public class TcpClient {
   @SuppressWarnings("RedundantThrows") // Thrown through rethrowFunction
   short getServerVersion(final @NotNull HostAndPort address, final int timeout) throws IOException {
     return computeIfAbsent(serverVersions, address, rethrowFunction((k) -> {
-      final Socket socket =
+      final var socket =
           socketCreator.forCluster().connect(address, timeout, null, socketFactory);
       try {
         socket.setSoTimeout(timeout);
@@ -260,8 +260,8 @@ public class TcpClient {
   Short getServerVersion(final @NotNull Socket socket)
       throws IOException {
     try (
-        final DataInputStream in = createDataInputStream(socket, KnownVersion.OLDEST);
-        final DataOutputStream out = createDataOutputStream(socket, KnownVersion.OLDEST)) {
+        final var in = createDataInputStream(socket, KnownVersion.OLDEST);
+        final var out = createDataOutputStream(socket, KnownVersion.OLDEST)) {
       return getServerVersion(in, out);
     }
   }

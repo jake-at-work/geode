@@ -39,7 +39,7 @@ public class GaugeAssert extends AbstractMeterAssert<GaugeAssert, Gauge> {
    * @throws AssertionError if the condition rejects the gauge's value
    */
   public GaugeAssert hasValue(Condition<? super Double> condition) {
-    double value = actual.value();
+    var value = actual.value();
     if (!condition.matches(value)) {
       failWithMessage("Expected gauge to have value <%s> but value was <%s>", condition, value);
     }

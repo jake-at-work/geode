@@ -35,7 +35,7 @@ public class SubRegionRequest extends RegionAdminRequest {
    * Returns a <code>SubRegionRequest</code> to be sent to the specified recipient.
    */
   public static SubRegionRequest create() {
-    SubRegionRequest m = new SubRegionRequest();
+    var m = new SubRegionRequest();
     return m;
   }
 

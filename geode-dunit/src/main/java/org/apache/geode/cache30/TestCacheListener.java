@@ -90,7 +90,7 @@ public abstract class TestCacheListener<K, V> extends TestCacheCallback
       if (eventHistory == null) {
         return Collections.emptyList();
       } else {
-        List<CacheEvent<K, V>> result = eventHistory;
+        var result = eventHistory;
         eventHistory = new ArrayList<>();
         return result;
       }
@@ -111,7 +111,7 @@ public abstract class TestCacheListener<K, V> extends TestCacheCallback
   }
 
   public void afterCreate2(EntryEvent<K, V> event) {
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
@@ -129,7 +129,7 @@ public abstract class TestCacheListener<K, V> extends TestCacheCallback
   }
 
   public void afterUpdate2(EntryEvent<K, V> event) {
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
@@ -147,7 +147,7 @@ public abstract class TestCacheListener<K, V> extends TestCacheCallback
   }
 
   public void afterInvalidate2(EntryEvent<K, V> event) {
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
@@ -170,7 +170,7 @@ public abstract class TestCacheListener<K, V> extends TestCacheCallback
   }
 
   public void afterDestroy2(EntryEvent<K, V> event) {
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
@@ -188,7 +188,7 @@ public abstract class TestCacheListener<K, V> extends TestCacheCallback
   }
 
   public void afterRegionInvalidate2(RegionEvent<K, V> event) {
-    String s = "Unexpected callback invocation";
+    var s = "Unexpected callback invocation";
     throw new UnsupportedOperationException(s);
   }
 
@@ -214,7 +214,7 @@ public abstract class TestCacheListener<K, V> extends TestCacheCallback
 
   public void afterRegionDestroy2(RegionEvent<K, V> event) {
     if (!event.getOperation().isClose()) {
-      String s = "Unexpected callback invocation";
+      var s = "Unexpected callback invocation";
       throw new UnsupportedOperationException(s);
     }
   }

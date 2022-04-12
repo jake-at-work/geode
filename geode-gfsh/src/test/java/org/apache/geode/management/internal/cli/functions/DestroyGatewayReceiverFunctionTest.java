@@ -63,7 +63,7 @@ public class DestroyGatewayReceiverFunctionTest {
     function.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getThrowable()).isNull();
     assertThat(result.getMessage()).isEqualTo("Gateway receiver not found.");
@@ -76,7 +76,7 @@ public class DestroyGatewayReceiverFunctionTest {
     function.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.getStatus(true)).contains("IGNORED");
     assertThat(result.getThrowable()).isNull();
     assertThat(result.getMessage()).isEqualTo("Gateway receiver not found.");
@@ -84,7 +84,7 @@ public class DestroyGatewayReceiverFunctionTest {
 
   @Test
   public void runningReceivers_stopCalledBeforeDestroying() {
-    GatewayReceiver receiver = mock(GatewayReceiver.class);
+    var receiver = mock(GatewayReceiver.class);
     Set<GatewayReceiver> receivers = new HashSet<>();
     receivers.add(receiver);
 
@@ -94,13 +94,13 @@ public class DestroyGatewayReceiverFunctionTest {
 
     verify(resultSender).lastResult(resultCaptor.capture());
     verify(receiver).stop();
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.getStatus(true)).isEqualTo("OK");
   }
 
   @Test
   public void stoppedReceivers_stopNotCalledBeforeDestroying() {
-    GatewayReceiver receiver = mock(GatewayReceiver.class);
+    var receiver = mock(GatewayReceiver.class);
     Set<GatewayReceiver> receivers = new HashSet<>();
     receivers.add(receiver);
 
@@ -110,7 +110,7 @@ public class DestroyGatewayReceiverFunctionTest {
 
     verify(resultSender).lastResult(resultCaptor.capture());
     verify(receiver, never()).stop();
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.getStatus(true)).isEqualTo("OK");
   }
 }

@@ -53,7 +53,7 @@ public class TestObjectWithIdentifier implements DataSerializable, Sizeable {
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof TestObjectWithIdentifier) {
-      TestObjectWithIdentifier other = (TestObjectWithIdentifier) obj;
+      var other = (TestObjectWithIdentifier) obj;
       return name.equals(other.name) && Arrays.equals(bytes, other.bytes);
     } else {
       return false;

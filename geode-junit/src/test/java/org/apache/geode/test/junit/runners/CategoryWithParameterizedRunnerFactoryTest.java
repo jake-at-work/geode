@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
-import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
 import org.junit.runner.manipulation.Filter;
@@ -112,21 +111,21 @@ public class CategoryWithParameterizedRunnerFactoryTest {
 
   @Test
   public void testBrokenCategoryAndParameterized() {
-    Request request = Request.aClass(BrokenCategoryClass.class);
-    ExposedParameterized runner = (ExposedParameterized) request.getRunner();
+    var request = Request.aClass(BrokenCategoryClass.class);
+    var runner = (ExposedParameterized) request.getRunner();
     request = request.filterWith(new CategoryFilter(
         (ExposedBlockJUnit4ClassRunnerWithParameters) runner.getChildren().get(0)));
-    Result result = new JUnitCore().run(request);
+    var result = new JUnitCore().run(request);
     assertEquals(2, result.getRunCount());
   }
 
   @Test
   public void testWorkingCategoryAndParameterized() {
-    Request request = Request.aClass(WorkingCategoryClass.class);
-    ExposedParameterized runner = (ExposedParameterized) request.getRunner();
+    var request = Request.aClass(WorkingCategoryClass.class);
+    var runner = (ExposedParameterized) request.getRunner();
     request =
         request.filterWith(new CategoryFilter((ExposedGetAnnotations) runner.getChildren().get(0)));
-    Result result = new JUnitCore().run(request);
+    var result = new JUnitCore().run(request);
     assertEquals(2, result.getRunCount());
   }
 
@@ -146,7 +145,7 @@ public class CategoryWithParameterizedRunnerFactoryTest {
 
       List<Annotation> runnerAnnotations = new ArrayList<>();
       Collections.addAll(runnerAnnotations, runner.getRunnerAnnotations());
-      for (Annotation a : description.getAnnotations()) {
+      for (var a : description.getAnnotations()) {
         if (runnerAnnotations.contains(a)) {
           return true;
         }

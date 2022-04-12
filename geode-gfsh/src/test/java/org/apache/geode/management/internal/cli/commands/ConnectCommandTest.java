@@ -392,7 +392,7 @@ public class ConnectCommandTest {
     when(operationInvoker.getRemoteGeodeSerializationVersion()).thenReturn("1.10");
     when(operationInvoker.isConnected()).thenReturn(true);
 
-    ResultModel resultModel = new ResultModel();
+    var resultModel = new ResultModel();
     when(connectCommand.jmxConnect(any(), anyBoolean(), any(), any(), anyBoolean()))
         .thenReturn(resultModel);
 
@@ -421,7 +421,7 @@ public class ConnectCommandTest {
         .thenThrow(new RuntimeException("serialization version not available"));
     when(operationInvoker.isConnected()).thenReturn(true);
 
-    ResultModel resultModel = new ResultModel();
+    var resultModel = new ResultModel();
     when(connectCommand.jmxConnect(any(), anyBoolean(), any(), any(), anyBoolean()))
         .thenReturn(resultModel);
 
@@ -465,7 +465,7 @@ public class ConnectCommandTest {
     when(operationInvoker.getRemoteGeodeSerializationVersion()).thenReturn("1.14.0");
     when(operationInvoker.isConnected()).thenReturn(true);
 
-    ResultModel resultModel = new ResultModel();
+    var resultModel = new ResultModel();
     when(connectCommand.jmxConnect(any(), anyBoolean(), any(), any(), anyBoolean()))
         .thenReturn(resultModel);
 

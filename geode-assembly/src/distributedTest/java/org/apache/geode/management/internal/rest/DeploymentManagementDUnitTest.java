@@ -20,7 +20,6 @@ import static org.apache.geode.test.junit.assertions.ClusterManagementListResult
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.junit.BeforeClass;
@@ -30,8 +29,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.examples.SimpleSecurityManager;
-import org.apache.geode.management.api.ClusterManagementGetResult;
-import org.apache.geode.management.api.ClusterManagementListResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Deployment;
@@ -39,8 +36,6 @@ import org.apache.geode.management.runtime.DeploymentInfo;
 import org.apache.geode.test.compiler.JarBuilder;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.ClusterManagementGetResultAssert;
-import org.apache.geode.test.junit.assertions.ClusterManagementListResultAssert;
 
 public class DeploymentManagementDUnitTest {
   @ClassRule
@@ -61,14 +56,14 @@ public class DeploymentManagementDUnitTest {
     group1Jar = new File(stagingDir, "group1.jar");
     group2Jar = new File(stagingDir, "group2.jar");
     clusterJar = new File(stagingDir, "cluster.jar");
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJarFromClassNames(group1Jar, "Class1");
     jarBuilder.buildJarFromClassNames(group2Jar, "Class2");
     jarBuilder.buildJarFromClassNames(clusterJar, "Class3");
 
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withSecurityManager(
         SimpleSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server1 = cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort).withProperty(
         DistributionConfig.GROUPS_NAME, "group1").withCredential("cluster", "cluster"));
     server2 = cluster.startServerVM(2, s -> s.withConnectionToLocator(locatorPort).withProperty(
@@ -80,8 +75,7 @@ public class DeploymentManagementDUnitTest {
         .setPassword("cluster")
         .build();
 
-
-    Deployment deployment = new Deployment();
+    var deployment = new Deployment();
     deployment.setFile(clusterJar);
     client.create(deployment);
 
@@ -96,8 +90,8 @@ public class DeploymentManagementDUnitTest {
 
   @Test
   public void listAll() {
-    ClusterManagementListResult<Deployment, DeploymentInfo> list = client.list(new Deployment());
-    ClusterManagementListResultAssert<Deployment, DeploymentInfo> resultAssert =
+    var list = client.list(new Deployment());
+    var resultAssert =
         assertManagementListResult(list).isSuccessful();
     resultAssert.hasConfigurations().extracting(Deployment::getFileName)
         .containsExactlyInAnyOrder("group1.jar", "group2.jar", "cluster.jar");
@@ -110,10 +104,10 @@ public class DeploymentManagementDUnitTest {
 
   @Test
   public void listByGroup() throws Exception {
-    Deployment filter = new Deployment();
+    var filter = new Deployment();
     filter.setGroup("group1");
-    ClusterManagementListResult<Deployment, DeploymentInfo> list = client.list(filter);
-    ClusterManagementListResultAssert<Deployment, DeploymentInfo> resultAssert =
+    var list = client.list(filter);
+    var resultAssert =
         assertManagementListResult(list).isSuccessful();
     resultAssert.hasConfigurations().extracting(Deployment::getFileName)
         .containsExactlyInAnyOrder("group1.jar");
@@ -125,21 +119,21 @@ public class DeploymentManagementDUnitTest {
 
   @Test
   public void listById() throws Exception {
-    Deployment filter = new Deployment();
+    var filter = new Deployment();
     filter.setFileName("cluster.jar");
 
-    ClusterManagementListResult<Deployment, DeploymentInfo> list = client.list(filter);
+    var list = client.list(filter);
 
-    ClusterManagementListResultAssert<Deployment, DeploymentInfo> resultAssert =
+    var resultAssert =
         assertManagementListResult(list).isSuccessful();
 
     assertThat(list.getConfigResult()).hasSize(1);
-    Deployment deployment = list.getConfigResult().get(0);
+    var deployment = list.getConfigResult().get(0);
     assertThat(deployment.getFileName()).isEqualTo("cluster.jar");
     assertThat(deployment.getDeployedBy()).isEqualTo("cluster");
     assertThat(deployment.getDeployedTime()).isNotNull();
 
-    List<DeploymentInfo> runtimeResult = resultAssert.getActual().getRuntimeResult();
+    var runtimeResult = resultAssert.getActual().getRuntimeResult();
     assertThat(runtimeResult)
         .extracting(DeploymentInfo::getJarLocation)
         .extracting(FilenameUtils::getName)
@@ -149,10 +143,10 @@ public class DeploymentManagementDUnitTest {
 
   @Test
   public void getById() throws Exception {
-    Deployment filter = new Deployment();
+    var filter = new Deployment();
     filter.setFileName("cluster.jar");
-    ClusterManagementGetResult<Deployment, DeploymentInfo> result = client.get(filter);
-    ClusterManagementGetResultAssert<Deployment, DeploymentInfo> resultAssert =
+    var result = client.get(filter);
+    var resultAssert =
         assertManagementGetResult(result).isSuccessful();
     resultAssert.hasConfiguration().extracting(Deployment::getFileName)
         .isEqualTo("cluster.jar");

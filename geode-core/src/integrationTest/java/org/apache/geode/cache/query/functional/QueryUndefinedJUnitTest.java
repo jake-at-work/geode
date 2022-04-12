@@ -31,7 +31,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.pdx.JSONFormatter;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -74,15 +73,15 @@ public class QueryUndefinedJUnitTest implements Serializable {
 
   private void executeQueryTest(Cache cache, String[] queries, int[] expectedResults) {
     CacheUtils.log("********Execute Query Test********");
-    QueryService queryService = cache.getQueryService();
+    var queryService = cache.getQueryService();
     Query query = null;
     String queryString = null;
-    int numQueries = queries.length;
+    var numQueries = queries.length;
     try {
-      for (int i = 0; i < numQueries; i++) {
+      for (var i = 0; i < numQueries; i++) {
         queryString = queries[i];
         query = queryService.newQuery(queries[i]);
-        SelectResults result = (SelectResults) query.execute();
+        var result = (SelectResults) query.execute();
         assertEquals(queries[i], expectedResults[i], result.size());
       }
     } catch (Exception e) {
@@ -200,18 +199,18 @@ public class QueryUndefinedJUnitTest implements Serializable {
   }
 
   private void createJSONData(Region region) throws ParseException {
-    String obj1 = "{\"_id\": \"10002\", \"age\": 26, \"flag\": true }";
-    String obj2 = "{\"_id\": \"10001\", \"age\": 25, \"flag\": true }";
-    String obj3 = "{\"_id\": \"10003\", \"flag\": true }";
+    var obj1 = "{\"_id\": \"10002\", \"age\": 26, \"flag\": true }";
+    var obj2 = "{\"_id\": \"10001\", \"age\": 25, \"flag\": true }";
+    var obj3 = "{\"_id\": \"10003\", \"flag\": true }";
     region.put("value1", JSONFormatter.fromJSON(obj1));
     region.put("value2", JSONFormatter.fromJSON(obj2));
     region.put("value3", JSONFormatter.fromJSON(obj3));
   }
 
   private void createObjectData(Region region) throws ParseException {
-    String obj1 = "{\"_id\": \"10002\", \"age\": 26, \"flag\": true }";
-    String obj2 = "{\"_id\": \"10001\", \"age\": 25, \"flag\": true }";
-    String obj3 = "{\"_id\": \"10003\", \"flag\": true }";
+    var obj1 = "{\"_id\": \"10002\", \"age\": 26, \"flag\": true }";
+    var obj2 = "{\"_id\": \"10001\", \"age\": 25, \"flag\": true }";
+    var obj3 = "{\"_id\": \"10003\", \"flag\": true }";
     region.put("value1", new PersonType1("10002", 26, true));
     region.put("value2", new PersonType1("10001", 25, true));
     region.put("value3", new PersonType2("10003", true));

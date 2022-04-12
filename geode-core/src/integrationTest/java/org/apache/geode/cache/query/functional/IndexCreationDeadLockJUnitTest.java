@@ -27,11 +27,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
@@ -65,7 +62,7 @@ public class IndexCreationDeadLockJUnitTest {
     testFailed = false;
     cause = "";
     exceptionInCreatingIndex = false;
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setValueConstraint(Portfolio.class);
 
@@ -101,15 +98,15 @@ public class IndexCreationDeadLockJUnitTest {
   @Test
   public void testIndexCreationDeadLockForDiskOnlyRegion() {
     region.destroyRegion();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setValueConstraint(Portfolio.class);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setIndexMaintenanceSynchronous(true);
-    File dir = new File("test");
+    var dir = new File("test");
     dir.mkdir();
-    DiskStoreFactory dsf = region.getCache().createDiskStoreFactory();
-    DiskStore ds1 = dsf.setDiskDirs(new File[] {dir}).create("ds1");
+    var dsf = region.getCache().createDiskStoreFactory();
+    var ds1 = dsf.setDiskDirs(new File[] {dir}).create("ds1");
     factory.setDiskStoreName("ds1");
     dir.deleteOnExit();
     region = CacheUtils.createRegion("portfolios", factory.create(), true);
@@ -124,7 +121,7 @@ public class IndexCreationDeadLockJUnitTest {
   @Test
   public void testIndexCreationDeadLockForStatsEnabledRegion() {
     region.destroyRegion();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setValueConstraint(Portfolio.class);
     factory.setStatisticsEnabled(true);
@@ -141,16 +138,16 @@ public class IndexCreationDeadLockJUnitTest {
   @Test
   public void testIndexCreationDeadLockForOverflowToDiskRegion() {
     region.destroyRegion();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setValueConstraint(Portfolio.class);
     factory.setEvictionAttributes(
         EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.OVERFLOW_TO_DISK));
     factory.setIndexMaintenanceSynchronous(true);
-    File dir = new File("test");
+    var dir = new File("test");
     dir.mkdir();
-    DiskStoreFactory dsf = region.getCache().createDiskStoreFactory();
-    DiskStore ds1 = dsf.setDiskDirs(new File[] {dir}).create("ds1");
+    var dsf = region.getCache().createDiskStoreFactory();
+    var ds1 = dsf.setDiskDirs(new File[] {dir}).create("ds1");
     factory.setDiskStoreName("ds1");
     dir.deleteOnExit();
     region = CacheUtils.createRegion("portfolios", factory.create(), true);
@@ -213,9 +210,9 @@ public class IndexCreationDeadLockJUnitTest {
     public void run() {
       try {
         System.out.println("--------------------- Populating Data -------------------------");
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           region.put(String.valueOf(i), new Portfolio(i));
-          Portfolio value = (Portfolio) region.get(String.valueOf(i));
+          var value = (Portfolio) region.get(String.valueOf(i));
           CacheUtils.log("value for key " + i + " is: " + value);
           CacheUtils.log("region.size(): - " + region.size());
         }
@@ -223,11 +220,11 @@ public class IndexCreationDeadLockJUnitTest {
 
         System.out.println(
             "---------------------Destroying & repopulating the data -------------------------");
-        AttributesMutator mutator =
+        var mutator =
             region.getAttributesMutator();
         mutator.setCacheWriter(new BeforeUpdateCallBack());
         CacheUtils.log("region.size(): - " + region.size());
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           region.destroy(String.valueOf(i));
           region.put(String.valueOf(i), new Portfolio(i + 20));
         }

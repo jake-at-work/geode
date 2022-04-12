@@ -29,19 +29,14 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.internal.cache.PartitionAttributesImpl;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.VM;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 
 /**
  * The purpose of RebalanceOperationComplexDistributedTest is to test rebalances
@@ -69,7 +64,7 @@ public class RebalanceOperationComplexPart2DistributedTest
   @Before
   public void setup() {
     // Start the locator
-    MemberVM locatorVM = clusterStartupRule.startLocatorVM(0);
+    var locatorVM = clusterStartupRule.startLocatorVM(0);
     locatorPort = locatorVM.getPort();
 
   }
@@ -92,7 +87,7 @@ public class RebalanceOperationComplexPart2DistributedTest
 
 
     // Startup the servers
-    for (Map.Entry<Integer, String> entry : SERVER_ZONE_MAP.entrySet()) {
+    for (var entry : SERVER_ZONE_MAP.entrySet()) {
       startServerInRedundancyZone(entry.getKey(), entry.getValue());
     }
 
@@ -100,7 +95,7 @@ public class RebalanceOperationComplexPart2DistributedTest
     clientPopulateServers();
 
     // Rebalance Server VM will initiate the rebalances in this test
-    VM server2 = clusterStartupRule.getVM(2);
+    var server2 = clusterStartupRule.getVM(2);
 
     // Take the server 1 offline
     clusterStartupRule.stop(1, false);
@@ -127,13 +122,13 @@ public class RebalanceOperationComplexPart2DistributedTest
         .isLessThanOrEqualTo(EXPECTED_BUCKET_COUNT / 2 + 1);
 
     // Verify that all bucket counts add up to what they should
-    int zoneABucketCount = getZoneABucketCount();
+    var zoneABucketCount = getZoneABucketCount();
     assertThat(zoneABucketCount).isEqualTo(EXPECTED_BUCKET_COUNT);
   }
 
   private int getBucketCount(int server) {
     return clusterStartupRule.getVM(server).invoke(() -> {
-      PartitionedRegion region =
+      var region =
           (PartitionedRegion) ClusterStartupRule.getCache().getRegion(REGION_NAME);
       return region.getLocalBucketsListTestOnly().size();
     });
@@ -145,20 +140,20 @@ public class RebalanceOperationComplexPart2DistributedTest
    * Startup a client to put all the data in the server regions
    */
   protected void clientPopulateServers() throws Exception {
-    Properties properties2 = new Properties();
-    ClientVM clientVM =
+    var properties2 = new Properties();
+    var clientVM =
         clusterStartupRule.startClientVM(SERVER_ZONE_MAP.size() + 1, properties2,
             ccf -> ccf.addPoolLocator("localhost", locatorPort));
 
     clientVM.invoke(() -> {
 
       Map<Integer, String> putMap = new HashMap<>();
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         putMap.put(i, "A");
       }
 
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      ClientRegionFactory<Object, Object> clientRegionFactory =
+      var clientCache = ClusterStartupRule.getClientCache();
+      var clientRegionFactory =
           clientCache.createClientRegionFactory(
               ClientRegionShortcut.PROXY);
       clientRegionFactory.create(REGION_NAME);
@@ -180,10 +175,10 @@ public class RebalanceOperationComplexPart2DistributedTest
         .withConnectionToLocator(locatorPort));
 
     VM.getVM(index).invoke(() -> {
-      RegionFactory<Object, Object> regionFactory =
+      var regionFactory =
           ClusterStartupRule.getCache().createRegionFactory(
               RegionShortcut.PARTITION_REDUNDANT);
-      PartitionAttributesImpl partitionAttributesImpl = new PartitionAttributesImpl();
+      var partitionAttributesImpl = new PartitionAttributesImpl();
       partitionAttributesImpl.setRedundantCopies(1);
       partitionAttributesImpl.setStartupRecoveryDelay(-1);
       partitionAttributesImpl.setRecoveryDelay(-1);
@@ -212,8 +207,8 @@ public class RebalanceOperationComplexPart2DistributedTest
    * @return - the total bucket count for the region in the redundancy zone
    */
   protected int getZoneABucketCount() {
-    int bucketCount = 0;
-    for (Map.Entry<Integer, String> entry : SERVER_ZONE_MAP.entrySet()) {
+    var bucketCount = 0;
+    for (var entry : SERVER_ZONE_MAP.entrySet()) {
       if (entry.getValue().compareTo(RebalanceOperationComplexPart2DistributedTest.ZONE_A) == 0) {
         bucketCount += getBucketCount(entry.getKey());
       }

@@ -17,7 +17,6 @@ package org.apache.geode.management.internal.functions;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.geode.cache.control.RestoreRedundancyOperation;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.cache.control.SerializableRestoreRedundancyResultsImpl;
 import org.apache.geode.internal.cache.execute.InternalFunction;
@@ -35,10 +34,10 @@ public class RestoreRedundancyFunction implements InternalFunction<Object[]> {
   // this would return the RestoreRedundancyResults if successful,
   // it will return an exception to the caller if status is failure or any exception happens
   public void execute(FunctionContext<Object[]> context) {
-    Object[] arguments = context.getArguments();
-    RestoreRedundancyRequest request = (RestoreRedundancyRequest) arguments[0];
-    boolean isStatusCommand = (boolean) arguments[1];
-    RestoreRedundancyOperation redundancyOperation =
+    var arguments = context.getArguments();
+    var request = (RestoreRedundancyRequest) arguments[0];
+    var isStatusCommand = (boolean) arguments[1];
+    var redundancyOperation =
         context.getCache().getResourceManager().createRestoreRedundancyOperation();
     Set<String> includeRegionsSet = null;
     if (request.getIncludeRegions() != null) {

@@ -45,10 +45,10 @@ public class SingleHopQuarterPartitionResolver
 
   @Override
   public String getPartitionName(EntryOperation opDetails, Set allAvailablePartitions) {
-    Date date = (Date) opDetails.getKey();
-    Calendar cal = Calendar.getInstance();
+    var date = (Date) opDetails.getKey();
+    var cal = Calendar.getInstance();
     cal.setTime(date);
-    int month = cal.get(Calendar.MONTH);
+    var month = cal.get(Calendar.MONTH);
     if (month == 0 || month == 1 || month == 2) {
       return "Q1";
     } else if (month == 3 || month == 4 || month == 5) {
@@ -69,10 +69,10 @@ public class SingleHopQuarterPartitionResolver
 
   @Override
   public Serializable getRoutingObject(EntryOperation opDetails) {
-    Date date = (Date) opDetails.getKey();
-    Calendar cal = Calendar.getInstance();
+    var date = (Date) opDetails.getKey();
+    var cal = Calendar.getInstance();
     cal.setTime(date);
-    int month = cal.get(Calendar.MONTH);
+    var month = cal.get(Calendar.MONTH);
     // if(true){
     // return month;
     // }
@@ -138,7 +138,7 @@ public class SingleHopQuarterPartitionResolver
     if (!obj.getClass().equals(getClass())) {
       return false;
     }
-    QuarterPartitionResolver other = (QuarterPartitionResolver) obj;
+    var other = (QuarterPartitionResolver) obj;
     return resolveProps.equals(other.getConfig());
   }
 

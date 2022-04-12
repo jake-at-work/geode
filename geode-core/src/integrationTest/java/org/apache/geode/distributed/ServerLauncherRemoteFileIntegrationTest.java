@@ -47,7 +47,7 @@ public class ServerLauncherRemoteFileIntegrationTest extends ServerLauncherRemot
   public void statusWithPidReturnsOnlineWithDetails() {
     givenRunningServer();
 
-    Throwable thrown = catchThrowable(() -> new Builder()
+    var thrown = catchThrowable(() -> new Builder()
         .setPid(getServerPid())
         .build()
         .status());
@@ -64,7 +64,7 @@ public class ServerLauncherRemoteFileIntegrationTest extends ServerLauncherRemot
   public void stopWithPidDeletesPidFile() {
     givenRunningServer();
 
-    Throwable thrown = catchThrowable(() -> new Builder()
+    var thrown = catchThrowable(() -> new Builder()
         .setPid(getServerPid())
         .build()
         .stop());
@@ -81,7 +81,7 @@ public class ServerLauncherRemoteFileIntegrationTest extends ServerLauncherRemot
   public void stopWithPidReturnsStopped() {
     givenRunningServer();
 
-    Throwable thrown = catchThrowable(() -> new Builder()
+    var thrown = catchThrowable(() -> new Builder()
         .setPid(getServerPid())
         .build()
         .stop());
@@ -98,7 +98,7 @@ public class ServerLauncherRemoteFileIntegrationTest extends ServerLauncherRemot
   public void stopWithPidStopsServerProcess() {
     givenRunningServer();
 
-    Throwable thrown = catchThrowable(() -> new Builder()
+    var thrown = catchThrowable(() -> new Builder()
         .setPid(getServerPid())
         .build()
         .stop());

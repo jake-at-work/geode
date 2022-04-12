@@ -21,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.pdx.internal.TypeRegistry;
 
 /**
  * A listener which will wipe out the PDX registry on the client side if the entire server
@@ -51,7 +50,7 @@ public class PdxRegistryRecoveryListener extends EndpointManager.EndpointListene
 
   @Override
   public void endpointCrashed(Endpoint endpoint) {
-    int count = endpointCount.decrementAndGet();
+    var count = endpointCount.decrementAndGet();
     if (logger.isDebugEnabled()) {
       logger.debug("PdxRegistryRecoveryListener - EndpointCrashed. Now have {} endpoints", count);
     }
@@ -59,7 +58,7 @@ public class PdxRegistryRecoveryListener extends EndpointManager.EndpointListene
 
   @Override
   public void endpointNoLongerInUse(Endpoint endpoint) {
-    int count = endpointCount.decrementAndGet();
+    var count = endpointCount.decrementAndGet();
     if (logger.isDebugEnabled()) {
       logger.debug("PdxRegistryRecoveryListener - EndpointNoLongerInUse. Now have {} endpoints",
           count);
@@ -68,7 +67,7 @@ public class PdxRegistryRecoveryListener extends EndpointManager.EndpointListene
 
   @Override
   public void endpointNowInUse(Endpoint endpoint) {
-    int count = endpointCount.incrementAndGet();
+    var count = endpointCount.incrementAndGet();
     if (logger.isDebugEnabled()) {
       logger.debug("PdxRegistryRecoveryListener - EndpointNowInUse. Now have {} endpoints", count);
     }
@@ -77,7 +76,7 @@ public class PdxRegistryRecoveryListener extends EndpointManager.EndpointListene
       if (cache == null) {
         return;
       }
-      TypeRegistry registry = cache.getPdxRegistry();
+      var registry = cache.getPdxRegistry();
 
       if (registry == null) {
         return;

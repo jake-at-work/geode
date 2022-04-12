@@ -26,15 +26,15 @@ public class ThreadLocalByteArrayCacheTest {
 
   @Test
   public void emptyArrayReturned() {
-    byte[] byteArray = instance.get(0);
+    var byteArray = instance.get(0);
 
     assertThat(byteArray).hasSize(0);
   }
 
   @Test
   public void largerRequestCreatesNewArray() {
-    byte[] byteArrayZero = instance.get(0);
-    byte[] byteArrayOne = instance.get(1);
+    var byteArrayZero = instance.get(0);
+    var byteArrayOne = instance.get(1);
 
     assertThat(byteArrayZero).hasSize(0);
     assertThat(byteArrayOne).hasSize(1);
@@ -42,8 +42,8 @@ public class ThreadLocalByteArrayCacheTest {
 
   @Test
   public void smallerRequestCreatesReturnsPreviousArray() {
-    byte[] byteArrayOne = instance.get(1);
-    byte[] byteArrayZero = instance.get(0);
+    var byteArrayOne = instance.get(1);
+    var byteArrayZero = instance.get(0);
 
     assertThat(byteArrayOne).hasSize(1);
     assertThat(byteArrayZero).isSameAs(byteArrayOne);
@@ -51,8 +51,8 @@ public class ThreadLocalByteArrayCacheTest {
 
   @Test
   public void requestsLargerThanMaximumAreNotCached() {
-    byte[] byteArrayLarge = instance.get(100);
-    byte[] byteArrayZero = instance.get(0);
+    var byteArrayLarge = instance.get(100);
+    var byteArrayZero = instance.get(0);
 
     assertThat(byteArrayLarge).hasSize(100);
     assertThat(byteArrayZero).isNotSameAs(byteArrayLarge);
@@ -61,8 +61,8 @@ public class ThreadLocalByteArrayCacheTest {
 
   @Test
   public void equalRequestCreatesReturnsPreviousArray() {
-    byte[] byteArrayFirst = instance.get(1);
-    byte[] byteArraySecond = instance.get(1);
+    var byteArrayFirst = instance.get(1);
+    var byteArraySecond = instance.get(1);
 
     assertThat(byteArrayFirst).hasSize(1);
     assertThat(byteArraySecond).isSameAs(byteArrayFirst);
@@ -70,9 +70,9 @@ public class ThreadLocalByteArrayCacheTest {
 
   @Test
   public void threadsGetDifferentByteArrays() throws InterruptedException {
-    byte[] byteArrayZero = instance.get(0);
-    final AtomicReference<byte[]> byteArrayHolder = new AtomicReference<>();
-    Thread thread = new Thread(() -> {
+    var byteArrayZero = instance.get(0);
+    final var byteArrayHolder = new AtomicReference<byte[]>();
+    var thread = new Thread(() -> {
       byteArrayHolder.set(instance.get(0));
     });
     thread.start();

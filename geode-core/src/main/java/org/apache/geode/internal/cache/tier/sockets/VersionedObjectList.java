@@ -99,7 +99,7 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
     }
     super.addPart(key, value, objectType, versionTag);
     if (regionIsVersioned) {
-      int tagsSize = versionTags.size();
+      var tagsSize = versionTags.size();
       if (keys != null && (tagsSize != keys.size() - 1)) {
         // this should not happen - either all or none of the entries should have tags
         throw new InternalGemFireException();
@@ -156,7 +156,7 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
    *
    */
   public void replaceNullIDs(DistributedMember sender) {
-    for (VersionTag versionTag : versionTags) {
+    for (var versionTag : versionTags) {
       if (versionTag != null) {
         versionTag.replaceNullIDs((InternalDistributedMember) sender);
       }
@@ -183,18 +183,18 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
       logger.trace(LogMarker.VERSIONED_OBJECT_LIST_VERBOSE, "VOL.addAll(other={}; this={}", other,
           this);
     }
-    int myTypeArrayLength = hasKeys ? keys.size() : objects.size();
-    int otherTypeArrayLength = other.hasKeys ? other.keys.size() : other.objects.size();
+    var myTypeArrayLength = hasKeys ? keys.size() : objects.size();
+    var otherTypeArrayLength = other.hasKeys ? other.keys.size() : other.objects.size();
     super.addAll(other);
-    VersionedObjectList vother = (VersionedObjectList) other;
+    var vother = (VersionedObjectList) other;
     regionIsVersioned |= vother.regionIsVersioned;
     versionTags.addAll(vother.versionTags);
     if (myTypeArrayLength > 0 || otherTypeArrayLength > 0) {
-      int newSize = myTypeArrayLength + otherTypeArrayLength;
+      var newSize = myTypeArrayLength + otherTypeArrayLength;
       if (objectTypeArray != null) {
         newSize = Math.max(newSize, objectTypeArray.length);
         if (objectTypeArray.length < newSize) { // need more room
-          byte[] temp = objectTypeArray;
+          var temp = objectTypeArray;
           objectTypeArray = new byte[newSize];
           System.arraycopy(temp, 0, objectTypeArray, 0, temp.length);
         }
@@ -236,9 +236,9 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
    *
    */
   public void saveVersions(Map<Object, VersionTag> vault) {
-    Iterator it = iterator();
+    var it = iterator();
     while (it.hasNext()) {
-      Entry e = it.next();
+      var e = it.next();
       if (e.getVersionTag() != null || !vault.containsKey(e.getKey())) {
         // bug 51850: There could be duplicated keys in removeAll. If non-singlehop, the returned
         // version tags from the each primary bucket will be conflated here.
@@ -313,9 +313,9 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
   void toData(DataOutput out, SerializationContext context,
       int startIndex, int numEntries, boolean sendKeys, boolean sendObjects)
       throws IOException {
-    int flags = 0;
-    boolean hasObjects = false;
-    boolean hasTags = false;
+    var flags = 0;
+    var hasObjects = false;
+    var hasTags = false;
     if (sendKeys && hasKeys) {
       flags |= 0x01;
     }
@@ -326,7 +326,7 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
     if (versionTags.size() > 0) {
       flags |= 0x04;
       hasTags = true;
-      for (VersionTag tag : versionTags) {
+      for (var tag : versionTags) {
         if (tag != null) {
           if (tag instanceof DiskVersionTag) {
             flags |= 0x20;
@@ -348,48 +348,48 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
     }
     out.writeByte(flags);
     if (sendKeys && hasKeys) {
-      int numToWrite = numEntries;
+      var numToWrite = numEntries;
       if (numToWrite + startIndex > keys.size()) {
         numToWrite = Math.max(0, keys.size() - startIndex);
       }
       InternalDataSerializer.writeUnsignedVL(numToWrite, out);
-      int index = startIndex;
-      for (int i = 0; i < numToWrite; i++, index++) {
+      var index = startIndex;
+      for (var i = 0; i < numToWrite; i++, index++) {
         context.getSerializer().writeObject(keys.get(index), out);
       }
     }
     if (sendObjects && hasObjects) {
-      int numToWrite = numEntries;
+      var numToWrite = numEntries;
       if (numToWrite + startIndex > objects.size()) {
         numToWrite = Math.max(0, objects.size() - startIndex);
       }
       InternalDataSerializer.writeUnsignedVL(numToWrite, out);
-      int idx = 0;
-      int index = startIndex;
-      for (int i = 0; i < numToWrite; i++, index++) {
+      var idx = 0;
+      var index = startIndex;
+      for (var i = 0; i < numToWrite; i++, index++) {
         writeObject(objects.get(index), idx++, out, context);
       }
     }
     if (hasTags) {
-      int numToWrite = numEntries;
+      var numToWrite = numEntries;
       if (numToWrite + startIndex > versionTags.size()) {
         numToWrite = Math.max(0, versionTags.size() - startIndex);
       }
       InternalDataSerializer.writeUnsignedVL(numToWrite, out);
       Map<VersionSource, Integer> ids = new HashMap<>(numToWrite);
-      int idCount = 0;
-      int index = startIndex;
-      for (int i = 0; i < numToWrite; i++, index++) {
-        VersionTag tag = versionTags.get(index);
+      var idCount = 0;
+      var index = startIndex;
+      for (var i = 0; i < numToWrite; i++, index++) {
+        var tag = versionTags.get(index);
         if (tag == null) {
           out.writeByte(FLAG_NULL_TAG);
         } else {
-          VersionSource id = tag.getMemberID();
+          var id = tag.getMemberID();
           if (id == null) {
             out.writeByte(FLAG_FULL_TAG);
             InternalDataSerializer.invokeToData(tag, out);
           } else {
-            Integer idNumber = ids.get(id);
+            var idNumber = ids.get(id);
             if (idNumber == null) {
               out.writeByte(FLAG_TAG_WITH_NEW_ID);
               idNumber = idCount++;
@@ -410,51 +410,51 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    final boolean isDebugEnabled_VOL =
+    final var isDebugEnabled_VOL =
         logger.isTraceEnabled(LogMarker.VERSIONED_OBJECT_LIST_VERBOSE);
     int flags = in.readByte();
     hasKeys = (flags & 0x01) == 0x01;
-    boolean hasObjects = (flags & 0x02) == 0x02;
-    boolean hasTags = (flags & 0x04) == 0x04;
+    var hasObjects = (flags & 0x02) == 0x02;
+    var hasTags = (flags & 0x04) == 0x04;
     regionIsVersioned = (flags & 0x08) == 0x08;
     serializeValues = (flags & 0x10) == 0x10;
-    boolean persistent = (flags & 0x20) == 0x20;
+    var persistent = (flags & 0x20) == 0x20;
     if (isDebugEnabled_VOL) {
       logger.trace(LogMarker.VERSIONED_OBJECT_LIST_VERBOSE,
           "deserializing a VersionedObjectList with flags 0x{}", Integer.toHexString(flags));
     }
     if (hasKeys) {
-      int size = (int) InternalDataSerializer.readUnsignedVL(in);
+      var size = (int) InternalDataSerializer.readUnsignedVL(in);
       keys = new ArrayList<>(size);
       if (isDebugEnabled_VOL) {
         logger.trace(LogMarker.VERSIONED_OBJECT_LIST_VERBOSE, "reading {} keys", size);
       }
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         keys.add(context.getDeserializer().readObject(in));
       }
     }
     if (hasObjects) {
-      int size = (int) InternalDataSerializer.readUnsignedVL(in);
+      var size = (int) InternalDataSerializer.readUnsignedVL(in);
       if (isDebugEnabled_VOL) {
         logger.trace(LogMarker.VERSIONED_OBJECT_LIST_VERBOSE, "reading {} objects", size);
       }
       objects = new ArrayList<>(size);
       objectTypeArray = new byte[size];
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         readObject(i, in, context);
       }
     } else {
       objects = new ArrayList<>();
     }
     if (hasTags) {
-      int size = (int) InternalDataSerializer.readUnsignedVL(in);
+      var size = (int) InternalDataSerializer.readUnsignedVL(in);
       if (isDebugEnabled_VOL) {
         logger.trace(LogMarker.VERSIONED_OBJECT_LIST_VERBOSE, "reading {} version tags", size);
       }
       versionTags = new ArrayList<>(size);
       List<VersionSource> ids = new ArrayList<>(size);
-      for (int i = 0; i < size; i++) {
-        byte entryType = in.readByte();
+      for (var i = 0; i < size; i++) {
+        var entryType = in.readByte();
         switch (entryType) {
           case FLAG_NULL_TAG:
             versionTags.add(null);
@@ -463,13 +463,13 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
             versionTags.add(VersionTag.create(persistent, in));
             break;
           case FLAG_TAG_WITH_NEW_ID:
-            VersionTag tag = VersionTag.create(persistent, in);
+            var tag = VersionTag.create(persistent, in);
             ids.add(tag.getMemberID());
             versionTags.add(tag);
             break;
           case FLAG_TAG_WITH_NUMBER_ID:
             tag = VersionTag.create(persistent, in);
-            int idNumber = (int) InternalDataSerializer.readUnsignedVL(in);
+            var idNumber = (int) InternalDataSerializer.readUnsignedVL(in);
             tag.setMemberID(ids.get(idNumber));
             versionTags.add(tag);
             break;
@@ -482,7 +482,7 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
 
   private void writeObject(Object value, int index, DataOutput out,
       SerializationContext context) throws IOException {
-    byte objectType = objectTypeArray[index];
+    var objectType = objectTypeArray[index];
     if (logger.isTraceEnabled(LogMarker.VERSIONED_OBJECT_LIST_VERBOSE)) {
       logger.trace(LogMarker.VERSIONED_OBJECT_LIST_VERBOSE, "writing object {} of type {}: {}",
           index, objectType, value);
@@ -517,9 +517,9 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
       logger.trace(LogMarker.VERSIONED_OBJECT_LIST_VERBOSE, "reading object {} of type {}", index,
           objectTypeArray[index]);
     }
-    boolean isException = objectTypeArray[index] == EXCEPTION;
+    var isException = objectTypeArray[index] == EXCEPTION;
     if (isException) {
-      byte[] exBytes = DataSerializer.readByteArray(in);
+      var exBytes = DataSerializer.readByteArray(in);
       value = CacheServerHelper.deserialize(exBytes);
       // ignore the exception string meant for native clients
       DataSerializer.readString(in);
@@ -548,7 +548,7 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
 
   @Override
   public String toString() {
-    StringBuilder desc = new StringBuilder();
+    var desc = new StringBuilder();
     desc.append("VersionedObjectList(regionVersioned=").append(regionIsVersioned)
         .append("; hasKeys=").append(hasKeys).append("; keys=")
         .append(keys == null ? "null" : String.valueOf(keys.size())).append("; objects=")
@@ -556,7 +556,7 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
         .append(objectTypeArray == null ? "null" : objectTypeArray.length).append("; ccEnabled=")
         .append(regionIsVersioned).append("; versionTags=")
         .append(versionTags.size()).append(")\n");
-    Iterator entries = iterator();
+    var entries = iterator();
     while (entries.hasNext()) {
       desc.append(entries.next()).append("\n");
     }
@@ -634,7 +634,7 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
      */
     @Override
     public Object setValue(Object value) {
-      Object result = objects.get(index);
+      var result = objects.get(index);
       objects.set(index, value);
       return result;
     }
@@ -715,7 +715,7 @@ public class VersionedObjectList extends ObjectPartList implements Externalizabl
     @Override
     public void toData(DataOutput out,
         SerializationContext context) throws IOException {
-      int startIndex = index;
+      var startIndex = index;
       index += chunkSize;
       list.toData(out, context, startIndex, chunkSize, sendKeys, sendObjects);
     }

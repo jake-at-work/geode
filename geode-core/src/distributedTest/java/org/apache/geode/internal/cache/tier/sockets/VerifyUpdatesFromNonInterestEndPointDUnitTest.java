@@ -32,14 +32,11 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.ServerRegionProxy;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.LocalRegion;
@@ -78,7 +75,7 @@ public class VerifyUpdatesFromNonInterestEndPointDUnitTest extends JUnit4Distrib
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
     Wait.pause(5000);
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     vm2 = host.getVM(2);
@@ -119,13 +116,13 @@ public class VerifyUpdatesFromNonInterestEndPointDUnitTest extends JUnit4Distrib
   public static void acquireConnectionsAndPut(Integer port) {
     try {
       Region r1 = cache.getRegion(SEPARATOR + REGION_NAME);
-      String poolName = r1.getAttributes().getPoolName();
+      var poolName = r1.getAttributes().getPoolName();
       assertNotNull(poolName);
-      PoolImpl pool = (PoolImpl) PoolManager.find(poolName);
+      var pool = (PoolImpl) PoolManager.find(poolName);
       assertNotNull(pool);
-      Connection conn1 = pool.acquireConnection();
-      Connection conn2 = pool.acquireConnection();
-      ServerRegionProxy srp = new ServerRegionProxy(SEPARATOR + REGION_NAME, pool);
+      var conn1 = pool.acquireConnection();
+      var conn2 = pool.acquireConnection();
+      var srp = new ServerRegionProxy(SEPARATOR + REGION_NAME, pool);
       // put on a connection which is is not interest list ep
       if (conn1.getServer().getPort() == port) {
         srp.putOnForTestsOnly(conn1, "key-1", "server-value1", new EventID(new byte[] {1}, 1, 1),
@@ -145,7 +142,7 @@ public class VerifyUpdatesFromNonInterestEndPointDUnitTest extends JUnit4Distrib
 
   public static void createEntries() {
     try {
-      LocalRegion r1 = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
+      var r1 = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
       if (!r1.containsKey("key-1")) {
         r1.create("key-1", "key-1");
       }
@@ -160,9 +157,9 @@ public class VerifyUpdatesFromNonInterestEndPointDUnitTest extends JUnit4Distrib
   }
 
   public static void createClientCache(String host, Integer port1, Integer port2) throws Exception {
-    VerifyUpdatesFromNonInterestEndPointDUnitTest test =
+    var test =
         new VerifyUpdatesFromNonInterestEndPointDUnitTest();
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     cache = test.createCache(props);
@@ -179,23 +176,23 @@ public class VerifyUpdatesFromNonInterestEndPointDUnitTest extends JUnit4Distrib
       CacheServerTestUtil.enableShufflingOfEndpoints();
     }
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
   }
 
   public static Integer createServerCache() throws Exception {
     cache = new VerifyUpdatesFromNonInterestEndPointDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    CacheServer server1 = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
     server1.start();

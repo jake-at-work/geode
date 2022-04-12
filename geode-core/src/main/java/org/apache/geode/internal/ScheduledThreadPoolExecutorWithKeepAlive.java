@@ -105,7 +105,7 @@ public class ScheduledThreadPoolExecutorWithKeepAlive
 
   @Override
   public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
-    DelegatingScheduledFuture<V> future = new DelegatingScheduledFuture<>(callable);
+    var future = new DelegatingScheduledFuture<V>(callable);
     ScheduledFuture<V> timerFuture =
         uncheckedCast(timer.schedule(new HandOffTask(future), delay, unit));
     future.setDelegate(timerFuture);
@@ -118,7 +118,7 @@ public class ScheduledThreadPoolExecutorWithKeepAlive
   }
 
   private <V> ScheduledFuture<V> schedule(Runnable command, long delay, TimeUnit unit, V result) {
-    DelegatingScheduledFuture<V> future = new DelegatingScheduledFuture<>(command, result);
+    var future = new DelegatingScheduledFuture<V>(command, result);
     ScheduledFuture<V> timerFuture =
         uncheckedCast(timer.schedule(new HandOffTask(future), delay, unit));
     future.setDelegate(timerFuture);
@@ -164,19 +164,19 @@ public class ScheduledThreadPoolExecutorWithKeepAlive
    */
   @Override
   public List<Runnable> shutdownNow() {
-    List<Runnable> tasks = timer.shutdownNow();
+    var tasks = timer.shutdownNow();
     super.shutdownNow();
     return tasks;
   }
 
   @Override
   public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     if (!timer.awaitTermination(timeout, unit)) {
       return false;
     }
-    long elapsed = System.nanoTime() - start;
-    long remaining = unit.toNanos(timeout) - elapsed;
+    var elapsed = System.nanoTime() - start;
+    var remaining = unit.toNanos(timeout) - elapsed;
     if (remaining < 0) {
       return false;
     }

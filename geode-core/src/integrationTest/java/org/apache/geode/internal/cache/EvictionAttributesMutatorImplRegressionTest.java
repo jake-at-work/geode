@@ -21,13 +21,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import org.apache.geode.cache.AttributesMutator;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EvictionAttributes;
-import org.apache.geode.cache.EvictionAttributesMutator;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionShortcut;
 
 public class EvictionAttributesMutatorImplRegressionTest {
@@ -42,28 +38,28 @@ public class EvictionAttributesMutatorImplRegressionTest {
   }
 
   private Region<String, String> createRegion() throws Exception {
-    int initMaximum = 1;
-    Cache cache = new CacheFactory().set("locators", "").set("mcast-port", "0").create();
-    Region<String, String> aRegion =
+    var initMaximum = 1;
+    var cache = new CacheFactory().set("locators", "").set("mcast-port", "0").create();
+    var aRegion =
         cache.<String, String>createRegionFactory(RegionShortcut.REPLICATE)
             .setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(initMaximum))
             .create(testName.getMethodName());
 
-    RegionAttributes<String, String> attributes = aRegion.getAttributes();
-    EvictionAttributes evictionAttributes = attributes.getEvictionAttributes();
+    var attributes = aRegion.getAttributes();
+    var evictionAttributes = attributes.getEvictionAttributes();
     assertThat(evictionAttributes.getMaximum()).isEqualTo(initMaximum);
     return aRegion;
   }
 
   @Test
   public void verifySetMaximum() {
-    AttributesMutator<String, String> attributesMutator = region.getAttributesMutator();
-    EvictionAttributesMutator evictionAttributesMutator =
+    var attributesMutator = region.getAttributesMutator();
+    var evictionAttributesMutator =
         attributesMutator.getEvictionAttributesMutator();
-    int updatedMaximum = 2;
+    var updatedMaximum = 2;
     evictionAttributesMutator.setMaximum(updatedMaximum);
-    RegionAttributes<String, String> attributes = region.getAttributes();
-    EvictionAttributes evictionAttributes = attributes.getEvictionAttributes();
+    var attributes = region.getAttributes();
+    var evictionAttributes = attributes.getEvictionAttributes();
     assertThat(evictionAttributes.getMaximum()).isEqualTo(updatedMaximum);
   }
 

@@ -45,8 +45,8 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
   @Test
   public void testPartitionedSerialPropagation() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -115,8 +115,8 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
   @Test
   public void testBothReplicatedAndPartitionedSerialPropagation() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -166,8 +166,8 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
   @Test
   public void testSerialReplicatedAndPartitionedPropagation() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -220,8 +220,8 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
   @Test
   public void testSerialReplicatedAndSerialPartitionedPropagation() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -280,9 +280,9 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
   @Test
   public void testPartitionedSerialPropagationToTwoWanSites() {
 
-    Integer lnPort = createFirstLocatorWithDSId(1);
-    Integer nyPort = vm0.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
-    Integer tkPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
+    var lnPort = createFirstLocatorWithDSId(1);
+    var nyPort = vm0.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var tkPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -330,8 +330,8 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
     IgnoredException.addIgnoredException("Connection reset");
     IgnoredException.addIgnoredException("Unexpected IOException");
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -379,8 +379,8 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
   @Test
   public void testPartitionedSerialPropagationWithParallelThreads() {
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
@@ -417,8 +417,8 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
   @Test
   public void testPartitionedSerialPropagationWithGroupTransactionEventsAndMixOfEventsInAndNotInTransactions()
       throws Exception {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -457,17 +457,17 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
     vm2.invoke(() -> createCustomerOrderShipmentPartitionedRegion(null, 1, 8, isOffHeap()));
     vm3.invoke(() -> createCustomerOrderShipmentPartitionedRegion(null, 1, 8, isOffHeap()));
 
-    int customers = 4;
+    var customers = 4;
 
-    int transactionsPerCustomer = 1000;
+    var transactionsPerCustomer = 1000;
     final Map<Object, Object> keyValuesInTransactions = new HashMap<>();
-    for (int custId = 0; custId < customers; custId++) {
-      for (int i = 0; i < transactionsPerCustomer; i++) {
-        CustId custIdObject = new CustId(custId);
-        OrderId orderId = new OrderId(i, custIdObject);
-        ShipmentId shipmentId1 = new ShipmentId(i, orderId);
-        ShipmentId shipmentId2 = new ShipmentId(i + 1, orderId);
-        ShipmentId shipmentId3 = new ShipmentId(i + 2, orderId);
+    for (var custId = 0; custId < customers; custId++) {
+      for (var i = 0; i < transactionsPerCustomer; i++) {
+        var custIdObject = new CustId(custId);
+        var orderId = new OrderId(i, custIdObject);
+        var shipmentId1 = new ShipmentId(i, orderId);
+        var shipmentId2 = new ShipmentId(i + 1, orderId);
+        var shipmentId3 = new ShipmentId(i + 2, orderId);
         keyValuesInTransactions.put(orderId, new Order());
         keyValuesInTransactions.put(shipmentId1, new Shipment());
         keyValuesInTransactions.put(shipmentId2, new Shipment());
@@ -475,19 +475,19 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
       }
     }
 
-    int ordersPerCustomerNotInTransactions = 1000;
+    var ordersPerCustomerNotInTransactions = 1000;
 
     final Map<Object, Object> keyValuesNotInTransactions = new HashMap<>();
-    for (int custId = 0; custId < customers; custId++) {
-      for (int i = 0; i < ordersPerCustomerNotInTransactions; i++) {
-        CustId custIdObject = new CustId(custId);
-        OrderId orderId = new OrderId(i + transactionsPerCustomer * customers, custIdObject);
+    for (var custId = 0; custId < customers; custId++) {
+      for (var i = 0; i < ordersPerCustomerNotInTransactions; i++) {
+        var custIdObject = new CustId(custId);
+        var orderId = new OrderId(i + transactionsPerCustomer * customers, custIdObject);
         keyValuesNotInTransactions.put(orderId, new Order());
       }
     }
 
     // eventsPerTransaction is 1 (orders) + 3 (shipments)
-    int eventsPerTransaction = 4;
+    var eventsPerTransaction = 4;
     AsyncInvocation<Void> inv1 =
         vm7.invokeAsync(
             () -> WANTestBase.doOrderAndShipmentPutsInsideTransactions(keyValuesInTransactions,
@@ -500,7 +500,7 @@ public class SerialWANPropagation_PartitionedRegionDUnitTest extends WANTestBase
     inv1.await();
     inv2.await();
 
-    int entries =
+    var entries =
         ordersPerCustomerNotInTransactions * customers + transactionsPerCustomer * customers;
 
     vm4.invoke(() -> WANTestBase.validateRegionSize(orderRegionName, entries));

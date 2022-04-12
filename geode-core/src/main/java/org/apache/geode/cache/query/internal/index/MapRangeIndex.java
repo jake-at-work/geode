@@ -17,7 +17,6 @@ package org.apache.geode.cache.query.internal.index;
 import java.util.Collection;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.InternalCache;
@@ -33,7 +32,7 @@ public class MapRangeIndex extends AbstractMapIndex {
     super(cache, indexName, region, fromClause, indexedExpression, projectionAttributes,
         origFromClause, origIndxExpr, defintions, isAllKeys, multiIndexingKeysPattern, mapKeys,
         stats);
-    RegionAttributes ra = region.getAttributes();
+    var ra = region.getAttributes();
     entryToMapKeysMap =
         new RegionEntryToValuesMap(
             new java.util.concurrent.ConcurrentHashMap(ra.getInitialCapacity(), ra.getLoadFactor(),
@@ -91,29 +90,29 @@ public class MapRangeIndex extends AbstractMapIndex {
       return;
     }
 
-    Object values = entryToMapKeysMap.remove(entry);
+    var values = entryToMapKeysMap.remove(entry);
     // Values in reverse coould be null if map in region value does not
     // contain any key which matches to index expression keys.
     if (values == null) {
       return;
     }
     if (values instanceof Collection) {
-      for (final Object key : (Collection) values) {
-        RangeIndex ri = (RangeIndex) mapKeyToValueIndex.get(key);
-        long start = System.nanoTime();
+      for (final var key : (Collection) values) {
+        var ri = (RangeIndex) mapKeyToValueIndex.get(key);
+        var start = System.nanoTime();
         internalIndexStats.incUpdatesInProgress(1);
         ri.removeMapping(entry, opCode);
         internalIndexStats.incUpdatesInProgress(-1);
-        long end = -start;
+        var end = -start;
         internalIndexStats.incUpdateTime(end);
       }
     } else {
-      RangeIndex ri = (RangeIndex) mapKeyToValueIndex.get(values);
-      long start = System.nanoTime();
+      var ri = (RangeIndex) mapKeyToValueIndex.get(values);
+      var start = System.nanoTime();
       internalIndexStats.incUpdatesInProgress(1);
       ri.removeMapping(entry, opCode);
       internalIndexStats.incUpdatesInProgress(-1);
-      long end = System.nanoTime() - start;
+      var end = System.nanoTime() - start;
       internalIndexStats.incUpdateTime(end);
     }
   }
@@ -121,9 +120,9 @@ public class MapRangeIndex extends AbstractMapIndex {
   @Override
   protected void doIndexAddition(Object mapKey, Object indexKey, Object value, RegionEntry entry)
       throws IMQException {
-    boolean isPr = region instanceof BucketRegion;
+    var isPr = region instanceof BucketRegion;
     // Get RangeIndex for it or create it if absent
-    RangeIndex rg = (RangeIndex) mapKeyToValueIndex.get(mapKey);
+    var rg = (RangeIndex) mapKeyToValueIndex.get(mapKey);
     if (rg == null) {
       // use previously created MapRangeIndexStatistics
       IndexStatistics stats = internalIndexStats;
@@ -143,12 +142,12 @@ public class MapRangeIndex extends AbstractMapIndex {
       }
     }
     internalIndexStats.incUpdatesInProgress(1);
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     rg.addMapping(indexKey, value, entry);
     // This call is skipped when addMapping is called from MapRangeIndex
     // rg.internalIndexStats.incNumUpdates();
     internalIndexStats.incUpdatesInProgress(-1);
-    long end = System.nanoTime() - start;
+    var end = System.nanoTime() - start;
     internalIndexStats.incUpdateTime(end);
     entryToMapKeysMap.add(entry, mapKey);
   }
@@ -156,9 +155,9 @@ public class MapRangeIndex extends AbstractMapIndex {
   @Override
   protected void saveIndexAddition(Object mapKey, Object indexKey, Object value, RegionEntry entry)
       throws IMQException {
-    boolean isPr = region instanceof BucketRegion;
+    var isPr = region instanceof BucketRegion;
     // Get RangeIndex for it or create it if absent
-    RangeIndex rg = (RangeIndex) mapKeyToValueIndex.get(mapKey);
+    var rg = (RangeIndex) mapKeyToValueIndex.get(mapKey);
     if (rg == null) {
       // use previously created MapRangeIndexStatistics
       IndexStatistics stats = internalIndexStats;
@@ -177,12 +176,12 @@ public class MapRangeIndex extends AbstractMapIndex {
       }
     }
     // rg.internalIndexStats.incUpdatesInProgress(1);
-    long start = System.nanoTime();
+    var start = System.nanoTime();
     rg.saveMapping(indexKey, value, entry);
     // This call is skipped when addMapping is called from MapRangeIndex
     // rg.internalIndexStats.incNumUpdates();
     internalIndexStats.incUpdatesInProgress(-1);
-    long end = System.nanoTime() - start;
+    var end = System.nanoTime() - start;
     internalIndexStats.incUpdateTime(end);
     entryToMapKeysMap.add(entry, mapKey);
   }

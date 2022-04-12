@@ -20,7 +20,6 @@ import static org.apache.geode.test.dunit.rules.RedisClusterStartupRule.BIND_ADD
 import static org.apache.geode.test.dunit.rules.RedisClusterStartupRule.REDIS_CLIENT_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,8 +33,6 @@ import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.redis.ConcurrentLoopingThreads;
@@ -62,14 +59,14 @@ public class MSetDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     locatorPort = locator.getPort();
     server1 = clusterStartUp.startRedisVM(1, locatorPort);
     clusterStartUp.startRedisVM(2, locatorPort);
 
     server3Port = AvailablePortHelper.getRandomAvailableTCPPort();
-    String finalRedisPort = Integer.toString(server3Port);
-    int finalLocatorPort = locatorPort;
+    var finalRedisPort = Integer.toString(server3Port);
+    var finalLocatorPort = locatorPort;
     clusterStartUp.startRedisVM(3, x -> x
         .withProperty(GEODE_FOR_REDIS_PORT, finalRedisPort)
         .withConnectionToLocator(finalLocatorPort));
@@ -78,7 +75,7 @@ public class MSetDUnitTest {
     clusterStartUp.enableDebugLogging(2);
     clusterStartUp.enableDebugLogging(3);
 
-    int redisServerPort1 = clusterStartUp.getRedisPort(1);
+    var redisServerPort1 = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort1), REDIS_CLIENT_TIMEOUT);
   }
 
@@ -94,14 +91,14 @@ public class MSetDUnitTest {
 
   @Test
   public void testMSet_concurrentInstancesHandleBucketMovement() {
-    int KEY_COUNT = 5000;
-    String[] keys = new String[KEY_COUNT];
+    var KEY_COUNT = 5000;
+    var keys = new String[KEY_COUNT];
 
-    for (int i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       keys[i] = HASHTAG + "key" + i;
     }
-    String[] keysAndValues1 = makeKeysAndValues(keys, "valueOne");
-    String[] keysAndValues2 = makeKeysAndValues(keys, "valueTwo");
+    var keysAndValues1 = makeKeysAndValues(keys, "valueOne");
+    var keysAndValues2 = makeKeysAndValues(keys, "valueTwo");
 
     new ConcurrentLoopingThreads(100,
         i -> jedis.mset(keysAndValues1),
@@ -116,20 +113,20 @@ public class MSetDUnitTest {
 
   @Test
   public void testMSet_crashDoesNotLeaveInconsistencies() throws Exception {
-    int KEY_COUNT = 1000;
-    String[] keys = new String[KEY_COUNT];
+    var KEY_COUNT = 1000;
+    var keys = new String[KEY_COUNT];
 
-    for (int i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       keys[i] = HASHTAG + "key" + i;
     }
-    String[] keysAndValues1 = makeKeysAndValues(keys, "valueOne");
-    String[] keysAndValues2 = makeKeysAndValues(keys, "valueTwo");
-    AtomicBoolean running = new AtomicBoolean(true);
+    var keysAndValues1 = makeKeysAndValues(keys, "valueOne");
+    var keysAndValues2 = makeKeysAndValues(keys, "valueTwo");
+    var running = new AtomicBoolean(true);
 
-    String finalRedisPort = Integer.toString(server3Port);
-    int finalLocatorPort = locatorPort;
+    var finalRedisPort = Integer.toString(server3Port);
+    var finalLocatorPort = locatorPort;
     Future<?> future = executor.submit(() -> {
-      for (int i = 0; i < 20 && running.get(); i++) {
+      for (var i = 0; i < 20 && running.get(); i++) {
         clusterStartUp.moveBucketForKey(keys[0], "server-3");
         // Sleep for a bit so that MSETs can execute
         Thread.sleep(2000);
@@ -144,16 +141,16 @@ public class MSetDUnitTest {
     });
 
     try {
-      AtomicInteger loopCounter = new AtomicInteger(0);
+      var loopCounter = new AtomicInteger(0);
       new ConcurrentLoopingThreads(running,
           i -> jedis.mset(keysAndValues1),
           i -> jedis.mset(keysAndValues2))
               .runWithAction(() -> {
                 logger.info("--->>> Validation STARTING: Loop count = {}  {}",
                     loopCounter.incrementAndGet(), running.get());
-                int count = 0;
-                List<String> values = jedis.mget(keys);
-                for (String v : values) {
+                var count = 0;
+                var values = jedis.mget(keys);
+                for (var v : values) {
                   if (v == null) {
                     continue;
                   }
@@ -169,8 +166,8 @@ public class MSetDUnitTest {
   }
 
   private String[] makeKeysAndValues(String[] keys, String valueBase) {
-    String[] keysValues = new String[keys.length * 2];
-    for (int i = 0; i < keys.length * 2; i += 2) {
+    var keysValues = new String[keys.length * 2];
+    for (var i = 0; i < keys.length * 2; i += 2) {
       keysValues[i] = keys[i / 2];
       keysValues[i + 1] = valueBase + i;
     }
@@ -180,8 +177,8 @@ public class MSetDUnitTest {
 
   private static void rebalanceAllRegions(MemberVM vm) {
     vm.invoke("Running rebalance", () -> {
-      ResourceManager manager = ClusterStartupRule.getCache().getResourceManager();
-      RebalanceFactory factory = manager.createRebalanceFactory();
+      var manager = ClusterStartupRule.getCache().getResourceManager();
+      var factory = manager.createRebalanceFactory();
       try {
         factory.start().getResults();
       } catch (InterruptedException e) {

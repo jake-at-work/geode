@@ -15,16 +15,12 @@
 package org.apache.geode.internal.memcached.commands;
 
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.EntryNotFoundException;
-import org.apache.geode.cache.Region;
-import org.apache.geode.internal.memcached.KeyWrapper;
 import org.apache.geode.internal.memcached.Reply;
 import org.apache.geode.internal.memcached.RequestReader;
 import org.apache.geode.internal.memcached.ResponseStatus;
-import org.apache.geode.internal.memcached.ValueWrapper;
 import org.apache.geode.memcached.GemFireMemcachedServer.Protocol;
 
 /**
@@ -43,17 +39,17 @@ public class DeleteCommand extends AbstractCommand {
   }
 
   private ByteBuffer processAsciiCommand(ByteBuffer buffer, Cache cache) {
-    CharBuffer flb = getFirstLineBuffer();
+    var flb = getFirstLineBuffer();
     getAsciiDecoder().reset();
     getAsciiDecoder().decode(buffer, flb, false);
     flb.flip();
-    String firstLine = getFirstLine();
-    String[] firstLineElements = firstLine.split(" ");
+    var firstLine = getFirstLine();
+    var firstLineElements = firstLine.split(" ");
 
     assert "delete".equals(firstLineElements[0]);
-    String key = stripNewline(firstLineElements[1]);
-    boolean noReply = firstLineElements.length > 2;
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
+    var key = stripNewline(firstLineElements[1]);
+    var noReply = firstLineElements.length > 2;
+    var r = getMemcachedRegion(cache);
     String reply = null;
     try {
       r.destroy(key);
@@ -65,12 +61,12 @@ public class DeleteCommand extends AbstractCommand {
   }
 
   private ByteBuffer processBinaryCommand(RequestReader request, Cache cache) {
-    ByteBuffer buffer = request.getRequest();
-    ByteBuffer response = request.getResponse();
+    var buffer = request.getRequest();
+    var response = request.getResponse();
 
-    KeyWrapper key = getKey(buffer, HEADER_LENGTH);
+    var key = getKey(buffer, HEADER_LENGTH);
 
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
+    var r = getMemcachedRegion(cache);
     try {
       r.destroy(key);
       if (isQuiet()) {

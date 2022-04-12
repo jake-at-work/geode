@@ -62,7 +62,7 @@ public class LolWutIntegrationTest implements RedisIntegrationTest {
 
   @Test
   public void shouldReturnGeodeVersion() {
-    String actualResult =
+    var actualResult =
         Coder.bytesToString((byte[]) jedis.sendCommand(() -> SafeEncoder.encode("lolwut")));
 
     assertThat(actualResult).contains(GEODE_VERSION_STRING);
@@ -70,59 +70,59 @@ public class LolWutIntegrationTest implements RedisIntegrationTest {
 
   @Test
   public void shouldReturnDefaultMazeSize_givenNoArgs() {
-    String actualResult =
+    var actualResult =
         Coder.bytesToString((byte[]) jedis.sendCommand(() -> SafeEncoder.encode("lolwut")));
 
-    String[] lines = actualResult.split("\\n");
+    var lines = actualResult.split("\\n");
     assertThat(lines.length).isEqualTo(DEFAULT_MAZE_HEIGHT);
   }
 
 
   @Test
   public void shouldReturnSpecifiedMazeWidth_givenNumericArg() {
-    String actualResult = Coder.bytesToString(
+    var actualResult = Coder.bytesToString(
         (byte[]) jedis.sendCommand(() -> SafeEncoder.encode("lolwut"),
             SafeEncoder.encode("20")));
 
-    String[] lines = actualResult.split("\\n");
+    var lines = actualResult.split("\\n");
     assertThat(lines[0].length()).isEqualTo((20 - 1) * 2);
   }
 
   @Test
   public void shouldReturnSpecifiedMazeHeight_givenNumericArgs() {
-    String actualResult = Coder.bytesToString(
+    var actualResult = Coder.bytesToString(
         (byte[]) jedis.sendCommand(() -> SafeEncoder.encode("lolwut"),
             SafeEncoder.encode("10"),
             SafeEncoder.encode("20")));
 
-    String[] lines = actualResult.split("\\n");
+    var lines = actualResult.split("\\n");
     assertThat(lines.length).isEqualTo(20 + 2);
   }
 
   @Test
   public void shouldLimitMazeWidth() {
-    String actualResult = Coder.bytesToString(
+    var actualResult = Coder.bytesToString(
         (byte[]) jedis.sendCommand(() -> SafeEncoder.encode("lolwut"),
             SafeEncoder.encode("2048")));
 
-    String[] lines = actualResult.split("\\n");
+    var lines = actualResult.split("\\n");
     assertThat(lines[0].length()).isEqualTo((1024 - 1) * 2);
   }
 
   @Test
   public void shouldLimitMazeHeight() {
-    String actualResult = Coder.bytesToString(
+    var actualResult = Coder.bytesToString(
         (byte[]) jedis.sendCommand(() -> SafeEncoder.encode("lolwut"),
             SafeEncoder.encode("10"),
             SafeEncoder.encode(Integer.toString(MAX_MAZE_HEIGHT * 2))));
 
-    String[] lines = actualResult.split("\\n");
+    var lines = actualResult.split("\\n");
     assertThat(lines.length).isEqualTo(MAX_MAZE_HEIGHT);
   }
 
   @Test
   public void shouldNotError_givenVersionArg() {
-    String actualResult = Coder.bytesToString(
+    var actualResult = Coder.bytesToString(
         (byte[]) jedis.sendCommand(() -> SafeEncoder.encode("lolwut"),
             SafeEncoder.encode("version"),
             SafeEncoder.encode("ignored")));

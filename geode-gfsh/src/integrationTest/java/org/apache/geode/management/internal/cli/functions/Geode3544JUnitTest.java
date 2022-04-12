@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,11 +28,9 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.internal.cli.domain.DataCommandResult;
 
 public class Geode3544JUnitTest {
 
@@ -129,10 +126,10 @@ public class Geode3544JUnitTest {
   public static void setUp() throws Exception {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
     RegionFactory<EmpData, String> factory = cache.createRegionFactory(RegionShortcut.PARTITION);
-    Region<EmpData, String> region1 = factory.create(PARTITIONED_REGION);
-    EmpData emp_data_key = new EmpData(1, (short) 1, 1, 1);
+    var region1 = factory.create(PARTITIONED_REGION);
+    var emp_data_key = new EmpData(1, (short) 1, 1, 1);
     region1.put(emp_data_key, "value_1");
-    ObjectMapper mapper = new ObjectMapper();
+    var mapper = new ObjectMapper();
     emp_key = mapper.writeValueAsString(emp_data_key);
 
   }
@@ -148,14 +145,14 @@ public class Geode3544JUnitTest {
    */
   @Test
   public void testLocateKeyIsObject() {
-    DataCommandFunction dataCmdFn = new DataCommandFunction();
+    var dataCmdFn = new DataCommandFunction();
 
-    DataCommandResult result = dataCmdFn.locateEntry(emp_key, EmpData.class.getName(),
+    var result = dataCmdFn.locateEntry(emp_key, EmpData.class.getName(),
         String.class.getName(), PARTITIONED_REGION, false, (InternalCache) cache);
 
     assertNotNull(result);
     result.aggregate(null);
-    List<DataCommandResult.KeyInfo> keyInfos = result.getLocateEntryLocations();
+    var keyInfos = result.getLocateEntryLocations();
     assertEquals(1, keyInfos.size());
   }
 }

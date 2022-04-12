@@ -31,7 +31,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -67,7 +66,7 @@ public class SingleThreadColocationLoggerTest {
     regionName = "theRegionName";
     executorService = executorServiceRule.getExecutorService();
 
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
+    var system = mock(InternalDistributedSystem.class);
 
     when(region.getFullPath())
         .thenReturn(SEPARATOR + regionName);
@@ -81,12 +80,12 @@ public class SingleThreadColocationLoggerTest {
 
   @Test
   public void startWhenAlreadyRunningThrowsIllegalStateException() {
-    SingleThreadColocationLogger colocationLogger =
+    var colocationLogger =
         new SingleThreadColocationLogger(region, 500, 1000, logger,
             allColocationRegionsProvider, executorService);
     colocationLogger.start();
 
-    Throwable thrown = catchThrowable(colocationLogger::start);
+    var thrown = catchThrowable(colocationLogger::start);
 
     assertThat(thrown)
         .isInstanceOf(IllegalStateException.class)
@@ -95,7 +94,7 @@ public class SingleThreadColocationLoggerTest {
 
   @Test
   public void missingChildrenIsEmptyByDefault() {
-    SingleThreadColocationLogger colocationLogger =
+    var colocationLogger =
         new SingleThreadColocationLogger(region, 100, 200, logger,
             allColocationRegionsProvider, executorService);
 
@@ -106,32 +105,32 @@ public class SingleThreadColocationLoggerTest {
 
   @Test
   public void completesIfMissingChildRegionIsNeverAdded() throws Exception {
-    SingleThreadColocationLogger colocationLogger =
+    var colocationLogger =
         new SingleThreadColocationLogger(region, 100, 200, logger,
             allColocationRegionsProvider, executorService);
     colocationLogger.start();
-    Future<?> completed = colocationLogger.getFuture();
+    var completed = colocationLogger.getFuture();
     completed.get(TIMEOUT_MILLIS, MILLISECONDS);
 
-    boolean value = completed.isDone();
+    var value = completed.isDone();
 
     assertThat(value).isTrue();
   }
 
   @Test
   public void addMissingChildRegionAddsToMissingChildren() {
-    SingleThreadColocationLogger colocationLogger =
+    var colocationLogger =
         new SingleThreadColocationLogger(region, 100, 200, logger,
             allColocationRegionsProvider, executorService);
     colocationLogger.start();
 
-    String missingChild1 = SEPARATOR + "childRegion1";
+    var missingChild1 = SEPARATOR + "childRegion1";
     colocationLogger.addMissingChildRegion(missingChild1);
 
-    String missingChild2 = SEPARATOR + "childRegion2";
+    var missingChild2 = SEPARATOR + "childRegion2";
     colocationLogger.addMissingChildRegion(missingChild2);
 
-    String missingChild3 = SEPARATOR + "childRegion3";
+    var missingChild3 = SEPARATOR + "childRegion3";
     colocationLogger.addMissingChildRegion(missingChild3);
 
     assertThat(colocationLogger.getMissingChildren())
@@ -140,15 +139,15 @@ public class SingleThreadColocationLoggerTest {
 
   @Test
   public void logsMissingChildRegion() {
-    SingleThreadColocationLogger colocationLogger =
+    var colocationLogger =
         new SingleThreadColocationLogger(region, 100, 200, logger,
             allColocationRegionsProvider, executorService);
     colocationLogger.start();
-    String missingChild = SEPARATOR + "childRegion";
+    var missingChild = SEPARATOR + "childRegion";
 
     colocationLogger.addMissingChildRegion(missingChild);
 
-    String message = String.format(
+    var message = String.format(
         "Persistent data recovery for region %s is prevented by offline colocated %s%s%s",
         region.getFullPath(), "region", lineSeparator() + '\t', missingChild);
 
@@ -159,12 +158,12 @@ public class SingleThreadColocationLoggerTest {
 
   @Test
   public void logsMissingChildRegionUntilCompletion() throws Exception {
-    SingleThreadColocationLogger colocationLogger =
+    var colocationLogger =
         new SingleThreadColocationLogger(region, 100, 200, logger,
             allColocationRegionsProvider, executorService);
     colocationLogger.start();
-    Future<?> completed = colocationLogger.getFuture();
-    String missingChild = SEPARATOR + "childRegion";
+    var completed = colocationLogger.getFuture();
+    var missingChild = SEPARATOR + "childRegion";
     when(allColocationRegionsProvider.apply(eq(region)))
         .thenReturn(singleton(missingChild));
     colocationLogger.addMissingChildRegion(missingChild);
@@ -182,11 +181,11 @@ public class SingleThreadColocationLoggerTest {
 
   @Test
   public void addMissingChildRegionAfterCompletionDoesNotLog() throws Exception {
-    SingleThreadColocationLogger colocationLogger =
+    var colocationLogger =
         new SingleThreadColocationLogger(region, 100, 200, logger,
             allColocationRegionsProvider, executorService);
     colocationLogger.start();
-    Future<?> completed = colocationLogger.getFuture();
+    var completed = colocationLogger.getFuture();
     completed.get(TIMEOUT_MILLIS, MILLISECONDS);
 
     colocationLogger.addMissingChildRegion(SEPARATOR + "childRegion");
@@ -196,15 +195,15 @@ public class SingleThreadColocationLoggerTest {
 
   @Test
   public void updateAndGetMissingChildRegionsUpdatesMissingChildren() {
-    SingleThreadColocationLogger colocationLogger =
+    var colocationLogger =
         new SingleThreadColocationLogger(region, 100, 200, logger,
             allColocationRegionsProvider, executorService);
     colocationLogger.start();
-    String missingChild1 = SEPARATOR + "childRegion1";
+    var missingChild1 = SEPARATOR + "childRegion1";
     colocationLogger.addMissingChildRegion(missingChild1);
-    String missingChild2 = SEPARATOR + "childRegion2";
+    var missingChild2 = SEPARATOR + "childRegion2";
     colocationLogger.addMissingChildRegion(missingChild2);
-    String missingChild3 = SEPARATOR + "childRegion3";
+    var missingChild3 = SEPARATOR + "childRegion3";
     colocationLogger.addMissingChildRegion(missingChild3);
     when(allColocationRegionsProvider.apply(eq(region)))
         .thenReturn(CollectionUtils.asSet(missingChild1, missingChild2, missingChild3));
@@ -217,7 +216,7 @@ public class SingleThreadColocationLoggerTest {
 
   @Test
   public void stopTerminatesExecutorService() {
-    SingleThreadColocationLogger colocationLogger =
+    var colocationLogger =
         new SingleThreadColocationLogger(region, 500, 1000, logger,
             allColocationRegionsProvider, executorService);
     colocationLogger.start();

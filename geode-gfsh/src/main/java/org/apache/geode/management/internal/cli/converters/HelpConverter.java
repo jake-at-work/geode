@@ -15,7 +15,6 @@
 package org.apache.geode.management.internal.cli.converters;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.Completion;
 import org.springframework.shell.core.Converter;
@@ -44,8 +43,8 @@ public class HelpConverter implements Converter<String>, CommandManagerAware {
   @Override
   public boolean getAllPossibleValues(List<Completion> completionCandidates, Class<?> dataType,
       String existingData, String optionContext, MethodTarget arg4) {
-    Set<String> commandNames = commandManager.getHelper().getCommands();
-    for (String string : commandNames) {
+    var commandNames = commandManager.getHelper().getCommands();
+    for (var string : commandNames) {
       completionCandidates.add(new Completion(string));
     }
 

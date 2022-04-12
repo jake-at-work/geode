@@ -27,7 +27,7 @@ public class StatArchiveWriterTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    StatArchiveWriter mockStatArchiveWriter = mock(StatArchiveWriter.class);
+    var mockStatArchiveWriter = mock(StatArchiveWriter.class);
 
     when(mockStatArchiveWriter.bytesWritten()).thenReturn(1L);
 

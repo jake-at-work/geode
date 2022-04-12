@@ -127,7 +127,7 @@ class IndexConditioningHelper {
      */
     indxInfo = indexInfo;
     List grpItrs = null;
-    int size = indexInfo.mapping.length;
+    var size = indexInfo.mapping.length;
     indpndntItr = grpIndpndntItr;
     indexFieldToItrsMapping = new RuntimeIterator[indexFieldsSize];
     // Obtain the grpIndpndt iterator if it is passed as null
@@ -155,9 +155,9 @@ class IndexConditioningHelper {
         grpItrs = context.getCurrScopeDpndntItrsBasedOnSingleIndpndntItr(indpndntItr);
         // Check if reshuffling is needed or just changing the struct
         // type will suffice
-        boolean isReshufflingNeeded = false;
-        int pos = -1;
-        for (int i = 0; i < size; ++i) {
+        var isReshufflingNeeded = false;
+        var pos = -1;
+        for (var i = 0; i < size; ++i) {
           pos = indexInfo.mapping[i];
           isReshufflingNeeded = isReshufflingNeeded || (pos != (i + 1));
           indexFieldToItrsMapping[pos - 1] = (RuntimeIterator) grpItrs.get(i);
@@ -207,7 +207,7 @@ class IndexConditioningHelper {
       // Index set.
       // For those fields which do not have corresponding RuntimeIterator , keep
       // it as null;
-      int pos = -1;
+      var pos = -1;
       finalList = completeExpansion ? context.getCurrentIterators() : grpItrs;
       // This is the List of runtimeIterators which have corresponding fields
       // in the resultset obtained from Index usage. This List will be populated
@@ -222,8 +222,8 @@ class IndexConditioningHelper {
       expansionList = new LinkedList(finalList);
       RuntimeIterator tempItr = null;
       // boolean cutDownNeeded = false;
-      int unMappedFields = indexFieldsSize;
-      for (int i = 0; i < size; ++i) {
+      var unMappedFields = indexFieldsSize;
+      for (var i = 0; i < size; ++i) {
         pos = indexInfo.mapping[i];
         if (pos > 0) {
           tempItr = (RuntimeIterator) grpItrs.get(i);
@@ -233,7 +233,7 @@ class IndexConditioningHelper {
           --unMappedFields;
         }
       }
-      boolean cutDownNeeded = unMappedFields > 0;
+      var cutDownNeeded = unMappedFields > 0;
       if (!cutDownNeeded) {
         checkList = null;
       }

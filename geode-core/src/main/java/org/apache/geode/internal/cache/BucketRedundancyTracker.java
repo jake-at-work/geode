@@ -95,7 +95,7 @@ class BucketRedundancyTracker {
   }
 
   private void updateRedundancyStatistics(int updatedBucketHosts) {
-    int updatedRedundancy = updatedBucketHosts - 1;
+    var updatedRedundancy = updatedBucketHosts - 1;
     updateCurrentRedundancy(updatedRedundancy);
     if (updatedRedundancy < targetRedundancy) {
       reportUpdatedBucketCount(updatedBucketHosts);

@@ -33,9 +33,9 @@ public abstract class FunctionServicePeerAccessorPRBase extends FunctionServiceB
   @Before
   public void createRegions() {
     region = getCache().createRegionFactory(RegionShortcut.PARTITION_PROXY).create(REGION);
-    Host host = Host.getHost(0);
-    for (int i = 0; i < numberOfExecutions(); i++) {
-      VM vm = host.getVM(i);
+    var host = Host.getHost(0);
+    for (var i = 0; i < numberOfExecutions(); i++) {
+      var vm = host.getVM(i);
       createRegion(vm);
     }
 

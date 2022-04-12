@@ -72,10 +72,10 @@ public class AsyncInvocationTimeoutDistributedTest implements Serializable {
       return THREAD_ID.get();
     });
 
-    Throwable thrown = catchThrowable(() -> hangInVM0.await(1, SECONDS));
+    var thrown = catchThrowable(() -> hangInVM0.await(1, SECONDS));
     assertThat(thrown)
         .isInstanceOf(TimeoutException.class);
-    Throwable cause = thrown.getCause();
+    var cause = thrown.getCause();
     assertThat(cause)
         .isInstanceOf(StackTrace.class)
         .hasMessage("Stack trace for vm-0 thread-" + remoteThreadId);
@@ -83,7 +83,7 @@ public class AsyncInvocationTimeoutDistributedTest implements Serializable {
 
   @Test
   public void awaitWithCallableTimeoutExceptionIncludesRemoteStackTraceAsCause() {
-    AsyncInvocation<Integer> hangInVM0 = getVM(0).invokeAsync(() -> {
+    var hangInVM0 = getVM(0).invokeAsync(() -> {
       THREAD_ID.set(Thread.currentThread().getId());
       LATCH.get().await(getTimeout().toMillis(), MILLISECONDS);
       return 42;
@@ -94,10 +94,10 @@ public class AsyncInvocationTimeoutDistributedTest implements Serializable {
       return THREAD_ID.get();
     });
 
-    Throwable thrown = catchThrowable(() -> hangInVM0.await(1, SECONDS));
+    var thrown = catchThrowable(() -> hangInVM0.await(1, SECONDS));
     assertThat(thrown)
         .isInstanceOf(TimeoutException.class);
-    Throwable cause = thrown.getCause();
+    var cause = thrown.getCause();
     assertThat(cause)
         .isInstanceOf(StackTrace.class)
         .hasMessage("Stack trace for vm-0 thread-" + remoteThreadId);
@@ -105,7 +105,7 @@ public class AsyncInvocationTimeoutDistributedTest implements Serializable {
 
   @Test
   public void getWithCallableTimeoutExceptionIncludesRemoteStackTraceAsCause() {
-    AsyncInvocation<Integer> hangInVM0 = getVM(0).invokeAsync(() -> {
+    var hangInVM0 = getVM(0).invokeAsync(() -> {
       THREAD_ID.set(Thread.currentThread().getId());
       LATCH.get().await(getTimeout().toMillis(), MILLISECONDS);
       return 42;
@@ -116,10 +116,10 @@ public class AsyncInvocationTimeoutDistributedTest implements Serializable {
       return THREAD_ID.get();
     });
 
-    Throwable thrown = catchThrowable(() -> hangInVM0.get(1, SECONDS));
+    var thrown = catchThrowable(() -> hangInVM0.get(1, SECONDS));
     assertThat(thrown)
         .isInstanceOf(TimeoutException.class);
-    Throwable cause = thrown.getCause();
+    var cause = thrown.getCause();
     assertThat(cause)
         .isInstanceOf(StackTrace.class)
         .hasMessage("Stack trace for vm-0 thread-" + remoteThreadId);

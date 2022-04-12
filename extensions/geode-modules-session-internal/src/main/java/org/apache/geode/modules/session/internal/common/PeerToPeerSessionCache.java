@@ -30,7 +30,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.modules.session.catalina.callback.LocalSessionCacheLoader;
 import org.apache.geode.modules.session.catalina.callback.LocalSessionCacheWriter;
-import org.apache.geode.modules.util.RegionConfiguration;
 import org.apache.geode.modules.util.RegionHelper;
 import org.apache.geode.modules.util.TouchPartitionedRegionEntriesFunction;
 import org.apache.geode.modules.util.TouchReplicatedRegionEntriesFunction;
@@ -113,7 +112,7 @@ public class PeerToPeerSessionCache extends AbstractSessionCache {
 
   private void createOrRetrieveRegion() {
     // Create the RegionConfiguration
-    RegionConfiguration configuration = createRegionConfiguration();
+    var configuration = createRegionConfiguration();
 
     // Attempt to retrieve the region
     // If it already exists, validate it
@@ -139,7 +138,7 @@ public class PeerToPeerSessionCache extends AbstractSessionCache {
    */
   private Region<String, HttpSession> createOrRetrieveLocalRegion() {
     // Attempt to retrieve the fronting region
-    String frontingRegionName = sessionRegion.getName() + "_local";
+    var frontingRegionName = sessionRegion.getName() + "_local";
     Region<String, HttpSession> frontingRegion = cache.getRegion(frontingRegionName);
 
     if (frontingRegion == null) {

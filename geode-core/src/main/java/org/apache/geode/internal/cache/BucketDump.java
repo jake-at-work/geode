@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
@@ -77,8 +76,8 @@ public class BucketDump {
     if (values == null) {
       return result;
     }
-    for (Entry<Object, Object> e : values.entrySet()) {
-      ArrayList<Object> list = new ArrayList<>();
+    for (var e : values.entrySet()) {
+      var list = new ArrayList<Object>();
       list.add(e.getValue());
       list.add(versions.get(e.getKey()));
       result.put(e.getKey(), list);
@@ -105,8 +104,8 @@ public class BucketDump {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((values == null) ? 0 : values.hashCode());
     result = prime * result + ((versions == null) ? 0 : versions.hashCode());
     return result;
@@ -123,7 +122,7 @@ public class BucketDump {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BucketDump other = (BucketDump) obj;
+    var other = (BucketDump) obj;
     if (values == null) {
       if (other.values != null) {
         return false;

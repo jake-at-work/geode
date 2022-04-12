@@ -14,10 +14,8 @@
  */
 package org.apache.geode.internal.cache.backup;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Map;
 
 import org.apache.geode.cache.DiskStore;
 
@@ -31,7 +29,7 @@ public class IncrementalBackupFilter implements BackupFilter {
 
   @Override
   public boolean accept(DiskStore diskStore, Path path) throws IOException {
-    Map<String, File> baselineOplogMap = incrementalBackupLocation.getBackedUpOplogs(diskStore);
+    var baselineOplogMap = incrementalBackupLocation.getBackedUpOplogs(diskStore);
     return !baselineOplogMap.containsKey(path.getFileName().toString());
   }
 }

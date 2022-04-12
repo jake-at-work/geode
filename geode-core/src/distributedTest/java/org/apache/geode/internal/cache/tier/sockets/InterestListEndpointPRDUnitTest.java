@@ -39,7 +39,7 @@ public class InterestListEndpointPRDUnitTest extends InterestListEndpointDUnitTe
 
   @Override
   protected RegionAttributes createServerCacheAttributes() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.PARTITION);
     factory.setPartitionAttributes((new PartitionAttributesFactory()).create());
     return factory.create();

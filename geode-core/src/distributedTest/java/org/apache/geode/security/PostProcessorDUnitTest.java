@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,10 +33,8 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.util.CacheListenerAdapter;
@@ -66,7 +63,7 @@ public class PostProcessorDUnitTest extends JUnit4DistributedTestCase {
   public void before() throws Exception {
     Region region =
         server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("key" + i, "value" + i);
     }
   }
@@ -78,15 +75,15 @@ public class PostProcessorDUnitTest extends JUnit4DistributedTestCase {
     keys.add("key2");
 
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
 
       // post process for get
-      Object value = region.get("key3");
+      var value = region.get("key3");
       assertEquals("super-user/AuthRegion/key3/value3", value);
 
       // post processs for getAll
-      Map values = region.getAll(keys);
+      var values = region.getAll(keys);
       assertEquals(2, values.size());
       assertEquals("super-user/AuthRegion/key1/value1", values.get("key1"));
       assertEquals("super-user/AuthRegion/key2/value2", values.get("key2"));
@@ -96,12 +93,12 @@ public class PostProcessorDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testPostProcessQuery() {
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
 
       // post process for query
-      String query = "select * from " + SEPARATOR + "AuthRegion";
-      SelectResults result = region.query(query);
+      var query = "select * from " + SEPARATOR + "AuthRegion";
+      var result = region.query(query);
       assertEquals(5, result.size());
 
       assertTrue(result.contains("super-user/null/null/value0"));
@@ -110,7 +107,7 @@ public class PostProcessorDUnitTest extends JUnit4DistributedTestCase {
       assertTrue(result.contains("super-user/null/null/value3"));
       assertTrue(result.contains("super-user/null/null/value4"));
 
-      Pool pool = PoolManager.find(region);
+      var pool = PoolManager.find(region);
       result = (SelectResults) pool.getQueryService().newQuery(query).execute();
       assertTrue(result.contains("super-user/null/null/value0"));
       assertTrue(result.contains("super-user/null/null/value1"));
@@ -123,7 +120,7 @@ public class PostProcessorDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testRegisterInterestPostProcess() {
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
+      var cache = createClientCache("super-user", "1234567", server.getPort());
 
       ClientRegionFactory factory = cache.createClientRegionFactory(ClientRegionShortcut.PROXY);
       factory.addCacheListener(new CacheListenerAdapter() {
@@ -134,14 +131,14 @@ public class PostProcessorDUnitTest extends JUnit4DistributedTestCase {
         }
       });
 
-      Region region = factory.create(REGION_NAME);
+      var region = factory.create(REGION_NAME);
       region.put("key1", "value1");
       region.registerInterest("key1");
     });
 
     client2.invoke(() -> {
-      ClientCache cache = createClientCache("dataUser", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("dataUser", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
       region.put("key1", "value2");
     });
   }

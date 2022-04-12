@@ -16,7 +16,6 @@ package org.apache.geode.internal.cache;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +41,6 @@ import org.apache.geode.internal.cache.execute.BucketMovedException;
 import org.apache.geode.internal.cache.persistence.query.mock.ByteComparator;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.internal.cache.versions.VersionSource;
-import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.parallel.BucketRegionQueueUnavailableException;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderQueue;
@@ -105,7 +103,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
         if (getPartitionedRegion().getColocatedWith() == null) {
           List<EventID> keys = new ArrayList<>(keySet());
           Collections.sort(keys, (o1, o2) -> {
-            int compareMem =
+            var compareMem =
                 new ByteComparator().compare(o1.getMembershipID(), o2.getMembershipID());
             if (compareMem == 1) {
               return 1;
@@ -122,7 +120,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
               }
             }
           });
-          for (EventID eventID : keys) {
+          for (var eventID : keys) {
             eventSeqNumDeque.addLast(eventID);
           }
         } else {
@@ -133,7 +131,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
           // BatchRemoval)
           // fix for #49679 NoSuchElementException thrown from BucketRegionQueue.initialize
           if (!sortedKeys.isEmpty()) {
-            for (Long key : sortedKeys) {
+            for (var key : sortedKeys) {
               eventSeqNumDeque.addLast(key);
             }
             lastKeyRecovered = sortedKeys.last();
@@ -166,13 +164,13 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
    * invoked deliberately after this.initialized is set to true to fix defect #50316.
    */
   private void destroyFailedBatchRemovalMessageKeys() {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
-    Iterator<Object> itr = getFailedBatchRemovalMessageKeys().iterator();
+    var itr = getFailedBatchRemovalMessageKeys().iterator();
     while (itr.hasNext()) {
       // at this point, failedBatchRemovalMessageKeys contains messages failed during bucket
       // initialization only. Iterate over failedBatchRemovalMessageKeys and clear it completely.
-      Object key = itr.next();
+      var key = itr.next();
       itr.remove();
       if (isDebugEnabled) {
         logger.debug("key from failedBatchRemovalMessageKeys is: {}", key);
@@ -215,7 +213,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
 
   @Override
   public Set<VersionSource> clearEntries(final RegionVersionVector rvv) {
-    final AtomicReference<Set<VersionSource>> result = new AtomicReference<>();
+    final var result = new AtomicReference<Set<VersionSource>>();
     OffHeapClearRequired.doWithOffHeapClear(
         () -> result.set(BucketRegionQueue.super.clearEntries(rvv)));
     eventSeqNumDeque.clear();
@@ -247,7 +245,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
       boolean overwriteDestroyed, boolean invokeCallbacks, boolean throwConcurrentModification)
       throws TimeoutException, CacheWriterException {
     try {
-      boolean success = super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
+      var success = super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
           lastModified, overwriteDestroyed, invokeCallbacks, throwConcurrentModification);
 
       if (success) {
@@ -256,8 +254,8 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
         }
 
         if (getPartitionedRegion().isConflationEnabled() && getBucketAdvisor().isPrimary()) {
-          Object object = event.getNewValue();
-          Long key = (Long) event.getKey();
+          var object = event.getNewValue();
+          var key = (Long) event.getKey();
           if (object instanceof Conflatable) {
             if (logger.isDebugEnabled()) {
               logger.debug("Key :{} , Object : {} is conflatable", key, object);
@@ -281,31 +279,31 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
   }
 
   private void conflateOldEntry(Conflatable object, Long tailKey) {
-    PartitionedRegion region = getPartitionedRegion();
-    Conflatable conflatableObject = object;
+    var region = getPartitionedRegion();
+    var conflatableObject = object;
     if (region.isConflationEnabled() && conflatableObject.shouldBeConflated()) {
-      Object keyToConflate = conflatableObject.getKeyToConflate();
-      String rName = object.getRegionToConflate();
+      var keyToConflate = conflatableObject.getKeyToConflate();
+      var rName = object.getRegionToConflate();
       if (logger.isDebugEnabled()) {
         logger.debug(" The region name is : {}", rName);
       }
-      Map latestIndexesForRegion = (Map) indexes.get(rName);
+      var latestIndexesForRegion = (Map) indexes.get(rName);
       if (latestIndexesForRegion == null) {
         latestIndexesForRegion = new ConcurrentHashMap();
         indexes.put(rName, latestIndexesForRegion);
       }
-      Long previousTailKey = (Long) latestIndexesForRegion.put(keyToConflate, tailKey);
+      var previousTailKey = (Long) latestIndexesForRegion.put(keyToConflate, tailKey);
       if (previousTailKey != null) {
         if (logger.isDebugEnabled()) {
           logger.debug("{}: Conflating {} at queue index={} and previousTailKey={} ", this, object,
               tailKey, previousTailKey);
         }
-        AbstractGatewaySenderEventProcessor ep =
+        var ep =
             region.getParallelGatewaySender().getEventProcessor();
         if (ep == null) {
           return;
         }
-        ConcurrentParallelGatewaySenderQueue queue =
+        var queue =
             (ConcurrentParallelGatewaySenderQueue) ep.getQueue();
         // Give the actual conflation work to another thread.
         // ParallelGatewaySenderQueue takes care of maintaining a thread pool.
@@ -324,24 +322,24 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
   protected boolean removeIndex(Long qkey) {
     // Determine whether conflation is enabled for this queue and object
     boolean entryFound;
-    Object o = getNoLRU(qkey, true, false, false);
+    var o = getNoLRU(qkey, true, false, false);
     if (o == null) {
       entryFound = false;
     } else {
       entryFound = true;
       if (o instanceof Conflatable) {
-        Conflatable object = (Conflatable) o;
+        var object = (Conflatable) o;
         if (object.shouldBeConflated()) {
           // Otherwise, remove the index from the indexes map.
-          String rName = object.getRegionToConflate();
-          Object key = object.getKeyToConflate();
-          Map latestIndexesForRegion = (Map) indexes.get(rName);
+          var rName = object.getRegionToConflate();
+          var key = object.getKeyToConflate();
+          var latestIndexesForRegion = (Map) indexes.get(rName);
           if (latestIndexesForRegion != null) {
             // Remove the index if appropriate. Verify the qKey is actually the one being referenced
             // in the index. If it isn't, then another event has been received for the real key. In
             // that case, don't remove the index since it has already been overwritten.
             if (latestIndexesForRegion.get(key) == qkey) {
-              Long index = (Long) latestIndexesForRegion.remove(key);
+              var index = (Long) latestIndexesForRegion.remove(key);
               if (index != null) {
                 getPartitionedRegion().getParallelGatewaySender().getStatistics()
                     .decConflationIndexesMapSize();
@@ -360,7 +358,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
   public void basicDestroy(final EntryEventImpl event, final boolean cacheWrite,
       Object expectedOldValue, boolean forceBasicDestroy)
       throws EntryNotFoundException, CacheWriterException, TimeoutException {
-    boolean indexEntryFound = true;
+    var indexEntryFound = true;
     if (getPartitionedRegion().isConflationEnabled()) {
       indexEntryFound = containsKey(event.getKey()) && removeIndex((Long) event.getKey());
     }
@@ -416,7 +414,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
       }
       key = eventSeqNumDeque.peekFirst();
       if (key != null) {
-        boolean setDuplicate = markAsDuplicate.remove(key);
+        var setDuplicate = markAsDuplicate.remove(key);
 
         object = optimalGet(key);
         if (object != null) {
@@ -464,8 +462,8 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
         throw new BucketRegionQueueUnavailableException();
       }
       List<Object> elementsMatching = new ArrayList<>();
-      for (final Object key : eventSeqNumDeque) {
-        Object object = optimalGet(key);
+      for (final var key : eventSeqNumDeque) {
+        var object = optimalGet(key);
         if (matchingPredicate.test(object)) {
           elementsMatching.add(object);
           eventSeqNumDeque.remove(key);
@@ -519,16 +517,16 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
 
   public boolean waitUntilFlushed(long latestQueuedKey, long timeout, TimeUnit unit)
       throws InterruptedException {
-    long then = System.currentTimeMillis();
+    var then = System.currentTimeMillis();
     if (logger.isDebugEnabled()) {
       logger.debug("BucketRegionQueue: waitUntilFlushed bucket=" + getId() + "; latestQueuedKey="
           + latestQueuedKey + "; timeout=" + timeout + "; unit=" + unit);
     }
-    boolean result = false;
+    var result = false;
     // Wait until latestAcknowledgedKey > latestQueuedKey or the queue is empty
     if (initialized) {
-      long nanosRemaining = unit.toNanos(timeout);
-      long endTime = System.nanoTime() + nanosRemaining;
+      var nanosRemaining = unit.toNanos(timeout);
+      var endTime = System.nanoTime() + nanosRemaining;
       while (nanosRemaining > 0) {
         try {
           if (latestAcknowledgedKey.get() > latestQueuedKey || isEmpty()) {
@@ -558,7 +556,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
    * @return Returns the key for which value was destroyed.
    */
   public Object remove() throws ForceReattemptException {
-    Object key = eventSeqNumDeque.removeFirst();
+    var key = eventSeqNumDeque.removeFirst();
     if (key != null) {
       destroyKey(key);
     }
@@ -604,7 +602,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
       logger.debug(" destroying primary key {}", key);
     }
     @Released
-    EntryEventImpl event = newDestroyEntryEvent(key, null);
+    var event = newDestroyEntryEvent(key, null);
     try {
       event.setEventId(new EventID(cache.getInternalDistributedSystem()));
       event.setRegion(this);

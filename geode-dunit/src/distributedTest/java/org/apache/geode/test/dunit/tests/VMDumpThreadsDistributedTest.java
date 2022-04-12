@@ -85,7 +85,7 @@ public class VMDumpThreadsDistributedTest implements Serializable {
 
   @Test
   public void threadDumpOfVmContainsRemoteThreads() {
-    ThreadInfo remoteThreadInfo1 = getVM(0).invoke(() -> {
+    var remoteThreadInfo1 = getVM(0).invoke(() -> {
       executor.get().submit(() -> {
         threadInfo1.set(new ThreadInfo(Thread.currentThread()));
         latch.get();
@@ -95,7 +95,7 @@ public class VMDumpThreadsDistributedTest implements Serializable {
       return threadInfo1.get();
     });
 
-    ThreadInfo remoteThreadInfo2 = getVM(0).invoke(() -> {
+    var remoteThreadInfo2 = getVM(0).invoke(() -> {
       executor.get().submit(() -> {
         threadInfo2.set(new ThreadInfo(Thread.currentThread()));
         syncMethod();
@@ -108,11 +108,11 @@ public class VMDumpThreadsDistributedTest implements Serializable {
     assertThat(remoteThreadInfo1.getThreadId()).isNotEqualTo(remoteThreadInfo2.getThreadId());
     assertThat(remoteThreadInfo1.getThreadName()).isNotEqualTo(remoteThreadInfo2.getThreadName());
 
-    String threadDump = getVM(0).invoke(VM::dumpThreads);
+    var threadDump = getVM(0).invoke(VM::dumpThreads);
 
-    Pattern thread1Pattern = Pattern.compile(String.format(THREAD_1_PATTERN_STRING,
+    var thread1Pattern = Pattern.compile(String.format(THREAD_1_PATTERN_STRING,
         remoteThreadInfo1.getThreadName(), remoteThreadInfo1.getThreadId()));
-    Pattern thread2Pattern = Pattern.compile(String.format(THREAD_2_PATTERN_STRING,
+    var thread2Pattern = Pattern.compile(String.format(THREAD_2_PATTERN_STRING,
         remoteThreadInfo2.getThreadName(), remoteThreadInfo2.getThreadId()));
 
     assertThat(threadDump)

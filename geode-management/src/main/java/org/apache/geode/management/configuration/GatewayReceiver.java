@@ -35,7 +35,7 @@ public class GatewayReceiver extends GroupableConfiguration<GatewayReceiverInfo>
   @Override
   @JsonIgnore
   public String getId() {
-    String id = getGroup();
+    var id = getGroup();
     if (isCluster(id)) {
       id = CLUSTER;
     }

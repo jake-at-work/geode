@@ -96,7 +96,7 @@ public class ResourceInstance {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder(getClass().getName());
+    final var sb = new StringBuilder(getClass().getName());
     sb.append("@").append(System.identityHashCode(this)).append("{");
     sb.append("id=").append(id);
     if (updatedStats == null) {

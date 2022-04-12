@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -84,7 +83,7 @@ public class DataCommandResult implements Serializable {
   public static final String NEW_LINE = GfshParser.LINE_SEPARATOR;
 
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     if (isGet()) {
       sb.append(" Type  : Get").append(NEW_LINE);
       sb.append(" Key  : ").append(inputKey).append(NEW_LINE);
@@ -148,7 +147,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createGetResult(Object inputKey, Object value, Throwable error,
       String errorString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.GET;
     result.inputKey = inputKey;
     result.getResult = value;
@@ -160,7 +159,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createGetInfoResult(Object inputKey, Object value,
       Throwable error, String infoString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.GET;
     result.inputKey = inputKey;
     result.getResult = value;
@@ -172,7 +171,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createLocateEntryResult(Object inputKey, KeyInfo locationResult,
       Throwable error, String errorString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.LOCATE_ENTRY;
     result.inputKey = inputKey;
 
@@ -190,7 +189,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createLocateEntryInfoResult(Object inputKey,
       KeyInfo locationResult, Throwable error, String infoString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.LOCATE_ENTRY;
     result.inputKey = inputKey;
 
@@ -208,7 +207,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createPutResult(Object inputKey, Object value, Throwable error,
       String errorString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.PUT;
     result.inputKey = inputKey;
     result.putResult = value;
@@ -220,7 +219,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createPutInfoResult(Object inputKey, Object value,
       Throwable error, String infoString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.PUT;
     result.inputKey = inputKey;
     result.putResult = value;
@@ -231,7 +230,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createRemoveResult(Object inputKey, Object value, Throwable error,
       String errorString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.REMOVE;
     result.inputKey = inputKey;
     result.removeResult = value;
@@ -243,7 +242,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createRemoveInfoResult(Object inputKey, Object value,
       Throwable error, String infoString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.REMOVE;
     result.inputKey = inputKey;
     result.removeResult = value;
@@ -255,7 +254,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createSelectResult(Object inputQuery, List<SelectResultRow> value,
       String queryTraceString, Throwable error, String errorString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.QUERY;
     result.inputQuery = inputQuery;
     result.queryTraceString = queryTraceString;
@@ -268,7 +267,7 @@ public class DataCommandResult implements Serializable {
 
   public static DataCommandResult createSelectInfoResult(Object inputQuery,
       List<SelectResultRow> value, int limit, Throwable error, String infoString, boolean flag) {
-    DataCommandResult result = new DataCommandResult();
+    var result = new DataCommandResult();
     result.command = CliStrings.QUERY;
     result.inputQuery = inputQuery;
     result.limit = limit;
@@ -381,8 +380,8 @@ public class DataCommandResult implements Serializable {
       valueClass = "java.lang.String";
     }
 
-    ResultModel result = new ResultModel();
-    DataResultModel data = result.addData(DATA_INFO_SECTION);
+    var result = new ResultModel();
+    var data = result.addData(DATA_INFO_SECTION);
 
     if (errorString != null) {
       data.addData("Message", errorString);
@@ -422,21 +421,21 @@ public class DataCommandResult implements Serializable {
     data.addData("Key", inputKey);
 
     if (locateEntryLocations != null) {
-      TabularResultModel locationTable = result.addTable(LOCATION_SECTION);
+      var locationTable = result.addTable(LOCATION_SECTION);
 
-      int totalLocations = 0;
+      var totalLocations = 0;
 
-      for (KeyInfo info : locateEntryLocations) {
-        List<Object[]> locations = info.getLocations();
+      for (var info : locateEntryLocations) {
+        var locations = info.getLocations();
 
         if (locations != null) {
           if (locations.size() == 1) {
-            Object[] array = locations.get(0);
+            var array = locations.get(0);
             boolean found = (Boolean) array[1];
             if (found) {
               totalLocations++;
               boolean primary = (Boolean) array[3];
-              String bucketId = (String) array[4];
+              var bucketId = (String) array[4];
               locationTable.accumulate("MemberName", info.getMemberName());
               locationTable.accumulate("MemberId", info.getMemberId());
               if (bucketId != null) {// PR
@@ -449,13 +448,13 @@ public class DataCommandResult implements Serializable {
               }
             }
           } else {
-            for (Object[] array : locations) {
-              String regionPath = (String) array[0];
+            for (var array : locations) {
+              var regionPath = (String) array[0];
               boolean found = (Boolean) array[1];
               if (found) {
                 totalLocations++;
                 boolean primary = (Boolean) array[3];
-                String bucketId = (String) array[4];
+                var bucketId = (String) array[4];
                 locationTable.accumulate("MemberName", info.getMemberName());
                 locationTable.accumulate("MemberId", info.getMemberId());
                 locationTable.accumulate("RegionPath", regionPath);
@@ -499,8 +498,8 @@ public class DataCommandResult implements Serializable {
    * executionStrategy to route it through final step.
    */
   public ResultModel toSelectCommandResult() {
-    ResultModel result = new ResultModel();
-    DataResultModel data = result.addData(DATA_INFO_SECTION);
+    var result = new ResultModel();
+    var data = result.addData(DATA_INFO_SECTION);
     if (!operationCompletedSuccessfully) {
       result.setStatus(Result.Status.ERROR);
       data.addData(RESULT_FLAG, operationCompletedSuccessfully);
@@ -511,7 +510,7 @@ public class DataCommandResult implements Serializable {
       }
       return result;
     } else {
-      TabularResultModel table = result.addTable(DataCommandResult.QUERY_SECTION);
+      var table = result.addTable(DataCommandResult.QUERY_SECTION);
       data.addData(RESULT_FLAG, operationCompletedSuccessfully);
       if (infoString != null) {
         data.addData("Message", infoString);
@@ -533,22 +532,22 @@ public class DataCommandResult implements Serializable {
   }
 
   private void buildTable(TabularResultModel table, int startCount, int endCount) {
-    int lastRowExclusive = Math.min(selectResult.size(), endCount + 1);
-    List<SelectResultRow> paginatedRows = selectResult.subList(startCount, lastRowExclusive);
+    var lastRowExclusive = Math.min(selectResult.size(), endCount + 1);
+    var paginatedRows = selectResult.subList(startCount, lastRowExclusive);
 
     // First find all the possible columns - not a Set because we want them ordered consistently
     List<String> possibleColumns = new ArrayList<>();
-    for (SelectResultRow row : paginatedRows) {
-      for (String column : row.getColumnValues().keySet()) {
+    for (var row : paginatedRows) {
+      for (var column : row.getColumnValues().keySet()) {
         if (!possibleColumns.contains(column)) {
           possibleColumns.add(column);
         }
       }
     }
 
-    for (SelectResultRow row : paginatedRows) {
-      Map<String, String> columnValues = row.getColumnValues();
-      for (String column : possibleColumns) {
+    for (var row : paginatedRows) {
+      var columnValues = row.getColumnValues();
+      for (var column : possibleColumns) {
         table.accumulate(column,
             columnValues.getOrDefault(column, DataCommandResult.MISSING_VALUE));
       }
@@ -622,11 +621,11 @@ public class DataCommandResult implements Serializable {
     }
 
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("{ Member : ").append(host).append("(").append(memberId).append(") , ");
-      for (Object[] array : locations) {
+      for (var array : locations) {
         boolean primary = (Boolean) array[3];
-        String bucketId = (String) array[4];
+        var bucketId = (String) array[4];
         sb.append(" [ Primary : ").append(primary).append(" , BucketId : ").append(bucketId)
             .append(" ]");
       }
@@ -638,7 +637,7 @@ public class DataCommandResult implements Serializable {
       if (locations == null) {
         return false;
       } else {
-        for (Object[] array : locations) {
+        for (var array : locations) {
           boolean found = (Boolean) array[1];
           if (found) {
             return true;
@@ -691,8 +690,8 @@ public class DataCommandResult implements Serializable {
       } else if (value instanceof UUID) {
         columnData.put("Result", valueToJson(value));
       } else {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.valueToTree(value);
+        var mapper = new ObjectMapper();
+        var node = mapper.valueToTree(value);
 
         node.fieldNames().forEachRemaining(field -> {
           try {
@@ -705,13 +704,13 @@ public class DataCommandResult implements Serializable {
     }
 
     private void resolvePdxToColumns(Map<String, String> columnData, PdxInstance pdx) {
-      for (String field : pdx.getFieldNames()) {
+      for (var field : pdx.getFieldNames()) {
         columnData.put(field, valueToJson(pdx.getField(field)));
       }
     }
 
     private void resolveStructToColumns(Map<String, String> columnData, StructImpl struct) {
-      for (String field : struct.getFieldNames()) {
+      for (var field : struct.getFieldNames()) {
         columnData.put(field, valueToJson(struct.get(field)));
       }
     }
@@ -729,7 +728,7 @@ public class DataCommandResult implements Serializable {
         return JSONFormatter.toJSON((PdxInstance) value);
       }
 
-      ObjectMapper mapper = new ObjectMapper();
+      var mapper = new ObjectMapper();
       try {
         return mapper.writeValueAsString(value);
       } catch (JsonProcessingException jex) {

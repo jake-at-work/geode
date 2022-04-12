@@ -33,8 +33,9 @@ public class Village implements Serializable {
   }// end of constructor 1
 
   public Village(int i) {
-    String[] arr1 =
-        {"MAHARASHTRA_VILLAGE1", "PUNJAB_VILLAGE1", "KERALA_VILLAGE1", "GUJARAT_VILLAGE1"};
+    var arr1 =
+        new String[] {"MAHARASHTRA_VILLAGE1", "PUNJAB_VILLAGE1", "KERALA_VILLAGE1",
+            "GUJARAT_VILLAGE1"};
     name = arr1[i % 4];
     zip = 425125 + i;
   }// end of constructor 2

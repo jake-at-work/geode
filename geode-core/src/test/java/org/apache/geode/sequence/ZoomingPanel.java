@@ -17,8 +17,6 @@ package org.apache.geode.sequence;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -68,19 +66,19 @@ public class ZoomingPanel extends JPanel {
     addMouseMotionListener(new MouseMotionAdapter() {
       @Override
       public void mouseDragged(MouseEvent e) {
-        Rectangle r = new Rectangle(e.getX(), e.getY(), 1, 1);
+        var r = new Rectangle(e.getX(), e.getY(), 1, 1);
         ((JPanel) e.getSource()).scrollRectToVisible(r);
         showBox(e.getX(), e.getY());
       }
 
       @Override
       public void mouseMoved(MouseEvent e) {
-        int popupX = getLocationOnScreen().x + e.getX();
-        int popupY = getLocationOnScreen().y + e.getY();
+        var popupX = getLocationOnScreen().x + e.getX();
+        var popupY = getLocationOnScreen().y + e.getY();
         child.showPopupText(e.getX(), e.getY(), popupX, popupY);
       }
     });
-    BorderLayout layout = new BorderLayout();
+    var layout = new BorderLayout();
     layout.setHgap(0);
     layout.setVgap(0);
     setLayout(layout);
@@ -91,15 +89,15 @@ public class ZoomingPanel extends JPanel {
   }
 
   void resizeMe(int zoomBoxX, int zoomBoxY, int zoomBoxWidth, int zoomBoxHeight) {
-    Dimension viewSize = getParent().getSize();
-    double windowWidth = viewSize.getWidth();
-    double windowHeight = viewSize.getHeight();
-    double scaleX = getWidth() / ((double) zoomBoxWidth);
-    double scaleY = getHeight() / ((double) zoomBoxHeight);
-    int oldWidth = getWidth();
-    int oldHeight = getHeight();
-    int width = (int) (scaleX * windowWidth);
-    int height = (int) (scaleY * windowHeight);
+    var viewSize = getParent().getSize();
+    var windowWidth = viewSize.getWidth();
+    var windowHeight = viewSize.getHeight();
+    var scaleX = getWidth() / ((double) zoomBoxWidth);
+    var scaleY = getHeight() / ((double) zoomBoxHeight);
+    var oldWidth = getWidth();
+    var oldHeight = getHeight();
+    var width = (int) (scaleX * windowWidth);
+    var height = (int) (scaleY * windowHeight);
     // this.setPreferredSize(new Dimension(width, height));
     child.resizeMe(width, height);
     // TODO not sure this one is needed
@@ -110,11 +108,11 @@ public class ZoomingPanel extends JPanel {
     // int scrollY = (int) (zoomBoxY * scaleY);
     // int scrollWidth= (int) (zoomBoxWidth * scaleX);
     // int scrollHeight = (int) (zoomBoxHeight * scaleY);
-    int scrollX = (int) (zoomBoxX * (width / (double) oldWidth));
-    int scrollY = (int) (zoomBoxY * (height / (double) oldHeight));
-    int scrollWidth = (int) (zoomBoxWidth * (width / (double) oldWidth));
-    int scrollHeight = (int) (zoomBoxHeight * (height / (double) oldHeight));
-    Rectangle r = new Rectangle(scrollX, scrollY, scrollWidth, scrollHeight);
+    var scrollX = (int) (zoomBoxX * (width / (double) oldWidth));
+    var scrollY = (int) (zoomBoxY * (height / (double) oldHeight));
+    var scrollWidth = (int) (zoomBoxWidth * (width / (double) oldWidth));
+    var scrollHeight = (int) (zoomBoxHeight * (height / (double) oldHeight));
+    var r = new Rectangle(scrollX, scrollY, scrollWidth, scrollHeight);
     ((JViewport) getParent()).scrollRectToVisible(r);
     repaint();
 
@@ -176,9 +174,9 @@ public class ZoomingPanel extends JPanel {
     super.paint(g);
 
     if (zoomBoxStartX != -1 && zoomBoxStartY != -1 && zoomBoxWidth != -1 && zoomBoxHeight != -1) {
-      Graphics2D g2 = (Graphics2D) g.create();
+      var g2 = (Graphics2D) g.create();
 
-      Composite old = g2.getComposite();
+      var old = g2.getComposite();
       g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
       g2.setColor(Color.BLUE);
 

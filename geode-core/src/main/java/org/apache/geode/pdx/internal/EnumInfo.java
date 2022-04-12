@@ -95,7 +95,7 @@ public class EnumInfo implements DataSerializableFixedID {
   }
 
   public int compareTo(EnumInfo other) {
-    int result = clazz.compareTo(other.clazz);
+    var result = clazz.compareTo(other.clazz);
     if (result == 0) {
       result = name.compareTo(other.name);
       if (result == 0) {
@@ -129,7 +129,7 @@ public class EnumInfo implements DataSerializableFixedID {
   }
 
   private Enum<?> getExistingEnum() {
-    WeakReference<Enum<?>> wr = enumCache;
+    var wr = enumCache;
     if (wr != null) {
       return wr.get();
     }
@@ -150,8 +150,8 @@ public class EnumInfo implements DataSerializableFixedID {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     return result;
@@ -177,7 +177,7 @@ public class EnumInfo implements DataSerializableFixedID {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    EnumInfo other = (EnumInfo) obj;
+    var other = (EnumInfo) obj;
     if (clazz == null) {
       if (other.clazz != null) {
         return false;
@@ -255,7 +255,7 @@ public class EnumInfo implements DataSerializableFixedID {
     @Immutable
     private static final List<String> fieldNames;
     static {
-      ArrayList<String> tmp = new ArrayList<>(2);
+      var tmp = new ArrayList<String>(2);
       tmp.add("name");
       tmp.add("ordinal");
       fieldNames = Collections.unmodifiableList(tmp);
@@ -294,10 +294,10 @@ public class EnumInfo implements DataSerializableFixedID {
     @Override
     public int hashCode() {
       // this hashCode needs to be kept consistent with PdxInstanceEnum
-      final int prime = 31;
-      int result = 1;
-      String className = getClassName();
-      String enumName = getName();
+      final var prime = 31;
+      var result = 1;
+      var className = getClassName();
+      var enumName = getName();
       result = prime * result + ((className == null) ? 0 : className.hashCode());
       result = prime * result + ((enumName == null) ? 0 : enumName.hashCode());
       return result;
@@ -314,8 +314,8 @@ public class EnumInfo implements DataSerializableFixedID {
       if (!(obj instanceof ComparableEnum)) {
         return false;
       }
-      ComparableEnum other = (ComparableEnum) obj;
-      String className = getClassName();
+      var other = (ComparableEnum) obj;
+      var className = getClassName();
       if (className == null) {
         if (other.getClassName() != null) {
           return false;
@@ -323,7 +323,7 @@ public class EnumInfo implements DataSerializableFixedID {
       } else if (!className.equals(other.getClassName())) {
         return false;
       }
-      String enumName = getName();
+      var enumName = getName();
       if (enumName == null) {
         return other.getName() == null;
       } else
@@ -337,7 +337,7 @@ public class EnumInfo implements DataSerializableFixedID {
 
     @Override
     public byte[] toBytes() throws IOException {
-      HeapDataOutputStream hdos = new HeapDataOutputStream(16, KnownVersion.CURRENT);
+      var hdos = new HeapDataOutputStream(16, KnownVersion.CURRENT);
       sendTo(hdos);
       return hdos.toByteArray();
     }
@@ -345,7 +345,7 @@ public class EnumInfo implements DataSerializableFixedID {
     @Override
     public int compareTo(Object o) {
       if (o instanceof ComparableEnum) {
-        ComparableEnum other = (ComparableEnum) o;
+        var other = (ComparableEnum) o;
         if (!getClassName().equals(other.getClassName())) {
           throw new ClassCastException(
               "Can not compare a " + getClassName() + " to a " + other.getClassName());

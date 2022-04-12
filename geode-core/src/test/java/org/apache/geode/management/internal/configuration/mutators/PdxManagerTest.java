@@ -30,7 +30,7 @@ public class PdxManagerTest {
 
   @Before
   public void before() throws Exception {
-    ConfigurationPersistenceService persistenceService =
+    var persistenceService =
         mock(ConfigurationPersistenceService.class);
     manager = new PdxManager(persistenceService);
     config = mock(CacheConfig.class);

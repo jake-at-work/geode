@@ -137,7 +137,7 @@ public final class JavaBeanAccessorMethodAuthorizer implements MethodInvocationA
       return false;
     }
 
-    String packageName = target.getClass().getPackage().getName();
+    var packageName = target.getClass().getPackage().getName();
 
     // If the target object belongs to the 'org.apache.geode' package, delegate to the default
     // authorizer.
@@ -145,7 +145,7 @@ public final class JavaBeanAccessorMethodAuthorizer implements MethodInvocationA
       return restrictedMethodAuthorizer.isAllowedGeodeMethod(method, target);
     }
 
-    String methodName = method.getName();
+    var methodName = method.getName();
 
     // Return true if the the object belongs to an allowed package and the method starts with
     // exactly 'get' or 'is' followed by a non-lowercase character (to prevent matching with

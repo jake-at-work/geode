@@ -46,7 +46,7 @@ public abstract class JSONUtils {
   }
 
   private static ObjectMapper getObjectMapper() {
-    ObjectMapper localObjectMapper = objectMapper.get();
+    var localObjectMapper = objectMapper.get();
     Assert.state(localObjectMapper != null, "The ObjectMapper reference must not be null!");
     return localObjectMapper;
   }
@@ -58,8 +58,8 @@ public abstract class JSONUtils {
   }
 
   public static String formulateJsonForListFunctionsCall(Set<String> functionIds) {
-    try (HeapDataOutputStream outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
-      JsonGenerator generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
+    try (var outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+      var generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
           .createGenerator((OutputStream) outputStream, JsonEncoding.UTF8));
       generator.writeStartObject();
       generator.writeFieldName("functions");
@@ -74,8 +74,8 @@ public abstract class JSONUtils {
 
   public static String formulateJsonForListKeys(Object[] keys, String fieldName) {
 
-    try (HeapDataOutputStream outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
-      JsonGenerator generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
+    try (var outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+      var generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
           .createGenerator((OutputStream) outputStream, JsonEncoding.UTF8));
       generator.writeStartObject();
       generator.writeFieldName(fieldName);
@@ -90,8 +90,8 @@ public abstract class JSONUtils {
 
   public static String formulateJsonForListRegions(Set<Region<?, ?>> regions, String fieldName) {
 
-    try (HeapDataOutputStream outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
-      JsonGenerator generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
+    try (var outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+      var generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
           .createGenerator((OutputStream) outputStream, JsonEncoding.UTF8));
       generator.writeStartObject();
       generator.writeFieldName(fieldName);
@@ -106,8 +106,8 @@ public abstract class JSONUtils {
 
 
   public static String formulateJsonForListQueriesCall(Region<String, String> queryRegion) {
-    try (HeapDataOutputStream outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
-      JsonGenerator generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
+    try (var outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+      var generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
           .createGenerator((OutputStream) outputStream, JsonEncoding.UTF8));
       JsonWriter.writeQueryListAsJson(generator, "queries", queryRegion);
       generator.close();
@@ -119,8 +119,8 @@ public abstract class JSONUtils {
 
   public static String formulateJsonForExistingQuery(String queryId, String oql) {
 
-    try (HeapDataOutputStream outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
-      JsonGenerator generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
+    try (var outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+      var generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
           .createGenerator((OutputStream) outputStream, JsonEncoding.UTF8));
       JsonWriter.writeQueryAsJson(generator, queryId, oql);
       generator.close();
@@ -132,8 +132,8 @@ public abstract class JSONUtils {
 
   public static String convertCollectionToJson(Collection<Object> collection) {
 
-    try (HeapDataOutputStream outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
-      JsonGenerator generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
+    try (var outputStream = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+      var generator = enableDisableJSONGeneratorFeature(getObjectMapper().getFactory()
           .createGenerator((OutputStream) outputStream, JsonEncoding.UTF8));
       JsonWriter.writeCollectionAsJson(generator, collection);
       generator.close();

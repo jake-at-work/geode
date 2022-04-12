@@ -22,7 +22,6 @@ import static redis.clients.jedis.JedisCluster.DEFAULT_MAX_ATTEMPTS;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -66,16 +65,16 @@ public class ZAddIncrOptionDUnitTest {
 
   @Before
   public void setup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = clusterStartUp.startLocatorVM(0);
+    var locatorPort = locator.getPort();
     servers.add(clusterStartUp.startRedisVM(1, locatorPort));
     servers.add(clusterStartUp.startRedisVM(2, locatorPort));
     servers.add(clusterStartUp.startRedisVM(3, locatorPort));
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
 
     // making SO_TIMEOUT smaller so that crash and stop tests do not take minutes to run.
-    final int SO_TIMEOUT = 10000;
+    final var SO_TIMEOUT = 10000;
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort), REDIS_CLIENT_TIMEOUT,
         SO_TIMEOUT, DEFAULT_MAX_ATTEMPTS, new GenericObjectPoolConfig<>());
   }
@@ -96,7 +95,7 @@ public class ZAddIncrOptionDUnitTest {
   }
 
   private void verifyZScores(boolean withPrimaryCrash) {
-    for (int i = 0; i < setSize; i++) {
+    for (var i = 0; i < setSize; i++) {
       if (withPrimaryCrash) {
         assertThat(jedis.zscore(sortedSetKey, baseMemberName + i)).isIn(total, total + increment2);
       } else {
@@ -121,7 +120,7 @@ public class ZAddIncrOptionDUnitTest {
   }
 
   private double doZAddIncr(int i, double increment) {
-    Object result =
+    var result =
         jedis.sendCommand(sortedSetKey, Protocol.Command.ZADD, sortedSetKey, "INCR",
             String.valueOf(increment), baseMemberName + i);
     return Double.parseDouble(new String((byte[]) result));
@@ -139,14 +138,14 @@ public class ZAddIncrOptionDUnitTest {
   }
 
   private void doZAddIncrForAllMembers(double increment1, double increment2) {
-    for (int i = 0; i < setSize; i++) {
+    for (var i = 0; i < setSize; i++) {
       doNormalZAddIncr(i, increment1, increment2);
     }
   }
 
   private void doZCardWithRetries() {
-    int maxRetryAttempts = 10;
-    int retryAttempts = 0;
+    var maxRetryAttempts = 10;
+    var retryAttempts = 0;
     while (!zCardWithRetries(retryAttempts, maxRetryAttempts)) {
       retryAttempts++;
     }
@@ -168,12 +167,12 @@ public class ZAddIncrOptionDUnitTest {
 
   @Test
   public void zAddWithIncrOptionCanIncrementScoresDuringPrimaryIsCrashed() throws Exception {
-    AtomicBoolean hitJedisClusterIssue2347 = new AtomicBoolean(false);
+    var hitJedisClusterIssue2347 = new AtomicBoolean(false);
     doZAddIncrForAllMembers(increment1, increment1);
 
-    Future<Void> future1 =
+    var future1 =
         executor.submit(() -> doZAddIncrForAllMembersDuringCrash(hitJedisClusterIssue2347));
-    Future<Void> future2 = executor.submit(() -> stopNodeWithPrimaryBucketOfTheKey(true));
+    var future2 = executor.submit(() -> stopNodeWithPrimaryBucketOfTheKey(true));
 
     future1.get();
     future2.get();
@@ -185,7 +184,7 @@ public class ZAddIncrOptionDUnitTest {
   }
 
   private void doZAddIncrForAllMembersDuringCrash(AtomicBoolean hitJedisClusterIssue2347) {
-    for (int i = 0; i < setSize; i++) {
+    for (var i = 0; i < setSize; i++) {
       try {
         doCrashZAddIncr(i);
       } catch (JedisClusterOperationException ignore) {
@@ -196,7 +195,7 @@ public class ZAddIncrOptionDUnitTest {
 
   private void stopNodeWithPrimaryBucketOfTheKey(boolean isCrash) {
     boolean isPrimary;
-    for (MemberVM server : servers) {
+    for (var server : servers) {
       isPrimary = server.invoke(ZAddIncrOptionDUnitTest::isPrimaryForKey);
       if (isPrimary) {
         if (isCrash) {
@@ -210,7 +209,7 @@ public class ZAddIncrOptionDUnitTest {
   }
 
   private static boolean isPrimaryForKey() {
-    int bucketId = getBucketId(new RedisKey(sortedSetKey.getBytes()));
+    var bucketId = getBucketId(new RedisKey(sortedSetKey.getBytes()));
     return isPrimaryForBucket(bucketId);
   }
 

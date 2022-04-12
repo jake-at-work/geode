@@ -91,7 +91,7 @@ public class LogLevel {
    * resolve the log4j level from any log statement in the log file.
    */
   public static Level resolveLevel(final String anyLevelName) {
-    Level log4jLevel = ANY_NAME_TO_LEVEL.get(anyLevelName.toUpperCase());
+    var log4jLevel = ANY_NAME_TO_LEVEL.get(anyLevelName.toUpperCase());
     // make sure any unrecognizable log level is assigned a most specific level
     return log4jLevel == null ? Level.OFF : log4jLevel;
   }
@@ -123,11 +123,11 @@ public class LogLevel {
     }
 
     if (anyLevelName.toLowerCase().startsWith("level-")) {
-      String levelValue = anyLevelName.toLowerCase().substring("level-".length());
+      var levelValue = anyLevelName.toLowerCase().substring("level-".length());
       return Integer.parseInt(levelValue);
     }
 
-    String values =
+    var values =
         Arrays.stream(Level.values()).sorted().map(Level::name).collect(Collectors.joining(", "));
     throw new IllegalArgumentException(
         "Unknown log-level \"" + anyLevelName + "\". Valid levels are: " + values + ".");

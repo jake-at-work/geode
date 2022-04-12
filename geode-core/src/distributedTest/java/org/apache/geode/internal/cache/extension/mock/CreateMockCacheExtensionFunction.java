@@ -51,25 +51,25 @@ public class CreateMockCacheExtensionFunction implements Function, DataSerializa
 
   @Override
   public void execute(FunctionContext context) {
-    final Cache cache = CacheFactory.getAnyInstance();
+    final var cache = CacheFactory.getAnyInstance();
 
     if (!(cache instanceof Extensible)) {
       throw new FunctionException("Not extensible cache.");
     }
 
-    final String value = (String) ((Object[]) context.getArguments())[0];
+    final var value = (String) ((Object[]) context.getArguments())[0];
 
     @SuppressWarnings("unchecked")
-    final Extensible<Cache> extensible = (Extensible<Cache>) cache;
-    final MockCacheExtension extension = new MockCacheExtension(value);
+    final var extensible = (Extensible<Cache>) cache;
+    final var extension = new MockCacheExtension(value);
     extension.beforeCreate(extensible, cache);
     extension.onCreate(extensible, extensible);
 
-    final XmlEntity xmlEntity =
+    final var xmlEntity =
         XmlEntity.builder().withType(ELEMENT_CACHE).withNamespace(PREFIX, NAMESPACE).build();
 
     final ResultSender<Object> resultSender = context.getResultSender();
-    final String memberNameOrId =
+    final var memberNameOrId =
         CliUtils.getMemberNameOrId(cache.getDistributedSystem().getDistributedMember());
 
     resultSender.lastResult(new CliFunctionResult(memberNameOrId, xmlEntity, CliStrings

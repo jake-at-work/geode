@@ -41,7 +41,7 @@ public class CacheServerStatsIntegrationTest extends MBeanStatsTestCase {
 
   @Test
   public void testServerStats() throws InterruptedException {
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
 
     cacheServerStats.incCurrentClients();
     cacheServerStats.incConnectionThreads();
@@ -57,7 +57,7 @@ public class CacheServerStatsIntegrationTest extends MBeanStatsTestCase {
     cacheServerStats.incReadPutRequestTime(startTime);
     cacheServerStats.incProcessPutTime(startTime);
 
-    ServerLoad load = new ServerLoad(1, 1, 1, 1);
+    var load = new ServerLoad(1, 1, 1, 1);
     cacheServerStats.setLoad(load);
 
     sample();

@@ -17,12 +17,9 @@ package org.apache.geode.redis.internal.commands.executor.string;
 import static org.apache.geode.redis.internal.netty.Coder.bytesToLong;
 import static org.apache.geode.redis.internal.netty.Coder.narrowLongToInt;
 
-import java.util.List;
-
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class GetBitExecutor implements CommandExecutor {
@@ -32,12 +29,12 @@ public class GetBitExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
 
-    List<byte[]> commandElems = command.getProcessedCommand();
-    RedisKey key = command.getKey();
+    var commandElems = command.getProcessedCommand();
+    var key = command.getKey();
 
     int offset;
     try {
-      byte[] offAr = commandElems.get(2);
+      var offAr = commandElems.get(2);
       offset = narrowLongToInt(bytesToLong(offAr));
     } catch (NumberFormatException e) {
       return RedisResponse.error(ERROR_NOT_INT);

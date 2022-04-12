@@ -26,13 +26,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLSyntaxErrorException;
-import java.sql.Statement;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.sql.DataSource;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
@@ -52,7 +48,6 @@ import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 /**
@@ -65,15 +60,15 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
   private static Cache cache = null;
 
   private void init() throws Exception {
-    Properties props = new Properties();
-    int pid = OSProcess.getId();
-    String path = File.createTempFile("dunit-cachejta_", ".xml").getAbsolutePath();
-    String file_as_str = readFile(
+    var props = new Properties();
+    var pid = OSProcess.getId();
+    var path = File.createTempFile("dunit-cachejta_", ".xml").getAbsolutePath();
+    var file_as_str = readFile(
         createTempFileFromResource(CacheUtils.class, "cachejta.xml")
             .getAbsolutePath());
-    String modified_file_str = file_as_str.replaceAll("newDB", "newDB_" + pid);
-    FileOutputStream fos = new FileOutputStream(path);
-    BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(fos));
+    var modified_file_str = file_as_str.replaceAll("newDB", "newDB_" + pid);
+    var fos = new FileOutputStream(path);
+    var wr = new BufferedWriter(new OutputStreamWriter(fos));
     wr.write(modified_file_str);
     wr.flush();
     wr.close();
@@ -101,22 +96,22 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(this::init);
   }
 
   @Override
   public final void preTearDown() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(this::closeCache);
   }
 
   @Test
   public void testTimeOut() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     AsyncInvocation async1 = vm0.invokeAsync(this::userTransactionCanBeTimedOut);
     AsyncInvocation async2 = vm0.invokeAsync(this::userTransactionCanBeTimedOut);
 
@@ -132,58 +127,58 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void startNewTransactionAfterExistingOneTimedOut() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(this::canStartANewUserTransactionAfterExistingOneTimedOut);
   }
 
   @Test
   public void testUserTransactionIsTimedOut() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(this::verifyUserTransactionIsTimedOut);
   }
 
   @Test
   public void testTransactionTimeoutCanBeSetMultipleTimes() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(this::transactionTimeoutCanBeSetMultipleTimes);
   }
 
   @Test
   public void testTransactionCanBeCommittedBeforeTimedOut() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(this::transactionCanBeCommittedBeforeTimedOut);
   }
 
   @Test
   public void testTransactionUpdatingExternalDataSourceIsCommittedBeforeTimedOut() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(this::transactionUpdatingExternalDataSourceIsCommittedBeforeTimedOut);
   }
 
   @Test
   public void testTimedOutTransactionIsNotCommitted() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(this::timedOutTransactionIsNotCommitted);
   }
 
   @Test
   public void testTransactionUpdatingExternalDataSourceIsTimedOut() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(this::transactionUpdatingExternalDataSourceIsTimedOut);
   }
 
   private void userTransactionCanBeTimedOut() {
-    boolean exceptionOccurred = false;
+    var exceptionOccurred = false;
     try {
-      Context ctx = cache.getJNDIContext();
-      UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+      var ctx = cache.getJNDIContext();
+      var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
       utx.begin();
       assertThat(utx.getStatus() == Status.STATUS_ACTIVE);
       utx.setTransactionTimeout(2);
@@ -208,8 +203,8 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   private void canStartANewUserTransactionAfterExistingOneTimedOut() {
     try {
-      Context ctx = cache.getJNDIContext();
-      UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+      var ctx = cache.getJNDIContext();
+      var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
       utx.begin();
       assertThat(utx.getStatus() == Status.STATUS_ACTIVE);
       utx.setTransactionTimeout(2);
@@ -222,7 +217,7 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void verifyUserTransactionIsTimedOut() {
-    boolean exceptionOccurred = true;
+    var exceptionOccurred = true;
     try {
       UserTransaction utx = new UserTransactionImpl();
       utx.begin();
@@ -243,7 +238,7 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void transactionTimeoutCanBeSetMultipleTimes() {
-    boolean exceptionOccurred = true;
+    var exceptionOccurred = true;
     try {
       UserTransaction utx = new UserTransactionImpl();
       utx.setTransactionTimeout(10);
@@ -268,8 +263,8 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   private void transactionCanBeCommittedBeforeTimedOut() {
     try {
-      Context ctx = cache.getJNDIContext();
-      UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+      var ctx = cache.getJNDIContext();
+      var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
       utx.begin();
       assertThat(utx.getStatus() == Status.STATUS_ACTIVE);
       utx.setTransactionTimeout(30);
@@ -286,16 +281,16 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   private void transactionUpdatingExternalDataSourceIsCommittedBeforeTimedOut() {
     try {
-      Context ctx = cache.getJNDIContext();
-      DataSource ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var ctx = cache.getJNDIContext();
+      var ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
       ds2.getConnection();
-      GemFireTransactionDataSource ds =
+      var ds =
           (GemFireTransactionDataSource) ctx.lookup("java:/XAPooledDataSource");
-      UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+      var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
       utx.begin();
-      Connection conn = ds.getConnection();
-      String sql = "create table newTable1 (id integer)";
-      Statement sm = conn.createStatement();
+      var conn = ds.getConnection();
+      var sql = "create table newTable1 (id integer)";
+      var sm = conn.createStatement();
       sm.execute(sql);
       utx.setTransactionTimeout(30);
       Thread.sleep(2000);
@@ -304,7 +299,7 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
       sm.execute(sql);
       utx.commit();
       sql = "select * from newTable1 where id = 1";
-      ResultSet rs = sm.executeQuery(sql);
+      var rs = sm.executeQuery(sql);
       if (!rs.next()) {
         fail("Transaction not committed");
       }
@@ -319,23 +314,23 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   private void timedOutTransactionIsNotCommitted() {
     try {
-      boolean exceptionOccurred = false;
-      Context ctx = cache.getJNDIContext();
-      DataSource ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var exceptionOccurred = false;
+      var ctx = cache.getJNDIContext();
+      var ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
       ds2.getConnection();
-      GemFireTransactionDataSource ds =
+      var ds =
           (GemFireTransactionDataSource) ctx.lookup("java:/XAPooledDataSource");
-      UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+      var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
       utx.begin();
-      Connection conn = ds.getConnection();
-      String sql = "create table newTable2 (id integer)";
-      Statement sm = conn.createStatement();
+      var conn = ds.getConnection();
+      var sql = "create table newTable2 (id integer)";
+      var sm = conn.createStatement();
       sm.execute(sql);
       utx.setTransactionTimeout(30);
       sql = "insert into newTable2  values (1)";
       sm.execute(sql);
       sql = "select * from newTable2 where id = 1";
-      ResultSet rs = sm.executeQuery(sql);
+      var rs = sm.executeQuery(sql);
       if (!rs.next()) {
         fail("Database not updated");
       }
@@ -355,7 +350,7 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
       conn = ds.getConnection();
       sm = conn.createStatement();
       sql = "select * from newTable2 where id = 1";
-      boolean gotExpectedTableNotExistException = false;
+      var gotExpectedTableNotExistException = false;
       try {
         sm.executeQuery(sql);
       } catch (SQLSyntaxErrorException expected) {
@@ -373,23 +368,23 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
 
   private void transactionUpdatingExternalDataSourceIsTimedOut() {
     try {
-      boolean exceptionOccurred = false;
-      Context ctx = cache.getJNDIContext();
-      DataSource ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var exceptionOccurred = false;
+      var ctx = cache.getJNDIContext();
+      var ds2 = (DataSource) ctx.lookup("java:/SimpleDataSource");
       ds2.getConnection();
-      GemFireTransactionDataSource ds =
+      var ds =
           (GemFireTransactionDataSource) ctx.lookup("java:/XAPooledDataSource");
-      UserTransaction utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
+      var utx = (UserTransaction) ctx.lookup("java:/UserTransaction");
       utx.begin();
-      Connection conn = ds.getConnection();
-      String sql = "create table newTable3 (id integer)";
-      Statement sm = conn.createStatement();
+      var conn = ds.getConnection();
+      var sql = "create table newTable3 (id integer)";
+      var sm = conn.createStatement();
       sm.execute(sql);
       utx.setTransactionTimeout(30);
       sql = "insert into newTable3  values (1)";
       sm.execute(sql);
       sql = "select * from newTable3 where id = 1";
-      ResultSet rs = sm.executeQuery(sql);
+      var rs = sm.executeQuery(sql);
       if (!rs.next()) {
         fail("Transaction not committed");
       }
@@ -414,9 +409,9 @@ public class TransactionTimeOutDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private static String readFile(String filename) throws IOException {
-    BufferedReader br = new BufferedReader(new FileReader(filename));
-    String nextLine = "";
-    StringBuilder sb = new StringBuilder();
+    var br = new BufferedReader(new FileReader(filename));
+    var nextLine = "";
+    var sb = new StringBuilder();
     while ((nextLine = br.readLine()) != null) {
       sb.append(nextLine);
       //

@@ -60,9 +60,9 @@ public class PersistentBucketRecovererTest {
 
   @Test
   public void allBucketsRecoveredFromDiskCountDownLatchIsSet() {
-    int numberOfProxyBuckets = 5;
+    var numberOfProxyBuckets = 5;
 
-    PersistentBucketRecoverer recoverer =
+    var recoverer =
         new PersistentBucketRecoverer(provider, numberOfProxyBuckets);
 
     assertThat(recoverer.getAllBucketsRecoveredFromDiskLatch()).isNotNull();
@@ -71,8 +71,8 @@ public class PersistentBucketRecovererTest {
 
   @Test
   public void latchCanBeCountedDown() {
-    int numberOfProxyBuckets = 5;
-    PersistentBucketRecoverer recoverer =
+    var numberOfProxyBuckets = 5;
+    var recoverer =
         new PersistentBucketRecoverer(provider, numberOfProxyBuckets);
 
     assertThat(recoverer.getLatchCount()).isEqualTo(numberOfProxyBuckets);
@@ -83,16 +83,16 @@ public class PersistentBucketRecovererTest {
 
   @Test
   public void runLoggingThread() {
-    PartitionedRegion baseRegion = mock(PartitionedRegion.class);
-    InternalResourceManager internalResourceManager = mock(InternalResourceManager.class);
-    InternalCache internalCache = mock(InternalCache.class);
-    DistributedRegion prRoot = mock(DistributedRegion.class);
+    var baseRegion = mock(PartitionedRegion.class);
+    var internalResourceManager = mock(InternalResourceManager.class);
+    var internalCache = mock(InternalCache.class);
+    var prRoot = mock(DistributedRegion.class);
 
     when(baseRegion.getCache()).thenReturn(internalCache);
     when(baseRegion.getGemFireCache()).thenReturn(internalCache);
 
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var distributedSystem = mock(DistributedSystem.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     when(internalCache.getDistributedSystem()).thenReturn(distributedSystem);
     when(distributedSystem.getCancelCriterion()).thenReturn(cancelCriterion);
     when(cancelCriterion.isCancelInProgress()).thenReturn(false);
@@ -100,30 +100,30 @@ public class PersistentBucketRecovererTest {
     when(internalCache.getRegion(PartitionedRegionHelper.PR_ROOT_REGION_NAME, true))
         .thenReturn(prRoot);
 
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(baseRegion.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(partitionAttributes.getColocatedWith()).thenReturn(null);
 
-    DataPolicy dataPolicy = mock(DataPolicy.class);
+    var dataPolicy = mock(DataPolicy.class);
     when(baseRegion.getDataPolicy()).thenReturn(dataPolicy);
     when(dataPolicy.withPersistence()).thenReturn(true);
 
-    RegionAttributes regionAttributes = mock(RegionAttributes.class);
+    var regionAttributes = mock(RegionAttributes.class);
     when(regionAttributes.getDataPolicy()).thenReturn(dataPolicy);
     when(baseRegion.getAttributes()).thenReturn(regionAttributes);
 
-    DiskStoreImpl diskStore = mock(DiskStoreImpl.class);
+    var diskStore = mock(DiskStoreImpl.class);
     when(baseRegion.getDiskStore()).thenReturn(diskStore);
 
-    RegionAdvisor regionAdvisor = mock(RegionAdvisor.class);
+    var regionAdvisor = mock(RegionAdvisor.class);
     when(baseRegion.getRegionAdvisor()).thenReturn(regionAdvisor);
 
-    int numberOfProxyBuckets = 5;
+    var numberOfProxyBuckets = 5;
 
-    ProxyBucketRegion[] bucs = new ProxyBucketRegion[numberOfProxyBuckets];
-    BucketPersistenceAdvisor persistenceAdvisor = mock(BucketPersistenceAdvisor.class);
+    var bucs = new ProxyBucketRegion[numberOfProxyBuckets];
+    var persistenceAdvisor = mock(BucketPersistenceAdvisor.class);
 
-    for (int i = 0; i < numberOfProxyBuckets; i++) {
+    for (var i = 0; i < numberOfProxyBuckets; i++) {
       bucs[i] = mock(ProxyBucketRegion.class);
       when(bucs[i].getPersistenceAdvisor()).thenReturn(persistenceAdvisor);
     }
@@ -131,10 +131,10 @@ public class PersistentBucketRecovererTest {
     when(regionAdvisor.getProxyBucketArray()).thenReturn(bucs);
     when(persistenceAdvisor.isClosed()).thenReturn(true);
 
-    PRHARedundancyProvider redundancyProvider =
+    var redundancyProvider =
         new PRHARedundancyProvider(baseRegion, internalResourceManager);
 
-    PersistentBucketRecoverer recoverer =
+    var recoverer =
         new PersistentBucketRecoverer(redundancyProvider, numberOfProxyBuckets);
 
     assertThat(recoverer.getLatchCount()).isEqualTo(numberOfProxyBuckets);

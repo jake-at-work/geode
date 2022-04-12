@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.data.Keywords;
@@ -45,14 +44,15 @@ public class ReservedKeywordsJUnitTest {
 
   @Test
   public void testReservedKeywords() throws Exception {
-    String[] keywords = {"select", "distinct", "from", "where", "TRUE", "FALSE", "undefined",
-        "element", "not", "and", "or", "type"};
-    Region region = CacheUtils.createRegion("Keywords", Keywords.class);
+    var keywords =
+        new String[] {"select", "distinct", "from", "where", "TRUE", "FALSE", "undefined",
+            "element", "not", "and", "or", "type"};
+    var region = CacheUtils.createRegion("Keywords", Keywords.class);
     region.put("0", new Keywords());
     Query query;
     Collection result;
-    for (final String s : keywords) {
-      String qStr =
+    for (final var s : keywords) {
+      var qStr =
           "SELECT DISTINCT * FROM " + SEPARATOR + "Keywords where \"" + s + "\"";
       CacheUtils.log(qStr);
       query = CacheUtils.getQueryService().newQuery(qStr);
@@ -61,8 +61,8 @@ public class ReservedKeywordsJUnitTest {
         fail(query.getQueryString());
       }
     }
-    for (final String keyword : keywords) {
-      String qStr =
+    for (final var keyword : keywords) {
+      var qStr =
           "SELECT DISTINCT * FROM " + SEPARATOR + "Keywords where \"" + keyword.toUpperCase()
               + "\"()";
       CacheUtils.log(qStr);

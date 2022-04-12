@@ -36,7 +36,7 @@ public class UniquePortSupplier {
   }
 
   public synchronized int getAvailablePort() {
-    int result = IntStream.generate(supplier)
+    var result = IntStream.generate(supplier)
         .filter(port -> !usedPorts.contains(port))
         .findFirst()
         .getAsInt();

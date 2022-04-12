@@ -73,7 +73,7 @@ public class AbstractRegionEntryTest {
   @Test
   public void whenMakeTombstoneHasSetValueThatThrowsExceptionDoesNotChangeValueToTombstone()
       throws RegionClearedException {
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     RegionVersionVector<?> rvv = mock(RegionVersionVector.class);
     when(lr.getVersionVector()).thenReturn(rvv);
     VersionTag<?> vt = mock(VersionTag.class);
@@ -88,10 +88,10 @@ public class AbstractRegionEntryTest {
 
   @Test
   public void whenRegionEntryIsTombstoneThenIndexShouldNotBeUpdated() throws QueryException {
-    InternalRegion region = mock(InternalRegion.class);
-    IndexManager indexManager = mock(IndexManager.class);
+    var region = mock(InternalRegion.class);
+    var indexManager = mock(IndexManager.class);
     when(region.getIndexManager()).thenReturn(indexManager);
-    AbstractRegionEntry abstractRegionEntry = mock(AbstractRegionEntry.class);
+    var abstractRegionEntry = mock(AbstractRegionEntry.class);
     when(abstractRegionEntry.isTombstone()).thenReturn(true);
     abstractRegionEntry.updateIndexOnDestroyOperation(region);
     verify(indexManager, never()).updateIndexes(any(AbstractRegionEntry.class),
@@ -103,27 +103,27 @@ public class AbstractRegionEntryTest {
   @Test
   public void whenPrepareValueForCacheCalledWithOffHeapEntryHasNewCachedSerializedValue()
       throws RegionClearedException, IOException, ClassNotFoundException {
-    LocalRegion lr = mock(LocalRegion.class);
-    RegionEntryContext regionEntryContext = mock(RegionEntryContext.class);
-    OutOfOffHeapMemoryListener ooohml = mock(OutOfOffHeapMemoryListener.class);
-    OffHeapMemoryStats stats = mock(OffHeapMemoryStats.class);
-    SlabImpl slab = new SlabImpl(1024); // 1k
-    MemoryAllocatorImpl ma =
+    var lr = mock(LocalRegion.class);
+    var regionEntryContext = mock(RegionEntryContext.class);
+    var ooohml = mock(OutOfOffHeapMemoryListener.class);
+    var stats = mock(OffHeapMemoryStats.class);
+    var slab = new SlabImpl(1024); // 1k
+    var ma =
         MemoryAllocatorImpl.createForUnitTest(ooohml, stats, new SlabImpl[] {slab});
     try {
       when(regionEntryContext.getOffHeap()).thenReturn(true);
-      String value = "value";
+      var value = "value";
       AbstractRegionEntry re = new TestableRegionEntry(lr, value);
       assertEquals(value, re.getValueField());
-      EntryEventImpl entryEvent = new EntryEventImpl();
-      StoredObject valueForCache =
+      var entryEvent = new EntryEventImpl();
+      var valueForCache =
           (StoredObject) re.prepareValueForCache(regionEntryContext, value, entryEvent, true);
-      final byte[] cachedSerializedNewValue = entryEvent.getCachedSerializedNewValue();
+      final var cachedSerializedNewValue = entryEvent.getCachedSerializedNewValue();
       assertNotNull(cachedSerializedNewValue);
       valueForCache.checkDataEquals(cachedSerializedNewValue);
-      DataInputStream dataInputStream =
+      var dataInputStream =
           new DataInputStream(new ByteArrayInputStream(cachedSerializedNewValue));
-      Object o = DataSerializer.readObject(dataInputStream);
+      var o = DataSerializer.readObject(dataInputStream);
       assertEquals(o, value);
     } finally {
       MemoryAllocatorImpl.freeOffHeapMemory();
@@ -134,24 +134,24 @@ public class AbstractRegionEntryTest {
   public void gatewayEventsFromSameDSShouldThrowCMEIfMisordered() {
     // create 2 gateway events with the same dsid, but different timestamp
     // apply them in misorder, it should throw CME before calling resolver
-    GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    String value = "value";
+    var cache = mock(GemFireCacheImpl.class);
+    var lr = mock(LocalRegion.class);
+    var value = "value";
     AbstractRegionEntry re = new TestableRegionEntry(lr, value);
-    InternalDistributedMember member1 = mock(InternalDistributedMember.class);
+    var member1 = mock(InternalDistributedMember.class);
 
-    EntryEventImpl entryEvent1 = new EntryEventImpl();
+    var entryEvent1 = new EntryEventImpl();
     entryEvent1.setRegion(lr);
     when(lr.getCache()).thenReturn(cache);
-    GatewayConflictResolver resolver = mock(GatewayConflictResolver.class);
+    var resolver = mock(GatewayConflictResolver.class);
     when(cache.getGatewayConflictResolver()).thenReturn(resolver);
 
-    VersionTag tag1 = VersionTag.create(member1);
+    var tag1 = VersionTag.create(member1);
     tag1.setVersionTimeStamp(1);
     tag1.setDistributedSystemId(3);
     tag1.setIsGatewayTag(true);
 
-    VersionTag tag2 = VersionTag.create(member1);
+    var tag2 = VersionTag.create(member1);
     tag2.setVersionTimeStamp(2);
     tag2.setDistributedSystemId(3);
     tag2.setIsGatewayTag(true);
@@ -173,23 +173,23 @@ public class AbstractRegionEntryTest {
   public void gatewayEventsFromSameDSInCorrectOrderOfTimestampShouldPass() {
     // create 2 gateway events with the same dsid, but different timestamp
     // apply them in correct order, it should pass
-    GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    String value = "value";
+    var cache = mock(GemFireCacheImpl.class);
+    var lr = mock(LocalRegion.class);
+    var value = "value";
     AbstractRegionEntry re = new TestableRegionEntry(lr, value);
-    InternalDistributedMember member1 = mock(InternalDistributedMember.class);
+    var member1 = mock(InternalDistributedMember.class);
 
-    EntryEventImpl entryEvent1 = new EntryEventImpl();
+    var entryEvent1 = new EntryEventImpl();
     entryEvent1.setRegion(lr);
     when(lr.getCache()).thenReturn(cache);
     when(cache.getGatewayConflictResolver()).thenReturn(null);
 
-    VersionTag tag1 = VersionTag.create(member1);
+    var tag1 = VersionTag.create(member1);
     tag1.setVersionTimeStamp(1);
     tag1.setDistributedSystemId(3);
     tag1.setIsGatewayTag(true);
 
-    VersionTag tag2 = VersionTag.create(member1);
+    var tag2 = VersionTag.create(member1);
     tag2.setVersionTimeStamp(2);
     tag2.setDistributedSystemId(3);
     tag2.setIsGatewayTag(true);
@@ -206,23 +206,23 @@ public class AbstractRegionEntryTest {
 
   @Test
   public void stampWithoutDSIDShouldAcceptAnyTag() {
-    GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    String value = "value";
+    var cache = mock(GemFireCacheImpl.class);
+    var lr = mock(LocalRegion.class);
+    var value = "value";
     AbstractRegionEntry re = new TestableRegionEntry(lr, value);
-    InternalDistributedMember member1 = mock(InternalDistributedMember.class);
+    var member1 = mock(InternalDistributedMember.class);
 
-    EntryEventImpl entryEvent1 = new EntryEventImpl();
+    var entryEvent1 = new EntryEventImpl();
     entryEvent1.setRegion(lr);
     when(lr.getCache()).thenReturn(cache);
     when(cache.getGatewayConflictResolver()).thenReturn(null);
 
-    VersionTag tag1 = VersionTag.create(member1);
+    var tag1 = VersionTag.create(member1);
     tag1.setVersionTimeStamp(1);
     tag1.setDistributedSystemId(-1);
     tag1.setIsGatewayTag(true);
 
-    VersionTag tag2 = VersionTag.create(member1);
+    var tag2 = VersionTag.create(member1);
     tag2.setVersionTimeStamp(2);
     tag2.setDistributedSystemId(2);
     tag2.setIsGatewayTag(true);
@@ -244,23 +244,23 @@ public class AbstractRegionEntryTest {
     // tag2 with bigger DSID and smaller timestamp
     // set tag2 into stamp. Apply event with tag1 should pass
     // i.e. We compare timestamp first, then DSID
-    GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    String value = "value";
+    var cache = mock(GemFireCacheImpl.class);
+    var lr = mock(LocalRegion.class);
+    var value = "value";
     AbstractRegionEntry re = new TestableRegionEntry(lr, value);
-    InternalDistributedMember member1 = mock(InternalDistributedMember.class);
+    var member1 = mock(InternalDistributedMember.class);
 
-    EntryEventImpl entryEvent1 = new EntryEventImpl();
+    var entryEvent1 = new EntryEventImpl();
     entryEvent1.setRegion(lr);
     when(lr.getCache()).thenReturn(cache);
     when(cache.getGatewayConflictResolver()).thenReturn(null);
 
-    VersionTag tag1 = VersionTag.create(member1);
+    var tag1 = VersionTag.create(member1);
     tag1.setVersionTimeStamp(2);
     tag1.setDistributedSystemId(1);
     tag1.setIsGatewayTag(true);
 
-    VersionTag tag2 = VersionTag.create(member1);
+    var tag2 = VersionTag.create(member1);
     tag2.setVersionTimeStamp(1);
     tag2.setDistributedSystemId(2);
     tag2.setIsGatewayTag(true);
@@ -278,23 +278,23 @@ public class AbstractRegionEntryTest {
     // create 2 gateway events with different distributed system ids (DSIDs), with same timestamp
     // set the one with bigger DSID into stamp.
     // Apply the one with smaller DSID show throw CME
-    GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    String value = "value";
+    var cache = mock(GemFireCacheImpl.class);
+    var lr = mock(LocalRegion.class);
+    var value = "value";
     AbstractRegionEntry re = new TestableRegionEntry(lr, value);
-    InternalDistributedMember member1 = mock(InternalDistributedMember.class);
+    var member1 = mock(InternalDistributedMember.class);
 
-    EntryEventImpl entryEvent1 = new EntryEventImpl();
+    var entryEvent1 = new EntryEventImpl();
     entryEvent1.setRegion(lr);
     when(lr.getCache()).thenReturn(cache);
     when(cache.getGatewayConflictResolver()).thenReturn(null);
 
-    VersionTag tag1 = VersionTag.create(member1);
+    var tag1 = VersionTag.create(member1);
     tag1.setVersionTimeStamp(1);
     tag1.setDistributedSystemId(1);
     tag1.setIsGatewayTag(true);
 
-    VersionTag tag2 = VersionTag.create(member1);
+    var tag2 = VersionTag.create(member1);
     tag2.setVersionTimeStamp(1);
     tag2.setDistributedSystemId(2);
     tag2.setIsGatewayTag(true);
@@ -315,31 +315,31 @@ public class AbstractRegionEntryTest {
     // set the one with bigger DSID into stamp.
     // Usually, apply the one with smaller DSID should throw CME, but since there's resolver
     // resolver will accept the event
-    GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    String value = "value";
+    var cache = mock(GemFireCacheImpl.class);
+    var lr = mock(LocalRegion.class);
+    var value = "value";
     AbstractRegionEntry re = new TestableRegionEntry(lr, value);
-    InternalDistributedMember member1 = mock(InternalDistributedMember.class);
+    var member1 = mock(InternalDistributedMember.class);
 
-    EntryEventImpl entryEvent1 = new EntryEventImpl();
+    var entryEvent1 = new EntryEventImpl();
     entryEvent1 = Mockito.spy(entryEvent1);
     entryEvent1.setRegion(lr);
     when(lr.getCache()).thenReturn(cache);
-    GatewayConflictResolver resolver = mock(GatewayConflictResolver.class);
+    var resolver = mock(GatewayConflictResolver.class);
     when(cache.getGatewayConflictResolver()).thenReturn(resolver);
     doNothing().when(resolver).onEvent(any(), any());
-    TimestampedEntryEventImpl timestampedEvent = mock(TimestampedEntryEventImpl.class);
+    var timestampedEvent = mock(TimestampedEntryEventImpl.class);
     // when(entryEvent1.getTimestampedEvent(anyInt(), anyInt(), anyLong(), anyLong()));
     doReturn(timestampedEvent).when(entryEvent1).getTimestampedEvent(anyInt(), anyInt(), anyLong(),
         anyLong());
     when(timestampedEvent.hasOldValue()).thenReturn(true);
 
-    VersionTag tag1 = VersionTag.create(member1);
+    var tag1 = VersionTag.create(member1);
     tag1.setVersionTimeStamp(1);
     tag1.setDistributedSystemId(1);
     tag1.setIsGatewayTag(true);
 
-    VersionTag tag2 = VersionTag.create(member1);
+    var tag2 = VersionTag.create(member1);
     tag2.setVersionTimeStamp(1);
     tag2.setDistributedSystemId(2);
     tag2.setIsGatewayTag(true);

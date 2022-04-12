@@ -53,13 +53,13 @@ public class AvailablePortJUnitTest {
   @Test
   public void testIsPortAvailable() throws IOException {
     socket = new ServerSocket();
-    int port = AvailablePort.getRandomAvailablePort(AvailablePort.SOCKET);
+    var port = AvailablePort.getRandomAvailablePort(AvailablePort.SOCKET);
     socket.bind(new InetSocketAddress(getLoopback(), port));
 
     assertFalse(AvailablePort.isPortAvailable(port, AvailablePort.SOCKET,
         InetAddress.getByName(LOOPBACK_ADDRESS)));
 
-    InetAddress localHostAddress = InetAddress.getLocalHost();
+    var localHostAddress = InetAddress.getLocalHost();
     // The next assertion assumes that the local host address is not a loopback address. Skip the
     // assertion on host machines that don't satisfy the assumption.
     if (!localHostAddress.isLoopbackAddress()) {
@@ -74,7 +74,7 @@ public class AvailablePortJUnitTest {
   public void testWildcardAddressBound() throws IOException {
     // assumeFalse(SystemUtils.isWindows()); // See bug #39368
     socket = new ServerSocket();
-    int port = AvailablePort.getRandomAvailablePort(AvailablePort.SOCKET);
+    var port = AvailablePort.getRandomAvailablePort(AvailablePort.SOCKET);
     socket.bind(new InetSocketAddress((InetAddress) null, port));
     System.out.println(
         "bind addr=" + System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "bind-address"));

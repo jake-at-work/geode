@@ -80,12 +80,10 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.ForcedDisconnectException;
 import org.apache.geode.GemFireConfigException;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.Distribution;
 import org.apache.geode.distributed.internal.DistributionException;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.HighPriorityAckedMessage;
@@ -100,7 +98,6 @@ import org.apache.geode.distributed.internal.membership.api.MembershipConfigurat
 import org.apache.geode.distributed.internal.membership.api.MembershipManagerHelper;
 import org.apache.geode.distributed.internal.membership.api.MembershipView;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.membership.utils.AvailablePort;
 import org.apache.geode.internal.tcp.Connection;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -163,7 +160,7 @@ public class LocatorDUnitTest implements Serializable {
 
     hostName = NetworkUtils.getServerHostName();
 
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(4);
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(4);
     port1 = ports[0];
     port2 = ports[1];
     port3 = ports[2];
@@ -175,7 +172,7 @@ public class LocatorDUnitTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(getController(), vm0, vm1, vm2, vm3, vm4)) {
+    for (var vm : toArray(getController(), vm0, vm1, vm2, vm3, vm4)) {
       vm.invoke(() -> {
         stopLocator();
         disconnectFromDS();
@@ -187,7 +184,7 @@ public class LocatorDUnitTest implements Serializable {
 
     // delete locator state files so they don't accidentally get used by other tests
     Invoke.invokeInEveryVM(() -> {
-      for (int port : new int[] {port1, port2, port3, port4}) {
+      for (var port : new int[] {port1, port2, port3, port4}) {
         if (port > 0) {
           deleteLocatorStateFile(port);
         }
@@ -246,7 +243,7 @@ public class LocatorDUnitTest implements Serializable {
 
   protected static void stopLocator() {
     MembershipManagerHelper.inhibitForcedDisconnectLogging(false);
-    Locator loc = Locator.getLocator();
+    var loc = Locator.getLocator();
     if (loc != null) {
       loc.stop();
       assertThat(Locator.hasLocator()).isFalse();
@@ -258,12 +255,12 @@ public class LocatorDUnitTest implements Serializable {
   public void testCrashLocatorMultipleTimes() throws Exception {
     port1 = getRandomAvailableTCPPort();
     DistributedTestUtils.deleteLocatorStateFile(port1);
-    File logFile = new File("");
-    File stateFile = new File("locator" + port1 + "state.dat");
-    VM vm = VM.getVM(0);
-    final Properties properties =
+    var logFile = new File("");
+    var stateFile = new File("locator" + port1 + "state.dat");
+    var vm = VM.getVM(0);
+    final var properties =
         getBasicProperties(Host.getHost(0).getHostName() + "[" + port1 + "]");
-    int memberTimeoutMS = 3000;
+    var memberTimeoutMS = 3000;
     properties.put(MEMBER_TIMEOUT, "" + memberTimeoutMS);
     properties.put(MAX_WAIT_TIME_RECONNECT, "" + (3 * memberTimeoutMS));
     // since we're restarting location services let's be a little forgiving about that service
@@ -277,7 +274,7 @@ public class LocatorDUnitTest implements Serializable {
     IgnoredException
         .addIgnoredException("Possible loss of quorum due to the loss of 1 cache processes");
 
-    Locator locator = Locator.startLocatorAndDS(port1, logFile, properties);
+    var locator = Locator.startLocatorAndDS(port1, logFile, properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
 
     vm.invoke(() -> {
@@ -286,7 +283,7 @@ public class LocatorDUnitTest implements Serializable {
     });
 
     try {
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         forceDisconnect();
         system.waitUntilReconnected(GeodeAwaitility.getTimeout().toMillis(), MILLISECONDS);
         assertThat(system.getReconnectedSystem()).isNotNull();
@@ -312,9 +309,9 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testCollocatedLocatorWithSecurity() {
-    String locators = hostName + "[" + port1 + "]";
+    var locators = hostName + "[" + port1 + "]";
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(SECURITY_PEER_AUTH_INIT,
         "org.apache.geode.distributed.AuthInitializer.create");
     properties.setProperty(SECURITY_PEER_AUTHENTICATOR,
@@ -330,7 +327,7 @@ public class LocatorDUnitTest implements Serializable {
     properties.remove(START_LOCATOR);
     properties.setProperty(LOCATORS, locators);
 
-    SerializableRunnable startSystem = new SerializableRunnable("start system") {
+    var startSystem = new SerializableRunnable("start system") {
       @Override
       public void run() {
         system = getConnectedDistributedSystem(properties);
@@ -340,12 +337,12 @@ public class LocatorDUnitTest implements Serializable {
     vm2.invoke(startSystem);
 
     // ensure that I, as a collocated locator owner, can create a cache region
-    Cache cache = CacheFactory.create(system);
+    var cache = CacheFactory.create(system);
     Region<?, ?> r = cache.createRegionFactory(RegionShortcut.REPLICATE).create("test-region");
     assertThat(r).describedAs("expected to create a region").isNotNull();
 
     // create a lock service and have every vm get a lock
-    DistributedLockService service = DistributedLockService.create("test service", system);
+    var service = DistributedLockService.create("test service", system);
     service.becomeLockGrantor();
     service.lock("foo0", 0, 0);
 
@@ -359,7 +356,7 @@ public class LocatorDUnitTest implements Serializable {
     system.disconnect();
 
     vm1.invoke("ensure grantor failover", () -> {
-      DistributedLockService serviceNamed = DistributedLockService.getServiceNamed("test service");
+      var serviceNamed = DistributedLockService.getServiceNamed("test service");
       serviceNamed.lock("foo3", 0, 0);
       await().until(serviceNamed::isLockGrantor);
       assertThat(serviceNamed.isLockGrantor()).isTrue();
@@ -373,7 +370,7 @@ public class LocatorDUnitTest implements Serializable {
 
     assertThat(MembershipManagerHelper.getCoordinator(system))
         .describedAs("should be the coordinator").isEqualTo(system.getDistributedMember());
-    MembershipView<InternalDistributedMember> view =
+    var view =
         MembershipManagerHelper.getDistribution(system).getView();
     logger.info("view after becoming coordinator is " + view);
     assertThat(system.getDistributedMember())
@@ -405,9 +402,9 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testStartTwoLocators() throws Exception {
-    String locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
 
-    Properties properties = getClusterProperties(locators, "false");
+    var properties = getClusterProperties(locators, "false");
     addDSProps(properties);
 
     startVerifyAndStopLocator(vm1, vm2, port1, port2, properties);
@@ -417,9 +414,9 @@ public class LocatorDUnitTest implements Serializable {
 
   @Test
   public void testStartTwoLocatorsWithSingleKeystoreSSL() throws Exception {
-    String locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
 
-    Properties properties = getClusterProperties(locators, "false");
+    var properties = getClusterProperties(locators, "false");
     properties.setProperty(SSL_CIPHERS, "any");
     properties.setProperty(SSL_ENABLED_COMPONENTS, LOCATOR.getConstant());
     properties.setProperty(SSL_KEYSTORE, getSingleKeyKeystore());
@@ -434,9 +431,9 @@ public class LocatorDUnitTest implements Serializable {
 
   @Test
   public void testStartTwoLocatorsWithMultiKeystoreSSL() throws Exception {
-    String locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
 
-    Properties properties = getClusterProperties(locators, "false");
+    var properties = getClusterProperties(locators, "false");
     properties.setProperty(SSL_CIPHERS, "any");
     properties.setProperty(SSL_ENABLED_COMPONENTS, LOCATOR.getConstant());
     properties.setProperty(SSL_KEYSTORE, getMultiKeyKeystore());
@@ -455,14 +452,14 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testLeadMemberSelection() throws Exception {
-    String locators = hostName + "[" + port1 + "]";
+    var locators = hostName + "[" + port1 + "]";
 
-    Properties properties = getBasicProperties(locators);
+    var properties = getBasicProperties(locators);
     properties.setProperty(DISABLE_AUTO_RECONNECT, "true");
     properties.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "true");
     addDSProps(properties);
 
-    Locator locator = Locator.startLocatorAndDS(port1, null, properties);
+    var locator = Locator.startLocatorAndDS(port1, null, properties);
 
     system = (InternalDistributedSystem) locator.getDistributedSystem();
 
@@ -472,16 +469,16 @@ public class LocatorDUnitTest implements Serializable {
     // are disconnected/reconnected
     properties.setProperty("name", "vm1");
 
-    DistributedMember mem1 = vm1.invoke(() -> getDistributedMember(properties));
+    var mem1 = vm1.invoke(() -> getDistributedMember(properties));
 
     waitForMemberToBecomeLeadMemberOfDistributedSystem(mem1, system);
 
     properties.setProperty("name", "vm2");
-    DistributedMember mem2 = vm2.invoke(() -> getDistributedMember(properties));
+    var mem2 = vm2.invoke(() -> getDistributedMember(properties));
     waitForMemberToBecomeLeadMemberOfDistributedSystem(mem1, system);
 
     properties.setProperty("name", "vm3");
-    DistributedMember mem3 = vm3.invoke(() -> getDistributedMember(properties));
+    var mem3 = vm3.invoke(() -> getDistributedMember(properties));
     waitForMemberToBecomeLeadMemberOfDistributedSystem(mem1, system);
 
     // after disconnecting the first vm, the second one should become the leader
@@ -529,12 +526,12 @@ public class LocatorDUnitTest implements Serializable {
   public void testLeadAndCoordFailure() throws Exception {
     addIgnoredException("Possible loss of quorum due");
 
-    String locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
 
-    Properties properties = getClusterProperties(locators, "true");
+    var properties = getClusterProperties(locators, "true");
     addDSProps(properties);
 
-    Locator locator = Locator.startLocatorAndDS(port1, null, properties);
+    var locator = Locator.startLocatorAndDS(port1, null, properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
 
     addIgnoredException(ConnectException.class);
@@ -543,7 +540,7 @@ public class LocatorDUnitTest implements Serializable {
 
     assertThat(MembershipManagerHelper.getLeadMember(system)).isNull();
 
-    DistributedMember mem1 = vm1.invoke(() -> getDistributedMember(properties));
+    var mem1 = vm1.invoke(() -> getDistributedMember(properties));
     vm2.invoke(() -> getDistributedMember(properties));
     waitForMemberToBecomeLeadMemberOfDistributedSystem(mem1, system);
 
@@ -553,7 +550,7 @@ public class LocatorDUnitTest implements Serializable {
     // crash the second vm and the locator. Should be okay
     DistributedTestUtils.crashDistributedSystem(vm2);
     vm3.invoke(() -> {
-      Locator loc = Locator.getLocator();
+      var loc = Locator.getLocator();
       MembershipManagerHelper.crashDistributedSystem(loc.getDistributedSystem());
       loc.stop();
     });
@@ -562,8 +559,8 @@ public class LocatorDUnitTest implements Serializable {
         .describedAs("Distributed system should not have disconnected").isTrue();
 
     // ensure quorumLost is properly invoked
-    DistributionManager dm = system.getDistributionManager();
-    MyMembershipListener listener = new MyMembershipListener();
+    var dm = system.getDistributionManager();
+    var listener = new MyMembershipListener();
     dm.addMembershipListener(listener);
     // ensure there is an unordered reader thread for the member
     new HighPriorityAckedMessage().send(Collections.singleton(mem1), false);
@@ -606,24 +603,24 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testLeadFailureAndCoordShutdown() throws Exception {
-    String locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
 
-    Properties properties = getClusterProperties(locators, "true");
+    var properties = getClusterProperties(locators, "true");
     addDSProps(properties);
 
-    Locator locator = Locator.startLocatorAndDS(port1, null, properties);
+    var locator = Locator.startLocatorAndDS(port1, null, properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
 
     vm3.invoke(() -> {
-      Locator loc = Locator.startLocatorAndDS(port2, null, properties);
+      var loc = Locator.startLocatorAndDS(port2, null, properties);
       system = (InternalDistributedSystem) loc.getDistributedSystem();
       MembershipManagerHelper.inhibitForcedDisconnectLogging(true);
     });
 
     assertThat(MembershipManagerHelper.getLeadMember(system)).isNull();
 
-    DistributedMember mem1 = vm1.invoke(() -> getDistributedMember(properties));
-    DistributedMember mem2 = vm2.invoke(() -> getDistributedMember(properties));
+    var mem1 = vm1.invoke(() -> getDistributedMember(properties));
+    var mem2 = vm2.invoke(() -> getDistributedMember(properties));
 
     assertThat(mem1).isEqualTo(MembershipManagerHelper.getLeadMember(system));
 
@@ -676,9 +673,9 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testForceDisconnectAndPeerShutdownCause() throws Exception {
-    String locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, locators);
     properties.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "true");
@@ -686,15 +683,15 @@ public class LocatorDUnitTest implements Serializable {
     properties.setProperty(MEMBER_TIMEOUT, "2000");
     addDSProps(properties);
 
-    Locator locator = Locator.startLocatorAndDS(port1, null, properties);
+    var locator = Locator.startLocatorAndDS(port1, null, properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
 
     vm3.invoke(() -> {
-      Locator loc = Locator.startLocatorAndDS(port2, null, properties);
+      var loc = Locator.startLocatorAndDS(port2, null, properties);
       system = (InternalDistributedSystem) loc.getDistributedSystem();
     });
 
-    SerializableRunnable crashSystem = new SerializableRunnable("Crash system") {
+    var crashSystem = new SerializableRunnable("Crash system") {
       @Override
       public void run() {
         addIgnoredException("service failure");
@@ -713,8 +710,8 @@ public class LocatorDUnitTest implements Serializable {
 
     assertNull(MembershipManagerHelper.getLeadMember(system));
 
-    DistributedMember mem1 = vm1.invoke(() -> getDistributedMember(properties));
-    DistributedMember mem2 = vm2.invoke(() -> getDistributedMember(properties));
+    var mem1 = vm1.invoke(() -> getDistributedMember(properties));
+    var mem2 = vm2.invoke(() -> getDistributedMember(properties));
 
     assertEquals(mem1, MembershipManagerHelper.getLeadMember(system));
 
@@ -735,17 +732,17 @@ public class LocatorDUnitTest implements Serializable {
 
       @Override
       public void run() {
-        Distribution mmgr = MembershipManagerHelper.getDistribution(system);
+        var mmgr = MembershipManagerHelper.getDistribution(system);
 
         // check for shutdown cause in Distribution. Following call should
         // throw DistributedSystemDisconnectedException which should have cause as
         // ForceDisconnectException.
         await().until(() -> !mmgr.getMembership().isConnected());
         await().untilAsserted(() -> {
-          Throwable cause = mmgr.getShutdownCause();
+          var cause = mmgr.getShutdownCause();
           assertThat(cause).isInstanceOf(ForcedDisconnectException.class);
         });
-        try (IgnoredException i = addIgnoredException("Membership: requesting removal of")) {
+        try (var i = addIgnoredException("Membership: requesting removal of")) {
           mmgr.requestMemberRemoval((InternalDistributedMember) mem1, "test reasons");
           fail("It should have thrown exception in requestMemberRemoval");
         } catch (DistributedSystemDisconnectedException e) {
@@ -768,53 +765,53 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testLeadShutdownAndCoordFailure() throws Exception {
-    VM memberThatWillBeShutdownVM = vm1;
-    VM memberVM = vm2;
-    VM locatorThatWillBeShutdownVM = vm3;
+    var memberThatWillBeShutdownVM = vm1;
+    var memberVM = vm2;
+    var locatorThatWillBeShutdownVM = vm3;
 
-    String locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
 
-    Properties properties = getClusterProperties(locators, "true");
+    var properties = getClusterProperties(locators, "true");
     addDSProps(properties);
 
     locatorThatWillBeShutdownVM.invoke(() -> {
-      Locator localLocator = Locator.startLocatorAndDS(port2, null, properties);
+      var localLocator = Locator.startLocatorAndDS(port2, null, properties);
       system = (InternalDistributedSystem) localLocator.getDistributedSystem();
       assertThat(localLocator.getDistributedSystem().isConnected()).isTrue();
     });
 
     // Test runner will be locator 2
-    Locator locator = Locator.startLocatorAndDS(port1, null, properties);
+    var locator = Locator.startLocatorAndDS(port1, null, properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
     assertThat(locator.getDistributedSystem().isConnected()).isTrue();
-    DistributedSystem testRunnerLocatorDS = locator.getDistributedSystem();
+    var testRunnerLocatorDS = locator.getDistributedSystem();
     addIgnoredException(ForcedDisconnectException.class);
     assertThat(MembershipManagerHelper.getLeadMember(testRunnerLocatorDS))
         .describedAs("There was a lead member when there should not be.").isNull();
 
-    DistributedMember distributedMemberThatWillBeShutdown =
+    var distributedMemberThatWillBeShutdown =
         memberThatWillBeShutdownVM.invoke(() -> getDistributedMember(properties));
     memberThatWillBeShutdownVM
         .invoke(() -> MembershipManagerHelper.inhibitForcedDisconnectLogging(true));
 
-    DistributedMember distributedMember = memberVM.invoke(() -> getDistributedMember(properties));
+    var distributedMember = memberVM.invoke(() -> getDistributedMember(properties));
 
-    DistributedMember locatorMemberToBeShutdown =
+    var locatorMemberToBeShutdown =
         locatorThatWillBeShutdownVM.invoke(LocatorDUnitTest::getLocatorDistributedMember);
 
     waitForMemberToBecomeLeadMemberOfDistributedSystem(distributedMemberThatWillBeShutdown,
         testRunnerLocatorDS);
-    DistributedMember oldLeader = MembershipManagerHelper.getLeadMember(testRunnerLocatorDS);
+    var oldLeader = MembershipManagerHelper.getLeadMember(testRunnerLocatorDS);
 
     assertThat(locatorMemberToBeShutdown)
         .isEqualTo(MembershipManagerHelper.getCoordinator(testRunnerLocatorDS));
-    DistributedMember oldCoordinator =
+    var oldCoordinator =
         MembershipManagerHelper.getCoordinator(testRunnerLocatorDS);
 
     // crash the lead locator. Should be okay
     locatorThatWillBeShutdownVM.invoke("crash locator", () -> {
-      Locator loc = Locator.getLocator();
-      DistributedSystem distributedSystem = loc.getDistributedSystem();
+      var loc = Locator.getLocator();
+      var distributedSystem = loc.getDistributedSystem();
       addIgnoredException("service failure");
       addIgnoredException(ForcedDisconnectException.class);
       MembershipManagerHelper.crashDistributedSystem(distributedSystem);
@@ -839,14 +836,14 @@ public class LocatorDUnitTest implements Serializable {
         () -> MembershipManagerHelper.getCoordinator(testRunnerLocatorDS) != oldCoordinator);
 
     await().untilAsserted(() -> {
-      DistributedMember survivingDistributedMember = testRunnerLocatorDS.getDistributedMember();
-      DistributedMember coordinator = MembershipManagerHelper.getCoordinator(testRunnerLocatorDS);
+      var survivingDistributedMember = testRunnerLocatorDS.getDistributedMember();
+      var coordinator = MembershipManagerHelper.getCoordinator(testRunnerLocatorDS);
       assertThat(survivingDistributedMember).isEqualTo(coordinator);
     });
 
     await("Waiting for the old leader to drop out")
         .pollInterval(1, SECONDS).until(() -> {
-          DistributedMember leader = MembershipManagerHelper.getLeadMember(testRunnerLocatorDS);
+          var leader = MembershipManagerHelper.getLeadMember(testRunnerLocatorDS);
           return leader != oldLeader;
         });
 
@@ -860,9 +857,9 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testNoLocator() {
-    String locators = hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port2 + "]";
 
-    Properties props = getBasicProperties(locators);
+    var props = getBasicProperties(locators);
     addDSProps(props);
 
     addIgnoredException(ConnectException.class);
@@ -889,14 +886,14 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testOneLocator() {
-    String locators = hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port2 + "]";
 
     startLocatorWithSomeBasicProperties(vm0, port2);
 
-    SerializableRunnable connect = new SerializableRunnable("Connect to " + locators) {
+    var connect = new SerializableRunnable("Connect to " + locators) {
       @Override
       public void run() {
-        Properties props = getBasicProperties(locators);
+        var props = getBasicProperties(locators);
         props.setProperty(MEMBER_TIMEOUT, "1000");
         addDSProps(props);
 
@@ -907,13 +904,13 @@ public class LocatorDUnitTest implements Serializable {
     vm1.invoke(connect);
     vm2.invoke(connect);
 
-    Properties props = getBasicProperties(locators);
+    var props = getBasicProperties(locators);
     props.setProperty(MEMBER_TIMEOUT, "1000");
     addDSProps(props);
 
     system = getConnectedDistributedSystem(props);
 
-    DistributedMember coord = MembershipManagerHelper.getCoordinator(system);
+    var coord = MembershipManagerHelper.getCoordinator(system);
     logger.info("coordinator before termination of locator is " + coord);
 
     vm0.invoke(LocatorDUnitTest::stopLocator);
@@ -922,7 +919,7 @@ public class LocatorDUnitTest implements Serializable {
 
     await().until(() -> !coord.equals(MembershipManagerHelper.getCoordinator(system)));
 
-    DistributedMember newCoord = MembershipManagerHelper.getCoordinator(system);
+    var newCoord = MembershipManagerHelper.getCoordinator(system);
     logger.info("coordinator after shutdown of locator was " + newCoord);
     if (coord.equals(newCoord)) {
       fail("another member should have become coordinator after the locator was stopped");
@@ -939,11 +936,11 @@ public class LocatorDUnitTest implements Serializable {
   public void testLocatorBecomesCoordinator() {
     addIgnoredException(ConnectException.class);
 
-    String locators = hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port2 + "]";
 
     startLocatorPreferredCoordinators(vm0, port2);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, locators);
     props.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "true");
     addDSProps(props);
@@ -957,7 +954,7 @@ public class LocatorDUnitTest implements Serializable {
 
     system = getSystem(props);
 
-    DistributedMember coord = MembershipManagerHelper.getCoordinator(system);
+    var coord = MembershipManagerHelper.getCoordinator(system);
     logger.info("coordinator before termination of locator is " + coord);
 
     vm0.invoke(LocatorDUnitTest::stopLocator);
@@ -965,7 +962,7 @@ public class LocatorDUnitTest implements Serializable {
     // now ensure that one of the remaining members became the coordinator
     await().until(() -> !coord.equals(MembershipManagerHelper.getCoordinator(system)));
 
-    final DistributedMember newCoord = MembershipManagerHelper.getCoordinator(system);
+    final var newCoord = MembershipManagerHelper.getCoordinator(system);
     logger.info("coordinator after shutdown of locator was " + newCoord);
     if (newCoord == null || coord.equals(newCoord)) {
       fail("another member should have become coordinator after the locator was stopped: "
@@ -987,28 +984,28 @@ public class LocatorDUnitTest implements Serializable {
 
   @Test
   public void testConcurrentLocatorStartup() throws Exception {
-    List<AvailablePort.Keeper> portKeepers =
+    var portKeepers =
         AvailablePortHelper.getRandomAvailableTCPPortKeepers(4);
-    StringBuilder sb = new StringBuilder(100);
-    for (int i = 0; i < portKeepers.size(); i++) {
-      AvailablePort.Keeper keeper = portKeepers.get(i);
+    var sb = new StringBuilder(100);
+    for (var i = 0; i < portKeepers.size(); i++) {
+      var keeper = portKeepers.get(i);
       sb.append("localhost[").append(keeper.getPort()).append("]");
       if (i < portKeepers.size() - 1) {
         sb.append(',');
       }
     }
-    String locators = sb.toString();
+    var locators = sb.toString();
 
-    Properties dsProps = getClusterProperties(locators, "false");
+    var dsProps = getClusterProperties(locators, "false");
 
     List<AsyncInvocation<Object>> asyncInvocations = new ArrayList<>(portKeepers.size());
 
-    for (int i = 0; i < portKeepers.size(); i++) {
-      AvailablePort.Keeper keeper = portKeepers.get(i);
-      int port = keeper.getPort();
+    for (var i = 0; i < portKeepers.size(); i++) {
+      var keeper = portKeepers.get(i);
+      var port = keeper.getPort();
       keeper.release();
-      AsyncInvocation<Object> startLocator = getVM(i).invokeAsync("start locator " + i, () -> {
-        DUnitBlackboard blackboard = getBlackboard();
+      var startLocator = getVM(i).invokeAsync("start locator " + i, () -> {
+        var blackboard = getBlackboard();
         blackboard.signalGate("" + port);
         blackboard.waitForGate("startLocators", 5, MINUTES);
         startLocatorBase(dsProps, port);
@@ -1020,11 +1017,11 @@ public class LocatorDUnitTest implements Serializable {
     }
 
     getBlackboard().signalGate("startLocators");
-    int expectedCount = asyncInvocations.size() - 1;
-    for (AsyncInvocation<Object> asyncInvocation : asyncInvocations) {
+    var expectedCount = asyncInvocations.size() - 1;
+    for (var asyncInvocation : asyncInvocations) {
       asyncInvocation.await();
     }
-    for (int i = 0; i < asyncInvocations.size(); i++) {
+    for (var i = 0; i < asyncInvocations.size(); i++) {
       assertTrue(getVM(i).invoke("assert all in same cluster", () -> CacheFactory
           .getAnyInstance().getDistributedSystem().getAllOtherMembers().size() == expectedCount));
     }
@@ -1035,19 +1032,19 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testTwoLocatorsTwoServers() {
-    String locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
+    var locators = hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]";
 
-    Properties dsProps = getBasicProperties(locators);
+    var dsProps = getBasicProperties(locators);
     addDSProps(dsProps);
 
     startLocator(vm0, dsProps, port1);
 
     startLocator(vm3, dsProps, port2);
 
-    SerializableRunnable connect = new SerializableRunnable("Connect to " + locators) {
+    var connect = new SerializableRunnable("Connect to " + locators) {
       @Override
       public void run() {
-        Properties props = getBasicProperties(locators);
+        var props = getBasicProperties(locators);
         addDSProps(props);
         getConnectedDistributedSystem(props);
       }
@@ -1055,7 +1052,7 @@ public class LocatorDUnitTest implements Serializable {
     vm1.invoke(connect);
     vm2.invoke(connect);
 
-    Properties props = getBasicProperties(locators);
+    var props = getBasicProperties(locators);
 
     addDSProps(props);
     system = getConnectedDistributedSystem(props);
@@ -1095,11 +1092,11 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testMultipleLocatorsRestartingAtSameTime() {
-    String locators =
+    var locators =
         hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]," + hostName + "[" + port3
             + "]";
 
-    Properties dsProps = getBasicProperties(locators);
+    var dsProps = getBasicProperties(locators);
     dsProps.setProperty(LOG_LEVEL, logger.getLevel().name());
     dsProps.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "true");
     addDSProps(dsProps);
@@ -1129,10 +1126,10 @@ public class LocatorDUnitTest implements Serializable {
     await()
         .until(() -> system.getDM().getDistribution().getView().size() <= 3);
 
-    String newLocators = hostName + "[" + port2 + "]," + hostName + "[" + port3 + "]";
+    var newLocators = hostName + "[" + port2 + "]," + hostName + "[" + port3 + "]";
     dsProps.setProperty(LOCATORS, newLocators);
 
-    InternalDistributedMember currentCoordinator = getCreator();
+    var currentCoordinator = getCreator();
     DistributedMember vm3ID = vm3.invoke(() -> system.getDM().getDistributionManagerId());
     assertEquals(
         "View is " + system.getDM().getDistribution().getView() + " and vm3's ID is "
@@ -1183,11 +1180,11 @@ public class LocatorDUnitTest implements Serializable {
     addIgnoredException("Possible loss of quorum");
     addIgnoredException("java.lang.Exception: Message id is");
 
-    String locators =
+    var locators =
         hostName + "[" + port1 + "]," + hostName + "[" + port2 + "]," + hostName + "[" + port3
             + "]";
 
-    Properties dsProps = getBasicProperties(locators);
+    var dsProps = getBasicProperties(locators);
     dsProps.setProperty(LOG_LEVEL, logger.getLevel().name());
     dsProps.setProperty(DISABLE_AUTO_RECONNECT, "true");
     dsProps.setProperty(MEMBER_TIMEOUT, "2000");
@@ -1210,7 +1207,7 @@ public class LocatorDUnitTest implements Serializable {
     vm1.invoke(this::forceDisconnect);
     vm2.invoke(this::forceDisconnect);
 
-    SerializableRunnable waitForDisconnect = new SerializableRunnable("waitForDisconnect") {
+    var waitForDisconnect = new SerializableRunnable("waitForDisconnect") {
       @Override
       public void run() {
         await()
@@ -1221,7 +1218,7 @@ public class LocatorDUnitTest implements Serializable {
     vm1.invoke(() -> waitForDisconnect);
     vm2.invoke(() -> waitForDisconnect);
 
-    String newLocators = hostName + "[" + port2 + "]," + hostName + "[" + port3 + "]";
+    var newLocators = hostName + "[" + port2 + "]," + hostName + "[" + port3 + "]";
     dsProps.setProperty(LOCATORS, newLocators);
 
     getBlackboard().initBlackboard();
@@ -1251,8 +1248,8 @@ public class LocatorDUnitTest implements Serializable {
       MemberIdentifier viewCreator = vm1.invoke(() -> getView().getCreator());
       MemberIdentifier viewCreator2 = vm1.invoke(() -> getView().getCreator());
 
-      InternalDistributedMember member1 = vm1.invoke(this::getMember);
-      InternalDistributedMember member2 = vm2.invoke(this::getMember);
+      var member1 = vm1.invoke(this::getMember);
+      var member2 = vm2.invoke(this::getMember);
 
       assertThat(viewCreator2).isEqualTo(viewCreator);
       assertThat(viewCreator).isIn(member1, member2);
@@ -1267,12 +1264,12 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testConnectToOwnLocator() throws Exception {
-    String locators = hostName + "[" + port1 + "]";
+    var locators = hostName + "[" + port1 + "]";
 
-    Properties props = getBasicProperties(locators);
+    var props = getBasicProperties(locators);
     props.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
 
-    Locator locator = Locator.startLocatorAndDS(port1, null, props);
+    var locator = Locator.startLocatorAndDS(port1, null, props);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
     system.disconnect();
     locator.stop();
@@ -1296,9 +1293,9 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testRestartLocator() throws Exception {
-    File stateFile = new File("locator" + port1 + "state.dat");
+    var stateFile = new File("locator" + port1 + "state.dat");
 
-    Properties properties = getBasicProperties(getHostName() + "[" + port1 + "]");
+    var properties = getBasicProperties(getHostName() + "[" + port1 + "]");
     properties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     properties.setProperty(LOG_LEVEL, DUnitLauncher.logLevel);
     addDSProps(properties);
@@ -1308,7 +1305,7 @@ public class LocatorDUnitTest implements Serializable {
     }
 
     logger.info("Starting locator");
-    Locator locator = Locator.startLocatorAndDS(port1, null, properties);
+    var locator = Locator.startLocatorAndDS(port1, null, properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
 
     vm0.invoke(() -> {
@@ -1330,16 +1327,16 @@ public class LocatorDUnitTest implements Serializable {
    */
   @Test
   public void testRestartLocatorMultipleTimes() throws Exception {
-    File stateFile = new File("locator" + port1 + "state.dat");
+    var stateFile = new File("locator" + port1 + "state.dat");
 
-    Properties properties = getBasicProperties(getHostName() + "[" + port1 + "]");
+    var properties = getBasicProperties(getHostName() + "[" + port1 + "]");
     addDSProps(properties);
 
     if (stateFile.exists()) {
       assertThat(stateFile.delete()).isTrue();
     }
 
-    Locator locator = Locator.startLocatorAndDS(port1, null, properties);
+    var locator = Locator.startLocatorAndDS(port1, null, properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
 
     vm0.invoke(() -> {
@@ -1374,7 +1371,7 @@ public class LocatorDUnitTest implements Serializable {
 
   private void startLocatorWithPortAndProperties(final int port, final Properties properties)
       throws IOException {
-    Locator locator = Locator.startLocatorAndDS(port, null, properties);
+    var locator = Locator.startLocatorAndDS(port, null, properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
     assertThat(locator).isNotNull();
   }
@@ -1430,7 +1427,7 @@ public class LocatorDUnitTest implements Serializable {
   private void waitForMemberToBecomeLeadMemberOfDistributedSystem(final DistributedMember member,
       final DistributedSystem sys) {
     await().until(() -> {
-      DistributedMember lead = MembershipManagerHelper.getLeadMember(sys);
+      var lead = MembershipManagerHelper.getLeadMember(sys);
       if (member != null) {
         return member.equals(lead);
       }
@@ -1447,14 +1444,14 @@ public class LocatorDUnitTest implements Serializable {
   private Locator startLocatorBase(Properties properties, int port) throws IOException {
     properties.setProperty(NAME, "vm" + VM.getCurrentVMNum());
 
-    Locator locator = Locator.startLocatorAndDS(port, null, properties);
+    var locator = Locator.startLocatorAndDS(port, null, properties);
     system = (InternalDistributedSystem) locator.getDistributedSystem();
 
     return locator;
   }
 
   void startLocatorWithSomeBasicProperties(VM vm, int port) {
-    Properties locProps = new Properties();
+    var locProps = new Properties();
     locProps.setProperty(MEMBER_TIMEOUT, "1000");
     addDSProps(locProps);
 
@@ -1465,7 +1462,7 @@ public class LocatorDUnitTest implements Serializable {
     try {
       System.setProperty(InternalLocator.LOCATORS_PREFERRED_AS_COORDINATORS, "true");
 
-      Properties locProps1 = new Properties();
+      var locProps1 = new Properties();
       locProps1.setProperty(MCAST_PORT, "0");
       locProps1.setProperty(LOG_LEVEL, logger.getLevel().name());
       addDSProps(locProps1);
@@ -1498,14 +1495,14 @@ public class LocatorDUnitTest implements Serializable {
   }
 
   Properties getBasicProperties(String locators) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, locators);
     return props;
   }
 
   private Properties getClusterProperties(String locators,
       String enableNetworkPartitionDetectionString) {
-    Properties properties = getBasicProperties(locators);
+    var properties = getBasicProperties(locators);
     properties.setProperty(DISABLE_AUTO_RECONNECT, "true");
     properties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     properties.setProperty(ENABLE_NETWORK_PARTITION_DETECTION,
@@ -1537,7 +1534,7 @@ public class LocatorDUnitTest implements Serializable {
     @Override
     public void beforeMembershipFailure(String reason, Throwable cause) {
       System.out.println("Inside TestHook.beforeMembershipFailure with " + cause);
-      long giveUp = System.currentTimeMillis() + 30000;
+      var giveUp = System.currentTimeMillis() + 30000;
       if (cause instanceof ForcedDisconnectException) {
         while (unboundedWait && System.currentTimeMillis() < giveUp) {
           Wait.pause(1000);

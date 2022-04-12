@@ -22,8 +22,8 @@ public class MemoryThresholdInfoTest {
 
   @Test
   public void getNotReachedReturnsIdenticalResults() {
-    MemoryThresholdInfo info1 = MemoryThresholdInfo.getNotReached();
-    MemoryThresholdInfo info2 = MemoryThresholdInfo.getNotReached();
+    var info1 = MemoryThresholdInfo.getNotReached();
+    var info2 = MemoryThresholdInfo.getNotReached();
 
     assertThat(info1).isSameAs(info2);
     assertThat(info1.getMembersThatReachedThreshold())
@@ -32,7 +32,7 @@ public class MemoryThresholdInfoTest {
 
   @Test
   public void getNotReachedReturnsEmptyMembersReached() {
-    MemoryThresholdInfo info1 = MemoryThresholdInfo.getNotReached();
+    var info1 = MemoryThresholdInfo.getNotReached();
 
     assertThat(info1.getMembersThatReachedThreshold()).isEmpty();
   }

@@ -30,19 +30,19 @@ public class LockingStripedCoordinatorTest {
 
   @Test
   public void handleMinNegativeHashCode() {
-    Hashy hashy = new Hashy(Integer.MIN_VALUE);
+    var hashy = new Hashy(Integer.MIN_VALUE);
 
     StripedCoordinator executor = new LockingStripedCoordinator();
-    String result = executor.execute(hashy, () -> "OK");
+    var result = executor.execute(hashy, () -> "OK");
     assertThat(result).isEqualTo("OK");
   }
 
   @Test
   public void handleMaxPositiveHashCode() {
-    Hashy hashy = new Hashy(Integer.MAX_VALUE);
+    var hashy = new Hashy(Integer.MAX_VALUE);
 
     StripedCoordinator executor = new LockingStripedCoordinator();
-    String result = executor.execute(hashy, () -> "OK");
+    var result = executor.execute(hashy, () -> "OK");
     assertThat(result).isEqualTo("OK");
   }
 

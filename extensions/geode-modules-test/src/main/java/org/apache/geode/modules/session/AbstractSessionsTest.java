@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Paths;
 
 import javax.servlet.http.HttpSession;
@@ -60,7 +59,7 @@ public abstract class AbstractSessionsTest {
     port = SocketUtils.findAvailableTcpPort();
     server = new EmbeddedTomcat(port, "JVM-1");
 
-    final PeerToPeerCacheLifecycleListener p2pListener = new PeerToPeerCacheLifecycleListener();
+    final var p2pListener = new PeerToPeerCacheLifecycleListener();
     p2pListener.setProperty(MCAST_PORT, "0");
     p2pListener.setProperty(LOG_LEVEL, "config");
     server.getEmbedded().addLifecycleListener(p2pListener);
@@ -96,7 +95,7 @@ public abstract class AbstractSessionsTest {
       throws IOException, SAXException {
     servlet.getServletContext().setAttribute("callback", callback);
 
-    final WebConversation wc = new WebConversation();
+    final var wc = new WebConversation();
     final WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
     req.setParameter("cmd", QueryCommand.CALLBACK.name());
     req.setParameter("param", "callback");
@@ -118,11 +117,11 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testSanity() throws Exception {
-    final WebConversation wc = new WebConversation();
+    final var wc = new WebConversation();
     final WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
     req.setParameter("cmd", QueryCommand.GET.name());
     req.setParameter("param", "null");
-    final WebResponse response = wc.getResponse(req);
+    final var response = wc.getResponse(req);
 
     assertEquals("JSESSIONID", response.getNewCookieNames()[0]);
   }
@@ -134,13 +133,13 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testCallback() throws Exception {
-    final String helloWorld = "Hello World";
-    final Callback c = (request, response) -> {
-      final PrintWriter out = response.getWriter();
+    final var helloWorld = "Hello World";
+    final var c = (Callback) (request, response) -> {
+      final var out = response.getWriter();
       out.write(helloWorld);
     };
 
-    final WebResponse response = setCallbackAndExecuteGet(c);
+    final var response = setCallbackAndExecuteGet(c);
     assertEquals(helloWorld, response.getText());
   }
 
@@ -149,18 +148,18 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testIsNew() throws Exception {
-    final Callback c = (request, response) -> {
-      final HttpSession session = request.getSession();
+    final var c = (Callback) (request, response) -> {
+      final var session = request.getSession();
       response.getWriter().write(Boolean.toString(session.isNew()));
     };
     servlet.getServletContext().setAttribute("callback", c);
 
-    final WebConversation wc = new WebConversation();
+    final var wc = new WebConversation();
     final WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     req.setParameter("cmd", QueryCommand.CALLBACK.name());
     req.setParameter("param", "callback");
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
 
     assertEquals("true", response.getText());
     response = wc.getResponse(req);
@@ -174,13 +173,13 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testSessionPersists1() throws Exception {
-    final String key = "value_testSessionPersists1";
-    final String value = "Foo";
+    final var key = "value_testSessionPersists1";
+    final var value = "Foo";
 
-    final WebConversation wc = new WebConversation();
-    final WebRequest req = prepareRequest(key, value);
-    WebResponse response = wc.getResponse(req);
-    final String sessionId = response.getNewCookieValue("JSESSIONID");
+    final var wc = new WebConversation();
+    final var req = prepareRequest(key, value);
+    var response = wc.getResponse(req);
+    final var sessionId = response.getNewCookieValue("JSESSIONID");
 
     assertNotNull("No apparent session cookie", sessionId);
 
@@ -198,11 +197,11 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testInvalidate() throws Exception {
-    final String key = "value_testInvalidate";
-    final String value = "Foo";
+    final var key = "value_testInvalidate";
+    final var value = "Foo";
 
-    final WebConversation wc = new WebConversation();
-    final WebRequest req = prepareRequest(key, value);
+    final var wc = new WebConversation();
+    final var req = prepareRequest(key, value);
     wc.getResponse(req);
 
     // Invalidate the session
@@ -214,7 +213,7 @@ public abstract class AbstractSessionsTest {
     // The attribute should not be accessible now...
     req.setParameter("cmd", QueryCommand.GET.name());
     req.setParameter("param", key);
-    final WebResponse response = wc.getResponse(req);
+    final var response = wc.getResponse(req);
 
     assertEquals("", response.getText());
   }
@@ -227,11 +226,11 @@ public abstract class AbstractSessionsTest {
     // TestSessions only live for a second
     sessionManager.setMaxInactiveInterval(1);
 
-    final String key = "value_testSessionExpiration1";
-    final String value = "Foo";
+    final var key = "value_testSessionExpiration1";
+    final var value = "Foo";
 
-    final WebConversation wc = new WebConversation();
-    final WebRequest req = prepareRequest(key, value);
+    final var wc = new WebConversation();
+    final var req = prepareRequest(key, value);
     wc.getResponse(req);
 
     // Sleep a while
@@ -240,7 +239,7 @@ public abstract class AbstractSessionsTest {
     // The attribute should not be accessible now...
     req.setParameter("cmd", QueryCommand.GET.name());
     req.setParameter("param", key);
-    final WebResponse response = wc.getResponse(req);
+    final var response = wc.getResponse(req);
 
     assertEquals("", response.getText());
   }
@@ -265,11 +264,11 @@ public abstract class AbstractSessionsTest {
   @Test
   public void testSessionExpirationByContainer() throws Exception {
 
-    final String key = "value_testSessionExpiration1";
-    final String value = "Foo";
+    final var key = "value_testSessionExpiration1";
+    final var value = "Foo";
 
-    final WebConversation wc = new WebConversation();
-    final WebRequest req = prepareRequest(key, value);
+    final var wc = new WebConversation();
+    final var req = prepareRequest(key, value);
     wc.getResponse(req);
 
     // Set the session timeout of this one session.
@@ -283,7 +282,7 @@ public abstract class AbstractSessionsTest {
     // Do a request, which should cause the session to be expired
     req.setParameter("cmd", QueryCommand.GET.name());
     req.setParameter("param", key);
-    final WebResponse response = wc.getResponse(req);
+    final var response = wc.getResponse(req);
 
     assertEquals("", response.getText());
   }
@@ -293,13 +292,13 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testRemoveAttribute() throws Exception {
-    final String key = "value_testRemoveAttribute";
-    final String value = "Foo";
+    final var key = "value_testRemoveAttribute";
+    final var value = "Foo";
 
-    final WebConversation wc = new WebConversation();
-    final WebRequest req = prepareRequest(key, value);
-    WebResponse response = wc.getResponse(req);
-    final String sessionId = response.getNewCookieValue("JSESSIONID");
+    final var wc = new WebConversation();
+    final var req = prepareRequest(key, value);
+    var response = wc.getResponse(req);
+    final var sessionId = response.getNewCookieValue("JSESSIONID");
 
     // Implicitly remove the attribute
     req.removeParameter("value");
@@ -319,13 +318,13 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testBasicRegion() throws Exception {
-    final String key = "value_testBasicRegion";
-    final String value = "Foo";
+    final var key = "value_testBasicRegion";
+    final var value = "Foo";
 
-    final WebConversation wc = new WebConversation();
-    final WebRequest req = prepareRequest(key, value);
-    final WebResponse response = wc.getResponse(req);
-    final String sessionId = response.getNewCookieValue("JSESSIONID");
+    final var wc = new WebConversation();
+    final var req = prepareRequest(key, value);
+    final var response = wc.getResponse(req);
+    final var sessionId = response.getNewCookieValue("JSESSIONID");
 
     assertEquals(value, region.get(sessionId).getAttribute(key));
   }
@@ -335,13 +334,13 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testRegionInvalidate() throws Exception {
-    final String key = "value_testRegionInvalidate";
-    final String value = "Foo";
+    final var key = "value_testRegionInvalidate";
+    final var value = "Foo";
 
-    final WebConversation wc = new WebConversation();
-    final WebRequest req = prepareRequest(key, value);
-    final WebResponse response = wc.getResponse(req);
-    final String sessionId = response.getNewCookieValue("JSESSIONID");
+    final var wc = new WebConversation();
+    final var req = prepareRequest(key, value);
+    final var response = wc.getResponse(req);
+    final var sessionId = response.getNewCookieValue("JSESSIONID");
 
     // Invalidate the session
     req.removeParameter("param");
@@ -358,16 +357,16 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testMultipleAttributeUpdates() throws Exception {
-    final String key = "value_testMultipleAttributeUpdates";
-    final Callback c = (request, response) -> {
-      final HttpSession session = request.getSession();
-      for (int i = 0; i < 1000; i++) {
+    final var key = "value_testMultipleAttributeUpdates";
+    final var c = (Callback) (request, response) -> {
+      final var session = request.getSession();
+      for (var i = 0; i < 1000; i++) {
         session.setAttribute(key, Integer.toString(i));
       }
     };
 
-    final WebResponse response = setCallbackAndExecuteGet(c);
-    final String sessionId = response.getNewCookieValue("JSESSIONID");
+    final var response = setCallbackAndExecuteGet(c);
+    final var sessionId = response.getNewCookieValue("JSESSIONID");
     assertEquals("999", region.get(sessionId).getAttribute(key));
   }
 
@@ -376,13 +375,13 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testCommitSessionValveInvalidSession() throws Exception {
-    final Callback c = (request, response) -> {
-      final HttpSession session = request.getSession();
+    final var c = (Callback) (request, response) -> {
+      final var session = request.getSession();
       session.invalidate();
       response.getWriter().write("done");
     };
 
-    final WebResponse response = setCallbackAndExecuteGet(c);
+    final var response = setCallbackAndExecuteGet(c);
     assertEquals("done", response.getText());
   }
 
@@ -391,12 +390,12 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testExtraSessionsNotCreated() throws Exception {
-    final Callback c = (request, response) -> {
+    final var c = (Callback) (request, response) -> {
       // Do nothing with sessions
       response.getWriter().write("done");
     };
 
-    final WebResponse response = setCallbackAndExecuteGet(c);
+    final var response = setCallbackAndExecuteGet(c);
     assertEquals("done", response.getText());
     assertEquals("The region should be empty", 0, region.size());
   }
@@ -407,8 +406,8 @@ public abstract class AbstractSessionsTest {
    */
   @Test
   public void testLastAccessedTime() throws Exception {
-    final Callback c = (request, response) -> {
-      final HttpSession session = request.getSession();
+    final var c = (Callback) (request, response) -> {
+      final var session = request.getSession();
       // Hack to expose the session to our test context
       session.getServletContext().setAttribute("session", session);
       session.setAttribute("lastAccessTime", session.getLastAccessedTime());
@@ -423,7 +422,7 @@ public abstract class AbstractSessionsTest {
     };
     servlet.getServletContext().setAttribute("callback", c);
 
-    final WebConversation wc = new WebConversation();
+    final var wc = new WebConversation();
     final WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Execute the callback
@@ -431,8 +430,8 @@ public abstract class AbstractSessionsTest {
     req.setParameter("param", "callback");
     wc.getResponse(req);
 
-    final HttpSession session = (HttpSession) servlet.getServletContext().getAttribute("session");
-    final Long lastAccess = (Long) session.getAttribute("lastAccessTime");
+    final var session = (HttpSession) servlet.getServletContext().getAttribute("session");
+    final var lastAccess = (Long) session.getAttribute("lastAccessTime");
 
     assertTrue(
         "Last access time not set correctly: " + lastAccess + " not <= "

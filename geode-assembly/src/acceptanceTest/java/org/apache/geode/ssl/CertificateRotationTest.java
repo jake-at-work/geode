@@ -31,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
-import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -117,7 +116,7 @@ public class CertificateRotationTest {
    */
   @Test
   public void rotateClusterCertificate() throws Exception {
-    CertificateMaterial newClusterCert = new CertificateBuilder()
+    var newClusterCert = new CertificateBuilder()
         .commonName("cluster")
         .issuedBy(caCert)
         .sanDnsName("localhost")
@@ -138,7 +137,7 @@ public class CertificateRotationTest {
    */
   @Test
   public void rotateClientCertificate() throws Exception {
-    CertificateMaterial newClientCert = new CertificateBuilder()
+    var newClientCert = new CertificateBuilder()
         .commonName("client")
         .issuedBy(caCert)
         .sanDnsName("localhost")
@@ -165,7 +164,7 @@ public class CertificateRotationTest {
      * stores. The trust stores will contain both the old and the new CA certificates.
      */
 
-    CertificateMaterial newCaCert = new CertificateBuilder()
+    var newCaCert = new CertificateBuilder()
         .commonName("ca")
         .isCA()
         .generate();
@@ -181,14 +180,14 @@ public class CertificateRotationTest {
      * and replace the certificates in the cluster's and the client's key stores.
      */
 
-    CertificateMaterial newClusterCert = new CertificateBuilder()
+    var newClusterCert = new CertificateBuilder()
         .commonName("cluster")
         .issuedBy(newCaCert)
         .sanDnsName("localhost")
         .sanIpAddress(InetAddress.getByName("127.0.0.1"))
         .generate();
 
-    CertificateMaterial newClientCert = new CertificateBuilder()
+    var newClientCert = new CertificateBuilder()
         .commonName("client")
         .issuedBy(newCaCert)
         .sanDnsName("localhost")
@@ -208,7 +207,7 @@ public class CertificateRotationTest {
     writeCertsToTrustStore(clusterTrustStore.toPath(), newCaCert);
     writeCertsToTrustStore(clientTrustStore.toPath(), newCaCert);
 
-    for (String name : memberNames) {
+    for (var name : memberNames) {
       await().untilAsserted(() -> assertThat(logsForMember(name))
           .as("The cluster's trust manager has been updated twice")
           .haveExactly(2, linesMatching(updatedTrustManager)));
@@ -230,7 +229,7 @@ public class CertificateRotationTest {
    */
   @Test
   public void untrustedCertificateThrows() throws Exception {
-    CertificateMaterial selfSignedCert = new CertificateBuilder()
+    var selfSignedCert = new CertificateBuilder()
         .commonName("client")
         .sanDnsName("localhost")
         .sanIpAddress(InetAddress.getByName("127.0.0.1"))
@@ -246,8 +245,8 @@ public class CertificateRotationTest {
 
   private void writeCertsToKeyStore(Path keyStoreFile, CertificateMaterial... certs)
       throws GeneralSecurityException, IOException {
-    CertStores store = new CertStores("");
-    for (int i = 0; i < certs.length; i++) {
+    var store = new CertStores("");
+    for (var i = 0; i < certs.length; i++) {
       store.withCertificate(String.valueOf(i), certs[i]);
     }
     store.createKeyStore(keyStoreFile.toAbsolutePath().toString(), dummyStorePass);
@@ -255,15 +254,15 @@ public class CertificateRotationTest {
 
   private void writeCertsToTrustStore(Path trustStoreFile, CertificateMaterial... certs)
       throws GeneralSecurityException, IOException {
-    CertStores store = new CertStores("");
-    for (int i = 0; i < certs.length; i++) {
+    var store = new CertStores("");
+    for (var i = 0; i < certs.length; i++) {
       store.trust(String.valueOf(i), certs[i]);
     }
     store.createTrustStore(trustStoreFile.toAbsolutePath().toString(), dummyStorePass);
   }
 
   private void waitForMembersToLogMessage(Pattern pattern) {
-    for (String name : memberNames) {
+    for (var name : memberNames) {
       await().untilAsserted(() -> assertThat(logsForMember(name))
           .as("The logs for member " + name + " include a line matching \"" + pattern + "\"")
           .haveAtLeast(1, linesMatching(pattern)));
@@ -285,12 +284,12 @@ public class CertificateRotationTest {
   }
 
   private Stream<String> logsForMember(String name) throws IOException {
-    Path logFile = temporaryFolder.getRoot().toPath().resolve(name).resolve(name + ".log");
+    var logFile = temporaryFolder.getRoot().toPath().resolve(name).resolve(name + ".log");
     return Files.lines(logFile);
   }
 
   private void startClient() throws IOException, GeneralSecurityException, InterruptedException {
-    CertificateMaterial clientCert = new CertificateBuilder()
+    var clientCert = new CertificateBuilder()
         .commonName("client")
         .issuedBy(caCert)
         .sanDnsName("localhost")
@@ -303,8 +302,8 @@ public class CertificateRotationTest {
     clientTrustStore = temporaryFolder.newFile("client-truststore.jks");
     writeCertsToTrustStore(clientTrustStore.toPath(), caCert);
 
-    File clientSecurityProperties = temporaryFolder.newFile("client-security.properties");
-    Properties properties = CertStores.propertiesWith("all", "any", "any",
+    var clientSecurityProperties = temporaryFolder.newFile("client-security.properties");
+    var properties = CertStores.propertiesWith("all", "any", "any",
         clientTrustStore, dummyStorePass, clientKeyStore, dummyStorePass, true, true);
     properties.store(new FileOutputStream(clientSecurityProperties), "");
 
@@ -332,7 +331,7 @@ public class CertificateRotationTest {
   }
 
   private void startCluster() throws IOException, GeneralSecurityException {
-    CertificateMaterial clusterCert = new CertificateBuilder()
+    var clusterCert = new CertificateBuilder()
         .commonName("cluster")
         .issuedBy(caCert)
         .sanDnsName("localhost")
@@ -346,7 +345,7 @@ public class CertificateRotationTest {
     writeCertsToTrustStore(clusterTrustStore.toPath(), caCert);
 
     clusterSecurityProperties = temporaryFolder.newFile("cluster-security.properties");
-    Properties properties = CertStores.propertiesWith("all", "any", "any",
+    var properties = CertStores.propertiesWith("all", "any", "any",
         clusterTrustStore, dummyStorePass, clusterKeyStore, dummyStorePass, true, true);
     properties.store(new FileOutputStream(clusterSecurityProperties), "");
 
@@ -359,14 +358,14 @@ public class CertificateRotationTest {
   }
 
   private void startLocator(String name) throws IOException {
-    File dir = temporaryFolder.newFolder(name);
+    var dir = temporaryFolder.newFolder(name);
 
-    int[] availablePorts = getRandomAvailableTCPPorts(3);
+    var availablePorts = getRandomAvailableTCPPorts(3);
     locatorPort = availablePorts[0];
     locatorHttpPort = availablePorts[1];
-    int locatorJmxPort = availablePorts[2];
+    var locatorJmxPort = availablePorts[2];
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--connect=false",
         "--name=" + name,
@@ -381,14 +380,14 @@ public class CertificateRotationTest {
   }
 
   private void startServer(String name) throws IOException {
-    File dir = temporaryFolder.newFolder(name);
+    var dir = temporaryFolder.newFolder(name);
 
-    int[] availablePorts = getRandomAvailableTCPPorts(1);
-    int port = availablePorts[0];
+    var availablePorts = getRandomAvailableTCPPorts(1);
+    var port = availablePorts[0];
 
-    String locatorString = "localhost[" + locatorPort + "]";
+    var locatorString = "localhost[" + locatorPort + "]";
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=" + name,
         "--dir=" + dir.getAbsolutePath(),
@@ -401,14 +400,14 @@ public class CertificateRotationTest {
   }
 
   private void createRegion() {
-    String connectToLocatorCommand = String.join(" ",
+    var connectToLocatorCommand = String.join(" ",
         "connect",
         "--use-http",
         "--use-ssl",
         "--url=https://localhost:" + locatorHttpPort + "/geode-mgmt/v1",
         "--security-properties-file=" + clusterSecurityProperties.getAbsolutePath());
 
-    String createRegionCommand = String.join(" ",
+    var createRegionCommand = String.join(" ",
         "create region",
         "--name=" + regionName,
         "--type=REPLICATE");
@@ -417,14 +416,14 @@ public class CertificateRotationTest {
   }
 
   private void shutdownCluster() {
-    String connectToLocatorCommand = String.join(" ",
+    var connectToLocatorCommand = String.join(" ",
         "connect",
         "--use-http",
         "--use-ssl",
         "--url=https://localhost:" + locatorHttpPort + "/geode-mgmt/v1",
         "--security-properties-file=" + clusterSecurityProperties.getAbsolutePath());
 
-    String shutdownCommand = "shutdown --include-locators=true";
+    var shutdownCommand = "shutdown --include-locators=true";
     gfshRule.execute(connectToLocatorCommand, shutdownCommand);
   }
 }

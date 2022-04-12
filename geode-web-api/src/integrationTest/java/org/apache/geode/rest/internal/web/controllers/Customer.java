@@ -84,7 +84,7 @@ public class Customer implements Serializable {
       return false;
     }
 
-    final Customer that = (Customer) obj;
+    final var that = (Customer) obj;
 
     return (ObjectUtils.equals(getCustomerId(), that.getCustomerId())
         && ObjectUtils.equals(getLastName(), that.getLastName())
@@ -102,7 +102,7 @@ public class Customer implements Serializable {
 
   @Override
   public int hashCode() {
-    int hashValue = 17;
+    var hashValue = 17;
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getCustomerId());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getLastName());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getFirstName());

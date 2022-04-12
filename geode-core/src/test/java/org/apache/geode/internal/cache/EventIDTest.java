@@ -55,8 +55,8 @@ public class EventIDTest {
 
   private void emptyEventIdCanBeSerialized(KnownVersion version)
       throws IOException, ClassNotFoundException {
-    EventID eventID = new EventID();
-    HeapDataOutputStream out = new HeapDataOutputStream(version);
+    var eventID = new EventID();
+    var out = new HeapDataOutputStream(version);
     DataSerializer.writeObject(eventID, out);
 
     EventID result = DataSerializer.readObject(
@@ -68,20 +68,20 @@ public class EventIDTest {
   @Test
   @Repeat(10)
   public void threadIDIsWrappedAround() throws Exception {
-    EventID.ThreadAndSequenceIDWrapper wrapper = new EventID.ThreadAndSequenceIDWrapper();
-    long start = wrapper.threadID;
+    var wrapper = new EventID.ThreadAndSequenceIDWrapper();
+    var start = wrapper.threadID;
 
-    int numberOfThreads = 100000;
+    var numberOfThreads = 100000;
 
     List<Future<Long>> futures = new ArrayList<>();
-    for (int i = 0; i < numberOfThreads; i++) {
+    for (var i = 0; i < numberOfThreads; i++) {
       futures.add(executorService.submit(this::getThreadID));
     }
-    for (Future<Long> future : futures) {
+    for (var future : futures) {
       future.get();
     }
     long lastThreadID = executorService.submit(this::getThreadID).get();
-    long expected = start + numberOfThreads + 1;
+    var expected = start + numberOfThreads + 1;
     if (expected >= ThreadIdentifier.MAX_THREAD_PER_CLIENT) {
       // wrap around ThreadIdentifier.MAX_THREAD_PER_CLIENT (1,000,000) and 1,000,000
       // is never used.
@@ -92,7 +92,7 @@ public class EventIDTest {
   }
 
   private long getThreadID() {
-    EventID.ThreadAndSequenceIDWrapper wrapper = new EventID.ThreadAndSequenceIDWrapper();
+    var wrapper = new EventID.ThreadAndSequenceIDWrapper();
     return wrapper.threadID;
   }
 }

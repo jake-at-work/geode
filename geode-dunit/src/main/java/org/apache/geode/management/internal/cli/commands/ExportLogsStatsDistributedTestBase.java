@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Properties;
@@ -65,7 +64,7 @@ public class ExportLogsStatsDistributedTestBase {
     // start the locator in vm0 and then connect to it over http
     locator = lsRule.startLocatorVM(0, MemberStarterRule::withHttpService);
 
-    Properties serverProperties = new Properties();
+    var serverProperties = new Properties();
     serverProperties.setProperty(ConfigurationProperties.STATISTIC_SAMPLING_ENABLED, "true");
     serverProperties.setProperty(STATISTIC_ARCHIVE_FILE, "statistics.gfs");
     lsRule.startServerVM(1, serverProperties, locator.getPort());
@@ -85,10 +84,10 @@ public class ExportLogsStatsDistributedTestBase {
   @Test
   public void testExportLogsAndStats() throws Exception {
     connectIfNeeded();
-    String tempFolder = tempFolderRule.getRoot().getAbsolutePath();
+    var tempFolder = tempFolderRule.getRoot().getAbsolutePath();
     connector.executeAndAssertThat("export logs --dir=" + tempFolder).statusIsSuccess();
-    String zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
-    Set<String> actualZipEntries = getZipEntries(zipPath);
+    var zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
+    var actualZipEntries = getZipEntries(zipPath);
 
     Set<String> expectedFiles = Sets.newHashSet(
         "locator-0" + File.separator + "locator-0.log",
@@ -104,10 +103,10 @@ public class ExportLogsStatsDistributedTestBase {
   @Test
   public void testExportLogsOnly() throws Exception {
     connectIfNeeded();
-    String tempFolder = tempFolderRule.getRoot().getAbsolutePath();
+    var tempFolder = tempFolderRule.getRoot().getAbsolutePath();
     connector.executeAndAssertThat("export logs --logs-only --dir=" + tempFolder).statusIsSuccess();
-    String zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
-    Set<String> actualZipEntries = getZipEntries(zipPath);
+    var zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
+    var actualZipEntries = getZipEntries(zipPath);
 
     Set<String> expectedFiles = Sets.newHashSet(
         "locator-0" + File.separator + "locator-0.log",
@@ -122,11 +121,11 @@ public class ExportLogsStatsDistributedTestBase {
   @Test
   public void testExportStatsOnly() throws Exception {
     connectIfNeeded();
-    String tempFolder = tempFolderRule.getRoot().getAbsolutePath();
+    var tempFolder = tempFolderRule.getRoot().getAbsolutePath();
     connector.executeAndAssertThat("export logs --stats-only --dir=" + tempFolder)
         .statusIsSuccess();
-    String zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
-    Set<String> actualZipEntries = getZipEntries(zipPath);
+    var zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
+    var actualZipEntries = getZipEntries(zipPath);
 
     Set<String> expectedFiles = Sets.newHashSet("server-1" + File.separator + "statistics.gfs");
     assertThat(actualZipEntries).isEqualTo(expectedFiles);
@@ -135,12 +134,12 @@ public class ExportLogsStatsDistributedTestBase {
   @Test
   public void startAndEndDateCanExcludeLogs() throws Exception {
     connectIfNeeded();
-    ZonedDateTime now = LocalDateTime.now().atZone(ZoneId.systemDefault());
-    ZonedDateTime tomorrow = now.plusDays(1);
+    var now = LocalDateTime.now().atZone(ZoneId.systemDefault());
+    var tomorrow = now.plusDays(1);
 
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(ONLY_DATE_FORMAT);
+    var dateTimeFormatter = DateTimeFormatter.ofPattern(ONLY_DATE_FORMAT);
 
-    CommandStringBuilder commandStringBuilder = new CommandStringBuilder("export logs");
+    var commandStringBuilder = new CommandStringBuilder("export logs");
     commandStringBuilder.addOption("start-time", dateTimeFormatter.format(tomorrow));
     commandStringBuilder.addOption("log-level", "debug");
 

@@ -17,8 +17,6 @@ package org.apache.geode.management.internal.cli.functions;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.management.internal.cli.domain.RegionInformation;
@@ -40,16 +38,16 @@ public class GetRegionsFunction implements InternalFunction<Void> {
   @Override
   public void execute(FunctionContext<Void> functionContext) {
     try {
-      Cache cache = functionContext.getCache();
-      Set<Region<?, ?>> regions = cache.rootRegions(); // should never return a null
+      var cache = functionContext.getCache();
+      var regions = cache.rootRegions(); // should never return a null
 
       if (regions == null || regions.isEmpty()) {
         functionContext.getResultSender().lastResult(null);
       } else {
         Set<RegionInformation> regionInformationSet = new HashSet<>();
 
-        for (Region<?, ?> region : regions) {
-          RegionInformation regInfo = new RegionInformation(region, true);
+        for (var region : regions) {
+          var regInfo = new RegionInformation(region, true);
           regionInformationSet.add(regInfo);
         }
         functionContext.getResultSender()

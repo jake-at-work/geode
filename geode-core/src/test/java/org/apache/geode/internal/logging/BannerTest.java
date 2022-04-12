@@ -45,7 +45,7 @@ public class BannerTest {
 
   @Test
   public void displayValuesReturnsDisplayValueForEveryBannerHeader() {
-    for (Banner.BannerHeader bannerHeader : Banner.BannerHeader.values()) {
+    for (var bannerHeader : Banner.BannerHeader.values()) {
       assertThat(Banner.BannerHeader.displayValues()).contains(bannerHeader.displayValue());
     }
   }

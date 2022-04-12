@@ -16,10 +16,7 @@ package org.apache.geode.internal.cache.tier.sockets;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +24,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.UnsupportedVersionException;
 import org.apache.geode.cache.VersionException;
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.CommunicationMode;
 import org.apache.geode.internal.cache.tier.ServerSideHandshake;
 import org.apache.geode.internal.security.SecurityService;
@@ -45,7 +41,7 @@ class ServerSideHandshakeFactory {
   ServerSideHandshake readHandshake(Socket socket, int timeout, CommunicationMode communicationMode,
       DistributedSystem system, SecurityService securityService) throws Exception {
     // Read the version byte from the socket
-    KnownVersion clientVersion = readClientVersion(socket, timeout, communicationMode.isWAN());
+    var clientVersion = readClientVersion(socket, timeout, communicationMode.isWAN());
 
     if (logger.isDebugEnabled()) {
       logger.debug("Client version: {}", clientVersion);
@@ -62,12 +58,12 @@ class ServerSideHandshakeFactory {
 
   private KnownVersion readClientVersion(Socket socket, int timeout, boolean isWan)
       throws IOException, VersionException {
-    int soTimeout = -1;
+    var soTimeout = -1;
     try {
       soTimeout = socket.getSoTimeout();
       socket.setSoTimeout(timeout);
-      InputStream is = socket.getInputStream();
-      short clientVersionOrdinal = VersioningIO.readOrdinalFromInputStream(is);
+      var is = socket.getInputStream();
+      var clientVersionOrdinal = VersioningIO.readOrdinalFromInputStream(is);
       if (clientVersionOrdinal == -1) {
         throw new EOFException(
             "HandShakeReader: EOF reached before client version could be read");
@@ -76,17 +72,17 @@ class ServerSideHandshakeFactory {
       if (isWan) {
         return currentServerVersion;
       }
-      final KnownVersion clientVersion = Versioning.getKnownVersionOrDefault(
+      final var clientVersion = Versioning.getKnownVersionOrDefault(
           Versioning.getVersion(clientVersionOrdinal), KnownVersion.TEST_VERSION);
       if (clientVersion != KnownVersion.TEST_VERSION) {
-        final Map<Integer, Command> commands =
+        final var commands =
             CommandInitializer.getDefaultInstance().get(clientVersion);
         if (commands != null) {
           return clientVersion;
         }
       }
-      SocketAddress sa = socket.getRemoteSocketAddress();
-      String sInfo = "";
+      var sa = socket.getRemoteSocketAddress();
+      var sInfo = "";
       if (sa != null) {
         sInfo = " Client: " + sa + ".";
       }

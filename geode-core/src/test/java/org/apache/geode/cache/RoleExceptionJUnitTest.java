@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.junit.Test;
@@ -40,16 +39,16 @@ public class RoleExceptionJUnitTest {
    */
   @Test
   public void testRegionAccessExceptionIsSerializable() throws Exception {
-    RegionAccessException out = createRegionAccessException();
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(100);
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    var out = createRegionAccessException();
+    var baos = new ByteArrayOutputStream(100);
+    var oos = new ObjectOutputStream(baos);
     oos.writeObject(out);
 
-    byte[] data = baos.toByteArray();
+    var data = baos.toByteArray();
 
-    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-    ObjectInputStream ois = new ObjectInputStream(bais);
-    RegionAccessException in = (RegionAccessException) ois.readObject();
+    var bais = new ByteArrayInputStream(data);
+    var ois = new ObjectInputStream(bais);
+    var in = (RegionAccessException) ois.readObject();
     assertEquals(createSetOfRoles(), in.getMissingRoles());
 
     assertEquals(out.getMessage(), in.getMessage());
@@ -61,16 +60,16 @@ public class RoleExceptionJUnitTest {
    */
   @Test
   public void testRegionDistributionExceptionIsSerializable() throws Exception {
-    RegionDistributionException out = createRegionDistributionException();
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(100);
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    var out = createRegionDistributionException();
+    var baos = new ByteArrayOutputStream(100);
+    var oos = new ObjectOutputStream(baos);
     oos.writeObject(out);
 
-    byte[] data = baos.toByteArray();
+    var data = baos.toByteArray();
 
-    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-    ObjectInputStream ois = new ObjectInputStream(bais);
-    RegionDistributionException in = (RegionDistributionException) ois.readObject();
+    var bais = new ByteArrayInputStream(data);
+    var ois = new ObjectInputStream(bais);
+    var in = (RegionDistributionException) ois.readObject();
     assertEquals(createSetOfRoles(), in.getFailedRoles());
 
     assertEquals(out.getMessage(), in.getMessage());
@@ -82,26 +81,26 @@ public class RoleExceptionJUnitTest {
    */
   @Test
   public void testCommitDistributionExceptionIsSerializable() throws Exception {
-    String s = "MyString";
+    var s = "MyString";
     Set outExceptions = new HashSet();
     outExceptions.add(createRegionDistributionException());
 
-    CommitDistributionException out = new CommitDistributionException(s, outExceptions);
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(100);
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    var out = new CommitDistributionException(s, outExceptions);
+    var baos = new ByteArrayOutputStream(100);
+    var oos = new ObjectOutputStream(baos);
     oos.writeObject(out);
 
-    byte[] data = baos.toByteArray();
+    var data = baos.toByteArray();
 
-    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-    ObjectInputStream ois = new ObjectInputStream(bais);
-    CommitDistributionException in = (CommitDistributionException) ois.readObject();
+    var bais = new ByteArrayInputStream(data);
+    var ois = new ObjectInputStream(bais);
+    var in = (CommitDistributionException) ois.readObject();
 
-    Set inExceptions = in.getRegionDistributionExceptions();
+    var inExceptions = in.getRegionDistributionExceptions();
     assertNotNull(inExceptions);
-    Iterator iter = inExceptions.iterator();
+    var iter = inExceptions.iterator();
     assertTrue(iter.hasNext());
-    RegionDistributionException e = (RegionDistributionException) iter.next();
+    var e = (RegionDistributionException) iter.next();
     assertEquals(createSetOfRoles(), e.getFailedRoles());
 
     assertEquals(out.getMessage(), in.getMessage());
@@ -117,16 +116,16 @@ public class RoleExceptionJUnitTest {
   }
 
   private RegionAccessException createRegionAccessException() {
-    String s = "MyString";
-    String regionFullPath = "MyPath";
-    Set missingRoles = createSetOfRoles();
+    var s = "MyString";
+    var regionFullPath = "MyPath";
+    var missingRoles = createSetOfRoles();
     return new RegionAccessException(s, regionFullPath, missingRoles);
   }
 
   private RegionDistributionException createRegionDistributionException() {
-    String s = "MyString";
-    String regionFullPath = "MyPath";
-    Set missingRoles = createSetOfRoles();
+    var s = "MyString";
+    var regionFullPath = "MyPath";
+    var missingRoles = createSetOfRoles();
     return new RegionDistributionException(s, regionFullPath, missingRoles);
   }
 

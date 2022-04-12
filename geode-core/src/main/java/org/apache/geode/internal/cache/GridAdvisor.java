@@ -65,7 +65,7 @@ public abstract class GridAdvisor extends DistributionAdvisor {
    * Return an unmodifiable Set<DistributedMember> of the cnx controllers in this system.
    */
   public Set adviseControllers() {
-    Set/* <DistributedMember> */ result = cachedControllerAdvise;
+    var /* <DistributedMember> */ result = cachedControllerAdvise;
     if (result == null) {
       synchronized (cacheLock) {
         result = cachedControllerAdvise;
@@ -82,7 +82,7 @@ public abstract class GridAdvisor extends DistributionAdvisor {
    * Return an unmodifiable Set<DistributedMember> of the cache servers in this system.
    */
   public Set adviseBridgeServers() {
-    Set/* <DistributedMember> */ result = cachedBridgeServerAdvise;
+    var /* <DistributedMember> */ result = cachedBridgeServerAdvise;
     if (result == null) {
       synchronized (cacheLock) {
         result = cachedBridgeServerAdvise;
@@ -119,7 +119,7 @@ public abstract class GridAdvisor extends DistributionAdvisor {
    * controllers.
    */
   public List/* <ControllerProfile> */ fetchControllers() {
-    List/* <ControllerProfile> */ result = cachedControllerProfiles;
+    var /* <ControllerProfile> */ result = cachedControllerProfiles;
     if (result == null) {
       synchronized (cacheLock) {
         result = cachedControllerProfiles;
@@ -133,7 +133,7 @@ public abstract class GridAdvisor extends DistributionAdvisor {
   }
 
   public int getBridgeServerCount() {
-    List/* <BridgeServerProfile> */ l = cachedBridgeServerProfiles;
+    var /* <BridgeServerProfile> */ l = cachedBridgeServerProfiles;
     if (l == null) {
       l = fetchProfiles(BRIDGE_SERVER_FILTER);
     }
@@ -141,7 +141,7 @@ public abstract class GridAdvisor extends DistributionAdvisor {
   }
 
   public int getControllerCount() {
-    List/* <ControllerProfile> */ l = cachedControllerProfiles;
+    var /* <ControllerProfile> */ l = cachedControllerProfiles;
     if (l == null) {
       l = fetchProfiles(CONTROLLER_FILTER);
     }
@@ -202,11 +202,11 @@ public abstract class GridAdvisor extends DistributionAdvisor {
     if (initializationGate()) {
       // Exchange with any local servers or controllers.
       List<Profile> otherProfiles = new ArrayList<>();
-      GridProfile profile = (GridProfile) createProfile();
+      var profile = (GridProfile) createProfile();
       profile.tellLocalBridgeServers(getDistributionManager().getCache(), false, true,
           otherProfiles);
       profile.tellLocalControllers(false, true, otherProfiles);
-      for (Profile otherProfile : otherProfiles) {
+      for (var otherProfile : otherProfiles) {
         if (!otherProfile.equals(profile)) {
           putProfile(otherProfile);
         }
@@ -222,7 +222,7 @@ public abstract class GridAdvisor extends DistributionAdvisor {
 
       // Notify any local cache servers or controllers
       // that we are closing.
-      GridProfile profile = (GridProfile) createProfile();
+      var profile = (GridProfile) createProfile();
       profile.tellLocalBridgeServers(getDistributionManager().getCache(), true, false, null);
       profile.tellLocalControllers(true, false, null);
       super.close();
@@ -303,9 +303,9 @@ public abstract class GridAdvisor extends DistributionAdvisor {
      */
     protected void tellLocalControllers(boolean removeProfile, boolean exchangeProfiles,
         final List<Profile> replyProfiles) {
-      final List<Locator> locators = Locator.getLocators();
-      for (Locator locator : locators) {
-        InternalLocator l = (InternalLocator) locator;
+      final var locators = Locator.getLocators();
+      for (var locator : locators) {
+        var l = (InternalLocator) locator;
         DistributionAdvisee advisee = l.getServerLocatorAdvisee();
         if (advisee != null && advisee.getProfile().equals(this)) {
           continue;
@@ -332,7 +332,7 @@ public abstract class GridAdvisor extends DistributionAdvisor {
       if (cache != null && !cache.isClosed()) {
         List<?> bridgeServers = cache.getCacheServersAndGatewayReceiver();
         for (Object bridgeServer : bridgeServers) {
-          CacheServerImpl bsi = (CacheServerImpl) bridgeServer;
+          var bsi = (CacheServerImpl) bridgeServer;
           if (bsi.isRunning()) {
             if (bsi.getProfile().equals(this)) {
               continue;
@@ -409,10 +409,10 @@ public abstract class GridAdvisor extends DistributionAdvisor {
 
     @Override
     public int hashCode() {
-      final String thisHost = gp.getHost();
-      final int thisPort = gp.getPort();
-      final String thisMemberId = getMemberId().getUniqueId();
-      final int thisMemberIdHashCode = (thisMemberId != null) ? thisMemberId.hashCode() : 0;
+      final var thisHost = gp.getHost();
+      final var thisPort = gp.getPort();
+      final var thisMemberId = getMemberId().getUniqueId();
+      final var thisMemberIdHashCode = (thisMemberId != null) ? thisMemberId.hashCode() : 0;
       return thisHost != null ? (thisHost.hashCode() ^ thisPort) + thisMemberIdHashCode
           : thisPort + thisMemberIdHashCode;
     }
@@ -420,11 +420,11 @@ public abstract class GridAdvisor extends DistributionAdvisor {
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof GridProfileId) {
-        final GridProfileId other = (GridProfileId) obj;
+        final var other = (GridProfileId) obj;
 
         if (gp.getPort() == other.gp.getPort()) {
-          final String thisHost = gp.getHost();
-          final String otherHost = other.gp.getHost();
+          final var thisHost = gp.getHost();
+          final var otherHost = other.gp.getHost();
           if (thisHost != null) {
             if (thisHost.equals(otherHost)) {
               if (getMemberId() != null) {

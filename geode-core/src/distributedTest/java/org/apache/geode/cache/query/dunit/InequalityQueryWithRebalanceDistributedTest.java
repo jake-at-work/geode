@@ -68,7 +68,7 @@ public class InequalityQueryWithRebalanceDistributedTest implements Serializable
   @Test
   public void testArbitraryBucketIndexUpdatedAfterBucketMoved() {
     // Start server1
-    MemberVM server1 = cluster.startServerVM(1, locator.getPort());
+    var server1 = cluster.startServerVM(1, locator.getPort());
 
     // Create the region
     createRegion();

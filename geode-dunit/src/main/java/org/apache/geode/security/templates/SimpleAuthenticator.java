@@ -44,8 +44,8 @@ public class SimpleAuthenticator implements Authenticator {
   public Principal authenticate(Properties props, DistributedMember member)
       throws AuthenticationFailedException {
     // Expect "security-username" and "security-password" to (a) match and (b) define permissions.
-    String username = props.getProperty("security-username");
-    String password = props.getProperty("security-password");
+    var username = props.getProperty("security-username");
+    var password = props.getProperty("security-password");
     if (StringUtils.isNotBlank(username) && !username.equals(password)) {
       throw new AuthenticationFailedException(
           "SimpleAuthenticator expects username to match password.");

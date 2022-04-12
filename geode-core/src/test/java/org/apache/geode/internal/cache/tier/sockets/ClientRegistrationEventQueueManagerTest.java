@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.junit.Before;
@@ -52,7 +51,6 @@ import org.apache.geode.internal.cache.FilterRoutingInfo;
 import org.apache.geode.internal.cache.FilterRoutingInfo.FilterInfo;
 import org.apache.geode.internal.cache.InternalCacheEvent;
 import org.apache.geode.internal.cache.InternalRegion;
-import org.apache.geode.internal.cache.tier.sockets.ClientRegistrationEventQueueManager.ClientRegistrationEventQueue;
 
 public class ClientRegistrationEventQueueManagerTest {
 
@@ -87,7 +85,7 @@ public class ClientRegistrationEventQueueManagerTest {
   @Test
   public void messageDeliveredAfterRegisteringOnDrainIfNewFilterIDsIncludesClient() {
     // this test requires mock of EntryEventImpl instead of InternalCacheEvent
-    EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
+    var entryEventImpl = mock(EntryEventImpl.class);
 
     when(cacheClientNotifier.getClientProxy(clientProxyMembershipId))
         .thenReturn(cacheClientProxy);
@@ -109,10 +107,10 @@ public class ClientRegistrationEventQueueManagerTest {
     when(operation.isEntry())
         .thenReturn(true);
 
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
+    var clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
-    ClientRegistrationEventQueue clientRegistrationEventQueue =
+    var clientRegistrationEventQueue =
         clientRegistrationEventQueueManager.create(clientProxyMembershipId,
             new ConcurrentLinkedQueue<>(), new ReentrantReadWriteLock());
 
@@ -133,14 +131,14 @@ public class ClientRegistrationEventQueueManagerTest {
   @Test
   public void clientRemovedFromFilterClientsListIfEventAddedToRegistrationQueue() {
     // this test requires mock of EntryEventImpl instead of InternalCacheEvent
-    EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
+    var entryEventImpl = mock(EntryEventImpl.class);
 
     when(entryEventImpl.getOperation())
         .thenReturn(operation);
     when(operation.isEntry())
         .thenReturn(true);
 
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
+    var clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
     clientRegistrationEventQueueManager.create(clientProxyMembershipId,
@@ -150,7 +148,7 @@ public class ClientRegistrationEventQueueManagerTest {
     // received but the client is not completely registered yet (queue GII has not been completed).
     // In that case, we want to remove the client from the filter IDs set and add the event
     // to the client's registration queue.
-    Set<ClientProxyMembershipID> filterClientIds = asSet(clientProxyMembershipId);
+    var filterClientIds = asSet(clientProxyMembershipId);
 
     clientRegistrationEventQueueManager.add(entryEventImpl, mock(ClientUpdateMessageImpl.class),
         mock(Conflatable.class), filterClientIds, mock(CacheClientNotifier.class));
@@ -162,24 +160,24 @@ public class ClientRegistrationEventQueueManagerTest {
 
   @Test
   public void putInProgressCounterIncrementedOnAddAndDecrementedOnRemoveForAllEvents() {
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
+    var clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
-    ClientRegistrationEventQueue clientRegistrationEventQueue =
+    var clientRegistrationEventQueue =
         clientRegistrationEventQueueManager.create(mock(ClientProxyMembershipID.class),
             new ConcurrentLinkedQueue<>(), new ReentrantReadWriteLock());
 
     Collection<HAEventWrapper> haEventWrappers = new ArrayList<>();
 
-    for (int i = 0; i < 5; ++i) {
-      EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
+    for (var i = 0; i < 5; ++i) {
+      var entryEventImpl = mock(EntryEventImpl.class);
 
       when(entryEventImpl.getOperation())
           .thenReturn(operation);
       when(operation.isEntry())
           .thenReturn(true);
 
-      HAEventWrapper haEventWrapper = mock(HAEventWrapper.class);
+      var haEventWrapper = mock(HAEventWrapper.class);
       haEventWrappers.add(haEventWrapper);
 
       clientRegistrationEventQueueManager.add(entryEventImpl,
@@ -190,14 +188,14 @@ public class ClientRegistrationEventQueueManagerTest {
 
     clientRegistrationEventQueueManager.drain(clientRegistrationEventQueue, cacheClientNotifier);
 
-    for (HAEventWrapper haEventWrapper : haEventWrappers) {
+    for (var haEventWrapper : haEventWrappers) {
       verify(haEventWrapper).decrementPutInProgressCounter();
     }
   }
 
   @Test
   public void addAndDrainQueueContentionTest() throws Exception {
-    ReentrantReadWriteLock readWriteLock = spy(new ReentrantReadWriteLock());
+    var readWriteLock = spy(new ReentrantReadWriteLock());
 
     when(readWriteLock.writeLock())
         .thenAnswer((Answer<WriteLock>) invocation -> {
@@ -206,15 +204,15 @@ public class ClientRegistrationEventQueueManagerTest {
           return (WriteLock) invocation.callRealMethod();
         });
 
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
+    var clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
-    ClientRegistrationEventQueue clientRegistrationEventQueue =
+    var clientRegistrationEventQueue =
         clientRegistrationEventQueueManager.create(mock(ClientProxyMembershipID.class),
             new ConcurrentLinkedQueue<>(), readWriteLock);
 
-    CompletableFuture<Void> addEventsToQueueTask = CompletableFuture.runAsync(() -> {
-      for (int count = 0; count < 1_000; ++count) { // was 100_000
+    var addEventsToQueueTask = CompletableFuture.runAsync(() -> {
+      for (var count = 0; count < 1_000; ++count) { // was 100_000
         // In thread one, we add events to the queue
         clientRegistrationEventQueueManager.add(entryEventImpl(),
             mock(ClientUpdateMessageImpl.class), mock(Conflatable.class), emptySet(),
@@ -222,7 +220,7 @@ public class ClientRegistrationEventQueueManagerTest {
       }
     });
 
-    CompletableFuture<Void> drainEventsFromQueueTask = CompletableFuture.runAsync(() -> {
+    var drainEventsFromQueueTask = CompletableFuture.runAsync(() -> {
       // In thread two, we drain events from the queue
       clientRegistrationEventQueueManager.drain(clientRegistrationEventQueue,
           cacheClientNotifier);
@@ -238,14 +236,14 @@ public class ClientRegistrationEventQueueManagerTest {
   @Test
   public void addEventWithOffheapValueCopiedToHeap() {
     // this test requires mock of EntryEventImpl instead of InternalCacheEvent
-    EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
+    var entryEventImpl = mock(EntryEventImpl.class);
 
     when(entryEventImpl.getOperation())
         .thenReturn(operation);
     when(operation.isEntry())
         .thenReturn(true);
 
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
+    var clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
     clientRegistrationEventQueueManager.create(mock(ClientProxyMembershipID.class),
@@ -259,10 +257,10 @@ public class ClientRegistrationEventQueueManagerTest {
 
   @Test
   public void clientWasNeverRegisteredDrainQueueStillRemoved() {
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
+    var clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
-    ClientRegistrationEventQueue clientRegistrationEventQueue =
+    var clientRegistrationEventQueue =
         clientRegistrationEventQueueManager.create(mock(ClientProxyMembershipID.class),
             new ConcurrentLinkedQueue<>(), new ReentrantReadWriteLock());
 
@@ -281,8 +279,8 @@ public class ClientRegistrationEventQueueManagerTest {
   @Test
   public void drainThrowsExceptionQueueStillRemoved() {
     // this test requires mock of EntryEventImpl instead of InternalCacheEvent
-    EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
-    RuntimeException thrownException = new RuntimeException("thrownException");
+    var entryEventImpl = mock(EntryEventImpl.class);
+    var thrownException = new RuntimeException("thrownException");
 
     when(cacheClientNotifier.getClientProxy(clientProxyMembershipId))
         .thenReturn(mock(CacheClientProxy.class));
@@ -293,10 +291,10 @@ public class ClientRegistrationEventQueueManagerTest {
     when(operation.isEntry())
         .thenReturn(true);
 
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
+    var clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
-    ClientRegistrationEventQueue clientRegistrationEventQueue =
+    var clientRegistrationEventQueue =
         clientRegistrationEventQueueManager.create(clientProxyMembershipId,
             new ConcurrentLinkedQueue<>(), new ReentrantReadWriteLock());
 
@@ -305,7 +303,7 @@ public class ClientRegistrationEventQueueManagerTest {
     clientRegistrationEventQueueManager.add(entryEventImpl, clientUpdateMessage,
         mock(Conflatable.class), filterClientIds, cacheClientNotifier);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       clientRegistrationEventQueueManager.drain(clientRegistrationEventQueue, cacheClientNotifier);
     });
 
@@ -341,16 +339,16 @@ public class ClientRegistrationEventQueueManagerTest {
     when(internalRegion.getFilterProfile())
         .thenReturn(filterProfile);
 
-    ReentrantReadWriteLock readWriteLock = spy(new ReentrantReadWriteLock());
-    ReadLock readLock = spy(readWriteLock.readLock());
+    var readWriteLock = spy(new ReentrantReadWriteLock());
+    var readLock = spy(readWriteLock.readLock());
 
     when(readWriteLock.readLock())
         .thenReturn(readLock);
 
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
+    var clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
-    ClientRegistrationEventQueue clientRegistrationEventQueue =
+    var clientRegistrationEventQueue =
         clientRegistrationEventQueueManager.create(clientProxyMembershipId,
             new ConcurrentLinkedQueue<>(), readWriteLock);
 
@@ -370,11 +368,11 @@ public class ClientRegistrationEventQueueManagerTest {
 
   @Test
   public void addEventWithClientTombstoneDoesNotExportNewValue() {
-    ClientTombstoneMessage clientTombstoneMessage = mock(ClientTombstoneMessage.class);
+    var clientTombstoneMessage = mock(ClientTombstoneMessage.class);
     // this test requires mock of EntryEventImpl instead of InternalCacheEvent
-    EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
+    var entryEventImpl = mock(EntryEventImpl.class);
 
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
+    var clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
     clientRegistrationEventQueueManager.add(entryEventImpl, clientTombstoneMessage,
@@ -385,8 +383,8 @@ public class ClientRegistrationEventQueueManagerTest {
   }
 
   private EntryEventImpl entryEventImpl() {
-    EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
-    Operation operation = operation();
+    var entryEventImpl = mock(EntryEventImpl.class);
+    var operation = operation();
 
     when(entryEventImpl.getOperation())
         .thenReturn(operation);
@@ -397,7 +395,7 @@ public class ClientRegistrationEventQueueManagerTest {
   }
 
   private Operation operation() {
-    Operation operation = mock(Operation.class);
+    var operation = mock(Operation.class);
 
     when(operation.isEntry())
         .thenReturn(true);

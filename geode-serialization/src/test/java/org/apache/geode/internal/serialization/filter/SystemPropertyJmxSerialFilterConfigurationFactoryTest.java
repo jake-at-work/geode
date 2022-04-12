@@ -40,7 +40,7 @@ public class SystemPropertyJmxSerialFilterConfigurationFactoryTest {
     JmxSerialFilterConfigurationFactory factory =
         new SystemPropertyJmxSerialFilterConfigurationFactory(true, PATTERN);
 
-    FilterConfiguration filterConfiguration = factory.create();
+    var filterConfiguration = factory.create();
 
     assertThat(filterConfiguration).isInstanceOf(JmxSerialFilterConfiguration.class);
   }
@@ -51,7 +51,7 @@ public class SystemPropertyJmxSerialFilterConfigurationFactoryTest {
     JmxSerialFilterConfigurationFactory factory =
         new SystemPropertyJmxSerialFilterConfigurationFactory(true, PATTERN);
 
-    FilterConfiguration filterConfiguration = factory.create();
+    var filterConfiguration = factory.create();
 
     assertThat(filterConfiguration.configure()).isTrue();
   }
@@ -62,7 +62,7 @@ public class SystemPropertyJmxSerialFilterConfigurationFactoryTest {
     JmxSerialFilterConfigurationFactory factory =
         new SystemPropertyJmxSerialFilterConfigurationFactory(false, PATTERN);
 
-    FilterConfiguration filterConfiguration = factory.create();
+    var filterConfiguration = factory.create();
 
     assertThat(filterConfiguration.configure()).isFalse();
   }
@@ -72,7 +72,7 @@ public class SystemPropertyJmxSerialFilterConfigurationFactoryTest {
       throws UnableToSetSerialFilterException {
     JmxSerialFilterConfigurationFactory factory =
         new SystemPropertyJmxSerialFilterConfigurationFactory(true, PATTERN);
-    FilterConfiguration filterConfiguration = factory.create();
+    var filterConfiguration = factory.create();
 
     filterConfiguration.configure();
 
@@ -85,7 +85,7 @@ public class SystemPropertyJmxSerialFilterConfigurationFactoryTest {
     Map<?, ?> propertiesBefore = System.getProperties();
     JmxSerialFilterConfigurationFactory factory =
         new SystemPropertyJmxSerialFilterConfigurationFactory(true, PATTERN);
-    FilterConfiguration filterConfiguration = factory.create();
+    var filterConfiguration = factory.create();
 
     filterConfiguration.configure();
 

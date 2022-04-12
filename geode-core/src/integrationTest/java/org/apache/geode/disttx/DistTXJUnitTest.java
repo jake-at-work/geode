@@ -40,7 +40,7 @@ public class DistTXJUnitTest extends TXJUnitTest {
 
   @Override
   protected void createCache() throws Exception {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0"); // loner
     p.setProperty(DISTRIBUTED_TRANSACTIONS, "true");
 

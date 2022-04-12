@@ -35,10 +35,8 @@ import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.MultiIndexCreationException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.cache.query.internal.index.CompactRangeIndex;
@@ -55,7 +53,7 @@ public class MultiIndexCreationJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion(regionName, Portfolio.class);
+    var region = CacheUtils.createRegion(regionName, Portfolio.class);
   }
 
   @After
@@ -65,19 +63,19 @@ public class MultiIndexCreationJUnitTest {
 
   @Test
   public void testBasicMultiIndexCreation() throws Exception {
-    Region r = CacheUtils.getRegion(regionName);
-    for (int i = 0; i < 10; i++) {
+    var r = CacheUtils.getRegion(regionName);
+    for (var i = 0; i < 10; i++) {
       r.put("" + i, new Portfolio(i));
     }
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.defineIndex("statusIndex", "status", r.getFullPath());
     qs.defineIndex("IDIndex", "ID", r.getFullPath());
-    List<Index> indexes = qs.createDefinedIndexes();
+    var indexes = qs.createDefinedIndexes();
 
     assertEquals("Only 2 indexes should have been created. ", 2, indexes.size());
 
-    Index ind = qs.getIndex(r, "statusIndex");
+    var ind = qs.getIndex(r, "statusIndex");
     assertEquals(2, ind.getStatistics().getNumberOfKeys());
     assertEquals(10, ind.getStatistics().getNumberOfValues());
 
@@ -85,7 +83,7 @@ public class MultiIndexCreationJUnitTest {
     assertEquals(10, ind.getStatistics().getNumberOfKeys());
     assertEquals(10, ind.getStatistics().getNumberOfValues());
 
-    QueryObserver old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
+    var old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private boolean indexCalled = false;
 
       @Override
@@ -100,11 +98,11 @@ public class MultiIndexCreationJUnitTest {
 
     });
 
-    String[] queries = {"select * from " + r.getFullPath() + " where status = 'active'",
+    var queries = new String[] {"select * from " + r.getFullPath() + " where status = 'active'",
         "select * from " + r.getFullPath() + " where ID > 4"};
 
-    for (final String query : queries) {
-      SelectResults sr = (SelectResults) qs.newQuery(query).execute();
+    for (final var query : queries) {
+      var sr = (SelectResults) qs.newQuery(query).execute();
       assertEquals(5, sr.size());
     }
     QueryObserverHolder.setInstance(old);
@@ -112,20 +110,20 @@ public class MultiIndexCreationJUnitTest {
 
   @Test
   public void testBasicMultiIndexCreationDifferentTypes() throws Exception {
-    Region r = CacheUtils.getRegion(regionName);
-    for (int i = 0; i < 10; i++) {
+    var r = CacheUtils.getRegion(regionName);
+    for (var i = 0; i < 10; i++) {
       r.put("" + i, new Portfolio(i));
     }
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.defineIndex("statusIndex", "status", r.getFullPath());
     qs.defineHashIndex("IDIndex", "ID", r.getFullPath());
     qs.defineKeyIndex("keyIDIndex", "ID", r.getFullPath());
-    List<Index> indexes = qs.createDefinedIndexes();
+    var indexes = qs.createDefinedIndexes();
 
     assertEquals("Only 3 indexes should have been created. ", 3, indexes.size());
 
-    Index ind = qs.getIndex(r, "statusIndex");
+    var ind = qs.getIndex(r, "statusIndex");
     assertTrue(ind instanceof CompactRangeIndex);
     assertEquals(2, ind.getStatistics().getNumberOfKeys());
     assertEquals(10, ind.getStatistics().getNumberOfValues());
@@ -139,7 +137,7 @@ public class MultiIndexCreationJUnitTest {
     assertEquals(10, ind.getStatistics().getNumberOfKeys());
     assertEquals(10, ind.getStatistics().getNumberOfValues());
 
-    QueryObserver old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
+    var old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private boolean indexCalled = false;
 
       @Override
@@ -154,11 +152,11 @@ public class MultiIndexCreationJUnitTest {
 
     });
 
-    String[] queries = {"select * from " + r.getFullPath() + " where status = 'active'",
+    var queries = new String[] {"select * from " + r.getFullPath() + " where status = 'active'",
         "select * from " + r.getFullPath() + " where ID > 4"};
 
-    for (final String query : queries) {
-      SelectResults sr = (SelectResults) qs.newQuery(query).execute();
+    for (final var query : queries) {
+      var sr = (SelectResults) qs.newQuery(query).execute();
       assertEquals(5, sr.size());
     }
     QueryObserverHolder.setInstance(old);
@@ -167,22 +165,22 @@ public class MultiIndexCreationJUnitTest {
 
   @Test
   public void testMultiIndexCreationOnlyDefine() throws Exception {
-    Region r = CacheUtils.getRegion(regionName);
-    for (int i = 0; i < 10; i++) {
+    var r = CacheUtils.getRegion(regionName);
+    for (var i = 0; i < 10; i++) {
       r.put("" + i, new Portfolio(i));
     }
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.defineIndex("statusIndex", "status", r.getFullPath());
     qs.defineIndex("IDIndex", "ID", r.getFullPath());
 
-    Index ind = qs.getIndex(r, "statusIndex");
+    var ind = qs.getIndex(r, "statusIndex");
     assertNull("Index should not have been created", ind);
 
     ind = qs.getIndex(r, "IDIndex");
     assertNull("Index should not have been created", ind);
 
-    QueryObserver old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
+    var old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private boolean indexCalled = false;
 
       @Override
@@ -197,11 +195,11 @@ public class MultiIndexCreationJUnitTest {
 
     });
 
-    String[] queries = {"select * from " + r.getFullPath() + " where status = 'active'",
+    var queries = new String[] {"select * from " + r.getFullPath() + " where status = 'active'",
         "select * from " + r.getFullPath() + " where ID > 4"};
 
-    for (final String query : queries) {
-      SelectResults sr = (SelectResults) qs.newQuery(query).execute();
+    for (final var query : queries) {
+      var sr = (SelectResults) qs.newQuery(query).execute();
       assertEquals(5, sr.size());
     }
     QueryObserverHolder.setInstance(old);
@@ -210,12 +208,12 @@ public class MultiIndexCreationJUnitTest {
 
   @Test
   public void testMultiIndexCreationOnFailure() throws Exception {
-    Region r = CacheUtils.getRegion(regionName);
-    for (int i = 0; i < 10; i++) {
+    var r = CacheUtils.getRegion(regionName);
+    for (var i = 0; i < 10; i++) {
       r.put("" + i, new Portfolio(i));
     }
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.defineIndex("IDIndex1", "ID", r.getFullPath());
     qs.defineIndex("IDIndex2", "ID", r.getFullPath());
     List<Index> indexes = null;
@@ -230,7 +228,7 @@ public class MultiIndexCreationJUnitTest {
 
     assertEquals("1 index should have been created.", 1, qs.getIndexes().size());
 
-    Index ind = qs.getIndexes().iterator().next();
+    var ind = qs.getIndexes().iterator().next();
     assertNotNull("Index should not be null.", ind);
     assertEquals(10, ind.getStatistics().getNumberOfKeys());
     assertEquals(10, ind.getStatistics().getNumberOfValues());
@@ -241,31 +239,31 @@ public class MultiIndexCreationJUnitTest {
   public void testIndexCreationOnMultipleRegions() throws Exception {
     Region pr =
         CacheUtils.getCache().createRegionFactory(RegionShortcut.PARTITION).create(prRegionName);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       pr.put("" + i, new Portfolio(i));
     }
 
     Region overflow = CacheUtils.getCache().createRegionFactory(RegionShortcut.REPLICATE_OVERFLOW)
         .create(overflowRegionName);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       overflow.put("" + i, new Portfolio(i));
     }
 
-    Region r = CacheUtils.getRegion(regionName);
-    for (int i = 0; i < 10; i++) {
+    var r = CacheUtils.getRegion(regionName);
+    for (var i = 0; i < 10; i++) {
       r.put("" + i, new Portfolio(i));
     }
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.defineIndex("IDIndex", "ID", pr.getFullPath());
     qs.defineIndex("secIDIndex", "pos.secId", r.getFullPath() + " p, p.positions.values pos ");
     qs.defineIndex("statusIndex", "status", overflow.getFullPath());
 
-    List<Index> indexes = qs.createDefinedIndexes();
+    var indexes = qs.createDefinedIndexes();
 
     assertEquals("Only 3 indexes should have been created. ", 3, indexes.size());
 
-    Index ind = qs.getIndex(overflow, "statusIndex");
+    var ind = qs.getIndex(overflow, "statusIndex");
     assertEquals(2, ind.getStatistics().getNumberOfKeys());
     assertEquals(10, ind.getStatistics().getNumberOfValues());
 
@@ -277,7 +275,7 @@ public class MultiIndexCreationJUnitTest {
     assertEquals(12, ind.getStatistics().getNumberOfKeys());
     assertEquals(20, ind.getStatistics().getNumberOfValues());
 
-    QueryObserver old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
+    var old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private boolean indexCalled = false;
 
       @Override
@@ -292,12 +290,14 @@ public class MultiIndexCreationJUnitTest {
 
     });
 
-    String[] queries = {"select * from " + overflow.getFullPath() + " where status = 'active'",
-        "select * from " + pr.getFullPath() + " where ID > 4",
-        "select * from " + r.getFullPath() + " p, p.positions.values pos where pos.secId != NULL"};
+    var queries =
+        new String[] {"select * from " + overflow.getFullPath() + " where status = 'active'",
+            "select * from " + pr.getFullPath() + " where ID > 4",
+            "select * from " + r.getFullPath()
+                + " p, p.positions.values pos where pos.secId != NULL"};
 
-    for (int i = 0; i < queries.length; i++) {
-      SelectResults sr = (SelectResults) qs.newQuery(queries[i]).execute();
+    for (var i = 0; i < queries.length; i++) {
+      var sr = (SelectResults) qs.newQuery(queries[i]).execute();
       if (i == 2) {
         assertEquals("Incorrect results for query: " + queries[i], 20, sr.size());
       } else {
@@ -314,30 +314,30 @@ public class MultiIndexCreationJUnitTest {
         CacheUtils.getCache().createRegionFactory(RegionShortcut.PARTITION).create(prRegionName);
     Region overflow = CacheUtils.getCache().createRegionFactory(RegionShortcut.REPLICATE_OVERFLOW)
         .create(overflowRegionName);
-    Region r = CacheUtils.getRegion(regionName);
+    var r = CacheUtils.getRegion(regionName);
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.defineIndex("IDIndex", "ID", pr.getFullPath());
     qs.defineIndex("secIDIndex", "pos.secId", r.getFullPath() + " p, p.positions.values pos ");
     qs.defineIndex("statusIndex", "status", overflow.getFullPath());
 
-    List<Index> indexes = qs.createDefinedIndexes();
+    var indexes = qs.createDefinedIndexes();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       r.put("" + i, new Portfolio(i));
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       pr.put("" + i, new Portfolio(i));
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       overflow.put("" + i, new Portfolio(i));
     }
 
     assertEquals("Only 3 indexes should have been created. ", 3, indexes.size());
 
-    Index ind = qs.getIndex(overflow, "statusIndex");
+    var ind = qs.getIndex(overflow, "statusIndex");
     assertEquals(2, ind.getStatistics().getNumberOfKeys());
     assertEquals(10, ind.getStatistics().getNumberOfValues());
 
@@ -349,7 +349,7 @@ public class MultiIndexCreationJUnitTest {
     assertEquals(12, ind.getStatistics().getNumberOfKeys());
     assertEquals(20, ind.getStatistics().getNumberOfValues());
 
-    QueryObserver old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
+    var old = QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private boolean indexCalled = false;
 
       @Override
@@ -364,12 +364,14 @@ public class MultiIndexCreationJUnitTest {
 
     });
 
-    String[] queries = {"select * from " + overflow.getFullPath() + " where status = 'active'",
-        "select * from " + pr.getFullPath() + " where ID > 4",
-        "select * from " + r.getFullPath() + " p, p.positions.values pos where pos.secId != NULL"};
+    var queries =
+        new String[] {"select * from " + overflow.getFullPath() + " where status = 'active'",
+            "select * from " + pr.getFullPath() + " where ID > 4",
+            "select * from " + r.getFullPath()
+                + " p, p.positions.values pos where pos.secId != NULL"};
 
-    for (int i = 0; i < queries.length; i++) {
-      SelectResults sr = (SelectResults) qs.newQuery(queries[i]).execute();
+    for (var i = 0; i < queries.length; i++) {
+      var sr = (SelectResults) qs.newQuery(queries[i]).execute();
       if (i == 2) {
         assertEquals("Incorrect results for query: " + queries[i], 20, sr.size());
       } else {

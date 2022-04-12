@@ -31,12 +31,10 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.security.AuthenticationFailedException;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -62,11 +60,11 @@ public class MultiClientDUnitTest {
   @BeforeClass
   public static void beforeClass() throws Exception {
     IgnoredException.addIgnoredException("org.apache.geode.security.AuthenticationFailedException");
-    Properties locatorProps = new Properties();
+    var locatorProps = new Properties();
     locatorProps.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getCanonicalName());
     locator = lsRule.startLocatorVM(0, locatorProps);
 
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty("security-username", "cluster");
     serverProps.setProperty("security-password", "cluster");
     server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
@@ -77,8 +75,8 @@ public class MultiClientDUnitTest {
       cache.createRegionFactory(RegionShortcut.PARTITION).create("region");
     }, server1, server2);
 
-    int server1Port = server1.getPort();
-    int server2Port = server2.getPort();
+    var server1Port = server1.getPort();
+    var server2Port = server2.getPort();
     client3 = lsRule.startClientVM(3, c -> c.withCredential("data", "data")
         .withPoolSubscription(false)
         .withServerConnection(server1Port, server2Port));
@@ -98,40 +96,40 @@ public class MultiClientDUnitTest {
 
     // client 3 keeps logging in, do some successful put, and log out and keep doing it for multiple
     // times
-    AsyncInvocation vm3Invoke = client3.invokeAsync("run as data", () -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+    var vm3Invoke = client3.invokeAsync("run as data", () -> {
+      var cache = ClusterStartupRule.getClientCache();
       Region region = cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-      for (int j = 0; j < KEY_COUNT; j++) {
+      for (var j = 0; j < KEY_COUNT; j++) {
         region.put(j + "", j + "");
       }
     });
 
     // client 4 keeps logging in, do an unauthorized put, and log out
-    AsyncInvocation vm4Invoke = client4.invokeAsync("run as stranger", () -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+    var vm4Invoke = client4.invokeAsync("run as stranger", () -> {
+      var cache = ClusterStartupRule.getClientCache();
       Region region = cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-      for (int j = 0; j < KEY_COUNT; j++) {
-        String value = "" + j;
+      for (var j = 0; j < KEY_COUNT; j++) {
+        var value = "" + j;
         assertThatThrownBy(() -> region.put(value, value))
             .isInstanceOf(ServerOperationException.class);
       }
     });
 
     // client 5 keeps logging in, do some successful get, and log out
-    AsyncInvocation vm5Invoke = client5.invokeAsync("run as data", () -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+    var vm5Invoke = client5.invokeAsync("run as data", () -> {
+      var cache = ClusterStartupRule.getClientCache();
       Region region = cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-      for (int j = 0; j < KEY_COUNT; j++) {
+      for (var j = 0; j < KEY_COUNT; j++) {
         region.get("" + j);
       }
     });
 
     // // client 6 keeps logging in with incorrect
-    AsyncInvocation vm6Invoke = client6.invokeAsync("run as invalid user", () -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+    var vm6Invoke = client6.invokeAsync("run as invalid user", () -> {
+      var cache = ClusterStartupRule.getClientCache();
       Region region = cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
-      for (int j = 0; j < 1; j++) {
-        String key = "" + j;
+      for (var j = 0; j < 1; j++) {
+        var key = "" + j;
         assertThatThrownBy(() -> region.get(key)).isInstanceOf(ServerOperationException.class)
             .hasRootCauseInstanceOf(AuthenticationFailedException.class);
       }

@@ -69,7 +69,7 @@ public class QRegion implements SelectResults {
           "Region can not be NULL");
     }
     this.region = region;
-    Class constraint = this.region.getAttributes().getValueConstraint();
+    var constraint = this.region.getAttributes().getValueConstraint();
     if (constraint == null) {
       constraint = Object.class;
     }
@@ -94,15 +94,15 @@ public class QRegion implements SelectResults {
           "Region can not be NULL");
     }
 
-    Class constraint = region.getAttributes().getValueConstraint();
+    var constraint = region.getAttributes().getValueConstraint();
     if (constraint == null) {
       constraint = Object.class;
     }
 
     ResultsCollectionWrapper res = null;
     if (context.getBucketList() != null && region instanceof PartitionedRegion) {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-      LocalDataSet localData =
+      var partitionedRegion = (PartitionedRegion) region;
+      var localData =
           new LocalDataSet(partitionedRegion, new HashSet(context.getBucketList()));
       this.region = localData;
       if (includeKeys) {
@@ -137,7 +137,7 @@ public class QRegion implements SelectResults {
   }
 
   protected ObjectType getKeyType() {
-    Class constraint = region.getAttributes().getKeyConstraint();
+    var constraint = region.getAttributes().getKeyConstraint();
     if (constraint == null) {
       constraint = Object.class;
     }
@@ -156,7 +156,7 @@ public class QRegion implements SelectResults {
   public SelectResults getKeys() {
     ResultsCollectionWrapper res;
     if (region instanceof LocalDataSet) {
-      LocalDataSet localData = (LocalDataSet) region;
+      var localData = (LocalDataSet) region;
       res = new ResultsCollectionWrapper(getKeyType(), localData.localKeys());
     } else {
       res = new ResultsCollectionWrapper(getKeyType(), region.keySet());
@@ -188,7 +188,7 @@ public class QRegion implements SelectResults {
   public SelectResults getEntries() {
     ResultsCollectionWrapper res;
     if (region instanceof LocalDataSet) {
-      LocalDataSet localData = (LocalDataSet) region;
+      var localData = (LocalDataSet) region;
       res = new ResultsCollectionWrapper(TypeUtils.getRegionEntryType(region),
           localData.localEntrySet());
     } else {
@@ -219,8 +219,8 @@ public class QRegion implements SelectResults {
   @Override
   public int occurrences(Object element) {
     // expensive!!
-    int count = 0;
-    for (Object v : values) {
+    var count = 0;
+    for (var v : values) {
       if (element == null ? v == null : element.equals(v)) {
         count++;
       }
@@ -605,7 +605,7 @@ public class QRegion implements SelectResults {
   }
 
   public SelectResults entrySet() {
-    ResultsCollectionWrapper res = new ResultsCollectionWrapper(new ObjectTypeImpl(Map.Entry.class),
+    var res = new ResultsCollectionWrapper(new ObjectTypeImpl(Map.Entry.class),
         region.entrySet(false));
     res.setModifiable(false);
     return res;

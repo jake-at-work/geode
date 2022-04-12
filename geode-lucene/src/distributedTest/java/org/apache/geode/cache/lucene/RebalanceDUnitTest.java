@@ -28,9 +28,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.lucene.test.LuceneTestUtilities;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.junit.categories.LuceneTest;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
@@ -73,7 +71,7 @@ public class RebalanceDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getListOfRegionTestTypes")
   public void returnCorrectResultsWhenMoveBucketHappensOnIndexUpdate(
       RegionTestableType regionTestType) throws InterruptedException {
-    final DistributedMember member2 =
+    final var member2 =
         dataStore2.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
     addCallbackToMoveBucket(dataStore1, member2);
 
@@ -84,7 +82,7 @@ public class RebalanceDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getListOfRegionTestTypes")
   public void returnCorrectResultsWhenMoveBucketHappensOnQuery(RegionTestableType regionTestType)
       throws InterruptedException {
-    final DistributedMember member2 =
+    final var member2 =
         dataStore2.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
     addCallbackToMovePrimaryOnQuery(dataStore1, member2);
 
@@ -96,9 +94,9 @@ public class RebalanceDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getListOfRegionTestTypes")
   public void returnCorrectResultsWhenBucketIsMovedAndMovedBackOnIndexUpdate(
       RegionTestableType regionTestType) throws InterruptedException {
-    final DistributedMember member1 =
+    final var member1 =
         dataStore1.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
-    final DistributedMember member2 =
+    final var member2 =
         dataStore2.invoke(() -> getCache().getDistributedSystem().getDistributedMember());
     addCallbackToMoveBucket(dataStore1, member2);
     addCallbackToMoveBucket(dataStore2, member1);
@@ -110,8 +108,8 @@ public class RebalanceDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getListOfRegionTestTypes")
   public void returnCorrectResultsWhenRebalanceHappensAfterUpdates(
       RegionTestableType regionTestType) throws InterruptedException {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
     dataStore1.invoke(() -> initDataStore(createIndex, regionTestType));
@@ -132,8 +130,8 @@ public class RebalanceDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getListOfRegionTestTypes")
   public void returnCorrectResultsWhenRebalanceHappensWhileSenderIsPaused(
       RegionTestableType regionTestType) throws InterruptedException {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
     dataStore1.invoke(() -> initDataStore(createIndex, regionTestType));
@@ -153,8 +151,8 @@ public class RebalanceDUnitTest extends LuceneQueriesAccessorBase {
   }
 
   protected void putEntriesAndValidateQueryResults(RegionTestableType regionTestType) {
-    SerializableRunnableIF createIndex = () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+    var createIndex = (SerializableRunnableIF) () -> {
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
     dataStore1.invoke(() -> initDataStore(createIndex, regionTestType));
@@ -176,7 +174,7 @@ public class RebalanceDUnitTest extends LuceneQueriesAccessorBase {
   protected void putEntryInEachBucket() {
     accessor.invoke(() -> {
       final Cache cache = getCache();
-      Region<Object, Object> region = cache.getRegion(REGION_NAME);
+      var region = cache.getRegion(REGION_NAME);
       IntStream.range(0, NUM_BUCKETS).forEach(i -> region.put(i, new TestObject("hello world")));
     });
   }

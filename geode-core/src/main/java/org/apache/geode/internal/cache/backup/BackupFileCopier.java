@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -38,7 +37,6 @@ import org.apache.geode.internal.cache.Oplog;
 import org.apache.geode.internal.deployment.JarDeploymentService;
 import org.apache.geode.internal.lang.SystemUtils;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.configuration.Deployment;
 
 class BackupFileCopier {
   private static final Logger logger = LogService.getLogger();
@@ -85,12 +83,12 @@ class BackupFileCopier {
     }
 
     try {
-      Path source = getSource(fileUrl);
+      var source = getSource(fileUrl);
       if (Files.notExists(source)) {
         return;
       }
 
-      Path destination = configDirectory.resolve(source.getFileName());
+      var destination = configDirectory.resolve(source.getFileName());
       Files.copy(source, destination, StandardCopyOption.COPY_ATTRIBUTES);
       backupDefinition.addConfigFileToBackup(destination);
     } catch (URISyntaxException e) {
@@ -100,12 +98,12 @@ class BackupFileCopier {
 
   Set<File> copyUserFiles() throws IOException {
     ensureExistence(userDirectory);
-    List<File> backupFiles = cache.getBackupFiles();
+    var backupFiles = cache.getBackupFiles();
     Set<File> userFilesBackedUp = new HashSet<>();
-    for (File original : backupFiles) {
+    for (var original : backupFiles) {
       if (original.exists()) {
         original = original.getAbsoluteFile();
-        Path destination = userDirectory.resolve(original.getName());
+        var destination = userDirectory.resolve(original.getName());
         if (original.isDirectory()) {
           FileUtils.copyDirectory(original, destination.toFile());
         } else {
@@ -121,11 +119,11 @@ class BackupFileCopier {
   Set<File> copyDeployedJars() throws IOException {
     ensureExistence(userDirectory);
     Set<File> userJars = new HashSet<>();
-    List<Deployment> deployments = jarDeploymentService.listDeployed();
-    for (Deployment deployment : deployments) {
-      File source = deployment.getFile();
-      String sourceFileName = source.getName();
-      Path destination = userDirectory.resolve(sourceFileName);
+    var deployments = jarDeploymentService.listDeployed();
+    for (var deployment : deployments) {
+      var source = deployment.getFile();
+      var sourceFileName = source.getName();
+      var destination = userDirectory.resolve(sourceFileName);
       Files.copy(source.toPath(), destination, StandardCopyOption.COPY_ATTRIBUTES);
       backupDefinition.addDeployedJarToBackup(destination, source.toPath());
       userJars.add(source);
@@ -134,9 +132,9 @@ class BackupFileCopier {
   }
 
   void copyDiskInitFile(DiskStoreImpl diskStore) throws IOException {
-    File diskInitFile = diskStore.getDiskInitFile().getIFFile();
-    String subDirName = Integer.toString(diskStore.getInforFileDirIndex());
-    Path subDir = temporaryFiles.getDirectory().resolve(subDirName);
+    var diskInitFile = diskStore.getDiskInitFile().getIFFile();
+    var subDirName = Integer.toString(diskStore.getInforFileDirIndex());
+    var subDir = temporaryFiles.getDirectory().resolve(subDirName);
     Files.createDirectories(subDir);
     Files.copy(diskInitFile.toPath(), subDir.resolve(diskInitFile.getName()),
         StandardCopyOption.COPY_ATTRIBUTES);
@@ -144,7 +142,7 @@ class BackupFileCopier {
   }
 
   void copyOplog(DiskStore diskStore, Oplog oplog) throws IOException {
-    DirectoryHolder dirHolder = oplog.getDirectoryHolder();
+    var dirHolder = oplog.getDirectoryHolder();
     copyOplogFile(diskStore, dirHolder, oplog.getCrfFile());
     copyOplogFile(diskStore, dirHolder, oplog.getDrfFile());
     copyOplogFile(diskStore, dirHolder, oplog.getKrfFile());
@@ -156,7 +154,7 @@ class BackupFileCopier {
       return;
     }
 
-    Path tempDiskDir = temporaryFiles.getDiskStoreDirectory(diskStore, dirHolder);
+    var tempDiskDir = temporaryFiles.getDiskStoreDirectory(diskStore, dirHolder);
     if (!SystemUtils.isWindows()) {
       try {
         createLink(tempDiskDir.resolve(file.getName()), file.toPath());

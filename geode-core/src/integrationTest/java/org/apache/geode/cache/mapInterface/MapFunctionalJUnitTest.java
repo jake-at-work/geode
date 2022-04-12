@@ -28,10 +28,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedSystem;
 
@@ -44,14 +42,14 @@ public class MapFunctionalJUnitTest {
 
   @BeforeClass
   public static void caseSetUp() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     distributedSystem = DistributedSystem.connect(properties);
-    Cache cache = CacheFactory.create(distributedSystem);
-    AttributesFactory factory = new AttributesFactory();
+    var cache = CacheFactory.create(distributedSystem);
+    var factory = new AttributesFactory();
     factory.setScope(Scope.GLOBAL);
-    RegionAttributes regionAttributes = factory.create();
+    var regionAttributes = factory.create();
     testRegion = cache.createRegion("TestRegion", regionAttributes);
   }
 
@@ -111,8 +109,8 @@ public class MapFunctionalJUnitTest {
 
   @Test
   public void testPutAll() {
-    HashMap map = new HashMap();
-    for (int i = 0; i < 5; i++) {
+    var map = new HashMap();
+    for (var i = 0; i < 5; i++) {
       map.put(i, i);
     }
     testRegion.putAll(map);

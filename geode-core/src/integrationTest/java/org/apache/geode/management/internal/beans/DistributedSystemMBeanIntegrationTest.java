@@ -17,7 +17,6 @@ package org.apache.geode.management.internal.beans;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -27,12 +26,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.logging.DateFormatter;
 import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.model.Employee;
-import org.apache.geode.test.junit.assertions.TabularResultModelAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.MBeanServerConnectionRule;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
@@ -66,11 +63,11 @@ public class DistributedSystemMBeanIntegrationTest {
 
   @BeforeClass
   public static void setupClass() throws Exception {
-    Region<Object, Object> testRegion = server.getCache().getRegion("testRegion");
+    var testRegion = server.getCache().getRegion("testRegion");
     localDate = LocalDate.of(2020, 1, 1);
     sqlDate = java.sql.Date.valueOf(localDate);
     date = new Date(sqlDate.getTime());
-    Employee employee = new Employee();
+    var employee = new Employee();
     employee.setId(1);
     employee.setName("John");
     employee.setTitle("Manager");
@@ -89,9 +86,9 @@ public class DistributedSystemMBeanIntegrationTest {
   // this is to make sure dates are formatted correctly and it does not honor the json annotations
   @Test
   public void queryAllUsingMBean() throws Exception {
-    SimpleDateFormat formater = DateFormatter.createLocalizedDateFormat();
-    String dateString = formater.format(date);
-    String result = bean.queryData(SELECT_ALL, "server", 100);
+    var formater = DateFormatter.createLocalizedDateFormat();
+    var dateString = formater.format(date);
+    var result = bean.queryData(SELECT_ALL, "server", 100);
     System.out.println(result);
     assertThat(result)
         .contains("id")
@@ -105,7 +102,7 @@ public class DistributedSystemMBeanIntegrationTest {
 
   @Test
   public void queryFieldsUsingMbeanDoesNotHonorAnnotations() throws Exception {
-    String result = bean.queryData(SELECT_FIELDS, "server", 100);
+    var result = bean.queryData(SELECT_FIELDS, "server", 100);
     System.out.println(result);
     assertThat(result).contains("id").contains("title");
   }
@@ -114,7 +111,7 @@ public class DistributedSystemMBeanIntegrationTest {
   @Test
   public void queryAllUsingGfshDoesNotFormatDate() throws Exception {
     gfsh.connectAndVerify(server.getJmxPort(), GfshCommandRule.PortType.jmxManager);
-    TabularResultModelAssert tabularAssert =
+    var tabularAssert =
         gfsh.executeAndAssertThat("query --query='" + SELECT_ALL_BUT_LOCAL_DATE + "'")
             .statusIsSuccess()
             .hasTableSection();
@@ -146,7 +143,7 @@ public class DistributedSystemMBeanIntegrationTest {
 
   @Test
   public void documentZeroResultsBehavior() throws Exception {
-    String result = bean.queryData("select * from /testRegion r where r.id=0", "server", 100);
+    var result = bean.queryData("select * from /testRegion r where r.id=0", "server", 100);
     assertThat(result).isEqualTo("{\"result\":[{\"message\":\"No Data Found\"}]}");
 
     result = bean.queryData("select id, title from /testRegion r where r.id=0", "server", 100);

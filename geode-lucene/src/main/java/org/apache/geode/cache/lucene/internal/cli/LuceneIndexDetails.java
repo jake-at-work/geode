@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.lucene.analysis.Analyzer;
 
@@ -106,8 +105,8 @@ public class LuceneIndexDetails extends LuceneFunctionSerializable
 
     Map<String, String> results = new HashMap<>();
 
-    for (Entry<String, Analyzer> entry : fieldAnalyzers.entrySet()) {
-      final Analyzer analyzer = entry.getValue();
+    for (var entry : fieldAnalyzers.entrySet()) {
+      final var analyzer = entry.getValue();
       if (analyzer != null) {
         results.put(entry.getKey(), analyzer.getClass().getSimpleName());
       }
@@ -124,8 +123,8 @@ public class LuceneIndexDetails extends LuceneFunctionSerializable
 
     Map<String, String> results = new HashMap<>();
 
-    for (Entry<String, String> entry : fieldAnalyzers.entrySet()) {
-      final String analyzer = entry.getValue();
+    for (var entry : fieldAnalyzers.entrySet()) {
+      final var analyzer = entry.getValue();
       if (analyzer != null) {
         results.put(entry.getKey(), analyzer);
       }
@@ -168,7 +167,7 @@ public class LuceneIndexDetails extends LuceneFunctionSerializable
 
   @Override
   public int compareTo(final LuceneIndexDetails indexDetails) {
-    int comparisonValue = compare(getIndexName(), indexDetails.getIndexName());
+    var comparisonValue = compare(getIndexName(), indexDetails.getIndexName());
     return (comparisonValue != 0 ? comparisonValue
         : compare(getRegionPath(), indexDetails.getRegionPath()));
   }

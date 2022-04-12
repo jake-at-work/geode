@@ -16,7 +16,6 @@ package org.apache.geode.distributed.internal.membership.gms.messenger;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;
-import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -26,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -104,7 +102,7 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
   }
 
   private byte[] getPublicKeyIfIAmLocator(ID mbr) {
-    GMSLocator<ID> locator = (GMSLocator<ID>) services.getLocator();
+    var locator = (GMSLocator<ID>) services.getLocator();
     if (locator != null) {
       return locator.getPublicKey(mbr);
     }
@@ -120,10 +118,10 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
     // non-blank setting for DH symmetric algo, or this is a server
     // that has authenticator defined.
     if ((this.dhSKAlgo != null && this.dhSKAlgo.length() > 0)) {
-      KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
-      DHParameterSpec dhSpec = new DHParameterSpec(dhP, dhG, dhL);
+      var keyGen = KeyPairGenerator.getInstance("DH");
+      var dhSpec = new DHParameterSpec(dhP, dhG, dhL);
       keyGen.initialize(dhSpec);
-      KeyPair keypair = keyGen.generateKeyPair();
+      var keypair = keyGen.generateKeyPair();
 
       // Get the generated public and private keys
       dhPrivateKey = keypair.getPrivate();
@@ -148,8 +146,8 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
   }
 
   byte[] decryptData(byte[] data, byte[] pkBytes) throws Exception {
-    GMSEncryptionCipherPool<ID> encryptor =
-        new GMSEncryptionCipherPool<>(this, generateSecret(pkBytes));
+    var encryptor =
+        new GMSEncryptionCipherPool<ID>(this, generateSecret(pkBytes));
     return encryptor.decryptBytes(data);
   }
 
@@ -162,7 +160,7 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
   }
 
   private byte[] lookupKeyByMember(ID member) {
-    byte[] pk = memberToPublicKey.get(new GMSMemberWrapper(member));
+    var pk = memberToPublicKey.get(new GMSMemberWrapper(member));
     if (pk == null) {
       pk = getPublicKeyIfIAmLocator(member);
     }
@@ -176,7 +174,7 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
   }
 
   protected byte[] getPublicKey(ID member) {
-    ID localMbr = services.getMessenger().getMemberID();
+    var localMbr = services.getMessenger().getMemberID();
     try {
       if (localMbr != null && localMbr.compareTo(member, false, false) == 0) {
         return dhPublicKey.getEncoded();// local one
@@ -210,16 +208,16 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
 
   private static int getKeySize(String skAlgo) {
     // skAlgo contain both algo and key size info
-    int colIdx = skAlgo.indexOf(':');
+    var colIdx = skAlgo.indexOf(':');
     String algoStr;
-    int algoKeySize = 0;
+    var algoKeySize = 0;
     if (colIdx >= 0) {
       algoStr = skAlgo.substring(0, colIdx);
       algoKeySize = Integer.parseInt(skAlgo.substring(colIdx + 1));
     } else {
       algoStr = skAlgo;
     }
-    int keysize = -1;
+    var keysize = -1;
     if (algoStr.equalsIgnoreCase("DESede")) {
       keysize = 24;
     } else if (algoStr.equalsIgnoreCase("Blowfish")) {
@@ -231,7 +229,7 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
   }
 
   private static String getDhAlgoStr(String skAlgo) {
-    int colIdx = skAlgo.indexOf(':');
+    var colIdx = skAlgo.indexOf(':');
     String algoStr;
     if (colIdx >= 0) {
       algoStr = skAlgo.substring(0, colIdx);
@@ -242,8 +240,8 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
   }
 
   private static int getBlockSize(String skAlgo) {
-    int blocksize = -1;
-    String algoStr = getDhAlgoStr(skAlgo);
+    var blocksize = -1;
+    var algoStr = getDhAlgoStr(skAlgo);
     if (algoStr.equalsIgnoreCase("DESede")) {
       blocksize = 8;
     } else if (algoStr.equalsIgnoreCase("Blowfish")) {
@@ -257,18 +255,18 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
   Cipher getEncryptCipher(byte[] secretBytes) throws Exception {
     Cipher encrypt = null;
 
-    int keysize = getKeySize(dhSKAlgo);
-    int blocksize = getBlockSize(dhSKAlgo);
+    var keysize = getKeySize(dhSKAlgo);
+    var blocksize = getBlockSize(dhSKAlgo);
 
     if (keysize == -1 || blocksize == -1) {
-      SecretKeySpec sks = new SecretKeySpec(secretBytes, dhSKAlgo);
+      var sks = new SecretKeySpec(secretBytes, dhSKAlgo);
       encrypt = Cipher.getInstance(dhSKAlgo);
       encrypt.init(Cipher.ENCRYPT_MODE, sks);
     } else {
-      String dhAlgoStr = getDhAlgoStr(dhSKAlgo);
+      var dhAlgoStr = getDhAlgoStr(dhSKAlgo);
 
-      SecretKeySpec sks = new SecretKeySpec(secretBytes, 0, keysize, dhAlgoStr);
-      IvParameterSpec ivps = new IvParameterSpec(secretBytes, keysize, blocksize);
+      var sks = new SecretKeySpec(secretBytes, 0, keysize, dhAlgoStr);
+      var ivps = new IvParameterSpec(secretBytes, keysize, blocksize);
 
       encrypt = Cipher.getInstance(dhAlgoStr + "/CBC/PKCS5Padding");
       encrypt.init(Cipher.ENCRYPT_MODE, sks, ivps);
@@ -280,18 +278,18 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
   Cipher getDecryptCipher(byte[] secretBytes) throws Exception {
     Cipher decrypt;
 
-    int keysize = getKeySize(dhSKAlgo);
-    int blocksize = getBlockSize(dhSKAlgo);
+    var keysize = getKeySize(dhSKAlgo);
+    var blocksize = getBlockSize(dhSKAlgo);
 
     if (keysize == -1 || blocksize == -1) {
-      SecretKeySpec sks = new SecretKeySpec(secretBytes, dhSKAlgo);
+      var sks = new SecretKeySpec(secretBytes, dhSKAlgo);
       decrypt = Cipher.getInstance(dhSKAlgo);
       decrypt.init(Cipher.DECRYPT_MODE, sks);
     } else {
-      String algoStr = getDhAlgoStr(dhSKAlgo);
+      var algoStr = getDhAlgoStr(dhSKAlgo);
 
-      SecretKeySpec sks = new SecretKeySpec(secretBytes, 0, keysize, algoStr);
-      IvParameterSpec ivps = new IvParameterSpec(secretBytes, keysize, blocksize);
+      var sks = new SecretKeySpec(secretBytes, 0, keysize, algoStr);
+      var ivps = new IvParameterSpec(secretBytes, keysize, blocksize);
 
       decrypt = Cipher.getInstance(algoStr + "/CBC/PKCS5Padding");
       decrypt.init(Cipher.DECRYPT_MODE, sks, ivps);
@@ -300,9 +298,9 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
   }
 
   private byte[] generateSecret(byte[] peerKeyBytes) throws Exception {
-    X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(peerKeyBytes);
-    KeyFactory keyFact = KeyFactory.getInstance("DH");
-    PublicKey peerKey = keyFact.generatePublic(x509KeySpec);
+    var x509KeySpec = new X509EncodedKeySpec(peerKeyBytes);
+    var keyFact = KeyFactory.getInstance("DH");
+    var peerKey = keyFact.generatePublic(x509KeySpec);
     return generateSecret(dhSKAlgo, dhPrivateKey, peerKey);
   }
 
@@ -312,15 +310,15 @@ public final class GMSEncrypt<ID extends MemberIdentifier> {
 
   private static byte[] generateSecret(String dhSKAlgo, PrivateKey privateKey,
       PublicKey otherPublicKey) throws Exception {
-    KeyAgreement ka = KeyAgreement.getInstance("DH");
+    var ka = KeyAgreement.getInstance("DH");
     ka.init(privateKey);
     ka.doPhase(otherPublicKey, true);
 
-    int keysize = getKeySize(dhSKAlgo);
-    int blocksize = getBlockSize(dhSKAlgo);
+    var keysize = getKeySize(dhSKAlgo);
+    var blocksize = getBlockSize(dhSKAlgo);
 
     if (keysize == -1 || blocksize == -1) {
-      SecretKey sKey = ka.generateSecret(dhSKAlgo);
+      var sKey = ka.generateSecret(dhSKAlgo);
       return sKey.getEncoded();
     } else {
       return ka.generateSecret();

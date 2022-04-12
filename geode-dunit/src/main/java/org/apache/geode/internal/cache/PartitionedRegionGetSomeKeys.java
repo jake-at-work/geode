@@ -23,9 +23,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.partitioned.FetchKeysMessage;
-import org.apache.geode.internal.cache.partitioned.FetchKeysMessage.FetchKeysResponse;
 import org.apache.geode.internal.cache.partitioned.PRLocallyDestroyedException;
 import org.apache.geode.internal.cache.tier.InterestType;
 
@@ -44,26 +42,26 @@ public class PartitionedRegionGetSomeKeys {
    */
   public static Set<?> getSomeKeys(PartitionedRegion partitionedRegion, Random random)
       throws IOException, ClassNotFoundException {
-    Set<Integer> bucketIdSet = partitionedRegion.getRegionAdvisor().getBucketSet();
+    var bucketIdSet = partitionedRegion.getRegionAdvisor().getBucketSet();
 
     if (bucketIdSet != null && !bucketIdSet.isEmpty()) {
-      Object[] bucketIds = bucketIdSet.toArray();
+      var bucketIds = bucketIdSet.toArray();
       Integer bucketId = null;
       Set<?> someKeys;
 
       // Randomly pick a node to get some data from
-      for (int i = 0; i < bucketIds.length; i++) {
+      for (var i = 0; i < bucketIds.length; i++) {
         try {
-          int whichBucket = random.nextInt(bucketIds.length);
+          var whichBucket = random.nextInt(bucketIds.length);
           bucketId = (Integer) bucketIds[whichBucket];
 
-          InternalDistributedMember member = partitionedRegion.getNodeForBucketRead(bucketId);
+          var member = partitionedRegion.getNodeForBucketRead(bucketId);
           if (member != null) {
             if (member.equals(partitionedRegion.getMyId())) {
               someKeys = partitionedRegion.getDataStore().handleRemoteGetKeys(bucketId,
                   InterestType.REGULAR_EXPRESSION, ".*", false);
             } else {
-              FetchKeysResponse fetchKeysResponse =
+              var fetchKeysResponse =
                   FetchKeysMessage.send(member, partitionedRegion, bucketId, false);
               someKeys = fetchKeysResponse.waitForKeys();
             }

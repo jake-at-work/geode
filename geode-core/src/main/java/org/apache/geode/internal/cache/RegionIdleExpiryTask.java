@@ -33,10 +33,10 @@ class RegionIdleExpiryTask extends RegionExpiryTask {
   public long getExpirationTime() throws EntryNotFoundException {
     // if this is an invalidate action and region has already been invalidated,
     // then don't expire again until the full timeout from now.
-    ExpirationAction action = getAction();
+    var action = getAction();
     if (action == ExpirationAction.INVALIDATE || action == ExpirationAction.LOCAL_INVALIDATE) {
       if (getLocalRegion().isRegionInvalid()) {
-        int timeout = getIdleAttributes().getTimeout();
+        var timeout = getIdleAttributes().getTimeout();
         if (timeout == 0) {
           return 0L;
         }

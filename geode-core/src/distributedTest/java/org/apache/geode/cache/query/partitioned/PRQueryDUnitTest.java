@@ -40,7 +40,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.QueryException;
-import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.ExecutionContext;
@@ -89,7 +88,7 @@ public class PRQueryDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(SERIALIZABLE_OBJECT_FILTER, "org.apache.geode.cache.query.data.*");
     return config;
   }
@@ -115,24 +114,24 @@ public class PRQueryDUnitTest extends CacheTestCase {
 
     addIgnoredException("Data loss detected");
 
-    DefaultQuery query = (DefaultQuery) getCache().getQueryService()
+    var query = (DefaultQuery) getCache().getQueryService()
         .newQuery("select distinct * from " + region.getFullPath());
     final ExecutionContext executionContext = new QueryExecutionContext(null, getCache(), query);
-    SelectResults results =
+    var results =
         query.getSimpleSelect().getEmptyResultSet(EMPTY_PARAMETERS, getCache(), query);
 
     Set<Integer> buckets = new HashSet<>();
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       buckets.add(i);
     }
 
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-    PartitionedRegionQueryEvaluator queryEvaluator =
+    var partitionedRegion = (PartitionedRegion) region;
+    var queryEvaluator =
         new PartitionedRegionQueryEvaluator(partitionedRegion.getSystem(), partitionedRegion, query,
             executionContext,
             EMPTY_PARAMETERS, results, buckets);
 
-    DisconnectingTestHook testHook = new DisconnectingTestHook();
+    var testHook = new DisconnectingTestHook();
     assertThatThrownBy(() -> queryEvaluator.queryBuckets(testHook))
         .isInstanceOf(QueryException.class);
     assertThat(testHook.isDone()).isTrue();
@@ -152,16 +151,16 @@ public class PRQueryDUnitTest extends CacheTestCase {
     datastore3.invoke(() -> {
       Region<Integer, Portfolio> region = createPartitionedRegion();
 
-      for (int i = 1; i <= NUMBER_OF_PUTS; i++) {
+      for (var i = 1; i <= NUMBER_OF_PUTS; i++) {
         region.put(i, new Portfolio(i));
       }
 
       Set<Integer> bucketsToQuery = new HashSet<>();
-      for (int i = 0; i < numberOfBuckets; i++) {
+      for (var i = 0; i < numberOfBuckets; i++) {
         bucketsToQuery.add(i);
       }
 
-      String[] queries =
+      var queries =
           new String[] {"select * from " + SEPARATOR + regionName + " LIMIT " + LIMIT[0],
               "select * from " + SEPARATOR + regionName + " LIMIT " + LIMIT[1],
               "select * from " + SEPARATOR + regionName + " LIMIT " + LIMIT[2],
@@ -169,23 +168,23 @@ public class PRQueryDUnitTest extends CacheTestCase {
               "select * from " + SEPARATOR + regionName + " LIMIT " + LIMIT[4],
               "select * from " + SEPARATOR + regionName + " where ID > 10 LIMIT " + LIMIT[5],};
 
-      for (int i = 0; i < queries.length; i++) {
-        DefaultQuery query = (DefaultQuery) getCache().getQueryService().newQuery(queries[i]);
+      for (var i = 0; i < queries.length; i++) {
+        var query = (DefaultQuery) getCache().getQueryService().newQuery(queries[i]);
         final ExecutionContext executionContext =
             new QueryExecutionContext(null, getCache(), query);
-        SelectResults results =
+        var results =
             query.getSimpleSelect().getEmptyResultSet(EMPTY_PARAMETERS, getCache(), query);
 
-        PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-        PartitionedRegionQueryEvaluator queryEvaluator =
+        var partitionedRegion = (PartitionedRegion) region;
+        var queryEvaluator =
             new PartitionedRegionQueryEvaluator(partitionedRegion.getSystem(), partitionedRegion,
                 query, executionContext, EMPTY_PARAMETERS, results, bucketsToQuery);
 
-        CollatingTestHook testHook = new CollatingTestHook(queryEvaluator);
+        var testHook = new CollatingTestHook(queryEvaluator);
         queryEvaluator.queryBuckets(testHook);
 
-        for (Map.Entry<Object, Integer> mapEntry : testHook.getResultsPerMember().entrySet()) {
-          Integer resultsCount = mapEntry.getValue();
+        for (var mapEntry : testHook.getResultsPerMember().entrySet()) {
+          var resultsCount = mapEntry.getValue();
           assertThat(resultsCount.intValue()).isEqualTo(LIMIT[i]);
         }
       }
@@ -203,16 +202,16 @@ public class PRQueryDUnitTest extends CacheTestCase {
 
     Region<Integer, Portfolio> region = createPartitionedRegionAccessor();
 
-    for (int i = 1; i <= NUMBER_OF_PUTS; i++) {
+    for (var i = 1; i <= NUMBER_OF_PUTS; i++) {
       region.put(i, new Portfolio(i));
     }
 
     Set<Integer> buckets = new HashSet<>();
-    for (int i = 0; i < numberOfBuckets; i++) {
+    for (var i = 0; i < numberOfBuckets; i++) {
       buckets.add(i);
     }
 
-    String[] queries =
+    var queries =
         new String[] {"select * from " + SEPARATOR + regionName + " LIMIT " + LIMIT[0],
             "select * from " + SEPARATOR + regionName + " LIMIT " + LIMIT[1],
             "select * from " + SEPARATOR + regionName + " LIMIT " + LIMIT[2],
@@ -220,22 +219,22 @@ public class PRQueryDUnitTest extends CacheTestCase {
             "select * from " + SEPARATOR + regionName + " LIMIT " + LIMIT[4],
             "select * from " + SEPARATOR + regionName + " where ID > 10 LIMIT " + LIMIT[5],};
 
-    for (int i = 0; i < queries.length; i++) {
-      DefaultQuery query = (DefaultQuery) getCache().getQueryService().newQuery(queries[i]);
+    for (var i = 0; i < queries.length; i++) {
+      var query = (DefaultQuery) getCache().getQueryService().newQuery(queries[i]);
       final ExecutionContext executionContext = new QueryExecutionContext(null, getCache(), query);
-      SelectResults results =
+      var results =
           query.getSimpleSelect().getEmptyResultSet(EMPTY_PARAMETERS, getCache(), query);
 
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-      PartitionedRegionQueryEvaluator queryEvaluator =
+      var partitionedRegion = (PartitionedRegion) region;
+      var queryEvaluator =
           new PartitionedRegionQueryEvaluator(partitionedRegion.getSystem(), partitionedRegion,
               query, executionContext, EMPTY_PARAMETERS, results, buckets);
 
-      CollatingTestHook testHook = new CollatingTestHook(queryEvaluator);
+      var testHook = new CollatingTestHook(queryEvaluator);
       queryEvaluator.queryBuckets(testHook);
 
-      for (Map.Entry<Object, Integer> mapEntry : testHook.getResultsPerMember().entrySet()) {
-        Integer resultsCount = mapEntry.getValue();
+      for (var mapEntry : testHook.getResultsPerMember().entrySet()) {
+        var resultsCount = mapEntry.getValue();
         assertThat(resultsCount.intValue()).isEqualTo(LIMIT[i]);
       }
     }
@@ -267,20 +266,20 @@ public class PRQueryDUnitTest extends CacheTestCase {
       // Create bucket one
       region.put(1, "one");
 
-      DefaultQuery query = (DefaultQuery) getCache().getQueryService()
+      var query = (DefaultQuery) getCache().getQueryService()
           .newQuery("select distinct * from " + SEPARATOR + regionName);
       final ExecutionContext executionContext = new QueryExecutionContext(null, getCache(), query);
-      SelectResults results =
+      var results =
           query.getSimpleSelect().getEmptyResultSet(EMPTY_PARAMETERS, getCache(), query);
 
       // Fake data loss
       Set<Integer> buckets = new HashSet<>();
-      for (int i = 0; i < 3; i++) {
+      for (var i = 0; i < 3; i++) {
         buckets.add(i);
       }
 
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-      PartitionedRegionQueryEvaluator queryEvaluator =
+      var partitionedRegion = (PartitionedRegion) region;
+      var queryEvaluator =
           new PartitionedRegionQueryEvaluator(partitionedRegion.getSystem(), partitionedRegion,
               query, executionContext, EMPTY_PARAMETERS, results, buckets);
 
@@ -292,7 +291,7 @@ public class PRQueryDUnitTest extends CacheTestCase {
   private PartitionedRegion createPartitionedRegion() {
     Cache cache = getCache();
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(REDUNDANCY);
     partitionAttributesFactory.setTotalNumBuckets(numberOfBuckets);
 
@@ -305,7 +304,7 @@ public class PRQueryDUnitTest extends CacheTestCase {
   private PartitionedRegion createPartitionedRegionAccessor() {
     Cache cache = getCache();
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(REDUNDANCY);
     partitionAttributesFactory.setTotalNumBuckets(numberOfBuckets);
     partitionAttributesFactory.setLocalMaxMemory(0);
@@ -361,10 +360,10 @@ public class PRQueryDUnitTest extends CacheTestCase {
       if (spot != 3) {
         return;
       }
-      for (Object mapEntryObject : queryEvaluator.getResultsPerMember().entrySet()) {
+      for (var mapEntryObject : queryEvaluator.getResultsPerMember().entrySet()) {
         Map.Entry<Object, Collection<Collection<Object>>> mapEntry = (Map.Entry) mapEntryObject;
-        Collection<Collection<Object>> allResults = mapEntry.getValue();
-        for (Collection<Object> results : allResults) {
+        var allResults = mapEntry.getValue();
+        for (var results : allResults) {
           if (resultsPerMember.containsKey(mapEntry.getKey())) {
             resultsPerMember.put(mapEntry.getKey(),
                 results.size() + resultsPerMember.get(mapEntry.getKey()));

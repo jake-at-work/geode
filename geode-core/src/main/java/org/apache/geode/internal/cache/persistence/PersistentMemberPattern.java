@@ -71,7 +71,7 @@ public class PersistentMemberPattern implements PersistentID, Comparable<Persist
     if (id == null) {
       return false;
     }
-    boolean matches = true;
+    var matches = true;
     matches &= host == null || host.equals(id.getHost());
     matches &= directory == null || directory.equals(id.getDirectory());
     matches &= diskStoreID == null
@@ -92,7 +92,7 @@ public class PersistentMemberPattern implements PersistentID, Comparable<Persist
 
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append(diskStoreID);
     if (host != null) {
       result.append(" [");
@@ -108,8 +108,8 @@ public class PersistentMemberPattern implements PersistentID, Comparable<Persist
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((directory == null) ? 0 : directory.hashCode());
     result = prime * result + ((diskStoreID == null) ? 0 : diskStoreID.hashCode());
     result = prime * result + ((host == null) ? 0 : host.hashCode());
@@ -128,7 +128,7 @@ public class PersistentMemberPattern implements PersistentID, Comparable<Persist
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PersistentMemberPattern other = (PersistentMemberPattern) obj;
+    var other = (PersistentMemberPattern) obj;
     if (directory == null) {
       if (other.directory != null) {
         return false;
@@ -170,11 +170,11 @@ public class PersistentMemberPattern implements PersistentID, Comparable<Persist
 
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-    boolean hasHost = in.readBoolean();
+    var hasHost = in.readBoolean();
     if (hasHost) {
       host = DataSerializer.readInetAddress(in);
     }
-    boolean hasDirectory = in.readBoolean();
+    var hasDirectory = in.readBoolean();
     if (hasDirectory) {
       directory = DataSerializer.readString(in);
     }
@@ -199,7 +199,7 @@ public class PersistentMemberPattern implements PersistentID, Comparable<Persist
 
   @Override
   public int compareTo(PersistentMemberPattern o) {
-    int result = compare(diskStoreID, o.diskStoreID);
+    var result = compare(diskStoreID, o.diskStoreID);
     if (result != 0) {
       return result;
     }

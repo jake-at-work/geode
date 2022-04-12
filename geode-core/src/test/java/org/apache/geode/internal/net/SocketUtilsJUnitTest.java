@@ -44,7 +44,7 @@ public class SocketUtilsJUnitTest {
 
   @Test
   public void testCloseSocket() throws IOException {
-    final Socket mockSocket = mock(Socket.class, "closeSocketTest");
+    final var mockSocket = mock(Socket.class, "closeSocketTest");
     doNothing().when(mockSocket).close();
 
     assertThat(SocketUtils.close(mockSocket)).isTrue();
@@ -53,7 +53,7 @@ public class SocketUtilsJUnitTest {
 
   @Test
   public void testCloseSocketThrowsIOException() throws IOException {
-    final Socket mockSocket = mock(Socket.class, "closeSocketThrowsIOExceptionTest");
+    final var mockSocket = mock(Socket.class, "closeSocketThrowsIOExceptionTest");
     doThrow(new IOException("Mock Exception")).when(mockSocket).close();
 
     assertThat(SocketUtils.close(mockSocket)).isFalse();
@@ -67,7 +67,7 @@ public class SocketUtilsJUnitTest {
 
   @Test
   public void testCloseServerSocket() throws IOException {
-    final ServerSocket mockServerSocket = mock(ServerSocket.class, "closeServerSocketTest");
+    final var mockServerSocket = mock(ServerSocket.class, "closeServerSocketTest");
     doNothing().when(mockServerSocket).close();
 
     assertThat(SocketUtils.close(mockServerSocket)).isTrue();
@@ -76,7 +76,7 @@ public class SocketUtilsJUnitTest {
 
   @Test
   public void testCloseServerSocketThrowsIOException() throws IOException {
-    final ServerSocket mockServerSocket =
+    final var mockServerSocket =
         mock(ServerSocket.class, "closeServerSocketThrowsIOExceptionTest");
     doThrow(new IOException("Mock Exception")).when(mockServerSocket).close();
 

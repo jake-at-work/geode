@@ -16,22 +16,19 @@
 package org.apache.geode.redis.internal.commands.executor.pubsub;
 
 
-import java.util.Collection;
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.netty.Client;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class UnsubscribeExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> channelNames = command.getCommandArguments();
-    Client client = context.getClient();
-    Collection<Collection<?>> response = context.getPubSub().unsubscribe(channelNames, client);
+    var channelNames = command.getCommandArguments();
+    var client = context.getClient();
+    var response = context.getPubSub().unsubscribe(channelNames, client);
     return RedisResponse.flattenedArray(response);
   }
 }

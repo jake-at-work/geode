@@ -48,19 +48,19 @@ class Row {
   }
 
   Row newLeftCol(Object value) {
-    Column column = new Column(value, Align.LEFT);
+    var column = new Column(value, Align.LEFT);
     columns.add(column);
     return this;
   }
 
   Row newRightCol(Object value) {
-    Column column = new Column(value, Align.RIGHT);
+    var column = new Column(value, Align.RIGHT);
     columns.add(column);
     return this;
   }
 
   Row newCenterCol(Object value) {
-    Column column = new Column(value, Align.CENTER);
+    var column = new Column(value, Align.CENTER);
     columns.add(column);
     return this;
   }
@@ -82,24 +82,24 @@ class Row {
   }
 
   String buildRow(boolean isTabularResult) {
-    StringBuilder stringBuilder = new StringBuilder();
+    var stringBuilder = new StringBuilder();
     if (rowSeparator != null) {
       if (isTableWideSeparator) {
-        int maxColLength = rowGroup.getTable().getMaxLength();
+        var maxColLength = rowGroup.getTable().getMaxLength();
         // Trim only for tabular results
         if (isTabularResult) {
           maxColLength = screen.trimWidthForScreen(maxColLength);
         }
 
-        for (int j = 0; j < maxColLength; j++) {
+        for (var j = 0; j < maxColLength; j++) {
           stringBuilder.append(rowSeparator);
         }
       } else {
-        int maxNumCols = rowGroup.getNumCols();
+        var maxNumCols = rowGroup.getNumCols();
 
-        for (int i = 0; i < maxNumCols; i++) {
-          int maxColLength = rowGroup.getColSize(i);
-          for (int j = 0; j < maxColLength; j++) {
+        for (var i = 0; i < maxNumCols; i++) {
+          var maxColLength = rowGroup.getColSize(i);
+          for (var j = 0; j < maxColLength; j++) {
             stringBuilder.append(rowSeparator);
           }
           if (i < maxNumCols - 1) {
@@ -108,8 +108,8 @@ class Row {
         }
       }
     } else {
-      for (int i = 0; i < columns.size(); i++) {
-        boolean lastColumn = !(i < columns.size() - 1);
+      for (var i = 0; i < columns.size(); i++) {
+        var lastColumn = !(i < columns.size() - 1);
         stringBuilder
             .append(columns.get(i).buildColumn(rowGroup.getColSize(i), lastColumn));
         if (!lastColumn) {

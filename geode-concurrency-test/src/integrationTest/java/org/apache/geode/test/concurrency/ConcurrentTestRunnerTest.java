@@ -45,9 +45,9 @@ public class ConcurrentTestRunnerTest {
     @Test
     public void validateConcurrentExecution(ParallelExecutor executor)
         throws ExecutionException, InterruptedException {
-      final AtomicInteger atomicInteger = new AtomicInteger(0);
+      final var atomicInteger = new AtomicInteger(0);
       executor.inParallel(() -> {
-        int oldValue = atomicInteger.get();
+        var oldValue = atomicInteger.get();
         // We want to see the following assertion fail because that indicates
         // that another thread currently modified the atomic.
         assertThat(atomicInteger.compareAndSet(oldValue, oldValue + 1)).isTrue();

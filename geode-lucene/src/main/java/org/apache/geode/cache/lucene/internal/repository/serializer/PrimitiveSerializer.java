@@ -31,7 +31,7 @@ public class PrimitiveSerializer implements LuceneSerializer {
 
   @Override
   public Collection<Document> toDocuments(LuceneIndex index, final Object value) {
-    Document doc = new Document();
+    var doc = new Document();
     SerializerUtil.addField(doc, LuceneService.REGION_VALUE_FIELD, value);
     return Collections.singleton(doc);
   }

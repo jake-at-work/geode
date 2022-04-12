@@ -20,13 +20,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.jndi.JNDIInvoker;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.management.internal.configuration.utils.XmlUtils;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -69,21 +65,21 @@ public class CreatePooledJndiBindingDUnitTest {
 
     // verify cluster config is updated
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService ccService =
+      var ccService =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      Configuration configuration = ccService.getConfiguration("cluster");
-      String xmlContent = configuration.getCacheXmlContent();
+      var configuration = ccService.getConfiguration("cluster");
+      var xmlContent = configuration.getCacheXmlContent();
 
-      Document document = XmlUtils.createDocumentFromXml(xmlContent);
-      NodeList jndiBindings = document.getElementsByTagName("jndi-binding");
+      var document = XmlUtils.createDocumentFromXml(xmlContent);
+      var jndiBindings = document.getElementsByTagName("jndi-binding");
 
       assertThat(jndiBindings.getLength()).isEqualTo(1);
       assertThat(xmlContent).contains("user-name=\"myuser\"");
       assertThat(xmlContent).contains("password=\"mypass\"");
 
-      boolean found = false;
-      for (int i = 0; i < jndiBindings.getLength(); i++) {
-        Element eachBinding = (Element) jndiBindings.item(i);
+      var found = false;
+      for (var i = 0; i < jndiBindings.getLength(); i++) {
+        var eachBinding = (Element) jndiBindings.item(i);
         if (eachBinding.getAttribute("jndi-name").equals("jndi1")) {
           found = true;
           break;

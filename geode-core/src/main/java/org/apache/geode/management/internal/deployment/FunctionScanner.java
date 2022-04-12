@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ScanResult;
 
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionAdapter;
@@ -29,9 +28,9 @@ import org.apache.geode.cache.execute.FunctionAdapter;
 public class FunctionScanner {
 
   public Collection<String> findFunctionsInJar(File jarFile) throws IOException {
-    ClassGraph fastClasspathScanner = new ClassGraph().disableDirScanning()
+    var fastClasspathScanner = new ClassGraph().disableDirScanning()
         .removeTemporaryFilesAfterScan().overrideClasspath(jarFile.getAbsolutePath());
-    try (ScanResult scanResult = fastClasspathScanner.enableClassInfo().scan(1)) {
+    try (var scanResult = fastClasspathScanner.enableClassInfo().scan(1)) {
 
       Set<String> functionClasses = new HashSet<>();
 

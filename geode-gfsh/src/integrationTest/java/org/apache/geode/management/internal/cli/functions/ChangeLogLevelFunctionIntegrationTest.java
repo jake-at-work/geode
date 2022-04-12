@@ -38,7 +38,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.ResultSender;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.logging.internal.spi.LogConfig;
@@ -72,13 +71,13 @@ public class ChangeLogLevelFunctionIntegrationTest {
   @Before
   @SuppressWarnings("unchecked")
   public void setUp() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_LEVEL, Level.INFO.name());
     config.setProperty(SECURITY_LOG_LEVEL, Level.INFO.name());
 
     cache = (InternalCache) new CacheFactory(config).create();
-    InternalDistributedSystem system = cache.getInternalDistributedSystem();
+    var system = cache.getInternalDistributedSystem();
 
     setupInternalLogWriter();
 

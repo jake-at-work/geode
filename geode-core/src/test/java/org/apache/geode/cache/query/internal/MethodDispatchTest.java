@@ -24,7 +24,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -59,9 +58,9 @@ public class MethodDispatchTest {
     emptyList = Collections.emptyList();
     methodInvocationAuthorizer = spy(MethodInvocationAuthorizer.class);
 
-    QueryConfigurationService mockService = mock(QueryConfigurationService.class);
+    var mockService = mock(QueryConfigurationService.class);
     when(mockService.getMethodAuthorizer()).thenReturn(methodInvocationAuthorizer);
-    InternalCache mockCache = mock(InternalCache.class);
+    var mockCache = mock(InternalCache.class);
     when(mockCache.getService(QueryConfigurationService.class)).thenReturn(mockService);
 
     queryExecutionContext = spy(new QueryExecutionContext(null, mockCache));
@@ -71,10 +70,10 @@ public class MethodDispatchTest {
   public void invokeShouldReturnCorrectlyWhenMethodIsAuthorized()
       throws NameResolutionException, QueryInvocationTargetException {
     doReturn(true).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch methodDispatch =
+    var methodDispatch =
         new MethodDispatch(TestBean.class, PUBLIC_METHOD_NAME, Collections.emptyList());
 
-    Object result = methodDispatch.invoke(testBean, emptyList, queryExecutionContext);
+    var result = methodDispatch.invoke(testBean, emptyList, queryExecutionContext);
     assertThat(result).isInstanceOf(String.class);
     assertThat(result).isEqualTo(PUBLIC_METHOD_RETURN_VALUE);
   }
@@ -82,7 +81,7 @@ public class MethodDispatchTest {
   @Test
   public void invokeShouldThrowExceptionWhenMethodIsNotAuthorized() throws NameResolutionException {
     doReturn(false).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch methodDispatch =
+    var methodDispatch =
         new MethodDispatch(TestBean.class, PUBLIC_METHOD_NAME, Collections.emptyList());
 
     assertThatThrownBy(() -> methodDispatch.invoke(testBean, emptyList, queryExecutionContext))
@@ -93,10 +92,10 @@ public class MethodDispatchTest {
   @Test
   public void invokeShouldCacheResultForAllowedMethod() throws Exception {
     doReturn(true).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch methodDispatch =
+    var methodDispatch =
         new MethodDispatch(Integer.class, "toString", Collections.emptyList());
 
-    Method toStringMethod = Integer.class.getMethod("toString");
+    var toStringMethod = Integer.class.getMethod("toString");
     methodDispatch.invoke(new Integer("0"), emptyList, queryExecutionContext);
     assertThat(queryExecutionContext.cacheGet(toStringMethod)).isEqualTo(true);
   }
@@ -105,10 +104,10 @@ public class MethodDispatchTest {
   public void invokeShouldNotCacheResultForAllowedMethodOnCqs() throws Exception {
     when(queryExecutionContext.isCqQueryContext()).thenReturn(true);
     doReturn(true).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch methodDispatch =
+    var methodDispatch =
         new MethodDispatch(Integer.class, "toString", Collections.emptyList());
 
-    Method toStringMethod = Integer.class.getMethod("toString");
+    var toStringMethod = Integer.class.getMethod("toString");
     methodDispatch.invoke(new Integer("0"), emptyList, queryExecutionContext);
     assertThat(queryExecutionContext.cacheGet(toStringMethod)).isNull();
   }
@@ -116,7 +115,7 @@ public class MethodDispatchTest {
   @Test
   public void invokeShouldCacheResultForForbiddenMethod() throws Exception {
     doReturn(false).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch methodDispatch =
+    var methodDispatch =
         new MethodDispatch(Integer.class, "toString", Collections.emptyList());
 
     assertThatThrownBy(
@@ -124,7 +123,7 @@ public class MethodDispatchTest {
             .isInstanceOf(NotAuthorizedException.class)
             .hasMessage(RestrictedMethodAuthorizer.UNAUTHORIZED_STRING + "toString");
 
-    Method toStringMethod = Integer.class.getMethod("toString");
+    var toStringMethod = Integer.class.getMethod("toString");
     assertThat(queryExecutionContext.cacheGet(toStringMethod)).isEqualTo(false);
   }
 
@@ -132,7 +131,7 @@ public class MethodDispatchTest {
   public void invokeShouldNotCacheResultForForbiddenMethodOnCqs() throws Exception {
     when(queryExecutionContext.isCqQueryContext()).thenReturn(true);
     doReturn(false).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch methodDispatch =
+    var methodDispatch =
         new MethodDispatch(Integer.class, "toString", Collections.emptyList());
 
     assertThatThrownBy(
@@ -140,7 +139,7 @@ public class MethodDispatchTest {
             .isInstanceOf(NotAuthorizedException.class)
             .hasMessage(RestrictedMethodAuthorizer.UNAUTHORIZED_STRING + "toString");
 
-    Method toStringMethod = Integer.class.getMethod("toString");
+    var toStringMethod = Integer.class.getMethod("toString");
     assertThat(queryExecutionContext.cacheGet(toStringMethod)).isNull();
   }
 
@@ -148,11 +147,11 @@ public class MethodDispatchTest {
   public void invokeShouldUseCachedAuthorizerResultWhenMethodIsAuthorizedAndQueryContextIsTheSame()
       throws NameResolutionException {
     doReturn(true).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch publicMethodDispatch =
+    var publicMethodDispatch =
         new MethodDispatch(TestBean.class, PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch anotherPublicMethodDispatch =
+    var anotherPublicMethodDispatch =
         new MethodDispatch(TestBean.class, ANOTHER_PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch extendedPublicMethodDispatch =
+    var extendedPublicMethodDispatch =
         new MethodDispatch(TestBeanExtension.class, EXTENDED_PUBLIC_METHOD_NAME,
             Collections.emptyList());
 
@@ -177,18 +176,18 @@ public class MethodDispatchTest {
   public void invokeShouldNotUseCachedAuthorizerResultWhenMethodIsAuthorizedAndQueryContextIsNotTheSame()
       throws NameResolutionException {
     doReturn(true).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch publicMethodDispatch =
+    var publicMethodDispatch =
         new MethodDispatch(TestBean.class, PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch anotherPublicMethodDispatch =
+    var anotherPublicMethodDispatch =
         new MethodDispatch(TestBean.class, ANOTHER_PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch extendedPublicMethodDispatch =
+    var extendedPublicMethodDispatch =
         new MethodDispatch(TestBeanExtension.class, EXTENDED_PUBLIC_METHOD_NAME,
             Collections.emptyList());
 
     // New QueryExecutionContext every time -> Do not use cache.
     IntStream.range(0, 10).forEach(element -> {
       try {
-        QueryExecutionContext mockContext = mock(QueryExecutionContext.class);
+        var mockContext = mock(QueryExecutionContext.class);
         when(mockContext.getMethodInvocationAuthorizer()).thenReturn(methodInvocationAuthorizer);
 
         assertThat(publicMethodDispatch.invoke(testBean, emptyList, mockContext))
@@ -210,11 +209,11 @@ public class MethodDispatchTest {
       throws NameResolutionException {
     when(queryExecutionContext.isCqQueryContext()).thenReturn(true);
     doReturn(true).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch publicMethodDispatch =
+    var publicMethodDispatch =
         new MethodDispatch(TestBean.class, PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch anotherPublicMethodDispatch =
+    var anotherPublicMethodDispatch =
         new MethodDispatch(TestBean.class, ANOTHER_PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch extendedPublicMethodDispatch =
+    var extendedPublicMethodDispatch =
         new MethodDispatch(TestBeanExtension.class, EXTENDED_PUBLIC_METHOD_NAME,
             Collections.emptyList());
 
@@ -239,11 +238,11 @@ public class MethodDispatchTest {
   public void invokeShouldUseCachedAuthorizerResultWhenMethodIsNotAuthorizedAndContextIsTheSame()
       throws NameResolutionException {
     doReturn(false).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch publicMethodDispatch =
+    var publicMethodDispatch =
         new MethodDispatch(TestBean.class, PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch anotherPublicMethodDispatch =
+    var anotherPublicMethodDispatch =
         new MethodDispatch(TestBean.class, ANOTHER_PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch extendedPublicMethodDispatch =
+    var extendedPublicMethodDispatch =
         new MethodDispatch(TestBeanExtension.class, EXTENDED_PUBLIC_METHOD_NAME,
             Collections.emptyList());
 
@@ -271,17 +270,17 @@ public class MethodDispatchTest {
   public void invokeShouldNotUseCachedAuthorizerResultWhenMethodIsNotAuthorizedAndContextIsNotTheSame()
       throws NameResolutionException {
     doReturn(false).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch publicMethodDispatch =
+    var publicMethodDispatch =
         new MethodDispatch(TestBean.class, PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch anotherPublicMethodDispatch =
+    var anotherPublicMethodDispatch =
         new MethodDispatch(TestBean.class, ANOTHER_PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch extendedPublicMethodDispatch =
+    var extendedPublicMethodDispatch =
         new MethodDispatch(TestBeanExtension.class, EXTENDED_PUBLIC_METHOD_NAME,
             Collections.emptyList());
 
     // New QueryExecutionContext every time -> Do not use cache.
     IntStream.range(0, 10).forEach(element -> {
-      QueryExecutionContext mockContext = mock(QueryExecutionContext.class);
+      var mockContext = mock(QueryExecutionContext.class);
       when(mockContext.getMethodInvocationAuthorizer()).thenReturn(methodInvocationAuthorizer);
 
       assertThatThrownBy(() -> publicMethodDispatch.invoke(testBean, emptyList, mockContext))
@@ -304,11 +303,11 @@ public class MethodDispatchTest {
       throws NameResolutionException {
     when(queryExecutionContext.isCqQueryContext()).thenReturn(true);
     doReturn(false).when(methodInvocationAuthorizer).authorize(any(), any());
-    MethodDispatch publicMethodDispatch =
+    var publicMethodDispatch =
         new MethodDispatch(TestBean.class, PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch anotherPublicMethodDispatch =
+    var anotherPublicMethodDispatch =
         new MethodDispatch(TestBean.class, ANOTHER_PUBLIC_METHOD_NAME, Collections.emptyList());
-    MethodDispatch extendedPublicMethodDispatch =
+    var extendedPublicMethodDispatch =
         new MethodDispatch(TestBeanExtension.class, EXTENDED_PUBLIC_METHOD_NAME,
             Collections.emptyList());
 

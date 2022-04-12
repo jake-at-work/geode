@@ -30,8 +30,6 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.distributed.internal.ConflationKey;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
-import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.InternalDataSerializer;
@@ -67,9 +65,9 @@ public class UpdateOperation extends AbstractUpdateOperation {
 
   @Override
   protected CacheOperationMessage createMessage() {
-    EntryEventImpl ev = getEvent();
+    var ev = getEvent();
     if (ev.isBridgeEvent()) {
-      UpdateWithContextMessage mssgwithContxt = new UpdateWithContextMessage();
+      var mssgwithContxt = new UpdateWithContextMessage();
       // getContext is not in EntryEvent interface because it exposes a private
       // class
       mssgwithContxt.clientID = ev.getContext();
@@ -82,8 +80,8 @@ public class UpdateOperation extends AbstractUpdateOperation {
   @Override
   protected void initMessage(CacheOperationMessage msg, DirectReplyProcessor p) {
     super.initMessage(msg, p);
-    UpdateMessage m = (UpdateMessage) msg;
-    EntryEventImpl ev = getEvent();
+    var m = (UpdateMessage) msg;
+    var ev = getEvent();
     m.event = ev;
     m.eventId = ev.getEventId();
     m.key = ev.getKey();
@@ -178,8 +176,8 @@ public class UpdateOperation extends AbstractUpdateOperation {
     @Override
     @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
-      EntryEventImpl ev = createEntryEvent(rgn);
-      boolean evReturned = false;
+      var ev = createEntryEvent(rgn);
+      var evReturned = false;
       try {
         ev.setEventId(eventId);
 
@@ -213,21 +211,21 @@ public class UpdateOperation extends AbstractUpdateOperation {
 
     @Override
     boolean processReply(final ReplyMessage replyMessage, CacheOperationReplyProcessor processor) {
-      ReplyException ex = replyMessage.getException();
+      var ex = replyMessage.getException();
       if (ex != null && ex.getCause() instanceof InvalidDeltaException) {
         // msg can be null when PR data store throws exception back to
         // accessor.
-        UpdateMessage message = this;
+        var message = this;
         if (!(message.hasBridgeContext() && message.getDataPolicy() == DataPolicy.EMPTY)) {
           final UpdateMessage updateMsg;
-          final DistributionManager dm = event.getRegion().getDistributionManager();
+          final var dm = event.getRegion().getDistributionManager();
           if (this instanceof UpdateWithContextMessage) {
             updateMsg =
                 new UpdateOperation.UpdateWithContextMessage((UpdateWithContextMessage) this);
           } else {
             updateMsg = new UpdateOperation.UpdateMessage(this);
           }
-          Runnable sendMessage = new Runnable() {
+          var sendMessage = new Runnable() {
             @Override
             public void run() {
               synchronized (updateMsg) { // prevent concurrent update of
@@ -299,7 +297,7 @@ public class UpdateOperation extends AbstractUpdateOperation {
       Object argNewValue = null;
       final boolean originRemote = true, generateCallbacks = true;
       @Retained
-      EntryEventImpl result = EntryEventImpl.create(rgn, getOperation(), key, argNewValue, // oldValue,
+      var result = EntryEventImpl.create(rgn, getOperation(), key, argNewValue, // oldValue,
           callbackArg, originRemote, getSender(), generateCallbacks);
       setOldValueInEvent(result);
       result.setTailKey(tailKey);
@@ -350,13 +348,13 @@ public class UpdateOperation extends AbstractUpdateOperation {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      final byte extraFlags = in.readByte();
-      final boolean hasEventId = (extraFlags & HAS_EVENTID) != 0;
+      final var extraFlags = in.readByte();
+      final var hasEventId = (extraFlags & HAS_EVENTID) != 0;
       if (hasEventId) {
         eventId = new EventID();
         InternalDataSerializer.invokeFromData(eventId, in);
 
-        boolean hasTailKey = in.readBoolean();
+        var hasTailKey = in.readBoolean();
         if (hasTailKey) {
           tailKey = in.readLong();
         }
@@ -379,11 +377,11 @@ public class UpdateOperation extends AbstractUpdateOperation {
     @Override
     public void toData(DataOutput out,
         SerializationContext context) throws IOException {
-      DistributedRegion region = (DistributedRegion) event.getRegion();
+      var region = (DistributedRegion) event.getRegion();
       setDeltaFlag(region);
       super.toData(out, context);
 
-      byte extraFlags = deserializationPolicy;
+      var extraFlags = deserializationPolicy;
       if (eventId != null) {
         extraFlags |= HAS_EVENTID;
       }
@@ -396,7 +394,7 @@ public class UpdateOperation extends AbstractUpdateOperation {
       if (eventId != null) {
         InternalDataSerializer.invokeToData(eventId, out);
         if (region instanceof BucketRegion) {
-          PartitionedRegion pr = region.getPartitionedRegion();
+          var pr = region.getPartitionedRegion();
           // TODO Kishor: Since here we are talking about tail key
           // then we are surely considering Paralle Gateway
           if (!pr.isParallelWanEnabled()) {
@@ -507,7 +505,7 @@ public class UpdateOperation extends AbstractUpdateOperation {
       // distributed = true;
       final boolean originRemote = true, generateCallbacks = true;
       @Retained
-      EntryEventImpl ev = EntryEventImpl.create(rgn, getOperation(), key, argNewValue,
+      var ev = EntryEventImpl.create(rgn, getOperation(), key, argNewValue,
           callbackArg, originRemote, getSender(), generateCallbacks);
       ev.setContext(clientID);
       setOldValueInEvent(ev);

@@ -30,8 +30,8 @@ public class UnregisterFunction implements InternalFunction<Object[]> {
 
   @Override
   public void execute(FunctionContext<Object[]> context) {
-    Object[] args = context.getArguments();
-    String functionId = (String) args[0];
+    var args = context.getArguments();
+    var functionId = (String) args[0];
     try {
       FunctionService.unregisterFunction(functionId);
     } catch (Exception e) {

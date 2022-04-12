@@ -76,17 +76,17 @@ public class HARegionQueueTest {
 
   @Before
   public void setup() throws IOException, ClassNotFoundException, InterruptedException {
-    StoppableReentrantReadWriteLock giiLock = mock(StoppableReentrantReadWriteLock.class);
+    var giiLock = mock(StoppableReentrantReadWriteLock.class);
     when(giiLock.readLock())
         .thenReturn(mock(StoppableReentrantReadWriteLock.StoppableReadLock.class));
 
-    StoppableReentrantReadWriteLock rwLock = mock(StoppableReentrantReadWriteLock.class);
+    var rwLock = mock(StoppableReentrantReadWriteLock.class);
     when(rwLock.writeLock())
         .thenReturn(mock(StoppableReentrantReadWriteLock.StoppableWriteLock.class));
     when(rwLock.readLock())
         .thenReturn(mock(StoppableReentrantReadWriteLock.StoppableReadLock.class));
 
-    HashMap map = new HashMap();
+    var map = new HashMap();
     when(haRegion.put(any(), any())).then((invocationOnMock) -> {
       return map.put(invocationOnMock.getArgument(0), invocationOnMock.getArgument(1));
     });
@@ -104,10 +104,10 @@ public class HARegionQueueTest {
 
   @Test
   public void whenProxyIDisNullThenItIsNotAddedToClientInterestList() {
-    ClientUpdateMessageImpl clientUpdateMessage = mock(ClientUpdateMessageImpl.class);
-    HAEventWrapper haEventWrapper = mock(HAEventWrapper.class);
-    HAContainerWrapper haContainerWrapper = mock(HAContainerWrapper.class);
-    String regionName = "mockRegion";
+    var clientUpdateMessage = mock(ClientUpdateMessageImpl.class);
+    var haEventWrapper = mock(HAEventWrapper.class);
+    var haContainerWrapper = mock(HAContainerWrapper.class);
+    var regionName = "mockRegion";
     when(haContainerWrapper.getProxyID(any())).thenReturn(null);
     haRegionQueue.addClientCQsAndInterestList(clientUpdateMessage, haEventWrapper,
         haContainerWrapper, regionName);
@@ -118,13 +118,13 @@ public class HARegionQueueTest {
 
   @Test
   public void conflateConflatableEntriesAndDoNotConflateNonConflatableEntries() throws Exception {
-    EventID eventId1 = new EventID(new byte[] {1}, 1, 1);
-    EventID eventId2 = new EventID(new byte[] {1}, 1, 2);
-    EventID eventId3 = new EventID(new byte[] {1}, 1, 3);
-    EventID eventId4 = new EventID(new byte[] {1}, 1, 4);
-    EventID eventId5 = new EventID(new byte[] {1}, 1, 5);
-    EventID eventId6 = new EventID(new byte[] {1}, 1, 6);
-    EventID eventId7 = new EventID(new byte[] {1}, 1, 7);
+    var eventId1 = new EventID(new byte[] {1}, 1, 1);
+    var eventId2 = new EventID(new byte[] {1}, 1, 2);
+    var eventId3 = new EventID(new byte[] {1}, 1, 3);
+    var eventId4 = new EventID(new byte[] {1}, 1, 4);
+    var eventId5 = new EventID(new byte[] {1}, 1, 5);
+    var eventId6 = new EventID(new byte[] {1}, 1, 6);
+    var eventId7 = new EventID(new byte[] {1}, 1, 7);
 
     haRegionQueue.put(new ConflatableObject("key", "value1", eventId1, false, "someRegion"));
     haRegionQueue.put(new ConflatableObject("key", "value2", eventId2, true, "someRegion"));
@@ -138,13 +138,13 @@ public class HARegionQueueTest {
 
   @Test
   public void queueShouldconflateConflatableEntries() throws Exception {
-    EventID eventId1 = new EventID(new byte[] {1}, 1, 1);
-    EventID eventId2 = new EventID(new byte[] {1}, 1, 2);
-    EventID eventId3 = new EventID(new byte[] {1}, 1, 3);
-    EventID eventId4 = new EventID(new byte[] {1}, 1, 4);
-    EventID eventId5 = new EventID(new byte[] {1}, 1, 5);
-    EventID eventId6 = new EventID(new byte[] {1}, 1, 6);
-    EventID eventId7 = new EventID(new byte[] {1}, 1, 7);
+    var eventId1 = new EventID(new byte[] {1}, 1, 1);
+    var eventId2 = new EventID(new byte[] {1}, 1, 2);
+    var eventId3 = new EventID(new byte[] {1}, 1, 3);
+    var eventId4 = new EventID(new byte[] {1}, 1, 4);
+    var eventId5 = new EventID(new byte[] {1}, 1, 5);
+    var eventId6 = new EventID(new byte[] {1}, 1, 6);
+    var eventId7 = new EventID(new byte[] {1}, 1, 7);
 
     haRegionQueue.put(new ConflatableObject("key", "value1", eventId1, true, "someRegion"));
     haRegionQueue.put(new ConflatableObject("key", "value2", eventId2, true, "someRegion"));
@@ -158,10 +158,10 @@ public class HARegionQueueTest {
 
   @Test
   public void queuePutElidesSequenceIdLowerThanOrEqualToLastSeenSequenceId() throws Exception {
-    EventID eventId1 = new EventID(new byte[] {1}, 1, 1);
-    EventID eventId2 = new EventID(new byte[] {1}, 1, 2);
-    EventID eventId3 = new EventID(new byte[] {1}, 1, 0);
-    EventID eventId4 = new EventID(new byte[] {1}, 1, 3);
+    var eventId1 = new EventID(new byte[] {1}, 1, 1);
+    var eventId2 = new EventID(new byte[] {1}, 1, 2);
+    var eventId3 = new EventID(new byte[] {1}, 1, 0);
+    var eventId4 = new EventID(new byte[] {1}, 1, 3);
 
     haRegionQueue.put(new ConflatableObject("key", "value1", eventId1, false, "someRegion"));
     haRegionQueue.put(new ConflatableObject("key", "value2", eventId2, false, "someRegion"));
@@ -173,7 +173,7 @@ public class HARegionQueueTest {
   @Test
   public void isQueueInitializedWithWaitDoesNotWaitIfInitialized() throws Exception {
     long time = 1;
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doReturn(true).when(spy).isQueueInitialized();
 
     assertThat(spy.isQueueInitializedWithWait(time)).isTrue();
@@ -184,7 +184,7 @@ public class HARegionQueueTest {
   @Test
   public void isQueueInitializedWithWaitWillWaitIfNotInitialized() throws Exception {
     long time = 1;
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doReturn(false).doReturn(true).when(spy).isQueueInitialized();
     doNothing().when(spy).waitForInitialized(time);
 
@@ -196,7 +196,7 @@ public class HARegionQueueTest {
   @Test
   public void isQueueInitializedWithWaitReturnsFalseIfNotInitializedAfterWait() throws Exception {
     long time = 1;
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doReturn(false).doReturn(false).when(spy).isQueueInitialized();
     doNothing().when(spy).waitForInitialized(time);
 
@@ -207,14 +207,14 @@ public class HARegionQueueTest {
 
   @Test
   public void getDispatchedEventsReturnsDispatchedEvents() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     addEvents();
     doReturn(false).when(spy).isDispatched(id1);
     doReturn(true).when(spy).isDispatched(id2);
     doReturn(true).when(spy).isDispatched(id3);
     doReturn(false).when(spy).isDispatched(id4);
 
-    List<EventID> dispatchedEvents = spy.getDispatchedEvents(eventIDs);
+    var dispatchedEvents = spy.getDispatchedEvents(eventIDs);
 
     assertThat(dispatchedEvents).containsExactlyInAnyOrder(id2, id3);
   }
@@ -228,7 +228,7 @@ public class HARegionQueueTest {
 
   @Test
   public void isDispatchedReturnsTrueIfDispatchedAndCurrentEventsAreRemoved() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doReturn(null).when(spy).getDispatchedAndCurrentEvents(id1);
 
     assertThat(spy.isDispatched(id1)).isTrue();
@@ -236,7 +236,7 @@ public class HARegionQueueTest {
 
   @Test
   public void isDispatchedReturnsFalseIfSequenceIdGreaterThanLastDispatched() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     when(id1.getSequenceID()).thenReturn(100L);
     wrapper.lastDispatchedSequenceId = 99L;
     doReturn(wrapper).when(spy).getDispatchedAndCurrentEvents(id1);
@@ -246,7 +246,7 @@ public class HARegionQueueTest {
 
   @Test
   public void isDispatchedReturnsTrueIfSequenceIdEqualsLastDispatched() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     when(id1.getSequenceID()).thenReturn(100L);
     wrapper.lastDispatchedSequenceId = 100L;
     doReturn(wrapper).when(spy).getDispatchedAndCurrentEvents(id1);
@@ -256,7 +256,7 @@ public class HARegionQueueTest {
 
   @Test
   public void isDispatchedReturnsTrueIfSequenceIdLessThanLastDispatched() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     when(id1.getSequenceID()).thenReturn(90L);
     wrapper.lastDispatchedSequenceId = 100L;
     doReturn(wrapper).when(spy).getDispatchedAndCurrentEvents(id1);
@@ -266,7 +266,7 @@ public class HARegionQueueTest {
 
   @Test
   public void doNotScheduleSynchronizationWithPrimaryIfHasDoneSynchronization() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     spy.hasSynchronizedWithPrimary.set(true);
     doReturn(delay).when(spy).getDelay();
 
@@ -276,7 +276,7 @@ public class HARegionQueueTest {
 
   @Test
   public void doNotScheduleSynchronizationWithPrimaryIfSynchronizationIsInProgress() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     spy.scheduleSynchronizationWithPrimaryInProgress.set(true);
     doReturn(delay).when(spy).getDelay();
 
@@ -286,7 +286,7 @@ public class HARegionQueueTest {
 
   @Test
   public void doNotScheduleSynchronizationWithPrimaryIfGIINotFinished() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doReturn(delay).when(spy).getDelay();
 
     spy.synchronizeQueueWithPrimary(primary, internalCache);
@@ -295,7 +295,7 @@ public class HARegionQueueTest {
 
   @Test
   public void doNotScheduleSynchronizationWithPrimaryIfPrimaryHasOlderThanGEODE_1_14_0Version() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     spy.doneGIIQueueing.set(true);
     when(primary.getVersionOrdinal()).thenReturn((short) (KnownVersion.GEODE_1_14_0.ordinal() - 1));
     doReturn(delay).when(spy).getDelay();
@@ -306,7 +306,7 @@ public class HARegionQueueTest {
 
   @Test
   public void scheduleSynchronizationWithPrimaryIfPrimaryIsGEODE_1_14_0Version() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     spy.doneGIIQueueing.set(true);
     when(primary.getVersionOrdinal()).thenReturn(KnownVersion.GEODE_1_14_0.ordinal());
     doReturn(delay).when(spy).getDelay();
@@ -318,7 +318,7 @@ public class HARegionQueueTest {
 
   @Test
   public void scheduleSynchronizationWithPrimaryIfPrimaryIsLaterThanGEODE_1_14_0Version() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     spy.doneGIIQueueing.set(true);
     when(primary.getVersionOrdinal()).thenReturn((short) (KnownVersion.GEODE_1_14_0.ordinal() + 1));
     doReturn(delay).when(spy).getDelay();
@@ -330,12 +330,12 @@ public class HARegionQueueTest {
 
   @Test
   public void getGIIEventsReturnsCorrectEvents() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     List<EventID> giiEvents;
     spy.positionBeforeGII = 1;
     spy.positionAfterGII = 4;
-    HAEventWrapper wrapper1 = mock(HAEventWrapper.class);
-    HAEventWrapper wrapper2 = mock(HAEventWrapper.class);
+    var wrapper1 = mock(HAEventWrapper.class);
+    var wrapper2 = mock(HAEventWrapper.class);
     when(wrapper1.getEventId()).thenReturn(id1);
     when(wrapper2.getEventId()).thenReturn(id2);
     Region.Entry<Object, Object> entry1 = uncheckedCast(mock(Region.Entry.class));
@@ -358,8 +358,8 @@ public class HARegionQueueTest {
 
   @Test
   public void doSynchronizationWithPrimaryReturnsIfNoGIIEvents() {
-    HARegionQueue spy = spy(haRegionQueue);
-    int maxChunkSize = 1000;
+    var spy = spy(haRegionQueue);
+    var maxChunkSize = 1000;
     spy.hasSynchronizedWithPrimary.set(true);
     doReturn(new LinkedList<>()).when(spy).getGIIEvents();
 
@@ -373,8 +373,8 @@ public class HARegionQueueTest {
 
   @Test
   public void doSynchronizationWithPrimaryRemoveDispatchedEvents() {
-    HARegionQueue spy = spy(haRegionQueue);
-    int maxChunkSize = 1000;
+    var spy = spy(haRegionQueue);
+    var maxChunkSize = 1000;
     addEvents();
     doReturn(eventIDs).when(spy).getGIIEvents();
     doReturn(true).when(spy).removeDispatchedEvents(primary, internalCache, eventIDs);
@@ -389,8 +389,8 @@ public class HARegionQueueTest {
 
   @Test
   public void hasSynchronizedWithPrimaryNotSetIfRemoveDispatchedEventsFails() {
-    HARegionQueue spy = spy(haRegionQueue);
-    int maxChunkSize = 1000;
+    var spy = spy(haRegionQueue);
+    var maxChunkSize = 1000;
     addEvents();
     doReturn(eventIDs).when(spy).getGIIEvents();
     doReturn(false).when(spy).removeDispatchedEvents(primary, internalCache, eventIDs);
@@ -405,9 +405,9 @@ public class HARegionQueueTest {
 
   @Test
   public void hasSynchronizedWithPrimaryRemoveChunksIfManyGIIEvents() {
-    HARegionQueue spy = spy(haRegionQueue);
-    int maxChunkSize = 1000;
-    for (int i = 0; i < 1100; i++) {
+    var spy = spy(haRegionQueue);
+    var maxChunkSize = 1000;
+    for (var i = 0; i < 1100; i++) {
       eventIDs.add(mock(EventID.class));
     }
     createChunks();
@@ -434,9 +434,9 @@ public class HARegionQueueTest {
 
   @Test
   public void hasSynchronizedWithPrimaryNotSetIfRemoveChunksFails() {
-    HARegionQueue spy = spy(haRegionQueue);
-    int maxChunkSize = 1000;
-    for (int i = 0; i < 1100; i++) {
+    var spy = spy(haRegionQueue);
+    var maxChunkSize = 1000;
+    for (var i = 0; i < 1100; i++) {
       eventIDs.add(mock(EventID.class));
     }
     createChunks();
@@ -456,24 +456,24 @@ public class HARegionQueueTest {
 
   @Test
   public void getChunksReturnsEqualSizedChunks() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     addEvents();
     // add more events
     eventIDs.add(mock(EventID.class));
     eventIDs.add(mock(EventID.class));
-    int maxChunkSize = 2;
+    var maxChunkSize = 2;
 
-    Collection<List<EventID>> myChunks = spy.getChunks(eventIDs, maxChunkSize);
+    var myChunks = spy.getChunks(eventIDs, maxChunkSize);
 
     assertThat(myChunks.size()).isEqualTo(eventIDs.size() / maxChunkSize);
-    for (List<EventID> chunk : myChunks) {
+    for (var chunk : myChunks) {
       assertThat(chunk.size()).isEqualTo(maxChunkSize);
     }
   }
 
   @Test
   public void removeDispatchedEventAfterSyncWithPrimaryRemovesEvents() throws Exception {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doNothing().when(spy).removeDispatchedEvents(id1);
 
     assertThat(spy.removeDispatchedEventAfterSyncWithPrimary(id1)).isTrue();
@@ -482,7 +482,7 @@ public class HARegionQueueTest {
 
   @Test
   public void removeDispatchedEventReturnsTrueIfRemovalThrowsCacheException() throws Exception {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doThrow(new EntryNotFoundException("")).when(spy).removeDispatchedEvents(id1);
 
     assertThat(spy.removeDispatchedEventAfterSyncWithPrimary(id1)).isTrue();
@@ -492,7 +492,7 @@ public class HARegionQueueTest {
   @Test
   public void removeDispatchedEventReturnsTrueIfRemovalThrowsRegionDestroyedException()
       throws Exception {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doThrow(new RegionDestroyedException("", "")).when(spy).removeDispatchedEvents(id1);
 
     assertThat(spy.removeDispatchedEventAfterSyncWithPrimary(id1)).isTrue();
@@ -501,7 +501,7 @@ public class HARegionQueueTest {
 
   @Test
   public void removeDispatchedEventReturnsFalseIfRemovalThrowsCancelException() throws Exception {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doThrow(new CacheClosedException()).when(spy).removeDispatchedEvents(id1);
 
     assertThat(spy.removeDispatchedEventAfterSyncWithPrimary(id1)).isFalse();
@@ -510,7 +510,7 @@ public class HARegionQueueTest {
 
   @Test
   public void removeDispatchedEventsReturnsFalseIfNotGettingEventsFromPrimary() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     doReturn(null).when(spy).getDispatchedEventsFromPrimary(primary, internalCache, eventIDs);
 
     assertThat(spy.removeDispatchedEvents(primary, internalCache, eventIDs)).isFalse();
@@ -518,7 +518,7 @@ public class HARegionQueueTest {
 
   @Test
   public void removeDispatchedEventsReturnsTrueIfRemovedDispatchedEvents() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     List<EventID> dispatched = new LinkedList<>();
     dispatched.add(id1);
     dispatched.add(id3);
@@ -531,7 +531,7 @@ public class HARegionQueueTest {
 
   @Test
   public void removeDispatchedEventsReturnsFalseIfFailedToRemoveDispatchedEvents() {
-    HARegionQueue spy = spy(haRegionQueue);
+    var spy = spy(haRegionQueue);
     List<EventID> dispatched = new LinkedList<>();
     dispatched.add(id1);
     dispatched.add(id3);
@@ -544,12 +544,12 @@ public class HARegionQueueTest {
 
   @Test
   public void getDelayReturnsTimeToWait() {
-    HARegionQueue spy = spy(haRegionQueue);
-    long waitTime = 15000L;
-    long currentTime = 5000L;
-    long doneGIIQueueingTime = 0L;
+    var spy = spy(haRegionQueue);
+    var waitTime = 15000L;
+    var currentTime = 5000L;
+    var doneGIIQueueingTime = 0L;
     spy.doneGIIQueueingTime = doneGIIQueueingTime;
-    long elapsed = currentTime - doneGIIQueueingTime;
+    var elapsed = currentTime - doneGIIQueueingTime;
     doReturn(currentTime).when(spy).getCurrentTime();
 
     assertThat(spy.getDelay()).isEqualTo(waitTime - elapsed);
@@ -557,10 +557,10 @@ public class HARegionQueueTest {
 
   @Test
   public void getDelayReturnsZeroIfExceedWaitTime() {
-    HARegionQueue spy = spy(haRegionQueue);
-    long waitTime = 15000L;
-    long doneGIIQueueingTime = 0L;
-    long currentTime = waitTime + doneGIIQueueingTime + 1;
+    var spy = spy(haRegionQueue);
+    var waitTime = 15000L;
+    var doneGIIQueueingTime = 0L;
+    var currentTime = waitTime + doneGIIQueueingTime + 1;
     spy.doneGIIQueueingTime = doneGIIQueueingTime;
     doReturn(currentTime).when(spy).getCurrentTime();
 

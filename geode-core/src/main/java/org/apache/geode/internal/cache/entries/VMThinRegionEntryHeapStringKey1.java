@@ -54,9 +54,9 @@ public class VMThinRegionEntryHeapStringKey1 extends VMThinRegionEntryHeap {
     super(context, value);
     // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
     // caller has already confirmed that key.length <= MAX_INLINE_STRING_KEY
-    long tempBits1 = 0L;
+    var tempBits1 = 0L;
     if (byteEncode) {
-      for (int i = key.length() - 1; i >= 0; i--) {
+      for (var i = key.length() - 1; i >= 0; i--) {
         // Note: we know each byte is <= 0x7f so the "& 0xff" is not needed. But I added it in to
         // keep findbugs happy.
         tempBits1 |= (byte) key.charAt(i) & 0xff;
@@ -64,7 +64,7 @@ public class VMThinRegionEntryHeapStringKey1 extends VMThinRegionEntryHeap {
       }
       tempBits1 |= 1 << 6;
     } else {
-      for (int i = key.length() - 1; i >= 0; i--) {
+      for (var i = key.length() - 1; i >= 0; i--) {
         tempBits1 |= key.charAt(i);
         tempBits1 <<= 16;
       }
@@ -128,16 +128,16 @@ public class VMThinRegionEntryHeapStringKey1 extends VMThinRegionEntryHeap {
 
   @Override
   public Object getKey() {
-    int keyLength = getKeyLength();
-    char[] chars = new char[keyLength];
-    long tempBits1 = bits1;
+    var keyLength = getKeyLength();
+    var chars = new char[keyLength];
+    var tempBits1 = bits1;
     if (getEncoding() == 1) {
-      for (int i = 0; i < keyLength; i++) {
+      for (var i = 0; i < keyLength; i++) {
         tempBits1 >>= 8;
         chars[i] = (char) (tempBits1 & 0x00ff);
       }
     } else {
-      for (int i = 0; i < keyLength; i++) {
+      for (var i = 0; i < keyLength; i++) {
         tempBits1 >>= 16;
         chars[i] = (char) (tempBits1 & 0x00FFff);
       }
@@ -149,22 +149,22 @@ public class VMThinRegionEntryHeapStringKey1 extends VMThinRegionEntryHeap {
   @Override
   public boolean isKeyEqual(final Object key) {
     if (key instanceof String) {
-      String stringKey = (String) key;
-      int keyLength = getKeyLength();
+      var stringKey = (String) key;
+      var keyLength = getKeyLength();
       if (stringKey.length() == keyLength) {
-        long tempBits1 = bits1;
+        var tempBits1 = bits1;
         if (getEncoding() == 1) {
-          for (int i = 0; i < keyLength; i++) {
+          for (var i = 0; i < keyLength; i++) {
             tempBits1 >>= 8;
-            char character = (char) (tempBits1 & 0x00ff);
+            var character = (char) (tempBits1 & 0x00ff);
             if (stringKey.charAt(i) != character) {
               return false;
             }
           }
         } else {
-          for (int i = 0; i < keyLength; i++) {
+          for (var i = 0; i < keyLength; i++) {
             tempBits1 >>= 16;
-            char character = (char) (tempBits1 & 0x00FFff);
+            var character = (char) (tempBits1 & 0x00FFff);
             if (stringKey.charAt(i) != character) {
               return false;
             }

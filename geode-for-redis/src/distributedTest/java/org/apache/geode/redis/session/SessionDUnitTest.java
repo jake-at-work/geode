@@ -54,7 +54,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.redis.session.springRedisTestApplication.RedisSpringTestApplication;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 
@@ -97,17 +96,17 @@ public abstract class SessionDUnitTest {
   }
 
   protected static void setupRetry() {
-    RetryConfig config = RetryConfig.custom()
+    var config = RetryConfig.custom()
         .maxAttempts(20)
         .retryExceptions(HttpServerErrorException.InternalServerError.class,
             RedisConnectionException.class)
         .build();
-    RetryRegistry registry = RetryRegistry.of(config);
+    var registry = RetryRegistry.of(config);
     retry = registry.retry("sessions");
   }
 
   protected static void setupAppPorts() {
-    int[] availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
     ports.put(APP1, availablePorts[0]);
     ports.put(APP2, availablePorts[1]);
   }
@@ -129,7 +128,7 @@ public abstract class SessionDUnitTest {
   public void setupClient() {
     redisClient = RedisClusterClient.create("redis://localhost:" + ports.get(SERVER1));
 
-    ClusterTopologyRefreshOptions refreshOptions =
+    var refreshOptions =
         ClusterTopologyRefreshOptions.builder()
             .enableAllAdaptiveRefreshTriggers()
             .enablePeriodicRefresh(Duration.ofSeconds(5))
@@ -180,13 +179,13 @@ public abstract class SessionDUnitTest {
 
   protected static void startSpringApp(int sessionApp, long sessionTimeout, int... serverPorts) {
     int httpPort = ports.get(sessionApp);
-    VM host = cluster.getVM(sessionApp);
+    var host = cluster.getVM(sessionApp);
     host.invoke("Start a Spring app", () -> {
       System.setProperty("server.port", "" + httpPort);
       System.setProperty("server.servlet.session.timeout", "" + sessionTimeout + "s");
 
-      String[] args = new String[serverPorts.length];
-      for (int i = 0; i < serverPorts.length; i++) {
+      var args = new String[serverPorts.length];
+      for (var i = 0; i < serverPorts.length; i++) {
         args[i] = "localhost:" + serverPorts[i];
       }
       springApplicationContext = SpringApplication.run(RedisSpringTestApplication.class, args);
@@ -202,8 +201,8 @@ public abstract class SessionDUnitTest {
   }
 
   private String createNewSessionWithNote0(int sessionApp, String note) {
-    HttpEntity<String> request = new HttpEntity<>(note);
-    HttpHeaders resultHeaders = new RestTemplate()
+    var request = new HttpEntity<String>(note);
+    var resultHeaders = new RestTemplate()
         .postForEntity("http://localhost:" + ports.get(sessionApp) + "/addSessionNote",
             request, String.class)
         .getHeaders();
@@ -216,9 +215,9 @@ public abstract class SessionDUnitTest {
   }
 
   private String[] getSessionNotes0(int sessionApp, String sessionCookie) {
-    HttpHeaders requestHeaders = new HttpHeaders();
+    var requestHeaders = new HttpHeaders();
     requestHeaders.add("Cookie", sessionCookie);
-    HttpEntity<String> request = new HttpEntity<>("", requestHeaders);
+    var request = new HttpEntity<String>("", requestHeaders);
 
     return new RestTemplate()
         .exchange("http://localhost:" + ports.get(sessionApp) + "/getSessionNotes",
@@ -233,11 +232,11 @@ public abstract class SessionDUnitTest {
 
   private Void addNoteToSession0(int sessionApp, String sessionCookie, String note)
       throws Exception {
-    HttpHeaders requestHeaders = new HttpHeaders();
+    var requestHeaders = new HttpHeaders();
     requestHeaders.add("Cookie", sessionCookie);
     List<String> notes = new ArrayList<>();
     Collections.addAll(notes, getSessionNotes(sessionApp, sessionCookie));
-    HttpEntity<String> request = new HttpEntity<>(note, requestHeaders);
+    var request = new HttpEntity<String>(note, requestHeaders);
     new RestTemplate()
         .postForEntity("http://localhost:" + ports.get(sessionApp) + "/addSessionNote",
             request, String.class);
@@ -245,8 +244,8 @@ public abstract class SessionDUnitTest {
   }
 
   protected String getSessionId(String sessionCookie) {
-    List<HttpCookie> cookies = HttpCookie.parse(sessionCookie);
-    byte[] decodedCookie = Base64.getDecoder().decode(cookies.get(0).getValue());
+    var cookies = HttpCookie.parse(sessionCookie);
+    var decodedCookie = Base64.getDecoder().decode(cookies.get(0).getValue());
     return new String(decodedCookie);
   }
 

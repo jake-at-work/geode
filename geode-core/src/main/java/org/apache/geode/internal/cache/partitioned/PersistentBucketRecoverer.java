@@ -19,7 +19,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +30,6 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.BucketPersistenceAdvisor;
 import org.apache.geode.internal.cache.ColocationHelper;
 import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.PRHARedundancyProvider;
@@ -87,15 +85,15 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
 
     this.startupStatus = startupStatus;
 
-    PartitionedRegion baseRegion =
+    var baseRegion =
         ColocationHelper.getLeaderRegion(redundancyProvider.getPartitionedRegion());
-    List<PartitionedRegion> colocatedRegions =
+    var colocatedRegions =
         getColocatedChildRegions(baseRegion);
     List<RegionStatus> allRegions = new ArrayList<>(colocatedRegions.size() + 1);
     if (baseRegion.getDataPolicy().withPersistence()) {
       allRegions.add(new RegionStatus(baseRegion));
     }
-    for (PartitionedRegion region : colocatedRegions) {
+    for (var region : colocatedRegions) {
       if (region.getDataPolicy().withPersistence()) {
         allRegions.add(new RegionStatus(region));
       }
@@ -151,7 +149,7 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
    * advisors.
    */
   private void addListeners() {
-    for (RegionStatus region : regions) {
+    for (var region : regions) {
       region.addListeners();
     }
   }
@@ -161,7 +159,7 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
    * advisors.
    */
   private void removeListeners() {
-    for (RegionStatus region : regions) {
+    for (var region : regions) {
       region.removeListeners();
     }
   }
@@ -178,9 +176,9 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
   @Override
   public void run2() {
     try {
-      boolean warningLogged = false;
+      var warningLogged = false;
       while (getLatchCount() > 0) {
-        int sleepMillis = SLEEP_PERIOD;
+        var sleepMillis = SLEEP_PERIOD;
         // reduce the first log time from 15secs so that higher layers can
         // report sooner to user
         if (!warningLogged) {
@@ -193,8 +191,8 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
 
         if (membershipChanged) {
           membershipChanged = false;
-          for (Iterator<RegionStatus> itr = regions.iterator(); itr.hasNext();) {
-            RegionStatus region = itr.next();
+          for (var itr = regions.iterator(); itr.hasNext();) {
+            var region = itr.next();
             try {
               region.logWaitingForMembers();
             } catch (RegionDestroyedException e) {
@@ -219,7 +217,7 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
          * Make sure the recovery completion message was printed to the log.
          */
 
-        for (RegionStatus region : regions) {
+        for (var region : regions) {
           if (!region.loggedDoneMessage) {
             region.logDoneMessage();
           }
@@ -264,13 +262,13 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
     }
 
     public void removeListeners() {
-      for (ProxyBucketRegion proxyBucket : bucketRegions) {
+      for (var proxyBucket : bucketRegions) {
         proxyBucket.getPersistenceAdvisor().removeListener(PersistentBucketRecoverer.this);
       }
     }
 
     public void addListeners() {
-      for (ProxyBucketRegion proxyBucket : bucketRegions) {
+      for (var proxyBucket : bucketRegions) {
         proxyBucket.getPersistenceAdvisor().addListener(PersistentBucketRecoverer.this);
       }
     }
@@ -304,8 +302,8 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
        * Bummer. No DiskStore. Put together a fake one (for logging only).
        */
       {
-        String name = "No name for this member";
-        String diskDir = System.getProperty("user.dir");
+        var name = "No name for this member";
+        var diskDir = System.getProperty("user.dir");
         InetAddress localHost = null;
 
         try {
@@ -331,14 +329,13 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
       Map<PersistentMemberID, Set<Integer>> waitingForMembers =
           new HashMap<>();
 
-
-      boolean allBucketsClosed = true;
-      for (ProxyBucketRegion proxyBucket : bucketRegions) {
+      var allBucketsClosed = true;
+      for (var proxyBucket : bucketRegions) {
         Integer bucketId = proxyBucket.getBucketId();
 
         // Get the set of missing members from the persistence advisor
         Set<PersistentMemberID> missingMembers;
-        BucketPersistenceAdvisor persistenceAdvisor = proxyBucket.getPersistenceAdvisor();
+        var persistenceAdvisor = proxyBucket.getPersistenceAdvisor();
 
         if (persistenceAdvisor.isClosed()) {
           continue;
@@ -351,8 +348,8 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
         }
 
         if (missingMembers != null) {
-          for (PersistentMemberID missingMember : missingMembers) {
-            Set<Integer> buckets = waitingForMembers.get(missingMember);
+          for (var missingMember : missingMembers) {
+            var buckets = waitingForMembers.get(missingMember);
             if (buckets == null) {
               buckets = new TreeSet<>();
               waitingForMembers.put(missingMember, buckets);
@@ -384,10 +381,10 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
      * Logs a consolidated log entry for all ProxyBucketRegions waiting for persistent members.
      */
     private void logWaitingForMembers() throws RegionDestroyedException {
-      Map<PersistentMemberID, Set<Integer>> offlineMembers = getMembersToWaitFor(true);
-      Map<PersistentMemberID, Set<Integer>> allMembersToWaitFor = getMembersToWaitFor(false);
+      var offlineMembers = getMembersToWaitFor(true);
+      var allMembersToWaitFor = getMembersToWaitFor(false);
 
-      boolean thereAreBucketsToBeRecovered = (getLatchCount() > 0);
+      var thereAreBucketsToBeRecovered = (getLatchCount() > 0);
 
       /*
        * Log any offline members the region is waiting for.
@@ -398,7 +395,7 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
         TransformUtils.transform(offlineMembers.entrySet(), membersToWaitForLogEntries,
             TransformUtils.persistentMemberEntryToLogEntryTransformer);
 
-        Set<Integer> missingBuckets = getAllWaitingBuckets(offlineMembers);
+        var missingBuckets = getAllWaitingBuckets(offlineMembers);
 
         startupStatus.startup(
             String.format(
@@ -415,7 +412,7 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
       else if (thereAreBucketsToBeRecovered && !allMembersToWaitFor.isEmpty()) {
         Set<String> membersToWaitForLogEntries = new HashSet<>();
 
-        Set<Integer> missingBuckets = getAllWaitingBuckets(allMembersToWaitFor);
+        var missingBuckets = getAllWaitingBuckets(allMembersToWaitFor);
         TransformUtils.transform(allMembersToWaitFor.entrySet(), membersToWaitForLogEntries,
             TransformUtils.persistentMemberEntryToLogEntryTransformer);
 
@@ -443,7 +440,7 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
     private Set<Integer> getAllWaitingBuckets(
         Map<PersistentMemberID, Set<Integer>> offlineMembers) {
       Set<Integer> allWaitingBuckets = new TreeSet<>();
-      for (Set<Integer> missingPerMember : offlineMembers.values()) {
+      for (var missingPerMember : offlineMembers.values()) {
         allWaitingBuckets.addAll(missingPerMember);
       }
       return allWaitingBuckets;
@@ -451,11 +448,11 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
   }
 
   public void await(long timeout, TimeUnit unit) {
-    boolean interrupted = false;
+    var interrupted = false;
     while (true) {
       try {
         redundancyProvider.getPartitionedRegion().getCancelCriterion().checkCancelInProgress(null);
-        boolean done = allBucketsRecoveredFromDisk.await(timeout, unit);
+        var done = allBucketsRecoveredFromDisk.await(timeout, unit);
         if (done) {
           break;
         }
@@ -469,7 +466,7 @@ public class PersistentBucketRecoverer extends RecoveryRunnable implements Persi
   }
 
   public void await() {
-    boolean interrupted = false;
+    var interrupted = false;
     while (true) {
       try {
         getAllBucketsRecoveredFromDiskLatch().await();

@@ -23,8 +23,8 @@ import org.apache.geode.internal.cache.persistence.DiskStoreID;
 public class RegionVersionHolderTest {
   @Test
   public void setRegionSynchronizeScheduledCanSetSyncScheduledOrDone() {
-    DiskStoreID server = new DiskStoreID(0, 0);
-    RegionVersionHolder holder = new RegionVersionHolder(server);
+    var server = new DiskStoreID(0, 0);
+    var holder = new RegionVersionHolder(server);
 
     holder.setRegionSynchronizeScheduled();
     assertThat(holder.setRegionSynchronizeScheduledOrDoneIfNot()).isFalse();
@@ -32,8 +32,8 @@ public class RegionVersionHolderTest {
 
   @Test
   public void setRegionSynchronizeScheduledOrDoneIfNotReturnsTrueIfSyncScheduledNotSet() {
-    DiskStoreID server = new DiskStoreID(0, 0);
-    RegionVersionHolder holder = new RegionVersionHolder(server);
+    var server = new DiskStoreID(0, 0);
+    var holder = new RegionVersionHolder(server);
 
     assertThat(holder.setRegionSynchronizeScheduledOrDoneIfNot()).isTrue();
     assertThat(holder.setRegionSynchronizeScheduledOrDoneIfNot()).isFalse();

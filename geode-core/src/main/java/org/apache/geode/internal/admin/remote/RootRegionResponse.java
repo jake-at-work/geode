@@ -47,9 +47,9 @@ public class RootRegionResponse extends AdminResponse {
    */
   public static RootRegionResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    RootRegionResponse m = new RootRegionResponse();
+    var m = new RootRegionResponse();
     try {
-      InternalCache cache = (InternalCache) CacheFactory.getInstance(dm.getSystem());
+      var cache = (InternalCache) CacheFactory.getInstance(dm.getSystem());
       final Collection roots;
       if (!Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "PRDebug")) {
         roots = cache.rootRegions();
@@ -59,14 +59,14 @@ public class RootRegionResponse extends AdminResponse {
 
       List regionNames = new ArrayList();
       List userAttributes = new ArrayList();
-      for (Object root : roots) {
-        Region r = (Region) root;
+      for (var root : roots) {
+        var r = (Region) root;
         regionNames.add(r.getName());
         userAttributes.add(CacheDisplay.getCachedObjectDisplay(r.getUserAttribute(),
             GemFireVM.LIGHTWEIGHT_CACHE_VALUE));
       }
 
-      String[] temp = new String[0];
+      var temp = new String[0];
       m.regions = (String[]) regionNames.toArray(temp);
       m.userAttrs = (String[]) userAttributes.toArray(temp);
 
@@ -80,8 +80,8 @@ public class RootRegionResponse extends AdminResponse {
 
   public Region[] getRegions(RemoteGemFireVM vm) {
     if (regions.length > 0) {
-      Region[] roots = new Region[regions.length];
-      for (int i = 0; i < regions.length; i++) {
+      var roots = new Region[regions.length];
+      for (var i = 0; i < regions.length; i++) {
         roots[i] = new AdminRegion(regions[i], vm, userAttrs[i]);
       }
       return roots;

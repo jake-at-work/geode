@@ -58,7 +58,7 @@ public class AlterGatewaySenderCommandTest {
   @Before
   public void before() {
     command = spy(AlterGatewaySenderCommand.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     doReturn(cache).when(command).getCache();
     service =
         spy(new InternalConfigurationPersistenceService(JAXBService.create(CacheConfig.class)));
@@ -69,14 +69,14 @@ public class AlterGatewaySenderCommandTest {
     groupSet.add("group2");
     doReturn(groupSet).when(service).getGroups();
 
-    CacheConfig config = new CacheConfig();
-    CacheConfig.GatewaySender gw1 = new CacheConfig.GatewaySender();
+    var config = new CacheConfig();
+    var gw1 = new CacheConfig.GatewaySender();
     gw1.setId("sender1");
     gw1.setParallel(true);
     gw1.setGroupTransactionEvents(false);
     gw1.setEnableBatchConflation(true);
 
-    CacheConfig.GatewaySender gw2 = new CacheConfig.GatewaySender();
+    var gw2 = new CacheConfig.GatewaySender();
     gw2.setId("sender2");
     gw2.setParallel(false);
     gw2.setDispatcherThreads("5");
@@ -89,7 +89,7 @@ public class AlterGatewaySenderCommandTest {
     doReturn(config).when(service).getCacheConfig("group1");
     doReturn(new CacheConfig()).when(service).getCacheConfig("group2");
 
-    Set<DistributedMember> members =
+    var members =
         Stream.of(mock(DistributedMember.class)).collect(Collectors.toSet());
     doReturn(members).when(command).findMembers(any(), any());
 

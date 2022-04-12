@@ -64,7 +64,7 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForByteByte() {
-    int expectedLength = 2 + 1 + 1;
+    var expectedLength = 2 + 1 + 1;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_BYTE, ID_VALUE_BYTE, expectedLength);
   }
 
@@ -75,7 +75,7 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForShortShort() {
-    int expectedLength = 2 + 2 + 2;
+    var expectedLength = 2 + 2 + 2;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_SHORT, ID_VALUE_SHORT, expectedLength);
   }
 
@@ -86,7 +86,7 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForIntInt() {
-    int expectedLength = 2 + 4 + 4;
+    var expectedLength = 2 + 4 + 4;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_INT, ID_VALUE_INT, expectedLength);
   }
 
@@ -97,7 +97,7 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForLongLong() {
-    int expectedLength = 2 + 8 + 8;
+    var expectedLength = 2 + 8 + 8;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_LONG, ID_VALUE_LONG, expectedLength);
   }
 
@@ -108,7 +108,7 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForByteShort() {
-    int expectedLength = 2 + 1 + 2;
+    var expectedLength = 2 + 1 + 2;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_BYTE, ID_VALUE_SHORT, expectedLength);
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_SHORT, ID_VALUE_BYTE, expectedLength);
   }
@@ -120,7 +120,7 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForByteInt() {
-    int expectedLength = 2 + 1 + 4;
+    var expectedLength = 2 + 1 + 4;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_BYTE, ID_VALUE_INT, expectedLength);
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_INT, ID_VALUE_BYTE, expectedLength);
   }
@@ -132,7 +132,7 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForByteLong() {
-    int expectedLength = 2 + 1 + 8;
+    var expectedLength = 2 + 1 + 8;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_BYTE, ID_VALUE_LONG, expectedLength);
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_LONG, ID_VALUE_BYTE, expectedLength);
   }
@@ -144,7 +144,7 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForShortInt() {
-    int expectedLength = 2 + 2 + 4;
+    var expectedLength = 2 + 2 + 4;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_SHORT, ID_VALUE_INT, expectedLength);
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_INT, ID_VALUE_SHORT, expectedLength);
   }
@@ -156,7 +156,7 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForShortLong() {
-    int expectedLength = 2 + 2 + 8;
+    var expectedLength = 2 + 2 + 8;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_SHORT, ID_VALUE_LONG, expectedLength);
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_LONG, ID_VALUE_SHORT, expectedLength);
   }
@@ -168,32 +168,30 @@ public class EventIdOptimizationJUnitTest {
    */
   @Test
   public void testOptimizationForIntLong() {
-    int expectedLength = 2 + 4 + 8;
+    var expectedLength = 2 + 4 + 8;
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_INT, ID_VALUE_LONG, expectedLength);
     writeReadAndVerifyOptimizedByteArray(ID_VALUE_LONG, ID_VALUE_INT, expectedLength);
   }
 
   @Test
   public void testEventIDForGEODE100Member() throws IOException, ClassNotFoundException {
-    InternalDistributedMember distributedMember = new InternalDistributedMember("localhost", 10999);
-    HeapDataOutputStream hdos = new HeapDataOutputStream(256, KnownVersion.CURRENT);
+    var distributedMember = new InternalDistributedMember("localhost", 10999);
+    var hdos = new HeapDataOutputStream(256, KnownVersion.CURRENT);
     distributedMember.writeEssentialData(hdos);
-    byte[] memberBytes = hdos.toByteArray();
-    EventID eventID = new EventID(memberBytes, 1, 1);
+    var memberBytes = hdos.toByteArray();
+    var eventID = new EventID(memberBytes, 1, 1);
 
-
-    HeapDataOutputStream hdos90 = new HeapDataOutputStream(256, KnownVersion.GFE_90);
-    VersionedDataOutputStream dop = new VersionedDataOutputStream(hdos90, KnownVersion.GFE_90);
+    var hdos90 = new HeapDataOutputStream(256, KnownVersion.GFE_90);
+    var dop = new VersionedDataOutputStream(hdos90, KnownVersion.GFE_90);
 
     eventID.toData(dop, InternalDataSerializer.createSerializationContext(dop));
 
-    ByteArrayInputStream bais = new ByteArrayInputStream(hdos90.toByteArray());
+    var bais = new ByteArrayInputStream(hdos90.toByteArray());
 
-
-    VersionedDataInputStream dataInputStream =
+    var dataInputStream =
         new VersionedDataInputStream(bais, KnownVersion.GFE_90);
 
-    EventID eventID2 = new EventID();
+    var eventID2 = new EventID();
     eventID2.fromData(dataInputStream, mock(DeserializationContext.class));
 
     assertEquals(distributedMember, eventID2.getDistributedMember(KnownVersion.GFE_90));
@@ -214,11 +212,11 @@ public class EventIdOptimizationJUnitTest {
    */
   private void writeReadAndVerifyOptimizedByteArray(long threadId, long sequenceId,
       int expectedArrayLength) {
-    byte[] array = EventID.getOptimizedByteArrayForEventID(threadId, sequenceId);
+    var array = EventID.getOptimizedByteArrayForEventID(threadId, sequenceId);
     assertEquals("optimized byte-array length not as expected", expectedArrayLength, array.length);
-    ByteBuffer buffer = ByteBuffer.wrap(array);
-    long threadIdReadFromOptArray = EventID.readEventIdPartsFromOptimizedByteArray(buffer);
-    long sequenceIdReadFromOptArray = EventID.readEventIdPartsFromOptimizedByteArray(buffer);
+    var buffer = ByteBuffer.wrap(array);
+    var threadIdReadFromOptArray = EventID.readEventIdPartsFromOptimizedByteArray(buffer);
+    var sequenceIdReadFromOptArray = EventID.readEventIdPartsFromOptimizedByteArray(buffer);
     assertEquals("threadId value read is not same as that written to the byte-buffer", threadId,
         threadIdReadFromOptArray);
     assertEquals("sequenceId value read is not same as that written to the byte-buffer", sequenceId,

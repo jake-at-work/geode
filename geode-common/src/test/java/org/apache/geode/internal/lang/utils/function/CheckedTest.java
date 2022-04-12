@@ -32,7 +32,7 @@ class CheckedTest {
 
   @Test
   void rethrowFunctionReturnsResults() {
-    final Object o = new Object();
+    final var o = new Object();
     assertThat(rethrowFunction(t -> o).apply(null)).isSameAs(o);
   }
 

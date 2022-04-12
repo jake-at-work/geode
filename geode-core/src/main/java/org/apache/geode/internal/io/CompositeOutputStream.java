@@ -39,7 +39,7 @@ public class CompositeOutputStream extends OutputStream implements Iterable<Outp
    */
   public CompositeOutputStream(OutputStream... out) {
     final Set<OutputStream> newSet = new HashSet<>();
-    for (OutputStream stream : out) {
+    for (var stream : out) {
       newSet.add(stream);
     }
     streams = newSet;
@@ -51,12 +51,12 @@ public class CompositeOutputStream extends OutputStream implements Iterable<Outp
    */
   public boolean addOutputStream(OutputStream out) {
     synchronized (lock) {
-      final Set<OutputStream> oldSet = streams;
+      final var oldSet = streams;
       if (oldSet.contains(out)) {
         return false;
       } else {
         final Set<OutputStream> newSet = new HashSet<>(oldSet);
-        final boolean added = newSet.add(out);
+        final var added = newSet.add(out);
         streams = newSet;
         return added;
       }
@@ -68,7 +68,7 @@ public class CompositeOutputStream extends OutputStream implements Iterable<Outp
    */
   public boolean removeOutputStream(OutputStream out) {
     synchronized (lock) {
-      final Set<OutputStream> oldSet = streams;
+      final var oldSet = streams;
       if (!oldSet.contains(out)) {
         return false;
       } else if (oldSet.size() == 1) {
@@ -76,7 +76,7 @@ public class CompositeOutputStream extends OutputStream implements Iterable<Outp
         return true;
       } else {
         final Set<OutputStream> newSet = new HashSet<>(oldSet);
-        final boolean removed = newSet.remove(out);
+        final var removed = newSet.remove(out);
         streams = newSet;
         return removed;
       }
@@ -119,16 +119,16 @@ public class CompositeOutputStream extends OutputStream implements Iterable<Outp
    */
   @Override
   public void write(int b) throws IOException {
-    Set<OutputStream> outputStreams = streams;
-    for (OutputStream out : outputStreams) {
+    var outputStreams = streams;
+    for (var out : outputStreams) {
       out.write(b);
     }
   }
 
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
-    Set<OutputStream> outputStreams = streams;
-    for (OutputStream out : outputStreams) {
+    var outputStreams = streams;
+    for (var out : outputStreams) {
       out.write(b, off, len);
     }
   }
@@ -145,8 +145,8 @@ public class CompositeOutputStream extends OutputStream implements Iterable<Outp
    */
   @Override
   public void flush() throws IOException {
-    Set<OutputStream> outputStreams = streams;
-    for (OutputStream out : outputStreams) {
+    var outputStreams = streams;
+    for (var out : outputStreams) {
       out.flush();
     }
   }
@@ -162,8 +162,8 @@ public class CompositeOutputStream extends OutputStream implements Iterable<Outp
    */
   @Override
   public void close() throws IOException {
-    Set<OutputStream> outputStreams = streams;
-    for (OutputStream out : outputStreams) {
+    var outputStreams = streams;
+    for (var out : outputStreams) {
       try {
         out.flush();
       } catch (IOException ignored) {

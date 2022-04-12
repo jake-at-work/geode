@@ -22,7 +22,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.SECURITY_POST
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -36,14 +35,11 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.pdx.WritablePdxInstance;
 import org.apache.geode.security.PostProcessor;
 import org.apache.geode.security.templates.UserPasswordAuthInit;
 import org.apache.geode.test.dunit.Host;
@@ -82,8 +78,8 @@ public class LuceneClientSecurityPostProcessingDUnitTest extends LuceneQueriesAc
 
     accessor.invoke(this::putData);
 
-    SerializableConsumerIF<Object> assertion = x -> {
-      org.apache.geode.cache.lucene.test.TestObject testObject =
+    var assertion = (SerializableConsumerIF<Object>) x -> {
+      var testObject =
           (org.apache.geode.cache.lucene.test.TestObject) x;
       assertThat(testObject.getField2()).isEqualTo("***");
     };
@@ -105,8 +101,8 @@ public class LuceneClientSecurityPostProcessingDUnitTest extends LuceneQueriesAc
 
     accessor.invoke(this::putPdxData);
 
-    final SerializableConsumerIF<Object> pdxAssertion = x -> {
-      PdxInstance pdx = (PdxInstance) x;
+    final var pdxAssertion = (SerializableConsumerIF<Object>) x -> {
+      var pdx = (PdxInstance) x;
       assertThat(pdx.getField("field2")).isEqualTo("***");
     };
 
@@ -118,7 +114,7 @@ public class LuceneClientSecurityPostProcessingDUnitTest extends LuceneQueriesAc
     Region<String, org.apache.geode.cache.lucene.test.TestObject> region =
         getClientCache().getRegion(REGION_NAME);
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("key-" + i, new org.apache.geode.cache.lucene.test.TestObject("hello", "world"));
     }
   }
@@ -127,7 +123,7 @@ public class LuceneClientSecurityPostProcessingDUnitTest extends LuceneQueriesAc
     Region<String, org.apache.geode.cache.lucene.test.TestPdxObject> region =
         getClientCache().getRegion(REGION_NAME);
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("key-" + i,
           new org.apache.geode.cache.lucene.test.TestPdxObject("hello", "world"));
     }
@@ -135,7 +131,7 @@ public class LuceneClientSecurityPostProcessingDUnitTest extends LuceneQueriesAc
 
   protected void createRegionIndex() {
     Cache cache = getCache();
-    LuceneService luceneService = LuceneServiceProvider.get(cache);
+    var luceneService = LuceneServiceProvider.get(cache);
     luceneService.createIndexFactory().addField("field1").create(INDEX_NAME, REGION_NAME);
     cache.createRegionFactory(RegionShortcut.PARTITION).create(REGION_NAME);
   }
@@ -143,16 +139,16 @@ public class LuceneClientSecurityPostProcessingDUnitTest extends LuceneQueriesAc
   private int startCacheServer() throws IOException {
     disconnectFromDS();
 
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     props.setProperty(SECURITY_POST_PROCESSOR, RedactField2PostProcessor.class.getName());
     getSystem(props);
 
-    CacheFactory cf = new CacheFactory();
+    var cf = new CacheFactory();
     cf.setPdxReadSerialized(true);
     Cache cache = getCache(cf);
 
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     server.setPort(0);
     server.start();
 
@@ -160,38 +156,38 @@ public class LuceneClientSecurityPostProcessingDUnitTest extends LuceneQueriesAc
   }
 
   private void startClient(int serverPort) throws InterruptedException {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.cache.lucene.test.TestObject");
     props.setProperty("security-username", "DATA");
     props.setProperty("security-password", "DATA");
     props.setProperty(SECURITY_CLIENT_AUTH_INIT, UserPasswordAuthInit.class.getName());
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory(props);
+    var clientCacheFactory = new ClientCacheFactory(props);
     clientCacheFactory.addPoolServer("localhost", serverPort);
     clientCacheFactory.setPdxReadSerialized(true);
-    ClientCache clientCache = getClientCache(clientCacheFactory);
+    var clientCache = getClientCache(clientCacheFactory);
     clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(REGION_NAME);
 
-    LuceneService service = LuceneServiceProvider.get(getCache());
+    var service = LuceneServiceProvider.get(getCache());
     service.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "hello", "field1");
     service.waitUntilFlushed(INDEX_NAME, REGION_NAME, 5, TimeUnit.MINUTES);
   }
 
   private void executeTextSearch(Consumer<Object> assertion)
       throws LuceneQueryException, InterruptedException {
-    LuceneService service = LuceneServiceProvider.get(getCache());
+    var service = LuceneServiceProvider.get(getCache());
     LuceneQuery<String, Object> query = service
         .createLuceneQueryFactory()
         .create(INDEX_NAME, REGION_NAME, "hello", "field1");
 
     service.waitUntilFlushed(INDEX_NAME, REGION_NAME, 5, TimeUnit.MINUTES);
 
-    List<LuceneResultStruct<String, Object>> results = query.findResults();
+    var results = query.findResults();
 
     assertThat(results).hasSize(5);
 
-    for (LuceneResultStruct<String, Object> result : results) {
+    for (var result : results) {
       assertion.accept(result.getValue());
     }
   }
@@ -205,14 +201,14 @@ public class LuceneClientSecurityPostProcessingDUnitTest extends LuceneQueriesAc
     public Object processRegionValue(Object principal, String regionName, Object key,
         Object value) {
       if (value instanceof org.apache.geode.cache.lucene.test.TestObject) {
-        org.apache.geode.cache.lucene.test.TestObject newValue =
+        var newValue =
             new org.apache.geode.cache.lucene.test.TestObject(
                 ((org.apache.geode.cache.lucene.test.TestObject) value).getField1(),
                 ((org.apache.geode.cache.lucene.test.TestObject) value).getField2());
         newValue.setField2("***");
         return newValue;
       } else if (value instanceof PdxInstance) {
-        WritablePdxInstance pdx = ((PdxInstance) value).createWriter();
+        var pdx = ((PdxInstance) value).createWriter();
         pdx.setField("field2", "***");
         return pdx;
       }

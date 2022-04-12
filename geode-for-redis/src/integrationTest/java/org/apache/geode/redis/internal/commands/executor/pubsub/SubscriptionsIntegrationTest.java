@@ -38,9 +38,9 @@ public class SubscriptionsIntegrationTest extends AbstractSubscriptionsIntegrati
 
   @Test
   public void leakedSubscriptions() {
-    for (int i = 0; i < 100; i++) {
-      Jedis client = new Jedis("localhost", getPort());
-      MockSubscriber mockSubscriber = new MockSubscriber();
+    for (var i = 0; i < 100; i++) {
+      var client = new Jedis("localhost", getPort());
+      var mockSubscriber = new MockSubscriber();
       executor.submit(() -> client.subscribe(mockSubscriber, "same"));
       mockSubscriber.awaitSubscribe("same");
       client.close();

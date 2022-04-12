@@ -137,7 +137,7 @@ public class LegacyStatCounter implements Counter {
      * it can be used to remove the registered counter from the registry.
      */
     public LegacyStatCounter register(MeterRegistry registry) {
-      Counter underlyingCounter = builder.register(registry);
+      var underlyingCounter = builder.register(registry);
       return new LegacyStatCounter(underlyingCounter, statisticBinding);
     }
   }

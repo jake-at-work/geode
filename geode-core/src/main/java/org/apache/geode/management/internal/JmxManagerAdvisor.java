@@ -33,7 +33,6 @@ import org.apache.geode.distributed.internal.DistributionAdvisor;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.HighPriorityDistributionMessage;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -47,14 +46,14 @@ public class JmxManagerAdvisor extends DistributionAdvisor {
 
   private JmxManagerAdvisor(DistributionAdvisee advisee) {
     super(advisee);
-    JmxManagerProfile p =
+    var p =
         new JmxManagerProfile(getDistributionManager().getId(), incrementAndGetVersion());
     advisee.fillInProfile(p);
     ((JmxManagerAdvisee) advisee).initProfile(p);
   }
 
   public static JmxManagerAdvisor createJmxManagerAdvisor(DistributionAdvisee advisee) {
-    JmxManagerAdvisor advisor = new JmxManagerAdvisor(advisee);
+    var advisor = new JmxManagerAdvisor(advisee);
     advisor.initialize();
     return advisor;
   }
@@ -66,8 +65,8 @@ public class JmxManagerAdvisor extends DistributionAdvisor {
 
   public void broadcastChange() {
     try {
-      Set<InternalDistributedMember> recips = adviseGeneric(); // for now just tell everyone
-      JmxManagerProfile p =
+      var recips = adviseGeneric(); // for now just tell everyone
+      var p =
           new JmxManagerProfile(getDistributionManager().getId(), incrementAndGetVersion());
       getAdvisee().fillInProfile(p);
       JmxManagerProfileMessage.send(getAdvisee().getSystem().getDistributionManager(), recips, p);
@@ -79,7 +78,7 @@ public class JmxManagerAdvisor extends DistributionAdvisor {
   public List<JmxManagerProfile> adviseAlreadyManaging() {
     return fetchProfiles(profile -> {
       assert profile instanceof JmxManagerProfile;
-      JmxManagerProfile jmxProfile = (JmxManagerProfile) profile;
+      var jmxProfile = (JmxManagerProfile) profile;
       return jmxProfile.isJmxManagerRunning();
     });
   }
@@ -88,7 +87,7 @@ public class JmxManagerAdvisor extends DistributionAdvisor {
   public List<JmxManagerProfile> adviseWillingToManage() {
     return fetchProfiles(profile -> {
       assert profile instanceof JmxManagerProfile;
-      JmxManagerProfile jmxProfile = (JmxManagerProfile) profile;
+      var jmxProfile = (JmxManagerProfile) profile;
       return jmxProfile.isJmxManager();
     });
   }
@@ -106,7 +105,7 @@ public class JmxManagerAdvisor extends DistributionAdvisor {
     initializationGate();
     List result = null;
     {
-      JmxManagerAdvisee advisee = (JmxManagerAdvisee) getAdvisee();
+      var advisee = (JmxManagerAdvisee) getAdvisee();
       Profile myp = advisee.getMyMostRecentProfile();
       if (f == null || f.include(myp)) {
         if (result == null) {
@@ -115,8 +114,8 @@ public class JmxManagerAdvisor extends DistributionAdvisor {
         result.add(myp);
       }
     }
-    Profile[] locProfiles = profiles; // grab current profiles
-    for (Profile profile : locProfiles) {
+    var locProfiles = profiles; // grab current profiles
+    for (var profile : locProfiles) {
       if (f == null || f.include(profile)) {
         if (result == null) {
           result = new ArrayList(locProfiles.length);
@@ -165,9 +164,9 @@ public class JmxManagerAdvisor extends DistributionAdvisor {
       Throwable thr = null;
       JmxManagerProfile p = null;
       try {
-        final InternalCache cache = dm.getCache();
+        final var cache = dm.getCache();
         if (cache != null && !cache.isClosed()) {
-          final JmxManagerAdvisor adv = cache.getJmxManagerAdvisor();
+          final var adv = cache.getJmxManagerAdvisor();
           p = profile;
           if (p != null) {
             adv.putProfile(p);
@@ -231,7 +230,7 @@ public class JmxManagerAdvisor extends DistributionAdvisor {
      */
     public static void send(final DistributionManager dm, Set<InternalDistributedMember> recips,
         JmxManagerProfile profile) {
-      JmxManagerProfileMessage r = new JmxManagerProfileMessage(recips, profile);
+      var r = new JmxManagerProfileMessage(recips, profile);
       dm.putOutgoing(r);
     }
 
@@ -318,7 +317,7 @@ public class JmxManagerAdvisor extends DistributionAdvisor {
     @Override
     public void processIncoming(ClusterDistributionManager dm, String adviseePath,
         boolean removeProfile, boolean exchangeProfiles, final List<Profile> replyProfiles) {
-      final InternalCache cache = dm.getCache();
+      final var cache = dm.getCache();
       if (cache != null && !cache.isClosed()) {
         handleDistributionAdvisee(cache.getJmxManagerAdvisor().getAdvisee(), removeProfile,
             exchangeProfiles, replyProfiles);

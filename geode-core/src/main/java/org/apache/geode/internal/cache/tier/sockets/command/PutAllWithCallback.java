@@ -19,7 +19,6 @@ import java.io.IOException;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 
 /**
  * Adds a callbackArg to PutAll80
@@ -43,7 +42,7 @@ public class PutAllWithCallback extends PutAll80 {
 
   @Override
   protected Object getOptionalCallbackArg(Message msg) throws ClassNotFoundException, IOException {
-    Part callbackPart = msg.getPart(5);
+    var callbackPart = msg.getPart(5);
     return callbackPart.getObject();
   }
 

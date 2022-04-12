@@ -19,9 +19,7 @@ import static org.apache.geode.connectors.jdbc.internal.cli.MappingConstants.REG
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -29,21 +27,16 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.annotations.Experimental;
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.CacheConfig.AsyncEventQueue;
-import org.apache.geode.cache.configuration.CacheElement;
-import org.apache.geode.cache.configuration.DeclarableType;
 import org.apache.geode.cache.configuration.RegionAttributesType;
 import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.connectors.jdbc.JdbcLoader;
 import org.apache.geode.connectors.jdbc.JdbcWriter;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -72,20 +65,20 @@ public class DestroyMappingCommand extends SingleGfshCommand {
       regionName = regionName.substring(1);
     }
 
-    Set<DistributedMember> targetMembers = findMembers(groups, null);
+    var targetMembers = findMembers(groups, null);
 
     try {
-      boolean isMappingInClusterConfig = false;
-      ConfigurationPersistenceService configService = checkForClusterConfiguration();
+      var isMappingInClusterConfig = false;
+      var configService = checkForClusterConfiguration();
 
       if (groups == null) {
         groups = new String[] {ConfigurationPersistenceService.CLUSTER_CONFIG};
       }
 
-      for (String group : groups) {
-        CacheConfig cacheConfig = getCacheConfig(configService, group);
+      for (var group : groups) {
+        var cacheConfig = getCacheConfig(configService, group);
         if (cacheConfig != null) {
-          for (RegionConfig regionConfig : cacheConfig.getRegions()) {
+          for (var regionConfig : cacheConfig.getRegions()) {
             if (regionConfig != null && !MappingCommandUtils
                 .getMappingsFromRegionConfig(cacheConfig, regionConfig, group).isEmpty()) {
               isMappingInClusterConfig = true;
@@ -100,7 +93,7 @@ public class DestroyMappingCommand extends SingleGfshCommand {
 
       ResultModel result;
       if (targetMembers != null) {
-        List<CliFunctionResult> results =
+        var results =
             executeAndGetFunctionResult(new DestroyMappingFunction(), regionName, targetMembers);
         result =
             ResultModel.createMemberStatusResult(results, EXPERIMENTAL, null, false, true);
@@ -121,15 +114,15 @@ public class DestroyMappingCommand extends SingleGfshCommand {
 
   @Override
   public boolean updateConfigForGroup(String group, CacheConfig cacheConfig, Object configObject) {
-    String regionName = (String) configObject;
-    RegionConfig regionConfig = findRegionConfig(cacheConfig, regionName);
+    var regionName = (String) configObject;
+    var regionConfig = findRegionConfig(cacheConfig, regionName);
     if (regionConfig == null) {
       return false;
     }
-    boolean modified = false;
+    var modified = false;
     modified |= removeJdbcMappingFromRegion(regionConfig);
     modified |= removeJdbcQueueFromCache(cacheConfig, regionName);
-    RegionAttributesType attributes = getRegionAttribute(regionConfig);
+    var attributes = getRegionAttribute(regionConfig);
     modified |= removeJdbcLoader(attributes);
     modified |= removeJdbcWriter(attributes);
     modified |= removeJdbcAsyncEventQueueId(attributes, regionName);
@@ -145,7 +138,7 @@ public class DestroyMappingCommand extends SingleGfshCommand {
   }
 
   private boolean removeJdbcLoader(RegionAttributesType attributes) {
-    DeclarableType cacheLoader = attributes.getCacheLoader();
+    var cacheLoader = attributes.getCacheLoader();
     if (cacheLoader != null) {
       if (JdbcLoader.class.getName().equals(cacheLoader.getClassName())) {
         attributes.setCacheLoader(null);
@@ -156,7 +149,7 @@ public class DestroyMappingCommand extends SingleGfshCommand {
   }
 
   private boolean removeJdbcWriter(RegionAttributesType attributes) {
-    DeclarableType cacheWriter = attributes.getCacheWriter();
+    var cacheWriter = attributes.getCacheWriter();
     if (cacheWriter != null) {
       if (JdbcWriter.class.getName().equals(cacheWriter.getClassName())) {
         attributes.setCacheWriter(null);
@@ -167,15 +160,15 @@ public class DestroyMappingCommand extends SingleGfshCommand {
   }
 
   private boolean removeJdbcAsyncEventQueueId(RegionAttributesType attributes, String regionName) {
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
-    String queueIds = attributes.getAsyncEventQueueIds();
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var queueIds = attributes.getAsyncEventQueueIds();
     if (queueIds == null) {
       return false;
     }
     List<String> queues = new ArrayList<>(Arrays.asList(queueIds.split(",")));
     if (queues.contains(queueName)) {
       queues.remove(queueName);
-      String newQueueIds = String.join(",", queues);
+      var newQueueIds = String.join(",", queues);
       attributes.setAsyncEventQueueIds(newQueueIds);
       return true;
     }
@@ -183,10 +176,10 @@ public class DestroyMappingCommand extends SingleGfshCommand {
   }
 
   private boolean removeJdbcQueueFromCache(CacheConfig cacheConfig, String regionName) {
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
-    Iterator<AsyncEventQueue> iterator = cacheConfig.getAsyncEventQueues().iterator();
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var iterator = cacheConfig.getAsyncEventQueues().iterator();
     while (iterator.hasNext()) {
-      AsyncEventQueue queue = iterator.next();
+      var queue = iterator.next();
       if (queueName.equals(queue.getId())) {
         iterator.remove();
         return true;
@@ -196,9 +189,9 @@ public class DestroyMappingCommand extends SingleGfshCommand {
   }
 
   private boolean removeJdbcMappingFromRegion(RegionConfig regionConfig) {
-    Iterator<CacheElement> iterator = regionConfig.getCustomRegionElements().iterator();
+    var iterator = regionConfig.getCustomRegionElements().iterator();
     while (iterator.hasNext()) {
-      CacheElement element = iterator.next();
+      var element = iterator.next();
       if (element instanceof RegionMapping) {
         iterator.remove();
         return true;
@@ -214,13 +207,13 @@ public class DestroyMappingCommand extends SingleGfshCommand {
 
   private CacheConfig getCacheConfig(ConfigurationPersistenceService configService, String group)
       throws PreconditionException {
-    CacheConfig result = configService.getCacheConfig(group);
+    var result = configService.getCacheConfig(group);
     return result;
   }
 
   protected ConfigurationPersistenceService checkForClusterConfiguration()
       throws PreconditionException {
-    ConfigurationPersistenceService result = getConfigurationPersistenceService();
+    var result = getConfigurationPersistenceService();
     if (result == null) {
       throw new PreconditionException("Cluster Configuration must be enabled.");
     }

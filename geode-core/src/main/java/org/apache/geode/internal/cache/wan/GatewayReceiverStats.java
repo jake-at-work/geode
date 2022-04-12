@@ -137,7 +137,7 @@ public class GatewayReceiverStats extends CacheServerStats {
 
   public static GatewayReceiverStats createGatewayReceiverStats(StatisticsFactory f,
       String ownerName, MeterRegistry meterRegistry) {
-    StatisticDescriptor[] descriptors = new StatisticDescriptor[] {
+    var descriptors = new StatisticDescriptor[] {
         f.createLongCounter(DUPLICATE_BATCHES_RECEIVED,
             "number of batches which have already been seen by this GatewayReceiver",
             "nanoseconds"),
@@ -171,7 +171,7 @@ public class GatewayReceiverStats extends CacheServerStats {
     duplicateBatchesReceivedId = statType.nameToId(DUPLICATE_BATCHES_RECEIVED);
     outoforderBatchesReceivedId = statType.nameToId(OUT_OF_ORDER_BATCHES_RECEIVED);
     earlyAcksId = statType.nameToId(EARLY_ACKS);
-    final int eventsReceivedId = statType.nameToId(EVENTS_RECEIVED);
+    final var eventsReceivedId = statType.nameToId(EVENTS_RECEIVED);
     createRequestId = statType.nameToId(CREAT_REQUESTS);
     updateRequestId = statType.nameToId(UPDATE_REQUESTS);
     destroyRequestId = statType.nameToId(DESTROY_REQUESTS);

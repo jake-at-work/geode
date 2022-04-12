@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
@@ -147,9 +146,9 @@ public class GfshRule extends ExternalResource {
   public GfshExecution execute(GfshScript gfshScript, File workingDir) {
     System.out.println("Executing " + gfshScript);
     try {
-      int debugPort = gfshScript.getDebugPort();
-      Process process = toProcessBuilder(gfshScript, gfsh, workingDir, debugPort).start();
-      GfshExecution gfshExecution = new GfshExecution(process, workingDir);
+      var debugPort = gfshScript.getDebugPort();
+      var process = toProcessBuilder(gfshScript, gfsh, workingDir, debugPort).start();
+      var gfshExecution = new GfshExecution(process, workingDir);
       gfshExecutions.add(gfshExecution);
       gfshExecution.awaitTermination(gfshScript);
       return gfshExecution;
@@ -176,7 +175,7 @@ public class GfshRule extends ExternalResource {
     }
     commandsToExecute.add(gfshPath.toAbsolutePath().toString());
 
-    for (DebuggableCommand command : gfshScript.getCommands()) {
+    for (var command : gfshScript.getCommands()) {
       if (command.debugPort > 0) {
         commandsToExecute.add("-e " + command.command
             + " --J='-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address="
@@ -186,16 +185,16 @@ public class GfshRule extends ExternalResource {
       }
     }
 
-    ProcessBuilder processBuilder = new ProcessBuilder(commandsToExecute);
+    var processBuilder = new ProcessBuilder(commandsToExecute);
     processBuilder.directory(workingDir);
 
-    List<String> extendedClasspath = gfshScript.getExtendedClasspath();
-    Map<String, String> environmentMap = processBuilder.environment();
+    var extendedClasspath = gfshScript.getExtendedClasspath();
+    var environmentMap = processBuilder.environment();
     if (!extendedClasspath.isEmpty()) {
-      String classpathKey = "CLASSPATH";
-      String existingJavaArgs = environmentMap.get(classpathKey);
-      String specified = String.join(pathSeparator, extendedClasspath);
-      String newValue =
+      var classpathKey = "CLASSPATH";
+      var existingJavaArgs = environmentMap.get(classpathKey);
+      var specified = String.join(pathSeparator, extendedClasspath);
+      var newValue =
           String.format("%s%s", existingJavaArgs == null ? "" : existingJavaArgs + pathSeparator,
               specified);
       environmentMap.put(classpathKey, newValue);
@@ -215,7 +214,7 @@ public class GfshRule extends ExternalResource {
    * this will stop the server that's been started in this gfsh execution
    */
   public void stopServer(GfshExecution execution, String serverName) {
-    String command = "stop server --dir="
+    var command = "stop server --dir="
         + execution.getWorkingDir().toPath().resolve(serverName).toAbsolutePath();
     execute(GfshScript.of(command).withName("Stop-server-" + serverName));
   }
@@ -224,13 +223,13 @@ public class GfshRule extends ExternalResource {
    * this will stop the locator that's been started in this gfsh execution
    */
   public void stopLocator(GfshExecution execution, String locatorName) {
-    String command = "stop locator --dir="
+    var command = "stop locator --dir="
         + execution.getWorkingDir().toPath().resolve(locatorName).toAbsolutePath();
     execute(GfshScript.of(command).withName("Stop-locator-" + locatorName));
   }
 
   private void stopMembers(GfshExecution gfshExecution) {
-    String[] stopMemberScripts = gfshExecution.getStopMemberCommands();
+    var stopMemberScripts = gfshExecution.getStopMemberCommands();
     if (stopMemberScripts.length == 0) {
       return;
     }
@@ -239,7 +238,7 @@ public class GfshRule extends ExternalResource {
 
   public static String startServerCommand(String name, String hostname, int port,
       int connectedLocatorPort) {
-    String command = "start server --name=" + name
+    var command = "start server --name=" + name
         + " --server-port=" + port
         + " --locators=" + hostname + "[" + connectedLocatorPort + "]";
     return command;
@@ -248,7 +247,7 @@ public class GfshRule extends ExternalResource {
   public static String startLocatorCommand(String name, String hostname, int port, int jmxPort,
       int httpPort,
       int connectedLocatorPort) {
-    String command = "start locator --name=" + name
+    var command = "start locator --name=" + name
         + " --port=" + port
         + " --http-service-port=" + httpPort;
     if (connectedLocatorPort > 0) {

@@ -28,16 +28,12 @@ import org.junit.rules.TestName;
 import org.apache.geode.admin.GemFireHealth;
 import org.apache.geode.admin.GemFireHealthConfig;
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 
 /**
@@ -60,10 +56,10 @@ public class CacheHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
    */
   @Test
   public void testCheckLoadTime() throws CacheException {
-    Cache cache = CacheFactory.create(system);
-    CachePerfStats stats = ((GemFireCacheImpl) cache).getCachePerfStats();
+    var cache = CacheFactory.create(system);
+    var stats = ((GemFireCacheImpl) cache).getCachePerfStats();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setCacheLoader(new CacheLoader() {
       @Override
@@ -76,19 +72,19 @@ public class CacheHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
       public void close() {}
     });
 
-    RegionAttributes attrs = factory.create();
-    Region region = cache.createRegion(getName(), attrs);
+    var attrs = factory.create();
+    var region = cache.createRegion(getName(), attrs);
 
     GemFireHealthConfig config = new GemFireHealthConfigImpl(null);
     config.setMaxLoadTime(100);
 
-    CacheHealthEvaluator eval =
+    var eval =
         new CacheHealthEvaluator(config, system.getDistributionManager());
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       region.get("Test1 " + i);
     }
-    long firstLoadTime = stats.getLoadTime();
-    long firstLoadsCompleted = stats.getLoadsCompleted();
+    var firstLoadTime = stats.getLoadTime();
+    var firstLoadsCompleted = stats.getLoadsCompleted();
     assertTrue(firstLoadTime >= 0);
     assertTrue(firstLoadsCompleted > 0);
 
@@ -102,13 +98,13 @@ public class CacheHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
     eval = new CacheHealthEvaluator(config, system.getDistributionManager());
     eval.evaluate(status);
 
-    long start = System.currentTimeMillis();
-    for (int i = 0; i < 100; i++) {
+    var start = System.currentTimeMillis();
+    for (var i = 0; i < 100; i++) {
       region.get("Test2 " + i);
     }
     assertTrue(System.currentTimeMillis() - start < 1000);
-    long secondLoadTime = stats.getLoadTime();
-    long secondLoadsCompleted = stats.getLoadsCompleted();
+    var secondLoadTime = stats.getLoadTime();
+    var secondLoadsCompleted = stats.getLoadsCompleted();
     assertTrue("firstLoadTime=" + firstLoadTime + ", secondLoadTime=" + secondLoadTime,
         secondLoadTime >= firstLoadTime);
     assertTrue(secondLoadsCompleted > firstLoadsCompleted);
@@ -136,12 +132,12 @@ public class CacheHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
 
     });
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.get("Test3 " + i);
     }
 
-    long thirdLoadTime = stats.getLoadTime();
-    long thirdLoadsCompleted = stats.getLoadsCompleted();
+    var thirdLoadTime = stats.getLoadTime();
+    var thirdLoadsCompleted = stats.getLoadsCompleted();
     assertTrue(thirdLoadTime > secondLoadTime);
     assertTrue(thirdLoadsCompleted > secondLoadsCompleted);
 
@@ -149,9 +145,9 @@ public class CacheHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
     eval.evaluate(status);
     assertEquals(1, status.size());
 
-    AbstractHealthEvaluator.HealthStatus ill = (AbstractHealthEvaluator.HealthStatus) status.get(0);
+    var ill = (AbstractHealthEvaluator.HealthStatus) status.get(0);
     assertEquals(GemFireHealth.OKAY_HEALTH, ill.getHealthCode());
-    String s = "The average duration of a Cache load";
+    var s = "The average duration of a Cache load";
     assertTrue(ill.getDiagnosis().indexOf(s) != -1);
   }
 
@@ -161,10 +157,10 @@ public class CacheHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
    */
   @Test
   public void testCheckHitRatio() throws CacheException {
-    Cache cache = CacheFactory.create(system);
+    var cache = CacheFactory.create(system);
     // CachePerfStats stats = ((GemFireCache) cache).getCachePerfStats();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setCacheLoader(new CacheLoader() {
       @Override
@@ -177,13 +173,13 @@ public class CacheHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
       public void close() {}
     });
 
-    RegionAttributes attrs = factory.create();
-    Region region = cache.createRegion(getName(), attrs);
+    var attrs = factory.create();
+    var region = cache.createRegion(getName(), attrs);
 
     GemFireHealthConfig config = new GemFireHealthConfigImpl(null);
     config.setMinHitRatio(0.5);
 
-    CacheHealthEvaluator eval =
+    var eval =
         new CacheHealthEvaluator(config, system.getDistributionManager());
     List status = new ArrayList();
     eval.evaluate(status);
@@ -197,16 +193,16 @@ public class CacheHealthEvaluatorJUnitTest extends HealthEvaluatorTestCase {
     eval.evaluate(status);
     assertEquals(0, status.size());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.get("Miss " + i);
     }
 
     status = new ArrayList();
     eval.evaluate(status);
 
-    AbstractHealthEvaluator.HealthStatus ill = (AbstractHealthEvaluator.HealthStatus) status.get(0);
+    var ill = (AbstractHealthEvaluator.HealthStatus) status.get(0);
     assertEquals(GemFireHealth.OKAY_HEALTH, ill.getHealthCode());
-    String s = "The hit ratio of this Cache";
+    var s = "The hit ratio of this Cache";
     assertTrue(ill.getDiagnosis().indexOf(s) != -1);
   }
 

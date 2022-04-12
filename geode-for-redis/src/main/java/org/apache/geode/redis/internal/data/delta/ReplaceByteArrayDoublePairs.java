@@ -41,20 +41,20 @@ public class ReplaceByteArrayDoublePairs extends DeltaInfo {
   public void serializeTo(DataOutput out) throws IOException {
     super.serializeTo(out);
     DataSerializer.writePrimitiveInt(members.size(), out);
-    for (byte[] member : members.keySet()) {
+    for (var member : members.keySet()) {
       DataSerializer.writeByteArray(member, out);
       DataSerializer.writePrimitiveDouble(members.get(member).getScore(), out);
     }
   }
 
   public static void deserializeFrom(DataInput in, AbstractRedisData redisData) throws IOException {
-    int size = DataSerializer.readPrimitiveInt(in);
-    RedisSortedSet.MemberMap membersMap = new RedisSortedSet.MemberMap(size);
-    RedisSortedSet.ScoreSet scoreSet = new RedisSortedSet.ScoreSet();
+    var size = DataSerializer.readPrimitiveInt(in);
+    var membersMap = new RedisSortedSet.MemberMap(size);
+    var scoreSet = new RedisSortedSet.ScoreSet();
     while (size > 0) {
-      byte[] member = readByteArray(in);
-      double score = readPrimitiveDouble(in);
-      RedisSortedSet.OrderedSetEntry entry = new RedisSortedSet.OrderedSetEntry(member, score);
+      var member = readByteArray(in);
+      var score = readPrimitiveDouble(in);
+      var entry = new RedisSortedSet.OrderedSetEntry(member, score);
       membersMap.put(member, entry);
       scoreSet.add(entry);
       size--;

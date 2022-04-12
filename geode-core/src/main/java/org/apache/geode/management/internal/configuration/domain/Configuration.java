@@ -34,13 +34,11 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.internal.VersionedDataSerializable;
 import org.apache.geode.internal.serialization.KnownVersion;
-import org.apache.geode.internal.serialization.Version;
 import org.apache.geode.internal.serialization.Versioning;
 import org.apache.geode.internal.serialization.VersioningIO;
 import org.apache.geode.management.configuration.Deployment;
@@ -94,7 +92,7 @@ public class Configuration implements VersionedDataSerializable {
       cacheXmlContent = "";
     } else {
       try {
-        Document doc = XmlUtils.getDocumentBuilder().parse(cacheXmlFile);
+        var doc = XmlUtils.getDocumentBuilder().parse(cacheXmlFile);
         cacheXmlContent = XmlUtils.elementToString(doc);
       } catch (SAXException | TransformerException | ParserConfigurationException e) {
         throw new IOException("Unable to parse existing cluster configuration from file: "
@@ -108,7 +106,7 @@ public class Configuration implements VersionedDataSerializable {
       return;
     }
 
-    try (FileInputStream fis = new FileInputStream(propertiesFile)) {
+    try (var fis = new FileInputStream(propertiesFile)) {
       gemfireProperties.load(fis);
     }
   }
@@ -138,7 +136,7 @@ public class Configuration implements VersionedDataSerializable {
   }
 
   public void putDeployment(Deployment deployment) {
-    String artifactId = getArtifactId(deployment.getFileName());
+    var artifactId = getArtifactId(deployment.getFileName());
     deployments.values().removeIf(d -> getArtifactId(d.getFileName()).equals(artifactId));
     deployments.put(deployment.getId(), deployment);
   }
@@ -151,7 +149,7 @@ public class Configuration implements VersionedDataSerializable {
     if (jarNames == null) {
       deployments.clear();
     } else {
-      for (String jarName : jarNames) {
+      for (var jarName : jarNames) {
         deployments.remove(jarName);
       }
     }
@@ -167,7 +165,7 @@ public class Configuration implements VersionedDataSerializable {
     DataSerializer.writeString(cacheXmlContent, out);
     DataSerializer.writeString(propertiesFileName, out);
     DataSerializer.writeProperties(gemfireProperties, out);
-    HashSet<String> jarNames = new HashSet<>(deployments.keySet());
+    var jarNames = new HashSet<String>(deployments.keySet());
     DataSerializer.writeHashSet(jarNames, out);
   }
 
@@ -180,7 +178,7 @@ public class Configuration implements VersionedDataSerializable {
     DataSerializer.writeProperties(gemfireProperties, out);
     // As of 1.12, it writes a jarNames HashSet to the stream, so that pre 1.12.0 members can
     // read the jarName, and will now also write the deployment map for the post 1.12.0 members.
-    HashSet<String> jarNames = new HashSet<>(deployments.keySet());
+    var jarNames = new HashSet<String>(deployments.keySet());
     DataSerializer.writeHashSet(jarNames, out);
     // As of 1.12, this class starting writing the current version
     VersioningIO.writeOrdinal(out, KnownVersion.getCurrentVersion().ordinal(), true);
@@ -210,7 +208,7 @@ public class Configuration implements VersionedDataSerializable {
     HashSet<String> jarNames = DataSerializer.readHashSet(in);
     try {
       // version of the data we are reading (1.12 or later)
-      final Version version = Versioning.getVersion(VersioningIO.readOrdinal(in));
+      final var version = Versioning.getVersion(VersioningIO.readOrdinal(in));
       if (version.isNotOlderThan(KnownVersion.GEODE_1_12_0)) {
         deployments.putAll(DataSerializer.readHashMap(in));
       }
@@ -245,7 +243,7 @@ public class Configuration implements VersionedDataSerializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Configuration that = (Configuration) o;
+    var that = (Configuration) o;
     return Objects.equals(configName, that.configName) &&
         Objects.equals(cacheXmlContent, that.cacheXmlContent) &&
         Objects.equals(cacheXmlFileName, that.cacheXmlFileName) &&

@@ -15,7 +15,6 @@
 package org.apache.geode.cache.server.internal;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +23,6 @@ import org.apache.geode.SystemFailure;
 import org.apache.geode.cache.client.internal.CacheServerLoadMessage;
 import org.apache.geode.cache.server.ServerLoad;
 import org.apache.geode.cache.server.ServerLoadProbe;
-import org.apache.geode.distributed.internal.Distribution;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.CacheServerAdvisor;
 import org.apache.geode.internal.cache.tier.CommunicationMode;
@@ -131,7 +129,7 @@ public class LoadMonitor implements ConnectionListener {
   }
 
   protected ServerLoad getLoad() {
-    ServerLoad load = probe.getLoad(metrics);
+    var load = probe.getLoad(metrics);
     if (load == null) {
       load = new ServerLoad();
     }
@@ -164,8 +162,8 @@ public class LoadMonitor implements ConnectionListener {
       while (alive) {
         try {
           synchronized (signal) {
-            long end = System.currentTimeMillis() + pollInterval;
-            long remaining = pollInterval;
+            var end = System.currentTimeMillis() + pollInterval;
+            var remaining = pollInterval;
             while (alive && remaining > 0) {
               signal.wait(remaining);
               remaining = end - System.currentTimeMillis();
@@ -176,7 +174,7 @@ public class LoadMonitor implements ConnectionListener {
             return;
           }
 
-          ServerLoad previousLoad = lastLoad;
+          var previousLoad = lastLoad;
           ArrayList myClientIds = null;
           ServerLoad load = null;
           synchronized (clientIds) {
@@ -193,7 +191,7 @@ public class LoadMonitor implements ConnectionListener {
           // since the last update.
           if (!previousLoad.equals(load) || myClientIds != null
               || ++skippedLoadUpdates > forceUpdateFrequency) {
-            Set locators = advisor.adviseControllers();
+            var locators = advisor.adviseControllers();
 
             if (logger.isDebugEnabled()) {
               logger.debug("cache server Load Monitor Transmitting load {} to locators {}", load,
@@ -202,10 +200,10 @@ public class LoadMonitor implements ConnectionListener {
 
             stats.setLoad(load);
             if (locators != null) {
-              CacheServerLoadMessage message =
+              var message =
                   new CacheServerLoadMessage(load, location, myClientIds);
               message.setRecipients(locators);
-              Distribution mgr =
+              var mgr =
                   advisor.getDistributionManager().getDistribution();
               if (mgr == null || !mgr.isBeingSick()) { // test hook
                 advisor.getDistributionManager().putOutgoing(message);

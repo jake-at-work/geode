@@ -67,8 +67,8 @@ public class EndBucketCreationMessage extends PartitionMessage {
 
     Assert.assertTrue(newPrimary != null, "VolunteerPrimaryBucketMessage NULL recipient");
 
-    ReplyProcessor21 response = new ReplyProcessor21(pr.getSystem(), acceptedMembers);
-    EndBucketCreationMessage msg =
+    var response = new ReplyProcessor21(pr.getSystem(), acceptedMembers);
+    var msg =
         new EndBucketCreationMessage(acceptedMembers, pr.getPRId(), response, bid, newPrimary);
     msg.setTransactionDistributed(pr.getCache().getTxManager().isDistributed());
 

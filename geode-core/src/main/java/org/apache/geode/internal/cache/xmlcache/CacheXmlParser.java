@@ -34,7 +34,6 @@ import java.util.StringTokenizer;
 
 import javax.naming.NamingException;
 import javax.xml.XMLConstants;
-import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.StringUtils;
@@ -83,8 +82,6 @@ import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.cache.TransactionListener;
 import org.apache.geode.cache.TransactionWriter;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.SocketFactory;
@@ -208,15 +205,15 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       public void close() {}
     }
 
-    CacheXmlParser handler = new CacheXmlParser();
+    var handler = new CacheXmlParser();
     try {
-      SAXParserFactory factory = SAXParserFactory.newInstance();
+      var factory = SAXParserFactory.newInstance();
       factory.setFeature(DISALLOW_DOCTYPE_DECL_FEATURE, true);
       factory.setValidating(true);
       factory.setNamespaceAware(true);
-      UnclosableInputStream bis = new UnclosableInputStream(is);
+      var bis = new UnclosableInputStream(is);
       try {
-        SAXParser parser = factory.newSAXParser();
+        var parser = factory.newSAXParser();
         // Parser always reads one buffer plus a little extra worth before
         // determining that the DTD is there. Setting mark twice the parser
         // buffer size.
@@ -229,7 +226,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           // Not schema based document, try dtd.
           bis.reset();
           factory.setFeature(DISALLOW_DOCTYPE_DECL_FEATURE, false);
-          SAXParser parser = factory.newSAXParser();
+          var parser = factory.newSAXParser();
           parser.parse(bis, new DefaultHandlerDelegate(handler));
         } else {
           throw e;
@@ -239,7 +236,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     } catch (Exception ex) {
       if (ex instanceof CacheXmlException) {
         while (true /* ex instanceof CacheXmlException */) {
-          Throwable cause = ex.getCause();
+          var cause = ex.getCause();
           if (!(cause instanceof CacheXmlException)) {
             break;
           } else {
@@ -250,11 +247,11 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       } else if (ex instanceof SAXException) {
         // Silly JDK 1.4.2 XML parser wraps RunTime exceptions in a
         // SAXException. Pshaw!
-        SAXException sax = (SAXException) ex;
-        Exception cause = sax.getException();
+        var sax = (SAXException) ex;
+        var cause = sax.getException();
         if (cause instanceof CacheXmlException) {
           while (true /* cause instanceof CacheXmlException */) {
-            Throwable cause2 = cause.getCause();
+            var cause2 = cause.getCause();
             if (!(cause2 instanceof CacheXmlException)) {
               break;
             } else {
@@ -332,7 +329,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   public void create(InternalCache cache)
       throws TimeoutException, GatewayException, CacheWriterException, RegionExistsException {
     if (this.cache == null) {
-      String s = "A cache or client-cache element is required";
+      var s = "A cache or client-cache element is required";
       throw new CacheXmlException(
           "No cache element specified.");
     }
@@ -348,28 +345,28 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       throw new CacheXmlException("Only a single cache or client-cache element is allowed");
     }
     cache = new CacheCreation(true);
-    String lockLease = atts.getValue(LOCK_LEASE);
+    var lockLease = atts.getValue(LOCK_LEASE);
     if (lockLease != null) {
       cache.setLockLease(parseInt(lockLease));
     }
-    String lockTimeout = atts.getValue(LOCK_TIMEOUT);
+    var lockTimeout = atts.getValue(LOCK_TIMEOUT);
     if (lockTimeout != null) {
       cache.setLockTimeout(parseInt(lockTimeout));
     }
-    String searchTimeout = atts.getValue(SEARCH_TIMEOUT);
+    var searchTimeout = atts.getValue(SEARCH_TIMEOUT);
     if (searchTimeout != null) {
       cache.setSearchTimeout(parseInt(searchTimeout));
     }
-    String messageSyncInterval = atts.getValue(MESSAGE_SYNC_INTERVAL);
+    var messageSyncInterval = atts.getValue(MESSAGE_SYNC_INTERVAL);
     if (messageSyncInterval != null) {
       cache.setMessageSyncInterval(parseInt(messageSyncInterval));
     }
-    String isServer = atts.getValue(IS_SERVER);
+    var isServer = atts.getValue(IS_SERVER);
     if (isServer != null) {
-      boolean b = Boolean.parseBoolean(isServer);
+      var b = Boolean.parseBoolean(isServer);
       cache.setIsServer(b);
     }
-    String copyOnRead = atts.getValue(COPY_ON_READ);
+    var copyOnRead = atts.getValue(COPY_ON_READ);
     if (copyOnRead != null) {
       cache.setCopyOnRead(Boolean.parseBoolean(copyOnRead));
     }
@@ -385,7 +382,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       throw new CacheXmlException("Only a single cache or client-cache element is allowed");
     }
     cache = new ClientCacheCreation(true);
-    String copyOnRead = atts.getValue(COPY_ON_READ);
+    var copyOnRead = atts.getValue(COPY_ON_READ);
     if (copyOnRead != null) {
       cache.setCopyOnRead(Boolean.parseBoolean(copyOnRead));
     }
@@ -396,8 +393,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @since GemFire 5.7
    */
   private void startPool(Attributes atts) {
-    PoolFactory f = cache.createPoolFactory();
-    String name = atts.getValue(NAME).trim();
+    var f = cache.createPoolFactory();
+    var name = atts.getValue(NAME).trim();
     stack.push(name);
     stack.push(f);
     String v;
@@ -491,8 +488,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @since GemFire 5.7
    */
   private void endPool() {
-    PoolFactory f = (PoolFactory) stack.pop();
-    String name = (String) stack.pop();
+    var f = (PoolFactory) stack.pop();
+    var name = (String) stack.pop();
     f.create(name);
   }
 
@@ -500,9 +497,9 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @since GemFire 5.7
    */
   private void doLocator(Attributes atts) {
-    PoolFactory f = (PoolFactory) stack.peek();
-    String host = atts.getValue(HOST).trim();
-    int port = parseInt(atts.getValue(PORT));
+    var f = (PoolFactory) stack.peek();
+    var host = atts.getValue(HOST).trim();
+    var port = parseInt(atts.getValue(PORT));
     f.addLocator(host, port);
   }
 
@@ -510,9 +507,9 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @since GemFire 5.7
    */
   private void doServer(Attributes atts) {
-    PoolFactory f = (PoolFactory) stack.peek();
-    String host = atts.getValue(HOST).trim();
-    int port = parseInt(atts.getValue(PORT));
+    var f = (PoolFactory) stack.peek();
+    var host = atts.getValue(HOST).trim();
+    var port = parseInt(atts.getValue(PORT));
     f.addServer(host, port);
   }
 
@@ -523,53 +520,53 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @since GemFire 4.0
    */
   private void startCacheServer(Attributes atts) {
-    CacheServer bridge = cache.addCacheServer();
-    String port = atts.getValue(PORT);
+    var bridge = cache.addCacheServer();
+    var port = atts.getValue(PORT);
     if (port != null) {
       bridge.setPort(parseInt(port));
     }
-    String bindAddress = atts.getValue(BIND_ADDRESS);
+    var bindAddress = atts.getValue(BIND_ADDRESS);
     if (bindAddress != null) {
       bridge.setBindAddress(bindAddress.trim());
     }
-    String hostnameForClients = atts.getValue(HOSTNAME_FOR_CLIENTS);
+    var hostnameForClients = atts.getValue(HOSTNAME_FOR_CLIENTS);
     if (hostnameForClients != null) {
       bridge.setHostnameForClients(hostnameForClients.trim());
     }
-    String maxConnections = atts.getValue(MAX_CONNECTIONS);
+    var maxConnections = atts.getValue(MAX_CONNECTIONS);
     if (maxConnections != null) {
       bridge.setMaxConnections(parseInt(maxConnections));
     }
-    String maxThreads = atts.getValue(MAX_THREADS);
+    var maxThreads = atts.getValue(MAX_THREADS);
     if (maxThreads != null) {
       bridge.setMaxThreads(parseInt(maxThreads));
     }
-    String notifyBySubscription = atts.getValue(NOTIFY_BY_SUBSCRIPTION);
+    var notifyBySubscription = atts.getValue(NOTIFY_BY_SUBSCRIPTION);
     if (notifyBySubscription != null) {
-      boolean b = Boolean.parseBoolean(notifyBySubscription);
+      var b = Boolean.parseBoolean(notifyBySubscription);
       bridge.setNotifyBySubscription(b);
     }
-    String socketBufferSize = atts.getValue(SOCKET_BUFFER_SIZE);
+    var socketBufferSize = atts.getValue(SOCKET_BUFFER_SIZE);
     if (socketBufferSize != null) {
       bridge.setSocketBufferSize(Integer.parseInt(socketBufferSize));
     }
-    String tcpDelay = atts.getValue(TCP_NO_DELAY);
+    var tcpDelay = atts.getValue(TCP_NO_DELAY);
     if (tcpDelay != null) {
       bridge.setTcpNoDelay(Boolean.parseBoolean(tcpDelay));
     }
-    String maximumTimeBetweenPings = atts.getValue(MAXIMUM_TIME_BETWEEN_PINGS);
+    var maximumTimeBetweenPings = atts.getValue(MAXIMUM_TIME_BETWEEN_PINGS);
     if (maximumTimeBetweenPings != null) {
       bridge.setMaximumTimeBetweenPings(Integer.parseInt(maximumTimeBetweenPings));
     }
-    String maximumMessageCount = atts.getValue(MAXIMUM_MESSAGE_COUNT);
+    var maximumMessageCount = atts.getValue(MAXIMUM_MESSAGE_COUNT);
     if (maximumMessageCount != null) {
       bridge.setMaximumMessageCount(Integer.parseInt(maximumMessageCount));
     }
-    String messageTimeToLive = atts.getValue(MESSAGE_TIME_TO_LIVE);
+    var messageTimeToLive = atts.getValue(MESSAGE_TIME_TO_LIVE);
     if (messageTimeToLive != null) {
       bridge.setMessageTimeToLive(Integer.parseInt(messageTimeToLive));
     }
-    String loadPollInterval = atts.getValue(LOAD_POLL_INTERVAL);
+    var loadPollInterval = atts.getValue(LOAD_POLL_INTERVAL);
     if (loadPollInterval != null) {
       bridge.setLoadPollInterval(Long.parseLong(loadPollInterval));
     }
@@ -577,9 +574,9 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void startGatewaySender(Attributes atts) {
-    GatewaySenderFactory gatewaySenderFactory = cache.createGatewaySenderFactory();
+    var gatewaySenderFactory = cache.createGatewaySenderFactory();
 
-    String parallel = atts.getValue(PARALLEL);
+    var parallel = atts.getValue(PARALLEL);
     if (parallel == null) {
       gatewaySenderFactory.setParallel(GatewaySender.DEFAULT_IS_PARALLEL);
     } else {
@@ -587,7 +584,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // manual-start
-    String manualStart = atts.getValue(MANUAL_START);
+    var manualStart = atts.getValue(MANUAL_START);
     if (manualStart == null) {
       gatewaySenderFactory.setManualStart(GatewaySender.DEFAULT_MANUAL_START);
     } else {
@@ -595,7 +592,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // socket-buffer-size
-    String socketBufferSize = atts.getValue(SOCKET_BUFFER_SIZE);
+    var socketBufferSize = atts.getValue(SOCKET_BUFFER_SIZE);
     if (socketBufferSize == null) {
       gatewaySenderFactory.setSocketBufferSize(GatewaySender.DEFAULT_SOCKET_BUFFER_SIZE);
     } else {
@@ -603,7 +600,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // socket-read-timeout
-    String socketReadTimeout = atts.getValue(SOCKET_READ_TIMEOUT);
+    var socketReadTimeout = atts.getValue(SOCKET_READ_TIMEOUT);
     if (socketReadTimeout == null) {
       gatewaySenderFactory.setSocketReadTimeout(GatewaySender.DEFAULT_SOCKET_READ_TIMEOUT);
     } else {
@@ -611,7 +608,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // batch-conflation
-    String batchConflation = atts.getValue(ENABLE_BATCH_CONFLATION);
+    var batchConflation = atts.getValue(ENABLE_BATCH_CONFLATION);
     if (batchConflation == null) {
       gatewaySenderFactory.setBatchConflationEnabled(GatewaySender.DEFAULT_BATCH_CONFLATION);
     } else {
@@ -619,7 +616,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // batch-size
-    String batchSize = atts.getValue(BATCH_SIZE);
+    var batchSize = atts.getValue(BATCH_SIZE);
     if (batchSize == null) {
       gatewaySenderFactory.setBatchSize(GatewaySender.DEFAULT_BATCH_SIZE);
     } else {
@@ -627,7 +624,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // batch-time-interval
-    String batchTimeInterval = atts.getValue(BATCH_TIME_INTERVAL);
+    var batchTimeInterval = atts.getValue(BATCH_TIME_INTERVAL);
     if (batchTimeInterval == null) {
       gatewaySenderFactory.setBatchTimeInterval(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
     } else {
@@ -635,17 +632,17 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // enable-persistence
-    String enablePersistence = atts.getValue(ENABLE_PERSISTENCE);
+    var enablePersistence = atts.getValue(ENABLE_PERSISTENCE);
     if (enablePersistence == null) {
       gatewaySenderFactory.setPersistenceEnabled(GatewaySender.DEFAULT_PERSISTENCE_ENABLED);
     } else {
       gatewaySenderFactory.setPersistenceEnabled(Boolean.parseBoolean(enablePersistence));
     }
 
-    String diskStoreName = atts.getValue(DISK_STORE_NAME);
+    var diskStoreName = atts.getValue(DISK_STORE_NAME);
     gatewaySenderFactory.setDiskStoreName(diskStoreName);
 
-    String diskSynchronous = atts.getValue(DISK_SYNCHRONOUS);
+    var diskSynchronous = atts.getValue(DISK_SYNCHRONOUS);
     if (diskSynchronous == null) {
       gatewaySenderFactory.setDiskSynchronous(GatewaySender.DEFAULT_DISK_SYNCHRONOUS);
     } else {
@@ -653,30 +650,29 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // maximum-queue-memory
-    String maxQueueMemory = atts.getValue(MAXIMUM_QUEUE_MEMORY);
+    var maxQueueMemory = atts.getValue(MAXIMUM_QUEUE_MEMORY);
     if (maxQueueMemory == null) {
       gatewaySenderFactory.setMaximumQueueMemory(GatewaySender.DEFAULT_MAXIMUM_QUEUE_MEMORY);
     } else {
       gatewaySenderFactory.setMaximumQueueMemory(Integer.parseInt(maxQueueMemory));
     }
 
-
-    String alertThreshold = atts.getValue(ALERT_THRESHOLD);
+    var alertThreshold = atts.getValue(ALERT_THRESHOLD);
     if (alertThreshold == null) {
       gatewaySenderFactory.setAlertThreshold(GatewaySender.DEFAULT_ALERT_THRESHOLD);
     } else {
       gatewaySenderFactory.setAlertThreshold(Integer.parseInt(alertThreshold));
     }
 
-    String dispatcherThreads = atts.getValue(DISPATCHER_THREADS);
+    var dispatcherThreads = atts.getValue(DISPATCHER_THREADS);
     if (dispatcherThreads == null) {
       gatewaySenderFactory.setDispatcherThreads(GatewaySender.DEFAULT_DISPATCHER_THREADS);
     } else {
       gatewaySenderFactory.setDispatcherThreads(Integer.parseInt(dispatcherThreads));
     }
 
-    String id = atts.getValue(ID);
-    String orderPolicy = atts.getValue(ORDER_POLICY);
+    var id = atts.getValue(ID);
+    var orderPolicy = atts.getValue(ORDER_POLICY);
     if (orderPolicy != null) {
       try {
         gatewaySenderFactory
@@ -688,14 +684,14 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       }
     }
 
-    String remoteDS = atts.getValue(REMOTE_DISTRIBUTED_SYSTEM_ID);
+    var remoteDS = atts.getValue(REMOTE_DISTRIBUTED_SYSTEM_ID);
     stack.push(id);
     stack.push(remoteDS);
     stack.push(gatewaySenderFactory);
     // GatewaySender sender = gatewaySenderFactory.create(id, Integer.parseInt(remoteDS));
     // stack.push(sender);
 
-    String groupTransactionEvents = atts.getValue(GROUP_TRANSACTION_EVENTS);
+    var groupTransactionEvents = atts.getValue(GROUP_TRANSACTION_EVENTS);
     if (groupTransactionEvents == null) {
       gatewaySenderFactory
           .setGroupTransactionEvents(GatewaySender.DEFAULT_MUST_GROUP_TRANSACTION_EVENTS);
@@ -704,7 +700,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           .setGroupTransactionEvents(Boolean.parseBoolean(groupTransactionEvents));
     }
 
-    String enforceThreadsConnectSameReceiver = atts.getValue(ENFORCE_THREADS_CONNECT_SAME_RECEIVER);
+    var enforceThreadsConnectSameReceiver = atts.getValue(ENFORCE_THREADS_CONNECT_SAME_RECEIVER);
     if (enforceThreadsConnectSameReceiver == null) {
       gatewaySenderFactory
           .setEnforceThreadsConnectSameReceiver(
@@ -717,24 +713,24 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void startGatewayReceiver(Attributes atts) {
-    GatewayReceiverFactory receiverFactory = cache.createGatewayReceiverFactory();
+    var receiverFactory = cache.createGatewayReceiverFactory();
 
     // port
-    String startPort = atts.getValue(START_PORT);
+    var startPort = atts.getValue(START_PORT);
     if (startPort == null) {
       receiverFactory.setStartPort(GatewayReceiver.DEFAULT_START_PORT);
     } else {
       receiverFactory.setStartPort(Integer.parseInt(startPort));
     }
 
-    String endPort = atts.getValue(END_PORT);
+    var endPort = atts.getValue(END_PORT);
     if (endPort == null) {
       receiverFactory.setEndPort(GatewayReceiver.DEFAULT_END_PORT);
     } else {
       receiverFactory.setEndPort(Integer.parseInt(endPort));
     }
 
-    String bindAddress = atts.getValue(BIND_ADDRESS);
+    var bindAddress = atts.getValue(BIND_ADDRESS);
     if (bindAddress == null) {
       receiverFactory.setBindAddress(GatewayReceiver.DEFAULT_BIND_ADDRESS);
     } else {
@@ -742,7 +738,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // maximum-time-between-pings
-    String maxTimeBetweenPings = atts.getValue(MAXIMUM_TIME_BETWEEN_PINGS);
+    var maxTimeBetweenPings = atts.getValue(MAXIMUM_TIME_BETWEEN_PINGS);
     if (maxTimeBetweenPings == null) {
       receiverFactory
           .setMaximumTimeBetweenPings(GatewayReceiver.DEFAULT_MAXIMUM_TIME_BETWEEN_PINGS);
@@ -751,7 +747,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // socket-buffer-size
-    String socketBufferSize = atts.getValue(SOCKET_BUFFER_SIZE);
+    var socketBufferSize = atts.getValue(SOCKET_BUFFER_SIZE);
     if (socketBufferSize == null) {
       receiverFactory.setSocketBufferSize(GatewayReceiver.DEFAULT_SOCKET_BUFFER_SIZE);
     } else {
@@ -759,7 +755,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // manual-start
-    String manualStart = atts.getValue(MANUAL_START);
+    var manualStart = atts.getValue(MANUAL_START);
     if (manualStart == null) {
       receiverFactory.setManualStart(GatewayReceiver.DEFAULT_MANUAL_START);
     } else {
@@ -767,7 +763,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // hostname-for-senders
-    String hostnameForSenders = atts.getValue(HOSTNAME_FOR_SENDERS);
+    var hostnameForSenders = atts.getValue(HOSTNAME_FOR_SENDERS);
     if (hostnameForSenders == null) {
       receiverFactory.setHostnameForSenders(GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS);
     } else {
@@ -799,10 +795,10 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     while (stack.peek() instanceof String) {
       groups.add(stack.pop());
     }
-    CacheServer bs = (CacheServer) stack.pop();
+    var bs = (CacheServer) stack.pop();
     if (groups.size() > 0) {
       Collections.reverse(groups);
-      String[] groupArray = new String[groups.size()];
+      var groupArray = new String[groups.size()];
       groups.toArray(groupArray);
       bs.setGroups(groupArray);
     }
@@ -810,8 +806,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       bs.setLoadProbe(probe);
     }
     if (haCreation != null) {
-      ClientSubscriptionConfig csc = bs.getClientSubscriptionConfig();
-      String diskStoreName = haCreation.getDiskStoreName();
+      var csc = bs.getClientSubscriptionConfig();
+      var diskStoreName = haCreation.getDiskStoreName();
       if (diskStoreName != null) {
         csc.setDiskStoreName(diskStoreName);
       } else {
@@ -831,7 +827,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @since GemFire 5.7
    */
   private void endLoadProbe() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof ServerLoadProbe)) {
       throw new CacheXmlException(String.format("A %s is not an instance of a %s",
           d.getClass().getName(), "BridgeLoadProbe"));
@@ -840,36 +836,36 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endSerialGatewaySender() {
-    GatewaySenderFactory senderFactory = (GatewaySenderFactory) stack.pop();
-    String remoteDSString = (String) stack.pop();
-    String id = (String) stack.pop();
+    var senderFactory = (GatewaySenderFactory) stack.pop();
+    var remoteDSString = (String) stack.pop();
+    var id = (String) stack.pop();
     senderFactory.create(id, Integer.parseInt(remoteDSString));
   }
 
   private void endGatewayReceiver() {
-    GatewayReceiverFactory receiverFactory = (GatewayReceiverFactory) stack.pop();
+    var receiverFactory = (GatewayReceiverFactory) stack.pop();
     receiverFactory.create();
   }
 
   private void startDynamicRegionFactory(Attributes atts) {
     // push attributes onto the stack for processing in endDynamicRegionFactory
-    String disablePersist = atts.getValue(DISABLE_PERSIST_BACKUP);
+    var disablePersist = atts.getValue(DISABLE_PERSIST_BACKUP);
     if (disablePersist == null) {
       stack.push("false");
     } else {
       stack.push(disablePersist);
     }
-    String disableRegisterInterest = atts.getValue(DISABLE_REGISTER_INTEREST);
+    var disableRegisterInterest = atts.getValue(DISABLE_REGISTER_INTEREST);
     if (disableRegisterInterest == null) {
       stack.push("false");
     } else {
       stack.push(disableRegisterInterest);
     }
-    String poolName = atts.getValue(POOL_NAME);
+    var poolName = atts.getValue(POOL_NAME);
     stack.push(poolName);
 
     // hi-jack RegionAttributesCreation for the disk-dirs, loader, writer and compressor
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     stack.push(attrs);
   }
 
@@ -878,7 +874,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     File dir = null;
     RegionAttributesCreation attrs;
     {
-      Object o = stack.pop();
+      var o = stack.pop();
       if (o instanceof File) {
         dir = (File) o;
         stack.pop(); // dir size to be popped out. being used by persistent directories
@@ -887,14 +883,14 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
         attrs = (RegionAttributesCreation) o;
       }
     }
-    String poolName = (String) stack.pop();
-    String disableRegisterInterest = (String) stack.pop();
-    String disablePersistBackup = (String) stack.pop();
+    var poolName = (String) stack.pop();
+    var disableRegisterInterest = (String) stack.pop();
+    var disablePersistBackup = (String) stack.pop();
     DynamicRegionFactory.Config cfg;
     cfg = new DynamicRegionFactory.Config(dir, poolName,
         !Boolean.parseBoolean(disablePersistBackup),
         !Boolean.parseBoolean(disableRegisterInterest));
-    CacheCreation cache = (CacheCreation) stack.peek();
+    var cache = (CacheCreation) stack.peek();
     cache.setDynamicRegionFactoryConfig(cfg);
   }
 
@@ -903,13 +899,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * the <code>Cache</code>.
    */
   private void endGatewayConflictResolver() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof GatewayConflictResolver)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of a GatewayConflictResolver.",
               d.getClass().getName()));
     }
-    CacheCreation c = (CacheCreation) stack.peek();
+    var c = (CacheCreation) stack.peek();
     c.setGatewayConflictResolver((GatewayConflictResolver) d);
   }
 
@@ -918,10 +914,10 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * push it on the stack.
    */
   private void startRegion(Attributes atts) {
-    String name = atts.getValue(NAME);
-    String refid = atts.getValue(REFID);
+    var name = atts.getValue(NAME);
+    var refid = atts.getValue(REFID);
     Assert.assertTrue(name != null);
-    RegionCreation region = new RegionCreation(cache, name, refid);
+    var region = new RegionCreation(cache, name, refid);
     stack.push(region);
   }
 
@@ -938,8 +934,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * the stack is a <code>RegionCreation</code>, then it is the parent region.
    */
   private void endRegion() throws RegionExistsException {
-    RegionCreation region = (RegionCreation) stack.pop();
-    boolean isRoot = false;
+    var region = (RegionCreation) stack.pop();
+    var isRoot = false;
     if (stack.isEmpty()) {
       isRoot = true;
     } else if (!(stack.peek() instanceof RegionCreation)) {
@@ -948,7 +944,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     if (isRoot) {
       cache.addRootRegion(region);
     } else {
-      RegionCreation parent = (RegionCreation) stack.peek();
+      var parent = (RegionCreation) stack.peek();
       parent.addSubregion(region.getName(), region);
     }
   }
@@ -957,7 +953,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * Add the <code>transaction-manager</code> creation code to the cache creation code
    */
   private void endCacheTransactionManager() {
-    CacheTransactionManagerCreation txMgrCreation = (CacheTransactionManagerCreation) stack.pop();
+    var txMgrCreation = (CacheTransactionManagerCreation) stack.pop();
     cache.addCacheTransactionManagerCreation(txMgrCreation);
   }
 
@@ -966,13 +962,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * transaction manager with the newly instantiated listener.
    */
   private void endTransactionListener() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof TransactionListener)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of a CacheListener.",
               d.getClass().getName()));
     }
-    CacheTransactionManagerCreation txMgrCreation = (CacheTransactionManagerCreation) stack.peek();
+    var txMgrCreation = (CacheTransactionManagerCreation) stack.peek();
     txMgrCreation.addListener((TransactionListener) d);
   }
 
@@ -982,8 +978,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    */
   private void startDiskStore(Attributes atts) {
     // this is the only place to create DSAC objects
-    DiskStoreAttributesCreation attrs = new DiskStoreAttributesCreation();
-    String name = atts.getValue(NAME);
+    var attrs = new DiskStoreAttributesCreation();
+    var name = atts.getValue(NAME);
     if (name == null) {
       throw new InternalGemFireException(
           "Disk Store name is configured to use null name.");
@@ -991,47 +987,47 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       attrs.setName(name);
     }
 
-    String autoCompact = atts.getValue(AUTO_COMPACT);
+    var autoCompact = atts.getValue(AUTO_COMPACT);
     if (autoCompact != null) {
       attrs.setAutoCompact(Boolean.parseBoolean(autoCompact));
     }
 
-    String compactionThreshold = atts.getValue(COMPACTION_THRESHOLD);
+    var compactionThreshold = atts.getValue(COMPACTION_THRESHOLD);
     if (compactionThreshold != null) {
       attrs.setCompactionThreshold(parseInt(compactionThreshold));
     }
 
-    String allowForceCompaction = atts.getValue(ALLOW_FORCE_COMPACTION);
+    var allowForceCompaction = atts.getValue(ALLOW_FORCE_COMPACTION);
     if (allowForceCompaction != null) {
       attrs.setAllowForceCompaction(Boolean.parseBoolean(allowForceCompaction));
     }
 
-    String maxOplogSize = atts.getValue(MAX_OPLOG_SIZE);
+    var maxOplogSize = atts.getValue(MAX_OPLOG_SIZE);
     if (maxOplogSize != null) {
       attrs.setMaxOplogSize(parseInt(maxOplogSize));
     }
 
-    String timeInterval = atts.getValue(TIME_INTERVAL);
+    var timeInterval = atts.getValue(TIME_INTERVAL);
     if (timeInterval != null) {
       attrs.setTimeInterval(parseInt(timeInterval));
     }
 
-    String writeBufferSize = atts.getValue(WRITE_BUFFER_SIZE);
+    var writeBufferSize = atts.getValue(WRITE_BUFFER_SIZE);
     if (writeBufferSize != null) {
       attrs.setWriteBufferSize(parseInt(writeBufferSize));
     }
 
-    String queueSize = atts.getValue(QUEUE_SIZE);
+    var queueSize = atts.getValue(QUEUE_SIZE);
     if (queueSize != null) {
       attrs.setQueueSize(parseInt(queueSize));
     }
 
-    String warnPct = atts.getValue(DISK_USAGE_WARNING_PERCENTAGE);
+    var warnPct = atts.getValue(DISK_USAGE_WARNING_PERCENTAGE);
     if (warnPct != null) {
       attrs.setDiskUsageWarningPercentage(parseFloat(warnPct));
     }
 
-    String criticalPct = atts.getValue(DISK_USAGE_CRITICAL_PERCENTAGE);
+    var criticalPct = atts.getValue(DISK_USAGE_CRITICAL_PERCENTAGE);
     if (criticalPct != null) {
       attrs.setDiskUsageCriticalPercentage(parseFloat(criticalPct));
     }
@@ -1040,7 +1036,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private Integer getIntValue(Attributes atts, String param) {
-    String maxInputFileSizeMB = atts.getValue(param);
+    var maxInputFileSizeMB = atts.getValue(param);
     if (maxInputFileSizeMB != null) {
       try {
         return Integer.valueOf(maxInputFileSizeMB);
@@ -1059,13 +1055,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * manager with the newly instantiated writer.
    */
   private void endTransactionWriter() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof TransactionWriter)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of a TransactionWriter.",
               d.getClass().getName()));
     }
-    CacheTransactionManagerCreation txMgrCreation = (CacheTransactionManagerCreation) stack.peek();
+    var txMgrCreation = (CacheTransactionManagerCreation) stack.peek();
     txMgrCreation.setWriter((TransactionWriter) d);
   }
 
@@ -1074,8 +1070,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * {@link RegionAttributesCreation}, populate it accordingly, and push it on the stack.
    */
   private void startRegionAttributes(Attributes atts) {
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
-    String scope = atts.getValue(SCOPE);
+    var attrs = new RegionAttributesCreation(cache);
+    var scope = atts.getValue(SCOPE);
     if (scope == null) {
     } else if (scope.equals(LOCAL)) {
       attrs.setScope(Scope.LOCAL);
@@ -1089,7 +1085,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       throw new InternalGemFireException(
           String.format("Unknown scope: %s", scope));
     }
-    String mirror = atts.getValue(MIRROR_TYPE);
+    var mirror = atts.getValue(MIRROR_TYPE);
     if (mirror == null) {
     } else if (mirror.equals(NONE)) {
       attrs.setMirrorType(MirrorType.NONE);
@@ -1102,7 +1098,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           String.format("Unknown mirror type: %s", mirror));
     }
     {
-      String dp = atts.getValue(DATA_POLICY);
+      var dp = atts.getValue(DATA_POLICY);
       if (dp == null) {
       } else if (dp.equals(NORMAL_DP)) {
         attrs.setDataPolicy(DataPolicy.NORMAL);
@@ -1124,77 +1120,77 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       }
     }
 
-    String initialCapacity = atts.getValue(INITIAL_CAPACITY);
+    var initialCapacity = atts.getValue(INITIAL_CAPACITY);
     if (initialCapacity != null) {
       attrs.setInitialCapacity(parseInt(initialCapacity));
     }
-    String concurrencyLevel = atts.getValue(CONCURRENCY_LEVEL);
+    var concurrencyLevel = atts.getValue(CONCURRENCY_LEVEL);
     if (concurrencyLevel != null) {
       attrs.setConcurrencyLevel(parseInt(concurrencyLevel));
     }
-    String concurrencyChecksEnabled = atts.getValue(CONCURRENCY_CHECKS_ENABLED);
+    var concurrencyChecksEnabled = atts.getValue(CONCURRENCY_CHECKS_ENABLED);
     if (concurrencyChecksEnabled != null) {
       attrs.setConcurrencyChecksEnabled(Boolean.parseBoolean(concurrencyChecksEnabled));
     }
-    String loadFactor = atts.getValue(LOAD_FACTOR);
+    var loadFactor = atts.getValue(LOAD_FACTOR);
     if (loadFactor != null) {
       attrs.setLoadFactor(parseFloat(loadFactor));
     }
-    String statisticsEnabled = atts.getValue(STATISTICS_ENABLED);
+    var statisticsEnabled = atts.getValue(STATISTICS_ENABLED);
     if (statisticsEnabled != null) {
       attrs.setStatisticsEnabled(Boolean.parseBoolean(statisticsEnabled));
     }
-    String ignoreJTA = atts.getValue(IGNORE_JTA);
+    var ignoreJTA = atts.getValue(IGNORE_JTA);
     if (ignoreJTA != null) {
       attrs.setIgnoreJTA(Boolean.parseBoolean(ignoreJTA));
     }
-    String isLockGrantor = atts.getValue(IS_LOCK_GRANTOR);
+    var isLockGrantor = atts.getValue(IS_LOCK_GRANTOR);
     if (isLockGrantor != null) {
       attrs.setLockGrantor(Boolean.parseBoolean(isLockGrantor));
     }
-    String persistBackup = atts.getValue(PERSIST_BACKUP);
+    var persistBackup = atts.getValue(PERSIST_BACKUP);
     if (persistBackup != null) {
       attrs.setPersistBackup(Boolean.parseBoolean(persistBackup));
     }
-    String earlyAck = atts.getValue(EARLY_ACK);
+    var earlyAck = atts.getValue(EARLY_ACK);
     if (earlyAck != null) {
       attrs.setEarlyAck(Boolean.parseBoolean(earlyAck));
     }
-    String mcastEnabled = atts.getValue(MULTICAST_ENABLED);
+    var mcastEnabled = atts.getValue(MULTICAST_ENABLED);
     if (mcastEnabled != null) {
       attrs.setMulticastEnabled(Boolean.parseBoolean(mcastEnabled));
     }
-    String indexUpdateType = atts.getValue(INDEX_UPDATE_TYPE);
+    var indexUpdateType = atts.getValue(INDEX_UPDATE_TYPE);
     attrs.setIndexMaintenanceSynchronous(
         indexUpdateType == null || indexUpdateType.equals(INDEX_UPDATE_TYPE_SYNCH));
 
-    String poolName = atts.getValue(POOL_NAME);
+    var poolName = atts.getValue(POOL_NAME);
     if (poolName != null) {
       attrs.setPoolName(poolName);
     }
-    String diskStoreName = atts.getValue(DISK_STORE_NAME);
+    var diskStoreName = atts.getValue(DISK_STORE_NAME);
     if (diskStoreName != null) {
       attrs.setDiskStoreName(diskStoreName);
     }
-    String isDiskSynchronous = atts.getValue(DISK_SYNCHRONOUS);
+    var isDiskSynchronous = atts.getValue(DISK_SYNCHRONOUS);
     if (isDiskSynchronous != null) {
       attrs.setDiskSynchronous(Boolean.parseBoolean(isDiskSynchronous));
     }
 
-    String id = atts.getValue(ID);
+    var id = atts.getValue(ID);
     if (id != null) {
       attrs.setId(id);
     }
-    String refid = atts.getValue(REFID);
+    var refid = atts.getValue(REFID);
     if (refid != null) {
       attrs.setRefid(refid);
     }
-    String enableSubscriptionConflation = atts.getValue(ENABLE_SUBSCRIPTION_CONFLATION);
+    var enableSubscriptionConflation = atts.getValue(ENABLE_SUBSCRIPTION_CONFLATION);
     if (enableSubscriptionConflation != null) {
       attrs.setEnableSubscriptionConflation(
           Boolean.parseBoolean(enableSubscriptionConflation));
     }
-    String enableBridgeConflation = atts.getValue(ENABLE_BRIDGE_CONFLATION);
+    var enableBridgeConflation = atts.getValue(ENABLE_BRIDGE_CONFLATION);
     // as of 5.7 enable-bridge-conflation is deprecated.
     // so ignore it if enable-subscription-conflation is set
     if (enableBridgeConflation != null && enableSubscriptionConflation == null) {
@@ -1212,29 +1208,29 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
      * deprecated in prPersistSprint1 String publisherStr = atts.getValue(PUBLISHER); if
      * (publisherStr != null) { attrs.setPublisher(Boolean.valueOf(publisherStr).booleanValue()); }
      */
-    String enableAsyncConflation = atts.getValue(ENABLE_ASYNC_CONFLATION);
+    var enableAsyncConflation = atts.getValue(ENABLE_ASYNC_CONFLATION);
     if (enableAsyncConflation != null) {
       attrs.setEnableAsyncConflation(Boolean.parseBoolean(enableAsyncConflation));
     }
-    String cloningEnabledStr = atts.getValue(CLONING_ENABLED);
+    var cloningEnabledStr = atts.getValue(CLONING_ENABLED);
     if (cloningEnabledStr != null) {
       attrs.setCloningEnable(Boolean.parseBoolean(cloningEnabledStr));
     }
-    String gatewaySenderIds = atts.getValue(GATEWAY_SENDER_IDS);
+    var gatewaySenderIds = atts.getValue(GATEWAY_SENDER_IDS);
     if (gatewaySenderIds != null && (gatewaySenderIds.length() != 0)) {
-      StringTokenizer st = new StringTokenizer(gatewaySenderIds, ",");
+      var st = new StringTokenizer(gatewaySenderIds, ",");
       while (st.hasMoreElements()) {
         attrs.addGatewaySenderId(st.nextToken());
       }
     }
-    String asyncEventQueueIds = atts.getValue(ASYNC_EVENT_QUEUE_IDS);
+    var asyncEventQueueIds = atts.getValue(ASYNC_EVENT_QUEUE_IDS);
     if (asyncEventQueueIds != null && (asyncEventQueueIds.length() != 0)) {
-      StringTokenizer st = new StringTokenizer(asyncEventQueueIds, ",");
+      var st = new StringTokenizer(asyncEventQueueIds, ",");
       while (st.hasMoreElements()) {
         attrs.addAsyncEventQueueId(st.nextToken());
       }
     }
-    String offHeapStr = atts.getValue(OFF_HEAP);
+    var offHeapStr = atts.getValue(OFF_HEAP);
     if (offHeapStr != null) {
       attrs.setOffHeap(Boolean.parseBoolean(offHeapStr));
     }
@@ -1247,17 +1243,17 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * the <code>DiskStoreAttionCreation</code> that should be on the top of the stack.
    */
   private void endDiskStore() {
-    DiskStoreAttributesCreation dsac = (DiskStoreAttributesCreation) stack.pop();
+    var dsac = (DiskStoreAttributesCreation) stack.pop();
     CacheCreation cache;
-    Object top = stack.peek();
+    var top = stack.peek();
     if (top instanceof CacheCreation) {
       cache = (CacheCreation) top;
     } else {
-      String s = "Did not expected a " + top.getClass().getName() + " on top of the stack.";
+      var s = "Did not expected a " + top.getClass().getName() + " on top of the stack.";
       Assert.assertTrue(false, s);
       cache = null; // Dead code
     }
-    String name = dsac.getName();
+    var name = dsac.getName();
     if (name != null) {
       cache.setDiskStore(name, dsac);
     }
@@ -1268,21 +1264,21 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * <code>RegionCreation</code> that should be on the top of the stack.
    */
   private void endRegionAttributes() {
-    RegionAttributesCreation attrs = (RegionAttributesCreation) stack.pop();
+    var attrs = (RegionAttributesCreation) stack.pop();
     CacheCreation cache;
-    Object top = stack.peek();
+    var top = stack.peek();
     if (top instanceof RegionCreation) {
-      RegionCreation region = (RegionCreation) top;
+      var region = (RegionCreation) top;
       region.setAttributes(attrs);
       cache = (CacheCreation) region.getCache();
     } else if (top instanceof CacheCreation) {
       cache = (CacheCreation) top;
     } else {
-      String s = "Did not expected a " + top.getClass().getName() + " on top of the stack.";
+      var s = "Did not expected a " + top.getClass().getName() + " on top of the stack.";
       Assert.assertTrue(false, s);
       cache = null; // Dead code
     }
-    String id = attrs.getId();
+    var id = attrs.getId();
     if (id != null) {
       cache.setRegionAttributes(id, attrs);
     }
@@ -1310,7 +1306,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   // elements, otherwise <code>characters</code> would continue to
   // append and our stack order would be out of whack. See bug 32122.
   private void endString() {
-    StringBuilder str = (StringBuilder) stack.pop();
+    var str = (StringBuilder) stack.pop();
     stack.push(str.toString()/* .trim() */);
   }
 
@@ -1320,12 +1316,12 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @since GemFire 5.7
    */
   private void endGroup() {
-    StringBuilder str = (StringBuilder) stack.pop();
+    var str = (StringBuilder) stack.pop();
     stack.push(str.toString().trim());
   }
 
   private void endClassName() {
-    StringBuilder str = (StringBuilder) stack.pop();
+    var str = (StringBuilder) stack.pop();
     stack.push(str.toString().trim()); // trim fixes bug 32928
   }
 
@@ -1335,9 +1331,9 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * being created should be below that.
    */
   private void endEntry() {
-    Object value = stack.pop();
-    Object key = stack.pop();
-    RegionCreation region = (RegionCreation) stack.peek();
+    var value = stack.pop();
+    var key = stack.pop();
+    var region = (RegionCreation) stack.peek();
     // changed by mitul after modifying code for Region implements Map
     region.put(key, value);
   }
@@ -1349,7 +1345,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @throws CacheXmlException If the key constraint class cannot be loaded
    */
   private void endKeyConstraint() {
-    String className = ((StringBuilder) stack.pop()).toString().trim();
+    var className = ((StringBuilder) stack.pop()).toString().trim();
     Class c;
     try {
       c = InternalDataSerializer.getCachedClass(className);
@@ -1360,7 +1356,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           ex);
     }
     // The region attributes should be on top of the stack
-    RegionAttributesCreation attrs = peekRegionAttributesContext("key-constraint");
+    var attrs = peekRegionAttributesContext("key-constraint");
     attrs.setKeyConstraint(c);
   }
 
@@ -1371,7 +1367,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @throws CacheXmlException If the value constraint class cannot be loaded
    */
   private void endValueConstraint() {
-    String className = ((StringBuilder) stack.pop()).toString().trim();
+    var className = ((StringBuilder) stack.pop()).toString().trim();
     Class c;
     try {
       c = InternalDataSerializer.getCachedClass(className);
@@ -1382,7 +1378,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           ex);
     }
     // The region attributes should be on top of the stack
-    RegionAttributesCreation attrs = peekRegionAttributesContext("value-constraint");
+    var attrs = peekRegionAttributesContext("value-constraint");
     attrs.setValueConstraint(c);
   }
 
@@ -1392,8 +1388,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * expiration attributes are assigned.
    */
   private void endRegionTimeToLive() {
-    ExpirationAttributes expire = (ExpirationAttributes) stack.pop();
-    RegionAttributesCreation attrs = peekRegionAttributesContext("region-time-to-live");
+    var expire = (ExpirationAttributes) stack.pop();
+    var attrs = peekRegionAttributesContext("region-time-to-live");
     attrs.setRegionTimeToLive(expire);
   }
 
@@ -1403,13 +1399,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * attributes are assigned.
    */
   private void endRegionIdleTime() {
-    ExpirationAttributes expire = (ExpirationAttributes) stack.pop();
-    RegionAttributesCreation attrs = peekRegionAttributesContext("region-idle-time");
+    var expire = (ExpirationAttributes) stack.pop();
+    var attrs = peekRegionAttributesContext("region-idle-time");
     attrs.setRegionIdleTimeout(expire);
   }
 
   private RegionAttributesCreation peekRegionAttributesContext(String dependentElement) {
-    Object a = stack.peek();
+    var a = stack.peek();
     if (!(a instanceof RegionAttributesCreation)) {
       throw new CacheXmlException(
           String.format("A %s must be defined in the context of region-attributes.",
@@ -1419,7 +1415,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private PartitionAttributesImpl peekPartitionAttributesImpl(String dependentElement) {
-    Object a = stack.peek();
+    var a = stack.peek();
     if (!(a instanceof PartitionAttributesImpl)) {
       throw new CacheXmlException(
           String.format("A %s must be defined in the context of partition-attributes",
@@ -1440,8 +1436,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     if (stack.peek() instanceof Declarable) {
       custom = (Declarable) stack.pop();
     }
-    ExpirationAttributes expire = (ExpirationAttributes) stack.pop();
-    Object a = stack.peek();
+    var expire = (ExpirationAttributes) stack.pop();
+    var a = stack.peek();
     // if (a instanceof PartitionAttributesFactory) {
     // ((PartitionAttributesFactory) a).setEntryTimeToLive(expire);
     // } else
@@ -1468,8 +1464,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     if (stack.peek() instanceof Declarable) {
       custom = (Declarable) stack.pop();
     }
-    ExpirationAttributes expire = (ExpirationAttributes) stack.pop();
-    Object a = stack.peek();
+    var expire = (ExpirationAttributes) stack.pop();
+    var a = stack.peek();
     // if (a instanceof PartitionAttributesFactory) {
     // ((PartitionAttributesFactory) a).setEntryIdleTimeout(expire);
     // } else
@@ -1492,10 +1488,10 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * attributes are assigned.
    */
   private void endPartitionAttributes() {
-    PartitionAttributesImpl paf = (PartitionAttributesImpl) stack.pop();
+    var paf = (PartitionAttributesImpl) stack.pop();
     paf.validateAttributes();
 
-    RegionAttributesCreation rattrs = peekRegionAttributesContext(PARTITION_ATTRIBUTES);
+    var rattrs = peekRegionAttributesContext(PARTITION_ATTRIBUTES);
     // change the 5.0 default data policy (EMPTY) to the current default
     if (rattrs.hasDataPolicy() && rattrs.getDataPolicy().isEmpty()
         && (version.compareTo(CacheXmlVersion.GEMFIRE_5_0) == 0)) {
@@ -1524,16 +1520,16 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       }
     }
 
-    Object[] attrs = (Object[]) obj;
-    String laName = ((String) attrs[0]).toUpperCase().replace('-', '_');
-    String raName = ((String) attrs[1]).toUpperCase().replace('-', '_');
+    var attrs = (Object[]) obj;
+    var laName = ((String) attrs[0]).toUpperCase().replace('-', '_');
+    var raName = ((String) attrs[1]).toUpperCase().replace('-', '_');
 
-    LossAction laction = LossAction.fromName(laName);
-    ResumptionAction raction = ResumptionAction.fromName(raName);
+    var laction = LossAction.fromName(laName);
+    var raction = ResumptionAction.fromName(raName);
 
-    MembershipAttributes ra = new MembershipAttributes(
+    var ra = new MembershipAttributes(
         (String[]) roles.toArray(new String[0]), laction, raction);
-    RegionAttributesCreation rattrs = (RegionAttributesCreation) stack.peek();
+    var rattrs = (RegionAttributesCreation) stack.peek();
     rattrs.setMembershipAttributes(ra);
   }
 
@@ -1550,8 +1546,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * attributes are assigned.
    */
   private void endDiskWriteAttributes() {
-    DiskWriteAttributes dwa = (DiskWriteAttributes) stack.pop();
-    RegionAttributesCreation attrs = peekRegionAttributesContext(DISK_WRITE_ATTRIBUTES);
+    var dwa = (DiskWriteAttributes) stack.pop();
+    var attrs = peekRegionAttributesContext(DISK_WRITE_ATTRIBUTES);
     attrs.setDiskWriteAttributes(dwa);
   }
 
@@ -1560,8 +1556,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * stack. Create a new {@link File}and push it on the stack.
    */
   private void endDiskDir() {
-    StringBuilder dirName = (StringBuilder) stack.pop();
-    File dir = new File(dirName.toString().trim());
+    var dirName = (StringBuilder) stack.pop();
+    var dir = new File(dirName.toString().trim());
     if (!dir.exists()) {
 
     }
@@ -1585,23 +1581,23 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
 
     // should set the disk-dirs and sizes in reverse order since parsers would have reversed
     // the order because of pushing into stack
-    File[] disks = new File[dirs.size()];
-    int dirsLength = dirs.size();
-    for (int i = 0; i < dirsLength; i++) {
+    var disks = new File[dirs.size()];
+    var dirsLength = dirs.size();
+    for (var i = 0; i < dirsLength; i++) {
       disks[i] = (File) dirs.get((dirsLength - 1) - i);
     }
 
-    int[] diskSizes = new int[sizes.size()];
-    for (int i = 0; i < dirsLength; i++) {
+    var diskSizes = new int[sizes.size()];
+    for (var i = 0; i < dirsLength; i++) {
       diskSizes[i] = (Integer) sizes.get((dirsLength - 1) - i);
     }
 
-    Object a = stack.peek();
+    var a = stack.peek();
     if (a instanceof RegionAttributesCreation) {
-      RegionAttributesCreation attrs = (RegionAttributesCreation) a;
+      var attrs = (RegionAttributesCreation) a;
       attrs.setDiskDirsAndSize(disks, diskSizes);
     } else if (a instanceof DiskStoreAttributesCreation) {
-      DiskStoreAttributesCreation attrs = (DiskStoreAttributesCreation) a;
+      var attrs = (DiskStoreAttributesCreation) a;
       attrs.setDiskDirsAndSize(disks, diskSizes);
     } else {
       throw new CacheXmlException(
@@ -1616,11 +1612,11 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    */
   private void startSynchronousWrites() {
     int maxOplogSize = (Integer) stack.pop();
-    String rollOplog = (String) stack.pop();
+    var rollOplog = (String) stack.pop();
     // convery megabytes to bytes for DiskWriteAttributes creation
     long maxOplogSizeInBytes = maxOplogSize;
     maxOplogSizeInBytes = maxOplogSizeInBytes * 1024 * 1024;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MAX_OPLOG_SIZE, String.valueOf(maxOplogSizeInBytes));
     props.setProperty(ROLL_OPLOG, rollOplog);
     props.setProperty(DiskWriteAttributesImpl.SYNCHRONOUS_PROPERTY, "true");
@@ -1633,13 +1629,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    */
   private void startAsynchronousWrites(Attributes atts) {
     int maxOplogSize = (Integer) stack.pop();
-    String rollOplog = (String) stack.pop();
+    var rollOplog = (String) stack.pop();
     // convery megabytes to bytes for DiskWriteAttributes creation
     long maxOplogSizeInBytes = maxOplogSize;
     maxOplogSizeInBytes = maxOplogSizeInBytes * 1024 * 1024;
-    long timeInterval = parseLong(atts.getValue(TIME_INTERVAL));
-    long bytesThreshold = parseLong(atts.getValue(BYTES_THRESHOLD));
-    Properties props = new Properties();
+    var timeInterval = parseLong(atts.getValue(TIME_INTERVAL));
+    var bytesThreshold = parseLong(atts.getValue(BYTES_THRESHOLD));
+    var props = new Properties();
     props.setProperty(MAX_OPLOG_SIZE, String.valueOf(maxOplogSizeInBytes));
     props.setProperty(ROLL_OPLOG, rollOplog);
     props.setProperty(TIME_INTERVAL, String.valueOf(timeInterval));
@@ -1653,32 +1649,32 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * for configuring paritioned storage on the stack.
    */
   private void startPartitionAttributes(Attributes atts) {
-    PartitionAttributesImpl paf = new PartitionAttributesImpl();
-    String redundancy = atts.getValue(PARTITION_REDUNDANT_COPIES);
+    var paf = new PartitionAttributesImpl();
+    var redundancy = atts.getValue(PARTITION_REDUNDANT_COPIES);
     if (redundancy != null) {
       paf.setRedundantCopies(parseInt(redundancy));
     }
-    String localMaxMem = atts.getValue(LOCAL_MAX_MEMORY);
+    var localMaxMem = atts.getValue(LOCAL_MAX_MEMORY);
     if (localMaxMem != null) {
       paf.setLocalMaxMemory(parseInt(localMaxMem));
     }
-    String totalMaxMem = atts.getValue(TOTAL_MAX_MEMORY);
+    var totalMaxMem = atts.getValue(TOTAL_MAX_MEMORY);
     if (totalMaxMem != null) {
       paf.setTotalMaxMemory(parseLong(totalMaxMem));
     }
-    String totalNumBuckets = atts.getValue(TOTAL_NUM_BUCKETS);
+    var totalNumBuckets = atts.getValue(TOTAL_NUM_BUCKETS);
     if (totalNumBuckets != null) {
       paf.setTotalNumBuckets(parseInt(totalNumBuckets));
     }
-    String colocatedWith = atts.getValue(PARTITION_COLOCATED_WITH);
+    var colocatedWith = atts.getValue(PARTITION_COLOCATED_WITH);
     if (colocatedWith != null) {
       paf.setColocatedWith(colocatedWith);
     }
-    String recoveryDelay = atts.getValue(RECOVERY_DELAY);
+    var recoveryDelay = atts.getValue(RECOVERY_DELAY);
     if (recoveryDelay != null) {
       paf.setRecoveryDelay(parseInt(recoveryDelay));
     }
-    String startupRecoveryDelay = atts.getValue(STARTUP_RECOVERY_DELAY);
+    var startupRecoveryDelay = atts.getValue(STARTUP_RECOVERY_DELAY);
     if (startupRecoveryDelay != null) {
       paf.setStartupRecoveryDelay(parseInt(startupRecoveryDelay));
     }
@@ -1690,20 +1686,20 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * FixedPartitionAttributesImpl and add it to the PartitionAttributesImpl stack.
    */
   private void startFixedPartitionAttributes(Attributes atts) {
-    FixedPartitionAttributesImpl fpai = new FixedPartitionAttributesImpl();
-    String partitionName = atts.getValue(PARTITION_NAME);
+    var fpai = new FixedPartitionAttributesImpl();
+    var partitionName = atts.getValue(PARTITION_NAME);
     if (partitionName != null) {
       fpai.setPartitionName(partitionName);
     }
-    String isPrimary = atts.getValue(IS_PRIMARY);
+    var isPrimary = atts.getValue(IS_PRIMARY);
     if (isPrimary != null) {
       fpai.isPrimary(parseBoolean(isPrimary));
     }
-    String numBuckets = atts.getValue(NUM_BUCKETS);
+    var numBuckets = atts.getValue(NUM_BUCKETS);
     if (numBuckets != null) {
       fpai.setNumBuckets(parseInt(numBuckets));
     }
-    Object a = stack.peek();
+    var a = stack.peek();
     if (a instanceof PartitionAttributesImpl) {
       ((PartitionAttributesImpl) a).addFixedPartitionAttributes(fpai);
     }
@@ -1714,7 +1710,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * attributes for creation of a MembershipAttributes.
    */
   private void startMembershipAttributes(Attributes atts) {
-    Object[] attrs = new Object[2]; // loss-action, resumption-action
+    var attrs = new Object[2]; // loss-action, resumption-action
     attrs[0] = atts.getValue(LOSS_ACTION) == null ? LossAction.NO_ACCESS.toString()
         : atts.getValue(LOSS_ACTION);
     attrs[1] = atts.getValue(RESUMPTION_ACTION) == null ? ResumptionAction.REINITIALIZE.toString()
@@ -1729,7 +1725,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * attributes.
    */
   private void startSubscriptionAttributes(Attributes atts) {
-    String ip = atts.getValue(INTEREST_POLICY);
+    var ip = atts.getValue(INTEREST_POLICY);
     SubscriptionAttributes sa;
     if (ip == null) {
       sa = new SubscriptionAttributes();
@@ -1741,7 +1737,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       throw new InternalGemFireException(
           String.format("Unknown interest-policy: %s", ip));
     }
-    RegionAttributesCreation rattrs = (RegionAttributesCreation) stack.peek();
+    var rattrs = (RegionAttributesCreation) stack.peek();
     rattrs.setSubscriptionAttributes(sa);
   }
 
@@ -1759,11 +1755,11 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    *
    */
   private void startIndex(Attributes atts) {
-    boolean isPrimary = false;
-    String type = "";
-    IndexCreationData icd = new IndexCreationData(atts.getValue(NAME));
+    var isPrimary = false;
+    var type = "";
+    var icd = new IndexCreationData(atts.getValue(NAME));
 
-    int len = atts.getLength();
+    var len = atts.getLength();
     if (len > 1) {
       if (Boolean.parseBoolean(atts.getValue(KEY_INDEX))) {
         icd.setIndexType(IndexType.PRIMARY_KEY);
@@ -1773,9 +1769,9 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     if (len > 2) {
-      String fromClause = atts.getValue(FROM_CLAUSE);
-      String expression = atts.getValue(EXPRESSION);
-      String importStr = atts.getValue(IMPORTS);
+      var fromClause = atts.getValue(FROM_CLAUSE);
+      var expression = atts.getValue(EXPRESSION);
+      var importStr = atts.getValue(IMPORTS);
       if (isPrimary) {
         icd.setIndexData(IndexType.PRIMARY_KEY, null, expression, null);
       } else {
@@ -1806,8 +1802,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * fromClause as not null.
    */
   private void endIndex() {
-    boolean throwExcep = false;
-    IndexCreationData icd = (IndexCreationData) stack.pop();
+    var throwExcep = false;
+    var icd = (IndexCreationData) stack.pop();
 
     if (icd.getIndexType() == null) {
       throwExcep = true;
@@ -1824,7 +1820,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     if (!throwExcep) {
-      RegionCreation rc = (RegionCreation) stack.peek();
+      var rc = (RegionCreation) stack.peek();
       rc.addIndexData(icd);
     } else {
       throw new InternalGemFireException(
@@ -1839,13 +1835,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    *
    */
   private void startFunctionalIndex(Attributes atts) {
-    boolean throwExcep = false;
-    IndexCreationData icd = (IndexCreationData) stack.peek();
+    var throwExcep = false;
+    var icd = (IndexCreationData) stack.peek();
     // icd.setIndexType(FUNCTIONAL);
-    int len = -1;
+    var len = -1;
     if ((len = atts.getLength()) > 1) {
-      String fromClause = atts.getValue(FROM_CLAUSE);
-      String expression = atts.getValue(EXPRESSION);
+      var fromClause = atts.getValue(FROM_CLAUSE);
+      var expression = atts.getValue(EXPRESSION);
       String importStr = null;
       if (len == 3) {
         importStr = atts.getValue(IMPORTS);
@@ -1872,11 +1868,11 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    *
    */
   private void startPrimaryKeyIndex(Attributes atts) {
-    IndexCreationData icd = (IndexCreationData) stack.peek();
+    var icd = (IndexCreationData) stack.peek();
     // icd.setIndexType(PRIMARY_KEY);
-    boolean throwExcep = false;
+    var throwExcep = false;
     if (atts.getLength() == 1) {
-      String field = atts.getValue(FIELD);
+      var field = atts.getValue(FIELD);
       if (field == null) {
         throwExcep = true;
       } else {
@@ -1896,8 +1892,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * ExpirationAttibutes?? object from the element's attributes and push it on the stack.
    */
   private void startExpirationAttributes(Attributes atts) {
-    int timeout = parseInt(atts.getValue(TIMEOUT));
-    String action = atts.getValue(ACTION);
+    var timeout = parseInt(atts.getValue(TIMEOUT));
+    var action = atts.getValue(ACTION);
     ExpirationAttributes expire;
     if (action == null) {
       expire = new ExpirationAttributes(timeout);
@@ -1921,7 +1917,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * wrapper object to hold the data, and put it on the stack.
    */
   private void startSerializerRegistration() {
-    SerializerCreation sc = new SerializerCreation();
+    var sc = new SerializerCreation();
     stack.push(sc);
   }
 
@@ -1930,7 +1926,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * attribute for use in registration in the end tag function.
    */
   private void startInstantiator(Attributes atts) {
-    int id = parseInt(atts.getValue(ID));
+    var id = parseInt(atts.getValue(ID));
     stack.push(id);
   }
 
@@ -1951,10 +1947,10 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    *         declarable
    */
   public static Declarable createDeclarable(CacheCreation cache, Stack<Object> stack) {
-    Properties props = new Properties();
-    Object top = stack.pop();
+    var props = new Properties();
+    var top = stack.pop();
     while (top instanceof Parameter) {
-      Parameter param = (Parameter) top;
+      var param = (Parameter) top;
       props.put(param.getName(), param.getValue());
       top = stack.pop();
     }
@@ -1963,7 +1959,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           props);
     }
     Assert.assertTrue(top instanceof String);
-    String className = (String) top;
+    var className = (String) top;
     if (logger.isTraceEnabled(LogMarker.CACHE_XML_PARSER_VERBOSE)) {
       logger.trace(LogMarker.CACHE_XML_PARSER_VERBOSE, "XML Parser createDeclarable class name: {}",
           className);
@@ -1985,7 +1981,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           String.format("Class %s is not an instance of Declarable.",
               className));
     }
-    Declarable d = (Declarable) o;
+    var d = (Declarable) o;
     // init call done later in GemFireCacheImpl.addDeclarableProperties
     cache.addDeclarableProperties(d, props);
 
@@ -2012,10 +2008,10 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           klass.getName()), ex);
     }
 
-    Object a = stack.peek();
+    var a = stack.peek();
 
     if (a instanceof RegionAttributesCreation) {
-      RegionAttributesCreation attrs = (RegionAttributesCreation) a;
+      var attrs = (RegionAttributesCreation) a;
       attrs.setCompressor(compressor);
     } else {
       throw new CacheXmlException(
@@ -2033,29 +2029,29 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * also be created in the context of partition-attributes.
    */
   private void endCacheLoader() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof CacheLoader)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of a CacheLoader.",
               d.getClass().getName()));
     }
     // Two peeks required to handle dynamic region context
-    Object a = stack.peek();
+    var a = stack.peek();
     // check for disk-dir
     if ((a instanceof File)) {
-      Object sav = stack.pop();
+      var sav = stack.pop();
       a = stack.peek();
       if (!(a instanceof RegionAttributesCreation)) {
         throw new CacheXmlException(
             "A cache-loader must be defined in the context of region-attributes.");
       }
       stack.push(sav);
-      RegionAttributesCreation attrs = (RegionAttributesCreation) a;
+      var attrs = (RegionAttributesCreation) a;
       attrs.setCacheLoader((CacheLoader) d);
     }
     // check for normal region-attributes
     else if (a instanceof RegionAttributesCreation) {
-      RegionAttributesCreation attrs = (RegionAttributesCreation) a;
+      var attrs = (RegionAttributesCreation) a;
       attrs.setCacheLoader((CacheLoader) d);
     } else {
       throw new CacheXmlException(
@@ -2073,14 +2069,14 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * the latter case, there may be a disk-dir on top of the stack, represented by a File object.
    */
   private void endCacheWriter() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof CacheWriter)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of a CacheWriter.",
               d.getClass().getName()));
     }
 
-    Object a = stack.peek();
+    var a = stack.peek();
     // check for partition-attributes
     // if (a instanceof PartitionAttributesFactory) {
     // PartitionAttributesFactory fac = (PartitionAttributesFactory) a;
@@ -2089,8 +2085,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     // else
     // check for disk-dir
     if ((a instanceof File)) {
-      Object sav = stack.pop();
-      Object size = stack.pop(); // pop out disk size
+      var sav = stack.pop();
+      var size = stack.pop(); // pop out disk size
       a = stack.peek();
       //
       if (!(a instanceof RegionAttributesCreation)) {
@@ -2108,13 +2104,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
               CACHE_WRITER));
     }
 
-    RegionAttributesCreation attrs = (RegionAttributesCreation) a;
+    var attrs = (RegionAttributesCreation) a;
     attrs.setCacheWriter((CacheWriter) d);
   }
 
   private void endCustomExpiry() {
 
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof CustomExpiry)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of CustomExpiry",
@@ -2131,17 +2127,17 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    *
    */
   private void startLRUEntryCount(Attributes atts) {
-    final String maximum = atts.getValue(MAXIMUM);
-    int max = EvictionAttributes.DEFAULT_ENTRIES_MAXIMUM;
+    final var maximum = atts.getValue(MAXIMUM);
+    var max = EvictionAttributes.DEFAULT_ENTRIES_MAXIMUM;
     if (maximum != null) {
       max = parseInt(maximum);
     }
-    final String lruAction = atts.getValue(ACTION);
-    EvictionAction action = EvictionAction.DEFAULT_EVICTION_ACTION;
+    final var lruAction = atts.getValue(ACTION);
+    var action = EvictionAction.DEFAULT_EVICTION_ACTION;
     if (lruAction != null) {
       action = EvictionAction.parseAction(lruAction);
     }
-    RegionAttributesCreation regAttrs = peekRegionAttributesContext(LRU_ENTRY_COUNT);
+    var regAttrs = peekRegionAttributesContext(LRU_ENTRY_COUNT);
     regAttrs.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(max, action));
   }
 
@@ -2152,13 +2148,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    *
    */
   private void startLRUMemorySize(Attributes atts) {
-    String lruAction = atts.getValue(ACTION);
-    EvictionAction action = EvictionAction.DEFAULT_EVICTION_ACTION;
+    var lruAction = atts.getValue(ACTION);
+    var action = EvictionAction.DEFAULT_EVICTION_ACTION;
     if (lruAction != null) {
       action = EvictionAction.parseAction(lruAction);
     }
-    String maximum = atts.getValue(MAXIMUM);
-    int max = EvictionAttributes.DEFAULT_MEMORY_MAXIMUM;
+    var maximum = atts.getValue(MAXIMUM);
+    var max = EvictionAttributes.DEFAULT_MEMORY_MAXIMUM;
     if (maximum != null) {
       max = parseInt(maximum);
     }
@@ -2172,7 +2168,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * <code>region-attributes</code>
    */
   private void endLRUMemorySize() {
-    Object declCheck = stack.peek();
+    var declCheck = stack.peek();
     Declarable d = null;
     if (declCheck instanceof String || declCheck instanceof Parameter) {
       d = createDeclarable();
@@ -2182,11 +2178,11 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
                 d.getClass().getName()));
       }
     }
-    EvictionAttributesImpl eai = (EvictionAttributesImpl) stack.pop();
+    var eai = (EvictionAttributesImpl) stack.pop();
     if (d != null) {
       eai.setObjectSizer((ObjectSizer) d);
     }
-    RegionAttributesCreation regAttrs = peekRegionAttributesContext(LRU_MEMORY_SIZE);
+    var regAttrs = peekRegionAttributesContext(LRU_MEMORY_SIZE);
     regAttrs.setEvictionAttributes(eai);
   }
 
@@ -2196,8 +2192,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    *
    */
   private void startLRUHeapPercentage(Attributes atts) {
-    final String lruAction = atts.getValue(ACTION);
-    EvictionAction action = EvictionAction.DEFAULT_EVICTION_ACTION;
+    final var lruAction = atts.getValue(ACTION);
+    var action = EvictionAction.DEFAULT_EVICTION_ACTION;
     if (lruAction != null) {
       action = EvictionAction.parseAction(lruAction);
     }
@@ -2211,20 +2207,20 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * <code>region-attributes</code>
    */
   private void endLRUHeapPercentage() {
-    Object declCheck = stack.peek();
+    var declCheck = stack.peek();
     Declarable d = null;
     if (declCheck instanceof String || declCheck instanceof Parameter) {
       d = createDeclarable();
       if (!(d instanceof ObjectSizer)) {
-        String s = "A " + d.getClass().getName() + " is not an instance of a ObjectSizer";
+        var s = "A " + d.getClass().getName() + " is not an instance of a ObjectSizer";
         throw new CacheXmlException(s);
       }
     }
-    EvictionAttributesImpl eai = (EvictionAttributesImpl) stack.pop();
+    var eai = (EvictionAttributesImpl) stack.pop();
     if (d != null) {
       eai.setObjectSizer((ObjectSizer) d);
     }
-    RegionAttributesCreation regAttrs = peekRegionAttributesContext(LRU_HEAP_PERCENTAGE);
+    var regAttrs = peekRegionAttributesContext(LRU_HEAP_PERCENTAGE);
     regAttrs.setEvictionAttributes(eai);
   }
 
@@ -2234,24 +2230,24 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * parameters, if appropriate.
    */
   private void endCacheListener() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof CacheListener)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of a CacheListener.",
               d.getClass().getName()));
     }
-    RegionAttributesCreation attrs = peekRegionAttributesContext(CACHE_LISTENER);
+    var attrs = peekRegionAttributesContext(CACHE_LISTENER);
     attrs.addCacheListener((CacheListener) d);
   }
 
   private void startAsyncEventQueue(Attributes atts) {
-    AsyncEventQueueCreation asyncEventQueueCreation = new AsyncEventQueueCreation();
+    var asyncEventQueueCreation = new AsyncEventQueueCreation();
 
     // id
-    String id = atts.getValue(ID);
+    var id = atts.getValue(ID);
     asyncEventQueueCreation.setId(id);
 
-    String parallel = atts.getValue(PARALLEL);
+    var parallel = atts.getValue(PARALLEL);
     if (parallel == null) {
       asyncEventQueueCreation.setParallel(GatewaySender.DEFAULT_IS_PARALLEL);
     } else {
@@ -2259,7 +2255,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // batch-size
-    String batchSize = atts.getValue(BATCH_SIZE);
+    var batchSize = atts.getValue(BATCH_SIZE);
     if (batchSize == null) {
       asyncEventQueueCreation.setBatchSize(GatewaySender.DEFAULT_BATCH_SIZE);
     } else {
@@ -2267,13 +2263,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // start in Paused state
-    String paused = atts.getValue(PAUSE_EVENT_PROCESSING);
+    var paused = atts.getValue(PAUSE_EVENT_PROCESSING);
     if (paused != null) {
       asyncEventQueueCreation.setPauseEventDispatching(Boolean.parseBoolean(paused));
     } // no else block needed as default is set to false.
 
     // batch-time-interval
-    String batchTimeInterval = atts.getValue(BATCH_TIME_INTERVAL);
+    var batchTimeInterval = atts.getValue(BATCH_TIME_INTERVAL);
     if (batchTimeInterval == null) {
       asyncEventQueueCreation.setBatchTimeInterval(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
     } else {
@@ -2281,7 +2277,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // batch-conflation
-    String batchConflation = atts.getValue(ENABLE_BATCH_CONFLATION);
+    var batchConflation = atts.getValue(ENABLE_BATCH_CONFLATION);
     if (batchConflation == null) {
       asyncEventQueueCreation.setBatchConflationEnabled(GatewaySender.DEFAULT_BATCH_CONFLATION);
     } else {
@@ -2289,7 +2285,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // maximum-queue-memory
-    String maxQueueMemory = atts.getValue(MAXIMUM_QUEUE_MEMORY);
+    var maxQueueMemory = atts.getValue(MAXIMUM_QUEUE_MEMORY);
     if (maxQueueMemory == null) {
       asyncEventQueueCreation.setMaximumQueueMemory(GatewaySender.DEFAULT_MAXIMUM_QUEUE_MEMORY);
     } else {
@@ -2297,7 +2293,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // persistent
-    String persistent = atts.getValue(PERSISTENT);
+    var persistent = atts.getValue(PERSISTENT);
     if (persistent == null) {
       asyncEventQueueCreation.setPersistent(GatewaySender.DEFAULT_PERSISTENCE_ENABLED);
     } else {
@@ -2305,25 +2301,25 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // diskStoreName
-    String diskStoreName = atts.getValue(DISK_STORE_NAME);
+    var diskStoreName = atts.getValue(DISK_STORE_NAME);
     asyncEventQueueCreation.setDiskStoreName(diskStoreName);
 
     // diskSynchronous
-    String diskSynchronous = atts.getValue(DISK_SYNCHRONOUS);
+    var diskSynchronous = atts.getValue(DISK_SYNCHRONOUS);
     if (diskSynchronous == null) {
       asyncEventQueueCreation.setDiskSynchronous(GatewaySender.DEFAULT_DISK_SYNCHRONOUS);
     } else {
       asyncEventQueueCreation.setDiskSynchronous(Boolean.parseBoolean(diskSynchronous));
     }
 
-    String dispatcherThreads = atts.getValue(DISPATCHER_THREADS);
+    var dispatcherThreads = atts.getValue(DISPATCHER_THREADS);
     if (dispatcherThreads == null) {
       asyncEventQueueCreation.setDispatcherThreads(GatewaySender.DEFAULT_DISPATCHER_THREADS);
     } else {
       asyncEventQueueCreation.setDispatcherThreads(Integer.parseInt(dispatcherThreads));
     }
 
-    String orderPolicy = atts.getValue(ORDER_POLICY);
+    var orderPolicy = atts.getValue(ORDER_POLICY);
     if (orderPolicy != null) {
       try {
         asyncEventQueueCreation
@@ -2336,7 +2332,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // forward expiration destroy events.
-    String forward = atts.getValue(FORWARD_EXPIRATION_DESTROY);
+    var forward = atts.getValue(FORWARD_EXPIRATION_DESTROY);
     if (forward != null) {
       asyncEventQueueCreation.setForwardExpirationDestroy(Boolean.parseBoolean(forward));
     }
@@ -2345,18 +2341,18 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endAsyncEventListener() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof AsyncEventListener)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of a AsyncEventListener",
               d.getClass().getName()));
     }
-    AsyncEventQueueCreation eventChannel = peekAsyncEventQueueContext(ASYNC_EVENT_LISTENER);
+    var eventChannel = peekAsyncEventQueueContext(ASYNC_EVENT_LISTENER);
     eventChannel.setAsyncEventListener((AsyncEventListener) d);
   }
 
   private AsyncEventQueueCreation peekAsyncEventQueueContext(String dependentElement) {
-    Object a = stack.peek();
+    var a = stack.peek();
     if (!(a instanceof AsyncEventQueueCreation)) {
       throw new CacheXmlException(
           String.format("A %s must be defined in the context of async-event-queue.",
@@ -2366,8 +2362,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endAsyncEventQueue() {
-    AsyncEventQueueCreation asyncEventChannelCreation = (AsyncEventQueueCreation) stack.peek();
-    AsyncEventQueueFactory factory = cache.createAsyncEventQueueFactory();
+    var asyncEventChannelCreation = (AsyncEventQueueCreation) stack.peek();
+    var factory = cache.createAsyncEventQueueFactory();
     factory.setParallel(asyncEventChannelCreation.isParallel());
     factory.setBatchSize(asyncEventChannelCreation.getBatchSize());
     factory.setBatchTimeInterval(asyncEventChannelCreation.getBatchTimeInterval());
@@ -2379,9 +2375,9 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     factory.setDispatcherThreads(asyncEventChannelCreation.getDispatcherThreads());
     factory.setOrderPolicy(asyncEventChannelCreation.getOrderPolicy());
     factory.setForwardExpirationDestroy(asyncEventChannelCreation.isForwardExpirationDestroy());
-    List<GatewayEventFilter> gatewayEventFilters =
+    var gatewayEventFilters =
         asyncEventChannelCreation.getGatewayEventFilters();
-    for (GatewayEventFilter gatewayEventFilter : gatewayEventFilters) {
+    for (var gatewayEventFilter : gatewayEventFilters) {
       factory.addGatewayEventFilter(gatewayEventFilter);
     }
     if (asyncEventChannelCreation.isDispatchingPaused()) {
@@ -2389,7 +2385,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
     factory.setGatewayEventSubstitutionListener(
         asyncEventChannelCreation.getGatewayEventSubstitutionFilter());
-    AsyncEventQueue asyncEventChannel = factory.create(asyncEventChannelCreation.getId(),
+    var asyncEventChannel = factory.create(asyncEventChannelCreation.getId(),
         asyncEventChannelCreation.getAsyncEventListener());
 
     stack.pop();
@@ -2401,14 +2397,14 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * initialized with the parameters, if appropriate.
    */
   private void endPartitionResolver() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof PartitionResolver)) {
       throw new CacheXmlException(String.format("A %s is not an instance of a %s",
           d.getClass().getName(), "PartitionResolver"));
 
     }
 
-    PartitionAttributesImpl pai = peekPartitionAttributesImpl(PARTITION_ATTRIBUTES);
+    var pai = peekPartitionAttributesImpl(PARTITION_ATTRIBUTES);
     pai.setPartitionResolver((PartitionResolver) d);
   }
 
@@ -2418,13 +2414,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * initialized with the parameters, if appropriate.
    */
   private void endPartitionListener() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof PartitionListener)) {
       throw new CacheXmlException(String.format("A %s is not an instance of a %s",
           d.getClass().getName(), "PartitionListener"));
 
     }
-    PartitionAttributesImpl pai = peekPartitionAttributesImpl(PARTITION_ATTRIBUTES);
+    var pai = peekPartitionAttributesImpl(PARTITION_ATTRIBUTES);
     pai.addPartitionListener((PartitionListener) d);
   }
 
@@ -2439,12 +2435,12 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * When we have finished a FunctionService element, we create the object and push it onto stack
    */
   private void endFunctionService() {
-    Object top = stack.pop();
+    var top = stack.pop();
     if (!(top instanceof FunctionServiceCreation)) {
       throw new CacheXmlException(
           "Expected a FunctionServiceCreation instance");
     }
-    FunctionServiceCreation fsc = (FunctionServiceCreation) top;
+    var fsc = (FunctionServiceCreation) top;
     cache.setFunctionServiceCreation(fsc);
   }
 
@@ -2454,9 +2450,9 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @param atts XML attributes for the resource-manager
    */
   private void startResourceManager(final Attributes atts) {
-    ResourceManagerCreation rmc = new ResourceManagerCreation();
+    var rmc = new ResourceManagerCreation();
     {
-      String chp = atts.getValue(CRITICAL_HEAP_PERCENTAGE);
+      var chp = atts.getValue(CRITICAL_HEAP_PERCENTAGE);
       if (chp != null) {
         rmc.setCriticalHeapPercentage(parseFloat(chp));
       } else {
@@ -2465,7 +2461,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     {
-      String ehp = atts.getValue(EVICTION_HEAP_PERCENTAGE);
+      var ehp = atts.getValue(EVICTION_HEAP_PERCENTAGE);
       if (ehp != null) {
         rmc.setEvictionHeapPercentage(parseFloat(ehp));
       } else {
@@ -2474,7 +2470,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     {
-      String chp = atts.getValue(CRITICAL_OFF_HEAP_PERCENTAGE);
+      var chp = atts.getValue(CRITICAL_OFF_HEAP_PERCENTAGE);
       if (chp != null) {
         rmc.setCriticalOffHeapPercentage(parseFloat(chp));
       } else {
@@ -2483,7 +2479,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     {
-      String ehp = atts.getValue(EVICTION_OFF_HEAP_PERCENTAGE);
+      var ehp = atts.getValue(EVICTION_OFF_HEAP_PERCENTAGE);
       if (ehp != null) {
         rmc.setEvictionOffHeapPercentage(parseFloat(ehp));
       } else {
@@ -2494,19 +2490,19 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endResourceManager() {
-    Object top = stack.pop();
+    var top = stack.pop();
     if (!(top instanceof ResourceManagerCreation)) {
       throw new CacheXmlException("Expected a ResourceManagerCreation instance");
     }
-    ResourceManagerCreation rmc = (ResourceManagerCreation) top;
+    var rmc = (ResourceManagerCreation) top;
     // TODO set any listeners here
     // rmc.addResourceListener(null);
     cache.setResourceManagerCreation(rmc);
   }
 
   private void endBackup() {
-    StringBuilder str = (StringBuilder) stack.pop();
-    File backup = new File(str.toString().trim());
+    var str = (StringBuilder) stack.pop();
+    var backup = new File(str.toString().trim());
     cache.addBackup(backup);
   }
 
@@ -2514,30 +2510,30 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * When we have finished a function element, we create the Declarable and push it onto stack
    */
   private void endFunctionName() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof Function)) {
-      String s = String.format("A %s is not an instance of a Function",
+      var s = String.format("A %s is not an instance of a Function",
           d.getClass().getName());
       throw new CacheXmlException(s);
     }
 
-    Object fs = stack.peek();
+    var fs = stack.peek();
     if (!(fs instanceof FunctionServiceCreation)) {
       throw new CacheXmlException(
           String.format("A %s is only allowed in the context of %s MJTDEBUG e=%s",
               FUNCTION, FUNCTION_SERVICE, fs));
     }
-    FunctionServiceCreation funcService = (FunctionServiceCreation) fs;
+    var funcService = (FunctionServiceCreation) fs;
     funcService.registerFunction((Function) d);
   }
 
   private Class getClassFromStack() {
-    Object o = stack.peek();
+    var o = stack.peek();
     if (!(o instanceof String)) {
       throw new CacheXmlException(
           "A string class-name was expected, but not found while parsing.");
     }
-    String className = (String) stack.pop();
+    var className = (String) stack.pop();
 
     try {
       Class c = InternalDataSerializer.getCachedClass(className);
@@ -2553,7 +2549,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * work of registering all the components.
    */
   private void endSerializerRegistration() {
-    SerializerCreation sc = (SerializerCreation) stack.pop();
+    var sc = (SerializerCreation) stack.pop();
     sc.create();
     cache.setSerializerCreation(sc);
   }
@@ -2563,7 +2559,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * call the DataSerializer.register() with the class once we find it.
    */
   private void endSerializer() {
-    Class c = getClassFromStack();
+    var c = getClassFromStack();
     if (!(DataSerializer.class.isAssignableFrom(c))) {
       throw new CacheXmlException(
           String.format(
@@ -2571,7 +2567,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
               c.getName()));
     }
 
-    SerializerCreation sr = (SerializerCreation) stack.peek();
+    var sr = (SerializerCreation) stack.peek();
     sr.registerSerializer(c);
   }
 
@@ -2580,10 +2576,10 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * stack. Pull them off, and setup the instantiator with an anonymous inner class to do the work.
    */
   private void endInstantiator() {
-    final Class c = getClassFromStack();
-    Class[] ifaces = c.getInterfaces();
-    boolean found = false;
-    for (Class clazz : ifaces) {
+    final var c = getClassFromStack();
+    var ifaces = c.getInterfaces();
+    var found = false;
+    for (var clazz : ifaces) {
       if (clazz == DataSerializable.class) {
         found = true;
         break;
@@ -2596,14 +2592,14 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     }
 
     // the next thing on the stack should be the Integer registration ID
-    Object o = stack.peek();
+    var o = stack.peek();
     if (!(o instanceof Integer)) {
-      String s = "The instantiator registration did not include an ID attribute.";
+      var s = "The instantiator registration did not include an ID attribute.";
       throw new CacheXmlException(s);
     }
 
-    Integer id = (Integer) stack.pop();
-    SerializerCreation sc = (SerializerCreation) stack.peek();
+    var id = (Integer) stack.pop();
+    var sc = (SerializerCreation) stack.peek();
     sc.registerInstantiator(c, id);
   }
 
@@ -2612,7 +2608,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * stack.
    */
   private void startParameter(Attributes atts) {
-    String name = atts.getValue(NAME);
+    var name = atts.getValue(NAME);
     Assert.assertTrue(name != null);
     stack.push(name);
   }
@@ -2622,8 +2618,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * two elements of the stack.
    */
   private void endParameter() {
-    Object value = stack.pop();
-    String name = (String) stack.pop();
+    var value = stack.pop();
+    var name = (String) stack.pop();
     stack.push(new Parameter(name, value));
   }
 
@@ -2632,7 +2628,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * {@link Declarable}and push it on the stack.
    */
   private void endDeclarable() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     stack.push(d);
   }
 
@@ -2642,7 +2638,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     // This while loop pops all StringBuilders at the top of the stack
     // that contain only whitespace; see GEODE-3306
     while (!stack.empty()) {
-      Object o = stack.peek();
+      var o = stack.peek();
       if (o instanceof StringBuilder && StringUtils.isBlank(((StringBuilder) o).toString())) {
         stack.pop();
       } else {
@@ -2767,8 +2763,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     } else if (qName.equals(CONFIG_PROPERTY_BINDING)) {
       // Asif : Peek at the BindingCreation object from stack
       // & get the vendor specific data map
-      BindingCreation bc = (BindingCreation) stack.peek();
-      List vendorSpecific = bc.getVendorSpecificList();
+      var bc = (BindingCreation) stack.peek();
+      var vendorSpecific = bc.getVendorSpecificList();
       // Rohit: Add a ConfigProperty Data Object to the list.
       vendorSpecific.add(new ConfigProperty());
     } else if (qName.equals(CONFIG_PROPERTY_NAME)) {
@@ -2798,7 +2794,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     } else if (qName.equals(COMPRESSOR)) {
     } else if (qName.equals(SOCKET_FACTORY)) {
     } else {
-      final XmlParser delegate = getDelegate(namespaceURI);
+      final var delegate = getDelegate(namespaceURI);
       if (null == delegate) {
         throw new CacheXmlException(
             String.format("Unknown XML element %s", qName));
@@ -2817,12 +2813,12 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    */
   // UnitTest CacheXmlParser.testGetDelegate()
   private XmlParser getDelegate(final String namespaceUri) {
-    XmlParser delegate = delegates.get(namespaceUri);
+    var delegate = delegates.get(namespaceUri);
     if (null == delegate) {
       try {
-        final ServiceLoader<XmlParser> serviceLoader =
+        final var serviceLoader =
             ServiceLoader.load(XmlParser.class, ClassPathLoader.getLatestAsClassLoader());
-        for (final XmlParser xmlParser : serviceLoader) {
+        for (final var xmlParser : serviceLoader) {
           if (xmlParser.getNamespaceUri().equals(namespaceUri)) {
             delegate = xmlParser;
             delegate.setStack(stack);
@@ -2839,19 +2835,19 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void startPdx(Attributes atts) {
-    String readSerialized = atts.getValue(READ_SERIALIZED);
+    var readSerialized = atts.getValue(READ_SERIALIZED);
     if (readSerialized != null) {
       cache.setPdxReadSerialized(Boolean.parseBoolean(readSerialized));
     }
-    String ignoreUnreadFields = atts.getValue(IGNORE_UNREAD_FIELDS);
+    var ignoreUnreadFields = atts.getValue(IGNORE_UNREAD_FIELDS);
     if (ignoreUnreadFields != null) {
       cache.setPdxIgnoreUnreadFields(Boolean.parseBoolean(ignoreUnreadFields));
     }
-    String persistent = atts.getValue(PERSISTENT);
+    var persistent = atts.getValue(PERSISTENT);
     if (persistent != null) {
       cache.setPdxPersistent(Boolean.parseBoolean(persistent));
     }
-    String diskStoreName = atts.getValue(DISK_STORE_NAME);
+    var diskStoreName = atts.getValue(DISK_STORE_NAME);
     if (diskStoreName != null) {
       cache.setPdxDiskStore(diskStoreName);
     }
@@ -2867,20 +2863,20 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    * @since GemFire 5.7
    */
   private void startClientHaQueue(Attributes atts) {
-    ClientHaQueueCreation clientHaQueue = new ClientHaQueueCreation();
-    String haEvictionPolicy = atts.getValue(CLIENT_SUBSCRIPTION_EVICTION_POLICY);
+    var clientHaQueue = new ClientHaQueueCreation();
+    var haEvictionPolicy = atts.getValue(CLIENT_SUBSCRIPTION_EVICTION_POLICY);
     if (haEvictionPolicy != null) {
       clientHaQueue.setEvictionPolicy(haEvictionPolicy);
     }
-    String haCapacity = atts.getValue(CLIENT_SUBSCRIPTION_CAPACITY);
+    var haCapacity = atts.getValue(CLIENT_SUBSCRIPTION_CAPACITY);
     if (haCapacity != null) {
       clientHaQueue.setCapacity(Integer.parseInt(haCapacity));
     }
-    String diskStoreName = atts.getValue(DISK_STORE_NAME);
+    var diskStoreName = atts.getValue(DISK_STORE_NAME);
     if (diskStoreName != null) {
       clientHaQueue.setDiskStoreName(diskStoreName);
     } else {
-      String haOverflowDirectory = atts.getValue(OVERFLOW_DIRECTORY);
+      var haOverflowDirectory = atts.getValue(OVERFLOW_DIRECTORY);
       if (haOverflowDirectory != null) {
         clientHaQueue.setOverflowDirectory(haOverflowDirectory);
       }
@@ -2898,7 +2894,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void startDiskDir(Attributes atts) {
-    String size = atts.getValue(DIR_SIZE);
+    var size = atts.getValue(DIR_SIZE);
     Integer diskSize = null;
     if (size == null) {
       diskSize = DiskStoreFactory.DEFAULT_DISK_DIR_SIZE;
@@ -2909,13 +2905,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void startDiskWriteAttributes(Attributes atts) {
-    String roll = atts.getValue(ROLL_OPLOG);
+    var roll = atts.getValue(ROLL_OPLOG);
     if (roll == null) {
       roll = "true"; // because it defaults to true
     }
 
-    String maxOp = atts.getValue(MAX_OPLOG_SIZE);
-    int maxOplogSize = 0;
+    var maxOp = atts.getValue(MAX_OPLOG_SIZE);
+    var maxOplogSize = 0;
     if (maxOp != null) {
       maxOplogSize = parseInt(maxOp);
     } else {
@@ -2930,7 +2926,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
     // This while loop pops all StringBuilders at the top of the stack
     // that contain only whitespace; see GEODE-3306
     while (!stack.empty()) {
-      Object o = stack.peek();
+      var o = stack.peek();
       if (o instanceof StringBuilder && StringUtils.isBlank(((StringBuilder) o).toString())) {
         stack.pop();
       } else {
@@ -3058,8 +3054,8 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
         endTransactionWriter();
       } else if (qName.equals(JNDI_BINDINGS)) {
       } else if (qName.equals(JNDI_BINDING)) {
-        BindingCreation bc = (BindingCreation) stack.pop();
-        Map map = bc.getGFSpecificMap();
+        var bc = (BindingCreation) stack.pop();
+        var map = bc.getGFSpecificMap();
         try {
           JNDIInvoker.mapDatasource(map, bc.getVendorSpecificList());
         } catch (NamingException | DataSourceCreateException | ClassNotFoundException | SQLException
@@ -3076,11 +3072,11 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
         {
           name = ((StringBuilder) stack.pop()).toString();
         }
-        BindingCreation bc = (BindingCreation) stack.peek();
-        List vsList = bc.getVendorSpecificList();
-        ConfigProperty cp = (ConfigProperty) vsList.get(vsList.size() - 1);
+        var bc = (BindingCreation) stack.peek();
+        var vsList = bc.getVendorSpecificList();
+        var cp = (ConfigProperty) vsList.get(vsList.size() - 1);
         if (name == null) {
-          String excep =
+          var excep =
               String.format("Exception in parsing element %s. This is a required field.",
                   qName);
           throw new CacheXmlException(excep);
@@ -3094,9 +3090,9 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
         if (stack.peek() instanceof StringBuilder) {
           value = ((StringBuilder) stack.pop()).toString();
         }
-        BindingCreation bc = (BindingCreation) stack.peek();
-        List vsList = bc.getVendorSpecificList();
-        ConfigProperty cp = (ConfigProperty) vsList.get(vsList.size() - 1);
+        var bc = (BindingCreation) stack.peek();
+        var vsList = bc.getVendorSpecificList();
+        var cp = (ConfigProperty) vsList.get(vsList.size() - 1);
         // Set the value to the ConfigProperty Data Object.
         cp.setValue(value);
       } else if (qName.equals(CONFIG_PROPERTY_TYPE)) {
@@ -3104,11 +3100,11 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
         if (stack.peek() instanceof StringBuilder) {
           type = ((StringBuilder) stack.pop()).toString();
         }
-        BindingCreation bc = (BindingCreation) stack.peek();
-        List vsList = bc.getVendorSpecificList();
-        ConfigProperty cp = (ConfigProperty) vsList.get(vsList.size() - 1);
+        var bc = (BindingCreation) stack.peek();
+        var vsList = bc.getVendorSpecificList();
+        var cp = (ConfigProperty) vsList.get(vsList.size() - 1);
         if (type == null) {
-          String excep =
+          var excep =
               String.format("Exception in parsing element %s. This is a required field.",
                   qName);
           throw new CacheXmlException(excep);
@@ -3152,7 +3148,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       } else if (qName.equals(SOCKET_FACTORY)) {
         endSocketFactory();
       } else {
-        final XmlParser delegate = getDelegate(namespaceURI);
+        final var delegate = getDelegate(namespaceURI);
         if (null == delegate) {
           throw new CacheXmlException(
               String.format("Unknown XML element %s", qName));
@@ -3168,15 +3164,15 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endSocketFactory() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof SocketFactory)) {
       throw new CacheXmlException(String.format("A %s is not an instance of a %s",
           d.getClass().getName(), "SocketFactory"));
 
     }
-    Object a = stack.peek();
+    var a = stack.peek();
     if (a instanceof PoolFactory) {
-      PoolFactory poolFactory = (PoolFactory) a;
+      var poolFactory = (PoolFactory) a;
       poolFactory.setSocketFactory((SocketFactory) d);
     } else {
       throw new CacheXmlException(String.format("A %s must be defined in the context of a pool.",
@@ -3186,18 +3182,18 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endGatewayTransportFilter() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof GatewayTransportFilter)) {
       throw new CacheXmlException(String.format("A %s is not an instance of a %s",
           d.getClass().getName(), "GatewayTransportFilter"));
 
     }
-    Object a = stack.peek();
+    var a = stack.peek();
     if (a instanceof GatewaySenderFactory) {
-      GatewaySenderFactory senderFactory = (GatewaySenderFactory) a;
+      var senderFactory = (GatewaySenderFactory) a;
       senderFactory.addGatewayTransportFilter((GatewayTransportFilter) d);
     } else if (a instanceof GatewayReceiverFactory) {
-      GatewayReceiverFactory receiverFactory = (GatewayReceiverFactory) a;
+      var receiverFactory = (GatewayReceiverFactory) a;
       receiverFactory.addGatewayTransportFilter((GatewayTransportFilter) d);
     } else {
       throw new CacheXmlException(
@@ -3208,17 +3204,17 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endGatewayEventFilter() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof GatewayEventFilter)) {
       throw new CacheXmlException(String.format("A %s is not an instance of a %s",
           d.getClass().getName(), "GatewayEventFilter"));
     }
-    Object obj = stack.peek();
+    var obj = stack.peek();
     if (obj instanceof GatewaySenderFactory) {
-      GatewaySenderFactory senderFactory = (GatewaySenderFactory) obj;
+      var senderFactory = (GatewaySenderFactory) obj;
       senderFactory.addGatewayEventFilter((GatewayEventFilter) d);
     } else if (obj instanceof AsyncEventQueueCreation) {
-      AsyncEventQueueCreation asyncEventQueueCreation = (AsyncEventQueueCreation) obj;
+      var asyncEventQueueCreation = (AsyncEventQueueCreation) obj;
       asyncEventQueueCreation.addGatewayEventFilter((GatewayEventFilter) d);
     } else {
       throw new CacheXmlException(
@@ -3229,18 +3225,18 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endGatewayEventSubstitutionFilter() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof GatewayEventSubstitutionFilter)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of a %s",
               d.getClass().getName(), "GatewayEventSubstitutionFilter"));
     }
-    Object obj = stack.peek();
+    var obj = stack.peek();
     if (obj instanceof GatewaySenderFactory) {
-      GatewaySenderFactory senderFactory = (GatewaySenderFactory) obj;
+      var senderFactory = (GatewaySenderFactory) obj;
       senderFactory.setGatewayEventSubstitutionFilter((GatewayEventSubstitutionFilter) d);
     } else if (obj instanceof AsyncEventQueueCreation) {
-      AsyncEventQueueCreation asyncEventQueueCreation = (AsyncEventQueueCreation) obj;
+      var asyncEventQueueCreation = (AsyncEventQueueCreation) obj;
       asyncEventQueueCreation.setGatewayEventSubstitutionFilter((GatewayEventSubstitutionFilter) d);
     } else {
       throw new CacheXmlException(
@@ -3251,7 +3247,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private GatewaySenderFactory peekGatewaySender(String dependentElement) {
-    Object a = stack.peek();
+    var a = stack.peek();
     if (!(a instanceof GatewaySenderFactory)) {
       throw new CacheXmlException(
           String.format("A %s must be defined in the context of gateway-sender.",
@@ -3261,13 +3257,13 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endPdxSerializer() {
-    Declarable d = createDeclarable();
+    var d = createDeclarable();
     if (!(d instanceof PdxSerializer)) {
       throw new CacheXmlException(
           String.format("A %s is not an instance of a PdxSerializer.",
               d.getClass().getName()));
     }
-    PdxSerializer serializer = (PdxSerializer) d;
+    var serializer = (PdxSerializer) d;
     cache.setPdxSerializer(serializer);
   }
 
@@ -3276,15 +3272,15 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
   }
 
   private void endInitializer() {
-    Properties props = new Properties();
-    Object top = stack.pop();
+    var props = new Properties();
+    var top = stack.pop();
     while (top instanceof Parameter) {
-      Parameter param = (Parameter) top;
+      var param = (Parameter) top;
       props.put(param.getName(), param.getValue());
       top = stack.pop();
     }
     Assert.assertTrue(top instanceof String);
-    String className = (String) top;
+    var className = (String) top;
     Object o;
     try {
       Class c = InternalDataSerializer.getCachedClass(className);
@@ -3298,7 +3294,7 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
           String.format("Class %s is not an instance of Declarable.",
               className));
     }
-    Declarable d = (Declarable) o;
+    var d = (Declarable) o;
     cache.setInitializer(d, props);
   }
 
@@ -3317,23 +3313,23 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    *        {@link CacheXml#GLOBAL_PROPERTIES}
    */
   private void endPartitionProperites(String globalOrLocal) {
-    Properties props = new Properties();
-    Object top = stack.pop();
+    var props = new Properties();
+    var top = stack.pop();
     while (!top.equals(globalOrLocal)) {
       if (!(top instanceof Parameter)) {
         throw new CacheXmlException(
             String.format("Only a parameter is allowed in the context of %s",
                 globalOrLocal));
       }
-      Parameter param = (Parameter) top;
+      var param = (Parameter) top;
       props.put(param.getName(), param.getValue());
       top = stack.pop();
     }
     if (globalOrLocal.equals(GLOBAL_PROPERTIES)) {
-      PartitionAttributesImpl pai = peekPartitionAttributesImpl(GLOBAL_PROPERTIES);
+      var pai = peekPartitionAttributesImpl(GLOBAL_PROPERTIES);
       pai.setGlobalProperties(props);
     } else if (globalOrLocal.equals(LOCAL_PROPERTIES)) {
-      PartitionAttributesImpl pai = peekPartitionAttributesImpl(LOCAL_PROPERTIES);
+      var pai = peekPartitionAttributesImpl(LOCAL_PROPERTIES);
       pai.setLocalProperties(props);
     } else {
       Assert.assertTrue(false, "Argument globalOrLocal has unexpected value " + globalOrLocal);
@@ -3407,11 +3403,11 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
    *
    */
   private void mapJNDI(Attributes atts, Map gfSpecific) {
-    int attsLen = atts.getLength();
-    String key = "";
-    String value = "";
+    var attsLen = atts.getLength();
+    var key = "";
+    var value = "";
     // put attributes into a Map
-    for (int i = 0; i < attsLen; i++) {
+    for (var i = 0; i < attsLen; i++) {
       key = atts.getQName(i);
       value = atts.getValue(key);
       gfSpecific.put(key, value);

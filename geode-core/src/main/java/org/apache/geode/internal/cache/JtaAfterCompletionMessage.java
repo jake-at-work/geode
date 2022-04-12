@@ -58,11 +58,11 @@ public class JtaAfterCompletionMessage extends TXMessage {
 
   public static RemoteCommitResponse send(Cache cache, int txId,
       InternalDistributedMember onBehalfOfClientMember, int status, DistributedMember recipient) {
-    final InternalDistributedSystem system =
+    final var system =
         (InternalDistributedSystem) cache.getDistributedSystem();
     final Set recipients = Collections.singleton(recipient);
-    RemoteCommitResponse response = new RemoteCommitResponse(system, recipients);
-    JtaAfterCompletionMessage msg =
+    var response = new RemoteCommitResponse(system, recipients);
+    var msg =
         new JtaAfterCompletionMessage(status, txId, onBehalfOfClientMember, response);
     msg.setRecipients(recipients);
     // bug #43087 - hang sending JTA synchronizations from delegate server
@@ -78,18 +78,18 @@ public class JtaAfterCompletionMessage extends TXMessage {
   @Override
   protected boolean operateOnTx(TXId txId, ClusterDistributionManager dm)
       throws RemoteOperationException {
-    TXManagerImpl txMgr = dm.getCache().getTXMgr();
+    var txMgr = dm.getCache().getTXMgr();
     if (logger.isDebugEnabled()) {
       logger.debug("JTA: Calling afterCompletion for :{}", txId);
     }
-    TXCommitMessage commitMessage = txMgr.getRecentlyCompletedMessage(txId);
+    var commitMessage = txMgr.getRecentlyCompletedMessage(txId);
     if (commitMessage != null) {
-      TXCommitMessage message =
+      var message =
           commitMessage == TXCommitMessage.ROLLBACK_MSG ? null : commitMessage;
       TXRemoteCommitReplyMessage.send(getSender(), getProcessorId(), message, getReplySender(dm));
       return false;
     }
-    TXStateProxy txState = txMgr.getTXState();
+    var txState = txMgr.getTXState();
     txState.setCommitOnBehalfOfRemoteStub(true);
     txState.afterCompletion(status);
     commitMessage = txState.getCommitMessage();

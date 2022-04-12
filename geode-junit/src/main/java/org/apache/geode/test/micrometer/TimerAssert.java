@@ -56,7 +56,7 @@ public class TimerAssert extends AbstractMeterAssert<TimerAssert, Timer> {
    */
   public TimerAssert hasCount(Condition<? super Long> condition) {
     isNotNull();
-    long count = actual.count();
+    var count = actual.count();
     if (!condition.matches(count)) {
       failWithMessage("Expected timer to have count <%s> but count was <%s>", condition, count);
     }
@@ -87,7 +87,7 @@ public class TimerAssert extends AbstractMeterAssert<TimerAssert, Timer> {
    */
   public TimerAssert hasTotalTime(TimeUnit timeUnit, Condition<? super Double> condition) {
     isNotNull();
-    double totalTime = actual.totalTime(timeUnit);
+    var totalTime = actual.totalTime(timeUnit);
     if (!condition.matches(totalTime)) {
       failWithMessage("Expected timer to have total time (%s) <%s> but total time was <%s>",
           timeUnit, condition, totalTime);

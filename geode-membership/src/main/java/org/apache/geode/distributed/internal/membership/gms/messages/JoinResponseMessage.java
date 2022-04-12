@@ -147,7 +147,7 @@ public class JoinResponseMessage<ID extends MemberIdentifier> extends AbstractGM
     if (getClass() != obj.getClass()) {
       return false;
     }
-    JoinResponseMessage<ID> other = (JoinResponseMessage<ID>) obj;
+    var other = (JoinResponseMessage<ID>) obj;
     if (currentView == null) {
       if (other.currentView != null) {
         return false;

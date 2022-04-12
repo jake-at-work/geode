@@ -39,7 +39,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.Serializable;
-import java.util.Properties;
 
 import javax.management.JMX;
 
@@ -49,7 +48,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.mockito.ArgumentCaptor;
 
 import org.apache.geode.alerting.internal.spi.AlertLevel;
 import org.apache.geode.cache.CacheFactory;
@@ -112,7 +110,7 @@ public class AlertingServiceWithoutListenerDistributedTest implements Serializab
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(managerVM, memberVM)) {
+    for (var vm : toArray(managerVM, memberVM)) {
       vm.invoke(() -> {
         removeListener(messageListener);
         cache.close();
@@ -152,7 +150,7 @@ public class AlertingServiceWithoutListenerDistributedTest implements Serializab
 
     managerVM.invoke(() -> {
       await().untilAsserted(() -> {
-        ArgumentCaptor<AlertListenerMessage> captor = forClass(AlertListenerMessage.class);
+        var captor = forClass(AlertListenerMessage.class);
         verify(messageListener).received(captor.capture());
         assertThat(captor.getValue().getMessage()).isEqualTo(alertMessage);
       });
@@ -182,7 +180,7 @@ public class AlertingServiceWithoutListenerDistributedTest implements Serializab
     messageListener = spy(AlertListenerMessage.Listener.class);
     addListener(messageListener);
 
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, managerName);
     config.setProperty(JMX_MANAGER, "true");
     config.setProperty(JMX_MANAGER_START, "true");
@@ -200,7 +198,7 @@ public class AlertingServiceWithoutListenerDistributedTest implements Serializab
   }
 
   private void createMember() {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, memberName);
     config.setProperty(JMX_MANAGER, "false");
 

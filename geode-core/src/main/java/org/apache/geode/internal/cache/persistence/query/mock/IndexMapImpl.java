@@ -68,8 +68,8 @@ public class IndexMapImpl implements IndexMap {
   @Override
   public CloseableIterator<IndexEntry> iterator(Object start, boolean startInclusive, Object end,
       boolean endInclusive) {
-    byte[] startBytes = startInclusive ? ByteComparator.MIN_BYTES : ByteComparator.MAX_BYTES;
-    byte[] endBytes = endInclusive ? ByteComparator.MAX_BYTES : ByteComparator.MIN_BYTES;
+    var startBytes = startInclusive ? ByteComparator.MIN_BYTES : ByteComparator.MAX_BYTES;
+    var endBytes = endInclusive ? ByteComparator.MAX_BYTES : ByteComparator.MIN_BYTES;
     return new Itr(map
         .subMap(new Pair(start, startBytes), startInclusive, new Pair(end, endBytes), endInclusive)
         .entrySet().iterator());
@@ -77,7 +77,7 @@ public class IndexMapImpl implements IndexMap {
 
   @Override
   public CloseableIterator<IndexEntry> iterator(Object start, boolean startInclusive) {
-    byte[] startBytes = startInclusive ? ByteComparator.MIN_BYTES : ByteComparator.MAX_BYTES;
+    var startBytes = startInclusive ? ByteComparator.MIN_BYTES : ByteComparator.MAX_BYTES;
     return new Itr(map.tailMap(new Pair(start, startBytes), startInclusive).entrySet().iterator());
   }
 
@@ -96,7 +96,7 @@ public class IndexMapImpl implements IndexMap {
 
   @Override
   public CloseableIterator<IndexEntry> descendingIterator(Object end, boolean endInclusive) {
-    byte[] endBytes = endInclusive ? ByteComparator.MAX_BYTES : ByteComparator.MIN_BYTES;
+    var endBytes = endInclusive ? ByteComparator.MAX_BYTES : ByteComparator.MIN_BYTES;
     return new Itr(
         map.headMap(new Pair(end, endBytes), endInclusive).descendingMap().entrySet().iterator());
   }
@@ -109,8 +109,8 @@ public class IndexMapImpl implements IndexMap {
   @Override
   public CloseableIterator<CachedDeserializable> keyIterator(Object start, boolean startInclusive,
       Object end, boolean endInclusive) {
-    byte[] startBytes = startInclusive ? ByteComparator.MIN_BYTES : ByteComparator.MAX_BYTES;
-    byte[] endBytes = endInclusive ? ByteComparator.MAX_BYTES : ByteComparator.MIN_BYTES;
+    var startBytes = startInclusive ? ByteComparator.MIN_BYTES : ByteComparator.MAX_BYTES;
+    var endBytes = endInclusive ? ByteComparator.MAX_BYTES : ByteComparator.MIN_BYTES;
     return new KeyItr(map
         .subMap(new Pair(start, startBytes), startInclusive, new Pair(end, endBytes), endInclusive)
         .entrySet().iterator());
@@ -118,7 +118,7 @@ public class IndexMapImpl implements IndexMap {
 
   @Override
   public CloseableIterator<CachedDeserializable> keyIterator(Object start, boolean startInclusive) {
-    byte[] startBytes = startInclusive ? ByteComparator.MIN_BYTES : ByteComparator.MAX_BYTES;
+    var startBytes = startInclusive ? ByteComparator.MIN_BYTES : ByteComparator.MAX_BYTES;
     return new KeyItr(
         map.tailMap(new Pair(start, startBytes), startInclusive).entrySet().iterator());
   }
@@ -131,7 +131,7 @@ public class IndexMapImpl implements IndexMap {
   @Override
   public CloseableIterator<CachedDeserializable> descendingKeyIterator(Object end,
       boolean endInclusive) {
-    byte[] endBytes = endInclusive ? ByteComparator.MAX_BYTES : ByteComparator.MIN_BYTES;
+    var endBytes = endInclusive ? ByteComparator.MAX_BYTES : ByteComparator.MIN_BYTES;
     return new KeyItr(
         map.headMap(new Pair(end, endBytes), endInclusive).descendingMap().entrySet().iterator());
   }
@@ -144,20 +144,20 @@ public class IndexMapImpl implements IndexMap {
 
   @Override
   public long size(Object start, Object end) {
-    byte[] startBytes = ByteComparator.MIN_BYTES;
-    byte[] endBytes = ByteComparator.MAX_BYTES;
+    var startBytes = ByteComparator.MIN_BYTES;
+    var endBytes = ByteComparator.MAX_BYTES;
     return map.subMap(new Pair(start, startBytes), new Pair(end, endBytes)).size();
   }
 
   @Override
   public long sizeToEnd(Object start) {
-    byte[] startBytes = ByteComparator.MIN_BYTES;
+    var startBytes = ByteComparator.MIN_BYTES;
     return map.tailMap(new Pair(start, startBytes)).size();
   }
 
   @Override
   public long sizeFromStart(Object end) {
-    byte[] endBytes = ByteComparator.MAX_BYTES;
+    var endBytes = ByteComparator.MAX_BYTES;
     return map.headMap(new Pair(end, endBytes)).size();
   }
 
@@ -229,7 +229,7 @@ public class IndexMapImpl implements IndexMap {
 
     @Override
     public IndexEntry next() {
-      java.util.Map.Entry<Pair<CachedDeserializable, CachedDeserializable>, CachedDeserializable> next =
+      var next =
           iterator.next();
       return new IndexEntryImpl(next.getKey().getX(), next.getKey().getY(), next.getValue());
     }
@@ -264,7 +264,7 @@ public class IndexMapImpl implements IndexMap {
 
     @Override
     public CachedDeserializable next() {
-      java.util.Map.Entry<Pair<CachedDeserializable, CachedDeserializable>, CachedDeserializable> next =
+      var next =
           iterator.next();
       return next.getKey().getY();
 

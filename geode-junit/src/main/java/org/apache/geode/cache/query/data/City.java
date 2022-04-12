@@ -34,7 +34,7 @@ public class City implements Serializable {
   }// end of constructor 1
 
   public City(int i) {
-    String[] arr1 = {"MUMBAI", "PUNE", "GANDHINAGAR", "CHANDIGARH"};
+    var arr1 = new String[] {"MUMBAI", "PUNE", "GANDHINAGAR", "CHANDIGARH"};
     /* this is for the test to have 50% of the objects belonging to one city */
     name = arr1[i % 2];
     zip = 425125 + i;

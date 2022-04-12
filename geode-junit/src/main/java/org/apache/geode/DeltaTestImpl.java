@@ -232,9 +232,9 @@ public class DeltaTestImpl implements DataSerializable, Delta {
 
   @Override
   public String toString() {
-    StringBuilder bytes = new StringBuilder();
+    var bytes = new StringBuilder();
     if (byteArr != null) {
-      for (final byte b : byteArr) {
+      for (final var b : byteArr) {
         bytes.append(b);
       }
     }
@@ -248,14 +248,14 @@ public class DeltaTestImpl implements DataSerializable, Delta {
     if (!(other instanceof DeltaTestImpl)) {
       return false;
     }
-    DeltaTestImpl delta = (DeltaTestImpl) other;
+    var delta = (DeltaTestImpl) other;
     return intVar == delta.intVar && doubleVar.equals(delta.doubleVar)
         && Arrays.equals(byteArr, delta.byteArr) && str.equals(delta.str);
   }
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(intVar, str, doubleVar);
+    var result = Objects.hash(intVar, str, doubleVar);
     result = 31 * result + Arrays.hashCode(byteArr);
     return result;
   }
@@ -265,13 +265,13 @@ public class DeltaTestImpl implements DataSerializable, Delta {
   public void fromDelta(DataInput in) throws IOException {
     try {
       fromDeltaInvokations++;
-      boolean tempHasDelta = false;
-      byte tempDeltaBits = deltaBits;
-      byte[] tempByteArr = byteArr;
-      int tempIntVar = intVar;
+      var tempHasDelta = false;
+      var tempDeltaBits = deltaBits;
+      var tempByteArr = byteArr;
+      var tempIntVar = intVar;
       double tempDoubleVar = doubleVar;
-      String tempStr = str;
-      TestObjectWithIdentifier tempTestObj = testObj;
+      var tempStr = str;
+      var tempTestObj = testObj;
 
       tempDeltaBits = DataSerializer.readByte(in);
       if (tempDeltaBits != 0) {

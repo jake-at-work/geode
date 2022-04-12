@@ -44,7 +44,7 @@ public class InMemoryPersistentMemberView implements PersistentMemberView {
   @Override
   public Set<PersistentMemberID> getOfflineMembers() {
     Set<PersistentMemberID> offlineMembers = new HashSet<>();
-    for (Map.Entry<PersistentMemberID, PersistentMemberState> entry : members.entrySet()) {
+    for (var entry : members.entrySet()) {
       if (entry.getValue() == PersistentMemberState.OFFLINE) {
         offlineMembers.add(entry.getKey());
       }
@@ -55,7 +55,7 @@ public class InMemoryPersistentMemberView implements PersistentMemberView {
   @Override
   public Set<PersistentMemberID> getOfflineAndEqualMembers() {
     Set<PersistentMemberID> equalMembers = new HashSet<>();
-    for (Map.Entry<PersistentMemberID, PersistentMemberState> entry : members.entrySet()) {
+    for (var entry : members.entrySet()) {
       if (entry.getValue() == PersistentMemberState.EQUAL) {
         equalMembers.add(entry.getKey());
       }
@@ -66,7 +66,7 @@ public class InMemoryPersistentMemberView implements PersistentMemberView {
   @Override
   public Set<PersistentMemberID> getOnlineMembers() {
     Set<PersistentMemberID> onlineMembers = new HashSet<>();
-    for (Map.Entry<PersistentMemberID, PersistentMemberState> entry : members.entrySet()) {
+    for (var entry : members.entrySet()) {
       if (entry.getValue() == PersistentMemberState.ONLINE) {
         onlineMembers.add(entry.getKey());
       }

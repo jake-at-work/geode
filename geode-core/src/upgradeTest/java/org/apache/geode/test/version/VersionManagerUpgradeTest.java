@@ -27,18 +27,18 @@ public class VersionManagerUpgradeTest {
 
   @Test
   public void exceptionIsNotThrownInInitialization() {
-    VersionManager instance =
+    var instance =
         VersionManager.getInstance("--nonexistent-file?--");
     assertThat(instance.getLoadFailure()).isNotEmpty();
   }
 
   @Test
   public void exceptionIsThrownOnUse() {
-    VersionManager instance =
+    var instance =
         VersionManager.getInstance("--nonexistent-file?--");
     assertThat(instance.getLoadFailure()).isNotEmpty();
 
-    Throwable thrown = catchThrowable(instance::getVersionsWithoutCurrent);
+    var thrown = catchThrowable(instance::getVersionsWithoutCurrent);
     assertThat(thrown).hasMessage(instance.getLoadFailure());
 
     thrown = catchThrowable(instance::getVersions);
@@ -47,7 +47,7 @@ public class VersionManagerUpgradeTest {
 
   @Test
   public void managerIsAbleToFindVersions() {
-    VersionManager instance = VersionManager.getInstance();
+    var instance = VersionManager.getInstance();
 
     assertThat(instance.getVersionsWithoutCurrent()).isNotEmpty();
   }

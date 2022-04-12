@@ -14,8 +14,6 @@
  */
 package org.apache.geode.connectors.jdbc.internal;
 
-import java.sql.Connection;
-import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -59,7 +57,7 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
   @Override
   public void createRegionMapping(RegionMapping mapping)
       throws RegionMappingExistsException {
-    RegionMapping existing =
+    var existing =
         mappingsByRegion.putIfAbsent(mapping.getRegionName(), mapping);
     if (existing != null) {
       throw new RegionMappingExistsException(
@@ -70,7 +68,7 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
   @Override
   public void replaceRegionMapping(RegionMapping alteredMapping)
       throws RegionMappingNotFoundException {
-    RegionMapping existingMapping =
+    var existingMapping =
         mappingsByRegion.get(alteredMapping.getRegionName());
     if (existingMapping == null) {
       throw new RegionMappingNotFoundException(
@@ -95,7 +93,7 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
   @Override
   public void validateMapping(RegionMapping regionMapping) {
 
-    DataSource dataSource = getDataSource(regionMapping.getDataSourceName());
+    var dataSource = getDataSource(regionMapping.getDataSourceName());
     if (dataSource == null) {
       throw new JdbcConnectorException("No datasource \"" + regionMapping.getDataSourceName()
           + "\" found when creating mapping \"" + regionMapping.getRegionName() + "\"");
@@ -105,14 +103,14 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
 
   @Override
   public void validateMapping(RegionMapping regionMapping, DataSource dataSource) {
-    TableMetaDataView metaDataView = getTableMetaDataView(regionMapping, dataSource);
-    boolean foundDifference = false;
+    var metaDataView = getTableMetaDataView(regionMapping, dataSource);
+    var foundDifference = false;
 
     if (regionMapping.getFieldMappings().size() != metaDataView.getColumnNames().size()) {
       foundDifference = true;
     } else {
-      for (FieldMapping fieldMapping : regionMapping.getFieldMappings()) {
-        String jdbcName = fieldMapping.getJdbcName();
+      for (var fieldMapping : regionMapping.getFieldMappings()) {
+        var jdbcName = fieldMapping.getJdbcName();
         if (!metaDataView.getColumnNames().contains(jdbcName)) {
           foundDifference = true;
           break;
@@ -137,7 +135,7 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
     }
 
     if (foundDifference) {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append(
           "Error detected when comparing mapping for region \"" + regionMapping.getRegionName()
               + "\" with table definition: \n");
@@ -151,14 +149,14 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
       sb.append("\n\nDefinition from Field Mappings (" + regionMapping.getFieldMappings().size()
           + " field mappings found):");
 
-      for (FieldMapping fieldMapping : regionMapping.getFieldMappings()) {
+      for (var fieldMapping : regionMapping.getFieldMappings()) {
         sb.append("\n" + fieldMapping.getJdbcName() + " - " + fieldMapping.getJdbcType());
       }
 
       sb.append("\n\nDefinition from Table Metadata (" + metaDataView.getColumnNames().size()
           + " columns found):");
 
-      for (String name : metaDataView.getColumnNames()) {
+      for (var name : metaDataView.getColumnNames()) {
         sb.append("\n" + name + " - " + metaDataView.getColumnDataType(name));
       }
 
@@ -206,8 +204,8 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
 
   private TableMetaDataView getTableMetaDataView(RegionMapping regionMapping,
       DataSource dataSource) {
-    TableMetaDataManager manager = getTableMetaDataManager();
-    try (Connection connection = dataSource.getConnection()) {
+    var manager = getTableMetaDataManager();
+    try (var connection = dataSource.getConnection()) {
       return manager.getTableMetaDataView(connection, regionMapping);
     } catch (SQLException ex) {
       throw JdbcConnectorException
@@ -224,18 +222,18 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
     // the table name specified on the command line at this point.
     // Do we want to update the region mapping to hold the "real" table name
     List<FieldMapping> fieldMappings = new ArrayList<>();
-    Set<String> columnNames = tableMetaDataView.getColumnNames();
+    var columnNames = tableMetaDataView.getColumnNames();
     if (columnNames.size() != pdxType.getFieldCount()) {
       throw new JdbcConnectorException(
           "The table and pdx class must have the same number of columns/fields. But the table has "
               + columnNames.size()
               + " columns and the pdx class has " + pdxType.getFieldCount() + " fields.");
     }
-    List<PdxField> pdxFields = pdxType.getFields();
-    for (String jdbcName : columnNames) {
-      boolean isNullable = tableMetaDataView.isColumnNullable(jdbcName);
-      JDBCType jdbcType = tableMetaDataView.getColumnDataType(jdbcName);
-      FieldMapping fieldMapping =
+    var pdxFields = pdxType.getFields();
+    for (var jdbcName : columnNames) {
+      var isNullable = tableMetaDataView.isColumnNullable(jdbcName);
+      var jdbcType = tableMetaDataView.getColumnDataType(jdbcName);
+      var fieldMapping =
           createFieldMapping(jdbcName, jdbcType.getName(), isNullable, pdxFields);
       fieldMappings.add(fieldMapping);
     }
@@ -246,7 +244,7 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
       List<PdxField> pdxFields) {
     String pdxName = null;
     String pdxType = null;
-    for (PdxField pdxField : pdxFields) {
+    for (var pdxField : pdxFields) {
       if (pdxField.getFieldName().equals(jdbcName)) {
         pdxName = pdxField.getFieldName();
         pdxType = pdxField.getFieldType().name();
@@ -255,7 +253,7 @@ public class JdbcConnectorServiceImpl implements JdbcConnectorService {
     }
     if (pdxName == null) {
       // look for one inexact match
-      for (PdxField pdxField : pdxFields) {
+      for (var pdxField : pdxFields) {
         if (pdxField.getFieldName().equalsIgnoreCase(jdbcName)) {
           if (pdxName != null) {
             throw new JdbcConnectorException(

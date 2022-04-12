@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.geode.cache.EntryDestroyedException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.IndexMaintenanceException;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.TypeMismatchException;
@@ -85,7 +84,7 @@ public class MemoryIndexStore implements IndexStore {
 
   MemoryIndexStore(Region region, InternalIndexStatistics internalIndexStats, InternalCache cache) {
     this.region = region;
-    RegionAttributes ra = region.getAttributes();
+    var ra = region.getAttributes();
     // Initialize the reverse-map if in-place modification is set by the
     // application.
     if (IndexManager.isObjectModificationInplace()) {
@@ -128,10 +127,10 @@ public class MemoryIndexStore implements IndexStore {
         return;
       }
 
-      boolean retry = false;
+      var retry = false;
       indexKey = TypeUtils.indexKeyFor(indexKey);
       if (indexKey.equals(QueryService.UNDEFINED)) {
-        Object targetObject = getTargetObjectForUpdate(re);
+        var targetObject = getTargetObjectForUpdate(re);
         if (Token.isInvalidOrRemoved(targetObject)) {
           if (oldKey != null) {
             basicRemoveMapping(oldKey, re, false);
@@ -142,7 +141,7 @@ public class MemoryIndexStore implements IndexStore {
 
       do {
         retry = false;
-        Object regionEntries = valueToEntriesMap.putIfAbsent(indexKey, re);
+        var regionEntries = valueToEntriesMap.putIfAbsent(indexKey, re);
         if (regionEntries == TRANSITIONING_TOKEN) {
           retry = true;
           continue;
@@ -152,7 +151,7 @@ public class MemoryIndexStore implements IndexStore {
           }
           numIndexKeys.incrementAndGet();
         } else if (regionEntries instanceof RegionEntry) {
-          IndexElemArray elemArray = new IndexElemArray();
+          var elemArray = new IndexElemArray();
           if (DefaultQuery.testHook != null) {
             DefaultQuery.testHook.doTestHook(
                 DefaultQuery.TestHook.SPOTS.BEGIN_TRANSITION_FROM_REGION_ENTRY_TO_ELEMARRAY, null,
@@ -184,14 +183,14 @@ public class MemoryIndexStore implements IndexStore {
             retry = true;
           }
         } else {
-          IndexElemArray elemArray = (IndexElemArray) regionEntries;
+          var elemArray = (IndexElemArray) regionEntries;
           synchronized (elemArray) {
-            int threshold = IndexManager.INDEX_ELEMARRAY_THRESHOLD;
+            var threshold = IndexManager.INDEX_ELEMARRAY_THRESHOLD;
             if (IndexManager.INDEX_ELEMARRAY_THRESHOLD_FOR_TESTING > 0) {
               threshold = IndexManager.INDEX_ELEMARRAY_THRESHOLD_FOR_TESTING;
             }
             if (elemArray.size() >= threshold) {
-              IndexConcurrentHashSet set =
+              var set =
                   new IndexConcurrentHashSet(IndexManager.INDEX_ELEMARRAY_THRESHOLD + 20, 0.75f, 1);
               // Replace first so that we are sure that the set is placed in
               // index then we should add old elements in the new set.
@@ -267,16 +266,16 @@ public class MemoryIndexStore implements IndexStore {
    *
    */
   private Object getOldKey(Object newKey, RegionEntry entry) throws TypeMismatchException {
-    for (Object mapEntry : valueToEntriesMap.entrySet()) {
-      Object regionEntries = ((Entry) mapEntry).getValue();
-      Object indexKey = ((Entry) mapEntry).getKey();
+    for (var mapEntry : valueToEntriesMap.entrySet()) {
+      var regionEntries = ((Entry) mapEntry).getValue();
+      var indexKey = ((Entry) mapEntry).getKey();
       // if more than one index key maps to the same RegionEntry that
       // means there has been an in-place modification
       if (TypeUtils.compare(indexKey, newKey, CompiledComparison.TOK_NE).equals(Boolean.TRUE)) {
         if (regionEntries instanceof RegionEntry && regionEntries.equals(entry)) {
           return indexKey;
         } else if (regionEntries instanceof Collection) {
-          Collection coll = (Collection) regionEntries;
+          var coll = (Collection) regionEntries;
           if (coll.contains(entry)) {
             return indexKey;
           }
@@ -295,7 +294,7 @@ public class MemoryIndexStore implements IndexStore {
   @Override
   public void removeMapping(Object indexKey, RegionEntry re) throws IMQException {
     // Remove from forward map
-    boolean found = basicRemoveMapping(indexKey, re, true);
+    var found = basicRemoveMapping(indexKey, re, true);
     // Remove from reverse map.
     // We do NOT need to synchronize here as different RegionEntries will be
     // operating concurrently i.e. different keys in entryToValuesMap which
@@ -307,17 +306,17 @@ public class MemoryIndexStore implements IndexStore {
 
   private boolean basicRemoveMapping(Object key, RegionEntry entry, boolean findOldKey)
       throws IMQException {
-    boolean found = false;
-    boolean possiblyAlreadyRemoved = false;
+    var found = false;
+    var possiblyAlreadyRemoved = false;
     try {
-      Object newKey = convertToIndexKey(key, entry);
+      var newKey = convertToIndexKey(key, entry);
       if (DefaultQuery.testHook != null) {
         DefaultQuery.testHook.doTestHook(DefaultQuery.TestHook.SPOTS.ATTEMPT_REMOVE, null, null);
       }
-      boolean retry = false;
+      var retry = false;
       do {
         retry = false;
-        Object regionEntries = valueToEntriesMap.get(newKey);
+        var regionEntries = valueToEntriesMap.get(newKey);
         if (regionEntries == TRANSITIONING_TOKEN) {
           if (DefaultQuery.testHook != null) {
             DefaultQuery.testHook.doTestHook(DefaultQuery.TestHook.SPOTS.ATTEMPT_RETRY, null, null);
@@ -339,7 +338,7 @@ public class MemoryIndexStore implements IndexStore {
               }
             }
           } else {
-            Collection entries = (Collection) regionEntries;
+            var entries = (Collection) regionEntries;
             if (DefaultQuery.testHook != null) {
               DefaultQuery.testHook
                   .doTestHook(DefaultQuery.TestHook.SPOTS.BEGIN_REMOVE_FROM_ELEM_ARRAY, null, null);
@@ -396,7 +395,7 @@ public class MemoryIndexStore implements IndexStore {
       // over fwd map and then remove the mapping
       if (findOldKey) {
         try {
-          Object oldKey = getOldKey(key, entry);
+          var oldKey = getOldKey(key, entry);
           found = basicRemoveMapping(oldKey, entry, false);
         } catch (TypeMismatchException e) {
           throw new IMQException("Could not find old key: " + key.getClass().getName(), e);
@@ -501,7 +500,7 @@ public class MemoryIndexStore implements IndexStore {
   @Override
   public Object getTargetObject(RegionEntry entry) {
     if (indexOnValues) {
-      Object o = entry.getValue((LocalRegion) region);
+      var o = entry.getValue((LocalRegion) region);
       try {
         if (o == Token.INVALID) {
           return null;
@@ -522,7 +521,7 @@ public class MemoryIndexStore implements IndexStore {
   @Override
   public Object getTargetObjectInVM(RegionEntry entry) {
     if (indexOnValues) {
-      Object o = entry.getValueInVM((LocalRegion) region);
+      var o = entry.getValueInVM((LocalRegion) region);
       try {
         if (o == Token.INVALID) {
           return null;
@@ -542,7 +541,7 @@ public class MemoryIndexStore implements IndexStore {
 
   private Object getTargetObjectForUpdate(RegionEntry entry) {
     if (indexOnValues) {
-      Object o = entry.getValue((LocalRegion) region);
+      var o = entry.getValue((LocalRegion) region);
       try {
         if (o == Token.INVALID) {
           return Token.INVALID;
@@ -572,7 +571,7 @@ public class MemoryIndexStore implements IndexStore {
 
   @Override
   public int size(Object key) {
-    Object obj = valueToEntriesMap.get(key);
+    var obj = valueToEntriesMap.get(key);
     if (obj != null) {
       return obj instanceof RegionEntry ? 1 : ((Collection) obj).size();
     } else {
@@ -601,7 +600,7 @@ public class MemoryIndexStore implements IndexStore {
         mapIterator = valuesToEntriesMap.entrySet().iterator();
       }
       if (mapIterator.hasNext()) {
-        Map.Entry currentEntry = mapIterator.next();
+        var currentEntry = mapIterator.next();
         currKey = currentEntry.getKey();
         if (currKey == IndexManager.NULL || currKey == QueryService.UNDEFINED) {
           return hasNext();
@@ -665,7 +664,7 @@ public class MemoryIndexStore implements IndexStore {
       }
       if (mapIterator.hasNext()) {
         // set the next entry in the map as current
-        Map.Entry currentMapEntry = mapIterator.next();
+        var currentMapEntry = mapIterator.next();
         // set the index key
         currKey = currentMapEntry.getKey();
         // if the index key in currentIndexEntry is present in the
@@ -682,7 +681,7 @@ public class MemoryIndexStore implements IndexStore {
           return hasNext();
         }
         // iterator on the collection of values for the index key
-        Object values = currentMapEntry.getValue();
+        var values = currentMapEntry.getValue();
         if (values instanceof Collection) {
           valuesIterator = ((Collection) values).iterator();
         } else {
@@ -707,7 +706,7 @@ public class MemoryIndexStore implements IndexStore {
         return currentEntry;
       }
 
-      RegionEntry re = (RegionEntry) valuesIterator.next();
+      var re = (RegionEntry) valuesIterator.next();
       if (re == null) {
         throw new NoSuchElementException();
       }
@@ -727,7 +726,7 @@ public class MemoryIndexStore implements IndexStore {
     }
 
     public boolean removeFromKeysToRemove(Collection keysToRemove, Object key) {
-      Iterator iterator = keysToRemove.iterator();
+      var iterator = keysToRemove.iterator();
       while (iterator.hasNext()) {
         try {
           if (TypeUtils.compare(key, iterator.next(), OQLLexerTokenTypes.TOK_EQ)
@@ -745,13 +744,13 @@ public class MemoryIndexStore implements IndexStore {
 
   @Override
   public String printAll() {
-    StringBuilder sb = new StringBuilder();
-    for (final Object item : valueToEntriesMap.entrySet()) {
-      Entry mapEntry = (Entry) item;
+    var sb = new StringBuilder();
+    for (final var item : valueToEntriesMap.entrySet()) {
+      var mapEntry = (Entry) item;
       sb.append("Key: " + mapEntry.getKey());
-      Object value = mapEntry.getValue();
+      var value = mapEntry.getValue();
       if (value instanceof Collection) {
-        for (final Object o : (Collection) value) {
+        for (final var o : (Collection) value) {
           sb.append(" Value:" + getTargetObject((RegionEntry) o));
         }
       } else {

@@ -50,7 +50,7 @@ public abstract class AbstractEchoIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void returnsString_givenString() {
-    final byte[] bytes = "test".getBytes();
+    final var bytes = "test".getBytes();
     assertThat((byte[]) jedis.sendCommand(ECHO, bytes)).isEqualTo(bytes);
   }
 }

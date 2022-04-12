@@ -57,11 +57,11 @@ public class ConnectionTest {
   @SuppressWarnings("ConstantConditions")
   @Test
   public void canBeMocked() throws Exception {
-    Connection mockConnection = mock(Connection.class);
+    var mockConnection = mock(Connection.class);
     SocketChannel channel = null;
     ByteBuffer buffer = null;
-    boolean forceAsync = true;
-    DistributionMessage mockDistributionMessage = mock(DistributionMessage.class);
+    var forceAsync = true;
+    var mockDistributionMessage = mock(DistributionMessage.class);
 
     mockConnection.writeFully(channel, buffer, forceAsync, mockDistributionMessage);
 
@@ -75,15 +75,15 @@ public class ConnectionTest {
    */
   @Test
   public void testSuspicionRaised() throws Exception {
-    ConnectionTable connectionTable = mock(ConnectionTable.class);
-    Distribution distribution = mock(Distribution.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
-    DMStats dmStats = mock(DMStats.class);
-    CancelCriterion stopper = mock(CancelCriterion.class);
-    SocketCloser socketCloser = mock(SocketCloser.class);
-    TCPConduit tcpConduit = mock(TCPConduit.class);
-    ThreadsMonitoring threadMonitoring = mock(ThreadsMonitoring.class);
-    AbstractExecutor abstractExecutor = mock(AbstractExecutor.class);
+    var connectionTable = mock(ConnectionTable.class);
+    var distribution = mock(Distribution.class);
+    var distributionManager = mock(DistributionManager.class);
+    var dmStats = mock(DMStats.class);
+    var stopper = mock(CancelCriterion.class);
+    var socketCloser = mock(SocketCloser.class);
+    var tcpConduit = mock(TCPConduit.class);
+    var threadMonitoring = mock(ThreadsMonitoring.class);
+    var abstractExecutor = mock(AbstractExecutor.class);
 
     when(connectionTable.getBufferPool()).thenReturn(new BufferPool(dmStats));
     when(connectionTable.getConduit()).thenReturn(tcpConduit);
@@ -98,9 +98,9 @@ public class ConnectionTest {
     when(distributionManager.getThreadMonitoring()).thenReturn(threadMonitoring);
     when(threadMonitoring.createAbstractExecutor(any())).thenReturn(abstractExecutor);
 
-    SocketChannel channel = SocketChannel.open();
+    var channel = SocketChannel.open();
 
-    Connection connection = new Connection(connectionTable, channel.socket());
+    var connection = new Connection(connectionTable, channel.socket());
     connection.setSharedUnorderedForTest();
     connection.run();
 
@@ -109,18 +109,18 @@ public class ConnectionTest {
 
   @Test
   public void connectTimeoutIsShortWhenAlerting() throws UnknownHostException {
-    ConnectionTable connectionTable = mock(ConnectionTable.class);
-    DistributionConfig distributionConfig = mock(DistributionConfig.class);
-    TCPConduit tcpConduit = mock(TCPConduit.class);
+    var connectionTable = mock(ConnectionTable.class);
+    var distributionConfig = mock(DistributionConfig.class);
+    var tcpConduit = mock(TCPConduit.class);
 
     when(connectionTable.getConduit()).thenReturn(tcpConduit);
     when(connectionTable.getBufferPool()).thenReturn(mock(BufferPool.class));
     when(distributionConfig.getMemberTimeout()).thenReturn(100);
     when(tcpConduit.getSocketId()).thenReturn(new InetSocketAddress(getLocalHost(), 12345));
 
-    Connection connection = new Connection(connectionTable, mock(Socket.class));
+    var connection = new Connection(connectionTable, mock(Socket.class));
 
-    int normalTimeout = connection.getP2PConnectTimeout(distributionConfig);
+    var normalTimeout = connection.getP2PConnectTimeout(distributionConfig);
     assertThat(normalTimeout).isEqualTo(600);
 
     AlertingAction.execute(
@@ -128,13 +128,13 @@ public class ConnectionTest {
   }
 
   private Connection createSpiedConnection() throws IOException {
-    ConnectionTable connectionTable = mock(ConnectionTable.class);
-    Distribution distribution = mock(Distribution.class);
-    DistributionManager distributionManager = mock(DistributionManager.class);
-    DMStats dmStats = mock(DMStats.class);
-    CancelCriterion stopper = mock(CancelCriterion.class);
-    SocketCloser socketCloser = mock(SocketCloser.class);
-    TCPConduit tcpConduit = mock(TCPConduit.class);
+    var connectionTable = mock(ConnectionTable.class);
+    var distribution = mock(Distribution.class);
+    var distributionManager = mock(DistributionManager.class);
+    var dmStats = mock(DMStats.class);
+    var stopper = mock(CancelCriterion.class);
+    var socketCloser = mock(SocketCloser.class);
+    var tcpConduit = mock(TCPConduit.class);
 
     when(connectionTable.getBufferPool()).thenReturn(new BufferPool(dmStats));
     when(connectionTable.getConduit()).thenReturn(tcpConduit);
@@ -147,16 +147,16 @@ public class ConnectionTest {
     when(tcpConduit.getSocketId()).thenReturn(new InetSocketAddress(getLocalHost(), 10337));
     when(tcpConduit.getStats()).thenReturn(dmStats);
 
-    SocketChannel channel = SocketChannel.open();
+    var channel = SocketChannel.open();
 
-    Connection connection = new Connection(connectionTable, channel.socket());
+    var connection = new Connection(connectionTable, channel.socket());
     connection = spy(connection);
     return connection;
   }
 
   @Test
   public void firstCallToNotifyHandshakeWaiterWillClearSSLInputBuffer() throws Exception {
-    Connection connection = createSpiedConnection();
+    var connection = createSpiedConnection();
     connection.notifyHandshakeWaiter(true);
     verify(connection, times(1)).clearSSLInputBuffer();
   }
@@ -164,7 +164,7 @@ public class ConnectionTest {
   @Test
   public void secondCallWithTrueToNotifyHandshakeWaiterShouldNotClearSSLInputBuffer()
       throws Exception {
-    Connection connection = createSpiedConnection();
+    var connection = createSpiedConnection();
     connection.notifyHandshakeWaiter(true);
     connection.notifyHandshakeWaiter(true);
     verify(connection, times(1)).clearSSLInputBuffer();
@@ -173,7 +173,7 @@ public class ConnectionTest {
   @Test
   public void secondCallWithFalseToNotifyHandshakeWaiterShouldNotClearSSLInputBuffer()
       throws Exception {
-    Connection connection = createSpiedConnection();
+    var connection = createSpiedConnection();
     connection.notifyHandshakeWaiter(true);
     connection.notifyHandshakeWaiter(false);
     verify(connection, times(1)).clearSSLInputBuffer();
@@ -181,7 +181,7 @@ public class ConnectionTest {
 
   @Test
   public void checkHandshakeInitialByteAccepts0() throws IOException {
-    final DataInput dataInput = mock(DataInput.class);
+    final var dataInput = mock(DataInput.class);
     when(dataInput.readByte()).thenReturn((byte) 0);
 
     Connection.checkHandshakeInitialByte(dataInput);
@@ -192,7 +192,7 @@ public class ConnectionTest {
 
   @Test
   public void checkHandshakeInitialByteThrowsNot0() throws IOException {
-    final DataInput dataInput = mock(DataInput.class);
+    final var dataInput = mock(DataInput.class);
     when(dataInput.readByte()).thenReturn((byte) 1);
 
     assertThatThrownBy(() -> Connection.checkHandshakeInitialByte(dataInput))
@@ -204,7 +204,7 @@ public class ConnectionTest {
 
   @Test
   public void checkHandshakeVersionAcceptsCurrentVersion() throws IOException {
-    final DataInput dataInput = mock(DataInput.class);
+    final var dataInput = mock(DataInput.class);
     when(dataInput.readByte()).thenReturn(Connection.HANDSHAKE_VERSION);
 
     Connection.checkHandshakeVersion(dataInput);
@@ -215,7 +215,7 @@ public class ConnectionTest {
 
   @Test
   public void checkHandshakeVersionThrowsWhenNotCurrentVersion() throws IOException {
-    final DataInput dataInput = mock(DataInput.class);
+    final var dataInput = mock(DataInput.class);
     when(dataInput.readByte()).thenReturn((byte) 1);
 
     assertThatThrownBy(() -> Connection.checkHandshakeVersion(dataInput))
@@ -227,10 +227,10 @@ public class ConnectionTest {
 
   @Test
   public void readDominoNumberSharedResourceTrueReturns0() throws IOException {
-    final DataInput dataInput = mock(DataInput.class);
+    final var dataInput = mock(DataInput.class);
     when(dataInput.readInt()).thenReturn(1);
 
-    final int dominoNumber = Connection.readDominoNumber(dataInput, true);
+    final var dominoNumber = Connection.readDominoNumber(dataInput, true);
     assertThat(dominoNumber).isEqualTo(0);
 
     verify(dataInput).readInt();
@@ -239,10 +239,10 @@ public class ConnectionTest {
 
   @Test
   public void readDominoNumberSharedResourceFalseReturnsValue() throws IOException {
-    final DataInput dataInput = mock(DataInput.class);
+    final var dataInput = mock(DataInput.class);
     when(dataInput.readInt()).thenReturn(1);
 
-    final int dominoNumber = Connection.readDominoNumber(dataInput, false);
+    final var dominoNumber = Connection.readDominoNumber(dataInput, false);
     assertThat(dominoNumber).isEqualTo(1);
 
     verify(dataInput).readInt();

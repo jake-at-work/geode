@@ -44,7 +44,7 @@ public class MetricsCalculator {
       secondsFactor = toSeconds(fromTime, toTime);
     }
 
-    float num = (tempXn1 - tempXn) / ((secondsFactor == 0) ? 1 : secondsFactor);
+    var num = (tempXn1 - tempXn) / ((secondsFactor == 0) ? 1 : secondsFactor);
     return Round(num, 3);
     // return num;
   }
@@ -58,7 +58,7 @@ public class MetricsCalculator {
     } else {
       secondsFactor = toSeconds(fromTime, toTime);
     }
-    float num = (tempXn1 - tempXn) / ((secondsFactor == 0) ? 1 : secondsFactor);
+    var num = (tempXn1 - tempXn) / ((secondsFactor == 0) ? 1 : secondsFactor);
     return Round(num, 3);
     // return num;
 
@@ -126,7 +126,7 @@ public class MetricsCalculator {
   }
 
   public static float Round(float Rval, int Rpl) {
-    float p = (float) Math.pow(10, Rpl);
+    var p = (float) Math.pow(10, Rpl);
     Rval = Rval * p;
     float tmp = Math.round(Rval);
     return tmp / p;

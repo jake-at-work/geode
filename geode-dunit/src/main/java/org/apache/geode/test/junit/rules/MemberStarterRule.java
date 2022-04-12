@@ -35,7 +35,6 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -45,8 +44,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import javax.management.ObjectName;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -59,14 +56,12 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
-import org.apache.geode.cache.ssl.CertificateMaterial;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.api.MembershipManagerHelper;
 import org.apache.geode.internal.UniquePortSupplier;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.internal.net.SocketCreatorFactory;
 import org.apache.geode.management.CacheServerMXBean;
 import org.apache.geode.management.DistributedRegionMXBean;
@@ -146,7 +141,7 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
     }
     firstLevelChildrenFile = Arrays.asList(getWorkingDir().listFiles());
 
-    for (String key : systemProperties.stringPropertyNames()) {
+    for (var key : systemProperties.stringPropertyNames()) {
       System.setProperty(key, systemProperties.getProperty(key));
     }
   }
@@ -216,24 +211,24 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
 
   public T withSSL(String components, boolean requireAuth,
       boolean endPointIdentification) {
-    Properties sslProps = getSSLProperties(components, requireAuth, endPointIdentification);
+    var sslProps = getSSLProperties(components, requireAuth, endPointIdentification);
     properties.putAll(sslProps);
     return (T) this;
   }
 
   public static Properties getSSLProperties(String components, boolean requireAuth,
       boolean endPointIdentification) {
-    CertificateMaterial ca = new CertificateBuilder()
+    var ca = new CertificateBuilder()
         .commonName("Test CA")
         .isCA()
         .generate();
 
-    CertificateMaterial memberMaterial = new CertificateBuilder()
+    var memberMaterial = new CertificateBuilder()
         .commonName("member")
         .issuedBy(ca)
         .generate();
 
-    CertStores memberStore = new CertStores("member");
+    var memberStore = new CertStores("member");
     memberStore.withCertificate("member", memberMaterial);
     memberStore.trust("ca", ca);
 
@@ -273,7 +268,7 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
     if (locatorPorts.length == 0) {
       return (T) this;
     }
-    String locators = Arrays.stream(locatorPorts).mapToObj(i -> "localhost[" + i + "]")
+    var locators = Arrays.stream(locatorPorts).mapToObj(i -> "localhost[" + i + "]")
         .collect(Collectors.joining(","));
     properties.setProperty(LOCATORS, locators);
     return (T) this;
@@ -359,7 +354,7 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
   }
 
   public ManagementService getManagementService() {
-    ManagementService managementService =
+    var managementService =
         ManagementService.getExistingManagementService(getCache());
     if (managementService == null) {
       throw new IllegalStateException("Management service is not available on this member");
@@ -389,7 +384,7 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
         WAIT_UNTIL_TIMEOUT, TimeUnit.SECONDS);
 
     // Now actually wait for the members to receive the region
-    String assertionConditionDescription = String.format(
+    var assertionConditionDescription = String.format(
         "Expecting region '%s' to be found on exactly %d servers", regionName, exactServerCount);
     waitUntilSatisfied(
         () -> Arrays.asList(getRegionMBean(regionName).getMembers()),
@@ -401,7 +396,7 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
 
   public void waitTillClientsAreReadyOnServer(String serverName, int serverPort, int clientCount) {
     waitTillCacheServerIsReady(serverName, serverPort);
-    CacheServerMXBean bean = getCacheServerMXBean(serverName, serverPort);
+    var bean = getCacheServerMXBean(serverName, serverPort);
     await().until(() -> bean.getClientIds().length == clientCount);
   }
 
@@ -438,7 +433,7 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
       Consumer<PartitionAttributesFactory> attributesFactoryConsumer) {
     return createRegion(RegionShortcut.PARTITION, name, rf -> {
       regionFactoryConsumer.accept(rf);
-      PartitionAttributesFactory attributeFactory = new PartitionAttributesFactory();
+      var attributeFactory = new PartitionAttributesFactory();
       attributesFactoryConsumer.accept(attributeFactory);
       rf.setPartitionAttributes(attributeFactory.create());
     });
@@ -446,10 +441,10 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
 
   public void waitTillCacheClientProxyHasBeenPaused() {
     await().until(() -> {
-      CacheClientNotifier clientNotifier = CacheClientNotifier.getInstance();
-      Collection<CacheClientProxy> clientProxies = clientNotifier.getClientProxies();
+      var clientNotifier = CacheClientNotifier.getInstance();
+      var clientProxies = clientNotifier.getClientProxies();
 
-      for (CacheClientProxy clientProxy : clientProxies) {
+      for (var clientProxy : clientProxies) {
         if (clientProxy.isPaused()) {
           return true;
         }
@@ -464,17 +459,18 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
   }
 
   public CacheServerMXBean getCacheServerMXBean(String serverName, int serverPort) {
-    SystemManagementService managementService = (SystemManagementService) getManagementService();
-    String objectName = MessageFormat.format(OBJECTNAME__CLIENTSERVICE_MXBEAN,
+    var managementService = (SystemManagementService) getManagementService();
+    var objectName = MessageFormat.format(OBJECTNAME__CLIENTSERVICE_MXBEAN,
         String.valueOf(serverPort), serverName);
-    ObjectName cacheServerMBeanName = MBeanJMXAdapter.getObjectName(objectName);
+    var cacheServerMBeanName = MBeanJMXAdapter.getObjectName(objectName);
     return managementService.getMBeanProxy(cacheServerMBeanName, CacheServerMXBean.class);
   }
 
   public void waitUntilDiskStoreIsReadyOnExactlyThisManyServers(String diskStoreName,
       int exactServerCount) throws Exception {
-    final Supplier<DistributedSystemMXBean> distributedSystemMXBeanSupplier =
-        () -> getManagementService().getDistributedSystemMXBean();
+    final var distributedSystemMXBeanSupplier =
+        (Supplier<DistributedSystemMXBean>) () -> getManagementService()
+            .getDistributedSystemMXBean();
 
     waitUntilSatisfied(distributedSystemMXBeanSupplier,
         Function.identity(),
@@ -482,12 +478,12 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
         "Distributed System MXBean should not be null",
         WAIT_UNTIL_TIMEOUT, TimeUnit.SECONDS);
 
-    DistributedSystemMXBean dsMXBean = distributedSystemMXBeanSupplier.get();
+    var dsMXBean = distributedSystemMXBeanSupplier.get();
 
-    String predicateDescription = String.format(
+    var predicateDescription = String.format(
         "Expecting exactly %d servers to present mbeans for a disk store with name %s.",
         exactServerCount, diskStoreName);
-    Supplier<List<String[]>> diskStoreSupplier = () -> dsMXBean.listMemberDiskstore()
+    var diskStoreSupplier = (Supplier<List<String[]>>) () -> dsMXBean.listMemberDiskstore()
         .values().stream().filter(x1 -> ArrayUtils.contains(x1, diskStoreName))
         .collect(Collectors.toList());
 
@@ -501,7 +497,7 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
   public void waitUntilAsyncEventQueuesAreReadyOnExactlyThisManyServers(String queueId,
       int exactServerCount)
       throws Exception {
-    String examinerDescription = String.format(
+    var examinerDescription = String.format(
         "Expecting exactly %d servers to have an AEQ with id '%s'.", exactServerCount, queueId);
     waitUntilEqual(
         () -> CliUtils.getMembersWithAsyncEventQueue(getCache(), queueId),
@@ -560,7 +556,7 @@ public abstract class MemberStarterRule<T> extends SerializableExternalResource 
       String expectationDesription,
       long timeout, TimeUnit unit)
       throws Exception {
-    Consumer<J> assertionConsumer = examined -> assertThat(examined, is(expectation));
+    var assertionConsumer = (Consumer<J>) examined -> assertThat(examined, is(expectation));
     waitUntilSatisfied(provider, examiner, assertionConsumer, expectationDesription, timeout, unit);
   }
 

@@ -32,7 +32,6 @@ import java.net.UnknownHostException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.mockito.InOrder;
 
 import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -53,7 +52,7 @@ public class GatewayReceiverImplTest {
     cache = mock(InternalCache.class);
     receiverServer = mock(InternalCacheServer.class);
 
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
+    var system = mock(InternalDistributedSystem.class);
 
     when(cache.getInternalDistributedSystem()).thenReturn(system);
     when(cache.addGatewayReceiverServer(any())).thenReturn(receiverServer);
@@ -70,9 +69,9 @@ public class GatewayReceiverImplTest {
 
   @Test
   public void getHostOnRunningGatewayShouldReturnCacheServerExternalAddress() {
-    String theExternalAddress = "theExternalAddress";
+    var theExternalAddress = "theExternalAddress";
     when(receiverServer.getExternalAddress()).thenReturn(theExternalAddress);
-    GatewayReceiverImpl gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
+    var gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
         null, true, true, 2000);
 
     gateway.start();
@@ -82,33 +81,33 @@ public class GatewayReceiverImplTest {
 
   @Test
   public void destroyCalledOnRunningGatewayReceiverShouldThrowGatewayReceiverException() {
-    GatewayReceiverImpl gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
+    var gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
         null, true, true, 2000);
     when(receiverServer.isRunning()).thenReturn(true);
     gateway.start();
 
-    Throwable thrown = catchThrowable(gateway::destroy);
+    var thrown = catchThrowable(gateway::destroy);
 
     assertThat(thrown).isInstanceOf(GatewayReceiverException.class);
   }
 
   @Test
   public void destroyCalledOnStoppedGatewayReceiverShouldRemoveReceiverFromCacheServers() {
-    GatewayReceiverImpl gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
+    var gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
         null, true, true, 2000);
     gateway.start();
     when(receiverServer.isRunning()).thenReturn(false);
 
     gateway.destroy();
 
-    InOrder inOrder = inOrder(cache, cache);
+    var inOrder = inOrder(cache, cache);
     inOrder.verify(cache).removeGatewayReceiver(same(gateway));
     inOrder.verify(cache).removeGatewayReceiverServer(same(receiverServer));
   }
 
   @Test
   public void destroyCalledOnStoppedGatewayReceiverShouldRemoveReceiverFromReceivers() {
-    GatewayReceiverImpl gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
+    var gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
         null, true, true, 2000);
     gateway.start();
     when(receiverServer.isRunning()).thenReturn(false);
@@ -121,10 +120,10 @@ public class GatewayReceiverImplTest {
   @Test
   public void startShouldThrowGatewayReceiverExceptionIfIOExceptionIsThrown() throws IOException {
     doThrow(new SocketException("Address already in use")).when(receiverServer).start();
-    GatewayReceiverImpl gateway = new GatewayReceiverImpl(cache, 2000, 2000, 5, 100, null, null,
+    var gateway = new GatewayReceiverImpl(cache, 2000, 2000, 5, 100, null, null,
         null, true, true, 2000);
 
-    Throwable thrown = catchThrowable(gateway::start);
+    var thrown = catchThrowable(gateway::start);
 
     assertThat(thrown)
         .isInstanceOf(GatewayReceiverException.class)
@@ -136,10 +135,10 @@ public class GatewayReceiverImplTest {
   @Test
   public void startShouldTryTwoPortsInPortRangeIfIOExceptionIsThrown() throws IOException {
     doThrow(new SocketException("Address already in use")).when(receiverServer).start();
-    GatewayReceiverImpl gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
+    var gateway = new GatewayReceiverImpl(cache, 2000, 2001, 5, 100, null, null,
         null, true, true, 2000);
 
-    Throwable thrown = catchThrowable(gateway::start);
+    var thrown = catchThrowable(gateway::start);
 
     assertThat(thrown)
         .isInstanceOf(GatewayReceiverException.class)
@@ -151,12 +150,12 @@ public class GatewayReceiverImplTest {
   @Test
   public void startShouldTryAllPortsInPortRangeIfIOExceptionIsThrown() throws IOException {
     doThrow(new SocketException("Address already in use")).when(receiverServer).start();
-    int startPort = 2000;
-    int endPort = 2100;
-    GatewayReceiverImpl gateway = new GatewayReceiverImpl(cache, startPort, endPort, 5, 100, null,
+    var startPort = 2000;
+    var endPort = 2100;
+    var gateway = new GatewayReceiverImpl(cache, startPort, endPort, 5, 100, null,
         null, null, true, true, 2000);
 
-    Throwable thrown = catchThrowable(gateway::start);
+    var thrown = catchThrowable(gateway::start);
 
     assertThat(thrown)
         .isInstanceOf(GatewayReceiverException.class)
@@ -164,7 +163,7 @@ public class GatewayReceiverImplTest {
 
     assertThat(gateway.getPort()).isEqualTo(0);
 
-    int numberOfInvocations = endPort - startPort + 1;
+    var numberOfInvocations = endPort - startPort + 1;
     verify(receiverServer, times(numberOfInvocations)).start();
   }
 
@@ -172,7 +171,7 @@ public class GatewayReceiverImplTest {
   public void startsSucceedsIfRandomPortInPortRangeSucceeds() throws IOException {
     IOException ioException = new SocketException("Address already in use");
     doThrow(ioException).doThrow(ioException).doNothing().when(receiverServer).start();
-    GatewayReceiverImpl gateway = new GatewayReceiverImpl(cache, 2000, 2010, 5, 100, null, null,
+    var gateway = new GatewayReceiverImpl(cache, 2000, 2010, 5, 100, null, null,
         null, true, true, 2000);
 
     gateway.start();

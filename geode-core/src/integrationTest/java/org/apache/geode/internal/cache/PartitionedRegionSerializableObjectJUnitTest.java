@@ -57,22 +57,22 @@ public class PartitionedRegionSerializableObjectJUnitTest {
    */
   @Test
   public void testOperationsWithSerializableObject() {
-    int localMaxMemory = 50;
-    Thread[] threadArr = new Thread[10];
+    var localMaxMemory = 50;
+    var threadArr = new Thread[10];
     root = PartitionedRegionTestHelper.createPartitionedRegion(regionName,
         String.valueOf(localMaxMemory), 0);
     System.out.println("*******testOperationsWithSerializableObject started*********");
-    for (int i = 0; i < MAX_THREADS; i++) {
-      putThread putObj = new putThread("PRSerializableObjectJUnitTest" + i);
+    for (var i = 0; i < MAX_THREADS; i++) {
+      var putObj = new putThread("PRSerializableObjectJUnitTest" + i);
       threadArr[i] = putObj;
     }
 
-    for (int i = 0; i < MAX_THREADS; i++) {
+    for (var i = 0; i < MAX_THREADS; i++) {
       threadArr[i].start();
       ThreadUtils.join(threadArr[i], 30 * 1000);
     }
 
-    for (int i = 0; i < MAX_THREADS; i++) {
+    for (var i = 0; i < MAX_THREADS; i++) {
       new getThread("PRSerializableObjectJUnitTest" + i);
     }
 
@@ -99,14 +99,14 @@ public class PartitionedRegionSerializableObjectJUnitTest {
 
     @Override
     public void run() {
-      Region pr = PartitionedRegionTestHelper.getExistingRegion(SEPARATOR + regionName);
+      var pr = PartitionedRegionTestHelper.getExistingRegion(SEPARATOR + regionName);
       assertNotNull(pr);
       List list = new ArrayList();
       list = (ArrayList) thread2List.get(getName());
 
-      for (final Object listObj : list) {
+      for (final var listObj : list) {
         try {
-          Object retObj = pr.get(listObj);
+          var retObj = pr.get(listObj);
           assertNotNull(retObj);
           if (!listObj.equals(retObj)) {
             fail(
@@ -131,9 +131,9 @@ public class PartitionedRegionSerializableObjectJUnitTest {
 
     @Override
     public void run() {
-      Region pr = PartitionedRegionTestHelper.getExistingRegion(SEPARATOR + regionName);
+      var pr = PartitionedRegionTestHelper.getExistingRegion(SEPARATOR + regionName);
       assertNotNull(pr);
-      int key = 0;
+      var key = 0;
       Object obj = null;
       List list = new ArrayList();
       for (key = 0; key < MAX_COUNT; key++) {

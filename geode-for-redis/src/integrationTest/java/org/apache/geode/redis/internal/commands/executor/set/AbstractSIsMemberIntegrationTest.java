@@ -55,7 +55,7 @@ public abstract class AbstractSIsMemberIntegrationTest implements RedisIntegrati
   public void sismemberValidKeyValidMember_returnTrue() {
     jedis.sadd(setKey, setMembers);
 
-    for (String member : setMembers) {
+    for (var member : setMembers) {
       assertThat(jedis.sismember(setKey, member)).isTrue();
     }
   }
@@ -73,7 +73,7 @@ public abstract class AbstractSIsMemberIntegrationTest implements RedisIntegrati
 
   @Test
   public void sismemberMemberInAnotherSet_returnFalse() {
-    String member = "elephant";
+    var member = "elephant";
     jedis.sadd("diffSet", member);
     jedis.sadd(setKey, setMembers);
 
@@ -84,7 +84,7 @@ public abstract class AbstractSIsMemberIntegrationTest implements RedisIntegrati
   public void sismemberNonExistingKeyAndMemberInAnotherSet_returnFalse() {
     jedis.sadd(setKey, setMembers);
 
-    for (String member : setMembers) {
+    for (var member : setMembers) {
       assertThat(jedis.sismember("nonExistentKey", member)).isFalse();
     }
   }
@@ -92,7 +92,7 @@ public abstract class AbstractSIsMemberIntegrationTest implements RedisIntegrati
 
   @Test
   public void sismemberAfterSadd_returnsTrue() {
-    String newMember = "chicken";
+    var newMember = "chicken";
     jedis.sadd(setKey, setMembers);
     assertThat(jedis.sismember(setKey, newMember)).isFalse();
     jedis.sadd(setKey, newMember);
@@ -101,8 +101,8 @@ public abstract class AbstractSIsMemberIntegrationTest implements RedisIntegrati
 
   @Test
   public void scardWithWrongKeyType_returnsWrongTypeError() {
-    String keyString = "keys";
-    String valueString = "alicia";
+    var keyString = "keys";
+    var valueString = "alicia";
     jedis.set(keyString, valueString);
     assertThatThrownBy(() -> jedis.sismember(keyString, valueString)).hasMessage(ERROR_WRONG_TYPE);
   }

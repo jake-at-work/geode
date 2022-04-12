@@ -83,10 +83,10 @@ public class QueryFromClauseCanonicalizationJUnitTest {
   @Test
   public void testCanonicalizedFromClause() throws Throwable {
 
-    boolean overallTestFailed = false;
+    var overallTestFailed = false;
     Query q = null;
     QueryObserverImpl observer = null;
-    for (int j = 0; j < queries.length; j++) {
+    for (var j = 0; j < queries.length; j++) {
 
       try {
         q = qs.newQuery(queries[j]);
@@ -162,25 +162,25 @@ public class QueryFromClauseCanonicalizationJUnitTest {
 
   @Test
   public void testCanonicalizationOfMethod() throws Exception {
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "pos pf");
-    ExecutionContext context =
+    var context =
         new ExecutionContext(new Object[] {"bindkey"}, CacheUtils.getCache());
     context.newScope(context.associateScopeID());
 
-    for (final Object o : list) {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) o;
+    for (final var o : list) {
+      var iterDef = (CompiledIteratorDef) o;
       context.addDependencies(new CompiledID("dummy"), iterDef.computeDependencies(context));
-      RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+      var rIter = iterDef.getRuntimeIterator(context);
       context.bindIterator(rIter);
       context.addToIndependentRuntimeItrMap(iterDef);
     }
-    CompiledPath cp = new CompiledPath(new CompiledID("pf"), "positions");
-    CompiledLiteral cl = new CompiledLiteral("key1");
+    var cp = new CompiledPath(new CompiledID("pf"), "positions");
+    var cl = new CompiledLiteral("key1");
     List args = new ArrayList();
     args.add(cl);
-    CompiledOperation cop = new CompiledOperation(cp, "get", args);
-    StringBuilder sbuff = new StringBuilder();
+    var cop = new CompiledOperation(cp, "get", args);
+    var sbuff = new StringBuilder();
     cop.generateCanonicalizedExpression(sbuff, context);
     assertEquals(sbuff.toString(), "iter1.positions.get('key1')");
 
@@ -215,7 +215,7 @@ public class QueryFromClauseCanonicalizationJUnitTest {
     // assertIndexDetailsEquals(sbuff.toString(),"iter1.positions.get('bindkey')");
 
     cp = new CompiledPath(new CompiledID("pf"), "getPositions");
-    CompiledPath cp1 = new CompiledPath(new CompiledID("pf"), "pkid");
+    var cp1 = new CompiledPath(new CompiledID("pf"), "pkid");
     args = new ArrayList();
     args.add(cp1);
     cop = new CompiledOperation(cp, "get", args);
@@ -226,7 +226,7 @@ public class QueryFromClauseCanonicalizationJUnitTest {
 
     cp = new CompiledPath(new CompiledID("pf"), "getPositions");
     cp1 = new CompiledPath(new CompiledID("pf"), "pkid");
-    CompiledIndexOperation ciop = new CompiledIndexOperation(cp, cp1);
+    var ciop = new CompiledIndexOperation(cp, cp1);
     sbuff = new StringBuilder();
     ciop.generateCanonicalizedExpression(sbuff, context);
     assertEquals(sbuff.toString(), "iter1.positions[iter1.pkid]");

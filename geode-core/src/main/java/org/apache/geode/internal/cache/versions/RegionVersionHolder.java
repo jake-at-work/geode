@@ -110,7 +110,7 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
 
   public synchronized long getVersion() {
     RVVException e = null;
-    List<RVVException> exs = getExceptions();
+    var exs = getExceptions();
     if (!exs.isEmpty()) {
       e = exs.get(0);
     }
@@ -171,12 +171,12 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
 
   @Override
   public synchronized RegionVersionHolder<T> clone() {
-    RegionVersionHolder<T> clone = new RegionVersionHolder<>(version);
+    var clone = new RegionVersionHolder<T>(version);
     clone.id = id;
     clone.isDepartedMember = isDepartedMember;
     if (exceptions != null) {
       clone.exceptions = new LinkedList<>();
-      for (RVVException e : exceptions) {
+      for (var e : exceptions) {
         clone.exceptions.add(e.clone());
       }
     }
@@ -191,10 +191,10 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
   @Override
   public synchronized String toString() {
     // mergeBitSet();
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("{rv").append(version).append(" bsv").append(bitSetVersion).append(" bs=[");
     if (bitSet != null) {
-      int i = bitSet.nextSetBit(0);
+      var i = bitSet.nextSetBit(0);
       if (i >= 0) {
         sb.append("0");
         for (i = bitSet.nextSetBit(1); i > 0; i = bitSet.nextSetBit(i + 1)) {
@@ -216,9 +216,9 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
     if (exceptions == null) {
       return;
     }
-    int i = 0;
-    for (Iterator<RVVException> it = exceptions.iterator(); it.hasNext();) {
-      RVVException e = it.next();
+    var i = 0;
+    for (var it = exceptions.iterator(); it.hasNext();) {
+      var e = it.next();
       if (e.nextVersion <= missingVersion) {
         return; // there is no RVVException for this version
       }
@@ -250,7 +250,7 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
       return; // it fits in this bitset
     }
 
-    int bitCountToFlush = BIT_SET_WIDTH * 3 / 4;
+    var bitCountToFlush = BIT_SET_WIDTH * 3 / 4;
 
     // We can only flush up to the last set bit because
     // the exceptions list includes a "next version" that indicates a received version.
@@ -315,7 +315,7 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
       bitSet.clear();
     } else {
       // Otherwise slide the bitset over to the new offset
-      int offsetIncrease = (int) (newVersion - bitSetVersion);
+      var offsetIncrease = (int) (newVersion - bitSetVersion);
       bitSet = bitSet.get(offsetIncrease, bitSet.size());
     }
 
@@ -370,7 +370,7 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
   }
 
   private void setVersionInBitSet(long version) {
-    long bitToSet = version - bitSetVersion;
+    var bitToSet = version - bitSetVersion;
     if (bitToSet > BIT_SET_WIDTH) {
       Assert.fail("Trying to set a bit larger than the size of the bitset " + bitToSet);
     }
@@ -389,7 +389,7 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
    * Add an exception that is older than this.bitSetVersion.
    */
   synchronized void addException(final long previousVersion, final long nextVersion) {
-    RVVException newException = RVVException.createException(previousVersion, nextVersion);
+    var newException = RVVException.createException(previousVersion, nextVersion);
     addException(newException);
   }
 
@@ -397,11 +397,11 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
     if (exceptions == null) {
       exceptions = new LinkedList<>();
     }
-    int i = 0;
-    for (Iterator<RVVException> it = exceptions.iterator(); it.hasNext(); i++) {
-      RVVException e = it.next();
+    var i = 0;
+    for (var it = exceptions.iterator(); it.hasNext(); i++) {
+      var e = it.next();
       if (newException.previousVersion >= e.nextVersion) {
-        RVVException except = newException;
+        var except = newException;
         exceptions.add(i, except);
         return;
       }
@@ -412,8 +412,8 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
   synchronized void removeExceptionsOlderThan(long v) {
     mergeBitSet();
     if (exceptions != null) {
-      for (Iterator<RVVException> it = exceptions.iterator(); it.hasNext();) {
-        RVVException e = it.next();
+      for (var it = exceptions.iterator(); it.hasNext();) {
+        var e = it.next();
         if (e.nextVersion <= v) {
           it.remove();
         }
@@ -436,10 +436,10 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
     // and this vector
     mergeBitSet();
 
-    RegionVersionHolder<T> other = source.clone();
+    var other = source.clone();
     other.mergeBitSet();
     // Get a copy of the local version and exceptions
-    long myVersion = version;
+    var myVersion = version;
 
     // initialize our version and exceptions to match the others
     exceptions = other.exceptions;
@@ -451,13 +451,13 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
     // The only case needs special handling is: if myVersion is newer than this.version,
     // should create an exception (this.version+1, myversion) and set this.version=myversion
     if (myVersion > version) {
-      RVVException e = RVVException.createException(version, myVersion + 1);
+      var e = RVVException.createException(version, myVersion + 1);
       // add special exception
       if (exceptions == null) {
         exceptions = new LinkedList<>();
       }
-      int i = 0;
-      for (RVVException exception : exceptions) {
+      var i = 0;
+      for (var exception : exceptions) {
         if (e.compareTo(exception) >= 0) {
           break;
         }
@@ -502,7 +502,7 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
       if (exceptions == null) {
         return true;
       }
-      for (RVVException e : exceptions) {
+      for (var e : exceptions) {
         if (e.nextVersion <= v) {
           return true; // there is no RVVException for this version
         }
@@ -531,7 +531,7 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
     if (exceptions == null) {
       return false;
     }
-    for (RVVException e : exceptions) {
+    for (var e : exceptions) {
       if (e.nextVersion <= v) {
         return false; // there is no RVVException for this version
       }
@@ -561,20 +561,20 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
     }
 
     // Prevent synhronization issues if other is a live version vector.
-    RegionVersionHolder<T> other = source.clone();
+    var other = source.clone();
 
     // since the exception sets are sorted with most recent ones first
     // we can make one pass over both sets to see if there are overlapping
     // exceptions or exceptions I don't have that the other does
     mergeBitSet(); // dump the bit-set exceptions into the regular exceptions list
     other.mergeBitSet();
-    List<RVVException> mine = canonicalExceptions(exceptions);
-    Iterator<RVVException> myIterator = mine.iterator();
-    List<RVVException> others = canonicalExceptions(other.exceptions);
-    Iterator<RVVException> otherIterator = others.iterator();
+    var mine = canonicalExceptions(exceptions);
+    var myIterator = mine.iterator();
+    var others = canonicalExceptions(other.exceptions);
+    var otherIterator = others.iterator();
     // System.out.println("comparing " + mine + " with " + others);
-    RVVException myException = myIterator.hasNext() ? myIterator.next() : null;
-    RVVException otherException = otherIterator.hasNext() ? otherIterator.next() : null;
+    var myException = myIterator.hasNext() ? myIterator.next() : null;
+    var otherException = otherIterator.hasNext() ? otherIterator.next() : null;
     // I can't fill exceptions that are newer than anything I've seen, so skip them
     while ((otherException != null && otherException.previousVersion > version)
         || isSpecialException(otherException, other)) {
@@ -653,11 +653,11 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
   public synchronized void toData(DataOutput out) throws IOException {
     mergeBitSet();
     InternalDataSerializer.writeUnsignedVL(version, out);
-    int size = (exceptions == null) ? 0 : exceptions.size();
+    var size = (exceptions == null) ? 0 : exceptions.size();
     InternalDataSerializer.writeUnsignedVL(size, out);
     out.writeBoolean(isDepartedMember);
     if (size > 0) {
-      for (RVVException e : exceptions) {
+      for (var e : exceptions) {
         InternalDataSerializer.invokeToData(e, out);
       }
     }
@@ -671,12 +671,12 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
   @Override
   public void fromData(DataInput in) throws IOException {
     version = InternalDataSerializer.readUnsignedVL(in);
-    int size = (int) InternalDataSerializer.readUnsignedVL(in);
+    var size = (int) InternalDataSerializer.readUnsignedVL(in);
     isDepartedMember = in.readBoolean();
     if (size > 0) {
       exceptions = new LinkedList<>();
-      for (int i = 0; i < size; i++) {
-        RVVException e = RVVException.createException(in);
+      for (var i = 0; i < size; i++) {
+        var e = RVVException.createException(in);
         exceptions.add(e);
       }
     }
@@ -694,8 +694,8 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
    */
   public synchronized int hashCode() {
     mergeBitSet();
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + (int) version;
     result = prime * result + (int) (version >> 32);
     result = prime * result + canonicalExceptions(exceptions).hashCode();
@@ -706,8 +706,8 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
   // 2 RegionVersionHolders are actually the same
   void removeSpecialException() {
     if (exceptions != null && !exceptions.isEmpty()) {
-      for (Iterator<RVVException> it = exceptions.iterator(); it.hasNext();) {
-        RVVException e = it.next();
+      for (var it = exceptions.iterator(); it.hasNext();) {
+        var e = it.next();
         if (isSpecialException(e, this)) {
           it.remove();
         }
@@ -728,17 +728,17 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
     if (getVersion() != other.getVersion()) {
       return false;
     }
-    RegionVersionHolder<T> vh1 = clone();
-    RegionVersionHolder<T> vh2 = other.clone();
+    var vh1 = clone();
+    var vh2 = other.clone();
     vh1.removeSpecialException();
     vh2.removeSpecialException();
     if (vh1.exceptions == null || vh1.exceptions.isEmpty()) {
       return vh2.exceptions == null || vh2.exceptions.isEmpty();
     } else {
-      List<RVVException> e1 = canonicalExceptions(vh1.exceptions);
-      List<RVVException> e2 = canonicalExceptions(vh2.exceptions);
-      Iterator<RVVException> it1 = e1.iterator();
-      Iterator<RVVException> it2 = e2.iterator();
+      var e1 = canonicalExceptions(vh1.exceptions);
+      var e2 = canonicalExceptions(vh2.exceptions);
+      var it1 = e1.iterator();
+      var it2 = e2.iterator();
       while (it1.hasNext() && it2.hasNext()) {
         if (!it1.next().sameAs(it2.next())) {
           return false;
@@ -763,18 +763,18 @@ public class RegionVersionHolder<T> implements Cloneable, DataSerializable {
    * @return The canonicalized set of exceptions.
    */
   protected static List<RVVException> canonicalExceptions(List<RVVException> exceptions) {
-    LinkedList<RVVException> canon = new LinkedList<>();
+    var canon = new LinkedList<RVVException>();
     if (exceptions != null) {
       // Iterate through the set of exceptions
-      for (RVVException exception : exceptions) {
+      for (var exception : exceptions) {
         if (exception.isEmpty()) {
           canon.add(exception);
         } else {
-          long previous = exception.nextVersion;
+          var previous = exception.nextVersion;
           // Iterate through the set of received versions for this exception
-          for (RVVException.ReceivedVersionsReverseIterator it =
+          for (var it =
               exception.receivedVersionsReverseIterator(); it.hasNext();) {
-            long received = it.next();
+            var received = it.next();
             // If we find a gap between the previous received version and the
             // next received version, add an exception.
             if (received != previous - 1) {

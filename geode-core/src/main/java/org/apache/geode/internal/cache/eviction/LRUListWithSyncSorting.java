@@ -15,7 +15,6 @@
 
 package org.apache.geode.internal.cache.eviction;
 
-import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 
@@ -36,8 +35,8 @@ public class LRUListWithSyncSorting extends AbstractEvictionList {
   }
 
   private int readMaxEntriesProperty() {
-    int result = -1;
-    Optional<Integer> optionalMaxEntries = SystemProperty
+    var result = -1;
+    var optionalMaxEntries = SystemProperty
         .getProductIntegerProperty(SystemPropertyHelper.EVICTION_SEARCH_MAX_ENTRIES);
     if (optionalMaxEntries.isPresent()) {
       result = optionalMaxEntries.get();
@@ -54,7 +53,7 @@ public class LRUListWithSyncSorting extends AbstractEvictionList {
     long numEvals = 0;
 
     for (;;) {
-      EvictionNode aNode = unlinkHeadEntry();
+      var aNode = unlinkHeadEntry();
 
       if (logger.isTraceEnabled(LogMarker.LRU_CLOCK_VERBOSE)) {
         logger.trace(LogMarker.LRU_CLOCK_VERBOSE, "lru considering {}", aNode);

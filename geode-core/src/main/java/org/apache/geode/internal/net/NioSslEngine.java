@@ -35,7 +35,6 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSession;
 
 import org.apache.logging.log4j.Logger;
 
@@ -70,9 +69,9 @@ public class NioSslEngine implements NioFilter {
   private final ByteBufferVendor inputBufferVendor;
 
   NioSslEngine(SSLEngine engine, BufferPool bufferPool) {
-    SSLSession session = engine.getSession();
-    int appBufferSize = session.getApplicationBufferSize();
-    int packetBufferSize = engine.getSession().getPacketBufferSize();
+    var session = engine.getSession();
+    var appBufferSize = session.getApplicationBufferSize();
+    var packetBufferSize = engine.getSession().getPacketBufferSize();
     closed = false;
     this.engine = engine;
     this.bufferPool = bufferPool;
@@ -97,10 +96,10 @@ public class NioSslEngine implements NioFilter {
           peerNetData.capacity(), engine.getSession().getPacketBufferSize()));
     }
 
-    final ByteBuffer handshakeBuffer = peerNetData;
+    final var handshakeBuffer = peerNetData;
     handshakeBuffer.clear();
 
-    ByteBuffer myAppData = ByteBuffer.wrap(new byte[0]);
+    var myAppData = ByteBuffer.wrap(new byte[0]);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Starting TLS handshake with {}.  Timeout is {}ms", socketChannel.socket(),
@@ -114,7 +113,7 @@ public class NioSslEngine implements NioFilter {
 
     // Begin handshake
     engine.beginHandshake();
-    SSLEngineResult.HandshakeStatus status = engine.getHandshakeStatus();
+    var status = engine.getHandshakeStatus();
     SSLEngineResult engineResult = null;
 
     // Process handshaking message
@@ -134,11 +133,11 @@ public class NioSslEngine implements NioFilter {
 
       switch (status) {
         case NEED_UNWRAP:
-          try (final ByteBufferSharing inputSharing = inputBufferVendor.open()) {
-            final ByteBuffer peerAppData = inputSharing.getBuffer();
+          try (final var inputSharing = inputBufferVendor.open()) {
+            final var peerAppData = inputSharing.getBuffer();
 
             // Receive handshaking data from peer
-            int dataRead = socketChannel.read(handshakeBuffer);
+            var dataRead = socketChannel.read(handshakeBuffer);
 
             // Process incoming handshaking data
             handshakeBuffer.flip();
@@ -161,8 +160,8 @@ public class NioSslEngine implements NioFilter {
           }
 
         case NEED_WRAP:
-          try (final ByteBufferSharing outputSharing = outputBufferVendor.open()) {
-            final ByteBuffer myNetData = outputSharing.getBuffer();
+          try (final var outputSharing = outputBufferVendor.open()) {
+            final var myNetData = outputSharing.getBuffer();
 
             // Empty the local network packet buffer.
             myNetData.clear();
@@ -230,23 +229,23 @@ public class NioSslEngine implements NioFilter {
 
   @Override
   public ByteBufferSharing wrap(ByteBuffer appData) throws IOException {
-    try (final ByteBufferSharing outputSharing = outputBufferVendor.open()) {
+    try (final var outputSharing = outputBufferVendor.open()) {
 
-      ByteBuffer myNetData = outputSharing.getBuffer();
+      var myNetData = outputSharing.getBuffer();
 
       myNetData.clear();
 
       while (appData.hasRemaining()) {
         // ensure we have lots of capacity since encrypted data might
         // be larger than the app data
-        int remaining = myNetData.capacity() - myNetData.position();
+        var remaining = myNetData.capacity() - myNetData.position();
 
         if (remaining < (appData.remaining() * 2)) {
-          int newCapacity = expandedCapacity(appData, myNetData);
+          var newCapacity = expandedCapacity(appData, myNetData);
           myNetData = outputSharing.expandWriteBufferIfNeeded(newCapacity);
         }
 
-        SSLEngineResult wrapResult = engine.wrap(appData, myNetData);
+        var wrapResult = engine.wrap(appData, myNetData);
 
         if (wrapResult.getHandshakeStatus() == NEED_TASK) {
           handleBlockingTasks();
@@ -265,9 +264,9 @@ public class NioSslEngine implements NioFilter {
 
   @Override
   public ByteBufferSharing unwrap(ByteBuffer wrappedBuffer) throws IOException {
-    try (final ByteBufferSharing inputSharing = inputBufferVendor.open()) {
+    try (final var inputSharing = inputBufferVendor.open()) {
 
-      ByteBuffer peerAppData = inputSharing.getBuffer();
+      var peerAppData = inputSharing.getBuffer();
 
       // note that we do not clear peerAppData as it may hold a partial
       // message. TcpConduit, for instance, uses message chunking to
@@ -275,13 +274,13 @@ public class NioSslEngine implements NioFilter {
       // during the previous unwrap
 
       peerAppData.limit(peerAppData.capacity());
-      boolean stopDecryption = false;
+      var stopDecryption = false;
       while (wrappedBuffer.hasRemaining() && !stopDecryption) {
-        SSLEngineResult unwrapResult = engine.unwrap(wrappedBuffer, peerAppData);
+        var unwrapResult = engine.unwrap(wrappedBuffer, peerAppData);
         switch (unwrapResult.getStatus()) {
           case BUFFER_OVERFLOW:
             // buffer overflow expand and try again - double the available decryption space
-            int newCapacity =
+            var newCapacity =
                 (peerAppData.capacity() - peerAppData.position()) * 2 + peerAppData.position();
             newCapacity = Math.max(newCapacity, peerAppData.capacity() / 2 * 3);
             peerAppData = inputSharing.expandWriteBufferIfNeeded(newCapacity);
@@ -312,8 +311,8 @@ public class NioSslEngine implements NioFilter {
   @Override
   public ByteBuffer ensureWrappedCapacity(int amount, ByteBuffer wrappedBuffer,
       BufferType bufferType) {
-    ByteBuffer buffer = wrappedBuffer;
-    int requiredSize = engine.getSession().getPacketBufferSize();
+    var buffer = wrappedBuffer;
+    var requiredSize = engine.getSession().getPacketBufferSize();
     if (buffer == null) {
       buffer = bufferPool.acquireDirectBuffer(bufferType, requiredSize);
     } else if (buffer.capacity() < requiredSize) {
@@ -325,9 +324,9 @@ public class NioSslEngine implements NioFilter {
   @Override
   public ByteBufferSharing readAtLeast(SocketChannel channel, int bytes,
       ByteBuffer wrappedBuffer) throws IOException {
-    try (final ByteBufferSharing inputSharing = inputBufferVendor.open()) {
+    try (final var inputSharing = inputBufferVendor.open()) {
 
-      ByteBuffer peerAppData = inputSharing.getBuffer();
+      var peerAppData = inputSharing.getBuffer();
 
       if (peerAppData.capacity() > bytes) {
         // we already have a buffer that's big enough
@@ -339,7 +338,7 @@ public class NioSslEngine implements NioFilter {
 
       while (peerAppData.remaining() < bytes) {
         wrappedBuffer.limit(wrappedBuffer.capacity());
-        int amountRead = channel.read(wrappedBuffer);
+        var amountRead = channel.read(wrappedBuffer);
         if (amountRead < 0) {
           throw new EOFException();
         }
@@ -347,9 +346,9 @@ public class NioSslEngine implements NioFilter {
           wrappedBuffer.flip();
           // prep the decoded buffer for writing
           peerAppData.compact();
-          try (final ByteBufferSharing inputSharing2 = unwrap(wrappedBuffer)) {
+          try (final var inputSharing2 = unwrap(wrappedBuffer)) {
             // done writing to the decoded buffer - prep it for reading again
-            final ByteBuffer peerAppDataNew = inputSharing2.getBuffer();
+            final var peerAppDataNew = inputSharing2.getBuffer();
             peerAppDataNew.flip();
             peerAppData = peerAppDataNew; // loop needs new reference!
           }
@@ -378,18 +377,18 @@ public class NioSslEngine implements NioFilter {
     }
     closed = true;
     inputBufferVendor.destruct();
-    try (final ByteBufferSharing outputSharing = outputBufferVendor.open(1, TimeUnit.MINUTES)) {
-      final ByteBuffer myNetData = outputSharing.getBuffer();
+    try (final var outputSharing = outputBufferVendor.open(1, TimeUnit.MINUTES)) {
+      final var myNetData = outputSharing.getBuffer();
 
       if (!engine.isOutboundDone()) {
-        ByteBuffer empty = ByteBuffer.wrap(new byte[0]);
+        var empty = ByteBuffer.wrap(new byte[0]);
         engine.closeOutbound();
 
         // clear the buffer to receive a CLOSE message from the SSLEngine
         myNetData.clear();
 
         // Get close message
-        SSLEngineResult result = engine.wrap(empty, myNetData);
+        var result = engine.wrap(empty, myNetData);
 
         if (result.getStatus() != SSLEngineResult.Status.CLOSED) {
           throw new SSLHandshakeException(

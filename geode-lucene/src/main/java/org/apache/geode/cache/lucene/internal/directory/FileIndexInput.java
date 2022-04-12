@@ -60,7 +60,7 @@ class FileIndexInput extends IndexInput {
 
   @Override
   public FileIndexInput clone() {
-    FileIndexInput clone = (FileIndexInput) super.clone();
+    var clone = (FileIndexInput) super.clone();
     clone.in = in.clone();
     return clone;
   }
@@ -86,7 +86,7 @@ class FileIndexInput extends IndexInput {
       throw new IllegalArgumentException("Slice offset is invalid: " + file.getName());
     }
 
-    FileIndexInput result =
+    var result =
         new FileIndexInput(sliceDescription, file, sliceOffset + offset, length);
     result.seek(0);
     return result;
@@ -98,7 +98,7 @@ class FileIndexInput extends IndexInput {
       throw new EOFException("Read past end of file " + file.getName());
     }
 
-    int result = in.read();
+    var result = in.read();
     if (result == -1) {
       throw new EOFException("Read past end of file " + file.getName());
     } else {
@@ -119,7 +119,7 @@ class FileIndexInput extends IndexInput {
     // For the FileSystemInputStream, it will always read all bytes, up
     // until the end of the file. So if we didn't get enough bytes, it's
     // because we reached the end of the file.
-    int numRead = in.read(b, offset, len);
+    var numRead = in.read(b, offset, len);
     if (numRead < len) {
       throw new EOFException("Read past end of file " + file.getName());
     }

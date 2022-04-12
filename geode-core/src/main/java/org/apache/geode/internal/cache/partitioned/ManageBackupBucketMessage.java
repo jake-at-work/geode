@@ -38,7 +38,6 @@ import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.Node;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.PartitionedRegionDataStore.CreateBucketResult;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
@@ -113,8 +112,8 @@ public class ManageBackupBucketMessage extends PartitionMessage {
       InternalDistributedMember moveSource, boolean forceCreation) throws ForceReattemptException {
 
     Assert.assertTrue(recipient != null, "ManageBucketMessage NULL recipient");
-    NodeResponse p = new NodeResponse(r.getSystem(), recipient);
-    ManageBackupBucketMessage m = new ManageBackupBucketMessage(recipient, r.getPRId(), p, bucketId,
+    var p = new NodeResponse(r.getSystem(), recipient);
+    var m = new ManageBackupBucketMessage(recipient, r.getPRId(), p, bucketId,
         isRebalance, replaceOfflineData, moveSource, forceCreation);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
 
@@ -144,19 +143,19 @@ public class ManageBackupBucketMessage extends PartitionMessage {
 
     partitionedRegion.checkReadiness(); // Don't allow closed PartitionedRegions that have
                                         // datastores to host buckets
-    PartitionedRegionDataStore prDs = partitionedRegion.getDataStore();
+    var prDs = partitionedRegion.getDataStore();
 
     // This is to ensure that initialization is complete for all colocated regions
     // before bucket creation request is serviced. BUGFIX for 35888
     // GEODE-5255
-    boolean isReady = prDs.isPartitionedRegionReady(partitionedRegion, bucketId);
+    var isReady = prDs.isPartitionedRegionReady(partitionedRegion, bucketId);
     if (!isReady) {
       // This VM is NOT ready to manage a new bucket, refuse operation
       sendManageBackupBucketReplyMessage(dm, partitionedRegion, startTime, ReplyType.INITIALIZING);
       return false;
     }
 
-    boolean managingBucket = prDs.grabBucket(bucketId, moveSource, forceCreation,
+    var managingBucket = prDs.grabBucket(bucketId, moveSource, forceCreation,
         replaceOfflineData, isRebalance, null, false) == CreateBucketResult.CREATED;
 
     sendManageBackupBucketReplyMessage(dm, partitionedRegion, startTime,
@@ -194,7 +193,7 @@ public class ManageBackupBucketMessage extends PartitionMessage {
     bucketId = in.readInt();
     isRebalance = in.readBoolean();
     replaceOfflineData = in.readBoolean();
-    boolean hasMoveSource = in.readBoolean();
+    var hasMoveSource = in.readBoolean();
     if (hasMoveSource) {
       moveSource = new InternalDistributedMember();
       InternalDataSerializer.invokeFromData(moveSource, in);
@@ -285,7 +284,7 @@ public class ManageBackupBucketMessage extends PartitionMessage {
     public static void sendRefusal(InternalDistributedMember recipient, int processorId,
         DistributionManager dm) {
       Assert.assertTrue(recipient != null, "ManageBackupBucketReplyMessage NULL reply message");
-      ManageBackupBucketReplyMessage m =
+      var m =
           new ManageBackupBucketReplyMessage(processorId, false, false);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
@@ -300,7 +299,7 @@ public class ManageBackupBucketMessage extends PartitionMessage {
      */
     public static void sendStillInitializing(InternalDistributedMember recipient, int processorId,
         DistributionManager dm) {
-      ManageBackupBucketReplyMessage m =
+      var m =
           new ManageBackupBucketReplyMessage(processorId, false, true);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
@@ -316,7 +315,7 @@ public class ManageBackupBucketMessage extends PartitionMessage {
     public static void sendAcceptance(InternalDistributedMember recipient, int processorId,
         DistributionManager dm) {
       Assert.assertTrue(recipient != null, "ManageBackupBucketReplyMessage NULL reply message");
-      ManageBackupBucketReplyMessage m =
+      var m =
           new ManageBackupBucketReplyMessage(processorId, true, false);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
@@ -329,7 +328,7 @@ public class ManageBackupBucketMessage extends PartitionMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "ManageBackupBucketReplyMessage process invoking reply processor with processorId: {}",
@@ -399,7 +398,7 @@ public class ManageBackupBucketMessage extends PartitionMessage {
     public void process(DistributionMessage m) {
       try {
         if (m instanceof ManageBackupBucketReplyMessage) {
-          ManageBackupBucketReplyMessage reply = (ManageBackupBucketReplyMessage) m;
+          var reply = (ManageBackupBucketReplyMessage) m;
           msg = reply;
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
             logger.trace(LogMarker.DM_VERBOSE, "NodeResponse return value is {} isInitializng={}",
@@ -432,21 +431,21 @@ public class ManageBackupBucketMessage extends PartitionMessage {
       try {
         waitForRepliesUninterruptibly();
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof CacheClosedException) {
-          String m =
+          var m =
               "NodeResponse got remote CacheClosedException, throwing PartitionedRegionCommunication Exception";
           logger.debug(m, t);
           throw new ForceReattemptException(m, t);
         }
         if (t instanceof PRLocallyDestroyedException) {
-          String m =
+          var m =
               "NodeResponse got local destroy on the PartitionRegion , throwing ForceReattemptException";
           logger.debug(m, t);
           throw new ForceReattemptException(m, t);
         }
         if (t instanceof ForceReattemptException) {
-          String m =
+          var m =
               "NodeResponse got ForceReattemptException due to local destroy on the PartitionRegion";
           logger.debug(m, t);
           throw (ForceReattemptException) t;

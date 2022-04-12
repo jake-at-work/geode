@@ -81,9 +81,9 @@ public class AbstractRegionMapTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    AbstractRegionMap mockAbstractRegionMap = mock(AbstractRegionMap.class);
-    RegionEntry mockRegionEntry = mock(RegionEntry.class);
-    VersionHolder mockVersionHolder = mock(VersionHolder.class);
+    var mockAbstractRegionMap = mock(AbstractRegionMap.class);
+    var mockRegionEntry = mock(RegionEntry.class);
+    var mockVersionHolder = mock(VersionHolder.class);
 
     when(mockAbstractRegionMap.removeTombstone(eq(mockRegionEntry), eq(mockVersionHolder)))
         .thenReturn(true);
@@ -95,8 +95,8 @@ public class AbstractRegionMapTest {
 
   @Test
   public void invalidateOfNonExistentRegionThrowsEntryNotFound() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
-    EntryEventImpl event = createEventForInvalidate(arm._getOwner());
+    var arm = new TestableAbstractRegionMap();
+    var event = createEventForInvalidate(arm._getOwner());
     when(arm._getOwner().isInitialized()).thenReturn(true);
 
     assertThatThrownBy(() -> arm.invalidate(event, true, false, false))
@@ -108,8 +108,8 @@ public class AbstractRegionMapTest {
   @Test
   public void invalidateOfNonExistentRegionThrowsEntryNotFoundWithForce() {
     AbstractRegionMap.FORCE_INVALIDATE_EVENT = true;
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
-    EntryEventImpl event = createEventForInvalidate(arm._getOwner());
+    var arm = new TestableAbstractRegionMap();
+    var event = createEventForInvalidate(arm._getOwner());
     when(arm._getOwner().isInitialized()).thenReturn(true);
 
     assertThatThrownBy(() -> arm.invalidate(event, true, false, false))
@@ -120,8 +120,8 @@ public class AbstractRegionMapTest {
 
   @Test
   public void invalidateOfAlreadyInvalidEntryReturnsFalse() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
-    EntryEventImpl event = createEventForInvalidate(arm._getOwner());
+    var arm = new TestableAbstractRegionMap();
+    var event = createEventForInvalidate(arm._getOwner());
 
     // invalidate on region that is not initialized should create
     // entry in map as invalid.
@@ -138,8 +138,8 @@ public class AbstractRegionMapTest {
   @Test
   public void invalidateOfAlreadyInvalidEntryReturnsFalseWithForce() {
     AbstractRegionMap.FORCE_INVALIDATE_EVENT = true;
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
-    EntryEventImpl event = createEventForInvalidate(arm._getOwner());
+    var arm = new TestableAbstractRegionMap();
+    var event = createEventForInvalidate(arm._getOwner());
 
     // invalidate on region that is not initialized should create
     // entry in map as invalid.
@@ -155,8 +155,8 @@ public class AbstractRegionMapTest {
 
   @Test
   public void invalidateForceNewEntryOfAlreadyInvalidEntryReturnsFalse() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
-    EntryEventImpl event = createEventForInvalidate(arm._getOwner());
+    var arm = new TestableAbstractRegionMap();
+    var event = createEventForInvalidate(arm._getOwner());
 
     // invalidate on region that is not initialized should create
     // entry in map as invalid.
@@ -175,8 +175,8 @@ public class AbstractRegionMapTest {
   public void invalidateForceNewEntryOfAlreadyInvalidEntryReturnsFalseWithForce() {
     AbstractRegionMap.FORCE_INVALIDATE_EVENT = true;
     try {
-      TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
-      EntryEventImpl event = createEventForInvalidate(arm._getOwner());
+      var arm = new TestableAbstractRegionMap();
+      var event = createEventForInvalidate(arm._getOwner());
 
       // invalidate on region that is not initialized should create
       // entry in map as invalid.
@@ -198,25 +198,25 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyWithEmptyRegionThrowsException() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
-    EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    var arm = new TestableAbstractRegionMap();
+    var event = createEventForDestroy(arm._getOwner());
     assertThatThrownBy(() -> arm.destroy(event, false, false, false, false, null, false))
         .isInstanceOf(EntryNotFoundException.class);
   }
 
   @Test
   public void destroyWithEmptyRegionInTokenModeAddsAToken() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableAbstractRegionMap();
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = true;
-    final boolean duringRI = false;
+    final var inTokenMode = true;
+    final var duringRI = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
         .isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isTrue();
-    RegionEntry re = (RegionEntry) arm.getEntryMap().get(event.getKey());
+    var re = (RegionEntry) arm.getEntryMap().get(event.getKey());
     assertThat(re.getValueAsToken()).isEqualTo(Token.DESTROYED);
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -228,20 +228,20 @@ public class AbstractRegionMapTest {
       throws Exception {
     CustomEntryConcurrentHashMap<String, EvictableEntry> map =
         mock(CustomEntryConcurrentHashMap.class);
-    EvictableEntry entry = mock(EvictableEntry.class);
+    var entry = mock(EvictableEntry.class);
     when(entry.destroy(any(), any(), anyBoolean(), anyBoolean(), any(), anyBoolean(), anyBoolean()))
         .thenThrow(RegionClearedException.class);
     when(map.get(KEY)).thenReturn(null);
-    RegionEntryFactory factory = mock(RegionEntryFactory.class);
+    var factory = mock(RegionEntryFactory.class);
     when(factory.createEntry(any(), any(), any())).thenReturn(entry);
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, factory);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableAbstractRegionMap(false, map, factory);
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = true;
-    final boolean duringRI = false;
+    final var inTokenMode = true;
+    final var duringRI = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
         .isTrue();
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode), eq(true),
         eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -250,12 +250,12 @@ public class AbstractRegionMapTest {
 
   @Test
   public void evictDestroyWithEmptyRegionInTokenModeDoesNothing() {
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(true);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableVMLRURegionMap(true);
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = true;
-    final boolean duringRI = false;
-    final boolean evict = true;
+    final var inTokenMode = true;
+    final var duringRI = false;
+    final var evict = true;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, evict, expectedOldValue, false))
         .isFalse();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isFalse();
@@ -267,19 +267,19 @@ public class AbstractRegionMapTest {
 
   @Test
   public void evictDestroyWithExistingTombstoneInTokenModeChangesToDestroyToken() {
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(true);
+    final var arm = new TestableVMLRURegionMap(true);
     addEntry(arm, Token.TOMBSTONE);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = true;
-    final boolean duringRI = false;
-    final boolean evict = true;
+    final var inTokenMode = true;
+    final var duringRI = false;
+    final var evict = true;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, evict, expectedOldValue, false))
         .isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isTrue();
-    RegionEntry re = (RegionEntry) arm.getEntryMap().get(event.getKey());
+    var re = (RegionEntry) arm.getEntryMap().get(event.getKey());
     assertThat(re.getValueAsToken()).isEqualTo(Token.DESTROYED);
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -291,16 +291,16 @@ public class AbstractRegionMapTest {
       throws RegionClearedException {
     CustomEntryConcurrentHashMap<String, EvictableEntry> map =
         mock(CustomEntryConcurrentHashMap.class);
-    EvictableEntry entry = mock(EvictableEntry.class);
+    var entry = mock(EvictableEntry.class);
     when(entry.isInUseByTransaction()).thenReturn(true);
     when(entry.getValue()).thenReturn(Token.TOMBSTONE);
     when(map.get(KEY)).thenReturn(entry);
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(true, map);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableVMLRURegionMap(true, map);
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = true;
-    final boolean duringRI = false;
-    final boolean evict = true;
+    final var inTokenMode = true;
+    final var duringRI = false;
+    final var evict = true;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, evict, expectedOldValue, false))
         .isFalse();
     verify(entry, never()).destroy(any(), any(), anyBoolean(), anyBoolean(), any(), anyBoolean(),
@@ -316,16 +316,16 @@ public class AbstractRegionMapTest {
       throws RegionClearedException {
     CustomEntryConcurrentHashMap<Object, EvictableEntry> map =
         mock(CustomEntryConcurrentHashMap.class);
-    EvictableEntry entry = mock(EvictableEntry.class);
+    var entry = mock(EvictableEntry.class);
     when(entry.isInUseByTransaction()).thenReturn(true);
     when(map.get(KEY)).thenReturn(null);
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry);
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(true, map);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableVMLRURegionMap(true, map);
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = true;
-    final boolean duringRI = false;
-    final boolean evict = true;
+    final var inTokenMode = true;
+    final var duringRI = false;
+    final var evict = true;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, evict, expectedOldValue, false))
         .isFalse();
     verify(entry, never()).destroy(any(), any(), anyBoolean(), anyBoolean(), any(), anyBoolean(),
@@ -341,23 +341,23 @@ public class AbstractRegionMapTest {
       throws RegionClearedException {
     CustomEntryConcurrentHashMap<Object, EvictableEntry> map =
         mock(CustomEntryConcurrentHashMap.class);
-    EvictableEntry entry = mock(EvictableEntry.class);
+    var entry = mock(EvictableEntry.class);
     when(entry.getValue()).thenReturn("value");
     when(entry.destroy(any(), any(), anyBoolean(), anyBoolean(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
     when(map.get(KEY)).thenReturn(null).thenReturn(entry);
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry);
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(true, map);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableVMLRURegionMap(true, map);
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
-    final boolean evict = false;
+    final var inTokenMode = false;
+    final var duringRI = false;
+    final var evict = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, evict, expectedOldValue, false))
         .isTrue();
     verify(entry, times(1)).destroy(eq(arm._getOwner()), eq(event), eq(false), anyBoolean(),
         eq(expectedOldValue), anyBoolean(), anyBoolean());
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -369,25 +369,25 @@ public class AbstractRegionMapTest {
       throws RegionClearedException {
     CustomEntryConcurrentHashMap<Object, EvictableEntry> map =
         mock(CustomEntryConcurrentHashMap.class);
-    EvictableEntry entry = mock(EvictableEntry.class);
+    var entry = mock(EvictableEntry.class);
     when(entry.isRemovedPhase2()).thenReturn(true);
     when(entry.destroy(any(), any(), anyBoolean(), anyBoolean(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
     when(map.get(KEY)).thenReturn(null);
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry).thenReturn(null);
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(true, map);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableVMLRURegionMap(true, map);
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = true;
-    final boolean duringRI = false;
-    final boolean evict = false;
+    final var inTokenMode = true;
+    final var duringRI = false;
+    final var evict = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, evict, expectedOldValue, false))
         .isTrue();
     verify(map).remove(eq(KEY), eq(entry));
     verify(map, times(2)).putIfAbsent(eq(KEY), any());
     verify(entry, never()).destroy(eq(arm._getOwner()), eq(event), eq(false), anyBoolean(),
         eq(expectedOldValue), anyBoolean(), anyBoolean());
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -399,23 +399,23 @@ public class AbstractRegionMapTest {
       throws RegionClearedException {
     CustomEntryConcurrentHashMap<Object, EvictableEntry> map =
         mock(CustomEntryConcurrentHashMap.class);
-    EvictableEntry entry = mock(EvictableEntry.class);
+    var entry = mock(EvictableEntry.class);
     when(entry.getValue()).thenReturn("value");
     when(entry.isTombstone()).thenReturn(true).thenReturn(false);
     when(entry.destroy(any(), any(), anyBoolean(), anyBoolean(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
     when(map.get(KEY)).thenReturn(entry);
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(true, map);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableVMLRURegionMap(true, map);
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
-    final boolean evict = false;
+    final var inTokenMode = false;
+    final var duringRI = false;
+    final var evict = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, evict, expectedOldValue, false))
         .isTrue();
     verify(entry, times(1)).destroy(eq(arm._getOwner()), eq(event), eq(false), anyBoolean(),
         eq(expectedOldValue), anyBoolean(), anyBoolean());
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -424,18 +424,18 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyOfExistingEntryInTokenModeAddsAToken() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
+    final var arm = new TestableAbstractRegionMap();
     addEntry(arm);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = true;
-    final boolean duringRI = false;
+    final var inTokenMode = true;
+    final var duringRI = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
         .isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isTrue();
-    RegionEntry re = (RegionEntry) arm.getEntryMap().get(event.getKey());
+    var re = (RegionEntry) arm.getEntryMap().get(event.getKey());
     assertThat(re.getValueAsToken()).isEqualTo(Token.DESTROYED);
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -444,25 +444,25 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyOfExistingTombstoneInTokenModeWithConcurrencyChecksDoesNothing() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true);
+    final var arm = new TestableAbstractRegionMap(true);
     RegionVersionVector<?> versionVector = mock(RegionVersionVector.class);
     when(arm._getOwner().getVersionVector()).thenReturn(versionVector);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var event = createEventForDestroy(arm._getOwner());
     VersionTag<?> versionTag = mock(VersionTag.class);
     when(versionTag.hasValidVersion()).thenReturn(true);
     event.setVersionTag(versionTag);
     addEntry(arm, Token.TOMBSTONE);
     final Object expectedOldValue = null;
-    final boolean inTokenMode = true;
-    final boolean duringRI = false;
+    final var inTokenMode = true;
+    final var duringRI = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
         .isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isTrue();
-    RegionEntry re = (RegionEntry) arm.getEntryMap().get(event.getKey());
+    var re = (RegionEntry) arm.getEntryMap().get(event.getKey());
     // why not DESTROY token?
     assertThat(re.getValueAsToken()).isEqualTo(Token.TOMBSTONE);
     // since it was already destroyed why do we do the parts?
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -471,17 +471,17 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyOfExistingTombstoneWithConcurrencyChecksThrowsEntryNotFound() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true);
+    final var arm = new TestableAbstractRegionMap(true);
     RegionVersionVector<?> versionVector = mock(RegionVersionVector.class);
     when(arm._getOwner().getVersionVector()).thenReturn(versionVector);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var event = createEventForDestroy(arm._getOwner());
     VersionTag<?> versionTag = mock(VersionTag.class);
     when(versionTag.hasValidVersion()).thenReturn(true);
     event.setVersionTag(versionTag);
     addEntry(arm, Token.TOMBSTONE);
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
+    final var inTokenMode = false;
+    final var duringRI = false;
     assertThatThrownBy(
         () -> arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
             .isInstanceOf(EntryNotFoundException.class);
@@ -489,22 +489,22 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyOfExistingTombstoneWithConcurrencyChecksAndRemoveRecoveredEntryDoesRemove() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true);
+    final var arm = new TestableAbstractRegionMap(true);
     RegionVersionVector<?> versionVector = mock(RegionVersionVector.class);
     when(arm._getOwner().getVersionVector()).thenReturn(versionVector);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var event = createEventForDestroy(arm._getOwner());
     VersionTag<?> versionTag = mock(VersionTag.class);
     when(versionTag.hasValidVersion()).thenReturn(true);
     event.setVersionTag(versionTag);
     addEntry(arm, Token.TOMBSTONE);
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
-    final boolean removeRecoveredEntry = true;
+    final var inTokenMode = false;
+    final var duringRI = false;
+    final var removeRecoveredEntry = true;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue,
         removeRecoveredEntry)).isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isFalse();
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -513,34 +513,34 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyOfExistingRemovePhase2WithConcurrencyChecksAndRemoveRecoveredEntryDoesRetryAndThrowsEntryNotFound() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true);
+    final var arm = new TestableAbstractRegionMap(true);
     RegionVersionVector<?> versionVector = mock(RegionVersionVector.class);
     when(arm._getOwner().getVersionVector()).thenReturn(versionVector);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var event = createEventForDestroy(arm._getOwner());
     VersionTag<?> versionTag = mock(VersionTag.class);
     when(versionTag.hasValidVersion()).thenReturn(true);
     event.setVersionTag(versionTag);
     addEntry(arm, Token.REMOVED_PHASE2);
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
-    final boolean removeRecoveredEntry = true;
+    final var inTokenMode = false;
+    final var duringRI = false;
+    final var removeRecoveredEntry = true;
     assertThatThrownBy(() -> arm.destroy(event, inTokenMode, duringRI, false, false,
         expectedOldValue, removeRecoveredEntry)).isInstanceOf(EntryNotFoundException.class);
   }
 
   @Test
   public void destroyOfExistingEntryRemovesEntryFromMapAndDoesNotifications() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap();
+    final var arm = new TestableAbstractRegionMap();
     addEntry(arm);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
+    final var inTokenMode = false;
+    final var duringRI = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
         .isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isFalse();
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -549,18 +549,18 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyOfExistingEntryWithConcurrencyChecksAndNoVersionTagDestroysWithoutTombstone() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true);
+    final var arm = new TestableAbstractRegionMap(true);
     addEntry(arm);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var event = createEventForDestroy(arm._getOwner());
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
+    final var inTokenMode = false;
+    final var duringRI = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
         .isTrue();
     // This might be a bug. It seems like we should have created a tombstone but we have no
     // version tag so that might be the cause of this bug.
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isFalse();
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -569,23 +569,23 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyOfExistingEntryWithConcurrencyChecksAddsTombstone() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true);
-    RegionVersionVector versionVector = mock(RegionVersionVector.class);
+    final var arm = new TestableAbstractRegionMap(true);
+    var versionVector = mock(RegionVersionVector.class);
     when(arm._getOwner().getVersionVector()).thenReturn(versionVector);
     addEntry(arm);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
-    VersionTag versionTag = mock(VersionTag.class);
+    final var event = createEventForDestroy(arm._getOwner());
+    var versionTag = mock(VersionTag.class);
     when(versionTag.hasValidVersion()).thenReturn(true);
     event.setVersionTag(versionTag);
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
+    final var inTokenMode = false;
+    final var duringRI = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
         .isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isTrue();
-    RegionEntry re = (RegionEntry) arm.getEntryMap().get(event.getKey());
+    var re = (RegionEntry) arm.getEntryMap().get(event.getKey());
     assertThat(re.getValueAsToken()).isEqualTo(Token.TOMBSTONE);
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -594,24 +594,24 @@ public class AbstractRegionMapTest {
 
   @Test
   public void evictDestroyOfExistingEntryWithConcurrencyChecksAddsTombstone() {
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(true);
+    final var arm = new TestableVMLRURegionMap(true);
     RegionVersionVector<?> versionVector = mock(RegionVersionVector.class);
     when(arm._getOwner().getVersionVector()).thenReturn(versionVector);
     addEntry(arm);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var event = createEventForDestroy(arm._getOwner());
     VersionTag<?> versionTag = mock(VersionTag.class);
     when(versionTag.hasValidVersion()).thenReturn(true);
     event.setVersionTag(versionTag);
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
-    final boolean evict = true;
+    final var inTokenMode = false;
+    final var duringRI = false;
+    final var evict = true;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, evict, expectedOldValue, false))
         .isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isTrue();
-    RegionEntry re = (RegionEntry) arm.getEntryMap().get(event.getKey());
+    var re = (RegionEntry) arm.getEntryMap().get(event.getKey());
     assertThat(re.getValueAsToken()).isEqualTo(Token.TOMBSTONE);
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -620,16 +620,16 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyWithEmptyRegionWithConcurrencyChecksThrowsException() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true);
-    EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    var arm = new TestableAbstractRegionMap(true);
+    var event = createEventForDestroy(arm._getOwner());
     assertThatThrownBy(() -> arm.destroy(event, false, false, false, false, null, false))
         .isInstanceOf(EntryNotFoundException.class);
   }
 
   @Test
   public void evictDestroyWithEmptyRegionWithConcurrencyChecksDoesNothing() {
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(true);
-    EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableVMLRURegionMap(true);
+    var event = createEventForDestroy(arm._getOwner());
     assertThat(arm.destroy(event, false, false, false, true, null, false)).isFalse();
     verify(arm._getOwner(), never()).basicDestroyPart2(any(), any(), anyBoolean(), anyBoolean(),
         anyBoolean(), anyBoolean());
@@ -640,8 +640,8 @@ public class AbstractRegionMapTest {
 
   @Test
   public void evictDestroyWithEmptyRegionDoesNothing() {
-    final TestableVMLRURegionMap arm = new TestableVMLRURegionMap(false);
-    EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableVMLRURegionMap(false);
+    var event = createEventForDestroy(arm._getOwner());
     assertThat(arm.destroy(event, false, false, false, true, null, false)).isFalse();
     verify(arm._getOwner(), never()).basicDestroyPart2(any(), any(), anyBoolean(), anyBoolean(),
         anyBoolean(), anyBoolean());
@@ -652,23 +652,23 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyWithEmptyRegionWithConcurrencyChecksAddsATombstone() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true);
-    RegionVersionVector versionVector = mock(RegionVersionVector.class);
+    final var arm = new TestableAbstractRegionMap(true);
+    var versionVector = mock(RegionVersionVector.class);
     when(arm._getOwner().getVersionVector()).thenReturn(versionVector);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
-    VersionTag versionTag = mock(VersionTag.class);
+    final var event = createEventForDestroy(arm._getOwner());
+    var versionTag = mock(VersionTag.class);
     when(versionTag.hasValidVersion()).thenReturn(true);
     event.setVersionTag(versionTag);
     event.setOriginRemote(true);
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
+    final var inTokenMode = false;
+    final var duringRI = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
         .isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isTrue();
-    RegionEntry re = (RegionEntry) arm.getEntryMap().get(event.getKey());
+    var re = (RegionEntry) arm.getEntryMap().get(event.getKey());
     assertThat(re.getValueAsToken()).isEqualTo(Token.TOMBSTONE);
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -677,16 +677,16 @@ public class AbstractRegionMapTest {
 
   @Test
   public void destroyWithEmptyRegionWithConcurrencyChecksAndNullVersionTagAddsATombstone() {
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true);
-    final EntryEventImpl event = createEventForDestroy(arm._getOwner());
+    final var arm = new TestableAbstractRegionMap(true);
+    final var event = createEventForDestroy(arm._getOwner());
     event.setOriginRemote(true);
     final Object expectedOldValue = null;
-    final boolean inTokenMode = false;
-    final boolean duringRI = false;
+    final var inTokenMode = false;
+    final var duringRI = false;
     assertThat(arm.destroy(event, inTokenMode, duringRI, false, false, expectedOldValue, false))
         .isTrue();
     assertThat(arm.getEntryMap().containsKey(event.getKey())).isTrue();
-    boolean invokeCallbacks = true;
+    var invokeCallbacks = true;
     verify(arm._getOwner(), times(1)).basicDestroyPart2(any(), eq(event), eq(inTokenMode),
         eq(false), eq(duringRI), eq(invokeCallbacks));
     verify(arm._getOwner(), times(1)).basicDestroyPart3(any(), eq(event), eq(inTokenMode),
@@ -696,37 +696,37 @@ public class AbstractRegionMapTest {
     // that calls removePhase1 when the versionTag is null.
     // It seems like this code path needs to tell the higher levels
     // to call removeEntry
-    RegionEntry re = (RegionEntry) arm.getEntryMap().get(event.getKey());
+    var re = (RegionEntry) arm.getEntryMap().get(event.getKey());
     assertThat(re.getValueAsToken()).isEqualTo(Token.REMOVED_PHASE1);
   }
 
   @Test
   public void txApplyInvalidateDoesNotInvalidateRemovedToken() throws RegionClearedException {
-    TxTestableAbstractRegionMap arm = new TxTestableAbstractRegionMap();
+    var arm = new TxTestableAbstractRegionMap();
 
     Object newValue = "value";
     arm.txApplyPut(Operation.CREATE, KEY, newValue, false,
         new TXId(mock(InternalDistributedMember.class), 1), mock(TXRmtEvent.class),
         mock(EventID.class), null, new ArrayList<>(), null, null, null, null, 1);
-    RegionEntry re = arm.getEntry(KEY);
+    var re = arm.getEntry(KEY);
     assertNotNull(re);
 
     Token[] removedTokens =
         {Token.REMOVED_PHASE2, Token.REMOVED_PHASE1, Token.DESTROYED, Token.TOMBSTONE};
 
-    for (Token token : removedTokens) {
+    for (var token : removedTokens) {
       verifyTxApplyInvalidate(arm, KEY, re, token);
     }
   }
 
   @Test
   public void updateRecoveredEntry_givenExistingDestroyedOrRemovedAndSettingToTombstone_neverCallsUpdateSizeOnRemove() {
-    RecoveredEntry recoveredEntry = mock(RecoveredEntry.class);
-    RegionEntry regionEntry = mock(RegionEntry.class);
+    var recoveredEntry = mock(RecoveredEntry.class);
+    var regionEntry = mock(RegionEntry.class);
     when(regionEntry.isTombstone()).thenReturn(false).thenReturn(true);
     when(regionEntry.isDestroyedOrRemoved()).thenReturn(true);
     when(regionEntry.getVersionStamp()).thenReturn(mock(VersionStamp.class));
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
+    var arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
 
     arm.updateRecoveredEntry(KEY, recoveredEntry);
 
@@ -735,11 +735,11 @@ public class AbstractRegionMapTest {
 
   @Test
   public void updateRecoveredEntry_givenExistingRemovedNonTombstone_neverCallsUpdateSizeOnRemove() {
-    RecoveredEntry recoveredEntry = mock(RecoveredEntry.class);
-    RegionEntry regionEntry = mock(RegionEntry.class);
+    var recoveredEntry = mock(RecoveredEntry.class);
+    var regionEntry = mock(RegionEntry.class);
     when(regionEntry.isRemoved()).thenReturn(true);
     when(regionEntry.isTombstone()).thenReturn(false);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
+    var arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
 
     arm.updateRecoveredEntry(KEY, recoveredEntry);
 
@@ -748,8 +748,8 @@ public class AbstractRegionMapTest {
 
   @Test
   public void updateRecoveredEntry_givenNoExistingEntry_neverCallsUpdateSizeOnRemove() {
-    RecoveredEntry recoveredEntry = mock(RecoveredEntry.class);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, null, null, null);
+    var recoveredEntry = mock(RecoveredEntry.class);
+    var arm = new TestableAbstractRegionMap(false, null, null, null);
 
     arm.updateRecoveredEntry(KEY, recoveredEntry);
 
@@ -758,11 +758,11 @@ public class AbstractRegionMapTest {
 
   @Test
   public void updateRecoveredEntry_givenExistingNonTombstoneAndSettingToTombstone_callsUpdateSizeOnRemove() {
-    RecoveredEntry recoveredEntry = mock(RecoveredEntry.class);
-    RegionEntry regionEntry = mock(RegionEntry.class);
+    var recoveredEntry = mock(RecoveredEntry.class);
+    var regionEntry = mock(RegionEntry.class);
     when(regionEntry.isTombstone()).thenReturn(false).thenReturn(true);
     when(regionEntry.getVersionStamp()).thenReturn(mock(VersionStamp.class));
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
+    var arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
 
     arm.updateRecoveredEntry(KEY, recoveredEntry);
 
@@ -772,19 +772,19 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_givenPutIfAbsentReturningDestroyedOrRemovedEntry_neverCallsUpdateSizeOnRemove()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.isDestroyedOrRemoved()).thenReturn(true);
     when(entry.initialImagePut(any(), anyLong(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
-    VersionStamp versionStamp = mock(VersionStamp.class);
+    var versionStamp = mock(VersionStamp.class);
     when(entry.getVersionStamp()).thenReturn(versionStamp);
     when(versionStamp.asVersionTag()).thenReturn(mock(VersionTag.class));
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry).thenReturn(null);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, null);
+    var arm = new TestableAbstractRegionMap(false, map, null);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.getMemberID()).thenReturn(mock(VersionSource.class));
 
     arm.initialImagePut(KEY, 0, Token.TOMBSTONE, false, false, versionTag, null, false);
@@ -795,20 +795,20 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_givenPutIfAbsentReturningNonTombstone_callsUpdateSizeOnRemove()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.isTombstone()).thenReturn(false);
     when(entry.isDestroyedOrRemoved()).thenReturn(false);
     when(entry.initialImagePut(any(), anyLong(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
-    VersionStamp versionStamp = mock(VersionStamp.class);
+    var versionStamp = mock(VersionStamp.class);
     when(entry.getVersionStamp()).thenReturn(versionStamp);
     when(versionStamp.asVersionTag()).thenReturn(mock(VersionTag.class));
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry).thenReturn(null);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, null);
+    var arm = new TestableAbstractRegionMap(false, map, null);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.getMemberID()).thenReturn(mock(VersionSource.class));
 
     arm.initialImagePut(KEY, 0, Token.TOMBSTONE, false, false, versionTag, null, false);
@@ -819,19 +819,19 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_givenPutIfAbsentReturningRemoveTokenOnFirstTryWillTryUntilRegionEntryIsPut()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.isTombstone()).thenReturn(false);
     when(entry.isDestroyedOrRemoved()).thenReturn(false);
     when(entry.initialImagePut(any(), anyLong(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
-    RegionEntry removedTokenEntry = mock(RegionEntry.class);
+    var removedTokenEntry = mock(RegionEntry.class);
     when(removedTokenEntry.isRemovedPhase2()).thenReturn(true);
-    VersionStamp versionStamp = mock(VersionStamp.class);
+    var versionStamp = mock(VersionStamp.class);
     when(entry.getVersionStamp()).thenReturn(versionStamp);
     when(versionStamp.asVersionTag()).thenReturn(mock(VersionTag.class));
 
-    Answer returnRemovedTokenAnswer = new Answer() {
+    var returnRemovedTokenAnswer = new Answer() {
       private int putTimes = 0;
 
       @Override
@@ -843,10 +843,10 @@ public class AbstractRegionMapTest {
       }
     };
     when(map.putIfAbsent(eq(KEY), any())).thenAnswer(returnRemovedTokenAnswer);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, null);
+    var arm = new TestableAbstractRegionMap(false, map, null);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.getMemberID()).thenReturn(mock(VersionSource.class));
 
     arm.initialImagePut(KEY, 0, Token.TOMBSTONE, false, false, versionTag, null, false);
@@ -857,26 +857,26 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_givenPutIfAbsentReturningRegionEntryAndProcessVersionTagThrowsConcurrentCacheModificationException_createdEntryRemovedFromMapAndNotInitialImageInit()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.isTombstone()).thenReturn(false);
     when(entry.isDestroyedOrRemoved()).thenReturn(false);
     when(entry.initialImagePut(any(), anyLong(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
-    VersionStamp versionStamp = mock(VersionStamp.class);
+    var versionStamp = mock(VersionStamp.class);
     when(entry.getVersionStamp()).thenReturn(versionStamp);
     when(versionStamp.asVersionTag()).thenReturn(mock(VersionTag.class));
     doThrow(new ConcurrentCacheModificationException()).when(versionStamp).processVersionTag(any(),
         any(), anyBoolean(), anyBoolean(), any(), any(), anyBoolean());
-    RegionEntry createdEntry = mock(RegionEntry.class);
+    var createdEntry = mock(RegionEntry.class);
     when(createdEntry.getVersionStamp()).thenReturn(versionStamp);
-    RegionEntryFactory factory = mock(RegionEntryFactory.class);
+    var factory = mock(RegionEntryFactory.class);
     when(factory.createEntry(any(), any(), any())).thenReturn(createdEntry);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, factory);
+    var arm = new TestableAbstractRegionMap(false, map, factory);
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.getMemberID()).thenReturn(mock(VersionSource.class));
 
     arm.initialImagePut(KEY, 0, Token.TOMBSTONE, false, false, versionTag, null, false);
@@ -888,23 +888,23 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_givenPutIfAbsentReturningRegionEntryAndSameTombstoneWillAttemptToRemoveREAndInvokeNothingElse()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.isTombstone()).thenReturn(false);
     when(entry.isDestroyedOrRemoved()).thenReturn(false);
     when(entry.initialImagePut(any(), anyLong(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
-    VersionStamp versionStamp = mock(VersionStamp.class);
+    var versionStamp = mock(VersionStamp.class);
     when(entry.getVersionStamp()).thenReturn(versionStamp);
     when(entry.isTombstone()).thenReturn(true);
-    TestableVersionTag versionTag = new TestableVersionTag();
+    var versionTag = new TestableVersionTag();
     versionTag.setVersionSource(mock(VersionSource.class));
     when(versionStamp.asVersionTag()).thenReturn(versionTag);
-    RegionEntry createdEntry = mock(RegionEntry.class);
+    var createdEntry = mock(RegionEntry.class);
     when(createdEntry.getVersionStamp()).thenReturn(versionStamp);
-    RegionEntryFactory factory = mock(RegionEntryFactory.class);
+    var factory = mock(RegionEntryFactory.class);
     when(factory.createEntry(any(), any(), any())).thenReturn(createdEntry);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, factory);
+    var arm = new TestableAbstractRegionMap(false, map, factory);
     when(map.putIfAbsent(eq(KEY), eq(createdEntry))).thenReturn(entry);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
@@ -918,26 +918,26 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_givenPutIfAbsentReturningRegionEntryOldIsTombstone_callUnscheduleTombstone()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.isTombstone()).thenReturn(true);
     when(entry.isDestroyedOrRemoved()).thenReturn(false);
     when(entry.initialImagePut(any(), anyLong(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
-    VersionStamp versionStamp = mock(VersionStamp.class);
+    var versionStamp = mock(VersionStamp.class);
     when(entry.getVersionStamp()).thenReturn(versionStamp);
     when(versionStamp.asVersionTag()).thenReturn(mock(VersionTag.class));
-    RegionEntry createdEntry = mock(RegionEntry.class);
+    var createdEntry = mock(RegionEntry.class);
     when(createdEntry.getVersionStamp()).thenReturn(versionStamp);
     when(createdEntry.initialImagePut(any(), anyLong(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
-    RegionEntryFactory factory = mock(RegionEntryFactory.class);
+    var factory = mock(RegionEntryFactory.class);
     when(factory.createEntry(any(), any(), any())).thenReturn(createdEntry);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, factory);
+    var arm = new TestableAbstractRegionMap(false, map, factory);
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.getMemberID()).thenReturn(mock(VersionSource.class));
 
     arm.initialImagePut(KEY, 0, Token.TOMBSTONE, false, false, versionTag, null, false);
@@ -949,20 +949,20 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_givenPutIfAbsentReturnsNullAndProcessVersionTagThrowsConcurrentCacheModificationException_createdEntryRemovedFromMapAndNotInitialImageInit()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
 
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(null);
-    RegionEntryFactory factory = mock(RegionEntryFactory.class);
-    VersionStamp mockVersionStamp = mock(VersionStamp.class);
+    var factory = mock(RegionEntryFactory.class);
+    var mockVersionStamp = mock(VersionStamp.class);
     doThrow(new ConcurrentCacheModificationException()).when(mockVersionStamp)
         .processVersionTag(any(), any(), anyBoolean(), anyBoolean(), any(), any(), anyBoolean());
-    RegionEntry createdEntry = mock(RegionEntry.class);
+    var createdEntry = mock(RegionEntry.class);
     when(createdEntry.getVersionStamp()).thenReturn(mockVersionStamp);
     when(factory.createEntry(any(), any(), any())).thenReturn(createdEntry);
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, factory);
+    final var arm = new TestableAbstractRegionMap(false, map, factory);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.getMemberID()).thenReturn(mock(VersionSource.class));
 
     arm.initialImagePut(KEY, 0, Token.TOMBSTONE, false, false, versionTag, null, false);
@@ -975,20 +975,20 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_givenPutIfAbsentReturnsNullAndValueIsTombstone_callToScheduleTombstone()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
 
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(null);
-    RegionEntryFactory factory = mock(RegionEntryFactory.class);
-    VersionStamp mockVersionStamp = mock(VersionStamp.class);
-    RegionEntry createdEntry = mock(RegionEntry.class);
+    var factory = mock(RegionEntryFactory.class);
+    var mockVersionStamp = mock(VersionStamp.class);
+    var createdEntry = mock(RegionEntry.class);
     when(createdEntry.getVersionStamp()).thenReturn(mockVersionStamp);
     when(createdEntry.initialImageInit(any(), anyLong(), any(), anyBoolean(), anyBoolean(),
         anyBoolean())).thenReturn(true);
     when(factory.createEntry(any(), any(), any())).thenReturn(createdEntry);
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, factory);
+    final var arm = new TestableAbstractRegionMap(false, map, factory);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.getMemberID()).thenReturn(mock(VersionSource.class));
 
     arm.initialImagePut(KEY, 0, Token.TOMBSTONE, false, false, versionTag, null, false);
@@ -999,20 +999,20 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_givenPutIfAbsentReturnsNullAndValueIsNotTombstone_callUpdateSizeOnCreate()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
 
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(null);
-    RegionEntryFactory factory = mock(RegionEntryFactory.class);
-    VersionStamp mockVersionStamp = mock(VersionStamp.class);
-    RegionEntry createdEntry = mock(RegionEntry.class);
+    var factory = mock(RegionEntryFactory.class);
+    var mockVersionStamp = mock(VersionStamp.class);
+    var createdEntry = mock(RegionEntry.class);
     when(createdEntry.getVersionStamp()).thenReturn(mockVersionStamp);
     when(createdEntry.initialImageInit(any(), anyLong(), any(), anyBoolean(), anyBoolean(),
         anyBoolean())).thenReturn(true);
     when(factory.createEntry(any(), any(), any())).thenReturn(createdEntry);
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, factory);
+    final var arm = new TestableAbstractRegionMap(false, map, factory);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.getMemberID()).thenReturn(mock(VersionSource.class));
 
     arm.initialImagePut(KEY, 0, "", false, false, versionTag, null, false);
@@ -1023,20 +1023,20 @@ public class AbstractRegionMapTest {
   @Test
   public void initialImagePut_ExceptionThrownWhenCreatingNewRegionEntry_removeDoesNotGetCalled()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
 
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(null);
-    RegionEntryFactory factory = mock(RegionEntryFactory.class);
-    VersionStamp mockVersionStamp = mock(VersionStamp.class);
-    RegionEntry createdEntry = mock(RegionEntry.class);
+    var factory = mock(RegionEntryFactory.class);
+    var mockVersionStamp = mock(VersionStamp.class);
+    var createdEntry = mock(RegionEntry.class);
     when(createdEntry.getVersionStamp()).thenReturn(mockVersionStamp);
     when(createdEntry.initialImageInit(any(), anyLong(), any(), anyBoolean(), anyBoolean(),
         anyBoolean())).thenReturn(true);
     when(factory.createEntry(any(), any(), any())).thenThrow(new RuntimeException());
-    final TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, factory);
+    final var arm = new TestableAbstractRegionMap(false, map, factory);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
     when(arm._getOwner().getServerProxy()).thenReturn(mock(ServerRegionProxy.class));
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.getMemberID()).thenReturn(mock(VersionSource.class));
 
     try {
@@ -1050,13 +1050,13 @@ public class AbstractRegionMapTest {
 
   @Test
   public void txApplyDestroy_givenExistingDestroyedOrRemovedEntry_neverCallsUpdateSizeOnRemove() {
-    RegionEntry regionEntry = mock(RegionEntry.class);
+    var regionEntry = mock(RegionEntry.class);
     when(regionEntry.isTombstone()).thenReturn(false);
     when(regionEntry.isDestroyedOrRemoved()).thenReturn(true);
     when(regionEntry.getVersionStamp()).thenReturn(mock(VersionStamp.class));
-    TXId txId = mock(TXId.class);
+    var txId = mock(TXId.class);
     when(txId.getMemberId()).thenReturn(mock(InternalDistributedMember.class));
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
+    var arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
 
     arm.txApplyDestroy(KEY, txId, null, false, false, null, null, null, new ArrayList<>(), null,
         null, false, null, null, 0);
@@ -1066,12 +1066,12 @@ public class AbstractRegionMapTest {
 
   @Test
   public void txApplyDestroy_givenExistingNonTombstone_callsUpdateSizeOnRemove() {
-    RegionEntry regionEntry = mock(RegionEntry.class);
+    var regionEntry = mock(RegionEntry.class);
     when(regionEntry.isTombstone()).thenReturn(false);
     when(regionEntry.getVersionStamp()).thenReturn(mock(VersionStamp.class));
-    TXId txId = mock(TXId.class);
+    var txId = mock(TXId.class);
     when(txId.getMemberId()).thenReturn(mock(InternalDistributedMember.class));
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
+    var arm = new TestableAbstractRegionMap(false, null, null, regionEntry);
 
     arm.txApplyDestroy(KEY, txId, null, false, false, null, null, null, new ArrayList<>(), null,
         null, false, null, null, 0);
@@ -1082,17 +1082,17 @@ public class AbstractRegionMapTest {
   @Test
   public void txApplyDestroy_givenPutIfAbsentReturningDestroyedOrRemovedEntry_neverCallsUpdateSizeOnRemove()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.isTombstone()).thenReturn(false);
     when(entry.isDestroyedOrRemoved()).thenReturn(true);
-    VersionStamp versionStamp = mock(VersionStamp.class);
+    var versionStamp = mock(VersionStamp.class);
     when(entry.getVersionStamp()).thenReturn(versionStamp);
     when(versionStamp.asVersionTag()).thenReturn(mock(VersionTag.class));
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry).thenReturn(null);
-    TXId txId = mock(TXId.class);
+    var txId = mock(TXId.class);
     when(txId.getMemberId()).thenReturn(mock(InternalDistributedMember.class));
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, null);
+    var arm = new TestableAbstractRegionMap(false, map, null);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
 
     arm.txApplyDestroy(KEY, txId, null, false, false, null, null, null, new ArrayList<>(), null,
@@ -1104,17 +1104,17 @@ public class AbstractRegionMapTest {
   @Test
   public void txApplyDestroy_givenPutIfAbsentReturningNonTombstone_callsUpdateSizeOnRemove()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.getKey()).thenReturn(KEY);
     when(entry.isTombstone()).thenReturn(false);
-    VersionStamp versionStamp = mock(VersionStamp.class);
+    var versionStamp = mock(VersionStamp.class);
     when(entry.getVersionStamp()).thenReturn(versionStamp);
     when(versionStamp.asVersionTag()).thenReturn(mock(VersionTag.class));
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry).thenReturn(null);
-    TXId txId = mock(TXId.class);
+    var txId = mock(TXId.class);
     when(txId.getMemberId()).thenReturn(mock(InternalDistributedMember.class));
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, null);
+    var arm = new TestableAbstractRegionMap(false, map, null);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
 
     arm.txApplyDestroy(KEY, txId, null, false, false, null, null, null, new ArrayList<>(), null,
@@ -1126,13 +1126,13 @@ public class AbstractRegionMapTest {
   @Test
   public void txApplyDestroy_givenFactory_neverCallsUpdateSizeOnRemove()
       throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
-    TXId txId = mock(TXId.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
+    var txId = mock(TXId.class);
     when(txId.getMemberId()).thenReturn(mock(InternalDistributedMember.class));
-    RegionEntryFactory factory = mock(RegionEntryFactory.class);
+    var factory = mock(RegionEntryFactory.class);
     when(factory.createEntry(any(), any(), any())).thenReturn(entry);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, factory);
+    var arm = new TestableAbstractRegionMap(false, map, factory);
     when(arm._getOwner().getConcurrencyChecksEnabled()).thenReturn(true);
 
     arm.txApplyDestroy(KEY, txId, null, false, false, null, null, null, new ArrayList<>(), null,
@@ -1156,7 +1156,7 @@ public class AbstractRegionMapTest {
   }
 
   private void addEntry(AbstractRegionMap arm, Object value) {
-    RegionEntry entry = arm.getEntryFactory().createEntry(arm._getOwner(), KEY, value);
+    var entry = arm.getEntryFactory().createEntry(arm._getOwner(), KEY, value);
     arm.getEntryMap().put(KEY, entry);
   }
 
@@ -1199,17 +1199,17 @@ public class AbstractRegionMapTest {
         RegionEntry regionEntryForGetEntry) {
       super(null);
       this.regionEntryForGetEntry = regionEntryForGetEntry;
-      LocalRegion owner = isDistributedRegion ? mock(DistributedRegion.class, RETURNS_DEEP_STUBS)
+      var owner = isDistributedRegion ? mock(DistributedRegion.class, RETURNS_DEEP_STUBS)
           : mock(LocalRegion.class);
-      CachePerfStats cachePerfStats = mock(CachePerfStats.class);
+      var cachePerfStats = mock(CachePerfStats.class);
       when(owner.getCachePerfStats()).thenReturn(cachePerfStats);
       when(owner.getConcurrencyChecksEnabled()).thenReturn(withConcurrencyChecks);
       when(owner.getDataPolicy()).thenReturn(DataPolicy.REPLICATE);
       when(owner.getScope()).thenReturn(Scope.LOCAL);
       when(owner.isInitialized()).thenReturn(true);
 
-      InternalCache cache = mock(InternalCache.class);
-      InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+      var cache = mock(InternalCache.class);
+      var ids = mock(InternalDistributedSystem.class);
       when(owner.getCache()).thenReturn(cache);
       when(cache.getDistributedSystem()).thenReturn(ids);
       when(ids.getOffHeapStore()).thenReturn(null);
@@ -1247,15 +1247,15 @@ public class AbstractRegionMapTest {
     }
 
     private static LocalRegion createOwner(boolean withConcurrencyChecks) {
-      LocalRegion owner = mock(LocalRegion.class);
+      var owner = mock(LocalRegion.class);
 
-      InternalCache cache = mock(InternalCache.class);
-      InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+      var cache = mock(InternalCache.class);
+      var ids = mock(InternalDistributedSystem.class);
       when(owner.getCache()).thenReturn(cache);
       when(cache.getDistributedSystem()).thenReturn(ids);
       when(ids.getOffHeapStore()).thenReturn(null);
 
-      CachePerfStats cachePerfStats = mock(CachePerfStats.class);
+      var cachePerfStats = mock(CachePerfStats.class);
       when(owner.getCachePerfStats()).thenReturn(cachePerfStats);
       when(owner.getEvictionAttributes()).thenReturn(evictionAttributes);
       when(owner.getConcurrencyChecksEnabled()).thenReturn(withConcurrencyChecks);
@@ -1265,9 +1265,9 @@ public class AbstractRegionMapTest {
     }
 
     private static EvictionController createEvictionController() {
-      EvictionController result = mock(EvictionController.class);
+      var result = mock(EvictionController.class);
       when(result.getEvictionAlgorithm()).thenReturn(evictionAttributes.getAlgorithm());
-      EvictionCounters evictionCounters = mock(EvictionCounters.class);
+      var evictionCounters = mock(EvictionCounters.class);
       when(result.getCounters()).thenReturn(evictionCounters);
       return result;
     }
@@ -1299,10 +1299,10 @@ public class AbstractRegionMapTest {
         when(owner.isInitialized()).thenReturn(false);
       }
 
-      InternalCache cache = mock(InternalCache.class);
-      InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+      var cache = mock(InternalCache.class);
+      var ids = mock(InternalDistributedSystem.class);
 
-      KeyInfo keyInfo = mock(KeyInfo.class);
+      var keyInfo = mock(KeyInfo.class);
       when(keyInfo.getKey()).thenReturn(KEY);
       when(owner.getKeyInfo(eq(KEY), any(), any())).thenReturn(keyInfo);
       when(owner.getMyId()).thenReturn(mock(InternalDistributedMember.class));
@@ -1326,13 +1326,13 @@ public class AbstractRegionMapTest {
       throws Exception {
     AbstractRegionMap arm = new TxRegionEntryTestableAbstractRegionMap();
     List<EntryEventImpl> pendingCallbacks = new ArrayList<>();
-    TXId txId = new TXId(mock(InternalDistributedMember.class), 1);
-    TXRmtEvent txRmtEvent = mock(TXRmtEvent.class);
-    EventID eventId = mock(EventID.class);
+    var txId = new TXId(mock(InternalDistributedMember.class), 1);
+    var txRmtEvent = mock(TXRmtEvent.class);
+    var eventId = mock(EventID.class);
     Object newValue = "value";
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(arm._getOwner().getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
     when(ids.getOffHeapStore()).thenReturn(null);
@@ -1352,13 +1352,13 @@ public class AbstractRegionMapTest {
       throws Exception {
     AbstractRegionMap arm = new TxPutIfAbsentTestableAbstractRegionMap();
     List<EntryEventImpl> pendingCallbacks = new ArrayList<>();
-    TXId txId = new TXId(arm._getOwner().getMyId(), 1);
-    EventID eventId = mock(EventID.class);
-    TXEntryState txEntryState = mock(TXEntryState.class);
+    var txId = new TXId(arm._getOwner().getMyId(), 1);
+    var eventId = mock(EventID.class);
+    var txEntryState = mock(TXEntryState.class);
     Object newValue = "value";
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(arm._getOwner().getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
     when(ids.getOffHeapStore()).thenReturn(null);
@@ -1377,9 +1377,9 @@ public class AbstractRegionMapTest {
   public void txApplyPutOnSecondaryNotifiesClientsWhenRegionEntryIsRemoved() throws Exception {
     AbstractRegionMap arm = new TxRemovedRegionEntryTestableAbstractRegionMap();
     List<EntryEventImpl> pendingCallbacks = new ArrayList<>();
-    TXId txId = new TXId(mock(InternalDistributedMember.class), 1);
-    TXRmtEvent txRmtEvent = mock(TXRmtEvent.class);
-    EventID eventId = mock(EventID.class);
+    var txId = new TXId(mock(InternalDistributedMember.class), 1);
+    var txRmtEvent = mock(TXRmtEvent.class);
+    var eventId = mock(EventID.class);
     Object newValue = "value";
 
     arm.txApplyPut(Operation.UPDATE, KEY, newValue, false, txId, txRmtEvent, eventId, null,
@@ -1396,9 +1396,9 @@ public class AbstractRegionMapTest {
   public void txApplyPutOnSecondaryNotifiesClientsWhenRegionEntryIsNull() throws Exception {
     AbstractRegionMap arm = new TxNoRegionEntryTestableAbstractRegionMap();
     List<EntryEventImpl> pendingCallbacks = new ArrayList<>();
-    TXId txId = new TXId(mock(InternalDistributedMember.class), 1);
-    TXRmtEvent txRmtEvent = mock(TXRmtEvent.class);
-    EventID eventId = mock(EventID.class);
+    var txId = new TXId(mock(InternalDistributedMember.class), 1);
+    var txRmtEvent = mock(TXRmtEvent.class);
+    var eventId = mock(EventID.class);
     Object newValue = "value";
 
     arm.txApplyPut(Operation.UPDATE, KEY, newValue, false, txId, txRmtEvent, eventId, null,
@@ -1414,12 +1414,12 @@ public class AbstractRegionMapTest {
   @Test
   public void txApplyPutDoesNotLockWhenRegionIsInitialized() {
     AbstractRegionMap arm = new TxTestableAbstractRegionMap();
-    TXId txId = mock(TXId.class, RETURNS_DEEP_STUBS);
-    EventID eventId = mock(EventID.class);
-    TXRmtEvent txRmtEvent = mock(TXRmtEvent.class);
+    var txId = mock(TXId.class, RETURNS_DEEP_STUBS);
+    var eventId = mock(EventID.class);
+    var txRmtEvent = mock(TXRmtEvent.class);
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(arm._getOwner().getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
     when(ids.getOffHeapStore()).thenReturn(null);
@@ -1435,9 +1435,9 @@ public class AbstractRegionMapTest {
   @Test
   public void txApplyPutLockWhenRegionIsInitializing() {
     AbstractRegionMap arm = new TxTestableAbstractRegionMap(false);
-    TXId txId = mock(TXId.class, RETURNS_DEEP_STUBS);
-    EventID eventId = mock(EventID.class);
-    TXRmtEvent txRmtEvent = mock(TXRmtEvent.class);
+    var txId = mock(TXId.class, RETURNS_DEEP_STUBS);
+    var eventId = mock(EventID.class);
+    var txRmtEvent = mock(TXRmtEvent.class);
 
     arm.txApplyPut(Operation.UPDATE, KEY, "", false, txId, txRmtEvent, eventId, null,
         new ArrayList<>(), null, null, null, null, 1);
@@ -1450,7 +1450,7 @@ public class AbstractRegionMapTest {
   @Test
   public void txApplyDestroyDoesNotLockWhenRegionIsInitialized() {
     AbstractRegionMap arm = new TxTestableAbstractRegionMap();
-    TXId txId = mock(TXId.class, RETURNS_DEEP_STUBS);
+    var txId = mock(TXId.class, RETURNS_DEEP_STUBS);
 
     arm.txApplyDestroy(KEY, txId, null, false, false, null, null, null, new ArrayList<>(), null,
         null, true, null, null, 0);
@@ -1463,7 +1463,7 @@ public class AbstractRegionMapTest {
   @Test
   public void txApplyDestroyLockWhenRegionIsInitializing() {
     AbstractRegionMap arm = new TxTestableAbstractRegionMap(false);
-    TXId txId = mock(TXId.class, RETURNS_DEEP_STUBS);
+    var txId = mock(TXId.class, RETURNS_DEEP_STUBS);
 
     arm.txApplyDestroy(KEY, txId, null, false, false, null, null, null, new ArrayList<>(), null,
         null, true, null, null, 0);
@@ -1476,7 +1476,7 @@ public class AbstractRegionMapTest {
   @Test
   public void txApplyInvalidateDoesNotLockWhenRegionIsInitialized() {
     AbstractRegionMap arm = new TxTestableAbstractRegionMap();
-    TXId txId = mock(TXId.class, RETURNS_DEEP_STUBS);
+    var txId = mock(TXId.class, RETURNS_DEEP_STUBS);
 
     arm.txApplyInvalidate(new Object(), Token.INVALID, false,
         txId, mock(TXRmtEvent.class), false,
@@ -1490,7 +1490,7 @@ public class AbstractRegionMapTest {
   @Test
   public void txApplyInvalidateLockWhenRegionIsInitializing() {
     AbstractRegionMap arm = new TxTestableAbstractRegionMap(false);
-    TXId txId = mock(TXId.class, RETURNS_DEEP_STUBS);
+    var txId = mock(TXId.class, RETURNS_DEEP_STUBS);
 
     arm.txApplyInvalidate(new Object(), Token.INVALID, false,
         txId, mock(TXRmtEvent.class), false,
@@ -1503,10 +1503,10 @@ public class AbstractRegionMapTest {
 
   @Test
   public void invalidateDoesNotLockWhenRegionIsInitialized() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, true,
+    var arm = new TestableAbstractRegionMap(false, true,
         mock(ConcurrentMapWithReusableEntries.class), mock(RegionEntryFactory.class),
         mock(RegionEntry.class));
-    EntryEventImpl event = createEventForInvalidate(arm._getOwner());
+    var event = createEventForInvalidate(arm._getOwner());
     when(arm._getOwner().isInitialized()).thenReturn(true);
     when(arm._getOwner().lockWhenRegionIsInitializing()).thenCallRealMethod();
     arm.invalidate(event, false, false, false);
@@ -1518,10 +1518,10 @@ public class AbstractRegionMapTest {
 
   @Test
   public void invalidateLocksWhenRegionIsInitializing() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, true,
+    var arm = new TestableAbstractRegionMap(false, true,
         mock(ConcurrentMapWithReusableEntries.class), mock(RegionEntryFactory.class),
         mock(RegionEntry.class));
-    EntryEventImpl event = createEventForInvalidate(arm._getOwner());
+    var event = createEventForInvalidate(arm._getOwner());
     when(arm._getOwner().isInitialized()).thenReturn(false);
     when(arm._getOwner().lockWhenRegionIsInitializing()).thenCallRealMethod();
     arm.invalidate(event, false, false, false);
@@ -1533,7 +1533,7 @@ public class AbstractRegionMapTest {
 
   @Test
   public void isInTokenModeNeededReturnsFalseIfConcurrencyChecksEnabled() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(true, true,
+    var arm = new TestableAbstractRegionMap(true, true,
         mock(ConcurrentMapWithReusableEntries.class), mock(RegionEntryFactory.class),
         mock(RegionEntry.class));
 
@@ -1542,7 +1542,7 @@ public class AbstractRegionMapTest {
 
   @Test
   public void isInTokenModeNeededReturnsFalseIfInTokenModeIsFalse() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, true,
+    var arm = new TestableAbstractRegionMap(false, true,
         mock(ConcurrentMapWithReusableEntries.class), mock(RegionEntryFactory.class),
         mock(RegionEntry.class));
 
@@ -1551,7 +1551,7 @@ public class AbstractRegionMapTest {
 
   @Test
   public void isInTokenModeNeededReturnsTrueIfConcurrencyChecksNotEnabledAndInTokenMode() {
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, true,
+    var arm = new TestableAbstractRegionMap(false, true,
         mock(ConcurrentMapWithReusableEntries.class), mock(RegionEntryFactory.class),
         mock(RegionEntry.class));
 
@@ -1560,28 +1560,28 @@ public class AbstractRegionMapTest {
 
   @Test
   public void initialImagePut_lruEntryCreateInvoked() throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.isTombstone()).thenReturn(true);
     when(entry.initialImagePut(any(), anyLong(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, null);
-    TestableAbstractRegionMap armSpy = spy(arm);
+    var arm = new TestableAbstractRegionMap(false, map, null);
+    var armSpy = spy(arm);
     armSpy.initialImagePut(KEY, 0, "value", true, true, null, null, false);
     verify(armSpy).lruEntryCreate(entry);
   }
 
   @Test
   public void initialImagePut_lruEntryUpdateInvoked() throws RegionClearedException {
-    ConcurrentMapWithReusableEntries map = mock(ConcurrentMapWithReusableEntries.class);
-    RegionEntry entry = mock(RegionEntry.class);
+    var map = mock(ConcurrentMapWithReusableEntries.class);
+    var entry = mock(RegionEntry.class);
     when(entry.isTombstone()).thenReturn(false);
     when(entry.initialImagePut(any(), anyLong(), any(), anyBoolean(), anyBoolean()))
         .thenReturn(true);
     when(map.putIfAbsent(eq(KEY), any())).thenReturn(entry);
-    TestableAbstractRegionMap arm = new TestableAbstractRegionMap(false, map, null);
-    TestableAbstractRegionMap armSpy = spy(arm);
+    var arm = new TestableAbstractRegionMap(false, map, null);
+    var armSpy = spy(arm);
     armSpy.initialImagePut(KEY, 0, "value", true, true, null, null, false);
     verify(armSpy).lruEntryUpdate(entry);
   }
@@ -1621,7 +1621,7 @@ public class AbstractRegionMapTest {
       extends TxTestableAbstractRegionMap {
     @Override
     public RegionEntry getEntry(Object key) {
-      RegionEntry regionEntry = mock(RegionEntry.class);
+      var regionEntry = mock(RegionEntry.class);
       when(regionEntry.isDestroyedOrRemoved()).thenReturn(true);
       return regionEntry;
     }

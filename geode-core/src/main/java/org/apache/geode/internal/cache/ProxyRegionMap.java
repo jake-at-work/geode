@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
@@ -128,7 +127,7 @@ class ProxyRegionMap extends BaseRegionMap {
   @SuppressWarnings({"rawtypes", "unchecked"})
   public Set<VersionSource> clear(RegionVersionVector rvv, BucketRegion bucketRegion) {
     // nothing needs to be done
-    RegionVersionVector v = owner.getVersionVector();
+    var v = owner.getVersionVector();
     if (v != null) {
       return v.getDepartedMembersSet();
     } else {
@@ -219,14 +218,14 @@ class ProxyRegionMap extends BaseRegionMap {
                                                                                 // to CREATE
       event.makeCreate();
     }
-    final CacheWriter cacheWriter = owner.basicGetWriter();
-    final boolean cacheWrite = !event.isOriginRemote() && !event.isNetSearch()
+    final var cacheWriter = owner.basicGetWriter();
+    final var cacheWrite = !event.isOriginRemote() && !event.isNetSearch()
         && !event.getInhibitDistribution() && event.isGenerateCallbacks()
         && (cacheWriter != null || owner.hasServerProxy() || owner.scope.isDistributed());
     if (cacheWrite) {
       final Set netWriteRecipients;
       if (cacheWriter == null && owner.scope.isDistributed()) {
-        CacheDistributionAdvisor cda = ((DistributedRegion) owner).getDistributionAdvisor();
+        var cda = ((DistributedRegion) owner).getDistributionAdvisor();
         netWriteRecipients = cda.adviseNetWrite();
       } else {
         netWriteRecipients = null;
@@ -273,7 +272,7 @@ class ProxyRegionMap extends BaseRegionMap {
       if (shouldInvokeCallbacks(owner, !inTokenMode)) {
         // fix for bug 39526
         @Released
-        EntryEventImpl e =
+        var e =
             txCallbackEventFactory.createCallbackEvent(owner, op, key, null,
                 rmtOrigin, event, eventId, aCallbackArgument, filterRoutingInfo, bridgeContext,
                 txEntryState, versionTag, tailKey);
@@ -297,7 +296,7 @@ class ProxyRegionMap extends BaseRegionMap {
       if (shouldInvokeCallbacks(owner, owner.isInitialized())) {
         // fix for bug 39526
         @Released
-        EntryEventImpl e = txCallbackEventFactory.createCallbackEvent(owner,
+        var e = txCallbackEventFactory.createCallbackEvent(owner,
             localOp ? Operation.LOCAL_INVALIDATE : Operation.INVALIDATE, key, newValue, rmtOrigin,
             event, eventId, aCallbackArgument, filterRoutingInfo, bridgeContext, txEntryState,
             versionTag, tailKey);
@@ -313,8 +312,8 @@ class ProxyRegionMap extends BaseRegionMap {
       List<EntryEventImpl> pendingCallbacks, FilterRoutingInfo filterRoutingInfo,
       ClientProxyMembershipID bridgeContext, TXEntryState txEntryState, VersionTag versionTag,
       long tailKey) {
-    Operation putOperation = putOp.getCorrespondingCreateOp();
-    long lastMod = owner.cacheTimeMillis();
+    var putOperation = putOp.getCorrespondingCreateOp();
+    var lastMod = owner.cacheTimeMillis();
     owner.txApplyPutPart2(markerEntry, key, lastMod, true, didDestroy, false);
     if (owner.isInitialized()) {
       if (event != null) {
@@ -323,7 +322,7 @@ class ProxyRegionMap extends BaseRegionMap {
       if (shouldInvokeCallbacks(owner, owner.isInitialized())) {
         // fix for bug 39526
         @Released
-        EntryEventImpl e = txCallbackEventFactory
+        var e = txCallbackEventFactory
             .createCallbackEvent(owner, putOperation, key,
                 newValue, rmtOrigin, event, eventId, aCallbackArgument, filterRoutingInfo,
                 bridgeContext, txEntryState, versionTag, tailKey);

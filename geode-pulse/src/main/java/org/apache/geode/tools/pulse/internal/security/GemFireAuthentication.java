@@ -18,7 +18,6 @@ package org.apache.geode.tools.pulse.internal.security;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 
@@ -57,14 +56,14 @@ public class GemFireAuthentication extends UsernamePasswordAuthenticationToken {
 
   public static ArrayList<GrantedAuthority> populateAuthorities(JMXConnector jmxc) {
     ObjectName name;
-    ArrayList<GrantedAuthority> authorities = new ArrayList<>();
+    var authorities = new ArrayList<GrantedAuthority>();
     try {
       name = new ObjectName(PulseConstants.OBJECT_NAME_ACCESSCONTROL_MBEAN);
-      MBeanServerConnection mbeanServer = jmxc.getMBeanServerConnection();
+      var mbeanServer = jmxc.getMBeanServerConnection();
 
-      for (String role : PulseConstants.PULSE_ROLES) {
+      for (var role : PulseConstants.PULSE_ROLES) {
         Object[] params = role.split(":");
-        String[] signature =
+        var signature =
             new String[] {String.class.getCanonicalName(), String.class.getCanonicalName()};
         boolean result = (Boolean) mbeanServer.invoke(name, "authorize", params, signature);
         if (result) {

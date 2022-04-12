@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
@@ -53,8 +52,8 @@ public class IndexPrimaryKeyUsageJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region r = CacheUtils.createRegion("portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r = CacheUtils.createRegion("portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r.put(i + "", new Portfolio(i));
     }
   }
@@ -69,19 +68,19 @@ public class IndexPrimaryKeyUsageJUnitTest {
     // Task ID: PKI 1
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "select distinct * from " + SEPARATOR + "portfolios x, x.positions.values where x.pk = '1'",
         "select distinct * from " + SEPARATOR
             + "portfolios x, x.positions.values where x.pkid = '1'",
         // BUG # 32707: FIXED
         "select distinct * from " + SEPARATOR
             + "portfolios p, p.positions.values where p.pkid != '53'"};
-    SelectResults[][] r = new SelectResults[queries.length][2];
+    var r = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
@@ -106,10 +105,10 @@ public class IndexPrimaryKeyUsageJUnitTest {
     qs.createIndex("pkIndex", IndexType.PRIMARY_KEY, "pk", SEPARATOR + "portfolios");
     qs.createIndex("pkidIndex", IndexType.PRIMARY_KEY, "pkid", SEPARATOR + "portfolios");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i][1] = (SelectResults) q.execute();
@@ -133,10 +132,10 @@ public class IndexPrimaryKeyUsageJUnitTest {
   @Test
   public void testPrimaryKeyIndexUsageNegativeTestA() throws Exception {
     // Task ID: PKI 2
-    Object[] r = new Object[5];
+    var r = new Object[5];
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "select distinct * from " + SEPARATOR + "portfolios x, x.positions.values where x.pk = '1'",
         "select distinct * from " + SEPARATOR
             + "portfolios.entries x, x.value.positions.values where x.value.pkid = '1'",
@@ -144,10 +143,10 @@ public class IndexPrimaryKeyUsageJUnitTest {
             + "portfolios.entries x, x.value.positions.values where x.key = '1'",};
     qs = CacheUtils.getQueryService();
     qs.createIndex("pkidIndex", IndexType.PRIMARY_KEY, "pkid", SEPARATOR + "portfolios");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i] = q.execute();
@@ -167,18 +166,18 @@ public class IndexPrimaryKeyUsageJUnitTest {
   @Test
   public void testPrimaryKeyIndexUsageNegativeTestB() throws Exception {
     // Task ID : PKI 3
-    Object[] r = new Object[5];
+    var r = new Object[5];
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries =
-        {"select distinct * from " + SEPARATOR
+    var queries =
+        new String[] {"select distinct * from " + SEPARATOR
             + "portfolios x, x.positions.values where x.pkid = '1'",};
     qs = CacheUtils.getQueryService();
     qs.createIndex("pkIndex", IndexType.PRIMARY_KEY, "pk", SEPARATOR + "portfolios");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i] = q.execute();
@@ -201,11 +200,13 @@ public class IndexPrimaryKeyUsageJUnitTest {
   @Test
   public void testFunctionalAndPrimaryKey() throws Exception {
     // Task ID: PKI4
-    Object[] r = new Object[7];
+    var r = new Object[7];
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries =
-        {"select distinct * from " + SEPARATOR + "portfolios p, p.positions.values where p.ID > 1 ",
+    var queries =
+        new String[] {
+            "select distinct * from " + SEPARATOR
+                + "portfolios p, p.positions.values where p.ID > 1 ",
             "select distinct * from " + SEPARATOR
                 + "portfolios p, p.positions.values where p.ID < 3 ",
             "select distinct * from " + SEPARATOR
@@ -217,10 +218,10 @@ public class IndexPrimaryKeyUsageJUnitTest {
     qs = CacheUtils.getQueryService();
     qs.createIndex("IDPRKIndex", IndexType.PRIMARY_KEY, "pkid", SEPARATOR + "portfolios");
     qs.createIndex("IDFNLIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolios");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i] = q.execute();
@@ -247,7 +248,7 @@ public class IndexPrimaryKeyUsageJUnitTest {
   @Test
   public void testPublicKeyUsageOnTwoRegions() throws Exception {
     // Task ID: PKI5
-    Region rg2 = CacheUtils.createRegion("employees", Employee.class);
+    var rg2 = CacheUtils.createRegion("employees", Employee.class);
     Set add1 = new HashSet();
     Set add2 = new HashSet();
     add1.add(new Address("411045", "Baner"));
@@ -255,19 +256,19 @@ public class IndexPrimaryKeyUsageJUnitTest {
     rg2.put("1", new Employee("aaa", 27, 270, "QA", 1800, add1));
     rg2.put("2", new Employee("bbb", 28, 280, "QA", 1900, add2));
 
-    Object[] r = new Object[5];
+    var r = new Object[5];
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {"select distinct * from " + SEPARATOR + "portfolios p, " + SEPARATOR
+    var queries = new String[] {"select distinct * from " + SEPARATOR + "portfolios p, " + SEPARATOR
         + "employees e  where p.pkid = '1' ",};
     qs = CacheUtils.getQueryService();
     qs.createIndex("IDFNLIndex", IndexType.FUNCTIONAL, "pkid", SEPARATOR + "portfolios");
     qs.createIndex("IDPRKIndex", IndexType.PRIMARY_KEY, "pkid", SEPARATOR + "portfolios");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i] = q.execute();

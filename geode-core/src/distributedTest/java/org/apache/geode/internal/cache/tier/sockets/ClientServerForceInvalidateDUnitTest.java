@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.InterestPolicy;
@@ -40,9 +39,7 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.cache.client.NoAvailableServersException;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.AbstractRegionMap;
@@ -140,7 +137,7 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
   public void testInvalidateLosingOnConcurrencyChecks() throws Exception {
     try {
       setupServerAndClientVMs(true, true, false, false);
-      final String key = "delayInvalidate";
+      final var key = "delayInvalidate";
       region1.registerInterest("ALL_KEYS", InterestResultPolicy.NONE, false, false);
       region1.put(key, "1000");
       logger.info("installing observers");
@@ -171,7 +168,7 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
   }
 
   private static void unpauseObserver() {
-    DelaySendingEvent observer = (DelaySendingEvent) ClientServerObserverHolder.getInstance();
+    var observer = (DelaySendingEvent) ClientServerObserverHolder.getInstance();
     observer.latch.countDown();
   }
 
@@ -186,7 +183,7 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
   }
 
   private static void createOnServer(final Object key, final Object value) {
-    Region<Object, Object> r = GemFireCacheImpl.getExisting().getRegion(REGION_NAME1);
+    var r = GemFireCacheImpl.getExisting().getRegion(REGION_NAME1);
     r.create(key, value);
   }
 
@@ -231,15 +228,15 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
   private void setupServerAndClientVMs(boolean concurrencyChecksOnServer,
       boolean concurrencyChecksOnClient, boolean clientEmpty, boolean serverPartitioned)
       throws Exception {
-    int port1 = initServerCache(server1, concurrencyChecksOnServer, serverPartitioned); // vm0
-    int port2 = initServerCache(server2, concurrencyChecksOnServer, serverPartitioned); // vm1
-    String serverName = NetworkUtils.getServerHostName(Host.getHost(0));
+    var port1 = initServerCache(server1, concurrencyChecksOnServer, serverPartitioned); // vm0
+    var port2 = initServerCache(server2, concurrencyChecksOnServer, serverPartitioned); // vm1
+    var serverName = NetworkUtils.getServerHostName(Host.getHost(0));
     createClientCache(serverName, port1, port2, clientEmpty, concurrencyChecksOnClient);
     logger.info("testing force invalidate on on client");
   }
 
   private void validateServerListenerInvoked() {
-    boolean listenerInvoked =
+    var listenerInvoked =
         server1.invoke(ClientServerForceInvalidateDUnitTest::validateOnServer) || server2.invoke(
             ClientServerForceInvalidateDUnitTest::validateOnServer);
     assertTrue(listenerInvoked);
@@ -247,10 +244,10 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
 
   private static boolean validateOnServer() {
     Region<?, ?> region = GemFireCacheImpl.getExisting().getRegion(REGION_NAME1);
-    CacheListener<?, ?>[] listeners = region.getAttributes().getCacheListeners();
-    for (CacheListener<?, ?> listener : listeners) {
+    var listeners = region.getAttributes().getCacheListeners();
+    for (var listener : listeners) {
       if (listener instanceof ServerListener) {
-        ServerListener serverListener = (ServerListener) listener;
+        var serverListener = (ServerListener) listener;
         if (serverListener.afterInvalidateInvoked) {
           return true;
         }
@@ -261,10 +258,10 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
 
   private boolean hasClientListenerAfterInvalidateBeenInvoked() {
     Region<?, ?> region = getCache().getRegion(REGION_NAME1);
-    CacheListener<?, ?>[] listeners = region.getAttributes().getCacheListeners();
-    for (CacheListener<?, ?> listener : listeners) {
+    var listeners = region.getAttributes().getCacheListeners();
+    for (var listener : listeners) {
       if (listener instanceof ClientListener) {
-        ClientListener clientListener = (ClientListener) listener;
+        var clientListener = (ClientListener) listener;
         if (clientListener.afterInvalidateInvoked) {
           return true;
         }
@@ -276,8 +273,8 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
   private static Integer createServerCache(Boolean concurrencyChecksEnabled, Boolean partitioned,
       Integer maxThreads) throws Exception {
     AbstractRegionMap.FORCE_INVALIDATE_EVENT = true;
-    Properties props = new Properties();
-    Cache cache = new ClientServerForceInvalidateDUnitTest().createCacheV(props);
+    var props = new Properties();
+    var cache = new ClientServerForceInvalidateDUnitTest().createCacheV(props);
     RegionFactory<String, String> factory = cache.createRegionFactory();
     if (partitioned) {
       factory.setDataPolicy(DataPolicy.PARTITION);
@@ -288,11 +285,11 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
     }
     factory.setConcurrencyChecksEnabled(concurrencyChecksEnabled);
     factory.addCacheListener(new ServerListener());
-    Region<String, String> r1 = factory.create(REGION_NAME1);
+    var r1 = factory.create(REGION_NAME1);
     assertNotNull(r1);
 
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     logger.info("Starting server on port " + port);
     server.setPort(port);
     server.setMaxThreads(maxThreads);
@@ -305,11 +302,11 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
   public static void createClientCache(String h, int port1, int port2, boolean empty,
       boolean concurrenctChecksEnabled) throws Exception {
     AbstractRegionMap.FORCE_INVALIDATE_EVENT = true;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    Cache cache = new ClientServerForceInvalidateDUnitTest().createCacheV(props);
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(h, port1).addServer(h, port2)
+    var cache = new ClientServerForceInvalidateDUnitTest().createCacheV(props);
+    var p = (PoolImpl) PoolManager.createFactory().addServer(h, port1).addServer(h, port2)
         .setSubscriptionEnabled(true).setReadTimeout(1000)
         .setSocketBufferSize(32768).setMinConnections(3).setSubscriptionRedundancy(-1)
         .setPingInterval(2000).create("ClientServerForceInvalidateDUnitTestPool");
@@ -332,7 +329,7 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
 
   private static boolean poolReady(final PoolImpl pool) {
     try {
-      Connection conn = pool.acquireConnection();
+      var conn = pool.acquireConnection();
       // excuse = "acquireConnection returned null?";
       return conn != null;
     } catch (NoAvailableServersException e) {
@@ -373,7 +370,7 @@ public class ClientServerForceInvalidateDUnitTest extends JUnit4CacheTestCase {
     public void afterInvalidate(final EntryEvent<String, String> event) {
       super.afterInvalidate(event);
       afterInvalidateInvoked = true;
-      String prefix = "";
+      var prefix = "";
       if (!event.isOriginRemote()) {
         prefix = "    ";
       }

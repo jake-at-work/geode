@@ -20,7 +20,6 @@ import static org.apache.geode.test.junit.assertions.ClusterManagementRealizatio
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,17 +33,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import org.apache.geode.cache.configuration.GatewayReceiverConfig;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
-import org.apache.geode.management.api.ClusterManagementListResult;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.api.ClusterManagementService;
-import org.apache.geode.management.api.EntityGroupInfo;
 import org.apache.geode.management.api.RestTemplateClusterManagementServiceTransport;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.ClassName;
 import org.apache.geode.management.configuration.GatewayReceiver;
-import org.apache.geode.management.runtime.GatewayReceiverInfo;
-import org.apache.geode.test.junit.rules.LocatorStarterRule;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = {"classpath*:WEB-INF/management-servlet.xml"},
@@ -75,7 +69,7 @@ public class GatewayManagementIntegrationTest {
 
   @Test
   public void listEmptyGatewayReceivers() {
-    ClusterManagementListResult<GatewayReceiver, GatewayReceiverInfo> result =
+    var result =
         client.list(receiver);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getEntityGroupInfo().size()).isEqualTo(0);
@@ -83,14 +77,14 @@ public class GatewayManagementIntegrationTest {
 
   @Test
   public void listExisting() {
-    LocatorStarterRule locator =
+    var locator =
         ((PlainLocatorContextLoader) context.getLocator()).getLocatorStartupRule();
-    InternalConfigurationPersistenceService cps =
+    var cps =
         locator.getLocator().getConfigurationPersistenceService();
 
     // manually create a gateway receiver in cluster group
     cps.updateCacheConfig("cluster", cacheConfig -> {
-      GatewayReceiverConfig receiver = new GatewayReceiverConfig();
+      var receiver = new GatewayReceiverConfig();
       receiver.setBindAddress("localhost");
       receiver.setManualStart(false);
       receiver.setStartPort("5000");
@@ -98,13 +92,13 @@ public class GatewayManagementIntegrationTest {
       return cacheConfig;
     });
 
-    ClusterManagementListResult<GatewayReceiver, GatewayReceiverInfo> results =
+    var results =
         client.list(receiver);
     assertThat(results.isSuccessful()).isTrue();
-    List<EntityGroupInfo<GatewayReceiver, GatewayReceiverInfo>> receivers =
+    var receivers =
         results.getEntityGroupInfo();
     assertThat(receivers.size()).isEqualTo(1);
-    GatewayReceiver result = receivers.get(0).getConfiguration();
+    var result = receivers.get(0).getConfiguration();
     assertThat(result.isManualStart()).isFalse();
     assertThat(result.getStartPort()).isEqualTo(5000);
 
@@ -117,7 +111,7 @@ public class GatewayManagementIntegrationTest {
 
   @Test
   public void createGatewayReceiver() {
-    GatewayReceiver gatewayReceiver = new GatewayReceiver();
+    var gatewayReceiver = new GatewayReceiver();
     gatewayReceiver.setGroup("group");
     gatewayReceiver.setStartPort(1000);
     gatewayReceiver.setEndPort(1000);
@@ -131,9 +125,9 @@ public class GatewayManagementIntegrationTest {
         .hasStatusCode(ClusterManagementResult.StatusCode.OK);
 
     // manually removing the GWR so that it won't pollute other tests
-    LocatorStarterRule locator =
+    var locator =
         ((PlainLocatorContextLoader) context.getLocator()).getLocatorStartupRule();
-    InternalConfigurationPersistenceService cps =
+    var cps =
         locator.getLocator().getConfigurationPersistenceService();
     cps.updateCacheConfig("group", cacheConfig -> {
       cacheConfig.setGatewayReceiver(null);

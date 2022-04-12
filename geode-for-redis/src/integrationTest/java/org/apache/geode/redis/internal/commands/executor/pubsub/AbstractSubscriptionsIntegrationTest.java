@@ -20,7 +20,6 @@ import static org.apache.geode.redis.internal.RedisConstants.ERROR_PUBSUB_WRONG_
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -56,7 +55,7 @@ public abstract class AbstractSubscriptionsIntegrationTest implements RedisInteg
 
   @Test
   public void pingWhileSubscribed() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
     executor.submit(() -> client.subscribe(mockSubscriber, "same"));
     mockSubscriber.awaitSubscribe("same");
@@ -69,7 +68,7 @@ public abstract class AbstractSubscriptionsIntegrationTest implements RedisInteg
 
   @Test
   public void pingWithArgumentWhileSubscribed() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
     executor.submit(() -> client.subscribe(mockSubscriber, "same"));
     mockSubscriber.awaitSubscribe("same");
@@ -91,15 +90,15 @@ public abstract class AbstractSubscriptionsIntegrationTest implements RedisInteg
 
   @Test
   public void multiSubscribe() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
     executor.submit(() -> client.subscribe(mockSubscriber, "same"));
     mockSubscriber.awaitSubscribe("same");
     mockSubscriber.psubscribe("sam*");
     mockSubscriber.awaitPSubscribe("sam*");
 
-    Jedis publisher = new Jedis("localhost", getPort());
-    long publishCount = publisher.publish("same", "message");
+    var publisher = new Jedis("localhost", getPort());
+    var publishCount = publisher.publish("same", "message");
 
     assertThat(publishCount).isEqualTo(2L);
     GeodeAwaitility.await()
@@ -112,8 +111,8 @@ public abstract class AbstractSubscriptionsIntegrationTest implements RedisInteg
 
   @Test
   public void unsubscribingImplicitlyFromAllChannels_doesNotUnsubscribeFromPatterns() {
-    Jedis publisher = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var publisher = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
+    var mockSubscriber = new MockSubscriber();
 
     executor.submit(() -> client.subscribe(mockSubscriber, "salutations", "yuletide"));
     GeodeAwaitility.await()
@@ -126,11 +125,11 @@ public abstract class AbstractSubscriptionsIntegrationTest implements RedisInteg
     GeodeAwaitility.await()
         .untilAsserted(() -> assertThat(mockSubscriber.getSubscribedChannels()).isEqualTo(2));
 
-    List<String> unsubscribedChannels = mockSubscriber.unsubscribeInfos.stream()
+    var unsubscribedChannels = mockSubscriber.unsubscribeInfos.stream()
         .map(x -> x.channel)
         .collect(Collectors.toList());
     assertThat(unsubscribedChannels).containsExactlyInAnyOrder("salutations", "yuletide");
-    List<Integer> channelCounts = mockSubscriber.unsubscribeInfos.stream()
+    var channelCounts = mockSubscriber.unsubscribeInfos.stream()
         .map(x -> x.count)
         .collect(Collectors.toList());
     assertThat(channelCounts).containsExactlyInAnyOrder(3, 2);
@@ -154,8 +153,8 @@ public abstract class AbstractSubscriptionsIntegrationTest implements RedisInteg
 
   @Test
   public void punsubscribingImplicitlyFromAllPatterns_doesNotUnsubscribeFromChannels() {
-    Jedis publisher = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var publisher = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
+    var mockSubscriber = new MockSubscriber();
 
     executor.submit(() -> client.psubscribe(mockSubscriber, "p*", "g*"));
     GeodeAwaitility.await()
@@ -168,12 +167,12 @@ public abstract class AbstractSubscriptionsIntegrationTest implements RedisInteg
     GeodeAwaitility.await()
         .untilAsserted(() -> assertThat(mockSubscriber.getSubscribedChannels()).isEqualTo(2));
 
-    List<String> punsubscribedChannels = mockSubscriber.punsubscribeInfos.stream()
+    var punsubscribedChannels = mockSubscriber.punsubscribeInfos.stream()
         .map(x -> x.channel)
         .collect(Collectors.toList());
     assertThat(punsubscribedChannels).containsExactlyInAnyOrder("p*", "g*");
 
-    List<Integer> channelCounts = mockSubscriber.punsubscribeInfos.stream()
+    var channelCounts = mockSubscriber.punsubscribeInfos.stream()
         .map(x -> x.count)
         .collect(Collectors.toList());
     assertThat(channelCounts).containsExactlyInAnyOrder(3, 2);

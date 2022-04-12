@@ -16,7 +16,6 @@
 package org.apache.geode.modules.session.junit;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -67,11 +66,11 @@ public class PerTestClassLoaderRunner extends NamedRunner {
    * @throws ClassNotFoundException the class not found exception
    */
   private void loadClassesWithCustomClassLoader() throws ClassNotFoundException {
-    String classPath = System.getProperty("java.class.path");
-    StringTokenizer st = new StringTokenizer(classPath, ":");
+    var classPath = System.getProperty("java.class.path");
+    var st = new StringTokenizer(classPath, ":");
     List<URL> urls = new ArrayList<>();
     while (st.hasMoreTokens()) {
-      String u = st.nextToken();
+      var u = st.nextToken();
       // Because of LOG4J2-2266 and LOG4J-2152 ignore all log4j related jars and let them be picked
       // up from the system classloader. Although it's supposed to be fixed in log4j 2.10, it does
       // not seem to be.
@@ -82,7 +81,7 @@ public class PerTestClassLoaderRunner extends NamedRunner {
         if (!u.endsWith(".jar")) {
           u += "/";
         }
-        URL url = new URL("file://" + u);
+        var url = new URL("file://" + u);
         urls.add(url);
       } catch (MalformedURLException e) {
         e.printStackTrace();
@@ -113,7 +112,7 @@ public class PerTestClassLoaderRunner extends NamedRunner {
       // The method as parameter is from the original class and thus not found in our
       // class loaded by the custom name (reflection is class loader sensitive)
       // So find the same method but now in the class from the class Loader.
-      Method methodFromNewlyLoadedClass =
+      var methodFromNewlyLoadedClass =
           testClassFromClassLoader.getJavaClass().getMethod(method.getName());
       newMethod = new FrameworkMethod(methodFromNewlyLoadedClass);
     } catch (ClassNotFoundException | NoSuchMethodException | SecurityException e) {
@@ -131,7 +130,7 @@ public class PerTestClassLoaderRunner extends NamedRunner {
     // We now to need to search in the class from the custom loader.
     // We also need to search with the annotation loaded by the custom
     // class loader or otherwise we don't find any method.
-    List<FrameworkMethod> afters = testClassFromClassLoader
+    var afters = testClassFromClassLoader
         .getAnnotatedMethods((Class<? extends Annotation>) afterFromClassLoader);
     return new RunAfters(statement, afters, target);
   }
@@ -142,7 +141,7 @@ public class PerTestClassLoaderRunner extends NamedRunner {
     // We now to need to search in the class from the custom loader.
     // We also need to search with the annotation loaded by the custom
     // class loader or otherwise we don't find any method.
-    List<FrameworkMethod> befores = testClassFromClassLoader
+    var befores = testClassFromClassLoader
         .getAnnotatedMethods((Class<? extends Annotation>) beforeFromClassLoader);
     return new RunBefores(statement, befores, target);
   }

@@ -132,7 +132,7 @@ public class GatewaySenderEventCallbackArgument extends WrappedCallbackArgument
    */
   public void initializeReceipientDSIds(List<Integer> originalGatewaysReceivers) {
     receipientDSIds = new IntOpenHashSet(2);
-    for (Integer id : originalGatewaysReceivers) {
+    for (var id : originalGatewaysReceivers) {
       receipientDSIds.add(id);
     }
   }
@@ -149,7 +149,7 @@ public class GatewaySenderEventCallbackArgument extends WrappedCallbackArgument
     DataSerializer.writeInteger(originatingDSId, out);
     if (receipientDSIds != null) {
       out.writeInt(receipientDSIds.size());
-      for (Integer gateway : receipientDSIds) {
+      for (var gateway : receipientDSIds) {
         out.writeInt(gateway);
       }
     } else {
@@ -163,8 +163,8 @@ public class GatewaySenderEventCallbackArgument extends WrappedCallbackArgument
     super.fromData(in);
     originatingDSId = DataSerializer.readInteger(in);
     receipientDSIds = new IntOpenHashSet(2);
-    int numberOfRecipientGateways = in.readInt();
-    for (int i = 0; i < numberOfRecipientGateways; i++) {
+    var numberOfRecipientGateways = in.readInt();
+    for (var i = 0; i < numberOfRecipientGateways; i++) {
       receipientDSIds.add(in.readInt());
     }
   }

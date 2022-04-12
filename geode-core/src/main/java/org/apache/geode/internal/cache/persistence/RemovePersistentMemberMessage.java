@@ -40,9 +40,7 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
-import org.apache.geode.internal.cache.partitioned.Bucket;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -76,8 +74,8 @@ public class RemovePersistentMemberMessage extends HighPriorityDistributionMessa
       // no need to do anything
       return;
     }
-    ReplyProcessor21 processor = new ReplyProcessor21(dm, members);
-    RemovePersistentMemberMessage msg = new RemovePersistentMemberMessage(regionPath, id,
+    var processor = new ReplyProcessor21(dm, members);
+    var msg = new RemovePersistentMemberMessage(regionPath, id,
         initializingId, processor.getProcessorId());
     msg.setRecipients(members);
     dm.putOutgoing(msg);
@@ -86,7 +84,7 @@ public class RemovePersistentMemberMessage extends HighPriorityDistributionMessa
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+    final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
 
     PersistentMemberState state = null;
     PersistentMemberID myId = null;
@@ -101,7 +99,7 @@ public class RemovePersistentMemberMessage extends HighPriorityDistributionMessa
       if (region instanceof DistributedRegion) {
         persistenceAdvisor = ((DistributedRegion) region).getPersistenceAdvisor();
       } else if (region == null) {
-        Bucket proxy =
+        var proxy =
             PartitionedRegionHelper.getProxyBucketRegion(dm.getCache(), regionPath);
         if (proxy != null) {
           persistenceAdvisor = proxy.getPersistenceAdvisor();
@@ -128,7 +126,7 @@ public class RemovePersistentMemberMessage extends HighPriorityDistributionMessa
       exception = new ReplyException(t);
     } finally {
       LocalRegion.setThreadInitLevelRequirement(oldLevel);
-      ReplyMessage replyMsg = new ReplyMessage();
+      var replyMsg = new ReplyMessage();
       replyMsg.setRecipient(getSender());
       replyMsg.setProcessorId(processorId);
       if (exception != null) {
@@ -149,12 +147,12 @@ public class RemovePersistentMemberMessage extends HighPriorityDistributionMessa
     super.fromData(in, context);
     regionPath = DataSerializer.readString(in);
     processorId = in.readInt();
-    boolean hasId = in.readBoolean();
+    var hasId = in.readBoolean();
     if (hasId) {
       id = new PersistentMemberID();
       InternalDataSerializer.invokeFromData(id, in);
     }
-    boolean hasInitializingId = in.readBoolean();
+    var hasInitializingId = in.readBoolean();
     if (hasInitializingId) {
       initializingId = new PersistentMemberID();
       InternalDataSerializer.invokeFromData(initializingId, in);

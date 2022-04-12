@@ -16,7 +16,6 @@ package org.apache.geode.internal.statistics;
 
 import java.io.File;
 import java.net.UnknownHostException;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -165,8 +164,8 @@ public abstract class HostStatSampler
 
   @Override
   public boolean waitForSample(long timeout) throws InterruptedException {
-    final long endTime = System.currentTimeMillis() + timeout;
-    final int startSampleCount = samplerStats.getSampleCount();
+    final var endTime = System.currentTimeMillis() + timeout;
+    final var startSampleCount = samplerStats.getSampleCount();
     while (System.currentTimeMillis() < endTime
         && samplerStats.getSampleCount() <= startSampleCount) {
       Thread.sleep(WAIT_FOR_SLEEP_INTERVAL);
@@ -176,7 +175,7 @@ public abstract class HostStatSampler
 
   @Override
   public SampleCollector waitForSampleCollector(long timeout) throws InterruptedException {
-    final long endTime = System.currentTimeMillis() + timeout;
+    final var endTime = System.currentTimeMillis() + timeout;
     while (System.currentTimeMillis() < endTime && sampleCollector == null
         || !sampleCollector.isInitialized()) {
       Thread.sleep(WAIT_FOR_SLEEP_INTERVAL);
@@ -189,11 +188,11 @@ public abstract class HostStatSampler
    */
   @Override
   public void run() {
-    final boolean isDebugEnabled_STATISTICS = logger.isTraceEnabled(LogMarker.STATISTICS_VERBOSE);
+    final var isDebugEnabled_STATISTICS = logger.isTraceEnabled(LogMarker.STATISTICS_VERBOSE);
     if (isDebugEnabled_STATISTICS) {
       logger.trace(LogMarker.STATISTICS_VERBOSE, "HostStatSampler started");
     }
-    boolean latchCountedDown = false;
+    var latchCountedDown = false;
     try {
       initSpecialStats();
 
@@ -206,19 +205,19 @@ public abstract class HostStatSampler
 
       timer.reset();
       // subtract getNanoRate from lastTS to force a quick initial sample
-      long nanosLastTimeStamp = timer.getLastResetTime() - getNanoRate();
+      var nanosLastTimeStamp = timer.getLastResetTime() - getNanoRate();
       while (!stopRequested()) {
         SystemFailure.checkFailure();
         if (Thread.currentThread().isInterrupted()) {
           break;
         }
-        final long nanosBeforeSleep = timer.getLastResetTime();
-        final long nanosToDelay = nanosLastTimeStamp + getNanoRate();
+        final var nanosBeforeSleep = timer.getLastResetTime();
+        final var nanosToDelay = nanosLastTimeStamp + getNanoRate();
         delay(nanosToDelay);
         nanosLastTimeStamp = timer.getLastResetTime();
         if (!stopRequested() && isSamplingEnabled()) {
-          final long nanosTimeStamp = timer.getLastResetTime();
-          final long nanosElapsedSleeping = nanosTimeStamp - nanosBeforeSleep;
+          final var nanosTimeStamp = timer.getLastResetTime();
+          final var nanosElapsedSleeping = nanosTimeStamp - nanosBeforeSleep;
           checkElapsedSleepTime(nanosElapsedSleeping);
           if (stopRequested()) {
             break;
@@ -234,7 +233,7 @@ public abstract class HostStatSampler
 
           sampleCollector.sample(nanosTimeStamp);
 
-          final long nanosSpentWorking = timer.reset();
+          final var nanosSpentWorking = timer.reset();
           accountForTimeSpentWorking(nanosSpentWorking, nanosElapsedSleeping);
         } else if (!stopRequested() && !isSamplingEnabled()) {
           sampleSpecialStats(true); // fixes bug 42527
@@ -289,7 +288,7 @@ public abstract class HostStatSampler
     synchronized (HostStatSampler.class) {
       if (statThread != null) {
         try {
-          int msToWait = getSampleRate() + 100;
+          var msToWait = getSampleRate() + 100;
           statThread.join(msToWait);
         } catch (InterruptedException ex) {
           Thread.currentThread().interrupt();
@@ -449,7 +448,7 @@ public abstract class HostStatSampler
 
   protected long getSpecialStatsId() {
     try {
-      int pid = getStatisticsManager().getPid();
+      var pid = getStatisticsManager().getPid();
       if (pid > 0) {
         return pid;
       }
@@ -480,7 +479,7 @@ public abstract class HostStatSampler
    */
   private synchronized void initSpecialStats() {
     // add a vm resource
-    long id = getSpecialStatsId();
+    var id = getSpecialStatsId();
     vmStats = VMStatsContractFactory.create(getStatisticsManager(), id);
     initProcessStats(id);
   }
@@ -508,13 +507,13 @@ public abstract class HostStatSampler
    */
   private void delay(final long nanosToDelay) throws InterruptedException {
     timer.reset();
-    long now = timer.getLastResetTime();
-    long remainingNanos = nanosToDelay - now;
+    var now = timer.getLastResetTime();
+    var remainingNanos = nanosToDelay - now;
     if (remainingNanos <= 0) {
       remainingNanos = NanoTimer.millisToNanos(MIN_MS_SLEEP);
     }
     while (remainingNanos > 0 && !stopRequested()) {
-      long ms = NanoTimer.nanosToMillis(remainingNanos);
+      var ms = NanoTimer.nanosToMillis(remainingNanos);
       if (ms <= 0) {
         Thread.yield();
       } else {
@@ -546,8 +545,8 @@ public abstract class HostStatSampler
    * @param prepareOnly set to true if you only want to call prepareForSample
    */
   private void sampleSpecialStats(boolean prepareOnly) {
-    List<Statistics> statsList = getStatisticsManager().getStatsList();
-    for (Statistics s : statsList) {
+    var statsList = getStatisticsManager().getStatsList();
+    for (var s : statsList) {
       if (stopRequested()) {
         return;
       }
@@ -573,7 +572,7 @@ public abstract class HostStatSampler
    */
   private void checkElapsedSleepTime(long elapsedSleepTime) {
     if (STAT_SAMPLER_DELAY_THRESHOLD > 0) {
-      final long wakeupDelay = elapsedSleepTime - getNanoRate();
+      final var wakeupDelay = elapsedSleepTime - getNanoRate();
       if (wakeupDelay > STAT_SAMPLER_DELAY_THRESHOLD_NANOS) {
         samplerStats.incJvmPauses();
         logger.warn(LogMarker.STATISTICS_MARKER,

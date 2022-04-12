@@ -14,14 +14,10 @@
  */
 package org.apache.geode.internal.cache.partitioned.rebalance;
 
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Assert;
-import org.apache.geode.internal.cache.FixedPartitionAttributesImpl;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.Bucket;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.Member;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.Move;
@@ -60,15 +56,15 @@ public class MovePrimariesFPR extends RebalanceDirectorAdapter {
    * Move all primary from other to this
    */
   private void makeFPRPrimaryForThisNode() {
-    PartitionedRegion partitionedRegion = model.getPartitionedRegion();
-    List<FixedPartitionAttributesImpl> FPAs = partitionedRegion.getFixedPartitionAttributesImpl();
-    InternalDistributedMember targetId = partitionedRegion.getDistributionManager().getId();
+    var partitionedRegion = model.getPartitionedRegion();
+    var FPAs = partitionedRegion.getFixedPartitionAttributesImpl();
+    var targetId = partitionedRegion.getDistributionManager().getId();
     Member target = model.getMember(targetId);
     for (Bucket bucket : model.getBuckets()) {
       if (bucket != null) {
-        for (FixedPartitionAttributesImpl fpa : FPAs) {
+        for (var fpa : FPAs) {
           if (fpa.hasBucket(bucket.getId()) && fpa.isPrimary()) {
-            Member source = bucket.getPrimary();
+            var source = bucket.getPrimary();
             if (source != target) {
               // HACK: In case we don't know who is Primary at this time
               // we just set source as target too for stat purposes
@@ -81,7 +77,7 @@ public class MovePrimariesFPR extends RebalanceDirectorAdapter {
                     bucket.getId(), bucket.getPrimary(), target);
               }
 
-              boolean successfulMove = model.movePrimary(new Move(source, target, bucket));
+              var successfulMove = model.movePrimary(new Move(source, target, bucket));
               // We have to move the primary otherwise there is some problem!
               Assert.assertTrue(successfulMove,
                   " Fixed partitioned region not able to move the primary!");

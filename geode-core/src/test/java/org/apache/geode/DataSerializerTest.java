@@ -36,9 +36,9 @@ public class DataSerializerTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DataSerializer mockDataSerializer = mock(DataSerializer.class);
-    EventID mockEventID = mock(EventID.class);
-    ClientProxyMembershipID mockClientProxyMembershipID = mock(ClientProxyMembershipID.class);
+    var mockDataSerializer = mock(DataSerializer.class);
+    var mockEventID = mock(EventID.class);
+    var mockClientProxyMembershipID = mock(ClientProxyMembershipID.class);
 
     when(mockDataSerializer.getEventId()).thenReturn(mockEventID);
     when(mockDataSerializer.getContext()).thenReturn(mockClientProxyMembershipID);
@@ -55,14 +55,14 @@ public class DataSerializerTest {
 
   @Test
   public void readStringShouldReturnCanonicalEmptyString() throws IOException {
-    byte[] serializedEmptyStringBytes = BlobHelper.serializeToBlob("");
-    ByteArrayDataInput dataInput1 = new ByteArrayDataInput();
+    var serializedEmptyStringBytes = BlobHelper.serializeToBlob("");
+    var dataInput1 = new ByteArrayDataInput();
     dataInput1.initialize(serializedEmptyStringBytes, null);
-    ByteArrayDataInput dataInput2 = new ByteArrayDataInput();
+    var dataInput2 = new ByteArrayDataInput();
     dataInput2.initialize(serializedEmptyStringBytes, null);
 
-    String firstRead = DataSerializer.readString(dataInput1);
-    String secondRead = DataSerializer.readString(dataInput2);
+    var firstRead = DataSerializer.readString(dataInput1);
+    var secondRead = DataSerializer.readString(dataInput2);
 
     assertThat(secondRead).isSameAs(firstRead);
   }

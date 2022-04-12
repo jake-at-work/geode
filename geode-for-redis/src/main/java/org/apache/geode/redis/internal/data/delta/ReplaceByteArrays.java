@@ -41,15 +41,15 @@ public class ReplaceByteArrays extends DeltaInfo {
   public void serializeTo(DataOutput out) throws IOException {
     super.serializeTo(out);
     DataSerializer.writePrimitiveInt(byteArrays.size(), out);
-    for (byte[] bytes : byteArrays) {
+    for (var bytes : byteArrays) {
       DataSerializer.writeByteArray(bytes, out);
     }
   }
 
   // Create a member set as you read it in
   public static void deserializeFrom(DataInput in, AbstractRedisData redisData) throws IOException {
-    int size = DataSerializer.readPrimitiveInt(in);
-    RedisSet.MemberSet members = new RedisSet.MemberSet(size);
+    var size = DataSerializer.readPrimitiveInt(in);
+    var members = new RedisSet.MemberSet(size);
     while (size > 0) {
       members.add(readByteArray(in));
       size--;

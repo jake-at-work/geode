@@ -25,7 +25,7 @@ class ReferenceCounterInstance {
     MemoryAllocatorImpl.validateAddress(address);
     int usageCount;
     int rawBits;
-    int retryCount = 0;
+    var retryCount = 0;
 
     do {
       rawBits =
@@ -71,14 +71,14 @@ class ReferenceCounterInstance {
       rawBits =
           AddressableMemoryManager.readIntVolatile(address + OffHeapStoredObject.REF_COUNT_OFFSET);
       if ((rawBits & OffHeapStoredObject.MAGIC_MASK) != OffHeapStoredObject.MAGIC_NUMBER) {
-        String message = "It looks like off heap memory @" + Long.toHexString(address)
+        var message = "It looks like off heap memory @" + Long.toHexString(address)
             + " was already freed. rawBits=" + Integer.toHexString(rawBits) + " history="
             + ReferenceCountHelper.getFreeRefCountInfo(address);
         // debugLog(msg, true);
         throw new IllegalStateException(message);
       }
 
-      int currentCount = rawBits & OffHeapStoredObject.REF_COUNT_MASK;
+      var currentCount = rawBits & OffHeapStoredObject.REF_COUNT_MASK;
       if (currentCount == 0) {
         throw new IllegalStateException("Memory has already been freed. history="
             + ReferenceCountHelper.getFreeRefCountInfo(address));

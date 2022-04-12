@@ -54,8 +54,8 @@ public class ConfigurationChangeResult implements DataSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
     result = prime * result + ((exception == null) ? 0 : exception.hashCode());
     result = prime * result + (isSuccessful ? 1231 : 1237);
@@ -73,7 +73,7 @@ public class ConfigurationChangeResult implements DataSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ConfigurationChangeResult other = (ConfigurationChangeResult) obj;
+    var other = (ConfigurationChangeResult) obj;
     if (errorMessage == null) {
       if (other.errorMessage != null) {
         return false;

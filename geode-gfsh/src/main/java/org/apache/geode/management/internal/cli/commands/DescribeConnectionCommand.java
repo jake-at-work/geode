@@ -19,22 +19,19 @@ import org.springframework.shell.core.annotation.CliCommand;
 
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
-import org.apache.geode.management.internal.cli.shell.Gfsh;
-import org.apache.geode.management.internal.cli.shell.OperationInvoker;
 import org.apache.geode.management.internal.i18n.CliStrings;
 
 public class DescribeConnectionCommand extends OfflineGfshCommand {
   @CliCommand(value = {CliStrings.DESCRIBE_CONNECTION}, help = CliStrings.DESCRIBE_CONNECTION__HELP)
   @CliMetaData(shellOnly = true, relatedTopic = {CliStrings.TOPIC_GFSH, CliStrings.TOPIC_GEODE_JMX})
   public ResultModel describeConnection() {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
-    TabularResultModel table = result.addTable("endPoints");
+    var table = result.addTable("endPoints");
     table.setColumnHeader("Connection Endpoints");
-    Gfsh gfshInstance = getGfsh();
+    var gfshInstance = getGfsh();
     if (gfshInstance.isConnectedAndReady()) {
-      OperationInvoker operationInvoker = gfshInstance.getOperationInvoker();
+      var operationInvoker = gfshInstance.getOperationInvoker();
       // tabularResultData.accumulate("Monitored GemFire DS", operationInvoker.toString());
       table.addRow(operationInvoker.toString());
     } else {

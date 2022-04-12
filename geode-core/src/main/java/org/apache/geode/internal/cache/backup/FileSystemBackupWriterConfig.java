@@ -28,7 +28,7 @@ class FileSystemBackupWriterConfig extends AbstractBackupWriterConfig {
   }
 
   String getTargetDirectory() {
-    String value = getProperties().getProperty(TARGET_DIR);
+    var value = getProperties().getProperty(TARGET_DIR);
     if (StringUtils.isBlank(value)) {
       throw new IllegalStateException("Target directory is missing");
     }

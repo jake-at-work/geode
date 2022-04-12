@@ -19,7 +19,6 @@ import static org.apache.geode.internal.statistics.StatArchiveWithConsecutiveRes
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,7 +34,6 @@ import org.junit.rules.TestName;
 
 import org.apache.geode.internal.SystemAdmin.StatSpec;
 import org.apache.geode.internal.statistics.StatArchiveReader.ResourceInst;
-import org.apache.geode.internal.statistics.StatArchiveReader.StatValue;
 import org.apache.geode.test.junit.categories.StatisticsTest;
 
 /**
@@ -63,7 +61,7 @@ public class StatArchiveWithConsecutiveResourceInstIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    URL url = getClass().getResource(ARCHIVE_FILE_NAME);
+    var url = getClass().getResource(ARCHIVE_FILE_NAME);
     archiveFile = temporaryFolder.newFile(ARCHIVE_FILE_NAME);
     FileUtils.copyURLToFile(url, archiveFile);
 
@@ -75,12 +73,12 @@ public class StatArchiveWithConsecutiveResourceInstIntegrationTest {
 
   @Test
   public void readingFourActiveCacheClientUpdaterStatsWithReaderMatchSpec() throws Exception {
-    StatArchiveReader reader =
+    var reader =
         new StatArchiveReader(new File[] {archiveFile}, new StatSpec[] {statSpec}, true);
 
     Set<ResourceInst> resourceInstList = new HashSet<>();
-    for (StatValue statValue : reader.matchSpec(statSpec)) {
-      for (int i = 0; i < statValue.getResources().length; i++) {
+    for (var statValue : reader.matchSpec(statSpec)) {
+      for (var i = 0; i < statValue.getResources().length; i++) {
         resourceInstList.add(statValue.getResources()[i]);
       }
     }
@@ -90,11 +88,11 @@ public class StatArchiveWithConsecutiveResourceInstIntegrationTest {
 
   @Test
   public void readingFourActiveCacheClientUpdaterStatsWithReader() throws Exception {
-    StatArchiveReader reader =
+    var reader =
         new StatArchiveReader(new File[] {archiveFile}, new StatSpec[] {statSpec}, true);
 
     Set<ResourceInst> resourceInstList = new HashSet<>();
-    for (final ResourceInst o : (Iterable<ResourceInst>) reader.getResourceInstList()) {
+    for (final var o : (Iterable<ResourceInst>) reader.getResourceInstList()) {
       resourceInstList.add(o);
     }
 
@@ -102,7 +100,7 @@ public class StatArchiveWithConsecutiveResourceInstIntegrationTest {
   }
 
   private void printResourceInsts(Set<ResourceInst> resourceInstList) {
-    for (ResourceInst resourceInst : resourceInstList) {
+    for (var resourceInst : resourceInstList) {
       logger.info(testName.getMethodName() + ":ResourceInst: {}", resourceInst);
     }
   }

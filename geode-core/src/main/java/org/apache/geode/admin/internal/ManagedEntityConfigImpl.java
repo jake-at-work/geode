@@ -18,7 +18,6 @@ import static org.apache.geode.admin.internal.InetAddressUtilsWithLogging.valida
 
 import java.io.File;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 
 import org.apache.geode.admin.ManagedEntityConfig;
@@ -74,7 +73,7 @@ public abstract class ManagedEntityConfigImpl implements ManagedEntityConfig {
    * Returns the current working directory for this VM.
    */
   private static File getCurrentWorkingDirectory() {
-    File cwd = new File(System.getProperty("user.dir"));
+    var cwd = new File(System.getProperty("user.dir"));
     return cwd.getAbsoluteFile();
   }
 
@@ -83,14 +82,14 @@ public abstract class ManagedEntityConfigImpl implements ManagedEntityConfig {
    * location of the gemfire jar and working backwards.
    */
   private static File getGemFireInstallation() {
-    URL url = GemFireVersion.getJarURL();
+    var url = GemFireVersion.getJarURL();
     if (url == null) {
       throw new IllegalStateException(
           "Could not find gemfire.jar.");
     }
 
-    File gemfireJar = new File(url.getPath());
-    File lib = gemfireJar.getParentFile();
+    var gemfireJar = new File(url.getPath());
+    var lib = gemfireJar.getParentFile();
 
     return lib.getParentFile();
   }
@@ -232,15 +231,15 @@ public abstract class ManagedEntityConfigImpl implements ManagedEntityConfig {
   public Object clone() throws CloneNotSupportedException {
     // Since all fields are immutable objects, no deep cloning is
     // necessary.
-    ManagedEntityConfigImpl clone = (ManagedEntityConfigImpl) super.clone();
+    var clone = (ManagedEntityConfigImpl) super.clone();
     clone.entity = null;
     return clone;
   }
 
   @Override
   public String toString() {
-    String className = getClass().getName();
-    int index = className.lastIndexOf('.');
+    var className = getClass().getName();
+    var index = className.lastIndexOf('.');
     className = className.substring(index + 1);
 
     return className

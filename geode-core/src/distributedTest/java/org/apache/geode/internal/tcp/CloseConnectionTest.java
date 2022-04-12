@@ -29,12 +29,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionImpl;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -63,7 +60,7 @@ public class CloseConnectionTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(getController(), vm0, vm1)) {
+    for (var vm : toArray(getController(), vm0, vm1)) {
       vm.invoke(() -> cacheRule.closeAndNullCache());
     }
 
@@ -83,7 +80,7 @@ public class CloseConnectionTest implements Serializable {
 
     // Force VM1 to close it's connections.
     vm1.invoke(() -> {
-      ConnectionTable conTable = getConnectionTable();
+      var conTable = getConnectionTable();
       assertThat(conTable.getNumberOfReceivers()).isEqualTo(2);
       conTable.closeReceivers(false);
       await().untilAsserted(() -> assertThat(conTable.getNumberOfReceivers()).isEqualTo(0));
@@ -92,7 +89,7 @@ public class CloseConnectionTest implements Serializable {
     // See if VM0 noticed the closed connections. Try to do a couple of region
     // operations
     vm0.invoke(() -> {
-      Region<Object, Object> region = getCache().getRegion("region");
+      var region = getCache().getRegion("region");
       region.put("1", "1");
 
       assertThat(region.get("1")).isEqualTo("1");
@@ -100,17 +97,17 @@ public class CloseConnectionTest implements Serializable {
 
     // Make sure connections were reestablished
     vm1.invoke(() -> {
-      ConnectionTable conTable = getConnectionTable();
+      var conTable = getConnectionTable();
       await().untilAsserted(() -> assertThat(conTable.getNumberOfReceivers()).isEqualTo(2));
     });
 
     // Make sure the Sender connection has a reader thread
     vm1.invoke(() -> {
-      ConnectionTable conTable = getConnectionTable();
-      InternalDistributedSystem distributedSystem = getCache().getInternalDistributedSystem();
-      InternalDistributedMember otherMember = distributedSystem.getDistributionManager()
+      var conTable = getConnectionTable();
+      var distributedSystem = getCache().getInternalDistributedSystem();
+      var otherMember = distributedSystem.getDistributionManager()
           .getOtherNormalDistributionManagerIds().iterator().next();
-      Connection connection = conTable.getConduit().getConnection(otherMember, true, false,
+      var connection = conTable.getConduit().getConnection(otherMember, true, false,
           System.currentTimeMillis(), 15000, 0);
       await().untilAsserted(() -> {
         // grab the shared, ordered "sender" connection to vm0. It should have a residual
@@ -122,9 +119,9 @@ public class CloseConnectionTest implements Serializable {
   }
 
   private ConnectionTable getConnectionTable() {
-    ClusterDistributionManager cdm =
+    var cdm =
         (ClusterDistributionManager) getCache().getDistributionManager();
-    DistributionImpl distribution = (DistributionImpl) cdm.getDistribution();
+    var distribution = (DistributionImpl) cdm.getDistribution();
     return distribution.getDirectChannel().getConduit().getConTable();
   }
 

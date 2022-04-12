@@ -137,7 +137,7 @@ public class JmxSerialFilterConfigurationTest {
   @Test
   public void doesNotSetPropertyValue_ifExistingValueIsNotEmpty()
       throws UnableToSetSerialFilterException {
-    String existingValue = "existing-value-of-property";
+    var existingValue = "existing-value-of-property";
     System.setProperty(SYSTEM_PROPERTY, existingValue);
     FilterConfiguration filterConfiguration =
         new JmxSerialFilterConfiguration(SYSTEM_PROPERTY, pattern);
@@ -152,7 +152,7 @@ public class JmxSerialFilterConfigurationTest {
   @Test
   public void logsWarning_ifExistingPropertyValueIsNotEmpty()
       throws UnableToSetSerialFilterException {
-    String existingValue = "existing-value-of-property";
+    var existingValue = "existing-value-of-property";
     System.setProperty(SYSTEM_PROPERTY, existingValue);
     FilterConfiguration filterConfiguration =
         new JmxSerialFilterConfiguration(SYSTEM_PROPERTY, pattern, logger);

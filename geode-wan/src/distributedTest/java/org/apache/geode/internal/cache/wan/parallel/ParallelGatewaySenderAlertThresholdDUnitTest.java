@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.internal.cache.wan.WANTestBase;
-import org.apache.geode.management.GatewaySenderMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.junit.categories.WanTest;
@@ -39,24 +38,26 @@ public class ParallelGatewaySenderAlertThresholdDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelSenderQueueEventsAlertThreshold() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
-    SerializableRunnableIF createSenderAlertThresholdWithoutDiskStoreRunnable =
-        () -> WANTestBase.createSenderAlertThresholdWithoutDiskStore("ln", 2, 10, 10, false, true,
+    var createSenderAlertThresholdWithoutDiskStoreRunnable =
+        (SerializableRunnableIF) () -> WANTestBase.createSenderAlertThresholdWithoutDiskStore("ln",
+            2, 10, 10, false, true,
             100);
     vm4.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
     vm5.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
     vm6.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
     vm7.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
 
-    SerializableRunnableIF createPartitionedRegionRunnableln =
-        () -> WANTestBase.createPartitionedRegion(getUniqueName(), "ln", 1, 100, isOffHeap());
+    var createPartitionedRegionRunnableln =
+        (SerializableRunnableIF) () -> WANTestBase.createPartitionedRegion(getUniqueName(), "ln", 1,
+            100, isOffHeap());
     vm4.invoke(createPartitionedRegionRunnableln);
     vm5.invoke(createPartitionedRegionRunnableln);
     vm6.invoke(createPartitionedRegionRunnableln);
@@ -69,12 +70,13 @@ public class ParallelGatewaySenderAlertThresholdDUnitTest extends WANTestBase {
     vm6.invoke(() -> WANTestBase.pauseSender("ln"));
     vm7.invoke(() -> WANTestBase.pauseSender("ln"));
 
-    SerializableRunnableIF createPartitionedRegionRunnable =
-        () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100, isOffHeap());
+    var createPartitionedRegionRunnable =
+        (SerializableRunnableIF) () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1,
+            100, isOffHeap());
     vm2.invoke(createPartitionedRegionRunnable);
     vm3.invoke(createPartitionedRegionRunnable);
 
-    int numEventPuts = 50;
+    var numEventPuts = 50;
     vm4.invoke(() -> WANTestBase.doHeavyPuts(getUniqueName(), numEventPuts));
 
 
@@ -83,18 +85,18 @@ public class ParallelGatewaySenderAlertThresholdDUnitTest extends WANTestBase {
     vm6.invoke(() -> WANTestBase.resumeSender("ln"));
     vm7.invoke(() -> WANTestBase.resumeSender("ln"));
 
-    SerializableRunnableIF serializableRunnableIF =
-        () -> WANTestBase.validateRegionSize(getUniqueName(), 50);
+    var serializableRunnableIF =
+        (SerializableRunnableIF) () -> WANTestBase.validateRegionSize(getUniqueName(), 50);
     vm2.invoke(serializableRunnableIF);
     vm3.invoke(serializableRunnableIF);
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", -1));
 
     assertTrue("GatewaySenders Stats should contain number of EventsExceedingAlertThreshold > 0",
@@ -115,8 +117,8 @@ public class ParallelGatewaySenderAlertThresholdDUnitTest extends WANTestBase {
   }
 
   private static int checkSenderMBeanAlertThreshold() {
-    ManagementService service = ManagementService.getManagementService(cache);
-    GatewaySenderMXBean bean = service.getLocalGatewaySenderMXBean("ln");
+    var service = ManagementService.getManagementService(cache);
+    var bean = service.getLocalGatewaySenderMXBean("ln");
     assertNotNull(bean);
     await().untilAsserted(() -> assertTrue(bean.isConnected()));
     return bean.getEventsExceedingAlertThreshold();
@@ -125,24 +127,26 @@ public class ParallelGatewaySenderAlertThresholdDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelSenderQueueNoEventsExceedingHighAlertThreshold() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
-    SerializableRunnableIF createSenderAlertThresholdWithoutDiskStoreRunnable =
-        () -> WANTestBase.createSenderAlertThresholdWithoutDiskStore("ln", 2, 10, 10, false, true,
+    var createSenderAlertThresholdWithoutDiskStoreRunnable =
+        (SerializableRunnableIF) () -> WANTestBase.createSenderAlertThresholdWithoutDiskStore("ln",
+            2, 10, 10, false, true,
             10000);
     vm4.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
     vm5.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
     vm6.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
     vm7.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
 
-    SerializableRunnableIF createPartitionedRegionRunnableln =
-        () -> WANTestBase.createPartitionedRegion(getUniqueName(), "ln", 1, 100, isOffHeap());
+    var createPartitionedRegionRunnableln =
+        (SerializableRunnableIF) () -> WANTestBase.createPartitionedRegion(getUniqueName(), "ln", 1,
+            100, isOffHeap());
     vm4.invoke(createPartitionedRegionRunnableln);
     vm5.invoke(createPartitionedRegionRunnableln);
     vm6.invoke(createPartitionedRegionRunnableln);
@@ -150,26 +154,27 @@ public class ParallelGatewaySenderAlertThresholdDUnitTest extends WANTestBase {
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    SerializableRunnableIF createPartitionedRegionRunnable =
-        () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100, isOffHeap());
+    var createPartitionedRegionRunnable =
+        (SerializableRunnableIF) () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1,
+            100, isOffHeap());
     vm2.invoke(createPartitionedRegionRunnable);
     vm3.invoke(createPartitionedRegionRunnable);
 
-    int numEventPuts = 50;
+    var numEventPuts = 50;
     vm4.invoke(() -> WANTestBase.doHeavyPuts(getUniqueName(), numEventPuts));
 
-    SerializableRunnableIF serializableRunnableIF =
-        () -> WANTestBase.validateRegionSize(getUniqueName(), 50);
+    var serializableRunnableIF =
+        (SerializableRunnableIF) () -> WANTestBase.validateRegionSize(getUniqueName(), 50);
     vm2.invoke(serializableRunnableIF);
     vm3.invoke(serializableRunnableIF);
 
-    ArrayList<Integer> v4List =
+    var v4List =
         (ArrayList<Integer>) vm4.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v5List =
+    var v5List =
         (ArrayList<Integer>) vm5.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v6List =
+    var v6List =
         (ArrayList<Integer>) vm6.invoke(() -> WANTestBase.getSenderStats("ln", -1));
-    ArrayList<Integer> v7List =
+    var v7List =
         (ArrayList<Integer>) vm7.invoke(() -> WANTestBase.getSenderStats("ln", -1));
 
     assertEquals("GatewaySenders Stats should contain number of EventsExceedingAlertThreshold = 0",

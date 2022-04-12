@@ -38,7 +38,6 @@ import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.util.ObjectSizer;
 
 public class PersistentPartitionedRegionJUnitTest {
@@ -62,7 +61,7 @@ public class PersistentPartitionedRegionJUnitTest {
 
   @Test
   public void testChangeTTL() throws InterruptedException {
-    Region region = createRegion(-1);
+    var region = createRegion(-1);
     region.put("A", "B");
     cache.close();
     region = createRegion(60000);
@@ -73,12 +72,12 @@ public class PersistentPartitionedRegionJUnitTest {
   public void testStatsPersistAttributesChangeNoRecovery() throws InterruptedException {
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
     try {
-      PartitionedRegion region = (PartitionedRegion) createRegion(-1);
+      var region = (PartitionedRegion) createRegion(-1);
       region.put("A", "B");
       cache.close();
       region = (PartitionedRegion) createRegion(60000);
 
-      BucketRegion bucket = region.getBucketRegion("A");
+      var bucket = region.getBucketRegion("A");
       assertEquals(1, bucket.getDiskRegion().getStats().getNumOverflowOnDisk());
       assertEquals(0, bucket.getDiskRegion().getStats().getNumEntriesInVM());
       assertEquals("B", region.get("A"));
@@ -93,12 +92,12 @@ public class PersistentPartitionedRegionJUnitTest {
   public void testStatsPersistAttributesChangeSyncRecovery() throws InterruptedException {
     System.setProperty(DiskStoreImpl.RECOVER_VALUES_SYNC_PROPERTY_NAME, "true");
     try {
-      PartitionedRegion region = (PartitionedRegion) createRegion(-1);
+      var region = (PartitionedRegion) createRegion(-1);
       region.put("A", "B");
       cache.close();
       region = (PartitionedRegion) createRegion(60000);
 
-      BucketRegion bucket = region.getBucketRegion("A");
+      var bucket = region.getBucketRegion("A");
       assertEquals(0, bucket.getDiskRegion().getStats().getNumOverflowOnDisk());
       assertEquals(1, bucket.getDiskRegion().getStats().getNumEntriesInVM());
       assertEquals("B", region.get("A"));
@@ -111,20 +110,20 @@ public class PersistentPartitionedRegionJUnitTest {
 
   @Test
   public void testStatsPersistAttributesChangeAsyncRecovery() throws InterruptedException {
-    PartitionedRegion region = (PartitionedRegion) createRegion(-1);
-    for (int i = 0; i < 1000; i++) {
+    var region = (PartitionedRegion) createRegion(-1);
+    for (var i = 0; i < 1000; i++) {
       region.put(i, "B");
     }
     cache.close();
     region = (PartitionedRegion) createRegion(60000);
 
-    BucketRegion bucket = region.getBucketRegion("A");
-    for (int i = 0; i < 1000; i++) {
+    var bucket = region.getBucketRegion("A");
+    for (var i = 0; i < 1000; i++) {
       region.get(i);
     }
     // There is a race where the async value recovery thread may be handling
     // the stats for the last entry (even though it is already faulted in)
-    int count = 0;
+    var count = 0;
     while (0 != bucket.getDiskRegion().getStats().getNumOverflowOnDisk()) {
       Thread.sleep(50);
       if (++count == 20) {
@@ -139,12 +138,12 @@ public class PersistentPartitionedRegionJUnitTest {
   public void testStatsPersistNoRecovery() throws InterruptedException {
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "false");
     try {
-      PartitionedRegion region = (PartitionedRegion) createRegion(-1);
+      var region = (PartitionedRegion) createRegion(-1);
       region.put("A", "B");
       cache.close();
       region = (PartitionedRegion) createRegion(-1);
 
-      BucketRegion bucket = region.getBucketRegion("A");
+      var bucket = region.getBucketRegion("A");
       assertEquals(1, bucket.getDiskRegion().getStats().getNumOverflowOnDisk());
       assertEquals(0, bucket.getDiskRegion().getStats().getNumEntriesInVM());
       assertEquals("B", region.get("A"));
@@ -159,12 +158,12 @@ public class PersistentPartitionedRegionJUnitTest {
   public void testStatsChangeSyncRecovery() throws InterruptedException {
     System.setProperty(DiskStoreImpl.RECOVER_VALUES_SYNC_PROPERTY_NAME, "true");
     try {
-      PartitionedRegion region = (PartitionedRegion) createRegion(-1);
+      var region = (PartitionedRegion) createRegion(-1);
       region.put("A", "B");
       cache.close();
       region = (PartitionedRegion) createRegion(-1);
 
-      BucketRegion bucket = region.getBucketRegion("A");
+      var bucket = region.getBucketRegion("A");
       assertEquals(0, bucket.getDiskRegion().getStats().getNumOverflowOnDisk());
       assertEquals(1, bucket.getDiskRegion().getStats().getNumEntriesInVM());
       assertEquals("B", region.get("A"));
@@ -177,21 +176,21 @@ public class PersistentPartitionedRegionJUnitTest {
 
   @Test
   public void testStatsPersistAsyncRecovery() throws InterruptedException {
-    PartitionedRegion region = (PartitionedRegion) createRegion(-1);
-    for (int i = 0; i < 1000; i++) {
+    var region = (PartitionedRegion) createRegion(-1);
+    for (var i = 0; i < 1000; i++) {
       region.put(i, "B");
     }
     cache.close();
     region = (PartitionedRegion) createRegion(-1);
 
-    BucketRegion bucket = region.getBucketRegion("A");
-    for (int i = 0; i < 1000; i++) {
+    var bucket = region.getBucketRegion("A");
+    for (var i = 0; i < 1000; i++) {
       region.get(i);
     }
 
     // There is a race where the async value recovery thread may be handling
     // the stats for the last entry (even though it is already faulted in)
-    int count = 0;
+    var count = 0;
     while (0 != bucket.getDiskRegion().getStats().getNumOverflowOnDisk()) {
       Thread.sleep(50);
       if (++count == 20) {
@@ -214,7 +213,7 @@ public class PersistentPartitionedRegionJUnitTest {
 
   @Test
   public void testValuesAreNotRecoveredForHeapLruRegionsWithRecoverPropertySet() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
 
     try {
@@ -230,10 +229,10 @@ public class PersistentPartitionedRegionJUnitTest {
 
   @Test
   public void testValuesAreRecoveredForHeapLruRegionsWithRecoverValueAndRecoverLruPropertySet() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
 
-    String lruOldValue = System.getProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME);
+    var lruOldValue = System.getProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME, "true");
 
     try {
@@ -266,10 +265,10 @@ public class PersistentPartitionedRegionJUnitTest {
   private void createLRURegionAndValidateRecovery(boolean isRegionClose, boolean heapLru, int size,
       int expectedInMemory) {
     PartitionedRegion region;
-    boolean entryLru = !heapLru;
+    var entryLru = !heapLru;
     region = (PartitionedRegion) createRegion(-1, heapLru, entryLru);
 
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       region.put(i, i);
     }
 
@@ -279,7 +278,7 @@ public class PersistentPartitionedRegionJUnitTest {
       cache.close();
     }
 
-    final CountDownLatch recoveryDone = new CountDownLatch(1);
+    final var recoveryDone = new CountDownLatch(1);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
       @Override
       public void afterAsyncValueRecovery(DiskStoreImpl store) {
@@ -295,27 +294,27 @@ public class PersistentPartitionedRegionJUnitTest {
       fail("Found interrupted exception while waiting for recovery.");
     }
 
-    int valuesInVm = getValuesInVM(region, size);
+    var valuesInVm = getValuesInVM(region, size);
     assertEquals("Values for lru regions should not be recovered from Disk.", expectedInMemory,
         valuesInVm);
 
-    BucketRegion bucket = region.getBucketRegion("A");
+    var bucket = region.getBucketRegion("A");
     assertEquals((size - expectedInMemory),
         bucket.getDiskRegion().getStats().getNumOverflowOnDisk());
     assertEquals(expectedInMemory, bucket.getDiskRegion().getStats().getNumEntriesInVM());
 
     // Load values into memory using get.
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       region.get(i);
     }
     assertEquals(size, bucket.getDiskRegion().getStats().getNumEntriesInVM());
   }
 
   private int getValuesInVM(Region region, int size) {
-    int valuesInVm = 0;
-    for (int i = 0; i < size; i++) {
+    var valuesInVm = 0;
+    for (var i = 0; i < size; i++) {
       try {
-        Object value = ((LocalRegion) region).getValueInVM(i);
+        var value = ((LocalRegion) region).getValueInVM(i);
         if (value != null) {
           valuesInVm++;
         }
@@ -331,15 +330,14 @@ public class PersistentPartitionedRegionJUnitTest {
   }
 
   private Region createRegion(int ttl, boolean isHeapEviction, boolean isEntryEviction) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOG_LEVEL, "info");
     // props.setProperty("log-file", "junit.log");
     cache = new CacheFactory(props).create();
     cache.createDiskStoreFactory().setMaxOplogSize(1).setDiskDirs(new File[] {dir}).create("disk");
 
-
-    RegionFactory<Object, Object> rf = cache.createRegionFactory()
+    var rf = cache.createRegionFactory()
         .setDataPolicy(DataPolicy.PERSISTENT_PARTITION).setDiskStoreName("disk");
     rf.setPartitionAttributes(new PartitionAttributesFactory().setTotalNumBuckets(1).create());
     if (ttl > 0) {

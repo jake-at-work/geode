@@ -100,7 +100,7 @@ public class HeapDataOutputStream extends
     finishWriting();
     if (buffer.limit() < buffer.capacity()) {
       // buffer is less than half full so allocate a new one and copy it in
-      ByteBuffer bb = ByteBuffer.allocate(buffer.limit());
+      var bb = ByteBuffer.allocate(buffer.limit());
       bb.put(buffer);
       bb.flip(); // now ready for reading
       buffer = bb;
@@ -119,17 +119,17 @@ public class HeapDataOutputStream extends
    */
   // Asif
   public void sendTo(BytesAndBitsForCompactor wrapper, byte userBits) {
-    ByteBuffer bb = toByteBuffer();
+    var bb = toByteBuffer();
     if (bb.hasArray() && bb.arrayOffset() == 0) {
       wrapper.setData(bb.array(), userBits, bb.limit(), true /* is Reusable */);
     } else {
       // create a new buffer of just the right size and copy the old buffer into
       // it
-      ByteBuffer tmp = ByteBuffer.allocate(bb.remaining());
+      var tmp = ByteBuffer.allocate(bb.remaining());
       tmp.put(bb);
       tmp.flip();
       buffer = tmp;
-      byte[] bytes = buffer.array();
+      var bytes = buffer.array();
       wrapper.setData(bytes, userBits, bytes.length, true /* is Reusable */);
     }
   }
@@ -148,7 +148,7 @@ public class HeapDataOutputStream extends
     }
     int result;
     if (chunks != null) {
-      ByteBuffer[] bufs = new ByteBuffer[chunks.size() + 1];
+      var bufs = new ByteBuffer[chunks.size() + 1];
       bufs = chunks.toArray(bufs);
       bufs[chunks.size()] = buffer;
       result = (int) chan.write(bufs);
@@ -166,7 +166,7 @@ public class HeapDataOutputStream extends
     }
     out.clear();
     if (chunks != null) {
-      for (ByteBuffer bb : chunks) {
+      for (var bb : chunks) {
         sendChunkTo(bb, chan, out);
       }
     }
@@ -179,7 +179,7 @@ public class HeapDataOutputStream extends
    * is probably a direct memory buffer).
    */
   private void sendChunkTo(ByteBuffer in, SocketChannel sc, ByteBuffer out) throws IOException {
-    int bytesSent = in.remaining();
+    var bytesSent = in.remaining();
     if (in.isDirect()) {
       flushBuffer(sc, out);
       while (in.remaining() > 0) {
@@ -187,15 +187,15 @@ public class HeapDataOutputStream extends
       }
     } else {
       // copy in to out. If out fills flush it
-      int OUT_MAX = out.remaining();
+      var OUT_MAX = out.remaining();
       if (bytesSent <= OUT_MAX) {
         out.put(in);
       } else {
-        final byte[] bytes = in.array();
-        int off = in.arrayOffset() + in.position();
-        int len = bytesSent;
+        final var bytes = in.array();
+        var off = in.arrayOffset() + in.position();
+        var len = bytesSent;
         while (len > 0) {
-          int bytesThisTime = len;
+          var bytesThisTime = len;
           if (bytesThisTime > OUT_MAX) {
             bytesThisTime = OUT_MAX;
           }
@@ -222,8 +222,8 @@ public class HeapDataOutputStream extends
       throw new BufferOverflowException();
     }
     if (chunks != null) {
-      for (ByteBuffer bb : chunks) {
-        int bytesToWrite = bb.remaining();
+      for (var bb : chunks) {
+        var bytesToWrite = bb.remaining();
         if (bytesToWrite > 0) {
           out.put(bb);
           size -= bytesToWrite;
@@ -231,8 +231,8 @@ public class HeapDataOutputStream extends
       }
     }
     {
-      ByteBuffer bb = buffer;
-      int bytesToWrite = bb.remaining();
+      var bb = buffer;
+      var bytesToWrite = bb.remaining();
       if (bytesToWrite > 0) {
         out.put(bb);
         size -= bytesToWrite;
@@ -246,7 +246,7 @@ public class HeapDataOutputStream extends
   public void sendTo(OutputStream out, ByteBuffer outBuf) throws IOException {
     finishWriting();
     if (chunks != null) {
-      for (ByteBuffer bb : chunks) {
+      for (var bb : chunks) {
         sendTo(out, outBuf, bb);
       }
     }
@@ -263,7 +263,7 @@ public class HeapDataOutputStream extends
    */
   public static int writeByteBufferToStream(OutputStream out, ByteBuffer outBuf, ByteBuffer inBuf)
       throws IOException {
-    int bytesToWrite = inBuf.remaining();
+    var bytesToWrite = inBuf.remaining();
     if (bytesToWrite > 0) {
       if (inBuf.hasArray()) {
         flushStream(out, outBuf);
@@ -271,11 +271,11 @@ public class HeapDataOutputStream extends
         inBuf.position(inBuf.limit());
       } else { // fix for bug 43007
         // copy direct inBuf to heap outBuf. If out fills flush it
-        int bytesToWriteThisTime = bytesToWrite;
-        int OUT_MAX = outBuf.remaining();
+        var bytesToWriteThisTime = bytesToWrite;
+        var OUT_MAX = outBuf.remaining();
         while (bytesToWriteThisTime > OUT_MAX) {
           // copy only OUT_MAX bytes and flush outBuf
-          int oldLimit = inBuf.limit();
+          var oldLimit = inBuf.limit();
           inBuf.limit(inBuf.position() + OUT_MAX);
           outBuf.put(inBuf);
           inBuf.limit(oldLimit);
@@ -295,7 +295,7 @@ public class HeapDataOutputStream extends
   public void sendTo(ByteBufferWriter out) {
     finishWriting();
     if (chunks != null) {
-      for (ByteBuffer bb : chunks) {
+      for (var bb : chunks) {
         basicSendTo(out, bb);
       }
     }
@@ -303,7 +303,7 @@ public class HeapDataOutputStream extends
   }
 
   private void basicSendTo(ByteBufferWriter out, ByteBuffer bb) {
-    int bytesToWrite = bb.remaining();
+    var bytesToWrite = bb.remaining();
     if (bytesToWrite > 0) {
       out.write(bb.duplicate());
       size -= bytesToWrite;
@@ -319,14 +319,14 @@ public class HeapDataOutputStream extends
   public void sendTo(DataOutput out) throws IOException {
     finishWriting();
     if (chunks != null) {
-      for (ByteBuffer bb : chunks) {
-        int bytesToWrite = bb.remaining();
+      for (var bb : chunks) {
+        var bytesToWrite = bb.remaining();
         if (bytesToWrite > 0) {
           if (bb.hasArray()) {
             out.write(bb.array(), bb.arrayOffset() + bb.position(), bytesToWrite);
             bb.position(bb.limit());
           } else {
-            byte[] bytes = new byte[bytesToWrite];
+            var bytes = new byte[bytesToWrite];
             bb.get(bytes);
             out.write(bytes);
           }
@@ -335,14 +335,14 @@ public class HeapDataOutputStream extends
       }
     }
     {
-      ByteBuffer bb = buffer;
-      int bytesToWrite = bb.remaining();
+      var bb = buffer;
+      var bytesToWrite = bb.remaining();
       if (bytesToWrite > 0) {
         if (bb.hasArray()) {
           out.write(bb.array(), bb.arrayOffset() + bb.position(), bytesToWrite);
           bb.position(bb.limit());
         } else {
-          byte[] bytes = new byte[bytesToWrite];
+          var bytes = new byte[bytesToWrite];
           bb.get(bytes);
           out.write(bytes);
         }
@@ -365,12 +365,12 @@ public class HeapDataOutputStream extends
     checkIfWritable();
     ensureCapacity(5);
     if (v instanceof HeapDataOutputStream) {
-      HeapDataOutputStream other = (HeapDataOutputStream) v;
+      var other = (HeapDataOutputStream) v;
       other.finishWriting();
       InternalDataSerializer.writeArrayLength(other.size(), this);
       if (doNotCopy) {
         if (other.chunks != null) {
-          for (ByteBuffer bb : other.chunks) {
+          for (var bb : other.chunks) {
             write(bb);
           }
         }
@@ -380,12 +380,12 @@ public class HeapDataOutputStream extends
         other.rewind();
       }
     } else {
-      ByteBuffer sizeBuf = buffer;
-      int sizePos = sizeBuf.position();
+      var sizeBuf = buffer;
+      var sizePos = sizeBuf.position();
       sizeBuf.position(sizePos + 5);
-      final int preArraySize = size();
+      final var preArraySize = size();
       DataSerializer.writeObject(v, this);
-      int arraySize = size() - preArraySize;
+      var arraySize = size() - preArraySize;
       sizeBuf.put(sizePos, StaticSerialization.INT_ARRAY_LEN);
       sizeBuf.putInt(sizePos + 1, arraySize);
     }
@@ -397,7 +397,7 @@ public class HeapDataOutputStream extends
    * the contents of the buffer between the position and the limit are copied to the output stream.
    */
   public void write(ByteBufferInputStream.ByteSource source) {
-    ByteBuffer bb = source.getBackingByteBuffer();
+    var bb = source.getBackingByteBuffer();
     if (bb != null) {
       write(bb);
       return;
@@ -406,9 +406,9 @@ public class HeapDataOutputStream extends
       return;
     }
     checkIfWritable();
-    int remainingSpace = buffer.limit() - buffer.position();
+    var remainingSpace = buffer.limit() - buffer.position();
     if (remainingSpace < source.remaining()) {
-      int oldLimit = source.limit();
+      var oldLimit = source.limit();
       source.limit(source.position() + remainingSpace);
       source.sendTo(buffer);
       source.limit(oldLimit);

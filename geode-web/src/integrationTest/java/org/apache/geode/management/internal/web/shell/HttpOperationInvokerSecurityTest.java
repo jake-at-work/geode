@@ -21,11 +21,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
-
 import javax.management.ObjectName;
 import javax.management.Query;
-import javax.management.QueryExp;
 
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -57,14 +54,14 @@ public class HttpOperationInvokerSecurityTest {
         "test");
     invoker = (HttpOperationInvoker) gfsh.getGfsh().getOperationInvoker();
 
-    Integer distributedSystemId =
+    var distributedSystemId =
         (Integer) invoker.getAttribute(ManagementConstants.OBJECTNAME__DISTRIBUTEDSYSTEM_MXBEAN,
             "DistributedSystemId");
     assertThat(distributedSystemId).isEqualTo(-1);
 
     assertThat(invoker.getClusterId()).isEqualTo(-1);
 
-    DistributedSystemMXBean bean = invoker.getDistributedSystemMXBean();
+    var bean = invoker.getDistributedSystemMXBean();
     assertThat(bean).isInstanceOf(DistributedSystemMXBean.class);
 
     assertThatThrownBy(
@@ -72,10 +69,10 @@ public class HttpOperationInvokerSecurityTest {
             "listGatewayReceivers", new Object[0], new String[0]))
                 .isInstanceOf(NotAuthorizedException.class);
 
-    ObjectName objectName = ObjectName.getInstance("GemFire:type=Member,*");
-    QueryExp query = Query.eq(Query.attr("Name"), Query.value("mock"));
+    var objectName = ObjectName.getInstance("GemFire:type=Member,*");
+    var query = Query.eq(Query.attr("Name"), Query.value("mock"));
 
-    Set<ObjectName> names = invoker.queryNames(objectName, query);
+    var names = invoker.queryNames(objectName, query);
     assertTrue(names.isEmpty());
     gfsh.disconnect();
   }

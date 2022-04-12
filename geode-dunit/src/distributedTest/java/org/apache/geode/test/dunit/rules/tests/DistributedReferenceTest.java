@@ -37,7 +37,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedReference;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 
@@ -87,7 +86,7 @@ public class DistributedReferenceTest {
   public void closesAutoCloseableInEachVm() {
     runTestWithValidation(SetAutoCloseableInEachVm.class);
 
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         verify(SetAutoCloseableInEachVm.autoCloseable.get()).close();
       });
@@ -127,7 +126,7 @@ public class DistributedReferenceTest {
   public void closesCloseableInEachVm() {
     runTestWithValidation(SetCloseableInEachVm.class);
 
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         verify(SetCloseableInEachVm.closeable.get()).close();
       });
@@ -167,7 +166,7 @@ public class DistributedReferenceTest {
   public void closesWithCloseInEachVm() {
     runTestWithValidation(SetWithCloseInEachVm.class);
 
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         verify(SetWithCloseInEachVm.withClose.get()).close();
       });
@@ -207,7 +206,7 @@ public class DistributedReferenceTest {
   public void disconnectsWithDisconnectInEachVm() {
     runTestWithValidation(SetWithDisconnectInEachVm.class);
 
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         verify(SetWithDisconnectInEachVm.withDisconnect.get()).disconnect();
       });
@@ -223,7 +222,7 @@ public class DistributedReferenceTest {
   public void setsAtomicBooleanToFalseInEachVm() {
     runTestWithValidation(SetAtomicBooleanInLocalVm.class);
 
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         assertThat(SetAtomicBooleanInLocalVm.atomicBoolean.get()).isFalse();
       });
@@ -239,7 +238,7 @@ public class DistributedReferenceTest {
   public void opensCountDownLatchInEachVm() {
     runTestWithValidation(SetCountDownLatchInLocalVm.class);
 
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
       vm.invoke(() -> {
         assertThat(SetCountDownLatchInLocalVm.latch.get().getCount()).isZero();
       });
@@ -325,7 +324,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      VM vm = getVM(0);
+      var vm = getVM(0);
       vm.invoke(() -> {
         autoCloseable.set(mock(AutoCloseable.class, "AutoCloseable in VM-" + vm.getId()));
         reference.set(autoCloseable.get());
@@ -349,7 +348,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           autoCloseable.set(mock(AutoCloseable.class, "AutoCloseable in VM-" + vm.getId()));
           reference.set(autoCloseable.get());
@@ -359,7 +358,7 @@ public class DistributedReferenceTest {
 
     @Test
     public void hasAutoCloseableInEachVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(reference.get()).isSameAs(autoCloseable.get());
           assertThat(reference.get().toString()).isEqualTo("AutoCloseable in VM-" + vm.getId());
@@ -396,7 +395,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      VM vm = getVM(0);
+      var vm = getVM(0);
       vm.invoke(() -> {
         closeable.set(mock(Closeable.class, "Closeable in VM-" + vm.getId()));
         reference.set(closeable.get());
@@ -420,7 +419,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           closeable.set(mock(Closeable.class, "Closeable in VM-" + vm.getId()));
           reference.set(closeable.get());
@@ -430,7 +429,7 @@ public class DistributedReferenceTest {
 
     @Test
     public void hasCloseableInEachVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(reference.get()).isSameAs(closeable.get());
           assertThat(reference.get().toString()).isEqualTo("Closeable in VM-" + vm.getId());
@@ -467,7 +466,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      VM vm = getVM(0);
+      var vm = getVM(0);
       vm.invoke(() -> {
         withClose.set(spy(new WithClose("WithClose in VM-" + vm.getId())));
         reference.set(withClose.get());
@@ -491,7 +490,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           withClose.set(spy(new WithClose("WithClose in VM-" + vm.getId())));
           reference.set(withClose.get());
@@ -501,7 +500,7 @@ public class DistributedReferenceTest {
 
     @Test
     public void hasCloseableInEachVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(reference.get()).isSameAs(withClose.get());
           assertThat(reference.get().toString()).isEqualTo("WithClose in VM-" + vm.getId());
@@ -538,7 +537,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      VM vm = getVM(0);
+      var vm = getVM(0);
       vm.invoke(() -> {
         withDisconnect.set(spy(new WithDisconnect("WithDisconnect in VM-" + vm.getId())));
         reference.set(withDisconnect.get());
@@ -562,7 +561,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           withDisconnect.set(spy(new WithDisconnect("WithDisconnect in VM-" + vm.getId())));
           reference.set(withDisconnect.get());
@@ -572,7 +571,7 @@ public class DistributedReferenceTest {
 
     @Test
     public void hasWithDisconnectInEachVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(reference.get()).isSameAs(withDisconnect.get());
           assertThat(reference.get().toString()).isEqualTo("WithDisconnect in VM-" + vm.getId());
@@ -609,7 +608,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      VM vm = getVM(0);
+      var vm = getVM(0);
       vm.invoke(() -> {
         withStop.set(spy(new WithStop("WithStop in VM-" + vm.getId())));
         reference.set(withStop.get());
@@ -633,7 +632,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           withStop.set(spy(new WithStop("WithStop in VM-" + vm.getId())));
           reference.set(withStop.get());
@@ -643,7 +642,7 @@ public class DistributedReferenceTest {
 
     @Test
     public void hasWithStopInEachVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(reference.get()).isSameAs(withStop);
           assertThat(reference.get().toString()).isEqualTo("WithStop in VM-" + vm.getId());
@@ -661,7 +660,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           atomicBoolean.set(new AtomicBoolean(true));
           reference.set(atomicBoolean.get());
@@ -671,7 +670,7 @@ public class DistributedReferenceTest {
 
     @Test
     public void hasAtomicBooleanInEachVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(reference.get())
               .isSameAs(atomicBoolean.get())
@@ -690,7 +689,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           latch.set(new CountDownLatch(2));
           reference.set(latch.get());
@@ -700,7 +699,7 @@ public class DistributedReferenceTest {
 
     @Test
     public void hasReferenceInLocalVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(reference.get()).isSameAs(latch.get());
           assertThat(latch.get().getCount()).isEqualTo(2);
@@ -721,7 +720,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           withClose1.set(spy(new WithClose("WithClose1 in VM-" + vm.getId())));
           reference1.set(withClose1.get());
@@ -734,7 +733,7 @@ public class DistributedReferenceTest {
 
     @Test
     public void hasTwoWithCloseInEachVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(reference1.get()).isSameAs(withClose1.get());
           assertThat(reference2.get()).isSameAs(withClose2.get());
@@ -761,7 +760,7 @@ public class DistributedReferenceTest {
 
     @Before
     public void setUp() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           withClose.set(spy(new WithClose("WithClose in VM-" + vm.getId())));
           withDisconnect.set(spy(new WithDisconnect("WithDisconnect in VM-" + vm.getId())));
@@ -776,7 +775,7 @@ public class DistributedReferenceTest {
 
     @Test
     public void hasManyReferencesInEachVm() {
-      for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
+      for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3), getController())) {
         vm.invoke(() -> {
           assertThat(refWithClose.get()).isSameAs(withClose.get());
           assertThat(refWithDisconnect.get()).isSameAs(withDisconnect.get());

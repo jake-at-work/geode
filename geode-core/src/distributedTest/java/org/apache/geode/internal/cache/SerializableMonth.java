@@ -50,7 +50,7 @@ class SerializableMonth implements DataSerializable {
     if (!(o instanceof SerializableMonth)) {
       return false;
     }
-    SerializableMonth that = (SerializableMonth) o;
+    var that = (SerializableMonth) o;
     return month == that.month;
   }
 

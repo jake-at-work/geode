@@ -15,11 +15,9 @@
 package org.apache.geode.client.sni;
 
 import java.io.File;
-import java.net.URL;
 
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
-import org.apache.geode.cache.ssl.CertificateMaterial;
 
 /**
  * This program generates the trust and key stores used by SNI acceptance tests.
@@ -34,37 +32,37 @@ public class GenerateSNIKeyAndTrustStores {
   }
 
   public void generateStores() throws Exception {
-    CertificateMaterial ca = new CertificateBuilder(365 * 100, "SHA256withRSA")
+    var ca = new CertificateBuilder(365 * 100, "SHA256withRSA")
         .commonName("Test CA")
         .isCA()
         .generate();
 
-    final String resourceFilename = "geode-config/gemfire.properties";
-    final URL resource = SingleServerSNIAcceptanceTest.class.getResource(resourceFilename);
-    String path = resource.getPath();
+    final var resourceFilename = "geode-config/gemfire.properties";
+    final var resource = SingleServerSNIAcceptanceTest.class.getResource(resourceFilename);
+    var path = resource.getPath();
     path = path.substring(0, path.length() - "gemfire.properties".length());
 
-    boolean trustStoreCreated = false;
+    var trustStoreCreated = false;
 
-    for (String certName : new String[] {"locator-maeve", "server-clementine", "server-dolores"}) {
-      CertificateMaterial certificate = new CertificateBuilder(365 * 100, "SHA256withRSA")
+    for (var certName : new String[] {"locator-maeve", "server-clementine", "server-dolores"}) {
+      var certificate = new CertificateBuilder(365 * 100, "SHA256withRSA")
           .commonName(certName)
           .issuedBy(ca)
           .sanDnsName(certName)
           .sanDnsName("geode")
           .generate();
 
-      CertStores store = new CertStores(certName);
+      var store = new CertStores(certName);
       store.withCertificate("locator-maeve", certificate);
       store.trust("ca", ca);
 
-      File keyStoreFile = new File(path + certName + "-keystore.jks");
+      var keyStoreFile = new File(path + certName + "-keystore.jks");
       keyStoreFile.createNewFile();
       store.createKeyStore(keyStoreFile.getAbsolutePath(), "geode");
       System.out.println("created " + keyStoreFile.getAbsolutePath());
 
       if (!trustStoreCreated) {
-        File trustStoreFile = new File(path + "truststore.jks");
+        var trustStoreFile = new File(path + "truststore.jks");
         trustStoreFile.createNewFile();
         store.createTrustStore(trustStoreFile.getPath(), "geode");
         System.out.println("created " + trustStoreFile.getAbsolutePath());

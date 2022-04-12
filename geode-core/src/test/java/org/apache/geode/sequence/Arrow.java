@@ -15,7 +15,6 @@
 package org.apache.geode.sequence;
 
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
 
 /**
@@ -39,8 +38,8 @@ public class Arrow {
 
 
   public void paint(Graphics2D g) {
-    Rectangle boundary = g.getClipBounds();
-    int y = endingState.getStartY();
+    var boundary = g.getClipBounds();
+    var y = endingState.getStartY();
 
     // don't paint if we're not in the clip area
     if (y + ARROW_WIDTH < boundary.getMinY() || y - ARROW_WIDTH > boundary.getMaxY()) {
@@ -49,7 +48,7 @@ public class Arrow {
 
     // TODO - we need to clip by X coordinate as well.
 
-    boolean isReflexsive = getStartingLine() == getEndingLine();
+    var isReflexsive = getStartingLine() == getEndingLine();
     if (isReflexsive) {
       paintReflexive(g);
     } else {
@@ -66,9 +65,9 @@ public class Arrow {
   }
 
   private void paintReflexive(Graphics2D g) {
-    Lifeline startingLine = getStartingLine();
-    int x = startingLine.getX();
-    int y = endingState.getStartY();
+    var startingLine = getStartingLine();
+    var x = startingLine.getX();
+    var y = endingState.getStartY();
 
     g.drawArc(x + startingLine.getWidth() - ARROW_WIDTH / 2, y - ARROW_WIDTH, ARROW_WIDTH,
         ARROW_WIDTH, 90, -180);
@@ -79,17 +78,17 @@ public class Arrow {
   }
 
   private void paintNormal(Graphics2D g) {
-    Lifeline startingLine = getStartingLine();
-    Lifeline endingLine = getEndingLine();
-    int x1 = startingLine.getX();
-    int x2 = endingLine.getX();
-    int y = endingState.getStartY();
+    var startingLine = getStartingLine();
+    var endingLine = getEndingLine();
+    var x1 = startingLine.getX();
+    var x2 = endingLine.getX();
+    var y = endingState.getStartY();
 
     if (x2 > x1) {
-      int startX = x1 + startingLine.getWidth();
-      int endX = x2;
+      var startX = x1 + startingLine.getWidth();
+      var endX = x2;
 
-      GeneralPath path = new GeneralPath();
+      var path = new GeneralPath();
       path.moveTo(startX, y);
       path.lineTo(endX, y);
       path.lineTo(endX - ARROW_WIDTH, y - ARROW_WIDTH);
@@ -99,17 +98,17 @@ public class Arrow {
       g.fillArc(startX, y - CIRCLE_WIDTH / 2, CIRCLE_WIDTH, CIRCLE_WIDTH, 0, 360);
       g.drawString(label, startX + LABEL_OFFSET, y - LABEL_OFFSET);
     } else {
-      int startX = x1;
-      int endX = x2 + endingLine.getWidth();
+      var startX = x1;
+      var endX = x2 + endingLine.getWidth();
 
-      GeneralPath path = new GeneralPath();
+      var path = new GeneralPath();
       path.moveTo(startX, y);
       path.lineTo(endX, y);
       path.lineTo(endX + ARROW_WIDTH, y - ARROW_WIDTH);
       path.moveTo(endX, y);
       path.lineTo(endX + ARROW_WIDTH, y + ARROW_WIDTH);
       g.draw(path);
-      int labelWidth = g.getFontMetrics().stringWidth(label);
+      var labelWidth = g.getFontMetrics().stringWidth(label);
       g.fillArc(startX - CIRCLE_WIDTH / 2, y - CIRCLE_WIDTH / 2, CIRCLE_WIDTH, CIRCLE_WIDTH, 0,
           360);
       g.drawString(label, startX - LABEL_OFFSET - labelWidth, y - LABEL_OFFSET);

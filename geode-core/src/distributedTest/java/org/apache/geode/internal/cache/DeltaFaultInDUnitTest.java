@@ -23,7 +23,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.test.dunit.Host;
@@ -42,30 +41,30 @@ public class DeltaFaultInDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void bucketSizeShould_notGoNegative_onFaultInDeltaObject() throws Exception {
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    final boolean copyOnRead = false;
-    final boolean clone = true;
+    final var copyOnRead = false;
+    final var clone = true;
 
-    SerializableCallable createDataRegion = new SerializableCallable("createDataRegion") {
+    var createDataRegion = new SerializableCallable("createDataRegion") {
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
         cache.setCopyOnRead(copyOnRead);
         cache.createDiskStoreFactory().create("DeltaFaultInDUnitTestData");
-        AttributesFactory attr = new AttributesFactory();
+        var attr = new AttributesFactory();
         attr.setDiskStoreName("DeltaFaultInDUnitTestData");
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(1);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         attr.setCloningEnabled(clone);
         attr.setEvictionAttributes(
             EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.OVERFLOW_TO_DISK));
-        Region region = cache.createRegion("region1", attr.create());
+        var region = cache.createRegion("region1", attr.create());
 
         return null;
       }
@@ -73,23 +72,23 @@ public class DeltaFaultInDUnitTest extends JUnit4CacheTestCase {
 
     vm0.invoke(createDataRegion);
 
-    SerializableRunnable createEmptyRegion = new SerializableRunnable("createEmptyRegion") {
+    var createEmptyRegion = new SerializableRunnable("createEmptyRegion") {
       @Override
       public void run() {
         Cache cache = getCache();
         cache.setCopyOnRead(copyOnRead);
-        AttributesFactory<Integer, TestDelta> attr = new AttributesFactory<>();
+        var attr = new AttributesFactory<Integer, TestDelta>();
         attr.setCloningEnabled(clone);
-        PartitionAttributesFactory<Integer, TestDelta> paf =
-            new PartitionAttributesFactory<>();
+        var paf =
+            new PartitionAttributesFactory<Integer, TestDelta>();
         paf.setRedundantCopies(1);
         paf.setLocalMaxMemory(0);
-        PartitionAttributes<Integer, TestDelta> prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         attr.setDataPolicy(DataPolicy.PARTITION);
         attr.setEvictionAttributes(
             EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.OVERFLOW_TO_DISK));
-        Region<Integer, TestDelta> region = cache.createRegion("region1", attr.create());
+        var region = cache.createRegion("region1", attr.create());
 
 
         // Put an entry
@@ -116,10 +115,10 @@ public class DeltaFaultInDUnitTest extends JUnit4CacheTestCase {
         // I want to make sure the other object is the one evicted.
         region.get(113);
 
-        long entriesEvicted = ((InternalRegion) region).getTotalEvictions();
+        var entriesEvicted = ((InternalRegion) region).getTotalEvictions();
         // assertIndexDetailsEquals(1, entriesEvicted);
 
-        TestDelta result = region.get(0);
+        var result = region.get(0);
         assertEquals("initial_plus_some_more_data", result.info);
       }
     });
@@ -127,18 +126,18 @@ public class DeltaFaultInDUnitTest extends JUnit4CacheTestCase {
 
   private long checkObjects(VM vm, final int serializations, final int deserializations,
       final int deltas, final int clones) {
-    SerializableCallable getSize = new SerializableCallable("check objects") {
+    var getSize = new SerializableCallable("check objects") {
       @Override
       public Object call() {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
-        PartitionedRegion region = (PartitionedRegion) cache.getRegion("region1");
-        long size = region.getDataStore().getBucketSize(0);
-        TestDelta value = (TestDelta) region.get(0);
+        var cache = (GemFireCacheImpl) getCache();
+        var region = (PartitionedRegion) cache.getRegion("region1");
+        var size = region.getDataStore().getBucketSize(0);
+        var value = (TestDelta) region.get(0);
         value.checkFields(serializations, deserializations, deltas, clones);
         return size;
       }
     };
-    Object size = vm.invoke(getSize);
+    var size = vm.invoke(getSize);
     return (Long) size;
   }
 }

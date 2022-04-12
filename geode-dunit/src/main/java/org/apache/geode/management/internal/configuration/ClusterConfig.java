@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,13 +38,8 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
-import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.classloader.ClassPathLoader;
-import org.apache.geode.management.configuration.Deployment;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
-import org.apache.geode.services.result.ServiceResult;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 
@@ -89,34 +83,34 @@ public class ClusterConfig implements Serializable {
   }
 
   public void verifyLocator(MemberVM locatorVM) {
-    Set<String> expectedGroupConfigs =
+    var expectedGroupConfigs =
         getGroups().stream().map(ConfigGroup::getName).collect(toSet());
 
     // verify info exists in memory
     locatorVM.invoke(() -> {
-      InternalLocator internalLocator = ClusterStartupRule.getLocator();
-      InternalConfigurationPersistenceService sc =
+      var internalLocator = ClusterStartupRule.getLocator();
+      var sc =
           internalLocator.getConfigurationPersistenceService();
 
       // verify no extra configs exist in memory
-      Set<String> actualGroupConfigs = sc.getConfigurationRegion().keySet();
+      var actualGroupConfigs = sc.getConfigurationRegion().keySet();
       assertThat(actualGroupConfigs).isEqualTo(expectedGroupConfigs);
 
-      for (ConfigGroup configGroup : getGroups()) {
+      for (var configGroup : getGroups()) {
         // verify jars are as expected
-        Configuration config = sc.getConfiguration(configGroup.name);
+        var config = sc.getConfiguration(configGroup.name);
         assertThat(config.getJarNames()).isEqualTo(configGroup.getJars());
 
         // verify property is as expected
         if (StringUtils.isNotBlank(configGroup.getMaxLogFileSize())) {
-          Properties props = config.getGemfireProperties();
+          var props = config.getGemfireProperties();
           assertThat(props.getProperty(LOG_FILE_SIZE_LIMIT))
               .isEqualTo(configGroup.getMaxLogFileSize());
         }
 
         // verify region is in the region xml
-        for (String regionName : configGroup.getRegions()) {
-          String regionXml = "<region name=\"" + regionName + "\"";
+        for (var regionName : configGroup.getRegions()) {
+          var regionXml = "<region name=\"" + regionName + "\"";
           assertThat(config.getCacheXmlContent()).contains(regionXml);
         }
       }
@@ -124,24 +118,24 @@ public class ClusterConfig implements Serializable {
 
     });
 
-    File clusterConfigDir = new File(locatorVM.getWorkingDir(), "/cluster_config");
+    var clusterConfigDir = new File(locatorVM.getWorkingDir(), "/cluster_config");
 
-    for (ConfigGroup configGroup : getGroups()) {
-      Set<String> actualFiles =
+    for (var configGroup : getGroups()) {
+      var actualFiles =
           toSetIgnoringHiddenFiles(new File(clusterConfigDir, configGroup.name).list());
 
-      Set<String> expectedFiles = configGroup.getAllJarFiles();
+      var expectedFiles = configGroup.getAllJarFiles();
       assertThat(actualFiles).isEqualTo(expectedFiles);
     }
   }
 
   public void verifyServer(MemberVM serverVM) {
     // verify files exist in filesystem
-    Set<String> expectedJarNames = getJarNames().stream().collect(toSet());
+    var expectedJarNames = getJarNames().stream().collect(toSet());
 
-    String[] actualJarFiles =
+    var actualJarFiles =
         serverVM.getWorkingDir().list((dir, filename) -> filename.contains(".jar"));
-    Set<String> actualJarNames = Stream.of(actualJarFiles)
+    var actualJarNames = Stream.of(actualJarFiles)
         .map(jar -> jar.replaceAll("\\.v\\d+\\.jar", ".jar")).collect(toSet());
 
     // We will end up with extra jars on disk if they are deployed and then undeployed
@@ -152,20 +146,20 @@ public class ClusterConfig implements Serializable {
       Cache cache = GemFireCacheImpl.getInstance();
 
       // TODO: set compare to fail if there are extra regions
-      for (String region : getRegions()) {
+      for (var region : getRegions()) {
         assertThat(cache.getRegion(region)).isNotNull();
       }
 
       if (getMaxLogFileSizes().size() > 0) {
-        Properties props = cache.getDistributedSystem().getProperties();
+        var props = cache.getDistributedSystem().getProperties();
         assertThat(getMaxLogFileSizes()).contains(props.getProperty(LOG_FILE_SIZE_LIMIT));
       }
 
-      for (String fileName : getJarNames()) {
-        ServiceResult<Deployment> serviceResult =
+      for (var fileName : getJarNames()) {
+        var serviceResult =
             ClassPathLoader.getLatest().getJarDeploymentService().getDeployed(fileName);
         assertThat(serviceResult.isSuccessful()).isTrue();
-        Deployment deployment = serviceResult.getMessage();
+        var deployment = serviceResult.getMessage();
         assertThat(Class.forName(nameOfClassContainedInJar(fileName), true,
             new URLClassLoader(new URL[] {deployment.getFile().toURI().toURL()}))).isNotNull();
       }
@@ -174,10 +168,10 @@ public class ClusterConfig implements Serializable {
       // aren't used
       Set<String> undeployedJarNames = new HashSet<>(actualJarNames);
       undeployedJarNames.removeAll(expectedJarNames);
-      for (String jar : undeployedJarNames) {
+      for (var jar : undeployedJarNames) {
         System.out.println("Verifying undeployed jar: " + jar);
 
-        ServiceResult<Deployment> serviceResult =
+        var serviceResult =
             ClassPathLoader.getLatest().getJarDeploymentService().getDeployed(jar);
         assertThat(serviceResult.isFailure()).isTrue();
       }

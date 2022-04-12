@@ -45,7 +45,7 @@ public class RegionConfigValidatorTest {
 
   @Before
   public void before() throws Exception {
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     securityService = mock(SecurityService.class);
     when(cache.getSecurityService()).thenReturn(securityService);
     validator = new RegionConfigValidator(cache);

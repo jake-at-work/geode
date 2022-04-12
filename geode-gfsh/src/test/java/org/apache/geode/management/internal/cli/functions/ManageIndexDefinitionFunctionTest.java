@@ -46,12 +46,12 @@ public class ManageIndexDefinitionFunctionTest {
 
   @Test
   public void addToIndexDefinition() throws Exception {
-    RegionConfig.Index index1 = new RegionConfig.Index();
+    var index1 = new RegionConfig.Index();
     when(context.getArguments()).thenReturn(index1);
     function.executeFunction(context);
     assertThat(IndexDefinition.indexDefinitions).containsExactly(index1);
 
-    RegionConfig.Index index2 = new RegionConfig.Index();
+    var index2 = new RegionConfig.Index();
     when(context.getArguments()).thenReturn(index2);
     function.executeFunction(context);
     assertThat(IndexDefinition.indexDefinitions)

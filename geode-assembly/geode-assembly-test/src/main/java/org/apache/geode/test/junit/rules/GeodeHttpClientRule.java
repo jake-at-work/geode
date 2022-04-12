@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.net.ssl.SSLContext;
-
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -32,7 +30,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.rules.ExternalResource;
@@ -78,7 +75,7 @@ public class GeodeHttpClientRule extends ExternalResource {
   }
 
   public void loginToPulseAndVerify(String username, String password) throws Exception {
-    HttpResponse response = loginToPulse(username, password);
+    var response = loginToPulse(username, password);
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(302);
     assertThat(response.getFirstHeader("Location").getValue())
         .contains("/pulse/clusterDetail.html");
@@ -90,13 +87,13 @@ public class GeodeHttpClientRule extends ExternalResource {
 
   public HttpResponse get(String uri, String... params) throws Exception {
     connect();
-    HttpClientContext clientContext = HttpClientContext.create();
+    var clientContext = HttpClientContext.create();
     return httpClient.execute(host, buildHttpGet(uri, params), clientContext);
   }
 
   public HttpResponse post(String uri, String... params) throws Exception {
     connect();
-    HttpClientContext clientContext = HttpClientContext.create();
+    var clientContext = HttpClientContext.create();
     return httpClient.execute(host, buildHttpPost(uri, params), clientContext);
   }
 
@@ -107,8 +104,8 @@ public class GeodeHttpClientRule extends ExternalResource {
 
     host = new HttpHost(hostName, portSupplier.get(), useSSL ? "https" : "http");
     if (useSSL) {
-      HttpClientBuilder clientBuilder = HttpClients.custom();
-      SSLContext ctx = SocketCreatorFactory
+      var clientBuilder = HttpClients.custom();
+      var ctx = SocketCreatorFactory
           .getSocketCreatorForComponent(SecurableCommunicationChannel.WEB).getSslContext();
       clientBuilder.setSSLContext(ctx);
       clientBuilder.setSSLHostnameVerifier(new NoopHostnameVerifier());
@@ -119,9 +116,9 @@ public class GeodeHttpClientRule extends ExternalResource {
   }
 
   private HttpPost buildHttpPost(String uri, String... params) throws Exception {
-    HttpPost post = new HttpPost(uri);
+    var post = new HttpPost(uri);
     List<NameValuePair> nvps = new ArrayList<>();
-    for (int i = 0; i < params.length; i += 2) {
+    for (var i = 0; i < params.length; i += 2) {
       nvps.add(new BasicNameValuePair(params[i], params[i + 1]));
     }
     post.setEntity(new UrlEncodedFormEntity(nvps));
@@ -129,9 +126,9 @@ public class GeodeHttpClientRule extends ExternalResource {
   }
 
   private HttpGet buildHttpGet(String uri, String... params) throws Exception {
-    URIBuilder builder = new URIBuilder();
+    var builder = new URIBuilder();
     builder.setPath(uri);
-    for (int i = 0; i < params.length; i += 2) {
+    for (var i = 0; i < params.length; i += 2) {
       builder.setParameter(params[i], params[i + 1]);
     }
     return new HttpGet(builder.build());

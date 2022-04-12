@@ -28,9 +28,7 @@ import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexInvalidException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.security.query.data.QueryTestObject;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
@@ -71,7 +69,7 @@ public class IndexSecurityDistributedTest extends AbstractQuerySecurityDistribut
   public void indexCreatedOnPublicFieldFollowedByPutWithNoReadCredentialsShouldNotThrowSecurityException() {
     server.invoke(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
+      var queryService = ClusterStartupRule.getCache().getQueryService();
       queryService.createIndex("IdIndex", "id", SEPARATOR + regionName);
     });
 
@@ -82,7 +80,7 @@ public class IndexSecurityDistributedTest extends AbstractQuerySecurityDistribut
   public void indexCreatedOnPrivateFieldAccessibleThroughAccessorMethodFollowedByPutWithNoReadCredentialsShouldNotThrowSecurityException() {
     server.invoke(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
+      var queryService = ClusterStartupRule.getCache().getQueryService();
       queryService.createIndex("IdIndex", "e.id", SEPARATOR + regionName + ".entries e");
     });
 
@@ -95,7 +93,7 @@ public class IndexSecurityDistributedTest extends AbstractQuerySecurityDistribut
 
     server.invoke(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
+      var queryService = ClusterStartupRule.getCache().getQueryService();
       assertThatThrownBy(
           () -> queryService.createIndex("IdIndex", "e.getName()", SEPARATOR + regionName + " e"))
               .isInstanceOf(IndexInvalidException.class)
@@ -107,7 +105,7 @@ public class IndexSecurityDistributedTest extends AbstractQuerySecurityDistribut
   public void indexCreationWithMethodInvocationOnEmptyRegionFollowedByPutShouldMarkIndexAsInvalid() {
     server.invoke(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
+      var queryService = ClusterStartupRule.getCache().getQueryService();
       queryService.createIndex("IdIndex", "e.getName()", SEPARATOR + regionName + " e");
     });
 
@@ -115,9 +113,9 @@ public class IndexSecurityDistributedTest extends AbstractQuerySecurityDistribut
 
     server.invoke(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
-      QueryService queryService = ClusterStartupRule.getCache().getQueryService();
+      var queryService = ClusterStartupRule.getCache().getQueryService();
       Region region = ClusterStartupRule.getCache().getRegion(regionName);
-      Index index = queryService.getIndex(region, "IdIndex");
+      var index = queryService.getIndex(region, "IdIndex");
       assertThat(index.isValid()).isFalse();
     });
   }

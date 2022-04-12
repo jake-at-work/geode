@@ -90,7 +90,7 @@ public class CommandInitializerTest {
   @Test
   public void testCommandMapContainsAllVersions() {
     for (KnownVersion productVersion : KnownVersion.getAllVersions()) {
-      KnownVersion protocolVersion = productVersion.getClientServerProtocolVersion();
+      var protocolVersion = productVersion.getClientServerProtocolVersion();
       if (protocolVersion.isNotOlderThan(KnownVersion.OLDEST)) {
         org.junit.Assert.assertNotNull(
             "Please add a command set for " + protocolVersion + " of Geode to CommandInitializer",
@@ -206,8 +206,8 @@ public class CommandInitializerTest {
 
   @Test
   public void commandMapUnmodifiable() {
-    final CommandInitializer commandInitializer = new CommandInitializer();
-    final Map<Integer, Command> commands =
+    final var commandInitializer = new CommandInitializer();
+    final var commands =
         commandInitializer.get(KnownVersion.CURRENT.getClientServerProtocolVersion());
     assertThatThrownBy(() -> commands.put(1, Put70.getCommand()))
         .isInstanceOf(UnsupportedOperationException.class);
@@ -215,12 +215,12 @@ public class CommandInitializerTest {
 
   @Test
   public void newlyRegisteredCommandsVisibleInCommandMap() {
-    final Command command = mock(Command.class);
+    final var command = mock(Command.class);
     Map<KnownVersion, Command> newCommandMap = new HashMap<>();
     newCommandMap.put(KnownVersion.CURRENT.getClientServerProtocolVersion(), command);
 
-    final CommandInitializer commandInitializer = new CommandInitializer();
-    final Map<Integer, Command> commands =
+    final var commandInitializer = new CommandInitializer();
+    final var commands =
         commandInitializer.get(KnownVersion.CURRENT.getClientServerProtocolVersion());
     assertThat(commands).doesNotContainKeys(-2);
     commandInitializer.register(-2, newCommandMap);

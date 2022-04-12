@@ -38,7 +38,7 @@ public class RegisterInterestKeysPRDUnitTest extends RegisterInterestKeysDUnitTe
 
   @Override
   protected RegionAttributes createServerCacheAttributes() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPartitionAttributes((new PartitionAttributesFactory()).create());
     return factory.create();
   }

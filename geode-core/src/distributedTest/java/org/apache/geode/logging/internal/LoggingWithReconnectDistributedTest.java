@@ -46,7 +46,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.ForcedDisconnectException;
 import org.apache.geode.distributed.LocatorLauncher;
 import org.apache.geode.distributed.ServerLauncher;
-import org.apache.geode.distributed.internal.Distribution;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.distributed.internal.membership.api.MemberDisconnectedException;
@@ -126,7 +125,7 @@ public class LoggingWithReconnectDistributedTest implements Serializable {
       system = null;
     });
 
-    for (VM vm : toArray(server1VM, server2VM)) {
+    for (var vm : toArray(server1VM, server2VM)) {
       vm.invoke(() -> {
         serverLauncher.stop();
         serverLauncher = null;
@@ -142,7 +141,7 @@ public class LoggingWithReconnectDistributedTest implements Serializable {
     });
 
     server2VM.invoke(() -> {
-      Distribution membershipManager = getDistribution(system);
+      var membershipManager = getDistribution(system);
       ((GMSMembership<InternalDistributedMember>) membershipManager.getMembership())
           .forceDisconnect("Forcing disconnect in " + testName.getMethodName());
 
@@ -156,17 +155,17 @@ public class LoggingWithReconnectDistributedTest implements Serializable {
     });
 
     server2VM.invoke(() -> {
-      File[] files = server2Dir.listFiles((dir, name) -> name.endsWith(".log"));
+      var files = server2Dir.listFiles((dir, name) -> name.endsWith(".log"));
       assertThat(files).as(expectedOneLogFile(files)).hasSize(1);
 
-      File logFile = files[0];
+      var logFile = files[0];
       assertThat(logFile).exists();
 
       // Banner must be logged only once
       LogFileAssert.assertThat(logFile).containsOnlyOnce(displayValues());
 
       // Startup Config must be logged only once
-      String[] startupConfiguration = StringUtils
+      var startupConfiguration = StringUtils
           .split(STARTUP_CONFIGURATION + lineSeparator() + system.getConfig().toLoggerString(),
               lineSeparator());
 

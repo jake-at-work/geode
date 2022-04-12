@@ -24,13 +24,11 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.client.AllConnectionsInUseException;
 import org.apache.geode.cache.client.ServerConnectivityException;
 import org.apache.geode.cache.client.ServerOperationException;
-import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -63,16 +61,16 @@ public class DestroyOp {
     if (logger.isDebugEnabled()) {
       logger.debug("Preparing DestroyOp for {} operation={}", key, operation);
     }
-    DestroyOpImpl op = new DestroyOpImpl(region, key, expectedOldValue, operation, event,
+    var op = new DestroyOpImpl(region, key, expectedOldValue, operation, event,
         callbackArg, prSingleHopEnabled);
     if (prSingleHopEnabled) {
-      ClientMetadataService cms = region.getCache().getClientMetadataService();
-      ServerLocation server =
+      var cms = region.getCache().getClientMetadataService();
+      var server =
           cms.getBucketServerLocation(region, Operation.DESTROY, key, null, callbackArg);
       if (server != null) {
         try {
-          PoolImpl poolImpl = (PoolImpl) pool;
-          boolean onlyUseExistingCnx = (poolImpl.getMaxConnections() != -1
+          var poolImpl = (PoolImpl) pool;
+          var onlyUseExistingCnx = (poolImpl.getMaxConnections() != -1
               && poolImpl.getConnectionCount() >= poolImpl.getMaxConnections());
           op.setAllowDuplicateMetadataRefresh(!onlyUseExistingCnx);
           return pool.executeOn(server, op, true, onlyUseExistingCnx);
@@ -176,13 +174,13 @@ public class DestroyOp {
     protected Object processResponse(final @NotNull Message msg, final @NotNull Connection con)
         throws Exception {
       processAck(msg, "destroy");
-      boolean isReply = (msg.getMessageType() == MessageType.REPLY);
-      int partIdx = 0;
-      int flags = 0;
+      var isReply = (msg.getMessageType() == MessageType.REPLY);
+      var partIdx = 0;
+      var flags = 0;
       if (isReply) {
         flags = msg.getPart(partIdx++).getInt();
         if ((flags & HAS_VERSION_TAG) != 0) {
-          VersionTag tag = (VersionTag) msg.getPart(partIdx++).getObject();
+          var tag = (VersionTag) msg.getPart(partIdx++).getObject();
           // we use the client's ID since we apparently don't track the server's ID in connections
           tag.replaceNullIDs((InternalDistributedMember) con.getEndpoint().getMemberId());
           event.setVersionTag(tag);
@@ -194,13 +192,13 @@ public class DestroyOp {
         }
       }
       if (prSingleHopEnabled) {
-        Part part = msg.getPart(partIdx++);
-        byte[] bytesReceived = part.getSerializedForm();
+        var part = msg.getPart(partIdx++);
+        var bytesReceived = part.getSerializedForm();
         if (bytesReceived[0] != ClientMetadataService.INITIAL_VERSION
             && bytesReceived.length == ClientMetadataService.SIZE_BYTES_ARRAY_RECEIVED) {
           if (region != null) {
             try {
-              ClientMetadataService cms = region.getCache().getClientMetadataService();
+              var cms = region.getCache().getClientMetadataService();
               int myVersion =
                   cms.getMetaDataVersion(region, Operation.UPDATE, key, null, callbackArg);
               if (myVersion != bytesReceived[0] || isAllowDuplicateMetadataRefresh()) {
@@ -214,7 +212,7 @@ public class DestroyOp {
       } else {
         partIdx++; // skip OK byte
       }
-      boolean entryNotFound = false;
+      var entryNotFound = false;
       if (msg.getMessageType() == MessageType.REPLY && (flags & HAS_ENTRY_NOT_FOUND_PART) != 0) {
         entryNotFound = (msg.getPart(partIdx++).getInt() == 1);
         if (logger.isDebugEnabled() && (flags & HAS_ENTRY_NOT_FOUND_PART) != 0) {

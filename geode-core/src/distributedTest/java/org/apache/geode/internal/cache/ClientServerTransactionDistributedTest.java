@@ -25,16 +25,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.dunit.VM;
@@ -79,13 +74,13 @@ public class ClientServerTransactionDistributedTest implements Serializable {
     TXManagerImpl.INITIAL_UNIQUE_ID_VALUE = Integer.MAX_VALUE;
     createClientRegion(port1);
 
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
 
     txManager.begin();
-    int transactionID = getTransactionID(txManager);
+    var transactionID = getTransactionID(txManager);
 
-    int numOfOperations = 5;
+    var numOfOperations = 5;
     putData(numOfOperations);
     txManager.commit();
 
@@ -101,13 +96,13 @@ public class ClientServerTransactionDistributedTest implements Serializable {
     TXManagerImpl.INITIAL_UNIQUE_ID_VALUE = Integer.MAX_VALUE;
     createClientRegion(port1);
 
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
 
     txManager.begin();
-    int transactionID = getTransactionID(txManager);
+    var transactionID = getTransactionID(txManager);
 
-    int numOfOperations = 5;
+    var numOfOperations = 5;
     putData(numOfOperations);
     txManager.rollback();
 
@@ -116,41 +111,41 @@ public class ClientServerTransactionDistributedTest implements Serializable {
   }
 
   private int getTransactionID(final TXManagerImpl txManager) {
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) txManager.getTXState();
+    var txStateProxy = (TXStateProxyImpl) txManager.getTXState();
     return ((TXId) txStateProxy.getTransactionId()).getUniqId();
   }
 
   private void putData(int numberOfEntries) {
-    Region<Object, Object> region = clientCacheRule.getClientCache().getRegion(regionName);
-    for (int key = 0; key < numberOfEntries; key++) {
-      String value = "value" + key;
+    var region = clientCacheRule.getClientCache().getRegion(regionName);
+    for (var key = 0; key < numberOfEntries; key++) {
+      var value = "value" + key;
       region.put(key, value);
     }
   }
 
   private void verifyTransactionResult(int numberOfEntries) {
-    Region<Object, Object> region = cacheRule.getCache().getRegion(regionName);
-    for (int i = 0; i < numberOfEntries; i++) {
+    var region = cacheRule.getCache().getRegion(regionName);
+    for (var i = 0; i < numberOfEntries; i++) {
       LogService.getLogger().info("region get key {} value {} ", i, region.get(i));
     }
-    for (int i = 0; i < numberOfEntries; i++) {
+    for (var i = 0; i < numberOfEntries; i++) {
       assertEquals("value" + i, region.get(i));
     }
   }
 
   private void verifyThatRollbackSuccessfullyExecuted(int numberOfEntries) {
-    Region<Object, Object> region = cacheRule.getCache().getRegion(regionName);
-    for (int i = 0; i < numberOfEntries; i++) {
+    var region = cacheRule.getCache().getRegion(regionName);
+    for (var i = 0; i < numberOfEntries; i++) {
       assertNull(region.get(i));
     }
   }
 
   private int createServerRegion() throws Exception {
-    PartitionAttributesFactory<Object, Object> factory = new PartitionAttributesFactory<>();
-    PartitionAttributes<Object, Object> partitionAttributes = factory.create();
+    var factory = new PartitionAttributesFactory<Object, Object>();
+    var partitionAttributes = factory.create();
     cacheRule.getOrCreateCache().createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(partitionAttributes).create(regionName);
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -158,8 +153,8 @@ public class ClientServerTransactionDistributedTest implements Serializable {
 
   private void createClientRegion(int port) {
     clientCacheRule.createClientCache();
-    PoolImpl pool = getPool(port);
-    ClientRegionFactory<Object, Object> crf =
+    var pool = getPool(port);
+    var crf =
         clientCacheRule.getClientCache().createClientRegionFactory(ClientRegionShortcut.LOCAL);
     crf.setPoolName(pool.getName());
     crf.create(regionName);
@@ -167,7 +162,7 @@ public class ClientServerTransactionDistributedTest implements Serializable {
   }
 
   private PoolImpl getPool(int port) {
-    PoolFactory factory = PoolManager.createFactory();
+    var factory = PoolManager.createFactory();
     factory.addServer(hostName, port);
     return (PoolImpl) factory.create(uniqueName);
   }

@@ -18,10 +18,7 @@ package org.apache.geode.management.internal.cli.functions;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.naming.Context;
 
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.jndi.JNDIInvoker;
@@ -43,9 +40,9 @@ public class ListJndiBindingFunction extends CliFunction<Void> {
   public CliFunctionResult executeFunction(FunctionContext<Void> context) {
     CliFunctionResult result;
     try {
-      Context ctx = JNDIInvoker.getJNDIContext();
-      Map<String, String> bindings = JNDIInvoker.getBindingNamesRecursively(ctx);
-      List<String> resultValues = bindings.entrySet().stream()
+      var ctx = JNDIInvoker.getJNDIContext();
+      var bindings = JNDIInvoker.getBindingNamesRecursively(ctx);
+      var resultValues = bindings.entrySet().stream()
           .flatMap((e) -> Arrays.stream(new String[] {e.getKey(), e.getValue()}))
           .collect(Collectors.toList());
       result = createCliFunctionResult(context, resultValues);

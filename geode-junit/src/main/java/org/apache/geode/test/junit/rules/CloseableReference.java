@@ -17,7 +17,6 @@ package org.apache.geode.test.junit.rules;
 import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -150,7 +149,7 @@ public class CloseableReference<V> extends SerializableExternalResource {
 
   @Override
   protected void after() {
-    V value = get();
+    var value = get();
     if (value == null) {
       return;
     }
@@ -186,7 +185,7 @@ public class CloseableReference<V> extends SerializableExternalResource {
 
   private static boolean hasMethod(Class<?> objectClass, String methodName) {
     try {
-      Method method = objectClass.getMethod(methodName);
+      var method = objectClass.getMethod(methodName);
       // currently only supports public method with zero parameters
       if (method.getParameterCount() == 0 &&
           Modifier.isPublic(method.getModifiers())) {
@@ -200,7 +199,7 @@ public class CloseableReference<V> extends SerializableExternalResource {
 
   private static void invokeMethod(Object object, String methodName) {
     try {
-      Method method = object.getClass().getMethod(methodName);
+      var method = object.getClass().getMethod(methodName);
       method.invoke(object);
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
       throw new RuntimeException(e);

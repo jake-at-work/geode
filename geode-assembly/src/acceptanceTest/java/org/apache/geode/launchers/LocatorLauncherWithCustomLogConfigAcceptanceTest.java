@@ -59,12 +59,12 @@ public class LocatorLauncherWithCustomLogConfigAcceptanceTest {
 
   @Before
   public void setUpJava() {
-    String javaHome = System.getProperty("java.home");
+    var javaHome = System.getProperty("java.home");
     assertThat(javaHome)
         .as("java.home is not null")
         .isNotNull();
 
-    String java = isWindows() ? "java.exe" : "java";
+    var java = isWindows() ? "java.exe" : "java";
     javaBin = Paths.get(javaHome, "bin", java);
     assertThat(javaBin)
         .as("JAVA_HOME/bin/" + java + " exists")
@@ -73,7 +73,7 @@ public class LocatorLauncherWithCustomLogConfigAcceptanceTest {
 
   @Before
   public void setUpGeodeDependencies() {
-    Path geodeHome = requiresGeodeHome.getGeodeHome().toPath();
+    var geodeHome = requiresGeodeHome.getGeodeHome().toPath();
     geodeDependencies = geodeHome.resolve("lib/geode-dependencies.jar");
 
     assertThat(geodeDependencies)
@@ -109,7 +109,7 @@ public class LocatorLauncherWithCustomLogConfigAcceptanceTest {
 
   @Test
   public void locatorLauncherUsesLog4jConfigurationFile() throws Exception {
-    ProcessBuilder processBuilder = new ProcessBuilder()
+    var processBuilder = new ProcessBuilder()
         .redirectErrorStream(true)
         .redirectOutput(stdoutFile.toFile())
         .directory(temporaryFolder.getRoot())
@@ -155,10 +155,10 @@ public class LocatorLauncherWithCustomLogConfigAcceptanceTest {
   public void locatorLauncherUsesClasspathForConfigFile() throws Exception {
     Files.copy(configFile, temporaryFolder.getRoot().toPath().resolve("log4j2.xml"));
 
-    String classpath = temporaryFolder.getRoot().getAbsolutePath() + File.pathSeparator +
+    var classpath = temporaryFolder.getRoot().getAbsolutePath() + File.pathSeparator +
         geodeDependencies.toFile().getAbsolutePath();
 
-    ProcessBuilder processBuilder = new ProcessBuilder()
+    var processBuilder = new ProcessBuilder()
         .redirectErrorStream(true)
         .redirectOutput(stdoutFile.toFile())
         .directory(temporaryFolder.getRoot())

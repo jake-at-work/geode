@@ -17,8 +17,6 @@ package org.apache.geode.internal.memcached.commands;
 import java.nio.ByteBuffer;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.internal.memcached.KeyWrapper;
 import org.apache.geode.internal.memcached.RequestReader;
 import org.apache.geode.internal.memcached.ResponseStatus;
 import org.apache.geode.internal.memcached.ValueWrapper;
@@ -31,9 +29,9 @@ public class TouchCommand extends AbstractCommand {
   @Override
   public ByteBuffer processCommand(RequestReader request, Protocol protocol, Cache cache) {
     assert protocol == Protocol.BINARY;
-    int newExpTime = 0;
+    var newExpTime = 0;
 
-    ByteBuffer buffer = request.getRequest();
+    var buffer = request.getRequest();
     ByteBuffer response = null;
     int extrasLength = buffer.get(EXTRAS_LENGTH_INDEX);
     buffer.position(HEADER_LENGTH);
@@ -43,13 +41,13 @@ public class TouchCommand extends AbstractCommand {
       newExpTime = buffer.getInt();
     }
 
-    KeyWrapper key = getKey(buffer, HEADER_LENGTH + extrasLength);
+    var key = getKey(buffer, HEADER_LENGTH + extrasLength);
 
     if (newExpTime > 0) {
       StorageCommand.rescheduleExpiration(cache, key, newExpTime);
     }
     if (sendValue()) {
-      Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
+      var r = getMemcachedRegion(cache);
       ValueWrapper val = null;
       try {
         val = r.get(key);
@@ -63,8 +61,8 @@ public class TouchCommand extends AbstractCommand {
         if (isQuiet()) {
           return null;
         }
-        byte[] realValue = val.getValue();
-        int responseLength = HEADER_LENGTH + realValue.length;
+        var realValue = val.getValue();
+        var responseLength = HEADER_LENGTH + realValue.length;
         response = request.getResponse(responseLength);
         response.limit(responseLength);
         response.putShort(POSITION_RESPONSE_STATUS, ResponseStatus.NO_ERROR.asShort());

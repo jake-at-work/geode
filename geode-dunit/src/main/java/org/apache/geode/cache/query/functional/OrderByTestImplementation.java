@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.junit.After;
@@ -44,8 +43,6 @@ import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.Position;
-import org.apache.geode.cache.query.internal.CompiledSelect;
-import org.apache.geode.cache.query.internal.CompiledSortCriterion;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
@@ -77,7 +74,7 @@ public abstract class OrderByTestImplementation {
 
   @Test
   public void testOrderByWithIndexResultDefaultProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT  distinct * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 10 order by ID desc ",
         "SELECT  distinct * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 10 order by ID asc ",
@@ -109,21 +106,21 @@ public abstract class OrderByTestImplementation {
             + "portfolio1 pf1 where ID != 10 order by ID desc limit 10",
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -139,24 +136,24 @@ public abstract class OrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        SelectResults rcw = (SelectResults) r[i][1];
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var rcw = (SelectResults) r[i][1];
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
         assertTrue("Result size is " + rcw.size() + " and limit is " + limit,
             !limitQuery || rcw.size() <= limit);
-        String colType = rcw.getCollectionType().getSimpleClassName();
+        var colType = rcw.getCollectionType().getSimpleClassName();
         if (!(colType.equals("Ordered") || colType.equals("LinkedHashSet"))) {
           fail("The collection type " + colType + " is not expexted");
         }
@@ -164,7 +161,7 @@ public abstract class OrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         while (itr.hasNext()) {
           if (!(itr.next().toString()).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + itr.next().toString());
@@ -172,7 +169,7 @@ public abstract class OrderByTestImplementation {
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -182,7 +179,7 @@ public abstract class OrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
 
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
@@ -191,30 +188,30 @@ public abstract class OrderByTestImplementation {
   @Test
   public void testOrderByWithColumnAlias_Bug52041_1() throws Exception {
 
-    Region region = createRegion("portfolio", Portfolio.class);
-    for (int i = 1; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var region = createRegion("portfolio", Portfolio.class);
+    for (var i = 1; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       pf.status = "active";
       region.put("" + i, pf);
     }
-    String queryStr =
+    var queryStr =
         "select distinct p.status, p.shortID as short_id  from " + SEPARATOR
             + "portfolio p where p.ID >= 0 "
             + "order by short_id asc";
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(queryStr);
-    SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
-    Iterator<Struct> iter = results.asList().iterator();
-    int counter = 0;
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(queryStr);
+    var results = (SelectResults<Struct>) query.execute();
+    var iter = results.asList().iterator();
+    var counter = 0;
     while (iter.hasNext()) {
-      Struct str = iter.next();
+      var str = iter.next();
       assertEquals(counter, ((Short) str.get("short_id")).intValue());
       ++counter;
     }
     assertEquals(39, counter - 1);
-    CompiledSelect cs = ((DefaultQuery) query).getSimpleSelect();
-    List<CompiledSortCriterion> orderbyAtts = cs.getOrderByAttrs();
+    var cs = ((DefaultQuery) query).getSimpleSelect();
+    var orderbyAtts = cs.getOrderByAttrs();
     assertEquals(orderbyAtts.get(0).getColumnIndex(), 1);
 
   }
@@ -222,32 +219,32 @@ public abstract class OrderByTestImplementation {
   @Test
   public void testOrderByWithColumnAlias_Bug52041_2() throws Exception {
 
-    Region region = createRegion("portfolio", Portfolio.class);
-    for (int i = 0; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var region = createRegion("portfolio", Portfolio.class);
+    for (var i = 0; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       pf.status = "active";
       region.put("" + i, pf);
     }
-    String queryStr =
+    var queryStr =
         "select distinct p.ID as _id, p.shortID as short_id  from " + SEPARATOR
             + "portfolio p where p.ID >= 0 "
             + "order by short_id asc, p.ID desc";
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(queryStr);
-    SelectResults<Struct> results = (SelectResults<Struct>) query.execute();
-    Iterator<Struct> iter = results.asList().iterator();
-    int counter = 0;
-    int k = 0;
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(queryStr);
+    var results = (SelectResults<Struct>) query.execute();
+    var iter = results.asList().iterator();
+    var counter = 0;
+    var k = 0;
     while (iter.hasNext()) {
       k = ((counter) / 5 + 1) * 5 - 1;
-      Struct str = iter.next();
+      var str = iter.next();
       assertEquals(counter / 5, ((Short) str.get("short_id")).intValue());
       assertEquals(k - (counter) % 5, ((Integer) str.get("_id")).intValue());
       ++counter;
     }
-    CompiledSelect cs = ((DefaultQuery) query).getSimpleSelect();
-    List<CompiledSortCriterion> orderbyAtts = cs.getOrderByAttrs();
+    var cs = ((DefaultQuery) query).getSimpleSelect();
+    var orderbyAtts = cs.getOrderByAttrs();
     assertEquals(orderbyAtts.get(0).getColumnIndex(), 1);
     assertEquals(orderbyAtts.get(1).getColumnIndex(), 0);
 
@@ -255,7 +252,7 @@ public abstract class OrderByTestImplementation {
 
   @Test
   public void testOrderByWithIndexResultWithProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT  distinct ID, description, createTime FROM " + SEPARATOR
             + "portfolio1 pf1 where ID > 10 order by ID desc ",
@@ -291,21 +288,21 @@ public abstract class OrderByTestImplementation {
             + "portfolio1 pf1 where ID != 10 order by ID desc limit 10",
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -321,24 +318,24 @@ public abstract class OrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        SelectResults rcw = (SelectResults) r[i][1];
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var rcw = (SelectResults) r[i][1];
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
         assertTrue(!limitQuery || rcw.size() <= limit);
         // assertIndexDetailsEquals("Set",rcw.getCollectionType().getSimpleClassName());
-        String colType = rcw.getCollectionType().getSimpleClassName();
+        var colType = rcw.getCollectionType().getSimpleClassName();
         if (!(colType.equals("Ordered") || colType.equals("LinkedHashSet"))) {
           fail("The collection type " + colType + " is not expexted");
         }
@@ -346,7 +343,7 @@ public abstract class OrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         while (itr.hasNext()) {
           if (!(itr.next().toString()).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + itr.next().toString());
@@ -354,7 +351,7 @@ public abstract class OrderByTestImplementation {
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -364,7 +361,7 @@ public abstract class OrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
 
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
@@ -372,7 +369,7 @@ public abstract class OrderByTestImplementation {
 
   @Test
   public void testMultiColOrderByWithIndexResultDefaultProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT  distinct * FROM " + SEPARATOR
             + "portfolio1 pf1 where ID > 10 order by ID desc, pkid asc ",
@@ -408,21 +405,21 @@ public abstract class OrderByTestImplementation {
             + "portfolio1 pf1 where ID != 10 order by ID desc, pkid desc limit 10",
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -438,18 +435,18 @@ public abstract class OrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        SelectResults rcw = (SelectResults) r[i][1];
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var rcw = (SelectResults) r[i][1];
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
@@ -459,7 +456,7 @@ public abstract class OrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         while (itr.hasNext()) {
           if (!(itr.next().toString()).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + itr.next().toString());
@@ -467,7 +464,7 @@ public abstract class OrderByTestImplementation {
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -477,7 +474,7 @@ public abstract class OrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
 
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
@@ -487,22 +484,22 @@ public abstract class OrderByTestImplementation {
 
   @Test
   public void testMultiColOrderByWithIndexResultWithProjection() throws Exception {
-    String[] queries = getQueriesForMultiColOrderByWithIndexResultWithProjection();
-    Object[][] r = new Object[queries.length][2];
+    var queries = getQueriesForMultiColOrderByWithIndexResultWithProjection();
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -518,18 +515,18 @@ public abstract class OrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        SelectResults rcw = (SelectResults) r[i][1];
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var rcw = (SelectResults) r[i][1];
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
@@ -539,7 +536,7 @@ public abstract class OrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         while (itr.hasNext()) {
           if (!(itr.next().toString()).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + itr.next().toString());
@@ -547,7 +544,7 @@ public abstract class OrderByTestImplementation {
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -557,7 +554,7 @@ public abstract class OrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
 
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
@@ -565,7 +562,7 @@ public abstract class OrderByTestImplementation {
 
   @Test
   public void testMultiColOrderByWithMultiIndexResultDefaultProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT  distinct * FROM " + SEPARATOR
             + "portfolio1 pf1 where pkid = '12' and ID > 10 order by ID desc, pkid asc ",
@@ -601,21 +598,21 @@ public abstract class OrderByTestImplementation {
             + "portfolio1 pf1 where pkid > '1' and ID != 10 order by ID desc, pkid desc limit 10",
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -631,20 +628,20 @@ public abstract class OrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
     createIndex("PKIDIndexPf1", IndexType.FUNCTIONAL, "pkid", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
 
-        SelectResults rcw = (SelectResults) r[i][1];
+        var rcw = (SelectResults) r[i][1];
 
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
@@ -654,15 +651,15 @@ public abstract class OrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -672,7 +669,7 @@ public abstract class OrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
 
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
@@ -682,22 +679,22 @@ public abstract class OrderByTestImplementation {
 
   @Test
   public void testMultiColOrderByWithMultiIndexResultProjection() throws Exception {
-    String[] queries = getQueriesForMultiColOrderByWithMultiIndexResultProjection();
-    Object[][] r = new Object[queries.length][2];
+    var queries = getQueriesForMultiColOrderByWithMultiIndexResultProjection();
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -713,36 +710,36 @@ public abstract class OrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
     createIndex("PKIDIndexPf1", IndexType.FUNCTIONAL, "pkid", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
-        SelectResults rcw = (SelectResults) r[i][1];
+        var rcw = (SelectResults) r[i][1];
         assertEquals("Ordered", rcw.getCollectionType().getSimpleClassName());
         if (assertIndexUsedOnQueryNode() && !observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
         assertTrue(!limitQuery || rcw.size() <= limit);
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -752,7 +749,7 @@ public abstract class OrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
@@ -761,23 +758,23 @@ public abstract class OrderByTestImplementation {
 
   @Test
   public void testLimitNotAppliedIfOrderByNotUsingIndex() throws Exception {
-    String[] queries = getQueriesForLimitNotAppliedIfOrderByNotUsingIndex();
+    var queries = getQueriesForLimitNotAppliedIfOrderByNotUsingIndex();
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -792,37 +789,37 @@ public abstract class OrderByTestImplementation {
 
     createIndex("PKIDIndexPf1", IndexType.FUNCTIONAL, "pkid", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
 
-        SelectResults rcw = (SelectResults) r[i][1];
+        var rcw = (SelectResults) r[i][1];
         assertEquals("Ordered", rcw.getCollectionType().getSimpleClassName());
         if (assertIndexUsedOnQueryNode() && !observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
         assertTrue(!limitQuery || !observer.limitAppliedAtIndex);
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("PKIDIndexPf1")) {
             fail("<PKIDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -832,7 +829,7 @@ public abstract class OrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
@@ -845,8 +842,9 @@ public abstract class OrderByTestImplementation {
   public void testOrderByWithNullValuesUseIndex() throws Exception {
     // IN ORDER BY NULL values are treated as smallest. E.g For an ascending order by field
     // its null values are reported first and then the values in ascending order.
-    String[] queries =
-        {"SELECT  distinct * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid", // 0
+    var queries =
+        new String[] {
+            "SELECT  distinct * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid", // 0
             // null
             // values
             // are
@@ -858,13 +856,13 @@ public abstract class OrderByTestImplementation {
                 + "portfolio1 pf1 where ID > 0 order by pkid asc", // 1 same as
             // above.
             "SELECT  distinct * FROM " + SEPARATOR + "portfolio1 where ID > 0 order by pkid desc", // 2
-                                                                                                   // null
-                                                                                                   // values
-                                                                                                   // are
+            // null
+            // values
+            // are
             // last in the order.
             "SELECT  distinct pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid", // 3
-                                                                                                     // null
-                                                                                                     // values
+            // null
+            // values
             // are first in the
             // order.
             "SELECT  distinct pkid FROM " + SEPARATOR
@@ -884,16 +882,16 @@ public abstract class OrderByTestImplementation {
                 + "portfolio1 pf1 where ID > 0 order by pkid", // 9
         };
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
 
     // Create Regions
-    final int size = 9;
-    final int numNullValues = 3;
-    Region r1 = createRegion("portfolio1", Portfolio.class);
-    for (int i = 1; i <= size; i++) {
-      Portfolio pf = new Portfolio(i);
+    final var size = 9;
+    final var numNullValues = 3;
+    var r1 = createRegion("portfolio1", Portfolio.class);
+    for (var i = 1; i <= size; i++) {
+      var pf = new Portfolio(i);
       // Add numNullValues null values.
       if (i <= numNullValues) {
         pf.pkid = null;
@@ -909,10 +907,10 @@ public abstract class OrderByTestImplementation {
     Query q = null;
     SelectResults results = null;
     List list = null;
-    String str = "";
+    var str = "";
     try {
       // Query 0 - null values are first in the order.
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
 
       str = queries[0];
@@ -927,8 +925,8 @@ public abstract class OrderByTestImplementation {
 
       r[0][0] = results;
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, p: " + p, p.pkid);
         } else {
@@ -945,8 +943,8 @@ public abstract class OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid", p.pkid);
         } else {
@@ -963,8 +961,8 @@ public abstract class OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i > (size - numNullValues)) {
           assertNull("Expected null value for pkid", p.pkid);
         } else {
@@ -981,8 +979,8 @@ public abstract class OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i == 1) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -1007,8 +1005,8 @@ public abstract class OrderByTestImplementation {
       }
 
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i == 1) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -1025,8 +1023,8 @@ public abstract class OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i == (list.size())) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -1043,8 +1041,8 @@ public abstract class OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Struct strct = (Struct) list.get(i - 1);
+      for (var i = 1; i <= size; i++) {
+        var strct = (Struct) list.get(i - 1);
         int id = (Integer) strct.getFieldValues()[0];
         // ID should be one of 1, 2, 3 because of distinct
         if (i <= numNullValues) {
@@ -1064,8 +1062,8 @@ public abstract class OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        Struct strct = (Struct) list.get(i - 1);
+      for (var i = 1; i <= list.size(); i++) {
+        var strct = (Struct) list.get(i - 1);
         int id = (Integer) strct.getFieldValues()[0];
         if (id != (numNullValues + i)) {
           fail(" Value of ID is not as expected, " + id);
@@ -1078,10 +1076,10 @@ public abstract class OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         // ID should be one of 1, 2, 3 because of distinct
         if (i <= numNullValues) {
@@ -1107,10 +1105,10 @@ public abstract class OrderByTestImplementation {
       results = (SelectResults) q.execute();
       list = results.asList();
 
-      for (int i = 1; i <= list.size(); i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, " + pkid, pkid);
@@ -1135,8 +1133,9 @@ public abstract class OrderByTestImplementation {
 
   @Test
   public void testOrderByForUndefined() throws Exception {
-    String[] queries =
-        {"SELECT DISTINCT position1.secId FROM " + SEPARATOR + "test ORDER BY position1.secId", // 0
+    var queries =
+        new String[] {
+            "SELECT DISTINCT position1.secId FROM " + SEPARATOR + "test ORDER BY position1.secId", // 0
             "SELECT DISTINCT position1.secId FROM " + SEPARATOR
                 + "test ORDER BY position1.secId desc", // 1
             "SELECT DISTINCT position1.secId FROM " + SEPARATOR
@@ -1148,18 +1147,18 @@ public abstract class OrderByTestImplementation {
             "SELECT DISTINCT position1.secId, ID FROM " + SEPARATOR
                 + "test ORDER BY position1.secId desc, ID",// 5
         };
-    Region r1 = createRegion("test", Portfolio.class);
-    for (int i = 0; i < 10; i++) {
-      Portfolio pf = new Portfolio(i);
+    var r1 = createRegion("test", Portfolio.class);
+    for (var i = 0; i < 10; i++) {
+      var pf = new Portfolio(i);
       if (i % 2 == 0) {
         pf.position1 = null;
       }
       r1.put(i + "", pf);
     }
-    QueryService qs = CacheUtils.getQueryService();
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var qs = CacheUtils.getQueryService();
+    var sr = new SelectResults[queries.length][2];
     Object[] srArr = null;
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         sr[i][0] = (SelectResults) qs.newQuery(queries[i]).execute();
         srArr = sr[i][0].toArray();
@@ -1176,12 +1175,12 @@ public abstract class OrderByTestImplementation {
           assertEquals("Last result should be undefined for query " + queries[i],
               QueryService.UNDEFINED, srArr[srArr.length - 1]);
         } else if (i == 4) {
-          for (int j = 0; j < srArr.length / 2; j++) {
+          for (var j = 0; j < srArr.length / 2; j++) {
             assertEquals("Undefined should  have been returned for query " + queries[i],
                 QueryService.UNDEFINED, ((Struct) srArr[j]).getFieldValues()[0]);
           }
         } else if (i == 5) {
-          for (int j = srArr.length - 1; j > srArr.length / 2; j--) {
+          for (var j = srArr.length - 1; j > srArr.length / 2; j--) {
             assertEquals("Undefined should  have been returned for query " + queries[i],
                 QueryService.UNDEFINED, ((Struct) srArr[j]).getFieldValues()[0]);
           }
@@ -1195,7 +1194,7 @@ public abstract class OrderByTestImplementation {
     createIndex("secIndex", "position1.secId", r1.getFullPath());
     createIndex("IDIndex", "ID", r1.getFullPath());
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         sr[i][1] = (SelectResults) qs.newQuery(queries[i]).execute();
         srArr = sr[i][1].toArray();
@@ -1212,12 +1211,12 @@ public abstract class OrderByTestImplementation {
           assertEquals("Last result should be undefined for query " + queries[i],
               QueryService.UNDEFINED, srArr[srArr.length - 1]);
         } else if (i == 4) {
-          for (int j = 0; j < srArr.length / 2; j++) {
+          for (var j = 0; j < srArr.length / 2; j++) {
             assertEquals("Undefined should  have been returned for query " + queries[i],
                 QueryService.UNDEFINED, ((Struct) srArr[j]).getFieldValues()[0]);
           }
         } else if (i == 5) {
-          for (int j = srArr.length - 1; j > srArr.length / 2; j--) {
+          for (var j = srArr.length - 1; j > srArr.length / 2; j--) {
             assertEquals("Undefined should  have been returned for query " + queries[i],
                 QueryService.UNDEFINED, ((Struct) srArr[j]).getFieldValues()[0]);
           }

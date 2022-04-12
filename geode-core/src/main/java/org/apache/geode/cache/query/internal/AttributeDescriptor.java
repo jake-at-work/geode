@@ -24,8 +24,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -34,13 +32,11 @@ import org.apache.geode.cache.EntryDestroyedException;
 import org.apache.geode.cache.query.NameNotFoundException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.QueryService;
-import org.apache.geode.cache.query.security.MethodInvocationAuthorizer;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.lang.utils.JavaWorkarounds;
 import org.apache.geode.pdx.JSONFormatter;
 import org.apache.geode.pdx.PdxSerializationException;
 import org.apache.geode.pdx.internal.InternalPdxInstance;
-import org.apache.geode.pdx.internal.PdxType;
 import org.apache.geode.pdx.internal.TypeRegistry;
 import org.apache.geode.security.NotAuthorizedException;
 
@@ -94,12 +90,12 @@ public class AttributeDescriptor {
     }
 
     Class resolutionClass = target.getClass();
-    Member m = getReadMember(resolutionClass);
+    var m = getReadMember(resolutionClass);
     try {
       if (m instanceof Method) {
         try {
-          Method method = (Method) m;
-          MethodInvocationAuthorizer authorizer = executionContext.getMethodInvocationAuthorizer();
+          var method = (Method) m;
+          var authorizer = executionContext.getMethodInvocationAuthorizer();
 
           // CQs are generally executed on individual events, so caching is just an overhead.
           if (executionContext.isCqQueryContext()) {
@@ -109,7 +105,7 @@ public class AttributeDescriptor {
           } else {
             // Try to use previous result so authorizer gets invoked only once per query.
             boolean authorizationResult;
-            Boolean cachedResult = (Boolean) executionContext.cacheGet(method);
+            var cachedResult = (Boolean) executionContext.cacheGet(method);
 
             if (cachedResult == null) {
               // First time, evaluate and cache result.
@@ -138,7 +134,7 @@ public class AttributeDescriptor {
         } catch (InvocationTargetException e) {
           // if the target exception is Exception, wrap that,
           // otherwise wrap the InvocationTargetException itself
-          Throwable t = e.getTargetException();
+          var t = e.getTargetException();
           if ((t instanceof EntryDestroyedException)) {
             // eat the exception
             return QueryService.UNDEFINED;
@@ -174,7 +170,7 @@ public class AttributeDescriptor {
     key.add(targetClass);
     key.add(_name);
 
-    Member m = JavaWorkarounds.computeIfAbsent(_localCache, key, k -> {
+    var m = JavaWorkarounds.computeIfAbsent(_localCache, key, k -> {
       Member member = getReadField(targetClass);
       return member == null ? getReadMethod(targetClass) : member;
     });
@@ -200,7 +196,7 @@ public class AttributeDescriptor {
   Method getReadMethod(Class targetType) {
     Method m;
     // Check for a getter method for this _name
-    String beanMethod = "get" + _name.substring(0, 1).toUpperCase() + _name.substring(1);
+    var beanMethod = "get" + _name.substring(0, 1).toUpperCase() + _name.substring(1);
     m = getReadMethod(targetType, beanMethod);
 
     if (m != null) {
@@ -234,7 +230,7 @@ public class AttributeDescriptor {
     } else {
       // field not found in the pdx instance, look for the field in any of the
       // PdxTypes (versions of the pdxinstance) in the type registry
-      String className = pdxInstance.getClassName();
+      var className = pdxInstance.getClassName();
 
       // don't look further for field or method or reflect on GemFire JSON data
       if (className.equals(JSONFormatter.JSON_CLASSNAME)) {
@@ -243,7 +239,7 @@ public class AttributeDescriptor {
 
       // check if the field was not found previously
       if (!isFieldAlreadySearchedAndNotFound(className, _name)) {
-        PdxType pdxType = _pdxRegistry.getPdxTypeForField(_name, className);
+        var pdxType = _pdxRegistry.getPdxTypeForField(_name, className);
         if (pdxType == null) {
           // remember the field that is not present in any version to avoid
           // trips to the registry next time
@@ -284,8 +280,8 @@ public class AttributeDescriptor {
   }
 
   private void updateClassToFieldsMap(String className, String field) {
-    Map<String, Set<String>> map = DefaultQuery.getPdxClasstofieldsmap();
-    Set<String> fields = map.get(className);
+    var map = DefaultQuery.getPdxClasstofieldsmap();
+    var fields = map.get(className);
     if (fields == null) {
       fields = new HashSet<>();
       map.put(className, fields);
@@ -295,7 +291,7 @@ public class AttributeDescriptor {
   }
 
   private boolean isFieldAlreadySearchedAndNotFound(String className, String field) {
-    Set<String> fields = DefaultQuery.getPdxClasstofieldsmap().get(className);
+    var fields = DefaultQuery.getPdxClasstofieldsmap().get(className);
     if (fields != null) {
       return fields.contains(field);
     }
@@ -304,8 +300,8 @@ public class AttributeDescriptor {
   }
 
   private void updateClassToMethodsMap(String className, String field) {
-    Map<String, Set<String>> map = DefaultQuery.getPdxClasstoMethodsmap();
-    Set<String> fields = map.get(className);
+    var map = DefaultQuery.getPdxClasstoMethodsmap();
+    var fields = map.get(className);
     if (fields == null) {
       fields = new HashSet<>();
       map.put(className, fields);
@@ -315,7 +311,7 @@ public class AttributeDescriptor {
   }
 
   private boolean isMethodAlreadySearchedAndNotFound(String className, String field) {
-    Set<String> fields = DefaultQuery.getPdxClasstoMethodsmap().get(className);
+    var fields = DefaultQuery.getPdxClasstoMethodsmap().get(className);
     if (fields != null) {
       return fields.contains(field);
     }

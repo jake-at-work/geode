@@ -17,9 +17,7 @@ package org.apache.geode.cache.lucene.internal.distributed;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
 import org.apache.geode.cache.execute.FunctionContext;
@@ -40,25 +38,25 @@ public class WaitUntilFlushedFunction implements InternalFunction<Object> {
 
   @Override
   public void execute(FunctionContext context) {
-    RegionFunctionContext ctx = (RegionFunctionContext) context;
+    var ctx = (RegionFunctionContext) context;
     ResultSender<Boolean> resultSender = ctx.getResultSender();
 
     Region region = ctx.getDataSet();
-    Cache cache = region.getCache();
-    WaitUntilFlushedFunctionContext arg = (WaitUntilFlushedFunctionContext) ctx.getArguments();
+    var cache = region.getCache();
+    var arg = (WaitUntilFlushedFunctionContext) ctx.getArguments();
     if (arg == null) {
       return;
     }
-    String indexName = arg.getIndexName();
+    var indexName = arg.getIndexName();
     if (indexName == null) {
       throw new IllegalArgumentException("Missing index name");
     }
-    long timeout = arg.getTimeout();
-    TimeUnit unit = arg.getTimeunit();
+    var timeout = arg.getTimeout();
+    var unit = arg.getTimeunit();
 
-    boolean result = false;
-    String aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, region.getFullPath());
-    AsyncEventQueueImpl queue = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
+    var result = false;
+    var aeqId = LuceneServiceImpl.getUniqueIndexName(indexName, region.getFullPath());
+    var queue = (AsyncEventQueueImpl) cache.getAsyncEventQueue(aeqId);
     if (queue != null) {
       try {
         result = queue.waitUntilFlushed(timeout, unit);

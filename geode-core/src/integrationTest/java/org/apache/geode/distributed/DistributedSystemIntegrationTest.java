@@ -18,9 +18,7 @@ import static org.apache.geode.distributed.DistributedSystem.PROPERTIES_FILE_PRO
 import static org.apache.geode.distributed.DistributedSystem.SECURITY_PROPERTIES_FILE_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.FileWriter;
-import java.net.URL;
 import java.util.Properties;
 
 import org.junit.Rule;
@@ -49,46 +47,46 @@ public class DistributedSystemIntegrationTest {
 
   @Test
   public void getPropertiesFileShouldUsePathInSystemProperty() throws Exception {
-    File propertiesFile = temporaryFolder.newFile("test.properties");
+    var propertiesFile = temporaryFolder.newFile("test.properties");
     System.setProperty(PROPERTIES_FILE_PROPERTY, propertiesFile.getCanonicalPath());
     new Properties().store(new FileWriter(propertiesFile, false), testName.getMethodName());
 
-    String value = DistributedSystem.getPropertiesFile();
+    var value = DistributedSystem.getPropertiesFile();
 
     assertThat(value).isEqualTo(propertiesFile.getCanonicalPath());
   }
 
   @Test
   public void getPropertiesFileUrlShouldUsePathInSystemProperty() throws Exception {
-    File propertiesFile = temporaryFolder.newFile("test.properties");
+    var propertiesFile = temporaryFolder.newFile("test.properties");
     System.setProperty(PROPERTIES_FILE_PROPERTY, propertiesFile.getCanonicalPath());
     new Properties().store(new FileWriter(propertiesFile, false), testName.getMethodName());
-    URL expectedPropertiesURL = propertiesFile.getCanonicalFile().toURI().toURL();
+    var expectedPropertiesURL = propertiesFile.getCanonicalFile().toURI().toURL();
 
-    URL value = DistributedSystem.getPropertiesFileURL();
+    var value = DistributedSystem.getPropertiesFileURL();
 
     assertThat(value).isEqualTo(expectedPropertiesURL);
   }
 
   @Test
   public void getSecurityPropertiesFileShouldUsePathInSystemProperty() throws Exception {
-    File propertiesFile = temporaryFolder.newFile("testsecurity.properties");
+    var propertiesFile = temporaryFolder.newFile("testsecurity.properties");
     System.setProperty(SECURITY_PROPERTIES_FILE_PROPERTY, propertiesFile.getCanonicalPath());
     new Properties().store(new FileWriter(propertiesFile, false), testName.getMethodName());
 
-    String value = DistributedSystem.getSecurityPropertiesFile();
+    var value = DistributedSystem.getSecurityPropertiesFile();
 
     assertThat(value).isEqualTo(propertiesFile.getCanonicalPath());
   }
 
   @Test
   public void getSecurityPropertiesFileUrlShouldUsePathInSystemProperty() throws Exception {
-    File propertiesFile = temporaryFolder.newFile("testsecurity.properties");
+    var propertiesFile = temporaryFolder.newFile("testsecurity.properties");
     System.setProperty(SECURITY_PROPERTIES_FILE_PROPERTY, propertiesFile.getCanonicalPath());
     new Properties().store(new FileWriter(propertiesFile, false), testName.getMethodName());
-    URL expectedPropertiesURL = propertiesFile.getCanonicalFile().toURI().toURL();
+    var expectedPropertiesURL = propertiesFile.getCanonicalFile().toURI().toURL();
 
-    URL value = DistributedSystem.getSecurityPropertiesFileURL();
+    var value = DistributedSystem.getSecurityPropertiesFileURL();
 
     assertThat(value).isEqualTo(expectedPropertiesURL);
   }

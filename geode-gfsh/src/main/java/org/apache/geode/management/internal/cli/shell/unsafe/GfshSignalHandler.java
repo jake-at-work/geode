@@ -44,7 +44,7 @@ public class GfshSignalHandler extends AbstractSignalNotificationHandler impleme
       Collections.synchronizedMap(new Hashtable<>(Signal.values().length));
 
   public GfshSignalHandler() {
-    for (final Signal signal : Signal.values()) {
+    for (final var signal : Signal.values()) {
       if (Signal.SIGINT.equals(signal)) {
         originalSignalHandlers.put(signal, org.apache.geode.unsafe.internal.sun.misc.Signal
             .handle(new org.apache.geode.unsafe.internal.sun.misc.Signal(signal.getName()), this));
@@ -65,16 +65,16 @@ public class GfshSignalHandler extends AbstractSignalNotificationHandler impleme
   protected void handleDefault(final org.apache.geode.unsafe.internal.sun.misc.Signal sig,
       final ConsoleReader consoleReader)
       throws IOException {
-    final Signal signal = Signal.valueOfName(sig.getName());
+    final var signal = Signal.valueOfName(sig.getName());
     switch (signal) {
       case SIGINT:
         if (consoleReader != null) {
-          String prompt = consoleReader.getPrompt();
+          var prompt = consoleReader.getPrompt();
           consoleReader.resetPromptLine(prompt, "", -1);
         }
         break;
       default:
-        final SignalHandler handler = getOriginalSignalHandler(signal);
+        final var handler = getOriginalSignalHandler(signal);
         if (handler != null) {
           handler.handle(sig);
         }
@@ -82,7 +82,7 @@ public class GfshSignalHandler extends AbstractSignalNotificationHandler impleme
   }
 
   private SignalHandler getOriginalSignalHandler(final Signal signal) {
-    final SignalHandler handler = originalSignalHandlers.get(signal);
+    final var handler = originalSignalHandlers.get(signal);
     return (handler == SignalHandler.SIG_DFL || handler == SignalHandler.SIG_IGN ? null : handler);
   }
 }

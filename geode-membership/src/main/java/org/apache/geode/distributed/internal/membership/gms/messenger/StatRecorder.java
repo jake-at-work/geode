@@ -18,7 +18,6 @@ import java.util.concurrent.RejectedExecutionException;
 
 import org.apache.logging.log4j.Logger;
 import org.jgroups.Event;
-import org.jgroups.Header;
 import org.jgroups.Message;
 import org.jgroups.conf.ClassConfigurator;
 import org.jgroups.protocols.FRAG2;
@@ -64,7 +63,7 @@ public class StatRecorder<ID extends MemberIdentifier> extends Protocol {
   public Object up(Event evt) {
     switch (evt.getType()) {
       case Event.MSG:
-        Message msg = (Message) evt.getArg();
+        var msg = (Message) evt.getArg();
         processForMulticast(msg, INCOMING);
         processForUnicast(msg, INCOMING);
         filter(msg, INCOMING);
@@ -76,7 +75,7 @@ public class StatRecorder<ID extends MemberIdentifier> extends Protocol {
   public Object down(Event evt) {
     switch (evt.getType()) {
       case Event.MSG:
-        Message msg = (Message) evt.getArg();
+        var msg = (Message) evt.getArg();
         processForMulticast(msg, OUTGOING);
         processForUnicast(msg, OUTGOING);
         filter(msg, OUTGOING);
@@ -106,7 +105,7 @@ public class StatRecorder<ID extends MemberIdentifier> extends Protocol {
   private void processForMulticast(Message msg, int direction) {
     Object o = msg.getHeader(nakackHeaderId);
     if (o instanceof NakAckHeader2 && stats != null) {
-      NakAckHeader2 hdr = (NakAckHeader2) o;
+      var hdr = (NakAckHeader2) o;
       switch (direction) {
         case INCOMING:
           stats.incMcastReadBytes((int) msg.size());
@@ -129,7 +128,7 @@ public class StatRecorder<ID extends MemberIdentifier> extends Protocol {
   private void processForUnicast(Message msg, int direction) {
     Object o = msg.getHeader(unicastHeaderId);
     if (o instanceof UNICAST3.Header && stats != null) {
-      UNICAST3.Header hdr = (UNICAST3.Header) o;
+      var hdr = (UNICAST3.Header) o;
       switch (direction) {
         case INCOMING:
           stats.incUcastReadBytes((int) msg.size());
@@ -148,8 +147,8 @@ public class StatRecorder<ID extends MemberIdentifier> extends Protocol {
 
   private void filter(Message msg, int direction) {
     if (direction == INCOMING) {
-      Header h = msg.getHeader(frag2HeaderId);
-      boolean copyBuffer = false;
+      var h = msg.getHeader(frag2HeaderId);
+      var copyBuffer = false;
       if (h != null && h instanceof FragHeader) {
         copyBuffer = true;
       } else {

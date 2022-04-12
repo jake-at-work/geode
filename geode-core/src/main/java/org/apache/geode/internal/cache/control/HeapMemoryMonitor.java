@@ -15,12 +15,10 @@
 package org.apache.geode.internal.cache.control;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryType;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,7 +47,6 @@ import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceT
 import org.apache.geode.internal.cache.control.MemoryThresholds.MemoryState;
 import org.apache.geode.internal.cache.control.ResourceAdvisor.ResourceManagerProfile;
 import org.apache.geode.internal.cache.execute.AllowExecutionInLowMemory;
-import org.apache.geode.internal.statistics.GemFireStatSampler;
 import org.apache.geode.internal.statistics.LocalStatListener;
 import org.apache.geode.internal.statistics.StatisticsManager;
 import org.apache.geode.logging.internal.executors.LoggingExecutors;
@@ -92,7 +89,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
   private static final MemoryPoolMXBean tenuredMemoryPoolMXBean;
   static {
     MemoryPoolMXBean matchingMemoryPoolMXBean = null;
-    for (MemoryPoolMXBean memoryPoolMXBean : ManagementFactory.getMemoryPoolMXBeans()) {
+    for (var memoryPoolMXBean : ManagementFactory.getMemoryPoolMXBeans()) {
       if (memoryPoolMXBean.isUsageThresholdSupported() && isTenured(memoryPoolMXBean)) {
         matchingMemoryPoolMXBean = memoryPoolMXBean;
         break;
@@ -118,9 +115,9 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
     if (tenuredMemoryPoolMXBean != null && tenuredMemoryPoolMXBean.getUsage().getMax() != -1) {
       tenuredPoolMaxMemory = tenuredMemoryPoolMXBean.getUsage().getMax();
     } else {
-      long calculatedMaxMemory = Runtime.getRuntime().maxMemory();
-      List<MemoryPoolMXBean> pools = ManagementFactory.getMemoryPoolMXBeans();
-      for (MemoryPoolMXBean p : pools) {
+      var calculatedMaxMemory = Runtime.getRuntime().maxMemory();
+      var pools = ManagementFactory.getMemoryPoolMXBeans();
+      for (var p : pools) {
         if (p.getType() == MemoryType.HEAP && p.getUsage().getMax() != -1) {
           calculatedMaxMemory -= p.getUsage().getMax();
         }
@@ -166,7 +163,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
       return false;
     }
 
-    String name = memoryPoolMXBean.getName();
+    var name = memoryPoolMXBean.getName();
 
     return name.equals("CMS Old Gen") // Sun Concurrent Mark Sweep GC
         || name.equals("PS Old Gen") // Sun Parallel GC
@@ -206,9 +203,9 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
    * Returns the names of all available memory pools as a single string.
    */
   private static String getAllMemoryPoolNames() {
-    StringBuilder builder = new StringBuilder("[");
+    var builder = new StringBuilder("[");
 
-    for (MemoryPoolMXBean memoryPoolBean : ManagementFactory.getMemoryPoolMXBeans()) {
+    for (var memoryPoolBean : ManagementFactory.getMemoryPoolMXBeans()) {
       builder.append("(Name=").append(memoryPoolBean.getName()).append(";Type=")
           .append(memoryPoolBean.getType()).append(";UsageThresholdSupported=")
           .append(memoryPoolBean.isUsageThresholdSupported()).append("), ");
@@ -244,7 +241,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
         return;
       }
 
-      final boolean statListenerStarted = startCacheStatListener();
+      final var statListenerStarted = startCacheStatListener();
 
       if (!statListenerStarted) {
         startMemoryPoolPoller();
@@ -270,7 +267,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
       resourceManager.stopExecutor(pollerExecutor);
 
       // Stop the JVM threshold listener
-      NotificationEmitter emitter = (NotificationEmitter) ManagementFactory.getMemoryMXBean();
+      var emitter = (NotificationEmitter) ManagementFactory.getMemoryMXBean();
       try {
         emitter.removeNotificationListener(this, null, null);
         if (logger.isDebugEnabled()) {
@@ -283,7 +280,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
       }
 
       // Stop the stats listener
-      final GemFireStatSampler sampler = cache.getInternalDistributedSystem().getStatSampler();
+      final var sampler = cache.getInternalDistributedSystem().getStatSampler();
       if (sampler != null) {
         sampler.removeLocalStatListener(statListener);
       }
@@ -293,9 +290,9 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
   }
 
   public static Statistics getTenuredPoolStatistics(StatisticsManager statisticsManager) {
-    String tenuredPoolName = getTenuredMemoryPoolMXBean().getName();
-    String tenuredPoolType = "PoolStats";
-    for (Statistics si : statisticsManager.getStatsList()) {
+    var tenuredPoolName = getTenuredMemoryPoolMXBean().getName();
+    var tenuredPoolType = "PoolStats";
+    for (var si : statisticsManager.getStatsList()) {
       if (si.getTextId().contains(tenuredPoolName)
           && si.getType().getName().contains(tenuredPoolType)) {
         return si;
@@ -310,14 +307,14 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
    * @return True of the listener was correctly started, false otherwise.
    */
   private boolean startCacheStatListener() {
-    final GemFireStatSampler sampler = cache.getInternalDistributedSystem().getStatSampler();
+    final var sampler = cache.getInternalDistributedSystem().getStatSampler();
     if (sampler == null) {
       return false;
     }
 
     try {
       sampler.waitForInitialization();
-      Statistics si = getTenuredPoolStatistics(
+      var si = getTenuredPoolStatistics(
           cache.getInternalDistributedSystem().getStatisticsManager());
       if (si != null) {
         sampler.addLocalStatListener(statListener, si, "currentUsedMemory");
@@ -462,14 +459,14 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
   public void updateStateAndSendEvent(long bytesUsed, String eventOrigin) {
     stats.changeTenuredHeapUsed(bytesUsed);
     synchronized (this) {
-      MemoryState oldState = mostRecentEvent.getState();
-      MemoryState newState = thresholds.computeNextState(oldState, bytesUsed);
+      var oldState = mostRecentEvent.getState();
+      var newState = thresholds.computeNextState(oldState, bytesUsed);
       if (oldState != newState) {
         setUsageThresholdOnMXBean(bytesUsed);
 
         currentState = newState;
 
-        MemoryEvent event = new MemoryEvent(ResourceType.HEAP_MEMORY, oldState, newState,
+        var event = new MemoryEvent(ResourceType.HEAP_MEMORY, oldState, newState,
             cache.getMyId(), bytesUsed, true, thresholds);
 
         upcomingEvent.set(event);
@@ -480,7 +477,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
         // number of bytes used changed, then go ahead and send the event
         // again with an updated number of bytes used.
       } else if (!oldState.isNormal() && bytesUsed != mostRecentEvent.getBytesUsed()) {
-        MemoryEvent event = new MemoryEvent(ResourceType.HEAP_MEMORY, oldState, newState,
+        var event = new MemoryEvent(ResourceType.HEAP_MEMORY, oldState, newState,
             cache.getMyId(), bytesUsed, true, thresholds);
         upcomingEvent.set(event);
         processLocalEvent(event, eventOrigin);
@@ -516,12 +513,12 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
    */
   @Override
   public void fillInProfile(final ResourceManagerProfile profile) {
-    final MemoryEvent tempEvent = upcomingEvent.get();
+    final var tempEvent = upcomingEvent.get();
     if (tempEvent != null) {
       mostRecentEvent = tempEvent;
       upcomingEvent.set(null);
     }
-    final MemoryEvent eventToPopulate = mostRecentEvent;
+    final var eventToPopulate = mostRecentEvent;
     profile.setHeapData(eventToPopulate.getBytesUsed(), eventToPopulate.getState(),
         eventToPopulate.getThresholds());
   }
@@ -554,7 +551,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
    * Package private for testing.
    */
   void startJVMThresholdListener() {
-    final MemoryPoolMXBean memoryPoolMXBean = getTenuredMemoryPoolMXBean();
+    final var memoryPoolMXBean = getTenuredMemoryPoolMXBean();
 
     // Set collection threshold to a low value, so that we can get
     // notifications after every GC run. After each such collection
@@ -564,13 +561,13 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
       memoryPoolMXBean.setCollectionUsageThreshold(1);
     }
 
-    final long usageThreshold = memoryPoolMXBean.getUsageThreshold();
+    final var usageThreshold = memoryPoolMXBean.getUsageThreshold();
     cache.getLogger().info(
         String.format("Overridding MemoryPoolMXBean heap threshold bytes %s on pool %s",
             usageThreshold, memoryPoolMXBean.getName()));
 
-    MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
-    NotificationEmitter emitter = (NotificationEmitter) mbean;
+    var mbean = ManagementFactory.getMemoryMXBean();
+    var emitter = (NotificationEmitter) mbean;
     emitter.addNotificationListener(this, null, null);
   }
 
@@ -678,7 +675,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
 
   public Set<DistributedMember> getHeapCriticalMembersFrom(
       Set<? extends DistributedMember> members) {
-    Set<DistributedMember> criticalMembers = getCriticalMembers();
+    var criticalMembers = getCriticalMembers();
     criticalMembers.retainAll(members);
     return criticalMembers;
   }
@@ -692,12 +689,12 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
   }
 
   public void checkForLowMemory(Function function, DistributedMember targetMember) {
-    Set<DistributedMember> targetMembers = Collections.singleton(targetMember);
+    var targetMembers = Collections.singleton(targetMember);
     checkForLowMemory(function, targetMembers);
   }
 
   public void checkForLowMemory(Function function, Set<? extends DistributedMember> dest) {
-    LowMemoryException exception = createLowMemoryIfNeeded(function, dest);
+    var exception = createLowMemoryIfNeeded(function, dest);
     if (exception != null) {
       throw exception;
     }
@@ -705,7 +702,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
 
   public LowMemoryException createLowMemoryIfNeeded(Function function,
       DistributedMember targetMember) {
-    Set<DistributedMember> targetMembers = Collections.singleton(targetMember);
+    var targetMembers = Collections.singleton(targetMember);
     return createLowMemoryIfNeeded(function, targetMembers);
   }
 
@@ -713,7 +710,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
       Set<? extends DistributedMember> memberSet) {
     if (function.optimizeForWrite() && !(function instanceof AllowExecutionInLowMemory)
         && !MemoryThresholds.isLowMemoryExceptionDisabled()) {
-      Set<DistributedMember> criticalMembersFrom = getHeapCriticalMembersFrom(memberSet);
+      var criticalMembersFrom = getHeapCriticalMembersFrom(memberSet);
       if (!criticalMembersFrom.isEmpty()) {
         return new LowMemoryException(
             String.format(
@@ -760,7 +757,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
     @Override
     @SuppressWarnings("synthetic-access")
     public void statValueChanged(double value) {
-      final long usedBytes = (long) value;
+      final var usedBytes = (long) value;
       try {
         resourceManager.runWithNotifyExecutor(() -> {
           if (!testDisableMemoryUpdates) {
@@ -823,7 +820,7 @@ public class HeapMemoryMonitor implements NotificationListener, MemoryMonitor {
       }
 
       thresholds = newThresholds;
-      final String builder =
+      final var builder =
           "In testing, the following values were set" + " maxMemoryBytes:"
               + newThresholds.getMaxMemoryBytes()
               + " criticalThresholdBytes:" + newThresholds.getCriticalThresholdBytes()

@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.distributed.DistributedMember;
@@ -38,7 +37,6 @@ import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.functions.ChangeLogLevelFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -64,20 +62,20 @@ public class ChangeLogLevelCommand extends GfshCommand {
       return ResultModel.createError(CliStrings.CHANGE_LOGLEVEL__MSG__SPECIFY_GRP_OR_MEMBER);
     }
 
-    Cache cache = getCache();
+    var cache = getCache();
 
     Set<DistributedMember> dsMembers = new HashSet<>();
-    Set<DistributedMember> ds = getAllMembers();
+    var ds = getAllMembers();
 
     if (grps != null && grps.length > 0) {
-      for (String grp : grps) {
+      for (var grp : grps) {
         dsMembers.addAll(cache.getDistributedSystem().getGroupMembers(grp));
       }
     }
 
     if (memberIds != null && memberIds.length > 0) {
-      for (String member : memberIds) {
-        for (DistributedMember mem : ds) {
+      for (var member : memberIds) {
+        for (var mem : ds) {
           if (mem.getName() != null
               && (mem.getName().equals(member) || mem.getId().equals(member))) {
             dsMembers.add(mem);
@@ -92,23 +90,22 @@ public class ChangeLogLevelCommand extends GfshCommand {
           "No members were found matching the given member IDs or groups.");
     }
 
-    ChangeLogLevelFunction logFunction = new ChangeLogLevelFunction();
+    var logFunction = new ChangeLogLevelFunction();
     FunctionService.registerFunction(logFunction);
-    Object[] functionArgs = new Object[1];
+    var functionArgs = new Object[1];
     functionArgs[0] = logLevel;
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
     @SuppressWarnings("unchecked")
     Execution<?, ?, ?> execution = FunctionService.onMembers(dsMembers).setArguments(functionArgs);
     if (execution == null) {
       return ResultModel.createError(CliStrings.CHANGE_LOGLEVEL__MSG__CANNOT_EXECUTE);
     }
-    List<?> resultList =
+    var resultList =
         (List<?>) executeFunction(logFunction, functionArgs, dsMembers).getResult();
 
-
-    TabularResultModel tableInfo = result.addTable("result");
+    var tableInfo = result.addTable("result");
     tableInfo.setColumnHeader(CliStrings.CHANGE_LOGLEVEL__COLUMN_MEMBER,
         CliStrings.CHANGE_LOGLEVEL__COLUMN_STATUS);
     for (Object object : resultList) {
@@ -121,8 +118,8 @@ public class ChangeLogLevelCommand extends GfshCommand {
 
         if (object != null) {
           @SuppressWarnings("unchecked")
-          Map<String, String> resultMap = (Map<String, String>) object;
-          Map.Entry<String, String> entry = resultMap.entrySet().iterator().next();
+          var resultMap = (Map<String, String>) object;
+          var entry = resultMap.entrySet().iterator().next();
 
           if (entry.getValue().contains("ChangeLogLevelFunction exception")) {
             tableInfo.addRow(entry.getKey(), "false");
@@ -145,7 +142,7 @@ public class ChangeLogLevelCommand extends GfshCommand {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
       // validate log level
-      String logLevel = parseResult.getParamValueAsString("loglevel");
+      var logLevel = parseResult.getParamValueAsString("loglevel");
       if (StringUtils.isBlank(logLevel) || LogLevel.getLevel(logLevel) == null) {
         return ResultModel.createError("Invalid log level: " + logLevel);
       }

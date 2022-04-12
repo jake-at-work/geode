@@ -18,11 +18,9 @@ package org.apache.geode.management.internal.beans.stats;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.internal.statistics.StatisticId;
 import org.apache.geode.internal.statistics.StatisticNotFoundException;
 import org.apache.geode.internal.statistics.StatisticsNotification;
 import org.apache.geode.internal.statistics.ValueMonitor;
@@ -77,10 +75,10 @@ public class GCStatsMonitor extends MBeanStatsMonitor {
     monitor.addListener(this);// if already listener is added this will be a no-op
     monitor.addStatistics(stats);
 
-    StatisticDescriptor[] descriptors = stats.getType().getStatistics();
-    for (StatisticDescriptor d : descriptors) {
-      String name = d.getName();
-      Number value = stats.get(d);
+    var descriptors = stats.getType().getStatistics();
+    for (var d : descriptors) {
+      var name = d.getName();
+      var value = stats.get(d);
       if (value == null) {
         continue;
       }
@@ -108,9 +106,9 @@ public class GCStatsMonitor extends MBeanStatsMonitor {
   @Override
   // this will be called each time a collector's stats changed
   public void handleNotification(StatisticsNotification notification) {
-    for (StatisticId statId : notification) {
-      StatisticDescriptor descriptor = statId.getStatisticDescriptor();
-      String name = descriptor.getName();
+    for (var statId : notification) {
+      var descriptor = statId.getStatisticDescriptor();
+      var name = descriptor.getName();
       Number value;
       try {
         value = notification.getValue(statId);

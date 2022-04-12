@@ -21,16 +21,13 @@ import static org.apache.geode.tools.pulse.internal.util.NameUtil.makeCompliantN
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import org.apache.geode.tools.pulse.internal.data.Cluster;
 import org.apache.geode.tools.pulse.internal.data.Repository;
 import org.apache.geode.tools.pulse.internal.util.TimeUtils;
 
@@ -62,17 +59,17 @@ public class MemberClientsService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    JsonNode requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
-    String memberName = requestDataJSON.get("MemberClients").get("memberName").textValue();
+    var requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
+    var memberName = requestDataJSON.get("MemberClients").get("memberName").textValue();
 
-    ArrayNode clientListJson = mapper.createArrayNode();
+    var clientListJson = mapper.createArrayNode();
 
-    Cluster.Member clusterMember = cluster.getMember(makeCompliantName(memberName));
+    var clusterMember = cluster.getMember(makeCompliantName(memberName));
     if (clusterMember != null) {
       responseJSON.put("memberId", clusterMember.getId());
       responseJSON.put(NAME, clusterMember.getName());
@@ -80,9 +77,9 @@ public class MemberClientsService implements PulseService {
 
       // member's clients
 
-      Cluster.Client[] memberClients = clusterMember.getMemberClients();
-      for (Cluster.Client memberClient : memberClients) {
-        ObjectNode regionJSON = mapper.createObjectNode();
+      var memberClients = clusterMember.getMemberClients();
+      for (var memberClient : memberClients) {
+        var regionJSON = mapper.createObjectNode();
         regionJSON.put("clientId", memberClient.getId());
         regionJSON.put(NAME, memberClient.getName());
         regionJSON.put(HOST, memberClient.getHost());

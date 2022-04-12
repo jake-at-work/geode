@@ -39,7 +39,7 @@ public class GatewayReceiverMBeanBridgeTest {
   @Before
   public void before() throws Exception {
     gatewayReceiver = mock(GatewayReceiver.class);
-    InternalCacheServer server = mock(InternalCacheServer.class);
+    var server = mock(InternalCacheServer.class);
     when(gatewayReceiver.getServer()).thenReturn(server);
     acceptor = mock(Acceptor.class);
     when(server.getAcceptor()).thenReturn(acceptor);
@@ -48,18 +48,18 @@ public class GatewayReceiverMBeanBridgeTest {
 
   @Test
   public void getStartPortDelegatesToGatewayReceiver() {
-    int startPort = 42;
+    var startPort = 42;
     when(gatewayReceiver.getStartPort()).thenReturn(startPort);
-    int value = bridge.getStartPort();
+    var value = bridge.getStartPort();
 
     assertThat(value).isEqualTo(startPort);
   }
 
   @Test
   public void getEndPortDelegatesToGatewayReceiver() {
-    int endPort = 84;
+    var endPort = 84;
     when(gatewayReceiver.getEndPort()).thenReturn(endPort);
-    int value = bridge.getEndPort();
+    var value = bridge.getEndPort();
 
     assertThat(value).isEqualTo(endPort);
   }
@@ -72,7 +72,7 @@ public class GatewayReceiverMBeanBridgeTest {
     when(acceptor.getAllServerConnections()).thenReturn(Collections.emptySet());
     assertThat(bridge.getConnectedGatewaySenders()).isNotNull().hasSize(0);
 
-    ServerConnection connection = mock(ServerConnection.class);
+    var connection = mock(ServerConnection.class);
     when(connection.getMembershipID()).thenReturn("testId");
     when(acceptor.getAllServerConnections()).thenReturn(Collections.singleton(connection));
     assertThat(bridge.getConnectedGatewaySenders()).containsExactly("testId");

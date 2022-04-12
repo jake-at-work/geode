@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +31,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.junit.Test;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ReplyException;
@@ -40,7 +38,6 @@ import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -52,8 +49,8 @@ public class StreamingOperationOneDUnitTest extends JUnit4DistributedTestCase {
 
     // ask another VM to connect to the distributed system
     // this will be the data provider, and get their member id at the same time
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
     class IDGetter implements Serializable {
       InternalDistributedMember getMemberId() {
@@ -66,7 +63,7 @@ public class StreamingOperationOneDUnitTest extends JUnit4DistributedTestCase {
         vm0.invoke(new IDGetter(), "getMemberId");
     Set setOfIds = Collections.singleton(otherId);
 
-    TestStreamingOperationOneProviderNoExceptions streamOp =
+    var streamOp =
         new TestStreamingOperationOneProviderNoExceptions(getSystem());
     streamOp.getDataFromAll(setOfIds);
     assertTrue(streamOp.dataValidated);
@@ -87,7 +84,7 @@ public class StreamingOperationOneDUnitTest extends JUnit4DistributedTestCase {
 
     @Override
     protected DistributionMessage createRequestMessage(Set recipients, ReplyProcessor21 processor) {
-      TestRequestStreamingMessageOneProviderNoExceptions msg =
+      var msg =
           new TestRequestStreamingMessageOneProviderNoExceptions();
       msg.processorId = processor == null ? 0 : processor.getProcessorId();
       msg.setRecipients(recipients);
@@ -97,10 +94,10 @@ public class StreamingOperationOneDUnitTest extends JUnit4DistributedTestCase {
     @Override
     protected synchronized boolean processData(List objects, InternalDistributedMember sender,
         int sequenceNum, boolean lastInSequence) {
-      LogWriter logger = sys.getLogWriter();
+      var logger = sys.getLogWriter();
 
       // assert that we haven't gotten this sequence number yet
-      Object prevValue = chunkMap.putIfAbsent(sequenceNum, objects);
+      var prevValue = chunkMap.putIfAbsent(sequenceNum, objects);
       if (prevValue != null) {
         logger.severe("prevValue != null");
       }
@@ -134,20 +131,20 @@ public class StreamingOperationOneDUnitTest extends JUnit4DistributedTestCase {
     private void validateData() {
       List[] arrayOfLists = new ArrayList[numChunks];
       List objList;
-      int expectedInt = 0;
-      LogWriter logger = sys.getLogWriter();
+      var expectedInt = 0;
+      var logger = sys.getLogWriter();
 
       // sort the input streams
-      for (final Object o : chunkMap.entrySet()) {
-        Map.Entry entry = (Map.Entry) o;
+      for (final var o : chunkMap.entrySet()) {
+        var entry = (Map.Entry) o;
         int seqNum = (Integer) entry.getKey();
         objList = (List) entry.getValue();
         arrayOfLists[seqNum] = objList;
       }
 
-      int count = 0;
-      for (int i = 0; i < numChunks; i++) {
-        Iterator itr = arrayOfLists[i].iterator();
+      var count = 0;
+      for (var i = 0; i < numChunks; i++) {
+        var itr = arrayOfLists[i].iterator();
         Integer nextInteger;
         while (itr.hasNext()) {
           nextInteger = (Integer) itr.next();

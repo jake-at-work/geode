@@ -63,10 +63,10 @@ public class EventDistributorTest {
 
   @Test
   public void firingEventRemovesListener() {
-    RedisKey keyA = new RedisKey("a".getBytes());
-    RedisKey keyB = new RedisKey("b".getBytes());
-    EventDistributor distributor = new EventDistributor();
-    TestEventListener listener = new TestEventListener(keyA, keyB);
+    var keyA = new RedisKey("a".getBytes());
+    var keyB = new RedisKey("b".getBytes());
+    var distributor = new EventDistributor();
+    var listener = new TestEventListener(keyA, keyB);
     distributor.registerListener(listener);
 
     distributor.fireEvent(null, keyA);
@@ -76,11 +76,11 @@ public class EventDistributorTest {
 
   @Test
   public void firingEventRemovesFirstListener_whenMultipleExist() {
-    RedisKey keyA = new RedisKey("a".getBytes());
-    RedisKey keyB = new RedisKey("b".getBytes());
-    EventDistributor distributor = new EventDistributor();
-    TestEventListener listener1 = new TestEventListener(keyA, keyB);
-    TestEventListener listener2 = new TestEventListener(keyA, keyB);
+    var keyA = new RedisKey("a".getBytes());
+    var keyB = new RedisKey("b".getBytes());
+    var distributor = new EventDistributor();
+    var listener1 = new TestEventListener(keyA, keyB);
+    var listener2 = new TestEventListener(keyA, keyB);
     distributor.registerListener(listener1);
     distributor.registerListener(listener2);
 
@@ -99,10 +99,10 @@ public class EventDistributorTest {
 
   @Test
   public void listenerIsRemovedAfterBucketMoves() {
-    RedisKey keyA = new RedisKey("a".getBytes());
-    RedisKey keyB = new RedisKey("b".getBytes());
-    EventDistributor distributor = new EventDistributor();
-    TestEventListener listener1 = new TestEventListener(keyA);
+    var keyA = new RedisKey("a".getBytes());
+    var keyB = new RedisKey("b".getBytes());
+    var distributor = new EventDistributor();
+    var listener1 = new TestEventListener(keyA);
     distributor.registerListener(listener1);
     distributor.registerListener(new TestEventListener(keyB));
 
@@ -115,10 +115,10 @@ public class EventDistributorTest {
 
   @Test
   public void concurrencyOfManyRegistrationsAndBucketMovementForTheSameKeys() {
-    EventDistributor distributor = new EventDistributor();
-    RedisKey keyA = new RedisKey("keyA".getBytes());
-    RedisKey keyB = new RedisKey("keyB".getBytes());
-    RedisKey keyC = new RedisKey("keyC".getBytes());
+    var distributor = new EventDistributor();
+    var keyA = new RedisKey("keyA".getBytes());
+    var keyB = new RedisKey("keyB".getBytes());
+    var keyC = new RedisKey("keyC".getBytes());
 
     // Should not produce any exceptions
     new ConcurrentLoopingThreads(10_000,
@@ -141,16 +141,16 @@ public class EventDistributorTest {
 
   @Test
   public void concurrencyOfManyRegistrationAndRemovalOfSameListener() {
-    EventDistributor distributor = new EventDistributor();
-    RedisKey keyA = new RedisKey("keyA".getBytes());
-    RedisKey keyB = new RedisKey("keyB".getBytes());
-    RedisKey keyC = new RedisKey("keyC".getBytes());
-    AtomicReference<EventListener> listenerRef1 =
-        new AtomicReference<>(new TestEventListener(keyA, keyB, keyC));
-    AtomicReference<EventListener> listenerRef2 =
-        new AtomicReference<>(new TestEventListener(keyB, keyC, keyA));
-    AtomicReference<EventListener> listenerRef3 =
-        new AtomicReference<>(new TestEventListener(keyC, keyA, keyB));
+    var distributor = new EventDistributor();
+    var keyA = new RedisKey("keyA".getBytes());
+    var keyB = new RedisKey("keyB".getBytes());
+    var keyC = new RedisKey("keyC".getBytes());
+    var listenerRef1 =
+        new AtomicReference<EventListener>(new TestEventListener(keyA, keyB, keyC));
+    var listenerRef2 =
+        new AtomicReference<EventListener>(new TestEventListener(keyB, keyC, keyA));
+    var listenerRef3 =
+        new AtomicReference<EventListener>(new TestEventListener(keyC, keyA, keyB));
 
     // Should not produce any exceptions
     new ConcurrentLoopingThreads(10_000,
@@ -183,15 +183,15 @@ public class EventDistributorTest {
    */
   @Test
   public void ensureNotRegisteringListenerOnQueueJustRemoved() {
-    EventDistributor distributor = new EventDistributor();
-    RedisKey keyA = new RedisKey("keyA".getBytes());
-    AtomicReference<EventListener> listenerRef1 =
-        new AtomicReference<>(new TestEventListener(keyA));
-    AtomicReference<EventListener> listenerRef2 =
-        new AtomicReference<>(new TestEventListener(keyA));
+    var distributor = new EventDistributor();
+    var keyA = new RedisKey("keyA".getBytes());
+    var listenerRef1 =
+        new AtomicReference<EventListener>(new TestEventListener(keyA));
+    var listenerRef2 =
+        new AtomicReference<EventListener>(new TestEventListener(keyA));
 
     distributor.registerListener(listenerRef1.get());
-    AtomicInteger iteration = new AtomicInteger(0);
+    var iteration = new AtomicInteger(0);
 
     new ConcurrentLoopingThreads(10_000,
         iteration::set,

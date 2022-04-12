@@ -83,7 +83,7 @@ public class GemFireBasicDataSource extends AbstractDataSource {
     // connection without username & password
     // we should just return the desired connection
     Connection connection = null;
-    Driver localDriverRef = driverObject;
+    var localDriverRef = driverObject;
     if (localDriverRef == null) {
       synchronized (this) {
         localDriverRef = driverObject;
@@ -95,7 +95,7 @@ public class GemFireBasicDataSource extends AbstractDataSource {
     }
 
     if (url != null) {
-      Properties props = new Properties();
+      var props = new Properties();
 
       // If no default username or password is specified don't add these properties - the user may
       // be connecting to a system which does not require authentication
@@ -110,7 +110,7 @@ public class GemFireBasicDataSource extends AbstractDataSource {
       }
       connection = driverObject.connect(url, props);
     } else {
-      String exception =
+      var exception =
           "GemFireBasicDataSource::getConnection:Url for the DataSource not available";
       logger.info(exception);
       throw new SQLException(exception);
@@ -140,9 +140,9 @@ public class GemFireBasicDataSource extends AbstractDataSource {
         return loadDriverUsingURL();
       }
     } catch (Exception ex) {
-      String msg =
+      var msg =
           "An Exception was caught while trying to load the driver. %s";
-      String msgArg = ex.getLocalizedMessage();
+      var msgArg = ex.getLocalizedMessage();
       logger.error(String.format(msg, msgArg), ex);
       throw new SQLException(String.format(msg, msgArg));
     }
@@ -154,7 +154,7 @@ public class GemFireBasicDataSource extends AbstractDataSource {
 
   private Driver loadDriverUsingClassName()
       throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-    Class<?> driverClass = ClassPathLoader.getLatest().forName(jdbcDriver);
+    var driverClass = ClassPathLoader.getLatest().forName(jdbcDriver);
     return (Driver) driverClass.newInstance();
   }
 }

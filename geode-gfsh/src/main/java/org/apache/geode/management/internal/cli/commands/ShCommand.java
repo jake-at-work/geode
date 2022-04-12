@@ -39,8 +39,8 @@ public class ShCommand extends OfflineGfshCommand {
           unspecifiedDefaultValue = "false",
           help = CliStrings.SH__USE_CONSOLE__HELP) boolean useConsole)
       throws IOException {
-    ResultModel result = new ResultModel();
-    InfoResultModel info = result.getInfoSection("info");
+    var result = new ResultModel();
+    var info = result.getInfoSection("info");
 
     executeCommand(info, Gfsh.getCurrentInstance(), command, useConsole);
 
@@ -51,25 +51,25 @@ public class ShCommand extends OfflineGfshCommand {
       boolean useConsole)
       throws IOException {
 
-    String cmdToExecute = userCommand;
-    String cmdExecutor = "/bin/sh";
-    String cmdExecutorOpt = "-c";
+    var cmdToExecute = userCommand;
+    var cmdExecutor = "/bin/sh";
+    var cmdExecutorOpt = "-c";
     if (SystemUtils.isWindows()) {
       cmdExecutor = "cmd";
       cmdExecutorOpt = "/c";
     } else if (useConsole) {
       cmdToExecute = cmdToExecute + " </dev/tty >/dev/tty";
     }
-    String[] commandArray = {cmdExecutor, cmdExecutorOpt, cmdToExecute};
+    var commandArray = new String[] {cmdExecutor, cmdExecutorOpt, cmdToExecute};
 
-    ProcessBuilder builder = new ProcessBuilder();
+    var builder = new ProcessBuilder();
     builder.command(commandArray);
     builder.directory();
     builder.redirectErrorStream();
-    Process proc = builder.start();
+    var proc = builder.start();
 
-    try (InputStreamReader inputStreamReader = new InputStreamReader(proc.getInputStream());
-        BufferedReader input = new BufferedReader(inputStreamReader)) {
+    try (var inputStreamReader = new InputStreamReader(proc.getInputStream());
+        var input = new BufferedReader(inputStreamReader)) {
 
       String lineRead;
       while ((lineRead = input.readLine()) != null) {

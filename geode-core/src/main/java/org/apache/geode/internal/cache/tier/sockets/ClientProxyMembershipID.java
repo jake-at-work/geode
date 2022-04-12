@@ -100,13 +100,13 @@ public class ClientProxyMembershipID
 
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
     if (isDurable()) {
       result = mult * result + getDurableId().hashCode();
     } else {
       if (identity != null && identity.length > 0) {
-        for (final byte b : identity) {
+        for (final var b : identity) {
           result = mult * result + b;
         }
       }
@@ -126,11 +126,11 @@ public class ClientProxyMembershipID
     if (!(obj instanceof ClientProxyMembershipID)) {
       return false;
     }
-    ClientProxyMembershipID that = (ClientProxyMembershipID) obj;
+    var that = (ClientProxyMembershipID) obj;
     if (uniqueId != that.uniqueId) {
       return false;
     }
-    boolean isDurable = isDurable();
+    var isDurable = isDurable();
     if (isDurable && !that.isDurable()) {
       return false;
     }
@@ -169,7 +169,7 @@ public class ClientProxyMembershipID
    * method to obtain ClientProxyMembership for client side
    */
   public static synchronized ClientProxyMembershipID getNewProxyMembership(DistributedSystem sys) {
-    byte[] ba = initializeAndGetDSIdentity(sys);
+    var ba = initializeAndGetDSIdentity(sys);
     return new ClientProxyMembershipID(++synch_counter, ba);
   }
 
@@ -185,11 +185,11 @@ public class ClientProxyMembershipID
           "Attempting to handshake with CacheServer before creating DistributedSystem and Cache.");
     }
     systemMemberId = sys.getDistributedMember();
-    try (HeapDataOutputStream hdos = new HeapDataOutputStream(256, KnownVersion.CURRENT)) {
+    try (var hdos = new HeapDataOutputStream(256, KnownVersion.CURRENT)) {
       if (systemMemberId != null) {
         // update the durable id of the member identifier before serializing in case
         // a pool name has been established
-        DurableClientAttributes attributes = systemMemberId.getDurableClientAttributes();
+        var attributes = systemMemberId.getDurableClientAttributes();
         if (attributes != null && attributes.getId().length() > 0) {
           ((InternalDistributedMember) systemMemberId).setDurableId(attributes.getId());
         }
@@ -208,9 +208,9 @@ public class ClientProxyMembershipID
   }
 
   private static int getUniqueId(final int id) {
-    final boolean specialCase =
+    final var specialCase =
         Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "SPECIAL_DURABLE");
-    final String durableID = system.getProperties().getProperty(DURABLE_CLIENT_ID);
+    final var durableID = system.getProperties().getProperty(DURABLE_CLIENT_ID);
     if (specialCase && durableID != null && (!durableID.equals(""))) {
       return durable_synch_counter;
     } else {
@@ -251,11 +251,11 @@ public class ClientProxyMembershipID
    * returns a string representation of this identifier, ignoring the toString cache
    */
   public String toStringNoCache() {
-    StringBuilder sb =
+    var sb =
         new StringBuilder("identity(").append(getDSMembership()).append(",connection=")
             .append(uniqueId);
     if (identity != null) {
-      DurableClientAttributes dca = getDurableAttributes();
+      var dca = getDurableAttributes();
       if (dca.getId().length() > 0) {
         sb.append(",durableAttributes=").append(dca).append(')');
       }
@@ -329,11 +329,11 @@ public class ClientProxyMembershipID
 
   private String getMemberIdAsString() {
     final String memberIdAsString;
-    InternalDistributedMember idm = (InternalDistributedMember) getDistributedMember();
+    var idm = (InternalDistributedMember) getDistributedMember();
     if (getClientVersion().isOlderThan(KnownVersion.GFE_90)) {
       memberIdAsString = idm.toString();
     } else {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       idm.addFixedToString(sb, !SocketCreator.resolve_dns);
       memberIdAsString = sb.toString();
     }
@@ -345,9 +345,9 @@ public class ClientProxyMembershipID
    * used during deserialization to reduce storage overhead.
    */
   private ClientProxyMembershipID canonicalReference() {
-    CacheClientNotifier ccn = CacheClientNotifier.getInstance();
+    var ccn = CacheClientNotifier.getInstance();
     if (ccn != null) {
-      CacheClientProxy cp = ccn.getClientProxy(this, true);
+      var cp = ccn.getClientProxy(this, true);
       if (cp != null) {
         if (isCanonicalEquals(cp.getProxyID())) {
           return cp.getProxyID();
@@ -364,7 +364,7 @@ public class ClientProxyMembershipID
 
   public DistributedMember getDistributedMember() {
     if (memberId == null) {
-      try (ByteArrayDataInput dataInput = new ByteArrayDataInput(identity)) {
+      try (var dataInput = new ByteArrayDataInput(identity)) {
         memberId = DataSerializer.readObject(dataInput);
       } catch (Exception e) {
         logger.error("Unable to deserialize membership id", e);
@@ -380,7 +380,7 @@ public class ClientProxyMembershipID
    * @since GemFire 5.5
    */
   public boolean isDurable() {
-    String durableClientId = getDistributedMember().getDurableClientAttributes().getId();
+    var durableClientId = getDistributedMember().getDurableClientAttributes().getId();
     return durableClientId != null && !(durableClientId.length() == 0);
   }
 
@@ -401,7 +401,7 @@ public class ClientProxyMembershipID
    * @since GemFire 5.5
    */
   public String getDurableId() {
-    DurableClientAttributes dca = getDurableAttributes();
+    var dca = getDurableAttributes();
     return dca == null ? "" : dca.getId();
   }
 
@@ -412,7 +412,7 @@ public class ClientProxyMembershipID
    * @since GemFire 5.5
    */
   protected int getDurableTimeout() {
-    DurableClientAttributes dca = getDurableAttributes();
+    var dca = getDurableAttributes();
     return dca == null ? 0 : dca.getTimeout();
   }
 
@@ -420,7 +420,7 @@ public class ClientProxyMembershipID
    * Used to update the timeout when a durable client comes back to a server
    */
   public void updateDurableTimeout(int newValue) {
-    InternalDistributedMember member = (InternalDistributedMember) getDistributedMember();
+    var member = (InternalDistributedMember) getDistributedMember();
     member.setDurableTimeout(newValue);
   }
 
@@ -431,7 +431,7 @@ public class ClientProxyMembershipID
       value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
       justification = "Only applicable in client DS and in that case too multiple instances do not modify it at the same time.")
   public void updateID(DistributedMember idm) {
-    try (HeapDataOutputStream hdos = new HeapDataOutputStream(256, KnownVersion.CURRENT)) {
+    try (var hdos = new HeapDataOutputStream(256, KnownVersion.CURRENT)) {
       try {
         DataSerializer.writeObject(idm, hdos);
       } catch (IOException e) {
@@ -515,11 +515,11 @@ public class ClientProxyMembershipID
 
     @Override
     public int hashCode() {
-      int result = 17;
-      final int mult = 37;
-      byte[] idBytes = getMemberIdBytes();
+      var result = 17;
+      final var mult = 37;
+      var idBytes = getMemberIdBytes();
       if (idBytes != null && idBytes.length > 0) {
-        for (final byte idByte : idBytes) {
+        for (final var idByte : idBytes) {
           result = mult * result + idByte;
         }
       }
@@ -532,7 +532,7 @@ public class ClientProxyMembershipID
       if (!(obj instanceof Identity)) {
         return false;
       }
-      ClientProxyMembershipID.Identity that = (ClientProxyMembershipID.Identity) obj;
+      var that = (ClientProxyMembershipID.Identity) obj;
       return (getUniqueId() == that.getUniqueId()
           && Arrays.equals(getMemberIdBytes(), that.getMemberIdBytes()));
     }

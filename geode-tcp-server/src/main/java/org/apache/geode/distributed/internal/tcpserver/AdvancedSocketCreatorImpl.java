@@ -39,7 +39,7 @@ public class AdvancedSocketCreatorImpl implements AdvancedSocketCreator {
     // customers want tcp/ip keep-alive turned on by default
     // to avoid dropped connections. It can be turned off by setting this
     // property to false
-    String str = System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "setTcpKeepAlive");
+    var str = System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "setTcpKeepAlive");
     if (str != null) {
       ENABLE_TCP_KEEP_ALIVE = Boolean.parseBoolean(str);
     } else {
@@ -97,7 +97,7 @@ public class AdvancedSocketCreatorImpl implements AdvancedSocketCreator {
       if (optionalWatcher != null) {
         optionalWatcher.beforeConnect(socket);
       }
-      InetSocketAddress inetSocketAddress = addr.getSocketInetAddress();
+      var inetSocketAddress = addr.getSocketInetAddress();
       try {
         socket.connect(inetSocketAddress, Math.max(timeout, 0));
       } catch (ConnectException connectException) {
@@ -119,10 +119,10 @@ public class AdvancedSocketCreatorImpl implements AdvancedSocketCreator {
       boolean sslConnection) throws IOException {
     try {
       // Get a random port from range.
-      int startingPort = tcpPortRange[0]
+      var startingPort = tcpPortRange[0]
           + ThreadLocalRandom.current().nextInt(tcpPortRange[1] - tcpPortRange[0] + 1);
-      int localPort = startingPort;
-      int portLimit = tcpPortRange[1];
+      var localPort = startingPort;
+      var portLimit = tcpPortRange[1];
 
       while (true) {
         if (localPort > portLimit) {
@@ -139,10 +139,10 @@ public class AdvancedSocketCreatorImpl implements AdvancedSocketCreator {
         ServerSocket socket = null;
         try {
           if (useNIO) {
-            ServerSocketChannel channel = ServerSocketChannel.open();
+            var channel = ServerSocketChannel.open();
             socket = channel.socket();
 
-            InetSocketAddress address =
+            var address =
                 new InetSocketAddress(isBindAddress ? ba : null, localPort);
             socket.bind(address, backlog);
           } else {

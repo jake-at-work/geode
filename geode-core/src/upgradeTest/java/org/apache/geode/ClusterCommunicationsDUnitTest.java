@@ -48,7 +48,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +73,6 @@ import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.DMStats;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -163,21 +161,21 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
   @Test
   public void applicationUseOfDLockWithNoAckCacheOps() throws Exception {
     useDAck = false; // use no-ack scope
-    DUnitBlackboard dUnitBlackboard = new DUnitBlackboard();
-    int locatorPort = createLocator(getVM(0));
-    for (int i = 1; i <= NUM_SERVERS; i++) {
+    var dUnitBlackboard = new DUnitBlackboard();
+    var locatorPort = createLocator(getVM(0));
+    for (var i = 1; i <= NUM_SERVERS; i++) {
       createCacheAndRegion(getVM(i), locatorPort);
     }
     performCreate(getVM(1));
     getVM(1).invoke("initialize dlock service", () -> {
-      DistributedLockService distLockService =
+      var distLockService =
           DistributedLockService.create("testLockService", cache.getDistributedSystem());
       distLockService.lock("myLock", 50000, 50000);
     });
-    AsyncInvocation async = waitForTheLockAsync(dUnitBlackboard, true);
-    for (int i = 0; i < 5; i++) {
+    var async = waitForTheLockAsync(dUnitBlackboard, true);
+    for (var i = 0; i < 5; i++) {
       getVM(1).invoke("update cache and release lock in vm1", () -> {
-        DistributedLockService distLockService =
+        var distLockService =
             DistributedLockService.getServiceNamed("testLockService");
         try {
           DistributedSystem.setThreadsSocketPolicy(false);
@@ -189,12 +187,12 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
       });
       async.get(30, TimeUnit.SECONDS);
       getVM(2).invoke("release the lock in vm2 to try again", () -> {
-        DistributedLockService distLockService =
+        var distLockService =
             DistributedLockService.getServiceNamed("testLockService");
         distLockService.unlock("myLock");
       });
       getVM(1).invoke("grab the lock in vm1", () -> {
-        DistributedLockService distLockService =
+        var distLockService =
             DistributedLockService.getServiceNamed("testLockService");
         distLockService.lock("myLock", 50000, 50000);
       });
@@ -207,10 +205,10 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
       throws Exception {
     dUnitBlackboard.clearGate("waitingForLock");
     AsyncInvocation async = getVM(2).invokeAsync("wait for the lock", () -> {
-      DistributedLockService distLockService = initialWait
+      var distLockService = initialWait
           ? DistributedLockService.create("testLockService", cache.getDistributedSystem())
           : DistributedLockService.getServiceNamed("testLockService");
-      final DUnitBlackboard myBlackboard = new DUnitBlackboard();
+      final var myBlackboard = new DUnitBlackboard();
       myBlackboard.signalGate("waitingForLock");
       distLockService.lock("myLock", 50000, 50000);
     });
@@ -224,45 +222,45 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
 
   @Test
   public void createEntryAndVerifyUpdate() {
-    int locatorPort = createLocator(getVM(0));
-    for (int i = 1; i <= NUM_SERVERS; i++) {
+    var locatorPort = createLocator(getVM(0));
+    for (var i = 1; i <= NUM_SERVERS; i++) {
       createCacheAndRegion(getVM(i), locatorPort);
     }
     performCreate(getVM(1));
-    for (int i = 1; i <= NUM_SERVERS; i++) {
+    for (var i = 1; i <= NUM_SERVERS; i++) {
       verifyCreatedEntry(getVM(i));
     }
-    for (int iteration = 1; iteration < 6; iteration++) {
+    for (var iteration = 1; iteration < 6; iteration++) {
       performUpdate(getVM(1));
     }
-    for (int i = 1; i <= NUM_SERVERS; i++) {
+    for (var i = 1; i <= NUM_SERVERS; i++) {
       verifyUpdatedEntry(getVM(i));
     }
   }
 
   @Test
   public void createEntryWithBigMessage() {
-    int locatorPort = createLocator(getVM(0));
-    for (int i = 1; i <= NUM_SERVERS; i++) {
+    var locatorPort = createLocator(getVM(0));
+    for (var i = 1; i <= NUM_SERVERS; i++) {
       createCacheAndRegion(getVM(i), locatorPort);
     }
     performCreateWithLargeValue(getVM(1));
     // fault the value into an empty cache - forces use of message chunking
-    for (int i = 1; i <= NUM_SERVERS - 1; i++) {
+    for (var i = 1; i <= NUM_SERVERS - 1; i++) {
       verifyCreatedEntry(getVM(i));
     }
   }
 
   @Test
   public void receiveBigResponse() {
-    int locatorPort = createLocator(getVM(0));
-    for (int i = 1; i <= NUM_SERVERS; i++) {
+    var locatorPort = createLocator(getVM(0));
+    for (var i = 1; i <= NUM_SERVERS; i++) {
       createCacheAndRegion(getVM(i), locatorPort);
     }
-    DistributedMember vm2ID =
+    var vm2ID =
         getVM(2).invoke(() -> cache.getDistributedSystem().getDistributedMember());
     getVM(1).invoke("receive a large direct-reply message", () -> {
-      SerialAckedMessageWithBigReply messageWithBigReply = new SerialAckedMessageWithBigReply();
+      var messageWithBigReply = new SerialAckedMessageWithBigReply();
       await().until(() -> {
         messageWithBigReply.send(Collections.singleton(vm2ID));
         return true;
@@ -272,13 +270,13 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
 
   @Test
   public void performARollingUpgrade() {
-    List<String> testVersions = VersionManager.getInstance().getVersionsWithoutCurrent();
-    String testVersion = testVersions.get(testVersions.size() - 1);
+    var testVersions = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var testVersion = testVersions.get(testVersions.size() - 1);
 
     // create a cluster with the previous version of Geode
-    VM locatorVM = Host.getHost(0).getVM(testVersion, 0);
-    VM server1VM = Host.getHost(0).getVM(testVersion, 1);
-    int locatorPort = createLocator(locatorVM, true);
+    var locatorVM = Host.getHost(0).getVM(testVersion, 0);
+    var server1VM = Host.getHost(0).getVM(testVersion, 1);
+    var locatorPort = createLocator(locatorVM, true);
     createCacheAndRegion(server1VM, locatorPort);
     performCreate(getVM(1));
 
@@ -288,7 +286,7 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
     locatorVM.invoke("roll locator to current version", () -> {
       // if you need to debug SSL communications use this property:
       // System.setProperty("javax.net.debug", "all");
-      Properties props = getDistributedSystemProperties();
+      var props = getDistributedSystemProperties();
       props.setProperty(HTTP_SERVICE_PORT, "0");
       // locator must restart with the same port so that it reconnects to the server
       await().atMost(getTimeout().getSeconds(), TimeUnit.SECONDS)
@@ -298,7 +296,7 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
     });
 
     // start server2 with current version
-    VM server2VM = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, 2);
+    var server2VM = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, 2);
     createCacheAndRegion(server2VM, locatorPort);
 
     // roll server1 to the current version
@@ -326,9 +324,9 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
 
   private void performUpdate(VM memberVM) {
     memberVM.invoke("perform update", () -> {
-      DMStats stats = ((InternalDistributedSystem) cache.getDistributedSystem())
+      var stats = ((InternalDistributedSystem) cache.getDistributedSystem())
           .getDistributionManager().getStats();
-      long reconnectAttempts = stats.getReconnectAttempts();
+      var reconnectAttempts = stats.getReconnectAttempts();
       cache.getRegion(regionName).put("testKey", "updatedTestValue");
       assertThat(stats.getReconnectAttempts()).isEqualTo(reconnectAttempts);
     });
@@ -336,7 +334,7 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
 
   private void performCreateWithLargeValue(VM memberVM) {
     memberVM.invoke("perform create", () -> {
-      byte[] value = new byte[SMALL_BUFFER_SIZE * 20];
+      var value = new byte[SMALL_BUFFER_SIZE * 20];
       Arrays.fill(value, (byte) 1);
       cache.getRegion(regionName).put("testKey", value);
     });
@@ -357,7 +355,7 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
   }
 
   private int createLocator(VM memberVM, boolean usingOldVersion) {
-    int port = usingOldVersion ? getRandomAvailableTCPPort() : 0;
+    var port = usingOldVersion ? getRandomAvailableTCPPort() : 0;
     return memberVM.invoke("create locator", () -> {
       // if you need to debug SSL communications use this property:
       // System.setProperty("javax.net.debug", "all");
@@ -368,7 +366,7 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
         if (usingOldVersion) {
           DistributedTestUtils.deleteLocatorStateFile(port);
         }
-        Properties dsProperties = getDistributedSystemProperties();
+        var dsProperties = getDistributedSystemProperties();
         dsProperties.setProperty(HTTP_SERVICE_PORT, "0");
         return Locator.startLocatorAndDS(port, new File(""), dsProperties)
             .getPort();
@@ -381,13 +379,13 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
   private Cache createCache(int locatorPort) {
     // if you need to debug SSL communications use this property:
     // System.setProperty("javax.net.debug", "all");
-    Properties properties = getDistributedSystemProperties();
+    var properties = getDistributedSystemProperties();
     properties.setProperty(LOCATORS, "localhost[" + locatorPort + "]");
     return new CacheFactory(properties).create();
   }
 
   public Properties getDistributedSystemProperties() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     properties.setProperty(USE_CLUSTER_CONFIGURATION, "false");
     properties.setProperty(NAME, "vm" + VM.getCurrentVMNum());
@@ -446,7 +444,7 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
     private DirectReplyProcessor replyProcessor;
 
     public SerialAckedMessageWithBigReply() {
-      InternalDistributedSystem ds = InternalDistributedSystem.getAnyInstance();
+      var ds = InternalDistributedSystem.getAnyInstance();
       // this constructor is used in serialization as well as when sending to others
       if (ds != null) {
         originDm = (ClusterDistributionManager) ds.getDistributionManager();
@@ -462,7 +460,7 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
       setRecipients(recipients);
       Set failures = originDm.putOutgoing(this);
       if (failures != null && !failures.isEmpty()) {
-        for (Object failure : failures) {
+        for (var failure : failures) {
           System.err.println("Unable to send serial acked message to " + failure);
         }
       }
@@ -485,10 +483,10 @@ public class ClusterCommunicationsDUnitTest implements Serializable {
 
     @Override
     protected void process(ClusterDistributionManager dm) {
-      ReplyMessage reply = new ReplyMessage();
+      var reply = new ReplyMessage();
       reply.setProcessorId(processorId);
       reply.setRecipient(getSender());
-      byte[] returnValue = new byte[SMALL_BUFFER_SIZE * 6];
+      var returnValue = new byte[SMALL_BUFFER_SIZE * 6];
       reply.setReturnValue(returnValue);
       System.out.println("<" + Thread.currentThread().getName() +
           "> sending reply with return value size "

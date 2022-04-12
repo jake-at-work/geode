@@ -42,8 +42,8 @@ import org.apache.geode.cache.query.types.ObjectType;
 public class PathUtils {
 
   public static String[] tokenizePath(String path) {
-    ArrayList alist = new ArrayList();
-    StringTokenizer tokenizer = new StringTokenizer(path, ".");
+    var alist = new ArrayList();
+    var tokenizer = new StringTokenizer(path, ".");
     while (tokenizer.hasMoreTokens()) {
       alist.add(tokenizer.nextToken());
     }
@@ -52,9 +52,9 @@ public class PathUtils {
 
   public static String buildPathString(String[] path) {
     Support.assertArg(path != null && path.length > 0, "path should not be null or empty");
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append(path[0]);
-    for (int i = 1; i < path.length; i++) {
+    for (var i = 1; i < path.length; i++) {
       buf.append('.');
       buf.append(path[i]);
     }
@@ -64,7 +64,7 @@ public class PathUtils {
   public static Object evaluateAttribute(ExecutionContext context, Object target, String attribute)
       throws NameNotFoundException, QueryInvocationTargetException {
     if (target instanceof Struct) {
-      Struct struct = (Struct) target;
+      var struct = (Struct) target;
       try {
         return struct.get(attribute);
       } catch (Exception e) {
@@ -106,13 +106,13 @@ public class PathUtils {
    */
   public static ObjectType[] calculateTypesAlongPath(ExecutionContext context,
       ObjectType initialType, String[] pathArray) throws NameNotFoundException {
-    ObjectType[] types = new ObjectType[pathArray.length + 1];
+    var types = new ObjectType[pathArray.length + 1];
     // initialClass goes in front
     types[0] = initialType;
 
-    for (int i = 1; i < types.length; i++) {
-      ObjectType currentType = types[i - 1];
-      Member member = new AttributeDescriptor(context.getCache().getPdxRegistry(), pathArray[i - 1])
+    for (var i = 1; i < types.length; i++) {
+      var currentType = types[i - 1];
+      var member = new AttributeDescriptor(context.getCache().getPdxRegistry(), pathArray[i - 1])
           .getReadMember(currentType.resolveClass());
 
       if (member instanceof Field) {
@@ -129,15 +129,15 @@ public class PathUtils {
       CompiledValue expr) throws AmbiguousNameException {
     try {
 
-      ObjectType type = TypeUtils.OBJECT_TYPE;
+      var type = TypeUtils.OBJECT_TYPE;
       List exprSteps = new ArrayList();
       while (true) {
         if (expr instanceof CompiledPath) {
-          CompiledPath path = (CompiledPath) expr;
+          var path = (CompiledPath) expr;
           exprSteps.add(0, path.getTailID());
           expr = path.getReceiver();
         } else if (expr instanceof CompiledOperation) {
-          CompiledOperation operation = (CompiledOperation) expr;
+          var operation = (CompiledOperation) expr;
           if (operation.getArguments().size() > 0) {
             return TypeUtils.OBJECT_TYPE;
           }
@@ -150,7 +150,7 @@ public class PathUtils {
         } else if (expr instanceof CompiledID) {
           expr = context.resolve(((CompiledID) expr).getId());
         } else if (expr instanceof CompiledRegion) {
-          QRegion qrgn = (QRegion) ((CompiledRegion) expr).evaluate(context);
+          var qrgn = (QRegion) ((CompiledRegion) expr).evaluate(context);
           type = qrgn.getCollectionType();
           break;
         } else if (expr instanceof RuntimeIterator) {
@@ -161,10 +161,10 @@ public class PathUtils {
         }
       }
       if (!TypeUtils.OBJECT_TYPE.equals(type)) {
-        Class clazz = type.resolveClass();
-        for (Object exprStep : exprSteps) {
+        var clazz = type.resolveClass();
+        for (var exprStep : exprSteps) {
           Member member;
-          String stepStr = (String) exprStep;
+          var stepStr = (String) exprStep;
           // System.out.println("step = "+step);
           if (stepStr.endsWith("()")) {
             stepStr = stepStr.substring(0, stepStr.length() - 2);
@@ -198,10 +198,10 @@ public class PathUtils {
    */
   public static List<CompiledValue> collectCompiledValuesInThePath(CompiledValue expr,
       ExecutionContext context) throws AmbiguousNameException, TypeMismatchException {
-    boolean toContinue = true;
+    var toContinue = true;
     List<CompiledValue> retList = new ArrayList<>();
 
-    int exprType = expr.getType();
+    var exprType = expr.getType();
     while (toContinue) {
       switch (exprType) {
         case OQLLexerTokenTypes.RegionPath:
@@ -210,7 +210,7 @@ public class PathUtils {
           break;
         case OQLLexerTokenTypes.METHOD_INV:
           retList.add(expr);
-          CompiledOperation operation = (CompiledOperation) expr;
+          var operation = (CompiledOperation) expr;
           expr = operation.getReceiver(null/*
                                             * pass the ExecutionContext as null, thus never
                                             * implicitly resolving to RuntimeIterator
@@ -233,7 +233,7 @@ public class PathUtils {
           expr = expr.getReceiver();
           break;
         case OQLLexerTokenTypes.Identifier:
-          CompiledID cid = (CompiledID) expr;
+          var cid = (CompiledID) expr;
           expr = context.resolve(cid.getId());
           break;
         default:

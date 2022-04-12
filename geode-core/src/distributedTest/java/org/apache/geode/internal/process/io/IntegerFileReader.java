@@ -31,7 +31,7 @@ public class IntegerFileReader {
 
   public int readFromFile() throws IOException {
     assertThat(file).exists();
-    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+    try (var bufferedReader = new BufferedReader(new FileReader(file))) {
       return Integer.parseInt(bufferedReader.readLine());
     }
   }

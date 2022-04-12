@@ -156,7 +156,7 @@ public class MemberClusterStatsMonitor {
   public void incSystemDiskStoreCount(FederationComponent newState, FederationComponent oldState) {
     if (oldState != null) {
       if (oldState.getValue(SYSTEM_DISK_STORE_COUNT) != null) {
-        String[] diskStores = (String[]) oldState.getValue(SYSTEM_DISK_STORE_COUNT);
+        var diskStores = (String[]) oldState.getValue(SYSTEM_DISK_STORE_COUNT);
         if (diskStores != null) {
           systemDiskStoreCount.addAndGet(-diskStores.length);// Used Atomic
                                                              // Integer to avoid
@@ -172,7 +172,7 @@ public class MemberClusterStatsMonitor {
     }
     if (newState != null) {
       if (newState.getValue(SYSTEM_DISK_STORE_COUNT) != null) {
-        String[] diskStores = (String[]) newState.getValue(SYSTEM_DISK_STORE_COUNT);
+        var diskStores = (String[]) newState.getValue(SYSTEM_DISK_STORE_COUNT);
         if (diskStores != null) {
           systemDiskStoreCount.addAndGet(diskStores.length);// Used Atomic
                                                             // Integer to

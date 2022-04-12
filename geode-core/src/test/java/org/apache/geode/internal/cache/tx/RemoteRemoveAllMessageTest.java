@@ -28,8 +28,8 @@ public class RemoteRemoveAllMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    RemoteRemoveAllMessage mockRemoteRemoveAllMessage = mock(RemoteRemoveAllMessage.class);
-    DataInput mockDataInput = mock(DataInput.class);
+    var mockRemoteRemoveAllMessage = mock(RemoteRemoveAllMessage.class);
+    var mockDataInput = mock(DataInput.class);
 
     mockRemoteRemoveAllMessage.fromData(mockDataInput, null);
 

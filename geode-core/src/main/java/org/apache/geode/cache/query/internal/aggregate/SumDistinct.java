@@ -22,7 +22,7 @@ public class SumDistinct extends DistinctAggregator {
   @Override
   public Object terminate() {
     double sum = 0;
-    for (Object o : distinct) {
+    for (var o : distinct) {
       sum += ((Number) o).doubleValue();
     }
 

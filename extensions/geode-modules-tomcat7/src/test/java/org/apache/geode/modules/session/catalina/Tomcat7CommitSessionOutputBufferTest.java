@@ -26,7 +26,6 @@ import org.apache.coyote.OutputBuffer;
 import org.apache.coyote.Response;
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 public class Tomcat7CommitSessionOutputBufferTest {
 
@@ -38,12 +37,12 @@ public class Tomcat7CommitSessionOutputBufferTest {
 
   @Test
   public void doWrite() throws IOException {
-    final ByteChunk byteChunk = new ByteChunk();
-    final Response response = new Response();
+    final var byteChunk = new ByteChunk();
+    final var response = new Response();
 
     commitSesssionOutputBuffer.doWrite(byteChunk, response);
 
-    final InOrder inOrder = inOrder(sessionCommitter, delegate);
+    final var inOrder = inOrder(sessionCommitter, delegate);
     inOrder.verify(sessionCommitter).commit();
     inOrder.verify(delegate).doWrite(byteChunk, response);
     inOrder.verifyNoMoreInteractions();
@@ -56,7 +55,7 @@ public class Tomcat7CommitSessionOutputBufferTest {
 
     assertThat(commitSesssionOutputBuffer.getBytesWritten()).isEqualTo(42L);
 
-    final InOrder inOrder = inOrder(sessionCommitter, delegate);
+    final var inOrder = inOrder(sessionCommitter, delegate);
     inOrder.verify(delegate).getBytesWritten();
     inOrder.verifyNoMoreInteractions();
   }

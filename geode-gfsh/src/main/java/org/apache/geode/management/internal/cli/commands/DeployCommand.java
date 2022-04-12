@@ -36,24 +36,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.ManagementAgent;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
-import org.apache.geode.management.internal.cli.domain.DeploymentInfo;
 import org.apache.geode.management.internal.cli.functions.DeployFunction;
 import org.apache.geode.management.internal.cli.remote.CommandExecutionContext;
 import org.apache.geode.management.internal.cli.remote.CommandExecutor;
 import org.apache.geode.management.internal.cli.result.model.FileResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.cli.util.DeploymentInfoTableUtil;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -88,10 +84,10 @@ public class DeployCommand extends GfshCommand {
           help = CliStrings.DEPLOY__DIR__HELP) String dir)
       throws IOException {
 
-    ResultModel result = new ResultModel();
-    TabularResultModel deployResult = result.addTable("deployResult");
+    var result = new ResultModel();
+    var deployResult = result.addTable("deployResult");
 
-    List<String> jarFullPaths = CommandExecutionContext.getFilePathFromShell();
+    var jarFullPaths = CommandExecutionContext.getFilePathFromShell();
 
     verifyJarContent(jarFullPaths);
 
@@ -99,14 +95,14 @@ public class DeployCommand extends GfshCommand {
     targetMembers = findMembers(groups, null);
 
     List<List<Object>> results = new LinkedList<>();
-    ManagementAgent agent = ((SystemManagementService) getManagementService()).getManagementAgent();
-    RemoteStreamExporter exporter = agent.getRemoteStreamExporter();
+    var agent = ((SystemManagementService) getManagementService()).getManagementAgent();
+    var exporter = agent.getRemoteStreamExporter();
 
     results = deployJars(jarFullPaths, targetMembers, results, exporter);
 
-    List<CliFunctionResult> cleanedResults = CliFunctionResult.cleanResults(results);
+    var cleanedResults = CliFunctionResult.cleanResults(results);
 
-    List<DeploymentInfo> deploymentInfos =
+    var deploymentInfos =
         DeploymentInfoTableUtil.getDeploymentInfoFromFunctionResults(cleanedResults);
     DeploymentInfoTableUtil.writeDeploymentInfoToTable(
         new String[] {"Member", "JAR", "JAR Location"}, deployResult,
@@ -128,11 +124,11 @@ public class DeployCommand extends GfshCommand {
       List<List<Object>> results,
       RemoteStreamExporter exporter)
       throws FileNotFoundException, java.rmi.RemoteException {
-    for (DistributedMember member : targetMembers) {
+    for (var member : targetMembers) {
       List<RemoteInputStream> remoteStreams = new ArrayList<>();
       List<String> jarNames = new ArrayList<>();
       try {
-        for (String jarFullPath : jarFullPaths) {
+        for (var jarFullPath : jarFullPaths) {
           FileInputStream fileInputStream = null;
           try {
             fileInputStream = new FileInputStream(jarFullPath);
@@ -150,16 +146,16 @@ public class DeployCommand extends GfshCommand {
         }
 
         // this deploys the jars to all the matching servers
-        ResultCollector<?, ?> resultCollector =
+        var resultCollector =
             executeFunction(deployFunction,
                 new Object[] {jarNames, remoteStreams}, member);
 
         @SuppressWarnings("unchecked")
-        final List<List<Object>> resultCollectorResult =
+        final var resultCollectorResult =
             (List<List<Object>>) resultCollector.getResult();
         results.add(resultCollectorResult.get(0));
       } finally {
-        for (RemoteInputStream ris : remoteStreams) {
+        for (var ris : remoteStreams) {
           try {
             ris.close(true);
           } catch (IOException ex) {
@@ -172,8 +168,8 @@ public class DeployCommand extends GfshCommand {
   }
 
   private void verifyJarContent(List<String> jarNames) {
-    for (String jarName : jarNames) {
-      File jar = new File(jarName);
+    for (var jarName : jarNames) {
+      var jar = new File(jarName);
       if (!JarFileUtils.hasValidJarContent(jar)) {
         throw new IllegalArgumentException(
             "File does not contain valid JAR content: " + jar.getName());
@@ -198,8 +194,8 @@ public class DeployCommand extends GfshCommand {
      */
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      String[] jars = (String[]) parseResult.getParamValue("jar");
-      String dir = (String) parseResult.getParamValue("dir");
+      var jars = (String[]) parseResult.getParamValue("jar");
+      var dir = (String) parseResult.getParamValue("dir");
 
       if (ArrayUtils.isEmpty(jars) && StringUtils.isBlank(dir)) {
         return ResultModel.createError(
@@ -210,28 +206,28 @@ public class DeployCommand extends GfshCommand {
         return ResultModel.createError("Parameters \"jar\" and \"dir\" can not both be specified.");
       }
 
-      ResultModel result = new ResultModel();
+      var result = new ResultModel();
       if (jars != null) {
-        for (String jar : jars) {
-          File jarFile = new File(jar);
+        for (var jar : jars) {
+          var jarFile = new File(jar);
           if (!jarFile.exists()) {
             return ResultModel.createError(jar + " not found.");
           }
           result.addFile(jarFile, FileResultModel.FILE_TYPE_FILE);
         }
       } else {
-        File fileDir = new File(dir);
+        var fileDir = new File(dir);
         if (!fileDir.isDirectory()) {
           return ResultModel.createError(dir + " is not a directory");
         }
-        File[] childJarFile = fileDir.listFiles(ManagementUtils.JAR_FILE_FILTER);
-        for (File file : childJarFile) {
+        var childJarFile = fileDir.listFiles(ManagementUtils.JAR_FILE_FILTER);
+        for (var file : childJarFile) {
           result.addFile(file, FileResultModel.FILE_TYPE_FILE);
         }
       }
 
       // check if user wants to upload with the computed file size
-      String message =
+      var message =
           "\nDeploying files: " + result.getFormattedFileList() + "\nTotal file size is: "
               + numFormatter.format((double) result.computeFileSizeTotal() / ONE_MB)
               + "MB\n\nContinue? ";

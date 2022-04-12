@@ -43,9 +43,7 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
-import org.apache.geode.internal.cache.partitioned.Bucket;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -71,9 +69,9 @@ public class MembershipViewRequest extends DistributionMessage implements Messag
   public static PersistentMembershipView send(InternalDistributedMember recipient,
       DistributionManager dm, String regionPath, boolean targetReinitializing)
       throws ReplyException {
-    MembershipViewRequestReplyProcessor processor =
+    var processor =
         new MembershipViewRequestReplyProcessor(dm, recipient);
-    MembershipViewRequest msg =
+    var msg =
         new MembershipViewRequest(regionPath, processor.getProcessorId(), targetReinitializing);
     msg.setRecipient(recipient);
     dm.putOutgoing(msg);
@@ -82,9 +80,9 @@ public class MembershipViewRequest extends DistributionMessage implements Messag
 
   public static Set<PersistentMembershipView> send(Set<InternalDistributedMember> recipients,
       DistributionManager dm, String regionPath) throws ReplyException {
-    MembershipViewRequestReplyProcessor processor =
+    var processor =
         new MembershipViewRequestReplyProcessor(dm, recipients);
-    MembershipViewRequest msg =
+    var msg =
         new MembershipViewRequest(regionPath, processor.getProcessorId(), false);
     msg.setRecipients(recipients);
     dm.putOutgoing(msg);
@@ -99,9 +97,9 @@ public class MembershipViewRequest extends DistributionMessage implements Messag
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    final InitializationLevel initLevel =
+    final var initLevel =
         targetReinitializing ? AFTER_INITIAL_IMAGE : ANY_INIT;
-    final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(initLevel);
+    final var oldLevel = LocalRegion.setThreadInitLevelRequirement(initLevel);
 
     PersistentMembershipView view = null;
     ReplyException exception = null;
@@ -115,7 +113,7 @@ public class MembershipViewRequest extends DistributionMessage implements Messag
       if (region instanceof DistributedRegion) {
         persistenceAdvisor = ((DistributedRegion) region).getPersistenceAdvisor();
       } else if (region == null) {
-        Bucket proxy =
+        var proxy =
             PartitionedRegionHelper.getProxyBucketRegion(dm.getCache(), regionPath);
         if (proxy != null) {
           persistenceAdvisor = proxy.getPersistenceAdvisor();
@@ -138,7 +136,7 @@ public class MembershipViewRequest extends DistributionMessage implements Messag
       exception = new ReplyException(t);
     } finally {
       LocalRegion.setThreadInitLevelRequirement(oldLevel);
-      MembershipViewReplyMessage replyMsg = new MembershipViewReplyMessage();
+      var replyMsg = new MembershipViewReplyMessage();
       replyMsg.setRecipient(getSender());
       replyMsg.setProcessorId(processorId);
       replyMsg.view = view;
@@ -208,7 +206,7 @@ public class MembershipViewRequest extends DistributionMessage implements Messag
     @Override
     public void process(DistributionMessage msg) {
       if (msg instanceof MembershipViewReplyMessage) {
-        PersistentMembershipView view = ((MembershipViewReplyMessage) msg).view;
+        var view = ((MembershipViewReplyMessage) msg).view;
         if (logger.isDebugEnabled()) {
           logger.debug("MembershipViewReplyProcessor received {}", view);
         }
@@ -234,7 +232,7 @@ public class MembershipViewRequest extends DistributionMessage implements Messag
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      boolean hasView = in.readBoolean();
+      var hasView = in.readBoolean();
       if (hasView) {
         view = new PersistentMembershipView();
         InternalDataSerializer.invokeFromData(view, in);

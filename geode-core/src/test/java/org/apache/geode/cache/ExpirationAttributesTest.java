@@ -23,7 +23,7 @@ import org.junit.Test;
 public class ExpirationAttributesTest {
   @Test
   public void constructor() throws Exception {
-    ExpirationAttributes attributes = new ExpirationAttributes();
+    var attributes = new ExpirationAttributes();
     assertThat(attributes.getTimeout()).isEqualTo(0);
     assertThat(attributes.getAction()).isEqualTo(ExpirationAction.INVALIDATE);
 

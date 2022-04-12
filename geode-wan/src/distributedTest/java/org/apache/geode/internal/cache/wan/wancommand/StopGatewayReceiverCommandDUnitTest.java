@@ -25,7 +25,6 @@ import static org.apache.geode.internal.cache.wan.wancommand.WANCommandUtils.ver
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -35,8 +34,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -63,7 +60,7 @@ public class StopGatewayReceiverCommandDUnitTest implements Serializable {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(1, props);
 
@@ -89,7 +86,7 @@ public class StopGatewayReceiverCommandDUnitTest implements Serializable {
     server1.invoke(() -> createReceiver(locator1Port));
 
     DistributedMember server1DM = getMember(server1.getVM());
-    String command = CliStrings.STOP_GATEWAYRECEIVER + " --" + CliStrings.MEMBER + "="
+    var command = CliStrings.STOP_GATEWAYRECEIVER + " --" + CliStrings.MEMBER + "="
         + server1DM.getId() + " --" + CliStrings.GROUP + "=RG1";
     gfsh.executeAndAssertThat(command).statusIsError()
         .containsOutput(CliStrings.PROVIDE_EITHER_MEMBER_OR_GROUP_MESSAGE);
@@ -116,13 +113,13 @@ public class StopGatewayReceiverCommandDUnitTest implements Serializable {
     locatorSite1.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server2.getVM()), true));
     locatorSite1.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server3.getVM()), true));
 
-    String command = CliStrings.STOP_GATEWAYRECEIVER;
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var command = CliStrings.STOP_GATEWAYRECEIVER;
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYRECEIVER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "OK");
 
     locatorSite1
@@ -162,17 +159,17 @@ public class StopGatewayReceiverCommandDUnitTest implements Serializable {
     locatorSite1.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server3.getVM()), true));
 
     DistributedMember server1DM = getMember(server1.getVM());
-    String command =
+    var command =
         CliStrings.STOP_GATEWAYRECEIVER + " --" + CliStrings.MEMBER + "=" + server1DM.getId();
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
 
-    String strCmdResult = cmdResult.toString();
+    var strCmdResult = cmdResult.toString();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYRECEIVER);
-    List<String> messages = resultData.getValuesInColumn("Message");
+    var messages = resultData.getValuesInColumn("Message");
     assertThat(messages.get(0)).contains("is stopped on member");
 
     locatorSite1
@@ -209,14 +206,14 @@ public class StopGatewayReceiverCommandDUnitTest implements Serializable {
     locatorSite1.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server2.getVM()), true));
     locatorSite1.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server3.getVM()), true));
 
-    String command = CliStrings.STOP_GATEWAYRECEIVER + " --" + CliStrings.GROUP + "=RG1";
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var command = CliStrings.STOP_GATEWAYRECEIVER + " --" + CliStrings.GROUP + "=RG1";
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYRECEIVER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "OK");
 
     locatorSite1
@@ -265,14 +262,14 @@ public class StopGatewayReceiverCommandDUnitTest implements Serializable {
     locatorSite1.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server4.getVM()), true));
     locatorSite1.invoke(() -> validateGatewayReceiverMXBeanProxy(getMember(server5.getVM()), true));
 
-    String command = CliStrings.STOP_GATEWAYRECEIVER + " --" + CliStrings.GROUP + "=RG1,RG2";
-    CommandResult cmdResult = gfsh.executeCommand(command);
+    var command = CliStrings.STOP_GATEWAYRECEIVER + " --" + CliStrings.GROUP + "=RG1,RG2";
+    var cmdResult = gfsh.executeCommand(command);
     assertThat(cmdResult).isNotNull();
     assertThat(cmdResult.getStatus()).isSameAs(Result.Status.OK);
 
-    TabularResultModel resultData = cmdResult.getResultData()
+    var resultData = cmdResult.getResultData()
         .getTableSection(CliStrings.STOP_GATEWAYRECEIVER);
-    List<String> status = resultData.getValuesInColumn("Result");
+    var status = resultData.getValuesInColumn("Result");
     assertThat(status).containsExactlyInAnyOrder("OK", "OK", "OK", "OK");
 
     locatorSite1
@@ -293,7 +290,7 @@ public class StopGatewayReceiverCommandDUnitTest implements Serializable {
   }
 
   private MemberVM startServerWithGroups(int index, String groups, int locPort) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, groups);
     return clusterStartupRule.startServerVM(index, props, locPort);
   }

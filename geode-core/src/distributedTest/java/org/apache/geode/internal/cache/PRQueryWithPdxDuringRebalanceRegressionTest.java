@@ -31,11 +31,9 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.control.RebalanceResults;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
@@ -109,7 +107,7 @@ public class PRQueryWithPdxDuringRebalanceRegressionTest implements Serializable
         public void beforeProcessMessage(ClusterDistributionManager dm,
             DistributionMessage message) {
           if (message instanceof QueryMessage) {
-            RebalanceOperation rebalance =
+            var rebalance =
                 cacheRule.getCache().getResourceManager().createRebalanceFactory().start();
             // wait for the rebalance
             try {
@@ -132,7 +130,7 @@ public class PRQueryWithPdxDuringRebalanceRegressionTest implements Serializable
 
   private void createAccessor() {
     cacheRule.createCache();
-    PartitionAttributesFactory paf =
+    var paf =
         new PartitionAttributesFactory().setTotalNumBuckets(10).setLocalMaxMemory(0);
     cacheRule.getCache().createRegionFactory(PARTITION_PROXY).setPartitionAttributes(paf.create())
         .create(regionName);
@@ -140,23 +138,23 @@ public class PRQueryWithPdxDuringRebalanceRegressionTest implements Serializable
 
   private void createPartitionedRegion() {
     cacheRule.createCache();
-    PartitionAttributesFactory paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
+    var paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
     cacheRule.getCache().createRegionFactory(PARTITION).setPartitionAttributes(paf.create())
         .create(regionName);
   }
 
   private void createBuckets() {
     Region region = cacheRule.getCache().getRegion(regionName);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       region.put(i, i);
     }
   }
 
   private void executeQuery() throws NameResolutionException, TypeMismatchException,
       QueryInvocationTargetException, FunctionDomainException {
-    Query query = cacheRule.getCache().getQueryService()
+    var query = cacheRule.getCache().getQueryService()
         .newQuery("select * from " + SEPARATOR + regionName + " r where r > 0");
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
     assertThat(results.asSet()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
   }
 }

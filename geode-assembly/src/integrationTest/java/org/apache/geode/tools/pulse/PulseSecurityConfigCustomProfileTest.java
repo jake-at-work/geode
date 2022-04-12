@@ -19,10 +19,8 @@ import static org.apache.geode.test.junit.rules.HttpResponseAssert.assertRespons
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpResponse;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -46,7 +44,7 @@ public class PulseSecurityConfigCustomProfileTest {
   public static void setUpCustomXml() throws IOException {
     // copy the pulse-authentication-custom.xml to the locator's working dir and start the locator
     xmlFile = new File(locator.getWorkingDir(), "pulse-authentication-custom.xml");
-    URL xmlUrl = PulseSecurityConfigCustomProfileTest.class.getClassLoader()
+    var xmlUrl = PulseSecurityConfigCustomProfileTest.class.getClassLoader()
         .getResource("pulse-authentication-custom.xml");
     FileUtils.copyURLToFile(xmlUrl, xmlFile);
     locator.startLocator();
@@ -62,7 +60,7 @@ public class PulseSecurityConfigCustomProfileTest {
 
   @Test
   public void testLogin() throws Exception {
-    HttpResponse response = client.loginToPulse("admin", "admin");
+    var response = client.loginToPulse("admin", "admin");
     assertResponse(response).hasStatusCode(302).hasHeaderValue("Location")
         .contains("/pulse/login.html?error=BAD_CREDS");
     client.loginToPulseAndVerify("test", "test");
@@ -70,20 +68,20 @@ public class PulseSecurityConfigCustomProfileTest {
 
   @Test
   public void loginPage() throws Exception {
-    HttpResponse response = client.get("/pulse/login.html");
+    var response = client.get("/pulse/login.html");
     assertResponse(response).hasStatusCode(200).hasResponseBody().contains("<html>");
   }
 
   @Test
   public void authenticateUser() throws Exception {
-    HttpResponse response = client.get("/pulse/authenticateUser");
+    var response = client.get("/pulse/authenticateUser");
     assertResponse(response).hasStatusCode(200).hasResponseBody()
         .isEqualTo("{\"isUserLoggedIn\":false}");
   }
 
   @Test
   public void dataBrowserRegions() throws Exception {
-    HttpResponse response = client.get("/pulse/dataBrowserRegions");
+    var response = client.get("/pulse/dataBrowserRegions");
     // get a restricted page will result in login page
     assertResponse(response).hasStatusCode(200).hasResponseBody()
         .contains(
@@ -92,7 +90,7 @@ public class PulseSecurityConfigCustomProfileTest {
 
   @Test
   public void pulseVersion() throws Exception {
-    HttpResponse response = client.get("/pulse/pulseVersion");
+    var response = client.get("/pulse/pulseVersion");
     assertResponse(response).hasStatusCode(200).hasResponseBody().contains("{\"pulseVersion");
   }
 }

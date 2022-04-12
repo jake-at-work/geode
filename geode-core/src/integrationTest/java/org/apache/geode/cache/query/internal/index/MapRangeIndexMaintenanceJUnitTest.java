@@ -33,7 +33,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Instrument;
@@ -69,13 +68,13 @@ public class MapRangeIndexMaintenanceJUnitTest {
         CacheUtils.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("portfolio");
     qs = CacheUtils.getQueryService();
 
-    Portfolio p = new Portfolio(1, 1);
+    var p = new Portfolio(1, 1);
     p.positions = null;
     region.put(1, p);
 
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio ");
 
-    SelectResults result = (SelectResults) qs
+    var result = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = null")
         .execute();
     assertEquals(0, result.size());
@@ -88,7 +87,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
         CacheUtils.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("instrument");
 
     // Initialize observer
-    MyQueryObserverAdapter observer = new MyQueryObserverAdapter();
+    var observer = new MyQueryObserverAdapter();
     QueryObserverHolder.setInstance(observer);
 
     // Create map index
@@ -97,18 +96,18 @@ public class MapRangeIndexMaintenanceJUnitTest {
         SEPARATOR + "instrument i, i.tradingLines tl");
 
     // Add instruments
-    int numInstruments = 20;
-    for (int i = 0; i < numInstruments; i++) {
-      String key = String.valueOf(i);
+    var numInstruments = 20;
+    for (var i = 0; i < numInstruments; i++) {
+      var key = String.valueOf(i);
       Object value = Instrument.getInstrument(key);
       region.put(key, value);
     }
 
     // Execute query
-    Query query = qs.newQuery(
+    var query = qs.newQuery(
         "<trace> select distinct i from " + SEPARATOR
             + "instrument i, i.tradingLines t where t.alternateReferences[$1]='SOME_VALUE'");
-    SelectResults results = (SelectResults) query.execute(new Object[] {"SOME_KEY"});
+    var results = (SelectResults) query.execute(new Object[] {"SOME_KEY"});
 
     // Verify index was used
     assertTrue(observer.indexUsed);
@@ -120,12 +119,12 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void testNullMapKeysInIndexOnLocalRegionForCompactMap() throws Exception {
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -137,7 +136,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
     assertTrue(keyIndex1 instanceof CompactMapRangeIndex);
 
     // Let MapRangeIndex remove values for key 1.
-    Portfolio p = new Portfolio(1, 1);
+    var p = new Portfolio(1, 1);
     p.positions = new HashMap();
     region.put(1, p);
 
@@ -152,12 +151,12 @@ public class MapRangeIndexMaintenanceJUnitTest {
   public void testNullMapKeysInIndexOnLocalRegion() throws Exception {
     IndexManager.TEST_RANGEINDEX_ONLY = true;
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -169,7 +168,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
     assertTrue(keyIndex1 instanceof MapRangeIndex);
 
     // Let MapRangeIndex remove values for key 1.
-    Portfolio p = new Portfolio(1, 1);
+    var p = new Portfolio(1, 1);
     p.positions = new HashMap();
     region.put(1, p);
 
@@ -186,11 +185,11 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void testDuplicateKeysInCompactRangeIndexOnLocalRegion() throws Exception {
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
-    Portfolio p = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", new TestObject("SUN", 1));
     map1.put("IBM", new TestObject("IBM", 2));
     p.positions = map1;
@@ -204,8 +203,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     // Put duplicate TestObject with "IBM" name.
     region.put(Integer.toString(1), p);
-    Portfolio p2 = new Portfolio(2, 2);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(2, 2);
+    var map2 = new HashMap();
     map2.put("YHOO", new TestObject("YHOO", 3));
     map2.put("IBM", new TestObject("IBM", 2));
 
@@ -224,11 +223,11 @@ public class MapRangeIndexMaintenanceJUnitTest {
     IndexManager.TEST_RANGEINDEX_ONLY = true;
 
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
-    Portfolio p = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", new TestObject("SUN", 1));
     map1.put("IBM", new TestObject("IBM", 2));
     p.positions = map1;
@@ -242,8 +241,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     // Put duplicate TestObject with "IBM" name.
     region.put(Integer.toString(1), p);
-    Portfolio p2 = new Portfolio(2, 2);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(2, 2);
+    var map2 = new HashMap();
     map2.put("YHOO", new TestObject("YHOO", 3));
     map2.put("IBM", new TestObject("IBM", 2));
 
@@ -257,7 +256,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void testUndefinedForMapRangeIndex() throws Exception {
     IndexManager.TEST_RANGEINDEX_ONLY = true;
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
@@ -266,7 +265,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
     assertTrue("Index should be a MapRangeIndex ", keyIndex1 instanceof MapRangeIndex);
 
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         // add some string objects generating UNDEFINEDs as index keys
         if (i % 2 == 0) {
           region.put(Integer.toString(i), "Portfolio-" + i);
@@ -286,7 +285,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
   @Test
   public void testUndefinedForCompactMapRangeIndex() throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
@@ -296,7 +295,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
         keyIndex1 instanceof CompactMapRangeIndex);
 
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         // add some string objects generating UNDEFINEDs as index keys
         if (i % 2 == 0) {
           region.put(Integer.toString(i), "Portfolio-" + i);
@@ -322,22 +321,22 @@ public class MapRangeIndexMaintenanceJUnitTest {
     qs = CacheUtils.getQueryService();
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio ");
 
-    Portfolio p = new Portfolio(1, 1);
+    var p = new Portfolio(1, 1);
     p.positions = new HashMap();
     region.put(1, p);
 
-    Portfolio p2 = new Portfolio(2, 2);
+    var p2 = new Portfolio(2, 2);
     p2.positions = null;
     region.put(2, p2);
 
-    Portfolio p3 = new Portfolio(3, 3);
+    var p3 = new Portfolio(3, 3);
     p3.positions = new HashMap();
     p3.positions.put("IBM", "something");
     p3.positions.put("SUN", null);
     region.put(3, p3);
     region.put(3, p3);
 
-    SelectResults result = (SelectResults) qs
+    var result = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = null")
         .execute();
     assertEquals(2, result.size());
@@ -359,7 +358,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions['SUN']", SEPARATOR + "portfolio ");
 
-    Class<CompactRangeIndex> indexType = CompactRangeIndex.class;
+    var indexType = CompactRangeIndex.class;
     assertThat(keyIndex1).isInstanceOf(indexType);
     testQueriesForValueInMapField(region, qs);
     verifyStatsForQueriesForValueInMapFieldWithAnyRangeIndexWithOneKey(indexType);
@@ -374,7 +373,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
     keyIndex1 =
         qs.createIndex(INDEX_NAME, "positions['SUN', 'ERICSSON']", SEPARATOR + "portfolio ");
 
-    Class<CompactMapRangeIndex> indexType = CompactMapRangeIndex.class;
+    var indexType = CompactMapRangeIndex.class;
     assertThat(keyIndex1).isInstanceOf(indexType);
     testQueriesForValueInMapField(region, qs);
     verifyStatsForQueriesForValueInMapFieldWithAnyMapIndexWithSeveralKeys(indexType);
@@ -388,7 +387,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio ");
 
-    Class<CompactMapRangeIndex> indexType = CompactMapRangeIndex.class;
+    var indexType = CompactMapRangeIndex.class;
     assertThat(keyIndex1).isInstanceOf(indexType);
     testQueriesForValueInMapField(region, qs);
     verifyStatsForQueriesForValueInMapFieldWithAnyMapIndexWithStar(indexType);
@@ -403,7 +402,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions['SUN']", SEPARATOR + "portfolio ");
 
-    Class<RangeIndex> indexType = RangeIndex.class;
+    var indexType = RangeIndex.class;
     assertThat(keyIndex1).isInstanceOf(indexType);
     testQueriesForValueInMapField(region, qs);
     verifyStatsForQueriesForValueInMapFieldWithAnyRangeIndexWithOneKey(indexType);
@@ -419,7 +418,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
     keyIndex1 =
         qs.createIndex(INDEX_NAME, "positions['SUN', 'ERICSSON']", SEPARATOR + "portfolio ");
 
-    Class<MapRangeIndex> indexType = MapRangeIndex.class;
+    var indexType = MapRangeIndex.class;
     assertThat(keyIndex1).isInstanceOf(indexType);
     testQueriesForValueInMapField(region, qs);
     verifyStatsForQueriesForValueInMapFieldWithAnyMapIndexWithSeveralKeys(indexType);
@@ -434,7 +433,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio ");
 
-    Class<MapRangeIndex> indexType = MapRangeIndex.class;
+    var indexType = MapRangeIndex.class;
     assertThat(keyIndex1).isInstanceOf(indexType);
     testQueriesForValueInMapField(region, qs);
     verifyStatsForQueriesForValueInMapFieldWithAnyMapIndexWithStar(indexType);
@@ -444,30 +443,30 @@ public class MapRangeIndexMaintenanceJUnitTest {
       throws Exception {
 
     // Empty map
-    Portfolio p1 = new Portfolio(1, 1);
+    var p1 = new Portfolio(1, 1);
     p1.positions = new HashMap<>();
     region.put(1, p1);
 
     // Map is null
-    Portfolio p2 = new Portfolio(2, 2);
+    var p2 = new Portfolio(2, 2);
     p2.positions = null;
     region.put(2, p2);
 
     // Map with null value for "SUN" key
-    Portfolio p3 = new Portfolio(3, 3);
+    var p3 = new Portfolio(3, 3);
     p3.positions = new HashMap<>();
     p3.positions.put("IBM", "something");
     p3.positions.put("SUN", null);
     region.put(3, p3);
 
     // Map with not null value for "SUN" key
-    Portfolio p4 = new Portfolio(4, 4);
+    var p4 = new Portfolio(4, 4);
     p4.positions = new HashMap<>();
     p4.positions.put("SUN", "nothing");
     region.put(4, p4);
 
     // Map with another value for the "SUN" key
-    Portfolio p5 = new Portfolio(5, 5);
+    var p5 = new Portfolio(5, 5);
     p5.positions = new HashMap<>();
     p5.positions.put("SUN", "more");
     // null is not allowed as key
@@ -475,13 +474,13 @@ public class MapRangeIndexMaintenanceJUnitTest {
     region.put(5, p5);
 
     // One more with map without the "SUN" key
-    Portfolio p6 = new Portfolio(6, 6);
+    var p6 = new Portfolio(6, 6);
     p6.positions = new HashMap<>();
     p6.positions.put("ERICSSON", "hey");
     region.put(6, p6);
 
     // Map with a repeated value for the "SUN" key
-    Portfolio p7 = new Portfolio(7, 7);
+    var p7 = new Portfolio(7, 7);
     p7.positions = new HashMap<>();
     p7.positions.put("SUN", "more");
     p7.positions.put("HP", "tip");
@@ -521,12 +520,12 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
   private <T extends AbstractIndex> void verifyStatsForQueriesForValueInMapFieldWithAnyRangeIndexWithOneKey(
       Class<T> indexType) {
-    long keys = (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfKeys();
-    long mapIndexKeys =
+    var keys = (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfKeys();
+    var mapIndexKeys =
         (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfMapIndexKeys();
-    long values =
+    var values =
         (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfValues();
-    long uses =
+    var uses =
         (indexType.cast(keyIndex1)).internalIndexStats.getTotalUses();
 
     // The number of keys must be equal to the number of different values the
@@ -543,12 +542,12 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
   private <T extends AbstractMapIndex> void verifyStatsForQueriesForValueInMapFieldWithAnyMapIndexWithSeveralKeys(
       Class<T> indexType) {
-    long keys = (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfKeys();
-    long mapIndexKeys =
+    var keys = (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfKeys();
+    var mapIndexKeys =
         (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfMapIndexKeys();
-    long values =
+    var values =
         (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfValues();
-    long uses =
+    var uses =
         (indexType.cast(keyIndex1)).internalIndexStats.getTotalUses();
 
     // The number of keys must be equal to the number of different values the
@@ -569,12 +568,12 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
   private <T extends AbstractMapIndex> void verifyStatsForQueriesForValueInMapFieldWithAnyMapIndexWithStar(
       Class<T> indexType) {
-    long keys = (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfKeys();
-    long mapIndexKeys =
+    var keys = (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfKeys();
+    var mapIndexKeys =
         (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfMapIndexKeys();
-    long values =
+    var values =
         (indexType.cast(keyIndex1)).internalIndexStats.getNumberOfValues();
-    long uses =
+    var uses =
         (indexType.cast(keyIndex1)).internalIndexStats.getTotalUses();
 
     // The number of keys must be equal to the number of different values the
@@ -602,20 +601,20 @@ public class MapRangeIndexMaintenanceJUnitTest {
     qs = CacheUtils.getQueryService();
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio ");
 
-    Portfolio p = new Portfolio(1, 1);
+    var p = new Portfolio(1, 1);
     p.positions = new HashMap();
     region.put(1, p);
 
-    Portfolio p2 = new Portfolio(2, 2);
+    var p2 = new Portfolio(2, 2);
     p2.positions = null;
     region.put(2, p2);
 
-    Portfolio p3 = new Portfolio(3, 3);
+    var p3 = new Portfolio(3, 3);
     p3.positions = new HashMap();
     p3.positions.put("SUN", null);
     region.put(3, p3);
 
-    SelectResults result = (SelectResults) qs
+    var result = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = null")
         .execute();
     assertEquals(2, result.size());
@@ -625,11 +624,11 @@ public class MapRangeIndexMaintenanceJUnitTest {
   public void updatingAMapFieldWithDifferentKeysShouldRemoveOldKeysThatAreNoLongerPresent()
       throws Exception {
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
-    Portfolio p = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p.positions = map1;
@@ -641,13 +640,13 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     assertTrue(keyIndex1 instanceof CompactMapRangeIndex);
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     p2.positions = map2;
     map2.put("NEW_KEY", 1);
     region.put(1, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery(
             "select * from " + SEPARATOR
                 + "portfolio p where p.positions['SUN'] = 1 OR p.positions['IBM'] = 2")
@@ -658,11 +657,11 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingAMapFieldSameKeysSameValuesShouldUpdateCorrectly() throws Exception {
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
-    Portfolio p = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p.positions = map1;
@@ -674,14 +673,14 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     assertTrue(keyIndex1 instanceof CompactMapRangeIndex);
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     p2.positions = map2;
     map2.put("SUN", 1);
     map2.put("IBM", 2);
     region.put(1, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery(
             "select * from " + SEPARATOR
                 + "portfolio p where p.positions['SUN'] = 1 OR p.positions['IBM'] = 2")
@@ -693,11 +692,11 @@ public class MapRangeIndexMaintenanceJUnitTest {
   public void updatingAMapFieldWithNoKeysShouldRemoveOldKeysThatAreNoLongerPresent()
       throws Exception {
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
-    Portfolio p = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p.positions = map1;
@@ -707,12 +706,12 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     p2.positions = map2;
     region.put(1, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery(
             "select * from " + SEPARATOR
                 + "portfolio p where p.positions['SUN'] = 1 OR p.positions['IBM'] = 2")
@@ -723,11 +722,11 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingEmptyMapToMapWithKeysShouldIndexNewKeysCorrectly() throws Exception {
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
-    Portfolio p = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 1);
+    var map1 = new HashMap();
     p.positions = map1;
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     region.put(1, p);
@@ -735,14 +734,14 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     p2.positions = map2;
     map2.put("SUN", 1);
     map2.put("IBM", 2);
     region.put(1, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery(
             "select * from " + SEPARATOR
                 + "portfolio p where p.positions['SUN'] = 1 OR p.positions['IBM'] = 2")
@@ -752,11 +751,11 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
   @Test
   public void testUpdateWithSameKeysSameValuesShouldRetainIndexMappings() throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
-    Portfolio p = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p.positions = map1;
@@ -767,7 +766,7 @@ public class MapRangeIndexMaintenanceJUnitTest {
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
     region.put(1, p);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(1, results.size());
@@ -775,11 +774,11 @@ public class MapRangeIndexMaintenanceJUnitTest {
 
   @Test
   public void updatingWithSameKeysDifferentValuesShouldRetainIndexMappings() throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
-    Portfolio p = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p.positions = map1;
@@ -788,14 +787,14 @@ public class MapRangeIndexMaintenanceJUnitTest {
     qs = CacheUtils.getQueryService();
 
     keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     p2.positions = map2;
     map2.put("SUN", 3);
     map2.put("IBM", 4);
     region.put(1, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(0, results.size());
@@ -809,32 +808,32 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysDifferentValuesAfterRemovingShouldReinsertIndexMappings()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     p2.positions = map2;
     map2.put("GOOG", 1);
     region.put(1, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(0, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 3);
     map3.put("IBM", 4);
@@ -860,20 +859,20 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysDifferentValuesAfterRemovingUsingRegionDestroyShouldReinsertIndexMappings()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(1, results.size());
@@ -885,8 +884,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(0, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 3);
     map3.put("IBM", 4);
@@ -912,20 +911,20 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysDifferentValuesAfterRemovingUsingInplaceModificationShouldReinsertIndexMappings()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(1, results.size());
@@ -941,8 +940,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(0, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 3);
     map3.put("IBM", 4);
@@ -968,26 +967,26 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysSameValuesAfterRemovingShouldReinsertIndexMappings()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(1, results.size());
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     p2.positions = map2;
     map2.put("GOOG", 1);
     region.put(1, p2);
@@ -997,8 +996,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(0, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 1);
     map3.put("IBM", 2);
@@ -1018,20 +1017,20 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysSameValuesAfterRemovingUsingRegionDestroyShouldReinsertIndexMappings()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(1, results.size());
@@ -1043,8 +1042,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(0, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 1);
     map3.put("IBM", 2);
@@ -1064,20 +1063,20 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysSameValuesAfterRemovingUsingInPlaceModificationShouldReinsertIndexMappings()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(1, results.size());
@@ -1093,8 +1092,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(0, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 1);
     map3.put("IBM", 2);
@@ -1114,33 +1113,33 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysSameValuesAfterRemovingShouldReinsertIndexMappingsWithTwoRegionPuts()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     map2.put("SUN", 1);
     map2.put("IBM", 2);
     p2.positions = map1;
     region.put(2, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(2, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map2.put("GOOG", 1);
     region.put(1, p3);
@@ -1150,8 +1149,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(1, results.size());
 
-    Portfolio p4 = new Portfolio(1, 1);
-    HashMap map4 = new HashMap();
+    var p4 = new Portfolio(1, 1);
+    var map4 = new HashMap();
     p4.positions = map4;
     map4.put("SUN", 1);
     map4.put("IBM", 2);
@@ -1171,27 +1170,27 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysSameValuesAfterRemovingUsingRegionDestroyShouldReinsertIndexMappingsWithTwoRegionPuts()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     map2.put("SUN", 1);
     map2.put("IBM", 2);
     p2.positions = map1;
     region.put(2, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(2, results.size());
@@ -1203,8 +1202,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(1, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 1);
     map3.put("IBM", 2);
@@ -1224,27 +1223,27 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysSameValuesAfterRemovingUsingInPlaceModificationShouldReinsertIndexMappingsWithTwoRegionPuts()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     map2.put("SUN", 1);
     map2.put("IBM", 2);
     p2.positions = map2;
     region.put(2, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(2, results.size());
@@ -1260,8 +1259,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(1, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 1);
     map3.put("IBM", 2);
@@ -1281,39 +1280,39 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysDifferentValuesAfterRemovingShouldReinsertIndexMappingsWithTwoRegionPuts()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 5);
     map3.put("IBM", 6);
     region.put(2, p3);
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     p2.positions = map2;
     map2.put("GOOG", 1);
     region.put(1, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(0, results.size());
 
-    Portfolio p4 = new Portfolio(1, 1);
-    HashMap map4 = new HashMap();
+    var p4 = new Portfolio(1, 1);
+    var map4 = new HashMap();
     p4.positions = map4;
     map4.put("SUN", 3);
     map4.put("IBM", 4);
@@ -1339,27 +1338,27 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysDifferentValuesAfterRemovingUsingRegionDestroyShouldReinsertIndexMappingsWithTwoRegionPuts()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     map2.put("SUN", 5);
     map2.put("IBM", 6);
     p2.positions = map2;
     region.put(2, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(1, results.size());
@@ -1371,8 +1370,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(0, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 3);
     map3.put("IBM", 4);
@@ -1398,27 +1397,27 @@ public class MapRangeIndexMaintenanceJUnitTest {
   @Test
   public void updatingWithSameKeysDifferentValuesAfterRemovingUsingInplaceModificationShouldReinsertIndexMappingsWithTwoRegionPuts()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     qs = CacheUtils.getQueryService();
-    Index keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
+    var keyIndex1 = qs.createIndex(INDEX_NAME, "positions[*]", SEPARATOR + "portfolio");
 
-    Portfolio p1 = new Portfolio(1, 1);
-    HashMap map1 = new HashMap();
+    var p1 = new Portfolio(1, 1);
+    var map1 = new HashMap();
     map1.put("SUN", 1);
     map1.put("IBM", 2);
     p1.positions = map1;
     region.put(1, p1);
 
-    Portfolio p2 = new Portfolio(1, 1);
-    HashMap map2 = new HashMap();
+    var p2 = new Portfolio(1, 1);
+    var map2 = new HashMap();
     map2.put("SUN", 5);
     map2.put("IBM", 6);
     p2.positions = map2;
     region.put(2, p2);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("select * from " + SEPARATOR + "portfolio p where p.positions['SUN'] = 1")
         .execute();
     assertEquals(1, results.size());
@@ -1434,8 +1433,8 @@ public class MapRangeIndexMaintenanceJUnitTest {
         .execute();
     assertEquals(0, results.size());
 
-    Portfolio p3 = new Portfolio(1, 1);
-    HashMap map3 = new HashMap();
+    var p3 = new Portfolio(1, 1);
+    var map3 = new HashMap();
     p3.positions = map3;
     map3.put("SUN", 3);
     map3.put("IBM", 4);

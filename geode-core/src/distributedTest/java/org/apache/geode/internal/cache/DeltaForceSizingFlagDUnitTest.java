@@ -27,11 +27,9 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.InterestPolicy;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
@@ -92,12 +90,12 @@ public class DeltaForceSizingFlagDUnitTest {
   }
 
   private void doRRMemLRUDeltaTest(boolean shouldSizeChange) {
-    VM vm1 = server1.getVM();
-    VM vm2 = server2.getVM();
+    var vm1 = server1.getVM();
+    var vm2 = server2.getVM();
 
     createRR(server1);
     createRR(server2);
-    TestDelta delta1 = new TestDelta(false, SMALLER_DELTA_DATA, shouldSizeChange);
+    var delta1 = new TestDelta(false, SMALLER_DELTA_DATA, shouldSizeChange);
     put(vm1, delta1);
 
     assertValueType(vm1, ValueType.RAW_VALUE);
@@ -105,8 +103,8 @@ public class DeltaForceSizingFlagDUnitTest {
     assertThat(getObjectSizerInvocations(vm1)).isEqualTo(1);
     assertThat(getObjectSizerInvocations(vm2)).isEqualTo(0);
 
-    long origEvictionSize0 = getSizeFromEvictionStats(vm1);
-    long origEvictionSize1 = getSizeFromEvictionStats(vm2);
+    var origEvictionSize0 = getSizeFromEvictionStats(vm1);
+    var origEvictionSize1 = getSizeFromEvictionStats(vm2);
     delta1.info = LARGER_DELTA_DATA;
     delta1.hasDelta = true;
     // Update the delta
@@ -117,8 +115,8 @@ public class DeltaForceSizingFlagDUnitTest {
 
     assertThat(getObjectSizerInvocations(vm1)).isEqualTo(2);
 
-    long finalEvictionSize0 = getSizeFromEvictionStats(vm1);
-    long finalEvictionSize1 = getSizeFromEvictionStats(vm2);
+    var finalEvictionSize0 = getSizeFromEvictionStats(vm1);
+    var finalEvictionSize1 = getSizeFromEvictionStats(vm2);
     assertThat(finalEvictionSize0 - origEvictionSize0).isEqualTo(5);
     if (shouldSizeChange) {
       assertThat(getObjectSizerInvocations(vm2)).isEqualTo(1);
@@ -133,23 +131,23 @@ public class DeltaForceSizingFlagDUnitTest {
   }
 
   private void doPRNoLRUDeltaTest(boolean shouldSizeChange) {
-    VM vm1 = server1.getVM();
-    VM vm2 = server2.getVM();
+    var vm1 = server1.getVM();
+    var vm2 = server2.getVM();
 
     createPR(server1);
     createPR(server2);
 
-    TestDelta delta1 = new TestDelta(false, SMALLER_DELTA_DATA, shouldSizeChange);
+    var delta1 = new TestDelta(false, SMALLER_DELTA_DATA, shouldSizeChange);
     put(vm1, delta1);
-    long origPRSize0 = getSizeFromPRStats(vm1);
-    long origPRSize1 = getSizeFromPRStats(vm2);
+    var origPRSize0 = getSizeFromPRStats(vm1);
+    var origPRSize1 = getSizeFromPRStats(vm2);
 
     // Update the delta
     delta1.info = LARGER_DELTA_DATA;
     delta1.hasDelta = true;
     put(vm1, delta1);
-    long finalPRSize0 = getSizeFromPRStats(vm1);
-    long finalPRSize1 = getSizeFromPRStats(vm2);
+    var finalPRSize0 = getSizeFromPRStats(vm1);
+    var finalPRSize1 = getSizeFromPRStats(vm2);
 
     if (shouldSizeChange) {
       // I'm not sure what the change in size should be, because we went
@@ -166,12 +164,12 @@ public class DeltaForceSizingFlagDUnitTest {
     return vm0.invoke("getSizeFromPRStats", () -> {
       Cache cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
-      InternalRegion region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
+      var region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
       if (region instanceof PartitionedRegion) {
         long total = 0;
-        PartitionedRegion pr = (PartitionedRegion) region;
-        int totalNumBuckets = pr.getPartitionAttributes().getTotalNumBuckets();
-        for (int i = 0; i < totalNumBuckets; i++) {
+        var pr = (PartitionedRegion) region;
+        var totalNumBuckets = pr.getPartitionAttributes().getTotalNumBuckets();
+        for (var i = 0; i < totalNumBuckets; i++) {
           total += pr.getDataStore().getBucketSize(i);
         }
         return total;
@@ -186,7 +184,7 @@ public class DeltaForceSizingFlagDUnitTest {
 
       Cache cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
-      InternalRegion region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
+      var region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
       return region.getEvictionCounter();
     });
   }
@@ -195,7 +193,7 @@ public class DeltaForceSizingFlagDUnitTest {
     return vm0.invoke("getObjectSizerInvocations", () -> {
       Cache cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
-      InternalRegion region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
+      var region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
       return getObjectSizerInvocations(region);
     });
   }
@@ -204,14 +202,14 @@ public class DeltaForceSizingFlagDUnitTest {
     vm0.invoke("Put data", () -> {
       Cache cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
-      InternalRegion region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
+      var region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
       region.put(DeltaForceSizingFlagDUnitTest.DELTA_KEY, value);
     });
   }
 
   protected static int getObjectSizerInvocations(InternalRegion region) {
-    TestObjectSizer sizer = (TestObjectSizer) region.getEvictionAttributes().getObjectSizer();
-    int result = sizer.invocations.get();
+    var sizer = (TestObjectSizer) region.getEvictionAttributes().getObjectSizer();
+    var result = sizer.invocations.get();
     logger.info("objectSizerInvocations=" + result);
     return result;
   }
@@ -221,7 +219,7 @@ public class DeltaForceSizingFlagDUnitTest {
       Cache cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
 
-      DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+      var diskStoreFactory = cache.createDiskStoreFactory();
       diskStoreFactory.setDiskDirs(getMyDiskDirs());
       diskStoreFactory.create(RR_DISK_STORE_NAME);
 
@@ -241,8 +239,8 @@ public class DeltaForceSizingFlagDUnitTest {
     vm.invoke("assertValueType", () -> {
       Cache cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
-      InternalRegion region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
-      Object value = region.getValueInVM(DeltaForceSizingFlagDUnitTest.DELTA_KEY);
+      var region = (InternalRegion) cache.getRegion(TEST_REGION_NAME);
+      var value = region.getValueInVM(DeltaForceSizingFlagDUnitTest.DELTA_KEY);
       switch (expectedType) {
         case RAW_VALUE:
           assertThat(value).isNotInstanceOf(CachedDeserializable.class);
@@ -250,13 +248,13 @@ public class DeltaForceSizingFlagDUnitTest {
         case CD_SERIALIZED:
           assertThat(value).isInstanceOf(CachedDeserializable.class);
 
-          Object serializedValue = ((CachedDeserializable) value).getValue();
+          var serializedValue = ((CachedDeserializable) value).getValue();
           assertThat(serializedValue).isInstanceOf(byte[].class);
           break;
         case CD_DESERIALIZED:
           assertThat(value).isInstanceOf(CachedDeserializable.class);
 
-          Object deserializedValue = ((CachedDeserializable) value).getValue();
+          var deserializedValue = ((CachedDeserializable) value).getValue();
           assertThat(deserializedValue).isNotInstanceOf(byte[].class);
           break;
         case EVICTED:
@@ -267,8 +265,8 @@ public class DeltaForceSizingFlagDUnitTest {
   }
 
   private static File[] getMyDiskDirs() {
-    long random = new Random().nextLong();
-    File file = new File(Long.toString(random));
+    var random = new Random().nextLong();
+    var file = new File(Long.toString(random));
     assertThat(file.mkdirs()).isTrue();
     return new File[] {file};
   }
@@ -278,10 +276,10 @@ public class DeltaForceSizingFlagDUnitTest {
       Cache cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
 
-      PartitionAttributesFactory<Integer, TestDelta> paf =
-          new PartitionAttributesFactory<>();
+      var paf =
+          new PartitionAttributesFactory<Integer, TestDelta>();
       paf.setRedundantCopies(1);
-      PartitionAttributes<Integer, TestDelta> prAttr = paf.create();
+      var prAttr = paf.create();
 
       RegionFactory<Integer, TestDelta> regionFactory = cache.createRegionFactory();
       regionFactory.setDataPolicy(DataPolicy.PARTITION);

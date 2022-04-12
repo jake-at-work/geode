@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -38,7 +37,6 @@ import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.server.CacheServer;
@@ -51,7 +49,6 @@ import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.SerializableCallableIF;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.ClientServerTest;
 
@@ -70,25 +67,25 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
 
   @Test
   public void testClientGetsInvalidEntry() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestClientGetsInvalidEntry(regionName, false, false);
   }
 
   @Test
   public void testClientGetsInvalidEntryPR() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestClientGetsInvalidEntry(regionName, true, false);
   }
 
   @Test
   public void testClientGetsTombstone() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestClientGetsTombstone(regionName, false, false);
   }
 
   @Test
   public void testClientGetsTombstonePR() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestClientGetsTombstone(regionName, true, false);
   }
 
@@ -100,25 +97,25 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
 
   @Test
   public void testClientGetsInvalidEntryTX() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestClientGetsInvalidEntry(regionName, false, true);
   }
 
   @Test
   public void testClientGetsInvalidEntryPRTX() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestClientGetsInvalidEntry(regionName, true, true);
   }
 
   @Test
   public void testClientGetsTombstoneTX() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestClientGetsTombstone(regionName, false, true);
   }
 
   @Test
   public void testClientGetsTombstonePRTX() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestClientGetsTombstone(regionName, true, true);
   }
 
@@ -127,13 +124,13 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
 
   @Test
   public void testRegisterInterestRemovesOldEntry() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestRegisterInterestRemovesOldEntry(regionName, false);
   }
 
   @Test
   public void testRegisterInterestRemovesOldEntryPR() throws Exception {
-    final String regionName = getUniqueName() + "Region";
+    final var regionName = getUniqueName() + "Region";
     doTestRegisterInterestRemovesOldEntry(regionName, true);
   }
 
@@ -144,13 +141,13 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
       @Override
       public Object call() {
         Cache cache = getCache();
-        List<CacheServer> servers = cache.getCacheServers();
+        var servers = cache.getCacheServers();
         CacheServer server;
         if (servers.size() > 0) {
           server = servers.get(0);
         } else {
           server = cache.addCacheServer();
-          int port = AvailablePortHelper.getRandomAvailableTCPPort();
+          var port = AvailablePortHelper.getRandomAvailableTCPPort();
           server.setPort(port);
           server.setHostnameForClients("localhost");
           try {
@@ -161,7 +158,7 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
         }
         if (usePR) {
           RegionFactory factory = cache.createRegionFactory(RegionShortcut.PARTITION);
-          PartitionAttributesFactory pf = new PartitionAttributesFactory();
+          var pf = new PartitionAttributesFactory();
           pf.setTotalNumBuckets(2);
           factory.setPartitionAttributes(pf.create());
           factory.create(regionName);
@@ -180,26 +177,26 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
    */
   private void doTestClientGetsInvalidEntry(final String regionName, final boolean usePR,
       boolean useTX) throws Exception {
-    VM vm1 = Host.getHost(0).getVM(1);
-    VM vm2 = Host.getHost(0).getVM(2);
+    var vm1 = Host.getHost(0).getVM(1);
+    var vm2 = Host.getHost(0).getVM(2);
 
     // here are the keys that will be used to validate behavior. Keys must be
     // colocated if using both a partitioned region in the server and transactions
     // in the client. All of these keys hash to bucket 0 in a two-bucket PR
     // except Object11 and IDoNotExist1
-    final String notAffectedKey = "Object1";
-    final String nonexistentKey = (usePR && useTX) ? "IDoNotExist2" : "IDoNotExist1";
-    final String key1 = "Object10";
-    final String key2 = (usePR && useTX) ? "Object12" : "Object11";
+    final var notAffectedKey = "Object1";
+    final var nonexistentKey = (usePR && useTX) ? "IDoNotExist2" : "IDoNotExist1";
+    final var key1 = "Object10";
+    final var key2 = (usePR && useTX) ? "Object12" : "Object11";
 
-    SerializableCallableIF createServer = getCreateServerCallable(regionName, usePR);
+    var createServer = getCreateServerCallable(regionName, usePR);
     int serverPort = (Integer) vm1.invoke(createServer);
     vm2.invoke(createServer);
     vm1.invoke(new SerializableRunnable("populate server and create invalid entry") {
       @Override
       public void run() {
         Region myRegion = getCache().getRegion(regionName);
-        for (int i = 1; i <= 20; i++) {
+        for (var i = 1; i <= 20; i++) {
           myRegion.put("Object" + i, "Value" + i);
         }
         myRegion.invalidate(key1);
@@ -207,7 +204,7 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
       }
     });
     org.apache.geode.test.dunit.LogWriterUtils.getLogWriter().info("creating client cache");
-    ClientCache c = new ClientCacheFactory().addPoolServer("localhost", serverPort)
+    var c = new ClientCacheFactory().addPoolServer("localhost", serverPort)
         .set(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel()).create();
     Region myRegion =
         c.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName);
@@ -256,7 +253,7 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
     keys.add(notAffectedKey);
     keys.add(key1);
     keys.add(key2);
-    Map result = myRegion.getAll(keys);
+    var result = myRegion.getAll(keys);
 
     assertNotNull(result.get(notAffectedKey));
     assertNull(result.get(key1));
@@ -278,7 +275,7 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
 
     // test that a listener is not invoked when there is already an invalidated
     // entry in the client cache
-    UpdateListener listener = new UpdateListener();
+    var listener = new UpdateListener();
     listener.log = org.apache.geode.test.dunit.LogWriterUtils.getLogWriter();
     myRegion.getAttributesMutator().addCacheListener(listener);
     myRegion.get(key1);
@@ -302,26 +299,26 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
    */
   private void doTestClientGetsTombstone(final String regionName, final boolean usePR,
       boolean useTX) throws Exception {
-    VM vm1 = Host.getHost(0).getVM(1);
-    VM vm2 = Host.getHost(0).getVM(2);
+    var vm1 = Host.getHost(0).getVM(1);
+    var vm2 = Host.getHost(0).getVM(2);
 
     // here are the keys that will be used to validate behavior. Keys must be
     // colocated if using both a partitioned region in the server and transactions
     // in the client. All of these keys hash to bucket 0 in a two-bucket PR
     // except Object11 and IDoNotExist1
-    final String notAffectedKey = "Object1";
-    final String nonexistentKey = (usePR && useTX) ? "IDoNotExist2" : "IDoNotExist1";
-    final String key1 = "Object10";
-    final String key2 = (usePR && useTX) ? "Object12" : "Object11";
+    final var notAffectedKey = "Object1";
+    final var nonexistentKey = (usePR && useTX) ? "IDoNotExist2" : "IDoNotExist1";
+    final var key1 = "Object10";
+    final var key2 = (usePR && useTX) ? "Object12" : "Object11";
 
-    SerializableCallableIF createServer = getCreateServerCallable(regionName, usePR);
+    var createServer = getCreateServerCallable(regionName, usePR);
     int serverPort = (Integer) vm1.invoke(createServer);
     vm2.invoke(createServer);
     vm1.invoke(new SerializableRunnable("populate server and create invalid entry") {
       @Override
       public void run() {
         Region myRegion = getCache().getRegion(regionName);
-        for (int i = 1; i <= 20; i++) {
+        for (var i = 1; i <= 20; i++) {
           myRegion.put("Object" + i, "Value" + i);
         }
         myRegion.destroy(key1);
@@ -329,7 +326,7 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
       }
     });
     org.apache.geode.test.dunit.LogWriterUtils.getLogWriter().info("creating client cache");
-    ClientCache c = new ClientCacheFactory().addPoolServer("localhost", serverPort)
+    var c = new ClientCacheFactory().addPoolServer("localhost", serverPort)
         .set(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel()).create();
     Region myRegion =
         c.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName);
@@ -393,7 +390,7 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
     keys.add(notAffectedKey);
     keys.add(key1);
     keys.add(key2);
-    Map result = myRegion.getAll(keys);
+    var result = myRegion.getAll(keys);
 
     org.apache.geode.test.dunit.LogWriterUtils.getLogWriter().info("result of getAll = " + result);
     assertNotNull(result.get(notAffectedKey));
@@ -432,30 +429,30 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
 
   private void doTestRegisterInterestRemovesOldEntry(final String regionName, final boolean usePR)
       throws Exception {
-    VM vm1 = Host.getHost(0).getVM(1);
-    VM vm2 = Host.getHost(0).getVM(2);
+    var vm1 = Host.getHost(0).getVM(1);
+    var vm2 = Host.getHost(0).getVM(2);
 
     // here are the keys that will be used to validate behavior. Keys must be
     // colocated if using both a partitioned region in the server and transactions
     // in the client. All of these keys hash to bucket 0 in a two-bucket PR
     // except Object11 and IDoNotExist1
-    final String key10 = "Object10";
-    final String interestPattern = "Object.*";
+    final var key10 = "Object10";
+    final var interestPattern = "Object.*";
 
-    SerializableCallableIF createServer = getCreateServerCallable(regionName, usePR);
+    var createServer = getCreateServerCallable(regionName, usePR);
     int serverPort = (Integer) vm1.invoke(createServer);
     vm2.invoke(createServer);
     vm1.invoke(new SerializableRunnable("populate server") {
       @Override
       public void run() {
         Region myRegion = getCache().getRegion(regionName);
-        for (int i = 1; i <= 20; i++) {
+        for (var i = 1; i <= 20; i++) {
           myRegion.put("Object" + i, "Value" + i);
         }
       }
     });
     org.apache.geode.test.dunit.LogWriterUtils.getLogWriter().info("creating client cache");
-    ClientCache c = new ClientCacheFactory().addPoolServer("localhost", serverPort)
+    var c = new ClientCacheFactory().addPoolServer("localhost", serverPort)
         .set(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel()).setPoolSubscriptionEnabled(true)
         .create();
 
@@ -470,15 +467,15 @@ public class ClientServerInvalidAndDestroyedEntryDUnitTest extends JUnit4CacheTe
     // remove the entry for key1 on the servers and then simulate interest recovery
     // to show that the entry for key1 is no longer there in the client when recovery
     // finishes
-    SerializableRunnable destroyKey10 =
+    var destroyKey10 =
         new SerializableRunnable("locally destroy " + key10 + " in the servers") {
           @Override
           public void run() {
             Region myRegion = getCache().getRegion(regionName);
-            EntryEventImpl event = ((LocalRegion) myRegion).generateEvictDestroyEvent(key10);
+            var event = ((LocalRegion) myRegion).generateEvictDestroyEvent(key10);
             event.setOperation(Operation.LOCAL_DESTROY);
             if (usePR) {
-              BucketRegion bucket = ((PartitionedRegion) myRegion).getBucketRegion(key10);
+              var bucket = ((PartitionedRegion) myRegion).getBucketRegion(key10);
               if (bucket != null) {
                 event.setRegion(bucket);
                 org.apache.geode.test.dunit.LogWriterUtils.getLogWriter()

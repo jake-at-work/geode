@@ -83,7 +83,7 @@ public class InternalDataSerializerSerializationAcceptlistTest {
 
     Object deserializedObject;
     try (InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
-        DataInputStream dataInputStream = new DataInputStream(in)) {
+        var dataInputStream = new DataInputStream(in)) {
       deserializedObject = DataSerializer.readObject(dataInputStream);
     }
 
@@ -96,9 +96,9 @@ public class InternalDataSerializerSerializationAcceptlistTest {
     initializeSerializationFilter(config(properties), emptySet());
     DataSerializer.writeObject(testSerializable, outputStream);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       try (InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
-          DataInputStream dataInputStream = new DataInputStream(in)) {
+          var dataInputStream = new DataInputStream(in)) {
         DataSerializer.readObject(dataInputStream);
       }
     });
@@ -115,7 +115,7 @@ public class InternalDataSerializerSerializationAcceptlistTest {
 
     Object deserializedObject;
     try (InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
-        DataInputStream dataInputStream = new DataInputStream(in)) {
+        var dataInputStream = new DataInputStream(in)) {
       deserializedObject = DataSerializer.readObject(dataInputStream);
     }
 
@@ -129,9 +129,9 @@ public class InternalDataSerializerSerializationAcceptlistTest {
     initializeSerializationFilter(config(properties), emptySet());
     DataSerializer.writeObject(testSerializable, outputStream);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       try (InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
-          DataInputStream dataInputStream = new DataInputStream(in)) {
+          var dataInputStream = new DataInputStream(in)) {
         DataSerializer.readObject(dataInputStream);
       }
     });
@@ -147,9 +147,9 @@ public class InternalDataSerializerSerializationAcceptlistTest {
     initializeSerializationFilter(config(properties), emptySet());
     DataSerializer.writeObject(testSerializable, outputStream);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       try (InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
-          DataInputStream dataInputStream = new DataInputStream(in)) {
+          var dataInputStream = new DataInputStream(in)) {
         DataSerializer.readObject(dataInputStream);
       }
     });
@@ -164,9 +164,9 @@ public class InternalDataSerializerSerializationAcceptlistTest {
     initializeSerializationFilter(config(properties), emptySet());
     DataSerializer.writeObject(testSerializable, outputStream);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       try (InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
-          DataInputStream dataInputStream = new DataInputStream(in)) {
+          var dataInputStream = new DataInputStream(in)) {
         DataSerializer.readObject(dataInputStream);
       }
     });
@@ -182,9 +182,9 @@ public class InternalDataSerializerSerializationAcceptlistTest {
     initializeSerializationFilter(config(properties), emptySet());
     DataSerializer.writeObject(testSerializable, outputStream);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       try (InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
-          DataInputStream dataInputStream = new DataInputStream(in)) {
+          var dataInputStream = new DataInputStream(in)) {
         DataSerializer.readObject(dataInputStream);
       }
     });
@@ -199,9 +199,9 @@ public class InternalDataSerializerSerializationAcceptlistTest {
     initializeSerializationFilter(config(properties), emptySet());
     DataSerializer.writeObject(testSerializable, outputStream);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       try (InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
-          DataInputStream dataInputStream = new DataInputStream(in)) {
+          var dataInputStream = new DataInputStream(in)) {
         DataSerializer.readObject(dataInputStream);
       }
     });
@@ -218,7 +218,7 @@ public class InternalDataSerializerSerializationAcceptlistTest {
 
     Object deserializedObject;
     try (InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
-        DataInputStream dataInputStream = new DataInputStream(in)) {
+        var dataInputStream = new DataInputStream(in)) {
       deserializedObject = DataSerializer.readObject(dataInputStream);
     }
 

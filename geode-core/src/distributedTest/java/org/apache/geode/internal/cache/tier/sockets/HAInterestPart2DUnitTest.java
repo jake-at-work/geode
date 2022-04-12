@@ -29,7 +29,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ServerConnectivityException;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
 
@@ -55,12 +54,12 @@ public class HAInterestPart2DUnitTest extends HAInterestTestCase {
 
     registerK1AndK2();
 
-    VM oldPrimary = getPrimaryVM();
+    var oldPrimary = getPrimaryVM();
     stopPrimaryAndUnregisterRegisterK1();
 
     verifyDeadAndLiveServers(1, 2);
 
-    VM newPrimary = getPrimaryVM(oldPrimary);
+    var newPrimary = getPrimaryVM(oldPrimary);
     newPrimary.invoke(HAInterestTestCase::verifyDispatcherIsAlive);
     // primary
     newPrimary.invoke(HAInterestTestCase::verifyInterestUNRegistration);
@@ -79,7 +78,7 @@ public class HAInterestPart2DUnitTest extends HAInterestTestCase {
     server2.invoke(HAInterestTestCase::createEntriesK1andK2);
     server3.invoke(HAInterestTestCase::createEntriesK1andK2);
     registerK1AndK2();
-    VM stoppedBackup = stopSecondaryAndUNregisterK1();
+    var stoppedBackup = stopSecondaryAndUNregisterK1();
     verifyDeadAndLiveServers(1, 2);
     // still primary
     getPrimaryVM().invoke(HAInterestTestCase::verifyDispatcherIsAlive);
@@ -100,7 +99,7 @@ public class HAInterestPart2DUnitTest extends HAInterestTestCase {
     server1.invoke(HAInterestTestCase::createEntriesK1andK2);
     server2.invoke(HAInterestTestCase::createEntriesK1andK2);
     server3.invoke(HAInterestTestCase::createEntriesK1andK2);
-    VM backup = getBackupVM();
+    var backup = getBackupVM();
     backup.invoke(HAInterestTestCase::stopServer);
     verifyDeadAndLiveServers(1, 2);
     setClientServerObserverForBeforeRegistration(backup);
@@ -128,7 +127,7 @@ public class HAInterestPart2DUnitTest extends HAInterestTestCase {
     server2.invoke(HAInterestTestCase::createEntriesK1andK2);
     server3.invoke(HAInterestTestCase::createEntriesK1andK2);
 
-    VM backup = getBackupVM();
+    var backup = getBackupVM();
     backup.invoke(HAInterestTestCase::stopServer);
     verifyDeadAndLiveServers(1, 2);
 
@@ -172,7 +171,7 @@ public class HAInterestPart2DUnitTest extends HAInterestTestCase {
     // Verify for interest registration after cache-server is started.
     server1.invoke(HAInterestTestCase::verifyInterestRegistration);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       private String excuse;
 
       @Override
@@ -241,8 +240,8 @@ public class HAInterestPart2DUnitTest extends HAInterestTestCase {
 
     createClientPoolCache(getName(), NetworkUtils.getServerHostName(server1.getHost()));
 
-    VM backup1 = getBackupVM();
-    VM backup2 = getBackupVM(backup1);
+    var backup1 = getBackupVM();
+    var backup2 = getBackupVM(backup1);
     backup1.invoke(HAInterestTestCase::stopServer);
     backup2.invoke(HAInterestTestCase::stopServer);
     verifyDeadAndLiveServers(2, 1);
@@ -281,13 +280,13 @@ public class HAInterestPart2DUnitTest extends HAInterestTestCase {
     final Region r1 = cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r1);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       private String excuse;
 
       @Override
       public boolean done() {
-        Entry e1 = r1.getEntry(k1);
-        Entry e2 = r1.getEntry(k2);
+        var e1 = r1.getEntry(k1);
+        var e2 = r1.getEntry(k2);
         Object v1 = null;
         if (e1 != null) {
           try {
@@ -339,8 +338,8 @@ public class HAInterestPart2DUnitTest extends HAInterestTestCase {
         getServerHostName(server1.getHost()));
     registerK1AndK2();
     verifyRefreshedEntriesFromServer();
-    VM backup = getBackupVM();
-    VM primary = getPrimaryVM();
+    var backup = getBackupVM();
+    var primary = getPrimaryVM();
 
     backup.invoke(HAInterestTestCase::stopServer);
     primary.invoke(HAInterestTestCase::stopServer);
@@ -356,13 +355,13 @@ public class HAInterestPart2DUnitTest extends HAInterestTestCase {
     final Region r1 = cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r1);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       private String excuse;
 
       @Override
       public boolean done() {
-        Entry e1 = r1.getEntry(k1);
-        Entry e2 = r1.getEntry(k2);
+        var e1 = r1.getEntry(k1);
+        var e2 = r1.getEntry(k2);
         if (e1 == null) {
           excuse = "Entry for k1 still null";
           return false;

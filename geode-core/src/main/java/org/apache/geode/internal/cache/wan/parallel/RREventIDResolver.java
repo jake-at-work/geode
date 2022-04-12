@@ -40,7 +40,7 @@ public class RREventIDResolver implements PartitionResolver {
 
   @Override
   public Object getRoutingObject(EntryOperation opDetails) {
-    EventID eventID = (EventID) opDetails.getKey();
+    var eventID = (EventID) opDetails.getKey();
     return eventID.getBucketID();
   }
 

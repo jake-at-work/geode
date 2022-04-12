@@ -57,7 +57,7 @@ public class ConnectionConfigImpl implements ConnectionConfig {
    * DistributionConfigImpl} constructor
    */
   private static Properties removeNonUserProperties(Properties properties) {
-    Properties cleanedProperties = new Properties();
+    var cleanedProperties = new Properties();
     properties.forEach(cleanedProperties::put);
     cleanedProperties.remove(DS_QUORUM_CHECKER_NAME);
     cleanedProperties.remove(DS_RECONNECTING_NAME);

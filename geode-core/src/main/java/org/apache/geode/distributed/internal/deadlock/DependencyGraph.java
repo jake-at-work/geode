@@ -52,7 +52,7 @@ public class DependencyGraph implements Serializable {
 
   /** add a collection of edges to this graph */
   public void addEdges(Collection<Dependency> edges) {
-    for (Dependency dep : edges) {
+    for (var dep : edges) {
       addEdge(dep);
     }
   }
@@ -63,7 +63,7 @@ public class DependencyGraph implements Serializable {
   public void addEdge(Dependency dependency) {
     if (!edges.contains(dependency)) {
       edges.add(dependency);
-      Set<Dependency> outboundEdges = vertices.get(dependency.getDepender());
+      var outboundEdges = vertices.get(dependency.getDepender());
       if (outboundEdges == null) {
         outboundEdges = new HashSet();
         vertices.put(dependency.getDepender(), outboundEdges);
@@ -90,10 +90,10 @@ public class DependencyGraph implements Serializable {
     Set<Object> finished = new HashSet<>(vertices.size());
 
     while (unvisited.size() > 0) {
-      Object start = unvisited.iterator().next();
-      CycleHolder cycle = new CycleHolder();
+      var start = unvisited.iterator().next();
+      var cycle = new CycleHolder();
 
-      boolean foundCycle = visitCycle(start, unvisited, finished, cycle, 0);
+      var foundCycle = visitCycle(start, unvisited, finished, cycle, 0);
       if (foundCycle) {
         return cycle.cycle;
       }
@@ -112,11 +112,11 @@ public class DependencyGraph implements Serializable {
    * by the culprit.
    */
   public DependencyGraph findLongestCallChain() {
-    int depth = 0;
+    var depth = 0;
     DependencyGraph deepest = null;
 
-    for (Object dep : vertices.keySet()) {
-      int itsDepth = getDepth(dep);
+    for (var dep : vertices.keySet()) {
+      var itsDepth = getDepth(dep);
       if (itsDepth > depth) {
         deepest = getSubGraph(dep);
         depth = itsDepth;
@@ -139,7 +139,7 @@ public class DependencyGraph implements Serializable {
     // we can just quit
     Object obj = null;
     Dependency objDep = null;
-    for (Dependency dep : edges) {
+    for (var dep : edges) {
       if (dep.depender.toString().contains(objectName)) {
         obj = dep.depender;
         objDep = dep;
@@ -161,10 +161,10 @@ public class DependencyGraph implements Serializable {
     // top-level nodes that have no references to them
     Set<Object> dependsOnObj = new HashSet<>();
     dependsOnObj.add(obj);
-    boolean anyAdded = true;
+    var anyAdded = true;
     while (anyAdded) {
       anyAdded = false;
-      for (Dependency dep : edges) {
+      for (var dep : edges) {
         if (dependsOnObj.contains(dep.dependsOn) && !dependsOnObj.contains(dep.depender)) {
           anyAdded = true;
           dependsOnObj.add(dep.depender);
@@ -175,7 +175,7 @@ public class DependencyGraph implements Serializable {
     // find all terminal nodes having no incoming
     // dependers.
     Set<Object> allDependents = new HashSet<>();
-    for (Dependency dep : edges) {
+    for (var dep : edges) {
       if ((dep.dependsOn instanceof LocalThread)) {
         if (dep.depender instanceof MessageKey) {
           allDependents.add(dep.dependsOn);
@@ -186,7 +186,7 @@ public class DependencyGraph implements Serializable {
     }
 
     List<DependencyGraph> result = new LinkedList<>();
-    for (Object depender : dependsOnObj) {
+    for (var depender : dependsOnObj) {
       if (!allDependents.contains(depender)) {
         result.add(getSubGraph(depender));
       }
@@ -216,8 +216,8 @@ public class DependencyGraph implements Serializable {
 
     cycle.processDepth(depth);
 
-    boolean foundCycle = false;
-    for (Dependency dep : vertices.get(start)) {
+    var foundCycle = false;
+    for (var dep : vertices.get(start)) {
       foundCycle |= visitCycle(dep.getDependsOn(), unvisited, finished, cycle, depth + 1);
       if (foundCycle) {
         cycle.add(dep);
@@ -234,10 +234,10 @@ public class DependencyGraph implements Serializable {
     Set<Object> unvisited = new HashSet<>(vertices.keySet());
     Set<Object> finished = new HashSet<>(vertices.size());
 
-    Object start = depender;
-    CycleHolder cycle = new CycleHolder();
+    var start = depender;
+    var cycle = new CycleHolder();
 
-    boolean foundCycle = visitCycle(start, unvisited, finished, cycle, 0);
+    var foundCycle = visitCycle(start, unvisited, finished, cycle, 0);
 
     if (foundCycle) {
       return Integer.MAX_VALUE;
@@ -253,7 +253,7 @@ public class DependencyGraph implements Serializable {
    * This does not include any objects that have dependencies on the starting object.
    */
   public DependencyGraph getSubGraph(Object start) {
-    DependencyGraph result = new DependencyGraph();
+    var result = new DependencyGraph();
 
     populateSubGraph(start, result);
 
@@ -271,7 +271,7 @@ public class DependencyGraph implements Serializable {
     }
 
     result.addVertex(start, vertices.get(start));
-    for (Dependency dep : result.vertices.get(start)) {
+    for (var dep : result.vertices.get(start)) {
       populateSubGraph(dep.getDependsOn(), result);
     }
   }
@@ -314,7 +314,7 @@ public class DependencyGraph implements Serializable {
 
       cycle.addFirst(dep);
 
-      Object lastVertex = cycle.getLast().getDependsOn();
+      var lastVertex = cycle.getLast().getDependsOn();
 
       if (dep.depender.equals(lastVertex)) {
         cycleDone = true;

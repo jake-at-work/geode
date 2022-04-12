@@ -35,8 +35,8 @@ class LoopHelpers {
    * generates 32 bit pseudo-random numbers. Adapted from http://www.snippets.org
    */
   public static int compute1(int x) {
-    int lo = 16807 * (x & 0xFFFF);
-    int hi = 16807 * (x >>> 16);
+    var lo = 16807 * (x & 0xFFFF);
+    var hi = 16807 * (x >>> 16);
     lo += (hi & 0x7FFF) << 16;
     if ((lo & 0x80000000) != 0) {
       lo &= 0x7fffffff;
@@ -54,7 +54,7 @@ class LoopHelpers {
    * Computes a linear congruential random number a random number of times.
    */
   public static int compute2(int x) {
-    int loops = (x >>> 4) & 7;
+    var loops = (x >>> 4) & 7;
     while (loops-- > 0) {
       x = (x * 2147483647) % 16807;
     }
@@ -65,7 +65,7 @@ class LoopHelpers {
    * Yet another random number generator
    */
   public static int compute3(int x) {
-    int t = (x % 127773) * 16807 - (x / 127773) * 2836;
+    var t = (x % 127773) * 16807 - (x / 127773) * 2836;
     return (t > 0) ? t : t + 0x7fffffff;
   }
 
@@ -153,7 +153,7 @@ class LoopHelpers {
     }
 
     public int next() {
-      int t = x ^ (x << 11);
+      var t = x ^ (x << 11);
       x = y;
       y = z;
       z = w;
@@ -184,7 +184,7 @@ class LoopHelpers {
     }
 
     public int next() {
-      long nextseed = (seed * multiplier + addend) & mask;
+      var nextseed = (seed * multiplier + addend) & mask;
       seed = nextseed;
       return ((int) (nextseed >>> 17)) & 0x7FFFFFFF;
     }
@@ -197,7 +197,7 @@ class LoopHelpers {
 
     @Override
     public void run() {
-      long t = System.nanoTime();
+      var t = System.nanoTime();
       if (!started) {
         started = true;
         startTime = t;
@@ -217,12 +217,12 @@ class LoopHelpers {
 
   public static String rightJustify(long n) {
     // There's probably a better way to do this...
-    String field = "         ";
-    String num = Long.toString(n);
+    var field = "         ";
+    var num = Long.toString(n);
     if (num.length() >= field.length()) {
       return num;
     }
-    StringBuilder b = new StringBuilder(field);
+    var b = new StringBuilder(field);
     b.replace(b.length() - num.length(), b.length(), num);
     return b.toString();
   }

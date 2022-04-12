@@ -27,7 +27,6 @@ import org.apache.geode.distributed.internal.MessageWithReply;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.pdx.PdxInitializationException;
@@ -48,8 +47,8 @@ public class CheckTypeRegistryState extends HighPriorityDistributionMessage
 
   public static void send(DistributionManager dm) {
     Set recipients = dm.getOtherDistributionManagerIds();
-    ReplyProcessor21 replyProcessor = new ReplyProcessor21(dm, recipients);
-    CheckTypeRegistryState msg = new CheckTypeRegistryState(replyProcessor.getProcessorId());
+    var replyProcessor = new ReplyProcessor21(dm, recipients);
+    var msg = new CheckTypeRegistryState(replyProcessor.getProcessorId());
     msg.setRecipients(recipients);
     dm.putOutgoing(msg);
     try {
@@ -71,13 +70,13 @@ public class CheckTypeRegistryState extends HighPriorityDistributionMessage
   protected void process(ClusterDistributionManager dm) {
     ReplyException e = null;
     try {
-      InternalCache cache = dm.getCache();
+      var cache = dm.getCache();
       if (cache != null && !cache.isClosed()) {
-        TypeRegistry pdxRegistry = cache.getPdxRegistry();
+        var pdxRegistry = cache.getPdxRegistry();
         if (pdxRegistry != null) {
-          TypeRegistration registry = pdxRegistry.getTypeRegistration();
+          var registry = pdxRegistry.getTypeRegistration();
           if (registry instanceof PeerTypeRegistration) {
-            PeerTypeRegistration peerRegistry = (PeerTypeRegistration) registry;
+            var peerRegistry = (PeerTypeRegistration) registry;
             peerRegistry.verifyConfiguration();
           }
         }
@@ -85,7 +84,7 @@ public class CheckTypeRegistryState extends HighPriorityDistributionMessage
     } catch (Exception ex) {
       e = new ReplyException(ex);
     } finally {
-      ReplyMessage rm = new ReplyMessage();
+      var rm = new ReplyMessage();
       rm.setException(e);
       rm.setProcessorId(processorId);
       rm.setRecipient(getSender());

@@ -18,7 +18,6 @@ package org.apache.geode.management.internal.cli.commands;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
@@ -37,7 +36,7 @@ public class RevokeMissingDiskStoreCommand extends GfshCommand {
       @CliOption(key = CliStrings.REVOKE_MISSING_DISK_STORE__ID, mandatory = true,
           help = CliStrings.REVOKE_MISSING_DISK_STORE__ID__HELP) String id) {
 
-    DistributedSystemMXBean dsMXBean =
+    var dsMXBean =
         ManagementService.getManagementService(getCache()).getDistributedSystemMXBean();
     if (dsMXBean.revokeMissingDiskStores(id)) {
       return ResultModel.createInfo("Missing disk store successfully revoked");

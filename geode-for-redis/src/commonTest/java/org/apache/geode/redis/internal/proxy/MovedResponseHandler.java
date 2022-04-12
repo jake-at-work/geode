@@ -39,14 +39,14 @@ public class MovedResponseHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
     if (msg instanceof ErrorRedisMessage) {
-      String content = ((ErrorRedisMessage) msg).content();
+      var content = ((ErrorRedisMessage) msg).content();
       if (content.startsWith("MOVED")) {
-        for (Map.Entry<HostPort, HostPort> entry : mappings.entrySet()) {
-          String hostPort = entry.getKey().getHost() + ":" + entry.getKey().getPort();
-          int index = content.indexOf(hostPort);
+        for (var entry : mappings.entrySet()) {
+          var hostPort = entry.getKey().getHost() + ":" + entry.getKey().getPort();
+          var index = content.indexOf(hostPort);
           if (index >= 0) {
-            String newHostPort = entry.getValue().getHost() + ":" + entry.getValue().getPort();
-            String response = content.substring(0, index) + newHostPort;
+            var newHostPort = entry.getValue().getHost() + ":" + entry.getValue().getPort();
+            var response = content.substring(0, index) + newHostPort;
             inboundChannel.writeAndFlush(new ErrorRedisMessage(response));
             // No need to have a processor deal with this now
             processors.poll();

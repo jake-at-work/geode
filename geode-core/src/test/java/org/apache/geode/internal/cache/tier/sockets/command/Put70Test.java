@@ -196,7 +196,7 @@ public class Put70Test {
 
     put70.cmdExecute(message, serverConnection, securityService, 0);
 
-    ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
+    var argument = ArgumentCaptor.forClass(String.class);
     verify(errorResponseMessage).addStringPart(argument.capture());
     assertThat(argument.getValue()).contains("The input region name for the put request is null");
     verify(errorResponseMessage).send(serverConnection);
@@ -209,7 +209,7 @@ public class Put70Test {
 
     put70.cmdExecute(message, serverConnection, securityService, 0);
 
-    ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
+    var argument = ArgumentCaptor.forClass(String.class);
     verify(errorResponseMessage).addStringPart(argument.capture());
     assertThat(argument.getValue()).contains("The input key for the put request is null");
     verify(errorResponseMessage).send(serverConnection);
@@ -246,7 +246,7 @@ public class Put70Test {
 
     put70.cmdExecute(message, serverConnection, securityService, 0);
 
-    ArgumentCaptor<byte[]> argument = ArgumentCaptor.forClass(byte[].class);
+    var argument = ArgumentCaptor.forClass(byte[].class);
     verify(replyMessage).addBytesPart(argument.capture());
 
     assertThat(argument.getValue()).isEqualTo(OK_BYTES);
@@ -268,7 +268,7 @@ public class Put70Test {
     verify(authzRequest).putAuthorize(eq(REGION_NAME), eq(KEY), eq(VALUE), eq(true),
         eq(CALLBACK_ARG));
 
-    ArgumentCaptor<NotAuthorizedException> argument =
+    var argument =
         ArgumentCaptor.forClass(NotAuthorizedException.class);
     verify(errorResponseMessage).addObjPart(argument.capture());
 
@@ -286,7 +286,7 @@ public class Put70Test {
 
   @Test
   public void shouldSetPossibleDuplicateReturnsTrueIfRecoveredVersionTagForRetriedOperation() {
-    Put70 spy = Mockito.spy(put70);
+    var spy = Mockito.spy(put70);
     when(attributes.getConcurrencyChecksEnabled()).thenReturn(true);
     doReturn(true).when(spy).recoverVersionTagForRetriedOperation(clientEvent);
 
@@ -295,7 +295,7 @@ public class Put70Test {
 
   @Test
   public void shouldSetPossibleDuplicateReturnsFalseIfNotRecoveredVersionTagAndNoPersistence() {
-    Put70 spy = Mockito.spy(put70);
+    var spy = Mockito.spy(put70);
     when(attributes.getConcurrencyChecksEnabled()).thenReturn(true);
     when(dataPolicy.withPersistence()).thenReturn(false);
     doReturn(false).when(spy).recoverVersionTagForRetriedOperation(clientEvent);
@@ -305,7 +305,7 @@ public class Put70Test {
 
   @Test
   public void shouldSetPossibleDuplicateReturnsTrueIfNotRecoveredVersionTagAndWithPersistence() {
-    Put70 spy = Mockito.spy(put70);
+    var spy = Mockito.spy(put70);
     when(attributes.getConcurrencyChecksEnabled()).thenReturn(true);
     when(dataPolicy.withPersistence()).thenReturn(true);
     doReturn(false).when(spy).recoverVersionTagForRetriedOperation(clientEvent);

@@ -50,7 +50,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -70,22 +69,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionFactory;
-import org.apache.geode.cache.control.RebalanceResults;
-import org.apache.geode.cache.partition.PartitionRegionInfo;
 import org.apache.geode.cache.persistence.PartitionOfflineException;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InitialImageOperation.RequestImageMessage;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserver;
 import org.apache.geode.internal.cache.partitioned.colocation.ColocationLogger;
@@ -95,7 +89,6 @@ import org.apache.geode.logging.internal.executors.LoggingThread;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
@@ -160,7 +153,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(vm0, vm1, vm2, getController())) {
+    for (var vm : toArray(vm0, vm1, vm2, getController())) {
       vm.invoke(() -> {
         DistributionMessageObserver.setInstance(null);
         tearDownPartitionedRegionObserver();
@@ -180,7 +173,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test
   public void testColocatedPRs() throws Exception {
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -200,20 +193,20 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     Map<Integer, Set<Integer>> bucketIdsInVM = new HashMap<>();
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       bucketIdsInVM.put(vm.getId(), vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(getBucketIds(childRegionName1)).isEqualTo(bucketIds);
         assertThat(getBucketIds(childRegionName2)).isEqualTo(bucketIds);
         return bucketIds;
       }));
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(this::closeCache);
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       addAsync(vm.invokeAsync(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -228,8 +221,8 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     awaitAllAsync();
 
     // The secondary buckets can be recovered asynchronously, so wait for them to come back.
-    for (VM vm : toArray(vm0, vm1)) {
-      Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+    for (var vm : toArray(vm0, vm1)) {
+      var bucketIds = bucketIdsInVM.get(vm.getId());
       vm.invoke(() -> {
         waitForBuckets(regionName, bucketIds);
         waitForBuckets(childRegionName1, bucketIds);
@@ -249,8 +242,8 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     // The region 3 buckets should be restored in the appropriate places.
-    for (VM vm : toArray(vm0, vm1, vm2)) {
-      Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+    for (var vm : toArray(vm0, vm1, vm2)) {
+      var bucketIds = bucketIdsInVM.get(vm.getId());
       assertThat(vm.invoke(() -> getBucketIds(childRegionName2))).isEqualTo(bucketIds);
     }
   }
@@ -260,7 +253,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test
   public void testMissingColocatedParentPR() {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -276,15 +269,15 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       createData(childRegionName1, "b");
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(bucketIds).isNotEmpty();
         assertThat(getBucketIds(childRegionName1)).isEqualTo(bucketIds);
       });
     }
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
@@ -293,7 +286,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     vm0.invoke("createPRsMissingParentRegion", () -> {
       createCache();
 
-      Throwable thrown =
+      var thrown =
           catchThrowable(
               () -> createChildPR_withPersistence(regionName, childRegionName1, diskStoreName1,
                   DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES,
@@ -310,7 +303,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test
   public void testMissingColocatedParentPRWherePRConfigExists() throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -326,15 +319,15 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       createData(childRegionName1, "b");
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(bucketIds).isNotEmpty();
         assertThat(getBucketIds(childRegionName1)).isEqualTo(bucketIds);
       });
     }
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
@@ -363,7 +356,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
       latch.await(TIMEOUT_MILLIS, MILLISECONDS);
 
-      Throwable thrown =
+      var thrown =
           catchThrowable(
               () -> createChildPR_withPersistence(regionName, childRegionName1, diskStoreName1,
                   DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES,
@@ -387,7 +380,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test
   public void testMissingColocatedChildPRDueToDelayedStart() throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -403,9 +396,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       createData(childRegionName1, "b");
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(bucketIds).isNotEmpty();
         assertThat(getBucketIds(childRegionName1)).isEqualTo(bucketIds);
       });
@@ -425,7 +418,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test
   public void testMissingColocatedChildPR() throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -441,9 +434,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       createData(childRegionName1, "b");
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(bucketIds).isNotEmpty();
         assertThat(getBucketIds(childRegionName1)).isEqualTo(bucketIds);
       });
@@ -464,16 +457,16 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test
   public void testMultipleColocatedChildPRsMissing() throws Exception {
-    int childPRCount = 2;
+    var childPRCount = 2;
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
         createPR_withPersistence(regionName, diskStoreName1, DEFAULT_RECOVERY_DELAY,
             DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY);
 
-        for (int i = 2; i < childPRCount + 2; ++i) {
+        for (var i = 2; i < childPRCount + 2; ++i) {
           createChildPR_withPersistence(regionName, "region" + i, diskStoreName1,
               DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES,
               DEFAULT_STARTUP_RECOVERY_DELAY);
@@ -488,18 +481,18 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     Map<Integer, Set<Integer>> bucketIdsInVM = new HashMap<>();
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       bucketIdsInVM.put(vm.getId(), vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(bucketIds).isNotEmpty();
         return bucketIds;
       }));
     }
 
-    for (int i = 2; i < childPRCount + 2; ++i) {
-      String childRegionName = "region" + i;
-      for (VM vm : toArray(vm0, vm1)) {
-        Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+    for (var i = 2; i < childPRCount + 2; ++i) {
+      var childRegionName = "region" + i;
+      for (var vm : toArray(vm0, vm1)) {
+        var bucketIds = bucketIdsInVM.get(vm.getId());
         assertThat(vm.invoke(() -> getBucketIds(childRegionName))).isEqualTo(bucketIds);
       }
     }
@@ -520,16 +513,16 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test // GEODE-7513
   public void testMultipleColocatedChildPRsMissingWithSequencedStart() throws Exception {
-    int childPRCount = 2;
+    var childPRCount = 2;
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
         createPR_withPersistence(regionName, diskStoreName1, DEFAULT_RECOVERY_DELAY,
             DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY);
 
-        for (int i = 2; i < childPRCount + 2; ++i) {
+        for (var i = 2; i < childPRCount + 2; ++i) {
           createChildPR_withPersistence(regionName, "region" + i, diskStoreName1,
               DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES,
               DEFAULT_STARTUP_RECOVERY_DELAY);
@@ -544,23 +537,23 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     Map<Integer, Set<Integer>> bucketIdsInVM = new HashMap<>();
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       bucketIdsInVM.put(vm.getId(), vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(bucketIds).isNotEmpty();
         return bucketIds;
       }));
     }
 
-    for (int i = 2; i < childPRCount + 2; ++i) {
-      String childRegionName = "region" + i;
-      for (VM vm : toArray(vm0, vm1)) {
-        Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+    for (var i = 2; i < childPRCount + 2; ++i) {
+      var childRegionName = "region" + i;
+      for (var vm : toArray(vm0, vm1)) {
+        var bucketIds = bucketIdsInVM.get(vm.getId());
         assertThat(vm.invoke(() -> getBucketIds(childRegionName))).isEqualTo(bucketIds);
       }
     }
 
-    int expectedLogMessagesCount = 2;
+    var expectedLogMessagesCount = 2;
 
     AsyncInvocation<Void> createMultipleChildPRGenerationsInVM0 =
         vm0.invokeAsync(
@@ -580,9 +573,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test
   public void testHierarchyOfColocatedChildPRsMissing() throws Exception {
-    int childPRGenerations = 2;
+    var childPRGenerations = 2;
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -591,7 +584,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
         createChildPR_withPersistence(regionName, childRegionName1, diskStoreName1,
             DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY);
 
-        for (int i = 3; i < childPRGenerations + 2; ++i) {
+        for (var i = 3; i < childPRGenerations + 2; ++i) {
           createChildPR_withPersistence("region" + (i - 1), "region" + i, diskStoreName1,
               DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY);
         }
@@ -605,18 +598,18 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     Map<Integer, Set<Integer>> bucketIdsInVM = new HashMap<>();
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       bucketIdsInVM.put(vm.getId(), vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(bucketIds).isNotEmpty();
         return bucketIds;
       }));
     }
 
-    for (int i = 2; i < childPRGenerations + 2; ++i) {
-      String childRegionName = "region" + i;
-      for (VM vm : toArray(vm0, vm1)) {
-        Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+    for (var i = 2; i < childPRGenerations + 2; ++i) {
+      var childRegionName = "region" + i;
+      for (var vm : toArray(vm0, vm1)) {
+        var bucketIds = bucketIdsInVM.get(vm.getId());
         assertThat(vm.invoke(() -> getBucketIds(childRegionName))).isEqualTo(bucketIds);
       }
     }
@@ -638,9 +631,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test // GEODE-7513
   public void testHierarchyOfColocatedChildPRsMissingGrandchild() throws Exception {
-    int childPRGenerationsCount = 3;
+    var childPRGenerationsCount = 3;
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -649,7 +642,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
         createChildPR_withPersistence(regionName, childRegionName1, diskStoreName1,
             DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY);
 
-        for (int i = 3; i < childPRGenerationsCount + 2; ++i) {
+        for (var i = 3; i < childPRGenerationsCount + 2; ++i) {
           createChildPR_withPersistence("region" + (i - 1), "region" + i, diskStoreName1,
               DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY);
         }
@@ -663,18 +656,18 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     Map<Integer, Set<Integer>> bucketIdsInVM = new HashMap<>();
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       bucketIdsInVM.put(vm.getId(), vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(bucketIds).isNotEmpty();
         return bucketIds;
       }));
     }
 
-    for (int i = 2; i < childPRGenerationsCount + 2; ++i) {
-      String childRegionName = "region" + i;
-      for (VM vm : toArray(vm0, vm1)) {
-        Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+    for (var i = 2; i < childPRGenerationsCount + 2; ++i) {
+      var childRegionName = "region" + i;
+      for (var vm : toArray(vm0, vm1)) {
+        var bucketIds = bucketIdsInVM.get(vm.getId());
         assertThat(vm.invoke(() -> getBucketIds(childRegionName))).isEqualTo(bucketIds);
       }
     }
@@ -682,7 +675,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     // Expected warning logs only on the child region, because without the child
     // there's nothing known about the remaining hierarchy
 
-    int expectedLogMessagesCount = childPRGenerationsCount * (childPRGenerationsCount + 1) / 2;
+    var expectedLogMessagesCount = childPRGenerationsCount * (childPRGenerationsCount + 1) / 2;
 
     AsyncInvocation<Void> createChildPRGenerationsInVM0 = vm0.invokeAsync(
         () -> validateColocationLogger_withChildRegionGenerations(childPRGenerationsCount,
@@ -711,7 +704,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test
   public void testFullTreeOfColocatedChildPRsWithMissingRegions() throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -743,18 +736,18 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     Map<Integer, Set<Integer>> bucketIdsInVM = new HashMap<>();
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       bucketIdsInVM.put(vm.getId(), vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds("Parent");
+        var bucketIds = getBucketIds("Parent");
         assertThat(bucketIds).isNotEmpty();
         return bucketIds;
       }));
     }
 
-    for (String region : asList("Gen1_C1", "Gen1_C2", "Gen2_C1_1", "Gen2_C1_2", "Gen2_C2_1",
+    for (var region : asList("Gen1_C1", "Gen1_C2", "Gen2_C1_1", "Gen2_C1_2", "Gen2_C2_1",
         "Gen2_C2_2")) {
-      for (VM vm : toArray(vm0, vm1)) {
-        Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+      for (var vm : toArray(vm0, vm1)) {
+        var bucketIds = bucketIdsInVM.get(vm.getId());
         assertThat(vm.invoke(() -> getBucketIds(region))).isEqualTo(bucketIds);
       }
     }
@@ -774,7 +767,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
    */
   @Test
   public void testColocatedPRsRecoveryOnePRAtATime() throws Exception {
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -783,7 +776,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       });
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> createChildPR_withRecovery(regionName, childRegionName1,
           DEFAULT_RECOVERY_DELAY, 1, DEFAULT_STARTUP_RECOVERY_DELAY));
     }
@@ -794,26 +787,26 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     Map<Integer, Set<Integer>> bucketIdsInVM = new HashMap<>();
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       bucketIdsInVM.put(vm.getId(), vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(bucketIds).isNotEmpty();
         return bucketIds;
       }));
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
-        Set<Integer> primaryBucketIds = getPrimaryBucketIds(regionName);
+        var primaryBucketIds = getPrimaryBucketIds(regionName);
         assertThat(getPrimaryBucketIds(childRegionName1)).isEqualTo(primaryBucketIds);
       });
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(this::closeCache);
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       addAsync(
           vm.invokeAsync(() -> {
             createCache();
@@ -824,13 +817,13 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     }
     awaitAllAsync();
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> createChildPR_withRecovery(regionName, childRegionName1,
           DEFAULT_RECOVERY_DELAY, 1, DEFAULT_STARTUP_RECOVERY_DELAY));
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
-      Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+    for (var vm : toArray(vm0, vm1, vm2)) {
+      var bucketIds = bucketIdsInVM.get(vm.getId());
       vm.invoke(() -> {
         assertThat(getBucketIds(regionName)).isEqualTo(bucketIds);
         assertThat(getBucketIds(childRegionName1)).isEqualTo(bucketIds);
@@ -838,9 +831,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     }
 
     // primary can differ
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
-        Set<Integer> primaryBucketIds = getPrimaryBucketIds(regionName);
+        var primaryBucketIds = getPrimaryBucketIds(regionName);
         assertThat(getPrimaryBucketIds(childRegionName1)).isEqualTo(primaryBucketIds);
       });
     }
@@ -856,8 +849,8 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     // Now all the buckets should be restored in the appropriate places.
-    for (VM vm : toArray(vm0, vm1, vm2)) {
-      Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+    for (var vm : toArray(vm0, vm1, vm2)) {
+      var bucketIds = bucketIdsInVM.get(vm.getId());
       vm.invoke(() -> {
         assertThat(getBucketIds(childRegionName1)).isEqualTo(bucketIds);
       });
@@ -866,7 +859,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
   @Test
   public void testColocatedPRsRecoveryOneMemberLater() throws Exception {
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -875,7 +868,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       });
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> createChildPR_withRecovery(regionName, childRegionName1,
           DEFAULT_RECOVERY_DELAY, 1, DEFAULT_STARTUP_RECOVERY_DELAY));
     }
@@ -886,17 +879,17 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     Map<Integer, Set<Integer>> bucketIdsInVM = new HashMap<>();
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       bucketIdsInVM.put(vm.getId(), vm.invoke(() -> {
-        Set<Integer> bucketIds = getBucketIds(regionName);
+        var bucketIds = getBucketIds(regionName);
         assertThat(getBucketIds(childRegionName1)).isEqualTo(bucketIds);
         return bucketIds;
       }));
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
-        Set<Integer> primaryBucketIds = getPrimaryBucketIds(regionName);
+        var primaryBucketIds = getPrimaryBucketIds(regionName);
         assertThat(getPrimaryBucketIds(childRegionName1)).isEqualTo(primaryBucketIds);
       });
     }
@@ -908,7 +901,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     vm2.invoke(this::closeCache);
 
     // Make sure the other members notice that vm2 has gone
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         await().untilAsserted(() -> {
           assertThat(getCache().getDistributionManager().getDistributionManagerIds()).hasSize(3);
@@ -916,12 +909,12 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       });
     }
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
     // Create the members, but don't initialize VM2 yet
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       addAsync(vm.invokeAsync(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -931,13 +924,13 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     }
     awaitAllAsync();
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createChildPR_withRecovery(regionName, childRegionName1,
           DEFAULT_RECOVERY_DELAY, 1, DEFAULT_STARTUP_RECOVERY_DELAY));
     }
 
-    for (VM vm : toArray(vm0, vm1)) {
-      Set<Integer> bucketIds = bucketIdsInVM.get(vm.getId());
+    for (var vm : toArray(vm0, vm1)) {
+      var bucketIds = bucketIdsInVM.get(vm.getId());
       vm.invoke(() -> waitForBucketRecovery(regionName, bucketIds));
     }
 
@@ -952,7 +945,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     // Now we initialize vm2.
-    Set<Integer> bucketIds = bucketIdsInVM.get(vm2.getId());
+    var bucketIds = bucketIdsInVM.get(vm2.getId());
     vm2.invoke(() -> {
       createCache();
       createDiskStore(diskStoreName1);
@@ -971,9 +964,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       assertThat(getBucketIds(childRegionName1)).isEqualTo(bucketIds);
     });
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
-        Set<Integer> buckets = getPrimaryBucketIds(regionName);
+        var buckets = getPrimaryBucketIds(regionName);
         assertThat(getPrimaryBucketIds(childRegionName1)).isEqualTo(buckets);
       });
     }
@@ -982,9 +975,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   @Test
   public void testReplaceOfflineMemberAndRestart() throws Exception {
     // Create the PR on three members
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
-        CountDownLatch recoveryDone = prepareRecovery(2);
+        var recoveryDone = prepareRecovery(2);
 
         createCache();
         createDiskStore(diskStoreName1);
@@ -1018,7 +1011,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     addIgnoredException(PartitionOfflineException.class);
 
     // Close the remaining members.
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
@@ -1028,9 +1021,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
     // Recreate the members. Try to make sure that the member with the latest copy of the buckets
     // is the one that decides to throw away it's copy by starting it last.
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       addAsync(vm.invokeAsync(() -> {
-        CountDownLatch recoveryDone = prepareRecovery(2);
+        var recoveryDone = prepareRecovery(2);
 
         createCache();
         createDiskStore(diskStoreName1);
@@ -1048,7 +1041,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     addAsync(vm2.invokeAsync(() -> {
       latch.await();
 
-      CountDownLatch recoveryDone = prepareRecovery(2);
+      var recoveryDone = prepareRecovery(2);
 
       createCache();
       createDiskStore(diskStoreName1);
@@ -1066,7 +1059,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       validateData(childRegionName1, "b");
     });
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         waitForRedundancyRecovery(regionName, 1);
         waitForRedundancyRecovery(childRegionName1, 1);
@@ -1090,9 +1083,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   @Test
   public void testReplaceOfflineMemberAndRestart_WithMultipleDiskStores() throws Exception {
     // Create the PR on three members
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
-        CountDownLatch recoveryDone = prepareRecovery(2);
+        var recoveryDone = prepareRecovery(2);
 
         createCache();
         createDiskStore(diskStoreName1);
@@ -1127,7 +1120,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     addIgnoredException(PartitionOfflineException.class);
 
     // Close the remaining members.
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
@@ -1137,9 +1130,9 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
     // Recreate the members. Try to make sure that the member with the latest copy of the buckets
     // is the one that decides to throw away it's copy by starting it last.
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       addAsync(vm.invokeAsync(() -> {
-        CountDownLatch recoveryDone = prepareRecovery(2);
+        var recoveryDone = prepareRecovery(2);
 
         createCache();
         createDiskStore(diskStoreName1);
@@ -1158,7 +1151,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     addAsync(vm2.invokeAsync(() -> {
       latch.await();
 
-      CountDownLatch recoveryDone = prepareRecovery(2);
+      var recoveryDone = prepareRecovery(2);
 
       createCache();
       createDiskStore(diskStoreName1);
@@ -1177,7 +1170,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       validateData(childRegionName1, "b");
     });
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         waitForRedundancyRecovery(regionName, 1);
         waitForRedundancyRecovery(childRegionName1, 1);
@@ -1204,7 +1197,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     addIgnoredException(RegionDestroyedException.class);
 
     // Create the PRs on three members
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1212,7 +1205,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       });
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> createChildPR_withPersistence_andRecovery(regionName, childRegionName1,
           diskStoreName1, 0, 1, DEFAULT_STARTUP_RECOVERY_DELAY));
     }
@@ -1236,13 +1229,13 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     // Close the remaining members.
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
     // Recreate the parent region. Try to make sure that the member with the latest copy of the
     // buckets is the one that decides to throw away it's copy by starting it last.
-    for (VM vm : toArray(vm2, vm1, vm0)) {
+    for (var vm : toArray(vm2, vm1, vm0)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1252,7 +1245,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     }
 
     // Recreate the child region.
-    for (VM vm : toArray(vm2, vm1, vm0)) {
+    for (var vm : toArray(vm2, vm1, vm0)) {
       addAsync(vm.invokeAsync(() -> createChildPR_withPersistence_andRecovery(regionName,
           childRegionName1, diskStoreName1, 0, 1, DEFAULT_STARTUP_RECOVERY_DELAY)));
     }
@@ -1291,7 +1284,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     addIgnoredException(RegionDestroyedException.class);
 
     // Create the PRs on three members
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1299,7 +1292,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       });
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> createChildPR_withPersistence_andRecovery(regionName, childRegionName1,
           diskStoreName2, 0, 1, DEFAULT_STARTUP_RECOVERY_DELAY));
     }
@@ -1323,13 +1316,13 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     // Close the remaining members.
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
     // Recreate the parent region. Try to make sure that the member with the latest copy of the
     // buckets is the one that decides to throw away it's copy by starting it last.
-    for (VM vm : toArray(vm2, vm1, vm0)) {
+    for (var vm : toArray(vm2, vm1, vm0)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1339,7 +1332,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     }
 
     // Recreate the child region.
-    for (VM vm : toArray(vm2, vm1, vm0)) {
+    for (var vm : toArray(vm2, vm1, vm0)) {
       addAsync(vm.invokeAsync(() -> createChildPR_withPersistence_andRecovery(regionName,
           childRegionName1, diskStoreName2, 0, 1, DEFAULT_STARTUP_RECOVERY_DELAY)));
     }
@@ -1410,7 +1403,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
         public void beforeProcessMessage(ClusterDistributionManager dm,
             DistributionMessage message) {
           if (message instanceof RequestImageMessage) {
-            RequestImageMessage requestImageMessage = (RequestImageMessage) message;
+            var requestImageMessage = (RequestImageMessage) message;
             if (requestImageMessage.getRegionPath().contains(regionName) ||
                 requestImageMessage.getRegionPath().contains(childRegionName1)) {
               DistributionMessageObserver.setInstance(null);
@@ -1429,10 +1422,10 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     vm1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(PartitionOfflineException.class)) {
+      try (var ie = addIgnoredException(PartitionOfflineException.class)) {
         // Do a rebalance to create buckets in vm1. THis will cause vm0 to disconnect
         // as we satisfy redundancy with vm1.
-        Throwable thrown = catchThrowable(() -> {
+        var thrown = catchThrowable(() -> {
           getCache().getResourceManager().createRebalanceFactory().start().getResults();
         });
         if (thrown != null) {
@@ -1447,7 +1440,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     vm1.invoke(this::closeCache);
 
     // Create the cache and PRs on both members
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       addAsync(vm.invokeAsync(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1470,7 +1463,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   @TestCaseName("{method}(childRegionDiskStore={0})")
   public void testRebalanceWithOfflineChildRegion(String childRegionDiskStore) throws Exception {
     // Create the PRs on two members
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1479,7 +1472,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       });
     }
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createChildPR_withPersistence(regionName, childRegionName1,
           childRegionDiskStore, 0, DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY));
     }
@@ -1491,14 +1484,14 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     // Close the members
-    for (VM vm : toArray(vm1, vm0)) {
+    for (var vm : toArray(vm1, vm0)) {
       vm.invoke(this::closeCache);
     }
 
     // Recreate the parent region. Try to make sure that the member with the latest copy of the
     // buckets is the one that decides to throw away it's copy by starting it last.
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1518,13 +1511,13 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     // Rebalance the parent region.
     // This should not move any buckets, because we haven't recovered the child region
     vm2.invoke(() -> {
-      RebalanceResults rebalanceResults =
+      var rebalanceResults =
           getCache().getResourceManager().createRebalanceFactory().start().getResults();
       assertThat(rebalanceResults.getTotalBucketTransfersCompleted()).isZero();
     });
 
     // Recreate the child region.
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       addAsync(vm.invokeAsync(() -> createChildPR_withPersistence(regionName, childRegionName1,
           childRegionDiskStore, 0, DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY)));
     }
@@ -1550,7 +1543,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   @Test
   public void testRebalanceDuringRecovery() throws Exception {
     // Create the PRs on two members
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1568,7 +1561,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     // Close the members
-    for (VM vm : toArray(vm1, vm0)) {
+    for (var vm : toArray(vm1, vm0)) {
       vm.invoke(this::closeCache);
     }
 
@@ -1576,7 +1569,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       PartitionedRegionObserverHolder.setInstance(new PRObserver(childRegionName1));
     });
     try {
-      for (VM vm : toArray(vm0, vm1)) {
+      for (var vm : toArray(vm0, vm1)) {
         addAsync(vm.invokeAsync(() -> {
           createCache();
           createDiskStore(diskStoreName1);
@@ -1588,7 +1581,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       }
 
       vm1.invoke(() -> {
-        PRObserver observer = (PRObserver) PartitionedRegionObserverHolder.getInstance();
+        var observer = (PRObserver) PartitionedRegionObserverHolder.getInstance();
         observer.waitForCreate();
       });
 
@@ -1609,7 +1602,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
     } finally {
       vm1.invoke(() -> {
-        PRObserver observer = (PRObserver) PartitionedRegionObserverHolder.getInstance();
+        var observer = (PRObserver) PartitionedRegionObserverHolder.getInstance();
         observer.tearDown();
         PartitionedRegionObserverHolder.setInstance(new PartitionedRegionObserverAdapter());
       });
@@ -1628,11 +1621,11 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
     // Make sure the system is recoverable by restarting it
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(this::closeCache);
     }
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       addAsync(vm.invokeAsync(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1648,7 +1641,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   @Test
   public void testParentRegionGetWithOfflineChildRegion() {
     // Expect a get() on the un-recovered (due to offline child) parent region to fail
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1657,7 +1650,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       });
     }
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(
           () -> createChildPR_withPersistence(regionName, childRegionName1, diskStoreName1, 0,
               DEFAULT_REDUNDANT_COPIES,
@@ -1671,13 +1664,13 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     });
 
     // Close the members
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::closeCache);
     }
 
     // Recreate the parent region. Try to make sure that the member with the latest copy of the
     // buckets is the one that decides to throw away it's copy by starting it last.
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         createCache();
         createDiskStore(diskStoreName1);
@@ -1696,14 +1689,14 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
     vm0.invoke(() -> {
       Region<Integer, String> region = getCache().getRegion(regionName);
-      Throwable thrown = catchThrowable(() -> region.get(0));
+      var thrown = catchThrowable(() -> region.get(0));
       assertThat(thrown).isInstanceOf(PartitionOfflineException.class);
     });
   }
 
   private void createPR_withPersistence(String regionName, String diskStoreName, long recoveryDelay,
       int redundantCopies, long startupRecoveryDelay) {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRecoveryDelay(recoveryDelay);
     partitionAttributesFactory.setRedundantCopies(redundantCopies);
     partitionAttributesFactory.setStartupRecoveryDelay(startupRecoveryDelay);
@@ -1717,7 +1710,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
   private void createChildPR(String parentRegionName, String childRegionName, long recoveryDelay,
       int redundantCopies, long startupRecoveryDelay) {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setColocatedWith(parentRegionName);
     partitionAttributesFactory.setRecoveryDelay(recoveryDelay);
     partitionAttributesFactory.setRedundantCopies(redundantCopies);
@@ -1733,7 +1726,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       String diskStoreName, long recoveryDelay, int redundantCopies, long startupRecoveryDelay) {
     createDiskStore(diskStoreName);
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setColocatedWith(parentRegionName);
     partitionAttributesFactory.setRecoveryDelay(recoveryDelay);
     partitionAttributesFactory.setRedundantCopies(redundantCopies);
@@ -1749,7 +1742,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   private void createChildPR_withPersistence_andRecovery(String parentRegionName,
       String childRegionName, String diskStoreName, long recoveryDelay, int redundantCopies,
       long startupRecoveryDelay) throws InterruptedException {
-    CountDownLatch recoveryDone = prepareRecovery(1, childRegionName1);
+    var recoveryDone = prepareRecovery(1, childRegionName1);
 
     createChildPR_withPersistence(parentRegionName, childRegionName, diskStoreName, recoveryDelay,
         redundantCopies, startupRecoveryDelay);
@@ -1760,7 +1753,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   private void createChildPR_withRecovery(String parentRegionName, String childRegionName,
       long recoveryDelay, int redundantCopies, long startupRecoveryDelay)
       throws InterruptedException {
-    CountDownLatch recoveryDone = prepareRecovery(1, childRegionName1);
+    var recoveryDone = prepareRecovery(1, childRegionName1);
 
     createChildPR(parentRegionName, childRegionName, recoveryDelay, redundantCopies,
         startupRecoveryDelay);
@@ -1773,7 +1766,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   }
 
   private CountDownLatch prepareRecovery(int count, String regionName) {
-    CountDownLatch recoveryDone = new CountDownLatch(count);
+    var recoveryDone = new CountDownLatch(count);
     ResourceObserver observer = new InternalResourceManager.ResourceObserverAdapter() {
       @Override
       public void recoveryFinished(Region region) {
@@ -1789,7 +1782,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   private void validateColocationLogger_withMissingChildRegion(int expectedLogMessagesCount) {
     closeCache();
 
-    try (SpyLogger spyLogger = new SpyLogger()) {
+    try (var spyLogger = new SpyLogger()) {
       createCache();
       createDiskStore(diskStoreName1);
       createPR_withPersistence(regionName, diskStoreName1, DEFAULT_RECOVERY_DELAY,
@@ -1798,14 +1791,14 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       // Let this thread continue running long enough for the missing region to be logged a
       // couple times. Child regions do not get created by this thread.
 
-      ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+      var messageCaptor = ArgumentCaptor.forClass(String.class);
 
       verify(spyLogger.logger(),
           timeout(TIMEOUT_MILLIS)
               .atLeast(expectedLogMessagesCount))
                   .accept(messageCaptor.capture());
 
-      for (String message : messageCaptor.getAllValues()) {
+      for (var message : messageCaptor.getAllValues()) {
         assertThat(message).matches(PATTERN_FOR_MISSING_CHILD_LOG);
       }
     }
@@ -1815,7 +1808,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       int expectedLogMessagesCount) {
     closeCache();
 
-    try (SpyLogger spyLogger = new SpyLogger()) {
+    try (var spyLogger = new SpyLogger()) {
       createCache();
       createDiskStore(diskStoreName1);
       createPR_withPersistence(regionName, diskStoreName1, DEFAULT_RECOVERY_DELAY,
@@ -1824,16 +1817,16 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       // Delay creation of child generation regions to see missing colocated region log message
       // parent region is generation 1, child region is generation 2, grandchild is 3, etc.
 
-      ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+      var messageCaptor = ArgumentCaptor.forClass(String.class);
 
-      for (int generation = 2; generation < childPRGenerationsCount + 2; ++generation) {
-        String childPRName = "region" + generation;
-        String colocatedWithRegionName =
+      for (var generation = 2; generation < childPRGenerationsCount + 2; ++generation) {
+        var childPRName = "region" + generation;
+        var colocatedWithRegionName =
             generation == 2 ? regionName : "region" + (generation - 1);
 
         // delay between starting generations of child regions until the expected missing
         // colocation messages are logged
-        int expectedCount = (generation - 1) * generation / 2;
+        var expectedCount = (generation - 1) * generation / 2;
 
         verify(spyLogger.logger(),
             timeout(TIMEOUT_MILLIS)
@@ -1849,7 +1842,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
           atLeast(expectedLogMessagesCount))
               .accept(messageCaptor.capture());
 
-      for (String message : messageCaptor.getAllValues()) {
+      for (var message : messageCaptor.getAllValues()) {
         assertThat(message).matches(PATTERN_FOR_MISSING_CHILD_LOG);
       }
     }
@@ -1859,7 +1852,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       int expectedLogMessagesCount) {
     closeCache();
 
-    try (SpyLogger spyLogger = new SpyLogger()) {
+    try (var spyLogger = new SpyLogger()) {
       createCache();
       createDiskStore(diskStoreName1);
       createPR_withPersistence(regionName, diskStoreName1, DEFAULT_RECOVERY_DELAY,
@@ -1867,14 +1860,14 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
       // Delay creation of child generation regions to see missing colocated region log message
 
-      ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+      var messageCaptor = ArgumentCaptor.forClass(String.class);
 
-      for (int regionCount = 2; regionCount < childCount + 2; ++regionCount) {
-        String childPRName = "region" + regionCount;
+      for (var regionCount = 2; regionCount < childCount + 2; ++regionCount) {
+        var childPRName = "region" + regionCount;
 
         // delay between starting generations of child regions until the expected missing
         // colocation messages are logged
-        int expectedCount = regionCount - 1;
+        var expectedCount = regionCount - 1;
 
         verify(spyLogger.logger(),
             timeout(TIMEOUT_MILLIS)
@@ -1886,7 +1879,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
             DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY);
       }
 
-      for (String message : messageCaptor.getAllValues()) {
+      for (var message : messageCaptor.getAllValues()) {
         assertThat(message).matches(PATTERN_FOR_MISSING_CHILD_LOG);
       }
 
@@ -1899,7 +1892,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   private void validateColocationLogger_withChildRegion(int expectedLogMessagesCount) {
     closeCache();
 
-    try (SpyLogger spyLogger = new SpyLogger()) {
+    try (var spyLogger = new SpyLogger()) {
       createCache();
       createDiskStore(diskStoreName1);
       createPR_withPersistence(regionName, diskStoreName1, DEFAULT_RECOVERY_DELAY,
@@ -1908,14 +1901,14 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       // Delay creation of second (i.e child) region to see missing colocated region log
       // message (logInterval/2 < delay < logInterval)
 
-      ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+      var messageCaptor = ArgumentCaptor.forClass(String.class);
 
       verify(spyLogger.logger(),
           timeout(TIMEOUT_MILLIS)
               .atLeast(expectedLogMessagesCount))
                   .accept(messageCaptor.capture());
 
-      for (String message : messageCaptor.getAllValues()) {
+      for (var message : messageCaptor.getAllValues()) {
         assertThat(message).matches(PATTERN_FOR_MISSING_CHILD_LOG);
       }
 
@@ -1934,7 +1927,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   private void validateColocationLogger_withChildRegionTree() {
     closeCache();
 
-    try (SpyLogger spyLogger = new SpyLogger()) {
+    try (var spyLogger = new SpyLogger()) {
       createCache();
       createDiskStore(diskStoreName1);
       createPR_withPersistence("Parent", diskStoreName1, DEFAULT_RECOVERY_DELAY,
@@ -1943,12 +1936,12 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       // Delay creation of descendant regions in the hierarchy to see missing colocated region
       // log messages (logInterval/2 < delay < logInterval)
 
-      ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+      var messageCaptor = ArgumentCaptor.forClass(String.class);
 
-      List<Object[]> childRegionTree = childRegionTreeRestartOrder();
-      for (Object[] regionInfo : childRegionTree) {
-        String childRegionName = (String) regionInfo[0];
-        String parentRegionName = (String) regionInfo[1];
+      var childRegionTree = childRegionTreeRestartOrder();
+      for (var regionInfo : childRegionTree) {
+        var childRegionName = (String) regionInfo[0];
+        var parentRegionName = (String) regionInfo[1];
 
         // delay between starting generations of child regions and verify expected logging
         verify(spyLogger.logger(),
@@ -1960,10 +1953,10 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
             DEFAULT_RECOVERY_DELAY, DEFAULT_REDUNDANT_COPIES, DEFAULT_STARTUP_RECOVERY_DELAY);
       }
 
-      List<String> messages = messageCaptor.getAllValues();
+      var messages = messageCaptor.getAllValues();
       assertThat(messages).hasSameSizeAs(childRegionTree);
 
-      for (String message : messages) {
+      for (var message : messages) {
         assertThat(message).matches(PATTERN_FOR_MISSING_CHILD_LOG);
       }
     }
@@ -1993,44 +1986,44 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
   private void createData(String regionName, String value) {
     Region<Integer, String> region = getCache().getRegion(regionName);
-    int startKey = 0;
-    int endKey = NUM_BUCKETS_TO_CREATE;
-    for (int i = startKey; i < endKey; i++) {
+    var startKey = 0;
+    var endKey = NUM_BUCKETS_TO_CREATE;
+    for (var i = startKey; i < endKey; i++) {
       region.put(i, value);
     }
   }
 
   private Set<Integer> getBucketIds(String regionName) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
     return new TreeSet<>(region.getDataStore().getAllLocalBucketIds());
   }
 
   private Set<Integer> getPrimaryBucketIds(String regionName) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
     return new TreeSet<>(region.getDataStore().getAllLocalPrimaryBucketIds());
   }
 
   private void moveBucket(int bucketId, VM sourceVM, VM targetVM) {
-    InternalDistributedMember sourceId =
+    var sourceId =
         sourceVM.invoke(() -> getCache().getInternalDistributedSystem().getDistributedMember());
 
     targetVM.invoke(() -> {
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+      var region = (PartitionedRegion) getCache().getRegion(regionName);
       region.getDataStore().moveBucket(bucketId, sourceId, false);
     });
   }
 
   private void validateData(String regionName, String value) {
     Region region = getCache().getRegion(regionName);
-    int startKey = 0;
-    int endKey = NUM_BUCKETS_TO_CREATE;
-    for (int i = startKey; i < endKey; i++) {
+    var startKey = 0;
+    var endKey = NUM_BUCKETS_TO_CREATE;
+    for (var i = startKey; i < endKey; i++) {
       assertThat(region.get(i)).isEqualTo(value);
     }
   }
 
   private void waitForBuckets(String regionName, Set<Integer> expectedBucketIds) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
 
     await().untilAsserted(() -> {
       Set<Integer> allLocalBucketIds = new TreeSet<>(region.getDataStore().getAllLocalBucketIds());
@@ -2039,11 +2032,11 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   }
 
   private void waitForBucketRecovery(String regionName, Set<Integer> lostBucketIds) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
-    PartitionedRegionDataStore dataStore = region.getDataStore();
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
+    var dataStore = region.getDataStore();
 
     await().untilAsserted(() -> {
-      Set<Integer> allLocalBucketIds = dataStore.getAllLocalBucketIds();
+      var allLocalBucketIds = dataStore.getAllLocalBucketIds();
       assertThat(lostBucketIds).isEqualTo(allLocalBucketIds);
     });
   }
@@ -2052,7 +2045,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
     Region region = getCache().getRegion(regionName);
 
     await().untilAsserted(() -> {
-      PartitionRegionInfo info = getPartitionRegionInfo(region);
+      var info = getPartitionRegionInfo(region);
       assertThat(info.getActualRedundantCopies()).isEqualTo(expectedRedundancy);
     });
   }
@@ -2062,14 +2055,14 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   }
 
   private void awaitAllAsync() throws InterruptedException {
-    for (AsyncInvocation<Void> asyncInvocation : asyncInvocations) {
+    for (var asyncInvocation : asyncInvocations) {
       asyncInvocation.await();
     }
     asyncInvocations.clear();
   }
 
   private void createDiskStore(String diskStoreName) {
-    DiskStore diskStore = getCache().findDiskStore(diskStoreName);
+    var diskStore = getCache().findDiskStore(diskStoreName);
     if (diskStore == null) {
       getCache().createDiskStoreFactory().setDiskDirs(getDiskDirs()).create(diskStoreName);
     }
@@ -2093,7 +2086,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
   private File getDiskDir() {
     try {
-      File file = new File(temporaryFolder.getRoot(), diskStoreName1 + getVMId());
+      var file = new File(temporaryFolder.getRoot(), diskStoreName1 + getVMId());
       if (!file.exists()) {
         temporaryFolder.newFolder(diskStoreName1 + getVMId());
       }
@@ -2108,7 +2101,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
   }
 
   private void tearDownPartitionedRegionObserver() {
-    PartitionedRegionObserver prObserver = PartitionedRegionObserverHolder.getInstance();
+    var prObserver = PartitionedRegionObserverHolder.getInstance();
     if (prObserver != null) {
       if (prObserver instanceof PRObserver) {
         ((PRObserver) prObserver).tearDown();
@@ -2162,12 +2155,12 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
 
     @Override
     public ColocationLogger startColocationLogger(PartitionedRegion region) {
-      Function<PartitionedRegion, Set<String>> allColocationRegionsProvider =
-          pr -> getAllColocationRegions(pr).keySet();
-      ExecutorService executorService = Executors.newSingleThreadExecutor(
+      var allColocationRegionsProvider =
+          (Function<PartitionedRegion, Set<String>>) pr -> getAllColocationRegions(pr).keySet();
+      var executorService = Executors.newSingleThreadExecutor(
           runnable -> new LoggingThread("ColocationLogger for " + region.getName(), false,
               runnable));
-      Consumer<String> spyLogger = SpyLogger.spy();
+      var spyLogger = SpyLogger.spy();
       assertThat(spyLogger).isNotNull();
       return new SingleThreadColocationLogger(region, 1000, 1000, spyLogger,
           allColocationRegionsProvider, executorService).start();
@@ -2184,7 +2177,7 @@ public class PersistentColocatedPartitionedRegionDistributedTest implements Seri
       System.setProperty(COLOCATION_LOGGER_FACTORY_PROPERTY,
           SpyColocationLoggerFactory.class.getName());
 
-      Logger logger = LogService.getLogger(ColocationLogger.class);
+      var logger = LogService.getLogger(ColocationLogger.class);
       Consumer<String> consumer = mock(Consumer.class);
       doAnswer(logMessageTo(logger)).when(consumer).accept(anyString());
 

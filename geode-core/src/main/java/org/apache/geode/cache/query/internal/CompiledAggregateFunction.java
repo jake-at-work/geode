@@ -61,8 +61,8 @@ public class CompiledAggregateFunction extends AbstractCompiledValue {
   @Override
   public Object evaluate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    boolean isPRQueryNode = context.getIsPRQueryNode();
-    boolean isBucketNode = context.getBucketList() != null;
+    var isPRQueryNode = context.getIsPRQueryNode();
+    var isBucketNode = context.getBucketList() != null;
     switch (aggFuncType) {
 
       case OQLLexerTokenTypes.SUM:

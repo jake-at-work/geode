@@ -28,7 +28,6 @@ import org.junit.rules.TestName;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
@@ -59,19 +58,19 @@ public class MultiThreadedOplogPerJUnitPerformanceTest {
   private final int numberOfIterations = 5; // 50
 
   public MultiThreadedOplogPerJUnitPerformanceTest() {
-    File file0 = new File("testingDirectory");
+    var file0 = new File("testingDirectory");
     file0.mkdir();
     file0.deleteOnExit();
-    File file1 = new File("testingDirectory/" + name.getMethodName() + "1");
+    var file1 = new File("testingDirectory/" + name.getMethodName() + "1");
     file1.mkdir();
     file1.deleteOnExit();
-    File file2 = new File("testingDirectory/" + name.getMethodName() + "2");
+    var file2 = new File("testingDirectory/" + name.getMethodName() + "2");
     file2.mkdir();
     file2.deleteOnExit();
-    File file3 = new File("testingDirectory/" + name.getMethodName() + "3");
+    var file3 = new File("testingDirectory/" + name.getMethodName() + "3");
     file3.mkdir();
     file3.deleteOnExit();
-    File file4 = new File("testingDirectory/" + name.getMethodName() + "4");
+    var file4 = new File("testingDirectory/" + name.getMethodName() + "4");
     file4.mkdir();
     file4.deleteOnExit();
     dirs = new File[4];
@@ -87,10 +86,10 @@ public class MultiThreadedOplogPerJUnitPerformanceTest {
    *
    */
   protected static void deleteFiles() {
-    for (int i = 0; i < 4; i++) {
-      File[] files = dirs[i].listFiles();
+    for (var i = 0; i < 4; i++) {
+      var files = dirs[i].listFiles();
       if (files != null) {
-        for (final File file : files) {
+        for (final var file : files) {
           file.delete();
         }
       }
@@ -99,19 +98,19 @@ public class MultiThreadedOplogPerJUnitPerformanceTest {
 
   @Test
   public void testPerf() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(LOG_LEVEL, "info");
-    DistributedSystem ds = DistributedSystem.connect(props);
+    var ds = DistributedSystem.connect(props);
     Cache cache = null;
     try {
       cache = CacheFactory.create(ds);
     } catch (Exception e) {
       e.printStackTrace();
     }
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    AttributesFactory factory = new AttributesFactory();
+    var dsf = cache.createDiskStoreFactory();
+    var factory = new AttributesFactory();
     factory.setPersistBackup(false);
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(
@@ -128,18 +127,18 @@ public class MultiThreadedOplogPerJUnitPerformanceTest {
       e.printStackTrace();
     }
 
-    Thread[] threads = new Thread[numberOfThreads];
+    var threads = new Thread[numberOfThreads];
 
-    for (int i = 0; i < numberOfThreads; i++) {
+    for (var i = 0; i < numberOfThreads; i++) {
       threads[i] = new Thread(new Writer(i)); // .start();
       threads[i].start();
     }
 
-    for (int i = 0; i < numberOfThreads; i++) {
+    for (var i = 0; i < numberOfThreads; i++) {
       ThreadUtils.join(threads[i], 30 * 1000);
     }
 
-    long totalPuts = ((long) numberOfIterations * numberOfKeysPerThread * numberOfThreads);
+    var totalPuts = ((long) numberOfIterations * numberOfKeysPerThread * numberOfThreads);
 
     System.out.println(" total puts is " + totalPuts);
     System.out.println(" total time in milliseconds is " + totalTime);
@@ -178,10 +177,10 @@ public class MultiThreadedOplogPerJUnitPerformanceTest {
     public void run() {
       long startTime, endTime;
       startTime = System.currentTimeMillis();
-      int startPoint = getStartPoint();
+      var startPoint = getStartPoint();
       startPoint = startPoint * numberOfKeysPerThread;
-      for (int j = 0; j < numberOfIterations; j++) {
-        for (int i = 0; i < numberOfKeysPerThread; i++) {
+      for (var j = 0; j < numberOfIterations; j++) {
+        for (var i = 0; i < numberOfKeysPerThread; i++) {
           region.put((i + 1) + num, bytes);
           /*
            * DiskRegion dr =((LocalRegion)region).getDiskRegion();
@@ -196,7 +195,7 @@ public class MultiThreadedOplogPerJUnitPerformanceTest {
         }
       }
       endTime = System.currentTimeMillis();
-      long time = (endTime - startTime);
+      var time = (endTime - startTime);
       increaseTotalTime(time);
       increaseCounter();
     }

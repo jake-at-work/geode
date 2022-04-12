@@ -63,9 +63,9 @@ public class DiskRegionPersistOnlySyncJUnitTest extends DiskRegionTestingBase {
   public void testPopulate1kbwrites() {
     RegionAttributes ra = region.getAttributes();
     // final String key = "K";
-    final byte[] value = new byte[ENTRY_SIZE];
+    final var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
-    String config = "ENTRY_SIZE=" + ENTRY_SIZE + " OP_COUNT=" + OP_COUNT + " UNIQUE_KEYS="
+    var config = "ENTRY_SIZE=" + ENTRY_SIZE + " OP_COUNT=" + OP_COUNT + " UNIQUE_KEYS="
         + UNIQUE_KEYS + " opLogEnabled="
         + !Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "disableOpLog") + " syncWrites="
         + Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "syncWrites");
@@ -86,25 +86,25 @@ public class DiskRegionPersistOnlySyncJUnitTest extends DiskRegionTestingBase {
     region.put("4768", "4768");
     region.put("987", "987");
 
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
     if (UNIQUE_KEYS) {
-      for (int i = 0; i < OP_COUNT; i++) {
+      for (var i = 0; i < OP_COUNT; i++) {
 
         region.put(i, value);
       }
     } else {
-      for (int i = 0; i < OP_COUNT; i++) {
+      for (var i = 0; i < OP_COUNT; i++) {
         region.put("" + (i + 10000), value);
       }
     }
 
-    long endTime = System.currentTimeMillis();
-    long et = endTime - startTime;
-    long etSecs = et / 1000;
-    long opPerSec = etSecs == 0 ? 0 : (OP_COUNT / (et / 1000));
-    long bytesPerSec = etSecs == 0 ? 0 : ((OP_COUNT * ENTRY_SIZE) / (et / 1000));
+    var endTime = System.currentTimeMillis();
+    var et = endTime - startTime;
+    var etSecs = et / 1000;
+    var opPerSec = etSecs == 0 ? 0 : (OP_COUNT / (et / 1000));
+    var bytesPerSec = etSecs == 0 ? 0 : ((OP_COUNT * ENTRY_SIZE) / (et / 1000));
 
-    String stats = "et=" + et + "ms writes/sec=" + opPerSec + " bytes/sec=" + bytesPerSec;
+    var stats = "et=" + et + "ms writes/sec=" + opPerSec + " bytes/sec=" + bytesPerSec;
     log.info(stats);
     System.out.println("Stats for 1kb writes:" + stats);
     // close the cache after that create it again and then get the values to
@@ -160,9 +160,9 @@ public class DiskRegionPersistOnlySyncJUnitTest extends DiskRegionTestingBase {
     UNIQUE_KEYS = Boolean.getBoolean("DRP.UNIQUE_KEYS");
     RegionAttributes ra = region.getAttributes();
     // final String key = "K";
-    final byte[] value = new byte[ENTRY_SIZE];
+    final var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
-    String config = "ENTRY_SIZE=" + ENTRY_SIZE + " OP_COUNT=" + OP_COUNT + " UNIQUE_KEYS="
+    var config = "ENTRY_SIZE=" + ENTRY_SIZE + " OP_COUNT=" + OP_COUNT + " UNIQUE_KEYS="
         + UNIQUE_KEYS + " opLogEnabled="
         + !Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "disableOpLog") + " syncWrites="
         + Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "syncWrites");
@@ -173,29 +173,29 @@ public class DiskRegionPersistOnlySyncJUnitTest extends DiskRegionTestingBase {
     }
     log.info(config);
 
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
     if (UNIQUE_KEYS) {
-      for (int i = 0; i < OP_COUNT; i++) {
+      for (var i = 0; i < OP_COUNT; i++) {
 
         region.put(i, value);
       }
     } else {
-      for (int i = 0; i < OP_COUNT; i++) {
+      for (var i = 0; i < OP_COUNT; i++) {
         region.put("" + (i + 10000), value);
       }
     }
 
-    long endTime = System.currentTimeMillis();
+    var endTime = System.currentTimeMillis();
 
     // region.close(); // closes disk file which will flush all buffers
     ((LocalRegion) region).forceFlush();
 
-    long et = endTime - startTime;
-    long etSecs = et / 1000;
-    long opPerSec = etSecs == 0 ? 0 : (OP_COUNT / (et / 1000));
-    long bytesPerSec = etSecs == 0 ? 0 : ((OP_COUNT * ENTRY_SIZE) / (et / 1000));
+    var et = endTime - startTime;
+    var etSecs = et / 1000;
+    var opPerSec = etSecs == 0 ? 0 : (OP_COUNT / (et / 1000));
+    var bytesPerSec = etSecs == 0 ? 0 : ((OP_COUNT * ENTRY_SIZE) / (et / 1000));
 
-    String stats = "et=" + et + "ms writes/sec=" + opPerSec + " bytes/sec=" + bytesPerSec;
+    var stats = "et=" + et + "ms writes/sec=" + opPerSec + " bytes/sec=" + bytesPerSec;
     log.info(stats);
     System.out.println("Stats for 5kb writes :" + stats);
   }

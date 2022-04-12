@@ -15,7 +15,6 @@
 package org.apache.geode.internal.statistics;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
@@ -438,7 +437,7 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
     if (!(obj instanceof StatisticsImpl)) {
       return false;
     }
-    StatisticsImpl other = (StatisticsImpl) obj;
+    var other = (StatisticsImpl) obj;
     return uniqueId == other.getUniqueId();
   }
 
@@ -504,8 +503,8 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
 
   @Override
   public int updateSuppliedValues() {
-    int errors = 0;
-    for (Map.Entry<Integer, IntSupplier> entry : intSuppliers.entrySet()) {
+    var errors = 0;
+    for (var entry : intSuppliers.entrySet()) {
       try {
         _setLong(entry.getKey(), entry.getValue().getAsInt());
       } catch (Throwable t) {
@@ -513,7 +512,7 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
         errors++;
       }
     }
-    for (Map.Entry<Integer, LongSupplier> entry : longSuppliers.entrySet()) {
+    for (var entry : longSuppliers.entrySet()) {
       try {
         _setLong(entry.getKey(), entry.getValue().getAsLong());
       } catch (Throwable t) {
@@ -521,7 +520,7 @@ public abstract class StatisticsImpl implements SuppliableStatistics {
         errors++;
       }
     }
-    for (Map.Entry<Integer, DoubleSupplier> entry : doubleSuppliers.entrySet()) {
+    for (var entry : doubleSuppliers.entrySet()) {
       try {
         _setDouble(entry.getKey(), entry.getValue().getAsDouble());
       } catch (Throwable t) {

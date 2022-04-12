@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.annotations.VisibleForTesting;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionContext;
@@ -116,13 +115,13 @@ public class WanCopyRegionFunction extends CliFunction<Object[]> implements Decl
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext<Object[]> context) {
-    final Object[] args = context.getArguments();
+    final var args = context.getArguments();
     if (args.length < 5) {
       throw new IllegalStateException(
           "Arguments length does not match required length.");
     }
-    String regionName = (String) args[0];
-    final String senderId = (String) args[1];
+    var regionName = (String) args[0];
+    final var senderId = (String) args[1];
     final boolean isCancel = (Boolean) args[2];
     long maxRate = (Long) args[3];
     int batchSize = (Integer) args[4];
@@ -137,14 +136,14 @@ public class WanCopyRegionFunction extends CliFunction<Object[]> implements Decl
     if (isCancel) {
       return cancelWanCopyRegion(context, regionName, senderId);
     }
-    final Cache cache = context.getCache();
+    final var cache = context.getCache();
 
     final Region<?, ?> region = cache.getRegion(regionName);
     if (region == null) {
       return new CliFunctionResult(context.getMemberName(), CliFunctionResult.StatusState.ERROR,
           CliStrings.format(WAN_COPY_REGION__MSG__REGION__NOT__FOUND, regionName));
     }
-    GatewaySender sender = cache.getGatewaySender(senderId);
+    var sender = cache.getGatewaySender(senderId);
     if (sender == null) {
       return new CliFunctionResult(context.getMemberName(), CliFunctionResult.StatusState.ERROR,
           CliStrings.format(WAN_COPY_REGION__MSG__SENDER__NOT__FOUND, senderId));
@@ -192,7 +191,7 @@ public class WanCopyRegionFunction extends CliFunction<Object[]> implements Decl
 
   private CliFunctionResult cancelWanCopyRegion(FunctionContext<Object[]> context,
       String regionName, String senderId) {
-    boolean canceled =
+    var canceled =
         serviceProvider.get((InternalCache) context.getCache()).cancel(regionName, senderId);
     if (!canceled) {
       return new CliFunctionResult(context.getMemberName(), CliFunctionResult.StatusState.ERROR,
@@ -204,7 +203,7 @@ public class WanCopyRegionFunction extends CliFunction<Object[]> implements Decl
   }
 
   private CliFunctionResult cancelAllWanCopyRegion(FunctionContext<Object[]> context) {
-    String executionsString = serviceProvider.get((InternalCache) context.getCache())
+    var executionsString = serviceProvider.get((InternalCache) context.getCache())
         .cancelAll();
     return new CliFunctionResult(context.getMemberName(), CliFunctionResult.StatusState.OK,
         CliStrings.format(WAN_COPY_REGION__MSG__EXECUTIONS__CANCELED, executionsString));

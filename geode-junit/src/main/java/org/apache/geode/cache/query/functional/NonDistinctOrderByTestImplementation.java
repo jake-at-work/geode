@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.junit.After;
@@ -75,7 +74,7 @@ public abstract class NonDistinctOrderByTestImplementation {
 
   @Test
   public void testOrderByWithIndexResultDefaultProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT   * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 10 order by ID desc ",
         "SELECT   * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 10 order by ID asc ",
@@ -104,22 +103,22 @@ public abstract class NonDistinctOrderByTestImplementation {
         "SELECT   *  FROM " + SEPARATOR
             + "portfolio1 pf1 where ID > 0 order by ID desc, pkid desc "};
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 1; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    for (var i = 1; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       r1.put("" + i, pf);
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -135,18 +134,18 @@ public abstract class NonDistinctOrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        SelectResults rcw = (SelectResults) r[i][1];
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var rcw = (SelectResults) r[i][1];
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
@@ -161,7 +160,7 @@ public abstract class NonDistinctOrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         while (itr.hasNext()) {
           if (!(itr.next().toString()).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + itr.next().toString());
@@ -169,7 +168,7 @@ public abstract class NonDistinctOrderByTestImplementation {
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -179,7 +178,7 @@ public abstract class NonDistinctOrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     // Compare each of the query results with queries fired without order by ,
     // but without order by
@@ -188,7 +187,7 @@ public abstract class NonDistinctOrderByTestImplementation {
 
   @Test
   public void testOrderByWithIndexResultWithProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT   shortID, description FROM " + SEPARATOR
             + "portfolio1 pf1 where ID > 10 order by shortID desc ",
@@ -224,22 +223,22 @@ public abstract class NonDistinctOrderByTestImplementation {
             + "portfolio1 pf1 where ID != 10 order by shortID desc limit 10",
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 1; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    for (var i = 1; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       r1.put("" + i, pf);
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -255,18 +254,18 @@ public abstract class NonDistinctOrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        SelectResults rcw = (SelectResults) r[i][1];
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var rcw = (SelectResults) r[i][1];
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
@@ -281,7 +280,7 @@ public abstract class NonDistinctOrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         while (itr.hasNext()) {
           if (!(itr.next().toString()).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + itr.next().toString());
@@ -289,7 +288,7 @@ public abstract class NonDistinctOrderByTestImplementation {
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -299,14 +298,14 @@ public abstract class NonDistinctOrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
 
   @Test
   public void testMultiColOrderByWithIndexResultDefaultProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT   * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 10 order by ID desc, pkid asc ",
         "SELECT   * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 10 order by ID asc, pkid desc ",
@@ -339,21 +338,21 @@ public abstract class NonDistinctOrderByTestImplementation {
             + "portfolio1 pf1 where ID != 10 order by ID desc, pkid desc limit 10",
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 1; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    for (var i = 1; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       r1.put("" + i, pf);
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -369,18 +368,18 @@ public abstract class NonDistinctOrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        SelectResults rcw = (SelectResults) r[i][1];
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var rcw = (SelectResults) r[i][1];
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
@@ -390,7 +389,7 @@ public abstract class NonDistinctOrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         while (itr.hasNext()) {
           if (!(itr.next().toString()).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + itr.next().toString());
@@ -398,7 +397,7 @@ public abstract class NonDistinctOrderByTestImplementation {
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -408,14 +407,14 @@ public abstract class NonDistinctOrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
 
   @Test
   public void testMultiColOrderByWithIndexResultWithProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT   ID, description, createTime, pkid FROM " + SEPARATOR
             + "portfolio1 pf1 where ID > 10 order by ID desc, pkid desc ",
@@ -451,22 +450,22 @@ public abstract class NonDistinctOrderByTestImplementation {
             + "portfolio1 pf1 where ID != 10 order by ID desc, pkid desc limit 10",
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 1; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    for (var i = 1; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       r1.put("" + i, pf);
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -482,18 +481,18 @@ public abstract class NonDistinctOrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        SelectResults rcw = (SelectResults) r[i][1];
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var rcw = (SelectResults) r[i][1];
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
@@ -503,7 +502,7 @@ public abstract class NonDistinctOrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         while (itr.hasNext()) {
           if (!(itr.next().toString()).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + itr.next().toString());
@@ -511,7 +510,7 @@ public abstract class NonDistinctOrderByTestImplementation {
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -521,14 +520,14 @@ public abstract class NonDistinctOrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
 
   @Test
   public void testMultiColOrderByWithMultiIndexResultDefaultProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT   * FROM " + SEPARATOR
             + "portfolio1 pf1 where pkid = '12' and ID > 10 order by ID desc, pkid asc ",
@@ -564,22 +563,22 @@ public abstract class NonDistinctOrderByTestImplementation {
             + "portfolio1 pf1 where pkid > '9' and ID != 10 order by ID desc, pkid desc limit 10",
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 1; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    for (var i = 1; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       r1.put("" + i, pf);
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -595,20 +594,20 @@ public abstract class NonDistinctOrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
     createIndex("PKIDIndexPf1", IndexType.FUNCTIONAL, "pkid", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
 
-        SelectResults rcw = (SelectResults) r[i][1];
+        var rcw = (SelectResults) r[i][1];
 
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
@@ -618,15 +617,15 @@ public abstract class NonDistinctOrderByTestImplementation {
           fail("Index is NOT uesd");
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -636,14 +635,14 @@ public abstract class NonDistinctOrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
 
   @Test
   public void testMultiColOrderByWithMultiIndexResultProjection() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT   ID, description, createTime, pkid FROM " + SEPARATOR
             + "portfolio1 pf1 where pkid = '12' and ID > 10 order by ID desc, pkid asc ",
@@ -681,22 +680,22 @@ public abstract class NonDistinctOrderByTestImplementation {
 
     };
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 1; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    for (var i = 1; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       r1.put("" + i, pf);
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -712,36 +711,36 @@ public abstract class NonDistinctOrderByTestImplementation {
     createIndex("IDIndexPf1", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolio1");
     createIndex("PKIDIndexPf1", IndexType.FUNCTIONAL, "pkid", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
-        SelectResults rcw = (SelectResults) r[i][1];
+        var rcw = (SelectResults) r[i][1];
         assertTrue(rcw.getCollectionType().isOrdered());
         if (assertIndexUsedOnQueryNode() && !observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
         assertTrue(!limitQuery || rcw.size() <= limit);
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("IDIndexPf1")) {
             fail("<IDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -751,14 +750,14 @@ public abstract class NonDistinctOrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
 
   @Test
   public void testLimitNotAppliedIfOrderByNotUsingIndex() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT    description, pkid FROM " + SEPARATOR
             + "portfolio1 pf1 where pkid = '12' and ID > 10  order by pkid asc ",
@@ -795,22 +794,22 @@ public abstract class NonDistinctOrderByTestImplementation {
 
     };
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 1; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    for (var i = 1; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.shortID = (short) ((short) i / 5);
       r1.put("" + i, pf);
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -825,21 +824,21 @@ public abstract class NonDistinctOrderByTestImplementation {
 
     createIndex("PKIDIndexPf1", IndexType.FUNCTIONAL, "pkid", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
-        SelectResults rcw = (SelectResults) r[i][1];
+        var rcw = (SelectResults) r[i][1];
         assertTrue(rcw.getCollectionType().isOrdered());
         if (assertIndexUsedOnQueryNode() && !observer.isIndexesUsed) {
           fail("Index is NOT uesd");
@@ -847,15 +846,15 @@ public abstract class NonDistinctOrderByTestImplementation {
 
         // assertTrue(!limitQuery || !observer.limitAppliedAtIndex);
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("PKIDIndexPf1")) {
             fail("<PKIDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -865,7 +864,7 @@ public abstract class NonDistinctOrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
@@ -877,52 +876,57 @@ public abstract class NonDistinctOrderByTestImplementation {
     // order by field
     // its null values are reported first and then the values in ascending
     // order.
-    String[] queries = {"SELECT   * FROM " + SEPARATOR + "portfolio1 pf1 order by pkid", // 0 null
-        // values are
-        // first in the
-        // order.
-        "SELECT   * FROM " + SEPARATOR + "portfolio1 pf1  order by pkid asc", // 1 same
-        // as
-        // above.
-        "SELECT   * FROM " + SEPARATOR + "portfolio1 order by pkid desc", // 2 null
-        // values are
-        // last in the
-        // order.
-        "SELECT   pkid FROM " + SEPARATOR + "portfolio1 pf1 order by pkid", // 3 null
-        // values
-        // are first
-        // in the
-        // order.
-        "SELECT   pkid FROM " + SEPARATOR + "portfolio1 pf1 where pkid != 'XXXX' order by pkid asc", // 4
-        "SELECT   pkid FROM " + SEPARATOR
-            + "portfolio1 pf1 where pkid != 'XXXX' order by pkid desc", // 5
-        // null
-        // values
-        // are
-        // last
-        // in
-        // the
-        // order.
+    var queries =
+        new String[] {"SELECT   * FROM " + SEPARATOR + "portfolio1 pf1 order by pkid", // 0 null
+            // values are
+            // first in the
+            // order.
+            "SELECT   * FROM " + SEPARATOR + "portfolio1 pf1  order by pkid asc", // 1 same
+            // as
+            // above.
+            "SELECT   * FROM " + SEPARATOR + "portfolio1 order by pkid desc", // 2 null
+            // values are
+            // last in the
+            // order.
+            "SELECT   pkid FROM " + SEPARATOR + "portfolio1 pf1 order by pkid", // 3 null
+            // values
+            // are first
+            // in the
+            // order.
+            "SELECT   pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where pkid != 'XXXX' order by pkid asc",
+            // 4
+            "SELECT   pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where pkid != 'XXXX' order by pkid desc", // 5
+            // null
+            // values
+            // are
+            // last
+            // in
+            // the
+            // order.
 
-        "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID < 1000 order by pkid", // 6
-        "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID > 3 order by pkid", // 7
-        "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID < 1000 order by pkid", // 8
-        "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid", // 9
-        "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid, ID asc", // 10
-        "SELECT   ID, pkid FROM " + SEPARATOR
-            + "portfolio1 pf1 where ID > 0 order by pkid, ID desc", // 11
-    };
+            "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID < 1000 order by pkid", // 6
+            "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID > 3 order by pkid", // 7
+            "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID < 1000 order by pkid", // 8
+            "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid", // 9
+            "SELECT   ID, pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where ID > 0 order by pkid, ID asc",
+            // 10
+            "SELECT   ID, pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where ID > 0 order by pkid, ID desc", // 11
+        };
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
 
     // Create Regions
-    final int size = 9;
-    final int numNullValues = 3;
-    Region r1 = createRegion("portfolio1", Portfolio.class);
-    for (int i = 1; i <= size; i++) {
-      Portfolio pf = new Portfolio(i);
+    final var size = 9;
+    final var numNullValues = 3;
+    var r1 = createRegion("portfolio1", Portfolio.class);
+    for (var i = 1; i <= size; i++) {
+      var pf = new Portfolio(i);
       // Add numNullValues null values.
       if (i <= numNullValues) {
         pf.pkid = null;
@@ -934,7 +938,7 @@ public abstract class NonDistinctOrderByTestImplementation {
     Query q = null;
     SelectResults results = null;
     List list = null;
-    String str = "";
+    var str = "";
     try {
       // Query 0 - null values are first in the order.
       str = queries[0];
@@ -943,8 +947,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       results = (SelectResults) q.execute();
       r[0][0] = results;
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, p: " + p, p.pkid);
         } else {
@@ -961,8 +965,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid", p.pkid);
         } else {
@@ -979,8 +983,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i > (size - numNullValues)) {
           assertNull("Expected null value for pkid", p.pkid);
         } else {
@@ -997,8 +1001,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -1015,8 +1019,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i <= 3) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -1033,8 +1037,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i > (list.size() - numNullValues)) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -1051,7 +1055,7 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
+      for (var i = 1; i <= size; i++) {
         int id = (Integer) ((Struct) list.get((i - 1))).getFieldValues()[0];
         // ID should be one of 1, 2, 3 because of distinct
         if (i <= numNullValues) {
@@ -1071,7 +1075,7 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
+      for (var i = 1; i <= list.size(); i++) {
         int id = (Integer) ((Struct) list.get((i - 1))).getFieldValues()[0];
         if (id != (numNullValues + i)) {
           fail(" Value of ID is not as expected, " + id);
@@ -1084,10 +1088,10 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         // ID should be one of 1, 2, 3 because of distinct
         if (i <= numNullValues) {
@@ -1113,10 +1117,10 @@ public abstract class NonDistinctOrderByTestImplementation {
       results = (SelectResults) q.execute();
       list = results.asList();
 
-      for (int i = 1; i <= list.size(); i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, " + pkid, pkid);
@@ -1140,10 +1144,10 @@ public abstract class NonDistinctOrderByTestImplementation {
       results = (SelectResults) q.execute();
       list = results.asList();
 
-      for (int i = 1; i <= list.size(); i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, " + pkid, pkid);
@@ -1167,10 +1171,10 @@ public abstract class NonDistinctOrderByTestImplementation {
       results = (SelectResults) q.execute();
       list = results.asList();
 
-      for (int i = 1; i <= list.size(); i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, " + pkid, pkid);
@@ -1198,8 +1202,9 @@ public abstract class NonDistinctOrderByTestImplementation {
     // order by field
     // its null values are reported first and then the values in ascending
     // order.
-    String[] queries =
-        {"SELECT   * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid", // 0
+    var queries =
+        new String[] {"SELECT   * FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid",
+            // 0
             // null
             // values
             // are
@@ -1242,16 +1247,16 @@ public abstract class NonDistinctOrderByTestImplementation {
             "SELECT   ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid", // 9
         };
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
 
     // Create Regions
-    final int size = 9;
-    final int numNullValues = 3;
-    Region r1 = createRegion("portfolio1", Portfolio.class);
-    for (int i = 1; i <= size; i++) {
-      Portfolio pf = new Portfolio(i);
+    final var size = 9;
+    final var numNullValues = 3;
+    var r1 = createRegion("portfolio1", Portfolio.class);
+    for (var i = 1; i <= size; i++) {
+      var pf = new Portfolio(i);
       // Add numNullValues null values.
       if (i <= numNullValues) {
         pf.pkid = null;
@@ -1267,10 +1272,10 @@ public abstract class NonDistinctOrderByTestImplementation {
     Query q = null;
     SelectResults results = null;
     List list = null;
-    String str = "";
+    var str = "";
     try {
       // Query 0 - null values are first in the order.
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
 
       str = queries[0];
@@ -1284,8 +1289,8 @@ public abstract class NonDistinctOrderByTestImplementation {
 
       r[0][0] = results;
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, p: " + p, p.pkid);
         } else {
@@ -1302,8 +1307,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid", p.pkid);
         } else {
@@ -1320,8 +1325,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i > (size - numNullValues)) {
           assertNull("Expected null value for pkid", p.pkid);
         } else {
@@ -1338,8 +1343,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -1364,8 +1369,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       }
 
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -1382,8 +1387,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i > list.size() - numNullValues) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -1400,8 +1405,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Struct strct = (Struct) list.get(i - 1);
+      for (var i = 1; i <= size; i++) {
+        var strct = (Struct) list.get(i - 1);
         int id = (Integer) strct.getFieldValues()[0];
         // ID should be one of 1, 2, 3 because of distinct
         if (i <= numNullValues) {
@@ -1421,8 +1426,8 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        Struct strct = (Struct) list.get(i - 1);
+      for (var i = 1; i <= list.size(); i++) {
+        var strct = (Struct) list.get(i - 1);
         int id = (Integer) strct.getFieldValues()[0];
         if (id != (numNullValues + i)) {
           fail(" Value of ID is not as expected, " + id);
@@ -1435,10 +1440,10 @@ public abstract class NonDistinctOrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         // ID should be one of 1, 2, 3 because of distinct
         if (i <= numNullValues) {
@@ -1464,10 +1469,10 @@ public abstract class NonDistinctOrderByTestImplementation {
       results = (SelectResults) q.execute();
       list = results.asList();
 
-      for (int i = 1; i <= list.size(); i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, " + pkid, pkid);
@@ -1492,8 +1497,9 @@ public abstract class NonDistinctOrderByTestImplementation {
 
   @Test
   public void testOrderByForUndefined() throws Exception {
-    String[] queries =
-        {"SELECT  position1.secId FROM " + SEPARATOR + "test ORDER BY position1.secId", // 0
+    var queries =
+        new String[] {
+            "SELECT  position1.secId FROM " + SEPARATOR + "test ORDER BY position1.secId", // 0
             "SELECT  position1.secId FROM " + SEPARATOR + "test ORDER BY position1.secId desc", // 1
             "SELECT  position1.secId FROM " + SEPARATOR
                 + "test where ID > 0  ORDER BY position1.secId", // 2
@@ -1503,18 +1509,18 @@ public abstract class NonDistinctOrderByTestImplementation {
             "SELECT  position1.secId, ID FROM " + SEPARATOR
                 + "test ORDER BY position1.secId desc, ID",// 5
         };
-    Region r1 = createRegion("test", Portfolio.class);
-    for (int i = 0; i < 10; i++) {
-      Portfolio pf = new Portfolio(i);
+    var r1 = createRegion("test", Portfolio.class);
+    for (var i = 0; i < 10; i++) {
+      var pf = new Portfolio(i);
       if (i % 2 == 0) {
         pf.position1 = null;
       }
       r1.put(i + "", pf);
     }
-    QueryService qs = CacheUtils.getQueryService();
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var qs = CacheUtils.getQueryService();
+    var sr = new SelectResults[queries.length][2];
     Object[] srArr = null;
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         sr[i][0] = (SelectResults) qs.newQuery(queries[i]).execute();
         srArr = sr[i][0].toArray();
@@ -1531,12 +1537,12 @@ public abstract class NonDistinctOrderByTestImplementation {
           assertEquals("Last result should be undefined for query " + queries[i],
               QueryService.UNDEFINED, srArr[srArr.length - 1]);
         } else if (i == 4) {
-          for (int j = 0; j < srArr.length / 2; j++) {
+          for (var j = 0; j < srArr.length / 2; j++) {
             assertEquals("Undefined should  have been returned for query " + queries[i],
                 QueryService.UNDEFINED, ((Struct) srArr[j]).getFieldValues()[0]);
           }
         } else if (i == 5) {
-          for (int j = srArr.length - 1; j > srArr.length / 2; j--) {
+          for (var j = srArr.length - 1; j > srArr.length / 2; j--) {
             assertEquals("Undefined should  have been returned for query " + queries[i],
                 QueryService.UNDEFINED, ((Struct) srArr[j]).getFieldValues()[0]);
           }
@@ -1549,7 +1555,7 @@ public abstract class NonDistinctOrderByTestImplementation {
     createIndex("secIndex", "position1.secId", r1.getFullPath());
     createIndex("IDIndex", "ID", r1.getFullPath());
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       try {
         sr[i][1] = (SelectResults) qs.newQuery(queries[i]).execute();
         srArr = sr[i][1].toArray();
@@ -1566,12 +1572,12 @@ public abstract class NonDistinctOrderByTestImplementation {
           assertEquals("Last result should be undefined for query " + queries[i],
               QueryService.UNDEFINED, srArr[srArr.length - 1]);
         } else if (i == 4) {
-          for (int j = 0; j < srArr.length / 2; j++) {
+          for (var j = 0; j < srArr.length / 2; j++) {
             assertEquals("Undefined should  have been returned for query " + queries[i],
                 QueryService.UNDEFINED, ((Struct) srArr[j]).getFieldValues()[0]);
           }
         } else if (i == 5) {
-          for (int j = srArr.length - 1; j > srArr.length / 2; j--) {
+          for (var j = srArr.length - 1; j > srArr.length / 2; j--) {
             assertEquals("Undefined should  have been returned for query " + queries[i],
                 QueryService.UNDEFINED, ((Struct) srArr[j]).getFieldValues()[0]);
           }

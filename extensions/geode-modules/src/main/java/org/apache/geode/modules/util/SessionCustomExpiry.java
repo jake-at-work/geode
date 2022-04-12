@@ -35,7 +35,7 @@ public class SessionCustomExpiry
 
   @Override
   public ExpirationAttributes getExpiry(Region.Entry<String, HttpSession> entry) {
-    HttpSession session = entry.getValue();
+    var session = entry.getValue();
     if (session != null) {
       return new ExpirationAttributes(entry.getValue().getMaxInactiveInterval(),
           ExpirationAction.DESTROY);

@@ -98,7 +98,7 @@ public class EntryEventSerializationTest {
   public void distributedAckRegionSetsCachedSerializedNewValue() {
     instance.serializeNewValueIfNeeded(region, event);
 
-    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    var captor = ArgumentCaptor.forClass(byte[].class);
     verify(event, times(1)).setCachedSerializedNewValue(captor.capture());
     assertThat(captor.getValue().length).isGreaterThan(0);
   }
@@ -109,7 +109,7 @@ public class EntryEventSerializationTest {
 
     instance.serializeNewValueIfNeeded(region, event);
 
-    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    var captor = ArgumentCaptor.forClass(byte[].class);
     verify(event, times(1)).setCachedSerializedNewValue(captor.capture());
     assertThat(captor.getValue().length).isGreaterThan(0);
   }
@@ -120,7 +120,7 @@ public class EntryEventSerializationTest {
 
     instance.serializeNewValueIfNeeded(region, event);
 
-    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    var captor = ArgumentCaptor.forClass(byte[].class);
     verify(event, times(1)).setCachedSerializedNewValue(captor.capture());
     assertThat(captor.getValue().length).isGreaterThan(0);
   }
@@ -145,36 +145,36 @@ public class EntryEventSerializationTest {
 
   @Test
   public void newValueIsCachedDeserializableUsesItsSerializedValue() {
-    CachedDeserializable newValue = mock(CachedDeserializable.class);
+    var newValue = mock(CachedDeserializable.class);
     when(event.basicGetNewValue()).thenReturn(newValue);
-    byte[] bytes = new byte[] {0, 3, 4};
+    var bytes = new byte[] {0, 3, 4};
     when(newValue.getSerializedValue()).thenReturn(bytes);
 
     instance.serializeNewValueIfNeeded(region, event);
 
-    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    var captor = ArgumentCaptor.forClass(byte[].class);
     verify(event, times(1)).setCachedSerializedNewValue(captor.capture());
     assertThat(captor.getValue()).isEqualTo(bytes);
   }
 
   @Test
   public void newValueIsSerializableUsesItsSerializedValue() {
-    String newValue = "newValue";
+    var newValue = "newValue";
     when(event.basicGetNewValue()).thenReturn(newValue);
 
     instance.serializeNewValueIfNeeded(region, event);
 
-    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    var captor = ArgumentCaptor.forClass(byte[].class);
     verify(event, times(1)).setCachedSerializedNewValue(captor.capture());
     assertThat(captor.getValue()).isEqualTo(EntryEventImpl.serialize(newValue));
   }
 
   @Test
   public void newValueIsNotSerializableThrows() {
-    Object newValue = new Object();
+    var newValue = new Object();
     when(event.basicGetNewValue()).thenReturn(newValue);
 
-    Throwable thrown = catchThrowable(() -> instance.serializeNewValueIfNeeded(region, event));
+    var thrown = catchThrowable(() -> instance.serializeNewValueIfNeeded(region, event));
 
     assertThat(thrown).isInstanceOf(SerializationException.class);
     assertThat(thrown.getCause()).isInstanceOf(NotSerializableException.class);
@@ -182,14 +182,14 @@ public class EntryEventSerializationTest {
 
   @Test
   public void newValueIsPdxInstanceUsesItsSerializedValue() throws Exception {
-    PdxInstanceImpl newValue = mock(PdxInstanceImpl.class);
+    var newValue = mock(PdxInstanceImpl.class);
     when(event.basicGetNewValue()).thenReturn(newValue);
-    byte[] bytes = new byte[] {0, 3, 4};
+    var bytes = new byte[] {0, 3, 4};
     when(newValue.toBytes()).thenReturn(bytes);
 
     instance.serializeNewValueIfNeeded(region, event);
 
-    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    var captor = ArgumentCaptor.forClass(byte[].class);
     verify(event, times(1)).setCachedSerializedNewValue(captor.capture());
     assertThat(captor.getValue()).isEqualTo(bytes);
   }

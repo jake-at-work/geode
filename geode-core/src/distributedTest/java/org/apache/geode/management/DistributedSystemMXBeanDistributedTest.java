@@ -27,10 +27,7 @@ import static org.apache.geode.test.dunit.internal.DUnitLauncher.getDistributedS
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.Properties;
 import java.util.Set;
-
-import javax.management.ObjectName;
 
 import org.junit.After;
 import org.junit.Before;
@@ -90,14 +87,14 @@ public class DistributedSystemMXBeanDistributedTest implements Serializable {
 
     managerVM.invoke(this::createManager);
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> createMember(memberVM.getId()));
     }
   }
 
   @After
   public void tearDown() throws Exception {
-    for (VM vm : toArray(managerVM, memberVM1, memberVM2, memberVM3)) {
+    for (var vm : toArray(managerVM, memberVM1, memberVM2, memberVM3)) {
       vm.invoke(() -> {
         if (cache != null) {
           cache.close();
@@ -140,7 +137,7 @@ public class DistributedSystemMXBeanDistributedTest implements Serializable {
         assertThat(distributedSystemMXBean.getMemberCount()).isEqualTo(5);
       });
 
-      Set<InternalDistributedMember> otherMembers = getOtherNormalMembers();
+      var otherMembers = getOtherNormalMembers();
       for (DistributedMember member : otherMembers) {
         assertThat(distributedSystemMXBean.showOSMetrics(member.getName())).isNotNull();
       }
@@ -170,19 +167,19 @@ public class DistributedSystemMXBeanDistributedTest implements Serializable {
   @Test
   public void fetchMemberObjectName() {
     managerVM.invoke(() -> {
-      String memberName = distributedMember.getName();
+      var memberName = distributedMember.getName();
 
       await().untilAsserted(() -> {
         assertThat(distributedSystemMXBean.fetchMemberObjectName(memberName)).isNotNull();
       });
 
-      ObjectName memberMXBeanName = distributedSystemMXBean.fetchMemberObjectName(memberName);
+      var memberMXBeanName = distributedSystemMXBean.fetchMemberObjectName(memberName);
       assertThat(memberMXBeanName).isEqualTo(getMemberMBeanName(memberName));
     });
   }
 
   private void createManager() {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, MANAGER_NAME);
     config.setProperty(JMX_MANAGER, "true");
     config.setProperty(JMX_MANAGER_START, "true");
@@ -197,7 +194,7 @@ public class DistributedSystemMXBeanDistributedTest implements Serializable {
   }
 
   private void createMember(int vmId) {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, MEMBER_NAME + vmId);
     config.setProperty(JMX_MANAGER, "false");
 

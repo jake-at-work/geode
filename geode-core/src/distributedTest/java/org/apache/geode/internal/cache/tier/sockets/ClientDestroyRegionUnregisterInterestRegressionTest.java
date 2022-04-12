@@ -35,13 +35,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.ClientServerObserver;
 import org.apache.geode.internal.cache.ClientServerObserverHolder;
 import org.apache.geode.test.dunit.VM;
@@ -126,14 +123,14 @@ public class ClientDestroyRegionUnregisterInterestRegressionTest implements Seri
   private void createClientCache(int port1, int port2) {
     clientCacheRule.createClientCache();
 
-    Pool pool = PoolManager.createFactory().addServer(hostName, port1).addServer(hostName, port2)
+    var pool = PoolManager.createFactory().addServer(hostName, port1).addServer(hostName, port2)
         .setSubscriptionEnabled(true).setMinConnections(4).create(uniqueName);
 
     ClientRegionFactory<Object, ?> clientRegionFactory =
         clientCacheRule.getClientCache().createClientRegionFactory(LOCAL);
     clientRegionFactory.setPoolName(pool.getName());
 
-    Region<Object, ?> region = clientRegionFactory.create(regionName);
+    var region = clientRegionFactory.create(regionName);
 
     List<String> listOfKeys = new ArrayList<>();
     listOfKeys.add("key-1");
@@ -152,7 +149,7 @@ public class ClientDestroyRegionUnregisterInterestRegressionTest implements Seri
 
     regionFactory.create(regionName);
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();

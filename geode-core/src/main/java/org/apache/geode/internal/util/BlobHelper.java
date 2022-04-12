@@ -17,7 +17,6 @@ package org.apache.geode.internal.util;
 import java.io.IOException;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.distributed.internal.DMStats;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.offheap.StoredObject;
@@ -48,9 +47,9 @@ public class BlobHelper {
    * byte array that contains the blob.
    */
   public static byte[] serializeToBlob(Object obj, KnownVersion version) throws IOException {
-    final long start = startSerialization();
+    final var start = startSerialization();
     byte[] result;
-    try (HeapDataOutputStream hdos = new HeapDataOutputStream(version)) {
+    try (var hdos = new HeapDataOutputStream(version)) {
       DataSerializer.writeObject(obj, hdos);
       result = hdos.toByteArray();
     }
@@ -63,8 +62,8 @@ public class BlobHelper {
    * HeapDataOutputStream.
    */
   public static void serializeTo(Object obj, HeapDataOutputStream hdos) throws IOException {
-    final int startBytes = hdos.size();
-    final long start = startSerialization();
+    final var startBytes = hdos.size();
+    final var start = startSerialization();
     DataSerializer.writeObject(obj, hdos);
     endSerialization(start, hdos.size() - startBytes);
   }
@@ -82,13 +81,13 @@ public class BlobHelper {
   public static Object deserializeBlob(byte[] blob, KnownVersion version, ByteArrayDataInput in)
       throws IOException, ClassNotFoundException {
     Object result;
-    final long start = startDeserialization();
+    final var start = startDeserialization();
     if (blob.length > 0 && blob[0] == DSCODE.PDX.toByte()) {
       // If the first byte of blob indicates a pdx then wrap
       // blob in a PdxInputStream instead.
       // This will prevent us from making a copy of the byte[]
       // every time we deserialize a PdxInstance.
-      try (PdxInputStream is = new PdxInputStream(blob)) {
+      try (var is = new PdxInputStream(blob)) {
         result = DataSerializer.readObject(is);
       }
     } else {
@@ -112,11 +111,11 @@ public class BlobHelper {
   public static @Unretained Object deserializeOffHeapBlob(StoredObject blob)
       throws IOException, ClassNotFoundException {
     Object result;
-    final long start = startDeserialization();
+    final var start = startDeserialization();
     // For both top level and nested pdxs we just want a reference to this off-heap blob.
     // No copies.
     // For non-pdx we want a stream that will read directly from the chunk.
-    try (PdxInputStream is = new PdxInputStream(blob)) {
+    try (var is = new PdxInputStream(blob)) {
       result = DataSerializer.readObject(is);
     }
     endDeserialization(start, blob.getDataSize());
@@ -128,15 +127,15 @@ public class BlobHelper {
    */
   public static Object deserializeBuffer(ByteArrayDataInput in, int numBytes)
       throws IOException, ClassNotFoundException {
-    final long start = startDeserialization();
-    Object result = DataSerializer.readObject(in);
+    final var start = startDeserialization();
+    var result = DataSerializer.readObject(in);
     endDeserialization(start, numBytes);
     return result;
   }
 
   private static long startSerialization() {
     long result = 0;
-    DMStats stats = InternalDistributedSystem.getDMStats();
+    var stats = InternalDistributedSystem.getDMStats();
     if (stats != null) {
       result = stats.startSerialization();
     }
@@ -144,7 +143,7 @@ public class BlobHelper {
   }
 
   private static void endSerialization(long start, int bytes) {
-    DMStats stats = InternalDistributedSystem.getDMStats();
+    var stats = InternalDistributedSystem.getDMStats();
     if (stats != null) {
       stats.endSerialization(start, bytes);
     }
@@ -152,7 +151,7 @@ public class BlobHelper {
 
   private static long startDeserialization() {
     long result = 0;
-    DMStats stats = InternalDistributedSystem.getDMStats();
+    var stats = InternalDistributedSystem.getDMStats();
     if (stats != null) {
       result = stats.startDeserialization();
     }
@@ -160,7 +159,7 @@ public class BlobHelper {
   }
 
   private static void endDeserialization(long start, int bytes) {
-    DMStats stats = InternalDistributedSystem.getDMStats();
+    var stats = InternalDistributedSystem.getDMStats();
     if (stats != null) {
       stats.endDeserialization(start, bytes);
     }

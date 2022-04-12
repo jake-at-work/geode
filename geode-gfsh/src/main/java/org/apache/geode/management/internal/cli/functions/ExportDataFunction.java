@@ -17,10 +17,7 @@ package org.apache.geode.management.internal.cli.functions;
 import java.io.File;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.snapshot.RegionSnapshotService;
-import org.apache.geode.cache.snapshot.SnapshotOptions;
 import org.apache.geode.cache.snapshot.SnapshotOptions.SnapshotFormat;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.snapshot.SnapshotOptionsImpl;
@@ -47,30 +44,30 @@ public class ExportDataFunction extends CliFunction<String[]> {
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext<String[]> context) throws Exception {
-    final String[] args = context.getArguments();
+    final var args = context.getArguments();
     if (args.length < 3) {
       throw new IllegalStateException(
           "Arguments length does not match required length. Export command may have been sent from incompatible older version");
     }
-    final String regionName = args[0];
-    final String fileName = args[1];
-    final boolean parallel = Boolean.parseBoolean(args[2]);
+    final var regionName = args[0];
+    final var fileName = args[1];
+    final var parallel = Boolean.parseBoolean(args[2]);
     CliFunctionResult result;
 
     Cache cache = ((InternalCache) context.getCache()).getCacheForProcessingClientRequests();
-    Region<Object, Object> region = cache.getRegion(regionName);
-    String hostName = cache.getDistributedSystem().getDistributedMember().getHost();
+    var region = cache.getRegion(regionName);
+    var hostName = cache.getDistributedSystem().getDistributedMember().getHost();
     if (region != null) {
-      RegionSnapshotService<Object, Object> snapshotService = region.getSnapshotService();
-      final File exportFile = new File(fileName);
+      var snapshotService = region.getSnapshotService();
+      final var exportFile = new File(fileName);
       if (parallel) {
-        SnapshotOptions<Object, Object> options = new SnapshotOptionsImpl<>().setParallelMode(true);
+        var options = new SnapshotOptionsImpl<>().setParallelMode(true);
         snapshotService.save(exportFile, SnapshotFormat.GEODE, options);
       } else {
         snapshotService.save(exportFile, SnapshotFormat.GEODE);
       }
 
-      String successMessage = CliStrings.format(CliStrings.EXPORT_DATA__SUCCESS__MESSAGE,
+      var successMessage = CliStrings.format(CliStrings.EXPORT_DATA__SUCCESS__MESSAGE,
           regionName, exportFile.getCanonicalPath(), hostName);
       result = new CliFunctionResult(context.getMemberName(), CliFunctionResult.StatusState.OK,
           successMessage);

@@ -24,7 +24,7 @@ public class AuthIds {
   private long uniqueId;
 
   public AuthIds(byte[] bytes) throws Exception {
-    try (ByteArrayDataInput dis = new ByteArrayDataInput(bytes)) {
+    try (var dis = new ByteArrayDataInput(bytes)) {
       if (bytes.length == 8) {
         // only connectionid
         connectionId = dis.readLong();

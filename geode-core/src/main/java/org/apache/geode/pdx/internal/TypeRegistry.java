@@ -101,7 +101,7 @@ public class TypeRegistry {
     if (!mayNeedDiskStore(cache)) {
       return null;
     } else {
-      String result = cache.getPdxDiskStore();
+      var result = cache.getPdxDiskStore();
       if (result == null) {
         result = DiskStoreFactory.DEFAULT_DISK_STORE_NAME;
       }
@@ -118,13 +118,13 @@ public class TypeRegistry {
 
   public void flushCache() {
     InternalDataSerializer.flushClassCache();
-    for (EnumInfo ei : idToEnum.values()) {
+    for (var ei : idToEnum.values()) {
       ei.flushCache();
     }
   }
 
   public PdxType getType(int typeId) {
-    PdxType pdxType = idToType.get(typeId);
+    var pdxType = idToType.get(typeId);
     if (pdxType != null) {
       return pdxType;
     }
@@ -152,7 +152,7 @@ public class TypeRegistry {
   }
 
   public PdxType getExistingTypeForClass(Class<?> aClass) {
-    PdxType result = localTypeIds.get(aClass);
+    var result = localTypeIds.get(aClass);
     return result;
   }
 
@@ -161,7 +161,7 @@ public class TypeRegistry {
    * given local class. Returns null if no such local type exists.
    */
   UnreadPdxType getExistingTypeForClass(Class<?> aClass, int typeId) {
-    Map<Integer, UnreadPdxType> map = localTypeIdMaps.get(aClass);
+    var map = localTypeIdMaps.get(aClass);
     if (map != null) {
       return map.get(typeId);
     } else {
@@ -170,12 +170,12 @@ public class TypeRegistry {
   }
 
   void defineUnreadType(Class<?> aClass, UnreadPdxType unreadPdxType) {
-    int typeId = unreadPdxType.getTypeId();
+    var typeId = unreadPdxType.getTypeId();
     // even though localTypeIdMaps is copy on write we need to sync it
     // during write to safely update the nested map.
     // We make the nested map copy-on-write so that readers don't need to sync.
     synchronized (localTypeIdMaps) {
-      Map<Integer, UnreadPdxType> map = localTypeIdMaps.get(aClass);
+      var map = localTypeIdMaps.get(aClass);
       if (map == null) {
         map = new CopyOnWriteHashMap<>();
         localTypeIdMaps.put(aClass, map);
@@ -190,16 +190,16 @@ public class TypeRegistry {
    * @return the existing type or the new type
    */
   public PdxType defineType(PdxType newType) {
-    Integer existingId = typeToId.get(newType);
+    var existingId = typeToId.get(newType);
     if (existingId != null) {
-      PdxType existingType = idToType.get(existingId);
+      var existingType = idToType.get(existingId);
       if (existingType != null) {
         return existingType;
       }
     }
 
-    int id = distributedTypeRegistry.defineType(newType);
-    PdxType oldType = idToType.get(id);
+    var id = distributedTypeRegistry.defineType(newType);
+    var oldType = idToType.get(id);
     if (oldType == null) {
       newType.setTypeId(id);
       idToType.put(id, newType);
@@ -218,7 +218,7 @@ public class TypeRegistry {
   }
 
   public void addRemoteType(int typeId, PdxType newType) {
-    PdxType oldType = idToType.get(typeId);
+    var oldType = idToType.get(typeId);
     if (oldType == null) {
       distributedTypeRegistry.addRemoteType(typeId, newType);
       idToType.put(typeId, newType);
@@ -237,11 +237,11 @@ public class TypeRegistry {
    */
   PdxType defineLocalType(Object o, PdxType newType) {
     if (o != null) {
-      PdxType t = getExistingType(o);
+      var t = getExistingType(o);
       if (t != null) {
         return t;
       }
-      PdxType existingType = defineType(newType);
+      var existingType = defineType(newType);
       localTypeIds.put(o.getClass(), existingType);
       return existingType;
     } else {
@@ -321,7 +321,7 @@ public class TypeRegistry {
   }
 
   public static PdxSerializer getPdxSerializer() {
-    PdxSerializer result = pdxSerializer.get();
+    var result = pdxSerializer.get();
     if (result == null && !open && pdxSerializerWasSet) {
       throw new CacheClosedException("Could not PDX serialize because the cache was closed");
     }
@@ -334,7 +334,7 @@ public class TypeRegistry {
 
   public static void setPdxSerializer(PdxSerializer v) {
     if (v == null) {
-      PdxSerializer oldValue = pdxSerializer.getAndSet(null);
+      var oldValue = pdxSerializer.getAndSet(null);
       if (oldValue instanceof ReflectionBasedAutoSerializer) {
         asm.compareAndSet(
             (AutoSerializableManager) ((ReflectionBasedAutoSerializer) oldValue).getManager(),
@@ -353,16 +353,16 @@ public class TypeRegistry {
    * Given an enum compute and return a code for it.
    */
   public int getEnumId(Enum<?> v) {
-    int result = 0;
+    var result = 0;
     if (v != null) {
-      Integer id = localEnumIds.get(v);
+      var id = localEnumIds.get(v);
       if (id != null) {
         result = id;
       } else {
         result = distributedTypeRegistry.getEnumId(v);
         id = result;
         localEnumIds.put(v, id);
-        EnumInfo ei = new EnumInfo(v);
+        var ei = new EnumInfo(v);
         idToEnum.put(id, ei);
         enumInfoToId.put(ei, id);
       }
@@ -371,7 +371,7 @@ public class TypeRegistry {
   }
 
   public void addRemoteEnum(int enumId, EnumInfo newInfo) {
-    EnumInfo oldInfo = idToEnum.get(enumId);
+    var oldInfo = idToEnum.get(enumId);
     if (oldInfo == null) {
       distributedTypeRegistry.addRemoteEnum(enumId, newInfo);
       idToEnum.put(enumId, newInfo);
@@ -383,12 +383,12 @@ public class TypeRegistry {
   }
 
   public int defineEnum(EnumInfo newInfo) {
-    Integer existingId = enumInfoToId.get(newInfo);
+    var existingId = enumInfoToId.get(newInfo);
     if (existingId != null) {
       return existingId;
     }
-    int id = distributedTypeRegistry.defineEnum(newInfo);
-    EnumInfo oldInfo = idToEnum.get(id);
+    var id = distributedTypeRegistry.defineEnum(newInfo);
+    var oldInfo = idToEnum.get(id);
     if (oldInfo == null) {
       idToEnum.put(id, newInfo);
       enumInfoToId.put(newInfo, id);
@@ -406,7 +406,7 @@ public class TypeRegistry {
     if (enumId == 0) {
       return null;
     }
-    EnumInfo ei = getEnumInfoById(enumId);
+    var ei = getEnumInfoById(enumId);
     if (ei == null) {
       throw new PdxSerializationException(
           "Could not find a PDX registration for the enum with id " + enumId);
@@ -428,7 +428,7 @@ public class TypeRegistry {
       return null;
     }
 
-    EnumInfo ei = idToEnum.get(enumId);
+    var ei = idToEnum.get(enumId);
     if (ei == null) {
       ei = distributedTypeRegistry.getEnumById(enumId);
       if (ei != null) {
@@ -453,7 +453,7 @@ public class TypeRegistry {
       idToEnum.clear();
       enumInfoToId.clear();
       localEnumIds.clear();
-      AutoSerializableManager autoSerializer = getAutoSerializableManager();
+      var autoSerializer = getAutoSerializableManager();
       if (autoSerializer != null) {
         autoSerializer.resetCachedTypes();
       }
@@ -498,7 +498,7 @@ public class TypeRegistry {
   }
 
   public void addImportedType(int typeId, PdxType importedType) {
-    PdxType existing = getType(typeId);
+    var existing = getType(typeId);
     if (existing != null && !existing.equals(importedType)) {
       throw new PdxSerializationException(
           String.format(
@@ -515,7 +515,7 @@ public class TypeRegistry {
   }
 
   public void addImportedEnum(int enumId, EnumInfo importedEnum) {
-    EnumInfo existing = getEnumInfoById(enumId);
+    var existing = getEnumInfoById(enumId);
     if (existing != null && !existing.equals(importedEnum)) {
       throw new PdxSerializationException(
           String.format(
@@ -532,7 +532,7 @@ public class TypeRegistry {
    * Get the size of the the type registry in this local member
    */
   int getLocalSize() {
-    int result = distributedTypeRegistry.getLocalSize();
+    var result = distributedTypeRegistry.getLocalSize();
     if (result == 0) {
       // If this is the client, go ahead and return the number of cached types we have
       return idToType.size();

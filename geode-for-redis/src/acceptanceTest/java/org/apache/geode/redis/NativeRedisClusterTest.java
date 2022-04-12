@@ -20,7 +20,6 @@ import static org.apache.geode.test.dunit.rules.RedisClusterStartupRule.REDIS_CL
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -49,11 +48,11 @@ public class NativeRedisClusterTest {
 
   @Test
   public void testEachProxyReturnsExposedPorts() {
-    for (Integer port : cluster.getExposedPorts()) {
-      try (Jedis jedis = new Jedis(BIND_ADDRESS, port, REDIS_CLIENT_TIMEOUT)) {
-        String rawClusterNodes = jedis.clusterNodes();
-        List<ClusterNode> nodes = ClusterNodes.parseClusterNodes(rawClusterNodes).getNodes();
-        List<Integer> ports = nodes.stream().map(f -> (int) f.port).collect(Collectors.toList());
+    for (var port : cluster.getExposedPorts()) {
+      try (var jedis = new Jedis(BIND_ADDRESS, port, REDIS_CLIENT_TIMEOUT)) {
+        var rawClusterNodes = jedis.clusterNodes();
+        var nodes = ClusterNodes.parseClusterNodes(rawClusterNodes).getNodes();
+        var ports = nodes.stream().map(f -> (int) f.port).collect(Collectors.toList());
 
         assertThat(ports).as(rawClusterNodes)
             .containsExactlyInAnyOrderElementsOf(cluster.getExposedPorts());
@@ -66,7 +65,7 @@ public class NativeRedisClusterTest {
 
   @Test
   public void testClusterAwareClient() {
-    try (JedisCluster jedis =
+    try (var jedis =
         new JedisCluster(new HostAndPort(BIND_ADDRESS, cluster.getExposedPorts().get(0)),
             REDIS_CLIENT_TIMEOUT)) {
       jedis.set("a", "0"); // slot 15495
@@ -87,7 +86,7 @@ public class NativeRedisClusterTest {
 
   @Test
   public void testMoved() {
-    try (Jedis jedis =
+    try (var jedis =
         new Jedis(BIND_ADDRESS, cluster.getExposedPorts().get(0), REDIS_CLIENT_TIMEOUT)) {
       assertThatThrownBy(() -> jedis.set("a", "A"))
           .isInstanceOf(JedisMovedDataException.class)
@@ -97,8 +96,8 @@ public class NativeRedisClusterTest {
 
   private void debugContainers() {
     cluster.dumpContainerLogs();
-    for (Integer port : cluster.getExposedPorts()) {
-      try (Jedis j = new Jedis(BIND_ADDRESS, port, REDIS_CLIENT_TIMEOUT)) {
+    for (var port : cluster.getExposedPorts()) {
+      try (var j = new Jedis(BIND_ADDRESS, port, REDIS_CLIENT_TIMEOUT)) {
         System.out.println("============ Cluster node proxy port: " + port + " =============");
         System.out.println(j.clusterInfo());
         System.out.println(j.clusterNodes());

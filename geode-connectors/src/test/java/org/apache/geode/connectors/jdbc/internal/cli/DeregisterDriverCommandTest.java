@@ -36,7 +36,6 @@ import org.apache.geode.cache.configuration.JndiBindingsType;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 
 public class DeregisterDriverCommandTest {
@@ -60,9 +59,9 @@ public class DeregisterDriverCommandTest {
     dataSources.add(dataSource);
     doReturn(memberSet).when(command).findMembers(any(), any());
     doReturn(resultList).when(command).executeAndGetFunctionResult(any(), any(), any());
-    InternalConfigurationPersistenceService clusterConfigService =
+    var clusterConfigService =
         mock(InternalConfigurationPersistenceService.class);
-    CacheConfig cacheConfig = mock(CacheConfig.class);
+    var cacheConfig = mock(CacheConfig.class);
     when(cacheConfig.getJndiBindings()).thenReturn(dataSources);
 
     doReturn(clusterConfigService).when(command).getConfigurationPersistenceService();
@@ -77,7 +76,7 @@ public class DeregisterDriverCommandTest {
         DRIVER_CLASS_NAME + " was successfully deregistered.");
     resultList.add(result);
 
-    ResultModel resultModel = command.deregisterDriver(DRIVER_CLASS_NAME);
+    var resultModel = command.deregisterDriver(DRIVER_CLASS_NAME);
 
     assertThat(resultModel.toString())
         .contains(DRIVER_CLASS_NAME + " was successfully deregistered.");
@@ -90,7 +89,7 @@ public class DeregisterDriverCommandTest {
   public void testDeregisterDriverWithNoClusterConfigurationServerFails() {
     doReturn(null).when(command).getConfigurationPersistenceService();
 
-    ResultModel result = command.deregisterDriver(DRIVER_CLASS_NAME);
+    var result = command.deregisterDriver(DRIVER_CLASS_NAME);
 
     assertThat(result.getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(result.toString()).contains("Cluster configuration service must be enabled.");
@@ -100,7 +99,7 @@ public class DeregisterDriverCommandTest {
   public void testDeregisterDriverFailsWhenDriverIsInUse() {
     dataSource.setJdbcDriverClass(DRIVER_CLASS_NAME);
 
-    ResultModel result = command.deregisterDriver(DRIVER_CLASS_NAME);
+    var result = command.deregisterDriver(DRIVER_CLASS_NAME);
 
     assertThat(result.getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(result.toString()).contains("Driver is currently in use by " + DATA_SOURCE_NAME);
@@ -109,7 +108,7 @@ public class DeregisterDriverCommandTest {
   @Test
   public void testDeregisterDriverReturnsErrorWhenNoMembers() {
     when(memberSet.size()).thenReturn(0);
-    ResultModel resultModel = command.deregisterDriver(DRIVER_CLASS_NAME);
+    var resultModel = command.deregisterDriver(DRIVER_CLASS_NAME);
 
     assertThat(resultModel.toString()).contains(NO_MEMBERS_FOUND);
   }
@@ -117,13 +116,13 @@ public class DeregisterDriverCommandTest {
   @Test
   public void testDeregisterDriverReturnsWhenFunctionFailsToExecute() {
     when(memberSet.size()).thenReturn(1);
-    String errorMessage = "Error message";
+    var errorMessage = "Error message";
 
     result = new CliFunctionResult("Server1", CliFunctionResult.StatusState.ERROR,
         errorMessage);
     resultList.add(result);
 
-    ResultModel resultModel = command.deregisterDriver(DRIVER_CLASS_NAME);
+    var resultModel = command.deregisterDriver(DRIVER_CLASS_NAME);
 
     assertThat(resultModel.toString()).contains(errorMessage);
     assertThat(resultModel.getStatus()).isEqualTo(Result.Status.ERROR);
@@ -131,10 +130,10 @@ public class DeregisterDriverCommandTest {
 
   @Test
   public void testDeregisterDriverReturnsWhenExceptionIsThrown() {
-    String exceptionString = "Test Exception";
+    var exceptionString = "Test Exception";
     doThrow(new NullPointerException(exceptionString)).when(command).findMembers(any(), any());
 
-    ResultModel resultModel = command.deregisterDriver(DRIVER_CLASS_NAME);
+    var resultModel = command.deregisterDriver(DRIVER_CLASS_NAME);
 
     assertThat(resultModel.getStatus()).isEqualTo(Result.Status.ERROR);
     assertThat(resultModel.toString()).contains(

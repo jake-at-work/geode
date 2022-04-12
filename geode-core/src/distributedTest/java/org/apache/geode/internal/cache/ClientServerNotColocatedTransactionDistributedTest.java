@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
@@ -37,11 +36,8 @@ import org.apache.geode.cache.TransactionDataNotColocatedException;
 import org.apache.geode.cache.TransactionException;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.ClientCacheRule;
@@ -81,14 +77,14 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   @Test
   public void getOnRemoteNodeInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServer(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     Region<Integer, Integer> region = clientCacheRule.getClientCache().getRegion(regionName);
     txManager.begin();
     try {
-      Throwable caughtException = catchThrowable(() -> doTransactionalGets(initialPuts, region));
+      var caughtException = catchThrowable(() -> doTransactionalGets(initialPuts, region));
       assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
     } finally {
       txManager.commit();
@@ -105,16 +101,16 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   private int createServerRegion(int totalNumBuckets, boolean isAccessor, int redundancy)
       throws Exception {
-    PartitionAttributesFactory factory = new PartitionAttributesFactory();
+    var factory = new PartitionAttributesFactory();
     factory.setTotalNumBuckets(totalNumBuckets).setRedundantCopies(redundancy);
     if (isAccessor) {
       factory.setLocalMaxMemory(0);
     }
-    PartitionAttributes partitionAttributes = factory.create();
+    var partitionAttributes = factory.create();
     cacheRule.getOrCreateCache().createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(partitionAttributes).create(regionName);
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -122,7 +118,7 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   private void createClientRegion(int... ports) {
     clientCacheRule.createClientCache();
-    PoolImpl pool = getPool(ports);
+    var pool = getPool(ports);
     ClientRegionFactory crf =
         clientCacheRule.getClientCache().createClientRegionFactory(ClientRegionShortcut.LOCAL);
     crf.setPoolName(pool.getName());
@@ -130,14 +126,14 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
   }
 
   private void doPuts(int numOfEntries) {
-    for (int i = 0; i <= numOfEntries; i++) {
+    for (var i = 0; i <= numOfEntries; i++) {
       cacheRule.getCache().getRegion(regionName).put(i, i);
     }
   }
 
   private PoolImpl getPool(int... ports) {
-    PoolFactory factory = PoolManager.createFactory();
-    for (int port : ports) {
+    var factory = PoolManager.createFactory();
+    for (var port : ports) {
       factory.addServer(hostName, port);
     }
     factory.setReadTimeout(12000).setSocketBufferSize(1000);
@@ -146,21 +142,21 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
   }
 
   private void doTransactionalGets(int initialPuts, Region<Integer, Integer> region) {
-    for (int i = 1; i < initialPuts; i++) {
+    for (var i = 1; i < initialPuts; i++) {
       region.get(i);
     }
   }
 
   @Test
   public void getAllOnMultipleNodesInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServer(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     Region<Integer, Integer> region = clientCacheRule.getClientCache().getRegion(regionName);
     txManager.begin();
     try {
-      Throwable caughtException = catchThrowable(() -> doTransactionalGetAll(initialPuts, region));
+      var caughtException = catchThrowable(() -> doTransactionalGetAll(initialPuts, region));
       assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
     } finally {
       txManager.commit();
@@ -169,7 +165,7 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   private void doTransactionalGetAll(int initialPuts, Region<Integer, Integer> region) {
     List<Integer> list = new ArrayList<>();
-    for (int i = 1; i < initialPuts; i++) {
+    for (var i = 1; i < initialPuts; i++) {
       list.add(i);
     }
     region.getAll(list);
@@ -177,14 +173,14 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   @Test
   public void putOnRemoteNodeInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServer(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     Region<Integer, Integer> region = clientCacheRule.getClientCache().getRegion(regionName);
     txManager.begin();
     try {
-      Throwable caughtException = catchThrowable(() -> doTransactionalPuts(initialPuts, region));
+      var caughtException = catchThrowable(() -> doTransactionalPuts(initialPuts, region));
       assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
     } finally {
       txManager.commit();
@@ -192,21 +188,21 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
   }
 
   private void doTransactionalPuts(int initialPuts, Region<Integer, Integer> region) {
-    for (int i = 1; i < initialPuts; i++) {
+    for (var i = 1; i < initialPuts; i++) {
       region.put(i, i + 100);
     }
   }
 
   @Test
   public void putAllOnMultipleNodesInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServer(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     Region<Integer, Integer> region = clientCacheRule.getClientCache().getRegion(regionName);
     txManager.begin();
     try {
-      Throwable caughtException = catchThrowable(() -> doTransactionalPutAll(initialPuts, region));
+      var caughtException = catchThrowable(() -> doTransactionalPutAll(initialPuts, region));
       assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
     } finally {
       txManager.commit();
@@ -215,7 +211,7 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   private void doTransactionalPutAll(int initialPuts, Region<Integer, Integer> region) {
     Map<Integer, Integer> map = new HashMap<>();
-    for (int i = 1; i < initialPuts; i++) {
+    for (var i = 1; i < initialPuts; i++) {
       map.put(i, i + 100);
     }
     region.putAll(map);
@@ -223,14 +219,14 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   @Test
   public void invalidateOnRemoteNodeInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServer(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     Region<Integer, Integer> region = clientCacheRule.getClientCache().getRegion(regionName);
     txManager.begin();
     try {
-      Throwable caughtException =
+      var caughtException =
           catchThrowable(() -> doTransactionalInvalidates(initialPuts, region));
       assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
     } finally {
@@ -239,21 +235,21 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
   }
 
   private void doTransactionalInvalidates(int initialPuts, Region<Integer, Integer> region) {
-    for (int i = 1; i < initialPuts; i++) {
+    for (var i = 1; i < initialPuts; i++) {
       region.invalidate(i);
     }
   }
 
   @Test
   public void destroyOnRemoteNodeInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServer(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     Region<Integer, Integer> region = clientCacheRule.getClientCache().getRegion(regionName);
     txManager.begin();
     try {
-      Throwable caughtException =
+      var caughtException =
           catchThrowable(() -> doTransactionalDestroys(initialPuts, region));
       assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
     } finally {
@@ -262,21 +258,21 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
   }
 
   private void doTransactionalDestroys(int initialPuts, Region<Integer, Integer> region) {
-    for (int i = 1; i < initialPuts; i++) {
+    for (var i = 1; i < initialPuts; i++) {
       region.destroy(i);
     }
   }
 
   @Test
   public void getEntryOnRemoteNodeInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServer(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     Region<Integer, Integer> region = clientCacheRule.getClientCache().getRegion(regionName);
     txManager.begin();
     try {
-      Throwable caughtException =
+      var caughtException =
           catchThrowable(() -> doTransactionalGetEntries(initialPuts, region));
       assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
     } finally {
@@ -285,21 +281,21 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
   }
 
   private void doTransactionalGetEntries(int initialPuts, Region<Integer, Integer> region) {
-    for (int i = 1; i < initialPuts; i++) {
+    for (var i = 1; i < initialPuts; i++) {
       region.getEntry(i);
     }
   }
 
   @Test
   public void containKeyOnRemoteNodeInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServer(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     Region<Integer, Integer> region = clientCacheRule.getClientCache().getRegion(regionName);
     txManager.begin();
     try {
-      Throwable caughtException =
+      var caughtException =
           catchThrowable(() -> doTransactionalContainsKey(initialPuts, region));
       assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
     } finally {
@@ -308,21 +304,21 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
   }
 
   private void doTransactionalContainsKey(int initialPuts, Region<Integer, Integer> region) {
-    for (int i = 1; i < initialPuts; i++) {
+    for (var i = 1; i < initialPuts; i++) {
       region.containsKey(i);
     }
   }
 
   @Test
   public void containsValueForKeyOnRemoteNodeInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServer(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     Region<Integer, Integer> region = clientCacheRule.getClientCache().getRegion(regionName);
     txManager.begin();
     try {
-      Throwable caughtException =
+      var caughtException =
           catchThrowable(() -> doTransactionalContainsValueForKey(initialPuts, region));
       assertThat(caughtException).isInstanceOf(TransactionDataNotColocatedException.class);
     } finally {
@@ -332,16 +328,16 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   private void doTransactionalContainsValueForKey(int initialPuts,
       Region<Integer, Integer> region) {
-    for (int i = 1; i < initialPuts; i++) {
+    for (var i = 1; i < initialPuts; i++) {
       region.containsValueForKey(i);
     }
   }
 
   @Test
   public void getOnReplicateRegionThenPartitionedRegionInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServerWithTwoRegions(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     try {
@@ -362,7 +358,7 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
   }
 
   private void doPutsInRegions(int numOfEntries) {
-    for (int i = 0; i <= numOfEntries; i++) {
+    for (var i = 0; i <= numOfEntries; i++) {
       cacheRule.getCache().getRegion(regionName).put(i, i);
       cacheRule.getCache().getRegion(replicateRegionName).put(i, i);
     }
@@ -385,7 +381,7 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
   }
 
   private void createClientRegion(String regionName) {
-    Pool pool = clientCacheRule.getClientCache().getDefaultPool();
+    var pool = clientCacheRule.getClientCache().getDefaultPool();
     clientCacheRule.getClientCache().createClientRegionFactory(ClientRegionShortcut.LOCAL)
         .setPoolName(pool.getName())
         .create(regionName);
@@ -393,9 +389,9 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   @Test
   public void putOnReplicateRegionThenPartitionedRegionInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServerWithTwoRegions(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     try {
@@ -417,9 +413,9 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   @Test
   public void putAllOnReplicateRegionThenPartitionedRegionInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServerWithTwoRegions(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     try {
@@ -444,9 +440,9 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   @Test
   public void invalidateOnReplicateRegionThenPartitionedRegionInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServerWithTwoRegions(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     try {
@@ -468,9 +464,9 @@ public class ClientServerNotColocatedTransactionDistributedTest implements Seria
 
   @Test
   public void destroyOnReplicateRegionThenPartitionedRegionInATransactionThrowsTransactionDataNotColocatedException() {
-    int initialPuts = 4;
+    var initialPuts = 4;
     setupClientAndServerWithTwoRegions(initialPuts);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     try {

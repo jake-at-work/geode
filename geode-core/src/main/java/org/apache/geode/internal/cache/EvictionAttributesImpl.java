@@ -141,7 +141,7 @@ public class EvictionAttributesImpl extends EvictionAttributes implements DataSe
 
   public static EvictionAttributesImpl createFromData(DataInput in)
       throws IOException, ClassNotFoundException {
-    EvictionAttributesImpl result = new EvictionAttributesImpl();
+    var result = new EvictionAttributesImpl();
     InternalDataSerializer.invokeFromData(result, in);
     return result;
   }
@@ -167,7 +167,7 @@ public class EvictionAttributesImpl extends EvictionAttributes implements DataSe
       RegionAttributesType.EvictionAttributes configAttributes)
       throws ClassCastException, InstantiationException,
       IllegalAccessException {
-    EvictionAttributesImpl evictionAttributes = new EvictionAttributesImpl();
+    var evictionAttributes = new EvictionAttributesImpl();
 
     if (configAttributes.getLruHeapPercentage() != null) {
       evictionAttributes.setAlgorithm(EvictionAlgorithm.LRU_HEAP);

@@ -33,7 +33,6 @@ import org.apache.coyote.OutputBuffer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 
 
 public class Tomcat9CommitSessionValveTest {
@@ -45,9 +44,9 @@ public class Tomcat9CommitSessionValveTest {
 
   @Before
   public void before() {
-    final Context context = mock(Context.class);
+    final var context = mock(Context.class);
 
-    final Request request = mock(Request.class);
+    final var request = mock(Request.class);
     doReturn(context).when(request).getContext();
 
     coyoteResponse = new org.apache.coyote.Response();
@@ -77,13 +76,13 @@ public class Tomcat9CommitSessionValveTest {
     outputStream.write(bytes);
     outputStream.flush();
 
-    final ArgumentCaptor<ByteBuffer> byteBuffer = ArgumentCaptor.forClass(ByteBuffer.class);
+    final var byteBuffer = ArgumentCaptor.forClass(ByteBuffer.class);
 
-    final InOrder inOrder = inOrder(outputBuffer);
+    final var inOrder = inOrder(outputBuffer);
     inOrder.verify(outputBuffer).doWrite(byteBuffer.capture());
     inOrder.verifyNoMoreInteractions();
 
-    final OutputBuffer wrappedOutputBuffer = getOutputBuffer(coyoteResponse);
+    final var wrappedOutputBuffer = getOutputBuffer(coyoteResponse);
     assertThat(wrappedOutputBuffer).isInstanceOf(Tomcat9CommitSessionOutputBuffer.class);
     assertThat(((Tomcat9CommitSessionOutputBuffer) wrappedOutputBuffer).getDelegate())
         .isNotInstanceOf(Tomcat9CommitSessionOutputBuffer.class);

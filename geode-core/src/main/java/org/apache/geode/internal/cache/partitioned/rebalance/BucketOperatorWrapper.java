@@ -47,8 +47,8 @@ public class BucketOperatorWrapper implements BucketOperator {
   @Override
   public boolean moveBucket(InternalDistributedMember sourceMember,
       InternalDistributedMember targetMember, int id, Map<String, Long> colocatedRegionBytes) {
-    long start = System.nanoTime();
-    boolean result = false;
+    var start = System.nanoTime();
+    var result = false;
     long elapsed = 0;
     long totalBytes = 0;
 
@@ -63,9 +63,9 @@ public class BucketOperatorWrapper implements BucketOperator {
           logger.debug("Rebalancing {} bucket {} moved from {} to {}", leaderRegion, id,
               sourceMember, targetMember);
         }
-        for (PartitionRebalanceDetailsImpl details : detailSet) {
-          String regionPath = details.getRegionPath();
-          Long regionBytes = colocatedRegionBytes.get(regionPath);
+        for (var details : detailSet) {
+          var regionPath = details.getRegionPath();
+          var regionBytes = colocatedRegionBytes.get(regionPath);
           if (regionBytes != null) {
             // only increment the elapsed time for the leader region
             details.incTransfers(regionBytes,
@@ -96,20 +96,20 @@ public class BucketOperatorWrapper implements BucketOperator {
       stats.startBucketCreate(regionCount);
     }
 
-    final long start = System.nanoTime();
+    final var start = System.nanoTime();
     delegate.createRedundantBucket(targetMember, i, colocatedRegionBytes, new Completion() {
 
       @Override
       public void onSuccess() {
         long totalBytes = 0;
-        long elapsed = System.nanoTime() - start;
+        var elapsed = System.nanoTime() - start;
         if (logger.isDebugEnabled()) {
           logger.debug("Rebalancing {} redundant bucket {} created on {}", leaderRegion, i,
               targetMember);
         }
-        for (PartitionRebalanceDetailsImpl details : detailSet) {
-          String regionPath = details.getRegionPath();
-          Long lrb = colocatedRegionBytes.get(regionPath);
+        for (var details : detailSet) {
+          var regionPath = details.getRegionPath();
+          var lrb = colocatedRegionBytes.get(regionPath);
           if (lrb != null) { // region could have gone away - esp during shutdow
             long regionBytes = lrb;
             // Only add the elapsed time to the leader region.
@@ -128,7 +128,7 @@ public class BucketOperatorWrapper implements BucketOperator {
 
       @Override
       public void onFailure() {
-        long elapsed = System.nanoTime() - start;
+        var elapsed = System.nanoTime() - start;
 
         if (logger.isDebugEnabled()) {
           logger.info("Rebalancing {} redundant bucket {} failed creation on {}", leaderRegion, i,
@@ -148,7 +148,7 @@ public class BucketOperatorWrapper implements BucketOperator {
   @Override
   public boolean removeBucket(InternalDistributedMember targetMember, int i,
       Map<String, Long> colocatedRegionBytes) {
-    boolean result = false;
+    var result = false;
     long elapsed = 0;
     long totalBytes = 0;
 
@@ -156,7 +156,7 @@ public class BucketOperatorWrapper implements BucketOperator {
       stats.startBucketRemove(regionCount);
     }
     try {
-      long start = System.nanoTime();
+      var start = System.nanoTime();
       result = delegate.removeBucket(targetMember, i, colocatedRegionBytes);
       elapsed = System.nanoTime() - start;
       if (result) {
@@ -164,9 +164,9 @@ public class BucketOperatorWrapper implements BucketOperator {
           logger.debug("Rebalancing {} redundant bucket {} removed from {}", leaderRegion, i,
               targetMember);
         }
-        for (PartitionRebalanceDetailsImpl details : detailSet) {
-          String regionPath = details.getRegionPath();
-          Long lrb = colocatedRegionBytes.get(regionPath);
+        for (var details : detailSet) {
+          var regionPath = details.getRegionPath();
+          var lrb = colocatedRegionBytes.get(regionPath);
           if (lrb != null) { // region could have gone away - esp during shutdow
             long regionBytes = lrb;
             // Only add the elapsed time to the leader region.
@@ -192,7 +192,7 @@ public class BucketOperatorWrapper implements BucketOperator {
   @Override
   public boolean movePrimary(InternalDistributedMember source, InternalDistributedMember target,
       int bucketId) {
-    boolean result = false;
+    var result = false;
     long elapsed = 0;
 
     if (stats != null) {
@@ -200,7 +200,7 @@ public class BucketOperatorWrapper implements BucketOperator {
     }
 
     try {
-      long start = System.nanoTime();
+      var start = System.nanoTime();
       result = delegate.movePrimary(source, target, bucketId);
       elapsed = System.nanoTime() - start;
       if (result) {
@@ -208,7 +208,7 @@ public class BucketOperatorWrapper implements BucketOperator {
           logger.debug("Rebalancing {} primary bucket {} moved from {} to {}", leaderRegion,
               bucketId, source, target);
         }
-        for (PartitionRebalanceDetailsImpl details : detailSet) {
+        for (var details : detailSet) {
           details.incPrimaryTransfers(details.getRegion().equals(leaderRegion) ? elapsed : 0);
         }
       } else {

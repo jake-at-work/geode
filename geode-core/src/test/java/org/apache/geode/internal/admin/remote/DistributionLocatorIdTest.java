@@ -33,12 +33,12 @@ class DistributionLocatorIdTest {
 
   @Test
   void testEquals() throws UnknownHostException {
-    InetAddress address = InetAddress.getLocalHost();
-    DistributionLocatorId distributionLocatorId1 =
+    var address = InetAddress.getLocalHost();
+    var distributionLocatorId1 =
         new DistributionLocatorId(address, 40404, "127.0.0.1", null);
-    DistributionLocatorId distributionLocatorId2 =
+    var distributionLocatorId2 =
         new DistributionLocatorId(address, 40404, "127.0.0.1", null);
-    DistributionLocatorId distributionLocatorId3 =
+    var distributionLocatorId3 =
         new DistributionLocatorId(InetAddress.getByName("localhost"),
             50505, "128.0.0.1", null);
 
@@ -49,13 +49,13 @@ class DistributionLocatorIdTest {
 
   @Test
   void testEquals_and_DetailCompare() {
-    DistributionLocatorId distributionLocatorId1 =
+    var distributionLocatorId1 =
         new DistributionLocatorId(40404, "127.0.0.1", null);
-    DistributionLocatorId distributionLocatorId2 =
+    var distributionLocatorId2 =
         new DistributionLocatorId(40404, "127.0.0.1", "127.0.1.0", "member2");
-    DistributionLocatorId distributionLocatorId3 =
+    var distributionLocatorId3 =
         new DistributionLocatorId(40404, "127.0.0.1", null, "member3");
-    DistributionLocatorId distributionLocatorId4 =
+    var distributionLocatorId4 =
         new DistributionLocatorId(distributionLocatorId3.marshal());
 
     assertThat(distributionLocatorId1).isEqualTo(distributionLocatorId2);
@@ -75,14 +75,14 @@ class DistributionLocatorIdTest {
 
   @Test
   void toStringReturnsMarshaledAddressWhenConstructedWithMarshaledAddress() {
-    final DistributionLocatorId locatorId = new DistributionLocatorId("localhost[1234]");
+    final var locatorId = new DistributionLocatorId("localhost[1234]");
 
     assertThat(locatorId).hasToString("localhost[1234]");
   }
 
   @Test
   void toStringReturnsHostnameForClientsWhenConstructedWithHostnameForClients() {
-    final DistributionLocatorId locatorId =
+    final var locatorId =
         new DistributionLocatorId(1234, "bind-address.example.com",
             "hostname-for-clients.example.com");
 
@@ -91,7 +91,7 @@ class DistributionLocatorIdTest {
 
   @Test
   void toStringReturnsBindAddressWhenConstructedWithBindAddress() {
-    final DistributionLocatorId locatorId =
+    final var locatorId =
         new DistributionLocatorId(1234, "bind-address.example.com");
 
     assertThat(locatorId).hasToString("bind-address.example.com[1234]");
@@ -100,12 +100,12 @@ class DistributionLocatorIdTest {
   @Test
   void toStringReturnsLocalHostNameWhenLocatorBindAddressAndHostnameForClientNotSet()
       throws UnknownHostException {
-    final InetAddress localHost = LocalHostUtil.getLocalHost();
+    final var localHost = LocalHostUtil.getLocalHost();
 
     final Locator locator = mock(InternalLocator.class);
     when(locator.getPort()).thenReturn(1234);
 
-    final DistributionLocatorId locatorId = new DistributionLocatorId(localHost, locator);
+    final var locatorId = new DistributionLocatorId(localHost, locator);
 
     assertThat(locatorId).hasToString(localHost.getCanonicalHostName() + "[1234]");
   }
@@ -113,13 +113,13 @@ class DistributionLocatorIdTest {
   @Test
   void toStringReturnsBindAddressWhenLocatorBindAddressSetAndHostnameForClientNotSet()
       throws UnknownHostException {
-    final InetAddress localHost = LocalHostUtil.getLocalHost();
+    final var localHost = LocalHostUtil.getLocalHost();
 
-    final InternalLocator locator = mock(InternalLocator.class);
+    final var locator = mock(InternalLocator.class);
     when(locator.getPort()).thenReturn(1234);
     when(locator.getBindAddressString()).thenReturn("bind-address.example.com");
 
-    final DistributionLocatorId locatorId = new DistributionLocatorId(localHost, locator);
+    final var locatorId = new DistributionLocatorId(localHost, locator);
 
     assertThat(locatorId).hasToString("bind-address.example.com[1234]");
   }
@@ -127,14 +127,14 @@ class DistributionLocatorIdTest {
   @Test
   void toStringReturnsBindAddressWhenLocatorBindAddressAndHostnameForClientSet()
       throws UnknownHostException {
-    final InetAddress localHost = LocalHostUtil.getLocalHost();
+    final var localHost = LocalHostUtil.getLocalHost();
 
-    final InternalLocator locator = mock(InternalLocator.class);
+    final var locator = mock(InternalLocator.class);
     when(locator.getPort()).thenReturn(1234);
     when(locator.getBindAddressString()).thenReturn("bind-address.example.com");
     when(locator.getHostnameForClients()).thenReturn("hostname-for-clients.example.com");
 
-    final DistributionLocatorId locatorId = new DistributionLocatorId(localHost, locator);
+    final var locatorId = new DistributionLocatorId(localHost, locator);
 
     assertThat(locatorId).hasToString("hostname-for-clients.example.com[1234]");
   }

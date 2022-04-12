@@ -56,8 +56,8 @@ public class CacheSnapshotServiceImpl implements CacheSnapshotService {
       throws IOException {
     createDirectoryIfNeeded(dir);
 
-    for (Region<?, ?> region : cache.rootRegions()) {
-      for (Region<?, ?> subRegion : region.subregions(true)) {
+    for (var region : cache.rootRegions()) {
+      for (var subRegion : region.subregions(true)) {
         saveRegion(subRegion, dir, format, options);
       }
       saveRegion(region, dir, format, options);
@@ -66,7 +66,7 @@ public class CacheSnapshotServiceImpl implements CacheSnapshotService {
 
   private void createDirectoryIfNeeded(File dir) throws IOException {
     if (!dir.exists()) {
-      boolean created = dir.mkdirs();
+      var created = dir.mkdirs();
       if (!created) {
         throw new IOException(
             String.format("Unable to create snapshot directory %s", dir));
@@ -80,12 +80,12 @@ public class CacheSnapshotServiceImpl implements CacheSnapshotService {
       throw new FileNotFoundException("Unable to load snapshot from " + dir.getCanonicalPath()
           + " as the file does not exist or is not a directory");
     }
-    File[] snapshotFiles = getSnapshotFiles(dir);
+    var snapshotFiles = getSnapshotFiles(dir);
     load(snapshotFiles, format, createOptions());
   }
 
   private File[] getSnapshotFiles(File dir) throws IOException {
-    File[] snapshotFiles = dir.listFiles(pathname -> pathname.getName().endsWith(".gfd"));
+    var snapshotFiles = dir.listFiles(pathname -> pathname.getName().endsWith(".gfd"));
 
     if (snapshotFiles == null) {
       throw new IOException("Unable to access " + dir.getCanonicalPath());
@@ -101,24 +101,24 @@ public class CacheSnapshotServiceImpl implements CacheSnapshotService {
   public void load(File[] snapshotFiles, SnapshotFormat format,
       SnapshotOptions<Object, Object> options) throws IOException, ClassNotFoundException {
 
-    for (File file : snapshotFiles) {
-      GFSnapshotImporter in = new GFSnapshotImporter(file, cache.getPdxRegistry());
+    for (var file : snapshotFiles) {
+      var in = new GFSnapshotImporter(file, cache.getPdxRegistry());
       try {
-        byte version = in.getVersion();
+        var version = in.getVersion();
         if (version == GFSnapshot.SNAP_VER_1) {
           throw new IOException(
               String.format("Unsupported snapshot version: %s", version));
         }
 
-        String regionName = in.getRegionName();
-        Region<Object, Object> region = cache.getRegion(regionName);
+        var regionName = in.getRegionName();
+        var region = cache.getRegion(regionName);
         if (region == null) {
           throw new RegionNotFoundException(String.format(
               "Could not find region %s. Ensure that the region is created prior to importing the snapshot file %s.",
               regionName, file));
         }
 
-        RegionSnapshotService<Object, Object> rs = region.getSnapshotService();
+        var rs = region.getSnapshotService();
         rs.load(file, format, options);
 
       } finally {
@@ -129,10 +129,10 @@ public class CacheSnapshotServiceImpl implements CacheSnapshotService {
 
   private void saveRegion(Region<?, ?> region, File dir, SnapshotFormat format,
       SnapshotOptions options) throws IOException {
-    RegionSnapshotService<?, ?> regionSnapshotService = region.getSnapshotService();
-    String name = "snapshot" + region.getFullPath().replace(SEPARATOR_CHAR, '-')
+    var regionSnapshotService = region.getSnapshotService();
+    var name = "snapshot" + region.getFullPath().replace(SEPARATOR_CHAR, '-')
         + RegionSnapshotService.SNAPSHOT_FILE_EXTENSION;
-    File f = new File(dir, name);
+    var f = new File(dir, name);
     regionSnapshotService.save(f, format, options);
   }
 }

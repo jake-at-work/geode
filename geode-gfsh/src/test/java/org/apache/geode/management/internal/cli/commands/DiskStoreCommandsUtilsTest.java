@@ -38,9 +38,9 @@ public class DiskStoreCommandsUtilsTest {
   public void diskStoreBeanAndMemberBeanDiskStoreExists() throws Exception {
     Map<String, String[]> memberDiskStore = new HashMap<>();
     memberDiskStore.put(memberName, new String[] {diskStoreName});
-    ObjectName objectName = new ObjectName("");
+    var objectName = new ObjectName("");
 
-    DistributedSystemMXBean distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
+    var distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
     doReturn(memberDiskStore).when(distributedSystemMXBean).listMemberDiskstore();
     doReturn(objectName).when(distributedSystemMXBean).fetchDiskStoreObjectName(any(), any());
 
@@ -53,9 +53,9 @@ public class DiskStoreCommandsUtilsTest {
   public void diskStoreBeanExistsAndMemberDiskStoreNotFound() throws Exception {
     Map<String, String[]> memberDiskStore = new HashMap<>();
     memberDiskStore.put(memberName, new String[] {});
-    ObjectName objectName = new ObjectName("");
+    var objectName = new ObjectName("");
 
-    DistributedSystemMXBean distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
+    var distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
     doReturn(memberDiskStore).when(distributedSystemMXBean).listMemberDiskstore();
     doReturn(objectName).when(distributedSystemMXBean).fetchDiskStoreObjectName(any(), any());
 
@@ -69,7 +69,7 @@ public class DiskStoreCommandsUtilsTest {
     Map<String, String[]> memberDiskStore = new HashMap<>();
     memberDiskStore.put(memberName, new String[] {diskStoreName});
 
-    DistributedSystemMXBean distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
+    var distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
     doReturn(memberDiskStore).when(distributedSystemMXBean).listMemberDiskstore();
     doThrow(new Exception("not found")).when(distributedSystemMXBean)
         .fetchDiskStoreObjectName(any(), any());
@@ -81,9 +81,9 @@ public class DiskStoreCommandsUtilsTest {
 
   @Test
   public void diskStoreBeanExistsMemberDiskStoreIsNull() throws Exception {
-    ObjectName objectName = new ObjectName("");
+    var objectName = new ObjectName("");
 
-    DistributedSystemMXBean distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
+    var distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
     doReturn(null).when(distributedSystemMXBean).listMemberDiskstore();
     doReturn(objectName).when(distributedSystemMXBean).fetchDiskStoreObjectName(any(), any());
 
@@ -96,9 +96,9 @@ public class DiskStoreCommandsUtilsTest {
   public void diskStoreBeanExistsMemberDiskStoreContainsNullArray() throws Exception {
     Map<String, String[]> memberDiskStore = new HashMap<>();
     memberDiskStore.put(memberName, null);
-    ObjectName objectName = new ObjectName("");
+    var objectName = new ObjectName("");
 
-    DistributedSystemMXBean distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
+    var distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
     doReturn(memberDiskStore).when(distributedSystemMXBean).listMemberDiskstore();
     doReturn(objectName).when(distributedSystemMXBean).fetchDiskStoreObjectName(any(), any());
 
@@ -111,9 +111,9 @@ public class DiskStoreCommandsUtilsTest {
   public void diskStoreBeanExistsMemberDiskStoreNamesHasNullValues() throws Exception {
     Map<String, String[]> memberDiskStore = new HashMap<>();
     memberDiskStore.put(memberName, new String[] {null, null});
-    ObjectName objectName = new ObjectName("");
+    var objectName = new ObjectName("");
 
-    DistributedSystemMXBean distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
+    var distributedSystemMXBean = Mockito.mock(DistributedSystemMXBean.class);
     doReturn(memberDiskStore).when(distributedSystemMXBean).listMemberDiskstore();
     doReturn(objectName).when(distributedSystemMXBean).fetchDiskStoreObjectName(any(), any());
 

@@ -33,10 +33,10 @@ public class CallbackInstantiatorTest {
 
   @Test
   public void testGetObjectFromConstructor() {
-    String string = CallbackInstantiator.getObjectOfType(String.class.getName(), String.class);
+    var string = CallbackInstantiator.getObjectOfType(String.class.getName(), String.class);
     assertThat(string).isNotNull().isEqualTo("");
 
-    CharSequence charSequence =
+    var charSequence =
         CallbackInstantiator.getObjectOfType(String.class.getName(), CharSequence.class);
     assertThat(charSequence).isNotNull().isEqualTo("");
 
@@ -60,7 +60,7 @@ public class CallbackInstantiatorTest {
 
   @Test
   public void testGetObjectFromFactoryMethod() {
-    String string = CallbackInstantiator.getObjectOfType(Factories.class.getName() + ".getString",
+    var string = CallbackInstantiator.getObjectOfType(Factories.class.getName() + ".getString",
         String.class);
     assertThat(string).isNotNull().isEqualTo(STRING);
 

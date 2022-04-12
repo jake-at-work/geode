@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EvictionAlgorithm;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.DistributedSystem;
@@ -48,7 +47,7 @@ public class MemoryMonitorOffHeapJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(OFF_HEAP_MEMORY_SIZE, "1m");
     ds = DistributedSystem.connect(p);
@@ -82,8 +81,8 @@ public class MemoryMonitorOffHeapJUnitTest {
 
   @Test
   public void testGeneratingEvents() throws Exception {
-    InternalResourceManager internalManager = cache.getInternalResourceManager();
-    OffHeapMemoryMonitor monitor = internalManager.getOffHeapMonitor();
+    var internalManager = cache.getInternalResourceManager();
+    var monitor = internalManager.getOffHeapMonitor();
 
     monitor.setEvictionThreshold(50.0f);
     monitor.setCriticalThreshold(75.0f);
@@ -93,7 +92,7 @@ public class MemoryMonitorOffHeapJUnitTest {
     assertEquals(786432, internalManager.getStats().getOffHeapCriticalThreshold());
 
     // Register a bunch of listeners
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       ResourceListener listener = new TestMemoryThresholdListener();
       internalManager.addResourceListener(ResourceType.OFFHEAP_MEMORY, listener);
     }
@@ -147,7 +146,7 @@ public class MemoryMonitorOffHeapJUnitTest {
       final int evictionStart, final int safe, final int critical, final int evictionEvents,
       final int criticalEvents, final int normalEvents) {
     cache.getInternalResourceManager().getOffHeapMonitor().updateStateAndSendEvent(memUsed);
-    ResourceManagerStats stats = cache.getInternalResourceManager().getStats();
+    var stats = cache.getInternalResourceManager().getStats();
 
     assertEquals(evictionStop, stats.getOffHeapEvictionStopEvents());
     assertEquals(evictionStart, stats.getOffHeapEvictionStartEvents());
@@ -168,16 +167,16 @@ public class MemoryMonitorOffHeapJUnitTest {
 
   @Test
   public void testDisabledThresholds() throws Exception {
-    final InternalResourceManager irm = cache.getInternalResourceManager();
-    final OffHeapMemoryMonitor monitor = irm.getOffHeapMonitor();
+    final var irm = cache.getInternalResourceManager();
+    final var monitor = irm.getOffHeapMonitor();
 
     final RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.LOCAL);
     regionFactory.setOffHeap(true);
-    final EvictionAttributesImpl evictionAttrs = new EvictionAttributesImpl();
+    final var evictionAttrs = new EvictionAttributesImpl();
     evictionAttrs.setAlgorithm(EvictionAlgorithm.NONE);
     regionFactory.setEvictionAttributes(evictionAttrs);
-    final Region region = regionFactory.create("testDefaultThresholdsRegion");
-    TestMemoryThresholdListener listener = new TestMemoryThresholdListener();
+    final var region = regionFactory.create("testDefaultThresholdsRegion");
+    var listener = new TestMemoryThresholdListener();
     irm.addResourceListener(ResourceType.OFFHEAP_MEMORY, listener);
 
     region.put("1", new Byte[550000]);
@@ -222,7 +221,7 @@ public class MemoryMonitorOffHeapJUnitTest {
 
   @Test
   public void testAllowedThreholds() {
-    final OffHeapMemoryMonitor monitor =
+    final var monitor =
         cache.getInternalResourceManager().getOffHeapMonitor();
 
     // Test eviction bounds
@@ -292,7 +291,7 @@ public class MemoryMonitorOffHeapJUnitTest {
 
   @Test
   public void testMonitorRunning() {
-    final OffHeapMemoryMonitor monitor =
+    final var monitor =
         cache.getInternalResourceManager().getOffHeapMonitor();
 
     assertFalse("Off-heap monitor is not running", monitor.started);
@@ -318,7 +317,7 @@ public class MemoryMonitorOffHeapJUnitTest {
 
   @Test
   public void testGettersAndSetters() {
-    final OffHeapMemoryMonitor monitor =
+    final var monitor =
         cache.getInternalResourceManager().getOffHeapMonitor();
 
     assertEquals(0f, monitor.getEvictionThreshold(), 0.01);

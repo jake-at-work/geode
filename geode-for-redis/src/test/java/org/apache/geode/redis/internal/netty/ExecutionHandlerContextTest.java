@@ -38,24 +38,24 @@ import org.apache.geode.security.ResourcePermission;
 
 public class ExecutionHandlerContextTest {
   private ExecutionHandlerContext createContext(RedisSecurityService securityService) {
-    Channel channel = mock(Channel.class);
+    var channel = mock(Channel.class);
     when(channel.closeFuture()).thenReturn(mock(ChannelFuture.class));
-    RedisStats redisStats = mock(RedisStats.class);
+    var redisStats = mock(RedisStats.class);
     return new ExecutionHandlerContext(channel, null, null, null, redisStats, null, 0, null,
         securityService, null);
   }
 
   @Test
   public void isAuthorized_withReadOp_checksForReadPermission() {
-    RedisSecurityService securityService = mock(RedisSecurityService.class);
+    var securityService = mock(RedisSecurityService.class);
     when(securityService.isEnabled()).thenReturn(true);
-    ExecutionHandlerContext context = createContext(securityService);
+    var context = createContext(securityService);
     context.setSubject(mock(Subject.class));
 
-    boolean result = context.isAuthorized(RedisCommandType.GET);
+    var result = context.isAuthorized(RedisCommandType.GET);
 
     assertThat(result).isTrue();
-    ArgumentCaptor<ResourcePermission> argumentCaptor =
+    var argumentCaptor =
         ArgumentCaptor.forClass(ResourcePermission.class);
     verify(securityService, times(1)).authorize(argumentCaptor.capture(), any());
     assertThat(argumentCaptor.getValue().getOperationString()).isEqualTo("READ");
@@ -66,15 +66,15 @@ public class ExecutionHandlerContextTest {
 
   @Test
   public void isAuthorized_withWriteOp_checksForWritePermission() {
-    RedisSecurityService securityService = mock(RedisSecurityService.class);
+    var securityService = mock(RedisSecurityService.class);
     when(securityService.isEnabled()).thenReturn(true);
-    ExecutionHandlerContext context = createContext(securityService);
+    var context = createContext(securityService);
     context.setSubject(mock(Subject.class));
 
-    boolean result = context.isAuthorized(RedisCommandType.SET);
+    var result = context.isAuthorized(RedisCommandType.SET);
 
     assertThat(result).isTrue();
-    ArgumentCaptor<ResourcePermission> argumentCaptor =
+    var argumentCaptor =
         ArgumentCaptor.forClass(ResourcePermission.class);
     verify(securityService, times(1)).authorize(argumentCaptor.capture(), any());
     assertThat(argumentCaptor.getValue().getOperationString()).isEqualTo("WRITE");
@@ -85,11 +85,11 @@ public class ExecutionHandlerContextTest {
 
   @Test
   public void isAuthorized_withDisabledSecurity_doesNoCheckAndReturnsTrue() {
-    RedisSecurityService securityService = mock(RedisSecurityService.class);
+    var securityService = mock(RedisSecurityService.class);
     when(securityService.isEnabled()).thenReturn(false);
-    ExecutionHandlerContext context = createContext(securityService);
+    var context = createContext(securityService);
 
-    boolean result = context.isAuthorized(RedisCommandType.SET);
+    var result = context.isAuthorized(RedisCommandType.SET);
 
     assertThat(result).isTrue();
     verify(securityService, never()).authorize(any(), any());
@@ -97,13 +97,13 @@ public class ExecutionHandlerContextTest {
 
   @Test
   public void isAuthorized_withFailedCheckReturnsFalse() {
-    RedisSecurityService securityService = mock(RedisSecurityService.class);
+    var securityService = mock(RedisSecurityService.class);
     when(securityService.isEnabled()).thenReturn(true);
     doThrow(NotAuthorizedException.class).when(securityService).authorize(any(), any());
-    ExecutionHandlerContext context = createContext(securityService);
+    var context = createContext(securityService);
     context.setSubject(mock(Subject.class));
 
-    boolean result = context.isAuthorized(RedisCommandType.SET);
+    var result = context.isAuthorized(RedisCommandType.SET);
 
     assertThat(result).isFalse();
   }

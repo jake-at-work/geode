@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -94,7 +93,7 @@ public class LuceneQueryImplJUnitTest {
   }
 
   private void addValueToResults() {
-    TopEntries entries = new TopEntries();
+    var entries = new TopEntries();
     entries.addHit(new EntryScore("hi", 5));
     when(collector.getResult()).thenReturn(entries);
 
@@ -109,30 +108,30 @@ public class LuceneQueryImplJUnitTest {
   @Test
   public void shouldReturnKeysFromFindKeys() throws LuceneQueryException {
     addValueToResults();
-    Collection<Object> results = query.findKeys();
+    var results = query.findKeys();
     assertEquals(Collections.singletonList("hi"), results);
   }
 
   @Test
   public void shouldReturnEmptyListFromFindKeysWithNoResults() throws LuceneQueryException {
-    TopEntries entries = new TopEntries();
+    var entries = new TopEntries();
     when(collector.getResult()).thenReturn(entries);
-    Collection<Object> results = query.findKeys();
+    var results = query.findKeys();
     assertEquals(Collections.emptyList(), results);
   }
 
   @Test
   public void shouldReturnValuesFromFindValues() throws LuceneQueryException {
     addValueToResults();
-    Collection<Object> results = query.findValues();
+    var results = query.findValues();
     assertEquals(Collections.singletonList("value"), results);
   }
 
   @Test
   public void shouldReturnEmptyListFromFindValuesWithNoResults() throws LuceneQueryException {
-    TopEntries entries = new TopEntries();
+    var entries = new TopEntries();
     when(collector.getResult()).thenReturn(entries);
-    Collection<Object> results = query.findValues();
+    var results = query.findValues();
     assertEquals(Collections.emptyList(), results);
   }
 
@@ -147,20 +146,20 @@ public class LuceneQueryImplJUnitTest {
   @Test
   public void shouldInvokeLuceneFunctionWithCorrectArguments() throws Exception {
     addValueToResults();
-    PageableLuceneQueryResults<Object, Object> results = query.findPages();
+    var results = query.findPages();
 
     verify(execution).execute(eq(LuceneQueryFunction.ID));
-    ArgumentCaptor<LuceneFunctionContext> captor =
+    var captor =
         ArgumentCaptor.forClass(LuceneFunctionContext.class);
     verify(execution).setArguments(captor.capture());
-    LuceneFunctionContext context = captor.getValue();
+    var context = captor.getValue();
     assertEquals(LIMIT, context.getLimit());
     assertEquals(provider, context.getQueryProvider());
     assertEquals("index", context.getIndexName());
 
     assertEquals(5, results.getMaxScore(), 0.01);
     assertEquals(1, results.size());
-    final List<LuceneResultStruct<Object, Object>> page = results.next();
+    final var page = results.next();
     assertEquals(1, page.size());
     LuceneResultStruct element = page.iterator().next();
     assertEquals("hi", element.getKey());

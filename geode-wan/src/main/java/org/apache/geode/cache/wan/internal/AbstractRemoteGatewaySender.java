@@ -60,8 +60,8 @@ public abstract class AbstractRemoteGatewaySender extends AbstractGatewaySender 
       return;
     }
 
-    int locatorCount = 0;
-    PoolFactoryImpl pf = (PoolFactoryImpl) PoolManager.createFactory();
+    var locatorCount = 0;
+    var pf = (PoolFactoryImpl) PoolManager.createFactory();
     pf.setPRSingleHopEnabled(false);
     if (locatorDiscoveryCallback != null) {
       pf.setLocatorDiscoveryCallback(locatorDiscoveryCallback);
@@ -70,20 +70,20 @@ public abstract class AbstractRemoteGatewaySender extends AbstractGatewaySender 
     pf.setIdleTimeout(connectionIdleTimeOut);
     pf.setSocketBufferSize(socketBufferSize);
     pf.setServerGroup(GatewayReceiver.RECEIVER_GROUP);
-    RemoteLocatorRequest request =
+    var request =
         new RemoteLocatorRequest(remoteDSId, pf.getPoolAttributes().getServerGroup());
-    String locators = cache.getInternalDistributedSystem().getConfig().getLocators();
-    final boolean debugEnabled = logger.isDebugEnabled();
+    var locators = cache.getInternalDistributedSystem().getConfig().getLocators();
+    final var debugEnabled = logger.isDebugEnabled();
     if (debugEnabled) {
       logger
           .debug("Gateway Sender is attempting to configure pool with remote locator information");
     }
-    StringTokenizer locatorsOnThisVM = new StringTokenizer(locators, ",");
+    var locatorsOnThisVM = new StringTokenizer(locators, ",");
     while (locatorsOnThisVM.hasMoreTokens()) {
-      String localLocator = locatorsOnThisVM.nextToken();
-      DistributionLocatorId locatorID = new DistributionLocatorId(localLocator);
+      var localLocator = locatorsOnThisVM.nextToken();
+      var locatorID = new DistributionLocatorId(localLocator);
       try {
-        final RemoteLocatorResponse response =
+        final var response =
             (RemoteLocatorResponse) new TcpClient(SocketCreatorFactory
                 .getSocketCreatorForComponent(SecurableCommunicationChannel.LOCATOR),
                 InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
@@ -105,9 +105,9 @@ public abstract class AbstractRemoteGatewaySender extends AbstractGatewaySender 
             logger.debug("Received the remote site {} location information: {}", remoteDSId,
                 response.getLocators());
           }
-          for (final String remoteLocator : response.getLocators()) {
+          for (final var remoteLocator : response.getLocators()) {
             try {
-              DistributionLocatorId locatorId = new DistributionLocatorId(remoteLocator);
+              var locatorId = new DistributionLocatorId(remoteLocator);
               pf.addLocator(locatorId.getHost().getHostName(), locatorId.getPort());
               locatorCount++;
             } catch (Exception e) {

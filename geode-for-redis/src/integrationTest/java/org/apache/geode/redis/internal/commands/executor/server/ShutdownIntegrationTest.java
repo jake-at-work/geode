@@ -55,7 +55,7 @@ public class ShutdownIntegrationTest implements RedisIntegrationTest {
 
   @Test
   public void shutdownIsDisabled_whenOnlySupportedCommandsAreAllowed() {
-    final String EXPECTED_ERROR_MSG =
+    final var EXPECTED_ERROR_MSG =
         String.format(ERROR_UNKNOWN_COMMAND, "SHUTDOWN", "");
 
     assertThatThrownBy(

@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadState;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.CancelException;
@@ -55,15 +54,12 @@ import org.apache.geode.cache.operations.RegionClearOperationContext;
 import org.apache.geode.cache.operations.RegionCreateOperationContext;
 import org.apache.geode.cache.operations.RegionDestroyOperationContext;
 import org.apache.geode.cache.query.CqException;
-import org.apache.geode.cache.query.internal.cq.CqService;
-import org.apache.geode.cache.query.internal.cq.InternalCqQuery;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.OperationExecutors;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.SystemTimer;
 import org.apache.geode.internal.SystemTimer.SystemTimerTask;
 import org.apache.geode.internal.cache.CacheDistributionAdvisee;
-import org.apache.geode.internal.cache.CacheDistributionAdvisor.InitialImageAdvice;
 import org.apache.geode.internal.cache.Conflatable;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.EnumListenerEvent;
@@ -74,12 +70,10 @@ import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.StateFlushOperation;
 import org.apache.geode.internal.cache.ha.HARegionQueue;
 import org.apache.geode.internal.cache.tier.InterestType;
-import org.apache.geode.internal.cache.tier.sockets.ClientUpdateMessageImpl.CqNameToOp;
 import org.apache.geode.internal.cache.tier.sockets.command.Get70;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.LogWriterImpl;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.statistics.StatisticsClock;
@@ -354,7 +348,7 @@ public class CacheClientProxy implements ClientSession {
 
   private void reinitializeClientAuths() {
     synchronized (clientUserAuthsLock) {
-      ClientUserAuths newClientAuth = ServerConnection.getClientUserAuths(proxyID);
+      var newClientAuth = ServerConnection.getClientUserAuths(proxyID);
       newClientAuth.fillPreviousCQAuth(clientUserAuths);
       clientUserAuths = newClientAuth;
     }
@@ -394,7 +388,7 @@ public class CacheClientProxy implements ClientSession {
     proxyID = pid;
     connected = true;
     {
-      int bufSize = 1024;
+      var bufSize = 1024;
       try {
         bufSize = _socket.getSendBufferSize();
         if (bufSize < 1024) {
@@ -517,7 +511,7 @@ public class CacheClientProxy implements ClientSession {
     boolean result;
     synchronized (isMarkedForRemovalLock) {
       result = isMarkedForRemoval;
-      boolean interrupted = false;
+      var interrupted = false;
       try {
         while (isMarkedForRemoval) {
           if (logger.isDebugEnabled()) {
@@ -559,8 +553,8 @@ public class CacheClientProxy implements ClientSession {
   }
 
   public Set<String> getInterestRegisteredRegions() {
-    HashSet<String> regions = new HashSet<>();
-    for (final ClientInterestList cil : cils) {
+    var regions = new HashSet<String>();
+    for (final var cil : cils) {
       if (!cil.regions.isEmpty()) {
         regions.addAll(cil.regions);
       }
@@ -655,7 +649,7 @@ public class CacheClientProxy implements ClientSession {
       // the numDrainsInProgress. That means we need to stop.
       if (drainLocked) {
         // someone is trying to restart a paused proxy
-        String msg =
+        var msg =
             String.format(
                 "CacheClientProxy: Could not drain cq %s due to client proxy id %s reconnecting.",
                 clientCQName, proxyID.getDurableId());
@@ -666,23 +660,23 @@ public class CacheClientProxy implements ClientSession {
       // but has not yet sent a ready for events message
       // we can probably remove the isPaused check
       if (isPaused() && !isConnected()) {
-        CqService cqService = getCache().getCqService();
+        var cqService = getCache().getCqService();
         if (cqService != null) {
-          InternalCqQuery cqToClose =
+          var cqToClose =
               cqService.getCq(cqService.constructServerCqName(clientCQName, proxyID));
           // close and drain
           if (cqToClose != null) {
             cqService.closeCq(clientCQName, proxyID);
             _messageDispatcher.drainClientCqEvents(proxyID, cqToClose);
           } else {
-            String msg = String.format("CQ Not found, Failed to close the specified CQ %s",
+            var msg = String.format("CQ Not found, Failed to close the specified CQ %s",
                 clientCQName);
             logger.info(msg);
             throw new CqException(msg);
           }
         }
       } else {
-        String msg =
+        var msg =
             String.format(
                 "CacheClientProxy: Could not drain cq %s because client proxy id %s is connected.",
                 clientCQName, proxyID.getDurableId());
@@ -768,10 +762,10 @@ public class CacheClientProxy implements ClientSession {
     // If the client is durable and either (a) it hasn't stopped normally or (b) it
     // has stopped normally but it is configured to be kept alive, set pauseDurable
     // to true
-    final boolean pauseDurable =
+    final var pauseDurable =
         isDurable() && (!stoppedNormally || (getDurableKeepAlive() && stoppedNormally));
 
-    boolean keepProxy = false;
+    var keepProxy = false;
     if (pauseDurable) {
       pauseDispatching();
       keepProxy = true;
@@ -902,8 +896,8 @@ public class CacheClientProxy implements ClientSession {
         cancelDurableExpirationTask(false);
       }
 
-      boolean alreadyDestroyed = false;
-      boolean gotInterrupt = Thread.interrupted(); // clears the flag
+      var alreadyDestroyed = false;
+      var gotInterrupt = Thread.interrupted(); // clears the flag
       try {
         // Stop the message dispatcher
         _messageDispatcher.stopDispatching(checkQueue);
@@ -947,7 +941,7 @@ public class CacheClientProxy implements ClientSession {
   }
 
   private boolean closeSocket() {
-    String remoteHostAddress = _remoteHostAddress;
+    var remoteHostAddress = _remoteHostAddress;
     if (_socketClosed.compareAndSet(false, true) && remoteHostAddress != null) {
       // Only one thread is expected to close the socket
       _cacheClientNotifier.getSocketCloser().asyncClose(_socket, remoteHostAddress,
@@ -971,7 +965,7 @@ public class CacheClientProxy implements ClientSession {
     // replaced when the client reconnects.
     releaseCommBuffer();
     {
-      String remoteHostAddress = _remoteHostAddress;
+      var remoteHostAddress = _remoteHostAddress;
       if (remoteHostAddress != null) {
         _cacheClientNotifier.getSocketCloser().releaseResourcesForAddress(remoteHostAddress);
         _remoteHostAddress = null;
@@ -988,7 +982,7 @@ public class CacheClientProxy implements ClientSession {
   }
 
   private void releaseCommBuffer() {
-    ByteBuffer bb = _commBuffer;
+    var bb = _commBuffer;
     if (bb != null) {
       _commBuffer = null;
       ServerConnection.releaseCommBuffer(bb);
@@ -996,7 +990,7 @@ public class CacheClientProxy implements ClientSession {
   }
 
   private void closeNonDurableCqs() {
-    CqService cqService = getCache().getCqService();
+    var cqService = getCache().getCqService();
     if (cqService != null) {
       try {
         cqService.closeNonDurableClientCqs(getProxyID());
@@ -1015,7 +1009,7 @@ public class CacheClientProxy implements ClientSession {
       // Using Destroy Region bcoz this method is modified in HARegion so as
       // not to distribute.
       // For normal Regions , even the localDestroyRegion actually propagates
-      HARegionQueue rq = _messageDispatcher._messageQueue;
+      var rq = _messageDispatcher._messageQueue;
       rq.destroy();
     } catch (RegionDestroyedException | CancelException ignored) {
     } catch (Exception warning) {
@@ -1086,7 +1080,7 @@ public class CacheClientProxy implements ClientSession {
       InterestResultPolicy policy, boolean isDurable, boolean receiveValues,
       final @NotNull InterestType interestType) {
     // Create a client interest message for the keyOfInterest
-    ClientInterestMessageImpl message = new ClientInterestMessageImpl(
+    var message = new ClientInterestMessageImpl(
         new EventID(_cache.getDistributedSystem()), regionName, keyOfInterest, interestType,
         policy.getOrdinal(), isDurable, !receiveValues, ClientInterestMessageImpl.REGISTER);
 
@@ -1109,10 +1103,10 @@ public class CacheClientProxy implements ClientSession {
   private void enqueueInitialValue(ClientInterestMessageImpl clientInterestMessage,
       String regionName, Object keyOfInterest) {
     // Get the initial value
-    Get70 request = (Get70) Get70.getCommand();
-    LocalRegion lr = (LocalRegion) _cache.getRegion(regionName);
-    Get70.Entry entry = request.getValueAndIsObject(lr, keyOfInterest, null, null);
-    boolean isObject = entry.isObject;
+    var request = (Get70) Get70.getCommand();
+    var lr = (LocalRegion) _cache.getRegion(regionName);
+    var entry = request.getValueAndIsObject(lr, keyOfInterest, null, null);
+    var isObject = entry.isObject;
     byte[] value = null;
 
     // If the initial value is not null, add it to the client's queue
@@ -1196,7 +1190,7 @@ public class CacheClientProxy implements ClientSession {
   private void notifySecondariesAndClient(String regionName, Object keyOfInterest,
       boolean isDurable, boolean receiveValues, final @NotNull InterestType interestType) {
     // Notify all secondary proxies of a change in interest
-    ClientInterestMessageImpl message = new ClientInterestMessageImpl(
+    var message = new ClientInterestMessageImpl(
         new EventID(_cache.getDistributedSystem()), regionName, keyOfInterest, interestType,
         (byte) 0, isDurable, !receiveValues, ClientInterestMessageImpl.UNREGISTER);
     notifySecondariesOfInterestChange(message);
@@ -1214,14 +1208,14 @@ public class CacheClientProxy implements ClientSession {
 
   protected void notifySecondariesOfInterestChange(ClientInterestMessageImpl message) {
     if (logger.isDebugEnabled()) {
-      StringBuilder subBuffer = new StringBuilder();
+      var subBuffer = new StringBuilder();
       if (message.isRegister()) {
         subBuffer.append("register ").append(message.getIsDurable() ? "" : "non-")
             .append("durable interest in ");
       } else {
         subBuffer.append("unregister interest in ");
       }
-      final String buffer = this + ": Notifying secondary proxies to " + subBuffer
+      final var buffer = this + ": Notifying secondary proxies to " + subBuffer
           + message.getRegionName() + "->" + message.getKeyOfInterest()
           + "->" + InterestType.getString(message.getInterestType());
       logger.debug(buffer);
@@ -1238,14 +1232,14 @@ public class CacheClientProxy implements ClientSession {
   protected void registerClientInterest(String regionName, Object keyOfInterest,
       final @NotNull InterestType interestType,
       boolean isDurable, boolean sendUpdatesAsInvalidates, boolean flushState) {
-    ClientInterestList cil =
+    var cil =
         cils[RegisterInterestTracker.getInterestLookupIndex(isDurable, false)];
     cil.registerClientInterest(regionName, keyOfInterest, interestType, sendUpdatesAsInvalidates);
     if (flushState) {
       flushForInterestRegistration(regionName,
           _cache.getDistributedSystem().getDistributedMember());
     }
-    HARegionQueue queue = getHARegionQueue();
+    var queue = getHARegionQueue();
     if (queue != null) { // queue is null during initialization
       queue.setHasRegisteredInterest(true);
     }
@@ -1265,7 +1259,7 @@ public class CacheClientProxy implements ClientSession {
       if (logger.isDebugEnabled()) {
         logger.debug("Flushing region '{}' for interest registration", regionName);
       }
-      CacheDistributionAdvisee cd = (CacheDistributionAdvisee) r;
+      var cd = (CacheDistributionAdvisee) r;
       final StateFlushOperation sfo;
       if (r instanceof PartitionedRegion) {
         // need to flush all buckets. SFO should be changed to target buckets
@@ -1279,8 +1273,8 @@ public class CacheClientProxy implements ClientSession {
         // bug 41681 - we need to flush any member that may have a cache operation
         // in progress so that the changes are received there before returning
         // from this method
-        InitialImageAdvice advice = cd.getCacheDistributionAdvisor().adviseInitialImage(null);
-        HashSet<InternalDistributedMember> recips = new HashSet<>(advice.getReplicates());
+        var advice = cd.getCacheDistributionAdvisor().adviseInitialImage(null);
+        var recips = new HashSet<InternalDistributedMember>(advice.getReplicates());
         recips.addAll(advice.getUninitialized());
         recips.addAll(advice.getEmpties());
         recips.addAll(advice.getPreloaded());
@@ -1323,7 +1317,7 @@ public class CacheClientProxy implements ClientSession {
       boolean isDurable, boolean sendUpdatesAsInvalidates, boolean flushState) {
     // we only use two interest lists to map the non-durable and durable
     // identifiers to their interest settings
-    ClientInterestList cil = cils[RegisterInterestTracker.getInterestLookupIndex(isDurable,
+    var cil = cils[RegisterInterestTracker.getInterestLookupIndex(isDurable,
         false/* sendUpdatesAsInvalidates */)];
     cil.registerClientInterestList(regionName, keysOfInterest, sendUpdatesAsInvalidates);
     if (getHARegionQueue() != null) {
@@ -1360,8 +1354,8 @@ public class CacheClientProxy implements ClientSession {
   protected void processInterestMessage(ClientInterestMessageImpl message) {
     // Register or unregister interest depending on the interest type
     final @NotNull InterestType interestType = message.getInterestType();
-    String regionName = message.getRegionName();
-    Object key = message.getKeyOfInterest();
+    var regionName = message.getRegionName();
+    var key = message.getKeyOfInterest();
     if (message.isRegister()) {
       // Register interest in this region->key
       if (key instanceof List) {
@@ -1376,7 +1370,7 @@ public class CacheClientProxy implements ClientSession {
       // addFilterRegisteredClients(regionName, key);
 
       if (logger.isDebugEnabled()) {
-        final String buffer = this + ": Interest listener registered "
+        final var buffer = this + ": Interest listener registered "
             + (message.getIsDurable() ? "" : "non-") + "durable interest in "
             + message.getRegionName() + "->" + message.getKeyOfInterest()
             + "->" + InterestType.getString(message.getInterestType());
@@ -1391,7 +1385,7 @@ public class CacheClientProxy implements ClientSession {
       }
 
       if (logger.isDebugEnabled()) {
-        final String buffer = this + ": Interest listener unregistered interest in "
+        final var buffer = this + ": Interest listener unregistered interest in "
             + message.getRegionName() + "->" + message.getKeyOfInterest()
             + "->" + InterestType.getString(message.getInterestType());
         logger.debug(buffer);
@@ -1416,16 +1410,16 @@ public class CacheClientProxy implements ClientSession {
     if (AcceptorImpl.isAuthenticationRequired() && postAuthzCallback == null
         && AcceptorImpl.isPostAuthzCallbackPresent()) {
       // security is on and callback is null: it means multiuser mode.
-      ClientUpdateMessageImpl cumi = (ClientUpdateMessageImpl) clientMessage;
+      var cumi = (ClientUpdateMessageImpl) clientMessage;
 
-      CqNameToOp clientCq = cumi.getClientCq(proxyID);
+      var clientCq = cumi.getClientCq(proxyID);
 
       if (clientCq != null && !clientCq.isEmpty()) {
         if (logger.isDebugEnabled()) {
           logger.debug("CCP clientCq size before processing auth {}", clientCq.size());
         }
-        String[] regionNameHolder = new String[1];
-        OperationContext opctxt = getOperationContext(clientMessage, regionNameHolder);
+        var regionNameHolder = new String[1];
+        var opctxt = getOperationContext(clientMessage, regionNameHolder);
         if (opctxt == null) {
           logger.warn(
               "{}: Not Adding message to queue: {} because the operation context object could not be obtained for this client message.",
@@ -1433,21 +1427,21 @@ public class CacheClientProxy implements ClientSession {
           return false;
         }
 
-        String[] cqNames = clientCq.getNames();
+        var cqNames = clientCq.getNames();
         if (logger.isDebugEnabled()) {
           logger.debug("CCP clientCq names array size {}", cqNames.length);
         }
-        for (final String cqName : cqNames) {
+        for (final var cqName : cqNames) {
           try {
             if (logger.isDebugEnabled()) {
               logger.debug("CCP clientCq name {}", cqName);
             }
-            boolean isAuthorized = false;
+            var isAuthorized = false;
 
             if (proxyID.isDurable() && getDurableKeepAlive() && _isPaused) {
               // need to take lock as we may be reinitializing proxy cache
               synchronized (clientUserAuthsLock) {
-                AuthorizeRequestPP postAuthCallback =
+                var postAuthCallback =
                     clientUserAuths.getUserAuthAttributes(cqName).getPostAuthzRequest();
                 if (logger.isDebugEnabled() && postAuthCallback == null) {
                   logger.debug("CCP clientCq post callback is null");
@@ -1458,10 +1452,10 @@ public class CacheClientProxy implements ClientSession {
                 }
               }
             } else {
-              UserAuthAttributes userAuthAttributes =
+              var userAuthAttributes =
                   clientUserAuths.getUserAuthAttributes(cqName);
 
-              AuthorizeRequestPP postAuthCallback = userAuthAttributes.getPostAuthzRequest();
+              var postAuthCallback = userAuthAttributes.getPostAuthzRequest();
               if (postAuthCallback == null && logger.isDebugEnabled()) {
                 logger.debug("CCP clientCq post callback is null");
               }
@@ -1495,8 +1489,8 @@ public class CacheClientProxy implements ClientSession {
         }
       }
     } else if (postAuthzCallback != null) {
-      String[] regionNameHolder = new String[1];
-      OperationContext opctxt = getOperationContext(clientMessage, regionNameHolder);
+      var regionNameHolder = new String[1];
+      var opctxt = getOperationContext(clientMessage, regionNameHolder);
       if (opctxt == null) {
         logger.warn(
             "{}: Not Adding message to queue: {} because the operation context object could not be obtained for this client message.",
@@ -1541,11 +1535,11 @@ public class CacheClientProxy implements ClientSession {
 
     // post process for single-user mode. We don't do post process for multi-user mode
     if (subject != null) {
-      ThreadState state = securityService.bindSubject(subject);
+      var state = securityService.bindSubject(subject);
       try {
         if (securityService.needPostProcess()) {
-          Object oldValue = clientMessage.getValue();
-          Object newValue = securityService.postProcess(clientMessage.getRegionName(),
+          var oldValue = clientMessage.getValue();
+          var newValue = securityService.postProcess(clientMessage.getRegionName(),
               clientMessage.getKeyOfInterest(), oldValue, clientMessage.valueIsObject());
           clientMessage.setLatestValue(newValue);
         }
@@ -1603,18 +1597,18 @@ public class CacheClientProxy implements ClientSession {
   }
 
   private OperationContext getOperationContext(ClientMessage cmsg, String[] regionNameHolder) {
-    ClientUpdateMessageImpl cmsgimpl = (ClientUpdateMessageImpl) cmsg;
+    var cmsgimpl = (ClientUpdateMessageImpl) cmsg;
     OperationContext opctxt = null;
     // TODO SW: Special handling for DynamicRegions; this should be reworked
     // when DynamicRegion API is deprecated
-    String regionName = cmsgimpl.getRegionName();
+    var regionName = cmsgimpl.getRegionName();
     regionNameHolder[0] = regionName;
     if (cmsgimpl.isCreate()) {
       if (DynamicRegionFactory.regionIsDynamicRegionList(regionName)) {
         regionNameHolder[0] = (String) cmsgimpl.getKeyOfInterest();
         opctxt = new RegionCreateOperationContext(true);
       } else {
-        PutOperationContext tmp = new PutOperationContext(cmsgimpl.getKeyOfInterest(),
+        var tmp = new PutOperationContext(cmsgimpl.getKeyOfInterest(),
             cmsgimpl.getValue(), cmsgimpl.valueIsObject(), PutOperationContext.CREATE, true);
         tmp.setCallbackArg(cmsgimpl.getCallbackArgument());
         opctxt = tmp;
@@ -1624,7 +1618,7 @@ public class CacheClientProxy implements ClientSession {
         regionNameHolder[0] = (String) cmsgimpl.getKeyOfInterest();
         opctxt = new RegionCreateOperationContext(true);
       } else {
-        PutOperationContext tmp = new PutOperationContext(cmsgimpl.getKeyOfInterest(),
+        var tmp = new PutOperationContext(cmsgimpl.getKeyOfInterest(),
             cmsgimpl.getValue(), cmsgimpl.valueIsObject(), PutOperationContext.UPDATE, true);
         tmp.setCallbackArg(cmsgimpl.getCallbackArgument());
         opctxt = tmp;
@@ -1634,7 +1628,7 @@ public class CacheClientProxy implements ClientSession {
         regionNameHolder[0] = (String) cmsgimpl.getKeyOfInterest();
         opctxt = new RegionDestroyOperationContext(true);
       } else {
-        DestroyOperationContext tmp =
+        var tmp =
             new DestroyOperationContext(cmsgimpl.getKeyOfInterest(), true);
         tmp.setCallbackArg(cmsgimpl.getCallbackArgument());
         opctxt = tmp;
@@ -1642,12 +1636,12 @@ public class CacheClientProxy implements ClientSession {
     } else if (cmsgimpl.isDestroyRegion()) {
       opctxt = new RegionDestroyOperationContext(true);
     } else if (cmsgimpl.isInvalidate()) {
-      InvalidateOperationContext tmp =
+      var tmp =
           new InvalidateOperationContext(cmsgimpl.getKeyOfInterest(), true);
       tmp.setCallbackArg(cmsgimpl.getCallbackArgument());
       opctxt = tmp;
     } else if (cmsgimpl.isClearRegion()) {
-      RegionClearOperationContext tmp = new RegionClearOperationContext(true);
+      var tmp = new RegionClearOperationContext(true);
       tmp.setCallbackArg(cmsgimpl.getCallbackArgument());
       opctxt = tmp;
     }
@@ -1665,7 +1659,7 @@ public class CacheClientProxy implements ClientSession {
         logger.debug("{}: Initializing message dispatcher with capacity of {} entries", this,
             _maximumMessageCount);
       }
-      String name = "Client Message Dispatcher for " + getProxyID().getDistributedMember()
+      var name = "Client Message Dispatcher for " + getProxyID().getDistributedMember()
           + (isDurable() ? " (" + getDurableId() + ")" : "");
       _messageDispatcher = createMessageDispatcher(name);
     } catch (final Exception ex) {
@@ -1682,8 +1676,8 @@ public class CacheClientProxy implements ClientSession {
     // Only start or resume the dispatcher if it is Primary
     if (isPrimary) {
       // Add the marker to the queue
-      EventID eventId = new EventID(_cache.getDistributedSystem());
-      ClientMarkerMessageImpl clientMarkerMessage = new ClientMarkerMessageImpl(eventId);
+      var eventId = new EventID(_cache.getDistributedSystem());
+      var clientMarkerMessage = new ClientMarkerMessageImpl(eventId);
       if (sendMarkerDirectly) {
         sendMessageDirectly(clientMarkerMessage);
       } else {
@@ -1743,7 +1737,7 @@ public class CacheClientProxy implements ClientSession {
   }
 
   public String getState() {
-    StringBuilder buffer = new StringBuilder();
+    var buffer = new StringBuilder();
     buffer.append("CacheClientProxy[")
         .append(proxyID)
         .append("; port=").append(_socket.getPort()).append("; primary=").append(isPrimary)
@@ -1845,7 +1839,7 @@ public class CacheClientProxy implements ClientSession {
   }
 
   protected void scheduleDurableExpirationTask() {
-    SystemTimer.SystemTimerTask task = new SystemTimer.SystemTimerTask() {
+    var task = new SystemTimer.SystemTimerTask() {
       @Override
       public void run2() {
         _durableExpirationTask.compareAndSet(this, null);
@@ -1876,7 +1870,7 @@ public class CacheClientProxy implements ClientSession {
          * This is because message dispatcher may get an IOException with "Proxy closing due to
          * socket being closed locally" during/after terminateDispatching(false) above.
          */
-        SystemTimerTask task = _durableExpirationTask.getAndSet(null);
+        var task = _durableExpirationTask.getAndSet(null);
         if (task != null) {
           if (task.cancel()) {
             _cache.purgeCCPTimer();
@@ -1891,7 +1885,7 @@ public class CacheClientProxy implements ClientSession {
   }
 
   protected void cancelDurableExpirationTask(boolean logMessage) {
-    SystemTimer.SystemTimerTask task = _durableExpirationTask.getAndSet(null);
+    var task = _durableExpirationTask.getAndSet(null);
     if (task != null) {
       if (logMessage) {
         logger.info("{}: Cancelling expiration task since the client has reconnected.",

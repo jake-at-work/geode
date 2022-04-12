@@ -59,7 +59,7 @@ public class AlterDiskStoreDUnitTest {
   @Before
   public void setupCluster() throws Exception {
 
-    File diskStoreDirFile = new File(getDiskDirPathString());
+    var diskStoreDirFile = new File(getDiskDirPathString());
 
     if (!diskStoreDirFile.exists()) {
       diskStoreDirFile.mkdirs();
@@ -67,18 +67,18 @@ public class AlterDiskStoreDUnitTest {
 
     locator = startupRule.startLocatorVM(0);
     server1 = startupRule.startServerVM(1, locator.getPort());
-    String diskDirPathString = getDiskDirPathString();
+    var diskDirPathString = getDiskDirPathString();
     server1.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
       cache.createDiskStoreFactory().setDiskDirs(new File[] {new File(diskDirPathString)})
           .setMaxOplogSize(1).setAllowForceCompaction(true).setAutoCompact(false)
           .create(diskStoreName);
 
-      EvictionAttributes ea =
+      var ea =
           EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.OVERFLOW_TO_DISK);
 
       RegionFactory<String, String> regionFactory = cache.createRegionFactory();
-      Region<String, String> region = regionFactory.setDiskStoreName(diskStoreName)
+      var region = regionFactory.setDiskStoreName(diskStoreName)
           .setDiskSynchronous(true).setDataPolicy(DataPolicy.PERSISTENT_REPLICATE)
           .setScope(Scope.DISTRIBUTED_ACK).setEvictionAttributes(ea).create(regionName);
       region.put(aKey, "value");
@@ -88,7 +88,7 @@ public class AlterDiskStoreDUnitTest {
   @Test
   public void diskStoreIsLockedWhileMemberIsAlive() throws Exception {
     gfsh.connectAndVerify(locator.getJmxPort(), PortType.jmxManager);
-    String commandString = commandToSetManyVariables();
+    var commandString = commandToSetManyVariables();
     gfsh.executeAndAssertThat(commandString).statusIsError().containsOutput("Could not lock",
         "Other JVMs might have created diskstore with same name using the same directory");
   }
@@ -98,12 +98,12 @@ public class AlterDiskStoreDUnitTest {
     startupRule.stop(1);
 
     gfsh.connectAndVerify(locator.getJmxPort(), PortType.jmxManager);
-    String commandOne = commandToSetManyVariables();
+    var commandOne = commandToSetManyVariables();
     gfsh.executeAndAssertThat(commandOne).statusIsSuccess().containsOutput("concurrencyLevel=5",
         "lruAction=local-destroy", "compressor=org.apache.geode.compression.SnappyCompressor",
         "initialCapacity=6");
 
-    String commandTwo = commandToSetCompressorToNone();
+    var commandTwo = commandToSetCompressorToNone();
     gfsh.executeAndAssertThat(commandTwo).statusIsSuccess().containsOutput("-compressor=none");
   }
 
@@ -118,7 +118,7 @@ public class AlterDiskStoreDUnitTest {
 
     // Halt the member and "alter" the disk store with the --remove option
     startupRule.stop(1);
-    String cmd = commandWithRemoveAndNoOtherOption();
+    var cmd = commandWithRemoveAndNoOtherOption();
     gfsh.executeAndAssertThat(cmd).statusIsSuccess().containsOutput("The region " + regionName
         + " was successfully removed from the disk store " + diskStoreName);
 
@@ -135,7 +135,7 @@ public class AlterDiskStoreDUnitTest {
   }
 
   private String commandWithRemoveAndNoOtherOption() throws IOException {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
+    var csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKSTORENAME, diskStoreName);
     csb.addOption(CliStrings.ALTER_DISK_STORE__REGIONNAME, regionName);
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKDIRS, getDiskDirPathString());
@@ -144,7 +144,7 @@ public class AlterDiskStoreDUnitTest {
   }
 
   private String commandToSetCompressorToNone() throws IOException {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
+    var csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKSTORENAME, diskStoreName);
     csb.addOption(CliStrings.ALTER_DISK_STORE__REGIONNAME, regionName);
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKDIRS, getDiskDirPathString());
@@ -153,7 +153,7 @@ public class AlterDiskStoreDUnitTest {
   }
 
   private String commandToSetManyVariables() throws IOException {
-    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
+    var csb = new CommandStringBuilder(CliStrings.ALTER_DISK_STORE);
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKSTORENAME, diskStoreName);
     csb.addOption(CliStrings.ALTER_DISK_STORE__REGIONNAME, regionName);
     csb.addOption(CliStrings.ALTER_DISK_STORE__DISKDIRS, getDiskDirPathString());

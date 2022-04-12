@@ -52,7 +52,7 @@ public class ConfigurePDXCommandIntegrationTest {
   public void commandShouldSucceedWhenUsingDefaults() {
     gfsh.executeAndAssertThat(BASE_COMMAND_STRING).statusIsSuccess();
 
-    String sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
+    var sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
         .getConfiguration("cluster").getCacheXmlContent();
     assertThat(sharedConfigXml).contains(
         "<pdx read-serialized=\"false\" ignore-unread-fields=\"false\" persistent=\"false\"/>");
@@ -64,7 +64,7 @@ public class ConfigurePDXCommandIntegrationTest {
         + "--read-serialized=true --disk-store=myDiskStore --ignore-unread-fields=true --auto-serializable-classes=com.company.DomainObject.*#identity=id")
         .statusIsSuccess();
 
-    String sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
+    var sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
         .getConfiguration("cluster").getCacheXmlContent();
     assertThat(sharedConfigXml).contains(
         "<pdx read-serialized=\"true\" ignore-unread-fields=\"true\" persistent=\"true\" disk-store-name=\"myDiskStore\">");
@@ -82,7 +82,7 @@ public class ConfigurePDXCommandIntegrationTest {
         + "--read-serialized=false --ignore-unread-fields=false --auto-serializable-classes=com.company.DomainObject.*#identity=id")
         .statusIsSuccess();
 
-    String sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
+    var sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
         .getConfiguration("cluster").getCacheXmlContent();
     assertThat(sharedConfigXml).contains(
         "<pdx read-serialized=\"false\" ignore-unread-fields=\"false\" persistent=\"false\">");
@@ -100,7 +100,7 @@ public class ConfigurePDXCommandIntegrationTest {
         + "--read-serialized=true --disk-store=myDiskStore --ignore-unread-fields=true --portable-auto-serializable-classes=com.company.DomainObject.*#identity=id")
         .statusIsSuccess();
 
-    String sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
+    var sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
         .getConfiguration("cluster").getCacheXmlContent();
     assertThat(sharedConfigXml).contains(
         "<pdx read-serialized=\"true\" ignore-unread-fields=\"true\" persistent=\"true\" disk-store-name=\"myDiskStore\">");
@@ -120,7 +120,7 @@ public class ConfigurePDXCommandIntegrationTest {
         + "--read-serialized=false --ignore-unread-fields=false --portable-auto-serializable-classes=com.company.DomainObject.*#identity=id")
         .statusIsSuccess();
 
-    String sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
+    var sharedConfigXml = locator.getLocator().getConfigurationPersistenceService()
         .getConfiguration("cluster").getCacheXmlContent();
     assertThat(sharedConfigXml).contains(
         "<pdx read-serialized=\"false\" ignore-unread-fields=\"false\" persistent=\"false\">");

@@ -37,8 +37,8 @@ public class BucketRollup extends Bucket {
 
       // Update the load on the members hosting this bucket
       // to reflect the fact that the bucket is larger now.
-      for (Member member : getMembersHosting()) {
-        MemberRollup rollup = (MemberRollup) member;
+      for (var member : getMembersHosting()) {
+        var rollup = (MemberRollup) member;
         float primaryLoad = 0;
         if (getPrimary() == member) {
           primaryLoad = b.getPrimaryLoad();
@@ -51,11 +51,11 @@ public class BucketRollup extends Bucket {
   @Override
   public boolean addMember(Member targetMember) {
     if (super.addMember(targetMember)) {
-      MemberRollup memberRollup = (MemberRollup) targetMember;
-      for (Map.Entry<String, Bucket> entry : getColocatedBuckets().entrySet()) {
-        String region = entry.getKey();
-        Bucket bucket = entry.getValue();
-        Member member = memberRollup.getColocatedMembers().get(region);
+      var memberRollup = (MemberRollup) targetMember;
+      for (var entry : getColocatedBuckets().entrySet()) {
+        var region = entry.getKey();
+        var bucket = entry.getValue();
+        var member = memberRollup.getColocatedMembers().get(region);
         if (member != null) {
           bucket.addMember(member);
         }
@@ -68,11 +68,11 @@ public class BucketRollup extends Bucket {
   @Override
   public boolean removeMember(Member targetMember) {
     if (super.removeMember(targetMember)) {
-      MemberRollup memberRollup = (MemberRollup) targetMember;
-      for (Map.Entry<String, Bucket> entry : getColocatedBuckets().entrySet()) {
-        String region = entry.getKey();
-        Bucket bucket = entry.getValue();
-        Member member = memberRollup.getColocatedMembers().get(region);
+      var memberRollup = (MemberRollup) targetMember;
+      for (var entry : getColocatedBuckets().entrySet()) {
+        var region = entry.getKey();
+        var bucket = entry.getValue();
+        var member = memberRollup.getColocatedMembers().get(region);
         if (member != null) {
           bucket.removeMember(member);
         }
@@ -86,11 +86,11 @@ public class BucketRollup extends Bucket {
   public void setPrimary(Member targetMember, float primaryLoad) {
     super.setPrimary(targetMember, primaryLoad);
     if (targetMember != null) {
-      MemberRollup memberRollup = (MemberRollup) targetMember;
-      for (Map.Entry<String, Bucket> entry : getColocatedBuckets().entrySet()) {
-        String region = entry.getKey();
-        Bucket bucket = entry.getValue();
-        Member member = memberRollup.getColocatedMembers().get(region);
+      var memberRollup = (MemberRollup) targetMember;
+      for (var entry : getColocatedBuckets().entrySet()) {
+        var region = entry.getKey();
+        var bucket = entry.getValue();
+        var member = memberRollup.getColocatedMembers().get(region);
         if (member != null) {
           bucket.setPrimary(member, primaryLoad);
         }

@@ -69,30 +69,30 @@ public class ManagementFunction implements InternalFunction {
   @Override
   public void execute(FunctionContext fc) {
 
-    boolean executedSuccessfully = false;
+    var executedSuccessfully = false;
 
     InternalCache cache = ((InternalCache) fc.getCache()).getCacheForProcessingClientRequests();
 
-    Object[] functionArguments = (Object[]) fc.getArguments();
+    var functionArguments = (Object[]) fc.getArguments();
 
-    ObjectName objectName = (ObjectName) functionArguments[0];
+    var objectName = (ObjectName) functionArguments[0];
 
-    String methodName = (String) functionArguments[1];
+    var methodName = (String) functionArguments[1];
 
-    String[] signature = (String[]) functionArguments[2];
+    var signature = (String[]) functionArguments[2];
 
-    Object[] args = (Object[]) functionArguments[3];
-    String memberName = (String) functionArguments[4];
+    var args = (Object[]) functionArguments[3];
+    var memberName = (String) functionArguments[4];
 
     Object returnObj = null;
 
     try {
 
-      final int nargs = (args == null) ? 0 : args.length;
+      final var nargs = (args == null) ? 0 : args.length;
 
       if (methodName.startsWith("set") && methodName.length() > 3 && nargs == 1) {
 
-        Attribute attr = new Attribute(methodName.substring(3), args[0]);
+        var attr = new Attribute(methodName.substring(3), args[0]);
         mbeanServer.setAttribute(objectName, attr);
         fc.getResultSender().lastResult(null);
 
@@ -123,7 +123,7 @@ public class ManagementFunction implements InternalFunction {
     } finally {
       if (!executedSuccessfully) {
         if (cache == null || cache.isClosed()) {
-          Exception e =
+          var e =
               new Exception("Member Is Shutting down");
           sendException(e, fc);
           return; // member is closing or invalid member

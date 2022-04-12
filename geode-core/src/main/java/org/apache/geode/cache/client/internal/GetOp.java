@@ -30,7 +30,6 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -60,19 +59,19 @@ public class GetOp {
    */
   public static Object execute(ExecutablePool pool, LocalRegion region, Object key,
       Object callbackArg, boolean prSingleHopEnabled, EntryEventImpl clientEvent) {
-    ClientMetadataService cms = region.getCache().getClientMetadataService();
-    GetOpImpl op = new GetOpImpl(region, key, callbackArg, prSingleHopEnabled, clientEvent);
+    var cms = region.getCache().getClientMetadataService();
+    var op = new GetOpImpl(region, key, callbackArg, prSingleHopEnabled, clientEvent);
 
     if (logger.isDebugEnabled()) {
       logger.debug("GetOp invoked for key {}", key);
     }
     if (prSingleHopEnabled) {
-      ServerLocation server =
+      var server =
           cms.getBucketServerLocation(region, Operation.GET, key, null, callbackArg);
       if (server != null) {
         try {
-          PoolImpl poolImpl = (PoolImpl) pool;
-          boolean onlyUseExistingCnx = (poolImpl.getMaxConnections() != -1
+          var poolImpl = (PoolImpl) pool;
+          var onlyUseExistingCnx = (poolImpl.getMaxConnections() != -1
               && poolImpl.getConnectionCount() >= poolImpl.getMaxConnections());
           op.setAllowDuplicateMetadataRefresh(!onlyUseExistingCnx);
           return pool.executeOn(new ServerLocation(server.getHostName(), server.getPort()), op,
@@ -143,10 +142,10 @@ public class GetOp {
     @Override
     protected Object processResponse(final @NotNull Message msg, final @NotNull Connection con)
         throws Exception {
-      Object object = processObjResponse(msg, "get");
+      var object = processObjResponse(msg, "get");
       if (msg.getNumberOfParts() > 1) {
-        int partIdx = 1;
-        int flags = msg.getPart(partIdx++).getInt();
+        var partIdx = 1;
+        var flags = msg.getPart(partIdx++).getInt();
         if ((flags & HAS_CALLBACK_ARG) != 0) {
           msg.getPart(partIdx++).getObject(); // callbackArg
         }
@@ -155,7 +154,7 @@ public class GetOp {
           object = Token.INVALID;
         }
         if ((flags & HAS_VERSION_TAG) != 0) {
-          VersionTag tag = (VersionTag) msg.getPart(partIdx++).getObject();
+          var tag = (VersionTag) msg.getPart(partIdx++).getObject();
           assert con != null; // for debugging
           assert con.getEndpoint() != null; // for debugging
           assert tag != null; // for debugging
@@ -169,15 +168,15 @@ public class GetOp {
         }
         if (prSingleHopEnabled && msg.getNumberOfParts() > partIdx) {
           byte version = 0;
-          int noOfMsgParts = msg.getNumberOfParts();
+          var noOfMsgParts = msg.getNumberOfParts();
           if (noOfMsgParts == partIdx + 1) {
-            Part part = msg.getPart(partIdx++);
+            var part = msg.getPart(partIdx++);
             if (part.isBytes()) {
-              byte[] bytesReceived = part.getSerializedForm();
+              var bytesReceived = part.getSerializedForm();
               if (bytesReceived[0] != ClientMetadataService.INITIAL_VERSION
                   && bytesReceived.length == ClientMetadataService.SIZE_BYTES_ARRAY_RECEIVED) {
                 try {
-                  ClientMetadataService cms = region.getCache().getClientMetadataService();
+                  var cms = region.getCache().getClientMetadataService();
                   int myVersion =
                       cms.getMetaDataVersion(region, Operation.UPDATE, key, null, callbackArg);
                   if (myVersion != bytesReceived[0] || isAllowDuplicateMetadataRefresh()) {
@@ -190,9 +189,9 @@ public class GetOp {
             }
           } else if (noOfMsgParts == partIdx + 2) {
             msg.getPart(partIdx++).getObject(); // callbackArg
-            Part part = msg.getPart(partIdx++);
+            var part = msg.getPart(partIdx++);
             if (part.isBytes()) {
-              byte[] bytesReceived = part.getSerializedForm();
+              var bytesReceived = part.getSerializedForm();
               if (region != null
                   && bytesReceived.length == ClientMetadataService.SIZE_BYTES_ARRAY_RECEIVED) {
                 ClientMetadataService cms;

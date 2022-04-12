@@ -22,7 +22,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.FunctionServiceTest;
 
 /**
@@ -38,8 +37,8 @@ public class FunctionServicePeerAccessorRRDUnitTest extends FunctionServiceBase 
   @Before
   public void createRegions() {
     region = getCache().createRegionFactory(RegionShortcut.REPLICATE_PROXY).create(REGION);
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     vm0.invoke(() -> {
 
       getCache().createRegionFactory(RegionShortcut.REPLICATE).create(REGION);

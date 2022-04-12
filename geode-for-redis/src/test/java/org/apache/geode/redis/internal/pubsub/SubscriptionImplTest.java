@@ -42,7 +42,7 @@ public class SubscriptionImplTest {
 
   @Test
   public void interruptingWriteShutsSubscriptionDown() throws InterruptedException {
-    Thread t = new Thread(() -> subscription.writeBufferToChannel(buffer));
+    var t = new Thread(() -> subscription.writeBufferToChannel(buffer));
     t.start();
     try {
       t.interrupt();
@@ -55,7 +55,7 @@ public class SubscriptionImplTest {
   @Test
   public void readyToPublishAfterWriteUnblocksWrite() throws InterruptedException {
     when(client.writeBufferToChannel(any())).thenReturn(mock(ChannelFuture.class));
-    Thread t = new Thread(() -> subscription.writeBufferToChannel(buffer));
+    var t = new Thread(() -> subscription.writeBufferToChannel(buffer));
     t.start();
     try {
       subscription.readyToPublish();

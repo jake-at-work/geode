@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
@@ -32,19 +31,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CommitConflictException;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.DUnitBlackboard;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -123,7 +118,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
     createPRRegionOnServers();
     createRegionsOnClient(false);
 
-    TransactionId readTXId = client1.invoke(this::doReadTransaction);
+    var readTXId = client1.invoke(this::doReadTransaction);
     server1.invoke(this::setAfterReservationForReadTransaction);
     client1.invokeAsync(() -> commitReadTransaction(readTXId));
 
@@ -140,7 +135,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
     createPRRegionOnServers();
     createRegionsOnClient(false);
 
-    TransactionId readTXId = client1.invoke(this::doReadTransaction);
+    var readTXId = client1.invoke(this::doReadTransaction);
     server1.invoke(this::setAfterReservationForReadTransaction);
     client1.invokeAsync(() -> commitReadTransaction(readTXId));
 
@@ -173,13 +168,13 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   }
 
   private int createServerPRRegion(int totalNumBuckets) throws Exception {
-    PartitionAttributesFactory factory = new PartitionAttributesFactory();
+    var factory = new PartitionAttributesFactory();
     factory.setTotalNumBuckets(totalNumBuckets);
-    PartitionAttributes partitionAttributes = factory.create();
+    var partitionAttributes = factory.create();
     cacheRule.getOrCreateCache().createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(partitionAttributes).create(regionName);
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -189,8 +184,8 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
     clientCacheRule.createClientCache();
 
     PoolImpl pool;
-    PoolFactory factory = PoolManager.createFactory();
-    for (int port : ports) {
+    var factory = PoolManager.createFactory();
+    for (var port : ports) {
       factory.addServer(hostName, port);
     }
     factory.setSubscriptionEnabled(true).setReadTimeout(12000).setSocketBufferSize(1000);
@@ -200,10 +195,10 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
     ClientRegionFactory crf =
         clientCacheRule.getClientCache().createClientRegionFactory(ClientRegionShortcut.LOCAL);
     crf.setPoolName(pool.getName());
-    Region region = crf.create(regionName);
+    var region = crf.create(regionName);
     region.registerInterest("ALL_KEYS");
     if (createBothRegions) {
-      Region region2 = crf.create(regionName2);
+      var region2 = crf.create(regionName2);
       region2.registerInterest("ALL_KEYS");
     }
   }
@@ -216,7 +211,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
 
   private TransactionId doReadTransaction() {
     Region<Integer, String> region = clientCacheRule.getClientCache().getRegion(regionName);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     assertThat(region.get(key1)).isEqualTo(value1);
@@ -225,10 +220,10 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   }
 
   private void setAfterReservationForReadTransaction() {
-    TXManagerImpl txManager = cacheRule.getCache().getTxManager();
-    ArrayList<TXId> txIds = txManager.getHostedTxIds();
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) txManager.getHostedTXState(txIds.get(0));
-    TXState txState = (TXState) txStateProxy.getRealDeal(null, null);
+    var txManager = cacheRule.getCache().getTxManager();
+    var txIds = txManager.getHostedTxIds();
+    var txStateProxy = (TXStateProxyImpl) txManager.getHostedTXState(txIds.get(0));
+    var txState = (TXState) txStateProxy.getRealDeal(null, null);
     txState.setAfterReservation(this::readTransactionAfterReservation);
   }
 
@@ -243,7 +238,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   }
 
   private void commitReadTransaction(TransactionId readTXId) {
-    CacheTransactionManager txManager =
+    var txManager =
         clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.resume(readTXId);
     txManager.commit();
@@ -266,7 +261,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
     try {
       getBlackboard().waitForGate(allowSecondTransactionToProceed, TIMEOUT_MILLIS, MILLISECONDS);
       Region region = clientCacheRule.getClientCache().getRegion(regionName);
-      TXManagerImpl txManager =
+      var txManager =
           (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
       txManager.begin();
       assertThat(region.get(key1)).isEqualTo(value1);
@@ -293,7 +288,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
     try {
       getBlackboard().waitForGate(allowSecondTransactionToProceed, TIMEOUT_MILLIS, MILLISECONDS);
       Region<Integer, String> region = clientCacheRule.getClientCache().getRegion(regionName);
-      TXManagerImpl txManager =
+      var txManager =
           (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
       txManager.begin();
       region.put(key1, newValue1);
@@ -308,14 +303,14 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   private void doReadKeyDetectStateChangeTransaction() {
     try {
       Region region = clientCacheRule.getClientCache().getRegion(regionName);
-      TXManagerImpl txManager =
+      var txManager =
           (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
       txManager.begin();
       assertThat(region.get(key1)).isEqualTo(value1);
       getBlackboard().signalGate(allowSecondTransactionToProceed);
       getBlackboard().waitForGate(allowReadTransactionCommitToProceed, TIMEOUT_MILLIS,
           MILLISECONDS);
-      Throwable thrown = catchThrowable(txManager::commit);
+      var thrown = catchThrowable(txManager::commit);
       assertThat(thrown).isInstanceOf(CommitConflictException.class);
     } catch (TimeoutException | InterruptedException e) {
       throw new RuntimeException(e);
@@ -327,7 +322,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
     createReplicateRegionOnServers(regionName);
     createRegionsOnClient(false);
 
-    TransactionId readTXId = client1.invoke(this::doReadTransaction);
+    var readTXId = client1.invoke(this::doReadTransaction);
     server1.invoke(this::setAfterReservationForReadTransaction);
     client1.invokeAsync(() -> commitReadTransaction(readTXId));
 
@@ -354,7 +349,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   private int createServerReplicateRegion(String name) throws Exception {
     cacheRule.getOrCreateCache().createRegionFactory(RegionShortcut.REPLICATE).create(name);
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -365,7 +360,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
     createReplicateRegionOnServers(regionName);
     createRegionsOnClient(false);
 
-    TransactionId readTXId = client1.invoke(this::doReadTransaction);
+    var readTXId = client1.invoke(this::doReadTransaction);
     server1.invoke(this::setAfterReservationForReadTransaction);
     client1.invokeAsync(() -> commitReadTransaction(readTXId));
 
@@ -395,7 +390,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
 
     client2.invoke(this::addData);
 
-    TransactionId readTXId = client1.invoke(this::doReadKeysTransaction);
+    var readTXId = client1.invoke(this::doReadKeysTransaction);
     server1.invoke(this::setAfterReservationForReadTransaction);
     client1.invokeAsync(() -> commitReadTransaction(readTXId));
 
@@ -413,7 +408,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   private void addData() {
     Region<Integer, String> region = clientCacheRule.getClientCache().getRegion(regionName);
     Region<Integer, String> region2 = clientCacheRule.getClientCache().getRegion(regionName2);
-    for (int i = 0; i <= 10; i++) {
+    for (var i = 0; i <= 10; i++) {
       region.put(i, "value" + i);
       region2.put(i, "value" + i);
     }
@@ -422,7 +417,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   private TransactionId doReadKeysTransaction() {
     Region<Integer, String> region = clientCacheRule.getClientCache().getRegion(regionName);
     Region<Integer, String> region2 = clientCacheRule.getClientCache().getRegion(regionName2);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.begin();
     assertThat(region.get(key1)).isEqualTo(value1);
@@ -434,11 +429,11 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
     try {
       getBlackboard().waitForGate(allowSecondTransactionToProceed, TIMEOUT_MILLIS, MILLISECONDS);
       Region<Integer, String> region = clientCacheRule.getClientCache().getRegion(regionName);
-      TXManagerImpl txManager =
+      var txManager =
           (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
       txManager.begin();
       region.put(key1, newValue1);
-      Throwable thrown = catchThrowable(txManager::commit);
+      var thrown = catchThrowable(txManager::commit);
       assertThat(thrown).isInstanceOf(CommitConflictException.class);
     } catch (TimeoutException | InterruptedException e) {
       throw new RuntimeException(e);
@@ -452,9 +447,9 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   private void doFailedPutOnReadKeyTransactions() {
     Region<Integer, String> region = clientCacheRule.getClientCache().getRegion(regionName);
     Region<Integer, String> region2 = clientCacheRule.getClientCache().getRegion(regionName2);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
-    for (int i = 0; i <= 10; i++) {
+    for (var i = 0; i <= 10; i++) {
       txManager.begin();
       if (i % 2 != 0) {
         // first key on bucket 1 so transaction hosted on server1
@@ -479,7 +474,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
         region2.put(key1, newValue1);
         region2.put(i + 1, "failedValue" + (i + 1));
       }
-      Throwable thrown = catchThrowable(txManager::commit);
+      var thrown = catchThrowable(txManager::commit);
       assertThat(thrown).isInstanceOf(CommitConflictException.class);
     }
   }
@@ -487,9 +482,9 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   private void doSuccessfulPutTransactions() {
     Region<Integer, String> region = clientCacheRule.getClientCache().getRegion(regionName);
     Region<Integer, String> region2 = clientCacheRule.getClientCache().getRegion(regionName2);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
-    for (int i = 0; i <= 10; i++) {
+    for (var i = 0; i <= 10; i++) {
       txManager.begin();
       if (i != 1) {
         region.put(i, "newValue" + i);
@@ -503,7 +498,7 @@ public class ClientServerReadConflictTransactionDistributedTest implements Seria
   }
 
   private void verifyData() {
-    for (int i = 0; i <= 10; i++) {
+    for (var i = 0; i <= 10; i++) {
       if (i == 1) {
         verifyClientResults(regionName, key1, value1);
         verifyClientResults(regionName2, key1, value1);

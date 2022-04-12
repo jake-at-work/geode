@@ -50,7 +50,7 @@ public class ExpirationScheduler {
    * Called when we have cancelled a scheduled timer task. Do work, if possible to fix bug 37574.
    */
   public void incCancels() {
-    int pc = pendingCancels.incrementAndGet();
+    var pc = pendingCancels.incrementAndGet();
     if (pc > MAX_PENDING_CANCELS) {
       pc = pendingCancels.getAndSet(0);
       if (pc > MAX_PENDING_CANCELS) {

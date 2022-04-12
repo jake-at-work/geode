@@ -25,10 +25,8 @@ import org.apache.geode.cache.TransactionInDoubtException;
 import org.apache.geode.cache.client.internal.ServerRegionDataAccess;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ReliableReplyException;
-import org.apache.geode.distributed.internal.ReliableReplyProcessor21;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.TXRemoteCommitMessage.RemoteCommitResponse;
 import org.apache.geode.internal.cache.tx.BucketTXRegionStub;
 import org.apache.geode.internal.cache.tx.DistributedTXRegionStub;
 import org.apache.geode.internal.cache.tx.PartitionedTXRegionStub;
@@ -59,7 +57,7 @@ public class PeerTXStateStub extends TXStateStub {
     /*
      * txtodo: work this into client realm
      */
-    ReliableReplyProcessor21 response = TXRemoteRollbackMessage.send(proxy.getCache(),
+    var response = TXRemoteRollbackMessage.send(proxy.getCache(),
         proxy.getTxId().getUniqId(), getOriginatingMember(), target);
     if (internalAfterSendRollback != null) {
       internalAfterSendRollback.run();
@@ -95,7 +93,7 @@ public class PeerTXStateStub extends TXStateStub {
     /*
      * txtodo: Going to need to deal with client here
      */
-    RemoteCommitResponse message = TXRemoteCommitMessage.send(proxy.getCache(),
+    var message = TXRemoteCommitMessage.send(proxy.getCache(),
         proxy.getTxId().getUniqId(), getOriginatingMember(), target);
 
     if (internalAfterSendCommit != null) {
@@ -131,12 +129,12 @@ public class PeerTXStateStub extends TXStateStub {
       }
     } catch (Exception e) {
       getCache().getCancelCriterion().checkCancelInProgress(e);
-      Throwable eCause = e.getCause();
+      var eCause = e.getCause();
       if (eCause != null) {
         if (eCause instanceof ForceReattemptException) {
           if (eCause.getCause() instanceof PrimaryBucketException) {
             // data rebalanced
-            TransactionDataRebalancedException tdnce =
+            var tdnce =
                 new TransactionDataRebalancedException(eCause.getCause().getMessage(),
                     eCause.getCause());
             throw tdnce;
@@ -144,7 +142,7 @@ public class PeerTXStateStub extends TXStateStub {
             // We cannot be sure that the member departed starting to process commit request,
             // so throw a TransactionInDoubtException rather than a TransactionDataNodeHasDeparted.
             // fixes 44939
-            TransactionInDoubtException tdnce =
+            var tdnce =
                 new TransactionInDoubtException(e.getCause().getMessage(), eCause);
             throw tdnce;
           }
@@ -159,7 +157,7 @@ public class PeerTXStateStub extends TXStateStub {
   }
 
   protected void cleanup() {
-    for (TXRegionStub regionStub : regionStubs.values()) {
+    for (var regionStub : regionStubs.values()) {
       regionStub.cleanup();
     }
   }
@@ -201,7 +199,7 @@ public class PeerTXStateStub extends TXStateStub {
 
   @Override
   public void afterCompletion(int status) {
-    RemoteCommitResponse response = JtaAfterCompletionMessage.send(proxy.getCache(),
+    var response = JtaAfterCompletionMessage.send(proxy.getCache(),
         proxy.getTxId().getUniqId(), getOriginatingMember(), status, target);
     try {
       proxy.getTxMgr().setTXState(null);

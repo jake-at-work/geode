@@ -71,8 +71,8 @@ public class ReplicateEntryIdleExpirationDistributedTest implements Serializable
 
     regionName = getClass().getSimpleName();
 
-    VM[] vms = new VM[] {member1, member2, member3};
-    for (VM vm : vms) {
+    var vms = new VM[] {member1, member2, member3};
+    for (var vm : vms) {
       vm.invoke(() -> {
         KEEP_READING.set(true);
         cacheRule.createCache();
@@ -84,8 +84,8 @@ public class ReplicateEntryIdleExpirationDistributedTest implements Serializable
 
   @After
   public void tearDown() throws Exception {
-    VM[] vms = new VM[] {member1, member2, member3};
-    for (VM vm : vms) {
+    var vms = new VM[] {member1, member2, member3};
+    for (var vm : vms) {
       vm.invoke(() -> {
         KEEP_READING.set(false);
         ExpiryTask.permitExpiration();
@@ -116,7 +116,7 @@ public class ReplicateEntryIdleExpirationDistributedTest implements Serializable
       assertThat(region.containsKey(KEY)).isTrue();
 
       ExpiryTask.permitExpiration();
-      Stopwatch stopwatch = Stopwatch.createStarted();
+      var stopwatch = Stopwatch.createStarted();
       while (stopwatch.elapsed(SECONDS) <= 5 && region.containsKey(KEY)) {
         Thread.sleep(10);
       }
@@ -161,7 +161,7 @@ public class ReplicateEntryIdleExpirationDistributedTest implements Serializable
       assertThat(region.containsKey(KEY)).isTrue();
 
       ExpiryTask.permitExpiration();
-      Stopwatch stopwatch = Stopwatch.createStarted();
+      var stopwatch = Stopwatch.createStarted();
       while (stopwatch.elapsed(SECONDS) <= 5 && region.containsKey(KEY)) {
         Thread.sleep(10);
       }
@@ -175,7 +175,7 @@ public class ReplicateEntryIdleExpirationDistributedTest implements Serializable
 
   @Test
   public void readsInOtherMemberShouldPreventExpirationWhenEvictionEnabled() throws Exception {
-    String evictionRegionName = "evictionRegion";
+    var evictionRegionName = "evictionRegion";
     member1.invoke(() -> createEvictionRegion(evictionRegionName));
     member2.invoke(() -> createEvictionRegion(evictionRegionName));
     member3.invoke(() -> createEvictionRegion(evictionRegionName));
@@ -200,7 +200,7 @@ public class ReplicateEntryIdleExpirationDistributedTest implements Serializable
       assertThat(region.containsKey(KEY)).isTrue();
 
       ExpiryTask.permitExpiration();
-      Stopwatch stopwatch = Stopwatch.createStarted();
+      var stopwatch = Stopwatch.createStarted();
       while (stopwatch.elapsed(SECONDS) <= 5 && region.containsKey(KEY)) {
         Thread.sleep(10);
       }

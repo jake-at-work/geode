@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
@@ -42,22 +41,22 @@ public class TouchPartitionedRegionEntriesFunction
   @Override
   @SuppressWarnings("unchecked")
   public void execute(FunctionContext context) {
-    RegionFunctionContext rfc = (RegionFunctionContext) context;
-    Set<String> keys = (Set<String>) rfc.getFilter();
+    var rfc = (RegionFunctionContext) context;
+    var keys = (Set<String>) rfc.getFilter();
 
-    Cache cache = context.getCache();
+    var cache = context.getCache();
     // Get local (primary) data for the context
-    Region primaryDataSet = getLocalDataForContextViaRegionHelper(rfc);
+    var primaryDataSet = getLocalDataForContextViaRegionHelper(rfc);
 
     if (cache.getLogger().fineEnabled()) {
-      String builder = "Function " + ID + " received request to touch "
+      var builder = "Function " + ID + " received request to touch "
           + primaryDataSet.getFullPath() + "->" + keys;
       cache.getLogger().fine(builder);
     }
 
     // Retrieve each value to update the lastAccessedTime.
     // Note: getAll is not supported on LocalDataSet.
-    for (String key : keys) {
+    for (var key : keys) {
       primaryDataSet.get(key);
     }
 

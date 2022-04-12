@@ -29,7 +29,6 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 import java.util.Random;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Stopwatch;
@@ -66,21 +65,21 @@ public class AvailablePidTest {
 
   @Test
   public void findAvailablePidShouldNotReturnLocalPid() throws Exception {
-    int pid = availablePid.findAvailablePid();
+    var pid = availablePid.findAvailablePid();
 
     assertThat(pid).isNotEqualTo(identifyPid());
   }
 
   @Test
   public void findAvailablePidShouldNotReturnLivePid() throws Exception {
-    int pid = availablePid.findAvailablePid();
+    var pid = availablePid.findAvailablePid();
 
     assertThat(isProcessAlive(pid)).isFalse();
   }
 
   @Test
   public void findAvailablePidShouldUseRandom() throws Exception {
-    Random random = spy(new Random());
+    var random = spy(new Random());
     availablePid = new AvailablePid(random);
 
     availablePid.findAvailablePid();
@@ -107,7 +106,7 @@ public class AvailablePidTest {
   @Test
   public void findAvailablePidShouldReturnGreaterThanOrEqualToLowerBound() throws Exception {
     availablePid = new AvailablePid(new AvailablePid.Bounds(1, 10));
-    Stopwatch stopwatch = Stopwatch.createStarted();
+    var stopwatch = Stopwatch.createStarted();
 
     do {
       assertThat(availablePid.findAvailablePid()).isGreaterThanOrEqualTo(1);
@@ -117,7 +116,7 @@ public class AvailablePidTest {
   @Test
   public void findAvailablePidShouldReturnLessThanOrEqualToUpperBound() throws Exception {
     availablePid = new AvailablePid(new AvailablePid.Bounds(1, 10));
-    Stopwatch stopwatch = Stopwatch.createStarted();
+    var stopwatch = Stopwatch.createStarted();
 
     do {
       assertThat(availablePid.findAvailablePid()).isLessThanOrEqualTo(10);
@@ -153,7 +152,7 @@ public class AvailablePidTest {
   }
 
   private void assertThatNoPidIsDuplicated(final int[] pids) {
-    Set<Integer> pidSet = Arrays.stream(pids).boxed().collect(Collectors.toSet());
+    var pidSet = Arrays.stream(pids).boxed().collect(Collectors.toSet());
     assertThat(pidSet).hasSize(pids.length);
   }
 }

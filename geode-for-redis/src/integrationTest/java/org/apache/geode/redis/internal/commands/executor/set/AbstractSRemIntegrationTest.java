@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.After;
@@ -58,9 +57,9 @@ public abstract class AbstractSRemIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testSRem_should_ReturnTheNumberOfElementsRemoved() {
-    String key = "key";
-    String field1 = "field1";
-    String field2 = "field2";
+    var key = "key";
+    var field1 = "field1";
+    var field2 = "field2";
     jedis.sadd(key, field1, field2);
 
     Long removedElementsCount = jedis.srem(key, field1, field2);
@@ -70,14 +69,14 @@ public abstract class AbstractSRemIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testSRem_should_RemoveSpecifiedElementsFromSet() {
-    String key = "key";
-    String field1 = "field1";
-    String field2 = "field2";
+    var key = "key";
+    var field1 = "field1";
+    var field2 = "field2";
     jedis.sadd(key, field1, field2);
 
     jedis.srem(key, field2);
 
-    Set<String> membersInSet = jedis.smembers(key);
+    var membersInSet = jedis.smembers(key);
     assertThat(membersInSet).doesNotContain(field2);
   }
 
@@ -89,34 +88,34 @@ public abstract class AbstractSRemIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testSRem_should_notRemoveMembersOfSetNotSpecified() {
-    String key = "key";
-    String field1 = "field1";
-    String field2 = "field2";
+    var key = "key";
+    var field1 = "field1";
+    var field2 = "field2";
     jedis.sadd(key, field1, field2);
 
     jedis.srem(key, field1);
 
-    Set<String> membersInSet = jedis.smembers(key);
+    var membersInSet = jedis.smembers(key);
     assertThat(membersInSet).containsExactly(field2);
   }
 
   @Test
   public void testSRem_should_ignoreMembersNotInSpecifiedSet() {
-    String key = "key";
-    String field1 = "field1";
-    String field2 = "field2";
-    String unkownField = "random-guy";
+    var key = "key";
+    var field1 = "field1";
+    var field2 = "field2";
+    var unkownField = "random-guy";
     jedis.sadd(key, field1, field2);
 
-    long result = jedis.srem(key, unkownField);
+    var result = jedis.srem(key, unkownField);
 
     assertThat(result).isEqualTo(0);
   }
 
   @Test
   public void testSRem_should_throwError_givenKeyThatIsNotASet() {
-    String key = "key";
-    String value = "value";
+    var key = "key";
+    var value = "value";
     jedis.set(key, value);
 
     assertThatThrownBy(() -> jedis.srem(key, value)).hasMessage(ERROR_WRONG_TYPE);
@@ -124,10 +123,10 @@ public abstract class AbstractSRemIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testSRem_shouldReturnZero_givenNonExistingKey() {
-    String key = "key";
-    String field = "field";
+    var key = "key";
+    var field = "field";
 
-    long result = jedis.srem(key, field);
+    var result = jedis.srem(key, field);
 
     assertThat(result).isEqualTo(0);
   }
@@ -143,33 +142,33 @@ public abstract class AbstractSRemIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testConcurrentSRems() throws InterruptedException {
-    int ENTRIES = 1000;
+    var ENTRIES = 1000;
 
     List<String> masterSet = new ArrayList<>();
-    for (int i = 0; i < ENTRIES; i++) {
+    for (var i = 0; i < ENTRIES; i++) {
       masterSet.add("master-" + i);
     }
 
     jedis.sadd("master", masterSet.toArray(new String[] {}));
 
-    AtomicLong sremmed1 = new AtomicLong(0);
-    Runnable runnable1 = () -> {
-      for (int i = 0; i < ENTRIES; i++) {
+    var sremmed1 = new AtomicLong(0);
+    var runnable1 = (Runnable) () -> {
+      for (var i = 0; i < ENTRIES; i++) {
         sremmed1.addAndGet(jedis.srem("master", masterSet.get(i)));
         Thread.yield();
       }
     };
 
-    AtomicLong sremmed2 = new AtomicLong(0);
-    Runnable runnable2 = () -> {
-      for (int i = 0; i < ENTRIES; i++) {
+    var sremmed2 = new AtomicLong(0);
+    var runnable2 = (Runnable) () -> {
+      for (var i = 0; i < ENTRIES; i++) {
         sremmed2.addAndGet(jedis.srem("master", masterSet.get(i)));
         Thread.yield();
       }
     };
 
-    Thread thread1 = new Thread(runnable1);
-    Thread thread2 = new Thread(runnable2);
+    var thread1 = new Thread(runnable1);
+    var thread2 = new Thread(runnable2);
 
     thread1.start();
     thread2.start();

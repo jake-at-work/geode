@@ -159,9 +159,9 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
   }
 
   private File getNextChildLogFile() {
-    String path = config.getLogFile().getPath();
-    int extIndex = path.lastIndexOf('.');
-    String ext = "";
+    var path = config.getLogFile().getPath();
+    var extIndex = path.lastIndexOf('.');
+    var ext = "";
     if (extIndex != -1) {
       ext = path.substring(extIndex);
       path = path.substring(0, extIndex);
@@ -169,7 +169,7 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
     path = path + rollingFileHandler.formatId(mainLogId) + rollingFileHandler.formatId(childId)
         + ext;
     childId++;
-    File result = new File(path);
+    var result = new File(path);
     if (result.exists()) {
       // try again until a unique name is found
       return getNextChildLogFile();
@@ -202,14 +202,14 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
 
   private String getMetaLogFileName(final String baseLogFileName, final int mainLogId) {
     String metaLogFile = null;
-    int extIndex = baseLogFileName.lastIndexOf('.');
-    String ext = "";
+    var extIndex = baseLogFileName.lastIndexOf('.');
+    var ext = "";
     if (extIndex != -1) {
       ext = baseLogFileName.substring(extIndex);
       metaLogFile = baseLogFileName.substring(0, extIndex);
     }
-    String fileName = new File(metaLogFile).getName();
-    String parent = new File(metaLogFile).getParent();
+    var fileName = new File(metaLogFile).getName();
+    var parent = new File(metaLogFile).getParent();
 
     metaLogFile = "meta-" + fileName + rollingFileHandler.formatId(mainLogId) + ext;
     if (parent != null) {
@@ -227,7 +227,7 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
             // this is the first child. Save the current output stream
             // so we can log special messages to the main log instead
             // of the current child log.
-            String metaLogFile =
+            var metaLogFile =
                 getMetaLogFileName(config.getLogFile().getPath(), mainLogId);
             mainLogWriter = new LocalLogWriter(INFO_LEVEL,
                 new PrintStream(new FileOutputStream(metaLogFile, true), true));
@@ -239,15 +239,15 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
             mainLogWriter.info(String.format("Rolling current log to %s", newLog));
           }
         }
-        boolean renameOK = true;
-        String oldName = config.getLogFile().getAbsolutePath();
+        var renameOK = true;
+        var oldName = config.getLogFile().getAbsolutePath();
         File tempFile = null;
         if (activeLogFile != null) {
           // is a bug that we get here and try to rename the activeLogFile
           // to a newLog of the same name? This works ok on Unix but on windows fails.
           if (!activeLogFile.getAbsolutePath().equals(newLog.getAbsolutePath())) {
-            boolean isWindows = false;
-            String os = System.getProperty("os.name");
+            var isWindows = false;
+            var os = System.getProperty("os.name");
             if (os != null) {
               if (os.contains("Windows")) {
                 isWindows = true;
@@ -257,17 +257,17 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
               // For windows to work we need to redirect everything
               // to a temporary file so we can get oldFile closed down
               // so we can rename it. We don't actually write to this tmp file
-              File tempLogDir = rollingFileHandler.getParentFile(config.getLogFile());
+              var tempLogDir = rollingFileHandler.getParentFile(config.getLogFile());
               tempFile = File.createTempFile("mlw", null, tempLogDir);
               // close the old print writer down before we do the rename
               // do not redirect if loner -- see #49492
-              PrintStream tempPrintStream = OSProcess.redirectOutput(tempFile, !loner);
-              PrintWriter oldPrintWriter = setTarget(new PrintWriter(tempPrintStream, true));
+              var tempPrintStream = OSProcess.redirectOutput(tempFile, !loner);
+              var oldPrintWriter = setTarget(new PrintWriter(tempPrintStream, true));
               if (oldPrintWriter != null) {
                 oldPrintWriter.close();
               }
             }
-            File oldFile = activeLogFile;
+            var oldFile = activeLogFile;
             renameOK = LogFileUtils.renameAggressively(oldFile, newLog.getAbsoluteFile());
             if (!renameOK) {
               mainLogWriter
@@ -281,8 +281,8 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
         activeLogFile = new File(oldName);
         // Don't redirect sysouts/syserrs to client log file. See #49492.
         // IMPORTANT: This assumes that only a loner would have sendAlert set to false.
-        PrintStream printStream = OSProcess.redirectOutput(activeLogFile, !loner);
-        PrintWriter oldPrintWriter =
+        var printStream = OSProcess.redirectOutput(activeLogFile, !loner);
+        var oldPrintWriter =
             setTarget(new PrintWriter(printStream, true), activeLogFile.length());
         if (oldPrintWriter != null) {
           oldPrintWriter.close();
@@ -311,7 +311,7 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
    * notification from manager that the output file is being closed
    */
   public void closingLogFile() {
-    OutputStream nullOutputStream = new OutputStream() {
+    var nullOutputStream = new OutputStream() {
       @Override
       public void write(int b) throws IOException {
         // --> /dev/null
@@ -321,7 +321,7 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
     if (mainLogWriter != null) {
       mainLogWriter.close();
     }
-    PrintWriter printWriter = setTarget(new PrintWriter(nullOutputStream, true));
+    var printWriter = setTarget(new PrintWriter(nullOutputStream, true));
     if (printWriter != null) {
       printWriter.close();
     }
@@ -330,8 +330,8 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
   public static File getLogNameForOldMainLog(final File log, final boolean useOldFile) {
     // this is just searching for the existing logfile name we need to search for meta log file name
     RollingFileHandler rollingFileHandler = new MainWithChildrenRollingFileHandler();
-    File dir = rollingFileHandler.getParentFile(log.getAbsoluteFile());
-    int previousMainId = rollingFileHandler.calcNextMainId(dir, true);
+    var dir = rollingFileHandler.getParentFile(log.getAbsoluteFile());
+    var previousMainId = rollingFileHandler.calcNextMainId(dir, true);
     if (useOldFile) {
       if (previousMainId > 0) {
         previousMainId--;
@@ -341,9 +341,9 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
       previousMainId = 1;
     }
 
-    int childId = rollingFileHandler.calcNextChildId(log, previousMainId > 0 ? previousMainId : 0);
-    StringBuilder sb = new StringBuilder(log.getPath());
-    int insertIdx = sb.lastIndexOf(".");
+    var childId = rollingFileHandler.calcNextChildId(log, previousMainId > 0 ? previousMainId : 0);
+    var sb = new StringBuilder(log.getPath());
+    var insertIdx = sb.lastIndexOf(".");
     if (insertIdx == -1) {
       sb.append(rollingFileHandler.formatId(previousMainId))
           .append(rollingFileHandler.formatId(childId));
@@ -399,7 +399,7 @@ public class ManagerLogWriter extends LocalLogWriter implements LogFileDetails {
   }
 
   private boolean activeLogFull() {
-    long limit = getLogFileSizeLimit();
+    var limit = getLogFileSizeLimit();
     if (limit == Long.MAX_VALUE) {
       return false;
     } else {

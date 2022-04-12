@@ -73,7 +73,7 @@ public class GMSAuthenticator implements Authenticator<InternalDistributedMember
     // For older systems, locator might be started without cache, so secureService may not be
     // initialized here. We need to check if the passed in secProps has peer authenticator or not at
     // this point
-    String authMethod = secProps.getProperty(SECURITY_PEER_AUTHENTICATOR);
+    var authMethod = secProps.getProperty(SECURITY_PEER_AUTHENTICATOR);
     if (!securityService.isPeerSecurityRequired() && StringUtils.isBlank(authMethod)) {
       return null;
     }
@@ -106,7 +106,7 @@ public class GMSAuthenticator implements Authenticator<InternalDistributedMember
    */
   Principal invokeAuthenticator(Properties securityProps, MemberIdentifier member,
       Properties credentials) throws AuthenticationFailedException {
-    String authMethod = securityProps.getProperty(SECURITY_PEER_AUTHENTICATOR);
+    var authMethod = securityProps.getProperty(SECURITY_PEER_AUTHENTICATOR);
     org.apache.geode.security.Authenticator auth = null;
     try {
       auth = CallbackInstantiator.getObjectOfType(authMethod,
@@ -143,7 +143,7 @@ public class GMSAuthenticator implements Authenticator<InternalDistributedMember
       return getCredentials(member, securityProps);
 
     } catch (Exception e) {
-      String authMethod = securityProps.getProperty(SECURITY_PEER_AUTH_INIT);
+      var authMethod = securityProps.getProperty(SECURITY_PEER_AUTH_INIT);
       securityLogWriter.warning(
           String.format("Failed to obtain credentials using AuthInitialize [%s]. %s",
               authMethod, e.getLocalizedMessage()));
@@ -155,7 +155,7 @@ public class GMSAuthenticator implements Authenticator<InternalDistributedMember
    * For testing only.
    */
   Properties getCredentials(MemberIdentifier member, Properties secProps) {
-    String authMethod = secProps.getProperty(SECURITY_PEER_AUTH_INIT);
+    var authMethod = secProps.getProperty(SECURITY_PEER_AUTH_INIT);
     return Handshake.getCredentials(authMethod, secProps,
         (InternalDistributedMember) member,
         true,

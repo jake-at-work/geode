@@ -51,7 +51,7 @@ public class ExpireDUnitTest {
     server2 = clusterStartUp.startRedisVM(2, locator.getPort());
     server3 = clusterStartUp.startRedisVM(3, locator.getPort());
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(LOCAL_HOST, redisServerPort), JEDIS_TIMEOUT);
   }
 
@@ -67,7 +67,7 @@ public class ExpireDUnitTest {
 
   @Test
   public void expire_shouldPropagate() {
-    String key = "key";
+    var key = "key";
 
     jedis.sadd(key, "value");
     jedis.expire(key, 20L);
@@ -77,7 +77,7 @@ public class ExpireDUnitTest {
 
   @Test
   public void expire_shouldResultInKeyRemoval() {
-    String key = "key";
+    var key = "key";
 
     jedis.sadd(key, "value");
     jedis.expire(key, 1L);
@@ -87,7 +87,7 @@ public class ExpireDUnitTest {
 
   @Test
   public void whenExpirationIsSet_andIsUpdated_itHasLastSetValue() {
-    String key = "key";
+    var key = "key";
 
     jedis.sadd(key, "value");
     jedis.expire(key, 20L);
@@ -98,7 +98,7 @@ public class ExpireDUnitTest {
 
   @Test
   public void whenExpirationIsSet_andKeyIsReset_ttlIsRemoved() {
-    String key = "key";
+    var key = "key";
 
     jedis.sadd(key, "value");
     jedis.expire(key, 20L);
@@ -110,7 +110,7 @@ public class ExpireDUnitTest {
 
   @Test
   public void whenExpirationIsSet_andKeyIsPersisted_ttlIsRemoved() {
-    String key = "key";
+    var key = "key";
 
     jedis.sadd(key, "value");
     jedis.expire(key, 20L);
@@ -121,7 +121,7 @@ public class ExpireDUnitTest {
 
   @Test
   public void whenExpirationIsSet_andKeyIsDeletedThenReset_ttlIsRemoved() {
-    String key = "key";
+    var key = "key";
 
     jedis.sadd(key, "value");
     jedis.expire(key, 10000L);
@@ -135,8 +135,8 @@ public class ExpireDUnitTest {
 
   @Test
   public void whenExpirationIsSet_andKeyWithoutExpirationIsRenamed_expirationIsCorrectlySet() {
-    String key1 = "{rename}key1";
-    String key2 = "{rename}key2";
+    var key1 = "{rename}key1";
+    var key2 = "{rename}key2";
 
     jedis.sadd(key1, "value");
     jedis.sadd(key2, "value");
@@ -149,7 +149,7 @@ public class ExpireDUnitTest {
 
   @Test
   public void pExpire_shouldResultInKeyRemoval() {
-    String key = "key";
+    var key = "key";
 
     jedis.sadd(key, "value");
     jedis.pexpire(key, 50);
@@ -159,7 +159,7 @@ public class ExpireDUnitTest {
 
   @Test
   public void expireAt_shouldResultInKeyRemoval() {
-    String key = "key";
+    var key = "key";
 
     jedis.sadd(key, "value");
     jedis.expireAt(key, System.currentTimeMillis() / 1000 + 2);
@@ -169,7 +169,7 @@ public class ExpireDUnitTest {
 
   @Test
   public void pExpireAt_shouldResultInKeyRemoval() {
-    String key = "key";
+    var key = "key";
 
     jedis.sadd(key, "value");
     jedis.pexpireAt(key, System.currentTimeMillis() + 100);

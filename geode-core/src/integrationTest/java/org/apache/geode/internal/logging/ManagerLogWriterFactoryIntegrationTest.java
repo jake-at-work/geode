@@ -52,7 +52,7 @@ public class ManagerLogWriterFactoryIntegrationTest {
 
   @Before
   public void setUp() {
-    String name = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var name = getClass().getSimpleName() + "_" + testName.getMethodName();
 
     mainLogFile = new File(temporaryFolder.getRoot(), name + "-main.log");
     mainLogFilePath = mainLogFile.getAbsolutePath();
@@ -75,35 +75,35 @@ public class ManagerLogWriterFactoryIntegrationTest {
 
   @Test
   public void getLogFileReturnsMainLogFileIfSecurityIsFalse() {
-    File logFile = new ManagerLogWriterFactory().setSecurity(false).getLogFile(mainLogConfig);
+    var logFile = new ManagerLogWriterFactory().setSecurity(false).getLogFile(mainLogConfig);
 
     assertThat(logFile.getAbsolutePath()).isEqualTo(mainLogFilePath);
   }
 
   @Test
   public void getLogFileReturnsSecurityLogFileIfSecurityIsTrue() {
-    File logFile = new ManagerLogWriterFactory().setSecurity(true).getLogFile(securityLogConfig);
+    var logFile = new ManagerLogWriterFactory().setSecurity(true).getLogFile(securityLogConfig);
 
     assertThat(logFile.getAbsolutePath()).isEqualTo(securityLogFilePath);
   }
 
   @Test
   public void getLogLevelReturnsMainLogLevelIfSecurityIsFalse() {
-    int level = new ManagerLogWriterFactory().setSecurity(false).getLogLevel(mainLogConfig);
+    var level = new ManagerLogWriterFactory().setSecurity(false).getLogLevel(mainLogConfig);
 
     assertThat(level).isEqualTo(FINE.intLevel());
   }
 
   @Test
   public void getLogLevelReturnsSecurityLogLevelIfSecurityIsTrue() {
-    int level = new ManagerLogWriterFactory().setSecurity(true).getLogLevel(securityLogConfig);
+    var level = new ManagerLogWriterFactory().setSecurity(true).getLogLevel(securityLogConfig);
 
     assertThat(level).isEqualTo(WARNING.intLevel());
   }
 
   @Test
   public void createReturnsManagerLogWriterIfSecurityIsFalse() {
-    ManagerLogWriter logWriter =
+    var logWriter =
         new ManagerLogWriterFactory().setSecurity(false).create(mainLogConfig, statisticsConfig);
 
     assertThat(logWriter).isNotInstanceOf(SecurityManagerLogWriter.class);
@@ -119,7 +119,7 @@ public class ManagerLogWriterFactoryIntegrationTest {
 
   @Test
   public void createReturnsSecurityManagerLogWriterIfSecurityIsTrue() {
-    ManagerLogWriter logWriter =
+    var logWriter =
         new ManagerLogWriterFactory().setSecurity(true).create(securityLogConfig, statisticsConfig);
 
     assertThat(logWriter).isInstanceOf(SecurityManagerLogWriter.class);
@@ -135,7 +135,7 @@ public class ManagerLogWriterFactoryIntegrationTest {
 
   @Test
   public void createSetsConfigOnLogWriterIfSecurityIsFalse() {
-    ManagerLogWriter logWriter =
+    var logWriter =
         new ManagerLogWriterFactory().setSecurity(false).create(mainLogConfig, statisticsConfig);
 
     assertThat(logWriter.getConfig()).isNotNull();
@@ -144,7 +144,7 @@ public class ManagerLogWriterFactoryIntegrationTest {
 
   @Test
   public void createSetsConfigWithSecurityLogFileIfSecurityIsTrue() {
-    ManagerLogWriter logWriter =
+    var logWriter =
         new ManagerLogWriterFactory().setSecurity(true).create(securityLogConfig, statisticsConfig);
 
     assertThat(logWriter.getConfig()).isNotNull().isInstanceOf(SecurityLogConfig.class);

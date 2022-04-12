@@ -16,10 +16,8 @@ package org.apache.geode.management.internal.cli.shell;
 
 import static org.apache.geode.internal.net.SSLConfigurationFactory.GEODE_SSL_CONFIG_PROPERTIES;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -51,7 +49,6 @@ import com.healthmarketscience.rmiio.RemoteOutputStreamClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -60,7 +57,6 @@ import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.internal.ContextAwareSSLRMIClientSocketFactory;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.management.internal.ManagementConstants;
-import org.apache.geode.management.internal.beans.FileUploader;
 import org.apache.geode.management.internal.beans.FileUploaderMBean;
 import org.apache.geode.management.internal.cli.CommandRequest;
 import org.apache.geode.management.internal.security.ResourceConstants;
@@ -111,26 +107,26 @@ public class JmxOperationInvoker implements OperationInvoker {
     // when not using JMXShiroAuthenticator in the integrated security, JMX own password file
     // authentication requires the credentials been sent in String[] format.
     // Our JMXShiroAuthenticator handles both String[] and String format.
-    String token = gfProperties.getProperty(ResourceConstants.TOKEN);
-    String username = gfProperties.getProperty(ResourceConstants.USER_NAME);
-    String password = gfProperties.getProperty(ResourceConstants.PASSWORD);
+    var token = gfProperties.getProperty(ResourceConstants.TOKEN);
+    var username = gfProperties.getProperty(ResourceConstants.USER_NAME);
+    var password = gfProperties.getProperty(ResourceConstants.PASSWORD);
     if (token != null) {
       env.put(JMXConnector.CREDENTIALS, token);
     } else if (username != null) {
       env.put(JMXConnector.CREDENTIALS, new String[] {username, password});
     }
 
-    SSLConfig sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(gfProperties,
+    var sslConfig = SSLConfigurationFactory.getSSLConfigForComponent(gfProperties,
         SecurableCommunicationChannel.JMX);
 
     if (sslConfig.isEnabled()) {
-      StringWriter propertiesWriter = new StringWriter();
+      var propertiesWriter = new StringWriter();
       gfProperties.store(propertiesWriter, null);
       System.setProperty(GEODE_SSL_CONFIG_PROPERTIES, propertiesWriter.toString());
       env.put("com.sun.jndi.rmi.factory.socket", new ContextAwareSSLRMIClientSocketFactory());
     }
 
-    final String hostName = checkAndConvertToCompatibleIPv6Syntax(host);
+    final var hostName = checkAndConvertToCompatibleIPv6Syntax(host);
     url = new JMXServiceURL(MessageFormat.format(JMX_URL_FORMAT,
         hostName, String.valueOf(port)));
     connector = JMXConnectorFactory.connect(url, env);
@@ -249,10 +245,10 @@ public class JmxOperationInvoker implements OperationInvoker {
     try {
       if (commandRequest.hasFileList()) {
         stagedFilePaths = new ArrayList<>();
-        for (File file : commandRequest.getFileList()) {
-          FileUploader.RemoteFile remote = fileUploadMBeanProxy.uploadFile(file.getName());
-          try (FileInputStream source = new FileInputStream(file);
-              OutputStream target = RemoteOutputStreamClient.wrap(remote.getOutputStream())) {
+        for (var file : commandRequest.getFileList()) {
+          var remote = fileUploadMBeanProxy.uploadFile(file.getName());
+          try (var source = new FileInputStream(file);
+              var target = RemoteOutputStreamClient.wrap(remote.getOutputStream())) {
             IOUtils.copyLarge(source, target);
             stagedFilePaths.add(remote.getFilename());
           }
@@ -382,7 +378,7 @@ class JMXConnectionListener implements NotificationListener {
   @Override
   public void handleNotification(Notification notification, Object handback) {
     if (notification instanceof JMXConnectionNotification) {
-      JMXConnectionNotification connNotif = (JMXConnectionNotification) notification;
+      var connNotif = (JMXConnectionNotification) notification;
       if (JMXConnectionNotification.CLOSED.equals(connNotif.getType())
           || JMXConnectionNotification.FAILED.equals(connNotif.getType())) {
         invoker.isConnected.set(false);

@@ -29,9 +29,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.junit.After;
@@ -210,24 +208,24 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
     Query q;
 
     ///// without index ////////
-    for (int x = 0; x < queries.length; x++) {
+    for (var x = 0; x < queries.length; x++) {
       CacheUtils.log("Query No: " + (x + 1) + "...without index execution");
       sqlStr = queries[x];
-      QueryService qs = CacheUtils.getQueryService();
+      var qs = CacheUtils.getQueryService();
       q = qs.newQuery(sqlStr);
 
       totalTime = 0;
 
       queriesMap.put(x, q);
 
-      for (int i = 0; i < QUERY_EXECUTED; i++) {
+      for (var i = 0; i < QUERY_EXECUTED; i++) {
         startTime = System.currentTimeMillis();
         rs = (SelectResults) q.execute();
         endTime = System.currentTimeMillis();
         totalTime = totalTime + (endTime - startTime);
       }
 
-      long withoutIndexTime = totalTime / QUERY_EXECUTED;
+      var withoutIndexTime = totalTime / QUERY_EXECUTED;
 
       withoutIndexTimeRegion.put(x, withoutIndexTime);
 
@@ -238,35 +236,35 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
     createIndex();
 
     ///////// measuring time with index
-    for (int x = 0; x < queries.length; x++) {
+    for (var x = 0; x < queries.length; x++) {
       CacheUtils.log("Query No: " + (x + 1) + "...with index execution");
       sqlStr = queries[x];
-      QueryService qs2 = CacheUtils.getQueryService();// ????
+      var qs2 = CacheUtils.getQueryService();// ????
       q = qs2.newQuery(sqlStr);
 
       queriesMap.put(x, q);
 
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
 
       totalTime = 0;
 
-      for (int i = 0; i < QUERY_EXECUTED; i++) {
+      for (var i = 0; i < QUERY_EXECUTED; i++) {
         startTime = System.currentTimeMillis();
         rs = (SelectResults) q.execute();
         endTime = System.currentTimeMillis();
         totalTime = totalTime + (endTime - startTime);
 
         if (i == 0) {
-          ArrayList al = new ArrayList();
-          for (final Object o : observer.indexesUsed) {
+          var al = new ArrayList();
+          for (final var o : observer.indexesUsed) {
             al.add(o);
           }
           indexNameRegion.put(x, al);
         }
       } // end of for loop
 
-      long withIndexTime = totalTime / QUERY_EXECUTED;
+      var withIndexTime = totalTime / QUERY_EXECUTED;
 
       withIndexTimeRegion.put(x, withIndexTime);
 
@@ -290,26 +288,26 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
        * factory.setScope(Scope.DISTRIBUTED_ACK); factory.setValueConstraint(Portfolio.class);
        */
       region = CacheUtils.createRegion("Portfolio", Portfolio.class);
-      for (int i = 0; i < 25000; ++i) {
+      for (var i = 0; i < 25000; ++i) {
         region.create(i + 1, new Portfolio(i));
       }
-      String queryStr = "select  * from " + SEPARATOR
+      var queryStr = "select  * from " + SEPARATOR
           + "Portfolio pf where pf.getID  > 10000 and pf.getID < 12000";
 
-      SelectResults[][] r = new SelectResults[1][2];
-      QueryService qs = CacheUtils.getQueryService();
-      Query qry = qs.newQuery(queryStr);
-      for (int i = 0; i < 5; ++i) {
+      var r = new SelectResults[1][2];
+      var qs = CacheUtils.getQueryService();
+      var qry = qs.newQuery(queryStr);
+      for (var i = 0; i < 5; ++i) {
         qry.execute();
       }
 
-      long time = 0l;
+      var time = 0l;
       long start = 0;
       long end = 0;
-      int numTimesToRun = 10;
+      var numTimesToRun = 10;
       SelectResults sr = null;
       float t1, t2 = 0;
-      for (int i = 0; i < numTimesToRun; ++i) {
+      for (var i = 0; i < numTimesToRun; ++i) {
         start = System.currentTimeMillis();
         sr = (SelectResults) qry.execute();
         end = System.currentTimeMillis();
@@ -319,7 +317,7 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
       t1 = ((float) (time)) / numTimesToRun;
       CacheUtils.log("AVG time taken without Index =" + t1);
       qs.createIndex("ID", IndexType.FUNCTIONAL, "pf.getID", SEPARATOR + "Portfolio pf");
-      for (int i = 0; i < 5; ++i) {
+      for (var i = 0; i < 5; ++i) {
         qry.execute();
       }
 
@@ -327,7 +325,7 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
       start = 0;
       end = 0;
       sr = null;
-      for (int i = 0; i < numTimesToRun; ++i) {
+      for (var i = 0; i < numTimesToRun; ++i) {
         start = System.currentTimeMillis();
         sr = (SelectResults) qry.execute();
         end = System.currentTimeMillis();
@@ -384,7 +382,7 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
      */
 
     /* Add the countries */
-    for (int i = 0; i < MAX_OBJECTS; i++) {
+    for (var i = 0; i < MAX_OBJECTS; i++) {
       region.put(i, new Country(i, 2, 3, 4, 4));
       region1.put(i, new Country(i, 2, 3, 4, 4));
       region2.put(i, new Country(i, 2, 3, 4, 4));
@@ -395,7 +393,7 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
   }// end of populateData
 
   public static void createIndex() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     /*
      * Indices share the following percentages: a. countryName: 20% objects b. stateName: 33.33%
      * objects c. districtName: 20% objects d. cityName: 50% objects e. villageName: No index
@@ -444,7 +442,7 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
 
     if (printCntr == 1) {
       // file = new FileOutputStream("c:\\QueryPerfLog.txt");
-      Date date = new Date(System.currentTimeMillis());
+      var date = new Date(System.currentTimeMillis());
       file = new FileOutputStream("./QueryPerfLog-" + (date.toGMTString()
           .substring(0, date.toGMTString().indexOf("200") + 4).replace(' ', '-')) + ".txt");
       wr = new BufferedWriter(new OutputStreamWriter(file));
@@ -484,9 +482,8 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
     wr.newLine();
     wr.newLine();
 
-
-    Set set0 = queriesMap.keySet();
-    Iterator itr0 = set0.iterator();
+    var set0 = queriesMap.keySet();
+    var itr0 = set0.iterator();
 
     /*
      * Set set1 = withoutIndexTimeRegion.keySet(); Iterator itr1 = set1.iterator();
@@ -505,7 +502,7 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
       wr.newLine();
       wr.newLine();
       it = (Integer) itr0.next();
-      Query q1 = (Query) queriesMap.get(it);
+      var q1 = (Query) queriesMap.get(it);
       wr.write("Query string is: ");
       wr.newLine();
       wr.write(q1.getQueryString());
@@ -532,14 +529,14 @@ public class BaseLineAndCompareQueryPerfJUnitTest {
       wr.newLine();
       wr.newLine();
 
-      ArrayList al = (ArrayList) indexNameRegion.get(it);
+      var al = (ArrayList) indexNameRegion.get(it);
 
       if (al.size() == 0) {
         wr.write("No indices are getting used in this query");
         wr.newLine();
         wr.newLine();
       } else {
-        for (final Object o : al) {
+        for (final var o : al) {
           wr.write(o.toString());
           wr.newLine();
         }

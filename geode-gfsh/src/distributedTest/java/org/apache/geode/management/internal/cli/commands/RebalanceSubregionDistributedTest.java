@@ -18,7 +18,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -30,10 +29,7 @@ import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
 
@@ -53,14 +49,14 @@ public class RebalanceSubregionDistributedTest implements Serializable {
   @Test
   public void testRebalanceSubregion() throws Exception {
     // Start locator
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     // Start 2 servers
-    MemberVM server1 = cluster.startServerVM(1, locator.getPort());
-    MemberVM server2 = cluster.startServerVM(2, locator.getPort());
+    var server1 = cluster.startServerVM(1, locator.getPort());
+    var server2 = cluster.startServerVM(2, locator.getPort());
 
     // Create region in server1
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     server1.invoke(() -> createSubregion(regionName));
 
     // Do puts in server1
@@ -80,8 +76,8 @@ public class RebalanceSubregionDistributedTest implements Serializable {
     gfsh.executeAndAssertThat("rebalance").statusIsSuccess();
 
     // Verify the results
-    ResultModel result = gfsh.getCommandResult().getResultData();
-    List<TabularResultModel> tableSections = result.getTableSections();
+    var result = gfsh.getCommandResult().getResultData();
+    var tableSections = result.getTableSections();
     assertThat(tableSections.size()).isEqualTo(1);
     assertThat(tableSections.get(0).getHeader()
         .contains(SEPARATOR + ROOT_REGION_NAME + SEPARATOR + regionName)).isTrue();
@@ -89,10 +85,10 @@ public class RebalanceSubregionDistributedTest implements Serializable {
 
   private void createSubregion(String regionName) {
     // Create the root region
-    RegionFactory<Object, Object> rootRegionFactory =
+    var rootRegionFactory =
         Objects.requireNonNull(ClusterStartupRule.getCache())
             .createRegionFactory(RegionShortcut.REPLICATE);
-    Region<Object, Object> rootRegion = rootRegionFactory.create(ROOT_REGION_NAME);
+    var rootRegion = rootRegionFactory.create(ROOT_REGION_NAME);
 
     // Create the subregion
     RegionFactory<Integer, Integer> partitionedRegionFactory =

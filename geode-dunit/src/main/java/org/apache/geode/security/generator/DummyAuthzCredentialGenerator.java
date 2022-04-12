@@ -34,22 +34,22 @@ public class DummyAuthzCredentialGenerator extends AuthzCredentialGenerator {
 
   static {
     readerOpsSet = new HashSet();
-    for (int index = 0; index < DummyAuthorization.READER_OPS.length; index++) {
+    for (var index = 0; index < DummyAuthorization.READER_OPS.length; index++) {
       readerOpsSet.add(DummyAuthorization.READER_OPS[index]);
     }
 
     writerOpsSet = new HashSet();
-    for (int index = 0; index < DummyAuthorization.WRITER_OPS.length; index++) {
+    for (var index = 0; index < DummyAuthorization.WRITER_OPS.length; index++) {
       writerOpsSet.add(DummyAuthorization.WRITER_OPS[index]);
     }
   }
 
   public static byte getRequiredRole(final OperationCode[] opCodes) {
-    byte roleType = ADMIN_ROLE;
-    boolean requiresReader = true;
-    boolean requiresWriter = true;
+    var roleType = ADMIN_ROLE;
+    var requiresReader = true;
+    var requiresWriter = true;
 
-    for (final OperationCode opCode : opCodes) {
+    for (final var opCode : opCodes) {
       if (requiresReader && !readerOpsSet.contains(opCode)) {
         requiresReader = false;
       }
@@ -87,14 +87,14 @@ public class DummyAuthzCredentialGenerator extends AuthzCredentialGenerator {
   @Override
   protected Principal getAllowedPrincipal(final OperationCode[] opCodes, final String[] regionNames,
       final int index) {
-    final byte roleType = getRequiredRole(opCodes);
+    final var roleType = getRequiredRole(opCodes);
     return getPrincipal(roleType, index);
   }
 
   @Override
   protected Principal getDisallowedPrincipal(final OperationCode[] opCodes,
       final String[] regionNames, final int index) {
-    byte roleType = getRequiredRole(opCodes);
+    var roleType = getRequiredRole(opCodes);
     byte disallowedRoleType;
     switch (roleType) {
       case READER_ROLE:
@@ -116,7 +116,7 @@ public class DummyAuthzCredentialGenerator extends AuthzCredentialGenerator {
   }
 
   private Principal getPrincipal(final byte roleType, final int index) {
-    String[] admins = new String[] {"root", "admin", "administrator"};
+    var admins = new String[] {"root", "admin", "administrator"};
     switch (roleType) {
       case READER_ROLE:
         return new UsernamePrincipal("reader" + index);

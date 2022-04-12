@@ -38,7 +38,6 @@ import org.apache.geode.cache.EntryOperation;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.Position;
 import org.apache.geode.cache.query.data.TestData.MyValue;
@@ -68,15 +67,15 @@ public class QueryServiceRegressionTest {
   public void setUp() throws Exception {
     CacheUtils.startCache();
     cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     // leave the region untyped
     // attributesFactory.setValueConstraint(Portfolio.class);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
 
     region = cache.createRegion("pos", regionAttributes);
     region1 = cache.createRegion("pos1", regionAttributes);
-    for (int i = 0; i < 4; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 0; i < 4; i++) {
+      var p = new Portfolio(i);
       region.put("" + i, p);
       region1.put("" + i, p);
     }
@@ -106,10 +105,10 @@ public class QueryServiceRegressionTest {
     }
     // Execute Query.
     try {
-      String queryStr =
+      var queryStr =
           "select distinct * from " + SEPARATOR + "pos p, " + SEPARATOR + "pos1 p1 where "
               + "p.position1.Id = p1.position1.Id and p1.position1.secId in set('MSFT')";
-      Query q = qs.newQuery(queryStr);
+      var q = qs.newQuery(queryStr);
       CacheUtils.getLogger().fine("Executing:" + queryStr);
       q.execute();
     } catch (Exception ex) {
@@ -123,7 +122,7 @@ public class QueryServiceRegressionTest {
    */
   @Test
   public void iteratingNestedQueriesShouldWork() throws Exception {
-    String[] queries = new String[] {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR + "pos where NOT(SELECT DISTINCT * FROM " + SEPARATOR
             + "pos p where p.ID = 0).isEmpty",
         "-- AMBIGUOUS\n" + "import org.apache.geode.cache.\"query\".data.Portfolio; "
@@ -139,10 +138,10 @@ public class QueryServiceRegressionTest {
             + "pos x where status = ELEMENT(SELECT DISTINCT * FROM " + SEPARATOR
             + "pos p where p.ID = 0).status",};
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Object r = null;
-      String queryStr = queries[i];
-      Query q = qs.newQuery(queryStr);
+      var queryStr = queries[i];
+      var q = qs.newQuery(queryStr);
       CacheUtils.getLogger().fine("Executing:" + queryStr);
       try {
         r = q.execute();
@@ -320,24 +319,24 @@ public class QueryServiceRegressionTest {
    */
   @Test
   public void testBugResultMismatch() throws Exception {
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
-    QueryService qs = CacheUtils.getQueryService();
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    var qs = CacheUtils.getQueryService();
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
     region.put("3", new Portfolio(3));
     qs.createIndex("index1", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolios pf");
-    String query1 =
+    var query1 =
         "SELECT   DISTINCT iD as portfolio_id, pos.secId as sec_id from " + SEPARATOR
             + "portfolios p , p.positions.values pos  where p.status= 'active'";
-    String query2 = "select  DISTINCT * from  "
+    var query2 = "select  DISTINCT * from  "
         + "( SELECT   DISTINCT iD as portfolio_id, pos.secId as sec_id from " + SEPARATOR
         + "portfolios p , p.positions.values pos where p.status= 'active')";
 
-    Query q1 = CacheUtils.getQueryService().newQuery(query1);
-    Query q2 = CacheUtils.getQueryService().newQuery(query2);
-    SelectResults rs1 = (SelectResults) q1.execute();
-    SelectResults rs2 = (SelectResults) q2.execute();
+    var q1 = CacheUtils.getQueryService().newQuery(query1);
+    var q2 = CacheUtils.getQueryService().newQuery(query2);
+    var rs1 = (SelectResults) q1.execute();
+    var rs2 = (SelectResults) q2.execute();
 
     assertThatCode(() -> QueryUtils.union(rs1, rs2, null)).doesNotThrowAnyException();
   }
@@ -349,12 +348,12 @@ public class QueryServiceRegressionTest {
   public void multipleScopesShouldBeAllowedAtSameLevelOfNesting() throws Exception {
     // Task ID: NQIU 9
     CacheUtils.getQueryService();
-    String queries =
+    var queries =
         "select distinct p.x from (select distinct x, pos from " + SEPARATOR
             + "pos x, x.positions.values pos) p, (select distinct * from " + SEPARATOR + "pos"
             + SEPARATOR + "positions rtPos where rtPos.secId = p.pos.secId)";
-    Region r = CacheUtils.getRegion(SEPARATOR + "pos");
-    Region r1 = r.createSubregion("positions", new AttributesFactory().createRegionAttributes());
+    var r = CacheUtils.getRegion(SEPARATOR + "pos");
+    var r1 = r.createSubregion("positions", new AttributesFactory().createRegionAttributes());
 
 
     r1.put("1", new Position("SUN", 2.272));
@@ -362,9 +361,9 @@ public class QueryServiceRegressionTest {
     r1.put("3", new Position("YHOO", 2.272));
     r1.put("4", new Position("GOOG", 2.272));
     r1.put("5", new Position("MSFT", 2.272));
-    Query q = CacheUtils.getQueryService().newQuery(queries);
+    var q = CacheUtils.getQueryService().newQuery(queries);
     CacheUtils.getLogger().info("Executing query: " + queries);
-    SelectResults rs = (SelectResults) q.execute();
+    var rs = (SelectResults) q.execute();
     assertTrue("Resultset size should be > 0", rs.size() > 0);
   }
 
@@ -379,20 +378,20 @@ public class QueryServiceRegressionTest {
   public void testBug38422() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
     // The region already contains 3 Portfolio object. The 4th Portfolio object
     // has its status field explictly made null. Thus the query below will result
     // in intersection of two non empty sets. One which contains 4th Portfolio
     // object containing null status & the second condition does not contain the
     // 4th portfolio object
-    Portfolio pf = new Portfolio(4);
+    var pf = new Portfolio(4);
     pf.status = null;
     rgn.put(4, pf);
-    String queryStr =
+    var queryStr =
         "select  * from " + SEPARATOR + "pos pf where pf.status != 'active' and pf.status != null";
 
-    SelectResults[][] r = new SelectResults[1][2];
-    Query qry = qs.newQuery(queryStr);
+    var r = new SelectResults[1][2];
+    var qry = qs.newQuery(queryStr);
     SelectResults sr = null;
     sr = (SelectResults) qry.execute();
     r[0][0] = sr;
@@ -408,7 +407,7 @@ public class QueryServiceRegressionTest {
   @Test
   public void testEquijoinPRColocatedQuery_1() throws Exception {
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPartitionAttributes(new PartitionAttributesFactory().setRedundantCopies(1)
         .setTotalNumBuckets(40).setPartitionResolver(new PartitionResolver() {
 
@@ -428,7 +427,7 @@ public class QueryServiceRegressionTest {
         }
 
         }).create());
-    PartitionedRegion pr1 =
+    var pr1 =
         (PartitionedRegion) CacheUtils.getCache().createRegion("pr1", factory.create());
     factory = new AttributesFactory();
     factory.setPartitionAttributes(new PartitionAttributesFactory()
@@ -452,26 +451,26 @@ public class QueryServiceRegressionTest {
 
         }).setColocatedWith(pr1.getName()).create());
 
-    final PartitionedRegion pr2 =
+    final var pr2 =
         (PartitionedRegion) CacheUtils.getCache().createRegion("pr2", factory.create());
 
     createAllNumPRAndEvenNumPR(pr1, pr2, 80);
-    Set<Integer> set = createAndPopulateSet(15);
-    LocalDataSet lds = new LocalDataSet(pr1, set);
+    var set = createAndPopulateSet(15);
+    var lds = new LocalDataSet(pr1, set);
 
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
-    QueryService qs = pr1.getCache().getQueryService();
+    var qs = pr1.getCache().getQueryService();
 
     qs.createIndex("valueIndex", IndexType.FUNCTIONAL, "e.value", SEPARATOR + "pr1 e");
     qs.createIndex("valueIndex", IndexType.FUNCTIONAL, "e.value", SEPARATOR + "pr2 e");
-    String query =
+    var query =
         "select distinct e1.value from " + SEPARATOR + "pr1 e1, " + SEPARATOR + "pr2  e2"
             + " where e1.value=e2.value";
-    DefaultQuery cury = (DefaultQuery) CacheUtils.getQueryService().newQuery(query);
+    var cury = (DefaultQuery) CacheUtils.getQueryService().newQuery(query);
     final ExecutionContext executionContext =
         new QueryExecutionContext(null, (InternalCache) cache, cury);
-    SelectResults r = (SelectResults) lds.executeQuery(cury, executionContext, null, set);
+    var r = (SelectResults) lds.executeQuery(cury, executionContext, null, set);
 
     if (!observer.isIndexesUsed) {
       fail("Indexes should have been used");
@@ -482,7 +481,7 @@ public class QueryServiceRegressionTest {
   @Test
   public void testEquijoinPRColocatedQuery_2() throws Exception {
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPartitionAttributes(new PartitionAttributesFactory().setRedundantCopies(1)
         .setTotalNumBuckets(40).setPartitionResolver(new PartitionResolver() {
 
@@ -502,7 +501,7 @@ public class QueryServiceRegressionTest {
         }
 
         }).create());
-    PartitionedRegion pr1 =
+    var pr1 =
         (PartitionedRegion) CacheUtils.getCache().createRegion("pr1", factory.create());
     factory = new AttributesFactory();
     factory.setPartitionAttributes(new PartitionAttributesFactory()
@@ -526,26 +525,26 @@ public class QueryServiceRegressionTest {
 
         }).setColocatedWith(pr1.getName()).create());
 
-    final PartitionedRegion pr2 =
+    final var pr2 =
         (PartitionedRegion) CacheUtils.getCache().createRegion("pr2", factory.create());
 
     createAllNumPRAndEvenNumPR(pr1, pr2, 80);
-    Set<Integer> set = createAndPopulateSet(15);
-    LocalDataSet lds = new LocalDataSet(pr1, set);
+    var set = createAndPopulateSet(15);
+    var lds = new LocalDataSet(pr1, set);
 
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
-    QueryService qs = pr1.getCache().getQueryService();
+    var qs = pr1.getCache().getQueryService();
 
     qs.createIndex("valueIndex", IndexType.FUNCTIONAL, "e.value", SEPARATOR + "pr1.entries e");
     qs.createIndex("valueIndex", IndexType.FUNCTIONAL, "e.value", SEPARATOR + "pr2.entries e");
-    String query =
+    var query =
         "select distinct e1.key from " + SEPARATOR + "pr1.entries e1," + SEPARATOR
             + "pr2.entries  e2" + " where e1.value=e2.value";
-    DefaultQuery cury = (DefaultQuery) CacheUtils.getQueryService().newQuery(query);
+    var cury = (DefaultQuery) CacheUtils.getQueryService().newQuery(query);
     final ExecutionContext executionContext =
         new QueryExecutionContext(null, (InternalCache) cache, cury);
-    SelectResults r = (SelectResults) lds.executeQuery(cury, executionContext, null, set);
+    var r = (SelectResults) lds.executeQuery(cury, executionContext, null, set);
 
     if (!observer.isIndexesUsed) {
       fail("Indexes should have been used");

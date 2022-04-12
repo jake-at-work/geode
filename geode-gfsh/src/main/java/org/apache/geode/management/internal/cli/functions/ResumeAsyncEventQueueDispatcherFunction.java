@@ -14,10 +14,7 @@
  */
 package org.apache.geode.management.internal.cli.functions;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliFunction;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 
@@ -32,12 +29,12 @@ public class ResumeAsyncEventQueueDispatcherFunction extends CliFunction {
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext context) {
-    String AEQId = (String) context.getArguments();
+    var AEQId = (String) context.getArguments();
 
-    Cache cache = context.getCache();
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+    var cache = context.getCache();
+    var member = cache.getDistributedSystem().getDistributedMember();
 
-    AsyncEventQueue queue = cache.getAsyncEventQueue(AEQId);
+    var queue = cache.getAsyncEventQueue(AEQId);
 
     if (queue == null) {
       return new CliFunctionResult(member.getId(), CliFunctionResult.StatusState.ERROR,

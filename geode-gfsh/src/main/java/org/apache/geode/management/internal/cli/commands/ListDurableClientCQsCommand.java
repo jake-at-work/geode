@@ -16,20 +16,16 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.functions.ListDurableCqNamesFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -53,22 +49,22 @@ public class ListDurableClientCQsCommand extends GfshCommand {
           help = CliStrings.LIST_DURABLE_CQS__GROUP__HELP,
           optionContext = ConverterHint.MEMBERGROUP) final String[] group) {
 
-    Set<DistributedMember> targetMembers = findMembers(group, memberNameOrId);
+    var targetMembers = findMembers(group, memberNameOrId);
 
     if (targetMembers.isEmpty()) {
       return ResultModel.createInfo(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    final ResultCollector<?, ?> rc =
+    final var rc =
         executeFunction(new ListDurableCqNamesFunction(), durableClientId, targetMembers);
     @SuppressWarnings("unchecked")
-    final List<List<CliFunctionResult>> results = (List<List<CliFunctionResult>>) rc.getResult();
+    final var results = (List<List<CliFunctionResult>>) rc.getResult();
 
-    ResultModel result = new ResultModel();
-    TabularResultModel table = result.addTable("list-durable-client-cqs");
+    var result = new ResultModel();
+    var table = result.addTable("list-durable-client-cqs");
 
-    for (List<CliFunctionResult> perMemberList : results) {
-      for (CliFunctionResult oneResult : perMemberList) {
+    for (var perMemberList : results) {
+      for (var oneResult : perMemberList) {
         table.accumulate("Member", oneResult.getMemberIdOrName());
         table.accumulate("Status", oneResult.getStatus());
         table.accumulate("CQ Name", oneResult.getStatusMessage());

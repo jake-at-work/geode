@@ -35,7 +35,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
@@ -94,7 +93,7 @@ public class ClearTXLockingDUnitTest implements Serializable {
     createCache(vm0);
     createCache(vm1);
 
-    for (VM vm : VM.toArray(vm0, vm1, getController())) {
+    for (var vm : VM.toArray(vm0, vm1, getController())) {
       vm.invoke(() -> {
         opsLatch = new CountDownLatch(1);
         regionLatch = new CountDownLatch(1);
@@ -106,7 +105,7 @@ public class ClearTXLockingDUnitTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : VM.toArray(vm0, vm1, getController())) {
+    for (var vm : VM.toArray(vm0, vm1, getController())) {
       vm.invoke(() -> {
         opsLatch.countDown();
         regionLatch.countDown();
@@ -222,7 +221,7 @@ public class ClearTXLockingDUnitTest implements Serializable {
    */
   private static void stageClear(String rname, VM whereOps) throws InterruptedException {
     regionOperationWait(regionLatch);
-    LocalRegion r = (LocalRegion) cache.getRegion(rname);
+    var r = (LocalRegion) cache.getRegion(rname);
     r.clear();
     whereOps.invoke(ClearTXLockingDUnitTest::releaseVerify);
   }
@@ -237,7 +236,7 @@ public class ClearTXLockingDUnitTest implements Serializable {
 
   private static void stageClose(String rname, VM whereOps) throws InterruptedException {
     regionOperationWait(regionLatch);
-    LocalRegion r = (LocalRegion) cache.getRegion(rname);
+    var r = (LocalRegion) cache.getRegion(rname);
     r.close();
     whereOps.invoke(ClearTXLockingDUnitTest::releaseVerify);
   }
@@ -249,7 +248,7 @@ public class ClearTXLockingDUnitTest implements Serializable {
 
   private static void stageDestroyRegion(String rname, VM whereOps) throws InterruptedException {
     regionOperationWait(regionLatch);
-    LocalRegion r = (LocalRegion) cache.getRegion(rname);
+    var r = (LocalRegion) cache.getRegion(rname);
     r.destroyRegion();
     whereOps.invoke(ClearTXLockingDUnitTest::releaseVerify);
   }
@@ -259,8 +258,8 @@ public class ClearTXLockingDUnitTest implements Serializable {
    * operation.
    */
   private void setArmHook(String rname) {
-    LocalRegion r = (LocalRegion) cache.getRegion(rname);
-    ArmLockHook theArmHook = new ArmLockHook();
+    var r = (LocalRegion) cache.getRegion(rname);
+    var theArmHook = new ArmLockHook();
     ((AbstractRegionMap) r.entries).setARMLockTestHook(theArmHook);
   }
 
@@ -268,7 +267,7 @@ public class ClearTXLockingDUnitTest implements Serializable {
    * Cleanup arm lock hook by setting it null
    */
   private void resetArmHook(String rname) {
-    LocalRegion r = (LocalRegion) cache.getRegion(rname);
+    var r = (LocalRegion) cache.getRegion(rname);
     ((AbstractRegionMap) r.entries).setARMLockTestHook(null);
   }
 
@@ -285,15 +284,15 @@ public class ClearTXLockingDUnitTest implements Serializable {
    * ensure commit and clear processing have both completed.
    */
   private static void doPuts(Cache cache, VM whereRegion) throws InterruptedException {
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
 
     txManager.begin();
-    TXStateInterface txState = ((TXStateProxyImpl) txManager.getTXState()).getRealDeal(null, null);
+    var txState = ((TXStateProxyImpl) txManager.getTXState()).getRealDeal(null, null);
     ((TXState) txState).setDuringApplyChanges(new CommitTestCallback(whereRegion));
 
     Region region1 = cache.getRegion(REGION_NAME1);
     Region region2 = cache.getRegion(REGION_NAME2);
-    for (int i = 0; i < NUMBER_OF_PUTS; i++) {
+    for (var i = 0; i < NUMBER_OF_PUTS; i++) {
       region1.put(REGION_NAME1 + THE_KEY + i, THE_VALUE + i);
       region2.put(REGION_NAME2 + THE_KEY + i, THE_VALUE + i);
     }
@@ -332,7 +331,7 @@ public class ClearTXLockingDUnitTest implements Serializable {
   }
 
   private static void createRegion(String rgnName) {
-    RegionFactory<Object, Object> factory = cache.createRegionFactory(RegionShortcut.REPLICATE);
+    var factory = cache.createRegionFactory(RegionShortcut.REPLICATE);
     factory.setConcurrencyChecksEnabled(true);
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.create(rgnName);
@@ -342,11 +341,11 @@ public class ClearTXLockingDUnitTest implements Serializable {
    * Get region contents from each member and verify they are consistent
    */
   private void checkForConsistencyErrors(String regionName) {
-    Map<Object, Object> r0Contents = vm0.invoke(() -> getRegionContents(regionName));
-    Map<Object, Object> r1Contents = vm1.invoke(() -> getRegionContents(regionName));
+    var r0Contents = vm0.invoke(() -> getRegionContents(regionName));
+    var r1Contents = vm1.invoke(() -> getRegionContents(regionName));
 
-    for (int i = 0; i < NUMBER_OF_PUTS; i++) {
-      String theKey = regionName + THE_KEY + i;
+    for (var i = 0; i < NUMBER_OF_PUTS; i++) {
+      var theKey = regionName + THE_KEY + i;
       if (r0Contents.containsKey(theKey)) {
         assertThat(r1Contents.get(theKey))
             .as("region contents are not consistent for key %s", theKey)
@@ -359,10 +358,10 @@ public class ClearTXLockingDUnitTest implements Serializable {
   }
 
   private static Map<Object, Object> getRegionContents(String rname) {
-    LocalRegion r = (LocalRegion) cache.getRegion(rname);
+    var r = (LocalRegion) cache.getRegion(rname);
     Map<Object, Object> result = new HashMap<>();
-    for (Object o : r.entrySet()) {
-      Region.Entry e = (Region.Entry) o;
+    for (var o : r.entrySet()) {
+      var e = (Region.Entry) o;
       result.put(e.getKey(), e.getValue());
     }
     return result;

@@ -32,7 +32,6 @@ import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.modules.session.catalina.callback.SessionExpirationCacheListener;
 import org.apache.geode.modules.util.BootstrappingFunction;
 import org.apache.geode.modules.util.CreateRegionFunction;
@@ -93,14 +92,14 @@ public class ClientServerSessionCache extends AbstractSessionCache {
     // problematic since the region attributes id doesn't really define the
     // region type. Currently there is no way to know the type of region created
     // on the server. Maybe the CreateRegionFunction should return it.
-    String regionAttributesID = getSessionManager().getRegionAttributesId().toLowerCase();
+    var regionAttributesID = getSessionManager().getRegionAttributesId().toLowerCase();
 
     // Invoke the appropriate function depending on the type of region
     if (regionAttributesID.startsWith("partition")) {
       // Execute the partitioned touch function on the primary server(s)
-      Execution execution = getExecutionForFunctionOnRegionWithFilter(sessionIds);
+      var execution = getExecutionForFunctionOnRegionWithFilter(sessionIds);
       try {
-        ResultCollector collector = execution.execute(TouchPartitionedRegionEntriesFunction.ID);
+        var collector = execution.execute(TouchPartitionedRegionEntriesFunction.ID);
         collector.getResult();
       } catch (Exception e) {
         // If an exception occurs in the function, log it.
@@ -108,10 +107,10 @@ public class ClientServerSessionCache extends AbstractSessionCache {
       }
     } else {
       // Execute the member touch function on all the server(s)
-      Object[] arguments = new Object[] {sessionRegion.getFullPath(), sessionIds};
-      Execution execution = getExecutionForFunctionOnServersWithArguments(arguments);
+      var arguments = new Object[] {sessionRegion.getFullPath(), sessionIds};
+      var execution = getExecutionForFunctionOnServersWithArguments(arguments);
       try {
-        ResultCollector collector = execution.execute(TouchReplicatedRegionEntriesFunction.ID);
+        var collector = execution.execute(TouchReplicatedRegionEntriesFunction.ID);
         collector.getResult();
       } catch (Exception e) {
         // If an exception occurs in the function, log it.
@@ -143,7 +142,7 @@ public class ClientServerSessionCache extends AbstractSessionCache {
   @Override
   public boolean isBackingCacheAvailable() {
     if (getSessionManager().isCommitValveFailfastEnabled()) {
-      PoolImpl pool = findPoolInPoolManager();
+      var pool = findPoolInPoolManager();
       return pool.isPrimaryUpdaterAlive();
     }
     return true;
@@ -155,8 +154,8 @@ public class ClientServerSessionCache extends AbstractSessionCache {
   }
 
   private void bootstrapServers() {
-    Execution execution = getExecutionForFunctionOnServers();
-    ResultCollector collector = execution.execute(new BootstrappingFunction());
+    var execution = getExecutionForFunctionOnServers();
+    var collector = execution.execute(new BootstrappingFunction());
     // Get the result. Nothing is being done with it.
     try {
       collector.getResult();
@@ -203,17 +202,17 @@ public class ClientServerSessionCache extends AbstractSessionCache {
 
   void createSessionRegionOnServers() {
     // Create the RegionConfiguration
-    RegionConfiguration configuration = createRegionConfiguration();
+    var configuration = createRegionConfiguration();
 
     // Send it to the server tier
-    Execution execution = getExecutionForFunctionOnServerWithRegionConfiguration(configuration);
-    ResultCollector collector = execution.execute(CreateRegionFunction.ID);
+    var execution = getExecutionForFunctionOnServerWithRegionConfiguration(configuration);
+    var collector = execution.execute(CreateRegionFunction.ID);
 
     // Verify the region was successfully created on the servers
-    List<RegionStatus> results = (List<RegionStatus>) collector.getResult();
-    for (RegionStatus status : results) {
+    var results = (List<RegionStatus>) collector.getResult();
+    for (var status : results) {
       if (status == RegionStatus.INVALID) {
-        final String builder =
+        final var builder =
             "An exception occurred on the server while attempting to create or validate region named "
                 + getSessionManager().getRegionName()
                 + ". See the server log for additional details.";
@@ -223,7 +222,7 @@ public class ClientServerSessionCache extends AbstractSessionCache {
   }
 
   Region<String, HttpSession> createLocalSessionRegionWithRegisterInterest() {
-    Region<String, HttpSession> region = createLocalSessionRegion();
+    var region = createLocalSessionRegion();
 
     // register interest are needed for caching proxy client:
     // to get updates from server if local cache is enabled;
@@ -241,7 +240,7 @@ public class ClientServerSessionCache extends AbstractSessionCache {
       factory = cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY_HEAP_LRU);
 
       // Set the expiration time, action and listener if necessary
-      int maxInactiveInterval = getSessionManager().getMaxInactiveInterval();
+      var maxInactiveInterval = getSessionManager().getMaxInactiveInterval();
       if (maxInactiveInterval != RegionConfiguration.DEFAULT_MAX_INACTIVE_INTERVAL) {
         factory.setStatisticsEnabled(true);
         factory.setCustomEntryIdleTimeout(new SessionCustomExpiry());

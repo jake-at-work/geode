@@ -14,7 +14,6 @@
  */
 package org.apache.geode.connectors.jdbc.internal;
 
-import java.util.Iterator;
 import java.util.stream.Stream;
 
 class SqlStatementFactory {
@@ -36,10 +35,10 @@ class SqlStatementFactory {
 
   private String addKeyColumnsToQuery(EntryColumnData entryColumnData, StringBuilder queryBuilder) {
     queryBuilder.append(" WHERE ");
-    Iterator<ColumnData> iterator = entryColumnData.getEntryKeyColumnData().iterator();
+    var iterator = entryColumnData.getEntryKeyColumnData().iterator();
     while (iterator.hasNext()) {
-      ColumnData keyColumn = iterator.next();
-      boolean onLastColumn = !iterator.hasNext();
+      var keyColumn = iterator.next();
+      var onLastColumn = !iterator.hasNext();
       queryBuilder.append(quote).append(keyColumn.getColumnName()).append(quote).append(" = ?");
       if (!onLastColumn) {
         queryBuilder.append(" AND ");
@@ -49,11 +48,11 @@ class SqlStatementFactory {
   }
 
   String createUpdateSqlString(String quotedTablePath, EntryColumnData entryColumnData) {
-    StringBuilder query = new StringBuilder("UPDATE ")
+    var query = new StringBuilder("UPDATE ")
         .append(quotedTablePath)
         .append(" SET ");
-    int idx = 0;
-    for (ColumnData column : entryColumnData.getEntryValueColumnData()) {
+    var idx = 0;
+    for (var column : entryColumnData.getEntryValueColumnData()) {
       idx++;
       if (idx > 1) {
         query.append(", ");
@@ -65,10 +64,10 @@ class SqlStatementFactory {
   }
 
   String createInsertSqlString(String quotedTablePath, EntryColumnData entryColumnData) {
-    StringBuilder columnNames = new StringBuilder("INSERT INTO ")
+    var columnNames = new StringBuilder("INSERT INTO ")
         .append(quotedTablePath)
         .append(" (");
-    StringBuilder columnValues = new StringBuilder(" VALUES (");
+    var columnValues = new StringBuilder(" VALUES (");
     addColumnDataToSqlString(entryColumnData, columnNames, columnValues);
     columnNames.append(')');
     columnValues.append(')');
@@ -77,10 +76,10 @@ class SqlStatementFactory {
 
   private void addColumnDataToSqlString(EntryColumnData entryColumnData, StringBuilder columnNames,
       StringBuilder columnValues) {
-    Stream<ColumnData> values = entryColumnData.getEntryValueColumnData().stream();
-    Stream<ColumnData> keys = entryColumnData.getEntryKeyColumnData().stream();
-    Stream<ColumnData> columnDataStream = Stream.concat(values, keys);
-    final boolean[] firstTime = new boolean[] {true};
+    var values = entryColumnData.getEntryValueColumnData().stream();
+    var keys = entryColumnData.getEntryKeyColumnData().stream();
+    var columnDataStream = Stream.concat(values, keys);
+    final var firstTime = new boolean[] {true};
     columnDataStream.forEachOrdered(column -> {
       if (!firstTime[0]) {
         columnNames.append(',');

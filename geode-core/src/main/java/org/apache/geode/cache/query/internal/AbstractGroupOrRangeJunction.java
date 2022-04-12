@@ -33,7 +33,6 @@ import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.TypeMismatchException;
 import org.apache.geode.cache.query.internal.parse.OQLLexerTokenTypes;
 import org.apache.geode.cache.query.internal.types.StructTypeImpl;
-import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.internal.Assert;
 
 public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
@@ -71,26 +70,26 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
     indpndntItr = indpnds;
     if (iterOp != null) {
       if (iterOp instanceof CompiledComparison || iterOp instanceof CompiledIn) {
-        int finalSize = 1 + oldGJ._operands.length;
+        var finalSize = 1 + oldGJ._operands.length;
         _operands = new CompiledValue[finalSize];
         System.arraycopy(oldGJ._operands, 0, _operands, 0, finalSize - 1);
         _operands[finalSize - 1] = iterOp;
       } else {
         // Instance of CompiledJunction
-        CompiledJunction temp = (CompiledJunction) iterOp;
-        int operator = temp.getOperator();
+        var temp = (CompiledJunction) iterOp;
+        var operator = temp.getOperator();
         if (_operator == operator) {
-          int tempOpSize = temp.getOperands().size();
-          int oldGJOpSize = oldGJ._operands.length;
+          var tempOpSize = temp.getOperands().size();
+          var oldGJOpSize = oldGJ._operands.length;
           _operands = new CompiledValue[tempOpSize + oldGJOpSize];
           System.arraycopy(oldGJ._operands, 0, _operands, 0, oldGJOpSize);
           Iterator itr = temp.getOperands().iterator();
-          int i = oldGJOpSize;
+          var i = oldGJOpSize;
           while (itr.hasNext()) {
             _operands[i++] = (CompiledValue) itr.next();
           }
         } else {
-          int oldGJOpSize = oldGJ._operands.length;
+          var oldGJOpSize = oldGJ._operands.length;
           _operands = new CompiledValue[1 + oldGJOpSize];
           System.arraycopy(oldGJ._operands, 0, _operands, 0, oldGJOpSize);
           _operands[oldGJOpSize] = temp;
@@ -141,8 +140,8 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
   public SelectResults filterEvaluate(ExecutionContext context, SelectResults intermediateResults)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    OrganizedOperands newOperands = organizeOperands(context);
-    SelectResults result = intermediateResults;
+    var newOperands = organizeOperands(context);
+    var result = intermediateResults;
     Support.Assert(newOperands.filterOperand != null);
     if (newOperands.isSingleFilter) {
       // The below assertion used to hold true previously that if there used to be only
@@ -172,16 +171,16 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
       // evaluate directly on the operand
       result = (newOperands.filterOperand).auxFilterEvaluate(context, result);
 
-      List unevaluatedFilterOps =
+      var unevaluatedFilterOps =
           ((GroupJunction) newOperands.filterOperand).getUnevaluatedFilterOperands();
       if (unevaluatedFilterOps != null) {
         if (newOperands.iterateOperand == null) {
           if (unevaluatedFilterOps.size() == 1) {
             newOperands.iterateOperand = (CompiledValue) unevaluatedFilterOps.get(0);
           } else {
-            int len = unevaluatedFilterOps.size();
-            CompiledValue[] iterOps = new CompiledValue[len];
-            for (int i = 0; i < len; i++) {
+            var len = unevaluatedFilterOps.size();
+            var iterOps = new CompiledValue[len];
+            for (var i = 0; i < len; i++) {
               iterOps[i] = (CompiledValue) unevaluatedFilterOps.get(i);
             }
             newOperands.iterateOperand = new CompiledJunction(iterOps, getOperator());
@@ -189,16 +188,16 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
         } else {
           if (newOperands.iterateOperand instanceof CompiledJunction
               && ((CompiledJunction) newOperands.iterateOperand).getOperator() == getOperator()) {
-            CompiledJunction temp = (CompiledJunction) newOperands.iterateOperand;
+            var temp = (CompiledJunction) newOperands.iterateOperand;
             List prevOps = temp.getOperands();
             unevaluatedFilterOps.addAll(prevOps);
           } else {
             unevaluatedFilterOps.add(newOperands.iterateOperand);
           }
-          int totalLen = unevaluatedFilterOps.size();
-          CompiledValue[] combinedOps = new CompiledValue[totalLen];
-          Iterator itr = unevaluatedFilterOps.iterator();
-          int j = 0;
+          var totalLen = unevaluatedFilterOps.size();
+          var combinedOps = new CompiledValue[totalLen];
+          var itr = unevaluatedFilterOps.iterator();
+          var j = 0;
           while (itr.hasNext()) {
             combinedOps[j++] = (CompiledValue) itr.next();
           }
@@ -224,14 +223,14 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
     // if there are only two operands
 
     List sortedList = new ArrayList(_operands.length);
-    int len = _operands.length;
-    for (final CompiledValue operand : _operands) {
-      Filter toSort = (Filter) operand;
-      int indxRsltToSort = toSort.getSizeEstimate(context);
-      int sortedListLen = sortedList.size();
-      int j = 0;
+    var len = _operands.length;
+    for (final var operand : _operands) {
+      var toSort = (Filter) operand;
+      var indxRsltToSort = toSort.getSizeEstimate(context);
+      var sortedListLen = sortedList.size();
+      var j = 0;
       for (; j < sortedListLen; ++j) {
-        Filter currSorted = (Filter) sortedList.get(j);
+        var currSorted = (Filter) sortedList.get(j);
         if (currSorted.getSizeEstimate(context) > indxRsltToSort) {
           break;
         }
@@ -257,11 +256,11 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
     // using the intermediate results so far (passed in)
     // put results into new intermediate results
 
-    List sortedConditionsList =
+    var sortedConditionsList =
         getCondtionsSortedOnIncreasingEstimatedIndexResultSize(context);
 
     // Sort the operands in increasing order of resultset size
-    Iterator i = sortedConditionsList.iterator();
+    var i = sortedConditionsList.iterator();
     // SortedSet intersectionSet = new TreeSet(new SelectResultsComparator());
     while (i.hasNext()) {
       // Asif:TODO The intermediate ResultSet should be passed as null when
@@ -281,8 +280,8 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
       // RangeJunction or a CompiledComparison. But if the parent Object is a
       // RangeJunction then the Filter is a RangeJunctionEvaluator
       SelectResults filterResults = null;
-      Filter filter = (Filter) i.next();
-      boolean isConditioningNeeded = filter.isConditioningNeededForIndex(
+      var filter = (Filter) i.next();
+      var isConditioningNeeded = filter.isConditioningNeededForIndex(
           indpndntItr.length == 1 ? indpndntItr[0] : null, context,
           completeExpansion);
 
@@ -319,7 +318,7 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
         // Though if the operand evaluates to false,it is permissible case
         // for filterEvaluation.
         Assert.assertTrue(filterResults != null);
-        boolean isDistinct =
+        var isDistinct =
             context.getQuery() != null && ((DefaultQuery) context.getQuery()).getSelect()
                 .isDistinct();
         /*
@@ -368,25 +367,25 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
     {
       return intermediateResults;
     }
-    List currentIters = (completeExpansion) ? context.getCurrentIterators()
+    var currentIters = (completeExpansion) ? context.getCurrentIterators()
         : QueryUtils.getDependentItrChainForIndpndntItrs(indpndntItr, context);
     SelectResults resultSet = null;
-    RuntimeIterator[] rIters = new RuntimeIterator[currentIters.size()];
+    var rIters = new RuntimeIterator[currentIters.size()];
     currentIters.toArray(rIters);
-    ObjectType elementType = intermediateResults.getCollectionType().getElementType();
+    var elementType = intermediateResults.getCollectionType().getElementType();
     if (elementType.isStructType()) {
       resultSet = QueryUtils.createStructCollection(context, (StructTypeImpl) elementType);
     } else {
       resultSet = QueryUtils.createResultCollection(context, elementType);
     }
 
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var observer = QueryObserverHolder.getInstance();
     try {
       observer.startIteration(intermediateResults, operand);
-      for (final Object tuple : intermediateResults) {
+      for (final var tuple : intermediateResults) {
         if (tuple instanceof Struct) {
-          Object[] values = ((Struct) tuple).getFieldValues();
-          for (int i = 0; i < values.length; i++) {
+          var values = ((Struct) tuple).getFieldValues();
+          for (var i = 0; i < values.length; i++) {
             rIters[i].setCurrent(values[i]);
           }
         } else {
@@ -444,7 +443,7 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
    * @return Object of OrganziedOperands type having filter & iter operand segregated
    */
   OrganizedOperands createOrganizedOperandsObject(int indexCount, List evalOperands) {
-    OrganizedOperands result = new OrganizedOperands();
+    var result = new OrganizedOperands();
     // group the operands into those that use indexes and those that don't,
     // so we can evaluate all the operands that don't use indexes together
     // in one iteration first get filter operands
@@ -457,8 +456,8 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
       // condition
       result.isSingleFilter = true;
     } else {
-      CompiledValue[] newOperands = new CompiledValue[indexCount];
-      for (int i = 0; i < indexCount; i++) {
+      var newOperands = new CompiledValue[indexCount];
+      for (var i = 0; i < indexCount; i++) {
         newOperands[i] = (CompiledValue) evalOperands.get(i);
       }
       filterOperands = new GroupJunction(getOperator(), getIndependentIteratorForGroup(),
@@ -469,7 +468,7 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
     // LITERAL_or must be zero. This is an invariant on filter evaluation
     CompiledValue iterateOperands = null;
     // int numIterating = _operands.length - indexCount;
-    int numIterating = evalOperands.size() - indexCount;
+    var numIterating = evalOperands.size() - indexCount;
     // Commenting this assert as for CompiledLike there could be an
     // iterOperand in a GroupJunction with OR condition.
     // For example, query with WHERE clause as
@@ -481,8 +480,8 @@ public abstract class AbstractGroupOrRangeJunction extends AbstractCompiledValue
       if (numIterating == 1) {
         iterateOperands = (CompiledValue) evalOperands.get(indexCount);
       } else {
-        CompiledValue[] newOperands = new CompiledValue[numIterating];
-        for (int i = 0; i < numIterating; i++) {
+        var newOperands = new CompiledValue[numIterating];
+        for (var i = 0; i < numIterating; i++) {
           newOperands[i] = (CompiledValue) evalOperands.get(i + indexCount);
         }
         iterateOperands = new CompiledJunction(newOperands, getOperator());

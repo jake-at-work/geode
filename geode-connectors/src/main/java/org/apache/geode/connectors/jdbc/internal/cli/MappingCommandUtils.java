@@ -22,7 +22,6 @@ import java.util.ArrayList;
 
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.CacheElement;
 import org.apache.geode.cache.configuration.RegionAttributesDataPolicy;
 import org.apache.geode.cache.configuration.RegionAttributesType;
 import org.apache.geode.cache.configuration.RegionConfig;
@@ -34,7 +33,7 @@ public class MappingCommandUtils {
   public static CacheConfig getCacheConfig(ConfigurationPersistenceService configService,
       String group)
       throws PreconditionException {
-    CacheConfig result = configService.getCacheConfig(group);
+    var result = configService.getCacheConfig(group);
     if (result == null) {
       throw new PreconditionException(
           "Cache Configuration not found"
@@ -47,9 +46,9 @@ public class MappingCommandUtils {
   public static RegionConfig checkForRegion(String regionName, CacheConfig cacheConfig,
       String groupName)
       throws PreconditionException {
-    RegionConfig regionConfig = findRegionConfig(cacheConfig, regionName);
+    var regionConfig = findRegionConfig(cacheConfig, regionName);
     if (regionConfig == null) {
-      String groupClause = "A region named " + regionName + " must already exist"
+      var groupClause = "A region named " + regionName + " must already exist"
           + (!groupName.equals(ConfigurationPersistenceService.CLUSTER_CONFIG)
               ? " for group " + groupName + "." : ".");
       throw new PreconditionException(groupClause);
@@ -65,8 +64,8 @@ public class MappingCommandUtils {
   public static ArrayList<RegionMapping> getMappingsFromRegionConfig(CacheConfig cacheConfig,
       RegionConfig regionConfig,
       String group) {
-    ArrayList<RegionMapping> results = new ArrayList<>();
-    for (CacheElement element : regionConfig.getCustomRegionElements()) {
+    var results = new ArrayList<RegionMapping>();
+    for (var element : regionConfig.getCustomRegionElements()) {
       if (element instanceof RegionMapping) {
         ((RegionMapping) element).setRegionName(regionConfig.getName());
         results.add((RegionMapping) element);
@@ -81,7 +80,7 @@ public class MappingCommandUtils {
 
   public static CacheConfig.AsyncEventQueue findAsyncEventQueue(CacheConfig cacheConfig,
       RegionConfig regionConfig) {
-    for (CacheConfig.AsyncEventQueue queue : cacheConfig.getAsyncEventQueues()) {
+    for (var queue : cacheConfig.getAsyncEventQueues()) {
       if (queue.getId()
           .equals(createAsyncEventQueueName(regionConfig.getName()))) {
         return queue;
@@ -98,7 +97,7 @@ public class MappingCommandUtils {
   }
 
   public static boolean isPartition(RegionAttributesType attributesType) {
-    boolean isPartitioned = false;
+    var isPartitioned = false;
     if (attributesType.getDataPolicy() != null) {
       isPartitioned = attributesType.getDataPolicy().isPartition();
     } else if (attributesType.getRefid() != null) {

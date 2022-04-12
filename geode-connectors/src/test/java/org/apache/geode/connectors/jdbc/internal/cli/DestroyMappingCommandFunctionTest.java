@@ -74,10 +74,10 @@ public class DestroyMappingCommandFunctionTest {
     when(cache.getRegion(regionName)).thenReturn(region);
     context = mock(FunctionContext.class);
     when(context.getMemberName()).thenReturn("myMemberName");
-    DistributedMember member = mock(DistributedMember.class);
+    var member = mock(DistributedMember.class);
     resultSender = mock(ResultSender.class);
     service = mock(JdbcConnectorService.class);
-    DistributedSystem system = mock(DistributedSystem.class);
+    var system = mock(DistributedSystem.class);
 
     when(context.getResultSender()).thenReturn(resultSender);
     when(context.getCache()).thenReturn(cache);
@@ -114,7 +114,7 @@ public class DestroyMappingCommandFunctionTest {
   public void executeFunctionGivenExistingMappingReturnsTrue() {
     when(service.getMappingForRegion(eq(regionName))).thenReturn(mapping);
 
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.toString())
@@ -123,7 +123,7 @@ public class DestroyMappingCommandFunctionTest {
 
   @Test
   public void executeFunctionGivenNoExistingMappingReturnsFalse() {
-    CliFunctionResult result = function.executeFunction(context);
+    var result = function.executeFunction(context);
 
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.toString())
@@ -180,7 +180,7 @@ public class DestroyMappingCommandFunctionTest {
 
   @Test
   public void executeFunctionGivenARegionWithJdbcAsyncEventQueueRemovesTheQueueName() {
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
     when(regionAttributes.getAsyncEventQueueIds()).thenReturn(Collections.singleton(queueName));
     when(service.getMappingForRegion(eq(regionName))).thenReturn(mapping);
 
@@ -202,8 +202,8 @@ public class DestroyMappingCommandFunctionTest {
 
   @Test
   public void executeFunctionGivenAJdbcAsyncWriterQueueRemovesTheQueue() {
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
-    InternalAsyncEventQueue myQueue = mock(InternalAsyncEventQueue.class);
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(regionName);
+    var myQueue = mock(InternalAsyncEventQueue.class);
     when(cache.getAsyncEventQueue(queueName)).thenReturn(myQueue);
 
     when(service.getMappingForRegion(eq(regionName))).thenReturn(mapping);
@@ -227,7 +227,7 @@ public class DestroyMappingCommandFunctionTest {
   public void executeReportsErrorIfMappingNotFound() {
     function.execute(context);
 
-    ArgumentCaptor<CliFunctionResult> argument = ArgumentCaptor.forClass(CliFunctionResult.class);
+    var argument = ArgumentCaptor.forClass(CliFunctionResult.class);
     verify(resultSender, times(1)).lastResult(argument.capture());
     assertThat(argument.getValue().getStatusMessage())
         .contains("JDBC mapping for region \"" + regionName + "\" not found");

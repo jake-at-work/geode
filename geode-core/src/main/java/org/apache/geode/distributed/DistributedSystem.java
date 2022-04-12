@@ -162,11 +162,11 @@ public abstract class DistributedSystem implements StatisticsFactory {
 
   protected static void addSystem(InternalDistributedSystem newSystem) {
     synchronized (existingSystemsLock) {
-      int size = existingSystems.size();
+      var size = existingSystems.size();
       if (size == 0) {
         existingSystems = Collections.singletonList(newSystem);
       } else {
-        ArrayList<InternalDistributedSystem> l = new ArrayList<>(size + 1);
+        var l = new ArrayList<InternalDistributedSystem>(size + 1);
         l.addAll(existingSystems);
         l.add(0, newSystem);
         existingSystems = Collections.unmodifiableList(l);
@@ -177,9 +177,9 @@ public abstract class DistributedSystem implements StatisticsFactory {
   protected static void removeSystem(InternalDistributedSystem oldSystem) {
     synchronized (existingSystemsLock) {
       List<InternalDistributedSystem> listOfSystems = new ArrayList<>(existingSystems);
-      boolean result = listOfSystems.remove(oldSystem);
+      var result = listOfSystems.remove(oldSystem);
       if (result) {
-        int size = listOfSystems.size();
+        var size = listOfSystems.size();
         if (size == 0) {
           existingSystems = Collections.emptyList();
         } else if (size == 1) {
@@ -227,7 +227,7 @@ public abstract class DistributedSystem implements StatisticsFactory {
     // In an admin VM you can have a connection to more than one
     // distributed system. If we are already connected to the desired
     // distributed system, return that connection.
-    for (InternalDistributedSystem existingSystem : existingSystems) {
+    for (var existingSystem : existingSystems) {
       if (existingSystem.sameSystemAs(config)) {
         Assert.assertTrue(existingSystem.isConnected());
         return existingSystem;
@@ -244,7 +244,7 @@ public abstract class DistributedSystem implements StatisticsFactory {
    * @since GemFire 4.0
    */
   protected static DistributedSystem connectForAdmin(Properties props) {
-    DistributedSystem existing = getConnection(props);
+    var existing = getConnection(props);
     if (existing != null) {
       return existing;
 
@@ -612,7 +612,7 @@ public abstract class DistributedSystem implements StatisticsFactory {
   }
 
   private static URL getFileURL(String fileName) {
-    File file = new File(fileName).getAbsoluteFile();
+    var file = new File(fileName).getAbsoluteFile();
 
     if (file.exists()) {
       try {

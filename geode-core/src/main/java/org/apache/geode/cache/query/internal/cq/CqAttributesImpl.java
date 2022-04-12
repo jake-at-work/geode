@@ -16,7 +16,6 @@ package org.apache.geode.cache.query.internal.cq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -69,7 +68,7 @@ public class CqAttributesImpl implements CqAttributes, CqAttributesMutator, Clon
    */
   @Override
   public CqListener getCqListener() {
-    ArrayList<CqListener> listeners = cqListeners;
+    var listeners = cqListeners;
     if (listeners == null) {
       return null;
     }
@@ -108,9 +107,9 @@ public class CqAttributesImpl implements CqAttributes, CqAttributesMutator, Clon
           "addCqListener parameter was null");
     }
     synchronized (clSync) {
-      ArrayList<CqListener> oldListeners = cqListeners;
+      var oldListeners = cqListeners;
       if (oldListeners == null || oldListeners.size() == 0) {
-        ArrayList<CqListener> al = new ArrayList<>(1);
+        var al = new ArrayList<CqListener>(1);
         al.add(cql);
         setCqListeners(al);
       } else {
@@ -147,7 +146,7 @@ public class CqAttributesImpl implements CqAttributes, CqAttributesMutator, Clon
 
     if (oldListeners != null) {
       CqListener cql = null;
-      for (Iterator<CqListener> iter = oldListeners.iterator(); iter.hasNext();) {
+      for (var iter = oldListeners.iterator(); iter.hasNext();) {
         try {
           cql = iter.next();
           cql.close();
@@ -195,7 +194,7 @@ public class CqAttributesImpl implements CqAttributes, CqAttributesMutator, Clon
           "removeCqListener parameter was null");
     }
     synchronized (clSync) {
-      ArrayList<CqListener> oldListeners = cqListeners;
+      var oldListeners = cqListeners;
       if (oldListeners != null) {
         if (oldListeners.remove(cql)) {
           if (oldListeners.isEmpty()) {

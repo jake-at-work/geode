@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.geode.LogWriter;
-import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqStatusListener;
 
@@ -78,9 +77,9 @@ public class CqQueryTestListener implements CqStatusListener {
   public void onEvent(CqEvent cqEvent) {
     totalEventCount++;
 
-    Operation baseOperation = cqEvent.getBaseOperation();
-    Operation queryOperation = cqEvent.getQueryOperation();
-    Object key = cqEvent.getKey();
+    var baseOperation = cqEvent.getBaseOperation();
+    var queryOperation = cqEvent.getQueryOperation();
+    var key = cqEvent.getKey();
 
     // logger.info("CqEvent for the CQ: " + this.cqName +
     // "; Key=" + key +

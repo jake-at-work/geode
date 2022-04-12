@@ -57,7 +57,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.stubbing.Answer;
 
-import org.apache.geode.distributed.internal.membership.api.MemberData;
 import org.apache.geode.distributed.internal.membership.api.MemberDataBuilder;
 import org.apache.geode.distributed.internal.membership.api.MemberIdentifier;
 import org.apache.geode.distributed.internal.membership.api.MemberIdentifierFactoryImpl;
@@ -104,7 +103,7 @@ public class GMSHealthMonitorJUnitTest {
   @Before
   public void initMocks() throws MemberStartupException {
     // ensure that Geode's serialization and version are initialized
-    KnownVersion currentVersion = KnownVersion.CURRENT;
+    var currentVersion = KnownVersion.CURRENT;
     dsfidSerializer = new DSFIDSerializerImpl();
     Services.registerSerializables(dsfidSerializer);
 
@@ -114,7 +113,7 @@ public class GMSHealthMonitorJUnitTest {
     joinLeave = mock(JoinLeave.class);
     manager = mock(Manager.class);
     services = mock(Services.class);
-    Stopper stopper = mock(Stopper.class);
+    var stopper = mock(Stopper.class);
 
     when(mockConfig.getMemberTimeout()).thenReturn(memberTimeout);
     when(mockConfig.getMembershipPortRange()).thenReturn(portRange);
@@ -130,8 +129,8 @@ public class GMSHealthMonitorJUnitTest {
 
     if (mockMembers == null) {
       mockMembers = new ArrayList<>();
-      for (int i = 0; i < 7; i++) {
-        MemberIdentifier mbr = MemberIdentifierUtil.createMemberID(8888 + i);
+      for (var i = 0; i < 7; i++) {
+        var mbr = MemberIdentifierUtil.createMemberID(8888 + i);
 
         if (i == 0 || i == 1) {
           mbr.setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
@@ -156,7 +155,7 @@ public class GMSHealthMonitorJUnitTest {
   @Test
   public void testHMServiceStarted() throws Exception {
 
-    MemberIdentifier mbr = MemberIdentifierUtil.createMemberID(12345);
+    var mbr = MemberIdentifierUtil.createMemberID(12345);
     mbr.setVmViewId(1);
     when(messenger.getMemberID()).thenReturn(mbr);
     gmsHealthMonitor.started();
@@ -192,11 +191,11 @@ public class GMSHealthMonitorJUnitTest {
     System.out.println("testHMNextNeighborAfterTimeout starting");
 
     installAView();
-    MemberIdentifier initialNeighbor = mockMembers.get(myAddressIndex + 1);
+    var initialNeighbor = mockMembers.get(myAddressIndex + 1);
 
     await("wait for new neighbor")
         .until(() -> gmsHealthMonitor.getNextNeighbor() != initialNeighbor);
-    MemberIdentifier neighbor = gmsHealthMonitor.getNextNeighbor();
+    var neighbor = gmsHealthMonitor.getNextNeighbor();
 
     // neighbor should change. In order to not be a flaky test we don't demand
     // that it be myAddressIndex+2 but just require that the neighbor being
@@ -214,15 +213,15 @@ public class GMSHealthMonitorJUnitTest {
 
   @Test
   public void testHMNextNeighborBeforeTimeout() throws Exception {
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
     installAView();
-    final MemberIdentifier neighbor = gmsHealthMonitor.getNextNeighbor();
+    final var neighbor = gmsHealthMonitor.getNextNeighbor();
     System.out.println("next neighbor is " + neighbor + "\nmy address is "
         + mockMembers.get(myAddressIndex) + "\nview is " + joinLeave.getView());
     assertEquals(mockMembers.get(myAddressIndex + 1), neighbor);
     await("wait for new neighbor")
         .until(() -> gmsHealthMonitor.getNextNeighbor() != neighbor);
-    long endTime = System.currentTimeMillis();
+    var endTime = System.currentTimeMillis();
 
     // member-timeout is 1000 ms. We initiate a check and choose
     // a new neighbor at 500 ms
@@ -247,7 +246,7 @@ public class GMSHealthMonitorJUnitTest {
   }
 
   private GMSMembershipView installAView() throws Exception {
-    GMSMembershipView v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
+    var v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
 
     // 3rd is current member
     when(messenger.getMemberID()).thenReturn(mockMembers.get(myAddressIndex));
@@ -260,9 +259,9 @@ public class GMSHealthMonitorJUnitTest {
   }
 
   private void setFailureDetectionPorts(GMSMembershipView v) {
-    java.util.Iterator<MemberIdentifier> itr = mockMembers.iterator();
+    var itr = mockMembers.iterator();
 
-    int port = 7899;
+    var port = 7899;
     while (itr.hasNext()) {
       v.setFailureDetectionPort(itr.next(), port++);
     }
@@ -273,12 +272,12 @@ public class GMSHealthMonitorJUnitTest {
    */
   @Test
   public void testSuspectMembersNotCalledThroughPingThreadBeforeTimeout() throws Exception {
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
     installAView();
-    MemberIdentifier neighbor = gmsHealthMonitor.getNextNeighbor();
+    var neighbor = gmsHealthMonitor.getNextNeighbor();
 
     await().until(() -> gmsHealthMonitor.isSuspectMember(neighbor));
-    long endTime = System.currentTimeMillis();
+    var endTime = System.currentTimeMillis();
 
     // member-timeout is 1000 ms
     // plus 100 ms for ack
@@ -319,7 +318,7 @@ public class GMSHealthMonitorJUnitTest {
   @Test
   public void testRemoveMemberCalled() throws Exception {
     System.out.println("testRemoveMemberCalled starting");
-    GMSMembershipView v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
+    var v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
 
     // 3rd is current member
     when(messenger.getMemberID()).thenReturn(mockMembers.get(0)); // coordinator and local member
@@ -327,13 +326,13 @@ public class GMSHealthMonitorJUnitTest {
 
     gmsHealthMonitor.installView(v);
 
-    ArrayList<MemberIdentifier> recipient = new ArrayList<>();
+    var recipient = new ArrayList<MemberIdentifier>();
     recipient.add(mockMembers.get(0));
-    ArrayList<SuspectRequest> as = new ArrayList<>();
-    SuspectRequest sr = new SuspectRequest(mockMembers.get(1), "Not Responding");// removing member
-                                                                                 // 1
+    var as = new ArrayList<SuspectRequest>();
+    var sr = new SuspectRequest(mockMembers.get(1), "Not Responding");// removing member
+                                                                      // 1
     as.add(sr);
-    SuspectMembersMessage sm = new SuspectMembersMessage(recipient, as);
+    var sm = new SuspectMembersMessage(recipient, as);
     sm.setSender(mockMembers.get(0));
 
     gmsHealthMonitor.processMessage(sm);
@@ -351,7 +350,7 @@ public class GMSHealthMonitorJUnitTest {
   @Test
   public void testRemoveMemberNotCalledBeforeTimeout() throws Exception {
     System.out.println("testRemoveMemberNotCalledBeforeTimeout starting");
-    GMSMembershipView v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
+    var v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
 
     // 3rd is current member
     when(messenger.getMemberID()).thenReturn(mockMembers.get(0)); // coordinator and local member
@@ -360,23 +359,23 @@ public class GMSHealthMonitorJUnitTest {
 
     gmsHealthMonitor.installView(v);
 
-    ArrayList<MemberIdentifier> recipient = new ArrayList<>();
+    var recipient = new ArrayList<MemberIdentifier>();
     recipient.add(mockMembers.get(0));
-    ArrayList<SuspectRequest> as = new ArrayList<>();
-    SuspectRequest sr = new SuspectRequest(mockMembers.get(1), "Not Responding");// removing member
-                                                                                 // 1
+    var as = new ArrayList<SuspectRequest>();
+    var sr = new SuspectRequest(mockMembers.get(1), "Not Responding");// removing member
+                                                                      // 1
     as.add(sr);
-    SuspectMembersMessage sm = new SuspectMembersMessage(recipient, as);
+    var sm = new SuspectMembersMessage(recipient, as);
     sm.setSender(mockMembers.get(0));
 
-    long preProcess = System.currentTimeMillis();
+    var preProcess = System.currentTimeMillis();
     gmsHealthMonitor.processMessage(sm);
 
     await("waiting for remove(member) to be invoked")
         .untilAsserted(
             () -> verify(joinLeave, atLeastOnce()).remove(any(MemberIdentifier.class),
                 any(String.class)));
-    long postRemove = System.currentTimeMillis();
+    var postRemove = System.currentTimeMillis();
 
     assertThat(memberTimeout).isLessThanOrEqualTo(postRemove - preProcess);
   }
@@ -388,7 +387,7 @@ public class GMSHealthMonitorJUnitTest {
   @Test
   public void testRemoveMemberCalledAfterDoingFinalCheckOnCoordinator() throws Exception {
 
-    GMSMembershipView v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
+    var v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
 
     // preferred coordinators are 0 and 1
     when(messenger.getMemberID()).thenReturn(mockMembers.get(1));// next preferred coordinator
@@ -396,14 +395,14 @@ public class GMSHealthMonitorJUnitTest {
 
     gmsHealthMonitor.installView(v);
 
-    ArrayList<MemberIdentifier> recipient = new ArrayList<>();
+    var recipient = new ArrayList<MemberIdentifier>();
     recipient.add(mockMembers.get(0));
     recipient.add(mockMembers.get(1));
-    ArrayList<SuspectRequest> as = new ArrayList<>();
-    SuspectRequest sr = new SuspectRequest(mockMembers.get(0), "Not Responding");// removing
-                                                                                 // coordinator
+    var as = new ArrayList<SuspectRequest>();
+    var sr = new SuspectRequest(mockMembers.get(0), "Not Responding");// removing
+                                                                      // coordinator
     as.add(sr);
-    SuspectMembersMessage sm = new SuspectMembersMessage(recipient, as);
+    var sm = new SuspectMembersMessage(recipient, as);
     sm.setSender(mockMembers.get(myAddressIndex + 1));// member 4 sends suspect message
 
     gmsHealthMonitor.processMessage(sm);
@@ -417,17 +416,17 @@ public class GMSHealthMonitorJUnitTest {
 
   @Test
   public void testCheckIfAvailableWithSimulatedHeartBeat() throws Exception {
-    GMSMembershipView v = installAView();
+    var v = installAView();
 
-    MemberIdentifier memberToCheck = mockMembers.get(1);
-    HeartbeatMessage fakeHeartbeat = new HeartbeatMessage();
+    var memberToCheck = mockMembers.get(1);
+    var fakeHeartbeat = new HeartbeatMessage();
     fakeHeartbeat.setSender(memberToCheck);
     when(messenger.send(any(HeartbeatRequestMessage.class))).then((Answer) invocation -> {
       gmsHealthMonitor.processMessage(fakeHeartbeat);
       return null;
     });
 
-    boolean retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
+    var retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
     assertTrue("CheckIfAvailable should have return true", retVal);
   }
 
@@ -437,13 +436,13 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
 
     try {
-      GMSMembershipView v = installAView();
+      var v = installAView();
 
       setFailureDetectionPorts(v);
 
-      MemberIdentifier memberToCheck = mockMembers.get(1);
+      var memberToCheck = mockMembers.get(1);
 
-      boolean retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
+      var retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
       assertTrue("CheckIfAvailable should have return true", retVal);
     } finally {
       useGMSHealthMonitorTestClass = false;
@@ -457,13 +456,13 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
 
     try {
-      GMSMembershipView v = installAView();
+      var v = installAView();
 
       setFailureDetectionPorts(v);
 
-      MemberIdentifier memberToCheck = mockMembers.get(1);
+      var memberToCheck = mockMembers.get(1);
 
-      boolean retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
+      var retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
       assertTrue("CheckIfAvailable should have return true", retVal);
 
       // memberToCheck should be suspected again since it's not sending heartbeats and then
@@ -481,16 +480,16 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
 
     try {
-      GMSMembershipView v = installAView();
+      var v = installAView();
 
       setFailureDetectionPorts(v);
 
-      MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
+      var memberToCheck = gmsHealthMonitor.getNextNeighbor();
 
       gmsHealthMonitor.setNextNeighbor(v, memberToCheck);
       assertNotEquals(memberToCheck, gmsHealthMonitor.getNextNeighbor());
 
-      boolean retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
+      var retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
 
       assertTrue("CheckIfAvailable should have return true", retVal);
       // we should now be watching the same member
@@ -508,17 +507,17 @@ public class GMSHealthMonitorJUnitTest {
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
 
     try {
-      GMSMembershipView v = installAView();
+      var v = installAView();
 
       setFailureDetectionPorts(v);
 
-      MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
+      var memberToCheck = gmsHealthMonitor.getNextNeighbor();
 
-      boolean retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
+      var retVal = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
 
       assertFalse("checkIfAvailable should have return false", retVal);
       // we should now be watching the same member
-      int failedIndex = v.getMembers().indexOf(memberToCheck);
+      var failedIndex = v.getMembers().indexOf(memberToCheck);
       assertEquals("neighbor was " + gmsHealthMonitor.getNextNeighbor() + " but expected "
           + mockMembers.get(failedIndex + 1), mockMembers.get(failedIndex + 1),
           gmsHealthMonitor.getNextNeighbor());
@@ -535,16 +534,16 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
 
     try {
-      GMSMembershipView v = installAView();
+      var v = installAView();
 
       setFailureDetectionPorts(v);
 
-      MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
+      var memberToCheck = gmsHealthMonitor.getNextNeighbor();
 
       gmsHealthMonitor.setNextNeighbor(v, memberToCheck);
       assertNotEquals(memberToCheck, gmsHealthMonitor.getNextNeighbor());
 
-      boolean retVal = gmsHealthMonitor.inlineCheckIfAvailable(mockMembers.get(0), v, true,
+      var retVal = gmsHealthMonitor.inlineCheckIfAvailable(mockMembers.get(0), v, true,
           memberToCheck, "Not responding");
 
       assertTrue("CheckIfAvailable should have return true", retVal);
@@ -561,17 +560,17 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
 
     try {
-      GMSMembershipView v = installAView();
+      var v = installAView();
 
       setFailureDetectionPorts(v);
 
-      MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
+      var memberToCheck = gmsHealthMonitor.getNextNeighbor();
 
       gmsHealthMonitor.setNextNeighbor(v, memberToCheck);
       assertNotEquals(memberToCheck, gmsHealthMonitor.getNextNeighbor());
 
       mockMembers.get(0).setVersionForTest(KnownVersion.GEODE_1_3_0);
-      boolean retVal = gmsHealthMonitor.inlineCheckIfAvailable(mockMembers.get(0), v, true,
+      var retVal = gmsHealthMonitor.inlineCheckIfAvailable(mockMembers.get(0), v, true,
           memberToCheck, "Not responding");
 
       assertTrue("CheckIfAvailable should have return true", retVal);
@@ -585,14 +584,14 @@ public class GMSHealthMonitorJUnitTest {
   @Test
   public void testFinalCheckPassedMessageCanBeSerializedAndDeserialized()
       throws IOException, ClassNotFoundException {
-    BufferDataOutputStream BufferDataOutputStream =
+    var BufferDataOutputStream =
         new BufferDataOutputStream(500, KnownVersion.CURRENT);
-    FinalCheckPassedMessage message =
+    var message =
         new FinalCheckPassedMessage(mockMembers.get(0), mockMembers.get(1));
     dsfidSerializer.getObjectSerializer().writeObject(message, BufferDataOutputStream);
-    ByteArrayInputStream byteArrayInputStream =
+    var byteArrayInputStream =
         new ByteArrayInputStream(BufferDataOutputStream.toByteArray());
-    DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
+    var dataInputStream = new DataInputStream(byteArrayInputStream);
     message = dsfidSerializer.getObjectDeserializer().readObject(dataInputStream);
     assertEquals(mockMembers.get(1), message.getSuspect());
   }
@@ -601,11 +600,11 @@ public class GMSHealthMonitorJUnitTest {
 
   @Test
   public void testInitiatorRewatchesSuspectAfterSuccessfulFinalCheck() throws Exception {
-    GMSMembershipView v = installAView();
+    var v = installAView();
 
     setFailureDetectionPorts(v);
 
-    MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    var memberToCheck = gmsHealthMonitor.getNextNeighbor();
     gmsHealthMonitor.memberSuspected(mockMembers.get(0), memberToCheck, "Not responding");
     assertTrue(gmsHealthMonitor.isSuspectMember(memberToCheck));
     gmsHealthMonitor.processMessage(new FinalCheckPassedMessage(mockMembers.get(0), memberToCheck));
@@ -618,12 +617,12 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
 
-    GMSMembershipView v = installAView();
+    var v = installAView();
 
     setFailureDetectionPorts(v);
 
-    MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
-    boolean available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
+    var memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    var available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
     assertFalse(available);
     verify(joinLeave).remove(isA(MemberIdentifier.class), isA(String.class));
     assertTrue(gmsHealthMonitor.isSuspectMember(memberToCheck));
@@ -637,15 +636,15 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
 
-    GMSMembershipView v = installAView();
+    var v = installAView();
     setFailureDetectionPorts(v);
 
-    MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
-    GMSHealthMonitorTest testMonitor = (GMSHealthMonitorTest) gmsHealthMonitor;
+    var memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    var testMonitor = (GMSHealthMonitorTest) gmsHealthMonitor;
 
     // set an old contact timestamp for the suspect, tell the monitor that an availability
     // check succeeded and then make sure it didn't update the timestamp for the suspect
-    final long timestamp = testMonitor.establishCurrentTime() - 2000;
+    final var timestamp = testMonitor.establishCurrentTime() - 2000;
     testMonitor.setContactTimestamp(memberToCheck, timestamp);
     testMonitor.addMemberInFinalCheck(memberToCheck);
     testMonitor.processMessage(new FinalCheckPassedMessage(null, memberToCheck));
@@ -657,11 +656,11 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
 
-    final GMSMembershipView v = installAView();
+    final var v = installAView();
     setFailureDetectionPorts(v);
 
-    final MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
-    final GMSHealthMonitorTest testMonitor = (GMSHealthMonitorTest) gmsHealthMonitor;
+    final var memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    final var testMonitor = (GMSHealthMonitorTest) gmsHealthMonitor;
     testMonitor.addMemberInFinalCheck(memberToCheck);
     assertThat(testMonitor.checkIfAvailable(memberToCheck,
         "Member failed to acknowledge a membership view", false)).isTrue();
@@ -673,12 +672,12 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
 
-    final GMSMembershipView v = installAView();
+    final var v = installAView();
     setFailureDetectionPorts(v);
 
-    final MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    final var memberToCheck = gmsHealthMonitor.getNextNeighbor();
     when(joinLeave.isMemberLeaving(memberToCheck)).thenReturn(true);
-    final GMSHealthMonitorTest testMonitor = (GMSHealthMonitorTest) gmsHealthMonitor;
+    final var testMonitor = (GMSHealthMonitorTest) gmsHealthMonitor;
     testMonitor.addMemberInFinalCheck(memberToCheck);
     assertThat(testMonitor.checkIfAvailable(memberToCheck,
         "Member failed to acknowledge a membership view", false, false)).isFalse();
@@ -690,8 +689,8 @@ public class GMSHealthMonitorJUnitTest {
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
     installAView();
 
-    final MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
-    final GMSHealthMonitorTest testMonitor = (GMSHealthMonitorTest) gmsHealthMonitor;
+    final var memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    final var testMonitor = (GMSHealthMonitorTest) gmsHealthMonitor;
     assertThat(testMonitor.checkIfAvailable(memberToCheck,
         "Member failed to acknowledge a membership view", false, true)).isFalse();
   }
@@ -702,13 +701,13 @@ public class GMSHealthMonitorJUnitTest {
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
     allowSelfCheckToSucceed = false;
 
-    GMSMembershipView v = installAView();
+    var v = installAView();
 
     setFailureDetectionPorts(v);
 
-    MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    var memberToCheck = gmsHealthMonitor.getNextNeighbor();
     gmsHealthMonitor.stopServer();
-    boolean available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", false);
+    var available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", false);
     assertTrue(available);
     verify(joinLeave, never()).remove(isA(MemberIdentifier.class), isA(String.class));
     assertTrue(((GMSHealthMonitorTest) gmsHealthMonitor).availabilityCheckedMembers
@@ -725,12 +724,12 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
 
-    GMSMembershipView v = installAView();
+    var v = installAView();
 
     setFailureDetectionPorts(v);
 
-    MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
-    boolean available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", false);
+    var memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    var available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", false);
     assertFalse(available);
     verify(joinLeave, never()).remove(isA(MemberIdentifier.class), isA(String.class));
     assertTrue(gmsHealthMonitor.isSuspectMember(memberToCheck));
@@ -745,12 +744,12 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
 
-    GMSMembershipView v = installAView();
+    var v = installAView();
 
     setFailureDetectionPorts(v);
 
-    MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
-    boolean available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
+    var memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    var available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
     assertFalse(available);
     verify(joinLeave).remove(isA(MemberIdentifier.class), isA(String.class));
   }
@@ -766,17 +765,17 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
 
-    final long checkRequestsSentBefore = services.getStatistics().getUdpFinalCheckRequestsSent();
+    final var checkRequestsSentBefore = services.getStatistics().getUdpFinalCheckRequestsSent();
 
-    GMSMembershipView v = installAView();
+    var v = installAView();
 
-    MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
-    boolean available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", false);
+    var memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    var available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", false);
     assertFalse(available);
     verify(joinLeave, never()).remove(isA(MemberIdentifier.class), isA(String.class));
     assertTrue(gmsHealthMonitor.isSuspectMember(memberToCheck));
 
-    final long checkRequestsSentAfter = services.getStatistics().getUdpFinalCheckRequestsSent();
+    final var checkRequestsSentAfter = services.getStatistics().getUdpFinalCheckRequestsSent();
     assertThat(checkRequestsSentAfter).isGreaterThan(checkRequestsSentBefore);
   }
 
@@ -786,17 +785,17 @@ public class GMSHealthMonitorJUnitTest {
     useGMSHealthMonitorTestClass = true;
     simulateHeartbeatInGMSHealthMonitorTestClass = false;
 
-    final long checkRequestsSentBefore = services.getStatistics().getUdpFinalCheckRequestsSent();
+    final var checkRequestsSentBefore = services.getStatistics().getUdpFinalCheckRequestsSent();
 
-    GMSMembershipView v = installAView();
+    var v = installAView();
 
-    MemberIdentifier memberToCheck = gmsHealthMonitor.getNextNeighbor();
-    boolean available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
+    var memberToCheck = gmsHealthMonitor.getNextNeighbor();
+    var available = gmsHealthMonitor.checkIfAvailable(memberToCheck, "Not responding", true);
 
     assertFalse(available);
     verify(joinLeave).remove(isA(MemberIdentifier.class), isA(String.class));
 
-    final long checkRequestsSentAfter = services.getStatistics().getUdpFinalCheckRequestsSent();
+    final var checkRequestsSentAfter = services.getStatistics().getUdpFinalCheckRequestsSent();
     assertThat(checkRequestsSentAfter).isGreaterThan(checkRequestsSentBefore);
   }
 
@@ -812,7 +811,7 @@ public class GMSHealthMonitorJUnitTest {
 
   @Test
   public void testCreateServerSocket() throws Exception {
-    try (ServerSocket socket =
+    try (var socket =
         gmsHealthMonitor.createServerSocket(InetAddress.getLocalHost(), portRange)) {
       Assert.assertTrue(
           portRange[0] <= socket.getLocalPort() && socket.getLocalPort() <= portRange[1]);
@@ -821,7 +820,7 @@ public class GMSHealthMonitorJUnitTest {
 
   @Test
   public void testCreateServerSocketPortRangeInvalid() throws Exception {
-    try (ServerSocket socket =
+    try (var socket =
         gmsHealthMonitor.createServerSocket(InetAddress.getLocalHost(), new int[] {-1, -1})) {
       Assert.fail("socket was created with invalid port range");
     } catch (IllegalArgumentException ignored) {
@@ -831,44 +830,44 @@ public class GMSHealthMonitorJUnitTest {
 
   @Test
   public void testClientSocketHandler() throws Exception {
-    int viewId = 2;
+    var viewId = 2;
     long msb = 3;
     long lsb = 4;
-    MemberIdentifier otherMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
-    MemberIdentifier gmsMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
+    var otherMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
+    var gmsMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
     executeTestClientSocketHandler(gmsMember, otherMember, GMSHealthMonitor.OK);
   }
 
   @Test
   public void testClientSocketHandlerWhenMsbDoNotMatch() throws Exception {
-    int viewId = 2;
+    var viewId = 2;
     long msb = 3;
     long lsb = 4;
-    MemberIdentifier otherMember =
+    var otherMember =
         createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb + 1, lsb);
-    MemberIdentifier gmsMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
+    var gmsMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
     executeTestClientSocketHandler(gmsMember, otherMember, GMSHealthMonitor.ERROR);
   }
 
   @Test
   public void testClientSocketHandlerWhenLsbDoNotMatch() throws Exception {
-    int viewId = 2;
+    var viewId = 2;
     long msb = 3;
     long lsb = 4;
-    MemberIdentifier otherMember =
+    var otherMember =
         createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb + 1);
-    MemberIdentifier gmsMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
+    var gmsMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
     executeTestClientSocketHandler(gmsMember, otherMember, GMSHealthMonitor.ERROR);
   }
 
   @Test
   public void testClientSocketHandlerWhenViewIdDoNotMatch() throws Exception {
-    int viewId = 2;
+    var viewId = 2;
     long msb = 3;
     long lsb = 4;
-    MemberIdentifier otherMember =
+    var otherMember =
         createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId + 1, msb, lsb);
-    MemberIdentifier gmsMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
+    var gmsMember = createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId, msb, lsb);
     executeTestClientSocketHandler(gmsMember, otherMember, GMSHealthMonitor.ERROR);
   }
 
@@ -877,9 +876,9 @@ public class GMSHealthMonitorJUnitTest {
       int expectedResult) throws Exception {
     // We have already set the view id in the member but when creating the IDM it resets it to -1
     // for some reason
-    int viewId = gmsMember.getVmViewId();
+    var viewId = gmsMember.getVmViewId();
 
-    MemberIdentifier testMember =
+    var testMember =
         createGMSMember(KnownVersion.CURRENT_ORDINAL, viewId,
             gmsMember.getUuidMostSignificantBits(),
             gmsMember.getUuidLeastSignificantBits());
@@ -891,24 +890,24 @@ public class GMSHealthMonitorJUnitTest {
 
     // Set up the incoming/received bytes. We just wrap output streams and write out the gms member
     // information
-    byte[] receivedBytes = writeMemberToBytes(otherMember);
+    var receivedBytes = writeMemberToBytes(otherMember);
     InputStream mockInputStream = new ByteArrayInputStream(receivedBytes);
 
     // configure the mock to return the mocked incoming bytes and provide an outputstream that we
     // will check
-    Socket fakeSocket = mock(Socket.class);
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    var fakeSocket = mock(Socket.class);
+    var outputStream = new ByteArrayOutputStream();
     when(fakeSocket.getInputStream()).thenReturn(mockInputStream);
     when(fakeSocket.getOutputStream()).thenReturn(outputStream);
 
     // run the socket handler
     gmsHealthMonitor.setLocalAddress(testMember);
-    ClientSocketHandler handler = gmsHealthMonitor.new ClientSocketHandler(fakeSocket);
+    var handler = gmsHealthMonitor.new ClientSocketHandler(fakeSocket);
     handler.run();
 
     // verify the written bytes are as expected
-    DataInputStream dis = new DataInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
-    int byteReply = dis.read();
+    var dis = new DataInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+    var byteReply = dis.read();
     assertEquals(expectedResult, byteReply);
 
     Assert.assertTrue(gmsHealthMonitor.getStats().getFinalCheckResponsesSent() > 0);
@@ -917,24 +916,24 @@ public class GMSHealthMonitorJUnitTest {
 
   @Test
   public void testBeSickAndPlayDead() {
-    GMSMembershipView v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
+    var v = new GMSMembershipView(mockMembers.get(0), 2, mockMembers);
     gmsHealthMonitor.installView(v);
     gmsHealthMonitor.beSick();
 
     // a sick member will not respond to a heartbeat request
-    HeartbeatRequestMessage req = new HeartbeatRequestMessage(mockMembers.get(0), 10);
+    var req = new HeartbeatRequestMessage(mockMembers.get(0), 10);
     req.setSender(mockMembers.get(0));
     gmsHealthMonitor.processMessage(req);
     verify(messenger, never()).send(isA(HeartbeatMessage.class));
 
     // a sick member will not record a heartbeat from another member
-    HeartbeatMessage hb = new HeartbeatMessage(-1);
+    var hb = new HeartbeatMessage(-1);
     hb.setSender(mockMembers.get(0));
     gmsHealthMonitor.processMessage(hb);
     assertTrue(gmsHealthMonitor.memberTimeStamps.get(hb.getSender()) == null);
 
     // a sick member will not take action on a Suspect message from another member
-    SuspectMembersMessage smm = mock(SuspectMembersMessage.class);
+    var smm = mock(SuspectMembersMessage.class);
     Error err = new AssertionError("expected suspect message to be ignored");
     when(smm.getMembers()).thenThrow(err);
     when(smm.getSender()).thenThrow(err);
@@ -944,13 +943,13 @@ public class GMSHealthMonitorJUnitTest {
 
   @Test
   public void testTcpCheckMemberTriesUntilTimeout() throws Exception {
-    ServerSocket mySocket = new ServerSocket(0);
-    Thread serverThread = new Thread() {
+    var mySocket = new ServerSocket(0);
+    var serverThread = new Thread() {
       public void run() {
-        long giveupTime = System.currentTimeMillis() + (5 * memberTimeout);
+        var giveupTime = System.currentTimeMillis() + (5 * memberTimeout);
         while (System.currentTimeMillis() < giveupTime) {
           try {
-            Socket acceptedSocket = mySocket.accept();
+            var acceptedSocket = mySocket.accept();
             try {
               Thread.sleep(200);
             } catch (InterruptedException e) {
@@ -970,9 +969,9 @@ public class GMSHealthMonitorJUnitTest {
     };
     serverThread.setDaemon(true);
     serverThread.start();
-    MemberIdentifier otherMember =
+    var otherMember =
         createGMSMember(KnownVersion.CURRENT_ORDINAL, 0, 1, 1);
-    long startTime = System.currentTimeMillis();
+    var startTime = System.currentTimeMillis();
     gmsHealthMonitor.doTCPCheckMember(otherMember, mySocket.getLocalPort(), true);
     mySocket.close();
     serverThread.interrupt();
@@ -1042,21 +1041,21 @@ public class GMSHealthMonitorJUnitTest {
   }
 
   private void executeTestDoTCPCheck(int receivedStatus, boolean expectedResult) throws Exception {
-    MemberIdentifier otherMember =
+    var otherMember =
         createGMSMember(KnownVersion.CURRENT_ORDINAL, 0, 1, 1);
-    MemberIdentifier gmsMember =
+    var gmsMember =
         createGMSMember(KnownVersion.CURRENT_ORDINAL, 0, 1, 1);
 
     // Set up the incoming/received bytes. We just wrap output streams and write out the gms member
     // information
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    var baos = new ByteArrayOutputStream();
     baos.write(receivedStatus);
 
-    byte[] receivedBytes = baos.toByteArray();
+    var receivedBytes = baos.toByteArray();
     InputStream mockInputStream = new ByteArrayInputStream(receivedBytes);
 
-    Socket fakeSocket = mock(Socket.class);
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    var fakeSocket = mock(Socket.class);
+    var outputStream = new ByteArrayOutputStream();
     when(fakeSocket.getInputStream()).thenReturn(mockInputStream);
     when(fakeSocket.getOutputStream()).thenReturn(outputStream);
     when(fakeSocket.isConnected()).thenReturn(true);
@@ -1068,26 +1067,26 @@ public class GMSHealthMonitorJUnitTest {
     Assert.assertTrue(gmsHealthMonitor.getStats().getTcpFinalCheckResponsesReceived() > 0);
 
     // we can check to see if the gms member information was written out by the tcp check
-    byte[] bytesWritten = outputStream.toByteArray();
+    var bytesWritten = outputStream.toByteArray();
     Assert.assertArrayEquals(writeMemberToBytes(gmsMember),
         bytesWritten);
   }
 
   private MemberIdentifier createGMSMember(short version, int viewId, long msb, long lsb)
       throws UnknownHostException {
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("localhost")
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("localhost")
         .setVersionOrdinal(version)
         .setVmViewId(viewId)
         .setUuidMostSignificantBits(msb)
         .setUuidLeastSignificantBits(lsb)
         .build();
-    MemberIdentifier gmsMember = services.getMemberFactory().create(memberData);
+    var gmsMember = services.getMemberFactory().create(memberData);
     return gmsMember;
   }
 
   private byte[] writeMemberToBytes(MemberIdentifier gmsMember) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dataReceive = new DataOutputStream(baos);
+    var baos = new ByteArrayOutputStream();
+    var dataReceive = new DataOutputStream(baos);
     gmsHealthMonitor.writeMemberToStream(gmsMember, dataReceive);
     return baos.toByteArray();
   }
@@ -1106,7 +1105,7 @@ public class GMSHealthMonitorJUnitTest {
       availabilityCheckedMembers.add(suspectMember);
       if (useGMSHealthMonitorTestClass) {
         if (simulateHeartbeatInGMSHealthMonitorTestClass) {
-          HeartbeatMessage fakeHeartbeat = new HeartbeatMessage();
+          var fakeHeartbeat = new HeartbeatMessage();
           fakeHeartbeat.setSender(suspectMember);
           gmsHealthMonitor.processMessage(fakeHeartbeat);
         }
@@ -1117,7 +1116,7 @@ public class GMSHealthMonitorJUnitTest {
 
     @Override
     ServerSocket createServerSocket(InetAddress socketAddress, int[] portRange) throws IOException {
-      final ServerSocket serverSocket = super.createServerSocket(socketAddress, portRange);
+      final var serverSocket = super.createServerSocket(socketAddress, portRange);
       if (useBlockingSocket) {
         try {
           return new TrickySocket(serverSocket);
@@ -1210,7 +1209,7 @@ public class GMSHealthMonitorJUnitTest {
 
     @Override
     public boolean isClosed() {
-      final boolean closed = wrappedSocket.isClosed();
+      final var closed = wrappedSocket.isClosed();
       lock.lock();
       if (firstWait) {
         firstWait = false;

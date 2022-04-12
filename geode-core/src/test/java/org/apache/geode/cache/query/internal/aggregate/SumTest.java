@@ -67,7 +67,7 @@ public class SumTest {
     sum.accumulate(null);
     sum.accumulate(QueryService.UNDEFINED);
 
-    Object result = sum.terminate();
+    var result = sum.terminate();
     assertThat(result).isInstanceOf(Number.class);
     assertThat(((Number) result).intValue()).isEqualTo(28);
   }

@@ -43,7 +43,6 @@ import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexDetails;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexStatus;
 import org.apache.geode.internal.cache.BucketRegion;
-import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.test.fake.Fakes;
@@ -57,25 +56,25 @@ public class LuceneListIndexFunctionJUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void executeListLuceneIndexWhenReindexingInProgress() {
-    GemFireCacheImpl cache = Fakes.cache();
-    final String serverName = "mockedServer";
-    LuceneServiceImpl service = mock(LuceneServiceImpl.class);
+    var cache = Fakes.cache();
+    final var serverName = "mockedServer";
+    var service = mock(LuceneServiceImpl.class);
     when(cache.getService(InternalLuceneService.class)).thenReturn(service);
 
-    FunctionContext context = mock(FunctionContext.class);
-    ResultSender resultSender = mock(ResultSender.class);
+    var context = mock(FunctionContext.class);
+    var resultSender = mock(ResultSender.class);
     when(context.getResultSender()).thenReturn(resultSender);
     when(context.getCache()).thenReturn(cache);
 
-    LuceneIndexForPartitionedRegion index1 = getMockLuceneIndex("index1");
+    var index1 = getMockLuceneIndex("index1");
 
-    PartitionedRegion userRegion = mock(PartitionedRegion.class);
+    var userRegion = mock(PartitionedRegion.class);
     when(cache.getRegion(index1.getRegionPath())).thenReturn(userRegion);
 
-    PartitionedRegionDataStore userRegionDataStore = mock(PartitionedRegionDataStore.class);
+    var userRegionDataStore = mock(PartitionedRegionDataStore.class);
     when(userRegion.getDataStore()).thenReturn(userRegionDataStore);
 
-    BucketRegion userBucket = mock(BucketRegion.class);
+    var userBucket = mock(BucketRegion.class);
     when(userRegionDataStore.getLocalBucketById(1)).thenReturn(userBucket);
 
     when(userBucket.isEmpty()).thenReturn(false);
@@ -84,10 +83,10 @@ public class LuceneListIndexFunctionJUnitTest {
     allIndexes.add(index1);
     when(service.getAllIndexes()).thenReturn(allIndexes);
 
-    PartitionedRegion mockFileRegion = mock(PartitionedRegion.class);
+    var mockFileRegion = mock(PartitionedRegion.class);
     when(index1.getFileAndChunkRegion()).thenReturn(mockFileRegion);
 
-    PartitionedRegionDataStore mockPartitionedRegionDataStore =
+    var mockPartitionedRegionDataStore =
         mock(PartitionedRegionDataStore.class);
     when(mockFileRegion.getDataStore()).thenReturn(mockPartitionedRegionDataStore);
 
@@ -98,14 +97,14 @@ public class LuceneListIndexFunctionJUnitTest {
 
     when(index1.isIndexAvailable(1)).thenReturn(false);
 
-    LuceneListIndexFunction function = new LuceneListIndexFunction();
+    var function = new LuceneListIndexFunction();
     function.execute(context);
 
-    ArgumentCaptor<Set> resultCaptor = ArgumentCaptor.forClass(Set.class);
+    var resultCaptor = ArgumentCaptor.forClass(Set.class);
     verify(resultSender).lastResult(resultCaptor.capture());
     Set<String> result = resultCaptor.getValue();
 
-    TreeSet expectedResult = new TreeSet();
+    var expectedResult = new TreeSet();
     expectedResult
         .add(new LuceneIndexDetails(index1, serverName, LuceneIndexStatus.INDEXING_IN_PROGRESS));
 
@@ -115,8 +114,8 @@ public class LuceneListIndexFunctionJUnitTest {
   }
 
   private LuceneIndexForPartitionedRegion getMockLuceneIndex(final String indexName) {
-    LuceneIndexForPartitionedRegion index = mock(LuceneIndexForPartitionedRegion.class);
-    String[] searchableFields = {"field1", "field2"};
+    var index = mock(LuceneIndexForPartitionedRegion.class);
+    var searchableFields = new String[] {"field1", "field2"};
     Map<String, Analyzer> fieldAnalyzers = new HashMap<>();
     fieldAnalyzers.put("field1", new StandardAnalyzer());
     fieldAnalyzers.put("field2", new KeywordAnalyzer());

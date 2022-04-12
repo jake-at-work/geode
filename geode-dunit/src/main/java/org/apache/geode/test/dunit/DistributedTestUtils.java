@@ -18,7 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.DISABLE_AUTO_
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.geode.distributed.DistributedSystem;
@@ -73,7 +72,7 @@ public class DistributedTestUtils {
    * disconnectFromDS() or disconnectAllFromDS().
    */
   public static void crashDistributedSystem(final VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> {
         DistributedSystem system = InternalDistributedSystem.getAnyInstance();
         crashDistributedSystem(system);
@@ -86,8 +85,8 @@ public class DistributedTestUtils {
    * state file isn't picked up by the new locator you're starting.
    */
   public static void deleteLocatorStateFile(final int... ports) {
-    for (int port : ports) {
-      File stateFile = new File("locator" + port + "view.dat");
+    for (var port : ports) {
+      var stateFile = new File("locator" + port + "view.dat");
       if (stateFile.exists()) {
         stateFile.delete();
       }
@@ -95,16 +94,16 @@ public class DistributedTestUtils {
   }
 
   public static Properties getAllDistributedSystemProperties(final Properties properties) {
-    Properties dsProperties = DUnitEnv.get().getDistributedSystemProperties();
+    var dsProperties = DUnitEnv.get().getDistributedSystemProperties();
 
     // our tests do not expect auto-reconnect to be on by default
     if (!dsProperties.contains(DISABLE_AUTO_RECONNECT)) {
       dsProperties.setProperty(DISABLE_AUTO_RECONNECT, "true");
     }
 
-    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-      String key = (String) entry.getKey();
-      Object value = entry.getValue();
+    for (var entry : properties.entrySet()) {
+      var key = (String) entry.getKey();
+      var value = entry.getValue();
       dsProperties.put(key, value);
     }
     System.out.println("distributed system properties: " + dsProperties);

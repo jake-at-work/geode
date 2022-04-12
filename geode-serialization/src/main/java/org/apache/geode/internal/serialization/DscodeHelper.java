@@ -35,7 +35,7 @@ public class DscodeHelper {
 
   public static DSCODE toDSCODE(final byte value) throws IOException {
     try {
-      DSCODE result = dscodes[value];
+      var result = dscodes[value];
       if (result == null) {
         throw new IOException("Unknown header byte " + value);
       }

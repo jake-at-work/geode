@@ -26,15 +26,15 @@ public interface RedisIntegrationTest {
 
   default void flushAll() {
     ClusterNodes nodes;
-    try (Jedis jedis = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT)) {
+    try (var jedis = new Jedis(BIND_ADDRESS, getPort(), REDIS_CLIENT_TIMEOUT)) {
       nodes = ClusterNodes.parseClusterNodes(jedis.clusterNodes());
     }
 
-    for (ClusterNode node : nodes.getNodes()) {
+    for (var node : nodes.getNodes()) {
       if (!node.primary) {
         continue;
       }
-      try (Jedis jedis = new Jedis(node.ipAddress, (int) node.port, REDIS_CLIENT_TIMEOUT)) {
+      try (var jedis = new Jedis(node.ipAddress, (int) node.port, REDIS_CLIENT_TIMEOUT)) {
         jedis.flushAll();
       }
     }

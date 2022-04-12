@@ -70,7 +70,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void getElderIdReturnsOldestMember() {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member1, member2));
 
     assertThat(clusterElderManager.getElderId()).isEqualTo(member1);
@@ -79,7 +79,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void getElderIdWithNoMembers() {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList());
 
     assertThat(clusterElderManager.getElderId()).isNull();
@@ -87,7 +87,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void getElderIdIgnoresAdminMembers() {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(member1.getVmKind()).thenReturn(ClusterDistributionManager.ADMIN_ONLY_DM_TYPE);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member1, member2));
 
@@ -97,7 +97,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void getElderIdIgnoresSurpriseMembers() {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(distribution.isSurpriseMember(eq(member1))).thenReturn(true);
 
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member1, member2));
@@ -107,7 +107,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void isElderIfOldestMember() {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member0, member1));
     when(clusterDistributionManager.getId()).thenReturn(member0);
     assertThat(clusterElderManager.isElder()).isTrue();
@@ -115,7 +115,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void isNotElderIfOldestMember() {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member1, member0));
     when(clusterDistributionManager.getId()).thenReturn(member0);
     assertThat(clusterElderManager.isElder()).isFalse();
@@ -123,7 +123,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void waitForElderReturnsTrueIfAnotherMemberIsElder() throws InterruptedException {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member1, member0));
     assertThat(clusterElderManager.waitForElder(member1)).isTrue();
@@ -131,7 +131,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void waitForElderReturnsFalseIfWeAreElder() throws InterruptedException {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.isCurrentMember(eq(member1))).thenReturn(true);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member0, member1));
@@ -141,7 +141,7 @@ public class ClusterElderManagerTest {
   @Test
   public void waitForElderReturnsFalseIfDesiredElderIsNotACurrentMember()
       throws InterruptedException {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.getViewMembers())
         .thenReturn(Arrays.asList(member2, member0, member1));
@@ -150,7 +150,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void waitForElderWaits() {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member1, member0));
     when(clusterDistributionManager.isCurrentMember(eq(member0))).thenReturn(true);
@@ -166,7 +166,7 @@ public class ClusterElderManagerTest {
 
   @Test
   public void waitForElderDoesNotWaitIfShuttingDown() throws InterruptedException {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member1, member0));
     when(clusterDistributionManager.isCurrentMember(eq(member0))).thenReturn(true);
@@ -176,23 +176,23 @@ public class ClusterElderManagerTest {
 
   @Test
   public void waitForElderStopsWaitingWhenUpdated() {
-    ClusterElderManager clusterElderManager = new ClusterElderManager(clusterDistributionManager);
+    var clusterElderManager = new ClusterElderManager(clusterDistributionManager);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.isCurrentMember(eq(member0))).thenReturn(true);
 
-    AtomicReference<List<InternalDistributedMember>> currentMembers =
-        new AtomicReference<>(Arrays.asList(member1, member0));
+    var currentMembers =
+        new AtomicReference<List<InternalDistributedMember>>(Arrays.asList(member1, member0));
     when(clusterDistributionManager.getViewMembers()).then(invocation -> currentMembers.get());
 
-    AtomicReference<MembershipListener> membershipListener = new AtomicReference<>();
+    var membershipListener = new AtomicReference<MembershipListener>();
     doAnswer(invocation -> {
       membershipListener.set(invocation.getArgument(0));
       return null;
     }).when(clusterDistributionManager).addMembershipListener(any());
 
-    Callable<Boolean> waitForElder = () -> clusterElderManager.waitForElder(member0);
+    var waitForElder = (Callable<Boolean>) () -> clusterElderManager.waitForElder(member0);
 
-    Callable<Void> updateMembershipView = () -> {
+    var updateMembershipView = (Callable<Void>) () -> {
       // Wait for membership listener to be added
       await().until(() -> membershipListener.get() != null);
 
@@ -211,9 +211,9 @@ public class ClusterElderManagerTest {
   @Test
   public void getElderStateAsElder() throws InterruptedException {
     Supplier<ElderState> elderStateSupplier = mock(Supplier.class);
-    ElderState elderState = mock(ElderState.class);
+    var elderState = mock(ElderState.class);
     when(elderStateSupplier.get()).thenReturn(elderState);
-    ClusterElderManager clusterElderManager =
+    var clusterElderManager =
         new ClusterElderManager(clusterDistributionManager, elderStateSupplier);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member0, member1));
@@ -225,9 +225,9 @@ public class ClusterElderManagerTest {
   @Test
   public void getElderStateGetsBuiltOnceAsElder() throws InterruptedException {
     Supplier<ElderState> elderStateSupplier = mock(Supplier.class);
-    ElderState elderState = mock(ElderState.class);
+    var elderState = mock(ElderState.class);
     when(elderStateSupplier.get()).thenReturn(elderState);
-    ClusterElderManager clusterElderManager =
+    var clusterElderManager =
         new ClusterElderManager(clusterDistributionManager, elderStateSupplier);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member0, member1));
@@ -242,14 +242,14 @@ public class ClusterElderManagerTest {
   @Test
   public void getElderStateFromMultipleThreadsAsElder() {
     Supplier<ElderState> elderStateSupplier = mock(Supplier.class);
-    ElderState elderState = mock(ElderState.class);
+    var elderState = mock(ElderState.class);
     when(elderStateSupplier.get()).thenReturn(elderState);
-    ClusterElderManager clusterElderManager =
+    var clusterElderManager =
         new ClusterElderManager(clusterDistributionManager, elderStateSupplier);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member0, member1));
 
-    Callable<ElderState> callable = () -> clusterElderManager.getElderState(false);
+    var callable = (Callable<ElderState>) () -> clusterElderManager.getElderState(false);
 
     concurrencyRule.add(callable).expectValue(elderState);
     concurrencyRule.add(callable).expectValue(elderState);
@@ -262,7 +262,7 @@ public class ClusterElderManagerTest {
   @Test
   public void getElderStateNotAsElder() throws InterruptedException {
     Supplier<ElderState> elderStateSupplier = mock(Supplier.class);
-    ClusterElderManager clusterElderManager =
+    var clusterElderManager =
         new ClusterElderManager(clusterDistributionManager, elderStateSupplier);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member1, member0));
@@ -274,7 +274,7 @@ public class ClusterElderManagerTest {
   @Test
   public void getElderStateWaitsToBecomeElder() {
     Supplier<ElderState> elderStateSupplier = mock(Supplier.class);
-    ClusterElderManager clusterElderManager =
+    var clusterElderManager =
         new ClusterElderManager(clusterDistributionManager, elderStateSupplier);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.getViewMembers()).thenReturn(Arrays.asList(member1, member0));
@@ -291,11 +291,11 @@ public class ClusterElderManagerTest {
   }
 
   private void assertThatInterruptableRunnableWaits(Runnable runnable) {
-    Thread waitThread = new Thread(runnable);
+    var waitThread = new Thread(runnable);
 
     waitThread.start();
 
-    EnumSet<Thread.State> waitingStates =
+    var waitingStates =
         EnumSet.of(Thread.State.WAITING, Thread.State.TIMED_WAITING);
     try {
       await()
@@ -309,9 +309,9 @@ public class ClusterElderManagerTest {
   @Test
   public void getElderStateReturnsElderStateIfWaitsToBecomeElder() throws Exception {
     Supplier<ElderState> elderStateSupplier = mock(Supplier.class);
-    ElderState elderState = mock(ElderState.class);
+    var elderState = mock(ElderState.class);
     when(elderStateSupplier.get()).thenReturn(elderState);
-    ClusterElderManager clusterElderManager =
+    var clusterElderManager =
         new ClusterElderManager(clusterDistributionManager, elderStateSupplier);
     when(clusterDistributionManager.getId()).thenReturn(member0);
     when(clusterDistributionManager.isCloseInProgress()).thenReturn(true);

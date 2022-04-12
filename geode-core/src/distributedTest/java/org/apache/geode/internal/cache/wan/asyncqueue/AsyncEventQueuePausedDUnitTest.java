@@ -42,7 +42,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.internal.cache.RegionQueue;
@@ -90,14 +89,14 @@ public class AsyncEventQueuePausedDUnitTest implements Serializable {
     locator = lsRule.startLocatorVM(0);
     server1 = lsRule.startServerVM(1, "group1", locator.getPort());
     server2 = lsRule.startServerVM(2, "group1", locator.getPort());
-    int serverPort = server1.getPort();
+    var serverPort = server1.getPort();
     client =
         lsRule.startClientVM(3, new Properties(),
             clientCacheFactory -> configureClientCacheFactory(clientCacheFactory, serverPort));
   }
 
   private static void configureClientCacheFactory(ClientCacheFactory ccf, int... serverPorts) {
-    for (int serverPort : serverPorts) {
+    for (var serverPort : serverPorts) {
       ccf.addPoolServer("localhost", serverPort);
     }
     ccf.setPoolReadTimeout(10 * 60 * 1000); // 10 min
@@ -106,7 +105,7 @@ public class AsyncEventQueuePausedDUnitTest implements Serializable {
 
   @Test
   public void whenAEQCreatedInPausedStateThenListenersMustNotBeInvoked() {
-    final AEQandRegionProperties props = new AEQandRegionProperties(regionShortcut, isParallel);
+    final var props = new AEQandRegionProperties(regionShortcut, isParallel);
     server1.invoke(() -> {
       createRegionAndDispatchingPausedAEQ(props);
     });
@@ -141,16 +140,16 @@ public class AsyncEventQueuePausedDUnitTest implements Serializable {
   @NotNull
   private static Integer getEventDispatchedSize() {
     Cache cache = ClusterStartupRule.getCache();
-    AsyncEventQueueImpl aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue("aeqID");
-    MyAsyncEventListener listener = (MyAsyncEventListener) aeq.getAsyncEventListener();
+    var aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue("aeqID");
+    var listener = (MyAsyncEventListener) aeq.getAsyncEventListener();
     return listener.getEventsMap().size();
   }
 
   private static void createClientRegion() {
-    ClientCache cache = ClusterStartupRule.getClientCache();
+    var cache = ClusterStartupRule.getClientCache();
     Region region = cache.createClientRegionFactory(ClientRegionShortcut.PROXY)
         .create("region");
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region.put(i, i);
     }
   }
@@ -180,9 +179,9 @@ public class AsyncEventQueuePausedDUnitTest implements Serializable {
 
   private static void validateAEQDispatchingIsPaused() {
     Cache cache = ClusterStartupRule.getCache();
-    AsyncEventQueueImpl aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue("aeqID");
+    var aeq = (AsyncEventQueueImpl) cache.getAsyncEventQueue("aeqID");
     assertTrue(aeq.isDispatchingPaused());
-    MyAsyncEventListener listener = (MyAsyncEventListener) aeq.getAsyncEventListener();
+    var listener = (MyAsyncEventListener) aeq.getAsyncEventListener();
     try {
       await().atMost(10, TimeUnit.SECONDS).until(() -> listener.getEventsMap().size() > 0);
     } catch (ConditionTimeoutException ex) {

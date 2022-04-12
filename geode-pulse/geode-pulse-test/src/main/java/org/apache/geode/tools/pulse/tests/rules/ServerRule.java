@@ -19,7 +19,6 @@ package org.apache.geode.tools.pulse.tests.rules;
 import static org.apache.geode.internal.AvailablePortHelper.getRandomAvailableTCPPort;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -66,9 +65,9 @@ public class ServerRule extends ExternalResource {
   }
 
   private void startServer() throws Exception {
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    String jmxPropertiesFile = classLoader.getResource("test.properties").getPath();
-    int jmxPort = getRandomAvailableTCPPort();
+    var classLoader = Thread.currentThread().getContextClassLoader();
+    var jmxPropertiesFile = classLoader.getResource("test.properties").getPath();
+    var jmxPort = getRandomAvailableTCPPort();
     System.setProperty(PulseConstants.SYSTEM_PROPERTY_PULSE_PORT, Integer.toString(jmxPort));
     server = Server.createServer(jmxPort, jmxPropertiesFile, jsonAuthFile);
     server.start();
@@ -79,7 +78,7 @@ public class ServerRule extends ExternalResource {
     System.setProperty(PulseConstants.SYSTEM_PROPERTY_PULSE_EMBEDDED,
         String.valueOf(Boolean.TRUE));
 
-    int httpPort = getRandomAvailableTCPPort();
+    var httpPort = getRandomAvailableTCPPort();
     jetty = new InternalHttpService();
     jetty.createJettyServer(LOCALHOST, httpPort, new SSLConfig.Builder().build());
     jetty.addWebApplication(PULSE_CONTEXT, getPulseWarPath(), new HashMap<>());
@@ -96,13 +95,13 @@ public class ServerRule extends ExternalResource {
 
   private Path getPulseWarPath() throws IOException {
     String warPath;
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    InputStream inputStream = classLoader.getResourceAsStream("GemFireVersion.properties");
-    Properties properties = new Properties();
+    var classLoader = Thread.currentThread().getContextClassLoader();
+    var inputStream = classLoader.getResourceAsStream("GemFireVersion.properties");
+    var properties = new Properties();
     properties.load(inputStream);
-    String version = properties.getProperty("Product-Version");
+    var version = properties.getProperty("Product-Version");
     warPath = "geode-pulse-" + version + ".war";
-    String propFilePath = classLoader.getResource("GemFireVersion.properties").getPath();
+    var propFilePath = classLoader.getResource("GemFireVersion.properties").getPath();
     warPath =
         propFilePath.substring(0, propFilePath.indexOf("generated-resources")) + "libs/" + warPath;
     return Paths.get(warPath);

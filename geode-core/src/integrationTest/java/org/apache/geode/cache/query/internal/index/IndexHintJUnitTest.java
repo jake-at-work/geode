@@ -34,8 +34,6 @@ import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexNameConflictException;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
@@ -44,8 +42,6 @@ import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.QueryExecutionContext;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
-import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 import org.apache.geode.util.internal.GeodeGlossary;
 
@@ -75,7 +71,7 @@ public class IndexHintJUnitTest {
   public void testSingleIndexHintWithTx() throws Exception {
     createRegion();
     populateData(10);
-    TXManagerImpl txManager = CacheUtils.getCache().getTxManager();
+    var txManager = CacheUtils.getCache().getTxManager();
     try {
       txManager.begin();
       verifyQueryIndexHint();
@@ -89,8 +85,8 @@ public class IndexHintJUnitTest {
   public void testSingleIndexHintWithJTANotStarted() throws Exception {
     createRegion();
     populateData(10);
-    InternalCache cache = CacheUtils.getCache();
-    TransactionManager jtaManager =
+    var cache = CacheUtils.getCache();
+    var jtaManager =
         (TransactionManager) cache.getJNDIContext().lookup("java:/TransactionManager");
     try {
       jtaManager.begin();
@@ -104,8 +100,8 @@ public class IndexHintJUnitTest {
   public void testSingleIndexHintWithJTAStarted() throws Exception {
     createRegion();
     populateData(1);
-    InternalCache cache = CacheUtils.getCache();
-    TransactionManager jtaManager =
+    var cache = CacheUtils.getCache();
+    var jtaManager =
         (TransactionManager) cache.getJNDIContext().lookup("java:/TransactionManager");
     try {
       jtaManager.begin();
@@ -117,11 +113,11 @@ public class IndexHintJUnitTest {
   }
 
   private void verifyQueryIndexHint() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    DefaultQuery query = (DefaultQuery) qs
+    var qs = CacheUtils.getQueryService();
+    var query = (DefaultQuery) qs
         .newQuery(
             "<hint 'FirstIndex'> select * from " + SEPARATOR + "Portfolios p where p.ID > 10");
-    QueryExecutionContext qec =
+    var qec =
         new QueryExecutionContext(new Object[1], CacheUtils.getCache(), query);
     query.executeUsingContext(qec);
 
@@ -133,11 +129,11 @@ public class IndexHintJUnitTest {
   @Test
   public void testTwoIndexHint() throws Exception {
     createRegion();
-    QueryService qs = CacheUtils.getQueryService();
-    DefaultQuery query = (DefaultQuery) qs
+    var qs = CacheUtils.getQueryService();
+    var query = (DefaultQuery) qs
         .newQuery("<hint 'FirstIndex', 'SecondIndex'> select * from " + SEPARATOR
             + "Portfolios p where p.ID > 10");
-    QueryExecutionContext qec =
+    var qec =
         new QueryExecutionContext(new Object[1], CacheUtils.getCache(), query);
     query.executeUsingContext(qec);
 
@@ -149,11 +145,11 @@ public class IndexHintJUnitTest {
   @Test
   public void testIndexHintOrdering() throws Exception {
     createRegion();
-    QueryService qs = CacheUtils.getQueryService();
-    DefaultQuery query = (DefaultQuery) qs.newQuery(
+    var qs = CacheUtils.getQueryService();
+    var query = (DefaultQuery) qs.newQuery(
         "<hint 'FirstIndex','SecondIndex','ThirdIndex','FourthIndex'>select * from " + SEPARATOR
             + "Portfolios p where p.ID > 10");
-    QueryExecutionContext qec =
+    var qec =
         new QueryExecutionContext(new Object[1], CacheUtils.getCache(), query);
     query.executeUsingContext(qec);
 
@@ -177,11 +173,11 @@ public class IndexHintJUnitTest {
     // create index
     createIndex("IDIndex", "p.ID", SEPARATOR + "Portfolios p");
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    QueryService qs = CacheUtils.getQueryService();
-    Query query =
+    var qs = CacheUtils.getQueryService();
+    var query =
         qs.newQuery("<hint 'IDIndex'>select * from " + SEPARATOR + "Portfolios p where p.ID > 10");
     query.execute();
     // verify index usage
@@ -199,11 +195,11 @@ public class IndexHintJUnitTest {
     createIndex("IDIndex", "p.ID", SEPARATOR + "Portfolios p");
     createIndex("SecIndex", "p.secId", SEPARATOR + "Portfolios p");
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    QueryService qs = CacheUtils.getQueryService();
-    Query query =
+    var qs = CacheUtils.getQueryService();
+    var query =
         qs.newQuery("<hint 'SecIndex'>select * from " + SEPARATOR + "Portfolios p where p.ID > 10");
     query.execute();
     // verify index usage
@@ -222,12 +218,12 @@ public class IndexHintJUnitTest {
     createIndex("IDIndex", "p.ID", SEPARATOR + "Portfolios p");
     createIndex("SecIndex", "p.status", SEPARATOR + "Portfolios p");
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    SelectResults[][] results = new SelectResults[1][2];
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(
+    var results = new SelectResults[1][2];
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(
         "<hint 'IDIndex'>select * from " + SEPARATOR
             + "Portfolios p where p.ID > 10 and p.status = 'inactive'");
     results[0][0] = (SelectResults) query.execute();
@@ -242,7 +238,7 @@ public class IndexHintJUnitTest {
     // verify index usage
     assertTrue(observer.wasIndexUsed("SecIndex"));
 
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     assertEquals(495, results[0][1].size());
     // Not really with and without index but we can use this method to verify they are the same
     // results
@@ -260,12 +256,12 @@ public class IndexHintJUnitTest {
     createIndex("IDIndex", "p.ID", SEPARATOR + "Portfolios p");
     createIndex("SecIndex", "p.status", SEPARATOR + "Portfolios p");
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    SelectResults[][] results = new SelectResults[1][2];
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(
+    var results = new SelectResults[1][2];
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(
         "<hint 'IDIndex'>select * from " + SEPARATOR
             + "Portfolios p where p.ID > 10 and p.ID < 200 and p.status = 'inactive'");
     results[0][0] = (SelectResults) query.execute();
@@ -279,7 +275,7 @@ public class IndexHintJUnitTest {
     results[0][1] = (SelectResults) query.execute();
     // verify index usage
     assertTrue(observer.wasIndexUsed("SecIndex"));
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
 
     assertEquals(95, results[0][1].size());
     // Not really with and without index but we can use this method to verify they are the same
@@ -298,12 +294,12 @@ public class IndexHintJUnitTest {
     createIndex("IDIndex", "p.ID", SEPARATOR + "Portfolios p");
     createIndex("SecIndex", "p.status", SEPARATOR + "Portfolios p");
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    SelectResults[][] results = new SelectResults[1][2];
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(
+    var results = new SelectResults[1][2];
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(
         "<hint 'IDIndex', 'SecIndex'>select * from " + SEPARATOR
             + "Portfolios p where p.ID > 10 and p.ID < 200 and p.status = 'inactive'");
     results[0][0] = (SelectResults) query.execute();
@@ -318,7 +314,7 @@ public class IndexHintJUnitTest {
     results[0][1] = (SelectResults) query.execute();
     // verify index usage
     assertTrue(observer.wasIndexUsed("IDIndex"));
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
 
     assertEquals(95, results[0][1].size());
     // Not really with and without index but we can use this method to verify they are the same
@@ -337,12 +333,12 @@ public class IndexHintJUnitTest {
     createIndex("SecIndex", "p.status", SEPARATOR + "Portfolios p");
     createIndex("DescriptionIndex", "p.description", SEPARATOR + "Portfolios p");
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    SelectResults[][] results = new SelectResults[1][2];
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(
+    var results = new SelectResults[1][2];
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(
         "<hint 'IDIndex'>select * from " + SEPARATOR
             + "Portfolios p where p.ID > 10 and p.ID < 200 and p.status = 'inactive' and p.description IN SET ('XXXX', 'XXXY')");
     results[0][0] = (SelectResults) query.execute();
@@ -359,7 +355,7 @@ public class IndexHintJUnitTest {
     observer.reset();
 
     // Compare results with the first two index queries
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     assertEquals(95, results[0][1].size());
     // Not really with and without index but we can use this method to verify they are the same
     // results
@@ -388,12 +384,12 @@ public class IndexHintJUnitTest {
     createIndex("SecIndex", "p.status", SEPARATOR + "Portfolios p");
     createIndex("DescriptionIndex", "p.description", SEPARATOR + "Portfolios p");
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    SelectResults[][] results = new SelectResults[1][2];
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(
+    var results = new SelectResults[1][2];
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(
         "<hint 'IDIndex'>select * from " + SEPARATOR
             + "Portfolios p where p.ID > 10 and p.ID < 200 and p.status = 'inactive' and p.description IN (select p.description from "
             + SEPARATOR + "Portfolios p where p.ID > 10)");
@@ -412,7 +408,7 @@ public class IndexHintJUnitTest {
     observer.reset();
 
     // Compare results with the first two index queries
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     assertEquals(95, results[0][1].size());
     // Not really with and without index but we can use this method to verify they are the same
     // results
@@ -442,12 +438,12 @@ public class IndexHintJUnitTest {
     createIndex("SecIndex", "p.status", SEPARATOR + "Portfolios p");
     createIndex("DescriptionIndex", "p.description", SEPARATOR + "Portfolios p");
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    SelectResults[][] results = new SelectResults[1][2];
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(
+    var results = new SelectResults[1][2];
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(
         "select * from " + SEPARATOR
             + "Portfolios p where p.ID > 10 and p.ID < 200 and p.status = 'inactive' and p.description IN (<hint 'IDIndex', 'SecIndex', 'DescriptionIndex'>select p.description from "
             + SEPARATOR + "Portfolios p where p.ID > 10)");
@@ -469,7 +465,7 @@ public class IndexHintJUnitTest {
     observer.reset();
 
     // Compare results with the first two index queries
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     assertEquals(95, results[0][1].size());
     // Not really with and without index but we can use this method to verify they are the same
     // results
@@ -504,12 +500,12 @@ public class IndexHintJUnitTest {
     createIndex("SecIndex", "p.status", SEPARATOR + "Portfolios p");
     createIndex("DescriptionIndex", "p.description", SEPARATOR + "Portfolios p");
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    SelectResults[][] results = new SelectResults[1][2];
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(
+    var results = new SelectResults[1][2];
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(
         "select * from " + SEPARATOR
             + "Portfolios p where p.ID > 10 and p.ID < 200 and p.status = 'inactive' and p.description IN (<hint 'IDIndex', 'SecIndex', 'DescriptionIndex'>select p.description from "
             + SEPARATOR + "Portfolios p where p.ID > 10)");
@@ -530,7 +526,7 @@ public class IndexHintJUnitTest {
     observer.reset();
 
     // Compare results with the first two index queries
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     assertEquals(95, results[0][1].size());
     // Not really with and without index but we can use this method to verify they are the same
     // results
@@ -542,7 +538,7 @@ public class IndexHintJUnitTest {
   @Test
   public void testJoinHint() throws Exception {
     createRegion();
-    Region portfolios2 = createRegion("Portfolios_2");
+    var portfolios2 = createRegion("Portfolios_2");
     populateData(1000);
     populateData(portfolios2, 1000);
     // create index
@@ -553,12 +549,12 @@ public class IndexHintJUnitTest {
     createIndex("IDIndexOnPortfolios2", "p.ID", SEPARATOR + "Portfolios_2 p");
 
     // set observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
     // execute query
-    SelectResults[][] results = new SelectResults[1][2];
-    QueryService qs = CacheUtils.getQueryService();
-    Query query = qs.newQuery(
+    var results = new SelectResults[1][2];
+    var qs = CacheUtils.getQueryService();
+    var query = qs.newQuery(
         "<hint 'SecIndex'>select * from " + SEPARATOR + "Portfolios p, " + SEPARATOR
             + "Portfolios_2 p2 where p.ID = p2.ID and p.status = 'inactive'");
     results[0][0] = (SelectResults) query.execute();
@@ -574,7 +570,7 @@ public class IndexHintJUnitTest {
     observer.reset();
 
     // Compare results with the first two index queries
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     assertEquals(500, results[0][1].size());
     // Not really with and without index but we can use this method to verify they are the same
     // results
@@ -621,7 +617,7 @@ public class IndexHintJUnitTest {
   }
 
   private void populateData(Region region, int numObjects) {
-    for (int i = 0; i < numObjects; i++) {
+    for (var i = 0; i < numObjects; i++) {
       region.put("" + i, new Portfolio(i));
     }
   }

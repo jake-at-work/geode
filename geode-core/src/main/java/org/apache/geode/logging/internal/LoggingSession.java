@@ -100,7 +100,7 @@ public class LoggingSession implements InternalSessionContext {
       logger.info(new Banner(configuration.getConfigurationInfo()).getString());
     }
     if (logConfiguration) {
-      String configInfo = configuration.getLogConfigSupplier().getLogConfig().toLoggerString();
+      var configInfo = configuration.getLogConfigSupplier().getLogConfig().toLoggerString();
       logger.info(STARTUP_CONFIGURATION + System.lineSeparator() + configInfo);
     }
   }

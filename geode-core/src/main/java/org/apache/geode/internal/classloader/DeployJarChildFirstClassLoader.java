@@ -67,7 +67,7 @@ public class DeployJarChildFirstClassLoader extends ChildFirstClassLoader {
       c = super.loadClass(name, resolve);
     }
     if (c == null) {
-      for (DeployJarChildFirstClassLoader sibling : artifactIdsToClassLoader.values().stream()
+      for (var sibling : artifactIdsToClassLoader.values().stream()
           .filter(Objects::nonNull).collect(Collectors.toList())) {
         try {
           c = sibling.findClass(name);

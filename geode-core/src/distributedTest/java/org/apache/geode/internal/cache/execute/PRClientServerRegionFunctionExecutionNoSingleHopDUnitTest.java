@@ -328,7 +328,7 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   @Test
   public void testServerFailoverWithTwoServerAliveHA() {
     IgnoredException.addIgnoredException("FunctionInvocationTargetException");
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 1, null);
     createClientServerScenarion(commonAttributes, 20, 20, 20);
     Function function = new TestFunction(true, TestFunction.TEST_FUNCTION_HA);
@@ -337,8 +337,8 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
     server3.invoke(PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest::stopServerHA);
     client.invoke(PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest::putOperation);
 
-    int AsyncInvocationArrSize = 1;
-    AsyncInvocation[] async = new AsyncInvocation[AsyncInvocationArrSize];
+    var AsyncInvocationArrSize = 1;
+    var async = new AsyncInvocation[AsyncInvocationArrSize];
     async[0] = client.invokeAsync(
         PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest::executeFunctionHA);
     server2.invoke(PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest::startServerHA);
@@ -350,7 +350,7 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
     if (async[0].getException() != null) {
       Assert.fail("UnExpected Exception Occurred : ", async[0].getException());
     }
-    List l = (List) async[0].getReturnValue();
+    var l = (List) async[0].getReturnValue();
 
     assertEquals(2, l.size());
   }
@@ -362,7 +362,7 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   @Test
   public void testServerCacheClosedFailoverWithTwoServerAliveHA() {
     IgnoredException.addIgnoredException("FunctionInvocationTargetException");
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 1, null);
     createClientServerScenarion(commonAttributes, 20, 20, 20);
     Function function = new TestFunction(true, TestFunction.TEST_FUNCTION_HA);
@@ -370,8 +370,8 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
     server2.invoke(PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest::stopServerHA);
     server3.invoke(PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest::stopServerHA);
     client.invoke(PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest::putOperation);
-    int AsyncInvocationArrSize = 1;
-    AsyncInvocation[] async = new AsyncInvocation[AsyncInvocationArrSize];
+    var AsyncInvocationArrSize = 1;
+    var async = new AsyncInvocation[AsyncInvocationArrSize];
     async[0] = client.invokeAsync(
         PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest::executeFunctionHA);
     server2.invoke(PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest::startServerHA);
@@ -383,7 +383,7 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
     if (async[0].getException() != null) {
       Assert.fail("UnExpected Exception Occurred : ", async[0].getException());
     }
-    List l = (List) async[0].getReturnValue();
+    var l = (List) async[0].getReturnValue();
     assertEquals(2, l.size());
   }
 
@@ -432,12 +432,12 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   }
 
   public static void verifyDeadAndLiveServers(final Integer expectedLiveServers) {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       String excuse;
 
       @Override
       public boolean done() {
-        int sz = pool.getConnectedServerCount();
+        var sz = pool.getConnectedServerCount();
         logger.info("Checking for the Live Servers : Expected  : " + expectedLiveServers
             + " Available :" + sz);
         if (sz == expectedLiveServers) {
@@ -459,26 +459,26 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
 
     Region region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets * 10); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets * 10); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
     Function function = new TestFunction(true, TEST_FUNCTION2);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
     try {
-      ResultCollector rc1 =
+      var rc1 =
           dataSet.withFilter(testKeysSet).setArguments(Boolean.TRUE).execute(function.getId());
 
-      HashMap resultMap = ((HashMap) rc1.getResult());
+      var resultMap = ((HashMap) rc1.getResult());
       assertEquals(3, resultMap.size());
 
-      for (Object o : resultMap.entrySet()) {
-        Map.Entry entry = (Map.Entry) o;
-        ArrayList resultListForMember = (ArrayList) entry.getValue();
+      for (var o : resultMap.entrySet()) {
+        var entry = (Map.Entry) o;
+        var resultListForMember = (ArrayList) entry.getValue();
 
-        for (Object result : resultListForMember) {
+        for (var result : resultListForMember) {
           assertEquals(Boolean.TRUE, result);
         }
       }
@@ -490,17 +490,17 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
 
   private static Object executeFunctionHA() {
     Region region = cache.getRegion(PartitionedRegionName);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets * 10); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets * 10); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
     Function function = new TestFunction(true, TestFunction.TEST_FUNCTION_HA);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
-    ResultCollector rc1 =
+    var dataSet = FunctionService.onRegion(region);
+    var rc1 =
         dataSet.withFilter(testKeysSet).setArguments(Boolean.TRUE).execute(function.getId());
-    List l = ((List) rc1.getResult());
+    var l = ((List) rc1.getResult());
     logger.info("Result size : " + l.size());
     return l;
   }
@@ -508,74 +508,74 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void putOperation() {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets * 10); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets * 10); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
-    int j = 0;
-    for (String s : testKeysSet) {
+    var j = 0;
+    for (var s : testKeysSet) {
       Integer val = j++;
       region.put(s, val);
     }
   }
 
   private void createScenario() {
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 0, null);
     createClientServerScenarioNoSingleHop(commonAttributes, 20, 20, 20);
   }
 
   private void createScenarioForBucketFilter() {
-    ArrayList commonAttributes = createCommonServerAttributes("TestPartitionedRegion",
+    var commonAttributes = createCommonServerAttributes("TestPartitionedRegion",
         new BucketFilterPRResolver(), 0, null);
     createClientServerScenarioNoSingleHop(commonAttributes, 20, 20, 20);
   }
 
   private static void checkBucketsOnServer() {
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(PartitionedRegionName);
-    HashMap localBucket2RegionMap = (HashMap) region.getDataStore().getSizeLocally();
+    var region = (PartitionedRegion) cache.getRegion(PartitionedRegionName);
+    var localBucket2RegionMap = (HashMap) region.getDataStore().getSizeLocally();
     logger.info(
         "Size of the " + PartitionedRegionName + " in this VM :- " + localBucket2RegionMap.size());
-    Set entrySet = localBucket2RegionMap.entrySet();
+    var entrySet = localBucket2RegionMap.entrySet();
     assertNotNull(entrySet);
   }
 
   private static void serverAllKeyExecution(Boolean isByName) {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets / 2); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets / 2); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
     Function function = new TestFunction(true, TEST_FUNCTION2);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
     try {
-      int j = 0;
-      HashSet<Integer> origVals = new HashSet<>();
-      for (String item : testKeysSet) {
+      var j = 0;
+      var origVals = new HashSet<Integer>();
+      for (var item : testKeysSet) {
         Integer val = j++;
         origVals.add(val);
         region.put(item, val);
       }
-      ResultCollector rc1 = executeOnAll(dataSet, Boolean.TRUE, function, isByName);
-      List resultList = (List) rc1.getResult();
+      var rc1 = executeOnAll(dataSet, Boolean.TRUE, function, isByName);
+      var resultList = (List) rc1.getResult();
       logger.info("Result size : " + resultList.size());
       logger.info("Result are SSSS : " + resultList);
       assertEquals(3, resultList.size());
 
-      for (Object result : resultList) {
+      for (var result : resultList) {
         assertEquals(Boolean.TRUE, result);
       }
-      ResultCollector rc2 = executeOnAll(dataSet, testKeysSet, function, isByName);
-      List l2 = ((List) rc2.getResult());
+      var rc2 = executeOnAll(dataSet, testKeysSet, function, isByName);
+      var l2 = ((List) rc2.getResult());
       assertEquals(3, l2.size());
-      HashSet<Integer> foundVals = new HashSet<>();
-      for (Object value : l2) {
-        ArrayList subL = (ArrayList) (value);
+      var foundVals = new HashSet<Integer>();
+      for (var value : l2) {
+        var subL = (ArrayList) (value);
         assertTrue(subL.size() > 0);
-        for (Object o : subL) {
+        for (var o : subL) {
           assertTrue(foundVals.add((Integer) o));
         }
       }
@@ -591,14 +591,14 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
     final List<String> testKeysList = new ArrayList<>();
-    for (int i = (totalNumBuckets * 3); i > 0; i--) {
+    for (var i = (totalNumBuckets * 3); i > 0; i--) {
       testKeysList.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
     try {
-      int j = 0;
+      var j = 0;
       Map<String, Integer> origVals = new HashMap<>();
-      for (String key : testKeysList) {
+      for (var key : testKeysList) {
         Integer val = j++;
         origVals.put(key, val);
         region.put(key, val);
@@ -619,14 +619,14 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
     final List<String> testKeysList = new ArrayList<>();
-    for (int i = (totalNumBuckets * 3); i > 0; i--) {
+    for (var i = (totalNumBuckets * 3); i > 0; i--) {
       testKeysList.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
     try {
-      int j = 0;
+      var j = 0;
       Map<String, Integer> origVals = new HashMap<>();
-      for (String key : testKeysList) {
+      for (var key : testKeysList) {
         Integer val = j++;
         origVals.put(key, val);
         region.put(key, val);
@@ -646,32 +646,32 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverMultiKeyExecutionOnASingleBucket(Boolean isByName) {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets * 2); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets * 2); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
-    int j = 0;
-    for (String value : testKeysSet) {
+    var j = 0;
+    for (var value : testKeysSet) {
       Integer val = j++;
       region.put(value, val);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
-    for (String o : testKeysSet) {
+    for (var o : testKeysSet) {
       try {
-        Set<String> singleKeySet = Collections.singleton(o);
+        var singleKeySet = Collections.singleton(o);
         Function function = new TestFunction(true, TEST_FUNCTION2);
         FunctionService.registerFunction(function);
-        Execution dataSet = FunctionService.onRegion(region);
-        ResultCollector rc1 = execute(dataSet, singleKeySet, Boolean.TRUE, function, isByName);
-        List l = ((List) rc1.getResult());
+        var dataSet = FunctionService.onRegion(region);
+        var rc1 = execute(dataSet, singleKeySet, Boolean.TRUE, function, isByName);
+        var l = ((List) rc1.getResult());
         assertEquals(1, l.size());
 
-        ResultCollector rc2 =
+        var rc2 =
             execute(dataSet, singleKeySet, new HashSet<>(singleKeySet), function, isByName);
-        List l2 = ((List) rc2.getResult());
+        var l2 = ((List) rc2.getResult());
 
         assertEquals(1, l2.size());
-        List subList = (List) l2.iterator().next();
+        var subList = (List) l2.iterator().next();
         assertEquals(1, subList.size());
         assertEquals(region.get(singleKeySet.iterator().next()), subList.iterator().next());
       } catch (Exception expected) {
@@ -685,38 +685,38 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverMultiKeyExecution(Boolean isByName) {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets * 2); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets * 2); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
     Function function = new TestFunction(true, TEST_FUNCTION2);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
     try {
-      int j = 0;
-      HashSet<Integer> origVals = new HashSet<>();
-      for (String element : testKeysSet) {
+      var j = 0;
+      var origVals = new HashSet<Integer>();
+      for (var element : testKeysSet) {
         Integer val = j++;
         origVals.add(val);
         region.put(element, val);
       }
-      ResultCollector rc1 = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
-      List l = ((List) rc1.getResult());
+      var rc1 = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
+      var l = ((List) rc1.getResult());
       logger.info("Result size : " + l.size());
       assertEquals(3, l.size());
-      for (Object item : l) {
+      for (var item : l) {
         assertEquals(Boolean.TRUE, item);
       }
 
-      ResultCollector rc2 = execute(dataSet, testKeysSet, testKeysSet, function, isByName);
-      List l2 = ((List) rc2.getResult());
+      var rc2 = execute(dataSet, testKeysSet, testKeysSet, function, isByName);
+      var l2 = ((List) rc2.getResult());
       assertEquals(3, l2.size());
-      HashSet<Integer> foundVals = new HashSet<>();
-      for (Object value : l2) {
-        ArrayList subL = (ArrayList) value;
+      var foundVals = new HashSet<Integer>();
+      for (var value : l2) {
+        var subL = (ArrayList) value;
         assertTrue(subL.size() > 0);
-        for (Object o : subL) {
+        for (var o : subL) {
           assertTrue(foundVals.add((Integer) o));
         }
       }
@@ -732,25 +732,25 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverMultiKeyExecutionSocketTimeOut(Boolean isByName) {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets * 2); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets * 2); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
     Function function = new TestFunction(true, TestFunction.TEST_FUNCTION_SOCKET_TIMEOUT);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
     try {
-      int j = 0;
-      for (String value : testKeysSet) {
+      var j = 0;
+      for (var value : testKeysSet) {
         Integer val = j++;
         region.put(value, val);
       }
-      ResultCollector rc1 = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
-      List l = ((List) rc1.getResult());
+      var rc1 = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
+      var l = ((List) rc1.getResult());
       logger.info("Result size : " + l.size());
       assertEquals(3, l.size());
-      for (Object o : l) {
+      for (var o : l) {
         assertEquals(Boolean.TRUE, o);
       }
 
@@ -763,21 +763,21 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverSingleKeyExecutionSocketTimeOut(Boolean isByName) {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final String testKey = "execKey";
+    final var testKey = "execKey";
     final Set<String> testKeysSet = new HashSet<>();
     testKeysSet.add(testKey);
     DistributedSystem.setThreadsSocketPolicy(false);
 
     Function function = new TestFunction(true, TestFunction.TEST_FUNCTION_SOCKET_TIMEOUT);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
     region.put(testKey, 1);
     try {
-      ResultCollector rs = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
+      var rs = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
       assertEquals(Boolean.TRUE, ((List) rs.getResult()).get(0));
 
-      ResultCollector rs2 = execute(dataSet, testKeysSet, testKey, function, isByName);
+      var rs2 = execute(dataSet, testKeysSet, testKey, function, isByName);
       assertEquals(testKey, ((List) rs2.getResult()).get(0));
 
     } catch (Exception ex) {
@@ -790,19 +790,19 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverMultiKeyExecution_Inline() {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets * 2); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets * 2); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
     try {
-      int j = 0;
-      for (String value : testKeysSet) {
+      var j = 0;
+      for (var value : testKeysSet) {
         Integer val = j++;
         region.put(value, val);
       }
-      ResultCollector rc1 =
+      var rc1 =
           dataSet.withFilter(testKeysSet).setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
             @Override
             public void execute(FunctionContext context) {
@@ -825,10 +825,10 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
               return true;
             }
           });
-      List l = ((List) rc1.getResult());
+      var l = ((List) rc1.getResult());
       logger.info("Result size : " + l.size());
       assertEquals(3, l.size());
-      for (Object o : l) {
+      for (var o : l) {
         assertEquals(Boolean.TRUE, o);
       }
     } catch (Exception e) {
@@ -842,19 +842,19 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverMultiKeyExecution_FunctionInvocationTargetException() {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets * 2); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets * 2); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
-    Execution dataSet = FunctionService.onRegion(region);
-    int j = 0;
-    for (String o : testKeysSet) {
+    var dataSet = FunctionService.onRegion(region);
+    var j = 0;
+    for (var o : testKeysSet) {
       Integer val = j++;
       region.put(o, val);
     }
     try {
-      ResultCollector rc1 =
+      var rc1 =
           dataSet.withFilter(testKeysSet).setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
             @Override
             public void execute(FunctionContext context) {
@@ -890,23 +890,23 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverMultiKeyExecutionNoResult(Boolean isByName) {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final HashSet<String> testKeysSet = new HashSet<>();
-    for (int i = (totalNumBuckets * 2); i > 0; i--) {
+    final var testKeysSet = new HashSet<String>();
+    for (var i = (totalNumBuckets * 2); i > 0; i--) {
       testKeysSet.add("execKey-" + i);
     }
     DistributedSystem.setThreadsSocketPolicy(false);
     Function function = new TestFunction(false, TEST_FUNCTION7);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
     try {
-      String msg = "<ExpectedException action=add>" + "FunctionException" + "</ExpectedException>";
+      var msg = "<ExpectedException action=add>" + "FunctionException" + "</ExpectedException>";
       cache.getLogger().info(msg);
-      int j = 0;
-      for (String o : testKeysSet) {
+      var j = 0;
+      for (var o : testKeysSet) {
         Integer val = j++;
         region.put(o, val);
       }
-      ResultCollector rc1 = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
+      var rc1 = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
       rc1.getResult();
       Thread.sleep(20000);
       fail("Test failed after the put operation");
@@ -927,14 +927,14 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverSingleKeyExecution(Boolean isByName) {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final String testKey = "execKey";
+    final var testKey = "execKey";
     final Set<String> testKeysSet = new HashSet<>();
     testKeysSet.add(testKey);
     DistributedSystem.setThreadsSocketPolicy(false);
 
     Function function = new TestFunction(true, TEST_FUNCTION2);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
     try {
       execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
     } catch (Exception expected) {
@@ -945,17 +945,17 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
 
     region.put(testKey, 1);
     try {
-      ResultCollector rs = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
+      var rs = execute(dataSet, testKeysSet, Boolean.TRUE, function, isByName);
       assertEquals(Boolean.TRUE, ((List) rs.getResult()).get(0));
 
-      ResultCollector rs2 = execute(dataSet, testKeysSet, testKey, function, isByName);
+      var rs2 = execute(dataSet, testKeysSet, testKey, function, isByName);
       assertEquals(1, ((List) rs2.getResult()).get(0));
 
-      HashMap<String, Integer> putData = new HashMap<>();
+      var putData = new HashMap<String, Integer>();
       putData.put(testKey + "1", 2);
       putData.put(testKey + "2", 3);
 
-      ResultCollector rs1 = execute(dataSet, testKeysSet, putData, function, isByName);
+      var rs1 = execute(dataSet, testKeysSet, putData, function, isByName);
       assertEquals(Boolean.TRUE, ((List) rs1.getResult()).get(0));
 
       assertEquals((Integer) 2, region.get(testKey + "1"));
@@ -971,19 +971,19 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverSingleKeyExecution_FunctionInvocationTargetException() {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final String testKey = "execKey";
+    final var testKey = "execKey";
     final Set<String> testKeysSet = new HashSet<>();
     testKeysSet.add(testKey);
     DistributedSystem.setThreadsSocketPolicy(false);
 
     Function function = new TestFunction(true, TestFunction.TEST_FUNCTION_REEXECUTE_EXCEPTION);
     FunctionService.registerFunction(function);
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
 
     region.put(testKey, 1);
     try {
-      ResultCollector rs = execute(dataSet, testKeysSet, Boolean.TRUE, function, false);
-      ArrayList list = (ArrayList) rs.getResult();
+      var rs = execute(dataSet, testKeysSet, Boolean.TRUE, function, false);
+      var list = (ArrayList) rs.getResult();
       assertTrue(((Integer) list.get(0)) >= 5);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -994,12 +994,12 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
   private static void serverSingleKeyExecution_Inline() {
     Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
     assertNotNull(region);
-    final String testKey = "execKey";
+    final var testKey = "execKey";
     final Set<String> testKeysSet = new HashSet<>();
     testKeysSet.add(testKey);
     DistributedSystem.setThreadsSocketPolicy(false);
 
-    Execution dataSet = FunctionService.onRegion(region);
+    var dataSet = FunctionService.onRegion(region);
     try {
       cache.getLogger()
           .info("<ExpectedException action=add>" + "No target node found for KEY = "
@@ -1040,7 +1040,7 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
 
     region.put(testKey, 1);
     try {
-      ResultCollector rs =
+      var rs =
           dataSet.withFilter(testKeysSet).setArguments(Boolean.TRUE).execute(new FunctionAdapter() {
             @Override
             public void execute(FunctionContext context) {
@@ -1065,7 +1065,7 @@ public class PRClientServerRegionFunctionExecutionNoSingleHopDUnitTest
           });
       assertEquals("Failure", ((List) rs.getResult()).get(0));
 
-      ResultCollector rs2 =
+      var rs2 =
           dataSet.withFilter(testKeysSet).setArguments(testKey).execute(new FunctionAdapter() {
             @Override
             public void execute(FunctionContext context) {

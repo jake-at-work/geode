@@ -20,10 +20,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
-
-import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,14 +55,14 @@ public class ShowMetricsDUnitTest {
   public void before() throws Exception {
     locator = lsRule.startLocatorVM(0);
     server = lsRule.startServerVM(1, locator.getPort());
-    int serverPort = server.getPort();
+    var serverPort = server.getPort();
     server.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
       RegionFactory<Integer, Integer> dataRegionFactory =
           cache.createRegionFactory(RegionShortcut.REPLICATE);
       dataRegionFactory.create("REGION1");
 
-      DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+      var member = cache.getDistributedSystem().getDistributedMember();
       await().until(() -> isBeanReady(cache, 5, "", member, serverPort));
     });
 
@@ -76,7 +72,7 @@ public class ShowMetricsDUnitTest {
       await().until(() -> isBeanReady(cache, 1, "", null, 0));
       await().until(() -> isBeanReady(cache, 2, "REGION1", null, 0));
 
-      DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+      var member = cache.getDistributedSystem().getDistributedMember();
       await().until(() -> isBeanReady(cache, 3, "", member, 0));
     });
 
@@ -85,7 +81,7 @@ public class ShowMetricsDUnitTest {
 
   private static boolean isBeanReady(Cache cache, int beanType, String regionName,
       DistributedMember distributedMember, int cacheServerPort) {
-    ManagementService mgmtService = ManagementService.getManagementService(cache);
+    var mgmtService = ManagementService.getManagementService(cache);
     Object bean = null;
 
     switch (beanType) {
@@ -96,16 +92,16 @@ public class ShowMetricsDUnitTest {
         bean = mgmtService.getDistributedRegionMXBean(SEPARATOR + regionName);
         break;
       case 3:
-        ObjectName memberMBeanName = mgmtService.getMemberMBeanName(distributedMember);
+        var memberMBeanName = mgmtService.getMemberMBeanName(distributedMember);
         bean = mgmtService.getMBeanInstance(memberMBeanName, MemberMXBean.class);
         break;
       case 4:
-        ObjectName regionMBeanName =
+        var regionMBeanName =
             mgmtService.getRegionMBeanName(distributedMember, SEPARATOR + regionName);
         bean = mgmtService.getMBeanInstance(regionMBeanName, RegionMXBean.class);
         break;
       case 5:
-        ObjectName csMxBeanName =
+        var csMxBeanName =
             mgmtService.getCacheServerMBeanName(cacheServerPort, distributedMember);
         bean = mgmtService.getMBeanInstance(csMxBeanName, CacheServerMXBean.class);
         break;
@@ -134,7 +130,7 @@ public class ShowMetricsDUnitTest {
 
   @Test
   public void testShowMetricsMemberWithFileOutput() throws Exception {
-    File output = tempFolder.newFile("memberMetricReport.csv");
+    var output = tempFolder.newFile("memberMetricReport.csv");
     output.delete();
 
     gfsh.executeAndAssertThat("show metrics --member=" + server.getName() + " --port="

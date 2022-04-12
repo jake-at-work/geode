@@ -32,7 +32,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.internal.cli.domain.DataCommandRequest;
 import org.apache.geode.management.internal.cli.domain.DataCommandResult;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.pdx.PdxReader;
 import org.apache.geode.pdx.PdxSerializable;
@@ -73,15 +72,15 @@ public class DataCommandFunctionWithPDXJUnitTest {
   // upward during reporting.
   @Test
   public void testTableIsRectangular() {
-    TabularResultModel rawTable =
+    var rawTable =
         getTableFromQuery("select * from " + SEPARATOR + PARTITIONED_REGION);
     // Verify any table built
-    Map<String, List<String>> content = rawTable.getContent();
+    var content = rawTable.getContent();
     assertThat(content).isNotEmpty();
 
     // Verify table is rectangular
-    SoftAssertions softly = new SoftAssertions();
-    for (String k : new String[] {"id", "phone", "firstName", "lastName"}) {
+    var softly = new SoftAssertions();
+    for (var k : new String[] {"id", "phone", "firstName", "lastName"}) {
       softly.assertThat(content.get(k).size()).isEqualTo(4);
     }
     softly.assertAll();
@@ -89,10 +88,10 @@ public class DataCommandFunctionWithPDXJUnitTest {
 
   @Test
   public void testVerifyDataDoesNotShift() {
-    TabularResultModel rawTable =
+    var rawTable =
         getTableFromQuery("select * from " + SEPARATOR + PARTITIONED_REGION + " order by id");
     // Verify any table built
-    Map<String, List<String>> content = rawTable.getContent();
+    var content = rawTable.getContent();
     assertThat(content).isNotEmpty();
 
     // Table only contains correct keys
@@ -107,13 +106,13 @@ public class DataCommandFunctionWithPDXJUnitTest {
 
   @Test
   public void testFilteredQueryWithPhone() {
-    TabularResultModel rawTable = getTableFromQuery(
+    var rawTable = getTableFromQuery(
         "select * from " + SEPARATOR + PARTITIONED_REGION
             + " c where IS_DEFINED ( c.phone ) order by id");
-    Map<String, List<String>> content = rawTable.getContent();
+    var content = rawTable.getContent();
     assertThat(content).isNotEmpty();
 
-    for (String k : new String[] {"id", "phone", "firstName", "lastName"}) {
+    for (var k : new String[] {"id", "phone", "firstName", "lastName"}) {
       assertThat(content.get(k).size()).isEqualTo(2);
     }
     assertThatRowIsBuiltCorrectly(content, 0, charlie);
@@ -122,12 +121,12 @@ public class DataCommandFunctionWithPDXJUnitTest {
 
   @Test
   public void testFilteredQueryWithoutPhone() {
-    TabularResultModel rawTable = getTableFromQuery(
+    var rawTable = getTableFromQuery(
         "select * from " + SEPARATOR + PARTITIONED_REGION
             + " c where IS_UNDEFINED ( c.phone ) order by id");
-    Map<String, List<String>> content = rawTable.getContent();
+    var content = rawTable.getContent();
     assertThat(content).isNotNull();
-    for (String k : new String[] {"id", "firstName", "lastName"}) {
+    for (var k : new String[] {"id", "firstName", "lastName"}) {
       assertThat(content.get(k).size()).isEqualTo(2);
     }
     assertThatRowIsBuiltCorrectly(content, 0, alice);
@@ -135,31 +134,31 @@ public class DataCommandFunctionWithPDXJUnitTest {
   }
 
   private TabularResultModel getTableFromQuery(String query) {
-    DataCommandRequest request = new DataCommandRequest();
+    var request = new DataCommandRequest();
     request.setQuery(query);
-    DataCommandResult result = new DataCommandFunction().select(request, cache);
-    ResultModel m = result.toSelectCommandResult();
+    var result = new DataCommandFunction().select(request, cache);
+    var m = result.toSelectCommandResult();
     return m.getTableSection(DataCommandResult.QUERY_SECTION);
   }
 
   private void assertThatRowIsBuiltCorrectly(Map<String, List<String>> table, int rowNum,
       Customer customer) {
-    SoftAssertions softly = new SoftAssertions();
-    String id = table.get("id").get(rowNum);
-    String firstName = table.get("firstName").get(rowNum);
-    String lastName = table.get("lastName").get(rowNum);
+    var softly = new SoftAssertions();
+    var id = table.get("id").get(rowNum);
+    var firstName = table.get("firstName").get(rowNum);
+    var lastName = table.get("lastName").get(rowNum);
 
     softly.assertThat(id).describedAs("Customer ID").isEqualTo(customer.id);
     softly.assertThat(firstName).describedAs("First name").isEqualTo(customer.firstName);
     softly.assertThat(lastName).describedAs("Last name").isEqualTo(customer.lastName);
 
-    List<String> phoneArray = table.get("phone");
+    var phoneArray = table.get("phone");
 
     if (phoneArray == null) {
       softly.assertThat(customer).describedAs("No phone data")
           .isNotInstanceOf(CustomerWithPhone.class);
     } else {
-      String phone = phoneArray.get(rowNum);
+      var phone = phoneArray.get(rowNum);
 
       if (customer instanceof CustomerWithPhone) {
         softly.assertThat(phone).describedAs("Phone")

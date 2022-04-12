@@ -38,7 +38,7 @@ public class FunctionExecutionNodePruner {
   public static HashMap<InternalDistributedMember, int[]> pruneNodes(
       PartitionedRegion pr, Set<Integer> buckets) {
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
     if (isDebugEnabled) {
       logger.debug("FunctionExecutionNodePruner: The buckets to be pruned are: {}", buckets);
@@ -49,8 +49,8 @@ public class FunctionExecutionNodePruner {
         new HashMap();
 
     try {
-      for (Integer bucketId : buckets) {
-        Set<InternalDistributedMember> nodes = pr.getRegionAdvisor().getBucketOwners(bucketId);
+      for (var bucketId : buckets) {
+        var nodes = pr.getRegionAdvisor().getBucketOwners(bucketId);
         if (nodes.isEmpty()) {
           if (isDebugEnabled) {
             logger.debug(
@@ -64,14 +64,14 @@ public class FunctionExecutionNodePruner {
           logger.debug("FunctionExecutionNodePruner: The buckets owners of the bucket: {} are: {}",
               bucketId, nodes);
         }
-        for (InternalDistributedMember node : nodes) {
+        for (var node : nodes) {
           if (nodeToBucketsMap.get(node) == null) {
-            int[] bucketArray = new int[buckets.size() + 1];
+            var bucketArray = new int[buckets.size() + 1];
             bucketArray[0] = 0;
             BucketSetHelper.add(bucketArray, bucketId);
             nodeToBucketsMap.put(node, bucketArray);
           } else {
-            int[] bucketArray = nodeToBucketsMap.get(node);
+            var bucketArray = nodeToBucketsMap.get(node);
             BucketSetHelper.add(bucketArray, bucketId);
             // nodeToBucketsMap.put(node, bucketSet);
           }
@@ -82,7 +82,7 @@ public class FunctionExecutionNodePruner {
     if (isDebugEnabled) {
       logger.debug("FunctionExecutionNodePruner: The node to buckets map is: {}", nodeToBucketsMap);
     }
-    int[] currentBucketArray = new int[buckets.size() + 1];
+    var currentBucketArray = new int[buckets.size() + 1];
     currentBucketArray[0] = 0;
 
     /*
@@ -99,10 +99,9 @@ public class FunctionExecutionNodePruner {
      * of nodes to execute the function
      */
 
-
-    InternalDistributedMember localNode = pr.getRegionAdvisor().getDistributionManager().getId();
+    var localNode = pr.getRegionAdvisor().getDistributionManager().getId();
     if (nodeToBucketsMap.get(localNode) != null) {
-      int[] bucketArray = nodeToBucketsMap.get(localNode);
+      var bucketArray = nodeToBucketsMap.get(localNode);
       if (isDebugEnabled) {
         logger.debug(
             "FunctionExecutionNodePruner: Adding the node: {} which is local and buckets {} to prunedMap",
@@ -117,7 +116,7 @@ public class FunctionExecutionNodePruner {
         break;
       }
       // continue
-      InternalDistributedMember node =
+      var node =
           findNextNode(nodeToBucketsMap.entrySet(), currentBucketArray);
       if (node == null) {
         if (isDebugEnabled) {
@@ -126,7 +125,7 @@ public class FunctionExecutionNodePruner {
         }
         break;
       }
-      int[] bucketArray = nodeToBucketsMap.get(node);
+      var bucketArray = nodeToBucketsMap.get(node);
       bucketArray = removeAllElements(bucketArray, currentBucketArray);
       if (BucketSetHelper.length(bucketArray) != 0) {
         currentBucketArray = addAllElements(currentBucketArray, bucketArray);
@@ -152,12 +151,12 @@ public class FunctionExecutionNodePruner {
       int[] currentBucketArray) {
 
     InternalDistributedMember node = null;
-    int max = -1;
+    var max = -1;
     List<InternalDistributedMember> nodesOfEqualSize = new ArrayList<>();
 
-    for (Map.Entry<InternalDistributedMember, int[]> entry : entrySet) {
-      int[] buckets = entry.getValue();
-      int[] tempbuckets = new int[buckets.length];
+    for (var entry : entrySet) {
+      var buckets = entry.getValue();
+      var tempbuckets = new int[buckets.length];
       System.arraycopy(buckets, 0, tempbuckets, 0, buckets[0] + 1);
       tempbuckets = removeAllElements(tempbuckets, currentBucketArray);
 
@@ -179,11 +178,11 @@ public class FunctionExecutionNodePruner {
   public static Map<Integer, Set> groupByBucket(PartitionedRegion pr, Set routingKeys,
       final boolean primaryMembersNeeded, final boolean hasRoutingObjects,
       final boolean isBucketSetAsFilter) {
-    HashMap bucketToKeysMap = new HashMap();
+    var bucketToKeysMap = new HashMap();
 
-    for (final Object routingKey : routingKeys) {
+    for (final var routingKey : routingKeys) {
       final Integer bucketId;
-      Object key = routingKey;
+      var key = routingKey;
       if (isBucketSetAsFilter) {
         bucketId = ((Integer) key);
       } else {
@@ -205,7 +204,7 @@ public class FunctionExecutionNodePruner {
             String.format("No target node found for KEY, %s",
                 key));
       }
-      HashSet bucketKeys = (HashSet) bucketToKeysMap.get(bucketId);
+      var bucketKeys = (HashSet) bucketToKeysMap.get(bucketId);
       if (bucketKeys == null) {
         bucketKeys = new HashSet(); // faster if this was an ArrayList
         bucketToKeysMap.put(bucketId, bucketKeys);
@@ -219,7 +218,7 @@ public class FunctionExecutionNodePruner {
   public static int[] getBucketSet(PartitionedRegion pr, Set routingKeys,
       final boolean hasRoutingObjects, boolean isBucketSetAsFilter) {
     int[] bucketArray = null;
-    for (Object key : routingKeys) {
+    for (var key : routingKeys) {
       final Integer bucketId;
       if (isBucketSetAsFilter) {
         bucketId = (Integer) key;
@@ -245,9 +244,9 @@ public class FunctionExecutionNodePruner {
     if (primaryOnly) {
       HashMap<InternalDistributedMember, int[]> memberToBucketsMap = new HashMap();
       try {
-        for (Integer bucketId : bucketSet) {
-          InternalDistributedMember mem = pr.getOrCreateNodeForBucketWrite(bucketId, null);
-          int[] bucketArray = memberToBucketsMap.get(mem);
+        for (var bucketId : bucketSet) {
+          var mem = pr.getOrCreateNodeForBucketWrite(bucketId, null);
+          var bucketArray = memberToBucketsMap.get(mem);
           if (bucketArray == null) {
             bucketArray = new int[bucketSet.size() + 1]; // faster if this was an ArrayList
             memberToBucketsMap.put(mem, bucketArray);
@@ -265,7 +264,7 @@ public class FunctionExecutionNodePruner {
   }
 
   private static boolean arrayAndSetAreEqual(Set<Integer> setA, int[] arrayB) {
-    Set<Integer> setB = BucketSetHelper.toSet(arrayB);
+    var setB = BucketSetHelper.toSet(arrayB);
 
     return setA.equals(setB);
   }
@@ -275,13 +274,13 @@ public class FunctionExecutionNodePruner {
       return arrayA;
     }
 
-    Set<Integer> inSet = BucketSetHelper.toSet(arrayA);
+    var inSet = BucketSetHelper.toSet(arrayA);
 
-    Set<Integer> subSet = BucketSetHelper.toSet(arrayB);
+    var subSet = BucketSetHelper.toSet(arrayB);
 
     inSet.removeAll(subSet);
 
-    int[] outArray = BucketSetHelper.fromSet(inSet);
+    var outArray = BucketSetHelper.fromSet(inSet);
 
     return outArray;
 
@@ -292,13 +291,13 @@ public class FunctionExecutionNodePruner {
       return arrayA;
     }
 
-    Set<Integer> inSet = BucketSetHelper.toSet(arrayA);
+    var inSet = BucketSetHelper.toSet(arrayA);
 
-    Set<Integer> addSet = BucketSetHelper.toSet(arrayB);
+    var addSet = BucketSetHelper.toSet(arrayB);
 
     inSet.addAll(addSet);
 
-    int[] outArray = BucketSetHelper.fromSet(inSet);
+    var outArray = BucketSetHelper.fromSet(inSet);
 
     return outArray;
 

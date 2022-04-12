@@ -27,7 +27,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.test.compiler.JarBuilder;
@@ -52,7 +51,7 @@ public class DeployCommandFunctionRegistrationDUnitTest {
 
   @Before
   public void setup() throws Exception {
-    MemberVM locator = lsRule.startLocatorVM(0);
+    var locator = lsRule.startLocatorVM(0);
     server = lsRule.startServerVM(1, locator.getPort());
 
     gfshConnector.connectAndVerify(locator);
@@ -60,11 +59,11 @@ public class DeployCommandFunctionRegistrationDUnitTest {
 
   @Test
   public void deployImplements() throws Exception {
-    JarBuilder jarBuilder = new JarBuilder();
-    File source = loadTestResource(
+    var jarBuilder = new JarBuilder();
+    var source = loadTestResource(
         "/org/apache/geode/management/internal/deployment/ImplementsFunction.java");
 
-    File outputJar = new File(temporaryFolder.getRoot(), "output.jar");
+    var outputJar = new File(temporaryFolder.getRoot(), "output.jar");
     jarBuilder.buildJar(outputJar, source);
 
     gfshConnector.executeAndAssertThat("deploy --jar=" + outputJar.getCanonicalPath())
@@ -76,11 +75,11 @@ public class DeployCommandFunctionRegistrationDUnitTest {
 
   @Test
   public void deployExtends() throws Exception {
-    JarBuilder jarBuilder = new JarBuilder();
-    File source = loadTestResource(
+    var jarBuilder = new JarBuilder();
+    var source = loadTestResource(
         "/org/apache/geode/management/internal/deployment/ExtendsFunctionAdapter.java");
 
-    File outputJar = new File(temporaryFolder.getRoot(), "output.jar");
+    var outputJar = new File(temporaryFolder.getRoot(), "output.jar");
     jarBuilder.buildJar(outputJar, source);
 
     gfshConnector.executeAndAssertThat("deploy --jar=" + outputJar.getCanonicalPath())
@@ -93,7 +92,7 @@ public class DeployCommandFunctionRegistrationDUnitTest {
   }
 
   private File loadTestResource(String fileName) {
-    String filePath =
+    var filePath =
         createTempFileFromResource(getClass(), fileName).getAbsolutePath();
     assertThat(filePath).isNotNull();
 
@@ -102,12 +101,12 @@ public class DeployCommandFunctionRegistrationDUnitTest {
 
   private static void assertThatFunctionHasVersion(String functionId, String version) {
     @SuppressWarnings("deprecation")
-    GemFireCacheImpl gemFireCache = GemFireCacheImpl.getInstance();
-    DistributedSystem distributedSystem = gemFireCache.getDistributedSystem();
+    var gemFireCache = GemFireCacheImpl.getInstance();
+    var distributedSystem = gemFireCache.getDistributedSystem();
     @SuppressWarnings("unchecked")
     Execution<Void, String, List<String>> execution =
         FunctionService.onMember(distributedSystem.getDistributedMember());
-    List<String> result = execution.execute(functionId).getResult();
+    var result = execution.execute(functionId).getResult();
     assertThat(result.get(0)).isEqualTo(version);
   }
 

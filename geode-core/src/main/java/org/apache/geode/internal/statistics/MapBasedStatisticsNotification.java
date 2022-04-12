@@ -70,7 +70,7 @@ public class MapBasedStatisticsNotification implements StatisticsNotification {
 
   @Override
   public Number getValue(StatisticId statId) throws StatisticNotFoundException {
-    Number value = stats.get(statId);
+    var value = stats.get(statId);
     if (value == null) {
       throw new StatisticNotFoundException(
           statId.getStatisticDescriptor().getName() + " not found in notification");

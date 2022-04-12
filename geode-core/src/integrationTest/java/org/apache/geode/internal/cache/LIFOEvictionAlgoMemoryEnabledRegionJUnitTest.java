@@ -39,13 +39,11 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.distributed.DistributedSystem;
@@ -115,21 +113,21 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
    * Method for intializing the VM and create region with LIFO attached
    */
   private static void initializeVM() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(LOG_LEVEL, "info"); // to keep diskPerf logs smaller
     distributedSystem = DistributedSystem.connect(props);
     cache = CacheFactory.create(distributedSystem);
     assertNotNull(cache);
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    AttributesFactory factory = new AttributesFactory();
+    var dsf = cache.createDiskStoreFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
 
-    File dir = new File("testingDirectoryDefault");
+    var dir = new File("testingDirectoryDefault");
     dir.mkdir();
     dir.deleteOnExit();
-    File[] dirs = {dir};
+    var dirs = new File[] {dir};
     dsf.setDiskDirsAndSizes(dirs, new int[] {Integer.MAX_VALUE});
     dsf.setAutoCompact(false);
     ((DiskStoreFactoryImpl) dsf).setDiskDirSizesUnit(DiskDirSizesUnit.BYTES);
@@ -142,7 +140,7 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
 
     factory.setEvictionAttributes(EvictionAttributes.createLIFOMemoryAttributes(maximumMegabytes,
         EvictionAction.OVERFLOW_TO_DISK));
-    RegionAttributes attr = factory.create();
+    var attr = factory.create();
 
     ((GemFireCacheImpl) cache).createRegion(regionName, attr);
     lifoClockHand =
@@ -163,14 +161,14 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
   public void test000EntryFaultinCount() {
     try {
       assertNotNull(cache);
-      LocalRegion rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
+      var rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
       assertNotNull(rgn);
 
-      DiskRegionStats diskRegionStats = rgn.getDiskRegion().getStats();
+      var diskRegionStats = rgn.getDiskRegion().getStats();
       assertTrue("Entry count not 0 ", new Long(0).equals(lifoStats.getCounter()));
 
       // put 60 entries into the region
-      for (long i = 0L; i < 60L; i++) {
+      for (var i = 0L; i < 60L; i++) {
         rgn.put("key" + i, newDummyObject(i));
       }
 
@@ -206,7 +204,7 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
   public void test001LIFOStatsUpdation() {
     try {
       assertNotNull(cache);
-      LocalRegion rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
+      var rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
       assertNotNull(rgn);
 
       // check for is LIFO Enable
@@ -214,7 +212,7 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
           (((EvictionAttributesImpl) rgn.getAttributes().getEvictionAttributes()).isLIFO()));
 
       // put 60 entries into the region
-      for (long i = 0L; i < 60L; i++) {
+      for (var i = 0L; i < 60L; i++) {
         rgn.put(i, newDummyObject(i));
       }
 
@@ -247,13 +245,13 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
   public void test002LIFOEntryEviction() {
     try {
       assertNotNull(cache);
-      LocalRegion rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
+      var rgn = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
       assertNotNull(rgn);
 
       assertEquals("Region is not properly cleared ", 0, rgn.size());
       assertTrue("Entry count not 0 ", new Long(0).equals(lifoStats.getCounter()));
       // put sixty entries into the region
-      for (long i = 0L; i < 60L; i++) {
+      for (var i = 0L; i < 60L; i++) {
         rgn.put(i, newDummyObject(i));
         if (i < memEntryCountForFirstPutOperation) {
           // entries are in memory
@@ -285,7 +283,7 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
 
       assertTrue("Entry count not 0 ", new Long(0).equals(lifoStats.getCounter()));
       // put 60 entries into the region
-      for (long i = 0L; i < 60L; i++) {
+      for (var i = 0L; i < 60L; i++) {
         rgn.put(i, newDummyObject(i));
       }
 
@@ -314,7 +312,7 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
       lifoClockHand.appendEntry(new TestLRUNode(3));
       assertTrue(lifoClockHand.size() == 3);
       // make sure data is removed in LIFO fashion
-      TestLRUNode tailValue = (TestLRUNode) lifoClockHand.getEvictableEntry();
+      var tailValue = (TestLRUNode) lifoClockHand.getEvictableEntry();
       assertTrue("Value = " + tailValue.getValue(), tailValue.value == 3);
       assertTrue("LIFO Queue Size = " + lifoClockHand.size(), lifoClockHand.size() == 2);
       tailValue = (TestLRUNode) lifoClockHand.getEvictableEntry();
@@ -327,7 +325,7 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
       assertTrue("No Value - null", tailValue == null);
       assertTrue("LIFO Queue Size = " + lifoClockHand.size(), lifoClockHand.size() == 0);
       // check that entries not available or already evicted are skipped and removed
-      TestLRUNode testlrunode = new TestLRUNode(1);
+      var testlrunode = new TestLRUNode(1);
       lifoClockHand.appendEntry(testlrunode);
       testlrunode = new TestLRUNode(2);
       testlrunode.setEvicted();
@@ -350,7 +348,7 @@ public class LIFOEvictionAlgoMemoryEnabledRegionJUnitTest {
 
   // purpose to create object ,size of byteArraySize
   private Object newDummyObject(long i) {
-    byte[] value = new byte[byteArraySize];
+    var value = new byte[byteArraySize];
     Arrays.fill(value, (byte) i);
     return value;
   }

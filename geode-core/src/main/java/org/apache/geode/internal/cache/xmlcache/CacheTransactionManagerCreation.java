@@ -43,7 +43,7 @@ public class CacheTransactionManagerCreation implements CacheTransactionManager 
 
   @Override
   public TransactionListener setListener(TransactionListener newListener) {
-    TransactionListener result = getListener();
+    var result = getListener();
     txListeners.clear();
     if (newListener != null) {
       txListeners.add(newListener);
@@ -73,7 +73,7 @@ public class CacheTransactionManagerCreation implements CacheTransactionManager 
 
   @Override
   public TransactionListener[] getListeners() {
-    TransactionListener[] result = new TransactionListener[txListeners.size()];
+    var result = new TransactionListener[txListeners.size()];
     txListeners.toArray(result);
     return result;
   }

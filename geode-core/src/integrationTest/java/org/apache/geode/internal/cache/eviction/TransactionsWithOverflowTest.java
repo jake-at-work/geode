@@ -28,9 +28,7 @@ import org.junit.rules.TestName;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
@@ -58,13 +56,13 @@ public class TransactionsWithOverflowTest {
 
   @Test
   public void testPartitionedRegionWithOverflow() {
-    Cache cache = getCache();
-    String diskStoreName = createDiskStoreAndGetName();
-    Region pr = createOverflowPR(cache, diskStoreName);
-    for (int i = 0; i < 5; i++) {
+    var cache = getCache();
+    var diskStoreName = createDiskStoreAndGetName();
+    var pr = createOverflowPR(cache, diskStoreName);
+    for (var i = 0; i < 5; i++) {
       pr.put(i, "value" + i);
     }
-    CacheTransactionManager mgr = cache.getCacheTransactionManager();
+    var mgr = cache.getCacheTransactionManager();
     mgr.begin();
     pr.destroy(1);
     mgr.commit();
@@ -72,60 +70,60 @@ public class TransactionsWithOverflowTest {
 
   @Test
   public void verifyThatTransactionalDestroysRemoveFromTheEvictionList() {
-    Cache cache = getCache();
+    var cache = getCache();
     RegionFactory<?, ?> rf = cache.createRegionFactory();
     rf.setDataPolicy(DataPolicy.REPLICATE);
     rf.setEvictionAttributes(
         EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.DEFAULT_EVICTION_ACTION));
     rf.setConcurrencyChecksEnabled(false);
-    InternalRegion r = (InternalRegion) rf.create(name.getMethodName());
-    CacheTransactionManager mgr = cache.getCacheTransactionManager();
-    for (int i = 0; i < 2; i++) {
+    var r = (InternalRegion) rf.create(name.getMethodName());
+    var mgr = cache.getCacheTransactionManager();
+    for (var i = 0; i < 2; i++) {
       r.put(i, "value" + i);
       mgr.begin();
       r.destroy(i);
       mgr.commit();
     }
 
-    VMLRURegionMap regionMap = (VMLRURegionMap) r.getRegionMap();
+    var regionMap = (VMLRURegionMap) r.getRegionMap();
     assertThat(regionMap.getEvictionList().size()).isEqualTo(0);
   }
 
   @Test
   public void verifyThatTransactionalDestroysRemoveFromExpiration() {
-    Cache cache = getCache();
+    var cache = getCache();
     RegionFactory<?, ?> rf = cache.createRegionFactory();
     rf.setDataPolicy(DataPolicy.REPLICATE);
     rf.setEntryTimeToLive(new ExpirationAttributes(11, ExpirationAction.DESTROY));
     rf.setConcurrencyChecksEnabled(false);
-    InternalRegion r = (InternalRegion) rf.create(name.getMethodName());
-    CacheTransactionManager mgr = cache.getCacheTransactionManager();
-    for (int i = 0; i < 1; i++) {
+    var r = (InternalRegion) rf.create(name.getMethodName());
+    var mgr = cache.getCacheTransactionManager();
+    for (var i = 0; i < 1; i++) {
       r.put(i, "value" + i);
       mgr.begin();
       r.destroy(i);
       mgr.commit();
     }
 
-    Throwable thrown = catchThrowable(() -> r.getEntryExpiryTask(0));
+    var thrown = catchThrowable(() -> r.getEntryExpiryTask(0));
     assertThat(thrown).isExactlyInstanceOf(EntryNotFoundException.class);
   }
 
   private String createDiskStoreAndGetName() {
-    Cache cache = getCache();
-    File[] diskDirs = new File[1];
+    var cache = getCache();
+    var diskDirs = new File[1];
     diskDirs[0] = new File("diskRegionDirs/" + getClass().getCanonicalName());
     diskDirs[0].mkdirs();
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(diskDirs);
-    String diskStoreName = getClass().getName();
+    var diskStoreName = getClass().getName();
     diskStoreFactory.create(diskStoreName);
     return diskStoreName;
   }
 
   private Cache getCache() {
     if (cache == null) {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(LOCATORS, "");
       props.setProperty(MCAST_PORT, "0");
       cache = new CacheFactory(props).create();

@@ -19,15 +19,12 @@ import static org.apache.geode.test.junit.rules.serializable.FieldsOfTemporaryFo
 import static org.apache.geode.test.junit.rules.serializable.FieldsOfTemporaryFolder.FIELD_FOLDER;
 import static org.apache.geode.test.junit.rules.serializable.FieldsOfTemporaryFolder.FIELD_PARENT_FOLDER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.TemporaryFolder.Builder;
 import static org.junit.rules.TemporaryFolder.builder;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -45,8 +42,8 @@ public class SerializableTemporaryFolderTest {
 
   @Test
   public void hasThreeFields() {
-    Field[] fields = TemporaryFolder.class.getDeclaredFields();
-    List<Field> nonStaticFields =
+    var fields = TemporaryFolder.class.getDeclaredFields();
+    var nonStaticFields =
         Arrays.stream(fields).filter(f -> !Modifier.isStatic(f.getModifiers())).collect(
             Collectors.toList());
     assertThat(nonStaticFields).hasSize(3);
@@ -54,27 +51,27 @@ public class SerializableTemporaryFolderTest {
 
   @Test
   public void fieldParentFolderShouldExist() throws Exception {
-    Field field = TemporaryFolder.class.getDeclaredField(FIELD_PARENT_FOLDER);
+    var field = TemporaryFolder.class.getDeclaredField(FIELD_PARENT_FOLDER);
     assertThat(field.getType()).isEqualTo(File.class);
   }
 
   @Test
   public void fieldFolderShouldExist() throws Exception {
-    Field field = TemporaryFolder.class.getDeclaredField(FIELD_FOLDER);
+    var field = TemporaryFolder.class.getDeclaredField(FIELD_FOLDER);
     assertThat(field.getType()).isEqualTo(File.class);
   }
 
   @Test
   public void fieldAssureDeletionShouldExist() throws Exception {
-    Field field = TemporaryFolder.class.getDeclaredField(FIELD_ASSURE_DELETION);
+    var field = TemporaryFolder.class.getDeclaredField(FIELD_ASSURE_DELETION);
     assertThat(field.getType()).isEqualTo(boolean.class);
   }
 
   @Test
   public void fieldsCanBeRead() throws Exception {
-    File parentFolder = temporaryFolder.getRoot();
+    var parentFolder = temporaryFolder.getRoot();
 
-    SerializableTemporaryFolder instance = new SerializableTemporaryFolder(parentFolder);
+    var instance = new SerializableTemporaryFolder(parentFolder);
     instance.create();
 
     assertThat(readField(TemporaryFolder.class, instance, FIELD_PARENT_FOLDER))
@@ -91,15 +88,15 @@ public class SerializableTemporaryFolderTest {
 
   @Test
   public void canBeSerialized() throws Exception {
-    Builder instanceBuilder = builder();
-    File parentFolder = temporaryFolder.getRoot();
+    var instanceBuilder = builder();
+    var parentFolder = temporaryFolder.getRoot();
     instanceBuilder.parentFolder(parentFolder);
     instanceBuilder.assureDeletion();
 
-    SerializableTemporaryFolder instance = new SerializableTemporaryFolder(instanceBuilder);
+    var instance = new SerializableTemporaryFolder(instanceBuilder);
     instance.create();
 
-    SerializableTemporaryFolder cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(readField(TemporaryFolder.class, cloned, FIELD_PARENT_FOLDER))
         .isEqualTo(parentFolder);

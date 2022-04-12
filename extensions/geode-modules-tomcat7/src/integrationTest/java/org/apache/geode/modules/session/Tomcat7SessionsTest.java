@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebRequest;
-import com.meterware.httpunit.WebResponse;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -45,17 +44,17 @@ public class Tomcat7SessionsTest extends AbstractSessionsTest {
     // TestSessions only live for a minute
     sessionManager.getTheContext().setSessionTimeout(1);
 
-    final String key = "value_testSessionExpiration1";
-    final String value = "Foo";
+    final var key = "value_testSessionExpiration1";
+    final var value = "Foo";
 
-    final WebConversation wc = new WebConversation();
+    final var wc = new WebConversation();
     final WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Set an attribute
     req.setParameter("cmd", QueryCommand.SET.name());
     req.setParameter("param", key);
     req.setParameter("value", value);
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
 
     // Sleep a while
     Thread.sleep(65000);

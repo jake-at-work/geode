@@ -84,7 +84,7 @@ public abstract class ProcessStreamReader implements Runnable {
   }
 
   public ProcessStreamReader stopAsync(final long delayMillis) {
-    Runnable delayedStop = () -> {
+    var delayedStop = (Runnable) () -> {
       try {
         Thread.sleep(delayMillis);
       } catch (InterruptedException ignored) {
@@ -93,7 +93,7 @@ public abstract class ProcessStreamReader implements Runnable {
       }
     };
 
-    String threadName =
+    var threadName =
         getClass().getSimpleName() + " stopAfterDelay Thread @" + Integer.toHexString(hashCode());
     Thread thread = new LoggingThread(threadName, delayedStop);
     thread.start();
@@ -184,20 +184,20 @@ public abstract class ProcessStreamReader implements Runnable {
 
   private static String waitAndCaptureProcessStream(final Process process,
       final InputStream processInputStream, final long waitTimeMilliseconds) {
-    StringBuilder buffer = new StringBuilder();
+    var buffer = new StringBuilder();
 
-    InputListener inputListener = line -> {
+    var inputListener = (InputListener) line -> {
       buffer.append(line);
       buffer.append(lineSeparator());
     };
 
-    ProcessStreamReader reader = new ProcessStreamReader.Builder(process)
+    var reader = new ProcessStreamReader.Builder(process)
         .inputStream(processInputStream).inputListener(inputListener).build();
 
     try {
       reader.start();
 
-      long endTime = System.currentTimeMillis() + waitTimeMilliseconds;
+      var endTime = System.currentTimeMillis() + waitTimeMilliseconds;
 
       while (System.currentTimeMillis() < endTime) {
         try {

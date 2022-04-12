@@ -65,17 +65,17 @@ public class SizeExportLogsFunctionFileIntegrationTest {
 
   @Test
   public void bothFiles_returnsCombinedSize() throws Exception {
-    List<File> logFiles =
+    var logFiles =
         createLogFiles(new File(dir.getName(), testName.getMethodName()), 1, 1, FileUtils.ONE_KB);
-    File logFile = logFiles.get(0);
-    long logFileSize = FileUtils.sizeOf(logFiles.get(0));
+    var logFile = logFiles.get(0);
+    var logFileSize = FileUtils.sizeOf(logFiles.get(0));
 
-    List<File> statFiles =
+    var statFiles =
         createStatFiles(new File(dir.getName(), testName.getMethodName()), 1, 1, FileUtils.ONE_KB);
-    File statArchive = statFiles.get(0);
-    long statFileSize = FileUtils.sizeOf(statArchive);
+    var statArchive = statFiles.get(0);
+    var statFileSize = FileUtils.sizeOf(statArchive);
 
-    SizeExportLogsFunction function = new SizeExportLogsFunction();
+    var function = new SizeExportLogsFunction();
     assertThat(function.estimateLogFileSize(member, logFile, statArchive, nonFilteringArgs))
         .isEqualTo(logFileSize + statFileSize);
   }
@@ -83,40 +83,40 @@ public class SizeExportLogsFunctionFileIntegrationTest {
   @Test
   public void manyFiles_returnsCombinedSize() throws Exception {
     expectedSize = 0;
-    List<File> logFiles =
+    var logFiles =
         createLogFiles(new File(dir.getName(), testName.getMethodName()), 1, 3, FileUtils.ONE_KB);
     logFiles.forEach((file) -> {
       expectedSize += FileUtils.sizeOf(file);
     });
 
-    List<File> statFiles = createStatFiles(new File(dir.getName(), testName.getMethodName()), 1, 2,
+    var statFiles = createStatFiles(new File(dir.getName(), testName.getMethodName()), 1, 2,
         FileUtils.ONE_KB * 2);
     statFiles.forEach((file) -> {
       expectedSize += FileUtils.sizeOf(file);
     });
 
-    SizeExportLogsFunction function = new SizeExportLogsFunction();
+    var function = new SizeExportLogsFunction();
     assertThat(function.estimateLogFileSize(member, logFiles.get(0), statFiles.get(0),
         nonFilteringArgs)).isEqualTo(expectedSize);
   }
 
   @Test
   public void emptyFiles_returnsZeroSize() throws Exception {
-    List<File> logFiles =
+    var logFiles =
         createLogFiles(new File(dir.getName(), testName.getMethodName()), 1, 3, 0);
 
-    List<File> statFiles =
+    var statFiles =
         createStatFiles(new File(dir.getName(), testName.getMethodName()), 1, 2, 0);
-    SizeExportLogsFunction function = new SizeExportLogsFunction();
+    var function = new SizeExportLogsFunction();
     assertThat(function.estimateLogFileSize(member, logFiles.get(0), statFiles.get(0),
         nonFilteringArgs)).isEqualTo(0);
   }
 
   @Test
   public void nullFiles_returnsZeroSize() throws Exception {
-    File nullLogFile = new File(dir.getPath(), "nullLogFile");
-    File nullStatFile = new File(dir.getPath(), "nullStatFile");
-    SizeExportLogsFunction function = new SizeExportLogsFunction();
+    var nullLogFile = new File(dir.getPath(), "nullLogFile");
+    var nullStatFile = new File(dir.getPath(), "nullStatFile");
+    var function = new SizeExportLogsFunction();
     assertThat(
         function.estimateLogFileSize(member, nullLogFile, nullStatFile, nonFilteringArgs))
             .isEqualTo(0);
@@ -125,10 +125,10 @@ public class SizeExportLogsFunctionFileIntegrationTest {
   private List<File> createLogFiles(File logFile, int mainId, int numberOfFiles, long sizeOfFile)
       throws IOException {
     List<File> files = new ArrayList<>();
-    for (int i = 0; i < numberOfFiles; i++) {
-      String name =
+    for (var i = 0; i < numberOfFiles; i++) {
+      var name =
           baseName(logFile.getName()) + "-" + formatId(mainId) + "-" + formatId(i + 1) + ".log";
-      File file = createFile(name, sizeOfFile, true);
+      var file = createFile(name, sizeOfFile, true);
       files.add(file);
     }
     return files;
@@ -137,10 +137,10 @@ public class SizeExportLogsFunctionFileIntegrationTest {
   private List<File> createStatFiles(File logFile, int mainId, int numberOfFiles, long sizeOfFile)
       throws IOException {
     List<File> files = new ArrayList<>();
-    for (int i = 0; i < numberOfFiles; i++) {
-      String name =
+    for (var i = 0; i < numberOfFiles; i++) {
+      var name =
           baseName(logFile.getName()) + "-" + formatId(mainId) + "-" + formatId(i + 1) + ".gfs";
-      File file = createFile(name, sizeOfFile, false);
+      var file = createFile(name, sizeOfFile, false);
       files.add(file);
     }
     return files;
@@ -161,13 +161,13 @@ public class SizeExportLogsFunctionFileIntegrationTest {
   }
 
   private File createFile(String name, long sizeInBytes, boolean lineFeed) throws IOException {
-    File file = new File(dir, name);
+    var file = new File(dir, name);
     fillUpFile(file, sizeInBytes, lineFeed);
     return file;
   }
 
   private void fillUpFile(File file, long sizeInBytes, boolean lineFeed) throws IOException {
-    PrintWriter writer = new PrintWriter(file, "UTF-8");
+    var writer = new PrintWriter(file, "UTF-8");
     while (FileUtils.sizeOf(file) < sizeInBytes) {
       writer.print("this is a line of data in the file");
       if (lineFeed) {

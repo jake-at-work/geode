@@ -29,8 +29,8 @@ public class AbstractRegionTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    AbstractRegion mockAbstractRegion = mock(AbstractRegion.class);
-    long millis = System.currentTimeMillis();
+    var mockAbstractRegion = mock(AbstractRegion.class);
+    var millis = System.currentTimeMillis();
 
     when(mockAbstractRegion.isAllEvents()).thenReturn(true);
     when(mockAbstractRegion.cacheTimeMillis()).thenReturn(millis);
@@ -41,35 +41,35 @@ public class AbstractRegionTest {
 
   @Test
   public void hasRunningGatewaySender_returnsFalse_ifSendersIsEmpty() {
-    GatewaySender sender = mock(GatewaySender.class);
+    var sender = mock(GatewaySender.class);
 
-    boolean value = AbstractRegion.hasRunningGatewaySender(Collections.emptySet(), sender);
+    var value = AbstractRegion.hasRunningGatewaySender(Collections.emptySet(), sender);
 
     assertThat(value).isFalse();
   }
 
   @Test
   public void hasRunningGatewaySender_returnsFalse_ifSenderIsStopped() {
-    GatewaySender mockSender = mock(GatewaySender.class);
-    Set<GatewaySender> senders = (Set<GatewaySender>) mock(Set.class);
+    var mockSender = mock(GatewaySender.class);
+    var senders = (Set<GatewaySender>) mock(Set.class);
 
     when(senders.contains(mockSender)).thenReturn(true);
     when(mockSender.isRunning()).thenReturn(false);
 
-    boolean value = AbstractRegion.hasRunningGatewaySender(senders, mockSender);
+    var value = AbstractRegion.hasRunningGatewaySender(senders, mockSender);
 
     assertThat(value).isFalse();
   }
 
   @Test
   public void hasRunningGatewaySender_returnsTrue_ifSenderIsRunning() {
-    GatewaySender mockSender = mock(GatewaySender.class);
-    Set<GatewaySender> senders = (Set<GatewaySender>) mock(Set.class);
+    var mockSender = mock(GatewaySender.class);
+    var senders = (Set<GatewaySender>) mock(Set.class);
 
     when(senders.contains(mockSender)).thenReturn(true);
     when(mockSender.isRunning()).thenReturn(true);
 
-    boolean value = AbstractRegion.hasRunningGatewaySender(senders, mockSender);
+    var value = AbstractRegion.hasRunningGatewaySender(senders, mockSender);
 
     assertThat(value).isTrue();
   }

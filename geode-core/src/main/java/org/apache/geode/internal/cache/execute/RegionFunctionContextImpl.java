@@ -83,7 +83,7 @@ public class RegionFunctionContextImpl extends FunctionContextImpl
 
   private void setFunctionContexts() {
     if (colocatedLocalDataMap != null) {
-      for (LocalDataSet ls : colocatedLocalDataMap.values()) {
+      for (var ls : colocatedLocalDataMap.values()) {
         ls.setFunctionContext(this);
       }
     }
@@ -140,8 +140,8 @@ public class RegionFunctionContextImpl extends FunctionContextImpl
   @Override
   public Map<String, LocalDataSet> getColocatedLocalDataSets() {
     if (colocatedLocalDataMap != null) {
-      HashMap<String, LocalDataSet> ret =
-          new HashMap<>(colocatedLocalDataMap);
+      var ret =
+          new HashMap<String, LocalDataSet>(colocatedLocalDataMap);
       ret.remove(dataSet.getFullPath());
       return Collections.unmodifiableMap(ret);
     } else {

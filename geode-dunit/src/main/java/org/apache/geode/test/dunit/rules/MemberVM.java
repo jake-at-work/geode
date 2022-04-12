@@ -24,7 +24,6 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.test.dunit.DUnitBlackboard;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.rules.Locator;
 import org.apache.geode.test.junit.rules.Member;
@@ -108,7 +107,7 @@ public class MemberVM extends VMProvider implements Member {
    */
   public void forceDisconnect(long timeout, TimeUnit timeUnit, String reconnectBBKey) {
     vm.invoke(() -> {
-      DUnitBlackboard server1BB = getBlackboard();
+      var server1BB = getBlackboard();
       server1BB.initBlackboard();
       server1BB.setMailbox(reconnectBBKey, false);
 

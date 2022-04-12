@@ -23,11 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -140,26 +137,26 @@ public class OSProcess {
    */
   public static int bgexec(String[] cmdarray, File workdir, File logfile, boolean inheritLogfile,
       Map<String, String> env) throws IOException {
-    String commandShell =
+    var commandShell =
         System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "commandShell", "bash");
     if (cmdarray.length == 0) {
       throw new java.lang.IndexOutOfBoundsException();
     }
-    boolean isWindows = false;
-    String os = System.getProperty("os.name");
+    var isWindows = false;
+    var os = System.getProperty("os.name");
     if (os != null) {
       if (os.indexOf("Windows") != -1) {
         isWindows = true;
       }
     }
-    for (int i = 0; i < cmdarray.length; i++) {
+    for (var i = 0; i < cmdarray.length; i++) {
       if (cmdarray[i] == null) {
         throw new NullPointerException();
       }
       if (isWindows) {
         if (i == 0) {
           // do the following before quotes get added.
-          File cmd = new File(cmdarray[0]);
+          var cmd = new File(cmdarray[0]);
           if (!cmd.exists()) {
             cmd = new File(cmdarray[0] + ".exe");
             if (cmd.exists()) {
@@ -167,19 +164,19 @@ public class OSProcess {
             }
           }
         }
-        String s = cmdarray[i];
+        var s = cmdarray[i];
         if (i != 0) {
           if (s.length() == 0) {
             cmdarray[i] = "\"\""; // fix for bug 22207
           } else if ((s.indexOf(' ') >= 0 || s.indexOf('\t') >= 0)) {
-            String unquotedS = s;
+            var unquotedS = s;
             if (s.indexOf('\"') != -1) {
               // Note that Windows provides no way to embed a double
               // quote in a double quoted string so need to remove
               // any internal quotes and let the outer quotes
               // preserve the whitespace.
-              StringBuilder b = new StringBuilder(s);
-              int quoteIdx = s.lastIndexOf('\"');
+              var b = new StringBuilder(s);
+              var quoteIdx = s.lastIndexOf('\"');
               while (quoteIdx != -1) {
                 b.deleteCharAt(quoteIdx);
                 quoteIdx = s.lastIndexOf('\"', quoteIdx - 1);
@@ -192,17 +189,18 @@ public class OSProcess {
         }
       }
     }
-    File cmd = new File(cmdarray[0]);
+    var cmd = new File(cmdarray[0]);
     if (!cmd.exists()) {
       throw new IOException(String.format("the executable %s does not exist",
           cmd.getPath()));
     }
-    @SuppressWarnings("removal") SecurityManager security = System.getSecurityManager();
+    @SuppressWarnings("removal")
+    var security = System.getSecurityManager();
     if (security != null) {
       security.checkExec(cmdarray[0]);
     }
     if (workdir != null && !workdir.isDirectory()) {
-      String curDir = new File("").getAbsolutePath();
+      var curDir = new File("").getAbsolutePath();
       System.out.println(
           String.format("WARNING: %s is not a directory. Defaulting to current directory %s.",
               workdir, curDir));
@@ -237,18 +235,18 @@ public class OSProcess {
             logfile.getPath(), io.getMessage()));
       }
     }
-    String trace = System.getProperty("org.apache.geode.logging.internal.OSProcess.trace");
+    var trace = System.getProperty("org.apache.geode.logging.internal.OSProcess.trace");
     if (trace != null && trace.length() > 0) {
-      for (int i = 0; i < cmdarray.length; i++) {
+      for (var i = 0; i < cmdarray.length; i++) {
         System.out.println("cmdarray[" + i + "] = " + cmdarray[i]);
       }
       System.out.println("workdir=" + workdir.getPath());
       System.out.println("logfile=" + logfile.getPath());
     }
-    int result = 0;
+    var result = 0;
 
-    StringBuilder sb = new StringBuilder();
-    Vector<String> cmdVec = new Vector<>();
+    var sb = new StringBuilder();
+    var cmdVec = new Vector<String>();
     // Add shell code to spawn a process silently
     if (isWindows) {
       cmdVec.add("cmd.exe");
@@ -265,7 +263,7 @@ public class OSProcess {
       }
     }
     // Add the actual command
-    for (int i = 0; i < cmdarray.length; i++) {
+    for (var i = 0; i < cmdarray.length; i++) {
       if (i != 0) {
         sb.append(" ");
       }
@@ -289,21 +287,21 @@ public class OSProcess {
     }
     cmdVec.add(sb.toString());
 
-    String[] cmdStrings = cmdVec.toArray(new String[0]);
+    var cmdStrings = cmdVec.toArray(new String[0]);
     if (trace != null && trace.length() > 0) {
-      for (int i = 0; i < cmdStrings.length; i++) {
+      for (var i = 0; i < cmdStrings.length; i++) {
         System.out.println("cmdStrings[" + i + "] = " + cmdStrings[i]);
       }
       System.out.println("workdir=" + workdir.getPath());
       System.out.println("logfile=" + logfile.getPath());
     }
-    final ProcessBuilder procBuilder = new ProcessBuilder(cmdStrings);
+    final var procBuilder = new ProcessBuilder(cmdStrings);
     if (env != null && env.size() > 0) {
       // adjust the environment variables inheriting from parent
       procBuilder.environment().putAll(env);
     }
     procBuilder.directory(workdir);
-    final Process process = procBuilder.start();
+    final var process = procBuilder.start();
     try {
       process.getInputStream().close();
     } catch (IOException ignore) {
@@ -318,7 +316,7 @@ public class OSProcess {
     }
     try {
       // short count = 1000;
-      boolean processIsStillRunning = true;
+      var processIsStillRunning = true;
       while (processIsStillRunning) {
         Thread.sleep(10);
         try {
@@ -403,14 +401,14 @@ public class OSProcess {
       if (pid > 0 && pid != myPid[0]) {
         return false;
       }
-      try (CharArrayWriter cw = new CharArrayWriter(50000)) {
-        PrintWriter sb = new PrintWriter(cw, true);
+      try (var cw = new CharArrayWriter(50000)) {
+        var sb = new PrintWriter(cw, true);
         sb.append("\n******** full thread dump ********\n");
-        ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-        long[] threadIds = bean.getAllThreadIds();
-        ThreadInfo[] infos = bean.getThreadInfo(threadIds, true, true);
-        long thisThread = Thread.currentThread().getId();
-        for (int i = 0; i < infos.length; i++) {
+        var bean = ManagementFactory.getThreadMXBean();
+        var threadIds = bean.getAllThreadIds();
+        var infos = bean.getThreadInfo(threadIds, true, true);
+        var thisThread = Thread.currentThread().getId();
+        for (var i = 0; i < infos.length; i++) {
           if (i != thisThread && infos[i] != null) {
             formatThreadInfo(infos[i], sb);
           }
@@ -429,14 +427,14 @@ public class OSProcess {
 
   /** dumps this vm's stacks and returns gzipped result */
   public static byte[] zipStacks() throws IOException {
-    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-    long[] threadIds = bean.getAllThreadIds();
-    ThreadInfo[] infos = bean.getThreadInfo(threadIds, true, true);
-    long thisThread = Thread.currentThread().getId();
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(10000);
-    GZIPOutputStream zipOut = new GZIPOutputStream(baos, 10000);
-    PrintWriter pw = new PrintWriter(zipOut, true);
-    for (int i = 0; i < infos.length; i++) {
+    var bean = ManagementFactory.getThreadMXBean();
+    var threadIds = bean.getAllThreadIds();
+    var infos = bean.getThreadInfo(threadIds, true, true);
+    var thisThread = Thread.currentThread().getId();
+    var baos = new ByteArrayOutputStream(10000);
+    var zipOut = new GZIPOutputStream(baos, 10000);
+    var pw = new PrintWriter(zipOut, true);
+    for (var i = 0; i < infos.length; i++) {
       if (i != thisThread && infos[i] != null) {
         formatThreadInfo(infos[i], pw);
       }
@@ -476,14 +474,14 @@ public class OSProcess {
     pw.append('\n');
     pw.append("    java.lang.Thread.State: ").append(String.valueOf(t.getThreadState()))
         .append("\n");
-    int i = 0;
-    StackTraceElement[] stackTrace = t.getStackTrace();
+    var i = 0;
+    var stackTrace = t.getStackTrace();
     for (; i < stackTrace.length && i < MAX_STACK_FRAMES; i++) {
-      StackTraceElement ste = stackTrace[i];
+      var ste = stackTrace[i];
       pw.append("\tat ").append(ste.toString());
       pw.append('\n');
       if (i == 0 && t.getLockInfo() != null) {
-        Thread.State ts = t.getThreadState();
+        var ts = t.getThreadState();
         switch (ts) {
           case BLOCKED:
             pw.append("\t-  blocked on ").append(String.valueOf(t.getLockInfo()));
@@ -501,7 +499,7 @@ public class OSProcess {
         }
       }
 
-      for (MonitorInfo mi : t.getLockedMonitors()) {
+      for (var mi : t.getLockedMonitors()) {
         if (mi.getLockedStackDepth() == i) {
           pw.append("\t-  locked ").append(String.valueOf(mi));
           pw.append('\n');
@@ -513,11 +511,11 @@ public class OSProcess {
       pw.append('\n');
     }
 
-    LockInfo[] locks = t.getLockedSynchronizers();
+    var locks = t.getLockedSynchronizers();
     if (locks.length > 0) {
       pw.append("\n\tNumber of locked synchronizers = ").append(String.valueOf(locks.length));
       pw.append('\n');
-      for (LockInfo li : locks) {
+      for (var li : locks) {
         pw.append("\t- ").append(String.valueOf(li));
         pw.append('\n');
       }
@@ -599,13 +597,13 @@ public class OSProcess {
   static {
     // just initialize the pid cache
     synchronized (myPid) {
-      int pid = 0;
+      var pid = 0;
       // Windows checks have been disabled as the ManagementFactory hack
       // to find the PID has been seen to work on Windows 7. Add checks
       // for more specific versions of Windows if this fails on them
       // if(! System.getProperty("os.name", "").startsWith("Windows")) {
-      String name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
-      int idx = name.indexOf('@');
+      var name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+      var idx = name.indexOf('@');
       try {
         pid = Integer.parseInt(name.substring(0, idx));
       } catch (NumberFormatException nfe) {
@@ -623,8 +621,8 @@ public class OSProcess {
    * @return the vm's process id.
    */
   public static int getId() {
-    boolean done = false;
-    int result = -1;
+    var done = false;
+    var result = -1;
     for (;;) {
       synchronized (myPid) {
         done = reaperStarted;
@@ -655,7 +653,7 @@ public class OSProcess {
     } catch (FileNotFoundException e) {
       throw new IOException("File not found: " + newOutput, e);
     }
-    final PrintStream newPrintStream =
+    final var newPrintStream =
         new PrintStream(new BufferedOutputStream(newFileStream, 128), true);
     if (((DISABLE_REDIRECTION_CONFIGURATION)
         || (ENABLE_OUTPUT_REDIRECTION && !DISABLE_OUTPUT_REDIRECTION)) && setOut) {

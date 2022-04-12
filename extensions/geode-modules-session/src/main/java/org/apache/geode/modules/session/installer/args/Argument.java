@@ -112,7 +112,7 @@ public class Argument {
     if (envVars == null || paramNames.length == 0) {
       return false;
     }
-    for (String var : envVars) {
+    for (var var : envVars) {
       if (System.getenv(var) == null) {
         return false;
       }
@@ -248,12 +248,12 @@ public class Argument {
    */
   @Override
   public String toString() {
-    final StringBuilder builder = new StringBuilder();
+    final var builder = new StringBuilder();
     builder.append("[Argument '");
     builder.append(forms.get(0));
     builder.append("'");
     if (paramNames.length > 0) {
-      for (String paramName : paramNames) {
+      for (var paramName : paramNames) {
         builder.append(" <");
         builder.append(paramName);
         builder.append(">");

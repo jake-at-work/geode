@@ -27,11 +27,8 @@ import org.apache.lucene.analysis.Analyzer;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.EvictionAttributes;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.lucene.LuceneSerializer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegionArguments;
@@ -43,28 +40,28 @@ public class LuceneRegionListenerJUnitTest {
 
   @Test
   public void beforeDataRegionCreatedShouldHaveSerializer() {
-    String name = "indexName";
-    String regionPath = "regionName";
-    String[] fields = {"field1", "field2"};
-    String aeqId = LuceneServiceImpl.getUniqueIndexName(name, regionPath);
+    var name = "indexName";
+    var regionPath = "regionName";
+    var fields = new String[] {"field1", "field2"};
+    var aeqId = LuceneServiceImpl.getUniqueIndexName(name, regionPath);
     InternalCache cache = Fakes.cache();
-    final Region region = Fakes.region(regionPath, cache);
-    RegionAttributes attributes = region.getAttributes();
-    DataPolicy policy = attributes.getDataPolicy();
+    final var region = Fakes.region(regionPath, cache);
+    var attributes = region.getAttributes();
+    var policy = attributes.getDataPolicy();
     when(policy.withPartitioning()).thenReturn(true);
-    EvictionAttributes evictionAttributes = mock(EvictionAttributes.class);
+    var evictionAttributes = mock(EvictionAttributes.class);
     when(attributes.getEvictionAttributes()).thenReturn(evictionAttributes);
-    CopyOnWriteArraySet set = new CopyOnWriteArraySet();
+    var set = new CopyOnWriteArraySet();
     set.add(aeqId);
     when(attributes.getAsyncEventQueueIds()).thenReturn(set);
     when(evictionAttributes.getAlgorithm()).thenReturn(EvictionAlgorithm.NONE);
-    LuceneServiceImpl service = mock(LuceneServiceImpl.class);
-    Analyzer analyzer = mock(Analyzer.class);
-    LuceneSerializer serializer = mock(LuceneSerializer.class);
-    InternalRegionArguments internalRegionArgs = mock(InternalRegionArguments.class);
+    var service = mock(LuceneServiceImpl.class);
+    var analyzer = mock(Analyzer.class);
+    var serializer = mock(LuceneSerializer.class);
+    var internalRegionArgs = mock(InternalRegionArguments.class);
     when(internalRegionArgs.addCacheServiceProfile(any())).thenReturn(internalRegionArgs);
 
-    LuceneRegionListener listener = new LuceneRegionListener(service, name, SEPARATOR + regionPath,
+    var listener = new LuceneRegionListener(service, name, SEPARATOR + regionPath,
         fields, analyzer, null, serializer);
     listener.beforeCreate(null, regionPath, attributes, internalRegionArgs);
     verify(service).beforeDataRegionCreated(eq(name), eq(SEPARATOR + regionPath), eq(attributes),

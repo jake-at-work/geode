@@ -34,12 +34,12 @@ public class StatsAverageLatency {
 
   public long getAverageLatency() {
     if (numKeyType.equals(StatType.INT_TYPE)) {
-      int numberCounter = monitor.getStatistic(numberKey).intValue();
-      long timeCounter = monitor.getStatistic(timeKey).longValue();
+      var numberCounter = monitor.getStatistic(numberKey).intValue();
+      var timeCounter = monitor.getStatistic(timeKey).longValue();
       return MetricsCalculator.getAverageLatency(numberCounter, timeCounter);
     } else {
-      long numberCounter = monitor.getStatistic(numberKey).longValue();
-      long timeCounter = monitor.getStatistic(timeKey).longValue();
+      var numberCounter = monitor.getStatistic(numberKey).longValue();
+      var timeCounter = monitor.getStatistic(timeKey).longValue();
       return MetricsCalculator.getAverageLatency(numberCounter, timeCounter);
     }
 

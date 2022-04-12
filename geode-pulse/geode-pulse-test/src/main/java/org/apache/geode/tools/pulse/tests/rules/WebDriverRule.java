@@ -86,14 +86,14 @@ public class WebDriverRule extends ExternalResource {
   }
 
   public void login(String username, String password) {
-    WebElement userNameElement = waitForElementById("user_name", 60);
-    WebElement passwordElement = waitForElementById("user_password");
+    var userNameElement = waitForElementById("user_name", 60);
+    var passwordElement = waitForElementById("user_password");
     userNameElement.sendKeys(username);
     passwordElement.sendKeys(password);
     passwordElement.submit();
 
     driver.get(getPulseURL() + "clusterDetail.html");
-    WebElement userNameOnPulsePage = (new WebDriverWait(driver, 30, 1000))
+    var userNameOnPulsePage = (new WebDriverWait(driver, 30, 1000))
         .until((ExpectedCondition<WebElement>) d -> d.findElement(By.id("userName")));
     assertNotNull(userNameOnPulsePage);
   }
@@ -103,7 +103,7 @@ public class WebDriverRule extends ExternalResource {
   }
 
   private void setUpWebDriver() {
-    ChromeOptions options = new ChromeOptions();
+    var options = new ChromeOptions();
     options.addArguments("headless");
     options.addArguments("no-sandbox");
     options.addArguments("window-size=1200x600");
@@ -118,7 +118,7 @@ public class WebDriverRule extends ExternalResource {
   }
 
   private WebElement waitForElementById(final String id, int timeoutInSeconds) {
-    WebElement element =
+    var element =
         (new WebDriverWait(driver, timeoutInSeconds, 1000))
             .until((ExpectedCondition<WebElement>) d -> d.findElement(By.id(id)));
     assertNotNull(element);

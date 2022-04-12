@@ -14,9 +14,7 @@
  */
 package org.apache.geode.internal.cache;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import org.apache.geode.internal.Assert;
 
@@ -132,9 +130,9 @@ public class UserSpecifiedDiskStoreAttributes extends DiskStoreAttributes {
   }
 
   public void setAllHasFields(boolean b) {
-    int hasCounter = 0;
-    Field[] thisFields = UserSpecifiedDiskStoreAttributes.class.getDeclaredFields();
-    for (final Field thisField : thisFields) {
+    var hasCounter = 0;
+    var thisFields = UserSpecifiedDiskStoreAttributes.class.getDeclaredFields();
+    for (final var thisField : thisFields) {
       if (thisField.getName().startsWith("has")) {
         hasCounter++;
         try {
@@ -149,18 +147,18 @@ public class UserSpecifiedDiskStoreAttributes extends DiskStoreAttributes {
   }
 
   public void initHasFields(UserSpecifiedDiskStoreAttributes other) {
-    Field[] thisFields = UserSpecifiedDiskStoreAttributes.class.getDeclaredFields();
-    Object[] emptyArgs = new Object[] {};
-    int hasCounter = 0;
+    var thisFields = UserSpecifiedDiskStoreAttributes.class.getDeclaredFields();
+    var emptyArgs = new Object[] {};
+    var hasCounter = 0;
     String fieldName = null;
-    for (final Field thisField : thisFields) {
+    for (final var thisField : thisFields) {
       fieldName = thisField.getName();
       if (fieldName.startsWith("has")) {
         hasCounter++;
-        boolean bval = false;
+        var bval = false;
 
         try {
-          Method otherMeth = other.getClass().getMethod(fieldName/* , (Class[])null */);
+          var otherMeth = other.getClass().getMethod(fieldName/* , (Class[])null */);
           bval = (Boolean) otherMeth.invoke(other, emptyArgs);
         } catch (NoSuchMethodException darnit) {
           Assert.assertTrue(false, "A has* method accessor is required for field " + fieldName);

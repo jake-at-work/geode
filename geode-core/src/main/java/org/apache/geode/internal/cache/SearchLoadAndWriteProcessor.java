@@ -31,7 +31,6 @@ import java.util.concurrent.locks.Lock;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.CancelCriterion;
 import org.apache.geode.CancelException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.GemFireException;
@@ -43,11 +42,8 @@ import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.CacheWriterException;
-import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
-import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Operation;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
@@ -65,9 +61,7 @@ import org.apache.geode.distributed.internal.SerialDistributionMessage;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.versions.DiskVersionTag;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.offheap.Releasable;
 import org.apache.geode.internal.offheap.annotations.Released;
@@ -158,9 +152,9 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   Object doNetSearch() throws TimeoutException {
 
     resetResults();
-    RegionAttributes attrs = region.getAttributes();
+    var attrs = region.getAttributes();
     requestInProgress = true;
-    Scope scope = attrs.getScope();
+    var scope = attrs.getScope();
     Assert.assertTrue(scope != Scope.LOCAL);
     netSearchForBlob();
     requestInProgress = false;
@@ -172,11 +166,11 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   void doSearchAndLoad(EntryEventImpl event, TXStateInterface txState, Object localValue,
       boolean preferCD) throws CacheLoaderException, TimeoutException {
     requestInProgress = true;
-    RegionAttributes attrs = region.getAttributes();
-    Scope scope = attrs.getScope();
-    CacheLoader loader = region.basicGetLoader();
+    var attrs = region.getAttributes();
+    var scope = attrs.getScope();
+    var loader = region.basicGetLoader();
     if (scope.isLocal()) {
-      Object obj = doLocalLoad(loader, false, preferCD);
+      var obj = doLocalLoad(loader, false, preferCD);
       event.setNewValue(obj);
     } else {
       searchAndLoad(event, txState, localValue, preferCD);
@@ -207,9 +201,9 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   boolean doNetWrite(CacheEvent event, Set netWriteRecipients, CacheWriter localWriter, int paction)
       throws CacheWriterException, TimeoutException {
 
-    int action = paction;
+    var action = paction;
     requestInProgress = true;
-    Scope scope = region.getScope();
+    var scope = region.getScope();
     if (localWriter != null) {
       doLocalWrite(localWriter, event, action);
       requestInProgress = false;
@@ -219,12 +213,12 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
       return false;
     }
     @Released
-    CacheEvent listenerEvent = getEventForListener(event);
+    var listenerEvent = getEventForListener(event);
     try {
       if (action == BEFOREUPDATE && listenerEvent.getOperation().isCreate()) {
         action = BEFORECREATE;
       }
-      boolean cacheWrote = netWrite(listenerEvent, action, netWriteRecipients);
+      var cacheWrote = netWrite(listenerEvent, action, netWriteRecipients);
       requestInProgress = false;
       return cacheWrote;
     } finally {
@@ -350,7 +344,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   }
 
   static SearchLoadAndWriteProcessor getProcessor() {
-    SearchLoadAndWriteProcessor processor = new SearchLoadAndWriteProcessor();
+    var processor = new SearchLoadAndWriteProcessor();
     processor.processorId = getProcessorKeeper().put(processor);
     return processor;
   }
@@ -385,8 +379,8 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     regionName = theRegion.getFullPath();
     key = theKey;
     aCallbackArgument = theCallbackArg;
-    RegionAttributes attrs = theRegion.getAttributes();
-    Scope scope = attrs.getScope();
+    var attrs = theRegion.getAttributes();
+    var scope = attrs.getScope();
     if (scope.isDistributed()) {
       advisor = ((CacheDistributionAdvisee) region).getCacheDistributionAdvisor();
       distributionManager = theRegion.getDistributionManager();
@@ -446,12 +440,12 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   private void searchAndLoad(EntryEventImpl event, TXStateInterface txState, Object localValue,
       boolean preferCD) throws CacheLoaderException, TimeoutException {
 
-    RegionAttributes attrs = region.getAttributes();
-    Scope scope = attrs.getScope();
-    DataPolicy dataPolicy = attrs.getDataPolicy();
+    var attrs = region.getAttributes();
+    var scope = attrs.getScope();
+    var dataPolicy = attrs.getDataPolicy();
 
     if (txState != null) {
-      TXEntryState tx = txState.txReadEntry(event.getKeyInfo(), region, false,
+      var tx = txState.txReadEntry(event.getKeyInfo(), region, false,
           true/* create txEntry is absent */);
       if (tx != null) {
         if (tx.noValueInSystem()) {
@@ -477,7 +471,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     Object obj = null;
     if (!scope.isGlobal()) {
       // copy into local var to prevent race condition
-      CacheLoader loader = region.basicGetLoader();
+      var loader = region.basicGetLoader();
       if (loader != null) {
         obj = doLocalLoad(loader, true, preferCD);
         Assert.assertTrue(obj != Token.INVALID && obj != Token.LOCAL_INVALID);
@@ -511,12 +505,12 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
       return;
     }
     netSearchDone = true;
-    CachePerfStats stats = region.getCachePerfStats();
+    var stats = region.getCachePerfStats();
     long start = 0;
     Set sendSet = null;
 
     result = null;
-    RegionAttributes attrs = region.getAttributes();
+    var attrs = region.getAttributes();
     // Object aCallbackArgument = null;
     requestInProgress = true;
     selectedNodeDead = false;
@@ -528,7 +522,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
       if (replicates.size() > 1) {
         Collections.shuffle(replicates);
       }
-      for (InternalDistributedMember replicate : replicates) {
+      for (var replicate : replicates) {
         synchronized (pendingResponders) {
           pendingResponders.clear();
         }
@@ -561,7 +555,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         if (recipients.isEmpty()) {
           return;
         }
-        ArrayList list = new ArrayList(recipients);
+        var list = new ArrayList(recipients);
         Collections.shuffle(list);
         sendSet = new HashSet(list);
         synchronized (pendingResponders) {
@@ -570,7 +564,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         }
       }
 
-      boolean useMulticast = region.getMulticastEnabled() && (region instanceof DistributedRegion)
+      var useMulticast = region.getMulticastEnabled() && (region instanceof DistributedRegion)
           && region.getSystem().getConfig().getMcastPort() != 0;
 
       // moved outside the sync to fix bug 39458
@@ -584,7 +578,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         // sendSet,this.remainingTimeout ,
         // attrs.getEntryTimeToLive().getTimeout(),
         // attrs.getEntryIdleTimeout().getTimeout());
-        boolean done = false;
+        var done = false;
         do {
           waitForObject2(remainingTimeout);
           if (selectedNodeDead && remoteGetInProgress) {
@@ -607,9 +601,9 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   private void load(EntryEventImpl event, boolean preferCD)
       throws CacheLoaderException, TimeoutException {
     Object obj = null;
-    RegionAttributes attrs = region.getAttributes();
-    Scope scope = attrs.getScope();
-    CacheLoader loader = region.basicGetLoader();
+    var attrs = region.getAttributes();
+    var scope = attrs.getScope();
+    var loader = region.basicGetLoader();
     Assert.assertTrue(scope.isDistributed());
 
     if ((loader != null) && (!scope.isGlobal())) {
@@ -628,12 +622,12 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
       }
 
       lock = region.getDistributedLock(key);
-      boolean locked = false;
+      var locked = false;
       try {
-        final CancelCriterion stopper = region.getCancelCriterion();
+        final var stopper = region.getCancelCriterion();
         for (;;) {
           stopper.checkCancelInProgress(null);
-          boolean interrupted = Thread.interrupted();
+          var interrupted = Thread.interrupted();
           try {
             locked = lock.tryLock(region.getCache().getLockTimeout(), TimeUnit.SECONDS);
             if (!locked) {
@@ -701,21 +695,21 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
       if (loadCandidatesSet.isEmpty()) {
         return null;
       }
-      CachePerfStats stats = region.getCachePerfStats();
-      long start = stats.startNetload();
-      ArrayList list = new ArrayList(loadCandidatesSet);
+      var stats = region.getCachePerfStats();
+      var start = stats.startNetload();
+      var list = new ArrayList(loadCandidatesSet);
       Collections.shuffle(list);
-      InternalDistributedMember[] loadCandidates =
+      var loadCandidates =
           (InternalDistributedMember[]) list.toArray(new InternalDistributedMember[0]);
       initRemainingTimeout();
 
-      RegionAttributes attrs = region.getAttributes();
-      int index = 0;
-      boolean stayInLoop = false; // never set to true!
+      var attrs = region.getAttributes();
+      var index = 0;
+      var stayInLoop = false; // never set to true!
       remoteLoadInProgress = true;
       try {
         do { // the only time this loop repeats is when continue is called
-          InternalDistributedMember next = loadCandidates[index++];
+          var next = loadCandidates[index++];
           setSelectedNode(next);
           lastNotifySpot = 0;
           requestInProgress = true;
@@ -799,10 +793,10 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     Object obj = null;
     if (loader != null && !attemptedLocalLoad) {
       attemptedLocalLoad = true;
-      CachePerfStats stats = region.getCachePerfStats();
-      LoaderHelper loaderHelper = region.loaderHelperFactory.createLoaderHelper(key,
+      var stats = region.getCachePerfStats();
+      var loaderHelper = region.loaderHelperFactory.createLoaderHelper(key,
           aCallbackArgument, netSearchAllowed, true /* netLoadAllowed */, this);
-      long statStart = stats.startLoad();
+      var statStart = stats.startLoad();
       try {
         obj = loader.load(loaderHelper);
         obj = region.getCache().convertPdxInstanceIfNeeded(obj, preferCD);
@@ -826,13 +820,13 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
    */
   @Retained
   private CacheEvent getEventForListener(CacheEvent event) {
-    Operation op = event.getOperation();
+    var op = event.getOperation();
     if (!op.isEntry()) {
       return event;
     } else {
-      EntryEventImpl r = (EntryEventImpl) event;
+      var r = (EntryEventImpl) event;
       @Retained
-      EntryEventImpl result = r;
+      var result = r;
       if (r.isSingleHop()) {
         // fix for bug #46130 - origin remote incorrect for one-hop operation in receiver
         result = new EntryEventImpl(r);
@@ -875,9 +869,9 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
       }
     }
     @Released
-    CacheEvent event = getEventForListener(pevent);
+    var event = getEventForListener(pevent);
 
-    int action = paction;
+    var action = paction;
     if (event.getOperation().isCreate() && action == BEFOREUPDATE) {
       action = BEFORECREATE;
     }
@@ -926,14 +920,14 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     if (writeCandidateSet == null || writeCandidateSet.isEmpty()) {
       return false;
     }
-    ArrayList list = new ArrayList(writeCandidateSet);
+    var list = new ArrayList(writeCandidateSet);
     Collections.shuffle(list);
-    InternalDistributedMember[] writeCandidates =
+    var writeCandidates =
         (InternalDistributedMember[]) list.toArray(new InternalDistributedMember[0]);
     initRemainingTimeout();
-    int index = 0;
+    var index = 0;
     do {
-      InternalDistributedMember next = writeCandidates[index++];
+      var next = writeCandidates[index++];
       Set set = new HashSet();
       set.add(next);
       netWriteSucceeded = false;
@@ -1058,7 +1052,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
       signalTimedOut();
     }
 
-    boolean endRequest = pendingResponders.isEmpty() && (!remoteGetInProgress);
+    var endRequest = pendingResponders.isEmpty() && (!remoteGetInProgress);
     if (endRequest) {
       signalDone();
     }
@@ -1068,7 +1062,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     // send a message to this responder asking for the value
     // do this on the waiting pool in case the send blocks
     // Always attempt to send the message to fix bug 37149
-    RegionAttributes attrs = region.getAttributes();
+    var attrs = region.getAttributes();
     NetSearchRequestMessage.sendMessage(this, regionName, key, sender,
         remainingTimeout, attrs.getEntryTimeToLive().getTimeout(),
         attrs.getEntryIdleTimeout().getTimeout());
@@ -1105,7 +1099,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   protected synchronized void incomingNetSearchReply(byte[] value, long lastModifiedTime,
       boolean serialized, boolean requestorTimedOut, boolean authorative, VersionTag versionTag,
       InternalDistributedMember responder) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (departedMembers != null && departedMembers.contains(responder)) {
       if (isDebugEnabled) {
         logger.debug("ignore the reply received from a departed member");
@@ -1169,10 +1163,10 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   }
 
   private synchronized void sendNetSearchRequest() {
-    InternalDistributedMember nextResponder = nextAppropriateResponder();
+    var nextResponder = nextAppropriateResponder();
     if (nextResponder != null) {
       // Make a request to the next responder in the queue
-      RegionAttributes attrs = region.getAttributes();
+      var attrs = region.getAttributes();
       setSelectedNode(nextResponder);
       requestInProgress = true;
       remoteGetInProgress = true;
@@ -1207,7 +1201,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   private synchronized void computeRemainingTimeout() {
     if (startTimeSnapShot > 0) { // @todo this should be an assertion
       endTimeSnapShot = distributionManager.cacheTimeMillis();
-      long delta = endTimeSnapShot - startTimeSnapShot;
+      var delta = endTimeSnapShot - startTimeSnapShot;
       if (delta > 0) {
         remainingTimeout -= delta;
       }
@@ -1218,10 +1212,10 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
   private synchronized void waitForObject2(final int timeoutMs) throws TimeoutException {
     if (requestInProgress) {
       try {
-        final DistributionManager dm =
+        final var dm =
             region.getCache().getInternalDistributedSystem().getDistributionManager();
         long waitTimeMs = timeoutMs;
-        final long endTime = System.currentTimeMillis() + waitTimeMs;
+        final var endTime = System.currentTimeMillis() + waitTimeMs;
         for (;;) {
           if (!requestInProgress) {
             return;
@@ -1233,15 +1227,15 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
                     processorId, key));
           }
 
-          boolean interrupted = Thread.interrupted();
-          int lastNS = lastNotifySpot;
+          var interrupted = Thread.interrupted();
+          var lastNS = lastNotifySpot;
           try {
             {
-              boolean done = (lastNS != 0);
+              var done = (lastNS != 0);
               while (!done && waitTimeMs > 0) {
                 region.getCancelCriterion().checkCancelInProgress(null);
                 interrupted = Thread.interrupted() || interrupted;
-                long wt = Math.min(RETRY_TIME, waitTimeMs);
+                var wt = Math.min(RETRY_TIME, waitTimeMs);
                 wait(wt); // spurious wakeup ok
                 lastNS = lastNotifySpot;
                 done = (lastNS != 0);
@@ -1256,7 +1250,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
             }
             if (requestInProgress && !selectedNodeDead) {
               // added the test of "!this.selectedNodeDead" for bug 37196
-              StringBuilder sb = new StringBuilder(200);
+              var sb = new StringBuilder(200);
               sb.append("processorId=").append(processorId);
               sb.append(" Key is ").append(key);
               sb.append(" searchTimeoutMs ").append(timeoutMs);
@@ -1337,14 +1331,14 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
    * methods to set/remove htree reference (Bug 40299).
    */
   protected static void setClearCountReference(LocalRegion rgn) {
-    DiskRegion dr = rgn.getDiskRegion();
+    var dr = rgn.getDiskRegion();
     if (dr != null) {
       dr.setClearCountReference();
     }
   }
 
   protected static void removeClearCountReference(LocalRegion rgn) {
-    DiskRegion dr = rgn.getDiskRegion();
+    var dr = rgn.getDiskRegion();
     if (dr != null) {
       dr.removeClearCountReference();
     }
@@ -1397,7 +1391,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         Object key, boolean multicast, Set recipients, int timeoutMs, int ttl, int idleTime) {
 
       // create a message
-      QueryMessage msg = new QueryMessage();
+      var msg = new QueryMessage();
       msg.initialize(processor, regionName, key, multicast, timeoutMs, ttl, idleTime);
       msg.setRecipients(recipients);
       if (!multicast && recipients.size() == 1) {
@@ -1474,7 +1468,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      short flags = in.readShort();
+      var flags = in.readShort();
       if ((flags & HAS_PROCESSOR_ID) != 0) {
         processorId = in.readInt();
         ReplyProcessor21.setMessageRPId(processorId);
@@ -1499,13 +1493,13 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     }
 
     private void doGet(ClusterDistributionManager dm) {
-      long startTime = dm.cacheTimeMillis();
+      var startTime = dm.cacheTimeMillis();
       // boolean retVal = true;
-      boolean isPresent = false;
-      boolean sendResult = false;
-      boolean isSer = false;
+      var isPresent = false;
+      var sendResult = false;
+      var isSer = false;
       long lastModifiedCacheTime = 0;
-      boolean requestorTimedOut = false;
+      var requestorTimedOut = false;
       VersionTag tag = null;
 
       if (dm.getDMType() == ClusterDistributionManager.ADMIN_ONLY_DM_TYPE
@@ -1515,12 +1509,12 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         return;
       }
 
-      final InitializationLevel oldLevel =
+      final var oldLevel =
           LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
       try {
         // check to see if we would have to wait on initialization latch (if global)
         // if so abort and reply with null
-        InternalCache cache = dm.getExistingCache();
+        var cache = dm.getExistingCache();
         if (cache.isGlobalRegionInitializing(regionName)) {
           replyWithNull(dm);
           if (logger.isDebugEnabled()) {
@@ -1529,13 +1523,13 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
           return;
         }
 
-        LocalRegion region = (LocalRegion) dm.getExistingCache().getRegion(regionName);
+        var region = (LocalRegion) dm.getExistingCache().getRegion(regionName);
         Object o = null;
 
         if (region != null) {
           setClearCountReference(region);
           try {
-            RegionEntry entry = region.basicGetEntry(key);
+            var entry = region.basicGetEntry(key);
             if (entry != null) {
               synchronized (entry) {
                 assert region.isInitialized();
@@ -1545,7 +1539,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
                   if (o != null && !Token.isInvalid(o) && !Token.isRemoved(o)
                       && !region.isExpiredWithRegardTo(key, ttl, idleTime)) {
                     isPresent = true;
-                    VersionStamp stamp = entry.getVersionStamp();
+                    var stamp = entry.getVersionStamp();
                     if (stamp != null && stamp.hasValidVersion()) {
                       tag = stamp.asVersionTag();
                     }
@@ -1642,7 +1636,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         VersionTag versionTag) {
 
       // create a message
-      ResponseMessage msg = new ResponseMessage();
+      var msg = new ResponseMessage();
       msg.initialize(key, processorId, result, lastModified, isPresent, isSerialized,
           requestorTimedOut, versionTag);
       msg.setRecipient(recipient);
@@ -1775,7 +1769,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         Object key, InternalDistributedMember recipient, int timeoutMs, int ttl, int idleTime) {
 
       // create a message
-      NetSearchRequestMessage msg = new NetSearchRequestMessage();
+      var msg = new NetSearchRequestMessage();
       msg.initialize(processor, regionName, key, timeoutMs, ttl, idleTime);
       msg.setRecipient(recipient);
       processor.distributionManager.putOutgoing(msg);
@@ -1839,7 +1833,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      short flags = in.readShort();
+      var flags = in.readShort();
       if ((flags & HAS_PROCESSOR_ID) != 0) {
         processorId = in.readInt();
         ReplyProcessor21.setMessageRPId(processorId);
@@ -1862,40 +1856,40 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     }
 
     void doGet(ClusterDistributionManager dm) {
-      long startTime = dm.cacheTimeMillis();
+      var startTime = dm.cacheTimeMillis();
       // boolean retVal = true;
       byte[] ebv = null;
       Object ebvObj = null;
-      int ebvLen = 0;
+      var ebvLen = 0;
       long lastModifiedCacheTime = 0;
-      boolean isSer = false;
-      boolean requestorTimedOut = false;
-      boolean authoritative = false;
+      var isSer = false;
+      var requestorTimedOut = false;
+      var authoritative = false;
       VersionTag versionTag = null;
 
-      InternalCache cache = dm.getExistingCache();
+      var cache = dm.getExistingCache();
 
-      final InitializationLevel oldLevel =
+      final var oldLevel =
           LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
-      LocalRegion region = (LocalRegion) cache.getRegion(regionName);
-      CachePerfStats stats =
+      var region = (LocalRegion) cache.getRegion(regionName);
+      var stats =
           region == null ? cache.getCachePerfStats() : region.getRegionPerfStats();
-      long startHandlingTime = stats.startHandlingNetsearch();
-      boolean handlingSuccess = false;
+      var startHandlingTime = stats.startHandlingNetsearch();
+      var handlingSuccess = false;
       try {
         if (region != null) {
           setClearCountReference(region);
           try {
-            boolean initialized = region.isInitialized();
-            RegionEntry entry = region.basicGetEntry(key);
+            var initialized = region.isInitialized();
+            var entry = region.basicGetEntry(key);
             if (entry != null) {
               synchronized (entry) {
                 // get the value and version under synchronization so they don't change
-                VersionStamp versionStamp = entry.getVersionStamp();
+                var versionStamp = entry.getVersionStamp();
                 if (versionStamp != null) {
                   versionTag = versionStamp.asVersionTag();
                 }
-                Object eov = region.getNoLRU(key, false, true, true); // OFFHEAP: incrc, copy
+                var eov = region.getNoLRU(key, false, true, true); // OFFHEAP: incrc, copy
                 // bytes, decrc
                 if (eov != null) {
                   if (eov == Token.INVALID || eov == Token.LOCAL_INVALID) {
@@ -1904,16 +1898,16 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
                     if (!region.isExpiredWithRegardTo(key, ttl, idleTime)) {
                       lastModifiedCacheTime = entry.getLastModified();
                       if (eov instanceof CachedDeserializable) {
-                        CachedDeserializable cd = (CachedDeserializable) eov;
+                        var cd = (CachedDeserializable) eov;
                         if (!cd.isSerialized()) {
                           isSer = false;
                           ebv = (byte[]) cd.getDeserializedForReading();
                           ebvLen = ebv.length;
                         } else {
                           // don't serialize here if it is not already serialized
-                          Object tmp = cd.getValue();
+                          var tmp = cd.getValue();
                           if (tmp instanceof byte[]) {
-                            byte[] bb = (byte[]) tmp;
+                            var bb = (byte[]) tmp;
                             ebv = bb;
                             ebvLen = bb.length;
                           } else {
@@ -2022,7 +2016,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         boolean requestorTimedOut, boolean authoritative,
         ClusterDistributionManager distributionManager, VersionTag versionTag) {
       // create a message
-      NetSearchReplyMessage msg = new NetSearchReplyMessage();
+      var msg = new NetSearchReplyMessage();
       msg.initialize(processorId, value, valueObj, valueLen, lastModified, isSerialized,
           requestorTimedOut, authoritative, versionTag);
       msg.setRecipient(recipient);
@@ -2120,13 +2114,13 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         valueLen = value.length;
       }
       lastModified = in.readLong();
-      byte booleans = in.readByte();
+      var booleans = in.readByte();
 
       isSerialized = (booleans & SERIALIZED) != 0;
       requestorTimedOut = (booleans & REQUESTOR_TIMEOUT) != 0;
       authoritative = (booleans & AUTHORATIVE) != 0;
       if ((booleans & VERSIONED) != 0) {
-        boolean persistentTag = (booleans & PERSISTENT) != 0;
+        var persistentTag = (booleans & PERSISTENT) != 0;
         versionTag = VersionTag.create(persistentTag, in);
       }
     }
@@ -2180,7 +2174,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         int ttl, int idleTime) {
 
       // create a message
-      NetLoadRequestMessage msg = new NetLoadRequestMessage();
+      var msg = new NetLoadRequestMessage();
       msg.initialize(processor, regionName, key, aCallbackArgument, timeoutMs, ttl, idleTime);
       msg.setRecipient(recipient);
 
@@ -2249,22 +2243,22 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     }
 
     private void doLoad(ClusterDistributionManager dm) {
-      long startTime = dm.cacheTimeMillis();
-      final InitializationLevel oldLevel =
+      var startTime = dm.cacheTimeMillis();
+      final var oldLevel =
           LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
       try {
-        InternalCache gfc = dm.getExistingCache();
-        LocalRegion region = (LocalRegion) gfc.getRegion(regionName);
+        var gfc = dm.getExistingCache();
+        var region = (LocalRegion) gfc.getRegion(regionName);
         if (region != null && region.isInitialized()
             && (dm.cacheTimeMillis() - startTime < timeoutMs)) {
-          CacheLoader loader = region.basicGetLoader();
+          var loader = region.basicGetLoader();
           if (loader != null) {
-            LoaderHelper loaderHelper = region.loaderHelperFactory.createLoaderHelper(key,
+            var loaderHelper = region.loaderHelperFactory.createLoaderHelper(key,
                 aCallbackArgument, false, false, null);
-            CachePerfStats stats = region.getCachePerfStats();
-            long start = stats.startLoad();
+            var stats = region.getCachePerfStats();
+            var start = stats.startLoad();
             try {
-              Object o = loader.load(loaderHelper);
+              var o = loader.load(loaderHelper);
               // no need to call convertPdxInstanceIfNeeded since we are serializing
               // this into the NetLoadRequestMessage. The loaded object will be deserialized
               // on the other side and have the correct form in that member.
@@ -2350,7 +2344,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         ClusterDistributionManager distributionManager, Object aCallbackArgument, Exception e,
         boolean isSerialized, boolean requestorTimedOut) {
       // create a message
-      NetLoadReplyMessage msg = new NetLoadReplyMessage();
+      var msg = new NetLoadReplyMessage();
       msg.initialize(processorId, obj, aCallbackArgument, e, isSerialized, requestorTimedOut);
       msg.setRecipient(recipient);
       distributionManager.putOutgoing(msg);
@@ -2394,7 +2388,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         SerializationContext context) throws IOException {
       super.toData(out, context);
       out.writeInt(processorId);
-      boolean isSerialized = this.isSerialized;
+      var isSerialized = this.isSerialized;
       if (result instanceof byte[]) {
         DataSerializer.writeByteArray((byte[]) result, out);
       } else {
@@ -2458,7 +2452,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     public static void sendMessage(SearchLoadAndWriteProcessor processor, String regionName,
         int timeoutMs, CacheEvent event, Set recipients, int action) {
 
-      NetWriteRequestMessage msg = new NetWriteRequestMessage();
+      var msg = new NetWriteRequestMessage();
       msg.initialize(processor, regionName, timeoutMs, event, action);
       msg.setRecipients(recipients);
       processor.distributionManager.putOutgoing(msg);
@@ -2512,21 +2506,21 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     /** Invoked on the node that has the object */
     @Override
     protected void process(ClusterDistributionManager dm) {
-      long startTime = dm.cacheTimeMillis();
-      final InitializationLevel oldLevel =
+      var startTime = dm.cacheTimeMillis();
+      final var oldLevel =
           LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
       try {
-        InternalCache gfc = dm.getExistingCache();
-        LocalRegion region = (LocalRegion) gfc.getRegion(regionName);
+        var gfc = dm.getExistingCache();
+        var region = (LocalRegion) gfc.getRegion(regionName);
         if (region != null && region.isInitialized()
             && (dm.cacheTimeMillis() - startTime < timeoutMs)) {
-          CacheWriter writer = region.basicGetWriter();
+          var writer = region.basicGetWriter();
           EntryEventImpl entryEvtImpl = null;
           RegionEventImpl regionEvtImpl = null;
           if (event instanceof EntryEventImpl) {
             entryEvtImpl = (EntryEventImpl) event;
             entryEvtImpl.setRegion(region);
-            Operation op = entryEvtImpl.getOperation();
+            var op = entryEvtImpl.getOperation();
             if (op == Operation.REPLACE) {
               entryEvtImpl.setOperation(Operation.UPDATE);
             } else if (op == Operation.PUT_IF_ABSENT) {
@@ -2660,7 +2654,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         ClusterDistributionManager distributionManager, boolean netWriteSucceeded, Exception e,
         boolean cacheWriterException) {
       // create a message
-      NetWriteReplyMessage msg = new NetWriteReplyMessage();
+      var msg = new NetWriteReplyMessage();
       msg.initialize(processorId, netWriteSucceeded, e, cacheWriterException);
       msg.setRecipient(recipient);
       distributionManager.putOutgoing(msg);

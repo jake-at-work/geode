@@ -25,7 +25,6 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.junit.After;
@@ -34,7 +33,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
@@ -57,13 +55,13 @@ public class IUMRCompositeIteratorJUnitTest {
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
 
-    Region r1 = CacheUtils.createRegion("countries", Country.class);
+    var r1 = CacheUtils.createRegion("countries", Country.class);
     Set CountrySet1 = new HashSet();
     CountrySet1.add("India");
     CountrySet1.add("China");
     CountrySet1.add("USA");
     CountrySet1.add("UK");
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       r1.put(i, new Country(i, CountrySet1));
     }
 
@@ -71,18 +69,18 @@ public class IUMRCompositeIteratorJUnitTest {
     add1.add(new Address("411045", "Baner"));
     add1.add(new Address("411001", "DholePatilRd"));
 
-    Region r2 = CacheUtils.createRegion("employees", Employee.class);
-    for (int i = 0; i < 4; i++) {
+    var r2 = CacheUtils.createRegion("employees", Employee.class);
+    for (var i = 0; i < 4; i++) {
       r2.put(i + "", new Employee("empName", (20 + i), i, "Mr.", (5000 + i), add1));
     }
 
-    Region r3 = CacheUtils.createRegion("address", Address.class);
+    var r3 = CacheUtils.createRegion("address", Address.class);
     Set ph = new HashSet();
     Set str = new HashSet();
     ph.add(new PhoneNo(111, 222, 333, 444));
     str.add(new Street("DPRoad", "lane5"));
     str.add(new Street("DPStreet1", "lane5"));
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       r3.put(i, new Address("411001", "Pune", str, ph));
     }
 
@@ -99,16 +97,16 @@ public class IUMRCompositeIteratorJUnitTest {
 
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         // Test Case No. IUMR
         "Select distinct * from " + SEPARATOR + "employees e, " + SEPARATOR
             + "address a, e.getPhoneNo(a.zipCode) ea where e.name ='empName'",
         // "Select distinct * from /employees e, /address a, e.getPh(e.empId) where e.name
         // ='empName'",
     };
-    SelectResults[][] r = new SelectResults[queries.length][2];
+    var r = new SelectResults[queries.length][2];
     // Execute Query without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -121,25 +119,25 @@ public class IUMRCompositeIteratorJUnitTest {
     }
     // Create Indexes and Execute Queries
     qs.createIndex("nameIndex", IndexType.FUNCTIONAL, "e.name", SEPARATOR + "employees e");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = (SelectResults) q.execute();
         if (!observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
         CacheUtils
             .log("***********Indexes Used :::: " + indxs + " IndexName::" + observer.IndexName);
         if (indxs != 1) {
           fail("FAILED: The Index should be used. Presently only " + indxs + " Index(es) is used");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         String temp;
 
         while (itr.hasNext()) {
@@ -169,14 +167,14 @@ public class IUMRCompositeIteratorJUnitTest {
   public void testQueryWithCompositeIter2() throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         // Test Case No. IUMR
         "Select distinct * from " + SEPARATOR + "countries c, " + SEPARATOR
             + "employees e, c.citizens[e.empId].arr where e.name='empName'",};
-    SelectResults[][] r = new SelectResults[queries.length][2];
+    var r = new SelectResults[queries.length][2];
 
     // Execute Query without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -189,25 +187,25 @@ public class IUMRCompositeIteratorJUnitTest {
 
     // Create Indexes and Execute Queries
     qs.createIndex("nameIndex", IndexType.FUNCTIONAL, "e.name", SEPARATOR + "employees e");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = (SelectResults) q.execute();
         if (!observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
         CacheUtils
             .log("***********Indexes Used :::: " + indxs + " IndexName::" + observer.IndexName);
         if (indxs != 1) {
           fail("FAILED: The Index should be used. Presently only " + indxs + " Index(es) is used");
         }
 
-        Iterator itr = observer.indexesUsed.iterator();
+        var itr = observer.indexesUsed.iterator();
         String temp;
 
         while (itr.hasNext()) {

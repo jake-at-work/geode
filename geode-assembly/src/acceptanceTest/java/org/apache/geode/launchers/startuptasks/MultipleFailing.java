@@ -30,14 +30,14 @@ public class MultipleFailing implements ServerLauncherCacheProvider {
 
   @Override
   public Cache createCache(Properties gemfireProperties, ServerLauncher serverLauncher) {
-    final CacheFactory cacheFactory = new CacheFactory(gemfireProperties);
+    final var cacheFactory = new CacheFactory(gemfireProperties);
 
-    InternalCache cache = (InternalCache) cacheFactory.create();
+    var cache = (InternalCache) cacheFactory.create();
 
-    CompletableFuture<Void> failingStartupTask1 = new CompletableFuture<>();
+    var failingStartupTask1 = new CompletableFuture<Void>();
     failingStartupTask1.completeExceptionally(EXCEPTION);
 
-    CompletableFuture<Void> failingStartupTask2 = new CompletableFuture<>();
+    var failingStartupTask2 = new CompletableFuture<Void>();
     failingStartupTask2.completeExceptionally(new RuntimeException("Startup task 2 failed"));
 
     cache.getInternalResourceManager().addStartupTask(failingStartupTask1);

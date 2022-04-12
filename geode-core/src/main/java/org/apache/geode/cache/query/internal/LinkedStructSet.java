@@ -72,7 +72,7 @@ public class LinkedStructSet extends LinkedHashSet<Struct>
       throw new IllegalArgumentException(
           "This set only accepts StructImpl");
     }
-    StructImpl s = (StructImpl) obj;
+    var s = (StructImpl) obj;
     if (!s.getStructType().equals(structType)) {
       throw new IllegalArgumentException(
           "obj does not have the same StructType");
@@ -86,7 +86,7 @@ public class LinkedStructSet extends LinkedHashSet<Struct>
     if (!(obj instanceof Struct)) {
       return false;
     }
-    Struct s = (Struct) obj;
+    var s = (Struct) obj;
     return structType.equals(StructTypeImpl.typeFromStruct(s)) && contains(s);
   }
 
@@ -96,7 +96,7 @@ public class LinkedStructSet extends LinkedHashSet<Struct>
     if (!(o instanceof Struct)) {
       return false;
     }
-    Struct s = (Struct) o;
+    var s = (Struct) o;
     return structType.equals(StructTypeImpl.typeFromStruct(s)) && remove(s);
   }
 
@@ -154,12 +154,12 @@ public class LinkedStructSet extends LinkedHashSet<Struct>
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append("[");
     Iterator i = iterator();
-    boolean hasNext = i.hasNext();
+    var hasNext = i.hasNext();
     while (hasNext) {
-      Object o = i.next();
+      var o = i.next();
       buf.append(o == this ? "(this Collection)" : String.valueOf(o));
       hasNext = i.hasNext();
       if (hasNext) {
@@ -174,9 +174,9 @@ public class LinkedStructSet extends LinkedHashSet<Struct>
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     modifiable = in.readBoolean();
-    int size = in.readInt();
+    var size = in.readInt();
     structType = context.getDeserializer().readObject(in);
-    for (int j = size; j > 0; j--) {
+    for (var j = size; j > 0; j--) {
       Object[] fieldValues = context.getDeserializer().readObject(in);
       add(new StructImpl(structType, fieldValues));
     }
@@ -194,7 +194,7 @@ public class LinkedStructSet extends LinkedHashSet<Struct>
     out.writeBoolean(modifiable);
     out.writeInt(size());
     context.getSerializer().writeObject(structType, out);
-    for (Struct struct : this) {
+    for (var struct : this) {
       context.getSerializer().writeObject(struct.getFieldValues(), out);
     }
   }

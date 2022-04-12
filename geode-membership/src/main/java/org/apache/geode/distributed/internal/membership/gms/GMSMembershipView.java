@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -181,7 +180,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
   }
 
   public int getFailureDetectionPort(ID mbr) {
-    int idx = members.indexOf(mbr);
+    var idx = members.indexOf(mbr);
     if (idx < 0 || idx >= failureDetectionPorts.length) {
       return -1;
     }
@@ -190,7 +189,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
 
 
   public void setFailureDetectionPort(ID mbr, int port) {
-    int idx = members.indexOf(mbr);
+    var idx = members.indexOf(mbr);
     if (idx < 0) {
       throw new IllegalArgumentException("element not found in members list:" + mbr);
     }
@@ -202,11 +201,11 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
    * Transfer the failure-detection ports from another view to this one
    */
   public void setFailureDetectionPorts(GMSMembershipView<ID> otherView) {
-    int[] ports = otherView.getFailureDetectionPorts();
+    var ports = otherView.getFailureDetectionPorts();
     if (ports != null) {
-      int idx = 0;
-      int portsSize = ports.length;
-      for (ID mbr : otherView.getMembers()) {
+      var idx = 0;
+      var portsSize = ports.length;
+      for (var mbr : otherView.getMembers()) {
         if (contains(mbr)) {
           // unit tests create views w/o failure detection ports, so we must check the length
           // of the array
@@ -226,7 +225,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
    */
   private void ensureFDCapacity(int idx) {
     if (idx >= failureDetectionPorts.length) {
-      int[] p = new int[idx + 10];
+      var p = new int[idx + 10];
       if (failureDetectionPorts.length > 0) {
         System.arraycopy(failureDetectionPorts, 0, p, 0, failureDetectionPorts.length);
       }
@@ -242,7 +241,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
   public void add(ID mbr) {
     hashedMembers.add(mbr);
     members.add(mbr);
-    int idx = members.size() - 1;
+    var idx = members.size() - 1;
     ensureFDCapacity(idx);
     failureDetectionPorts[idx] = -1;
   }
@@ -272,7 +271,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
 
   public boolean remove(ID mbr) {
     hashedMembers.remove(mbr);
-    int idx = members.indexOf(mbr);
+    var idx = members.indexOf(mbr);
     if (idx >= 0) {
       System.arraycopy(failureDetectionPorts, idx + 1, failureDetectionPorts, idx,
           failureDetectionPorts.length - idx - 1);
@@ -295,7 +294,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
   }
 
   public ID getLeadMember() {
-    for (ID mbr : members) {
+    for (var mbr : members) {
       if (mbr.getVmKind() == ID.NORMAL_DM_TYPE) {
         return mbr;
       }
@@ -305,7 +304,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
 
   public ID getCoordinator() {
     synchronized (membersLock) {
-      for (ID addr : members) {
+      for (var addr : members) {
         if (addr.preferredForCoordinator()) {
           return addr;
         }
@@ -326,12 +325,12 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
       return getCoordinator();
     }
     synchronized (membersLock) {
-      for (ID addr : members) {
+      for (var addr : members) {
         if (addr.preferredForCoordinator() && !rejections.contains(addr)) {
           return addr;
         }
       }
-      for (ID addr : members) {
+      for (var addr : members) {
         if (!rejections.contains(addr)) {
           return addr;
         }
@@ -357,7 +356,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
     List<ID> notPreferredCoordinatorList = new ArrayList<>();
 
     synchronized (membersLock) {
-      for (ID addr : members) {
+      for (var addr : members) {
         if (addr.equals(localAddress)) {
           continue;// this is must to add
         }
@@ -374,7 +373,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
       results.add(localAddress);// to add local address
 
       if (results.size() < maxNumberDesired && notPreferredCoordinatorList.size() > 0) {
-        Iterator<ID> it = notPreferredCoordinatorList.iterator();
+        var it = notPreferredCoordinatorList.iterator();
         while (it.hasNext() && results.size() < maxNumberDesired) {
           results.add(it.next());
         }
@@ -405,10 +404,10 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
 
   /** check to see if the given address is next in line to be coordinator */
   public boolean shouldBeCoordinator(ID who) {
-    Iterator<ID> it = members.iterator();
+    var it = members.iterator();
     ID firstNonPreferred = null;
     while (it.hasNext()) {
-      ID mbr = it.next();
+      var mbr = it.next();
       if (mbr.preferredForCoordinator()) {
         return mbr.equals(who);
       } else if (firstNonPreferred == null) {
@@ -422,9 +421,9 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
    * returns the weight of the members in this membership view
    */
   public int memberWeight() {
-    int result = 0;
-    ID lead = getLeadMember();
-    for (ID mbr : members) {
+    var result = 0;
+    var lead = getLeadMember();
+    for (var mbr : members) {
       result += mbr.getMemberWeight();
       switch (mbr.getVmKind()) {
         case ID.NORMAL_DM_TYPE:
@@ -450,9 +449,9 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
    * previous view
    */
   public int getCrashedMemberWeight(GMSMembershipView<ID> oldView) {
-    int result = 0;
-    ID lead = oldView.getLeadMember();
-    for (ID mbr : crashedMembers) {
+    var result = 0;
+    var lead = oldView.getLeadMember();
+    for (var mbr : crashedMembers) {
       if (!oldView.contains(mbr)) {
         continue;
       }
@@ -492,12 +491,12 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
    * logs the weight of failed members wrt the given previous view
    */
   public void logCrashedMemberWeights(GMSMembershipView<ID> oldView, Logger log) {
-    ID lead = oldView.getLeadMember();
-    for (ID mbr : crashedMembers) {
+    var lead = oldView.getLeadMember();
+    for (var mbr : crashedMembers) {
       if (!oldView.contains(mbr)) {
         continue;
       }
-      int mbrWeight = mbr.getMemberWeight();
+      var mbrWeight = mbr.getMemberWeight();
       switch (mbr.getVmKind()) {
         case ID.NORMAL_DM_TYPE:
           if (lead != null && mbr.equals(lead)) {
@@ -519,12 +518,12 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
   }
 
   public String toString() {
-    ID lead = getLeadMember();
+    var lead = getLeadMember();
 
-    StringBuilder sb = new StringBuilder(200);
+    var sb = new StringBuilder(200);
     sb.append("View[").append(creator).append('|').append(viewId).append("] members: [");
-    boolean first = true;
-    for (ID mbr : members) {
+    var first = true;
+    for (var mbr : members) {
       if (!first) {
         sb.append(", ");
       }
@@ -537,7 +536,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
     if (!shutdownMembers.isEmpty()) {
       sb.append("]  shutdown: [");
       first = true;
-      for (ID mbr : shutdownMembers) {
+      for (var mbr : shutdownMembers) {
         if (!first) {
           sb.append(", ");
         }
@@ -548,7 +547,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
     if (!crashedMembers.isEmpty()) {
       sb.append("]  crashed: [");
       first = true;
-      for (ID mbr : crashedMembers) {
+      for (var mbr : crashedMembers) {
         if (!first) {
           sb.append(", ");
         }
@@ -575,7 +574,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
    */
   public synchronized ID getCanonicalID(ID id) {
     if (hashedMembers.contains(id)) {
-      for (ID m : members) {
+      for (var m : members) {
         if (id.equals(m)) {
           return m;
         }
@@ -641,7 +640,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
     }
     StaticSerialization.writeArrayLength(size, out);
     if (size > 0) {
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         context.getSerializer().writeObject(list.get(i), out);
       }
     }
@@ -669,7 +668,7 @@ public class GMSMembershipView<ID extends MemberIdentifier> implements DataSeria
    * @param memberID is the identifier of the member of interest
    */
   public void correctWrongVersionIn(final ID memberID) {
-    final ID oldID = getCanonicalID(memberID);
+    final var oldID = getCanonicalID(memberID);
     if (!oldID.getVersion().equals(KnownVersion.getCurrentVersion())) {
       // don't remove/add the ID lest we change it's relative position in the list
       oldID.setVersionForTest(KnownVersion.getCurrentVersion());

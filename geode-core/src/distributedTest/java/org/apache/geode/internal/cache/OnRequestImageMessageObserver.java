@@ -31,7 +31,7 @@ public abstract class OnRequestImageMessageObserver extends DistributionMessageO
   @Override
   public void beforeProcessMessage(ClusterDistributionManager dm, DistributionMessage message) {
     if (message instanceof InitialImageOperation.RequestImageMessage) {
-      InitialImageOperation.RequestImageMessage rim =
+      var rim =
           (InitialImageOperation.RequestImageMessage) message;
       synchronized (this) {
         if (!hasExecutedOnMessageReceived && rim.regionPath.contains(regionName)) {

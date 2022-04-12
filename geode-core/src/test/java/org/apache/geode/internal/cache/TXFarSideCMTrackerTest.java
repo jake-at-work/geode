@@ -43,7 +43,7 @@ public class TXFarSideCMTrackerTest {
   public void findTxInProgressReturnsTrueIfMessageIsProcessing() {
     when(message.isProcessing()).thenReturn(true);
 
-    boolean found = tracker.foundTxInProgress(message);
+    var found = tracker.foundTxInProgress(message);
 
     assertThat(found).isTrue();
   }
@@ -52,53 +52,53 @@ public class TXFarSideCMTrackerTest {
   public void findTxInProgressReturnsFalseIfMessageIsNotProcessing() {
     when(message.isProcessing()).thenReturn(false);
 
-    boolean found = tracker.foundTxInProgress(message);
+    var found = tracker.foundTxInProgress(message);
 
     assertThat(found).isFalse();
   }
 
   @Test
   public void findTxInProgressReturnsFalseIfMessageIsNull() {
-    boolean found = tracker.foundTxInProgress(null);
+    var found = tracker.foundTxInProgress(null);
 
     assertThat(found).isFalse();
   }
 
   @Test
   public void commitProcessReceivedIfFoundInProgress() {
-    TXFarSideCMTracker spy = spy(tracker);
+    var spy = spy(tracker);
     doReturn(txInProcess).when(spy).getTxInProgress();
     when(txInProcess.get(trackerKey)).thenReturn(message);
     doReturn(true).when(spy).foundTxInProgress(message);
 
-    boolean received = spy.commitProcessReceived(trackerKey);
+    var received = spy.commitProcessReceived(trackerKey);
 
     assertThat(received).isTrue();
   }
 
   @Test
   public void commitProcessReceivedIfFoundFromHistory() {
-    TXFarSideCMTracker spy = spy(tracker);
+    var spy = spy(tracker);
     doReturn(txInProcess).when(spy).getTxInProgress();
     when(txInProcess.get(trackerKey)).thenReturn(message);
     doReturn(false).when(spy).foundTxInProgress(message);
     doReturn(true).when(spy).foundFromHistory(trackerKey);
 
-    boolean received = spy.commitProcessReceived(trackerKey);
+    var received = spy.commitProcessReceived(trackerKey);
 
     assertThat(received).isTrue();
   }
 
   @Test
   public void commitProcessNotReceivedIfFoundMessageIsNotProcessing() {
-    TXFarSideCMTracker spy = spy(tracker);
+    var spy = spy(tracker);
     doReturn(txInProcess).when(spy).getTxInProgress();
     when(txInProcess.get(trackerKey)).thenReturn(message);
     doReturn(false).when(spy).foundTxInProgress(message);
     doReturn(false).when(spy).foundFromHistory(trackerKey);
     when(message.isProcessing()).thenReturn(false);
 
-    boolean received = spy.commitProcessReceived(trackerKey);
+    var received = spy.commitProcessReceived(trackerKey);
 
     assertThat(received).isFalse();
     verify(message).setDontProcess();
@@ -106,12 +106,12 @@ public class TXFarSideCMTrackerTest {
 
   @Test
   public void commitProcessNotReceivedIfMessageNotFoundInTxProcessMapAndNotFoundFromHistory() {
-    TXFarSideCMTracker spy = spy(tracker);
+    var spy = spy(tracker);
     doReturn(txInProcess).when(spy).getTxInProgress();
     when(txInProcess.get(trackerKey)).thenReturn(null);
     doReturn(false).when(spy).foundFromHistory(trackerKey);
 
-    boolean received = spy.commitProcessReceived(trackerKey);
+    var received = spy.commitProcessReceived(trackerKey);
 
     assertThat(received).isFalse();
   }

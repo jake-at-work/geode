@@ -42,7 +42,7 @@ public class OffHeapLRUEvictionControllerDUnitTest extends LRUEvictionController
 
   @Override
   public final void preTearDownAssertions() throws Exception {
-    SerializableRunnable checkOrphans = new SerializableRunnable() {
+    var checkOrphans = new SerializableRunnable() {
 
       @Override
       public void run() {
@@ -57,7 +57,7 @@ public class OffHeapLRUEvictionControllerDUnitTest extends LRUEvictionController
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.setProperty(OFF_HEAP_MEMORY_SIZE, "100m");
 
     return properties;

@@ -45,7 +45,7 @@ public class WANBootStrapping_Site2_Remove {
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "DistributedSystemListener", "");
 
     System.out.println("Starting a locator with negative ds id -2");
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(DISTRIBUTED_SYSTEM_ID, "" + (-2));
     properties.setProperty(REMOTE_LOCATORS, "localhost[" + 10101 + "]");

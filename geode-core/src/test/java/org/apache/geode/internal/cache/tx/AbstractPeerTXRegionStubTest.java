@@ -164,15 +164,15 @@ public class AbstractPeerTXRegionStubTest {
   public void getRegionKeysForIterationTranslatesRemoteOperationException() {
     expectedException.expect(TransactionDataNodeHasDepartedException.class);
 
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
-    ClusterDistributionManager manager = mock(ClusterDistributionManager.class);
+    var system = mock(InternalDistributedSystem.class);
+    var manager = mock(ClusterDistributionManager.class);
     when(system.getDistributionManager()).thenReturn(manager);
     when(manager.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
-    InternalDistributedMember target = new InternalDistributedMember("localhost", 1234);
+    var target = new InternalDistributedMember("localhost", 1234);
 
-    RemoteFetchKeysMessage.FetchKeysResponse responseProcessor =
+    var responseProcessor =
         new RemoteFetchKeysMessage.FetchKeysResponse(system, target);
-    RemoteFetchKeysMessage.FetchKeysResponse spy = Mockito.spy(responseProcessor);
+    var spy = Mockito.spy(responseProcessor);
 
     Exception replyException = new ReplyException("testing",
         new RemoteOperationException("The cache is closing", new CacheClosedException()));

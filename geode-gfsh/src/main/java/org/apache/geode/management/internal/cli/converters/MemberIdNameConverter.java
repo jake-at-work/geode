@@ -37,13 +37,13 @@ public class MemberIdNameConverter extends BaseStringConverter {
   public Set<String> getCompletionValues() {
     final Set<String> nonLocatorMembers = new TreeSet<>();
 
-    final Gfsh gfsh = getGfsh();
+    final var gfsh = getGfsh();
 
     if (gfsh != null && gfsh.isConnectedAndReady()) {
       nonLocatorMembers.addAll(
           Arrays.asList(gfsh.getOperationInvoker().getDistributedSystemMXBean().listMembers()));
 
-      final String[] locatorMembers =
+      final var locatorMembers =
           gfsh.getOperationInvoker().getDistributedSystemMXBean().listLocatorMembers(true);
 
       if (locatorMembers != null && locatorMembers.length != 0) {

@@ -30,9 +30,7 @@ import org.junit.Test;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.distributed.DistributedSystem;
 
 /**
@@ -53,15 +51,15 @@ public class PRConcurrentMapOpsJUnitTest {
   public static void main(String[] args) throws Exception {
     if (args.length > 0 && "far".equals(args[0])) {
       new PRConcurrentMapOpsJUnitTest();
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
 
-      Properties globalProps = new Properties();
+      var globalProps = new Properties();
       globalProps.put(PartitionAttributesFactory.GLOBAL_MAX_BUCKETS_PROPERTY, "100");
 
-      PartitionAttributes pa = paf.setRedundantCopies(0).setLocalMaxMemory(100).create();
-      AttributesFactory af = new AttributesFactory();
+      var pa = paf.setRedundantCopies(0).setLocalMaxMemory(100).create();
+      var af = new AttributesFactory();
       af.setPartitionAttributes(pa);
-      RegionAttributes ra = af.create();
+      var ra = af.create();
 
       PartitionedRegion pr = null;
       pr = (PartitionedRegion) cache.createRegion("PR4", ra);
@@ -71,14 +69,14 @@ public class PRConcurrentMapOpsJUnitTest {
       return;
     }
 
-    PRConcurrentMapOpsJUnitTest t = new PRConcurrentMapOpsJUnitTest();
+    var t = new PRConcurrentMapOpsJUnitTest();
     t.testLocalConcurrentMapOps();
   }
 
   @Before
   public void setUp() {
     if (cache == null) {
-      Properties dsProps = new Properties();
+      var dsProps = new Properties();
       dsProps.setProperty(MCAST_PORT, "0");
 
       // Connect to a DS and create a Cache.
@@ -94,36 +92,36 @@ public class PRConcurrentMapOpsJUnitTest {
 
   @Test
   public void testLocalConcurrentMapOps() throws Exception {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
 
-    Properties globalProps = new Properties();
+    var globalProps = new Properties();
     globalProps.put(PartitionAttributesFactory.GLOBAL_MAX_BUCKETS_PROPERTY, "100");
 
-    PartitionAttributes pa = paf.setRedundantCopies(0).setLocalMaxMemory(100).create();
-    AttributesFactory af = new AttributesFactory();
+    var pa = paf.setRedundantCopies(0).setLocalMaxMemory(100).create();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(pa);
-    RegionAttributes ra = af.create();
+    var ra = af.create();
 
     PartitionedRegion pr = null;
     pr = (PartitionedRegion) cache.createRegion("PR4", ra);
     assertNotNull("PR4 not created", pr);
 
-    int start = 1;
-    int end = 50;
-    int end2 = 100;
+    var start = 1;
+    var end = 50;
+    var end2 = 100;
 
     // successful putIfAbsent
-    for (int i = start; i <= end; i++) {
-      Object putResult = pr.putIfAbsent(Integer.toString(i), Integer.toString(i));
+    for (var i = start; i <= end; i++) {
+      var putResult = pr.putIfAbsent(Integer.toString(i), Integer.toString(i));
       assertNull("Expected null, but got " + putResult + "for key " + i, putResult);
     }
-    int size = pr.size();
+    var size = pr.size();
     assertEquals("Size doesn't return expected value", end, size);
     assertFalse("isEmpty doesnt return proper state of the PartitionedRegion", pr.isEmpty());
 
     // unsuccessful putIfAbsent
-    for (int i = start; i <= end; i++) {
-      Object putResult = pr.putIfAbsent(Integer.toString(i), Integer.toString(i + 1));
+    for (var i = start; i <= end; i++) {
+      var putResult = pr.putIfAbsent(Integer.toString(i), Integer.toString(i + 1));
       assertEquals("for i=" + i, Integer.toString(i), putResult);
       assertEquals("for i=" + i, Integer.toString(i), pr.get(Integer.toString(i)));
     }
@@ -132,8 +130,8 @@ public class PRConcurrentMapOpsJUnitTest {
     assertFalse("isEmpty doesnt return proper state of the PartitionedRegion", pr.isEmpty());
 
     // successful replace(Object, Object)
-    for (int i = start; i <= end; i++) {
-      Object replaceResult = pr.replace(Integer.toString(i), Integer.toString(-i));
+    for (var i = start; i <= end; i++) {
+      var replaceResult = pr.replace(Integer.toString(i), Integer.toString(-i));
       assertEquals("for i=" + i, Integer.toString(i), replaceResult);
       assertEquals("for i=" + i, Integer.toString(-i), pr.get(Integer.toString(i)));
     }
@@ -142,8 +140,8 @@ public class PRConcurrentMapOpsJUnitTest {
     assertFalse("isEmpty doesnt return proper state of the PartitionedRegion", pr.isEmpty());
 
     // unsuccessful replace(Object, Object)
-    for (int i = end + 1; i <= end2; i++) {
-      Object replaceResult = pr.replace(Integer.toString(i), Integer.toString(-i));
+    for (var i = end + 1; i <= end2; i++) {
+      var replaceResult = pr.replace(Integer.toString(i), Integer.toString(-i));
       assertNull("Expected null, but got " + replaceResult + "for i=" + i, replaceResult);
     }
     size = pr.size();
@@ -151,8 +149,8 @@ public class PRConcurrentMapOpsJUnitTest {
     assertFalse("isEmpty doesnt return proper state of the PartitionedRegion", pr.isEmpty());
 
     // successful replace(Object key, Object oldValue, Object newValue)
-    for (int i = start; i <= end; i++) {
-      boolean replaceResult =
+    for (var i = start; i <= end; i++) {
+      var replaceResult =
           pr.replace(Integer.toString(i), Integer.toString(-i), Integer.toString(i * 2));
       assertTrue("for i=" + i, replaceResult);
       assertEquals("for i=" + i, Integer.toString(i * 2), pr.get(Integer.toString(i)));
@@ -162,8 +160,8 @@ public class PRConcurrentMapOpsJUnitTest {
     assertFalse("isEmpty doesnt return proper state of the PartitionedRegion", pr.isEmpty());
 
     // unsuccessful replace(Object key, Object oldValue, Object newValue)
-    for (int i = start; i <= end2; i++) {
-      boolean replaceResult =
+    for (var i = start; i <= end2; i++) {
+      var replaceResult =
           pr.replace(Integer.toString(i), Integer.toString(-i), Integer.toString(i * -4));
       assertFalse("for i=" + i, replaceResult);
       assertEquals("for i=" + i, i <= end ? Integer.toString(i * 2) : null,
@@ -174,8 +172,8 @@ public class PRConcurrentMapOpsJUnitTest {
     assertFalse("isEmpty doesnt return proper state of the PartitionedRegion", pr.isEmpty());
 
     // test unsuccessful remove(key, value)
-    for (int i = start; i <= end2; i++) {
-      boolean removeResult = pr.remove(Integer.toString(i), Integer.toString(-i));
+    for (var i = start; i <= end2; i++) {
+      var removeResult = pr.remove(Integer.toString(i), Integer.toString(-i));
       assertFalse("for i=" + i, removeResult);
       assertEquals("for i=" + i, i <= end ? Integer.toString(i * 2) : null,
           pr.get(Integer.toString(i)));
@@ -186,8 +184,8 @@ public class PRConcurrentMapOpsJUnitTest {
 
 
     // test successful remove(key, value)
-    for (int i = start; i <= end; i++) {
-      boolean removeResult = pr.remove(Integer.toString(i), Integer.toString(i * 2));
+    for (var i = start; i <= end; i++) {
+      var removeResult = pr.remove(Integer.toString(i), Integer.toString(i * 2));
       assertTrue("for i=" + i, removeResult);
       assertEquals("for i=" + i, null, pr.get(Integer.toString(i)));
     }

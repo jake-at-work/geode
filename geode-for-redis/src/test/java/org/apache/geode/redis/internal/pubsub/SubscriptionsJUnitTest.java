@@ -27,7 +27,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.List;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -42,7 +41,7 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void correctlyIdentifiesChannelSubscriber() {
-    Client client = createClient();
+    var client = createClient();
 
     addChannelSubscription(client, "subscriptions");
 
@@ -52,9 +51,9 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void correctlyCountsSubscriptions() {
-    Client client1 = createClient();
-    Client client2 = createClient();
-    Client client3 = createClient();
+    var client1 = createClient();
+    var client2 = createClient();
+    var client3 = createClient();
 
     addChannelSubscription(client1, "subscription1");
     addChannelSubscription(client3, "subscription1");
@@ -72,10 +71,10 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void subscribeReturnsExpectedResult() {
-    Client client = createClient();
-    final byte[] channel = stringToBytes("channel");
+    var client = createClient();
+    final var channel = stringToBytes("channel");
 
-    SubscribeResult result = subscriptions.subscribe(channel, client);
+    var result = subscriptions.subscribe(channel, client);
 
     assertThat(result.getChannelCount()).isOne();
     assertThat(result.getChannel()).isEqualTo(channel);
@@ -85,10 +84,10 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void psubscribeReturnsExpectedResult() {
-    Client client = createClient();
-    final byte[] pattern = stringToBytes("pattern");
+    var client = createClient();
+    final var pattern = stringToBytes("pattern");
 
-    SubscribeResult result = subscriptions.psubscribe(pattern, client);
+    var result = subscriptions.psubscribe(pattern, client);
 
     assertThat(result.getChannelCount()).isOne();
     assertThat(result.getChannel()).isEqualTo(pattern);
@@ -98,11 +97,11 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void subscribeDoesNothingIfAlreadySubscribed() {
-    Client client = createClient();
-    final byte[] channel = stringToBytes("channel");
+    var client = createClient();
+    final var channel = stringToBytes("channel");
 
     subscriptions.subscribe(channel, client);
-    SubscribeResult result = subscriptions.subscribe(channel, client);
+    var result = subscriptions.subscribe(channel, client);
 
     assertThat(result.getChannelCount()).isOne();
     assertThat(result.getChannel()).isEqualTo(channel);
@@ -113,11 +112,11 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void psubscribeDoesNothingIfAlreadySubscribed() {
-    Client client = createClient();
-    final byte[] pattern = stringToBytes("pattern");
+    var client = createClient();
+    final var pattern = stringToBytes("pattern");
 
     subscriptions.psubscribe(pattern, client);
-    SubscribeResult result = subscriptions.psubscribe(pattern, client);
+    var result = subscriptions.psubscribe(pattern, client);
 
     assertThat(result.getChannelCount()).isOne();
     assertThat(result.getChannel()).isEqualTo(pattern);
@@ -128,7 +127,7 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void correctlyIdentifiesPatternSubscriber() {
-    Client client = createClient();
+    var client = createClient();
 
     addPatternSubscription(client, "sub*s");
 
@@ -140,7 +139,7 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void doesNotMisidentifyChannelAsPattern() {
-    Client client = createClient();
+    var client = createClient();
 
     addChannelSubscription(client, "subscriptions");
 
@@ -151,7 +150,7 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void doesNotMisidentifyWhenBothTypesArePresent() {
-    Client client = createClient();
+    var client = createClient();
 
     addChannelSubscription(client, "subscriptions");
     addPatternSubscription(client, "sub*s");
@@ -168,8 +167,8 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void findSubscribers() {
-    Client client1 = createClient();
-    Client client2 = createClient();
+    var client1 = createClient();
+    var client2 = createClient();
 
     addChannelSubscription(client1, "subscriptions");
     addChannelSubscription(client2, "monkeys");
@@ -182,8 +181,8 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void removeByClient() {
-    Client clientOne = createClient();
-    Client clientTwo = createClient();
+    var clientOne = createClient();
+    var clientTwo = createClient();
     addChannelSubscription(clientOne, "subscriptions");
     addChannelSubscription(clientTwo, "monkeys");
 
@@ -196,13 +195,13 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void removeByClientAndPattern() {
-    byte[] pattern = stringToBytes("monkeys");
-    Client client = createClient();
+    var pattern = stringToBytes("monkeys");
+    var client = createClient();
     addChannelSubscription(client, "subscriptions");
     addPatternSubscription(client, "monkeys");
     addChannelSubscription(client, "monkeys");
 
-    Collection<Collection<?>> result = subscriptions.punsubscribe(singletonList(pattern), client);
+    var result = subscriptions.punsubscribe(singletonList(pattern), client);
 
     assertThat(result).containsExactly(asList(PUNSUBSCRIBE, pattern, 2L));
     assertThat(subscriptions.getPatternSubscriptionCount()).isZero();
@@ -210,13 +209,13 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void unsubscribeOnePattern() {
-    byte[] pattern = stringToBytes("monkeys");
-    Client client = createClient();
+    var pattern = stringToBytes("monkeys");
+    var client = createClient();
     addChannelSubscription(client, "subscriptions");
     addPatternSubscription(client, "monkeys");
     addChannelSubscription(client, "monkeys");
 
-    Collection<Collection<?>> result = subscriptions.punsubscribe(singletonList(pattern), client);
+    var result = subscriptions.punsubscribe(singletonList(pattern), client);
 
     assertThat(result).containsExactly(asList(PUNSUBSCRIBE, pattern, 2L));
     assertThat(subscriptions.getPatternSubscriptionCount()).isZero();
@@ -224,14 +223,14 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void unsubscribeTwoPatterns() {
-    byte[] pattern1 = stringToBytes("monkeys");
-    byte[] pattern2 = stringToBytes("subscriptions");
-    Client client = createClient();
+    var pattern1 = stringToBytes("monkeys");
+    var pattern2 = stringToBytes("subscriptions");
+    var client = createClient();
     addPatternSubscription(client, "subscriptions");
     addPatternSubscription(client, "monkeys");
     addChannelSubscription(client, "monkeys");
 
-    Collection<Collection<?>> result =
+    var result =
         subscriptions.punsubscribe(asList(pattern1, pattern2), client);
 
     assertThat(result).containsExactly(asList(PUNSUBSCRIBE, pattern1, 2L),
@@ -241,53 +240,53 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void unsubscribeAllPatterns() {
-    byte[] pattern = stringToBytes("monkeys");
-    Client client = createClient();
+    var pattern = stringToBytes("monkeys");
+    var client = createClient();
     addPatternSubscription(client, "monkeys");
     addChannelSubscription(client, "monkeys");
 
-    Collection<Collection<?>> result = subscriptions.punsubscribe(emptyList(), client);
+    var result = subscriptions.punsubscribe(emptyList(), client);
 
     assertThat(result).hasSize(1);
     @SuppressWarnings("unchecked")
-    Collection<Object> firstItem = (Collection<Object>) result.iterator().next();
+    var firstItem = (Collection<Object>) result.iterator().next();
     assertThat(firstItem).containsExactly(PUNSUBSCRIBE, pattern, 1L);
     assertThat(subscriptions.getPatternSubscriptionCount()).isZero();
   }
 
   @Test
   public void unsubscribeAllChannelsWhenNoSubscriptions() {
-    Client client = createClient();
+    var client = createClient();
 
-    Collection<Collection<?>> result = subscriptions.unsubscribe(emptyList(), client);
+    var result = subscriptions.unsubscribe(emptyList(), client);
 
     assertThat(result).hasSize(1);
     @SuppressWarnings("unchecked")
-    Collection<Object> firstItem = (Collection<Object>) result.iterator().next();
+    var firstItem = (Collection<Object>) result.iterator().next();
     assertThat(firstItem).containsExactly(UNSUBSCRIBE, null, 0L);
   }
 
   @Test
   public void unsubscribeAllPatternsWhenNoSubscriptions() {
-    Client client = createClient();
+    var client = createClient();
 
-    Collection<Collection<?>> result = subscriptions.punsubscribe(emptyList(), client);
+    var result = subscriptions.punsubscribe(emptyList(), client);
 
     assertThat(result).hasSize(1);
     @SuppressWarnings("unchecked")
-    Collection<Object> firstItem = (Collection<Object>) result.iterator().next();
+    var firstItem = (Collection<Object>) result.iterator().next();
     assertThat(firstItem).containsExactly(PUNSUBSCRIBE, null, 0L);
   }
 
   @Test
   public void unsubscribeOneChannel() {
-    byte[] channel = stringToBytes("monkeys");
-    Client client = createClient();
+    var channel = stringToBytes("monkeys");
+    var client = createClient();
     addChannelSubscription(client, "subscriptions");
     addPatternSubscription(client, "monkeys");
     addChannelSubscription(client, "monkeys");
 
-    Collection<Collection<?>> result = subscriptions.unsubscribe(singletonList(channel), client);
+    var result = subscriptions.unsubscribe(singletonList(channel), client);
 
     assertThat(result).containsExactly(asList(UNSUBSCRIBE, channel, 2L));
     assertThat(subscriptions.findChannelNames())
@@ -297,14 +296,14 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void unsubscribeTwoChannels() {
-    byte[] channel1 = stringToBytes("monkeys");
-    byte[] channel2 = stringToBytes("subscriptions");
-    Client client = createClient();
+    var channel1 = stringToBytes("monkeys");
+    var channel2 = stringToBytes("subscriptions");
+    var client = createClient();
     addChannelSubscription(client, "subscriptions");
     addPatternSubscription(client, "monkeys");
     addChannelSubscription(client, "monkeys");
 
-    Collection<Collection<?>> result =
+    var result =
         subscriptions.unsubscribe(asList(channel1, channel2), client);
 
     assertThat(result).containsExactly(asList(UNSUBSCRIBE, channel1, 2L),
@@ -314,40 +313,40 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void unsubscribeAllChannels() {
-    byte[] channel = stringToBytes("monkeys");
-    Client client = createClient();
+    var channel = stringToBytes("monkeys");
+    var client = createClient();
     addPatternSubscription(client, "monkeys");
     addChannelSubscription(client, "monkeys");
 
-    Collection<Collection<?>> result = subscriptions.unsubscribe(emptyList(), client);
+    var result = subscriptions.unsubscribe(emptyList(), client);
 
     assertThat(result).hasSize(1);
     @SuppressWarnings("unchecked")
-    Collection<Object> firstItem = (Collection<Object>) result.iterator().next();
+    var firstItem = (Collection<Object>) result.iterator().next();
     assertThat(firstItem).containsExactly(UNSUBSCRIBE, channel, 1L);
     assertThat(subscriptions.findChannelNames()).isEmpty();
   }
 
   @Test
   public void findChannelNames_shouldReturnAllChannelNames_whenCalledWithoutParameter() {
-    Client client = createClient();
+    var client = createClient();
     addChannelSubscription(client, "foo");
     addChannelSubscription(client, "bar");
 
-    List<byte[]> result = subscriptions.findChannelNames();
+    var result = subscriptions.findChannelNames();
 
     assertThat(result).containsExactlyInAnyOrder(stringToBytes("foo"), stringToBytes("bar"));
   }
 
   @Test
   public void findChannelNames_shouldReturnOnlyMatchingChannelNames_whenCalledWithPattern() {
-    byte[] pattern = stringToBytes("b*");
-    Client client = createClient();
+    var pattern = stringToBytes("b*");
+    var client = createClient();
     addChannelSubscription(client, "foo");
     addChannelSubscription(client, "bar");
     addChannelSubscription(client, "barbarella");
 
-    List<byte[]> result = subscriptions.findChannelNames(pattern);
+    var result = subscriptions.findChannelNames(pattern);
 
     assertThat(result).containsExactlyInAnyOrder(stringToBytes("bar"),
         stringToBytes("barbarella"));
@@ -355,52 +354,52 @@ public class SubscriptionsJUnitTest {
 
   @Test
   public void findChannelNames_shouldNotReturnPatternSubscriptions() {
-    Client client = createClient();
+    var client = createClient();
     addChannelSubscription(client, "foo");
     addPatternSubscription(client, "bar");
 
-    List<byte[]> result = subscriptions.findChannelNames();
+    var result = subscriptions.findChannelNames();
 
     assertThat(result).containsExactlyInAnyOrder(stringToBytes("foo"));
   }
 
   @Test
   public void findChannelNames_shouldNotReturnDuplicates_givenMultipleSubscriptionsToSameChannel_whenCalledWithoutPattern() {
-    Client client1 = createClient();
-    Client client2 = createClient();
+    var client1 = createClient();
+    var client2 = createClient();
     addChannelSubscription(client1, "foo");
     addChannelSubscription(client2, "foo");
 
-    List<byte[]> result = subscriptions.findChannelNames();
+    var result = subscriptions.findChannelNames();
 
     assertThat(result).containsExactlyInAnyOrder(stringToBytes("foo"));
   }
 
   @Test
   public void findChannelNames_shouldNotReturnDuplicates_givenMultipleSubscriptionsToSameChannel_whenCalledWithPattern() {
-    Client client1 = createClient();
-    Client client2 = createClient();
+    var client1 = createClient();
+    var client2 = createClient();
     addChannelSubscription(client1, "foo");
     addChannelSubscription(client2, "foo");
 
-    List<byte[]> result = subscriptions.findChannelNames(stringToBytes("f*"));
+    var result = subscriptions.findChannelNames(stringToBytes("f*"));
 
     assertThat(result).containsExactlyInAnyOrder(stringToBytes("foo"));
   }
 
 
   private void addPatternSubscription(Client client, String pattern) {
-    byte[] patternBytes = stringToBytes(pattern);
+    var patternBytes = stringToBytes(pattern);
     subscriptions.addPattern(patternBytes, client);
   }
 
   private void addChannelSubscription(Client client, String channel) {
-    byte[] channelBytes = stringToBytes(channel);
+    var channelBytes = stringToBytes(channel);
     subscriptions.addChannel(channelBytes, client);
   }
 
   private Channel createChannel() {
-    Channel channel = mock(Channel.class);
+    var channel = mock(Channel.class);
     when(channel.closeFuture()).thenReturn(mock(ChannelFuture.class));
     return channel;
   }

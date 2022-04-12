@@ -31,7 +31,6 @@ import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ReliableReplyException;
-import org.apache.geode.distributed.internal.ReliableReplyProcessor21;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
@@ -85,7 +84,7 @@ public abstract class TXStateStub implements TXStateInterface {
   @Override
   public void beforeCompletion() {
     // note that this class must do distribution as it is used as the stub class in some situations
-    ReliableReplyProcessor21 response = JtaBeforeCompletionMessage.send(proxy.getCache(),
+    var response = JtaBeforeCompletionMessage.send(proxy.getCache(),
         proxy.getTxId().getUniqId(), getOriginatingMember(), target);
     try {
       response.waitForReliableDelivery();
@@ -105,7 +104,7 @@ public abstract class TXStateStub implements TXStateInterface {
    * @return existing or new stub for region
    */
   protected TXRegionStub getTXRegionStub(InternalRegion region) {
-    TXRegionStub stub = regionStubs.get(region);
+    var stub = regionStubs.get(region);
     if (stub == null) {
       /*
        * validate whether this region is legit or not
@@ -142,7 +141,7 @@ public abstract class TXStateStub implements TXStateInterface {
       throw new UnsupportedOperationInTransactionException(
           "localDestroy() is not allowed in a transaction");
     }
-    TXRegionStub rs = getTXRegionStub(event.getRegion());
+    var rs = getTXRegionStub(event.getRegion());
     rs.destroyExistingEntry(event, cacheWrite, expectedOldValue);
   }
 
@@ -503,7 +502,7 @@ public abstract class TXStateStub implements TXStateInterface {
   @Override
   public Object getKeyForIterator(KeyInfo keyInfo, LocalRegion currRgn, boolean rememberReads,
       boolean allowTombstones) {
-    Object key = keyInfo.getKey();
+    var key = keyInfo.getKey();
     if (key instanceof RegionEntry) {
       return ((RegionEntry) key).getKey();
     }
@@ -640,7 +639,7 @@ public abstract class TXStateStub implements TXStateInterface {
    */
   @Override
   public Set getBucketKeys(LocalRegion localRegion, int bucketId, boolean allowTombstones) {
-    PartitionedRegion pr = (PartitionedRegion) localRegion;
+    var pr = (PartitionedRegion) localRegion;
     /*
      * txtodo: what does this mean for c/s
      */

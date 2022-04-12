@@ -189,7 +189,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.USE_CLUSTER_C
 import static org.apache.geode.distributed.ConfigurationProperties.VALIDATE_SERIALIZABLE_OBJECTS;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -380,7 +379,7 @@ public interface DistributionConfig
     // Default MCast address can be just IPv4 address.
     // On IPv6 machines, JGroups converts IPv4 address to equivalent IPv6 address.
     try {
-      String ipLiteral = MembershipConfig.DEFAULT_MCAST_ADDRESS;
+      var ipLiteral = MembershipConfig.DEFAULT_MCAST_ADDRESS;
       return InetAddress.getByName(ipLiteral);
     } catch (UnknownHostException ex) {
       // this should never happen
@@ -5445,7 +5444,7 @@ public interface DistributionConfig
 
   static String[] init() {
     List<String> atts = new ArrayList<>();
-    for (Field field : DistributionConfig.class.getDeclaredFields()) {
+    for (var field : DistributionConfig.class.getDeclaredFields()) {
       if (field.isAnnotationPresent(ConfigAttribute.class)) {
         field.setAccessible(true);
         try {
@@ -5464,12 +5463,12 @@ public interface DistributionConfig
       }
     }
 
-    for (Method method : DistributionConfig.class.getDeclaredMethods()) {
+    for (var method : DistributionConfig.class.getDeclaredMethods()) {
       if (method.isAnnotationPresent(ConfigAttributeGetter.class)) {
-        ConfigAttributeGetter getter = method.getAnnotation(ConfigAttributeGetter.class);
+        var getter = method.getAnnotation(ConfigAttributeGetter.class);
         getters.put(getter.name(), method);
       } else if (method.isAnnotationPresent(ConfigAttributeSetter.class)) {
-        ConfigAttributeSetter setter = method.getAnnotation(ConfigAttributeSetter.class);
+        var setter = method.getAnnotation(ConfigAttributeSetter.class);
         setters.put(setter.name(), method);
       }
     }

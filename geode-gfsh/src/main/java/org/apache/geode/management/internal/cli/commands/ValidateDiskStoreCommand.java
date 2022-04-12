@@ -16,7 +16,6 @@ package org.apache.geode.management.internal.cli.commands;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +29,6 @@ import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.LogWrapper;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.util.DiskStoreValidater;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -46,22 +44,22 @@ public class ValidateDiskStoreCommand extends GfshCommand {
       @CliOption(key = CliStrings.VALIDATE_DISK_STORE__J,
           help = CliStrings.VALIDATE_DISK_STORE__J__HELP) String[] jvmProps) {
 
-    String validatedDirectories = DiskStoreCommandsUtils.validatedDirectories(diskDirs);
+    var validatedDirectories = DiskStoreCommandsUtils.validatedDirectories(diskDirs);
     if (validatedDirectories != null) {
       throw new IllegalArgumentException(
           "Could not find " + CliStrings.VALIDATE_DISK_STORE__DISKDIRS + ": \""
               + validatedDirectories + "\"");
     }
 
-    ResultModel result = new ResultModel();
-    InfoResultModel infoResult = result.addInfo();
-    LogWrapper logWrapper = LogWrapper.getInstance(getCache());
+    var result = new ResultModel();
+    var infoResult = result.addInfo();
+    var logWrapper = LogWrapper.getInstance(getCache());
     Process validateDiskStoreProcess = null;
 
     try {
       // create a new process ...bug 46075
-      StringBuilder dirList = new StringBuilder();
-      for (String diskDir : diskDirs) {
+      var dirList = new StringBuilder();
+      for (var diskDir : diskDirs) {
         dirList.append(diskDir);
         dirList.append(";");
       }
@@ -77,7 +75,7 @@ public class ValidateDiskStoreCommand extends GfshCommand {
       }
 
       // Pass any java options on to the command
-      String opts = System.getenv("JAVA_OPTS");
+      var opts = System.getenv("JAVA_OPTS");
       if (opts != null) {
         commandList.add(opts);
       }
@@ -87,14 +85,14 @@ public class ValidateDiskStoreCommand extends GfshCommand {
       commandList.add(diskStoreName);
       commandList.add(dirList.toString());
 
-      ProcessBuilder procBuilder = new ProcessBuilder(commandList);
+      var procBuilder = new ProcessBuilder(commandList);
       procBuilder.redirectErrorStream(true);
 
       validateDiskStoreProcess = procBuilder.redirectErrorStream(true).start();
-      InputStream inputStream = validateDiskStoreProcess.getInputStream();
+      var inputStream = validateDiskStoreProcess.getInputStream();
 
-      try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-          BufferedReader br = new BufferedReader(inputStreamReader)) {
+      try (var inputStreamReader = new InputStreamReader(inputStream);
+          var br = new BufferedReader(inputStreamReader)) {
 
         String line;
         while ((line = br.readLine()) != null) {

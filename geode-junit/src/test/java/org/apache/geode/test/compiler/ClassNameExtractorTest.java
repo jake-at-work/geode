@@ -14,8 +14,6 @@
  */
 package org.apache.geode.test.compiler;
 
-import java.util.List;
-import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -29,20 +27,20 @@ public class ClassNameExtractorTest {
 
   @Test
   public void extractsClassNames() throws Exception {
-    SoftAssertions softAssertions = new SoftAssertions();
-    ClassNameExtractor classNameExtractor = new ClassNameExtractor();
+    var softAssertions = new SoftAssertions();
+    var classNameExtractor = new ClassNameExtractor();
 
-    Set<List<String>> permutationsToTest = Sets.cartesianProduct(
+    var permutationsToTest = Sets.cartesianProduct(
         ImmutableSet.of("public ", "private ", "protected ", ""), ImmutableSet.of("abstract ", ""),
         ImmutableSet.of("static ", ""), ImmutableSet.of("class ", "interface "),
         ImmutableSet.of("extends Foo ", ""), ImmutableSet.of("implements Bar ", ""));
 
-    for (List<String> permutation : permutationsToTest) {
-      String firstLineOfSource =
+    for (var permutation : permutationsToTest) {
+      var firstLineOfSource =
           permutation.get(0) + permutation.get(1) + permutation.get(2) + permutation.get(3)
               + CLASS_NAME_TO_FIND + SPACE + permutation.get(4) + permutation.get(5) + " {";
 
-      String className = classNameExtractor.extractFromSourceCode(firstLineOfSource);
+      var className = classNameExtractor.extractFromSourceCode(firstLineOfSource);
       softAssertions.assertThat(className).isEqualTo(CLASS_NAME_TO_FIND);
     }
 

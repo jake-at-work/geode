@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.cache.partitioned.rebalance;
 
-import org.apache.geode.internal.cache.partitioned.rebalance.model.Move;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.PartitionedRegionLoadModel;
 
 /**
@@ -48,7 +47,7 @@ public class MoveBuckets extends RebalanceDirectorAdapter {
    * @return true if we could move the bucket
    */
   private boolean moveBuckets() {
-    Move bestMove = model.findBestBucketMove();
+    var bestMove = model.findBestBucketMove();
 
     if (bestMove == null) {
       return false;

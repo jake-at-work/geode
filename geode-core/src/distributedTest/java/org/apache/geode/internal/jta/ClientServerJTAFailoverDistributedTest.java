@@ -36,13 +36,9 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.client.ClientRegionFactory;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.InternalClientCache;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ServerLocation;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PeerTXStateStub;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.TXStateProxyImpl;
@@ -108,7 +104,7 @@ public class ClientServerJTAFailoverDistributedTest implements Serializable {
 
     client1.invoke(() -> createClientRegion(port1, port2));
 
-    Object[] beforeCompletionResults = client1.invoke(this::doBeforeCompletion);
+    var beforeCompletionResults = client1.invoke(this::doBeforeCompletion);
 
     int port = (Integer) beforeCompletionResults[1];
 
@@ -138,8 +134,7 @@ public class ClientServerJTAFailoverDistributedTest implements Serializable {
           .create(replicateRegionName);
     }
 
-
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -171,8 +166,8 @@ public class ClientServerJTAFailoverDistributedTest implements Serializable {
   }
 
   private PoolImpl getPool(int... ports) {
-    PoolFactory factory = PoolManager.createFactory();
-    for (int port : ports) {
+    var factory = PoolManager.createFactory();
+    for (var port : ports) {
       factory.addServer(hostName, port);
     }
     return (PoolImpl) factory.setReadTimeout(2000).setSocketBufferSize(1000)
@@ -184,35 +179,35 @@ public class ClientServerJTAFailoverDistributedTest implements Serializable {
   }
 
   private Object[] doBeforeCompletion() {
-    Object[] results = new Object[2];
-    InternalClientCache cache = clientCacheRule.getClientCache();
+    var results = new Object[2];
+    var cache = clientCacheRule.getClientCache();
     Region region = cache.getRegion(regionName);
     Region replicateRegion = hasReplicateRegion ? cache.getRegion(replicateRegionName) : null;
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     region.put(key, newValue);
     if (hasReplicateRegion) {
       replicateRegion.put(key, newValue);
     }
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) txManager.getTXState();
-    ClientTXStateStub clientTXStateStub = (ClientTXStateStub) txStateProxy.getRealDeal(null, null);
+    var txStateProxy = (TXStateProxyImpl) txManager.getTXState();
+    var clientTXStateStub = (ClientTXStateStub) txStateProxy.getRealDeal(null, null);
     clientTXStateStub.beforeCompletion();
-    TransactionId transactionId = txManager.suspend();
-    int port = clientTXStateStub.getServerAffinityLocation().getPort();
+    var transactionId = txManager.suspend();
+    var port = clientTXStateStub.getServerAffinityLocation().getPort();
     results[0] = transactionId;
     results[1] = port;
     return results;
   }
 
   private void doAfterCompletion(TransactionId transactionId, boolean isCommit) {
-    InternalClientCache cache = clientCacheRule.getClientCache();
+    var cache = clientCacheRule.getClientCache();
     Region region = cache.getRegion(regionName);
     Region replicateRegion = cache.getRegion(replicateRegionName);
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.resume(transactionId);
 
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) txManager.getTXState();
-    ClientTXStateStub clientTXStateStub = (ClientTXStateStub) txStateProxy.getRealDeal(null, null);
+    var txStateProxy = (TXStateProxyImpl) txManager.getTXState();
+    var clientTXStateStub = (ClientTXStateStub) txStateProxy.getRealDeal(null, null);
     try {
       clientTXStateStub
           .afterCompletion(isCommit ? Status.STATUS_COMMITTED : Status.STATUS_ROLLEDBACK);
@@ -237,7 +232,7 @@ public class ClientServerJTAFailoverDistributedTest implements Serializable {
     port1 = server1.invoke(() -> createServerRegion(1, true));
 
     client1.invoke(() -> createClientRegion(port1, port2));
-    Object[] beforeCompletionResults = client1.invoke(this::doBeforeCompletion);
+    var beforeCompletionResults = client1.invoke(this::doBeforeCompletion);
 
     server1.invoke(() -> cacheRule.getCache().close());
 
@@ -253,7 +248,7 @@ public class ClientServerJTAFailoverDistributedTest implements Serializable {
 
     client1.invoke(() -> createClientRegion(port1, port2));
 
-    Object[] beforeCompletionResults = client1.invoke(this::doBeforeCompletion);
+    var beforeCompletionResults = client1.invoke(this::doBeforeCompletion);
 
     int port = (Integer) beforeCompletionResults[1];
 
@@ -274,11 +269,11 @@ public class ClientServerJTAFailoverDistributedTest implements Serializable {
     Region region;
     TXManagerImpl txManager;
     if (isClient) {
-      InternalClientCache cache = clientCacheRule.getClientCache();
+      var cache = clientCacheRule.getClientCache();
       region = cache.getRegion(regionName);
       txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     } else {
-      InternalCache cache = cacheRule.getCache();
+      var cache = cacheRule.getCache();
       region = cache.getRegion(regionName);
       txManager = (TXManagerImpl) cache.getCacheTransactionManager();
 
@@ -304,14 +299,14 @@ public class ClientServerJTAFailoverDistributedTest implements Serializable {
   }
 
   private void doBeforeCompletionOnPeer() {
-    InternalCache cache = cacheRule.getCache();
+    var cache = cacheRule.getCache();
     Region region = cache.getRegion(regionName);
-    TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
     txManager.begin();
     region.put(key, newValue);
 
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) txManager.getTXState();
-    PeerTXStateStub txStateStub = (PeerTXStateStub) txStateProxy.getRealDeal(null, null);
+    var txStateProxy = (TXStateProxyImpl) txManager.getTXState();
+    var txStateStub = (PeerTXStateStub) txStateProxy.getRealDeal(null, null);
     txStateStub.beforeCompletion();
   }
 
@@ -323,7 +318,7 @@ public class ClientServerJTAFailoverDistributedTest implements Serializable {
     port1 = server1.invoke(() -> createServerRegion(1, true));
 
     client1.invoke(() -> createClientRegion(port1, port2));
-    Object[] beforeCompletionResults = client1.invoke(this::doBeforeCompletion);
+    var beforeCompletionResults = client1.invoke(this::doBeforeCompletion);
 
     server1.invoke(() -> cacheRule.getCache().close());
 

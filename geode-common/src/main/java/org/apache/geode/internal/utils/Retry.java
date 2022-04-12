@@ -42,7 +42,7 @@ public class Retry {
 
     @Override
     public void sleep(long sleepTimeInNano) throws InterruptedException {
-      long millis = NANOSECONDS.toMillis(sleepTimeInNano);
+      var millis = NANOSECONDS.toMillis(sleepTimeInNano);
       // avoid throwing IllegalArgumentException
       if (millis > 0) {
         Thread.sleep(millis);
@@ -77,8 +77,8 @@ public class Retry {
       Supplier<T> supplier,
       Predicate<T> predicate,
       Timer timer) throws TimeoutException, InterruptedException {
-    long until = timer.nanoTime() + NANOSECONDS.convert(timeout, timeoutUnit);
-    long intervalNano = NANOSECONDS.convert(interval, intervalUnit);
+    var until = timer.nanoTime() + NANOSECONDS.convert(timeout, timeoutUnit);
+    var intervalNano = NANOSECONDS.convert(interval, intervalUnit);
 
     T value;
     for (;;) {

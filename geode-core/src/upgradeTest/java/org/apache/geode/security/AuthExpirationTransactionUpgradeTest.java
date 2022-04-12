@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 import org.junit.After;
@@ -35,10 +33,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.CacheTransactionManager;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.TransactionId;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
@@ -83,7 +79,7 @@ public class AuthExpirationTransactionUpgradeTest {
 
   @Before
   public void init() throws Exception {
-    int serverPort = server.getPort();
+    var serverPort = server.getPort();
     clientVM = cluster.startClientVM(0, clientVersion,
         c -> c.withProperty(SECURITY_CLIENT_AUTH_INIT, UpdatableUserAuthInitialize.class.getName())
             .withPoolSubscription(true)
@@ -99,13 +95,13 @@ public class AuthExpirationTransactionUpgradeTest {
 
   @Test
   public void transactionSucceedsWhenAuthenticationExpires() {
-    String txId =
+    var txId =
         clientVM.invoke(() -> firstSetOfPutOperations("transaction0", "region", 0, 3));
 
     getSecurityManager().addExpiredUser("transaction0");
 
     clientVM.invoke(() -> {
-      CacheTransactionManager txManager =
+      var txManager =
           secondSetOfPutOperations("transaction1", "/region", txId, 3, 6);
       txManager.commit();
     });
@@ -114,28 +110,28 @@ public class AuthExpirationTransactionUpgradeTest {
 
     assertThat(getSecurityManager().getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = getSecurityManager().getAuthorizedOps();
+    var authorizedOps = getSecurityManager().getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2");
     assertThat(authorizedOps.get("transaction1")).containsExactly("DATA:WRITE:region:3",
         "DATA:WRITE:region:4", "DATA:WRITE:region:5");
 
-    Map<String, List<String>> unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
+    var unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:3");
   }
 
   @Test
   public void transactionCanCommitWhenAuthExpiresAndReAuthenicationFails() {
-    String txId =
+    var txId =
         clientVM.invoke(() -> firstSetOfPutOperations("transaction0", "region", 0, 3));
 
     getSecurityManager().addExpiredUser("transaction0");
-    String client_version = clientVersion;
+    var client_version = clientVersion;
 
     clientVM.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Region<Object, Object> region = clientCache.getRegion("/region");
-      TXManagerImpl txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
+      var clientCache = ClusterStartupRule.getClientCache();
+      var region = clientCache.getRegion("/region");
+      var txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
       assertThat(txManager.getTXState()).isNotNull();
       assertThat(txManager.getTXState().isInProgress()).isTrue();
       assertThat(txManager.getTransactionId().toString()).isEqualTo(txId);
@@ -158,27 +154,27 @@ public class AuthExpirationTransactionUpgradeTest {
 
     assertThat(getSecurityManager().getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = getSecurityManager().getAuthorizedOps();
+    var authorizedOps = getSecurityManager().getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2");
 
-    Map<String, List<String>> unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
+    var unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:3",
         "DATA:WRITE:region:4", "DATA:WRITE:region:5");
   }
 
   @Test
   public void transactionCanRollbackWhenAuthExpiresAndReAuthenticationFails() {
-    String txId =
+    var txId =
         clientVM.invoke(() -> firstSetOfPutOperations("transaction0", "region", 0, 3));
 
     getSecurityManager().addExpiredUser("transaction0");
-    String client_version = clientVersion;
+    var client_version = clientVersion;
 
     clientVM.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Region<Object, Object> region = clientCache.getRegion("/region");
-      TXManagerImpl txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
+      var clientCache = ClusterStartupRule.getClientCache();
+      var region = clientCache.getRegion("/region");
+      var txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
       assertThat(txManager.getTXState()).isNotNull();
       assertThat(txManager.getTXState().isInProgress()).isTrue();
       assertThat(txManager.getTransactionId().toString()).isEqualTo(txId);
@@ -201,24 +197,24 @@ public class AuthExpirationTransactionUpgradeTest {
 
     assertThat(getSecurityManager().getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = getSecurityManager().getAuthorizedOps();
+    var authorizedOps = getSecurityManager().getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2");
 
-    Map<String, List<String>> unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
+    var unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:3",
         "DATA:WRITE:region:4", "DATA:WRITE:region:5");
   }
 
   @Test
   public void transactionCanRollbackWhenAuthenticationExpires() {
-    String txId =
+    var txId =
         clientVM.invoke(() -> firstSetOfPutOperations("transaction0", "region", 0, 3));
 
     getSecurityManager().addExpiredUser("transaction0");
 
     clientVM.invoke(() -> {
-      CacheTransactionManager txManager =
+      var txManager =
           secondSetOfPutOperations("transaction1", "/region", txId, 3, 6);
       txManager.rollback();
     });
@@ -227,24 +223,24 @@ public class AuthExpirationTransactionUpgradeTest {
 
     assertThat(getSecurityManager().getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = getSecurityManager().getAuthorizedOps();
+    var authorizedOps = getSecurityManager().getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2");
     assertThat(authorizedOps.get("transaction1")).containsExactly("DATA:WRITE:region:3",
         "DATA:WRITE:region:4", "DATA:WRITE:region:5");
 
-    Map<String, List<String>> unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
+    var unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:3");
   }
 
   @Test
   public void transactionCanResumeWhenAuthenticationExpires() {
-    String txId = clientVM.invoke(() -> {
+    var txId = clientVM.invoke(() -> {
       UpdatableUserAuthInitialize.setUser("transaction0");
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Region<Object, Object> region = clientCache.createClientRegionFactory(
+      var clientCache = ClusterStartupRule.getClientCache();
+      var region = clientCache.createClientRegionFactory(
           ClientRegionShortcut.PROXY).create("region");
-      CacheTransactionManager txManager = clientCache.getCacheTransactionManager();
+      var txManager = clientCache.getCacheTransactionManager();
       txManager.begin();
       IntStream.range(0, 3).forEach(num -> region.put(num, "value" + num));
       return txManager.suspend().toString();
@@ -254,11 +250,11 @@ public class AuthExpirationTransactionUpgradeTest {
 
     clientVM.invoke(() -> {
       UpdatableUserAuthInitialize.setUser("transaction1");
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Region<Object, Object> region = clientCache.getRegion("/region");
-      TXManagerImpl txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
-      int uniqueID = Integer.parseInt(txId.substring(txId.lastIndexOf(":") + 1));
-      InternalDistributedMember internalDistributedMember =
+      var clientCache = ClusterStartupRule.getClientCache();
+      var region = clientCache.getRegion("/region");
+      var txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
+      var uniqueID = Integer.parseInt(txId.substring(txId.lastIndexOf(":") + 1));
+      var internalDistributedMember =
           (InternalDistributedMember) clientCache.getDistributedSystem().getDistributedMember();
       TransactionId transactionId = new TXId(internalDistributedMember, uniqueID);
       txManager.resume(transactionId);
@@ -273,18 +269,18 @@ public class AuthExpirationTransactionUpgradeTest {
 
     assertThat(getSecurityManager().getExpiredUsers()).containsExactly("transaction0");
 
-    Map<String, List<String>> authorizedOps = getSecurityManager().getAuthorizedOps();
+    var authorizedOps = getSecurityManager().getAuthorizedOps();
     assertThat(authorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:0",
         "DATA:WRITE:region:1", "DATA:WRITE:region:2");
     assertThat(authorizedOps.get("transaction1")).containsExactly("DATA:WRITE:region:3",
         "DATA:WRITE:region:4", "DATA:WRITE:region:5");
 
-    Map<String, List<String>> unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
+    var unAuthorizedOps = getSecurityManager().getUnAuthorizedOps();
     assertThat(unAuthorizedOps.get("transaction0")).containsExactly("DATA:WRITE:region:3");
   }
 
   private void verifyServerRegion(int numTransactions, String regionPath) {
-    Region<Object, Object> serverRegion = server.getCache().getRegion(regionPath);
+    var serverRegion = server.getCache().getRegion(regionPath);
     assertThat(serverRegion.keySet()).hasSize(numTransactions);
     IntStream.range(0, numTransactions)
         .forEach(num -> assertThat(serverRegion.get(num)).isEqualTo("value" + num));
@@ -293,10 +289,10 @@ public class AuthExpirationTransactionUpgradeTest {
   private static String firstSetOfPutOperations(String user, String regionName,
       int startRange, int endRange) {
     UpdatableUserAuthInitialize.setUser(user);
-    ClientCache clientCache = ClusterStartupRule.getClientCache();
-    Region<Object, Object> region = clientCache.createClientRegionFactory(
+    var clientCache = ClusterStartupRule.getClientCache();
+    var region = clientCache.createClientRegionFactory(
         ClientRegionShortcut.PROXY).create(regionName);
-    CacheTransactionManager txManager = clientCache.getCacheTransactionManager();
+    var txManager = clientCache.getCacheTransactionManager();
     txManager.begin();
     IntStream.range(startRange, endRange).forEach(num -> region.put(num, "value" + num));
     return txManager.getTransactionId().toString();
@@ -305,9 +301,9 @@ public class AuthExpirationTransactionUpgradeTest {
   private static CacheTransactionManager secondSetOfPutOperations(String user, String regionPath,
       String txId, int startRange, int endRange) {
     UpdatableUserAuthInitialize.setUser(user);
-    ClientCache clientCache = ClusterStartupRule.getClientCache();
-    Region<Object, Object> region = clientCache.getRegion(regionPath);
-    TXManagerImpl txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
+    var clientCache = ClusterStartupRule.getClientCache();
+    var region = clientCache.getRegion(regionPath);
+    var txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
     assertThat(txManager.getTXState()).isNotNull();
     assertThat(txManager.getTXState().isInProgress()).isTrue();
     assertThat(txManager.getTransactionId().toString()).isEqualTo(txId);

@@ -45,13 +45,13 @@ public class JNDIInvokerTest {
   public void verifyThatMapDataSourceWithGetSimpleDataSourceThrowingWillThrowThatException()
       throws Exception {
     Map<String, String> inputs = new HashMap<>();
-    Context context = mock(Context.class);
-    DataSourceFactory dataSourceFactory = mock(DataSourceFactory.class);
-    DataSourceCreateException exception = mock(DataSourceCreateException.class);
+    var context = mock(Context.class);
+    var dataSourceFactory = mock(DataSourceFactory.class);
+    var exception = mock(DataSourceCreateException.class);
     doThrow(exception).when(dataSourceFactory).getSimpleDataSource(any());
     inputs.put("type", "SimpleDataSource");
 
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> JNDIInvoker.mapDatasource(inputs, null, dataSourceFactory, context));
 
     assertThat(thrown).isSameAs(exception);
@@ -61,17 +61,17 @@ public class JNDIInvokerTest {
   public void mapDataSourceWithGetConnectionExceptionThrowsDataSourceCreateException()
       throws Exception {
     Map<String, String> inputs = new HashMap<>();
-    Context context = mock(Context.class);
-    DataSource dataSource = mock(DataSource.class);
-    SQLException exception = mock(SQLException.class);
+    var context = mock(Context.class);
+    var dataSource = mock(DataSource.class);
+    var exception = mock(SQLException.class);
     doThrow(exception).when(dataSource).getConnection();
-    DataSourceFactory dataSourceFactory = mock(DataSourceFactory.class);
+    var dataSourceFactory = mock(DataSourceFactory.class);
     when(dataSourceFactory.getSimpleDataSource(any())).thenReturn(dataSource);
     inputs.put("type", "SimpleDataSource");
-    String jndiName = "myJndiBinding";
+    var jndiName = "myJndiBinding";
     inputs.put("jndi-name", jndiName);
 
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> JNDIInvoker.mapDatasource(inputs, null, dataSourceFactory, context));
 
     assertThat(thrown).isInstanceOf(DataSourceCreateException.class)
@@ -82,14 +82,14 @@ public class JNDIInvokerTest {
   @Test
   public void mapDataSourceWithGetConnectionSuccessClosesConnectionAndRebinds() throws Exception {
     Map<String, String> inputs = new HashMap<>();
-    Context context = mock(Context.class);
-    DataSource dataSource = mock(DataSource.class);
-    Connection connection = mock(Connection.class);
+    var context = mock(Context.class);
+    var dataSource = mock(DataSource.class);
+    var connection = mock(Connection.class);
     when(dataSource.getConnection()).thenReturn(connection);
-    DataSourceFactory dataSourceFactory = mock(DataSourceFactory.class);
+    var dataSourceFactory = mock(DataSourceFactory.class);
     when(dataSourceFactory.getSimpleDataSource(any())).thenReturn(dataSource);
     inputs.put("type", "SimpleDataSource");
-    String jndiName = "myJndiBinding";
+    var jndiName = "myJndiBinding";
     inputs.put("jndi-name", jndiName);
 
     JNDIInvoker.mapDatasource(inputs, null, dataSourceFactory, context);

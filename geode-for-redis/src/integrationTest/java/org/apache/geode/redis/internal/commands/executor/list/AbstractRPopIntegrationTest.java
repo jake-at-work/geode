@@ -69,7 +69,7 @@ public abstract class AbstractRPopIntegrationTest implements RedisIntegrationTes
   @Test
   public void rpop_returnsRightmostMember() {
     jedis.lpush(KEY, "e1", "e2");
-    String result = jedis.rpop(KEY);
+    var result = jedis.rpop(KEY);
     assertThat(result).isEqualTo("e1");
   }
 
@@ -101,11 +101,11 @@ public abstract class AbstractRPopIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void rpop_withConcurrentLPush_returnsCorrectValue() {
-    String[] valuesInitial = new String[] {"un", "deux", "troix"};
-    String[] valuesToAdd = new String[] {"plum", "peach", "orange"};
+    var valuesInitial = new String[] {"un", "deux", "troix"};
+    var valuesToAdd = new String[] {"plum", "peach", "orange"};
     jedis.lpush(KEY, valuesInitial);
 
-    final AtomicReference<String> rpopReference = new AtomicReference<>();
+    final var rpopReference = new AtomicReference<String>();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.lpush(KEY, valuesToAdd),
         i -> rpopReference.set(jedis.rpop(KEY)))

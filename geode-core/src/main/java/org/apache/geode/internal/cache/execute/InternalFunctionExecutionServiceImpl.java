@@ -124,16 +124,16 @@ public class InternalFunctionExecutionServiceImpl
     }
 
     ProxyCache proxyCache = null;
-    String poolName = region.getAttributes().getPoolName();
+    var poolName = region.getAttributes().getPoolName();
     if (poolName != null) {
-      Pool pool = findPool(poolName);
+      var pool = findPool(poolName);
 
       if (pool == null) {
         throw new IllegalStateException(String.format("Could not find a pool named %s.", poolName));
       } else {
         if (pool.getMultiuserAuthentication()) {
           if (region instanceof ProxyRegion) {
-            ProxyRegion proxyRegion = (ProxyRegion) region;
+            var proxyRegion = (ProxyRegion) region;
             region = proxyRegion.getRealRegion();
             proxyCache = proxyRegion.getAuthenticatedCache();
           } else {
@@ -201,7 +201,7 @@ public class InternalFunctionExecutionServiceImpl
   public Map<String, Function> getRegisteredFunctions() {
     // We have to remove the internal functions before returning the map to the users
     final Map<String, Function> tempIdToFunctionMap = new HashMap<>();
-    for (Map.Entry<String, Function> entry : idToFunctionMap.entrySet()) {
+    for (var entry : idToFunctionMap.entrySet()) {
       if (!(entry.getValue() instanceof InternalEntity)) {
         tempIdToFunctionMap.put(entry.getKey(), entry.getValue());
       }
@@ -246,7 +246,7 @@ public class InternalFunctionExecutionServiceImpl
           "RegionService instance "));
     }
     if (regionService instanceof GemFireCacheImpl) {
-      InternalClientCache internalCache = (InternalClientCache) regionService;
+      var internalCache = (InternalClientCache) regionService;
       if (!internalCache.isClient()) {
         throw new FunctionException("The cache was not a client cache");
       } else if (internalCache.getDefaultPool() != null) {
@@ -255,7 +255,7 @@ public class InternalFunctionExecutionServiceImpl
         throw new FunctionException("The client cache does not have a default pool");
       }
     } else {
-      ProxyCache proxyCache = (ProxyCache) regionService;
+      var proxyCache = (ProxyCache) regionService;
       return new ServerFunctionExecutor(proxyCache.getUserAttributes().getPool(), false, proxyCache,
           groups);
     }
@@ -268,7 +268,7 @@ public class InternalFunctionExecutionServiceImpl
           "RegionService instance "));
     }
     if (regionService instanceof GemFireCacheImpl) {
-      InternalClientCache internalCache = (InternalClientCache) regionService;
+      var internalCache = (InternalClientCache) regionService;
       if (!internalCache.isClient()) {
         throw new FunctionException("The cache was not a client cache");
       } else if (internalCache.getDefaultPool() != null) {
@@ -277,7 +277,7 @@ public class InternalFunctionExecutionServiceImpl
         throw new FunctionException("The client cache does not have a default pool");
       }
     } else {
-      ProxyCache proxyCache = (ProxyCache) regionService;
+      var proxyCache = (ProxyCache) regionService;
       return new ServerFunctionExecutor(proxyCache.getUserAttributes().getPool(), true, proxyCache,
           groups);
     }
@@ -308,7 +308,7 @@ public class InternalFunctionExecutionServiceImpl
       return new MemberFunctionExecutor(system);
     }
     Set<DistributedMember> members = new HashSet<>();
-    for (String group : groups) {
+    for (var group : groups) {
       members.addAll(system.getGroupMembers(group));
     }
     if (members.isEmpty()) {
@@ -325,7 +325,7 @@ public class InternalFunctionExecutionServiceImpl
           "DistributedSystem instance "));
     }
     Set<DistributedMember> members = new HashSet<>();
-    for (String group : groups) {
+    for (var group : groups) {
       List<DistributedMember> grpMembers = new ArrayList<>(system.getGroupMembers(group));
       if (!grpMembers.isEmpty()) {
         if (!RANDOM_onMember && grpMembers.contains(system.getDistributedMember())) {
@@ -373,7 +373,7 @@ public class InternalFunctionExecutionServiceImpl
       throw new IllegalArgumentException(
           "Regions set is empty for onRegions function execution");
     }
-    for (Region region : regions) {
+    for (var region : regions) {
       if (isClientRegion(region)) {
         throw new UnsupportedOperationException(
             "FunctionService#onRegions() is not supported for cache clients in client server mode");
@@ -387,7 +387,7 @@ public class InternalFunctionExecutionServiceImpl
   @Override
   public void unregisterAllFunctions() {
     // Unregistering all the functions registered with the FunctionService.
-    for (String functionId : idToFunctionMap.keySet()) {
+    for (var functionId : idToFunctionMap.keySet()) {
       unregisterFunction(functionId);
     }
   }

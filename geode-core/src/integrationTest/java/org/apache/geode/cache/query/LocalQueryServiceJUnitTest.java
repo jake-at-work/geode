@@ -25,8 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.CacheTransactionManager;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
@@ -48,9 +46,9 @@ public class LocalQueryServiceJUnitTest {
     clientCache = new ClientCacheFactory().create();
     ClientRegionFactory factory =
         clientCache.createClientRegionFactory(ClientRegionShortcut.LOCAL);
-    Region region = factory.create("localRegion");
+    var region = factory.create("localRegion");
     numEntries = 10;
-    for (int i = 0; i < numEntries; i++) {
+    for (var i = 0; i < numEntries; i++) {
       region.put(i, i);
     }
   }
@@ -65,7 +63,7 @@ public class LocalQueryServiceJUnitTest {
 
   @Test
   public void testLocalQueryService() throws Exception {
-    SelectResults sR =
+    var sR =
         executeLocalQuery(clientCache, "SELECT * from " + SEPARATOR + "localRegion");
 
     assertEquals(numEntries, sR.size());
@@ -73,9 +71,9 @@ public class LocalQueryServiceJUnitTest {
 
   @Test
   public void testLocalQueryServiceWithTransaction() throws Exception {
-    CacheTransactionManager cacheTransactionManager = clientCache.getCacheTransactionManager();
+    var cacheTransactionManager = clientCache.getCacheTransactionManager();
     cacheTransactionManager.begin();
-    SelectResults selectResults =
+    var selectResults =
         executeLocalQuery(clientCache, "SELECT * from " + SEPARATOR + "localRegion");
 
     assertEquals(numEntries, selectResults.size());
@@ -84,8 +82,8 @@ public class LocalQueryServiceJUnitTest {
   }
 
   private SelectResults executeLocalQuery(ClientCache c, String query) throws QueryException {
-    QueryService qs = c.getLocalQueryService();
-    Query q = qs.newQuery(query);
+    var qs = c.getLocalQueryService();
+    var q = qs.newQuery(query);
     return (SelectResults) q.execute();
   }
 }

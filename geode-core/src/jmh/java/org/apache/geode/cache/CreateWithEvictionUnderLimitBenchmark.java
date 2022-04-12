@@ -77,7 +77,7 @@ public class CreateWithEvictionUnderLimitBenchmark {
   }
 
   private Region<String, String> createRegion(Cache cache, int maxSize) {
-    Region<String, String> region = cache.<String, String>createRegionFactory(RegionShortcut.LOCAL)
+    var region = cache.<String, String>createRegionFactory(RegionShortcut.LOCAL)
         .setEvictionAttributes(
             EvictionAttributes.createLRUEntryAttributes(maxSize, EvictionAction.LOCAL_DESTROY))
         .create("testRegion");

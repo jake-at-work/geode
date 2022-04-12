@@ -53,7 +53,7 @@ class NullRedisSortedSet extends RedisSortedSet {
       return zaddIncr(region, key, members.get(0), scores[0]);
     }
 
-    RedisSortedSet sortedSet = new RedisSortedSet(members, scores);
+    var sortedSet = new RedisSortedSet(members, scores);
     region.create(key, sortedSet);
 
     return sortedSet.getSortedSetSize();
@@ -67,7 +67,7 @@ class NullRedisSortedSet extends RedisSortedSet {
   @Override
   public byte[] zincrby(Region<RedisKey, RedisData> region, RedisKey key, double increment,
       byte[] member) {
-    RedisSortedSet sortedSet = new RedisSortedSet(singletonList(member), new double[] {increment});
+    var sortedSet = new RedisSortedSet(singletonList(member), new double[] {increment});
 
     region.create(key, sortedSet);
 

@@ -91,14 +91,14 @@ public class WhatExtendsJUnitTest {
   }
 
   private String getClassLocation(Class<?> clazz) {
-    String codeSource = clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
-    String classFile = clazz.getName().replace(".", "/");
+    var codeSource = clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
+    var classFile = clazz.getName().replace(".", "/");
 
     return codeSource + classFile;
   }
 
   private String getClassLocation(Class<?> clazz, String fakePrefix) {
-    String classFile = clazz.getName().replace(".", "/");
+    var classFile = clazz.getName().replace(".", "/");
 
     return fakePrefix + classFile;
   }

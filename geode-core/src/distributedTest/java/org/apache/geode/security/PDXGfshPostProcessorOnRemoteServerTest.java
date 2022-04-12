@@ -27,16 +27,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.pdx.SimpleClass;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
@@ -53,15 +50,15 @@ public class PDXGfshPostProcessorOnRemoteServerTest {
 
   @Test
   public void testGfshCommand() throws Exception {
-    Properties locatorProps = new Properties();
+    var locatorProps = new Properties();
     locatorProps.setProperty(TestSecurityManager.SECURITY_JSON,
         "org/apache/geode/management/internal/security/clientServer.json");
     locatorProps.setProperty(SECURITY_MANAGER, TestSecurityManager.class.getName());
     locatorProps.setProperty(SECURITY_POST_PROCESSOR, PDXPostProcessor.class.getName());
 
-    MemberVM locatorVM = lsRule.startLocatorVM(0, locatorProps);
+    var locatorVM = lsRule.startLocatorVM(0, locatorProps);
 
-    Properties serverProps = new Properties(locatorProps);
+    var serverProps = new Properties(locatorProps);
     serverProps.setProperty(TestSecurityManager.SECURITY_JSON,
         "org/apache/geode/management/internal/security/clientServer.json");
     serverProps.setProperty(SECURITY_MANAGER, TestSecurityManager.class.getName());
@@ -69,17 +66,17 @@ public class PDXGfshPostProcessorOnRemoteServerTest {
     serverProps.setProperty("security-username", "super-user");
     serverProps.setProperty("security-password", "1234567");
 
-    MemberVM serverVM = lsRule.startServerVM(1, serverProps, locatorVM.getPort());
+    var serverVM = lsRule.startServerVM(1, serverProps, locatorVM.getPort());
 
     serverVM.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertThat(cache.getSecurityService()).isNotNull();
       assertThat(cache.getSecurityService().getSecurityManager()).isNotNull();
       assertThat(cache.getSecurityService().getPostProcessor()).isNotNull();
 
       Region region = cache.createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
-      for (int i = 0; i < 5; i++) {
-        SimpleClass obj = new SimpleClass(i, (byte) i);
+      for (var i = 0; i < 5; i++) {
+        var obj = new SimpleClass(i, (byte) i);
         region.put("key" + i, obj);
       }
     });
@@ -88,7 +85,7 @@ public class PDXGfshPostProcessorOnRemoteServerTest {
     locatorVM.invoke(() -> {
       await()
           .until(() -> {
-            Cache cache = CacheFactory.getAnyInstance();
+            var cache = CacheFactory.getAnyInstance();
             Object bean = ManagementService.getManagementService(cache)
                 .getDistributedRegionMXBean(SEPARATOR + REGION_NAME);
             return bean != null;
@@ -106,7 +103,7 @@ public class PDXGfshPostProcessorOnRemoteServerTest {
         .statusIsSuccess();
 
     serverVM.invoke(() -> {
-      PDXPostProcessor pp =
+      var pp =
           (PDXPostProcessor) ClusterStartupRule.getCache().getSecurityService().getPostProcessor();
       // verify that the post processor is called 6 times. (5 for the query, 1 for the get)
       assertEquals(pp.getCount(), 6);

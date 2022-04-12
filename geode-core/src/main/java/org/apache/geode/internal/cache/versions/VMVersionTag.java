@@ -42,7 +42,7 @@ public class VMVersionTag extends VersionTag<InternalDistributedMember> {
 
   @Override
   public void setCanonicalIDs(DistributionManager dm) {
-    InternalDistributedMember id = getMemberID();
+    var id = getMemberID();
     if (id != null) {
       setMemberID(dm.getCanonicalId(getMemberID()));
       id = getPreviousMemberID();

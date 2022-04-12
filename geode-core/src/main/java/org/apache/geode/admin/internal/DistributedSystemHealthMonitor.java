@@ -105,7 +105,7 @@ class DistributedSystemHealthMonitor implements Runnable, GemFireVM {
     okayDiagnoses = new ArrayList<>();
     poorDiagnoses = new ArrayList<>();
 
-    String name = String.format("Health monitor for %s",
+    var name = String.format("Health monitor for %s",
         eval.getDescription());
     thread = new LoggingThread(name, this);
   }
@@ -127,12 +127,12 @@ class DistributedSystemHealthMonitor implements Runnable, GemFireVM {
         List status = new ArrayList();
         eval.evaluate(status);
 
-        GemFireHealth.Health overallHealth = GemFireHealth.GOOD_HEALTH;
+        var overallHealth = GemFireHealth.GOOD_HEALTH;
         okayDiagnoses.clear();
         poorDiagnoses.clear();
 
-        for (final Object o : status) {
-          AbstractHealthEvaluator.HealthStatus health =
+        for (final var o : status) {
+          var health =
               (AbstractHealthEvaluator.HealthStatus) o;
           if (overallHealth == GemFireHealth.GOOD_HEALTH) {
             if ((health.getHealthCode() != GemFireHealth.GOOD_HEALTH)) {
@@ -145,7 +145,7 @@ class DistributedSystemHealthMonitor implements Runnable, GemFireVM {
             }
           }
 
-          GemFireHealth.Health healthCode = health.getHealthCode();
+          var healthCode = health.getHealthCode();
           if (healthCode == GemFireHealth.OKAY_HEALTH) {
             okayDiagnoses.add(health.getDiagnosis());
 
@@ -304,13 +304,13 @@ class DistributedSystemHealthMonitor implements Runnable, GemFireVM {
       return new String[0];
 
     } else if (healthCode == GemFireHealth.OKAY_HEALTH) {
-      String[] array = new String[okayDiagnoses.size()];
+      var array = new String[okayDiagnoses.size()];
       okayDiagnoses.toArray(array);
       return array;
 
     } else {
       Assert.assertTrue(healthCode == GemFireHealth.POOR_HEALTH);
-      String[] array = new String[poorDiagnoses.size()];
+      var array = new String[poorDiagnoses.size()];
       poorDiagnoses.toArray(array);
       return array;
     }

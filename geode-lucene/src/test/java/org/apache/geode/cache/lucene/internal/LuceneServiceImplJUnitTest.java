@@ -25,7 +25,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,7 +48,6 @@ import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueFactoryImpl;
-import org.apache.geode.cache.lucene.LuceneIndexFactory;
 import org.apache.geode.cache.lucene.LuceneSerializer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.DistributionManager;
@@ -73,7 +71,7 @@ public class LuceneServiceImplJUnitTest {
       IllegalArgumentException, IllegalAccessException {
     region = mock(PartitionedRegion.class);
     cache = mock(GemFireCacheImpl.class);
-    Field f = LuceneServiceImpl.class.getDeclaredField("cache");
+    var f = LuceneServiceImpl.class.getDeclaredField("cache");
     f.setAccessible(true);
     f.set(service, cache);
   }
@@ -81,8 +79,8 @@ public class LuceneServiceImplJUnitTest {
   @Test
   public void shouldPassSerializer() {
     service = Mockito.spy(service);
-    LuceneIndexFactory factory = service.createIndexFactory();
-    LuceneSerializer serializer = mock(LuceneSerializer.class);
+    var factory = service.createIndexFactory();
+    var serializer = mock(LuceneSerializer.class);
     factory.setLuceneSerializer(serializer);
     factory.setFields("field1", "field2");
     factory.create("index", "region");
@@ -104,36 +102,36 @@ public class LuceneServiceImplJUnitTest {
 
   @Test
   public void shouldReturnFalseIfRegionNotFoundInWaitUntilFlush() throws InterruptedException {
-    boolean result =
+    var result =
         service.waitUntilFlushed("dummyIndex", "dummyRegion", 60000, TimeUnit.MILLISECONDS);
     assertFalse(result);
   }
 
   @Test
   public void userRegionShouldNotBeSetBeforeIndexInitialized() throws Exception {
-    TestLuceneServiceImpl testService = new TestLuceneServiceImpl();
-    Field f = LuceneServiceImpl.class.getDeclaredField("cache");
+    var testService = new TestLuceneServiceImpl();
+    var f = LuceneServiceImpl.class.getDeclaredField("cache");
     f.setAccessible(true);
     f.set(testService, cache);
-    AsyncEventQueueFactoryImpl aeqFactory = mock(AsyncEventQueueFactoryImpl.class);
+    var aeqFactory = mock(AsyncEventQueueFactoryImpl.class);
     when(cache.createAsyncEventQueueFactory()).thenReturn(aeqFactory);
 
-    DistributedSystem ds = mock(DistributedSystem.class);
-    Statistics luceneIndexStats = mock(Statistics.class);
+    var ds = mock(DistributedSystem.class);
+    var luceneIndexStats = mock(Statistics.class);
     when(cache.getDistributedSystem()).thenReturn(ds);
     when(ds.createAtomicStatistics(any(), anyString()))
         .thenReturn(luceneIndexStats);
     when(cache.getRegion(anyString())).thenReturn(region);
-    DistributionManager manager = mock(DistributionManager.class);
+    var manager = mock(DistributionManager.class);
     when(cache.getDistributionManager()).thenReturn(manager);
-    OperationExecutors executors = mock(OperationExecutors.class);
+    var executors = mock(OperationExecutors.class);
     when(executors.getWaitingThreadPool()).thenReturn(Executors.newSingleThreadExecutor());
     when(manager.getExecutors()).thenReturn(executors);
 
-    RegionAttributes ratts = mock(RegionAttributes.class);
+    var ratts = mock(RegionAttributes.class);
     when(region.getAttributes()).thenReturn(ratts);
     when(ratts.getDataPolicy()).thenReturn(DataPolicy.PARTITION);
-    EvictionAttributes evictionAttrs = mock(EvictionAttributes.class);
+    var evictionAttrs = mock(EvictionAttributes.class);
     when(ratts.getEvictionAttributes()).thenReturn(evictionAttrs);
     when(evictionAttrs.getAlgorithm()).thenReturn(EvictionAlgorithm.NONE);
 
@@ -145,14 +143,14 @@ public class LuceneServiceImplJUnitTest {
 
   @Test
   public void createLuceneIndexOnExistingRegionShouldNotThrowNPEIfBucketMovedDuringReindexing() {
-    LuceneIndexImpl index = mock(LuceneIndexImpl.class);
-    PartitionedRegionDataStore dataStore = mock(PartitionedRegionDataStore.class);
+    var index = mock(LuceneIndexImpl.class);
+    var dataStore = mock(PartitionedRegionDataStore.class);
     when(region.getDataStore()).thenReturn(dataStore);
     Integer[] bucketIds = {1, 2, 3, 4, 5};
     Set<Integer> primaryBucketIds = new HashSet(Arrays.asList(bucketIds));
     when(dataStore.getAllLocalPrimaryBucketIds()).thenReturn(primaryBucketIds);
     when(dataStore.getLocalBucketById(3)).thenReturn(null);
-    boolean result = service.createLuceneIndexOnDataRegion(region, index);
+    var result = service.createLuceneIndexOnDataRegion(region, index);
     assertTrue(result);
   }
 
@@ -160,7 +158,7 @@ public class LuceneServiceImplJUnitTest {
 
     @Override
     public void afterDataRegionCreated(InternalLuceneIndex index) {
-      PartitionedRegion userRegion =
+      var userRegion =
           (PartitionedRegion) index.getCache().getRegion(index.getRegionPath());
       verify(userRegion, never()).addAsyncEventQueueId(anyString(), anyBoolean());
     }

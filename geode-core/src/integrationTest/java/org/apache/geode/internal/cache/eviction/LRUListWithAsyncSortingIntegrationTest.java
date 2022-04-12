@@ -28,7 +28,6 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.InternalRegion;
@@ -66,7 +65,7 @@ public class LRUListWithAsyncSortingIntegrationTest {
   @Test
   public void testAddEvictionList() throws Exception {
     IntStream.range(0, 10).forEach(i -> {
-      LRUTestEntry entry = (LRUTestEntry) evictionList.getEvictableEntry();
+      var entry = (LRUTestEntry) evictionList.getEvictableEntry();
       assertThat(entry.id()).as("check node ids in order").isEqualTo(i);
     });
     assertThat(evictionList.getEvictableEntry()).as("check list is now empty").isNull();
@@ -77,7 +76,7 @@ public class LRUListWithAsyncSortingIntegrationTest {
     actOnEvenNodes(i -> evictionList.destroyEntry(nodes.get(i)));
 
     actOnOddNodes(i -> {
-      LRUTestEntry node = (LRUTestEntry) evictionList.getEvictableEntry();
+      var node = (LRUTestEntry) evictionList.getEvictableEntry();
       assertThat(node.id()).as("check node ids in order").isEqualTo(i);
     });
 
@@ -91,12 +90,12 @@ public class LRUListWithAsyncSortingIntegrationTest {
     evictionList.scan();
 
     actOnOddNodes(i -> {
-      LRUTestEntry node = (LRUTestEntry) evictionList.getEvictableEntry();
+      var node = (LRUTestEntry) evictionList.getEvictableEntry();
       assertThat(node.id()).as("check non-recently used entries returned first").isEqualTo(i);
     });
 
     actOnEvenNodes(i -> {
-      LRUTestEntry node = (LRUTestEntry) evictionList.getEvictableEntry();
+      var node = (LRUTestEntry) evictionList.getEvictableEntry();
       assertThat(node.id()).as("check recently used entries returned last").isEqualTo(i);
     });
 
@@ -107,7 +106,7 @@ public class LRUListWithAsyncSortingIntegrationTest {
   public void testRemoveHead() throws Exception {
     evictionList.destroyEntry(nodes.get(0));
     IntStream.range(1, 10).forEach(i -> {
-      LRUTestEntry entry = (LRUTestEntry) evictionList.getEvictableEntry();
+      var entry = (LRUTestEntry) evictionList.getEvictableEntry();
       assertThat(entry.id()).as("all but first node should remain").isEqualTo(i);
     });
 
@@ -118,12 +117,12 @@ public class LRUListWithAsyncSortingIntegrationTest {
   public void testRemoveMiddle() throws Exception {
     evictionList.destroyEntry(nodes.get(5));
     IntStream.range(0, 5).forEach(i -> {
-      LRUTestEntry entry = (LRUTestEntry) evictionList.getEvictableEntry();
+      var entry = (LRUTestEntry) evictionList.getEvictableEntry();
       assertThat(entry.id()).as("nodes before removed one should remain").isEqualTo(i);
     });
 
     IntStream.range(6, 10).forEach(i -> {
-      LRUTestEntry entry = (LRUTestEntry) evictionList.getEvictableEntry();
+      var entry = (LRUTestEntry) evictionList.getEvictableEntry();
       assertThat(entry.id()).as("nodes after removed one should remain").isEqualTo(i);
     });
     assertThat(evictionList.getEvictableEntry()).as("check list is now empty").isNull();
@@ -133,7 +132,7 @@ public class LRUListWithAsyncSortingIntegrationTest {
   public void testRemoveTail() throws Exception {
     evictionList.destroyEntry(nodes.get(9));
     IntStream.range(0, 9).forEach(i -> {
-      LRUTestEntry entry = (LRUTestEntry) evictionList.getEvictableEntry();
+      var entry = (LRUTestEntry) evictionList.getEvictableEntry();
       assertThat(entry.id()).as("all but first node should remain").isEqualTo(i);
     });
 
@@ -162,7 +161,7 @@ public class LRUListWithAsyncSortingIntegrationTest {
   }
 
   private InternalRegion createRegion() throws Exception {
-    Cache cache = new CacheFactory().set("locators", "").set("mcast-port", "0").create();
+    var cache = new CacheFactory().set("locators", "").set("mcast-port", "0").create();
     return (InternalRegion) cache.createRegionFactory(RegionShortcut.PARTITION)
         .create(testName.getMethodName());
   }

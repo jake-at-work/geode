@@ -22,7 +22,6 @@ import static org.apache.geode.test.dunit.VM.getVM;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -51,7 +50,7 @@ public class StackTraceDistributedTest {
   @After
   public void tearDown() {
     getVM(0).invoke(() -> {
-      CountDownLatch latchInVM0 = latch.get();
+      var latchInVM0 = latch.get();
       while (latchInVM0 != null && latchInVM0.getCount() > 0) {
         latchInVM0.countDown();
       }
@@ -71,10 +70,10 @@ public class StackTraceDistributedTest {
       return threadId.get();
     });
 
-    StackTrace stackTrace = getVM(0).invoke(() -> new StackTrace(remoteThreadId));
+    var stackTrace = getVM(0).invoke(() -> new StackTrace(remoteThreadId));
     assertThat(stackTrace).hasMessage("Stack trace for vm-0 thread-" + remoteThreadId);
 
-    List<String> stackTraceLines = Arrays.stream(stackTrace.getStackTrace())
+    var stackTraceLines = Arrays.stream(stackTrace.getStackTrace())
         .map(StackTraceElement::toString)
         .collect(Collectors.toList());
     assertThat(StringUtils.join(stackTraceLines, "\", " + lineSeparator() + "  \""))

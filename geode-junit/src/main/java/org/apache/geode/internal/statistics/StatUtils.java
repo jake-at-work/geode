@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.internal.SystemAdmin.StatSpec;
 import org.apache.geode.internal.statistics.StatArchiveReader.ResourceInst;
-import org.apache.geode.internal.statistics.StatArchiveReader.StatValue;
 
 /**
  * @since Geode 1.0
@@ -62,42 +59,42 @@ public class StatUtils {
 
   private static void addResourceInstsToSet(final File archiveFile,
       final Set<ResourceInst> resourceInsts) throws IOException {
-    StatArchiveReader reader =
+    var reader =
         new StatArchiveReader(new File[] {archiveFile}, new StatSpec[] {}, true);
 
-    for (final ResourceInst o : (Iterable<ResourceInst>) reader.getResourceInstList()) {
+    for (final var o : (Iterable<ResourceInst>) reader.getResourceInstList()) {
       resourceInsts.add(o);
     }
   }
 
   private static void addResourceInstsToSet(final File archiveFile, final String specString,
       final Set<ResourceInst> resourceInsts) throws IOException {
-    StatSpec statSpec = new StatSpec(specString);
+    var statSpec = new StatSpec(specString);
 
-    StatArchiveReader reader =
+    var reader =
         new StatArchiveReader(new File[] {archiveFile}, new StatSpec[] {statSpec}, true);
-    StatValue[] statValues = reader.matchSpec(statSpec);
+    var statValues = reader.matchSpec(statSpec);
 
-    for (StatValue statValue : statValues) {
-      for (ResourceInst resourceInst : statValue.getResources()) {
+    for (var statValue : statValues) {
+      for (var resourceInst : statValue.getResources()) {
         resourceInsts.add(resourceInst);
       }
     }
   }
 
   private static byte[] readBytes(File file) throws IOException {
-    int byteCount = (int) file.length();
+    var byteCount = (int) file.length();
 
-    byte[] input = new byte[byteCount];
+    var input = new byte[byteCount];
 
-    URL url = file.toURL();
+    var url = file.toURL();
     assertThat(url).isNotNull();
 
-    InputStream is = url.openStream();
+    var is = url.openStream();
     assertThat(is).isNotNull();
 
-    BufferedInputStream bis = new BufferedInputStream(is);
-    int bytesRead = bis.read(input);
+    var bis = new BufferedInputStream(is);
+    var bytesRead = bis.read(input);
     bis.close();
 
     assertThat(bytesRead).isEqualTo(byteCount);

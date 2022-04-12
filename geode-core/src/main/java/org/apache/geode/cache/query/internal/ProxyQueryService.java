@@ -232,8 +232,8 @@ public class ProxyQueryService implements QueryService {
     preOp();
     ClientCQ[] cqs = null;
     try {
-      ArrayList<InternalCqQuery> cqList = new ArrayList<>();
-      for (String name : cqNames) {
+      var cqList = new ArrayList<InternalCqQuery>();
+      for (var name : cqNames) {
         cqList.add(((DefaultQueryService) realQueryService).getCqService().getCq(name));
       }
       cqs = new ClientCQ[cqList.size()];
@@ -251,14 +251,14 @@ public class ProxyQueryService implements QueryService {
     preOp();
     Collection<? extends InternalCqQuery> cqs = null;
     try {
-      ArrayList<CqQuery> cqList = new ArrayList<>();
+      var cqList = new ArrayList<CqQuery>();
       cqs = ((DefaultQueryService) realQueryService).getCqService().getAllCqs(regionName);
       for (InternalCqQuery cq : cqs) {
         if (cqNames.contains(cq.getName())) {
           cqList.add(cq);
         }
       }
-      ClientCQ[] results = new ClientCQ[cqList.size()];
+      var results = new ClientCQ[cqList.size()];
       cqList.toArray(results);
       return results;
     } catch (CqException cqe) {
@@ -344,7 +344,7 @@ public class ProxyQueryService implements QueryService {
         throw new IllegalArgumentException(
             "cqName must not be null");
       }
-      ClientCQ cq = ((DefaultQueryService) realQueryService).getCqService().newCq(cqName,
+      var cq = ((DefaultQueryService) realQueryService).getCqService().newCq(cqName,
           queryString, cqAttributes, ((DefaultQueryService) realQueryService).getPool(), false);
       cq.setProxyCache(proxyCache);
       cqNames.add(cq.getName());
@@ -363,7 +363,7 @@ public class ProxyQueryService implements QueryService {
         throw new IllegalArgumentException(
             "cqName must not be null");
       }
-      ClientCQ cq = ((DefaultQueryService) realQueryService).getCqService().newCq(cqName,
+      var cq = ((DefaultQueryService) realQueryService).getCqService().newCq(cqName,
           queryString, cqAttributes, ((DefaultQueryService) realQueryService).getPool(), isDurable);
       cq.setProxyCache(proxyCache);
       cqNames.add(cq.getName());

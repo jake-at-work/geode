@@ -21,7 +21,6 @@ import org.apache.geode.admin.AdminException;
 import org.apache.geode.admin.internal.SystemMemberBridgeServerImpl;
 import org.apache.geode.admin.internal.SystemMemberCacheImpl;
 import org.apache.geode.internal.admin.AdminBridgeServer;
-import org.apache.geode.internal.admin.GemFireVM;
 
 /**
  * MBean representation of a {@link org.apache.geode.admin.SystemMemberBridgeServer}.
@@ -61,7 +60,7 @@ public class SystemMemberBridgeServerJmxImpl extends SystemMemberBridgeServerImp
    */
   private void initializeMBean(SystemMemberCacheImpl cache) throws AdminException {
 
-    GemFireVM vm = cache.getVM();
+    var vm = cache.getVM();
     mbeanName = "GemFire.Cache:" + "name="
         + MBeanUtils.makeCompliantMBeanNameProperty(cache.getName()) + ",id="
         + getBridgeId() + ",owner="
@@ -112,7 +111,7 @@ public class SystemMemberBridgeServerJmxImpl extends SystemMemberBridgeServerImp
       return false;
     }
 
-    SystemMemberBridgeServerJmxImpl other = (SystemMemberBridgeServerJmxImpl) obj;
+    var other = (SystemMemberBridgeServerJmxImpl) obj;
 
     return getMBeanName().equals(other.getMBeanName());
   }

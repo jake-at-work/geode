@@ -61,15 +61,15 @@ public class TXStateProxyImplTest {
 
   @Test
   public void getKeyForIteratorReturnsKey() {
-    RegionEntryFactory regionEntryFactory =
+    var regionEntryFactory =
         new RegionEntryFactoryBuilder().create(false, false, false, false, false);
-    RegionEntry regionEntry = regionEntryFactory.createEntry(region, key, null);
+    var regionEntry = regionEntryFactory.createEntry(region, key, null);
 
-    KeyInfo stringKeyInfo = new KeyInfo(key, null, null);
-    KeyInfo regionEntryKeyInfo = new KeyInfo(regionEntry, null, null);
+    var stringKeyInfo = new KeyInfo(key, null, null);
+    var regionEntryKeyInfo = new KeyInfo(regionEntry, null, null);
 
-    boolean allowTombstones = false;
-    boolean rememberReads = true;
+    var allowTombstones = false;
+    var rememberReads = true;
 
     when(region.getSharedDataView()).thenReturn(view);
     when(view.getEntry(stringKeyInfo, region, allowTombstones)).thenReturn(mock(NonTXEntry.class));
@@ -78,24 +78,24 @@ public class TXStateProxyImplTest {
     when(view.getKeyForIterator(regionEntryKeyInfo, region, rememberReads, allowTombstones))
         .thenCallRealMethod();
 
-    TXStateProxyImpl tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
+    var tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
 
-    Object key1 = tx.getKeyForIterator(regionEntryKeyInfo, region, rememberReads, allowTombstones);
+    var key1 = tx.getKeyForIterator(regionEntryKeyInfo, region, rememberReads, allowTombstones);
     assertThat(key1.equals(key)).isTrue();
 
-    Object key2 = tx.getKeyForIterator(stringKeyInfo, region, rememberReads, allowTombstones);
+    var key2 = tx.getKeyForIterator(stringKeyInfo, region, rememberReads, allowTombstones);
     assertThat(key2.equals(key)).isTrue();
   }
 
   @Test
   public void getCacheReturnsInjectedCache() {
-    TXStateProxyImpl tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
+    var tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
     assertThat(tx.getCache()).isSameAs(cache);
   }
 
   @Test
   public void isOverTransactionTimeoutLimitReturnsTrueIfHavingRecentOperation() {
-    TXStateProxyImpl tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
+    var tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
     doReturn(0L).when(tx).getLastOperationTimeFromClient();
     doReturn(1001L).when(tx).getCurrentTime();
     when(txManager.getTransactionTimeToLive()).thenReturn(1);
@@ -105,7 +105,7 @@ public class TXStateProxyImplTest {
 
   @Test
   public void isOverTransactionTimeoutLimitReturnsFalseIfNotHavingRecentOperation() {
-    TXStateProxyImpl tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
+    var tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
     doReturn(0L).when(tx).getLastOperationTimeFromClient();
     doReturn(1000L).when(tx).getCurrentTime();
     when(txManager.getTransactionTimeToLive()).thenReturn(1);
@@ -115,7 +115,7 @@ public class TXStateProxyImplTest {
 
   @Test
   public void setTargetWillSetTargetToItselfAndSetTXStateIfRealDealIsNull() {
-    TXStateProxyImpl tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
+    var tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
     assertThat(tx.hasRealDeal()).isFalse();
     assertThat(tx.getTarget()).isNull();
 
@@ -127,7 +127,7 @@ public class TXStateProxyImplTest {
 
   @Test
   public void setTargetWillSetTXStateStubIfTargetIsDifferentFromLocalMember() {
-    TXStateProxyImpl tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
+    var tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
     assertThat(tx.hasRealDeal()).isFalse();
     assertThat(tx.getTarget()).isNull();
     DistributedMember remoteMember = mock(InternalDistributedMember.class);
@@ -141,7 +141,7 @@ public class TXStateProxyImplTest {
 
   @Test
   public void setTargetToItSelfIfRealDealIsTXStateAndTargetIsSameAsLocalMember() {
-    TXStateProxyImpl tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
+    var tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
     tx.setLocalTXState(new TXState(tx, true, disabledClock()));
     assertThat(tx.isRealDealLocal()).isTrue();
     assertThat(tx.getTarget()).isNull();
@@ -154,7 +154,7 @@ public class TXStateProxyImplTest {
 
   @Test(expected = AssertionError.class)
   public void setTargetThrowsIfIfRealDealIsTXStateAndTargetIsDifferentFromLocalMember() {
-    TXStateProxyImpl tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
+    var tx = spy(new TXStateProxyImpl(cache, txManager, txId, false, disabledClock()));
     tx.setLocalTXState(new TXState(tx, true, disabledClock()));
     assertThat(tx.getTarget()).isNull();
     DistributedMember remoteMember = mock(InternalDistributedMember.class);
@@ -164,15 +164,15 @@ public class TXStateProxyImplTest {
 
   @Test
   public void txHostGetTransactionExceptionReturnsTransactionDataNotColocatedExceptionIfKeyNotInBuckets() {
-    TXStateProxyImpl tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
+    var tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
     tx.setLocalTXState(new TXState(tx, true, disabledClock()));
-    KeyInfo keyInfo1 = mock(KeyInfo.class);
+    var keyInfo1 = mock(KeyInfo.class);
     when(keyInfo1.getBucketId()).thenReturn(1);
-    KeyInfo keyInfo2 = mock(KeyInfo.class);
+    var keyInfo2 = mock(KeyInfo.class);
     when(keyInfo2.getBucketId()).thenReturn(2);
     tx.trackBucketForTx(keyInfo1);
 
-    TransactionException transactionException =
+    var transactionException =
         tx.getTransactionException(keyInfo2, new PrimaryBucketException());
 
     assertThat(transactionException).isInstanceOf(TransactionDataNotColocatedException.class);
@@ -180,11 +180,11 @@ public class TXStateProxyImplTest {
 
   @Test
   public void txHostGetTransactionExceptionReturnsTransactionDataNotColocatedExceptionIfFirstOperationOnReplicate() {
-    TXStateProxyImpl tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
+    var tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
     tx.setLocalTXState(new TXState(tx, true, disabledClock()));
-    KeyInfo keyInfo = mock(KeyInfo.class);
+    var keyInfo = mock(KeyInfo.class);
 
-    TransactionException transactionException =
+    var transactionException =
         tx.getTransactionException(keyInfo, new PrimaryBucketException());
 
     assertThat(transactionException).isInstanceOf(TransactionDataNotColocatedException.class);
@@ -192,38 +192,38 @@ public class TXStateProxyImplTest {
 
   @Test
   public void txHostGetTransactionExceptionReturnsTransactionDataRebalancedExceptionIfFirstOperationOnPartitioned() {
-    TXStateProxyImpl tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
+    var tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
     tx.setLocalTXState(new TXState(tx, true, disabledClock()));
-    KeyInfo keyInfo = mock(KeyInfo.class);
-    GemFireException exception = mock(GemFireException.class);
+    var keyInfo = mock(KeyInfo.class);
+    var exception = mock(GemFireException.class);
     when(exception.getCause()).thenReturn(new PrimaryBucketException());
     tx.setFirstOperationOnPartitionedRegion(true);
 
-    TransactionException transactionException = tx.getTransactionException(keyInfo, exception);
+    var transactionException = tx.getTransactionException(keyInfo, exception);
 
     assertThat(transactionException).isInstanceOf(TransactionDataRebalancedException.class);
   }
 
   @Test
   public void txHostGetTransactionExceptionReturnsSameTransactionExceptionIfNotCausedByPrimaryBucketException() {
-    TXStateProxyImpl tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
+    var tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
     tx.setLocalTXState(new TXState(tx, true, disabledClock()));
-    TransactionException exception = mock(TransactionException.class);
-    KeyInfo keyInfo = mock(KeyInfo.class);
+    var exception = mock(TransactionException.class);
+    var keyInfo = mock(KeyInfo.class);
 
-    TransactionException transactionException = tx.getTransactionException(keyInfo, exception);
+    var transactionException = tx.getTransactionException(keyInfo, exception);
 
     assertThat(transactionException).isSameAs(exception);
   }
 
   @Test
   public void txStubGetTransactionExceptionReturnsTransactionDataRebalancedExceptionIfCausedByPrimaryBucketException() {
-    TXStateProxyImpl tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
+    var tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
     DistributedMember target = mock(InternalDistributedMember.class);
     tx.setLocalTXState(new PeerTXStateStub(tx, target, null));
-    KeyInfo keyInfo = mock(KeyInfo.class);
+    var keyInfo = mock(KeyInfo.class);
 
-    TransactionException transactionException =
+    var transactionException =
         tx.getTransactionException(keyInfo, new PrimaryBucketException());
 
     assertThat(transactionException).isInstanceOf(TransactionDataRebalancedException.class);
@@ -231,13 +231,13 @@ public class TXStateProxyImplTest {
 
   @Test
   public void txStubGetTransactionExceptionReturnsSameTransactionExceptionIfNotCausedByPrimaryBucketException() {
-    TXStateProxyImpl tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
+    var tx = new TXStateProxyImpl(cache, txManager, txId, false, disabledClock());
     DistributedMember target = mock(InternalDistributedMember.class);
     tx.setLocalTXState(new PeerTXStateStub(tx, target, null));
-    TransactionException exception = mock(TransactionException.class);
-    KeyInfo keyInfo = mock(KeyInfo.class);
+    var exception = mock(TransactionException.class);
+    var keyInfo = mock(KeyInfo.class);
 
-    TransactionException transactionException = tx.getTransactionException(keyInfo, exception);
+    var transactionException = tx.getTransactionException(keyInfo, exception);
 
     assertThat(transactionException).isSameAs(exception);
   }

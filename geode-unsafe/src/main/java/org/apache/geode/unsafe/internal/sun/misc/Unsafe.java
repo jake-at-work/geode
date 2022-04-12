@@ -29,7 +29,7 @@ public class Unsafe {
   {
     sun.misc.Unsafe tmp;
     try {
-      Field field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+      var field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
       field.setAccessible(true);
       tmp = (sun.misc.Unsafe) field.get(null);
     } catch (Exception e) {

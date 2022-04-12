@@ -23,7 +23,6 @@ import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Test;
 import redis.clients.jedis.params.ScanParams;
-import redis.clients.jedis.resps.ScanResult;
 
 import org.apache.geode.redis.GeodeRedisServerRule;
 
@@ -40,13 +39,13 @@ public class ScanIntegrationTest extends AbstractScanIntegrationTest {
   @Test
   public void givenDifferentCursorThanSpecifiedByPreviousScan_returnsAllKeys() {
     List<String> keyList = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
-      String key = "{tag1}" + i;
+    for (var i = 0; i < 10; i++) {
+      var key = "{tag1}" + i;
       jedis.set(key, "a");
       keyList.add(key);
     }
 
-    ScanResult<String> result = jedis.scan("0", new ScanParams().count(5).match("{tag1}*"));
+    var result = jedis.scan("0", new ScanParams().count(5).match("{tag1}*"));
     assertThat(result.isCompleteIteration()).isFalse();
 
     result = jedis.scan("100", new ScanParams().match("{tag1}*"));

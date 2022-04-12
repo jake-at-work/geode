@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
@@ -85,10 +84,10 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
         // Asif:Take only elements upto the limit so that order is predictable
         // If it is a sorted set it will not come here & so we need not worry
         // as to truncation happens at end or start
-        int truncate = this.base.size() - limit;
+        var truncate = this.base.size() - limit;
         synchronized (this.base) {
-          Iterator itr = this.base.iterator();
-          for (int i = 0; i < truncate; ++i) {
+          var itr = this.base.iterator();
+          for (var i = 0; i < truncate; ++i) {
             itr.next();
             itr.remove();
           }
@@ -124,7 +123,7 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
 
   // @todo should we bother taking the performance hit to check the constraint?
   private void checkConstraint(Object obj) {
-    ObjectType elementType = collectionType.getElementType();
+    var elementType = collectionType.getElementType();
     if (!elementType.resolveClass().isInstance(obj)) {
       throw new InternalGemFireError(
           String.format("Constraint Violation: %s is not a %s",
@@ -220,12 +219,12 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
   public boolean contains(Object obj) {
     if (hasLimitIterator) {
       // Keith: Optimize case where contains is false, avoids iteration
-      boolean peak = base.contains(obj);
+      var peak = base.contains(obj);
       if (!peak) {
         return false;
       }
-      Iterator itr = iterator();
-      boolean found = false;
+      var itr = iterator();
+      var found = false;
       while (itr.hasNext()) {
         if (itr.next().equals(obj)) {
           found = true;
@@ -243,8 +242,8 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
   @Override
   public boolean containsAll(Collection collection) {
     if (hasLimitIterator) {
-      Iterator itr = collection.iterator();
-      boolean containsAll = true;
+      var itr = collection.iterator();
+      var containsAll = true;
       while (itr.hasNext() && containsAll) {
         containsAll = contains(itr.next());
       }
@@ -256,7 +255,7 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
 
   @Override
   public boolean isEmpty() {
-    int size = -1;
+    var size = -1;
     synchronized (limitLock) {
       size = limit;
     }
@@ -271,8 +270,8 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
      * SelectResults not allowed as the query result is constrained by LIMIT"); }
      */
     if (hasLimitIterator) {
-      Iterator itr = iterator();
-      boolean removed = false;
+      var itr = iterator();
+      var removed = false;
       Object element;
       while (itr.hasNext()) {
         element = itr.next();
@@ -295,8 +294,8 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
      * SelectResults not allowed as the query result is constrained by LIMIT"); }
      */
     if (hasLimitIterator) {
-      Iterator itr = iterator();
-      boolean removed = false;
+      var itr = iterator();
+      var removed = false;
       Object element;
       while (itr.hasNext()) {
         element = itr.next();
@@ -318,8 +317,8 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
      * SelectResults not allowed as the query result is constrained by LIMIT"); }
      */
     if (hasLimitIterator) {
-      Iterator itr = iterator();
-      boolean changed = false;
+      var itr = iterator();
+      var changed = false;
       Object element;
       while (itr.hasNext()) {
         element = itr.next();
@@ -336,10 +335,10 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
 
   public static Object[] collectionToArray(Collection c) {
     // guess the array size; expect to possibly be different
-    int len = c.size();
-    Object[] arr = new Object[len];
-    Iterator itr = c.iterator();
-    int idx = 0;
+    var len = c.size();
+    var arr = new Object[len];
+    var itr = c.iterator();
+    var idx = 0;
     while (true) {
       while (idx < len && itr.hasNext()) {
         arr[idx++] = itr.next();
@@ -352,7 +351,7 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
         return Arrays.copyOf(arr, idx, Object[].class);
       }
       // otherwise, have to grow
-      int newcap = ((arr.length / 2) + 1) * 3;
+      var newcap = ((arr.length / 2) + 1) * 3;
       if (newcap < arr.length) {
         // overflow
         if (arr.length < Integer.MAX_VALUE) {
@@ -369,11 +368,11 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
   public static Object[] collectionToArray(Collection c, Object[] a) {
     Class aType = a.getClass();
     // guess the array size; expect to possibly be different
-    int len = c.size();
-    Object[] arr =
+    var len = c.size();
+    var arr =
         (a.length >= len ? a : (Object[]) Array.newInstance(aType.getComponentType(), len));
-    Iterator itr = c.iterator();
-    int idx = 0;
+    var itr = c.iterator();
+    var idx = 0;
     while (true) {
       while (idx < len && itr.hasNext()) {
         arr[idx++] = itr.next();
@@ -392,7 +391,7 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
         }
       }
       // otherwise, have to grow
-      int newcap = ((arr.length / 2) + 1) * 3;
+      var newcap = ((arr.length / 2) + 1) * 3;
       if (newcap < arr.length) {
         // overflow
         if (arr.length < Integer.MAX_VALUE) {
@@ -433,12 +432,12 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
     if (hasLimitIterator) {
       List returnList = null;
       if (base instanceof List) {
-        int truncate = base.size() - limit;
+        var truncate = base.size() - limit;
         if (truncate > limit) {
           returnList = new ArrayList(this);
         } else {
-          ListIterator li = ((List) base).listIterator(base.size());
-          for (int j = 0; j < truncate; ++j) {
+          var li = ((List) base).listIterator(base.size());
+          for (var j = 0; j < truncate; ++j) {
             li.previous();
             li.remove();
           }
@@ -463,8 +462,8 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
     if (hasLimitIterator) {
       Set returnSet = null;
       if (base instanceof Set) {
-        Iterator itr = base.iterator();
-        int j = 0;
+        var itr = base.iterator();
+        var j = 0;
         while (itr.hasNext()) {
           itr.next();
           ++j;
@@ -523,9 +522,9 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
       return base.contains(element) ? 1 : 0;
     }
     // expensive!!
-    int count = 0;
+    var count = 0;
     /* this.base.iterator() */
-    for (Object v : this) {
+    for (var v : this) {
       if (element == null ? v == null : element.equals(v)) {
         count++;
       }
@@ -548,7 +547,7 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
     // special case when wrapping a ResultsBag.SetView
-    boolean isBagSetView = base instanceof Bag.SetView;
+    var isBagSetView = base instanceof Bag.SetView;
     out.writeBoolean(isBagSetView);
     if (isBagSetView) {
       InternalDataSerializer.writeSet(base, out);
@@ -568,7 +567,7 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
   @Override
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
-    boolean isBagSetView = in.readBoolean();
+    var isBagSetView = in.readBoolean();
     if (isBagSetView) {
       base = InternalDataSerializer.readSet(in);
     } else {
@@ -622,7 +621,7 @@ public class ResultsCollectionWrapper implements SelectResults, DataSerializable
       if (currPos == localLimit) {
         throw new NoSuchElementException();
       } else {
-        Object obj = iter.next();
+        var obj = iter.next();
         ++currPos;
         return obj;
       }

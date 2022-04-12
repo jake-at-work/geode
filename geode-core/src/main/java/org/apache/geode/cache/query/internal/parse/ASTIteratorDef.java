@@ -35,10 +35,10 @@ public class ASTIteratorDef extends GemFireAST {
     // children are colln expr, id, and type.
     // the id and/or type may be missing.
 
-    GemFireAST child = (GemFireAST) getFirstChild();
+    var child = (GemFireAST) getFirstChild();
     child.compile(compiler); // the colln expr
 
-    GemFireAST nextChild = (GemFireAST) child.getNextSibling();
+    var nextChild = (GemFireAST) child.getNextSibling();
     if (nextChild == null) {
       // push two nulls for id and type
       compiler.pushNull();

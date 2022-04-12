@@ -60,8 +60,8 @@ public class NonGrantorDestroyedProcessor extends ReplyProcessor21 {
    * <code>informedGrantor()</code> until the grantor has acknowledged being informed.
    */
   static boolean send(String serviceName, LockGrantorId theLockGrantorId, DistributionManager dm) {
-    InternalDistributedMember recipient = theLockGrantorId.getLockGrantorMember();
-    NonGrantorDestroyedProcessor processor = new NonGrantorDestroyedProcessor(dm, recipient);
+    var recipient = theLockGrantorId.getLockGrantorMember();
+    var processor = new NonGrantorDestroyedProcessor(dm, recipient);
     NonGrantorDestroyedMessage.send(serviceName, recipient, dm, processor);
     try {
       processor.waitForRepliesUninterruptibly();
@@ -114,7 +114,7 @@ public class NonGrantorDestroyedProcessor extends ReplyProcessor21 {
         DistributionManager dm, ReplyProcessor21 proc) {
       Assert.assertTrue(grantor != null, "Cannot send NonGrantorDestroyedMessage to null grantor");
 
-      NonGrantorDestroyedMessage msg = new NonGrantorDestroyedMessage();
+      var msg = new NonGrantorDestroyedMessage();
       msg.serviceName = serviceName;
       msg.processorId = proc.getProcessorId();
       msg.setRecipient(grantor);
@@ -153,11 +153,11 @@ public class NonGrantorDestroyedProcessor extends ReplyProcessor21 {
 
     /** Perform basic processing of this message */
     private void basicProcess(final DistributionManager dm) {
-      boolean replied = false;
+      var replied = false;
       try {
-        DLockService svc = DLockService.getInternalServiceNamed(serviceName);
+        var svc = DLockService.getInternalServiceNamed(serviceName);
         if (svc != null && svc.isCurrentlyOrIsMakingLockGrantor()) {
-          DLockGrantor grantor = DLockGrantor.waitForGrantor(svc);
+          var grantor = DLockGrantor.waitForGrantor(svc);
           if (grantor != null) {
             grantor.handleDepartureOf(getSender());
             if (!grantor.isDestroyed()) {
@@ -227,7 +227,7 @@ public class NonGrantorDestroyedProcessor extends ReplyProcessor21 {
     private byte replyCode;
 
     public static void send(MessageWithReply destroyedMsg, byte replyCode, DistributionManager dm) {
-      NonGrantorDestroyedReplyMessage m = new NonGrantorDestroyedReplyMessage();
+      var m = new NonGrantorDestroyedReplyMessage();
       m.processorId = destroyedMsg.getProcessorId();
       m.setRecipient(destroyedMsg.getSender());
       m.replyCode = replyCode;

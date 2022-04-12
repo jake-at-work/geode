@@ -31,7 +31,7 @@ import org.apache.geode.internal.cache.RegionListener;
 public class IndexRegionSpy {
 
   public static void beforeWrite(Cache cache, final Consumer<Object> beforeWrite) {
-    GemFireCacheImpl gemfireCache = (GemFireCacheImpl) cache;
+    var gemfireCache = (GemFireCacheImpl) cache;
     gemfireCache.addRegionListener(new SpyRegionListener(beforeWrite));
   }
 

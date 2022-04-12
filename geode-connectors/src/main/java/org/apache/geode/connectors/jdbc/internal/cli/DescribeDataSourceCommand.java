@@ -25,14 +25,12 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.apache.geode.annotations.Experimental;
 import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.CacheElement;
-import org.apache.geode.cache.configuration.JndiBindingsType;
 import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.commands.CreateJndiBindingCommand.DATASOURCE_TYPE;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -54,27 +52,27 @@ public class DescribeDataSourceCommand extends GfshCommand {
   public ResultModel describeDataSource(@CliOption(key = "name", mandatory = true,
       help = "Name of the data source to describe") String dataSourceName) {
 
-    ResultModel resultModel = new ResultModel();
+    var resultModel = new ResultModel();
     resultModel.setHeader(EXPERIMENTAL);
-    TabularResultModel tabularData = resultModel.addTable(DATA_SOURCE_PROPERTIES_SECTION);
+    var tabularData = resultModel.addTable(DATA_SOURCE_PROPERTIES_SECTION);
 
     InternalConfigurationPersistenceService ccService = getConfigurationPersistenceService();
     if (ccService == null) {
       return ResultModel.createError("Cluster configuration service must be enabled.");
     }
-    CacheConfig cacheConfig = ccService.getCacheConfig(null);
+    var cacheConfig = ccService.getCacheConfig(null);
     if (cacheConfig == null) {
       return ResultModel.createError(String.format("Data source: %s not found", dataSourceName));
     }
 
-    List<JndiBindingsType.JndiBinding> jndiBindings = cacheConfig.getJndiBindings();
-    JndiBindingsType.JndiBinding binding = jndiBindings.stream()
+    var jndiBindings = cacheConfig.getJndiBindings();
+    var binding = jndiBindings.stream()
         .filter(b -> b.getJndiName().equals(dataSourceName)).findFirst().orElse(null);
     if (binding == null) {
       return ResultModel.createError(String.format("Data source: %s not found", dataSourceName));
     }
     boolean pooled;
-    String type = binding.getType();
+    var type = binding.getType();
     if (DATASOURCE_TYPE.SIMPLE.getType().equals(type)) {
       pooled = false;
     } else if (DATASOURCE_TYPE.POOLED.getType().equals(type)) {
@@ -90,13 +88,13 @@ public class DescribeDataSourceCommand extends GfshCommand {
     if (pooled) {
       addTableRow(tabularData, CreateDataSourceCommand.POOLED_DATA_SOURCE_FACTORY_CLASS,
           binding.getConnPooledDatasourceClass());
-      for (JndiBindingsType.JndiBinding.ConfigProperty confProp : binding.getConfigProperties()) {
+      for (var confProp : binding.getConfigProperties()) {
         addTableRow(tabularData, confProp.getName(), confProp.getValue());
       }
     }
 
-    InfoResultModel regionsUsingSection = resultModel.addInfo(REGIONS_USING_DATA_SOURCE_SECTION);
-    List<String> regionsUsing = getRegionsThatUseDataSource(cacheConfig, dataSourceName);
+    var regionsUsingSection = resultModel.addInfo(REGIONS_USING_DATA_SOURCE_SECTION);
+    var regionsUsing = getRegionsThatUseDataSource(cacheConfig, dataSourceName);
     regionsUsingSection.setHeader("Regions Using Data Source:");
     if (regionsUsing.isEmpty()) {
       regionsUsingSection.addLine("no regions are using " + dataSourceName);
@@ -126,7 +124,7 @@ public class DescribeDataSourceCommand extends GfshCommand {
     if (!(cacheElement instanceof RegionMapping)) {
       return false;
     }
-    RegionMapping regionMapping = (RegionMapping) cacheElement;
+    var regionMapping = (RegionMapping) cacheElement;
     return dataSourceName.equals(regionMapping.getDataSourceName());
   }
 

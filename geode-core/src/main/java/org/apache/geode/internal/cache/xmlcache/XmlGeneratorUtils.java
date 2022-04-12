@@ -22,7 +22,6 @@ import static org.apache.geode.internal.cache.xmlcache.CacheXml.PARAMETER;
 import static org.apache.geode.internal.cache.xmlcache.CacheXml.STRING;
 
 import java.util.Map;
-import java.util.Properties;
 
 import javax.xml.XMLConstants;
 
@@ -139,9 +138,9 @@ public class XmlGeneratorUtils {
 
   public static void addDeclarable(final ContentHandler handler, Declarable declarable)
       throws SAXException {
-    AttributesImpl EMPTY = new AttributesImpl();
+    var EMPTY = new AttributesImpl();
 
-    String className = declarable.getClass().getName();
+    var className = declarable.getClass().getName();
     handler.startElement("", CLASS_NAME, CLASS_NAME, EMPTY);
     handler.characters(className.toCharArray(), 0, className.length());
     handler.endElement("", CLASS_NAME, CLASS_NAME);
@@ -150,23 +149,23 @@ public class XmlGeneratorUtils {
       return;
     }
 
-    Properties props = ((Declarable2) declarable).getConfig();
+    var props = ((Declarable2) declarable).getConfig();
     if (props == null) {
       return;
     }
 
-    for (final Map.Entry<Object, Object> objectObjectEntry : props.entrySet()) {
-      Map.Entry entry = (Map.Entry) objectObjectEntry;
-      String name = (String) entry.getKey();
-      Object value = entry.getValue();
+    for (final var objectObjectEntry : props.entrySet()) {
+      var entry = (Map.Entry) objectObjectEntry;
+      var name = (String) entry.getKey();
+      var value = entry.getValue();
 
-      AttributesImpl atts = new AttributesImpl();
+      var atts = new AttributesImpl();
       atts.addAttribute("", "", NAME, "", name);
 
       handler.startElement("", PARAMETER, PARAMETER, atts);
 
       if (value instanceof String) {
-        String sValue = (String) value;
+        var sValue = (String) value;
         handler.startElement("", STRING, STRING, EMPTY);
         handler.characters(sValue.toCharArray(), 0, sValue.length());
         handler.endElement("", STRING, STRING);

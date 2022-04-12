@@ -61,7 +61,7 @@ public class CreateMissingBucketsTaskTest {
 
     task = new CreateMissingBucketsTask(prhaRedundancyProvider);
 
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
 
     partitionRegionConfig = mock(PartitionRegionConfig.class);
     partitionedRegion = mock(PartitionedRegion.class);
@@ -98,27 +98,27 @@ public class CreateMissingBucketsTaskTest {
 
   @Test
   public void createMissingBucketsDoesNotCreateBucketsWhenLeaderAndChildRegionHaveSameRedundancy() {
-    PartitionedRegion leaderRegion = mock(PartitionedRegion.class);
+    var leaderRegion = mock(PartitionedRegion.class);
     PartitionedRegion.getPrIdToPR().put(1, leaderRegion);
 
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(partitionAttributes.getColocatedWith()).thenReturn("region2");
     when(partitionRegionConfig.getPRId()).thenReturn(1);
 
-    PartitionAttributes leaderPartitionAttributes = mock(PartitionAttributes.class);
+    var leaderPartitionAttributes = mock(PartitionAttributes.class);
     when(leaderRegion.getPartitionAttributes()).thenReturn(leaderPartitionAttributes);
     when(leaderPartitionAttributes.getColocatedWith()).thenReturn(null);
     when(partitionedRegion.getTotalNumberOfBuckets()).thenReturn(2);
 
-    RegionAdvisor regionAdvisor1 = mock(RegionAdvisor.class);
-    RegionAdvisor regionAdvisor2 = mock(RegionAdvisor.class);
+    var regionAdvisor1 = mock(RegionAdvisor.class);
+    var regionAdvisor2 = mock(RegionAdvisor.class);
 
     when(leaderRegion.getRegionAdvisor()).thenReturn(regionAdvisor1);
     when(partitionedRegion.getRegionAdvisor()).thenReturn(regionAdvisor2);
 
-    BucketAdvisor bucketAdvisor1 = mock(BucketAdvisor.class);
-    BucketAdvisor bucketAdvisor2 = mock(BucketAdvisor.class);
+    var bucketAdvisor1 = mock(BucketAdvisor.class);
+    var bucketAdvisor2 = mock(BucketAdvisor.class);
 
     when(regionAdvisor1.getBucketAdvisor(eq(0))).thenReturn(bucketAdvisor1);
     when(regionAdvisor1.getBucketAdvisor(eq(1))).thenReturn(bucketAdvisor2);
@@ -136,29 +136,29 @@ public class CreateMissingBucketsTaskTest {
 
   @Test
   public void createMissingBucketsCreatesBucketsWhenLeaderAndChildRegionHaveDifferentRedundancy() {
-    PartitionedRegion leaderRegion = mock(PartitionedRegion.class);
+    var leaderRegion = mock(PartitionedRegion.class);
     PartitionedRegion.getPrIdToPR().put(1, leaderRegion);
 
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(partitionAttributes.getColocatedWith()).thenReturn("region2");
     when(partitionRegionConfig.getPRId()).thenReturn(1);
 
-    PartitionAttributes leaderPartitionAttributes = mock(PartitionAttributes.class);
+    var leaderPartitionAttributes = mock(PartitionAttributes.class);
     when(leaderRegion.getPartitionAttributes()).thenReturn(leaderPartitionAttributes);
     when(leaderPartitionAttributes.getColocatedWith()).thenReturn(null);
     when(partitionedRegion.getTotalNumberOfBuckets()).thenReturn(2);
 
-    RegionAdvisor regionAdvisor1 = mock(RegionAdvisor.class);
-    RegionAdvisor regionAdvisor2 = mock(RegionAdvisor.class);
+    var regionAdvisor1 = mock(RegionAdvisor.class);
+    var regionAdvisor2 = mock(RegionAdvisor.class);
 
     when(leaderRegion.getRegionAdvisor()).thenReturn(regionAdvisor1);
     when(partitionedRegion.getRegionAdvisor()).thenReturn(regionAdvisor2);
 
-    BucketAdvisor bucketAdvisor1 = mock(BucketAdvisor.class);
-    BucketAdvisor bucketAdvisor2 = mock(BucketAdvisor.class);
-    BucketAdvisor bucketAdvisor3 = mock(BucketAdvisor.class);
-    BucketAdvisor bucketAdvisor4 = mock(BucketAdvisor.class);
+    var bucketAdvisor1 = mock(BucketAdvisor.class);
+    var bucketAdvisor2 = mock(BucketAdvisor.class);
+    var bucketAdvisor3 = mock(BucketAdvisor.class);
+    var bucketAdvisor4 = mock(BucketAdvisor.class);
 
     when(regionAdvisor1.getBucketAdvisor(eq(0))).thenReturn(bucketAdvisor1);
     when(regionAdvisor1.getBucketAdvisor(eq(1))).thenReturn(bucketAdvisor2);
@@ -184,34 +184,34 @@ public class CreateMissingBucketsTaskTest {
     when(prhaRedundancyProvider.getPartitionedRegion()).thenReturn(partitionedRegion);
     when(partitionRegionConfig.isColocationComplete()).thenReturn(true);
 
-    PartitionedRegion leaderRegion = mock(PartitionedRegion.class);
+    var leaderRegion = mock(PartitionedRegion.class);
     PartitionedRegion.getPrIdToPR().put(1, leaderRegion);
 
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(partitionAttributes.getColocatedWith()).thenReturn("region2");
     when(partitionRegionConfig.getPRId()).thenReturn(1);
 
-    PartitionAttributes leaderPartitionAttributes = mock(PartitionAttributes.class);
+    var leaderPartitionAttributes = mock(PartitionAttributes.class);
     when(leaderRegion.getPartitionAttributes()).thenReturn(leaderPartitionAttributes);
     when(leaderPartitionAttributes.getColocatedWith()).thenReturn(null);
 
-    PartitionedRegion.RecoveryLock lock = mock(PartitionedRegion.RecoveryLock.class);
+    var lock = mock(PartitionedRegion.RecoveryLock.class);
 
     when(leaderRegion.getRecoveryLock()).thenReturn(lock);
 
     when(partitionedRegion.getTotalNumberOfBuckets()).thenReturn(2);
 
-    RegionAdvisor regionAdvisor1 = mock(RegionAdvisor.class);
-    RegionAdvisor regionAdvisor2 = mock(RegionAdvisor.class);
+    var regionAdvisor1 = mock(RegionAdvisor.class);
+    var regionAdvisor2 = mock(RegionAdvisor.class);
 
     when(leaderRegion.getRegionAdvisor()).thenReturn(regionAdvisor1);
     when(partitionedRegion.getRegionAdvisor()).thenReturn(regionAdvisor2);
 
-    BucketAdvisor bucketAdvisor1 = mock(BucketAdvisor.class);
-    BucketAdvisor bucketAdvisor2 = mock(BucketAdvisor.class);
-    BucketAdvisor bucketAdvisor3 = mock(BucketAdvisor.class);
-    BucketAdvisor bucketAdvisor4 = mock(BucketAdvisor.class);
+    var bucketAdvisor1 = mock(BucketAdvisor.class);
+    var bucketAdvisor2 = mock(BucketAdvisor.class);
+    var bucketAdvisor3 = mock(BucketAdvisor.class);
+    var bucketAdvisor4 = mock(BucketAdvisor.class);
 
     when(regionAdvisor1.getBucketAdvisor(eq(0))).thenReturn(bucketAdvisor1);
     when(regionAdvisor1.getBucketAdvisor(eq(1))).thenReturn(bucketAdvisor2);
@@ -238,7 +238,7 @@ public class CreateMissingBucketsTaskTest {
     when(prhaRedundancyProvider.getPartitionedRegion()).thenReturn(partitionedRegion);
     when(partitionRegionConfig.isColocationComplete()).thenReturn(false);
 
-    PartitionedRegion leaderRegion = mock(PartitionedRegion.class);
+    var leaderRegion = mock(PartitionedRegion.class);
     PartitionedRegion.getPrIdToPR().put(1, leaderRegion);
 
     task.run2();
@@ -252,19 +252,19 @@ public class CreateMissingBucketsTaskTest {
     when(prhaRedundancyProvider.getPartitionedRegion()).thenReturn(partitionedRegion);
     when(partitionRegionConfig.isColocationComplete()).thenReturn(true);
 
-    PartitionedRegion leaderRegion = mock(PartitionedRegion.class);
+    var leaderRegion = mock(PartitionedRegion.class);
     PartitionedRegion.getPrIdToPR().put(1, leaderRegion);
 
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(partitionAttributes);
     when(partitionAttributes.getColocatedWith()).thenReturn("region2");
     when(partitionRegionConfig.getPRId()).thenReturn(1);
 
-    PartitionAttributes leaderPartitionAttributes = mock(PartitionAttributes.class);
+    var leaderPartitionAttributes = mock(PartitionAttributes.class);
     when(leaderRegion.getPartitionAttributes()).thenReturn(leaderPartitionAttributes);
     when(leaderPartitionAttributes.getColocatedWith()).thenReturn(null);
 
-    PartitionedRegion.RecoveryLock lock = mock(PartitionedRegion.RecoveryLock.class);
+    var lock = mock(PartitionedRegion.RecoveryLock.class);
 
     when(leaderRegion.getRecoveryLock()).thenReturn(lock);
     when(partitionedRegion.getTotalNumberOfBuckets()).thenThrow(new RuntimeException("Fail"));

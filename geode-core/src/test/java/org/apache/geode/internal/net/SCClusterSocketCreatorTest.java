@@ -32,11 +32,11 @@ class SCClusterSocketCreatorTest {
 
   @Test
   void configureServerSocketSetsSSLServerProtocols() {
-    final SSLConfig config = mock(SSLConfig.class);
-    final String[] protocols = {"SuperProtocol1"};
+    final var config = mock(SSLConfig.class);
+    final var protocols = new String[] {"SuperProtocol1"};
     when(config.getServerProtocolsAsStringArray()).thenReturn(protocols);
     when(config.isAnyCiphers()).thenReturn(true);
-    final SSLServerSocket socket = mock(SSLServerSocket.class);
+    final var socket = mock(SSLServerSocket.class);
 
     configureServerSocket(config, socket);
 
@@ -52,10 +52,10 @@ class SCClusterSocketCreatorTest {
 
   @Test
   void configureServerSocketDoesNotSetSSLServerProtocols() {
-    final SSLConfig config = mock(SSLConfig.class);
+    final var config = mock(SSLConfig.class);
     when(config.getServerProtocolsAsStringArray()).thenReturn(new String[] {DEFAULT_SSL_PROTOCOLS});
     when(config.isAnyCiphers()).thenReturn(true);
-    final SSLServerSocket socket = mock(SSLServerSocket.class);
+    final var socket = mock(SSLServerSocket.class);
 
     configureServerSocket(config, socket);
 

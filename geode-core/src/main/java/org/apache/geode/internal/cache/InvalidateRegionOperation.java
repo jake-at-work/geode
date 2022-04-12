@@ -37,15 +37,15 @@ public class InvalidateRegionOperation extends DistributedCacheOperation {
 
   @Override
   protected CacheOperationMessage createMessage() {
-    InvalidateRegionMessage msg = new InvalidateRegionMessage();
-    RegionEventImpl regionEvent = (RegionEventImpl) event;
+    var msg = new InvalidateRegionMessage();
+    var regionEvent = (RegionEventImpl) event;
     msg.eventID = regionEvent.getEventId();
     return msg;
   }
 
   @Override
   protected Set getRecipients() {
-    CacheDistributionAdvisor advisor = getRegion().getCacheDistributionAdvisor();
+    var advisor = getRegion().getCacheDistributionAdvisor();
     return advisor.adviseInvalidateRegion();
   }
 
@@ -60,7 +60,7 @@ public class InvalidateRegionOperation extends DistributedCacheOperation {
 
     @Override
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
-      RegionEventImpl event =
+      var event =
           new RegionEventImpl(rgn, getOperation(), callbackArg, true, getSender());
       event.setEventID(eventID);
       if (filterRouting != null) {
@@ -73,8 +73,8 @@ public class InvalidateRegionOperation extends DistributedCacheOperation {
     @Override
     protected boolean operateOnRegion(CacheEvent event, ClusterDistributionManager dm)
         throws EntryNotFoundException {
-      RegionEventImpl ev = (RegionEventImpl) event;
-      DistributedRegion rgn = (DistributedRegion) ev.region;
+      var ev = (RegionEventImpl) event;
+      var rgn = (DistributedRegion) ev.region;
 
       rgn.basicInvalidateRegion(ev);
       appliedOperation = true;

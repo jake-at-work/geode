@@ -31,11 +31,9 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.Locator;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -60,10 +58,10 @@ public class RegionChangesPersistThroughClusterConfigurationDUnitTest {
 
   @Before
   public void setup() throws Exception {
-    int[] randomPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
-    int jmxPort = randomPorts[0];
-    int httpPort = randomPorts[1];
-    Properties props = new Properties();
+    var randomPorts = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var jmxPort = randomPorts[0];
+    var httpPort = randomPorts[1];
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOG_LEVEL, "fine");
     props.setProperty(ENABLE_CLUSTER_CONFIGURATION, "true");
@@ -79,11 +77,11 @@ public class RegionChangesPersistThroughClusterConfigurationDUnitTest {
 
     gfsh.connectAndVerify(locator);
 
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty(MCAST_PORT, "0");
     serverProps.setProperty(USE_CLUSTER_CONFIGURATION, "true");
     @SuppressWarnings("unused")
-    MemberVM server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
+    var server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
     server2 = lsRule.startServerVM(2, serverProps, locator.getPort());
 
     gfsh.executeAndAssertThat(
@@ -97,7 +95,7 @@ public class RegionChangesPersistThroughClusterConfigurationDUnitTest {
   @SuppressWarnings("unchecked")
   public void createdRegionPersistsThroughCacheConfig() {
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService sharedConfig =
+      var sharedConfig =
           ((InternalLocator) Locator.getLocator()).getConfigurationPersistenceService();
 
       assertThat(sharedConfig.getConfiguration(GROUP_NAME).getCacheXmlContent())
@@ -110,8 +108,8 @@ public class RegionChangesPersistThroughClusterConfigurationDUnitTest {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(REGION_PATH, 2);
 
     server2.invoke(() -> {
-      InternalDistributedSystem system = InternalDistributedSystem.getConnectedInstance();
-      InternalCache cache = system.getCache();
+      var system = InternalDistributedSystem.getConnectedInstance();
+      var cache = system.getCache();
       assertThat(cache.getInternalRegionByPath(REGION_PATH)).isNotNull();
     });
   }
@@ -120,8 +118,8 @@ public class RegionChangesPersistThroughClusterConfigurationDUnitTest {
   @SuppressWarnings("unchecked")
   public void regionUpdatePersistsThroughClusterConfig() {
     server2.invoke(() -> {
-      InternalDistributedSystem system = InternalDistributedSystem.getConnectedInstance();
-      InternalCache cache = system.getCache();
+      var system = InternalDistributedSystem.getConnectedInstance();
+      var cache = system.getCache();
       assertThat(cache.getInternalRegionByPath(REGION_PATH).isEntryExpiryPossible()).isFalse();
     });
 
@@ -131,7 +129,7 @@ public class RegionChangesPersistThroughClusterConfigurationDUnitTest {
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService sharedConfig =
+      var sharedConfig =
           ((InternalLocator) Locator.getLocator()).getConfigurationPersistenceService();
 
       assertThat(sharedConfig.getConfiguration(GROUP_NAME).getCacheXmlContent()).contains("45635");
@@ -143,8 +141,8 @@ public class RegionChangesPersistThroughClusterConfigurationDUnitTest {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(REGION_PATH, 2);
 
     server2.invoke(() -> {
-      InternalDistributedSystem system = InternalDistributedSystem.getConnectedInstance();
-      InternalCache cache = system.getCache();
+      var system = InternalDistributedSystem.getConnectedInstance();
+      var cache = system.getCache();
       assertThat(cache.getInternalRegionByPath(REGION_PATH)).isNotNull();
       assertThat(cache.getInternalRegionByPath(REGION_PATH).isEntryExpiryPossible()).isTrue();
     });
@@ -156,7 +154,7 @@ public class RegionChangesPersistThroughClusterConfigurationDUnitTest {
     gfsh.executeAndAssertThat("destroy region --name=" + REGION_PATH).statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService sharedConfig =
+      var sharedConfig =
           ((InternalLocator) Locator.getLocator()).getConfigurationPersistenceService();
 
       assertThat(sharedConfig.getConfiguration(GROUP_NAME).getCacheXmlContent())
@@ -168,8 +166,8 @@ public class RegionChangesPersistThroughClusterConfigurationDUnitTest {
     server2.waitTilFullyReconnected();
 
     server2.invoke(() -> {
-      InternalDistributedSystem system = InternalDistributedSystem.getConnectedInstance();
-      InternalCache cache = system.getCache();
+      var system = InternalDistributedSystem.getConnectedInstance();
+      var cache = system.getCache();
       assertThat(cache.getInternalRegionByPath(REGION_PATH)).isNull();
     });
   }

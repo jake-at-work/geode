@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -114,31 +113,31 @@ public class HARegionQueueIntegrationTest {
 
   @Test
   public void verifyEndGiiQueueingEmptiesQueueAndHAContainer() throws Exception {
-    HAContainerWrapper haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
+    var haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
 
     // create message and HAEventWrapper
     ClientUpdateMessage message = new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE,
         (LocalRegion) dataRegion, "key", "value".getBytes(), (byte) 0x01, null,
         new ClientProxyMembershipID(), new EventID(cache.getDistributedSystem()));
-    HAEventWrapper wrapper = new HAEventWrapper(message);
+    var wrapper = new HAEventWrapper(message);
     wrapper.setHAContainer(haContainerWrapper);
     wrapper.incrementPutInProgressCounter("test");
 
     // Create and update HARegionQueues forcing one queue to startGiiQueueing
-    int numQueues = 10;
-    HARegionQueue targetQueue = createAndUpdateHARegionQueuesWithGiiQueueing(haContainerWrapper,
+    var numQueues = 10;
+    var targetQueue = createAndUpdateHARegionQueuesWithGiiQueueing(haContainerWrapper,
         wrapper, numQueues);
 
     // Verify HAContainerWrapper (1) and refCount (numQueues(10))
     assertThat(haContainerWrapper).hasSize(1);
 
-    HAEventWrapper wrapperInContainer = (HAEventWrapper) haContainerWrapper.getKey(wrapper);
+    var wrapperInContainer = (HAEventWrapper) haContainerWrapper.getKey(wrapper);
     assertThat(wrapperInContainer.getReferenceCount()).isEqualTo(numQueues - 1);
     assertThat(wrapperInContainer.getPutInProgress()).isTrue();
 
     // Verify that the HAEventWrapper in the giiQueue now has msg != null
     // We don't null this out while putInProgress > 0 (true)
-    Queue giiQueue = targetQueue.getGiiQueue();
+    var giiQueue = targetQueue.getGiiQueue();
     assertThat(giiQueue).hasSize(1);
 
     // Simulate that we have iterated through all interested proxies
@@ -147,11 +146,11 @@ public class HARegionQueueIntegrationTest {
 
     // Simulate that other queues have processed this event, then
     // peek and process the event off the giiQueue
-    for (int i = 0; i < numQueues - 1; ++i) {
+    for (var i = 0; i < numQueues - 1; ++i) {
       targetQueue.decAndRemoveFromHAContainer(wrapper);
     }
 
-    HAEventWrapper giiQueueEntry = (HAEventWrapper) giiQueue.peek();
+    var giiQueueEntry = (HAEventWrapper) giiQueue.peek();
     assertThat(giiQueueEntry).isNotNull();
     assertThat(giiQueueEntry.getClientUpdateMessage()).isNotNull();
 
@@ -164,10 +163,10 @@ public class HARegionQueueIntegrationTest {
 
   @Test
   public void verifySequentialUpdateHAEventWrapperWithMap() throws Exception {
-    HAContainerWrapper haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
+    var haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
 
     // Create a CachedDeserializable
-    CachedDeserializable cd = createCachedDeserializable(haContainerWrapper);
+    var cd = createCachedDeserializable(haContainerWrapper);
 
     // Create and update HARegionQueues
     createAndUpdateHARegionQueuesSequentially(haContainerWrapper, cd, NUM_QUEUES);
@@ -178,10 +177,10 @@ public class HARegionQueueIntegrationTest {
 
   @Test
   public void verifySimultaneousUpdateHAEventWrapperWithMap() throws Exception {
-    HAContainerWrapper haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
+    var haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
 
     // Create a CachedDeserializable
-    CachedDeserializable cd = createCachedDeserializable(haContainerWrapper);
+    var cd = createCachedDeserializable(haContainerWrapper);
 
     // Create and update HARegionQueues
     createAndUpdateHARegionQueuesSimultaneously(haContainerWrapper, cd, NUM_QUEUES);
@@ -192,10 +191,10 @@ public class HARegionQueueIntegrationTest {
 
   @Test
   public void verifySequentialUpdateHAEventWrapperWithRegion() throws Exception {
-    HAContainerWrapper haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
+    var haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
 
     // Create a CachedDeserializable
-    CachedDeserializable cd = createCachedDeserializable(haContainerWrapper);
+    var cd = createCachedDeserializable(haContainerWrapper);
 
     // Create and update HARegionQueues
     createAndUpdateHARegionQueuesSequentially(haContainerWrapper, cd, NUM_QUEUES);
@@ -206,10 +205,10 @@ public class HARegionQueueIntegrationTest {
 
   @Test
   public void verifySimultaneousUpdateHAEventWrapperWithRegion() throws Exception {
-    HAContainerWrapper haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
+    var haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
 
     // Create a CachedDeserializable
-    CachedDeserializable cd = createCachedDeserializable(haContainerWrapper);
+    var cd = createCachedDeserializable(haContainerWrapper);
 
     // Create and update HARegionQueues
     createAndUpdateHARegionQueuesSimultaneously(haContainerWrapper, cd, NUM_QUEUES);
@@ -221,16 +220,16 @@ public class HARegionQueueIntegrationTest {
   @Test
   public void verifySimultaneousPutHAEventWrapperWithRegion() throws Exception {
     HAContainerWrapper haContainerWrapper = createHAContainerRegion();
-    int numQueues = 30;
-    int numOperations = 1000;
+    var numQueues = 30;
+    var numOperations = 1000;
 
-    Set<HAEventWrapper> haEventWrappersToValidate =
+    var haEventWrappersToValidate =
         createAndPutHARegionQueuesSimultaneously(haContainerWrapper, numQueues, numOperations);
 
     assertThat(haContainerWrapper).hasSize(numOperations);
 
-    for (HAEventWrapper haEventWrapperToValidate : haEventWrappersToValidate) {
-      HAEventWrapper wrapperInContainer =
+    for (var haEventWrapperToValidate : haEventWrappersToValidate) {
+      var wrapperInContainer =
           (HAEventWrapper) haContainerWrapper.getKey(haEventWrapperToValidate);
       assertThat(wrapperInContainer.getReferenceCount()).isEqualTo(numQueues);
     }
@@ -243,33 +242,33 @@ public class HARegionQueueIntegrationTest {
     ClientUpdateMessage message = new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE,
         (LocalRegion) dataRegion, "key", "value".getBytes(), (byte) 0x01, null,
         new ClientProxyMembershipID(), new EventID(new byte[] {1}, 1, 2));
-    HAEventWrapper haEventWrapper = new HAEventWrapper(message);
+    var haEventWrapper = new HAEventWrapper(message);
     haEventWrapper.setHAContainer(haContainerWrapper);
 
-    int numQueues = 10;
+    var numQueues = 10;
 
     createAndPutHARegionQueuesSequentially(haContainerWrapper, haEventWrapper, numQueues);
 
     assertThat(haContainerWrapper).hasSize(1);
 
-    HAEventWrapper wrapperInContainer =
+    var wrapperInContainer =
         (HAEventWrapper) haContainerWrapper.getKey(haEventWrapper);
     assertThat(wrapperInContainer.getReferenceCount()).isEqualTo(numQueues);
   }
 
   @Test
   public void verifySimultaneousPutHAEventWrapperWithMap() throws Exception {
-    HAContainerWrapper haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
-    int numQueues = 30;
-    int numOperations = 1000;
+    var haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
+    var numQueues = 30;
+    var numOperations = 1000;
 
-    Set<HAEventWrapper> haEventWrappersToValidate =
+    var haEventWrappersToValidate =
         createAndPutHARegionQueuesSimultaneously(haContainerWrapper, numQueues, numOperations);
 
     assertThat(haContainerWrapper).hasSize(numOperations);
 
-    for (HAEventWrapper haEventWrapperToValidate : haEventWrappersToValidate) {
-      HAEventWrapper wrapperInContainer =
+    for (var haEventWrapperToValidate : haEventWrappersToValidate) {
+      var wrapperInContainer =
           (HAEventWrapper) haContainerWrapper.getKey(haEventWrapperToValidate);
       assertThat(wrapperInContainer.getReferenceCount()).isEqualTo(numQueues);
     }
@@ -277,55 +276,55 @@ public class HARegionQueueIntegrationTest {
 
   @Test
   public void verifySequentialPutHAEventWrapperWithMap() throws Exception {
-    HAContainerWrapper haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
+    var haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
 
     ClientUpdateMessage message = new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE,
         (LocalRegion) dataRegion, "key", "value".getBytes(), (byte) 0x01, null,
         new ClientProxyMembershipID(), new EventID(new byte[] {1}, 1, 2));
-    HAEventWrapper haEventWrapper = new HAEventWrapper(message);
+    var haEventWrapper = new HAEventWrapper(message);
     haEventWrapper.setHAContainer(haContainerWrapper);
 
-    int numQueues = 10;
+    var numQueues = 10;
 
     createAndPutHARegionQueuesSequentially(haContainerWrapper, haEventWrapper, numQueues);
 
     assertThat(haContainerWrapper).hasSize(1);
 
-    HAEventWrapper wrapperInContainer =
+    var wrapperInContainer =
         (HAEventWrapper) haContainerWrapper.getKey(haEventWrapper);
     assertThat(wrapperInContainer.getReferenceCount()).isEqualTo(numQueues);
   }
 
   @Test
   public void queueRemovalAndDispatchingConcurrently() throws Exception {
-    HAContainerWrapper haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
+    var haContainerWrapper = (HAContainerWrapper) ccn.getHaContainer();
 
     List<HARegionQueue> regionQueues = new ArrayList<>();
-    for (int i = 0; i < 2; ++i) {
-      HARegion haRegion = createMockHARegion();
+    for (var i = 0; i < 2; ++i) {
+      var haRegion = createMockHARegion();
 
       regionQueues.add(createHARegionQueue(haContainerWrapper, i, haRegion, false));
     }
 
-    for (int i = 0; i < 10000; ++i) {
-      EventID eventID = new EventID(new byte[] {1}, 1, i);
+    for (var i = 0; i < 10000; ++i) {
+      var eventID = new EventID(new byte[] {1}, 1, i);
 
       ClientUpdateMessage message = new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE,
           (LocalRegion) dataRegion, "key", "value".getBytes(), (byte) 0x01, null,
           new ClientProxyMembershipID(), eventID);
 
-      HAEventWrapper wrapper = new HAEventWrapper(message);
+      var wrapper = new HAEventWrapper(message);
       wrapper.setHAContainer(haContainerWrapper);
       wrapper.incrementPutInProgressCounter("test");
 
-      for (HARegionQueue queue : regionQueues) {
+      for (var queue : regionQueues) {
         queue.put(wrapper);
       }
 
       wrapper.decrementPutInProgressCounter();
 
       List<Future<Void>> futures = new ArrayList<>();
-      for (HARegionQueue queue : regionQueues) {
+      for (var queue : regionQueues) {
         futures.add(executorServiceRule.submit(() -> {
           queue.peek();
           queue.remove();
@@ -336,7 +335,7 @@ public class HARegionQueueIntegrationTest {
         }));
       }
 
-      for (Future<Void> future : futures) {
+      for (var future : futures) {
         future.get(getTimeout().toMillis(), MILLISECONDS);
       }
     }
@@ -345,19 +344,19 @@ public class HARegionQueueIntegrationTest {
   @Test
   public void verifyPutEntryConditionallyInHAContainerNoOverwrite() throws Exception {
     // create message and HAEventWrapper
-    EventID eventID = new EventID(cache.getDistributedSystem());
+    var eventID = new EventID(cache.getDistributedSystem());
 
     ClientUpdateMessage oldMessage = new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE,
         (LocalRegion) dataRegion, "key", "value".getBytes(), (byte) 0x01, null,
         new ClientProxyMembershipID(), eventID);
 
-    HAEventWrapper originalWrapperInstance = new HAEventWrapper(oldMessage);
+    var originalWrapperInstance = new HAEventWrapper(oldMessage);
     originalWrapperInstance.incrementPutInProgressCounter("test");
 
     HAContainerWrapper haContainerWrapper = new HAContainerMap(new ConcurrentHashMap());
     originalWrapperInstance.setHAContainer(haContainerWrapper);
 
-    HARegionQueue haRegionQueue = createHARegionQueue(haContainerWrapper, 0);
+    var haRegionQueue = createHARegionQueue(haContainerWrapper, 0);
 
     haRegionQueue.putEventInHARegion(originalWrapperInstance, 1L);
 
@@ -369,7 +368,7 @@ public class HARegionQueueIntegrationTest {
         (LocalRegion) dataRegion, "key", "value".getBytes(), (byte) 0x01, null,
         new ClientProxyMembershipID(), eventID);
 
-    HAEventWrapper newWrapperInstance = new HAEventWrapper(newMessage);
+    var newWrapperInstance = new HAEventWrapper(newMessage);
     newWrapperInstance.incrementPutInProgressCounter("test");
     newWrapperInstance.setHAContainer(haContainerWrapper);
 
@@ -396,16 +395,16 @@ public class HARegionQueueIntegrationTest {
   public void removeDispatchedEventsViaQRMAndDestroyQueueSimultaneouslySingleDecrement()
       throws Exception {
     HAContainerWrapper haContainerWrapper = new HAContainerMap(new ConcurrentHashMap());
-    HARegion haRegion = createMockHARegion();
-    HARegionQueue haRegionQueue = createHARegionQueue(haContainerWrapper, 0, haRegion, false);
-    EventID eventID = new EventID(cache.getDistributedSystem());
+    var haRegion = createMockHARegion();
+    var haRegionQueue = createHARegionQueue(haContainerWrapper, 0, haRegion, false);
+    var eventID = new EventID(cache.getDistributedSystem());
 
     ClientUpdateMessage clientUpdateMessage =
         new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE,
             (LocalRegion) dataRegion, "key", "value".getBytes(), (byte) 0x01, null,
             new ClientProxyMembershipID(), eventID);
 
-    HAEventWrapper haEventWrapper = new HAEventWrapper(clientUpdateMessage);
+    var haEventWrapper = new HAEventWrapper(clientUpdateMessage);
     haEventWrapper.incrementPutInProgressCounter("test");
     haEventWrapper.setHAContainer(haContainerWrapper);
 
@@ -423,7 +422,7 @@ public class HARegionQueueIntegrationTest {
     // when a SocketTimeoutException is thrown and we are cleaning up
     futures.add(executorServiceRule.submit(haRegionQueue::destroy));
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get();
     }
 
@@ -439,16 +438,16 @@ public class HARegionQueueIntegrationTest {
   public void removeDispatchedEventsViaMessageDispatcherAndDestroyQueueSimultaneouslySingleDecrement()
       throws Exception {
     HAContainerWrapper haContainerWrapper = new HAContainerMap(new ConcurrentHashMap());
-    HARegion haRegion = createMockHARegion();
-    HARegionQueue haRegionQueue = createHARegionQueue(haContainerWrapper, 0, haRegion, false);
-    EventID eventID = new EventID(cache.getDistributedSystem());
+    var haRegion = createMockHARegion();
+    var haRegionQueue = createHARegionQueue(haContainerWrapper, 0, haRegion, false);
+    var eventID = new EventID(cache.getDistributedSystem());
 
     ClientUpdateMessage clientUpdateMessage =
         new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE,
             (LocalRegion) dataRegion, "key", "value".getBytes(), (byte) 0x01, null,
             new ClientProxyMembershipID(), eventID);
 
-    HAEventWrapper haEventWrapper = new HAEventWrapper(clientUpdateMessage);
+    var haEventWrapper = new HAEventWrapper(clientUpdateMessage);
     haEventWrapper.incrementPutInProgressCounter("test");
     haEventWrapper.setHAContainer(haContainerWrapper);
 
@@ -468,7 +467,7 @@ public class HARegionQueueIntegrationTest {
     // when a SocketTimeoutException is thrown and we are cleaning up
     futures.add(executorServiceRule.submit(haRegionQueue::destroy));
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get();
     }
 
@@ -489,7 +488,7 @@ public class HARegionQueueIntegrationTest {
   }
 
   private CacheClientNotifier createCacheClientNotifier() {
-    CacheClientNotifier ccn =
+    var ccn =
         CacheClientNotifier.getInstance(cache,
             mock(ClientRegistrationEventQueueManager.class),
             mock(StatisticsClock.class),
@@ -504,13 +503,13 @@ public class HARegionQueueIntegrationTest {
 
   private InternalDistributedMember createMember() {
     // Create an InternalDistributedMember
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var member = mock(InternalDistributedMember.class);
     when(member.getVersion()).thenReturn(KnownVersion.CURRENT);
     return member;
   }
 
   private HARegion createMockHARegion() {
-    HARegion haRegion = mock(HARegion.class);
+    var haRegion = mock(HARegion.class);
     Map<Object, Object> map = new ConcurrentHashMap<>();
 
     when(haRegion.getGemFireCache())
@@ -534,9 +533,9 @@ public class HARegionQueueIntegrationTest {
 
   private Region<Object, Object> createHAContainerRegionRegion()
       throws IOException, ClassNotFoundException {
-    String regionName = CacheServerImpl.generateNameForClientMsgsRegion(0);
+    var regionName = CacheServerImpl.generateNameForClientMsgsRegion(0);
 
-    AttributesFactory<Object, Object> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<Object, Object>();
     factory.setDataPolicy(DataPolicy.NORMAL);
     factory.setDiskStoreName(null);
     factory.setDiskSynchronous(true);
@@ -544,7 +543,7 @@ public class HARegionQueueIntegrationTest {
     factory.setStatisticsEnabled(true);
     factory.setScope(Scope.LOCAL);
 
-    InternalRegionArguments arguments = new InternalRegionArguments()
+    var arguments = new InternalRegionArguments()
         .setDestroyLockFlag(true)
         .setRecreateFlag(false)
         .setSnapshotInputStream(null)
@@ -557,8 +556,8 @@ public class HARegionQueueIntegrationTest {
   private HARegionQueue createHARegionQueue(Map haContainer, int index, HARegion haRegion,
       boolean puttingGIIDataInQueue)
       throws InterruptedException, IOException, ClassNotFoundException {
-    StoppableReentrantReadWriteLock giiLock = mock(StoppableReentrantReadWriteLock.class);
-    StoppableReentrantReadWriteLock rwLock =
+    var giiLock = mock(StoppableReentrantReadWriteLock.class);
+    var rwLock =
         new StoppableReentrantReadWriteLock(cache.getCancelCriterion());
 
     when(giiLock.writeLock()).thenReturn(mock(StoppableWriteLock.class));
@@ -571,7 +570,7 @@ public class HARegionQueueIntegrationTest {
 
   private HARegionQueue createHARegionQueue(Map haContainer, int index)
       throws InterruptedException, IOException, ClassNotFoundException {
-    HARegion haRegion = mock(HARegion.class);
+    var haRegion = mock(HARegion.class);
 
     when(haRegion.getGemFireCache()).thenReturn(cache);
 
@@ -584,13 +583,13 @@ public class HARegionQueueIntegrationTest {
     ClientUpdateMessage message = new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_UPDATE,
         (LocalRegion) dataRegion, "key", "value".getBytes(), (byte) 0x01, null,
         new ClientProxyMembershipID(), new EventID(cache.getDistributedSystem()));
-    HAEventWrapper wrapper = new HAEventWrapper(message);
+    var wrapper = new HAEventWrapper(message);
     wrapper.setHAContainer(haContainerWrapper);
 
     // Create a CachedDeserializable
     // Note: The haContainerRegion must contain the wrapper and message to serialize it
     haContainerWrapper.putIfAbsent(wrapper, message);
-    byte[] wrapperBytes = BlobHelper.serializeToBlob(wrapper);
+    var wrapperBytes = BlobHelper.serializeToBlob(wrapper);
     CachedDeserializable cd = new VMCachedDeserializable(wrapperBytes);
     haContainerWrapper.remove(wrapper);
     assertThat(haContainerWrapper).isEmpty();
@@ -601,8 +600,8 @@ public class HARegionQueueIntegrationTest {
       CachedDeserializable cd, int numQueues)
       throws InterruptedException, IOException, ClassNotFoundException {
     // Create some HARegionQueues
-    for (int i = 0; i < numQueues; i++) {
-      HARegionQueue haRegionQueue = createHARegionQueue(haContainerWrapper, i);
+    for (var i = 0; i < numQueues; i++) {
+      var haRegionQueue = createHARegionQueue(haContainerWrapper, i);
       haRegionQueue.updateHAEventWrapper(member, cd, "haRegion");
     }
   }
@@ -611,17 +610,17 @@ public class HARegionQueueIntegrationTest {
       HAContainerWrapper haContainerWrapper, HAEventWrapper wrapper, int numQueues)
       throws InterruptedException, IOException, ClassNotFoundException {
     HARegionQueue targetQueue = null;
-    int startGiiQueueingIndex = numQueues / 2;
+    var startGiiQueueingIndex = numQueues / 2;
 
     // create HARegionQueues and startGiiQueuing on a region about half way through
-    for (int i = 0; i < numQueues; i++) {
+    for (var i = 0; i < numQueues; i++) {
       HARegionQueue haRegionQueue = null;
 
       // start GII Queueing (targetRegionQueue)
       if (i == startGiiQueueingIndex) {
-        HARegion haRegion = mock(HARegion.class);
+        var haRegion = mock(HARegion.class);
 
-        HARegionQueue giiHaRegionQueue =
+        var giiHaRegionQueue =
             createHARegionQueue(haContainerWrapper, i, haRegion, false);
         giiHaRegionQueue.startGiiQueueing();
         targetQueue = giiHaRegionQueue;
@@ -654,15 +653,15 @@ public class HARegionQueueIntegrationTest {
       HAContainerWrapper haContainerWrapper, int numQueues, int numOperations)
       throws InterruptedException, IOException, ClassNotFoundException {
     Collection<HARegionQueue> queues = new ConcurrentLinkedQueue<>();
-    AtomicInteger count = new AtomicInteger();
+    var count = new AtomicInteger();
 
     // create HARegionQueues
-    for (int i = 0; i < numQueues; i++) {
+    for (var i = 0; i < numQueues; i++) {
       queues.add(createHARegionQueue(haContainerWrapper, i));
     }
 
     Set<HAEventWrapper> testValidationWrapperSet = ConcurrentHashMap.newKeySet();
-    for (int i = 0; i < numOperations; i++) {
+    for (var i = 0; i < numOperations; i++) {
       count.set(i);
 
       ClientUpdateMessage message = new ClientUpdateMessageImpl(EnumListenerEvent.AFTER_CREATE,
@@ -674,7 +673,7 @@ public class HARegionQueueIntegrationTest {
           // In production (CacheClientNotifier.singletonRouteClientMessage), each queue has its
           // own HAEventWrapper object even though they hold the same ClientUpdateMessage,
           // so we create an object for each queue in here
-          HAEventWrapper haEventWrapper = new HAEventWrapper(message);
+          var haEventWrapper = new HAEventWrapper(message);
 
           testValidationWrapperSet.add(haEventWrapper);
 
@@ -694,13 +693,13 @@ public class HARegionQueueIntegrationTest {
     Collection<HARegionQueue> queues = new ArrayList<>();
 
     // create HARegionQueues
-    for (int i = 0; i < numQueues; i++) {
+    for (var i = 0; i < numQueues; i++) {
       queues.add(createHARegionQueue(haContainerWrapper, i));
     }
 
     haEventWrapper.incrementPutInProgressCounter("test");
 
-    for (HARegionQueue queue : queues) {
+    for (var queue : queues) {
       queue.put(haEventWrapper);
     }
 
@@ -712,20 +711,20 @@ public class HARegionQueueIntegrationTest {
       throws InterruptedException, IOException, ClassNotFoundException, TimeoutException,
       ExecutionException {
     // Create some HARegionQueues
-    HARegionQueue[] haRegionQueues = new HARegionQueue[numQueues];
-    for (int i = 0; i < numQueues; i++) {
+    var haRegionQueues = new HARegionQueue[numQueues];
+    for (var i = 0; i < numQueues; i++) {
       haRegionQueues[i] = createHARegionQueue(haContainerWrapper, i);
     }
 
     // Create threads to simultaneously update the HAEventWrapper
     Collection<Future<Void>> futures = new ArrayList<>();
-    for (HARegionQueue haRegionQueue : haRegionQueues) {
+    for (var haRegionQueue : haRegionQueues) {
       futures.add(executorServiceRule.submit(() -> {
         haRegionQueue.updateHAEventWrapper(member, cd, "haRegion");
       }));
     }
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get(getTimeout().toMillis(), MILLISECONDS);
     }
   }
@@ -736,7 +735,7 @@ public class HARegionQueueIntegrationTest {
     assertThat(haContainerWrapper).hasSize(1);
 
     // Verify the refCount is correct
-    HAEventWrapper wrapperInContainer =
+    var wrapperInContainer =
         (HAEventWrapper) haContainerWrapper.getKey(cd.getDeserializedForReading());
     assertThat(wrapperInContainer.getReferenceCount()).isEqualTo(numQueues);
   }

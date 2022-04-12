@@ -35,7 +35,6 @@ import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.RemoteOperationException;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
@@ -68,8 +67,8 @@ public class RemoteFetchVersionMessage extends RemoteOperationMessage {
    */
   public static FetchVersionResponse send(InternalDistributedMember recipient, LocalRegion r,
       Object key) throws RemoteOperationException {
-    FetchVersionResponse response = new FetchVersionResponse(r.getSystem(), recipient);
-    RemoteFetchVersionMessage msg =
+    var response = new FetchVersionResponse(r.getSystem(), recipient);
+    var msg =
         new RemoteFetchVersionMessage(recipient, r.getFullPath(), response, key);
     Set<?> failures = r.getDistributionManager().putOutgoing(msg);
     if (failures != null && failures.size() > 0) {
@@ -110,7 +109,7 @@ public class RemoteFetchVersionMessage extends RemoteOperationMessage {
     r.waitOnInitialization();
     VersionTag<?> tag;
     try {
-      RegionEntry re = r.getRegionEntry(key);
+      var re = r.getRegionEntry(key);
       if (re == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
           logger.trace(LogMarker.DM_VERBOSE,
@@ -147,15 +146,15 @@ public class RemoteFetchVersionMessage extends RemoteOperationMessage {
 
     public static void send(InternalDistributedMember recipient, int processorId, VersionTag<?> tag,
         DistributionManager dm) {
-      FetchVersionReplyMessage reply = new FetchVersionReplyMessage(processorId, tag);
+      var reply = new FetchVersionReplyMessage(processorId, tag);
       reply.setRecipient(recipient);
       dm.putOutgoing(reply);
     }
 
     @Override
     public void process(DistributionManager dm, ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
-      final boolean isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
+      final var startTime = getTimestamp();
+      final var isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
 
       if (isDebugEnabled) {
         logger.trace(LogMarker.DM_VERBOSE,
@@ -213,7 +212,7 @@ public class RemoteFetchVersionMessage extends RemoteOperationMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof FetchVersionReplyMessage) {
-          FetchVersionReplyMessage reply = (FetchVersionReplyMessage) msg;
+          var reply = (FetchVersionReplyMessage) msg;
           tag = reply.tag;
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
             logger.trace(LogMarker.DM_VERBOSE, "FetchVersionResponse return tag is {}", tag);

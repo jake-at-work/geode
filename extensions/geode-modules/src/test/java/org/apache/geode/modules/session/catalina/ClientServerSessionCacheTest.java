@@ -130,7 +130,7 @@ public class ClientServerSessionCacheTest extends AbstractSessionCacheTest {
 
   @Test
   public void bootstrappingFunctionThrowsException() {
-    final FunctionException exception = new FunctionException();
+    final var exception = new FunctionException();
 
     final ResultCollector<Object, List<Object>> exceptionCollector =
         uncheckedCast(mock(ResultCollector.class));
@@ -146,7 +146,7 @@ public class ClientServerSessionCacheTest extends AbstractSessionCacheTest {
 
   @Test
   public void createOrRetrieveRegionThrowsException() {
-    final RuntimeException exception = new RuntimeException();
+    final var exception = new RuntimeException();
     doThrow(exception).when((ClientServerSessionCache) sessionCache).createLocalSessionRegion();
 
     assertThatThrownBy(() -> sessionCache.initialize()).hasCause(exception)
@@ -158,7 +158,7 @@ public class ClientServerSessionCacheTest extends AbstractSessionCacheTest {
 
   @Test
   public void createRegionFunctionFailsOnServer() {
-    final ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
+    final var stringCaptor = ArgumentCaptor.forClass(String.class);
 
     regionStatusResultList.clear();
     regionStatusResultList.add(RegionStatus.INVALID);
@@ -271,7 +271,7 @@ public class ClientServerSessionCacheTest extends AbstractSessionCacheTest {
   @Test
   public void touchSessionsInvokesPRFunctionForPRAndThrowsExceptionWhenFunctionThrowsException() {
     final Set<String> sessionIds = new HashSet<>();
-    final FunctionException exception = new FunctionException();
+    final var exception = new FunctionException();
     final ResultCollector<Object, List<Object>> exceptionCollector =
         uncheckedCast(mock(ResultCollector.class));
 
@@ -306,7 +306,7 @@ public class ClientServerSessionCacheTest extends AbstractSessionCacheTest {
     sessionCache.initialize();
 
     final Set<String> sessionIds = new HashSet<>();
-    final FunctionException exception = new FunctionException();
+    final var exception = new FunctionException();
     final ResultCollector<Object, List<Object>> exceptionCollector =
         uncheckedCast(mock(ResultCollector.class));
 
@@ -327,8 +327,8 @@ public class ClientServerSessionCacheTest extends AbstractSessionCacheTest {
 
   @Test
   public void isBackingCacheEnabledReturnsValueWhenCommitValveFailfastEnabled() {
-    final boolean backingCacheEnabled = false;
-    final PoolImpl pool = mock(PoolImpl.class);
+    final var backingCacheEnabled = false;
+    final var pool = mock(PoolImpl.class);
 
     when(sessionManager.isCommitValveFailfastEnabled()).thenReturn(true);
     doReturn(pool).when((ClientServerSessionCache) sessionCache).findPoolInPoolManager();
@@ -339,10 +339,10 @@ public class ClientServerSessionCacheTest extends AbstractSessionCacheTest {
 
   @Test
   public void registerInterestForSessionRegion() {
-    final SessionManager manager = mock(SessionManager.class);
-    final ClientCache clientCache = mock(ClientCache.class);
+    final var manager = mock(SessionManager.class);
+    final var clientCache = mock(ClientCache.class);
     final Region<?, ?> region = mock(Region.class, RETURNS_DEEP_STUBS);
-    final ClientServerSessionCache cache = spy(new ClientServerSessionCache(manager, clientCache));
+    final var cache = spy(new ClientServerSessionCache(manager, clientCache));
     doReturn(region).when(cache).createLocalSessionRegion();
 
     cache.createLocalSessionRegionWithRegisterInterest();
@@ -352,11 +352,11 @@ public class ClientServerSessionCacheTest extends AbstractSessionCacheTest {
 
   @Test
   public void doesNotRegisterInterestIfLocalCacheNotEnabled() {
-    final SessionManager manager = mock(SessionManager.class);
-    final ClientCache clientCache = mock(ClientCache.class);
+    final var manager = mock(SessionManager.class);
+    final var clientCache = mock(ClientCache.class);
     final Region<?, ?> region = mock(Region.class);
     final RegionAttributes<?, ?> attributes = mock(RegionAttributes.class);
-    final ClientServerSessionCache cache = spy(new ClientServerSessionCache(manager, clientCache));
+    final var cache = spy(new ClientServerSessionCache(manager, clientCache));
     doReturn(region).when(cache).createLocalSessionRegion();
     doReturn(attributes).when(region).getAttributes();
     doReturn(DataPolicy.EMPTY).when(attributes).getDataPolicy();

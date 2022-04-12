@@ -55,7 +55,7 @@ public class TeeOutputStream extends FilterOutputStream {
   @Override
   public void write(int b) throws IOException {
     super.write(b);
-    OutputStream os = branch;
+    var os = branch;
     if (os != null) {
       os.write(b);
     }
@@ -64,7 +64,7 @@ public class TeeOutputStream extends FilterOutputStream {
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
     super.write(b, off, len);
-    OutputStream os = branch;
+    var os = branch;
     if (os != null) {
       os.write(b, off, len);
     }
@@ -73,7 +73,7 @@ public class TeeOutputStream extends FilterOutputStream {
   @Override
   public void flush() throws IOException {
     super.flush();
-    OutputStream os = branch;
+    var os = branch;
     if (os != null) {
       os.flush();
     }
@@ -82,7 +82,7 @@ public class TeeOutputStream extends FilterOutputStream {
   @Override
   public void close() throws IOException {
     super.close();
-    OutputStream os = branch;
+    var os = branch;
     if (os != null) {
       os.close();
     }

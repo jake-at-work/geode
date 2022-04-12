@@ -28,7 +28,6 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.internal.cli.GfshParser;
 import org.apache.geode.management.internal.cli.commands.OfflineGfshCommand;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.util.JdkTool;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -42,10 +41,10 @@ public class StartJVisualVMCommand extends OfflineGfshCommand {
           help = CliStrings.START_JCONSOLE__J__HELP) final String[] jvmArgs)
       throws IOException {
 
-    String jvisualvmProcessOutput = getProcessOutput(jvmArgs);
+    var jvisualvmProcessOutput = getProcessOutput(jvmArgs);
 
-    ResultModel result = new ResultModel();
-    InfoResultModel infoResultModel = result.addInfo();
+    var result = new ResultModel();
+    var infoResultModel = result.addInfo();
 
     if (StringUtils.isNotBlank(jvisualvmProcessOutput)) {
       infoResultModel.addLine(System.lineSeparator());
@@ -57,14 +56,14 @@ public class StartJVisualVMCommand extends OfflineGfshCommand {
   }
 
   String getProcessOutput(String[] jvmArgs) throws IOException {
-    String[] jvisualvmCommandLine = createJVisualVMCommandLine(jvmArgs);
+    var jvisualvmCommandLine = createJVisualVMCommandLine(jvmArgs);
 
     if (isDebugging()) {
       getGfsh().printAsInfo(
           String.format("JVisualVM command-line (%1$s)", Arrays.toString(jvisualvmCommandLine)));
     }
 
-    Process jvisualvmProcess = Runtime.getRuntime().exec(jvisualvmCommandLine);
+    var jvisualvmProcess = Runtime.getRuntime().exec(jvisualvmCommandLine);
     getGfsh().printAsInfo(CliStrings.START_JVISUALVM__RUN);
     return waitAndCaptureProcessStandardErrorStream(jvisualvmProcess);
   }
@@ -75,7 +74,7 @@ public class StartJVisualVMCommand extends OfflineGfshCommand {
     commandLine.add(JdkTool.getJVisualVMPathname());
 
     if (jvmArgs != null) {
-      for (final String arg : jvmArgs) {
+      for (final var arg : jvmArgs) {
         commandLine.add("-J" + arg);
       }
     }

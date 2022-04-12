@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EvictionAction;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.distributed.DistributedSystem;
@@ -53,7 +52,7 @@ public class DefaultEvictionActionRegressionTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(CACHE_XML_FILE, BUG_40662_XML);
@@ -81,7 +80,7 @@ public class DefaultEvictionActionRegressionTest {
   public void testEvictionActionSetLocalDestroyPass() {
     Region exampleRegion = cache.getRegion("example-region");
     RegionAttributes<Object, Object> attrs = exampleRegion.getAttributes();
-    EvictionAttributes evicAttrs = attrs.getEvictionAttributes();
+    var evicAttrs = attrs.getEvictionAttributes();
 
     // Default eviction action is LOCAL_DESTROY always.
     assertEquals(EvictionAction.LOCAL_DESTROY, evicAttrs.getAction());

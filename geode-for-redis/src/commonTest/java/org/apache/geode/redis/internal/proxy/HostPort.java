@@ -43,7 +43,7 @@ public class HostPort {
     if (!(o instanceof HostPort)) {
       return false;
     }
-    HostPort hostPort = (HostPort) o;
+    var hostPort = (HostPort) o;
     return Objects.equals(host, hostPort.host)
         && Objects.equals(port, hostPort.port);
   }

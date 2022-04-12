@@ -34,7 +34,6 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.NonTXEntry;
 import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.Token.Tombstone;
-import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.WANTestBase;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.LogWriterUtils;
@@ -68,19 +67,19 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     // Site 2 and Site 3.
 
     // Site 1
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1);
-    Integer lnRecPort = vm1.invoke(WANTestBase::createReceiver);
+    var lnRecPort = vm1.invoke(WANTestBase::createReceiver);
 
     // Site 2
-    Integer nyPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
     createCacheInVMs(nyPort, vm3);
-    Integer nyRecPort = vm3.invoke(WANTestBase::createReceiver);
+    var nyRecPort = vm3.invoke(WANTestBase::createReceiver);
 
     // Site 3
-    Integer tkPort = vm4.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
+    var tkPort = vm4.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
     createCacheInVMs(tkPort, vm5);
-    Integer tkRecPort = vm5.invoke(WANTestBase::createReceiver);
+    var tkRecPort = vm5.invoke(WANTestBase::createReceiver);
 
     LogWriterUtils.getLogWriter().info("Created locators and receivers in 3 distributed systems");
 
@@ -151,14 +150,14 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     // a Replicated Region with one entry and concurrency checks enabled.
 
     // Site 1
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     vm1.invoke(() -> WANTestBase.createCache(lnPort));
-    Integer lnRecPort = vm1.invoke(WANTestBase::createReceiver);
+    var lnRecPort = vm1.invoke(WANTestBase::createReceiver);
 
     // Site 2
-    Integer nyPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
-    Integer nyRecPort = vm3.invoke(WANTestBase::createReceiver);
+    var nyRecPort = vm3.invoke(WANTestBase::createReceiver);
 
     LogWriterUtils.getLogWriter().info("Created locators and receivers in 2 distributed systems");
 
@@ -261,14 +260,14 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     // a Replicated Region with one entry and concurrency checks enabled.
 
     // Site 1
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1);
-    Integer lnRecPort = vm1.invoke(WANTestBase::createReceiver);
+    var lnRecPort = vm1.invoke(WANTestBase::createReceiver);
 
     // Site 2
-    Integer nyPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
     createCacheInVMs(nyPort, vm3);
-    Integer nyRecPort = vm3.invoke(WANTestBase::createReceiver);
+    var nyRecPort = vm3.invoke(WANTestBase::createReceiver);
 
     LogWriterUtils.getLogWriter().info("Created locators and receivers in 2 distributed systems");
 
@@ -373,14 +372,14 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     // a Replicated Region with one entry and concurrency checks enabled.
 
     // Site 1
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm1);
-    Integer lnRecPort = vm1.invoke(WANTestBase::createReceiver);
+    var lnRecPort = vm1.invoke(WANTestBase::createReceiver);
 
     // Site 2
-    Integer nyPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
     createCacheInVMs(nyPort, vm3);
-    Integer nyRecPort = vm3.invoke(WANTestBase::createReceiver);
+    var nyRecPort = vm3.invoke(WANTestBase::createReceiver);
 
     LogWriterUtils.getLogWriter().info("Created locators and receivers in 2 distributed systems");
 
@@ -450,7 +449,7 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
       public void run2() throws CacheException {
         Region region = cache.getRegion("repRegion");
 
-        Region.Entry entry = ((LocalRegion) region).getEntry("testKey", /* null, */
+        var entry = ((LocalRegion) region).getEntry("testKey", /* null, */
             true); // commented while merging revision 43582
         RegionEntry re = null;
         if (entry instanceof EntrySnapshot) {
@@ -458,7 +457,7 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
         } else if (entry instanceof NonTXEntry) {
           re = ((NonTXEntry) entry).getRegionEntry();
         }
-        VersionTag tag = re.getVersionStamp().asVersionTag();
+        var tag = re.getVersionStamp().asVersionTag();
         assertEquals(2, tag.getDistributedSystemId());
       }
     });
@@ -484,7 +483,7 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     }
     assertEquals(1, region.size());
 
-    Region.Entry entry = ((LocalRegion) region).getEntry("testKey", /* null, */ true);
+    var entry = ((LocalRegion) region).getEntry("testKey", /* null, */ true);
     RegionEntry re = null;
     if (entry instanceof EntrySnapshot) {
       re = ((EntrySnapshot) entry).getRegionEntry();
@@ -495,7 +494,7 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
       LogWriterUtils.getLogWriter().fine(
           "RegionEntry for testKey: " + re.getKey() + " " + re.getValueInVM((LocalRegion) region));
 
-      VersionTag tag = re.getVersionStamp().asVersionTag();
+      var tag = re.getVersionStamp().asVersionTag();
       return tag.getVersionTimeStamp();
     } else {
       return -1;
@@ -511,13 +510,13 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
 
     region.destroy("testKey");
 
-    Region.Entry entry = ((LocalRegion) region).getEntry("testKey", /* null, */ true);
-    RegionEntry re = ((EntrySnapshot) entry).getRegionEntry();
+    var entry = ((LocalRegion) region).getEntry("testKey", /* null, */ true);
+    var re = ((EntrySnapshot) entry).getRegionEntry();
     LogWriterUtils.getLogWriter().fine(
         "RegionEntry for testKey: " + re.getKey() + " " + re.getValueInVM((LocalRegion) region));
     assertTrue(re.getValueInVM((LocalRegion) region) instanceof Tombstone);
 
-    VersionTag tag = re.getVersionStamp().asVersionTag();
+    var tag = re.getVersionStamp().asVersionTag();
     return tag.getVersionTimeStamp();
   }
 
@@ -528,11 +527,11 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     Region region = cache.getRegion("repRegion");
     assertEquals(0, region.size());
 
-    Region.Entry entry = ((LocalRegion) region).getEntry("testKey", /* null, */ true);
-    RegionEntry re = ((EntrySnapshot) entry).getRegionEntry();
+    var entry = ((LocalRegion) region).getEntry("testKey", /* null, */ true);
+    var re = ((EntrySnapshot) entry).getRegionEntry();
     assertTrue(re.getValueInVM((LocalRegion) region) instanceof Tombstone);
 
-    VersionTag tag = re.getVersionStamp().asVersionTag();
+    var tag = re.getVersionStamp().asVersionTag();
     assertEquals(timestamp, tag.getVersionTimeStamp());
     assertEquals(memberid, tag.getDistributedSystemId());
   }

@@ -33,7 +33,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.cache30.CacheSerializableRunnable;
@@ -41,7 +40,6 @@ import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 /**
@@ -62,9 +60,9 @@ public class RemoveAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(RemoveAllDAckDUnitTest::createCacheForVM0);
     vm1.invoke(RemoveAllDAckDUnitTest::createCacheForVM1);
     LogWriterUtils.getLogWriter().fine("Cache created successfully");
@@ -72,9 +70,9 @@ public class RemoveAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(RemoveAllDAckDUnitTest::closeCache);
     vm1.invoke(RemoveAllDAckDUnitTest::closeCache);
   }
@@ -82,9 +80,9 @@ public class RemoveAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO:
   public static void createCacheForVM0() throws Exception {
     ds = (new RemoveAllDAckDUnitTest()).getSystem(props);
     cache = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
-    RegionAttributes attr = factory.create();
+    var attr = factory.create();
     region = cache.createRegion("map", attr);
   }
 
@@ -92,10 +90,10 @@ public class RemoveAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO:
     CacheWriter aWriter = new BeforeDestroyCallback();
     ds = (new RemoveAllDAckDUnitTest()).getSystem(props);
     cache = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setCacheWriter(aWriter);
-    RegionAttributes attr = factory.create();
+    var attr = factory.create();
     region = cache.createRegion("map", attr);
   }
 
@@ -111,12 +109,12 @@ public class RemoveAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO:
   @Test
   public void testRemoveAllRemoteVM() {
     // Test PASS.
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    Object[] objArr = new Object[1];
-    for (int i = 0; i < 3; i++) {
+    var objArr = new Object[1];
+    for (var i = 0; i < 3; i++) {
       objArr[0] = "" + i;
       vm0.invoke(RemoveAllDAckDUnitTest.class, "putMethod", objArr);
     }
@@ -138,7 +136,7 @@ public class RemoveAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO:
     Object obj = null;
     try {
       if (ob != null) {
-        String str = "first";
+        var str = "first";
         obj = region.put(ob, str);
       }
     } catch (Exception ex) {
@@ -149,8 +147,8 @@ public class RemoveAllDAckDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
   public static void removeAllMethod() {
     assertEquals(3, region.size());
-    ArrayList l = new ArrayList();
-    for (int i = 0; i < 2; i++) {
+    var l = new ArrayList();
+    for (var i = 0; i < 2; i++) {
       l.add("" + i);
     }
     region.removeAll(l, "removeAllCallback");

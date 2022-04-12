@@ -51,17 +51,17 @@ class ManagementAgentIntegrationTest {
 
   @Test
   void testSetMBeanServer() throws IOException {
-    final DistributionConfig distributionConfig = mock(DistributionConfig.class);
-    final InternalCache internalCache = mock(InternalCache.class);
-    final FilterConfiguration filterConfiguration = mock(FilterConfiguration.class);
-    final SecurityService securityService = mock(SecurityService.class);
+    final var distributionConfig = mock(DistributionConfig.class);
+    final var internalCache = mock(InternalCache.class);
+    final var filterConfiguration = mock(FilterConfiguration.class);
+    final var securityService = mock(SecurityService.class);
     when(internalCache.getSecurityService()).thenReturn(securityService);
     when(securityService.isIntegratedSecurity()).thenReturn(false);
-    final Path tempFile = Files.createFile(temporaryFolder.resolve("testFile")).toAbsolutePath();
+    final var tempFile = Files.createFile(temporaryFolder.resolve("testFile")).toAbsolutePath();
     when(distributionConfig.getJmxManagerAccessFile()).thenReturn(tempFile.toString());
-    final ManagementAgent managementAgent =
+    final var managementAgent =
         new ManagementAgent(distributionConfig, internalCache, filterConfiguration);
-    final MBeanServer mBeanServer = mock(MBeanServer.class);
+    final var mBeanServer = mock(MBeanServer.class);
 
     managementAgent.setJmxConnectorServer(new JmxConnectorServerWithMBeanServer(mBeanServer));
     assertThatCode(() -> managementAgent

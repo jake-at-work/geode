@@ -42,7 +42,6 @@ import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.internal.DistributionAdvisee;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.membership.utils.AvailablePort.Keeper;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.VM;
@@ -66,29 +65,29 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
   public void test2by2() {
     disconnectAllFromDS();
 
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
-    VM vm2 = VM.getVM(2);
-    VM vm3 = VM.getVM(3);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
+    var vm2 = VM.getVM(2);
+    var vm3 = VM.getVM(3);
 
-    List<Keeper> freeTCPPorts = AvailablePortHelper.getRandomAvailableTCPPortKeepers(6);
-    final Keeper keeper1 = freeTCPPorts.get(0);
-    final int port1 = keeper1.getPort();
-    final Keeper keeper2 = freeTCPPorts.get(1);
-    final int port2 = keeper2.getPort();
-    final Keeper bsKeeper1 = freeTCPPorts.get(2);
-    final int bsPort1 = bsKeeper1.getPort();
-    final Keeper bsKeeper2 = freeTCPPorts.get(3);
-    final int bsPort2 = bsKeeper2.getPort();
-    final Keeper bsKeeper3 = freeTCPPorts.get(4);
-    final int bsPort3 = bsKeeper3.getPort();
-    final Keeper bsKeeper4 = freeTCPPorts.get(5);
-    final int bsPort4 = bsKeeper4.getPort();
+    var freeTCPPorts = AvailablePortHelper.getRandomAvailableTCPPortKeepers(6);
+    final var keeper1 = freeTCPPorts.get(0);
+    final var port1 = keeper1.getPort();
+    final var keeper2 = freeTCPPorts.get(1);
+    final var port2 = keeper2.getPort();
+    final var bsKeeper1 = freeTCPPorts.get(2);
+    final var bsPort1 = bsKeeper1.getPort();
+    final var bsKeeper2 = freeTCPPorts.get(3);
+    final var bsPort2 = bsKeeper2.getPort();
+    final var bsKeeper3 = freeTCPPorts.get(4);
+    final var bsPort3 = bsKeeper3.getPort();
+    final var bsKeeper4 = freeTCPPorts.get(5);
+    final var bsPort4 = bsKeeper4.getPort();
 
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locators = host0 + "[" + port1 + "]" + "," + host0 + "[" + port2 + "]";
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locators = host0 + "[" + port1 + "]" + "," + host0 + "[" + port2 + "]";
 
-    final Properties dsProps = new Properties();
+    final var dsProps = new Properties();
     dsProps.setProperty(LOCATORS, locators);
     dsProps.setProperty(MCAST_PORT, "0");
     dsProps.setProperty(LOG_LEVEL, String.valueOf(logger.getLevel()));
@@ -115,13 +114,13 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
     // verify that locators know about each other
     vm0.invoke(() -> {
       assertTrue(Locator.hasLocator());
-      InternalLocator l = (InternalLocator) Locator.getLocator();
+      var l = (InternalLocator) Locator.getLocator();
       DistributionAdvisee advisee = l.getServerLocatorAdvisee();
-      ControllerAdvisor ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
-      List others = ca.fetchControllers();
+      var ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
+      var others = ca.fetchControllers();
       assertThat(others.size()).isEqualTo(1);
       {
-        ControllerAdvisor.ControllerProfile cp =
+        var cp =
             (ControllerAdvisor.ControllerProfile) others.get(0);
         assertThat(cp.getPort()).isEqualTo(port2);
         assertThat(cp.getHost()).isEqualTo("locator2HNFC");
@@ -129,8 +128,8 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
 
       others = ca.fetchBridgeServers();
       assertThat(others.size()).isEqualTo(4);
-      for (Object other : others) {
-        CacheServerAdvisor.CacheServerProfile bsp =
+      for (var other : others) {
+        var bsp =
             (CacheServerAdvisor.CacheServerProfile) other;
         if (bsp.getPort() == bsPort1) {
           assertThat(new String[] {"bs1Group1", "bs1Group2"}).isEqualTo(bsp.getGroups());
@@ -158,20 +157,20 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
 
     vm3.invoke(() -> {
       assertTrue(Locator.hasLocator());
-      InternalLocator l = (InternalLocator) Locator.getLocator();
+      var l = (InternalLocator) Locator.getLocator();
       DistributionAdvisee advisee = l.getServerLocatorAdvisee();
-      ControllerAdvisor ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
-      List others = ca.fetchControllers();
+      var ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
+      var others = ca.fetchControllers();
       assertThat(others.size()).isEqualTo(1);
       {
-        ControllerAdvisor.ControllerProfile cp =
+        var cp =
             (ControllerAdvisor.ControllerProfile) others.get(0);
         assertThat(cp.getPort()).isEqualTo(port1);
       }
       others = ca.fetchBridgeServers();
       assertThat(others.size()).isEqualTo(3);
-      for (Object other : others) {
-        CacheServerAdvisor.CacheServerProfile bsp =
+      for (var other : others) {
+        var bsp =
             (CacheServerAdvisor.CacheServerProfile) other;
         comparePortGroups(bsp, bsPort2, bsPort3, bsPort4);
       }
@@ -205,29 +204,29 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
   public void test2by2usingGroups() {
     disconnectAllFromDS();
 
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
-    VM vm2 = VM.getVM(2);
-    VM vm3 = VM.getVM(3);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
+    var vm2 = VM.getVM(2);
+    var vm3 = VM.getVM(3);
 
-    List<Keeper> freeTCPPorts = AvailablePortHelper.getRandomAvailableTCPPortKeepers(6);
-    final Keeper keeper1 = freeTCPPorts.get(0);
-    final int port1 = keeper1.getPort();
-    final Keeper keeper2 = freeTCPPorts.get(1);
-    final int port2 = keeper2.getPort();
-    final Keeper bsKeeper1 = freeTCPPorts.get(2);
-    final int bsPort1 = bsKeeper1.getPort();
-    final Keeper bsKeeper2 = freeTCPPorts.get(3);
-    final int bsPort2 = bsKeeper2.getPort();
-    final Keeper bsKeeper3 = freeTCPPorts.get(4);
-    final int bsPort3 = bsKeeper3.getPort();
-    final Keeper bsKeeper4 = freeTCPPorts.get(5);
-    final int bsPort4 = bsKeeper4.getPort();
+    var freeTCPPorts = AvailablePortHelper.getRandomAvailableTCPPortKeepers(6);
+    final var keeper1 = freeTCPPorts.get(0);
+    final var port1 = keeper1.getPort();
+    final var keeper2 = freeTCPPorts.get(1);
+    final var port2 = keeper2.getPort();
+    final var bsKeeper1 = freeTCPPorts.get(2);
+    final var bsPort1 = bsKeeper1.getPort();
+    final var bsKeeper2 = freeTCPPorts.get(3);
+    final var bsPort2 = bsKeeper2.getPort();
+    final var bsKeeper3 = freeTCPPorts.get(4);
+    final var bsPort3 = bsKeeper3.getPort();
+    final var bsKeeper4 = freeTCPPorts.get(5);
+    final var bsPort4 = bsKeeper4.getPort();
 
-    final String host0 = NetworkUtils.getServerHostName();
-    final String locators = host0 + "[" + port1 + "]" + "," + host0 + "[" + port2 + "]";
+    final var host0 = NetworkUtils.getServerHostName();
+    final var locators = host0 + "[" + port1 + "]" + "," + host0 + "[" + port2 + "]";
 
-    final Properties dsProps = new Properties();
+    final var dsProps = new Properties();
     dsProps.setProperty(LOCATORS, locators);
     dsProps.setProperty(MCAST_PORT, "0");
     dsProps.setProperty(LOG_LEVEL, String.valueOf(logger.getLevel()));
@@ -274,20 +273,20 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
 
     vm3.invoke(() -> {
       assertTrue(Locator.hasLocator());
-      InternalLocator l = (InternalLocator) Locator.getLocator();
+      var l = (InternalLocator) Locator.getLocator();
       DistributionAdvisee advisee = l.getServerLocatorAdvisee();
-      ControllerAdvisor ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
-      List others = ca.fetchControllers();
+      var ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
+      var others = ca.fetchControllers();
       assertThat(others.size()).isEqualTo(1);
       {
-        ControllerAdvisor.ControllerProfile cp =
+        var cp =
             (ControllerAdvisor.ControllerProfile) others.get(0);
         assertThat(cp.getPort()).isEqualTo(port1);
       }
       others = ca.fetchBridgeServers();
       assertThat(others.size()).isEqualTo(3);
-      for (Object other : others) {
-        CacheServerAdvisor.CacheServerProfile bsp =
+      for (var other : others) {
+        var bsp =
             (CacheServerAdvisor.CacheServerProfile) other;
         if (bsp.getPort() == bsPort2) {
           assertThat(new String[] {"bs2Group1", "bs2Group2"}).isEqualTo(bsp.getGroups());
@@ -324,7 +323,7 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void createCache(String locators, String groups) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, locators);
     if (groups != null) {
@@ -359,16 +358,16 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
     Cache c = cache;
     List bslist = c.getCacheServers();
     assertThat(bslist.size()).isEqualTo(2);
-    for (Object aBslist : bslist) {
-      DistributionAdvisee advisee = (DistributionAdvisee) aBslist;
-      CacheServerAdvisor bsa = (CacheServerAdvisor) advisee.getDistributionAdvisor();
-      List others = bsa.fetchBridgeServers();
+    for (var aBslist : bslist) {
+      var advisee = (DistributionAdvisee) aBslist;
+      var bsa = (CacheServerAdvisor) advisee.getDistributionAdvisor();
+      var others = bsa.fetchBridgeServers();
       logger.info("found these bridgeservers in " + advisee + ": " + others);
       assertThat(others.size()).isEqualTo(3);
       others = bsa.fetchControllers();
       assertThat(others.size()).isEqualTo(2);
-      for (Object other : others) {
-        ControllerAdvisor.ControllerProfile cp =
+      for (var other : others) {
+        var cp =
             (ControllerAdvisor.ControllerProfile) other;
         if (cp.getPort() != port1) {
           if (cp.getPort() == port2) {
@@ -386,14 +385,14 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
       String bs3Group1, String bs3Group2, String bs4Group1,
       String bs4Group2) {
     assertTrue(Locator.hasLocator());
-    InternalLocator l = (InternalLocator) Locator.getLocator();
+    var l = (InternalLocator) Locator.getLocator();
     DistributionAdvisee advisee = l.getServerLocatorAdvisee();
-    ControllerAdvisor ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
+    var ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
     assertThat(ca.fetchControllers().size()).isEqualTo(0);
-    List others = ca.fetchBridgeServers();
+    var others = ca.fetchBridgeServers();
     assertThat(others.size()).isEqualTo(4);
-    for (Object other : others) {
-      CacheServerAdvisor.CacheServerProfile bsp =
+    for (var other : others) {
+      var bsp =
           (CacheServerAdvisor.CacheServerProfile) other;
       if (bsp.getPort() == bsPort1) {
         assertThat(new String[] {"bs1Group1", "bs1Group2"}).isEqualTo(bsp.getGroups());
@@ -421,10 +420,10 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
 
   private void verifyLocatorStopped() {
     assertTrue(Locator.hasLocator());
-    InternalLocator l = (InternalLocator) Locator.getLocator();
+    var l = (InternalLocator) Locator.getLocator();
     DistributionAdvisee advisee = l.getServerLocatorAdvisee();
-    ControllerAdvisor ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
-    List others = ca.fetchControllers();
+    var ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
+    var others = ca.fetchControllers();
     assertThat(others.size()).isEqualTo(0);
   }
 
@@ -432,18 +431,18 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
     Cache c = cache;
     List bslist = c.getCacheServers();
     assertThat(bslist.size()).isEqualTo(2);
-    for (Object aBslist : bslist) {
-      DistributionAdvisee advisee = (DistributionAdvisee) aBslist;
-      CacheServerAdvisor bsa = (CacheServerAdvisor) advisee.getDistributionAdvisor();
-      List others = bsa.fetchControllers();
+    for (var aBslist : bslist) {
+      var advisee = (DistributionAdvisee) aBslist;
+      var bsa = (CacheServerAdvisor) advisee.getDistributionAdvisor();
+      var others = bsa.fetchControllers();
       assertThat(others.size()).isEqualTo(1);
       verifyHostNameForPort(port2, others);
     }
   }
 
   private void verifyHostNameForPort(int port2, List others) {
-    for (Object other : others) {
-      ControllerAdvisor.ControllerProfile cp =
+    for (var other : others) {
+      var cp =
           (ControllerAdvisor.ControllerProfile) other;
       if (cp.getPort() == port2) {
         assertThat(cp.getHost()).isEqualTo("locator2HNFC");
@@ -458,20 +457,20 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
       int bsPort4, String bs3Group1, String bs3Group2,
       String bs4Group1, String bs4Group2) {
     assertTrue(Locator.hasLocator());
-    InternalLocator l = (InternalLocator) Locator.getLocator();
+    var l = (InternalLocator) Locator.getLocator();
     DistributionAdvisee advisee = l.getServerLocatorAdvisee();
-    ControllerAdvisor ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
-    List others = ca.fetchControllers();
+    var ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
+    var others = ca.fetchControllers();
     assertThat(others.size()).isEqualTo(1);
     {
-      ControllerAdvisor.ControllerProfile cp =
+      var cp =
           (ControllerAdvisor.ControllerProfile) others.get(0);
       assertThat(cp.getPort()).isEqualTo(port1);
     }
     others = ca.fetchBridgeServers();
     assertThat(others.size()).isEqualTo(4);
-    for (Object other : others) {
-      CacheServerAdvisor.CacheServerProfile bsp =
+    for (var other : others) {
+      var bsp =
           (CacheServerAdvisor.CacheServerProfile) other;
       if (bsp.getPort() == bsPort1) {
         assertThat(new String[] {"bs1Group1", "bs1Group2"}).isEqualTo(bsp.getGroups());
@@ -486,7 +485,7 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
   private void startBridgeServerOnPort(int bsPort1, String bs1Group1, String bs1Group2) {
     try {
       Cache c = cache;
-      CacheServer bs = c.addCacheServer();
+      var bs = c.addCacheServer();
       bs.setPort(bsPort1);
       bs.setGroups(new String[] {bs1Group1, bs1Group2});
       bs.start();
@@ -496,7 +495,7 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void startLocatorOnPort(int port1, Properties dsProps, String name) {
-    File logFile = new File(getUniqueName() + "-locator" + port1 + ".log");
+    var logFile = new File(getUniqueName() + "-locator" + port1 + ".log");
     try {
       Locator.startLocatorAndDS(port1, logFile, null, dsProps, true, true, name);
     } catch (IllegalStateException | IOException ex) {
@@ -514,7 +513,7 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
   private void startBridgeServerOnPort(int bsPort4) {
     try {
       Cache c = cache;
-      CacheServer bs = c.addCacheServer();
+      var bs = c.addCacheServer();
       bs.setPort(bsPort4);
       bs.start();
     } catch (IOException ex) {
@@ -526,15 +525,15 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
     Cache c = cache;
     List bslist = c.getCacheServers();
     assertThat(bslist.size()).isEqualTo(2);
-    CacheServer bs = (CacheServer) bslist.get(0);
+    var bs = (CacheServer) bslist.get(0);
     bs.stop();
   }
 
   private void verifyLocatorsAndBridgeServersStoppped() {
     assertTrue(Locator.hasLocator());
-    InternalLocator l = (InternalLocator) Locator.getLocator();
+    var l = (InternalLocator) Locator.getLocator();
     DistributionAdvisee advisee = l.getServerLocatorAdvisee();
-    ControllerAdvisor ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
+    var ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
     assertThat(ca.fetchControllers().size()).isEqualTo(0);
     assertThat(ca.fetchBridgeServers().size()).isEqualTo(0);
   }
@@ -544,7 +543,7 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
       Cache c = cache;
       List bslist = c.getCacheServers();
       assertThat(bslist.size()).isEqualTo(2);
-      CacheServer bs = (CacheServer) bslist.get(0);
+      var bs = (CacheServer) bslist.get(0);
       bs.setHostnameForClients("nameForClients");
       bs.start();
     } catch (IOException ex) {
@@ -556,14 +555,14 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
     Cache c = cache;
     List bslist = c.getCacheServers();
     assertThat(bslist.size()).isEqualTo(2);
-    for (int i = 0; i < bslist.size(); i++) {
-      DistributionAdvisee advisee = (DistributionAdvisee) bslist.get(i);
+    for (var i = 0; i < bslist.size(); i++) {
+      var advisee = (DistributionAdvisee) bslist.get(i);
       if (i == 0) {
         // skip this one since it is stopped
         continue;
       }
-      CacheServerAdvisor bsa = (CacheServerAdvisor) advisee.getDistributionAdvisor();
-      List others = bsa.fetchControllers();
+      var bsa = (CacheServerAdvisor) advisee.getDistributionAdvisor();
+      var others = bsa.fetchControllers();
       assertThat(others.size()).isEqualTo(1);
       verifyHostNameForPort(port2, others);
     }
@@ -573,13 +572,13 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
       String bs1Group1, String bs1Group2,
       String bs2Group1, String bs2Group2) {
     assertTrue(Locator.hasLocator());
-    InternalLocator l = (InternalLocator) Locator.getLocator();
+    var l = (InternalLocator) Locator.getLocator();
     DistributionAdvisee advisee = l.getServerLocatorAdvisee();
-    ControllerAdvisor ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
-    List others = ca.fetchControllers();
+    var ca = (ControllerAdvisor) advisee.getDistributionAdvisor();
+    var others = ca.fetchControllers();
     assertThat(others.size()).isEqualTo(1);
     {
-      ControllerAdvisor.ControllerProfile cp =
+      var cp =
           (ControllerAdvisor.ControllerProfile) others.get(0);
       assertThat(cp.getPort()).isEqualTo(port2);
       assertThat(cp.getHost()).isEqualTo("locator2HNFC");
@@ -587,8 +586,8 @@ public class GridAdvisorDUnitTest extends JUnit4DistributedTestCase {
 
     others = ca.fetchBridgeServers();
     assertThat(others.size()).isEqualTo(3);
-    for (Object other : others) {
-      CacheServerAdvisor.CacheServerProfile bsp =
+    for (var other : others) {
+      var bsp =
           (CacheServerAdvisor.CacheServerProfile) other;
       if (bsp.getPort() == bsPort2) {
         assertThat(new String[] {"bs2Group1", "bs2Group2"}).isEqualTo(bsp.getGroups());

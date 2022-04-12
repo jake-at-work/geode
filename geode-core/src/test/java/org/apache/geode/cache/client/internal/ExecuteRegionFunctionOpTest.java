@@ -36,8 +36,8 @@ public class ExecuteRegionFunctionOpTest {
 
   @Test
   public void addFunctionExceptionWithFunctionTargetInvocationExceptionWrapsInPlainFunctionException() {
-    FunctionInvocationTargetException exception = mock(FunctionInvocationTargetException.class);
-    ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl op =
+    var exception = mock(FunctionInvocationTargetException.class);
+    var op =
         new ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl();
     op.addFunctionException(exception);
     assertThat(op.getFunctionException()).isInstanceOf(FunctionException.class);
@@ -48,7 +48,7 @@ public class ExecuteRegionFunctionOpTest {
   public void addFunctionExceptionWithInternalFunctionTargetInvocationExceptionWrapsInPlainFunctionException() {
     FunctionInvocationTargetException exception =
         mock(InternalFunctionInvocationTargetException.class);
-    ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl op =
+    var op =
         new ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl();
     op.addFunctionException(exception);
     assertThat(op.getFunctionException()).isInstanceOf(FunctionException.class);
@@ -58,9 +58,9 @@ public class ExecuteRegionFunctionOpTest {
 
   @Test
   public void addFunctionExceptionWithCauseFunctionTargetInvocationExceptionAddsToListOfException() {
-    FunctionInvocationTargetException cause = mock(FunctionInvocationTargetException.class);
-    FunctionException exception = new FunctionException(cause);
-    ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl op =
+    var cause = mock(FunctionInvocationTargetException.class);
+    var exception = new FunctionException(cause);
+    var op =
         new ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl();
     op.addFunctionException(exception);
     assertThat(op.getFunctionException()).isInstanceOf(FunctionException.class);

@@ -70,18 +70,18 @@ public class AvailablePortHelper {
    * Returns the requested number of consecutive available tcp ports.
    */
   public static int[] getRandomAvailableTCPPortRange(final int count) {
-    int[] ports = new int[count];
-    boolean needMorePorts = true;
+    var ports = new int[count];
+    var needMorePorts = true;
 
     while (needMorePorts) {
-      int base = nextCandidatePort.getAndUpdate(skipCandidatePorts(count));
+      var base = nextCandidatePort.getAndUpdate(skipCandidatePorts(count));
       if (base + count > AVAILABLE_PORTS_UPPER_BOUND) {
         continue;
       }
 
       needMorePorts = false; // Assume we'll find enough in this batch
-      for (int i = 0; i < count; i++) {
-        int port = base + i;
+      for (var i = 0; i < count; i++) {
+        var port = base + i;
         if (isPortAvailable(port, SOCKET, getAddress(SOCKET))) {
           ports[i] = port;
           continue;
@@ -125,17 +125,17 @@ public class AvailablePortHelper {
     // Generate starting points such that JVM 0 starts at the lower bound of the total port
     // range, JVM 1 starts halfway through, JVM 2 starts 1/4 of the way through, then further
     // ranges are 3/4, 1/8, 3/8, 5/8, 7/8, 1/16, etc.
-    int availableRange = AVAILABLE_PORTS_UPPER_BOUND - AVAILABLE_PORTS_LOWER_BOUND;
-    int numChunks = Integer.highestOneBit(jvmIndex) << 1;
-    int chunkNumber = 2 * (jvmIndex - Integer.highestOneBit(jvmIndex)) + 1;
-    int firstCandidatePort = AVAILABLE_PORTS_LOWER_BOUND + chunkNumber * availableRange / numChunks;
+    var availableRange = AVAILABLE_PORTS_UPPER_BOUND - AVAILABLE_PORTS_LOWER_BOUND;
+    var numChunks = Integer.highestOneBit(jvmIndex) << 1;
+    var chunkNumber = 2 * (jvmIndex - Integer.highestOneBit(jvmIndex)) + 1;
+    var firstCandidatePort = AVAILABLE_PORTS_LOWER_BOUND + chunkNumber * availableRange / numChunks;
 
     nextCandidatePort.set(firstCandidatePort);
   }
 
   private static int availablePort(int protocol) {
     while (true) {
-      int port = nextCandidatePort.getAndUpdate(skipCandidatePorts(1));
+      var port = nextCandidatePort.getAndUpdate(skipCandidatePorts(1));
       if (port > AVAILABLE_PORTS_UPPER_BOUND) {
         continue;
       }
@@ -147,13 +147,13 @@ public class AvailablePortHelper {
   }
 
   private static Keeper availableKeeper() {
-    int count = 1;
+    var count = 1;
     while (true) {
-      int uniquePort = nextCandidatePort.getAndUpdate(skipCandidatePorts(1));
+      var uniquePort = nextCandidatePort.getAndUpdate(skipCandidatePorts(1));
       if (uniquePort + count > AVAILABLE_PORTS_UPPER_BOUND) {
         continue;
       }
-      Keeper keeper = isPortKeepable(uniquePort, SOCKET, getAddress(SOCKET));
+      var keeper = isPortKeepable(uniquePort, SOCKET, getAddress(SOCKET));
       if (keeper != null) {
         return keeper;
       }
@@ -162,7 +162,7 @@ public class AvailablePortHelper {
 
   private static IntUnaryOperator skipCandidatePorts(int n) {
     return port -> {
-      int nextPort = port + n;
+      var nextPort = port + n;
       if (nextPort <= AVAILABLE_PORTS_UPPER_BOUND) {
         return nextPort;
       }

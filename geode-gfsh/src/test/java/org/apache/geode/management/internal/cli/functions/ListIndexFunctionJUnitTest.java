@@ -69,10 +69,10 @@ public class ListIndexFunctionJUnitTest {
     mockQueryService = mock(QueryService.class, "QueryService");
     mockFunctionContext = mock(FunctionContext.class, "FunctionContext");
 
-    final Cache mockCache = mock(Cache.class, "Cache");
-    final DistributedSystem mockDistributedSystem =
+    final var mockCache = mock(Cache.class, "Cache");
+    final var mockDistributedSystem =
         mock(DistributedSystem.class, "DistributedSystem");
-    final DistributedMember mockDistributedMember =
+    final var mockDistributedMember =
         mock(DistributedMember.class, "DistributedMember");
     when(mockCache.getQueryService()).thenReturn(mockQueryService);
     when(mockCache.getDistributedSystem()).thenReturn(mockDistributedSystem);
@@ -126,7 +126,7 @@ public class ListIndexFunctionJUnitTest {
       final org.apache.geode.cache.query.IndexType indexType, final String fromClause,
       final String indexedExpression,
       final String projectionAttributes, final String regionName) {
-    final IndexDetails indexDetails = new IndexDetails(mockMemberId, regionPath, indexName);
+    final var indexDetails = new IndexDetails(mockMemberId, regionPath, indexName);
     indexDetails.setFromClause(fromClause);
     indexDetails.setIndexedExpression(indexedExpression);
     indexDetails.setIndexType(indexType);
@@ -140,7 +140,7 @@ public class ListIndexFunctionJUnitTest {
   private IndexStatisticsDetails createIndexStatisticsDetails(final Long numberOfKeys,
       final Long numberOfUpdates, final Long numberOfValues, final Long totalUpdateTime,
       final Long totalUses) {
-    final IndexStatisticsDetails indexStatisticsDetails = new IndexStatisticsDetails();
+    final var indexStatisticsDetails = new IndexStatisticsDetails();
     indexStatisticsDetails.setNumberOfKeys(numberOfKeys);
     indexStatisticsDetails.setNumberOfUpdates(numberOfUpdates);
     indexStatisticsDetails.setNumberOfValues(numberOfValues);
@@ -153,13 +153,13 @@ public class ListIndexFunctionJUnitTest {
   @SuppressWarnings("unchecked")
   private Index createMockIndex(final IndexDetails indexDetails) {
     @SuppressWarnings("rawtypes")
-    final Region mockRegion =
+    final var mockRegion =
         mock(Region.class, "Region " + indexDetails.getRegionPath() + " " + counter
             .getAndIncrement());
     when(mockRegion.getName()).thenReturn(indexDetails.getRegionName());
     when(mockRegion.getFullPath()).thenReturn(indexDetails.getRegionPath());
 
-    final Index mockIndex = mock(Index.class, "Index " + indexDetails.getIndexName() + " " + counter
+    final var mockIndex = mock(Index.class, "Index " + indexDetails.getIndexName() + " " + counter
         .getAndIncrement());
     when(mockIndex.getRegion()).thenReturn(mockRegion);
     when(mockIndex.getType()).thenReturn(indexDetails.getIndexType());
@@ -169,7 +169,7 @@ public class ListIndexFunctionJUnitTest {
     when(mockIndex.getProjectionAttributes()).thenReturn(indexDetails.getProjectionAttributes());
 
     if (indexDetails.getIndexStatisticsDetails() != null) {
-      final IndexStatistics mockIndexStatistics = mock(IndexStatistics.class,
+      final var mockIndexStatistics = mock(IndexStatistics.class,
           "IndexStatistics " + indexDetails.getIndexName() + " " + counter
               .getAndIncrement());
       when(mockIndex.getStatistics()).thenReturn(mockIndexStatistics);
@@ -194,46 +194,46 @@ public class ListIndexFunctionJUnitTest {
   @SuppressWarnings({"unchecked", "deprecation"})
   public void testExecute() throws Throwable {
     // Expected Results
-    final IndexDetails indexDetailsOne = createIndexDetails(SEPARATOR + "Employees", "empIdIdx",
+    final var indexDetailsOne = createIndexDetails(SEPARATOR + "Employees", "empIdIdx",
         org.apache.geode.cache.query.IndexType.PRIMARY_KEY, SEPARATOR + "Employees", "id",
         "id, firstName, lastName", "Employees");
     indexDetailsOne.setIndexStatisticsDetails(
         createIndexStatisticsDetails(10124L, 4096L, 10124L, 1284100L, 280120L));
-    final IndexDetails indexDetailsTwo =
+    final var indexDetailsTwo =
         createIndexDetails(SEPARATOR + "Employees", "empGivenNameIdx",
             org.apache.geode.cache.query.IndexType.FUNCTIONAL, SEPARATOR + "Employees", "lastName",
             "id, firstName, lastName", "Employees");
-    final IndexDetails indexDetailsThree = createIndexDetails(SEPARATOR + "Contractors", "empIdIdx",
+    final var indexDetailsThree = createIndexDetails(SEPARATOR + "Contractors", "empIdIdx",
         org.apache.geode.cache.query.IndexType.PRIMARY_KEY, SEPARATOR + "Contrators", "id",
         "id, firstName, lastName", "Contractors");
     indexDetailsThree.setIndexStatisticsDetails(
         createIndexStatisticsDetails(1024L, 256L, 20248L, 768001L, 24480L));
-    final IndexDetails indexDetailsFour = createIndexDetails(SEPARATOR + "Employees", "empIdIdx",
+    final var indexDetailsFour = createIndexDetails(SEPARATOR + "Employees", "empIdIdx",
         org.apache.geode.cache.query.IndexType.FUNCTIONAL, SEPARATOR + "Employees", "emp_id",
         "id, surname, givenname", "Employees");
     final Set<IndexDetails> expectedIndexDetailsSet =
         new HashSet<>(Arrays.asList(indexDetailsOne, indexDetailsTwo, indexDetailsThree));
 
     // Prepare Mocks
-    List<Index> indexes =
+    var indexes =
         Arrays.asList(createMockIndex(indexDetailsOne), createMockIndex(indexDetailsTwo),
             createMockIndex(indexDetailsThree), createMockIndex(indexDetailsFour));
     when(mockQueryService.getIndexes()).thenReturn(indexes);
 
     // Execute Function and Assert Results
-    final ListIndexFunction function = new ListIndexFunction();
+    final var function = new ListIndexFunction();
     function.execute(mockFunctionContext);
 
     final List<?> results = testResultSender.getResults();
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(1);
 
-    final Set<IndexDetails> actualIndexDetailsSet = (Set<IndexDetails>) results.get(0);
+    final var actualIndexDetailsSet = (Set<IndexDetails>) results.get(0);
     assertThat(actualIndexDetailsSet).isNotNull();
     assertThat(actualIndexDetailsSet.size()).isEqualTo(expectedIndexDetailsSet.size());
 
-    for (final IndexDetails expectedIndexDetails : expectedIndexDetailsSet) {
-      final IndexDetails actualIndexDetails = CollectionUtils.findBy(actualIndexDetailsSet,
+    for (final var expectedIndexDetails : expectedIndexDetailsSet) {
+      final var actualIndexDetails = CollectionUtils.findBy(actualIndexDetailsSet,
           indexDetails -> ObjectUtils.equals(expectedIndexDetails, indexDetails));
       assertIndexDetailsEquals(actualIndexDetails, expectedIndexDetails);
     }
@@ -246,14 +246,14 @@ public class ListIndexFunctionJUnitTest {
     when(mockQueryService.getIndexes()).thenReturn(Collections.emptyList());
 
     // Execute Function and assert results
-    final ListIndexFunction function = new ListIndexFunction();
+    final var function = new ListIndexFunction();
     function.execute(mockFunctionContext);
 
     final List<?> results = testResultSender.getResults();
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(1);
 
-    final Set<IndexDetails> actualIndexDetailsSet = (Set<IndexDetails>) results.get(0);
+    final var actualIndexDetailsSet = (Set<IndexDetails>) results.get(0);
     assertThat(actualIndexDetailsSet).isNotNull();
     assertThat(actualIndexDetailsSet.isEmpty()).isTrue();
   }
@@ -264,7 +264,7 @@ public class ListIndexFunctionJUnitTest {
     when(mockQueryService.getIndexes()).thenThrow(new RuntimeException("Mocked Exception"));
 
     // Execute Function and assert results
-    final ListIndexFunction function = new ListIndexFunction();
+    final var function = new ListIndexFunction();
     function.execute(mockFunctionContext);
     assertThatThrownBy(() -> testResultSender.getResults()).isInstanceOf(RuntimeException.class)
         .hasMessage("Mocked Exception");

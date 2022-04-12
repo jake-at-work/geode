@@ -44,8 +44,8 @@ public class FileResultTest {
 
   @Test
   public void getFileListReturnsListOfFilesInAnyOrder() {
-    File file1 = new File("file1.txt");
-    File file2 = new File("file2.txt");
+    var file1 = new File("file1.txt");
+    var file2 = new File("file2.txt");
     fileResult.addFile(file1, FileResultModel.FILE_TYPE_FILE);
     fileResult.addFile(file2, FileResultModel.FILE_TYPE_FILE);
 

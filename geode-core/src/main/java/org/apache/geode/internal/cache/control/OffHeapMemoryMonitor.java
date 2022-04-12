@@ -166,8 +166,8 @@ public class OffHeapMemoryMonitor implements MemoryMonitor, MemoryUsageListener 
 
   @Override
   public void updateMemoryUsed(final long bytesUsed) {
-    final boolean willSendEvent = mightSendEvent(bytesUsed);
-    final OffHeapMemoryMonitorObserver _testHook = testHook;
+    final var willSendEvent = mightSendEvent(bytesUsed);
+    final var _testHook = testHook;
     if (_testHook != null) {
       _testHook.beginUpdateMemoryUsed(bytesUsed, willSendEvent);
     }
@@ -287,17 +287,17 @@ public class OffHeapMemoryMonitor implements MemoryMonitor, MemoryUsageListener 
    * @return true if an event was sent
    */
   public boolean updateStateAndSendEvent(long bytesUsed) {
-    boolean result = false;
+    var result = false;
     synchronized (this) {
-      final MemoryEvent mre = mostRecentEvent;
-      final MemoryState oldState = mre.getState();
-      final MemoryThresholds thresholds = this.thresholds;
-      final OffHeapMemoryMonitorObserver _testHook = testHook;
-      MemoryState newState = thresholds.computeNextState(oldState, bytesUsed);
+      final var mre = mostRecentEvent;
+      final var oldState = mre.getState();
+      final var thresholds = this.thresholds;
+      final var _testHook = testHook;
+      var newState = thresholds.computeNextState(oldState, bytesUsed);
       if (oldState != newState) {
         currentState = newState;
 
-        MemoryEvent event = new MemoryEvent(ResourceType.OFFHEAP_MEMORY, oldState, newState,
+        var event = new MemoryEvent(ResourceType.OFFHEAP_MEMORY, oldState, newState,
             cache.getMyId(), bytesUsed, true, thresholds);
         if (_testHook != null) {
           _testHook.updateStateAndSendEventBeforeProcess(bytesUsed, event);
@@ -310,7 +310,7 @@ public class OffHeapMemoryMonitor implements MemoryMonitor, MemoryUsageListener 
       } else if (!oldState.isNormal() && bytesUsed != mre.getBytesUsed()
           && deliverNextAbnormalEvent) {
         deliverNextAbnormalEvent = false;
-        MemoryEvent event = new MemoryEvent(ResourceType.OFFHEAP_MEMORY, oldState, newState,
+        var event = new MemoryEvent(ResourceType.OFFHEAP_MEMORY, oldState, newState,
             cache.getMyId(), bytesUsed, true, thresholds);
         if (_testHook != null) {
           _testHook.updateStateAndSendEventBeforeAbnormalProcess(bytesUsed, event);
@@ -337,10 +337,10 @@ public class OffHeapMemoryMonitor implements MemoryMonitor, MemoryUsageListener 
    * @return true if a new event might need to be sent
    */
   private boolean mightSendEvent(long bytesUsed) {
-    final MemoryEvent mre = mostRecentEvent;
-    final MemoryState oldState = mre.getState();
-    final MemoryThresholds thresholds = mre.getThresholds();
-    MemoryState newState = thresholds.computeNextState(oldState, bytesUsed);
+    final var mre = mostRecentEvent;
+    final var oldState = mre.getState();
+    final var thresholds = mre.getThresholds();
+    var newState = thresholds.computeNextState(oldState, bytesUsed);
     if (oldState != newState) {
       return true;
     } else
@@ -388,7 +388,7 @@ public class OffHeapMemoryMonitor implements MemoryMonitor, MemoryUsageListener 
    */
   @Override
   public void fillInProfile(final ResourceManagerProfile profile) {
-    final MemoryEvent eventToPopulate = mostRecentEvent;
+    final var eventToPopulate = mostRecentEvent;
     profile.setOffHeapData(eventToPopulate.getBytesUsed(), eventToPopulate.getState(),
         eventToPopulate.getThresholds());
   }
@@ -499,10 +499,10 @@ public class OffHeapMemoryMonitor implements MemoryMonitor, MemoryUsageListener 
       if (logger.isDebugEnabled()) {
         logger.debug("OffHeapMemoryUsageListener is starting {}", this);
       }
-      int callsWithNoEvent = 0;
-      final int MS_TIMEOUT = 10;
-      final int MAX_CALLS_WITH_NO_EVENT = 1000 / MS_TIMEOUT;
-      boolean exitRunLoop = false;
+      var callsWithNoEvent = 0;
+      final var MS_TIMEOUT = 10;
+      final var MAX_CALLS_WITH_NO_EVENT = 1000 / MS_TIMEOUT;
+      var exitRunLoop = false;
       while (!exitRunLoop) {
         if (!updateStateAndSendEvent()) {
           callsWithNoEvent++;

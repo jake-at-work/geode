@@ -36,10 +36,10 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
   }
 
   private int getValuesInVM(Region region, int size) {
-    int valuesInVm = 0;
-    for (int i = 0; i < size; i++) {
+    var valuesInVm = 0;
+    for (var i = 0; i < size; i++) {
       try {
-        Object value = ((LocalRegion) region).getValueInVM(i);
+        var value = ((LocalRegion) region).getValueInVM(i);
         if (value != null) {
           valuesInVm++;
         }
@@ -51,7 +51,7 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
   }
 
   private Region createNonLruRegion() {
-    DiskRegionProperties nonLruDiskProps = new DiskRegionProperties();
+    var nonLruDiskProps = new DiskRegionProperties();
     nonLruDiskProps.setDiskDirs(dirs);
     nonLruDiskProps.setPersistBackup(true);
     nonLruDiskProps.setRegionName("RecoveryTestNonLruRegion");
@@ -61,16 +61,16 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
   private void createRegionAndIntiateRecovery(boolean lruEntryEviction,
       boolean recoveryByCacheClose, boolean addNonLruRegion, int load, int expectedValues) {
 
-    DiskRegionProperties diskProps = new DiskRegionProperties();
+    var diskProps = new DiskRegionProperties();
     Region nonLruRegion = null;
-    int numRegions = 1;
+    var numRegions = 1;
 
     diskProps.setDiskDirs(dirs);
     diskProps.setPersistBackup(true);
     diskProps.setRegionName("RecoveryTestRegion");
 
     if (lruEntryEviction) {
-      int overflowCapacity = 5;
+      var overflowCapacity = 5;
       diskProps.setOverFlowCapacity(overflowCapacity);
       region = DiskRegionHelperFactory.getSyncOverFlowAndPersistRegion(cache, diskProps);
     } else {
@@ -82,7 +82,7 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
       nonLruRegion = createNonLruRegion();
     }
 
-    for (int i = 0; i < load; i++) {
+    for (var i = 0; i < load; i++) {
       region.put(i, i);
       if (nonLruRegion != null) {
         nonLruRegion.put(i, i);
@@ -100,7 +100,7 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
     }
 
     // Regions are created with its own disk store.
-    final CountDownLatch recoveryDone = new CountDownLatch(numRegions);
+    final var recoveryDone = new CountDownLatch(numRegions);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
       @Override
       public void afterAsyncValueRecovery(DiskStoreImpl store) {
@@ -125,7 +125,7 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
       fail("Found interrupted exception while waiting for recovery.");
     }
 
-    int valuesInVm = getValuesInVM(region, load);
+    var valuesInVm = getValuesInVM(region, load);
     assertEquals("Values for lru regions should not be recovered from Disk.", expectedValues,
         valuesInVm);
 
@@ -168,7 +168,7 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testValuesAreNotRecoveredForLruRegionWithReocoverValuePropertySet() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
 
     try {
@@ -184,7 +184,7 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testValuesAreNotRecoveredForLruRegionWithReocoverValuePropertySetWithRegionClose() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
 
     try {
@@ -200,10 +200,10 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testValuesAreRecoveredForLruRegionWithReocoverValueAndRecoverLruPropertySet() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
 
-    String lruOldValue = System.getProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME);
+    var lruOldValue = System.getProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME, "true");
 
     try {
@@ -225,10 +225,10 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testValuesAreRecoveredForLruRegionWithReocoverValueAndRecoverLruPropertySetWithRegionClose() {
-    String oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
+    var oldValue = System.getProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_VALUE_PROPERTY_NAME, "true");
 
-    String lruOldValue = System.getProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME);
+    var lruOldValue = System.getProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME);
     System.setProperty(DiskStoreImpl.RECOVER_LRU_VALUES_PROPERTY_NAME, "true");
 
     try {
@@ -250,7 +250,7 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testBasicVerifyStats() {
-    DiskRegionProperties diskProps = new DiskRegionProperties();
+    var diskProps = new DiskRegionProperties();
     final Integer key = 1;
     diskProps.setDiskDirs(dirs);
     diskProps.setPersistBackup(true);
@@ -260,7 +260,7 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
     region.put(key, 2);
     region.close();
 
-    final CountDownLatch recoveryDone = new CountDownLatch(1);
+    final var recoveryDone = new CountDownLatch(1);
     DiskStoreObserver.setInstance(new DiskStoreObserver() {
       @Override
       public void afterAsyncValueRecovery(DiskStoreImpl store) {
@@ -276,7 +276,7 @@ public class DiskLruRegRecoveryJUnitTest extends DiskRegionTestingBase {
       fail("Found interrupted exception while waiting for recovery.");
     }
 
-    DiskRegion dr = ((LocalRegion) region).getDiskRegion();
+    var dr = ((LocalRegion) region).getDiskRegion();
     assertEquals(0, dr.getNumEntriesInVM());
     assertEquals(1, dr.getNumOverflowOnDisk());
 

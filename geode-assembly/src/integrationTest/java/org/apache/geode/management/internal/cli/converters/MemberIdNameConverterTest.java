@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -47,7 +45,7 @@ public class MemberIdNameConverterTest {
   @Test
   public void completeMemberWhenConnectedWithJmx() throws Exception {
     gfsh.connectAndVerify(locator.getJmxPort(), GfshCommandRule.PortType.jmxManager);
-    Set<String> values = converter.getCompletionValues();
+    var values = converter.getCompletionValues();
     assertThat(values).hasSize(0);
     gfsh.disconnect();
   }
@@ -55,7 +53,7 @@ public class MemberIdNameConverterTest {
   @Test
   public void completeMembersWhenConnectedWithHttp() throws Exception {
     gfsh.connectAndVerify(locator.getHttpPort(), GfshCommandRule.PortType.http);
-    Set<String> values = converter.getCompletionValues();
+    var values = converter.getCompletionValues();
     assertThat(values).hasSize(0);
     gfsh.disconnect();
   }

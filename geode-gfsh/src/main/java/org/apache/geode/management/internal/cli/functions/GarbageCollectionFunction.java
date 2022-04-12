@@ -19,9 +19,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.management.internal.cli.util.BytesToString;
 
@@ -45,20 +43,20 @@ public class GarbageCollectionFunction implements InternalFunction<Void> {
 
   @Override
   public void execute(FunctionContext<Void> context) {
-    BytesToString bytesToString = new BytesToString();
+    var bytesToString = new BytesToString();
 
     Map<String, String> resultMap = null;
     try {
-      Cache cache = context.getCache();
-      DistributedMember member = cache.getDistributedSystem().getDistributedMember();
-      long freeMemoryBeforeGC = Runtime.getRuntime().freeMemory();
-      long totalMemoryBeforeGC = Runtime.getRuntime().totalMemory();
-      long timeBeforeGC = System.currentTimeMillis();
+      var cache = context.getCache();
+      var member = cache.getDistributedSystem().getDistributedMember();
+      var freeMemoryBeforeGC = Runtime.getRuntime().freeMemory();
+      var totalMemoryBeforeGC = Runtime.getRuntime().totalMemory();
+      var timeBeforeGC = System.currentTimeMillis();
       Runtime.getRuntime().gc();
 
-      long freeMemoryAfterGC = Runtime.getRuntime().freeMemory();
-      long totalMemoryAfterGC = Runtime.getRuntime().totalMemory();
-      long timeAfterGC = System.currentTimeMillis();
+      var freeMemoryAfterGC = Runtime.getRuntime().freeMemory();
+      var totalMemoryAfterGC = Runtime.getRuntime().totalMemory();
+      var timeAfterGC = System.currentTimeMillis();
 
       resultMap = new HashMap<>();
       resultMap.put("MemberId", member.getId());
@@ -66,7 +64,7 @@ public class GarbageCollectionFunction implements InternalFunction<Void> {
       resultMap.put("HeapSizeAfterGC", bytesToString.of(totalMemoryAfterGC - freeMemoryAfterGC));
       resultMap.put("TimeSpentInGC", String.valueOf(timeAfterGC - timeBeforeGC));
     } catch (Exception ex) {
-      String message = "Exception in GC:" + ex.getMessage() + ExceptionUtils.getStackTrace(ex);
+      var message = "Exception in GC:" + ex.getMessage() + ExceptionUtils.getStackTrace(ex);
 
       context.getResultSender().lastResult(message);
     }

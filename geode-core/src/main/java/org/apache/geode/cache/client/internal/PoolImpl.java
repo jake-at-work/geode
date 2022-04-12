@@ -22,10 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -40,7 +38,6 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.cache.NoSubscriptionServersAvailableException;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionService;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
@@ -53,7 +50,6 @@ import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.internal.DefaultQueryService;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.distributed.PoolCancelledException;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.distributed.internal.ServerLocationAndMemberId;
@@ -164,7 +160,7 @@ public class PoolImpl implements InternalPool {
   public static PoolImpl create(PoolManagerImpl pm, String name, Pool attributes,
       List<HostAndPort> locatorAddresses, InternalDistributedSystem distributedSystem,
       InternalCache cache, ThreadsMonitoring tMonitoring) {
-    PoolImpl pool =
+    var pool =
         new PoolImpl(pm, name, attributes, locatorAddresses, distributedSystem, cache, tMonitoring);
     pool.finishCreate(pm);
     return pool;
@@ -329,7 +325,7 @@ public class PoolImpl implements InternalPool {
       return;
     }
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       List locators = getLocators();
       if (!locators.isEmpty()) {
@@ -339,7 +335,7 @@ public class PoolImpl implements InternalPool {
       }
     }
 
-    final String timerName = "poolTimer-" + getName() + "-";
+    final var timerName = "poolTimer-" + getName() + "-";
     backgroundProcessor = CoreLoggingExecutors.newScheduledThreadPool(BACKGROUND_TASK_POOL_SIZE,
         BACKGROUND_TASK_POOL_KEEP_ALIVE, MILLISECONDS, timerName, threadMonitoring);
     source.start(this);
@@ -532,9 +528,9 @@ public class PoolImpl implements InternalPool {
 
   @Override
   public void destroy(boolean keepAlive) {
-    int cnt = getAttachCount();
+    var cnt = getAttachCount();
     this.keepAlive = keepAlive;
-    boolean SPECIAL_DURABLE =
+    var SPECIAL_DURABLE =
         Boolean.getBoolean(GeodeGlossary.GEMFIRE_PREFIX + "SPECIAL_DURABLE");
     if (cnt > 0) {
       // special case to allow closing durable client pool under the keep alive flag
@@ -549,10 +545,10 @@ public class PoolImpl implements InternalPool {
               }
             }
             if (!cache.isClosed() && getPoolOrCacheCancelInProgress() == null) {
-              Set<Region<?, ?>> regions = cache.rootRegions();
-              for (Region<?, ?> roots : regions) {
-                Set<Region<?, ?>> subregions = roots.subregions(true);
-                for (Region<?, ?> subroots : subregions) {
+              var regions = cache.rootRegions();
+              for (var roots : regions) {
+                var subregions = roots.subregions(true);
+                for (var subroots : subregions) {
                   if (!subroots.isDestroyed() && subroots.getAttributes().getPoolName() != null
                       && subroots.getAttributes().getPoolName().equals(name)) {
                     if (logger.isDebugEnabled()) {
@@ -669,11 +665,11 @@ public class PoolImpl implements InternalPool {
 
   private ConnectionSource getSourceImpl(LocatorDiscoveryCallback locatorDiscoveryCallback,
       SocketFactory socketFactory) {
-    List<InetSocketAddress> locators = getLocators();
+    var locators = getLocators();
     if (locators.isEmpty()) {
       return new ExplicitConnectionSourceImpl(getServers());
     } else {
-      AutoConnectionSourceImpl source = new AutoConnectionSourceImpl(locatorAddresses,
+      var source = new AutoConnectionSourceImpl(locatorAddresses,
           getServerGroup(), socketConnectTimeout, socketFactory);
       if (locatorDiscoveryCallback != null) {
         source.setLocatorDiscoveryCallback(locatorDiscoveryCallback);
@@ -690,7 +686,7 @@ public class PoolImpl implements InternalPool {
       throw new RuntimeException(String
           .format("%s is not the same as %s because it should have been a PoolImpl", this, obj));
     }
-    PoolImpl other = (PoolImpl) obj;
+    var other = (PoolImpl) obj;
     if (!getName().equals(other.getName())) {
       throw new RuntimeException(
           String.format("Pool %s are different", "names"));
@@ -997,14 +993,14 @@ public class PoolImpl implements InternalPool {
    */
   public void killPrimaryEndpoint() // throws ServerException
   {
-    boolean ok = false;
+    var ok = false;
     if (queueManager != null) {
-      QueueManager.QueueConnections cons = queueManager.getAllConnections();
-      Connection con = cons.getPrimary();
+      var cons = queueManager.getAllConnections();
+      var con = cons.getPrimary();
       if (con != null) {
-        final String msg = "killing primary endpoint";
+        final var msg = "killing primary endpoint";
         logger.info("<ExpectedException action=add>{}</ExpectedException>", msg);
-        Exception e = new Exception(msg);
+        var e = new Exception(msg);
         try {
           processException(e, con);
         } catch (ServerConnectivityException ignore) {
@@ -1038,8 +1034,8 @@ public class PoolImpl implements InternalPool {
 
   @Override
   public boolean isDurableClient() {
-    DistributionConfig config = distributedSystem.getConfig();
-    String durableClientId = config.getDurableClientId();
+    var config = distributedSystem.getConfig();
+    var durableClientId = config.getDurableClientId();
     return durableClientId != null && durableClientId.length() > 0;
   }
 
@@ -1049,7 +1045,7 @@ public class PoolImpl implements InternalPool {
    */
   public String getPrimaryName() {
     String result = null;
-    ServerLocation sl = getPrimary();
+    var sl = getPrimary();
     if (sl != null) {
       result = sl.getHostName() + sl.getPort();
     }
@@ -1059,8 +1055,8 @@ public class PoolImpl implements InternalPool {
   @Override
   @VisibleForTesting
   public int getPrimaryPort() {
-    int result = -1;
-    ServerLocation sl = getPrimary();
+    var result = -1;
+    var sl = getPrimary();
     if (sl != null) {
       result = sl.getPort();
     }
@@ -1074,8 +1070,8 @@ public class PoolImpl implements InternalPool {
   public ServerLocation getPrimary() {
     ServerLocation result = null;
     if (queueManager != null) {
-      QueueManager.QueueConnections cons = queueManager.getAllConnections();
-      Connection con = cons.getPrimary();
+      var cons = queueManager.getAllConnections();
+      var con = cons.getPrimary();
       result = con.getServer();
     }
     return result;
@@ -1086,7 +1082,7 @@ public class PoolImpl implements InternalPool {
    */
   public Connection getPrimaryConnection() {
     if (queueManager != null) {
-      QueueManager.QueueConnections cons = queueManager.getAllConnections();
+      var cons = queueManager.getAllConnections();
       return cons.getPrimary();
     }
     return null;
@@ -1099,12 +1095,12 @@ public class PoolImpl implements InternalPool {
   public List<String> getRedundantNames() {
     List<String> result = Collections.emptyList();
     if (queueManager != null) {
-      QueueManager.QueueConnections cons = queueManager.getAllConnections();
-      List<Connection> backupCons = cons.getBackups();
+      var cons = queueManager.getAllConnections();
+      var backupCons = cons.getBackups();
       if (backupCons.size() > 0) {
         result = new ArrayList<>(backupCons.size());
-        for (Connection con : backupCons) {
-          ServerLocation sl = con.getServer();
+        for (var con : backupCons) {
+          var sl = con.getServer();
           result.add(sl.getHostName() + sl.getPort());
         }
       }
@@ -1119,11 +1115,11 @@ public class PoolImpl implements InternalPool {
   public List<ServerLocation> getRedundants() {
     List<ServerLocation> result = Collections.emptyList();
     if (queueManager != null) {
-      QueueManager.QueueConnections cons = queueManager.getAllConnections();
-      List<Connection> backupCons = cons.getBackups();
+      var cons = queueManager.getAllConnections();
+      var backupCons = cons.getBackups();
       if (backupCons.size() > 0) {
         result = new ArrayList<>(backupCons.size());
-        for (Connection con : backupCons) {
+        for (var con : backupCons) {
           result.add(con.getServer());
         }
       }
@@ -1181,7 +1177,7 @@ public class PoolImpl implements InternalPool {
    * Returns a list of ServerLocation instances; one for each server we are currently connected to.
    */
   public List<ServerLocationAndMemberId> getCurrentServers() {
-    Map<ServerLocationAndMemberId, Endpoint> endpointMap = endpointManager.getEndpointMap();
+    var endpointMap = endpointManager.getEndpointMap();
     return new ArrayList<>(endpointMap.keySet());
   }
 
@@ -1190,10 +1186,10 @@ public class PoolImpl implements InternalPool {
    * connected to.
    */
   public List<String> getCurrentServerNames() {
-    List<ServerLocationAndMemberId> servers = getCurrentServers();
-    ArrayList<String> result = new ArrayList<>(servers.size());
-    for (ServerLocationAndMemberId sl : servers) {
-      String name = sl.getServerLocation().getHostName() + sl.getServerLocation().getPort();
+    var servers = getCurrentServers();
+    var result = new ArrayList<String>(servers.size());
+    for (var sl : servers) {
+      var name = sl.getServerLocation().getHostName() + sl.getServerLocation().getPort();
       result.add(name);
     }
     return result;
@@ -1229,8 +1225,8 @@ public class PoolImpl implements InternalPool {
       // do nothing.
     }
 
-    Map<ServerLocationAndMemberId, Endpoint> endpoints = endpointManager.getEndpointMap();
-    for (Endpoint endpoint : endpoints.values()) {
+    var endpoints = endpointManager.getEndpointMap();
+    for (var endpoint : endpoints.values()) {
       logger.debug("PoolImpl Simulating crash of endpoint {}", endpoint);
       endpointManager.serverCrashed(endpoint);
     }
@@ -1397,7 +1393,7 @@ public class PoolImpl implements InternalPool {
 
     @Override
     public RuntimeException generateCancelledException(Throwable t) {
-      String reason = cancelInProgress();
+      var reason = cancelInProgress();
       if (reason == null) {
         return null;
       }
@@ -1413,7 +1409,7 @@ public class PoolImpl implements InternalPool {
    */
   @Override
   public QueryService getQueryService() {
-    DefaultQueryService queryService = new DefaultQueryService(cache);
+    var queryService = new DefaultQueryService(cache);
     queryService.setPool(this);
     return queryService;
   }
@@ -1427,8 +1423,8 @@ public class PoolImpl implements InternalPool {
       throw new IllegalArgumentException("Security properties cannot be empty.");
     }
 
-    Properties props = new Properties();
-    for (Entry<Object, Object> entry : properties.entrySet()) {
+    var props = new Properties();
+    for (var entry : properties.entrySet()) {
       props.setProperty((String) entry.getKey(), (String) entry.getValue());
     }
     if (cache == null && distributedSystem != null) {
@@ -1438,7 +1434,7 @@ public class PoolImpl implements InternalPool {
             "Cache must be created before creating pool");
       }
     }
-    ProxyCache proxy = new ProxyCache(props, cache, this);
+    var proxy = new ProxyCache(props, cache, this);
     synchronized (proxyCacheList) {
       proxyCacheList.add(proxy);
     }
@@ -1448,7 +1444,7 @@ public class PoolImpl implements InternalPool {
   private volatile CancelCriterion cacheCriterion = null;
 
   private RuntimeException generatePoolOrCacheCancelledException(Throwable e) {
-    RuntimeException re = getCancelCriterion().generateCancelledException(e);
+    var re = getCancelCriterion().generateCancelledException(e);
     if (re != null) {
       return re;
     }
@@ -1538,7 +1534,7 @@ public class PoolImpl implements InternalPool {
       return;
     }
 
-    UserAttributes userAttributes = UserAttributes.userAttributes.get();
+    var userAttributes = UserAttributes.userAttributes.get();
     if (userAttributes == null) {
       throw new UnsupportedOperationException(
           "Use Pool APIs for doing operations when multiuser-secure-mode-enabled is set to true.");
@@ -1546,7 +1542,7 @@ public class PoolImpl implements InternalPool {
 
     if (serverLocation != null) {
       if (!userAttributes.getServerToId().containsKey(serverLocation)) {
-        Long userId = AuthenticateUserOp.executeOn(serverLocation, this,
+        var userId = AuthenticateUserOp.executeOn(serverLocation, this,
             userAttributes.getCredentials());
         if (userId != null) {
           userAttributes.setServerToId(serverLocation, userId);
@@ -1557,26 +1553,26 @@ public class PoolImpl implements InternalPool {
 
   private void authenticateOnAllServers(Op op) {
     if (multiuserSecureModeEnabled && ((AbstractOp) op).needsUserId()) {
-      UserAttributes userAttributes = UserAttributes.userAttributes.get();
+      var userAttributes = UserAttributes.userAttributes.get();
       if (userAttributes != null) {
-        ConcurrentHashMap<ServerLocation, Long> map = userAttributes.getServerToId();
+        var map = userAttributes.getServerToId();
 
         if (queueManager == null) {
           throw new SubscriptionNotEnabledException();
         }
-        Connection primary = queueManager.getAllConnectionsNoWait().getPrimary();
+        var primary = queueManager.getAllConnectionsNoWait().getPrimary();
         if (primary != null && !map.containsKey(primary.getServer())) {
-          Long userId = AuthenticateUserOp.executeOn(primary.getServer(), this,
+          var userId = AuthenticateUserOp.executeOn(primary.getServer(), this,
               userAttributes.getCredentials());
           if (userId != null) {
             map.put(primary.getServer(), userId);
           }
         }
 
-        List<Connection> backups = queueManager.getAllConnectionsNoWait().getBackups();
-        for (Connection conn : backups) {
+        var backups = queueManager.getAllConnectionsNoWait().getBackups();
+        for (var conn : backups) {
           if (!map.containsKey(conn.getServer())) {
-            Long userId = AuthenticateUserOp.executeOn(conn.getServer(), this,
+            var userId = AuthenticateUserOp.executeOn(conn.getServer(), this,
                 userAttributes.getCredentials());
             if (userId != null) {
               map.put(conn.getServer(), userId);
@@ -1619,7 +1615,7 @@ public class PoolImpl implements InternalPool {
 
   public int calculateRetryAttempts(Throwable cause) {
 
-    int maxRetryAttempts = getRetryAttempts();
+    var maxRetryAttempts = getRetryAttempts();
 
     if (maxRetryAttempts == PoolFactory.DEFAULT_RETRY_ATTEMPTS) {
       // If the retryAttempt is set to default(-1). Try executing on all servers once.

@@ -28,9 +28,7 @@ import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.version.VersionManager;
 
@@ -39,31 +37,31 @@ public class WANRollingUpgradeCreateGatewaySenderMixedSiteOneCurrentSiteTwo
 
   @Test
   public void CreateGatewaySenderMixedSiteOneCurrentSiteTwo() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
 
     // Get mixed site members
-    VM site1Locator = host.getVM(oldVersion, 0);
-    VM site1Server1 = host.getVM(oldVersion, 1);
-    VM site1Server2 = host.getVM(oldVersion, 2);
+    var site1Locator = host.getVM(oldVersion, 0);
+    var site1Server1 = host.getVM(oldVersion, 1);
+    var site1Server2 = host.getVM(oldVersion, 2);
 
     // Get current site members
-    VM site2Locator = host.getVM(VersionManager.CURRENT_VERSION, 4);
-    VM site2Server1 = host.getVM(VersionManager.CURRENT_VERSION, 5);
-    VM site2Server2 = host.getVM(VersionManager.CURRENT_VERSION, 6);
+    var site2Locator = host.getVM(VersionManager.CURRENT_VERSION, 4);
+    var site2Server1 = host.getVM(VersionManager.CURRENT_VERSION, 5);
+    var site2Server2 = host.getVM(VersionManager.CURRENT_VERSION, 6);
 
-    int[] locatorPorts = getRandomAvailableTCPPorts(2);
+    var locatorPorts = getRandomAvailableTCPPorts(2);
     // Get mixed site locator properties
-    String hostName = NetworkUtils.getServerHostName(host);
-    final int site1LocatorPort = locatorPorts[0];
+    var hostName = NetworkUtils.getServerHostName(host);
+    final var site1LocatorPort = locatorPorts[0];
     site1Locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(site1LocatorPort));
-    final String site1Locators = hostName + "[" + site1LocatorPort + "]";
-    final int site1DistributedSystemId = 0;
+    final var site1Locators = hostName + "[" + site1LocatorPort + "]";
+    final var site1DistributedSystemId = 0;
 
     // Get current site locator properties
-    final int site2LocatorPort = locatorPorts[1];
+    final var site2LocatorPort = locatorPorts[1];
     site2Locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(site2LocatorPort));
-    final String site2Locators = hostName + "[" + site2LocatorPort + "]";
-    final int site2DistributedSystemId = 1;
+    final var site2Locators = hostName + "[" + site2LocatorPort + "]";
+    final var site2DistributedSystemId = 1;
 
     // Start mixed site locator
     site1Locator.invoke(() -> startLocator(site1LocatorPort, site1DistributedSystemId,
@@ -94,19 +92,19 @@ public class WANRollingUpgradeCreateGatewaySenderMixedSiteOneCurrentSiteTwo
 
     // Roll mixed site locator to current with jmx manager
     site1Locator.invoke(this::stopLocator);
-    VM site1RolledLocator = host.getVM(VersionManager.CURRENT_VERSION, site1Locator.getId());
-    int jmxManagerPort = getRandomAvailableTCPPort();
+    var site1RolledLocator = host.getVM(VersionManager.CURRENT_VERSION, site1Locator.getId());
+    var jmxManagerPort = getRandomAvailableTCPPort();
     site1RolledLocator.invoke(startLocatorWithJmxManager(site1LocatorPort,
         site1DistributedSystemId, site1Locators, site2Locators, jmxManagerPort));
 
     // Roll one mixed site server to current
     site1Server2.invoke(JUnit4CacheTestCase::closeCache);
-    VM site1Server2RolledServer = host.getVM(VersionManager.CURRENT_VERSION, site1Server2.getId());
+    var site1Server2RolledServer = host.getVM(VersionManager.CURRENT_VERSION, site1Server2.getId());
     site1Server2RolledServer.invoke(() -> createCache(site1Locators));
 
     // Use gfsh to attempt to create a gateway sender in the mixed site servers
     gfsh.connectAndVerify(jmxManagerPort, GfshCommandRule.PortType.jmxManager);
-    CommandResultAssert cmd = gfsh
+    var cmd = gfsh
         .executeAndAssertThat(getCreateGatewaySenderCommand("toSite2", site2DistributedSystemId));
     if (!majorMinor(oldVersion).equals(majorMinor(KnownVersion.CURRENT.getName()))) {
       cmd.statusIsError()
@@ -121,7 +119,7 @@ public class WANRollingUpgradeCreateGatewaySenderMixedSiteOneCurrentSiteTwo
    * returns the major.minor prefix of a semver
    */
   private static String majorMinor(String version) {
-    String[] parts = version.split("\\.");
+    var parts = version.split("\\.");
     Assertions.assertThat(parts.length).isGreaterThanOrEqualTo(2);
     return parts[0] + "." + parts[1];
   }

@@ -43,10 +43,10 @@ public class ReflectiveFacadeGlobalSerialFilterFactoryTest {
    */
   @Test
   public void createsReflectiveFacadeGlobalSerialFilter() {
-    ObjectInputFilterApi api = mock(ObjectInputFilterApi.class);
+    var api = mock(ObjectInputFilterApi.class);
     GlobalSerialFilterFactory factory = new ReflectiveFacadeGlobalSerialFilterFactory(api);
 
-    GlobalSerialFilter filter = factory.create("pattern", emptySet());
+    var filter = factory.create("pattern", emptySet());
 
     assertThat(filter).isInstanceOf(ReflectiveFacadeGlobalSerialFilter.class);
   }
@@ -57,12 +57,12 @@ public class ReflectiveFacadeGlobalSerialFilterFactoryTest {
    */
   @Test
   public void throws_whenObjectInputFilterClassNotFound() {
-    Supplier<ObjectInputFilterApi> objectInputFilterApiSupplier = () -> {
+    var objectInputFilterApiSupplier = (Supplier<ObjectInputFilterApi>) () -> {
       throw new UnsupportedOperationException("ObjectInputFilter is not available.",
           new ClassNotFoundException("sun.misc.ObjectInputFilter"));
     };
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       new ReflectiveFacadeGlobalSerialFilterFactory(objectInputFilterApiSupplier)
           .create("pattern", emptySet());
     });

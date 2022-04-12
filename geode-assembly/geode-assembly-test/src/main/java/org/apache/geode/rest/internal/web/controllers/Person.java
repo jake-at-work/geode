@@ -122,7 +122,7 @@ public class Person implements PdxSerializable {
       return false;
     }
 
-    final Person that = (Person) obj;
+    final var that = (Person) obj;
 
     return (ObjectUtils.equals(getId(), that.getId())
         || (ObjectUtils.equals(getBirthDate(), that.getBirthDate())
@@ -132,7 +132,7 @@ public class Person implements PdxSerializable {
 
   @Override
   public int hashCode() {
-    int hashValue = 17;
+    var hashValue = 17;
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getId());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getBirthDate());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getLastName());
@@ -167,7 +167,7 @@ public class Person implements PdxSerializable {
 
   @Override
   public void fromData(PdxReader reader) {
-    String type = reader.readString("@type");
+    var type = reader.readString("@type");
     id = reader.readLong("id");
     firstName = reader.readString("firstName");
     middleName = reader.readString("middleName");

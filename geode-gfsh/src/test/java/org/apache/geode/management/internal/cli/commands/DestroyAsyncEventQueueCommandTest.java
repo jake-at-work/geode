@@ -54,7 +54,7 @@ public class DestroyAsyncEventQueueCommandTest {
   public void setUp() throws Exception {
     command = spy(DestroyAsyncEventQueueCommand.class);
 
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     doReturn(cache).when(command).getCache();
 
 
@@ -98,7 +98,7 @@ public class DestroyAsyncEventQueueCommandTest {
         String.format(
             "Skipping: " + DestroyAsyncEventQueueCommand.DESTROY_ASYNC_EVENT_QUEUE__AEQ_0_NOT_FOUND,
             "nonexistentQueue")));
-    ArgumentCaptor<DestroyAsyncEventQueueFunctionArgs> argCaptor =
+    var argCaptor =
         ArgumentCaptor.forClass(DestroyAsyncEventQueueFunctionArgs.class);
 
     gfsh.executeAndAssertThat(command,
@@ -118,7 +118,7 @@ public class DestroyAsyncEventQueueCommandTest {
     functionResults.add(new CliFunctionResult("member2", false,
         String.format(DestroyAsyncEventQueueCommand.DESTROY_ASYNC_EVENT_QUEUE__AEQ_0_NOT_FOUND,
             "nonexistentQueue")));
-    ArgumentCaptor<DestroyAsyncEventQueueFunctionArgs> argCaptor =
+    var argCaptor =
         ArgumentCaptor.forClass(DestroyAsyncEventQueueFunctionArgs.class);
 
     gfsh.executeAndAssertThat(command, "destroy async-event-queue --id=nonexistentQueue")
@@ -131,7 +131,7 @@ public class DestroyAsyncEventQueueCommandTest {
   public void ifExistsSpecifiedFalse() {
     members.add(member1);
     members.add(member2);
-    ArgumentCaptor<DestroyAsyncEventQueueFunctionArgs> argCaptor =
+    var argCaptor =
         ArgumentCaptor.forClass(DestroyAsyncEventQueueFunctionArgs.class);
     gfsh.executeAndAssertThat(command,
         "destroy async-event-queue --id=nonexistentQueue --if-exists=false");
@@ -150,7 +150,7 @@ public class DestroyAsyncEventQueueCommandTest {
     functionResults.add(new CliFunctionResult("member2", false,
         String.format(DestroyAsyncEventQueueCommand.DESTROY_ASYNC_EVENT_QUEUE__AEQ_0_NOT_FOUND,
             "nonexistentQueue")));
-    ArgumentCaptor<DestroyAsyncEventQueueFunctionArgs> argCaptor =
+    var argCaptor =
         ArgumentCaptor.forClass(DestroyAsyncEventQueueFunctionArgs.class);
 
     gfsh.executeAndAssertThat(command,

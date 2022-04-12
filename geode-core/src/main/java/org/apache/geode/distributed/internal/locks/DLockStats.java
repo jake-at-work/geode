@@ -21,7 +21,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.distributed.internal.DistributionStats;
@@ -111,137 +110,137 @@ public class DLockStats implements DistributedLockStats {
   private static final int freeResourcesFailedId;
 
   static {
-    String statName = "DLockStats";
-    String statDescription = "Statistics on the gemfire distribution lock service.";
+    var statName = "DLockStats";
+    var statDescription = "Statistics on the gemfire distribution lock service.";
 
-    final String grantorsDesc = "The current number of lock grantors hosted by this system member.";
-    final String servicesDesc = "The current number of lock services used by this system member.";
-    final String tokensDesc = "The current number of lock tokens used by this system member.";
-    final String grantTokensDesc = "The current number of grant tokens used by local grantors.";
-    final String requestQueuesDesc =
+    final var grantorsDesc = "The current number of lock grantors hosted by this system member.";
+    final var servicesDesc = "The current number of lock services used by this system member.";
+    final var tokensDesc = "The current number of lock tokens used by this system member.";
+    final var grantTokensDesc = "The current number of grant tokens used by local grantors.";
+    final var requestQueuesDesc =
         "The current number of lock request queues used by this system member.";
-    final String serialQueueSizeDesc =
+    final var serialQueueSizeDesc =
         "The number of serial distribution messages currently waiting to be processed.";
-    final String serialThreadsDesc =
+    final var serialThreadsDesc =
         "The number of threads currently processing serial/ordered messages.";
-    final String waitingQueueSizeDesc =
+    final var waitingQueueSizeDesc =
         "The number of distribution messages currently waiting for some other resource before they can be processed.";
-    final String waitingThreadsDesc =
+    final var waitingThreadsDesc =
         "The number of threads currently processing messages that had to wait for a resource.";
-    final String lockWaitsInProgressDesc =
+    final var lockWaitsInProgressDesc =
         "Current number of threads waiting for a distributed lock.";
-    final String lockWaitsCompletedDesc =
+    final var lockWaitsCompletedDesc =
         "Total number of times distributed lock wait has completed by successfully obtained the lock.";
-    final String lockWaitTimeDesc =
+    final var lockWaitTimeDesc =
         "Total time spent waiting for a distributed lock that was obtained.";
-    final String lockWaitsFailedDesc =
+    final var lockWaitsFailedDesc =
         "Total number of times distributed lock wait has completed by failing to obtain the lock.";
-    final String lockWaitFailedTimeDesc =
+    final var lockWaitFailedTimeDesc =
         "Total time spent waiting for a distributed lock that we failed to obtain.";
-    final String grantWaitsInProgressDesc =
+    final var grantWaitsInProgressDesc =
         "Current number of distributed lock requests being granted.";
-    final String grantWaitsCompletedDesc =
+    final var grantWaitsCompletedDesc =
         "Total number of times granting of a lock request has completed by successfully granting the lock.";
-    final String grantWaitTimeDesc = "Total time spent attempting to grant a distributed lock.";
-    final String grantWaitsNotGrantorDesc =
+    final var grantWaitTimeDesc = "Total time spent attempting to grant a distributed lock.";
+    final var grantWaitsNotGrantorDesc =
         "Total number of times granting of lock request failed because not grantor.";
-    final String grantWaitNotGrantorTimeDesc =
+    final var grantWaitNotGrantorTimeDesc =
         "Total time spent granting of lock requests that failed because not grantor.";
-    final String grantWaitsTimeoutDesc =
+    final var grantWaitsTimeoutDesc =
         "Total number of times granting of lock request failed because timeout.";
-    final String grantWaitTimeoutTimeDesc =
+    final var grantWaitTimeoutTimeDesc =
         "Total time spent granting of lock requests that failed because timeout.";
-    final String grantWaitsNotHolderDesc =
+    final var grantWaitsNotHolderDesc =
         "Total number of times granting of lock request failed because reentrant was not holder.";
-    final String grantWaitNotHolderTimeDesc =
+    final var grantWaitNotHolderTimeDesc =
         "Total time spent granting of lock requests that failed because reentrant was not holder.";
-    final String grantWaitsFailedDesc =
+    final var grantWaitsFailedDesc =
         "Total number of times granting of lock request failed because try locks failed.";
-    final String grantWaitFailedTimeDesc =
+    final var grantWaitFailedTimeDesc =
         "Total time spent granting of lock requests that failed because try locks failed.";
-    final String grantWaitsSuspendedDesc =
+    final var grantWaitsSuspendedDesc =
         "Total number of times granting of lock request failed because lock service was suspended.";
-    final String grantWaitSuspendedTimeDesc =
+    final var grantWaitSuspendedTimeDesc =
         "Total time spent granting of lock requests that failed because lock service was suspended.";
-    final String grantWaitsDestroyedDesc =
+    final var grantWaitsDestroyedDesc =
         "Total number of times granting of lock request failed because lock service was destroyed.";
-    final String grantWaitDestroyedTimeDesc =
+    final var grantWaitDestroyedTimeDesc =
         "Total time spent granting of lock requests that failed because lock service was destroyed.";
-    final String createGrantorsInProgressDesc =
+    final var createGrantorsInProgressDesc =
         "Current number of initial grantors being created in this process.";
-    final String createGrantorsCompletedDesc =
+    final var createGrantorsCompletedDesc =
         "Total number of initial grantors created in this process.";
-    final String createGrantorTimeDesc =
+    final var createGrantorTimeDesc =
         "Total time spent waiting create the intial grantor for lock services.";
-    final String serviceCreatesInProgressDesc =
+    final var serviceCreatesInProgressDesc =
         "Current number of lock services being created in this process.";
-    final String serviceCreatesCompletedDesc =
+    final var serviceCreatesCompletedDesc =
         "Total number of lock services created in this process.";
-    final String serviceCreateLatchTimeDesc =
+    final var serviceCreateLatchTimeDesc =
         "Total time spent creating lock services before releasing create latches.";
-    final String serviceInitLatchTimeDesc =
+    final var serviceInitLatchTimeDesc =
         "Total time spent creating lock services before releasing init latches.";
-    final String grantorWaitsInProgressDesc =
+    final var grantorWaitsInProgressDesc =
         "Current number of threads waiting for grantor latch to open.";
-    final String grantorWaitsCompletedDesc =
+    final var grantorWaitsCompletedDesc =
         "Total number of times waiting threads completed waiting for the grantor latch to open.";
-    final String grantorWaitTimeDesc =
+    final var grantorWaitTimeDesc =
         "Total time spent waiting for the grantor latch which resulted in success.";
-    final String grantorWaitsFailedDesc =
+    final var grantorWaitsFailedDesc =
         "Total number of times waiting threads failed to finish waiting for the grantor latch to open.";
-    final String grantorWaitFailedTimeDesc =
+    final var grantorWaitFailedTimeDesc =
         "Total time spent waiting for the grantor latch which resulted in failure.";
-    final String grantorThreadsInProgressDesc =
+    final var grantorThreadsInProgressDesc =
         "Current iterations of work performed by grantor thread(s).";
-    final String grantorThreadsCompletedDesc =
+    final var grantorThreadsCompletedDesc =
         "Total number of iterations of work performed by grantor thread(s).";
-    final String grantorThreadExpireAndGrantLocksTimeDesc =
+    final var grantorThreadExpireAndGrantLocksTimeDesc =
         "Total time spent by grantor thread(s) performing expireAndGrantLocks tasks.";
-    final String grantorThreadHandleRequestTimeoutsTimeDesc =
+    final var grantorThreadHandleRequestTimeoutsTimeDesc =
         "Total time spent by grantor thread(s) performing handleRequestTimeouts tasks.";
-    final String grantorThreadRemoveUnusedTokensTimeDesc =
+    final var grantorThreadRemoveUnusedTokensTimeDesc =
         "Total time spent by grantor thread(s) performing removeUnusedTokens tasks.";
-    final String grantorThreadTimeDesc =
+    final var grantorThreadTimeDesc =
         "Total time spent by grantor thread(s) performing all grantor tasks.";
-    final String pendingRequestsDesc =
+    final var pendingRequestsDesc =
         "The current number of pending lock requests queued by grantors in this process.";
-    final String destroyReadWaitsInProgressDesc =
+    final var destroyReadWaitsInProgressDesc =
         "Current number of threads waiting for a DLockService destroy read lock.";
-    final String destroyReadWaitsCompletedDesc =
+    final var destroyReadWaitsCompletedDesc =
         "Total number of times a DLockService destroy read lock wait has completed successfully.";
-    final String destroyReadWaitTimeDesc =
+    final var destroyReadWaitTimeDesc =
         "Total time spent waiting for a DLockService destroy read lock that was obtained.";
-    final String destroyReadWaitsFailedDesc =
+    final var destroyReadWaitsFailedDesc =
         "Total number of times a DLockService destroy read lock wait has completed unsuccessfully.";
-    final String destroyReadWaitFailedTimeDesc =
+    final var destroyReadWaitFailedTimeDesc =
         "Total time spent waiting for a DLockService destroy read lock that was not obtained.";
-    final String destroyWriteWaitsInProgressDesc =
+    final var destroyWriteWaitsInProgressDesc =
         "Current number of thwrites waiting for a DLockService destroy write lock.";
-    final String destroyWriteWaitsCompletedDesc =
+    final var destroyWriteWaitsCompletedDesc =
         "Total number of times a DLockService destroy write lock wait has completed successfully.";
-    final String destroyWriteWaitTimeDesc =
+    final var destroyWriteWaitTimeDesc =
         "Total time spent waiting for a DLockService destroy write lock that was obtained.";
-    final String destroyWriteWaitsFailedDesc =
+    final var destroyWriteWaitsFailedDesc =
         "Total number of times a DLockService destroy write lock wait has completed unsuccessfully.";
-    final String destroyWriteWaitFailedTimeDesc =
+    final var destroyWriteWaitFailedTimeDesc =
         "Total time spent waiting for a DLockService destroy write lock that was not obtained.";
-    final String destroyReadsDesc =
+    final var destroyReadsDesc =
         "The current number of DLockService destroy read locks held by this process.";
-    final String destroyWritesDesc =
+    final var destroyWritesDesc =
         "The current number of DLockService destroy write locks held by this process.";
-    final String lockReleasesInProgressDesc =
+    final var lockReleasesInProgressDesc =
         "Current number of threads releasing a distributed lock.";
-    final String lockReleasesCompletedDesc =
+    final var lockReleasesCompletedDesc =
         "Total number of times distributed lock release has completed.";
-    final String lockReleaseTimeDesc = "Total time spent releasing a distributed lock.";
-    final String becomeGrantorRequestsDesc =
+    final var lockReleaseTimeDesc = "Total time spent releasing a distributed lock.";
+    final var becomeGrantorRequestsDesc =
         "Total number of times this member has explicitly requested to become lock grantor.";
-    final String freeResourcesCompletedDesc =
+    final var freeResourcesCompletedDesc =
         "Total number of times this member has freed resources for a distributed lock.";
-    final String freeResourcesFailedDesc =
+    final var freeResourcesFailedDesc =
         "Total number of times this member has attempted to free resources for a distributed lock which remained in use.";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     type = f.createType(statName, statDescription, new StatisticDescriptor[] {
         f.createIntGauge("grantors", grantorsDesc, "grantors"),
@@ -465,7 +464,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endLockWait(long start, boolean success) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(lockWaitsInProgressId, -1);
     if (success) {
       stats.incLong(lockWaitsCompletedId, 1);
@@ -621,7 +620,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endGrantWait(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantWaitsInProgressId, -1);
     stats.incLong(grantWaitsCompletedId, 1);
     if (DistributionStats.enableClockStats) {
@@ -631,7 +630,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endGrantWaitNotGrantor(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantWaitsInProgressId, -1);
     stats.incLong(grantWaitsNotGrantorId, 1);
     if (DistributionStats.enableClockStats) {
@@ -641,7 +640,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endGrantWaitTimeout(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantWaitsInProgressId, -1);
     stats.incLong(grantWaitsTimeoutId, 1);
     if (DistributionStats.enableClockStats) {
@@ -651,7 +650,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endGrantWaitNotHolder(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantWaitsInProgressId, -1);
     stats.incLong(grantWaitsNotHolderId, 1);
     if (DistributionStats.enableClockStats) {
@@ -661,7 +660,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endGrantWaitFailed(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantWaitsInProgressId, -1);
     stats.incLong(grantWaitsFailedId, 1);
     if (DistributionStats.enableClockStats) {
@@ -671,7 +670,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endGrantWaitSuspended(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantWaitsInProgressId, -1);
     stats.incLong(grantWaitsSuspendedId, 1);
     if (DistributionStats.enableClockStats) {
@@ -681,7 +680,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endGrantWaitDestroyed(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantWaitsInProgressId, -1);
     stats.incLong(grantWaitsDestroyedId, 1);
     if (DistributionStats.enableClockStats) {
@@ -713,7 +712,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endCreateGrantor(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(createGrantorsInProgressId, -1);
     stats.incLong(createGrantorsCompletedId, 1);
     if (DistributionStats.enableClockStats) {
@@ -741,14 +740,14 @@ public class DLockStats implements DistributedLockStats {
   @Override
   public void serviceCreateLatchReleased(long start) {
     if (DistributionStats.enableClockStats) {
-      long ts = getTime();
+      var ts = getTime();
       stats.incLong(serviceCreateLatchTimeId, ts - start);
     }
   }
 
   @Override
   public void serviceInitLatchReleased(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(serviceCreatesInProgressId, -1);
     stats.incLong(serviceCreatesCompletedId, 1);
     if (DistributionStats.enableClockStats) {
@@ -800,7 +799,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endGrantorWait(long start, boolean success) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantorWaitsInProgressId, -1);
     if (success) {
       stats.incLong(grantorWaitsCompletedId, 1);
@@ -854,27 +853,27 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public long endGrantorThreadExpireAndGrantLocks(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantorThreadExpireAndGrantLocksTimeId, ts - start);
     return getTime();
   }
 
   @Override
   public long endGrantorThreadHandleRequestTimeouts(long timing) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantorThreadHandleRequestTimeoutsTimeId, ts - timing);
     return getTime();
   }
 
   @Override
   public void endGrantorThreadRemoveUnusedTokens(long timing) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantorThreadRemoveUnusedTokensTimeId, ts - timing);
   }
 
   @Override
   public void endGrantorThread(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(grantorThreadsInProgressId, -1);
     stats.incLong(grantorThreadsCompletedId, 1);
     if (DistributionStats.enableClockStats) {
@@ -927,7 +926,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endDestroyReadWait(long start, boolean success) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(destroyReadWaitsInProgressId, -1);
     if (success) {
       stats.incLong(destroyReadWaitsCompletedId, 1);
@@ -976,7 +975,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endDestroyWriteWait(long start, boolean success) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(destroyWriteWaitsInProgressId, -1);
     if (success) {
       stats.incLong(destroyWriteWaitsCompletedId, 1);
@@ -1037,7 +1036,7 @@ public class DLockStats implements DistributedLockStats {
 
   @Override
   public void endLockRelease(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(lockReleasesInProgressId, -1);
     stats.incLong(lockReleasesCompletedId, 1);
     if (DistributionStats.enableClockStats) {

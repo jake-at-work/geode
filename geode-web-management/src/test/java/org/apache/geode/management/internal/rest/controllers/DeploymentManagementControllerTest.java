@@ -17,9 +17,6 @@ package org.apache.geode.management.internal.rest.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,10 +37,10 @@ public class DeploymentManagementControllerTest {
   // able to send in the request successfully if annotated with @RequestPart
   @Test
   public void canOnlyAcceptStringAndFile() throws Exception {
-    Method deploy =
+    var deploy =
         DeploymentManagementController.class.getMethod("deploy", MultipartFile.class, String.class);
     assertThat(deploy).isNotNull();
-    Annotation[][] parameterAnnotations = deploy.getParameterAnnotations();
+    var parameterAnnotations = deploy.getParameterAnnotations();
     assertThat(parameterAnnotations[0][1]).isInstanceOf(RequestParam.class);
     assertThat(parameterAnnotations[1][1]).isInstanceOf(RequestParam.class);
   }

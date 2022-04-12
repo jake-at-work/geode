@@ -33,7 +33,7 @@ public class FetchStatsRequest extends AdminRequest {
    * Returns a <code>FetchStatsRequest</code> to be sent to the specified recipient.
    */
   public static FetchStatsRequest create(String statisticsTypeName) {
-    FetchStatsRequest m = new FetchStatsRequest();
+    var m = new FetchStatsRequest();
     m.statisticsTypeName = statisticsTypeName;
     return m;
   }

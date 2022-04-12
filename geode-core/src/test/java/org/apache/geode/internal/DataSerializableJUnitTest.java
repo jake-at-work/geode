@@ -115,13 +115,13 @@ public class DataSerializableJUnitTest implements Serializable {
   private DataInput getDataInput() {
     // changed this to use ByteBufferInputStream to give us better
     // test coverage of this class.
-    ByteBuffer bb = ByteBuffer.wrap(baos.toByteArray());
+    var bb = ByteBuffer.wrap(baos.toByteArray());
     return new ByteBufferInputStream(bb);
   }
 
   private DataInputStream getDataInputStream() {
-    ByteBuffer bb = ByteBuffer.wrap(baos.toByteArray());
-    ByteBufferInputStream bbis = new ByteBufferInputStream(bb);
+    var bb = ByteBuffer.wrap(baos.toByteArray());
+    var bbis = new ByteBufferInputStream(bb);
     return new DataInputStream(bbis);
   }
 
@@ -139,14 +139,14 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testClass() throws Exception {
-    Class<? extends DataSerializableJUnitTest> c = getClass();
+    var c = getClass();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeClass(c, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Class<?> c2 = DataSerializer.readClass(in);
+    var in = getDataInput();
+    var c2 = DataSerializer.readClass(in);
     assertEquals(c, c2);
   }
 
@@ -155,65 +155,65 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testClassObject() throws Exception {
-    Class<? extends DataSerializableJUnitTest> c = getClass();
+    var c = getClass();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(c, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Class<?> c2 = DataSerializer.readObject(in);
     assertEquals(c, c2);
   }
 
   @Test
   public void testBigInteger() throws Exception {
-    BigInteger o = new BigInteger("12345678901234567890");
+    var o = new BigInteger("12345678901234567890");
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(o, out, false);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     BigInteger o2 = DataSerializer.readObject(in);
     assertEquals(o, o2);
   }
 
   @Test
   public void testBigDecimal() throws Exception {
-    BigDecimal o = new BigDecimal("1234567890.1234567890");
+    var o = new BigDecimal("1234567890.1234567890");
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(o, out, false);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     BigDecimal o2 = DataSerializer.readObject(in);
     assertEquals(o, o2);
   }
 
   @Test
   public void testUUID() throws Exception {
-    UUID o = UUID.randomUUID();
+    var o = UUID.randomUUID();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(o, out, false);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     UUID o2 = DataSerializer.readObject(in);
     assertEquals(o, o2);
   }
 
   @Test
   public void testTimestamp() throws Exception {
-    Timestamp o = new Timestamp(new Date().getTime() + 79);
+    var o = new Timestamp(new Date().getTime() + 79);
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(o, out, false);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Timestamp o2 = DataSerializer.readObject(in);
     assertEquals(o, o2);
   }
@@ -223,14 +223,14 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testDate() throws Exception {
-    Date date = new Date();
+    var date = new Date();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeDate(date, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Date date2 = DataSerializer.readDate(in);
+    var in = getDataInput();
+    var date2 = DataSerializer.readDate(in);
     assertEquals(date, date2);
   }
 
@@ -239,13 +239,13 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testDateObject() throws Exception {
-    Date date = new Date();
+    var date = new Date();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(date, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Date date2 = DataSerializer.readObject(in);
     assertEquals(date, date2);
   }
@@ -255,14 +255,14 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testFile() throws Exception {
-    File file = new File(System.getProperty("user.dir"));
+    var file = new File(System.getProperty("user.dir"));
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeFile(file, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    File file2 = DataSerializer.readFile(in);
+    var in = getDataInput();
+    var file2 = DataSerializer.readFile(in);
     assertEquals(file, file2);
   }
 
@@ -271,13 +271,13 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testFileObject() throws Exception {
-    File file = new File(System.getProperty("user.dir"));
+    var file = new File(System.getProperty("user.dir"));
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(file, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     File file2 = DataSerializer.readObject(in);
     assertEquals(file, file2);
   }
@@ -287,14 +287,14 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testInetAddress() throws Exception {
-    InetAddress address = InetAddress.getLocalHost();
+    var address = InetAddress.getLocalHost();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeInetAddress(address, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    InetAddress address2 = DataSerializer.readInetAddress(in);
+    var in = getDataInput();
+    var address2 = DataSerializer.readInetAddress(in);
     assertEquals(address, address2);
   }
 
@@ -303,13 +303,13 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testInetAddressObject() throws Exception {
-    InetAddress address = InetAddress.getLocalHost();
+    var address = InetAddress.getLocalHost();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(address, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     InetAddress address2 = DataSerializer.readObject(in);
     assertEquals(address, address2);
   }
@@ -321,12 +321,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testNullObject() throws Exception {
     Object value = null;
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Object value2 = DataSerializer.readObject(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
   }
 
@@ -335,15 +335,15 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testString() throws Exception {
-    String value = "Hello";
+    var value = "Hello";
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeString(value, out);
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    String value2 = DataSerializer.readString(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readString(in);
     assertEquals(value, value2);
     value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
@@ -351,15 +351,15 @@ public class DataSerializableJUnitTest implements Serializable {
 
   @Test
   public void testUtfString() throws Exception {
-    String value = "Hello" + Character.MIN_VALUE + Character.MAX_VALUE;
+    var value = "Hello" + Character.MIN_VALUE + Character.MAX_VALUE;
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeString(value, out);
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    String value2 = DataSerializer.readString(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readString(in);
     assertEquals(value, value2);
     value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
@@ -367,19 +367,19 @@ public class DataSerializableJUnitTest implements Serializable {
 
   @Test
   public void testBigString() throws Exception {
-    StringBuilder sb = new StringBuilder(100000);
-    for (int i = 0; i < 100000; i++) {
+    var sb = new StringBuilder(100000);
+    for (var i = 0; i < 100000; i++) {
       sb.append("a");
     }
-    String value = sb.toString();
+    var value = sb.toString();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeString(value, out);
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    String value2 = DataSerializer.readString(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readString(in);
     assertEquals(value, value2);
     value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
@@ -390,23 +390,23 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testBigUtfString() throws Exception {
-    StringBuilder sb = new StringBuilder(100000);
-    for (int i = 0; i < 100000; i++) {
+    var sb = new StringBuilder(100000);
+    for (var i = 0; i < 100000; i++) {
       if ((i % 2) == 0) {
         sb.append(Character.MAX_VALUE);
       } else {
         sb.append(Character.MIN_VALUE);
       }
     }
-    String value = sb.toString();
+    var value = sb.toString();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeString(value, out);
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    String value2 = DataSerializer.readString(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readString(in);
     assertEquals(value, value2);
     value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
@@ -425,12 +425,12 @@ public class DataSerializableJUnitTest implements Serializable {
   }
 
   private void basicTestString(String value) throws IOException {
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeString(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    String value2 = DataSerializer.readString(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readString(in);
     assertEquals(value, value2);
 
   }
@@ -451,12 +451,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testBoolean() throws Exception {
     Boolean value = getRandom().nextInt() % 2 == 0;
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeBoolean(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Boolean value2 = DataSerializer.readBoolean(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readBoolean(in);
     assertEquals(value, value2);
   }
 
@@ -468,11 +468,11 @@ public class DataSerializableJUnitTest implements Serializable {
 
     Boolean value = getRandom().nextInt() % 2 == 0;
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Boolean value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
   }
@@ -481,16 +481,16 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testWriteObjectAsByteArray() throws Exception {
     // make sure recursive calls to WriteObjectAsByteArray work to test bug 38194
     Object v = new WOABA();
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObjectAsByteArray(v, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    byte[] b2 = DataSerializer.readByteArray(in);
+    var in = getDataInput();
+    var b2 = DataSerializer.readByteArray(in);
     // todo should we deserislize the byte[] and make sure it is equal to v?
-    ByteArrayInputStream bais = new ByteArrayInputStream(b2);
-    DataInputStream dis = new DataInputStream(bais);
-    Object v2 = DataSerializer.readObject(dis);
+    var bais = new ByteArrayInputStream(b2);
+    var dis = new DataInputStream(bais);
+    var v2 = DataSerializer.readObject(dis);
     if (!(v2 instanceof WOABA)) {
       fail("expected instance of WOABA but found " + v2.getClass());
     }
@@ -503,9 +503,9 @@ public class DataSerializableJUnitTest implements Serializable {
     public WOABA() {}
 
     public void validate() throws Exception {
-      ByteArrayInputStream bais = new ByteArrayInputStream(deserialized);
-      DataInputStream dis = new DataInputStream(bais);
-      Object v = DataSerializer.readObject(dis);
+      var bais = new ByteArrayInputStream(deserialized);
+      var dis = new DataInputStream(bais);
+      var v = DataSerializer.readObject(dis);
       if (!(v instanceof WOABA2)) {
         fail("expected instance of WOABA2 but found " + v.getClass());
       }
@@ -529,7 +529,7 @@ public class DataSerializableJUnitTest implements Serializable {
 
     @Override
     public void toData(DataOutput out) throws IOException {
-      String f = "foobar";
+      var f = "foobar";
       DataSerializer.writeObjectAsByteArray(f, out);
     }
 
@@ -546,12 +546,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testCharacter() throws Exception {
     Character value = (char) ('A' + getRandom().nextInt('Z' - 'A'));
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeCharacter(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Character value2 = DataSerializer.readCharacter(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readCharacter(in);
     assertEquals(value, value2);
   }
 
@@ -562,11 +562,11 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testCharacterObject() throws Exception {
     Character value = (char) ('A' + getRandom().nextInt('Z' - 'A'));
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Character value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
   }
@@ -578,12 +578,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testByte() throws Exception {
     Byte value = (byte) getRandom().nextInt();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeByte(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Byte value2 = DataSerializer.readByte(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readByte(in);
     assertEquals(value, value2);
   }
 
@@ -594,11 +594,11 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testByteObject() throws Exception {
     Byte value = (byte) getRandom().nextInt();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Byte value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
   }
@@ -610,12 +610,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testShort() throws IOException {
     Short value = (short) getRandom().nextInt();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeShort(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Short value2 = DataSerializer.readShort(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readShort(in);
     assertEquals(value, value2);
   }
 
@@ -627,11 +627,11 @@ public class DataSerializableJUnitTest implements Serializable {
 
     Short value = (short) getRandom().nextInt();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Short value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
   }
@@ -643,12 +643,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testInteger() throws Exception {
     Integer value = getRandom().nextInt();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeInteger(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Integer value2 = DataSerializer.readInteger(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readInteger(in);
     assertEquals(value, value2);
   }
 
@@ -659,11 +659,11 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testIntegerObject() throws Exception {
     Integer value = getRandom().nextInt();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Integer value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
   }
@@ -675,12 +675,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testLong() throws Exception {
     Long value = getRandom().nextLong();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeLong(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Long value2 = DataSerializer.readLong(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readLong(in);
     assertEquals(value, value2);
   }
 
@@ -691,11 +691,11 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testLongObject() throws Exception {
     Long value = getRandom().nextLong();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Long value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
   }
@@ -707,12 +707,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testFloat() throws Exception {
     Float value = getRandom().nextFloat();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeFloat(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Float value2 = DataSerializer.readFloat(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readFloat(in);
     assertEquals(value, value2);
   }
 
@@ -723,11 +723,11 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testFloatObject() throws Exception {
     Float value = getRandom().nextFloat();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Float value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
   }
@@ -739,12 +739,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testDouble() throws Exception {
     Double value = getRandom().nextDouble();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeDouble(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Double value2 = DataSerializer.readDouble(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readDouble(in);
     assertEquals(value, value2);
   }
 
@@ -755,11 +755,11 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testDoubleObject() throws Exception {
     Double value = getRandom().nextDouble();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Double value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
   }
@@ -769,19 +769,19 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testByteArray() throws Exception {
-    byte[] array = new byte[] {(byte) 4, (byte) 5, (byte) 6};
+    var array = new byte[] {(byte) 4, (byte) 5, (byte) 6};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeByteArray(array, out);
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    for (int idx = 0; idx < 2; idx++) {
-      byte[] array2 =
+    var in = getDataInput();
+    for (var idx = 0; idx < 2; idx++) {
+      var array2 =
           (idx == 0) ? DataSerializer.readByteArray(in) : (byte[]) DataSerializer.readObject(in);
       assertEquals(array.length, array2.length);
-      for (int i = 0; i < array.length; i++) {
+      for (var i = 0; i < array.length; i++) {
         assertEquals(array[i], array2[i]);
       }
     }
@@ -792,17 +792,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testByteArrayObject() throws Exception {
-    byte[] array = new byte[] {(byte) 4, (byte) 5, (byte) 6};
+    var array = new byte[] {(byte) 4, (byte) 5, (byte) 6};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     byte[] array2 = DataSerializer.readObject(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -812,17 +812,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testShortArray() throws Exception {
-    short[] array = new short[] {(short) 4, (short) 5, (short) 6};
+    var array = new short[] {(short) 4, (short) 5, (short) 6};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeShortArray(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    short[] array2 = DataSerializer.readShortArray(in);
+    var in = getDataInput();
+    var array2 = DataSerializer.readShortArray(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -832,17 +832,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testShortArrayObject() throws Exception {
-    short[] array = new short[] {(short) 4, (short) 5, (short) 6};
+    var array = new short[] {(short) 4, (short) 5, (short) 6};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     short[] array2 = DataSerializer.readObject(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -852,20 +852,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testStringArray() throws Exception {
-    Random random = getRandom();
+    var random = getRandom();
 
-    String[] array = new String[] {String.valueOf(random.nextLong()),
+    var array = new String[] {String.valueOf(random.nextLong()),
         String.valueOf(random.nextLong()), String.valueOf(random.nextLong())};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeStringArray(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    String[] array2 = DataSerializer.readStringArray(in);
+    var in = getDataInput();
+    var array2 = DataSerializer.readStringArray(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -876,20 +876,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testStringArrayWithNull() throws Exception {
-    Random random = getRandom();
+    var random = getRandom();
 
-    String[] array =
+    var array =
         new String[] {String.valueOf(random.nextLong()), null, String.valueOf(random.nextLong())};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeStringArray(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    String[] array2 = DataSerializer.readStringArray(in);
+    var in = getDataInput();
+    var array2 = DataSerializer.readStringArray(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -899,20 +899,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testStringArrayObject() throws Exception {
-    Random random = getRandom();
+    var random = getRandom();
 
-    String[] array = new String[] {String.valueOf(random.nextLong()),
+    var array = new String[] {String.valueOf(random.nextLong()),
         String.valueOf(random.nextLong()), String.valueOf(random.nextLong())};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     String[] array2 = DataSerializer.readObject(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -922,17 +922,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testIntArray() throws Exception {
-    int[] array = new int[] {4, 5, 6};
+    var array = new int[] {4, 5, 6};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeIntArray(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    int[] array2 = DataSerializer.readIntArray(in);
+    var in = getDataInput();
+    var array2 = DataSerializer.readIntArray(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -942,17 +942,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testIntArrayObject() throws Exception {
-    int[] array = new int[] {4, 5, 6};
+    var array = new int[] {4, 5, 6};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     int[] array2 = DataSerializer.readObject(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -962,17 +962,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testLongArray() throws Exception {
-    long[] array = new long[] {4, 5, 6};
+    var array = new long[] {4, 5, 6};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeLongArray(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    long[] array2 = DataSerializer.readLongArray(in);
+    var in = getDataInput();
+    var array2 = DataSerializer.readLongArray(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -982,17 +982,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testLongArrayObject() throws Exception {
-    long[] array = new long[] {4, 5, 6};
+    var array = new long[] {4, 5, 6};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     long[] array2 = DataSerializer.readObject(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -1002,17 +1002,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testFloatArray() throws Exception {
-    float[] array = new float[] {(float) 4.0, (float) 5.0, (float) 6.0};
+    var array = new float[] {(float) 4.0, (float) 5.0, (float) 6.0};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeFloatArray(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    float[] array2 = DataSerializer.readFloatArray(in);
+    var in = getDataInput();
+    var array2 = DataSerializer.readFloatArray(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i], 0.0f);
     }
   }
@@ -1022,17 +1022,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testFloatArrayObject() throws Exception {
-    float[] array = new float[] {(float) 4.0, (float) 5.0, (float) 6.0};
+    var array = new float[] {(float) 4.0, (float) 5.0, (float) 6.0};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     float[] array2 = DataSerializer.readObject(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i], 0.0f);
     }
   }
@@ -1042,17 +1042,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testDoubleArray() throws Exception {
-    double[] array = new double[] {4.0, 5.0, 6.0};
+    var array = new double[] {4.0, 5.0, 6.0};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeDoubleArray(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    double[] array2 = DataSerializer.readDoubleArray(in);
+    var in = getDataInput();
+    var array2 = DataSerializer.readDoubleArray(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i], 0.0f);
     }
   }
@@ -1062,17 +1062,17 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testDoubleArrayObject() throws Exception {
-    double[] array = new double[] {4.0, 5.0, 6.0};
+    var array = new double[] {4.0, 5.0, 6.0};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     double[] array2 = DataSerializer.readObject(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i], 0.0f);
     }
   }
@@ -1082,19 +1082,19 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testObjectArray() throws Exception {
-    Random random = getRandom();
-    SerializableImpl[] array = new SerializableImpl[] {new SerializableImpl(random),
+    var random = getRandom();
+    var array = new SerializableImpl[] {new SerializableImpl(random),
         new SerializableImpl(random), new SerializableImpl(random)};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObjectArray(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    SerializableImpl[] array2 = (SerializableImpl[]) DataSerializer.readObjectArray(in);
+    var in = getDataInput();
+    var array2 = (SerializableImpl[]) DataSerializer.readObjectArray(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -1104,19 +1104,19 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testObjectArrayObject() throws Exception {
-    Random random = getRandom();
-    SerializableImpl[] array = new SerializableImpl[] {new SerializableImpl(random),
+    var random = getRandom();
+    var array = new SerializableImpl[] {new SerializableImpl(random),
         new SerializableImpl(random), new SerializableImpl(random)};
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     SerializableImpl[] array2 = DataSerializer.readObject(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       assertEquals(array[i], array2[i]);
     }
   }
@@ -1129,12 +1129,12 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testUnspecialObject() throws Exception {
     Object o = new SerializableImpl(getRandom());
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(o, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    Object o2 = DataSerializer.readObject(in);
+    var in = getDataInput();
+    var o2 = DataSerializer.readObject(in);
     assertEquals(o, o2);
   }
 
@@ -1145,7 +1145,7 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testDataSerializable() throws Exception {
     DataSerializable ds = new DataSerializableImpl(getRandom());
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     ds.toData(out);
     out.flush();
 
@@ -1160,16 +1160,16 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testVersionedDataSerializable() throws Exception {
-    VersionedDataSerializableImpl ds = new VersionedDataSerializableImpl(getRandom());
+    var ds = new VersionedDataSerializableImpl(getRandom());
 
-    VersionedDataOutputStream v =
+    var v =
         new VersionedDataOutputStream(baos, KnownVersion.GEODE_1_11_0);
     DataSerializer.writeObject(ds, v);
     v.flush();
 
-    ByteBuffer bb = ByteBuffer.wrap(baos.toByteArray());
-    ByteBufferInputStream bbis = new ByteBufferInputStream(bb);
-    VersionedDataInputStream vin = new VersionedDataInputStream(bbis, KnownVersion.GEODE_1_11_0);
+    var bb = ByteBuffer.wrap(baos.toByteArray());
+    var bbis = new ByteBufferInputStream(bb);
+    var vin = new VersionedDataInputStream(bbis, KnownVersion.GEODE_1_11_0);
     VersionedDataSerializableImpl ds2 =
         DataSerializer.readObject(vin);
 
@@ -1185,11 +1185,11 @@ public class DataSerializableJUnitTest implements Serializable {
   public void testReplaceable() throws Exception {
     Object o = new ReplaceableImpl();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(o, out);
     out.flush();
 
-    Object o2 = DataSerializer.readObject(getDataInput());
+    var o2 = DataSerializer.readObject(getDataInput());
 
     assertEquals(42, o2);
   }
@@ -1207,17 +1207,17 @@ public class DataSerializableJUnitTest implements Serializable {
 
   private void tryArrayList(int size) throws IOException, ClassNotFoundException {
     setUp();
-    final Random random = getRandom();
+    final var random = getRandom();
     final ArrayList<Long> list = size == -1 ? null : new ArrayList<>(size);
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       list.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeArrayList(list, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     ArrayList<Long> list2 = DataSerializer.readArrayList(in);
     assertEquals(list, list2);
     tearDown();
@@ -1228,18 +1228,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testArrayListObject() throws Exception {
-    Random random = getRandom();
-    ArrayList<Long> list = new ArrayList<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var list = new ArrayList<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       list.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(list, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     ArrayList<Long> list2 = DataSerializer.readObject(in);
     assertEquals(list, list2);
   }
@@ -1249,18 +1249,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testHashSet() throws Exception {
-    Random random = getRandom();
-    HashSet<Long> set = new HashSet<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var set = new HashSet<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       set.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeHashSet(set, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     HashSet<Long> set2 = DataSerializer.readHashSet(in);
     assertEquals(set, set2);
   }
@@ -1270,18 +1270,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testHashSetObject() throws Exception {
-    Random random = getRandom();
-    HashSet<Long> set = new HashSet<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var set = new HashSet<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       set.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(set, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     HashSet<Long> set2 = DataSerializer.readObject(in);
     assertEquals(set, set2);
   }
@@ -1291,20 +1291,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testTreeSet() throws Exception {
-    Random random = getRandom();
-    TreeSet<Long> set = new TreeSet<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var set = new TreeSet<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       set.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeTreeSet(null, out);
     DataSerializer.writeTreeSet(new TreeSet<>(), out);
     DataSerializer.writeTreeSet(set, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     assertNull(DataSerializer.readTreeSet(in));
     assertEquals(new TreeSet<>(), DataSerializer.readTreeSet(in));
     TreeSet<Long> set2 = DataSerializer.readTreeSet(in);
@@ -1316,19 +1316,19 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testTreeSetWithComparator() throws Exception {
-    Random random = getRandom();
-    int size = random.nextInt(50);
-    TreeSet<Long> set = new TreeSet<>(new MyComparator(size));
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var size = random.nextInt(50);
+    var set = new TreeSet<Long>(new MyComparator(size));
+    for (var i = 0; i < size; i++) {
       set.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeTreeSet(new TreeSet<>(new MyComparator(0)), out);
     DataSerializer.writeTreeSet(set, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     TreeSet<Long> emptySet = DataSerializer.readTreeSet(in);
     assertEquals(new TreeSet<>(new MyComparator(0)), emptySet);
     assertEquals(new MyComparator(0), emptySet.comparator());
@@ -1342,18 +1342,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testTreeSetObject() throws Exception {
-    Random random = getRandom();
-    TreeSet<Long> set = new TreeSet<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var set = new TreeSet<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       set.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(set, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     TreeSet<Long> set2 = DataSerializer.readObject(in);
     assertEquals(set, set2);
   }
@@ -1363,20 +1363,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testHashMap() throws Exception {
-    Random random = getRandom();
-    HashMap<Long, String> map = new HashMap<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new HashMap<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeHashMap(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     HashMap<Long, String> map2 = DataSerializer.readHashMap(in);
     assertEquals(map, map2);
   }
@@ -1386,20 +1386,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testHashMapObject() throws Exception {
-    Random random = getRandom();
-    HashMap<Long, String> map = new HashMap<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new HashMap<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     HashMap<Long, String> map2 = DataSerializer.readObject(in);
     assertEquals(map, map2);
   }
@@ -1409,22 +1409,22 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testTreeMap() throws Exception {
-    Random random = getRandom();
-    TreeMap<Long, String> map = new TreeMap<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new TreeMap<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeTreeMap(null, out);
     DataSerializer.writeTreeMap(new TreeMap<>(), out);
     DataSerializer.writeTreeMap(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     assertNull(DataSerializer.readTreeMap(in));
     assertEquals(new TreeMap<>(), DataSerializer.readTreeMap(in));
     TreeMap<Long, String> map2 = DataSerializer.readTreeMap(in);
@@ -1436,21 +1436,21 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testTreeMapWithComparator() throws Exception {
-    Random random = getRandom();
-    int size = random.nextInt(50);
-    TreeMap<Long, String> map = new TreeMap<>(new MyComparator(size));
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var size = random.nextInt(50);
+    var map = new TreeMap<Long, String>(new MyComparator(size));
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeTreeMap(new TreeMap<>(new MyComparator(0)), out);
     DataSerializer.writeTreeMap(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     TreeMap<Long, String> emptyMap = DataSerializer.readTreeMap(in);
     assertEquals(new TreeMap<>(new MyComparator(0)), emptyMap);
     assertEquals(new MyComparator(0), emptyMap.comparator());
@@ -1473,7 +1473,7 @@ public class DataSerializableJUnitTest implements Serializable {
 
     public boolean equals(Object obj) {
       if (obj instanceof MyComparator) {
-        MyComparator other = (MyComparator) obj;
+        var other = (MyComparator) obj;
         return id == other.id;
       }
       return false;
@@ -1485,20 +1485,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testTreeMapObject() throws Exception {
-    Random random = getRandom();
-    TreeMap<Long, String> map = new TreeMap<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new TreeMap<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     TreeMap<Long, String> map2 = DataSerializer.readObject(in);
     assertEquals(map, map2);
   }
@@ -1508,18 +1508,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testLinkedHashSet() throws Exception {
-    Random random = getRandom();
-    LinkedHashSet<Long> set = new LinkedHashSet<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var set = new LinkedHashSet<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       set.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeLinkedHashSet(set, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     LinkedHashSet<Long> set2 = DataSerializer.readLinkedHashSet(in);
     assertEquals(set, set2);
   }
@@ -1529,18 +1529,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testLinkedHashSetObject() throws Exception {
-    Random random = getRandom();
-    LinkedHashSet<Long> set = new LinkedHashSet<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var set = new LinkedHashSet<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       set.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(set, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     LinkedHashSet<Long> set2 = DataSerializer.readObject(in);
     assertEquals(set, set2);
   }
@@ -1550,20 +1550,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testHashtable() throws Exception {
-    Random random = getRandom();
-    Hashtable<Long, String> map = new Hashtable<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new Hashtable<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeHashtable(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Hashtable<Long, String> map2 = DataSerializer.readHashtable(in);
     assertEquals(map, map2);
   }
@@ -1573,20 +1573,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testHashtableObject() throws Exception {
-    Random random = getRandom();
-    Hashtable<Long, String> map = new Hashtable<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new Hashtable<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Hashtable<Long, String> map2 = DataSerializer.readObject(in);
     assertEquals(map, map2);
   }
@@ -1596,20 +1596,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testLinkedHashMap() throws Exception {
-    Random random = getRandom();
-    LinkedHashMap<Long, String> map = new LinkedHashMap<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new LinkedHashMap<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeLinkedHashMap(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     LinkedHashMap<Long, String> map2 = DataSerializer.readLinkedHashMap(in);
     assertEquals(map, map2);
   }
@@ -1619,20 +1619,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testLinkedHashMapObject() throws Exception {
-    Random random = getRandom();
-    LinkedHashMap<Long, String> map = new LinkedHashMap<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new LinkedHashMap<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     LinkedHashMap<Long, String> map2 = DataSerializer.readObject(in);
     assertEquals(map, map2);
   }
@@ -1643,20 +1643,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testIdentityHashMap() throws Exception {
-    Random random = getRandom();
-    IdentityHashMap<Long, String> map = new IdentityHashMap<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new IdentityHashMap<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeIdentityHashMap(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     IdentityHashMap<Long, String> map2 = DataSerializer.readIdentityHashMap(in);
     assertEquals(new HashMap<>(map), new HashMap<>(map2));
   }
@@ -1666,20 +1666,20 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testIdentityHashMapObject() throws Exception {
-    Random random = getRandom();
-    IdentityHashMap<Long, String> map = new IdentityHashMap<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var map = new IdentityHashMap<Long, String>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       Long key = random.nextLong();
-      String value = String.valueOf(random.nextLong());
+      var value = String.valueOf(random.nextLong());
       map.put(key, value);
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(map, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     IdentityHashMap<Long, String> map2 = DataSerializer.readObject(in);
     assertEquals(new HashMap<>(map), new HashMap<>(map2));
   }
@@ -1689,18 +1689,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testVector() throws Exception {
-    Random random = getRandom();
-    Vector<Long> list = new Vector<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var list = new Vector<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       list.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeVector(list, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Vector<Long> list2 = DataSerializer.readVector(in);
     assertEquals(list, list2);
   }
@@ -1710,18 +1710,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testVectorObject() throws Exception {
-    Random random = getRandom();
-    Vector<Long> list = new Vector<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var list = new Vector<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       list.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(list, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Vector<Long> list2 = DataSerializer.readObject(in);
     assertEquals(list, list2);
   }
@@ -1731,18 +1731,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testStack() throws Exception {
-    Random random = getRandom();
-    Stack<Long> list = new Stack<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var list = new Stack<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       list.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeStack(list, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Stack<Long> list2 = DataSerializer.readStack(in);
     assertEquals(list, list2);
   }
@@ -1752,18 +1752,18 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testStackObject() throws Exception {
-    Random random = getRandom();
-    Stack<Long> list = new Stack<>();
-    int size = random.nextInt(50);
-    for (int i = 0; i < size; i++) {
+    var random = getRandom();
+    var list = new Stack<Long>();
+    var size = random.nextInt(50);
+    for (var i = 0; i < size; i++) {
       list.add(random.nextLong());
     }
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(list, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     Stack<Long> list2 = DataSerializer.readObject(in);
     assertEquals(list, list2);
   }
@@ -1773,34 +1773,34 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testTimeUnitObject() throws Exception {
-    DataOutputStream out = getDataOutput();
-    for (TimeUnit v : TimeUnit.values()) {
+    var out = getDataOutput();
+    for (var v : TimeUnit.values()) {
       DataSerializer.writeObject(v, out, false /* no java serialization allowed */);
     }
     out.flush();
 
-    DataInput in = getDataInput();
-    for (TimeUnit v : TimeUnit.values()) {
+    var in = getDataInput();
+    for (var v : TimeUnit.values()) {
       assertEquals(v, DataSerializer.readObject(in));
     }
   }
 
   @Test
   public void testProperties() throws Exception {
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeProperties(new Properties(), out);
     DataSerializer.writeProperties(null, out);
-    Properties p1 = new Properties();
+    var p1 = new Properties();
     p1.setProperty("aKey1", "aValue1");
     p1.setProperty("aKey2", "aValue2");
     DataSerializer.writeProperties(p1, out);
-    Properties p2 = new Properties();
+    var p2 = new Properties();
     p2.put("aKey1", 1);
     p2.put("aKey2", 2);
     DataSerializer.writeProperties(p2, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     assertEquals(new Properties(), DataSerializer.readProperties(in));
     assertNull(DataSerializer.readProperties(in));
     assertEquals(p1, DataSerializer.readProperties(in));
@@ -1838,7 +1838,7 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testRegisterTwoSerializers() {
-    byte id = (byte) 42;
+    var id = (byte) 42;
     DataSerializer.register(DS42.class);
 
     DataSerializer serializer2 = new DS42() {};
@@ -1866,9 +1866,9 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testNoDeSerializer() throws Exception {
-    Random random = new Random();
+    var random = new Random();
 
-    byte id = (byte) 100;
+    var id = (byte) 100;
     Class<?> c = NonDataSerializable.NonDSSerializer.class;
     DataSerializer.register(c);
 
@@ -1876,7 +1876,7 @@ public class DataSerializableJUnitTest implements Serializable {
     DataSerializer.writeObject(o, getDataOutput());
     InternalDataSerializer.unregister(id);
 
-    int savVal = InternalDataSerializer.GetMarker.WAIT_MS;
+    var savVal = InternalDataSerializer.GetMarker.WAIT_MS;
     InternalDataSerializer.GetMarker.WAIT_MS = 10;
     try {
       DataSerializer.readObject(getDataInput());
@@ -1896,9 +1896,9 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testLateDeSerializer() throws Exception {
-    Random random = new Random();
+    var random = new Random();
 
-    final byte id = (byte) 100;
+    final var id = (byte) 100;
     final Class<?> c = NonDataSerializable.NonDSSerializer.class;
     DataSerializer.register(c);
 
@@ -1906,7 +1906,7 @@ public class DataSerializableJUnitTest implements Serializable {
     DataSerializer.writeObject(o, getDataOutput());
     InternalDataSerializer.unregister(id);
 
-    ThreadGroup group = new ThreadGroup("Group") {
+    var group = new ThreadGroup("Group") {
       @Override
       public void uncaughtException(Thread t, Throwable e) {
         if (e instanceof VirtualMachineError) {
@@ -1915,7 +1915,7 @@ public class DataSerializableJUnitTest implements Serializable {
         fail("Uncaught exception in thread " + t + e);
       }
     };
-    Thread thread = new Thread(group, "Registrar") {
+    var thread = new Thread(group, "Registrar") {
       @Override
       public void run() {
         try {
@@ -1951,11 +1951,11 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testLateInstantiator() throws Exception {
-    Random random = new Random();
+    var random = new Random();
 
-    final byte id = (byte) 100;
-    final Class<DataSerializableImpl> c = DataSerializableImpl.class;
-    final Instantiator inst = new Instantiator(c, id) {
+    final var id = (byte) 100;
+    final var c = DataSerializableImpl.class;
+    final var inst = new Instantiator(c, id) {
       @Override
       public DataSerializable newInstance() {
         return new DataSerializableImpl();
@@ -1967,7 +1967,7 @@ public class DataSerializableJUnitTest implements Serializable {
     DataSerializer.writeObject(o, getDataOutput());
     InternalInstantiator.unregister(c, id);
 
-    ThreadGroup group = new ThreadGroup("Group") {
+    var group = new ThreadGroup("Group") {
       @Override
       public void uncaughtException(Thread t, Throwable e) {
         if (e instanceof VirtualMachineError) {
@@ -1976,7 +1976,7 @@ public class DataSerializableJUnitTest implements Serializable {
         fail("Uncaught exception in thread " + t + e);
       }
     };
-    Thread thread = new Thread(group, "Registrar") {
+    var thread = new Thread(group, "Registrar") {
       @Override
       public void run() {
         try {
@@ -2011,16 +2011,16 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testCustomSerializer() throws Exception {
-    Random random = new Random();
+    var random = new Random();
 
     Class<?> c = NonDataSerializable.NonDSSerializer.class;
-    byte id = (byte) 100;
+    var id = (byte) 100;
     DataSerializer.register(c);
 
     Object o = new NonDataSerializable(random);
     try {
       DataSerializer.writeObject(o, getDataOutput());
-      Object o2 = DataSerializer.readObject(getDataInput());
+      var o2 = DataSerializer.readObject(getDataInput());
       assertEquals(o, o2);
 
     } finally {
@@ -2100,7 +2100,7 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testInstantiator() throws Exception {
-    final boolean[] wasInvoked = new boolean[] {false};
+    final var wasInvoked = new boolean[] {false};
     Instantiator.register(new Instantiator(DataSerializableImpl.class, (byte) 45) {
       @Override
       public DataSerializable newInstance() {
@@ -2109,13 +2109,13 @@ public class DataSerializableJUnitTest implements Serializable {
       }
     });
     try {
-      byte id = (byte) 57;
+      var id = (byte) 57;
       Class_testInstantiator.supClass = DataSerializableImpl.class;
       DataSerializer.register(Class_testInstantiator.class);
       try {
         Object o = new DataSerializableImpl(new Random());
         DataSerializer.writeObject(o, getDataOutput());
-        Object o2 = DataSerializer.readObject(getDataInput());
+        var o2 = DataSerializer.readObject(getDataInput());
         assertTrue(wasInvoked[0]);
         assertEquals(o, o2);
       } finally {
@@ -2128,7 +2128,7 @@ public class DataSerializableJUnitTest implements Serializable {
 
   @Test
   public void testInstantiator2() throws Exception {
-    final boolean[] wasInvoked = new boolean[] {false};
+    final var wasInvoked = new boolean[] {false};
     Instantiator.register(new Instantiator(DataSerializableImpl.class, 20000) {
       @Override
       public DataSerializable newInstance() {
@@ -2137,13 +2137,13 @@ public class DataSerializableJUnitTest implements Serializable {
       }
     });
     try {
-      byte id = (byte) 57;
+      var id = (byte) 57;
       Class_testInstantiator.supClass = DataSerializableImpl.class;
       DataSerializer.register(Class_testInstantiator.class);
       try {
         Object o = new DataSerializableImpl(new Random());
         DataSerializer.writeObject(o, getDataOutput());
-        Object o2 = DataSerializer.readObject(getDataInput());
+        var o2 = DataSerializer.readObject(getDataInput());
         assertTrue(wasInvoked[0]);
         assertEquals(o, o2);
       } finally {
@@ -2156,7 +2156,7 @@ public class DataSerializableJUnitTest implements Serializable {
 
   @Test
   public void testInstantiator4() throws Exception {
-    final boolean[] wasInvoked = new boolean[] {false};
+    final var wasInvoked = new boolean[] {false};
     Instantiator.register(new Instantiator(DataSerializableImpl.class, 123456789) {
       @Override
       public DataSerializable newInstance() {
@@ -2165,13 +2165,13 @@ public class DataSerializableJUnitTest implements Serializable {
       }
     });
     try {
-      byte id = (byte) 57;
+      var id = (byte) 57;
       Class_testInstantiator.supClass = DataSerializableImpl.class;
       DataSerializer.register(Class_testInstantiator.class);
       try {
         Object o = new DataSerializableImpl(new Random());
         DataSerializer.writeObject(o, getDataOutput());
-        Object o2 = DataSerializer.readObject(getDataInput());
+        var o2 = DataSerializer.readObject(getDataInput());
         assertTrue(wasInvoked[0]);
         assertEquals(o, o2);
       } finally {
@@ -2209,7 +2209,7 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testCanonicalInstantiator() throws Exception {
-    final boolean[] wasInvoked = new boolean[] {false};
+    final var wasInvoked = new boolean[] {false};
     Instantiator
         .register(new CanonicalInstantiator(CanonicalDataSerializableImpl.class, (byte) 45) {
           @Override
@@ -2219,14 +2219,14 @@ public class DataSerializableJUnitTest implements Serializable {
           }
         });
     try {
-      byte id = (byte) 57;
+      var id = (byte) 57;
 
       Class_testInstantiator.supClass = CanonicalDataSerializableImpl.class;
       DataSerializer.register(Class_testInstantiator.class);
       try {
         Object o = CanonicalDataSerializableImpl.create();
         DataSerializer.writeObject(o, getDataOutput());
-        Object o2 = DataSerializer.readObject(getDataInput());
+        var o2 = DataSerializer.readObject(getDataInput());
         assertTrue(wasInvoked[0]);
         assertSame(o, o2);
       } finally {
@@ -2247,11 +2247,11 @@ public class DataSerializableJUnitTest implements Serializable {
     assertThat(Class_testSupportedClasses2.toDataInvoked).isFalse();
     assertThat(Class_testSupportedClasses2.fromDataInvoked).isFalse();
 
-    DataSerializer ds1 = DataSerializer.register(Class_testSupportedClasses1.class);
-    int id = ds1.getId();
+    var ds1 = DataSerializer.register(Class_testSupportedClasses1.class);
+    var id = ds1.getId();
 
-    DataSerializer ds2 = DataSerializer.register(Class_testSupportedClasses2.class);
-    int id2 = ds2.getId();
+    var ds2 = DataSerializer.register(Class_testSupportedClasses2.class);
+    var id2 = ds2.getId();
 
     try {
       Object o = new NonDataSerializable(new Random());
@@ -2260,7 +2260,7 @@ public class DataSerializableJUnitTest implements Serializable {
       assertThat(Class_testSupportedClasses2.toDataInvoked).isTrue();
       assertThat(Class_testSupportedClasses2.fromDataInvoked).isFalse();
 
-      Object o2 = DataSerializer.readObject(getDataInput());
+      var o2 = DataSerializer.readObject(getDataInput());
       assertThat(Class_testSupportedClasses2.fromDataInvoked).isTrue();
       assertThat(o).isEqualTo(o2);
     } finally {
@@ -2282,8 +2282,8 @@ public class DataSerializableJUnitTest implements Serializable {
     assertThat(Class_testSupportedClasses3.toDataInvoked).isFalse();
     assertThat(Class_testSupportedClasses3.fromDataInvoked).isFalse();
 
-    DataSerializer ds2 = DataSerializer.register(Class_testSupportedClasses3.class);
-    int id2 = ds2.getId();
+    var ds2 = DataSerializer.register(Class_testSupportedClasses3.class);
+    var id2 = ds2.getId();
 
     try {
       Object o = new NonDataSerializable(new Random());
@@ -2292,7 +2292,7 @@ public class DataSerializableJUnitTest implements Serializable {
       assertThat(Class_testSupportedClasses3.toDataInvoked).isTrue();
       assertThat(Class_testSupportedClasses3.fromDataInvoked).isFalse();
 
-      Object o2 = DataSerializer.readObject(getDataInput());
+      var o2 = DataSerializer.readObject(getDataInput());
       assertThat(Class_testSupportedClasses3.fromDataInvoked).isTrue();
       assertThat(o).isEqualTo(o2);
     } finally {
@@ -2313,8 +2313,8 @@ public class DataSerializableJUnitTest implements Serializable {
     assertThat(Class_testSupportedClasses4.toDataInvoked).isFalse();
     assertThat(Class_testSupportedClasses4.fromDataInvoked).isFalse();
 
-    DataSerializer ds2 = DataSerializer.register(Class_testSupportedClasses4.class);
-    int id2 = ds2.getId();
+    var ds2 = DataSerializer.register(Class_testSupportedClasses4.class);
+    var id2 = ds2.getId();
 
     try {
       Object o = new NonDataSerializable(new Random());
@@ -2323,7 +2323,7 @@ public class DataSerializableJUnitTest implements Serializable {
       assertThat(Class_testSupportedClasses4.toDataInvoked).isTrue();
       assertThat(Class_testSupportedClasses4.fromDataInvoked).isFalse();
 
-      Object o2 = DataSerializer.readObject(getDataInput());
+      var o2 = DataSerializer.readObject(getDataInput());
       assertTrue(Class_testSupportedClasses4.fromDataInvoked);
       assertThat(o).isEqualTo(o2);
     } finally {
@@ -2454,18 +2454,18 @@ public class DataSerializableJUnitTest implements Serializable {
   @Ignore("disabled due a bug in JaCoCo 0.6.2 agent while handling stackoverflow exceptions")
   @Test
   public void testCyclicalObjectGraph() throws Exception {
-    Link link1 = new Link(1);
-    Link link2 = new Link(2);
+    var link1 = new Link(1);
+    var link2 = new Link(2);
     link1.next = link2;
-    Link link3 = new Link(3);
+    var link3 = new Link(3);
     link2.next = link3;
-    Link link4 = new Link(4);
+    var link4 = new Link(4);
     link3.next = link4;
-    Link link5 = new Link(5);
+    var link5 = new Link(5);
     link4.next = link5;
     link5.next = link1;
 
-    ObjectOutputStream oos = new ObjectOutputStream(getDataOutput());
+    var oos = new ObjectOutputStream(getDataOutput());
     oos.writeObject(link1);
     oos.flush();
     oos.close();
@@ -2489,23 +2489,23 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testReferentialIntegrity() throws Exception {
-    Link top = new Link(1);
-    Link left = new Link(2);
-    Link right = new Link(3);
-    Link bottom = new Link(4);
+    var top = new Link(1);
+    var left = new Link(2);
+    var right = new Link(3);
+    var bottom = new Link(4);
 
     top.next = left;
     top.next2 = right;
     top.next.next = bottom;
     top.next2.next = bottom;
 
-    ObjectOutputStream oos = new ObjectOutputStream(getDataOutput());
+    var oos = new ObjectOutputStream(getDataOutput());
     oos.writeObject(top);
     oos.flush();
     oos.close();
 
-    ObjectInputStream ois = new ObjectInputStream(getDataInputStream());
-    Link top2 = (Link) ois.readObject();
+    var ois = new ObjectInputStream(getDataInputStream());
+    var top2 = (Link) ois.readObject();
     ois.close();
 
     assertSame(top2.next.next, top2.next2.next);
@@ -2523,15 +2523,15 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testRegistrationListeners() {
-    final DataSerializer[] array = new DataSerializer[2];
+    final var array = new DataSerializer[2];
 
-    TestRegistrationListener l1 = new TestRegistrationListener() {
+    var l1 = new TestRegistrationListener() {
       @Override
       public void newDataSerializer2(DataSerializer ds) {
         array[0] = ds;
       }
     };
-    TestRegistrationListener l2 = new TestRegistrationListener() {
+    var l2 = new TestRegistrationListener() {
       @Override
       public void newDataSerializer2(DataSerializer ds) {
         array[1] = ds;
@@ -2541,9 +2541,9 @@ public class DataSerializableJUnitTest implements Serializable {
     InternalDataSerializer.addRegistrationListener(l1);
     InternalDataSerializer.addRegistrationListener(l2);
 
-    byte id = (byte) 42;
+    var id = (byte) 42;
     try {
-      DataSerializer ds = DataSerializer.register(DS42.class);
+      var ds = DataSerializer.register(DS42.class);
       assertTrue(l1.wasInvoked());
       assertSame(ds, array[0]);
       assertTrue(l2.wasInvoked());
@@ -2555,23 +2555,22 @@ public class DataSerializableJUnitTest implements Serializable {
       InternalDataSerializer.removeRegistrationListener(l2);
     }
 
-
-    Class<DataSerializableImpl> c = DataSerializableImpl.class;
+    var c = DataSerializableImpl.class;
     id = (byte) 100;
-    final Instantiator inst0 = new Instantiator(c, id) {
+    final var inst0 = new Instantiator(c, id) {
       @Override
       public DataSerializable newInstance() {
         return new DataSerializableImpl();
       }
     };
 
-    TestRegistrationListener l3 = new TestRegistrationListener() {
+    var l3 = new TestRegistrationListener() {
       @Override
       public void newInstantiator2(Instantiator inst) {
         assertEquals(inst0, inst);
       }
     };
-    TestRegistrationListener l4 = new TestRegistrationListener() {
+    var l4 = new TestRegistrationListener() {
       @Override
       public void newInstantiator2(Instantiator inst) {
         assertEquals(inst0, inst);
@@ -2686,10 +2685,10 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   private void checkClass(Object o) throws IOException, ClassNotFoundException {
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(o, out);
     out.flush();
-    DataInput in = getDataInput();
+    var in = getDataInput();
     assertSame(o.getClass(), DataSerializer.readObject(in).getClass());
     baos = new ByteArrayOutputStream();
   }
@@ -2753,36 +2752,36 @@ public class DataSerializableJUnitTest implements Serializable {
   @Test
   public void testStatArchiveCompactValueSerialization() throws Exception {
     // test all combos of valueToTest and + and -offsets
-    long[] valuesToTest = new long[] {0, Byte.MAX_VALUE, Byte.MIN_VALUE, Short.MAX_VALUE,
+    var valuesToTest = new long[] {0, Byte.MAX_VALUE, Byte.MIN_VALUE, Short.MAX_VALUE,
         Short.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Long.MAX_VALUE, Long.MIN_VALUE};
-    int[] offsets = new int[] {0, 1, 4, 9, 14, 15, 16, -1, -4, -9, -14, -15, -16};
+    var offsets = new int[] {0, 1, 4, 9, 14, 15, 16, -1, -4, -9, -14, -15, -16};
 
     // write all combos of longs to the outputstream
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataOutput out = hdos;
-    for (long valueToTest : valuesToTest) {
-      for (int offset : offsets) {
-        long val = valueToTest + offset;
+    for (var valueToTest : valuesToTest) {
+      for (var offset : offsets) {
+        var val = valueToTest + offset;
         StatArchiveWriter.writeCompactValue(val, out);
       }
     }
     // now read all the combos
-    byte[] bytes = hdos.toByteArray();
+    var bytes = hdos.toByteArray();
     DataInput in = new DataInputStream(new ByteArrayInputStream(bytes));
-    for (long valueToTest : valuesToTest) {
-      for (int offset : offsets) {
-        long expectedVal = valueToTest + offset;
-        long val = StatArchiveWriter.readCompactValue(in);
+    for (var valueToTest : valuesToTest) {
+      for (var offset : offsets) {
+        var expectedVal = valueToTest + offset;
+        var val = StatArchiveWriter.readCompactValue(in);
         assertEquals(expectedVal, val);
       }
     }
 
     // also test using ByteBufferInputStream (bug #41197)
     in = new ByteBufferInputStream(ByteBuffer.wrap(bytes));
-    for (long valueToTest : valuesToTest) {
-      for (int offset : offsets) {
-        long expectedVal = valueToTest + offset;
-        long val = StatArchiveWriter.readCompactValue(in);
+    for (var valueToTest : valuesToTest) {
+      for (var offset : offsets) {
+        var expectedVal = valueToTest + offset;
+        var val = StatArchiveWriter.readCompactValue(in);
         assertEquals(expectedVal, val);
       }
     }
@@ -2790,23 +2789,23 @@ public class DataSerializableJUnitTest implements Serializable {
     // now check ByteBufferInputStream#readUnsignedShort explicitly
     // readUnsignedByte is already tested in StatArchiveWriter.readCompactValue
     // above likely in a more thorough manner than a simple explicit test would
-    short[] shortValuesToTest =
+    var shortValuesToTest =
         new short[] {0, Byte.MAX_VALUE, Byte.MIN_VALUE, Short.MAX_VALUE, Short.MIN_VALUE};
 
-    ByteBufferOutputStream bos = new ByteBufferOutputStream();
+    var bos = new ByteBufferOutputStream();
     out = new DataOutputStream(bos);
-    for (short valueToTest : shortValuesToTest) {
-      for (int offset : offsets) {
-        short val = (short) (valueToTest + offset);
+    for (var valueToTest : shortValuesToTest) {
+      for (var offset : offsets) {
+        var val = (short) (valueToTest + offset);
         out.writeShort(val);
       }
     }
     // now read all the combos
     in = new ByteBufferInputStream(bos.getContentBuffer());
-    for (short valueToTest : shortValuesToTest) {
-      for (int offset : offsets) {
-        int expectedVal = (valueToTest + offset) & 0xffff;
-        int val = in.readUnsignedShort();
+    for (var valueToTest : shortValuesToTest) {
+      for (var offset : offsets) {
+        var expectedVal = (valueToTest + offset) & 0xffff;
+        var val = in.readUnsignedShort();
         assertEquals(expectedVal, val);
       }
     }
@@ -2885,10 +2884,10 @@ public class DataSerializableJUnitTest implements Serializable {
       unsignedByteField = random.nextInt(256);
       unsignedShortField = random.nextInt(65536);
 
-      int length = random.nextInt(100);
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < length; i++) {
-        char c = (char) ('A' + random.nextInt('Z' - 'A'));
+      var length = random.nextInt(100);
+      var sb = new StringBuilder();
+      for (var i = 0; i < length; i++) {
+        var c = (char) ('A' + random.nextInt('Z' - 'A'));
         sb.append(c);
       }
       stringField = sb.toString();
@@ -2912,7 +2911,7 @@ public class DataSerializableJUnitTest implements Serializable {
         return false;
       }
 
-      SerializableImpl other = (SerializableImpl) o;
+      var other = (SerializableImpl) o;
       return byteField == other.byteField && shortField == other.shortField
           && intField == other.intField && longField == other.longField
           && floatField == other.floatField && doubleField == other.doubleField
@@ -3158,7 +3157,7 @@ public class DataSerializableJUnitTest implements Serializable {
         return false;
       }
 
-      NonDataSerializable other = (NonDataSerializable) o;
+      var other = (NonDataSerializable) o;
       return other.intValue == intValue && other.doubleValue == doubleValue
           && (other.stringValue != null && stringValue != null)
           && other.stringValue.equals(stringValue)
@@ -3192,7 +3191,7 @@ public class DataSerializableJUnitTest implements Serializable {
       public boolean toData(Object o, DataOutput out) throws IOException {
 
         if (o instanceof NonDataSerializable) {
-          NonDataSerializable nds = (NonDataSerializable) o;
+          var nds = (NonDataSerializable) o;
 
           out.writeByte(CLASS_ID);
           out.writeInt(nds.intValue);
@@ -3212,9 +3211,9 @@ public class DataSerializableJUnitTest implements Serializable {
       @Override
       public Object fromData(DataInput in) throws IOException, ClassNotFoundException {
 
-        byte classId = in.readByte();
+        var classId = in.readByte();
         assertEquals(CLASS_ID, classId);
-        NonDataSerializable nds = new NonDataSerializable();
+        var nds = new NonDataSerializable();
         nds.intValue = in.readInt();
         nds.doubleValue = in.readDouble();
         nds.stringValue = in.readUTF();
@@ -3241,7 +3240,7 @@ public class DataSerializableJUnitTest implements Serializable {
     @Override
     public boolean equals(Object o) {
       if (o instanceof IntWrapper) {
-        IntWrapper other = (IntWrapper) o;
+        var other = (IntWrapper) o;
         return other.intValue == intValue;
 
       } else {
@@ -3281,8 +3280,8 @@ public class DataSerializableJUnitTest implements Serializable {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + data;
       return result;
     }
@@ -3298,7 +3297,7 @@ public class DataSerializableJUnitTest implements Serializable {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      SerializableIntWrapper other = (SerializableIntWrapper) obj;
+      var other = (SerializableIntWrapper) obj;
       return data == other.data;
     }
   }
@@ -3352,7 +3351,7 @@ public class DataSerializableJUnitTest implements Serializable {
      */
     public boolean wasInvoked() {
       checkForError();
-      boolean value = invoked;
+      var value = invoked;
       invoked = false;
       return value;
     }
@@ -3378,7 +3377,7 @@ public class DataSerializableJUnitTest implements Serializable {
     }
 
     public void newDataSerializer2(DataSerializer ds) {
-      String s = "Unexpected callback invocation";
+      var s = "Unexpected callback invocation";
       throw new UnsupportedOperationException(s);
     }
 
@@ -3397,7 +3396,7 @@ public class DataSerializableJUnitTest implements Serializable {
     }
 
     public void newInstantiator2(Instantiator instantiator) {
-      String s = "Unexpected callback invocation";
+      var s = "Unexpected callback invocation";
       throw new UnsupportedOperationException(s);
     }
 
@@ -3410,25 +3409,25 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testByteArrayArrayObject() throws Exception {
-    byte[] ar0 = new byte[] {(byte) 1, (byte) 2, (byte) 3};
-    byte[] ar1 = new byte[] {(byte) 4, (byte) 5, (byte) 6};
-    byte[] ar2 = new byte[] {(byte) 7, (byte) 8, (byte) 9};
-    byte[][] array = new byte[3][];
+    var ar0 = new byte[] {(byte) 1, (byte) 2, (byte) 3};
+    var ar1 = new byte[] {(byte) 4, (byte) 5, (byte) 6};
+    var ar2 = new byte[] {(byte) 7, (byte) 8, (byte) 9};
+    var array = new byte[3][];
     array[0] = ar0;
     array[1] = ar1;
     array[2] = ar2;
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObject(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     byte[][] array2 = DataSerializer.readObject(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
-      byte[] compArray = array2[i];
-      for (int j = 0; j < compArray.length; j++) {
+    for (var i = 0; i < array.length; i++) {
+      var compArray = array2[i];
+      for (var j = 0; j < compArray.length; j++) {
         assertEquals(array[i][j], array2[i][j]);
       }
     }
@@ -3439,25 +3438,25 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testByteArrayArray() throws Exception {
-    byte[] ar0 = new byte[] {(byte) 1, (byte) 2, (byte) 3};
-    byte[] ar1 = new byte[] {(byte) 4, (byte) 5, (byte) 6};
-    byte[] ar2 = new byte[] {(byte) 7, (byte) 8, (byte) 9};
-    byte[][] array = new byte[3][];
+    var ar0 = new byte[] {(byte) 1, (byte) 2, (byte) 3};
+    var ar1 = new byte[] {(byte) 4, (byte) 5, (byte) 6};
+    var ar2 = new byte[] {(byte) 7, (byte) 8, (byte) 9};
+    var array = new byte[3][];
     array[0] = ar0;
     array[1] = ar1;
     array[2] = ar2;
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeObjectArray(array, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    byte[][] array2 = (byte[][]) DataSerializer.readObjectArray(in);
+    var in = getDataInput();
+    var array2 = (byte[][]) DataSerializer.readObjectArray(in);
 
     assertEquals(array.length, array2.length);
-    for (int i = 0; i < array.length; i++) {
-      byte[] compArray = array2[i];
-      for (int j = 0; j < compArray.length; j++) {
+    for (var i = 0; i < array.length; i++) {
+      var compArray = array2[i];
+      for (var j = 0; j < compArray.length; j++) {
         assertEquals(array[i][j], array2[i][j]);
       }
     }
@@ -3466,23 +3465,23 @@ public class DataSerializableJUnitTest implements Serializable {
   // see bug 41721
   @Test
   public void testArrayMinShortLength() throws Exception {
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeByteArray(new byte[0x8000], out);
     out.flush();
 
-    DataInput in = getDataInput();
-    byte[] array = DataSerializer.readByteArray(in);
+    var in = getDataInput();
+    var array = DataSerializer.readByteArray(in);
     assertEquals(0x8000, array.length);
   }
 
   @Test
   public void testArrayMaxShortLength() throws Exception {
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeByteArray(new byte[0xFFFF], out);
     out.flush();
 
-    DataInput in = getDataInput();
-    byte[] array = DataSerializer.readByteArray(in);
+    var in = getDataInput();
+    var array = DataSerializer.readByteArray(in);
     assertEquals(0xFFFF, array.length);
   }
 
@@ -3492,23 +3491,23 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testStringEncodingLengthCrossesBoundry() throws Exception {
-    StringBuilder sb = new StringBuilder(0xFFFF);
-    for (int i = 0; i < 0xFFFF; i++) {
+    var sb = new StringBuilder(0xFFFF);
+    for (var i = 0; i < 0xFFFF; i++) {
       if (i == 0) {
         sb.append(Character.MAX_VALUE);
       } else {
         sb.append("a");
       }
     }
-    String value = sb.toString();
+    var value = sb.toString();
 
-    DataOutputStream out = getDataOutput();
+    var out = getDataOutput();
     DataSerializer.writeString(value, out);
     DataSerializer.writeObject(value, out);
     out.flush();
 
-    DataInput in = getDataInput();
-    String value2 = DataSerializer.readString(in);
+    var in = getDataInput();
+    var value2 = DataSerializer.readString(in);
     assertEquals(value, value2);
     value2 = DataSerializer.readObject(in);
     assertEquals(value, value2);
@@ -3527,9 +3526,9 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testEnum() throws Exception {
-    DAY_OF_WEEK e = DAY_OF_WEEK.SUN;
-    MONTH m = MONTH.FEB;
-    DataOutputStream out = getDataOutput();
+    var e = DAY_OF_WEEK.SUN;
+    var m = MONTH.FEB;
+    var out = getDataOutput();
     DataSerializer.writeEnum(e, out);
     DataSerializer.writeEnum(m, out);
     try {
@@ -3539,7 +3538,7 @@ public class DataSerializableJUnitTest implements Serializable {
     }
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     @SuppressWarnings("rawtypes") // for testing
     Class c = null;
     try {
@@ -3555,22 +3554,22 @@ public class DataSerializableJUnitTest implements Serializable {
       fail("Expected exception not thrown");
     } catch (IllegalArgumentException ignored) {
     }
-    DAY_OF_WEEK e2 = DataSerializer.readEnum(DAY_OF_WEEK.class, in);
-    MONTH m2 = DataSerializer.readEnum(MONTH.class, in);
+    var e2 = DataSerializer.readEnum(DAY_OF_WEEK.class, in);
+    var m2 = DataSerializer.readEnum(MONTH.class, in);
     assertEquals(e, e2);
     assertEquals(m, m2);
   }
 
   @Test
   public void testObjectEnum() throws Exception {
-    DAY_OF_WEEK e = DAY_OF_WEEK.SUN;
-    MONTH m = MONTH.FEB;
-    DataOutputStream out = getDataOutput();
+    var e = DAY_OF_WEEK.SUN;
+    var m = MONTH.FEB;
+    var out = getDataOutput();
     DataSerializer.writeObject(e, out);
     DataSerializer.writeObject(m, out);
     out.flush();
 
-    DataInput in = getDataInput();
+    var in = getDataInput();
     DAY_OF_WEEK e2 = DataSerializer.readObject(in);
     MONTH m2 = DataSerializer.readObject(in);
     assertEquals(e, e2);
@@ -3586,11 +3585,11 @@ public class DataSerializableJUnitTest implements Serializable {
    */
   @Test
   public void testOddDataInput() throws Exception {
-    SerializableIntWrapper o = new SerializableIntWrapper(-1);
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    var o = new SerializableIntWrapper(-1);
+    var baos = new ByteArrayOutputStream();
     DataSerializer.writeObject(o, new DataOutputStream(baos));
-    OddDataInput odi = new OddDataInput(ByteBuffer.wrap(baos.toByteArray()));
-    Object o2 = DataSerializer.readObject(odi);
+    var odi = new OddDataInput(ByteBuffer.wrap(baos.toByteArray()));
+    var o2 = DataSerializer.readObject(odi);
     assertEquals(o, o2);
   }
 

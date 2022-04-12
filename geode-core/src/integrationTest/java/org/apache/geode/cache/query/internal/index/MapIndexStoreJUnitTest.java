@@ -30,7 +30,6 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.index.IndexStore.IndexStoreEntry;
@@ -72,10 +71,10 @@ public class MapIndexStoreJUnitTest {
   protected IndexStore getIndexStorage() {
     CacheUtils.startCache();
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.NORMAL);
     attributesFactory.setIndexMaintenanceSynchronous(true);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     region = (LocalRegion) cache.createRegion("portfolios", regionAttributes);
 
     IndexStore indexStorage =
@@ -89,9 +88,9 @@ public class MapIndexStoreJUnitTest {
    * adds values to the index storage and to a list for validation
    */
   private void addValues(Region region, int numValues) throws IMQException {
-    for (int i = 0; i < numValues; i++) {
-      String regionKey = "" + i;
-      RegionEntry re = VMThinRegionEntryHeap.getEntryFactory()
+    for (var i = 0; i < numValues; i++) {
+      var regionKey = "" + i;
+      var re = VMThinRegionEntryHeap.getEntryFactory()
           .createEntry((RegionEntryContext) region, regionKey, new Portfolio(i));
       entries.add(i, new IndexRegionTestEntry(re));
       indexDataStructure.addMapping(regionKey, re);
@@ -102,7 +101,7 @@ public class MapIndexStoreJUnitTest {
    * checks the list for an matching IndexEntry
    */
   private boolean entriesContains(IndexStoreEntry ie) {
-    for (final IndexStoreEntry entry : entries) {
+    for (final var entry : entries) {
       if (entry.equals(ie)) {
         return true;
       }
@@ -116,10 +115,10 @@ public class MapIndexStoreJUnitTest {
   private void validateIndexStorage() {
     CloseableIterator<IndexStoreEntry> iterator = null;
     try {
-      ArrayList structureList = new ArrayList();
+      var structureList = new ArrayList();
       iterator = indexDataStructure.iterator(null);
       while (iterator.hasNext()) {
-        IndexStoreEntry ie = iterator.next();
+        var ie = iterator.next();
         if (entriesContains(ie)) {
           structureList.add(ie);
         } else {
@@ -140,7 +139,7 @@ public class MapIndexStoreJUnitTest {
    */
   private void validateIteratorSize(CloseableIterator iterator, int expectedSize) {
     try {
-      int actualSize = 0;
+      var actualSize = 0;
       while (iterator.hasNext()) {
         iterator.next();
         actualSize++;
@@ -155,8 +154,8 @@ public class MapIndexStoreJUnitTest {
 
   private void validateDescendingIterator(CloseableIterator iterator, int reverseStart,
       int reverseEnd) {
-    for (int i = reverseStart; i > reverseEnd; i--) {
-      IndexStoreEntry ise = (IndexStore.IndexStoreEntry) iterator.next();
+    for (var i = reverseStart; i > reverseEnd; i--) {
+      var ise = (IndexStore.IndexStoreEntry) iterator.next();
       if (Integer.parseInt((String) ise.getDeserializedKey()) != i) {
         fail("descendingIterator did not return the expected reverse order");
       }
@@ -169,7 +168,7 @@ public class MapIndexStoreJUnitTest {
   public void helpTestStartAndEndIterator(Region region, Object startValue, boolean startInclusive,
       Object endValue, boolean endInclusive, int expectedSize) throws IMQException {
     addValues(region, numValues);
-    CloseableIterator<IndexStoreEntry> iterator =
+    var iterator =
         indexDataStructure.iterator(startValue, startInclusive, endValue, endInclusive, null);
     validateIteratorSize(iterator, expectedSize);
   }
@@ -193,7 +192,7 @@ public class MapIndexStoreJUnitTest {
   public void testRemoveMapping() throws IMQException {
     addValues(region, numValues);
 
-    IndexRegionTestEntry ire = (IndexRegionTestEntry) entries.remove(8);
+    var ire = (IndexRegionTestEntry) entries.remove(8);
     indexDataStructure.removeMapping("" + 8, ire.regionEntry);
     validateIndexStorage();
 
@@ -218,8 +217,8 @@ public class MapIndexStoreJUnitTest {
   @Test
   public void testStartInclusiveIterator() throws IMQException {
     addValues(region, numValues);
-    String startValue = "" + 0;
-    CloseableIterator<IndexStoreEntry> iterator =
+    var startValue = "" + 0;
+    var iterator =
         indexDataStructure.iterator(startValue, true, null);
     validateIteratorSize(iterator, numValues);
   }
@@ -231,8 +230,8 @@ public class MapIndexStoreJUnitTest {
   @Test
   public void testStartExclusiveIterator() throws IMQException {
     addValues(region, numValues);
-    String startValue = "" + 0;
-    CloseableIterator<IndexStoreEntry> iterator =
+    var startValue = "" + 0;
+    var iterator =
         indexDataStructure.iterator(startValue, false, null);
     validateIteratorSize(iterator, numValues - 1);
   }
@@ -240,8 +239,8 @@ public class MapIndexStoreJUnitTest {
   @Test
   public void testEndInclusiveIterator() throws IMQException {
     addValues(region, numValues);
-    String endValue = "" + (numValues - 1);
-    CloseableIterator<IndexStoreEntry> iterator =
+    var endValue = "" + (numValues - 1);
+    var iterator =
         indexDataStructure.descendingIterator(endValue, true, null);
     validateIteratorSize(iterator, numValues);
   }
@@ -249,37 +248,37 @@ public class MapIndexStoreJUnitTest {
   @Test
   public void testEndExclusiveIterator() throws IMQException {
     addValues(region, numValues);
-    String endValue = "" + (numValues - 1);
-    CloseableIterator<IndexStoreEntry> iterator =
+    var endValue = "" + (numValues - 1);
+    var iterator =
         indexDataStructure.descendingIterator(endValue, false, null);
     validateIteratorSize(iterator, numValues - 1);
   }
 
   @Test
   public void testStartInclusiveEndInclusive() throws IMQException {
-    String startValue = "" + 0;
-    String endValue = "" + 9;
+    var startValue = "" + 0;
+    var endValue = "" + 9;
     helpTestStartAndEndIterator(region, startValue, true, endValue, true, numValues);
   }
 
   @Test
   public void testStartInclusiveEndExclusive() throws IMQException {
-    String startValue = "" + 0;
-    String endValue = "" + 9;
+    var startValue = "" + 0;
+    var endValue = "" + 9;
     helpTestStartAndEndIterator(region, startValue, true, endValue, false, numValues - 1);
   }
 
   @Test
   public void testStartExclusiveEndExclusive() throws IMQException {
-    String startValue = "" + 0;
-    String endValue = "" + 9;
+    var startValue = "" + 0;
+    var endValue = "" + 9;
     helpTestStartAndEndIterator(region, startValue, false, endValue, false, numValues - 2);
   }
 
   @Test
   public void testStartExclusiveEndInclusive() throws IMQException {
-    String startValue = "" + 0;
-    String endValue = "" + 9;
+    var startValue = "" + 0;
+    var endValue = "" + 9;
     helpTestStartAndEndIterator(region, startValue, true, endValue, false, numValues - 1);
   }
 
@@ -294,7 +293,7 @@ public class MapIndexStoreJUnitTest {
 
     public boolean equals(Object object) {
       if (object instanceof IndexStoreEntry) {
-        Object regionKey = ((IndexStoreEntry) object).getDeserializedRegionKey();
+        var regionKey = ((IndexStoreEntry) object).getDeserializedRegionKey();
         // if (regionKey instanceof CachedDeserializable) {
         // regionKey = ((CachedDeserializable) regionKey)
         // .getDeserializedForReading();

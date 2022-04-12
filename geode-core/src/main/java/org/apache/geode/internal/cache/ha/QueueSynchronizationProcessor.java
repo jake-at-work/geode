@@ -56,9 +56,9 @@ public class QueueSynchronizationProcessor extends ReplyProcessor21 {
 
   static List<EventID> getDispatchedEvents(final DistributionManager dm,
       final InternalDistributedMember primary, String regionName, List<EventID> events) {
-    QueueSynchronizationProcessor processor = new QueueSynchronizationProcessor(dm, primary);
+    var processor = new QueueSynchronizationProcessor(dm, primary);
 
-    QueueSynchronizationMessage message = new QueueSynchronizationMessage();
+    var message = new QueueSynchronizationMessage();
     message.setEventIdList(events);
     message.setProcessorId(processor.getProcessorId());
     message.setRegionName(regionName);
@@ -117,14 +117,14 @@ public class QueueSynchronizationProcessor extends ReplyProcessor21 {
 
     @Override
     protected void process(ClusterDistributionManager dm) {
-      final QueueSynchronizationReplyMessage replyMessage =
+      final var replyMessage =
           createQueueSynchronizationReplyMessage();
       ReplyException replyException = null;
 
-      final InternalCache cache = dm.getCache();
+      final var cache = dm.getCache();
       try {
         if (cache != null) {
-          List<EventID> dispatched = getDispatchedEvents(cache);
+          var dispatched = getDispatchedEvents(cache);
           if (dispatched != null) {
             replyMessage.setEventIds(dispatched);
             replyMessage.setSuccess();
@@ -148,7 +148,7 @@ public class QueueSynchronizationProcessor extends ReplyProcessor21 {
     }
 
     List<EventID> getDispatchedEvents(InternalCache cache) {
-      LocalRegion region = (LocalRegion) cache.getRegion(regionName);
+      var region = (LocalRegion) cache.getRegion(regionName);
       if (region == null) {
         if (logger.isDebugEnabled()) {
           logger.debug("processing QueueSynchronizationMessage region {} does not exist.",
@@ -156,7 +156,7 @@ public class QueueSynchronizationProcessor extends ReplyProcessor21 {
         }
         return null;
       }
-      HARegionQueue haRegionQueue = ((HARegion) region).getOwner();
+      var haRegionQueue = ((HARegion) region).getOwner();
       return haRegionQueue == null ? null : haRegionQueue.getDispatchedEvents(eventIds);
     }
 
@@ -176,9 +176,9 @@ public class QueueSynchronizationProcessor extends ReplyProcessor21 {
       super.toData(out, context);
       DataSerializer.writeString(regionName, out);
       DataSerializer.writeInteger(processorId, out);
-      int numberOfIds = eventIds.size();
+      var numberOfIds = eventIds.size();
       DataSerializer.writeInteger(numberOfIds, out);
-      for (EventID eventId : eventIds) {
+      for (var eventId : eventIds) {
         DataSerializer.writeObject(eventId, out);
       }
     }
@@ -193,7 +193,7 @@ public class QueueSynchronizationProcessor extends ReplyProcessor21 {
       regionName = DataSerializer.readString(in);
       processorId = DataSerializer.readInteger(in);
       int size = DataSerializer.readInteger(in);
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         eventIds.add(uncheckedCast(DataSerializer.readObject(in)));
       }
     }
@@ -231,7 +231,7 @@ public class QueueSynchronizationProcessor extends ReplyProcessor21 {
       DataSerializer.writeBoolean(succeed, out);
       if (succeed) {
         DataSerializer.writeInteger(events.size(), out);
-        for (EventID eventId : events) {
+        for (var eventId : events) {
           DataSerializer.writeObject(eventId, out);
         }
       }
@@ -245,7 +245,7 @@ public class QueueSynchronizationProcessor extends ReplyProcessor21 {
       if (succeed) {
         events = new LinkedList<>();
         int size = DataSerializer.readInteger(in);
-        for (int i = 0; i < size; i++) {
+        for (var i = 0; i < size; i++) {
           events.add(uncheckedCast(DataSerializer.readObject(in)));
         }
       }

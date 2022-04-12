@@ -55,12 +55,12 @@ public class FetchRegionAttributesFunction extends CliFunction<String> {
    */
   @Override
   public CliFunctionResult executeFunction(FunctionContext<String> context) throws Exception {
-    String regionPath = context.getArguments();
+    var regionPath = context.getArguments();
     if (regionPath == null) {
       throw new IllegalArgumentException(
           CliStrings.CREATE_REGION__MSG__SPECIFY_VALID_REGION_PATH);
     }
-    XmlEntity xmlEntity = new XmlEntity(CacheXml.REGION, "name", regionPath.substring(1));
+    var xmlEntity = new XmlEntity(CacheXml.REGION, "name", regionPath.substring(1));
     return new CliFunctionResult(context.getMemberName(), xmlEntity.getXmlDefinition());
   }
 }

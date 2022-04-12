@@ -71,7 +71,7 @@ public class TestCommand {
   }
 
   private static void createTestCommand(String command, ResourcePermission... permissions) {
-    TestCommand instance = new TestCommand(command, permissions);
+    var instance = new TestCommand(command, permissions);
     testCommands.add(instance);
   }
 
@@ -95,13 +95,13 @@ public class TestCommand {
 
   public static List<TestCommand> getPermittedCommands(Permission permission) {
     List<TestCommand> result = new ArrayList<>();
-    for (TestCommand testCommand : testCommands) {
-      ResourcePermission[] cPerms = testCommand.getPermissions();
+    for (var testCommand : testCommands) {
+      var cPerms = testCommand.getPermissions();
       if (cPerms == null || cPerms.length == 0) {
         // Skip offline commands.
         continue;
       }
-      boolean allPermissionsAreImplied = Arrays.stream(cPerms).allMatch(permission::implies);
+      var allPermissionsAreImplied = Arrays.stream(cPerms).allMatch(permission::implies);
       if (allPermissionsAreImplied) {
         result.add(testCommand);
       }

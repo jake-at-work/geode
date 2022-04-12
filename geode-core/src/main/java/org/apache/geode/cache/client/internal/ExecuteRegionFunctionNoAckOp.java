@@ -14,7 +14,6 @@
  */
 package org.apache.geode.cache.client.internal;
 
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -23,11 +22,9 @@ import org.apache.geode.InternalGemFireError;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.internal.cache.execute.AbstractExecution;
-import org.apache.geode.internal.cache.execute.MemberMappedArgument;
 import org.apache.geode.internal.cache.execute.ServerRegionFunctionExecutor;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -115,12 +112,12 @@ public class ExecuteRegionFunctionNoAckOp {
         ServerRegionFunctionExecutor serverRegionExecutor, byte hasResult) {
       super(MessageType.EXECUTE_REGION_FUNCTION, 8 + serverRegionExecutor.getFilter().size());
       byte isReExecute = 0;
-      int removedNodesSize = 0;
-      byte functionState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
+      var removedNodesSize = 0;
+      var functionState = AbstractExecution.getFunctionState(function.isHA(), function.hasResult(),
           function.optimizeForWrite());
-      Set routingObjects = serverRegionExecutor.getFilter();
-      Object args = serverRegionExecutor.getArguments();
-      MemberMappedArgument memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
+      var routingObjects = serverRegionExecutor.getFilter();
+      var args = serverRegionExecutor.getArguments();
+      var memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
       getMessage().addBytesPart(new byte[] {functionState});
       getMessage().addStringPart(region, true);
       if (serverRegionExecutor.isFnSerializationReqd()) {
@@ -132,11 +129,11 @@ public class ExecuteRegionFunctionNoAckOp {
       getMessage().addObjPart(memberMappedArg);
 
       executeOnBucketSet = serverRegionExecutor.getExecuteOnBucketSetFlag();
-      byte flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
+      var flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
 
       getMessage().addBytesPart(new byte[] {flags});
       getMessage().addIntPart(routingObjects.size());
-      for (Object key : routingObjects) {
+      for (var key : routingObjects) {
         getMessage().addStringOrObjPart(key);
       }
       getMessage().addIntPart(removedNodesSize);
@@ -147,24 +144,24 @@ public class ExecuteRegionFunctionNoAckOp {
         boolean optimizeForWrite) {
       super(MessageType.EXECUTE_REGION_FUNCTION, 8 + serverRegionExecutor.getFilter().size());
       byte isReExecute = 0;
-      int removedNodesSize = 0;
-      byte functionState = AbstractExecution.getFunctionState(isHA,
+      var removedNodesSize = 0;
+      var functionState = AbstractExecution.getFunctionState(isHA,
           hasResult == (byte) 1, optimizeForWrite);
 
-      Set routingObjects = serverRegionExecutor.getFilter();
-      Object args = serverRegionExecutor.getArguments();
-      MemberMappedArgument memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
+      var routingObjects = serverRegionExecutor.getFilter();
+      var args = serverRegionExecutor.getArguments();
+      var memberMappedArg = serverRegionExecutor.getMemberMappedArgument();
       getMessage().addBytesPart(new byte[] {functionState});
       getMessage().addStringPart(region, true);
       getMessage().addStringOrObjPart(functionId);
       getMessage().addObjPart(args);
       getMessage().addObjPart(memberMappedArg);
       executeOnBucketSet = serverRegionExecutor.getExecuteOnBucketSetFlag();
-      byte flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
+      var flags = ExecuteFunctionHelper.createFlags(executeOnBucketSet, isReExecute);
 
       getMessage().addBytesPart(new byte[] {flags});
       getMessage().addIntPart(routingObjects.size());
-      for (Object key : routingObjects) {
+      for (var key : routingObjects) {
         getMessage().addStringOrObjPart(key);
       }
       getMessage().addIntPart(removedNodesSize);
@@ -172,13 +169,13 @@ public class ExecuteRegionFunctionNoAckOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      final int msgType = msg.getMessageType();
+      final var msgType = msg.getMessageType();
       if (msgType == MessageType.REPLY) {
         return null;
       } else {
-        Part part = msg.getPart(0);
+        var part = msg.getPart(0);
         if (msgType == MessageType.EXCEPTION) {
-          Throwable t = (Throwable) part.getObject();
+          var t = (Throwable) part.getObject();
           logger.warn("Function execution without result encountered an Exception on server.", t);
         } else if (isErrorResponse(msgType)) {
           logger.warn("Function execution without result encountered an Exception on server.");

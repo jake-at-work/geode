@@ -26,9 +26,9 @@ public class ParallelSnapshotFileMapper implements SnapshotFileMapper {
 
   @Override
   public File mapExportPath(DistributedMember member, File snapshot) {
-    String baseName = getBaseName(snapshot);
-    String memberUniqueId = createUniqueId((InternalDistributedMember) member);
-    String fullName =
+    var baseName = getBaseName(snapshot);
+    var memberUniqueId = createUniqueId((InternalDistributedMember) member);
+    var fullName =
         baseName + "-" + memberUniqueId + RegionSnapshotService.SNAPSHOT_FILE_EXTENSION;
     return new File(snapshot.getParentFile(), fullName);
   }
@@ -40,8 +40,8 @@ public class ParallelSnapshotFileMapper implements SnapshotFileMapper {
   }
 
   private String getBaseName(File snapshot) {
-    String filename = snapshot.getName();
-    int suffixLocation = filename.indexOf(RegionSnapshotService.SNAPSHOT_FILE_EXTENSION);
+    var filename = snapshot.getName();
+    var suffixLocation = filename.indexOf(RegionSnapshotService.SNAPSHOT_FILE_EXTENSION);
     if (suffixLocation < 0) {
       throw new IllegalArgumentException(
           "Snapshot file '" + filename + "' missing backup file extension (.gfd)");
@@ -58,9 +58,9 @@ public class ParallelSnapshotFileMapper implements SnapshotFileMapper {
    * @return a String based on the ip address and host of the member
    */
   private String createUniqueId(InternalDistributedMember member) {
-    String address = member.getInetAddress().getHostAddress();
-    String alphanumericAddress = address.replaceAll("\\.|:", "");
-    int port = member.getMembershipPort();
+    var address = member.getInetAddress().getHostAddress();
+    var alphanumericAddress = address.replaceAll("\\.|:", "");
+    var port = member.getMembershipPort();
     return alphanumericAddress + port;
   }
 }

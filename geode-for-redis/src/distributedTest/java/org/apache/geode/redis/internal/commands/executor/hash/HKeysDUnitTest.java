@@ -60,7 +60,7 @@ public class HKeysDUnitTest {
     server1 = clusterStartUp.startRedisVM(1, locator.getPort());
     server2 = clusterStartUp.startRedisVM(2, locator.getPort());
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(LOCAL_HOST, redisServerPort), JEDIS_TIMEOUT);
   }
 
@@ -76,17 +76,17 @@ public class HKeysDUnitTest {
 
   @Test
   public void testConcurrentHKeys_whileAddingValues() {
-    String key = "key";
+    var key = "key";
 
-    Map<String, String> testMap = makeHashMap(HASH_SIZE, "field-", "value-");
-    Set<String> expectedFields = makeSet(HASH_SIZE, "field-");
+    var testMap = makeHashMap(HASH_SIZE, "field-", "value-");
+    var expectedFields = makeSet(HASH_SIZE, "field-");
     BlockingQueue<String> queue = new LinkedBlockingQueue<>();
 
     jedis.hset(key, testMap);
 
     new ConcurrentLoopingThreads(NUM_ITERATIONS,
         (i) -> {
-          int newIndex = HASH_SIZE + i + 1;
+          var newIndex = HASH_SIZE + i + 1;
           jedis.hset(key, "field-" + newIndex, "value-" + newIndex);
           queue.add("field-" + newIndex);
         },
@@ -104,8 +104,8 @@ public class HKeysDUnitTest {
 
   @Test
   public void testConcurrentHKeys_whileDeletingValues() {
-    String key = "key";
-    Map<String, String> testMap = makeHashMap(NUM_ITERATIONS, "field-", "value-");
+    var key = "key";
+    var testMap = makeHashMap(NUM_ITERATIONS, "field-", "value-");
 
     jedis.hset(key, testMap);
 
@@ -118,8 +118,8 @@ public class HKeysDUnitTest {
 
   @Test
   public void testConcurrentHKeys_whileUpdatingValues() {
-    String key = "key";
-    Map<String, String> testMap = makeHashMap(NUM_ITERATIONS, "field-", "value-");
+    var key = "key";
+    var testMap = makeHashMap(NUM_ITERATIONS, "field-", "value-");
 
     jedis.hset(key, testMap);
 
@@ -132,7 +132,7 @@ public class HKeysDUnitTest {
             .run();
 
     assertThat(jedis.hkeys(key)).containsExactlyInAnyOrderElementsOf(testMap.keySet());
-    for (String field : testMap.keySet()) {
+    for (var field : testMap.keySet()) {
       assertThat(jedis.hget(key, field)).isEqualTo(testMap.get(field));
     }
   }
@@ -140,7 +140,7 @@ public class HKeysDUnitTest {
   private Map<String, String> makeHashMap(int hashSize, String baseFieldName,
       String baseValueName) {
     Map<String, String> map = new HashMap<>();
-    for (int i = 0; i < hashSize; i++) {
+    for (var i = 0; i < hashSize; i++) {
       map.put(baseFieldName + i, baseValueName + i);
     }
     return map;
@@ -148,7 +148,7 @@ public class HKeysDUnitTest {
 
   private Set<String> makeSet(int hashSize, String baseFieldName) {
     Set<String> set = new HashSet<>(HASH_SIZE);
-    for (int i = 0; i < hashSize; i++) {
+    for (var i = 0; i < hashSize; i++) {
       set.add(baseFieldName + i);
     }
     return set;

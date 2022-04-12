@@ -51,19 +51,19 @@ public class GcCommandDistributedTestBase {
 
   @BeforeClass
   public static void setup() {
-    Properties managerProps = new Properties();
+    var managerProps = new Properties();
     managerProps.setProperty(NAME, MANAGER_NAME);
     managerProps.setProperty(GROUPS, GROUP0);
     managerProps.setProperty(LOG_FILE, "someLog.log");
     locator =
         clusterStartupRule.startLocatorVM(0, l -> l.withHttpService().withProperties(managerProps));
 
-    Properties server1Props = new Properties();
+    var server1Props = new Properties();
     server1Props.setProperty(NAME, SERVER1_NAME);
     server1Props.setProperty(GROUPS, GROUP1);
     clusterStartupRule.startServerVM(1, server1Props, locator.getPort());
 
-    Properties server2Props = new Properties();
+    var server2Props = new Properties();
     server2Props.setProperty(NAME, SERVER2_NAME);
     server2Props.setProperty(GROUPS, GROUP2);
     clusterStartupRule.startServerVM(2, server2Props, locator.getPort());
@@ -81,7 +81,7 @@ public class GcCommandDistributedTestBase {
 
   @Test
   public void testGCForGroup() {
-    String gcCommand = "gc --group=" + GROUP0;
+    var gcCommand = "gc --group=" + GROUP0;
     gfsh.executeAndAssertThat(gcCommand).statusIsSuccess();
 
     assertThat(gfsh.getGfshOutput()).contains(MANAGER_NAME);
@@ -89,7 +89,7 @@ public class GcCommandDistributedTestBase {
 
   @Test
   public void testGCForMemberID() {
-    String gcCommand = "gc --member=" + MANAGER_NAME;
+    var gcCommand = "gc --member=" + MANAGER_NAME;
 
     gfsh.executeAndAssertThat(gcCommand).statusIsSuccess();
     assertThat(gfsh.getGfshOutput()).contains(MANAGER_NAME);
@@ -97,10 +97,10 @@ public class GcCommandDistributedTestBase {
 
   @Test
   public void testGCForEntireCluster() {
-    String command = "gc";
+    var command = "gc";
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
-    String output = gfsh.getGfshOutput();
+    var output = gfsh.getGfshOutput();
     assertThat(output).contains(SERVER1_NAME);
     assertThat(output).contains(SERVER2_NAME);
     assertThat(output).doesNotContain(MANAGER_NAME);
@@ -108,7 +108,7 @@ public class GcCommandDistributedTestBase {
 
   @Test
   public void testGCForInvalidMember() {
-    String gcCommand = "gc --member=NotAValidMember";
+    var gcCommand = "gc --member=NotAValidMember";
 
     gfsh.executeAndAssertThat(gcCommand).statusIsError()
         .containsOutput("Member NotAValidMember could not be found.");

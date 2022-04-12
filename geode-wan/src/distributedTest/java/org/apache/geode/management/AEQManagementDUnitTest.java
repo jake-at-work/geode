@@ -22,17 +22,12 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Properties;
 
-import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.DistributedMember;
@@ -70,7 +65,7 @@ public class AEQManagementDUnitTest implements Serializable {
   }
 
   private void startManagerService() {
-    SystemManagementService service = (SystemManagementService) ManagementService
+    var service = (SystemManagementService) ManagementService
         .getManagementService(ClusterStartupRule.getCache());
     service.createManager();
   }
@@ -81,15 +76,16 @@ public class AEQManagementDUnitTest implements Serializable {
 
     server2.invoke(() -> createAsyncEventQueueAndVerifyBeanRegisteration("server2", false));
 
-    final SerializableCallableIF<InternalDistributedMember> memberSerializableCallableIF =
-        () -> ClusterStartupRule.getCache().getMyId();
+    final var memberSerializableCallableIF =
+        (SerializableCallableIF<InternalDistributedMember>) () -> ClusterStartupRule.getCache()
+            .getMyId();
 
     DistributedMember memberServer1 = server1.invoke(memberSerializableCallableIF);
 
     locator.invoke(() -> {
       waitForProxyBeansArrival(memberServer1);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer1);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer1);
 
       assertThat(aeqBean).isNotNull();
     });
@@ -100,7 +96,7 @@ public class AEQManagementDUnitTest implements Serializable {
     locator.invoke(() -> {
       waitForProxyBeansArrival(memberServer2);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer2);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer2);
 
       assertThat(aeqBean).isNotNull();
     });
@@ -113,14 +109,15 @@ public class AEQManagementDUnitTest implements Serializable {
 
     server2.invoke(() -> createAsyncEventQueueAndVerifyBeanRegisteration("server2", false));
 
-    final SerializableCallableIF<InternalDistributedMember> memberSerializableCallableIF =
-        () -> ClusterStartupRule.getCache().getMyId();
+    final var memberSerializableCallableIF =
+        (SerializableCallableIF<InternalDistributedMember>) () -> ClusterStartupRule.getCache()
+            .getMyId();
 
     DistributedMember memberServer1 = server1.invoke(memberSerializableCallableIF);
     locator.invoke(() -> {
       waitForProxyBeansArrival(memberServer1);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer1);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer1);
 
       assertThat(aeqBean).isNotNull();
     });
@@ -130,21 +127,21 @@ public class AEQManagementDUnitTest implements Serializable {
     locator.invoke(() -> {
       waitForProxyBeansArrival(memberServer2);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer2);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer2);
 
       assertThat(aeqBean).isNotNull();
     });
 
     server1.invoke(() -> {
       destroyAsyncEventQueue();
-      ManagementService mService = waitForAeqBeanToUnRegister();
+      var mService = waitForAeqBeanToUnRegister();
 
       assertThat(mService.getLocalAsyncEventQueueMXBean(aeqID)).isNull();
     });
 
     server2.invoke(() -> {
       destroyAsyncEventQueue();
-      ManagementService mService = waitForAeqBeanToUnRegister();
+      var mService = waitForAeqBeanToUnRegister();
 
       assertThat(mService.getLocalAsyncEventQueueMXBean(aeqID)).isNull();
     });
@@ -153,7 +150,7 @@ public class AEQManagementDUnitTest implements Serializable {
     locator.invoke(() -> {
       waitForProxyBeansRemoval(memberServer1);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer1);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer1);
 
       assertThat(aeqBean).isNull();
     });
@@ -161,7 +158,7 @@ public class AEQManagementDUnitTest implements Serializable {
     locator.invoke(() -> {
       waitForProxyBeansRemoval(memberServer2);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer2);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer2);
 
       assertThat(aeqBean).isNull();
     });
@@ -173,9 +170,9 @@ public class AEQManagementDUnitTest implements Serializable {
     server1.invoke(() -> {
       createAsyncEventQueueAndVerifyBeanRegisteration("server1", true);
 
-      ManagementService mService =
+      var mService =
           ManagementService.getManagementService(ClusterStartupRule.getCache());
-      AsyncEventQueueMXBean aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
+      var aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
 
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(true);
     });
@@ -183,22 +180,23 @@ public class AEQManagementDUnitTest implements Serializable {
     server2.invoke(() -> {
       createAsyncEventQueueAndVerifyBeanRegisteration("server2", true);
 
-      ManagementService mService =
+      var mService =
           ManagementService.getManagementService(ClusterStartupRule.getCache());
-      AsyncEventQueueMXBean aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
+      var aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
 
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(true);
     });
 
-    final SerializableCallableIF<InternalDistributedMember> memberSerializableCallableIF =
-        () -> ClusterStartupRule.getCache().getMyId();
+    final var memberSerializableCallableIF =
+        (SerializableCallableIF<InternalDistributedMember>) () -> ClusterStartupRule.getCache()
+            .getMyId();
 
     DistributedMember memberServer1 = server1.invoke(memberSerializableCallableIF);
 
     locator.invoke(() -> {
       waitForProxyBeansArrival(memberServer1);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer1);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer1);
 
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(true);
     });
@@ -209,7 +207,7 @@ public class AEQManagementDUnitTest implements Serializable {
     locator.invoke(() -> {
       waitForProxyBeansArrival(memberServer2);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer2);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer2);
 
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(true);
     });
@@ -220,9 +218,9 @@ public class AEQManagementDUnitTest implements Serializable {
     server1.invoke(() -> {
       createAsyncEventQueueAndVerifyBeanRegisteration("server1", true);
 
-      ManagementService mService =
+      var mService =
           ManagementService.getManagementService(ClusterStartupRule.getCache());
-      AsyncEventQueueMXBean aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
+      var aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
 
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(true);
     });
@@ -230,22 +228,23 @@ public class AEQManagementDUnitTest implements Serializable {
     server2.invoke(() -> {
       createAsyncEventQueueAndVerifyBeanRegisteration("server2", true);
 
-      ManagementService mService =
+      var mService =
           ManagementService.getManagementService(ClusterStartupRule.getCache());
-      AsyncEventQueueMXBean aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
+      var aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
 
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(true);
     });
 
-    final SerializableCallableIF<InternalDistributedMember> memberSerializableCallableIF =
-        () -> ClusterStartupRule.getCache().getMyId();
+    final var memberSerializableCallableIF =
+        (SerializableCallableIF<InternalDistributedMember>) () -> ClusterStartupRule.getCache()
+            .getMyId();
 
     DistributedMember memberServer1 = server1.invoke(memberSerializableCallableIF);
 
     locator.invoke(() -> {
       waitForProxyBeansArrival(memberServer1);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer1);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer1);
 
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(true);
     });
@@ -256,56 +255,56 @@ public class AEQManagementDUnitTest implements Serializable {
     locator.invoke(() -> {
       waitForProxyBeansArrival(memberServer2);
 
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer2);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer2);
 
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(true);
     });
 
     server1.invoke(() -> {
-      AsyncEventQueue asyncEventQueue = ClusterStartupRule.getCache().getAsyncEventQueue(aeqID);
+      var asyncEventQueue = ClusterStartupRule.getCache().getAsyncEventQueue(aeqID);
       asyncEventQueue.resumeEventDispatching();
 
-      ManagementService mService =
+      var mService =
           ManagementService.getManagementService(ClusterStartupRule.getCache());
 
       GeodeAwaitility.await().untilAsserted(() -> {
-        AsyncEventQueueMXBean aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
+        var aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
         assertThat(mService.getLocalAsyncEventQueueMXBean(aeqID)).isNotNull();
         assertThat(aeqBean.isDispatchingPaused()).isEqualTo(false);
       });
     });
 
     locator.invoke(() -> GeodeAwaitility.await().untilAsserted(() -> {
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer1);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer1);
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(true);
     }));
 
     server2.invoke(() -> {
-      AsyncEventQueue asyncEventQueue = ClusterStartupRule.getCache().getAsyncEventQueue(aeqID);
+      var asyncEventQueue = ClusterStartupRule.getCache().getAsyncEventQueue(aeqID);
       asyncEventQueue.resumeEventDispatching();
 
-      ManagementService mService =
+      var mService =
           ManagementService.getManagementService(ClusterStartupRule.getCache());
 
       GeodeAwaitility.await().untilAsserted(() -> {
-        AsyncEventQueueMXBean aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
+        var aeqBean = mService.getLocalAsyncEventQueueMXBean(aeqID);
         assertThat(mService.getLocalAsyncEventQueueMXBean(aeqID)).isNotNull();
         assertThat(aeqBean.isDispatchingPaused()).isEqualTo(false);
       });
     });
 
     locator.invoke(() -> GeodeAwaitility.await().untilAsserted(() -> {
-      AsyncEventQueueMXBean aeqBean = getAsyncEventQueueMXBean(memberServer2);
+      var aeqBean = getAsyncEventQueueMXBean(memberServer2);
       assertThat(aeqBean.isDispatchingPaused()).isEqualTo(false);
     }));
 
   }
 
   private AsyncEventQueueMXBean getAsyncEventQueueMXBean(DistributedMember memberServer1) {
-    SystemManagementService service =
+    var service =
         (SystemManagementService) SystemManagementService
             .getManagementService(ClusterStartupRule.getCache());
-    ObjectName queueMBeanName = service.getAsyncEventQueueMBeanName(memberServer1, aeqID);
+    var queueMBeanName = service.getAsyncEventQueueMBeanName(memberServer1, aeqID);
     return service.getMBeanProxy(queueMBeanName, AsyncEventQueueMXBean.class);
   }
 
@@ -317,7 +316,7 @@ public class AEQManagementDUnitTest implements Serializable {
   }
 
   private void destroyAsyncEventQueue() {
-    AsyncEventQueueImpl aeq =
+    var aeq =
         (AsyncEventQueueImpl) ClusterStartupRule.getCache().getAsyncEventQueue(aeqID);
     assertThat(aeq).isNotNull();
     aeq.destroy();
@@ -325,10 +324,10 @@ public class AEQManagementDUnitTest implements Serializable {
 
   private void waitForProxyBeansArrival(DistributedMember member) {
     GeodeAwaitility.await().untilAsserted(() -> {
-      SystemManagementService service =
+      var service =
           (SystemManagementService) SystemManagementService.getManagementService(
               ClusterStartupRule.getCache());
-      ObjectName queueMBeanName = service.getAsyncEventQueueMBeanName(member, aeqID);
+      var queueMBeanName = service.getAsyncEventQueueMBeanName(member, aeqID);
       assertThat(queueMBeanName).isNotNull();
       assertThat(service.getMBeanProxy(queueMBeanName, AsyncEventQueueMXBean.class)).isNotNull();
     });
@@ -336,10 +335,10 @@ public class AEQManagementDUnitTest implements Serializable {
 
   private void waitForProxyBeansRemoval(DistributedMember member) {
     GeodeAwaitility.await().untilAsserted(() -> {
-      SystemManagementService service =
+      var service =
           (SystemManagementService) SystemManagementService.getManagementService(
               ClusterStartupRule.getCache());
-      ObjectName queueMBeanName = service.getAsyncEventQueueMBeanName(member, aeqID);
+      var queueMBeanName = service.getAsyncEventQueueMBeanName(member, aeqID);
       assertThat(service.getMBeanProxy(queueMBeanName, AsyncEventQueueMXBean.class)).isNull();
     });
   }
@@ -349,7 +348,7 @@ public class AEQManagementDUnitTest implements Serializable {
   }
 
   private ManagementService waitForAeqBeanToRegister() {
-    ManagementService mService =
+    var mService =
         ManagementService.getManagementService(ClusterStartupRule.getCache());
 
     GeodeAwaitility.await().untilAsserted(() -> {
@@ -360,7 +359,7 @@ public class AEQManagementDUnitTest implements Serializable {
   }
 
   private ManagementService waitForAeqBeanToUnRegister() {
-    ManagementService mService =
+    var mService =
         ManagementService.getManagementService(ClusterStartupRule.getCache());
 
     GeodeAwaitility.await().untilAsserted(() -> {
@@ -371,8 +370,8 @@ public class AEQManagementDUnitTest implements Serializable {
   }
 
   private Properties locatorProperties() {
-    int jmxPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    Properties props = new Properties();
+    var jmxPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOG_LEVEL, "fine");
     props.setProperty(ConfigurationProperties.JMX_MANAGER_HOSTNAME_FOR_CLIENTS, "localhost");
@@ -386,18 +385,18 @@ public class AEQManagementDUnitTest implements Serializable {
       String diskStoreName, boolean isDiskSynchronous, boolean dispatcherPaused) {
 
     if (diskStoreName != null) {
-      File directory = new File(
+      var directory = new File(
           asyncChannelId + "_disk_" + System.currentTimeMillis() + "_" + VM.getCurrentVMNum());
       directory.mkdir();
-      File[] dirs1 = new File[] {directory};
-      DiskStoreFactory dsf = ClusterStartupRule.getCache().createDiskStoreFactory();
+      var dirs1 = new File[] {directory};
+      var dsf = ClusterStartupRule.getCache().createDiskStoreFactory();
       dsf.setDiskDirs(dirs1);
       dsf.create(diskStoreName);
     }
 
     AsyncEventListener asyncEventListener = new MyAsyncEventListener();
 
-    AsyncEventQueueFactory factory = ClusterStartupRule.getCache().createAsyncEventQueueFactory();
+    var factory = ClusterStartupRule.getCache().createAsyncEventQueueFactory();
     factory.setBatchSize(batchSize);
     factory.setPersistent(isPersistent);
     factory.setDiskStoreName(diskStoreName);

@@ -26,10 +26,8 @@ import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.VM;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 
 public class PersistDUnitTest {
@@ -43,10 +41,10 @@ public class PersistDUnitTest {
 
   @BeforeClass
   public static void setup() {
-    MemberVM locator = redisClusterStartupRule.startLocatorVM(0);
+    var locator = redisClusterStartupRule.startLocatorVM(0);
     redisClusterStartupRule.startRedisVM(1, locator.getPort());
     redisClusterStartupRule.startRedisVM(2, locator.getPort());
-    int serverPort = redisClusterStartupRule.getRedisPort(1);
+    var serverPort = redisClusterStartupRule.getRedisPort(1);
 
     client1 = redisClusterStartupRule.getVM(3);
     client2 = redisClusterStartupRule.getVM(4);
@@ -70,11 +68,11 @@ public class PersistDUnitTest {
 
     @Override
     public AtomicLong call() {
-      JedisCluster internalJedisCluster =
+      var internalJedisCluster =
           new JedisCluster(new HostAndPort(BIND_ADDRESS, port), REDIS_CLIENT_TIMEOUT);
 
-      for (int i = 0; i < iterationCount; i++) {
-        String key = keyBaseName + i;
+      for (var i = 0; i < iterationCount; i++) {
+        var key = keyBaseName + i;
         persistedCount.addAndGet(internalJedisCluster.persist(key));
       }
       return persistedCount;
@@ -85,15 +83,15 @@ public class PersistDUnitTest {
   public void testConcurrentPersistOperations_shouldReportCorrectNumberOfTotalKeysPersisted()
       throws InterruptedException {
     Long iterationCount = 5000L;
-    int serverPort = redisClusterStartupRule.getRedisPort(1);
+    var serverPort = redisClusterStartupRule.getRedisPort(1);
 
     setKeysWithExpiration(jedis, iterationCount, "key");
 
-    AsyncInvocation<AtomicLong> remotePersistInvocationClient1 =
+    var remotePersistInvocationClient1 =
         client1.invokeAsync("remotePersistInvocation1",
             new ConcurrentPersistOperation(serverPort, "key", iterationCount));
 
-    AtomicLong remotePersistInvocationClient2 =
+    var remotePersistInvocationClient2 =
         client2.invoke("remotePersistInvocation2",
             new ConcurrentPersistOperation(serverPort, "key", iterationCount));
 
@@ -106,7 +104,7 @@ public class PersistDUnitTest {
   }
 
   private void setKeysWithExpiration(JedisCluster jedis, Long iterationCount, String key) {
-    for (int i = 0; i < iterationCount; i++) {
+    for (var i = 0; i < iterationCount; i++) {
       jedis.sadd(key + i, "value" + 9);
       jedis.expire(key + i, 600L);
     }

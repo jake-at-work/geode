@@ -32,7 +32,6 @@ import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 public class ServerToClientFunctionResultSender implements ResultSender {
@@ -266,7 +265,7 @@ public class ServerToClientFunctionResultSender implements ResultSender {
   protected void authorizeResult(Object oneResult) throws IOException {
     // check if the caller is authorised to receive these function execution
     // results from server
-    AuthorizeRequestPP authzRequestPP = sc.getPostAuthzRequest();
+    var authzRequestPP = sc.getPostAuthzRequest();
     if (authzRequestPP != null) {
       authContext.setIsPostOperation(true);
       authContext = authzRequestPP.executeFunctionAuthorize(oneResult, authContext);
@@ -300,7 +299,7 @@ public class ServerToClientFunctionResultSender implements ResultSender {
 
   @Override
   public void sendException(Throwable exception) {
-    InternalFunctionException iFunxtionException = new InternalFunctionException(exception);
+    var iFunxtionException = new InternalFunctionException(exception);
     lastResult(iFunxtionException);
     lastResultReceived = true;
   }
@@ -319,7 +318,7 @@ public class ServerToClientFunctionResultSender implements ResultSender {
           if (!headerSent) {
             sendHeader();
           }
-          String exceptionMessage = exception.getMessage() != null ? exception.getMessage()
+          var exceptionMessage = exception.getMessage() != null ? exception.getMessage()
               : "Exception occurred during function execution";
           logger.warn(String.format("Exception on server while executing function : %s",
               fn),

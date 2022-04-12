@@ -60,7 +60,7 @@ public class RemoveGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
     vm0.invoke(RemoveGlobalDUnitTest::createCache);
@@ -110,7 +110,7 @@ public class RemoveGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
           public void run2() throws CacheException {
             cache.setLockTimeout(5);
             CacheWriter cacheWriter = new CacheWriterCallBack();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setScope(Scope.GLOBAL);
             factory.setCacheWriter(cacheWriter);
             region = cache.createRegion("map", factory.create());
@@ -123,7 +123,7 @@ public class RemoveGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     AsyncInvocation async = vm0.invokeAsync(new CacheSerializableRunnable("put object") {
       @Override
       public void run2() throws CacheException {
-        for (int i = 1; i < 5; i++) {
+        for (var i = 1; i < 5; i++) {
           region.put(i, java.lang.Integer.toString(i));
         }
 
@@ -170,7 +170,7 @@ public class RemoveGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
         new CacheSerializableRunnable("create region with cache writer") {
           @Override
           public void run2() throws CacheException {
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setScope(Scope.GLOBAL);
             region = cache.createRegion("map", factory.create());
           }
@@ -182,7 +182,7 @@ public class RemoveGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
           @Override
           public void run2() throws CacheException {
             CacheWriter cw = new CacheWriterCallBack();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setScope(Scope.GLOBAL);
             factory.setCacheWriter(cw);
             region = cache.createRegion("map", factory.create());
@@ -195,7 +195,7 @@ public class RemoveGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     vm0.invoke(new CacheSerializableRunnable("put object") {
       @Override
       public void run2() throws CacheException {
-        for (int i = 1; i < 5; i++) {
+        for (var i = 1; i < 5; i++) {
           region.put(i, java.lang.Integer.toString(i));
         }
       }
@@ -204,7 +204,7 @@ public class RemoveGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     vm1.invoke(new CacheSerializableRunnable("get object") {
       @Override
       public void run2() throws CacheException {
-        for (int i = 1; i < 5; i++) {
+        for (var i = 1; i < 5; i++) {
           region.get(i);
         }
       }

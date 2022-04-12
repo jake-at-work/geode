@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -57,7 +56,6 @@ import org.apache.geode.cache.query.internal.ExecutionContext;
 import org.apache.geode.cache.query.internal.MapIndexable;
 import org.apache.geode.cache.query.internal.NullToken;
 import org.apache.geode.cache.query.internal.QueryMonitor;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.cache.query.internal.index.AbstractIndex.InternalIndexStatistics;
 import org.apache.geode.cache.query.internal.parse.OQLLexerTokenTypes;
@@ -189,8 +187,8 @@ public class IndexManager {
    * @param lastModifiedTime the last modified time from version tag
    */
   public static void setIndexBufferTime(long lastModifiedTime, long currentCacheTime) {
-    long oldValue = SAFE_QUERY_TIME.get();
-    long newValue = currentCacheTime + currentCacheTime - lastModifiedTime;
+    var oldValue = SAFE_QUERY_TIME.get();
+    var newValue = currentCacheTime + currentCacheTime - lastModifiedTime;
     if (oldValue < newValue) {
       // use compare and set in case the value has been changed since we got the old value
       SAFE_QUERY_TIME.compareAndSet(oldValue, newValue);
@@ -222,7 +220,7 @@ public class IndexManager {
    * Small amounts of false positives are ok as it will have a slight impact on performance
    */
   public static boolean needsRecalculation(long queryStartTime, long lastModifiedTime) {
-    boolean needsRecalculate =
+    var needsRecalculate =
         (queryStartTime <= (lastModifiedTime + (SAFE_QUERY_TIME.get() - queryStartTime)));
     return ENABLE_UPDATE_IN_PROGRESS_INDEX_CALCULATION && needsRecalculate;
   }
@@ -279,7 +277,7 @@ public class IndexManager {
     }
 
     try {
-      String projectionAttributes = "*"; // for now this is the only option
+      var projectionAttributes = "*"; // for now this is the only option
 
       if (getIndex(indexName) != null) {
         throw new IndexNameConflictException(
@@ -288,7 +286,7 @@ public class IndexManager {
       }
 
       IndexCreationHelper helper = null;
-      boolean isCompactOrHash = false;
+      var isCompactOrHash = false;
       // Hash index not supported for overflow but we "thought" we were so let's maintain backwards
       // compatibility
       // and create a regular compact range index instead. This is due to having to reload entries
@@ -359,14 +357,14 @@ public class IndexManager {
         }
       }
 
-      IndexTask indexTask = new IndexTask(cache, indexName, indexType, origFromClause,
+      var indexTask = new IndexTask(cache, indexName, indexType, origFromClause,
           origIndexedExpression, helper, isCompactOrHash, prIndex, loadEntries);
-      FutureTask<Index> indexFutureTask = new FutureTask<>(indexTask);
-      Object oldIndex = indexes.putIfAbsent(indexTask, indexFutureTask);
+      var indexFutureTask = new FutureTask<Index>(indexTask);
+      var oldIndex = indexes.putIfAbsent(indexTask, indexFutureTask);
 
       Index index = null;
 
-      boolean interrupted = false;
+      var interrupted = false;
       try {
         if (oldIndex == null) {
           // Initialize index.
@@ -396,7 +394,7 @@ public class IndexManager {
       } catch (InterruptedException ignored) {
         interrupted = true;
       } catch (ExecutionException ee) {
-        Throwable c = ee.getCause();
+        var c = ee.getCause();
         if (c instanceof IndexNameConflictException) {
           throw (IndexNameConflictException) c;
         } else if (c instanceof IndexExistsException) {
@@ -410,7 +408,7 @@ public class IndexManager {
         // If the index is not successfully created, remove IndexTask from
         // the map.
         if (oldIndex == null && index == null) {
-          Object ind = indexes.get(indexTask);
+          var ind = indexes.get(indexTask);
           if (ind != null && !(ind instanceof Index)) {
             indexes.remove(indexTask);
           }
@@ -455,7 +453,7 @@ public class IndexManager {
     }
 
     // indexedExpression requirement
-    CompiledValue cv = helper.getCompiledIndexedExpression();
+    var cv = helper.getCompiledIndexedExpression();
     int nodeType;
     do {
       nodeType = cv.getType();
@@ -478,25 +476,25 @@ public class IndexManager {
     }
 
     // fromClause requirement
-    List iterators = helper.getIterators();
+    var iterators = helper.getIterators();
     if (iterators.size() != 1) {
       return false;
     }
     // "missing link" must be "value". Later to support key, entry, etc.
-    CompiledValue missingLink = helper.missingLink;
+    var missingLink = helper.missingLink;
     if (helper.isFirstIteratorRegionEntry) {
       return true;
     } else if (!(missingLink instanceof CompiledPath)) {
       return false;
 
     }
-    String tailId = ((CompiledPath) missingLink).getTailID();
+    var tailId = ((CompiledPath) missingLink).getTailID();
     return tailId.equals("value") || tailId.equals("key");
   }
 
   public Index getIndex(String indexName) {
-    IndexTask indexTask = new IndexTask(cache, indexName);
-    Object ind = indexes.get(indexTask);
+    var indexTask = new IndexTask(cache, indexName);
+    var ind = indexes.get(indexTask);
     // Check if the returned value is instance of Index (this means
     // the index is not in create phase, its created successfully).
     if (ind instanceof Index) {
@@ -506,7 +504,7 @@ public class IndexManager {
   }
 
   public void addIndex(String indexName, Index index) {
-    IndexTask indexTask = new IndexTask(cache, indexName);
+    var indexTask = new IndexTask(cache, indexName);
     indexes.put(indexTask, index);
   }
 
@@ -527,26 +525,26 @@ public class IndexManager {
       CompiledValue indexedExpression, ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
     IndexData indxData = null;
-    int qItrSize = definitions.length;
-    Iterator it = indexes.values().iterator();
-    StringBuilder sb = new StringBuilder();
+    var qItrSize = definitions.length;
+    var it = indexes.values().iterator();
+    var sb = new StringBuilder();
     indexedExpression.generateCanonicalizedExpression(sb, context);
-    String indexExprStr = sb.toString();
+    var indexExprStr = sb.toString();
     while (it.hasNext()) {
-      int[] mapping = new int[qItrSize];
-      Object ind = it.next();
+      var mapping = new int[qItrSize];
+      var ind = it.next();
       // Check if the returned value is instance of Index (this means
       // the index is not in create phase, its created successfully).
       if (!(ind instanceof Index)) {
         continue;
       }
-      Index index = (Index) ind;
+      var index = (Index) ind;
       if (!((IndexProtocol) ind).isMatchingWithIndexExpression(indexedExpression, indexExprStr,
           context) || index.getType() != indexType) {
         continue;
       }
 
-      int matchLevel = getMatchLevel(definitions,
+      var matchLevel = getMatchLevel(definitions,
           ((IndexProtocol) index).getCanonicalizedIteratorDefinitions(), mapping);
 
       if (matchLevel == 0) {
@@ -562,7 +560,7 @@ public class IndexManager {
       String indexExpression, IndexType otherType, String[] otherDefinitions,
       String otherExpression, int[] mapping) {
 
-    int matchLevel = -2;
+    var matchLevel = -2;
 
     if (indexExpression.equals(otherExpression) && indexType == otherType) {
       /* Asif : A match level of zero means exact match. */
@@ -593,19 +591,19 @@ public class IndexManager {
     Index bestPRIndex = null;
     int[] bestMapping = null;
 
-    int qItrSize = definitions.length;
-    int bestIndexMatchLevel = qItrSize;
-    Iterator iter = indexes.values().iterator();
-    StringBuilder sb = new StringBuilder();
+    var qItrSize = definitions.length;
+    var bestIndexMatchLevel = qItrSize;
+    var iter = indexes.values().iterator();
+    var sb = new StringBuilder();
     indexedExpression.generateCanonicalizedExpression(sb, context);
-    String indexExprStr = sb.toString();
+    var indexExprStr = sb.toString();
     PartitionedIndex prIndex = null;
     Index prevBestPRIndex = null;
     Index prevBestIndex = null;
 
     Index index;
     while (iter.hasNext()) {
-      Object ind = iter.next();
+      var ind = iter.next();
       // Check if the value is instance of FutureTask, this means
       // the index is in create phase.
       if (ind instanceof FutureTask) {
@@ -665,10 +663,10 @@ public class IndexManager {
          * criteria for match level is the absence or presence of extra iterators. The order of
          * preference will be 0 , <0 , > 0 for first cut.
          */
-        String[] indexDefinitions = ((IndexProtocol) index).getCanonicalizedIteratorDefinitions();
+        var indexDefinitions = ((IndexProtocol) index).getCanonicalizedIteratorDefinitions();
 
-        int[] mapping = new int[qItrSize];
-        int matchLevel = getMatchLevel(definitions, indexDefinitions, mapping);
+        var mapping = new int[qItrSize];
+        var matchLevel = getMatchLevel(definitions, indexDefinitions, mapping);
 
         if (matchLevel == 0) {
           prevBestPRIndex = bestPRIndex;
@@ -744,16 +742,16 @@ public class IndexManager {
    */
   private static int getMatchLevel(String[] queryDefintions, String[] indexDefinitions,
       int[] mapping) {
-    int qItrLen = queryDefintions.length;
-    int indxItrLen = indexDefinitions.length;
+    var qItrLen = queryDefintions.length;
+    var indxItrLen = indexDefinitions.length;
     // Asif : We know that because index expressions have matched that
     // itself indicates that the first iterator, which is regon iterator
     // has matched. So the index field position of the first RuntimeIterator
     // of the Query group is 1
     mapping[0] = 1;
-    int matchLevel = qItrLen - 1;
-    for (int i = 1; i < qItrLen; ++i) {
-      for (int j = 1; j < indxItrLen; ++j) {
+    var matchLevel = qItrLen - 1;
+    for (var i = 1; i < qItrLen; ++i) {
+      for (var j = 1; j < indxItrLen; ++j) {
         if (queryDefintions[i].equals(indexDefinitions[j])) {
           mapping[i] = ++j;
           --matchLevel;
@@ -784,14 +782,14 @@ public class IndexManager {
    * @return the collection of indexes for the specified region and type
    */
   public Collection getIndexes(IndexType indexType) {
-    ArrayList<Index> list = new ArrayList<>();
-    for (final Object ind : indexes.values()) {
+    var list = new ArrayList<Index>();
+    for (final var ind : indexes.values()) {
       // Check if the value is instance of FutureTask, this means
       // the index is in create phase.
       if (ind instanceof FutureTask) {
         continue;
       }
-      Index index = (Index) ind;
+      var index = (Index) ind;
 
       // Check if indexType needs to be matched.
       if (indexType == null || index.getType() == indexType) {
@@ -829,9 +827,9 @@ public class IndexManager {
     // is OK as we are not clearing data maps . The destroy though marks
     // the index invalid , that is OK. Because of this flag a query
     // may or may not use the Index
-    IndexTask indexTask = new IndexTask(cache, index.getName());
+    var indexTask = new IndexTask(cache, index.getName());
     if (indexes.remove(indexTask) != null) {
-      AbstractIndex indexHandle = (AbstractIndex) index;
+      var indexHandle = (AbstractIndex) index;
       indexHandle.destroy();
     }
   }
@@ -842,17 +840,17 @@ public class IndexManager {
    */
   public int removeIndexes() {
     // Remove indexes which are available (create completed).
-    int numIndexes = 0;
-    for (final Object o : indexes.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      Object ind = entry.getValue();
+    var numIndexes = 0;
+    for (final var o : indexes.entrySet()) {
+      var entry = (Map.Entry) o;
+      var ind = entry.getValue();
       // Check if the returned value is instance of Index (this means
       // the index is not in create phase, its created successfully).
       if (!(ind instanceof Index)) {
         continue;
       }
       numIndexes++;
-      IndexTask indexTask = (IndexTask) entry.getKey();
+      var indexTask = (IndexTask) entry.getKey();
       indexes.remove(indexTask);
     }
     return numIndexes;
@@ -867,7 +865,7 @@ public class IndexManager {
    */
   public void rerunIndexCreationQuery() throws QueryException {
     try {
-      QueryObserver observer = QueryObserverHolder.getInstance();
+      var observer = QueryObserverHolder.getInstance();
       observer.beforeRerunningIndexCreationQuery();
     } catch (Exception e) {
       // Asif Ignore any exception as this should not hamper normal code flow
@@ -893,14 +891,14 @@ public class IndexManager {
     if (region.getCache().getLogger().infoEnabled()) {
       region.getCache().getLogger().info("Populating indexes for region " + region.getName());
     }
-    boolean throwException = false;
-    HashMap<String, Exception> exceptionsMap = new HashMap<>();
+    var throwException = false;
+    var exceptionsMap = new HashMap<String, Exception>();
     boolean oldReadSerialized = cache.getPdxReadSerializedOverride();
     cache.setPdxReadSerializedOverride(true);
     try {
       Iterator entryIter = ((LocalRegion) region).getBestIterator(true);
       while (entryIter.hasNext()) {
-        RegionEntry entry = (RegionEntry) entryIter.next();
+        var entry = (RegionEntry) entryIter.next();
         if (entry == null || entry.isInvalidOrRemoved()) {
           continue;
         }
@@ -908,15 +906,15 @@ public class IndexManager {
         // update does not have
         // to read the value from disk every time.
         entry.getValue((LocalRegion) region);
-        Iterator<Index> indexSetIterator = indexSet.iterator();
+        var indexSetIterator = indexSet.iterator();
         while (indexSetIterator.hasNext()) {
-          AbstractIndex index = (AbstractIndex) indexSetIterator.next();
+          var index = (AbstractIndex) indexSetIterator.next();
           if (!index.isPopulated() && index.getType() != IndexType.PRIMARY_KEY) {
             if (logger.isDebugEnabled()) {
               logger.debug("Adding to index :{}{} value :{}", index.getName(),
                   region.getFullPath(), entry.getKey());
             }
-            long start = index.updateIndexUpdateStats();
+            var start = index.updateIndexUpdateStats();
             try {
               index.addIndexMapping(entry);
             } catch (IMQException e) {
@@ -947,7 +945,7 @@ public class IndexManager {
    */
   public void setPopulateFlagForIndexes(Collection<Index> indexSet) {
     for (Object ind : indexSet) {
-      AbstractIndex index = (AbstractIndex) ind;
+      var index = (AbstractIndex) ind;
       if (!index.isPopulated()) {
         index.setPopulated(true);
       }
@@ -992,8 +990,8 @@ public class IndexManager {
    * @param opCode one of IndexProtocol.OTHER_OP, BEFORE_UPDATE_OP, AFTER_UPDATE_OP.
    */
   private void processAction(RegionEntry entry, int action, int opCode) throws QueryException {
-    final long startPA = getCachePerfStats().startIndexUpdate();
-    Boolean initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
+    final var startPA = getCachePerfStats().startIndexUpdate();
+    var initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
     cache.setPdxReadSerializedOverride(true);
     TXStateProxy tx = null;
     if (!cache.isClient()) {
@@ -1015,7 +1013,7 @@ public class IndexManager {
       }
 
       long start = 0;
-      boolean indexLockAcquired = false;
+      var indexLockAcquired = false;
       switch (action) {
         case ADD_ENTRY: {
           if (IndexManager.testHook != null) {
@@ -1034,13 +1032,13 @@ public class IndexManager {
           // so we need to remove the mapping even if it is an Add action
           // as otherwise the new results will get added into the
           // old results instead of replacement
-          for (final Object ind : indexes.values()) {
+          for (final var ind : indexes.values()) {
             // Check if the value is instance of FutureTask, this means
             // the index is in create phase.
             if (ind instanceof FutureTask) {
               continue;
             }
-            IndexProtocol index = (IndexProtocol) ind;
+            var index = (IndexProtocol) ind;
 
             if (index.isValid() && ((AbstractIndex) index).isPopulated()
                 && index.getType() != IndexType.PRIMARY_KEY) {
@@ -1073,13 +1071,13 @@ public class IndexManager {
 
           // this action is only called with opCode AFTER_UPDATE_OP
           assert opCode == IndexProtocol.AFTER_UPDATE_OP;
-          for (final Object ind : indexes.values()) {
+          for (final var ind : indexes.values()) {
             // Check if the value is instance of FutureTask, this means
             // the index is in create phase.
             if (ind instanceof FutureTask) {
               continue;
             }
-            IndexProtocol index = (IndexProtocol) ind;
+            var index = (IndexProtocol) ind;
 
             if (((AbstractIndex) index).isPopulated() && index.getType() != IndexType.PRIMARY_KEY) {
               if (logger.isDebugEnabled()) {
@@ -1104,16 +1102,16 @@ public class IndexManager {
             testHook.hook(5);
             testHook.hook(10);
           }
-          for (final Object ind : indexes.values()) {
+          for (final var ind : indexes.values()) {
             // Check if the value is instance of FutureTask, this means
             // the index is in create phase.
             if (ind instanceof FutureTask) {
               continue;
             }
-            IndexProtocol index = (IndexProtocol) ind;
+            var index = (IndexProtocol) ind;
 
             if (((AbstractIndex) index).isPopulated() && index.getType() != IndexType.PRIMARY_KEY) {
-              AbstractIndex abstractIndex = (AbstractIndex) index;
+              var abstractIndex = (AbstractIndex) index;
               if (logger.isDebugEnabled()) {
                 logger.debug("Removing from index: {}{} value: {}", index.getName(),
                     region.getFullPath(), entry.getKey());
@@ -1168,7 +1166,7 @@ public class IndexManager {
 
   private void setPRIndexAsInvalid(AbstractIndex index) {
     if (index.prIndex != null) {
-      AbstractIndex prIndex = (AbstractIndex) index.prIndex;
+      var prIndex = (AbstractIndex) index.prIndex;
       prIndex.markValid(false);
     }
   }
@@ -1180,7 +1178,7 @@ public class IndexManager {
       // we should not allow index creation to proceed.
       while (numUpdatersInProgress > 0) {
         ((LocalRegion) getRegion()).getCancelCriterion().checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           indexes.wait();
         } catch (InterruptedException ignored) {
@@ -1224,15 +1222,15 @@ public class IndexManager {
     waitBeforeUpdate();
     try {
       // opCode is ignored for this operation
-      for (final Object ind : indexes.values()) {
+      for (final var ind : indexes.values()) {
         // Check if the value is instance of FutureTask, this means
         // the index is in create phase.
         if (ind instanceof FutureTask) {
           continue;
         }
-        IndexProtocol index = (IndexProtocol) ind;
+        var index = (IndexProtocol) ind;
         if (index.getType() == IndexType.FUNCTIONAL || index.getType() == IndexType.HASH) {
-          AbstractIndex aIndex = ((AbstractIndex) index);
+          var aIndex = ((AbstractIndex) index);
           start = ((AbstractIndex) index).updateIndexUpdateStats();
           ((AbstractIndex) index).recreateIndexData();
           ((AbstractIndex) index).updateIndexUpdateStats(start);
@@ -1257,7 +1255,7 @@ public class IndexManager {
       ++numUpdatersInWaiting;
       while (numCreators > 0) {
         ((LocalRegion) getRegion()).getCancelCriterion().checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           indexes.wait();
         } catch (InterruptedException ignored) {
@@ -1310,11 +1308,11 @@ public class IndexManager {
    * @param prRegion the partition region that this bucket belongs to
    */
   public void removeBucketIndexes(PartitionedRegion prRegion) throws QueryException {
-    IndexManager parentManager = prRegion.getIndexManager();
+    var parentManager = prRegion.getIndexManager();
     if (parentManager != null) {
-      for (final Object o : indexes.values()) {
-        Index bucketIndex = (Index) o;
-        Index prIndex = parentManager.getIndex(bucketIndex.getName());
+      for (final var o : indexes.values()) {
+        var bucketIndex = (Index) o;
+        var prIndex = parentManager.getIndex(bucketIndex.getName());
         if (prIndex instanceof PartitionedIndex) {
           ((PartitionedIndex) prIndex).removeFromBucketIndexes(region, bucketIndex);
         }
@@ -1324,8 +1322,8 @@ public class IndexManager {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    for (final Object ind : indexes.values()) {
+    var sb = new StringBuilder();
+    for (final var ind : indexes.values()) {
       // Check if the value is instance of FutureTask, this means
       // the index is in create phase.
       if (ind instanceof FutureTask) {
@@ -1420,7 +1418,7 @@ public class IndexManager {
     }
 
     public void addTask(int action, RegionEntry entry, int opCode) {
-      Object[] task = new Object[3];
+      var task = new Object[3];
       task[0] = action;
       task[1] = entry;
       task[2] = opCode;
@@ -1448,7 +1446,7 @@ public class IndexManager {
     public void run() {
       // async writers main loop
       // logger.debug("DiskRegion writer started (writer=" + this + ")");
-      org.apache.geode.CancelCriterion stopper = ((LocalRegion) region).getCancelCriterion();
+      var stopper = ((LocalRegion) region).getCancelCriterion();
       try {
         while (!shutdownRequested) {
           // Termination checks
@@ -1457,7 +1455,7 @@ public class IndexManager {
             break;
           }
           try {
-            Object[] task = (Object[]) pendingTasks.take();
+            var task = (Object[]) pendingTasks.take();
             if (shutdownRequested) {
               break;
             }
@@ -1473,7 +1471,7 @@ public class IndexManager {
 
     private void updateIndexes(Object[] task) {
       int action = (Integer) task[0];
-      RegionEntry entry = (RegionEntry) task[1];
+      var entry = (RegionEntry) task[1];
       int opCode = (Integer) task[2];
       // System.out.println("entry = "+entry.getKey());
       if (entry != null || action == RECREATE_INDEX) {
@@ -1560,7 +1558,7 @@ public class IndexManager {
       if (!(other instanceof IndexTask)) {
         return false;
       }
-      IndexTask otherIndexTask = (IndexTask) other;
+      var otherIndexTask = (IndexTask) other;
       // compare indexName.
       if (indexName.equals(otherIndexTask.indexName)) {
         return true;
@@ -1570,9 +1568,9 @@ public class IndexManager {
         return false;
       }
 
-      String[] indexDefinitions = helper.getCanonicalizedIteratorDefinitions();
+      var indexDefinitions = helper.getCanonicalizedIteratorDefinitions();
       // TODO: avoid object creation in equals
-      int[] mapping = new int[indexDefinitions.length];
+      var mapping = new int[indexDefinitions.length];
       // compare index based on its type, expression and definition.
       return compareIndexData(indexType, indexDefinitions,
           helper.getCanonicalizedIndexedExpression(), otherIndexTask.indexType,
@@ -1594,10 +1592,10 @@ public class IndexManager {
     @Override
     public Index call() {
       Index index = null;
-      String indexedExpression = helper.getCanonicalizedIndexedExpression();
-      String fromClause = helper.getCanonicalizedFromClause();
-      String projectionAttributes = helper.getCanonicalizedProjectionAttributes();
-      String[] definitions = helper.getCanonicalizedIteratorDefinitions();
+      var indexedExpression = helper.getCanonicalizedIndexedExpression();
+      var fromClause = helper.getCanonicalizedFromClause();
+      var projectionAttributes = helper.getCanonicalizedProjectionAttributes();
+      var definitions = helper.getCanonicalizedIteratorDefinitions();
       IndexStatistics stats = null;
       isLDM = IndexManager.IS_TEST_LDM;
 
@@ -1625,7 +1623,7 @@ public class IndexManager {
             logger.info("Using Compact Range index implementation for '{}' on region {}", indexName,
                 region.getFullPath());
           } else {
-            FunctionalIndexCreationHelper fich = (FunctionalIndexCreationHelper) helper;
+            var fich = (FunctionalIndexCreationHelper) helper;
             index = new CompactMapRangeIndex(cache, indexName, region, fromClause,
                 indexedExpression, projectionAttributes, origFromClause, origIndexedExpression,
                 definitions, fich.isAllKeys(), fich.multiIndexKeysPattern, fich.mapKeys, stats);
@@ -1640,7 +1638,7 @@ public class IndexManager {
             logger.info("Using Non-Compact index implementation for '{}' on region {}", indexName,
                 region.getFullPath());
           } else {
-            FunctionalIndexCreationHelper fich = (FunctionalIndexCreationHelper) helper;
+            var fich = (FunctionalIndexCreationHelper) helper;
             index = new MapRangeIndex(cache, indexName, region, fromClause, indexedExpression,
                 projectionAttributes, origFromClause, origIndexedExpression, definitions,
                 fich.isAllKeys(), fich.multiIndexKeysPattern, fich.mapKeys, stats);
@@ -1652,10 +1650,10 @@ public class IndexManager {
       ((AbstractIndex) index).setPRIndex(prIndex);
 
       if (index.getType() != IndexType.PRIMARY_KEY) {
-        AbstractIndex aIndex = ((AbstractIndex) index);
+        var aIndex = ((AbstractIndex) index);
         aIndex.instantiateEvaluator(helper);
         waitBeforeUpdate();
-        boolean indexCreatedSuccessfully = false;
+        var indexCreatedSuccessfully = false;
         try {
           ((LocalRegion) region).setFlagForIndexCreationThread(true);
           aIndex.initializeIndex(loadEntries);

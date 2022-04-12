@@ -37,7 +37,6 @@ import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ResourceEvent;
 import org.apache.geode.distributed.internal.tcpserver.ClusterSocketCreator;
-import org.apache.geode.internal.cache.tier.Acceptor;
 import org.apache.geode.internal.cache.tier.OverflowAttributes;
 import org.apache.geode.internal.cache.tier.sockets.AcceptorBuilder;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
@@ -68,13 +67,13 @@ public class CacheServerImplTest {
     config = mock(DistributionConfig.class);
     securityService = mock(SecurityService.class);
     socketCreator = mock(SocketCreator.class);
-    ClusterSocketCreator ssc = mock(ClusterSocketCreator.class);
+    var ssc = mock(ClusterSocketCreator.class);
     when(socketCreator.forCluster()).thenReturn(ssc);
     system = mock(InternalDistributedSystem.class);
     advisor = mock(CacheServerAdvisor.class);
 
-    ServerSocket serverSocket = mock(ServerSocket.class);
-    StatisticsManager statisticsManager = mock(StatisticsManager.class);
+    var serverSocket = mock(ServerSocket.class);
+    var statisticsManager = mock(StatisticsManager.class);
 
     when(cache.getDistributedSystem()).thenReturn(system);
     when(cache.getInternalDistributedSystem()).thenReturn(system);
@@ -93,13 +92,13 @@ public class CacheServerImplTest {
 
   @Test
   public void createdAcceptorIsGatewayEndpoint() throws IOException {
-    OverflowAttributes overflowAttributes = mock(OverflowAttributes.class);
+    var overflowAttributes = mock(OverflowAttributes.class);
     InternalCacheServer server = new CacheServerImpl(cache, securityService,
         StatisticsClockFactory.disabledClock(), new AcceptorBuilder(),
         true, true, () -> socketCreator, (a, b, c, d, e, f, g, h, i) -> cacheClientNotifier,
         (a, b, c) -> clientHealthMonitor, a -> advisor);
 
-    Acceptor acceptor = server.createAcceptor(overflowAttributes);
+    var acceptor = server.createAcceptor(overflowAttributes);
 
     assertThat(acceptor.isGatewayReceiver()).isFalse();
   }
@@ -110,7 +109,7 @@ public class CacheServerImplTest {
         StatisticsClockFactory.disabledClock(), new AcceptorBuilder(),
         true, true, () -> socketCreator, (a, b, c, d, e, f, g, h, i) -> cacheClientNotifier,
         (a, b, c) -> clientHealthMonitor, a -> advisor);
-    String specifiedGroup = "group0";
+    var specifiedGroup = "group0";
 
     server.setGroups(new String[] {specifiedGroup});
 
@@ -124,9 +123,9 @@ public class CacheServerImplTest {
         StatisticsClockFactory.disabledClock(), new AcceptorBuilder(),
         true, true, () -> socketCreator, (a, b, c, d, e, f, g, h, i) -> cacheClientNotifier,
         (a, b, c) -> clientHealthMonitor, a -> advisor);
-    String specifiedGroup1 = "group1";
-    String specifiedGroup2 = "group2";
-    String specifiedGroup3 = "group3";
+    var specifiedGroup1 = "group1";
+    var specifiedGroup2 = "group2";
+    var specifiedGroup3 = "group3";
 
     server.setGroups(new String[] {specifiedGroup1, specifiedGroup2, specifiedGroup3});
 
@@ -136,7 +135,7 @@ public class CacheServerImplTest {
 
   @Test
   public void getCombinedGroups_includesMembershipGroup() {
-    String membershipGroup = "group-m0";
+    var membershipGroup = "group-m0";
     when(config.getGroups()).thenReturn(membershipGroup);
     InternalCacheServer server = new CacheServerImpl(cache, securityService,
         StatisticsClockFactory.disabledClock(), new AcceptorBuilder(),
@@ -149,9 +148,9 @@ public class CacheServerImplTest {
 
   @Test
   public void getCombinedGroups_includesMultipleMembershipGroups() {
-    String membershipGroup1 = "group-m1";
-    String membershipGroup2 = "group-m2";
-    String membershipGroup3 = "group-m3";
+    var membershipGroup1 = "group-m1";
+    var membershipGroup2 = "group-m2";
+    var membershipGroup3 = "group-m3";
     when(config.getGroups())
         .thenReturn(membershipGroup1 + "," + membershipGroup2 + "," + membershipGroup3);
     InternalCacheServer server = new CacheServerImpl(cache, securityService,
@@ -165,18 +164,18 @@ public class CacheServerImplTest {
 
   @Test
   public void getCombinedGroups_includesSpecifiedGroupsAndMembershipGroups() {
-    String membershipGroup1 = "group-m1";
-    String membershipGroup2 = "group-m2";
-    String membershipGroup3 = "group-m3";
+    var membershipGroup1 = "group-m1";
+    var membershipGroup2 = "group-m2";
+    var membershipGroup3 = "group-m3";
     when(config.getGroups())
         .thenReturn(membershipGroup1 + "," + membershipGroup2 + "," + membershipGroup3);
     InternalCacheServer server = new CacheServerImpl(cache, securityService,
         StatisticsClockFactory.disabledClock(), new AcceptorBuilder(),
         true, true, () -> socketCreator, (a, b, c, d, e, f, g, h, i) -> cacheClientNotifier,
         (a, b, c) -> clientHealthMonitor, a -> advisor);
-    String specifiedGroup1 = "group1";
-    String specifiedGroup2 = "group2";
-    String specifiedGroup3 = "group3";
+    var specifiedGroup1 = "group1";
+    var specifiedGroup2 = "group2";
+    var specifiedGroup3 = "group3";
 
     server.setGroups(new String[] {specifiedGroup1, specifiedGroup2, specifiedGroup3});
 

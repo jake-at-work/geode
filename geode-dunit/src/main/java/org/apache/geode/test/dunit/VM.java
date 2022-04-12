@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Arrays;
@@ -39,7 +37,6 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.dunit.internal.ChildVMLauncher;
 import org.apache.geode.test.dunit.internal.IdentifiableCallable;
 import org.apache.geode.test.dunit.internal.IdentifiableRunnable;
-import org.apache.geode.test.dunit.internal.MethodInvokerResult;
 import org.apache.geode.test.dunit.internal.ProcessHolder;
 import org.apache.geode.test.dunit.internal.RemoteDUnitVMIF;
 import org.apache.geode.test.dunit.internal.StandAloneDUnitEnv;
@@ -219,11 +216,11 @@ public class VM implements Serializable {
   }
 
   public static String dumpThreads() {
-    ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-    long[] allThreadIds = threadMXBean.getAllThreadIds();
-    ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(allThreadIds, true, true);
+    var threadMXBean = ManagementFactory.getThreadMXBean();
+    var allThreadIds = threadMXBean.getAllThreadIds();
+    var threadInfos = threadMXBean.getThreadInfo(allThreadIds, true, true);
 
-    StringBuilder dumpWriter = new StringBuilder();
+    var dumpWriter = new StringBuilder();
     Arrays.stream(threadInfos)
         .filter(Objects::nonNull)
         .forEach(dumpWriter::append);
@@ -371,7 +368,7 @@ public class VM implements Serializable {
    * @see SerializableRunnable
    */
   public <V> AsyncInvocation<V> invokeAsync(final SerializableRunnableIF runnable) {
-    IdentifiableRunnable target = new IdentifiableRunnable(nextId(), runnable);
+    var target = new IdentifiableRunnable(nextId(), runnable);
     return AsyncInvocation
         .<V>create(target, () -> invoke(target, target.getMethodName(), EMPTY), this).start();
   }
@@ -388,7 +385,7 @@ public class VM implements Serializable {
    */
   public <V> AsyncInvocation<V> invokeAsync(final String name,
       final SerializableRunnableIF runnable) {
-    IdentifiableRunnable target = new IdentifiableRunnable(nextId(), name, runnable);
+    var target = new IdentifiableRunnable(nextId(), name, runnable);
     return AsyncInvocation
         .<V>create(target, () -> invoke(target, target.getMethodName(), EMPTY), this).start();
   }
@@ -403,7 +400,7 @@ public class VM implements Serializable {
    */
   public <V> AsyncInvocation<V> invokeAsync(final String name,
       final SerializableCallableIF<V> callable) {
-    IdentifiableCallable<V> target = new IdentifiableCallable<>(nextId(), name, callable);
+    var target = new IdentifiableCallable<V>(nextId(), name, callable);
     return AsyncInvocation.create(target, () -> invoke(target, target.getMethodName(), EMPTY), this)
         .start();
   }
@@ -416,7 +413,7 @@ public class VM implements Serializable {
    * @see SerializableCallable
    */
   public <V> AsyncInvocation<V> invokeAsync(final SerializableCallableIF<V> callable) {
-    IdentifiableCallable<V> target = new IdentifiableCallable<>(nextId(), callable);
+    var target = new IdentifiableCallable<V>(nextId(), callable);
     return AsyncInvocation.create(target, () -> invoke(target, target.getMethodName(), EMPTY), this)
         .start();
   }
@@ -573,7 +570,7 @@ public class VM implements Serializable {
       if (force) {
         processHolder.killForcibly();
       } else {
-        SerializableRunnableIF runnable = () -> new Thread(() -> {
+        var runnable = (SerializableRunnableIF) () -> new Thread(() -> {
           try {
             // sleep before exit so that the rmi call is returned
             Thread.sleep(100);
@@ -591,7 +588,7 @@ public class VM implements Serializable {
       // this case, ephemeral ports that are allocated early may end up conflicting with these
       // fixed ports. So when we bounce a VM, use an RMI port outside the usual range of ephemeral
       // ports for MacOS (49152–65535) and Linux (32768-60999).
-      int remoteStubPort = AvailablePortHelper.getRandomAvailableTCPPort();
+      var remoteStubPort = AvailablePortHelper.getRandomAvailableTCPPort();
       processHolder = childVMLauncher.launchVM(targetVersion, id, true, remoteStubPort);
       version = targetVersion;
       client = childVMLauncher.getStub(id);
@@ -625,7 +622,7 @@ public class VM implements Serializable {
   private <V> V executeMethodOnObject(final Object targetObject, final String methodName,
       final Object[] args) {
     try {
-      MethodInvokerResult result = client.executeMethodOnObject(targetObject, methodName, args);
+      var result = client.executeMethodOnObject(targetObject, methodName, args);
       if (result.exceptionOccurred()) {
         throw new RMIException(this, targetObject.getClass().getName(), methodName,
             result.getException(), result.getStackTrace());
@@ -639,7 +636,7 @@ public class VM implements Serializable {
   private <V> V executeMethodOnClass(final Class<?> targetClass, final String methodName,
       final Object[] args) {
     try {
-      MethodInvokerResult result =
+      var result =
           client.executeMethodOnClass(targetClass.getName(), methodName, args);
       if (result.exceptionOccurred()) {
         throw new RMIException(this, targetClass.getName(), methodName, result.getException(),

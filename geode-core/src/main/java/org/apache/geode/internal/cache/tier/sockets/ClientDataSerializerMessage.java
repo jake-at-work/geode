@@ -79,31 +79,31 @@ public class ClientDataSerializerMessage extends ClientUpdateMessageImpl {
     // ...
     // Last part: event ID
 
-    int dsLength = serializedDataSerializer.length; // multiple of 2
+    var dsLength = serializedDataSerializer.length; // multiple of 2
     assert (dsLength % 2) == 0;
-    int numOfDS = (supportedClasses != null) ? supportedClasses.length : 0;
+    var numOfDS = (supportedClasses != null) ? supportedClasses.length : 0;
     assert (dsLength / 2) == numOfDS;
 
     // Calculate total number of parts
-    int numOfParts = dsLength + numOfDS;
-    for (int i = 0; i < numOfDS; i++) {
+    var numOfParts = dsLength + numOfDS;
+    for (var i = 0; i < numOfDS; i++) {
       if (supportedClasses[i] != null) {
         numOfParts += supportedClasses[i].length;
       }
     }
     numOfParts += 1; // one for eventID
 
-    final Message message = new Message(numOfParts, proxy.getVersion());
+    final var message = new Message(numOfParts, proxy.getVersion());
     // Set message type
     message.setMessageType(MessageType.REGISTER_DATASERIALIZERS);
-    for (int i = 0; i < dsLength; i = i + 2) {
+    for (var i = 0; i < dsLength; i = i + 2) {
       message.addBytesPart(serializedDataSerializer[i]); // part 0
       message.addBytesPart(serializedDataSerializer[i + 1]); // part 1
 
-      int numOfClasses = supportedClasses[i / 2].length;
-      byte[][] classBytes = new byte[numOfClasses][];
+      var numOfClasses = supportedClasses[i / 2].length;
+      var classBytes = new byte[numOfClasses][];
       try {
-        for (int j = 0; j < numOfClasses; j++) {
+        for (var j = 0; j < numOfClasses; j++) {
           classBytes[j] = CacheServerHelper.serialize(supportedClasses[i / 2][j].getName());
         }
       } catch (IOException ioe) {
@@ -111,7 +111,7 @@ public class ClientDataSerializerMessage extends ClientUpdateMessageImpl {
         classBytes = null;
       }
       message.addIntPart(numOfClasses); // part 2
-      for (int j = 0; j < numOfClasses; j++) {
+      for (var j = 0; j < numOfClasses; j++) {
         message.addBytesPart(classBytes[j]); // part 3 onwards
       }
     }
@@ -136,9 +136,9 @@ public class ClientDataSerializerMessage extends ClientUpdateMessageImpl {
       SerializationContext context) throws IOException {
 
     out.writeByte(_operation.getEventCode());
-    int dataSerializerCount = serializedDataSerializer.length;
+    var dataSerializerCount = serializedDataSerializer.length;
     out.writeInt(dataSerializerCount);
-    for (final byte[] bytes : serializedDataSerializer) {
+    for (final var bytes : serializedDataSerializer) {
       DataSerializer.writeByteArray(bytes, out);
     }
     context.getSerializer().writeObject(_membershipId, out);
@@ -157,9 +157,9 @@ public class ClientDataSerializerMessage extends ClientUpdateMessageImpl {
       DeserializationContext context) throws IOException, ClassNotFoundException {
     // Note: does not call super.fromData what a HACK
     _operation = EnumListenerEvent.getEnumListenerEvent(in.readByte());
-    int dataSerializerCount = in.readInt();
+    var dataSerializerCount = in.readInt();
     serializedDataSerializer = new byte[dataSerializerCount][];
-    for (int i = 0; i < dataSerializerCount; i++) {
+    for (var i = 0; i < dataSerializerCount; i++) {
       serializedDataSerializer[i] = DataSerializer.readByteArray(in);
     }
     _membershipId = ClientProxyMembershipID.readCanonicalized(in);

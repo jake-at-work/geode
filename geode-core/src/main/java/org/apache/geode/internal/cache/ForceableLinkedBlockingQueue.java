@@ -144,7 +144,7 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
    * takeLock.)
    */
   private void signalNotEmpty() {
-    final ReentrantLock takeLock = this.takeLock;
+    final var takeLock = this.takeLock;
     takeLock.lock();
     try {
       notEmpty.signal();
@@ -157,7 +157,7 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
    * Signals a waiting put. Called only from take/poll.
    */
   private void signalNotFull() {
-    final ReentrantLock putLock = this.putLock;
+    final var putLock = this.putLock;
     putLock.lock();
     try {
       notFull.signal();
@@ -185,11 +185,11 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
   private E dequeue() {
     // assert takeLock.isHeldByCurrentThread();
     // assert head.item == null;
-    Node<E> h = head;
-    Node<E> first = h.next;
+    var h = head;
+    var first = h.next;
     h.next = h; // help GC
     head = first;
-    E x = first.item;
+    var x = first.item;
     first.item = null;
     return x;
   }
@@ -283,9 +283,9 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
     }
     // Note: convention in all put/take/etc is to preset local var
     // holding count negative to indicate failure unless set.
-    int c = -1;
-    final ReentrantLock putLock = this.putLock;
-    final AtomicInteger count = this.count;
+    var c = -1;
+    final var putLock = this.putLock;
+    final var count = this.count;
     putLock.lockInterruptibly();
     try {
       /*
@@ -320,9 +320,9 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
     }
     // Note: convention in all put/take/etc is to preset local var
     // holding count negative to indicate failure unless set.
-    int c = -1;
-    final ReentrantLock putLock = this.putLock;
-    final AtomicInteger count = this.count;
+    var c = -1;
+    final var putLock = this.putLock;
+    final var count = this.count;
     putLock.lockInterruptibly();
     try {
       enqueue(e);
@@ -353,10 +353,10 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
     if (e == null) {
       throw new NullPointerException();
     }
-    long nanos = unit.toNanos(timeout);
-    int c = -1;
-    final ReentrantLock putLock = this.putLock;
-    final AtomicInteger count = this.count;
+    var nanos = unit.toNanos(timeout);
+    var c = -1;
+    final var putLock = this.putLock;
+    final var count = this.count;
     putLock.lockInterruptibly();
     try {
       while (count.get() >= capacity) { // GEMFIRE changed == to >=
@@ -393,13 +393,13 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
     if (e == null) {
       throw new NullPointerException();
     }
-    final AtomicInteger count = this.count;
+    final var count = this.count;
     if (count.get() >= capacity) // GEMFIRE changed == to >=
     {
       return false;
     }
-    int c = -1;
-    final ReentrantLock putLock = this.putLock;
+    var c = -1;
+    final var putLock = this.putLock;
     putLock.lock();
     try {
       if (count.get() < capacity) {
@@ -422,9 +422,9 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
   @Override
   public E take() throws InterruptedException {
     E x;
-    int c = -1;
-    final AtomicInteger count = this.count;
-    final ReentrantLock takeLock = this.takeLock;
+    var c = -1;
+    final var count = this.count;
+    final var takeLock = this.takeLock;
     takeLock.lockInterruptibly();
     try {
       while (count.get() == 0) {
@@ -447,10 +447,10 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
   @Override
   public E poll(long timeout, TimeUnit unit) throws InterruptedException {
     E x = null;
-    int c = -1;
-    long nanos = unit.toNanos(timeout);
-    final AtomicInteger count = this.count;
-    final ReentrantLock takeLock = this.takeLock;
+    var c = -1;
+    var nanos = unit.toNanos(timeout);
+    final var count = this.count;
+    final var takeLock = this.takeLock;
     takeLock.lockInterruptibly();
     try {
       while (count.get() == 0) {
@@ -475,13 +475,13 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
 
   @Override
   public E poll() {
-    final AtomicInteger count = this.count;
+    final var count = this.count;
     if (count.get() == 0) {
       return null;
     }
     E x = null;
-    int c = -1;
-    final ReentrantLock takeLock = this.takeLock;
+    var c = -1;
+    final var takeLock = this.takeLock;
     takeLock.lock();
     try {
       if (count.get() > 0) {
@@ -505,10 +505,10 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
     if (count.get() == 0) {
       return null;
     }
-    final ReentrantLock takeLock = this.takeLock;
+    final var takeLock = this.takeLock;
     takeLock.lock();
     try {
-      Node<E> first = head.next;
+      var first = head.next;
       if (first == null) {
         return null;
       } else {
@@ -581,10 +581,10 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
   public Object[] toArray() {
     fullyLock();
     try {
-      int size = count.get();
-      Object[] a = new Object[size];
-      int k = 0;
-      for (Node<E> p = head.next; p != null; p = p.next) {
+      var size = count.get();
+      var a = new Object[size];
+      var k = 0;
+      for (var p = head.next; p != null; p = p.next) {
         a[k++] = p.item;
       }
       return a;
@@ -631,13 +631,13 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
   public <T> T[] toArray(T[] a) {
     fullyLock();
     try {
-      int size = count.get();
+      var size = count.get();
       if (a.length < size) {
         a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
       }
 
-      int k = 0;
-      for (Node<E> p = head.next; p != null; p = p.next) {
+      var k = 0;
+      for (var p = head.next; p != null; p = p.next) {
         a[k++] = (T) p.item;
       }
       if (a.length > k) {
@@ -714,17 +714,17 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
     if (c == this) {
       throw new IllegalArgumentException();
     }
-    boolean signalNotFull = false;
-    final ReentrantLock takeLock = this.takeLock;
+    var signalNotFull = false;
+    final var takeLock = this.takeLock;
     takeLock.lock();
     try {
-      int n = Math.min(maxElements, count.get());
+      var n = Math.min(maxElements, count.get());
       // count.get provides visibility to first n Nodes
-      Node<E> h = head;
-      int i = 0;
+      var h = head;
+      var i = 0;
       try {
         while (i < n) {
-          Node<E> p = h.next;
+          var p = h.next;
           c.add(p.item);
           p.item = null;
           h.next = h;
@@ -796,7 +796,7 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
      */
     private Node<E> nextNode(Node<E> p) {
       for (;;) {
-        Node<E> s = p.next;
+        var s = p.next;
         if (s == p) {
           return head.next;
         }
@@ -814,7 +814,7 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
         if (current == null) {
           throw new NoSuchElementException();
         }
-        E x = currentElement;
+        var x = currentElement;
         lastRet = current;
         current = nextNode(current);
         currentElement = (current == null) ? null : current.item;
@@ -831,7 +831,7 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
       }
       fullyLock();
       try {
-        Node<E> node = lastRet;
+        var node = lastRet;
         lastRet = null;
         for (Node<E> trail = head, p = trail.next; p != null; trail = p, p = p.next) {
           if (p == node) {
@@ -860,7 +860,7 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
       s.defaultWriteObject();
 
       // Write out all elements in the proper order.
-      for (Node<E> p = head.next; p != null; p = p.next) {
+      for (var p = head.next; p != null; p = p.next) {
         s.writeObject(p.item);
       }
 
@@ -887,7 +887,7 @@ public class ForceableLinkedBlockingQueue<E> extends AbstractQueue<E>
     // Read in all elements and place in queue
     for (;;) {
       @SuppressWarnings("unchecked")
-      E item = (E) s.readObject();
+      var item = (E) s.readObject();
       if (item == null) {
         break;
       }

@@ -38,13 +38,10 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.PdxSerializerObject;
@@ -68,14 +65,14 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSimplePut() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
     vm0.invoke(() -> createServerRegion(SimpleClass.class));
-    int port = createServerAccessor(vm3);
+    var port = createServerAccessor(vm3);
     createClientRegion(vm1, port);
     createClientRegion(vm2, port);
 
@@ -84,7 +81,7 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
       r.put(1, new SimpleClass(57, (byte) 3));
       return null;
     });
-    final SerializableCallable checkValue = new SerializableCallable() {
+    final var checkValue = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getRootRegion("testSimplePdx");
@@ -104,10 +101,10 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testNonPersistentServerRestart() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     final int port = vm0.invoke(() -> createServerRegion(SimpleClass.class));
     createClientRegion(vm1, port, true);
@@ -156,7 +153,7 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
       Region r = getRootRegion("testSimplePdx");
 
       // now get object 3, which was put in the server by vm2
-      PdxType1 results = (PdxType1) r.get(3);
+      var results = (PdxType1) r.get(3);
       assertEquals(3, results.int1);
 
       // Add another field to make sure the write path doesn't have
@@ -168,7 +165,7 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
     // Make sure vm2 can read what vm1 has written
     vm2.invoke(() -> {
       Region r = getRootRegion("testSimplePdx");
-      PdxType2 results = (PdxType2) r.get(5);
+      var results = (PdxType2) r.get(5);
       assertEquals(5, results.int1);
       assertEquals(5, results.int2);
       return null;
@@ -180,10 +177,10 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testNonPersistentServerRestartAutoSerializer() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     System.setProperty(AutoSerializableManager.NO_HARDCODED_EXCLUDES_PARAM, "true");
     Invoke.invokeInEveryVM(new SerializableRunnable() {
@@ -193,9 +190,9 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
       }
     });
     try {
-      String[] patterns =
+      var patterns =
           new String[] {"org.apache.geode.pdx.PdxClientServerDUnitTest.AutoPdxType.*"};
-      int port = createServerRegion(vm0);
+      var port = createServerRegion(vm0);
       createClientRegion(vm1, port, true, patterns);
 
       // Define a PDX type with 2 fields that will be cached on the client
@@ -229,7 +226,7 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
           // The client may not have noticed the server go away and come
           // back. Let's trigger the exception so the client will retry.
         }
-        AutoPdxType1 results = (AutoPdxType1) r.get(3);
+        var results = (AutoPdxType1) r.get(3);
         assertEquals(3, results.int1);
 
         // Add another field to make sure the write path doesn't have
@@ -241,7 +238,7 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
       // Make sure vm2 can read what vm1 has written
       vm2.invoke(() -> {
         Region r = getRootRegion("testSimplePdx");
-        AutoPdxType2 results = (AutoPdxType2) r.get(5);
+        var results = (AutoPdxType2) r.get(5);
         assertEquals(5, results.int1);
         assertEquals(5, results.int2);
         return null;
@@ -263,18 +260,18 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testServersWithPersistence() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
     createServerRegionWithPersistence(vm0, false);
-    int port = createServerAccessor(vm1);
+    var port = createServerAccessor(vm1);
     createClientRegion(vm2, port);
     createClientRegion(vm3, port);
 
-    SerializableCallable createValue = new SerializableCallable() {
+    var createValue = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getRootRegion("testSimplePdx");
@@ -298,10 +295,10 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testSimplePdxInstancePut() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     int port = vm0.invoke(() -> createServerRegion(SimpleClass.class));
     createClientRegion(vm1, port);
@@ -312,20 +309,20 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
       r.put(1, new SimpleClass(57, (byte) 3));
       return null;
     });
-    final SerializableCallable checkValue = new SerializableCallable() {
+    final var checkValue = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getRootRegion("testSimplePdx");
-        Boolean previousPdxReadSerializedFlag = cache.getPdxReadSerializedOverride();
+        var previousPdxReadSerializedFlag = cache.getPdxReadSerializedOverride();
         cache.setPdxReadSerializedOverride(true);
         try {
-          Object v = r.get(1);
+          var v = r.get(1);
           if (!(v instanceof PdxInstance)) {
             fail("expected v " + v.getClass() + " to be a PdxInstance");
           }
-          PdxInstance piv = (PdxInstance) v;
+          var piv = (PdxInstance) v;
           assertEquals(new SimpleClass(57, (byte) 3), piv.getObject());
-          Object v2 = r.get(1);
+          var v2 = r.get(1);
           if (v == v2) {
             fail("expected v and v2 to have a different identity");
           }
@@ -348,24 +345,24 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testMultipleServerDSes() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
-    final int port1 = createLonerServerRegion(vm0, "region1", "1");
-    final int port2 = createLonerServerRegion(vm1, "region2", "2");
+    final var port1 = createLonerServerRegion(vm0, "region1", "1");
+    final var port2 = createLonerServerRegion(vm1, "region2", "2");
 
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty(MCAST_PORT, "0");
         props.setProperty(LOCATORS, "");
         getSystem(props);
         Cache cache = getCache();
-        PoolFactory pf = PoolManager.createFactory();
+        var pf = PoolManager.createFactory();
         pf.addServer(NetworkUtils.getServerHostName(vm0.getHost()), port1);
         pf.create("pool1");
 
@@ -373,7 +370,7 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
         pf.addServer(NetworkUtils.getServerHostName(vm0.getHost()), port2);
         pf.create("pool2");
 
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setPoolName("pool1");
         cache.createRegion("region1", af.create());
 
@@ -390,7 +387,7 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
     // Serialize an object and put it in both regions, sending
     // the event to each pool
     vm2.invoke(() -> {
-      HeapDataOutputStream bytes = new HeapDataOutputStream(KnownVersion.CURRENT);
+      var bytes = new HeapDataOutputStream(KnownVersion.CURRENT);
       Region r1 = getRootRegion("region1");
       r1.put(1, new SimpleClass(57, (byte) 3));
       Region r2 = getRootRegion("region2");
@@ -412,31 +409,31 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testUserSerializesObject() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     int port = vm0.invoke(() -> createServerRegion(Object.class));
     createClientRegion(vm1, port);
     createClientRegion(vm2, port);
 
     vm1.invoke(() -> {
-      HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+      var out = new HeapDataOutputStream(KnownVersion.CURRENT);
       DataSerializer.writeObject(new SimpleClass(57, (byte) 3), out);
-      byte[] bytes = out.toByteArray();
+      var bytes = out.toByteArray();
       Region r = getRootRegion("testSimplePdx");
       r.put(1, bytes);
       return null;
     });
 
-    SerializableCallable checkValue = new SerializableCallable() {
+    var checkValue = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getRootRegion("testSimplePdx");
-        byte[] bytes = (byte[]) r.get(1);
-        DataInputStream bis = new DataInputStream(new ByteArrayInputStream(bytes));
-        Object result = DataSerializer.readObject(bis);
+        var bytes = (byte[]) r.get(1);
+        var bis = new DataInputStream(new ByteArrayInputStream(bytes));
+        var result = DataSerializer.readObject(bis);
         assertEquals(new SimpleClass(57, (byte) 3), result);
         return null;
       }
@@ -451,25 +448,25 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testLatePoolCreation() {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     final int port = vm0.invoke(() -> createServerRegion(SimpleClass.class));
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty(MCAST_PORT, "0");
         props.setProperty(LOCATORS, "");
         getSystem(props);
         Cache cache = getCache();
-        PoolFactory pf = PoolManager.createFactory();
+        var pf = PoolManager.createFactory();
         pf.addServer(NetworkUtils.getServerHostName(vm0.getHost()), port);
         pf.create("pool");
 
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setPoolName("pool");
         cache.createRegion("testSimplePdx", af.create());
         return null;
@@ -483,7 +480,7 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
       r.put(1, new SimpleClass(57, (byte) 3));
       return null;
     });
-    final SerializableCallable checkValue = new SerializableCallable() {
+    final var checkValue = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Region r = getRootRegion("testSimplePdx");
@@ -502,23 +499,23 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testExceptionWithPoolAfterTypeRegistryCreation() {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     final int port = vm0.invoke(() -> createServerRegion(SimpleClass.class));
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty(MCAST_PORT, "0");
         props.setProperty(LOCATORS, "");
         getSystem(props);
         Cache cache = getCache();
-        HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+        var out = new HeapDataOutputStream(KnownVersion.CURRENT);
         DataSerializer.writeObject(new SimpleClass(57, (byte) 3), out);
 
-        PoolFactory pf = PoolManager.createFactory();
+        var pf = PoolManager.createFactory();
         pf.addServer(NetworkUtils.getServerHostName(vm0.getHost()), port);
         try {
           pf.create("pool");
@@ -535,15 +532,15 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testCacheRejectsJSonPdxInstanceViolatingValueConstraint() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     final int port = vm0.invoke(() -> createServerRegion(SimpleClass.class));
 
     vm0.invoke("put value in region", () -> {
       Region r = basicGetCache().getRegion("testSimplePdx");
-      String className = "objects.PersonWithoutID";
+      var className = "objects.PersonWithoutID";
       try {
         r.put("pdxObject", getTypedJSONPdxInstance(className));
         fail("expected a ClassCastException");
@@ -558,36 +555,36 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
 
   public PdxInstance getTypedJSONPdxInstance(String className) throws Exception {
 
-    String aRESTishDoc = "{\"@type\": \" " + className
+    var aRESTishDoc = "{\"@type\": \" " + className
         + "\" , \" firstName\" : \" John\" , \" lastName\" : \" Smith\" , \" age\" : 25 }";
-    PdxInstance pdxInstance = JSONFormatter.fromJSON(aRESTishDoc);
+    var pdxInstance = JSONFormatter.fromJSON(aRESTishDoc);
 
     return pdxInstance;
   }
 
   private int createServerRegion(final Class constraintClass) throws IOException {
-    CacheFactory cf = new CacheFactory(getDistributedSystemProperties());
+    var cf = new CacheFactory(getDistributedSystemProperties());
     Cache cache = getCache(cf);
     RegionFactory rf = cache.createRegionFactory(RegionShortcut.REPLICATE);
     rf.setValueConstraint(constraintClass);
     rf.create("testSimplePdx");
-    CacheServer server = cache.addCacheServer();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     server.setPort(port);
     server.start();
     return port;
   }
 
   private int createServerRegion(VM vm) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.REPLICATE);
         createRootRegion("testSimplePdx", af.create());
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -598,15 +595,15 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
   }
 
   private int createServerRegion(VM vm, final int port) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.REPLICATE);
         createRootRegion("testSimplePdx", af.create());
 
-        CacheServer server = getCache().addCacheServer();
+        var server = getCache().addCacheServer();
         server.setPort(port);
         server.start();
         return port;
@@ -617,10 +614,10 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
   }
 
   private int createServerRegionWithPersistence(VM vm, final boolean persistentPdxRegistry) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheFactory cf = new CacheFactory();
+        var cf = new CacheFactory();
         if (persistentPdxRegistry) {
           cf.setPdxPersistent(true).setPdxDiskStore("store");
         }
@@ -628,14 +625,14 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
         Cache cache = getCache(cf);
         cache.createDiskStoreFactory().setDiskDirs(getDiskDirs()).create("store");
 
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
         af.setDiskStoreName("store");
         createRootRegion("testSimplePdx", af.create());
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -646,16 +643,16 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
   }
 
   private int createServerAccessor(VM vm) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.EMPTY);
         createRootRegion("testSimplePdx", af.create());
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -666,20 +663,20 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
   }
 
   private int createLonerServerRegion(VM vm, final String regionName, final String dsId) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty(LOCATORS, "");
         props.setProperty(DISTRIBUTED_SYSTEM_ID, dsId);
         getSystem(props);
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setDataPolicy(DataPolicy.REPLICATE);
         createRootRegion(regionName, af.create());
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -695,18 +692,18 @@ public class PdxClientServerDUnitTest extends JUnit4CacheTestCase {
 
   private void createClientRegion(final VM vm, final int port, final boolean setPdxTypeClearProp,
       final String... autoSerializerPatterns) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         if (setPdxTypeClearProp) {
           System.setProperty(PoolImpl.ON_DISCONNECT_CLEAR_PDXTYPEIDS, "true");
         }
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm.getHost()), port);
         if (autoSerializerPatterns != null && autoSerializerPatterns.length != 0) {
           cf.setPdxSerializer(new ReflectionBasedAutoSerializer(autoSerializerPatterns));
         }
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("testSimplePdx");
         return null;
       }

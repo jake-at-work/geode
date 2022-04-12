@@ -16,12 +16,9 @@ package org.apache.geode.redis.internal.commands.executor.string;
 
 import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_INTEGER;
 
-import java.util.List;
-
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -32,23 +29,23 @@ public class GetRangeExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
     long start;
     long end;
 
     try {
-      byte[] startI = commandElems.get(startIndex);
-      byte[] stopI = commandElems.get(stopIndex);
+      var startI = commandElems.get(startIndex);
+      var stopI = commandElems.get(stopIndex);
       start = Coder.bytesToLong(startI);
       end = Coder.bytesToLong(stopI);
     } catch (NumberFormatException e) {
       return RedisResponse.error(ERROR_NOT_INTEGER);
     }
 
-    RedisKey key = command.getKey();
+    var key = command.getKey();
 
-    byte[] returnRange =
+    var returnRange =
         context.stringLockedExecute(key, true, string -> string.getrange(start, end));
 
     if (returnRange == null) {

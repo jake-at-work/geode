@@ -56,7 +56,7 @@ public class PersistentColocationIntegrationTest {
         .setDiskDirs(new File[] {temporaryFolder.getRoot()})
         .create(DISK_STORE_NAME);
 
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(0);
 
     RegionFactory regionFactory = cache.createRegionFactory(PARTITION_PERSISTENT);
@@ -82,7 +82,7 @@ public class PersistentColocationIntegrationTest {
   @Test
   public void persistentPR_cannotColocateWith_nonPersistentPR() {
     // Try to colocate a persistent PR with the non persistent PR. This should fail.
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setColocatedWith("nonPersistentLeader");
     partitionAttributesFactory.setRedundantCopies(0);
 
@@ -90,14 +90,14 @@ public class PersistentColocationIntegrationTest {
     regionFactory.setDiskStoreName(DISK_STORE_NAME);
     regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
 
-    Throwable thrown = catchThrowable(() -> regionFactory.create("colocated"));
+    var thrown = catchThrowable(() -> regionFactory.create("colocated"));
     assertThat(thrown).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void persistentPR_canColocateWith_persistentPR() {
     // Try to colocate a persistent PR with another persistent PR. This should work.
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setColocatedWith("persistentLeader");
     partitionAttributesFactory.setRedundantCopies(0);
 
@@ -111,7 +111,7 @@ public class PersistentColocationIntegrationTest {
   @Test
   public void nonPersistentPR_canColocateWith_persistentPR() {
     // We should also be able to colocate a non persistent region with a persistent region.
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setColocatedWith("persistentLeader");
     partitionAttributesFactory.setRedundantCopies(0);
 

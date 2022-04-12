@@ -30,7 +30,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
@@ -59,30 +58,30 @@ public class ClientRegisterInterestAuthDUnitTest extends JUnit4DistributedTestCa
 
   @Test
   public void testRegisterInterest() throws Exception {
-    final Properties extraProperties = new Properties();
+    final var extraProperties = new Properties();
     extraProperties.setProperty(SECURITY_CLIENT_DHALGO, "AES:128");
 
     // client1 connects to server as a user not authorized to do any operations
     AsyncInvocation ai1 = client1.invokeAsync(() -> {
-      ClientCache cache =
+      var cache =
           createClientCache("stranger", "1234567", server.getPort(), extraProperties);
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var region = createProxyRegion(cache, REGION_NAME);
       assertNotAuthorized(() -> region.registerInterest("key3"), "DATA:READ:AuthRegion:key3");
     });
 
     // client2 connects to user as a user authorized to use AuthRegion region
     AsyncInvocation ai2 = client2.invokeAsync(() -> {
-      ClientCache cache =
+      var cache =
           createClientCache("authRegionUser", "1234567", server.getPort(), extraProperties);
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var region = createProxyRegion(cache, REGION_NAME);
       region.registerInterest("key3"); // DATA:READ:AuthRegion:key3;
     });
 
     // client3 connects to user as a user authorized to use key1 in AuthRegion region
     AsyncInvocation ai3 = client3.invokeAsync(() -> {
-      ClientCache cache =
+      var cache =
           createClientCache("key1User", "1234567", server.getPort(), extraProperties);
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var region = createProxyRegion(cache, REGION_NAME);
       assertNotAuthorized(() -> region.registerInterest("key2"), "DATA:READ:AuthRegion:key2");
     });
 
@@ -93,12 +92,12 @@ public class ClientRegisterInterestAuthDUnitTest extends JUnit4DistributedTestCa
 
   @Test
   public void testRegisterInterestRegex() throws Exception {
-    final Properties extraProperties = new Properties();
+    final var extraProperties = new Properties();
     extraProperties.setProperty(SECURITY_CLIENT_DHALGO, "AES:128");
 
     // client1 connects to server as a user not authorized to do any operations
     AsyncInvocation ai1 = client1.invokeAsync(() -> {
-      ClientCache cache =
+      var cache =
           createClientCache("stranger", "1234567", server.getPort(), extraProperties);
 
       Region region =
@@ -108,7 +107,7 @@ public class ClientRegisterInterestAuthDUnitTest extends JUnit4DistributedTestCa
 
     // client2 connects to user as a user authorized to use AuthRegion region
     AsyncInvocation ai2 = client2.invokeAsync(() -> {
-      ClientCache cache =
+      var cache =
           createClientCache("authRegionUser", "1234567", server.getPort(), extraProperties);
 
       Region region =
@@ -118,7 +117,7 @@ public class ClientRegisterInterestAuthDUnitTest extends JUnit4DistributedTestCa
 
     // client3 connects to user as a user authorized to use key1 in AuthRegion region
     AsyncInvocation ai3 = client3.invokeAsync(() -> {
-      ClientCache cache =
+      var cache =
           createClientCache("key1User", "1234567", server.getPort(), extraProperties);
 
       Region region =
@@ -134,7 +133,7 @@ public class ClientRegisterInterestAuthDUnitTest extends JUnit4DistributedTestCa
 
   @Test
   public void testRegisterInterestList() throws Exception {
-    final Properties extraProperties = new Properties();
+    final var extraProperties = new Properties();
     extraProperties.setProperty(SECURITY_CLIENT_DHALGO, "AES:128");
 
     List<String> keys = new ArrayList<>();
@@ -143,7 +142,7 @@ public class ClientRegisterInterestAuthDUnitTest extends JUnit4DistributedTestCa
 
     // client1 connects to server as a user not authorized to do any operations
     AsyncInvocation ai1 = client1.invokeAsync(() -> {
-      ClientCache cache =
+      var cache =
           createClientCache("stranger", "1234567", server.getPort(), extraProperties);
 
       Region region =
@@ -153,7 +152,7 @@ public class ClientRegisterInterestAuthDUnitTest extends JUnit4DistributedTestCa
 
     // client2 connects to user as a user authorized to use AuthRegion region
     AsyncInvocation ai2 = client2.invokeAsync(() -> {
-      ClientCache cache =
+      var cache =
           createClientCache("authRegionUser", "1234567", server.getPort(), extraProperties);
 
       Region region =
@@ -163,7 +162,7 @@ public class ClientRegisterInterestAuthDUnitTest extends JUnit4DistributedTestCa
 
     // client3 connects to user as a user authorized to use key1 in AuthRegion region
     AsyncInvocation ai3 = client3.invokeAsync(() -> {
-      ClientCache cache =
+      var cache =
           createClientCache("key1User", "1234567", server.getPort(), extraProperties);
 
       Region region =

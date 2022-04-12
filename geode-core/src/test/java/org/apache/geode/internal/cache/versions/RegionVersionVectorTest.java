@@ -32,7 +32,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -66,10 +65,10 @@ public class RegionVersionVectorTest {
    */
   @Test
   public void testSynchronizationVectorContainsAllVersionsForOwnerAndNonTarget() {
-    final String local = getIPLiteral();
-    InternalDistributedMember server1 = new InternalDistributedMember(local, 101);
-    InternalDistributedMember server2 = new InternalDistributedMember(local, 102);
-    InternalDistributedMember server3 = new InternalDistributedMember(local, 103);
+    final var local = getIPLiteral();
+    var server1 = new InternalDistributedMember(local, 101);
+    var server2 = new InternalDistributedMember(local, 102);
+    var server3 = new InternalDistributedMember(local, 103);
 
     RegionVersionVector rv1 = new VMRegionVersionVector(server1);
     rv1.updateLocalVersion(10);
@@ -78,7 +77,7 @@ public class RegionVersionVectorTest {
     rv1.recordVersion(server2, 8);
     rv1.recordVersion(server3, 1);
     rv1.recordVersion(server3, 3);
-    RegionVersionVector singletonRVV = rv1.getCloneForTransmission(server2);
+    var singletonRVV = rv1.getCloneForTransmission(server2);
     assertTrue(singletonRVV.isForSynchronization());
     assertEquals(singletonRVV.getOwnerId(), server1);
     assertTrue(singletonRVV.getMemberToVersion().containsKey(server2));
@@ -104,10 +103,10 @@ public class RegionVersionVectorTest {
 
   @Test
   public void testSynchronizationVectorContainsAllVersionsForSameOwnerAsTargetAndNonTarget() {
-    final String local = getIPLiteral();
-    InternalDistributedMember server1 = new InternalDistributedMember(local, 101);
-    InternalDistributedMember server2 = new InternalDistributedMember(local, 102);
-    InternalDistributedMember server3 = new InternalDistributedMember(local, 103);
+    final var local = getIPLiteral();
+    var server1 = new InternalDistributedMember(local, 101);
+    var server2 = new InternalDistributedMember(local, 102);
+    var server3 = new InternalDistributedMember(local, 103);
 
     RegionVersionVector rv1 = new VMRegionVersionVector(server1);
     rv1.updateLocalVersion(10);
@@ -116,7 +115,7 @@ public class RegionVersionVectorTest {
     rv1.recordVersion(server2, 8);
     rv1.recordVersion(server3, 1);
     rv1.recordVersion(server3, 3);
-    RegionVersionVector singletonRVV = rv1.getCloneForTransmission(server1);
+    var singletonRVV = rv1.getCloneForTransmission(server1);
     assertTrue(singletonRVV.isForSynchronization());
     assertEquals(singletonRVV.getOwnerId(), server1);
     assertTrue(singletonRVV.getMemberToVersion().containsKey(server1));
@@ -147,9 +146,9 @@ public class RegionVersionVectorTest {
    */
   @Test
   public void testSynchronizationVectorWithDiskStoreIdContainsAllVersionsForNonTarget() {
-    DiskStoreID server1 = new DiskStoreID(0, 0);
-    DiskStoreID server2 = new DiskStoreID(0, 1);
-    DiskStoreID server3 = new DiskStoreID(1, 0);
+    var server1 = new DiskStoreID(0, 0);
+    var server2 = new DiskStoreID(0, 1);
+    var server3 = new DiskStoreID(1, 0);
 
     RegionVersionVector rv1 = new DiskRegionVersionVector(server1);
     rv1.updateLocalVersion(10);
@@ -158,7 +157,7 @@ public class RegionVersionVectorTest {
     rv1.recordVersion(server2, 8);
     rv1.recordVersion(server3, 1);
     rv1.recordVersion(server3, 3);
-    RegionVersionVector singletonRVV = rv1.getCloneForTransmission(server2);
+    var singletonRVV = rv1.getCloneForTransmission(server2);
     assertTrue(singletonRVV.isForSynchronization());
     assertEquals(singletonRVV.getOwnerId(), server1);
     assertTrue(singletonRVV.getMemberToVersion().containsKey(server2));
@@ -173,9 +172,9 @@ public class RegionVersionVectorTest {
 
   @Test
   public void testSynchronizationVectorWithDiskStoreIdContainsVersionsForTarget() {
-    DiskStoreID server1 = new DiskStoreID(0, 0);
-    DiskStoreID server2 = new DiskStoreID(0, 1);
-    DiskStoreID server3 = new DiskStoreID(1, 0);
+    var server1 = new DiskStoreID(0, 0);
+    var server2 = new DiskStoreID(0, 1);
+    var server3 = new DiskStoreID(1, 0);
 
     RegionVersionVector rv1 = new DiskRegionVersionVector(server1);
     rv1.updateLocalVersion(10);
@@ -184,7 +183,7 @@ public class RegionVersionVectorTest {
     rv1.recordVersion(server2, 8);
     rv1.recordVersion(server3, 1);
     rv1.recordVersion(server3, 3);
-    RegionVersionVector singletonRVV = rv1.getCloneForTransmission(server2);
+    var singletonRVV = rv1.getCloneForTransmission(server2);
     assertTrue(singletonRVV.isForSynchronization());
     assertEquals(singletonRVV.getOwnerId(), server1);
     assertTrue(singletonRVV.getMemberToVersion().containsKey(server2));
@@ -204,12 +203,12 @@ public class RegionVersionVectorTest {
 
   @Test
   public void testSynchronizationVectorWithDiskStoreIdContainsVersionsForTargetAsOriginator() {
-    DiskStoreID server1 = new DiskStoreID(0, 0);
-    DiskStoreID server2 = new DiskStoreID(0, 1);
-    DiskStoreID server3 = new DiskStoreID(1, 0);
+    var server1 = new DiskStoreID(0, 0);
+    var server2 = new DiskStoreID(0, 1);
+    var server3 = new DiskStoreID(1, 0);
 
     RegionVersionVector rv1 = new DiskRegionVersionVector(server1);
-    RegionVersionHolder localExceptions = rv1.getLocalExceptions();
+    var localExceptions = rv1.getLocalExceptions();
     localExceptions.addException(2, 5);
     localExceptions.addException(7, 9);
     rv1.updateLocalVersion(10);
@@ -218,7 +217,7 @@ public class RegionVersionVectorTest {
     rv1.recordVersion(server2, 8);
     rv1.recordVersion(server3, 1);
     rv1.recordVersion(server3, 3);
-    RegionVersionVector singletonRVV = rv1.getCloneForTransmission(server1);
+    var singletonRVV = rv1.getCloneForTransmission(server1);
     assertTrue(singletonRVV.isForSynchronization());
     assertEquals(singletonRVV.getOwnerId(), server1);
     assertTrue(singletonRVV.getMemberToVersion().containsKey(server1));
@@ -240,11 +239,11 @@ public class RegionVersionVectorTest {
 
   @Test
   public void testExceptionsWithContains() {
-    DiskStoreID ownerId = new DiskStoreID(0, 0);
-    DiskStoreID id1 = new DiskStoreID(0, 1);
-    DiskStoreID id2 = new DiskStoreID(1, 0);
+    var ownerId = new DiskStoreID(0, 0);
+    var id1 = new DiskStoreID(0, 1);
+    var id2 = new DiskStoreID(1, 0);
 
-    DiskRegionVersionVector rvv = new DiskRegionVersionVector(ownerId);
+    var rvv = new DiskRegionVersionVector(ownerId);
 
     doExceptionsWithContains(ownerId, rvv);
     doExceptionsWithContains(id1, rvv);
@@ -255,11 +254,11 @@ public class RegionVersionVectorTest {
   public void testRegionVersionVectors() throws Exception {
     // this is just a quick set of unit tests for basic RVV functionality
 
-    final String local = getIPLiteral();
-    InternalDistributedMember server1 = new InternalDistributedMember(local, 101);
-    InternalDistributedMember server2 = new InternalDistributedMember(local, 102);
-    InternalDistributedMember server3 = new InternalDistributedMember(local, 103);
-    InternalDistributedMember server4 = new InternalDistributedMember(local, 104);
+    final var local = getIPLiteral();
+    var server1 = new InternalDistributedMember(local, 101);
+    var server2 = new InternalDistributedMember(local, 102);
+    var server3 = new InternalDistributedMember(local, 103);
+    var server4 = new InternalDistributedMember(local, 104);
 
     RegionVersionVector rv1 = null;
 
@@ -352,7 +351,7 @@ public class RegionVersionVectorTest {
     rv1.recordVersion(server3, 6);
     rv1.recordVersion(server3, 7);
 
-    RegionVersionVector rv2 = rv1.getCloneForTransmission();
+    var rv2 = rv1.getCloneForTransmission();
     System.out.println("rv1 is " + rv1.fullToString());
     System.out.println("rv2 is " + rv2.fullToString());
     assertFalse(rv1.isNewerThanOrCanFillExceptionsFor(rv2));
@@ -386,7 +385,7 @@ public class RegionVersionVectorTest {
     assertFalse(rv1.isNewerThanOrCanFillExceptionsFor(rv2));
 
     // test that old members are removed from the vector
-    InternalDistributedMember server5 = new InternalDistributedMember(local, 105);
+    var server5 = new InternalDistributedMember(local, 105);
     rv1 = new VMRegionVersionVector(server1);
     rv1.recordVersion(server2, 1);
     rv1.recordVersion(server3, 1);
@@ -410,16 +409,16 @@ public class RegionVersionVectorTest {
     // Now test that departed members are transferred with GII. We simulate
     // a new server, server6, doing a GII from server1
 
-    InternalDistributedMember server6 = new InternalDistributedMember(local, 106);
+    var server6 = new InternalDistributedMember(local, 106);
     RegionVersionVector giiReceiverRVV = new VMRegionVersionVector(server6);
     // the gii request will cause server1 to clone its RVV and send it to server6
     rv2 = rv1.getCloneForTransmission();
     // serialize/deserialize to mimic sending the rvv in a message
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
-    DataOutputStream out = new DataOutputStream(baos);
+    var baos = new ByteArrayOutputStream(1000);
+    var out = new DataOutputStream(baos);
     DataSerializer.writeObject(rv2, out);
-    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-    DataInputStream in = new DataInputStream(bais);
+    var bais = new ByteArrayInputStream(baos.toByteArray());
+    var in = new DataInputStream(bais);
     RegionVersionVector transmittedVector = DataSerializer.readObject(in);
     // record the provider's rvv in the receiver of the image
     giiReceiverRVV.recordVersions(transmittedVector);
@@ -443,8 +442,8 @@ public class RegionVersionVectorTest {
 
     rv1.recordVersion(server2, bitSetRollPoint);
     rv1.recordVersion(server2, bitSetRollPoint + 1); // bitSet should be rolled at this point
-    RegionVersionHolder h = (RegionVersionHolder) rv1.getMemberToVersion().get(server2);
-    long versionBoundary = h.getBitSetVersionForTesting();
+    var h = (RegionVersionHolder) rv1.getMemberToVersion().get(server2);
+    var versionBoundary = h.getBitSetVersionForTesting();
     assertEquals("expected holder bitset version to roll to this value", boundary - 1,
         versionBoundary);
     assertFalse(rv1.contains(server2, bitSetRollPoint - 1));
@@ -468,11 +467,11 @@ public class RegionVersionVectorTest {
 
   @Test
   public void testRVVSerialization() throws Exception {
-    DiskStoreID ownerId = new DiskStoreID(0, 0);
-    DiskStoreID id1 = new DiskStoreID(0, 1);
-    DiskStoreID id2 = new DiskStoreID(1, 0);
+    var ownerId = new DiskStoreID(0, 0);
+    var id1 = new DiskStoreID(0, 1);
+    var id2 = new DiskStoreID(1, 0);
 
-    DiskRegionVersionVector rvv = new DiskRegionVersionVector(ownerId);
+    var rvv = new DiskRegionVersionVector(ownerId);
     rvv.recordVersion(id1, 5);
     rvv.recordVersion(id1, 6);
     rvv.recordVersion(id1, 7);
@@ -485,11 +484,11 @@ public class RegionVersionVectorTest {
 
     assertTrue(rvv.sameAs(rvv.getCloneForTransmission()));
 
-    HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var out = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(rvv.getCloneForTransmission(), out);
-    byte[] bytes = out.toByteArray();
+    var bytes = out.toByteArray();
 
-    DataInputStream dis = new DataInputStream(new ByteArrayInputStream(bytes));
+    var dis = new DataInputStream(new ByteArrayInputStream(bytes));
     DiskRegionVersionVector rvv2 = DataSerializer.readObject(dis);
 
     assertTrue(rvv.sameAs(rvv2));
@@ -500,11 +499,11 @@ public class RegionVersionVectorTest {
    */
   @Test
   public void testCopyMemberToVersion() {
-    DiskStoreID id0 = new DiskStoreID(0, 0);
-    DiskStoreID id1 = new DiskStoreID(0, 1);
-    DiskStoreID id2 = new DiskStoreID(1, 0);
+    var id0 = new DiskStoreID(0, 0);
+    var id1 = new DiskStoreID(0, 1);
+    var id2 = new DiskStoreID(1, 0);
 
-    DiskRegionVersionVector rvv0 = new DiskRegionVersionVector(id0);
+    var rvv0 = new DiskRegionVersionVector(id0);
     rvv0.getNextVersion();
     rvv0.getNextVersion();
     rvv0.getNextVersion();
@@ -512,7 +511,7 @@ public class RegionVersionVectorTest {
     rvv0.recordVersion(id1, 1);
     rvv0.recordVersion(id1, 3);
 
-    DiskRegionVersionVector rvv1 = new DiskRegionVersionVector(id1);
+    var rvv1 = new DiskRegionVersionVector(id1);
     rvv1.recordVersions(rvv0);
 
     assertEquals(3, rvv1.getCurrentVersion());
@@ -533,11 +532,11 @@ public class RegionVersionVectorTest {
 
   @Test
   public void testSpecialException() {
-    DiskStoreID id0 = new DiskStoreID(0, 0);
-    DiskStoreID id1 = new DiskStoreID(0, 1);
-    DiskStoreID id2 = new DiskStoreID(1, 0);
+    var id0 = new DiskStoreID(0, 0);
+    var id1 = new DiskStoreID(0, 1);
+    var id2 = new DiskStoreID(1, 0);
 
-    DiskRegionVersionVector rvv0 = new DiskRegionVersionVector(id0);
+    var rvv0 = new DiskRegionVersionVector(id0);
     rvv0.getNextVersion();
     rvv0.getNextVersion();
     rvv0.getNextVersion();
@@ -545,7 +544,7 @@ public class RegionVersionVectorTest {
     rvv0.recordVersion(id1, 1);
     rvv0.recordVersion(id1, 2);
 
-    DiskRegionVersionVector rvv1 = new DiskRegionVersionVector(id1);
+    var rvv1 = new DiskRegionVersionVector(id1);
     rvv1.recordVersions(rvv0);
 
     rvv1.recordVersion(id1, 3);
@@ -560,18 +559,18 @@ public class RegionVersionVectorTest {
 
   @Test
   public void test48066_1() {
-    DiskStoreID id0 = new DiskStoreID(0, 0);
-    DiskRegionVersionVector rvv0 = new DiskRegionVersionVector(id0);
-    for (int i = 1; i <= 3; i++) {
+    var id0 = new DiskStoreID(0, 0);
+    var rvv0 = new DiskRegionVersionVector(id0);
+    for (var i = 1; i <= 3; i++) {
       rvv0.recordVersion(id0, i);
     }
     System.out.println("rvv0=" + rvv0.fullToString());
 
-    DiskRegionVersionVector rvv1 = (DiskRegionVersionVector) rvv0.getCloneForTransmission();
+    var rvv1 = (DiskRegionVersionVector) rvv0.getCloneForTransmission();
     System.out.println("after clone, rvv1=" + rvv1.fullToString());
 
-    DiskRegionVersionVector rvv2 = new DiskRegionVersionVector(id0);
-    for (int i = 1; i <= 10; i++) {
+    var rvv2 = new DiskRegionVersionVector(id0);
+    for (var i = 1; i <= 10; i++) {
       rvv2.recordVersion(id0, i);
     }
     rvv2.recordVersions(rvv1);
@@ -588,13 +587,13 @@ public class RegionVersionVectorTest {
 
   @Test
   public void test48066_2() {
-    DiskStoreID id0 = new DiskStoreID(0, 0);
-    DiskRegionVersionVector rvv0 = new DiskRegionVersionVector(id0);
-    for (int i = 1; i <= 10; i++) {
+    var id0 = new DiskStoreID(0, 0);
+    var rvv0 = new DiskRegionVersionVector(id0);
+    for (var i = 1; i <= 10; i++) {
       rvv0.recordVersion(id0, i);
     }
 
-    DiskRegionVersionVector rvv1 = new DiskRegionVersionVector(id0);
+    var rvv1 = new DiskRegionVersionVector(id0);
     rvv0.recordVersions(rvv1);
     System.out.println("rvv0=" + rvv0.fullToString());
 
@@ -607,7 +606,7 @@ public class RegionVersionVectorTest {
     assertEquals(7, rvv0.getCurrentVersion());
     assertFalse(rvv0.contains(id0, 5));
 
-    DiskRegionVersionVector rvv2 = (DiskRegionVersionVector) rvv0.getCloneForTransmission();
+    var rvv2 = (DiskRegionVersionVector) rvv0.getCloneForTransmission();
     System.out.println("after clone, rvv2=" + rvv2.fullToString());
     assertEquals(11, rvv0.getNextVersion());
     assertFalse(rvv2.contains(id0, 5));
@@ -620,10 +619,10 @@ public class RegionVersionVectorTest {
    */
   @Test
   public void testRecordGCVersion() {
-    DiskStoreID id0 = new DiskStoreID(0, 0);
-    DiskStoreID id1 = new DiskStoreID(0, 1);
+    var id0 = new DiskStoreID(0, 0);
+    var id1 = new DiskStoreID(0, 1);
 
-    DiskRegionVersionVector rvv0 = new DiskRegionVersionVector(id0);
+    var rvv0 = new DiskRegionVersionVector(id0);
 
     // generate 3 local versions
     rvv0.getNextVersion();
@@ -637,9 +636,9 @@ public class RegionVersionVectorTest {
 
     // Assert that the exceptions are present
     {
-      Map<DiskStoreID, RegionVersionHolder<DiskStoreID>> memberToVersion =
+      var memberToVersion =
           rvv0.getMemberToVersion();
-      RegionVersionHolder<DiskStoreID> holder1 = memberToVersion.get(id1);
+      var holder1 = memberToVersion.get(id1);
 
       // Make sure the exceptions are present
       assertFalse(holder1.contains(2));
@@ -651,9 +650,9 @@ public class RegionVersionVectorTest {
     rvv0.recordGCVersion(id1, 3);
 
     {
-      Map<DiskStoreID, RegionVersionHolder<DiskStoreID>> memberToVersion =
+      var memberToVersion =
           rvv0.getMemberToVersion();
-      RegionVersionHolder<DiskStoreID> holder0 = memberToVersion.get(id0);
+      var holder0 = memberToVersion.get(id0);
       // Make sure we didn't generate a bogus exception for
       // the local member by calling record GC version - bug 47023
       assertTrue(holder0.getExceptionForTest().isEmpty());
@@ -663,9 +662,9 @@ public class RegionVersionVectorTest {
     rvv0.pruneOldExceptions();
 
     // Make assertions about what exceptions are still present
-    Map<DiskStoreID, RegionVersionHolder<DiskStoreID>> memberToVersion = rvv0.getMemberToVersion();
-    RegionVersionHolder<DiskStoreID> holder0 = memberToVersion.get(id0);
-    RegionVersionHolder<DiskStoreID> holder1 = memberToVersion.get(id1);
+    var memberToVersion = rvv0.getMemberToVersion();
+    var holder0 = memberToVersion.get(id0);
+    var holder1 = memberToVersion.get(id1);
     assertTrue(holder0.getExceptionForTest().isEmpty());
 
     // exceptions less than the GC version should have been removed
@@ -678,26 +677,26 @@ public class RegionVersionVectorTest {
 
   @Test
   public void recordLargeGCVersionShouldRecordSuccessfully() {
-    DiskStoreID id0 = new DiskStoreID(0, 0);
-    DiskStoreID id1 = new DiskStoreID(0, 1);
+    var id0 = new DiskStoreID(0, 0);
+    var id1 = new DiskStoreID(0, 1);
 
-    DiskRegionVersionVector rvv0 = new DiskRegionVersionVector(id0);
+    var rvv0 = new DiskRegionVersionVector(id0);
 
     rvv0.recordGCVersion(id1, ((long) Integer.MAX_VALUE) - 10L);
   }
 
   @Test
   public void incrementingTheLocalVersionShouldNotCreateExceptions() {
-    DiskStoreID id0 = new DiskStoreID(0, 0);
-    DiskStoreID id1 = new DiskStoreID(0, 1);
+    var id0 = new DiskStoreID(0, 0);
+    var id1 = new DiskStoreID(0, 1);
 
-    DiskRegionVersionVector rvv0 = new DiskRegionVersionVector(id0);
+    var rvv0 = new DiskRegionVersionVector(id0);
 
     // Increment the version a couple of times
     rvv0.getNextVersion();
     rvv0.getNextVersion();
 
-    RegionVersionVector<DiskStoreID> clone = rvv0.getCloneForTransmission();
+    var clone = rvv0.getCloneForTransmission();
 
     assertThat(clone.getHolderForMember(id0).getExceptionForTest()).isEmpty();
     assertThat(rvv0.getHolderForMember(id0).getExceptionForTest()).isEmpty();
@@ -705,11 +704,11 @@ public class RegionVersionVectorTest {
 
   @Test
   public void testRemoveOldVersions() {
-    DiskStoreID id0 = new DiskStoreID(0, 0);
-    DiskStoreID id1 = new DiskStoreID(0, 1);
-    DiskStoreID id2 = new DiskStoreID(0, 2);
+    var id0 = new DiskStoreID(0, 0);
+    var id1 = new DiskStoreID(0, 1);
+    var id2 = new DiskStoreID(0, 2);
 
-    DiskRegionVersionVector rvv = new DiskRegionVersionVector(id0);
+    var rvv = new DiskRegionVersionVector(id0);
 
     // generate 3 local versions
     rvv.getNextVersion();
@@ -745,37 +744,37 @@ public class RegionVersionVectorTest {
 
   @Test
   public void testRegionVersionInTags() {
-    VMVersionTag tag = new VMVersionTag();
-    long version = 0x8080000000L;
+    var tag = new VMVersionTag();
+    var version = 0x8080000000L;
     tag.setRegionVersion(version);
     assertEquals("failed test for bug #48576", version, tag.getRegionVersion());
   }
 
   @Test
   public void testRecordVersionDuringRegionInit() {
-    LocalRegion mockRegion = mock(LocalRegion.class);
+    var mockRegion = mock(LocalRegion.class);
     when(mockRegion.isInitialized()).thenReturn(false);
-    final String local = getIPLiteral();
-    InternalDistributedMember ownerId = new InternalDistributedMember(local, 101);
-    VMVersionTag tag = new VMVersionTag();
+    final var local = getIPLiteral();
+    var ownerId = new InternalDistributedMember(local, 101);
+    var tag = new VMVersionTag();
     tag.setRegionVersion(1L);
 
-    RegionVersionVector rvv = createRegionVersionVector(ownerId, mockRegion);
+    var rvv = createRegionVersionVector(ownerId, mockRegion);
     rvv.recordVersion(ownerId, tag);
     assertEquals(1, rvv.getVersionForMember(ownerId));
   }
 
   @Test
   public void recordVersionIntoLocalMemberShouldFailIfRegionIsPersistent() {
-    LocalRegion mockRegion = mock(LocalRegion.class);
+    var mockRegion = mock(LocalRegion.class);
     when(mockRegion.isInitialized()).thenReturn(true);
     when(mockRegion.getDataPolicy()).thenReturn(DataPolicy.PERSISTENT_REPLICATE);
-    final String local = getIPLiteral();
-    DiskStoreID ownerId = new DiskStoreID();
+    final var local = getIPLiteral();
+    var ownerId = new DiskStoreID();
 
-    DiskRegionVersionVector rvv = new DiskRegionVersionVector(ownerId, mockRegion);
+    var rvv = new DiskRegionVersionVector(ownerId, mockRegion);
 
-    DiskVersionTag tag = new DiskVersionTag();
+    var tag = new DiskVersionTag();
     tag.setRegionVersion(1L);
     tag.setMemberID(ownerId);
 
@@ -785,14 +784,14 @@ public class RegionVersionVectorTest {
 
   @Test
   public void recordVersionIntoLocalMemberShouldPassfRegionIsNonPersistent() {
-    LocalRegion mockRegion = mock(LocalRegion.class);
+    var mockRegion = mock(LocalRegion.class);
     when(mockRegion.isInitialized()).thenReturn(true);
     when(mockRegion.getDataPolicy()).thenReturn(DataPolicy.REPLICATE);
-    final String local = getIPLiteral();
-    InternalDistributedMember ownerId = new InternalDistributedMember(local, 101);
-    RegionVersionVector rvv = createRegionVersionVector(ownerId, mockRegion);
+    final var local = getIPLiteral();
+    var ownerId = new InternalDistributedMember(local, 101);
+    var rvv = createRegionVersionVector(ownerId, mockRegion);
 
-    VMVersionTag tag = new VMVersionTag();
+    var tag = new VMVersionTag();
     tag.setRegionVersion(1);
     tag.setMemberID(ownerId);
 
@@ -850,16 +849,16 @@ public class RegionVersionVectorTest {
   @Test
   public void isRvvGcDominatedByRequesterRvvReturnsTrueIfRequesterRvvForLostMemberDominates()
       throws Exception {
-    InternalDistributedMember lostMember = mock(InternalDistributedMember.class);
-    ConcurrentHashMap<InternalDistributedMember, Long> memberToGcVersion =
-        new ConcurrentHashMap<>();
+    var lostMember = mock(InternalDistributedMember.class);
+    var memberToGcVersion =
+        new ConcurrentHashMap<InternalDistributedMember, Long>();
     memberToGcVersion.put(lostMember, 1L /* lostMemberGcVersion */);
     RegionVersionVector providerRvv = new VMRegionVersionVector(lostMember, null,
         0, memberToGcVersion, 0, true, null);
 
-    ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>> memberToRegionVersionHolder =
-        new ConcurrentHashMap<>();
-    RegionVersionHolder regionVersionHolder = new RegionVersionHolder(lostMember);
+    var memberToRegionVersionHolder =
+        new ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>>();
+    var regionVersionHolder = new RegionVersionHolder(lostMember);
     regionVersionHolder.recordVersion(1);
     regionVersionHolder.recordVersion(2);
     memberToRegionVersionHolder.put(lostMember, regionVersionHolder);
@@ -873,16 +872,16 @@ public class RegionVersionVectorTest {
   @Test
   public void isRvvGcDominatedByRequesterRvvReturnsFalseIfRequesterRvvForLostMemberDominates()
       throws Exception {
-    InternalDistributedMember lostMember = mock(InternalDistributedMember.class);
-    ConcurrentHashMap<InternalDistributedMember, Long> memberToGcVersion =
-        new ConcurrentHashMap<>();
+    var lostMember = mock(InternalDistributedMember.class);
+    var memberToGcVersion =
+        new ConcurrentHashMap<InternalDistributedMember, Long>();
     memberToGcVersion.put(lostMember, 1L /* lostMemberGcVersion */);
     RegionVersionVector providerRvv = new VMRegionVersionVector(lostMember, null,
         0, memberToGcVersion, 0, true, null);
 
-    ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>> memberToRegionVersionHolder =
-        new ConcurrentHashMap<>();
-    RegionVersionHolder regionVersionHolder = new RegionVersionHolder(lostMember);
+    var memberToRegionVersionHolder =
+        new ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>>();
+    var regionVersionHolder = new RegionVersionHolder(lostMember);
     memberToRegionVersionHolder.put(lostMember, regionVersionHolder);
     RegionVersionVector requesterRvv =
         new VMRegionVersionVector(lostMember, memberToRegionVersionHolder,
@@ -894,16 +893,16 @@ public class RegionVersionVectorTest {
   @Test
   public void isRvvGcDominatedByRequesterRvvReturnsFalseIfProviderRvvIsNotPresent()
       throws Exception {
-    final String local = getIPLiteral();
-    InternalDistributedMember provider = new InternalDistributedMember(local, 101);
-    InternalDistributedMember requester = new InternalDistributedMember(local, 102);
+    final var local = getIPLiteral();
+    var provider = new InternalDistributedMember(local, 101);
+    var requester = new InternalDistributedMember(local, 102);
 
     RegionVersionVector providerRvv = new VMRegionVersionVector(provider, null,
         1, null, 1, false, null);
 
-    ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>> memberToRegionVersionHolder =
-        new ConcurrentHashMap<>();
-    RegionVersionHolder regionVersionHolder = new RegionVersionHolder(provider);
+    var memberToRegionVersionHolder =
+        new ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>>();
+    var regionVersionHolder = new RegionVersionHolder(provider);
     // memberToRegionVersionHolder.put(provider, regionVersionHolder);
     RegionVersionVector requesterRvv =
         new VMRegionVersionVector(requester, memberToRegionVersionHolder,
@@ -915,16 +914,16 @@ public class RegionVersionVectorTest {
   @Test
   public void isRvvGcDominatedByRequesterRvvReturnsFalseIfRequesterRvvDominatesProvider()
       throws Exception {
-    final String local = getIPLiteral();
-    InternalDistributedMember provider = new InternalDistributedMember(local, 101);
-    InternalDistributedMember requester = new InternalDistributedMember(local, 102);
+    final var local = getIPLiteral();
+    var provider = new InternalDistributedMember(local, 101);
+    var requester = new InternalDistributedMember(local, 102);
 
     RegionVersionVector providerRvv = new VMRegionVersionVector(provider, null,
         1, null, 1, false, null);
 
-    ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>> memberToRegionVersionHolder =
-        new ConcurrentHashMap<>();
-    RegionVersionHolder regionVersionHolder = new RegionVersionHolder(provider);
+    var memberToRegionVersionHolder =
+        new ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>>();
+    var regionVersionHolder = new RegionVersionHolder(provider);
     memberToRegionVersionHolder.put(provider, regionVersionHolder);
     RegionVersionVector requesterRvv =
         new VMRegionVersionVector(requester, memberToRegionVersionHolder,
@@ -936,18 +935,18 @@ public class RegionVersionVectorTest {
   @Test
   public void isRvvGcDominatedByRequesterRvvReturnsTrueIfRequesterRvvDominatesWithNoGcVersion()
       throws Exception {
-    final String local = getIPLiteral();
-    InternalDistributedMember provider = new InternalDistributedMember(local, 101);
-    InternalDistributedMember requester = new InternalDistributedMember(local, 102);
+    final var local = getIPLiteral();
+    var provider = new InternalDistributedMember(local, 101);
+    var requester = new InternalDistributedMember(local, 102);
 
-    ConcurrentHashMap<InternalDistributedMember, Long> memberToGcVersion =
-        new ConcurrentHashMap<>();
+    var memberToGcVersion =
+        new ConcurrentHashMap<InternalDistributedMember, Long>();
     RegionVersionVector providerRvv = new VMRegionVersionVector(provider, null,
         1, memberToGcVersion, 1, false, null);
 
-    ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>> memberToRegionVersionHolder =
-        new ConcurrentHashMap<>();
-    RegionVersionHolder regionVersionHolder = new RegionVersionHolder(provider);
+    var memberToRegionVersionHolder =
+        new ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>>();
+    var regionVersionHolder = new RegionVersionHolder(provider);
     regionVersionHolder.recordVersion(1);
     regionVersionHolder.recordVersion(2);
     memberToRegionVersionHolder.put(provider, regionVersionHolder);
@@ -960,18 +959,18 @@ public class RegionVersionVectorTest {
 
   @Test
   public void isRvvGcDominatedByRequesterRvvReturnsTrueIfRequesterRvvDominates() throws Exception {
-    final String local = getIPLiteral();
-    InternalDistributedMember provider = new InternalDistributedMember(local, 101);
-    InternalDistributedMember requester = new InternalDistributedMember(local, 102);
-    ConcurrentHashMap<InternalDistributedMember, Long> memberToGcVersion =
-        new ConcurrentHashMap<>();
+    final var local = getIPLiteral();
+    var provider = new InternalDistributedMember(local, 101);
+    var requester = new InternalDistributedMember(local, 102);
+    var memberToGcVersion =
+        new ConcurrentHashMap<InternalDistributedMember, Long>();
     memberToGcVersion.put(requester, 1L);
     RegionVersionVector providerRvv = new VMRegionVersionVector(provider, null,
         1, memberToGcVersion, 1, false, null);
 
-    ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>> memberToRegionVersionHolder =
-        new ConcurrentHashMap<>();
-    RegionVersionHolder regionVersionHolder = new RegionVersionHolder(provider);
+    var memberToRegionVersionHolder =
+        new ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>>();
+    var regionVersionHolder = new RegionVersionHolder(provider);
     regionVersionHolder.recordVersion(1);
     regionVersionHolder.recordVersion(2);
     memberToRegionVersionHolder.put(provider, regionVersionHolder);
@@ -984,13 +983,13 @@ public class RegionVersionVectorTest {
 
   @Test
   public void isRvvGcDominatedByRequesterRvvReturnsFalseIfRequesterRvvDominates() throws Exception {
-    final String local = getIPLiteral();
-    InternalDistributedMember provider = new InternalDistributedMember(local, 101);
-    InternalDistributedMember requester = new InternalDistributedMember(local, 102);
-    ConcurrentHashMap<InternalDistributedMember, Long> memberToGcVersion =
-        new ConcurrentHashMap<>();
+    final var local = getIPLiteral();
+    var provider = new InternalDistributedMember(local, 101);
+    var requester = new InternalDistributedMember(local, 102);
+    var memberToGcVersion =
+        new ConcurrentHashMap<InternalDistributedMember, Long>();
     memberToGcVersion.put(requester, 3L);
-    RegionVersionHolder pRegionVersionHolder = new RegionVersionHolder(provider);
+    var pRegionVersionHolder = new RegionVersionHolder(provider);
     pRegionVersionHolder.recordVersion(1);
     pRegionVersionHolder.recordVersion(2);
     pRegionVersionHolder.recordVersion(3);
@@ -999,9 +998,9 @@ public class RegionVersionVectorTest {
     RegionVersionVector providerRvv = new VMRegionVersionVector(provider, null,
         1, memberToGcVersion, 1, false, pRegionVersionHolder);
 
-    ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>> memberToRegionVersionHolder =
-        new ConcurrentHashMap<>();
-    RegionVersionHolder regionVersionHolder = new RegionVersionHolder(provider);
+    var memberToRegionVersionHolder =
+        new ConcurrentHashMap<InternalDistributedMember, RegionVersionHolder<InternalDistributedMember>>();
+    var regionVersionHolder = new RegionVersionHolder(provider);
     regionVersionHolder.recordVersion(1);
     regionVersionHolder.recordVersion(2);
     memberToRegionVersionHolder.put(provider, regionVersionHolder);
@@ -1015,7 +1014,7 @@ public class RegionVersionVectorTest {
   private RegionVersionVector createRegionVersionVector(InternalDistributedMember ownerId,
       LocalRegion owner) {
     @SuppressWarnings({"unchecked", "rawtypes"})
-    RegionVersionVector rvv = new RegionVersionVector(ownerId, owner) {
+    var rvv = new RegionVersionVector(ownerId, owner) {
       @Override
       public int getDSFID() {
         return 0;
@@ -1050,11 +1049,11 @@ public class RegionVersionVectorTest {
     assertFalse(rvv.contains(id, 4));
     assertFalse(rvv.contains(id, 6));
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       rvv.recordVersion(id, i);
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       assertTrue(rvv.contains(id, i));
     }
     assertEquals(0, rvv.getExceptionCount(id));

@@ -99,8 +99,8 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
   @Test
   public void measureOverheadPerString() {
     // Function that adds a new redis string to the server
-    final AddEntryFunction addStringFunction = uniqueString -> {
-      String response = jedis.set(uniqueString, uniqueString);
+    final var addStringFunction = (AddEntryFunction) uniqueString -> {
+      var response = jedis.set(uniqueString, uniqueString);
       assertThat(response).isEqualTo("OK");
 
       // Note - jedis convert strings to bytes with the UTF-8 charset
@@ -117,8 +117,8 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
   @Test
   public void measureOverheadPerHash() {
     // Function that adds a new redis hash to the server
-    final AddEntryFunction addHashFunction = uniqueString -> {
-      String mapKey = "key";
+    final var addHashFunction = (AddEntryFunction) uniqueString -> {
+      var mapKey = "key";
       Long response = jedis.hset(uniqueString, mapKey, LARGE_STRING);
       assertThat(response).isEqualTo(1);
       return uniqueString.length() + mapKey.length() + LARGE_STRING.length();
@@ -135,9 +135,9 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
   @Test
   public void measureOverheadPerHashEntry() {
     // Function that adds an additional hash entry to a single redis hash
-    final AddEntryFunction addHashEntryFunction = uniqueString -> {
+    final var addHashEntryFunction = (AddEntryFunction) uniqueString -> {
 
-      String valueString = String.format("%s value-%s", LARGE_STRING, uniqueString);
+      var valueString = String.format("%s value-%s", LARGE_STRING, uniqueString);
       Long response = jedis.hset("TestSet", uniqueString, valueString);
       assertThat(response).isEqualTo(1);
 
@@ -153,7 +153,7 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
   @Test
   public void measureOverheadPerSet() {
     // Function that adds a new redis set to the server
-    final AddEntryFunction addSetFunction = uniqueString -> {
+    final var addSetFunction = (AddEntryFunction) uniqueString -> {
       Long response = jedis.sadd(uniqueString, LARGE_STRING);
       assertThat(response).isEqualTo(1);
       return uniqueString.length() + LARGE_STRING.length();
@@ -170,9 +170,9 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
   @Test
   public void measureOverheadPerSetEntry() {
     // Function that adds a new entry to a single redis set
-    final AddEntryFunction addSetEntryFunction = uniqueString -> {
+    final var addSetEntryFunction = (AddEntryFunction) uniqueString -> {
 
-      String valueString = String.format("%s value-%s", LARGE_STRING, uniqueString);
+      var valueString = String.format("%s value-%s", LARGE_STRING, uniqueString);
       Long response = jedis.sadd("TestSet", valueString);
       assertThat(response).isEqualTo(1);
 
@@ -188,7 +188,7 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
   @Test
   public void measureOverheadPerSortedSet() {
     // Function that adds a new redis set to the server
-    final AddEntryFunction addSetFunction = uniqueString -> {
+    final var addSetFunction = (AddEntryFunction) uniqueString -> {
       Long response = jedis.zadd(uniqueString, 1.0, LARGE_STRING);
       assertThat(response).isEqualTo(1);
       return uniqueString.length() + LARGE_STRING.length();
@@ -205,9 +205,9 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
   @Test
   public void measureOverheadPerSortedSetEntry() {
     // Function that adds a new entry to a single redis set
-    final AddEntryFunction addSetEntryFunction = uniqueString -> {
+    final var addSetEntryFunction = (AddEntryFunction) uniqueString -> {
 
-      String valueString = String.format("%s value-%s", LARGE_STRING, uniqueString);
+      var valueString = String.format("%s value-%s", LARGE_STRING, uniqueString);
       Long response = jedis.zadd("TestSet", 1.0, valueString);
       assertThat(response).isEqualTo(1);
 
@@ -223,7 +223,7 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
   @Test
   public void measureOverheadPerList() {
     // Function that adds a new redis list to the server
-    final AddEntryFunction addListFunction = uniqueString -> {
+    final var addListFunction = (AddEntryFunction) uniqueString -> {
       Long response = jedis.lpush(uniqueString, LARGE_STRING);
       assertThat(response).isEqualTo(1);
       return uniqueString.length() + LARGE_STRING.length();
@@ -240,8 +240,8 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
   @Test
   public void measureOverheadPerListEntry() {
     // Function that adds a new entry to a single redis list
-    final AddEntryFunction addListEntryFunction = uniqueString -> {
-      String valueString = String.format("%s-value-%s", LARGE_STRING, uniqueString);
+    final var addListEntryFunction = (AddEntryFunction) uniqueString -> {
+      var valueString = String.format("%s-value-%s", LARGE_STRING, uniqueString);
       Long listSize = jedis.llen("TestList");
       Long response = jedis.lpush("TestList", valueString);
       assertThat(response).isEqualTo(listSize + 1);
@@ -275,24 +275,24 @@ public abstract class AbstractMemoryOverheadIntegrationTest implements RedisInte
 
     // Put some entries to make sure we initialize any constant size data structures. We are
     // just trying to measure the cost of each add entry operation.
-    for (int i = 0; i < WARM_UP_ENTRY_COUNT; i++) {
-      String uniqueString = String.format("warmup-%10d", i);
+    for (var i = 0; i < WARM_UP_ENTRY_COUNT; i++) {
+      var uniqueString = String.format("warmup-%10d", i);
       addEntry.addEntryAndReturnDataSize(uniqueString);
     }
 
     // Perform measurements
-    long baseline = getUsedMemory();
+    var baseline = getUsedMemory();
     long totalDataSize = 0;
     System.out.println("Measuring the per entry overhead for each " + measurement);
     System.out.printf("%20s, %20s, %20s", "Used Memory", "Total Mem Per Entry",
         "Overhead Per Entry\n");
     long perEntryOverhead = 0;
-    for (int i = 0; i < TOTAL_ENTRY_COUNT; i++) {
-      String uniqueString = String.format("%10d", i);
+    for (var i = 0; i < TOTAL_ENTRY_COUNT; i++) {
+      var uniqueString = String.format("%10d", i);
       totalDataSize += addEntry.addEntryAndReturnDataSize(uniqueString);
       if (i % SAMPLE_INTERVAL == (SAMPLE_INTERVAL - 1)) {
-        long currentMemory = getUsedMemory() - baseline;
-        long perEntryMemory = currentMemory / i;
+        var currentMemory = getUsedMemory() - baseline;
+        var perEntryMemory = currentMemory / i;
         perEntryOverhead = (currentMemory - totalDataSize) / i;
         System.out.printf("%20d, %20d, %20d\n", currentMemory, perEntryMemory, perEntryOverhead);
       }

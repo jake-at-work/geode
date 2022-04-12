@@ -172,9 +172,9 @@ public class AsyncEventQueueFactoryImpl implements AsyncEventQueueFactory {
       }
 
       addAsyncEventListener(listener);
-      InternalGatewaySender sender =
+      var sender =
           (InternalGatewaySender) create(getSenderIdFromAsyncEventQueueId(asyncQueueId));
-      AsyncEventQueueImpl asyncEventQueueImpl = new AsyncEventQueueImpl(sender, listener);
+      var asyncEventQueueImpl = new AsyncEventQueueImpl(sender, listener);
       asyncEventQueue = asyncEventQueueImpl;
       cache.addAsyncEventQueue(asyncEventQueueImpl);
       if (pauseEventsDispatching) {
@@ -251,7 +251,7 @@ public class AsyncEventQueueFactoryImpl implements AsyncEventQueueFactory {
         .setBucketSorted(((AsyncEventQueueCreation) asyncQueueCreation).isBucketSorted());
     gatewaySenderAttributes.setDispatcherThreads(asyncQueueCreation.getDispatcherThreads());
     gatewaySenderAttributes.setOrderPolicy(asyncQueueCreation.getOrderPolicy());
-    for (GatewayEventFilter filter : asyncQueueCreation.getGatewayEventFilters()) {
+    for (var filter : asyncQueueCreation.getGatewayEventFilters()) {
       gatewaySenderAttributes.getGatewayEventFilters().add(filter);
     }
     gatewaySenderAttributes

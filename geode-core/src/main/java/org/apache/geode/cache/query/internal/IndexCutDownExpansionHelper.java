@@ -48,11 +48,11 @@ class IndexCutDownExpansionHelper {
   IndexCutDownExpansionHelper(List checkList, ExecutionContext context) {
     cutDownNeeded = checkList != null && (checkSize = checkList.size()) > 0;
     if (cutDownNeeded) {
-      Boolean orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
-      boolean useLinkedDataStructure = false;
-      boolean nullValuesAtStart = true;
+      var orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
+      var useLinkedDataStructure = false;
+      var nullValuesAtStart = true;
       if (orderByClause != null && orderByClause) {
-        List orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
+        var orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
         useLinkedDataStructure = orderByAttrs.size() == 1;
         nullValuesAtStart = !((CompiledSortCriterion) orderByAttrs.get(0)).getCriterion();
       }

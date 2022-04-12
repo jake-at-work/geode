@@ -18,9 +18,6 @@ package org.apache.geode.management.internal.cli.commands;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.geode.cache.Region.SEPARATOR;
 
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
@@ -29,7 +26,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.lang.Identifiable;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
@@ -37,7 +33,6 @@ import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.internal.cli.functions.DestroyIndexFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.exceptions.EntityNotFoundException;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -75,19 +70,19 @@ public class DestroyIndexCommand extends SingleGfshCommand {
       regionName = regionPath.startsWith(SEPARATOR) ? regionPath.substring(1) : regionPath;
     }
 
-    RegionConfig.Index indexInfo = new RegionConfig.Index();
+    var indexInfo = new RegionConfig.Index();
     indexInfo.setName(indexName);
     indexInfo.setFromClause(regionName);
 
-    Set<DistributedMember> targetMembers = findMembers(group, memberNameOrID);
+    var targetMembers = findMembers(group, memberNameOrID);
 
     if (targetMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    List<CliFunctionResult> funcResults =
+    var funcResults =
         executeAndGetFunctionResult(destroyIndexFunction, indexInfo, targetMembers);
-    ResultModel result = ResultModel.createMemberStatusResult(funcResults, ifExists);
+    var result = ResultModel.createMemberStatusResult(funcResults, ifExists);
 
     result.setConfigObject(indexInfo);
 
@@ -96,14 +91,14 @@ public class DestroyIndexCommand extends SingleGfshCommand {
 
   @Override
   public boolean updateConfigForGroup(String group, CacheConfig config, Object element) {
-    RegionConfig.Index indexFromCommand = (RegionConfig.Index) element;
-    String indexName = indexFromCommand.getName();
+    var indexFromCommand = (RegionConfig.Index) element;
+    var indexName = indexFromCommand.getName();
 
-    String regionName = indexFromCommand.getFromClause();
+    var regionName = indexFromCommand.getFromClause();
     if (regionName != null) {
-      RegionConfig regionConfig = config.findRegionConfiguration(regionName);
+      var regionConfig = config.findRegionConfiguration(regionName);
       if (regionConfig == null) {
-        String errorMessage = "Region " + regionName + " not found";
+        var errorMessage = "Region " + regionName + " not found";
         if (!ConfigurationPersistenceService.CLUSTER_CONFIG.equals(group)) {
           errorMessage += " in group " + group;
         }
@@ -117,7 +112,7 @@ public class DestroyIndexCommand extends SingleGfshCommand {
       }
     } else {
       // Need to search for the index name as region was not specified
-      for (RegionConfig r : config.getRegions()) {
+      for (var r : config.getRegions()) {
         Identifiable.remove(r.getIndexes(), indexName);
       }
     }

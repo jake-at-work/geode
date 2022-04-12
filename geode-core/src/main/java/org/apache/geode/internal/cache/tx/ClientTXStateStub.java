@@ -42,7 +42,6 @@ import org.apache.geode.internal.cache.TXLockRequest;
 import org.apache.geode.internal.cache.TXRegionLockRequestImpl;
 import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.TXStateStub;
-import org.apache.geode.internal.cache.locks.TXRegionLockRequest;
 import org.apache.geode.internal.cache.tx.TransactionalOperation.ServerRegionOperation;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -139,9 +138,9 @@ public class ClientTXStateStub extends TXStateStub {
    */
   private void obtainLocalLocks() {
     lockReq = createTXLockRequest();
-    for (TransactionalOperation txOp : recordedOperations) {
+    for (var txOp : recordedOperations) {
       if (ServerRegionOperation.lockKeyForTx(txOp.getOperation())) {
-        TXRegionLockRequest rlr = lockReq.getRegionLockRequest(txOp.getRegionName());
+        var rlr = lockReq.getRegionLockRequest(txOp.getRegionName());
         if (rlr == null) {
           rlr = createTXRegionLockRequestImpl(cache,
               (LocalRegion) cache.getInternalRegionByPath(txOp.getRegionName()));
@@ -149,7 +148,7 @@ public class ClientTXStateStub extends TXStateStub {
         }
         if (txOp.getOperation() == ServerRegionOperation.PUT_ALL
             || txOp.getOperation() == ServerRegionOperation.REMOVE_ALL) {
-          for (final Object o : txOp.getKeys()) {
+          for (final var o : txOp.getKeys()) {
             rlr.addEntryKey(o, true);
           }
         } else {
@@ -229,7 +228,7 @@ public class ClientTXStateStub extends TXStateStub {
       if (txRolledback) {
         return;
       }
-      TXCommitMessage txcm = firstProxy.afterCompletion(status, proxy.getTxId().getUniqId());
+      var txcm = firstProxy.afterCompletion(status, proxy.getTxId().getUniqId());
       if (status == Status.STATUS_COMMITTED) {
         if (txcm == null) {
           throw new TransactionInDoubtException(

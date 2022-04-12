@@ -74,21 +74,21 @@ public class Fakes {
    * A fake cache, which contains a fake distributed system, distribution manager, etc.
    */
   public static GemFireCacheImpl cache() {
-    GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
-    InternalDistributedSystem system = mock(InternalDistributedSystem.class);
-    DistributionConfig config = mock(DistributionConfig.class);
+    var cache = mock(GemFireCacheImpl.class);
+    var system = mock(InternalDistributedSystem.class);
+    var config = mock(DistributionConfig.class);
     when(config.getSecurableCommunicationChannels())
         .thenReturn(new SecurableCommunicationChannel[] {SecurableCommunicationChannel.ALL});
-    ClusterDistributionManager distributionManager = mock(ClusterDistributionManager.class);
-    PdxInstanceFactory pdxInstanceFactory = mock(PdxInstanceFactory.class);
-    TypeRegistry pdxRegistryMock = mock(TypeRegistry.class);
-    CancelCriterion systemCancelCriterion = mock(CancelCriterion.class);
-    DSClock clock = mock(DSClock.class);
-    InternalLogWriter logger = mock(InternalLogWriter.class);
-    Statistics stats = mock(Statistics.class);
-    TXManagerImpl txManager = mock(TXManagerImpl.class);
-    QueryMonitor queryMonitor = mock(QueryMonitor.class);
-    StatisticsManager statisticsManager = mock(StatisticsManager.class);
+    var distributionManager = mock(ClusterDistributionManager.class);
+    var pdxInstanceFactory = mock(PdxInstanceFactory.class);
+    var pdxRegistryMock = mock(TypeRegistry.class);
+    var systemCancelCriterion = mock(CancelCriterion.class);
+    var clock = mock(DSClock.class);
+    var logger = mock(InternalLogWriter.class);
+    var stats = mock(Statistics.class);
+    var txManager = mock(TXManagerImpl.class);
+    var queryMonitor = mock(QueryMonitor.class);
+    var statisticsManager = mock(StatisticsManager.class);
 
     InternalDistributedMember member;
     member = new InternalDistributedMember("localhost", 5555);
@@ -155,9 +155,9 @@ public class Fakes {
    * A fake region, which contains a fake cache and some other fake attributes
    */
   public static Region region(String name, Cache cache) {
-    Region region = mock(Region.class);
-    RegionAttributes attributes = mock(RegionAttributes.class);
-    DataPolicy policy = mock(DataPolicy.class);
+    var region = mock(Region.class);
+    var attributes = mock(RegionAttributes.class);
+    var policy = mock(DataPolicy.class);
     when(region.getAttributes()).thenReturn(attributes);
     when(attributes.getDataPolicy()).thenReturn(policy);
     when(region.getCache()).thenReturn(cache);

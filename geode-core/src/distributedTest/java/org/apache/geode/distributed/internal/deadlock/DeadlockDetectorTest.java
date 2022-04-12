@@ -20,7 +20,6 @@ import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
@@ -40,7 +39,7 @@ public class DeadlockDetectorTest {
 
   @After
   public void tearDown() throws Exception {
-    for (Thread thread : stuckThreads) {
+    for (var thread : stuckThreads) {
       thread.interrupt();
       thread.join(20 * 1000);
       if (thread.isAlive()) {
@@ -53,7 +52,7 @@ public class DeadlockDetectorTest {
 
   @Test
   public void testNoDeadlocks() {
-    DeadlockDetector detector = new DeadlockDetector();
+    var detector = new DeadlockDetector();
     detector.addDependencies(DeadlockDetector.collectAllDependencies("here"));
     assertEquals(null, detector.findDeadlock());
   }
@@ -64,24 +63,24 @@ public class DeadlockDetectorTest {
    */
   @Test
   public void testProgrammaticDependencies() throws Exception {
-    final CountDownLatch latch = new CountDownLatch(1);
-    MockDependencyMonitor mockDependencyMonitor = new MockDependencyMonitor();
+    final var latch = new CountDownLatch(1);
+    var mockDependencyMonitor = new MockDependencyMonitor();
     DependencyMonitorManager.addMonitor(mockDependencyMonitor);
 
-    Thread thread1 = startAThread(latch);
-    Thread thread2 = startAThread(latch);
+    var thread1 = startAThread(latch);
+    var thread2 = startAThread(latch);
 
-    String resource1 = "one";
-    String resource2 = "two";
+    var resource1 = "one";
+    var resource2 = "two";
 
     mockDependencyMonitor.addDependency(thread1, resource1);
     mockDependencyMonitor.addDependency(resource1, thread2);
     mockDependencyMonitor.addDependency(thread2, resource2);
     mockDependencyMonitor.addDependency(resource2, thread1);
 
-    DeadlockDetector detector = new DeadlockDetector();
+    var detector = new DeadlockDetector();
     detector.addDependencies(DeadlockDetector.collectAllDependencies("here"));
-    LinkedList<Dependency> deadlocks = detector.findDeadlock();
+    var deadlocks = detector.findDeadlock();
 
     System.out.println("deadlocks=" + deadlocks);
 
@@ -92,7 +91,7 @@ public class DeadlockDetectorTest {
   }
 
   private Thread startAThread(final CountDownLatch latch) {
-    Thread thread = new Thread() {
+    var thread = new Thread() {
       @Override
       public void run() {
         try {

@@ -36,7 +36,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -84,8 +83,8 @@ public class BucketSizeMessage extends PartitionMessage {
   public static BucketSizeResponse send(InternalDistributedMember recipient, PartitionedRegion r,
       int bucketId) throws ForceReattemptException {
     Assert.assertTrue(recipient != null, "BucketSizeMessage NULL reply message");
-    BucketSizeResponse p = new BucketSizeResponse(r.getSystem(), Collections.singleton(recipient));
-    BucketSizeMessage m = new BucketSizeMessage(recipient, r.getPRId(), p, bucketId);
+    var p = new BucketSizeResponse(r.getSystem(), Collections.singleton(recipient));
+    var m = new BucketSizeMessage(recipient, r.getPRId(), p, bucketId);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     Set failures = r.getDistributionManager().putOutgoing(m);
     if (failures != null && failures.size() > 0) {
@@ -100,7 +99,7 @@ public class BucketSizeMessage extends PartitionMessage {
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm, PartitionedRegion r,
       long startTime) throws CacheException, ForceReattemptException {
 
-    PartitionedRegionDataStore ds = r.getDataStore();
+    var ds = r.getDataStore();
     final long size;
     if (ds != null) {
       size = ds.getBucketSize(bucketId);
@@ -162,7 +161,7 @@ public class BucketSizeMessage extends PartitionMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, long size) {
       Assert.assertTrue(recipient != null, "PRDistribuedGetReplyMessage NULL reply message");
-      BucketSizeReplyMessage m = new BucketSizeReplyMessage(processorId, size);
+      var m = new BucketSizeReplyMessage(processorId, size);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -174,14 +173,14 @@ public class BucketSizeMessage extends PartitionMessage {
      */
     @Override
     protected void process(final ClusterDistributionManager dm) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "PRDistributedBucketSizeReplyMessage process invoking reply processor with processorId: {}",
             processorId);
       }
 
-      ReplyProcessor21 processor = ReplyProcessor21.getProcessor(processorId);
+      var processor = ReplyProcessor21.getProcessor(processorId);
 
       if (processor == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -246,7 +245,7 @@ public class BucketSizeMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof BucketSizeReplyMessage) {
-          BucketSizeReplyMessage reply = (BucketSizeReplyMessage) msg;
+          var reply = (BucketSizeReplyMessage) msg;
           returnValue = reply.getSize();
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
             logger.trace(LogMarker.DM_VERBOSE, "BucketSizeResponse return value is {}",
@@ -266,7 +265,7 @@ public class BucketSizeMessage extends PartitionMessage {
       try {
         waitForRepliesUninterruptibly();
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof org.apache.geode.CancelException) {
           logger.debug("BucketSizeResponse got remote cancellation; forcing reattempt. {}",
               t.getMessage(), t);

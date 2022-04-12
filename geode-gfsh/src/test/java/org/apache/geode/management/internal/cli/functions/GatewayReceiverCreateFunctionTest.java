@@ -62,10 +62,10 @@ public class GatewayReceiverCreateFunctionTest {
   @Test
   public void testFunctionSuccessResult() {
     function.execute(context);
-    ArgumentCaptor<Object> resultObject = ArgumentCaptor.forClass(Object.class);
+    var resultObject = ArgumentCaptor.forClass(Object.class);
     verify(resultSender, times(1)).lastResult(resultObject.capture());
 
-    CliFunctionResult result = (CliFunctionResult) resultObject.getValue();
+    var result = (CliFunctionResult) resultObject.getValue();
 
     assertThat(result.getStatusMessage()).contains("5555");
   }

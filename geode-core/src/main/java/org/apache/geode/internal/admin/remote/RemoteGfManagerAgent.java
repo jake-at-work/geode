@@ -238,8 +238,8 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
   public static void emergencyClose() {
     // volatile fetch
     List members = allAgents;
-    for (Object member : members) {
-      RemoteGfManagerAgent each = (RemoteGfManagerAgent) member;
+    for (var member : members) {
+      var each = (RemoteGfManagerAgent) member;
       each.system.emergencyClose();
     }
   }
@@ -281,7 +281,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
         addJoinLeaveListener((JoinLeaveListener) alertListener);
       }
     }
-    int tmp = cfg.getAlertLevel();
+    var tmp = cfg.getAlertLevel();
     if (alertListener == null) {
       tmp = Alert.OFF;
     }
@@ -289,7 +289,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
 
     // LOG: get LogWriter from the AdminDistributedSystemImpl -- used for
     // AuthenticationFailedException
-    InternalLogWriter logWriter = cfg.getLogWriter();
+    var logWriter = cfg.getLogWriter();
     if (logWriter == null) {
       throw new NullPointerException("LogWriter must not be null");
     }
@@ -318,7 +318,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
     // give the daemon some time to get us connected
     // we don't want to wait forever since there may be no one to connect to
     try {
-      long endTime = System.currentTimeMillis() + 2000; // wait 2 seconds
+      var endTime = System.currentTimeMillis() + 2000; // wait 2 seconds
       while (!connected && daemon.isAlive() && System.currentTimeMillis() < endTime) {
         daemon.join(200);
       }
@@ -334,7 +334,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
    * runtime exception.
    */
   private static void handle(ExecutionException ex) {
-    Throwable cause = ex.getCause();
+    var cause = ex.getCause();
 
     if (cause instanceof OperationCancelledException) {
       // Operation was cancelled, we don't necessary want to propagate this up to the user.
@@ -377,10 +377,10 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
     try {
       listening = false;
       joinProcessor.shutDown();
-      boolean removeListener = alertLevel != Alert.OFF;
+      var removeListener = alertLevel != Alert.OFF;
       if (isConnected() || !membersMap.isEmpty()) {
-        RemoteApplicationVM[] apps = (RemoteApplicationVM[]) listApplications(disconnectedTrue);
-        for (RemoteApplicationVM app : apps) {
+        var apps = (RemoteApplicationVM[]) listApplications(disconnectedTrue);
+        for (var app : apps) {
           try {
             app.disconnect(removeListener);
             // hit NPE here in ConsoleDistributionManagerTest so
@@ -391,7 +391,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
           }
         }
         try {
-          DistributionManager dm = system.getDistributionManager();
+          var dm = system.getDistributionManager();
           synchronized (myMembershipListenerLock) {
             if (myMembershipListener != null) {
               dm.removeMembershipListener(myMembershipListener);
@@ -461,16 +461,16 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
     if (isConnected() || !membersMap.isEmpty() && disconnected) {
       // removed synchronization on members...
       Collection<RemoteApplicationVM> remoteApplicationVMs = new ArrayList<>(membersMap.size());
-      VMS: for (Future<RemoteApplicationVM> future : membersMap.values()) {
+      VMS: for (var future : membersMap.values()) {
         for (;;) {
           try {
             system.getCancelCriterion().checkCancelInProgress(null);
           } catch (DistributedSystemDisconnectedException de) {
             // ignore during forced disconnect
           }
-          boolean interrupted = Thread.interrupted();
+          var interrupted = Thread.interrupted();
           try {
-            RemoteApplicationVM app = future.get();
+            var app = future.get();
             if (app != null) {
               remoteApplicationVMs.add(app);
             }
@@ -490,7 +490,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
         }
       }
 
-      RemoteApplicationVM[] array = new RemoteApplicationVM[remoteApplicationVMs.size()];
+      var array = new RemoteApplicationVM[remoteApplicationVMs.size()];
       remoteApplicationVMs.toArray(array);
       return array;
 
@@ -510,7 +510,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
   @Override
   public void addJoinLeaveListener(JoinLeaveListener observer) {
     synchronized (listenersLock) {
-      Set<JoinLeaveListener> oldListeners = listeners;
+      var oldListeners = listeners;
       if (!oldListeners.contains(observer)) {
         Set<JoinLeaveListener> newListeners = new HashSet<>(oldListeners);
         newListeners.add(observer);
@@ -525,7 +525,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
   @Override
   public void removeJoinLeaveListener(JoinLeaveListener observer) {
     synchronized (listenersLock) {
-      Set<JoinLeaveListener> oldListeners = listeners;
+      var oldListeners = listeners;
       if (oldListeners.contains(observer)) {
         Set<JoinLeaveListener> newListeners = new HashSet<>(oldListeners);
         if (newListeners.remove(observer)) {
@@ -558,7 +558,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
       }
       sending.set(Boolean.TRUE);
 
-      ClusterDistributionManager dm = (ClusterDistributionManager) system.getDistributionManager();
+      var dm = (ClusterDistributionManager) system.getDistributionManager();
       if (isConnected()) {
         return msg.sendAndWait(dm);
       }
@@ -600,7 +600,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
       }
       for (;;) {
         system.getCancelCriterion().checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           return (RemoteApplicationVM) future.get();
         } catch (InterruptedException ex) {
@@ -625,10 +625,10 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
    * does not already exist a representation for that member, a new one is created.
    */
   private RemoteApplicationVM addMember(InternalDistributedMember id) {
-    boolean runFuture = false;
+    var runFuture = false;
     Future<RemoteApplicationVM> future;
     synchronized (membersLock) {
-      Map<InternalDistributedMember, Future<RemoteApplicationVM>> oldMembersMap = membersMap;
+      var oldMembersMap = membersMap;
       future = oldMembersMap.get(id);
       if (future == null) {
         runFuture = true;
@@ -637,8 +637,8 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
         }
         future = new FutureTask<>(() -> {
           // Do this work in a Future to avoid deadlock
-          RemoteGfManagerAgent agent = this;
-          RemoteApplicationVM result = new RemoteApplicationVM(agent, id, alertLevel);
+          var agent = this;
+          var result = new RemoteApplicationVM(agent, id, alertLevel);
           result.startStatDispatcher();
           if (agent.abortCurrentJoin) {
             result.stopStatListening();
@@ -663,7 +663,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
 
     for (;;) {
       system.getCancelCriterion().checkCancelInProgress(null);
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         return future.get();
       } catch (InterruptedException ex) {
@@ -689,7 +689,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
   RemoteApplicationVM removeMember(InternalDistributedMember id) {
     Future future = null;
     synchronized (membersLock) {
-      Map<InternalDistributedMember, Future<RemoteApplicationVM>> oldMembersMap = membersMap;
+      var oldMembersMap = membersMap;
       if (oldMembersMap.containsKey(id)) {
         Map<InternalDistributedMember, Future<RemoteApplicationVM>> newMembersMap =
             new HashMap<>(oldMembersMap);
@@ -710,7 +710,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
           system.getCancelCriterion().checkCancelInProgress(null);
         }
 
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           return (RemoteApplicationVM) future.get();
         } catch (InterruptedException ex) {
@@ -739,7 +739,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
     }
     for (;;) {
       system.getCancelCriterion().checkCancelInProgress(null);
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         snapshotResults.put(msg);
         break;
@@ -795,7 +795,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
     if (!isListening()) {
       return;
     }
-    Properties props = transport.toDSProperties();
+    var props = transport.toDSProperties();
     if (displayName != null && !displayName.isEmpty()) {
       props.setProperty("name", displayName);
     }
@@ -808,7 +808,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
       system = distributedSystemFactory.apply(props);
     }
 
-    DistributionManager dm = system.getDistributionManager();
+    var dm = system.getDistributionManager();
     if (dm instanceof ClusterDistributionManager) {
       ((ClusterDistributionManager) dm).setAgent(this);
     }
@@ -828,9 +828,9 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
         // Before the disconnect handler is called, the InternalDistributedSystem has already marked
         // itself for the disconnection. Hence the check for RemoteGfManagerAgent.this.isConnected()
         // always returns false. Hence commenting the same.
-        boolean reconnect = sys.isReconnecting();
+        var reconnect = sys.isReconnecting();
         if (!reconnect) {
-          DisconnectListener listener = getDisconnectListener();
+          var listener = getDisconnectListener();
           if (disconnect()) {
             // returns true if disconnected during this call
             if (listener != null) {
@@ -859,16 +859,16 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
     synchronized (myMembershipListenerLock) {
       myMembershipListener = myMembershipListenerFactory.apply(this);
       dm.addMembershipListener(myMembershipListener);
-      Set<InternalDistributedMember> initialMembers = dm.getDistributionManagerIds();
+      var initialMembers = dm.getDistributionManagerIds();
       myMembershipListener.addMembers(new HashSet<>(initialMembers));
 
       if (logger.isDebugEnabled()) {
-        StringBuilder sb = new StringBuilder("[RemoteGfManagerAgent] ");
+        var sb = new StringBuilder("[RemoteGfManagerAgent] ");
         sb.append("Connected to DS with ");
         sb.append(initialMembers.size());
         sb.append(" members: ");
 
-        for (InternalDistributedMember member : initialMembers) {
+        for (var member : initialMembers) {
           sb.append(member);
           sb.append(" ");
         }
@@ -878,7 +878,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
 
       connected = true;
 
-      for (InternalDistributedMember member : initialMembers) {
+      for (var member : initialMembers) {
         // Create the admin objects synchronously. We don't need to use
         // the JoinProcess when we first start up.
         try {
@@ -896,7 +896,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
 
   @Override
   public DistributionManager getDM() {
-    InternalDistributedSystem sys = system;
+    var sys = system;
     if (sys == null) {
       return null;
     }
@@ -910,7 +910,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
   @Override
   public void setAlertLevel(int level) {
     alertLevel = level;
-    AlertLevelChangeMessage m = AlertLevelChangeMessage.create(level);
+    var m = AlertLevelChangeMessage.create(level);
     sendAsync(m);
   }
 
@@ -962,7 +962,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
         if (abortCurrentJoin) {
           return;
         }
-        for (JoinLeaveListener listener : listeners) {
+        for (var listener : listeners) {
           if (abortCurrentJoin) {
             return;
           }
@@ -997,7 +997,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
    */
   private void addPendingJoin(InternalDistributedMember id) {
     synchronized (pendingJoinsLock) {
-      List<InternalDistributedMember> oldPendingJoins = pendingJoins;
+      var oldPendingJoins = pendingJoins;
       if (!oldPendingJoins.contains(id)) {
         List<InternalDistributedMember> newPendingJoins = new ArrayList<>(oldPendingJoins);
         newPendingJoins.add(id);
@@ -1012,7 +1012,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
    */
   private void removePendingJoins(InternalDistributedMember id) {
     synchronized (pendingJoinsLock) {
-      List<InternalDistributedMember> oldPendingJoins = pendingJoins;
+      var oldPendingJoins = pendingJoins;
       if (oldPendingJoins.contains(id)) {
         List<InternalDistributedMember> newPendingJoins = new ArrayList<>(oldPendingJoins);
         newPendingJoins.remove(id);
@@ -1154,7 +1154,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
       while (!shutDown) {
         SystemFailure.checkFailure();
         try {
-          SnapshotResultMessage msg = agent.snapshotResults.take();
+          var msg = agent.snapshotResults.take();
           agent.callCacheCollector(msg.getSnapshot(), msg.getSender(), msg.getSnapshotId());
           Thread.yield();
         } catch (InterruptedException e) {
@@ -1231,7 +1231,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
     @Override
     public void run() {
       /* Used to check whether there were pendingJoins before waiting */
-      boolean noPendingJoins = false;
+      var noPendingJoins = false;
       OUTER: while (!shutDown) {
         SystemFailure.checkFailure();
         try {
@@ -1335,7 +1335,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
           // error condition, so you also need to check to see if the JVM
           // is still usable:
           SystemFailure.checkFailure();
-          for (Throwable cause = e.getCause(); cause != null; cause = cause.getCause()) {
+          for (var cause = e.getCause(); cause != null; cause = cause.getCause()) {
             if (cause instanceof InterruptedException) {
               if (logger.isTraceEnabled(DM_VERBOSE)) {
                 logger.trace(DM_VERBOSE, "JoinProcessor has been interrupted...");
@@ -1424,7 +1424,7 @@ public class RemoteGfManagerAgent implements GfManagerAgent {
 
       // clean up and notify JoinLeaveListeners...
       if (member != null) {
-        for (JoinLeaveListener listener : agent.listeners) {
+        for (var listener : agent.listeners) {
           if (crashed) {
             listener.nodeCrashed(agent, member);
           } else {

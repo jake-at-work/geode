@@ -28,7 +28,6 @@ import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.cache.GatewayConfigurationException;
 import org.apache.geode.cache.client.ServerConnectivityException;
 import org.apache.geode.cache.client.ServerRefusedConnectionException;
-import org.apache.geode.cache.client.internal.ServerDenyList.FailureTracker;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -113,7 +112,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
   @Override
   public Connection createClientToServerConnection(ServerLocation location, boolean forQueue)
       throws GemFireSecurityException {
-    FailureTracker failureTracker = denyList.getFailureTracker(location);
+    var failureTracker = denyList.getFailureTracker(location);
 
     Connection connection = null;
     try {
@@ -130,7 +129,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
       testFailedConnectionToServer = true;
       throw src;
     } catch (Exception e) {
-      String message = e.getMessage();
+      var message = e.getMessage();
       if (message != null && (message.contains("Connection refused")
           || message.contains("Connection reset")
           || message.contains("Remote host terminated the handshake"))) {
@@ -155,7 +154,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
       return;
     }
 
-    ServerLocation server = conn.getServer();
+    var server = conn.getServer();
     if (!server.getRequiresCredentials()) {
       return;
     }
@@ -166,7 +165,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
       if (server.getUserId() != -1) {
         return;
       }
-      Long uniqueID = AuthenticateUserOp.executeOn(conn, pool);
+      var uniqueID = AuthenticateUserOp.executeOn(conn, pool);
       // if connection failed, this would return null, instead of throwing a NPE, we should throw
       // this
       if (uniqueID == null) {
@@ -186,11 +185,11 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
     if (currentServer != null && source.isBalanced()) {
       return currentServer;
     }
-    final Set<ServerLocation> origExcludedServers = excludedServers;
+    final var origExcludedServers = excludedServers;
     excludedServers = new HashSet<>(excludedServers);
-    Set<ServerLocation> denyListedServers = denyList.getBadServers();
+    var denyListedServers = denyList.getBadServers();
     excludedServers.addAll(denyListedServers);
-    ServerLocation server = source.findReplacementServer(currentServer, excludedServers);
+    var server = source.findReplacementServer(currentServer, excludedServers);
     if (server == null) {
       // Nothing worked! Let's try without the denylist.
       if (excludedServers.size() > origExcludedServers.size()) {
@@ -207,22 +206,22 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
   @Override
   public Connection createClientToServerConnection(Set<ServerLocation> excludedServers)
       throws GemFireSecurityException {
-    final Set<ServerLocation> origExcludedServers = excludedServers;
+    final var origExcludedServers = excludedServers;
     excludedServers = new HashSet<>(excludedServers);
-    Set<ServerLocation> denyListedServers = denyList.getBadServers();
+    var denyListedServers = denyList.getBadServers();
     excludedServers.addAll(denyListedServers);
     Connection conn = null;
     RuntimeException fatalException = null;
-    boolean tryDenyList = true;
+    var tryDenyList = true;
 
     do {
-      ServerLocation server = source.findServer(excludedServers);
+      var server = source.findServer(excludedServers);
       if (server == null) {
 
         if (tryDenyList) {
           // Nothing worked! Let's try without the denylist.
           tryDenyList = false;
-          int size = excludedServers.size();
+          var size = excludedServers.size();
           excludedServers.removeAll(denyListedServers);
           // make sure we didn't remove any of the ones that the caller set not to use
           excludedServers.addAll(origExcludedServers);
@@ -263,7 +262,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
   @Override
   public ClientUpdater createServerToClientConnection(Endpoint endpoint, QueueManager qManager,
       boolean isPrimary, ClientUpdater failedUpdater) {
-    String clientUpdateName = CacheClientUpdater.CLIENT_UPDATER_THREAD_NAME + " on "
+    var clientUpdateName = CacheClientUpdater.CLIENT_UPDATER_THREAD_NAME + " on "
         + endpoint.getMemberId() + " port " + endpoint.getLocation().getPort();
     if (logger.isDebugEnabled()) {
       logger.debug("Establishing: {}", clientUpdateName);

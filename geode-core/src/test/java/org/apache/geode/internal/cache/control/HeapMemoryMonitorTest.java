@@ -57,7 +57,7 @@ public class HeapMemoryMonitorTest {
   @Before
   public void setup() {
     InternalCache internalCache = Fakes.cache();
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    var distributedSystem = mock(DistributedSystem.class);
     function = mock(Function.class);
     member = mock(InternalDistributedMember.class);
     myself = mock(InternalDistributedMember.class);
@@ -181,7 +181,7 @@ public class HeapMemoryMonitorTest {
   public void createLowMemoryIfNeededWithSetArg_ReturnsException() throws Exception {
     setMocking(true, false, memberSet);
 
-    LowMemoryException exception = heapMonitor.createLowMemoryIfNeeded(function, memberSet);
+    var exception = heapMonitor.createLowMemoryIfNeeded(function, memberSet);
 
     assertLowMemoryException(exception);
   }
@@ -209,7 +209,7 @@ public class HeapMemoryMonitorTest {
   public void createLowMemoryIfNeededWithMemberArg_ReturnsException() throws Exception {
     setMocking(true, false, memberSet);
 
-    LowMemoryException exception = heapMonitor.createLowMemoryIfNeeded(function, member);
+    var exception = heapMonitor.createLowMemoryIfNeeded(function, member);
 
     assertLowMemoryException(exception);
   }
@@ -422,7 +422,7 @@ public class HeapMemoryMonitorTest {
 
   private void sendEventAndAssertState(int bytesUsed, int numEvents,
       MemoryThresholds.MemoryState expectedState) {
-    for (int i = 0; i < numEvents; ++i) {
+    for (var i = 0; i < numEvents; ++i) {
       heapMonitor.updateStateAndSendEvent(bytesUsed, "test");
       assertThat(heapMonitor.getState()).isEqualByComparingTo(expectedState);
     }
@@ -432,7 +432,7 @@ public class HeapMemoryMonitorTest {
     // testMemoryEventTolerance * 2 is somewhat arbitrary - we just want to test that we don't
     // change states after exceeding the tolerance value if the events alternate between critical
     // and normal used bytes.
-    for (int i = 0; i < testMemoryEventTolerance * 2; ++i) {
+    for (var i = 0; i < testMemoryEventTolerance * 2; ++i) {
       // Alternate between normal bytes and critical bytes using modular arithmetic
       if (i % 2 == 0) {
         sendEventAndAssertState(normalUsedBytes, 1, expectedState);
@@ -463,7 +463,7 @@ public class HeapMemoryMonitorTest {
       boolean isLowMemoryExceptionDisabled, Set memberSetArg) throws Exception {
     setMocking(optimizeForWrite, isLowMemoryExceptionDisabled, memberSetArg);
 
-    LowMemoryException exception = heapMonitor.createLowMemoryIfNeeded(function, memberSetArg);
+    var exception = heapMonitor.createLowMemoryIfNeeded(function, memberSetArg);
 
     assertThat(exception).isNull();
   }
@@ -472,7 +472,7 @@ public class HeapMemoryMonitorTest {
       boolean isLowMemoryExceptionDisabled, DistributedMember memberArg) throws Exception {
     setMocking(optimizeForWrite, isLowMemoryExceptionDisabled, Collections.emptySet());
 
-    LowMemoryException exception = heapMonitor.createLowMemoryIfNeeded(function, memberArg);
+    var exception = heapMonitor.createLowMemoryIfNeeded(function, memberArg);
 
     assertThat(exception).isNull();
   }

@@ -55,10 +55,10 @@ public class ClusterKeyStatisticsService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     responseJSON.set("writePerSecTrend",
         mapper.valueToTree(cluster.getStatisticTrend(Cluster.CLUSTER_STAT_WRITES_PER_SECOND)));

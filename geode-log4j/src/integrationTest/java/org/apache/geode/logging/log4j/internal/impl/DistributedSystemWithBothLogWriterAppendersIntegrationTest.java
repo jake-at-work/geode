@@ -23,7 +23,6 @@ import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 
 import java.io.File;
-import java.net.URL;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
@@ -80,18 +79,18 @@ public class DistributedSystemWithBothLogWriterAppendersIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
 
   @Before
   public void setUp() {
-    String name = testName.getMethodName();
+    var name = testName.getMethodName();
     mainLogFile = new File(temporaryFolder.getRoot(), name + "-main.log");
     securityLogFile = new File(temporaryFolder.getRoot(), name + "-security.log");
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFile.getAbsolutePath());
     config.setProperty(SECURITY_LOG_FILE, securityLogFile.getAbsolutePath());

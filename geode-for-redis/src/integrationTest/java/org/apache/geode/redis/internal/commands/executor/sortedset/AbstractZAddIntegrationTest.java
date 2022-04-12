@@ -31,7 +31,6 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.common.util.concurrent.AtomicDouble;
@@ -71,7 +70,7 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldError_givenWrongKeyType() {
-    final String STRING_KEY = "stringKey";
+    final var STRING_KEY = "stringKey";
     jedis.set(STRING_KEY, "value");
     assertThatThrownBy(
         () -> jedis.sendCommand(STRING_KEY, Protocol.Command.ZADD, STRING_KEY, "1", member))
@@ -136,13 +135,13 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldStoreScores_givenCorrectArguments() {
-    Map<String, Double> map = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
+    var map = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
 
-    Set<String> keys = map.keySet();
+    var keys = map.keySet();
     Long count = 0L;
 
-    for (String member : keys) {
-      Double score = map.get(member);
+    for (var member : keys) {
+      var score = map.get(member);
       Long res = jedis.zadd(SORTED_SET_KEY, score, member);
       assertThat(res).isEqualTo(1);
       assertThat(jedis.zscore(SORTED_SET_KEY, member)).isEqualTo(score);
@@ -153,21 +152,21 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldStoreScores_givenMultipleMembersAndScores() {
-    Map<String, Double> map = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
-    Set<String> keys = map.keySet();
+    var map = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
+    var keys = map.keySet();
 
-    long added = jedis.zadd(SORTED_SET_KEY, map);
+    var added = jedis.zadd(SORTED_SET_KEY, map);
     assertThat(added).isEqualTo(keys.size());
 
-    for (String member : keys) {
-      Double score = map.get(member);
+    for (var member : keys) {
+      var score = map.get(member);
       assertThat(jedis.zscore(SORTED_SET_KEY, member)).isEqualTo(score);
     }
   }
 
   @Test
   public void shouldCountOnlyNewMembers_givenMultipleCopiesOfTheSameMember() {
-    Long addCount = (Long) jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY,
+    var addCount = (Long) jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY,
         "1", member, "2", member, "3", member);
     assertThat(addCount).isEqualTo(1);
     assertThat(jedis.zcard(SORTED_SET_KEY)).isEqualTo(1);
@@ -176,7 +175,7 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldAcceptMembers_withEqualScores() {
-    Long addCount = (Long) jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY,
+    var addCount = (Long) jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY,
         "1", "member3", "1", "member2", "1", "member1", "1", "zed", "1", "alpha", "1", "");
     assertThat(addCount).isEqualTo(6);
     assertThat(jedis.zcard(SORTED_SET_KEY)).isEqualTo(6);
@@ -201,10 +200,10 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldNotCountExistingMembersWithoutChanges_whenCHSpecified() {
-    Map<String, Double> initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
+    var initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
     jedis.zadd(SORTED_SET_KEY, initMap);
 
-    ZAddParams zAddParam = new ZAddParams();
+    var zAddParam = new ZAddParams();
     zAddParam.ch();
     Long addCount = jedis.zadd(SORTED_SET_KEY, initMap, zAddParam);
     assertThat(addCount).isEqualTo(0);
@@ -213,14 +212,14 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldCountExistingMemberChanges_whenCHSpecified() {
-    Map<String, Double> initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
+    var initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
     jedis.zadd(SORTED_SET_KEY, initMap);
 
-    ZAddParams zAddParam = new ZAddParams();
+    var zAddParam = new ZAddParams();
     zAddParam.ch();
     Map<String, Double> updateMap = new HashMap<>();
-    for (String member : initMap.keySet()) {
-      Double score = initMap.get(member);
+    for (var member : initMap.keySet()) {
+      var score = initMap.get(member);
       score++;
       updateMap.put(member, score);
     }
@@ -231,14 +230,14 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldCountsNewMembers_whenCHSpecified() {
-    Map<String, Double> initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
+    var initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
     jedis.zadd(SORTED_SET_KEY, initMap);
 
-    ZAddParams zAddParam = new ZAddParams();
+    var zAddParam = new ZAddParams();
     zAddParam.ch();
     Map<String, Double> updateMap = new HashMap<>();
-    final int newMemberCount = 5;
-    for (int i = INITIAL_MEMBER_COUNT; i < INITIAL_MEMBER_COUNT + newMemberCount; i++) {
+    final var newMemberCount = 5;
+    for (var i = INITIAL_MEMBER_COUNT; i < INITIAL_MEMBER_COUNT + newMemberCount; i++) {
       updateMap.put("member_" + i, Double.valueOf((i) + ""));
     }
     Long addCount = jedis.zadd(SORTED_SET_KEY, updateMap, zAddParam);
@@ -248,25 +247,25 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldNotUpdateMembers_whenNXSpecified() {
-    Map<String, Double> initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
+    var initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
     Long addCount = jedis.zadd(SORTED_SET_KEY, initMap);
     assertThat(addCount).isEqualTo(INITIAL_MEMBER_COUNT);
     assertThat(jedis.zcard(SORTED_SET_KEY)).isEqualTo(INITIAL_MEMBER_COUNT);
 
-    for (String member : initMap.keySet()) {
-      Double score = initMap.get(member);
+    for (var member : initMap.keySet()) {
+      var score = initMap.get(member);
       assertThat(jedis.zscore(SORTED_SET_KEY, member)).isEqualTo(score);
     }
 
-    Map<String, Double> updateMap = makeMemberScoreMap(2 * INITIAL_MEMBER_COUNT, 10);
+    var updateMap = makeMemberScoreMap(2 * INITIAL_MEMBER_COUNT, 10);
 
-    ZAddParams zAddParams = new ZAddParams();
+    var zAddParams = new ZAddParams();
     zAddParams.nx();
     addCount = jedis.zadd(SORTED_SET_KEY, updateMap, zAddParams);
     assertThat(addCount).isEqualTo(INITIAL_MEMBER_COUNT);
     assertThat(jedis.zcard(SORTED_SET_KEY)).isEqualTo(2 * INITIAL_MEMBER_COUNT);
 
-    for (String member : updateMap.keySet()) {
+    for (var member : updateMap.keySet()) {
       Double score;
       if (initMap.get(member) != null) {
         score = initMap.get(member);
@@ -279,25 +278,25 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldNotAddNewMembers_whenXXSpecified() {
-    Map<String, Double> initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
+    var initMap = makeMemberScoreMap(INITIAL_MEMBER_COUNT, 0);
 
     Long addCount = jedis.zadd(SORTED_SET_KEY, initMap);
     assertThat(addCount).isEqualTo(INITIAL_MEMBER_COUNT);
     assertThat(jedis.zcard(SORTED_SET_KEY)).isEqualTo(INITIAL_MEMBER_COUNT);
 
-    for (String member : initMap.keySet()) {
-      Double score = initMap.get(member);
+    for (var member : initMap.keySet()) {
+      var score = initMap.get(member);
       assertThat(jedis.zscore(SORTED_SET_KEY, member)).isEqualTo(score);
     }
 
-    Map<String, Double> updateMap = makeMemberScoreMap(2 * INITIAL_MEMBER_COUNT, 10);
-    ZAddParams zAddParams = new ZAddParams();
+    var updateMap = makeMemberScoreMap(2 * INITIAL_MEMBER_COUNT, 10);
+    var zAddParams = new ZAddParams();
     zAddParams.xx();
     addCount = jedis.zadd(SORTED_SET_KEY, updateMap, zAddParams);
     assertThat(addCount).isEqualTo(0);
     assertThat(jedis.zcard(SORTED_SET_KEY)).isEqualTo(INITIAL_MEMBER_COUNT);
 
-    for (String member : updateMap.keySet()) {
+    for (var member : updateMap.keySet()) {
       Double score;
       if (initMap.get(member) != null) {
         score = updateMap.get(member);
@@ -310,9 +309,9 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldStoreScore_whenScoreIsSetToInfinity() {
-    final String key = "key";
-    final String member = "member";
-    final double score = POSITIVE_INFINITY;
+    final var key = "key";
+    final var member = "member";
+    final var score = POSITIVE_INFINITY;
 
     jedis.zadd(key, score, member);
     assertThat(jedis.zscore(key, member)).isEqualTo(score);
@@ -320,9 +319,9 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldStoreScore_whenScoreIsSetToNegativeInfinity() {
-    final String key = "key";
-    final String member = "member";
-    final double score = NEGATIVE_INFINITY;
+    final var key = "key";
+    final var member = "member";
+    final var score = NEGATIVE_INFINITY;
 
     jedis.zadd(key, score, member);
     assertThat(jedis.zscore(key, member)).isEqualTo(score);
@@ -330,8 +329,8 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void shouldUpdateScore_whenSettingMemberThatAlreadyExists() {
-    final String key = "key";
-    final String member = "member";
+    final var key = "key";
+    final var member = "member";
     jedis.zadd(key, 0.0, member);
 
     assertThat(jedis.zadd(key, 1.0, member)).isEqualTo(0);
@@ -354,7 +353,7 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void zaddIncrOptionDoseNotAddANewMemberWithXXOption() {
-    Object result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "XX",
+    var result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "XX",
         incrOption, "1", member);
     assertThat(result).isNull();
     assertThat(jedis.zscore(SORTED_SET_KEY, member)).isNull();
@@ -364,7 +363,7 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
   public void zaddIncrOptionIncrementsScoreForExistingMemberWithXXOption() {
     jedis.zadd(SORTED_SET_KEY, initial, member);
 
-    Object result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "XX",
+    var result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "XX",
         incrOption, String.valueOf(increment), member);
     assertThat(Double.parseDouble(new String((byte[]) result))).isEqualTo(expected);
     assertThat(jedis.zscore(SORTED_SET_KEY, member)).isEqualTo(expected);
@@ -372,7 +371,7 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void zaddIncrOptionAddsANewMemberWithNXOption() {
-    Object result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "NX",
+    var result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "NX",
         incrOption, String.valueOf(increment), member);
     assertThat(Double.parseDouble(new String((byte[]) result))).isEqualTo(increment);
 
@@ -382,7 +381,7 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
   @Test
   public void zaddIncrOptionDoesNotIncrementScoreForAnExistingMemberWithNXOption() {
     jedis.zadd(SORTED_SET_KEY, initial, member);
-    Object result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "NX",
+    var result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "NX",
         incrOption, "1", member);
     assertThat(result).isNull();
 
@@ -399,7 +398,7 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
   @Test
   public void zaddIncrOptionCanIncrementScoreForExistingMemberWithChangeOption() {
     jedis.zadd(SORTED_SET_KEY, initial, member);
-    Object result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "CH",
+    var result = jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, "CH",
         incrOption, String.valueOf(increment), member);
     assertThat(Double.parseDouble(new String((byte[]) result))).isEqualTo(expected);
 
@@ -409,7 +408,7 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
   @Test
   public void zaddIncrOptionCanIncrementScoreForExistingMember() {
     jedis.zadd(SORTED_SET_KEY, initial, member);
-    Object result =
+    var result =
         jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, incrOption,
             String.valueOf(increment), member);
 
@@ -420,22 +419,22 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void zaddIncrOptionCanIncrementScoreConcurrently() {
-    int membersCount = 1000;
-    double increment1 = 1.1;
-    double increment2 = 3.5;
-    double total = increment1 + increment2;
+    var membersCount = 1000;
+    var increment1 = 1.1;
+    var increment2 = 3.5;
+    var total = increment1 + increment2;
     new ConcurrentLoopingThreads(membersCount,
         (i) -> doZAddIncr(i, increment1, total),
         (i) -> doZAddIncr(i, increment2, total)).run();
 
     assertThat(jedis.zcard(SORTED_SET_KEY)).isEqualTo(membersCount);
-    for (int i = 0; i < membersCount; i++) {
+    for (var i = 0; i < membersCount; i++) {
       assertThat(jedis.zscore(SORTED_SET_KEY, member + i)).isEqualTo(total);
     }
   }
 
   private void doZAddIncr(int i, double increment, double total) {
-    Object result =
+    var result =
         jedis.sendCommand(SORTED_SET_KEY, Protocol.Command.ZADD, SORTED_SET_KEY, incrOption,
             String.valueOf(increment), member + i);
     assertThat(Double.parseDouble(new String((byte[]) result))).isIn(increment, total);
@@ -443,9 +442,9 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void zaddIncrOptionCanIncrementScoreOnSameMemberConcurrently() {
-    int iteration = 100;
-    AtomicDouble totalIncremented = new AtomicDouble();
-    Random random = new Random();
+    var iteration = 100;
+    var totalIncremented = new AtomicDouble();
+    var random = new Random();
     new ConcurrentLoopingThreads(iteration,
         (i) -> doZAddIncr(totalIncremented, random),
         (i) -> doZAddIncr(totalIncremented, random)).run();
@@ -457,10 +456,10 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
   }
 
   private void doZAddIncr(AtomicDouble totalIncremented, Random random) {
-    int maxValue = 10000;
-    double randomDouble = ThreadLocalRandom.current().nextDouble(maxValue);
-    double increment = getValueWthPrecision(randomDouble);
-    boolean isNegativeIncrement = random.nextBoolean();
+    var maxValue = 10000;
+    var randomDouble = ThreadLocalRandom.current().nextDouble(maxValue);
+    var increment = getValueWthPrecision(randomDouble);
+    var isNegativeIncrement = random.nextBoolean();
     if (isNegativeIncrement) {
       increment *= -1;
     }
@@ -476,7 +475,7 @@ public abstract class AbstractZAddIntegrationTest implements RedisIntegrationTes
   private Map<String, Double> makeMemberScoreMap(int memberCount, double baseScore) {
     Map<String, Double> map = new HashMap<>();
 
-    for (int i = 0; i < memberCount; i++) {
+    for (var i = 0; i < memberCount; i++) {
       map.put("member_" + i, i + baseScore);
     }
     return map;

@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
@@ -47,7 +46,7 @@ public class GeodeDependencyJarIntegrationTest {
 
   @Before
   public void loadExpectedClassPath() throws IOException {
-    String dependencyClasspath =
+    var dependencyClasspath =
         createTempFileFromResource(AssemblyContentsIntegrationTest.class,
             "/dependency_classpath.txt").getAbsolutePath();
 
@@ -57,7 +56,7 @@ public class GeodeDependencyJarIntegrationTest {
 
   @Test
   public void verifyManifestClassPath() throws IOException {
-    List<String> currentClasspathElements = getManifestClassPath();
+    var currentClasspathElements = getManifestClassPath();
     Files.write(Paths.get("..", "dependency_classpath.txt"), currentClasspathElements);
 
     assertThat(getManifestClassPath())
@@ -71,18 +70,18 @@ public class GeodeDependencyJarIntegrationTest {
    * Find all of the jars bundled with the project. Key is the name of the jar, value is the path.
    */
   private List<String> getManifestClassPath() throws IOException {
-    File geodeHomeDirectory = new File(GEODE_HOME);
+    var geodeHomeDirectory = new File(GEODE_HOME);
     assertThat(geodeHomeDirectory)
         .describedAs(
             "Please set the GEODE_HOME environment variable to the product installation directory.")
         .isDirectory();
 
-    JarFile geodeDependencies =
+    var geodeDependencies =
         new JarFile(new File(geodeHomeDirectory, "lib/geode-dependencies.jar"));
 
-    Manifest geodeDependenciesManifest = geodeDependencies.getManifest();
+    var geodeDependenciesManifest = geodeDependencies.getManifest();
 
-    String classpath = geodeDependenciesManifest.getMainAttributes().getValue("Class-Path");
+    var classpath = geodeDependenciesManifest.getMainAttributes().getValue("Class-Path");
 
     return Arrays.stream(classpath.split(" "))
         .map(entry -> entry.contains("geode")

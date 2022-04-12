@@ -39,7 +39,6 @@ import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.GatewayException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionExistsException;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.TimeoutException;
@@ -90,16 +89,16 @@ public class HARegionJUnitTest {
    */
   private Region createHARegion() throws TimeoutException, CacheWriterException, GatewayException,
       CacheExistsException, RegionExistsException, IOException, ClassNotFoundException {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setScope(Scope.DISTRIBUTED_ACK);
-    ExpirationAttributes ea = new ExpirationAttributes(2000, ExpirationAction.LOCAL_INVALIDATE);
+    var ea = new ExpirationAttributes(2000, ExpirationAction.LOCAL_INVALIDATE);
     factory.setStatisticsEnabled(true);
     factory.setCacheListener(new CacheListenerAdapter() {
       @Override
       public void afterInvalidate(EntryEvent event) {}
     });
-    RegionAttributes ra = factory.create();
+    var ra = factory.create();
     Region region =
         HARegion.getInstance("HARegionJUnitTest_region", (GemFireCacheImpl) cache, null, ra,
             disabledClock());
@@ -120,7 +119,7 @@ public class HARegionJUnitTest {
    */
   @Test
   public void testPut() throws Exception {
-    Region region = createHARegion();
+    var region = createHARegion();
     region.put("key1", "value1");
     assertEquals(region.get("key1"), "value1");
   }
@@ -130,7 +129,7 @@ public class HARegionJUnitTest {
    */
   @Test
   public void testLocalDestroy() throws Exception {
-    Region region = createHARegion();
+    var region = createHARegion();
     region.put("key1", "value1");
     region.localDestroy("key1");
     assertEquals(region.get("key1"), null);
@@ -141,7 +140,7 @@ public class HARegionJUnitTest {
    */
   @Test
   public void testEventIdSetForEvictDestroy() throws Exception {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
 
     factory.setCacheListener(new CacheListenerAdapter() {
       @Override
@@ -151,12 +150,12 @@ public class HARegionJUnitTest {
       }
     });
 
-    EvictionAttributes evAttr =
+    var evAttr =
         EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.LOCAL_DESTROY);
     factory.setEvictionAttributes(evAttr);
 
-    RegionAttributes attrs = factory.createRegionAttributes();
-    Region region = cache.createVMRegion("TEST_REGION", attrs);
+    var attrs = factory.createRegionAttributes();
+    var region = cache.createVMRegion("TEST_REGION", attrs);
     region.put("key1", "value1");
     region.put("key2", "value2");
   }

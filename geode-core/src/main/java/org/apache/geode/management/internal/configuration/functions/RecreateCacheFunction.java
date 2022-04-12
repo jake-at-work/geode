@@ -28,7 +28,7 @@ public class RecreateCacheFunction implements InternalFunction {
   @Override
   public void execute(FunctionContext context) {
     CliFunctionResult result = null;
-    InternalCache cache = (InternalCache) context.getCache();
+    var cache = (InternalCache) context.getCache();
     try {
       cache.reLoadClusterConfiguration();
     } catch (Exception e) {

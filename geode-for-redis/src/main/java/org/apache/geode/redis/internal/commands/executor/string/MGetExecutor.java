@@ -16,7 +16,6 @@ package org.apache.geode.redis.internal.commands.executor.string;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
@@ -29,12 +28,12 @@ public class MGetExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
     Collection<byte[]> values = new ArrayList<>(commandElems.size() - 1);
-    for (int i = 1; i < commandElems.size(); i++) {
-      byte[] keyArray = commandElems.get(i);
-      RedisKey key = new RedisKey(keyArray);
+    for (var i = 1; i < commandElems.size(); i++) {
+      var keyArray = commandElems.get(i);
+      var key = new RedisKey(keyArray);
       values.add(context.stringLockedExecute(key, true, true, RedisString::get));
     }
 

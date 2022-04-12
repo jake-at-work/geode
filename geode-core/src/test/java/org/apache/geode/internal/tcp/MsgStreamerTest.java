@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.net.ssl.SSLException;
 
@@ -49,26 +48,26 @@ public class MsgStreamerTest {
 
   @Test
   public void create() {
-    final BaseMsgStreamer msgStreamer = createMsgStreamer(false);
+    final var msgStreamer = createMsgStreamer(false);
     assertThat(msgStreamer).isInstanceOf(MsgStreamer.class);
   }
 
   @Test
   public void createWithMixedVersions() {
-    final BaseMsgStreamer msgStreamer = createMsgStreamer(true);
+    final var msgStreamer = createMsgStreamer(true);
     assertThat(msgStreamer).isInstanceOf(MsgStreamerList.class);
   }
 
   @Test
   public void streamerListRelease() throws IOException {
-    final MsgStreamerList msgStreamer = (MsgStreamerList) createMsgStreamer(true);
+    final var msgStreamer = (MsgStreamerList) createMsgStreamer(true);
     msgStreamer.writeMessage();
     verify(pool, times(2)).releaseSenderBuffer(isA(ByteBuffer.class));
   }
 
   @Test
   public void streamerListReleaseWithException() throws IOException {
-    final MsgStreamerList msgStreamer = (MsgStreamerList) createMsgStreamer(true);
+    final var msgStreamer = (MsgStreamerList) createMsgStreamer(true);
     // if the first streamer throws an exception while writing the message we should still only
     // release two buffers (one for each streamer)
     doThrow(new SSLException("")).when(connection1).sendPreserialized(any(ByteBuffer.class),
@@ -91,9 +90,9 @@ public class MsgStreamerTest {
     // biggest message we can actually send. This is picked up by the MsgStreamer to allocate
     // a buffer
     when(connection1.getSendBufferSize()).thenReturn(Connection.MAX_MSG_SIZE + 1);
-    List<Connection> connections = Arrays.asList(connection1);
+    var connections = Arrays.asList(connection1);
 
-    final BaseMsgStreamer msgStreamer =
+    final var msgStreamer =
         MsgStreamer.create(connections, message, false, stats, pool);
     // the streamer ought to have limited the message buffer to MAX_MSG_SIZE
     assertThat(((MsgStreamer) msgStreamer).getBuffer().capacity())
@@ -121,7 +120,7 @@ public class MsgStreamerTest {
     } else {
       when(connection2.getRemoteVersion()).thenReturn(KnownVersion.CURRENT);
     }
-    List<Connection> connections = Arrays.asList(connection1, connection2);
+    var connections = Arrays.asList(connection1, connection2);
 
     return MsgStreamer.create(connections, message, false, stats, pool);
   }

@@ -42,7 +42,7 @@ public class TableMetaData implements TableMetaDataView {
 
   private static String createQuotedTablePath(String catalogName, String schemaName,
       String tableName, String quote) {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     appendPrefix(builder, catalogName, quote);
     appendPrefix(builder, schemaName, quote);
     builder.append(quote).append(tableName).append(quote);
@@ -67,7 +67,7 @@ public class TableMetaData implements TableMetaDataView {
 
   @Override
   public JDBCType getColumnDataType(String columnName) {
-    ColumnMetaData columnMetaData = columnMetaDataMap.get(columnName);
+    var columnMetaData = columnMetaDataMap.get(columnName);
     if (columnMetaData == null) {
       return JDBCType.NULL;
     }
@@ -76,7 +76,7 @@ public class TableMetaData implements TableMetaDataView {
 
   @Override
   public boolean isColumnNullable(String columnName) {
-    ColumnMetaData columnMetaData = columnMetaDataMap.get(columnName);
+    var columnMetaData = columnMetaDataMap.get(columnName);
     if (columnMetaData == null) {
       return true;
     }

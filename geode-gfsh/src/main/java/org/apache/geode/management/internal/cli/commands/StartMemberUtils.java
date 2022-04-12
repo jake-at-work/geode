@@ -35,7 +35,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.process.ProcessLauncherContext;
 import org.apache.geode.internal.util.IOUtils;
-import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.internal.cli.util.ThreePhraseGenerator;
 import org.apache.geode.util.internal.GeodeGlossary;
 
@@ -84,7 +83,7 @@ class StartMemberUtils {
   }
 
   static String resolveWorkingDirectory(File workingDirectory) {
-    String workingDirPath = IOUtils.tryGetCanonicalPathElseGetAbsolutePath(workingDirectory);
+    var workingDirPath = IOUtils.tryGetCanonicalPathElseGetAbsolutePath(workingDirectory);
     if (!workingDirectory.exists()) {
       if (!workingDirectory.mkdirs()) {
         throw new IllegalStateException(String.format(
@@ -112,9 +111,9 @@ class StartMemberUtils {
 
   static void addGemFireSystemProperties(final List<String> commandLine,
       final Properties gemfireProperties) {
-    for (final Object property : gemfireProperties.keySet()) {
-      final String propertyName = property.toString();
-      final String propertyValue = gemfireProperties.getProperty(propertyName);
+    for (final var property : gemfireProperties.keySet()) {
+      final var propertyName = property.toString();
+      final var propertyValue = gemfireProperties.getProperty(propertyName);
       if (StringUtils.isNotBlank(propertyValue)) {
         commandLine.add(
             "-D" + GeodeGlossary.GEMFIRE_PREFIX + "" + propertyName + "=" + propertyValue);
@@ -139,12 +138,12 @@ class StartMemberUtils {
     if (StringUtils.isNotBlank(maxHeap)) {
       commandLine.add("-Xmx" + maxHeap);
 
-      String collectorKey = "-XX:+UseConcMarkSweepGC";
+      var collectorKey = "-XX:+UseConcMarkSweepGC";
       if (!commandLine.contains(collectorKey)) {
         commandLine.add(collectorKey);
       }
 
-      String occupancyFractionKey = "-XX:CMSInitiatingOccupancyFraction=";
+      var occupancyFractionKey = "-XX:CMSInitiatingOccupancyFraction=";
       if (commandLine.stream().noneMatch(s -> s.contains(occupancyFractionKey))) {
         commandLine.add(occupancyFractionKey + CMS_INITIAL_OCCUPANCY_FRACTION);
       }
@@ -154,7 +153,7 @@ class StartMemberUtils {
   static void addCurrentLocators(OfflineGfshCommand gfshCommand, final List<String> commandLine,
       final Properties gemfireProperties) throws MalformedObjectNameException {
     if (StringUtils.isBlank(gemfireProperties.getProperty(LOCATORS))) {
-      String currentLocators = getCurrentLocators(gfshCommand);
+      var currentLocators = getCurrentLocators(gfshCommand);
       if (StringUtils.isNotBlank(currentLocators)) {
         commandLine.add("-D".concat(ProcessLauncherContext.OVERRIDDEN_DEFAULTS_PREFIX)
             .concat(LOCATORS).concat("=").concat(currentLocators));
@@ -164,15 +163,15 @@ class StartMemberUtils {
 
   private static String getCurrentLocators(OfflineGfshCommand gfshCommand)
       throws MalformedObjectNameException {
-    String delimitedLocators = "";
+    var delimitedLocators = "";
     try {
       if (gfshCommand.isConnectedAndReady()) {
-        final DistributedSystemMXBean dsMBeanProxy = getDistributedSystemMXBean();
+        final var dsMBeanProxy = getDistributedSystemMXBean();
         if (dsMBeanProxy != null) {
-          final String[] locators = dsMBeanProxy.listLocators();
+          final var locators = dsMBeanProxy.listLocators();
           if (locators != null && locators.length > 0) {
-            final StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < locators.length; i++) {
+            final var sb = new StringBuilder();
+            for (var i = 0; i < locators.length; i++) {
               if (i > 0) {
                 sb.append(",");
               }
@@ -215,7 +214,7 @@ class StartMemberUtils {
   static String toClasspath(final boolean includeSystemClasspath, String[] jarFilePathnames,
       String... userClasspaths) {
     // gemfire jar must absolutely be the first JAR file on the CLASSPATH!!!
-    StringBuilder classpath = new StringBuilder(getGemFireJarPath());
+    var classpath = new StringBuilder(getGemFireJarPath());
 
     userClasspaths = (userClasspaths != null ? userClasspaths : ArrayUtils.EMPTY_STRING_ARRAY);
 
@@ -227,7 +226,7 @@ class StartMemberUtils {
     // override any
     // System CLASSPATH environment variable setting, which is consistent with the Java platform
     // behavior...
-    for (String userClasspath : userClasspaths) {
+    for (var userClasspath : userClasspaths) {
       if (StringUtils.isNotBlank(userClasspath)) {
         classpath.append((classpath.length() == 0) ? StringUtils.EMPTY : File.pathSeparator);
         classpath.append(userClasspath);
@@ -244,7 +243,7 @@ class StartMemberUtils {
         (jarFilePathnames != null ? jarFilePathnames : ArrayUtils.EMPTY_STRING_ARRAY);
 
     // And finally, include all GemFire dependencies on the CLASSPATH...
-    for (String jarFilePathname : jarFilePathnames) {
+    for (var jarFilePathname : jarFilePathnames) {
       if (StringUtils.isNotBlank(jarFilePathname)) {
         classpath.append((classpath.length() == 0) ? StringUtils.EMPTY : File.pathSeparator);
         classpath.append(jarFilePathname);
@@ -254,9 +253,9 @@ class StartMemberUtils {
   }
 
   static String getGemFireJarPath() {
-    String classpath = getSystemClasspath();
-    String gemfireJarPath = GEODE_JAR_PATHNAME;
-    for (String classpathElement : classpath.split(File.pathSeparator)) {
+    var classpath = getSystemClasspath();
+    var gemfireJarPath = GEODE_JAR_PATHNAME;
+    for (var classpathElement : classpath.split(File.pathSeparator)) {
       if (classpathElement.endsWith("geode-core-" + GemFireVersion.getGemFireVersion() + ".jar")) {
         gemfireJarPath = classpathElement;
         break;

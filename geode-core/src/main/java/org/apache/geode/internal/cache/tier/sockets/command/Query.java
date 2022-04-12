@@ -24,7 +24,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.operations.QueryOperationContext;
 import org.apache.geode.cache.query.QueryExecutionLowMemoryException;
 import org.apache.geode.cache.query.QueryInvalidException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.types.CollectionTypeImpl;
@@ -33,7 +32,6 @@ import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommandQuery;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 
 public class Query extends BaseCommandQuery {
@@ -58,13 +56,13 @@ public class Query extends BaseCommandQuery {
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     serverConnection.setAsTrue(REQUIRES_CHUNKED_RESPONSE);
     // Retrieve the data from the message parts
-    String queryString = clientMessage.getPart(0).getString();
+    var queryString = clientMessage.getPart(0).getString();
 
     // this is optional part for message specific timeout, which right now send by native client
     // need to take care while adding new message
 
     if (clientMessage.getNumberOfParts() == 3) {
-      int timeout = clientMessage.getPart(2).getInt();
+      var timeout = clientMessage.getPart(2).getInt();
       serverConnection.setRequestSpecificTimeout(timeout);
     }
 
@@ -74,17 +72,17 @@ public class Query extends BaseCommandQuery {
     }
     try {
       // Create query
-      QueryService queryService =
+      var queryService =
           serverConnection.getCachedRegionHelper().getCache().getLocalQueryService();
-      org.apache.geode.cache.query.Query query = queryService.newQuery(queryString);
+      var query = queryService.newQuery(queryString);
       Set regionNames = ((DefaultQuery) query).getRegionsInQuery(null);
 
       // Authorization check
       QueryOperationContext queryContext = null;
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       if (authzRequest != null) {
         queryContext = authzRequest.queryAuthorize(queryString, regionNames);
-        String newQueryString = queryContext.getQuery();
+        var newQueryString = queryContext.getQuery();
         if (queryString != null && !queryString.equals(newQueryString)) {
           query = queryService.newQuery(newQueryString);
           queryString = newQueryString;

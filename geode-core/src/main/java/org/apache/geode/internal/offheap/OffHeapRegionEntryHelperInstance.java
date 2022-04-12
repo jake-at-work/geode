@@ -19,7 +19,6 @@ import java.util.function.Function;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.internal.cache.CachedDeserializableFactory;
-import org.apache.geode.internal.cache.DiskId;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.RegionEntryContext;
 import org.apache.geode.internal.cache.Token;
@@ -79,13 +78,13 @@ class OffHeapRegionEntryHelperInstance {
       RegionEntryContext context) {
     if (isOffHeap(ohAddress)) {
       @Unretained
-      OffHeapStoredObject chunk = offHeapStoredObjectFactory.apply(ohAddress);
+      var chunk = offHeapStoredObjectFactory.apply(ohAddress);
       @Unretained
       Object result = chunk;
       if (decompress && chunk.isCompressed()) {
         try {
           // to fix bug 47982 need to:
-          byte[] decompressedBytes = chunk.getDecompressedBytes(context);
+          var decompressedBytes = chunk.getDecompressedBytes(context);
           if (chunk.isSerialized()) {
             // return a VMCachedDeserializable with the decompressed serialized bytes since chunk is
             // serialized
@@ -106,10 +105,10 @@ class OffHeapRegionEntryHelperInstance {
     }
 
     if ((ohAddress & ENCODED_BIT) != 0) {
-      TinyStoredObject daa = new TinyStoredObject(ohAddress);
+      var daa = new TinyStoredObject(ohAddress);
       Object result = daa;
       if (decompress && daa.isCompressed()) {
-        byte[] decompressedBytes = daa.getDecompressedBytes(context);
+        var decompressedBytes = daa.getDecompressedBytes(context);
         if (daa.isSerialized()) {
           // return a VMCachedDeserializable with the decompressed serialized bytes since daa is
           // serialized
@@ -126,10 +125,10 @@ class OffHeapRegionEntryHelperInstance {
   }
 
   int getSerializedLength(TinyStoredObject dataAsAddress) {
-    final long ohAddress = dataAsAddress.getAddress();
+    final var ohAddress = dataAsAddress.getAddress();
 
     if ((ohAddress & ENCODED_BIT) != 0) {
-      boolean isLong = (ohAddress & LONG_BIT) != 0;
+      var isLong = (ohAddress & LONG_BIT) != 0;
       if (isLong) {
         return 9;
       }
@@ -162,7 +161,7 @@ class OffHeapRegionEntryHelperInstance {
    */
   public void releaseEntry(@Released OffHeapRegionEntry regionEntry) {
     if (regionEntry instanceof DiskEntry) {
-      DiskId diskId = ((DiskEntry) regionEntry).getDiskId();
+      var diskId = ((DiskEntry) regionEntry).getDiskId();
       if (diskId != null && diskId.isPendingAsync()) {
         synchronized (diskId) {
           // This may not be needed so remove this call if it causes problems.
@@ -180,8 +179,8 @@ class OffHeapRegionEntryHelperInstance {
 
   public void releaseEntry(@Unretained OffHeapRegionEntry regionEntry,
       @Released StoredObject expectedValue) {
-    long oldAddress = TokenAddress.objectToAddress(expectedValue);
-    final long newAddress = TokenAddress.objectToAddress(Token.REMOVED_PHASE2);
+    var oldAddress = TokenAddress.objectToAddress(expectedValue);
+    final var newAddress = TokenAddress.objectToAddress(Token.REMOVED_PHASE2);
     if (regionEntry.setAddress(oldAddress, newAddress)) {
       releaseAddress(oldAddress);
     }
@@ -218,8 +217,8 @@ class OffHeapRegionEntryHelperInstance {
    */
   long encodeDataAsAddress(byte[] bytes, boolean isSerialized, boolean isCompressed) {
     if (bytes.length < MAX_LENGTH_FOR_DATA_AS_ADDRESS) {
-      long result = 0L;
-      for (byte aByte : bytes) {
+      var result = 0L;
+      for (var aByte : bytes) {
         result |= aByte & 0x00ff;
         result <<= 8;
       }
@@ -242,8 +241,8 @@ class OffHeapRegionEntryHelperInstance {
         if (bytes[1] == 0 && (bytes[2] & 0x80) == 0 || bytes[1] == -1 && (bytes[2] & 0x80) != 0) {
           // The long can be encoded as 7 bytes since the most signification byte is simply an
           // extension of the sign byte on the second most signification byte.
-          long result = 0L;
-          for (int i = 2; i < bytes.length; i++) {
+          var result = 0L;
+          for (var i = 2; i < bytes.length; i++) {
             result |= bytes[i] & 0x00ff;
             result <<= 8;
           }
@@ -257,9 +256,9 @@ class OffHeapRegionEntryHelperInstance {
   }
 
   Object decodeAddressToObject(long ohAddress) {
-    byte[] bytes = decodeUncompressedAddressToBytes(ohAddress);
+    var bytes = decodeUncompressedAddressToBytes(ohAddress);
 
-    boolean isSerialized = (ohAddress & SERIALIZED_BIT) != 0;
+    var isSerialized = (ohAddress & SERIALIZED_BIT) != 0;
     if (isSerialized) {
       return EntryEventImpl.deserialize(bytes);
     }
@@ -271,7 +270,7 @@ class OffHeapRegionEntryHelperInstance {
     if ((address & ENCODED_BIT) == 0) {
       throw new AssertionError("Invalid address: " + address);
     }
-    boolean isLong = (address & LONG_BIT) != 0;
+    var isLong = (address & LONG_BIT) != 0;
     if (isLong) {
       return 9;
     }
@@ -300,14 +299,14 @@ class OffHeapRegionEntryHelperInstance {
       throw new AssertionError("Invalid address: " + addr);
     }
 
-    int size = (int) ((addr & SIZE_MASK) >> SIZE_SHIFT);
-    boolean isLong = (addr & LONG_BIT) != 0;
+    var size = (int) ((addr & SIZE_MASK) >> SIZE_SHIFT);
+    var isLong = (addr & LONG_BIT) != 0;
     byte[] bytes;
 
     if (isLong) {
       bytes = new byte[9];
       bytes[0] = DSCODE.LONG.toByte();
-      for (int i = 8; i >= 2; i--) {
+      for (var i = 8; i >= 2; i--) {
         addr >>= 8;
         bytes[i] = (byte) (addr & 0x00ff);
       }
@@ -318,7 +317,7 @@ class OffHeapRegionEntryHelperInstance {
       }
     } else {
       bytes = new byte[size];
-      for (int i = size - 1; i >= 0; i--) {
+      for (var i = size - 1; i >= 0; i--) {
         addr >>= 8;
         bytes[i] = (byte) (addr & 0x00ff);
       }
@@ -334,7 +333,7 @@ class OffHeapRegionEntryHelperInstance {
   public void setValue(@Released OffHeapRegionEntry regionEntry, @Unretained Object value) {
     // setValue is called when synced so I don't need to worry
     // about oldAddress being released by someone else.
-    final long newAddress = TokenAddress.objectToAddress(value);
+    final var newAddress = TokenAddress.objectToAddress(value);
     long oldAddress;
 
     do {
@@ -380,15 +379,15 @@ class OffHeapRegionEntryHelperInstance {
   @Retained
   public Object _getValueRetain(@Retained @Unretained OffHeapRegionEntry regionEntry,
       boolean decompress, RegionEntryContext context) {
-    int retryCount = 0;
+    var retryCount = 0;
 
     @Retained
-    long address = regionEntry.getAddress();
+    var address = regionEntry.getAddress();
 
     while (isOffHeap(address)) {
       if (referenceCounter.retain(address)) {
         @Unretained
-        long address2 = regionEntry.getAddress();
+        var address2 = regionEntry.getAddress();
         if (address != address2) {
           retryCount = 0;
           referenceCounter.release(address);
@@ -399,7 +398,7 @@ class OffHeapRegionEntryHelperInstance {
         }
       } else {
         // spin around and try again
-        long address2 = regionEntry.getAddress();
+        var address2 = regionEntry.getAddress();
         retryCount++;
         if (retryCount > 100) {
           throw new IllegalStateException("retain failed address=" + address + " addr2=" + address

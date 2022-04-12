@@ -46,31 +46,31 @@ public class LuceneIndexXmlGeneratorJUnitTest {
    */
   @Test
   public void generateWithFields() throws Exception {
-    LuceneIndexCreation index = mock(LuceneIndexCreation.class);
+    var index = mock(LuceneIndexCreation.class);
     when(index.getName()).thenReturn("index");
-    String[] fields = new String[] {"field1", "field2"};
+    var fields = new String[] {"field1", "field2"};
     when(index.getFieldNames()).thenReturn(fields);
 
-    LuceneIndexXmlGenerator generator = new LuceneIndexXmlGenerator(index);
-    CacheXmlGenerator cacheXmlGenerator = mock(CacheXmlGenerator.class);
-    ContentHandler handler = mock(ContentHandler.class);
+    var generator = new LuceneIndexXmlGenerator(index);
+    var cacheXmlGenerator = mock(CacheXmlGenerator.class);
+    var handler = mock(ContentHandler.class);
     when(cacheXmlGenerator.getContentHandler()).thenReturn(handler);
     generator.generate(cacheXmlGenerator);
 
-    ArgumentCaptor<Attributes> captor = ArgumentCaptor.forClass(Attributes.class);
+    var captor = ArgumentCaptor.forClass(Attributes.class);
     verify(handler).startElement(eq(""), eq("index"), eq("lucene:index"), captor.capture());
-    Attributes value = captor.getValue();
+    var value = captor.getValue();
     assertEquals("index", value.getValue(LuceneXmlConstants.NAME));
 
     captor = ArgumentCaptor.forClass(Attributes.class);
     verify(handler, times(2)).startElement(eq(""), eq("field"), eq("lucene:field"),
         captor.capture());
     Set<String> foundFields = new HashSet<>();
-    for (Attributes fieldAttr : captor.getAllValues()) {
+    for (var fieldAttr : captor.getAllValues()) {
       foundFields.add(fieldAttr.getValue(LuceneXmlConstants.NAME));
     }
 
-    HashSet<String> expected = new HashSet<>(Arrays.asList(fields));
+    var expected = new HashSet<String>(Arrays.asList(fields));
     assertEquals(expected, foundFields);
 
     verify(handler, times(2)).endElement(eq(""), eq("field"), eq("lucene:field"));
@@ -82,26 +82,26 @@ public class LuceneIndexXmlGeneratorJUnitTest {
    */
   @Test
   public void generateWithSerializer() throws Exception {
-    LuceneIndexCreation index = mock(LuceneIndexCreation.class);
-    LuceneSerializer mySerializer =
+    var index = mock(LuceneIndexCreation.class);
+    var mySerializer =
         mock(LuceneSerializer.class, withSettings().extraInterfaces(Declarable2.class));
-    Properties props = new Properties();
+    var props = new Properties();
     props.put("param", "value");
     when(index.getName()).thenReturn("index");
-    String[] fields = new String[] {"field1", "field2"};
+    var fields = new String[] {"field1", "field2"};
     when(index.getFieldNames()).thenReturn(fields);
     when(index.getLuceneSerializer()).thenReturn(mySerializer);
     when(((Declarable2) mySerializer).getConfig()).thenReturn(props);
 
-    LuceneIndexXmlGenerator generator = new LuceneIndexXmlGenerator(index);
-    CacheXmlGenerator cacheXmlGenerator = mock(CacheXmlGenerator.class);
-    ContentHandler handler = mock(ContentHandler.class);
+    var generator = new LuceneIndexXmlGenerator(index);
+    var cacheXmlGenerator = mock(CacheXmlGenerator.class);
+    var handler = mock(ContentHandler.class);
     when(cacheXmlGenerator.getContentHandler()).thenReturn(handler);
     generator.generate(cacheXmlGenerator);
 
-    ArgumentCaptor<Attributes> captor = ArgumentCaptor.forClass(Attributes.class);
+    var captor = ArgumentCaptor.forClass(Attributes.class);
     verify(handler).startElement(eq(""), eq("index"), eq("lucene:index"), captor.capture());
-    Attributes value = captor.getValue();
+    var value = captor.getValue();
     assertEquals("index", value.getValue(LuceneXmlConstants.NAME));
 
     // fields
@@ -109,11 +109,11 @@ public class LuceneIndexXmlGeneratorJUnitTest {
     verify(handler, times(2)).startElement(eq(""), eq("field"), eq("lucene:field"),
         captor.capture());
     Set<String> foundFields = new HashSet<>();
-    for (Attributes fieldAttr : captor.getAllValues()) {
+    for (var fieldAttr : captor.getAllValues()) {
       foundFields.add(fieldAttr.getValue(LuceneXmlConstants.NAME));
     }
 
-    HashSet<String> expected = new HashSet<>(Arrays.asList(fields));
+    var expected = new HashSet<String>(Arrays.asList(fields));
     assertEquals(expected, foundFields);
 
     verify(handler, times(2)).endElement(eq(""), eq("field"), eq("lucene:field"));
@@ -127,7 +127,7 @@ public class LuceneIndexXmlGeneratorJUnitTest {
     verify(handler, times(1)).startElement(eq(""), eq("class-name"), eq("class-name"),
         captor.capture());
 
-    String expectedString = mySerializer.getClass().getName();
+    var expectedString = mySerializer.getClass().getName();
     verify(handler).characters(eq(expectedString.toCharArray()), eq(0),
         eq(expectedString.length()));
     verify(handler).endElement(eq(""), eq("class-name"), eq("class-name"));
@@ -141,7 +141,7 @@ public class LuceneIndexXmlGeneratorJUnitTest {
 
     captor = ArgumentCaptor.forClass(Attributes.class);
     verify(handler, times(1)).startElement(eq(""), eq("string"), eq("string"), captor.capture());
-    String expectedValue = "value";
+    var expectedValue = "value";
     verify(handler).characters(eq(expectedValue.toCharArray()), eq(0), eq(expectedValue.length()));
     verify(handler).endElement(eq(""), eq("string"), eq("string"));
     verify(handler).endElement(eq(""), eq("parameter"), eq("parameter"));

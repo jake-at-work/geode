@@ -168,7 +168,7 @@ public class VMThinRegionEntryOffHeapUUIDKey extends VMThinRegionEntryOffHeap {
   @Override
   public boolean isKeyEqual(final Object key) {
     if (key instanceof UUID) {
-      UUID uuid = (UUID) key;
+      var uuid = (UUID) key;
       return uuid.getLeastSignificantBits() == keyLeastSigBits
           && uuid.getMostSignificantBits() == keyMostSigBits;
     }

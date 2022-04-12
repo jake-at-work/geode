@@ -69,8 +69,8 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Before
   public void setUp() {
-    OutOfOffHeapMemoryListener listener = mock(OutOfOffHeapMemoryListener.class);
-    OffHeapMemoryStats stats = mock(OffHeapMemoryStats.class);
+    var listener = mock(OutOfOffHeapMemoryListener.class);
+    var stats = mock(OffHeapMemoryStats.class);
     Function<Long, OffHeapStoredObject> offHeapStoredObjectFactory =
         uncheckedCast(mock(Function.class));
     offHeapStoredObject = mock(OffHeapStoredObject.class);
@@ -95,13 +95,13 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodeDataAsAddressShouldReturnZeroIfValueIsGreaterThanSevenBytes() {
-    byte[] valueInBytes =
+    var valueInBytes =
         ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(Long.MAX_VALUE).array();
 
     assertThat(valueInBytes.length)
         .isGreaterThanOrEqualTo(OffHeapRegionEntryHelperInstance.MAX_LENGTH_FOR_DATA_AS_ADDRESS);
 
-    long encodedAddress =
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(valueInBytes, false, false);
 
     assertThat(encodedAddress)
@@ -110,15 +110,15 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodeDataAsAddressShouldEncodeLongIfItsSerializedAndIfItsNotTooBig() {
-    byte[] valueInBytes = EntryEventImpl.serialize(0L);
-    boolean isSerialized = true;
-    boolean isCompressed = false;
+    var valueInBytes = EntryEventImpl.serialize(0L);
+    var isSerialized = true;
+    var isCompressed = false;
 
-    long encodedAddress =
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(valueInBytes, isSerialized,
             isCompressed);
 
-    long expectedEncodedAddress = 123L;
+    var expectedEncodedAddress = 123L;
     assertThat(encodedAddress)
         .isEqualTo(expectedEncodedAddress);
 
@@ -127,9 +127,9 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodeDataAsAddressShouldReturnZeroIfValueIsLongAndItIsSerializedAndBig() {
-    byte[] valueInBytes = EntryEventImpl.serialize(Long.MAX_VALUE);
+    var valueInBytes = EntryEventImpl.serialize(Long.MAX_VALUE);
 
-    long encodedAddress =
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(valueInBytes, true,
             false);
 
@@ -139,10 +139,10 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodeDataAsAddressShouldReturnZeroIfValueIsLargerThanEightBytesAndNotLong() {
-    byte[] someValue = new byte[8];
+    var someValue = new byte[8];
     someValue[0] = DSCODE.CLASS.toByte();
 
-    long encodedAddress =
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(someValue, true, false);
 
     assertThat(encodedAddress)
@@ -151,16 +151,16 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodeDataAsAddressShouldReturnValidAddressIfValueIsLesserThanSevenBytes() {
-    byte[] valueInBytes =
+    var valueInBytes =
         ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
-    boolean isSerialized = false;
-    boolean isCompressed = false;
+    var isSerialized = false;
+    var isCompressed = false;
 
-    long encodedAddress =
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(valueInBytes, isSerialized,
             isCompressed);
 
-    long expectedAddress = 549755813697L;
+    var expectedAddress = 549755813697L;
     assertThat(encodedAddress)
         .isEqualTo(expectedAddress);
 
@@ -169,15 +169,15 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodeDataAsAddressShouldSetSerializedBitIfSerialized() {
-    byte[] valueInBytes = EntryEventImpl.serialize(Integer.MAX_VALUE);
-    boolean isSerialized = true;
-    boolean isCompressed = false;
+    var valueInBytes = EntryEventImpl.serialize(Integer.MAX_VALUE);
+    var isSerialized = true;
+    var isCompressed = false;
 
-    long encodedAddress =
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(valueInBytes, isSerialized,
             isCompressed);
 
-    long expectedAddress = 63221918596947L;
+    var expectedAddress = 63221918596947L;
     assertThat(expectedAddress)
         .isEqualTo(encodedAddress);
 
@@ -186,16 +186,16 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodeDataAsAddressShouldSetSerializedBitIfCompressed() {
-    byte[] valueInBytes =
+    var valueInBytes =
         ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
-    boolean isSerialized = false;
-    boolean isCompressed = true;
+    var isSerialized = false;
+    var isCompressed = true;
 
-    long encodedAddress =
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(valueInBytes, isSerialized,
             isCompressed);
 
-    long expectedAddress = 549755813701L;
+    var expectedAddress = 549755813701L;
     assertThat(encodedAddress)
         .isEqualTo(expectedAddress);
 
@@ -204,15 +204,15 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodeDataAsAddressShouldSetBothSerializedAndCompressedBitsIfSerializedAndCompressed() {
-    byte[] valueInBytes = EntryEventImpl.serialize(Integer.MAX_VALUE);
-    boolean isSerialized = true;
-    boolean isCompressed = true;
+    var valueInBytes = EntryEventImpl.serialize(Integer.MAX_VALUE);
+    var isSerialized = true;
+    var isCompressed = true;
 
-    long encodedAddress =
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(valueInBytes, isSerialized,
             isCompressed);
 
-    long expectedAddress = 63221918596951L;
+    var expectedAddress = 63221918596951L;
     assertThat(expectedAddress)
         .isEqualTo(encodedAddress);
 
@@ -221,31 +221,31 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void decodeUncompressedAddressToBytesShouldReturnActualBytes() {
-    long encodedAddress = 549755813697L;
-    int value = Integer.MAX_VALUE;
+    var encodedAddress = 549755813697L;
+    var value = Integer.MAX_VALUE;
 
-    byte[] actual =
+    var actual =
         offHeapRegionEntryHelperInstance.decodeUncompressedAddressToBytes(encodedAddress);
 
-    byte[] expectedValue = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(value).array();
+    var expectedValue = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(value).array();
     assertThat(actual)
         .isEqualTo(expectedValue);
   }
 
   @Test
   public void decodeUncompressedAddressToBytesShouldDecodeLongIfItsSerializedAndIfItsNotTooBig() {
-    byte[] actual = offHeapRegionEntryHelperInstance.decodeUncompressedAddressToBytes(123L);
+    var actual = offHeapRegionEntryHelperInstance.decodeUncompressedAddressToBytes(123L);
 
-    byte[] expectedValue = EntryEventImpl.serialize(0L);
+    var expectedValue = EntryEventImpl.serialize(0L);
     assertThat(actual)
         .isEqualTo(expectedValue);
   }
 
   @Test
   public void decodeUncompressedAddressToBytesWithCompressedAddressShouldThrowException() {
-    long encodedAddress = 549755813703L;
+    var encodedAddress = 549755813703L;
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       offHeapRegionEntryHelperInstance.decodeUncompressedAddressToBytes(encodedAddress);
     });
 
@@ -255,10 +255,10 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void decodeCompressedDataAsAddressToRawBytes() {
-    long encodedAddress = 549755813703L;
-    byte[] expected = new byte[] {127, -1, -1, -1};
+    var encodedAddress = 549755813703L;
+    var expected = new byte[] {127, -1, -1, -1};
 
-    byte[] bytes = offHeapRegionEntryHelperInstance.decodeAddressToRawBytes(encodedAddress);
+    var bytes = offHeapRegionEntryHelperInstance.decodeAddressToRawBytes(encodedAddress);
 
     assertThat(bytes)
         .isEqualTo(expected);
@@ -266,13 +266,13 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodedAddressShouldBeDecodableEvenIfValueIsSerialized() {
-    int value = Integer.MAX_VALUE;
-    byte[] serializedValue = EntryEventImpl.serialize(value);
+    var value = Integer.MAX_VALUE;
+    var serializedValue = EntryEventImpl.serialize(value);
 
-    long encodedAddress =
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(serializedValue, true, false);
 
-    int actualValue =
+    var actualValue =
         (int) offHeapRegionEntryHelperInstance.decodeAddressToObject(encodedAddress);
 
     assertThat(actualValue)
@@ -281,12 +281,12 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void encodedAddressShouldBeDecodableEvenIfValueIsUnserialized() {
-    int value = Integer.MAX_VALUE;
-    byte[] unSerializedValue = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(value).array();
-    long encodedAddress =
+    var value = Integer.MAX_VALUE;
+    var unSerializedValue = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(value).array();
+    var encodedAddress =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(unSerializedValue, false, false);
 
-    byte[] actualValue =
+    var actualValue =
         (byte[]) offHeapRegionEntryHelperInstance.decodeAddressToObject(encodedAddress);
 
     assertThat(actualValue)
@@ -315,16 +315,16 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void isOffHeapShouldReturnTrueIfAddressIsOnOffHeap() {
-    OffHeapStoredObject value = createChunk(Long.MAX_VALUE);
+    var value = createChunk(Long.MAX_VALUE);
 
     assertThat(offHeapRegionEntryHelperInstance.isOffHeap(value.getAddress())).isTrue();
   }
 
   @Test
   public void isOffHeapShouldReturnFalseIfAddressIsAnEncodedAddress() {
-    byte[] data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
+    var data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
 
-    long address = offHeapRegionEntryHelperInstance.encodeDataAsAddress(data, false, false);
+    var address = offHeapRegionEntryHelperInstance.encodeDataAsAddress(data, false, false);
 
     assertThat(offHeapRegionEntryHelperInstance.isOffHeap(address)).isFalse();
   }
@@ -345,13 +345,13 @@ public class OffHeapRegionEntryHelperInstanceTest {
   @Test
   public void setValueShouldChangeTheRegionEntryAddressToNewAddress() {
     // mock region entry
-    OffHeapRegionEntry regionEntry = mock(OffHeapRegionEntry.class);
+    var regionEntry = mock(OffHeapRegionEntry.class);
 
     // some old address
-    long oldAddress = 1L;
+    var oldAddress = 1L;
 
     // testing when the newValue is a chunk
-    OffHeapStoredObject newValue = createChunk(Long.MAX_VALUE);
+    var newValue = createChunk(Long.MAX_VALUE);
     // mock region entry methods required for test
     when(regionEntry.getAddress()).thenReturn(oldAddress);
     when(regionEntry.setAddress(oldAddress, newValue.getAddress())).thenReturn(Boolean.TRUE);
@@ -365,7 +365,7 @@ public class OffHeapRegionEntryHelperInstanceTest {
     reset(regionEntry);
 
     // testing when the newValue is DataAsAddress
-    TinyStoredObject newAddress1 = new TinyStoredObject(2L);
+    var newAddress1 = new TinyStoredObject(2L);
     // mock region entry methods required for test
     when(regionEntry.getAddress()).thenReturn(oldAddress);
     when(regionEntry.setAddress(oldAddress, newAddress1.getAddress())).thenReturn(true);
@@ -460,9 +460,9 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void setValueShouldChangeTheRegionEntryAddressToNewAddressAndReleaseOldValueIfItsOnOffHeap() {
-    OffHeapStoredObject oldValue = createChunk(Long.MAX_VALUE);
-    OffHeapStoredObject newValue = createChunk(Long.MAX_VALUE - 1);
-    OffHeapRegionEntry regionEntry = mock(OffHeapRegionEntry.class);
+    var oldValue = createChunk(Long.MAX_VALUE);
+    var newValue = createChunk(Long.MAX_VALUE - 1);
+    var regionEntry = mock(OffHeapRegionEntry.class);
 
     // mock Chunk static methods - in-order to verify that release is called
     doNothing().when(offHeapStoredObject).release();
@@ -487,14 +487,14 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void setValueShouldChangeTheRegionEntryAddressToNewAddressAndDoesNothingIfOldAddressIsAnEncodedAddress() {
-    byte[] oldData =
+    var oldData =
         ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
-    byte[] newData =
+    var newData =
         ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE - 1).array();
-    long oldAddress = offHeapRegionEntryHelperInstance.encodeDataAsAddress(oldData, false, false);
+    var oldAddress = offHeapRegionEntryHelperInstance.encodeDataAsAddress(oldData, false, false);
     StoredObject newAddress = new TinyStoredObject(
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(newData, false, false));
-    OffHeapRegionEntry regionEntry = mock(OffHeapRegionEntry.class);
+    var regionEntry = mock(OffHeapRegionEntry.class);
 
     // mock region entry methods required for test
     when(regionEntry.getAddress())
@@ -515,9 +515,9 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void setValueShouldChangeTheRegionEntryAddressToNewAddressAndDoesNothingIfOldAddressIsATokenAddress() {
-    long oldAddress = REMOVED_PHASE1_ADDRESS;
-    long newAddress = REMOVED_PHASE2_ADDRESS;
-    OffHeapRegionEntry regionEntry = mock(OffHeapRegionEntry.class);
+    var oldAddress = REMOVED_PHASE1_ADDRESS;
+    var newAddress = REMOVED_PHASE2_ADDRESS;
+    var regionEntry = mock(OffHeapRegionEntry.class);
 
     when(regionEntry.getAddress())
         .thenReturn(oldAddress);
@@ -534,13 +534,13 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void setValueShouldThrowIllegalExceptionIfNewValueCannotBeConvertedToAddress() {
-    OffHeapRegionEntry regionEntry = mock(OffHeapRegionEntry.class);
+    var regionEntry = mock(OffHeapRegionEntry.class);
 
     when(regionEntry.getAddress())
         .thenReturn(1L);
 
     // invoke the method under test with some object other than Chunk/DataAsAddress/Token
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       offHeapRegionEntryHelperInstance.setValue(regionEntry, new Object());
     });
 
@@ -550,13 +550,13 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void getValueAsTokenShouldReturnNotATokenIfValueIsOnOffHeap() {
-    OffHeapStoredObject chunk = createChunk(Long.MAX_VALUE);
-    OffHeapRegionEntry regionEntry = mock(OffHeapRegionEntry.class);
+    var chunk = createChunk(Long.MAX_VALUE);
+    var regionEntry = mock(OffHeapRegionEntry.class);
 
     when(regionEntry.getAddress())
         .thenReturn(chunk.getAddress());
 
-    Token token = offHeapRegionEntryHelperInstance.getValueAsToken(regionEntry);
+    var token = offHeapRegionEntryHelperInstance.getValueAsToken(regionEntry);
 
     assertThat(token)
         .isEqualTo(Token.NOT_A_TOKEN);
@@ -564,14 +564,14 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void getValueAsTokenShouldReturnNotATokenIfValueIsEncoded() {
-    byte[] data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
-    long address = offHeapRegionEntryHelperInstance.encodeDataAsAddress(data, false, false);
-    OffHeapRegionEntry regionEntry = mock(OffHeapRegionEntry.class);
+    var data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
+    var address = offHeapRegionEntryHelperInstance.encodeDataAsAddress(data, false, false);
+    var regionEntry = mock(OffHeapRegionEntry.class);
 
     when(regionEntry.getAddress())
         .thenReturn(address);
 
-    Token token = offHeapRegionEntryHelperInstance.getValueAsToken(regionEntry);
+    var token = offHeapRegionEntryHelperInstance.getValueAsToken(regionEntry);
 
     assertThat(token)
         .isEqualTo(Token.NOT_A_TOKEN);
@@ -579,10 +579,10 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void getValueAsTokenShouldReturnAValidToken() {
-    OffHeapRegionEntry regionEntry = mock(OffHeapRegionEntry.class);
+    var regionEntry = mock(OffHeapRegionEntry.class);
 
     when(regionEntry.getAddress()).thenReturn(NULL_ADDRESS);
-    Token token = offHeapRegionEntryHelperInstance.getValueAsToken(regionEntry);
+    var token = offHeapRegionEntryHelperInstance.getValueAsToken(regionEntry);
     assertThat(token).isNull();
 
     // mock region entry methods required for test
@@ -628,11 +628,11 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void addressToObjectShouldReturnValueFromChunk() {
-    OffHeapRegionEntryHelperInstance offHeapRegionEntryHelperInstance =
+    var offHeapRegionEntryHelperInstance =
         new OffHeapRegionEntryHelperInstance();
-    OffHeapStoredObject expected = createChunk(Long.MAX_VALUE);
+    var expected = createChunk(Long.MAX_VALUE);
 
-    Object actual =
+    var actual =
         offHeapRegionEntryHelperInstance.addressToObject(expected.getAddress(), false, null);
 
     assertThat(actual)
@@ -642,10 +642,10 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void addressToObjectShouldReturnCachedDeserializableFromChunkIfAskedToDecompress() {
-    byte[] data = EntryEventImpl.serialize(Long.MAX_VALUE);
-    RegionEntryContext regionContext = mock(RegionEntryContext.class);
-    CachePerfStats cacheStats = mock(CachePerfStats.class);
-    Compressor compressor = mock(Compressor.class);
+    var data = EntryEventImpl.serialize(Long.MAX_VALUE);
+    var regionContext = mock(RegionEntryContext.class);
+    var cacheStats = mock(CachePerfStats.class);
+    var compressor = mock(Compressor.class);
 
     when(regionContext.getCompressor())
         .thenReturn(compressor);
@@ -656,18 +656,18 @@ public class OffHeapRegionEntryHelperInstanceTest {
     when(cacheStats.startDecompression())
         .thenReturn(10000L);
 
-    MemoryBlock chunk =
+    var chunk =
         (MemoryBlock) memoryAllocator.allocateAndInitialize(data, true, true);
     offHeapRegionEntryHelperInstance =
         spy(new OffHeapRegionEntryHelperInstance(OffHeapStoredObject::new, referenceCounter));
 
-    Object actual =
+    var actual =
         offHeapRegionEntryHelperInstance.addressToObject(chunk.getAddress(), true, regionContext);
 
     assertThat(actual)
         .isInstanceOf(VMCachedDeserializable.class);
 
-    long actualValue = (long) ((CachedDeserializable) actual).getDeserializedForReading();
+    var actualValue = (long) ((CachedDeserializable) actual).getDeserializedForReading();
 
     assertThat(actualValue)
         .isEqualTo(Long.MAX_VALUE);
@@ -675,10 +675,10 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void addressToObjectShouldReturnDecompressedValueFromChunkIfAskedToDecompress() {
-    byte[] data = ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(Long.MAX_VALUE).array();
-    RegionEntryContext regionContext = mock(RegionEntryContext.class);
-    CachePerfStats cacheStats = mock(CachePerfStats.class);
-    Compressor compressor = mock(Compressor.class);
+    var data = ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(Long.MAX_VALUE).array();
+    var regionContext = mock(RegionEntryContext.class);
+    var cacheStats = mock(CachePerfStats.class);
+    var compressor = mock(Compressor.class);
 
     when(regionContext.getCompressor())
         .thenReturn(compressor);
@@ -689,11 +689,11 @@ public class OffHeapRegionEntryHelperInstanceTest {
     when(cacheStats.startDecompression())
         .thenReturn(10000L);
 
-    MemoryBlock chunk = (MemoryBlock) memoryAllocator.allocateAndInitialize(data, false, true);
+    var chunk = (MemoryBlock) memoryAllocator.allocateAndInitialize(data, false, true);
     offHeapRegionEntryHelperInstance =
         spy(new OffHeapRegionEntryHelperInstance(OffHeapStoredObject::new, referenceCounter));
 
-    Object actual =
+    var actual =
         offHeapRegionEntryHelperInstance.addressToObject(chunk.getAddress(), true, regionContext);
 
     assertThat(actual)
@@ -703,12 +703,12 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void addressToObjectShouldReturnValueFromDataAsAddress() {
-    byte[] data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
-    long address = offHeapRegionEntryHelperInstance.encodeDataAsAddress(data, false, false);
+    var data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
+    var address = offHeapRegionEntryHelperInstance.encodeDataAsAddress(data, false, false);
 
-    Object actual = offHeapRegionEntryHelperInstance.addressToObject(address, false, null);
+    var actual = offHeapRegionEntryHelperInstance.addressToObject(address, false, null);
 
-    TinyStoredObject expected = new TinyStoredObject(address);
+    var expected = new TinyStoredObject(address);
 
     assertThat(actual)
         .isInstanceOf(TinyStoredObject.class)
@@ -717,10 +717,10 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void addressToObjectShouldReturnCachedDeserializableFromSerializedDataAsAddressIfAskedToDecompress() {
-    byte[] data = EntryEventImpl.serialize(Integer.MAX_VALUE);
-    RegionEntryContext regionContext = mock(RegionEntryContext.class);
-    CachePerfStats cacheStats = mock(CachePerfStats.class);
-    Compressor compressor = mock(Compressor.class);
+    var data = EntryEventImpl.serialize(Integer.MAX_VALUE);
+    var regionContext = mock(RegionEntryContext.class);
+    var cacheStats = mock(CachePerfStats.class);
+    var compressor = mock(Compressor.class);
 
     when(regionContext.getCompressor())
         .thenReturn(compressor);
@@ -731,15 +731,15 @@ public class OffHeapRegionEntryHelperInstanceTest {
     when(cacheStats.startDecompression())
         .thenReturn(10000L);
 
-    long address =
+    var address =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(data, true, true);
 
-    Object actual = offHeapRegionEntryHelperInstance.addressToObject(address, true, regionContext);
+    var actual = offHeapRegionEntryHelperInstance.addressToObject(address, true, regionContext);
 
     assertThat(actual)
         .isInstanceOf(VMCachedDeserializable.class);
 
-    int actualValue = (int) ((CachedDeserializable) actual).getDeserializedForReading();
+    var actualValue = (int) ((CachedDeserializable) actual).getDeserializedForReading();
 
     assertThat(actualValue)
         .isEqualTo(Integer.MAX_VALUE);
@@ -747,10 +747,10 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void addressToObjectShouldReturnDecompressedValueFromDataAsAddressIfAskedToDecompress() {
-    byte[] data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
-    RegionEntryContext regionContext = mock(RegionEntryContext.class);
-    CachePerfStats cacheStats = mock(CachePerfStats.class);
-    Compressor compressor = mock(Compressor.class);
+    var data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
+    var regionContext = mock(RegionEntryContext.class);
+    var cacheStats = mock(CachePerfStats.class);
+    var compressor = mock(Compressor.class);
 
     when(regionContext.getCompressor())
         .thenReturn(compressor);
@@ -761,10 +761,10 @@ public class OffHeapRegionEntryHelperInstanceTest {
     when(cacheStats.startDecompression())
         .thenReturn(10000L);
 
-    long address =
+    var address =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(data, false, true);
 
-    Object actual = offHeapRegionEntryHelperInstance.addressToObject(address, true, regionContext);
+    var actual = offHeapRegionEntryHelperInstance.addressToObject(address, true, regionContext);
 
     assertThat(actual)
         .isInstanceOf(byte[].class)
@@ -773,7 +773,7 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void addressToObjectShouldReturnToken() {
-    Token token = (Token) offHeapRegionEntryHelperInstance
+    var token = (Token) offHeapRegionEntryHelperInstance
         .addressToObject(NULL_ADDRESS, false, null);
     assertThat(token).isNull();
 
@@ -812,12 +812,12 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void getSerializedLengthFromDataAsAddressShouldReturnValidLength() {
-    byte[] data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
-    long address =
+    var data = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(Integer.MAX_VALUE).array();
+    var address =
         offHeapRegionEntryHelperInstance.encodeDataAsAddress(data, false, true);
-    TinyStoredObject tinyStoredObject = new TinyStoredObject(address);
+    var tinyStoredObject = new TinyStoredObject(address);
 
-    int actualLength = offHeapRegionEntryHelperInstance.getSerializedLength(tinyStoredObject);
+    var actualLength = offHeapRegionEntryHelperInstance.getSerializedLength(tinyStoredObject);
 
     assertThat(actualLength)
         .isEqualTo(data.length);
@@ -825,9 +825,9 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void getSerializedLengthFromDataAsAddressShouldReturnZeroForNonEncodedAddress() {
-    TinyStoredObject nonEncodedAddress = new TinyStoredObject(100000L);
+    var nonEncodedAddress = new TinyStoredObject(100000L);
 
-    int actualLength = offHeapRegionEntryHelperInstance.getSerializedLength(nonEncodedAddress);
+    var actualLength = offHeapRegionEntryHelperInstance.getSerializedLength(nonEncodedAddress);
 
     assertThat(actualLength)
         .isZero();
@@ -835,7 +835,7 @@ public class OffHeapRegionEntryHelperInstanceTest {
 
   @Test
   public void releaseEntryShouldSetValueToRemovePhase2() {
-    OffHeapRegionEntry regionEntry = mock(OffHeapRegionEntry.class);
+    var regionEntry = mock(OffHeapRegionEntry.class);
 
     when(regionEntry.getAddress())
         .thenReturn(1L);
@@ -851,7 +851,7 @@ public class OffHeapRegionEntryHelperInstanceTest {
   @Test
   public void releaseEntryShouldSetValueToRemovePhase2AndSetsAsyncToFalseForDiskEntry() {
     OffHeapRegionEntry regionEntry = mock(VersionedStatsDiskRegionEntryOffHeap.class);
-    DiskId diskId = spy(DiskId.class);
+    var diskId = spy(DiskId.class);
 
     when(regionEntry.getAddress())
         .thenReturn(1L);
@@ -885,21 +885,21 @@ public class OffHeapRegionEntryHelperInstanceTest {
   }
 
   private OffHeapStoredObject createChunk(Object value) {
-    byte[] bytes = EntryEventImpl.serialize(value);
+    var bytes = EntryEventImpl.serialize(value);
 
-    StoredObject chunk = memoryAllocator.allocateAndInitialize(bytes, true, false);
+    var chunk = memoryAllocator.allocateAndInitialize(bytes, true, false);
 
     return (OffHeapStoredObject) chunk;
   }
 
   private static void assertSerializedAndCompressedBits(long encodedAddress,
       boolean shouldSerializedBitBeSet, boolean shouldCompressedBitBeSet) {
-    boolean isSerializedBitSet = (encodedAddress & SERIALIZED_BIT) == SERIALIZED_BIT;
+    var isSerializedBitSet = (encodedAddress & SERIALIZED_BIT) == SERIALIZED_BIT;
 
     assertThat(isSerializedBitSet)
         .isEqualTo(shouldSerializedBitBeSet);
 
-    boolean isCompressedBitSet = (encodedAddress & COMPRESSED_BIT) == COMPRESSED_BIT;
+    var isCompressedBitSet = (encodedAddress & COMPRESSED_BIT) == COMPRESSED_BIT;
 
     assertThat(isCompressedBitSet)
         .isEqualTo(shouldCompressedBitBeSet);

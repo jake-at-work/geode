@@ -20,7 +20,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
@@ -28,7 +27,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.internal.cache.extension.Extensible;
-import org.apache.geode.internal.cache.extension.Extension;
 import org.apache.geode.internal.cache.xmlcache.CacheXml;
 import org.apache.geode.management.internal.cli.CliUtils;
 import org.apache.geode.management.internal.configuration.domain.XmlEntity;
@@ -61,27 +59,27 @@ public class AlterMockRegionExtensionFunction implements Function, DataSerializa
 
   @Override
   public void execute(FunctionContext context) {
-    final Cache cache = CacheFactory.getAnyInstance();
+    final var cache = CacheFactory.getAnyInstance();
 
     final Region<?, ?> region = cache.getRegion((String) ((Object[]) context.getArguments())[0]);
     if (!(region instanceof Extensible)) {
       throw new FunctionException("Not extensible region.");
     }
 
-    final String value = (String) ((Object[]) context.getArguments())[1];
+    final var value = (String) ((Object[]) context.getArguments())[1];
 
     @SuppressWarnings("unchecked")
-    final Extensible<Region<?, ?>> extensible = (Extensible<Region<?, ?>>) region;
-    for (Extension<Region<?, ?>> extension : extensible.getExtensionPoint().getExtensions()) {
+    final var extensible = (Extensible<Region<?, ?>>) region;
+    for (var extension : extensible.getExtensionPoint().getExtensions()) {
       if (extension instanceof MockRegionExtension) {
         ((MockRegionExtension) extension).setValue(value);
       }
     }
 
-    XmlEntity xmlEntity = new XmlEntity(CacheXml.REGION, "name", region.getName());
+    var xmlEntity = new XmlEntity(CacheXml.REGION, "name", region.getName());
 
     final ResultSender<Object> resultSender = context.getResultSender();
-    final String memberNameOrId =
+    final var memberNameOrId =
         CliUtils.getMemberNameOrId(cache.getDistributedSystem().getDistributedMember());
 
     resultSender.lastResult(new CliFunctionResult(memberNameOrId, xmlEntity,

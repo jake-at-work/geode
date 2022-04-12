@@ -172,7 +172,7 @@ public class GfshParserJUnitTest {
 
   @Test
   public void testGetSimpleParserInput() throws Exception {
-    String[] strings = {"command", "--option1", "value1", "--option2", "'test value'"};
+    var strings = new String[] {"command", "--option1", "value1", "--option2", "'test value'"};
     Arrays.stream(strings).forEach(tokens::add);
     assertThat(GfshParser.getSimpleParserInputFromTokens(tokens))
         .isEqualTo("command --option1 value1 --option2 'test value'");
@@ -180,8 +180,9 @@ public class GfshParserJUnitTest {
 
   @Test
   public void testGetSimpleParserInputWithJ() throws Exception {
-    String[] strings =
-        {"command", "--J", "-Dkey=value", "--option", "'test value'", "--J", "-Dkey2=value2"};
+    var strings =
+        new String[] {"command", "--J", "-Dkey=value", "--option", "'test value'", "--J",
+            "-Dkey2=value2"};
     Arrays.stream(strings).forEach(tokens::add);
     assertThat(GfshParser.getSimpleParserInputFromTokens(tokens))
         .isEqualTo("command --J \"-Dkey=value" + GfshParser.J_ARGUMENT_DELIMITER
@@ -190,7 +191,7 @@ public class GfshParserJUnitTest {
 
   @Test
   public void testGetSimpleParserInputWithJWithSingleQuotes() throws Exception {
-    String[] strings = {"command", "--J", "'-Dkey=value value'"};
+    var strings = new String[] {"command", "--J", "'-Dkey=value value'"};
     Arrays.stream(strings).forEach(tokens::add);
     assertThat(GfshParser.getSimpleParserInputFromTokens(tokens))
         .isEqualTo("command --J \"-Dkey=value value\"");
@@ -198,7 +199,7 @@ public class GfshParserJUnitTest {
 
   @Test
   public void testGetSimpleParserInputWithJWithDoubleQuotes() throws Exception {
-    String[] strings = {"command", "--J", "\"-Dkey=value value\""};
+    var strings = new String[] {"command", "--J", "\"-Dkey=value value\""};
     Arrays.stream(strings).forEach(tokens::add);
     assertThat(GfshParser.getSimpleParserInputFromTokens(tokens))
         .isEqualTo("command --J \"-Dkey=value value\"");
@@ -206,8 +207,9 @@ public class GfshParserJUnitTest {
 
   @Test
   public void testGetSimpleParserInputWithJAtTheEnd() throws Exception {
-    String[] strings =
-        {"command", "--option", "'test value'", "--J", "-Dkey=value", "--J", "-Dkey2=value2"};
+    var strings =
+        new String[] {"command", "--option", "'test value'", "--J", "-Dkey=value", "--J",
+            "-Dkey2=value2"};
     Arrays.stream(strings).forEach(tokens::add);
     assertThat(GfshParser.getSimpleParserInputFromTokens(tokens))
         .isEqualTo("command --option 'test value' --J \"-Dkey=value"

@@ -34,11 +34,11 @@ public class MemberGroupConverter extends BaseStringConverter {
 
   @Override
   public Set<String> getCompletionValues() {
-    final Gfsh gfsh = Gfsh.getCurrentInstance();
+    final var gfsh = Gfsh.getCurrentInstance();
     final Set<String> memberGroups = new TreeSet<>();
 
     if (gfsh != null && gfsh.isConnectedAndReady()) {
-      final String[] memberGroupsArray =
+      final var memberGroupsArray =
           gfsh.getOperationInvoker().getDistributedSystemMXBean().listGroups();
       memberGroups.addAll(Arrays.asList(memberGroupsArray));
     }

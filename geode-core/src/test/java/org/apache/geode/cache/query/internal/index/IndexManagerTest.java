@@ -36,8 +36,8 @@ public class IndexManagerTest {
 
   @Before
   public void setUp() {
-    Region region = mock(Region.class);
-    RegionAttributes regionAttributes = mock(RegionAttributes.class);
+    var region = mock(Region.class);
+    var regionAttributes = mock(RegionAttributes.class);
     when(regionAttributes.getIndexMaintenanceSynchronous()).thenReturn(true);
     when(regionAttributes.getEvictionAttributes()).thenReturn(mock(EvictionAttributes.class));
     when(regionAttributes.getEvictionAttributes().getAction())
@@ -50,8 +50,8 @@ public class IndexManagerTest {
   @Test
   public void addIndexMappingShouldMarkIndexAsInvalidWhenAddMappingOperationFails()
       throws IMQException {
-    RegionEntry mockEntry = mock(RegionEntry.class);
-    AbstractIndex mockIndex = mock(AbstractIndex.class);
+    var mockEntry = mock(RegionEntry.class);
+    var mockIndex = mock(AbstractIndex.class);
     mockIndex.prIndex = mock(AbstractIndex.class);
     when(mockIndex.addIndexMapping(any())).thenThrow(new IMQException("Mock Exception"));
 
@@ -64,8 +64,8 @@ public class IndexManagerTest {
   @Test
   public void removeIndexMappingShouldMarkIndexAsInvalidWhenRemoveMappingOperationFails()
       throws IMQException {
-    RegionEntry mockEntry = mock(RegionEntry.class);
-    AbstractIndex mockIndex = mock(AbstractIndex.class);
+    var mockEntry = mock(RegionEntry.class);
+    var mockIndex = mock(AbstractIndex.class);
     mockIndex.prIndex = mock(AbstractIndex.class);
     when(mockIndex.removeIndexMapping(mockEntry, 1)).thenThrow(new IMQException("Mock Exception"));
 

@@ -25,7 +25,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.version.VersionManager;
 
 public class RollingUpgradeHARegionNameOnDifferentServerVersions
@@ -33,21 +32,21 @@ public class RollingUpgradeHARegionNameOnDifferentServerVersions
 
   @Test
   public void testHARegionNameOnDifferentServerVersions() {
-    final Host host = Host.getHost(0);
-    VM locator = host.getVM(oldVersion, 0);
-    VM server1 = host.getVM(oldVersion, 1);
-    VM server2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
-    VM client = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var locator = host.getVM(oldVersion, 0);
+    var server1 = host.getVM(oldVersion, 1);
+    var server2 = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    var client = host.getVM(oldVersion, 3);
 
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
-    int[] locatorPorts = new int[] {ports[0]};
-    int[] csPorts = new int[] {ports[1], ports[2]};
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var locatorPorts = new int[] {ports[0]};
+    var csPorts = new int[] {ports[1], ports[2]};
 
     locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
-    String hostName = NetworkUtils.getServerHostName();
-    String[] hostNames = new String[] {hostName};
-    String locatorString = getLocatorString(locatorPorts);
+    var hostName = NetworkUtils.getServerHostName();
+    var hostNames = new String[] {hostName};
+    var locatorString = getLocatorString(locatorPorts);
     try {
       locator.invoke(invokeStartLocator(hostName, locatorPorts[0], getTestMethodName(),
           getLocatorProperties(locatorString, false), true));
@@ -69,10 +68,10 @@ public class RollingUpgradeHARegionNameOnDifferentServerVersions
           client);
 
       // Get HARegion name on server1
-      String server1HARegionName = server1.invoke(this::getHARegionName);
+      var server1HARegionName = server1.invoke(this::getHARegionName);
 
       // Get HARegionName on server2
-      String server2HARegionName = server2.invoke(this::getHARegionName);
+      var server2HARegionName = server2.invoke(this::getHARegionName);
 
       // Verify they are equal
       assertEquals(server1HARegionName, server2HARegionName);

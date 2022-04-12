@@ -36,7 +36,6 @@ import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.redis.ConcurrentLoopingThreads;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.dunit.rules.SerializableFunction;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
@@ -57,19 +56,19 @@ public class AuthWhileServersRestartDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0,
+    var locator = clusterStartUp.startLocatorVM(0,
         x -> x.withSecurityManager(SimpleSecurityManager.class));
-    final int locatorPort = locator.getPort();
+    final var locatorPort = locator.getPort();
 
-    SerializableFunction<ServerStarterRule> serverOperator = s -> s
+    var serverOperator = (SerializableFunction<ServerStarterRule>) s -> s
         .withCredential("cluster", "cluster")
         .withConnectionToLocator(locatorPort);
 
     clusterStartUp.startRedisVM(1, serverOperator);
     clusterStartUp.startRedisVM(2, serverOperator);
 
-    int server3Port = AvailablePortHelper.getRandomAvailableTCPPort();
-    String finalRedisPort = Integer.toString(server3Port);
+    var server3Port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var finalRedisPort = Integer.toString(server3Port);
 
     operatorForVM3 = serverOperator.compose(o -> o
         .withProperty(GEODE_FOR_REDIS_PORT, finalRedisPort)
@@ -94,15 +93,15 @@ public class AuthWhileServersRestartDUnitTest {
 
   @Test
   public void testReconnectionWithAuthAndServerRestarts() throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
-    AtomicInteger loopCounter = new AtomicInteger(0);
+    var running = new AtomicBoolean(true);
+    var loopCounter = new AtomicInteger(0);
 
     Future<?> future = executor.submit(() -> {
       try {
-        for (int i = 0; i < 20 && running.get(); i++) {
+        for (var i = 0; i < 20 && running.get(); i++) {
           clusterStartUp.moveBucketForKey(KEY, "server-3");
           // Wait for a bit so that commands can execute
-          int start = loopCounter.get();
+          var start = loopCounter.get();
           GeodeAwaitility.await().until(() -> loopCounter.get() - start > 1000);
 
           clusterStartUp.crashVM(3);
@@ -123,8 +122,8 @@ public class AuthWhileServersRestartDUnitTest {
   }
 
   private void doOps(int id, int i, AtomicInteger counter) {
-    String user = "data,data-" + i;
-    try (JedisCluster jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort),
+    var user = "data,data-" + i;
+    try (var jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort),
         REDIS_CLIENT_TIMEOUT, SO_TIMEOUT, DEFAULT_MAX_ATTEMPTS * 2, user, user,
         "client-" + id + "-" + i, new GenericObjectPoolConfig<>())) {
 

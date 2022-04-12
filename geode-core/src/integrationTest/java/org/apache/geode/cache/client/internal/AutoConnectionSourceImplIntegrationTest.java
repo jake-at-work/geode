@@ -62,7 +62,6 @@ import org.apache.geode.cache.client.internal.locator.ClientConnectionResponse;
 import org.apache.geode.cache.client.internal.locator.LocatorListResponse;
 import org.apache.geode.cache.client.internal.locator.ServerLocationRequest;
 import org.apache.geode.cache.query.QueryService;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ProtocolCheckerImpl;
@@ -100,23 +99,23 @@ public class AutoConnectionSourceImplIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
 
     cache = new CacheFactory(props).create();
-    DistributedSystem distributedSystem = cache.getDistributedSystem();
+    var distributedSystem = cache.getDistributedSystem();
     poolStats = new PoolStats(distributedSystem, "pool");
     port = AvailablePortHelper.getRandomAvailableTCPPort();
 
     handler = new FakeHandler();
-    ArrayList<ServerLocation> responseLocators = new ArrayList<>();
+    var responseLocators = new ArrayList<ServerLocation>();
     responseLocators.add(new ServerLocation(InetAddress.getLocalHost().getHostName(), port));
     handler.nextLocatorListResponse = new LocatorListResponse(responseLocators, false);
 
     background = Executors.newSingleThreadScheduledExecutor();
 
-    InetAddress inetAddress = InetAddress.getLocalHost();
+    var inetAddress = InetAddress.getLocalHost();
     List<HostAndPort> hostAndPortList = new ArrayList<>();
     hostAndPortList.add(new HostAndPort(inetAddress.getHostName(), port));
     source = new AutoConnectionSourceImpl(hostAndPortList, "", 60 * 1000, SocketFactory.DEFAULT);
@@ -168,17 +167,17 @@ public class AutoConnectionSourceImplIntegrationTest {
    */
   @Test
   public void testAddBadLocator() {
-    int port = 11011;
-    InetSocketAddress fakeLocalHost1 = new InetSocketAddress("fakeLocalHost1", port);
-    InetSocketAddress fakeLocalHost2 = new InetSocketAddress("fakeLocalHost2", port);
+    var port = 11011;
+    var fakeLocalHost1 = new InetSocketAddress("fakeLocalHost1", port);
+    var fakeLocalHost2 = new InetSocketAddress("fakeLocalHost2", port);
     List<HostAndPort> hostAndPortList = new ArrayList<>();
     hostAndPortList.add(new HostAndPort(fakeLocalHost1.getHostName(), fakeLocalHost1.getPort()));
     hostAndPortList.add(new HostAndPort(fakeLocalHost2.getHostName(), fakeLocalHost2.getPort()));
-    AutoConnectionSourceImpl autoConnectionSource =
+    var autoConnectionSource =
         new AutoConnectionSourceImpl(hostAndPortList, "", 60 * 1000, SocketFactory.DEFAULT);
 
-    InetSocketAddress badLocator1 = new InetSocketAddress("fakeLocalHost1", port);
-    InetSocketAddress badLocator2 = new InetSocketAddress("fakeLocalHost3", port);
+    var badLocator1 = new InetSocketAddress("fakeLocalHost1", port);
+    var badLocator2 = new InetSocketAddress("fakeLocalHost3", port);
 
     Set<HostAndPort> badLocators = new HashSet<>();
     badLocators.add(new HostAndPort(badLocator1.getHostName(), badLocator1.getPort()));
@@ -198,7 +197,7 @@ public class AutoConnectionSourceImplIntegrationTest {
 
   @Test
   public void testSourceHandlesToDataException() throws IOException, ClassNotFoundException {
-    TcpClient mockConnection = mock(TcpClient.class);
+    var mockConnection = mock(TcpClient.class);
     when(mockConnection.requestToServer(isA(HostAndPort.class), any(Object.class),
         isA(Integer.class), isA(Boolean.class))).thenThrow(new ToDataException("testing"));
     source.queryOneLocatorUsingConnection(new HostAndPort("locator[1234]", 1234), mock(
@@ -209,9 +208,9 @@ public class AutoConnectionSourceImplIntegrationTest {
 
   @Test
   public void testServerLocationUsedInListenerNotification() throws Exception {
-    final ClientMembershipEvent[] listenerEvents = new ClientMembershipEvent[1];
+    final var listenerEvents = new ClientMembershipEvent[1];
 
-    ClientMembershipListener listener = new ClientMembershipListener() {
+    var listener = new ClientMembershipListener() {
 
       @Override
       public void memberJoined(final ClientMembershipEvent event) {
@@ -228,7 +227,7 @@ public class AutoConnectionSourceImplIntegrationTest {
     };
     InternalClientMembership.registerClientMembershipListener(listener);
 
-    ServerLocation location = new ServerLocation("1.1.1.1", 0);
+    var location = new ServerLocation("1.1.1.1", 0);
 
     InternalClientMembership.notifyServerJoined(location);
     await("wait for listener notification").until(() -> {
@@ -241,7 +240,7 @@ public class AutoConnectionSourceImplIntegrationTest {
         .as("Host was null for " + listenerEvents[0].getMember())
         .isNotNull();
 
-    InetAddress addr = InetAddress.getLocalHost();
+    var addr = InetAddress.getLocalHost();
     location = new ServerLocation(addr.getHostAddress(), 0);
 
     listenerEvents[0] = null;
@@ -274,7 +273,7 @@ public class AutoConnectionSourceImplIntegrationTest {
   @Test
   public void testDiscoverServers() throws Exception {
     startFakeLocator();
-    ServerLocation serverLocation = new ServerLocation("localhost", 4423);
+    var serverLocation = new ServerLocation("localhost", 4423);
     handler.nextConnectionResponse = new ClientConnectionResponse(serverLocation);
     assertThat(source.findServer(null)).isEqualTo(serverLocation);
   }
@@ -285,9 +284,9 @@ public class AutoConnectionSourceImplIntegrationTest {
   @Test
   public void test_DiscoverLocators_whenOneLocatorWasShutdown() throws Exception {
     startFakeLocator();
-    int secondPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var secondPort = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    TcpServer server2 =
+    var server2 =
         new TcpServer(secondPort, InetAddress.getLocalHost(), handler,
             "tcp server", new ProtocolCheckerImpl(),
             DistributionStats::getStatTime,
@@ -301,7 +300,7 @@ public class AutoConnectionSourceImplIntegrationTest {
     server2.start();
 
     try {
-      ArrayList<ServerLocation> locators = new ArrayList<>();
+      var locators = new ArrayList<ServerLocation>();
       locators.add(new ServerLocation(InetAddress.getLocalHost().getHostName(), secondPort));
       handler.nextLocatorListResponse = new LocatorListResponse(locators, false);
       await().until(() -> !source.getOnlineLocators().isEmpty());
@@ -312,7 +311,7 @@ public class AutoConnectionSourceImplIntegrationTest {
       }
       server.join(1000);
 
-      ServerLocation server1 = new ServerLocation("localhost", 10);
+      var server1 = new ServerLocation("localhost", 10);
       handler.nextConnectionResponse = new ClientConnectionResponse(server1);
       assertThat(source.findServer(null)).isEqualTo(server1);
     } finally {
@@ -327,7 +326,7 @@ public class AutoConnectionSourceImplIntegrationTest {
 
   @Test
   public void testDiscoverLocatorsConnectsToLocatorsAfterTheyStartUp() throws Exception {
-    ArrayList<ServerLocation> locators = new ArrayList<>();
+    var locators = new ArrayList<ServerLocation>();
     locators.add(new ServerLocation(InetAddress.getLocalHost().getHostName(), port));
     handler.nextLocatorListResponse = new LocatorListResponse(locators, false);
 
@@ -359,7 +358,7 @@ public class AutoConnectionSourceImplIntegrationTest {
 
   @Test
   public void testDefaultLocatorUpdateInterval() {
-    long updateLocatorInterval = pool.getPingInterval();
+    var updateLocatorInterval = pool.getPingInterval();
     source.start(pool);
     assertThat(source.getLocatorUpdateInterval()).isEqualTo(updateLocatorInterval);
   }

@@ -82,9 +82,9 @@ public class EntriesDoNotExpireDuringGiiRegressionTest implements Serializable {
     otherVM.invoke(() -> {
       RegionFactory<String, String> regionFactory =
           cacheRule.getOrCreateCache().createRegionFactory(REPLICATE);
-      Region<String, String> region = regionFactory.create(REGION_NAME);
+      var region = regionFactory.create(REGION_NAME);
 
-      for (int i = 1; i <= ENTRY_COUNT; i++) {
+      for (var i = 1; i <= ENTRY_COUNT; i++) {
         region.put("key" + i, "value" + i);
       }
     });
@@ -108,7 +108,7 @@ public class EntriesDoNotExpireDuringGiiRegressionTest implements Serializable {
     regionFactory.setEntryIdleTimeout(new ExpirationAttributes(1, INVALIDATE));
     regionFactory.setStatisticsEnabled(true);
 
-    Region<String, String> region = regionFactory.create(REGION_NAME);
+    var region = regionFactory.create(REGION_NAME);
 
     doRegionOps.await();
 
@@ -124,17 +124,17 @@ public class EntriesDoNotExpireDuringGiiRegressionTest implements Serializable {
     // let the main region's gii get started; we want to do updates during its gii
 
     // wait for profile of getInitialImage cache to show up
-    CacheDistributionAdvisor advisor = ((DistributedRegion) region).getCacheDistributionAdvisor();
-    int expectedProfiles = 1;
+    var advisor = ((DistributedRegion) region).getCacheDistributionAdvisor();
+    var expectedProfiles = 1;
     await()
         .untilAsserted(
             () -> assertThat(numberProfiles(advisor)).isGreaterThanOrEqualTo(expectedProfiles));
 
     // start doing updates of the keys to see if we can get deadlocked
-    int updateCount = 1;
+    var updateCount = 1;
     do {
-      for (int i = 1; i <= ENTRY_COUNT; i++) {
-        String key = "key" + i;
+      for (var i = 1; i <= ENTRY_COUNT; i++) {
+        var key = "key" + i;
         if (region.containsKey(key)) {
           region.destroy(key);
         } else {
@@ -144,8 +144,8 @@ public class EntriesDoNotExpireDuringGiiRegressionTest implements Serializable {
     } while (updateCount++ < 20);
 
     // do one more loop with no destroys
-    for (int i = 1; i <= ENTRY_COUNT; i++) {
-      String key = "key" + i;
+    for (var i = 1; i <= ENTRY_COUNT; i++) {
+      var key = "key" + i;
       if (!region.containsKey(key)) {
         region.put(key, "value" + i + "uc" + updateCount);
       }

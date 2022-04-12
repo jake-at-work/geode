@@ -20,7 +20,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +45,7 @@ public class CollectionConverter extends OpenTypeConverter {
      * all Lists to ArrayList and all Sets to TreeSet. (TreeSet because it is a SortedSet, so works
      * for both Set and SortedSet.)
      */
-    Type raw = ((ParameterizedType) targetType).getRawType();
+    var raw = ((ParameterizedType) targetType).getRawType();
     Class c = (Class<?>) raw;
     if (c == List.class) {
       collectionClass = ArrayList.class;
@@ -62,18 +61,18 @@ public class CollectionConverter extends OpenTypeConverter {
 
   @Override
   Object toNonNullOpenValue(Object value) throws OpenDataException {
-    final Collection valueCollection = (Collection) value;
+    final var valueCollection = (Collection) value;
     if (valueCollection instanceof SortedSet) {
-      Comparator comparator = ((SortedSet) valueCollection).comparator();
+      var comparator = ((SortedSet) valueCollection).comparator();
       if (comparator != null) {
-        final String msg = "Cannot convert SortedSet with non-null comparator: " + comparator;
+        final var msg = "Cannot convert SortedSet with non-null comparator: " + comparator;
         throw openDataException(msg, new IllegalArgumentException(msg));
       }
     }
-    final Object[] openArray =
+    final var openArray =
         (Object[]) Array.newInstance(getOpenClass().getComponentType(), valueCollection.size());
-    int i = 0;
-    for (Object o : valueCollection) {
+    var i = 0;
+    for (var o : valueCollection) {
       openArray[i++] = elementConverter.toOpenValue(o);
     }
     return openArray;
@@ -81,17 +80,17 @@ public class CollectionConverter extends OpenTypeConverter {
 
   @Override
   public Object fromNonNullOpenValue(Object openValue) throws InvalidObjectException {
-    final Object[] openArray = (Object[]) openValue;
+    final var openArray = (Object[]) openValue;
     final Collection<Object> valueCollection;
     try {
       valueCollection = collectionClass.newInstance();
     } catch (Exception e) {
       throw invalidObjectException("Cannot create collection", e);
     }
-    for (Object o : openArray) {
-      Object value = elementConverter.fromOpenValue(o);
+    for (var o : openArray) {
+      var value = elementConverter.fromOpenValue(o);
       if (!valueCollection.add(value)) {
-        final String msg =
+        final var msg =
             "Could not add " + o + " to " + collectionClass.getName() + " (duplicate set element?)";
         throw new InvalidObjectException(msg);
       }

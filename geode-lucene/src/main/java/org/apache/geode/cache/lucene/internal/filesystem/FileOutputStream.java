@@ -38,7 +38,7 @@ class FileOutputStream extends OutputStream {
       // rather than add a new chunk. This guarantees that all chunks
       // are full except for the last chunk.
       chunks--;
-      byte[] previousChunkData = file.getFileSystem().getChunk(file, chunks);
+      var previousChunkData = file.getFileSystem().getChunk(file, chunks);
       buffer.put(previousChunkData);
     }
   }
@@ -64,7 +64,7 @@ class FileOutputStream extends OutputStream {
         flushBuffer();
       }
 
-      final int min = Math.min(buffer.remaining(), len);
+      final var min = Math.min(buffer.remaining(), len);
       buffer.put(b, off, min);
       off += min;
       len -= min;
@@ -86,7 +86,7 @@ class FileOutputStream extends OutputStream {
   }
 
   private void flushBuffer() {
-    byte[] chunk = Arrays.copyOfRange(buffer.array(), buffer.arrayOffset(), buffer.position());
+    var chunk = Arrays.copyOfRange(buffer.array(), buffer.arrayOffset(), buffer.position());
     file.getFileSystem().putChunk(file, chunks++, chunk);
     buffer.rewind();
   }

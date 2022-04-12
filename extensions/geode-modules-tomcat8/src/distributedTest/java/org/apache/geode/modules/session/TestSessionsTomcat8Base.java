@@ -17,7 +17,6 @@ package org.apache.geode.modules.session;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.beans.PropertyChangeEvent;
-import java.io.PrintWriter;
 import java.io.Serializable;
 
 import javax.servlet.http.HttpSession;
@@ -25,7 +24,6 @@ import javax.servlet.http.HttpSession;
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebRequest;
-import com.meterware.httpunit.WebResponse;
 import org.apache.catalina.core.StandardWrapper;
 import org.apache.logging.log4j.Logger;
 import org.junit.ClassRule;
@@ -54,14 +52,14 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
   DeltaSessionManager sessionManager;
 
   public void basicConnectivityCheck() throws Exception {
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     assertThat(wc).describedAs("WebConversation was").isNotNull();
     logger.debug("Sending request to http://localhost:{}/test", port);
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
     assertThat(req).describedAs("WebRequest was").isNotNull();
     req.setParameter("cmd", QueryCommand.GET.name());
     req.setParameter("param", "null");
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
     assertThat(response).describedAs("WebResponse was").isNotNull();
     assertThat(response.getNewCookieNames()[0]).describedAs("SessionID was")
         .isEqualTo("JSESSIONID");
@@ -74,19 +72,19 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testCallback() throws Exception {
-    final String helloWorld = "Hello World";
-    Callback c = (request, response) -> {
-      PrintWriter out = response.getWriter();
+    final var helloWorld = "Hello World";
+    var c = (Callback) (request, response) -> {
+      var out = response.getWriter();
       out.write(helloWorld);
     };
     servlet.getServletContext().setAttribute("callback", c);
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
     req.setParameter("cmd", QueryCommand.CALLBACK.name());
     req.setParameter("param", "callback");
 
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
     assertThat(response.getText()).isEqualTo(helloWorld);
   }
 
@@ -95,19 +93,19 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testIsNew() throws Exception {
-    Callback c = (request, response) -> {
-      HttpSession session = request.getSession();
+    var c = (Callback) (request, response) -> {
+      var session = request.getSession();
       response.getWriter().write(Boolean.toString(session.isNew()));
     };
     servlet.getServletContext().setAttribute("callback", c);
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     req.setParameter("cmd", QueryCommand.CALLBACK.name());
     req.setParameter("param", "callback");
 
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
     assertThat(response.getText()).isEqualTo("true");
     response = wc.getResponse(req);
     assertThat(response.getText()).isEqualTo("false");
@@ -119,17 +117,17 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testSessionPersists1() throws Exception {
-    String key = "value_testSessionPersists1";
-    String value = "Foo";
+    var key = "value_testSessionPersists1";
+    var value = "Foo";
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
     req.setParameter("cmd", QueryCommand.SET.name());
     req.setParameter("param", key);
     req.setParameter("value", value);
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
 
-    String sessionId = response.getNewCookieValue("JSESSIONID");
+    var sessionId = response.getNewCookieValue("JSESSIONID");
     assertThat(sessionId).as("No apparent session cookie").isNotNull();
 
     // The request retains the cookie from the prior response...
@@ -146,10 +144,10 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testInvalidate() throws Exception {
-    String key = "value_testInvalidate";
-    String value = "Foo";
+    var key = "value_testInvalidate";
+    var value = "Foo";
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Set an attribute
@@ -168,7 +166,7 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
     req.setParameter("cmd", QueryCommand.GET.name());
     req.setParameter("param", key);
 
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
     assertThat(response.getText()).isEmpty();
   }
 
@@ -180,10 +178,10 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
     // TestSessions only live for a second
     sessionManager.setMaxInactiveInterval(1);
 
-    String key = "value_testSessionExpiration1";
-    String value = "Foo";
+    var key = "value_testSessionExpiration1";
+    var value = "Foo";
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Set an attribute
@@ -199,7 +197,7 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
     req.setParameter("cmd", QueryCommand.GET.name());
     req.setParameter("param", key);
 
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
     assertThat(response.getText()).isEmpty();
   }
 
@@ -222,10 +220,10 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testSessionExpirationByContainer() throws Exception {
-    String key = "value_testSessionExpiration1";
-    String value = "Foo";
+    var key = "value_testSessionExpiration1";
+    var value = "Foo";
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Set an attribute
@@ -246,7 +244,7 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
     req.setParameter("cmd", QueryCommand.GET.name());
     req.setParameter("param", key);
 
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
     assertThat(response.getText()).isEmpty();
   }
 
@@ -255,18 +253,18 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testRemoveAttribute() throws Exception {
-    String key = "value_testRemoveAttribute";
-    String value = "Foo";
+    var key = "value_testRemoveAttribute";
+    var value = "Foo";
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Set an attribute
     req.setParameter("cmd", QueryCommand.SET.name());
     req.setParameter("param", key);
     req.setParameter("value", value);
-    WebResponse response = wc.getResponse(req);
-    String sessionId = response.getNewCookieValue("JSESSIONID");
+    var response = wc.getResponse(req);
+    var sessionId = response.getNewCookieValue("JSESSIONID");
 
     // Implicitly remove the attribute
     req.removeParameter("value");
@@ -286,19 +284,19 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testBasicRegion() throws Exception {
-    String key = "value_testBasicRegion";
-    String value = "Foo";
+    var key = "value_testBasicRegion";
+    var value = "Foo";
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Set an attribute
     req.setParameter("cmd", QueryCommand.SET.name());
     req.setParameter("param", key);
     req.setParameter("value", value);
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
 
-    String sessionId = response.getNewCookieValue("JSESSIONID");
+    var sessionId = response.getNewCookieValue("JSESSIONID");
     assertThat(region.get(sessionId).getAttribute(key)).isEqualTo(value);
   }
 
@@ -307,18 +305,18 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testRegionInvalidate() throws Exception {
-    String key = "value_testRegionInvalidate";
-    String value = "Foo";
+    var key = "value_testRegionInvalidate";
+    var value = "Foo";
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Set an attribute
     req.setParameter("cmd", QueryCommand.SET.name());
     req.setParameter("param", key);
     req.setParameter("value", value);
-    WebResponse response = wc.getResponse(req);
-    String sessionId = response.getNewCookieValue("JSESSIONID");
+    var response = wc.getResponse(req);
+    var sessionId = response.getNewCookieValue("JSESSIONID");
 
     // Invalidate the session
     req.removeParameter("param");
@@ -336,24 +334,24 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testMultipleAttributeUpdates() throws Exception {
-    final String key = "value_testMultipleAttributeUpdates";
-    Callback c = (request, response) -> {
-      HttpSession session = request.getSession();
-      for (int i = 0; i < 1000; i++) {
+    final var key = "value_testMultipleAttributeUpdates";
+    var c = (Callback) (request, response) -> {
+      var session = request.getSession();
+      for (var i = 0; i < 1000; i++) {
         session.setAttribute(key, Integer.toString(i));
       }
     };
     servlet.getServletContext().setAttribute("callback", c);
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Execute the callback
     req.setParameter("cmd", QueryCommand.CALLBACK.name());
     req.setParameter("param", "callback");
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
 
-    String sessionId = response.getNewCookieValue("JSESSIONID");
+    var sessionId = response.getNewCookieValue("JSESSIONID");
     assertThat(region.get(sessionId).getAttribute(key)).isEqualTo("999");
   }
 
@@ -362,21 +360,21 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testCommitSessionValveInvalidSession() throws Exception {
-    Callback c = (request, response) -> {
-      HttpSession session = request.getSession();
+    var c = (Callback) (request, response) -> {
+      var session = request.getSession();
       session.invalidate();
       response.getWriter().write("done");
     };
     servlet.getServletContext().setAttribute("callback", c);
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Execute the callback
     req.setParameter("cmd", QueryCommand.CALLBACK.name());
     req.setParameter("param", "callback");
 
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
     assertThat(response.getText()).isEqualTo("done");
   }
 
@@ -385,20 +383,20 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testExtraSessionsNotCreated() throws Exception {
-    Callback c = (request, response) -> {
+    var c = (Callback) (request, response) -> {
       // Do nothing with sessions
       response.getWriter().write("done");
     };
     servlet.getServletContext().setAttribute("callback", c);
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Execute the callback
     req.setParameter("cmd", QueryCommand.CALLBACK.name());
     req.setParameter("param", "callback");
 
-    WebResponse response = wc.getResponse(req);
+    var response = wc.getResponse(req);
     assertThat(response.getText()).isEqualTo("done");
     assertThat(region.size()).as("The region should contain one entry").isEqualTo(1);
   }
@@ -409,8 +407,8 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
    */
   @Test
   public void testLastAccessedTime() throws Exception {
-    Callback c = (request, response) -> {
-      HttpSession session = request.getSession();
+    var c = (Callback) (request, response) -> {
+      var session = request.getSession();
       // Hack to expose the session to our test context
       session.getServletContext().setAttribute("session", session);
       session.setAttribute("lastAccessTime", session.getLastAccessedTime());
@@ -424,7 +422,7 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
     };
     servlet.getServletContext().setAttribute("callback", c);
 
-    WebConversation wc = new WebConversation();
+    var wc = new WebConversation();
     WebRequest req = new GetMethodWebRequest(String.format("http://localhost:%d/test", port));
 
     // Execute the callback
@@ -432,8 +430,8 @@ public abstract class TestSessionsTomcat8Base implements Serializable {
     req.setParameter("param", "callback");
     wc.getResponse(req);
 
-    HttpSession session = (HttpSession) servlet.getServletContext().getAttribute("session");
-    Long lastAccess = (Long) session.getAttribute("lastAccessTime");
+    var session = (HttpSession) servlet.getServletContext().getAttribute("session");
+    var lastAccess = (Long) session.getAttribute("lastAccessTime");
     assertThat(lastAccess <= session.getLastAccessedTime())
         .as("Last access time not set correctly: " + lastAccess + " not <= "
             + session.getLastAccessedTime())

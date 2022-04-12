@@ -47,8 +47,8 @@ public class Dependency<A, B> implements Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((depender == null) ? 0 : depender.hashCode());
     result = prime * result + ((dependsOn == null) ? 0 : dependsOn.hashCode());
     return result;
@@ -65,7 +65,7 @@ public class Dependency<A, B> implements Serializable {
     if (!(obj instanceof Dependency)) {
       return false;
     }
-    Dependency<?, ?> other = (Dependency<?, ?>) obj;
+    var other = (Dependency<?, ?>) obj;
     if (depender == null) {
       if (other.depender != null) {
         return false;

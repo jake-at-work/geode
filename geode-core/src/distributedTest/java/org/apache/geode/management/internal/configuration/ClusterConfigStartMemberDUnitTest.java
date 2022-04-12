@@ -45,41 +45,41 @@ public class ClusterConfigStartMemberDUnitTest extends ClusterConfigTestBase {
 
   @Test
   public void testStartLocator() throws Exception {
-    MemberVM secondLocator = lsRule.startLocatorVM(1, locator.getPort());
+    var secondLocator = lsRule.startLocatorVM(1, locator.getPort());
     REPLICATED_CONFIG_FROM_ZIP.verify(secondLocator);
   }
 
   @Test
   public void testStartServerWithSingleGroup() throws Exception {
-    ClusterConfig expectedNoGroupConfig = new ClusterConfig(CLUSTER);
-    ClusterConfig expectedGroup1Config = new ClusterConfig(CLUSTER, GROUP1);
-    ClusterConfig expectedGroup2Config = new ClusterConfig(CLUSTER, GROUP2);
+    var expectedNoGroupConfig = new ClusterConfig(CLUSTER);
+    var expectedGroup1Config = new ClusterConfig(CLUSTER, GROUP1);
+    var expectedGroup2Config = new ClusterConfig(CLUSTER, GROUP2);
 
-    MemberVM serverWithNoGroup = lsRule.startServerVM(1, serverProps, locator.getPort());
+    var serverWithNoGroup = lsRule.startServerVM(1, serverProps, locator.getPort());
     expectedNoGroupConfig.verify(serverWithNoGroup);
 
     serverProps.setProperty(GROUPS, "group1");
-    MemberVM serverForGroup1 = lsRule.startServerVM(2, serverProps, locator.getPort());
+    var serverForGroup1 = lsRule.startServerVM(2, serverProps, locator.getPort());
     expectedGroup1Config.verify(serverForGroup1);
 
     serverProps.setProperty(GROUPS, "group2");
-    MemberVM serverForGroup2 = lsRule.startServerVM(3, serverProps, locator.getPort());
+    var serverForGroup2 = lsRule.startServerVM(3, serverProps, locator.getPort());
     expectedGroup2Config.verify(serverForGroup2);
   }
 
   @Test
   public void testStartServerWithMultipleGroup() throws Exception {
-    ClusterConfig expectedGroup1And2Config = new ClusterConfig(CLUSTER, GROUP1, GROUP2);
+    var expectedGroup1And2Config = new ClusterConfig(CLUSTER, GROUP1, GROUP2);
 
     serverProps.setProperty(GROUPS, "group1,group2");
-    MemberVM server = lsRule.startServerVM(1, serverProps, locator.getPort());
+    var server = lsRule.startServerVM(1, serverProps, locator.getPort());
 
     expectedGroup1And2Config.verify(server);
   }
 
   private MemberVM startLocatorWithLoadCCFromDir() throws Exception {
-    File locatorDir = new File(lsRule.getWorkingDirRoot(), "vm0");
-    File configDir = new File(locatorDir, "cluster_config");
+    var locatorDir = new File(lsRule.getWorkingDirRoot(), "vm0");
+    var configDir = new File(locatorDir, "cluster_config");
 
     // The unzip should yield a cluster config directory structure like:
     // tempFolder/locator-0/cluster_config/cluster/cluster.xml
@@ -89,11 +89,11 @@ public class ClusterConfigStartMemberDUnitTest extends ClusterConfigTestBase {
     // tempFolder/locator-0/cluster_config/group2/ ...
     ZipUtils.unzip(clusterConfigZipPath, configDir.getCanonicalPath());
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "true");
     properties.setProperty(LOAD_CLUSTER_CONFIGURATION_FROM_DIR, "true");
 
-    MemberVM locator = lsRule.startLocatorVM(0, properties);
+    var locator = lsRule.startLocatorVM(0, properties);
 
     return locator;
   }

@@ -63,7 +63,7 @@ public class JdkTool {
     assertNotNull(jdkToolExecutableName, "The JDK tool executable name cannot be null!");
     assertNotNull(throwable, "The GemFireException cannot be null!");
 
-    Stack<String> pathnames = new Stack<>();
+    var pathnames = new Stack<String>();
 
     pathnames.push(jdkToolExecutableName);
     pathnames

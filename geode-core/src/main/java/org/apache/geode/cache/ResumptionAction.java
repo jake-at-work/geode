@@ -82,7 +82,7 @@ public class ResumptionAction implements java.io.Serializable {
           String.format("Invalid ResumptionAction name: %s",
               name));
     }
-    for (final ResumptionAction privateValue : PRIVATE_VALUES) {
+    for (final var privateValue : PRIVATE_VALUES) {
       if (name.equals(privateValue.name)) {
         return privateValue;
       }

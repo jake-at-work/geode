@@ -52,7 +52,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.cache.InitialImageOperation.RequestImageMessage;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserver;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserverAdapter;
@@ -97,7 +96,7 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
     vm1 = getVM(1);
     vm2 = getVM(2);
 
-    String uniqueName = getClass().getSimpleName() + "-" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "-" + testName.getMethodName();
     partitionedRegionName = uniqueName + "-partitionedRegion";
   }
 
@@ -118,7 +117,7 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
 
     createData(0, 1, "a", partitionedRegionName);
 
-    Set<Integer> vm0Buckets = getBucketList(partitionedRegionName);
+    var vm0Buckets = getBucketList(partitionedRegionName);
 
     getCache().close();
 
@@ -147,8 +146,8 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
     vm2.invoke(() -> createPartitionedRegion(1, 0, 113, true));
     assertThat(vm2.invoke(() -> getBucketList(partitionedRegionName))).isEmpty();
 
-    Set<Integer> bucketsOnVM0 = vm0.invoke(() -> getBucketList(partitionedRegionName));
-    Set<Integer> bucketsLost = vm1.invoke(() -> getBucketList(partitionedRegionName));
+    var bucketsOnVM0 = vm0.invoke(() -> getBucketList(partitionedRegionName));
+    var bucketsLost = vm1.invoke(() -> getBucketList(partitionedRegionName));
 
     vm1.invoke(() -> getCache().close());
 
@@ -207,8 +206,8 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
 
     vm0.invoke(() -> createData(0, 1, "a", partitionedRegionName));
 
-    Set<Integer> bucketsOnVM0 = vm0.invoke(() -> getBucketList(partitionedRegionName));
-    Set<Integer> bucketsOnVM1 = vm1.invoke(() -> getBucketList(partitionedRegionName));
+    var bucketsOnVM0 = vm0.invoke(() -> getBucketList(partitionedRegionName));
+    var bucketsOnVM1 = vm1.invoke(() -> getBucketList(partitionedRegionName));
 
     assertThat(bucketsOnVM0).containsOnly(0);
     assertThat(bucketsOnVM1).containsOnly(0);
@@ -222,7 +221,7 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
     // Note, vm2 will consider vm1 as "online" because vm2 doesn't host the bucket
     assertThat(vm2.invoke(() -> getOnlineMembers(0))).hasSize(2);
 
-    Set<Integer> bucketsOnVM2 = vm2.invoke(() -> getBucketList(partitionedRegionName));
+    var bucketsOnVM2 = vm2.invoke(() -> getBucketList(partitionedRegionName));
     assertThat(bucketsOnVM2).isEmpty();
 
     vm1.invoke(() -> createPartitionedRegion(1, -1, 113, true));
@@ -235,9 +234,9 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
     assertThat(vm0.invoke(() -> getOfflineMembers(0))).isEmpty();
     assertThat(vm1.invoke(() -> getOfflineMembers(0))).isEmpty();
 
-    InternalDistributedMember memberVM1 = vm1.invoke(this::getInternalDistributedMember);
+    var memberVM1 = vm1.invoke(this::getInternalDistributedMember);
     vm2.invoke(() -> {
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
+      var region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
       assertThat(region.getDataStore().moveBucket(0, memberVM1, false)).isTrue();
     });
 
@@ -297,7 +296,7 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
 
     vm1.invoke(() -> createData(0, 4, "a", partitionedRegionName));
 
-    Set<Integer> bucketsOnVM1 = vm1.invoke(() -> getBucketList(partitionedRegionName));
+    var bucketsOnVM1 = vm1.invoke(() -> getBucketList(partitionedRegionName));
     assertThat(bucketsOnVM1).hasSize(4);
 
     vm1.invoke(() -> checkData(0, 4, "a", partitionedRegionName));
@@ -349,7 +348,7 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
         public void beforeProcessMessage(ClusterDistributionManager dm,
             DistributionMessage message) {
           if (message instanceof RequestImageMessage) {
-            RequestImageMessage requestImageMessage = (RequestImageMessage) message;
+            var requestImageMessage = (RequestImageMessage) message;
             if (requestImageMessage.regionPath.contains("_0")) {
               DistributionMessageObserver.setInstance(null);
               getCache().close();
@@ -401,7 +400,7 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
         public void beforeProcessMessage(ClusterDistributionManager dm,
             DistributionMessage message) {
           if (message instanceof RequestImageMessage) {
-            RequestImageMessage requestImageMessage = (RequestImageMessage) message;
+            var requestImageMessage = (RequestImageMessage) message;
             if (requestImageMessage.regionPath.contains("_0")) {
               DistributionMessageObserver.setInstance(null);
               getCache().close();
@@ -443,27 +442,27 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
   }
 
   private Set<PersistentMemberID> getOfflineMembers(final int bucketId) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
+    var region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
     return region.getRegionAdvisor().getProxyBucketArray()[bucketId].getPersistenceAdvisor()
         .getMembershipView().getOfflineMembers();
   }
 
   private Set<PersistentMemberID> getOnlineMembers(final int bucketId) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
+    var region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
     return region.getRegionAdvisor().getProxyBucketArray()[bucketId].getPersistenceAdvisor()
         .getPersistedOnlineOrEqualMembers();
   }
 
   private void awaitBucketRecovery(Set<Integer> bucketsLost) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
-    PartitionedRegionDataStore dataStore = region.getDataStore();
+    var region = (PartitionedRegion) getCache().getRegion(partitionedRegionName);
+    var dataStore = region.getDataStore();
 
     await().until(() -> bucketsLost.equals(dataStore.getAllLocalBucketIds()));
   }
 
   private void createPartitionedRegion(final int redundancy, final int recoveryDelay,
       final int numBuckets, final boolean synchronous) throws InterruptedException {
-    CountDownLatch recoveryDone = new CountDownLatch(1);
+    var recoveryDone = new CountDownLatch(1);
 
     if (redundancy > 0) {
       ResourceObserver observer = new ResourceObserverAdapter() {
@@ -496,20 +495,20 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
   private void createData(final int startKey, final int endKey, final String value,
       final String regionName) {
     Region<Integer, String> region = getCache().getRegion(regionName);
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       region.put(i, value);
     }
   }
 
   private Set<Integer> getBucketList(final String regionName) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(regionName);
+    var region = (PartitionedRegion) getCache().getRegion(regionName);
     return new TreeSet<>(region.getDataStore().getAllLocalBucketIds());
   }
 
   private void checkData(final int startKey, final int endKey, final String value,
       final String regionName) {
     Region<Integer, String> region = getCache().getRegion(regionName);
-    for (int i = startKey; i < endKey; i++) {
+    for (var i = startKey; i < endKey; i++) {
       assertThat(region.get(i)).isEqualTo(value);
     }
   }
@@ -526,9 +525,9 @@ public class PersistentPartitionedRegionRegressionTest implements Serializable {
    * Prevent GEODE-6232 by disabling JMX which is not needed in this test.
    */
   private InternalCache getCache() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(DISABLE_JMX, "true");
-    InternalCache cache = cacheRule.getOrCreateCache(config);
+    var cache = cacheRule.getOrCreateCache(config);
     assertThat(cache.getInternalDistributedSystem().getResourceListeners()).isEmpty();
     return cache;
   }

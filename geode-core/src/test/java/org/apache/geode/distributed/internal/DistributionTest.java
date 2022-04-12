@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Set;
 
 import org.assertj.core.api.Assertions;
 import org.jgroups.util.UUID;
@@ -77,7 +76,7 @@ public class DistributionTest {
     internalDistributedSystem = mock(InternalDistributedSystem.class);
     clusterDistributionManager = mock(ClusterDistributionManager.class);
     remoteTransportConfig = mock(RemoteTransportConfig.class);
-    DistributionConfig distributionConfig = mock(DistributionConfig.class);
+    var distributionConfig = mock(DistributionConfig.class);
     when(distributionConfig.getAckWaitThreshold()).thenReturn(1);
     when(distributionConfig.getAckSevereAlertThreshold()).thenReturn(10);
     when(internalDistributedSystem.getConfig()).thenReturn(distributionConfig);
@@ -86,11 +85,11 @@ public class DistributionTest {
     distribution = new DistributionImpl(clusterDistributionManager,
         remoteTransportConfig, internalDistributedSystem, membership);
 
-    Random r = new Random();
+    var r = new Random();
     mockMembers = new InternalDistributedMember[5];
-    for (int i = 0; i < mockMembers.length; i++) {
+    for (var i = 0; i < mockMembers.length; i++) {
       mockMembers[i] = new InternalDistributedMember("localhost", 8888 + i);
-      UUID uuid = new UUID(r.nextLong(), r.nextLong());
+      var uuid = new UUID(r.nextLong(), r.nextLong());
       mockMembers[i].setUUID(uuid);
     }
 
@@ -104,10 +103,10 @@ public class DistributionTest {
 
   @Test
   public void testDirectChannelSend() throws Exception {
-    HighPriorityAckedMessage m = new HighPriorityAckedMessage();
-    List<InternalDistributedMember> recipients = Arrays.asList(mockMembers[2], mockMembers[3]);
+    var m = new HighPriorityAckedMessage();
+    var recipients = Arrays.asList(mockMembers[2], mockMembers[3]);
     m.setRecipients(recipients);
-    Set<InternalDistributedMember> failures = distribution
+    var failures = distribution
         .directChannelSend(recipients, m);
     assertTrue(failures == null);
     verify(dc).send(any(), any(),
@@ -116,12 +115,12 @@ public class DistributionTest {
 
   @Test
   public void testDirectChannelSendFailureToOneRecipient() throws Exception {
-    HighPriorityAckedMessage m = new HighPriorityAckedMessage();
-    List<InternalDistributedMember> recipients = Arrays.asList(mockMembers[2], mockMembers[3]);
+    var m = new HighPriorityAckedMessage();
+    var recipients = Arrays.asList(mockMembers[2], mockMembers[3]);
     m.setRecipients(recipients);
-    Set<InternalDistributedMember> failures = distribution
+    var failures = distribution
         .directChannelSend(recipients, m);
-    ConnectExceptions exception = new ConnectExceptions();
+    var exception = new ConnectExceptions();
     exception.addFailure(recipients.get(0), new Exception("testing"));
     when(dc.send(any(), any(mockMembers.getClass()),
         any(DistributionMessage.class), anyLong(), anyLong())).thenThrow(exception);
@@ -133,10 +132,10 @@ public class DistributionTest {
 
   @Test
   public void testDirectChannelSendFailureToAll() throws Exception {
-    HighPriorityAckedMessage m = new HighPriorityAckedMessage();
-    List<InternalDistributedMember> recipients = Arrays.asList(mockMembers[2], mockMembers[3]);
+    var m = new HighPriorityAckedMessage();
+    var recipients = Arrays.asList(mockMembers[2], mockMembers[3]);
     m.setRecipients(recipients);
-    Set<InternalDistributedMember> failures = distribution
+    var failures = distribution
         .directChannelSend(recipients, m);
     when(dc.send(any(), any(mockMembers.getClass()),
         any(DistributionMessage.class), anyInt(), anyInt())).thenReturn(0);
@@ -151,11 +150,11 @@ public class DistributionTest {
 
   @Test
   public void testDirectChannelSendAllRecipients() throws Exception {
-    HighPriorityAckedMessage m = new HighPriorityAckedMessage();
+    var m = new HighPriorityAckedMessage();
     when(membership.getAllMembers(EMPTY_MEMBER_ARRAY)).thenReturn(mockMembers);
     m.setRecipient(DistributionMessage.ALL_RECIPIENTS);
     assertTrue(m.forAll());
-    Set<InternalDistributedMember> failures = distribution
+    var failures = distribution
         .directChannelSend(null, m);
     assertTrue(failures == null);
     verify(dc).send(any(), isA(mockMembers.getClass()),
@@ -164,14 +163,14 @@ public class DistributionTest {
 
   @Test
   public void testDirectChannelSendFailureDueToForcedDisconnect() throws Exception {
-    HighPriorityAckedMessage m = new HighPriorityAckedMessage();
+    var m = new HighPriorityAckedMessage();
     when(membership.shutdownInProgress()).thenReturn(true);
-    List<InternalDistributedMember> recipients = Arrays.asList(mockMembers[2], mockMembers[3]);
+    var recipients = Arrays.asList(mockMembers[2], mockMembers[3]);
     m.setRecipients(recipients);
-    Set<InternalDistributedMember> failures = distribution
+    var failures = distribution
         .directChannelSend(recipients, m);
     distribution.setShutdown();
-    ConnectExceptions exception = new ConnectExceptions();
+    var exception = new ConnectExceptions();
     exception.addFailure(recipients.get(0), new Exception("testing"));
     when(dc.send(any(), any(mockMembers.getClass()),
         any(DistributionMessage.class), anyLong(), anyLong())).thenThrow(exception);
@@ -182,10 +181,10 @@ public class DistributionTest {
 
   @Test
   public void testSendAdminMessageFailsDuringShutdown() throws Exception {
-    AlertListenerMessage m = AlertListenerMessage.create(mockMembers[0], 1,
+    var m = AlertListenerMessage.create(mockMembers[0], 1,
         Instant.now(), "thread", "", 1L, "", "");
     when(membership.shutdownInProgress()).thenReturn(true);
-    Set<InternalDistributedMember> failures =
+    var failures =
         distribution.send(Collections.singletonList(mockMembers[0]), m);
     verify(membership, never()).send(any(), any());
     assertEquals(1, failures.size());
@@ -194,7 +193,7 @@ public class DistributionTest {
 
   @Test
   public void testSendToNullListIsRejected() throws Exception {
-    HighPriorityAckedMessage m = new HighPriorityAckedMessage();
+    var m = new HighPriorityAckedMessage();
     m.setRecipient(mockMembers[0]);
     distribution.send(null, m);
     verify(membership, never()).send(any(), any());
@@ -203,7 +202,7 @@ public class DistributionTest {
   @Test
   public void testSendToEmptyListIsRejected() throws Exception {
     List<InternalDistributedMember> emptyList = Collections.emptyList();
-    HighPriorityAckedMessage m = new HighPriorityAckedMessage();
+    var m = new HighPriorityAckedMessage();
     m.setRecipient(mockMembers[0]);
     distribution.send(emptyList, m);
     verify(membership, never()).send(any(), any());

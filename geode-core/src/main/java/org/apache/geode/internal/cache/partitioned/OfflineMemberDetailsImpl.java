@@ -49,13 +49,13 @@ public class OfflineMemberDetailsImpl
 
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-    int offlineMembersLength = in.readInt();
+    var offlineMembersLength = in.readInt();
     offlineMembers = new Set[offlineMembersLength];
-    for (int i = 0; i < offlineMembersLength; i++) {
-      int setSize = in.readInt();
+    for (var i = 0; i < offlineMembersLength; i++) {
+      var setSize = in.readInt();
       Set<PersistentMemberID> set = new HashSet<>(setSize);
-      for (int j = 0; j < setSize; j++) {
-        PersistentMemberID id = new PersistentMemberID();
+      for (var j = 0; j < setSize; j++) {
+        var id = new PersistentMemberID();
         InternalDataSerializer.invokeFromData(id, in);
         set.add(id);
       }
@@ -67,9 +67,9 @@ public class OfflineMemberDetailsImpl
   @Override
   public void toData(DataOutput out) throws IOException {
     out.writeInt(offlineMembers.length);
-    for (Set<PersistentMemberID> set : offlineMembers) {
+    for (var set : offlineMembers) {
       out.writeInt(set.size());
-      for (PersistentMemberID id : set) {
+      for (var id : set) {
         InternalDataSerializer.invokeToData(id, out);
       }
     }

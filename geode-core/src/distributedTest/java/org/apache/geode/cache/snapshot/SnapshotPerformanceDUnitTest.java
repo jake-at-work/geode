@@ -44,20 +44,20 @@ public class SnapshotPerformanceDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPerformance() throws Exception {
-    int iterations = 5;
-    int dataCount = 10000;
+    var iterations = 5;
+    var dataCount = 10000;
 
     execute(iterations, dataCount);
   }
 
   private void execute(int iterations, int dataCount) throws Exception {
-    RegionType[] rts = new RegionType[] {RegionType.REPLICATE, RegionType.PARTITION};
-    SerializationType[] sts =
+    var rts = new RegionType[] {RegionType.REPLICATE, RegionType.PARTITION};
+    var sts =
         new SerializationType[] {SerializationType.DATA_SERIALIZABLE, SerializationType.PDX};
-    for (RegionType rt : rts) {
-      for (SerializationType st : sts) {
-        for (int i = 0; i < iterations; i++) {
-          Region<Integer, MyObject> region = createRegion(rt, st);
+    for (var rt : rts) {
+      for (var st : sts) {
+        for (var i = 0; i < iterations; i++) {
+          var region = createRegion(rt, st);
           LogWriterUtils.getLogWriter()
               .info("SNP: Testing region " + region.getName() + ", iteration = " + i);
 
@@ -72,17 +72,17 @@ public class SnapshotPerformanceDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doExport(Region<Integer, MyObject> region) throws Exception {
-    File f = new File(getDiskDirs()[0], region.getName() + ".gfd");
+    var f = new File(getDiskDirs()[0], region.getName() + ".gfd");
 
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     region.getSnapshotService().save(f, SnapshotFormat.GEODE);
-    long elapsed = System.currentTimeMillis() - start;
+    var elapsed = System.currentTimeMillis() - start;
 
-    int size = region.size();
-    long bytes = f.length();
+    var size = region.size();
+    var bytes = f.length();
 
-    double eps = 1000.0 * size / elapsed;
-    double mbps = 1000.0 * bytes / elapsed / (1024 * 1024);
+    var eps = 1000.0 * size / elapsed;
+    var mbps = 1000.0 * bytes / elapsed / (1024 * 1024);
 
     LogWriterUtils.getLogWriter()
         .info("SNP: Exported " + size + " entries (" + bytes + " bytes) in " + elapsed + " ms");
@@ -91,17 +91,17 @@ public class SnapshotPerformanceDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doImport(Region<Integer, MyObject> region) throws Exception {
-    File f = new File(getDiskDirs()[0], region.getName() + ".gfd");
+    var f = new File(getDiskDirs()[0], region.getName() + ".gfd");
 
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     region.getSnapshotService().load(f, SnapshotFormat.GEODE);
-    long elapsed = System.currentTimeMillis() - start;
+    var elapsed = System.currentTimeMillis() - start;
 
-    int size = region.size();
-    long bytes = f.length();
+    var size = region.size();
+    var bytes = f.length();
 
-    double eps = 1000.0 * size / elapsed;
-    double mbps = 1000.0 * bytes / elapsed / (1024 * 1024);
+    var eps = 1000.0 * size / elapsed;
+    var mbps = 1000.0 * bytes / elapsed / (1024 * 1024);
 
     LogWriterUtils.getLogWriter()
         .info("SNP: Imported " + size + " entries (" + bytes + " bytes) in " + elapsed + " ms");
@@ -115,10 +115,10 @@ public class SnapshotPerformanceDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createCache() throws Exception {
-    SerializableCallable setup = new SerializableCallable() {
+    var setup = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheFactory cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
+        var cf = new CacheFactory().setPdxSerializer(new MyPdxSerializer());
 
         getCache(cf);
         return null;
@@ -130,13 +130,13 @@ public class SnapshotPerformanceDUnitTest extends JUnit4CacheTestCase {
 
   private Region<Integer, MyObject> createRegion(final RegionType rt, final SerializationType st)
       throws Exception {
-    final String name = "snapshot-" + rt.name() + "-" + st.name();
+    final var name = "snapshot-" + rt.name() + "-" + st.name();
     Region<Integer, MyObject> region = getCache().getRegion(name);
     if (region != null) {
       region.destroyRegion();
     }
 
-    SerializableCallable setup = new SerializableCallable() {
+    var setup = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
@@ -150,13 +150,13 @@ public class SnapshotPerformanceDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void loadData(Region<Integer, MyObject> region, SerializationType st, int count) {
-    RegionGenerator rgen = new RegionGenerator();
+    var rgen = new RegionGenerator();
 
-    int bufferSize = 1000;
+    var bufferSize = 1000;
     Map<Integer, MyObject> buffer = new HashMap<>(bufferSize);
 
-    long start = System.currentTimeMillis();
-    for (int i = 0; i < count; i++) {
+    var start = System.currentTimeMillis();
+    for (var i = 0; i < count; i++) {
       buffer.put(i, rgen.createData(st, i,
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris at sapien lectus. Nam ullamcorper blandit tempus. Morbi accumsan ornare erat eget lobortis. Mauris laoreet auctor purus et vehicula. Cras hendrerit consectetur odio, in placerat orci vehicula a. Ut laoreet consectetur quam, at pellentesque felis sollicitudin sed. Aliquam imperdiet, augue at vehicula placerat, quam mi feugiat mi, non semper elit diam vitae lectus. Fusce vestibulum erat vitae dui scelerisque aliquet. Nam magna sapien, scelerisque id tincidunt non, dapibus quis ipsum."));
       if (buffer.size() == bufferSize) {
@@ -169,7 +169,7 @@ public class SnapshotPerformanceDUnitTest extends JUnit4CacheTestCase {
       region.putAll(buffer);
     }
 
-    long elapsed = System.currentTimeMillis() - start;
+    var elapsed = System.currentTimeMillis() - start;
     LogWriterUtils.getLogWriter().info("SNP: loaded " + count + " entries in " + elapsed + " ms");
 
     assertEquals(count, region.size());

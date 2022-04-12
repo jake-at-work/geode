@@ -297,13 +297,13 @@ public class TypeUtils implements OQLLexerTokenTypes {
     // a numeric primitive or wrapper can be converted to
     // the same wrapper or a same or wider primitive.
     // handle chars specially
-    int i = _numericPrimitiveClasses.indexOf(srcType);
+    var i = _numericPrimitiveClasses.indexOf(srcType);
     if (i < 0) {
       i = _numericWrapperClasses.indexOf(srcType);
     }
 
-    int destP = _numericPrimitiveClasses.indexOf(destType);
-    int destW = -1;
+    var destP = _numericPrimitiveClasses.indexOf(destType);
+    var destW = -1;
     if (destP < 0) {
       destW = _numericWrapperClasses.indexOf(destType);
     }
@@ -341,7 +341,7 @@ public class TypeUtils implements OQLLexerTokenTypes {
     Support.assertArg(srcTypes.length == destTypes.length,
         "Arguments 'srcTypes' and 'destTypes' must be of same length");
 
-    for (int i = 0; i < srcTypes.length; i++) {
+    for (var i = 0; i < srcTypes.length; i++) {
       if (!isTypeConvertible(srcTypes[i], destTypes[i])) {
         return false;
       }
@@ -460,7 +460,7 @@ public class TypeUtils implements OQLLexerTokenTypes {
   public static Object compare(Object obj1, Object obj2, int compOp) throws TypeMismatchException {
     // Check for nulls first.
     if (obj1 == null || obj2 == null) {
-      Boolean result = nullCompare(obj1, obj2, compOp);
+      var result = nullCompare(obj1, obj2, compOp);
 
       if (result == null) {
         return QueryService.UNDEFINED;
@@ -494,7 +494,7 @@ public class TypeUtils implements OQLLexerTokenTypes {
     }
 
     try {
-      ComparisonStrategy strategy =
+      var strategy =
           ComparisonStrategy.get(obj1.getClass(), obj2.getClass(), compOp);
       return strategy.execute(obj1, obj2, compOp);
     } catch (ClassCastException | TypeMismatchException e) {

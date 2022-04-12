@@ -52,10 +52,10 @@ public class AggregateRegionStatsMonitorTest {
 
   @Before
   public void setUp() {
-    final long startTime = System.currentTimeMillis();
-    TestStatisticsManager manager =
+    final var startTime = System.currentTimeMillis();
+    var manager =
         new TestStatisticsManager(1, getClass().getSimpleName(), startTime);
-    StatArchiveHandlerConfig mockStatArchiveHandlerConfig = mock(StatArchiveHandlerConfig.class,
+    var mockStatArchiveHandlerConfig = mock(StatArchiveHandlerConfig.class,
         getClass().getSimpleName() + "$" + StatArchiveHandlerConfig.class.getSimpleName());
     when(mockStatArchiveHandlerConfig.getArchiveFileName()).thenReturn(new File(""));
     when(mockStatArchiveHandlerConfig.getArchiveFileSizeLimit()).thenReturn(0L);
@@ -67,7 +67,7 @@ public class AggregateRegionStatsMonitorTest {
         .thenReturn(getClass().getSimpleName());
 
     StatisticsSampler sampler = new TestStatisticsSampler(manager);
-    SampleCollector sampleCollector = new SampleCollector(sampler);
+    var sampleCollector = new SampleCollector(sampler);
     sampleCollector.initialize(mockStatArchiveHandlerConfig, NanoTimer.getTime(),
         new MainWithChildrenRollingFileHandler());
     aggregateRegionStatsMonitor =
@@ -150,9 +150,9 @@ public class AggregateRegionStatsMonitorTest {
 
   @Test
   public void removeLRUStatisticsShouldRemoveListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
-    ValueMonitor regionMonitor = mock(ValueMonitor.class);
-    AggregateRegionStatsMonitor.MemberLevelRegionStatisticsListener listener =
+    var statistics = mock(Statistics.class);
+    var regionMonitor = mock(ValueMonitor.class);
+    var listener =
         mock(AggregateRegionStatsMonitor.MemberLevelRegionStatisticsListener.class);
     aggregateRegionStatsMonitor.getListeners().put(statistics, listener);
     aggregateRegionStatsMonitor.getMonitors().put(statistics, regionMonitor);
@@ -166,9 +166,9 @@ public class AggregateRegionStatsMonitorTest {
 
   @Test
   public void removeDirectoryStatisticsShouldRemoveListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
-    ValueMonitor regionMonitor = mock(ValueMonitor.class);
-    AggregateRegionStatsMonitor.MemberLevelRegionStatisticsListener listener =
+    var statistics = mock(Statistics.class);
+    var regionMonitor = mock(ValueMonitor.class);
+    var listener =
         mock(AggregateRegionStatsMonitor.MemberLevelRegionStatisticsListener.class);
     aggregateRegionStatsMonitor.getListeners().put(statistics, listener);
     aggregateRegionStatsMonitor.getMonitors().put(statistics, regionMonitor);
@@ -182,9 +182,9 @@ public class AggregateRegionStatsMonitorTest {
 
   @Test
   public void removePartitionStatisticsShouldDecreaseStatsAndRemoveBothListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
-    ValueMonitor regionMonitor = mock(ValueMonitor.class);
-    AggregateRegionStatsMonitor.MemberLevelRegionStatisticsListener listener =
+    var statistics = mock(Statistics.class);
+    var regionMonitor = mock(ValueMonitor.class);
+    var listener =
         mock(AggregateRegionStatsMonitor.MemberLevelRegionStatisticsListener.class);
     aggregateRegionStatsMonitor.getListeners().put(statistics, listener);
     aggregateRegionStatsMonitor.getMonitors().put(statistics, regionMonitor);
@@ -223,7 +223,7 @@ public class AggregateRegionStatsMonitorTest {
 
   @Test
   public void addStatisticsToMonitorShouldAddListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
+    var statistics = mock(Statistics.class);
     aggregateRegionStatsMonitor.addStatisticsToMonitor(statistics);
 
     assertThat(aggregateRegionStatsMonitor.getMonitors().size()).isEqualTo(1);
@@ -232,9 +232,9 @@ public class AggregateRegionStatsMonitorTest {
 
   @Test
   public void stopListenerShouldRemoveListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
-    ValueMonitor regionMonitor = mock(ValueMonitor.class);
-    AggregateRegionStatsMonitor.MemberLevelRegionStatisticsListener listener =
+    var statistics = mock(Statistics.class);
+    var regionMonitor = mock(ValueMonitor.class);
+    var listener =
         mock(AggregateRegionStatsMonitor.MemberLevelRegionStatisticsListener.class);
     aggregateRegionStatsMonitor.getListeners().put(statistics, listener);
     aggregateRegionStatsMonitor.getMonitors().put(statistics, regionMonitor);
@@ -248,7 +248,7 @@ public class AggregateRegionStatsMonitorTest {
 
   @Test
   public void decreaseDiskStoreStatsShouldNotThrowNPE() {
-    Statistics statistics = mock(Statistics.class);
+    var statistics = mock(Statistics.class);
     aggregateRegionStatsMonitor.addStatisticsToMonitor(statistics);
     aggregateRegionStatsMonitor.getListeners().values().forEach(
         AggregateRegionStatsMonitor.MemberLevelRegionStatisticsListener::decreaseParStats);

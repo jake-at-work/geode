@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -58,17 +57,17 @@ public class QueryWithIndexesDUnitTest {
 
     server.invoke(() -> {
       // create index.
-      QueryService cacheQS = ClusterStartupRule.getCache().getQueryService();
+      var cacheQS = ClusterStartupRule.getCache().getQueryService();
       cacheQS.createIndex("IdIndex", "value.ID", SEPARATOR + "exampleRegion.entrySet");
       cacheQS.createIndex("StatusIndex ", "value.status", SEPARATOR + "exampleRegion.entrySet");
       populateRegion(0, 500);
     });
 
-    String query = "query --query=\"<trace> select value from" +
+    var query = "query --query=\"<trace> select value from" +
         SEPARATOR + "exampleRegion.entrySet where value.ID >= 0 AND value.ID < 500 " +
         "AND (value.status = 'active' or value.status = 'inactive')\"";
 
-    String cmdResult = String.valueOf(gfsh.executeAndAssertThat(query).getResultModel());
+    var cmdResult = String.valueOf(gfsh.executeAndAssertThat(query).getResultModel());
     assertThat(cmdResult).contains("\"Rows\":\"100\"");
     assertThat(cmdResult).contains("indexesUsed(2)");
   }
@@ -76,7 +75,7 @@ public class QueryWithIndexesDUnitTest {
   private static void populateRegion(int startingId, int endingId) {
     Region<String, Portfolio> exampleRegion =
         ClusterStartupRule.getCache().getRegion("exampleRegion");
-    for (int i = startingId; i < endingId; i++) {
+    for (var i = startingId; i < endingId; i++) {
       exampleRegion.put("" + i, new Portfolio(i));
     }
   }

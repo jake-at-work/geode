@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
@@ -33,15 +32,15 @@ public class CountLRUStatistics implements EvictionStats {
   private static final int greedyReturnsId;
 
   static {
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
-    final String entriesAllowedDesc = "Number of entries allowed in this region.";
-    final String regionEntryCountDesc = "Number of entries in this region.";
-    final String lruEvictionsDesc = "Number of total entry evictions triggered by LRU.";
-    final String lruDestroysDesc =
+    final var entriesAllowedDesc = "Number of entries allowed in this region.";
+    final var regionEntryCountDesc = "Number of entries in this region.";
+    final var lruEvictionsDesc = "Number of total entry evictions triggered by LRU.";
+    final var lruDestroysDesc =
         "Number of entries destroyed in the region through both destroy cache operations and eviction.";
-    final String lruEvaluationsDesc = "Number of entries evaluated during LRU operations.";
-    final String lruGreedyReturnsDesc = "Number of non-LRU entries evicted during LRU operations";
+    final var lruEvaluationsDesc = "Number of entries evaluated during LRU operations.";
+    final var lruGreedyReturnsDesc = "Number of non-LRU entries evicted during LRU operations";
 
     statType = f.createType("LRUStatistics", "Statistics relates to entry cout based eviction",
         new StatisticDescriptor[] {

@@ -31,14 +31,11 @@ import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.internal.cache.SearchLoadAndWriteProcessor.NetSearchRequestMessage;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 import org.apache.geode.test.junit.rules.serializable.SerializableTemporaryFolder;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
@@ -109,15 +106,15 @@ public class ClearDuringNetSearchOplogRegressionTest extends CacheTestCase {
   }
 
   private void createCacheForVM0() {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, new int[] {Integer.MAX_VALUE});
     diskStoreFactory.setQueueSize(1);
     diskStoreFactory.setMaxOplogSize(60); // does the test want 60 bytes or 60M?
     diskStoreFactory.setAutoCompact(false).setTimeInterval(1000);
 
-    DiskStore diskStore = diskStoreFactory.create(uniqueName);
+    var diskStore = diskStoreFactory.create(uniqueName);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setDiskSynchronous(false);
@@ -129,16 +126,16 @@ public class ClearDuringNetSearchOplogRegressionTest extends CacheTestCase {
 
   private void putSevenEntries() {
     Region<String, Integer> region = getCache().getRegion(regionName);
-    for (int i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
       region.put("key" + i, i);
     }
   }
 
   private void concurrentNetSearchGetAndClear() throws InterruptedException {
-    InternalRegion region = (InternalRegion) getCache().getRegion(regionName);
+    var region = (InternalRegion) getCache().getRegion(regionName);
     assertThat(region.size()).isEqualTo(7);
 
-    Thread getter = new Thread(new Getter(region));
+    var getter = new Thread(new Getter(region));
 
     region.getDiskRegion().acquireWriteLock();
     try {
@@ -164,7 +161,7 @@ public class ClearDuringNetSearchOplogRegressionTest extends CacheTestCase {
     // based clear. So we'll use that functionality here.
     // Region.clear uses an RVV, and will deadlock if called while
     // the write lock is held.
-    RegionEventImpl regionEvent = new RegionEventImpl(region, Operation.REGION_CLEAR, null, false,
+    var regionEvent = new RegionEventImpl(region, Operation.REGION_CLEAR, null, false,
         region.getMyId(), region.generateEventID());
 
     // clearRegion to remove entry that getter has reference of
@@ -188,14 +185,14 @@ public class ClearDuringNetSearchOplogRegressionTest extends CacheTestCase {
 
     @Override
     public void run() {
-      SearchLoadAndWriteProcessor processor = SearchLoadAndWriteProcessor.getProcessor();
+      var processor = SearchLoadAndWriteProcessor.getProcessor();
       processor.initialize((LocalRegion) region, "key1", null);
       sendNetSearchRequestMessage(processor, "key1", 1500, 1500, 1500);
     }
 
     private void sendNetSearchRequestMessage(SearchLoadAndWriteProcessor processor, Object key,
         int timeoutMillis, int ttlMillis, int idleMillis) {
-      NetSearchRequestMessage message = new SearchLoadAndWriteProcessor.NetSearchRequestMessage();
+      var message = new SearchLoadAndWriteProcessor.NetSearchRequestMessage();
       message.initialize(processor, region.getName(), key, timeoutMillis, ttlMillis, idleMillis);
       message.doGet((ClusterDistributionManager) region.getDistributionManager());
     }

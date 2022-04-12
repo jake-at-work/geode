@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.sequencelog.model;
 
-import java.util.SortedMap;
 
 
 public class Edge {
@@ -35,8 +34,8 @@ public class Edge {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((dest == null) ? 0 : dest.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((source == null) ? 0 : source.hashCode());
@@ -55,7 +54,7 @@ public class Edge {
     if (!(obj instanceof Edge)) {
       return false;
     }
-    Edge other = (Edge) obj;
+    var other = (Edge) obj;
     if (dest == null) {
       if (other.dest != null) {
         return false;
@@ -94,15 +93,15 @@ public class Edge {
   }
 
   public Vertex getSource() {
-    SortedMap<Long, Vertex> sourceMap = graph.getIndexedVertices().get(source);
+    var sourceMap = graph.getIndexedVertices().get(source);
     if (sourceMap == null) {
       return null;
     }
-    SortedMap<Long, Vertex> headMap = sourceMap.headMap(dest.getTimestamp() + 1);
+    var headMap = sourceMap.headMap(dest.getTimestamp() + 1);
     if (headMap.isEmpty()) {
       return null;
     }
-    Long closestTimestamp = headMap.lastKey();
+    var closestTimestamp = headMap.lastKey();
     return headMap.get(closestTimestamp);
   }
 

@@ -21,8 +21,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
 import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,13 +60,13 @@ public class StopGatewaySenderOnMemberWithBeanImplTest {
   @Parameters({"true", "false"})
   public void executeStopGatewaySenderOnMemberNotRunningReturnsNotRunningError(
       boolean isLocalMember) {
-    GatewaySenderMXBean gatewaySenderMXBean = gatewaySenderMXBean(isLocalMember, false);
+    var gatewaySenderMXBean = gatewaySenderMXBean(isLocalMember, false);
     when(gatewaySenderMXBean.isRunning()).thenReturn(false);
 
     StopGatewaySenderCommand.StopGatewaySenderOnMember stopperWithBean =
         new StopGatewaySenderOnMemberWithBeanImpl();
 
-    List<String> result = stopperWithBean.executeStopGatewaySenderOnMember(senderId, cache,
+    var result = stopperWithBean.executeStopGatewaySenderOnMember(senderId, cache,
         managementService, distributedMember);
     assertThat(result).containsExactly(memberId, "Error",
         "GatewaySender sender1 is not running on member " + memberId + ".");
@@ -83,7 +81,7 @@ public class StopGatewaySenderOnMemberWithBeanImplTest {
     StopGatewaySenderCommand.StopGatewaySenderOnMember stopperWithBean =
         new StopGatewaySenderOnMemberWithBeanImpl();
 
-    List<String> result = stopperWithBean.executeStopGatewaySenderOnMember(senderId, cache,
+    var result = stopperWithBean.executeStopGatewaySenderOnMember(senderId, cache,
         managementService, distributedMember);
 
     assertThat(result).containsExactly(memberId, "Error",
@@ -93,13 +91,13 @@ public class StopGatewaySenderOnMemberWithBeanImplTest {
   @Test
   @Parameters({"true", "false"})
   public void executeStopGatewaySenderOnMemberRunningReturnsOk(boolean isLocalMember) {
-    GatewaySenderMXBean gatewaySenderMXBean = gatewaySenderMXBean(isLocalMember, false);
+    var gatewaySenderMXBean = gatewaySenderMXBean(isLocalMember, false);
     when(gatewaySenderMXBean.isRunning()).thenReturn(true);
 
     StopGatewaySenderCommand.StopGatewaySenderOnMember stopperWithBean =
         new StopGatewaySenderOnMemberWithBeanImpl();
 
-    List<String> result = stopperWithBean.executeStopGatewaySenderOnMember(senderId, cache,
+    var result = stopperWithBean.executeStopGatewaySenderOnMember(senderId, cache,
         managementService, distributedMember);
 
     assertThat(result).containsExactly(memberId, "OK",
@@ -107,7 +105,7 @@ public class StopGatewaySenderOnMemberWithBeanImplTest {
   }
 
   private GatewaySenderMXBean gatewaySenderMXBean(boolean isLocalMember, boolean mustBeNull) {
-    GatewaySenderMXBean gatewaySenderMXBean = mustBeNull
+    var gatewaySenderMXBean = mustBeNull
         ? null
         : mock(GatewaySenderMXBean.class);
     if (isLocalMember) {

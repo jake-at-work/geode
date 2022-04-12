@@ -25,7 +25,6 @@ import java.util.function.Predicate;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.configuration.AbstractConfiguration;
 import org.apache.geode.management.configuration.Deployment;
-import org.apache.geode.management.internal.configuration.domain.Configuration;
 
 public class DeploymentManager implements ConfigurationManager<Deployment> {
   private final InternalConfigurationPersistenceService persistenceService;
@@ -53,7 +52,7 @@ public class DeploymentManager implements ConfigurationManager<Deployment> {
 
   @Override
   public List<Deployment> list(Deployment filter, String groupName) {
-    Configuration configuration = persistenceService.getConfiguration(groupName);
+    var configuration = persistenceService.getConfiguration(groupName);
     if (configuration == null) {
       return emptyList();
     }

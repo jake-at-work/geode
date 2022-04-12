@@ -20,14 +20,13 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.distributed.ServerLauncher;
 import org.apache.geode.distributed.ServerLauncherCacheProvider;
-import org.apache.geode.internal.cache.CacheConfig;
 
 public class DefaultServerLauncherCacheProvider implements ServerLauncherCacheProvider {
 
   @Override
   public Cache createCache(Properties gemfireProperties, ServerLauncher serverLauncher) {
-    final CacheConfig cacheConfig = serverLauncher.getCacheConfig();
-    final CacheFactory cacheFactory = new CacheFactory(gemfireProperties);
+    final var cacheConfig = serverLauncher.getCacheConfig();
+    final var cacheFactory = new CacheFactory(gemfireProperties);
 
     if (cacheConfig.pdxPersistentUserSet) {
       cacheFactory.setPdxPersistent(cacheConfig.isPdxPersistent());

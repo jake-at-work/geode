@@ -63,7 +63,7 @@ public class OrderedStatisticTreeQuickCheckTest {
     expected.addAll(insertData);
     list.addAll(insertData);
 
-    Long element = expected.get(elementIndex);
+    var element = expected.get(elementIndex);
 
     assertThat(list.indexOf(element)).isEqualTo(expected.indexOf(element));
   }
@@ -72,15 +72,15 @@ public class OrderedStatisticTreeQuickCheckTest {
   public void indexOfForElementsThatAreNotPresentReturnExpectedIndex(
       @Size(min = 5, max = 500) Set<Long> insertData) {
     // Add only 1/5 of the data
-    int subsetSize = insertData.size() / 5;
-    Set<Long> subset = insertData.stream().limit(subsetSize).collect(Collectors.toSet());
+    var subsetSize = insertData.size() / 5;
+    var subset = insertData.stream().limit(subsetSize).collect(Collectors.toSet());
     expected.addAll(subset);
     list.addAll(subset);
 
     insertData.removeAll(subset);
 
     // Confirm that the index of elements not present in the set is as expected
-    for (Long element : insertData) {
+    for (var element : insertData) {
       assertThat(list.indexOf(element)).isEqualTo(expected.indexOf(element));
     }
   }
@@ -89,8 +89,8 @@ public class OrderedStatisticTreeQuickCheckTest {
   public void iteratorIsInOrder(@Size(min = 2, max = 500) Set<Long> insertData) {
     expected.addAll(insertData);
     list.addAll(insertData);
-    Iterator<Long> expectedIterator = expected.iterator();
-    Iterator<Long> listIterator = list.iterator();
+    var expectedIterator = expected.iterator();
+    var listIterator = list.iterator();
     while (expectedIterator.hasNext()) {
       assertThat(listIterator.hasNext()).isTrue();
       assertThat(listIterator.next()).isEqualTo(expectedIterator.next());
@@ -109,13 +109,13 @@ public class OrderedStatisticTreeQuickCheckTest {
 
     @Override
     public E get(int index) {
-      Iterator<E> iterator = iterator();
+      var iterator = iterator();
       E value = null;
 
       if (size() < index) {
         return null;
       }
-      for (int i = 0; i <= index; i++) {
+      for (var i = 0; i <= index; i++) {
         if (!iterator.hasNext()) {
           return null;
         }

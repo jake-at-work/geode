@@ -44,14 +44,14 @@ public class StartServerAuthorizationTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     locator = lsRule.startLocatorVM(0, props);
   }
 
   @Test
   public void testStartServerWithInvalidCredential() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     // the following are needed for peer-to-peer authentication
     props.setProperty("security-username", "user");
     props.setProperty("security-password", "wrongPswd");
@@ -63,7 +63,7 @@ public class StartServerAuthorizationTest {
 
   @Test
   public void testStartServerWithInsufficientPrevilage() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
 
     // the following are needed for peer-to-peer authentication
     props.setProperty("security-username", "user");
@@ -76,7 +76,7 @@ public class StartServerAuthorizationTest {
 
   @Test
   public void testStartServerWithSufficientPrevilage() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
 
     // the following are needed for peer-to-peer authentication
     props.setProperty("security-username", "cluster");

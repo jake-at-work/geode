@@ -32,10 +32,10 @@ public class DiskDistributedNoAckAsyncRegionDUnitTest extends DiskDistributedNoA
 
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
 
-    File[] diskDirs = new File[1];
+    var diskDirs = new File[1];
     diskDirs[0] = new File("diskRegionDirs/" + OSProcess.getId());
     diskDirs[0].mkdirs();
     factory.setDiskStoreName(getCache().createDiskStoreFactory().setDiskDirs(getDiskDirs())

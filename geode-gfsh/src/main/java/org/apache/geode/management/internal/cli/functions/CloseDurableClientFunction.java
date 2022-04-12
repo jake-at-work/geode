@@ -14,11 +14,9 @@
  */
 package org.apache.geode.management.internal.cli.functions;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.management.internal.cli.CliUtils;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -39,9 +37,9 @@ public class CloseDurableClientFunction implements InternalFunction<String> {
 
   @Override
   public void execute(FunctionContext<String> context) {
-    String durableClientId = context.getArguments();
-    final Cache cache = context.getCache();
-    final String memberNameOrId =
+    var durableClientId = context.getArguments();
+    final var cache = context.getCache();
+    final var memberNameOrId =
         CliUtils.getMemberNameOrId(cache.getDistributedSystem().getDistributedMember());
 
     context.getResultSender().lastResult(createFunctionResult(memberNameOrId, durableClientId));
@@ -49,20 +47,20 @@ public class CloseDurableClientFunction implements InternalFunction<String> {
 
   private CliFunctionResult createFunctionResult(String memberNameOrId, String durableClientId) {
     try {
-      CacheClientNotifier cacheClientNotifier = CacheClientNotifier.getInstance();
+      var cacheClientNotifier = CacheClientNotifier.getInstance();
 
       if (cacheClientNotifier == null) {
         return new CliFunctionResult(memberNameOrId, CliFunctionResult.StatusState.ERROR,
             CliStrings.NO_CLIENT_FOUND);
       }
 
-      CacheClientProxy ccp = cacheClientNotifier.getClientProxy(durableClientId);
+      var ccp = cacheClientNotifier.getClientProxy(durableClientId);
       if (ccp == null) {
         return new CliFunctionResult(memberNameOrId, CliFunctionResult.StatusState.ERROR,
             CliStrings.format(CliStrings.NO_CLIENT_FOUND_WITH_CLIENT_ID, durableClientId));
       }
 
-      boolean isClosed = cacheClientNotifier.closeDurableClientProxy(durableClientId);
+      var isClosed = cacheClientNotifier.closeDurableClientProxy(durableClientId);
       if (isClosed) {
         return new CliFunctionResult(memberNameOrId, CliFunctionResult.StatusState.OK,
             CliStrings.format(CliStrings.CLOSE_DURABLE_CLIENTS__SUCCESS, durableClientId));

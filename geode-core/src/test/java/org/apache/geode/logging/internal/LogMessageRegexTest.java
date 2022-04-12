@@ -29,7 +29,6 @@ import static org.apache.geode.logging.internal.LogMessageRegex.getPattern;
 import static org.apache.geode.logging.internal.LogMessageRegex.getRegex;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Before;
@@ -68,177 +67,177 @@ public class LogMessageRegexTest {
 
   @Test
   public void patternMatcherMatchesLogLine() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void patternMatcherGroupZeroMatchesLogLine() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(0)).isEqualTo(logLine);
   }
 
   @Test
   public void patternMatcherGroupCountEqualsGroupsLength() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.groupCount()).isEqualTo(values().length);
   }
 
   @Test
   public void logLevelGroupIndexCapturesLogLevel() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(LOG_LEVEL.getIndex())).isEqualTo(logLevel);
   }
 
   @Test
   public void dateGroupIndexCapturesDate() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(DATE.getIndex())).isEqualTo(date);
   }
 
   @Test
   public void timeGroupIndexCapturesTime() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(TIME.getIndex())).isEqualTo(time);
   }
 
   @Test
   public void timeZoneGroupIndexCapturesTimeZone() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(TIME_ZONE.getIndex())).isEqualTo(timeZone);
   }
 
   @Test
   public void logLevelGroupNameCapturesLogLevel() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(LOG_LEVEL.getName())).isEqualTo(logLevel);
   }
 
   @Test
   public void dateGroupNameCapturesDate() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(DATE.getName())).isEqualTo(date);
   }
 
   @Test
   public void timeGroupNameCapturesTime() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(TIME.getName())).isEqualTo(time);
   }
 
   @Test
   public void timeZoneGroupNameCapturesTimeZone() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(TIME_ZONE.getName())).isEqualTo(timeZone);
   }
 
   @Test
   public void memberNameGroupNameCapturesMemberName() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(MEMBER_NAME.getName())).isEqualTo(memberName);
   }
 
   @Test
   public void threadNameGroupNameCapturesThreadName() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(THREAD_NAME.getName())).isEqualTo(threadName);
   }
 
   @Test
   public void threadIdGroupNameCapturesThreadId() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(THREAD_ID.getName())).isEqualTo(threadId);
   }
 
   @Test
   public void messageGroupNameCapturesMessage() {
-    Matcher matcher = getPattern().matcher(logLine);
+    var matcher = getPattern().matcher(logLine);
     assertThat(matcher.matches()).isTrue();
     assertThat(matcher.group(MESSAGE.getName())).isEqualTo(message);
   }
 
   @Test
   public void logLevelRegexMatchesLogLevel() {
-    Matcher matcher = Pattern.compile(LOG_LEVEL.getRegex()).matcher(logLevel);
+    var matcher = Pattern.compile(LOG_LEVEL.getRegex()).matcher(logLevel);
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void dateRegexMatchesDate() {
-    Matcher matcher = Pattern.compile(DATE.getRegex()).matcher(date);
+    var matcher = Pattern.compile(DATE.getRegex()).matcher(date);
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void timeRegexMatchesTime() {
-    Matcher matcher = Pattern.compile(TIME.getRegex()).matcher(time);
+    var matcher = Pattern.compile(TIME.getRegex()).matcher(time);
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void timeZoneRegexMatchesTimeZone() {
-    Matcher matcher = Pattern.compile(TIME_ZONE.getRegex()).matcher(timeZone);
+    var matcher = Pattern.compile(TIME_ZONE.getRegex()).matcher(timeZone);
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void memberNameRegexMatchesMemberName() {
-    Matcher matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher(memberName);
+    var matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher(memberName);
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void threadNameRegexMatchesThreadName() {
-    Matcher matcher = Pattern.compile(THREAD_NAME.getRegex()).matcher(threadName);
+    var matcher = Pattern.compile(THREAD_NAME.getRegex()).matcher(threadName);
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void threadIdRegexMatchesThreadId() {
-    Matcher matcher = Pattern.compile(THREAD_ID.getRegex()).matcher(threadId);
+    var matcher = Pattern.compile(THREAD_ID.getRegex()).matcher(threadId);
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void messageRegexMatchesMessage() {
-    Matcher matcher = Pattern.compile(MESSAGE.getRegex()).matcher(message);
+    var matcher = Pattern.compile(MESSAGE.getRegex()).matcher(message);
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void memberNameRegexMatchesMissingMemberName() {
-    Matcher matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher("");
+    var matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher("");
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void memberNameRegexMatchesMemberNameWithNoSpaces() {
-    Matcher matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher("");
+    var matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher("");
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void memberNameRegexMatchesMemberNameWithOneSpace() {
-    Matcher matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher("hello world");
+    var matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher("hello world");
     assertThat(matcher.matches()).isTrue();
   }
 
   @Test
   public void memberNameRegexMatchesMemberNameWithMultipleSpaces() {
-    Matcher matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher("this is a name");
+    var matcher = Pattern.compile(MEMBER_NAME.getRegex()).matcher("this is a name");
     assertThat(matcher.matches()).isTrue();
   }
 }

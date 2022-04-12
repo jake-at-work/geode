@@ -31,8 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InvalidClassException;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
@@ -54,8 +52,6 @@ import org.apache.geode.internal.cache.EvictionAttributesImpl;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -91,7 +87,7 @@ public abstract class QueryCommandDistributedTestBase {
 
   @Before
   public void setUp() throws Exception {
-    Properties locatorProps = locatorProperties();
+    var locatorProps = locatorProperties();
 
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withProperties(locatorProps));
     server1 = cluster.startServerVM(1, serverProperties(), locator.getPort());
@@ -119,13 +115,13 @@ public abstract class QueryCommandDistributedTestBase {
   protected abstract void connectToLocator() throws Exception;
 
   private Properties locatorProperties() {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(SERIALIZABLE_OBJECT_FILTER, SERIALIZATION_FILTER);
     return locatorProperties(configProperties);
   }
 
   private Properties serverProperties() {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(SERIALIZABLE_OBJECT_FILTER, SERIALIZATION_FILTER);
     return configProperties;
   }
@@ -139,7 +135,7 @@ public abstract class QueryCommandDistributedTestBase {
     gfsh.executeAndAssertThat("set variable --name=STATUS --value=inactive")
         .statusIsSuccess();
 
-    String query = "query --query=\"" +
+    var query = "query --query=\"" +
         "select ID , status , createTime , pk, floatMinValue " +
         "from ${DATA_REGION} " +
         "where ID <= ${PORTFOLIO_ID} and status=${STATUS}" + "\" --interactive=false";
@@ -152,7 +148,7 @@ public abstract class QueryCommandDistributedTestBase {
   public void testWithUnsetGfshEnvironmentVariables() {
     addIgnoredException(QueryInvalidException.class);
 
-    String query = "query --query=\"" +
+    var query = "query --query=\"" +
         "select ID , status , createTime , pk, floatMinValue " +
         "from ${UNSET_REGION} " +
         "where ID <= ${UNSET_PORTFOLIO_ID} and status=${UNSET_STATUS}" + "\" --interactive=false";
@@ -166,14 +162,14 @@ public abstract class QueryCommandDistributedTestBase {
   public void testSimpleQuery() {
     server1.invoke(() -> setUpDataForRegion(PARTITIONED_REGION_NAME_PATH));
 
-    int randomInteger = new Random(nanoTime()).nextInt(MAX_RANDOM_INTEGER);
+    var randomInteger = new Random(nanoTime()).nextInt(MAX_RANDOM_INTEGER);
 
-    String query = "query --query=\"" +
+    var query = "query --query=\"" +
         "select ID , status , createTime , pk, floatMinValue " +
         "from " + PARTITIONED_REGION_NAME_PATH + " " +
         "where ID <= " + randomInteger + "\" --interactive=false";
 
-    TabularResultModel resultModel =
+    var resultModel =
         gfsh.executeAndAssertThat(query).statusIsSuccess().hasTableSection()
             .hasRowSize(randomInteger + 1).getActual();
     assertThat(resultModel.getValuesInColumn("ID").size()).isGreaterThan(0);
@@ -188,7 +184,7 @@ public abstract class QueryCommandDistributedTestBase {
   public void testSimpleQueryWithEscapingCharacter() {
     server1.invoke(() -> setUpDataForRegionWithSpecialCharacters(PARTITIONED_REGION_NAME_PATH));
 
-    String query1 = "query --query=\"" +
+    var query1 = "query --query=\"" +
         "select * from " + PARTITIONED_REGION_NAME_PATH + " e " +
         "where e LIKE 'value\\$'" + "\"";
 
@@ -196,7 +192,7 @@ public abstract class QueryCommandDistributedTestBase {
         .statusIsSuccess()
         .containsOutput("value$");
 
-    String query2 = "query --query=\"" +
+    var query2 = "query --query=\"" +
         "select * from " + PARTITIONED_REGION_NAME_PATH + " e " +
         "where e LIKE 'value\\%'" + "\"";
 
@@ -210,12 +206,12 @@ public abstract class QueryCommandDistributedTestBase {
     server1.invoke(() -> setUpDataForRegion(PARTITIONED_REGION_NAME_PATH));
 
     locator.invoke(() -> {
-      String query = "query --query=\"" +
+      var query = "query --query=\"" +
           "select ID , status , createTime , pk, floatMinValue " +
           "from " + PARTITIONED_REGION_NAME_PATH + " " +
           "where ID <= 4" + "\" --interactive=false";
 
-      String result = getMemberMXBean().processCommand(query);
+      var result = getMemberMXBean().processCommand(query);
 
       assertThat(result).contains("ID");
       assertThat(result).contains("status");
@@ -230,16 +226,16 @@ public abstract class QueryCommandDistributedTestBase {
   public void testSimpleQueryWithUUID() {
     server1.invoke(() -> setUpDataForRegionWithUUID(PARTITIONED_REGION_NAME_PATH));
 
-    String uuidKey = String.valueOf(new UUID(1, 1));
+    var uuidKey = String.valueOf(new UUID(1, 1));
 
-    String query1 = "query --query=\"" +
+    var query1 = "query --query=\"" +
         "select key from " + PARTITIONED_REGION_NAME_PATH + ".entries" + "\"";
 
     gfsh.executeAndAssertThat(query1)
         .statusIsSuccess()
         .containsOutput(uuidKey);
 
-    String query2 = "query --query=\"" +
+    var query2 = "query --query=\"" +
         "select key,value from " + PARTITIONED_REGION_NAME_PATH + ".entries" + "\"";
 
     gfsh.executeAndAssertThat(query2)
@@ -253,11 +249,10 @@ public abstract class QueryCommandDistributedTestBase {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(REGION_EVICTION_NAME_PATH, 1);
     server1.invoke(() -> setUpDeserializableDataForRegion(REGION_EVICTION_NAME_PATH));
 
-    String query = "query --query=\"" +
+    var query = "query --query=\"" +
         "select Value from " + REGION_EVICTION_NAME_PATH + "\" --interactive=false";
 
-
-    TabularResultModel resultModel = gfsh.executeAndAssertThat(query).statusIsSuccess()
+    var resultModel = gfsh.executeAndAssertThat(query).statusIsSuccess()
         .hasTableSection().hasRowSize(10).getActual();
     assertThat(resultModel.getValuesInColumn("Value").size()).isGreaterThan(0);
 
@@ -271,7 +266,7 @@ public abstract class QueryCommandDistributedTestBase {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(REGION_EVICTION_NAME_PATH, 1);
     server1.invoke(() -> setUpNotDeserializableDataForRegion(REGION_EVICTION_NAME_PATH));
 
-    String query = "query --query=\"" +
+    var query = "query --query=\"" +
         "select Value from " + REGION_EVICTION_NAME_PATH + "\" --interactive=false";
 
     gfsh.executeAndAssertThat(query).statusIsError()
@@ -288,19 +283,19 @@ public abstract class QueryCommandDistributedTestBase {
 
     server1.invoke(() -> setUpDataForRegion(REGION_PROXY_NAME_PATH));
 
-    int randomInteger = new Random(nanoTime()).nextInt(MAX_RANDOM_INTEGER);
+    var randomInteger = new Random(nanoTime()).nextInt(MAX_RANDOM_INTEGER);
 
-    String queryString = "\"" +
+    var queryString = "\"" +
         "select ID , status , createTime , pk, floatMinValue " +
         "from " + REGION_PROXY_NAME_PATH
         + " where ID <= " + randomInteger + "\"";
 
-    String command = new CommandStringBuilder(QUERY)
+    var command = new CommandStringBuilder(QUERY)
         .addOption(MEMBER, "server-2")
         .addOption(QUERY, queryString)
         .getCommandString();
 
-    CommandResult commandResult = gfsh.executeAndAssertThat(command).getCommandResult();
+    var commandResult = gfsh.executeAndAssertThat(command).getCommandResult();
 
     validateSelectResult(commandResult, true, randomInteger + 1,
         "ID", "status", "createTime", "pk", "floatMinValue");
@@ -312,7 +307,7 @@ public abstract class QueryCommandDistributedTestBase {
   }
 
   private static void createReplicatedRegionWithEviction(String regionName) {
-    EvictionAttributesImpl evictionAttributes = new EvictionAttributesImpl()
+    var evictionAttributes = new EvictionAttributesImpl()
         .setAction(EvictionAction.OVERFLOW_TO_DISK)
         .setAlgorithm(EvictionAlgorithm.LRU_ENTRY)
         .setMaximum(1);
@@ -340,7 +335,7 @@ public abstract class QueryCommandDistributedTestBase {
   private static void setUpDataForRegion(String regionPath) {
     Region<Integer, Portfolio> region = getRegion(regionPath);
 
-    for (int index = 0; index < 10; index++) {
+    for (var index = 0; index < 10; index++) {
       region.put(index, new Portfolio(index));
     }
   }
@@ -361,7 +356,7 @@ public abstract class QueryCommandDistributedTestBase {
   private static void setUpNotDeserializableDataForRegion(String regionPath) {
     Region<Integer, FailsSerializationFilter> region = getRegion(regionPath);
 
-    for (int index = 0; index < 10; index++) {
+    for (var index = 0; index < 10; index++) {
       region.put(index, new FailsSerializationFilter(index));
     }
   }
@@ -369,23 +364,23 @@ public abstract class QueryCommandDistributedTestBase {
   private static void setUpDeserializableDataForRegion(String regionPath) {
     Region<Integer, Value> region = getRegion(regionPath);
 
-    for (int index = 0; index < 10; index++) {
+    for (var index = 0; index < 10; index++) {
       region.put(index, new Value(index));
     }
   }
 
   private static void validateSelectResult(CommandResult commandResult, boolean expectSuccess,
       int expectedRows, String... columns) {
-    ResultModel resultData = commandResult.getResultData();
+    var resultData = commandResult.getResultData();
 
-    Map<String, String> data = resultData.getDataSection(DATA_INFO_SECTION).getContent();
+    var data = resultData.getDataSection(DATA_INFO_SECTION).getContent();
     assertThat(data.get("Result")).isEqualTo(String.valueOf(expectSuccess));
 
     if (expectSuccess && expectedRows != -1) {
       assertThat(data.get("Rows")).isEqualTo(String.valueOf(expectedRows));
 
       if (expectedRows > 0 && columns != null) {
-        Map<String, List<String>> table = resultData.getTableSection(QUERY_SECTION).getContent();
+        var table = resultData.getTableSection(QUERY_SECTION).getContent();
         assertThat(table.keySet()).contains(columns);
       }
     }
@@ -430,7 +425,7 @@ public abstract class QueryCommandDistributedTestBase {
     @Override
     public boolean equals(Object other) {
       if (other instanceof Value) {
-        Value value = (Value) other;
+        var value = (Value) other;
         return value.employeeId == employeeId;
       }
       return false;

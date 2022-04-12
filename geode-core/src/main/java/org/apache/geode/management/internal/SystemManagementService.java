@@ -17,7 +17,6 @@ package org.apache.geode.management.internal;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toSet;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +44,6 @@ import org.apache.geode.distributed.internal.ResourceEvent;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalCacheForClientAccess;
-import org.apache.geode.internal.serialization.filter.FilterConfiguration;
 import org.apache.geode.internal.serialization.filter.SystemPropertyJmxSerialFilterConfigurationFactory;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.executors.LoggingExecutors;
@@ -182,7 +180,7 @@ public class SystemManagementService extends BaseManagementService {
 
 
     if (system.getConfig().getJmxManager()) {
-      FilterConfiguration filterConfiguration =
+      var filterConfiguration =
           new SystemPropertyJmxSerialFilterConfigurationFactory().create();
 
       agent = managementAgentFactory.create(system.getConfig(), cache, filterConfiguration);
@@ -245,8 +243,8 @@ public class SystemManagementService extends BaseManagementService {
     }
 
     // All validation Passed. Now create the federation Component
-    Object object = jmxAdapter.getMBeanObject(objectName);
-    FederationComponent federationComponent =
+    var object = jmxAdapter.getMBeanObject(objectName);
+    var federationComponent =
         new FederationComponent(object, objectName, interfaceClass, notificationEmitter);
     if (asList(RegionMXBean.class, MemberMXBean.class).contains(interfaceClass)) {
       federationComponent.refreshObjectState(true);
@@ -339,7 +337,7 @@ public class SystemManagementService extends BaseManagementService {
     verifyManagementService();
 
     if (isManager()) {
-      FederationComponent removed = localManager.getFedComponents().get(objectName);
+      var removed = localManager.getFedComponents().get(objectName);
       if (removed != null) {
         // only for MBeans local to Manager, not proxies
         afterRemoveProxy(objectName, removed.getInterfaceClass(), removed.getMBeanObject(),
@@ -375,7 +373,7 @@ public class SystemManagementService extends BaseManagementService {
         createManager();
       }
 
-      boolean started = false;
+      var started = false;
       try {
         system.handleResourceEvent(ResourceEvent.MANAGER_START, null);
         federatingManager.startManager();
@@ -612,46 +610,46 @@ public class SystemManagementService extends BaseManagementService {
 
   public void afterCreateProxy(ObjectName objectName, Class interfaceClass, Object proxyObject,
       FederationComponent newVal) {
-    for (ProxyListener listener : proxyListeners) {
+    for (var listener : proxyListeners) {
       listener.afterCreateProxy(objectName, interfaceClass, proxyObject, newVal);
     }
   }
 
   public void afterRemoveProxy(ObjectName objectName, Class interfaceClass, Object proxyObject,
       FederationComponent oldVal) {
-    for (ProxyListener listener : proxyListeners) {
+    for (var listener : proxyListeners) {
       listener.afterRemoveProxy(objectName, interfaceClass, proxyObject, oldVal);
     }
   }
 
   public void handleNotification(Notification notification) {
-    for (ProxyListener listener : proxyListeners) {
+    for (var listener : proxyListeners) {
       listener.handleNotification(notification);
     }
   }
 
   void memberJoined(InternalDistributedMember id) {
-    for (ProxyListener listener : proxyListeners) {
+    for (var listener : proxyListeners) {
       listener.memberJoined(system.getDistributionManager(), id);
     }
   }
 
   void memberDeparted(InternalDistributedMember id, boolean crashed) {
-    for (ProxyListener listener : proxyListeners) {
+    for (var listener : proxyListeners) {
       listener.memberDeparted(system.getDistributionManager(), id, crashed);
     }
   }
 
   void memberSuspect(InternalDistributedMember id, InternalDistributedMember whoSuspected,
       String reason) {
-    for (ProxyListener listener : proxyListeners) {
+    for (var listener : proxyListeners) {
       listener.memberSuspect(system.getDistributionManager(), id, whoSuspected, reason);
     }
   }
 
   void afterPseudoCreateProxy(ObjectName objectName, Class interfaceClass, Object proxyObject,
       FederationComponent newVal) {
-    for (ProxyListener listener : proxyListeners) {
+    for (var listener : proxyListeners) {
       listener.afterPseudoCreateProxy(objectName, interfaceClass, proxyObject, newVal);
     }
   }
@@ -662,7 +660,7 @@ public class SystemManagementService extends BaseManagementService {
 
   void afterUpdateProxy(ObjectName objectName, Class interfaceClass, Object proxyObject,
       FederationComponent newVal, FederationComponent oldVal) {
-    for (ProxyListener listener : proxyListeners) {
+    for (var listener : proxyListeners) {
       listener.afterUpdateProxy(objectName, interfaceClass, proxyObject, newVal, oldVal);
     }
   }
@@ -723,13 +721,13 @@ public class SystemManagementService extends BaseManagementService {
 
   private static FederatingManagerFactory createFederatingManagerFactory() {
     try {
-      String federatingManagerFactoryName =
+      var federatingManagerFactoryName =
           System.getProperty(FEDERATING_MANAGER_FACTORY_PROPERTY,
               FederatingManagerFactoryImpl.class.getName());
-      Class<? extends FederatingManagerFactory> federatingManagerFactoryClass =
+      var federatingManagerFactoryClass =
           Class.forName(federatingManagerFactoryName)
               .asSubclass(FederatingManagerFactory.class);
-      Constructor<? extends FederatingManagerFactory> constructor =
+      var constructor =
           federatingManagerFactoryClass.getConstructor();
       return constructor.newInstance();
     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
@@ -764,8 +762,8 @@ public class SystemManagementService extends BaseManagementService {
     private final Collection<MembershipListener> membershipListeners = new CopyOnWriteArrayList<>();
 
     void memberJoined(InternalDistributedMember id) {
-      MembershipEvent event = createEvent(id);
-      for (MembershipListener listener : membershipListeners) {
+      var event = createEvent(id);
+      for (var listener : membershipListeners) {
         try {
           listener.memberJoined(event);
         } catch (Exception e) {
@@ -776,9 +774,9 @@ public class SystemManagementService extends BaseManagementService {
     }
 
     void memberDeparted(InternalDistributedMember id, boolean crashed) {
-      MembershipEvent event = createEvent(id);
+      var event = createEvent(id);
       if (crashed) {
-        for (MembershipListener listener : membershipListeners) {
+        for (var listener : membershipListeners) {
           try {
             listener.memberCrashed(event);
           } catch (Exception e) {
@@ -787,7 +785,7 @@ public class SystemManagementService extends BaseManagementService {
           }
         }
       } else {
-        for (MembershipListener listener : membershipListeners) {
+        for (var listener : membershipListeners) {
           try {
             listener.memberLeft(event);
           } catch (Exception e) {

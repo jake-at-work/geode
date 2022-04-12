@@ -70,7 +70,7 @@ public class DistributionStatsTest {
 
   @Test
   public void startSenderCreate() {
-    long startTime = distributionStats.startSenderCreate();
+    var startTime = distributionStats.startSenderCreate();
     verify(mockStats).incLong(DistributionStats.senderCreatesInProgressId, 1);
     assertThat(startTime).isNotEqualTo(0);
     distributionStats.incSenders(false, true, startTime);

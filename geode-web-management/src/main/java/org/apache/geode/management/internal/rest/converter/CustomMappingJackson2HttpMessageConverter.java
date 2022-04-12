@@ -37,7 +37,7 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
   @Override
   protected void writeInternal(final Object object, final HttpOutputMessage outputMessage)
       throws IOException, HttpMessageNotWritableException {
-    BufferingHttpOutputMessageWrapper outputMessageWrapper =
+    var outputMessageWrapper =
         new BufferingHttpOutputMessageWrapper(outputMessage);
     super.writeInternal(object, outputMessageWrapper);
     outputMessageWrapper.flush();

@@ -54,11 +54,11 @@ public class JtaNoninvolvementJUnitTest {
   private Region txRegion;
 
   private void createCache(boolean copyOnRead) throws CacheException {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0"); // loner
     cache = CacheFactory.create(DistributedSystem.connect(p));
 
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     af.setIgnoreJTA(true);
     nonTxRegion = cache.createRegion("JtaNoninvolvementJUnitTest", af.create());
@@ -70,7 +70,7 @@ public class JtaNoninvolvementJUnitTest {
     if (cache != null) {
       txRegion = null;
       nonTxRegion = null;
-      Cache c = cache;
+      var c = cache;
       cache = null;
       c.close();
     }
@@ -79,7 +79,7 @@ public class JtaNoninvolvementJUnitTest {
   @After
   public void after() {
     closeCache();
-    InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+    var ids = InternalDistributedSystem.getAnyInstance();
     if (ids != null) {
       ids.disconnect();
     }
@@ -91,7 +91,7 @@ public class JtaNoninvolvementJUnitTest {
       if (cache == null) {
         createCache(false);
       }
-      javax.transaction.UserTransaction ut = (javax.transaction.UserTransaction) cache
+      var ut = (javax.transaction.UserTransaction) cache
           .getJNDIContext().lookup("java:/UserTransaction");
       {
         ut.begin();
@@ -124,13 +124,13 @@ public class JtaNoninvolvementJUnitTest {
       if (cache == null) {
         createCache(false);
       }
-      final CountDownLatch l = new CountDownLatch(1);
-      final AtomicBoolean exceptionOccurred = new AtomicBoolean(false);
+      final var l = new CountDownLatch(1);
+      final var exceptionOccurred = new AtomicBoolean(false);
       ut = (UserTransaction) cache.getJNDIContext().lookup("java:/UserTransaction");
       ut.begin();
       txRegion.put("key", "value");
       nonTxRegion.put("key", "value");
-      Thread t = new Thread(() -> {
+      var t = new Thread(() -> {
         if (txRegion.get("key") != null) {
           exceptionOccurred.set(true);
         }

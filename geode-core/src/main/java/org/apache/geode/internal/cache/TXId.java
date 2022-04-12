@@ -77,7 +77,7 @@ public class TXId extends ExternalizableDSFID implements TransactionId {
       return false;
     }
 
-    TXId otx = (TXId) o;
+    var otx = (TXId) o;
     return (otx.uniqId == uniqId && ((otx.memberId == null && memberId == null)
         || (otx.memberId != null && memberId != null && otx.memberId.equals(memberId))));
 
@@ -85,7 +85,7 @@ public class TXId extends ExternalizableDSFID implements TransactionId {
 
   @Override
   public int hashCode() {
-    int retval = uniqId;
+    var retval = uniqId;
     if (memberId != null) {
       retval = retval * 37 + memberId.hashCode();
     }
@@ -112,7 +112,7 @@ public class TXId extends ExternalizableDSFID implements TransactionId {
   }
 
   public static TXId createFromData(DataInput in) throws IOException, ClassNotFoundException {
-    TXId result = new TXId();
+    var result = new TXId();
     InternalDataSerializer.invokeFromData(result, in);
     return result;
   }

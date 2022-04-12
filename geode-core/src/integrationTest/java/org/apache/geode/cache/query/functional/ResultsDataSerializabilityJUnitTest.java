@@ -39,9 +39,7 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.ResultsCollectionWrapper;
@@ -81,13 +79,13 @@ public class ResultsDataSerializabilityJUnitTest {
    */
   @Test
   public void testImplementsDataSerializable() throws Exception {
-    Class[] classes = new Class[] {SortedResultSet.class, ResultsCollectionWrapper.class,
+    var classes = new Class[] {SortedResultSet.class, ResultsCollectionWrapper.class,
         ResultsSet.class, SortedStructSet.class, StructImpl.class, StructSet.class, Undefined.class,
         // QRegion.class, // QRegions remain unserializable
         CollectionTypeImpl.class, MapTypeImpl.class, ObjectTypeImpl.class, StructTypeImpl.class,};
 
     List list = new ArrayList();
-    for (Class nextClass : classes) {
+    for (var nextClass : classes) {
       if (!DataSerializable.class.isAssignableFrom(nextClass)) {
         if (!DataSerializableFixedID.class.isAssignableFrom(nextClass)) {
           list.add(nextClass.getName());
@@ -107,22 +105,22 @@ public class ResultsDataSerializabilityJUnitTest {
   @Test
   public void testDataSerializability() throws Exception {
 
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
-    for (int i = 0; i < 10000; i++) {
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    for (var i = 0; i < 10000; i++) {
       region.put(i + "", new Portfolio(i));
     }
 
-    String queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios";
-    Query q = CacheUtils.getQueryService().newQuery(queryStr);
+    var queryStr = "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios";
+    var q = CacheUtils.getQueryService().newQuery(queryStr);
 
-    SelectResults res1 = (SelectResults) q.execute();
+    var res1 = (SelectResults) q.execute();
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream out = new DataOutputStream(baos);
+    var baos = new ByteArrayOutputStream();
+    var out = new DataOutputStream(baos);
     DataSerializer.writeObject(res1, out, false); // false prevents Java serialization
     out.close();
 
-    DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
+    var in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
     SelectResults res2 = DataSerializer.readObject(in);
     in.close();
 

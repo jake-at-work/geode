@@ -64,15 +64,15 @@ public class LocalStatisticsImpl extends StatisticsImpl {
       boolean atomicIncrements, int osStatFlags, StatisticsManager statisticsManager) {
     super(type, textId, numericId, uniqueId, osStatFlags, statisticsManager);
 
-    StatisticsTypeImpl realType = (StatisticsTypeImpl) type;
+    var realType = (StatisticsTypeImpl) type;
     longCount = realType.getLongStatCount();
-    int doubleCount = realType.getDoubleStatCount();
+    var doubleCount = realType.getDoubleStatCount();
 
     if (longCount > 0) {
       longStorage = new long[longCount];
       if (atomicIncrements) {
         longLocks = new Object[longCount];
-        for (int i = 0; i < longLocks.length; i++) {
+        for (var i = 0; i < longLocks.length; i++) {
           longLocks[i] = new Object();
         }
       } else {
@@ -87,7 +87,7 @@ public class LocalStatisticsImpl extends StatisticsImpl {
       doubleStorage = new double[doubleCount];
       if (atomicIncrements) {
         doubleLocks = new Object[doubleCount];
-        for (int i = 0; i < doubleLocks.length; i++) {
+        for (var i = 0; i < doubleLocks.length; i++) {
           doubleLocks[i] = new Object();
         }
       } else {
@@ -136,13 +136,13 @@ public class LocalStatisticsImpl extends StatisticsImpl {
 
   @Override
   protected void _setLong(int id, long value) {
-    int offset = getOffsetFromLongId(id);
+    var offset = getOffsetFromLongId(id);
     longStorage[offset] = value;
   }
 
   @Override
   protected void _setDouble(int id, double value) {
-    int offset = getOffsetFromDoubleId(id);
+    var offset = getOffsetFromDoubleId(id);
     doubleStorage[offset] = value;
   }
 
@@ -150,13 +150,13 @@ public class LocalStatisticsImpl extends StatisticsImpl {
 
   @Override
   protected long _getLong(int id) {
-    int offset = getOffsetFromLongId(id);
+    var offset = getOffsetFromLongId(id);
     return longStorage[offset];
   }
 
   @Override
   protected double _getDouble(int id) {
-    int offset = getOffsetFromDoubleId(id);
+    var offset = getOffsetFromDoubleId(id);
     return doubleStorage[offset];
   }
 
@@ -164,7 +164,7 @@ public class LocalStatisticsImpl extends StatisticsImpl {
 
   @Override
   protected void _incLong(int id, long delta) {
-    int offset = getOffsetFromLongId(id);
+    var offset = getOffsetFromLongId(id);
     if (longLocks != null) {
       synchronized (longLocks[offset]) {
         longStorage[offset] += delta;
@@ -176,7 +176,7 @@ public class LocalStatisticsImpl extends StatisticsImpl {
 
   @Override
   protected void _incDouble(int id, double delta) {
-    int offset = getOffsetFromDoubleId(id);
+    var offset = getOffsetFromDoubleId(id);
     if (doubleLocks != null) {
       synchronized (doubleLocks[offset]) {
         doubleStorage[offset] += delta;

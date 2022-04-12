@@ -14,9 +14,7 @@
  */
 package org.apache.geode.management.internal.web.shell;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -263,7 +261,7 @@ public class HttpOperationInvoker implements OperationInvoker {
    */
   @Override
   public Object getAttribute(final String resourceName, final String attributeName) {
-    final URI link = HttpRequester.createURI(baseUrl, "/mbean/attribute", "resourceName",
+    final var link = HttpRequester.createURI(baseUrl, "/mbean/attribute", "resourceName",
         resourceName, "attributeName", attributeName);
 
     try {
@@ -328,19 +326,19 @@ public class HttpOperationInvoker implements OperationInvoker {
   @Override
   public Object invoke(final String resourceName, final String operationName, final Object[] params,
       final String[] signatures) {
-    final URI link = HttpRequester.createURI(baseUrl, "/mbean/operation");
+    final var link = HttpRequester.createURI(baseUrl, "/mbean/operation");
 
     MultiValueMap<String, Object> content = new LinkedMultiValueMap<>();
 
     content.add("resourceName", resourceName);
     content.add("operationName", operationName);
     if (params != null) {
-      for (Object param : params) {
+      for (var param : params) {
         content.add("parameters", param);
       }
     }
     if (signatures != null) {
-      for (String signature : signatures) {
+      for (var signature : signatures) {
         content.add("signature", signature);
       }
     }
@@ -374,7 +372,7 @@ public class HttpOperationInvoker implements OperationInvoker {
   @Override
   @SuppressWarnings("unchecked")
   public Set<ObjectName> queryNames(final ObjectName objectName, final QueryExp queryExpression) {
-    final URI link = HttpRequester.createURI(baseUrl, "/mbean/query");
+    final var link = HttpRequester.createURI(baseUrl, "/mbean/query");
 
     Object content = new QueryParameterSource(objectName, queryExpression);
     try {
@@ -406,13 +404,13 @@ public class HttpOperationInvoker implements OperationInvoker {
 
   @Override
   public String getRemoteVersion() {
-    final URI link = HttpRequester.createURI(baseUrl, "/version/release");
+    final var link = HttpRequester.createURI(baseUrl, "/version/release");
     return httpRequester.get(link, String.class);
   }
 
   @Override
   public String getRemoteGeodeSerializationVersion() {
-    final URI link = HttpRequester.createURI(baseUrl, "/version/geodeSerializationVersion");
+    final var link = HttpRequester.createURI(baseUrl, "/version/geodeSerializationVersion");
     return httpRequester.get(link, String.class);
   }
 
@@ -425,12 +423,12 @@ public class HttpOperationInvoker implements OperationInvoker {
    */
   @Override
   public Object processCommand(final CommandRequest command) {
-    URI link =
+    var link =
         HttpRequester.createURI(baseUrl, COMMANDS_URI, CMD_QUERY_PARAMETER, command.getUserInput());
     if (command.hasFileList()) {
       MultiValueMap<String, Object> content = new LinkedMultiValueMap<>();
 
-      for (File file : command.getFileList()) {
+      for (var file : command.getFileList()) {
         content.add(RESOURCES_REQUEST_PARAMETER, new FileSystemResource(file));
       }
       return httpRequester.post(link, content, String.class);

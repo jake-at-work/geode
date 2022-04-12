@@ -27,7 +27,7 @@ public class PeerTypeRegistrationReverseMapTest {
 
   @Test
   public void saveCorrectlyAddsOnlyToReverseMaps() {
-    PeerTypeRegistrationReverseMap map = new PeerTypeRegistrationReverseMap();
+    var map = new PeerTypeRegistrationReverseMap();
     assertThat(map.typeToIdSize()).isEqualTo(0);
     assertThat(map.enumToIdSize()).isEqualTo(0);
     assertThat(map.pendingTypeToIdSize()).isEqualTo(0);
@@ -47,8 +47,8 @@ public class PeerTypeRegistrationReverseMapTest {
     assertThat(map.pendingTypeToIdSize()).isEqualTo(0);
     assertThat(map.pendingEnumToIdSize()).isEqualTo(0);
 
-    Object fakeKey = mock(Object.class);
-    Object fakeValue = mock(Object.class);
+    var fakeKey = mock(Object.class);
+    var fakeValue = mock(Object.class);
     map.save(fakeKey, fakeValue);
 
     assertThat(map.typeToIdSize()).isEqualTo(1);
@@ -59,7 +59,7 @@ public class PeerTypeRegistrationReverseMapTest {
 
   @Test
   public void saveToPendingCorrectlyAddsOnlyToPendingMaps() {
-    PeerTypeRegistrationReverseMap map = new PeerTypeRegistrationReverseMap();
+    var map = new PeerTypeRegistrationReverseMap();
     assertThat(map.pendingTypeToIdSize()).isEqualTo(0);
     assertThat(map.pendingEnumToIdSize()).isEqualTo(0);
     assertThat(map.typeToIdSize()).isEqualTo(0);
@@ -79,8 +79,8 @@ public class PeerTypeRegistrationReverseMapTest {
     assertThat(map.typeToIdSize()).isEqualTo(0);
     assertThat(map.enumToIdSize()).isEqualTo(0);
 
-    Object fakeKey = mock(Object.class);
-    Object fakeValue = mock(Object.class);
+    var fakeKey = mock(Object.class);
+    var fakeValue = mock(Object.class);
     map.saveToPending(fakeKey, fakeValue);
 
     assertThat(map.pendingTypeToIdSize()).isEqualTo(1);
@@ -91,11 +91,11 @@ public class PeerTypeRegistrationReverseMapTest {
 
   @Test
   public void shouldReloadFromRegionReturnsCorrectly() {
-    PeerTypeRegistrationReverseMap map = new PeerTypeRegistrationReverseMap();
+    var map = new PeerTypeRegistrationReverseMap();
 
     assertThat(map.shouldReloadFromRegion(null)).isFalse();
 
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
 
     when(region.size()).thenReturn(0);
     // When everything is empty, we do not need to reload
@@ -122,7 +122,7 @@ public class PeerTypeRegistrationReverseMapTest {
 
   @Test
   public void flushPendingReverseMapCorrectlyPopulatesReverseMap() {
-    PeerTypeRegistrationReverseMap map = new PeerTypeRegistrationReverseMap();
+    var map = new PeerTypeRegistrationReverseMap();
 
     addPdxTypeToPendingMap(map);
     addPdxTypeToPendingMap(map);
@@ -144,7 +144,7 @@ public class PeerTypeRegistrationReverseMapTest {
 
   @Test
   public void clearRemovesAllEntriesFromReverseAndPendingMaps() {
-    PeerTypeRegistrationReverseMap map = new PeerTypeRegistrationReverseMap();
+    var map = new PeerTypeRegistrationReverseMap();
 
     addPdxTypeToMap(map);
     addEnumInfoToMap(map);
@@ -165,26 +165,26 @@ public class PeerTypeRegistrationReverseMapTest {
   }
 
   private void addEnumInfoToMap(PeerTypeRegistrationReverseMap map) {
-    EnumId enumId = mock(EnumId.class);
-    EnumInfo enumInfo = mock(EnumInfo.class);
+    var enumId = mock(EnumId.class);
+    var enumInfo = mock(EnumInfo.class);
     map.save(enumId, enumInfo);
   }
 
   private void addPdxTypeToMap(PeerTypeRegistrationReverseMap map) {
     Integer pdxId = map.typeToIdSize();
-    PdxType pdxType = mock(PdxType.class);
+    var pdxType = mock(PdxType.class);
     map.save(pdxId, pdxType);
   }
 
   private void addEnumInfoToPendingMap(PeerTypeRegistrationReverseMap map) {
-    EnumId enumId = mock(EnumId.class);
-    EnumInfo enumInfo = mock(EnumInfo.class);
+    var enumId = mock(EnumId.class);
+    var enumInfo = mock(EnumInfo.class);
     map.saveToPending(enumId, enumInfo);
   }
 
   private void addPdxTypeToPendingMap(PeerTypeRegistrationReverseMap map) {
     Integer pdxId = map.typeToIdSize();
-    PdxType pdxType = mock(PdxType.class);
+    var pdxType = mock(PdxType.class);
     map.saveToPending(pdxId, pdxType);
   }
 }

@@ -83,7 +83,7 @@ public class StatisticResourceJmxImpl extends org.apache.geode.admin.internal.St
         MBeanUtils.createMBean(this, addDynamicAttributes(MBeanUtils.lookupManagedBean(this)));
 
     // Refresh Interval
-    AdminDistributedSystemJmxImpl sysJmx =
+    var sysJmx =
         (AdminDistributedSystemJmxImpl) member.getDistributedSystem();
     if (sysJmx.getRefreshInterval() > 0) {
       refreshInterval = sysJmx.getRefreshInterval();
@@ -110,7 +110,7 @@ public class StatisticResourceJmxImpl extends org.apache.geode.admin.internal.St
    * @param refreshInterval the new refresh interval in seconds
    */
   private void _setRefreshInterval(int refreshInterval) {
-    boolean isRegistered = MBeanUtils.isRefreshNotificationRegistered(this,
+    var isRegistered = MBeanUtils.isRefreshNotificationRegistered(this,
         RefreshNotificationType.STATISTIC_RESOURCE_STATISTICS);
 
     if (isRegistered && (getRefreshInterval() == refreshInterval)) {
@@ -175,10 +175,10 @@ public class StatisticResourceJmxImpl extends org.apache.geode.admin.internal.St
    */
   @Override
   public void handleNotification(Notification notification, Object hb) {
-    AdminDistributedSystemJmxImpl adminDSJmx =
+    var adminDSJmx =
         (AdminDistributedSystemJmxImpl) member.getDistributedSystem();
 
-    String typeStatResourceStats = RefreshNotificationType.STATISTIC_RESOURCE_STATISTICS.getType();
+    var typeStatResourceStats = RefreshNotificationType.STATISTIC_RESOURCE_STATISTICS.getType();
 
     if (typeStatResourceStats.equals(notification.getType())
         && getMBeanName().equals(notification.getUserData())
@@ -237,8 +237,8 @@ public class StatisticResourceJmxImpl extends org.apache.geode.admin.internal.St
 
     // need to create a new instance of ManagedBean to clean the "slate"...
     ManagedBean newManagedBean = new DynamicManagedBean(managed);
-    for (final Statistic statistic : statistics) {
-      StatisticAttributeInfo attrInfo = new StatisticAttributeInfo();
+    for (final var statistic : statistics) {
+      var attrInfo = new StatisticAttributeInfo();
 
       attrInfo.setName(statistic.getName());
       attrInfo.setDisplayName(statistic.getName());
@@ -334,7 +334,7 @@ public class StatisticResourceJmxImpl extends org.apache.geode.admin.internal.St
       return false;
     }
 
-    StatisticResourceJmxImpl other = (StatisticResourceJmxImpl) obj;
+    var other = (StatisticResourceJmxImpl) obj;
 
     return getMBeanName().equals(other.getMBeanName());
   }

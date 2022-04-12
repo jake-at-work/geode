@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -64,18 +63,18 @@ public class ZRemRangeByRankDUnitTest {
 
   @Before
   public void setup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = clusterStartUp.startLocatorVM(0);
+    var locatorPort = locator.getPort();
 
-    int[] serverPorts = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var serverPorts = AvailablePortHelper.getRandomAvailableTCPPorts(3);
 
-    MemberVM server1 = clusterStartUp.startRedisVM(1, x -> x
+    var server1 = clusterStartUp.startRedisVM(1, x -> x
         .withProperty(GEODE_FOR_REDIS_PORT, Integer.toString(serverPorts[0]))
         .withConnectionToLocator(locatorPort));
-    MemberVM server2 = clusterStartUp.startRedisVM(2, x -> x
+    var server2 = clusterStartUp.startRedisVM(2, x -> x
         .withProperty(GEODE_FOR_REDIS_PORT, Integer.toString(serverPorts[1]))
         .withConnectionToLocator(locatorPort));
-    MemberVM server3 = clusterStartUp.startRedisVM(3, x -> x
+    var server3 = clusterStartUp.startRedisVM(3, x -> x
         .withProperty(GEODE_FOR_REDIS_PORT, Integer.toString(serverPorts[2]))
         .withConnectionToLocator(locatorPort));
 
@@ -84,7 +83,7 @@ public class ZRemRangeByRankDUnitTest {
     servers.add(server2);
     servers.add(server3);
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
 
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort), REDIS_CLIENT_TIMEOUT);
     isCrashing.set(false);
@@ -97,11 +96,11 @@ public class ZRemRangeByRankDUnitTest {
 
   @Test
   public void zRemRangeByRankCanRemoveMembersFromSortedSet() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap();
+    var memberScoreMap = makeMemberScoreMap();
     jedis.zadd(KEY, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
-    long removed = jedis.zremrangeByRank(KEY, 0, -1);
+    var removed = jedis.zremrangeByRank(KEY, 0, -1);
     assertThat(removed).isEqualTo(SET_SIZE);
 
     verifyDataDoesNotExist(memberScoreMap);
@@ -110,12 +109,12 @@ public class ZRemRangeByRankDUnitTest {
 
   @Test
   public void zRemRangeByRankCanRemoveMembersConcurrentlyFromSortedSet() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap();
+    var memberScoreMap = makeMemberScoreMap();
     jedis.zadd(KEY, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
-    AtomicInteger totalRemoved = new AtomicInteger();
-    int numberOfMembersToRemove = 10;
+    var totalRemoved = new AtomicInteger();
+    var numberOfMembersToRemove = 10;
     new ConcurrentLoopingThreads(SET_SIZE / numberOfMembersToRemove,
         (i) -> doZRemRangeByRankOnMembers(numberOfMembersToRemove, totalRemoved),
         (i) -> doZRemRangeByRankOnMembersWithOffset(numberOfMembersToRemove,
@@ -127,7 +126,7 @@ public class ZRemRangeByRankDUnitTest {
 
   @Test
   public void zRemRangeByRankRemovesMembersFromSortedSetAfterPrimaryShutsDown() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap();
+    var memberScoreMap = makeMemberScoreMap();
     jedis.zadd(KEY, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
@@ -142,16 +141,16 @@ public class ZRemRangeByRankDUnitTest {
   @Test
   public void zRemRangeByRankCanRemoveMembersFromSortedSetWhenPrimaryIsCrashed()
       throws Exception {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap();
+    var memberScoreMap = makeMemberScoreMap();
 
     jedis.zadd(KEY, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
-    String firstMember = String.join("", jedis.zrange(KEY, 0, 0));
+    var firstMember = String.join("", jedis.zrange(KEY, 0, 0));
     memberScoreMap.remove(firstMember);
 
-    Future<Void> future1 = executor.submit(() -> stopNodeWithPrimaryBucketOfTheKey(true));
-    Future<Void> future2 = executor.submit(this::removeAllButFirstEntry);
+    var future1 = executor.submit(() -> stopNodeWithPrimaryBucketOfTheKey(true));
+    var future2 = executor.submit(this::removeAllButFirstEntry);
 
     future1.get();
     future2.get();
@@ -162,16 +161,16 @@ public class ZRemRangeByRankDUnitTest {
   }
 
   private void verifyDataExists(Map<String, Double> memberScoreMap) {
-    for (String member : memberScoreMap.keySet()) {
-      Double score = jedis.zscore(KEY, member);
+    for (var member : memberScoreMap.keySet()) {
+      var score = jedis.zscore(KEY, member);
       assertThat(score).isEqualTo(memberScoreMap.get(member));
     }
   }
 
   private boolean verifyDataDoesNotExist(Map<String, Double> memberScoreMap) {
     try {
-      for (String member : memberScoreMap.keySet()) {
-        Double score = jedis.zscore(KEY, member);
+      for (var member : memberScoreMap.keySet()) {
+        var score = jedis.zscore(KEY, member);
         assertThat(score).isNull();
       }
     } catch (JedisClusterOperationException e) {
@@ -181,19 +180,19 @@ public class ZRemRangeByRankDUnitTest {
   }
 
   private void doZRemRangeByRankOnMembers(int numberOfMemberToRemove, AtomicInteger total) {
-    long count = jedis.zremrangeByRank(KEY, 0, numberOfMemberToRemove - 1);
+    var count = jedis.zremrangeByRank(KEY, 0, numberOfMemberToRemove - 1);
     total.addAndGet((int) count);
   }
 
   private void doZRemRangeByRankOnMembersWithOffset(int numberOfMemberToRemove, int offset,
       AtomicInteger total) {
-    long count = jedis.zremrangeByRank(KEY, offset, (offset + numberOfMemberToRemove) - 1);
+    var count = jedis.zremrangeByRank(KEY, offset, (offset + numberOfMemberToRemove) - 1);
     total.addAndGet((int) count);
   }
 
   private void doZRemRangeByRankWithRetries(Map<String, Double> map) {
-    int maxRetryAttempts = 10;
-    int retryAttempts = 0;
+    var maxRetryAttempts = 10;
+    var retryAttempts = 0;
     while (!zRemRangeByRankWithRetries(map, retryAttempts, maxRetryAttempts)) {
       retryAttempts++;
     }
@@ -215,9 +214,9 @@ public class ZRemRangeByRankDUnitTest {
 
   private void removeAllButFirstEntry() {
     long removed = 0;
-    int rangeSize = 10;
+    var rangeSize = 10;
     await().until(isCrashing::get);
-    for (int i = 1; i < SET_SIZE; i += rangeSize) {
+    for (var i = 1; i < SET_SIZE; i += rangeSize) {
       removed += jedis.zremrangeByRank(KEY, 1, rangeSize);
     }
     assertThat(removed).isEqualTo(SET_SIZE - 1);
@@ -225,7 +224,7 @@ public class ZRemRangeByRankDUnitTest {
 
   private void stopNodeWithPrimaryBucketOfTheKey(boolean isCrash) {
     boolean isPrimary;
-    for (MemberVM server : servers) {
+    for (var server : servers) {
       isPrimary = server.invoke(ZRemRangeByRankDUnitTest::isPrimaryForKey);
       if (isPrimary) {
         if (isCrash) {
@@ -240,16 +239,16 @@ public class ZRemRangeByRankDUnitTest {
   }
 
   private static boolean isPrimaryForKey() {
-    PartitionedRegion region = (PartitionedRegion) ClusterStartupRule.getCache()
+    var region = (PartitionedRegion) ClusterStartupRule.getCache()
         .getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
-    int bucketId = PartitionedRegionHelper.getHashKey(region, Operation.GET,
+    var bucketId = PartitionedRegionHelper.getHashKey(region, Operation.GET,
         new RedisKey(KEY.getBytes()), null, null);
     return region.getLocalPrimaryBucketsListTestOnly().contains(bucketId);
   }
 
   private Map<String, Double> makeMemberScoreMap() {
     Map<String, Double> scoreMemberPairs = new HashMap<>();
-    for (int i = 0; i < SET_SIZE; i++) {
+    for (var i = 0; i < SET_SIZE; i++) {
       scoreMemberPairs.put(BASE_MEMBER_NAME + i, (double) i);
     }
     return scoreMemberPairs;

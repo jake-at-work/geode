@@ -26,12 +26,10 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.RegionsTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
@@ -59,9 +57,9 @@ public class ListRegionDUnitTest {
 
   @BeforeClass
   public static void setupSystem() throws Exception {
-    MemberVM locator = lsRule.startLocatorVM(0);
-    MemberVM server1 = lsRule.startServerVM(1, GROUP1_NAME, locator.getPort());
-    MemberVM server = lsRule.startServerVM(2, GROUP2_NAME, locator.getPort());
+    var locator = lsRule.startLocatorVM(0);
+    var server1 = lsRule.startServerVM(1, GROUP1_NAME, locator.getPort());
+    var server = lsRule.startServerVM(2, GROUP2_NAME, locator.getPort());
 
     server1.invoke(() -> {
       final Cache cache = ClusterStartupRule.getCache();
@@ -84,14 +82,14 @@ public class ListRegionDUnitTest {
 
   @Test
   public void listAllRegions() {
-    String listRegions = new CommandStringBuilder(LIST_REGION).toString();
+    var listRegions = new CommandStringBuilder(LIST_REGION).toString();
     gfsh.executeAndAssertThat(listRegions).statusIsSuccess().containsOutput(PR1,
         LOCALREGIONONSERVER1, REGION1, REGION2, REGION3);
   }
 
   @Test
   public void listRegionsOnManager() {
-    String listRegions =
+    var listRegions =
         new CommandStringBuilder(LIST_REGION).addOption(MEMBER, SERVER1_NAME).toString();
     gfsh.executeAndAssertThat(listRegions).statusIsSuccess().containsOutput(PR1,
         LOCALREGIONONSERVER1);
@@ -99,7 +97,7 @@ public class ListRegionDUnitTest {
 
   @Test
   public void listRegionsOnServer() {
-    CommandStringBuilder csb = new CommandStringBuilder(LIST_REGION);
+    var csb = new CommandStringBuilder(LIST_REGION);
     csb.addOption(MEMBER, SERVER2_NAME);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess().containsOutput(PR1, REGION1,
         REGION2, REGION3, SUBREGION1A);
@@ -107,7 +105,7 @@ public class ListRegionDUnitTest {
 
   @Test
   public void listRegionsInGroup1() {
-    CommandStringBuilder csb = new CommandStringBuilder(LIST_REGION);
+    var csb = new CommandStringBuilder(LIST_REGION);
     csb.addOption(GROUP, GROUP1_NAME);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess().containsOutput(PR1,
         LOCALREGIONONSERVER1);
@@ -115,7 +113,7 @@ public class ListRegionDUnitTest {
 
   @Test
   public void listRegionsInGroup2() {
-    CommandStringBuilder csb = new CommandStringBuilder(LIST_REGION);
+    var csb = new CommandStringBuilder(LIST_REGION);
     csb.addOption(GROUP, GROUP2_NAME);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess().containsOutput(PR1, REGION1,
         REGION2, REGION3, SUBREGION1A);
@@ -123,13 +121,13 @@ public class ListRegionDUnitTest {
 
   @Test
   public void listNoMembersIsSuccess() {
-    CommandStringBuilder csb = new CommandStringBuilder(LIST_REGION);
+    var csb = new CommandStringBuilder(LIST_REGION);
     csb.addOption(GROUP, "unknown");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
   }
 
   private static void createLocalRegion(final String regionName) {
-    final Cache cache = CacheFactory.getAnyInstance();
+    final var cache = CacheFactory.getAnyInstance();
     // Create the data region
     RegionFactory<String, Integer> dataRegionFactory =
         cache.createRegionFactory(RegionShortcut.LOCAL);
@@ -138,14 +136,14 @@ public class ListRegionDUnitTest {
 
   @SuppressWarnings("deprecation")
   private static void createRegionsWithSubRegions() {
-    final Cache cache = CacheFactory.getAnyInstance();
+    final var cache = CacheFactory.getAnyInstance();
 
     RegionFactory<String, Integer> dataRegionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
     dataRegionFactory.setConcurrencyLevel(3);
-    Region<String, Integer> region1 = dataRegionFactory.create(REGION1);
+    var region1 = dataRegionFactory.create(REGION1);
     region1.createSubregion(SUBREGION1C, region1.getAttributes());
-    Region<String, Integer> subregion2 =
+    var subregion2 =
         region1.createSubregion(SUBREGION1A, region1.getAttributes());
 
     subregion2.createSubregion(SUBREGION1B, subregion2.getAttributes());

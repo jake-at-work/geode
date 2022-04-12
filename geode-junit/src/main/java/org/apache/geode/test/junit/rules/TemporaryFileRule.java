@@ -96,7 +96,7 @@ public class TemporaryFileRule extends ExternalResource {
 
 
   private File createFile(String directory, String fileName) {
-    File file = new File(directory, fileName);
+    var file = new File(directory, fileName);
     try {
       if (!file.createNewFile()) {
         throw new IllegalStateException(

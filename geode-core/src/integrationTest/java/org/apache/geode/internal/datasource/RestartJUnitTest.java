@@ -52,7 +52,7 @@ public class RestartJUnitTest {
     try {
       props = new Properties();
       props.setProperty(MCAST_PORT, "0");
-      String path =
+      var path =
           createTempFileFromResource(RestartJUnitTest.class, "/jta/cachejta.xml")
               .getAbsolutePath();
       props.setProperty(CACHE_XML_FILE, path);

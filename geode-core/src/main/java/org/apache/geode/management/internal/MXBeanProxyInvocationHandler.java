@@ -65,22 +65,22 @@ public class MXBeanProxyInvocationHandler {
 
   public Object invoke(Object proxy, Method method, Object[] arguments)
       throws InvalidObjectException, OpenDataException, MBeanException {
-    MethodHandler handler = methodHandlerMap.get(method);
-    OpenMethod convertingMethod = handler.getConvertingMethod();
+    var handler = methodHandlerMap.get(method);
+    var convertingMethod = handler.getConvertingMethod();
 
-    Object[] openArgs = convertingMethod.toOpenParameters(arguments);
-    Object result = handler.invoke(proxy, method, openArgs);
+    var openArgs = convertingMethod.toOpenParameters(arguments);
+    var result = handler.invoke(proxy, method, openArgs);
     return convertingMethod.fromOpenReturnValue(result);
   }
 
   private void initHandlers(Class<?> mxbeanInterface) {
-    Method[] methodArray = mxbeanInterface.getMethods();
-    List<Method> methods = eliminateCovariantMethods(methodArray);
+    var methodArray = mxbeanInterface.getMethods();
+    var methods = eliminateCovariantMethods(methodArray);
 
-    for (Method method : methods) {
-      String name = method.getName();
+    for (var method : methods) {
+      var name = method.getName();
 
-      String attributeName = "";
+      var attributeName = "";
       if (name.startsWith("get")) {
         attributeName = name.substring(3);
       } else if (name.startsWith("is") && method.getReturnType() == boolean.class) {
@@ -108,14 +108,14 @@ public class MXBeanProxyInvocationHandler {
    * @return the method after eliminating covariant methods
    */
   private static List<Method> eliminateCovariantMethods(Method[] methodArray) {
-    int methodCount = methodArray.length;
-    Method[] sorted = methodArray.clone();
+    var methodCount = methodArray.length;
+    var sorted = methodArray.clone();
     Arrays.sort(sorted, METHOD_ORDER_COMPARATOR);
     Set<Method> overridden = OpenTypeUtil.newSet();
 
-    for (int i = 1; i < methodCount; i++) {
-      Method m0 = sorted[i - 1];
-      Method m1 = sorted[i];
+    for (var i = 1; i < methodCount; i++) {
+      var m0 = sorted[i - 1];
+      var m1 = sorted[i];
 
       if (!m0.getName().equals(m1.getName())) {
         continue;
@@ -126,7 +126,7 @@ public class MXBeanProxyInvocationHandler {
       }
     }
 
-    List<Method> methods = OpenTypeUtil.newList(asList(methodArray));
+    var methods = OpenTypeUtil.newList(asList(methodArray));
     methods.removeAll(overridden);
     return methods;
   }
@@ -163,8 +163,8 @@ public class MXBeanProxyInvocationHandler {
 
     @Override
     Object invoke(Object proxy, Method method, Object[] arguments) throws MBeanException {
-      String methodName = method.getName();
-      String attributeName = "";
+      var methodName = method.getName();
+      var attributeName = "";
       if (methodName.startsWith("get")) {
         attributeName = methodName.substring(3);
       } else if (methodName.startsWith("is") && method.getReturnType() == boolean.class) {
@@ -182,11 +182,11 @@ public class MXBeanProxyInvocationHandler {
 
     @Override
     Object invoke(Object proxy, Method method, Object[] arguments) throws MBeanException {
-      String methodName = method.getName();
+      var methodName = method.getName();
       Class[] parameterTypes = method.getParameterTypes();
-      String[] signature = new String[parameterTypes.length];
+      var signature = new String[parameterTypes.length];
 
-      for (int i = 0; i < parameterTypes.length; i++) {
+      for (var i = 0; i < parameterTypes.length; i++) {
         signature[i] = parameterTypes[i].getName();
       }
 
@@ -202,11 +202,11 @@ public class MXBeanProxyInvocationHandler {
 
     @Override
     Object invoke(Object proxy, Method method, Object[] arguments) throws MBeanException {
-      String methodName = method.getName();
+      var methodName = method.getName();
       Class[] parameterTypes = method.getParameterTypes();
-      String[] signature = new String[parameterTypes.length];
+      var signature = new String[parameterTypes.length];
 
-      for (int i = 0; i < parameterTypes.length; i++) {
+      for (var i = 0; i < parameterTypes.length; i++) {
         signature[i] = parameterTypes[i].getName();
       }
 
@@ -226,20 +226,20 @@ public class MXBeanProxyInvocationHandler {
 
     @Override
     public int compare(Method a, Method b) {
-      int cmp = a.getName().compareTo(b.getName());
+      var cmp = a.getName().compareTo(b.getName());
       if (cmp != 0) {
         return cmp;
       }
-      Class<?>[] aparams = a.getParameterTypes();
-      Class<?>[] bparams = b.getParameterTypes();
+      var aparams = a.getParameterTypes();
+      var bparams = b.getParameterTypes();
       if (aparams.length != bparams.length) {
         return aparams.length - bparams.length;
       }
       if (!Arrays.equals(aparams, bparams)) {
         return Arrays.toString(aparams).compareTo(Arrays.toString(bparams));
       }
-      Class<?> aret = a.getReturnType();
-      Class<?> bret = b.getReturnType();
+      var aret = a.getReturnType();
+      var bret = b.getReturnType();
       if (aret == bret) {
         return 0;
       }

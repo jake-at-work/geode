@@ -17,9 +17,7 @@ package org.apache.geode.management.internal.cli.shell;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Enumeration;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,11 +35,11 @@ public class GfshHeadlessModeUnitTest extends GfshAbstractUnitTest {
   @Test
   public void headlessModeShouldRedirectBothJDKAndGFSHLoggers() {
     gfsh = new Gfsh(false, null, new GfshConfig());
-    LogManager logManager = LogManager.getLogManager();
-    Enumeration<String> loggerNames = logManager.getLoggerNames();
+    var logManager = LogManager.getLogManager();
+    var loggerNames = logManager.getLoggerNames();
     while (loggerNames.hasMoreElements()) {
-      String loggerName = loggerNames.nextElement();
-      Logger logger = logManager.getLogger(loggerName);
+      var loggerName = loggerNames.nextElement();
+      var logger = logManager.getLogger(loggerName);
       // make sure jdk's logging goes to the gfsh log file
       if (loggerName.startsWith("java")) {
         assertThat(logger.getParent().getName()).endsWith("LogWrapper");

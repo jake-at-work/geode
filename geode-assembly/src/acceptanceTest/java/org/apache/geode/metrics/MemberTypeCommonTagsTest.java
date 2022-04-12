@@ -25,12 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.Rule;
@@ -69,10 +66,10 @@ public class MemberTypeCommonTagsTest {
 
   @Test
   public void theMemberTypeTag_forAnEmbeddedCache_isEmbeddedCache() {
-    SimpleMeterRegistry simpleMeterRegistry = new SimpleMeterRegistry();
+    var simpleMeterRegistry = new SimpleMeterRegistry();
 
-    try (Cache ignored = createEmbeddedCache(simpleMeterRegistry)) {
-      Gauge gauge = simpleMeterRegistry.find("jvm.buffer.memory.used").gauge();
+    try (var ignored = createEmbeddedCache(simpleMeterRegistry)) {
+      var gauge = simpleMeterRegistry.find("jvm.buffer.memory.used").gauge();
       assertThat(gauge).hasTag("member.type", "embedded-cache");
     }
   }
@@ -102,7 +99,7 @@ public class MemberTypeCommonTagsTest {
 
   @Test
   public void theMemberTypeTag_forALocator_isLocator() throws IOException {
-    DistributedMember locator = startLocator();
+    var locator = startLocator();
 
     try {
       assertThat(memberTypeTag(onMember(locator))).isEqualTo("locator");
@@ -112,26 +109,26 @@ public class MemberTypeCommonTagsTest {
   }
 
   private Cache createEmbeddedCache(SimpleMeterRegistry simpleMeterRegistry) {
-    Properties properties = new Properties();
-    CacheFactory cacheFactory = new CacheFactory(properties);
+    var properties = new Properties();
+    var cacheFactory = new CacheFactory(properties);
     return cacheFactory.addMeterSubregistry(simpleMeterRegistry).create();
   }
 
   private DistributedMember startLocator() throws IOException {
     locatorFolder = temporaryFolder.getRoot().toPath().toAbsolutePath();
 
-    int[] ports = getRandomAvailableTCPPorts(2);
+    var ports = getRandomAvailableTCPPorts(2);
 
-    int locatorPort = ports[0];
-    int locatorJmxPort = ports[1];
+    var locatorPort = ports[0];
+    var locatorJmxPort = ports[1];
 
-    Path serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
+    var serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
         MetricsPublishingService.class, SimpleMetricsPublishingService.class);
 
-    Path functionJarPath = locatorFolder.resolve("function.jar").toAbsolutePath();
+    var functionJarPath = locatorFolder.resolve("function.jar").toAbsolutePath();
     writeJarFromClasses(functionJarPath.toFile(), GetMemberTypeTag.class);
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=locator",
         "--dir=" + locatorFolder,
@@ -142,9 +139,9 @@ public class MemberTypeCommonTagsTest {
 
     gfshRule.execute(startLocatorCommand);
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(DistributionConfig.LOCATORS_NAME, "localhost[" + locatorPort + "]");
-    CacheFactory cacheFactory = new CacheFactory(properties);
+    var cacheFactory = new CacheFactory(properties);
     cache = cacheFactory.create();
 
     return cache.getDistributedSystem().findDistributedMember("locator");
@@ -152,7 +149,7 @@ public class MemberTypeCommonTagsTest {
 
   private void stopLocator() {
     cache.close();
-    String stopLocatorCommand = "stop locator --dir=" + locatorFolder;
+    var stopLocatorCommand = "stop locator --dir=" + locatorFolder;
     gfshRule.execute(stopLocatorCommand);
   }
 
@@ -167,25 +164,25 @@ public class MemberTypeCommonTagsTest {
   private void startServer(boolean withLocator) throws IOException {
     serverFolder = temporaryFolder.getRoot().toPath().toAbsolutePath();
 
-    int[] availablePorts = getRandomAvailableTCPPorts(2);
+    var availablePorts = getRandomAvailableTCPPorts(2);
 
-    int serverPort = availablePorts[0];
-    int locatorPort = availablePorts[1];
+    var serverPort = availablePorts[0];
+    var locatorPort = availablePorts[1];
 
-    String additionalParameters = "";
+    var additionalParameters = "";
     if (withLocator) {
       additionalParameters = String.join(" ",
           "--J=-Dgemfire.start-locator=localhost[" + locatorPort + "]",
           "--J=-Dgemfire.jmx-manager=false");
     }
 
-    Path serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
+    var serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
         MetricsPublishingService.class, SimpleMetricsPublishingService.class);
 
-    Path functionJarPath = serverFolder.resolve("function.jar").toAbsolutePath();
+    var functionJarPath = serverFolder.resolve("function.jar").toAbsolutePath();
     writeJarFromClasses(functionJarPath.toFile(), GetMemberTypeTag.class);
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--name=server",
         "--dir=" + serverFolder,
@@ -205,13 +202,13 @@ public class MemberTypeCommonTagsTest {
     serverPool.destroy();
     clientCache.close();
 
-    String stopServerCommand = "stop server --dir=" + serverFolder;
+    var stopServerCommand = "stop server --dir=" + serverFolder;
     gfshRule.execute(stopServerCommand);
   }
 
   private String memberTypeTag(Execution execution) {
     @SuppressWarnings("unchecked")
-    List<String> results = (List<String>) execution
+    var results = (List<String>) execution
         .execute(new GetMemberTypeTag())
         .getResult();
     return results.get(0);
@@ -222,16 +219,16 @@ public class MemberTypeCommonTagsTest {
 
     @Override
     public void execute(FunctionContext<String> context) {
-      String meterNameToCheck = "jvm.memory.used";
+      var meterNameToCheck = "jvm.memory.used";
 
-      Meter meter = SimpleMetricsPublishingService.getRegistry()
+      var meter = SimpleMetricsPublishingService.getRegistry()
           .find(meterNameToCheck)
           .meter();
 
       String result = null;
 
       if (meter != null) {
-        Map<String, String> tagsMap = meter.getId().getTags().stream()
+        var tagsMap = meter.getId().getTags().stream()
             .collect(Collectors.toMap(Tag::getKey, Tag::getValue));
         result = tagsMap.get("member.type");
       }

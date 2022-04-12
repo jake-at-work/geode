@@ -46,7 +46,7 @@ public class AddHealthListenerRequest extends AdminRequest {
           "Null GemFireHealthConfig");
     }
 
-    AddHealthListenerRequest m = new AddHealthListenerRequest();
+    var m = new AddHealthListenerRequest();
     m.cfg = cfg;
     return m;
   }

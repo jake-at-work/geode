@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.io.Serializable;
 
-import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,19 +28,15 @@ import org.junit.Test;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.CacheServerMXBean;
 import org.apache.geode.management.ManagementTestRule;
 import org.apache.geode.management.Manager;
-import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
 
@@ -82,12 +76,12 @@ public class TestClientIdsDUnitTest implements Serializable {
     managementTestRule.createManagers();
 
     int port = serverVM.invoke(this::createServerCache);
-    String hostName = getServerHostName(serverVM.getHost());
+    var hostName = getServerHostName(serverVM.getHost());
 
     client1VM.invoke(() -> createClientCache(hostName, port));
     client2VM.invoke(() -> createClientCache(hostName, port));
 
-    DistributedMember serverMember = managementTestRule.getDistributedMember(serverVM);
+    var serverMember = managementTestRule.getDistributedMember(serverVM);
 
     managerVM.invoke(() -> verifyClientIds(serverMember, port));
   }
@@ -95,14 +89,14 @@ public class TestClientIdsDUnitTest implements Serializable {
   private int createServerCache() throws IOException {
     Cache cache = managementTestRule.getCache();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
-    CacheServer cacheServer = cache.addCacheServer();
+    var cacheServer = cache.addCacheServer();
     cacheServer.setPort(0);
     cacheServer.setNotifyBySubscription(true);
     cacheServer.start();
@@ -112,7 +106,7 @@ public class TestClientIdsDUnitTest implements Serializable {
   private void createClientCache(final String host, final int serverPort) {
     ClientCache cache = managementTestRule.getClientCache();
 
-    Pool pool = PoolManager.createFactory().addServer(host, serverPort)
+    var pool = PoolManager.createFactory().addServer(host, serverPort)
         .setSubscriptionEnabled(false).setMinConnections(1)
         .setReadTimeout(20000).setPingInterval(10000).setRetryAttempts(1)
         .setSubscriptionEnabled(true).setStatisticInterval(1000).create(getClass().getSimpleName());
@@ -125,15 +119,15 @@ public class TestClientIdsDUnitTest implements Serializable {
 
   private void verifyClientIds(final DistributedMember serverMember, final int serverPort)
       throws Exception {
-    CacheServerMXBean cacheServerMXBean = awaitCacheServerMXBean(serverMember, serverPort);
+    var cacheServerMXBean = awaitCacheServerMXBean(serverMember, serverPort);
     await().untilAsserted(() -> assertThat(cacheServerMXBean.getClientIds()).hasSize(2));
     assertThat(cacheServerMXBean.getClientIds()).hasSize(2); // TODO: write better assertions
   }
 
   private CacheServerMXBean awaitCacheServerMXBean(final DistributedMember serverMember,
       final int port) {
-    SystemManagementService service = managementTestRule.getSystemManagementService();
-    ObjectName objectName = service.getCacheServerMBeanName(port, serverMember);
+    var service = managementTestRule.getSystemManagementService();
+    var objectName = service.getCacheServerMBeanName(port, serverMember);
 
     await().untilAsserted(
         () -> assertThat(service.getMBeanProxy(objectName, CacheServerMXBean.class)).isNotNull());

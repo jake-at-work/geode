@@ -30,19 +30,15 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.data.PortfolioPdx;
 import org.apache.geode.cache.query.data.PositionPdx;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.compression.Compressor;
 import org.apache.geode.compression.SnappyCompressor;
@@ -90,9 +86,9 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
   protected void preTearDownPDXQueryTestBase() throws Exception {}
 
   private void resetTestObjectInstanceCount() {
-    final Host host = Host.getHost(0);
-    for (int i = 0; i < 4; i++) {
-      VM vm = host.getVM(i);
+    final var host = Host.getHost(0);
+    for (var i = 0; i < 4; i++) {
+      var vm = host.getVM(i);
       vm.invoke(new CacheSerializableRunnable("Create cache server") {
         @Override
         public void run2() throws CacheException {
@@ -126,15 +122,15 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         // Create Cache.
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty("mcast-port", "0");
         props.setProperty("locators", "");
         getSystem(props);
         getCache();
-        PoolFactory cpf = PoolManager.createFactory();
+        var cpf = PoolManager.createFactory();
         cpf.setSubscriptionEnabled(subscriptionEnabled);
         cpf.setSubscriptionRedundancy(redundancy);
-        for (int i = 0; i < servers.length; i++) {
+        for (var i = 0; i < servers.length; i++) {
           cpf.addServer(servers[i], ports[i]);
         }
         cpf.create(poolName);
@@ -148,7 +144,7 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
 
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
@@ -158,7 +154,7 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
         }
 
         try {
-          Query query = remoteQueryService.newQuery(queryStr);
+          var query = remoteQueryService.newQuery(queryStr);
           rs[0][0] = (SelectResults) query.execute();
           query = localQueryService.newQuery(queryStr);
           rs[0][1] = (SelectResults) query.execute();
@@ -176,16 +172,16 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
   public void printResults(SelectResults results, String message) {
     Object r;
     Struct s;
-    LogWriter logger = GemFireCacheImpl.getInstance().getLogger();
+    var logger = GemFireCacheImpl.getInstance().getLogger();
     logger.fine(message);
-    int row = 0;
-    for (final Object result : results) {
+    var row = 0;
+    for (final var result : results) {
       r = result;
       row++;
       if (r instanceof Struct) {
         s = (Struct) r;
-        String[] fieldNames = ((Struct) r).getStructType().getFieldNames();
-        for (final String fieldName : fieldNames) {
+        var fieldNames = ((Struct) r).getStructType().getFieldNames();
+        for (final var fieldName : fieldNames) {
           logger.fine("### Row " + row + "\n" + "Field: " + fieldName + " > "
               + s.get(fieldName).toString());
         }
@@ -205,13 +201,13 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
 
   protected void configAndStartBridgeServer(boolean isPr, boolean isAccessor, boolean asyncIndex,
       Compressor compressor) {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     if (isPr) {
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
       if (isAccessor) {
         paf.setLocalMaxMemory(0);
       }
-      PartitionAttributes prAttr = paf.setTotalNumBuckets(20).setRedundantCopies(0).create();
+      var prAttr = paf.setTotalNumBuckets(20).setRedundantCopies(0).create();
       factory.setPartitionAttributes(prAttr);
     } else {
       factory.setScope(Scope.DISTRIBUTED_ACK);
@@ -244,9 +240,9 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
       Assert.fail("Failed to get QueryService.", e);
     }
 
-    for (int i = 0; i < queryString.length; i++) {
+    for (var i = 0; i < queryString.length; i++) {
       try {
-        Query query = qService.newQuery(queryString[i]);
+        var query = qService.newQuery(queryString[i]);
         results = (SelectResults) query.execute(params[i]);
       } catch (Exception e) {
         Assert.fail("Failed executing " + queryString[i], e);
@@ -260,7 +256,7 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
    */
   protected void startBridgeServer(int port, boolean notifyBySubscription) throws IOException {
     Cache cache = getCache();
-    CacheServer bridge = cache.addCacheServer();
+    var bridge = cache.addCacheServer();
     bridge.setPort(port);
     bridge.setNotifyBySubscription(notifyBySubscription);
     bridge.start();
@@ -271,7 +267,7 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
    * Stops the cache server that serves up the given cache.
    */
   protected void stopBridgeServer(Cache cache) {
-    CacheServer bridge = cache.getCacheServers().iterator().next();
+    var bridge = cache.getCacheServers().iterator().next();
     bridge.stop();
     assertFalse(bridge.isRunning());
   }
@@ -296,8 +292,8 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
    * notifyBySubscription to serve up the given region.
    */
   protected void startCacheServer(int port, boolean notifyBySubscription) throws IOException {
-    Cache cache = CacheFactory.getAnyInstance();
-    CacheServer bridge = cache.addCacheServer();
+    var cache = CacheFactory.getAnyInstance();
+    var bridge = cache.addCacheServer();
     bridge.setPort(port);
     bridge.setNotifyBySubscription(notifyBySubscription);
     bridge.start();
@@ -335,7 +331,7 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
     public boolean equals(Object o) {
       GemFireCacheImpl.getInstance().getLogger()
           .fine("In TestObject2.equals() this: " + this + " other :" + o);
-      TestObject2 other = (TestObject2) o;
+      var other = (TestObject2) o;
       return _id == other._id;
     }
 
@@ -384,7 +380,7 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
 
     public TestObject(int id, String ticker, int numPositions) {
       this(id, ticker);
-      for (int i = 0; i < numPositions; i++) {
+      for (var i = 0; i < numPositions; i++) {
         positions.put(id + i, new PositionPdx(ticker + ":" + id + ":" + i, (id + 100)));
       }
     }
@@ -436,7 +432,7 @@ public abstract class PDXQueryTestBase extends JUnit4CacheTestCase {
 
     @Override
     public boolean equals(Object o) {
-      TestObject other = (TestObject) o;
+      var other = (TestObject) o;
       return (id == other.id) && (_ticker.equals(other._ticker));
     }
 

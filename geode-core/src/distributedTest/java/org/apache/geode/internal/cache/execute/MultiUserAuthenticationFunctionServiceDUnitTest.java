@@ -33,8 +33,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.DataSerializable;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionService;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
@@ -68,10 +66,10 @@ public class MultiUserAuthenticationFunctionServiceDUnitTest {
     IgnoredException.addIgnoredException("org.apache.geode.security.AuthenticationFailedException");
 
     // Start Cluster
-    Properties locatorProps = new Properties();
+    var locatorProps = new Properties();
     locatorProps.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getCanonicalName());
     locator = lsRule.startLocatorVM(0, locatorProps);
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty("security-username", "cluster");
     serverProps.setProperty("security-password", "cluster");
     server = lsRule.startServerVM(1, serverProps, locator.getPort());
@@ -94,7 +92,7 @@ public class MultiUserAuthenticationFunctionServiceDUnitTest {
   }
 
   static Properties getClientSecurityProperties(String username, String password) {
-    Properties properties = new Properties(clientProperties);
+    var properties = new Properties(clientProperties);
     properties.setProperty(UserPasswordAuthInit.USER_NAME, username);
     properties.setProperty(UserPasswordAuthInit.PASSWORD, password);
 
@@ -103,12 +101,12 @@ public class MultiUserAuthenticationFunctionServiceDUnitTest {
 
   @Test
   public void multiUserAuthenticatedFunctionExecutionsOnServerShouldBeAuthorizedByServers() {
-    int locatorPort = locator.getPort();
-    ClientCache clientCache = new ClientCacheFactory(clientProperties)
+    var locatorPort = locator.getPort();
+    var clientCache = new ClientCacheFactory(clientProperties)
         .setPoolMultiuserAuthentication(true).addPoolLocator("localhost", locatorPort).create();
-    RegionService authorizedRegionService =
+    var authorizedRegionService =
         clientCache.createAuthenticatedView(getClientSecurityProperties("data", "data"));
-    RegionService unauthorizedRegionService =
+    var unauthorizedRegionService =
         clientCache.createAuthenticatedView(getClientSecurityProperties("cluster", "cluster"));
 
     assertThat(FunctionService.onServer(authorizedRegionService).execute(new TestFunction())
@@ -132,13 +130,13 @@ public class MultiUserAuthenticationFunctionServiceDUnitTest {
 
   @Test
   public void multiUserAuthenticatedFunctionExecutionsOnRegionShouldBeAuthorizedByServers() {
-    int locatorPort = locator.getPort();
-    ClientCache clientCache = new ClientCacheFactory(clientProperties)
+    var locatorPort = locator.getPort();
+    var clientCache = new ClientCacheFactory(clientProperties)
         .setPoolMultiuserAuthentication(true).addPoolLocator("localhost", locatorPort).create();
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("testRegion");
-    RegionService authorizedRegionService =
+    var authorizedRegionService =
         clientCache.createAuthenticatedView(getClientSecurityProperties("data", "data"));
-    RegionService unauthorizedRegionService =
+    var unauthorizedRegionService =
         clientCache.createAuthenticatedView(getClientSecurityProperties("cluster", "cluster"));
     Region authorizedRegion = authorizedRegionService.getRegion("testRegion");
     Region unauthorizedRegion = unauthorizedRegionService.getRegion("testRegion");

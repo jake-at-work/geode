@@ -23,7 +23,6 @@ import org.apache.geode.cache.EntryDestroyedException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.AmbiguousNameException;
 import org.apache.geode.cache.query.FunctionDomainException;
-import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
@@ -86,8 +85,8 @@ public class CompiledComparison extends AbstractCompiledValue
   @Override
   public Object evaluate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    Object left = _left.evaluate(context);
-    Object right = _right.evaluate(context);
+    var left = _left.evaluate(context);
+    var right = _right.evaluate(context);
 
     if (context.isCqQueryContext() && left instanceof Region.Entry) {
       try {
@@ -174,7 +173,7 @@ public class CompiledComparison extends AbstractCompiledValue
     if (!isDependentOnCurrentScope(context)) {
       return super.filterEvaluate(context, intermediateResults);
     }
-    IndexInfo[] idxInfo = getIndexInfo(context);
+    var idxInfo = getIndexInfo(context);
     Support.Assert(idxInfo != null,
         "a comparison that is dependent, not indexed, and filter evaluated is not possible");
     if (idxInfo.length == 1) {
@@ -217,8 +216,8 @@ public class CompiledComparison extends AbstractCompiledValue
     // of the scope
     RuntimeIterator indpndntItr = null;
 
-    List currentScopeIndpndntItrs = context.getAllIndependentIteratorsOfCurrentScope();
-    Set rntmItrs = QueryUtils.getCurrentScopeUltimateRuntimeIteratorsIfAny(this, context);
+    var currentScopeIndpndntItrs = context.getAllIndependentIteratorsOfCurrentScope();
+    var rntmItrs = QueryUtils.getCurrentScopeUltimateRuntimeIteratorsIfAny(this, context);
     if (rntmItrs.size() == 1 && currentScopeIndpndntItrs.size() == 1) {
       indpndntItr = (RuntimeIterator) rntmItrs.iterator().next();
     }
@@ -262,16 +261,16 @@ public class CompiledComparison extends AbstractCompiledValue
   @Override
   protected PlanInfo protGetPlanInfo(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    PlanInfo result = new PlanInfo();
-    IndexInfo[] indexInfo = getIndexInfo(context);
+    var result = new PlanInfo();
+    var indexInfo = getIndexInfo(context);
     if (indexInfo == null) {
       return result;
     }
-    for (final IndexInfo info : indexInfo) {
+    for (final var info : indexInfo) {
       result.indexes.add(info._index);
     }
     result.evalAsFilter = true;
-    String preferredCondn = (String) context.cacheGet(PREF_INDEX_COND);
+    var preferredCondn = (String) context.cacheGet(PREF_INDEX_COND);
     if (preferredCondn != null) {
       // This means that the system is having only one independent iterator so equi join is ruled
       // out.
@@ -293,7 +292,7 @@ public class CompiledComparison extends AbstractCompiledValue
   }
 
   int reflectOnOperator(CompiledValue key) {
-    int operator = _operator;
+    var operator = _operator;
     if (key == _left) {
       operator = reflectOperator(operator);
     }
@@ -308,7 +307,7 @@ public class CompiledComparison extends AbstractCompiledValue
   @Override
   public int getSizeEstimate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    IndexInfo[] idxInfo = getIndexInfo(context);
+    var idxInfo = getIndexInfo(context);
 
     // Both operands are indexed, evaluate it first in the filter operand.
     if (idxInfo != null && idxInfo.length > 1) {
@@ -321,7 +320,7 @@ public class CompiledComparison extends AbstractCompiledValue
     }
 
     assert idxInfo.length == 1;
-    Object key = idxInfo[0].evaluateIndexKey(context);
+    var key = idxInfo[0].evaluateIndexKey(context);
 
     // Key not found (indexes have mapping for UNDEFINED), evaluation is fast so do it first.
     if (key != null && key.equals(QueryService.UNDEFINED)) {
@@ -329,14 +328,14 @@ public class CompiledComparison extends AbstractCompiledValue
     }
 
     if (context instanceof QueryExecutionContext) {
-      QueryExecutionContext qcontext = (QueryExecutionContext) context;
+      var qcontext = (QueryExecutionContext) context;
       if (qcontext.isHinted(idxInfo[0]._index.getName())) {
         return qcontext.getHintSize(idxInfo[0]._index.getName());
       }
     }
     // if the key is the LEFT operand, then reflect the operator
     // before the index lookup
-    int op = reflectOnOperator(idxInfo[0]._key());
+    var op = reflectOnOperator(idxInfo[0]._key());
 
     return idxInfo[0]._index.getSizeEstimate(key, op, idxInfo[0]._matchLevel);
   }
@@ -352,12 +351,12 @@ public class CompiledComparison extends AbstractCompiledValue
       boolean isIntersection, boolean conditioningNeeded, boolean evaluateProj)
       throws TypeMismatchException, FunctionDomainException,
       NameResolutionException, QueryInvocationTargetException {
-    ObjectType resultType = indexInfo._index.getResultSetType();
-    int indexFieldsSize = -1;
+    var resultType = indexInfo._index.getResultSetType();
+    var indexFieldsSize = -1;
     SelectResults set = null;
-    boolean createEmptySet = false;
+    var createEmptySet = false;
     // Direct comparison with UNDEFINED will always return empty set
-    Object key = indexInfo.evaluateIndexKey(context);
+    var key = indexInfo.evaluateIndexKey(context);
     createEmptySet = (key != null && key.equals(QueryService.UNDEFINED));
     if (resultType instanceof StructType) {
       indexFieldsSize = ((StructTypeImpl) resultType).getFieldNames().length;
@@ -367,9 +366,9 @@ public class CompiledComparison extends AbstractCompiledValue
 
     // if the key is the LEFT operand, then reflect the operator
     // before the index lookup
-    int op = reflectOnOperator(indexInfo._key());
+    var op = reflectOnOperator(indexInfo._key());
     // actual index lookup
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var observer = QueryObserverHolder.getInstance();
     List projAttrib = null;
     /*
      * Asif : First obtain the match level of index resultset. If the match level happens to be zero
@@ -394,17 +393,17 @@ public class CompiledComparison extends AbstractCompiledValue
       // we get the right idea. Also right now we will assume that only single
       // iterator cases will be candidates for this oprtmization.
       // dependent iterators will come later.
-      boolean useLinkedDataStructure = false;
-      boolean nullValuesAtStart = true;
-      Boolean orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
+      var useLinkedDataStructure = false;
+      var nullValuesAtStart = true;
+      var orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
       if (orderByClause != null && orderByClause) {
-        List orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
+        var orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
         useLinkedDataStructure = orderByAttrs.size() == 1;
         nullValuesAtStart = !((CompiledSortCriterion) orderByAttrs.get(0)).getCriterion();
       }
       // ////////////////////////////////////////////////////////////////
       if (!conditioningNeeded) {
-        ObjectType projResultType =
+        var projResultType =
             evaluateProj ? (ObjectType) context.cacheGet(RESULT_TYPE) : null;
         if (projResultType != null) {
           resultType = projResultType;
@@ -531,7 +530,7 @@ public class CompiledComparison extends AbstractCompiledValue
     // each of the
     // one dimensional array can be either genuine result object or StructImpl
     // object.
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var observer = QueryObserverHolder.getInstance();
     context.cachePut(CompiledValue.INDEX_INFO, indxInfo);
     /*
      * Asif : If the independent Group of iterators passed is not null or the independent Group of
@@ -618,7 +617,7 @@ public class CompiledComparison extends AbstractCompiledValue
   @Override
   public IndexInfo[] getIndexInfo(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    IndexInfo[] indexInfo = privGetIndexInfo(context);
+    var indexInfo = privGetIndexInfo(context);
     if (indexInfo != null) {
       if (indexInfo == NO_INDEXES_IDENTIFIER) {
         return null;
@@ -631,22 +630,22 @@ public class CompiledComparison extends AbstractCompiledValue
       return null;
     }
     // get the path and index key to try
-    PathAndKey pAndK = getPathAndKey(context);
+    var pAndK = getPathAndKey(context);
     IndexInfo[] newIndexInfo = null;
     if (pAndK == null) {
-      IndexData[] indexData =
+      var indexData =
           QueryUtils.getRelationshipIndexIfAny(_left, _right, context, _operator);// findOnlyFunctionalIndex.
       if (indexData != null) {
         newIndexInfo = new IndexInfo[2];
-        for (int i = 0; i < 2; ++i) {
+        for (var i = 0; i < 2; ++i) {
           newIndexInfo[i] = new IndexInfo(null, i == 0 ? _left : _right, indexData[i].getIndex(),
               indexData[i].getMatchLevel(), indexData[i].getMapping(),
               i == 0 ? _operator : reflectOperator(_operator));
         }
       }
     } else {
-      CompiledValue path = pAndK._path;
-      CompiledValue indexKey = pAndK._key;
+      var path = pAndK._path;
+      var indexKey = pAndK._key;
       IndexData indexData;
       // CompiledLike should not use HashIndex and PrimarKey Index.
       if (this instanceof CompiledLike) {
@@ -657,7 +656,7 @@ public class CompiledComparison extends AbstractCompiledValue
       }
 
       if (indexCannotBeUsed(context, indexData)) {
-        Index prIndex = ((AbstractIndex) indexData.getIndex()).getPRIndex();
+        var prIndex = ((AbstractIndex) indexData.getIndex()).getPRIndex();
         if (prIndex != null) {
           ((PartitionedIndex) prIndex).releaseIndexReadLockForRemove();
         } else {
@@ -733,8 +732,8 @@ public class CompiledComparison extends AbstractCompiledValue
       throws TypeMismatchException, AmbiguousNameException {
     // RuntimeIterator lIter = context.findRuntimeIterator(_left);
     // RuntimeIterator rIter = context.findRuntimeIterator(_right);
-    boolean isLeftDependent = context.isDependentOnCurrentScope(_left);
-    boolean isRightDependent = context.isDependentOnCurrentScope(_right);
+    var isLeftDependent = context.isDependentOnCurrentScope(_left);
+    var isRightDependent = context.isDependentOnCurrentScope(_right);
     if ((isLeftDependent == false) == (isRightDependent == false)) {
       return null;
     }
@@ -793,9 +792,9 @@ public class CompiledComparison extends AbstractCompiledValue
       NameResolutionException, QueryInvocationTargetException {
 
     if (getPlanInfo(context).evalAsFilter) {
-      PlanInfo pi = getPlanInfo(context);
+      var pi = getPlanInfo(context);
       if (pi.indexes.size() == 1) {
-        IndexProtocol ip = (IndexProtocol) pi.indexes.get(0);
+        var ip = (IndexProtocol) pi.indexes.get(0);
         return ip.getCanonicalizedIndexedExpression().equals(canonicalizedOrderByClause)
             && ip.getType() != IndexType.PRIMARY_KEY && pi.isPreferred;
       }
@@ -808,14 +807,14 @@ public class CompiledComparison extends AbstractCompiledValue
       ExecutionContext context, boolean completeExpnsNeeded)
       throws TypeMismatchException, NameResolutionException {
     IndexConditioningHelper ich = null;
-    IndexInfo[] idxInfo = getIndexInfo(context);
-    int indexFieldsSize = -1;
-    boolean conditioningNeeded = true;
+    var idxInfo = getIndexInfo(context);
+    var indexFieldsSize = -1;
+    var conditioningNeeded = true;
     if (idxInfo == null || idxInfo.length > 1) {
       return conditioningNeeded;
     }
     // assert idxInfo.length == 1;
-    ObjectType indexRsltType = idxInfo[0]._index.getResultSetType();
+    var indexRsltType = idxInfo[0]._index.getResultSetType();
     if (indexRsltType instanceof StructType) {
       indexFieldsSize = ((StructTypeImpl) indexRsltType).getFieldNames().length;
     } else {
@@ -842,10 +841,10 @@ public class CompiledComparison extends AbstractCompiledValue
       QueryInvocationTargetException {
     // If the current filter is equality & comparedTo filter is also equality based , then
     // return the one with lower size estimate is better
-    boolean isThisBetter = true;
+    var isThisBetter = true;
 
-    int thatSize = comparedTo.getSizeEstimate(context);
-    int thatOperator = comparedTo.getOperator();
+    var thatSize = comparedTo.getSizeEstimate(context);
+    var thatOperator = comparedTo.getOperator();
 
     // Go with the lowest cost when hint is used.
     if (context instanceof QueryExecutionContext && ((QueryExecutionContext) context).hasHints()) {

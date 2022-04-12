@@ -46,8 +46,8 @@ public class ReplaceByteArrayAtOffset extends DeltaInfo {
   }
 
   public static void deserializeFrom(DataInput in, AbstractRedisData redisData) throws IOException {
-    int offset = DataSerializer.readPrimitiveInt(in);
-    byte[] byteArray = readByteArray(in);
+    var offset = DataSerializer.readPrimitiveInt(in);
+    var byteArray = readByteArray(in);
     redisData.applyReplaceByteArrayAtOffsetDelta(offset, byteArray);
   }
 }

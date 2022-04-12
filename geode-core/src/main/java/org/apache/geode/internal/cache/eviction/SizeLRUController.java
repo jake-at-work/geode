@@ -47,7 +47,7 @@ abstract class SizeLRUController extends AbstractEvictionController {
    * bytes.
    */
   int sizeof(Object object) {
-    final boolean cdChangingForm = object instanceof CachedDeserializableValueWrapper;
+    final var cdChangingForm = object instanceof CachedDeserializableValueWrapper;
     if (cdChangingForm) {
       object = ((CachedDeserializableValueWrapper) object).getValue();
     }

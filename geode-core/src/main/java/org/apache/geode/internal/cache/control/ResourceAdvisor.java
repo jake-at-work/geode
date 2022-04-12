@@ -30,7 +30,6 @@ import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionAdvisee;
 import org.apache.geode.distributed.internal.DistributionAdvisor;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.HighPriorityDistributionMessage;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.InternalDataSerializer;
@@ -85,15 +84,15 @@ public class ResourceAdvisor extends DistributionAdvisor {
       Throwable thr = null;
       ResourceManagerProfile p = null;
       try {
-        final InternalCache cache = dm.getCache();
+        final var cache = dm.getCache();
         if (cache != null && !cache.isClosed()) {
-          final ResourceAdvisor ra = cache.getInternalResourceManager().getResourceAdvisor();
+          final var ra = cache.getInternalResourceManager().getResourceAdvisor();
           if (profiles != null) {
             // Early reply to avoid waiting for the following putProfile call
             // to fire (remote) listeners so that the origin member can proceed with
             // firing its (local) listeners
 
-            for (final ResourceManagerProfile profile : profiles) {
+            for (final var profile : profiles) {
               ra.putProfile(profile);
             }
           }
@@ -139,11 +138,11 @@ public class ResourceAdvisor extends DistributionAdvisor {
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
       processorId = in.readInt();
-      final int l = in.readInt();
+      final var l = in.readInt();
       if (l != -1) {
         profiles = new ResourceManagerProfile[l];
-        for (int i = 0; i < profiles.length; i++) {
-          final ResourceManagerProfile r = new ResourceManagerProfile();
+        for (var i = 0; i < profiles.length; i++) {
+          final var r = new ResourceManagerProfile();
           InternalDataSerializer.invokeFromData(r, in);
           profiles[i] = r;
         }
@@ -159,7 +158,7 @@ public class ResourceAdvisor extends DistributionAdvisor {
       out.writeInt(processorId);
       if (profiles != null) {
         out.writeInt(profiles.length);
-        for (final ResourceManagerProfile profile : profiles) {
+        for (final var profile : profiles) {
           InternalDataSerializer.invokeToData(profile, out);
         }
       } else {
@@ -176,8 +175,8 @@ public class ResourceAdvisor extends DistributionAdvisor {
      */
     public static void send(final InternalResourceManager irm,
         Set<InternalDistributedMember> recips, ResourceManagerProfile profile) {
-      final DistributionManager dm = irm.getResourceAdvisor().getDistributionManager();
-      ResourceProfileMessage r = new ResourceProfileMessage(recips, profile);
+      final var dm = irm.getResourceAdvisor().getDistributionManager();
+      var r = new ResourceProfileMessage(recips, profile);
       dm.putOutgoing(r);
     }
 
@@ -188,10 +187,10 @@ public class ResourceAdvisor extends DistributionAdvisor {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append(getShortClassName()).append(" (processorId=").append(processorId)
           .append("; profiles=[");
-      for (int i = 0; i < profiles.length; i++) {
+      for (var i = 0; i < profiles.length; i++) {
         sb.append(profiles[i]);
         if (i < profiles.length - 1) {
           sb.append(", ");
@@ -212,7 +211,7 @@ public class ResourceAdvisor extends DistributionAdvisor {
   }
 
   public static ResourceAdvisor createResourceAdvisor(DistributionAdvisee advisee) {
-    ResourceAdvisor advisor = new ResourceAdvisor(advisee);
+    var advisor = new ResourceAdvisor(advisee);
     advisor.initialize();
     return advisor;
   }
@@ -230,8 +229,8 @@ public class ResourceAdvisor extends DistributionAdvisor {
   @Override
   protected boolean evaluateProfiles(final Profile newProfile, final Profile oldProfile) {
 
-    ResourceManagerProfile oldRMProfile = (ResourceManagerProfile) oldProfile;
-    ResourceManagerProfile newRMProfile = (ResourceManagerProfile) newProfile;
+    var oldRMProfile = (ResourceManagerProfile) oldProfile;
+    var newRMProfile = (ResourceManagerProfile) newProfile;
 
     List<ResourceEvent> eventsToDeliver = new ArrayList<>();
 
@@ -267,7 +266,7 @@ public class ResourceAdvisor extends DistributionAdvisor {
       }
     }
 
-    for (ResourceEvent event : eventsToDeliver) {
+    for (var event : eventsToDeliver) {
       getResourceManager().deliverEventFromRemote(event);
     }
 
@@ -338,7 +337,7 @@ public class ResourceAdvisor extends DistributionAdvisor {
     @Override
     public void processIncoming(ClusterDistributionManager dm, String adviseePath,
         boolean removeProfile, boolean exchangeProfiles, final List<Profile> replyProfiles) {
-      final InternalCache cache = dm.getCache();
+      final var cache = dm.getCache();
       if (cache != null && !cache.isClosed()) {
         handleDistributionAdvisee((DistributionAdvisee) cache, removeProfile, exchangeProfiles,
             replyProfiles);
@@ -367,14 +366,14 @@ public class ResourceAdvisor extends DistributionAdvisor {
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
 
-      final long heapBytesUsed = in.readLong();
-      MemoryState heapState = MemoryState.fromData(in);
-      MemoryThresholds heapThresholds = MemoryThresholds.fromData(in);
+      final var heapBytesUsed = in.readLong();
+      var heapState = MemoryState.fromData(in);
+      var heapThresholds = MemoryThresholds.fromData(in);
       setHeapData(heapBytesUsed, heapState, heapThresholds);
 
-      final long offHeapBytesUsed = in.readLong();
-      MemoryState offHeapState = MemoryState.fromData(in);
-      MemoryThresholds offHeapThresholds = MemoryThresholds.fromData(in);
+      final var offHeapBytesUsed = in.readLong();
+      var offHeapState = MemoryState.fromData(in);
+      var offHeapThresholds = MemoryThresholds.fromData(in);
       setOffHeapData(offHeapBytesUsed, offHeapState, offHeapThresholds);
     }
 
@@ -430,19 +429,19 @@ public class ResourceAdvisor extends DistributionAdvisor {
    */
   public Set<InternalDistributedMember> adviseCriticalMembers() {
     return adviseFilter(profile -> {
-      ResourceManagerProfile rmp = (ResourceManagerProfile) profile;
+      var rmp = (ResourceManagerProfile) profile;
       return rmp.getHeapState().isCritical();
     });
   }
 
   public boolean isHeapCritical(final InternalDistributedMember member) {
-    ResourceManagerProfile rmp = (ResourceManagerProfile) getProfile(member);
+    var rmp = (ResourceManagerProfile) getProfile(member);
     return rmp != null && rmp.getHeapState().isCritical();
   }
 
   public synchronized void updateRemoteProfile() {
-    Set<InternalDistributedMember> recips = adviseGeneric();
-    ResourceManagerProfile profile =
+    var recips = adviseGeneric();
+    var profile =
         new ResourceManagerProfile(getDistributionManager().getId(), incrementAndGetVersion());
     getResourceManager().fillInProfile(profile);
     ResourceProfileMessage.send(getResourceManager(), recips, profile);
@@ -450,7 +449,7 @@ public class ResourceAdvisor extends DistributionAdvisor {
 
   @Override
   protected void profileRemoved(Profile profile) {
-    ResourceManagerProfile oldp = (ResourceManagerProfile) profile;
+    var oldp = (ResourceManagerProfile) profile;
     getResourceManager()
         .deliverEventFromRemote(oldp.createDisabledMemoryEvent(ResourceType.HEAP_MEMORY));
     getResourceManager()

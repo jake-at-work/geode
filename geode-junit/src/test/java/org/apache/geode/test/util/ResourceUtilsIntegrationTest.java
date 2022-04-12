@@ -19,10 +19,8 @@ package org.apache.geode.test.util;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -49,11 +47,11 @@ public class ResourceUtilsIntegrationTest {
 
   @Test
   public void createFileFromResource() throws Exception {
-    File file =
+    var file =
         ResourceUtils.createFileFromResource(resource, temporaryFolder.getRoot(), resourceName);
     assertThat(file).isNotNull().exists();
 
-    List<String> content = FileUtils.readLines(file, Charset.defaultCharset());
+    var content = FileUtils.readLines(file, Charset.defaultCharset());
     assertThat(content).contains(RESOURCE_CONTENT);
   }
 }

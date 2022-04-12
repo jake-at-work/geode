@@ -39,14 +39,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.File;
 import java.security.Principal;
 import java.util.HashMap;
-import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -114,8 +110,8 @@ public class PulseControllerJUnitTest {
     prepareCluster();
     when(repository.getCluster()).thenReturn(cluster);
 
-    PulseConfig config = new PulseConfig();
-    File tempQueryLog = tempFolder.newFile("query_history.log");
+    var config = new PulseConfig();
+    var tempQueryLog = tempFolder.newFile("query_history.log");
     config.setQueryHistoryFileName(tempQueryLog.toString());
     when(repository.getPulseConfig()).thenReturn(config);
 
@@ -722,10 +718,10 @@ public class PulseControllerJUnitTest {
 
   @Test
   public void dataBrowserQuery() throws Exception {
-    ObjectNode queryResult = mapper.createObjectNode().put("foo", "bar");
+    var queryResult = mapper.createObjectNode().put("foo", "bar");
     when(cluster.executeQuery(any(), any(), anyInt())).thenReturn(queryResult);
 
-    String query = "SELECT * FROM " + REGION_PATH;
+    var query = "SELECT * FROM " + REGION_PATH;
     mockMvc.perform(
         get("/dataBrowserQuery")
             .param("query", query)
@@ -740,11 +736,11 @@ public class PulseControllerJUnitTest {
 
   @Test
   public void dataBrowserQueryWithMessageResult() throws Exception {
-    String message = "Query is invalid due to error : Region mentioned in query probably missing /";
-    ObjectNode queryResult = mapper.createObjectNode().put("message", message);
+    var message = "Query is invalid due to error : Region mentioned in query probably missing /";
+    var queryResult = mapper.createObjectNode().put("message", message);
     when(cluster.executeQuery(any(), any(), anyInt())).thenReturn(queryResult);
 
-    String query = "SELECT * FROM " + REGION_PATH;
+    var query = "SELECT * FROM " + REGION_PATH;
     mockMvc.perform(
         get("/dataBrowserQuery")
             .param("query", query)
@@ -761,7 +757,7 @@ public class PulseControllerJUnitTest {
   public void dataBrowserQueryWithExceptionResult() throws Exception {
     when(cluster.executeQuery(any(), any(), anyInt())).thenThrow(IllegalStateException.class);
 
-    String query = "SELECT * FROM " + REGION_PATH;
+    var query = "SELECT * FROM " + REGION_PATH;
     mockMvc.perform(
         get("/dataBrowserQuery")
             .param("query", query)
@@ -776,10 +772,10 @@ public class PulseControllerJUnitTest {
 
   @Test
   public void dataBrowserExport() throws Exception {
-    ObjectNode queryResult = mapper.createObjectNode().put("foo", "bar");
+    var queryResult = mapper.createObjectNode().put("foo", "bar");
     when(cluster.executeQuery(any(), any(), anyInt())).thenReturn(queryResult);
 
-    String query = "SELECT * FROM " + REGION_PATH;
+    var query = "SELECT * FROM " + REGION_PATH;
     mockMvc.perform(
         get("/dataBrowserExport")
             .param("query", query)
@@ -795,11 +791,11 @@ public class PulseControllerJUnitTest {
 
   @Test
   public void dataBrowserExportWithMessageResult() throws Exception {
-    String message = "Query is invalid due to error : Region mentioned in query probably missing /";
-    ObjectNode queryResult = mapper.createObjectNode().put("message", message);
+    var message = "Query is invalid due to error : Region mentioned in query probably missing /";
+    var queryResult = mapper.createObjectNode().put("message", message);
     when(cluster.executeQuery(any(), any(), anyInt())).thenReturn(queryResult);
 
-    String query = "SELECT * FROM " + REGION_PATH;
+    var query = "SELECT * FROM " + REGION_PATH;
     mockMvc.perform(
         get("/dataBrowserExport")
             .param("query", query)
@@ -817,7 +813,7 @@ public class PulseControllerJUnitTest {
   public void dataBrowserExportWithExceptionResult() throws Exception {
     when(cluster.executeQuery(any(), any(), anyInt())).thenThrow(IllegalStateException.class);
 
-    String query = "SELECT * FROM " + REGION_PATH;
+    var query = "SELECT * FROM " + REGION_PATH;
     mockMvc.perform(
         get("/dataBrowserExport")
             .param("query", query)
@@ -833,8 +829,8 @@ public class PulseControllerJUnitTest {
 
   @Test
   public void dataBrowserQueryHistory() throws Exception {
-    String query = "\"SELECT * FROM " + REGION_PATH + "\"";
-    ArrayNode queryHistory = mapper.createArrayNode();
+    var query = "\"SELECT * FROM " + REGION_PATH + "\"";
+    var queryHistory = mapper.createArrayNode();
     queryHistory.addObject().put("queryText", query);
 
     when(cluster.getQueryHistoryByUserId(PRINCIPAL_USER)).thenReturn(queryHistory);
@@ -877,11 +873,11 @@ public class PulseControllerJUnitTest {
     when(cluster.getGarbageCollectionCount()).thenReturn(0L);
     when(cluster.getNotificationPageNumber()).thenReturn(1);
 
-    Cluster.RegionOnMember regionOnMember = new Cluster.RegionOnMember();
+    var regionOnMember = new Cluster.RegionOnMember();
     regionOnMember.setRegionFullPath(REGION_PATH);
     regionOnMember.setMemberName(MEMBER_NAME);
 
-    Cluster.Region clusterRegion = new Cluster.Region();
+    var clusterRegion = new Cluster.Region();
     clusterRegion.setName(REGION_NAME);
     clusterRegion.setFullPath(REGION_PATH);
     clusterRegion.setRegionType(REGION_TYPE);
@@ -893,11 +889,11 @@ public class PulseControllerJUnitTest {
 
     when(cluster.getClusterRegion(REGION_PATH)).thenReturn(clusterRegion);
 
-    HashMap<String, Cluster.Region> clusterRegions = new HashMap<>();
+    var clusterRegions = new HashMap<String, Cluster.Region>();
     clusterRegions.put(REGION_NAME, clusterRegion);
     when(cluster.getClusterRegions()).thenReturn(clusterRegions);
 
-    Cluster.Member member = new Cluster.Member();
+    var member = new Cluster.Member();
     member.setId(MEMBER_ID);
     member.setName(MEMBER_NAME);
     member.setUptime(1L);
@@ -907,27 +903,27 @@ public class PulseControllerJUnitTest {
 
     member.setMemberRegions(clusterRegions);
 
-    Cluster.AsyncEventQueue aeq = new Cluster.AsyncEventQueue();
+    var aeq = new Cluster.AsyncEventQueue();
     aeq.setAsyncEventListener(AEQ_LISTENER);
     member.setAsyncEventQueueList(singletonList(aeq));
 
-    Cluster.Client client = new Cluster.Client();
+    var client = new Cluster.Client();
     client.setId("100");
     client.setName(CLIENT_NAME);
     client.setUptime(1L);
 
-    HashMap<String, Cluster.Client> memberClientsHMap = new HashMap<>();
+    var memberClientsHMap = new HashMap<String, Cluster.Client>();
     memberClientsHMap.put(CLIENT_NAME, client);
     member.setMemberClientsHMap(memberClientsHMap);
 
-    HashMap<String, Cluster.Member> membersHMap = new HashMap<>();
+    var membersHMap = new HashMap<String, Cluster.Member>();
     membersHMap.put(MEMBER_NAME, member);
     when(cluster.getMembersHMap()).thenReturn(membersHMap);
     when(cluster.getMembers()).thenReturn(array(member));
     when(cluster.getMemberCount()).thenReturn(0);
     when(cluster.getMember(anyString())).thenReturn(member);
 
-    List<Cluster.Member> members = singletonList(member);
+    var members = singletonList(member);
     when(cluster.getPhysicalToMember()).thenReturn(singletonMap(PHYSICAL_HOST_NAME, members));
   }
 }

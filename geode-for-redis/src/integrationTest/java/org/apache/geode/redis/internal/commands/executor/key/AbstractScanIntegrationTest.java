@@ -112,7 +112,7 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
   @Test
   public void givenOneKeyInRegion_returnsKey() {
     jedis.set("{tag1}a", "1");
-    ScanResult<String> result = jedis.scan("0", new ScanParams().match("{tag1}*"));
+    var result = jedis.scan("0", new ScanParams().match("{tag1}*"));
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(result.getResult()).containsExactly("{tag1}a");
@@ -120,7 +120,7 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void givenEmptyRegion_returnsEmptyArray() {
-    ScanResult<String> result = jedis.scan("0", new ScanParams().match("{tag1}*"));
+    var result = jedis.scan("0", new ScanParams().match("{tag1}*"));
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(result.getResult()).isEmpty();
@@ -131,7 +131,7 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
     jedis.set("{tag1}a", "1");
     jedis.sadd("{tag1}b", "green", "orange");
     jedis.hset("{tag1}c", "potato", "sweet");
-    ScanResult<String> result = jedis.scan("0", new ScanParams().match("{tag1}*"));
+    var result = jedis.scan("0", new ScanParams().match("{tag1}*"));
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(result.getResult()).containsExactlyInAnyOrder("{tag1}a", "{tag1}b", "{tag1}c");
@@ -143,10 +143,10 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
     jedis.sadd("{tag1}b", "green", "orange");
     jedis.hset("{tag1}c", "potato", "sweet");
 
-    ScanParams scanParams = new ScanParams();
+    var scanParams = new ScanParams();
     scanParams.count(1);
     scanParams.match("{tag1}*");
-    String cursor = "0";
+    var cursor = "0";
     ScanResult<String> result;
     List<String> allKeysFromScan = new ArrayList<>();
 
@@ -166,7 +166,7 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
     jedis.sadd("{tag1}b", "green", "orange");
     jedis.hset("{tag1}c", "potato", "sweet");
 
-    String cursor = "0";
+    var cursor = "0";
     List<Object> result;
     List<Object> allKeysFromScan = new ArrayList<>();
 
@@ -188,10 +188,10 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
     jedis.set("{tag1}a", "1");
     jedis.sadd("{tag1}b", "green", "orange");
     jedis.hset("{tag1}c", "potato", "sweet");
-    ScanParams scanParams = new ScanParams();
+    var scanParams = new ScanParams();
     scanParams.match("{tag1}a*");
 
-    ScanResult<String> result = jedis.scan("0", scanParams);
+    var result = jedis.scan("0", scanParams);
 
     assertThat(result.isCompleteIteration()).isTrue();
     assertThat(result.getResult()).containsExactly("{tag1}a");
@@ -204,7 +204,7 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
     jedis.sadd("{tag1}b", "green", "orange");
     jedis.hset("{tag1}c", "potato", "sweet");
 
-    List<Object> result =
+    var result =
         (List<Object>) jedis.sendCommand("{tag1}a", Protocol.Command.SCAN, "0", "MATCH", "{tag1}b*",
             "MATCH", "{tag1}a*");
 
@@ -217,11 +217,11 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
     jedis.set("{tag1}a", "1");
     jedis.sadd("{tag1}apple", "green", "orange");
     jedis.hset("{tag1}c", "potato", "sweet");
-    ScanParams scanParams = new ScanParams();
+    var scanParams = new ScanParams();
     scanParams.match("{tag1}a*");
     scanParams.count(1);
 
-    String cursor = "0";
+    var cursor = "0";
     ScanResult<String> result;
     List<String> allKeysFromScan = new ArrayList<>();
 
@@ -242,7 +242,7 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
     jedis.sadd("{tag1}b", "green", "orange");
     jedis.hset("{tag1}aardvark", "potato", "sweet");
 
-    String cursor = "0";
+    var cursor = "0";
     List<Object> result;
     List<Object> allKeysFromScan = new ArrayList<>();
 
@@ -267,7 +267,7 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
 
     List<String> allEntries = new ArrayList<>();
 
-    String cursor = "-100";
+    var cursor = "-100";
     ScanResult<String> result;
     do {
       result = jedis.scan(cursor, new ScanParams().match("{tag1}*"));
@@ -292,11 +292,11 @@ public abstract class AbstractScanIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void givenInvalidRegexSyntax_returnsEmptyArray() {
-    ScanParams scanParams = new ScanParams();
+    var scanParams = new ScanParams();
     scanParams.count(1);
     scanParams.match("{tag1}\\p");
 
-    ScanResult<String> result = jedis.scan("0", scanParams);
+    var result = jedis.scan("0", scanParams);
 
     assertThat(result.getResult()).isEmpty();
   }

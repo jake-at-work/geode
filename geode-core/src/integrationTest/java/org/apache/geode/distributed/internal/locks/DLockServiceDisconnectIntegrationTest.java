@@ -34,7 +34,7 @@ public class DLockServiceDisconnectIntegrationTest {
 
   @Before
   public void setUp() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(ConfigurationProperties.LOCATORS, "");
     properties.setProperty(ConfigurationProperties.MCAST_PORT, "0");
     system = DistributedSystem.connect(properties);

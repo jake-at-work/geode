@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimerTask;
@@ -32,13 +31,11 @@ import org.apache.geode.StatisticsType;
 import org.apache.geode.admin.jmx.internal.StatAlertsAggregator;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.SystemTimer;
 import org.apache.geode.internal.SystemTimer.SystemTimerTask;
 import org.apache.geode.internal.admin.remote.AlertsNotificationMessage;
 import org.apache.geode.internal.admin.remote.UpdateAlertDefinitionMessage;
 import org.apache.geode.internal.admin.statalerts.DummyStatisticInfoImpl;
-import org.apache.geode.internal.admin.statalerts.StatisticInfo;
 import org.apache.geode.internal.admin.statalerts.StatisticInfoImpl;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -141,16 +138,16 @@ public class StatAlertsManager {
     }
     synchronized (alertDefinitionsMap) {
       if (actionCode == UpdateAlertDefinitionMessage.REMOVE_ALERT_DEFINITION) {
-        for (final StatAlertDefinition defn : defns) {
+        for (final var defn : defns) {
           alertDefinitionsMap.remove(defn.getId());
           if (logger.isDebugEnabled()) {
             logger.debug("Removed StatAlertDefinition: {}", defn.getName());
           }
         }
       } else {
-        StatAlertDefinition[] alertDefns = createMemberStatAlertDefinition(dm, defns);
+        var alertDefns = createMemberStatAlertDefinition(dm, defns);
         StatAlertDefinition defn;
-        for (int i = 0; i < alertDefns.length; i++) {
+        for (var i = 0; i < alertDefns.length; i++) {
           defn = alertDefns[i];
           alertDefinitionsMap.put(defns[i].getId(), defn);
         }
@@ -170,7 +167,7 @@ public class StatAlertsManager {
     }
 
     // Get the swarm. Currently rather UGLY.
-    InternalDistributedSystem system = dm.getSystem();
+    var system = dm.getSystem();
     if (system == null || system.getDistributionManager() != dm) {
       throw new org.apache.geode.distributed.DistributedSystemDisconnectedException(
           "This manager has been cancelled");
@@ -178,7 +175,7 @@ public class StatAlertsManager {
     // start and schedule new timer
     timer = new SystemTimer(system /* swarm */);
 
-    EvaluateAlertDefnsTask task = new EvaluateAlertDefnsTask();
+    var task = new EvaluateAlertDefnsTask();
     if (refreshAtFixedRate) {
       timer.scheduleAtFixedRate(task, 0, refreshInterval);
     } else {
@@ -234,13 +231,13 @@ public class StatAlertsManager {
     Set alerts = new HashSet();
 
     synchronized (alertDefinitionsMap) {
-      Set keyset = alertDefinitionsMap.keySet();
-      Iterator iter = keyset.iterator();
+      var keyset = alertDefinitionsMap.keySet();
+      var iter = keyset.iterator();
       StatAlert alert;
-      Date now = new Date();
+      var now = new Date();
       while (iter.hasNext()) {
-        Integer key = (Integer) iter.next();
-        StatAlertDefinition defn = (StatAlertDefinition) alertDefinitionsMap.get(key);
+        var key = (Integer) iter.next();
+        var defn = (StatAlertDefinition) alertDefinitionsMap.get(key);
         alert = defn.evaluateAndAlert();
         if (alert != null) {
           alert.setTime(now);
@@ -266,14 +263,14 @@ public class StatAlertsManager {
     StatisticsType type;
     StatisticDescriptor desc;
     String textId;
-    boolean skipDefinition = false;
+    var skipDefinition = false;
     List result = new ArrayList();
 
-    for (final StatAlertDefinition statAlertDefinition : defns) {
+    for (final var statAlertDefinition : defns) {
       skipDefinition = false;
-      StatAlertDefinition defn = statAlertDefinition;
-      StatisticInfo[] statInfos = defn.getStatisticInfo();
-      for (int ii = 0; ii < statInfos.length && !skipDefinition; ii++) {
+      var defn = statAlertDefinition;
+      var statInfos = defn.getStatisticInfo();
+      for (var ii = 0; ii < statInfos.length && !skipDefinition; ii++) {
         textId = statInfos[ii].getStatisticsTextId();
 
         // TODO If none by TextID, use StatType and getAll.
@@ -341,7 +338,7 @@ public class StatAlertsManager {
      */
     @Override
     public void run2() {
-      final boolean isDebugEnabled = logger.isDebugEnabled();
+      final var isDebugEnabled = logger.isDebugEnabled();
 
       synchronized (StatAlertsManager.this) {
         if (dm.getCancelCriterion().isCancelInProgress()) {
@@ -361,7 +358,7 @@ public class StatAlertsManager {
           logger.debug("EvaluateAlertDefnsTask: starting");
         }
         try {
-          StatAlert[] alerts = getAlerts();
+          var alerts = getAlerts();
           if (alerts.length == 0) {
             if (isDebugEnabled) {
               logger.debug("EvaluateAlertsDefnsTask: no alerts");
@@ -369,10 +366,10 @@ public class StatAlertsManager {
             return;
           }
 
-          AlertsNotificationMessage request = new AlertsNotificationMessage();
+          var request = new AlertsNotificationMessage();
           request.setAlerts(alerts);
           if (isDebugEnabled) {
-            for (final Object o : adminMemberSet) {
+            for (final var o : adminMemberSet) {
               logger.debug("EvaluateAlertDefnsTask: sending {} alerts to {}", alerts.length,
                   o);
             }

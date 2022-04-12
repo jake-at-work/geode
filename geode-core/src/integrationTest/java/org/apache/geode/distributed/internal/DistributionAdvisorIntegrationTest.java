@@ -42,12 +42,12 @@ public class DistributionAdvisorIntegrationTest {
   @Test
   public void verifyMembershipListenerIsRemovedAfterForceDisconnect() {
     // Create a region
-    DistributionAdvisee region = (DistributionAdvisee) server.createRegion(RegionShortcut.REPLICATE,
+    var region = (DistributionAdvisee) server.createRegion(RegionShortcut.REPLICATE,
         testName.getMethodName());
 
     // Get the DistributionManager and MembershipListener before force disconnecting the server
-    DistributionManager manager = region.getDistributionManager();
-    MembershipListener listener = region.getDistributionAdvisor().getMembershipListener();
+    var manager = region.getDistributionManager();
+    var listener = region.getDistributionAdvisor().getMembershipListener();
 
     // Verify the MembershipListener is added to the DistributionManager
     assertThat(manager.getMembershipListeners().contains(listener)).isTrue();

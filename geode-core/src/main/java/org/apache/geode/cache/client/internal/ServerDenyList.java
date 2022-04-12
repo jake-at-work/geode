@@ -173,14 +173,14 @@ public class ServerDenyList {
 
     @Override
     public void serverAdded(ServerLocation location) {
-      for (DenyListListener listener : listeners) {
+      for (var listener : listeners) {
         listener.serverAdded(location);
       }
     }
 
     @Override
     public void serverRemoved(ServerLocation location) {
-      for (DenyListListener listener : listeners) {
+      for (var listener : listeners) {
         listener.serverRemoved(location);
       }
     }

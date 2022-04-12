@@ -15,12 +15,9 @@
 package org.apache.geode.internal.memcached.commands;
 
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.internal.memcached.KeyWrapper;
 import org.apache.geode.internal.memcached.Reply;
 import org.apache.geode.internal.memcached.RequestReader;
 import org.apache.geode.internal.memcached.ResponseStatus;
@@ -50,33 +47,33 @@ public class DecrementCommand extends AbstractCommand {
   }
 
   private ByteBuffer processAsciiCommand(ByteBuffer buffer, Cache cache) {
-    CharBuffer flb = getFirstLineBuffer();
+    var flb = getFirstLineBuffer();
     getAsciiDecoder().reset();
     getAsciiDecoder().decode(buffer, flb, false);
     flb.flip();
-    String firstLine = getFirstLine();
-    String[] firstLineElements = firstLine.split(" ");
+    var firstLine = getFirstLine();
+    var firstLineElements = firstLine.split(" ");
 
     assert "decr".equals(firstLineElements[0]);
-    String key = firstLineElements[1];
-    String decrByStr = stripNewline(firstLineElements[2]);
-    long decrBy = Long.parseLong(decrByStr);
-    boolean noReply = firstLineElements.length > 3;
+    var key = firstLineElements[1];
+    var decrByStr = stripNewline(firstLineElements[2]);
+    var decrBy = Long.parseLong(decrByStr);
+    var noReply = firstLineElements.length > 3;
 
-    Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
-    String reply = Reply.NOT_FOUND.toString();
-    ByteBuffer newVal = ByteBuffer.allocate(8);
+    var r = getMemcachedRegion(cache);
+    var reply = Reply.NOT_FOUND.toString();
+    var newVal = ByteBuffer.allocate(8);
     while (true) {
-      ValueWrapper oldValWrapper = r.get(key);
+      var oldValWrapper = r.get(key);
       if (oldValWrapper == null) {
         break;
       }
       newVal.clear();
-      byte[] oldVal = oldValWrapper.getValue();
-      long oldLong = getLongFromByteArray(oldVal);
-      long newLong = oldLong - decrBy;
+      var oldVal = oldValWrapper.getValue();
+      var oldLong = getLongFromByteArray(oldVal);
+      var newLong = oldLong - decrBy;
       newVal.putLong(newLong);
-      ValueWrapper newValWrapper = ValueWrapper.getWrappedValue(newVal.array(), 0/* flags */);
+      var newValWrapper = ValueWrapper.getWrappedValue(newVal.array(), 0/* flags */);
       if (r.replace(key, oldValWrapper, newValWrapper)) {
         reply = newLong + "\r\n";
         break;
@@ -88,22 +85,22 @@ public class DecrementCommand extends AbstractCommand {
   private static final int LONG_LENGTH = 8;
 
   private ByteBuffer processBinaryProtocol(RequestReader request, Cache cache) {
-    ByteBuffer buffer = request.getRequest();
+    var buffer = request.getRequest();
     int extrasLength = buffer.get(EXTRAS_LENGTH_INDEX);
-    final KeyWrapper key = getKey(buffer, HEADER_LENGTH + extrasLength);
+    final var key = getKey(buffer, HEADER_LENGTH + extrasLength);
 
-    long decrBy = buffer.getLong(HEADER_LENGTH);
-    long initialVal = buffer.getLong(HEADER_LENGTH + LONG_LENGTH);
-    int expiration = buffer.getInt(HEADER_LENGTH + LONG_LENGTH + LONG_LENGTH);
+    var decrBy = buffer.getLong(HEADER_LENGTH);
+    var initialVal = buffer.getLong(HEADER_LENGTH + LONG_LENGTH);
+    var expiration = buffer.getInt(HEADER_LENGTH + LONG_LENGTH + LONG_LENGTH);
 
-    final Region<Object, ValueWrapper> r = getMemcachedRegion(cache);
-    ByteBuffer newVal = ByteBuffer.allocate(8);
-    boolean notFound = false;
+    final var r = getMemcachedRegion(cache);
+    var newVal = ByteBuffer.allocate(8);
+    var notFound = false;
     ValueWrapper newValWrapper = null;
 
     try {
       while (true) {
-        ValueWrapper oldValWrapper = r.get(key);
+        var oldValWrapper = r.get(key);
         if (oldValWrapper == null) {
           if (expiration == -1) {
             notFound = true;
@@ -114,9 +111,9 @@ public class DecrementCommand extends AbstractCommand {
           }
           break;
         }
-        byte[] oldVal = oldValWrapper.getValue();
-        long oldLong = getLongFromByteArray(oldVal);
-        long newLong = oldLong - decrBy;
+        var oldVal = oldValWrapper.getValue();
+        var oldLong = getLongFromByteArray(oldVal);
+        var newLong = oldLong - decrBy;
         if (newLong < 0) {
           newLong = 0;
         }

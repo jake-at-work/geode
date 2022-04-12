@@ -42,9 +42,7 @@ import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.cache.DataLocationException;
 import org.apache.geode.internal.cache.EntrySnapshot;
 import org.apache.geode.internal.cache.ForceReattemptException;
-import org.apache.geode.internal.cache.KeyInfo;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.PrimaryBucketException;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
@@ -91,9 +89,9 @@ public class FetchEntryMessage extends PartitionMessage {
   public static FetchEntryResponse send(InternalDistributedMember recipient, PartitionedRegion r,
       final Object key, boolean access) throws ForceReattemptException {
     Assert.assertTrue(recipient != null, "FetchEntryMessage NULL recipient");
-    FetchEntryResponse p =
+    var p =
         new FetchEntryResponse(r.getSystem(), Collections.singleton(recipient), r, key);
-    FetchEntryMessage m = new FetchEntryMessage(recipient, r.getPRId(), p, key, access);
+    var m = new FetchEntryMessage(recipient, r.getPRId(), p, key, access);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
 
     Set failures = r.getDistributionManager().putOutgoing(m);
@@ -121,11 +119,11 @@ public class FetchEntryMessage extends PartitionMessage {
     // FetchEntryMessage is used in refreshing client caches during interest list recovery,
     // so don't be too verbose or hydra tasks may time out
 
-    PartitionedRegionDataStore ds = r.getDataStore();
+    var ds = r.getDataStore();
     EntrySnapshot val;
     if (ds != null) {
       try {
-        KeyInfo keyInfo = r.getKeyInfo(key);
+        var keyInfo = r.getKeyInfo(key);
         val = (EntrySnapshot) r.getDataView().getEntryOnRemote(keyInfo, r, true);
         r.getPrStats().endPartitionMessagesProcessing(startTime);
         FetchEntryReplyMessage.send(getSender(), getProcessorId(), val, dm, null);
@@ -239,7 +237,7 @@ public class FetchEntryMessage extends PartitionMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         EntrySnapshot value, DistributionManager dm, ReplyException re) {
       Assert.assertTrue(recipient != null, "FetchEntryReplyMessage NULL recipient");
-      FetchEntryReplyMessage m = new FetchEntryReplyMessage(processorId, value, re);
+      var m = new FetchEntryReplyMessage(processorId, value, re);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -251,7 +249,7 @@ public class FetchEntryMessage extends PartitionMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "FetchEntryReplyMessage process invoking reply processor with processorId: {}",
@@ -297,12 +295,12 @@ public class FetchEntryMessage extends PartitionMessage {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      boolean nullEntry = in.readBoolean();
+      var nullEntry = in.readBoolean();
       if (!nullEntry) {
         // since the Entry object shares state with the PartitionedRegion,
         // we have to find the region and ask it to create a new Entry instance
         // to be populated from the DataInput
-        FetchEntryResponse processor =
+        var processor =
             (FetchEntryResponse) ReplyProcessor21.getProcessor(processorId);
         if (processor == null) {
           throw new OperationCancelledException("This operation was cancelled (null processor)");
@@ -313,7 +311,7 @@ public class FetchEntryMessage extends PartitionMessage {
 
     @Override
     public StringBuilder getStringBuilder() {
-      StringBuilder sb = super.getStringBuilder();
+      var sb = super.getStringBuilder();
       if (getException() == null) {
         sb.append(" returning value=").append(value);
       }
@@ -341,7 +339,7 @@ public class FetchEntryMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof FetchEntryReplyMessage) {
-          FetchEntryReplyMessage reply = (FetchEntryReplyMessage) msg;
+          var reply = (FetchEntryReplyMessage) msg;
           returnValue = reply.getValue();
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
             logger.trace(LogMarker.DM_VERBOSE, "FetchEntryResponse return value is {}",
@@ -362,7 +360,7 @@ public class FetchEntryMessage extends PartitionMessage {
         waitForCacheException();
       } catch (ForceReattemptException e) {
         e.checkKey(key);
-        final String msg = "FetchEntryResponse got remote ForceReattemptException; rethrowing";
+        final var msg = "FetchEntryResponse got remote ForceReattemptException; rethrowing";
         logger.debug(msg, e);
         throw e;
       } catch (EntryNotFoundException | TransactionException e) {

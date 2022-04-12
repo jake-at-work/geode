@@ -173,7 +173,7 @@ public class Scope implements Serializable {
    * @return the canonical Scope associated with the string
    */
   public static Scope fromString(String scope) {
-    for (final Scope value : VALUES) {
+    for (final var value : VALUES) {
       if (value.toString().equals(scope)) {
         return value;
       }

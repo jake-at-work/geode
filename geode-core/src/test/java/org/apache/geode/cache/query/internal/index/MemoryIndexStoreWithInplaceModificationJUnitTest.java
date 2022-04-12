@@ -33,7 +33,7 @@ public class MemoryIndexStoreWithInplaceModificationJUnitTest extends MemoryInde
   @Override
   protected Region createRegion() {
     Region region = mock(LocalRegion.class);
-    RegionAttributes ra = mock(RegionAttributes.class);
+    var ra = mock(RegionAttributes.class);
     when(region.getAttributes()).thenReturn(ra);
     when(ra.getInitialCapacity()).thenReturn(16);
     when(ra.getLoadFactor()).thenReturn(.75f);

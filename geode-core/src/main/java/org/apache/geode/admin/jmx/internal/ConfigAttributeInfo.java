@@ -51,7 +51,7 @@ class ConfigAttributeInfo extends org.apache.commons.modeler.AttributeInfo {
     Assert.assertTrue(config != null, "Config target object is null!");
     desc.setField("targetObject", config);
 
-    ModelMBeanAttributeInfo info = new ModelMBeanAttributeInfo(displayName, // name
+    var info = new ModelMBeanAttributeInfo(displayName, // name
         type, // type
         description, // description
         readable, // isReadable

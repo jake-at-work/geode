@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -46,7 +45,6 @@ import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.control.RestoreRedundancyOperation;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.control.ResourceAdvisor.ResourceManagerProfile;
@@ -133,7 +131,7 @@ public class InternalResourceManager implements ResourceManager {
 
     // Initialize the load probe
     try {
-      Class<?> loadProbeClass = ClassPathLoader.getLatest().forName(PR_LOAD_PROBE_CLASS);
+      var loadProbeClass = ClassPathLoader.getLatest().forName(PR_LOAD_PROBE_CLASS);
       loadProbe = (LoadProbe) loadProbeClass.newInstance();
     } catch (Exception e) {
       throw new InternalGemFireError("Unable to instantiate " + PR_LOAD_PROBE_CLASS, e);
@@ -156,7 +154,7 @@ public class InternalResourceManager implements ResourceManager {
     resourceMonitors = Collections.unmodifiableMap(tempMonitors);
 
     // Initialize the listener sets so that it only needs to be done once
-    for (ResourceType resourceType : new ResourceType[] {ResourceType.HEAP_MEMORY,
+    for (var resourceType : new ResourceType[] {ResourceType.HEAP_MEMORY,
         ResourceType.OFFHEAP_MEMORY}) {
       Set<ResourceListener<?>> emptySet = new CopyOnWriteArraySet<>();
       listeners.put(resourceType, emptySet);
@@ -164,7 +162,7 @@ public class InternalResourceManager implements ResourceManager {
   }
 
   public void close() {
-    for (ResourceMonitor monitor : resourceMonitors.values()) {
+    for (var monitor : resourceMonitors.values()) {
       monitor.stopMonitoring();
     }
 
@@ -182,7 +180,7 @@ public class InternalResourceManager implements ResourceManager {
   public void fillInProfile(final Profile profile) {
     assert profile instanceof ResourceManagerProfile;
 
-    for (ResourceMonitor monitor : resourceMonitors.values()) {
+    for (var monitor : resourceMonitors.values()) {
       monitor.fillInProfile((ResourceManagerProfile) profile);
     }
   }
@@ -193,7 +191,7 @@ public class InternalResourceManager implements ResourceManager {
 
   public void addResourceListener(final ResourceType resourceType,
       final ResourceListener<?> listener) {
-    for (Map.Entry<ResourceType, Set<ResourceListener<?>>> mapEntry : listeners.entrySet()) {
+    for (var mapEntry : listeners.entrySet()) {
       if ((mapEntry.getKey().id & resourceType.id) != 0) {
         mapEntry.getValue().add(listener);
       }
@@ -206,7 +204,7 @@ public class InternalResourceManager implements ResourceManager {
 
   public void removeResourceListener(final ResourceType resourceType,
       final ResourceListener<?> listener) {
-    for (Map.Entry<ResourceType, Set<ResourceListener<?>>> mapEntry : listeners.entrySet()) {
+    for (var mapEntry : listeners.entrySet()) {
       if ((mapEntry.getKey().id & resourceType.id) != 0) {
         mapEntry.getValue().remove(listener);
       }
@@ -299,7 +297,7 @@ public class InternalResourceManager implements ResourceManager {
     @Override
     public RebalanceOperation simulate() {
       RegionFilter filter = new FilterByPath(includedRegions, excludedRegions);
-      RebalanceOperationImpl op = new RebalanceOperationImpl(cache, true, filter);
+      var op = new RebalanceOperationImpl(cache, true, filter);
       op.start();
       return op;
     }
@@ -307,7 +305,7 @@ public class InternalResourceManager implements ResourceManager {
     @Override
     public RebalanceOperation start() {
       RegionFilter filter = new FilterByPath(includedRegions, excludedRegions);
-      RebalanceOperationImpl op = new RebalanceOperationImpl(cache, false, filter);
+      var op = new RebalanceOperationImpl(cache, false, filter);
       op.start();
       return op;
     }
@@ -361,7 +359,7 @@ public class InternalResourceManager implements ResourceManager {
     if (!executor.isTerminated()) {
       logger.warn("Failed to stop resource manager threads in {} seconds, forcing shutdown",
           secToWait);
-      List<Runnable> remainingTasks = executor.shutdownNow();
+      var remainingTasks = executor.shutdownNow();
       remainingTasks.forEach(runnable -> {
         if (runnable instanceof Future) {
           ((Future<?>) runnable).cancel(true);
@@ -527,7 +525,7 @@ public class InternalResourceManager implements ResourceManager {
    * This method is test purposes only.
    */
   public LoadProbe setLoadProbe(LoadProbe probe) {
-    LoadProbe old = loadProbe;
+    var old = loadProbe;
     loadProbe = probe;
     return old;
   }
@@ -599,7 +597,7 @@ public class InternalResourceManager implements ResourceManager {
   }
 
   private ThreadsMonitoring getThreadMonitorObj() {
-    DistributionManager distributionManager = cache.getDistributionManager();
+    var distributionManager = cache.getDistributionManager();
     if (distributionManager != null) {
       return distributionManager.getThreadMonitoring();
     } else {

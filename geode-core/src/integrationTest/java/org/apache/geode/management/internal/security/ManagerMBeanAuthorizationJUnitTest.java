@@ -55,7 +55,7 @@ public class ManagerMBeanAuthorizationJUnitTest {
   @BeforeClass
   public static void beforeClassSetup() throws Exception {
     // Create a mock ManagerMBean that we will use to call against.
-    ObjectName managerMBeanName = ObjectName.getInstance("GemFire", "mock", "Manager");
+    var managerMBeanName = ObjectName.getInstance("GemFire", "mock", "Manager");
     ManagerMXBean bean = mock(ManagerMBean.class);
     ManagementFactory.getPlatformMBeanServer().registerMBean(bean, managerMBeanName);
   }
@@ -77,7 +77,7 @@ public class ManagerMBeanAuthorizationJUnitTest {
   @Test
   @ConnectionConfiguration(user = "data-admin", password = "1234567")
   public void testSomeAccess() throws Exception {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
 
     softly.assertThatThrownBy(() -> managerMXBean.start())
         .hasMessageContaining(ResourcePermissions.CLUSTER_MANAGE.toString());

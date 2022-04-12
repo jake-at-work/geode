@@ -20,7 +20,6 @@ import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
@@ -53,7 +52,7 @@ public class GetPdxTypes70 extends BaseCommand {
 
     Map<Integer, PdxType> types;
     try {
-      InternalCache cache = serverConnection.getCache();
+      var cache = serverConnection.getCache();
       types = cache.getPdxRegistry().typeMap();
     } catch (Exception e) {
       writeException(clientMessage, e, false, serverConnection);
@@ -61,7 +60,7 @@ public class GetPdxTypes70 extends BaseCommand {
       return;
     }
 
-    Message responseMsg = serverConnection.getResponseMessage();
+    var responseMsg = serverConnection.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setNumberOfParts(1);
     responseMsg.setTransactionId(clientMessage.getTransactionId());

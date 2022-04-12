@@ -33,7 +33,7 @@ public class ClientIntegrationTest extends AbstractClientIntegrationTest {
 
   @Test
   public void errorMessageContainsListOfSupportedSubcommands() {
-    String invalidSubcommand = "subcommand";
+    var invalidSubcommand = "subcommand";
     assertThatThrownBy(() -> jedis.sendCommand(Protocol.Command.CLIENT, invalidSubcommand))
         .hasMessageContainingAll(ClientExecutor.getSupportedSubcommands().toArray(new String[0]));
   }

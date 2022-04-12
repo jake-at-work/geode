@@ -61,9 +61,9 @@ public class FunctionExecutionWithPrincipalDUnitTest {
   public static void beforeClass() throws Exception {
     locator = cluster.startLocatorVM(0, x -> x
         .withSecurityManager(SimpleSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
-    SerializableFunction<ServerStarterRule> startupFunction = x -> x
+    var startupFunction = (SerializableFunction<ServerStarterRule>) x -> x
         .withConnectionToLocator(locatorPort)
         .withCredential("cluster", "cluster")
         .withProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
@@ -87,7 +87,7 @@ public class FunctionExecutionWithPrincipalDUnitTest {
     replicateRegion = clientRule.createProxyRegion(REGION_NAME);
     partitionedRegion = clientRule.createProxyRegion(PR_REGION_NAME);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       replicateRegion.put("key-" + i, "value-" + i);
       partitionedRegion.put("key-" + i, "value-" + i);
     }

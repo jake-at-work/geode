@@ -39,8 +39,8 @@ public class MembershipManagerHelper {
 
   /** returns the JGroupMembershipManager for the given distributed system */
   public static Distribution getDistribution(DistributedSystem sys) {
-    InternalDistributedSystem isys = (InternalDistributedSystem) sys;
-    ClusterDistributionManager dm = (ClusterDistributionManager) isys.getDM();
+    var isys = (InternalDistributedSystem) sys;
+    var dm = (ClusterDistributionManager) isys.getDM();
     return dm.getDistribution();
   }
 
@@ -114,7 +114,7 @@ public class MembershipManagerHelper {
    */
   public static void waitForMemberDeparture(final DistributedSystem sys,
       final InternalDistributedMember member, final long timeout) {
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return !getDistribution(sys).getView().contains(member);
@@ -132,7 +132,7 @@ public class MembershipManagerHelper {
   // this method is only used for testing. Should be extract to a test helper instead
   public static void crashDistributedSystem(final DistributedSystem msys) {
     msys.getLogWriter().info("crashing distributed system: " + msys);
-    Distribution mgr = getDistribution(msys);
+    var mgr = getDistribution(msys);
     MembershipManagerHelper.inhibitForcedDisconnectLogging(true);
     MembershipManagerHelper.beSickMember(msys);
     MembershipManagerHelper.playDead(msys);
@@ -144,7 +144,7 @@ public class MembershipManagerHelper {
 
   public static void disableDisconnectOnQuorumLossForTesting(DistributedSystem msys) {
     msys.getLogWriter().info("crashing distributed system: " + msys);
-    Distribution mgr = getDistribution(msys);
+    var mgr = getDistribution(msys);
     ((GMSMembership) mgr.getMembership()).disableDisconnectOnQuorumLossForTesting();
   }
 }

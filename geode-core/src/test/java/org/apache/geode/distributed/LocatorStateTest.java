@@ -74,10 +74,10 @@ public class LocatorStateTest {
   @Test
   public void fromJsonWithEmptyStringThrowsIllegalArgumentException() {
     // given: empty string
-    String emptyString = "";
+    var emptyString = "";
 
     // when: passed to fromJson
-    Throwable thrown = catchThrowable(() -> fromJson(emptyString));
+    var thrown = catchThrowable(() -> fromJson(emptyString));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
         .hasCauseInstanceOf(NullPointerException.class);
@@ -87,10 +87,10 @@ public class LocatorStateTest {
   @Test
   public void fromJsonWithWhiteSpaceStringThrowsIllegalArgumentException() {
     // given: white space string
-    String whiteSpaceString = "      ";
+    var whiteSpaceString = "      ";
 
     // when: passed to fromJson
-    Throwable thrown = catchThrowable(() -> fromJson(whiteSpaceString));
+    var thrown = catchThrowable(() -> fromJson(whiteSpaceString));
 
     // then: throws IllegalArgumentException with cause of GfJsonException
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -104,7 +104,7 @@ public class LocatorStateTest {
     String nullString = null;
 
     // when: passed to fromJson
-    Throwable thrown = catchThrowable(() -> fromJson(nullString));
+    var thrown = catchThrowable(() -> fromJson(nullString));
 
     // then: throws NullPointerException
     assertThat(thrown).isInstanceOf(NullPointerException.class).hasNoCause();
@@ -113,10 +113,10 @@ public class LocatorStateTest {
   @Test
   public void fromJsonWithValidJsonStringReturnsLocatorState() {
     // given: valid json string
-    String jsonString = createStatusJson();
+    var jsonString = createStatusJson();
 
     // when: passed to fromJson
-    LocatorState value = fromJson(jsonString);
+    var value = fromJson(jsonString);
 
     // then: return valid instance of LocatorState
     assertThat(value).isInstanceOf(LocatorState.class);

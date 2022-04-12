@@ -39,13 +39,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
   @Bean
   public LettuceConnectionFactory connectionFactory(ApplicationArguments applicationArguments) {
-    RedisClusterConfiguration redisConfiguration =
+    var redisConfiguration =
         new RedisClusterConfiguration(Arrays.asList(applicationArguments.getSourceArgs()));
     return new LettuceConnectionFactory(redisConfiguration, lettuceClientConfiguration());
   }
 
   private LettuceClientConfiguration lettuceClientConfiguration() {
-    ClusterTopologyRefreshOptions refreshOptions =
+    var refreshOptions =
         ClusterTopologyRefreshOptions.builder()
             .enableAllAdaptiveRefreshTriggers()
             .enablePeriodicRefresh(Duration.ofSeconds(5))

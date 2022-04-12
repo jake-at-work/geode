@@ -72,7 +72,7 @@ public class RegionMapCommitPutTest {
 
   @Before
   public void setup() {
-    RegionEntryFactory regionEntryFactory = mock(RegionEntryFactory.class);
+    var regionEntryFactory = mock(RegionEntryFactory.class);
     when(regionEntryFactory.createEntry(any(), any(), any())).thenReturn(regionEntry);
     when(focusedRegionMap.getEntryFactory()).thenReturn(regionEntryFactory);
     when(focusedRegionMap.getEntryMap()).thenReturn(entryMap);
@@ -228,7 +228,7 @@ public class RegionMapCommitPutTest {
   @Test
   public void uninitializedPartitionedRegionWithShouldDispatchListenerEventDoesInvokeCallbacks() {
     when(internalRegion.isUsedForPartitionedRegionBucket()).thenReturn(true);
-    LocalRegion partitionedRegion = mock(LocalRegion.class);
+    var partitionedRegion = mock(LocalRegion.class);
     when(internalRegion.getPartitionedRegion()).thenReturn(partitionedRegion);
     when(partitionedRegion.shouldDispatchListenerEvent()).thenReturn(true);
 
@@ -240,7 +240,7 @@ public class RegionMapCommitPutTest {
   @Test
   public void uninitializedPartitionedRegionWithShouldNotifyBridgeClientsDoesInvokeCallbacks() {
     when(internalRegion.isUsedForPartitionedRegionBucket()).thenReturn(true);
-    LocalRegion partitionedRegion = mock(LocalRegion.class);
+    var partitionedRegion = mock(LocalRegion.class);
     when(internalRegion.getPartitionedRegion()).thenReturn(partitionedRegion);
     when(partitionedRegion.shouldNotifyBridgeClients()).thenReturn(true);
 
@@ -252,7 +252,7 @@ public class RegionMapCommitPutTest {
   @Test
   public void uninitializedPartitionedRegionWithConcurrencyChecksEnabledDoesInvokeCallbacks() {
     when(internalRegion.isUsedForPartitionedRegionBucket()).thenReturn(true);
-    LocalRegion partitionedRegion = mock(LocalRegion.class);
+    var partitionedRegion = mock(LocalRegion.class);
     when(internalRegion.getPartitionedRegion()).thenReturn(partitionedRegion);
     when(partitionedRegion.getConcurrencyChecksEnabled()).thenReturn(true);
 
@@ -276,21 +276,21 @@ public class RegionMapCommitPutTest {
   public void successfulPutCallsUpdateStatsForPut() {
     createInstance(Operation.CREATE, false, null, localTxEntryState);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(regionEntry);
-    final long lastModifiedTime = instance.getLastModifiedTime();
+    final var lastModifiedTime = instance.getLastModifiedTime();
     verify(regionEntry, times(1)).updateStatsForPut(eq(lastModifiedTime), eq(lastModifiedTime));
   }
 
   @Test
   public void doBeforeCompletionActionsCallsTxApplyPutPart2() {
-    final boolean didDestroy = true;
+    final var didDestroy = true;
     createInstance(Operation.CREATE, didDestroy, null, localTxEntryState);
 
     instance.put();
 
-    final long lastModifiedTime = instance.getLastModifiedTime();
+    final var lastModifiedTime = instance.getLastModifiedTime();
     verify(internalRegion, times(1)).txApplyPutPart2(eq(regionEntry), eq(key), eq(lastModifiedTime),
         eq(true), eq(didDestroy), eq(false));
   }
@@ -312,11 +312,11 @@ public class RegionMapCommitPutTest {
   public void putThatDoesAddEventToPendingCallbacksDoesNotCallEventRelease() {
     when(internalRegion.isInitialized()).thenReturn(true);
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var existingEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNotNull();
     verify(event, never()).release();
@@ -338,11 +338,11 @@ public class RegionMapCommitPutTest {
   public void putThatInvokesCallbacksAddsToPendingCallbacks() {
     when(internalRegion.isInitialized()).thenReturn(true);
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var existingEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNotNull();
     assertThat(instance.isCallbackEventInPending()).isTrue();
@@ -353,7 +353,7 @@ public class RegionMapCommitPutTest {
 
   @Test
   public void updateThatDoesNotSeeClearCallsLruEntryUpdate() {
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var existingEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
@@ -374,7 +374,7 @@ public class RegionMapCommitPutTest {
 
   @Test
   public void createCallsUpdateSizeOnCreate() {
-    final int newSize = 79;
+    final var newSize = 79;
     when(internalRegion.calculateRegionEntryValueSize(eq(regionEntry))).thenReturn(newSize);
     createInstance(Operation.CREATE, false, null, localTxEntryState);
 
@@ -385,9 +385,9 @@ public class RegionMapCommitPutTest {
 
   @Test
   public void updateCallsUpdateSizeOnPut() {
-    final int oldSize = 12;
-    final int newSize = 79;
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    final var oldSize = 12;
+    final var newSize = 79;
+    var existingEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     when(internalRegion.calculateRegionEntryValueSize(eq(existingEntry))).thenReturn(oldSize)
         .thenReturn(newSize);
@@ -423,7 +423,7 @@ public class RegionMapCommitPutTest {
   @Test
   public void putWithConcurrencyChecksEnabledDoesCallSetVersionTag() {
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(event.getVersionTag()).thenReturn(versionTag);
     createInstance(Operation.UPDATE, false, null, localTxEntryState);
 
@@ -438,7 +438,7 @@ public class RegionMapCommitPutTest {
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
     createInstance(Operation.UPDATE, true, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNull();
     assertThat(instance.isOnlyExisting()).isTrue();
@@ -449,11 +449,11 @@ public class RegionMapCommitPutTest {
   public void successfulUpdateWithDidDestroyDoesNotCallTxApplyPutHandleDidDestroy() {
     when(transactionId.getMemberId()).thenReturn(remoteId);
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var existingEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     createInstance(Operation.UPDATE, true, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNotNull();
     assertThat(instance.isOnlyExisting()).isTrue();
@@ -467,7 +467,7 @@ public class RegionMapCommitPutTest {
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNull();
     assertThat(instance.isOnlyExisting()).isTrue();
@@ -482,11 +482,11 @@ public class RegionMapCommitPutTest {
     when(transactionId.getMemberId()).thenReturn(remoteId);
     when(internalRegion.isInitialized()).thenReturn(true);
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var existingEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNotNull();
     assertThat(instance.isOnlyExisting()).isTrue();
@@ -496,13 +496,13 @@ public class RegionMapCommitPutTest {
 
   @Test
   public void localUpdateSetsOldValueOnEvent() {
-    Object oldValue = new Object();
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var oldValue = new Object();
+    var existingEntry = mock(RegionEntry.class);
     when(existingEntry.getValueInVM(any())).thenReturn(oldValue);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     createInstance(Operation.UPDATE, false, null, localTxEntryState);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(existingEntry);
     verify(event, times(1)).setOldValue(oldValue);
@@ -511,15 +511,15 @@ public class RegionMapCommitPutTest {
 
   @Test
   public void localUpdateThatAlsoDidDestroyCallsTxDidDestroy() {
-    Object oldValue = new Object();
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var oldValue = new Object();
+    var existingEntry = mock(RegionEntry.class);
     when(existingEntry.getValueInVM(any())).thenReturn(oldValue);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
-    final long lastModifiedTime = 123L;
+    final var lastModifiedTime = 123L;
     when(internalRegion.cacheTimeMillis()).thenReturn(lastModifiedTime);
     createInstance(Operation.UPDATE, true, null, localTxEntryState);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(existingEntry);
     verify(event, times(1)).setOldValue(oldValue);
@@ -530,7 +530,7 @@ public class RegionMapCommitPutTest {
   public void localCreateDoesSetsOldValueToNullOnEvent() {
     createInstance(Operation.CREATE, false, null, localTxEntryState);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(regionEntry);
     verify(event, times(1)).setOldValue(null);
@@ -540,7 +540,7 @@ public class RegionMapCommitPutTest {
   public void localCreateCallsProcessAndGenerateTXVersionTag() {
     createInstance(Operation.SEARCH_CREATE, false, null, localTxEntryState);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(regionEntry);
     verify(focusedRegionMap, times(1)).processAndGenerateTXVersionTag(eq(event), eq(regionEntry),
@@ -551,7 +551,7 @@ public class RegionMapCommitPutTest {
   public void localSearchCreateCallsSetValueResultOfSearchWithTrue() {
     createInstance(Operation.SEARCH_CREATE, false, null, localTxEntryState);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(regionEntry);
     verify(regionEntry, times(1)).setValueResultOfSearch(true);
@@ -561,15 +561,15 @@ public class RegionMapCommitPutTest {
   public void remoteUpdateWithOnlyExistingSucceeds() throws Exception {
     when(internalRegion.isAllEvents()).thenReturn(true);
     when(internalRegion.isInitialized()).thenReturn(true);
-    Object oldValue = new Object();
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var oldValue = new Object();
+    var existingEntry = mock(RegionEntry.class);
     when(existingEntry.getValueInVM(any())).thenReturn(oldValue);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     when(existingEntry.prepareValueForCache(any(), eq(newValue), eq(event), eq(true)))
         .thenReturn(newValue);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(existingEntry);
     verify(existingEntry, times(1)).setValue(eq(internalRegion), eq(newValue));
@@ -579,8 +579,8 @@ public class RegionMapCommitPutTest {
   public void remoteUpdateWithOnlyExistingCallsAddPut() throws Exception {
     when(internalRegion.isAllEvents()).thenReturn(true);
     when(internalRegion.isInitialized()).thenReturn(true);
-    Object oldValue = new Object();
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var oldValue = new Object();
+    var existingEntry = mock(RegionEntry.class);
     when(existingEntry.getValueInVM(any())).thenReturn(oldValue);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     when(existingEntry.prepareValueForCache(any(), eq(newValue), eq(event), eq(true)))
@@ -589,7 +589,7 @@ public class RegionMapCommitPutTest {
     when(event.getCallbackArgument()).thenReturn(callbackArgument);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(existingEntry);
     verify(txRmtEvent, times(1)).addPut(eq(Operation.UPDATE), eq(internalRegion), eq(existingEntry),
@@ -600,8 +600,8 @@ public class RegionMapCommitPutTest {
   public void remoteUpdateWithInvalidateWithOnlyExistingSucceeds() throws Exception {
     when(internalRegion.isAllEvents()).thenReturn(true);
     when(internalRegion.isInitialized()).thenReturn(true);
-    Object oldValue = new Object();
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var oldValue = new Object();
+    var existingEntry = mock(RegionEntry.class);
     when(existingEntry.getValueInVM(any())).thenReturn(oldValue);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     when(event.getRawNewValueAsHeapObject()).thenReturn(null);
@@ -609,7 +609,7 @@ public class RegionMapCommitPutTest {
         .thenReturn(Token.INVALID);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(existingEntry);
     verify(existingEntry, times(1)).setValue(eq(internalRegion), eq(Token.INVALID));
@@ -619,8 +619,8 @@ public class RegionMapCommitPutTest {
   public void remoteUpdateWithLocalInvalidateWithOnlyExistingSucceeds() throws Exception {
     when(internalRegion.isAllEvents()).thenReturn(true);
     when(internalRegion.isInitialized()).thenReturn(true);
-    Object oldValue = new Object();
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var oldValue = new Object();
+    var existingEntry = mock(RegionEntry.class);
     when(existingEntry.getValueInVM(any())).thenReturn(oldValue);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     when(event.getRawNewValueAsHeapObject()).thenReturn(null);
@@ -629,7 +629,7 @@ public class RegionMapCommitPutTest {
         .thenReturn(Token.LOCAL_INVALID);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isSameAs(existingEntry);
     verify(existingEntry, times(1)).setValue(eq(internalRegion), eq(Token.LOCAL_INVALID));
@@ -640,14 +640,14 @@ public class RegionMapCommitPutTest {
     when(transactionId.getMemberId()).thenReturn(remoteId);
     when(internalRegion.isAllEvents()).thenReturn(true);
     when(internalRegion.isInitialized()).thenReturn(true);
-    Object oldValue = new Object();
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var oldValue = new Object();
+    var existingEntry = mock(RegionEntry.class);
     when(existingEntry.getValueInVM(any())).thenReturn(oldValue);
     when(existingEntry.isDestroyedOrRemoved()).thenReturn(false).thenReturn(true);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNull();
   }
@@ -656,12 +656,12 @@ public class RegionMapCommitPutTest {
   public void putThatUpdatesTombstoneCallsUnscheduleTombstone() {
     when(internalRegion.isInitialized()).thenReturn(true);
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
-    RegionEntry existingEntry = mock(RegionEntry.class);
+    var existingEntry = mock(RegionEntry.class);
     when(existingEntry.isTombstone()).thenReturn(true);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    RegionEntry result = instance.put();
+    var result = instance.put();
 
     assertThat(result).isNotNull();
     verify(internalRegion, times(1)).unscheduleTombstone(eq(existingEntry));
@@ -673,7 +673,7 @@ public class RegionMapCommitPutTest {
   public void entryExistsWithNullReturnsFalse() {
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
 
-    boolean result = instance.entryExists(null);
+    var result = instance.entryExists(null);
 
     assertThat(result).isFalse();
   }
@@ -681,10 +681,10 @@ public class RegionMapCommitPutTest {
   @Test
   public void entryExistsWithRemovedEntryReturnsFalse() {
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
-    RegionEntry regionEntry = mock(RegionEntry.class);
+    var regionEntry = mock(RegionEntry.class);
     when(regionEntry.isDestroyedOrRemoved()).thenReturn(true);
 
-    boolean result = instance.entryExists(regionEntry);
+    var result = instance.entryExists(regionEntry);
 
     assertThat(result).isFalse();
   }
@@ -692,9 +692,9 @@ public class RegionMapCommitPutTest {
   @Test
   public void entryExistsWithExistingEntryReturnsTrue() {
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
-    RegionEntry regionEntry = mock(RegionEntry.class);
+    var regionEntry = mock(RegionEntry.class);
 
-    boolean result = instance.entryExists(regionEntry);
+    var result = instance.entryExists(regionEntry);
 
     assertThat(result).isTrue();
   }
@@ -702,10 +702,10 @@ public class RegionMapCommitPutTest {
   @Test
   public void runWileLockedForCacheModificationDoesNotLockGIIClearLockWhenRegionIsInitialized()
       throws Exception {
-    DistributedRegion region = mock(DistributedRegion.class);
+    var region = mock(DistributedRegion.class);
     when(region.isInitialized()).thenReturn(true);
     when(region.lockWhenRegionIsInitializing()).thenCallRealMethod();
-    RegionMapCommitPut regionMapCommitPut =
+    var regionMapCommitPut =
         new RegionMapCommitPut(focusedRegionMap, region, event, Operation.UPDATE, false,
             transactionId, txRmtEvent, pendingCallbacks, null);
 
@@ -720,10 +720,10 @@ public class RegionMapCommitPutTest {
 
   @Test
   public void runWileLockedForCacheModificationLockGIIClearLockWhenRegionIsInitializing() {
-    DistributedRegion region = mock(DistributedRegion.class);
+    var region = mock(DistributedRegion.class);
     when(region.isInitialized()).thenReturn(false);
     when(region.lockWhenRegionIsInitializing()).thenCallRealMethod();
-    RegionMapCommitPut regionMapCommitPut =
+    var regionMapCommitPut =
         new RegionMapCommitPut(focusedRegionMap, region, event, Operation.UPDATE, false,
             transactionId, txRmtEvent, pendingCallbacks, null);
 

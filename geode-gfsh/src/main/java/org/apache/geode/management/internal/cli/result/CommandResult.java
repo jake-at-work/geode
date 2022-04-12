@@ -18,13 +18,11 @@ import static java.lang.System.lineSeparator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.GfshParser;
-import org.apache.geode.management.internal.cli.result.model.AbstractResultModel;
 import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
@@ -78,13 +76,13 @@ public class CommandResult implements Result {
   private void buildCommandOutput() {
     commandOutputIndex = 0;
     commandOutput = new ArrayList<>();
-    Table resultTable = new TableBuilder().newTable();
+    var resultTable = new TableBuilder().newTable();
 
     addSpacedRowInTable(resultTable, result.getHeader());
 
-    int index = 0;
-    int sectionSize = result.getContent().size();
-    for (AbstractResultModel section : result.getContent().values()) {
+    var index = 0;
+    var sectionSize = result.getContent().size();
+    for (var section : result.getContent().values()) {
       index++;
       if (section instanceof DataResultModel) {
         buildData(resultTable, (DataResultModel) section);
@@ -125,27 +123,27 @@ public class CommandResult implements Result {
     resultTable.setColumnSeparator("   ");
     resultTable.setTabularResult(true);
 
-    RowGroup rowGroup = resultTable.newRowGroup();
+    var rowGroup = resultTable.newRowGroup();
     buildTable(rowGroup, model);
 
     addSpacedRowInTable(resultTable, model.getFooter());
   }
 
   private void buildTable(RowGroup rowGroup, TabularResultModel model) {
-    Row headerRow = rowGroup.newRow();
+    var headerRow = rowGroup.newRow();
     rowGroup.setColumnSeparator(" | ");
     rowGroup.newRowSeparator('-', false);
 
-    Map<String, List<String>> rows = model.getContent();
+    var rows = model.getContent();
     if (!rows.isEmpty()) {
       // build table header first
       rows.keySet().forEach(headerRow::newCenterCol);
 
       // each row should have the same number of entries, so just look at the first one
-      int rowCount = rows.values().iterator().next().size();
-      for (int i = 0; i < rowCount; i++) {
-        Row oneRow = rowGroup.newRow();
-        for (String column : rows.keySet()) {
+      var rowCount = rows.values().iterator().next().size();
+      for (var i = 0; i < rowCount; i++) {
+        var oneRow = rowGroup.newRow();
+        for (var column : rows.keySet()) {
           oneRow.newLeftCol(rows.get(column).get(i));
         }
       }
@@ -153,22 +151,22 @@ public class CommandResult implements Result {
   }
 
   private void buildData(Table resultTable, DataResultModel section) {
-    RowGroup rowGroup = resultTable.newRowGroup();
+    var rowGroup = resultTable.newRowGroup();
     rowGroup.setColumnSeparator(" : ");
 
     addRowInRowGroup(rowGroup, section.getHeader());
 
     // finally process map values
-    for (Map.Entry<String, String> entry : section.getContent().entrySet()) {
-      Row newRow = rowGroup.newRow();
-      String key = entry.getKey();
-      String[] values = entry.getValue().split(GfshParser.LINE_SEPARATOR);
+    for (var entry : section.getContent().entrySet()) {
+      var newRow = rowGroup.newRow();
+      var key = entry.getKey();
+      var values = entry.getValue().split(GfshParser.LINE_SEPARATOR);
       if (values.length == 1) {
         newRow.newLeftCol(key).newLeftCol(values[0]);
       } else {
         if (values.length != 0) { // possible when object == CliConstants.LINE_SEPARATOR
           newRow.newLeftCol(key).newLeftCol(values[0]);
-          for (int i = 1; i < values.length; i++) {
+          for (var i = 1; i < values.length; i++) {
             newRow = rowGroup.newRow();
             newRow.setColumnSeparator("   ");
             newRow.newLeftCol("").newLeftCol(values[i]);
@@ -182,7 +180,7 @@ public class CommandResult implements Result {
   }
 
   private void buildInfoOrErrorCommandOutput(Table resultTable, InfoResultModel model) {
-    RowGroup rowGroup = resultTable.newRowGroup();
+    var rowGroup = resultTable.newRowGroup();
 
     addRowInRowGroup(rowGroup, model.getHeader());
 

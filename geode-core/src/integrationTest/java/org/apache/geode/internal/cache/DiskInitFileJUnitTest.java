@@ -26,7 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.concurrent.locks.ReentrantLock;
@@ -53,16 +52,16 @@ public class DiskInitFileJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    File testDirectory = temporaryFolder.newFolder("_" + getClass().getSimpleName());
+    var testDirectory = temporaryFolder.newFolder("_" + getClass().getSimpleName());
 
     // Mock statistics factory for creating directory holders.
-    final StatisticsFactory mockStatisticsFactory = mock(StatisticsFactory.class);
+    final var mockStatisticsFactory = mock(StatisticsFactory.class);
     when(mockStatisticsFactory.createStatistics(any(), anyString()))
         .thenReturn(mock(Statistics.class));
 
     // Mock disk store impl. All we need to do is return this init file directory.
     mockedDiskStoreImpl = mock(DiskStoreImpl.class);
-    DirectoryHolder holder = new DirectoryHolder(mockStatisticsFactory, testDirectory, 0, 0);
+    var holder = new DirectoryHolder(mockStatisticsFactory, testDirectory, 0, 0);
     when(mockedDiskStoreImpl.getInfoFileDir()).thenReturn(holder);
     when(mockedDiskStoreImpl.getDiskStoreID()).thenReturn(mock(DiskStoreID.class));
     when(mockedDiskStoreImpl.getBackupLock()).thenReturn(mock(ReentrantLock.class));
@@ -81,12 +80,12 @@ public class DiskInitFileJUnitTest {
   @Test
   public void testCanonicalIds() {
     // Create an init file and add some canonical ids.
-    DiskInitFile dif =
+    var dif =
         new DiskInitFile("testFile", mockedDiskStoreImpl, false, Collections.emptySet());
     assertThat(dif.getCanonicalObject(5)).isNull();
     assertThat(dif.getCanonicalObject(0)).isNull();
-    int id1 = dif.getOrCreateCanonicalId("object1");
-    int id2 = dif.getOrCreateCanonicalId("object2");
+    var id1 = dif.getOrCreateCanonicalId("object1");
+    var id2 = dif.getOrCreateCanonicalId("object2");
     assertThat(dif.getCanonicalObject(id1)).isEqualTo("object1");
     assertThat(dif.getCanonicalObject(id2)).isEqualTo("object2");
     assertThat(dif.getOrCreateCanonicalId("object2")).isEqualTo(id2);
@@ -102,7 +101,7 @@ public class DiskInitFileJUnitTest {
     assertThat(dif.getOrCreateCanonicalId("object2")).isEqualTo(id2);
 
     // Make sure we can add new ids
-    int id3 = dif.getOrCreateCanonicalId("object3");
+    var id3 = dif.getOrCreateCanonicalId("object3");
     assertThat(id3).isGreaterThan(id2);
     assertThat(dif.getCanonicalObject(id1)).isEqualTo("object1");
     assertThat(dif.getCanonicalObject(id2)).isEqualTo("object2");
@@ -113,7 +112,7 @@ public class DiskInitFileJUnitTest {
 
   @Test
   public void testKrfIds() {
-    DiskInitFile dif =
+    var dif =
         new DiskInitFile("testKrfIds", mockedDiskStoreImpl, false, Collections.emptySet());
     assertThat(dif.hasKrf(1)).isFalse();
     dif.cmnKrfCreate(1);
@@ -147,7 +146,7 @@ public class DiskInitFileJUnitTest {
   public void markInitializedThrowsDiskAccessExceptionWhenInitFileClosedAndParentAndCacheNotClosing() {
     markInitializedTestSetup();
 
-    DiskInitFile diskInitFile =
+    var diskInitFile =
         new DiskInitFile("testThrows", mockedDiskStoreImpl, false, Collections.emptySet());
     diskInitFile.close();
 
@@ -160,7 +159,7 @@ public class DiskInitFileJUnitTest {
     markInitializedTestSetup();
     when(mockedDiskStoreImpl.isClosed()).thenReturn(Boolean.TRUE);
 
-    DiskInitFile diskInitFile =
+    var diskInitFile =
         new DiskInitFile("testThrows", mockedDiskStoreImpl, false, Collections.emptySet());
     diskInitFile.close();
 
@@ -170,11 +169,11 @@ public class DiskInitFileJUnitTest {
 
   @Test
   public void markInitializedThrowsCacheClosedExceptionWhenCacheIsClosing() {
-    CancelCriterion cancelCriterion = markInitializedTestSetup();
-    CacheClosedException cacheClosedException = new CacheClosedException("boom");
+    var cancelCriterion = markInitializedTestSetup();
+    var cacheClosedException = new CacheClosedException("boom");
     doThrow(cacheClosedException).when(cancelCriterion).checkCancelInProgress();
 
-    DiskInitFile diskInitFile =
+    var diskInitFile =
         new DiskInitFile("testThrows", mockedDiskStoreImpl, false, Collections.emptySet());
     diskInitFile.close();
 
@@ -186,7 +185,7 @@ public class DiskInitFileJUnitTest {
   public void markInitializedCacheCloseIsCalledWhenParentHandlesDiskAccessException() {
     markInitializedTestSetup();
 
-    DiskInitFile diskInitFile =
+    var diskInitFile =
         new DiskInitFile("testThrows", mockedDiskStoreImpl, false, Collections.emptySet());
     diskInitFile.close();
 
@@ -196,9 +195,9 @@ public class DiskInitFileJUnitTest {
   }
 
   private CancelCriterion markInitializedTestSetup() {
-    InternalCache internalCache = mock(InternalCache.class);
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
-    DiskRegion diskRegion = mock(DiskRegion.class);
+    var internalCache = mock(InternalCache.class);
+    var cancelCriterion = mock(CancelCriterion.class);
+    var diskRegion = mock(DiskRegion.class);
 
     when(mockedDiskStoreImpl.getCache()).thenReturn(internalCache);
     when(mockedDiskStoreImpl.getById(anyLong())).thenReturn(diskRegion);

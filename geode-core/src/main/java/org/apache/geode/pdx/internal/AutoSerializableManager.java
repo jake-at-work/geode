@@ -23,9 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -144,7 +142,7 @@ public class AutoSerializableManager {
 
   public static AutoSerializableManager create(ReflectionBasedAutoSerializer owner,
       boolean checkPortability, String... patterns) {
-    AutoSerializableManager result = new AutoSerializableManager(owner);
+    var result = new AutoSerializableManager(owner);
     result.reconfigure(checkPortability, patterns);
     return result;
   }
@@ -195,7 +193,7 @@ public class AutoSerializableManager {
    * @return true if the object should be considered for serialization or false otherwise
    */
   private boolean isRelevant(Class<?> clazz) {
-    String className = clazz.getName();
+    var className = clazz.getName();
 
     // Do some short-circuiting if possible
     if (cachedIncludedClasses.contains(className)) {
@@ -204,7 +202,7 @@ public class AutoSerializableManager {
       return false;
     }
 
-    boolean result = getOwner().isClassAutoSerialized(clazz);
+    var result = getOwner().isClassAutoSerialized(clazz);
     if (result) {
       cachedIncludedClasses.add(className);
     } else {
@@ -222,7 +220,7 @@ public class AutoSerializableManager {
    */
   public boolean isExcluded(String className) {
     if (!noHardcodedExcludes) {
-      for (Pattern p : hardcodedExclusions) {
+      for (var p : hardcodedExclusions) {
         if (p.matcher(className).matches()) {
           return true;
         }
@@ -235,14 +233,14 @@ public class AutoSerializableManager {
     if (clazz.isEnum()) {
       return false;
     }
-    String className = clazz.getName();
+    var className = clazz.getName();
     if (isExcluded(className)) {
       if (!PdxSerializerObject.class.isAssignableFrom(clazz)) {
         return false;
       }
     }
 
-    for (Pattern p : classPatterns) {
+    for (var p : classPatterns) {
       if (p.matcher(className).matches()) {
         return hasValidConstructor(clazz, p) && !needsStandardSerialization(clazz, p);
       }
@@ -264,7 +262,7 @@ public class AutoSerializableManager {
       clazz.getConstructor();
       return true;
     } catch (NoSuchMethodException nex) {
-      String className = clazz.getName();
+      var className = clazz.getName();
       if (!loggedNoAutoSerializeMsg.contains(className)) {
         loggedNoAutoSerializeMsg.add(className);
         logger.warn(
@@ -278,7 +276,7 @@ public class AutoSerializableManager {
   private boolean needsStandardSerialization(Class<?> clazz, Pattern matchedPattern) {
     if (Serializable.class.isAssignableFrom(clazz)) {
       if (Externalizable.class.isAssignableFrom(clazz)) {
-        String className = clazz.getName();
+        var className = clazz.getName();
         if (!loggedNoAutoSerializeMsg.contains(className)) {
           loggedNoAutoSerializeMsg.add(className);
           logger.warn(
@@ -289,7 +287,7 @@ public class AutoSerializableManager {
       } else {
         if (getPrivateMethod(clazz, "writeObject", new Class[] {ObjectOutputStream.class},
             Void.TYPE)) {
-          String className = clazz.getName();
+          var className = clazz.getName();
           if (!loggedNoAutoSerializeMsg.contains(className)) {
             loggedNoAutoSerializeMsg.add(className);
             logger.warn(
@@ -298,7 +296,7 @@ public class AutoSerializableManager {
           }
           return true;
         } else if (getInheritableMethod(clazz, "writeReplace", null, Object.class)) {
-          String className = clazz.getName();
+          var className = clazz.getName();
           if (!loggedNoAutoSerializeMsg.contains(className)) {
             loggedNoAutoSerializeMsg.add(className);
             logger.warn(
@@ -319,8 +317,8 @@ public class AutoSerializableManager {
   private static boolean getPrivateMethod(Class cl, String name, Class[] argTypes,
       Class returnType) {
     try {
-      Method meth = cl.getDeclaredMethod(name, argTypes);
-      int mods = meth.getModifiers();
+      var meth = cl.getDeclaredMethod(name, argTypes);
+      var mods = meth.getModifiers();
       return ((meth.getReturnType() == returnType) && ((mods & Modifier.STATIC) == 0)
           && ((mods & Modifier.PRIVATE) != 0));
     } catch (NoSuchMethodException ex) {
@@ -335,7 +333,7 @@ public class AutoSerializableManager {
   private static boolean getInheritableMethod(Class cl, String name, Class[] argTypes,
       Class returnType) {
     Method meth = null;
-    Class defCl = cl;
+    var defCl = cl;
     while (defCl != null) {
       try {
         meth = defCl.getDeclaredMethod(name, argTypes);
@@ -348,7 +346,7 @@ public class AutoSerializableManager {
     if ((meth == null) || (meth.getReturnType() != returnType)) {
       return false;
     }
-    int mods = meth.getModifiers();
+    var mods = meth.getModifiers();
     if ((mods & (Modifier.STATIC | Modifier.ABSTRACT)) != 0) {
       return false;
     } else if ((mods & (Modifier.PUBLIC | Modifier.PROTECTED)) != 0) {
@@ -372,8 +370,8 @@ public class AutoSerializableManager {
    * Returns package name of given class.
    */
   private static String getPackageName(Class cl) {
-    String s = cl.getName();
-    int i = s.lastIndexOf('[');
+    var s = cl.getName();
+    var i = s.lastIndexOf('[');
     if (i >= 0) {
       s = s.substring(i + 2);
     }
@@ -398,8 +396,8 @@ public class AutoSerializableManager {
   }
 
   public AutoClassInfo getClassInfo(Class<?> clazz) {
-    Class<?> tmpClass = clazz;
-    AutoClassInfo classInfo = getExistingClassInfo(tmpClass);
+    var tmpClass = clazz;
+    var classInfo = getExistingClassInfo(tmpClass);
     if (classInfo == null) {
       synchronized (classMap) {
         classInfo = classMap.get(tmpClass);
@@ -411,13 +409,13 @@ public class AutoSerializableManager {
         List<PdxFieldWrapper> variableLenFields = new ArrayList<>();
 
         while (tmpClass != Object.class) {
-          Field[] fields = tmpClass.getDeclaredFields();
-          for (Field f : fields) {
+          var fields = tmpClass.getDeclaredFields();
+          for (var f : fields) {
             if (getOwner().isFieldIncluded(f, clazz)) {
               // Should this be reset at some point?
               f.setAccessible(true);
-              FieldType ft = getOwner().getFieldType(f, clazz);
-              PdxFieldWrapper fw = PdxFieldWrapper.create(this, f, ft,
+              var ft = getOwner().getFieldType(f, clazz);
+              var fw = PdxFieldWrapper.create(this, f, ft,
                   getOwner().getFieldName(f, clazz), getOwner().transformFieldValue(f, clazz),
                   getOwner().isIdentityField(f, clazz));
               if (ft.isFixedWidth()) {
@@ -911,7 +909,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           if (transform()) {
@@ -968,7 +966,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           if (transform()) {
@@ -1025,7 +1023,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           if (transform()) {
@@ -1082,7 +1080,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           if (transform()) {
@@ -1139,7 +1137,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           if (transform()) {
@@ -1196,7 +1194,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           if (transform()) {
@@ -1253,7 +1251,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           if (transform()) {
@@ -1310,7 +1308,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           if (transform()) {
@@ -1363,7 +1361,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readObject(pf)));
@@ -1408,7 +1406,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readString(pf)));
@@ -1453,7 +1451,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readDate(pf)));
@@ -1498,7 +1496,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readByteArray(pf)));
@@ -1543,7 +1541,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readBooleanArray(pf)));
@@ -1588,7 +1586,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readShortArray(pf)));
@@ -1633,7 +1631,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readCharArray(pf)));
@@ -1678,7 +1676,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readIntArray(pf)));
@@ -1723,7 +1721,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readLongArray(pf)));
@@ -1768,7 +1766,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readFloatArray(pf)));
@@ -1813,7 +1811,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readDoubleArray(pf)));
@@ -1858,7 +1856,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readStringArray(pf)));
@@ -1903,7 +1901,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readArrayOfByteArrays(pf)));
@@ -1948,7 +1946,7 @@ public class AutoSerializableManager {
 
     @Override
     public void deserialize(InternalPdxReader reader, Object obj) {
-      PdxField pf = reader.getPdxField(getName());
+      var pf = reader.getPdxField(getName());
       if (pf != null) {
         try {
           setObject(obj, readTransformIf(obj, reader.readObjectArray(pf)));
@@ -2014,8 +2012,8 @@ public class AutoSerializableManager {
    * @param autoClassInfo a <code>List</code> of <code>Field</code>s which are to be written out
    */
   public void writeData(PdxWriter writer, Object obj, AutoClassInfo autoClassInfo) {
-    PdxWriterImpl w = (PdxWriterImpl) writer;
-    boolean optimizeFieldWrites = false;
+    var w = (PdxWriterImpl) writer;
+    var optimizeFieldWrites = false;
     if (autoClassInfo.getSerializedType() != null) {
       // check to see if we have unread data for this instance
       if (w.initUnreadData() == null) {
@@ -2024,12 +2022,12 @@ public class AutoSerializableManager {
         optimizeFieldWrites = true;
       }
     }
-    for (PdxFieldWrapper f : autoClassInfo.getFields()) {
+    for (var f : autoClassInfo.getFields()) {
       // System.out.println("DEBUG writing field=" + f.getField().getName() + " offset=" +
       // ((PdxWriterImpl)writer).position());
       if (f.transform()) {
         try {
-          Object newValue =
+          var newValue =
               getOwner().writeTransform(f.getField(), obj.getClass(), f.getObject(obj));
           f.serializeValue(w, newValue, optimizeFieldWrites);
         } catch (Exception ex) {
@@ -2063,15 +2061,15 @@ public class AutoSerializableManager {
   public Object readData(PdxReader reader, Class<?> clazz) {
     Object result = null;
     if (isRelevant(clazz)) {
-      AutoClassInfo ci = getClassInfo(clazz);
+      var ci = getClassInfo(clazz);
       result = ci.newInstance(clazz);
-      InternalPdxReader ri = (InternalPdxReader) reader;
-      PdxType pt = ri.getPdxType();
+      var ri = (InternalPdxReader) reader;
+      var pt = ri.getPdxType();
       if (ci.matchesPdxType(pt)) {
         pt.setAutoInfo(ci);
         ri.orderedDeserialize(result, ci);
       } else {
-        for (PdxFieldWrapper f : ci.getFields()) {
+        for (var f : ci.getFields()) {
           f.deserialize(ri, result);
         }
       }
@@ -2140,9 +2138,9 @@ public class AutoSerializableManager {
    *
    */
   private boolean fieldMatches(Field field, String className, List<String[]> matches) {
-    String fieldName = field.getName();
+    var fieldName = field.getName();
 
-    for (String[] e : matches) {
+    for (var e : matches) {
       if (className.matches(e[0]) && fieldName.matches(e[1])) {
         return true;
       }
@@ -2182,8 +2180,8 @@ public class AutoSerializableManager {
     }
 
     public String toFormattedString() {
-      StringBuilder sb = new StringBuilder();
-      boolean first = true;
+      var sb = new StringBuilder();
+      var first = true;
       for (Object o : fields) {
         if (first) {
           first = false;
@@ -2246,9 +2244,9 @@ public class AutoSerializableManager {
       if (fields.size() != t.getUndeletedFieldCount()) {
         return false;
       }
-      Iterator<PdxField> pdxIt = t.getFields().iterator();
-      for (PdxFieldWrapper f : fields) {
-        PdxField pdxF = pdxIt.next();
+      var pdxIt = t.getFields().iterator();
+      for (var f : fields) {
+        var pdxF = pdxIt.next();
         if (pdxF.isDeleted()) {
           return false; // If the type has a deleted field then we can't do ordered deserialization
                         // because we need to skip over the deleted field's bytes.
@@ -2272,18 +2270,18 @@ public class AutoSerializableManager {
   public void init(Properties props) {
     resetAll();
     if (props != null) {
-      Enumeration<?> it = props.propertyNames();
+      var it = props.propertyNames();
       while (it.hasMoreElements()) {
-        Object o = it.nextElement();
+        var o = it.nextElement();
         if (o instanceof String) {
-          String key = (String) o;
+          var key = (String) o;
           if (INIT_CLASSES_PARAM.equals(key)) {
-            String propValue = props.getProperty(INIT_CLASSES_PARAM);
+            var propValue = props.getProperty(INIT_CLASSES_PARAM);
             if (propValue != null) {
               processInitParams(propValue);
             }
           } else if (INIT_CHECK_PORTABILITY_PARAM.equals(key)) {
-            String propValue = props.getProperty(INIT_CHECK_PORTABILITY_PARAM);
+            var propValue = props.getProperty(INIT_CHECK_PORTABILITY_PARAM);
             if (propValue != null) {
               setCheckPortability(Boolean.parseBoolean(propValue));
             }
@@ -2304,20 +2302,20 @@ public class AutoSerializableManager {
   }
 
   public Properties getConfig() {
-    Properties props = new Properties();
+    var props = new Properties();
     if (classPatterns.isEmpty()) {
       return props;
     }
 
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     // This is so that we can exclude duplicates
     // LinkedHashSet is used to preserve the order of classPatterns. See bug 52286.
     Set<String> tmp = new LinkedHashSet<>();
-    for (Pattern p : classPatterns) {
+    for (var p : classPatterns) {
       tmp.add(p.pattern());
     }
-    for (Iterator<String> i = tmp.iterator(); i.hasNext();) {
-      String s = i.next();
+    for (var i = tmp.iterator(); i.hasNext();) {
+      var s = i.next();
       sb.append(s);
       if (i.hasNext()) {
         sb.append(", ");
@@ -2326,8 +2324,8 @@ public class AutoSerializableManager {
 
     if (getIdentityPatterns().size() > 0) {
       sb.append(", ");
-      for (Iterator<String[]> i = getIdentityPatterns().iterator(); i.hasNext();) {
-        String[] s = i.next();
+      for (var i = getIdentityPatterns().iterator(); i.hasNext();) {
+        var s = i.next();
         sb.append(s[0]).append("#" + OPT_IDENTITY + "=").append(s[1]);
         if (i.hasNext()) {
           sb.append(", ");
@@ -2337,8 +2335,8 @@ public class AutoSerializableManager {
 
     if (getExcludePatterns().size() > 0) {
       sb.append(", ");
-      for (Iterator<String[]> i = getExcludePatterns().iterator(); i.hasNext();) {
-        String[] s = i.next();
+      for (var i = getExcludePatterns().iterator(); i.hasNext();) {
+        var s = i.next();
         sb.append(s[0]).append("#" + OPT_EXCLUDE + "=").append(s[1]);
         if (i.hasNext()) {
           sb.append(", ");
@@ -2358,7 +2356,7 @@ public class AutoSerializableManager {
   public void reconfigure(boolean b, String... patterns) {
     resetAll();
     setCheckPortability(b);
-    for (String c : patterns) {
+    for (var c : patterns) {
       processInitParams(c);
     }
   }
@@ -2367,15 +2365,15 @@ public class AutoSerializableManager {
     String identityPattern;
     String excludePattern;
 
-    for (String s : value.split("[, ]+")) {
+    for (var s : value.split("[, ]+")) {
       if (s.length() > 0) {
         // Let's check for any additional embedded params...
-        String[] split = s.split("#");
-        for (int i = 1; i < split.length; i++) {
+        var split = s.split("#");
+        for (var i = 1; i < split.length; i++) {
           identityPattern = null;
           excludePattern = null;
 
-          String[] paramVals = split[i].split("=");
+          var paramVals = split[i].split("=");
           if (paramVals.length != 2) {
             throw new IllegalArgumentException(
                 "Unable to correctly process auto serialization init value: " + value);
@@ -2412,8 +2410,8 @@ public class AutoSerializableManager {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + (checkPortability ? 1231 : 1237);
     result = prime * result + classPatterns.hashCode();
     result = prime * result + excludePatterns.hashCode();
@@ -2432,7 +2430,7 @@ public class AutoSerializableManager {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    AutoSerializableManager other = (AutoSerializableManager) obj;
+    var other = (AutoSerializableManager) obj;
     if (checkPortability != other.checkPortability) {
       return false;
     }

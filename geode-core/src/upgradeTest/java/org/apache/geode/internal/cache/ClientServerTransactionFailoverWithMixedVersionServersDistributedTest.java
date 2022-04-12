@@ -39,16 +39,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.internal.cache.tier.sockets.ClientHealthMonitor;
@@ -108,7 +105,7 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
     server4Log = temporaryFolder.getRoot().toPath().resolve("server4.log").toFile();
 
     host = Host.getHost(0);
-    String startingVersion = "1.6.0";
+    var startingVersion = "1.6.0";
     server1 = host.getVM(startingVersion, 0);
     server2 = host.getVM(startingVersion, 1);
     server3 = host.getVM(startingVersion, 2);
@@ -134,10 +131,10 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
     server4.invoke(() -> createServerRegion(1, true, false));
     client.invoke(this::createClientRegion);
 
-    ClientProxyMembershipID clientProxyMembershipID = client.invoke(this::getClientId);
+    var clientProxyMembershipID = client.invoke(this::getClientId);
 
-    int numOfTransactions = 12;
-    int numOfOperations = 12;
+    var numOfTransactions = 12;
+    var numOfOperations = 12;
     client.invokeAsync(() -> doTransactions(numOfTransactions, numOfOperations));
 
     server1.invoke(() -> verifyTransactionAreStarted(numOfTransactions));
@@ -150,9 +147,9 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
 
   private void doTransactions(int numOfTransactions, int numOfOperations)
       throws InterruptedException, ExecutionException {
-    Thread[] threads = new Thread[numOfTransactions];
+    var threads = new Thread[numOfTransactions];
     FutureTask<TransactionId>[] futureTasks = new FutureTask[numOfTransactions];
-    TransactionId[] txIds = new TransactionId[numOfTransactions];
+    var txIds = new TransactionId[numOfTransactions];
     // begin and suspend transactions
     beginAndSuspendTransactions(numOfTransactions, numOfOperations, threads, futureTasks, txIds);
     // resume transactions
@@ -176,13 +173,13 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
   }
 
   private void startLocator() throws IOException {
-    Properties config = createLocatorConfig();
-    InetAddress bindAddress = InetAddress.getByName(hostName);
+    var config = createLocatorConfig();
+    var bindAddress = InetAddress.getByName(hostName);
     Locator.startLocatorAndDS(locatorPort, locatorLog, bindAddress, config);
   }
 
   private Properties createLocatorConfig() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     config.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
     config.setProperty(USE_CLUSTER_CONFIGURATION, "false");
@@ -193,13 +190,13 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
   private void createCacheServer(File logFile) throws Exception {
     cacheRule.createCache(createServerConfig(logFile));
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
   }
 
   private Properties createServerConfig(File logFile) {
-    Properties config = createLocatorConfig();
+    var config = createLocatorConfig();
     config.setProperty(LOCATORS, hostName + "[" + locatorPort + "]");
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
     return config;
@@ -212,7 +209,7 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
   private VM rollLocatorToCurrent(VM oldLocator) {
     // Roll the locator
     oldLocator.invoke(this::stopLocator);
-    VM rollLocator = host.getVM(VersionManager.CURRENT_VERSION, oldLocator.getId());
+    var rollLocator = host.getVM(VersionManager.CURRENT_VERSION, oldLocator.getId());
     rollLocator.invoke(this::startLocator);
     return rollLocator;
   }
@@ -224,30 +221,30 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
   private VM rollServerToCurrent(VM oldServer, File logFile) {
     // Roll the server
     oldServer.invoke(() -> cacheRule.getCache().close());
-    VM rollServer = host.getVM(VersionManager.CURRENT_VERSION, oldServer.getId());
+    var rollServer = host.getVM(VersionManager.CURRENT_VERSION, oldServer.getId());
     rollServer.invoke(() -> createCacheServer(logFile));
     return rollServer;
   }
 
   private void createServerRegion(int totalNumBuckets, boolean isAccessor,
       boolean setTimeoutSeconds) {
-    PartitionAttributesFactory factory = new PartitionAttributesFactory();
+    var factory = new PartitionAttributesFactory();
     factory.setTotalNumBuckets(totalNumBuckets);
     if (isAccessor) {
       factory.setLocalMaxMemory(0);
     }
-    PartitionAttributes partitionAttributes = factory.create();
+    var partitionAttributes = factory.create();
     cacheRule.getOrCreateCache().createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(partitionAttributes).create(regionName);
 
     if (setTimeoutSeconds) {
-      TXManagerImpl txManager = cacheRule.getCache().getTxManager();
+      var txManager = cacheRule.getCache().getTxManager();
       txManager.setTransactionTimeToLiveForTest(2);
     }
   }
 
   private void createClientRegion() {
-    Pool pool = PoolManager.createFactory().addLocator(hostName, locatorPort).create(uniqueName);
+    var pool = PoolManager.createFactory().addLocator(hostName, locatorPort).create(uniqueName);
 
     ClientRegionFactory crf =
         clientCacheRule.getClientCache().createClientRegionFactory(ClientRegionShortcut.LOCAL);
@@ -259,23 +256,23 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
       Thread[] threads,
       FutureTask<TransactionId>[] futureTasks, TransactionId[] txIds)
       throws InterruptedException, ExecutionException {
-    for (int i = 0; i < numOfTransactions; i++) {
-      FutureTask<TransactionId> futureTask =
-          new FutureTask<>(() -> beginAndSuspendTransaction(numOfOperations));
+    for (var i = 0; i < numOfTransactions; i++) {
+      var futureTask =
+          new FutureTask<TransactionId>(() -> beginAndSuspendTransaction(numOfOperations));
       futureTasks[i] = futureTask;
-      Thread thread = new Thread(futureTask);
+      var thread = new Thread(futureTask);
       threads[i] = thread;
       thread.start();
     }
 
-    for (int i = 0; i < numOfTransactions; i++) {
+    for (var i = 0; i < numOfTransactions; i++) {
       txIds[i] = futureTasks[i].get();
     }
   }
 
   private TransactionId beginAndSuspendTransaction(int numOfOperations) {
     Region region = clientCacheRule.getClientCache().getRegion(regionName);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     startTransaction(numOfOperations, region, txManager);
 
@@ -284,10 +281,10 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
 
   private void startTransaction(int numOfOperations, Region region, TXManagerImpl txManager) {
     txManager.begin();
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) txManager.getTXState();
-    int whichTransaction = ((TXId) txStateProxy.getTransactionId()).getUniqId();
-    int key = getKey(whichTransaction, numOfOperations);
-    String value = getValue(key);
+    var txStateProxy = (TXStateProxyImpl) txManager.getTXState();
+    var whichTransaction = ((TXId) txStateProxy.getTransactionId()).getUniqId();
+    var key = getKey(whichTransaction, numOfOperations);
+    var value = getValue(key);
     region.put(key, value);
   }
 
@@ -307,9 +304,9 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
 
   private void resumeTransactions(int numOfTransactions, int numOfOperations, Thread[] threads,
       TransactionId[] txIds) {
-    for (int i = 0; i < numOfTransactions; i++) {
-      TransactionId txId = txIds[i];
-      Thread thread = new Thread(() -> {
+    for (var i = 0; i < numOfTransactions; i++) {
+      var txId = txIds[i];
+      var thread = new Thread(() -> {
         try {
           resumeTransaction(txId, numOfOperations);
         } catch (Exception e) {
@@ -323,17 +320,17 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
 
   private void resumeTransaction(TransactionId txId, int numOfOperations) throws Exception {
     Region region = clientCacheRule.getClientCache().getRegion(regionName);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     txManager.resume(txId);
-    TXStateProxyImpl txStateProxy = (TXStateProxyImpl) txManager.getTXState();
-    int whichTransaction = ((TXId) txStateProxy.getTransactionId()).getUniqId();
+    var txStateProxy = (TXStateProxyImpl) txManager.getTXState();
+    var whichTransaction = ((TXId) txStateProxy.getTransactionId()).getUniqId();
 
-    int initialKey = getKey(whichTransaction, numOfOperations);
-    int key = 0;
-    for (int i = 0; i < numOfOperations; i++) {
+    var initialKey = getKey(whichTransaction, numOfOperations);
+    var key = 0;
+    for (var i = 0; i < numOfOperations; i++) {
       key = initialKey + i;
-      String value = getValue(key);
+      var value = getValue(key);
       region.put(key, value);
       Thread.sleep(1000);
     }
@@ -342,22 +339,22 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
 
   private void unregisterClientMultipleTimes(ClientProxyMembershipID clientProxyMembershipID)
       throws Exception {
-    int numOfUnregisterClients = 4;
-    for (int i = 0; i < numOfUnregisterClients; i++) {
+    var numOfUnregisterClients = 4;
+    for (var i = 0; i < numOfUnregisterClients; i++) {
       getVM(i).invoke(() -> unregisterClient(clientProxyMembershipID));
       Thread.sleep(1000);
     }
   }
 
   private void unregisterClient(ClientProxyMembershipID clientProxyMembershipID) {
-    ClientHealthMonitor clientHealthMonitor = ClientHealthMonitor.getInstance();
+    var clientHealthMonitor = ClientHealthMonitor.getInstance();
     clientHealthMonitor.removeAllConnectionsAndUnregisterClient(clientProxyMembershipID,
         new Exception());
   }
 
   private void waitForResumeTransactionsToComplete(int numOfTransactions, Thread[] threads)
       throws InterruptedException {
-    for (int i = 0; i < numOfTransactions; i++) {
+    for (var i = 0; i < numOfTransactions; i++) {
       threads[i].join();
     }
   }
@@ -370,13 +367,13 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
     } else {
       region = cacheRule.getCache().getRegion(regionName);
     }
-    int numOfEntries = numOfOperations * numOfTransactions;
+    var numOfEntries = numOfOperations * numOfTransactions;
     await()
         .untilAsserted(() -> assertThat(region.size()).isEqualTo(numOfEntries));
-    for (int i = 1; i <= numOfEntries; i++) {
+    for (var i = 1; i <= numOfEntries; i++) {
       LogService.getLogger().info("region get key {} value {} ", i, region.get(i));
     }
-    for (int i = 1; i <= numOfEntries; i++) {
+    for (var i = 1; i <= numOfEntries; i++) {
       assertEquals("value" + i, region.get(i));
     }
   }
@@ -391,10 +388,10 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
     server4.invoke(() -> createServerRegion(1, true, true));
     client.invoke(this::createClientRegion);
 
-    ClientProxyMembershipID clientProxyMembershipID = client.invoke(this::getClientId);
+    var clientProxyMembershipID = client.invoke(this::getClientId);
 
-    int numOfTransactions = 12;
-    int numOfOperations = 1;
+    var numOfTransactions = 12;
+    var numOfOperations = 1;
     client.invokeAsync(() -> doUnfinishedTransactions(numOfTransactions, numOfOperations));
 
     server1.invoke(() -> verifyTransactionAreStarted(numOfTransactions));
@@ -406,34 +403,34 @@ public class ClientServerTransactionFailoverWithMixedVersionServersDistributedTe
 
   private void doUnfinishedTransactions(int numOfTransactions, int numOfOperations)
       throws InterruptedException {
-    Thread[] threads = new Thread[numOfTransactions];
-    for (int i = 0; i < numOfTransactions; i++) {
-      Thread thread = new Thread(() -> startTransaction(numOfOperations));
+    var threads = new Thread[numOfTransactions];
+    for (var i = 0; i < numOfTransactions; i++) {
+      var thread = new Thread(() -> startTransaction(numOfOperations));
       threads[i] = thread;
       thread.start();
     }
 
-    for (int i = 0; i < numOfTransactions; i++) {
+    for (var i = 0; i < numOfTransactions; i++) {
       threads[i].join();
     }
   }
 
   private void startTransaction(int numOfOperations) {
     Region region = clientCacheRule.getClientCache().getRegion(regionName);
-    TXManagerImpl txManager =
+    var txManager =
         (TXManagerImpl) clientCacheRule.getClientCache().getCacheTransactionManager();
     startTransaction(numOfOperations, region, txManager);
   }
 
   private void verifyTransactionAreStarted(int numOfTransactions) {
-    TXManagerImpl txManager = cacheRule.getCache().getTxManager();
+    var txManager = cacheRule.getCache().getTxManager();
     await()
         .untilAsserted(() -> assertThat(txManager.hostedTransactionsInProgressForTest())
             .isEqualTo(numOfTransactions));
   }
 
   private void verifyTransactionAreExpired() {
-    TXManagerImpl txManager = cacheRule.getCache().getTxManager();
+    var txManager = cacheRule.getCache().getTxManager();
     await()
         .untilAsserted(
             () -> assertThat(txManager.hostedTransactionsInProgressForTest()).isEqualTo(0));

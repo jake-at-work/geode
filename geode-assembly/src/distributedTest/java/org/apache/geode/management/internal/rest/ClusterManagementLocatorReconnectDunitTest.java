@@ -26,8 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.management.api.ClusterManagementRealizationResult;
 import org.apache.geode.management.api.RealizationResult;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
@@ -70,13 +68,13 @@ public class ClusterManagementLocatorReconnectDunitTest {
   }
 
   private void makeRestCallAndVerifyResult(String regionName) throws Exception {
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName(regionName);
     regionConfig.setType(RegionType.REPLICATE);
-    ObjectMapper mapper = new ObjectMapper();
-    String json = mapper.writeValueAsString(regionConfig);
+    var mapper = new ObjectMapper();
+    var json = mapper.writeValueAsString(regionConfig);
 
-    ClusterManagementRealizationResult result =
+    var result =
         restClient.doPostAndAssert("/regions", json, "test", "test")
             .hasStatusCode(201)
             .getClusterManagementRealizationResult();
@@ -94,7 +92,7 @@ public class ClusterManagementLocatorReconnectDunitTest {
 
     // make sure region is persisted
     locator.invoke(() -> {
-      CacheConfig cacheConfig =
+      var cacheConfig =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService()
               .getCacheConfig("cluster");
       assertThat(exists(cacheConfig.getRegions(), regionName)).isTrue();

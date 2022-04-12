@@ -291,12 +291,12 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCompressionStats() {
-    VM vm = Host.getHost(0).getVM(TEST_VM);
+    var vm = Host.getHost(0).getVM(TEST_VM);
 
     assertTrue(createCompressedRegionOnVm(vm, REGION_NAME, new StatCompressor()));
     assertTrue(createCompressedRegionOnVm(vm, REGION_NAME_2, new StatCompressor()));
 
-    CompressionStats stats = new CompressionStats();
+    var stats = new CompressionStats();
 
     assertStartingValues(vm);
     assertRegionOneStats(vm, stats);
@@ -315,7 +315,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
         Region region = getCache().getRegion(regionName);
         assertNotNull(region);
 
-        for (int i = 0; i < (index / 2); ++i) {
+        for (var i = 0; i < (index / 2); ++i) {
           assertNotNull(region.get(i));
         }
       }
@@ -335,7 +335,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
       public void run() {
         Region region = getCache().getRegion(regionName);
         assertNotNull(region);
-        for (int i = 0; i < puts; ++i) {
+        for (var i = 0; i < puts; ++i) {
           region.put(index++, PRE_COMPRESS_BYTES);
         }
       }
@@ -366,7 +366,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * Returns the the number of post-compressed bytes stat for the cache.
    */
   private long getTotalPostCompressedBytes() {
-    GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+    var cache = (GemFireCacheImpl) getCache();
     return cache.getCachePerfStats().getTotalPostCompressedBytes();
   }
 
@@ -376,7 +376,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * @param regionName a region.
    */
   private long getTotalPostCompressedBytes(String regionName) {
-    LocalRegion region = (LocalRegion) getCache().getRegion(regionName);
+    var region = (LocalRegion) getCache().getRegion(regionName);
     assertNotNull(region);
 
     return region.getCachePerfStats().getTotalPostCompressedBytes();
@@ -405,7 +405,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * Returns the number of compressed bytes stat for the cache.
    */
   private long getTotalPreCompressedBytes() {
-    GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+    var cache = (GemFireCacheImpl) getCache();
     return cache.getCachePerfStats().getTotalPreCompressedBytes();
   }
 
@@ -415,7 +415,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * @param regionName a region.
    */
   private long getTotalPreCompressedBytes(String regionName) {
-    LocalRegion region = (LocalRegion) getCache().getRegion(regionName);
+    var region = (LocalRegion) getCache().getRegion(regionName);
     assertNotNull(region);
 
     return region.getCachePerfStats().getTotalPreCompressedBytes();
@@ -444,7 +444,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * Returns the number of decompressions stat for the cache.
    */
   private long getTotalDecompressions() {
-    GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+    var cache = (GemFireCacheImpl) getCache();
     return cache.getCachePerfStats().getTotalDecompressions();
   }
 
@@ -454,7 +454,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * @param regionName a region.
    */
   private long getTotalDecompressions(String regionName) {
-    LocalRegion region = (LocalRegion) getCache().getRegion(regionName);
+    var region = (LocalRegion) getCache().getRegion(regionName);
     assertNotNull(region);
 
     return region.getCachePerfStats().getTotalDecompressions();
@@ -483,7 +483,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * Returns the total number of compressions stat for the cache.
    */
   private long getTotalCompressions() {
-    GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+    var cache = (GemFireCacheImpl) getCache();
     return cache.getCachePerfStats().getTotalCompressions();
   }
 
@@ -493,7 +493,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * @param regionName a region.
    */
   private long getTotalCompressions(String regionName) {
-    LocalRegion region = (LocalRegion) getCache().getRegion(regionName);
+    var region = (LocalRegion) getCache().getRegion(regionName);
     assertNotNull(region);
 
     return region.getCachePerfStats().getTotalCompressions();
@@ -522,7 +522,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * Returns the total decompression time stat for the cache.
    */
   private long getTotalDecompressionTime() {
-    GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+    var cache = (GemFireCacheImpl) getCache();
     return cache.getCachePerfStats().getTotalDecompressionTime();
   }
 
@@ -532,7 +532,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * @param regionName a region.
    */
   private long getTotalDecompressionTime(String regionName) {
-    LocalRegion region = (LocalRegion) getCache().getRegion(regionName);
+    var region = (LocalRegion) getCache().getRegion(regionName);
     assertNotNull(region);
 
     return region.getCachePerfStats().getTotalDecompressionTime();
@@ -561,7 +561,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * Returns the total compression time stat for the cache.
    */
   private long getTotalCompressionTime() {
-    GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+    var cache = (GemFireCacheImpl) getCache();
     return cache.getCachePerfStats().getTotalCompressionTime();
   }
 
@@ -571,7 +571,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * @param regionName a region.
    */
   private long getTotalCompressionTime(String regionName) {
-    LocalRegion region = (LocalRegion) getCache().getRegion(regionName);
+    var region = (LocalRegion) getCache().getRegion(regionName);
     assertNotNull(region);
 
     return region.getCachePerfStats().getTotalCompressionTime();
@@ -657,7 +657,7 @@ public class CompressionStatsDUnitTest extends JUnit4CacheTestCase {
    * @param compressor a compressor.
    */
   private Region createRegion(String name, Compressor compressor) {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(ENABLE_TIME_STATISTICS, "true");
     return getCache(configProperties).createRegionFactory().setDataPolicy(DataPolicy.REPLICATE)
         .setCloningEnabled(true).setCompressor(compressor).create(name);

@@ -18,7 +18,6 @@ package org.apache.geode.util.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.junit.Test;
 
@@ -26,14 +25,14 @@ import org.junit.Test;
 public class GeodeJsonMapperTest {
   @Test
   public void ignoreUnknownPropMapper() throws Exception {
-    ObjectMapper mapper = GeodeJsonMapper.getMapperIgnoringUnknownProperties();
-    String json = "{\"name\":\"Joe\"}";
+    var mapper = GeodeJsonMapper.getMapperIgnoringUnknownProperties();
+    var json = "{\"name\":\"Joe\"}";
 
-    Employee employee = new Employee();
+    var employee = new Employee();
     employee.setName("Joe");
     assertThat(mapper.writeValueAsString(employee)).isEqualTo(json);
 
-    String jsonWithUnknownProp = "{\"name\":\"Joe\",\"id\":\"test\"}";
+    var jsonWithUnknownProp = "{\"name\":\"Joe\",\"id\":\"test\"}";
     employee = mapper.readValue(jsonWithUnknownProp, Employee.class);
     assertThat(employee.getName()).isEqualTo("Joe");
     assertThat(employee.getTitle()).isNull();
@@ -41,14 +40,14 @@ public class GeodeJsonMapperTest {
 
   @Test
   public void regularMapper() throws Exception {
-    ObjectMapper mapper = GeodeJsonMapper.getMapper();
-    String json = "{\"name\":\"Joe\"}";
+    var mapper = GeodeJsonMapper.getMapper();
+    var json = "{\"name\":\"Joe\"}";
 
-    Employee employee = new Employee();
+    var employee = new Employee();
     employee.setName("Joe");
     assertThat(mapper.writeValueAsString(employee)).isEqualTo(json);
 
-    String jsonWithUnknownProp = "{\"name\":\"Joe\",\"id\":\"test\"}";
+    var jsonWithUnknownProp = "{\"name\":\"Joe\",\"id\":\"test\"}";
     assertThatThrownBy(() -> mapper.readValue(jsonWithUnknownProp, Employee.class))
         .isInstanceOf(UnrecognizedPropertyException.class)
         .hasMessageContaining("Unrecognized field \"id\"");

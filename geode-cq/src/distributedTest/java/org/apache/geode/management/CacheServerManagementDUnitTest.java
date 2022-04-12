@@ -41,7 +41,6 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.Notification;
 import javax.management.NotificationListener;
-import javax.management.ObjectName;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -52,10 +51,8 @@ import org.apache.geode.cache.client.internal.LocatorTestBase;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexInvalidException;
 import org.apache.geode.cache.query.IndexNameConflictException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.cq.dunit.CqQueryDUnitTest;
-import org.apache.geode.cache.query.internal.cq.CqService;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.Locator;
@@ -116,24 +113,24 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
 
   @Test
   public void testCacheServerMBean() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
-    VM managingNode = host.getVM(2);
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
+    var managingNode = host.getVM(2);
 
     // Managing Node is created first
     helper.createManagementCache(managingNode);
     helper.startManagingNode(managingNode);
     // helper.createCache(server);
-    int serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
     cqDUnitTest.createServer(server, serverPort);
 
-    DistributedMember member = helper.getMember(server);
+    var member = helper.getMember(server);
 
     verifyCacheServer(server, serverPort);
 
     final int port = server.invoke(CqQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server.getHost());
+    final var host0 = NetworkUtils.getServerHostName(server.getHost());
 
     // Create client.
     cqDUnitTest.createClient(client, port, host0);
@@ -141,7 +138,7 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
     cqDUnitTest.createCQ(client, queryName, cqDUnitTest.cqs[0]);
     cqDUnitTest.executeCQ(client, queryName, false, null);
 
-    final int size = 10;
+    final var size = 10;
     cqDUnitTest.createValues(client, cqDUnitTest.regions[0], size);
     cqDUnitTest.waitForCreated(client, queryName, CqQueryDUnitTest.KEY + size);
 
@@ -175,15 +172,15 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
   @Test
   public void testCacheClient() throws Exception {
 
-    final Host host = Host.getHost(0);
-    VM locator = host.getVM(0);
-    VM server = host.getVM(1);
-    VM client = host.getVM(2);
+    final var host = Host.getHost(0);
+    var locator = host.getVM(0);
+    var server = host.getVM(1);
+    var client = host.getVM(2);
 
-    int locatorPort = getRandomAvailableTCPPort();
+    var locatorPort = getRandomAvailableTCPPort();
     locator.invoke("Start Locator", () -> startLocator(locator.getHost(), locatorPort, ""));
 
-    String locators = NetworkUtils.getServerHostName(locator.getHost()) + "[" + locatorPort + "]";
+    var locators = NetworkUtils.getServerHostName(locator.getHost()) + "[" + locatorPort + "]";
 
     int serverPort = server.invoke("Start BridgeServer", () -> startBridgeServer(null, locators));
 
@@ -214,15 +211,15 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
   @Ignore("Bug46049")
   @Test
   public void testBug46049() throws Exception {
-    final Host host = Host.getHost(0);
-    VM locator = host.getVM(0);
-    VM server = host.getVM(1);
+    final var host = Host.getHost(0);
+    var locator = host.getVM(0);
+    var server = host.getVM(1);
 
     // Step 1:
-    final int locatorPort = getRandomAvailableTCPPort();
+    final var locatorPort = getRandomAvailableTCPPort();
     locator.invoke("Start Locator", () -> startLocator(locator.getHost(), locatorPort, ""));
 
-    String locators = NetworkUtils.getServerHostName(locator.getHost()) + "[" + locatorPort + "]";
+    var locators = NetworkUtils.getServerHostName(locator.getHost()) + "[" + locatorPort + "]";
 
     // Step 2:
     server.invoke("Start BridgeServer", () -> startBridgeServer(null, locators));
@@ -231,7 +228,7 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
     server.invoke("Check Server", () -> {
       Cache cache = GemFireCacheImpl.getInstance();
       assertNotNull(cache);
-      SystemManagementService service =
+      var service =
           (SystemManagementService) ManagementService.getExistingManagementService(cache);
       assertNotNull(service);
       assertFalse(service.isManager());
@@ -247,12 +244,12 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
     locator.invoke("Check locator", () -> {
       Cache cache = GemFireCacheImpl.getInstance();
       assertNotNull(cache);
-      ManagementService service = ManagementService.getExistingManagementService(cache);
+      var service = ManagementService.getExistingManagementService(cache);
       assertNotNull(service);
       assertTrue(service.isManager());
-      LocatorMXBean bean = service.getLocalLocatorMXBean();
+      var bean = service.getLocalLocatorMXBean();
       assertEquals(locatorPort, bean.getPort());
-      DistributedSystemMXBean dsBean = service.getDistributedSystemMXBean();
+      var dsBean = service.getDistributedSystemMXBean();
 
       assertEquals(2, dsBean.listMemberObjectNames().length);
     });
@@ -264,16 +261,16 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
 
   protected void startLocator(Host vmHost, final int locatorPort, final String otherLocators) {
     disconnectFromDS();
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, String.valueOf(0));
     props.setProperty(LOCATORS, otherLocators);
     props.setProperty(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
     props.setProperty(JMX_MANAGER_HTTP_PORT, "0");
     props.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
-    File logFile = new File(getUniqueName() + "-locator" + locatorPort + ".log");
+    var logFile = new File(getUniqueName() + "-locator" + locatorPort + ".log");
     try {
-      InetAddress bindAddr = InetAddress.getByName(NetworkUtils.getServerHostName(vmHost));
-      Locator locator = Locator.startLocatorAndDS(locatorPort, logFile, bindAddr, props);
+      var bindAddr = InetAddress.getByName(NetworkUtils.getServerHostName(vmHost));
+      var locator = Locator.startLocatorAndDS(locatorPort, logFile, bindAddr, props);
       remoteObjects.put(LOCATOR_KEY, locator);
     } catch (UnknownHostException uhe) {
       Assert.fail("While resolving bind address ", uhe);
@@ -284,17 +281,17 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
 
   protected void checkNavigation(final VM vm, final DistributedMember cacheServerMember,
       final int serverPort) {
-    SerializableRunnable checkNavigation = new SerializableRunnable("Check Navigation") {
+    var checkNavigation = new SerializableRunnable("Check Navigation") {
       @Override
       public void run() {
 
-        final ManagementService service = ManagementTestBase.getManagementService();
+        final var service = ManagementTestBase.getManagementService();
 
-        DistributedSystemMXBean disMBean = service.getDistributedSystemMXBean();
+        var disMBean = service.getDistributedSystemMXBean();
         try {
-          ObjectName expected =
+          var expected =
               MBeanJMXAdapter.getClientServiceMBeanName(serverPort, cacheServerMember.getId());
-          ObjectName actual =
+          var actual =
               disMBean.fetchCacheServerObjectName(cacheServerMember.getId(), serverPort);
           assertEquals(expected, actual);
         } catch (Exception e) {
@@ -318,15 +315,15 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
    */
   @SuppressWarnings("serial")
   protected void addClientNotifListener(final VM vm, final int serverPort) throws Exception {
-    SerializableRunnable addClientNotifListener =
+    var addClientNotifListener =
         new SerializableRunnable("Add Client Notif Listener") {
           @Override
           public void run() {
-            GemFireCacheImpl cache = getInstance();
-            ManagementService service = getManagementService(cache);
-            final CacheServerMXBean bean = service.getLocalCacheServerMXBean(serverPort);
+            var cache = getInstance();
+            var service = getManagementService(cache);
+            final var bean = service.getLocalCacheServerMXBean(serverPort);
             assertNotNull(bean);
-            WaitCriterion ev = new WaitCriterion() {
+            var ev = new WaitCriterion() {
               @Override
               public boolean done() {
                 return bean.isRunning();
@@ -339,7 +336,7 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
             };
             GeodeAwaitility.await().untilAsserted(ev);
             assertTrue(bean.isRunning());
-            TestCacheServerNotif nt = new TestCacheServerNotif();
+            var nt = new TestCacheServerNotif();
             try {
               mbeanServer.addNotificationListener(getClientServiceMBeanName(
                   serverPort, cache.getDistributedSystem().getMemberId()), nt, null, null);
@@ -358,12 +355,12 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
    */
   @SuppressWarnings("serial")
   protected void verifyIndex(final VM vm, final int serverPort) throws Exception {
-    SerializableRunnable verifyIndex = new SerializableRunnable("Verify Index ") {
+    var verifyIndex = new SerializableRunnable("Verify Index ") {
       @Override
       public void run() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
-        ManagementService service = ManagementService.getManagementService(cache);
-        QueryService qs = cache.getQueryService();
+        var cache = GemFireCacheImpl.getInstance();
+        var service = ManagementService.getManagementService(cache);
+        var qs = cache.getQueryService();
         try {
           qs.createIndex(indexName, "p.ID",
               SEPARATOR + "root" + SEPARATOR + cqDUnitTest.regions[0]);
@@ -379,7 +376,7 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
           fail("Failed With Exception " + e);
         }
 
-        CacheServerMXBean bean = service.getLocalCacheServerMXBean(serverPort);
+        var bean = service.getLocalCacheServerMXBean(serverPort);
         assertEquals(bean.getIndexCount(), 1);
         LogWriterUtils.getLogWriter()
             .info("<ExpectedString> Index is   " + bean.getIndexList()[0] + "</ExpectedString> ");
@@ -402,10 +399,10 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
    */
   @SuppressWarnings("serial")
   protected void verifyClosedCQ(final VM vm) throws Exception {
-    SerializableRunnable verifyClosedCQ = new SerializableRunnable("Verify Closed CQ") {
+    var verifyClosedCQ = new SerializableRunnable("Verify Closed CQ") {
       @Override
       public void run() {
-        CqService cqService = GemFireCacheImpl.getInstance().getCqService();
+        var cqService = GemFireCacheImpl.getInstance().getCqService();
         if (cqService != null) {
           assertNull(cqService.getCq(queryName));
         }
@@ -421,14 +418,14 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
    */
   @SuppressWarnings("serial")
   protected void verifyCacheServer(final VM vm, final int serverPort) throws Exception {
-    SerializableRunnable verifyCacheServer = new SerializableRunnable("Verify Cache Server") {
+    var verifyCacheServer = new SerializableRunnable("Verify Cache Server") {
       @Override
       public void run() {
-        GemFireCacheImpl cache = getInstance();
-        ManagementService service = getManagementService(cache);
-        final CacheServerMXBean bean = service.getLocalCacheServerMXBean(serverPort);
+        var cache = getInstance();
+        var service = getManagementService(cache);
+        final var bean = service.getLocalCacheServerMXBean(serverPort);
         assertNotNull(bean);
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
           @Override
           public boolean done() {
             return bean.isRunning();
@@ -470,19 +467,19 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
   @SuppressWarnings("serial")
   protected void verifyCacheServerRemote(final VM vm, final DistributedMember serverMember,
       final int serverPort) {
-    SerializableRunnable verifyCacheServerRemote =
+    var verifyCacheServerRemote =
         new SerializableRunnable("Verify Cache Server Remote") {
           @Override
           public void run() {
-            GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+            var cache = GemFireCacheImpl.getInstance();
             try {
 
-              CacheServerMXBean bean = MBeanUtil.getCacheServerMbeanProxy(serverMember, serverPort);
+              var bean = MBeanUtil.getCacheServerMbeanProxy(serverMember, serverPort);
 
               // Check for bean configuration
               assertCacheServerConfig(bean);
 
-              String clientId = bean.getClientIds()[0];
+              var clientId = bean.getClientIds()[0];
               assertNotNull(clientId);
               LogWriterUtils.getLogWriter().info(
                   "<ExpectedString> ClientId of the Server is  " + clientId + "</ExpectedString> ");
@@ -493,7 +490,7 @@ public class CacheServerManagementDUnitTest extends LocatorTestBase {
                   + bean.getRegisteredCQCount() + "</ExpectedString> ");
 
               assertTrue(bean.showAllClientStats()[0].getClientCQCount() == 1);
-              int numQueues = bean.getNumSubscriptions();
+              var numQueues = bean.getNumSubscriptions();
               assertEquals(numQueues, 1);
 
               bean.getContinuousQueryList();

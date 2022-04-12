@@ -41,7 +41,7 @@ public class BlockingHARQStatsJUnitTest extends HARegionQueueStatsJUnitTest {
   @Override
   protected HARegionQueue createHARegionQueue(String name)
       throws IOException, ClassNotFoundException, CacheException, InterruptedException {
-    HARegionQueue regionqueue =
+    var regionqueue =
         HARegionQueue.getHARegionQueueInstance(name, cache, HARegionQueue.BLOCKING_HA_QUEUE, false,
             disabledClock());
     return regionqueue;
@@ -57,7 +57,7 @@ public class BlockingHARQStatsJUnitTest extends HARegionQueueStatsJUnitTest {
   @Override
   protected HARegionQueue createHARegionQueue(String name, HARegionQueueAttributes attrs)
       throws IOException, ClassNotFoundException, CacheException, InterruptedException {
-    HARegionQueue regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache, attrs,
+    var regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache, attrs,
         HARegionQueue.BLOCKING_HA_QUEUE, false, disabledClock());
     return regionqueue;
   }

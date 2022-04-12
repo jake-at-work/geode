@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -50,7 +49,6 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.RegisterInterestTracker;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.internal.cache.ClientServerObserver;
@@ -124,7 +122,7 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
     latch.countDown();
     ClientServerObserverHolder.setInstance(clientServerObserver);
 
-    for (VM vm : toArray(getController(), vm0, vm1, vm2, vm3)) {
+    for (var vm : toArray(getController(), vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> cacheRule.closeAndNullCache());
     }
 
@@ -153,7 +151,7 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
     vm2.invoke(this::verifyDispatcherIsNotAlive);
     vm3.invoke(this::verifyDispatcherIsNotAlive);
 
-    for (VM vm : toArray(vm0, vm1, vm2, vm3)) {
+    for (var vm : toArray(vm0, vm1, vm2, vm3)) {
       vm.invoke(this::verifyInterestRegistration);
     }
 
@@ -351,23 +349,23 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
   private void verifyDispatcherIsAlive() {
     await().untilAsserted(() -> assertThat(cache.getCacheServers()).hasSize(1));
 
-    CacheServerImpl cacheServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var cacheServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertThat(cacheServer).isNotNull();
     assertThat(cacheServer.getAcceptor()).isNotNull();
     assertThat(cacheServer.getAcceptor().getCacheClientNotifier()).isNotNull();
 
-    CacheClientNotifier cacheClientNotifier =
+    var cacheClientNotifier =
         cacheServer.getAcceptor().getCacheClientNotifier();
 
     await().untilAsserted(
         () -> assertThat(cacheClientNotifier.getClientProxies().size()).isGreaterThan(0));
 
-    Iterator<CacheClientProxy> cacheClientProxyIterator =
+    var cacheClientProxyIterator =
         cacheClientNotifier.getClientProxies().iterator();
 
     if (cacheClientNotifier.getClientProxies().iterator().hasNext()) {
 
-      CacheClientProxy proxy = cacheClientProxyIterator.next();
+      var proxy = cacheClientProxyIterator.next();
       await().until(() -> proxy._messageDispatcher != null && proxy._messageDispatcher.isAlive());
     }
   }
@@ -375,21 +373,21 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
   private void verifyDispatcherIsNotAlive() {
     await().untilAsserted(() -> assertThat(cache.getCacheServers()).hasSize(1));
 
-    CacheServerImpl cacheServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var cacheServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertThat(cacheServer).isNotNull();
     assertThat(cacheServer.getAcceptor()).isNotNull();
     assertThat(cacheServer.getAcceptor().getCacheClientNotifier()).isNotNull();
 
-    CacheClientNotifier cacheClientNotifier =
+    var cacheClientNotifier =
         cacheServer.getAcceptor().getCacheClientNotifier();
 
     await().untilAsserted(
         () -> assertThat(cacheClientNotifier.getClientProxies().size()).isGreaterThan(0));
 
-    Iterator<CacheClientProxy> cacheClientProxyIterator =
+    var cacheClientProxyIterator =
         cacheClientNotifier.getClientProxies().iterator();
     if (cacheClientProxyIterator.hasNext()) {
-      CacheClientProxy proxy = cacheClientProxyIterator.next();
+      var proxy = cacheClientProxyIterator.next();
       assertThat(proxy._messageDispatcher.isAlive())
           .describedAs("Dispatcher on secondary should not be alive").isFalse();
     }
@@ -430,7 +428,7 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
   }
 
   private void registerK1AndK2() {
-    Region<Object, Object> region = cache.getRegion(REGION_NAME);
+    var region = cache.getRegion(REGION_NAME);
     assertThat(region).isNotNull();
     List<String> list = new ArrayList<>();
     list.add(K1);
@@ -441,12 +439,12 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
   private void verifyCCP() {
     await().untilAsserted(() -> assertThat(cache.getCacheServers()).hasSize(1));
 
-    CacheServerImpl cacheServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var cacheServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertThat(cacheServer).isNotNull();
     assertThat(cacheServer.getAcceptor()).isNotNull();
     assertThat(cacheServer.getAcceptor().getCacheClientNotifier()).isNotNull();
 
-    CacheClientNotifier cacheClientNotifier =
+    var cacheClientNotifier =
         cacheServer.getAcceptor().getCacheClientNotifier();
     await().untilAsserted(() -> assertThat(cacheClientNotifier.getClientProxies()).hasSize(1));
   }
@@ -454,22 +452,22 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
   private void verifyInterestRegistration() {
     await().untilAsserted(() -> assertThat(cache.getCacheServers()).hasSize(1));
 
-    CacheServerImpl cacheServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var cacheServer = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertThat(cacheServer).isNotNull();
     assertThat(cacheServer.getAcceptor()).isNotNull();
     assertThat(cacheServer.getAcceptor().getCacheClientNotifier()).isNotNull();
 
-    CacheClientNotifier cacheClientNotifier =
+    var cacheClientNotifier =
         cacheServer.getAcceptor().getCacheClientNotifier();
     await().untilAsserted(
         () -> assertThat(cacheClientNotifier.getClientProxies().size()).isGreaterThan(0));
 
-    Iterator<CacheClientProxy> cacheClientProxyIterator =
+    var cacheClientProxyIterator =
         cacheClientNotifier.getClientProxies().iterator();
 
     assertThat(cacheClientProxyIterator.hasNext()).describedAs("A CacheClientProxy was expected")
         .isTrue();
-    CacheClientProxy cacheClientProxy = cacheClientProxyIterator.next();
+    var cacheClientProxy = cacheClientProxyIterator.next();
 
     await().until(() -> {
       Set<?> keysMap = cacheClientProxy.cils[RegisterInterestTracker.interestListIndex]
@@ -488,15 +486,15 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
   }
 
   private void stopServer() {
-    Iterator<CacheServer> iterator = cache.getCacheServers().iterator();
+    var iterator = cache.getCacheServers().iterator();
     if (iterator.hasNext()) {
-      CacheServer server = iterator.next();
+      var server = iterator.next();
       server.stop();
     }
   }
 
   private void startServer() throws IOException {
-    CacheServer cacheServer = cache.getCacheServers().iterator().next();
+    var cacheServer = cache.getCacheServers().iterator().next();
     assertThat(cacheServer).isNotNull();
     cacheServer.start();
   }
@@ -516,7 +514,7 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
           }
         });
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
 
@@ -551,7 +549,7 @@ public class RedundancyLevelPart3DUnitTest implements Serializable {
     cache.createRegionFactory(RegionShortcut.REPLICATE).setEnableSubscriptionConflation(true)
         .create(REGION_NAME);
 
-    CacheServer cacheServer = cache.addCacheServer();
+    var cacheServer = cache.addCacheServer();
 
     cacheServer.setMaximumTimeBetweenPings(180000);
     cacheServer.setPort(0);

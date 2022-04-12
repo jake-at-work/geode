@@ -25,11 +25,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.LocalDataSet;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PrimaryBucketLockException;
 import org.apache.geode.internal.cache.execute.BucketMovedException;
 import org.apache.geode.internal.cache.execute.RegionFunctionContextImpl;
@@ -57,12 +55,12 @@ public class CheckPrimaryBucketFunction implements Function {
 
   @Override
   public void execute(FunctionContext context) {
-    RegionFunctionContextImpl regionFunctionContext = (RegionFunctionContextImpl) context;
-    String key = (String) regionFunctionContext.getFilter().iterator().next();
-    boolean releaseLatchEarly = (boolean) context.getArguments();
+    var regionFunctionContext = (RegionFunctionContextImpl) context;
+    var key = (String) regionFunctionContext.getFilter().iterator().next();
+    var releaseLatchEarly = (boolean) context.getArguments();
 
-    ResultSender result = context.getResultSender();
-    DistributedMember member = context.getCache().getDistributedSystem().getDistributedMember();
+    var result = context.getResultSender();
+    var member = context.getCache().getDistributedSystem().getDistributedMember();
 
     if (!isMemberPrimary(regionFunctionContext, key, member)) {
       LogService.getLogger().error("Member is not primary.");
@@ -83,7 +81,7 @@ public class CheckPrimaryBucketFunction implements Function {
       }
     }
 
-    Callable<Void> r = () -> {
+    var r = (Callable<Void>) () -> {
       if (!releaseLatchEarly) {
         signalFunctionHasStarted.countDown();
       }
@@ -101,8 +99,8 @@ public class CheckPrimaryBucketFunction implements Function {
       return null;
     };
 
-    LocalDataSet localDataSet = (LocalDataSet) localRegion;
-    PartitionedRegion partitionedRegion = localDataSet.getProxy();
+    var localDataSet = (LocalDataSet) localRegion;
+    var partitionedRegion = localDataSet.getProxy();
     try {
       partitionedRegion.computeWithPrimaryLocked(key, r);
     } catch (PrimaryBucketLockException ex) {
@@ -114,7 +112,7 @@ public class CheckPrimaryBucketFunction implements Function {
 
   private boolean isMemberPrimary(RegionFunctionContextImpl context, String key,
       DistributedMember member) {
-    DistributedMember primaryForKey = PartitionRegionHelper
+    var primaryForKey = PartitionRegionHelper
         .getPrimaryMemberForKey(context.getDataSet(), key);
 
     return primaryForKey.equals(member);

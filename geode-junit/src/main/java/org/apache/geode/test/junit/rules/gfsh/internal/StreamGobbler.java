@@ -67,7 +67,7 @@ class StreamGobbler implements AutoCloseable {
   }
 
   private void processInputStream() {
-    try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
+    try (var bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
       bufferedReader.lines().forEach(consumeInputLine);
     } catch (UncheckedIOException | IOException ignored) {
       // If this gobbler is reading the System.out stream from a process that gets killed,

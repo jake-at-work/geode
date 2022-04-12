@@ -41,7 +41,7 @@ public class LuceneIndexFactoryImpl implements LuceneIndexFactory {
   @Override
   public LuceneIndexFactoryImpl setFields(final String... fields) {
     this.fields.clear();
-    for (String field : fields) {
+    for (var field : fields) {
       addField(field);
     }
     return this;

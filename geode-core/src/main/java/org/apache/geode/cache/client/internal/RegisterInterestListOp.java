@@ -117,14 +117,14 @@ public class RegisterInterestListOp {
       getMessage().addStringPart(region, true);
       getMessage().addObjPart(policy);
       {
-        byte durableByte = (byte) (isDurable ? 0x01 : 0x00);
+        var durableByte = (byte) (isDurable ? 0x01 : 0x00);
         getMessage().addBytesPart(new byte[] {durableByte});
       }
       // Set chunk size of HDOS for keys
       getMessage().setChunkSize(keys.size() * 16);
       getMessage().addObjPart(keys);
 
-      byte notifyByte = (byte) (receiveUpdatesAsInvalidates ? 0x01 : 0x00);
+      var notifyByte = (byte) (receiveUpdatesAsInvalidates ? 0x01 : 0x00);
       getMessage().addBytesPart(new byte[] {notifyByte});
 
       // The second byte '1' below tells server to serialize values in VersionObjectList.

@@ -28,13 +28,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
@@ -50,8 +47,8 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testProjectionEvaluationDuringIndexResults() throws QueryException {
-    QueryService qs = CacheUtils.getQueryService();
-    String[] queries = new String[] {"select  p.status from " + SEPARATOR + "pos p where p.ID > 0 ",
+    var qs = CacheUtils.getQueryService();
+    var queries = new String[] {"select  p.status from " + SEPARATOR + "pos p where p.ID > 0 ",
         "select  p.status from " + SEPARATOR + "pos p, p.positions pos where p.ID > 0 ",
         "select  p.status from " + SEPARATOR + "pos p  where p.ID > 0 and p.createTime > 0",
         "select  p.status as sts, p as pos from " + SEPARATOR
@@ -62,17 +59,16 @@ public class CustomerOptimizationsJUnitTest {
             + "pos p  where ( p.ID IN  SET( 0,1,2,3) and p.createTime > 0L) OR (p.ID IN  SET( 2,3) and p.createTime > 5L)"
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
     qs.createIndex("PortFolioID", IndexType.FUNCTIONAL, "ID", SEPARATOR + "pos");
 
-
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class),
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class),
         new ObjectTypeImpl(String.class), new ObjectTypeImpl(String.class),
         new StructTypeImpl(new String[] {"sts", "pos"},
             new ObjectType[] {new ObjectTypeImpl(String.class),
@@ -86,8 +82,8 @@ public class CustomerOptimizationsJUnitTest {
         new StructTypeImpl(new String[] {"sts", "pos"}, new ObjectType[] {
             new ObjectTypeImpl(String.class), new ObjectTypeImpl(Portfolio.class)})};
 
-    final boolean[] expectedCallback = {false, true, false, false, false, true};
-    final boolean[] actualCallback = new boolean[queries.length];
+    final var expectedCallback = new boolean[] {false, true, false, false, false, true};
+    final var actualCallback = new boolean[queries.length];
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -102,8 +98,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedCallback[i], actualCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -115,33 +111,32 @@ public class CustomerOptimizationsJUnitTest {
   @Ignore
   @Test
   public void testProjectionEvaluationDuringIndexResults_UNIMPLEMENTED() throws QueryException {
-    QueryService qs = CacheUtils.getQueryService();
-    String[] queries = new String[] {
+    var qs = CacheUtils.getQueryService();
+    var queries = new String[] {
         "select  p.status from " + SEPARATOR + "pos p, p.positions pos where p.ID > 0 ",
         "select  p.status as sts, p as pos from " + SEPARATOR
             + "pos p  where ( p.ID IN  SET( 0,1,2,3) and p.createTime > 0L) OR (p.ID IN  SET( 2,3) and p.createTime > 5L)",
         "select  p.status as sts, p as pos from " + SEPARATOR
             + "pos p  where  p.ID IN  SET( 0,1,2,3) and p.createTime > 0L"};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
     qs.createIndex("PortFolioID", IndexType.FUNCTIONAL, "ID", SEPARATOR + "pos");
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
 
-
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class),
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class),
         new StructTypeImpl(new String[] {"sts", "pos"},
             new ObjectType[] {new ObjectTypeImpl(String.class),
                 new ObjectTypeImpl(Portfolio.class)}),
         new StructTypeImpl(new String[] {"sts", "pos"}, new ObjectType[] {
             new ObjectTypeImpl(String.class), new ObjectTypeImpl(Portfolio.class)})};
 
-    final boolean[] expectedCallback = {false, false, false};
-    final boolean[] actualCallback = new boolean[queries.length];
+    final var expectedCallback = new boolean[] {false, false, false};
+    final var actualCallback = new boolean[queries.length];
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -156,8 +151,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedCallback[i], actualCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -168,40 +163,40 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testUnionDuringIndexEvaluationForIN() throws QueryException {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  p.status as sts, p as pos from " + SEPARATOR
             + "pos p  where  p.ID IN  SET( 0,1,2,3,4,5) ",
         "select  p.status as sts, p as pos from " + SEPARATOR
             + "pos p  where  p.ID IN  SET( 0,1,2,3,4,5,101,102,103,104,105) AND p.createTime > 9l"};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
     qs.createIndex("PortFolioID", IndexType.FUNCTIONAL, "ID", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true, true};
-    final boolean[] actualIndexUsed = new boolean[] {false, false};
+    final var expectedIndexUsed = new boolean[] {true, true};
+    final var actualIndexUsed = new boolean[] {false, false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false, false};
-    final boolean[] actualProjectionCallback = new boolean[] {false, false};
+    final var expectedProjectionCallabck = new boolean[] {false, false};
+    final var actualProjectionCallback = new boolean[] {false, false};
 
-    final boolean[] expectedUnionCallback = {false, false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false, false};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false, false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false, false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {
+    var expectedTypes = new ObjectType[] {
         new StructTypeImpl(new String[] {"sts", "pos"},
             new ObjectType[] {new ObjectTypeImpl(String.class),
                 new ObjectTypeImpl(Portfolio.class)}),
@@ -236,8 +231,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -251,40 +246,40 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testBug39851() throws QueryException {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  p.status as sts, p as pos from " + SEPARATOR
             + "pos p  where  p.ID IN  ( Select x.ID from " + SEPARATOR + "pos x where x.ID > 10) "
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
     qs.createIndex("PortFolioID", IndexType.FUNCTIONAL, "ID", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true, true};
-    final boolean[] actualIndexUsed = new boolean[] {false, false};
+    final var expectedIndexUsed = new boolean[] {true, true};
+    final var actualIndexUsed = new boolean[] {false, false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false, false};
-    final boolean[] actualProjectionCallback = new boolean[] {false, false};
+    final var expectedProjectionCallabck = new boolean[] {false, false};
+    final var actualProjectionCallback = new boolean[] {false, false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new StructTypeImpl(new String[] {"sts", "pos"},
+    var expectedTypes = new ObjectType[] {new StructTypeImpl(new String[] {"sts", "pos"},
         new ObjectType[] {new ObjectTypeImpl(String.class), new ObjectTypeImpl(Portfolio.class)})
 
     };
@@ -317,8 +312,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -332,41 +327,41 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testUnionDuringIndexEvaluationWithMultipleFilters() throws QueryException {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  p.status as sts, p as pos from " + SEPARATOR
             + "pos p  where  p.ID IN  SET( 0,1,2,3,4,5,101,102,103,104,105) AND p.createTime > 9l"
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
     qs.createIndex("PortFolioID", IndexType.FUNCTIONAL, "ID", SEPARATOR + "pos");
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new StructTypeImpl(new String[] {"sts", "pos"},
+    var expectedTypes = new ObjectType[] {new StructTypeImpl(new String[] {"sts", "pos"},
         new ObjectType[] {new ObjectTypeImpl(String.class), new ObjectTypeImpl(Portfolio.class)})};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
@@ -397,8 +392,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -414,41 +409,41 @@ public class CustomerOptimizationsJUnitTest {
   @Test
   public void testProjectionEvaluationDuringIndexResultsWithComplexWhereClause_UNIMPLEMENTED_1()
       throws QueryException {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  p.status as sts, p as pos from " + SEPARATOR
             + "pos p  where   (p.ID IN  SET( 0,1,2,3,4,5,101,102,103,104,105) AND p.createTime > 9l) OR (p.ID IN  SET( 20,30,110,120) AND p.createTime > 7l)"
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
     qs.createIndex("PortFolioID", IndexType.FUNCTIONAL, "ID", SEPARATOR + "pos");
     // qs.createIndex("CreateTime", IndexType.FUNCTIONAL,"createTime", "/pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {true};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {true};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new StructTypeImpl(new String[] {"sts", "pos"},
+    var expectedTypes = new ObjectType[] {new StructTypeImpl(new String[] {"sts", "pos"},
         new ObjectType[] {new ObjectTypeImpl(String.class), new ObjectTypeImpl(Portfolio.class)})};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
@@ -479,8 +474,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -496,41 +491,41 @@ public class CustomerOptimizationsJUnitTest {
   @Test
   public void testProjectionEvaluationDuringIndexResultsWithComplexWhereClause_UNIMPLEMENTED_2()
       throws QueryException {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  p.status as sts, p as pos from " + SEPARATOR
             + "pos p  where   (p.ID IN  SET( 0,1,2,3,4,5,101,102,103,104,105) AND p.createTime > 9l) OR (p.ID IN  SET( 20,30,110,120) AND p.createTime > 7l)"
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
     qs.createIndex("PortFolioID", IndexType.FUNCTIONAL, "ID", SEPARATOR + "pos");
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {true};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {true};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new StructTypeImpl(new String[] {"sts", "pos"},
+    var expectedTypes = new ObjectType[] {new StructTypeImpl(new String[] {"sts", "pos"},
         new ObjectType[] {new ObjectTypeImpl(String.class), new ObjectTypeImpl(Portfolio.class)})};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
@@ -561,8 +556,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -576,22 +571,22 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testSuspectedBug_1() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  distinct p.status  from " + SEPARATOR
             + "pos p  where   p.ID IN  SET( 0) AND p.createTime IN SET( 4l ) AND  p.\"type\" IN SET( 'type0') AND p.status IN SET( 'active')"
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
@@ -599,20 +594,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     qs.createIndex("Status", IndexType.FUNCTIONAL, "status", SEPARATOR + "pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -642,8 +637,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -657,22 +652,22 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testNestedJunction() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 10000; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 10000; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  distinct p.status  from " + SEPARATOR
             + "pos p  where  (p.createTime IN SET( 10l ) OR  p.status IN SET( 'active') )AND  p.ID >  0 "
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
     final List indexUsed = new ArrayList();
@@ -680,20 +675,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     qs.createIndex("Status", IndexType.FUNCTIONAL, "status", SEPARATOR + "pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {true};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {true};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {true};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {true};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -724,8 +719,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -740,22 +735,22 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testRangeQuery() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  distinct p.status  from " + SEPARATOR
             + "pos p  where  p.createTime > 0 AND p.createTime <11 AND  p.ID IN  SET( 0) "
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
@@ -763,20 +758,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     qs.createIndex("Status", IndexType.FUNCTIONAL, "status", SEPARATOR + "pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
     final List indexesUsed = new ArrayList();
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -807,8 +802,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -823,22 +818,22 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testInAndEqualityCombination() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  distinct p.status  from " + SEPARATOR
             + "pos p  where  p.ID = 11 AND   p.createTime IN  SET( 10L) "
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
@@ -846,20 +841,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     qs.createIndex("Status", IndexType.FUNCTIONAL, "status", SEPARATOR + "pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
     final List indexesUsed = new ArrayList();
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -890,8 +885,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -906,22 +901,22 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testRangeAndNotEqualCombination() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  distinct p.status  from " + SEPARATOR
             + "pos p  where  p.ID > 11 AND  p.ID < 20 AND  p.createTime <>9L "
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
@@ -929,20 +924,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     qs.createIndex("Status", IndexType.FUNCTIONAL, "status", SEPARATOR + "pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {true};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {true};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
     final List indexesUsed = new ArrayList();
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -980,8 +975,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -996,22 +991,22 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testInAndRangeCombination() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  distinct p.status  from " + SEPARATOR
             + "pos p  where  p.ID > 11 AND  p.ID < 19 and  p.createTime IN  SET( 10L) "
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
 
@@ -1019,20 +1014,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     qs.createIndex("Status", IndexType.FUNCTIONAL, "status", SEPARATOR + "pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
     final List indexesUsed = new ArrayList();
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -1063,8 +1058,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -1079,22 +1074,22 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testNotFilterableNestedJunction() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 10000; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 10000; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  distinct p.status  from " + SEPARATOR
             + "pos p  where  (p.createTime IN SET( 10l ) OR  p.status IN SET( 'active') )AND  p.ID >  0 AND  p.createTime = 10l"
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
     final List indexUsed = new ArrayList();
@@ -1102,20 +1097,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     // qs.createIndex("Status", IndexType.FUNCTIONAL,"status", "/pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -1146,8 +1141,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -1164,22 +1159,22 @@ public class CustomerOptimizationsJUnitTest {
   @Ignore
   @Test
   public void testProjectionEvaluationOnORJunction_NOT_IMPLEMENTED() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 10000; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 10000; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  distinct p.status  from " + SEPARATOR
             + "pos p  where  p.createTime IN SET( 10l ) OR  p.status IN SET( 'active') OR p.ID >  0"
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
     final List indexUsed = new ArrayList();
@@ -1187,20 +1182,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     qs.createIndex("Status", IndexType.FUNCTIONAL, "status", SEPARATOR + "pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -1231,8 +1226,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -1247,21 +1242,21 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testLiteralBehaviour_1() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 200; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 200; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries =
+    var queries =
         new String[] {"select  distinct p.status  from " + SEPARATOR + "pos p  where  true"
 
         };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
     final List indexUsed = new ArrayList();
@@ -1269,20 +1264,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     qs.createIndex("Status", IndexType.FUNCTIONAL, "status", SEPARATOR + "pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {false};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {false};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -1313,8 +1308,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -1329,22 +1324,22 @@ public class CustomerOptimizationsJUnitTest {
 
   @Test
   public void testLiteralBheaviour_2() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    Region rgn = CacheUtils.getRegion(SEPARATOR + "pos");
-    for (int i = 100; i < 1000; ++i) {
-      Portfolio pf = new Portfolio(i);
+    var qs = CacheUtils.getQueryService();
+    var rgn = CacheUtils.getRegion(SEPARATOR + "pos");
+    for (var i = 100; i < 1000; ++i) {
+      var pf = new Portfolio(i);
       pf.setCreateTime(10l);
       rgn.put("" + i, pf);
     }
-    String[] queries = new String[] {
+    var queries = new String[] {
         "select  distinct p.status  from " + SEPARATOR
             + "pos p  where  p.createTime = 10l AND  p.status IN SET( 'active') AND  true"
 
     };
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][0] = (SelectResults) q.execute();
     }
     final List indexUsed = new ArrayList();
@@ -1352,20 +1347,20 @@ public class CustomerOptimizationsJUnitTest {
     qs.createIndex("CreateTime", IndexType.FUNCTIONAL, "createTime", SEPARATOR + "pos");
     qs.createIndex("Status", IndexType.FUNCTIONAL, "status", SEPARATOR + "pos");
     qs.createIndex("Type", IndexType.FUNCTIONAL, "\"type\"", SEPARATOR + "pos");
-    final boolean[] expectedIndexUsed = new boolean[] {true};
-    final boolean[] actualIndexUsed = new boolean[] {false};
+    final var expectedIndexUsed = new boolean[] {true};
+    final var actualIndexUsed = new boolean[] {false};
 
-    final boolean[] expectedProjectionCallabck = new boolean[] {false};
-    final boolean[] actualProjectionCallback = new boolean[] {false};
+    final var expectedProjectionCallabck = new boolean[] {false};
+    final var actualProjectionCallback = new boolean[] {false};
 
-    final boolean[] expectedUnionCallback = {false};
-    final boolean[] actualUnionCallback = new boolean[queries.length];
+    final var expectedUnionCallback = new boolean[] {false};
+    final var actualUnionCallback = new boolean[queries.length];
 
 
-    final boolean[] expectedIntersectionCallback = {false};
-    final boolean[] actualIntersectionCallback = new boolean[queries.length];
+    final var expectedIntersectionCallback = new boolean[] {false};
+    final var actualIntersectionCallback = new boolean[queries.length];
 
-    ObjectType[] expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
+    var expectedTypes = new ObjectType[] {new ObjectTypeImpl(String.class)};
     QueryObserverHolder.setInstance(new QueryObserverAdapter() {
       private int i = 0;
 
@@ -1396,8 +1391,8 @@ public class CustomerOptimizationsJUnitTest {
       }
     });
 
-    for (int i = 0; i < queries.length; ++i) {
-      Query q = qs.newQuery(queries[i]);
+    for (var i = 0; i < queries.length; ++i) {
+      var q = qs.newQuery(queries[i]);
       sr[i][1] = (SelectResults) q.execute();
       assertEquals(expectedUnionCallback[i], actualUnionCallback[i]);
       assertEquals(expectedTypes[i], sr[i][1].getCollectionType().getElementType());
@@ -1414,8 +1409,8 @@ public class CustomerOptimizationsJUnitTest {
   public void setUp() throws Exception {
     CacheUtils.startCache();
     Cache cache = CacheUtils.getCache();
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
-    for (int i = 0; i < 100; ++i) {
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
+    for (var i = 0; i < 100; ++i) {
       region.put("" + i, new Portfolio(i));
     }
 

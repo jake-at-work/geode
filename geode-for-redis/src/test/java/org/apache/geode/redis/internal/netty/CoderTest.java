@@ -32,7 +32,6 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.nio.charset.StandardCharsets;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import junitparams.Parameters;
 import org.junit.Test;
@@ -45,8 +44,8 @@ public class CoderTest {
   @Test
   @Parameters(method = "stringPairs")
   public void equalsIgnoreCaseBytes_matchesStringEqualsIgnoreCase(String string1, String string2) {
-    byte[] string1Bytes = stringToBytes(string1);
-    byte[] string2Bytes = stringToBytes(string2);
+    var string1Bytes = stringToBytes(string1);
+    var string2Bytes = stringToBytes(string2);
     assertThat(equalsIgnoreCaseBytes(string1Bytes, string2Bytes))
         .as("Comparing equality of " + string1 + " and " + string2)
         .isEqualTo(string1.equalsIgnoreCase(string2));
@@ -55,7 +54,7 @@ public class CoderTest {
   @Test
   @Parameters({"abc", "AbC", "ABC", "%abc", "123abc!@#", "+inf", "-INF"})
   public void toUpperCaseBytes_matchesStringToUpperCase(String string) {
-    byte[] uppercase = toUpperCaseBytes(stringToBytes(string));
+    var uppercase = toUpperCaseBytes(stringToBytes(string));
     assertThat(uppercase)
         .withFailMessage("Comparing toUpperCase for " + string
             + ".\nExpected: " + bytesToString(uppercase)
@@ -67,7 +66,7 @@ public class CoderTest {
   @Parameters(method = "infinityStrings")
   public void isInfinity_returnsCorrectly(String string, boolean isPositiveInfinity,
       boolean isNegativeInfinity, boolean isNaN) {
-    byte[] bytes = stringToBytes(string);
+    var bytes = stringToBytes(string);
     assertThat(isInfinity(bytes)).isEqualTo(isPositiveInfinity || isNegativeInfinity);
     assertThat(isPositiveInfinity(bytes)).isEqualTo(isPositiveInfinity);
     assertThat(isNegativeInfinity(bytes)).isEqualTo(isNegativeInfinity);
@@ -77,10 +76,10 @@ public class CoderTest {
   @Test
   @Parameters(method = "infinityReturnStrings")
   public void doubleToBytes_processesLikeRedis(String inputString, String expectedString) {
-    byte[] bytes = stringToBytes(inputString);
-    double d = bytesToDouble(bytes);
-    byte[] convertedBytes = doubleToBytes(d);
-    String convertedString = bytesToString(convertedBytes);
+    var bytes = stringToBytes(inputString);
+    var d = bytesToDouble(bytes);
+    var convertedBytes = doubleToBytes(d);
+    var convertedString = bytesToString(convertedBytes);
     assertThat(convertedString).isEqualTo(expectedString);
   }
 
@@ -117,7 +116,7 @@ public class CoderTest {
   public void doubleToBytes_processesTrailingZeroLikeRedis(Double inputDouble,
       byte[] expectedBytes) {
     double d = inputDouble;
-    byte[] convertedBytes = doubleToBytes(d);
+    var convertedBytes = doubleToBytes(d);
     assertArrayEquals(convertedBytes, expectedBytes);
   }
 
@@ -192,10 +191,10 @@ public class CoderTest {
 
   @Test
   public void verify_appendAsciiDigitsToByteBuf() {
-    for (long i = Long.MAX_VALUE; i > Long.MAX_VALUE - 1000; i--) {
+    for (var i = Long.MAX_VALUE; i > Long.MAX_VALUE - 1000; i--) {
       verify_appendAsciiDigitsToByteBuf(i);
     }
-    for (long i = Long.MIN_VALUE; i < Long.MIN_VALUE + 1000; i++) {
+    for (var i = Long.MIN_VALUE; i < Long.MIN_VALUE + 1000; i++) {
       verify_appendAsciiDigitsToByteBuf(i);
     }
     for (long i = Integer.MAX_VALUE + 1000; i > Integer.MAX_VALUE - 1000; i--) {
@@ -216,8 +215,8 @@ public class CoderTest {
   }
 
   private void verify_appendAsciiDigitsToByteBuf(long value) {
-    String expected = Long.toString(value);
-    ByteBuf buf = ByteBufAllocator.DEFAULT.heapBuffer();
+    var expected = Long.toString(value);
+    var buf = ByteBufAllocator.DEFAULT.heapBuffer();
 
     Coder.appendAsciiDigitsToByteBuf(value, buf);
 
@@ -226,10 +225,10 @@ public class CoderTest {
 
   @Test
   public void verify_longToBytes_bytesToLong_consistency() {
-    for (long i = Long.MAX_VALUE; i > Long.MAX_VALUE - 1000; i--) {
+    for (var i = Long.MAX_VALUE; i > Long.MAX_VALUE - 1000; i--) {
       verify_longToBytes_bytesToLong_consistency(i);
     }
-    for (long i = Long.MIN_VALUE; i < Long.MIN_VALUE + 1000; i++) {
+    for (var i = Long.MIN_VALUE; i < Long.MIN_VALUE + 1000; i++) {
       verify_longToBytes_bytesToLong_consistency(i);
     }
     for (long i = Integer.MAX_VALUE + 1000; i > Integer.MAX_VALUE - 1000; i--) {
@@ -250,8 +249,8 @@ public class CoderTest {
   }
 
   private void verify_longToBytes_bytesToLong_consistency(long l) {
-    byte[] lBytes = Coder.longToBytes(l);
-    long l2 = Coder.bytesToLong(lBytes);
+    var lBytes = Coder.longToBytes(l);
+    var l2 = Coder.bytesToLong(lBytes);
     assertThat(l2).isEqualTo(l);
   }
 

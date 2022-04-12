@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 
 import org.apache.geode.distributed.internal.DistributionManager;
@@ -96,7 +95,7 @@ public class FetchKeysMessageTest {
 
     FetchKeysMessage.send(recipient, region, 1, false);
 
-    InOrder inOrder = inOrder(txManager, distributionManager);
+    var inOrder = inOrder(txManager, distributionManager);
     inOrder.verify(txManager, times(1)).pauseTransaction();
     inOrder.verify(distributionManager, times(1)).putOutgoing(sentMessage.capture());
     inOrder.verify(txManager, times(1)).unpauseTransaction(same(txStateProxy));
@@ -109,8 +108,8 @@ public class FetchKeysMessageTest {
     // Transaction is not locally hosted
     when(txStateProxy.isRealDealLocal()).thenReturn(false);
 
-    int uniqueId = 99;
-    TXId txID = new TXId(recipient, uniqueId);
+    var uniqueId = 99;
+    var txID = new TXId(recipient, uniqueId);
     when(txStateProxy.getTxId()).thenReturn(txID);
 
     FetchKeysMessage.send(recipient, region, 1, false);

@@ -83,17 +83,17 @@ public class PRAccessorWithOverflowRegressionTest extends CacheTestCase {
   public void testPROverflow() throws Exception {
     accessor.invoke(() -> {
       Region<String, String> region = getCache().getRegion(uniqueName);
-      for (int i = 1; i <= ENTRIES_COUNT + 1; i++) {
+      for (var i = 1; i <= ENTRIES_COUNT + 1; i++) {
         region.put("key-" + i, "value-" + i);
       }
 
-      PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+      var partitionedRegion = (PartitionedRegion) region;
       assertThat(partitionedRegion.getDataStore()).isNull();
       assertThat(partitionedRegion.size()).isGreaterThanOrEqualTo(0);
     });
 
     datastore.invoke(() -> {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(uniqueName);
+      var partitionedRegion = (PartitionedRegion) getCache().getRegion(uniqueName);
       assertThat(getCache().getRegion(uniqueName).size()).isEqualTo(2);
       assertThat(partitionedRegion.getDataStore().getAllLocalBucketIds()).hasSize(2);
     });
@@ -107,7 +107,7 @@ public class PRAccessorWithOverflowRegressionTest extends CacheTestCase {
   }
 
   private void createDataStore() {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setDataPolicy(DataPolicy.PARTITION);
     af.setEvictionAttributes(createLRUEntryAttributes(ENTRIES_COUNT, OVERFLOW_TO_DISK));
     af.setPartitionAttributes(new PartitionAttributesFactory().create());
@@ -116,10 +116,10 @@ public class PRAccessorWithOverflowRegressionTest extends CacheTestCase {
   }
 
   private void createAccessor() {
-    PartitionAttributesFactory<Integer, TestDelta> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<Integer, TestDelta>();
     paf.setLocalMaxMemory(0);
 
-    AttributesFactory<Integer, TestDelta> af = new AttributesFactory<>();
+    var af = new AttributesFactory<Integer, TestDelta>();
     af.setDataPolicy(DataPolicy.PARTITION);
     af.setEvictionAttributes(createLRUEntryAttributes(ENTRIES_COUNT, OVERFLOW_TO_DISK));
     af.setPartitionAttributes(paf.create());

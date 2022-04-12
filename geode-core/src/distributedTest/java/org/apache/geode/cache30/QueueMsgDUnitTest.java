@@ -30,7 +30,6 @@ import static org.apache.geode.test.dunit.Host.getHost;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -48,12 +47,10 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
-import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 
 /**
@@ -70,11 +67,11 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
   @Ignore("TODO: test is disabled")
   @Test
   public void testQueueWhenRoleMissing() throws Exception {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(DISTRIBUTED_ACK);
-    DistributedRegion r = (DistributedRegion) createRootRegion(factory.create());
-    final CachePerfStats stats = r.getCachePerfStats();
-    long queuedOps = stats.getReliableQueuedOps();
+    var r = (DistributedRegion) createRootRegion(factory.create());
+    final var stats = r.getCachePerfStats();
+    var queuedOps = stats.getReliableQueuedOps();
     r.create("createKey", "createValue", "createCBArg");
     r.invalidate("createKey", "invalidateCBArg");
     r.put("createKey", "putValue", "putCBArg");
@@ -97,13 +94,13 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
     queuedOps = stats.getReliableQueuedOps();
     // @todo darrel: try some other ops
 
-    VM vm = getHost(0).getVM(0);
+    var vm = getHost(0).getVM(0);
     // now create a system that fills this role since it does not create the
     // region our queue should not be flushed
     vm.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(ROLES, "missing");
         getSystem(config);
       }
@@ -116,11 +113,11 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
     vm.invoke(new CacheSerializableRunnable("create root") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(DISTRIBUTED_ACK);
         factory.setDataPolicy(NORMAL);
         factory.setSubscriptionAttributes(new SubscriptionAttributes(ALL));
-        TestCacheListener cl = new TestCacheListener() {
+        var cl = new TestCacheListener() {
           @Override
           public void afterCreate2(EntryEvent event) {}
 
@@ -139,7 +136,7 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
       }
     });
     // after some amount of time we should see the queuedOps flushed
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return stats.getReliableQueuedOps() == 0;
@@ -160,15 +157,15 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
         assertEquals(null, r.getEntry("createKey"));
         // assertIndexDetailsEquals("putValue", r.getEntry("createKey").getValue());
         {
-          int evIdx = 0;
-          TestCacheListener cl = (TestCacheListener) r.getAttributes().getCacheListener();
-          List events = cl.getEventHistory();
+          var evIdx = 0;
+          var cl = (TestCacheListener) r.getAttributes().getCacheListener();
+          var events = cl.getEventHistory();
           {
-            CacheEvent ce = (CacheEvent) events.get(evIdx++);
+            var ce = (CacheEvent) events.get(evIdx++);
             assertEquals(REGION_CREATE, ce.getOperation());
           }
           {
-            EntryEvent ee = (EntryEvent) events.get(evIdx++);
+            var ee = (EntryEvent) events.get(evIdx++);
             assertEquals(CREATE, ee.getOperation());
             assertEquals("createKey", ee.getKey());
             assertEquals("createValue", ee.getNewValue());
@@ -177,7 +174,7 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
             assertEquals(true, ee.isOriginRemote());
           }
           {
-            EntryEvent ee = (EntryEvent) events.get(evIdx++);
+            var ee = (EntryEvent) events.get(evIdx++);
             assertEquals(INVALIDATE, ee.getOperation());
             assertEquals("createKey", ee.getKey());
             assertEquals(null, ee.getNewValue());
@@ -186,7 +183,7 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
             assertEquals(true, ee.isOriginRemote());
           }
           {
-            EntryEvent ee = (EntryEvent) events.get(evIdx++);
+            var ee = (EntryEvent) events.get(evIdx++);
             assertEquals(UPDATE, ee.getOperation());
             assertEquals("createKey", ee.getKey());
             assertEquals("putValue", ee.getNewValue());
@@ -195,7 +192,7 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
             assertEquals(true, ee.isOriginRemote());
           }
           {
-            EntryEvent ee = (EntryEvent) events.get(evIdx++);
+            var ee = (EntryEvent) events.get(evIdx++);
             assertEquals(DESTROY, ee.getOperation());
             assertEquals("createKey", ee.getKey());
             assertEquals(null, ee.getNewValue());
@@ -204,7 +201,7 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
             assertEquals(true, ee.isOriginRemote());
           }
           {
-            EntryEvent ee = (EntryEvent) events.get(evIdx++);
+            var ee = (EntryEvent) events.get(evIdx++);
             assertEquals(PUTALL_CREATE, ee.getOperation());
             assertEquals("aKey", ee.getKey());
             assertEquals("aValue", ee.getNewValue());
@@ -213,7 +210,7 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
             assertEquals(true, ee.isOriginRemote());
           }
           {
-            EntryEvent ee = (EntryEvent) events.get(evIdx++);
+            var ee = (EntryEvent) events.get(evIdx++);
             assertEquals(PUTALL_CREATE, ee.getOperation());
             assertEquals("bKey", ee.getKey());
             assertEquals("bValue", ee.getNewValue());
@@ -222,13 +219,13 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
             assertEquals(true, ee.isOriginRemote());
           }
           {
-            RegionEvent re = (RegionEvent) events.get(evIdx++);
+            var re = (RegionEvent) events.get(evIdx++);
             assertEquals(REGION_INVALIDATE, re.getOperation());
             assertEquals("invalidateRegionCBArg", re.getCallbackArgument());
             assertEquals(true, re.isOriginRemote());
           }
           {
-            RegionEvent re = (RegionEvent) events.get(evIdx++);
+            var re = (RegionEvent) events.get(evIdx++);
             assertEquals(REGION_CLEAR, re.getOperation());
             assertEquals(null, re.getCallbackArgument());
             assertEquals(true, re.isOriginRemote());
@@ -246,15 +243,15 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
   @Ignore("TODO: test is disabled")
   @Test
   public void testIllegalConfigQueueExists() throws Exception {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     createRootRegion(factory.create());
 
-    VM vm = Host.getHost(0).getVM(0);
+    var vm = Host.getHost(0).getVM(0);
     vm.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(ROLES, "pubFirst");
         getSystem(config);
       }
@@ -264,8 +261,8 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
     vm.invoke(new CacheSerializableRunnable("create root") {
       @Override
       public void run2() throws CacheException {
-        final String expectedExceptions = "does not allow queued messages";
-        AttributesFactory factory = new AttributesFactory();
+        final var expectedExceptions = "does not allow queued messages";
+        var factory = new AttributesFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         // setting the following makes things legal
         factory.setDataPolicy(DataPolicy.NORMAL);
@@ -291,13 +288,13 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
   @Ignore("TODO: test is disabled")
   @Test
   public void testIllegalConfigSubscriberExists() throws Exception {
-    final String expectedExceptions = "does not allow queued messages";
+    final var expectedExceptions = "does not allow queued messages";
 
-    VM vm = Host.getHost(0).getVM(0);
+    var vm = Host.getHost(0).getVM(0);
     vm.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty(ROLES, "subFirst");
         getSystem(config);
       }
@@ -307,7 +304,7 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
     vm.invoke(new CacheSerializableRunnable("create root") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         // setting the following makes things legal
         factory.setDataPolicy(DataPolicy.NORMAL);
@@ -316,7 +313,7 @@ public class QueueMsgDUnitTest extends ReliabilityTestCase {
       }
     });
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     getCache().getLogger()
         .info("<ExpectedException action=add>" + expectedExceptions + "</ExpectedException>");

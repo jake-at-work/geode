@@ -26,7 +26,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 
 public class RollingUpgradeQueryReturnsCorrectResultsAfterClientAndServersAreRolledOver
     extends LuceneSearchWithRollingUpgradeDUnit {
@@ -34,25 +33,25 @@ public class RollingUpgradeQueryReturnsCorrectResultsAfterClientAndServersAreRol
   @Test
   public void luceneQueryReturnsCorrectResultsAfterClientAndServersAreRolledOver()
       throws Exception {
-    final Host host = Host.getHost(0);
-    VM locator = host.getVM(oldVersion, 0);
-    VM server2 = host.getVM(oldVersion, 1);
-    VM server3 = host.getVM(oldVersion, 2);
-    VM client = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var locator = host.getVM(oldVersion, 0);
+    var server2 = host.getVM(oldVersion, 1);
+    var server3 = host.getVM(oldVersion, 2);
+    var client = host.getVM(oldVersion, 3);
 
-    final String regionName = "aRegion";
-    String regionType = "partitionedRedundant";
-    RegionShortcut shortcut = RegionShortcut.PARTITION_REDUNDANT;
+    final var regionName = "aRegion";
+    var regionType = "partitionedRedundant";
+    var shortcut = RegionShortcut.PARTITION_REDUNDANT;
 
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
-    int[] locatorPorts = new int[] {ports[0]};
-    int[] csPorts = new int[] {ports[1], ports[2]};
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var locatorPorts = new int[] {ports[0]};
+    var csPorts = new int[] {ports[1], ports[2]};
 
     locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
-    String hostName = NetworkUtils.getServerHostName(host);
-    String[] hostNames = new String[] {hostName};
-    String locatorString = getLocatorString(locatorPorts);
+    var hostName = NetworkUtils.getServerHostName(host);
+    var hostNames = new String[] {hostName};
+    var locatorString = getLocatorString(locatorPorts);
     try {
       locator.invoke(
           invokeStartLocator(hostName, locatorPorts[0], getLocatorPropertiesPre91(locatorString)));
@@ -78,7 +77,7 @@ public class RollingUpgradeQueryReturnsCorrectResultsAfterClientAndServersAreRol
 
       invokeRunnableInVMs(invokeCreateRegion(regionName, shortcut.name()), server2, server3);
       invokeRunnableInVMs(invokeCreateClientRegion(regionName, ClientRegionShortcut.PROXY), client);
-      int expectedRegionSize = 10;
+      var expectedRegionSize = 10;
       putSerializableObjectAndVerifyLuceneQueryResult(client, regionName, expectedRegionSize, 0, 10,
           server3);
       expectedRegionSize += 10;

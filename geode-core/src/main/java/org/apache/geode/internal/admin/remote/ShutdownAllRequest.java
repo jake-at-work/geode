@@ -32,12 +32,9 @@ import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyMessage;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.internal.tcp.ConnectionTable;
@@ -64,20 +61,20 @@ public class ShutdownAllRequest extends AdminRequest {
    * the waitingThreadPool.
    */
   public static Set send(final DistributionManager dm, long timeout) {
-    boolean hadCache = hasCache(dm);
-    ClusterDistributionManager dism =
+    var hadCache = hasCache(dm);
+    var dism =
         dm instanceof ClusterDistributionManager ? (ClusterDistributionManager) dm : null;
-    InternalDistributedMember myId = dm.getDistributionManagerId();
+    var myId = dm.getDistributionManagerId();
 
     Set recipients = dm.getOtherNormalDistributionManagerIds();
 
     recipients.remove(myId);
 
     // now do shutdownall
-    ShutdownAllRequest request = new ShutdownAllRequest();
+    var request = new ShutdownAllRequest();
     request.setRecipients(recipients);
 
-    ShutDownAllReplyProcessor replyProcessor = new ShutDownAllReplyProcessor(dm, recipients);
+    var replyProcessor = new ShutDownAllReplyProcessor(dm, recipients);
     request.msgId = replyProcessor.getProcessorId();
     dm.putOutgoing(request);
 
@@ -98,7 +95,7 @@ public class ShutdownAllRequest extends AdminRequest {
       }
     }
 
-    boolean interrupted = false;
+    var interrupted = false;
     try {
       if (!replyProcessor.waitForReplies(timeout)) {
         return null;
@@ -118,7 +115,7 @@ public class ShutdownAllRequest extends AdminRequest {
       // at this point,GemFireCacheImpl.getInstance() might return null,
       // because the cache is closed at GemFireCacheImpl.getInstance().shutDownAll()
       if (!InternalLocator.isDedicatedLocator()) {
-        InternalDistributedSystem ids = dm.getSystem();
+        var ids = dm.getSystem();
         if (ids.isConnected()) {
           ids.disconnect();
         }
@@ -143,7 +140,7 @@ public class ShutdownAllRequest extends AdminRequest {
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    boolean isToShutdown = hasCache(dm);
+    var isToShutdown = hasCache(dm);
     super.process(dm);
 
     if (isToShutdown) {
@@ -151,7 +148,7 @@ public class ShutdownAllRequest extends AdminRequest {
       // in is one in the dm threadPool so we do not want to call disconnect
       // from this thread because it prevents dm from cleaning up all its threads
       // and causes a 20 second delay.
-      final InternalDistributedSystem ids = dm.getSystem();
+      final var ids = dm.getSystem();
       if (ids.isConnected()) {
         Thread t = new LoggingThread("ShutdownAllRequestDisconnectThread", false, () -> {
           try {
@@ -169,15 +166,15 @@ public class ShutdownAllRequest extends AdminRequest {
   }
 
   private static boolean hasCache(DistributionManager manager) {
-    InternalCache cache = manager.getCache();
+    var cache = manager.getCache();
     return cache != null && !cache.isClosed();
   }
 
   @Override
   protected AdminResponse createResponse(DistributionManager dm) {
-    boolean isToShutdown = hasCache(dm);
+    var isToShutdown = hasCache(dm);
     if (isToShutdown) {
-      boolean isSuccess = false;
+      var isSuccess = false;
       try {
         dm.getCache().shutDownAll();
         isSuccess = true;
@@ -201,8 +198,8 @@ public class ShutdownAllRequest extends AdminRequest {
         }
       } finally {
         if (!isSuccess) {
-          InternalDistributedMember me = dm.getDistributionManagerId();
-          InternalDistributedSystem ids = dm.getSystem();
+          var me = dm.getDistributionManagerId();
+          var ids = dm.getSystem();
           if (!getSender().equals(me)) {
             if (ids.isConnected()) {
               logger.fatal("ShutdownAllRequest: disconnect distributed without response.");
@@ -281,7 +278,7 @@ public class ShutdownAllRequest extends AdminRequest {
       }
 
       if (msg instanceof ReplyMessage) {
-        ReplyException ex = ((ReplyMessage) msg).getException();
+        var ex = ((ReplyMessage) msg).getException();
         if (ex != null) {
           processException(msg, ex);
         }

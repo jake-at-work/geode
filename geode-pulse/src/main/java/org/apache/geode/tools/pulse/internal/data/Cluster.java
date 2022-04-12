@@ -755,15 +755,15 @@ public class Cluster extends Thread {
         Cluster.LAST_UPDATE_TIME = System.nanoTime();
       }
 
-      long systemNanoTime = System.nanoTime();
+      var systemNanoTime = System.nanoTime();
 
-      for (Map.Entry<String, Cluster.Client> entry : memberClientsHM.entrySet()) {
-        String clientId = entry.getKey();
-        Cluster.Client client = entry.getValue();
+      for (var entry : memberClientsHM.entrySet()) {
+        var clientId = entry.getKey();
+        var client = entry.getValue();
 
         if (memberClientsHMap.get(clientId) != null) {
-          Client existingClient = memberClientsHMap.get(clientId);
-          Client updatedClient = memberClientsHM.get(clientId);
+          var existingClient = memberClientsHMap.get(clientId);
+          var updatedClient = memberClientsHM.get(clientId);
 
           existingClient.setConnected(updatedClient.isConnected());
           existingClient.setGets(updatedClient.getGets());
@@ -774,12 +774,12 @@ public class Cluster extends Thread {
           existingClient.setThreads(updatedClient.getThreads());
           existingClient.setClientCQCount(updatedClient.getClientCQCount());
           existingClient.setSubscriptionEnabled(updatedClient.isSubscriptionEnabled());
-          long elapsedTime = updatedClient.getUptime() - existingClient.getUptime();
+          var elapsedTime = updatedClient.getUptime() - existingClient.getUptime();
           existingClient.setUptime(updatedClient.getUptime());
 
           // set cpu usage
-          long currCPUTime = updatedClient.getProcessCpuTime();
-          long lastCPUTime = existingClient.getProcessCpuTime();
+          var currCPUTime = updatedClient.getProcessCpuTime();
+          var lastCPUTime = existingClient.getProcessCpuTime();
 
           double newCPUTime = 0;
           if (elapsedTime > 0) {
@@ -787,7 +787,7 @@ public class Cluster extends Thread {
           }
 
           double newCPUUsage = 0;
-          int availableCpus = updatedClient.getCpus();
+          var availableCpus = updatedClient.getCpus();
           if (availableCpus > 0) {
             newCPUUsage = newCPUTime / availableCpus;
           }
@@ -801,9 +801,9 @@ public class Cluster extends Thread {
       }
 
       // Remove unwanted entries from clients list
-      HashMap<String, Cluster.Client> memberClientsHMapNew = new HashMap<>();
-      for (Map.Entry<String, Cluster.Client> entry : memberClientsHMap.entrySet()) {
-        String clientId = entry.getKey();
+      var memberClientsHMapNew = new HashMap<String, Client>();
+      for (var entry : memberClientsHMap.entrySet()) {
+        var clientId = entry.getKey();
         if (memberClientsHM.get(clientId) != null) {
           memberClientsHMapNew.put(clientId, memberClientsHMap.get(clientId));
         }
@@ -1784,7 +1784,7 @@ public class Cluster extends Thread {
         new SimpleDateFormat(PulseConstants.PULSE_NOTIFICATION_ALERT_DATE_PATTERN);
 
     public static String formatToISOTimestamp(Date date) {
-      TimeZone tz = TimeZone.getTimeZone("UTC");
+      var tz = TimeZone.getTimeZone("UTC");
       df.setTimeZone(tz);
       return df.format(date);
     }
@@ -2334,7 +2334,7 @@ public class Cluster extends Thread {
   public Map<String, Boolean> getWanInformation() {
     synchronized (wanInformation) {
       @SuppressWarnings("unchecked")
-      Map<String, Boolean> wanMap = (Map<String, Boolean>) wanInformation.clone();
+      var wanMap = (Map<String, Boolean>) wanInformation.clone();
       return wanMap;
     }
   }
@@ -2802,7 +2802,7 @@ public class Cluster extends Thread {
           setNotificationPageNumber(1);
         } else {
           // Remove only acknowledged alerts
-          for (Alert alert : alertsList) {
+          for (var alert : alertsList) {
             if (alert.isAcknowledged()) {
               toDelete.add(alert);
             }
@@ -2813,7 +2813,7 @@ public class Cluster extends Thread {
       }
     } else {
       synchronized (alertsList) {
-        for (Alert alert : alertsList) {
+        for (var alert : alertsList) {
           if (alert.getSeverity() == alertType) {
             if (isClearAll) {
               // Remove all alerts of alertType
@@ -2832,7 +2832,7 @@ public class Cluster extends Thread {
 
   public void acknowledgeAlert(int alertId) {
     synchronized (alertsList) {
-      for (Cluster.Alert alert : alertsList) {
+      for (var alert : alertsList) {
         if (alert.getId() == alertId) {
           alert.setAcknowledged(true);
           break;

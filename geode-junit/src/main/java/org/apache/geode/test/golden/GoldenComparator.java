@@ -20,7 +20,6 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -45,7 +44,7 @@ public abstract class GoldenComparator {
   }
 
   protected Reader readGoldenFile(final String goldenFileName) throws IOException {
-    final InputStream goldenStream = ClassLoader.getSystemResourceAsStream(goldenFileName);
+    final var goldenStream = ClassLoader.getSystemResourceAsStream(goldenFileName);
     assertNotNull("Golden file " + goldenFileName + " not found.", goldenStream);
     return new InputStreamReader(goldenStream);
   }
@@ -53,18 +52,18 @@ public abstract class GoldenComparator {
   public void assertOutputMatchesGoldenFile(final String actualOutput, final String goldenFileName)
       throws IOException {
     debug("GoldenComparator:assertOutputMatchesGoldenFile");
-    final BufferedReader goldenReader = new BufferedReader(readGoldenFile(goldenFileName));
-    final BufferedReader actualReader = new BufferedReader(new StringReader(actualOutput));
+    final var goldenReader = new BufferedReader(readGoldenFile(goldenFileName));
+    final var actualReader = new BufferedReader(new StringReader(actualOutput));
 
-    final List<String> goldenStrings = readLines(goldenReader);
-    final List<String> actualStrings = readLines(actualReader);
+    final var goldenStrings = readLines(goldenReader);
+    final var actualStrings = readLines(actualReader);
 
     scanForProblems(actualStrings);
 
     String actualLine = null;
     String goldenLine = null;
 
-    int lineCount = 0;
+    var lineCount = 0;
     do {
       lineCount++;
       debug("GoldenComparator comparing line " + lineCount);
@@ -107,8 +106,8 @@ public abstract class GoldenComparator {
 
   private void scanForProblems(final List<String> lines) throws IOException {
     debug("GoldenComparator:scanForProblems");
-    int lineCount = 0;
-    for (String line : lines) {
+    var lineCount = 0;
+    for (var line : lines) {
       lineCount++;
       debug("GoldenComparator:scanForProblems scanning line " + lineCount);
       checkForProblem(lineCount, line);
@@ -129,7 +128,7 @@ public abstract class GoldenComparator {
   private void checkLineFor(final int lineCount, final String line, final String problem) {
     if (line != null && line.toLowerCase().contains(problem)) {
       if (expectedProblemLines != null && expectedProblemLines.length > 0) {
-        for (final String expectedProblemLine : expectedProblemLines) {
+        for (final var expectedProblemLine : expectedProblemLines) {
           debug("Comparing \" + line + \" against expected \" + this.expectedProblemLines[i] + \"");
           if (compareLines(line, expectedProblemLine)) {
             return;

@@ -49,11 +49,11 @@ public class AtomicLongWithTerminalState extends AtomicLong {
    */
   public long compareAddAndGet(long terminalState, long delta) {
     while (true) {
-      long current = get();
+      var current = get();
       if (current == terminalState) {
         return terminalState;
       }
-      long newValue = current + delta;
+      var newValue = current + delta;
       if (compareAndSet(current, newValue)) {
         return newValue;
       }

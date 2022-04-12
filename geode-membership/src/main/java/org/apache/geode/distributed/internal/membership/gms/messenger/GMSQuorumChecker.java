@@ -19,7 +19,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,8 +76,8 @@ public class GMSQuorumChecker<ID extends MemberIdentifier> implements QuorumChec
     myAddress = (JGAddress) channel.down(new Event(Event.GET_LOCAL_ADDRESS));
 
     addressConversionMap = new ConcurrentHashMap<>(lastView.size());
-    List<ID> members = lastView.getMembers();
-    for (ID addr : members) {
+    var members = lastView.getMembers();
+    for (var addr : members) {
       SocketAddress sockaddr =
           new InetSocketAddress(addr.getInetAddress(), addr.getMembershipPort());
       addressConversionMap.put(sockaddr, addr);
@@ -128,9 +127,9 @@ public class GMSQuorumChecker<ID extends MemberIdentifier> implements QuorumChec
 
   private boolean calculateQuorum() {
     // quorum check
-    int weight = getWeight(lastView.getMembers(), lastView.getLeadMember());
-    int ackedWeight = getWeight(receivedAcks, lastView.getLeadMember());
-    int lossThreshold = (int) Math.round((weight * partitionThreshold) / 100.0);
+    var weight = getWeight(lastView.getMembers(), lastView.getLeadMember());
+    var ackedWeight = getWeight(receivedAcks, lastView.getLeadMember());
+    var lossThreshold = (int) Math.round((weight * partitionThreshold) / 100.0);
     if (isInfoEnabled) {
       logger.info(
           "quorum check: contacted {} processes with {} member weight units.  Threshold for a quorum is {}",
@@ -140,10 +139,10 @@ public class GMSQuorumChecker<ID extends MemberIdentifier> implements QuorumChec
   }
 
   private boolean waitForResponses(int numMembers, long timeout) throws InterruptedException {
-    long endTime = System.currentTimeMillis() + timeout;
+    var endTime = System.currentTimeMillis() + timeout;
     for (;;) {
-      long time = System.currentTimeMillis();
-      long remaining = (endTime - time);
+      var time = System.currentTimeMillis();
+      var remaining = (endTime - time);
       if (remaining <= 0) {
         if (isInfoEnabled) {
           logger.info("quorum check: timeout waiting for responses.  {} responses received",
@@ -170,9 +169,9 @@ public class GMSQuorumChecker<ID extends MemberIdentifier> implements QuorumChec
 
   private int getWeight(Collection<ID> idms,
       MemberIdentifier leader) {
-    int weight = 0;
-    for (ID mbr : idms) {
-      int thisWeight = mbr.getMemberWeight();
+    var weight = 0;
+    for (var mbr : idms) {
+      var thisWeight = mbr.getMemberWeight();
       if (mbr.getVmKind() == 10 /* NORMAL_DM_KIND */) {
         thisWeight += 10;
         if (leader != null && mbr.equals(leader)) {
@@ -188,10 +187,10 @@ public class GMSQuorumChecker<ID extends MemberIdentifier> implements QuorumChec
 
   private void sendPingMessages() {
     // send a ping message to each member in the last view seen
-    List<ID> members = lastView.getMembers();
-    for (ID addr : members) {
+    var members = lastView.getMembers();
+    for (var addr : members) {
       if (!receivedAcks.contains(addr)) {
-        JGAddress dest = new JGAddress(addr);
+        var dest = new JGAddress(addr);
         if (isInfoEnabled) {
           logger.info("quorum check: sending request to {}", addr);
         }
@@ -208,7 +207,7 @@ public class GMSQuorumChecker<ID extends MemberIdentifier> implements QuorumChec
 
     @Override
     public void receive(Message msg) {
-      byte[] msgBytes = msg.getBuffer();
+      var msgBytes = msg.getBuffer();
       if (pingPonger.isPingMessage(msgBytes)) {
         try {
           pingPonger.sendPongMessage(channel, myAddress, msg.getSrc());
@@ -246,9 +245,9 @@ public class GMSQuorumChecker<ID extends MemberIdentifier> implements QuorumChec
 
     public void pongReceived(Address sender) {
       logger.info("received ping-pong response from {}", sender);
-      JGAddress jgSender = (JGAddress) sender;
+      var jgSender = (JGAddress) sender;
       SocketAddress sockaddr = new InetSocketAddress(jgSender.getInetAddress(), jgSender.getPort());
-      ID memberAddr = addressConversionMap.get(sockaddr);
+      var memberAddr = addressConversionMap.get(sockaddr);
 
       if (memberAddr != null) {
         logger.info("quorum check: mapped address to member ID {}", memberAddr);

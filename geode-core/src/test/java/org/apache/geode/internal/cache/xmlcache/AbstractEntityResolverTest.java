@@ -23,7 +23,6 @@ import java.util.ServiceLoader;
 
 import org.junit.Test;
 import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 import org.xml.sax.ext.EntityResolver2;
 
 import org.apache.geode.internal.classloader.ClassPathLoader;
@@ -55,10 +54,10 @@ public abstract class AbstractEntityResolverTest {
    */
   @Test
   public void testDiscovery() {
-    boolean found = false;
-    final ServiceLoader<EntityResolver2> entityResolvers =
+    var found = false;
+    final var entityResolvers =
         ServiceLoader.load(EntityResolver2.class, ClassPathLoader.getLatestAsClassLoader());
-    for (final EntityResolver2 entityResolver : entityResolvers) {
+    for (final var entityResolver : entityResolvers) {
       if (getEntityResolver().getClass().isAssignableFrom(entityResolver.getClass())) {
         found = true;
         break;
@@ -75,7 +74,7 @@ public abstract class AbstractEntityResolverTest {
    */
   @Test
   public void testResolveEntity() throws Exception {
-    final InputSource inputSource = getEntityResolver().resolveEntity(null, getSystemId());
+    final var inputSource = getEntityResolver().resolveEntity(null, getSystemId());
     assertNotNull(inputSource);
     assertEquals(getSystemId(), inputSource.getSystemId());
   }
@@ -89,7 +88,7 @@ public abstract class AbstractEntityResolverTest {
   @Test
   public void testResolveEntityNullSystemId() throws Exception {
     final String systemId = null;
-    final InputSource inputSource = getEntityResolver().resolveEntity(null, systemId);
+    final var inputSource = getEntityResolver().resolveEntity(null, systemId);
     assertNull(inputSource);
   }
 
@@ -102,8 +101,8 @@ public abstract class AbstractEntityResolverTest {
    */
   @Test
   public void testResolveEntityUnkownSystemId() throws Exception {
-    final String systemId = "--not-a-valid-system-id--";
-    final InputSource inputSource = getEntityResolver().resolveEntity(null, systemId);
+    final var systemId = "--not-a-valid-system-id--";
+    final var inputSource = getEntityResolver().resolveEntity(null, systemId);
     assertNull(inputSource);
   }
 
@@ -116,8 +115,8 @@ public abstract class AbstractEntityResolverTest {
    */
   @Test
   public void testResolveEntityNotFoundSystemId() throws Exception {
-    final String systemId = "http://schema.pivotal.io/this/should/be/not/found.xsd";
-    final InputSource inputSource = getEntityResolver().resolveEntity(null, systemId);
+    final var systemId = "http://schema.pivotal.io/this/should/be/not/found.xsd";
+    final var inputSource = getEntityResolver().resolveEntity(null, systemId);
     assertNull(inputSource);
   }
 

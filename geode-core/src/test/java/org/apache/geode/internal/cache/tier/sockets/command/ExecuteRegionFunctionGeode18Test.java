@@ -69,8 +69,8 @@ public class ExecuteRegionFunctionGeode18Test {
 
   @Test
   public void executingFunctionByStringWithNoHAShouldSetWaitOnException() {
-    AbstractExecution execution = mock(AbstractExecution.class);
-    String functionName = "functionName";
+    var execution = mock(AbstractExecution.class);
+    var functionName = "functionName";
     when(execution.execute(functionName)).thenReturn(mock(ResultCollector.class));
     executeRegionFunctionGeode18.executeFunctionWithResult(functionName,
         AbstractExecution.NO_HA_HASRESULT_NO_OPTIMIZEFORWRITE, functionObject, execution);
@@ -79,8 +79,8 @@ public class ExecuteRegionFunctionGeode18Test {
 
   @Test
   public void executingFunctionByStringWithNoHAWithOptimizeForWriteShouldSetWaitOnException() {
-    AbstractExecution execution = mock(AbstractExecution.class);
-    String functionName = "functionName";
+    var execution = mock(AbstractExecution.class);
+    var functionName = "functionName";
     when(execution.execute(functionName)).thenReturn(mock(ResultCollector.class));
     executeRegionFunctionGeode18.executeFunctionWithResult(functionName,
         AbstractExecution.NO_HA_HASRESULT_OPTIMIZEFORWRITE, functionObject, execution);
@@ -89,7 +89,7 @@ public class ExecuteRegionFunctionGeode18Test {
 
   @Test
   public void executeFunctionObjectShouldSetWaitOnException() {
-    AbstractExecution execution = mock(AbstractExecution.class);
+    var execution = mock(AbstractExecution.class);
     when(execution.execute(functionObject)).thenReturn(mock(ResultCollector.class));
     executeRegionFunctionGeode18.executeFunctionWithResult(functionObject,
         AbstractExecution.NO_HA_HASRESULT_OPTIMIZEFORWRITE, functionObject, execution);
@@ -98,7 +98,7 @@ public class ExecuteRegionFunctionGeode18Test {
 
   @Test
   public void generateNullArgumentMessageIfRegionIsNull() {
-    AbstractExecution execution = mock(AbstractExecution.class);
+    var execution = mock(AbstractExecution.class);
     when(execution.execute(functionObject)).thenReturn(mock(ResultCollector.class));
     assertEquals("The input region for the execute function request is null",
         executeRegionFunctionGeode18.generateNullArgumentMessage(null, null));
@@ -106,7 +106,7 @@ public class ExecuteRegionFunctionGeode18Test {
 
   @Test
   public void generateNullArgumentMessageIfFunctionIsNullAndRegionIsNotNull() {
-    AbstractExecution execution = mock(AbstractExecution.class);
+    var execution = mock(AbstractExecution.class);
     when(execution.execute(functionObject)).thenReturn(mock(ResultCollector.class));
     assertEquals("The input function for the execute function request is null",
         executeRegionFunctionGeode18.generateNullArgumentMessage("someRegion", null));
@@ -114,24 +114,24 @@ public class ExecuteRegionFunctionGeode18Test {
 
   @Test
   public void populateFiltersWillReturnFiltersReadFromClientMessage() throws Exception {
-    AbstractExecution execution = mock(AbstractExecution.class);
+    var execution = mock(AbstractExecution.class);
     when(execution.execute(functionObject)).thenReturn(mock(ResultCollector.class));
 
-    Message clientMessage = mock(Message.class);
-    Part part1 = mock(Part.class);
-    Object object1 = new Object();
+    var clientMessage = mock(Message.class);
+    var part1 = mock(Part.class);
+    var object1 = new Object();
     when(part1.getStringOrObject()).thenReturn(object1);
-    Part part2 = mock(Part.class);
-    Object object2 = new Object();
+    var part2 = mock(Part.class);
+    var object2 = new Object();
     when(part2.getStringOrObject()).thenReturn(object2);
-    Part part3 = mock(Part.class);
-    Object object3 = new Object();
+    var part3 = mock(Part.class);
+    var object3 = new Object();
     when(part3.getStringOrObject()).thenReturn(object3);
 
     when(clientMessage.getPart(7)).thenReturn(part1);
     when(clientMessage.getPart(8)).thenReturn(part2);
     when(clientMessage.getPart(9)).thenReturn(part3);
-    int filterSize = 3;
+    var filterSize = 3;
     Set filter = executeRegionFunctionGeode18.populateFilters(clientMessage, filterSize);
     assertSame(filterSize, filter.size());
     assertTrue(filter.contains(object1));
@@ -141,18 +141,18 @@ public class ExecuteRegionFunctionGeode18Test {
 
   @Test
   public void populateRemovedNodexWillReturnNodesReadFromClient() throws Exception {
-    AbstractExecution execution = mock(AbstractExecution.class);
+    var execution = mock(AbstractExecution.class);
     when(execution.execute(functionObject)).thenReturn(mock(ResultCollector.class));
 
-    Message clientMessage = mock(Message.class);
-    Part part1 = mock(Part.class);
-    Object object1 = new Object();
+    var clientMessage = mock(Message.class);
+    var part1 = mock(Part.class);
+    var object1 = new Object();
     when(part1.getStringOrObject()).thenReturn(object1);
-    Part part2 = mock(Part.class);
-    Object object2 = new Object();
+    var part2 = mock(Part.class);
+    var object2 = new Object();
     when(part2.getStringOrObject()).thenReturn(object2);
-    Part part3 = mock(Part.class);
-    Object object3 = new Object();
+    var part3 = mock(Part.class);
+    var object3 = new Object();
     when(part3.getStringOrObject()).thenReturn(object3);
 
     when(clientMessage.getPart(7)).thenReturn(part1);
@@ -166,11 +166,11 @@ public class ExecuteRegionFunctionGeode18Test {
 
   @Test
   public void getAuthorizedExecuteFunctionReturnsNullIfAuthorizationIsNull() {
-    AbstractExecution execution = mock(AbstractExecution.class);
+    var execution = mock(AbstractExecution.class);
     when(execution.execute(functionObject)).thenReturn(mock(ResultCollector.class));
-    String functionName = "functionName";
-    String regionPath = "regionPath";
-    ExecuteFunctionOperationContext context =
+    var functionName = "functionName";
+    var regionPath = "regionPath";
+    var context =
         executeRegionFunctionGeode18.getAuthorizedExecuteFunctionOperationContext(null, null, true,
             null,
             functionName, regionPath);
@@ -179,15 +179,15 @@ public class ExecuteRegionFunctionGeode18Test {
 
   @Test
   public void getAuthorizedExecuteFunctionReturnsExecutionContextIfAuthorizeRequestIsNotNull() {
-    AbstractExecution execution = mock(AbstractExecution.class);
+    var execution = mock(AbstractExecution.class);
     when(execution.execute(functionObject)).thenReturn(mock(ResultCollector.class));
-    String functionName = "functionName";
-    String regionPath = "regionPath";
-    AuthorizeRequest request = mock(AuthorizeRequest.class);
+    var functionName = "functionName";
+    var regionPath = "regionPath";
+    var request = mock(AuthorizeRequest.class);
     when(request.executeFunctionAuthorize(any(), any(), any(), any(), anyBoolean()))
         .thenReturn(mock(ExecuteFunctionOperationContext.class));
 
-    ExecuteFunctionOperationContext context =
+    var context =
         executeRegionFunctionGeode18.getAuthorizedExecuteFunctionOperationContext(null, null, true,
             request, functionName, regionPath);
     assertNotNull(context);

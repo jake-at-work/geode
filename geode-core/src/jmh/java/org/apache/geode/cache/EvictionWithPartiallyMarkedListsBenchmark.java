@@ -58,7 +58,7 @@ public class EvictionWithPartiallyMarkedListsBenchmark {
   @Setup(Level.Iteration)
   public void markEntries() {
     Collections.shuffle(keys);
-    for (int i = 0; i < maxEntries * (markedPercentage / 100d); i++) {
+    for (var i = 0; i < maxEntries * (markedPercentage / 100d); i++) {
       region.get(keys.get(i));
     }
   }
@@ -68,7 +68,7 @@ public class EvictionWithPartiallyMarkedListsBenchmark {
     System.setProperty("geode." + SystemPropertyHelper.EVICTION_SCAN_ASYNC, useAsync);
     cache = new CacheFactory().set(LOG_LEVEL, "warn").create();
     region = createRegion(cache, maxEntries);
-    for (int i = 0; i < maxEntries; i++) {
+    for (var i = 0; i < maxEntries; i++) {
       keys.add(Integer.toString(i));
     }
   }
@@ -88,11 +88,11 @@ public class EvictionWithPartiallyMarkedListsBenchmark {
   }
 
   private Region<String, String> createRegion(Cache cache, int maxSize) {
-    Region<String, String> region = cache.<String, String>createRegionFactory(RegionShortcut.LOCAL)
+    var region = cache.<String, String>createRegionFactory(RegionShortcut.LOCAL)
         .setEvictionAttributes(
             EvictionAttributes.createLRUEntryAttributes(maxSize, EvictionAction.LOCAL_DESTROY))
         .create("testRegion");
-    for (int i = 0; i < maxEntries; i++) {
+    for (var i = 0; i < maxEntries; i++) {
       region.put(Integer.toString(i), "value");
     }
     region.put("over-limit", "value");

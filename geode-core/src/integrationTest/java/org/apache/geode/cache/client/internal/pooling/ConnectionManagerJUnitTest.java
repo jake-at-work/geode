@@ -64,7 +64,6 @@ import org.apache.geode.cache.client.internal.EndpointManagerImpl;
 import org.apache.geode.cache.client.internal.Op;
 import org.apache.geode.cache.client.internal.QueueManager;
 import org.apache.geode.cache.client.internal.ServerDenyList;
-import org.apache.geode.cache.client.internal.pooling.ConnectionManagerImpl.ConnectionMap;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.ServerLocation;
@@ -104,7 +103,7 @@ public class ConnectionManagerJUnitTest {
     logger = new LocalLogWriter(FINEST.intLevel(), System.out);
     factory = new DummyFactory();
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
 
@@ -161,7 +160,7 @@ public class ConnectionManagerJUnitTest {
         60 * 1000, cancelCriterion, poolStats);
     manager.start(background);
 
-    Connection connection1 = manager.borrowConnection(0);
+    var connection1 = manager.borrowConnection(0);
     assertThat(factory.creates.get()).isEqualTo(1);
 
     manager.returnConnection(connection1);
@@ -169,7 +168,7 @@ public class ConnectionManagerJUnitTest {
 
     assertThat(factory.creates.get()).isEqualTo(1);
 
-    Connection connection2 = manager.borrowConnection(0);
+    var connection2 = manager.borrowConnection(0);
     manager.returnConnection(connection1);
     manager.returnConnection(connection2);
 
@@ -181,7 +180,7 @@ public class ConnectionManagerJUnitTest {
 
     assertThat(factory.creates.get()).isEqualTo(3);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       manager.borrowConnection(10);
     });
     assertThat(thrown).isInstanceOf(AllConnectionsInUseException.class);
@@ -205,7 +204,7 @@ public class ConnectionManagerJUnitTest {
         60 * 1000, cancelCriterion, poolStats);
     manager.start(background);
 
-    Connection connection = manager.borrowConnection(0);
+    var connection = manager.borrowConnection(0);
 
     assertThat(factory.creates.get()).isEqualTo(1);
     assertThat(factory.destroys.get()).isEqualTo(0);
@@ -228,14 +227,14 @@ public class ConnectionManagerJUnitTest {
         60 * 1000, cancelCriterion, poolStats);
     manager.start(background);
 
-    ServerLocation server1 = new ServerLocation("localhost", 1);
-    ServerLocation server2 = new ServerLocation("localhost", 2);
+    var server1 = new ServerLocation("localhost", 1);
+    var server2 = new ServerLocation("localhost", 2);
     factory.nextServer.set(server1);
-    Connection connection1 = manager.borrowConnection(0);
-    Connection connection2 = manager.borrowConnection(0);
-    Connection connection3 = manager.borrowConnection(0);
+    var connection1 = manager.borrowConnection(0);
+    var connection2 = manager.borrowConnection(0);
+    var connection3 = manager.borrowConnection(0);
     factory.nextServer.set(server2);
-    Connection connection4 = manager.borrowConnection(0);
+    var connection4 = manager.borrowConnection(0);
 
     assertThat(factory.creates.get()).isEqualTo(4);
     assertThat(factory.destroys.get()).isEqualTo(0);
@@ -277,11 +276,11 @@ public class ConnectionManagerJUnitTest {
 
     // no need to wait; dangerous because it gives connections a chance to expire
 
-    Connection connection1 = manager.borrowConnection(500);
-    Connection connection2 = manager.borrowConnection(500);
-    Connection connection3 = manager.borrowConnection(500);
-    Connection connection4 = manager.borrowConnection(500);
-    Connection connection5 = manager.borrowConnection(500);
+    var connection1 = manager.borrowConnection(500);
+    var connection2 = manager.borrowConnection(500);
+    var connection3 = manager.borrowConnection(500);
+    var connection4 = manager.borrowConnection(500);
+    var connection5 = manager.borrowConnection(500);
 
     // wait to make sure checked out connections aren't timed out
     Thread.sleep(idleTimeoutMillis * 2);
@@ -293,7 +292,7 @@ public class ConnectionManagerJUnitTest {
     // make sure a connection that has been passivated can idle-expire
     connection1.passivate(true);
 
-    long elapsedMillis = Timer.measure(() -> {
+    var elapsedMillis = Timer.measure(() -> {
       await().untilAsserted(() -> {
         assertThat(factory.creates.get()).isEqualTo(5);
         assertThat(factory.destroys.get()).isEqualTo(1);
@@ -337,14 +336,14 @@ public class ConnectionManagerJUnitTest {
 
     long borrowTimeoutMillis = 500;
 
-    Connection connection1 = manager.borrowConnection(borrowTimeoutMillis);
-    Connection connection2 = manager.borrowConnection(borrowTimeoutMillis);
+    var connection1 = manager.borrowConnection(borrowTimeoutMillis);
+    var connection2 = manager.borrowConnection(borrowTimeoutMillis);
 
     // Return some connections, let them idle expire
     manager.returnConnection(connection1);
     manager.returnConnection(connection2);
 
-    long elapsedMillis = Timer.measure(() -> {
+    var elapsedMillis = Timer.measure(() -> {
       await().untilAsserted(() -> {
         assertThat(factory.destroys.get()).isEqualTo(1);
         assertThat(factory.closes.get()).isEqualTo(1);
@@ -357,9 +356,9 @@ public class ConnectionManagerJUnitTest {
         .isGreaterThanOrEqualTo(idleTimeoutMillis - ALLOWABLE_ERROR_IN_MILLIS);
 
     // Ok, now get some connections that fill our queue
-    Connection ping1 =
+    var ping1 =
         manager.borrowConnection(new ServerLocation("localhost", 5), borrowTimeoutMillis, false);
-    Connection ping2 =
+    var ping2 =
         manager.borrowConnection(new ServerLocation("localhost", 5), borrowTimeoutMillis, false);
     manager.returnConnection(ping1);
     manager.returnConnection(ping2);
@@ -368,7 +367,7 @@ public class ConnectionManagerJUnitTest {
     manager.borrowConnection(borrowTimeoutMillis);
 
     elapsedMillis = Timer.measure(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         manager.borrowConnection(borrowTimeoutMillis);
       });
       assertThat(thrown).isInstanceOf(AllConnectionsInUseException.class);
@@ -423,8 +422,8 @@ public class ConnectionManagerJUnitTest {
     long borrowTimeoutMillis = 500;
 
     // seize connection toward any server
-    Connection connection1 = manager.borrowConnection(borrowTimeoutMillis);
-    Connection connection2 = manager.borrowConnection(borrowTimeoutMillis);
+    var connection1 = manager.borrowConnection(borrowTimeoutMillis);
+    var connection2 = manager.borrowConnection(borrowTimeoutMillis);
 
     // Seize connection toward this specific server
     manager.borrowConnection(new ServerLocation("localhost", 5), borrowTimeoutMillis, false);
@@ -435,8 +434,8 @@ public class ConnectionManagerJUnitTest {
     manager.returnConnection(connection1);
     manager.returnConnection(connection2);
 
-    long elapsedMillis = Timer.measure(() -> {
-      Throwable thrown = catchThrowable(() -> {
+    var elapsedMillis = Timer.measure(() -> {
+      var thrown = catchThrowable(() -> {
         manager.borrowConnection(new ServerLocation("localhost", 5), borrowTimeoutMillis, true);
       });
       assertThat(thrown).isInstanceOf(AllConnectionsInUseException.class);
@@ -468,9 +467,9 @@ public class ConnectionManagerJUnitTest {
     manager.borrowConnection(borrowTimeoutMillis);
 
     // Seize connection toward this specific server
-    Connection ping1 =
+    var ping1 =
         manager.borrowConnection(new ServerLocation("localhost", 5), borrowTimeoutMillis, false);
-    Connection ping2 =
+    var ping2 =
         manager.borrowConnection(new ServerLocation("localhost", 5), borrowTimeoutMillis, false);
     manager.borrowConnection(new ServerLocation("localhost", 5), borrowTimeoutMillis, false);
 
@@ -485,7 +484,7 @@ public class ConnectionManagerJUnitTest {
 
   @Test
   public void testLifetimeExpiration() throws Exception {
-    int lifetimeTimeout = 500;
+    var lifetimeTimeout = 500;
     manager = new ConnectionManagerImpl("pool", factory, endpointManager, 2, 2, -1, lifetimeTimeout,
         logger, 60 * 1000, cancelCriterion, poolStats);
     manager.start(background);
@@ -500,12 +499,12 @@ public class ConnectionManagerJUnitTest {
     // so that their last access time keeps changing
 
     Collection<Future<Void>> updaters = new ArrayList<>();
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       updaters
           .add(executorServiceRule.submit(new UpdaterThread(i, lifetimeTimeout / 10 * 2, false)));
     }
 
-    long elapsedMillis = Timer.measure(() -> {
+    var elapsedMillis = Timer.measure(() -> {
       await().untilAsserted(() -> {
         assertThat(factory.finds.get()).isEqualTo(2);
         // server shouldn't have changed so no increase in creates or destroys
@@ -519,7 +518,7 @@ public class ConnectionManagerJUnitTest {
             + " but took=" + elapsedMillis)
         .isLessThan(lifetimeTimeout * 5);
 
-    for (Future<Void> updater : updaters) {
+    for (var updater : updaters) {
       updater.get(getTimeout().toMillis(), MILLISECONDS);
     }
   }
@@ -531,11 +530,11 @@ public class ConnectionManagerJUnitTest {
     manager.start(background);
 
     Collection<Future<Void>> updaters = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       updaters.add(executorServiceRule.submit(new UpdaterThread(i)));
     }
 
-    for (Future<Void> updater : updaters) {
+    for (var updater : updaters) {
       updater.get(getTimeout().toMillis(), MILLISECONDS);
     }
   }
@@ -546,7 +545,7 @@ public class ConnectionManagerJUnitTest {
         60 * 1000, cancelCriterion, poolStats);
     manager.start(background);
 
-    Connection connection = manager.borrowConnection(0);
+    var connection = manager.borrowConnection(0);
 
     manager.borrowConnection(0);
     manager.returnConnection(connection);
@@ -566,10 +565,10 @@ public class ConnectionManagerJUnitTest {
         60 * 1000, cancelCriterion, poolStats);
     manager.start(background);
 
-    Connection connection1 = manager.borrowConnection(10);
-    Connection connection2 = manager.borrowConnection(10);
+    var connection1 = manager.borrowConnection(10);
+    var connection2 = manager.borrowConnection(10);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       manager.borrowConnection(10);
     });
     assertThat(thrown).isInstanceOf(AllConnectionsInUseException.class);
@@ -578,7 +577,7 @@ public class ConnectionManagerJUnitTest {
     assertThat(factory.destroys.get()).isEqualTo(0);
     assertThat(manager.getConnectionCount()).isEqualTo(2);
 
-    Connection connection3 = manager.exchangeConnection(connection1, emptySet());
+    var connection3 = manager.exchangeConnection(connection1, emptySet());
 
     assertThat(factory.creates.get()).isEqualTo(3);
     assertThat(factory.destroys.get()).isEqualTo(1);
@@ -590,7 +589,7 @@ public class ConnectionManagerJUnitTest {
     assertThat(factory.destroys.get()).isEqualTo(1);
     assertThat(manager.getConnectionCount()).isEqualTo(2);
 
-    Connection connection4 =
+    var connection4 =
         manager.exchangeConnection(connection3, singleton(connection3.getServer()));
 
     assertThat(factory.creates.get()).isEqualTo(4);
@@ -606,20 +605,20 @@ public class ConnectionManagerJUnitTest {
    */
   @Test
   public void testThatMapCloseCausesCacheClosedException() throws Exception {
-    ConnectionManagerImpl connectionManagerImpl = new ConnectionManagerImpl("pool", factory,
+    var connectionManagerImpl = new ConnectionManagerImpl("pool", factory,
         endpointManager, 2, 0, -1, -1, logger, 60 * 1000, cancelCriterion, poolStats);
     manager = connectionManagerImpl;
     manager.start(background);
-    ConnectionMap connectionMap = connectionManagerImpl.allConnectionsMap;
+    var connectionMap = connectionManagerImpl.allConnectionsMap;
 
-    CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
+    var cyclicBarrier = new CyclicBarrier(2);
 
-    Future<Void> future = executorServiceRule.submit(() -> {
+    var future = executorServiceRule.submit(() -> {
       cyclicBarrier.await(getTimeout().toMillis(), MILLISECONDS);
       connectionMap.close(false);
     });
 
-    Connection connection = manager.borrowConnection(0);
+    var connection = manager.borrowConnection(0);
     synchronized (connection) {
       cyclicBarrier.await(getTimeout().toMillis(), MILLISECONDS);
 
@@ -627,7 +626,7 @@ public class ConnectionManagerJUnitTest {
       // because this thread has locked one of the connections
       await().until(() -> connectionMap.closing);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         manager.borrowConnection(0);
       });
       assertThat(thrown).isInstanceOf(CacheClosedException.class);
@@ -642,12 +641,12 @@ public class ConnectionManagerJUnitTest {
         60 * 1000, cancelCriterion, poolStats);
     manager.start(background);
 
-    Connection connection1 = manager.borrowConnection(10);
+    var connection1 = manager.borrowConnection(10);
 
     long borrowTimeoutMillis1 = 300;
 
-    long elapsedMillis = Timer.measure(() -> {
-      Throwable thrown = catchThrowable(() -> {
+    var elapsedMillis = Timer.measure(() -> {
+      var thrown = catchThrowable(() -> {
         manager.borrowConnection(borrowTimeoutMillis1);
       });
       assertThat(thrown).isInstanceOf(AllConnectionsInUseException.class);
@@ -657,7 +656,7 @@ public class ConnectionManagerJUnitTest {
             "Should have blocked for " + borrowTimeoutMillis1 + " millis for a connection")
         .isGreaterThanOrEqualTo(borrowTimeoutMillis1 - ALLOWABLE_ERROR_IN_MILLIS);
 
-    Future<Void> returnConnectionFuture = executorServiceRule.submit(() -> {
+    var returnConnectionFuture = executorServiceRule.submit(() -> {
       Thread.sleep(50);
 
       manager.returnConnection(connection1);
@@ -665,7 +664,7 @@ public class ConnectionManagerJUnitTest {
 
     long borrowTimeoutMillis2 = 5000;
 
-    AtomicReference<Connection> connection2 = new AtomicReference<>();
+    var connection2 = new AtomicReference<Connection>();
     elapsedMillis = Timer.measure(() -> {
       connection2.set(manager.borrowConnection(borrowTimeoutMillis2));
     });
@@ -676,9 +675,9 @@ public class ConnectionManagerJUnitTest {
 
     manager.returnConnection(connection2.get());
 
-    Connection connection3 = manager.borrowConnection(10);
+    var connection3 = manager.borrowConnection(10);
 
-    Future<Void> invalidateFuture1 = executorServiceRule.submit(() -> {
+    var invalidateFuture1 = executorServiceRule.submit(() -> {
       Thread.sleep(50);
 
       connection3.destroy();
@@ -695,9 +694,9 @@ public class ConnectionManagerJUnitTest {
 
     manager.returnConnection(connection2.get());
 
-    Connection connection4 = manager.borrowConnection(10);
+    var connection4 = manager.borrowConnection(10);
 
-    Future<Void> invalidateFuture2 = executorServiceRule.submit(() -> {
+    var invalidateFuture2 = executorServiceRule.submit(() -> {
       Thread.sleep(50);
 
       endpointManager.serverCrashed(connection4.getEndpoint());
@@ -725,14 +724,14 @@ public class ConnectionManagerJUnitTest {
         60 * 1000, cancelCriterion, poolStats);
     manager.start(background);
 
-    Connection connection1 = manager.borrowConnection(0);
+    var connection1 = manager.borrowConnection(0);
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       manager.borrowConnection(10);
     });
     assertThat(thrown).isInstanceOf(AllConnectionsInUseException.class);
 
-    Connection connection2 =
+    var connection2 =
         manager.borrowConnection(new ServerLocation("localhost", -2), 10, false);
 
     assertThat(factory.creates.get()).isEqualTo(2);
@@ -765,7 +764,7 @@ public class ConnectionManagerJUnitTest {
   private static class Timer {
 
     static long measure(ThrowingRunnable task) throws Exception {
-      long startNanos = System.nanoTime();
+      var startNanos = System.nanoTime();
       task.run();
       return NANOSECONDS.toMillis(System.nanoTime() - startNanos);
     }
@@ -791,8 +790,8 @@ public class ConnectionManagerJUnitTest {
 
     @Override
     public void run() {
-      for (int i = 0; i < iterations; i++) {
-        Connection connection = borrow(i);
+      for (var i = 0; i < iterations; i++) {
+        var connection = borrow(i);
         try {
           Thread.sleep(10);
           doTask("Updater[" + id + "] loop[" + i + "] Someone else changed the connection flag",
@@ -815,9 +814,9 @@ public class ConnectionManagerJUnitTest {
     }
 
     private Connection doBorrow(int i) throws Exception {
-      AtomicReference<Connection> connection = new AtomicReference<>();
+      var connection = new AtomicReference<Connection>();
 
-      long elapsedMillis = Timer.measure(() -> {
+      var elapsedMillis = Timer.measure(() -> {
         connection.set(manager.borrowConnection(BORROW_TIMEOUT_MILLIS));
 
         doTask("Updater[" + id + "] loop[" + i + "] Someone else has the connection!",
@@ -830,7 +829,7 @@ public class ConnectionManagerJUnitTest {
     }
 
     private void doTask(String message, BooleanSupplier task) {
-      boolean result = task.getAsBoolean();
+      var result = task.getAsBoolean();
       if (doAssertions) {
         assertThat(result)
             .as(message)

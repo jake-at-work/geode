@@ -51,39 +51,39 @@ public abstract class AbstractAppendIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testAppend_shouldAppendValueWithInputStringAndReturnResultingLength() {
-    String key = "key";
-    String value = randString();
-    int originalValueLength = value.length();
+    var key = "key";
+    var value = randString();
+    var originalValueLength = value.length();
 
-    boolean result = jedis.exists(key);
+    var result = jedis.exists(key);
     assertThat(result).isFalse();
 
     Long output = jedis.append(key, value);
     assertThat(output).isEqualTo(originalValueLength);
 
-    String randomString = randString();
+    var randomString = randString();
 
     output = jedis.append(key, randomString);
     assertThat(output).isEqualTo(originalValueLength + randomString.length());
 
-    String finalValue = jedis.get(key);
+    var finalValue = jedis.get(key);
     assertThat(finalValue).isEqualTo(value.concat(randomString));
   }
 
 
   @Test
   public void testAppend_concurrent() {
-    int listSize = 1000;
-    String key = "key";
+    var listSize = 1000;
+    var key = "key";
 
-    List<String> values1 = makeStringList(listSize, "values1-");
-    List<String> values2 = makeStringList(listSize, "values2-");
+    var values1 = makeStringList(listSize, "values1-");
+    var values2 = makeStringList(listSize, "values2-");
 
     new ConcurrentLoopingThreads(listSize,
         (i) -> jedis.append(key, values1.get(i)),
         (i) -> jedis.append(key, values2.get(i))).run();
 
-    for (int i = 0; i < listSize; i++) {
+    for (var i = 0; i < listSize; i++) {
       assertThat(jedis.get(key)).contains(values1.get(i));
       assertThat(jedis.get(key)).contains(values2.get(i));
     }
@@ -91,9 +91,9 @@ public abstract class AbstractAppendIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testAppend_withBinaryKeyAndValue() {
-    byte[] blob = new byte[256];
-    byte[] doubleBlob = new byte[512];
-    for (int i = 0; i < 256; i++) {
+    var blob = new byte[256];
+    var doubleBlob = new byte[512];
+    for (var i = 0; i < 256; i++) {
       blob[i] = (byte) i;
       doubleBlob[i] = (byte) i;
       doubleBlob[i + 256] = (byte) i;
@@ -101,24 +101,24 @@ public abstract class AbstractAppendIntegrationTest implements RedisIntegrationT
 
     jedis.set(blob, blob);
     jedis.append(blob, blob);
-    byte[] result = jedis.get(blob);
+    var result = jedis.get(blob);
 
     assertThat(result).isEqualTo(doubleBlob);
   }
 
   @Test
   public void testAppend_withUTF16KeyAndValue() throws IOException {
-    String test_utf16_string = "最𐐷𤭢";
-    byte[] testBytes = test_utf16_string.getBytes(StandardCharsets.UTF_16);
+    var test_utf16_string = "最𐐷𤭢";
+    var testBytes = test_utf16_string.getBytes(StandardCharsets.UTF_16);
 
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    var output = new ByteArrayOutputStream();
     output.write(testBytes);
     output.write(testBytes);
-    byte[] appendedBytes = output.toByteArray();
+    var appendedBytes = output.toByteArray();
 
     jedis.set(testBytes, testBytes);
     jedis.append(testBytes, testBytes);
-    byte[] result = jedis.get(testBytes);
+    var result = jedis.get(testBytes);
     assertThat(result).isEqualTo(appendedBytes);
   }
 
@@ -128,7 +128,7 @@ public abstract class AbstractAppendIntegrationTest implements RedisIntegrationT
 
   private List<String> makeStringList(int setSize, String baseString) {
     List<String> strings = new ArrayList<>();
-    for (int i = 0; i < setSize; i++) {
+    for (var i = 0; i < setSize; i++) {
       strings.add(baseString + i);
     }
     return strings;

@@ -25,11 +25,11 @@ import org.apache.geode.modules.session.catalina.DeltaSessionInterface;
 public class DeltaSessionDestroyAttributeEventTest {
   @Test
   public void DeltaSessionDestroyAttributeEventAppliesAttributeToSession() {
-    final String attributeName = "DestroyAttribute";
+    final var attributeName = "DestroyAttribute";
 
-    final DeltaSessionDestroyAttributeEvent event =
+    final var event =
         new DeltaSessionDestroyAttributeEvent(attributeName);
-    final DeltaSessionInterface deltaSessionInterface = mock(DeltaSessionInterface.class);
+    final var deltaSessionInterface = mock(DeltaSessionInterface.class);
     event.apply((deltaSessionInterface));
 
     verify(deltaSessionInterface).localDestroyAttribute(attributeName);

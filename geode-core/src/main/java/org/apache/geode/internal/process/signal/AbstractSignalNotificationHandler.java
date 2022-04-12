@@ -42,7 +42,7 @@ public abstract class AbstractSignalNotificationHandler {
 
   // Based on Open BSD OS Signals...
   static {
-    String[] SIGNAL_NAMES_ARRAY = new String[] {EMPTY, "HUP", "INT", "QUIT", "ILL", "TRAP", "ABRT",
+    var SIGNAL_NAMES_ARRAY = new String[] {EMPTY, "HUP", "INT", "QUIT", "ILL", "TRAP", "ABRT",
         "EMT", "FPE", "KILL", "BUS", "SEGV", "SYS", "PIPE", "ALRM", "TERM", "URG", "STOP", "TSTP",
         "CONT", "CHLD", "TTIN", "TTOU", "IO", "XCPU", "XFSZ", "VTALRM", "PROF", "WINCH", "INFO",
         "USR1", "USR2"};
@@ -83,7 +83,7 @@ public abstract class AbstractSignalNotificationHandler {
   }
 
   protected AbstractSignalNotificationHandler() {
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       signalListeners.put(signal, Collections.synchronizedSet(new HashSet<>()));
     }
     // NOTE uncomment for debugging purposes...
@@ -95,9 +95,9 @@ public abstract class AbstractSignalNotificationHandler {
   }
 
   boolean isListening(final SignalListener listener) {
-    boolean registered = false;
+    var registered = false;
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       registered |= isListening(listener, signal);
     }
 
@@ -111,7 +111,7 @@ public abstract class AbstractSignalNotificationHandler {
   }
 
   protected void notifyListeners(final SignalEvent event) {
-    Set<SignalListener> listeners = signalListeners.get(event.getSignal());
+    var listeners = signalListeners.get(event.getSignal());
     Set<SignalListener> localListeners = Collections.emptySet();
 
     if (listeners != null) {
@@ -120,7 +120,7 @@ public abstract class AbstractSignalNotificationHandler {
       }
     }
 
-    for (SignalListener listener : localListeners) {
+    for (var listener : localListeners) {
       listener.handle(event);
     }
   }
@@ -129,9 +129,9 @@ public abstract class AbstractSignalNotificationHandler {
     assertNotNull(listener,
         "The SignalListener to register, listening for all signals cannot be null!");
 
-    boolean registered = false;
+    var registered = false;
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       registered |= registerListener(listener, signal);
     }
 
@@ -148,9 +148,9 @@ public abstract class AbstractSignalNotificationHandler {
   }
 
   public boolean unregisterListener(final SignalListener listener) {
-    boolean unregistered = false;
+    var unregistered = false;
 
-    for (Signal signal : Signal.values()) {
+    for (var signal : Signal.values()) {
       unregistered |= unregisterListener(listener, signal);
     }
 
@@ -166,7 +166,7 @@ public abstract class AbstractSignalNotificationHandler {
   boolean unregisterListeners(final Signal signal) {
     assertNotNull(signal, "The signal from which to unregister all listeners cannot be null!");
 
-    Set<SignalListener> listeners = signalListeners.get(signal);
+    var listeners = signalListeners.get(signal);
 
     synchronized (listeners) {
       listeners.clear();

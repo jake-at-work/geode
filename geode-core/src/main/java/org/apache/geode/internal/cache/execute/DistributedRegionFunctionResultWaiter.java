@@ -43,7 +43,7 @@ public class DistributedRegionFunctionResultWaiter extends StreamingFunctionOper
   protected DistributionMessage createRequestMessage(Set recipients,
       FunctionStreamingResultCollector processor, boolean isReExecute,
       boolean isFnSerializationReqd) {
-    DistributedRegionFunctionStreamingMessage msg = new DistributedRegionFunctionStreamingMessage(
+    var msg = new DistributedRegionFunctionStreamingMessage(
         regionPath, functionObject, processor.getProcessorId(), filter,
         memberArgs.get(recipients.toArray()[0]), isReExecute, isFnSerializationReqd);
     msg.setRecipients(recipients);

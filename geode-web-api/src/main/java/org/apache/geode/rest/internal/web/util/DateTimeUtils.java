@@ -32,7 +32,7 @@ import java.util.Date;
 public abstract class DateTimeUtils {
 
   public static Calendar createCalendar(final int year, final int month, final int day) {
-    final Calendar dateTime = Calendar.getInstance();
+    final var dateTime = Calendar.getInstance();
     dateTime.clear();
     dateTime.set(Calendar.YEAR, year);
     dateTime.set(Calendar.MONTH, month);

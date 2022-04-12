@@ -30,7 +30,6 @@ import static org.apache.geode.internal.util.ProductVersionUtil.getFullVersion;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,8 +84,8 @@ public class Banner {
    * @param args possibly null list of command line arguments
    */
   public String getString(String[] args) {
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var pw = new PrintWriter(sw);
     print(pw, args);
     pw.close();
     return sw.toString();
@@ -94,7 +93,7 @@ public class Banner {
 
   private void prettyPrintPath(String path, PrintWriter out) {
     if (path != null) {
-      StringTokenizer st = new StringTokenizer(path, System.getProperty("path.separator"));
+      var st = new StringTokenizer(path, System.getProperty("path.separator"));
       while (st.hasMoreTokens()) {
         out.println("  " + st.nextToken());
       }
@@ -110,11 +109,11 @@ public class Banner {
     // Copy the system properties for printing. Some are given explicit lines, and
     // others are suppressed. Remove these keys, keeping those we want.
     Map sp = new TreeMap((Properties) System.getProperties().clone()); // fix for 46822
-    Object userName = sp.get("user.name");
-    Object userDir = sp.get("user.dir");
-    Object userHome = sp.get("user.home");
-    Object javaClassPath = sp.get("java.class.path");
-    Object javaLibraryPath = sp.get("java.library.path");
+    var userName = sp.get("user.name");
+    var userDir = sp.get("user.dir");
+    var userHome = sp.get("user.home");
+    var javaClassPath = sp.get("java.class.path");
+    var javaLibraryPath = sp.get("java.library.path");
     sp.remove("user.name");
     sp.remove("user.dir");
     sp.remove("user.home");
@@ -123,11 +122,11 @@ public class Banner {
     sp.remove("os.name");
     sp.remove("os.arch");
 
-    int processId = attemptToReadProcessId();
-    short currentOrdinal = KnownVersion.CURRENT_ORDINAL;
+    var processId = attemptToReadProcessId();
+    var currentOrdinal = KnownVersion.CURRENT_ORDINAL;
 
     List<String> commandLineArguments = new ArrayList<>();
-    RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+    var runtimeBean = ManagementFactory.getRuntimeMXBean();
     if (runtimeBean != null) {
       // each argument is redacted below.
       commandLineArguments.addAll(runtimeBean.getInputArguments());
@@ -153,7 +152,7 @@ public class Banner {
 
     if (!commandLineArguments.isEmpty()) {
       out.println(COMMAND_LINE_PARAMETERS.displayValue() + ":");
-      for (String arg : commandLineArguments) {
+      for (var arg : commandLineArguments) {
         out.println("  " + ArgumentRedactor.redact(arg));
       }
     }
@@ -167,10 +166,10 @@ public class Banner {
       out.println("System property logging disabled.");
     } else {
       out.println(SYSTEM_PROPERTIES.displayValue() + ":");
-      for (Object o : sp.entrySet()) {
-        Entry me = (Entry) o;
-        String key = me.getKey().toString();
-        String value =
+      for (var o : sp.entrySet()) {
+        var me = (Entry) o;
+        var key = me.getKey().toString();
+        var value =
             ArgumentRedactor.redactArgumentIfNecessary(key, String.valueOf(me.getValue()));
         out.println("    " + key + " = " + value);
       }
@@ -184,7 +183,7 @@ public class Banner {
    * @return The PID of the current process, or -1 if the PID cannot be determined.
    */
   private int attemptToReadProcessId() {
-    int processId = -1;
+    var processId = -1;
     try {
       processId = OSProcess.getId();
     } catch (VirtualMachineError err) {
@@ -260,9 +259,9 @@ public class Banner {
     }
 
     public static String[] displayValues() {
-      String[] headerValues = new String[BannerHeader.values().length];
-      int i = 0;
-      for (BannerHeader bannerHeader : BannerHeader.values()) {
+      var headerValues = new String[BannerHeader.values().length];
+      var i = 0;
+      for (var bannerHeader : BannerHeader.values()) {
         headerValues[i] = bannerHeader.displayValue();
         i++;
       }

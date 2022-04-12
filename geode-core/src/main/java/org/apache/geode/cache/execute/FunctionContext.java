@@ -18,7 +18,6 @@ package org.apache.geode.cache.execute;
 import org.apache.logging.log4j.util.Strings;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.security.LegacySecurityService;
 
 /**
@@ -89,10 +88,10 @@ public interface FunctionContext<T1> {
    * @return member name or id if name is blank
    */
   default String getMemberName() {
-    DistributedMember member = getCache().getDistributedSystem().getDistributedMember();
+    var member = getCache().getDistributedSystem().getDistributedMember();
 
     // if this member has name, use it, otherwise, use the id
-    String memberName = member.getName();
+    var memberName = member.getName();
     if (!Strings.isBlank(memberName)) {
       return memberName;
     }

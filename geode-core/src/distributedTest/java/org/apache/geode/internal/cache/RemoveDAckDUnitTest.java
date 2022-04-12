@@ -32,13 +32,11 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -55,9 +53,9 @@ public class RemoveDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(RemoveDAckDUnitTest::createCacheVM0);
     vm1.invoke(RemoveDAckDUnitTest::createCacheVM1);
     LogWriterUtils.getLogWriter().fine("Cache created in successfully");
@@ -65,9 +63,9 @@ public class RemoveDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(RemoveDAckDUnitTest::closeCache);
     vm1.invoke(RemoveDAckDUnitTest::closeCache);
   }
@@ -76,9 +74,9 @@ public class RemoveDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
     try {
       ds = (new RemoveDAckDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
 
       region = cache.createRegion("map", attr);
     } catch (Exception ex) {
@@ -89,10 +87,10 @@ public class RemoveDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
   public static void createCacheVM1() {
     try {
       ds = (new RemoveDAckDUnitTest()).getSystem(props);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       cache = CacheFactory.create(ds);
       factory.setScope(Scope.DISTRIBUTED_ACK);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
 
     } catch (Exception ex) {
@@ -113,13 +111,13 @@ public class RemoveDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
   @Test
   public void testRemoveMultiVM() {
     // Commented the Test.As it is failing @ line no 133 : AssertionError
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     // Object obj1;
-    Object[] objArr = new Object[1];
-    for (int i = 1; i < 5; i++) {
+    var objArr = new Object[1];
+    for (var i = 1; i < 5; i++) {
       objArr[0] = i;
       vm0.invoke(RemoveDAckDUnitTest.class, "putMethod", objArr);
     }
@@ -127,14 +125,13 @@ public class RemoveDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
     vm1.invoke(new CacheSerializableRunnable("get object") {
       @Override
       public void run2() throws CacheException {
-        for (int i = 1; i < 5; i++) {
+        for (var i = 1; i < 5; i++) {
           region.get(i);
         }
       }
     });
 
-
-    int i = 2;
+    var i = 2;
     objArr[0] = i;
     vm0.invoke(RemoveDAckDUnitTest.class, "removeMethod", objArr);
 
@@ -147,7 +144,7 @@ public class RemoveDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
     Object obj = null;
     try {
       if (ob != null) {
-        String str = "first";
+        var str = "first";
         obj = region.put(ob, str);
       }
     } catch (Exception ex) {
@@ -158,7 +155,7 @@ public class RemoveDAckDUnitTest extends JUnit4DistributedTestCase { // TODO: re
   }
 
   public static int sizeMethod() {
-    int i = 0;
+    var i = 0;
     try {
       i = region.size();
     } catch (Exception ex) {

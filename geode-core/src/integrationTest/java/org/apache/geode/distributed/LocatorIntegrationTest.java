@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.After;
@@ -43,11 +42,9 @@ import org.apache.geode.distributed.internal.tcpserver.HostAndPort;
 import org.apache.geode.distributed.internal.tcpserver.TcpClient;
 import org.apache.geode.distributed.internal.tcpserver.TcpSocketFactory;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.net.SocketCreatorFactory;
 import org.apache.geode.logging.internal.OSProcess;
 import org.apache.geode.management.ManagementService;
-import org.apache.geode.management.internal.JmxManagerAdvisor.JmxManagerProfile;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.configuration.messages.SharedConfigurationStatusRequest;
 import org.apache.geode.test.junit.categories.MembershipTest;
@@ -82,7 +79,7 @@ public class LocatorIntegrationTest {
   public void doesNotCreateZeroPortViewFileForEphemeralPort() throws Exception {
     deleteLocatorViewFile(0);
 
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     configProperties.setProperty(HTTP_SERVICE_PORT, "0");
     configProperties.setProperty(JMX_MANAGER, "false");
@@ -91,14 +88,14 @@ public class LocatorIntegrationTest {
 
     locator = Locator.startLocatorAndDS(port, null, configProperties);
 
-    File viewFile = new File("locator0view.dat");
+    var viewFile = new File("locator0view.dat");
 
     assertThat(viewFile).doesNotExist();
   }
 
   @Test
   public void locatorStartsOnSpecifiedPort() throws IOException {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     configProperties.setProperty(HTTP_SERVICE_PORT, "0");
     configProperties.setProperty(JMX_MANAGER, "false");
@@ -114,7 +111,7 @@ public class LocatorIntegrationTest {
 
   @Test
   public void locatorStartsOnEphemeralPort() throws IOException {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     configProperties.setProperty(HTTP_SERVICE_PORT, "0");
     configProperties.setProperty(JMX_MANAGER, "false");
@@ -132,9 +129,9 @@ public class LocatorIntegrationTest {
    */
   @Test
   public void gfshConnectsIfJmxManagerStartIsTrue() throws Exception {
-    int jmxPort = getRandomAvailableTCPPort();
+    var jmxPort = getRandomAvailableTCPPort();
 
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     configProperties.setProperty(HTTP_SERVICE_PORT, "0");
     configProperties.setProperty(JMX_MANAGER_PORT, String.valueOf(jmxPort));
@@ -143,9 +140,9 @@ public class LocatorIntegrationTest {
     configProperties.setProperty(MCAST_PORT, "0");
 
     locator = Locator.startLocatorAndDS(port, null, configProperties);
-    InternalLocator internalLocator = (InternalLocator) locator;
-    InternalCache cache = internalLocator.getCache();
-    List<JmxManagerProfile> alreadyManaging = cache.getJmxManagerAdvisor().adviseAlreadyManaging();
+    var internalLocator = (InternalLocator) locator;
+    var cache = internalLocator.getCache();
+    var alreadyManaging = cache.getJmxManagerAdvisor().adviseAlreadyManaging();
 
     assertThat(alreadyManaging).hasSize(1);
     assertThat(alreadyManaging.get(0).getDistributedMember()).isEqualTo(cache.getMyId());
@@ -153,7 +150,7 @@ public class LocatorIntegrationTest {
 
   @Test
   public void hasHandlerForSharedConfigurationStatusRequest() throws Exception {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     configProperties.setProperty(HTTP_SERVICE_PORT, "0");
     configProperties.setProperty(JMX_MANAGER, "false");
@@ -162,10 +159,10 @@ public class LocatorIntegrationTest {
 
     locator = Locator.startLocatorAndDS(port, null, configProperties);
 
-    InternalLocator internalLocator = (InternalLocator) locator;
+    var internalLocator = (InternalLocator) locator;
 
     // the locator should always install a SharedConfigurationStatusRequest handler
-    boolean hasHandler = internalLocator.hasHandlerForClass(SharedConfigurationStatusRequest.class);
+    var hasHandler = internalLocator.hasHandlerForClass(SharedConfigurationStatusRequest.class);
     assertThat(hasHandler).isTrue();
   }
 
@@ -173,13 +170,13 @@ public class LocatorIntegrationTest {
   public void infoRequestIncludesActualPortWhenSpecifiedPortIsZero() throws Exception {
     locator = Locator.startLocator(0, logFile);
     port = locator.getPort();
-    TcpClient client = new TcpClient(
+    var client = new TcpClient(
         SocketCreatorFactory.getSocketCreatorForComponent(LOCATOR),
         InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
         InternalDataSerializer.getDSFIDSerializer().getObjectDeserializer(),
         TcpSocketFactory.DEFAULT);
 
-    String[] info = client.getInfo(new HostAndPort("localhost", port));
+    var info = client.getInfo(new HostAndPort("localhost", port));
 
     assertThat(info).isNotNull();
     assertThat(info.length).isGreaterThanOrEqualTo(1);
@@ -189,13 +186,13 @@ public class LocatorIntegrationTest {
   public void infoRequestIncludesActualPortWhenSpecifiedIsNonZero() throws Exception {
     locator = Locator.startLocator(getRandomAvailableTCPPort(), logFile);
     port = locator.getPort();
-    TcpClient client = new TcpClient(
+    var client = new TcpClient(
         SocketCreatorFactory.getSocketCreatorForComponent(LOCATOR),
         InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
         InternalDataSerializer.getDSFIDSerializer().getObjectDeserializer(),
         TcpSocketFactory.DEFAULT);
 
-    String[] info = client.getInfo(new HostAndPort("localhost", port));
+    var info = client.getInfo(new HostAndPort("localhost", port));
 
     assertThat(info).isNotNull();
     assertThat(info.length).isGreaterThanOrEqualTo(1);
@@ -203,18 +200,18 @@ public class LocatorIntegrationTest {
 
   @Test
   public void threadsAreCleanedUpWhenStartFails() throws Exception {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(LOG_FILE, "");
     configProperties.setProperty(MCAST_PORT, "0");
 
-    int threadCount = Thread.activeCount();
+    var threadCount = Thread.activeCount();
 
-    Throwable thrown = catchThrowable(
+    var thrown = catchThrowable(
         () -> locator = Locator.startLocatorAndDS(-2, null, configProperties));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       if (threadCount < Thread.activeCount()) {
         Thread.sleep(1000);
       }
@@ -235,7 +232,7 @@ public class LocatorIntegrationTest {
    */
   @Test
   public void doesNotStartJmxManagerByDefault() throws Exception {
-    Properties configProperties = new Properties();
+    var configProperties = new Properties();
     configProperties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     configProperties.setProperty(HTTP_SERVICE_PORT, "0");
     configProperties.setProperty(LOG_FILE, "");
@@ -243,17 +240,17 @@ public class LocatorIntegrationTest {
 
     locator = Locator.startLocatorAndDS(port, null, configProperties);
 
-    InternalLocator internalLocator = (InternalLocator) locator;
-    InternalCache cache = internalLocator.getCache();
-    SystemManagementService managementService =
+    var internalLocator = (InternalLocator) locator;
+    var cache = internalLocator.getCache();
+    var managementService =
         (SystemManagementService) ManagementService.getManagementService(cache);
 
-    boolean isManager = managementService.isManager();
+    var isManager = managementService.isManager();
     assertThat(isManager).isFalse();
   }
 
   private void deleteLocatorViewFile(int portNumber) {
-    File locatorFile = new File("locator" + portNumber + "view.dat");
+    var locatorFile = new File("locator" + portNumber + "view.dat");
     if (locatorFile.exists()) {
       assertThat(locatorFile.delete()).isTrue();
     }

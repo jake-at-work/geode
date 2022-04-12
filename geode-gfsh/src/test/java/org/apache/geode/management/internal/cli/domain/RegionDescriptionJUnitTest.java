@@ -111,8 +111,8 @@ public class RegionDescriptionJUnitTest {
 
   @Test
   public void singleAddDefinesDescription() {
-    RegionDescriptionPerMember mockA = getMockRegionDescriptionPerMember_A();
-    RegionDescription description = new RegionDescription();
+    var mockA = getMockRegionDescriptionPerMember_A();
+    var description = new RegionDescription();
     description.add(mockA);
 
     assertThat(description.getCndEvictionAttributes())
@@ -125,9 +125,9 @@ public class RegionDescriptionJUnitTest {
 
   @Test
   public void multipleAddsMergeAsExpected() {
-    RegionDescriptionPerMember mockA = getMockRegionDescriptionPerMember_A();
-    RegionDescriptionPerMember mockB = getMockRegionDescriptionPerMember_B();
-    RegionDescription description = new RegionDescription();
+    var mockA = getMockRegionDescriptionPerMember_A();
+    var mockB = getMockRegionDescriptionPerMember_B();
+    var description = new RegionDescription();
     description.add(mockA);
     description.add(mockB);
 
@@ -150,9 +150,9 @@ public class RegionDescriptionJUnitTest {
 
   @Test
   public void outOfScopeAddGetsIgnored() {
-    RegionDescriptionPerMember mockA = getMockRegionDescriptionPerMember_A();
-    RegionDescriptionPerMember mockB = getMockRegionDescriptionPerMember_OutOfScope();
-    RegionDescription description = new RegionDescription();
+    var mockA = getMockRegionDescriptionPerMember_A();
+    var mockB = getMockRegionDescriptionPerMember_OutOfScope();
+    var description = new RegionDescription();
     description.add(mockA);
     description.add(mockB);
 
@@ -177,7 +177,7 @@ public class RegionDescriptionJUnitTest {
     mockNonDefaultRegionAttributes.put(regKeyShared, regValueShared);
     mockNonDefaultRegionAttributes.put(regKeyA, regValueA);
 
-    RegionDescriptionPerMember mockDescPerMember = mock(RegionDescriptionPerMember.class);
+    var mockDescPerMember = mock(RegionDescriptionPerMember.class);
 
     when(mockDescPerMember.getNonDefaultEvictionAttributes())
         .thenReturn(mockNonDefaultEvictionAttributes);
@@ -206,7 +206,7 @@ public class RegionDescriptionJUnitTest {
     mockNonDefaultRegionAttributes.put(regKeyShared, regValueShared);
     mockNonDefaultRegionAttributes.put(regKeyB, regValueB);
 
-    RegionDescriptionPerMember mockDescPerMember = mock(RegionDescriptionPerMember.class);
+    var mockDescPerMember = mock(RegionDescriptionPerMember.class);
 
     when(mockDescPerMember.getNonDefaultEvictionAttributes())
         .thenReturn(mockNonDefaultEvictionAttributes);
@@ -232,7 +232,7 @@ public class RegionDescriptionJUnitTest {
     Map<String, String> mockNonDefaultRegionAttributes = new HashMap<>();
     mockNonDefaultRegionAttributes.put(regKeyShared, regValueShared);
 
-    RegionDescriptionPerMember mockDescPerMember = mock(RegionDescriptionPerMember.class);
+    var mockDescPerMember = mock(RegionDescriptionPerMember.class);
 
     when(mockDescPerMember.getNonDefaultEvictionAttributes())
         .thenReturn(mockNonDefaultEvictionAttributes);

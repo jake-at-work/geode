@@ -61,7 +61,7 @@ public class NonLocalRegionEntry implements RegionEntry, VersionStamp {
         "getEntry did not fault value in from disk");
     lastModified = re.getLastModified();
     isRemoved = re.isRemoved();
-    VersionStamp stamp = re.getVersionStamp();
+    var stamp = re.getVersionStamp();
     if (stamp != null) {
       versionTag = stamp.asVersionTag();
     }

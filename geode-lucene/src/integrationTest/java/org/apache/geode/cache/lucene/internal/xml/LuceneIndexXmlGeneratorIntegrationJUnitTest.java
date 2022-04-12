@@ -35,7 +35,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.lucene.LuceneIndex;
-import org.apache.geode.cache.lucene.LuceneSerializer;
 import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.test.LuceneDeclarable2TestSerializer;
@@ -71,63 +70,62 @@ public class LuceneIndexXmlGeneratorIntegrationJUnitTest {
   @Test
   public void generateWithFields() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    LuceneService service = LuceneServiceProvider.get(cache);
+    var service = LuceneServiceProvider.get(cache);
     createDataRegionAndLuceneIndex(service);
 
-
-    LuceneIndex index = generateAndParseXml(service);
+    var index = generateAndParseXml(service);
 
     assertArrayEquals(new String[] {"a", "b", "c"}, index.getFieldNames());
   }
 
   @Test
   public void generateWithDeclarable2SerializerWithStringProperty() {
-    LuceneDeclarable2TestSerializer luceneSerializer = new LuceneDeclarable2TestSerializer();
+    var luceneSerializer = new LuceneDeclarable2TestSerializer();
     luceneSerializer.getConfig().setProperty("param", "value");
-    Properties p = generateAndParseDeclarable2Serializer(luceneSerializer);
+    var p = generateAndParseDeclarable2Serializer(luceneSerializer);
     assertEquals("value", p.getProperty("param"));
   }
 
   @Test
   public void generateWithDeclarable2SerializerWithNoProperties() {
-    LuceneDeclarable2TestSerializer luceneSerializer = new LuceneDeclarable2TestSerializer();
-    Properties p = generateAndParseDeclarable2Serializer(luceneSerializer);
+    var luceneSerializer = new LuceneDeclarable2TestSerializer();
+    var p = generateAndParseDeclarable2Serializer(luceneSerializer);
     assertEquals(new Properties(), p);
   }
 
   @Test
   public void generateWithDeclarable2SerializerWithDeclarableProperty() {
-    LuceneDeclarable2TestSerializer luceneSerializer = new LuceneDeclarable2TestSerializer();
+    var luceneSerializer = new LuceneDeclarable2TestSerializer();
     luceneSerializer.getConfig().put("param", new LuceneTestSerializer());
-    Properties p = generateAndParseDeclarable2Serializer(luceneSerializer);
+    var p = generateAndParseDeclarable2Serializer(luceneSerializer);
     assertThat(p.get("param")).isInstanceOf(LuceneTestSerializer.class);
   }
 
   private Properties generateAndParseDeclarable2Serializer(
       LuceneDeclarable2TestSerializer luceneSerializer) {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    LuceneService service = LuceneServiceProvider.get(cache);
+    var service = LuceneServiceProvider.get(cache);
     createDataRegionAndLuceneIndexWithSerializer(luceneSerializer, service);
 
-    LuceneIndex index = generateAndParseXml(service);
+    var index = generateAndParseXml(service);
 
     assertArrayEquals(new String[] {"a", "b", "c"}, index.getFieldNames());
 
-    LuceneSerializer testSerializer = index.getLuceneSerializer();
+    var testSerializer = index.getLuceneSerializer();
     return ((LuceneDeclarable2TestSerializer) testSerializer).getConfig();
   }
 
   @Test
   public void generateWithSerializer() {
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
-    LuceneService service = LuceneServiceProvider.get(cache);
+    var service = LuceneServiceProvider.get(cache);
     createDataRegionAndLuceneIndexWithSerializer(new LuceneTestSerializer(), service);
 
-    LuceneIndex index = generateAndParseXml(service);
+    var index = generateAndParseXml(service);
 
     assertArrayEquals(new String[] {"a", "b", "c"}, index.getFieldNames());
 
-    LuceneSerializer testSerializer = index.getLuceneSerializer();
+    var testSerializer = index.getLuceneSerializer();
     assertThat(testSerializer).isInstanceOf(LuceneTestSerializer.class);
   }
 
@@ -136,21 +134,21 @@ public class LuceneIndexXmlGeneratorIntegrationJUnitTest {
    * created from the xml.
    */
   private LuceneIndex generateAndParseXml(LuceneService service) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintWriter pw = new PrintWriter(baos);
+    var baos = new ByteArrayOutputStream();
+    var pw = new PrintWriter(baos);
     CacheXmlGenerator.generate(cache, pw, false, false);
     pw.flush();
 
     cache.close();
     cache = new CacheFactory().set(MCAST_PORT, "0").create();
 
-    byte[] bytes = baos.toByteArray();
+    var bytes = baos.toByteArray();
     cache.loadCacheXml(new ByteArrayInputStream(bytes));
 
-    LuceneService service2 = LuceneServiceProvider.get(cache);
+    var service2 = LuceneServiceProvider.get(cache);
     assertNotSame(service, service2);
 
-    LuceneIndex index = service2.getIndex("index", "region");
+    var index = service2.getIndex("index", "region");
     assertNotNull(index);
     return index;
   }

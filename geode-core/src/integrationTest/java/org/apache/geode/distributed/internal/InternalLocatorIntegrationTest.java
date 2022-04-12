@@ -94,7 +94,7 @@ public class InternalLocatorIntegrationTest {
   @Test
   public void startedLocatorDoesNotAttemptReconnect() throws IOException, InterruptedException {
     // start a locator that's not part of a cluster
-    final boolean joinCluster = false;
+    final var joinCluster = false;
     internalLocator = InternalLocator.startLocator(port, logFile, null,
         null, bindAddress, joinCluster,
         distributedSystemProperties, hostnameForClients, workingDirectory);
@@ -102,7 +102,7 @@ public class InternalLocatorIntegrationTest {
     // the locator shouldn't attempt a reconnect because it's not part of a cluster
     internalLocator.stoppedForReconnect = true;
     assertThat(internalLocator.attemptReconnect()).isFalse();
-    String output = FileUtils.readFileToString(logFile, Charset.defaultCharset());
+    var output = FileUtils.readFileToString(logFile, Charset.defaultCharset());
     assertThat(output).isNotEmpty();
     assertThat(output).contains(InternalLocator.IGNORING_RECONNECT_REQUEST);
   }
@@ -187,7 +187,7 @@ public class InternalLocatorIntegrationTest {
   @Test
   @Ignore("GEODE-7762 this test fails repeatedly in stress tests")
   public void startLocatorFail() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     // use this property to induce a NPE when calling
     // InternalLocator.startConfigurationPersistenceService
     // so this would demonstrate that we would throw the exception when we encounter an error when

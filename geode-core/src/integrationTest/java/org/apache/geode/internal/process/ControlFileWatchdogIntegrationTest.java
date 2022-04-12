@@ -60,7 +60,7 @@ public class ControlFileWatchdogIntegrationTest {
   @Test
   public void isAlive_returnsFalse_beforeStart() throws Exception {
     // arrange
-    ControlFileWatchdog watchdog =
+    var watchdog =
         new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
 
     // act: nothing
@@ -72,7 +72,7 @@ public class ControlFileWatchdogIntegrationTest {
   @Test
   public void isAlive_returnsTrue_afterStart() throws Exception {
     // arrange
-    ControlFileWatchdog watchdog =
+    var watchdog =
         new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
 
     // act
@@ -85,7 +85,7 @@ public class ControlFileWatchdogIntegrationTest {
   @Test
   public void isAlive_returnsFalse_afterStop() throws Exception {
     // arrange
-    ControlFileWatchdog watchdog =
+    var watchdog =
         new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
     watchdog.start();
 
@@ -133,12 +133,12 @@ public class ControlFileWatchdogIntegrationTest {
   public void invokesRequestHandler_afterFileCreation() throws Exception {
     // arrange
     requestHandler = mock(ControlRequestHandler.class);
-    ControlFileWatchdog watchdog =
+    var watchdog =
         new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
     watchdog.start();
 
     // act
-    File file = new EmptyFileWriter(requestFile).createNewFile();
+    var file = new EmptyFileWriter(requestFile).createNewFile();
 
     // assert
     verify(requestHandler, timeout(TEN_MINUTES_MILLIS)).handleRequest();
@@ -149,12 +149,12 @@ public class ControlFileWatchdogIntegrationTest {
   public void deletesFile_afterInvokingRequestHandler() throws Exception {
     // arrange
     requestHandler = mock(ControlRequestHandler.class);
-    ControlFileWatchdog watchdog =
+    var watchdog =
         new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
     watchdog.start();
 
     // act
-    File file = new EmptyFileWriter(requestFile).createNewFile();
+    var file = new EmptyFileWriter(requestFile).createNewFile();
 
     // assert
     verify(requestHandler, timeout(TEN_MINUTES_MILLIS)).handleRequest();
@@ -164,7 +164,7 @@ public class ControlFileWatchdogIntegrationTest {
   @Test
   public void doesNotInvokeRequestHandler_whileFileDoesNotExist() throws Exception {
     // arrange
-    ControlFileWatchdog watchdog =
+    var watchdog =
         new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
 
     // act
@@ -181,7 +181,7 @@ public class ControlFileWatchdogIntegrationTest {
     new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
 
     // act
-    File file = new EmptyFileWriter(requestFile).createNewFile();
+    var file = new EmptyFileWriter(requestFile).createNewFile();
 
     // assert
     verifyNoMoreInteractions(requestHandler); // would be prefer to wait some time
@@ -193,12 +193,12 @@ public class ControlFileWatchdogIntegrationTest {
     // arrange
     requestHandler = mock(ControlRequestHandler.class);
     stopAfterRequest = true;
-    ControlFileWatchdog watchdog =
+    var watchdog =
         new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
     watchdog.start();
 
     // act
-    File file = new EmptyFileWriter(requestFile).createNewFile();
+    var file = new EmptyFileWriter(requestFile).createNewFile();
 
     // assert
     verify(requestHandler, timeout(TEN_MINUTES_MILLIS)).handleRequest();
@@ -210,12 +210,12 @@ public class ControlFileWatchdogIntegrationTest {
   public void doesNotStop_afterInvokingRequestHandler_whenNotStopAfterRequest() throws Exception {
     // arrange
     requestHandler = mock(ControlRequestHandler.class);
-    ControlFileWatchdog watchdog =
+    var watchdog =
         new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
     watchdog.start();
 
     // act
-    File file = new EmptyFileWriter(requestFile).createNewFile();
+    var file = new EmptyFileWriter(requestFile).createNewFile();
 
     // assert
     verify(requestHandler, timeout(TEN_MINUTES_MILLIS)).handleRequest();
@@ -226,7 +226,7 @@ public class ControlFileWatchdogIntegrationTest {
   @Test
   public void toStringIsUsefulForDebugging() throws Exception {
     // arrange
-    ControlFileWatchdog watchdog =
+    var watchdog =
         new ControlFileWatchdog(directory, requestFileName, requestHandler, stopAfterRequest);
 
     // act/assert

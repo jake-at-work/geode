@@ -19,15 +19,12 @@ import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.apache.geode.test.util.ResourceUtils.createTempFileFromResource;
 import static org.junit.Assert.fail;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
@@ -53,7 +50,7 @@ public class GlobalTransactionJUnitTest {
   public void setUp() throws Exception {
     props = new Properties();
     props.setProperty(MCAST_PORT, "0");
-    String path =
+    var path =
         createTempFileFromResource(GlobalTransactionJUnitTest.class, "/jta/cachejta.xml")
             .getAbsolutePath();
     props.setProperty(CACHE_XML_FILE, path);
@@ -70,9 +67,9 @@ public class GlobalTransactionJUnitTest {
 
   @Test
   public void testGetSimpleDataSource() throws Exception {
-    Context ctx = cache.getJNDIContext();
-    GemFireBasicDataSource ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
-    Connection conn = ds.getConnection();
+    var ctx = cache.getJNDIContext();
+    var ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
+    var conn = ds.getConnection();
     if (conn == null) {
       fail(
           "DataSourceFactoryTest-testGetSimpleDataSource() Error in creating the GemFireBasicDataSource");
@@ -83,7 +80,7 @@ public class GlobalTransactionJUnitTest {
   public void testSetRollbackOnly() throws Exception {
     utx.begin();
     utx.setRollbackOnly();
-    Transaction txn = tm.getTransaction();
+    var txn = tm.getTransaction();
     if (txn.getStatus() != Status.STATUS_MARKED_ROLLBACK) {
       utx.rollback();
       fail("testSetRollbackonly failed");
@@ -94,11 +91,11 @@ public class GlobalTransactionJUnitTest {
   @Test
   public void testEnlistResource() throws Exception {
     try {
-      boolean exceptionoccurred = false;
+      var exceptionoccurred = false;
       utx.begin();
       try {
-        Context ctx = cache.getJNDIContext();
-        GemFireTransactionDataSource ds =
+        var ctx = cache.getJNDIContext();
+        var ds =
             (GemFireTransactionDataSource) ctx.lookup("java:/XAPooledDataSource");
         ds.getConnection();
       } catch (SQLException e) {
@@ -122,10 +119,10 @@ public class GlobalTransactionJUnitTest {
   @Test
   public void testRegisterSynchronization() throws Exception {
     try {
-      boolean exceptionoccurred = false;
+      var exceptionoccurred = false;
       utx.begin();
       try {
-        Transaction txn = tm.getTransaction();
+        var txn = tm.getTransaction();
         Synchronization sync = new SyncImpl();
         txn.registerSynchronization(sync);
       } catch (RollbackException e) {
@@ -149,12 +146,12 @@ public class GlobalTransactionJUnitTest {
   @Test
   public void testEnlistResourceAfterRollBack() throws Exception {
     try {
-      boolean exceptionoccurred = false;
+      var exceptionoccurred = false;
       utx.begin();
       utx.setRollbackOnly();
-      Context ctx = cache.getJNDIContext();
+      var ctx = cache.getJNDIContext();
       try {
-        GemFireTransactionDataSource ds =
+        var ds =
             (GemFireTransactionDataSource) ctx.lookup("java:/XAPooledDataSource");
         ds.getConnection();
       } catch (SQLException e) {
@@ -178,12 +175,12 @@ public class GlobalTransactionJUnitTest {
   @Test
   public void testRegisterSynchronizationAfterRollBack() throws Exception {
     try {
-      boolean exceptionoccurred = false;
+      var exceptionoccurred = false;
       utx.begin();
       utx.setRollbackOnly();
-      Context ctx = cache.getJNDIContext();
+      var ctx = cache.getJNDIContext();
       try {
-        Transaction txn = tm.getTransaction();
+        var txn = tm.getTransaction();
         Synchronization sync = new SyncImpl();
         txn.registerSynchronization(sync);
       } catch (RollbackException e) {
@@ -208,7 +205,7 @@ public class GlobalTransactionJUnitTest {
   public void testSuspend() throws Exception {
     utx.begin();
     tm.suspend();
-    Transaction txn1 = tm.getTransaction();
+    var txn1 = tm.getTransaction();
     if (txn1 != null) {
       fail("suspend failed to suspend the transaction");
     }
@@ -217,8 +214,8 @@ public class GlobalTransactionJUnitTest {
   @Test
   public void testResume() throws Exception {
     utx.begin();
-    Transaction txn = tm.getTransaction();
-    Transaction txn1 = tm.suspend();
+    var txn = tm.getTransaction();
+    var txn1 = tm.suspend();
     tm.resume(txn1);
     if (txn != tm.getTransaction()) {
       fail("resume failed ");

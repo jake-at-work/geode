@@ -150,7 +150,7 @@ public class ChunkedMessage extends Message {
     setLastChunk(lastChunk);
     if (serverConnection != null) {
       // we us e three bits for number of parts in last chunk byte
-      byte localLastChunk = (byte) (numParts << 5);
+      var localLastChunk = (byte) (numParts << 5);
       this.lastChunk |= localLastChunk;
     }
   }
@@ -175,12 +175,12 @@ public class ChunkedMessage extends Message {
    */
   public void readHeader() throws IOException {
     if (socket != null) {
-      final ByteBuffer cb = getCommBuffer();
+      final var cb = getCommBuffer();
       synchronized (cb) {
         fetchHeader();
-        final int type = cb.getInt();
-        final int numParts = cb.getInt();
-        final int txid = cb.getInt();
+        final var type = cb.getInt();
+        final var numParts = cb.getInt();
+        final var txid = cb.getInt();
         cb.clear();
         if (!MessageType.validate(type)) {
           throw new IOException(
@@ -216,12 +216,12 @@ public class ChunkedMessage extends Message {
    * Reads a chunk of this message.
    */
   private void readChunk() throws IOException {
-    final ByteBuffer cb = getCommBuffer();
+    final var cb = getCommBuffer();
     clearParts();
     cb.clear();
-    int totalBytesRead = 0;
+    var totalBytesRead = 0;
     do {
-      int bytesRead =
+      var bytesRead =
           inputStream.read(cb.array(), totalBytesRead, CHUNK_HEADER_LENGTH - totalBytesRead);
       if (bytesRead == -1) {
         throw new EOFException(
@@ -238,7 +238,7 @@ public class ChunkedMessage extends Message {
     // Set chunk length and last chunk
     chunkLength = cb.getInt();
     // setLastChunk(cb.get() == 0x01);
-    byte lastChunk = cb.get();
+    var lastChunk = cb.get();
     setLastChunk((lastChunk & 0x01) == 0x01);
     if ((lastChunk & 0x02) == 0x02) {
       securePart = new Part();
@@ -248,7 +248,7 @@ public class ChunkedMessage extends Message {
     }
     cb.clear();
     if ((lastChunk & 0x01) == 0x01) {
-      int numParts = lastChunk >> 5;
+      var numParts = lastChunk >> 5;
       if (numParts > 0) {
         numberOfParts = numParts;
       }
@@ -318,7 +318,7 @@ public class ChunkedMessage extends Message {
 
   @Override
   protected void packHeaderInfoForSending(int msgLen, boolean isSecurityHeader) {
-    final ByteBuffer cb = getCommBuffer();
+    final var cb = getCommBuffer();
     cb.putInt(msgLen);
     byte isLastChunk = 0x00;
     if (isLastChunk()) {
@@ -336,7 +336,7 @@ public class ChunkedMessage extends Message {
    * Converts the header of this message into a <code>byte</code> array using a {@link ByteBuffer}.
    */
   protected void getDSCODEsForWrite() {
-    final ByteBuffer cb = getCommBuffer();
+    final var cb = getCommBuffer();
     cb.clear();
     cb.putInt(messageType);
     cb.putInt(numberOfParts);

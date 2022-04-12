@@ -24,7 +24,6 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionInvocationTargetException;
@@ -37,16 +36,12 @@ import org.apache.geode.internal.cache.execute.MemberMappedArgument;
 import org.apache.geode.internal.cache.execute.PartitionedRegionFunctionExecutor;
 import org.apache.geode.internal.cache.execute.ServerToClientFunctionResultSender;
 import org.apache.geode.internal.cache.execute.ServerToClientFunctionResultSender65;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
-import org.apache.geode.internal.cache.tier.ServerSideHandshake;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 
 /**
@@ -78,13 +73,13 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
     Set<Integer> buckets = null;
     byte hasResult = 0;
     byte functionState = 0;
-    int removedNodesSize = 0;
+    var removedNodesSize = 0;
     Set<Object> removedNodesSet = null;
     int filterSize = 0, bucketIdsSize = 0, partNumber = 0;
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    int functionTimeout = DEFAULT_CLIENT_FUNCTION_TIMEOUT;
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var functionTimeout = DEFAULT_CLIENT_FUNCTION_TIMEOUT;
     try {
-      byte[] bytes = clientMessage.getPart(0).getSerializedForm();
+      var bytes = clientMessage.getPart(0).getSerializedForm();
       functionState = bytes[0];
       if (bytes.length >= 5) {
         functionTimeout = Part.decodeInt(bytes, 1);
@@ -101,9 +96,9 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
       regionName = clientMessage.getPart(1).getCachedString();
       function = clientMessage.getPart(2).getStringOrObject();
       args = clientMessage.getPart(3).getObject();
-      Part part = clientMessage.getPart(4);
+      var part = clientMessage.getPart(4);
       if (part != null) {
-        Object obj = part.getObject();
+        var obj = part.getObject();
         if (obj instanceof MemberMappedArgument) {
           memberMappedArg = (MemberMappedArgument) obj;
         }
@@ -115,7 +110,7 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
         if (bucketIdsSize != 0) {
           buckets = new HashSet<>();
           partNumber = 7;
-          for (int i = 0; i < bucketIdsSize; i++) {
+          for (var i = 0; i < bucketIdsSize; i++) {
             buckets.add(clientMessage.getPart(partNumber + i).getInt());
           }
         }
@@ -125,7 +120,7 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
         if (filterSize != 0) {
           filter = new HashSet<>();
           partNumber = 7;
-          for (int i = 0; i < filterSize; i++) {
+          for (var i = 0; i < filterSize; i++) {
             filter.add(clientMessage.getPart(partNumber + i).getStringOrObject());
           }
         }
@@ -139,7 +134,7 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
         removedNodesSet = new HashSet<>();
         partNumber = partNumber + 1;
 
-        for (int i = 0; i < removedNodesSize; i++) {
+        for (var i = 0; i < removedNodesSize; i++) {
           removedNodesSet.add(clientMessage.getPart(partNumber + i).getStringOrObject());
         }
       }
@@ -171,17 +166,17 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
       return;
     }
 
-    Region region = crHelper.getRegion(regionName);
+    var region = crHelper.getRegion(regionName);
     if (region == null) {
-      String message =
+      var message =
           String.format("The region named %s was not found during execute Function request.",
               regionName);
       logger.warn("{}: {}", serverConnection.getName(), message);
       sendError(hasResult, clientMessage, message, serverConnection);
       return;
     }
-    ServerSideHandshake handshake = serverConnection.getHandshake();
-    int earlierClientReadTimeout = handshake.getClientReadTimeout();
+    var handshake = serverConnection.getHandshake();
+    var earlierClientReadTimeout = handshake.getClientReadTimeout();
     handshake.setClientReadTimeout(functionTimeout);
     ServerToClientFunctionResultSender resultSender = null;
     Function<?> functionObject = null;
@@ -189,17 +184,17 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
       if (function instanceof String) {
         functionObject = FunctionService.getFunction((String) function);
         if (functionObject == null) {
-          String message =
+          var message =
               String.format("The function, %s, has not been registered",
                   function);
           logger.warn("{}: {}", serverConnection.getName(), message);
           sendError(hasResult, clientMessage, message, serverConnection);
           return;
         } else {
-          byte functionStateOnServer = AbstractExecution.getFunctionState(functionObject.isHA(),
+          var functionStateOnServer = AbstractExecution.getFunctionState(functionObject.isHA(),
               functionObject.hasResult(), functionObject.optimizeForWrite());
           if (functionStateOnServer != functionState) {
-            String message =
+            var message =
                 String.format("Function attributes at client and server don't match: %s",
                     function);
             logger.warn("{}: {}", serverConnection.getName(), message);
@@ -213,9 +208,9 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
 
       // check if the caller is authorized to do this operation on server
       functionObject.getRequiredPermissions(regionName, args).forEach(securityService::authorize);
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
-      final String functionName = functionObject.getId();
-      final String regionPath = region.getFullPath();
+      var authzRequest = serverConnection.getAuthzRequest();
+      final var functionName = functionObject.getId();
+      final var regionPath = region.getFullPath();
       ExecuteFunctionOperationContext executeContext = null;
       if (authzRequest != null) {
         executeContext = authzRequest.executeFunctionAuthorize(functionName, regionPath, filter,
@@ -223,16 +218,16 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
       }
 
       // Construct execution
-      AbstractExecution execution = (AbstractExecution) FunctionService.onRegion(region);
-      ChunkedMessage m = serverConnection.getFunctionResponseMessage();
+      var execution = (AbstractExecution) FunctionService.onRegion(region);
+      var m = serverConnection.getFunctionResponseMessage();
       m.setTransactionId(clientMessage.getTransactionId());
       resultSender =
           new ServerToClientFunctionResultSender65(m, MessageType.EXECUTE_REGION_FUNCTION_RESULT,
               serverConnection, functionObject, executeContext);
 
       if (isExecuteOnAllBuckets == 1) {
-        PartitionedRegion pr = (PartitionedRegion) region;
-        Set<Integer> actualBucketSet = pr.getRegionAdvisor().getBucketSet();
+        var pr = (PartitionedRegion) region;
+        var actualBucketSet = pr.getRegionAdvisor().getBucketSet();
         try {
           buckets.retainAll(actualBucketSet);
         } catch (NoSuchElementException ignored) {
@@ -292,10 +287,10 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
       logger.warn(String.format("Exception on server while executing function : %s",
           function),
           ioe);
-      final String message = "Server could not send the reply";
+      final var message = "Server could not send the reply";
       sendException(hasResult, clientMessage, message, serverConnection, ioe);
     } catch (FunctionException fe) {
-      String message = fe.getMessage();
+      var message = fe.getMessage();
 
       if (fe.getCause() instanceof FunctionInvocationTargetException) {
         if (functionObject.isHA() && logger.isDebugEnabled()) {
@@ -319,7 +314,7 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
       logger.warn(String.format("Exception on server while executing function : %s",
           function),
           e);
-      String message = e.getMessage();
+      var message = e.getMessage();
       sendException(hasResult, clientMessage, message, serverConnection, e);
     } finally {
       handshake.setClientReadTimeout(earlierClientReadTimeout);
@@ -350,16 +345,16 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
 
   protected static void writeFunctionResponseException(Message origMsg, int messageType,
       String message, ServerConnection serverConnection, Throwable e) throws IOException {
-    ChunkedMessage functionResponseMsg = serverConnection.getFunctionResponseMessage();
-    ChunkedMessage chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
-    int numParts = 0;
+    var functionResponseMsg = serverConnection.getFunctionResponseMessage();
+    var chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
+    var numParts = 0;
     if (functionResponseMsg.headerHasBeenSent()) {
       if (e instanceof FunctionException
           && e.getCause() instanceof InternalFunctionInvocationTargetException) {
         functionResponseMsg.setNumberOfParts(3);
         functionResponseMsg.addObjPart(e);
         functionResponseMsg.addStringPart(BaseCommand.getExceptionTrace(e));
-        InternalFunctionInvocationTargetException fe =
+        var fe =
             (InternalFunctionInvocationTargetException) e.getCause();
         functionResponseMsg.addObjPart(fe.getFailedNodeSet());
         numParts = 3;
@@ -385,7 +380,7 @@ public class ExecuteRegionFunctionSingleHop extends BaseCommand {
         chunkedResponseMsg.setNumberOfParts(3);
         chunkedResponseMsg.addObjPart(e);
         chunkedResponseMsg.addStringPart(BaseCommand.getExceptionTrace(e));
-        InternalFunctionInvocationTargetException fe =
+        var fe =
             (InternalFunctionInvocationTargetException) e.getCause();
         chunkedResponseMsg.addObjPart(fe.getFailedNodeSet());
         numParts = 3;

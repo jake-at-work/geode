@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.cache.wan;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,8 +36,8 @@ public class MyDistributedSystemListener implements DistributedSystemListener {
   @Override
   public void addedDistributedSystem(int remoteDsId) {
     addCount++;
-    List<Locator> locatorsConfigured = Locator.getLocators();
-    Locator locator = locatorsConfigured.get(0);
+    var locatorsConfigured = Locator.getLocators();
+    var locator = locatorsConfigured.get(0);
     Map<Integer, Set<DistributionLocatorId>> allSiteMetaData =
         ((InternalLocator) locator).getLocatorMembershipListener().getAllLocatorsInfo();
     System.out.println("Added : allSiteMetaData : " + allSiteMetaData);
@@ -47,8 +46,8 @@ public class MyDistributedSystemListener implements DistributedSystemListener {
   @Override
   public void removedDistributedSystem(int remoteDsId) {
     removeCount++;
-    List<Locator> locatorsConfigured = Locator.getLocators();
-    Locator locator = locatorsConfigured.get(0);
+    var locatorsConfigured = Locator.getLocators();
+    var locator = locatorsConfigured.get(0);
     Map<Integer, Set<DistributionLocatorId>> allSiteMetaData =
         ((InternalLocator) locator).getLocatorMembershipListener().getAllLocatorsInfo();
     System.out.println("Removed : allSiteMetaData : " + allSiteMetaData);

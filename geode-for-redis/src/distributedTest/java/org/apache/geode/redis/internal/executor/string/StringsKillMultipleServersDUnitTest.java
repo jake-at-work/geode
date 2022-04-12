@@ -19,7 +19,6 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.dunit.rules.RedisClusterStartupRule.BIND_ADDRESS;
 
 import java.util.Random;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,7 +31,6 @@ import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
@@ -48,13 +46,13 @@ public class StringsKillMultipleServersDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = cluster.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = cluster.startLocatorVM(0);
+    var locatorPort = locator.getPort();
     cluster.startRedisVM(1, locatorPort);
     cluster.startRedisVM(2, locatorPort);
     cluster.startRedisVM(3, locatorPort);
 
-    int redisServerPort1 = cluster.getRedisPort(1);
+    var redisServerPort1 = cluster.getRedisPort(1);
     jedisCluster =
         new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort1), 10_000, 20);
 
@@ -75,17 +73,17 @@ public class StringsKillMultipleServersDUnitTest {
 
   @Test
   public void operationsShouldContinueAfterMultipleServerFailures() throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
-    AtomicInteger counter = new AtomicInteger(0);
+    var running = new AtomicBoolean(true);
+    var counter = new AtomicInteger(0);
 
-    Future<Void> future1 = executor.submit(() -> doSetOps(running, counter));
-    Future<Void> future2 = executor.submit(() -> doGetOps(running, counter));
+    var future1 = executor.submit(() -> doSetOps(running, counter));
+    var future2 = executor.submit(() -> doGetOps(running, counter));
     await().until(() -> counter.get() > 1000);
 
     cluster.crashVM(2);
     cluster.crashVM(3);
 
-    int afterCrashCount = counter.get();
+    var afterCrashCount = counter.get();
     await().alias("ensure that operations are continuing after multiple server failures")
         .until(() -> counter.get() > afterCrashCount + 10_000);
 
@@ -98,7 +96,7 @@ public class StringsKillMultipleServersDUnitTest {
 
   private Void doSetOps(AtomicBoolean running, AtomicInteger counter) {
     while (running.get()) {
-      int i = counter.getAndIncrement();
+      var i = counter.getAndIncrement();
       try {
         jedisCluster.set("key-" + i, "value-" + i);
       } catch (final Throwable t) {
@@ -110,7 +108,7 @@ public class StringsKillMultipleServersDUnitTest {
   }
 
   private Void doGetOps(AtomicBoolean running, AtomicInteger counter) {
-    Random random = new Random();
+    var random = new Random();
     while (running.get()) {
       jedisCluster.get("key-" + random.nextInt(counter.get() + 1));
     }

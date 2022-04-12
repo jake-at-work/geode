@@ -49,7 +49,7 @@ public class GatewaySenderQueueEntrySynchronizationOperationTest {
   @Test
   public void ReplyProcessorGetCacheDelegateToDistributionManager() {
     operation = mock(GatewaySenderQueueEntrySynchronizationOperation.class);
-    GatewaySenderQueueEntrySynchronizationOperation.GatewaySenderQueueEntrySynchronizationReplyProcessor processor =
+    var processor =
         new GatewaySenderQueueEntrySynchronizationOperation.GatewaySenderQueueEntrySynchronizationReplyProcessor(
             distributionManager, recipient, operation);
     when(distributionManager.getCache()).thenReturn(cache);
@@ -59,7 +59,7 @@ public class GatewaySenderQueueEntrySynchronizationOperationTest {
 
   @Test
   public void GatewaySenderQueueEntrySynchronizationOperationGetCacheDelegateToDistributionManager() {
-    InitialImageOperation.Entry entry = mock(InitialImageOperation.Entry.class);
+    var entry = mock(InitialImageOperation.Entry.class);
     List<InitialImageOperation.Entry> list = new ArrayList<>();
     list.add(entry);
     operation = new GatewaySenderQueueEntrySynchronizationOperation(recipient, region, list);

@@ -66,7 +66,7 @@ public class InternalBlackboardImpl extends UnicastRemoteObject implements Inter
       System.out.println(
           DUnitLauncher.RMI_PORT_PARAM + "=" + System.getProperty(DUnitLauncher.RMI_PORT_PARAM));
       int namingPort = Integer.getInteger(DUnitLauncher.RMI_PORT_PARAM);
-      String name = "//localhost:" + namingPort + "/" + "InternalBlackboard";
+      var name = "//localhost:" + namingPort + "/" + "InternalBlackboard";
       try {
         blackboard = (InternalBlackboard) Naming.lookup(name);
       } catch (NotBoundException e) {
@@ -96,9 +96,9 @@ public class InternalBlackboardImpl extends UnicastRemoteObject implements Inter
   @Override
   public void waitForGate(final String gateName, final long timeout, final TimeUnit units)
       throws InterruptedException, RemoteException, TimeoutException {
-    long giveupTime = System.currentTimeMillis() + MILLISECONDS.convert(timeout, units);
+    var giveupTime = System.currentTimeMillis() + MILLISECONDS.convert(timeout, units);
     while (System.currentTimeMillis() < giveupTime) {
-      Boolean gate = gates.get(gateName);
+      var gate = gates.get(gateName);
       if (gate != null && gate) {
         return;
       }
@@ -109,7 +109,7 @@ public class InternalBlackboardImpl extends UnicastRemoteObject implements Inter
 
   @Override
   public boolean isGateSignaled(final String gateName) {
-    Boolean gate = gates.get(gateName);
+    var gate = gates.get(gateName);
     return gate != null && gate;
   }
 

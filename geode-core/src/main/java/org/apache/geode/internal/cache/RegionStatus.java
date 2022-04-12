@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache;
 
 import java.io.Serializable;
 
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
 
 /**
@@ -58,7 +57,7 @@ public class RegionStatus implements Serializable {
   private void initialize(Region region) {
     setNumberOfEntries(region.size());
 
-    EvictionAttributes ea = region.getAttributes().getEvictionAttributes();
+    var ea = region.getAttributes().getEvictionAttributes();
     if (ea != null && ea.getAlgorithm().isLRUMemory()) {
       setHeapSize(((InternalRegion) region).getEvictionCounter());
     } else {

@@ -32,7 +32,6 @@ import org.apache.geode.distributed.internal.MessageWithReply;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
-import org.apache.geode.distributed.internal.ReplySender;
 import org.apache.geode.distributed.internal.SerialDistributionMessage;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.partitioned.PartitionMessage;
@@ -70,12 +69,12 @@ public abstract class TXMessage extends SerialDistributionMessage
   @Override
   protected void process(final ClusterDistributionManager dm) {
     Throwable thr = null;
-    boolean sendReply = true;
+    var sendReply = true;
     try {
       if (logger.isDebugEnabled()) {
         logger.debug("processing {}", this);
       }
-      InternalCache cache = dm.getCache();
+      var cache = dm.getCache();
       if (checkCacheClosing(cache) || checkDSClosing(cache.getInternalDistributedSystem())) {
         if (cache == null) {
           thr = new CacheClosedException(String.format("Remote cache is closed: %s",
@@ -87,11 +86,11 @@ public abstract class TXMessage extends SerialDistributionMessage
         }
         return;
       }
-      TXManagerImpl txMgr = cache.getTXMgr();
+      var txMgr = cache.getTXMgr();
       TXStateProxy tx = null;
       try {
         assert txUniqId != TXManagerImpl.NOTX;
-        TXId txId = new TXId(getMemberToMasqueradeAs(), txUniqId);
+        var txId = new TXId(getMemberToMasqueradeAs(), txUniqId);
         tx = txMgr.masqueradeAs(this);
         sendReply = operateOnTx(txId, dm);
       } finally {
@@ -123,7 +122,7 @@ public abstract class TXMessage extends SerialDistributionMessage
         thr = t;
       }
     } finally {
-      ReplySender rs = getReplySender(dm);
+      var rs = getReplySender(dm);
       if (sendReply && (processorId != 0 || (rs != dm))) {
         ReplyException rex = null;
         if (thr != null) {
@@ -149,8 +148,8 @@ public abstract class TXMessage extends SerialDistributionMessage
 
   @Override
   public String toString() {
-    StringBuilder buff = new StringBuilder();
-    String className = getClass().getName();
+    var buff = new StringBuilder();
+    var className = getClass().getName();
     // className.substring(className.lastIndexOf('.', className.lastIndexOf('.') - 1) + 1); //
     // partition.<foo> more generic version
     buff.append(className.substring(

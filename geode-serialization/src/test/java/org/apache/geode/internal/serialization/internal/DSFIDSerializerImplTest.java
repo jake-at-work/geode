@@ -27,9 +27,9 @@ public class DSFIDSerializerImplTest {
 
   @Test
   public void registerFails_forDuplicateFixedIds() {
-    int byteSizeFixedId = 1;
-    int shortSizeFixedId = 1024;
-    DataSerializableFixedID mockFixedId = mock(DataSerializableFixedID.class);
+    var byteSizeFixedId = 1;
+    var shortSizeFixedId = 1024;
+    var mockFixedId = mock(DataSerializableFixedID.class);
     DSFIDSerializer serializer = new DSFIDSerializerImpl();
 
     serializer.register(byteSizeFixedId, mockFixedId.getClass());

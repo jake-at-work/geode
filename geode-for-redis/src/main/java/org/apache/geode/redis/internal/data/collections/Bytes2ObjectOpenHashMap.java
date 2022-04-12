@@ -118,14 +118,14 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   }
 
   private void ensureCapacity(final int capacity) {
-    final int needed = arraySize(capacity, getLoadFactor());
+    final var needed = arraySize(capacity, getLoadFactor());
     if (needed > n) {
       rehash(needed);
     }
   }
 
   private void tryCapacity(final long capacity) {
-    final int needed = (int) Math.min(1 << 30,
+    final var needed = (int) Math.min(1 << 30,
         Math.max(2, HashCommon.nextPowerOfTwo((long) Math.ceil(capacity / getLoadFactor()))));
     if (needed > n) {
       rehash(needed);
@@ -133,7 +133,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   }
 
   private V removeEntry(final int pos) {
-    final V oldValue = value[pos];
+    final var oldValue = value[pos];
     value[pos] = null;
     size--;
     shiftKeys(pos);
@@ -156,7 +156,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
 
   private int find(final byte[] k) {
     byte[] curr;
-    final byte[][] key = this.key;
+    final var key = this.key;
     int pos;
     // The starting point.
     if ((curr =
@@ -187,12 +187,12 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
 
   @Override
   public V put(final byte[] k, final V v) {
-    final int pos = find(k);
+    final var pos = find(k);
     if (pos < 0) {
       insert(-pos - 1, k, v);
       return defRetValue;
     }
-    final V oldValue = value[pos];
+    final var oldValue = value[pos];
     value[pos] = v;
     return oldValue;
   }
@@ -207,7 +207,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
     // Shift entries with the same hash.
     int last, slot;
     byte[] curr;
-    final byte[][] key = this.key;
+    final var key = this.key;
     while (true) {
       pos = (last = pos) + 1 & mask;
       while (true) {
@@ -230,7 +230,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   @Override
   public V remove(final Object k) {
     byte[] curr;
-    final byte[][] key = this.key;
+    final var key = this.key;
     int pos;
     // The starting point.
     if ((curr = key[pos =
@@ -253,7 +253,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   @Override
   public V get(final Object k) {
     byte[] curr;
-    final byte[][] key = this.key;
+    final var key = this.key;
     int pos;
     // The starting point.
     if ((curr = key[pos =
@@ -277,7 +277,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   @Override
   public boolean containsKey(final Object k) {
     byte[] curr;
-    final byte[][] key = this.key;
+    final var key = this.key;
     int pos;
     // The starting point.
     if ((curr = key[pos =
@@ -300,9 +300,9 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
 
   @Override
   public boolean containsValue(final Object v) {
-    final V[] value = this.value;
-    final byte[][] key = this.key;
-    for (int i = n; i-- != 0;) {
+    final var value = this.value;
+    final var key = this.key;
+    for (var i = n; i-- != 0;) {
       if (!(key[i] == null) && java.util.Objects.equals(value[i], v)) {
         return true;
       }
@@ -381,7 +381,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
 
     @Override
     public V setValue(final V v) {
-      final V oldValue = value[index];
+      final var oldValue = value[index];
       value[index] = v;
       return oldValue;
     }
@@ -398,7 +398,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
       if (!(o instanceof Map.Entry)) {
         return false;
       }
-      Map.Entry<byte[], V> e = (Map.Entry<byte[], V>) o;
+      var e = (Map.Entry<byte[], V>) o;
       return strategy().equals(key[index], e.getKey())
           && java.util.Objects.equals(value[index], e.getValue());
     }
@@ -448,13 +448,13 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
         throw new NoSuchElementException();
       }
       c--;
-      final byte[][] key = Bytes2ObjectOpenHashMap.this.key;
+      final var key = Bytes2ObjectOpenHashMap.this.key;
       while (true) {
         if (--pos < 0) {
           // We are just enumerating elements from the wrapped list.
           last = Integer.MIN_VALUE;
-          final byte[] k = wrapped.get(-pos - 1);
-          int p = HashCommon.mix(strategy().hashCode(k)) & mask;
+          final var k = wrapped.get(-pos - 1);
+          var p = HashCommon.mix(strategy().hashCode(k)) & mask;
           while (!strategy().equals(k, key[p])) {
             p = p + 1 & mask;
           }
@@ -467,13 +467,13 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
     }
 
     public void forEachRemaining(final ConsumerType action) {
-      final byte[][] key = Bytes2ObjectOpenHashMap.this.key;
+      final var key = Bytes2ObjectOpenHashMap.this.key;
       while (c != 0) {
         if (--pos < 0) {
           // We are just enumerating elements from the wrapped list.
           last = Integer.MIN_VALUE;
-          final byte[] k = wrapped.get(-pos - 1);
-          int p = HashCommon.mix(strategy().hashCode(k)) & mask;
+          final var k = wrapped.get(-pos - 1);
+          var p = HashCommon.mix(strategy().hashCode(k)) & mask;
           while (!strategy().equals(k, key[p])) {
             p = p + 1 & mask;
           }
@@ -496,7 +496,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
       // Shift entries with the same hash.
       int last, slot;
       byte[] curr;
-      final byte[][] key = Bytes2ObjectOpenHashMap.this.key;
+      final var key = Bytes2ObjectOpenHashMap.this.key;
       while (true) {
         pos = (last = pos) + 1 & mask;
         while (true) {
@@ -542,7 +542,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
     }
 
     public int skip(final int n) {
-      int i = n;
+      var i = n;
       while (i-- != 0 && hasNext()) {
         nextEntry();
       }
@@ -614,7 +614,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
     abstract SplitType makeForSplit(int pos, int max);
 
     public boolean tryAdvance(final ConsumerType action) {
-      final byte[][] key = Bytes2ObjectOpenHashMap.this.key;
+      final var key = Bytes2ObjectOpenHashMap.this.key;
       while (pos < max) {
         if (!(key[pos] == null)) {
           ++c;
@@ -627,7 +627,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
     }
 
     public void forEachRemaining(final ConsumerType action) {
-      final byte[][] key = Bytes2ObjectOpenHashMap.this.key;
+      final var key = Bytes2ObjectOpenHashMap.this.key;
       while (pos < max) {
         if (!(key[pos] == null)) {
           acceptOnIndex(action, pos);
@@ -655,16 +655,16 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
       if (pos >= max - 1) {
         return null;
       }
-      int retLen = max - pos >> 1;
+      var retLen = max - pos >> 1;
       if (retLen <= 1) {
         return null;
       }
-      int myNewPos = pos + retLen;
-      int retPos = pos;
+      var myNewPos = pos + retLen;
+      var retPos = pos;
       // Since null is returned first, and the convention is that the returned split is the prefix
       // of elements,
       // the split will take care of returning null (if needed), and we won't return it anymore.
-      SplitType split = makeForSplit(retPos, myNewPos);
+      var split = makeForSplit(retPos, myNewPos);
       pos = myNewPos;
       hasSplit = true;
       return split;
@@ -678,7 +678,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
         return 0;
       }
       long skipped = 0;
-      final byte[][] key = Bytes2ObjectOpenHashMap.this.key;
+      final var key = Bytes2ObjectOpenHashMap.this.key;
       while (pos < max && n > 0) {
         if (!(key[pos++] == null)) {
           ++skipped;
@@ -746,11 +746,11 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
       if (!(o instanceof Map.Entry)) {
         return false;
       }
-      final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-      final byte[] k = (byte[]) e.getKey();
-      final V v = (V) e.getValue();
+      final var e = (Map.Entry<?, ?>) o;
+      final var k = (byte[]) e.getKey();
+      final var v = (V) e.getValue();
       byte[] curr;
-      final byte[][] key = Bytes2ObjectOpenHashMap.this.key;
+      final var key = Bytes2ObjectOpenHashMap.this.key;
       int pos;
       // The starting point.
       if ((curr =
@@ -778,11 +778,11 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
       if (!(o instanceof Map.Entry)) {
         return false;
       }
-      final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-      final byte[] k = (byte[]) e.getKey();
-      final V v = (V) e.getValue();
+      final var e = (Map.Entry<?, ?>) o;
+      final var k = (byte[]) e.getKey();
+      final var v = (V) e.getValue();
       byte[] curr;
-      final byte[][] key = Bytes2ObjectOpenHashMap.this.key;
+      final var key = Bytes2ObjectOpenHashMap.this.key;
       int pos;
       // The starting point.
       if ((curr =
@@ -823,7 +823,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
     /** {@inheritDoc} */
     @Override
     public void forEach(final Consumer<? super Object2ObjectMap.Entry<byte[], V>> consumer) {
-      for (int pos = n; pos-- != 0;) {
+      for (var pos = n; pos-- != 0;) {
         if (!(key[pos] == null)) {
           consumer.accept(new BasicEntry<>(key[pos], value[pos]));
         }
@@ -833,8 +833,8 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
     /** {@inheritDoc} */
     @Override
     public void fastForEach(final Consumer<? super Object2ObjectMap.Entry<byte[], V>> consumer) {
-      final MyBasicEntry<V> entry = new MyBasicEntry<>();
-      for (int pos = n; pos-- != 0;) {
+      final var entry = new MyBasicEntry<V>();
+      for (var pos = n; pos-- != 0;) {
         if (!(key[pos] == null)) {
           entry.setKeyAndValue(key[pos], value[pos]);
           consumer.accept(entry);
@@ -918,8 +918,8 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
     /** {@inheritDoc} */
     @Override
     public void forEach(final Consumer<? super byte[]> consumer) {
-      for (int pos = n; pos-- != 0;) {
-        final byte[] k = key[pos];
+      for (var pos = n; pos-- != 0;) {
+        final var k = key[pos];
         if (!(k == null)) {
           consumer.accept(k);
         }
@@ -938,7 +938,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
 
     @Override
     public boolean remove(Object k) {
-      final int oldSize = size;
+      final var oldSize = size;
       Bytes2ObjectOpenHashMap.this.remove(k);
       return size != oldSize;
     }
@@ -1026,7 +1026,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
       /** {@inheritDoc} */
       @Override
       public void forEach(final Consumer<? super V> consumer) {
-        for (int pos = n; pos-- != 0;) {
+        for (var pos = n; pos-- != 0;) {
           if (!(key[pos] == null)) {
             consumer.accept(value[pos]);
           }
@@ -1092,7 +1092,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
    * @see #trim()
    */
   public boolean trim(final int n) {
-    final int l = HashCommon.nextPowerOfTwo((int) Math.ceil(n / getLoadFactor()));
+    final var l = HashCommon.nextPowerOfTwo((int) Math.ceil(n / getLoadFactor()));
     if (l >= this.n || size > maxFill(l, getLoadFactor())) {
       return true;
     }
@@ -1117,13 +1117,13 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
    */
   @SuppressWarnings("unchecked")
   protected void rehash(final int newN) {
-    final byte[][] key = this.key;
-    final V[] value = this.value;
-    final int mask = newN - 1; // Note that this is used by the hashing macro
-    final byte[][] newKey = new byte[newN + 1][];
-    final V[] newValue = (V[]) new Object[newN + 1];
+    final var key = this.key;
+    final var value = this.value;
+    final var mask = newN - 1; // Note that this is used by the hashing macro
+    final var newKey = new byte[newN + 1][];
+    final var newValue = (V[]) new Object[newN + 1];
     int i = n, pos;
-    for (int j = size(); j-- != 0;) {
+    for (var j = size(); j-- != 0;) {
       // noinspection StatementWithEmptyBody
       while (key[--i] == null) {
       }
@@ -1179,12 +1179,12 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
    */
   @Override
   public int hashCode() {
-    int h = 0;
+    var h = 0;
     for (int j = size(), i = 0; j-- != 0;) {
       while (key[i] == null) {
         i++;
       }
-      int t = strategy().hashCode(key[i]);
+      var t = strategy().hashCode(key[i]);
       if (this != value[i]) {
         t ^= value[i] == null ? 0 : value[i].hashCode();
       }
@@ -1200,9 +1200,9 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   }
 
   private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
-    final byte[][] key = this.key;
-    final V[] value = this.value;
-    final EntryIterator i = new EntryIterator();
+    final var key = this.key;
+    final var value = this.value;
+    final var i = new EntryIterator();
     s.defaultWriteObject();
     for (int j = size, e; j-- != 0;) {
       e = i.nextEntry();
@@ -1218,8 +1218,8 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
     n = arraySize(size, getLoadFactor());
     maxFill = maxFill(n, getLoadFactor());
     mask = n - 1;
-    final byte[][] key = this.key = new byte[n + 1][];
-    final V[] value = this.value = (V[]) new Object[n + 1];
+    final var key = this.key = new byte[n + 1][];
+    final var value = this.value = (V[]) new Object[n + 1];
     byte[] k;
     V v;
     for (int i = size, pos; i-- != 0;) {
@@ -1237,8 +1237,8 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   //////////////////////////// additional helper methods ///////////////////////////
 
   public void fastForEach(final Consumer<? super Map.Entry<byte[], V>> consumer) {
-    final MyBasicEntry<V> entry = new MyBasicEntry<>();
-    for (int pos = n; pos-- != 0;) {
+    final var entry = new MyBasicEntry<V>();
+    for (var pos = n; pos-- != 0;) {
       if (key[pos] != null) {
         entry.setKeyAndValue(key[pos], value[pos]);
         consumer.accept(entry);
@@ -1247,7 +1247,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   }
 
   public void fastForEachKey(final Consumer<byte[]> consumer) {
-    for (int pos = n; pos-- != 0;) {
+    for (var pos = n; pos-- != 0;) {
       if (key[pos] != null) {
         consumer.accept(key[pos]);
       }
@@ -1255,7 +1255,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   }
 
   public void fastForEachValue(final Consumer<V> consumer) {
-    for (int pos = n; pos-- != 0;) {
+    for (var pos = n; pos-- != 0;) {
       if (value[pos] != null) {
         consumer.accept(value[pos]);
       }
@@ -1263,8 +1263,8 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   }
 
   public boolean fastWhileEach(final Predicate<? super Map.Entry<byte[], V>> predicate) {
-    final MyBasicEntry<V> entry = new MyBasicEntry<>();
-    for (int pos = n; pos-- != 0;) {
+    final var entry = new MyBasicEntry<V>();
+    for (var pos = n; pos-- != 0;) {
       if (key[pos] != null) {
         entry.setKeyAndValue(key[pos], value[pos]);
         if (!predicate.test(entry)) {
@@ -1276,7 +1276,7 @@ public class Bytes2ObjectOpenHashMap<V> extends AbstractObject2ObjectMap<byte[],
   }
 
   public boolean fastWhileEachValue(final Predicate<V> predicate) {
-    for (int pos = n; pos-- != 0;) {
+    for (var pos = n; pos-- != 0;) {
       if (value[pos] != null) {
         if (!predicate.test(value[pos])) {
           return false;

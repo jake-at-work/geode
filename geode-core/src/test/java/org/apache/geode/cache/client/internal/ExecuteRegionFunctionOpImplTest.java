@@ -45,11 +45,11 @@ public class ExecuteRegionFunctionOpImplTest {
 
   @Test
   public void testExecuteRegionFunctionOpImplWithFunction() {
-    ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl op = createOpWithFunctionTwoFilters();
+    var op = createOpWithFunctionTwoFilters();
 
-    int numberOfParts = 10;
+    var numberOfParts = 10;
     assertEquals(numberOfParts, op.getMessage().getNumberOfParts());
-    for (int i = 0; i < numberOfParts; i++) {
+    for (var i = 0; i < numberOfParts; i++) {
       assertNotNull(op.getMessage().getPart(i));
     }
     assertNull(op.getMessage().getPart(numberOfParts));
@@ -57,11 +57,11 @@ public class ExecuteRegionFunctionOpImplTest {
 
   @Test
   public void testExecuteRegionFunctionOpImplWithFunctionIdCalculateFnState() {
-    ExecuteRegionFunctionOpImpl op = createOpWithFunctionIdOneFilter();
+    var op = createOpWithFunctionIdOneFilter();
 
-    int numberOfParts = 9;
+    var numberOfParts = 9;
     assertEquals(numberOfParts, op.getMessage().getNumberOfParts());
-    for (int i = 0; i < numberOfParts; i++) {
+    for (var i = 0; i < numberOfParts; i++) {
       assertNotNull(op.getMessage().getPart(i));
     }
     assertNull(op.getMessage().getPart(numberOfParts));
@@ -69,34 +69,34 @@ public class ExecuteRegionFunctionOpImplTest {
 
   @Test
   public void testExecuteRegionFunctionOpImplWithOpAndIsReexecute() {
-    ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl op = createOpWithFunctionTwoFilters();
+    var op = createOpWithFunctionTwoFilters();
 
     HashSet<String> removedNodes = new HashSet(Arrays.asList("node1", "node2", "node3"));
 
-    ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl newOp =
+    var newOp =
         new ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl(op, (byte) 1, removedNodes);
 
-    int numberOfParts = 13;
+    var numberOfParts = 13;
     assertEquals(numberOfParts, newOp.getMessage().getNumberOfParts());
-    for (int i = 0; i < numberOfParts; i++) {
+    for (var i = 0; i < numberOfParts; i++) {
       assertNotNull(newOp.getMessage().getPart(i));
     }
     assertNull(newOp.getMessage().getPart(numberOfParts));
   }
 
   private ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl createOpWithFunctionTwoFilters() {
-    String region = "testRegion";
-    String functionId = "testFunctionId";
-    Function function = mock(Function.class);
-    ServerRegionFunctionExecutor serverRegionExecutor = mock(ServerRegionFunctionExecutor.class);
+    var region = "testRegion";
+    var functionId = "testFunctionId";
+    var function = mock(Function.class);
+    var serverRegionExecutor = mock(ServerRegionFunctionExecutor.class);
     Set filter = new HashSet(Arrays.asList("one", "two"));
     when(serverRegionExecutor.getFilter()).thenReturn(filter);
-    byte functionState = (byte) 1;
-    byte flags = (byte) 2;
-    ResultCollector resultCollector = mock(ResultCollector.class);
-    int timeoutMs = 100;
+    var functionState = (byte) 1;
+    var flags = (byte) 2;
+    var resultCollector = mock(ResultCollector.class);
+    var timeoutMs = 100;
 
-    ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl op =
+    var op =
         new ExecuteRegionFunctionOp.ExecuteRegionFunctionOpImpl(region, function,
             serverRegionExecutor, resultCollector,
             timeoutMs);
@@ -104,22 +104,22 @@ public class ExecuteRegionFunctionOpImplTest {
   }
 
   private ExecuteRegionFunctionOpImpl createOpWithFunctionIdOneFilter() {
-    String region = "testRegion";
-    String functionId = "testFunctionId";
+    var region = "testRegion";
+    var functionId = "testFunctionId";
     Function function = null;
-    ServerRegionFunctionExecutor serverRegionExecutor = mock(ServerRegionFunctionExecutor.class);
+    var serverRegionExecutor = mock(ServerRegionFunctionExecutor.class);
     Set filter = new HashSet(Arrays.asList("one"));
     when(serverRegionExecutor.getFilter()).thenReturn(filter);
-    byte functionState = (byte) 1;
-    byte flags = (byte) 1;
-    byte hasResult = (byte) 1;
-    boolean isHA = false;
-    ResultCollector resultCollector = mock(ResultCollector.class);
-    int timeoutMs = 100;
-    boolean optimizeForWrite = true;
-    boolean isReexecute = false;
+    var functionState = (byte) 1;
+    var flags = (byte) 1;
+    var hasResult = (byte) 1;
+    var isHA = false;
+    var resultCollector = mock(ResultCollector.class);
+    var timeoutMs = 100;
+    var optimizeForWrite = true;
+    var isReexecute = false;
 
-    ExecuteRegionFunctionOpImpl op = new ExecuteRegionFunctionOpImpl(region, functionId,
+    var op = new ExecuteRegionFunctionOpImpl(region, functionId,
         serverRegionExecutor, resultCollector, hasResult, isHA, optimizeForWrite,
         true, timeoutMs);
     return op;

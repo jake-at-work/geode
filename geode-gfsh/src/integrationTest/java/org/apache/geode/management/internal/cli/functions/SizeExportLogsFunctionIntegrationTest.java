@@ -66,11 +66,11 @@ public class SizeExportLogsFunctionIntegrationTest {
 
   @Before
   public void before() {
-    String name = testName.getMethodName();
+    var name = testName.getMethodName();
     config = new Properties();
     config.setProperty(NAME, name);
 
-    File dir = temporaryFolder.getRoot();
+    var dir = temporaryFolder.getRoot();
     logFile = new File(dir, name + ".log");
     statFile = new File(dir, name + ".gfs");
 
@@ -91,9 +91,9 @@ public class SizeExportLogsFunctionIntegrationTest {
 
     // log and stat files sizes are not constant with a real cache running, so check for the sizer
     // estimate within a range
-    long initialFileSizes = FileUtils.sizeOf(logFile) + FileUtils.sizeOf(statFile);
+    var initialFileSizes = FileUtils.sizeOf(logFile) + FileUtils.sizeOf(statFile);
     new SizeExportLogsFunction().execute(context);
-    long finalFileSizes = FileUtils.sizeOf(logFile) + FileUtils.sizeOf(statFile);
+    var finalFileSizes = FileUtils.sizeOf(logFile) + FileUtils.sizeOf(statFile);
     getAndVerifySizeEstimate(resultSender, initialFileSizes, finalFileSizes);
   }
 
@@ -131,8 +131,8 @@ public class SizeExportLogsFunctionIntegrationTest {
     @SuppressWarnings("unchecked")
     FunctionContext<ExportLogsFunction.Args> context =
         new FunctionContextImpl(server.getCache(), "functionId", nonFilteringArgs, resultSender);
-    SizeExportLogsFunction testFunction = new SizeExportLogsFunction();
-    SizeExportLogsFunction spyFunction = spy(testFunction);
+    var testFunction = new SizeExportLogsFunction();
+    var spyFunction = spy(testFunction);
     long fakeDiskAvailable = 1024;
     doReturn(fakeDiskAvailable).when(spyFunction)
         .getDiskAvailable(any(DistributionConfig.class));
@@ -152,7 +152,7 @@ public class SizeExportLogsFunctionIntegrationTest {
 
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(1);
-    Object result = results.get(0);
+    var result = results.get(0);
     assertThat(result).isNotNull();
     assertThat(result).isInstanceOf(Long.class);
     if (minExpected == maxExpected) {

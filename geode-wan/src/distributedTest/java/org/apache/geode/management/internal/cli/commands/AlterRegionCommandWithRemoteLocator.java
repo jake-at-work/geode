@@ -68,20 +68,20 @@ public class AlterRegionCommandWithRemoteLocator {
   public void before() throws Exception {
     expectedEx =
         IgnoredException.addIgnoredException(DiskAccessException.class.getName());
-    Properties prop = new Properties();
+    var prop = new Properties();
     prop.setProperty("distributed-system-id", "1");
     prop.setProperty("mcast-port", "0");
     locator1 = lsRule.startLocatorVM(0, prop);
-    int port = locator1.getPort();
-    Properties prop2 = new Properties();
+    var port = locator1.getPort();
+    var prop2 = new Properties();
     prop2.setProperty("distributed-system-id", "2");
     prop2.setProperty("mcast-port", "0");
     prop2.setProperty("remote-locators", "localhost[" + port + "]");
     locator2 = lsRule.startLocatorVM(1, prop2);
     gfsh.connectAndVerify(locator2);
     gfsh.execute("configure pdx --auto-serializable-classes=Trade --read-serialized=true");
-    int locator2Port = locator2.getPort();
-    Properties serverProp = new Properties();
+    var locator2Port = locator2.getPort();
+    var serverProp = new Properties();
     serverProp.setProperty("off-heap-memory-size", "5m");
     server1 = lsRule.startServerVM(2, server -> server.withConnectionToLocator(locator2Port)
         .withSystemProperty("gemfire.preAllocateDisk", "false").withProperties(serverProp));

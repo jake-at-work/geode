@@ -31,8 +31,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
@@ -346,9 +344,9 @@ public class PersistentRegionRecoveryDUnitTest extends JUnit4DistributedTestCase
     });
 
     vm0.invoke(() -> {
-      BackupOperation backupOperation =
+      var backupOperation =
           new BackupOperation(cacheRule.getCache().getDistributionManager(), cacheRule.getCache());
-      File dir = new File(temporaryFolder.getRoot(), "BackUpDir");
+      var dir = new File(temporaryFolder.getRoot(), "BackUpDir");
       if (!dir.exists()) {
         dir = temporaryFolder.newFolder("BackUpDir");
       }
@@ -428,7 +426,7 @@ public class PersistentRegionRecoveryDUnitTest extends JUnit4DistributedTestCase
             public void beforeProcessMessage(ClusterDistributionManager dm,
                 DistributionMessage message) {
               if (message instanceof InitialImageOperation.RequestImageMessage) {
-                InitialImageOperation.RequestImageMessage rim =
+                var rim =
                     (InitialImageOperation.RequestImageMessage) message;
                 if (rim.regionPath.contains(regionName)) {
                   getBlackboard().signalGate("GotRegionIIRequest");
@@ -461,7 +459,7 @@ public class PersistentRegionRecoveryDUnitTest extends JUnit4DistributedTestCase
       assertThat(region.get("KEY-1")).isEqualTo(null);
       assertThat(region.get("KEY-2")).isEqualTo("VALUE-4");
 
-      CachePerfStats stats = ((LocalRegion) region).getRegionPerfStats();
+      var stats = ((LocalRegion) region).getRegionPerfStats();
       assertThat(stats.getDeltaGetInitialImagesCompleted()).isEqualTo(0);
       assertThat(stats.getGetInitialImagesCompleted()).isEqualTo(1);
     });
@@ -473,8 +471,8 @@ public class PersistentRegionRecoveryDUnitTest extends JUnit4DistributedTestCase
     vm0.invoke(this::createSyncDiskRegion);
 
     // Add entries
-    int numEntries = 10;
-    int entrySize = 10240;
+    var numEntries = 10;
+    var entrySize = 10240;
     vm0.invoke(() -> putEntries(numEntries, entrySize));
 
     // Close cache
@@ -496,13 +494,13 @@ public class PersistentRegionRecoveryDUnitTest extends JUnit4DistributedTestCase
   }
 
   private void verifyNumOverflowBytesOnDiskSet(int numEntries, int entrySize) {
-    LocalRegion region = (LocalRegion) cacheRule.getCache().getRegion(regionName);
+    var region = (LocalRegion) cacheRule.getCache().getRegion(regionName);
     assertThat(region.getDiskRegion().getStats().getNumOverflowBytesOnDisk())
         .isEqualTo(numEntries * entrySize);
   }
 
   private void flushAsyncDiskRegion() {
-    for (DiskStore store : cacheRule.getCache().listDiskStoresIncludingRegionOwned()) {
+    for (var store : cacheRule.getCache().listDiskStoresIncludingRegionOwned()) {
       ((DiskStoreImpl) store).forceFlush();
     }
   }
@@ -523,12 +521,12 @@ public class PersistentRegionRecoveryDUnitTest extends JUnit4DistributedTestCase
       throws IOException {
     cacheRule.createCache();
 
-    DiskStoreAttributes diskStoreAttributes = new DiskStoreAttributes();
+    var diskStoreAttributes = new DiskStoreAttributes();
     if (delayDiskStoreFlush) {
       diskStoreAttributes.timeInterval = Integer.MAX_VALUE;
     }
 
-    DiskStoreFactory diskStoreFactory =
+    var diskStoreFactory =
         cacheRule.getCache().createDiskStoreFactory(diskStoreAttributes);
     diskStoreFactory.setDiskDirs(
         new File[] {createOrGetDir()});
@@ -543,7 +541,7 @@ public class PersistentRegionRecoveryDUnitTest extends JUnit4DistributedTestCase
   }
 
   private File createOrGetDir() throws IOException {
-    File dir = new File(temporaryFolder.getRoot(), getDiskStoreName());
+    var dir = new File(temporaryFolder.getRoot(), getDiskStoreName());
     if (!dir.exists()) {
       dir = temporaryFolder.newFolder(getDiskStoreName());
     }

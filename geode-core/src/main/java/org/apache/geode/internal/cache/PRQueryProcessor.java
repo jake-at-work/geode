@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -132,9 +131,9 @@ public class PRQueryProcessor {
     }
 
     java.util.List callableTasks = buildCallableTaskList(resultCollector);
-    ExecutorService execService = PRQueryExecutor.getExecutorService();
+    var execService = PRQueryExecutor.getExecutorService();
 
-    boolean reattemptNeeded = false;
+    var reattemptNeeded = false;
     ForceReattemptException fre = null;
 
     if (callableTasks != null && !callableTasks.isEmpty()) {
@@ -142,9 +141,9 @@ public class PRQueryProcessor {
       futures = execService.invokeAll(callableTasks, 300, TimeUnit.SECONDS);
 
       if (futures != null) {
-        Iterator itr = futures.iterator();
+        var itr = futures.iterator();
         while (itr.hasNext() && !execService.isShutdown() && !execService.isTerminated()) {
-          Future fut = (Future) itr.next();
+          var fut = (Future) itr.next();
           QueryTask.BucketQueryResult bqr = null;
 
           try {
@@ -160,7 +159,7 @@ public class PRQueryProcessor {
                     BUCKET_QUERY_TIMEOUT),
                 e);
           } catch (ExecutionException ee) {
-            Throwable cause = ee.getCause();
+            var cause = ee.getCause();
             if (cause instanceof QueryException) {
               throw (QueryException) cause;
             } else {
@@ -171,12 +170,12 @@ public class PRQueryProcessor {
           }
         }
 
-        CompiledSelect cs = query.getSimpleSelect();
+        var cs = query.getSimpleSelect();
 
         if (cs != null && (cs.isOrderBy() || cs.isGroupBy())) {
           ExecutionContext context = new QueryExecutionContext(parameters, pr.getCache());
-          int limit = query.getLimit(parameters);
-          Collection mergedResults = coalesceOrderedResults(resultCollector, context, cs, limit);
+          var limit = query.getLimit(parameters);
+          var mergedResults = coalesceOrderedResults(resultCollector, context, cs, limit);
           resultCollector.clear();
           resultCollector.add(mergedResults);
         }
@@ -197,15 +196,15 @@ public class PRQueryProcessor {
     ExecutionContext context =
         new QueryExecutionContext(parameters, pr.getCache(), query);
 
-    CompiledSelect cs = query.getSimpleSelect();
-    int limit = query.getLimit(parameters);
+    var cs = query.getSimpleSelect();
+    var limit = query.getLimit(parameters);
     if (cs != null && cs.isOrderBy()) {
-      for (Integer bucketID : _bucketsToQuery) {
-        List<Integer> singleBucket = Collections.singletonList(bucketID);
+      for (var bucketID : _bucketsToQuery) {
+        var singleBucket = Collections.singletonList(bucketID);
         context.setBucketList(singleBucket);
         executeQueryOnBuckets(resultCollector, context);
       }
-      Collection mergedResults = coalesceOrderedResults(resultCollector, context, cs, limit);
+      var mergedResults = coalesceOrderedResults(resultCollector, context, cs, limit);
       resultCollector.clear();
       resultCollector.add(mergedResults);
 
@@ -245,7 +244,7 @@ public class PRQueryProcessor {
         queryMonitor.monitorQueryExecution(context);
       }
 
-      Object results = query.executeUsingContext(context);
+      var results = query.executeUsingContext(context);
 
       synchronized (resultCollector) {
         resultType = ((SelectResults) results).getCollectionType().getElementType();
@@ -278,7 +277,7 @@ public class PRQueryProcessor {
 
   private List<QueryTask> buildCallableTaskList(Collection<Collection> resultsColl) {
     List<QueryTask> callableTasks = new ArrayList<>();
-    for (Integer bId : _bucketsToQuery) {
+    for (var bId : _bucketsToQuery) {
       callableTasks.add(new QueryTask(query, parameters, _prds, bId, resultsColl));
     }
     return callableTasks;
@@ -334,7 +333,7 @@ public class PRQueryProcessor {
      */
     static synchronized void initializeExecutorService() {
       if (execService == null || execService.isShutdown() || execService.isTerminated()) {
-        int numThreads = (TEST_NUM_THREADS > 1 ? TEST_NUM_THREADS : NUM_THREADS);
+        var numThreads = (TEST_NUM_THREADS > 1 ? TEST_NUM_THREADS : NUM_THREADS);
         execService = LoggingExecutors.newFixedThreadPool(numThreads, "PRQueryProcessor", true);
       }
     }
@@ -410,9 +409,9 @@ public class PRQueryProcessor {
 
     @Override
     public Object call() throws Exception {
-      BucketQueryResult bukResult = new BucketQueryResult(_bucketId);
+      var bukResult = new BucketQueryResult(_bucketId);
       try {
-        List<Integer> bucketList = Collections.singletonList(_bucketId);
+        var bucketList = Collections.singletonList(_bucketId);
         ExecutionContext context =
             new QueryExecutionContext(parameters, pr.getCache(), query);
         context.setBucketList(bucketList);

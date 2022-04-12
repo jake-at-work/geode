@@ -25,8 +25,8 @@ public class EvictionAttributesImplTest {
 
   @Test
   public void dataSerializes() throws Exception {
-    EvictionAttributesImpl evictionAttributes = new EvictionAttributesImpl();
-    byte[] bytes = BlobHelper.serializeToBlob(evictionAttributes);
+    var evictionAttributes = new EvictionAttributesImpl();
+    var bytes = BlobHelper.serializeToBlob(evictionAttributes);
     assertThat(bytes).isNotNull().isNotEmpty();
     assertThat(BlobHelper.deserializeBlob(bytes)).isNotSameAs(evictionAttributes)
         .isInstanceOf(EvictionAttributesImpl.class);
@@ -34,8 +34,8 @@ public class EvictionAttributesImplTest {
 
   @Test
   public void serializes() throws Exception {
-    EvictionAttributesImpl evictionAttributes = new EvictionAttributesImpl();
-    byte[] bytes = SerializationUtils.serialize(evictionAttributes);
+    var evictionAttributes = new EvictionAttributesImpl();
+    var bytes = SerializationUtils.serialize(evictionAttributes);
     assertThat(bytes).isNotNull().isNotEmpty();
     assertThat((EvictionAttributesImpl) SerializationUtils.deserialize(bytes))
         .isNotSameAs(evictionAttributes)

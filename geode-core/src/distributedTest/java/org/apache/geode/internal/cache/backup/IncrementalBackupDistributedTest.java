@@ -34,7 +34,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -47,13 +46,10 @@ import org.junit.Test;
 
 import org.apache.geode.admin.internal.AdminDistributedSystemImpl;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.persistence.PersistentID;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.MembershipListener;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
@@ -115,7 +111,7 @@ public class IncrementalBackupDistributedTest implements Serializable {
     vm0 = getVM(0);
     vm1 = getVM(1);
 
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
 
     diskStoreName1 = uniqueName + "_diskStore-1";
     diskStoreName2 = uniqueName + "_diskStore-2";
@@ -127,7 +123,7 @@ public class IncrementalBackupDistributedTest implements Serializable {
 
     userDirInVM0 = temporaryFolder.newFolder("vm0");
     userDirInVM1 = temporaryFolder.newFolder("vm1");
-    File userDirInController = temporaryFolder.newFolder("controller");
+    var userDirInController = temporaryFolder.newFolder("controller");
 
     vm0.invoke(() -> createCache(diskDirRule.getDiskDirFor(vm0), userDirInVM0));
     vm1.invoke(() -> createCache(diskDirRule.getDiskDirFor(vm1), userDirInVM1));
@@ -138,7 +134,7 @@ public class IncrementalBackupDistributedTest implements Serializable {
 
   @After
   public void tearDown() throws Exception {
-    for (VM vm : toArray(vm0, vm1, getController())) {
+    for (var vm : toArray(vm0, vm1, getController())) {
       vm.invoke(() -> {
         backupMembershipListener = null;
       });
@@ -160,7 +156,7 @@ public class IncrementalBackupDistributedTest implements Serializable {
     vm1.invoke(this::installNewBackupMembershipListener);
 
     // Simulate the missing member by forcing a persistent member to go offline.
-    PersistentID missingMember = vm0.invoke(() -> getPersistentID(diskStoreName1));
+    var missingMember = vm0.invoke(() -> getPersistentID(diskStoreName1));
 
     vm0.invoke(() -> getCache().close());
 
@@ -174,14 +170,14 @@ public class IncrementalBackupDistributedTest implements Serializable {
     // Perform performBackupBaseline and make sure that list of offline disk stores contains our
     // missing member.
     vm1.invoke(() -> {
-      BackupStatus baselineStatus = performBackup(getBaselineDir().getAbsolutePath());
+      var baselineStatus = performBackup(getBaselineDir().getAbsolutePath());
       validateBackupStatus(baselineStatus);
       assertThat(baselineStatus.getOfflineDiskStores()).hasSize(2);
     });
 
     // Find all of the member's oplogs in the missing member's diskstore directory structure
     // (*.crf,*.krf,*.drf)
-    Collection<File> missingMemberOplogFiles =
+    var missingMemberOplogFiles =
         listFiles(new File(missingMember.getDirectory()), OPLOG_FILTER, DIRECTORY);
     assertThat(missingMemberOplogFiles).isNotEmpty();
 
@@ -195,19 +191,19 @@ public class IncrementalBackupDistributedTest implements Serializable {
 
     // Perform performBackupIncremental and make sure we have no offline disk stores.
     vm1.invoke(() -> {
-      BackupStatus incrementalStatus =
+      var incrementalStatus =
           performBackup(getIncrementalDir().getAbsolutePath(), getBaselineBackupPath());
       validateBackupStatus(incrementalStatus);
       assertThat(incrementalStatus.getOfflineDiskStores()).isNotNull().isEmpty();
     });
 
     // Get the missing member's member id which is different from the PersistentID
-    String memberId = vm0.invoke(this::getModifiedMemberId);
+    var memberId = vm0.invoke(this::getModifiedMemberId);
 
     // Get list of backed up oplog files in the performBackupIncremental backup for the missing
     // member
-    File incrementalMemberDir = getBackupDirForMember(getIncrementalDir(), memberId);
-    Collection<File> backupOplogFiles = listFiles(incrementalMemberDir, OPLOG_FILTER, DIRECTORY);
+    var incrementalMemberDir = getBackupDirForMember(getIncrementalDir(), memberId);
+    var backupOplogFiles = listFiles(incrementalMemberDir, OPLOG_FILTER, DIRECTORY);
     assertThat(backupOplogFiles).isNotEmpty();
 
     // Transform missing member oplogs to just their file names.
@@ -224,7 +220,7 @@ public class IncrementalBackupDistributedTest implements Serializable {
   }
 
   private void createCache(final File diskDir, final File userDir) {
-    CacheFactory cacheFactory = new CacheFactory(getDistributedSystemProperties())
+    var cacheFactory = new CacheFactory(getDistributedSystemProperties())
         .set(DEPLOY_WORKING_DIR, userDir.getAbsolutePath());
 
     cacheRule.getOrCreateCache(cacheFactory);
@@ -237,14 +233,14 @@ public class IncrementalBackupDistributedTest implements Serializable {
   }
 
   private void createDiskStore(final String diskStoreName, final File diskDir) {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(new File[] {diskDir});
     diskStoreFactory.create(diskStoreName);
   }
 
   private void createRegion(final String regionName, final String diskStoreName) {
-    PartitionAttributesFactory<Integer, String> partitionAttributesFactory =
-        new PartitionAttributesFactory<>();
+    var partitionAttributesFactory =
+        new PartitionAttributesFactory<Integer, String>();
     partitionAttributesFactory.setTotalNumBuckets(5);
 
     RegionFactory<Integer, String> regionFactory =
@@ -286,7 +282,7 @@ public class IncrementalBackupDistributedTest implements Serializable {
   }
 
   private PersistentID getPersistentID(final String diskStoreName) {
-    for (DiskStore diskStore : getCache().listDiskStores()) {
+    for (var diskStore : getCache().listDiskStores()) {
       if (diskStore.getName().equals(diskStoreName)) {
         return ((DiskStoreImpl) diskStore).getPersistentID();
       }
@@ -295,16 +291,16 @@ public class IncrementalBackupDistributedTest implements Serializable {
   }
 
   private String getBaselineBackupPath() {
-    File[] dirs = getBaselineDir().listFiles((FileFilter) DIRECTORY);
+    var dirs = getBaselineDir().listFiles((FileFilter) DIRECTORY);
     assertThat(dirs).hasSize(1);
     return dirs[0].getAbsolutePath();
   }
 
   private File getBackupDirForMember(final File rootDir, final CharSequence memberId) {
-    File[] dateDirs = rootDir.listFiles((FileFilter) DIRECTORY);
+    var dateDirs = rootDir.listFiles((FileFilter) DIRECTORY);
     assertThat(dateDirs).hasSize(1);
 
-    File[] memberDirs =
+    var memberDirs =
         dateDirs[0].listFiles(file -> file.isDirectory() && file.getName().contains(memberId));
     assertThat(memberDirs).hasSize(1);
 
@@ -315,14 +311,14 @@ public class IncrementalBackupDistributedTest implements Serializable {
     Region<Integer, String> region = getCache().getRegion(regionName1);
 
     // Fill our region data
-    for (int i = dataStart; i < dataEnd; ++i) {
+    for (var i = dataStart; i < dataEnd; ++i) {
       region.put(i, Integer.toString(i));
     }
 
     Region<Integer, String> barRegion = getCache().getRegion(regionName2);
 
     // Fill our region data
-    for (int i = dataStart; i < dataEnd; ++i) {
+    for (var i = dataStart; i < dataEnd; ++i) {
       barRegion.put(i, Integer.toString(i));
     }
 
@@ -331,12 +327,12 @@ public class IncrementalBackupDistributedTest implements Serializable {
   }
 
   private void validateBackupStatus(final BackupStatus backupStatus) {
-    Map<DistributedMember, Set<PersistentID>> backupMap = backupStatus.getBackedUpDiskStores();
+    var backupMap = backupStatus.getBackedUpDiskStores();
     assertThat(backupMap).isNotEmpty();
 
-    for (DistributedMember member : backupMap.keySet()) {
+    for (var member : backupMap.keySet()) {
       assertThat(backupMap.get(member)).isNotEmpty();
-      for (PersistentID id : backupMap.get(member)) {
+      for (var id : backupMap.get(member)) {
         assertThat(id.getHost()).isNotNull();
         assertThat(id.getUUID()).isNotNull();
         assertThat(id.getDirectory()).isNotNull();

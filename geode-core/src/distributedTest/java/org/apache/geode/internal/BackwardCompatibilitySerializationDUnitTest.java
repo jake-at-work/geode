@@ -26,7 +26,6 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import org.junit.BeforeClass;
@@ -119,7 +118,7 @@ public class BackwardCompatibilitySerializationDUnitTest extends JUnit4CacheTest
 
     DataInputStream dis =
         new VersionedDataInputStream(new DataInputStream(bais), KnownVersion.GEODE_1_5_0);
-    Object o = InternalDataSerializer.basicReadObject(dis);
+    var o = InternalDataSerializer.basicReadObject(dis);
     assertTrue(o instanceof TestMessage);
     assertTrue(fromDataCalled);
   }
@@ -134,7 +133,7 @@ public class BackwardCompatibilitySerializationDUnitTest extends JUnit4CacheTest
 
     DataInputStream dis =
         new VersionedDataInputStream(new DataInputStream(bais), KnownVersion.OLDEST);
-    Object o = InternalDataSerializer.basicReadObject(dis);
+    var o = InternalDataSerializer.basicReadObject(dis);
     assertTrue(o instanceof TestMessage);
     assertTrue(fromDataPre11Called);
   }
@@ -148,7 +147,7 @@ public class BackwardCompatibilitySerializationDUnitTest extends JUnit4CacheTest
   public void testAllMessages() throws Exception {
     // list of msgs not created using reflection
     // taken from DSFIDFactory.create()
-    ArrayList<Integer> constdsfids = new ArrayList<>();
+    var constdsfids = new ArrayList<Integer>();
     constdsfids.add(new Byte(DataSerializableFixedID.REGION).intValue());
     constdsfids.add(new Byte(DataSerializableFixedID.END_OF_STREAM_TOKEN).intValue());
     constdsfids.add(new Byte(DataSerializableFixedID.DLOCK_REMOTE_TOKEN).intValue());
@@ -164,12 +163,12 @@ public class BackwardCompatibilitySerializationDUnitTest extends JUnit4CacheTest
     constdsfids.add(new Short(DataSerializableFixedID.TOKEN_REMOVED2).intValue());
     constdsfids.add(new Short(DataSerializableFixedID.TOKEN_TOMBSTONE).intValue());
 
-    for (int i = 0; i < 256; i++) {
-      Constructor<?> cons =
+    for (var i = 0; i < 256; i++) {
+      var cons =
           ((DSFIDSerializerImpl) InternalDataSerializer.getDSFIDSerializer())
               .getDsfidmap()[i];
       if (!constdsfids.contains(i - Byte.MAX_VALUE - 1) && cons != null) {
-        Object ds = cons.newInstance((Object[]) null);
+        var ds = cons.newInstance((Object[]) null);
         checkSupportForRollingUpgrade(ds);
       }
     }
@@ -179,9 +178,9 @@ public class BackwardCompatibilitySerializationDUnitTest extends JUnit4CacheTest
     for (Object o : ((DSFIDSerializerImpl) InternalDataSerializer
         .getDSFIDSerializer())
             .getDsfidmap2().values()) {
-      Constructor<?> cons = (Constructor<?>) o;
+      var cons = (Constructor<?>) o;
       if (cons != null) {
-        DataSerializableFixedID ds = (DataSerializableFixedID) cons.newInstance((Object[]) null);
+        var ds = (DataSerializableFixedID) cons.newInstance((Object[]) null);
         checkSupportForRollingUpgrade(ds);
       }
     }
@@ -194,7 +193,7 @@ public class BackwardCompatibilitySerializationDUnitTest extends JUnit4CacheTest
       versions = ((SerializationVersions) ds).getSerializationVersions();
     }
     if (versions != null && versions.length > 0) {
-      for (final KnownVersion version : versions) {
+      for (final var version : versions) {
         if (ds instanceof DataSerializableFixedID) {
           try {
             ds.getClass().getMethod("toDataPre_" + version.getMethodSuffix(),
@@ -221,7 +220,7 @@ public class BackwardCompatibilitySerializationDUnitTest extends JUnit4CacheTest
         }
       }
     } else {
-      for (Method method : ds.getClass().getMethods()) {
+      for (var method : ds.getClass().getMethods()) {
         if (method.getName().startsWith("toDataPre")) {
           fail(
               "Found backwards compatible toData, but class does not implement getSerializationVersions()"

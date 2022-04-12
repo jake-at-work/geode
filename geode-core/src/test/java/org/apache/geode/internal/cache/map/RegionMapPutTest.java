@@ -76,7 +76,7 @@ public class RegionMapPutTest {
 
   @Before
   public void setup() {
-    RegionEntryFactory regionEntryFactory = mock(RegionEntryFactory.class);
+    var regionEntryFactory = mock(RegionEntryFactory.class);
     when(regionEntryFactory.createEntry(any(), any(), any())).thenReturn(createdRegionEntry);
     when(internalRegion.getScope()).thenReturn(Scope.LOCAL);
     when(internalRegion.isInitialized()).thenReturn(true);
@@ -111,7 +111,7 @@ public class RegionMapPutTest {
     givenPutDoesNotNeedToDoCacheWrite();
     requireOldValue = false;
 
-    Object oldValue = new Object();
+    var oldValue = new Object();
     when(existingRegionEntry.getValue()).thenReturn(oldValue);
 
     doPut();
@@ -124,7 +124,7 @@ public class RegionMapPutTest {
   public void setsEventOldValueToExistingRegionEntryValue_ifOldValueIsGatewaySenderEvent() {
     givenExistingRegionEntry();
 
-    GatewaySenderEventImpl oldValue = new GatewaySenderEventImpl();
+    var oldValue = new GatewaySenderEventImpl();
     when(existingRegionEntry.getValue()).thenReturn(oldValue);
 
     doPut();
@@ -135,7 +135,7 @@ public class RegionMapPutTest {
 
   @Test
   public void doesNotSetEventOldValueIfRetriedPutIfAbsentOperation() {
-    final byte[] bytes = new byte[] {1, 2, 3, 4, 5};
+    final var bytes = new byte[] {1, 2, 3, 4, 5};
     givenExistingRegionEntry();
     when(existingRegionEntry.getValue()).thenReturn(bytes);
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
@@ -147,7 +147,7 @@ public class RegionMapPutTest {
 
   @Test
   public void overWritePutIfAbsentIsTrueIfRetriedPutIfAbsentOperationHavingValidVersionTag() {
-    final byte[] bytes = new byte[] {1, 2, 3, 4, 5};
+    final var bytes = new byte[] {1, 2, 3, 4, 5};
     givenExistingRegionEntry();
     when(existingRegionEntry.getValue()).thenReturn(bytes);
     when(internalRegion.getConcurrencyChecksEnabled()).thenReturn(true);
@@ -174,7 +174,7 @@ public class RegionMapPutTest {
     givenExistingRegionEntry();
     givenAnOperationThatGuaranteesOldValue();
 
-    Object oldValue = new Object();
+    var oldValue = new Object();
     when(existingRegionEntry.getValueOffHeapOrDiskWithoutFaultIn(same(internalRegion)))
         .thenReturn(oldValue);
 
@@ -189,7 +189,7 @@ public class RegionMapPutTest {
       throws RegionClearedException {
     givenThatRunWhileEvictionDisabledCallsItsRunnable();
     givenExistingRegionEntry();
-    Object oldValue = new Object();
+    var oldValue = new Object();
     when(existingRegionEntry.getValue(any())).thenReturn(oldValue);
     when(event.getDeltaBytes()).thenReturn(new byte[1]);
 
@@ -204,7 +204,7 @@ public class RegionMapPutTest {
       throws RegionClearedException {
     givenThatRunWhileEvictionDisabledCallsItsRunnable();
     givenExistingRegionEntry();
-    Object oldValue = new Object();
+    var oldValue = new Object();
     when(existingRegionEntry.getValue(any())).thenReturn(oldValue);
     when(event.getDeltaBytes()).thenReturn(null);
 
@@ -220,7 +220,7 @@ public class RegionMapPutTest {
     givenExistingRegionEntry();
     givenAnOperationThatDoesNotGuaranteeOldValue();
 
-    Object oldValue = new Object();
+    var oldValue = new Object();
     when(existingRegionEntry.getValueRetain(same(internalRegion), eq(true))).thenReturn(oldValue);
 
     doPut();
@@ -235,7 +235,7 @@ public class RegionMapPutTest {
     givenAnOperationThatDoesNotGuaranteeOldValue();
     givenPutNeedsToDoCacheWrite();
 
-    Object oldValue = new Object();
+    var oldValue = new Object();
     when(existingRegionEntry.getValueRetain(same(internalRegion), eq(true))).thenReturn(oldValue);
 
     doPut();
@@ -378,7 +378,7 @@ public class RegionMapPutTest {
     expectedOldValue = "expectedOldValue";
     when(event.getRawOldValue()).thenReturn("unexpectedValue");
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
   }
@@ -389,7 +389,7 @@ public class RegionMapPutTest {
     expectedOldValue = "expectedOldValue";
     when(event.getRawOldValue()).thenReturn(expectedOldValue);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(createdRegionEntry);
   }
@@ -401,7 +401,7 @@ public class RegionMapPutTest {
     when(event.getRawOldValue()).thenReturn("unexpectedValue");
     givenReplaceOnClient();
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(createdRegionEntry);
   }
@@ -410,7 +410,7 @@ public class RegionMapPutTest {
   public void cacheWriteBeforePutCalledWithCacheWriter_givenACacheWriter() {
     givenPutNeedsToDoCacheWrite();
     when(internalRegion.isInitialized()).thenReturn(true);
-    CacheWriter cacheWriter = mock(CacheWriter.class);
+    var cacheWriter = mock(CacheWriter.class);
     when(internalRegion.basicGetWriter()).thenReturn(cacheWriter);
 
     doPut();
@@ -424,7 +424,7 @@ public class RegionMapPutTest {
     givenPutNeedsToDoCacheWrite();
     when(internalRegion.isInitialized()).thenReturn(true);
     when(internalRegion.basicGetWriter()).thenReturn(null);
-    Set netWriteRecipients = mock(Set.class);
+    var netWriteRecipients = mock(Set.class);
     when(internalRegion.adviseNetWrite()).thenReturn(netWriteRecipients);
 
     doPut();
@@ -483,7 +483,7 @@ public class RegionMapPutTest {
     givenExistingRegionEntry();
     when(existingRegionEntry.isTombstone()).thenReturn(true);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
   }
@@ -494,7 +494,7 @@ public class RegionMapPutTest {
     givenExistingRegionEntry();
     when(existingRegionEntry.isTombstone()).thenReturn(false);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(existingRegionEntry);
   }
@@ -506,7 +506,7 @@ public class RegionMapPutTest {
     when(existingRegionEntry.isRemoved()).thenReturn(true);
     givenReplaceOnPeer();
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
   }
@@ -518,7 +518,7 @@ public class RegionMapPutTest {
     when(existingRegionEntry.isRemoved()).thenReturn(true);
     givenReplaceOnClient();
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(existingRegionEntry);
   }
@@ -531,7 +531,7 @@ public class RegionMapPutTest {
     when(existingRegionEntry.isTombstone()).thenReturn(true);
     when(event.getVersionTag()).thenReturn(null);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(existingRegionEntry);
   }
@@ -546,7 +546,7 @@ public class RegionMapPutTest {
     when(existingRegionEntry.getVersionStamp()).thenReturn(mock(VersionStamp.class));
     when(event.getVersionTag()).thenReturn(mock(VersionTag.class));
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
     verify(existingRegionEntry, times(1)).setValue(internalRegion, Token.TOMBSTONE);
@@ -559,7 +559,7 @@ public class RegionMapPutTest {
     when(internalRegion.isInitialized()).thenReturn(false);
     when(createdRegionEntry.getValueAsToken()).thenReturn(Token.DESTROYED);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
     verify(event, times(1)).setOldValueDestroyedToken();
@@ -571,7 +571,7 @@ public class RegionMapPutTest {
     when(internalRegion.isInitialized()).thenReturn(false);
     when(createdRegionEntry.getValueAsToken()).thenReturn(Token.TOMBSTONE);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
     verify(event, times(1)).setOldValueDestroyedToken();
@@ -583,7 +583,7 @@ public class RegionMapPutTest {
     when(internalRegion.isInitialized()).thenReturn(false);
     when(createdRegionEntry.getValueAsToken()).thenReturn(Token.DESTROYED);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(createdRegionEntry);
     verify(event, never()).setOldValueDestroyedToken();
@@ -601,7 +601,7 @@ public class RegionMapPutTest {
     doThrow(RegionClearedException.class).when(existingRegionEntry).setValue(internalRegion,
         Token.TOMBSTONE);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
     verify(existingRegionEntry, times(1)).setValue(internalRegion, Token.TOMBSTONE);
@@ -798,7 +798,7 @@ public class RegionMapPutTest {
   @Test
   public void lruEnryUpdateCalled_ifUpdateDoneWithoutAClear() throws Exception {
     ifOld = true;
-    RegionEntry existingRegionEntry = mock(RegionEntry.class);
+    var existingRegionEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(event)).thenReturn(existingRegionEntry);
 
     doPut();
@@ -809,7 +809,7 @@ public class RegionMapPutTest {
   @Test
   public void lruEnryUpdateNotCalled_ifUpdateDoneWithAClear() throws Exception {
     ifOld = true;
-    RegionEntry existingRegionEntry = mock(RegionEntry.class);
+    var existingRegionEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(event)).thenReturn(existingRegionEntry);
     doThrow(RegionClearedException.class).when(event).putExistingEntry(any(), any(), anyBoolean(),
         any());
@@ -836,7 +836,7 @@ public class RegionMapPutTest {
     ifNew = true;
     when(event.getOperation()).thenReturn(Operation.CREATE);
     doThrow(ConcurrentCacheModificationException.class).when(event).putNewEntry(any(), any());
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.isTimeStampUpdated()).thenReturn(true);
     when(event.getVersionTag()).thenReturn(versionTag);
 
@@ -862,7 +862,7 @@ public class RegionMapPutTest {
     ifNew = true;
     when(event.getOperation()).thenReturn(Operation.CREATE);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(createdRegionEntry);
     verify(event, times(1)).putNewEntry(internalRegion, createdRegionEntry);
@@ -898,7 +898,7 @@ public class RegionMapPutTest {
     ifOld = false;
     when(event.getOperation()).thenReturn(Operation.CREATE);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(createdRegionEntry);
     verify(event, times(1)).putNewEntry(internalRegion, createdRegionEntry);
@@ -912,7 +912,7 @@ public class RegionMapPutTest {
   public void updateOnEmptyMapReturnsNull() throws Exception {
     ifOld = true;
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
     verify(event, never()).putNewEntry(any(), any());
@@ -929,7 +929,7 @@ public class RegionMapPutTest {
     when(focusedRegionMap.getEntry(event)).thenReturn(mock(RegionEntry.class));
     when(event.getOperation()).thenReturn(Operation.CREATE);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
     verify(event, never()).putNewEntry(any(), any());
@@ -948,7 +948,7 @@ public class RegionMapPutTest {
         .thenReturn(mock(RegionEntry.class));
     when(event.getOperation()).thenReturn(Operation.CREATE);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isNull();
     verify(event, never()).putNewEntry(any(), any());
@@ -962,13 +962,13 @@ public class RegionMapPutTest {
   @Test
   public void createOnExistingEntryWithRemovePhase2DoesCreate() throws RegionClearedException {
     ifNew = true;
-    RegionEntry existingRegionEntry = mock(RegionEntry.class);
+    var existingRegionEntry = mock(RegionEntry.class);
     when(existingRegionEntry.isRemovedPhase2()).thenReturn(true);
     when(focusedRegionMap.putEntryIfAbsent(event.getKey(), createdRegionEntry))
         .thenReturn(existingRegionEntry).thenReturn(null);
     when(event.getOperation()).thenReturn(Operation.CREATE);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(createdRegionEntry);
     verify(event, times(1)).putNewEntry(internalRegion, createdRegionEntry);
@@ -982,11 +982,11 @@ public class RegionMapPutTest {
   public void updateOnExistingEntryDoesUpdate() throws Exception {
     ifOld = true;
     Object updateValue = "update";
-    RegionEntry existingRegionEntry = mock(RegionEntry.class);
+    var existingRegionEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(event)).thenReturn(existingRegionEntry);
     when(event.getNewValue()).thenReturn(updateValue);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(existingRegionEntry);
     verify(event, times(1)).putExistingEntry(eq(internalRegion), eq(existingRegionEntry),
@@ -1002,11 +1002,11 @@ public class RegionMapPutTest {
     ifOld = false;
     ifNew = false;
     Object updateValue = "update";
-    RegionEntry existingRegionEntry = mock(RegionEntry.class);
+    var existingRegionEntry = mock(RegionEntry.class);
     when(focusedRegionMap.getEntry(event)).thenReturn(existingRegionEntry);
     when(event.getNewValue()).thenReturn(updateValue);
 
-    RegionEntry result = doPut();
+    var result = doPut();
 
     assertThat(result).isSameAs(existingRegionEntry);
     verify(event, times(1)).putExistingEntry(eq(internalRegion), eq(existingRegionEntry),
@@ -1020,10 +1020,10 @@ public class RegionMapPutTest {
   @Test
   public void runWileLockedForCacheModificationDoesNotLockGIIClearLockWhenRegionIsInitialized()
       throws Exception {
-    DistributedRegion region = mock(DistributedRegion.class);
+    var region = mock(DistributedRegion.class);
     when(region.isInitialized()).thenReturn(true);
     when(region.lockWhenRegionIsInitializing()).thenCallRealMethod();
-    RegionMapPut regionMapPut = new RegionMapPut(focusedRegionMap, region, cacheModificationLock,
+    var regionMapPut = new RegionMapPut(focusedRegionMap, region, cacheModificationLock,
         entryEventSerialization, event, ifNew, ifOld, overwriteDestroyed, requireOldValue,
         expectedOldValue);
 
@@ -1037,10 +1037,10 @@ public class RegionMapPutTest {
 
   @Test
   public void runWileLockedForCacheModificationLockGIIClearLockWhenRegionIsInitializing() {
-    DistributedRegion region = mock(DistributedRegion.class);
+    var region = mock(DistributedRegion.class);
     when(region.isInitialized()).thenReturn(false);
     when(region.lockWhenRegionIsInitializing()).thenCallRealMethod();
-    RegionMapPut regionMapPut = new RegionMapPut(focusedRegionMap, region, cacheModificationLock,
+    var regionMapPut = new RegionMapPut(focusedRegionMap, region, cacheModificationLock,
         entryEventSerialization, event, ifNew, ifOld, overwriteDestroyed, requireOldValue,
         expectedOldValue);
 

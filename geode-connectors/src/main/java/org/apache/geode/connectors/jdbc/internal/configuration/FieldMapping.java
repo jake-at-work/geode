@@ -81,8 +81,8 @@ public class FieldMapping implements Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((jdbcName == null) ? 0 : jdbcName.hashCode());
     result = prime * result + (jdbcNullable ? 1231 : 1237);
     result = prime * result + ((jdbcType == null) ? 0 : jdbcType.hashCode());
@@ -102,7 +102,7 @@ public class FieldMapping implements Serializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FieldMapping other = (FieldMapping) obj;
+    var other = (FieldMapping) obj;
     if (jdbcName == null) {
       if (other.jdbcName != null) {
         return false;

@@ -104,7 +104,7 @@ public class PositionPdx implements Serializable, PdxSerializable, Comparable {
 
   public Set getSet(int size) {
     Set set = new HashSet();
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       set.add("" + i);
     }
     return set;
@@ -112,7 +112,7 @@ public class PositionPdx implements Serializable, PdxSerializable, Comparable {
 
   public Set getCol() {
     Set set = new HashSet();
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       set.add("" + i);
     }
     return set;

@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 
 public class AsyncInvokeRunnableExampleTest {
@@ -33,7 +32,7 @@ public class AsyncInvokeRunnableExampleTest {
 
   @Test
   public void invokeAsyncHelloWorldInEachVM() {
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       vm.invokeAsync(() -> System.out.println(vm + " says Hello World!"));
     }
   }
@@ -41,12 +40,12 @@ public class AsyncInvokeRunnableExampleTest {
   @Test
   public void invokeAsyncHelloWorldInEachVMWithAwait() throws Exception {
     List<AsyncInvocation> invocations = new ArrayList<>();
-    for (VM vm : getAllVMs()) {
+    for (var vm : getAllVMs()) {
       AsyncInvocation invocation =
           vm.invokeAsync(() -> System.out.println(vm + " says Hello World!"));
       invocations.add(invocation);
     }
-    for (AsyncInvocation invocation : invocations) {
+    for (var invocation : invocations) {
       invocation.await();
     }
   }

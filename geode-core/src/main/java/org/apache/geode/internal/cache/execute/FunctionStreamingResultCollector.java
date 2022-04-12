@@ -191,7 +191,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
       } catch (CacheClosedException e) {
         if (!(execution instanceof DistributedRegionFunctionExecutor
             || execution instanceof MultiRegionFunctionExecutor) || !fn.isHA()) {
-          FunctionInvocationTargetException fite =
+          var fite =
               new FunctionInvocationTargetException(e.getMessage());
           throw new FunctionException(fite);
         } else if (execution.isClientServerMode()) {
@@ -217,7 +217,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
       catch (ForceReattemptException e) {
         if (!(execution instanceof DistributedRegionFunctionExecutor
             || execution instanceof MultiRegionFunctionExecutor) || !fn.isHA()) {
-          FunctionInvocationTargetException fite =
+          var fite =
               new FunctionInvocationTargetException(e.getMessage());
           throw new FunctionException(fite);
         } else if (execution.isClientServerMode()) {
@@ -254,7 +254,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
 
   public Object getResultInternal(long timeout, TimeUnit unit)
       throws FunctionException, InterruptedException {
-    long timeoutInMillis = unit.toMillis(timeout);
+    var timeoutInMillis = unit.toMillis(timeout);
     if (resultCollected) {
       throw new FunctionException(
           "Function results already collected");
@@ -264,7 +264,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
     // Should convert it from unit to milliseconds
     if (userRC != null) {
       try {
-        long timeBefore = System.currentTimeMillis();
+        var timeBefore = System.currentTimeMillis();
         boolean isNotTimedOut;
         if (execution instanceof DistributedRegionFunctionExecutor
             || execution instanceof MultiRegionFunctionExecutor) {
@@ -276,7 +276,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
           throw new FunctionException(
               "All results not received in time provided");
         }
-        long timeAfter = System.currentTimeMillis();
+        var timeAfter = System.currentTimeMillis();
         timeoutInMillis = timeoutInMillis - (timeAfter - timeBefore);
         if (timeoutInMillis < 0) {
           timeoutInMillis = 0;
@@ -324,7 +324,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
       } catch (CacheClosedException e) {
         if (!(execution instanceof DistributedRegionFunctionExecutor
             || execution instanceof MultiRegionFunctionExecutor) || !fn.isHA()) {
-          FunctionInvocationTargetException fite =
+          var fite =
               new FunctionInvocationTargetException(e.getMessage());
           throw new FunctionException(fite);
         } else if (execution.isClientServerMode()) {
@@ -351,7 +351,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
       catch (ForceReattemptException e) {
         if (!(execution instanceof DistributedRegionFunctionExecutor
             || execution instanceof MultiRegionFunctionExecutor) || !fn.isHA()) {
-          FunctionInvocationTargetException fite =
+          var fite =
               new FunctionInvocationTargetException(e.getMessage());
           throw new FunctionException(fite);
         } else if (execution.isClientServerMode()) {
@@ -383,7 +383,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
   @Override
   protected void postFinish() {
     if (execution.getWaitOnExceptionFlag() && fites.size() > 0) {
-      for (FunctionInvocationTargetException fite : fites) {
+      for (var fite : fites) {
         functionResultWaiter.processData(fite, true,
             fite.getMemberId());
       }
@@ -448,7 +448,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
   public boolean waitForCacheOrFunctionException(long timeout)
       throws CacheException, ForceReattemptException {
 
-    boolean timedOut = false;
+    var timedOut = false;
     try {
       if (timeout == 0) {
         waitForRepliesUninterruptibly();
@@ -458,7 +458,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
       }
     } catch (ReplyException e) {
       removeMember(e.getSender(), true);
-      Throwable t = e.getCause();
+      var t = e.getCause();
       if (t instanceof CacheException) {
         throw (CacheException) t;
       } else if (t instanceof RegionDestroyedException) {
@@ -471,7 +471,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
       }
       if (t instanceof CancelException) {
         execution.failedNodes.add(e.getSender().getId());
-        String msg =
+        var msg =
             "PartitionResponse got remote CacheClosedException, throwing PartitionedRegionCommunicationException";
         logger.debug("{}, throwing ForceReattemptException", msg, t);
         throw (CancelException) t;
@@ -507,11 +507,11 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
     }
     msgsBeingProcessed.incrementAndGet();
     try {
-      ReplyMessage m = (ReplyMessage) msg;
+      var m = (ReplyMessage) msg;
       if (m.getException() == null) {
-        FunctionStreamingReplyMessage functionReplyMsg = (FunctionStreamingReplyMessage) m;
-        Object result = functionReplyMsg.getResult();
-        boolean isLast = false;
+        var functionReplyMsg = (FunctionStreamingReplyMessage) m;
+        var result = functionReplyMsg.getResult();
+        var isLast = false;
         synchronized (processSingleResult) {
           isLast = trackMessage(functionReplyMsg);
           functionResultWaiter.processData(result, isLast, msg.getSender());
@@ -572,7 +572,7 @@ public class FunctionStreamingResultCollector extends ReplyProcessor21
       // Create the exception here, so that the call stack reflects the
       // failed computation. If you set the exception in onShutdown,
       // the resulting stack is not of interest.
-      ReplyException re = new ReplyException(new DistributedSystemDisconnectedException(
+      var re = new ReplyException(new DistributedSystemDisconnectedException(
           "aborted due to shutdown"));
       exception = re;
       return false;

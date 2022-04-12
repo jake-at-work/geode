@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -40,14 +39,14 @@ public class AttributesFactoryJUnitTest {
 
   @Test
   public void testCopyConstructor() {
-    AttributesFactory f1 = new AttributesFactory();
+    var f1 = new AttributesFactory();
     f1.setLockGrantor(true);
 
-    RegionAttributes origAttrs = f1.create();
+    var origAttrs = f1.create();
     assertEquals(true, origAttrs.isLockGrantor());
 
-    AttributesFactory f2 = new AttributesFactory(origAttrs);
-    RegionAttributes attrs = f2.create();
+    var f2 = new AttributesFactory(origAttrs);
+    var attrs = f2.create();
 
     assertEquals(true, attrs.isLockGrantor());
   }
@@ -60,9 +59,9 @@ public class AttributesFactoryJUnitTest {
   public void testInvalidConfigurations() {
     AttributesFactory factory;
 
-    ExpirationAttributes invalidate =
+    var invalidate =
         new ExpirationAttributes(1, ExpirationAction.LOCAL_INVALIDATE);
-    ExpirationAttributes destroy = new ExpirationAttributes(1, ExpirationAction.LOCAL_DESTROY);
+    var destroy = new ExpirationAttributes(1, ExpirationAction.LOCAL_DESTROY);
 
     // DataPolicy.REPLICATE is incompatible with
     // ExpirationAction.LOCAL_INVALIDATE
@@ -71,7 +70,7 @@ public class AttributesFactoryJUnitTest {
     factory.setEntryIdleTimeout(invalidate);
     factory.setStatisticsEnabled(true);
     {
-      RegionAttributes ra = factory.create();
+      var ra = factory.create();
       assertEquals(DataPolicy.PRELOADED, ra.getDataPolicy());
       assertEquals(new SubscriptionAttributes(InterestPolicy.ALL), ra.getSubscriptionAttributes());
     }
@@ -83,7 +82,7 @@ public class AttributesFactoryJUnitTest {
     factory.setEntryIdleTimeout(destroy);
     factory.setStatisticsEnabled(true);
     {
-      RegionAttributes ra = factory.create();
+      var ra = factory.create();
       assertEquals(DataPolicy.PRELOADED, ra.getDataPolicy());
       assertEquals(new SubscriptionAttributes(InterestPolicy.ALL), ra.getSubscriptionAttributes());
     }
@@ -95,7 +94,7 @@ public class AttributesFactoryJUnitTest {
     factory.setEntryIdleTimeout(destroy);
     factory.setStatisticsEnabled(true);
     {
-      RegionAttributes ra = factory.create();
+      var ra = factory.create();
       assertEquals(DataPolicy.PRELOADED, ra.getDataPolicy());
       assertEquals(new SubscriptionAttributes(InterestPolicy.ALL), ra.getSubscriptionAttributes());
     }
@@ -107,7 +106,7 @@ public class AttributesFactoryJUnitTest {
     factory.setEntryIdleTimeout(destroy);
     factory.setStatisticsEnabled(true);
     {
-      RegionAttributes ra = factory.create();
+      var ra = factory.create();
       assertEquals(DataPolicy.PRELOADED, ra.getDataPolicy());
       assertEquals(new SubscriptionAttributes(InterestPolicy.ALL), ra.getSubscriptionAttributes());
     }
@@ -144,7 +143,7 @@ public class AttributesFactoryJUnitTest {
     // requires distributed scope
     factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    MembershipAttributes ra = new MembershipAttributes(new String[] {"A"});
+    var ra = new MembershipAttributes(new String[] {"A"});
     factory.setMembershipAttributes(ra);
     try {
       factory.create();
@@ -159,7 +158,7 @@ public class AttributesFactoryJUnitTest {
     factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setDiskStoreName("ds1");
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+    var dwaf = new DiskWriteAttributesFactory();
     try {
       factory.setDiskWriteAttributes(dwaf.create());
       fail("Should have thrown an IllegalStateException");
@@ -171,7 +170,7 @@ public class AttributesFactoryJUnitTest {
     // Used mixed mode API for disk store and DWA
     factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    DiskWriteAttributesFactory dwaf2 = new DiskWriteAttributesFactory();
+    var dwaf2 = new DiskWriteAttributesFactory();
     factory.setDiskWriteAttributes(dwaf2.create());
     try {
       factory.setDiskStoreName("ds1");
@@ -184,7 +183,7 @@ public class AttributesFactoryJUnitTest {
     // Used mixed mode API for disk store and DWA
     factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    File[] dirs1 = new File[] {new File("").getAbsoluteFile()};
+    var dirs1 = new File[] {new File("").getAbsoluteFile()};
     factory.setDiskStoreName("ds1");
 
     try {
@@ -198,7 +197,7 @@ public class AttributesFactoryJUnitTest {
     // Used mixed mode API for disk store and DWA
     factory = new AttributesFactory();
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    File[] dirs2 = new File[] {new File("").getAbsoluteFile()};
+    var dirs2 = new File[] {new File("").getAbsoluteFile()};
     factory.setDiskDirs(dirs2);
     try {
       factory.setDiskStoreName("ds1");
@@ -213,7 +212,7 @@ public class AttributesFactoryJUnitTest {
     factory.setCompressor(SnappyCompressor.getDefaultInstance());
     factory.setCloningEnabled(false);
     try {
-      RegionAttributes ccra = factory.create();
+      var ccra = factory.create();
       fail("Should have thrown an IllegalStateException");
     } catch (IllegalStateException expected) {
       // Expected
@@ -226,8 +225,8 @@ public class AttributesFactoryJUnitTest {
    */
   @Test
   public void testDefaultConfiguration() {
-    AttributesFactory factory = new AttributesFactory();
-    RegionAttributes attrs = factory.create();
+    var factory = new AttributesFactory();
+    var attrs = factory.create();
     assertNull(attrs.getCacheLoader());
     assertNull(attrs.getCacheWriter());
     assertNull(attrs.getCacheListener());
@@ -249,20 +248,20 @@ public class AttributesFactoryJUnitTest {
     assertEquals(0.75, attrs.getLoadFactor(), 0.0);
     assertFalse(attrs.getStatisticsEnabled());
     assertFalse(attrs.getPersistBackup());
-    DiskWriteAttributes dwa = attrs.getDiskWriteAttributes();
+    var dwa = attrs.getDiskWriteAttributes();
     assertNotNull(dwa);
     {
-      DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+      var dwaf = new DiskWriteAttributesFactory();
       dwaf.setSynchronous(AttributesFactory.DEFAULT_DISK_SYNCHRONOUS);
       assertEquals(dwaf.create(), dwa);
     }
 
     assertNull(attrs.getDiskStoreName());
-    File[] diskDirs = attrs.getDiskDirs();
+    var diskDirs = attrs.getDiskDirs();
     assertNotNull(diskDirs);
     assertEquals(1, diskDirs.length);
     assertEquals(new File("."), diskDirs[0]);
-    int[] diskSizes = attrs.getDiskDirSizes();
+    var diskSizes = attrs.getDiskDirSizes();
     assertNotNull(diskSizes);
     assertEquals(1, diskSizes.length);
     assertEquals(DiskStoreFactory.DEFAULT_DISK_DIR_SIZE, diskSizes[0]);
@@ -272,40 +271,40 @@ public class AttributesFactoryJUnitTest {
   @Test
   public void testDiskSynchronous() {
     {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDiskSynchronous(true);
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       assertEquals(true, attrs.isDiskSynchronous());
       assertEquals(true, attrs.getDiskWriteAttributes().isSynchronous());
     }
     {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDiskSynchronous(false);
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       assertEquals(false, attrs.isDiskSynchronous());
       assertEquals(false, attrs.getDiskWriteAttributes().isSynchronous());
     }
     // Test backwards compat interaction with diskSync.
     // If the old apis are used then we should get the old default of async.
     {
-      DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
-      AttributesFactory factory = new AttributesFactory();
+      var dwaf = new DiskWriteAttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDiskWriteAttributes(dwaf.create());
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       assertEquals(false, attrs.getDiskWriteAttributes().isSynchronous());
       assertEquals(false, attrs.isDiskSynchronous());
     }
     {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDiskDirs(new File[] {new File("").getAbsoluteFile()});
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       assertEquals(false, attrs.getDiskWriteAttributes().isSynchronous());
       assertEquals(false, attrs.isDiskSynchronous());
     }
     {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDiskDirsAndSizes(new File[] {new File("").getAbsoluteFile()}, new int[] {100});
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       assertEquals(false, attrs.getDiskWriteAttributes().isSynchronous());
       assertEquals(false, attrs.isDiskSynchronous());
     }
@@ -325,7 +324,7 @@ public class AttributesFactoryJUnitTest {
     assertFalse((Arrays.asList(cl1, cl2))
         .equals(Arrays.asList(cl2, cl1)));
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     try {
       factory.addCacheListener(null);
       fail("expected IllegalArgumentException");
@@ -392,7 +391,7 @@ public class AttributesFactoryJUnitTest {
    */
   @Test
   public void testConnectionPool() {
-    CacheLoader cl = new CacheLoader() {
+    var cl = new CacheLoader() {
       @Override
       public Object load(LoaderHelper helper) throws CacheLoaderException {
         return null;
@@ -402,7 +401,7 @@ public class AttributesFactoryJUnitTest {
       public void close() {}
     };
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPoolName("mypool");
 
     factory = new AttributesFactory();
@@ -425,33 +424,33 @@ public class AttributesFactoryJUnitTest {
 
   @Test
   public void addsGatewaySenderId() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.addGatewaySenderId("someSenderId");
-    RegionAttributes regionAttributes = factory.create();
-    Set gatewaySenderIds = regionAttributes.getGatewaySenderIds();
+    var regionAttributes = factory.create();
+    var gatewaySenderIds = regionAttributes.getGatewaySenderIds();
 
     assertTrue(gatewaySenderIds.contains("someSenderId"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void addingNullGatewaySenderIdThrowsException() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.addGatewaySenderId(null);
   }
 
   @Test
   public void addsAsyncEventQueueId() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.addAsyncEventQueueId("someId");
-    RegionAttributes regionAttributes = factory.create();
-    Set asyncEventQueueIds = regionAttributes.getAsyncEventQueueIds();
+    var regionAttributes = factory.create();
+    var asyncEventQueueIds = regionAttributes.getAsyncEventQueueIds();
 
     assertTrue(asyncEventQueueIds.contains("someId"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void addingNullAsyncEventQueueIdThrowsException() {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.addAsyncEventQueueId(null);
   }
 }

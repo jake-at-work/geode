@@ -41,10 +41,10 @@ class LocatorList implements Iterable<@NotNull HostAndPort> {
   @Immutable
   static final Comparator<@NotNull HostAndPort> SOCKET_ADDRESS_COMPARATOR =
       (address, otherAddress) -> {
-        final InetSocketAddress inetSocketAddress = address.getSocketInetAddress();
-        final InetSocketAddress otherInetSocketAddress = otherAddress.getSocketInetAddress();
+        final var inetSocketAddress = address.getSocketInetAddress();
+        final var otherInetSocketAddress = otherAddress.getSocketInetAddress();
 
-        final int result = StringUtils.compare(inetSocketAddress.getHostString(),
+        final var result = StringUtils.compare(inetSocketAddress.getHostString(),
             otherInetSocketAddress.getHostString());
         if (result != 0) {
           return result;
@@ -63,7 +63,7 @@ class LocatorList implements Iterable<@NotNull HostAndPort> {
 
   public @NotNull List<@NotNull InetSocketAddress> getLocators() {
     final List<@NotNull InetSocketAddress> addresses = new ArrayList<>(locators.size());
-    for (final HostAndPort locator : locators) {
+    for (final var locator : locators) {
       addresses.add(locator.getSocketInetAddress());
     }
     return addresses;
@@ -105,8 +105,8 @@ class LocatorList implements Iterable<@NotNull HostAndPort> {
       if (!hasNext()) {
         throw new NoSuchElementException();
       } else {
-        final int index = (currentIndex + lastKnownGoodIndex) % locators.size();
-        final HostAndPort nextLocator = locators.get(index);
+        final var index = (currentIndex + lastKnownGoodIndex) % locators.size();
+        final var nextLocator = locators.get(index);
         currentLocatorIndex.set(index);
         currentIndex++;
         return nextLocator;

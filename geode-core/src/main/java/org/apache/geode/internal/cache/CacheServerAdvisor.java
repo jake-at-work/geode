@@ -42,7 +42,7 @@ public class CacheServerAdvisor extends GridAdvisor {
   }
 
   public static CacheServerAdvisor createCacheServerAdvisor(DistributionAdvisee server) {
-    CacheServerAdvisor advisor = new CacheServerAdvisor(server);
+    var advisor = new CacheServerAdvisor(server);
     advisor.initialize();
     return advisor;
   }

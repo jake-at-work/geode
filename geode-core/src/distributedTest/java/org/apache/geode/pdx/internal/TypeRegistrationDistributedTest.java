@@ -39,7 +39,6 @@ import org.junit.Test;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.statistics.SuppliableStatistics;
-import org.apache.geode.pdx.PdxInstanceFactory;
 import org.apache.geode.pdx.PdxReader;
 import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
@@ -83,8 +82,8 @@ public class TypeRegistrationDistributedTest implements Serializable {
 
   private void pdxWithEnumIncrementsStats(final SerializableRunnableIF pdxGenerator) {
     vm0.invoke(() -> {
-      final InternalCache cache = cacheRule.getOrCreateCache();
-      final SuppliableStatistics statistics = getStatistics(cache);
+      final var cache = cacheRule.getOrCreateCache();
+      final var statistics = getStatistics(cache);
       statistics.updateSuppliedValues();
       assertThat(statistics.getLong(TYPE_DEFINED)).isEqualTo(0);
       assertThat(statistics.getLong(ENUM_DEFINED)).isEqualTo(0);
@@ -107,8 +106,8 @@ public class TypeRegistrationDistributedTest implements Serializable {
       assertThat(statistics.getLong(SIZE)).isEqualTo(2);
     });
     vm1.invoke(() -> {
-      final InternalCache cache = cacheRule.getOrCreateCache();
-      final SuppliableStatistics statistics = getStatistics(cache);
+      final var cache = cacheRule.getOrCreateCache();
+      final var statistics = getStatistics(cache);
       statistics.updateSuppliedValues();
       assertThat(statistics.getLong(TYPE_DEFINED)).isEqualTo(0);
       assertThat(statistics.getLong(ENUM_DEFINED)).isEqualTo(0);
@@ -138,8 +137,8 @@ public class TypeRegistrationDistributedTest implements Serializable {
   }
 
   private void createPdxInstanceWithEnum() {
-    final InternalCache cache = cacheRule.getOrCreateCache();
-    final PdxInstanceFactory pdxInstanceFactory =
+    final var cache = cacheRule.getOrCreateCache();
+    final var pdxInstanceFactory =
         PdxInstanceFactoryImpl.newCreator("testPdxEnum", false, cache);
     pdxInstanceFactory.writeObject("enumField", MyEnum.ONE);
     pdxInstanceFactory.create();

@@ -14,18 +14,13 @@
  */
 package org.apache.geode.management.internal.beans;
 
-import java.util.List;
 
 import org.apache.geode.Statistics;
-import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventDispatcher;
 import org.apache.geode.internal.cache.wan.GatewaySenderStats;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderEventProcessor;
-import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.serial.ConcurrentSerialGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.serial.SerialGatewaySenderEventProcessor;
 import org.apache.geode.management.internal.beans.stats.GatewaySenderOverflowMonitor;
@@ -65,7 +60,7 @@ public class GatewaySenderMBeanBridge {
     overflowMonitor = new GatewaySenderOverflowMonitor("GatewaySenderMXBeanOverflowMonitor");
 
     abstractSender = ((AbstractGatewaySender) this.sender);
-    GatewaySenderStats stats = abstractSender.getStatistics();
+    var stats = abstractSender.getStatistics();
 
     addGatewaySenderStats(stats);
 
@@ -73,7 +68,7 @@ public class GatewaySenderMBeanBridge {
   }
 
   public void setDispatcher() {
-    AbstractGatewaySenderEventProcessor eventProcessor = abstractSender.getEventProcessor();
+    var eventProcessor = abstractSender.getEventProcessor();
     if (eventProcessor != null) {
       dispatcher = abstractSender.getEventProcessor().getDispatcher();
     }
@@ -129,15 +124,15 @@ public class GatewaySenderMBeanBridge {
   }
 
   public String[] getGatewayEventFilters() {
-    List<GatewayEventFilter> filters = sender.getGatewayEventFilters();
+    var filters = sender.getGatewayEventFilters();
     String[] filtersStr = null;
     if (filters != null && filters.size() > 0) {
       filtersStr = new String[filters.size()];
     } else {
       return filtersStr;
     }
-    int j = 0;
-    for (GatewayEventFilter filter : filters) {
+    var j = 0;
+    for (var filter : filters) {
       filtersStr[j] = filter.toString();
       j++;
     }
@@ -145,7 +140,7 @@ public class GatewaySenderMBeanBridge {
   }
 
   public String[] getGatewayTransportFilters() {
-    List<GatewayTransportFilter> transportFilters = sender.getGatewayTransportFilters();
+    var transportFilters = sender.getGatewayTransportFilters();
 
     String[] transportFiltersStr = null;
     if (transportFilters != null && transportFilters.size() > 0) {
@@ -153,8 +148,8 @@ public class GatewaySenderMBeanBridge {
     } else {
       return transportFiltersStr;
     }
-    int j = 0;
-    for (GatewayTransportFilter listener : transportFilters) {
+    var j = 0;
+    for (var listener : transportFilters) {
       transportFiltersStr[j] = listener.getClass().getCanonicalName();
       j++;
     }
@@ -327,10 +322,10 @@ public class GatewaySenderMBeanBridge {
       return true;
     }
     if (sender.isParallel()) {
-      ConcurrentParallelGatewaySenderEventProcessor cProc =
+      var cProc =
           (ConcurrentParallelGatewaySenderEventProcessor) ((AbstractGatewaySender) sender)
               .getEventProcessor();
-      for (ParallelGatewaySenderEventProcessor lProc : cProc.getProcessors()) {
+      for (var lProc : cProc.getProcessors()) {
         if (lProc.getDispatcher() != null && lProc.getDispatcher().isConnectedToRemote()) {
           dispatcher = lProc.getDispatcher();
           return true;
@@ -338,17 +333,17 @@ public class GatewaySenderMBeanBridge {
       }
     } else {
       if (getDispatcherThreads() > 1) {
-        ConcurrentSerialGatewaySenderEventProcessor cProc =
+        var cProc =
             (ConcurrentSerialGatewaySenderEventProcessor) ((AbstractGatewaySender) sender)
                 .getEventProcessor();
-        for (SerialGatewaySenderEventProcessor lProc : cProc.getProcessors()) {
+        for (var lProc : cProc.getProcessors()) {
           if (lProc.getDispatcher() != null && lProc.getDispatcher().isConnectedToRemote()) {
             dispatcher = lProc.getDispatcher();
             return true;
           }
         }
       } else {
-        SerialGatewaySenderEventProcessor lProc =
+        var lProc =
             (SerialGatewaySenderEventProcessor) ((AbstractGatewaySender) sender)
                 .getEventProcessor();
         if (lProc.getDispatcher() != null && lProc.getDispatcher().isConnectedToRemote()) {

@@ -40,7 +40,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 
 import org.apache.geode.cache.DiskAccessException;
@@ -107,7 +106,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
   @Before
   public void setup() {
     initMocks(this);
-    VersionStamp versionStamp = mock(VersionStamp.class);
+    var versionStamp = mock(VersionStamp.class);
     when(versionStamp.asVersionTag()).thenReturn(existingVersionTag);
     when(existingRegionEntry.getVersionStamp()).thenReturn(versionStamp);
     when(existingRegionEntry.getKey()).thenReturn(key);
@@ -131,7 +130,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
     assertThat(pendingCallbacks).hasSize(1);
-    EntryEventImpl callbackEvent = pendingCallbacks.get(0);
+    var callbackEvent = pendingCallbacks.get(0);
 
     assertSoftly(softly -> {
       softly.assertThat(callbackEvent.getRegion()).isSameAs(owner);
@@ -165,7 +164,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
     verify(txEntryState, times(1)).setTailKey(tailKey);
 
     assertThat(pendingCallbacks).hasSize(1);
-    EntryEventImpl callbackEvent = pendingCallbacks.get(0);
+    var callbackEvent = pendingCallbacks.get(0);
 
     assertSoftly(softly -> {
       softly.assertThat(callbackEvent.getRegion()).isSameAs(partitionedRegion);
@@ -279,7 +278,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
     doTxApplyDestroy();
 
     assertThat(pendingCallbacks).size().isEqualTo(1);
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.getRegionEntry()).isSameAs(existingRegionEntry);
     assertThat(event.getOldValue()).isSameAs(oldValue);
 
@@ -293,7 +292,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
     givenLocalRegion();
     givenConcurrencyChecks();
     givenExistingRegionEntry();
-    IndexManager indexManager = mock(IndexManager.class);
+    var indexManager = mock(IndexManager.class);
     when(owner.getIndexManager()).thenReturn(indexManager);
 
     doTxApplyDestroy();
@@ -323,7 +322,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl callbackEvent = pendingCallbacks.get(0);
+    var callbackEvent = pendingCallbacks.get(0);
     verify(regionMap, times(1)).processAndGenerateTXVersionTag(same(callbackEvent),
         same(existingRegionEntry), same(txEntryState));
     assertThat(callbackEvent.getNextRegionVersion()).isEqualTo(-1L); // Default value
@@ -335,13 +334,13 @@ public class AbstractRegionMapTxApplyDestroyTest {
     givenConcurrencyChecks();
     givenExistingRegionEntry();
 
-    DistTxThinEntryState distTxEntryStates = mock(DistTxThinEntryState.class);
+    var distTxEntryStates = mock(DistTxThinEntryState.class);
     when(txEntryState.getDistTxEntryStates()).thenReturn(distTxEntryStates);
     when(distTxEntryStates.getRegionVersion()).thenReturn(999L);
 
     doTxApplyDestroy();
 
-    EntryEventImpl callbackEvent = pendingCallbacks.get(0);
+    var callbackEvent = pendingCallbacks.get(0);
     assertThat(callbackEvent.getNextRegionVersion()).isEqualTo(999L); // Default value
   }
 
@@ -451,7 +450,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
     givenLocalRegion();
     givenConcurrencyChecks();
     givenExistingRegionEntry();
-    int oldSize = 79;
+    var oldSize = 79;
     when(owner.calculateRegionEntryValueSize(same(existingRegionEntry))).thenReturn(oldSize);
 
     doTxApplyDestroy();
@@ -628,12 +627,12 @@ public class AbstractRegionMapTxApplyDestroyTest {
   public void txApplyDestroyPreparesAndReleasesIndexManager_givenExistingRegionEntryWithIndexManager() {
     givenLocalRegion();
     givenExistingRegionEntry();
-    IndexManager indexManager = mock(IndexManager.class);
+    var indexManager = mock(IndexManager.class);
     when(owner.getIndexManager()).thenReturn(indexManager);
 
     doTxApplyDestroy();
 
-    InOrder inOrder = inOrder(indexManager);
+    var inOrder = inOrder(indexManager);
     inOrder.verify(indexManager, times(1)).waitForIndexInit();
     inOrder.verify(indexManager, times(1)).countDownIndexUpdaters();
   }
@@ -774,12 +773,12 @@ public class AbstractRegionMapTxApplyDestroyTest {
     givenLocalRegion();
     givenFactoryRegionEntry();
     givenConcurrencyChecks();
-    IndexManager indexManager = mock(IndexManager.class);
+    var indexManager = mock(IndexManager.class);
     when(owner.getIndexManager()).thenReturn(indexManager);
 
     doTxApplyDestroy();
 
-    InOrder inOrder = inOrder(indexManager);
+    var inOrder = inOrder(indexManager);
     inOrder.verify(indexManager, times(1)).waitForIndexInit();
     inOrder.verify(indexManager, times(1)).countDownIndexUpdaters();
   }
@@ -896,7 +895,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.getRegionEntry()).isSameAs(factoryRegionEntry);
   }
 
@@ -908,7 +907,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.getRawOldValue()).isSameAs(Token.NOT_AVAILABLE);
   }
 
@@ -945,7 +944,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.isOriginRemote()).isTrue();
   }
 
@@ -957,7 +956,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.isOriginRemote()).isFalse();
   }
 
@@ -969,7 +968,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.getRegion()).isSameAs(partitionedRegion);
   }
 
@@ -1173,7 +1172,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
     doTxApplyDestroy();
 
     assertThat(pendingCallbacks).hasSize(1);
-    EntryEventImpl callbackEvent = pendingCallbacks.get(0);
+    var callbackEvent = pendingCallbacks.get(0);
 
     assertSoftly(softly -> {
       softly.assertThat(callbackEvent.getRegion()).isSameAs(owner);
@@ -1253,7 +1252,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.getRegionEntry()).isSameAs(oldRegionEntry);
   }
 
@@ -1265,7 +1264,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.getRawOldValue()).isSameAs(Token.NOT_AVAILABLE);
   }
 
@@ -1302,7 +1301,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.isOriginRemote()).isTrue();
   }
 
@@ -1314,7 +1313,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl event = pendingCallbacks.get(0);
+    var event = pendingCallbacks.get(0);
     assertThat(event.isOriginRemote()).isFalse();
   }
 
@@ -1329,7 +1328,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
     doTxApplyDestroy();
 
-    EntryEventImpl callbackEvent = pendingCallbacks.get(0);
+    var callbackEvent = pendingCallbacks.get(0);
 
     assertSoftly(softly -> {
       softly.assertThat(callbackEvent.getRegion()).isSameAs(partitionedRegion);
@@ -1366,7 +1365,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
     givenLocalRegion();
     givenConcurrencyChecks();
     givenOldRegionEntry();
-    int oldSize = 79;
+    var oldSize = 79;
     when(owner.calculateRegionEntryValueSize(oldRegionEntry)).thenReturn(oldSize);
     when(oldRegionEntry.isTombstone()).thenReturn(false);
 
@@ -1605,7 +1604,7 @@ public class AbstractRegionMapTxApplyDestroyTest {
   }
 
   private void givenBucketRegion() {
-    BucketRegion bucketRegion = mock(BucketRegion.class);
+    var bucketRegion = mock(BucketRegion.class);
     when(bucketRegion.isUsedForPartitionedRegionBucket()).thenReturn(true);
     when(bucketRegion.getPartitionedRegion()).thenReturn(partitionedRegion);
     when(bucketRegion.getBucketAdvisor()).thenReturn(mock(BucketAdvisor.class));
@@ -1616,8 +1615,8 @@ public class AbstractRegionMapTxApplyDestroyTest {
 
   private void setupLocalRegion() {
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(owner.getCachePerfStats()).thenReturn(cachePerfStats);
     when(owner.getCache()).thenReturn(cache);
     when(owner.getMyId()).thenReturn(myId);

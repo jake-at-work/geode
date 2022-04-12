@@ -38,9 +38,9 @@ public class GatewaySenderIdConverter extends BaseStringConverter {
   public Set<String> getCompletionValues() {
     Set<String> gatewaySenderIds = Collections.emptySet();
 
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
     if (gfsh != null && gfsh.isConnectedAndReady()) {
-      final String[] gatewaySenderIdArray = (String[]) gfsh.getOperationInvoker().invoke(
+      final var gatewaySenderIdArray = (String[]) gfsh.getOperationInvoker().invoke(
           ManagementConstants.OBJECTNAME__DISTRIBUTEDSYSTEM_MXBEAN, "listGatewaySenders",
           new Object[0], new String[0]);
       if (gatewaySenderIdArray != null && gatewaySenderIdArray.length != 0) {

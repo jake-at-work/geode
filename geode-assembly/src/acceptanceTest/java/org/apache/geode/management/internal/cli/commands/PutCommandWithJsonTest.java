@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.test.compiler.JarBuilder;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 
@@ -39,15 +38,15 @@ public class PutCommandWithJsonTest {
   public void setup() throws IOException {
     jarToDeploy = new File(gfsh.getTemporaryFolder().getRoot(), "ourJar.jar");
 
-    String classContents =
+    var classContents =
         "public class Customer implements java.io.Serializable {private String name; public void setName(String name){this.name=name;}}";
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJar(jarToDeploy, classContents);
   }
 
   @Test
   public void putWithJsonString() throws Exception {
-    GfshExecution execution = GfshScript
+    var execution = GfshScript
         .of("start locator --name=locator", "start server --name=server --server-port=0",
             "sleep --time=1",
             "deploy --jar=" + jarToDeploy.getAbsolutePath(),

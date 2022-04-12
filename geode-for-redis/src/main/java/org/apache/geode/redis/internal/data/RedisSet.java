@@ -64,7 +64,7 @@ public class RedisSet extends AbstractRedisData {
 
   public RedisSet(Collection<byte[]> members) {
     this.members = new MemberSet(members.size());
-    for (byte[] member : members) {
+    for (var member : members) {
       membersAdd(member);
     }
   }
@@ -97,8 +97,8 @@ public class RedisSet extends AbstractRedisData {
 
   public static MemberSet sunion(RegionProvider regionProvider, List<RedisKey> keys,
       boolean updateStats) {
-    MemberSet union = new MemberSet();
-    for (RedisKey key : keys) {
+    var union = new MemberSet();
+    for (var key : keys) {
       RedisSet curSet = regionProvider.getTypedRedisData(REDIS_SET, key, updateStats);
       union.addAll(curSet.members);
     }
@@ -107,15 +107,15 @@ public class RedisSet extends AbstractRedisData {
 
   public static int sunionstore(RegionProvider regionProvider, List<RedisKey> keys,
       RedisKey destinationKey) {
-    MemberSet union = sunion(regionProvider, keys, false);
+    var union = sunion(regionProvider, keys, false);
     return setOpStoreResult(regionProvider, destinationKey, union);
   }
 
   public static MemberSet sdiff(RegionProvider regionProvider, List<RedisKey> keys,
       boolean updateStats) {
     RedisSet firstSet = regionProvider.getTypedRedisData(REDIS_SET, keys.get(0), updateStats);
-    MemberSet diff = new MemberSet(firstSet.members);
-    for (int i = 1; i < keys.size(); i++) {
+    var diff = new MemberSet(firstSet.members);
+    for (var i = 1; i < keys.size(); i++) {
       RedisSet curSet = regionProvider.getTypedRedisData(REDIS_SET, keys.get(i), updateStats);
       if (curSet == NULL_REDIS_SET) {
         continue;
@@ -127,22 +127,22 @@ public class RedisSet extends AbstractRedisData {
 
   public static int sdiffstore(RegionProvider regionProvider,
       List<RedisKey> keys, RedisKey destinationKey) {
-    MemberSet diff = sdiff(regionProvider, keys, false);
+    var diff = sdiff(regionProvider, keys, false);
     return setOpStoreResult(regionProvider, destinationKey, diff);
   }
 
   public static MemberSet sinter(RegionProvider regionProvider, List<RedisKey> keys,
       boolean updateStats) {
-    List<RedisSet> sets = createRedisSetList(keys, regionProvider, updateStats);
-    final RedisSet smallestSet = findSmallest(sets);
-    MemberSet result = new MemberSet(smallestSet.scard());
+    var sets = createRedisSetList(keys, regionProvider, updateStats);
+    final var smallestSet = findSmallest(sets);
+    var result = new MemberSet(smallestSet.scard());
     if (smallestSet.scard() == 0) {
       return result;
     }
 
-    for (byte[] member : smallestSet.members) {
-      boolean addToSet = true;
-      for (RedisSet otherSet : sets) {
+    for (var member : smallestSet.members) {
+      var addToSet = true;
+      for (var otherSet : sets) {
         if (otherSet == smallestSet) {
           continue;
         }
@@ -160,7 +160,7 @@ public class RedisSet extends AbstractRedisData {
 
   private static RedisSet findSmallest(List<RedisSet> sets) {
     RedisSet smallestSet = NULL_REDIS_SET;
-    for (RedisSet set : sets) {
+    for (var set : sets) {
       if (smallestSet == NULL_REDIS_SET) {
         smallestSet = set;
       } else if (smallestSet.scard() > set.scard()) {
@@ -173,7 +173,7 @@ public class RedisSet extends AbstractRedisData {
   private static List<RedisSet> createRedisSetList(List<RedisKey> keys,
       RegionProvider regionProvider, boolean updateStats) {
     List<RedisSet> sets = new ArrayList<>(keys.size());
-    for (RedisKey key : keys) {
+    for (var key : keys) {
       RedisSet redisSet = regionProvider.getTypedRedisData(REDIS_SET, key, updateStats);
       sets.add(redisSet);
     }
@@ -182,7 +182,7 @@ public class RedisSet extends AbstractRedisData {
 
   public static int sinterstore(RegionProvider regionProvider,
       List<RedisKey> keys, RedisKey destinationKey) {
-    MemberSet inter = sinter(regionProvider, keys, false);
+    var inter = sinter(regionProvider, keys, false);
     return setOpStoreResult(regionProvider, destinationKey, inter);
   }
 
@@ -212,7 +212,7 @@ public class RedisSet extends AbstractRedisData {
 
   public Pair<Integer, List<byte[]>> sscan(GlobPattern matchPattern, int count,
       int cursor) {
-    int maximumCapacity = Math.min(count, scard() + 1);
+    var maximumCapacity = Math.min(count, scard() + 1);
     List<byte[]> resultList = new ArrayList<>(maximumCapacity);
 
     cursor = members.scan(cursor, count,
@@ -233,7 +233,7 @@ public class RedisSet extends AbstractRedisData {
   }
 
   public List<byte[]> spop(int count, Region<RedisKey, RedisData> region, RedisKey key) {
-    final int popMethodRatio = 5; // The ratio is based off command documentation
+    final var popMethodRatio = 5; // The ratio is based off command documentation
     List<byte[]> result = new ArrayList<>(Math.min(count, members.size()));
     if (count * popMethodRatio < members.size()) {
       /*
@@ -258,9 +258,9 @@ public class RedisSet extends AbstractRedisData {
   }
 
   private void spopWithSmallCount(int count, List<byte[]> result) {
-    Random rand = new Random();
+    var rand = new Random();
     while (result.size() != count) {
-      byte[] member = members.getRandomMemberFromBackingArray(rand);
+      var member = members.getRandomMemberFromBackingArray(rand);
       result.add(member);
       members.remove(member);
     }
@@ -273,10 +273,10 @@ public class RedisSet extends AbstractRedisData {
       return;
     }
 
-    Random rand = new Random();
-    MemberSet remainingMembers = new MemberSet(members.size() - count);
+    var rand = new Random();
+    var remainingMembers = new MemberSet(members.size() - count);
     while (members.size() != count) {
-      byte[] member = members.getRandomMemberFromBackingArray(rand);
+      var member = members.getRandomMemberFromBackingArray(rand);
       remainingMembers.add(member);
       members.remove(member);
     }
@@ -286,7 +286,7 @@ public class RedisSet extends AbstractRedisData {
   }
 
   public List<byte[]> srandmember(int count) {
-    final int randMethodRatio = 3; // The ratio is based off command documentation
+    final var randMethodRatio = 3; // The ratio is based off command documentation
     List<byte[]> result;
     if (count < 0) {
       result = new ArrayList<>(-count);
@@ -323,19 +323,19 @@ public class RedisSet extends AbstractRedisData {
   }
 
   private void srandomDuplicateList(int count, List<byte[]> result) {
-    Random rand = new Random();
+    var rand = new Random();
     while (result.size() != count) {
-      byte[] member = members.getRandomMemberFromBackingArray(rand);
+      var member = members.getRandomMemberFromBackingArray(rand);
       result.add(member);
     }
   }
 
   private void srandomUniqueListWithSmallCount(int count, List<byte[]> result) {
-    Random rand = new Random();
+    var rand = new Random();
     Set<byte[]> membersUsed = new HashSet<>();
 
     while (result.size() != count) {
-      byte[] member = members.getRandomMemberFromBackingArray(rand);
+      var member = members.getRandomMemberFromBackingArray(rand);
       if (!membersUsed.contains(member)) {
         result.add(member);
         membersUsed.add(member);
@@ -349,10 +349,10 @@ public class RedisSet extends AbstractRedisData {
       return;
     }
 
-    Random rand = new Random();
-    MemberSet duplicateSet = new MemberSet(members);
+    var rand = new Random();
+    var duplicateSet = new MemberSet(members);
     while (duplicateSet.size() != count) {
-      byte[] member = members.getRandomMemberFromBackingArray(rand);
+      var member = members.getRandomMemberFromBackingArray(rand);
       duplicateSet.remove(member);
     }
 
@@ -393,7 +393,7 @@ public class RedisSet extends AbstractRedisData {
   public synchronized void toData(DataOutput out) throws IOException {
     super.toData(out);
     DataSerializer.writePrimitiveInt(members.size(), out);
-    for (byte[] member : members) {
+    for (var member : members) {
       DataSerializer.writeByteArray(member, out);
     }
   }
@@ -401,9 +401,9 @@ public class RedisSet extends AbstractRedisData {
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
     super.fromData(in);
-    int size = DataSerializer.readPrimitiveInt(in);
+    var size = DataSerializer.readPrimitiveInt(in);
     members = new MemberSet(size);
-    for (int i = 0; i < size; ++i) {
+    for (var i = 0; i < size; ++i) {
       members.add(DataSerializer.readByteArray(in));
     }
   }
@@ -425,10 +425,10 @@ public class RedisSet extends AbstractRedisData {
    * @return the number of members actually added
    */
   public long sadd(List<byte[]> membersToAdd, Region<RedisKey, RedisData> region, RedisKey key) {
-    int membersAdded = 0;
+    var membersAdded = 0;
     AddByteArrays delta = null;
     synchronized (this) {
-      for (byte[] member : membersToAdd) {
+      for (var member : membersToAdd) {
         if (membersAdd(member)) {
           if (delta == null) {
             delta = new AddByteArrays(incrementAndGetVersion());
@@ -452,9 +452,9 @@ public class RedisSet extends AbstractRedisData {
    * @return the number of members actually removed
    */
   public long srem(List<byte[]> membersToRemove, Region<RedisKey, RedisData> region, RedisKey key) {
-    RemoveByteArrays delta = new RemoveByteArrays();
-    int membersRemoved = 0;
-    for (byte[] member : membersToRemove) {
+    var delta = new RemoveByteArrays();
+    var membersRemoved = 0;
+    for (var member : membersToRemove) {
       if (membersRemove(member)) {
         delta.add(member);
         membersRemoved++;
@@ -498,12 +498,12 @@ public class RedisSet extends AbstractRedisData {
     if (!super.equals(o)) {
       return false;
     }
-    RedisSet redisSet = (RedisSet) o;
+    var redisSet = (RedisSet) o;
 
     if (redisSet.members.size() != members.size()) {
       return false;
     }
-    for (byte[] member : members) {
+    for (var member : members) {
       if (!redisSet.members.contains(member)) {
         return false;
       }
@@ -545,7 +545,7 @@ public class RedisSet extends AbstractRedisData {
     }
 
     private void toList(List<byte[]> list) {
-      for (byte[] member : this) {
+      for (var member : this) {
         list.add(member);
       }
     }

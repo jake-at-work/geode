@@ -74,7 +74,7 @@ public class ConnectDisconnectDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.setProperty(LOG_LEVEL, "info");
     props.setProperty(CONSERVE_SOCKETS, "false");
     return props;
@@ -89,15 +89,15 @@ public class ConnectDisconnectDUnitTest extends JUnit4CacheTestCase {
   public void testManyConnectsAndDisconnects() throws Exception {
     logger.info("Test run: {}", count);
 
-    int numVMs = 4;
-    VM[] vms = new VM[numVMs];
+    var numVMs = 4;
+    var vms = new VM[numVMs];
 
-    for (int i = 0; i < numVMs; i++) {
+    for (var i = 0; i < numVMs; i++) {
       vms[i] = Host.getHost(0).getVM(i);
     }
 
-    AsyncInvocation[] asyncs = new AsyncInvocation[numVMs];
-    for (int i = 0; i < numVMs; i++) {
+    var asyncs = new AsyncInvocation[numVMs];
+    for (var i = 0; i < numVMs; i++) {
       asyncs[i] = vms[i].invokeAsync(new SerializableRunnable("Create a cache") {
         @Override
         public void run() {
@@ -106,7 +106,7 @@ public class ConnectDisconnectDUnitTest extends JUnit4CacheTestCase {
       });
     }
 
-    for (int i = 0; i < numVMs; i++) {
+    for (var i = 0; i < numVMs; i++) {
       asyncs[i].await();
     }
   }

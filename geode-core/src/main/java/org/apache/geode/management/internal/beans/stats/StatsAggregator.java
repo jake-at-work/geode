@@ -42,10 +42,10 @@ public class StatsAggregator {
    * Initialize all counters to 0;
    */
   private void initAggregateMap() {
-    for (final String s : typeMap.keySet()) {
+    for (final var s : typeMap.keySet()) {
       AtomicReference<Number> ref = null;
-      String attribute = s;
-      Class<?> classzz = typeMap.get(attribute);
+      var attribute = s;
+      var classzz = typeMap.get(attribute);
       if (classzz == Long.TYPE) {
         ref = new AtomicReference<>(0L);
       } else if (classzz == Integer.TYPE) {
@@ -63,7 +63,7 @@ public class StatsAggregator {
 
   public void aggregate(FederationComponent newComp, FederationComponent oldComp) {
 
-    Map<String, Object> newState = (newComp != null ? newComp.getObjectState() : null);
+    var newState = (newComp != null ? newComp.getObjectState() : null);
     Map<String, Object> oldState;
 
     if (oldComp != null && oldComp.getOldState().size() > 0) {
@@ -75,10 +75,10 @@ public class StatsAggregator {
     String attribute = null;
     try {
       if (typeMap != null && !typeMap.isEmpty()) {
-        for (Map.Entry<String, Class<?>> typeEntry : typeMap.entrySet()) {
+        for (var typeEntry : typeMap.entrySet()) {
           attribute = typeEntry.getKey();
 
-          Object newVal = newState != null ? newState.get(attribute) : null;
+          var newVal = newState != null ? newState.get(attribute) : null;
           if (newVal != null) {
             Object oldVal = null;
 
@@ -86,7 +86,7 @@ public class StatsAggregator {
               oldVal = oldState.get(attribute);
             }
 
-            Class<?> classzz = typeEntry.getValue();
+            var classzz = typeEntry.getValue();
             if (classzz == Long.TYPE) {
               if (oldVal == null) {
                 oldVal = 0L;
@@ -111,9 +111,9 @@ public class StatsAggregator {
             }
 
           } else if (oldState != null && newState == null) {
-            Object oldVal = oldState.get(attribute);
+            var oldVal = oldState.get(attribute);
             if (oldVal != null) {
-              Class<?> classzz = typeEntry.getValue();
+              var classzz = typeEntry.getValue();
               if (classzz == Long.TYPE) {
                 decLong(attribute, (Long) oldVal);
               } else if (classzz == Integer.TYPE) {
@@ -141,22 +141,22 @@ public class StatsAggregator {
   }
 
   public Integer getIntValue(String attributeName) {
-    int val = aggregateMap.get(attributeName).get().intValue();
+    var val = aggregateMap.get(attributeName).get().intValue();
     return val < 0 ? ManagementConstants.NOT_AVAILABLE_INT : val;
   }
 
   public Long getLongValue(String attributeName) {
-    long val = aggregateMap.get(attributeName).get().longValue();
+    var val = aggregateMap.get(attributeName).get().longValue();
     return val < 0 ? ManagementConstants.NOT_AVAILABLE_LONG : val;
   }
 
   public Float getFloatValue(String attributeName) {
-    float val = aggregateMap.get(attributeName).get().floatValue();
+    var val = aggregateMap.get(attributeName).get().floatValue();
     return val < 0 ? ManagementConstants.NOT_AVAILABLE_FLOAT : val;
   }
 
   public Double getDoubleValue(String attributeName) {
-    double val = aggregateMap.get(attributeName).get().doubleValue();
+    var val = aggregateMap.get(attributeName).get().doubleValue();
     return val < 0 ? ManagementConstants.NOT_AVAILABLE_DOUBLE : val;
   }
 
@@ -164,9 +164,9 @@ public class StatsAggregator {
     if (newVal.equals(oldVal)) {
       return;
     }
-    AtomicReference<Number> ar = aggregateMap.get(attributeName);
+    var ar = aggregateMap.get(attributeName);
     for (;;) {
-      Number expectedVal = ar.get();
+      var expectedVal = ar.get();
       Number curVal = expectedVal.longValue() + (newVal - oldVal);
       if (ar.compareAndSet(expectedVal, curVal)) {
         return;
@@ -178,9 +178,9 @@ public class StatsAggregator {
     if (newVal.equals(oldVal)) {
       return;
     }
-    AtomicReference<Number> ar = aggregateMap.get(attributeName);
+    var ar = aggregateMap.get(attributeName);
     for (;;) {
-      Number expectedVal = ar.get();
+      var expectedVal = ar.get();
       Number curVal = expectedVal.intValue() + (newVal - oldVal);
       if (ar.compareAndSet(expectedVal, curVal)) {
         return;
@@ -192,9 +192,9 @@ public class StatsAggregator {
     if (newVal.equals(oldVal)) {
       return;
     }
-    AtomicReference<Number> ar = aggregateMap.get(attributeName);
+    var ar = aggregateMap.get(attributeName);
     for (;;) {
-      Number expectedVal = ar.get();
+      var expectedVal = ar.get();
       Number curVal = expectedVal.floatValue() + (newVal - oldVal);
       if (ar.compareAndSet(expectedVal, curVal)) {
         return;
@@ -206,9 +206,9 @@ public class StatsAggregator {
     if (newVal.equals(oldVal)) {
       return;
     }
-    AtomicReference<Number> ar = aggregateMap.get(attributeName);
+    var ar = aggregateMap.get(attributeName);
     for (;;) {
-      Number expectedVal = ar.get();
+      var expectedVal = ar.get();
       Number curVal = expectedVal.doubleValue() + (newVal - oldVal);
       if (ar.compareAndSet(expectedVal, curVal)) {
         return;
@@ -220,10 +220,10 @@ public class StatsAggregator {
     if (oldVal == 0) {
       return;
     }
-    AtomicReference<Number> ar = aggregateMap.get(attributeName);
+    var ar = aggregateMap.get(attributeName);
     Number curVal;
     for (;;) {
-      Number expectedVal = ar.get();
+      var expectedVal = ar.get();
       if (expectedVal.longValue() != 0) {
         curVal = expectedVal.longValue() - oldVal;
       } else {
@@ -239,10 +239,10 @@ public class StatsAggregator {
     if (oldVal == 0) {
       return;
     }
-    AtomicReference<Number> ar = aggregateMap.get(attributeName);
+    var ar = aggregateMap.get(attributeName);
     Number curVal;
     for (;;) {
-      Number expectedVal = ar.get();
+      var expectedVal = ar.get();
       if (expectedVal.intValue() != 0) {
         curVal = expectedVal.intValue() - oldVal;
       } else {
@@ -258,10 +258,10 @@ public class StatsAggregator {
     if (oldVal == 0) {
       return;
     }
-    AtomicReference<Number> ar = aggregateMap.get(attributeName);
+    var ar = aggregateMap.get(attributeName);
     Number curVal;
     for (;;) {
-      Number expectedVal = ar.get();
+      var expectedVal = ar.get();
       if (expectedVal.floatValue() != 0) {
         curVal = expectedVal.floatValue() - oldVal;
       } else {
@@ -277,10 +277,10 @@ public class StatsAggregator {
     if (oldVal == 0) {
       return;
     }
-    AtomicReference<Number> ar = aggregateMap.get(attributeName);
+    var ar = aggregateMap.get(attributeName);
     Number curVal;
     for (;;) {
-      Number expectedVal = ar.get();
+      var expectedVal = ar.get();
       if (expectedVal.doubleValue() != 0) {
         curVal = expectedVal.doubleValue() - oldVal;
       } else {

@@ -48,7 +48,7 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
    */
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.LOCAL);
     factory.setConcurrencyChecksEnabled(false);
     return factory.create();
@@ -69,9 +69,9 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
     // A region with Scope.LOCAL can only have subregions with
     // Scope.LOCAL.
     try {
-      AttributesFactory factory = new AttributesFactory(region.getAttributes());
+      var factory = new AttributesFactory(region.getAttributes());
       factory.setScope(Scope.DISTRIBUTED_NO_ACK);
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       region.createSubregion(getUniqueName(), attrs);
       fail("Should have thrown an IllegalStateException");
 
@@ -80,9 +80,9 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
     }
 
     try {
-      AttributesFactory factory = new AttributesFactory(region.getAttributes());
+      var factory = new AttributesFactory(region.getAttributes());
       factory.setScope(Scope.DISTRIBUTED_ACK);
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       region.createSubregion(getUniqueName(), attrs);
       fail("Should have thrown an IllegalStateException");
 
@@ -91,9 +91,9 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
     }
 
     try {
-      AttributesFactory factory = new AttributesFactory(region.getAttributes());
+      var factory = new AttributesFactory(region.getAttributes());
       factory.setScope(Scope.GLOBAL);
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       region.createSubregion(getUniqueName(), attrs);
       fail("Should have thrown an IllegalStateException");
 
@@ -112,10 +112,10 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
   public void testLocalLoaderNetSearch() throws CacheException {
     assertEquals(Scope.LOCAL, getRegionAttributes().getScope());
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = getUniqueName();
 
-    TestCacheLoader loader = new TestCacheLoader() {
+    var loader = new TestCacheLoader() {
       @Override
       public Object load2(LoaderHelper helper) throws CacheLoaderException {
 
@@ -130,9 +130,9 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheLoader(loader);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
     assertEquals(Scope.LOCAL, region.getAttributes().getScope());
 
     try {
@@ -140,9 +140,9 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
       fail("Should have thrown a CacheLoaderException");
 
     } catch (CacheLoaderException ex) {
-      String expected =
+      var expected =
           org.apache.geode.internal.cache.LoaderHelperImpl.NET_SEARCH_LOCAL;
-      String message = ex.getMessage();
+      var message = ex.getMessage();
       assertTrue("Unexpected message \"" + message + "\"", message.indexOf(expected) != -1);
     }
   }
@@ -153,17 +153,17 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
   @Test
   public void testLocalCreateModifiedCallbackArgument() throws CacheException {
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = "KEY";
     final Object value = "VALUE";
     final Object one = "ONE";
     final Object two = "TWO";
 
-    TestCacheLoader loader = new TestCacheLoader() {
+    var loader = new TestCacheLoader() {
       @Override
       public Object load2(LoaderHelper helper) throws CacheLoaderException {
 
-        Object[] array = (Object[]) helper.getArgument();
+        var array = (Object[]) helper.getArgument();
         assertEquals(one, array[0]);
         array[0] = two;
 
@@ -171,21 +171,21 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
       }
     };
 
-    TestCacheWriter writer = new TestCacheWriter() {
+    var writer = new TestCacheWriter() {
       @Override
       public void beforeCreate2(EntryEvent event) throws CacheWriterException {
 
-        Object[] array = (Object[]) event.getCallbackArgument();
+        var array = (Object[]) event.getCallbackArgument();
         assertEquals(two, array[0]);
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheLoader(loader);
     factory.setCacheWriter(writer);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
-    Object[] array = new Object[] {one};
+    var array = new Object[] {one};
     assertEquals(value, region.get(key, array));
     assertTrue(loader.wasInvoked());
     assertTrue(writer.wasInvoked());
@@ -197,17 +197,17 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
   @Test
   public void testLocalUpdateModifiedCallbackArgument() throws CacheException {
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = "KEY";
     final Object value = "VALUE";
     final Object one = "ONE";
     final Object two = "TWO";
 
-    TestCacheLoader loader = new TestCacheLoader() {
+    var loader = new TestCacheLoader() {
       @Override
       public Object load2(LoaderHelper helper) throws CacheLoaderException {
 
-        Object[] array = (Object[]) helper.getArgument();
+        var array = (Object[]) helper.getArgument();
         assertEquals(one, array[0]);
         array[0] = two;
 
@@ -215,7 +215,7 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
       }
     };
 
-    TestCacheWriter writer = new TestCacheWriter() {
+    var writer = new TestCacheWriter() {
       @Override
       public void beforeCreate2(EntryEvent event) throws CacheWriterException {
 
@@ -224,21 +224,21 @@ public class LocalRegionDUnitTest extends CacheListenerTestCase {
       @Override
       public void beforeUpdate2(EntryEvent event) throws CacheWriterException {
 
-        Object[] array = (Object[]) event.getCallbackArgument();
+        var array = (Object[]) event.getCallbackArgument();
         assertEquals(two, array[0]);
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheLoader(loader);
     factory.setCacheWriter(writer);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
     region.create(key, null);
     assertFalse(loader.wasInvoked());
     assertTrue(writer.wasInvoked());
 
-    Object[] array = new Object[] {one};
+    var array = new Object[] {one};
     assertEquals(value, region.get(key, array));
     assertTrue(loader.wasInvoked());
     assertTrue(writer.wasInvoked());

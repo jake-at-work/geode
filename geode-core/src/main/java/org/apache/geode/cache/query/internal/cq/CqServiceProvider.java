@@ -16,7 +16,6 @@ package org.apache.geode.cache.query.internal.cq;
 
 import java.io.DataInput;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.apache.geode.annotations.Immutable;
@@ -45,8 +44,8 @@ public class CqServiceProvider {
   public static final boolean VMOTION_DURING_CQ_REGISTRATION_FLAG = false;
 
   static {
-    ServiceLoader<CqServiceFactory> loader = ServiceLoader.load(CqServiceFactory.class);
-    Iterator<CqServiceFactory> itr = loader.iterator();
+    var loader = ServiceLoader.load(CqServiceFactory.class);
+    var itr = loader.iterator();
     if (!itr.hasNext()) {
       factory = null;
     } else {

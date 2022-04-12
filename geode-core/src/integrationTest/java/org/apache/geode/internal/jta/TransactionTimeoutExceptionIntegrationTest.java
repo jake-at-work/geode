@@ -19,14 +19,12 @@ import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import javax.naming.Context;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
@@ -64,21 +62,21 @@ public class TransactionTimeoutExceptionIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    String derbySystemHome = temporaryFolder.newFolder("derby").getAbsolutePath();
+    var derbySystemHome = temporaryFolder.newFolder("derby").getAbsolutePath();
     System.setProperty("derby.system.home", derbySystemHome);
 
-    String newDB = "newDB_" + ProcessUtils.identifyPid();
+    var newDB = "newDB_" + ProcessUtils.identifyPid();
 
-    String input =
+    var input =
         IOUtils.toString(getResource("TransactionTimeoutExceptionIntegrationTest_cachejta.xml"),
             Charset.defaultCharset());
     input = NEW_DB_PATTERN.matcher(input).replaceAll(newDB);
-    String output = modifyCacheJtaXml(input, newDB);
-    File cacheJtaXmlFile = temporaryFolder.newFile("cachejta.xml");
+    var output = modifyCacheJtaXml(input, newDB);
+    var cacheJtaXmlFile = temporaryFolder.newFile("cachejta.xml");
 
     FileUtils.writeStringToFile(cacheJtaXmlFile, output, Charset.defaultCharset());
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(CACHE_XML_FILE, cacheJtaXmlFile.getAbsolutePath());
 
     cache = new CacheFactory(props).create();
@@ -91,16 +89,16 @@ public class TransactionTimeoutExceptionIntegrationTest {
 
   @Test
   public void testBlockingTimeOut() throws Exception {
-    Context jndiContext = cache.getJNDIContext();
-    DataSource dataSource = (DataSource) jndiContext.lookup("java:/XAPooledDataSource");
-    UserTransaction utx = (UserTransaction) jndiContext.lookup("java:/UserTransaction");
+    var jndiContext = cache.getJNDIContext();
+    var dataSource = (DataSource) jndiContext.lookup("java:/XAPooledDataSource");
+    var utx = (UserTransaction) jndiContext.lookup("java:/UserTransaction");
     utx.begin();
     dataSource.getConnection();
 
     // sleep longer than the blocking timeout (nothing exposed to await on)
     Thread.sleep(Duration.ofSeconds(BLOCKING_TIMEOUT_SECONDS * 2).toMillis());
 
-    Throwable thrown = catchThrowable(utx::commit);
+    var thrown = catchThrowable(utx::commit);
 
     // NOTE: XAException is double-wrapped in SystemException (probably unintentional)
     assertThat(thrown)
@@ -113,13 +111,13 @@ public class TransactionTimeoutExceptionIntegrationTest {
 
   @Test
   public void testLoginTimeOut() throws Exception {
-    Context jndiContext = cache.getJNDIContext();
-    DataSource dataSource = (DataSource) jndiContext.lookup("java:/XAPooledDataSource");
-    for (int i = 0; i < DATA_SOURCE_POOL_SIZE; i++) {
+    var jndiContext = cache.getJNDIContext();
+    var dataSource = (DataSource) jndiContext.lookup("java:/XAPooledDataSource");
+    for (var i = 0; i < DATA_SOURCE_POOL_SIZE; i++) {
       dataSource.getConnection();
     }
 
-    Throwable thrown = catchThrowable(dataSource::getConnection);
+    var thrown = catchThrowable(dataSource::getConnection);
 
     assertThat(thrown)
         .isInstanceOf(SQLException.class)
@@ -128,17 +126,17 @@ public class TransactionTimeoutExceptionIntegrationTest {
 
   @Test
   public void testTransactionTimeOut() throws Exception {
-    Context jndiContext = cache.getJNDIContext();
-    DataSource dataSource = (DataSource) jndiContext.lookup("java:/XAPooledDataSource");
+    var jndiContext = cache.getJNDIContext();
+    var dataSource = (DataSource) jndiContext.lookup("java:/XAPooledDataSource");
     dataSource.getConnection();
-    UserTransaction utx = (UserTransaction) jndiContext.lookup("java:/UserTransaction");
+    var utx = (UserTransaction) jndiContext.lookup("java:/UserTransaction");
     utx.begin();
     utx.setTransactionTimeout(TRANSACTION_TIMEOUT_SECONDS);
 
     // sleep longer than the transaction timeout (nothing exposed to await on)
     Thread.sleep(Duration.ofSeconds(TRANSACTION_TIMEOUT_SECONDS * 2).toMillis());
 
-    Throwable thrown = catchThrowable(utx::commit);
+    var thrown = catchThrowable(utx::commit);
 
     assertThat(thrown)
         .isInstanceOf(IllegalStateException.class)
@@ -146,9 +144,9 @@ public class TransactionTimeoutExceptionIntegrationTest {
   }
 
   private String modifyCacheJtaXml(String jtaConfig, String newDB) {
-    String begin = "<jndi-binding type=\"XAPooledDataSource\"";
-    String end = "</jndi-binding>";
-    String jndiBinding =
+    var begin = "<jndi-binding type=\"XAPooledDataSource\"";
+    var end = "</jndi-binding>";
+    var jndiBinding =
         "<jndi-binding type=\"XAPooledDataSource\" " +
             "jndi-name=\"XAPooledDataSource\" " +
             "jdbc-driver-class=\"org.apache.derby.jdbc.EmbeddedDriver\" " +
@@ -163,7 +161,7 @@ public class TransactionTimeoutExceptionIntegrationTest {
             "user-name=\"mitul\" " +
             "password=\"83f0069202c571faf1ae6c42b4ad46030e4e31c17409e19a\" " +
             "connection-url=\"jdbc:derby:" + newDB + ";create=true\" >";
-    String configProperty =
+    var configProperty =
         "<config-property>" +
             "<config-property-name>description</config-property-name>" +
             "<config-property-type>java.lang.String</config-property-type>" +
@@ -188,10 +186,10 @@ public class TransactionTimeoutExceptionIntegrationTest {
             "</config-property>" +
             System.lineSeparator();
 
-    String modifiedConfig = jndiBinding + configProperty;
+    var modifiedConfig = jndiBinding + configProperty;
 
-    int indexOfBegin = jtaConfig.indexOf(begin);
-    int indexOfEnd = jtaConfig.indexOf(end, indexOfBegin);
+    var indexOfBegin = jtaConfig.indexOf(begin);
+    var indexOfEnd = jtaConfig.indexOf(end, indexOfBegin);
 
     return new StringBuilder(jtaConfig).replace(indexOfBegin, indexOfEnd, modifiedConfig)
         .toString();

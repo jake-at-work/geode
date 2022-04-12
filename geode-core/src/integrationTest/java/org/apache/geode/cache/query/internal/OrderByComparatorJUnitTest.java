@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 
 import org.junit.After;
@@ -31,7 +30,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvalidException;
@@ -55,33 +53,33 @@ public class OrderByComparatorJUnitTest {
 
   @Test
   public void testOrderByComparatorUnmapped() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         "SELECT  distinct ID, description, createTime FROM " + SEPARATOR
             + "portfolio1 pf1 where ID > 0 order by ID desc, pkid desc ",};
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     Position.resetCounter();
 
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
-    for (int i = 0; i < 10; i++) {
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    for (var i = 0; i < 10; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
         r[i][0] = q.execute();
-        ResultsCollectionPdxDeserializerWrapper wrapper =
+        var wrapper =
             (ResultsCollectionPdxDeserializerWrapper) r[i][0];
-        ResultsCollectionWrapper rcw = (ResultsCollectionWrapper) wrapper.results;
-        Field baseField = rcw.getClass().getDeclaredField("base");
+        var rcw = (ResultsCollectionWrapper) wrapper.results;
+        var baseField = rcw.getClass().getDeclaredField("base");
         baseField.setAccessible(true);
-        Collection base = (Collection) baseField.get(rcw);
+        var base = (Collection) baseField.get(rcw);
         assertTrue(base instanceof SortedStructSet);
-        SortedStructSet sss = (SortedStructSet) base;
+        var sss = (SortedStructSet) base;
         assertTrue(sss.comparator() instanceof OrderByComparatorMapped);
 
       } catch (Exception e) {
@@ -93,34 +91,34 @@ public class OrderByComparatorJUnitTest {
 
   @Test
   public void testOrderByComparatorMapped() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         "SELECT  distinct ID, description, createTime, pkid FROM " + SEPARATOR
             + "portfolio1 pf1 where ID > 0 order by ID desc, pkid desc ",};
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     Position.resetCounter();
 
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
         r[i][0] = q.execute();
-        ResultsCollectionPdxDeserializerWrapper wrapper =
+        var wrapper =
             (ResultsCollectionPdxDeserializerWrapper) r[i][0];
-        ResultsCollectionWrapper rcw = (ResultsCollectionWrapper) wrapper.results;
-        Field baseField = rcw.getClass().getDeclaredField("base");
+        var rcw = (ResultsCollectionWrapper) wrapper.results;
+        var baseField = rcw.getClass().getDeclaredField("base");
         baseField.setAccessible(true);
-        Collection base = (Collection) baseField.get(rcw);
+        var base = (Collection) baseField.get(rcw);
         assertTrue(base instanceof SortedStructSet);
-        SortedStructSet sss = (SortedStructSet) base;
+        var sss = (SortedStructSet) base;
         assertFalse(sss.comparator() instanceof OrderByComparatorMapped);
         assertTrue(sss.comparator() instanceof OrderByComparator);
       } catch (Exception e) {
@@ -132,21 +130,22 @@ public class OrderByComparatorJUnitTest {
 
   @Test
   public void testUnsupportedOrderByForPR() throws Exception {
-    String[] unsupportedQueries =
-        {"select distinct p.status from " + SEPARATOR + "portfolio1 p order by p.status, p.ID"};
-    Object[][] r = new Object[unsupportedQueries.length][2];
+    var unsupportedQueries =
+        new String[] {
+            "select distinct p.status from " + SEPARATOR + "portfolio1 p order by p.status, p.ID"};
+    var r = new Object[unsupportedQueries.length][2];
     Position.resetCounter();
     // Create Regions
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    AttributesFactory af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
-    Region r1 = CacheUtils.createRegion("portfolio1", af.create(), false);
+    var r1 = CacheUtils.createRegion("portfolio1", af.create(), false);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(new Portfolio(i), new Portfolio(i));
     }
 
-    for (int i = 0; i < unsupportedQueries.length; i++) {
+    for (var i = 0; i < unsupportedQueries.length; i++) {
       Query q;
       CacheUtils.getLogger().info("Executing query: " + unsupportedQueries[i]);
       q = CacheUtils.getQueryService().newQuery(unsupportedQueries[i]);
@@ -161,19 +160,20 @@ public class OrderByComparatorJUnitTest {
 
   @Test
   public void testSupportedOrderByForRR() throws Exception {
-    String[] unsupportedQueries =
-        {"select distinct p.status from " + SEPARATOR + "portfolio1 p order by p.status, p.ID"};
-    Object[][] r = new Object[unsupportedQueries.length][2];
+    var unsupportedQueries =
+        new String[] {
+            "select distinct p.status from " + SEPARATOR + "portfolio1 p order by p.status, p.ID"};
+    var r = new Object[unsupportedQueries.length][2];
     Position.resetCounter();
 
     // Create Regions
-    Region r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
+    var r1 = CacheUtils.createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(new Portfolio(i), new Portfolio(i));
     }
 
-    for (int i = 0; i < unsupportedQueries.length; i++) {
+    for (var i = 0; i < unsupportedQueries.length; i++) {
       Query q;
       CacheUtils.getLogger().info("Executing query: " + unsupportedQueries[i]);
       q = CacheUtils.getQueryService().newQuery(unsupportedQueries[i]);
@@ -194,21 +194,21 @@ public class OrderByComparatorJUnitTest {
 
   @Test
   public void testCompareTwoObjectArrays() throws Exception {
-    String[] arrString1 = {"elephants"};
-    String[] arrString2 = {"elephant"};
+    var arrString1 = new String[] {"elephants"};
+    var arrString2 = new String[] {"elephant"};
     assertThat(createComparator().compare(arrString1, arrString2)).isEqualTo(1);
   }
 
   @Test
   public void testCompareThrowsClassCastException() throws Exception {
-    String testString = "elephant";
-    int testInt = 159;
+    var testString = "elephant";
+    var testInt = 159;
     assertThatThrownBy(() -> createComparator().compare(testString, testInt))
         .isInstanceOf(ClassCastException.class);
   }
 
   private OrderByComparator createComparator() throws Exception {
-    StructTypeImpl objType = new StructTypeImpl();
+    var objType = new StructTypeImpl();
     return new OrderByComparator(null, objType, null);
   }
 }

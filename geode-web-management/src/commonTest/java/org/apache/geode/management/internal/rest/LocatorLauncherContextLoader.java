@@ -33,7 +33,7 @@ public class LocatorLauncherContextLoader extends BaseLocatorContextLoader {
   private final TemporaryFolder temp;
 
   public LocatorLauncherContextLoader() {
-    LocatorLauncher.Builder builder = new LocatorLauncher.Builder()
+    var builder = new LocatorLauncher.Builder()
         .setPort(0)
         .setMemberName("locator-0")
         .set(ConfigurationProperties.LOG_LEVEL, "config");

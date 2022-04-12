@@ -34,7 +34,6 @@ import org.apache.coyote.OutputBuffer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 
 
 public class Tomcat8CommitSessionValveTest {
@@ -46,11 +45,11 @@ public class Tomcat8CommitSessionValveTest {
 
   @Before
   public void before() {
-    final Connector connector = mock(Connector.class);
+    final var connector = mock(Connector.class);
 
-    final Context context = mock(Context.class);
+    final var context = mock(Context.class);
 
-    final Request request = mock(Request.class);
+    final var request = mock(Request.class);
     doReturn(context).when(request).getContext();
 
     coyoteResponse = new org.apache.coyote.Response();
@@ -81,13 +80,13 @@ public class Tomcat8CommitSessionValveTest {
     outputStream.write(bytes);
     outputStream.flush();
 
-    final ArgumentCaptor<ByteBuffer> byteBuffer = ArgumentCaptor.forClass(ByteBuffer.class);
+    final var byteBuffer = ArgumentCaptor.forClass(ByteBuffer.class);
 
-    final InOrder inOrder = inOrder(outputBuffer);
+    final var inOrder = inOrder(outputBuffer);
     inOrder.verify(outputBuffer).doWrite(byteBuffer.capture());
     inOrder.verifyNoMoreInteractions();
 
-    final OutputBuffer wrappedOutputBuffer = getOutputBuffer(coyoteResponse);
+    final var wrappedOutputBuffer = getOutputBuffer(coyoteResponse);
     assertThat(wrappedOutputBuffer).isInstanceOf(Tomcat8CommitSessionOutputBuffer.class);
     assertThat(((Tomcat8CommitSessionOutputBuffer) wrappedOutputBuffer).getDelegate())
         .isNotInstanceOf(Tomcat8CommitSessionOutputBuffer.class);

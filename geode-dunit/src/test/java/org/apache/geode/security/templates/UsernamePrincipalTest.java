@@ -37,10 +37,10 @@ public class UsernamePrincipalTest {
 
   @Test
   public void canBeSerialized() throws Exception {
-    String name = "jsmith";
-    UsernamePrincipal instance = new UsernamePrincipal(name);
+    var name = "jsmith";
+    var instance = new UsernamePrincipal(name);
 
-    UsernamePrincipal cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned.getName()).isEqualTo(name);
   }

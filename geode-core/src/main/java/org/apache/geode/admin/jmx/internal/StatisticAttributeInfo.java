@@ -56,7 +56,7 @@ class StatisticAttributeInfo extends org.apache.commons.modeler.AttributeInfo {
     Assert.assertTrue(stat != null, "Stat target object is null!");
     desc.setField("targetObject", stat);
 
-    ModelMBeanAttributeInfo info = new ModelMBeanAttributeInfo(displayName, // name
+    var info = new ModelMBeanAttributeInfo(displayName, // name
         type, // type
         description, // description
         readable, // isReadable

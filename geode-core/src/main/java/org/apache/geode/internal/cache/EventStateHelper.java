@@ -56,14 +56,14 @@ public class EventStateHelper {
       InternalDistributedMember myId) throws IOException {
     // For HARegionQueues, the event state map is uses different values
     // than a regular region :(
-    Map<EventStateMemberIdentifier, Map<ThreadIdentifier, Object>> groupedThreadIds =
+    var groupedThreadIds =
         groupThreadIds(eventState);
     List<EventStateMemberIdentifier> orderedIds = new LinkedList();
     Map<EventStateMemberIdentifier, Integer> seenIds = new HashMap();
 
     myId.writeEssentialData(dop); // added in 7.0 for version tag processing in fromData
 
-    for (EventStateMemberIdentifier memberId : groupedThreadIds.keySet()) {
+    for (var memberId : groupedThreadIds.keySet()) {
       if (!seenIds.containsKey(memberId)) {
         orderedIds.add(memberId);
         seenIds.put(memberId, seenIds.size());
@@ -71,26 +71,26 @@ public class EventStateHelper {
     }
 
     dop.writeInt(seenIds.size());
-    for (EventStateMemberIdentifier memberId : orderedIds) {
+    for (var memberId : orderedIds) {
       DataSerializer.writeByteArray(memberId.bytes, dop);
     }
 
     dop.writeInt(groupedThreadIds.size());
-    for (Map.Entry<EventStateMemberIdentifier, Map<ThreadIdentifier, Object>> memberIdEntry : groupedThreadIds
+    for (var memberIdEntry : groupedThreadIds
         .entrySet()) {
-      EventStateMemberIdentifier memberId = memberIdEntry.getKey();
+      var memberId = memberIdEntry.getKey();
       dop.writeInt(seenIds.get(memberId));
-      Map<ThreadIdentifier, Object> threadIdMap = memberIdEntry.getValue();
+      var threadIdMap = memberIdEntry.getValue();
       dop.writeInt(threadIdMap.size());
       for (Object next : threadIdMap.entrySet()) {
-        Map.Entry entry = (Map.Entry) next;
-        ThreadIdentifier key = (ThreadIdentifier) entry.getKey();
+        var entry = (Map.Entry) next;
+        var key = (ThreadIdentifier) entry.getKey();
         dop.writeLong(key.getThreadID());
         if (isHARegion) {
-          DispatchedAndCurrentEvents value = (DispatchedAndCurrentEvents) entry.getValue();
+          var value = (DispatchedAndCurrentEvents) entry.getValue();
           InternalDataSerializer.invokeToData(value, dop);
         } else {
-          EventSequenceNumberHolder value = (EventSequenceNumberHolder) entry.getValue();
+          var value = (EventSequenceNumberHolder) entry.getValue();
           InternalDataSerializer.invokeToData(value, dop);
         }
       }
@@ -111,29 +111,29 @@ public class EventStateHelper {
   public static Map deDataSerialize(DataInput dip, boolean isHARegion)
       throws IOException, ClassNotFoundException {
 
-    InternalDistributedMember senderId = InternalDistributedMember.readEssentialData(dip);
+    var senderId = InternalDistributedMember.readEssentialData(dip);
 
-    int numIds = dip.readInt();
+    var numIds = dip.readInt();
     Map<Integer, byte[]> numberToMember = new HashMap();
-    for (int i = 0; i < numIds; i++) {
+    for (var i = 0; i < numIds; i++) {
       numberToMember.put(i, DataSerializer.readByteArray(dip));
     }
 
-    int size = dip.readInt();
-    HashMap eventState = new HashMap(size);
-    for (int i = 0; i < size; i++) {
-      int idNumber = dip.readInt();
-      int subMapSize = dip.readInt();
+    var size = dip.readInt();
+    var eventState = new HashMap(size);
+    for (var i = 0; i < size; i++) {
+      var idNumber = dip.readInt();
+      var subMapSize = dip.readInt();
 
-      for (int j = 0; j < subMapSize; j++) {
-        long threadId = dip.readLong();
-        ThreadIdentifier key = new ThreadIdentifier(numberToMember.get(idNumber), threadId);
+      for (var j = 0; j < subMapSize; j++) {
+        var threadId = dip.readLong();
+        var key = new ThreadIdentifier(numberToMember.get(idNumber), threadId);
         if (isHARegion) {
-          DispatchedAndCurrentEvents value = new DispatchedAndCurrentEvents();
+          var value = new DispatchedAndCurrentEvents();
           InternalDataSerializer.invokeFromData(value, dip);
           eventState.put(key, value);
         } else {
-          EventSequenceNumberHolder value = new EventSequenceNumberHolder();
+          var value = new EventSequenceNumberHolder();
           InternalDataSerializer.invokeFromData(value, dip);
           eventState.put(key, value);
           if (value.getVersionTag() != null) {
@@ -150,12 +150,12 @@ public class EventStateHelper {
       Map eventState) {
     Map<EventStateMemberIdentifier, Map<ThreadIdentifier, Object>> results =
         new HashMap<>();
-    for (Object next : eventState.entrySet()) {
-      Map.Entry entry = (Map.Entry) next;
-      ThreadIdentifier key = (ThreadIdentifier) entry.getKey();
-      EventStateMemberIdentifier memberId = new EventStateMemberIdentifier(key.getMembershipID());
-      Object value = entry.getValue();
-      Map<ThreadIdentifier, Object> subMap = results.get(memberId);
+    for (var next : eventState.entrySet()) {
+      var entry = (Map.Entry) next;
+      var key = (ThreadIdentifier) entry.getKey();
+      var memberId = new EventStateMemberIdentifier(key.getMembershipID());
+      var value = entry.getValue();
+      var subMap = results.get(memberId);
       if (subMap == null) {
         subMap = new HashMap<>();
         results.put(memberId, subMap);
@@ -175,8 +175,8 @@ public class EventStateHelper {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + Arrays.hashCode(bytes);
       return result;
     }
@@ -192,7 +192,7 @@ public class EventStateHelper {
       if (!(obj instanceof EventStateMemberIdentifier)) {
         return false;
       }
-      EventStateMemberIdentifier other = (EventStateMemberIdentifier) obj;
+      var other = (EventStateMemberIdentifier) obj;
       return Arrays.equals(bytes, other.bytes);
     }
   }

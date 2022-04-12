@@ -47,8 +47,8 @@ public class BucketAdvisorTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    BucketAdvisor mockBucketAdvisor = mock(BucketAdvisor.class);
-    InternalDistributedMember mockInternalDistributedMember = mock(InternalDistributedMember.class);
+    var mockBucketAdvisor = mock(BucketAdvisor.class);
+    var mockInternalDistributedMember = mock(InternalDistributedMember.class);
 
     when(mockBucketAdvisor.basicGetPrimaryMember()).thenReturn(mockInternalDistributedMember);
     when(mockBucketAdvisor.getBucketRedundancy()).thenReturn(1);
@@ -59,15 +59,15 @@ public class BucketAdvisorTest {
 
   @Test
   public void whenServerStopsAfterTheFirstIsRunningCheckThenItShouldNotBeAddedToLocations() {
-    InternalCache mockCache = mock(InternalCache.class);
-    ProxyBucketRegion mockBucket = mock(ProxyBucketRegion.class);
-    RegionAdvisor mockRegionAdvisor = mock(RegionAdvisor.class);
-    PartitionedRegion mockPartitionedRegion = mock(PartitionedRegion.class);
+    var mockCache = mock(InternalCache.class);
+    var mockBucket = mock(ProxyBucketRegion.class);
+    var mockRegionAdvisor = mock(RegionAdvisor.class);
+    var mockPartitionedRegion = mock(PartitionedRegion.class);
     @SuppressWarnings("rawtypes")
-    PartitionAttributes mockPartitionAttributes = mock(PartitionAttributes.class);
-    DistributionManager mockDistributionManager = mock(DistributionManager.class);
+    var mockPartitionAttributes = mock(PartitionAttributes.class);
+    var mockDistributionManager = mock(DistributionManager.class);
     List<CacheServer> cacheServers = new ArrayList<>();
-    CacheServerImpl mockCacheServer = mock(CacheServerImpl.class);
+    var mockCacheServer = mock(CacheServerImpl.class);
     cacheServers.add(mockCacheServer);
 
     when(mockRegionAdvisor.getPartitionedRegion()).thenReturn(mockPartitionedRegion);
@@ -81,21 +81,21 @@ public class BucketAdvisorTest {
     when(mockCacheServer.getExternalAddress()).thenThrow(
         new IllegalStateException(CACHE_SERVER_BIND_ADDRESS_NOT_AVAILABLE_EXCEPTION_MESSAGE));
 
-    BucketAdvisor bucketAdvisor = BucketAdvisor.createBucketAdvisor(mockBucket, mockRegionAdvisor);
+    var bucketAdvisor = BucketAdvisor.createBucketAdvisor(mockBucket, mockRegionAdvisor);
     assertThat(bucketAdvisor.getBucketServerLocations(0).size()).isEqualTo(0);
   }
 
   @Test
   public void whenServerThrowsIllegalStateExceptionWithoutBindAddressMsgThenExceptionMustBeThrown() {
-    InternalCache mockCache = mock(InternalCache.class);
-    ProxyBucketRegion mockBucket = mock(ProxyBucketRegion.class);
-    RegionAdvisor mockRegionAdvisor = mock(RegionAdvisor.class);
-    PartitionedRegion mockPartitionedRegion = mock(PartitionedRegion.class);
+    var mockCache = mock(InternalCache.class);
+    var mockBucket = mock(ProxyBucketRegion.class);
+    var mockRegionAdvisor = mock(RegionAdvisor.class);
+    var mockPartitionedRegion = mock(PartitionedRegion.class);
     @SuppressWarnings("rawtypes")
-    PartitionAttributes mockPartitionAttributes = mock(PartitionAttributes.class);
-    DistributionManager mockDistributionManager = mock(DistributionManager.class);
+    var mockPartitionAttributes = mock(PartitionAttributes.class);
+    var mockDistributionManager = mock(DistributionManager.class);
     List<CacheServer> cacheServers = new ArrayList<>();
-    CacheServerImpl mockCacheServer = mock(CacheServerImpl.class);
+    var mockCacheServer = mock(CacheServerImpl.class);
     cacheServers.add(mockCacheServer);
 
     when(mockRegionAdvisor.getPartitionedRegion()).thenReturn(mockPartitionedRegion);
@@ -108,30 +108,30 @@ public class BucketAdvisorTest {
     when(mockCacheServer.isRunning()).thenReturn(true);
     when(mockCacheServer.getExternalAddress()).thenThrow(new IllegalStateException());
 
-    BucketAdvisor bucketAdvisor = BucketAdvisor.createBucketAdvisor(mockBucket, mockRegionAdvisor);
+    var bucketAdvisor = BucketAdvisor.createBucketAdvisor(mockBucket, mockRegionAdvisor);
     assertThatThrownBy(() -> bucketAdvisor.getBucketServerLocations(0))
         .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void volunteerForPrimaryIgnoresMissingPrimaryElector() {
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var distributionManager = mock(DistributionManager.class);
     when(distributionManager.getId()).thenReturn(new InternalDistributedMember("localhost", 321));
 
-    Bucket bucket = mock(Bucket.class);
+    var bucket = mock(Bucket.class);
     when(bucket.isHosting()).thenReturn(true);
     when(bucket.isPrimary()).thenReturn(false);
     when(bucket.getDistributionManager()).thenReturn(distributionManager);
 
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
     when(partitionedRegion.getRedundantCopies()).thenReturn(0);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(new PartitionAttributesImpl());
     when(partitionedRegion.getRedundancyTracker())
         .thenReturn(mock(PartitionedRegionRedundancyTracker.class));
 
-    InternalDistributedMember missingElectorId = new InternalDistributedMember("localhost", 123);
+    var missingElectorId = new InternalDistributedMember("localhost", 123);
 
-    RegionAdvisor regionAdvisor = mock(RegionAdvisor.class);
+    var regionAdvisor = mock(RegionAdvisor.class);
     when(regionAdvisor.getPartitionedRegion()).thenReturn(partitionedRegion);
     // hasPartitionedRegion() is invoked twice - once in initializePrimaryElector() and then in
     // volunteerForPrimary(). Returning true first simulates a elector being
@@ -142,14 +142,14 @@ public class BucketAdvisorTest {
         .thenReturn(true,
             false);
 
-    BucketAdvisor advisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
-    BucketAdvisor advisorSpy = spy(advisor);
+    var advisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
+    var advisorSpy = spy(advisor);
     doCallRealMethod().when(advisorSpy).exchangeProfiles();
     doCallRealMethod().when(advisorSpy).volunteerForPrimary();
     doReturn(true).when(advisorSpy).initializationGate();
     doReturn(true).when(advisorSpy).isHosting();
 
-    BucketAdvisor.VolunteeringDelegate volunteeringDelegate =
+    var volunteeringDelegate =
         mock(BucketAdvisor.VolunteeringDelegate.class);
     advisorSpy.setVolunteeringDelegate(volunteeringDelegate);
     advisorSpy.initializePrimaryElector(missingElectorId);
@@ -159,21 +159,21 @@ public class BucketAdvisorTest {
   }
 
   BucketAdvisor mockBucketAdvisorWithShadowBucketsDestroyedMap(Map<String, Boolean> shadowBuckets) {
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var distributionManager = mock(DistributionManager.class);
     when(distributionManager.getId()).thenReturn(new InternalDistributedMember("localhost", 321));
 
-    Bucket bucket = mock(Bucket.class);
+    var bucket = mock(Bucket.class);
     when(bucket.isHosting()).thenReturn(true);
     when(bucket.isPrimary()).thenReturn(false);
     when(bucket.getDistributionManager()).thenReturn(distributionManager);
 
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
     when(partitionedRegion.getRedundantCopies()).thenReturn(0);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(new PartitionAttributesImpl());
-    RegionAdvisor regionAdvisor = mock(RegionAdvisor.class);
+    var regionAdvisor = mock(RegionAdvisor.class);
     when(regionAdvisor.getPartitionedRegion()).thenReturn(partitionedRegion);
 
-    BucketAdvisor bucketAdvisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
+    var bucketAdvisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
     bucketAdvisor.destroyedShadowBuckets.putAll(shadowBuckets);
 
     return bucketAdvisor;
@@ -182,7 +182,7 @@ public class BucketAdvisorTest {
   @Test
   public void markAllShadowBucketsAsNonDestroyedShouldClearTheShadowBucketsDestroyedMap() {
     Map<String, Boolean> buckets = of(SEPARATOR + "b1", false, SEPARATOR + "b2", true);
-    BucketAdvisor bucketAdvisor = mockBucketAdvisorWithShadowBucketsDestroyedMap(buckets);
+    var bucketAdvisor = mockBucketAdvisorWithShadowBucketsDestroyedMap(buckets);
 
     assertThat(bucketAdvisor.destroyedShadowBuckets).isNotEmpty();
     bucketAdvisor.markAllShadowBucketsAsNonDestroyed();
@@ -193,7 +193,7 @@ public class BucketAdvisorTest {
   public void markAllShadowBucketsAsDestroyedShouldSetTheFlagAsTrueForEveryKnownShadowBucket() {
     Map<String, Boolean> buckets =
         of(SEPARATOR + "b1", false, SEPARATOR + "b2", false, SEPARATOR + "b3", false);
-    BucketAdvisor bucketAdvisor = mockBucketAdvisorWithShadowBucketsDestroyedMap(buckets);
+    var bucketAdvisor = mockBucketAdvisorWithShadowBucketsDestroyedMap(buckets);
 
     bucketAdvisor.destroyedShadowBuckets.forEach((k, v) -> assertThat(v).isFalse());
     bucketAdvisor.markAllShadowBucketsAsDestroyed();
@@ -203,7 +203,7 @@ public class BucketAdvisorTest {
   @Test
   public void markShadowBucketAsDestroyedShouldSetTheFlagAsTrueOnlyForTheSpecificBucket() {
     Map<String, Boolean> buckets = of(SEPARATOR + "b1", false);
-    BucketAdvisor bucketAdvisor = mockBucketAdvisorWithShadowBucketsDestroyedMap(buckets);
+    var bucketAdvisor = mockBucketAdvisorWithShadowBucketsDestroyedMap(buckets);
 
     // Known Shadow Bucket
     assertThat(bucketAdvisor.destroyedShadowBuckets.get(SEPARATOR + "b1")).isFalse();
@@ -219,7 +219,7 @@ public class BucketAdvisorTest {
   @Test
   public void isShadowBucketDestroyedShouldReturnCorrectly() {
     Map<String, Boolean> buckets = of(SEPARATOR + "b1", true, SEPARATOR + "b2", false);
-    BucketAdvisor bucketAdvisor = mockBucketAdvisorWithShadowBucketsDestroyedMap(buckets);
+    var bucketAdvisor = mockBucketAdvisorWithShadowBucketsDestroyedMap(buckets);
 
     // Known Shadow Buckets
     assertThat(bucketAdvisor.isShadowBucketDestroyed(SEPARATOR + "b1")).isTrue();
@@ -231,21 +231,21 @@ public class BucketAdvisorTest {
 
   @Test
   public void testGetAllHostingMembersReturnsNoMembersWhenBucketAdvisorHasNoProfiles() {
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var distributionManager = mock(DistributionManager.class);
     when(distributionManager.getId()).thenReturn(new InternalDistributedMember("localhost", 321));
 
-    Bucket bucket = mock(Bucket.class);
+    var bucket = mock(Bucket.class);
     when(bucket.isHosting()).thenReturn(true);
     when(bucket.isPrimary()).thenReturn(false);
     when(bucket.getDistributionManager()).thenReturn(distributionManager);
 
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
     when(partitionedRegion.getRedundantCopies()).thenReturn(0);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(new PartitionAttributesImpl());
-    RegionAdvisor regionAdvisor = mock(RegionAdvisor.class);
+    var regionAdvisor = mock(RegionAdvisor.class);
     when(regionAdvisor.getPartitionedRegion()).thenReturn(partitionedRegion);
 
-    BucketAdvisor bucketAdvisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
+    var bucketAdvisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
     bucketAdvisor.setInitialized();
 
     assertThat(bucketAdvisor.adviseInitialized().isEmpty()).isTrue();
@@ -253,29 +253,29 @@ public class BucketAdvisorTest {
 
   @Test
   public void testGetAllHostingMembersReturnsMemberWhenBucketAdvisorHasOneProfileWithHostingBucket() {
-    DistributionManager distributionManager = mock(DistributionManager.class);
-    InternalDistributedMember memberId = new InternalDistributedMember("localhost", 321);
+    var distributionManager = mock(DistributionManager.class);
+    var memberId = new InternalDistributedMember("localhost", 321);
 
     when(distributionManager.getId()).thenReturn(memberId);
 
-    Bucket bucket = mock(Bucket.class);
+    var bucket = mock(Bucket.class);
     when(bucket.isHosting()).thenReturn(true);
     when(bucket.isPrimary()).thenReturn(false);
     when(bucket.getDistributionManager()).thenReturn(distributionManager);
 
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
     when(partitionedRegion.getRedundantCopies()).thenReturn(0);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(new PartitionAttributesImpl());
     when(partitionedRegion.getRedundancyTracker())
         .thenReturn(mock(PartitionedRegionRedundancyTracker.class));
 
-    RegionAdvisor regionAdvisor = mock(RegionAdvisor.class);
+    var regionAdvisor = mock(RegionAdvisor.class);
     when(regionAdvisor.getPartitionedRegion()).thenReturn(partitionedRegion);
 
-    BucketAdvisor bucketAdvisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
+    var bucketAdvisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
     bucketAdvisor.setInitialized();
 
-    BucketAdvisor.BucketProfile bp = new BucketAdvisor.BucketProfile(memberId, 0, bucket);
+    var bp = new BucketAdvisor.BucketProfile(memberId, 0, bucket);
 
     assertThat(bucketAdvisor.putProfile(bp, true)).isTrue();
     assertThat(bucketAdvisor.adviseInitialized().size()).isEqualTo(1);
@@ -283,30 +283,30 @@ public class BucketAdvisorTest {
 
   @Test
   public void testGetAllHostingMembersReturnsMemberWhenBucketAdvisorHasTwoProfilesAndOneIsHostingBucket() {
-    DistributionManager distributionManager = mock(DistributionManager.class);
-    InternalDistributedMember memberId = new InternalDistributedMember("localhost", 321);
-    InternalDistributedMember memberId2 = new InternalDistributedMember("localhost", 323);
+    var distributionManager = mock(DistributionManager.class);
+    var memberId = new InternalDistributedMember("localhost", 321);
+    var memberId2 = new InternalDistributedMember("localhost", 323);
 
     when(distributionManager.getId()).thenReturn(memberId);
 
-    Bucket bucket = mock(Bucket.class);
+    var bucket = mock(Bucket.class);
     when(bucket.isHosting()).thenReturn(true);
     when(bucket.isPrimary()).thenReturn(false);
     when(bucket.getDistributionManager()).thenReturn(distributionManager);
 
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
     when(partitionedRegion.getRedundantCopies()).thenReturn(0);
     when(partitionedRegion.getPartitionAttributes()).thenReturn(new PartitionAttributesImpl());
     when(partitionedRegion.getRedundancyTracker())
         .thenReturn(mock(PartitionedRegionRedundancyTracker.class));
 
-    RegionAdvisor regionAdvisor = mock(RegionAdvisor.class);
+    var regionAdvisor = mock(RegionAdvisor.class);
     when(regionAdvisor.getPartitionedRegion()).thenReturn(partitionedRegion);
 
-    BucketAdvisor bucketAdvisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
+    var bucketAdvisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
 
-    BucketAdvisor.BucketProfile bp = new BucketAdvisor.BucketProfile(memberId, 0, bucket);
-    BucketAdvisor.BucketProfile bp2 = new BucketAdvisor.BucketProfile(memberId2, 0, bucket);
+    var bp = new BucketAdvisor.BucketProfile(memberId, 0, bucket);
+    var bp2 = new BucketAdvisor.BucketProfile(memberId2, 0, bucket);
     bp2.isHosting = false;
     bp2.isInitializing = true;
     bp2.isPrimary = false;

@@ -42,7 +42,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedSystem;
@@ -66,18 +65,18 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(() -> PutAllMultiVmDUnitTest.createCache(DataPolicy.REPLICATE));
     vm1.invoke(() -> PutAllMultiVmDUnitTest.createCache(DataPolicy.REPLICATE));
   }
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(PutAllMultiVmDUnitTest::closeCache);
     vm1.invoke(PutAllMultiVmDUnitTest::closeCache);
     cache = null;
@@ -94,10 +93,10 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
       props.setProperty("log-level", "info");
       ds = (new PutAllMultiVmDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(dataPolicy);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -106,10 +105,10 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
   public static void createMirroredRegion() {
     try {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDataPolicy(DataPolicy.REPLICATE);
       factory.setScope(Scope.DISTRIBUTED_ACK);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       mirroredRegion = cache.createRegion("mirrored", attr);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -135,13 +134,13 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
   private AsyncInvocation invokeBulkOp(VM vm) {
     AsyncInvocation async = vm.invokeAsync(() -> {
       Map m = new HashMap();
-      for (int i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
         m.put(i, "map" + i);
       }
       region.putAll(m);
 
-      HashSet m2 = new HashSet();
-      for (int i = 0; i < 10; i++) {
+      var m2 = new HashSet();
+      for (var i = 0; i < 10; i++) {
         m2.add(i);
       }
       region.removeAll(m2);
@@ -150,15 +149,15 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
   }
 
   private void testBulkOpFromNonDataStore(final DataPolicy dataPolicy) throws InterruptedException {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     vm2.invoke(() -> PutAllMultiVmDUnitTest.createCache(dataPolicy));
-    Random rand = new Random();
-    for (int k = 0; k < 100; k++) {
-      int shuffle = rand.nextInt(2);
+    var rand = new Random();
+    for (var k = 0; k < 100; k++) {
+      var shuffle = rand.nextInt(2);
       AsyncInvocation a1 = null;
       AsyncInvocation a2 = null;
       if (shuffle == 1) {
@@ -174,15 +173,15 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
       // verify vm0 and vm1 has the same keys
       await().untilAsserted(() -> {
         Set vm0Contents = vm0.invoke(() -> {
-          final HashSet<Object> keys = new HashSet<>();
-          for (Object o : region.keySet()) {
+          final var keys = new HashSet<Object>();
+          for (var o : region.keySet()) {
             keys.add(o);
           }
           return keys;
         }); // replicated
         Set vm1Contents = vm1.invoke(() -> {
-          final HashSet<Object> keys = new HashSet<>();
-          for (Object o : region.keySet()) {
+          final var keys = new HashSet<Object>();
+          for (var o : region.keySet()) {
             keys.add(o);
           }
           return keys;
@@ -195,11 +194,11 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
   // tests methods
   @Test
   public void putAllAndPutDistributionToNormalMemberShouldBeSame() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
     vm2.invoke(() -> PutAllMultiVmDUnitTest.createCache(DataPolicy.NORMAL));
     vm3.invoke(() -> PutAllMultiVmDUnitTest.createCache(DataPolicy.NORMAL));
@@ -211,7 +210,7 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
     vm3.invoke(() -> {
       // verify create is not distributed from NORMAL to NORMAL
-      Region.Entry entry = region.getEntry("putKeyFromNormal");
+      var entry = region.getEntry("putKeyFromNormal");
       assertThat(entry).isEqualTo(null);
 
       // add putKeyFromNormal to local cache
@@ -225,20 +224,20 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
     vm3.invoke(() -> {
       // verify update is distributed from NORMAL to NORMAL
-      Object value = region.getEntry("putKeyFromNormal").getValue();
+      var value = region.getEntry("putKeyFromNormal").getValue();
       assertThat(value).isEqualTo("value2");
     });
 
     vm1.invoke(() -> {
       // verify update is distributed from NORMAL to REPLICATE
-      Object value = region.getEntry("putKeyFromNormal").getValue();
+      var value = region.getEntry("putKeyFromNormal").getValue();
       assertThat(value).isEqualTo("value2");
     });
 
     vm2.invoke(() -> {
       // create some PUTALL_CREATE events
       Map m = new HashMap();
-      for (int i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
         m.put("putAllKeysFromNormal" + i, "map" + i);
       }
       region.putAll(m);
@@ -252,20 +251,20 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
     vm3.invoke(() -> {
       // verify NORMAL member received no events
-      for (int i = 0; i < 20; i++) {
-        Region.Entry entry = region.getEntry("putAllKeysFromNormal" + i);
+      for (var i = 0; i < 20; i++) {
+        var entry = region.getEntry("putAllKeysFromNormal" + i);
         assertThat(entry).isNull();
       }
 
       // verify NORMAL member will not receive update for keys not in its local cache
-      Region.Entry entry = region.getEntry("putKeyFromReplicate");
+      var entry = region.getEntry("putKeyFromReplicate");
       assertThat(entry).isNull();
-      Object value = region.getEntry("putKeyFromNormal").getValue();
+      var value = region.getEntry("putKeyFromNormal").getValue();
       assertThat(value).isEqualTo("value2");
 
       // create keys in local cache
       Map m = new HashMap();
-      for (int i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
         m.put("putAllKeysFromNormal" + i, "v3map" + i);
       }
       region.putAll(m);
@@ -273,26 +272,26 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
     vm2.invoke(() -> {
       // create some PUTALL_UPDATE events
-      HashMap m = new HashMap();
-      for (int i = 0; i < 20; i++) {
+      var m = new HashMap();
+      for (var i = 0; i < 20; i++) {
         m.put("putAllKeysFromNormal" + i, "newmap" + i);
       }
       region.putAll(m);
 
       // removeAll to remove a few existing entries
-      HashSet m2 = new HashSet();
-      for (int i = 0; i < 10; i++) {
+      var m2 = new HashSet();
+      for (var i = 0; i < 10; i++) {
         m2.add("putAllKeysFromNormal" + i);
       }
       region.removeAll(m2);
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         assertThat(region.getEntry("putAllKeysFromNormal" + i)).isNull();
       }
 
       // NORMAL starts a REMOVEALL with one key in its local cache, one key is not
-      Object value = region.getEntry("putKeyFromNormal").getValue();
+      var value = region.getEntry("putKeyFromNormal").getValue();
       assertThat(value).isEqualTo("value2");
-      Region.Entry entry = region.getEntry("putKeyFromReplicate");
+      var entry = region.getEntry("putKeyFromReplicate");
       assertThat(entry).isNull();
 
       m2 = new HashSet();
@@ -308,7 +307,7 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
     vm1.invoke(() -> {
       // verify REPLICATE member received ReomeAll event for both keys
-      Region.Entry entry = region.getEntry("putKeyFromNormal");
+      var entry = region.getEntry("putKeyFromNormal");
       assertThat(entry).isNull();
       entry = region.getEntry("putKeyFromReplicate");
       assertThat(entry).isNull();
@@ -316,16 +315,16 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
     vm3.invoke(() -> {
       // Note: removeAll will not distribute to NORMAL member
-      for (int i = 0; i < 20; i++) {
-        Object value = region.getEntry("putAllKeysFromNormal" + i).getValue();
+      for (var i = 0; i < 20; i++) {
+        var value = region.getEntry("putAllKeysFromNormal" + i).getValue();
         assertThat(value).isEqualTo("newmap" + i);
       }
 
       // verify NORMAL member received PUTALL_UPDATE only
       // ReomeAll event will not distribute to NORMAL member
-      Object value = region.getEntry("putKeyFromNormal").getValue();
+      var value = region.getEntry("putKeyFromNormal").getValue();
       assertThat(value).isEqualTo("value2");
-      Region.Entry entry = region.getEntry("putKeyFromReplicate");
+      var entry = region.getEntry("putKeyFromReplicate");
       assertThat(entry).isNull();
     });
   }
@@ -347,9 +346,9 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
   @Test
   public void testSimplePutAll() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     SerializableRunnable clear = new CacheSerializableRunnable("clear") {
       @Override
@@ -366,21 +365,21 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
       @Override
       public void run2() throws CacheException {
         int cntr = 0, cntr1 = 0;
-        for (int i = 1; i < 6; i++) {
+        for (var i = 1; i < 6; i++) {
           region.put(i, "testSimplePutAll" + i);
           cntr++;
         }
 
-        int size1 = region.size();
+        var size1 = region.size();
         Map m = new HashMap();
-        for (int i = 6; i < 27; i++) {
+        for (var i = 6; i < 27; i++) {
           m.put(i, "map" + i);
           cntr++;
           cntr1++;
         }
 
         region.putAll(m);
-        int size2 = region.size();
+        var size2 = region.size();
 
         assertEquals(cntr, region.size());
         assertEquals(cntr1, (size2 - size1));
@@ -404,15 +403,15 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
         // assertIndexDetailsEquals(0, region.size());
         createMirroredRegion();
         cacheTxnMgr = cache.getCacheTransactionManager();
-        int cntr = 0;
-        for (int i = 1; i < 6; i++) {
+        var cntr = 0;
+        for (var i = 1; i < 6; i++) {
           mirroredRegion.put(i, "testSimplePutAll" + i);
           cntr++;
         }
 
-        int size1 = mirroredRegion.size();
+        var size1 = mirroredRegion.size();
         Map m = new HashMap();
-        for (int i = 6; i < 27; i++) {
+        for (var i = 6; i < 27; i++) {
           m.put(i, "map" + i);
           cntr++;
         }
@@ -444,7 +443,7 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
     vm1.invoke(new CacheSerializableRunnable("testSimplePutAll3") {
       @Override
       public void run2() throws CacheException {
-        Integer i = (Integer) mirroredRegion.get("size");
+        var i = (Integer) mirroredRegion.get("size");
         int cntr = i;
         assertEquals(cntr, (mirroredRegion.size() - 1));
         assertEquals(true, mirroredRegion.containsKey(10));
@@ -456,22 +455,22 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
   @Test
   public void testPutAllExceptions() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     vm0.invoke(new CacheSerializableRunnable("testPutAllExceptions1") {
       @Override
       public void run2() throws CacheException {
-        int cntr = 0;
+        var cntr = 0;
         // int cntr1 = 0;
-        for (int i = 1; i < 6; i++) {
+        for (var i = 1; i < 6; i++) {
           region.put(i, "testSimplePutAll" + i);
           cntr++;
         }
 
         Map m = new TreeMap();// to verify the assertions
-        for (int i = 6; i < 27; i++) {
+        for (var i = 6; i < 27; i++) {
           if (i == 16) {
             m.put(i, null);
           } else {
@@ -509,12 +508,12 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
         // assertIndexDetailsEquals(0, region.size());
         createMirroredRegion();
 
-        for (int i = 1; i < 6; i++) {
+        for (var i = 1; i < 6; i++) {
           mirroredRegion.put(i, "testSimplePutAll" + i);
         }
 
         Map m = new TreeMap();// to verify the assertions
-        for (int i = 6; i < 27; i++) {
+        for (var i = 6; i < 27; i++) {
           if (i == 16) {
             m.put(i, null);
           } else {
@@ -543,7 +542,7 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
     vm1.invoke(new CacheSerializableRunnable("testPutAllExceptions3") {
       @Override
       public void run2() throws CacheException {
-        Integer i = (Integer) mirroredRegion.get("size");
+        var i = (Integer) mirroredRegion.get("size");
         int cntr = i;
         assertEquals(cntr, (mirroredRegion.size() - 1));
         assertEquals(false, mirroredRegion.containsKey(10));
@@ -558,8 +557,8 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
 
   @Test
   public void testPutAllExceptionHandling() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     // VM vm1 = host.getVM(1);
 
     vm0.invoke(new CacheSerializableRunnable("testPutAllExceptionHandling1") {
@@ -577,7 +576,7 @@ public class PutAllMultiVmDUnitTest extends JUnit4DistributedTestCase { // TODO:
         region.localDestroyRegion();
         try {
           Map m1 = new HashMap();
-          for (int i = 1; i < 21; i++) {
+          for (var i = 1; i < 21; i++) {
             m1.put(i, Integer.toString(i));
           }
 

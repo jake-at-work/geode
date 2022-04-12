@@ -36,15 +36,12 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.execute.CustomerIDPartitionResolver;
 import org.apache.geode.internal.cache.execute.data.CustId;
 import org.apache.geode.test.dunit.Host;
@@ -70,8 +67,8 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
       public Object call() throws Exception {
         createRegion(accessor, 0, null);
         if (startServer) {
-          int port = getRandomAvailableTCPPort();
-          CacheServer s = getCache().addCacheServer();
+          var port = getRandomAvailableTCPPort();
+          var s = getCache().addCacheServer();
           s.setPort(port);
           s.start();
           return port;
@@ -82,7 +79,7 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createRegion(boolean accessor, int redundantCopies, InterestPolicy interestPolicy) {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.DISTRIBUTED_ACK);
     af.setDataPolicy(DataPolicy.REPLICATE);
     af.setCloningEnabled(true);
@@ -108,16 +105,16 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory ccf = new ClientCacheFactory();
+        var ccf = new ClientCacheFactory();
         ccf.addPoolServer("localhost"/* getServerHostName(Host.getHost(0)) */, port);
         ccf.setPoolSubscriptionEnabled(false);
         ccf.set(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
-        ClientCache cCache = getClientCache(ccf);
+        var cCache = getClientCache(ccf);
         ClientRegionFactory<Integer, String> crf = cCache.createClientRegionFactory(
             isEmpty ? ClientRegionShortcut.PROXY : ClientRegionShortcut.CACHING_PROXY);
-        Region<Integer, String> r = crf.create(D_REFERENCE);
-        Region<Integer, String> customer = crf.create(CUSTOMER);
-        Region<Integer, String> order = crf.create(ORDER);
+        var r = crf.create(D_REFERENCE);
+        var customer = crf.create(CUSTOMER);
+        var order = crf.create(ORDER);
         if (ri) {
           r.registerInterestRegex(".*");
           customer.registerInterestRegex(".*");
@@ -201,7 +198,7 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
         return true;
       }
       if (obj instanceof Customer) {
-        Customer other = (Customer) obj;
+        var other = (Customer) obj;
         return id == other.id && name.equals(other.name);
       }
       return false;
@@ -213,13 +210,13 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
     }
 
     public boolean isFromDeltaCalled() {
-      boolean retVal = fromDeltaCalled;
+      var retVal = fromDeltaCalled;
       fromDeltaCalled = false;
       return retVal;
     }
 
     public boolean isToDeltaCalled() {
-      boolean retVal = toDeltaCalled;
+      var retVal = toDeltaCalled;
       toDeltaCalled = false;
       return retVal;
     }
@@ -247,15 +244,15 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTxWithCloning() {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(1);
-    final String regionName = getUniqueName();
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(1);
+    final var regionName = getUniqueName();
 
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.REPLICATE);
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setCloningEnabled(true);
@@ -266,14 +263,14 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
 
     vm1.invoke(createRegion);
     vm2.invoke(createRegion);
-    final String key = "cust1";
+    final var key = "cust1";
 
     vm1.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        TXManagerImpl mgr = getGemfireCache().getTxManager();
+        var mgr = getGemfireCache().getTxManager();
         Region r = getCache().getRegion(regionName);
-        Customer cust = new Customer(1, "cust1");
+        var cust = new Customer(1, "cust1");
         r.put(key, cust);
         mgr.begin();
         cust.setName("");
@@ -286,7 +283,7 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region<String, Customer> r = getCache().getRegion(regionName);
-        Customer c = r.get(key);
+        var c = r.get(key);
         c.setName("cust1updated");
         r.put(key, c);
         return null;
@@ -296,7 +293,7 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        TXManagerImpl mgr = getGemfireCache().getTxManager();
+        var mgr = getGemfireCache().getTxManager();
         Region r = getCache().getRegion(regionName);
         assertNotNull(mgr.getTXState());
         try {
@@ -312,18 +309,18 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testExceptionThrown() {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(0);
-    VM vm2 = host.getVM(1);
-    final String regionName = getUniqueName();
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(0);
+    var vm2 = host.getVM(1);
+    final var regionName = getUniqueName();
 
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.REPLICATE);
         af.setScope(Scope.DISTRIBUTED_ACK);
-        final RegionAttributes attr = af.create();
+        final var attr = af.create();
         getCache().createRegion(regionName, attr);
         return null;
       }
@@ -331,14 +328,14 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
 
     vm1.invoke(createRegion);
     vm2.invoke(createRegion);
-    final String key = "cust1";
+    final var key = "cust1";
 
     vm1.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        TXManagerImpl mgr = getGemfireCache().getTxManager();
+        var mgr = getGemfireCache().getTxManager();
         Region r = getCache().getRegion(regionName);
-        Customer cust = new Customer(1, "cust1");
+        var cust = new Customer(1, "cust1");
         r.put(key, cust);
         mgr.begin();
         cust.setName("");
@@ -355,9 +352,9 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testClientServerDelta() {
-    Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
     int port = createRegionOnServer(server, true, false);
     createClientRegion(client, port, false, false);
 
@@ -365,12 +362,12 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region<CustId, Customer> pr = getCache().getRegion(CUSTOMER);
-        CustId cust1 = new CustId(1);
+        var cust1 = new CustId(1);
         pr.put(cust1, new Customer(1, "name1"));
-        for (final CustId custId : pr.keySet()) {
+        for (final var custId : pr.keySet()) {
           LogWriterUtils.getLogWriter().info("SWAP:iterator1:" + pr.get(custId));
         }
-        Customer c = pr.get(cust1);
+        var c = pr.get(cust1);
         assertNotNull(c);
         return null;
       }
@@ -380,19 +377,19 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region<CustId, Customer> pr = getCache().getRegion(CUSTOMER);
-        TXManagerImpl mgr = getGemfireCache().getTxManager();
-        CustId cust1 = new CustId(1);
+        var mgr = getGemfireCache().getTxManager();
+        var cust1 = new CustId(1);
         // pr.put(cust1, new Customer(1, "name1"));
         // pr.create(cust1, new Customer(1, "name1"));
         mgr.begin();
-        Customer c = pr.get(cust1);
+        var c = pr.get(cust1);
         c.setName("updatedName");
         LogWriterUtils.getLogWriter().info("SWAP:doingPut");
         pr.put(cust1, c);
         LogWriterUtils.getLogWriter().info("SWAP:getfromtx:" + pr.get(cust1));
         LogWriterUtils.getLogWriter().info("SWAP:doingCommit");
         assertEquals("updatedName", pr.get(cust1).getName());
-        TXStateProxy tx = mgr.pauseTransaction();
+        var tx = mgr.pauseTransaction();
         assertEquals("name1", pr.get(cust1).getName());
         mgr.unpauseTransaction(tx);
         mgr.commit();
@@ -405,8 +402,8 @@ public class TransactionsWithDeltaDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() throws Exception {
         Region<CustId, Customer> pr = getCache().getRegion(CUSTOMER);
-        CustId cust1 = new CustId(1);
-        Customer c = pr.get(cust1);
+        var cust1 = new CustId(1);
+        var c = pr.get(cust1);
         assertTrue(c.isFromDeltaCalled());
         return null;
       }

@@ -21,7 +21,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,7 +42,6 @@ import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.SerialDistributionMessage;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -104,8 +102,8 @@ public class StateFlushOperation {
 
   /** flush current ops to the given members for the given region */
   public static void flushTo(Set<InternalDistributedMember> targets, DistributedRegion region) {
-    DistributionManager dm = region.getDistributionManager();
-    boolean initialized = region.isInitialized();
+    var dm = region.getDistributionManager();
+    var initialized = region.isInitialized();
     if (initialized) {
       // force a new "view" so we can track current ops
       region.getDistributionAdvisor().forceNewMembershipVersion();
@@ -117,12 +115,12 @@ public class StateFlushOperation {
     }
     // send all state-flush messages and then wait for replies
     Set<ReplyProcessor21> processors = new HashSet<>();
-    for (InternalDistributedMember target : targets) {
-      StateStabilizationMessage gr = new StateStabilizationMessage();
+    for (var target : targets) {
+      var gr = new StateStabilizationMessage();
       gr.isSingleFlushTo = true; // new for flushTo operation
       gr.requestingMember = dm.getDistributionManagerId();
       gr.setRecipient(target);
-      ReplyProcessor21 processor = new ReplyProcessor21(dm, target);
+      var processor = new ReplyProcessor21(dm, target);
       gr.processorId = processor.getProcessorId();
       gr.channelState = dm.getDistribution().getMessageState(target, false);
       if (logger.isTraceEnabled(LogMarker.STATE_FLUSH_OP_VERBOSE)
@@ -141,7 +139,7 @@ public class StateFlushOperation {
       region.getRegionMap().getARMLockTestHook().beforeStateFlushWait();
     }
 
-    for (ReplyProcessor21 processor : processors) {
+    for (var processor : processors) {
       try {
         processor.waitForReplies();
       } catch (InterruptedException ignore) {
@@ -189,12 +187,12 @@ public class StateFlushOperation {
   public boolean flush(Set recipients, DistributedMember target, int processorType,
       boolean flushNewOps) throws InterruptedException {
 
-    Set recips = recipients; // do not use recipients parameter past this point
+    var recips = recipients; // do not use recipients parameter past this point
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
 
-    InternalDistributedMember myId = dm.getDistributionManagerId();
+    var myId = dm.getDistributionManagerId();
 
     if (!recips.contains(target) && !myId.equals(target)) {
       recips = new HashSet(recipients);
@@ -205,7 +203,7 @@ public class StateFlushOperation {
     // if (recips.size() < 2 && !myId.equals(target)) {
     // return true; // no state to flush to a single holder of the region
     // }
-    StateMarkerMessage smm = new StateMarkerMessage();
+    var smm = new StateMarkerMessage();
     smm.relayRecipient = target;
     smm.processorType = processorType;
     smm.flushNewOps = flushNewOps;
@@ -216,7 +214,7 @@ public class StateFlushOperation {
     }
     smm.setRecipients(recips);
 
-    StateFlushReplyProcessor gfprocessor = new StateFlushReplyProcessor(dm, recips, target);
+    var gfprocessor = new StateFlushReplyProcessor(dm, recips, target);
     smm.processorId = gfprocessor.getProcessorId();
     if (region != null && region.isUsedForPartitionedRegionBucket()
         && region.getDistributionConfig().getAckSevereAlertThreshold() > 0) {
@@ -311,10 +309,10 @@ public class StateFlushOperation {
       if (region != null) {
         return region;
       }
-      final InitializationLevel oldLevel =
+      final var oldLevel =
           LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
       try {
-        InternalCache gfc = dm.getExistingCache();
+        var gfc = dm.getExistingCache();
         Region r = gfc.getRegionByPathForProcessing(regionPath);
         if (r instanceof DistributedRegion) {
           region = (DistributedRegion) r;
@@ -327,12 +325,12 @@ public class StateFlushOperation {
 
     /** returns a set of all DistributedRegions for allRegions processing */
     private Set<DistributedRegion> getAllRegions(ClusterDistributionManager dm) {
-      final InitializationLevel oldLevel =
+      final var oldLevel =
           LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
       try {
-        InternalCache cache = dm.getExistingCache();
+        var cache = dm.getExistingCache();
         Set<DistributedRegion> result = new HashSet();
-        for (InternalRegion r : cache.getAllRegions()) {
+        for (var r : cache.getAllRegions()) {
           // it's important not to check if the cache is closing, so access
           // the isDestroyed boolean directly
           if (r instanceof DistributedRegion && !((LocalRegion) r).isDestroyed) {
@@ -351,8 +349,8 @@ public class StateFlushOperation {
       if (dm.getDistributionManagerId().equals(relayRecipient)) {
         try {
           // wait for inflight operations to the aeqs even if the recipient is the primary
-          Set<DistributedRegion> regions = getRegions(dm);
-          for (DistributedRegion r : regions) {
+          var regions = getRegions(dm);
+          for (var r : regions) {
             if (r != null) {
               if (allRegions && r.doesNotDistribute()) {
                 // no need to flush a region that does no distribution
@@ -371,7 +369,7 @@ public class StateFlushOperation {
         } finally {
           // no need to send a relay request to this process - just send the
           // ack back to the sender
-          StateStabilizedMessage ga = new StateStabilizedMessage();
+          var ga = new StateStabilizedMessage();
           ga.sendingMember = relayRecipient;
           ga.setRecipient(getSender());
           ga.setProcessorId(processorId);
@@ -387,13 +385,13 @@ public class StateFlushOperation {
         // to the relay point
         // 3) send a stabilization message to the relay point that holds the
         // communication channel state information
-        StateStabilizationMessage gr = new StateStabilizationMessage();
+        var gr = new StateStabilizationMessage();
         gr.setRecipient((InternalDistributedMember) relayRecipient);
         gr.requestingMember = getSender();
         gr.processorId = processorId;
         try {
-          Set<DistributedRegion> regions = getRegions(dm);
-          for (DistributedRegion r : regions) {
+          var regions = getRegions(dm);
+          for (var r : regions) {
             if (r == null) {
               if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
                 logger.trace(LogMarker.DM_VERBOSE,
@@ -405,9 +403,9 @@ public class StateFlushOperation {
                 // no need to flush a region that does no distribution
                 continue;
               }
-              boolean initialized = r.isInitialized();
+              var initialized = r.isInitialized();
               waitForCurrentOperations(r, initialized);
-              boolean useMulticast =
+              var useMulticast =
                   r.getMulticastEnabled() && r.getSystem().getConfig().getMcastPort() != 0;
               if (initialized) {
                 Map channelStates =
@@ -543,10 +541,10 @@ public class StateFlushOperation {
       if (!(state instanceof Map)) {
         return "unknown channelState content";
       } else {
-        Map csmap = (Map) state;
-        StringBuilder result = new StringBuilder(200);
-        for (Iterator it = csmap.entrySet().iterator(); it.hasNext();) {
-          Map.Entry entry = (Map.Entry) it.next();
+        var csmap = (Map) state;
+        var result = new StringBuilder(200);
+        for (var it = csmap.entrySet().iterator(); it.hasNext();) {
+          var entry = (Map.Entry) it.next();
           result.append(entry.getKey()).append('=').append(entry.getValue());
           if (it.hasNext()) {
             result.append(", ");
@@ -576,7 +574,7 @@ public class StateFlushOperation {
               }
               for (;;) {
                 dm.getCancelCriterion().checkCancelInProgress(null);
-                boolean interrupted = Thread.interrupted();
+                var interrupted = Thread.interrupted();
                 try {
                   dm.getDistribution().waitForMessageState(getSender(), channelState);
                   break;
@@ -606,7 +604,7 @@ public class StateFlushOperation {
             logger.fatal("Exception caught while waiting for channel state",
                 e);
           } finally {
-            StateStabilizedMessage ga = new StateStabilizedMessage();
+            var ga = new StateStabilizedMessage();
             ga.setRecipient((InternalDistributedMember) requestingMember);
             if (isSingleFlushTo) {
               // not a proxied message but a simple request-response
@@ -715,7 +713,7 @@ public class StateFlushOperation {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("StateStabilizedMessage ");
       sb.append(processorId);
       if (super.getSender() != null) {
@@ -723,13 +721,13 @@ public class StateFlushOperation {
         sb.append(super.getSender());
       }
       if (!getRecipients().isEmpty()) {
-        String recip = getRecipientsDescription();
+        var recip = getRecipientsDescription();
         sb.append(" to ");
         sb.append(recip);
       }
       sb.append(" on behalf of ");
       sb.append(sendingMember);
-      ReplyException ex = getException();
+      var ex = getException();
       if (ex != null) {
         sb.append(" with exception ");
         sb.append(ex);
@@ -765,7 +763,7 @@ public class StateFlushOperation {
 
     /** process the failure set from sending the message */
     public void messageNotSentTo(Set failures) {
-      for (final Object failure : failures) {
+      for (final var failure : failures) {
         memberDeparted(null, (InternalDistributedMember) failure, true);
       }
     }

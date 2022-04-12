@@ -47,9 +47,9 @@ public class DeltaSessionAttributeEventBatch extends AbstractGatewayDeltaEvent {
   public void apply(Cache cache) {
     @SuppressWarnings("unchecked")
     Region<String, DeltaSessionInterface> region = getRegion(cache);
-    DeltaSessionInterface session = region.get(key);
+    var session = region.get(key);
     if (session == null) {
-      String builder = "Session " + key
+      var builder = "Session " + key
           + " was not found while attempting to apply " + this;
       cache.getLogger().warning(builder);
     } else {

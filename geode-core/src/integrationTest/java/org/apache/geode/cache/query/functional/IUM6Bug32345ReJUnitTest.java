@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
@@ -87,21 +86,21 @@ public class IUM6Bug32345ReJUnitTest {
   @Test
   public void testComparisonBetnWithAndWithoutIndexCreation() throws Exception {
 
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "pos pf,  positions.values pos where pf.status='active' and pos.secId= 'IBM' and ID = 0"};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
-    for (int i = 0; i < queries.length; i++) {
+    var sr = new SelectResults[queries.length][2];
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i][0] = (SelectResults) q.execute();
         resType1 = (StructType) (sr[i][0]).getCollectionType().getElementType();
@@ -110,8 +109,8 @@ public class IUM6Bug32345ReJUnitTest {
         strg1 = resType1.getFieldNames();
 
         set1 = ((sr[i][0]).asSet());
-        for (final Object o : set1) {
-          Struct stc1 = (Struct) o;
+        for (final var o : set1) {
+          var stc1 = (Struct) o;
           valPf1 = stc1.get(strg1[0]);
           valPos1 = stc1.get(strg1[1]);
           isActive1 = ((Portfolio) stc1.get(strg1[0])).isActive();
@@ -133,14 +132,14 @@ public class IUM6Bug32345ReJUnitTest {
     // pf.positions.values pos");
     qs.createIndex("IDIndex", IndexType.FUNCTIONAL, "pf.ID",
         SEPARATOR + "pos pf, pf.positions.values pos");
-    String[] queries2 = {
+    var queries2 = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "pos pf,  positions.values pos where pf.status='active' and pos.secId= 'IBM' and ID = 0"};
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         sr[i][1] = (SelectResults) q.execute();
         if (!observer2.isIndexesUsed) {
@@ -154,8 +153,8 @@ public class IUM6Bug32345ReJUnitTest {
         // CacheUtils.log(strg2[1]);
 
         set2 = ((sr[i][1]).asSet());
-        for (final Object o : set2) {
-          Struct stc2 = (Struct) o;
+        for (final var o : set2) {
+          var stc2 = (Struct) o;
           valPf2 = stc2.get(strg2[0]);
           valPos2 = stc2.get(strg2[1]);
           isActive2 = ((Portfolio) stc2.get(strg2[0])).isActive();
@@ -182,8 +181,8 @@ public class IUM6Bug32345ReJUnitTest {
     itert2 = set2.iterator();
     itert1 = set1.iterator();
     while (itert1.hasNext()) {
-      Struct stc2 = (Struct) itert2.next();
-      Struct stc1 = (Struct) itert1.next();
+      var stc2 = (Struct) itert2.next();
+      var stc1 = (Struct) itert1.next();
       if (stc2.get(strg2[0]) != stc1.get(strg1[0])) {
         fail(
             "FAILED: In both the Cases the first member of StructSet i.e. Portfolio are different. ");

@@ -47,10 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLContextSpi;
@@ -68,11 +65,9 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.DynamicRegionFactory;
 import org.apache.geode.cache.EntryDestroyedException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.NoAvailableServersException;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerConnectivityException;
 import org.apache.geode.cache.client.ServerOperationException;
@@ -86,7 +81,6 @@ import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.Locator;
@@ -161,8 +155,8 @@ public class SecurityTestUtils {
   }
 
   protected static Properties concatProperties(final Properties[] propsList) {
-    Properties props = new Properties();
-    for (final Properties properties : propsList) {
+    var props = new Properties();
+    for (final var properties : propsList) {
       if (properties != null) {
         props.putAll(properties);
       }
@@ -175,7 +169,7 @@ public class SecurityTestUtils {
   }
 
   protected static int createCacheServer(String authenticatorFactoryMethodName) {
-    Properties authProps = new Properties();
+    var authProps = new Properties();
     authProps.setProperty(SECURITY_CLIENT_AUTHENTICATOR, authenticatorFactoryMethodName);
     return createCacheServer(authProps, null, 0, false, NO_EXCEPTION);
   }
@@ -197,7 +191,7 @@ public class SecurityTestUtils {
     logger.info("Set the server properties to: " + authProps);
     logger.info("Set the java properties to: " + javaProps);
 
-    SecurityTestUtils tmpInstance = new SecurityTestUtils();
+    var tmpInstance = new SecurityTestUtils();
     try {
       tmpInstance.createSystem(authProps, javaProps);
     } catch (AuthenticationRequiredException ex) {
@@ -226,16 +220,16 @@ public class SecurityTestUtils {
 
     tmpInstance.openCache();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
 
-    Region region = cache.createRegion(REGION_NAME, attrs);
-    int port = serverPort <= 0 ? 0 : serverPort;
+    var region = cache.createRegion(REGION_NAME, attrs);
+    var port = serverPort <= 0 ? 0 : serverPort;
 
-    CacheServer server1 = cache.addCacheServer();
+    var server1 = cache.addCacheServer();
 
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
@@ -318,18 +312,18 @@ public class SecurityTestUtils {
       authProps.setProperty(SECURITY_CLIENT_AUTH_INIT, authInitModule);
     }
 
-    SecurityTestUtils tmpInstance = new SecurityTestUtils();
+    var tmpInstance = new SecurityTestUtils();
     tmpInstance.createSystem(authProps, javaProps);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
 
-    int[] portsI = new int[ports.length];
-    for (int z = 0; z < ports.length; z++) {
+    var portsI = new int[ports.length];
+    for (var z = 0; z < ports.length; z++) {
       portsI[z] = ports[z];
     }
 
     try {
-      PoolFactory poolFactory = PoolManager.createFactory();
+      var poolFactory = PoolManager.createFactory();
       poolFactory.setRetryAttempts(200);
 
       if (multiUserAuthMode) {
@@ -368,7 +362,7 @@ public class SecurityTestUtils {
         factory.setDataPolicy(DataPolicy.EMPTY);
       }
 
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
 
       cache.createRegionFactory(attrs).create(REGION_NAME);
 
@@ -440,7 +434,7 @@ public class SecurityTestUtils {
     authProps[0].setProperty(LOCATORS, "");
     authProps[0].setProperty(SECURITY_LOG_LEVEL, "finest");
 
-    Properties props = new Properties();
+    var props = new Properties();
 
     if (authInitModule != null) {
       authProps[0].setProperty(SECURITY_CLIENT_AUTH_INIT, authInitModule);
@@ -458,20 +452,20 @@ public class SecurityTestUtils {
           "org.apache.geode.security.templates.UsernamePrincipal");
     }
 
-    SecurityTestUtils tmpInstance = new SecurityTestUtils();
+    var tmpInstance = new SecurityTestUtils();
     tmpInstance.createSystem(props, javaProps);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
 
-    int[] portsI = new int[ports.length];
-    for (int z = 0; z < ports.length; z++) {
+    var portsI = new int[ports.length];
+    for (var z = 0; z < ports.length; z++) {
       portsI[z] = ports[z];
     }
 
     try {
       tmpInstance.openCache();
 
-      PoolFactory poolFactory = PoolManager.createFactory();
+      var poolFactory = PoolManager.createFactory();
       poolFactory.setRetryAttempts(200);
       poolFactory.setMultiuserAuthentication(multiUserAuthMode);
       poolFactory.setSubscriptionEnabled(true);
@@ -484,13 +478,13 @@ public class SecurityTestUtils {
       }
 
       proxyCaches = new ProxyCache[numOfUsers];
-      for (int i = 0; i < numOfUsers; i++) {
+      for (var i = 0; i < numOfUsers; i++) {
         proxyCaches[i] = (ProxyCache) ((PoolImpl) pool).createAuthenticatedCacheView(authProps[i]);
       }
 
       factory.setScope(Scope.LOCAL);
       factory.setDataPolicy(DataPolicy.EMPTY);
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
 
       cache.createRegion(REGION_NAME, attrs);
 
@@ -527,8 +521,8 @@ public class SecurityTestUtils {
   }
 
   protected static void createProxyCache(final int[] userIndices, final Properties[] props) {
-    int j = 0;
-    for (int i : userIndices) {
+    var j = 0;
+    for (var i : userIndices) {
       proxyCaches[i] = (ProxyCache) ((PoolImpl) pool).createAuthenticatedCacheView(props[j]);
       j++;
     }
@@ -537,7 +531,7 @@ public class SecurityTestUtils {
   protected static void startLocator(final String name, int port, final Properties extraProps,
       final Properties javaProps, final String[] expectedExceptions) {
     try {
-      Properties authProps = new Properties();
+      var authProps = new Properties();
 
       if (extraProps != null) {
         authProps.putAll(extraProps);
@@ -550,11 +544,11 @@ public class SecurityTestUtils {
 
       setJavaProps(javaProps);
 
-      File logFile = new File(name + "-locator" + port + ".log");
-      FileOutputStream logOut = new FileOutputStream(logFile);
-      PrintStream logStream = new PrintStream(logOut);
+      var logFile = new File(name + "-locator" + port + ".log");
+      var logOut = new FileOutputStream(logFile);
+      var logStream = new PrintStream(logOut);
       if (ignoredExceptions != null) {
-        for (String expectedException : expectedExceptions) {
+        for (var expectedException : expectedExceptions) {
           addIgnoredException(expectedException);
         }
       }
@@ -581,7 +575,7 @@ public class SecurityTestUtils {
   }
 
   protected static Object getLocalValue(final Region region, final Object key) {
-    Region.Entry entry = region.getEntry(key);
+    var entry = region.getEntry(key);
     if (entry != null) {
       try { // Handle race conditions with concurrent destroy ops
         return entry.getValue();
@@ -594,7 +588,7 @@ public class SecurityTestUtils {
   }
 
   protected static void doProxyCacheClose() {
-    for (final ProxyCache proxyCach : proxyCaches) {
+    for (final var proxyCach : proxyCaches) {
       proxyCach.close();
     }
   }
@@ -632,7 +626,7 @@ public class SecurityTestUtils {
           + ", but expected results " + expectedResults.length);
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("PUT: MultiUser# " + i);
       doPutsP(num, i, expectedResults[i], false);
     }
@@ -657,7 +651,7 @@ public class SecurityTestUtils {
           + ", but expected results " + expectedResults.length);
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("GET_ALL" + (useTX ? " in TX" : "") + ": MultiUser# " + i);
       doGetAllP(i, expectedResults[i], useTX);
     }
@@ -670,7 +664,7 @@ public class SecurityTestUtils {
           + ", but expected results " + expectedResults.length);
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("GET: MultiUser# " + i);
       doGetsP(num, i, expectedResults[i], false);
     }
@@ -683,7 +677,7 @@ public class SecurityTestUtils {
           + ", but expected results " + expectedResults.length);
     }
 
-    for (int i = numOfUsers - 1; i >= 0; i--) {
+    for (var i = numOfUsers - 1; i >= 0; i--) {
       logger.info("DESTROY: MultiUser# " + i);
       doRegionDestroysP(i, expectedResults[i]);
     }
@@ -696,7 +690,7 @@ public class SecurityTestUtils {
           + ", but expected results " + expectedResults.length);
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("DESTROY: MultiUser# " + i);
       doDestroysP(num, i, expectedResults[i]);
     }
@@ -709,7 +703,7 @@ public class SecurityTestUtils {
           + ", but expected results " + expectedResults.length);
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("INVALIDATE: MultiUser# " + i);
       doInvalidatesP(num, i, expectedResults[i]);
     }
@@ -727,7 +721,7 @@ public class SecurityTestUtils {
           + ", but #expected output " + results.length);
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("CONTAINS_KEY: MultiUser# " + i);
       doContainsKeysP(num, i, expectedResults[i], results[i]);
     }
@@ -740,7 +734,7 @@ public class SecurityTestUtils {
           + ", but #expected results " + expectedResults.length);
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("QUERY: MultiUser# " + i);
       doQueriesP(i, expectedResults[i], valueSize);
     }
@@ -753,18 +747,18 @@ public class SecurityTestUtils {
           + ", but #expected results " + expectedResults.length);
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("FunctionExecute:onRegion MultiUser# " + i);
       doFunctionExecuteP(i, function, expectedResults[i], "region");
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("FunctionExecute:onServer MultiUser# " + i);
       doFunctionExecuteP(i, function, expectedResults[i], "server");
     }
 
     if (!isFailOverCase) {
-      for (int i = 0; i < numOfUsers; i++) {
+      for (var i = 0; i < numOfUsers; i++) {
         logger.info("FunctionExecute:onServers MultiUser# " + i);
         doFunctionExecuteP(i, function, expectedResults[i], "servers");
       }
@@ -778,7 +772,7 @@ public class SecurityTestUtils {
           + ", but #expected results " + expectedResults.length);
     }
 
-    for (int i = 0; i < numOfUsers; i++) {
+    for (var i = 0; i < numOfUsers; i++) {
       logger.info("QueryExecute: MultiUser# " + i);
       doQueryExecuteP(i, expectedResults[i], result);
     }
@@ -852,15 +846,15 @@ public class SecurityTestUtils {
    * unless the VMs are restarted.
    */
   protected static void clearStaticSSLContext() {
-    ServerSocketFactory defaultServerFact = SSLServerSocketFactory.getDefault();
+    var defaultServerFact = SSLServerSocketFactory.getDefault();
 
     // Get the class of this and use reflection to blank out any static SSLContext objects inside
-    Map<Field, Object> contextMap =
+    var contextMap =
         getSSLFields(defaultServerFact, new Class[] {SSLContext.class, SSLContextSpi.class});
     makeNullSSLFields(defaultServerFact, contextMap);
 
-    for (Object contextObj : contextMap.values()) {
-      Map<Field, Object> contextObjsMap = getSSLFields(contextObj, new Class[] {TrustManager.class,
+    for (var contextObj : contextMap.values()) {
+      var contextObjsMap = getSSLFields(contextObj, new Class[] {TrustManager.class,
           KeyManager.class, TrustManager[].class, KeyManager[].class});
       makeNullSSLFields(contextObj, contextObjsMap);
     }
@@ -868,12 +862,12 @@ public class SecurityTestUtils {
     makeNullStaticField(SSLServerSocketFactory.class);
 
     // Do the same for normal SSL socket factory
-    SocketFactory defaultFact = SSLSocketFactory.getDefault();
+    var defaultFact = SSLSocketFactory.getDefault();
     contextMap = getSSLFields(defaultFact, new Class[] {SSLContext.class, SSLContextSpi.class});
     makeNullSSLFields(defaultFact, contextMap);
 
-    for (Object contextObj : contextMap.values()) {
-      Map<Field, Object> contextObjsMap = getSSLFields(contextObj, new Class[] {TrustManager.class,
+    for (var contextObj : contextMap.values()) {
+      var contextObjsMap = getSSLFields(contextObj, new Class[] {TrustManager.class,
           KeyManager.class, TrustManager[].class, KeyManager[].class});
       makeNullSSLFields(contextObj, contextObjsMap);
     }
@@ -884,7 +878,7 @@ public class SecurityTestUtils {
 
   protected static void closeCache() {
     if (cache != null && !cache.isClosed()) {
-      DistributedSystem sys = cache.getDistributedSystem();
+      var sys = cache.getDistributedSystem();
       cache.close();
       sys.disconnect();
       cache = null;
@@ -895,7 +889,7 @@ public class SecurityTestUtils {
 
   protected static void closeCache(final Boolean keepAlive) {
     if (cache != null && !cache.isClosed()) {
-      DistributedSystem sys = cache.getDistributedSystem();
+      var sys = cache.getDistributedSystem();
       cache.close(keepAlive);
       sys.disconnect();
       cache = null;
@@ -912,8 +906,8 @@ public class SecurityTestUtils {
 
   private static void addJavaProperties(final Properties javaProps) {
     if (javaProps != null) {
-      for (final Map.Entry<Object, Object> objectObjectEntry : javaProps.entrySet()) {
-        Map.Entry entry = (Map.Entry) objectObjectEntry;
+      for (final var objectObjectEntry : javaProps.entrySet()) {
+        var entry = (Map.Entry) objectObjectEntry;
         System.setProperty((String) entry.getKey(), (String) entry.getValue());
       }
     }
@@ -921,9 +915,9 @@ public class SecurityTestUtils {
 
   private static void removeJavaProperties(final Properties javaProps) {
     if (javaProps != null) {
-      Properties props = System.getProperties();
+      var props = System.getProperties();
 
-      for (final Object o : javaProps.keySet()) {
+      for (final var o : javaProps.keySet()) {
         props.remove(o);
       }
 
@@ -932,9 +926,9 @@ public class SecurityTestUtils {
   }
 
   private static void verifySizeOnServer(final int size, final int expectedResult) {
-    Region region = getRegion(0, expectedResult);
+    var region = getRegion(0, expectedResult);
     try {
-      int sizeOnServer = region.sizeOnServer();
+      var sizeOnServer = region.sizeOnServer();
       if (expectedResult != NO_EXCEPTION) {
         fail("Expected a NotAuthorizedException while executing sizeOnServer");
       }
@@ -947,9 +941,9 @@ public class SecurityTestUtils {
   }
 
   private static void verifyIsEmptyOnServer(final boolean isEmpty, final int expectedResult) {
-    Region region = getRegion(0, expectedResult);
+    var region = getRegion(0, expectedResult);
     try {
-      boolean isEmptyOnServer = region.isEmptyOnServer();
+      var isEmptyOnServer = region.isEmptyOnServer();
       if (expectedResult != NO_EXCEPTION) {
         fail("Expected a NotAuthorizedException while executing isEmptyOnServer");
       }
@@ -968,9 +962,9 @@ public class SecurityTestUtils {
   private static void doPutsP(final int num, final int multiUserIndex, final int expectedResult,
       final boolean newVals) {
     assertTrue(num <= KEYS.length);
-    Region region = getRegion(multiUserIndex, expectedResult);
+    var region = getRegion(multiUserIndex, expectedResult);
 
-    for (int index = 0; index < num; ++index) {
+    for (var index = 0; index < num; ++index) {
       try {
         if (newVals) {
           region.put(KEYS[index], NVALUES[index]);
@@ -1048,15 +1042,15 @@ public class SecurityTestUtils {
 
   private static Map<Field, Object> getSSLFields(final Object obj, final Class[] classes) {
     Map<Field, Object> resultFields = new HashMap<>();
-    Field[] fields = obj.getClass().getDeclaredFields();
+    var fields = obj.getClass().getDeclaredFields();
 
-    for (Field field : fields) {
+    for (var field : fields) {
       try {
         field.setAccessible(true);
-        Object fieldObj = field.get(obj);
-        boolean isInstance = false;
+        var fieldObj = field.get(obj);
+        var isInstance = false;
 
-        for (final Class aClass : classes) {
+        for (final var aClass : classes) {
           if ((isInstance = aClass.isInstance(fieldObj)) == true) {
             break;
           }
@@ -1074,9 +1068,9 @@ public class SecurityTestUtils {
   }
 
   private static void makeNullSSLFields(final Object obj, final Map<Field, Object> fieldMap) {
-    for (Map.Entry<Field, Object> entry : fieldMap.entrySet()) {
-      Field field = entry.getKey();
-      Object fieldObj = entry.getValue();
+    for (var entry : fieldMap.entrySet()) {
+      var field = entry.getKey();
+      var fieldObj = entry.getValue();
 
       try {
         field.setAccessible(true);
@@ -1094,8 +1088,8 @@ public class SecurityTestUtils {
    * Deal with javax SSL properties
    */
   private static void makeNullStaticField(final Class sslClass) {
-    Field[] fields = sslClass.getDeclaredFields();
-    for (Field field : fields) {
+    var fields = sslClass.getDeclaredFields();
+    for (var field : fields) {
       try {
         if (Modifier.isStatic(field.getModifiers())) {
           field.setAccessible(true);
@@ -1137,7 +1131,7 @@ public class SecurityTestUtils {
     }
 
     try {
-      String queryString = "SELECT DISTINCT * FROM " + region.getFullPath();
+      var queryString = "SELECT DISTINCT * FROM " + region.getFullPath();
       Query query = null;
 
       if (multiUserAuthMode) {
@@ -1146,7 +1140,7 @@ public class SecurityTestUtils {
         region.getCache().getQueryService().newQuery(queryString);
       }
 
-      SelectResults result = (SelectResults) query.execute();
+      var result = (SelectResults) query.execute();
       if (expectedResult != NO_EXCEPTION) {
         fail("Expected a NotAuthorizedException while executing function");
       }
@@ -1287,10 +1281,10 @@ public class SecurityTestUtils {
       }
     }
 
-    String queryStr = "SELECT DISTINCT * FROM " + region.getFullPath();
+    var queryStr = "SELECT DISTINCT * FROM " + region.getFullPath();
     try {
-      SelectResults queryResults = region.query(queryStr);
-      Set resultSet = queryResults.asSet();
+      var queryResults = region.query(queryStr);
+      var resultSet = queryResults.asSet();
       assertEquals(expectedValue, resultSet.size());
       if (expectedResult != NO_EXCEPTION) {
         fail("Expected a NotAuthorizedException while doing queries");
@@ -1355,8 +1349,8 @@ public class SecurityTestUtils {
       }
     }
 
-    for (int index = 0; index < num; ++index) {
-      boolean result = false;
+    for (var index = 0; index < num; ++index) {
+      var result = false;
 
       try {
         result = region.containsKeyOnServer(KEYS[index]);
@@ -1418,7 +1412,7 @@ public class SecurityTestUtils {
       }
     }
 
-    for (int index = 0; index < num; ++index) {
+    for (var index = 0; index < num; ++index) {
       try {
         region.invalidate(KEYS[index]);
         if (expectedResult != NO_EXCEPTION) {
@@ -1477,7 +1471,7 @@ public class SecurityTestUtils {
       }
     }
 
-    for (int index = 0; index < num; ++index) {
+    for (var index = 0; index < num; ++index) {
       try {
         region.destroy(KEYS[index]);
         if (expectedResult != NO_EXCEPTION) {
@@ -1577,7 +1571,7 @@ public class SecurityTestUtils {
   private static void doLocalGetsP(final int num, final boolean checkNVals) {
     assertTrue(num <= KEYS.length);
 
-    String[] vals = VALUES;
+    var vals = VALUES;
     if (checkNVals) {
       vals = NVALUES;
     }
@@ -1585,15 +1579,15 @@ public class SecurityTestUtils {
     final Region region = getCache().getRegion(REGION_NAME);
     assertNotNull(region);
 
-    for (int index = 0; index < num; ++index) {
-      final String key = KEYS[index];
-      final String expectedVal = vals[index];
+    for (var index = 0; index < num; ++index) {
+      final var key = KEYS[index];
+      final var expectedVal = vals[index];
       await()
           .until(() -> expectedVal.equals(getLocalValue(region, key)));
     }
 
-    for (int index = 0; index < num; ++index) {
-      Region.Entry entry = region.getEntry(KEYS[index]);
+    for (var index = 0; index < num; ++index) {
+      var entry = region.getEntry(KEYS[index]);
       assertNotNull(entry);
       assertEquals(vals[index], entry.getValue());
     }
@@ -1627,7 +1621,7 @@ public class SecurityTestUtils {
         getCache().getCacheTransactionManager().begin();
       }
 
-      Map entries = region.getAll(keys);
+      var entries = region.getAll(keys);
 
       // Also check getEntry()
       region.getEntry("key1");
@@ -1698,7 +1692,7 @@ public class SecurityTestUtils {
       }
     }
 
-    for (int index = 0; index < num; ++index) {
+    for (var index = 0; index < num; ++index) {
       Object value = null;
       try {
 
@@ -1760,7 +1754,7 @@ public class SecurityTestUtils {
     DistributedSystem dsys = distributedTestCase.getSystem(sysProps);
     assertNotNull(dsys);
     if (ignoredExceptions != null) {
-      for (String ignoredException : ignoredExceptions) {
+      for (var ignoredException : ignoredExceptions) {
         addIgnoredException(ignoredException);
       }
     }

@@ -17,7 +17,6 @@ package org.apache.geode.cache.query.internal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +42,6 @@ import org.apache.geode.cache.query.internal.index.PartitionedIndex;
 import org.apache.geode.cache.query.internal.types.ObjectTypeImpl;
 import org.apache.geode.cache.query.internal.types.StructTypeImpl;
 import org.apache.geode.cache.query.internal.types.TypeUtils;
-import org.apache.geode.cache.query.types.CollectionType;
 import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.cache.query.types.StructType;
 import org.apache.geode.internal.cache.InternalCache;
@@ -113,7 +111,7 @@ public class CompiledSelect extends AbstractCompiledValue {
 
     if (projAttrs != null) {
       // extract the CompiledValues out of the projAttrs (each of which are Object[2])
-      for (final Object projAttr : projAttrs) {
+      for (final var projAttr : projAttrs) {
         list.add(((Object[]) projAttr)[1]);
       }
     }
@@ -178,14 +176,14 @@ public class CompiledSelect extends AbstractCompiledValue {
     context.newScope((Integer) context.cacheGet(scopeID));
     context.pushExecCache((Integer) context.cacheGet(scopeID));
     try {
-      for (final Object iterator : iterators) {
+      for (final var iterator : iterators) {
 
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) iterator;
+        var iterDef = (CompiledIteratorDef) iterator;
         // compute dependencies on this iter first before adding its
         // RuntimeIterator to the current scope.
         // this makes sure it doesn't bind attributes to itself
         context.addDependencies(this, iterDef.computeDependencies(context));
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.addToIndependentRuntimeItrMap(iterDef);
         context.bindIterator(rIter);
       }
@@ -197,12 +195,12 @@ public class CompiledSelect extends AbstractCompiledValue {
       // are any projections dependent on itr?
       if (projAttrs != null) {
         Set totalDependencySet = null;
-        for (Iterator iter = projAttrs.iterator(); iter.hasNext();) {
+        for (var iter = projAttrs.iterator(); iter.hasNext();) {
           // unwrap the projection expressions, they are in 2-element Object[]
           // with first element the fieldName and second the projection
           // expression
-          Object[] prj = (Object[]) TypeUtils.checkCast(iter.next(), Object[].class);
-          CompiledValue prjExpr = (CompiledValue) TypeUtils.checkCast(prj[1], CompiledValue.class);
+          var prj = (Object[]) TypeUtils.checkCast(iter.next(), Object[].class);
+          var prjExpr = (CompiledValue) TypeUtils.checkCast(prj[1], CompiledValue.class);
           totalDependencySet = context.addDependencies(this, prjExpr.computeDependencies(context));
         }
         doTreeTransformation(context);
@@ -241,13 +239,13 @@ public class CompiledSelect extends AbstractCompiledValue {
       throws TypeMismatchException, NameResolutionException {
     // for time being assume that the group by cols are explicitly mentioned in proj
     if (groupBy != null) {
-      List projAttribs = projAttrs;
+      var projAttribs = projAttrs;
       if (projAttribs == null) {
         projAttribs = new ArrayList();
-        List currentIters = context.getCurrentIterators();
-        for (Object o : currentIters) {
-          RuntimeIterator rIter = (RuntimeIterator) o;
-          String name = rIter.getName();
+        var currentIters = context.getCurrentIterators();
+        for (var o : currentIters) {
+          var rIter = (RuntimeIterator) o;
+          var name = rIter.getName();
           projAttribs.add(new Object[] {name, rIter});
         }
       }
@@ -258,13 +256,13 @@ public class CompiledSelect extends AbstractCompiledValue {
                 + "Query contains group by columns not present in projected fields");
       }
 
-      boolean shouldTransform = true;
-      StringBuilder lhsBuffer = new StringBuilder();
-      StringBuilder rhsBuffer = new StringBuilder();
+      var shouldTransform = true;
+      var lhsBuffer = new StringBuilder();
+      var rhsBuffer = new StringBuilder();
 
-      outer: for (int i = 0; i < projAttribs.size(); ++i) {
-        Object[] prj = (Object[]) TypeUtils.checkCast(projAttribs.get(i), Object[].class);
-        CompiledValue groupByAttr = groupBy.get(i);
+      outer: for (var i = 0; i < projAttribs.size(); ++i) {
+        var prj = (Object[]) TypeUtils.checkCast(projAttribs.get(i), Object[].class);
+        var groupByAttr = groupBy.get(i);
         if (prj[0] != null) {
           if (groupByAttr instanceof CompiledID) {
             if (prj[0].equals(((CompiledID) groupByAttr).getId())) {
@@ -274,11 +272,11 @@ public class CompiledSelect extends AbstractCompiledValue {
             }
           }
         }
-        CompiledValue cvProj = (CompiledValue) TypeUtils.checkCast(prj[1], CompiledValue.class);
+        var cvProj = (CompiledValue) TypeUtils.checkCast(prj[1], CompiledValue.class);
         cvProj.generateCanonicalizedExpression(lhsBuffer, context);
         groupByAttr.generateCanonicalizedExpression(rhsBuffer, context);
         if (lhsBuffer.length() == rhsBuffer.length()) {
-          for (int indx = 0; indx < lhsBuffer.length(); ++indx) {
+          for (var indx = 0; indx < lhsBuffer.length(); ++indx) {
             if (lhsBuffer.charAt(indx) != rhsBuffer.charAt(indx)) {
               shouldTransform = false;
               break outer;
@@ -311,9 +309,9 @@ public class CompiledSelect extends AbstractCompiledValue {
       distinct = setDistinct;
     }
     orderByAttrs = new ArrayList<>(groupBy.size());
-    int colIndex = 0;
-    for (CompiledValue cv : groupBy) {
-      CompiledSortCriterion csc = new CompiledSortCriterion(false, cv);
+    var colIndex = 0;
+    for (var cv : groupBy) {
+      var csc = new CompiledSortCriterion(false, cv);
       csc.mapExpressionToProjectionField(projAttrs, context);
       orderByAttrs.add(csc);
     }
@@ -323,7 +321,7 @@ public class CompiledSelect extends AbstractCompiledValue {
   private void mapOrderByColumns(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
     if (orderByAttrs != null) {
-      for (final CompiledSortCriterion csc : orderByAttrs) {
+      for (final var csc : orderByAttrs) {
         // Ideally for replicated regions, the requirement that
         // projected columns should
         // contain order by fields ( directly or derivable on it),
@@ -366,9 +364,9 @@ public class CompiledSelect extends AbstractCompiledValue {
     context.pushExecCache((Integer) context.cacheGet(scopeID));
     SelectResults results = null;
     try {
-      for (final Object iterator : iterators) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) iterator;
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+      for (final var iterator : iterators) {
+        var iterDef = (CompiledIteratorDef) iterator;
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
       }
       results = prepareEmptyResultSet(context, false);
@@ -388,7 +386,7 @@ public class CompiledSelect extends AbstractCompiledValue {
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
     context.newScope((Integer) context.cacheGet(scopeID));
     context.pushExecCache((Integer) context.cacheGet(scopeID));
-    boolean prevDistinctState = context.isDistinct();
+    var prevDistinctState = context.isDistinct();
     context.setDistinct(distinct);
     if (hasUnmappedOrderByCols && context.getBucketList() != null) {
       throw new QueryInvalidException(
@@ -403,9 +401,9 @@ public class CompiledSelect extends AbstractCompiledValue {
       if (context.getQuery() != null) {
         ((DefaultQuery) context.getQuery()).keepResultsSerialized(this, context);
       }
-      for (final Object iterator : iterators) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) iterator;
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+      for (final var iterator : iterators) {
+        var iterDef = (CompiledIteratorDef) iterator;
+        var rIter = iterDef.getRuntimeIterator(context);
         context.bindIterator(rIter);
         // Ideally the function below should always be called after binding has occurred
         // So that the internal ID gets set during binding to the scope. If not so then chances
@@ -413,9 +411,9 @@ public class CompiledSelect extends AbstractCompiledValue {
         // Though in our case it may not be an issue as the compute dependency phase must have
         // already set the index id
       }
-      Integer limitValue = evaluateLimitValue(context, limit);
+      var limitValue = evaluateLimitValue(context, limit);
       SelectResults result = null;
-      boolean evalAsFilters = false;
+      var evalAsFilters = false;
       if (whereClause == null) {
         result = doIterationEvaluate(context, false);
       } else {
@@ -430,7 +428,7 @@ public class CompiledSelect extends AbstractCompiledValue {
                                                                // scope
                                                                // only?
           // clause
-          Object b = whereClause.evaluate(context);
+          var b = whereClause.evaluate(context);
           if (b == null || b == QueryService.UNDEFINED) {
             // treat as if all elements are undefined
             result = prepareEmptyResultSet(context, false);
@@ -449,16 +447,16 @@ public class CompiledSelect extends AbstractCompiledValue {
           }
         } else {
           // Check the numer of independent iterators
-          int numInd = context.getAllIndependentIteratorsOfCurrentScope().size();
+          var numInd = context.getAllIndependentIteratorsOfCurrentScope().size();
           // If order by clause is defined, then the first column should be the preferred index
           if (orderByAttrs != null && numInd == 1) {
-            CompiledSortCriterion csc = orderByAttrs.get(0);
-            StringBuilder preferredIndexCondn = new StringBuilder();
+            var csc = orderByAttrs.get(0);
+            var preferredIndexCondn = new StringBuilder();
             evalCanonicalizedExpressionForCSC(csc, context, preferredIndexCondn);
             context.cachePut(PREF_INDEX_COND, preferredIndexCondn.toString());
           }
-          boolean unlock = true;
-          Object obj = context.cacheGet(whereClause);
+          var unlock = true;
+          var obj = context.cacheGet(whereClause);
           if (obj != null && (obj instanceof IndexInfo[] || obj.equals(CLAUSE_EVALUATED))) {
             // if indexinfo is cached means the read lock
             // is not being taken this time, so releasing
@@ -467,7 +465,7 @@ public class CompiledSelect extends AbstractCompiledValue {
           }
           // see if we should evaluate as filters,
           // and count how many actual index lookups will be performed
-          PlanInfo planInfo = whereClause.getPlanInfo(context);
+          var planInfo = whereClause.getPlanInfo(context);
           if (context.cacheGet(whereClause) == null) {
             context.cachePut(whereClause, CLAUSE_EVALUATED);
           }
@@ -479,7 +477,7 @@ public class CompiledSelect extends AbstractCompiledValue {
               ((QueryExecutionContext) context).setIndexUsed(true);
               // Ignore order by attribs for a while
 
-              boolean canApplyOrderByAtIndex = false;
+              var canApplyOrderByAtIndex = false;
               if (limitValue >= 0 && numInd == 1
                   && ((Filter) whereClause).isLimitApplicableAtIndexLevel(context)) {
                 context.cachePut(CAN_APPLY_LIMIT_AT_INDEX, Boolean.TRUE);
@@ -487,11 +485,11 @@ public class CompiledSelect extends AbstractCompiledValue {
               StringBuilder temp = null;
               if (orderByAttrs != null) {
                 temp = new StringBuilder();
-                CompiledSortCriterion csc = orderByAttrs.get(0);
+                var csc = orderByAttrs.get(0);
                 evalCanonicalizedExpressionForCSC(csc, context, temp);
               }
 
-              boolean needsTopLevelOrdering = true;
+              var needsTopLevelOrdering = true;
               if (temp != null && numInd == 1 && ((Filter) whereClause)
                   .isOrderByApplicableAtIndexLevel(context, temp.toString())) {
                 context.cachePut(CAN_APPLY_ORDER_BY_AT_INDEX, Boolean.TRUE);
@@ -522,7 +520,7 @@ public class CompiledSelect extends AbstractCompiledValue {
                       || (canApplyOrderByAtIndex && !needsTopLevelOrdering))
                   && projAttrs != null) {
                 // Possibility of evaluating the resultset as filter itself
-                ObjectType resultType = cachedElementTypeForOrderBy != null
+                var resultType = cachedElementTypeForOrderBy != null
                     ? cachedElementTypeForOrderBy : prepareResultType(context);
                 context.cachePut(RESULT_TYPE, resultType);
                 context.cachePut(PROJ_ATTRIB, projAttrs);
@@ -554,8 +552,8 @@ public class CompiledSelect extends AbstractCompiledValue {
       assert result != null;
       // drop duplicates if this is DISTINCT
       if (result instanceof SelectResults) {
-        SelectResults sr = result;
-        CollectionType colnType = sr.getCollectionType();
+        var sr = result;
+        var colnType = sr.getCollectionType();
         // if (this.distinct && colnType.allowsDuplicates()) {
         if (distinct) {
           Collection r;
@@ -586,7 +584,7 @@ public class CompiledSelect extends AbstractCompiledValue {
          * If SelectResult size is zero then we need to put Integer for 0 count.
          */
         if (count) {
-          SelectResults res = result;
+          var res = result;
 
           if ((distinct || evalAsFilters || countStartQueryResult == 0)) {
             // Retrun results as it is as distinct is applied
@@ -595,10 +593,10 @@ public class CompiledSelect extends AbstractCompiledValue {
               return result;
             }
             // Take size and empty the results
-            int resultCount = res.size();
+            var resultCount = res.size();
             res.clear();
 
-            ResultsBag countResult =
+            var countResult =
                 new ResultsBag(new ObjectTypeImpl(Integer.class), context.getCachePerfStats());
             countResult.addAndGetOccurence(resultCount);
             result = countResult;
@@ -622,10 +620,10 @@ public class CompiledSelect extends AbstractCompiledValue {
    * times.
    */
   private void releaseReadLockOnUsedIndex(PlanInfo planInfo) {
-    List inds = planInfo.indexes;
-    for (Object obj : inds) {
-      Index index = (Index) obj;
-      Index prIndex = ((AbstractIndex) index).getPRIndex();
+    var inds = planInfo.indexes;
+    for (var obj : inds) {
+      var index = (Index) obj;
+      var prIndex = ((AbstractIndex) index).getPRIndex();
       if (prIndex != null) {
         ((PartitionedIndex) prIndex).releaseIndexReadLockForRemove();
       } else {
@@ -642,7 +640,7 @@ public class CompiledSelect extends AbstractCompiledValue {
   private int getRegionIteratorSize(ExecutionContext context, CompiledValue collExpr)
       throws RegionNotFoundException {
     Region region;
-    String regionPath = ((CompiledRegion) collExpr).getRegionPath();
+    var regionPath = ((CompiledRegion) collExpr).getRegionPath();
     if (context.getBucketRegion() == null) {
       region = context.getCache().getRegion(regionPath);
     } else {
@@ -673,25 +671,25 @@ public class CompiledSelect extends AbstractCompiledValue {
       throws TypeMismatchException, FunctionDomainException, NameResolutionException,
       QueryInvocationTargetException {
 
-    SelectResults results = prepareEmptyResultSet(context, false);
+    var results = prepareEmptyResultSet(context, false);
 
     // TODO: SELF : Work on limit implementation on bulk get
     // check for bulk get optimization
     if (evaluateWhereClause) {
-      List tmpResults = optimizeBulkGet(context);
+      var tmpResults = optimizeBulkGet(context);
       if (tmpResults != null) {
         // (has only one iterator)
-        RuntimeIterator rIter = (RuntimeIterator) context.getCurrentIterators().get(0);
-        for (Object currObj : tmpResults) {
+        var rIter = (RuntimeIterator) context.getCurrentIterators().get(0);
+        for (var currObj : tmpResults) {
           rIter.setCurrent(currObj);
-          QueryObserver observer = QueryObserverHolder.getInstance();
+          var observer = QueryObserverHolder.getInstance();
           observer.beforeIterationEvaluation(rIter, currObj);
           applyProjectionAndAddToResultSet(context, results, orderByAttrs == null);
         }
         return results;
       }
     }
-    int numElementsInResult = 0;
+    var numElementsInResult = 0;
     try {
       doNestedIterations(0, results, context, evaluateWhereClause, numElementsInResult);
     } catch (CompiledSelect.NullIteratorException ignore) {
@@ -710,7 +708,7 @@ public class CompiledSelect extends AbstractCompiledValue {
    */
   private List optimizeBulkGet(ExecutionContext context) throws TypeMismatchException,
       FunctionDomainException, NameResolutionException, QueryInvocationTargetException {
-    List iterList = context.getCurrentIterators();
+    var iterList = context.getCurrentIterators();
     // must be one iterator
     if (iterList.size() != 1) {
       return null;
@@ -721,25 +719,25 @@ public class CompiledSelect extends AbstractCompiledValue {
       return null;
     }
 
-    RuntimeIterator rIter = (RuntimeIterator) iterList.get(0);
-    CompiledIteratorDef cIterDef = rIter.getCmpIteratorDefn();
-    CompiledValue colnExpr = cIterDef.getCollectionExpr();
+    var rIter = (RuntimeIterator) iterList.get(0);
+    var cIterDef = rIter.getCmpIteratorDefn();
+    var colnExpr = cIterDef.getCollectionExpr();
 
     // check for region.entrySet or region.entrySet()
-    boolean match = false;
+    var match = false;
     CompiledRegion rgn = null;
     if (colnExpr instanceof CompiledPath) {
-      CompiledPath cPath = (CompiledPath) colnExpr;
-      CompiledValue rcvr = cPath.getReceiver();
+      var cPath = (CompiledPath) colnExpr;
+      var rcvr = cPath.getReceiver();
       if (rcvr instanceof CompiledRegion) {
         rgn = (CompiledRegion) rcvr;
-        String attr = cPath.getTailID();
+        var attr = cPath.getTailID();
         match = attr.equals("entrySet");
       }
     }
     if (!match && (colnExpr instanceof CompiledOperation)) {
-      CompiledOperation cOp = (CompiledOperation) colnExpr;
-      CompiledValue rcvr = cOp.getReceiver(context);
+      var cOp = (CompiledOperation) colnExpr;
+      var rcvr = cOp.getReceiver(context);
       if (rcvr instanceof CompiledRegion) {
         rgn = (CompiledRegion) rcvr;
         match = cOp.getMethodName().equals("entrySet");
@@ -750,7 +748,7 @@ public class CompiledSelect extends AbstractCompiledValue {
     }
 
     // check for IN expression
-    CompiledIn cIn = (CompiledIn) whereClause;
+    var cIn = (CompiledIn) whereClause;
     // defer to the CompiledIn for rest of pattern match and
     // evaluation
     return cIn.optimizeBulkGet(rgn, context);
@@ -761,12 +759,12 @@ public class CompiledSelect extends AbstractCompiledValue {
       boolean evaluateWhereClause, int numElementsInResult)
       throws TypeMismatchException, FunctionDomainException, NameResolutionException,
       QueryInvocationTargetException, CompiledSelect.NullIteratorException {
-    List iterList = context.getCurrentIterators();
+    var iterList = context.getCurrentIterators();
     if (level == iterList.size()) {
-      boolean addToResults = true;
+      var addToResults = true;
       if (evaluateWhereClause) {
-        Object result = whereClause.evaluate(context);
-        QueryObserver observer = QueryObserverHolder.getInstance();
+        var result = whereClause.evaluate(context);
+        var observer = QueryObserverHolder.getInstance();
         observer.afterIterationEvaluation(result);
         if (result == null) {
           addToResults = false;
@@ -775,7 +773,7 @@ public class CompiledSelect extends AbstractCompiledValue {
         } else if (result == QueryService.UNDEFINED) {
           // add UNDEFINED to results only for NOT EQUALS queries
           if (whereClause.getType() == COMPARISON) {
-            int operator = ((Filter) whereClause).getOperator();
+            var operator = ((Filter) whereClause).getOperator();
             if ((operator != TOK_NE && operator != TOK_NE_ALT)) {
               addToResults = false;
             }
@@ -789,7 +787,7 @@ public class CompiledSelect extends AbstractCompiledValue {
         }
       }
       if (addToResults) {
-        int occurrence =
+        var occurrence =
             applyProjectionAndAddToResultSet(context, results, orderByAttrs == null);
         // If the occurrence is greater than 1, then only in case of
         // non distinct query should it be treated as contributing to size
@@ -802,8 +800,8 @@ public class CompiledSelect extends AbstractCompiledValue {
         }
       }
     } else {
-      RuntimeIterator rIter = (RuntimeIterator) iterList.get(level);
-      SelectResults sr = rIter.evaluateCollection(context);
+      var rIter = (RuntimeIterator) iterList.get(level);
+      var sr = rIter.evaluateCollection(context);
       if (sr == null) {
         return 0; // continue iteration if a collection evaluates to UNDEFINED
       }
@@ -812,7 +810,7 @@ public class CompiledSelect extends AbstractCompiledValue {
       // we can size directly on the region.
       if (whereClause == null && iterators.size() == 1 && isCount() && !isDistinct()
           && sr instanceof QRegion) {
-        QRegion qr = (QRegion) sr;
+        var qr = (QRegion) sr;
         countStartQueryResult = qr.getRegion().size();
         return 1;
       }
@@ -826,16 +824,16 @@ public class CompiledSelect extends AbstractCompiledValue {
       }
 
       // Iterate through the data set.
-      for (Object aSr : sr) {
+      for (var aSr : sr) {
         // Check if query execution on this thread is canceled.
         QueryMonitor.throwExceptionIfQueryOnCurrentThreadIsCanceled();
 
         rIter.setCurrent(aSr);
-        QueryObserver observer = QueryObserverHolder.getInstance();
+        var observer = QueryObserverHolder.getInstance();
         observer.beforeIterationEvaluation(rIter, aSr);
         numElementsInResult = doNestedIterations(level + 1, results, context, evaluateWhereClause,
             numElementsInResult);
-        Integer limitValue = evaluateLimitValue(context, limit);
+        var limitValue = evaluateLimitValue(context, limit);
         if (orderByAttrs == null && limitValue > -1 && numElementsInResult == limitValue) {
           break;
         }
@@ -847,7 +845,7 @@ public class CompiledSelect extends AbstractCompiledValue {
   private SelectResults applyProjectionOnCollection(SelectResults resultSet,
       ExecutionContext context, boolean ignoreOrderBy) throws TypeMismatchException,
       FunctionDomainException, NameResolutionException, QueryInvocationTargetException {
-    List iterators = context.getCurrentIterators();
+    var iterators = context.getCurrentIterators();
     if (projAttrs == null && (orderByAttrs == null || ignoreOrderBy)) {
       // If the projection attribute is null (ie specified as *) & there is only one Runtime
       // Iterator we can return the set as it is. But if the projection attribute is null & multiple
@@ -862,24 +860,24 @@ public class CompiledSelect extends AbstractCompiledValue {
 
       return resultSet;
     } else {
-      int numElementsAdded = 0;
-      SelectResults pResultSet = prepareEmptyResultSet(context, ignoreOrderBy);
-      boolean isStructType = resultSet.getCollectionType().getElementType() != null
+      var numElementsAdded = 0;
+      var pResultSet = prepareEmptyResultSet(context, ignoreOrderBy);
+      var isStructType = resultSet.getCollectionType().getElementType() != null
           && resultSet.getCollectionType().getElementType().isStructType();
       if (isStructType) {
-        Iterator resultsIter = resultSet.iterator();
+        var resultsIter = resultSet.iterator();
         // Apply limit if there is no order by
-        Integer limitValue = evaluateLimitValue(context, limit);
+        var limitValue = evaluateLimitValue(context, limit);
         while (((orderByAttrs != null && !ignoreOrderBy) || limitValue < 0
             || (numElementsAdded < limitValue)) && resultsIter.hasNext()) {
           // Check if query execution on this thread is canceled
           QueryMonitor.throwExceptionIfQueryOnCurrentThreadIsCanceled();
 
-          Object[] values = ((Struct) resultsIter.next()).getFieldValues();
-          for (int i = 0; i < values.length; i++) {
+          var values = ((Struct) resultsIter.next()).getFieldValues();
+          for (var i = 0; i < values.length; i++) {
             ((RuntimeIterator) iterators.get(i)).setCurrent(values[i]);
           }
-          int occurrence = applyProjectionAndAddToResultSet(context, pResultSet, ignoreOrderBy);
+          var occurrence = applyProjectionAndAddToResultSet(context, pResultSet, ignoreOrderBy);
           if (occurrence == 1 || (occurrence > 1 && !distinct)) {
             // (Unique i.e first time occurrence) or subsequent occurrence
             // for non distinct query
@@ -888,14 +886,14 @@ public class CompiledSelect extends AbstractCompiledValue {
         }
         // return pResultSet;
       } else if (iterators.size() == 1) {
-        RuntimeIterator rIter = (RuntimeIterator) iterators.get(0);
-        Iterator resultsIter = resultSet.iterator();
+        var rIter = (RuntimeIterator) iterators.get(0);
+        var resultsIter = resultSet.iterator();
         // Apply limit if there is no order by.
-        Integer limitValue = evaluateLimitValue(context, limit);
+        var limitValue = evaluateLimitValue(context, limit);
         while (((orderByAttrs != null && !ignoreOrderBy) || limitValue < 0
             || (numElementsAdded < limitValue)) && resultsIter.hasNext()) {
           rIter.setCurrent(resultsIter.next());
-          int occurrence = applyProjectionAndAddToResultSet(context, pResultSet, ignoreOrderBy);
+          var occurrence = applyProjectionAndAddToResultSet(context, pResultSet, ignoreOrderBy);
           if (occurrence == 1 || (occurrence > 1 && !distinct)) {
             // (Unique i.e first time occurrence) or subsequent occurrence
             // for non distinct query
@@ -957,7 +955,7 @@ public class CompiledSelect extends AbstractCompiledValue {
     // Else if more than on attribute or single attribute with alias is present then return a
     // StructSet.
     // Create StructSet which will contain root objects of all iterators in from clause.
-    ObjectType elementType = cachedElementTypeForOrderBy != null
+    var elementType = cachedElementTypeForOrderBy != null
         ? cachedElementTypeForOrderBy : prepareResultType(context);
     SelectResults results;
 
@@ -970,9 +968,9 @@ public class CompiledSelect extends AbstractCompiledValue {
     }
 
     // Potential edge-case: Could this be non-null but empty?
-    boolean nullValuesAtStart = orderByAttrs != null && !orderByAttrs.get(0).getCriterion();
+    var nullValuesAtStart = orderByAttrs != null && !orderByAttrs.get(0).getCriterion();
     OrderByComparator comparator;
-    boolean isOrdered = orderByAttrs != null;
+    var isOrdered = orderByAttrs != null;
 
     switch (DataContainerType.determineDataContainerType(isOrdered, distinct,
         elementType.isStructType(), ignoreOrderBy)) {
@@ -1041,23 +1039,23 @@ public class CompiledSelect extends AbstractCompiledValue {
     ObjectType elementType = null;
     SelectResults sr = null;
 
-    List currentIterators = context.getCurrentIterators();
+    var currentIterators = context.getCurrentIterators();
     if (projAttrs == null) {
       if (currentIterators.size() == 1) {
-        RuntimeIterator iter = (RuntimeIterator) currentIterators.get(0);
+        var iter = (RuntimeIterator) currentIterators.get(0);
         elementType = iter.getElementType();
       } else {
         elementType = createStructTypeForNullProjection(currentIterators, context);
       }
     } else {
       // Create StructType for projection attributes
-      int projCount = projAttrs.size();
-      String[] fieldNames = new String[projCount];
-      ObjectType[] fieldTypes = new ObjectType[projCount];
-      boolean createStructSet = false;
+      var projCount = projAttrs.size();
+      var fieldNames = new String[projCount];
+      var fieldTypes = new ObjectType[projCount];
+      var createStructSet = false;
       String fldName = null;
-      for (int i = 0; i < projCount; i++) {
-        Object[] projDef = (Object[]) projAttrs.get(i);
+      for (var i = 0; i < projCount; i++) {
+        var projDef = (Object[]) projAttrs.get(i);
         fldName = (String) projDef[0];
         if (!createStructSet) {
           if (fldName != null || projCount > 1) {
@@ -1084,12 +1082,12 @@ public class CompiledSelect extends AbstractCompiledValue {
    */
   private StructTypeImpl createStructTypeForNullProjection(List currentIterators,
       ExecutionContext context) {
-    int len = currentIterators.size();
-    String[] fieldNames = new String[len];
-    ObjectType[] fieldTypes = new ObjectType[len];
+    var len = currentIterators.size();
+    var fieldNames = new String[len];
+    var fieldTypes = new ObjectType[len];
     String fldName = null;
-    for (int i = 0; i < len; i++) {
-      RuntimeIterator iter = (RuntimeIterator) currentIterators.get(i);
+    for (var i = 0; i < len; i++) {
+      var iter = (RuntimeIterator) currentIterators.get(i);
       // fieldNames[i] = iter.getName();
       if ((fldName = iter.getName()) == null) {
         fldName = generateProjectionName(iter, context);
@@ -1103,13 +1101,13 @@ public class CompiledSelect extends AbstractCompiledValue {
   private ObjectType getFieldTypeOfProjAttrib(ExecutionContext context, CompiledValue cv)
       throws TypeMismatchException, AmbiguousNameException {
     // Identify the RuntimeIterator for the compiled value
-    ObjectType retType = TypeUtils.OBJECT_TYPE;
+    var retType = TypeUtils.OBJECT_TYPE;
     try {
-      RuntimeIterator rit = context.findRuntimeIterator(cv);
-      List pathOnItr = cv.getPathOnIterator(rit, context);
+      var rit = context.findRuntimeIterator(cv);
+      var pathOnItr = cv.getPathOnIterator(rit, context);
       if (pathOnItr != null) {
-        String[] path = (String[]) pathOnItr.toArray(new String[pathOnItr.size()]);
-        ObjectType[] ot = PathUtils.calculateTypesAlongPath(context, rit.getElementType(), path);
+        var path = (String[]) pathOnItr.toArray(new String[pathOnItr.size()]);
+        var ot = PathUtils.calculateTypesAlongPath(context, rit.getElementType(), path);
         retType = ot[ot.length - 1];
       }
     } catch (NameNotFoundException ignore) {
@@ -1136,24 +1134,24 @@ public class CompiledSelect extends AbstractCompiledValue {
   private int applyProjectionAndAddToResultSet(ExecutionContext context, SelectResults resultSet,
       boolean ignoreOrderBy) throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
-    List currrentRuntimeIters = context.getCurrentIterators();
+    var currrentRuntimeIters = context.getCurrentIterators();
 
-    int occurrence = 0;
-    ObjectType elementType = resultSet.getCollectionType().getElementType();
-    boolean isStruct = elementType != null && elementType.isStructType();
+    var occurrence = 0;
+    var elementType = resultSet.getCollectionType().getElementType();
+    var isStruct = elementType != null && elementType.isStructType();
 
     // TODO: Optimize this condition in some clean way
-    boolean isLinkedStructure =
+    var isLinkedStructure =
         resultSet instanceof Ordered && ((Ordered) resultSet).dataPreordered();
 
     ArrayList evaluatedOrderByClause = null;
     OrderByComparator comparator = null;
-    boolean applyOrderBy = false;
+    var applyOrderBy = false;
     if (orderByAttrs != null && !ignoreOrderBy) {
       // In case PR order-by will get applied on the coordinator node
       // on the cumulative results. Apply the order-by on PR only if
       // limit is specified.
-      Integer limitValue = evaluateLimitValue(context, limit);
+      var limitValue = evaluateLimitValue(context, limit);
       if (context.getPartitionedRegion() != null && limitValue < 0) {
         applyOrderBy = false;
       }
@@ -1164,10 +1162,10 @@ public class CompiledSelect extends AbstractCompiledValue {
       comparator = (OrderByComparator) ((Ordered) resultSet).comparator();
     }
     if (projAttrs == null) {
-      int len = currrentRuntimeIters.size();
-      Object[] values = new Object[len];
-      for (int i = 0; i < len; i++) {
-        RuntimeIterator iter = (RuntimeIterator) currrentRuntimeIters.get(i);
+      var len = currrentRuntimeIters.size();
+      var values = new Object[len];
+      for (var i = 0; i < len; i++) {
+        var iter = (RuntimeIterator) currrentRuntimeIters.get(i);
         values[i] = iter.evaluate(context);
         // For local queries with distinct, deserialize all PdxInstances
         // as we do not have a way to compare Pdx and non Pdx objects in case
@@ -1260,10 +1258,10 @@ public class CompiledSelect extends AbstractCompiledValue {
               if (isStruct) {
                 occurrence = ((Bag) resultSet).addAndGetOccurence(values);
               } else {
-                boolean add = true;
+                var add = true;
                 if (context.isCqQueryContext()) {
                   if (values[0] instanceof Region.Entry) {
-                    Region.Entry e = (Region.Entry) values[0];
+                    var e = (Region.Entry) values[0];
                     if (!e.isDestroyed()) {
                       try {
                         values[0] = new CqEntry(e.getKey(), e.getValue());
@@ -1286,10 +1284,10 @@ public class CompiledSelect extends AbstractCompiledValue {
         }
       }
     } else { // One or more projection attributes
-      int projCount = projAttrs.size();
-      Object[] values = new Object[projCount];
-      for (int i = 0; i < projCount; i++) {
-        Object[] projDef = (Object[]) projAttrs.get(i);
+      var projCount = projAttrs.size();
+      var values = new Object[projCount];
+      for (var i = 0; i < projCount; i++) {
+        var projDef = (Object[]) projAttrs.get(i);
         values[i] = ((CompiledValue) projDef[1]).evaluate(context);
         // For local queries with distinct, deserialize all PdxInstances
         // as we do not have a way to compare Pdx and non Pdx objects in case
@@ -1335,7 +1333,7 @@ public class CompiledSelect extends AbstractCompiledValue {
       } else {
         if (isLinkedStructure) {
           if (isStruct) {
-            StructImpl structImpl = new StructImpl((StructTypeImpl) elementType, values);
+            var structImpl = new StructImpl((StructTypeImpl) elementType, values);
             if (distinct) {
               occurrence = resultSet.add(structImpl) ? 1 : 0;
             } else {
@@ -1372,9 +1370,9 @@ public class CompiledSelect extends AbstractCompiledValue {
   private String generateProjectionName(CompiledValue projExpr, ExecutionContext context) {
     String name = null;
     if (projExpr instanceof RuntimeIterator) {
-      RuntimeIterator rIter = (RuntimeIterator) projExpr;
+      var rIter = (RuntimeIterator) projExpr;
       name = rIter.getDefinition();
-      int index = name.lastIndexOf('.');
+      var index = name.lastIndexOf('.');
       if (index > 0) {
         name = name.substring(index + 1);
       } else if (name.charAt(0) == '/') {
@@ -1384,7 +1382,7 @@ public class CompiledSelect extends AbstractCompiledValue {
         name = rIter.getInternalId();
       }
     } else {
-      int type = projExpr.getType();
+      var type = projExpr.getType();
       if (type == PATH) {
         name = ((CompiledPath) projExpr).getTailID();
       } else if (type == Identifier) {
@@ -1413,14 +1411,14 @@ public class CompiledSelect extends AbstractCompiledValue {
     context.newScope((Integer) context.cacheGet(scopeID));
     context.pushExecCache((Integer) context.cacheGet(scopeID));
     try {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) iterators.get(0);
-      RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+      var iterDef = (CompiledIteratorDef) iterators.get(0);
+      var rIter = iterDef.getRuntimeIterator(context);
       context.bindIterator(rIter);
 
 
       Collection coll;
       {
-        Object evalResult = iterDef.getCollectionExpr().evaluate(context);
+        var evalResult = iterDef.getCollectionExpr().evaluate(context);
         if (evalResult == null || evalResult == QueryService.UNDEFINED) {
           return false;
         }
@@ -1431,17 +1429,17 @@ public class CompiledSelect extends AbstractCompiledValue {
       }
 
       if (whereClause.isDependentOnCurrentScope(context)) {
-        Iterator cIter = coll.iterator();
-        Object currObj = cIter.next();
+        var cIter = coll.iterator();
+        var currObj = cIter.next();
         rIter.setCurrent(currObj);
       }
-      Object b = whereClause.evaluate(context);
+      var b = whereClause.evaluate(context);
       if (b == null) {
         return false;
       } else if (b == QueryService.UNDEFINED) {
         // add UNDEFINED to results only for NOT EQUALS queries
         if (whereClause.getType() == COMPARISON) {
-          int operator = ((Filter) whereClause).getOperator();
+          var operator = ((Filter) whereClause).getOperator();
           return operator == TOK_NE || operator == TOK_NE_ALT;
         } else {
           return false;

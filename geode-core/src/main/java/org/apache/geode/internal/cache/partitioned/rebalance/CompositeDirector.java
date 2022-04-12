@@ -88,7 +88,7 @@ public class CompositeDirector extends RebalanceDirectorAdapter {
 
   @Override
   public boolean nextStep() {
-    boolean attemptedOperation = false;
+    var attemptedOperation = false;
     if (removeOverRedundancy) {
       attemptedOperation = removeOverRedundancyDirector.nextStep();
     }

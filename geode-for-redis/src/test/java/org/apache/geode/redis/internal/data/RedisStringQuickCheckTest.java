@@ -43,13 +43,13 @@ public class RedisStringQuickCheckTest {
       @Size(min = 0, max = 10) ArrayList<Byte> valueToAddArray,
       @InRange(minInt = 0, maxInt = 60) int offset) {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    byte[] existingBytes = Bytes.toArray(existingByteArray);
-    byte[] valueToAdd = Bytes.toArray(valueToAddArray);
+    var existingBytes = Bytes.toArray(existingByteArray);
+    var valueToAdd = Bytes.toArray(valueToAddArray);
 
-    RedisString redisString = new RedisString(existingBytes);
+    var redisString = new RedisString(existingBytes);
     redisString.setrange(region, null, offset, valueToAdd);
 
-    byte[] newBytes = redisString.getValue();
+    var newBytes = redisString.getValue();
 
     // if valueToAdd is empty, then original string is unmodified
     if (valueToAdd.length == 0) {
@@ -58,24 +58,24 @@ public class RedisStringQuickCheckTest {
     }
 
     // length property
-    int newLength = Math.max(existingBytes.length, offset + valueToAdd.length);
+    var newLength = Math.max(existingBytes.length, offset + valueToAdd.length);
     assertThat(newBytes.length).isEqualTo(newLength);
 
     // prefix property
     if (offset > 0) {
       // Note: copyOf method truncates or pads with zeros as needed
       // to make array of specified length
-      byte[] prefix = Arrays.copyOf(existingBytes, offset);
+      var prefix = Arrays.copyOf(existingBytes, offset);
       assertThat(newBytes).startsWith(prefix);
     }
 
     // set value property
-    byte[] setValue = Arrays.copyOfRange(newBytes, offset, offset + valueToAdd.length);
+    var setValue = Arrays.copyOfRange(newBytes, offset, offset + valueToAdd.length);
     assertThat(setValue).isEqualTo(valueToAdd);
 
     // suffix property
-    byte[] actualSuffix = Arrays.copyOfRange(newBytes, offset + valueToAdd.length, newBytes.length);
-    byte[] expectedSuffix = offset + setValue.length > existingBytes.length ? new byte[0]
+    var actualSuffix = Arrays.copyOfRange(newBytes, offset + valueToAdd.length, newBytes.length);
+    var expectedSuffix = offset + setValue.length > existingBytes.length ? new byte[0]
         : Arrays.copyOfRange(existingBytes, offset + setValue.length, existingBytes.length);
 
     assertThat(actualSuffix).isEqualTo(expectedSuffix);

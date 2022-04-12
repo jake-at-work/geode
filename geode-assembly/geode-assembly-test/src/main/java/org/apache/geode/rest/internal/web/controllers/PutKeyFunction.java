@@ -32,10 +32,10 @@ public class PutKeyFunction implements Function {
 
   @Override
   public void execute(FunctionContext context) {
-    RegionFunctionContext regionContext = (RegionFunctionContext) context;
+    var regionContext = (RegionFunctionContext) context;
     Region dataSet = regionContext.getDataSet();
-    Object key = regionContext.getFilter().iterator().next();
-    Object value = regionContext.getArguments();
+    var key = regionContext.getFilter().iterator().next();
+    var value = regionContext.getArguments();
     dataSet.put(key, value);
     context.getResultSender().lastResult(Boolean.TRUE);
   }

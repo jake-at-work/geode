@@ -30,14 +30,14 @@ import org.apache.geode.test.junit.categories.RestAPITest;
 public class JsonWriterTest {
   @Test
   public void testWwriteArrayAsJson() throws IOException {
-    Date value = new Date();
+    var value = new Date();
     assertThatThrownBy(
         () -> JsonWriter.writeArrayAsJson(mock(JsonGenerator.class), value, "myDate"))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Expected an array for pdx field myDate, but got an object of type "
                 + value.getClass());
 
-    Date[] values = new Date[2];
+    var values = new Date[2];
     assertThatThrownBy(
         () -> JsonWriter.writeArrayAsJson(mock(JsonGenerator.class), values, "myDates"))
             .isInstanceOf(IllegalStateException.class)

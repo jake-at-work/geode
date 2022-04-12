@@ -36,11 +36,9 @@ import org.junit.Test;
 
 import org.apache.geode.DataSerializable;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
@@ -75,7 +73,7 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.put(SERIALIZABLE_OBJECT_FILTER, TestPRKey.class.getName());
     return config;
   }
@@ -92,26 +90,26 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
     vm2.invoke(() -> createPartitionedRegion());
 
     vm0.invoke(() -> {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
-      Random random = new Random(123);
+      var partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
+      var random = new Random(123);
       // Assert that its empty
-      for (int i = 0; i < 5; i++) {
+      for (var i = 0; i < 5; i++) {
         Set someKeys = getSomeKeys(partitionedRegion, random);
         assertNotNull(someKeys);
         assertTrue(someKeys.isEmpty());
       }
 
-      for (int i = 0; i < MAX_KEYS; i++) {
+      for (var i = 0; i < MAX_KEYS; i++) {
         partitionedRegion.put("testKey" + i, i);
       }
 
       // Assert not empty and has value in an acceptable range
-      for (int i = 0; i < 5; i++) {
+      for (var i = 0; i < 5; i++) {
         Set someKeys = getSomeKeys(partitionedRegion, random);
         assertNotNull(someKeys);
         assertFalse(someKeys.isEmpty());
-        for (Object key : someKeys) {
-          Integer val = (Integer) partitionedRegion.get(key);
+        for (var key : someKeys) {
+          var val = (Integer) partitionedRegion.get(key);
           assertNotNull(val);
           assertTrue(val >= 0);
           assertTrue(val < MAX_KEYS);
@@ -122,29 +120,29 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
 
   @Test
   public void testGetNodes() throws Exception {
-    VM validatorVM = vm2;
+    var validatorVM = vm2;
 
     validatorVM.invoke(this::createPRAndTestGetAllNodes);
 
     validatorVM.invoke(() -> {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
-      Set<InternalDistributedMember> allNodes = partitionedRegion.getAllNodes();
+      var partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
+      var allNodes = partitionedRegion.getAllNodes();
       assertThat(allNodes).isNotNull().hasSize(1);
     });
 
     vm0.invoke(this::createPRAndTestGetAllNodes);
 
     validatorVM.invoke(() -> {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
-      Set<InternalDistributedMember> allNodes = partitionedRegion.getAllNodes();
+      var partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
+      var allNodes = partitionedRegion.getAllNodes();
       assertThat(allNodes).isNotNull().hasSize(2);
     });
 
     vm1.invoke(this::createPRAndTestGetAllNodes);
 
     validatorVM.invoke(() -> {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
-      Set<InternalDistributedMember> allNodes = partitionedRegion.getAllNodes();
+      var partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
+      var allNodes = partitionedRegion.getAllNodes();
       assertThat(allNodes).isNotNull().hasSize(3);
     });
   }
@@ -155,7 +153,7 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
   @Test
   public void testLocalCacheOps() throws Exception {
     vm0.invoke(() -> {
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
       paf.setTotalNumBuckets(TOTAL_NUM_BUCKETS);
       paf.setLocalMaxMemory(8);
       RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
@@ -164,17 +162,17 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
     });
 
     vm2.invoke(() -> {
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
       paf.setTotalNumBuckets(TOTAL_NUM_BUCKETS);
       paf.setLocalMaxMemory(0);
       RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
       regionFactory.setPartitionAttributes(paf.create());
-      PartitionedRegion partitionedRegion = (PartitionedRegion) regionFactory.create(regionName);
+      var partitionedRegion = (PartitionedRegion) regionFactory.create(regionName);
 
-      String key3 = "lcKey3";
-      String val3 = "lcVal3";
-      String key4 = "lcKey4";
-      String val4 = "lcVal4";
+      var key3 = "lcKey3";
+      var val3 = "lcVal3";
+      var key4 = "lcKey4";
+      var val4 = "lcVal4";
 
       // Test localCacheContainsKey
       assertThat(partitionedRegion.localCacheContainsKey(key3)).isFalse();
@@ -187,7 +185,7 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
       assertThat(partitionedRegion.localCacheContainsKey(key4)).isFalse();
 
       // test localCacheKeySet
-      Set localCacheKeySet = partitionedRegion.localCacheKeySet();
+      var localCacheKeySet = partitionedRegion.localCacheKeySet();
       assertThat(localCacheKeySet.contains(key3)).isFalse();
       assertThat(localCacheKeySet.contains(key4)).isFalse();
 
@@ -213,19 +211,19 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
     vm3.invoke(() -> createPartitionedRegion());
 
     // Create an accessor
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setLocalMaxMemory(0);
     paf.setTotalNumBuckets(TOTAL_NUM_BUCKETS);
 
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
     regionFactory.setPartitionAttributes(paf.create());
 
-    PartitionedRegion partitionedRegion = (PartitionedRegion) regionFactory.create(regionName);
+    var partitionedRegion = (PartitionedRegion) regionFactory.create(regionName);
 
-    int numberOfBuckets = partitionedRegion.getTotalNumberOfBuckets();
+    var numberOfBuckets = partitionedRegion.getTotalNumberOfBuckets();
 
-    for (int whichBucket = numberOfBuckets - 1; whichBucket >= 0; whichBucket--) {
-      Set bucketKeys = partitionedRegion.getBucketKeys(whichBucket);
+    for (var whichBucket = numberOfBuckets - 1; whichBucket >= 0; whichBucket--) {
+      var bucketKeys = partitionedRegion.getBucketKeys(whichBucket);
       assertThat(bucketKeys).isEmpty();
     }
 
@@ -243,16 +241,16 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
     assertThat(bucketKeys.iterator().next().hashCode()).isEqualTo(0);
 
     // Skip bucket zero since we have three keys there, but fill out all the rest with keys
-    for (int whichBucket = numberOfBuckets - 1; whichBucket > 0; whichBucket--) {
-      TestPRKey key = new TestPRKey(whichBucket, 0);
+    for (var whichBucket = numberOfBuckets - 1; whichBucket > 0; whichBucket--) {
+      var key = new TestPRKey(whichBucket, 0);
       partitionedRegion.put(key, whichBucket);
     }
 
     // Assert that the proper number of keys are placed in each bucket
-    for (int whichBucket = 1; whichBucket < numberOfBuckets; whichBucket++) {
+    for (var whichBucket = 1; whichBucket < numberOfBuckets; whichBucket++) {
       bucketKeys = partitionedRegion.getBucketKeys(whichBucket);
       assertThat(bucketKeys).hasSize(1);
-      TestPRKey key = bucketKeys.iterator().next();
+      var key = bucketKeys.iterator().next();
       assertThat(key.hashCode()).isEqualTo(whichBucket);
     }
   }
@@ -263,17 +261,17 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
    */
   @Test
   public void testGetBucketOwners() throws Exception {
-    String regionName1 = getUniqueName() + "-r0";
-    String regionName2 = getUniqueName() + "-r1";
-    String regionName3 = getUniqueName() + "-r2";
-    String[] regions = {regionName1, regionName2, regionName3};
+    var regionName1 = getUniqueName() + "-r0";
+    var regionName2 = getUniqueName() + "-r1";
+    var regionName3 = getUniqueName() + "-r2";
+    var regions = new String[] {regionName1, regionName2, regionName3};
 
-    int numberOfBuckets = 3;
+    var numberOfBuckets = 3;
 
-    VM datastore1VM = vm2;
-    VM datastore2VM = vm3;
-    VM datastore3VM = vm0;
-    VM accessorVM = vm1;
+    var datastore1VM = vm2;
+    var datastore2VM = vm3;
+    var datastore3VM = vm0;
+    var accessorVM = vm1;
 
     datastore1VM
         .invoke(() -> createPartitionedRegionsWithIncreasingRedundancy(numberOfBuckets, regions));
@@ -283,16 +281,16 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
         .invoke(() -> createPartitionedRegionsWithIncreasingRedundancy(numberOfBuckets, regions));
 
     accessorVM.invoke(() -> {
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
       paf.setLocalMaxMemory(0);
       paf.setTotalNumBuckets(numberOfBuckets);
 
       RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
 
-      for (int redundancy = 0; redundancy < regions.length; redundancy++) {
+      for (var redundancy = 0; redundancy < regions.length; redundancy++) {
         paf.setRedundantCopies(redundancy);
         regionFactory.setPartitionAttributes(paf.create());
-        Region region = regionFactory.create(regions[redundancy]);
+        var region = regionFactory.create(regions[redundancy]);
         assertThat(region.size()).isEqualTo(0);
       }
     });
@@ -303,8 +301,8 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
     accessorVM.invoke(() -> validateNoBucketOwners(regions, numberOfBuckets));
 
     accessorVM.invoke(() -> {
-      for (String regionName : regions) {
-        PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
+      for (var regionName : regions) {
+        var partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
         assertThat(partitionedRegion.getTotalNumberOfBuckets()).isEqualTo(3);
         // Create one bucket
         partitionedRegion.put(0, "zero");
@@ -319,8 +317,8 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
   }
 
   private void validateOneBucketPrimary(String[] regions) {
-    for (String regionName : regions) {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
+    for (var regionName : regions) {
+      var partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
       try {
         for (int bucketId : partitionedRegion.getRegionAdvisor().getBucketSet()) {
           assertThat(partitionedRegion.getRegionAdvisor().getBucketOwners(bucketId))
@@ -329,13 +327,13 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
           List primaries = partitionedRegion.getBucketOwnersForValidation(bucketId);
           assertThat(primaries).hasSize(partitionedRegion.getRedundantCopies() + 1);
 
-          int primaryCount = 0;
-          for (Object primaryInfo : primaries) {
-            Object[] memberAndBoolean = (Object[]) primaryInfo;
+          var primaryCount = 0;
+          for (var primaryInfo : primaries) {
+            var memberAndBoolean = (Object[]) primaryInfo;
             assertThat(memberAndBoolean).hasSize(3); // memberId, isPrimary and hostToken(new)
             assertThat(memberAndBoolean[0]).isInstanceOf(DistributedMember.class);
             assertThat(memberAndBoolean[1].getClass()).isSameAs(Boolean.class);
-            Boolean isPrimary = (Boolean) memberAndBoolean[1];
+            var isPrimary = (Boolean) memberAndBoolean[1];
             if (isPrimary) {
               primaryCount++;
             }
@@ -350,11 +348,11 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
 
   private void validateNoBucketOwners(String[] regions, int numberOfBuckets)
       throws ForceReattemptException {
-    for (String regionName : regions) {
-      PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
+    for (var regionName : regions) {
+      var partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
       assertThat(partitionedRegion.getTotalNumberOfBuckets()).isEqualTo(numberOfBuckets);
 
-      for (int whichBucket = 0; whichBucket < partitionedRegion
+      for (var whichBucket = 0; whichBucket < partitionedRegion
           .getTotalNumberOfBuckets(); whichBucket++) {
         assertThat(partitionedRegion.getRegionAdvisor().getBucketOwners(whichBucket)).isEmpty();
         assertThat(partitionedRegion.getBucketOwnersForValidation(whichBucket)).isEmpty();
@@ -364,21 +362,21 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
 
   private void createPartitionedRegionsWithIncreasingRedundancy(int numberOfBuckets,
       String[] regions) {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(numberOfBuckets);
 
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
 
-    for (int redundancy = 0; redundancy < regions.length; redundancy++) {
+    for (var redundancy = 0; redundancy < regions.length; redundancy++) {
       paf.setRedundantCopies(redundancy);
       regionFactory.setPartitionAttributes(paf.create());
-      Region region = regionFactory.create(regions[redundancy]);
+      var region = regionFactory.create(regions[redundancy]);
       assertThat(region.size()).isEqualTo(0);
     }
   }
 
   private void createPartitionedRegion() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(TOTAL_NUM_BUCKETS);
 
     RegionFactory regionFactory = getCache().createRegionFactory(RegionShortcut.PARTITION);
@@ -388,20 +386,20 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
   }
 
   private void createPRAndTestGetAllNodes() {
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(TOTAL_NUM_BUCKETS);
 
     RegionFactory<Object, Integer> regionFactory =
         getCache().createRegionFactory(RegionShortcut.PARTITION);
     regionFactory.setPartitionAttributes(paf.create());
 
-    Region<Object, Integer> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
     // For each invocation, create a key that has a sequential hashCode.
     // Putting this key into the PR should force a new bucket allocation on
     // each new VM (assuming a mod on the hashCode), forcing the number of VMs to increase
     // when we call getAllNodes each time this method is called.
-    Integer counter = region.get("Counter");
+    var counter = region.get("Counter");
     Integer keyHash;
     if (counter == null) {
       counter = 0;
@@ -412,7 +410,7 @@ public class PartitionedRegionTestUtilsDUnitTest extends CacheTestCase {
     region.put("Counter", counter);
     region.put(new TestGetNodesKey(keyHash), counter);
 
-    Set<InternalDistributedMember> allNodes = ((PartitionedRegion) region).getAllNodes();
+    var allNodes = ((PartitionedRegion) region).getAllNodes();
     assertThat(allNodes).isNotNull().isNotEmpty();
   }
 

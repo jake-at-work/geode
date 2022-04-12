@@ -25,15 +25,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.Properties;
 
 import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.CacheListener;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
@@ -42,7 +38,6 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.ObjectSizer;
@@ -58,7 +53,6 @@ import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
@@ -70,38 +64,38 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
     // Ignore this excetion as this can happen if pool is shutting down
     IgnoredException
         .addIgnoredException(java.util.concurrent.RejectedExecutionException.class.getName());
-    final Host host = Host.getHost(0);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final float heapPercentage = 50.9f;
-    final int redundantCopies = 1;
-    final int evictorInterval = 100;
-    final String name = uniqName + "-PR";
+    final var host = Host.getHost(0);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var heapPercentage = 50.9f;
+    final var redundantCopies = 1;
+    final var evictorInterval = 100;
+    final var name = uniqName + "-PR";
 
-    final CacheSerializableRunnable create =
+    final var create =
         new CacheSerializableRunnable("Create Heap LRU with Overflow to disk partitioned Region") {
           @Override
           public void run2() {
             System.setProperty(HeapLRUController.TOP_UP_HEAP_EVICTION_PERCENTAGE_PROPERTY,
                 Float.toString(0));
             setEvictionPercentage(heapPercentage);
-            final Properties sp = System.getProperties();
-            final AttributesFactory factory = new AttributesFactory();
+            final var sp = System.getProperties();
+            final var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
             factory.setEvictionAttributes(
                 EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK));
             factory.setDiskSynchronous(true);
-            DiskStoreFactory dsf = getCache().createDiskStoreFactory();
-            final File[] diskDirs = new File[1];
+            var dsf = getCache().createDiskStoreFactory();
+            final var diskDirs = new File[1];
             diskDirs[0] = new File("overflowDir/" + uniqName + "_" + OSProcess.getId());
             diskDirs[0].mkdirs();
             dsf.setDiskDirs(diskDirs);
-            DiskStore ds = dsf.create(name);
+            var ds = dsf.create(name);
             factory.setDiskStoreName(ds.getName());
-            final PartitionedRegion pr =
+            final var pr =
                 (PartitionedRegion) createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
@@ -109,17 +103,17 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
     vm3.invoke(create);
     vm2.invoke(create);
 
-    final int bucketsToCreate = 3;
-    final SerializableRunnable createBuckets = new SerializableRunnable("Create Buckets") {
+    final var bucketsToCreate = 3;
+    final var createBuckets = new SerializableRunnable("Create Buckets") {
       @Override
       public void run() {
         setEvictionPercentage(heapPercentage);
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         assertNotNull(pr);
         // Create three buckets, add enough stuff in each to force two
         // overflow
         // ops in each
-        for (int i = 0; i < bucketsToCreate; i++) {
+        for (var i = 0; i < bucketsToCreate; i++) {
           // assume mod-based hashing for bucket creation
           pr.put(i, "value0");
           pr.put(i + pr.getPartitionAttributes().getTotalNumBuckets(), "value1");
@@ -129,24 +123,24 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
     };
     vm3.invoke(createBuckets);
 
-    final SerializableCallable assertBucketAttributesAndEviction =
+    final var assertBucketAttributesAndEviction =
         new SerializableCallable("Assert bucket attributes and eviction") {
           @Override
           public Object call() throws Exception {
 
             try {
               setEvictionPercentage(heapPercentage);
-              final Properties sp = getProperties();
-              final int expectedInvocations = 10;
-              final int maximumWaitSeconds = 60; // seconds
-              final int pollWaitMillis = evictorInterval * 2;
+              final var sp = getProperties();
+              final var expectedInvocations = 10;
+              final var maximumWaitSeconds = 60; // seconds
+              final var pollWaitMillis = evictorInterval * 2;
               assertTrue(pollWaitMillis < (SECONDS.toMillis(maximumWaitSeconds) * 4));
-              final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+              final var pr = (PartitionedRegion) getRootRegion(name);
               assertNotNull(pr);
-              for (final Entry<Integer, BucketRegion> integerBucketRegionEntry : pr.getDataStore()
+              for (final var integerBucketRegionEntry : pr.getDataStore()
                   .getAllLocalBuckets()) {
-                final Entry entry = (Entry) integerBucketRegionEntry;
-                final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+                final var entry = (Entry) integerBucketRegionEntry;
+                final var bucketRegion = (BucketRegion) entry.getValue();
                 if (bucketRegion == null) {
                   continue;
                 }
@@ -156,7 +150,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
                     .isOverflowToDisk());
               }
               raiseFakeNotification();
-              WaitCriterion wc = new WaitCriterion() {
+              var wc = new WaitCriterion() {
                 String excuse;
 
                 @Override
@@ -172,7 +166,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
               };
               GeodeAwaitility.await().untilAsserted(wc);
 
-              int entriesEvicted = 0;
+              var entriesEvicted = 0;
 
               entriesEvicted += pr.getDiskRegionStats().getNumOverflowOnDisk();
               return entriesEvicted;
@@ -186,9 +180,9 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             }
           }
         };
-    final Integer v2i = (Integer) vm2.invoke(assertBucketAttributesAndEviction);
-    final Integer v3i = (Integer) vm3.invoke(assertBucketAttributesAndEviction);
-    final int totalEvicted = v2i + v3i;
+    final var v2i = (Integer) vm2.invoke(assertBucketAttributesAndEviction);
+    final var v3i = (Integer) vm3.invoke(assertBucketAttributesAndEviction);
+    final var totalEvicted = v2i + v3i;
     // assume all three entries in each bucket were evicted to disk
     assertEquals((3 * bucketsToCreate * (redundantCopies + 1)), totalEvicted);
   }
@@ -198,7 +192,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
     HeapMemoryMonitor.setTestDisableMemoryUpdates(true);
 
     setEvictionPercentage(85);
-    HeapMemoryMonitor hmm =
+    var hmm =
         getCache().getInternalResourceManager().getHeapMonitor();
     hmm.setTestMaxMemoryBytes(100);
 
@@ -215,14 +209,14 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
     // Ignore this excetion as this can happen if pool is shutting down
     IgnoredException
         .addIgnoredException(java.util.concurrent.RejectedExecutionException.class.getName());
-    final Host host = Host.getHost(0);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final float heapPercentage = 50.9f;
-    final int redundantCopies = 1;
-    final int evictorInterval = 100;
-    final String name = uniqName + "-PR";
+    final var host = Host.getHost(0);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var heapPercentage = 50.9f;
+    final var redundantCopies = 1;
+    final var evictorInterval = 100;
+    final var name = uniqName + "-PR";
 
     final SerializableRunnable create = new CacheSerializableRunnable(
         "Create Heap LRU with local destroy on a partitioned Region") {
@@ -231,29 +225,29 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         System.setProperty(HeapLRUController.TOP_UP_HEAP_EVICTION_PERCENTAGE_PROPERTY,
             Float.toString(0));
         setEvictionPercentage(heapPercentage);
-        final Properties sp = System.getProperties();
-        final AttributesFactory factory = new AttributesFactory();
+        final var sp = System.getProperties();
+        final var factory = new AttributesFactory();
         factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(EvictionAttributes.createLRUHeapAttributes());
-        final PartitionedRegion pr = (PartitionedRegion) createRootRegion(name, factory.create());
+        final var pr = (PartitionedRegion) createRootRegion(name, factory.create());
         assertNotNull(pr);
       }
     };
     vm3.invoke(create);
     vm2.invoke(create);
 
-    final int bucketsToCreate = 3;
-    final SerializableRunnable createBuckets = new SerializableRunnable("Create Buckets") {
+    final var bucketsToCreate = 3;
+    final var createBuckets = new SerializableRunnable("Create Buckets") {
       @Override
       public void run() {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         assertNotNull(pr);
         // Create three buckets, add enough stuff in each to force two
         // overflow
         // ops in each
-        for (int i = 0; i < bucketsToCreate; i++) {
+        for (var i = 0; i < bucketsToCreate; i++) {
           // assume mod-based hashing for bucket creation
           pr.put(i, "value0");
           pr.put(i + pr.getPartitionAttributes().getTotalNumBuckets(), "value1");
@@ -263,25 +257,25 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
     };
     vm3.invoke(createBuckets);
 
-    final SerializableCallable assertBucketAttributesAndEviction =
+    final var assertBucketAttributesAndEviction =
         new SerializableCallable("Assert bucket attributes and eviction") {
           @Override
           public Object call() throws Exception {
             try {
-              final Properties sp = getProperties();
-              final int expectedInvocations = 10;
-              final int maximumWaitSeconds = 60; // seconds
-              final int pollWaitMillis = evictorInterval * 2;
+              final var sp = getProperties();
+              final var expectedInvocations = 10;
+              final var maximumWaitSeconds = 60; // seconds
+              final var pollWaitMillis = evictorInterval * 2;
               assertTrue(pollWaitMillis < (SECONDS.toMillis(maximumWaitSeconds) * 4));
-              final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+              final var pr = (PartitionedRegion) getRootRegion(name);
               assertNotNull(pr);
 
               long entriesEvicted = 0;
-              for (final Entry<Integer, BucketRegion> integerBucketRegionEntry : pr.getDataStore()
+              for (final var integerBucketRegionEntry : pr.getDataStore()
                   .getAllLocalBuckets()) {
-                final Entry entry = (Entry) integerBucketRegionEntry;
+                final var entry = (Entry) integerBucketRegionEntry;
 
-                final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+                final var bucketRegion = (BucketRegion) entry.getValue();
                 if (bucketRegion == null) {
                   continue;
                 }
@@ -291,7 +285,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
                     .isLocalDestroy());
               }
               raiseFakeNotification();
-              WaitCriterion wc = new WaitCriterion() {
+              var wc = new WaitCriterion() {
                 String excuse;
 
                 @Override
@@ -319,33 +313,33 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             }
           }
         };
-    final Long v2i = (Long) vm2.invoke(assertBucketAttributesAndEviction);
-    final Long v3i = (Long) vm3.invoke(assertBucketAttributesAndEviction);
-    final int totalEvicted = v2i.intValue() + v3i.intValue();
+    final var v2i = (Long) vm2.invoke(assertBucketAttributesAndEviction);
+    final var v3i = (Long) vm3.invoke(assertBucketAttributesAndEviction);
+    final var totalEvicted = v2i.intValue() + v3i.intValue();
     // assume all three entries in each bucket were evicted to disk
     assertEquals((3 * bucketsToCreate * (redundantCopies + 1)), totalEvicted);
   }
 
   @Test
   public void testMemoryLRUWithOverflowToDisk() {
-    final Host host = Host.getHost(0);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final VM vm0 = host.getVM(0);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxBuckets = 8;
-    final int localMaxMem = 16;
-    final int halfKb = 512;
-    final int justShyOfTwoMb = (2 * 1024 * 1024) - halfKb;
+    final var host = Host.getHost(0);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var vm0 = host.getVM(0);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxBuckets = 8;
+    final var localMaxMem = 16;
+    final var halfKb = 512;
+    final var justShyOfTwoMb = (2 * 1024 * 1024) - halfKb;
 
-    final String name = uniqName + "-PR";
-    final SerializableRunnable create =
+    final var name = uniqName + "-PR";
+    final var create =
         new SerializableRunnable("Create Memory LRU with Overflow to disk partitioned Region") {
           @Override
           public void run() {
             try {
-              final AttributesFactory factory = new AttributesFactory();
+              final var factory = new AttributesFactory();
               factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(
                   new PartitionAttributesFactory().setRedundantCopies(redundantCopies)
@@ -354,14 +348,14 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
               factory.setEvictionAttributes(EvictionAttributes
                   .createLRUMemoryAttributes(ObjectSizer.DEFAULT, EvictionAction.OVERFLOW_TO_DISK));
               factory.setDiskSynchronous(true);
-              DiskStoreFactory dsf = getCache().createDiskStoreFactory();
-              final File[] diskDirs = new File[1];
+              var dsf = getCache().createDiskStoreFactory();
+              final var diskDirs = new File[1];
               diskDirs[0] = new File("overflowDir/" + uniqName + "_" + OSProcess.getId());
               diskDirs[0].mkdirs();
               dsf.setDiskDirs(diskDirs);
-              DiskStore ds = dsf.create(name);
+              var ds = dsf.create(name);
               factory.setDiskStoreName(ds.getName());
-              final PartitionedRegion pr =
+              final var pr =
                   (PartitionedRegion) createRootRegion(name, factory.create());
               assertNotNull(pr);
             } catch (final CacheException ex) {
@@ -371,24 +365,24 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         };
     vm3.invoke(create);
     vm2.invoke(create);
-    final int extraEntries = 4;
-    final SerializableRunnable createBuckets = new SerializableRunnable("Create Buckets") {
+    final var extraEntries = 4;
+    final var createBuckets = new SerializableRunnable("Create Buckets") {
       @Override
       public void run() {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         assertNotNull(pr);
-        for (int counter = 1; counter <= localMaxMem + extraEntries; counter++) {
+        for (var counter = 1; counter <= localMaxMem + extraEntries; counter++) {
           pr.put(counter, new byte[1 * 1024 * 1024]);
         }
       }
     };
     vm3.invoke(createBuckets);
 
-    final SerializableCallable assertBucketAttributesAndEviction =
+    final var assertBucketAttributesAndEviction =
         new SerializableCallable("Assert bucket attributes and eviction") {
           @Override
           public Object call() throws Exception {
-            final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+            final var pr = (PartitionedRegion) getRootRegion(name);
             assertNotNull(pr);
             assertNull(pr.getDiskRegion());
 
@@ -396,11 +390,11 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             // entries
             // overflowed
             long entriesEvicted = 0;
-            for (final Entry<Integer, BucketRegion> integerBucketRegionEntry : pr.getDataStore()
+            for (final var integerBucketRegionEntry : pr.getDataStore()
                 .getAllLocalBuckets()) {
-              final Entry entry = (Entry) integerBucketRegionEntry;
+              final var entry = (Entry) integerBucketRegionEntry;
 
-              final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+              final var bucketRegion = (BucketRegion) entry.getValue();
               if (bucketRegion == null) {
                 continue;
               }
@@ -414,9 +408,9 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             return entriesEvicted;
           }
         };
-    final Long vm2i = (Long) vm2.invoke(assertBucketAttributesAndEviction);
-    final Long vm3i = (Long) vm3.invoke(assertBucketAttributesAndEviction);
-    final int totalEvicted = vm2i.intValue() + vm3i.intValue();
+    final var vm2i = (Long) vm2.invoke(assertBucketAttributesAndEviction);
+    final var vm3i = (Long) vm3.invoke(assertBucketAttributesAndEviction);
+    final var totalEvicted = vm2i.intValue() + vm3i.intValue();
     assertTrue(2 * extraEntries <= totalEvicted);
 
     // Test for bug 42056 - make sure we get the faulted out entries.
@@ -425,9 +419,9 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
     vm0.invoke(new SerializableRunnable("Test to see that we can get keys") {
       @Override
       public void run() {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         // Make sure we can get all of the entries
-        for (int counter = 1; counter <= localMaxMem + extraEntries; counter++) {
+        for (var counter = 1; counter <= localMaxMem + extraEntries; counter++) {
           assertNotNull(pr.get(counter));
         }
       }
@@ -436,61 +430,61 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testMemoryLRUWithLocalDestroy() {
-    final Host host = Host.getHost(0);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxBuckets = 8;
-    final int localMaxMem = 16;
-    final int halfKb = 512;
-    final int justShyOfTwoMb = (2 * 1024 * 1024) - halfKb;
-    final String name = uniqName + "-PR";
+    final var host = Host.getHost(0);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxBuckets = 8;
+    final var localMaxMem = 16;
+    final var halfKb = 512;
+    final var justShyOfTwoMb = (2 * 1024 * 1024) - halfKb;
+    final var name = uniqName + "-PR";
 
     final SerializableRunnable create = new CacheSerializableRunnable(
         "Create Memory LRU with local destroy on a partitioned Region") {
       @Override
       public void run2() {
-        final AttributesFactory factory = new AttributesFactory();
+        final var factory = new AttributesFactory();
         factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies)
                 .setLocalMaxMemory(16).setTotalNumBuckets(maxBuckets).create());
         factory.setEvictionAttributes(EvictionAttributes
             .createLRUMemoryAttributes(ObjectSizer.DEFAULT, EvictionAction.LOCAL_DESTROY));
-        final PartitionedRegion pr = (PartitionedRegion) createRootRegion(name, factory.create());
+        final var pr = (PartitionedRegion) createRootRegion(name, factory.create());
         assertNotNull(pr);
       }
     };
     vm3.invoke(create);
     vm2.invoke(create);
 
-    final int extraEntries = 4;
-    final SerializableRunnable createBuckets = new SerializableRunnable("Create Buckets") {
+    final var extraEntries = 4;
+    final var createBuckets = new SerializableRunnable("Create Buckets") {
       @Override
       public void run() {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         assertNotNull(pr);
-        for (int counter = 1; counter <= localMaxMem + extraEntries; counter++) {
+        for (var counter = 1; counter <= localMaxMem + extraEntries; counter++) {
           pr.put(counter, new byte[1 * 1024 * 1024]);
         }
       }
     };
     vm3.invoke(createBuckets);
 
-    final SerializableCallable assertBucketAttributesAndEviction =
+    final var assertBucketAttributesAndEviction =
         new SerializableCallable("Assert bucket attributes and eviction") {
           @Override
           public Object call() throws Exception {
             try {
-              final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+              final var pr = (PartitionedRegion) getRootRegion(name);
               assertNotNull(pr);
               long entriesEvicted = 0;
-              for (final Entry<Integer, BucketRegion> integerBucketRegionEntry : pr.getDataStore()
+              for (final var integerBucketRegionEntry : pr.getDataStore()
                   .getAllLocalBuckets()) {
-                final Entry entry = (Entry) integerBucketRegionEntry;
+                final var entry = (Entry) integerBucketRegionEntry;
 
-                final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+                final var bucketRegion = (BucketRegion) entry.getValue();
                 if (bucketRegion == null) {
                   continue;
                 }
@@ -505,42 +499,42 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             }
           }
         };
-    final Long v2i = (Long) vm2.invoke(assertBucketAttributesAndEviction);
-    final Long v3i = (Long) vm3.invoke(assertBucketAttributesAndEviction);
-    final int totalEvicted = v2i.intValue() + v3i.intValue();
+    final var v2i = (Long) vm2.invoke(assertBucketAttributesAndEviction);
+    final var v3i = (Long) vm3.invoke(assertBucketAttributesAndEviction);
+    final var totalEvicted = v2i.intValue() + v3i.intValue();
     assertTrue(2 * extraEntries <= totalEvicted);
   }
 
   @Test
   public void testEntryLRUWithOverflowToDisk() {
-    final Host host = Host.getHost(0);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxBuckets = 8;
-    final int maxEntries = 16;
-    final String name = uniqName + "-PR";
-    final SerializableRunnable create =
+    final var host = Host.getHost(0);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxBuckets = 8;
+    final var maxEntries = 16;
+    final var name = uniqName + "-PR";
+    final var create =
         new SerializableRunnable("Create Entry LRU with Overflow to disk partitioned Region") {
           @Override
           public void run() {
             try {
-              final AttributesFactory factory = new AttributesFactory();
+              final var factory = new AttributesFactory();
               factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(new PartitionAttributesFactory()
                   .setRedundantCopies(redundantCopies).setTotalNumBuckets(maxBuckets).create());
               factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(maxEntries,
                   EvictionAction.OVERFLOW_TO_DISK));
               factory.setDiskSynchronous(true);
-              DiskStoreFactory dsf = getCache().createDiskStoreFactory();
-              final File[] diskDirs = new File[1];
+              var dsf = getCache().createDiskStoreFactory();
+              final var diskDirs = new File[1];
               diskDirs[0] = new File("overflowDir/" + uniqName + "_" + OSProcess.getId());
               diskDirs[0].mkdirs();
               dsf.setDiskDirs(diskDirs);
-              DiskStore ds = dsf.create(name);
+              var ds = dsf.create(name);
               factory.setDiskStoreName(ds.getName());
-              final PartitionedRegion pr =
+              final var pr =
                   (PartitionedRegion) createRootRegion(name, factory.create());
               assertNotNull(pr);
             } catch (final CacheException ex) {
@@ -550,35 +544,35 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         };
     vm3.invoke(create);
     vm2.invoke(create);
-    final int extraEntries = 4;
-    final SerializableRunnable createBuckets = new SerializableRunnable("Create Buckets") {
+    final var extraEntries = 4;
+    final var createBuckets = new SerializableRunnable("Create Buckets") {
       @Override
       public void run() {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         assertNotNull(pr);
-        for (int counter = 1; counter <= maxEntries + extraEntries; counter++) {
+        for (var counter = 1; counter <= maxEntries + extraEntries; counter++) {
           pr.put(counter, new byte[1 * 1024 * 1024]);
         }
       }
     };
     vm3.invoke(createBuckets);
 
-    final SerializableCallable assertBucketAttributesAndEviction =
+    final var assertBucketAttributesAndEviction =
         new SerializableCallable("Assert bucket attributes and eviction") {
           @Override
           public Object call() throws Exception {
-            final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+            final var pr = (PartitionedRegion) getRootRegion(name);
             assertNotNull(pr);
 
             // assert over-flow behavior in local buckets and number of
             // entries
             // overflowed
-            int entriesEvicted = 0;
-            for (final Entry<Integer, BucketRegion> integerBucketRegionEntry : pr.getDataStore()
+            var entriesEvicted = 0;
+            for (final var integerBucketRegionEntry : pr.getDataStore()
                 .getAllLocalBuckets()) {
-              final Entry entry = (Entry) integerBucketRegionEntry;
+              final var entry = (Entry) integerBucketRegionEntry;
 
-              final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+              final var bucketRegion = (BucketRegion) entry.getValue();
               if (bucketRegion == null) {
                 continue;
               }
@@ -592,9 +586,9 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
           }
         };
-    final Integer vm2i = (Integer) vm2.invoke(assertBucketAttributesAndEviction);
-    final Integer vm3i = (Integer) vm3.invoke(assertBucketAttributesAndEviction);
-    final int totalEvicted = vm2i + vm3i;
+    final var vm2i = (Integer) vm2.invoke(assertBucketAttributesAndEviction);
+    final var vm3i = (Integer) vm3.invoke(assertBucketAttributesAndEviction);
+    final var totalEvicted = vm2i + vm3i;
     assertEquals(extraEntries * 2, totalEvicted);
   }
 
@@ -607,15 +601,15 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEntryLRUWithLocalDestroy() {
-    final Host host = Host.getHost(0);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxBuckets = 8;
-    final int maxEntries = 16;
-    final String name = uniqName + "-PR";
-    final int extraEntries = 4;
+    final var host = Host.getHost(0);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxBuckets = 8;
+    final var maxEntries = 16;
+    final var name = uniqName + "-PR";
+    final var extraEntries = 4;
 
     // final int heapPercentage = 66;
     // final int evictorInterval = 100;
@@ -624,7 +618,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         "Create Entry LRU with local destroy on a partitioned Region") {
       @Override
       public void run2() {
-        final AttributesFactory factory = new AttributesFactory();
+        final var factory = new AttributesFactory();
         factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(new PartitionAttributesFactory()
             .setRedundantCopies(redundantCopies).setTotalNumBuckets(maxBuckets).create());
@@ -636,7 +630,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           @Override
           public void afterDestroy(EntryEvent e) {
             System.out.println("EEEEEEEEEEEEEE key:" + e.getKey());
-            EntryEventImpl eei = (EntryEventImpl) e;
+            var eei = (EntryEventImpl) e;
             if (Operation.EVICT_DESTROY.equals(eei.getOperation())) {
               evictionDestroyEvents++;
             }
@@ -647,24 +641,24 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             return expectedEntries == evictionDestroyEvents;
           }
         });
-        final PartitionedRegion pr = (PartitionedRegion) createRootRegion(name, factory.create());
+        final var pr = (PartitionedRegion) createRootRegion(name, factory.create());
         assertNotNull(pr);
       }
     };
     vm3.invoke(create);
 
-    final SerializableRunnable create2 =
+    final var create2 =
         new SerializableRunnable("Create Entry LRU with local destroy on a partitioned Region") {
           @Override
           public void run() {
             try {
-              final AttributesFactory factory = new AttributesFactory();
+              final var factory = new AttributesFactory();
               factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(new PartitionAttributesFactory()
                   .setRedundantCopies(redundantCopies).setTotalNumBuckets(8).create());
               factory
                   .setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(maxEntries));
-              final PartitionedRegion pr =
+              final var pr =
                   (PartitionedRegion) createRootRegion(name, factory.create());
               assertNotNull(pr);
             } catch (final CacheException ex) {
@@ -674,30 +668,30 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         };
     vm2.invoke(create2);
 
-    final SerializableRunnable createBuckets = new SerializableRunnable("Create Buckets") {
+    final var createBuckets = new SerializableRunnable("Create Buckets") {
       @Override
       public void run() {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         assertNotNull(pr);
-        for (int counter = 1; counter <= maxEntries + extraEntries; counter++) {
+        for (var counter = 1; counter <= maxEntries + extraEntries; counter++) {
           pr.put(counter, new byte[1 * 1024 * 1024]);
         }
       }
     };
     vm3.invoke(createBuckets);
 
-    final SerializableCallable assertBucketAttributesAndEviction =
+    final var assertBucketAttributesAndEviction =
         new SerializableCallable("Assert bucket attributes and eviction") {
           @Override
           public Object call() throws Exception {
             try {
-              final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+              final var pr = (PartitionedRegion) getRootRegion(name);
               assertNotNull(pr);
-              for (final Entry<Integer, BucketRegion> integerBucketRegionEntry : pr.getDataStore()
+              for (final var integerBucketRegionEntry : pr.getDataStore()
                   .getAllLocalBuckets()) {
-                final Entry entry = (Entry) integerBucketRegionEntry;
+                final var entry = (Entry) integerBucketRegionEntry;
 
-                final BucketRegion bucketRegion = (BucketRegion) entry.getValue();
+                final var bucketRegion = (BucketRegion) entry.getValue();
                 if (bucketRegion == null) {
                   continue;
                 }
@@ -712,22 +706,22 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           }
         };
 
-    final Long v2i = (Long) vm2.invoke(assertBucketAttributesAndEviction);
-    final Long v3i = (Long) vm3.invoke(assertBucketAttributesAndEviction);
-    final int totalEvicted = v2i.intValue() + v3i.intValue();
+    final var v2i = (Long) vm2.invoke(assertBucketAttributesAndEviction);
+    final var v3i = (Long) vm3.invoke(assertBucketAttributesAndEviction);
+    final var totalEvicted = v2i.intValue() + v3i.intValue();
     assertEquals(2 * extraEntries, totalEvicted);
 
-    final SerializableCallable assertListenerCount = new SerializableCallable(
+    final var assertListenerCount = new SerializableCallable(
         "Assert that the number of listener invocations matches the expected total") {
       @Override
       public Object call() throws Exception {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         assertNotNull(pr);
-        RegionAttributes attrs = pr.getAttributes();
+        var attrs = pr.getAttributes();
         assertNotNull(attrs);
-        long entriesEvicted = pr.getTotalEvictions();
+        var entriesEvicted = pr.getTotalEvictions();
         VerifiableCacheListener verifyMe = null;
-        for (CacheListener listener : attrs.getCacheListeners()) {
+        for (var listener : attrs.getCacheListeners()) {
           if (listener instanceof VerifiableCacheListener) {
             verifyMe = ((VerifiableCacheListener) listener);
           }
@@ -742,17 +736,17 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
   // Test to validate the Eviction Attribute : LRU Check
   @Test
   public void testEvictionValidationForLRUEntry() {
-    final Host host = Host.getHost(0);
-    final VM testAccessor = host.getVM(1);
-    final VM testDatastore = host.getVM(2);
-    final VM firstDatastore = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxEntries = 226;
-    final String name = uniqName + "-PR";
+    final var host = Host.getHost(0);
+    final var testAccessor = host.getVM(1);
+    final var testDatastore = host.getVM(2);
+    final var firstDatastore = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxEntries = 226;
+    final var name = uniqName + "-PR";
 
     // final int evictionSizeInMB = 200;
-    final EvictionAttributes firstEvictionAttrs =
+    final var firstEvictionAttrs =
         EvictionAttributes.createLRUEntryAttributes(maxEntries, EvictionAction.LOCAL_DESTROY);
 
     // Creating LRU Entry Count Eviction Attribute
@@ -766,13 +760,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         // DUnit not required for this test, but its a convenient place
         // to put it.
         {
-          final int buks = 11;
-          final AttributesFactory factory = new AttributesFactory();
+          final var buks = 11;
+          final var factory = new AttributesFactory();
           factory.setOffHeap(isOffHeap());
           factory.setPartitionAttributes(new PartitionAttributesFactory().setTotalNumBuckets(buks)
               .setRedundantCopies(0).create());
           factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes((buks / 2)));
-          final PartitionedRegion pr = (PartitionedRegion) createRootRegion(name, factory.create());
+          final var pr = (PartitionedRegion) createRootRegion(name, factory.create());
           final Integer key = 1;
           pr.put(key, "testval");
           final BucketRegion b;
@@ -785,22 +779,22 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           pr.destroyRegion();
         }
 
-        final AttributesFactory factory = new AttributesFactory();
+        final var factory = new AttributesFactory();
         factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(firstEvictionAttrs);
-        final Region pr = createRootRegion(name, factory.create());
+        final var pr = createRootRegion(name, factory.create());
         assertNotNull(pr);
       }
     };
     firstDatastore.invoke(create);
 
-    final SerializableRunnable create2 =
+    final var create2 =
         new SerializableRunnable("Create Entry LRU with Overflow to disk partitioned Region") {
           @Override
           public void run() {
-            final AttributesFactory factory = new AttributesFactory();
+            final var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
@@ -809,7 +803,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
               getCache().getLogger().info(
                   "<ExpectedException action=add>" + "IllegalStateException</ExpectedException>");
               assertTrue(!firstEvictionAttrs.getAlgorithm().isLRUHeap());
-              final EvictionAttributes illegalEa =
+              final var illegalEa =
                   EvictionAttributes.createLRUHeapAttributes(null, firstEvictionAttrs.getAction());
               assertTrue(!firstEvictionAttrs.equals(illegalEa));
               factory.setEvictionAttributes(illegalEa);
@@ -830,7 +824,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
                   "<ExpectedException action=add>" + "IllegalStateException</ExpectedException>");
               assertTrue(firstEvictionAttrs.getAlgorithm().isLRUEntry());
               assertTrue(!firstEvictionAttrs.getAction().isOverflowToDisk());
-              final EvictionAttributes illegalEa = EvictionAttributes.createLRUEntryAttributes(
+              final var illegalEa = EvictionAttributes.createLRUEntryAttributes(
                   firstEvictionAttrs.getMaximum(), EvictionAction.OVERFLOW_TO_DISK);
               assertTrue(!firstEvictionAttrs.equals(illegalEa));
               factory.setEvictionAttributes(illegalEa);
@@ -846,7 +840,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
 
             assertTrue(firstEvictionAttrs.getAlgorithm().isLRUEntry());
-            final EvictionAttributes brokenEa = EvictionAttributes.createLRUEntryAttributes(
+            final var brokenEa = EvictionAttributes.createLRUEntryAttributes(
                 firstEvictionAttrs.getMaximum() + 1, firstEvictionAttrs.getAction());
             assertTrue(!firstEvictionAttrs.equals(brokenEa));
             factory.setEvictionAttributes(brokenEa);
@@ -859,14 +853,14 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create an Accessor with and without eviction attributes") {
           @Override
           public void run2() throws CacheException {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
             setEvictionPercentage(50);
-            Region r1 = createRootRegion(name, factory.create());
+            var r1 = createRootRegion(name, factory.create());
             assertNotNull(r1);
             assertEquals(firstEvictionAttrs, r1.getAttributes().getEvictionAttributes());
           }
@@ -876,14 +870,14 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
   // Test to validate the Eviction Attribute : LRU Action
   @Test
   public void testEvictionValidationForLRUAction() {
-    final Host host = Host.getHost(0);
-    final VM testDatastore = host.getVM(2);
-    final VM firstDatastore = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxEntries = 226;
-    final String name = uniqName + "-PR";
-    final EvictionAttributes firstEa =
+    final var host = Host.getHost(0);
+    final var testDatastore = host.getVM(2);
+    final var firstDatastore = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxEntries = 226;
+    final var name = uniqName + "-PR";
+    final var firstEa =
         EvictionAttributes.createLRUEntryAttributes(maxEntries, EvictionAction.LOCAL_DESTROY);
 
     // Creating LRU Entry Count Eviction Attribute : Algorithm :
@@ -892,23 +886,23 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         "Create Entry LRU with local destroy on a partitioned Region") {
       @Override
       public void run2() {
-        final AttributesFactory factory = new AttributesFactory();
+        final var factory = new AttributesFactory();
         factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(firstEa);
-        final Region pr = createRootRegion(name, factory.create());
+        final var pr = createRootRegion(name, factory.create());
         assertNotNull(pr);
         assertEquals(firstEa, pr.getAttributes().getEvictionAttributes());
       }
     };
     firstDatastore.invoke(create);
 
-    final SerializableRunnable create2 =
+    final var create2 =
         new SerializableRunnable("Create Entry LRU with Overflow to disk partitioned Region") {
           @Override
           public void run() {
-            final AttributesFactory factory = new AttributesFactory();
+            final var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
@@ -951,7 +945,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             // Creating LRU Entry Count Eviction Attribute : Action :
             // LOCAL_DESTROY // Exception should not occur
             factory.setEvictionAttributes(firstEa);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
             assertEquals(firstEa, pr.getAttributes().getEvictionAttributes());
           }
@@ -962,14 +956,14 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
   // Test to validate the Eviction Attribute : LRU Maximum
   @Test
   public void testEvictionValidationForLRUMaximum() {
-    final Host host = Host.getHost(0);
-    final VM testDatastore = host.getVM(2);
-    final VM firstDatastore = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxEntries = 226;
-    final String name = uniqName + "-PR";
-    final EvictionAttributes firstEvictionAttributes =
+    final var host = Host.getHost(0);
+    final var testDatastore = host.getVM(2);
+    final var firstDatastore = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxEntries = 226;
+    final var name = uniqName + "-PR";
+    final var firstEvictionAttributes =
         EvictionAttributes.createLRUEntryAttributes(maxEntries, EvictionAction.LOCAL_DESTROY);
 
     // Creating LRU Entry Count Eviction Attribute : maxentries : 2
@@ -977,31 +971,31 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         "Create Entry LRU with local destroy on a partitioned Region") {
       @Override
       public void run2() {
-        final AttributesFactory factory = new AttributesFactory();
+        final var factory = new AttributesFactory();
         factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(firstEvictionAttributes);
-        final Region pr = createRootRegion(name, factory.create());
+        final var pr = createRootRegion(name, factory.create());
         assertNotNull(pr);
         assertEquals(firstEvictionAttributes, pr.getAttributes().getEvictionAttributes());
       }
     };
     firstDatastore.invoke(create);
 
-    final SerializableRunnable create2 =
+    final var create2 =
         new SerializableRunnable("Create Entry LRU with Overflow to disk partitioned Region") {
           @Override
           public void run() {
-            final AttributesFactory factory = new AttributesFactory();
+            final var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
 
-            final EvictionAttributes ea = EvictionAttributes.createLRUEntryAttributes(
+            final var ea = EvictionAttributes.createLRUEntryAttributes(
                 firstEvictionAttributes.getMaximum() + 10, firstEvictionAttributes.getAction());
             factory.setEvictionAttributes(ea);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1011,40 +1005,40 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
   // Test to validate the Eviction Attribute for LRUHeap
   @Test
   public void testEvictionValidationForLRUHeap() {
-    final Host host = Host.getHost(0);
-    final VM testDatastore = host.getVM(2);
-    final VM firstDatastore = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final String name = uniqName + "-PR";
-    final int heapPercentage = 66;
-    final int evictorInterval = 100;
+    final var host = Host.getHost(0);
+    final var testDatastore = host.getVM(2);
+    final var firstDatastore = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var name = uniqName + "-PR";
+    final var heapPercentage = 66;
+    final var evictorInterval = 100;
 
-    final EvictionAttributes firstEvictionAttributes = EvictionAttributes.createLRUHeapAttributes();
+    final var firstEvictionAttributes = EvictionAttributes.createLRUHeapAttributes();
     // Creating Heap LRU Eviction Attribute : evictorInterval : 100
     final SerializableRunnable create = new CacheSerializableRunnable(
         "Create Entry LRU with local destroy on a partitioned Region") {
       @Override
       public void run2() {
         getCache().getResourceManager().setEvictionHeapPercentage(heapPercentage);
-        final AttributesFactory factory = new AttributesFactory();
+        final var factory = new AttributesFactory();
         factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(firstEvictionAttributes);
-        final Region pr = createRootRegion(name, factory.create());
+        final var pr = createRootRegion(name, factory.create());
         assertNotNull(pr);
         assertEquals(firstEvictionAttributes, pr.getAttributes().getEvictionAttributes());
       }
     };
     firstDatastore.invoke(create);
 
-    final SerializableRunnable create2 =
+    final var create2 =
         new SerializableRunnable("Create Entry LRU with Overflow to disk partitioned Region") {
           @Override
           public void run() {
             setEvictionPercentage(heapPercentage);
-            final AttributesFactory factory = new AttributesFactory();
+            final var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
@@ -1053,7 +1047,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
               getCache().getLogger().info(
                   "<ExpectedException action=add>" + "IllegalStateException</ExpectedException>");
               assertTrue(!firstEvictionAttributes.getAlgorithm().isLRUEntry());
-              final EvictionAttributes invalidEa = EvictionAttributes.createLRUEntryAttributes();
+              final var invalidEa = EvictionAttributes.createLRUEntryAttributes();
               assertTrue(!invalidEa.equals(firstEvictionAttributes));
               factory.setEvictionAttributes(invalidEa);
               createRootRegion(name, factory.create());
@@ -1072,7 +1066,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
                   "<ExpectedException action=add>" + "IllegalStateException</ExpectedException>");
               assertTrue(firstEvictionAttributes.getAlgorithm().isLRUHeap());
               assertTrue(!firstEvictionAttributes.getAction().isOverflowToDisk());
-              final EvictionAttributes invalidEa =
+              final var invalidEa =
                   EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK);
               assertTrue(!invalidEa.equals(firstEvictionAttributes));
               factory.setEvictionAttributes(invalidEa);
@@ -1117,7 +1111,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             // Assert that all attributes can be the same
             {
               factory.setEvictionAttributes(firstEvictionAttributes);
-              final Region pr = createRootRegion(name, factory.create());
+              final var pr = createRootRegion(name, factory.create());
               assertNotNull(pr);
               assertEquals(firstEvictionAttributes, pr.getAttributes().getEvictionAttributes());
             }
@@ -1129,25 +1123,25 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
   // Test to validate an accessor can set the initial attributes
   @Test
   public void testEvictionValidationWhenInitializedByAccessor() {
-    final Host host = Host.getHost(0);
-    final VM testDatastore = host.getVM(2);
-    final VM accessor = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final String name = uniqName;
+    final var host = Host.getHost(0);
+    final var testDatastore = host.getVM(2);
+    final var accessor = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var name = uniqName;
 
-    final EvictionAttributes firstEvictionAttributes = EvictionAttributes
+    final var firstEvictionAttributes = EvictionAttributes
         .createLRUMemoryAttributes(PartitionAttributesFactory.GLOBAL_MAX_BUCKETS_DEFAULT);
     accessor.invoke(
         new CacheSerializableRunnable("Create an Accessor which sets the first PR eviction attrs") {
           @Override
           public void run2() {
-            final AttributesFactory factory = new AttributesFactory();
+            final var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(new PartitionAttributesFactory().setLocalMaxMemory(0)
                 .setRedundantCopies(redundantCopies).create());
             factory.setEvictionAttributes(firstEvictionAttributes);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
             assertNotSame(firstEvictionAttributes, pr.getAttributes().getEvictionAttributes());
             assertEquals(firstEvictionAttributes, pr.getAttributes().getEvictionAttributes());
@@ -1160,13 +1154,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new SerializableRunnable("Create a datastore to test existing eviction attributes") {
           @Override
           public void run() {
-            final AttributesFactory factory = new AttributesFactory();
+            final var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
             // Assert that the same attrs is valid
             factory.setEvictionAttributes(firstEvictionAttributes);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
             assertNotSame(firstEvictionAttributes, pr.getAttributes().getEvictionAttributes());
             assertNotSame(PartitionAttributesFactory.GLOBAL_MAX_BUCKETS_DEFAULT,
@@ -1180,14 +1174,14 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
   // Test to validate the Eviction Attribute : HeapLRU Interval
   @Test
   public void testEvictionValidationForLRUMemory() {
-    final Host host = Host.getHost(0);
-    final VM firstDatastore = host.getVM(1);
-    final VM testDatastore = host.getVM(2);
-    final VM testAccessor = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final String name = uniqName + "-PR";
-    final EvictionAttributes firstEvictionAttributes = EvictionAttributes
+    final var host = Host.getHost(0);
+    final var firstDatastore = host.getVM(1);
+    final var testDatastore = host.getVM(2);
+    final var testAccessor = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var name = uniqName + "-PR";
+    final var firstEvictionAttributes = EvictionAttributes
         .createLRUMemoryAttributes(PartitionAttributesFactory.GLOBAL_MAX_BUCKETS_DEFAULT * 2);
 
     firstDatastore
@@ -1199,14 +1193,14 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             // DUnit not required for this test, but its a convenient place
             // to put it.
             {
-              final int totalNumBuckets = 11;
-              final AttributesFactory factory = new AttributesFactory();
+              final var totalNumBuckets = 11;
+              final var factory = new AttributesFactory();
               factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(new PartitionAttributesFactory()
                   .setTotalNumBuckets(totalNumBuckets).setRedundantCopies(0).create());
               factory.setEvictionAttributes(
                   EvictionAttributes.createLRUMemoryAttributes((totalNumBuckets / 2)));
-              final PartitionedRegion pr =
+              final var pr =
                   (PartitionedRegion) createRootRegion(name, factory.create());
               final Integer key = 1;
               pr.put(key, "testval");
@@ -1221,12 +1215,12 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             }
 
             // Set the "global" eviction attributes
-            final AttributesFactory factory = new AttributesFactory();
+            final var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
             factory.setEvictionAttributes(firstEvictionAttributes);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
             assertNotSame(firstEvictionAttributes, pr.getAttributes().getEvictionAttributes());
             assertNotSame(PartitionAttributesFactory.GLOBAL_MAX_BUCKETS_DEFAULT,
@@ -1260,8 +1254,8 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         // Configure a PR with the same local max mem as the eviction
         // attributes... and do these tests
-        PartitionAttributes pra = createPartitionAttributes(firstEvictionAttributes.getMaximum());
-        final AttributesFactory factory = new AttributesFactory();
+        var pra = createPartitionAttributes(firstEvictionAttributes.getMaximum());
+        final var factory = new AttributesFactory();
         factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(pra);
 
@@ -1269,7 +1263,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         try {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + "IllegalStateException</ExpectedException>");
-          final RegionAttributes attrs = factory.create();
+          final var attrs = factory.create();
           createRootRegion(name, attrs);
           fail("Expected a IllegalStateException to be thrown");
         } catch (final IllegalStateException expected) {
@@ -1285,7 +1279,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           getCache().getLogger()
               .info("<ExpectedException action=add>" + "IllegalStateException</ExpectedException>");
           assertTrue(!((EvictionAttributesImpl) firstEvictionAttributes).isLIFOMemory());
-          final EvictionAttributes badEa =
+          final var badEa =
               EvictionAttributesImpl.createLIFOMemoryAttributes(100, EvictionAction.LOCAL_DESTROY);
           assertTrue(!badEa.equals(firstEvictionAttributes));
           factory.setEvictionAttributes(badEa);
@@ -1305,7 +1299,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
               .info("<ExpectedException action=add>" + "IllegalStateException</ExpectedException>");
           assertTrue(!firstEvictionAttributes.getAction().isOverflowToDisk());
           assertTrue(firstEvictionAttributes.getAlgorithm().isLRUMemory());
-          final EvictionAttributes badEa =
+          final var badEa =
               EvictionAttributes.createLRUMemoryAttributes(firstEvictionAttributes.getMaximum(),
                   firstEvictionAttributes.getObjectSizer(), EvictionAction.OVERFLOW_TO_DISK);
           assertTrue(!badEa.equals(firstEvictionAttributes));
@@ -1323,7 +1317,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         // Assert a smaller eviction maximum than the global is not valid (bug 40419)
         {
           assertTrue(firstEvictionAttributes.getAlgorithm().isLRUMemory());
-          final EvictionAttributes okEa =
+          final var okEa =
               EvictionAttributes.createLRUMemoryAttributes(firstEvictionAttributes.getMaximum() - 1,
                   firstEvictionAttributes.getObjectSizer(), firstEvictionAttributes.getAction());
           if (!isAccessor) {
@@ -1331,8 +1325,8 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           }
           assertTrue(!okEa.equals(firstEvictionAttributes));
           factory.setEvictionAttributes(okEa);
-          final RegionAttributes attrs = factory.create();
-          final Region pr = createRootRegion(name, attrs);
+          final var attrs = factory.create();
+          final var pr = createRootRegion(name, attrs);
           assertNotNull(pr);
           assertNotSame(okEa, pr.getAttributes().getEvictionAttributes());
           assertEquals(firstEvictionAttributes.getMaximum(),
@@ -1344,7 +1338,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         // valid (bug 40419)
         {
           assertTrue(firstEvictionAttributes.getAlgorithm().isLRUMemory());
-          final EvictionAttributes okEa =
+          final var okEa =
               EvictionAttributes.createLRUMemoryAttributes(firstEvictionAttributes.getMaximum() + 1,
                   firstEvictionAttributes.getObjectSizer(), firstEvictionAttributes.getAction());
           assertTrue(!okEa.equals(firstEvictionAttributes));
@@ -1352,8 +1346,8 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             assertEquals(okEa.getMaximum(), pra.getLocalMaxMemory() + 1);
           }
           factory.setEvictionAttributes(okEa);
-          final RegionAttributes attrs = factory.create();
-          final Region pr = createRootRegion(name, attrs);
+          final var attrs = factory.create();
+          final var pr = createRootRegion(name, attrs);
           assertNotNull(pr);
           assertNotSame(okEa, pr.getAttributes().getEvictionAttributes());
           assertEquals(firstEvictionAttributes.getMaximum(),
@@ -1373,8 +1367,8 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             assertTrue(firstEvictionAttributes.getMaximum() > pra.getLocalMaxMemory());
           }
           factory.setEvictionAttributes(firstEvictionAttributes);
-          final RegionAttributes attrs = factory.create();
-          final Region pr = createRootRegion(name, attrs);
+          final var attrs = factory.create();
+          final var pr = createRootRegion(name, attrs);
           assertNotNull(pr);
           if (!isAccessor) {
             assertEquals(pr.getAttributes().getPartitionAttributes().getLocalMaxMemory(),
@@ -1386,7 +1380,7 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         // Assert exact same attributes is valid
         {
           factory.setEvictionAttributes(firstEvictionAttributes);
-          final Region pr = createRootRegion(name, factory.create());
+          final var pr = createRootRegion(name, factory.create());
           assertNotNull(pr);
           assertNotSame(firstEvictionAttributes, pr.getAttributes().getEvictionAttributes());
           assertEquals(pr.getAttributes().getPartitionAttributes().getLocalMaxMemory(),
@@ -1403,32 +1397,32 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEvictionValidationForLRUEntry_AccessorFirst() {
-    final Host host = Host.getHost(0);
-    final VM firstAccessor = host.getVM(0);
-    final VM testAccessor = host.getVM(1);
-    final VM testDatastore = host.getVM(2);
-    final VM firstDatastore = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxEntries = 226;
-    final String name = uniqName + "-PR";
+    final var host = Host.getHost(0);
+    final var firstAccessor = host.getVM(0);
+    final var testAccessor = host.getVM(1);
+    final var testDatastore = host.getVM(2);
+    final var firstDatastore = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxEntries = 226;
+    final var name = uniqName + "-PR";
 
-    final EvictionAttributes firstEvictionAttrs =
+    final var firstEvictionAttrs =
         EvictionAttributes.createLRUEntryAttributes(maxEntries, EvictionAction.LOCAL_DESTROY);
 
-    final EvictionAttributes secondEvictionAttrs =
+    final var secondEvictionAttrs =
         EvictionAttributes.createLRUEntryAttributes(maxEntries, EvictionAction.OVERFLOW_TO_DISK);
 
     final SerializableRunnable createFirstAccessor =
         new CacheSerializableRunnable("Create an accessor without eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1436,13 +1430,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create a data store with eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1451,13 +1445,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create an accessor with incorrect eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(secondEvictionAttrs);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1465,13 +1459,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create a data store with eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1483,32 +1477,32 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEvictionValidationForLRUEntry_DatastoreFirst() {
-    final Host host = Host.getHost(0);
-    final VM firstAccessor = host.getVM(0);
-    final VM testAccessor = host.getVM(1);
-    final VM testDatastore = host.getVM(2);
-    final VM firstDatastore = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxEntries = 226;
-    final String name = uniqName + "-PR";
+    final var host = Host.getHost(0);
+    final var firstAccessor = host.getVM(0);
+    final var testAccessor = host.getVM(1);
+    final var testDatastore = host.getVM(2);
+    final var firstDatastore = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxEntries = 226;
+    final var name = uniqName + "-PR";
 
-    final EvictionAttributes firstEvictionAttrs =
+    final var firstEvictionAttrs =
         EvictionAttributes.createLRUEntryAttributes(maxEntries, EvictionAction.LOCAL_DESTROY);
 
-    final EvictionAttributes secondEvictionAttrs =
+    final var secondEvictionAttrs =
         EvictionAttributes.createLRUEntryAttributes(maxEntries, EvictionAction.OVERFLOW_TO_DISK);
 
     final SerializableRunnable createFirstAccessor =
         new CacheSerializableRunnable("Create an accessor without eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1516,13 +1510,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create a data store with eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1531,13 +1525,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create an accessor with incorrect eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(secondEvictionAttrs);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1545,13 +1539,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create a data store with eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1563,29 +1557,29 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testEvictionValidationForLRUEntry_TwoAccessors() {
-    final Host host = Host.getHost(0);
-    final VM firstAccessor = host.getVM(0);
-    final VM testAccessor = host.getVM(1);
-    final VM testDatastore = host.getVM(2);
-    final VM firstDatastore = host.getVM(3);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 1;
-    final int maxEntries = 226;
-    final String name = uniqName + "-PR";
+    final var host = Host.getHost(0);
+    final var firstAccessor = host.getVM(0);
+    final var testAccessor = host.getVM(1);
+    final var testDatastore = host.getVM(2);
+    final var firstDatastore = host.getVM(3);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 1;
+    final var maxEntries = 226;
+    final var name = uniqName + "-PR";
 
-    final EvictionAttributes firstEvictionAttrs =
+    final var firstEvictionAttrs =
         EvictionAttributes.createLRUEntryAttributes(maxEntries, EvictionAction.LOCAL_DESTROY);
 
     final SerializableRunnable createFirstAccessor =
         new CacheSerializableRunnable("Create an accessor without eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1593,13 +1587,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create a data store with eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1608,13 +1602,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create an accessor with correct eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
 
           }
@@ -1623,13 +1617,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         new CacheSerializableRunnable("Create a data store with eviction attributes") {
           @Override
           public void run2() {
-            final PartitionAttributes pra = new PartitionAttributesFactory()
+            final var pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
-            final Region pr = createRootRegion(name, factory.create());
+            final var pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
           }
         };
@@ -1646,15 +1640,15 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testEntryLRUDeadlock() {
-    final Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final String uniqName = getUniqueName();
-    final int redundantCopies = 0;
-    final int maxBuckets = 8;
-    final int maxEntries = 16;
-    final String name = uniqName + "-PR";
-    final int extraEntries = 4;
+    final var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var uniqName = getUniqueName();
+    final var redundantCopies = 0;
+    final var maxBuckets = 8;
+    final var maxEntries = 16;
+    final var name = uniqName + "-PR";
+    final var extraEntries = 4;
 
     // final int heapPercentage = 66;
     // final int evictorInterval = 100;
@@ -1663,24 +1657,24 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         "Create Entry LRU with local destroy on a partitioned Region") {
       @Override
       public void run2() {
-        final AttributesFactory factory = new AttributesFactory();
+        final var factory = new AttributesFactory();
         factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(new PartitionAttributesFactory()
             .setRedundantCopies(redundantCopies).setTotalNumBuckets(maxBuckets).create());
         factory.setEvictionAttributes(
             EvictionAttributes.createLRUEntryAttributes(maxEntries, EvictionAction.LOCAL_DESTROY));
-        final PartitionedRegion pr = (PartitionedRegion) createRootRegion(name, factory.create());
+        final var pr = (PartitionedRegion) createRootRegion(name, factory.create());
         assertNotNull(pr);
       }
     };
     vm0.invoke(create);
 
-    final SerializableRunnable create2 =
+    final var create2 =
         new SerializableRunnable("Create Entry LRU with local destroy on a partitioned Region") {
           @Override
           public void run() {
             try {
-              final AttributesFactory factory = new AttributesFactory();
+              final var factory = new AttributesFactory();
               factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(
                   new PartitionAttributesFactory().setRedundantCopies(redundantCopies)
@@ -1694,13 +1688,13 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
                 @Override
                 public void afterCreate(EntryEvent event) {
-                  Region region = event.getRegion();
-                  Object key = event.getKey();
+                  var region = event.getRegion();
+                  var key = event.getKey();
                   region.get(key);
                 }
 
               });
-              final PartitionedRegion pr =
+              final var pr =
                   (PartitionedRegion) createRootRegion(name, factory.create());
               assertNotNull(pr);
             } catch (final CacheException ex) {
@@ -1710,12 +1704,12 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         };
     vm1.invoke(create2);
 
-    final SerializableRunnable doPuts = new SerializableRunnable("Do Puts") {
+    final var doPuts = new SerializableRunnable("Do Puts") {
       @Override
       public void run() {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         assertNotNull(pr);
-        for (int counter = 0; counter <= maxEntries + extraEntries; counter++) {
+        for (var counter = 0; counter <= maxEntries + extraEntries; counter++) {
           pr.put(counter, "value");
         }
       }

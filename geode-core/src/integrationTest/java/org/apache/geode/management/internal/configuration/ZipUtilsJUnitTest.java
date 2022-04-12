@@ -54,10 +54,10 @@ public class ZipUtilsJUnitTest {
   public void setUp() throws Exception {
     sourceFolder = temporaryFolder.newFolder("sourceFolder");
 
-    File clusterFolder = new File(sourceFolder.getCanonicalPath(), clusterFolderName);
+    var clusterFolder = new File(sourceFolder.getCanonicalPath(), clusterFolderName);
     assertTrue(clusterFolder.mkdir());
 
-    File groupFolder = new File(sourceFolder.getCanonicalPath(), groupFolderName);
+    var groupFolder = new File(sourceFolder.getCanonicalPath(), groupFolderName);
     assertTrue(groupFolder.mkdir());
 
     zipFolder = temporaryFolder.newFolder("zipFolder");
@@ -72,7 +72,7 @@ public class ZipUtilsJUnitTest {
 
   @Test
   public void testZipUtils() throws Exception {
-    File zipFile = new File(zipFolder, "target.zip");
+    var zipFile = new File(zipFolder, "target.zip");
     assertFalse(zipFile.exists());
     assertFalse(zipFile.isFile());
 
@@ -80,7 +80,7 @@ public class ZipUtilsJUnitTest {
     assertTrue(zipFile.exists());
     assertTrue(zipFile.isFile());
 
-    File destinationFolder = new File(
+    var destinationFolder = new File(
         FilenameUtils.concat(temporaryFolder.getRoot().getCanonicalPath(), destinationFolderName));
     assertFalse(destinationFolder.exists());
     assertFalse(destinationFolder.isFile());
@@ -89,17 +89,17 @@ public class ZipUtilsJUnitTest {
     assertTrue(destinationFolder.exists());
     assertTrue(destinationFolder.isDirectory());
 
-    File[] destinationSubDirs = destinationFolder.listFiles();
+    var destinationSubDirs = destinationFolder.listFiles();
     assertNotNull(destinationSubDirs);
     assertEquals(2, destinationSubDirs.length);
 
-    File destinationClusterTextFile =
+    var destinationClusterTextFile =
         new File(FilenameUtils.concat(destinationFolder.getCanonicalPath(),
             clusterFolderName + File.separator + clusterTextFileName));
     assertTrue(destinationClusterTextFile.exists());
     assertTrue(destinationClusterTextFile.isFile());
 
-    File destinationGroupTextFile =
+    var destinationGroupTextFile =
         new File(FilenameUtils.concat(destinationFolder.getCanonicalPath(),
             groupFolderName + File.separator + groupTextFileName));
     assertTrue(destinationGroupTextFile.exists());
@@ -111,10 +111,10 @@ public class ZipUtilsJUnitTest {
 
   @Test
   public void zipUtilsCanCreateParentDirsIfNecessary() throws IOException {
-    File newFolder = new File(zipFolder, "newFolder");
+    var newFolder = new File(zipFolder, "newFolder");
     assertFalse(newFolder.exists());
 
-    File zipFile = new File(newFolder, "target.zip");
+    var zipFile = new File(newFolder, "target.zip");
     assertFalse(zipFile.exists());
     assertFalse(zipFile.isFile());
 

@@ -75,7 +75,7 @@ public class SubscriptionAttributes implements DataSerializable, Externalizable 
     if (!(other instanceof SubscriptionAttributes)) {
       return false;
     }
-    final SubscriptionAttributes that = (SubscriptionAttributes) other;
+    final var that = (SubscriptionAttributes) other;
 
     return interestPolicy == that.interestPolicy
         || interestPolicy != null && interestPolicy.equals(that.interestPolicy);
@@ -83,8 +83,8 @@ public class SubscriptionAttributes implements DataSerializable, Externalizable 
 
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + interestPolicy.hashCode();
 

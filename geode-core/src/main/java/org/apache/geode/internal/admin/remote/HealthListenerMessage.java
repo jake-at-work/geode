@@ -40,7 +40,7 @@ public class HealthListenerMessage extends PooledDistributionMessage implements 
   private GemFireHealth.Health status;
 
   public static HealthListenerMessage create(int listenerId, GemFireHealth.Health status) {
-    HealthListenerMessage m = new HealthListenerMessage();
+    var m = new HealthListenerMessage();
     m.listenerId = listenerId;
     m.status = status;
     return m;
@@ -48,9 +48,9 @@ public class HealthListenerMessage extends PooledDistributionMessage implements 
 
   @Override
   public void process(ClusterDistributionManager dm) {
-    RemoteGfManagerAgent agent = dm.getAgent();
+    var agent = dm.getAgent();
     if (agent != null) {
-      RemoteGemFireVM mgr = agent.getMemberById(getSender());
+      var mgr = agent.getMemberById(getSender());
       if (mgr != null) {
         mgr.callHealthListeners(listenerId, status);
       }

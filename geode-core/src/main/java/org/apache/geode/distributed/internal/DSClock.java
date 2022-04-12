@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.internal.SystemTimer;
 import org.apache.geode.internal.SystemTimer.SystemTimerTask;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
@@ -77,8 +76,8 @@ public class DSClock implements CacheTime {
   @Override
   public long cacheTimeMillis() {
     long result;
-    final long offset = getCacheTimeOffset();
-    final long st = getStopTime();
+    final var offset = getCacheTimeOffset();
+    final var st = getStopTime();
     if (st != 0) {
       result = st + offset;
       if (result < 0 || result > MAX_CACHE_TIME_MILLIS) {
@@ -86,7 +85,7 @@ public class DSClock implements CacheTime {
             + MAX_CACHE_TIME_MILLIS + " stopTime=" + st + " offset=" + offset);
       }
     } else {
-      long ct = System.currentTimeMillis();
+      var ct = System.currentTimeMillis();
       result = ct + offset;
       if (result < 0 || result > MAX_CACHE_TIME_MILLIS) {
         throw new IllegalStateException("Expected cacheTimeMillis " + result + " to be >= 0 and <= "
@@ -124,10 +123,10 @@ public class DSClock implements CacheTime {
   // set the time offset in a client cache
   private void setLonerCacheTimeOffset(long offset) {
     if (offset > (cacheTimeDelta + MINIMUM_TIME_DIFF)) {
-      long theTime = System.currentTimeMillis();
+      var theTime = System.currentTimeMillis();
       cacheTimeDelta = offset;
 
-      String cacheTime = DateFormatter.formatDate(new Date(theTime + offset));
+      var cacheTime = DateFormatter.formatDate(new Date(theTime + offset));
       logger.info("The current cache time is {}.  Delta from the system clock is {} milliseconds.",
           new Object[] {cacheTime, cacheTimeDelta});
 
@@ -148,14 +147,14 @@ public class DSClock implements CacheTime {
   private void setServerCacheTimeOffset(DistributedMember coord, long offset, boolean isJoin) {
 
     if (isJoin || offset > cacheTimeDelta) {
-      long theTime = System.currentTimeMillis();
+      var theTime = System.currentTimeMillis();
       cacheTimeDelta = offset;
       if (cacheTimeDelta <= -300000 || 300000 <= cacheTimeDelta) {
         logger.warn(
             "The clock for this machine may be more than 5 minutes different than the negotiated cache time received from {}",
             coord);
       }
-      String cacheTime = DateFormatter.formatDate(new Date(theTime + offset));
+      var cacheTime = DateFormatter.formatDate(new Date(theTime + offset));
       if (Math.abs(cacheTimeDelta) > 1000) {
         Object src = coord;
         if (src == null) {
@@ -216,7 +215,7 @@ public class DSClock implements CacheTime {
         cacheTimeTask.cancel();
       }
       cacheTimeTask = new CacheTimeTask(offset);
-      SystemTimer timer = cache.getCCPTimer();
+      var timer = cache.getCCPTimer();
       timer.scheduleAtFixedRate(cacheTimeTask, 1/* Start after 1ms */ , 2 /* Run task every 2ms */);
       if (logger.isDebugEnabled()) {
         logger.debug(
@@ -250,12 +249,12 @@ public class DSClock implements CacheTime {
 
     @Override
     public void run2() {
-      boolean isCancelled = false;
+      var isCancelled = false;
 
       suspendCacheTimeMillis(true);
 
-      long currTime = System.currentTimeMillis();
-      long cacheTime = cacheTimeMillis();
+      var currTime = System.currentTimeMillis();
+      var cacheTime = cacheTimeMillis();
 
       if (testHook != null) {
         testHook.suspendAtBreakPoint(1);
@@ -268,7 +267,7 @@ public class DSClock implements CacheTime {
       }
 
       // Resume cache time as system time once cache time has slowed down enough.
-      long systemTime = currTime + lowerCacheTimeOffset;
+      var systemTime = currTime + lowerCacheTimeOffset;
 
       if (cacheTime <= systemTime) {
         setCacheTimeOffset(null, lowerCacheTimeOffset, true);

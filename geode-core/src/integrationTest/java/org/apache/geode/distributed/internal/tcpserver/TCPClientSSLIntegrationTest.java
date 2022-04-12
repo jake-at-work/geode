@@ -80,18 +80,18 @@ public class TCPClientSSLIntegrationTest {
       CertificateMaterial clientCertificate, boolean enableHostNameValidation)
       throws GeneralSecurityException, IOException {
 
-    CertStores serverStore = CertStores.locatorStore();
+    var serverStore = CertStores.locatorStore();
     serverStore.withCertificate("server", serverCertificate);
     serverStore.trust("ca", ca);
 
-    CertStores clientStore = CertStores.clientStore();
+    var clientStore = CertStores.clientStore();
     clientStore.withCertificate("client", clientCertificate);
     clientStore.trust("ca", ca);
 
-    Properties serverProperties = serverStore
+    var serverProperties = serverStore
         .propertiesWith(LOCATOR, true, enableHostNameValidation);
 
-    Properties clientProperties = clientStore
+    var clientProperties = clientStore
         .propertiesWith(LOCATOR, true, enableHostNameValidation);
 
     startTcpServer(serverProperties);
@@ -108,10 +108,10 @@ public class TCPClientSSLIntegrationTest {
     localhost = InetAddress.getLocalHost();
     port = getRandomAvailableTCPPort();
 
-    TcpHandler tcpHandler = Mockito.mock(TcpHandler.class);
+    var tcpHandler = Mockito.mock(TcpHandler.class);
     when(tcpHandler.processRequest(any())).thenReturn("Running!");
 
-    TcpServer server = new TcpServer(
+    var server = new TcpServer(
         port,
         localhost,
         tcpHandler,
@@ -133,19 +133,19 @@ public class TCPClientSSLIntegrationTest {
 
   @Test
   public void clientConnectsIfServerCertificateHasHostname() throws Exception {
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("tcp-server")
         .issuedBy(ca)
         .sanDnsName(InetAddress.getLocalHost().getHostName())
         .generate();
 
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("tcp-client")
         .issuedBy(ca)
         .generate();
 
     startServerAndClient(serverCertificate, clientCertificate, true);
-    String response =
+    var response =
         (String) client.requestToServer(new HostAndPort(localhost.getHostName(), port),
             Boolean.FALSE, 5 * 1000, true);
     assertThat(response).isEqualTo("Running!");
@@ -154,18 +154,18 @@ public class TCPClientSSLIntegrationTest {
   @Test
   public void clientChooseToDisableHasHostnameValidation() throws Exception {
     // no host name in server cert
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("tcp-server")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("tcp-client")
         .issuedBy(ca)
         .generate();
 
     startServerAndClient(serverCertificate, clientCertificate, false);
-    String response =
+    var response =
         (String) client.requestToServer(new HostAndPort(localhost.getHostName(), port),
             Boolean.FALSE, 5 * 1000, true);
     assertThat(response).isEqualTo("Running!");
@@ -173,12 +173,12 @@ public class TCPClientSSLIntegrationTest {
 
   @Test
   public void clientFailsToConnectIfServerCertificateNoHostname() throws Exception {
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("tcp-server")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("tcp-client")
         .issuedBy(ca)
         .generate();
@@ -193,13 +193,13 @@ public class TCPClientSSLIntegrationTest {
 
   @Test
   public void clientFailsToConnectIfServerCertificateWrongHostname() throws Exception {
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("tcp-server")
         .issuedBy(ca)
         .sanDnsName("example.com")
         .generate();
 
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("tcp-client")
         .issuedBy(ca)
         .generate();

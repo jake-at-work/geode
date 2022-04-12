@@ -29,7 +29,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import org.apache.geode.deployment.internal.DeployedJar;
 import org.apache.geode.deployment.internal.JarDeployer;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.internal.lang.SystemUtils;
@@ -57,7 +56,7 @@ public class JarDeployerIntegrationTest {
   @BeforeClass
   public static void createStagedJars() throws IOException {
     stagedDir = stagedTempDir.getRoot();
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     plainJarVersion1 = new File(stagedTempDir.newFolder("v1"), "abc.jar");
     jarBuilder.buildJar(plainJarVersion1, createClassContent("version1", "Abc"));
     plainJarVersion2 = new File(stagedTempDir.newFolder("v2"), "abc.jar");
@@ -85,7 +84,7 @@ public class JarDeployerIntegrationTest {
   @Test
   public void deployABC() throws Exception {
     // deploy first version of abc.jar
-    DeployedJar deployedJar = jarDeployer
+    var deployedJar = jarDeployer
         .deploy(plainJarVersion1);
     assertThat(deployedJar).isNotNull();
     assertThat(deployedJar.getFile()).hasName("abc.v1.jar");
@@ -113,7 +112,7 @@ public class JarDeployerIntegrationTest {
     jarDeployer.deploy(plainJarVersion1);
 
     // deploy abc-1.0.jar
-    DeployedJar deployedJar = jarDeployer
+    var deployedJar = jarDeployer
         .deploy(plainJarVersion1b);
     assertThat(deployedJar).isNotNull();
     assertThat(deployedJar.getFile()).hasName("abc-1.0.v2.jar");
@@ -127,7 +126,7 @@ public class JarDeployerIntegrationTest {
   @Test
   public void deployDEF() throws Exception {
     // deploy first version of def.jar
-    DeployedJar deployedJar = jarDeployer
+    var deployedJar = jarDeployer
         .deploy(semanticJarVersion1);
     assertThat(deployedJar).isNotNull();
     assertThat(deployedJar.getFile()).hasName("def-1.0.v1.jar");
@@ -156,7 +155,7 @@ public class JarDeployerIntegrationTest {
         semanticJarVersion1);
 
     // deploy second version of def-1.0.jar with a different content
-    DeployedJar deployedJar =
+    var deployedJar =
         jarDeployer.deploy(
             semanticJarVersion1b);
     assertThat(deployedJar).isNotNull();
@@ -190,7 +189,7 @@ public class JarDeployerIntegrationTest {
     jarDeployer.deploy(
         semanticJarVersion1);
 
-    Deployment deployment = new Deployment("def-1.0.jar", "test", Instant.now().toString());
+    var deployment = new Deployment("def-1.0.jar", "test", Instant.now().toString());
     jarDeployer.undeploy(JarFileUtils.getArtifactId(deployment.getFileName()));
 
     // do not verify this on window's machine since it can not remove a file that a process has
@@ -203,7 +202,7 @@ public class JarDeployerIntegrationTest {
   }
 
   private String getVersion(String classname) throws Exception {
-    Class<?> def = ClassPathLoader.getLatest().forName(classname);
+    var def = ClassPathLoader.getLatest().forName(classname);
     assertThat(def).isNotNull();
     return (String) def.getMethod("getId").invoke(def.newInstance());
   }

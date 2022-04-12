@@ -24,18 +24,13 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.RegionConfig;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
-import org.apache.geode.management.api.ClusterManagementListResult;
-import org.apache.geode.management.api.ClusterManagementRealizationResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Index;
 import org.apache.geode.management.configuration.IndexType;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
-import org.apache.geode.management.runtime.IndexInfo;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
@@ -59,7 +54,7 @@ public class ListIndexOnPartitionRegionTest {
         .build();
 
     // set up the same region in 3 different groups, one is a proxy region, but with the same name
-    Region config = new Region();
+    var config = new Region();
     config.setName("testRegion");
     config.setType(RegionType.PARTITION);
     config.setGroup("group1");
@@ -79,7 +74,7 @@ public class ListIndexOnPartitionRegionTest {
   @Test
   public void createAndListIndex() {
     // create index on group2
-    Index index = new Index();
+    var index = new Index();
     index.setName("index");
     index.setExpression("id");
     index.setRegionPath(SEPARATOR + "testRegion");
@@ -88,20 +83,20 @@ public class ListIndexOnPartitionRegionTest {
 
     // verify that index configuration is saved on all groups
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cps =
+      var cps =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig group1 = cps.getCacheConfig("group1");
+      var group1 = cps.getCacheConfig("group1");
       assertThat(group1.findRegionConfiguration("testRegion").getIndexes())
           .extracting(RegionConfig.Index::getName).containsExactly("index");
-      CacheConfig group2 = cps.getCacheConfig("group2");
+      var group2 = cps.getCacheConfig("group2");
       assertThat(group2.findRegionConfiguration("testRegion").getIndexes())
           .extracting(RegionConfig.Index::getName).containsExactly("index");
-      CacheConfig group3 = cps.getCacheConfig("group3");
+      var group3 = cps.getCacheConfig("group3");
       assertThat(group3.findRegionConfiguration("testRegion").getIndexes())
           .extracting(RegionConfig.Index::getName).containsExactly("index");
     });
 
-    ClusterManagementListResult<Index, IndexInfo> list = cms.list(new Index());
+    var list = cms.list(new Index());
     // all servers should have this index
     assertManagementListResult(list).hasRuntimeInfos().hasSize(3);
     // even though this index configuration exists on 3 groups, it should only return one back
@@ -109,7 +104,7 @@ public class ListIndexOnPartitionRegionTest {
     assertManagementListResult(list).hasConfigurations().hasSize(1);
 
     // create same region on group4
-    Region config = new Region();
+    var config = new Region();
     config.setName("testRegion");
     config.setType(RegionType.PARTITION);
     config.setGroup("group4");
@@ -117,9 +112,9 @@ public class ListIndexOnPartitionRegionTest {
 
     // assert group4 region has no index
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cps =
+      var cps =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig group4 = cps.getCacheConfig("group4");
+      var group4 = cps.getCacheConfig("group4");
       assertThat(group4.findRegionConfiguration("testRegion").getIndexes()).isEmpty();
     });
 
@@ -131,7 +126,7 @@ public class ListIndexOnPartitionRegionTest {
     // to delete the index and then recreate the index again.
 
     // delete the index
-    ClusterManagementRealizationResult deleteResult = cms.delete(index);
+    var deleteResult = cms.delete(index);
     assertThat(deleteResult.getStatusMessage()).contains("Successfully updated configuration")
         .contains("group1").contains("group2").contains("group3").doesNotContain("group4");
 
@@ -140,18 +135,18 @@ public class ListIndexOnPartitionRegionTest {
 
     // verify that index configuration is saved on all groups
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cps =
+      var cps =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig group1 = cps.getCacheConfig("group1");
+      var group1 = cps.getCacheConfig("group1");
       assertThat(group1.findRegionConfiguration("testRegion").getIndexes())
           .extracting(RegionConfig.Index::getName).containsExactly("index");
-      CacheConfig group2 = cps.getCacheConfig("group2");
+      var group2 = cps.getCacheConfig("group2");
       assertThat(group2.findRegionConfiguration("testRegion").getIndexes())
           .extracting(RegionConfig.Index::getName).containsExactly("index");
-      CacheConfig group3 = cps.getCacheConfig("group3");
+      var group3 = cps.getCacheConfig("group3");
       assertThat(group3.findRegionConfiguration("testRegion").getIndexes())
           .extracting(RegionConfig.Index::getName).containsExactly("index");
-      CacheConfig group4 = cps.getCacheConfig("group3");
+      var group4 = cps.getCacheConfig("group3");
       assertThat(group4.findRegionConfiguration("testRegion").getIndexes())
           .extracting(RegionConfig.Index::getName).containsExactly("index");
     });

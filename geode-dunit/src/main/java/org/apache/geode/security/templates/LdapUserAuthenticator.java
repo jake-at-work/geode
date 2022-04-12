@@ -67,7 +67,7 @@ public class LdapUserAuthenticator implements Authenticator {
           "LdapUserAuthenticator: LDAP base DN property [" + LDAP_BASEDN_NAME + "] not specified");
     }
 
-    final String sslName = securityProps.getProperty(LDAP_SSL_NAME);
+    final var sslName = securityProps.getProperty(LDAP_SSL_NAME);
     if (sslName != null && sslName.equalsIgnoreCase("true")) {
       ldapUrlScheme = "ldaps://";
     } else {
@@ -77,18 +77,18 @@ public class LdapUserAuthenticator implements Authenticator {
 
   @Override
   public Principal authenticate(final Properties credentials, final DistributedMember member) {
-    final String userName = credentials.getProperty(UserPasswordAuthInit.USER_NAME);
+    final var userName = credentials.getProperty(UserPasswordAuthInit.USER_NAME);
     if (userName == null) {
       throw new AuthenticationFailedException("LdapUserAuthenticator: user name property ["
           + UserPasswordAuthInit.USER_NAME + "] not provided");
     }
 
-    String password = credentials.getProperty(UserPasswordAuthInit.PASSWORD);
+    var password = credentials.getProperty(UserPasswordAuthInit.PASSWORD);
     if (password == null) {
       password = "";
     }
 
-    final Properties env = new Properties();
+    final var env = new Properties();
     env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
     env.put(Context.PROVIDER_URL, ldapUrlScheme + ldapServer + '/' + baseDomainName);
     env.put(Context.SECURITY_PRINCIPAL, "uid=" + userName + "," + baseDomainName);

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.DataInput;
-import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -47,7 +46,7 @@ public class StartupMessageDataJUnitTest {
   @Test
   public void testWriteHostedLocatorsWithEmpty() throws Exception {
     Collection<String> hostedLocators = new ArrayList<>();
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
     assertTrue(data.getOptionalFields().isEmpty());
   }
@@ -55,19 +54,19 @@ public class StartupMessageDataJUnitTest {
   @Test
   public void testWriteHostedLocatorsWithNull() throws Exception {
     Collection<String> hostedLocators = null;
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
     assertTrue(data.getOptionalFields().isEmpty());
   }
 
   @Test
   public void testWriteHostedLocatorsWithOne() throws Exception {
-    String locatorString = createOneLocatorString();
+    var locatorString = createOneLocatorString();
 
     List<String> hostedLocators = new ArrayList<>();
     hostedLocators.add(locatorString);
 
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
     assertEquals(1, data.getOptionalFields().size());
     assertEquals(locatorString, data.getOptionalFields().get(StartupMessageData.HOSTED_LOCATORS));
@@ -75,22 +74,22 @@ public class StartupMessageDataJUnitTest {
 
   @Test
   public void testWriteHostedLocatorsWithThree() throws Exception {
-    String[] locatorStrings = createManyLocatorStrings(3);
+    var locatorStrings = createManyLocatorStrings(3);
     List<String> hostedLocators = new ArrayList<>();
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       hostedLocators.add(locatorStrings[i]);
     }
 
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
     assertEquals(1, data.getOptionalFields().size());
 
-    String hostedLocatorsField =
+    var hostedLocatorsField =
         data.getOptionalFields().getProperty(StartupMessageData.HOSTED_LOCATORS);
 
-    StringTokenizer st =
+    var st =
         new StringTokenizer(hostedLocatorsField, StartupMessageData.COMMA_DELIMITER);
-    for (int i = 0; st.hasMoreTokens(); i++) {
+    for (var i = 0; st.hasMoreTokens(); i++) {
       assertEquals(locatorStrings[i], st.nextToken());
     }
   }
@@ -98,21 +97,21 @@ public class StartupMessageDataJUnitTest {
   @Test
   public void testReadHostedLocatorsWithThree() throws Exception {
     // set up the data
-    String[] locatorStrings = createManyLocatorStrings(3);
+    var locatorStrings = createManyLocatorStrings(3);
     List<String> hostedLocators = new ArrayList<>();
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       hostedLocators.add(locatorStrings[i]);
     }
 
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
     assertEquals(1, data.getOptionalFields().size());
 
     // test readHostedLocators
-    int i = 0;
-    Collection<String> readLocatorStrings = data.readHostedLocators();
+    var i = 0;
+    var readLocatorStrings = data.readHostedLocators();
     assertEquals(3, readLocatorStrings.size());
-    for (String readLocatorString : readLocatorStrings) {
+    for (var readLocatorString : readLocatorStrings) {
       assertEquals(locatorStrings[i], readLocatorString);
       i++;
     }
@@ -121,17 +120,17 @@ public class StartupMessageDataJUnitTest {
   @Test
   public void testToDataWithEmptyHostedLocators() throws Exception {
     Collection<String> hostedLocators = new ArrayList<>();
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
 
-    ByteArrayData testStream = new ByteArrayData();
+    var testStream = new ByteArrayData();
     assertTrue(testStream.isEmpty());
 
-    DataOutputStream out = testStream.getDataOutput();
+    var out = testStream.getDataOutput();
     data.writeTo(out);
     assertTrue(testStream.size() > 0);
 
-    DataInput in = testStream.getDataInput();
+    var in = testStream.getDataInput();
     Properties props = DataSerializer.readObject(in);
     assertNull(props);
   }
@@ -139,82 +138,82 @@ public class StartupMessageDataJUnitTest {
   @Test
   public void testToDataWithNullHostedLocators() throws Exception {
     Collection<String> hostedLocators = null;
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
 
-    ByteArrayData testStream = new ByteArrayData();
+    var testStream = new ByteArrayData();
     assertTrue(testStream.isEmpty());
 
-    DataOutputStream out = testStream.getDataOutput();
+    var out = testStream.getDataOutput();
     data.writeTo(out);
     assertTrue(testStream.size() > 0);
 
-    DataInput in = testStream.getDataInput();
+    var in = testStream.getDataInput();
     Properties props = DataSerializer.readObject(in);
     assertNull(props);
   }
 
   @Test
   public void testToDataWithOneHostedLocator() throws Exception {
-    String locatorString = createOneLocatorString();
+    var locatorString = createOneLocatorString();
 
     List<String> hostedLocators = new ArrayList<>();
     hostedLocators.add(locatorString);
 
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
 
-    ByteArrayData testStream = new ByteArrayData();
+    var testStream = new ByteArrayData();
     assertTrue(testStream.isEmpty());
 
-    DataOutputStream out = testStream.getDataOutput();
+    var out = testStream.getDataOutput();
     data.writeTo(out);
     assertTrue(testStream.size() > 0);
 
-    DataInput in = testStream.getDataInput();
+    var in = testStream.getDataInput();
     Properties props = DataSerializer.readObject(in);
     assertNotNull(props);
 
-    String hostedLocatorsString = props.getProperty(StartupMessageData.HOSTED_LOCATORS);
+    var hostedLocatorsString = props.getProperty(StartupMessageData.HOSTED_LOCATORS);
     assertNotNull(hostedLocatorsString);
     assertEquals(locatorString, hostedLocatorsString);
   }
 
   @Test
   public void testToDataWithThreeHostedLocators() throws Exception {
-    String[] locatorStrings = createManyLocatorStrings(3);
+    var locatorStrings = createManyLocatorStrings(3);
     List<String> hostedLocators = new ArrayList<>();
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       hostedLocators.add(locatorStrings[i]);
     }
 
-    StartupMessageData data = new StartupMessageData();
+    var data = new StartupMessageData();
     data.writeHostedLocators(hostedLocators);
 
-    ByteArrayData testStream = new ByteArrayData();
+    var testStream = new ByteArrayData();
     assertTrue(testStream.isEmpty());
 
-    DataOutputStream out = testStream.getDataOutput();
+    var out = testStream.getDataOutput();
     data.writeTo(out);
     assertTrue(testStream.size() > 0);
 
-    DataInput in = testStream.getDataInput();
+    var in = testStream.getDataInput();
     Properties props = DataSerializer.readObject(in);
     assertNotNull(props);
 
-    String hostedLocatorsString = props.getProperty(StartupMessageData.HOSTED_LOCATORS);
+    var hostedLocatorsString = props.getProperty(StartupMessageData.HOSTED_LOCATORS);
     assertNotNull(hostedLocatorsString);
 
     Collection<String> actualLocatorStrings = new ArrayList<>(1);
-    StringTokenizer st =
+    var st =
         new StringTokenizer(hostedLocatorsString, StartupMessageData.COMMA_DELIMITER);
     while (st.hasMoreTokens()) {
       actualLocatorStrings.add(st.nextToken());
     }
     assertEquals(3, actualLocatorStrings.size());
 
-    int i = 0;
-    for (String actualLocatorString : actualLocatorStrings) {
+    var i = 0;
+    for (var actualLocatorString : actualLocatorStrings) {
       assertEquals(locatorStrings[i], actualLocatorString);
       i++;
     }
@@ -223,51 +222,51 @@ public class StartupMessageDataJUnitTest {
   @Test
   public void testNullHostedLocator() throws Exception {
     String locatorString = null;
-    DataInput in = getDataInputWithOneHostedLocator(locatorString);
-    StartupMessageData dataToRead = new StartupMessageData();
+    var in = getDataInputWithOneHostedLocator(locatorString);
+    var dataToRead = new StartupMessageData();
     dataToRead.readFrom(in);
-    Collection<String> readHostedLocators = dataToRead.readHostedLocators();
+    var readHostedLocators = dataToRead.readHostedLocators();
     assertNull(readHostedLocators);
   }
 
   @Test
   public void testEmptyHostedLocator() throws Exception {
-    String locatorString = "";
-    DataInput in = getDataInputWithOneHostedLocator(locatorString);
-    StartupMessageData dataToRead = new StartupMessageData();
+    var locatorString = "";
+    var in = getDataInputWithOneHostedLocator(locatorString);
+    var dataToRead = new StartupMessageData();
     dataToRead.readFrom(in);
-    Collection<String> readHostedLocators = dataToRead.readHostedLocators();
+    var readHostedLocators = dataToRead.readHostedLocators();
     assertNull(readHostedLocators);
   }
 
   @Test
   public void testOneHostedLocator() throws Exception {
-    String locatorString = createOneLocatorString();
-    DataInput in = getDataInputWithOneHostedLocator(locatorString);
-    StartupMessageData dataToRead = new StartupMessageData();
+    var locatorString = createOneLocatorString();
+    var in = getDataInputWithOneHostedLocator(locatorString);
+    var dataToRead = new StartupMessageData();
     dataToRead.readFrom(in);
-    Collection<String> readHostedLocators = dataToRead.readHostedLocators();
+    var readHostedLocators = dataToRead.readHostedLocators();
     assertNotNull(readHostedLocators);
     assertEquals(1, readHostedLocators.size());
     assertEquals(locatorString, readHostedLocators.iterator().next());
   }
 
   private String createOneLocatorString() throws Exception {
-    DistributionLocatorId locatorId =
+    var locatorId =
         new DistributionLocatorId(LocalHostUtil.getLocalHost(), 44556, "111.222.333.444", null);
-    String locatorString = locatorId.marshal();
+    var locatorString = locatorId.marshal();
     assertEquals("" + locatorId.getHost().getAddress().getHostAddress() + ":111.222.333.444[44556]",
         locatorString);
     return locatorString;
   }
 
   private String[] createManyLocatorStrings(int n) throws Exception {
-    String[] locatorStrings = new String[3];
-    for (int i = 0; i < 3; i++) {
-      int j = i + 1;
-      int k = j + 1;
-      int l = k + 1;
-      DistributionLocatorId locatorId = new DistributionLocatorId(LocalHostUtil.getLocalHost(),
+    var locatorStrings = new String[3];
+    for (var i = 0; i < 3; i++) {
+      var j = i + 1;
+      var k = j + 1;
+      var l = k + 1;
+      var locatorId = new DistributionLocatorId(LocalHostUtil.getLocalHost(),
           445566, "" + i + "" + i + "" + i + "." + j + "" + j + "" + j + "." + k + "" + k + "" + k
               + "." + l + "" + l + "" + l,
           null);
@@ -282,17 +281,17 @@ public class StartupMessageDataJUnitTest {
       hostedLocators.add(locatorString);
     }
 
-    StartupMessageData dataToWrite = new StartupMessageData();
+    var dataToWrite = new StartupMessageData();
     dataToWrite.writeHostedLocators(hostedLocators);
 
-    ByteArrayData testStream = new ByteArrayData();
+    var testStream = new ByteArrayData();
     assertTrue(testStream.isEmpty());
 
-    DataOutputStream out = testStream.getDataOutput();
+    var out = testStream.getDataOutput();
     dataToWrite.writeTo(out);
     assertTrue(testStream.size() > 0);
 
-    DataInput in = testStream.getDataInput();
+    var in = testStream.getDataInput();
     assertNotNull(in);
     return in;
   }

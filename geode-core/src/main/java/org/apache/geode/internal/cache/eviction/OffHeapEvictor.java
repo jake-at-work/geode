@@ -18,7 +18,6 @@ import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceType;
-import org.apache.geode.internal.offheap.MemoryAllocator;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.util.internal.GeodeGlossary;
 
@@ -40,7 +39,7 @@ public class OffHeapEvictor extends HeapEvictor {
   }
 
   private void calculateEvictionBurst() {
-    MemoryAllocator allocator = cache().getOffHeapStore();
+    var allocator = cache().getOffHeapStore();
 
     /*
      * Bail if there is no off-heap memory to evict.
@@ -50,7 +49,7 @@ public class OffHeapEvictor extends HeapEvictor {
           "Cannot initialize the off-heap evictor.  There is no off-heap memory available for eviction.");
     }
 
-    float evictionBurstPercentage = Float.parseFloat(System.getProperty(
+    var evictionBurstPercentage = Float.parseFloat(System.getProperty(
         GeodeGlossary.GEMFIRE_PREFIX + "HeapLRUCapacityController.evictionBurstPercentage",
         "0.4"));
     bytesToEvictWithEachBurst =

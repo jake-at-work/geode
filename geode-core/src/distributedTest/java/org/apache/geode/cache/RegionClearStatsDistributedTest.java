@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -96,13 +95,13 @@ public class RegionClearStatsDistributedTest implements Serializable {
   private int createCache(DataPolicy dataPolicy) throws IOException {
     cacheRule.createCache();
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(dataPolicy);
 
     cacheRule.getCache().createRegion(REGION_NAME, factory.create());
 
-    CacheServer server1 = cacheRule.getCache().addCacheServer();
+    var server1 = cacheRule.getCache().addCacheServer();
     server1.setPort(0);
     server1.setNotifyBySubscription(true);
     server1.start();
@@ -118,18 +117,18 @@ public class RegionClearStatsDistributedTest implements Serializable {
   }
 
   private void createClientCache(String host, int port) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
 
     cacheRule.createCache(config);
 
-    PoolImpl pool =
+    var pool =
         (PoolImpl) PoolManager.createFactory().addServer(host, port).setSubscriptionEnabled(false)
             .setMinConnections(1).setReadTimeout(20000).setPingInterval(10000).setRetryAttempts(1)
             .create(getClass().getSimpleName());
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(pool.getName());
 
@@ -137,18 +136,18 @@ public class RegionClearStatsDistributedTest implements Serializable {
   }
 
   private void createClientCacheWithPersistence(String host, int port) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
 
     cacheRule.createCache(props);
 
-    PoolImpl pool =
+    var pool =
         (PoolImpl) PoolManager.createFactory().addServer(host, port).setSubscriptionEnabled(false)
             .setMinConnections(1).setReadTimeout(20000).setPingInterval(10000).setRetryAttempts(1)
             .create(getClass().getSimpleName());
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(pool.getName());
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);

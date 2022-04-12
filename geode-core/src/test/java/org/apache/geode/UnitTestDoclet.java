@@ -59,11 +59,11 @@ public class UnitTestDoclet {
   }
 
   public static boolean validOptions(String[][] options, DocErrorReporter reporter) {
-    boolean sawOutput = false;
+    var sawOutput = false;
 
-    for (String[] option : options) {
+    for (var option : options) {
       if (option[0].equals("-output")) {
-        File output = new File(option[1]);
+        var output = new File(option[1]);
         if (output.exists() && output.isDirectory()) {
           reporter.printError("Output file " + output + " is a directory");
           return false;
@@ -89,7 +89,7 @@ public class UnitTestDoclet {
     String[][] options = root.options();
 
     File outputFile = null;
-    for (String[] option : options) {
+    for (var option : options) {
       if (option[0].equals("-output")) {
         outputFile = new File(option[1]);
       }
@@ -104,18 +104,18 @@ public class UnitTestDoclet {
     }
 
     try {
-      PrintWriter pw = new PrintWriter(new FileWriter(outputFile));
+      var pw = new PrintWriter(new FileWriter(outputFile));
       Formatter.center("GemFire Unit Test Summary", pw);
       Formatter.center(new Date().toString(), pw);
       pw.println("");
 
-      ClassDoc[] classes = root.classes();
+      var classes = root.classes();
       Arrays.sort(classes, (Comparator) (o1, o2) -> {
-        ClassDoc c1 = (ClassDoc) o1;
-        ClassDoc c2 = (ClassDoc) o2;
+        var c1 = (ClassDoc) o1;
+        var c2 = (ClassDoc) o2;
         return c1.qualifiedName().compareTo(c2.qualifiedName());
       });
-      for (ClassDoc c : classes) {
+      for (var c : classes) {
         if (!c.isAbstract() && isUnitTest(c)) {
           document(c, pw);
         }
@@ -125,7 +125,7 @@ public class UnitTestDoclet {
       pw.close();
 
     } catch (IOException ex) {
-      StringWriter sw = new StringWriter();
+      var sw = new StringWriter();
       ex.printStackTrace(new PrintWriter(sw, true));
       root.printError(sw.toString());
       return false;
@@ -166,8 +166,8 @@ public class UnitTestDoclet {
       }
     }
 
-    MethodDoc[] methods = getTestMethods(c);
-    for (MethodDoc method : methods) {
+    var methods = getTestMethods(c);
+    for (var method : methods) {
       pw.print("  ");
       pw.println(method.name());
 
@@ -189,8 +189,8 @@ public class UnitTestDoclet {
   private static MethodDoc[] getTestMethods(ClassDoc c) {
     Set set = new TreeSet();
     while (c != null) {
-      MethodDoc[] methods = c.methods();
-      for (MethodDoc method : methods) {
+      var methods = c.methods();
+      for (var method : methods) {
         if (method.isPublic() && method.parameters().length == 0
             && method.name().startsWith("test")) {
           set.add(method);
@@ -207,23 +207,23 @@ public class UnitTestDoclet {
    * Indents a block of text a given amount.
    */
   private static void indent(String text, final int indent, PrintWriter pw) {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < indent; i++) {
+    var sb = new StringBuilder();
+    for (var i = 0; i < indent; i++) {
       sb.append(" ");
     }
-    String spaces = sb.toString();
+    var spaces = sb.toString();
 
     pw.print(spaces);
 
-    int printed = indent;
-    boolean firstWord = true;
+    var printed = indent;
+    var firstWord = true;
 
-    BreakIterator boundary = BreakIterator.getWordInstance();
+    var boundary = BreakIterator.getWordInstance();
     boundary.setText(text);
-    int start = boundary.first();
-    for (int end = boundary.next(); end != BreakIterator.DONE; start = end, end = boundary.next()) {
+    var start = boundary.first();
+    for (var end = boundary.next(); end != BreakIterator.DONE; start = end, end = boundary.next()) {
 
-      String word = text.substring(start, end);
+      var word = text.substring(start, end);
 
       if (printed + word.length() > 72) {
         pw.println("");

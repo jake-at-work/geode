@@ -49,7 +49,7 @@ public class JsonEquivalence extends BaseMatcher {
   @Override
   public boolean matches(Object item) {
     if (!(item instanceof String)) {
-      ObjectMapper om = new ObjectMapper();
+      var om = new ObjectMapper();
       try {
         item = om.writeValueAsString(item);
       } catch (JsonProcessingException e) {

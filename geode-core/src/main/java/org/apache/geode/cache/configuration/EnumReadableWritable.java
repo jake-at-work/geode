@@ -60,7 +60,7 @@ public enum EnumReadableWritable {
   }
 
   public static EnumReadableWritable fromValue(String v) {
-    for (EnumReadableWritable c : EnumReadableWritable.values()) {
+    for (var c : EnumReadableWritable.values()) {
       if (c.value.equals(v)) {
         return c;
       }

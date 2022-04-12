@@ -26,11 +26,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
@@ -47,22 +45,22 @@ public class PutAllGlobalLockJUnitTest { // TODO: reformat
 
   @Before
   public void setUp() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
-    DistributedSystem distributedSystem = DistributedSystem.connect(properties);
-    Cache cache = CacheFactory.create(distributedSystem);
-    AttributesFactory factory = new AttributesFactory();
+    var distributedSystem = DistributedSystem.connect(properties);
+    var cache = CacheFactory.create(distributedSystem);
+    var factory = new AttributesFactory();
     factory.setScope(Scope.GLOBAL);
     factory.setCacheListener(new Listener());
-    RegionAttributes regionAttributes = factory.create();
+    var regionAttributes = factory.create();
     testRegion = cache.createRegion("TestRegion", regionAttributes);
   }
 
 
   @Test
   public void testPutAllGlobalLock() throws Exception {
-    TreeMap trialMap = new TreeMap();
+    var trialMap = new TreeMap();
     for (long i = 0; i < 1000; i++) {
       trialMap.put(i, i);
     }

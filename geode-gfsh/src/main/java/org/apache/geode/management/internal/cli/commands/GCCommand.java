@@ -23,16 +23,13 @@ import java.util.Set;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.LogWrapper;
 import org.apache.geode.management.internal.cli.functions.GarbageCollectionFunction;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.management.internal.util.ManagementUtils;
@@ -48,18 +45,18 @@ public class GCCommand extends GfshCommand {
           help = CliStrings.GC__GROUP__HELP) String[] groups,
       @CliOption(key = CliStrings.MEMBER, optionContext = ConverterHint.ALL_MEMBER_IDNAME,
           help = CliStrings.GC__MEMBER__HELP) String memberId) {
-    Cache cache = getCache();
-    ResultModel result = new ResultModel();
-    TabularResultModel summary = result.addTable("summary");
-    InfoResultModel errors = result.addInfo("errors");
-    String headerText = "GC Summary";
+    var cache = getCache();
+    var result = new ResultModel();
+    var summary = result.addTable("summary");
+    var errors = result.addInfo("errors");
+    var headerText = "GC Summary";
     summary.setHeader(headerText);
     Set<DistributedMember> dsMembers = new HashSet<>();
     if (memberId != null && memberId.length() > 0) {
-      DistributedMember member = getMember(memberId);
+      var member = getMember(memberId);
       dsMembers.add(member);
     } else if (groups != null && groups.length > 0) {
-      for (String group : groups) {
+      for (var group : groups) {
         dsMembers.addAll(cache.getDistributedSystem().getGroupMembers(group));
       }
     } else {
@@ -68,8 +65,8 @@ public class GCCommand extends GfshCommand {
       dsMembers = getAllNormalMembers();
     }
 
-    GarbageCollectionFunction garbageCollectionFunction = new GarbageCollectionFunction();
-    List<?> resultList =
+    var garbageCollectionFunction = new GarbageCollectionFunction();
+    var resultList =
         (List<?>) ManagementUtils.executeFunction(garbageCollectionFunction, null, dsMembers)
             .getResult();
 
@@ -85,7 +82,7 @@ public class GCCommand extends GfshCommand {
         errors.addLine((String) object);
       } else {
         @SuppressWarnings("unchecked")
-        Map<String, String> resultMap = (Map<String, String>) object;
+        var resultMap = (Map<String, String>) object;
         summary
             .accumulate(CliStrings.GC__MSG__MEMBER_NAME, resultMap.get("MemberId"));
         summary.accumulate(CliStrings.GC__MSG__HEAP_SIZE_BEFORE_GC,

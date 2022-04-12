@@ -20,7 +20,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.distributed.internal.DistributionStats;
@@ -121,10 +120,10 @@ public class FunctionServiceStats {
    * Static initializer to create and initialize the <code>StatisticsType</code>
    */
   static {
-    String statName = "FunctionServiceStatistics";
-    String statDescription =
+    var statName = "FunctionServiceStatistics";
+    var statDescription =
         "This is the aggregate Function Execution Stats (for all function Executions)";
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     _type = f.createType(statName, statDescription,
         new StatisticDescriptor[] {f.createIntCounter(FUNCTION_EXECUTIONS_COMPLETED,

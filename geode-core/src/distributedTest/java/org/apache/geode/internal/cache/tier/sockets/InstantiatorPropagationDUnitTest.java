@@ -42,12 +42,9 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.MirrorType;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.CacheServerImpl;
@@ -98,7 +95,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     client1 = host.getVM(0);
     client2 = host.getVM(1);
     server1 = host.getVM(2);
@@ -115,17 +112,17 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   }
 
   public static void createClientCache(String host, Integer port1) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new InstantiatorPropagationDUnitTest().createCache(props);
-    Pool p = PoolManager.createFactory().addServer(host, port1).setMinConnections(1)
+    var p = PoolManager.createFactory().addServer(host, port1).setMinConnections(1)
         .setSubscriptionEnabled(true).setPingInterval(200)
         .create("ClientServerInstantiatorRegistrationDUnitTestPool");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
-    Region r = cache.createRegion(REGION_NAME, factory.create());
+    var r = cache.createRegion(REGION_NAME, factory.create());
     r.registerInterest("ALL_KEYS");
   }
 
@@ -134,20 +131,20 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   }
 
   private int initServerCache(VM server) {
-    Object[] args = new Object[] {getMaxThreads()};
+    var args = new Object[] {getMaxThreads()};
     return (Integer) server.invoke(InstantiatorPropagationDUnitTest.class, "createServerCache",
         args);
   }
 
   public static Integer createServerCache(Integer maxThreads) throws Exception {
     new InstantiatorPropagationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setMirrorType(MirrorType.KEYS_VALUES);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    int port = getRandomAvailableTCPPort();
-    CacheServer server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setMaxThreads(maxThreads);
     server1.start();
@@ -177,7 +174,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   }
 
   public static void verifyInstantiators(final int numOfInstantiators) {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       String excuse;
 
       @Override
@@ -199,7 +196,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
 
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject1");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject1", e);
@@ -209,7 +206,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject2() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject2");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject2", e);
@@ -219,7 +216,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject3() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject3");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject3", e);
@@ -229,7 +226,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject4() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject4");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject4", e);
@@ -239,7 +236,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject5() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject5");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject5", e);
@@ -249,7 +246,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject6() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject6");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject6", e);
@@ -259,7 +256,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject7() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject7");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject7", e);
@@ -269,7 +266,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject8() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject8");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject8", e);
@@ -279,7 +276,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject9() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject9");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject9", e);
@@ -289,7 +286,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject10() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject10");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject10", e);
@@ -299,7 +296,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject11() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject11");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject11", e);
@@ -309,7 +306,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject12() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject12");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject11", e);
@@ -319,7 +316,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject13() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject13");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject13", e);
@@ -329,7 +326,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject14() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject14");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject14", e);
@@ -339,7 +336,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject15() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject15");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject15", e);
@@ -349,7 +346,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject16() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject16");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject16", e);
@@ -359,7 +356,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject17() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject17");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject17", e);
@@ -369,7 +366,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject18() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject18");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject18", e);
@@ -379,7 +376,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject19() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject19");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject19", e);
@@ -389,7 +386,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void registerTestObject20() throws Exception {
     try {
       Class cls = Class.forName("org.apache.geode.internal.cache.tier.sockets.TestObject20");
-      ConfigurableObject obj = (ConfigurableObject) cls.newInstance();
+      var obj = (ConfigurableObject) cls.newInstance();
       obj.init(0);
     } catch (Exception e) {
       Assert.fail("Test failed due to exception in TestObject20", e);
@@ -399,7 +396,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   public static void stopServer() {
     try {
       assertEquals("Expected exactly one BridgeServer", 1, cache.getCacheServers().size());
-      CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+      var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
       assertNotNull(bs);
       bs.stop();
     } catch (Exception ex) {
@@ -409,9 +406,9 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
 
   public static void startServer() {
     try {
-      Cache c = CacheFactory.getAnyInstance();
+      var c = CacheFactory.getAnyInstance();
       assertEquals("Expected exactly one BridgeServer", 1, c.getCacheServers().size());
-      CacheServerImpl bs = (CacheServerImpl) c.getCacheServers().iterator().next();
+      var bs = (CacheServerImpl) c.getCacheServers().iterator().next();
       assertNotNull(bs);
       bs.start();
     } catch (Exception ex) {
@@ -449,7 +446,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
       @Override
       public void run2() throws CacheException {
         Region region = cache.getRegion(REGION_NAME);
-        for (int i = 1; i <= 10; i++) {
+        for (var i = 1; i <= 10; i++) {
           region.put(i, i);
         }
       }
@@ -697,13 +694,13 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   }
 
   public static void createClientCache_EventId(String host, Integer port1) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new InstantiatorPropagationDUnitTest().createCache(props);
-    Pool p = PoolManager.createFactory().addServer(host, port1)
+    var p = PoolManager.createFactory().addServer(host, port1)
         .setSubscriptionEnabled(true).create("RegisterInstantiatorEventIdDUnitTestPool");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setPoolName(p.getName());
     cache.createRegion(REGION_NAME, factory.create());
@@ -732,7 +729,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
 
     Wait.pause(10000);
 
-    Boolean pass = client2.invoke(InstantiatorPropagationDUnitTest::verifyResult);
+    var pass = client2.invoke(InstantiatorPropagationDUnitTest::verifyResult);
     assertTrue("EventId found Different", pass);
 
     PoolImpl.IS_INSTANTIATOR_CALLBACK = false;
@@ -783,7 +780,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
   }
 
   public static Boolean verifyResult() {
-    boolean temp = testEventIDResult;
+    var temp = testEventIDResult;
     testEventIDResult = false;
     return temp;
   }
@@ -792,7 +789,7 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
    * this method initializes the appropriate server cache
    */
   private int initServerCache(VM server, int serverNo) {
-    Object[] args = new Object[] {getMaxThreads()};
+    var args = new Object[] {getMaxThreads()};
     if (serverNo == 1) {
       return (Integer) server.invoke(InstantiatorPropagationDUnitTest.class,
           "createServerCacheOne", args);
@@ -807,14 +804,14 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
    */
   public static Integer createServerCacheTwo(Integer maxThreads) throws Exception {
     new InstantiatorPropagationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setMirrorType(MirrorType.KEYS_VALUES);
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    int port = getRandomAvailableTCPPort();
-    CacheServer server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setMaxThreads(maxThreads);
     server1.setNotifyBySubscription(true);
@@ -827,13 +824,13 @@ public class InstantiatorPropagationDUnitTest extends JUnit4DistributedTestCase 
    */
   public static Integer createServerCacheOne(Integer maxThreads) throws Exception {
     new InstantiatorPropagationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setMirrorType(MirrorType.KEYS_VALUES);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    int port = getRandomAvailableTCPPort();
-    CacheServer server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setMaxThreads(maxThreads);
     server1.setNotifyBySubscription(true);
@@ -907,7 +904,7 @@ class TestObject1 extends ConfigurableObject implements DataSerializable {
 
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -951,7 +948,7 @@ class TestObject2 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -995,7 +992,7 @@ class TestObject3 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1039,7 +1036,7 @@ class TestObject4 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1083,7 +1080,7 @@ class TestObject5 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1127,7 +1124,7 @@ class TestObject6 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1171,7 +1168,7 @@ class TestObject7 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1215,7 +1212,7 @@ class TestObject8 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1259,7 +1256,7 @@ class TestObject9 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1303,7 +1300,7 @@ class TestObject10 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1345,7 +1342,7 @@ class TestObject11 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1387,7 +1384,7 @@ class TestObject12 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1429,7 +1426,7 @@ class TestObject13 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1471,7 +1468,7 @@ class TestObject14 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1513,7 +1510,7 @@ class TestObject15 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1555,7 +1552,7 @@ class TestObject16 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1597,7 +1594,7 @@ class TestObject17 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1639,7 +1636,7 @@ class TestObject18 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1681,7 +1678,7 @@ class TestObject19 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 
@@ -1724,7 +1721,7 @@ class TestObject20 extends ConfigurableObject implements DataSerializable {
    */
   @Override
   public void init(int index) {
-    Random random = new Random();
+    var random = new Random();
     field1 = random.nextInt();
   }
 

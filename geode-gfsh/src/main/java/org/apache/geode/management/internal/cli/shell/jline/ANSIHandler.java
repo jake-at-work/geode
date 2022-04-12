@@ -38,13 +38,13 @@ public class ANSIHandler {
   }
 
   public String decorateString(String input, ANSIStyle... styles) {
-    String decoratedInput = input;
+    var decoratedInput = input;
 
     if (isAnsiEnabled()) {
-      ANSIBuffer ansiBuffer = ANSIBuffer.getANSIBuffer();
+      var ansiBuffer = ANSIBuffer.getANSIBuffer();
 
 
-      for (ANSIStyle ansiStyle : styles) {
+      for (var ansiStyle : styles) {
         switch (ansiStyle) {
           case RED:
             ansiBuffer.red(input);

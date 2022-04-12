@@ -72,9 +72,9 @@ public class RegionManagementControllerSpringTest {
 
   @Test
   public void getIndexMappingRecognizesIndexIdWithDot() throws Exception {
-    String regionName = "myregion";
-    String indexNameWithDot = "index.name";
-    String requestPath = URI_VERSION + REGION_CONFIG_ENDPOINT
+    var regionName = "myregion";
+    var indexNameWithDot = "index.name";
+    var requestPath = URI_VERSION + REGION_CONFIG_ENDPOINT
         + "/" + regionName + INDEXES + "/" + indexNameWithDot;
 
     when(cms.get(any())).thenReturn(new ClusterManagementGetResult<>());
@@ -82,9 +82,9 @@ public class RegionManagementControllerSpringTest {
     context.perform(get(requestPath))
         .andExpect(status().is2xxSuccessful());
 
-    ArgumentCaptor<Index> indexCaptor = ArgumentCaptor.forClass(Index.class);
+    var indexCaptor = ArgumentCaptor.forClass(Index.class);
     verify(cms).get(indexCaptor.capture());
-    Index indexPassedToGet = indexCaptor.getValue();
+    var indexPassedToGet = indexCaptor.getValue();
 
     assertThat(indexPassedToGet.getId())
         .isEqualTo(indexNameWithDot);
@@ -92,17 +92,17 @@ public class RegionManagementControllerSpringTest {
 
   @Test
   public void getRegionMappingRecognizesRegionNameWithDot() throws Exception {
-    String regionNameWithDot = "region.name";
-    String requestPath = URI_VERSION + REGION_CONFIG_ENDPOINT + "/" + regionNameWithDot;
+    var regionNameWithDot = "region.name";
+    var requestPath = URI_VERSION + REGION_CONFIG_ENDPOINT + "/" + regionNameWithDot;
 
     when(cms.get(any())).thenReturn(new ClusterManagementGetResult<>());
 
     context.perform(get(requestPath))
         .andExpect(status().is2xxSuccessful());
 
-    ArgumentCaptor<Region> regionCaptor = ArgumentCaptor.forClass(Region.class);
+    var regionCaptor = ArgumentCaptor.forClass(Region.class);
     verify(cms).get(regionCaptor.capture());
-    Region regionPassedToGet = regionCaptor.getValue();
+    var regionPassedToGet = regionCaptor.getValue();
 
     assertThat(regionPassedToGet.getName())
         .isEqualTo(regionNameWithDot);
@@ -110,17 +110,17 @@ public class RegionManagementControllerSpringTest {
 
   @Test
   public void deleteRegionMappingRecognizesRegionNameWithDot() throws Exception {
-    String regionNameWithDot = "region.name";
-    String requestPath = URI_VERSION + REGION_CONFIG_ENDPOINT + "/" + regionNameWithDot;
+    var regionNameWithDot = "region.name";
+    var requestPath = URI_VERSION + REGION_CONFIG_ENDPOINT + "/" + regionNameWithDot;
 
     when(cms.delete(any())).thenReturn(new ClusterManagementRealizationResult());
 
     context.perform(delete(requestPath))
         .andExpect(status().is2xxSuccessful());
 
-    ArgumentCaptor<Region> regionCaptor = ArgumentCaptor.forClass(Region.class);
+    var regionCaptor = ArgumentCaptor.forClass(Region.class);
     verify(cms).delete(regionCaptor.capture());
-    Region regionPassedToGet = regionCaptor.getValue();
+    var regionPassedToGet = regionCaptor.getValue();
 
     assertThat(regionPassedToGet.getName())
         .isEqualTo(regionNameWithDot);
@@ -128,9 +128,9 @@ public class RegionManagementControllerSpringTest {
 
   @Test
   public void deleteRegionMappingRecognizesIndexNameWithDot() throws Exception {
-    String regionName = "regionName";
-    String indexNameWithDot = "index.name";
-    String requestPath =
+    var regionName = "regionName";
+    var indexNameWithDot = "index.name";
+    var requestPath =
         URI_VERSION + REGION_CONFIG_ENDPOINT + "/" + regionName + INDEXES + "/" + indexNameWithDot;
 
     when(cms.delete(any())).thenReturn(new ClusterManagementRealizationResult());
@@ -138,9 +138,9 @@ public class RegionManagementControllerSpringTest {
     context.perform(delete(requestPath))
         .andExpect(status().is2xxSuccessful());
 
-    ArgumentCaptor<Index> indexCaptor = ArgumentCaptor.forClass(Index.class);
+    var indexCaptor = ArgumentCaptor.forClass(Index.class);
     verify(cms).delete(indexCaptor.capture());
-    Index indexPassedToGet = indexCaptor.getValue();
+    var indexPassedToGet = indexCaptor.getValue();
 
     assertThat(indexPassedToGet.getName())
         .isEqualTo(indexNameWithDot);

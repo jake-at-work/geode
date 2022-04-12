@@ -116,7 +116,7 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
 
   private static boolean basicStartElderCall(InternalDistributedSystem sys, ElderState es,
       InternalDistributedMember elder, DLockService dls) {
-    GrantorRequestContext grc = sys.getGrantorRequestContext();
+    var grc = sys.getGrantorRequestContext();
     grc.elderLock.lock();
     try {
       if (es != null) {
@@ -157,7 +157,7 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
    */
   static void readyForElderRecovery(InternalDistributedSystem sys,
       InternalDistributedMember elderId, DLockService dls) {
-    GrantorRequestContext grc = sys.getGrantorRequestContext();
+    var grc = sys.getGrantorRequestContext();
     if (elderId != null) {
       grc.elderLock.lock();
       try {
@@ -187,14 +187,14 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
 
   private static void elderSyncWait(InternalDistributedSystem sys,
       InternalDistributedMember newElder, DLockService dls) {
-    GrantorRequestContext grc = sys.getGrantorRequestContext();
+    var grc = sys.getGrantorRequestContext();
     grc.waitingToChangeElder = true;
-    final String message = String.format(
+    final var message = String.format(
         "GrantorRequestProcessor.elderSyncWait: The current Elder %s is waiting for the new Elder %s.",
         grc.currentElder, newElder);
     while (grc.waitingToChangeElder) {
       logger.info(LogMarker.DLS_MARKER, message);
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         grc.elderLockCondition.await(sys.getConfig().getMemberTimeout());
       } catch (InterruptedException e) {
@@ -217,8 +217,8 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
     InternalDistributedMember elder;
     ElderState es = null;
 
-    final DistributionManager dm = sys.getDistributionManager();
-    boolean elderCallStarted = false;
+    final var dm = sys.getDistributionManager();
+    var elderCallStarted = false;
     while (!elderCallStarted) {
       dm.throwIfDistributionStopped();
       elder = dm.getElderId(); // call this before getElderState
@@ -325,10 +325,10 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
       int dlsSerialNumber, InternalDistributedSystem system, InternalDistributedMember oldTurk,
       byte opCode) {
     GrantorInfo result = null;
-    DistributionManager dm = system.getDistributionManager();
-    GrantorRequestContext grc = system.getGrantorRequestContext();
+    var dm = system.getDistributionManager();
+    var grc = system.getGrantorRequestContext();
     boolean tryNewElder;
-    boolean interrupted = false;
+    var interrupted = false;
     try {
       do {
         tryNewElder = false;
@@ -365,9 +365,9 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
             }
           } else {
             // remote elder so send message
-            GrantorRequestProcessor processor =
+            var processor =
                 new GrantorRequestProcessor(system, grc.currentElder);
-            boolean sent = GrantorRequestMessage.send(grantorVersion, dlsSerialNumber, serviceName,
+            var sent = GrantorRequestMessage.send(grantorVersion, dlsSerialNumber, serviceName,
                 grc.currentElder, dm, processor, oldTurk, opCode);
             if (!sent) {
               if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
@@ -432,7 +432,7 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
   @Override
   public void process(DistributionMessage msg) {
     if (msg instanceof GrantorInfoReplyMessage) {
-      GrantorInfoReplyMessage giMsg = (GrantorInfoReplyMessage) msg;
+      var giMsg = (GrantorInfoReplyMessage) msg;
       result = giMsg.getGrantorInfo();
     } else if (msg instanceof ReplyMessage) {
       if (((ReplyMessage) msg).getException() == null) {
@@ -465,7 +465,7 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
         InternalDistributedMember elder, DistributionManager dm, ReplyProcessor21 proc,
         InternalDistributedMember oldTurk, byte opCode) {
 
-      GrantorRequestMessage msg = new GrantorRequestMessage();
+      var msg = new GrantorRequestMessage();
       msg.grantorVersion = grantorVersion;
       msg.dlsSerialNumber = dlsSerialNumber;
       msg.serviceName = serviceName;
@@ -593,7 +593,7 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
 
     @Override
     public String toString() {
-      String opCodeString = opCodeToString(opCode);
+      var opCodeString = opCodeToString(opCode);
       return "GrantorRequestMessage (service='" + serviceName
           + "'; grantorVersion=" + grantorVersion + "'; dlsSerialNumber="
           + dlsSerialNumber + "'; processorId=" + processorId
@@ -609,7 +609,7 @@ public class GrantorRequestProcessor extends ReplyProcessor21 {
     private boolean needsRecovery;
 
     public static void send(MessageWithReply reqMsg, DistributionManager dm, GrantorInfo gi) {
-      GrantorInfoReplyMessage m = new GrantorInfoReplyMessage();
+      var m = new GrantorInfoReplyMessage();
       m.grantor = gi.getId();
       m.needsRecovery = gi.needsRecovery();
       m.elderVersionId = gi.getVersionId();

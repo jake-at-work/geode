@@ -163,12 +163,12 @@ public final class FileWatchingX509ExtendedTrustManager extends X509ExtendedTrus
       }
 
       char[] password = null;
-      try (FileInputStream fis = new FileInputStream(trustStorePath.toString())) {
-        String passwordString = trustStorePassword;
+      try (var fis = new FileInputStream(trustStorePath.toString())) {
+        var passwordString = trustStorePassword;
         if (passwordString != null) {
           if (passwordString.trim().equals("")) {
             if (!StringUtils.isEmpty(passwordString)) {
-              String toDecrypt = "encrypted(" + passwordString + ")";
+              var toDecrypt = "encrypted(" + passwordString + ")";
               passwordString = PasswordUtil.decrypt(toDecrypt);
               password = passwordString.toCharArray();
             }
@@ -181,7 +181,7 @@ public final class FileWatchingX509ExtendedTrustManager extends X509ExtendedTrus
 
       // default algorithm can be changed by setting property "ssl.TrustManagerFactory.algorithm" in
       // security properties
-      TrustManagerFactory tmf =
+      var tmf =
           TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
       tmf.init(trustStore);
       trustManagers = tmf.getTrustManagers();
@@ -194,7 +194,7 @@ public final class FileWatchingX509ExtendedTrustManager extends X509ExtendedTrus
       throw new InternalGemFireException("Unable to load TrustManager", e);
     }
 
-    for (TrustManager tm : trustManagers) {
+    for (var tm : trustManagers) {
       if (tm instanceof X509ExtendedTrustManager) {
 
         if (trustManager.getAndSet((X509ExtendedTrustManager) tm) == null) {

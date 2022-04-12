@@ -58,7 +58,7 @@ public class TinyStoredObject extends AbstractStoredObject {
 
   @Override
   public int hashCode() {
-    long value = getAddress();
+    var value = getAddress();
     return (int) (value ^ (value >>> 32));
   }
 
@@ -69,8 +69,8 @@ public class TinyStoredObject extends AbstractStoredObject {
 
   public byte[] getDecompressedBytes(RegionEntryContext r) {
     if (isCompressed()) {
-      byte[] bytes = OffHeapRegionEntryHelper.decodeAddressToRawBytes(getAddress());
-      long time = r.getCachePerfStats().startDecompression();
+      var bytes = OffHeapRegionEntryHelper.decodeAddressToRawBytes(getAddress());
+      var time = r.getCachePerfStats().startDecompression();
       bytes = r.getCompressor().decompress(bytes);
       r.getCachePerfStats().endDecompression(time);
       return bytes;
@@ -87,7 +87,7 @@ public class TinyStoredObject extends AbstractStoredObject {
 
   @Override
   public byte[] getSerializedValue() {
-    byte[] value = getRawBytes();
+    var value = getRawBytes();
     if (!isSerialized()) {
       value = EntryEventImpl.serialize(value);
     }
@@ -174,9 +174,9 @@ public class TinyStoredObject extends AbstractStoredObject {
 
   @Override
   public void readDataBytes(int offset, byte[] bytes, int bytesOffset, int size) {
-    byte[] src = getRawBytes();
-    int dstIdx = bytesOffset;
-    for (int i = offset; i < offset + size; i++) {
+    var src = getRawBytes();
+    var dstIdx = bytesOffset;
+    for (var i = offset; i < offset + size; i++) {
       bytes[dstIdx++] = src[i];
     }
   }
@@ -204,7 +204,7 @@ public class TinyStoredObject extends AbstractStoredObject {
 
   @Override
   public boolean checkDataEquals(byte[] serializedObj) {
-    byte[] myBytes = getSerializedValue();
+    var myBytes = getSerializedValue();
     return Arrays.equals(myBytes, serializedObj);
   }
 

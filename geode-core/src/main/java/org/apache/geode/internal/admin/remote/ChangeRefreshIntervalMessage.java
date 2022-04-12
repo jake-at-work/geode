@@ -37,7 +37,7 @@ public class ChangeRefreshIntervalMessage extends PooledDistributionMessage {
   private long _refreshInterval;
 
   public static ChangeRefreshIntervalMessage create(long refreshInterval) {
-    ChangeRefreshIntervalMessage m = new ChangeRefreshIntervalMessage();
+    var m = new ChangeRefreshIntervalMessage();
 
     m._refreshInterval = refreshInterval;
 

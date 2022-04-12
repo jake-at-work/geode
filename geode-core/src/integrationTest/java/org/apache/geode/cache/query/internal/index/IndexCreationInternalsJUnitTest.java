@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.QueryInvalidException;
 import org.apache.geode.cache.query.internal.CompiledID;
@@ -65,18 +64,18 @@ public class IndexCreationInternalsJUnitTest {
   @Test
   public void testLoneFromClause() throws Exception {
     // compileFromClause returns a List<CompiledIteratorDef>
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileFromClause(SEPARATOR + "pos p, p.positions");
     assertEquals(2, list.size());
 
-    CompiledIteratorDef first = (CompiledIteratorDef) list.get(0);
+    var first = (CompiledIteratorDef) list.get(0);
     assertEquals("p", first.getName());
     assertEquals(SEPARATOR + "pos", ((CompiledRegion) first.getCollectionExpr()).getRegionPath());
     assertEquals(TypeUtils.OBJECT_TYPE, first.getElementType());
 
-    CompiledIteratorDef second = (CompiledIteratorDef) list.get(1);
+    var second = (CompiledIteratorDef) list.get(1);
     assertNull(second.getName());
-    CompiledPath path = (CompiledPath) second.getCollectionExpr();
+    var path = (CompiledPath) second.getCollectionExpr();
     assertEquals("p", ((CompiledID) path.getReceiver()).getId());
     assertEquals("positions", path.getTailID());
     assertEquals(TypeUtils.OBJECT_TYPE, second.getElementType());
@@ -90,22 +89,22 @@ public class IndexCreationInternalsJUnitTest {
     // 0: a String, the field name, or null if no identifier provided
     // 1: The CompiledValue for the projection expression.
 
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List list = compiler.compileProjectionAttributes("*");
     assertNull(list);
 
     compiler = new QCompiler();
     list = compiler.compileProjectionAttributes("ID, status");
     assertEquals(2, list.size());
-    Object[] firstProj = (Object[]) list.get(0);
+    var firstProj = (Object[]) list.get(0);
     assertEquals(2, firstProj.length);
     assertNull(firstProj[0]); // no field name
-    CompiledID id1 = (CompiledID) firstProj[1];
+    var id1 = (CompiledID) firstProj[1];
     assertEquals("ID", id1.getId());
-    Object[] secondProj = (Object[]) list.get(1);
+    var secondProj = (Object[]) list.get(1);
     assertEquals(2, secondProj.length);
     assertNull(secondProj[0]); // no field name
-    CompiledID id2 = (CompiledID) secondProj[1];
+    var id2 = (CompiledID) secondProj[1];
     assertEquals("status", id2.getId());
 
     // test two ways of specifying the field names
@@ -151,11 +150,11 @@ public class IndexCreationInternalsJUnitTest {
   @Test
   public void testGenerationOfCanonicalizedIteratorNames() {
     try {
-      Region rgn = CacheUtils.createRegion("dummy", null);
+      var rgn = CacheUtils.createRegion("dummy", null);
 
-      final IndexManager imgr = new IndexManager(CacheUtils.getCache(), rgn);
+      final var imgr = new IndexManager(CacheUtils.getCache(), rgn);
       ((LocalRegion) rgn).setIndexManager(imgr);
-      String name = imgr.putCanonicalizedIteratorNameIfAbsent("dummy");
+      var name = imgr.putCanonicalizedIteratorNameIfAbsent("dummy");
       assertTrue(
           "Error as the iterator name was  expected as index_iter1 , but is actually " + name,
           name.equals("index_iter1"));
@@ -168,19 +167,19 @@ public class IndexCreationInternalsJUnitTest {
   @Test
   public void testConcurrentGenerationOfCanonicalizedIteratorNames() {
     try {
-      Region rgn = CacheUtils.createRegion("dummy", null);
-      final IndexManager imgr = new IndexManager(CacheUtils.getCache(), rgn);
+      var rgn = CacheUtils.createRegion("dummy", null);
+      final var imgr = new IndexManager(CacheUtils.getCache(), rgn);
       ((LocalRegion) rgn).setIndexManager(imgr);
 
-      String name = imgr.putCanonicalizedIteratorNameIfAbsent("dummy");
+      var name = imgr.putCanonicalizedIteratorNameIfAbsent("dummy");
       assertTrue(
           "Error as the iterator name was  expected as index_iter1 , but is actually " + name,
           name.equals("index_iter1"));
 
-      Thread th1 = new Thread(() -> childThreadName1 =
+      var th1 = new Thread(() -> childThreadName1 =
           imgr.putCanonicalizedIteratorNameIfAbsent("index_iter1.coll1"));
 
-      Thread th2 = new Thread(() -> childThreadName2 =
+      var th2 = new Thread(() -> childThreadName2 =
           imgr.putCanonicalizedIteratorNameIfAbsent("index_iter1.coll1"));
 
 

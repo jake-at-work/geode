@@ -34,8 +34,6 @@ import org.apache.geode.distributed.internal.ReplyMessage;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.partitioned.PartitionMessage;
-import org.apache.geode.internal.cache.partitioned.RegionAdvisor;
-import org.apache.geode.internal.cache.partitioned.RegionAdvisor.PartitionProfile;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -116,9 +114,9 @@ public class DestroyPartitionedRegionMessage extends PartitionMessage {
   public static DestroyPartitionedRegionResponse send(Set recipients, PartitionedRegion r,
       final RegionEventImpl event, int[] serials) {
     Assert.assertTrue(recipients != null, "DestroyMessage NULL recipients set");
-    DestroyPartitionedRegionResponse resp =
+    var resp =
         new DestroyPartitionedRegionResponse(r.getSystem(), recipients);
-    DestroyPartitionedRegionMessage m =
+    var m =
         new DestroyPartitionedRegionMessage(recipients, r, resp, event, serials);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     r.getDistributionManager().putOutgoing(m);
@@ -148,7 +146,7 @@ public class DestroyPartitionedRegionMessage extends PartitionMessage {
     if (op.isLocal()) {
       // notify the advisor that the sending member has locally destroyed (or closed) the region
 
-      PartitionProfile pp = r.getRegionAdvisor().getPartitionProfile(getSender());
+      var pp = r.getRegionAdvisor().getPartitionProfile(getSender());
       if (pp == null) { // Fix for bug#36863
         return true;
       }
@@ -157,11 +155,11 @@ public class DestroyPartitionedRegionMessage extends PartitionMessage {
 
       Assert.assertTrue(prSerial != DistributionAdvisor.ILLEGAL_SERIAL);
 
-      boolean ok = true;
+      var ok = true;
       // Examine this peer's profile and look at the serial number in that
       // profile. If we have a newer profile, ignore the request.
 
-      int oldSerial = pp.getSerialNumber();
+      var oldSerial = pp.getSerialNumber();
       if (DistributionAdvisor.isNewerSerialNumber(oldSerial, prSerial)) {
         ok = false;
         if (logger.isDebugEnabled()) {
@@ -170,7 +168,7 @@ public class DestroyPartitionedRegionMessage extends PartitionMessage {
         }
       }
       if (ok) {
-        RegionAdvisor ra = r.getRegionAdvisor();
+        var ra = r.getRegionAdvisor();
         ra.removeIdAndBuckets(sender, prSerial, bucketSerials, !op.isClose());
       }
 
@@ -181,7 +179,7 @@ public class DestroyPartitionedRegionMessage extends PartitionMessage {
     // If region's isDestroyed flag is true, we can check if local destroy is done or not and if
     // NOT, we can invoke destroyPartitionedRegionLocally method.
     if (r.isDestroyed()) {
-      boolean isClose = op.isClose();
+      var isClose = op.isClose();
       r.destroyPartitionedRegionLocally(!isClose);
       return true;
     }
@@ -190,7 +188,7 @@ public class DestroyPartitionedRegionMessage extends PartitionMessage {
       logger.trace(LogMarker.DM_VERBOSE, "{} operateOnRegion: {}", getClass().getName(),
           r.getFullPath());
     }
-    RegionEventImpl event =
+    var event =
         new RegionEventImpl(r, op, cbArg, true, r.getMyId(), getEventID());
     r.basicDestroyRegion(event, false, false, true);
 
@@ -203,7 +201,7 @@ public class DestroyPartitionedRegionMessage extends PartitionMessage {
     buff.append("; cbArg=").append(cbArg).append("; op=").append(op);
     buff.append("; prSerial=" + prSerial);
     buff.append("; bucketSerials (" + bucketSerials.length + ")=(");
-    for (int i = 0; i < bucketSerials.length; i++) {
+    for (var i = 0; i < bucketSerials.length; i++) {
       buff.append(bucketSerials[i]);
       if (i < bucketSerials.length - 1) {
         buff.append(", ");
@@ -236,9 +234,9 @@ public class DestroyPartitionedRegionMessage extends PartitionMessage {
     cbArg = DataSerializer.readObject(in);
     op = Operation.fromOrdinal(in.readByte());
     prSerial = in.readInt();
-    int len = in.readInt();
+    var len = in.readInt();
     bucketSerials = new int[len];
-    for (int i = 0; i < len; i++) {
+    for (var i = 0; i < len; i++) {
       bucketSerials[i] = in.readInt();
     }
   }
@@ -257,7 +255,7 @@ public class DestroyPartitionedRegionMessage extends PartitionMessage {
     out.writeByte(op.ordinal);
     out.writeInt(prSerial);
     out.writeInt(bucketSerials.length);
-    for (final int bucketSerial : bucketSerials) {
+    for (final var bucketSerial : bucketSerials) {
       out.writeInt(bucketSerial);
     }
   }

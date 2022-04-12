@@ -34,7 +34,6 @@ import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.exceptions.UserErrorException;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -78,7 +77,7 @@ public class LuceneSearchIndexCommand extends LuceneCommandBase {
           help = LuceneCliStrings.LUCENE_SEARCH_INDEX__KEYSONLY__HELP) boolean keysOnly)
       throws Exception {
     authorize(ResourcePermission.Resource.DATA, ResourcePermission.Operation.READ, regionPath);
-    LuceneQueryInfo queryInfo =
+    var queryInfo =
         new LuceneQueryInfo(indexName, regionPath, queryString, defaultField, limit, keysOnly);
     searchResults = getSearchResults(queryInfo);
 
@@ -91,8 +90,8 @@ public class LuceneSearchIndexCommand extends LuceneCommandBase {
 
   private List<LuceneSearchResults> getSearchResults(final LuceneQueryInfo queryInfo)
       throws Exception {
-    final ResultCollector<?, ?> rc = executeSearch(queryInfo);
-    final List<Set<LuceneSearchResults>> functionResults =
+    final var rc = executeSearch(queryInfo);
+    final var functionResults =
         (List<Set<LuceneSearchResults>>) rc.getResult();
 
     return functionResults.stream().flatMap(Collection::stream).sorted()
@@ -104,9 +103,9 @@ public class LuceneSearchIndexCommand extends LuceneCommandBase {
   }
 
   private ResultModel getResults(int fromIndex, int toIndex, boolean keysonly) throws Exception {
-    ResultModel result = new ResultModel();
-    TabularResultModel table = result.addTable("lucene-indexes");
-    for (int i = fromIndex; i < toIndex; i++) {
+    var result = new ResultModel();
+    var table = result.addTable("lucene-indexes");
+    for (var i = fromIndex; i < toIndex; i++) {
       if (!searchResults.get(i).getExceptionFlag()) {
         table.accumulate("key", searchResults.get(i).getKey());
         if (!keysonly) {
@@ -129,18 +128,18 @@ public class LuceneSearchIndexCommand extends LuceneCommandBase {
       return ResultModel.createInfo(LuceneCliStrings.LUCENE_SEARCH_INDEX__NO_RESULTS_MESSAGE);
     }
 
-    Gfsh gfsh = initGfsh();
-    boolean pagination = searchResults.size() > pageSize;
-    int fromIndex = 0;
-    int toIndex = pageSize < searchResults.size() ? pageSize : searchResults.size();
-    int currentPage = 1;
-    int totalPages = (int) Math.ceil((float) searchResults.size() / pageSize);
-    boolean skipDisplay = false;
+    var gfsh = initGfsh();
+    var pagination = searchResults.size() > pageSize;
+    var fromIndex = 0;
+    var toIndex = pageSize < searchResults.size() ? pageSize : searchResults.size();
+    var currentPage = 1;
+    var totalPages = (int) Math.ceil((float) searchResults.size() / pageSize);
+    var skipDisplay = false;
     String step = null;
     do {
 
       if (!skipDisplay) {
-        ResultModel resultModel = getResults(fromIndex, toIndex, keysOnly);
+        var resultModel = getResults(fromIndex, toIndex, keysOnly);
         if (!pagination) {
           return resultModel;
         }
@@ -153,7 +152,7 @@ public class LuceneSearchIndexCommand extends LuceneCommandBase {
         commandResult.resetToFirstLine();
 
         gfsh.printAsInfo("\t\tPage " + currentPage + " of " + totalPages);
-        String message = ("Press n to move to next page, q to quit and p to previous page : ");
+        var message = ("Press n to move to next page, q to quit and p to previous page : ");
         step = gfsh.interact(message);
       }
 
@@ -188,7 +187,7 @@ public class LuceneSearchIndexCommand extends LuceneCommandBase {
             skipDisplay = false;
           } else {
             currentPage--;
-            int current = fromIndex;
+            var current = fromIndex;
             toIndex = fromIndex;
             fromIndex = current - pageSize <= 0 ? 0 : current - pageSize;
           }

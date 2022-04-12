@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
@@ -80,7 +79,7 @@ public class GMSLocatorRecoveryIntegrationTest {
 
     serializer = new DSFIDSerializerImpl();
     Services.registerSerializables(serializer);
-    KnownVersion current = KnownVersion.CURRENT; // force version initialization
+    var current = KnownVersion.CURRENT; // force version initialization
 
     stateFile = new File(temporaryFolder.getRoot(), getClass().getSimpleName() + "_locator.dat");
 
@@ -109,7 +108,7 @@ public class GMSLocatorRecoveryIntegrationTest {
 
   @Test
   public void testRecoverFromFileWithNormalFile() throws Exception {
-    GMSMembershipView view = new GMSMembershipView();
+    var view = new GMSMembershipView();
     populateStateFile(stateFile, LOCATOR_FILE_STAMP, KnownVersion.CURRENT_ORDINAL, view);
 
     assertThat(gmsLocator.recoverFromFile(stateFile)).isTrue();
@@ -130,7 +129,7 @@ public class GMSLocatorRecoveryIntegrationTest {
     populateStateFile(stateFile, LOCATOR_FILE_STAMP, KnownVersion.CURRENT_ORDINAL + 1,
         MemberIdentifierUtil.createMemberID(1234));
 
-    boolean recovered = gmsLocator.recoverFromFile(stateFile);
+    var recovered = gmsLocator.recoverFromFile(stateFile);
     assertThat(recovered).isFalse();
   }
 
@@ -139,7 +138,7 @@ public class GMSLocatorRecoveryIntegrationTest {
     populateStateFile(stateFile, LOCATOR_FILE_STAMP, KnownVersion.CURRENT_ORDINAL,
         MemberIdentifierUtil.createMemberID(1234));
 
-    Throwable thrown = catchThrowable(() -> gmsLocator.recoverFromFile(stateFile));
+    var thrown = catchThrowable(() -> gmsLocator.recoverFromFile(stateFile));
 
     assertThat(thrown)
         .isInstanceOf(IllegalStateException.class)
@@ -148,22 +147,22 @@ public class GMSLocatorRecoveryIntegrationTest {
 
   @Test
   public void testRecoverFromOther() throws Exception {
-    InetAddress localHost = LocalHostUtil.getLocalHost();
+    var localHost = LocalHostUtil.getLocalHost();
 
-    final Supplier<ExecutorService> executorServiceSupplier =
-        () -> LoggingExecutors.newCachedThreadPool("membership", false);
-    final TcpSocketCreatorImpl socketCreator = new TcpSocketCreatorImpl();
+    final var executorServiceSupplier =
+        (Supplier<ExecutorService>) () -> LoggingExecutors.newCachedThreadPool("membership", false);
+    final var socketCreator = new TcpSocketCreatorImpl();
     locator = MembershipLocatorBuilder.newLocatorBuilder(socketCreator, serializer,
         temporaryFolder.getRoot().toPath(), executorServiceSupplier)
         .setBindAddress(new HostAddress(localHost)).create();
-    final int port = locator.start();
+    final var port = locator.start();
 
     try {
-      final TcpClient locatorClient =
+      final var locatorClient =
           new TcpClient(socketCreator, serializer.getObjectSerializer(),
               serializer.getObjectDeserializer(), TcpSocketFactory.DEFAULT);
 
-      MembershipConfig membershipConfig = new MembershipConfig() {
+      var membershipConfig = new MembershipConfig() {
         public String getLocators() {
           try {
             return LocalHostUtil.getLocalHostName() + "[" + port + "]";
@@ -183,14 +182,14 @@ public class GMSLocatorRecoveryIntegrationTest {
 
       // now create a peer location handler that should recover from our real locator and know
       // that real locator's identifier
-      GMSLocator gmsLocator = new GMSLocator(new HostAddress(localHost),
+      var gmsLocator = new GMSLocator(new HostAddress(localHost),
           membership.getLocalMember().getHost() + "[" + port + "]", true, true,
           new MembershipLocatorStatisticsNoOp(), "", temporaryFolder.getRoot().toPath(),
           locatorClient,
           serializer.getObjectSerializer(),
           serializer.getObjectDeserializer());
       gmsLocator.setViewFile(new File(temporaryFolder.getRoot(), "locator2.dat"));
-      TcpServer server = mock(TcpServer.class);
+      var server = mock(TcpServer.class);
       gmsLocator.init(server);
 
       assertThat(gmsLocator.getMembers())
@@ -206,18 +205,18 @@ public class GMSLocatorRecoveryIntegrationTest {
         new GMSMembershipView());
     assertThat(stateFile).exists();
 
-    File dir = temporaryFolder.newFolder(testName.getMethodName());
-    File viewFileInNewDirectory = new File(dir, stateFile.getName());
+    var dir = temporaryFolder.newFolder(testName.getMethodName());
+    var viewFileInNewDirectory = new File(dir, stateFile.getName());
     assertThat(viewFileInNewDirectory).doesNotExist();
 
-    File locatorViewFile = gmsLocator.setViewFile(viewFileInNewDirectory);
+    var locatorViewFile = gmsLocator.setViewFile(viewFileInNewDirectory);
     assertThat(gmsLocator.recoverFromFile(locatorViewFile)).isFalse();
   }
 
   private void populateStateFile(File file, int fileStamp, int ordinal, Object object)
       throws IOException {
-    try (FileOutputStream fileStream = new FileOutputStream(file);
-        ObjectOutputStream oos = new ObjectOutputStream(fileStream)) {
+    try (var fileStream = new FileOutputStream(file);
+        var oos = new ObjectOutputStream(fileStream)) {
       oos.writeInt(fileStamp);
       oos.writeInt(ordinal);
       oos.flush();

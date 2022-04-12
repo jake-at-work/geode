@@ -89,7 +89,7 @@ public class Coder {
       toWrite = doubleToBytes((Double) v);
       writeStringResponse(buffer, toWrite, useBulkStrings);
     } else if (v instanceof String) {
-      String value = (String) v;
+      var value = (String) v;
       toWrite = stringToBytes(value);
       writeStringResponse(buffer, toWrite, useBulkStrings);
     } else if (v instanceof Integer) {
@@ -139,7 +139,7 @@ public class Coder {
   private static void writeCollectionOrString(ByteBuf buffer, Object next, boolean useBulkStrings)
       throws CoderException {
     if (next instanceof Collection) {
-      Collection<?> nextItems = (Collection<?>) next;
+      var nextItems = (Collection<?>) next;
       getArrayResponse(buffer, nextItems, useBulkStrings);
     } else {
       getStringResponse(buffer, next, useBulkStrings);
@@ -150,7 +150,7 @@ public class Coder {
     buffer.writeByte(ARRAY_ID);
     buffer.writeByte(digitToAscii(2));
     buffer.writeBytes(CRLF);
-    byte[] cursorBytes = intToBytes(cursor);
+    var cursorBytes = intToBytes(cursor);
     writeStringResponse(buffer, cursorBytes, true);
     buffer.writeByte(ARRAY_ID);
     appendAsciiDigitsToByteBuf(scanResult.size(), buffer);
@@ -158,7 +158,7 @@ public class Coder {
 
     for (Object nextObject : scanResult) {
       if (nextObject instanceof String) {
-        String next = (String) nextObject;
+        var next = (String) nextObject;
         writeStringResponse(buffer, stringToBytes(next), true);
       } else if (nextObject instanceof RedisKey) {
         writeStringResponse(buffer, ((RedisKey) nextObject).toBytes(), true);
@@ -190,7 +190,7 @@ public class Coder {
   }
 
   public static ByteBuf getSimpleStringResponse(ByteBuf buffer, String string) {
-    byte[] simpAr = stringToBytes(string);
+    var simpAr = stringToBytes(string);
     return getSimpleStringResponse(buffer, simpAr);
   }
 
@@ -202,7 +202,7 @@ public class Coder {
   }
 
   public static ByteBuf getErrorResponse(ByteBuf buffer, String error) {
-    byte[] errorAr = stringToBytes(error);
+    var errorAr = stringToBytes(error);
     buffer.writeByte(ERROR_ID);
     buffer.writeBytes(errorAr);
     buffer.writeBytes(CRLF);
@@ -302,7 +302,7 @@ public class Coder {
       return NaN;
     }
 
-    String stringValue = String.valueOf(d);
+    var stringValue = String.valueOf(d);
     if (stringValue.endsWith(".0")) {
       stringValue = (stringValue.substring(0, stringValue.length() - 2));
     }
@@ -331,14 +331,14 @@ public class Coder {
    * It has been changed to work on bytes instead of chars.
    */
   public static long parseLong(final byte[] bytes) throws NumberFormatException {
-    final int length = bytes.length;
+    final var length = bytes.length;
     if (length == 0) {
       throw createNumberFormatException(bytes);
     }
-    final long limit = Long.MIN_VALUE / 10;
-    boolean isNegative = false;
+    final var limit = Long.MIN_VALUE / 10;
+    var isNegative = false;
     long result = 0; // Accumulates negatively (avoid MIN_VALUE overflow).
-    int i = 0;
+    var i = 0;
     if (bytes[0] == '-') {
       isNegative = true;
       i++;
@@ -351,14 +351,14 @@ public class Coder {
       throw createNumberFormatException(bytes); // redis does not allow +*
     }
     while (i < length) {
-      int digit = asciiToDigit(bytes[i++]);
+      var digit = asciiToDigit(bytes[i++]);
       if (digit == -1) {
         throw createNumberFormatException(bytes); // invalid byte
       }
       if (result < limit) {
         throw createNumberFormatException(bytes); // overflow
       }
-      final long newResult = result * 10 - digit;
+      final var newResult = result * 10 - digit;
       if (newResult > result) {
         throw createNumberFormatException(bytes); // overflow
       }
@@ -391,7 +391,7 @@ public class Coder {
     }
 
     try {
-      String d = bytesToString(bytes);
+      var d = bytesToString(bytes);
       if (d.equalsIgnoreCase(P_INF_STRING)) {
         return Double.POSITIVE_INFINITY;
       } else if (d.equalsIgnoreCase(N_INF_STRING)) {
@@ -423,7 +423,7 @@ public class Coder {
     if (test == null || expected == null || test.length != expected.length) {
       return false;
     }
-    for (int i = 0; i < expected.length; ++i) {
+    for (var i = 0; i < expected.length; ++i) {
       if (toUpperCase(test[i]) != toUpperCase(expected[i])) {
         return false;
       }
@@ -443,8 +443,8 @@ public class Coder {
     if (bytes == null) {
       return null;
     }
-    byte[] uppercase = new byte[bytes.length];
-    for (int i = 0; i < bytes.length; ++i) {
+    var uppercase = new byte[bytes.length];
+    for (var i = 0; i < bytes.length; ++i) {
       uppercase[i] = toUpperCase(bytes[i]);
     }
     return uppercase;
@@ -510,7 +510,7 @@ public class Coder {
    * NOTE: the returned array's contents must not be modified by the caller.
    */
   private static byte[] convertLongToAsciiDigits(long value) {
-    final boolean negative = value < 0;
+    final var negative = value < 0;
     if (!negative) {
       value = -value;
     }
@@ -546,21 +546,21 @@ public class Coder {
   @Immutable
   private static final byte[][] POSITIVE_TABLE = new byte[TABLE_SIZE][];
   static {
-    for (int i = 0; i < TABLE_SIZE; i++) {
+    for (var i = 0; i < TABLE_SIZE; i++) {
       NEGATIVE_TABLE[i] = createTwoDigitArray(-i, true);
       POSITIVE_TABLE[i] = createTwoDigitArray(-i, false);
     }
   }
 
   private static byte[] createTwoDigitArray(int value, boolean negative) {
-    int quotient = value / 10;
-    int remainder = (quotient * 10) - value;
-    int resultSize = (quotient < 0) ? 2 : 1;
+    var quotient = value / 10;
+    var remainder = (quotient * 10) - value;
+    var resultSize = (quotient < 0) ? 2 : 1;
     if (negative) {
       resultSize++;
     }
-    byte[] result = new byte[resultSize];
-    int resultIdx = 0;
+    var result = new byte[resultSize];
+    var resultIdx = 0;
     if (negative) {
       result[resultIdx++] = '-';
     }
@@ -572,8 +572,8 @@ public class Coder {
   }
 
   private static byte[] convertBigLongToAsciiDigits(long value, boolean negative) {
-    final byte[] bytes = new byte[asciiByteLength(value, negative)];
-    int bytePos = bytes.length;
+    final var bytes = new byte[asciiByteLength(value, negative)];
+    var bytePos = bytes.length;
 
     long quotient;
     int remainder;
@@ -588,7 +588,7 @@ public class Coder {
 
     // Get 2 digits/iteration using ints
     int intQuotient;
-    int intValue = (int) value;
+    var intValue = (int) value;
     while (intValue <= -100) {
       intQuotient = intValue / 100;
       remainder = (intQuotient * 100) - intValue;
@@ -622,15 +622,15 @@ public class Coder {
    * @return number of bytes needed to represent "value" as ascii bytes
    */
   private static int asciiByteLength(long value, boolean negative) {
-    final int nonDigitCount = negative ? 1 : 0;
+    final var nonDigitCount = negative ? 1 : 0;
     // Note since this is only called if value >= -100
     // (see the caller of convertSmallLongToAsciiDigits)
     // we skip the first two loops by starting
     // powerOf10 at -1000 (instead of -10)
     // and digitCount at 3 (instead of 1).
     long powerOf10 = -1000;
-    final int MAX_DIGITS = 19;
-    for (int digitCount = 3; digitCount < MAX_DIGITS; digitCount++) {
+    final var MAX_DIGITS = 19;
+    for (var digitCount = 3; digitCount < MAX_DIGITS; digitCount++) {
       if (value > powerOf10) {
         return digitCount + nonDigitCount;
       }

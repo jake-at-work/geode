@@ -17,7 +17,6 @@ package org.apache.geode.test.compiler;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,11 +31,11 @@ public class ClassBuilderTest {
 
   @Test
   public void writeJarFromClasses() throws IOException, ClassNotFoundException {
-    File jar = tmpFolder.newFile("test.jar");
-    URL[] url = new URL[] {jar.toURI().toURL()};
-    ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+    var jar = tmpFolder.newFile("test.jar");
+    var url = new URL[] {jar.toURI().toURL()};
+    var systemClassLoader = ClassLoader.getSystemClassLoader();
 
-    URLClassLoader classLoader = new URLClassLoader(url, systemClassLoader) {
+    var classLoader = new URLClassLoader(url, systemClassLoader) {
       @Override
       public Class<?> loadClass(String name) throws ClassNotFoundException {
         try {

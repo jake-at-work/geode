@@ -37,7 +37,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.configuration.domain.Configuration;
 import org.apache.geode.test.junit.rules.GfshParserRule;
 
@@ -71,7 +70,7 @@ public class ImportClusterConfigurationCommandTest {
 
   @Test
   public void autoComplete() {
-    GfshParserRule.CommandCandidate commandCandidate =
+    var commandCandidate =
         gfsh.complete(IMPORT_SHARED_CONFIG + " --action=");
     assertThat(commandCandidate.getCandidates()).hasSize(2);
     assertThat(commandCandidate.getFirstCandidate())
@@ -88,7 +87,7 @@ public class ImportClusterConfigurationCommandTest {
 
   @Test
   public void defaultValue() {
-    GfshParseResult parseResult = gfsh.parse(IMPORT_SHARED_CONFIG + " --xml-file=my.xml");
+    var parseResult = gfsh.parse(IMPORT_SHARED_CONFIG + " --xml-file=my.xml");
     assertThat(parseResult.getParamValue("group")).isEqualTo("cluster");
     assertThat(parseResult.getParamValue("xml-file")).isEqualTo("my.xml");
     assertThat(parseResult.getParamValue("action").toString()).isEqualTo("APPLY");
@@ -144,7 +143,7 @@ public class ImportClusterConfigurationCommandTest {
 
   @Test
   public void noMemberFound() throws IOException {
-    String xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><cache/>";
+    var xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><cache/>";
     FileUtils.write(xmlFile, xmlContent, Charset.defaultCharset());
     when(ccService.getConfiguration(any())).thenReturn(configuration);
 
@@ -155,7 +154,7 @@ public class ImportClusterConfigurationCommandTest {
 
   @Test
   public void invalidXml() throws IOException {
-    String xmlContent =
+    var xmlContent =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><cache><region></cache>";
     FileUtils.write(xmlFile, xmlContent, Charset.defaultCharset());
     when(ccService.getConfiguration(any())).thenReturn(configuration);

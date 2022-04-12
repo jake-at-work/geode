@@ -37,7 +37,6 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TermQuery;
@@ -53,12 +52,9 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.lucene.LuceneQuery;
 import org.apache.geode.cache.lucene.LuceneQueryProvider;
 import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
-import org.apache.geode.cache.lucene.PageableLuceneQueryResults;
 import org.apache.geode.cache.lucene.internal.LuceneIndexStats;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.internal.directory.RegionDirectory;
@@ -111,16 +107,15 @@ public class IndexRepositoryImplPerformanceTest {
         Region fileAndChunkRegion =
             cache.createRegionFactory(RegionShortcut.REPLICATE).create("files");
 
-        RegionDirectory dir = new RegionDirectory(fileAndChunkRegion,
+        var dir = new RegionDirectory(fileAndChunkRegion,
             new FileSystemStats(cache.getDistributedSystem(), "region-index"));
-        final LuceneIndexStats stats =
+        final var stats =
             new LuceneIndexStats(cache.getDistributedSystem(), "region-index");
 
-
-        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        var config = new IndexWriterConfig(analyzer);
         writer = new IndexWriter(dir, config);
-        String[] indexedFields = new String[] {"text"};
-        HeterogeneousLuceneSerializer mapper = new HeterogeneousLuceneSerializer();
+        var indexedFields = new String[] {"text"};
+        var mapper = new HeterogeneousLuceneSerializer();
         repo = new IndexRepositoryImpl(fileAndChunkRegion, writer, mapper, stats, null,
             ((DistributedRegion) fileAndChunkRegion).getLockService(), "NoLockFile", null);
       }
@@ -138,7 +133,7 @@ public class IndexRepositoryImplPerformanceTest {
 
       @Override
       public int query(Query query) throws IOException {
-        TopEntriesCollector collector = new TopEntriesCollector();
+        var collector = new TopEntriesCollector();
         repo.query(query, 100, collector);
         return collector.size();
       }
@@ -188,7 +183,7 @@ public class IndexRepositoryImplPerformanceTest {
 
       @Override
       public void waitForAsync() throws Exception {
-        AsyncEventQueue aeq =
+        var aeq =
             cache.getAsyncEventQueue(
                 LuceneServiceImpl.getUniqueIndexName("index", SEPARATOR + "region"));
 
@@ -200,10 +195,10 @@ public class IndexRepositoryImplPerformanceTest {
 
       @Override
       public int query(final Query query) throws Exception {
-        LuceneQuery<Object, Object> luceneQuery = service.createLuceneQueryFactory().create("index",
+        var luceneQuery = service.createLuceneQueryFactory().create("index",
             SEPARATOR + "region", (LuceneQueryProvider) index -> query);
 
-        PageableLuceneQueryResults<Object, Object> results = luceneQuery.findPages();
+        var results = luceneQuery.findPages();
         return results.size();
       }
     });
@@ -220,16 +215,16 @@ public class IndexRepositoryImplPerformanceTest {
       @Override
       public void init() throws Exception {
         cache = new CacheFactory().set(MCAST_PORT, "0").set(LOG_LEVEL, "warning").create();
-        final FileSystemStats stats = new FileSystemStats(cache.getDistributedSystem(), "stats");
-        RegionDirectory dir = new RegionDirectory(new ConcurrentHashMap(), stats);
-        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        final var stats = new FileSystemStats(cache.getDistributedSystem(), "stats");
+        var dir = new RegionDirectory(new ConcurrentHashMap(), stats);
+        var config = new IndexWriterConfig(analyzer);
         writer = new IndexWriter(dir, config);
         searcherManager = new SearcherManager(writer, true, true, null);
       }
 
       @Override
       public void addObject(String key, String text) throws Exception {
-        Document doc = new Document();
+        var doc = new Document();
         doc.add(new TextField("key", key, Store.YES));
         doc.add(new TextField("text", text, Store.NO));
         writer.addDocument(doc);
@@ -254,7 +249,7 @@ public class IndexRepositoryImplPerformanceTest {
 
       @Override
       public int query(Query query) throws Exception {
-        IndexSearcher searcher = searcherManager.acquire();
+        var searcher = searcherManager.acquire();
         try {
           return searcher.count(query);
         } finally {
@@ -275,15 +270,15 @@ public class IndexRepositoryImplPerformanceTest {
 
       @Override
       public void init() throws Exception {
-        RAMDirectory dir = new RAMDirectory();
-        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        var dir = new RAMDirectory();
+        var config = new IndexWriterConfig(analyzer);
         writer = new IndexWriter(dir, config);
         searcherManager = new SearcherManager(writer, true, true, null);
       }
 
       @Override
       public void addObject(String key, String text) throws Exception {
-        Document doc = new Document();
+        var doc = new Document();
         doc.add(new TextField("key", key, Store.YES));
         doc.add(new TextField("text", text, Store.NO));
         writer.addDocument(doc);
@@ -307,7 +302,7 @@ public class IndexRepositoryImplPerformanceTest {
 
       @Override
       public int query(Query query) throws Exception {
-        IndexSearcher searcher = searcherManager.acquire();
+        var searcher = searcherManager.acquire();
         try {
           return searcher.count(query);
         } finally {
@@ -324,11 +319,11 @@ public class IndexRepositoryImplPerformanceTest {
     // Create some random words. We need to be careful
     // to make sure we get NUM_WORDS distinct words here
     Set<String> wordSet = new HashSet<>();
-    Random rand = new Random();
+    var rand = new Random();
     while (wordSet.size() < NUM_WORDS) {
-      int length = rand.nextInt(12) + 3;
-      char[] text = new char[length];
-      for (int i = 0; i < length; i++) {
+      var length = rand.nextInt(12) + 3;
+      var text = new char[length];
+      for (var i = 0; i < length; i++) {
         text[i] = (char) (rand.nextInt(26) + 97);
       }
       wordSet.add(new String(text));
@@ -344,8 +339,8 @@ public class IndexRepositoryImplPerformanceTest {
 
     // Do the actual test
 
-    for (final int j : COMMIT_INTERVAL) {
-      Results results = writeRandomWords(callbacks, words, rand, NUM_ENTRIES, NUM_QUERIES / 10,
+    for (final var j : COMMIT_INTERVAL) {
+      var results = writeRandomWords(callbacks, words, rand, NUM_ENTRIES, NUM_QUERIES / 10,
           j);
 
       System.out.println(testName + " writes(entries=" + NUM_ENTRIES + ", commit="
@@ -357,17 +352,17 @@ public class IndexRepositoryImplPerformanceTest {
 
   private Results writeRandomWords(TestCallbacks callbacks, List<String> words, Random rand,
       int numEntries, int numQueries, int commitInterval) throws Exception {
-    Results results = new Results();
+    var results = new Results();
     callbacks.init();
-    int[] counts = new int[words.size()];
-    long start = System.nanoTime();
+    var counts = new int[words.size()];
+    var start = System.nanoTime();
     try {
-      for (int i = 0; i < numEntries; i++) {
-        int word1 = rand.nextInt(words.size());
-        int word2 = rand.nextInt(words.size());
+      for (var i = 0; i < numEntries; i++) {
+        var word1 = rand.nextInt(words.size());
+        var word2 = rand.nextInt(words.size());
         counts[word1]++;
         counts[word2]++;
-        String value = words.get(word1) + " " + words.get(word2);
+        var value = words.get(word1) + " " + words.get(word2);
         callbacks.addObject("key" + i, value);
 
         if (i % commitInterval == 0 && i != 0) {
@@ -376,16 +371,16 @@ public class IndexRepositoryImplPerformanceTest {
       }
       callbacks.commit();
       callbacks.waitForAsync();
-      long end = System.nanoTime();
+      var end = System.nanoTime();
       results.writeTime = end - start;
 
 
       start = System.nanoTime();
-      for (int i = 0; i < numQueries; i++) {
-        int wordIndex = rand.nextInt(words.size());
-        String word = words.get(wordIndex);
+      for (var i = 0; i < numQueries; i++) {
+        var wordIndex = rand.nextInt(words.size());
+        var word = words.get(wordIndex);
         Query query = new TermQuery(new Term("text", word));
-        int size = callbacks.query(query);
+        var size = callbacks.query(query);
         // int size = callbacks.query(parser.parse(word));
         // All of my tests sometimes seem to be missing a couple of words, including the stock
         // lucene

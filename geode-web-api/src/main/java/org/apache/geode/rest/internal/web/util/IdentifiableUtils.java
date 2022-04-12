@@ -41,15 +41,15 @@ public abstract class IdentifiableUtils {
   }
 
   public static synchronized Long createId(final Long baseId) {
-    final long delta = ((baseId != null ? baseId : 0l) - ID_SEQUENCE.get());
-    long newId = (delta > 0 ? ID_SEQUENCE.addAndGet(delta) : createId());
+    final var delta = ((baseId != null ? baseId : 0l) - ID_SEQUENCE.get());
+    var newId = (delta > 0 ? ID_SEQUENCE.addAndGet(delta) : createId());
     return newId;
   }
 
   @SuppressWarnings("unchecked")
   public static <T> T getId(final Object identifiableObject) {
     if (isGetIdMethodAvailable(identifiableObject)) {
-      final MethodInvoker method = new MethodInvoker();
+      final var method = new MethodInvoker();
 
       method.setTargetObject(identifiableObject);
       method.setTargetMethod("getId");
@@ -72,7 +72,7 @@ public abstract class IdentifiableUtils {
   public static <T> void setId(final Object identifiableObject, final T id) {
 
     if (isSetIdMethodAvailable(identifiableObject, id)) {
-      final MethodInvoker method = new MethodInvoker();
+      final var method = new MethodInvoker();
 
       method.setTargetObject(identifiableObject);
       method.setTargetMethod("setId");

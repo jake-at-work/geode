@@ -62,7 +62,7 @@ public abstract class AbstractPExpireAtIntegrationTest implements RedisIntegrati
 
   @Test
   public void should_expireKeyAtTimeSpecifiedInMillis() {
-    long unixTimeStampInTheNearFuture = (System.currentTimeMillis()) + 5;
+    var unixTimeStampInTheNearFuture = (System.currentTimeMillis()) + 5;
     jedis.set(key, value);
     jedis.pexpireAt(key, unixTimeStampInTheNearFuture);
 
